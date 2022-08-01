@@ -1,5 +1,6 @@
 #include <Nazara/Math/Quaternion.hpp>
-#include <catch2/catch.hpp>
+#include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 SCENARIO("Quaternion", "[MATH][QUATERNION]")
 {
@@ -15,7 +16,7 @@ SCENARIO("Quaternion", "[MATH][QUATERNION]")
 				REQUIRE(firstQuaternion == secondQuaternion);
 				REQUIRE(firstQuaternion.ComputeW() == secondQuaternion.Normalize());
 				REQUIRE(firstQuaternion.Conjugate() == secondQuaternion.Inverse());
-				REQUIRE(firstQuaternion.DotProduct(secondQuaternion) == Approx(1.f));
+				REQUIRE(firstQuaternion.DotProduct(secondQuaternion) == Catch::Approx(1.f));
 			}
 		}
 
@@ -45,7 +46,7 @@ SCENARIO("Quaternion", "[MATH][QUATERNION]")
 
 				REQUIRE(inverted == zero);
 				REQUIRE(normalized == zero);
-				REQUIRE(tmp == Approx(0.f));
+				REQUIRE(tmp == Catch::Approx(0.f));
 			}
 		}
 	}
@@ -63,11 +64,11 @@ SCENARIO("Quaternion", "[MATH][QUATERNION]")
 		{
 			THEN("They are all equal to 1")
 			{
-				REQUIRE(w.Magnitude() == Approx(1.f));
-				REQUIRE(x.Magnitude() == Approx(1.f));
-				REQUIRE(y.Magnitude() == Approx(1.f));
-				REQUIRE(z.Magnitude() == Approx(1.f));
-				REQUIRE(xyzw.Magnitude() == Approx(1.f));
+				REQUIRE(w.Magnitude() == Catch::Approx(1.f));
+				REQUIRE(x.Magnitude() == Catch::Approx(1.f));
+				REQUIRE(y.Magnitude() == Catch::Approx(1.f));
+				REQUIRE(z.Magnitude() == Catch::Approx(1.f));
+				REQUIRE(xyzw.Magnitude() == Catch::Approx(1.f));
 			}
 		}
 
@@ -144,15 +145,15 @@ SCENARIO("Quaternion", "[MATH][QUATERNION]")
 			THEN("The half of 10 and 30 is 20")
 			{
 				Nz::Quaternionf slerpx10x30a = Nz::Quaternionf::Slerp(x10, x30a, 0.5f);
-				REQUIRE(slerpx10x30a.w == Approx(x20.w));
-				REQUIRE(slerpx10x30a.x == Approx(x20.x));
-				REQUIRE(slerpx10x30a.y == Approx(x20.y));
-				REQUIRE(slerpx10x30a.z == Approx(x20.z));
+				REQUIRE(slerpx10x30a.w == Catch::Approx(x20.w));
+				REQUIRE(slerpx10x30a.x == Catch::Approx(x20.x));
+				REQUIRE(slerpx10x30a.y == Catch::Approx(x20.y));
+				REQUIRE(slerpx10x30a.z == Catch::Approx(x20.z));
 				Nz::Quaternionf slerpx10x30b = Nz::Quaternionf::Slerp(x10, x30b, 0.5f);
-				REQUIRE(slerpx10x30b.w == Approx(x20.w));
-				REQUIRE(slerpx10x30b.x == Approx(x20.x));
-				REQUIRE(slerpx10x30b.y == Approx(x20.y));
-				REQUIRE(slerpx10x30b.z == Approx(x20.z));
+				REQUIRE(slerpx10x30b.w == Catch::Approx(x20.w));
+				REQUIRE(slerpx10x30b.x == Catch::Approx(x20.x));
+				REQUIRE(slerpx10x30b.y == Catch::Approx(x20.y));
+				REQUIRE(slerpx10x30b.z == Catch::Approx(x20.z));
 				REQUIRE(Nz::Quaternionf::Slerp(x10, x30a, 0.f) == x10);
 				REQUIRE(Nz::Quaternionf::Slerp(x10, x30a, 1.f) == x30a);
 			}
@@ -164,10 +165,10 @@ SCENARIO("Quaternion", "[MATH][QUATERNION]")
 				Nz::Quaternionf quaternionC = Nz::Quaternionf::Slerp(quaterionA, quaterionB, 0.5f);
 
 				Nz::Quaternionf unitZ225(Nz::DegreeAnglef(22.5f), Nz::Vector3f::UnitZ());
-				REQUIRE(quaternionC.w == Approx(unitZ225.w));
-				REQUIRE(quaternionC.x == Approx(unitZ225.x));
-				REQUIRE(quaternionC.y == Approx(unitZ225.y));
-				REQUIRE(quaternionC.z == Approx(unitZ225.z));
+				REQUIRE(quaternionC.w == Catch::Approx(unitZ225.w));
+				REQUIRE(quaternionC.x == Catch::Approx(unitZ225.x));
+				REQUIRE(quaternionC.y == Catch::Approx(unitZ225.y));
+				REQUIRE(quaternionC.z == Catch::Approx(unitZ225.z));
 			}
 		}
 

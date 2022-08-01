@@ -11,7 +11,7 @@ if has_config("tests") then
 		add_defines("CATCH_CONFIG_NO_POSIX_SIGNALS")
 	end
 
-	add_requires("catch2")
+	add_requires("catch2 3")
 
 	-- Common config
 	set_group("Tests")

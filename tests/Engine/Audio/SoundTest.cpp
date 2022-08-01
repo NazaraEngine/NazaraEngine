@@ -1,6 +1,7 @@
 #include <Nazara/Audio/Audio.hpp>
 #include <Nazara/Audio/Sound.hpp>
-#include <catch2/catch.hpp>
+#include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
 #include <chrono>
 #include <thread>
 

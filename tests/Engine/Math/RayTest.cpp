@@ -1,5 +1,6 @@
 #include <Nazara/Math/Ray.hpp>
-#include <catch2/catch.hpp>
+#include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 SCENARIO("Ray", "[MATH][RAY]")
 {
@@ -21,7 +22,7 @@ SCENARIO("Ray", "[MATH][RAY]")
 		{
 			THEN("The point that is multiple on the Nz::Ray, is at multiple")
 			{
-				REQUIRE(ray.ClosestPoint(secondRay.GetPoint(1.f)) == Approx(1.f));
+				REQUIRE(ray.ClosestPoint(secondRay.GetPoint(1.f)) == Catch::Approx(1.f));
 			}
 		}
 
@@ -90,7 +91,7 @@ SCENARIO("Ray", "[MATH][RAY]")
 				float tmpFurthest = -1.f;
 				Nz::BoundingVolumef infiniteVolume(Nz::Extend::Infinite);
 				CHECK(ray.Intersect(infiniteVolume, &tmpClosest, &tmpFurthest));
-				CHECK(tmpClosest == Approx(0.f));
+				CHECK(tmpClosest == Catch::Approx(0.f));
 				CHECK(tmpFurthest == std::numeric_limits<float>::infinity());
 			}
 

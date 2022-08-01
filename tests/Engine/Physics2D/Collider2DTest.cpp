@@ -1,5 +1,6 @@
 #include <Nazara/Physics2D/Collider2D.hpp>
-#include <catch2/catch.hpp>
+#include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 SCENARIO("Collider2D", "[PHYSICS2D][COLLIDER2D]")
 {
@@ -40,7 +41,7 @@ SCENARIO("Collider2D", "[PHYSICS2D][COLLIDER2D]")
 
 			THEN("We expect those to be true")
 			{
-				CHECK(circle.GetRadius() == Approx(radius));
+				CHECK(circle.GetRadius() == Catch::Approx(radius));
 				CHECK(circle.GetType() == Nz::ColliderType2D::Circle);
 			}
 		}
@@ -98,7 +99,7 @@ SCENARIO("Collider2D", "[PHYSICS2D][COLLIDER2D]")
 			THEN("We expect those to be true")
 			{
 				CHECK(segment.GetFirstPoint() == firstPoint);
-				CHECK(segment.GetLength() == Approx(firstPoint.Distance(secondPoint)));
+				CHECK(segment.GetLength() == Catch::Approx(firstPoint.Distance(secondPoint)));
 				CHECK(segment.GetSecondPoint() == secondPoint);
 				CHECK(segment.GetType() == Nz::ColliderType2D::Segment);
 			}

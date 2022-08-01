@@ -2,7 +2,8 @@
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Math/Vector2.hpp>
-#include <catch2/catch.hpp>
+#include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
 #include <array>
 #include <filesystem>
 #include <variant>

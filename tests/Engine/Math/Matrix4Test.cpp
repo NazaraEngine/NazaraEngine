@@ -1,5 +1,6 @@
 #include <Nazara/Math/Matrix4.hpp>
-#include <catch2/catch.hpp>
+#include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 #include <array>
 
@@ -67,8 +68,8 @@ SCENARIO("Matrix4", "[MATH][MATRIX4]")
 		{
 			THEN("These results are expected")
 			{
-				CHECK(matrix1.GetDeterminant() == Approx(24.f));
-				CHECK(matrix2.GetDeterminant() == Approx(-1.f));
+				CHECK(matrix1.GetDeterminant() == Catch::Approx(24.f));
+				CHECK(matrix2.GetDeterminant() == Catch::Approx(-1.f));
 			}
 		}
 
@@ -83,8 +84,8 @@ SCENARIO("Matrix4", "[MATH][MATRIX4]")
 			THEN("We get the identity")
 			{
 				Nz::Matrix4f tmp = matrix1 * invMatrix1;
-				CHECK(tmp.m32 == Approx(0.f).margin(0.0001f));
-				CHECK(tmp.m42 == Approx(0.f).margin(0.0001f));
+				CHECK(tmp.m32 == Catch::Approx(0.f).margin(0.0001f));
+				CHECK(tmp.m42 == Catch::Approx(0.f).margin(0.0001f));
 				tmp.m32 = 0.f;
 				tmp.m42 = 0.f;
 				CHECK(tmp == Nz::Matrix4f::Identity());
@@ -215,9 +216,9 @@ SCENARIO("Matrix4", "[MATH][MATRIX4]")
 			{
 				identity.ApplyRotation(Nz::EulerAnglesf(Nz::DegreeAnglef(10.f), Nz::DegreeAnglef(20.f), Nz::DegreeAnglef(30.f)));
 				Nz::Vector3f retrievedScale = identity.GetScale();
-				CHECK(retrievedScale.x == Approx(scale.x));
-				CHECK(retrievedScale.y == Approx(scale.y));
-				CHECK(retrievedScale.z == Approx(scale.z));
+				CHECK(retrievedScale.x == Catch::Approx(scale.x));
+				CHECK(retrievedScale.y == Catch::Approx(scale.y));
+				CHECK(retrievedScale.z == Catch::Approx(scale.z));
 			}
 		}
 	}
@@ -233,7 +234,7 @@ SCENARIO("Matrix4", "[MATH][MATRIX4]")
 		{
 			THEN("We expect those to be true")
 			{
-				CHECK(negativeDeterminant.GetDeterminant() == Approx(-1.f));
+				CHECK(negativeDeterminant.GetDeterminant() == Catch::Approx(-1.f));
 				CHECK(!negativeDeterminant.HasScale());
 				CHECK(negativeDeterminant.HasNegativeScale());
 			}

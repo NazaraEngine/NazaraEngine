@@ -1,5 +1,6 @@
 #include <Nazara/Physics2D/PhysWorld2D.hpp>
-#include <catch2/catch.hpp>
+#include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 Nz::RigidBody2D CreateBody(Nz::PhysWorld2D& world, const Nz::Vector2f& position, bool isMoving = true, const Nz::Vector2f& lengths = Nz::Vector2f::Unit());
 
@@ -35,7 +36,7 @@ SCENARIO("PhysWorld2D", "[PHYSICS2D][PHYSWORLD2D]")
 				CHECK(result.nearestBody == &bodies[0]);
 				CHECK(result.closestPoint == Nz::Vector2f::Zero());
 				CHECK(result.fraction == -Nz::Vector2f::UnitY());
-				CHECK(result.distance == Approx(1.f));
+				CHECK(result.distance == Catch::Approx(1.f));
 			}
 
 			REQUIRE(world.NearestBodyQuery(Nz::Vector2f::UnitY() * 2.f, 2.f, collisionGroup, categoryMask, collisionMask, &result));
@@ -45,7 +46,7 @@ SCENARIO("PhysWorld2D", "[PHYSICS2D][PHYSWORLD2D]")
 				CHECK(result.nearestBody == &bodies[0]);
 				CHECK(result.closestPoint == Nz::Vector2f::UnitY());
 				CHECK(result.fraction == Nz::Vector2f::UnitY());
-				CHECK(result.distance == Approx(1.f));
+				CHECK(result.distance == Catch::Approx(1.f));
 			}
 		}
 
@@ -59,7 +60,7 @@ SCENARIO("PhysWorld2D", "[PHYSICS2D][PHYSWORLD2D]")
 			THEN("It should be the one on the origin")
 			{
 				CHECK(result.nearestBody == &bodies[0]);
-				CHECK(result.fraction == Approx(1.f / 42.f));
+				CHECK(result.fraction == Catch::Approx(1.f / 42.f));
 				CHECK(result.hitPos == Nz::Vector2f::Zero());
 				CHECK(result.hitNormal == -Nz::Vector2f::UnitY());
 			}
@@ -80,7 +81,7 @@ SCENARIO("PhysWorld2D", "[PHYSICS2D][PHYSWORLD2D]")
 				{
 					const Nz::PhysWorld2D::RaycastHit& result = results[i];
 					CHECK(result.nearestBody == &bodies[i]);
-					CHECK(result.fraction == Approx(i / 4.f).margin(0.1f));
+					CHECK(result.fraction == Catch::Approx(i / 4.f).margin(0.1f));
 					CHECK(result.hitPos == Nz::Vector2f(0.f, i * 10.f));
 					CHECK(result.hitNormal == -Nz::Vector2f::UnitY());
 				}
@@ -172,13 +173,13 @@ SCENARIO("PhysWorld2D", "[PHYSICS2D][PHYSWORLD2D]")
 					world.Step(0.1f);
 				CHECK(statusTriggerCollision == 11);
 
-				CHECK(character.GetPosition().x == Approx(3.1f).margin(0.01f));
+				CHECK(character.GetPosition().x == Catch::Approx(3.1f).margin(0.01f));
 
 				for (int i = 0; i != 9; ++i)
 					world.Step(0.1f);
-				CHECK(character.GetPosition().x == Approx(4.f).margin(0.01f));
+				CHECK(character.GetPosition().x == Catch::Approx(4.f).margin(0.01f));
 				world.Step(0.1f);
-				CHECK(character.GetPosition().x == Approx(4.f).margin(0.01f));
+				CHECK(character.GetPosition().x == Catch::Approx(4.f).margin(0.01f));
 				CHECK(statusWallCollision == 1); // It should be close to the wall
 
 				character.SetVelocity(Nz::Vector2f(-2.f, 0.f));

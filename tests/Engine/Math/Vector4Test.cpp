@@ -1,5 +1,6 @@
 #include <Nazara/Math/Vector4.hpp>
-#include <catch2/catch.hpp>
+#include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 #include <Nazara/Math/Vector3.hpp>
 
@@ -24,8 +25,8 @@ SCENARIO("Vector4", "[MATH][VECTOR4]")
 
 			THEN("These results are expected")
 			{
-				REQUIRE(firstUnit.AbsDotProduct(tmp) == Approx(2.f));
-				REQUIRE(firstUnit.DotProduct(tmp) == Approx(0.f));
+				REQUIRE(firstUnit.AbsDotProduct(tmp) == Catch::Approx(2.f));
+				REQUIRE(firstUnit.DotProduct(tmp) == Catch::Approx(0.f));
 			}
 		}
 

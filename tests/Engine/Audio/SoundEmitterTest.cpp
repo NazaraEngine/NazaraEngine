@@ -1,5 +1,6 @@
 #include <Nazara/Audio/Sound.hpp>
-#include <catch2/catch.hpp>
+#include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 std::filesystem::path GetAssetDir();
 
@@ -31,10 +32,10 @@ SCENARIO("SoundEmitter", "[AUDIO][SOUNDEMITTER]")
 				sound.SetPitch(0.8f);
 				sound.SetVolume(50.f);
 
-				REQUIRE(Approx(sound.GetAttenuation()) == 0.4f);
-				REQUIRE(Approx(sound.GetMinDistance()) == 40.f);
-				REQUIRE(Approx(sound.GetPitch()) == 0.8f);
-				REQUIRE(Approx(sound.GetVolume()) == 50.f);
+				REQUIRE(Catch::Approx(sound.GetAttenuation()) == 0.4f);
+				REQUIRE(Catch::Approx(sound.GetMinDistance()) == 40.f);
+				REQUIRE(Catch::Approx(sound.GetPitch()) == 0.8f);
+				REQUIRE(Catch::Approx(sound.GetVolume()) == 50.f);
 			}
 		}
 	}

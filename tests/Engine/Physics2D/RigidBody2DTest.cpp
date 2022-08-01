@@ -1,6 +1,7 @@
 #include <Nazara/Physics2D/RigidBody2D.hpp>
 #include <Nazara/Physics2D/PhysWorld2D.hpp>
-#include <catch2/catch.hpp>
+#include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
 #include <iostream>
 #include <limits>
 
@@ -133,9 +134,9 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 				CHECK(body.GetAngularVelocity() == 0.f);
 				CHECK(body.GetMassCenter(Nz::CoordSys::Global) == position);
 				CHECK(body.GetGeom() == box);
-				CHECK(body.GetMass() == Approx(mass));
+				CHECK(body.GetMass() == Catch::Approx(mass));
 				CHECK(body.GetPosition() == position);
-				CHECK(body.GetRotation().value == Approx(0.f));
+				CHECK(body.GetRotation().value == Catch::Approx(0.f));
 				CHECK(body.GetUserdata() == &userData);
 				CHECK(body.GetVelocity() == Nz::Vector2f::Zero());
 
@@ -336,17 +337,17 @@ void EQUALITY(const Nz::RigidBody2D& left, const Nz::RigidBody2D& right)
 	CHECK(left.GetMassCenter() == right.GetMassCenter());
 	CHECK(left.GetGeom() == right.GetGeom());
 	CHECK(left.GetHandle() != right.GetHandle());
-	CHECK(left.GetMass() == Approx(right.GetMass()));
+	CHECK(left.GetMass() == Catch::Approx(right.GetMass()));
 	CHECK(left.GetPosition() == right.GetPosition());
-	CHECK(left.GetRotation().value == Approx(right.GetRotation().value));
+	CHECK(left.GetRotation().value == Catch::Approx(right.GetRotation().value));
 	CHECK(left.GetUserdata() == right.GetUserdata());
 	CHECK(left.GetVelocity() == right.GetVelocity());
 }
 
 void EQUALITY(const Nz::Rectf& left, const Nz::Rectf& right)
 {
-	CHECK(left.x == Approx(right.x));
-	CHECK(left.y == Approx(right.y));
-	CHECK(left.width == Approx(right.width));
-	CHECK(left.height == Approx(right.height));
+	CHECK(left.x == Catch::Approx(right.x));
+	CHECK(left.y == Catch::Approx(right.y));
+	CHECK(left.width == Catch::Approx(right.width));
+	CHECK(left.height == Catch::Approx(right.height));
 }

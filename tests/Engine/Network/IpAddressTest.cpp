@@ -1,6 +1,7 @@
 #include <Nazara/Network/Algorithm.hpp>
 #include <Nazara/Network/IpAddress.hpp>
-#include <catch2/catch.hpp>
+#include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 SCENARIO("IpAddress", "[NETWORK][IPADDRESS]")
 {

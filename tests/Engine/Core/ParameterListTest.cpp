@@ -1,5 +1,6 @@
 #include <Nazara/Core/ParameterList.hpp>
-#include <catch2/catch.hpp>
+#include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 void nullAction(void*)
 {

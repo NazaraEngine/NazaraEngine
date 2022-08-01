@@ -1,5 +1,6 @@
 #include <Nazara/Math/Sphere.hpp>
-#include <catch2/catch.hpp>
+#include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 SCENARIO("Sphere", "[MATH][SPHERE]")
 {
@@ -41,10 +42,10 @@ SCENARIO("Sphere", "[MATH][SPHERE]")
 		{
 			THEN("These results are expected because we don't take into account the border")
 			{
-				CHECK(firstCenterAndUnit.Distance(Nz::Vector3f::UnitX() * 2.f) == Approx(1.f));
+				CHECK(firstCenterAndUnit.Distance(Nz::Vector3f::UnitX() * 2.f) == Catch::Approx(1.f));
 
 				Nz::Spheref tmp(Nz::Vector3f::UnitX(), 1.f);
-				CHECK(tmp.Distance(Nz::Vector3f::UnitX() * 4.f) == Approx(2.f));
+				CHECK(tmp.Distance(Nz::Vector3f::UnitX() * 4.f) == Catch::Approx(2.f));
 			}
 		}
 
@@ -79,12 +80,12 @@ SCENARIO("Sphere", "[MATH][SPHERE]")
 
 			firstCenterAndUnit.ExtendTo(point);
 
-			REQUIRE(firstCenterAndUnit.radius == Approx(2.f));
+			REQUIRE(firstCenterAndUnit.radius == Catch::Approx(2.f));
 
 			THEN("Sphere must contain it and distance should be good")
 			{
 				CHECK(firstCenterAndUnit.Contains(point));
-				CHECK(firstCenterAndUnit.Distance(point) == Approx(0.f));
+				CHECK(firstCenterAndUnit.Distance(point) == Catch::Approx(0.f));
 			}
 		}
 

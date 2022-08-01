@@ -1,5 +1,6 @@
 #include <Nazara/Core/Uuid.hpp>
-#include <catch2/catch.hpp>
+#include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
 #include <regex>
 #include <set>
 #include <unordered_set>

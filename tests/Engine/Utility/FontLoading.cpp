@@ -1,7 +1,8 @@
 #include <Nazara/Utility/AbstractImage.hpp>
 #include <Nazara/Utility/Font.hpp>
 #include <Nazara/Utility/GuillotineImageAtlas.hpp>
-#include <catch2/catch.hpp>
+#include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
 #include <array>
 #include <filesystem>
 
@@ -28,14 +29,14 @@ SCENARIO("Fonts", "[Utility][Font]")
 				const auto& sizeInfo24 = font->GetSizeInfo(24);
 				CHECK(sizeInfo24.lineHeight == 33);
 				CHECK(sizeInfo24.spaceAdvance == 6);
-				CHECK(sizeInfo24.underlinePosition == Approx(-2.40625f));
-				CHECK(sizeInfo24.underlineThickness == Approx(1.20312f));
+				CHECK(sizeInfo24.underlinePosition == Catch::Approx(-2.40625f));
+				CHECK(sizeInfo24.underlineThickness == Catch::Approx(1.20312f));
 
 				const auto& sizeInfo72 = font->GetSizeInfo(72);
 				CHECK(sizeInfo72.lineHeight == 98);
 				CHECK(sizeInfo72.spaceAdvance == 19);
-				CHECK(sizeInfo72.underlinePosition == Approx(-7.20312f));
-				CHECK(sizeInfo72.underlineThickness == Approx(3.59375f));
+				CHECK(sizeInfo72.underlinePosition == Catch::Approx(-7.20312f));
+				CHECK(sizeInfo72.underlineThickness == Catch::Approx(3.59375f));
 			}
 
 			WHEN("Retrieving kerning")

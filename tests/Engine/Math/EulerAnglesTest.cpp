@@ -1,6 +1,7 @@
 #include <Nazara/Math/Angle.hpp>
 #include <Nazara/Math/EulerAngles.hpp>
-#include <catch2/catch.hpp>
+#include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 SCENARIO("EulerAngles", "[MATH][EULERANGLES]")
 {
@@ -88,19 +89,19 @@ SCENARIO("EulerAngles", "[MATH][EULERANGLES]")
 			THEN("And then convert to euler angles, we have identity")
 			{
 				Nz::EulerAnglesf tmp = Nz::Quaternionf(euler45.ToQuaternion()).ToEulerAngles();
-				CHECK(tmp.pitch.ToDegrees() == Approx(0.f));
-				CHECK(tmp.yaw.ToDegrees() == Approx(22.5f));
-				CHECK(tmp.roll.ToDegrees() == Approx(22.5f));
+				CHECK(tmp.pitch.ToDegrees() == Catch::Approx(0.f));
+				CHECK(tmp.yaw.ToDegrees() == Catch::Approx(22.5f));
+				CHECK(tmp.roll.ToDegrees() == Catch::Approx(22.5f));
 
 				tmp = Nz::Quaternionf(euler90.ToQuaternion()).ToEulerAngles();
-				CHECK(tmp.pitch.ToDegrees() == Approx(90.f));
-				CHECK(tmp.yaw.ToDegrees() == Approx(90.f));
-				CHECK(tmp.roll.ToDegrees() == Approx(0.f));
+				CHECK(tmp.pitch.ToDegrees() == Catch::Approx(90.f));
+				CHECK(tmp.yaw.ToDegrees() == Catch::Approx(90.f));
+				CHECK(tmp.roll.ToDegrees() == Catch::Approx(0.f));
 
 				tmp = Nz::Quaternionf(euler30.ToQuaternion()).ToEulerAngles();
-				CHECK(tmp.pitch.ToDegrees() == Approx(30.f));
-				CHECK(tmp.yaw.ToDegrees() == Approx(0.f).margin(0.0001f));
-				CHECK(tmp.roll.ToDegrees() == Approx(30.f));
+				CHECK(tmp.pitch.ToDegrees() == Catch::Approx(30.f));
+				CHECK(tmp.yaw.ToDegrees() == Catch::Approx(0.f).margin(0.0001f));
+				CHECK(tmp.roll.ToDegrees() == Catch::Approx(30.f));
 			}
 		}
 	}

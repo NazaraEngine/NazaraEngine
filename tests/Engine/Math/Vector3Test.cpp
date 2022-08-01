@@ -1,4 +1,5 @@
-#include <catch2/catch.hpp>
+#include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Math/Vector4.hpp>
@@ -24,8 +25,8 @@ SCENARIO("Vector3", "[MATH][VECTOR3]")
 
 			THEN("These results are expected")
 			{
-				REQUIRE(firstUnit.AbsDotProduct(tmp) == Approx(2.f));
-				REQUIRE(firstUnit.DotProduct(tmp) == Approx(0.f));
+				REQUIRE(firstUnit.AbsDotProduct(tmp) == Catch::Approx(2.f));
+				REQUIRE(firstUnit.DotProduct(tmp) == Catch::Approx(0.f));
 				REQUIRE(firstUnit.AngleBetween(tmp) == Nz::DegreeAnglef(90.f));
 				REQUIRE(firstUnit.AngleBetween(-firstUnit) == Nz::DegreeAnglef(180.f));
 			}
@@ -46,11 +47,11 @@ SCENARIO("Vector3", "[MATH][VECTOR3]")
 
 			THEN("These are expected")
 			{
-				REQUIRE(firstUnit.Distance(tmp) == Approx(11.f));
-				REQUIRE(firstUnit.SquaredDistance(tmp) == Approx(121.f));
+				REQUIRE(firstUnit.Distance(tmp) == Catch::Approx(11.f));
+				REQUIRE(firstUnit.SquaredDistance(tmp) == Catch::Approx(121.f));
 
-				REQUIRE(firstUnit.GetSquaredLength() == Approx(3.f));
-				REQUIRE(firstUnit.GetLength() == Approx(std::sqrt(3.f)));
+				REQUIRE(firstUnit.GetSquaredLength() == Catch::Approx(3.f));
+				REQUIRE(firstUnit.GetLength() == Catch::Approx(std::sqrt(3.f)));
 			}
 		}
 
@@ -61,14 +62,14 @@ SCENARIO("Vector3", "[MATH][VECTOR3]")
 			{
 				Nz::Vector3f normalized = firstUnit.GetNormal(&ratio);
 				REQUIRE(normalized == (Nz::Vector3f::Unit() / std::sqrt(3.f)));
-				REQUIRE(ratio == Approx(std::sqrt(3.f)));
+				REQUIRE(ratio == Catch::Approx(std::sqrt(3.f)));
 			}
 
 			THEN("For null vector")
 			{
 				Nz::Vector3f zero = Nz::Vector3f::Zero();
 				REQUIRE(zero.GetNormal(&ratio) == Nz::Vector3f::Zero());
-				REQUIRE(ratio == Approx(0.f));
+				REQUIRE(ratio == Catch::Approx(0.f));
 			}
 		}
 

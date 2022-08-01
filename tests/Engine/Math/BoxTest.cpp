@@ -1,5 +1,6 @@
 #include <Nazara/Math/Box.hpp>
-#include <catch2/catch.hpp>
+#include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 SCENARIO("Box", "[MATH][BOX]")
 {
@@ -40,9 +41,9 @@ SCENARIO("Box", "[MATH][BOX]")
 				REQUIRE(firstCenterAndUnit.GetNegativeVertex(Nz::Vector3f::Unit()) == Nz::Vector3f::Zero());
 				REQUIRE(firstCenterAndUnit.GetPosition() == Nz::Vector3f::Zero());
 				REQUIRE(firstCenterAndUnit.GetPositiveVertex(Nz::Vector3f::Unit()) == Nz::Vector3f::Unit());
-				REQUIRE(firstCenterAndUnit.GetRadius() == Approx(std::sqrt(3.f * 0.5f * 0.5f)));
+				REQUIRE(firstCenterAndUnit.GetRadius() == Catch::Approx(std::sqrt(3.f * 0.5f * 0.5f)));
 				REQUIRE(firstCenterAndUnit.GetSquaredBoundingSphere() == Nz::Spheref(Nz::Vector3f::Unit() * 0.5f, 3.f * 0.5f * 0.5f));
-				REQUIRE(firstCenterAndUnit.GetSquaredRadius() == Approx(3.f * 0.5f * 0.5f));
+				REQUIRE(firstCenterAndUnit.GetSquaredRadius() == Catch::Approx(3.f * 0.5f * 0.5f));
 			}
 		}
 

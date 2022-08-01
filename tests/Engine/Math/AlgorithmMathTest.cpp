@@ -1,6 +1,7 @@
 #include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Math/Angle.hpp>
-#include <catch2/catch.hpp>
+#include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
 #include <limits>
 
 TEST_CASE("Approach", "[MATH][ALGORITHM]")
@@ -61,7 +62,7 @@ TEST_CASE("DegreeToRadian", "[MATH][ALGORITHM]")
 {
 	SECTION("Convert 45.f degree to radian")
 	{
-		REQUIRE(Nz::DegreeToRadian(45.f) == Approx(Nz::Pi<float> / 4.f));
+		REQUIRE(Nz::DegreeToRadian(45.f) == Catch::Approx(Nz::Pi<float> / 4.f));
 	}
 }
 
@@ -323,7 +324,7 @@ TEST_CASE("RadianToDegree", "[MATH][ALGORITHM]")
 {
 	SECTION("PI / 4 to degree")
 	{
-		REQUIRE(Nz::RadianToDegree(Nz::Pi<float> / 4.f) == Approx(45.f));
+		REQUIRE(Nz::RadianToDegree(Nz::Pi<float> / 4.f) == Catch::Approx(45.f));
 	}
 }
 

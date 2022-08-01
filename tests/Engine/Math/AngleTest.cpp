@@ -1,7 +1,8 @@
 #include <Nazara/Math/Angle.hpp>
 #include <Nazara/Math/EulerAngles.hpp>
 #include <Nazara/Math/Quaternion.hpp>
-#include <catch2/catch.hpp>
+#include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 SCENARIO("Angle", "[MATH][ANGLE]")
 {
@@ -36,8 +37,8 @@ SCENARIO("Angle", "[MATH][ANGLE]")
 		{
 			THEN("It should be equal to 1 and 0")
 			{
-				CHECK(angle.GetSin() == Approx(1.f).margin(0.0001f));
-				CHECK(angle.GetCos() == Approx(0.f).margin(0.0001f));
+				CHECK(angle.GetSin() == Catch::Approx(1.f).margin(0.0001f));
+				CHECK(angle.GetCos() == Catch::Approx(0.f).margin(0.0001f));
 			}
 			AND_WHEN("We compute sin/cos at the same time")
 			{
@@ -45,8 +46,8 @@ SCENARIO("Angle", "[MATH][ANGLE]")
 
 				THEN("It should also be equal to 1 and 0")
 				{
-					CHECK(sincos.first == Approx(1.f).margin(0.0001f));
-					CHECK(sincos.second == Approx(0.f).margin(0.0001f));
+					CHECK(sincos.first == Catch::Approx(1.f).margin(0.0001f));
+					CHECK(sincos.second == Catch::Approx(0.f).margin(0.0001f));
 				}
 			}
 		}
@@ -135,8 +136,8 @@ SCENARIO("Angle", "[MATH][ANGLE]")
 		{
 			THEN("It should be equal to 0 and -1")
 			{
-				CHECK(angle.GetSin() == Approx(0.f).margin(0.0001f));
-				CHECK(angle.GetCos() == Approx(-1.f).margin(0.0001f));
+				CHECK(angle.GetSin() == Catch::Approx(0.f).margin(0.0001f));
+				CHECK(angle.GetCos() == Catch::Approx(-1.f).margin(0.0001f));
 			}
 
 		}
@@ -146,8 +147,8 @@ SCENARIO("Angle", "[MATH][ANGLE]")
 
 			THEN("It should also be equal to 0 and -1")
 			{
-				CHECK(sincos.first == Approx(0.f).margin(0.0001f));
-				CHECK(sincos.second == Approx(-1.f).margin(0.0001f));
+				CHECK(sincos.first == Catch::Approx(0.f).margin(0.0001f));
+				CHECK(sincos.second == Catch::Approx(-1.f).margin(0.0001f));
 			}
 		}
 

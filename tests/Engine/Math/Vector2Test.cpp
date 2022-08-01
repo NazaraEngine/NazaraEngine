@@ -1,4 +1,5 @@
-#include <catch2/catch.hpp>
+#include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Math/Vector4.hpp>
@@ -25,8 +26,8 @@ SCENARIO("Vector2", "[MATH][VECTOR2]")
 
 			THEN("These are perpendicular")
 			{
-				REQUIRE(firstUnit.AbsDotProduct(tmp) == Approx(2.f));
-				REQUIRE(firstUnit.DotProduct(tmp) == Approx(0.f));
+				REQUIRE(firstUnit.AbsDotProduct(tmp) == Catch::Approx(2.f));
+				REQUIRE(firstUnit.DotProduct(tmp) == Catch::Approx(0.f));
 				REQUIRE(firstUnit.AngleBetween(tmp) == Nz::DegreeAnglef(90.f));
 				Nz::Vector2f negativeUnitX = -Nz::Vector2f::UnitX();
 				REQUIRE(negativeUnitX.AngleBetween(negativeUnitX + Nz::Vector2f(0, 0.0000001f)) == Nz::DegreeAnglef(360.f));
@@ -40,12 +41,12 @@ SCENARIO("Vector2", "[MATH][VECTOR2]")
 
 			THEN("These are expected")
 			{
-				REQUIRE(firstUnit.Distance(tmp2) == Approx(2.f * std::sqrt(2.f)));
-				REQUIRE(firstUnit.Distance(tmp) == Approx(5.f));
-				REQUIRE(firstUnit.SquaredDistance(tmp) == Approx(25.f));
+				REQUIRE(firstUnit.Distance(tmp2) == Catch::Approx(2.f * std::sqrt(2.f)));
+				REQUIRE(firstUnit.Distance(tmp) == Catch::Approx(5.f));
+				REQUIRE(firstUnit.SquaredDistance(tmp) == Catch::Approx(25.f));
 
-				REQUIRE(firstUnit.GetSquaredLength() == Approx(2.f));
-				REQUIRE(firstUnit.GetLength() == Approx(std::sqrt(2.f)));
+				REQUIRE(firstUnit.GetSquaredLength() == Catch::Approx(2.f));
+				REQUIRE(firstUnit.GetLength() == Catch::Approx(std::sqrt(2.f)));
 			}
 		}
 
@@ -56,14 +57,14 @@ SCENARIO("Vector2", "[MATH][VECTOR2]")
 			{
 				Nz::Vector2f normalized = firstUnit.GetNormal(&ratio);
 				REQUIRE(normalized == (Nz::Vector2f::Unit() / std::sqrt(2.f)));
-				REQUIRE(ratio == Approx(std::sqrt(2.f)));
+				REQUIRE(ratio == Catch::Approx(std::sqrt(2.f)));
 			}
 
 			THEN("For null vector")
 			{
 				Nz::Vector2f zero = Nz::Vector2f::Zero();
 				REQUIRE(zero.GetNormal(&ratio) == Nz::Vector2f::Zero());
-				REQUIRE(ratio == Approx(0.f));
+				REQUIRE(ratio == Catch::Approx(0.f));
 			}
 		}
 

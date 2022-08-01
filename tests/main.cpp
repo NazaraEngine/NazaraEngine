@@ -1,5 +1,5 @@
 #define CATCH_CONFIG_RUNNER
-#include <catch2/catch.hpp>
+#include <catch2/catch_session.hpp>
 
 #include <Nazara/Audio/Audio.hpp>
 #include <Nazara/Core/Log.hpp>
