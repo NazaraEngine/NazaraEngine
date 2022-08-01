@@ -2,13 +2,10 @@
 // This file is part of the "Nazara Engine - Widgets module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#if 0
-
 #include <Nazara/Widgets/BoxLayout.hpp>
 #include <Nazara/Core/Log.hpp>
-#include <Nazara/Core/StackVector.hpp>
+#include <Nazara/Utils/StackVector.hpp>
 #include <kiwi/kiwi.h>
-#include <NDK/Widgets/BoxLayout.hpp>
 #include <cassert>
 #include <vector>
 #include <Nazara/Widgets/Debug.hpp>
@@ -39,11 +36,11 @@ namespace Nz
 
 		switch (m_orientation)
 		{
-			case BoxLayoutOrientation_Horizontal:
+			case BoxLayoutOrientation::Horizontal:
 				axis = 0; //< x
 				break;
 
-			case BoxLayoutOrientation_Vertical:
+			case BoxLayoutOrientation::Vertical:
 				axis = 1; //< y
 				break;
 
@@ -138,5 +135,3 @@ namespace Nz
 		});
 	}
 }
-
-#endif
