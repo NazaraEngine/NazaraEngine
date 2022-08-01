@@ -7,14 +7,13 @@
 #ifndef NAZARA_WIDGETS_BOXLAYOUT_HPP
 #define NAZARA_WIDGETS_BOXLAYOUT_HPP
 
-#include <NDK/BaseWidget.hpp>
-#include <NDK/ClientPrerequisites.hpp>
-#include <NDK/Widgets/Enums.hpp>
+#include <Nazara/Widgets/BaseWidget.hpp>
+#include <Nazara/Widgets/Enums.hpp>
 #include <memory>
 
 namespace Nz
 {
-	class NDK_CLIENT_API BoxLayout : public BaseWidget
+	class NAZARA_WIDGETS_API BoxLayout : public BaseWidget
 	{
 		public:
 			BoxLayout(BaseWidget* parent, BoxLayoutOrientation orientation);
@@ -36,6 +35,6 @@ namespace Nz
 	};
 }
 
-#include <NDK/Widgets/BoxLayout.inl>
+#include <Nazara/Widgets/BoxLayout.inl>
 
 #endif // NAZARA_WIDGETS_BOXLAYOUT_HPP
