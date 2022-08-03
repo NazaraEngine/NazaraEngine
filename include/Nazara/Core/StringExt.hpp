@@ -10,6 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Unicode.hpp>
 #include <Nazara/Math/Algorithm.hpp> //< FIXME
+#include <Nazara/Utils/Algorithm.hpp>
 #include <string>
 
 namespace Nz

@@ -68,10 +68,10 @@ namespace Nz
 	{
 		NazaraAssert(parameters.IsValid(), "Invalid parameters");
 
-		std::string ext = ToLower(filePath.extension().generic_u8string());
+		std::string ext = ToLower(PathToString(filePath.extension()));
 		if (ext.empty())
 		{
-			NazaraError("Failed to get file extension from \"" + filePath.generic_u8string() + '"');
+			NazaraError("Failed to get file extension from \"" + PathToString(filePath) + '"');
 			return nullptr;
 		}
 
@@ -92,7 +92,7 @@ namespace Nz
 			{
 				if (!file.Open(OpenMode::ReadOnly))
 				{
-					NazaraError("Failed to load file: unable to open \"" + filePath.generic_u8string() + '"');
+					NazaraError("Failed to load file: unable to open \"" + PathToString(filePath) + '"');
 					return nullptr;
 				}
 			}

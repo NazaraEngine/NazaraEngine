@@ -96,7 +96,7 @@ Ternary CheckAnimation(Stream& /*stream*/, const AnimationParams& parameters)
 
 std::shared_ptr<Animation> LoadAnimation(Stream& stream, const AnimationParams& parameters)
 {
-	std::string streamPath = stream.GetPath().generic_u8string();
+	std::string streamPath = Nz::PathToString(stream.GetPath());
 
 	FileIOUserdata userdata;
 	userdata.originalFilePath = (!streamPath.empty()) ? streamPath.data() : StreamPath;
@@ -191,7 +191,7 @@ Ternary CheckMesh(Stream& /*stream*/, const MeshParams& parameters)
 
 std::shared_ptr<Mesh> LoadMesh(Stream& stream, const MeshParams& parameters)
 {
-	std::string streamPath = stream.GetPath().generic_u8string();
+	std::string streamPath = Nz::PathToString(stream.GetPath());
 
 	FileIOUserdata userdata;
 	userdata.originalFilePath = (!streamPath.empty()) ? streamPath.data() : StreamPath;
@@ -389,7 +389,7 @@ std::shared_ptr<Mesh> LoadMesh(Stream& stream, const MeshParams& parameters)
 					aiTextureMapMode mapMode[3];
 					if (aiGetMaterialTexture(aiMat, aiType, 0, &path, nullptr, nullptr, nullptr, nullptr, &mapMode[0], nullptr) == aiReturn_SUCCESS)
 					{
-						matData.SetParameter(textureKey, (stream.GetDirectory() / std::string_view(path.data, path.length)).generic_u8string());
+						matData.SetParameter(textureKey, PathToString(stream.GetDirectory() / std::string_view(path.data, path.length)));
 
 						if (wrapKey)
 						{
@@ -610,7 +610,7 @@ std::shared_ptr<Mesh> LoadMesh(Stream& stream, const MeshParams& parameters)
 						aiTextureMapMode mapMode[3];
 						if (aiGetMaterialTexture(aiMat, aiType, 0, &path, nullptr, nullptr, nullptr, nullptr, &mapMode[0], nullptr) == aiReturn_SUCCESS)
 						{
-							matData.SetParameter(textureKey, (stream.GetDirectory() / std::string_view(path.data, path.length)).generic_u8string());
+							matData.SetParameter(textureKey, Nz::PathToString(stream.GetDirectory() / std::string_view(path.data, path.length)));
 
 							if (wrapKey)
 							{

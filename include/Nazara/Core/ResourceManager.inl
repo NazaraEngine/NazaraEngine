@@ -51,11 +51,11 @@ namespace Nz
 			std::shared_ptr<Type> resource = m_loader.LoadFromFile(absolutePath, GetDefaultParameters());
 			if (!resource)
 			{
-				NazaraError("Failed to load resource from file: " + absolutePath.generic_u8string());
+				NazaraError("Failed to load resource from file: " + PathToString(absolutePath));
 				return std::shared_ptr<Type>();
 			}
 
-			NazaraDebug("Loaded resource from file " + absolutePath.generic_u8string());
+			NazaraDebug("Loaded resource from file " + PathToString(absolutePath));
 
 			it = m_resources.insert(std::make_pair(absolutePath, resource)).first;
 		}
