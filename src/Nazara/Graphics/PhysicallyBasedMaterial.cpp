@@ -188,7 +188,7 @@ namespace Nz
 			options.pbrTextureIndexes->emissive = settings.textures.size();
 
 		settings.textures.push_back({
-			7,
+			8,
 			"Emissive",
 			ImageType::E2D
 		});
@@ -197,7 +197,7 @@ namespace Nz
 			options.pbrTextureIndexes->height = settings.textures.size();
 
 		settings.textures.push_back({
-			8,
+			9,
 			"Height",
 			ImageType::E2D
 		});
@@ -206,7 +206,7 @@ namespace Nz
 			options.pbrTextureIndexes->metallic = settings.textures.size();
 		
 		settings.textures.push_back({
-			9,
+			10,
 			"Metallic",
 			ImageType::E2D
 		});
@@ -215,7 +215,7 @@ namespace Nz
 			options.pbrTextureIndexes->normal = settings.textures.size();
 
 		settings.textures.push_back({
-			10,
+			11,
 			"Normal",
 			ImageType::E2D
 		});
@@ -224,7 +224,7 @@ namespace Nz
 			options.pbrTextureIndexes->roughness = settings.textures.size();
 		
 		settings.textures.push_back({
-			11,
+			12,
 			"Roughness",
 			ImageType::E2D
 		});
@@ -233,7 +233,7 @@ namespace Nz
 			options.pbrTextureIndexes->specular = settings.textures.size();
 
 		settings.textures.push_back({
-			12,
+			13,
 			"Specular",
 			ImageType::E2D
 		});
@@ -249,8 +249,8 @@ namespace Nz
 			options.defaultValues
 		});
 
-		settings.sharedUniformBlocks.push_back(PredefinedLightData::GetUniformBlock(6, nzsl::ShaderStageType::Fragment));
-		settings.predefinedBindings[UnderlyingCast(PredefinedShaderBinding::LightDataUbo)] = 6;
+		settings.sharedUniformBlocks.push_back(PredefinedLightData::GetUniformBlock(7, nzsl::ShaderStageType::Fragment));
+		settings.predefinedBindings[UnderlyingCast(PredefinedShaderBinding::LightDataUbo)] = 7;
 
 		settings.shaders = options.shaders;
 

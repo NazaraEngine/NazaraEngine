@@ -1,4 +1,5 @@
 #include <Nazara/Core.hpp>
+#include <Nazara/Core/Systems.hpp>
 #include <Nazara/Platform.hpp>
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
@@ -9,11 +10,10 @@
 #include <Nazara/Physics3D/Components.hpp>
 #include <Nazara/Physics3D/Systems.hpp>
 #include <Nazara/Renderer.hpp>
-#include <Nazara/Shader.hpp>
-#include <Nazara/Shader/SpirvConstantCache.hpp>
-#include <Nazara/Shader/SpirvPrinter.hpp>
 #include <Nazara/Utility.hpp>
 #include <Nazara/Utility/Components.hpp>
+#include <Nazara/Utils/CallOnExit.hpp>
+#include <NZSL/Math/FieldOffsets.hpp>
 #include <entt/entt.hpp>
 #include <array>
 #include <iostream>
@@ -23,12 +23,12 @@ NAZARA_REQUEST_DEDICATED_GPU()
 
 int main()
 {
-	std::filesystem::path resourceDir = "resources";
-	if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory(".." / resourceDir))
-		resourceDir = ".." / resourceDir;
+	std::filesystem::path resourceDir = "assets/examples";
+	if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory("../.." / resourceDir))
+		resourceDir = "../.." / resourceDir;
 
 	Nz::Renderer::Config rendererConfig;
-	//rendererConfig.preferredAPI = Nz::RenderAPI::OpenGL;
+	rendererConfig.preferredAPI = Nz::RenderAPI::OpenGL;
 
 	Nz::Modules<Nz::Graphics> nazara(rendererConfig);
 	
@@ -40,18 +40,14 @@ int main()
 
 	std::shared_ptr<Nz::RenderDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
 
-	std::string windowTitle = "Skinning test";
-	Nz::RenderWindow window;
-	if (!window.Create(device, Nz::VideoMode(1280, 720, 32), windowTitle))
-	{
-		std::cout << "Failed to create Window" << std::endl;
-		return __LINE__;
-	}
-
 	entt::registry registry;
+	Nz::SystemGraph systemGraph(registry);
 
-	Nz::Physics3DSystem physSytem(registry);
-	Nz::RenderSystem renderSystem(registry);
+	Nz::Physics3DSystem& physSytem = systemGraph.AddSystem<Nz::Physics3DSystem>();
+	Nz::RenderSystem& renderSystem = systemGraph.AddSystem<Nz::RenderSystem>();
+
+	std::string windowTitle = "Skinning test";
+	Nz::RenderWindow& window = renderSystem.CreateWindow(device, Nz::VideoMode(1280, 720, 32), windowTitle);
 
 	physSytem.GetPhysWorld().SetGravity({ 0.f, -9.81f, 0.f });
 
@@ -82,8 +78,8 @@ int main()
 		cameraComponent.UpdateClearColor(Nz::Color(0.5f, 0.5f, 0.5f));
 	}
 
-	Nz::FieldOffsets skeletalOffsets(Nz::StructLayout::Std140);
-	std::size_t arrayOffset = skeletalOffsets.AddMatrixArray(Nz::StructFieldType::Float1, 4, 4, true, 200);
+	nzsl::FieldOffsets skeletalOffsets(nzsl::StructLayout::Std140);
+	std::size_t arrayOffset = skeletalOffsets.AddMatrixArray(nzsl::StructFieldType::Float1, 4, 4, true, 200);
 
 	std::vector<Nz::UInt8> skeletalBufferMem(skeletalOffsets.GetAlignedSize());
 	Nz::Matrix4f* matrices = Nz::AccessByOffset<Nz::Matrix4f*>(skeletalBufferMem.data(), arrayOffset);
@@ -143,14 +139,14 @@ int main()
 	std::shared_ptr<Nz::RenderBuffer> renderBuffer = device->InstantiateBuffer(Nz::BufferType::Uniform, skeletalBufferMem.size(), Nz::BufferUsage::Write, skeletalBufferMem.data());
 
 	const Nz::Boxf& bobAABB = bobMesh->GetAABB();
-	std::shared_ptr<Nz::GraphicalMesh> bobGfxMesh = std::make_shared<Nz::GraphicalMesh>(*bobMesh);
+	std::shared_ptr<Nz::GraphicalMesh> bobGfxMesh = Nz::GraphicalMesh::BuildFromMesh(*bobMesh);
 
 	std::shared_ptr<Nz::Model> bobModel = std::make_shared<Nz::Model>(std::move(bobGfxMesh), bobAABB);
 	std::vector<std::shared_ptr<Nz::Material>> materials(bobMesh->GetMaterialCount());
 	for (std::size_t i = 0; i < bobMesh->GetMaterialCount(); ++i)
 	{
 		std::string matPath;
-		bobMesh->GetMaterialData(i).GetStringParameter(Nz::MaterialData::DiffuseTexturePath, &matPath);
+		bobMesh->GetMaterialData(i).GetStringParameter(Nz::MaterialData::BaseColorTexturePath, &matPath);
 
 		std::shared_ptr<Nz::Material> bobMat = std::make_shared<Nz::Material>();
 
@@ -175,7 +171,7 @@ int main()
 				bobMatPass->SetBlendFunc(Nz::BlendFunc::SrcAlpha, Nz::BlendFunc::InvSrcAlpha, Nz::BlendFunc::One, Nz::BlendFunc::Zero);
 			}
 			else
-				basicMat.SetDiffuseMap(Nz::Texture::LoadFromFile(path, texParams));
+				basicMat.SetBaseColorMap(Nz::Texture::LoadFromFile(path, texParams));
 		}
 
 		bobMat->AddPass("ForwardPass", bobMatPass);
@@ -225,7 +221,7 @@ int main()
 		planeMesh.BuildSubMesh(Nz::Primitive::Plane(planeSize, Nz::Vector2ui(0u), Nz::Matrix4f::Identity(), Nz::Rectf(0.f, 0.f, 10.f, 10.f)), meshPrimitiveParams);
 		planeMesh.SetMaterialCount(1);
 
-		std::shared_ptr<Nz::GraphicalMesh> planeMeshGfx = std::make_shared<Nz::GraphicalMesh>(planeMesh);
+		std::shared_ptr<Nz::GraphicalMesh> planeMeshGfx = Nz::GraphicalMesh::BuildFromMesh(planeMesh);
 
 		std::shared_ptr<Nz::Material> planeMat = std::make_shared<Nz::Material>();
 
@@ -233,13 +229,13 @@ int main()
 		planeMatPass->EnableDepthBuffer(true);
 		{
 			Nz::BasicMaterial basicMat(*planeMatPass);
-			basicMat.SetDiffuseMap(Nz::Texture::LoadFromFile(resourceDir / "dev_grey.png", texParams));
+			basicMat.SetBaseColorMap(Nz::Texture::LoadFromFile(resourceDir / "dev_grey.png", texParams));
 
 			Nz::TextureSamplerInfo planeSampler;
 			planeSampler.anisotropyLevel = 16;
 			planeSampler.wrapModeU = Nz::SamplerWrap::Repeat;
 			planeSampler.wrapModeV = Nz::SamplerWrap::Repeat;
-			basicMat.SetDiffuseSampler(planeSampler);
+			basicMat.SetBaseColorSampler(planeSampler);
 		}
 		planeMat->AddPass("ForwardPass", planeMatPass);
 
@@ -307,8 +303,6 @@ int main()
 		if (updateClock.GetMilliseconds() > 1000 / 60)
 		{
 			float updateTime = updateClock.Restart() / 1'000'000.f;
-
-			physSytem.Update(registry, 1.f / 60.f);
 
 			auto& playerBody = registry.get<Nz::RigidBody3DComponent>(playerEntity);
 
@@ -414,7 +408,7 @@ int main()
 			builder.EndDebugRegion();
 		}, Nz::QueueType::Graphics);
 
-		renderSystem.Render(registry, frame);
+		systemGraph.Update();
 
 		frame.Present();
 

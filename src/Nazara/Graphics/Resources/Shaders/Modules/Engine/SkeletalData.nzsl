@@ -1,0 +1,11 @@
+[nzsl_version("1.0")]
+module Engine.SkeletalData;
+
+const MaxJointCount: u32 = u32(200); //< FIXME: Fix integral value types
+
+[export]
+[layout(std140)]
+struct SkeletalData
+{
+	JointMatrices: array[mat4[f32], MaxJointCount]
+}

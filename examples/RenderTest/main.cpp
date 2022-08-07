@@ -131,7 +131,8 @@ int main()
 	Nz::MeshParams meshParams;
 	meshParams.bufferFactory = Nz::GetRenderBufferFactory(device);
 	meshParams.center = true;
-	meshParams.matrix = Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, -90.f, 0.f)) * Nz::Matrix4f::Scale(Nz::Vector3f(0.002f));
+	meshParams.vertexRotation = Nz::EulerAnglesf(0.f, -90.f, 0.f);
+	meshParams.vertexScale = Nz::Vector3f(0.002f);
 	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_Normal_UV);
 
 	std::shared_ptr<Nz::Mesh> spaceship = Nz::Mesh::LoadFromFile(resourceDir / "Spaceship/spaceship.obj", meshParams);
