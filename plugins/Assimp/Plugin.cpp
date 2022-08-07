@@ -609,7 +609,10 @@ std::shared_ptr<Nz::SubMesh> ProcessSubMesh(const std::filesystem::path& originP
 			if (aiGetMaterialColor(aiMat, aiKey, aiType, aiIndex, &color) == aiReturn_SUCCESS)
 			{
 				matData.SetParameter(colorKey, Nz::Color(color.r, color.g, color.b, color.a));
+				return true;
 			}
+
+			return false;
 		};
 
 		auto SaveEmbeddedTextureToFile = [](const aiTexture* embeddedTexture, const std::filesystem::path& basePath, const char* filename) -> std::filesystem::path
@@ -698,10 +701,10 @@ std::shared_ptr<Nz::SubMesh> ProcessSubMesh(const std::filesystem::path& originP
 					else
 						embeddedTexturePath = it->second;
 
-					matData.SetParameter(textureKey, embeddedTexturePath.generic_u8string());
+					matData.SetParameter(textureKey, Nz::PathToString(embeddedTexturePath));
 				}
 				else
-					matData.SetParameter(textureKey, (originPath / std::filesystem::u8path(path.data, path.data + path.length)).generic_u8string());
+					matData.SetParameter(textureKey, Nz::PathToString((originPath / std::filesystem::u8path(path.data, path.data + path.length))));
 
 				if (wrapKey)
 				{
@@ -728,19 +731,30 @@ std::shared_ptr<Nz::SubMesh> ProcessSubMesh(const std::filesystem::path& originP
 
 					matData.SetParameter(wrapKey, static_cast<long long>(wrap));
 				}
+
+				return true;
 			}
+
+			return false;
 		};
 
 		ConvertColor(AI_MATKEY_COLOR_AMBIENT,  Nz::MaterialData::AmbientColor);
-		ConvertColor(AI_MATKEY_COLOR_DIFFUSE,  Nz::MaterialData::DiffuseColor);
+
+		if (!ConvertColor(AI_MATKEY_BASE_COLOR, Nz::MaterialData::BaseColor))
+			ConvertColor(AI_MATKEY_COLOR_DIFFUSE, Nz::MaterialData::BaseColor);
+
 		ConvertColor(AI_MATKEY_COLOR_SPECULAR, Nz::MaterialData::SpecularColor);
 
-		ConvertTexture(aiTextureType_DIFFUSE,  Nz::MaterialData::DiffuseTexturePath, Nz::MaterialData::DiffuseWrap);
-		ConvertTexture(aiTextureType_EMISSIVE, Nz::MaterialData::EmissiveTexturePath);
-		ConvertTexture(aiTextureType_HEIGHT,   Nz::MaterialData::HeightTexturePath);
-		ConvertTexture(aiTextureType_NORMALS,  Nz::MaterialData::NormalTexturePath);
-		ConvertTexture(aiTextureType_OPACITY,  Nz::MaterialData::AlphaTexturePath);
-		ConvertTexture(aiTextureType_SPECULAR, Nz::MaterialData::SpecularTexturePath, Nz::MaterialData::SpecularWrap);
+		if (!ConvertTexture(aiTextureType_BASE_COLOR, Nz::MaterialData::BaseColorTexturePath, Nz::MaterialData::BaseColorWrap))
+			ConvertTexture(aiTextureType_DIFFUSE, Nz::MaterialData::BaseColorTexturePath, Nz::MaterialData::BaseColorWrap);
+
+		ConvertTexture(aiTextureType_DIFFUSE_ROUGHNESS, Nz::MaterialData::RoughnessTexturePath, Nz::MaterialData::RoughnessWrap);
+		ConvertTexture(aiTextureType_EMISSIVE,          Nz::MaterialData::EmissiveTexturePath,  Nz::MaterialData::EmissiveWrap);
+		ConvertTexture(aiTextureType_HEIGHT,            Nz::MaterialData::HeightTexturePath,    Nz::MaterialData::HeightWrap);
+		ConvertTexture(aiTextureType_METALNESS,         Nz::MaterialData::MetallicTexturePath,  Nz::MaterialData::MetallicWrap);
+		ConvertTexture(aiTextureType_NORMALS,           Nz::MaterialData::NormalTexturePath,    Nz::MaterialData::NormalWrap);
+		ConvertTexture(aiTextureType_OPACITY,           Nz::MaterialData::AlphaTexturePath,     Nz::MaterialData::AlphaWrap);
+		ConvertTexture(aiTextureType_SPECULAR,          Nz::MaterialData::SpecularTexturePath,  Nz::MaterialData::SpecularWrap);
 
 		aiString name;
 		if (aiGetMaterialString(aiMat, AI_MATKEY_NAME, &name) == aiReturn_SUCCESS)

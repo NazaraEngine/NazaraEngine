@@ -3,6 +3,7 @@ module PhongMaterial;
 
 import InstanceData from Engine.InstanceData;
 import LightData from Engine.LightData;
+import SkeletalData from Engine.SkeletalData;
 import ViewerData from Engine.ViewerData;
 
 // Basic material options
@@ -62,6 +63,7 @@ external
 	[binding(3)] TextureOverlay: sampler2D[f32],
 	[binding(4)] instanceData: uniform[InstanceData],
 	[binding(5)] viewerData: uniform[ViewerData],
+	[binding(6)] skeletalData: uniform[SkeletalData],
 	[binding(7)] lightData: uniform[LightData],
 	[binding(8)] MaterialEmissiveMap: sampler2D[f32],
 	[binding(9)] MaterialHeightMap: sampler2D[f32],

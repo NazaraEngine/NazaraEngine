@@ -2,6 +2,7 @@
 module BasicMaterial;
 
 import InstanceData from Engine.InstanceData;
+import SkeletalData from Engine.SkeletalData;
 import ViewerData from Engine.ViewerData;
 
 option HasBaseColorTexture: bool = false;
@@ -32,14 +33,6 @@ struct MaterialSettings
 {
 	AlphaThreshold: f32,
 	BaseColor: vec4[f32]
-}
-
-const MaxJointCount: u32 = u32(200); //< FIXME: Fix integral value types
-
-[layout(std140)]
-struct SkeletalData
-{
-	JointMatrices: array[mat4[f32], MaxJointCount]
 }
 
 external
@@ -163,7 +156,7 @@ fn billboardMain(input: VertIn) -> VertOut
 fn main(input: VertIn) -> VertOut
 {
 	let pos: vec3[f32];
-	const if (HasSkinning)
+	const if (HasSkinning && false)
 	{
 		pos = vec3[f32](0.0, 0.0, 0.0);
 
