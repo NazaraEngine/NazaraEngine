@@ -52,6 +52,7 @@
 #include <Nazara/Graphics/GuillotineTextureAtlas.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/Light.hpp>
+#include <Nazara/Graphics/LinearSlicedSprite.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
 #include <Nazara/Graphics/MaterialPassRegistry.hpp>

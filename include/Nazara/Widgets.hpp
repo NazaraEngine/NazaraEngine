@@ -31,15 +31,20 @@
 
 #include <Nazara/Widgets/AbstractTextAreaWidget.hpp>
 #include <Nazara/Widgets/BaseWidget.hpp>
+#include <Nazara/Widgets/BoxLayout.hpp>
 #include <Nazara/Widgets/ButtonWidget.hpp>
 #include <Nazara/Widgets/Canvas.hpp>
 #include <Nazara/Widgets/CheckboxWidget.hpp>
 #include <Nazara/Widgets/Config.hpp>
 #include <Nazara/Widgets/DefaultWidgetTheme.hpp>
 #include <Nazara/Widgets/Enums.hpp>
+#include <Nazara/Widgets/ImageButtonWidget.hpp>
 #include <Nazara/Widgets/ImageWidget.hpp>
 #include <Nazara/Widgets/LabelWidget.hpp>
 #include <Nazara/Widgets/RichTextAreaWidget.hpp>
+#include <Nazara/Widgets/ScrollAreaWidget.hpp>
+#include <Nazara/Widgets/ScrollbarButtonWidget.hpp>
+#include <Nazara/Widgets/ScrollbarWidget.hpp>
 #include <Nazara/Widgets/SimpleWidgetStyles.hpp>
 #include <Nazara/Widgets/TextAreaWidget.hpp>
 #include <Nazara/Widgets/Widgets.hpp>

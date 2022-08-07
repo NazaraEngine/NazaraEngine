@@ -5,6 +5,8 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderer.hpp>
 
+#ifndef NAZARA_RENDERER_EMBEDDEDBACKENDS
+
 extern "C"
 {
 	NAZARA_EXPORT Nz::RendererImpl* NazaraRenderer_Instantiate()
@@ -13,6 +15,8 @@ extern "C"
 		return renderer.release();
 	}
 }
+
+#endif
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 #include <Nazara/Core/AntiWindows.hpp>

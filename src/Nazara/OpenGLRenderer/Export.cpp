@@ -5,6 +5,8 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderer.hpp>
 
+#ifndef NAZARA_RENDERER_EMBEDDEDBACKENDS
+
 extern "C"
 {
 	NAZARA_EXPORT Nz::RendererImpl* NazaraRenderer_Instantiate()
@@ -13,3 +15,5 @@ extern "C"
 		return renderer.release();
 	}
 }
+
+#endif

@@ -1,3 +1,43 @@
+local rendererBackends = {
+	OpenGLRenderer = {
+		Deps = {"NazaraRenderer"},
+		Custom = function()
+			if is_plat("windows", "mingw") then
+				add_syslinks("gdi32", "user32")
+			else
+				remove_files("src/Nazara/OpenGLRenderer/Wrapper/Win32/**.cpp")
+				remove_files("src/Nazara/OpenGLRenderer/Wrapper/WGL/**.cpp")
+			end
+
+			if is_plat("linux") then
+				add_defines("EGL_NO_X11")
+				add_packages("wayland", { links = {} }) -- we only need wayland headers
+			else
+				remove_files("src/Nazara/OpenGLRenderer/Wrapper/Linux/**.cpp")
+			end
+		end
+	},
+	VulkanRenderer = {
+		Deps = {"NazaraRenderer"},
+		Custom = function()
+			add_defines("VK_NO_PROTOTYPES")
+			if is_plat("windows", "mingw") then
+				add_defines("VK_USE_PLATFORM_WIN32_KHR")
+				add_syslinks("user32")
+			elseif is_plat("linux") then
+				add_defines("VK_USE_PLATFORM_XLIB_KHR")
+				add_defines("VK_USE_PLATFORM_WAYLAND_KHR")
+				add_packages("wayland", { links = {} }) -- we only need wayland headers
+			elseif is_plat("macosx") then
+				add_defines("VK_USE_PLATFORM_METAL_EXT")
+				add_files("src/Nazara/VulkanRenderer/**.mm")
+				add_frameworks("quartzcore", "AppKit")
+			end
+		end
+	}
+}
+NazaraRendererBackends = rendererBackends
+
 local modules = {
 	Audio = {
 		Deps = {"NazaraCore"},
@@ -39,24 +79,6 @@ local modules = {
 			end
 		end
 	},
-	OpenGLRenderer = {
-		Deps = {"NazaraRenderer"},
-		Custom = function()
-			if is_plat("windows", "mingw") then
-				add_syslinks("gdi32", "user32")
-			else
-				remove_files("src/Nazara/OpenGLRenderer/Wrapper/Win32/**.cpp")
-				remove_files("src/Nazara/OpenGLRenderer/Wrapper/WGL/**.cpp")
-			end
-
-			if is_plat("linux") then
-				add_defines("EGL_NO_X11")
-				add_packages("wayland", { links = {} }) -- we only need wayland headers
-			else
-				remove_files("src/Nazara/OpenGLRenderer/Wrapper/Linux/**.cpp")
-			end
-		end
-	},
 	Physics2D = {
 		Deps = {"NazaraUtility"},
 		Packages = {"entt", "chipmunk2d"}
@@ -82,36 +104,31 @@ local modules = {
 	},
 	Renderer = {
 		Deps = {"NazaraPlatform"},
-		PublicPackages = { "nazarautils", "nzsl" }
+		PublicPackages = { "nazarautils", "nzsl" },
+		Custom = function ()
+			if has_config("embed_rendererbackends") then
+				-- Embed backends code inside our own modules
+				add_defines("NAZARA_RENDERER_EMBEDDEDBACKENDS")
+				for name, module in pairs(rendererBackends) do
+					ModuleTargetConfig(name, module)
+				end
+			else
+				-- Register backends as separate modules
+				for name, module in pairs(rendererBackends) do
+					ModuleTarget(name, module)
+				end
+			end
+		end
 	},
 	Utility = {
 		Deps = {"NazaraCore"},
 		Packages = {"entt", "freetype", "frozen", "ordered_map", "stb"}
-	},
-	VulkanRenderer = {
-		Deps = {"NazaraRenderer"},
-		Custom = function()
-			add_defines("VK_NO_PROTOTYPES")
-			if is_plat("windows", "mingw") then
-				add_defines("VK_USE_PLATFORM_WIN32_KHR")
-				add_syslinks("user32")
-			elseif is_plat("linux") then
-				add_defines("VK_USE_PLATFORM_XLIB_KHR")
-				add_defines("VK_USE_PLATFORM_WAYLAND_KHR")
-				add_packages("wayland", { links = {} }) -- we only need wayland headers
-			elseif is_plat("macosx") then
-				add_defines("VK_USE_PLATFORM_METAL_EXT")
-				add_files("src/Nazara/VulkanRenderer/**.mm")
-				add_frameworks("quartzcore", "AppKit")
-			end
-		end
 	},
 	Widgets = {
 		Deps = {"NazaraGraphics"},
 		Packages = {"entt", "kiwisolver"}
 	}
 }
-
 NazaraModules = modules
 
 includes("xmake/**.lua")
@@ -120,6 +137,12 @@ option("compile_shaders")
 	set_default(true)
 	set_showmenu(true)
 	set_description("Compile nzsl shaders into an includable binary version")
+option_end()
+
+option("embed_rendererbackends")
+	set_default(false)
+	set_showmenu(true)
+	set_description("Embed renderer backend code into NazaraRenderer instead of loading them dynamically")
 option_end()
 
 option("embed_resources")
@@ -224,45 +247,8 @@ elseif is_plat("mingw") then
 	add_ldflags("-Wa,-mbig-obj")
 end
 
-for name, module in pairs(modules) do
-	target("Nazara" .. name)
-
-	set_kind("shared")
-	set_group("Modules")
-
-	add_rpathdirs("$ORIGIN")
-
-	if module.Deps then
-		add_deps(table.unpack(module.Deps))
-	end
-
-	if module.Packages then
-		add_packages(table.unpack(module.Packages))
-	end
-
-	if module.PublicPackages then
-		for _, pkg in ipairs(module.PublicPackages) do
-			add_packages(pkg, { public = true })
-		end
-	end
-
-	if module.Custom then
-		module.Custom()
-	end
-
-	if has_config("usepch") then
-		set_pcxxheader("include/Nazara/" .. name .. ".hpp")
-	end
-
-	if has_config("unitybuild") then
-		add_defines("NAZARA_UNITY_BUILD")
-		add_rules("c++.unity_build", {uniqueid = "NAZARA_UNITY_ID", batchsize = 12})
-	end
-
-	add_defines("NAZARA_BUILD")
+function ModuleTargetConfig(name, module)
 	add_defines("NAZARA_" .. name:upper() .. "_BUILD")
-	add_defines("NAZARA_UTILS_WINDOWS_NT6=1")
-
 	if is_mode("debug") then
 		add_defines("NAZARA_" .. name:upper() .. "_DEBUG")
 	end
@@ -277,8 +263,6 @@ for name, module in pairs(modules) do
 	remove_headerfiles("src/Nazara/" .. name .. "/Resources/**.h")
 
 	add_files("src/Nazara/" .. name .. "/**.cpp")
-	add_includedirs("src")
-
 	if has_config("embed_resources") then
 		local embedResourceRule = false
 		for _, filepath in pairs(os.files("src/Nazara/" .. name .. "/Resources/**|**.h|**.nzsl|**.nzslb")) do
@@ -325,6 +309,52 @@ for name, module in pairs(modules) do
 
 		remove_files("src/Nazara/" .. name .. "/Linux/**.cpp")
 	end
+
+	if module.Custom then
+		module.Custom()
+	end
+end
+
+function ModuleTarget(name, module)
+	target("Nazara" .. name)
+		set_kind("shared")
+		set_group("Modules")
+
+		add_rpathdirs("$ORIGIN")
+
+		if module.Deps then
+			add_deps(table.unpack(module.Deps))
+		end
+
+		if module.Packages then
+			add_packages(table.unpack(module.Packages))
+		end
+
+		if module.PublicPackages then
+			for _, pkg in ipairs(module.PublicPackages) do
+				add_packages(pkg, { public = true })
+			end
+		end
+
+		if has_config("usepch") then
+			set_pcxxheader("include/Nazara/" .. name .. ".hpp")
+		end
+
+		if has_config("unitybuild") then
+			add_defines("NAZARA_UNITY_BUILD")
+			add_rules("c++.unity_build", {uniqueid = "NAZARA_UNITY_ID", batchsize = 12})
+		end
+
+		add_defines("NAZARA_BUILD")
+		add_defines("NAZARA_UTILS_WINDOWS_NT6=1")
+
+		add_includedirs("src")
+
+		ModuleTargetConfig(name, module)
+end
+
+for name, module in pairs(modules) do
+	ModuleTarget(name, module)
 end
 
 includes("tools/*.lua")
