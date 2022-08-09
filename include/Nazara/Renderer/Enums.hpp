@@ -122,6 +122,16 @@ namespace Nz
 
 	constexpr std::size_t RenderAPICount = static_cast<std::size_t>(RenderAPI::Max) + 1;
 
+	enum class RenderAPIValidationLevel
+	{
+		None = 0,
+
+		Errors   = 1,
+		Warnings = 2,
+		Verbose  = 3,
+		Debug    = 4
+	};
+
 	enum class RenderDeviceType
 	{
 		Integrated, ///< Hardware-accelerated chipset integrated to a CPU (ex: Intel Graphics HD 4000)

@@ -35,7 +35,7 @@ namespace Nz
 			UInt32 QueryAPIVersion() const override;
 			const std::vector<RenderDeviceInfo>& QueryRenderDevices() const override;
 
-			bool Prepare(const ParameterList& parameters) override;
+			bool Prepare(const Renderer::Config& parameters) override;
 
 			static constexpr UInt32 APIVersion = VK_API_VERSION_1_2;
 

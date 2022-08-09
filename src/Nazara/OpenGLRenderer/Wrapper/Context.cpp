@@ -450,13 +450,18 @@ namespace Nz::GL
 				NazaraWarning("desktop support for OpenGL ES is missing, falling back to OpenGL...");
 		}
 
-		// Set debug callback (if supported)
-		if (glDebugMessageCallback)
+		// Set debug callback (if supported and enabled)
+		if (glDebugMessageCallback && params.validationLevel != RenderAPIValidationLevel::None)
 		{
+			m_params.validationLevel = params.validationLevel;
+
 			glEnable(GL_DEBUG_OUTPUT);
-#ifdef NAZARA_DEBUG
-			glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+
+			// Always enable synchronous debug output for debug libraries
+#ifndef NAZARA_DEBUG
+			if (m_params.validationLevel == RenderAPIValidationLevel::Debug)
 #endif
+				glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 
 			glDebugMessageCallback([](GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
 			{
@@ -473,10 +478,18 @@ namespace Nz::GL
 				if (glPopDebugGroup)
 					glDebugMessageControl(GL_DONT_CARE, GL_DEBUG_TYPE_POP_GROUP, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
 
-				// Disable driver notifications (NVidia driver is very verbose)
-				glDebugMessageControl(GL_DEBUG_SOURCE_API, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
+				// Handle verbosity level
+				if (m_params.validationLevel < RenderAPIValidationLevel::Debug)
+					// Disable driver notifications except in debug (NVidia driver is very verbose)
+					glDebugMessageControl(GL_DEBUG_SOURCE_API, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
+				else if (m_params.validationLevel < RenderAPIValidationLevel::Verbose)
+					glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
+				else if (m_params.validationLevel < RenderAPIValidationLevel::Warnings)
+					glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_LOW, 0, nullptr, GL_FALSE);
 			}
 		}
+		else
+			m_params.validationLevel = m_params.validationLevel;
 
 		GLint maxTextureUnits = -1;
 		glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &maxTextureUnits);

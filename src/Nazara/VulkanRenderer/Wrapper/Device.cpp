@@ -148,7 +148,7 @@ namespace Nz
 				{
 					switch (type)
 					{
-						case QueueType::Compute: return VK_QUEUE_COMPUTE_BIT;
+						case QueueType::Compute:  return VK_QUEUE_COMPUTE_BIT;
 						case QueueType::Graphics: return VK_QUEUE_GRAPHICS_BIT;
 						case QueueType::Transfer: return VK_QUEUE_COMPUTE_BIT | VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT; //< Compute/graphics imply transfer
 					}

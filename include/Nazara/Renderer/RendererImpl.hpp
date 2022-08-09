@@ -12,6 +12,7 @@
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/RenderDeviceInfo.hpp>
+#include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <string>
 #include <vector>
@@ -44,7 +45,7 @@ namespace Nz
 
 			virtual const std::vector<RenderDeviceInfo>& QueryRenderDevices() const = 0;
 
-			virtual bool Prepare(const ParameterList& parameters) = 0;
+			virtual bool Prepare(const Renderer::Config& config) = 0;
 	};
 }
 

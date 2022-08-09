@@ -21,8 +21,22 @@ namespace Nz
 				VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
 				VkDebugUtilsMessageTypeFlagsEXT             messageTypes,
 				const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-				void*                                       /*pUserData*/)
+				void*                                       pUserData)
 			{
+				Instance& instance = *static_cast<Instance*>(pUserData);
+				if (messageTypes & VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT)
+				{
+					RenderAPIValidationLevel validationLevel = instance.GetValidationLevel();
+					if ((messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) && validationLevel < RenderAPIValidationLevel::Debug)
+						return VK_FALSE;
+
+					if ((messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) && validationLevel < RenderAPIValidationLevel::Verbose)
+						return VK_FALSE;
+
+					if ((messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) && validationLevel < RenderAPIValidationLevel::Warnings)
+						return VK_FALSE;
+				}
+
 				std::stringstream ss;
 				ss << "Vulkan log: ";
 
@@ -47,7 +61,6 @@ namespace Nz
 
 				if (messageTypes & VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT)
 					ss << "[Validation]";
-
 
 				ss << "[" << pCallbackData->messageIdNumber;
 				if (pCallbackData->pMessageIdName)
@@ -82,7 +95,7 @@ namespace Nz
 				DestroyInstance();
 		}
 
-		bool Instance::Create(const VkInstanceCreateInfo& createInfo, const VkAllocationCallbacks* allocator)
+		bool Instance::Create(RenderAPIValidationLevel validationLevel, const VkInstanceCreateInfo& createInfo, const VkAllocationCallbacks* allocator)
 		{
 			m_lastErrorCode = Loader::vkCreateInstance(&createInfo, allocator, &m_instance);
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
@@ -92,6 +105,7 @@ namespace Nz
 			}
 
 			m_apiVersion = createInfo.pApplicationInfo->apiVersion;
+			m_validationLevel = validationLevel;
 
 			// Store the allocator to access them when needed
 			if (allocator)
@@ -223,6 +237,7 @@ namespace Nz
 			callbackCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT;
 			callbackCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
 			callbackCreateInfo.pfnUserCallback = &DebugCallback;
+			callbackCreateInfo.pUserData = this;
 
 			if (!m_internalData->debugMessenger.Create(*this, callbackCreateInfo))
 			{

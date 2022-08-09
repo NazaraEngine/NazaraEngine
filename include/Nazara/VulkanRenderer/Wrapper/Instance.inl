@@ -12,7 +12,7 @@ namespace Nz
 {
 	namespace Vk
 	{
-		inline bool Instance::Create(const std::string& appName, UInt32 appVersion, const std::string& engineName, UInt32 engineVersion, UInt32 apiVersion, const std::vector<const char*>& layers, const std::vector<const char*>& extensions, const VkAllocationCallbacks* allocator)
+		inline bool Instance::Create(RenderAPIValidationLevel validationLevel, const std::string& appName, UInt32 appVersion, const std::string& engineName, UInt32 engineVersion, UInt32 apiVersion, const std::vector<const char*>& layers, const std::vector<const char*>& extensions, const VkAllocationCallbacks* allocator)
 		{
 			VkApplicationInfo appInfo = 
 			{
@@ -37,7 +37,7 @@ namespace Nz
 				(!extensions.empty()) ? extensions.data() : nullptr
 			};
 
-			return Create(instanceInfo, allocator);
+			return Create(validationLevel, instanceInfo, allocator);
 		}
 
 		inline void Instance::Destroy()
@@ -75,6 +75,11 @@ namespace Nz
 				NazaraError("Failed to get " + std::string(name) + " address");
 
 			return func;
+		}
+
+		inline RenderAPIValidationLevel Instance::GetValidationLevel() const
+		{
+			return m_validationLevel;
 		}
 
 		inline bool Instance::IsExtensionLoaded(const std::string& extensionName) const

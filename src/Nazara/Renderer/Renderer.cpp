@@ -8,6 +8,7 @@
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Platform/Platform.hpp>
 #include <Nazara/Renderer/RenderBuffer.hpp>
+#include <Nazara/Renderer/RendererImpl.hpp>
 #include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Utility/Image.hpp>
 #include <Nazara/Utility/Utility.hpp>
@@ -37,9 +38,10 @@
 namespace Nz
 {
 	Renderer::Renderer(Config config) :
-	ModuleBase("Renderer", this)
+	ModuleBase("Renderer", this),
+	m_config(std::move(config))
 	{
-		LoadBackend(config);
+		LoadBackend(m_config);
 	}
 
 	Renderer::~Renderer()
@@ -170,7 +172,7 @@ namespace Nz
 #else
 			std::unique_ptr<RendererImpl> impl = rendererImpl.factory();
 #endif
-			if (!impl || !impl->Prepare({}))
+			if (!impl || !impl->Prepare(config))
 			{
 				NazaraError("Failed to create renderer implementation");
 				continue;

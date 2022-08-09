@@ -9,14 +9,16 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/DynLib.hpp>
+#include <Nazara/Core/ParameterList.hpp>
 #include <Nazara/Platform/Platform.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
-#include <Nazara/Renderer/RendererImpl.hpp>
+#include <Nazara/Renderer/RenderDevice.hpp>
 
 namespace Nz
 {
 	class Buffer;
+	class RendererImpl;
 
 	class NAZARA_RENDERER_API Renderer : public ModuleBase<Renderer>
 	{
@@ -42,13 +44,20 @@ namespace Nz
 
 			struct Config
 			{
+				ParameterList customParameters;
 				RenderAPI preferredAPI = RenderAPI::Unknown;
+#ifdef NAZARA_DEBUG
+				RenderAPIValidationLevel validationLevel = RenderAPIValidationLevel::Verbose;
+#else
+				RenderAPIValidationLevel validationLevel = RenderAPIValidationLevel::Errors;
+#endif
 			};
 
 		private:
 			void LoadBackend(const Config& config);
 
 			std::unique_ptr<RendererImpl> m_rendererImpl;
+			Config m_config;
 			DynLib m_rendererLib;
 
 			static Renderer* s_instance;

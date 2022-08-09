@@ -38,9 +38,9 @@ namespace Nz
 		return Vulkan::CreateDevice(physDevices[deviceIndex], enabledFeatures);
 	}
 
-	bool VulkanRenderer::Prepare(const ParameterList& parameters)
+	bool VulkanRenderer::Prepare(const Renderer::Config& config)
 	{
-		if (!Vulkan::Initialize(APIVersion, parameters))
+		if (!Vulkan::Initialize(APIVersion, config.validationLevel, config.customParameters))
 			return false;
 
 		const auto& physDevices = Vulkan::GetPhysicalDevices();

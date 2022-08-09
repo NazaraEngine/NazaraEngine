@@ -53,7 +53,7 @@ namespace Nz
 		return m_device;
 	}
 
-	bool OpenGLRenderer::Prepare(const ParameterList& /*parameters*/)
+	bool OpenGLRenderer::Prepare(const Renderer::Config& config)
 	{
 		std::unique_ptr<GL::Loader> loader = SelectLoader();
 		if (!loader)
@@ -64,7 +64,7 @@ namespace Nz
 
 		m_loader = std::move(loader);
 
-		m_device = std::make_shared<OpenGLDevice>(*m_loader);
+		m_device = std::make_shared<OpenGLDevice>(*m_loader, config);
 		m_deviceInfos.emplace_back(m_device->GetDeviceInfo());
 
 		return true;

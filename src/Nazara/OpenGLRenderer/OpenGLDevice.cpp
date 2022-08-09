@@ -20,11 +20,12 @@
 
 namespace Nz
 {
-	OpenGLDevice::OpenGLDevice(GL::Loader& loader) :
+	OpenGLDevice::OpenGLDevice(GL::Loader& loader, const Renderer::Config& config) :
 	m_loader(loader)
 	{
 		GL::ContextParams params;
 		params.type = loader.GetPreferredContextType();
+		params.validationLevel = config.validationLevel;
 
 #ifdef NAZARA_OPENGLRENDERER_DEBUG
 		params.wrapErrorHandling = true;

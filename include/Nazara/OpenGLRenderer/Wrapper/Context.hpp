@@ -14,6 +14,7 @@
 #include <Nazara/OpenGLRenderer/OpenGLVaoCache.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/CoreFunctions.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Loader.hpp>
+#include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
 #include <array>
 #include <string>
@@ -96,6 +97,7 @@ namespace Nz::GL
 	struct ContextParams
 	{
 		ContextType type = ContextType::OpenGL_ES;
+		RenderAPIValidationLevel validationLevel = RenderAPIValidationLevel::Warnings;
 		bool doubleBuffering = true;
 		bool wrapErrorHandling = false;
 		unsigned int bitsPerPixel = 32;

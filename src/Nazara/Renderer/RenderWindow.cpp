@@ -5,6 +5,7 @@
 #include <Nazara/Renderer/RenderWindow.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
+#include <Nazara/Renderer/RendererImpl.hpp>
 #include <chrono>
 #include <thread>
 #include <Nazara/Renderer/Debug.hpp>

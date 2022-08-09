@@ -8,6 +8,7 @@
 #define NAZARA_VULKANRENDERER_WRAPPER_INSTANCE_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Loader.hpp>
 #include <vulkan/vulkan_core.h>
@@ -59,8 +60,8 @@ namespace Nz
 				Instance(Instance&&) = delete;
 				~Instance();
 
-				bool Create(const VkInstanceCreateInfo& createInfo, const VkAllocationCallbacks* allocator = nullptr);
-				inline bool Create(const std::string& appName, UInt32 appVersion, const std::string& engineName, UInt32 engineVersion, UInt32 apiVersion, const std::vector<const char*>& layers, const std::vector<const char*>& extensions, const VkAllocationCallbacks* allocator = nullptr);
+				bool Create(RenderAPIValidationLevel validationLevel, const VkInstanceCreateInfo& createInfo, const VkAllocationCallbacks* allocator = nullptr);
+				inline bool Create(RenderAPIValidationLevel validationLevel, const std::string& appName, UInt32 appVersion, const std::string& engineName, UInt32 engineVersion, UInt32 apiVersion, const std::vector<const char*>& layers, const std::vector<const char*>& extensions, const VkAllocationCallbacks* allocator = nullptr);
 				inline void Destroy();
 
 				bool EnumeratePhysicalDevices(std::vector<VkPhysicalDevice>* physicalDevices) const;
@@ -78,6 +79,7 @@ namespace Nz
 				inline VkPhysicalDeviceProperties GetPhysicalDeviceProperties(VkPhysicalDevice device) const;
 				bool GetPhysicalDeviceQueueFamilyProperties(VkPhysicalDevice device, std::vector<VkQueueFamilyProperties>* queueFamilyProperties) const;
 				inline PFN_vkVoidFunction GetProcAddr(const char* name) const;
+				inline RenderAPIValidationLevel GetValidationLevel() const;
 
 				void InstallDebugMessageCallback();
 
@@ -108,6 +110,7 @@ namespace Nz
 				VkAllocationCallbacks m_allocator;
 				VkInstance m_instance;
 				mutable VkResult m_lastErrorCode;
+				RenderAPIValidationLevel m_validationLevel;
 				UInt32 m_apiVersion;
 		};
 	}

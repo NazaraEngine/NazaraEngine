@@ -116,7 +116,7 @@ namespace Nz
 		return dummy;
 	}
 
-	bool Vulkan::Initialize(UInt32 targetApiVersion, const ParameterList& parameters)
+	bool Vulkan::Initialize(UInt32 targetApiVersion, RenderAPIValidationLevel validationLevel, const ParameterList& parameters)
 	{
 		NazaraAssert(!IsInitialized(), "Vulkan is already initialized");
 
@@ -186,13 +186,14 @@ namespace Nz
 		{
 			//< Nazara default layers goes here
 
-#ifdef NAZARA_DEBUG
-			// Enable Vulkan validation if available in debug mode
-			if (availableLayerByName.count("VK_LAYER_KHRONOS_validation"))
-				enabledLayers.push_back("VK_LAYER_KHRONOS_validation");
-			else if (availableLayerByName.count("VK_LAYER_LUNARG_standard_validation"))
-				enabledLayers.push_back("VK_LAYER_LUNARG_standard_validation");
-#endif
+			if (validationLevel != RenderAPIValidationLevel::None)
+			{
+				// Enable Vulkan validation if available in debug mode
+				if (availableLayerByName.count("VK_LAYER_KHRONOS_validation"))
+					enabledLayers.push_back("VK_LAYER_KHRONOS_validation");
+				else if (availableLayerByName.count("VK_LAYER_LUNARG_standard_validation"))
+					enabledLayers.push_back("VK_LAYER_LUNARG_standard_validation");
+			}
 		}
 
 		std::vector<const char*> enabledExtensions;
@@ -324,7 +325,7 @@ namespace Nz
 		instanceInfo.enabledLayerCount = UInt32(enabledLayers.size());
 		instanceInfo.ppEnabledLayerNames = enabledLayers.data();
 
-		if (!s_instance.Create(instanceInfo))
+		if (!s_instance.Create(validationLevel, instanceInfo))
 		{
 			NazaraError("Failed to create instance: " + TranslateVulkanError(s_instance.GetLastErrorCode()));
 			return false;

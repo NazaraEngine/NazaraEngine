@@ -13,6 +13,7 @@
 #include <Nazara/Platform/WindowHandle.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
 #include <Nazara/Renderer/RenderDeviceInfo.hpp>
+#include <Nazara/Renderer/Renderer.hpp>
 #include <unordered_set>
 #include <vector>
 
@@ -23,7 +24,7 @@ namespace Nz
 		friend GL::Context;
 
 		public:
-			OpenGLDevice(GL::Loader& loader);
+			OpenGLDevice(GL::Loader& loader, const Renderer::Config& config);
 			OpenGLDevice(const OpenGLDevice&) = delete;
 			OpenGLDevice(OpenGLDevice&&) = delete; ///TODO?
 			~OpenGLDevice();

@@ -32,7 +32,7 @@ namespace Nz
 			UInt32 QueryAPIVersion() const override;
 			const std::vector<RenderDeviceInfo>& QueryRenderDevices() const override;
 
-			bool Prepare(const ParameterList& parameters) override;
+			bool Prepare(const Renderer::Config& config) override;
 
 		private:
 			std::unique_ptr<GL::Loader> SelectLoader();
