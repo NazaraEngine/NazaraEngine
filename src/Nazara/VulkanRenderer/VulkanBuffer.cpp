@@ -26,6 +26,7 @@ namespace Nz
 		createInfo.size = size;
 		createInfo.usage = bufferUsage;
 
+		//TODO: Update for VMA 3.0
 		VmaAllocationCreateInfo allocInfo = {};
 		if (usage & BufferUsage::DeviceLocal)
 		{

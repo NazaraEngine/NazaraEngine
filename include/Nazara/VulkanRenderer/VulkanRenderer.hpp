@@ -37,7 +37,7 @@ namespace Nz
 
 			bool Prepare(const Renderer::Config& parameters) override;
 
-			static constexpr UInt32 APIVersion = VK_API_VERSION_1_2;
+			static constexpr UInt32 APIVersion = VK_API_VERSION_1_3;
 
 		private:
 			std::list<Vk::Device> m_devices;

@@ -132,8 +132,8 @@ namespace Nz
 		std::string appName = "Another application made with Nazara Engine";
 		std::string engineName = "Nazara Engine - Vulkan Renderer";
 
-		UInt32 appVersion = VK_MAKE_VERSION(1, 0, 0);
-		UInt32 engineVersion = VK_MAKE_VERSION(1, 0, 0);
+		UInt32 appVersion = VK_MAKE_API_VERSION(0, 1, 0, 0);
+		UInt32 engineVersion = VK_MAKE_API_VERSION(0, 1, 0, 0);
 
 		parameters.GetStringParameter("VkAppInfo_OverrideApplicationName", &appName);
 		parameters.GetStringParameter("VkAppInfo_OverrideEngineName", &engineName);

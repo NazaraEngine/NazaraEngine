@@ -184,6 +184,8 @@ namespace Nz
 
 			// Initialize VMA
 			VmaVulkanFunctions vulkanFunctions = {
+				Loader::vkGetInstanceProcAddr,
+				m_instance.vkGetDeviceProcAddr,
 				m_instance.vkGetPhysicalDeviceProperties,
 				m_instance.vkGetPhysicalDeviceMemoryProperties,
 				vkAllocateMemory,
@@ -211,6 +213,10 @@ namespace Nz
 #endif
 #if VMA_MEMORY_BUDGET || VMA_VULKAN_VERSION >= 1001000
 				m_instance.vkGetPhysicalDeviceMemoryProperties2,
+#endif
+#if VMA_VULKAN_VERSION >= 1003000
+				vkGetDeviceBufferMemoryRequirements,
+				vkGetDeviceImageMemoryRequirements,
 #endif
 			};
 
