@@ -258,6 +258,7 @@ function ModuleTargetConfig(name, module)
 	for _, ext in ipairs(headerExts) do
 		add_headerfiles("include/(Nazara/" .. name .. "/**" .. ext .. ")")
 		add_headerfiles("src/Nazara/" .. name .. "/**" .. ext, { prefixdir = "private", install = false })
+		add_headerfiles("src/Nazara/" .. name .. "/Resources/**.nzsl", { prefixdir = "private", install = false })
 	end
 
 	remove_headerfiles("src/Nazara/" .. name .. "/Resources/**.h")
