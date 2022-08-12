@@ -203,6 +203,15 @@ namespace Nz::GL
 		context.glUniform1f(uniformLocation, value);
 	}
 
+	inline void Program::Uniform(GLint uniformLocation, int value) const
+	{
+		assert(m_objectId);
+
+		const Context& context = EnsureDeviceContext();
+		context.BindProgram(m_objectId);
+		context.glUniform1i(uniformLocation, value);
+	}
+
 	inline void Program::UniformBlockBinding(GLuint uniformBlockIndex, GLuint uniformBlockBinding) const
 	{
 		assert(m_objectId);

@@ -44,6 +44,7 @@ namespace Nz::GL
 			inline void Link();
 
 			inline void Uniform(GLint uniformLocation, float value) const;
+			inline void Uniform(GLint uniformLocation, int value) const;
 			inline void UniformBlockBinding(GLuint uniformBlockIndex, GLuint uniformBlockBinding) const;
 
 			Program& operator=(const Program&) = delete;

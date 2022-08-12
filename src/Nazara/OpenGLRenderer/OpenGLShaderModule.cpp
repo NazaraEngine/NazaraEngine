@@ -83,7 +83,7 @@ namespace Nz
 		}
 	}
 
-	nzsl::ShaderStageTypeFlags OpenGLShaderModule::Attach(GL::Program& program, const nzsl::GlslWriter::BindingMapping& bindingMapping) const
+	nzsl::ShaderStageTypeFlags OpenGLShaderModule::Attach(GL::Program& program, const nzsl::GlslWriter::BindingMapping& bindingMapping, std::vector<ExplicitBinding>* explicitBindings) const
 	{
 		const auto& context = m_device.GetReferenceContext();
 		const auto& contextParams = context.GetParams();
@@ -120,13 +120,24 @@ namespace Nz
 					nzsl::GlslWriter::Output output = writer.Generate(shaderEntry.stage, *arg.ast, bindingMapping, m_states);
 					shader.SetSource(output.code.data(), GLint(output.code.size()));
 
-					for (const auto& [name, bindingPoint] : output.explicitUniformBlockBinding)
+					if (explicitBindings)
 					{
-						GLuint blockIndex = program.GetUniformBlockIndex(name);
-						if (blockIndex == GL_INVALID_INDEX)
-							continue;
+						explicitBindings->reserve(explicitBindings->size() + output.explicitTextureBinding.size() + output.explicitUniformBlockBinding.size());
+						for (const auto& [name, bindingPoint] : output.explicitTextureBinding)
+						{
+							auto& explicitBinding = explicitBindings->emplace_back();
+							explicitBinding.name = name;
+							explicitBinding.binding = bindingPoint;
+							explicitBinding.isBlock = false;
+						}
 
-						program.UniformBlockBinding(blockIndex, bindingPoint);
+						for (const auto& [name, bindingPoint] : output.explicitUniformBlockBinding)
+						{
+							auto& explicitBinding = explicitBindings->emplace_back();
+							explicitBinding.name = name;
+							explicitBinding.binding = bindingPoint;
+							explicitBinding.isBlock = true;
+						}
 					}
 				}
 				else

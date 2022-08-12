@@ -34,11 +34,12 @@ namespace Nz
 		activeContext->UpdateStates(m_pipelineInfo, false);
 
 		nzsl::ShaderStageTypeFlags stageFlags;
+		std::vector<OpenGLShaderModule::ExplicitBinding> explicitBindings;
 
 		for (const auto& shaderModulePtr : m_pipelineInfo.shaderModules)
 		{
 			OpenGLShaderModule& shaderModule = static_cast<OpenGLShaderModule&>(*shaderModulePtr);
-			stageFlags |= shaderModule.Attach(m_program, pipelineLayout.GetBindingMapping());
+			stageFlags |= shaderModule.Attach(m_program, pipelineLayout.GetBindingMapping(), &explicitBindings);
 		}
 
 		// OpenGL ES programs must have both vertex and fragment shaders or a compute shader or a mesh and fragment shader.
@@ -53,7 +54,7 @@ namespace Nz
 					dummyModule.rootNode->statements.push_back(nzsl::ShaderBuilder::DeclareFunction(stage, "main", {}, {}));
 
 					OpenGLShaderModule shaderModule(device, stage, dummyModule);
-					stageFlags |= shaderModule.Attach(m_program, pipelineLayout.GetBindingMapping());
+					stageFlags |= shaderModule.Attach(m_program, pipelineLayout.GetBindingMapping(), &explicitBindings);
 				}
 			};
 
@@ -70,6 +71,26 @@ namespace Nz
 		m_flipYUniformLocation = m_program.GetUniformLocation(nzsl::GlslWriter::GetFlipYUniformName().data());
 		if (m_flipYUniformLocation != -1)
 			m_program.Uniform(m_flipYUniformLocation, 1.f);
+
+		for (const auto& explicitBinding : explicitBindings)
+		{
+			if (explicitBinding.isBlock)
+			{
+				GLuint blockIndex = m_program.GetUniformBlockIndex(explicitBinding.name);
+				if (blockIndex == GL_INVALID_INDEX)
+					continue;
+
+				m_program.UniformBlockBinding(blockIndex, explicitBinding.binding);
+			}
+			else
+			{
+				int location = m_program.GetUniformLocation(explicitBinding.name);
+				if (location == -1)
+					continue;
+
+				m_program.Uniform(location, static_cast<int>(explicitBinding.binding)); //< FIXME: Use SafeCast
+			}
+		}
 	}
 
 	void OpenGLRenderPipeline::Apply(const GL::Context& context, bool flipViewport) const

@@ -22,16 +22,27 @@ namespace Nz
 	class NAZARA_OPENGLRENDERER_API OpenGLShaderModule : public ShaderModule
 	{
 		public:
+			struct ExplicitBinding;
+
 			OpenGLShaderModule(OpenGLDevice& device, nzsl::ShaderStageTypeFlags shaderStages, const nzsl::Ast::Module& shaderModule, const nzsl::ShaderWriter::States& states = {});
 			OpenGLShaderModule(OpenGLDevice& device, nzsl::ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const nzsl::ShaderWriter::States& states = {});
 			OpenGLShaderModule(const OpenGLShaderModule&) = delete;
 			OpenGLShaderModule(OpenGLShaderModule&&) noexcept = default;
 			~OpenGLShaderModule() = default;
 
-			nzsl::ShaderStageTypeFlags Attach(GL::Program& program, const nzsl::GlslWriter::BindingMapping& bindingMapping) const;
+			nzsl::ShaderStageTypeFlags Attach(GL::Program& program, const nzsl::GlslWriter::BindingMapping& bindingMapping, std::vector<ExplicitBinding>* explicitBindings) const;
+
+			inline const std::vector<ExplicitBinding>& GetExplicitBindings() const;
 
 			OpenGLShaderModule& operator=(const OpenGLShaderModule&) = delete;
 			OpenGLShaderModule& operator=(OpenGLShaderModule&&) noexcept = default;
+
+			struct ExplicitBinding
+			{
+				std::string name;
+				unsigned int binding;
+				bool isBlock;
+			};
 
 		private:
 			void Create(OpenGLDevice& device, nzsl::ShaderStageTypeFlags shaderStages, const nzsl::Ast::Module& shaderModule, const nzsl::ShaderWriter::States& states);
@@ -56,6 +67,7 @@ namespace Nz
 
 			OpenGLDevice& m_device;
 			nzsl::ShaderWriter::States m_states;
+			std::vector<ExplicitBinding> m_explicitBindings;
 			std::vector<Shader> m_shaders;
 	};
 }

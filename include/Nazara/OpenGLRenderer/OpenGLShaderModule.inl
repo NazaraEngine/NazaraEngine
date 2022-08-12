@@ -7,6 +7,10 @@
 
 namespace Nz
 {
+	inline auto OpenGLShaderModule::GetExplicitBindings() const -> const std::vector<ExplicitBinding>&
+	{
+		return m_explicitBindings;
+	}
 }
 
 #include <Nazara/OpenGLRenderer/DebugOff.hpp>
