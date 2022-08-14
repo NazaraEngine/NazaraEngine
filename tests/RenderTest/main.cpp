@@ -287,7 +287,7 @@ int main()
 		uboUpdate = true;
 	});
 
-	while (window.IsOpen())
+	Nz::BasicMainloop(window, [&]
 	{
 		Nz::Window::ProcessEvents();
 
@@ -325,7 +325,7 @@ int main()
 		if (!frame)
 		{
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
-			continue;
+			return;
 		}
 
 		debugDrawer.Reset(frame);
@@ -414,7 +414,7 @@ int main()
 			// Et on réinitialise le compteur de FPS
 			fps = 0;
 		}
-	}
+	});
 
 	return EXIT_SUCCESS;
 }

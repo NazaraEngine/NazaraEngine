@@ -468,7 +468,7 @@ int main()
 	std::vector<std::shared_ptr<Nz::ShaderBinding>> bloomBlendShaderBinding(BloomSubdivisionCount);
 
 	// Gamma correction
-	
+
 	Nz::RenderPipelineLayoutInfo fullscreenPipelineLayoutInfo;
 
 	fullscreenPipelineLayoutInfo.bindings.push_back({
@@ -683,7 +683,7 @@ int main()
 			"Color",
 			Nz::PixelFormat::RGBA8
 		});
-		
+
 		normalTexture = graph.AddAttachment({
 			"Normal",
 			Nz::PixelFormat::RGBA8
@@ -698,7 +698,7 @@ int main()
 			"Depth buffer",
 			depthStencilFormat
 		});
-		
+
 		depthBuffer2 = graph.AddAttachment({
 			"Depth buffer",
 			depthStencilFormat
@@ -891,7 +891,7 @@ int main()
 		forwardPass.SetDepthStencilInput(depthBuffer1);
 		forwardPass.SetDepthStencilOutput(depthBuffer2);
 
-		
+
 		Nz::FramePass& occluderPass = graph.AddPass("Occluder pass");
 		occluderPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
 		{
@@ -979,7 +979,7 @@ int main()
 
 			bloomBlurPassHorizontal.AddInput((i == 0) ? bloomBrightOutput : bloomTextures[bloomTextureIndex++]);
 			bloomBlurPassHorizontal.AddOutput(bloomTextures[bloomTextureIndex]);
-			
+
 			Nz::FramePass& bloomBlurPassVertical = graph.AddPass("Bloom pass - gaussian blur #" + std::to_string(i) + " - vertical");
 			bloomBlurPassVertical.SetCommandCallback([&, i](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
 			{

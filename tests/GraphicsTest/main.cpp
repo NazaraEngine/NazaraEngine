@@ -214,7 +214,7 @@ int main()
 		if (!frame)
 		{
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
-			continue;
+			return;
 		}
 
 		framePipeline.GetDebugDrawer().DrawLine(Nz::Vector3f::Zero(), Nz::Vector3f::Forward(), Nz::Color::Blue());
@@ -234,7 +234,7 @@ int main()
 			window.SetTitle(windowTitle + " - " + Nz::NumberToString(fps) + " FPS");
 			fps = 0;
 		}
-	}
+	});
 
 	return EXIT_SUCCESS;
 }

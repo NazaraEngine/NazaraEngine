@@ -14,6 +14,10 @@
 #include <Nazara/OpenGLRenderer/Wrapper/EGL/EGLLoader.hpp>
 #endif
 
+#if defined(NAZARA_PLATFORM_WEB)
+#include <Nazara/OpenGLRenderer/Wrapper/Web/WebLoader.hpp>
+#endif
+
 #ifdef NAZARA_PLATFORM_WINDOWS
 #include <Nazara/OpenGLRenderer/Wrapper/WGL/WGLLoader.hpp>
 #endif
@@ -79,6 +83,17 @@ namespace Nz
 		catch (const std::exception& e)
 		{
 			NazaraWarning(std::string("Failed to load EGL: ") + e.what());
+		}
+#endif
+
+#if defined(NAZARA_PLATFORM_WEB)
+		try
+		{
+			return std::make_unique<GL::WebLoader>();
+		}
+		catch (const std::exception& e)
+		{
+			NazaraWarning(std::string("Failed to load WebGL: ") + e.what());
 		}
 #endif
 

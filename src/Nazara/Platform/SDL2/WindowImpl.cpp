@@ -199,8 +199,10 @@ namespace Nz
 
 		if (SDL_GetWindowWMInfo(m_handle, &wmInfo) != SDL_TRUE)
 		{
+#ifndef NAZARA_PLATFORM_WEB
 			ErrorFlags flags(ErrorMode::ThrowException, true);
 			NazaraError(std::string("failed to retrieve window manager info: ") + SDL_GetError());
+#endif
 		}
 
 		WindowHandle handle;
@@ -244,8 +246,12 @@ namespace Nz
 #endif
 			default:
 			{
+#if defined(NAZARA_PLATFORM_WEB)
+				handle.type = WindowBackend::Web;
+#else
 				ErrorFlags flags(ErrorMode::ThrowException, true);
 				NazaraError("unhandled window subsystem");
+#endif
 			}
 		}
 
