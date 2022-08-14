@@ -19,7 +19,8 @@ namespace Nz
 		Cocoa,
 		X11,
 		Wayland,
-		Windows
+		Windows,
+		Web
 	};
 
 	struct WindowHandle
@@ -39,7 +40,7 @@ namespace Nz
 				unsigned long window;  //< Window
 			} x11;
 
-			struct 
+			struct
 			{
 				void* display;      //< wl_display*
 				void* surface;      //< wl_surface*
@@ -50,6 +51,7 @@ namespace Nz
 			{
 				void* window; //< HWND
 			} windows;
+
 		};
 	};
 }

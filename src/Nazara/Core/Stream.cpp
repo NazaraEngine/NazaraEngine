@@ -135,7 +135,7 @@ namespace Nz
 	* Reads the stream until a line separator or the end of the stream is found.
 	*
 	* If lineSize does not equal zero, it represents the maximum character count to be read from the stream.
-	* 
+	*
 	* \param lineSize Maximum number of characters to read, or zero for no limit
 	*
 	* \return Line read from file
@@ -264,7 +264,7 @@ namespace Nz
 #if defined(NAZARA_PLATFORM_WINDOWS)
 			std::string temp(string);
 			ReplaceStr(temp, "\n", "\r\n");
-#elif defined(NAZARA_PLATFORM_LINUX)
+#elif defined(NAZARA_PLATFORM_LINUX) || defined(NAZARA_PLATFORM_WEB)
 			std::string_view temp(string);
 			// Nothing to do
 #elif defined(NAZARA_PLATFORM_MACOS)

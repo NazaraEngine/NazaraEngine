@@ -322,8 +322,8 @@ namespace Nz
 						}
 					}
 
-					if (!invalidateAttachments.empty())
-						context->glInvalidateFramebuffer(GL_FRAMEBUFFER, GLsizei(invalidateAttachments.size()), invalidateAttachments.data());
+					/*if (!invalidateAttachments.empty())
+						context->glInvalidateFramebuffer(GL_FRAMEBUFFER, GLsizei(invalidateAttachments.size()), invalidateAttachments.data());*/
 				}
 				else
 					static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");

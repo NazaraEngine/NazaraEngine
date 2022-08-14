@@ -15,6 +15,13 @@ local rendererBackends = {
 			else
 				remove_files("src/Nazara/OpenGLRenderer/Wrapper/Linux/**.cpp")
 			end
+
+			if is_plat("wasm") then
+				add_ldflags('-sFULL_ES2 -sFULL_ES3', { public = true })
+				remove_files("src/Nazara/OpenGLRenderer/Wrapper/EGL/**.cpp")
+			else
+				remove_files("src/Nazara/OpenGLRenderer/Wrapper/Web/**.cpp")
+			end
 		end
 	},
 	VulkanRenderer = {
@@ -37,6 +44,10 @@ local rendererBackends = {
 	}
 }
 NazaraRendererBackends = rendererBackends
+
+if is_plat("wasm") then
+	rendererBackends.VulkanRenderer = nil
+end
 
 local modules = {
 	Audio = {
@@ -88,7 +99,7 @@ local modules = {
 	Network = {
 		Deps = {"NazaraCore"},
 		Custom = function()
-			if is_plat("windows", "mingw") then 
+			if is_plat("windows", "mingw") then
 				add_syslinks("ws2_32")
 			end
 
@@ -118,6 +129,10 @@ local modules = {
 				add_packages("libxext", "wayland", { links = {} }) -- we only need X11 headers
 			elseif is_plat("macosx") then
 				add_defines("SDL_VIDEO_DRIVER_COCOA=1")
+				add_packages("libx11", { links = {} }) -- we only need X11 headers
+			elseif is_plat("wasm") then
+				add_cxflags("-s USE_SDL=2")
+				add_ldflags("-s USE_SDL=2", { public = true })
 			end
 		end
 	},
@@ -136,7 +151,13 @@ local modules = {
 	},
 	Utility = {
 		Deps = {"NazaraCore"},
-		Packages = {"entt", "freetype", "frozen", "ordered_map", "stb"}
+		Packages = {"entt", "freetype", "frozen", "ordered_map", "stb"},
+		Custom = function()
+			if is_plat("wasm") then
+				add_cxflags("-s USE_FREETYPE=1")
+				add_ldflags("-s USE_FREETYPE=1", { public = true })
+			end
+		end
 	},
 	Widgets = {
 		Deps = {"NazaraGraphics"},
@@ -155,6 +176,9 @@ if not has_config("embed_rendererbackends") then
 	end
 end
 
+add_ldflags("-g -s NO_DISABLE_EXCEPTION_CATCHING -s ALLOW_MEMORY_GROWTH=1")
+add_cxflags("-g -s NO_DISABLE_EXCEPTION_CATCHING")
+
 NazaraModules = modules
 
 includes("xmake/**.lua")
@@ -170,15 +194,18 @@ option("unitybuild", { description = "Build the engine using unity build", defau
 set_project("NazaraEngine")
 set_xmakever("2.7.3")
 
-add_requires("chipmunk2d", "dr_wav", "efsw", "entt v3.11.1", "fmt", "frozen", "kiwisolver", "libflac", "libsdl >=2.26.0", "minimp3", "ordered_map", "stb")
-add_requires("freetype", { configs = { bzip2 = true, png = true, woff2 = true, zlib = true, debug = is_mode("debug") } })
-add_requires("libvorbis", { configs = { with_vorbisenc = false } })
-add_requires("openal-soft", { configs = { shared = true }})
-add_requires("newtondynamics3", { debug = is_plat("windows") and is_mode("debug") }) -- Newton doesn't like compiling in Debug on Linux
+add_requires("dr_wav", "entt 3.10.1", "fmt", "frozen", "kiwisolver", "minimp3", "ordered_map", "stb")
+if not is_plat("wasm") then
+	add_requires("chipmunk2d", "libsdl", "libflac", "efsw")
+	add_requires("freetype", { configs = { bzip2 = true, png = true, woff2 = true, zlib = true, debug = is_mode("debug") } })
+	add_requires("libvorbis", { configs = { with_vorbisenc = false } })
+	add_requires("openal-soft", { configs = { shared = true }})
+	add_requires("newtondynamics", { debug = is_plat("windows") and is_mode("debug") }) -- Newton doesn't like compiling in Debug on Linux
+end
 
 add_repositories("nazara-engine-repo https://github.com/NazaraEngine/xmake-repo")
 add_requires("nazarautils")
-add_requires("nzsl", { debug = is_mode("debug"), configs = { with_symbols = not is_mode("release"), shared = true } })
+add_requires("nzsl", { debug = is_mode("debug"), configs = { with_symbols = not is_mode("release"), shared = not is_plat("wasm") } })
 
 if is_plat("linux") then
 	add_requires("libxext", "libuuid", "wayland")
@@ -196,7 +223,7 @@ if has_config("tests") then
 	add_rules("download.assets.unittests")
 end
 
-set_allowedplats("windows", "mingw", "linux", "macosx")
+set_allowedplats("windows", "mingw", "linux", "macosx", "wasm")
 set_allowedmodes("debug", "releasedbg", "release", "asan", "tsan", "coverage")
 set_defaultmode("debug")
 
@@ -310,8 +337,8 @@ function ModuleTargetConfig(name, module)
 	end
 end
 
-for name, module in pairs(modules) do
-	target("Nazara" .. name, function ()
+function ModuleTarget(name, module)
+	target("Nazara" .. name)
 		set_kind("shared")
 		set_group("Modules")
 

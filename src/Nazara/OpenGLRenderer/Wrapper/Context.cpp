@@ -130,6 +130,10 @@ namespace Nz::GL
 
 	void Context::BindBuffer(BufferTarget target, GLuint buffer, bool force) const
 	{
+#ifdef NAZARA_PLATFORM_WEB
+		force = true;
+#endif
+
 		if (m_state.bufferTargets[UnderlyingCast(target)] != buffer || force)
 		{
 			if (!SetCurrentContext(this))
@@ -162,7 +166,12 @@ namespace Nz::GL
 	void Context::BindFramebuffer(FramebufferTarget target, GLuint fbo) const
 	{
 		auto& currentFbo = (target == FramebufferTarget::Draw) ? m_state.boundDrawFBO : m_state.boundReadFBO;
-		if (currentFbo != fbo)
+#ifdef NAZARA_PLATFORM_WEB
+		constexpr bool isWeb = true;
+#else
+		constexpr bool isWeb = false;
+#endif
+		if (currentFbo != fbo || isWeb);
 		{
 			if (!SetCurrentContext(this))
 				throw std::runtime_error("failed to activate context");
@@ -427,7 +436,7 @@ namespace Nz::GL
 
 		try
 		{
-#define NAZARA_OPENGLRENDERER_FUNC(name, sig) loader.Load<sig, UnderlyingCast(FunctionIndex:: name)>(name, #name, true, true);
+#define NAZARA_OPENGLRENDERER_FUNC(name, sig) loader.Load<sig, UnderlyingCast(FunctionIndex:: name)>(name, #name, false, true);
 #define NAZARA_OPENGLRENDERER_EXT_FUNC(name, sig) //< Do nothing
 			NAZARA_OPENGLRENDERER_FOREACH_GLES_FUNC(NAZARA_OPENGLRENDERER_FUNC, NAZARA_OPENGLRENDERER_EXT_FUNC)
 #undef NAZARA_OPENGLRENDERER_EXT_FUNC
