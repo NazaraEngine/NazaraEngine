@@ -66,6 +66,8 @@ namespace Nz
 			FramePipeline& operator=(const FramePipeline&) = delete;
 			FramePipeline& operator=(FramePipeline&&) noexcept = default;
 
+			NazaraSignal(OnTransfer, FramePipeline* /*pipeline*/, RenderFrame& /*renderFrame*/, CommandBufferBuilder& /*builder*/);
+
 		private:
 			std::vector<std::unique_ptr<ElementRenderer>> m_elementRenderers;
 			DebugDrawer m_debugDrawer;

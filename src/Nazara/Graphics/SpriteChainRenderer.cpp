@@ -330,7 +330,7 @@ namespace Nz
 
 		for (auto& vertexBufferPtr : data.vertexBuffers)
 		{
-			currentFrame.PushReleaseCallback([pool = m_vertexBufferPool, vertexBuffer = std::move(vertexBufferPtr)]()
+			currentFrame.PushReleaseCallback([pool = m_vertexBufferPool, vertexBuffer = std::move(vertexBufferPtr)]() mutable
 			{
 				pool->vertexBuffers.push_back(std::move(vertexBuffer));
 			});

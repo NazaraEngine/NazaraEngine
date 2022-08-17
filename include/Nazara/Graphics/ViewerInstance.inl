@@ -70,6 +70,9 @@ namespace Nz
 		if (!m_projectionMatrix.GetInverse(&m_invProjectionMatrix))
 			NazaraError("failed to inverse projection matrix");
 
+		m_viewProjMatrix = m_viewMatrix * m_projectionMatrix;
+		m_invViewProjMatrix = m_invProjectionMatrix * m_invViewMatrix;
+
 		m_dataInvalidated = true;
 	}
 
@@ -77,6 +80,9 @@ namespace Nz
 	{
 		m_projectionMatrix = projectionMatrix;
 		m_invProjectionMatrix = invProjectionMatrix;
+
+		m_viewProjMatrix = m_viewMatrix * m_projectionMatrix;
+		m_invViewProjMatrix = m_invProjectionMatrix * m_invViewMatrix;
 
 		m_dataInvalidated = true;
 	}
@@ -91,9 +97,8 @@ namespace Nz
 		if (!m_viewMatrix.GetInverseTransform(&m_invViewMatrix))
 			NazaraError("failed to inverse view matrix");
 
-		m_viewProjMatrix = m_projectionMatrix * m_viewMatrix;
-		if (!m_viewProjMatrix.GetInverse(&m_invViewProjMatrix))
-			NazaraError("failed to inverse view proj matrix");
+		m_viewProjMatrix = m_viewMatrix * m_projectionMatrix;
+		m_invViewProjMatrix = m_invProjectionMatrix * m_invViewMatrix;
 
 		m_dataInvalidated = true;
 	}
