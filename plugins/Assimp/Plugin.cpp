@@ -209,8 +209,8 @@ void ProcessJoints(const Nz::MeshParams& parameters, const Nz::Matrix4f& transfo
 		}
 		else
 		{
-			joint->SetPosition(Nz::TransformPositionTRS({}, {}, parameters.vertexScale, FromAssimp(position)));
-			joint->SetRotation(Nz::TransformRotationTRS(parameters.vertexRotation, parameters.vertexScale, FromAssimp(rotation)));
+			joint->SetPosition(Nz::TransformPositionTRS({}, Nz::Quaternionf::Identity(), parameters.vertexScale, FromAssimp(position)));
+			joint->SetRotation(FromAssimp(rotation));
 			joint->SetScale(FromAssimp(scaling));
 		}
 
@@ -369,13 +369,13 @@ std::shared_ptr<Nz::Animation> LoadAnimation(Nz::Stream& stream, const Nz::Anima
 
 			if (jointIndex == 0)
 			{
-				sequenceJoints[jointIndex].position = Nz::TransformPositionTRS({}, parameters.jointRotation, parameters.jointScale, interpolatedPosition);
+				sequenceJoints[jointIndex].position = Nz::TransformPositionTRS(parameters.jointOffset, parameters.jointRotation, parameters.jointScale, interpolatedPosition);
 				sequenceJoints[jointIndex].rotation = Nz::TransformRotationTRS(parameters.jointRotation, parameters.jointScale, interpolatedRotation);
 				sequenceJoints[jointIndex].scale = Nz::TransformScaleTRS(parameters.jointScale, interpolatedScale);
 			}
 			else
 			{
-				sequenceJoints[jointIndex].position = Nz::TransformPositionTRS({}, {}, parameters.jointScale, interpolatedPosition);
+				sequenceJoints[jointIndex].position = Nz::TransformPositionTRS({}, Nz::Quaternionf::Identity(), parameters.jointScale, interpolatedPosition);
 				sequenceJoints[jointIndex].rotation = interpolatedRotation;
 				sequenceJoints[jointIndex].scale = interpolatedScale;
 			}
@@ -859,10 +859,8 @@ std::shared_ptr<Nz::Mesh> LoadMesh(Nz::Stream& stream, const Nz::MeshParams& par
 		unsigned int jointIndex = 0;
 		std::unordered_set<const aiNode*> seenNodes;
 
-		Nz::Matrix4f transformMatrix = Nz::Matrix4f::Transform({}, parameters.vertexRotation, parameters.vertexScale);
-		//Nz::Matrix4f invTransformMatrix = Nz::Matrix4f::TransformInverse(parameters.vertexOffset, parameters.vertexRotation, parameters.vertexScale);
-		Nz::Matrix4f invTransformMatrix;
-		transformMatrix.GetInverseTransform(&invTransformMatrix);
+		Nz::Matrix4f transformMatrix = Nz::Matrix4f::Transform({}, Nz::Quaternionf::Identity(), parameters.vertexScale);
+		Nz::Matrix4f invTransformMatrix = Nz::Matrix4f::TransformInverse(parameters.vertexOffset, parameters.vertexRotation, parameters.vertexScale);
 
 		mesh->CreateSkeletal(Nz::SafeCast<Nz::UInt32>(skeletalRoot.totalChildrenCount + 1));
 		for (auto& skeletalMesh : sceneInfo.skeletalMeshes)
