@@ -156,7 +156,7 @@ fn billboardMain(input: VertIn) -> VertOut
 fn main(input: VertIn) -> VertOut
 {
 	let pos: vec3[f32];
-	const if (HasSkinning && false)
+	const if (HasSkinning)
 	{
 		pos = vec3[f32](0.0, 0.0, 0.0);
 
