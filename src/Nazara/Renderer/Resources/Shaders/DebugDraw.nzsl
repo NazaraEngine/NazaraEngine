@@ -1,0 +1,59 @@
+[nzsl_version("1.0")]
+module DebugDraw;
+
+[export]
+[layout(std140)]
+struct ViewerData
+{
+	viewProjMatrix: mat4[f32]
+}
+
+external
+{
+	[binding(0)] viewerData: uniform[ViewerData],
+}
+
+// Fragment stage
+struct FragIn
+{
+	[location(0)] color: vec4[f32]
+}
+
+struct FragOut
+{
+	[location(0)] color: vec4[f32]
+}
+
+[entry(frag)]
+fn main(input: FragIn) -> FragOut
+{
+	let output: FragOut;
+	output.color = input.color;
+	return output;
+}
+
+// Vertex stage
+struct VertIn
+{
+	[location(0)] 
+	pos: vec3[f32],
+
+	[location(1)] 
+	color: vec4[f32]
+}
+
+struct VertOut
+{
+	[location(0)] color: vec4[f32],
+	[builtin(position)] position: vec4[f32]
+}
+
+[entry(vert)]
+fn main(input: VertIn) -> VertOut
+{
+	let output: VertOut;
+	output.position = viewerData.viewProjMatrix * vec4[f32](input.pos, 1.0);
+	output.color = input.color;
+
+	return output;
+}

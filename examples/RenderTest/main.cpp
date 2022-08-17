@@ -2,6 +2,7 @@
 #include <Nazara/Math.hpp>
 #include <Nazara/Platform.hpp>
 #include <Nazara/Renderer.hpp>
+#include <Nazara/Renderer/DebugDrawer.hpp>
 #include <NZSL/FilesystemModuleResolver.hpp>
 #include <NZSL/LangWriter.hpp>
 #include <NZSL/Parser.hpp>
@@ -249,6 +250,8 @@ int main()
 
 	Nz::Mouse::SetRelativeMouseMode(true);
 
+	Nz::DebugDrawer debugDrawer(*renderDevice);
+
 	while (window.IsOpen())
 	{
 		Nz::WindowEvent event;
@@ -329,6 +332,14 @@ int main()
 			continue;
 		}
 
+		debugDrawer.Reset(frame);
+		debugDrawer.SetViewerData(ubo.viewMatrix * ubo.projectionMatrix);
+
+		Nz::Boxf aabb = spaceship->GetAABB();
+		aabb.Transform(ubo.modelMatrix);
+
+		debugDrawer.DrawBox(aabb, Nz::Color::Green);
+
 		ubo.viewMatrix = Nz::Matrix4f::TransformInverse(viewerPos, camAngles);
 
 		if (uboUpdate)
@@ -350,6 +361,8 @@ int main()
 
 			uboUpdate = false;
 		}
+
+		debugDrawer.Prepare(frame);
 
 		const Nz::RenderTarget* windowRT = window.GetRenderTarget();
 		frame.Execute([&](Nz::CommandBufferBuilder& builder)
@@ -375,6 +388,8 @@ int main()
 					builder.SetViewport(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
 
 					builder.DrawIndexed(meshIB->GetIndexCount());
+
+					debugDrawer.Draw(builder);
 				}
 				builder.EndRenderPass();
 			}

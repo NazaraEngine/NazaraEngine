@@ -9,53 +9,91 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
-#include <Nazara/Math/BoundingVolume.hpp>
 #include <Nazara/Math/Box.hpp>
-#include <Nazara/Math/Frustum.hpp>
-#include <Nazara/Math/OrientedBox.hpp>
+#include <Nazara/Math/Matrix4.hpp>
+#include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Renderer/Config.hpp>
+#include <Nazara/Renderer/UploadPool.hpp>
+#include <Nazara/Utility/VertexStruct.hpp>
+#include <memory>
+#include <vector>
 
 namespace Nz
 {
+	class CommandBufferBuilder;
+	class RenderBuffer;
+	class RenderFrame;
+	class RenderDevice;
+	class RenderPipeline;
+	class RenderPipelineLayout;
+	class ShaderBinding;
 	class Skeleton;
-	class StaticMesh;
 
 	class NAZARA_RENDERER_API DebugDrawer
 	{
 		public:
-			static void Draw(const BoundingVolumef& volume);
-			static void Draw(const Boxf& box);
-			static void Draw(const Boxi& box);
-			static void Draw(const Boxui& box);
-			static void Draw(const Frustumf& frustum);
-			static void Draw(const OrientedBoxf& orientedBox);
-			static void Draw(const Skeleton* skeleton);
-			static void Draw(const Vector3f& position, float size = 0.1f);
-			static void DrawAxes(const Vector3f& position = Vector3f::Zero(), float size = 1.f);
-			static void DrawBinormals(const StaticMesh* subMesh);
-			static void DrawCone(const Vector3f& origin, const Quaternionf& rotation, float angle, float length);
-			static void DrawLine(const Vector3f& p1, const Vector3f& p2);
-			static void DrawPoints(const Vector3f* ptr, unsigned int pointCount);
-			static void DrawNormals(const StaticMesh* subMesh, float normalLength = 0.01f);
-			static void DrawTangents(const StaticMesh* subMesh);
+			DebugDrawer(RenderDevice& renderDevice, std::size_t maxVertexPerDraw = DefaultVertexBlockSize);
+			DebugDrawer(const DebugDrawer&) = delete;
+			DebugDrawer(DebugDrawer&&) = delete;
+			~DebugDrawer();
 
-			static void EnableDepthBuffer(bool depthBuffer);
+			void Draw(CommandBufferBuilder& builder);
 
-			static float GetLineWidth();
-			static float GetPointSize();
-			static Color GetPrimaryColor();
-			static Color GetSecondaryColor();
+			inline void DrawBox(const Boxf& box, const Color& color);
+			inline void DrawLine(const Vector3f& start, const Vector3f& end, const Color& color);
+			inline void DrawLine(const Vector3f& start, const Vector3f& end, const Color& startColor, const Color& endColor);
+			void DrawSkeleton(const Skeleton& skeleton, const Color& color);
 
-			static bool Initialize();
-			static bool IsDepthBufferEnabled();
+			void Prepare(RenderFrame& renderFrame);
 
-			static void SetLineWidth(float width);
-			static void SetPointSize(float size);
-			static void SetPrimaryColor(const Color& color);
-			static void SetSecondaryColor(const Color& color);
+			void Reset(RenderFrame& renderFrame);
 
-			static void Uninitialize();
+			void SetViewerData(const Matrix4f& viewProjMatrix);
+
+			DebugDrawer& operator=(const DebugDrawer&) = delete;
+			DebugDrawer& operator=(DebugDrawer&&) = delete;
+
+			static constexpr std::size_t DefaultVertexBlockSize = 4096;
+
+		private:
+			struct ViewerData
+			{
+				std::shared_ptr<RenderBuffer> buffer;
+				std::shared_ptr<ShaderBinding> binding;
+			};
+
+			struct DataPool
+			{
+				std::vector<std::shared_ptr<RenderBuffer>> vertexBuffers;
+				std::vector<ViewerData> viewerData;
+			};
+
+			struct DrawCall
+			{
+				std::shared_ptr<RenderBuffer> vertexBuffer;
+				std::uint64_t vertexCount;
+			};
+
+			struct PendingUpload
+			{
+				UploadPool::Allocation* allocation;
+				RenderBuffer* vertexBuffer;
+			};
+
+			std::shared_ptr<DataPool> m_dataPool;
+			std::shared_ptr<RenderPipeline> m_renderPipeline;
+			std::shared_ptr<RenderPipelineLayout> m_renderPipelineLayout;
+			std::size_t m_vertexPerBlock;
+			std::vector<DrawCall> m_drawCalls;
+			std::vector<PendingUpload> m_pendingUploads;
+			std::vector<UInt8> m_viewerData;
+			std::vector<VertexStruct_XYZ_Color> m_lineVertices;
+			RenderDevice& m_renderDevice;
+			ViewerData m_currentViewerData;
+			bool m_viewerDataUpdated;
 	};
 }
+
+#include <Nazara/Renderer/DebugDrawer.inl>
 
 #endif // NAZARA_RENDERER_DEBUGDRAWER_HPP
