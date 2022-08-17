@@ -4,6 +4,10 @@
 
 #include <Nazara/Graphics/DebugDrawPipelinePass.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
+#include <Nazara/Graphics/FrameGraph.hpp>
+#include <Nazara/Graphics/FramePipeline.hpp>
+#include <Nazara/Graphics/ViewerInstance.hpp>
+#include <Nazara/Renderer/DebugDrawer.hpp>
 #include <Nazara/Renderer/RenderFrame.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 

@@ -21,7 +21,7 @@ namespace Nz
 	class NAZARA_WIDGETS_API ScrollbarButtonWidget : public BaseWidget
 	{
 		public:
-			inline ScrollbarButtonWidget(BaseWidget* parent);
+			ScrollbarButtonWidget(BaseWidget* parent);
 			ScrollbarButtonWidget(const ScrollbarButtonWidget&) = delete;
 			ScrollbarButtonWidget(ScrollbarButtonWidget&&) = default;
 			~ScrollbarButtonWidget() = default;

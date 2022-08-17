@@ -36,8 +36,8 @@ namespace Nz
 
 			void RegisterToFrameGraph(FrameGraph& frameGraph, std::size_t inputColorBufferIndex, std::size_t outputColorBufferIndex);
 
-			DepthPipelinePass& operator=(const DepthPipelinePass&) = delete;
-			DepthPipelinePass& operator=(DepthPipelinePass&&) = delete;
+			DebugDrawPipelinePass& operator=(const DebugDrawPipelinePass&) = delete;
+			DebugDrawPipelinePass& operator=(DebugDrawPipelinePass&&) = delete;
 
 		private:
 			AbstractViewer* m_viewer;
