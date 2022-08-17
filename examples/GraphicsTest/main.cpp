@@ -220,6 +220,8 @@ int main()
 			continue;
 		}
 
+		framePipeline.GetDebugDrawer().DrawLine(Nz::Vector3f::Zero(), Nz::Vector3f::Forward(), Nz::Color::Blue);
+
 		viewerInstance.UpdateViewMatrix(Nz::Matrix4f::TransformInverse(viewerPos, camAngles));
 		viewerInstance.UpdateEyePosition(viewerPos);
 

@@ -164,6 +164,7 @@ namespace Nz
 		std::size_t viewerIndex;
 		auto& viewerData = *m_viewerPool.Allocate(viewerIndex);
 		viewerData.renderOrder = renderOrder;
+		viewerData.debugDrawPass = std::make_unique<DebugDrawPipelinePass>(*this, viewerInstance);
 		viewerData.depthPrepass = std::make_unique<DepthPipelinePass>(*this, viewerInstance);
 		viewerData.forwardPass = std::make_unique<ForwardPipelinePass>(*this, viewerInstance);
 		viewerData.viewer = viewerInstance;
@@ -209,7 +210,7 @@ namespace Nz
 
 		renderFrame.Execute([&](CommandBufferBuilder& builder)
 		{
-			builder.BeginDebugRegion("UBO Update", Color::Yellow);
+			builder.BeginDebugRegion("CPU to GPU transfers", Color::Yellow);
 			{
 				builder.PreTransferBarrier();
 
@@ -297,6 +298,8 @@ namespace Nz
 				viewerData.depthPrepass->Prepare(renderFrame, frustum, m_visibleRenderables, depthVisibilityHash);
 
 			viewerData.forwardPass->Prepare(renderFrame, frustum, m_visibleRenderables, m_visibleLights, visibilityHash);
+
+			viewerData.debugDrawPass->Prepare(renderFrame);
 		}
 
 		if (m_bakedFrameGraph.Resize(renderFrame))
@@ -312,7 +315,7 @@ namespace Nz
 					{
 						0,
 						ShaderBinding::TextureBinding {
-							m_bakedFrameGraph.GetAttachmentTexture(viewerData.colorAttachment).get(),
+							m_bakedFrameGraph.GetAttachmentTexture(viewerData.debugColorAttachment).get(),
 							sampler.get()
 						}
 					}
@@ -376,6 +379,10 @@ namespace Nz
 
 			}, QueueType::Graphics);
 		}
+
+		// reset at the end instead of the beginning so debug draw can be used before calling this method
+		DebugDrawer& debugDrawer = GetDebugDrawer();
+		debugDrawer.Reset(renderFrame);
 	}
 
 	void ForwardFramePipeline::UnregisterLight(std::size_t lightIndex)
@@ -475,10 +482,12 @@ namespace Nz
 
 		for (auto& viewerData : m_viewerPool)
 		{
-			viewerData.colorAttachment = frameGraph.AddAttachment({
-				"Color",
+			viewerData.forwardColorAttachment = frameGraph.AddAttachment({
+				"Forward output",
 				PixelFormat::RGBA8
 			});
+			
+			viewerData.debugColorAttachment = frameGraph.AddAttachmentProxy("Debug draw output", viewerData.forwardColorAttachment);
 
 			viewerData.depthStencilAttachment = frameGraph.AddAttachment({
 				"Depth-stencil buffer",
@@ -488,7 +497,9 @@ namespace Nz
 			if (viewerData.depthPrepass)
 				viewerData.depthPrepass->RegisterToFrameGraph(frameGraph, viewerData.depthStencilAttachment);
 
-			viewerData.forwardPass->RegisterToFrameGraph(frameGraph, viewerData.colorAttachment, viewerData.depthStencilAttachment, viewerData.depthPrepass != nullptr);
+			viewerData.forwardPass->RegisterToFrameGraph(frameGraph, viewerData.forwardColorAttachment, viewerData.depthStencilAttachment, viewerData.depthPrepass != nullptr);
+
+			viewerData.debugDrawPass->RegisterToFrameGraph(frameGraph, viewerData.forwardColorAttachment, viewerData.debugColorAttachment);
 		}
 
 		using ViewerPair = std::pair<const RenderTarget*, const ViewerData*>;
@@ -526,7 +537,7 @@ namespace Nz
 			});
 
 			for (const ViewerData* viewerData : targetViewers)
-				mergePass.AddInput(viewerData->colorAttachment);
+				mergePass.AddInput(viewerData->debugColorAttachment);
 
 			mergePass.AddOutput(renderTargetData.finalAttachment);
 			mergePass.SetClearColor(0, Color::Black);

@@ -8,6 +8,11 @@
 
 namespace Nz
 {
+	inline DebugDrawer& FramePipeline::GetDebugDrawer()
+	{
+		return m_debugDrawer;
+	}
+
 	inline ElementRenderer& FramePipeline::GetElementRenderer(std::size_t elementIndex)
 	{
 		assert(elementIndex < m_elementRenderers.size());

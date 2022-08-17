@@ -11,6 +11,7 @@
 #include <Nazara/Graphics/BakedFrameGraph.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/DepthPipelinePass.hpp>
+#include <Nazara/Graphics/DebugDrawPipelinePass.hpp>
 #include <Nazara/Graphics/ElementRenderer.hpp>
 #include <Nazara/Graphics/ForwardPipelinePass.hpp>
 #include <Nazara/Graphics/FramePipeline.hpp>
@@ -106,10 +107,12 @@ namespace Nz
 
 			struct ViewerData
 			{
-				std::size_t colorAttachment;
+				std::size_t forwardColorAttachment;
+				std::size_t debugColorAttachment;
 				std::size_t depthStencilAttachment;
 				std::unique_ptr<DepthPipelinePass> depthPrepass;
 				std::unique_ptr<ForwardPipelinePass> forwardPass;
+				std::unique_ptr<DebugDrawPipelinePass> debugDrawPass;
 				AbstractViewer* viewer;
 				Int32 renderOrder = 0;
 				RenderQueueRegistry forwardRegistry;

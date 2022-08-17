@@ -20,6 +20,16 @@ namespace Nz
 
 		return windowRef;
 	}
+
+	inline FramePipeline& RenderSystem::GetFramePipeline()
+	{
+		return *m_pipeline;
+	}
+
+	inline const FramePipeline& RenderSystem::GetFramePipeline() const
+	{
+		return *m_pipeline;
+	}
 }
 
 #include <Nazara/Graphics/DebugOff.hpp>

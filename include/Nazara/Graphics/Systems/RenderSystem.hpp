@@ -40,6 +40,9 @@ namespace Nz
 
 			template<typename T = RenderWindow, typename... Args> T& CreateWindow(Args&&... args);
 
+			inline FramePipeline& GetFramePipeline();
+			inline const FramePipeline& GetFramePipeline() const;
+
 			void Update(float elapsedTime);
 
 			RenderSystem& operator=(const RenderSystem&) = delete;

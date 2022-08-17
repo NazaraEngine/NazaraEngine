@@ -12,6 +12,7 @@
 #include <Nazara/Graphics/RenderElement.hpp>
 #include <Nazara/Graphics/RenderQueue.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
+#include <Nazara/Renderer/DebugDrawer.hpp>
 #include <memory>
 #include <vector>
 
@@ -34,6 +35,7 @@ namespace Nz
 
 			template<typename F> void ForEachElementRenderer(F&& callback);
 
+			inline DebugDrawer& GetDebugDrawer();
 			inline ElementRenderer& GetElementRenderer(std::size_t elementIndex);
 			inline std::size_t GetElementRendererCount() const;
 
@@ -66,6 +68,7 @@ namespace Nz
 
 		private:
 			std::vector<std::unique_ptr<ElementRenderer>> m_elementRenderers;
+			DebugDrawer m_debugDrawer;
 	};
 }
 

@@ -11,9 +11,10 @@
 
 namespace Nz
 {
-	FramePipeline::FramePipeline()
+	FramePipeline::FramePipeline() :
+	m_elementRenderers(BasicRenderElementCount),
+	m_debugDrawer(*Graphics::Instance()->GetRenderDevice())
 	{
-		m_elementRenderers.resize(BasicRenderElementCount);
 		m_elementRenderers[UnderlyingCast(BasicRenderElement::SpriteChain)] = std::make_unique<SpriteChainRenderer>(*Graphics::Instance()->GetRenderDevice());
 		m_elementRenderers[UnderlyingCast(BasicRenderElement::Submesh)] = std::make_unique<SubmeshRenderer>();
 	}
