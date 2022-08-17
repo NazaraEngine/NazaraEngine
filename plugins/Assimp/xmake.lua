@@ -6,7 +6,7 @@ option("assimp")
 option_end()
 
 if has_config("assimp") then
-	add_requires("assimp")
+	add_requires("assimp v5.2.3")
 
 	target("PluginAssimp")
 		set_kind("shared")
