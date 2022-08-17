@@ -87,8 +87,6 @@ int main()
 	Nz::MeshParams meshParams;
 	meshParams.animated = true;
 	meshParams.center = true;
-	meshParams.vertexOffset = Nz::Vector3f(3.f, 0.f, 0.f);
-	meshParams.vertexRotation = Nz::EulerAnglesf(0.f, 0.f, 0.f);
 	meshParams.vertexScale = Nz::Vector3f(0.1f, 0.1f, 0.1f);
 	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_Normal_UV_Tangent_Skinning);
 
@@ -105,7 +103,7 @@ int main()
 	animParam.jointScale = meshParams.vertexScale;
 	animParam.jointOffset = meshParams.vertexOffset;
 
-	std::shared_ptr<Nz::Animation> bobAnim = Nz::Animation::LoadFromFile(resourceDir / "character/Wave Hip Hop Dance.fbx", animParam);
+	std::shared_ptr<Nz::Animation> bobAnim = Nz::Animation::LoadFromFile(resourceDir / "character/Gangnam Style.fbx", animParam);
 	if (!bobAnim)
 	{
 		NazaraError("Failed to load bob anim");
@@ -253,6 +251,14 @@ int main()
 
 	window.EnableEventPolling(true);
 
+	renderSystem.GetFramePipeline().OnTransfer.Connect([&](Nz::FramePipeline* pipeline, Nz::RenderFrame& renderFrame, Nz::CommandBufferBuilder& builder)
+	{
+		auto& skeletalAllocation = renderFrame.GetUploadPool().Allocate(skeletalBufferMem.size());
+		std::memcpy(skeletalAllocation.mappedPtr, skeletalBufferMem.data(), skeletalBufferMem.size());
+
+		builder.CopyBuffer(skeletalAllocation, Nz::RenderBufferView(renderBuffer.get()));
+	});
+
 	Nz::Clock fpsClock, updateClock;
 	float incr = 0.f;
 	unsigned int currentFrame = 0;
@@ -388,29 +394,8 @@ int main()
 				playerShipBody.AddForce(Nz::Vector3f::Down() * 3.f * mass, Nz::CoordSys::Local);*/
 		}
 
-		Nz::RenderFrame frame = window.AcquireFrame();
-		if (!frame)
-			continue;
-
-		frame.Execute([&](Nz::CommandBufferBuilder& builder)
-		{
-			builder.BeginDebugRegion("Skeletal UBO Update", Nz::Color::Yellow);
-			{
-				builder.PreTransferBarrier();
-
-				auto& skeletalAllocation = frame.GetUploadPool().Allocate(skeletalBufferMem.size());
-				std::memcpy(skeletalAllocation.mappedPtr, skeletalBufferMem.data(), skeletalBufferMem.size());
-
-				builder.CopyBuffer(skeletalAllocation, Nz::RenderBufferView(renderBuffer.get()));
-
-				builder.PostTransferBarrier();
-			}
-			builder.EndDebugRegion();
-		}, Nz::QueueType::Graphics);
 
 		systemGraph.Update();
-
-		frame.Present();
 
 		fps++;
 

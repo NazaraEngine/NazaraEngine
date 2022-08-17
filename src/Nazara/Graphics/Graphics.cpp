@@ -50,6 +50,10 @@ namespace Nz
 			#include <Nazara/Graphics/Resources/Shaders/Modules/Engine/LightData.nzslb.h>
 		};
 
+		const UInt8 r_skeletalDataModule[] = {
+			#include <Nazara/Graphics/Resources/Shaders/Modules/Engine/SkeletalData.nzslb.h>
+		};
+
 		const UInt8 r_viewerDataModule[] = {
 			#include <Nazara/Graphics/Resources/Shaders/Modules/Engine/ViewerData.nzslb.h>
 		};
@@ -233,6 +237,7 @@ namespace Nz
 		RegisterEmbedShaderModule(r_mathCookTorrancePBRModule);
 		RegisterEmbedShaderModule(r_phongMaterialShader);
 		RegisterEmbedShaderModule(r_physicallyBasedMaterialShader);
+		RegisterEmbedShaderModule(r_skeletalDataModule);
 		RegisterEmbedShaderModule(r_textureBlitShader);
 		RegisterEmbedShaderModule(r_viewerDataModule);
 

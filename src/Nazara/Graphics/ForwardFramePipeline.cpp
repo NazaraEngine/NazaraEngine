@@ -214,6 +214,8 @@ namespace Nz
 			{
 				builder.PreTransferBarrier();
 
+				OnTransfer(this, renderFrame, builder);
+
 				for (std::size_t viewerIndex = m_invalidatedViewerInstances.FindFirst(); viewerIndex != m_invalidatedViewerInstances.npos; viewerIndex = m_invalidatedViewerInstances.FindNext(viewerIndex))
 				{
 					ViewerData* viewerData = m_viewerPool.RetrieveFromIndex(viewerIndex);
