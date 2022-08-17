@@ -128,7 +128,7 @@ int main()
 		skinningData.outputPositions = mapper.GetComponentPtr<Nz::Vector3f>(Nz::VertexComponent::Position);
 		skinningData.inputPositions = skinningData.outputPositions;
 
-		Nz::SkinPosition(skinningData, 0, mapper.GetVertexCount());
+		Nz::SkinLinearBlend(skinningData, 0, mapper.GetVertexCount());
 	}*/
 
 	/*for (std::size_t i = 0; i < skeleton.GetJointCount(); ++i)
@@ -394,6 +394,8 @@ int main()
 				playerShipBody.AddForce(Nz::Vector3f::Down() * 3.f * mass, Nz::CoordSys::Local);*/
 		}
 
+		Nz::DebugDrawer& debugDrawer = renderSystem.GetFramePipeline().GetDebugDrawer();
+		debugDrawer.DrawSkeleton(skeleton, Nz::Color::Red);
 
 		systemGraph.Update();
 
