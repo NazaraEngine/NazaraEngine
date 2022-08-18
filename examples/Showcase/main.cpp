@@ -12,6 +12,7 @@
 #include <Nazara/Renderer.hpp>
 #include <Nazara/Utility.hpp>
 #include <Nazara/Utility/Components.hpp>
+#include <Nazara/Utility/Plugins/AssimpPlugin.hpp>
 #include <Nazara/Utils/CallOnExit.hpp>
 #include <NZSL/Math/FieldOffsets.hpp>
 #include <entt/entt.hpp>
@@ -31,12 +32,9 @@ int main()
 	rendererConfig.preferredAPI = Nz::RenderAPI::OpenGL;
 
 	Nz::Modules<Nz::Graphics> nazara(rendererConfig);
-	
-	Nz::PluginManager::Mount(Nz::Plugin::Assimp);
-	Nz::CallOnExit unmountAssimp([]
-	{
-		Nz::PluginManager::Unmount(Nz::Plugin::Assimp);
-	});
+
+	Nz::PluginLoader loader;
+	Nz::Plugin<Nz::AssimpPlugin> assimp = loader.Load<Nz::AssimpPlugin>();
 
 	std::shared_ptr<Nz::RenderDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
 
