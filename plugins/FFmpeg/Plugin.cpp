@@ -14,6 +14,7 @@ You should have received a copy of the GNU General Public License along with thi
 #include <Nazara/Core/ByteStream.hpp>
 #include <Nazara/Utility/ImageStream.hpp>
 #include <Nazara/Utility/Utility.hpp>
+#include <Nazara/Utility/Plugins/FFmpegPlugin.hpp>
 
 extern "C"
 {
@@ -28,8 +29,6 @@ extern "C"
 
 namespace
 {
-	const Nz::ImageStreamLoader::Entry* ffmpegLoaderEntry = nullptr;
-
 	class FFmpegStream : public Nz::ImageStream
 	{
 		public:
@@ -448,35 +447,70 @@ namespace
 
 		return ffmpegStream;
 	}
+
+	class FFmpegPluginImpl final : public Nz::FFmpegPlugin
+	{
+		public:
+			bool Activate() override
+			{
+				Nz::Utility* utility = Nz::Utility::Instance();
+				NazaraAssert(utility, "utility module is not instancied");
+
+				Nz::ImageStreamLoader::Entry loaderEntry;
+				loaderEntry.extensionSupport = CheckVideoExtension;
+				loaderEntry.streamChecker = CheckVideo;
+				loaderEntry.fileLoader = LoadFile;
+				loaderEntry.memoryLoader = LoadMemory;
+				loaderEntry.streamLoader = LoadStream;
+
+				Nz::ImageStreamLoader& imageStreamLoader = utility->GetImageStreamLoader();
+				m_ffmpegLoaderEntry = imageStreamLoader.RegisterLoader(loaderEntry);
+
+				return true;
+			}
+
+			void Deactivate() override
+			{
+				Nz::Utility* utility = Nz::Utility::Instance();
+				NazaraAssert(utility, "utility module is not instancied");
+
+				Nz::ImageStreamLoader& imageStreamLoader = utility->GetImageStreamLoader();
+				imageStreamLoader.UnregisterLoader(m_ffmpegLoaderEntry);
+				m_ffmpegLoaderEntry = nullptr;
+			}
+
+			std::string_view GetDescription() const
+			{
+				return "Adds supports to load and decode videos streams";
+			}
+
+			std::string_view GetName() const override
+			{
+				return "FFMpeg loader";
+			}
+
+			Nz::UInt32 GetVersion() const override
+			{
+				return 100;
+			}
+
+		private:
+			const Nz::ImageStreamLoader::Entry* m_ffmpegLoaderEntry = nullptr;
+	};
 }
 
 extern "C"
 {
-	NAZARA_EXPORT int PluginLoad()
+	NAZARA_EXPORT Nz::PluginInterface* PluginLoad()
 	{
 		Nz::Utility* utility = Nz::Utility::Instance();
-		NazaraAssert(utility, "utility module is not instancied");
+		if (!utility)
+		{
+			NazaraError("Utility module must be initialized");
+			return nullptr;
+		}
 
-		Nz::ImageStreamLoader::Entry loaderEntry;
-		loaderEntry.extensionSupport = CheckVideoExtension;
-		loaderEntry.streamChecker = CheckVideo;
-		loaderEntry.fileLoader = LoadFile;
-		loaderEntry.memoryLoader = LoadMemory;
-		loaderEntry.streamLoader = LoadStream;
-
-		Nz::ImageStreamLoader& imageStreamLoader = utility->GetImageStreamLoader();
-		ffmpegLoaderEntry = imageStreamLoader.RegisterLoader(loaderEntry);
-
-		return 1;
-	}
-
-	NAZARA_EXPORT void PluginUnload()
-	{
-		Nz::Utility* utility = Nz::Utility::Instance();
-		NazaraAssert(utility, "utility module is not instancied");
-
-		Nz::ImageStreamLoader& imageStreamLoader = utility->GetImageStreamLoader();
-		imageStreamLoader.UnregisterLoader(ffmpegLoaderEntry);
-		ffmpegLoaderEntry = nullptr;
+		std::unique_ptr<FFmpegPluginImpl> plugin = std::make_unique<FFmpegPluginImpl>();
+		return plugin.release();
 	}
 }

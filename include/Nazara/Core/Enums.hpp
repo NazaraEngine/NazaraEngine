@@ -132,16 +132,6 @@ namespace Nz
 		Max = Userdata
 	};
 
-	enum class Plugin
-	{
-		Assimp,
-		FFmpeg,
-
-		Max = Assimp
-	};
-
-	constexpr std::size_t PluginCount = static_cast<std::size_t>(Plugin::Max) + 1;
-
 	enum class PrimitiveType
 	{
 		Box,

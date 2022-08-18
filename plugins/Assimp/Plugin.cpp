@@ -40,6 +40,7 @@ SOFTWARE.
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/VertexMapper.hpp>
 #include <Nazara/Utility/Utility.hpp>
+#include <Nazara/Utility/Plugins/AssimpPlugin.hpp>
 #include <assimp/cfileio.h>
 #include <assimp/cimport.h>
 #include <assimp/config.h>
@@ -888,49 +889,80 @@ std::shared_ptr<Nz::Mesh> LoadMesh(Nz::Stream& stream, const Nz::MeshParams& par
 
 namespace
 {
-	const Nz::AnimationLoader::Entry* animationLoaderEntry = nullptr;
-	const Nz::MeshLoader::Entry* meshLoaderEntry = nullptr;
+	class AssimpPluginImpl final : public Nz::AssimpPlugin
+	{
+		public:
+			bool Activate() override
+			{
+				Nz::Utility* utility = Nz::Utility::Instance();
+				NazaraAssert(utility, "utility module is not instancied");
+
+				Nz::AnimationLoader& animationLoader = utility->GetAnimationLoader();
+				m_animationLoaderEntry = animationLoader.RegisterLoader({
+					IsSupported,
+					nullptr,
+					nullptr,
+					CheckAnimation,
+					LoadAnimation
+					});
+
+				Nz::MeshLoader& meshLoader = utility->GetMeshLoader();
+				m_meshLoaderEntry = meshLoader.RegisterLoader({
+					IsSupported,
+					nullptr,
+					nullptr,
+					CheckMesh,
+					LoadMesh
+				});
+
+				return true;
+			}
+
+			void Deactivate() override
+			{
+				Nz::Utility* utility = Nz::Utility::Instance();
+				NazaraAssert(utility, "utility module is not instancied");
+
+				Nz::AnimationLoader& animationLoader = utility->GetAnimationLoader();
+				animationLoader.UnregisterLoader(m_animationLoaderEntry);
+
+				Nz::MeshLoader& meshLoader = utility->GetMeshLoader();
+				meshLoader.UnregisterLoader(m_meshLoaderEntry);
+			}
+
+			std::string_view GetDescription() const
+			{
+				return "Adds supports to load meshes and animations using Assimp";
+			}
+
+			std::string_view GetName() const override
+			{
+				return "Assimp loader";
+			}
+
+			Nz::UInt32 GetVersion() const override
+			{
+				return 100;
+			}
+
+		private:
+			const Nz::AnimationLoader::Entry* m_animationLoaderEntry = nullptr;
+			const Nz::MeshLoader::Entry* m_meshLoaderEntry = nullptr;
+	};
 }
 
 extern "C"
 {
-	NAZARA_EXPORT int PluginLoad()
+	NAZARA_EXPORT Nz::PluginInterface* PluginLoad()
 	{
 		Nz::Utility* utility = Nz::Utility::Instance();
-		NazaraAssert(utility, "utility module is not instancied");
+		if (!utility)
+		{
+			NazaraError("Utility module must be initialized");
+			return nullptr;
+		}
 
-		Nz::AnimationLoader& animationLoader = utility->GetAnimationLoader();
-		animationLoaderEntry = animationLoader.RegisterLoader({
-			IsSupported,
-			nullptr,
-			nullptr,
-			CheckAnimation,
-			LoadAnimation
-		});
-		
-		Nz::MeshLoader& meshLoader = utility->GetMeshLoader();
-		meshLoaderEntry = meshLoader.RegisterLoader({
-			IsSupported,
-			nullptr,
-			nullptr,
-			CheckMesh,
-			LoadMesh
-		});
-
-		return 1;
-	}
-
-	NAZARA_EXPORT void PluginUnload()
-	{
-		Nz::Utility* utility = Nz::Utility::Instance();
-		NazaraAssert(utility, "utility module is not instancied");
-
-		Nz::AnimationLoader& animationLoader = utility->GetAnimationLoader();
-		animationLoader.UnregisterLoader(animationLoaderEntry);
-		animationLoaderEntry = nullptr;
-
-		Nz::MeshLoader& meshLoader = utility->GetMeshLoader();
-		meshLoader.UnregisterLoader(meshLoaderEntry);
-		meshLoaderEntry = nullptr;
+		std::unique_ptr<AssimpPluginImpl> plugin = std::make_unique<AssimpPluginImpl>();
+		return plugin.release();
 	}
 }
