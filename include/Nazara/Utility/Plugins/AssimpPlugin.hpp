@@ -17,9 +17,9 @@ namespace Nz
 	{
 		public:
 #ifdef NAZARA_DEBUG
-			static constexpr std::string_view Filename = "PluginAssimp-d";
+			static constexpr inline std::string_view Filename = "PluginAssimp-d";
 #else
-			static constexpr std::string_view Filename = "PluginAssimp";
+			static constexpr inline std::string_view Filename = "PluginAssimp";
 #endif
 
 			AssimpPlugin() = default;
