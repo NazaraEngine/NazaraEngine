@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_UTILITY_PLUGIN_FFMPEGPLUGIN_HPP
-#define NAZARA_UTILITY_PLUGIN_FFMPEGPLUGIN_HPP
+#ifndef NAZARA_UTILITY_PLUGINS_FFMPEGPLUGIN_HPP
+#define NAZARA_UTILITY_PLUGINS_FFMPEGPLUGIN_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/PluginInterface.hpp>
@@ -36,4 +36,4 @@ namespace Nz
 
 #include <Nazara/Utility/Plugins/FFmpegPlugin.inl>
 
-#endif // NAZARA_UTILITY_PLUGIN_FFMPEGPLUGIN_HPP
+#endif // NAZARA_UTILITY_PLUGINS_FFMPEGPLUGIN_HPP

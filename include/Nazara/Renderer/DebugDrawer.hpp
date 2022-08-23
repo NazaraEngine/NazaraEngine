@@ -71,7 +71,7 @@ namespace Nz
 			struct DrawCall
 			{
 				std::shared_ptr<RenderBuffer> vertexBuffer;
-				std::uint64_t vertexCount;
+				std::size_t vertexCount;
 			};
 
 			struct PendingUpload
