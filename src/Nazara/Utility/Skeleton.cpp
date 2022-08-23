@@ -146,6 +146,22 @@ namespace Nz
 		return it->second;
 	}
 
+	Joint* Skeleton::GetRootJoint()
+	{
+		NazaraAssert(m_impl, "skeleton must have been created");
+
+		assert(!m_impl->joints.empty());
+		return &m_impl->joints.front();
+	}
+
+	const Joint* Skeleton::GetRootJoint() const
+	{
+		NazaraAssert(m_impl, "skeleton must have been created");
+
+		assert(!m_impl->joints.empty());
+		return &m_impl->joints.front();
+	}
+
 	void Skeleton::Interpolate(const Skeleton& skeletonA, const Skeleton& skeletonB, float interpolation)
 	{
 		NazaraAssert(m_impl, "skeleton must have been created");
