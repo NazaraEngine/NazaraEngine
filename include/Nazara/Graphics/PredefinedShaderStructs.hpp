@@ -48,6 +48,17 @@ namespace Nz
 		static MaterialSettings::SharedUniformBlock GetUniformBlock(UInt32 bindingIndex, nzsl::ShaderStageTypeFlags shaderStages);
 	};
 
+	struct NAZARA_GRAPHICS_API PredefinedSkeletalData
+	{
+		std::size_t totalSize;
+		std::size_t jointMatricesOffset;
+
+		static constexpr std::size_t MaxMatricesCount = 256;
+
+		static PredefinedSkeletalData GetOffsets();
+		static MaterialSettings::SharedUniformBlock GetUniformBlock(UInt32 bindingIndex, nzsl::ShaderStageTypeFlags shaderStages);
+	};
+
 	struct NAZARA_GRAPHICS_API PredefinedViewerData
 	{
 		std::size_t eyePositionOffset;
