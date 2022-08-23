@@ -10,8 +10,8 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/BakedFrameGraph.hpp>
 #include <Nazara/Graphics/Config.hpp>
-#include <Nazara/Graphics/DepthPipelinePass.hpp>
 #include <Nazara/Graphics/DebugDrawPipelinePass.hpp>
+#include <Nazara/Graphics/DepthPipelinePass.hpp>
 #include <Nazara/Graphics/ElementRenderer.hpp>
 #include <Nazara/Graphics/ForwardPipelinePass.hpp>
 #include <Nazara/Graphics/FramePipeline.hpp>

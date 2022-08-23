@@ -8,6 +8,7 @@
 
 namespace Nz
 {
+	// PredefinedLightData
 	PredefinedLightData PredefinedLightData::GetOffsets()
 	{
 		PredefinedLightData lightData;
@@ -51,6 +52,7 @@ namespace Nz
 		return uniformBlock;
 	}
 
+	// PredefinedInstanceData
 	PredefinedInstanceData PredefinedInstanceData::GetOffsets()
 	{
 		nzsl::FieldOffsets viewerStruct(nzsl::StructLayout::Std140);
@@ -85,6 +87,40 @@ namespace Nz
 		return uniformBlock;
 	}
 
+	// PredefinedSkeletalData
+	PredefinedSkeletalData PredefinedSkeletalData::GetOffsets()
+	{
+		nzsl::FieldOffsets skeletalStruct(nzsl::StructLayout::Std140);
+
+		PredefinedSkeletalData skeletalData;
+		skeletalData.jointMatricesOffset = skeletalStruct.AddMatrixArray(nzsl::StructFieldType::Float1, 4, 4, true, 100);
+
+		skeletalData.totalSize = skeletalStruct.GetAlignedSize();
+
+		return skeletalData;
+	}
+
+	MaterialSettings::SharedUniformBlock PredefinedSkeletalData::GetUniformBlock(UInt32 bindingIndex, nzsl::ShaderStageTypeFlags shaderStages)
+	{
+		PredefinedSkeletalData skeletalData = GetOffsets();
+
+		std::vector<MaterialSettings::UniformVariable> variables = {
+			{
+				{ "JointMatrices", skeletalData.jointMatricesOffset }
+			}
+		};
+
+		MaterialSettings::SharedUniformBlock uniformBlock = {
+			bindingIndex,
+			"SkeletalData",
+			std::move(variables),
+			shaderStages
+		};
+
+		return uniformBlock;
+	}
+
+	// PredefinedViewerData
 	PredefinedViewerData PredefinedViewerData::GetOffsets()
 	{
 		nzsl::FieldOffsets viewerStruct(nzsl::StructLayout::Std140);
@@ -132,5 +168,4 @@ namespace Nz
 
 		return uniformBlock;
 	}
-
 }

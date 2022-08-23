@@ -147,7 +147,7 @@ int main()
 		std::shared_ptr<Nz::Material> bobMat = std::make_shared<Nz::Material>();
 
 		std::shared_ptr<Nz::MaterialPass> bobMatPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
-		bobMatPass->SetSharedUniformBuffer(0, renderBuffer);
+		bobMatPass->SetSharedUniformBuffer(1, renderBuffer);
 
 		bobMatPass->EnableDepthBuffer(true);
 		{
