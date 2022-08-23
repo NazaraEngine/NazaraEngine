@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_UTILITY_PLUGIN_ASSIMPPLUGIN_HPP
-#define NAZARA_UTILITY_PLUGIN_ASSIMPPLUGIN_HPP
+#ifndef NAZARA_UTILITY_PLUGINS_ASSIMPPLUGIN_HPP
+#define NAZARA_UTILITY_PLUGINS_ASSIMPPLUGIN_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/PluginInterface.hpp>
@@ -34,4 +34,4 @@ namespace Nz
 
 #include <Nazara/Utility/Plugins/AssimpPlugin.inl>
 
-#endif // NAZARA_UTILITY_PLUGIN_ASSIMPPLUGIN_HPP
+#endif // NAZARA_UTILITY_PLUGINS_ASSIMPPLUGIN_HPP
