@@ -85,7 +85,7 @@ local modules = {
 	},
 	Physics3D = {
 		Deps = {"NazaraUtility"},
-		Packages = {"entt", "newtondynamics"}
+		Packages = {"entt", "newtondynamics3"}
 	},
 	Platform = {
 		Deps = {"NazaraUtility"},
@@ -176,7 +176,7 @@ add_requires("chipmunk2d", "dr_wav", "efsw", "entt 3.10.1", "fmt", "frozen", "ki
 add_requires("freetype", { configs = { bzip2 = true, png = true, woff2 = true, zlib = true, debug = is_mode("debug") } })
 add_requires("libvorbis", { configs = { with_vorbisenc = false } })
 add_requires("openal-soft", { configs = { shared = true }})
-add_requires("newtondynamics", { debug = is_plat("windows") and is_mode("debug") }) -- Newton doesn't like compiling in Debug on Linux
+add_requires("newtondynamics3", { debug = is_plat("windows") and is_mode("debug") }) -- Newton doesn't like compiling in Debug on Linux
 
 add_repositories("nazara-engine-repo https://github.com/NazaraEngine/xmake-repo")
 add_requires("nazarautils")
