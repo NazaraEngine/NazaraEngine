@@ -217,7 +217,7 @@ namespace Nz
 			m_impl->joints = skeleton.m_impl->joints;
 
 			// Restore parent hierarchy
-			const Joint* firstJoint = skeleton.m_impl->joints.data();
+			const Node* firstJoint = skeleton.m_impl->joints.data();
 
 			std::size_t jointCount = skeleton.m_impl->joints.size();
 			for (std::size_t i = 0; i < jointCount; ++i)
