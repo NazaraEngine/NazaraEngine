@@ -46,7 +46,7 @@ namespace Nz
 			std::size_t GetJointCount() const;
 			std::size_t GetJointIndex(const std::string& jointName) const;
 			Joint* GetRootJoint();
-			const Joint* GetRootJoints() const;
+			const Joint* GetRootJoint() const;
 
 			void Interpolate(const Skeleton& skeletonA, const Skeleton& skeletonB, float interpolation);
 			void Interpolate(const Skeleton& skeletonA, const Skeleton& skeletonB, float interpolation, const std::size_t* indices, std::size_t indiceCount);
