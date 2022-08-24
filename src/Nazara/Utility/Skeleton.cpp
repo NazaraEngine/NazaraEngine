@@ -216,23 +216,17 @@ namespace Nz
 			m_impl->jointMapUpdated = skeleton.m_impl->jointMapUpdated;
 			m_impl->joints = skeleton.m_impl->joints;
 
-			// Code crade mais son optimisation demanderait de stocker jointCount*sizeof(std::size_t) en plus
-			// Ce qui, pour juste une copie qui ne se fera que rarement, ne vaut pas le coup
-			// L'éternel trade-off mémoire/calculs ..
+			// Restore parent hierarchy
+			const Joint* firstJoint = skeleton.m_impl->joints.data();
+
 			std::size_t jointCount = skeleton.m_impl->joints.size();
 			for (std::size_t i = 0; i < jointCount; ++i)
 			{
 				const Node* parent = skeleton.m_impl->joints[i].GetParent();
 				if (parent)
 				{
-					for (std::size_t j = 0; j < i; ++j) // Le parent se trouve forcément avant nous
-					{
-						if (parent == &skeleton.m_impl->joints[j]) // A-t-on trouvé le parent ?
-						{
-							m_impl->joints[i].SetParent(m_impl->joints[j]); // Oui, tout ça pour ça
-							break;
-						}
-					}
+					std::size_t parentIndex = SafeCast<std::size_t>(firstJoint - parent);
+					m_impl->joints[i].SetParent(m_impl->joints[parentIndex]);
 				}
 			}
 		}
