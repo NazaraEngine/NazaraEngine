@@ -13,7 +13,8 @@
 
 namespace Nz
 {
-	class NAZARA_UTILITY_API AssimpPlugin : public PluginInterface
+	// Don't export class due to MinGW bug, export every method instead
+	class AssimpPlugin : public PluginInterface
 	{
 		public:
 #ifdef NAZARA_DEBUG

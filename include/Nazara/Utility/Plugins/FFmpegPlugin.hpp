@@ -13,7 +13,8 @@
 
 namespace Nz
 {
-	class NAZARA_UTILITY_API FFmpegPlugin : public PluginInterface
+	// Don't export class due to MinGW bug, export every method instead
+	class FFmpegPlugin : public PluginInterface
 	{
 		public:
 #ifdef NAZARA_DEBUG
@@ -29,8 +30,6 @@ namespace Nz
 
 			FFmpegPlugin& operator=(const FFmpegPlugin&) = delete;
 			FFmpegPlugin& operator=(FFmpegPlugin&&) = delete;
-
-		private:
 	};
 }
 
