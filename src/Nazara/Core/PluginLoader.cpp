@@ -27,7 +27,6 @@ namespace Nz
 		if (path.extension() != NAZARA_DYNLIB_EXTENSION)
 			path += NAZARA_DYNLIB_EXTENSION;
 
-		bool exists = false;
 		if (!path.is_absolute())
 		{
 			for (const std::filesystem::path& dir : m_directories)
@@ -36,16 +35,10 @@ namespace Nz
 				if (std::filesystem::exists(testPath))
 				{
 					path = testPath;
-					exists = true;
 					break;
 				}
 			}
 		}
-		else if (std::filesystem::exists(path))
-			exists = true;
-
-		if (!exists)
-			throw std::runtime_error("failed to find plugin file");
 
 		DynLib library;
 		if (!library.Load(path))
