@@ -794,9 +794,9 @@ int main()
 			builder.SetViewport(env.renderRect);
 
 			std::vector<std::unique_ptr<Nz::RenderElement>> elements;
-			spaceshipModel.BuildElement(forwardPassIndex, modelInstance1, elements, env.renderRect);
-			spaceshipModel.BuildElement(forwardPassIndex, modelInstance2, elements, env.renderRect);
-			planeModel.BuildElement(forwardPassIndex, planeInstance, elements, env.renderRect);
+			spaceshipModel.BuildElement(forwardPassIndex, modelInstance1, nullptr, elements, env.renderRect);
+			spaceshipModel.BuildElement(forwardPassIndex, modelInstance2, nullptr, elements, env.renderRect);
+			planeModel.BuildElement(forwardPassIndex, planeInstance, nullptr, elements, env.renderRect);
 
 			std::vector<Nz::Pointer<const Nz::RenderElement>> elementPointers;
 			std::vector<Nz::ElementRenderer::RenderStates> renderStates(elements.size());
@@ -860,7 +860,7 @@ int main()
 			builder.DrawIndexed(Nz::SafeCast<Nz::UInt32>(cubeMeshGfx->GetIndexCount(0)));
 
 			std::vector<std::unique_ptr<Nz::RenderElement>> elements;
-			flareSprite.BuildElement(forwardPassIndex, flareInstance, elements, env.renderRect);
+			flareSprite.BuildElement(forwardPassIndex, flareInstance, nullptr, elements, env.renderRect);
 
 			std::vector<Nz::Pointer<const Nz::RenderElement>> elementPointers;
 			std::vector<Nz::ElementRenderer::RenderStates> renderStates(elements.size());
@@ -889,7 +889,7 @@ int main()
 			builder.SetViewport(env.renderRect);
 
 			std::vector<std::unique_ptr<Nz::RenderElement>> elements;
-			flareSprite.BuildElement(forwardPassIndex, flareInstance, elements, env.renderRect);
+			flareSprite.BuildElement(forwardPassIndex, flareInstance, nullptr, elements, env.renderRect);
 
 			std::vector<Nz::Pointer<const Nz::RenderElement>> elementPointers;
 			std::vector<Nz::ElementRenderer::RenderStates> renderStates(elements.size());

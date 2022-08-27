@@ -28,7 +28,7 @@ namespace Nz
 			Model(Model&&) noexcept = default;
 			~Model() = default;
 
-			void BuildElement(std::size_t passIndex, const WorldInstance& worldInstance, std::vector<std::unique_ptr<RenderElement>>& elements, const Recti& scissorBox) const override;
+			void BuildElement(std::size_t passIndex, const WorldInstance& worldInstance, const SkeletonInstance* skeletonInstance, std::vector<std::unique_ptr<RenderElement>>& elements, const Recti& scissorBox) const override;
 
 			const std::shared_ptr<RenderBuffer>& GetIndexBuffer(std::size_t subMeshIndex) const;
 			std::size_t GetIndexCount(std::size_t subMeshIndex) const;

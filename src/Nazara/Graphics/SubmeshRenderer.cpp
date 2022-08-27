@@ -5,6 +5,7 @@
 #include <Nazara/Graphics/SubmeshRenderer.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/RenderSubmesh.hpp>
+#include <Nazara/Graphics/SkeletonInstance.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/RenderFrame.hpp>
@@ -30,10 +31,10 @@ namespace Nz
 		const MaterialPass* currentMaterialPass = nullptr;
 		const RenderPipeline* currentPipeline = nullptr;
 		const ShaderBinding* currentShaderBinding = nullptr;
+		const SkeletonInstance* currentSkeletonInstance = nullptr;
 		const WorldInstance* currentWorldInstance = nullptr;
 		Recti currentScissorBox = invalidScissorBox;
 		RenderBufferView currentLightData;
-		RenderBufferView currentSkeletalData;
 
 		auto FlushDrawCall = [&]()
 		{
@@ -82,6 +83,12 @@ namespace Nz
 				currentVertexBuffer = vertexBuffer;
 			}
 
+			if (const SkeletonInstance* skeletonInstance = submesh.GetSkeletonInstance(); currentSkeletonInstance != skeletonInstance)
+			{
+				FlushDrawData();
+				currentSkeletonInstance = skeletonInstance;
+			}
+
 			if (const WorldInstance* worldInstance = &submesh.GetWorldInstance(); currentWorldInstance != worldInstance)
 			{
 				// TODO: Flushing draw calls on instance binding means we can have e.g. 1000 sprites rendered using a draw call for each one
@@ -94,12 +101,6 @@ namespace Nz
 			{
 				FlushDrawData();
 				currentLightData = renderState.lightData;
-			}
-
-			if (currentSkeletalData != renderState.skeletalData)
-			{
-				FlushDrawData();
-				currentSkeletalData = renderState.skeletalData;
 			}
 
 			const Recti& scissorBox = submesh.GetScissorBox();
@@ -142,13 +143,15 @@ namespace Nz
 					};
 				}
 
-				if (std::size_t bindingIndex = matSettings->GetPredefinedBinding(PredefinedShaderBinding::SkeletalDataUbo); bindingIndex != MaterialSettings::InvalidIndex && currentSkeletalData)
+				if (std::size_t bindingIndex = matSettings->GetPredefinedBinding(PredefinedShaderBinding::SkeletalDataUbo); bindingIndex != MaterialSettings::InvalidIndex && currentSkeletonInstance)
 				{
+					const auto& skeletalBuffer = currentSkeletonInstance->GetSkeletalBuffer();
+
 					auto& bindingEntry = m_bindingCache.emplace_back();
 					bindingEntry.bindingIndex = bindingIndex;
 					bindingEntry.content = ShaderBinding::UniformBufferBinding{
-						currentSkeletalData.GetBuffer(),
-						currentSkeletalData.GetOffset(), currentSkeletalData.GetSize()
+						skeletalBuffer.get(),
+						0, skeletalBuffer->GetSize()
 					};
 				}
 

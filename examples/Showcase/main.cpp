@@ -12,6 +12,7 @@
 #include <Nazara/Renderer.hpp>
 #include <Nazara/Utility.hpp>
 #include <Nazara/Utility/Components.hpp>
+#include <Nazara/Utility/Systems.hpp>
 #include <Nazara/Utility/Plugins/AssimpPlugin.hpp>
 #include <Nazara/Utils/CallOnExit.hpp>
 #include <NZSL/Math/FieldOffsets.hpp>
@@ -40,6 +41,7 @@ int main()
 
 	entt::registry registry;
 	Nz::SystemGraph systemGraph(registry);
+	systemGraph.AddSystem<Nz::SkeletonSystem>();
 
 	Nz::Physics3DSystem& physSytem = systemGraph.AddSystem<Nz::Physics3DSystem>();
 	Nz::RenderSystem& renderSystem = systemGraph.AddSystem<Nz::RenderSystem>();
@@ -76,12 +78,6 @@ int main()
 		cameraComponent.UpdateClearColor(Nz::Color(0.5f, 0.5f, 0.5f));
 	}
 
-	nzsl::FieldOffsets skeletalOffsets(nzsl::StructLayout::Std140);
-	std::size_t arrayOffset = skeletalOffsets.AddMatrixArray(nzsl::StructFieldType::Float1, 4, 4, true, 200);
-
-	std::vector<Nz::UInt8> skeletalBufferMem(skeletalOffsets.GetAlignedSize());
-	Nz::Matrix4f* matrices = Nz::AccessByOffset<Nz::Matrix4f*>(skeletalBufferMem.data(), arrayOffset);
-
 	Nz::MeshParams meshParams;
 	meshParams.animated = true;
 	meshParams.center = true;
@@ -108,31 +104,9 @@ int main()
 		return __LINE__;
 	}
 
-	Nz::Skeleton skeleton = *bobMesh->GetSkeleton();
+	std::shared_ptr<Nz::Skeleton> skeleton = std::make_shared<Nz::Skeleton>(*bobMesh->GetSkeleton());
 
-	std::cout << "joint count: " << skeleton.GetJointCount() << std::endl;
-	//std::cout << "anim joint count: " << bobAnim->GetJointCount() << std::endl;
-
-	//bobAnim->AnimateSkeleton(&skeleton, 0, 1, 0.5f);
-
-	/*for (std::size_t i = 0; i < bobMesh->GetSubMeshCount(); ++i)
-	{
-		Nz::VertexMapper mapper(*bobMesh->GetSubMesh(i));
-
-		Nz::SkinningData skinningData;
-		skinningData.joints = skeleton.GetJoints();
-		skinningData.inputJointIndices = mapper.GetComponentPtr<Nz::Vector4i32>(Nz::VertexComponent::JointIndices);
-		skinningData.inputJointWeights = mapper.GetComponentPtr<Nz::Vector4f>(Nz::VertexComponent::JointWeights);
-		skinningData.outputPositions = mapper.GetComponentPtr<Nz::Vector3f>(Nz::VertexComponent::Position);
-		skinningData.inputPositions = skinningData.outputPositions;
-
-		Nz::SkinLinearBlend(skinningData, 0, mapper.GetVertexCount());
-	}*/
-
-	/*for (std::size_t i = 0; i < skeleton.GetJointCount(); ++i)
-		matrices[i] = skeleton.GetJoint(i)->GetSkinningMatrix();*/
-
-	std::shared_ptr<Nz::RenderBuffer> renderBuffer = device->InstantiateBuffer(Nz::BufferType::Uniform, skeletalBufferMem.size(), Nz::BufferUsage::Write, skeletalBufferMem.data());
+	std::cout << "joint count: " << skeleton->GetJointCount() << std::endl;
 
 	const Nz::Boxf& bobAABB = bobMesh->GetAABB();
 	std::shared_ptr<Nz::GraphicalMesh> bobGfxMesh = Nz::GraphicalMesh::BuildFromMesh(*bobMesh);
@@ -147,7 +121,6 @@ int main()
 		std::shared_ptr<Nz::Material> bobMat = std::make_shared<Nz::Material>();
 
 		std::shared_ptr<Nz::MaterialPass> bobMatPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
-		bobMatPass->SetSharedUniformBuffer(1, renderBuffer);
 
 		bobMatPass->EnableDepthBuffer(true);
 		{
@@ -178,16 +151,16 @@ int main()
 	for (std::size_t i = 0; i < bobMesh->GetSubMeshCount(); ++i)
 		bobModel->SetMaterial(i, materials[bobMesh->GetSubMesh(i)->GetMaterialIndex()]);
 
-	/*for (std::size_t y = 0; y < 50; ++y)
+	/*for (std::size_t y = 0; y < 10; ++y)
 	{
-		for (std::size_t x = 0; x < 50; ++x)
+		for (std::size_t x = 0; x < 10; ++x)
 		{
 			entt::entity bobEntity = registry.create();
 
 			auto& bobNode = registry.emplace<Nz::NodeComponent>(bobEntity);
-			bobNode.SetPosition(Nz::Vector3f(x - 25.f, bobAABB.height / 2.f, -float(y)));
-			bobNode.SetRotation(Nz::EulerAnglesf(-90.f, -90.f, 0.f));
-			bobNode.SetScale(1.f / 40.f * 0.5f);
+			bobNode.SetPosition(Nz::Vector3f(x - 5.f, 0.f, -float(y)));
+			//bobNode.SetRotation(Nz::EulerAnglesf(-90.f, -90.f, 0.f));
+			//bobNode.SetScale(1.f / 40.f * 0.5f);
 
 			auto& bobGfx = registry.emplace<Nz::GraphicsComponent>(bobEntity);
 			bobGfx.AttachRenderable(bobModel, 0xFFFFFFFF);
@@ -203,7 +176,68 @@ int main()
 
 		auto& bobGfx = registry.emplace<Nz::GraphicsComponent>(bobEntity);
 		bobGfx.AttachRenderable(bobModel, 0xFFFFFFFF);
+
+		auto& sharedSkeleton = registry.emplace<Nz::SharedSkeletonComponent>(bobEntity, skeleton);
+
+
+		entt::entity sphereEntity = registry.create();
+		{
+			std::shared_ptr<Nz::Mesh> sphereMesh = std::make_shared<Nz::Mesh>();
+			sphereMesh->CreateStatic();
+			sphereMesh->BuildSubMesh(Nz::Primitive::UVSphere(1.f, 50, 50));
+			sphereMesh->SetMaterialCount(1);
+			sphereMesh->GenerateNormalsAndTangents();
+
+			std::shared_ptr<Nz::GraphicalMesh> gfxMesh = Nz::GraphicalMesh::BuildFromMesh(*sphereMesh);
+
+			// Textures
+			Nz::TextureParams texParams;
+			texParams.renderDevice = device;
+
+			Nz::TextureParams srgbTexParams = texParams;
+			srgbTexParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
+
+			std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>();
+
+			std::shared_ptr<Nz::MaterialPass> forwardPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
+			forwardPass->EnableDepthBuffer(true);
+			forwardPass->EnableFaceCulling(true);
+
+			material->AddPass("ForwardPass", forwardPass);
+
+			std::shared_ptr<Nz::Texture> normalMap = Nz::Texture::LoadFromFile(resourceDir / "Rusty/rustediron2_normal.png", texParams);
+
+			Nz::BasicMaterial pbrMat(*forwardPass);
+			pbrMat.EnableAlphaTest(false);
+			pbrMat.SetAlphaMap(Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
+			pbrMat.SetBaseColorMap(Nz::Texture::LoadFromFile(resourceDir / "Rusty/rustediron2_basecolor.png", srgbTexParams));
+
+			std::shared_ptr<Nz::Model> sphereModel = std::make_shared<Nz::Model>(std::move(gfxMesh), sphereMesh->GetAABB());
+			for (std::size_t i = 0; i < sphereModel->GetSubMeshCount(); ++i)
+				sphereModel->SetMaterial(i, material);
+
+			auto& sphereNode = registry.emplace<Nz::NodeComponent>(sphereEntity);
+			sphereNode.SetScale(0.1f);
+			sphereNode.SetInheritScale(false);
+			sphereNode.SetParent(sharedSkeleton.GetAttachedJoint(83));
+
+			auto& sphereBody = registry.emplace<Nz::RigidBody3DComponent>(sphereEntity, &physSytem.GetPhysWorld());
+			sphereBody.SetGeom(std::make_shared<Nz::SphereCollider3D>(0.1f));
+
+			auto& sphereGfx = registry.emplace<Nz::GraphicsComponent>(sphereEntity);
+			sphereGfx.AttachRenderable(sphereModel, 0xFFFFFFFF);
+		}
+
+		entt::entity smallBobEntity = registry.create();
+		auto& smallBobNode = registry.emplace<Nz::NodeComponent>(smallBobEntity);
+		smallBobNode.SetParent(sharedSkeleton.GetAttachedJoint(59));
+
+		auto& smallBobGfx = registry.emplace<Nz::GraphicsComponent>(smallBobEntity);
+		smallBobGfx.AttachRenderable(bobModel, 0xFFFFFFFF);
+
+		registry.emplace<Nz::SharedSkeletonComponent>(smallBobEntity, skeleton);
 	}
+
 
 	entt::entity planeEntity = registry.create();
 	{
@@ -248,14 +282,6 @@ int main()
 	}
 
 	window.EnableEventPolling(true);
-
-	renderSystem.GetFramePipeline().OnTransfer.Connect([&](Nz::FramePipeline* pipeline, Nz::RenderFrame& renderFrame, Nz::CommandBufferBuilder& builder)
-	{
-		auto& skeletalAllocation = renderFrame.GetUploadPool().Allocate(skeletalBufferMem.size());
-		std::memcpy(skeletalAllocation.mappedPtr, skeletalBufferMem.data(), skeletalBufferMem.size());
-
-		builder.CopyBuffer(skeletalAllocation, Nz::RenderBufferView(renderBuffer.get()));
-	});
 
 	Nz::Clock fpsClock, updateClock;
 	float incr = 0.f;
@@ -327,8 +353,8 @@ int main()
 			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Right) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::D))
 				playerBody.AddForce(Nz::Vector3f::Right() * 25.f * mass, Nz::CoordSys::Local);
 
-			incr += 1.f / 60.f * 30.f;
-			if (incr >= 1.f)
+			incr += updateTime * bobAnim->GetSequence(0)->frameRate * 1.5f;
+			while (incr >= 1.f)
 			{
 				incr -= 1.f;
 
@@ -340,9 +366,9 @@ int main()
 
 			std::cout << currentFrame << std::endl;
 
-			bobAnim->AnimateSkeleton(&skeleton, currentFrame, nextFrame, incr);
-			for (std::size_t i = 0; i < skeleton.GetJointCount(); ++i)
-				matrices[i] = skeleton.GetJoint(i)->GetSkinningMatrix();
+			bobAnim->AnimateSkeleton(skeleton.get(), currentFrame, nextFrame, incr);
+			//for (std::size_t i = 0; i < skeleton.GetJointCount(); ++i)
+			//	matrices[i] = skeleton.GetJoint(i)->GetSkinningMatrix();
 
 			//renderBuffer->Fill(skeletalBufferMem.data(), 0, skeletalBufferMem.size());
 
@@ -393,7 +419,7 @@ int main()
 		}
 
 		Nz::DebugDrawer& debugDrawer = renderSystem.GetFramePipeline().GetDebugDrawer();
-		debugDrawer.DrawSkeleton(skeleton, Nz::Color::Red);
+		//debugDrawer.DrawSkeleton(*skeleton, Nz::Color::Red);
 
 		systemGraph.Update();
 

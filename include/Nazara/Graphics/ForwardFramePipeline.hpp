@@ -42,12 +42,14 @@ namespace Nz
 			ForwardFramePipeline(ForwardFramePipeline&&) = delete;
 			~ForwardFramePipeline();
 
+			void InvalidateSkeletalInstance(std::size_t skeletalInstanceIndex) override;
 			void InvalidateViewer(std::size_t viewerIndex) override;
 			void InvalidateWorldInstance(std::size_t renderableIndex) override;
 
 			std::size_t RegisterLight(std::shared_ptr<Light> light, UInt32 renderMask) override;
 			void RegisterMaterialPass(MaterialPass* materialPass) override;
-			std::size_t RegisterRenderable(std::size_t worldInstanceIndex, const InstancedRenderable* instancedRenderable, UInt32 renderMask, const Recti& scissorBox) override;
+			std::size_t RegisterRenderable(std::size_t worldInstanceIndex, std::size_t skeletonInstanceIndex, const InstancedRenderable* instancedRenderable, UInt32 renderMask, const Recti& scissorBox) override;
+			std::size_t RegisterSkeleton(SkeletonInstancePtr skeletonInstance) override;
 			std::size_t RegisterViewer(AbstractViewer* viewerInstance, Int32 renderOrder) override;
 			std::size_t RegisterWorldInstance(WorldInstancePtr worldInstance) override;
 
@@ -56,6 +58,7 @@ namespace Nz
 			void UnregisterLight(std::size_t lightIndex) override;
 			void UnregisterMaterialPass(MaterialPass* material) override;
 			void UnregisterRenderable(std::size_t renderableIndex) override;
+			void UnregisterSkeleton(std::size_t skeletonIndex) override;
 			void UnregisterViewer(std::size_t viewerIndex) override;
 			void UnregisterWorldInstance(std::size_t worldInstance) override;
 
@@ -89,6 +92,7 @@ namespace Nz
 
 			struct RenderableData
 			{
+				std::size_t skeletonInstanceIndex;
 				std::size_t worldInstanceIndex;
 				const InstancedRenderable* renderable;
 				Recti scissorBox;
@@ -127,11 +131,15 @@ namespace Nz
 			std::vector<FramePipelinePass::VisibleRenderable> m_visibleRenderables;
 			std::vector<const Light*> m_visibleLights;
 			BakedFrameGraph m_bakedFrameGraph;
+			Bitset<UInt64> m_invalidatedSkeletonInstances;
 			Bitset<UInt64> m_invalidatedViewerInstances;
 			Bitset<UInt64> m_invalidatedWorldInstances;
+			Bitset<UInt64> m_removedSkeletonInstances;
+			Bitset<UInt64> m_removedViewerInstances;
 			Bitset<UInt64> m_removedWorldInstances;
 			MemoryPool<RenderableData> m_renderablePool;
 			MemoryPool<LightData> m_lightPool;
+			MemoryPool<SkeletonInstancePtr> m_skeletonInstances;
 			MemoryPool<ViewerData> m_viewerPool;
 			MemoryPool<WorldInstancePtr> m_worldInstances;
 			RenderFrame* m_currentRenderFrame;

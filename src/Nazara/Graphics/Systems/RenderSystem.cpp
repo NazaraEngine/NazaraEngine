@@ -13,15 +13,19 @@
 #include <Nazara/Renderer/RenderWindow.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
 #include <Nazara/Utility/Components/NodeComponent.hpp>
+#include <Nazara/Utility/Components/SharedSkeletonComponent.hpp>
+#include <Nazara/Utility/Components/SkeletonComponent.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
 {
 	RenderSystem::RenderSystem(entt::registry& registry) :
+	m_registry(registry),
 	m_cameraConstructObserver(registry, entt::collector.group<CameraComponent, NodeComponent>()),
 	m_graphicsConstructObserver(registry, entt::collector.group<GraphicsComponent, NodeComponent>()),
 	m_lightConstructObserver(registry, entt::collector.group<LightComponent, NodeComponent>()),
-	m_registry(registry),
+	m_sharedSkeletonConstructObserver(registry, entt::collector.group<GraphicsComponent, NodeComponent, SharedSkeletonComponent>(entt::exclude<SkeletonComponent>)),
+	m_skeletonConstructObserver(registry, entt::collector.group<GraphicsComponent, NodeComponent, SkeletonComponent>(entt::exclude<SharedSkeletonComponent>)),
 	m_cameraEntityPool(8),
 	m_graphicsEntityPool(1024),
 	m_lightEntityPool(32)
@@ -30,6 +34,8 @@ namespace Nz
 		m_graphicsDestroyConnection = registry.on_destroy<GraphicsComponent>().connect<&RenderSystem::OnGraphicsDestroy>(this);
 		m_lightDestroyConnection = registry.on_destroy<LightComponent>().connect<&RenderSystem::OnLightDestroy>(this);
 		m_nodeDestroyConnection = registry.on_destroy<NodeComponent>().connect<&RenderSystem::OnNodeDestroy>(this);
+		m_sharedSkeletonDestroyConnection = registry.on_destroy<SharedSkeletonComponent>().connect<&RenderSystem::OnSharedSkeletonDestroy>(this);
+		m_skeletonDestroyConnection = registry.on_destroy<SkeletonComponent>().connect<&RenderSystem::OnSkeletonDestroy>(this);
 
 		m_pipeline = std::make_unique<ForwardFramePipeline>();
 	}
@@ -39,10 +45,6 @@ namespace Nz
 		m_cameraConstructObserver.disconnect();
 		m_graphicsConstructObserver.disconnect();
 		m_lightConstructObserver.disconnect();
-		m_cameraDestroyConnection.release();
-		m_graphicsDestroyConnection.release();
-		m_lightDestroyConnection.release();
-		m_nodeDestroyConnection.release();
 	}
 
 	void RenderSystem::Update(float /*elapsedTime*/)
@@ -157,6 +159,52 @@ namespace Nz
 
 		if (m_registry.try_get<LightComponent>(entity))
 			OnLightDestroy(registry, entity);
+
+		if (m_registry.try_get<SharedSkeletonComponent>(entity))
+			OnSharedSkeletonDestroy(registry, entity);
+
+		if (m_registry.try_get<SkeletonComponent>(entity))
+			OnSkeletonDestroy(registry, entity);
+	}
+
+	void RenderSystem::OnSharedSkeletonDestroy(entt::registry& registry, entt::entity entity)
+	{
+		assert(&m_registry == &registry);
+
+		SharedSkeletonComponent& skeletonComponent = registry.get<SharedSkeletonComponent>(entity);
+		Skeleton* skeleton = skeletonComponent.GetSkeleton().get();
+
+		auto skeletonInstanceIt = m_sharedSkeletonInstances.find(skeleton);
+		assert(skeletonInstanceIt != m_sharedSkeletonInstances.end());
+
+		SharedSkeleton& sharedSkeleton = skeletonInstanceIt->second;
+		assert(sharedSkeleton.useCount > 0);
+		if (--sharedSkeleton.useCount == 0)
+		{
+			m_pipeline->UnregisterSkeleton(sharedSkeleton.skeletonInstanceIndex);
+			m_sharedSkeletonInstances.erase(skeletonInstanceIt);
+		}
+
+		auto it = m_graphicsEntities.find(entity);
+		if (it == m_graphicsEntities.end())
+			return;
+
+		GraphicsEntity* graphicsEntity = it->second;
+		graphicsEntity->skeletonInstanceIndex = NoInstance;
+	}
+
+	void RenderSystem::OnSkeletonDestroy(entt::registry& registry, entt::entity entity)
+	{
+		assert(&m_registry == &registry);
+
+		auto it = m_graphicsEntities.find(entity);
+		if (it == m_graphicsEntities.end())
+			return;
+
+		GraphicsEntity* graphicsEntity = it->second;
+
+		m_pipeline->UnregisterSkeleton(graphicsEntity->skeletonInstanceIndex);
+		graphicsEntity->skeletonInstanceIndex = NoInstance;
 	}
 
 	void RenderSystem::UpdateInstances()
@@ -247,6 +295,7 @@ namespace Nz
 			graphicsEntity->entity = entity;
 			graphicsEntity->poolIndex = poolIndex;
 			graphicsEntity->renderableIndices.fill(std::numeric_limits<std::size_t>::max());
+			graphicsEntity->skeletonInstanceIndex = NoInstance; //< will be set in skeleton observer
 			graphicsEntity->worldInstanceIndex = m_pipeline->RegisterWorldInstance(entityGfx.GetWorldInstance());
 			graphicsEntity->onNodeInvalidation.Connect(entityNode.OnNodeInvalidation, [this, graphicsEntity](const Node* /*node*/)
 			{
@@ -259,7 +308,7 @@ namespace Nz
 					return;
 
 				const auto& renderableEntry = gfx->GetRenderableEntry(renderableIndex);
-				graphicsEntity->renderableIndices[renderableIndex] = m_pipeline->RegisterRenderable(graphicsEntity->worldInstanceIndex, renderableEntry.renderable.get(), renderableEntry.renderMask, gfx->GetScissorBox());
+				graphicsEntity->renderableIndices[renderableIndex] = m_pipeline->RegisterRenderable(graphicsEntity->worldInstanceIndex, graphicsEntity->skeletonInstanceIndex, renderableEntry.renderable.get(), renderableEntry.renderMask, gfx->GetScissorBox());
 			});
 
 			graphicsEntity->onRenderableDetach.Connect(entityGfx.OnRenderableDetach, [this, graphicsEntity](GraphicsComponent* gfx, std::size_t renderableIndex)
@@ -301,16 +350,7 @@ namespace Nz
 			m_invalidatedGfxWorldNode.insert(graphicsEntity);
 
 			if (entityGfx.IsVisible())
-			{
-				for (std::size_t renderableIndex = 0; renderableIndex < LightComponent::MaxLightCount; ++renderableIndex)
-				{
-					const auto& renderableEntry = entityGfx.GetRenderableEntry(renderableIndex);
-					if (!renderableEntry.renderable)
-						continue;
-
-					graphicsEntity->renderableIndices[renderableIndex] = m_pipeline->RegisterRenderable(graphicsEntity->worldInstanceIndex, renderableEntry.renderable.get(), renderableEntry.renderMask, entityGfx.GetScissorBox());
-				}
-			}
+				m_newlyVisibleGfxEntities.insert(graphicsEntity);
 
 			assert(m_graphicsEntities.find(entity) == m_graphicsEntities.end());
 			m_graphicsEntities.emplace(entity, graphicsEntity);
@@ -383,6 +423,46 @@ namespace Nz
 			assert(m_lightEntities.find(entity) == m_lightEntities.end());
 			m_lightEntities.emplace(entity, lightEntity);
 		});
+
+		m_sharedSkeletonConstructObserver.each([&](entt::entity entity)
+		{
+			GraphicsEntity* graphicsEntity = Retrieve(m_graphicsEntities, entity);
+
+			SharedSkeletonComponent& skeletonComponent = m_registry.get<SharedSkeletonComponent>(entity);
+			const std::shared_ptr<Skeleton>& skeleton = skeletonComponent.GetSkeleton();
+
+			if (auto it = m_sharedSkeletonInstances.find(skeleton.get()); it == m_sharedSkeletonInstances.end())
+			{
+				SharedSkeleton& sharedSkeleton = m_sharedSkeletonInstances[skeleton.get()];
+				sharedSkeleton.skeletonInstanceIndex = m_pipeline->RegisterSkeleton(std::make_shared<SkeletonInstance>(skeleton));
+				sharedSkeleton.useCount = 1;
+				sharedSkeleton.onJointsInvalidated.Connect(skeleton->OnSkeletonJointsInvalidated, [this, instanceIndex = sharedSkeleton.skeletonInstanceIndex](const Skeleton* /*skeleton*/)
+				{
+					m_pipeline->InvalidateSkeletalInstance(instanceIndex);
+				});
+
+				graphicsEntity->skeletonInstanceIndex = sharedSkeleton.skeletonInstanceIndex;
+			}
+			else
+			{
+				it->second.useCount++;
+				graphicsEntity->skeletonInstanceIndex = it->second.skeletonInstanceIndex;
+			}
+		});
+
+		m_skeletonConstructObserver.each([&](entt::entity entity)
+		{
+			GraphicsEntity* graphicsEntity = Retrieve(m_graphicsEntities, entity);
+
+			SkeletonComponent& skeletonComponent = m_registry.get<SkeletonComponent>(entity);
+			const std::shared_ptr<Skeleton>& skeleton = skeletonComponent.GetSkeleton();
+
+			graphicsEntity->skeletonInstanceIndex = m_pipeline->RegisterSkeleton(std::make_shared<SkeletonInstance>(skeleton));
+			graphicsEntity->onSkeletonJointsInvalidated.Connect(skeleton->OnSkeletonJointsInvalidated, [this, instanceIndex = graphicsEntity->skeletonInstanceIndex](const Skeleton* /*skeleton*/)
+			{
+				m_pipeline->InvalidateSkeletalInstance(instanceIndex);
+			});
+		});
 	}
 
 	void RenderSystem::UpdateVisibility()
@@ -414,7 +494,7 @@ namespace Nz
 				if (!renderableEntry.renderable)
 					continue;
 
-				graphicsEntity->renderableIndices[renderableIndex] = m_pipeline->RegisterRenderable(graphicsEntity->worldInstanceIndex, renderableEntry.renderable.get(), renderableEntry.renderMask, entityGfx.GetScissorBox());
+				graphicsEntity->renderableIndices[renderableIndex] = m_pipeline->RegisterRenderable(graphicsEntity->worldInstanceIndex, graphicsEntity->skeletonInstanceIndex, renderableEntry.renderable.get(), renderableEntry.renderMask, entityGfx.GetScissorBox());
 			}
 		}
 		m_newlyVisibleGfxEntities.clear();

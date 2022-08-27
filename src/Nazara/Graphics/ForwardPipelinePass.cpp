@@ -148,7 +148,7 @@ namespace Nz
 					lightUboView = it->second;
 
 				std::size_t previousCount = m_renderElements.size();
-				renderableData.instancedRenderable->BuildElement(m_forwardPassIndex, *renderableData.worldInstance, m_renderElements, renderableData.scissorBox);
+				renderableData.instancedRenderable->BuildElement(m_forwardPassIndex, *renderableData.worldInstance, renderableData.skeletonInstance, m_renderElements, renderableData.scissorBox);
 				for (std::size_t i = previousCount; i < m_renderElements.size(); ++i)
 				{
 					const RenderElement* element = m_renderElements[i].get();

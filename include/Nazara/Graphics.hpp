@@ -69,6 +69,7 @@
 #include <Nazara/Graphics/RenderQueueRegistry.hpp>
 #include <Nazara/Graphics/RenderSpriteChain.hpp>
 #include <Nazara/Graphics/RenderSubmesh.hpp>
+#include <Nazara/Graphics/SkeletonInstance.hpp>
 #include <Nazara/Graphics/SlicedSprite.hpp>
 #include <Nazara/Graphics/SpotLight.hpp>
 #include <Nazara/Graphics/Sprite.hpp>

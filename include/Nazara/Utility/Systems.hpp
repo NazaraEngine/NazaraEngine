@@ -29,6 +29,7 @@
 #ifndef NAZARA_UTILITY_SYSTEMS_HPP
 #define NAZARA_UTILITY_SYSTEMS_HPP
 
+#include <Nazara/Utility/Systems/SkeletonSystem.hpp>
 #include <Nazara/Utility/Systems/VelocitySystem.hpp>
 
 #endif // NAZARA_UTILITY_SYSTEMS_HPP

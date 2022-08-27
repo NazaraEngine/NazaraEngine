@@ -42,6 +42,14 @@ namespace Nz
 		return it->second;
 	}
 
+	inline std::size_t RenderQueueRegistry::FetchSkeletonIndex(const Skeleton* skeleton) const
+	{
+		auto it = m_skeletonRegistry.find(skeleton);
+		assert(it != m_skeletonRegistry.end());
+
+		return it->second;
+	}
+
 	inline std::size_t RenderQueueRegistry::FetchVertexBuffer(const RenderBuffer* vertexBuffer) const
 	{
 		auto it = m_vertexBufferRegistry.find(vertexBuffer);
@@ -78,6 +86,11 @@ namespace Nz
 	inline void RenderQueueRegistry::RegisterPipeline(const RenderPipeline* pipeline)
 	{
 		m_pipelineRegistry.try_emplace(pipeline, m_pipelineRegistry.size());
+	}
+
+	inline void RenderQueueRegistry::RegisterSkeleton(const Skeleton* skeleton)
+	{
+		m_skeletonRegistry.try_emplace(skeleton, m_skeletonRegistry.size());
 	}
 
 	inline void RenderQueueRegistry::RegisterVertexBuffer(const RenderBuffer* vertexBuffer)

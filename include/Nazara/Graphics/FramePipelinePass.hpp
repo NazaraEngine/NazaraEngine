@@ -14,6 +14,7 @@
 namespace Nz
 {
 	class InstancedRenderable;
+	class SkeletonInstance;
 	class WorldInstance;
 
 	class NAZARA_GRAPHICS_API FramePipelinePass
@@ -30,6 +31,7 @@ namespace Nz
 			struct VisibleRenderable
 			{
 				const InstancedRenderable* instancedRenderable;
+				const SkeletonInstance* skeletonInstance;
 				const WorldInstance* worldInstance;
 				Recti scissorBox;
 			};

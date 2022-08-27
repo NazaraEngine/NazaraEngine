@@ -40,7 +40,7 @@ namespace Nz
 			static void OnConstruct(entt::registry& registry, entt::entity entity);
 
 			entt::registry& m_registry;
-			entt::connection m_constructConnection;
+			entt::scoped_connection m_constructConnection;
 			PhysWorld2D m_physWorld;
 	};
 }

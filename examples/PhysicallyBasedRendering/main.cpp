@@ -94,7 +94,7 @@ int main()
 	Nz::ForwardFramePipeline framePipeline;
 	std::size_t cameraIndex = framePipeline.RegisterViewer(&camera, 0);
 	std::size_t worldInstanceIndex1 = framePipeline.RegisterWorldInstance(modelInstance);
-	framePipeline.RegisterRenderable(worldInstanceIndex1, &model, 0xFFFFFFFF, scissorBox);
+	framePipeline.RegisterRenderable(worldInstanceIndex1, Nz::FramePipeline::NoSkeletonInstance, &model, 0xFFFFFFFF, scissorBox);
 
 	std::shared_ptr<Nz::DirectionalLight> light = std::make_shared<Nz::DirectionalLight>();
 	light->UpdateRotation(Nz::EulerAnglesf(-45.f, 0.f, 0.f));

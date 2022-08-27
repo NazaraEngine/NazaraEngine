@@ -30,7 +30,7 @@ namespace Nz
 
 			inline void AddSection(float size, float textureCoord);
 
-			void BuildElement(std::size_t passIndex, const WorldInstance& worldInstance, std::vector<std::unique_ptr<RenderElement>>& elements, const Recti& scissorBox) const override;
+			void BuildElement(std::size_t passIndex, const WorldInstance& worldInstance, const SkeletonInstance* skeletonInstance, std::vector<std::unique_ptr<RenderElement>>& elements, const Recti& scissorBox) const override;
 
 			inline void Clear();
 

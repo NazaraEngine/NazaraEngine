@@ -30,6 +30,9 @@
 #define NAZARA_UTILITY_COMPONENTS_HPP
 
 #include <Nazara/Utility/Components/NodeComponent.hpp>
+#include <Nazara/Utility/Components/SharedSkeletonComponent.hpp>
+#include <Nazara/Utility/Components/SkeletonComponent.hpp>
+#include <Nazara/Utility/Components/SkeletonComponentBase.hpp>
 #include <Nazara/Utility/Components/VelocityComponent.hpp>
 
 #endif // NAZARA_UTILITY_COMPONENTS_HPP

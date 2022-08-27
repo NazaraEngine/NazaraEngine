@@ -39,7 +39,7 @@ namespace Nz
 			m_renderElements.clear();
 
 			for (const auto& renderableData : visibleRenderables)
-				renderableData.instancedRenderable->BuildElement(m_depthPassIndex, *renderableData.worldInstance, m_renderElements, renderableData.scissorBox);
+				renderableData.instancedRenderable->BuildElement(m_depthPassIndex, *renderableData.worldInstance, renderableData.skeletonInstance, m_renderElements, renderableData.scissorBox);
 
 			m_renderQueueRegistry.Clear();
 			m_renderQueue.Clear();

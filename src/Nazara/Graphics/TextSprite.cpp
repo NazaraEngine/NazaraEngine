@@ -18,7 +18,7 @@ namespace Nz
 	{
 	}
 
-	void TextSprite::BuildElement(std::size_t passIndex, const WorldInstance& worldInstance, std::vector<std::unique_ptr<RenderElement>>& elements, const Recti& scissorBox) const
+	void TextSprite::BuildElement(std::size_t passIndex, const WorldInstance& worldInstance, const SkeletonInstance* skeletonInstance, std::vector<std::unique_ptr<RenderElement>>& elements, const Recti& scissorBox) const
 	{
 		const auto& materialPass = m_material->GetPass(passIndex);
 		if (!materialPass)

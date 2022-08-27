@@ -23,7 +23,7 @@ namespace Nz
 			struct Renderable;
 			static constexpr std::size_t MaxRenderableCount = 8;
 
-			inline GraphicsComponent(bool initialyVisible = true);
+			inline GraphicsComponent(bool initiallyVisible = true);
 			GraphicsComponent(const GraphicsComponent&) = default;
 			GraphicsComponent(GraphicsComponent&&) = default;
 			~GraphicsComponent() = default;

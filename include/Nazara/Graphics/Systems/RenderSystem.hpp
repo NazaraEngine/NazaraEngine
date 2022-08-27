@@ -12,6 +12,7 @@
 #include <Nazara/Graphics/Components/GraphicsComponent.hpp>
 #include <Nazara/Graphics/Components/LightComponent.hpp>
 #include <Nazara/Utility/Node.hpp>
+#include <Nazara/Utility/Skeleton.hpp>
 #include <Nazara/Utils/MemoryPool.hpp>
 #include <entt/entt.hpp>
 #include <array>
@@ -53,9 +54,13 @@ namespace Nz
 			void OnGraphicsDestroy(entt::registry& registry, entt::entity entity);
 			void OnLightDestroy(entt::registry& registry, entt::entity entity);
 			void OnNodeDestroy(entt::registry& registry, entt::entity entity);
+			void OnSharedSkeletonDestroy(entt::registry& registry, entt::entity entity);
+			void OnSkeletonDestroy(entt::registry& registry, entt::entity entity);
 			void UpdateInstances();
 			void UpdateObservers();
 			void UpdateVisibility();
+
+			static constexpr std::size_t NoInstance = std::numeric_limits<std::size_t>::max();
 
 			struct CameraEntity
 			{
@@ -71,6 +76,7 @@ namespace Nz
 				entt::entity entity;
 				std::array<std::size_t, GraphicsComponent::MaxRenderableCount> renderableIndices;
 				std::size_t poolIndex;
+				std::size_t skeletonInstanceIndex;
 				std::size_t worldInstanceIndex;
 
 				NazaraSlot(GraphicsComponent, OnRenderableAttached, onRenderableAttached);
@@ -78,6 +84,7 @@ namespace Nz
 				NazaraSlot(GraphicsComponent, OnScissorBoxUpdate, onScissorBoxUpdate);
 				NazaraSlot(GraphicsComponent, OnVisibilityUpdate, onVisibilityUpdate);
 				NazaraSlot(Node, OnNodeInvalidation, onNodeInvalidation);
+				NazaraSlot(Skeleton, OnSkeletonJointsInvalidated, onSkeletonJointsInvalidated); //< only connected for owned skeleton
 			};
 
 			struct LightEntity
@@ -92,14 +99,26 @@ namespace Nz
 				NazaraSlot(Node, OnNodeInvalidation, onNodeInvalidation);
 			};
 
-			entt::connection m_cameraDestroyConnection;
-			entt::connection m_graphicsDestroyConnection;
-			entt::connection m_lightDestroyConnection;
-			entt::connection m_nodeDestroyConnection;
+			struct SharedSkeleton
+			{
+				std::size_t skeletonInstanceIndex;
+				std::size_t useCount;
+
+				NazaraSlot(Skeleton, OnSkeletonJointsInvalidated, onJointsInvalidated);
+			};
+
+			entt::registry& m_registry;
 			entt::observer m_cameraConstructObserver;
 			entt::observer m_graphicsConstructObserver;
 			entt::observer m_lightConstructObserver;
-			entt::registry& m_registry;
+			entt::observer m_sharedSkeletonConstructObserver;
+			entt::observer m_skeletonConstructObserver;
+			entt::scoped_connection m_cameraDestroyConnection;
+			entt::scoped_connection m_graphicsDestroyConnection;
+			entt::scoped_connection m_lightDestroyConnection;
+			entt::scoped_connection m_nodeDestroyConnection;
+			entt::scoped_connection m_sharedSkeletonDestroyConnection;
+			entt::scoped_connection m_skeletonDestroyConnection;
 			std::set<CameraEntity*> m_invalidatedCameraNode;
 			std::set<GraphicsEntity*> m_invalidatedGfxWorldNode;
 			std::set<LightEntity*> m_invalidatedLightWorldNode;
@@ -107,6 +126,7 @@ namespace Nz
 			std::unordered_map<entt::entity, CameraEntity*> m_cameraEntities;
 			std::unordered_map<entt::entity, GraphicsEntity*> m_graphicsEntities;
 			std::unordered_map<entt::entity, LightEntity*> m_lightEntities;
+			std::unordered_map<Skeleton*, SharedSkeleton> m_sharedSkeletonInstances;
 			std::unordered_set<GraphicsEntity*> m_newlyHiddenGfxEntities;
 			std::unordered_set<GraphicsEntity*> m_newlyVisibleGfxEntities;
 			std::unordered_set<LightEntity*> m_newlyHiddenLightEntities;

@@ -29,6 +29,7 @@ namespace Nz
 	ForwardFramePipeline::ForwardFramePipeline() :
 	m_renderablePool(4096),
 	m_lightPool(64),
+	m_skeletonInstances(1024),
 	m_viewerPool(8),
 	m_worldInstances(2048),
 	m_rebuildFrameGraph(true)
@@ -39,6 +40,11 @@ namespace Nz
 	{
 		// Force viewer passes to unregister their materials
 		m_viewerPool.Clear();
+	}
+
+	void ForwardFramePipeline::InvalidateSkeletalInstance(std::size_t skeletalInstanceIndex)
+	{
+		m_invalidatedSkeletonInstances.Set(skeletalInstanceIndex);
 	}
 
 	void ForwardFramePipeline::InvalidateViewer(std::size_t viewerIndex)
@@ -89,13 +95,14 @@ namespace Nz
 		it->second.usedCount++;
 	}
 	
-	std::size_t ForwardFramePipeline::RegisterRenderable(std::size_t worldInstanceIndex, const InstancedRenderable* instancedRenderable, UInt32 renderMask, const Recti& scissorBox)
+	std::size_t ForwardFramePipeline::RegisterRenderable(std::size_t worldInstanceIndex, std::size_t skeletonInstanceIndex, const InstancedRenderable* instancedRenderable, UInt32 renderMask, const Recti& scissorBox)
 	{
 		std::size_t renderableIndex;
 		RenderableData* renderableData = m_renderablePool.Allocate(renderableIndex);
 		renderableData->renderable = instancedRenderable;
 		renderableData->renderMask = renderMask;
 		renderableData->scissorBox = scissorBox;
+		renderableData->skeletonInstanceIndex = skeletonInstanceIndex;
 		renderableData->worldInstanceIndex = worldInstanceIndex;
 
 		renderableData->onElementInvalidated.Connect(instancedRenderable->OnElementInvalidated, [=](InstancedRenderable* /*instancedRenderable*/)
@@ -159,6 +166,16 @@ namespace Nz
 		return renderableIndex;
 	}
 
+	std::size_t ForwardFramePipeline::RegisterSkeleton(SkeletonInstancePtr skeletonInstance)
+	{
+		std::size_t skeletonInstanceIndex;
+		m_skeletonInstances.Allocate(skeletonInstanceIndex, std::move(skeletonInstance));
+
+		m_invalidatedSkeletonInstances.UnboundedSet(skeletonInstanceIndex);
+
+		return skeletonInstanceIndex;
+	}
+
 	std::size_t ForwardFramePipeline::RegisterViewer(AbstractViewer* viewerInstance, Int32 renderOrder)
 	{
 		std::size_t viewerIndex;
@@ -191,10 +208,24 @@ namespace Nz
 
 		Graphics* graphics = Graphics::Instance();
 
-		// Destroy world instances at the end of the frame
+		// Destroy instances at the end of the frame
+		for (std::size_t skeletonInstanceIndex = m_removedSkeletonInstances.FindFirst(); skeletonInstanceIndex != m_removedSkeletonInstances.npos; skeletonInstanceIndex = m_removedSkeletonInstances.FindNext(skeletonInstanceIndex))
+		{
+			renderFrame.PushForRelease(std::move(*m_skeletonInstances.RetrieveFromIndex(skeletonInstanceIndex)));
+			m_skeletonInstances.Free(skeletonInstanceIndex);
+		}
+		m_removedSkeletonInstances.Clear();
+
+		for (std::size_t viewerIndex = m_removedViewerInstances.FindFirst(); viewerIndex != m_removedViewerInstances.npos; viewerIndex = m_removedViewerInstances.FindNext(viewerIndex))
+		{
+			renderFrame.PushForRelease(std::move(*m_viewerPool.RetrieveFromIndex(viewerIndex)));
+			m_viewerPool.Free(viewerIndex);
+		}
+		m_removedSkeletonInstances.Clear();
+
 		for (std::size_t worldInstanceIndex = m_removedWorldInstances.FindFirst(); worldInstanceIndex != m_removedWorldInstances.npos; worldInstanceIndex = m_removedWorldInstances.FindNext(worldInstanceIndex))
 		{
-			renderFrame.PushForRelease(*m_worldInstances.RetrieveFromIndex(worldInstanceIndex));
+			renderFrame.PushForRelease(std::move(*m_worldInstances.RetrieveFromIndex(worldInstanceIndex)));
 			m_worldInstances.Free(worldInstanceIndex);
 		}
 		m_removedWorldInstances.Clear();
@@ -215,6 +246,13 @@ namespace Nz
 				builder.PreTransferBarrier();
 
 				OnTransfer(this, renderFrame, builder);
+
+				for (std::size_t skeletonIndex = m_invalidatedSkeletonInstances.FindFirst(); skeletonIndex != m_invalidatedSkeletonInstances.npos; skeletonIndex = m_invalidatedSkeletonInstances.FindNext(skeletonIndex))
+				{
+					SkeletonInstancePtr& skeletonInstance = *m_skeletonInstances.RetrieveFromIndex(skeletonIndex);
+					skeletonInstance->UpdateBuffers(uploadPool, builder);
+				}
+				m_invalidatedSkeletonInstances.Reset();
 
 				for (std::size_t viewerIndex = m_invalidatedViewerInstances.FindFirst(); viewerIndex != m_invalidatedViewerInstances.npos; viewerIndex = m_invalidatedViewerInstances.FindNext(viewerIndex))
 				{
@@ -276,6 +314,11 @@ namespace Nz
 				visibleRenderable.instancedRenderable = renderableData.renderable;
 				visibleRenderable.scissorBox = renderableData.scissorBox;
 				visibleRenderable.worldInstance = worldInstance.get();
+
+				if (renderableData.skeletonInstanceIndex != NoSkeletonInstance)
+					visibleRenderable.skeletonInstance = m_skeletonInstances.RetrieveFromIndex(renderableData.skeletonInstanceIndex)->get();
+				else
+					visibleRenderable.skeletonInstance = nullptr;
 
 				visibilityHash = CombineHash(visibilityHash, std::hash<const void*>()(&renderableData));
 			}
@@ -423,11 +466,16 @@ namespace Nz
 		m_renderablePool.Free(renderableIndex);
 	}
 
+	void ForwardFramePipeline::UnregisterSkeleton(std::size_t skeletonIndex)
+	{
+		// Defer world instance release
+		m_removedSkeletonInstances.UnboundedSet(skeletonIndex);
+	}
+
 	void ForwardFramePipeline::UnregisterViewer(std::size_t viewerIndex)
 	{
-		m_viewerPool.Free(viewerIndex);
-		m_invalidatedViewerInstances.Reset(viewerIndex);
-		m_rebuildFrameGraph = true;
+		// Defer world instance release
+		m_removedViewerInstances.UnboundedSet(viewerIndex);
 	}
 
 	void ForwardFramePipeline::UnregisterWorldInstance(std::size_t worldInstance)

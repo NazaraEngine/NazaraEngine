@@ -217,15 +217,15 @@ namespace Nz
 			m_impl->joints = skeleton.m_impl->joints;
 
 			// Restore parent hierarchy
-			const Node* firstJoint = skeleton.m_impl->joints.data();
+			const Joint* firstJoint = skeleton.m_impl->joints.data();
 
 			std::size_t jointCount = skeleton.m_impl->joints.size();
 			for (std::size_t i = 0; i < jointCount; ++i)
 			{
-				const Node* parent = skeleton.m_impl->joints[i].GetParent();
+				const Joint* parent = SafeCast<const Joint*>(skeleton.m_impl->joints[i].GetParent());
 				if (parent)
 				{
-					std::size_t parentIndex = SafeCast<std::size_t>(firstJoint - parent);
+					std::size_t parentIndex = SafeCast<std::size_t>(parent - firstJoint);
 					m_impl->joints[i].SetParent(m_impl->joints[parentIndex]);
 				}
 			}

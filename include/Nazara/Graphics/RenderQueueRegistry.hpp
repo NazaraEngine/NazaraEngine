@@ -15,6 +15,7 @@ namespace Nz
 {
 	class MaterialPass;
 	class RenderPipeline;
+	class Skeleton;
 	class VertexDeclaration;
 
 	class RenderQueueRegistry
@@ -28,6 +29,7 @@ namespace Nz
 			inline std::size_t FetchLayerIndex(int renderLayer) const;
 			inline std::size_t FetchMaterialPassIndex(const MaterialPass* materialPass) const;
 			inline std::size_t FetchPipelineIndex(const RenderPipeline* pipeline) const;
+			inline std::size_t FetchSkeletonIndex(const Skeleton* skeleton) const;
 			inline std::size_t FetchVertexBuffer(const RenderBuffer* vertexBuffer) const;
 			inline std::size_t FetchVertexDeclaration(const VertexDeclaration* vertexDeclaration) const;
 
@@ -36,6 +38,7 @@ namespace Nz
 			inline void RegisterLayer(int renderLayer);
 			inline void RegisterMaterialPass(const MaterialPass* materialPass);
 			inline void RegisterPipeline(const RenderPipeline* pipeline);
+			inline void RegisterSkeleton(const Skeleton* skeleton);
 			inline void RegisterVertexBuffer(const RenderBuffer* vertexBuffer);
 			inline void RegisterVertexDeclaration(const VertexDeclaration* vertexDeclaration);
 
@@ -45,6 +48,7 @@ namespace Nz
 			robin_hood::unordered_map<const MaterialPass*, std::size_t> m_materialPassRegistry;
 			robin_hood::unordered_map<const RenderPipeline*, std::size_t> m_pipelineRegistry;
 			robin_hood::unordered_map<const RenderBuffer*, std::size_t> m_vertexBufferRegistry;
+			robin_hood::unordered_map<const Skeleton*, std::size_t> m_skeletonRegistry;
 			robin_hood::unordered_map<const VertexDeclaration*, std::size_t> m_vertexDeclarationRegistry;
 	};
 }

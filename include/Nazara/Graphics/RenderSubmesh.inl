@@ -9,13 +9,14 @@
 
 namespace Nz
 {
-	inline RenderSubmesh::RenderSubmesh(int renderLayer, std::shared_ptr<MaterialPass> materialPass, std::shared_ptr<RenderPipeline> renderPipeline, const WorldInstance& worldInstance, std::size_t indexCount, IndexType indexType, std::shared_ptr<RenderBuffer> indexBuffer, std::shared_ptr<RenderBuffer> vertexBuffer, const Recti& scissorBox) :
+	inline RenderSubmesh::RenderSubmesh(int renderLayer, std::shared_ptr<MaterialPass> materialPass, std::shared_ptr<RenderPipeline> renderPipeline, const WorldInstance& worldInstance, const SkeletonInstance* skeletonInstance, std::size_t indexCount, IndexType indexType, std::shared_ptr<RenderBuffer> indexBuffer, std::shared_ptr<RenderBuffer> vertexBuffer, const Recti& scissorBox) :
 	RenderElement(BasicRenderElement::Submesh),
 	m_indexBuffer(std::move(indexBuffer)),
 	m_vertexBuffer(std::move(vertexBuffer)),
 	m_materialPass(std::move(materialPass)),
 	m_renderPipeline(std::move(renderPipeline)),
 	m_indexCount(indexCount),
+	m_skeletonInstance(skeletonInstance),
 	m_worldInstance(worldInstance),
 	m_indexType(indexType),
 	m_scissorBox(scissorBox),
@@ -51,6 +52,10 @@ namespace Nz
 			UInt64 pipelineIndex = registry.FetchPipelineIndex(m_renderPipeline.get());
 			UInt64 vertexBufferIndex = registry.FetchVertexBuffer(m_vertexBuffer.get());
 
+			UInt64 skeletonIndex = 0;
+			if (m_skeletonInstance)
+				skeletonIndex = registry.FetchSkeletonIndex(m_skeletonInstance->GetSkeleton().get());
+
 			UInt64 matFlags = 0;
 
 			// Opaque RQ index:
@@ -60,14 +65,15 @@ namespace Nz
 			// - Pipeline (16bits)
 			// - MaterialPass (16bits)
 			// - VertexBuffer (8bits)
-			// - ?? (8bits) - Depth?
+			// - Skeleton (8bits)
 
 			return (layerIndex & 0xFF)             << 60 |
 			       (matFlags)                      << 52 |
 			       (elementType & 0xF)             << 51 |
 			       (pipelineIndex & 0xFFFF)        << 35 |
 			       (materialPassIndex & 0xFFFF)    << 23 |
-			       (vertexBufferIndex & 0xFF)      <<  7;
+			       (vertexBufferIndex & 0xFF)      <<  7 |
+			       (skeletonIndex     & 0xFF);
 		}
 	}
 
@@ -101,6 +107,11 @@ namespace Nz
 		return m_scissorBox;
 	}
 
+	inline const SkeletonInstance* RenderSubmesh::GetSkeletonInstance() const
+	{
+		return m_skeletonInstance;
+	}
+
 	inline const RenderBuffer* RenderSubmesh::GetVertexBuffer() const
 	{
 		return m_vertexBuffer.get();
@@ -117,6 +128,8 @@ namespace Nz
 		registry.RegisterMaterialPass(m_materialPass.get());
 		registry.RegisterPipeline(m_renderPipeline.get());
 		registry.RegisterVertexBuffer(m_vertexBuffer.get());
+		if (m_skeletonInstance)
+			registry.RegisterSkeleton(m_skeletonInstance->GetSkeleton().get());
 	}
 }
 

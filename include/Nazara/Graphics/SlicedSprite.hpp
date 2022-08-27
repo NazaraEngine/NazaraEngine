@@ -27,7 +27,7 @@ namespace Nz
 			SlicedSprite(SlicedSprite&&) noexcept = default;
 			~SlicedSprite() = default;
 
-			void BuildElement(std::size_t passIndex, const WorldInstance& worldInstance, std::vector<std::unique_ptr<RenderElement>>& elements, const Recti& scissorBox) const override;
+			void BuildElement(std::size_t passIndex, const WorldInstance& worldInstance, const SkeletonInstance* skeletonInstance, std::vector<std::unique_ptr<RenderElement>>& elements, const Recti& scissorBox) const override;
 
 			inline const Color& GetColor() const;
 			inline const Corner& GetBottomRightCorner() const;

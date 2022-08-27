@@ -7,9 +7,9 @@
 
 namespace Nz
 {
-	inline GraphicsComponent::GraphicsComponent(bool initialyVisible) :
+	inline GraphicsComponent::GraphicsComponent(bool initiallyVisible) :
 	m_scissorBox(-1, -1, -1, -1),
-	m_isVisible(initialyVisible)
+	m_isVisible(initiallyVisible)
 	{
 		m_worldInstance = std::make_shared<WorldInstance>(); //< FIXME: Use pools
 	}

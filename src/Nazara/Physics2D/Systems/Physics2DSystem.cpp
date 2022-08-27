@@ -31,8 +31,6 @@ namespace Nz
 		auto rigidBodyView = m_registry.view<RigidBody2DComponent>();
 		for (auto [entity, rigidBodyComponent] : rigidBodyView.each())
 			rigidBodyComponent.Destroy();
-
-		m_constructConnection.release();
 	}
 
 	void Physics2DSystem::Update(float elapsedTime)

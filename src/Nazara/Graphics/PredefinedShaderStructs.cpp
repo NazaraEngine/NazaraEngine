@@ -93,7 +93,7 @@ namespace Nz
 		nzsl::FieldOffsets skeletalStruct(nzsl::StructLayout::Std140);
 
 		PredefinedSkeletalData skeletalData;
-		skeletalData.jointMatricesOffset = skeletalStruct.AddMatrixArray(nzsl::StructFieldType::Float1, 4, 4, true, 100);
+		skeletalData.jointMatricesOffset = skeletalStruct.AddMatrixArray(nzsl::StructFieldType::Float1, 4, 4, true, MaxMatricesCount);
 
 		skeletalData.totalSize = skeletalStruct.GetAlignedSize();
 
