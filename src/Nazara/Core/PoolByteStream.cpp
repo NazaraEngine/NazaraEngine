@@ -28,9 +28,13 @@ namespace Nz
 	void PoolByteStream::Reset(std::size_t capacity)
 	{
 		if (m_buffer.GetCapacity() < capacity)
-			m_buffer = m_pool.GetByteArray(capacity);
+		{
+			if (m_buffer.GetCapacity() > 0)
+				m_pool.ReturnByteArray(std::move(m_buffer));
 
-		SetStream(&m_buffer, Nz::OpenMode_ReadWrite);
+			m_buffer = m_pool.GetByteArray(capacity);
+			SetStream(&m_buffer, Nz::OpenMode_ReadWrite);
+		}
 	}
 
 	void PoolByteStream::OnEmptyStream()

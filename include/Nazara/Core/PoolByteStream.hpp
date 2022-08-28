@@ -18,8 +18,6 @@ namespace Nz
 
 	class NAZARA_CORE_API PoolByteStream : public ByteStream
 	{
-		friend class Network;
-
 		public:
 			inline PoolByteStream(ByteArrayPool& pool);
 			inline PoolByteStream(ByteArrayPool& pool, std::size_t capacity);
