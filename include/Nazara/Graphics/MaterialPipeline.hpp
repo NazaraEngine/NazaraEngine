@@ -59,7 +59,7 @@ namespace Nz
 			MaterialPipeline& operator=(MaterialPipeline&&) = delete;
 
 			inline const MaterialPipelineInfo& GetInfo() const;
-			const std::shared_ptr<RenderPipeline>& GetRenderPipeline(const std::vector<RenderPipelineInfo::VertexBufferData>& vertexBuffers) const;
+			const std::shared_ptr<RenderPipeline>& GetRenderPipeline(const RenderPipelineInfo::VertexBufferData* vertexBuffers, std::size_t vertexBufferCount) const;
 
 			static const std::shared_ptr<MaterialPipeline>& Get(const MaterialPipelineInfo& pipelineInfo);
 

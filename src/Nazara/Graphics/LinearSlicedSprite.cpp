@@ -31,15 +31,11 @@ namespace Nz
 
 		const std::shared_ptr<VertexDeclaration>& vertexDeclaration = VertexDeclaration::Get(VertexLayout::XYZ_Color_UV);
 
-		std::vector<RenderPipelineInfo::VertexBufferData> vertexBufferData = {
-			{
-				{
-					0,
-					vertexDeclaration
-				}
-			}
+		RenderPipelineInfo::VertexBufferData vertexBufferData = {
+			0,
+			vertexDeclaration
 		};
-		const auto& renderPipeline = materialPass->GetPipeline()->GetRenderPipeline(vertexBufferData);
+		const auto& renderPipeline = materialPass->GetPipeline()->GetRenderPipeline(&vertexBufferData, 1);
 
 		const auto& whiteTexture = Graphics::Instance()->GetDefaultTextures().whiteTextures[UnderlyingCast(ImageType::E2D)];
 

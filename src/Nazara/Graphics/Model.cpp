@@ -50,7 +50,7 @@ namespace Nz
 
 			const auto& indexBuffer = m_graphicalMesh->GetIndexBuffer(i);
 			const auto& vertexBuffer = m_graphicalMesh->GetVertexBuffer(i);
-			const auto& renderPipeline = materialPass->GetPipeline()->GetRenderPipeline(submeshData.vertexBufferData);
+			const auto& renderPipeline = materialPass->GetPipeline()->GetRenderPipeline(submeshData.vertexBufferData.data(), submeshData.vertexBufferData.size());
 
 			std::size_t indexCount = m_graphicalMesh->GetIndexCount(i);
 			IndexType indexType = m_graphicalMesh->GetIndexType(i);

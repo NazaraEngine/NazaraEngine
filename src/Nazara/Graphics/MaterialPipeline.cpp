@@ -30,13 +30,15 @@ namespace Nz
 	*
 	* \return Pipeline instance
 	*/
-	const std::shared_ptr<RenderPipeline>& MaterialPipeline::GetRenderPipeline(const std::vector<RenderPipelineInfo::VertexBufferData>& vertexBuffers) const
+	const std::shared_ptr<RenderPipeline>& MaterialPipeline::GetRenderPipeline(const RenderPipelineInfo::VertexBufferData* vertexBuffers, std::size_t vertexBufferCount) const
 	{
 		for (const auto& pipeline : m_renderPipelines)
 		{
 			const auto& pipelineInfo = pipeline->GetPipelineInfo();
+			if (pipelineInfo.vertexBuffers.size() != vertexBufferCount)
+				continue;
 
-			bool isEqual = std::equal(pipelineInfo.vertexBuffers.begin(), pipelineInfo.vertexBuffers.end(), vertexBuffers.begin(), [](const auto& v1, const auto& v2)
+			bool isEqual = std::equal(pipelineInfo.vertexBuffers.begin(), pipelineInfo.vertexBuffers.end(), vertexBuffers, [](const auto& v1, const auto& v2)
 			{
 				return v1.binding == v2.binding && v1.declaration == v2.declaration;
 			});
@@ -58,18 +60,18 @@ namespace Nz
 			optionValues[option.hash] = option.value;
 		}
 
+		renderPipelineInfo.vertexBuffers.assign(vertexBuffers, vertexBuffers + vertexBufferCount);
+
 		for (const auto& shader : m_pipelineInfo.shaders)
 		{
 			if (shader.uberShader)
 			{
 				UberShader::Config config{ optionValues };
-				shader.uberShader->UpdateConfig(config, vertexBuffers);
+				shader.uberShader->UpdateConfig(config, renderPipelineInfo.vertexBuffers);
 
 				renderPipelineInfo.shaderModules.push_back(shader.uberShader->Get(config));
 			}
 		}
-
-		renderPipelineInfo.vertexBuffers = vertexBuffers;
 
 		return m_renderPipelines.emplace_back(Graphics::Instance()->GetRenderDevice()->InstantiateRenderPipeline(std::move(renderPipelineInfo)));
 	}
