@@ -10,6 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/ElementRenderer.hpp>
+#include <Nazara/Graphics/RenderElement.hpp>
 #include <Nazara/Graphics/RenderElementPool.hpp>
 #include <Nazara/Graphics/RenderQueue.hpp>
 #include <memory>
