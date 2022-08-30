@@ -31,11 +31,6 @@ namespace Nz
 		SetupSkeleton();
 	}
 
-	const Joint& SharedSkeletonComponent::GetAttachedJoint(std::size_t jointIndex) const
-	{
-		return *m_attachedSkeleton.GetJoint(jointIndex);
-	}
-
 	SharedSkeletonComponent& SharedSkeletonComponent::operator=(const SharedSkeletonComponent& sharedSkeletalComponent)
 	{
 		SkeletonComponentBase::operator=(sharedSkeletalComponent);
@@ -56,6 +51,11 @@ namespace Nz
 		SetupSkeleton();
 
 		return *this;
+	}
+
+	const Skeleton& SharedSkeletonComponent::GetAttachedSkeleton() const
+	{
+		return m_attachedSkeleton;
 	}
 
 	void SharedSkeletonComponent::OnReferenceJointsInvalidated(const Skeleton* skeleton)

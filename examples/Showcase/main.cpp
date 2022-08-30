@@ -167,17 +167,17 @@ int main()
 		}
 	}*/
 
-	entt::entity bobEntity = registry.create();
+	entt::handle bobEntity = entt::handle(registry, registry.create());
 	{
-		auto& bobNode = registry.emplace<Nz::NodeComponent>(bobEntity);
+		auto& bobNode = bobEntity.emplace<Nz::NodeComponent>();
 		//bobNode.SetRotation(Nz::EulerAnglesf(-90.f, -90.f, 0.f));
 		//bobNode.SetScale(1.f / 40.f * 0.5f);
 		//bobNode.SetPosition(bobNode.GetScale() * Nz::Vector3f(0.f, -bobAABB.height / 2.f + bobAABB.y, 0.f));
 
-		auto& bobGfx = registry.emplace<Nz::GraphicsComponent>(bobEntity);
+		auto& bobGfx = bobEntity.emplace<Nz::GraphicsComponent>();
 		bobGfx.AttachRenderable(bobModel, 0xFFFFFFFF);
 
-		auto& sharedSkeleton = registry.emplace<Nz::SharedSkeletonComponent>(bobEntity, skeleton);
+		auto& sharedSkeleton = bobEntity.emplace<Nz::SharedSkeletonComponent>(skeleton);
 
 
 		entt::entity sphereEntity = registry.create();
@@ -219,7 +219,7 @@ int main()
 			auto& sphereNode = registry.emplace<Nz::NodeComponent>(sphereEntity);
 			sphereNode.SetScale(0.1f);
 			sphereNode.SetInheritScale(false);
-			sphereNode.SetParent(sharedSkeleton.GetAttachedJoint(83));
+			sphereNode.SetParentJoint(bobEntity, "RightHand");
 
 			auto& sphereBody = registry.emplace<Nz::RigidBody3DComponent>(sphereEntity, &physSytem.GetPhysWorld());
 			sphereBody.SetGeom(std::make_shared<Nz::SphereCollider3D>(0.1f));
@@ -230,7 +230,7 @@ int main()
 
 		entt::entity smallBobEntity = registry.create();
 		auto& smallBobNode = registry.emplace<Nz::NodeComponent>(smallBobEntity);
-		smallBobNode.SetParent(sharedSkeleton.GetAttachedJoint(59));
+		smallBobNode.SetParentJoint(bobEntity, "LeftHand");
 
 		auto& smallBobGfx = registry.emplace<Nz::GraphicsComponent>(smallBobEntity);
 		smallBobGfx.AttachRenderable(bobModel, 0xFFFFFFFF);

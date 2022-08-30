@@ -12,13 +12,13 @@ namespace Nz
 	{
 	}
 
-	const Joint& SkeletonComponent::GetAttachedJoint(std::size_t jointIndex) const
-	{
-		return *m_referenceSkeleton->GetJoint(jointIndex);
-	}
-
 	Node* SkeletonComponent::GetRootNode()
 	{
 		return m_referenceSkeleton->GetRootJoint();
+	}
+
+	const Skeleton& SkeletonComponent::GetAttachedSkeleton() const
+	{
+		return *m_referenceSkeleton;
 	}
 }

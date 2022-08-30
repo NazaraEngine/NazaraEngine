@@ -23,12 +23,11 @@ namespace Nz
 			SharedSkeletonComponent(SharedSkeletonComponent&& sharedSkeletalComponent) noexcept;
 			~SharedSkeletonComponent() = default;
 
-			const Joint& GetAttachedJoint(std::size_t jointIndex) const override;
-
 			SharedSkeletonComponent& operator=(const SharedSkeletonComponent& sharedSkeletalComponent);
 			SharedSkeletonComponent& operator=(SharedSkeletonComponent&& sharedSkeletalComponent) noexcept;
 
 		private:
+			const Skeleton& GetAttachedSkeleton() const override;
 			inline bool IsAttachedSkeletonOutdated() const;
 			void OnReferenceJointsInvalidated(const Skeleton* skeleton);
 			void SetSkeletonParent(Node* parent);

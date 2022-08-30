@@ -23,11 +23,13 @@ namespace Nz
 			SkeletonComponent(SkeletonComponent&& skeletalComponent) noexcept = default;
 			~SkeletonComponent() = default;
 
-			const Joint& GetAttachedJoint(std::size_t jointIndex) const override;
 			Node* GetRootNode();
 
 			SkeletonComponent& operator=(const SkeletonComponent&) = delete;
 			SkeletonComponent& operator=(SkeletonComponent&& skeletalComponent) noexcept = default;
+
+		private:
+			const Skeleton& GetAttachedSkeleton() const override;
 	};
 }
 
