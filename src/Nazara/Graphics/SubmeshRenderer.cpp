@@ -13,6 +13,11 @@
 
 namespace Nz
 {
+	RenderElementPool<RenderSubmesh>& SubmeshRenderer::GetPool()
+	{
+		return m_submeshPool;
+	}
+
 	std::unique_ptr<ElementRendererData> SubmeshRenderer::InstanciateData()
 	{
 		return std::make_unique<SubmeshRendererData>();

@@ -45,6 +45,11 @@ namespace Nz
 		m_indexBuffer = m_device.InstantiateBuffer(BufferType::Index, indexCount * sizeof(UInt16), BufferUsage::DeviceLocal | BufferUsage::Write, indices.data());
 	}
 
+	RenderElementPool<RenderSpriteChain>& SpriteChainRenderer::GetPool()
+	{
+		return m_spriteChainPool;
+	}
+
 	std::unique_ptr<ElementRendererData> SpriteChainRenderer::InstanciateData()
 	{
 		return std::make_unique<SpriteChainRendererData>();

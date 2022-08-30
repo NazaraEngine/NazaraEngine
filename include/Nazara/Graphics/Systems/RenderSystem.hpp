@@ -8,6 +8,7 @@
 #define NAZARA_GRAPHICS_SYSTEMS_RENDERSYSTEM_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Graphics/ElementRendererRegistry.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/Components/GraphicsComponent.hpp>
 #include <Nazara/Graphics/Components/LightComponent.hpp>
@@ -132,6 +133,7 @@ namespace Nz
 			std::unordered_set<LightEntity*> m_newlyHiddenLightEntities;
 			std::unordered_set<LightEntity*> m_newlyVisibleLightEntities;
 			std::vector<std::unique_ptr<RenderWindow>> m_renderWindows;
+			ElementRendererRegistry m_elementRegistry;
 			MemoryPool<CameraEntity> m_cameraEntityPool;
 			MemoryPool<GraphicsEntity> m_graphicsEntityPool;
 			MemoryPool<LightEntity> m_lightEntityPool;

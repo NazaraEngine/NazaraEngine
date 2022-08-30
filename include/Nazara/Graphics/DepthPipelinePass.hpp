@@ -13,6 +13,7 @@
 #include <Nazara/Graphics/FramePipelinePass.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>
+#include <Nazara/Graphics/RenderElementOwner.hpp>
 #include <Nazara/Graphics/RenderQueue.hpp>
 #include <Nazara/Graphics/RenderQueueRegistry.hpp>
 #include <Nazara/Math/Frustum.hpp>
@@ -20,6 +21,7 @@
 namespace Nz
 {
 	class AbstractViewer;
+	class ElementRendererRegistry;
 	class FrameGraph;
 	class FramePipeline;
 	class Material;
@@ -27,7 +29,7 @@ namespace Nz
 	class NAZARA_GRAPHICS_API DepthPipelinePass : public FramePipelinePass
 	{
 		public:
-			DepthPipelinePass(FramePipeline& owner, AbstractViewer* viewer);
+			DepthPipelinePass(FramePipeline& owner, ElementRendererRegistry& elementRegistry, AbstractViewer* viewer);
 			DepthPipelinePass(const DepthPipelinePass&) = delete;
 			DepthPipelinePass(DepthPipelinePass&&) = delete;
 			~DepthPipelinePass();
@@ -57,12 +59,13 @@ namespace Nz
 			std::size_t m_depthPassIndex;
 			std::size_t m_lastVisibilityHash;
 			std::vector<std::unique_ptr<ElementRendererData>> m_elementRendererData;
-			std::vector<std::unique_ptr<RenderElement>> m_renderElements;
 			std::vector<ElementRenderer::RenderStates> m_renderStates;
+			std::vector<RenderElementOwner> m_renderElements;
 			std::unordered_map<MaterialPass*, MaterialPassEntry> m_materialPasses;
-			RenderQueue<RenderElement*> m_renderQueue;
+			RenderQueue<const RenderElement*> m_renderQueue;
 			RenderQueueRegistry m_renderQueueRegistry;
 			AbstractViewer* m_viewer;
+			ElementRendererRegistry& m_elementRegistry;
 			FramePipeline& m_pipeline;
 			bool m_rebuildCommandBuffer;
 			bool m_rebuildElements;

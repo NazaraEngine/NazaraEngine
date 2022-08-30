@@ -11,6 +11,7 @@
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
+#include <Nazara/Graphics/RenderElementPool.hpp>
 #include <Nazara/Renderer/RenderBufferView.hpp>
 #include <memory>
 #include <optional>
@@ -32,6 +33,8 @@ namespace Nz
 			ElementRenderer() = default;
 			virtual ~ElementRenderer();
 
+			virtual RenderElementPoolBase& GetPool() = 0;
+
 			virtual std::unique_ptr<ElementRendererData> InstanciateData() = 0;
 			virtual void Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderFrame& currentFrame, std::size_t elementCount, const Pointer<const RenderElement>* elements, const RenderStates* renderStates);
 			virtual void PrepareEnd(RenderFrame& currentFrame, ElementRendererData& rendererData);
@@ -41,7 +44,6 @@ namespace Nz
 			struct RenderStates
 			{
 				RenderBufferView lightData;
-				RenderBufferView skeletalData;
 			};
 	};
 

@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/Model.hpp>
+#include <Nazara/Graphics/ElementRendererRegistry.hpp>
 #include <Nazara/Graphics/GraphicalMesh.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/Material.hpp>
@@ -37,7 +38,7 @@ namespace Nz
 		UpdateAABB(aabb);
 	}
 
-	void Model::BuildElement(std::size_t passIndex, const WorldInstance& worldInstance, const SkeletonInstance* skeletonInstance, std::vector<std::unique_ptr<RenderElement>>& elements, const Recti& scissorBox) const
+	void Model::BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, std::vector<RenderElementOwner>& elements) const
 	{
 		for (std::size_t i = 0; i < m_submeshes.size(); ++i)
 		{
@@ -54,7 +55,7 @@ namespace Nz
 			std::size_t indexCount = m_graphicalMesh->GetIndexCount(i);
 			IndexType indexType = m_graphicalMesh->GetIndexType(i);
 
-			elements.emplace_back(std::make_unique<RenderSubmesh>(GetRenderLayer(), materialPass, renderPipeline, worldInstance, skeletonInstance, indexCount, indexType, indexBuffer, vertexBuffer, scissorBox));
+			elements.emplace_back(registry.AllocateElement<RenderSubmesh>(GetRenderLayer(), materialPass, renderPipeline, *elementData.worldInstance, elementData.skeletonInstance, indexCount, indexType, indexBuffer, vertexBuffer, *elementData.scissorBox));
 		}
 	}
 

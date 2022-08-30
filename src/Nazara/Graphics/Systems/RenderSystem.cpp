@@ -37,7 +37,7 @@ namespace Nz
 		m_sharedSkeletonDestroyConnection = registry.on_destroy<SharedSkeletonComponent>().connect<&RenderSystem::OnSharedSkeletonDestroy>(this);
 		m_skeletonDestroyConnection = registry.on_destroy<SkeletonComponent>().connect<&RenderSystem::OnSkeletonDestroy>(this);
 
-		m_pipeline = std::make_unique<ForwardFramePipeline>();
+		m_pipeline = std::make_unique<ForwardFramePipeline>(m_elementRegistry);
 	}
 
 	RenderSystem::~RenderSystem()
@@ -45,6 +45,7 @@ namespace Nz
 		m_cameraConstructObserver.disconnect();
 		m_graphicsConstructObserver.disconnect();
 		m_lightConstructObserver.disconnect();
+		m_pipeline.reset();
 	}
 
 	void RenderSystem::Update(float /*elapsedTime*/)

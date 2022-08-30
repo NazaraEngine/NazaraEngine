@@ -688,6 +688,8 @@ int main()
 			std::exit(__LINE__);
 		}
 
+		Nz::ElementRendererRegistry elementRegistry;
+
 		Nz::FrameGraph graph;
 
 		colorTexture = graph.AddAttachment({
@@ -793,16 +795,26 @@ int main()
 		{
 			builder.SetViewport(env.renderRect);
 
-			std::vector<std::unique_ptr<Nz::RenderElement>> elements;
-			spaceshipModel.BuildElement(forwardPassIndex, modelInstance1, nullptr, elements, env.renderRect);
-			spaceshipModel.BuildElement(forwardPassIndex, modelInstance2, nullptr, elements, env.renderRect);
-			planeModel.BuildElement(forwardPassIndex, planeInstance, nullptr, elements, env.renderRect);
+			Nz::InstancedRenderable::ElementData elementData;
+			elementData.scissorBox = &env.renderRect;
+			elementData.skeletonInstance = nullptr;
+
+			std::vector<Nz::RenderElementOwner> elements;
+
+			elementData.worldInstance = &modelInstance1;
+			spaceshipModel.BuildElement(elementRegistry, elementData, forwardPassIndex, elements);
+
+			elementData.worldInstance = &modelInstance2;
+			spaceshipModel.BuildElement(elementRegistry, elementData, forwardPassIndex, elements);
+
+			elementData.worldInstance = &planeInstance;
+			planeModel.BuildElement(elementRegistry, elementData, forwardPassIndex, elements);
 
 			std::vector<Nz::Pointer<const Nz::RenderElement>> elementPointers;
 			std::vector<Nz::ElementRenderer::RenderStates> renderStates(elements.size());
 			elementPointers.reserve(elements.size());
-			for (const auto& element : elements)
-				elementPointers.emplace_back(element.get());
+			for (const auto& elementOwner : elements)
+				elementPointers.emplace_back(elementOwner.GetElement());
 
 			submeshRenderer.Prepare(viewerInstance, *submeshRendererData, *currentFrame, elementPointers.size(), elementPointers.data(), renderStates.data());
 			submeshRenderer.PrepareEnd(*currentFrame, *spriteRendererData);
@@ -859,15 +871,20 @@ int main()
 
 			builder.DrawIndexed(Nz::SafeCast<Nz::UInt32>(cubeMeshGfx->GetIndexCount(0)));
 
-			std::vector<std::unique_ptr<Nz::RenderElement>> elements;
-			flareSprite.BuildElement(forwardPassIndex, flareInstance, nullptr, elements, env.renderRect);
+			Nz::InstancedRenderable::ElementData elementData;
+			elementData.scissorBox = &env.renderRect;
+			elementData.skeletonInstance = nullptr;
+			elementData.worldInstance = &flareInstance;
+
+			std::vector<Nz::RenderElementOwner> elements;
+			flareSprite.BuildElement(elementRegistry, elementData, forwardPassIndex, elements);
 
 			std::vector<Nz::Pointer<const Nz::RenderElement>> elementPointers;
 			std::vector<Nz::ElementRenderer::RenderStates> renderStates(elements.size());
 
 			elementPointers.reserve(elements.size());
 			for (const auto& element : elements)
-				elementPointers.emplace_back(element.get());
+				elementPointers.emplace_back(element.GetElement());
 
 			spritechainRenderer.Prepare(viewerInstance, *spriteRendererData, *currentFrame, elementPointers.size(), elementPointers.data(), renderStates.data());
 			spritechainRenderer.Render(viewerInstance, *spriteRendererData, builder, elementPointers.size(), elementPointers.data());
@@ -888,15 +905,20 @@ int main()
 		{
 			builder.SetViewport(env.renderRect);
 
-			std::vector<std::unique_ptr<Nz::RenderElement>> elements;
-			flareSprite.BuildElement(forwardPassIndex, flareInstance, nullptr, elements, env.renderRect);
+			Nz::InstancedRenderable::ElementData elementData;
+			elementData.scissorBox = &env.renderRect;
+			elementData.skeletonInstance = nullptr;
+			elementData.worldInstance = &flareInstance;
+
+			std::vector<Nz::RenderElementOwner> elements;
+			flareSprite.BuildElement(elementRegistry, elementData, forwardPassIndex, elements);
 
 			std::vector<Nz::Pointer<const Nz::RenderElement>> elementPointers;
 			std::vector<Nz::ElementRenderer::RenderStates> renderStates(elements.size());
 
 			elementPointers.reserve(elements.size());
 			for (const auto& element : elements)
-				elementPointers.emplace_back(element.get());
+				elementPointers.emplace_back(element.GetElement());
 
 			spritechainRenderer.Prepare(viewerInstance, *spriteRendererData, *currentFrame, elementPointers.size(), elementPointers.data(), renderStates.data());
 			spritechainRenderer.PrepareEnd(*currentFrame, *spriteRendererData);

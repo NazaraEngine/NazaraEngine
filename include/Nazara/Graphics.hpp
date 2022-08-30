@@ -40,6 +40,7 @@
 #include <Nazara/Graphics/DepthPipelinePass.hpp>
 #include <Nazara/Graphics/DirectionalLight.hpp>
 #include <Nazara/Graphics/ElementRenderer.hpp>
+#include <Nazara/Graphics/ElementRendererRegistry.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/ForwardFramePipeline.hpp>
 #include <Nazara/Graphics/ForwardPipelinePass.hpp>
@@ -65,6 +66,8 @@
 #include <Nazara/Graphics/PointLight.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>
+#include <Nazara/Graphics/RenderElementOwner.hpp>
+#include <Nazara/Graphics/RenderElementPool.hpp>
 #include <Nazara/Graphics/RenderQueue.hpp>
 #include <Nazara/Graphics/RenderQueueRegistry.hpp>
 #include <Nazara/Graphics/RenderSpriteChain.hpp>

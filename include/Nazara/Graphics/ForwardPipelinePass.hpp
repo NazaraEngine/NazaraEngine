@@ -14,6 +14,7 @@
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>
+#include <Nazara/Graphics/RenderElementOwner.hpp>
 #include <Nazara/Graphics/RenderQueue.hpp>
 #include <Nazara/Graphics/RenderQueueRegistry.hpp>
 #include <Nazara/Math/Frustum.hpp>
@@ -22,6 +23,7 @@
 namespace Nz
 {
 	class AbstractViewer;
+	class ElementRendererRegistry;
 	class FrameGraph;
 	class FramePipeline;
 	class Light;
@@ -30,7 +32,7 @@ namespace Nz
 	class NAZARA_GRAPHICS_API ForwardPipelinePass : public FramePipelinePass
 	{
 		public:
-			ForwardPipelinePass(FramePipeline& owner, AbstractViewer* viewer);
+			ForwardPipelinePass(FramePipeline& owner, ElementRendererRegistry& elementRegistry, AbstractViewer* viewer);
 			ForwardPipelinePass(const ForwardPipelinePass&) = delete;
 			ForwardPipelinePass(ForwardPipelinePass&&) = delete;
 			~ForwardPipelinePass();
@@ -82,16 +84,17 @@ namespace Nz
 			std::size_t m_lastVisibilityHash;
 			std::shared_ptr<LightUboPool> m_lightUboPool;
 			std::vector<std::unique_ptr<ElementRendererData>> m_elementRendererData;
-			std::vector<std::unique_ptr<RenderElement>> m_renderElements;
 			std::vector<ElementRenderer::RenderStates> m_renderStates;
+			std::vector<RenderElementOwner> m_renderElements;
 			std::unordered_map<MaterialPass*, MaterialPassEntry> m_materialPasses;
 			std::unordered_map<const RenderElement*, RenderBufferView> m_lightPerRenderElement;
 			std::unordered_map<LightKey, RenderBufferView, LightKeyHasher> m_lightBufferPerLights;
 			std::vector<LightDataUbo> m_lightDataBuffers;
 			std::vector<const Light*> m_renderableLights;
-			RenderQueue<RenderElement*> m_renderQueue;
+			RenderQueue<const RenderElement*> m_renderQueue;
 			RenderQueueRegistry m_renderQueueRegistry;
 			AbstractViewer* m_viewer;
+			ElementRendererRegistry& m_elementRegistry;
 			FramePipeline& m_pipeline;
 			bool m_rebuildCommandBuffer;
 			bool m_rebuildElements;

@@ -4,6 +4,7 @@
 
 #include <Nazara/Graphics/SlicedSprite.hpp>
 #include <Nazara/Graphics/BasicMaterial.hpp>
+#include <Nazara/Graphics/ElementRendererRegistry.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/RenderSpriteChain.hpp>
 #include <Nazara/Graphics/Debug.hpp>
@@ -19,7 +20,7 @@ namespace Nz
 		UpdateVertices();
 	}
 
-	void SlicedSprite::BuildElement(std::size_t passIndex, const WorldInstance& worldInstance, const SkeletonInstance* skeletonInstance, std::vector<std::unique_ptr<RenderElement>>& elements, const Recti& scissorBox) const
+	void SlicedSprite::BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, std::vector<RenderElementOwner>& elements) const
 	{
 		const auto& materialPass = m_material->GetPass(passIndex);
 		if (!materialPass)
@@ -39,7 +40,7 @@ namespace Nz
 
 		const auto& whiteTexture = Graphics::Instance()->GetDefaultTextures().whiteTextures[UnderlyingCast(ImageType::E2D)];
 
-		elements.emplace_back(std::make_unique<RenderSpriteChain>(GetRenderLayer(), materialPass, renderPipeline, worldInstance, vertexDeclaration, whiteTexture, m_spriteCount, m_vertices.data(), scissorBox));
+		elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer(), materialPass, renderPipeline, *elementData.worldInstance, vertexDeclaration, whiteTexture, m_spriteCount, m_vertices.data(), *elementData.scissorBox));
 	}
 
 	const std::shared_ptr<Material>& SlicedSprite::GetMaterial(std::size_t i) const

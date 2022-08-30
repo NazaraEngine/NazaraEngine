@@ -37,7 +37,7 @@ namespace Nz
 	class NAZARA_GRAPHICS_API ForwardFramePipeline : public FramePipeline
 	{
 		public:
-			ForwardFramePipeline();
+			ForwardFramePipeline(ElementRendererRegistry& elementRegistry);
 			ForwardFramePipeline(const ForwardFramePipeline&) = delete;
 			ForwardFramePipeline(ForwardFramePipeline&&) = delete;
 			~ForwardFramePipeline();
@@ -137,6 +137,7 @@ namespace Nz
 			Bitset<UInt64> m_removedSkeletonInstances;
 			Bitset<UInt64> m_removedViewerInstances;
 			Bitset<UInt64> m_removedWorldInstances;
+			ElementRendererRegistry& m_elementRegistry;
 			MemoryPool<RenderableData> m_renderablePool;
 			MemoryPool<LightData> m_lightPool;
 			MemoryPool<SkeletonInstancePtr> m_skeletonInstances;

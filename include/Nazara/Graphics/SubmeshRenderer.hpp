@@ -9,20 +9,22 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/ElementRenderer.hpp>
+#include <Nazara/Graphics/RenderSubmesh.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
 
 namespace Nz
 {
 	class RenderPipeline;
-	class RenderSubmesh;
 	class ShaderBinding;
 
-	class NAZARA_GRAPHICS_API SubmeshRenderer : public ElementRenderer
+	class NAZARA_GRAPHICS_API SubmeshRenderer final : public ElementRenderer
 	{
 		public:
 			SubmeshRenderer() = default;
 			~SubmeshRenderer() = default;
+
+			RenderElementPool<RenderSubmesh>& GetPool() override;
 
 			std::unique_ptr<ElementRendererData> InstanciateData() override;
 			void Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderFrame& currentFrame, std::size_t elementCount, const Pointer<const RenderElement>* elements, const RenderStates* renderStates) override;
@@ -31,6 +33,7 @@ namespace Nz
 
 		private:
 			std::vector<ShaderBinding::Binding> m_bindingCache;
+			RenderElementPool<RenderSubmesh> m_submeshPool;
 	};
 
 	struct SubmeshRendererData : public ElementRendererData

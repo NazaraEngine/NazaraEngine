@@ -39,6 +39,8 @@ namespace Nz
 
 			inline void Register(RenderQueueRegistry& registry) const override;
 
+			static constexpr BasicRenderElement ElementType = BasicRenderElement::SpriteChain;
+
 		private:
 			std::shared_ptr<MaterialPass> m_materialPass;
 			std::shared_ptr<RenderPipeline> m_renderPipeline;

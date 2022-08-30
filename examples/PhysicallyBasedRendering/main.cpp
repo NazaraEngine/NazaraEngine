@@ -91,7 +91,8 @@ int main()
 
 	Nz::Recti scissorBox(Nz::Vector2i(window.GetSize()));
 
-	Nz::ForwardFramePipeline framePipeline;
+	Nz::ElementRendererRegistry elementRegistry;
+	Nz::ForwardFramePipeline framePipeline(elementRegistry);
 	std::size_t cameraIndex = framePipeline.RegisterViewer(&camera, 0);
 	std::size_t worldInstanceIndex1 = framePipeline.RegisterWorldInstance(modelInstance);
 	framePipeline.RegisterRenderable(worldInstanceIndex1, Nz::FramePipeline::NoSkeletonInstance, &model, 0xFFFFFFFF, scissorBox);

@@ -28,7 +28,7 @@ namespace Nz
 			TextSprite(TextSprite&&) noexcept = default;
 			~TextSprite() = default;
 
-			void BuildElement(std::size_t passIndex, const WorldInstance& worldInstance, const SkeletonInstance* skeletonInstance, std::vector<std::unique_ptr<RenderElement>>& elements, const Recti& scissorBox) const override;
+			void BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, std::vector<RenderElementOwner>& elements) const override;
 
 			inline void Clear();
 

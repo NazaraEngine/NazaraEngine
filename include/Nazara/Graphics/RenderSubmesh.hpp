@@ -41,6 +41,8 @@ namespace Nz
 
 			inline void Register(RenderQueueRegistry& registry) const override;
 
+			static constexpr BasicRenderElement ElementType = BasicRenderElement::Submesh;
+
 		private:
 			std::shared_ptr<RenderBuffer> m_indexBuffer;
 			std::shared_ptr<RenderBuffer> m_vertexBuffer;

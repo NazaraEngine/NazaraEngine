@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/ElementRenderer.hpp>
+#include <Nazara/Graphics/RenderSpriteChain.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
@@ -21,7 +22,6 @@ namespace Nz
 	class MaterialPass;
 	class RenderDevice;
 	class RenderPipeline;
-	class RenderSpriteChain;
 	class ShaderBinding;
 	class Texture;
 	class VertexDeclaration;
@@ -56,6 +56,8 @@ namespace Nz
 		public:
 			SpriteChainRenderer(RenderDevice& device, std::size_t maxVertexBufferSize = 32 * 1024);
 			~SpriteChainRenderer() = default;
+
+			RenderElementPool<RenderSpriteChain>& GetPool() override;
 
 			std::unique_ptr<ElementRendererData> InstanciateData() override;
 			void Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderFrame& currentFrame, std::size_t elementCount, const Pointer<const RenderElement>* elements, const RenderStates* renderStates) override;
@@ -103,6 +105,7 @@ namespace Nz
 			std::size_t m_maxVertexCount;
 			std::vector<BufferCopy> m_pendingCopies;
 			std::vector<ShaderBinding::Binding> m_bindingCache;
+			RenderElementPool<RenderSpriteChain> m_spriteChainPool;
 			PendingData m_pendingData;
 			RenderDevice& m_device;
 	};

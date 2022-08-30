@@ -26,7 +26,8 @@
 
 namespace Nz
 {
-	ForwardFramePipeline::ForwardFramePipeline() :
+	ForwardFramePipeline::ForwardFramePipeline(ElementRendererRegistry& elementRegistry) :
+	m_elementRegistry(elementRegistry),
 	m_renderablePool(4096),
 	m_lightPool(64),
 	m_skeletonInstances(1024),
@@ -182,8 +183,8 @@ namespace Nz
 		auto& viewerData = *m_viewerPool.Allocate(viewerIndex);
 		viewerData.renderOrder = renderOrder;
 		viewerData.debugDrawPass = std::make_unique<DebugDrawPipelinePass>(*this, viewerInstance);
-		viewerData.depthPrepass = std::make_unique<DepthPipelinePass>(*this, viewerInstance);
-		viewerData.forwardPass = std::make_unique<ForwardPipelinePass>(*this, viewerInstance);
+		viewerData.depthPrepass = std::make_unique<DepthPipelinePass>(*this, m_elementRegistry, viewerInstance);
+		viewerData.forwardPass = std::make_unique<ForwardPipelinePass>(*this, m_elementRegistry, viewerInstance);
 		viewerData.viewer = viewerInstance;
 
 		m_invalidatedViewerInstances.UnboundedSet(viewerIndex);

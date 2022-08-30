@@ -4,6 +4,7 @@
 
 #include <Nazara/Graphics/ForwardPipelinePass.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
+#include <Nazara/Graphics/ElementRendererRegistry.hpp>
 #include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Graphics/FramePipeline.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
@@ -16,9 +17,10 @@
 
 namespace Nz
 {
-	ForwardPipelinePass::ForwardPipelinePass(FramePipeline& owner, AbstractViewer* viewer) :
+	ForwardPipelinePass::ForwardPipelinePass(FramePipeline& owner, ElementRendererRegistry& elementRegistry, AbstractViewer* viewer) :
 	m_lastVisibilityHash(0),
 	m_viewer(viewer),
+	m_elementRegistry(elementRegistry),
 	m_pipeline(owner),
 	m_rebuildCommandBuffer(false),
 	m_rebuildElements(false)
@@ -147,11 +149,17 @@ namespace Nz
 				else
 					lightUboView = it->second;
 
+				InstancedRenderable::ElementData elementData{
+					&renderableData.scissorBox,
+					renderableData.skeletonInstance,
+					renderableData.worldInstance
+				};
+
 				std::size_t previousCount = m_renderElements.size();
-				renderableData.instancedRenderable->BuildElement(m_forwardPassIndex, *renderableData.worldInstance, renderableData.skeletonInstance, m_renderElements, renderableData.scissorBox);
+				renderableData.instancedRenderable->BuildElement(m_elementRegistry, elementData, m_forwardPassIndex, m_renderElements);
 				for (std::size_t i = previousCount; i < m_renderElements.size(); ++i)
 				{
-					const RenderElement* element = m_renderElements[i].get();
+					const RenderElement* element = m_renderElements[i].GetElement();
 					m_lightPerRenderElement.emplace(element, lightUboView);
 				}
 			}
@@ -159,7 +167,7 @@ namespace Nz
 			for (const auto& renderElement : m_renderElements)
 			{
 				renderElement->Register(m_renderQueueRegistry);
-				m_renderQueue.Insert(renderElement.get());
+				m_renderQueue.Insert(renderElement.GetElement());
 			}
 
 			m_renderQueueRegistry.Finalize();
@@ -193,15 +201,13 @@ namespace Nz
 
 		if (m_rebuildElements)
 		{
-			m_pipeline.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
+			m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
 			{
-				if (elementType >= m_elementRendererData.size() || !m_elementRendererData[elementType])
-				{
-					if (elementType >= m_elementRendererData.size())
-						m_elementRendererData.resize(elementType + 1);
+				if (elementType >= m_elementRendererData.size())
+					m_elementRendererData.resize(elementType + 1);
 
+				if (!m_elementRendererData[elementType])
 					m_elementRendererData[elementType] = elementRenderer.InstanciateData();
-				}
 
 				elementRenderer.Reset(*m_elementRendererData[elementType], renderFrame);
 			});
@@ -209,9 +215,9 @@ namespace Nz
 			const auto& viewerInstance = m_viewer->GetViewerInstance();
 
 			auto& lightPerRenderElement = m_lightPerRenderElement;
-			m_pipeline.ProcessRenderQueue(m_renderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
+			m_elementRegistry.ProcessRenderQueue(m_renderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
 			{
-				ElementRenderer& elementRenderer = m_pipeline.GetElementRenderer(elementType);
+				ElementRenderer& elementRenderer = m_elementRegistry.GetElementRenderer(elementType);
 
 				m_renderStates.clear();
 
@@ -228,7 +234,7 @@ namespace Nz
 				elementRenderer.Prepare(viewerInstance, *m_elementRendererData[elementType], renderFrame, elementCount, elements, m_renderStates.data());
 			});
 
-			m_pipeline.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
+			m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
 			{
 				elementRenderer.PrepareEnd(renderFrame, *m_elementRendererData[elementType]);
 			});
@@ -291,9 +297,9 @@ namespace Nz
 
 			const auto& viewerInstance = m_viewer->GetViewerInstance();
 
-			m_pipeline.ProcessRenderQueue(m_renderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
+			m_elementRegistry.ProcessRenderQueue(m_renderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
 			{
-				ElementRenderer& elementRenderer = m_pipeline.GetElementRenderer(elementType);
+				ElementRenderer& elementRenderer = m_elementRegistry.GetElementRenderer(elementType);
 				elementRenderer.Render(viewerInstance, *m_elementRendererData[elementType], builder, elementCount, elements);
 			});
 
