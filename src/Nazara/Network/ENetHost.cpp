@@ -43,6 +43,20 @@ namespace Nz
 	}
 
 
+	ENetPacketRef ENetHost::AllocatePacket(ENetPacketFlags flags)
+	{
+		std::size_t poolIndex;
+
+		ENetPacket* packet = m_packetPool.Allocate(poolIndex);
+
+		ENetPacketRef enetPacket(&m_packetPool, packet);
+		enetPacket->flags = flags;
+		enetPacket->poolIndex = poolIndex;
+		enetPacket.m_pool = &m_packetPool;
+
+		return enetPacket;
+	}
+
 	void ENetHost::Broadcast(UInt8 channelId, ENetPacketFlags flags, NetPacket&& packet)
 	{
 		ENetPacketRef enetPacket = AllocatePacket(flags, std::move(packet));
@@ -308,20 +322,6 @@ namespace Nz
 			m_packetDelayDistribution = std::uniform_int_distribution<UInt16>(minDelay, maxDelay);
 			m_packetLossProbability = std::bernoulli_distribution(packetLossProbability);
 		}
-	}
-
-	ENetPacketRef ENetHost::AllocatePacket(ENetPacketFlags flags)
-	{
-		std::size_t poolIndex;
-
-		ENetPacket* packet = m_packetPool.Allocate(poolIndex);
-
-		ENetPacketRef enetPacket(&m_packetPool, packet);
-		enetPacket->flags = flags;
-		enetPacket->poolIndex = poolIndex;
-		enetPacket.m_pool = &m_packetPool;
-
-		return enetPacket;
 	}
 
 	bool ENetHost::InitSocket(const IpAddress& address)

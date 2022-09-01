@@ -44,6 +44,9 @@ namespace Nz
 			ENetHost(ENetHost&&) = default;
 			inline ~ENetHost();
 
+			ENetPacketRef AllocatePacket(ENetPacketFlags flags);
+			inline ENetPacketRef AllocatePacket(ENetPacketFlags flags, NetPacket&& data);
+
 			inline void AllowsIncomingConnections(bool allow = true);
 
 			void Broadcast(UInt8 channelId, ENetPacketFlags flags, NetPacket&& packet);
@@ -79,9 +82,6 @@ namespace Nz
 			ENetHost& operator=(ENetHost&&) = default;
 
 		private:
-			ENetPacketRef AllocatePacket(ENetPacketFlags flags);
-			inline ENetPacketRef AllocatePacket(ENetPacketFlags flags, NetPacket&& data);
-
 			bool InitSocket(const IpAddress& address);
 
 			void AddToDispatchQueue(ENetPeer* peer);

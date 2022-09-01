@@ -20,6 +20,14 @@ namespace Nz
 		Destroy();
 	}
 
+	inline ENetPacketRef ENetHost::AllocatePacket(ENetPacketFlags flags, NetPacket&& data)
+	{
+		ENetPacketRef ref = AllocatePacket(flags);
+		ref->data = std::move(data);
+
+		return ref;
+	}
+
 	inline void ENetHost::AllowsIncomingConnections(bool allow)
 	{
 		NazaraAssert(m_address.IsValid() && !m_address.IsLoopback(), "Only server hosts can allow incoming connections");
@@ -99,14 +107,6 @@ namespace Nz
 	inline void ENetHost::SetCompressor(std::unique_ptr<ENetCompressor>&& compressor)
 	{
 		m_compressor = std::move(compressor);
-	}
-
-	inline ENetPacketRef ENetHost::AllocatePacket(ENetPacketFlags flags, NetPacket&& data)
-	{
-		ENetPacketRef ref = AllocatePacket(flags);
-		ref->data = std::move(data);
-
-		return ref;
 	}
 
 	inline void ENetHost::UpdateServiceTime()
