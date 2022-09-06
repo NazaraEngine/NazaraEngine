@@ -96,8 +96,11 @@ namespace Nz
 		{
 			return context.IsExtensionSupported(std::string(ext));
 		};
+
 		env.flipYPosition = true;
-		env.remapZPosition = true;
+
+		if (!context.HasZeroToOneDepth())
+			env.remapZPosition = true;
 
 		nzsl::GlslWriter writer;
 		writer.SetEnv(env);

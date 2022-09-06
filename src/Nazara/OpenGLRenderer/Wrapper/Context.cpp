@@ -109,7 +109,8 @@ namespace Nz::GL
 	m_vaoCache(*this),
 	m_device(device),
 	m_didCollectErrors(false),
-	m_hadAnyError(false)
+	m_hadAnyError(false),
+	m_hasZeroToOneDepth(false)
 	{
 	}
 
@@ -381,6 +382,22 @@ namespace Nz::GL
 
 		m_extensionStatus.fill(ExtensionStatus::NotSupported);
 
+		// Clip control
+		if (m_params.type == ContextType::OpenGL && glVersion >= 450)
+			m_extensionStatus[UnderlyingCast(Extension::ClipControl)] = ExtensionStatus::Core;
+		else if (m_supportedExtensions.count("GL_ARB_clip_control"))
+			m_extensionStatus[UnderlyingCast(Extension::ClipControl)] = ExtensionStatus::ARB;
+		else if (m_supportedExtensions.count("GL_EXT_clip_control"))
+			m_extensionStatus[UnderlyingCast(Extension::ClipControl)] = ExtensionStatus::EXT;
+
+		// Debug output
+		if ((m_params.type == ContextType::OpenGL && glVersion >= 430) || (m_params.type == ContextType::OpenGL_ES && glVersion >= 320))
+			m_extensionStatus[UnderlyingCast(Extension::DebugOutput)] = ExtensionStatus::Core;
+		else if (m_supportedExtensions.count("GL_KHR_debug"))
+			m_extensionStatus[UnderlyingCast(Extension::DepthClamp)] = ExtensionStatus::KHR;
+		else if (m_supportedExtensions.count("GL_ARB_debug_output"))
+			m_extensionStatus[UnderlyingCast(Extension::DepthClamp)] = ExtensionStatus::ARB;
+
 		// Depth clamp
 		if (m_params.type == ContextType::OpenGL && glVersion >= 320)
 			m_extensionStatus[UnderlyingCast(Extension::DepthClamp)] = ExtensionStatus::Core;
@@ -389,6 +406,12 @@ namespace Nz::GL
 		else if (m_supportedExtensions.count("GL_EXT_depth_clamp"))
 			m_extensionStatus[UnderlyingCast(Extension::DepthClamp)] = ExtensionStatus::EXT;
 		else if (m_supportedExtensions.count("GL_NV_depth_clamp"))
+			m_extensionStatus[UnderlyingCast(Extension::DepthClamp)] = ExtensionStatus::Vendor;
+
+		// Polygon mode
+		if (m_params.type == ContextType::OpenGL)
+			m_extensionStatus[UnderlyingCast(Extension::PolygonMode)] = ExtensionStatus::Core;
+		else if (m_supportedExtensions.count("GL_NV_polygon_mode"))
 			m_extensionStatus[UnderlyingCast(Extension::DepthClamp)] = ExtensionStatus::Vendor;
 
 		// SPIR-V support
@@ -420,6 +443,14 @@ namespace Nz::GL
 		NAZARA_OPENGLRENDERER_FOREACH_GLES_FUNC(NAZARA_OPENGLRENDERER_FUNC, NAZARA_OPENGLRENDERER_EXT_FUNC)
 #undef NAZARA_OPENGLRENDERER_EXT_FUNC
 #undef NAZARA_OPENGLRENDERER_FUNC
+
+		// Match Vulkan convention if supported (so we don't have to inject code in the shader to fix it)
+		if (glClipControl)
+		{
+			// TODO: Using GL_UPPER_LEFT causes some issues I still have to figure out
+			glClipControl(GL_LOWER_LEFT, GL_ZERO_TO_ONE);
+			m_hasZeroToOneDepth = true;
+		}
 
 		// Always enable cubemap sampling (as it's the guaranteed behavior on Vulkan and OpenGL ES 3.0)
 		if (m_params.type == ContextType::OpenGL && (glVersion >= 320 || m_supportedExtensions.count("GL_ARB_seamless_cube_map")))
@@ -847,7 +878,14 @@ namespace Nz::GL
 	{
 		SymbolLoader loader(*this);
 
-		if (function == "glDebugMessageCallback")
+		if (function == "glClipControl")
+		{
+			constexpr std::size_t functionIndex = UnderlyingCast(FunctionIndex::glClipControl);
+
+			return loader.Load<PFNGLCLIPCONTROLEXTPROC, functionIndex>(glClipControl, "glClipControlEXT", false); //< from GL_EXT_clip_control
+
+		}
+		else if (function == "glDebugMessageCallback")
 		{
 			constexpr std::size_t functionIndex = UnderlyingCast(FunctionIndex::glDebugMessageCallback);
 

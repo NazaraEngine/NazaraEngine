@@ -13,7 +13,7 @@
 #include <GLES3/gl32.h>
 #include <GLES2/gl2ext.h>
 
-// Define some OpenGL (not ES) extensions
+// Define some OpenGL (not ES) defines/function types
 #define GL_POINT                           0x1B00
 #define GL_LINE                            0x1B01
 #define GL_FILL                            0x1B02
@@ -22,7 +22,20 @@
 #define GL_TEXTURE_CUBE_MAP_SEAMLESS       0x884F
 typedef void (GL_APIENTRYP PFNGLDRAWBUFFERPROC) (GLenum buf);
 typedef void (GL_APIENTRYP PFNGLPOLYGONMODEPROC) (GLenum face, GLenum mode);
+
+// Clip control (OpenGL 4.5)
+#define GL_LOWER_LEFT                      0x8CA1
+#define GL_UPPER_LEFT                      0x8CA2
+#define GL_NEGATIVE_ONE_TO_ONE             0x935E
+#define GL_ZERO_TO_ONE                     0x935F
+#define GL_CLIP_ORIGIN                     0x935C
+#define GL_CLIP_DEPTH_MODE                 0x935D
+typedef void (GL_APIENTRYP PFNGLCLIPCONTROLPROC) (GLenum origin, GLenum depth);
+
+// SPIR-V shaders (OpenGL 4.6)
 typedef void (GL_APIENTRYP PFNGLSPECIALIZESHADERPROC) (GLuint shader, const GLchar* pEntryPoint, GLuint numSpecializationConstants, const GLuint* pConstantIndex, const GLuint* pConstantValue);
+
+/*** Functions ***/
 
 // OpenGL core
 #define NAZARA_OPENGLRENDERER_FOREACH_GLES_FUNC(cb, extCb) \
@@ -183,6 +196,8 @@ typedef void (GL_APIENTRYP PFNGLSPECIALIZESHADERPROC) (GLuint shader, const GLch
 	extCb(glObjectLabel, PFNGLOBJECTLABELPROC) \
 	extCb(glPopDebugGroup, PFNGLPOPDEBUGGROUPPROC) \
 	extCb(glPushDebugGroup, PFNGLPUSHDEBUGGROUPPROC) \
+	/* OpenGL 4.5 - GL_ARB_clip_control/GL_EXT_clip_control */ \
+	extCb(glClipControl, PFNGLCLIPCONTROLPROC) \
 	/* OpenGL 4.6 - GL_ARB_spirv_extensions */\
 	extCb(glSpecializeShader, PFNGLSPECIALIZESHADERPROC) \
 

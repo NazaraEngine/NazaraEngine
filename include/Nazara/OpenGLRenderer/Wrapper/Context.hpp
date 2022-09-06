@@ -52,7 +52,10 @@ namespace Nz::GL
 
 	enum class Extension
 	{
+		ClipControl,
+		DebugOutput,
 		DepthClamp,
+		PolygonMode,
 		SpirV,
 		StorageBuffers,
 		TextureCompressionS3tc,
@@ -148,6 +151,8 @@ namespace Nz::GL
 
 			inline bool IsExtensionSupported(Extension extension) const;
 			inline bool IsExtensionSupported(const std::string& extension) const;
+
+			inline bool HasZeroToOneDepth() const;
 
 			bool Initialize(const ContextParams& params);
 
@@ -253,6 +258,7 @@ namespace Nz::GL
 			mutable State m_state;
 			mutable bool m_didCollectErrors;
 			mutable bool m_hadAnyError;
+			bool m_hasZeroToOneDepth;
 	};
 }
 

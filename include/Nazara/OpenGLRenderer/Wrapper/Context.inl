@@ -51,6 +51,11 @@ namespace Nz::GL
 		return m_supportedExtensions.find(extension) != m_supportedExtensions.end();
 	}
 
+	inline bool Context::HasZeroToOneDepth() const
+	{
+		return m_hasZeroToOneDepth;
+	}
+
 	inline void Context::NotifyBufferDestruction(GLuint buffer) const
 	{
 		for (GLuint& boundBuffer : m_state.bufferTargets)
