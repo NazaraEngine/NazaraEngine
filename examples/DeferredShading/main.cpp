@@ -670,6 +670,8 @@ int main()
 
 	Nz::RenderFrame* currentFrame = nullptr;
 
+	Nz::ElementRendererRegistry elementRegistry;
+
 	Nz::BakedFrameGraph bakedGraph = [&]
 	{
 		Nz::PixelFormat depthStencilFormat = Nz::PixelFormat::Undefined;
@@ -687,8 +689,6 @@ int main()
 			std::cerr << "no depth-stencil format found" << std::endl;
 			std::exit(__LINE__);
 		}
-
-		Nz::ElementRendererRegistry elementRegistry;
 
 		Nz::FrameGraph graph;
 
