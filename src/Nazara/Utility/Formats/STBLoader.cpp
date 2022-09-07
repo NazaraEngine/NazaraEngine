@@ -38,10 +38,10 @@ namespace Nz
 
 		static stbi_io_callbacks s_stbiCallbacks = { StbiRead, StbiSkip, StbiEof };
 
-		constexpr auto s_supportedExtensions = frozen::make_unordered_set<frozen::string>({ ".bmp", ".gif", ".hdr", ".jpg", ".jpeg", ".pic", ".png", ".ppm", ".pgm", ".psd", ".tga" });
-
 		bool IsSTBSupported(const std::string_view& extension)
 		{
+			constexpr auto s_supportedExtensions = frozen::make_unordered_set<frozen::string>({ ".bmp", ".gif", ".hdr", ".jpg", ".jpeg", ".pic", ".png", ".ppm", ".pgm", ".psd", ".tga" });
+
 			return s_supportedExtensions.find(extension) != s_supportedExtensions.end();
 		}
 

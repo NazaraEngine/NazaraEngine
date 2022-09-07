@@ -117,10 +117,10 @@ namespace Nz
 			return sampleCount - remainingBytes / sizeof(Int16);
 		}
 
-		constexpr auto s_supportedExtensions = frozen::make_unordered_set<frozen::string>({ ".oga", ".ogg", ".ogm", ".ogv", ".ogx", ".opus", ".spx" });
-
 		bool IsVorbisSupported(std::string_view extension)
 		{
+			constexpr auto s_supportedExtensions = frozen::make_unordered_set<frozen::string>({ ".oga", ".ogg", ".ogm", ".ogv", ".ogx", ".opus", ".spx" });
+
 			return s_supportedExtensions.find(extension) != s_supportedExtensions.end();
 		}
 
