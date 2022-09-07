@@ -47,9 +47,13 @@ namespace Nz
 
 		Result<std::shared_ptr<Image>, ResourceLoadingError> LoadSTB(Stream& stream, const ImageParams& parameters)
 		{
+			UInt64 streamPos = stream.GetCursorPos();
+
 			int width, height, bpp;
 			if (!stbi_info_from_callbacks(&s_stbiCallbacks, &stream, &width, &height, &bpp))
 				return Err(ResourceLoadingError::Unrecognized);
+
+			stream.SetCursorPos(streamPos);
 
 			// Load everything as RGBA8 and then convert using the Image::Convert method
 			// This is because of a STB bug when loading some JPG images with default settings
