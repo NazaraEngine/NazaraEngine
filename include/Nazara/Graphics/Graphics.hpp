@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
+#include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/MaterialPassRegistry.hpp>
 #include <Nazara/Graphics/TextureSamplerCache.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
@@ -40,6 +41,8 @@ namespace Nz
 			inline const DefaultTextures& GetDefaultTextures() const;
 			inline MaterialPassRegistry& GetMaterialPassRegistry();
 			inline const MaterialPassRegistry& GetMaterialPassRegistry() const;
+			MaterialLoader& GetMaterialLoader();
+			const MaterialLoader& GetMaterialLoader() const;
 			inline PixelFormat GetPreferredDepthStencilFormat() const;
 			inline const std::shared_ptr<RenderDevice>& GetRenderDevice() const;
 			inline const RenderPassCache& GetRenderPassCache() const;
@@ -73,6 +76,7 @@ namespace Nz
 			std::shared_ptr<RenderPipeline> m_blitPipelineTransparent;
 			std::shared_ptr<RenderPipelineLayout> m_blitPipelineLayout;
 			DefaultTextures m_defaultTextures;
+			MaterialLoader m_materialLoader;
 			MaterialPassRegistry m_materialPassRegistry;
 			PixelFormat m_preferredDepthStencilFormat;
 

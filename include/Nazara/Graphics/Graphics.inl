@@ -32,6 +32,16 @@ namespace Nz
 		return m_materialPassRegistry;
 	}
 
+	inline MaterialLoader& Graphics::GetMaterialLoader()
+	{
+		return m_materialLoader;
+	}
+
+	inline const MaterialLoader& Graphics::GetMaterialLoader() const
+	{
+		return m_materialLoader;
+	}
+
 	inline PixelFormat Graphics::GetPreferredDepthStencilFormat() const
 	{
 		return m_preferredDepthStencilFormat;

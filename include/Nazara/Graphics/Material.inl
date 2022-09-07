@@ -15,18 +15,6 @@ namespace Nz
 		m_passes[passIndex] = std::move(pass);
 	}
 
-	inline void Material::AddPass(std::string passName, std::shared_ptr<MaterialPass> pass)
-	{
-		auto& registry = Graphics::Instance()->GetMaterialPassRegistry();
-		return AddPass(registry.GetPassIndex(passName), std::move(pass));
-	}
-
-	inline const std::shared_ptr<MaterialPass>& Material::FindPass(const std::string& passName) const
-	{
-		auto& registry = Graphics::Instance()->GetMaterialPassRegistry();
-		return GetPass(registry.GetPassIndex(passName));
-	}
-
 	template<typename F>
 	void Material::ForEachPass(F&& callback)
 	{
@@ -62,12 +50,6 @@ namespace Nz
 			return;
 
 		m_passes[passIndex].reset();
-	}
-
-	inline void Material::RemovePass(const std::string& passName)
-	{
-		auto& registry = Graphics::Instance()->GetMaterialPassRegistry();
-		return RemovePass(registry.GetPassIndex(passName));
 	}
 }
 

@@ -41,6 +41,13 @@ namespace Nz
 		Volume
 	};
 
+	enum class MaterialLightingType
+	{
+		None,
+		Phong,
+		PhysicallyBased
+	};
+
 	enum class MaterialPassFlag
 	{
 		SortByDistance,
