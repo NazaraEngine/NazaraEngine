@@ -29,7 +29,7 @@ namespace Nz
 			m_stream.EnableTextMode(false);
 	}
 
-	Ternary MD5MeshParser::Check()
+	bool MD5MeshParser::Check()
 	{
 		if (Advance(false))
 		{
@@ -37,11 +37,11 @@ namespace Nz
 			if (std::sscanf(&m_currentLine[0], " MD5Version %u", &version) == 1)
 			{
 				if (version == 10)
-					return Ternary::True;
+					return true;
 			}
 		}
 
-		return Ternary::False;
+		return false;
 	}
 
 	const MD5MeshParser::Joint* MD5MeshParser::GetJoints() const

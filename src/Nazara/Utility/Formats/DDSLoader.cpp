@@ -20,34 +20,18 @@ namespace Nz
 
 			static bool IsSupported(const std::string_view& extension)
 			{
-				return (extension == "dds");
+				return (extension == ".dds");
 			}
 
-			static Ternary Check(Stream& stream, const ImageParams& parameters)
+			static Result<std::shared_ptr<Image>, ResourceLoadingError> Load(Stream& stream, const ImageParams& parameters)
 			{
-				bool skip;
-				if (parameters.custom.GetBooleanParameter("SkipBuiltinDDSLoader", &skip) && skip)
-					return Ternary::False;
-
 				ByteStream byteStream(&stream);
 				byteStream.SetDataEndianness(Endianness::LittleEndian);
 
 				UInt32 magic;
 				byteStream >> magic;
-
-				return (magic == DDS_Magic) ? Ternary::True : Ternary::False;
-			}
-
-			static std::shared_ptr<Image> Load(Stream& stream, const ImageParams& parameters)
-			{
-				NazaraUnused(parameters);
-
-				ByteStream byteStream(&stream);
-				byteStream.SetDataEndianness(Endianness::LittleEndian);
-
-				UInt32 magic;
-				byteStream >> magic;
-				NazaraAssert(magic == DDS_Magic, "Invalid DDS file"); // The Check function should make sure this doesn't happen
+				if (magic != DDS_Magic)
+					return Nz::Err(ResourceLoadingError::Unrecognized);
 
 				DDSHeader header;
 				byteStream >> header;
@@ -81,12 +65,12 @@ namespace Nz
 				// First, identify the type
 				ImageType type;
 				if (!IdentifyImageType(header, headerDX10, &type))
-					return nullptr;
+					return Nz::Err(ResourceLoadingError::Unsupported);
 
 				// Then the format
 				PixelFormat format;
 				if (!IdentifyPixelFormat(header, headerDX10, &format))
-					return nullptr;
+					return Nz::Err(ResourceLoadingError::Unsupported);
 
 				std::shared_ptr<Image> image = std::make_shared<Image>(type, format, width, height, depth, levelCount);
 
@@ -100,7 +84,7 @@ namespace Nz
 					if (byteStream.Read(ptr, byteCount) != byteCount)
 					{
 						NazaraError("Failed to read level #" + NumberToString(i));
-						return nullptr;
+						return Nz::Err(ResourceLoadingError::DecodingError);
 					}
 
 					if (width > 1)
@@ -271,8 +255,15 @@ namespace Nz
 		{
 			ImageLoader::Entry loaderEntry;
 			loaderEntry.extensionSupport = DDSLoader::IsSupported;
-			loaderEntry.streamChecker = DDSLoader::Check;
 			loaderEntry.streamLoader = DDSLoader::Load;
+			loaderEntry.parameterFilter = [](const ImageParams& parameters)
+			{
+				bool skip;
+				if (parameters.custom.GetBooleanParameter("SkipBuiltinDDSLoader", &skip) && skip)
+					return false;
+
+				return true;
+			};
 
 			return loaderEntry;
 		}

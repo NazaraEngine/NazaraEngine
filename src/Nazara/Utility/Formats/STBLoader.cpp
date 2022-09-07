@@ -38,37 +38,27 @@ namespace Nz
 
 		static stbi_io_callbacks s_stbiCallbacks = { StbiRead, StbiSkip, StbiEof };
 
-		constexpr auto s_supportedExtensions = frozen::make_unordered_set<frozen::string>({ "bmp", "gif", "hdr", "jpg", "jpeg", "pic", "png", "ppm", "pgm", "psd", "tga" });
+		constexpr auto s_supportedExtensions = frozen::make_unordered_set<frozen::string>({ ".bmp", ".gif", ".hdr", ".jpg", ".jpeg", ".pic", ".png", ".ppm", ".pgm", ".psd", ".tga" });
 
 		bool IsSTBSupported(const std::string_view& extension)
 		{
 			return s_supportedExtensions.find(extension) != s_supportedExtensions.end();
 		}
 
-		Ternary CheckSTB(Stream& stream, const ImageParams& parameters)
+		Result<std::shared_ptr<Image>, ResourceLoadingError> LoadSTB(Stream& stream, const ImageParams& parameters)
 		{
-			bool skip;
-			if (parameters.custom.GetBooleanParameter("SkipBuiltinSTBLoader", &skip) && skip)
-				return Ternary::False;
-
 			int width, height, bpp;
-			if (stbi_info_from_callbacks(&s_stbiCallbacks, &stream, &width, &height, &bpp))
-				return Ternary::True;
-			else
-				return Ternary::False;
-		}
+			if (!stbi_info_from_callbacks(&s_stbiCallbacks, &stream, &width, &height, &bpp))
+				return Err(ResourceLoadingError::Unrecognized);
 
-		std::shared_ptr<Image> LoadSTB(Stream& stream, const ImageParams& parameters)
-		{
-			// Je charge tout en RGBA8 et je converti ensuite via la méthode Convert
-			// Ceci à cause d'un bug de STB lorsqu'il s'agit de charger certaines images (ex: JPG) en "default"
+			// Load everything as RGBA8 and then convert using the Image::Convert method
+			// This is because of a STB bug when loading some JPG images with default settings
 
-			int width, height, bpp;
 			UInt8* ptr = stbi_load_from_callbacks(&s_stbiCallbacks, &stream, &width, &height, &bpp, STBI_rgb_alpha);
 			if (!ptr)
 			{
 				NazaraError("Failed to load image: " + std::string(stbi_failure_reason()));
-				return {};
+				return Err(ResourceLoadingError::Unrecognized);
 			}
 
 			CallOnExit freeStbiImage([ptr]()
@@ -80,7 +70,7 @@ namespace Nz
 			if (!image->Create(ImageType::E2D, PixelFormat::RGBA8, width, height, 1, (parameters.levelCount > 0) ? parameters.levelCount : 1))
 			{
 				NazaraError("Failed to create image");
-				return {};
+				return Err(ResourceLoadingError::Internal);
 			}
 
 			image->Update(ptr);
@@ -92,7 +82,7 @@ namespace Nz
 				if (!image->Convert(parameters.loadFormat))
 				{
 					NazaraError("Failed to convert image to required format");
-					return {};
+					return Err(ResourceLoadingError::Internal);
 				}
 			}
 
@@ -106,8 +96,15 @@ namespace Nz
 		{
 			ImageLoader::Entry loaderEntry;
 			loaderEntry.extensionSupport = IsSTBSupported;
-			loaderEntry.streamChecker = CheckSTB;
 			loaderEntry.streamLoader = LoadSTB;
+			loaderEntry.parameterFilter = [](const ImageParams& parameters)
+			{
+				bool skip;
+				if (parameters.custom.GetBooleanParameter("SkipBuiltinSTBLoader", &skip) && skip)
+					return false;
+
+				return true;
+			};
 
 			return loaderEntry;
 		}

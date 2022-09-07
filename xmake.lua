@@ -41,9 +41,9 @@ NazaraRendererBackends = rendererBackends
 local modules = {
 	Audio = {
 		Deps = {"NazaraCore"},
-		Packages = {"dr_wav", "libflac", "libvorbis", "minimp3"},
+		Packages = {"dr_wav", "frozen", "libflac", "libvorbis", "minimp3"},
 		Custom = function ()
-			add_packages("openal-soft", {links = {}}) -- Don't link OpenAL (it will be loaded dynamically)
+			add_packages("openal-soft", { links = {} }) -- Don't link OpenAL (it will be loaded dynamically)
 		end
 	},
 	Core = {

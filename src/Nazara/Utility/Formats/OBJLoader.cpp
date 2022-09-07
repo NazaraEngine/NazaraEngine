@@ -16,7 +16,7 @@
 #include <unordered_map>
 #include <Nazara/Utility/Debug.hpp>
 
-///TODO: N'avoir qu'un seul VertexBuffer communs à tous les meshes
+// TODO: Use only one index buffer / vertex buffer for all submeshes
 
 namespace Nz
 {
@@ -24,22 +24,7 @@ namespace Nz
 	{
 		bool IsOBJSupported(const std::string_view& extension)
 		{
-			return (extension == "obj");
-		}
-
-		Ternary CheckOBJ(Stream& stream, const MeshParams& parameters)
-		{
-			NazaraUnused(stream);
-
-			bool skip;
-			if (parameters.custom.GetBooleanParameter("SkipBuiltinOBJLoader", &skip) && skip)
-				return Ternary::False;
-
-			OBJParser parser;
-			if (!parser.Check(stream))
-				return Ternary::False;
-
-			return Ternary::Unknown;
+			return (extension == ".obj");
 		}
 
 		bool ParseMTL(Mesh& mesh, const std::filesystem::path& filePath, const std::string* materials, const OBJParser::Mesh* meshes, std::size_t meshCount)
@@ -157,17 +142,25 @@ namespace Nz
 			return true;
 		}
 
-		std::shared_ptr<Mesh> LoadOBJ(Stream& stream, const MeshParams& parameters)
+		Result<std::shared_ptr<Mesh>, ResourceLoadingError> LoadOBJ(Stream& stream, const MeshParams& parameters)
 		{
 			long long reservedVertexCount;
 			if (!parameters.custom.GetIntegerParameter("NativeOBJLoader_VertexCount", &reservedVertexCount))
 				reservedVertexCount = 100;
 
 			OBJParser parser;
+
+			UInt64 streamPos = stream.GetCursorPos();
+
+			if (!parser.Check(stream))
+				return Err(ResourceLoadingError::Unrecognized);
+
+			stream.SetCursorPos(streamPos);
+
 			if (!parser.Parse(stream, reservedVertexCount))
 			{
 				NazaraError("OBJ parser failed");
-				return nullptr;
+				return Err(ResourceLoadingError::DecodingError);
 			}
 
 			std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
@@ -181,8 +174,7 @@ namespace Nz
 			const OBJParser::Mesh* meshes = parser.GetMeshes();
 			std::size_t meshCount = parser.GetMeshCount();
 
-			NazaraAssert(materials != nullptr && positions != nullptr && normals != nullptr &&
-			             texCoords != nullptr && meshes != nullptr && meshCount > 0,
+			NazaraAssert(materials != nullptr && positions != nullptr && normals != nullptr && texCoords != nullptr && meshes != nullptr && meshCount > 0,
 			             "Invalid OBJParser output");
 
 			// Triangulation temporary vector
@@ -365,8 +357,15 @@ namespace Nz
 		{
 			MeshLoader::Entry loader;
 			loader.extensionSupport = IsOBJSupported;
-			loader.streamChecker = CheckOBJ;
 			loader.streamLoader = LoadOBJ;
+			loader.parameterFilter = [](const MeshParams& parameters)
+			{
+				bool skip;
+				if (parameters.custom.GetBooleanParameter("SkipBuiltinOBJLoader", &skip) && skip)
+					return false;
+
+				return true;
+			};
 
 			return loader;
 		}

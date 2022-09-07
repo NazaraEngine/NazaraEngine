@@ -23,38 +23,25 @@ namespace Nz
 	{
 		bool IsMD2Supported(const std::string_view& extension)
 		{
-			return (extension == "md2");
+			return (extension == ".md2");
 		}
 
-		Ternary CheckMD2(Stream& stream, const MeshParams& parameters)
-		{
-			bool skip;
-			if (parameters.custom.GetBooleanParameter("SkipBuiltinMD2Loader", &skip) && skip)
-				return Ternary::False;
-
-			UInt32 magic[2];
-			if (stream.Read(&magic[0], 2*sizeof(UInt32)) == 2*sizeof(UInt32))
-			{
-				#ifdef NAZARA_BIG_ENDIAN
-				SwapBytes(&magic[0], sizeof(UInt32));
-				SwapBytes(&magic[1], sizeof(UInt32));
-				#endif
-
-				if (magic[0] == md2Ident && magic[1] == 8)
-					return Ternary::True;
-			}
-
-			return Ternary::False;
-		}
-
-		std::shared_ptr<Mesh> LoadMD2(Stream& stream, const MeshParams& parameters)
+		Result<std::shared_ptr<Mesh>, ResourceLoadingError> LoadMD2(Stream& stream, const MeshParams& parameters)
 		{
 			MD2_Header header;
 			if (stream.Read(&header, sizeof(MD2_Header)) != sizeof(MD2_Header))
-			{
-				NazaraError("Failed to read header");
-				return nullptr;
-			}
+				return Err(ResourceLoadingError::Unrecognized);
+			
+			#ifdef NAZARA_BIG_ENDIAN
+			SwapBytes(&header.indent, sizeof(UInt32));
+			SwapBytes(&header.version, sizeof(UInt32));
+			#endif
+
+			if (header.ident != md2Ident)
+				return Err(ResourceLoadingError::Unrecognized);
+
+			if (header.version != 8)
+				return Err(ResourceLoadingError::Unsupported);
 
 			#ifdef NAZARA_BIG_ENDIAN
 			SwapBytes(&header.skinwidth, sizeof(UInt32));
@@ -77,7 +64,7 @@ namespace Nz
 			if (stream.GetSize() < header.offset_end)
 			{
 				NazaraError("Incomplete MD2 file");
-				return nullptr;
+				return Err(ResourceLoadingError::DecodingError);
 			}
 
 			// Since the engine no longer supports keyframe animations, let's make a static mesh
@@ -85,7 +72,7 @@ namespace Nz
 			if (!mesh->CreateStatic())
 			{
 				NazaraInternalError("Failed to create mesh");
-				return nullptr;
+				return Err(ResourceLoadingError::Internal);
 			}
 
 			// Extract skins (texture name)
@@ -269,8 +256,15 @@ namespace Nz
 		{
 			MeshLoader::Entry loader;
 			loader.extensionSupport = IsMD2Supported;
-			loader.streamChecker = CheckMD2;
 			loader.streamLoader = LoadMD2;
+			loader.parameterFilter = [](const MeshParams& parameters)
+			{
+				bool skip;
+				if (parameters.custom.GetBooleanParameter("SkipBuiltinMD2Loader", &skip) && skip)
+					return false;
+
+				return true;
+			};
 
 			return loader;
 		}

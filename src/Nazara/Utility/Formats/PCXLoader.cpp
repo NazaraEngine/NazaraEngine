@@ -42,35 +42,17 @@ namespace Nz
 
 		bool IsPCXSupported(const std::string_view& extension)
 		{
-			return (extension == "pcx");
+			return (extension == ".pcx");
 		}
 
-		Ternary CheckPCX(Stream& stream, const ImageParams& parameters)
+		Result<std::shared_ptr<Image>, ResourceLoadingError> LoadPCX(Stream& stream, const ImageParams& parameters)
 		{
-			bool skip;
-			if (parameters.custom.GetBooleanParameter("SkipBuiltinPCXLoader", &skip) && skip)
-				return Ternary::False;
-
-			UInt8 manufacturer;
-			if (stream.Read(&manufacturer, 1) == 1)
-			{
-				if (manufacturer == 0x0a)
-					return Ternary::True;
-			}
-
-			return Ternary::False;
-		}
-
-		std::shared_ptr<Image> LoadPCX(Stream& stream, const ImageParams& parameters)
-		{
-			NazaraUnused(parameters);
-
 			PCXHeader header;
 			if (stream.Read(&header, sizeof(PCXHeader)) != sizeof(PCXHeader))
-			{
-				NazaraError("Failed to read header");
-				return nullptr;
-			}
+				return Err(ResourceLoadingError::Unrecognized);
+
+			if (header.manufacturer != 0x0a)
+				return Err(ResourceLoadingError::Unrecognized);
 
 			#ifdef NAZARA_BIG_ENDIAN
 			// Les fichiers PCX sont en little endian
@@ -95,7 +77,7 @@ namespace Nz
 			if (!image->Create(ImageType::E2D, PixelFormat::RGB8, width, height, 1, (parameters.levelCount > 0) ? parameters.levelCount : 1))
 			{
 				NazaraError("Failed to create image");
-				return nullptr;
+				return Err(ResourceLoadingError::Internal);
 			}
 
 			UInt8* pixels = image->GetPixels();
@@ -120,7 +102,7 @@ namespace Nz
 								if (!stream.Read(&rleValue, 1))
 								{
 									NazaraError("Failed to read stream (byte " + NumberToString(stream.GetCursorPos()) + ')');
-									return nullptr;
+									return Err(ResourceLoadingError::DecodingError);
 								}
 
 								if (rleValue < 0xc0)
@@ -131,7 +113,7 @@ namespace Nz
 									if (!stream.Read(&rleValue, 1))
 									{
 										NazaraError("Failed to read stream (byte " + NumberToString(stream.GetCursorPos()) + ')');
-										return nullptr;
+										return Err(ResourceLoadingError::DecodingError);
 									}
 								}
 							}
@@ -175,7 +157,7 @@ namespace Nz
 									if (!stream.Read(&rleValue, 1))
 									{
 										NazaraError("Failed to read stream (byte " + NumberToString(stream.GetCursorPos()) + ')');
-										return nullptr;
+										return Err(ResourceLoadingError::DecodingError);
 									}
 
 									if (rleValue < 0xc0)
@@ -186,7 +168,7 @@ namespace Nz
 										if (!stream.Read(&rleValue, 1))
 										{
 											NazaraError("Failed to read stream (byte " + NumberToString(stream.GetCursorPos()) + ')');
-											return nullptr;
+											return Err(ResourceLoadingError::DecodingError);
 										}
 									}
 								}
@@ -226,21 +208,21 @@ namespace Nz
 					if (!stream.Read(&magic, 1))
 					{
 						NazaraError("Failed to read stream (byte " + NumberToString(stream.GetCursorPos()) + ')');
-						return nullptr;
+						return Err(ResourceLoadingError::DecodingError);
 					}
 
 					/* first byte must be equal to 0x0c (12) */
 					if (magic != 0x0c)
 					{
 						NazaraError("Colormap's first byte must be 0x0c (0x" + NumberToString(magic, 16) + ')');
-						return nullptr;
+						return Err(ResourceLoadingError::DecodingError);
 					}
 
 					/* read palette */
 					if (stream.Read(palette, 768) != 768)
 					{
 						NazaraError("Failed to read palette");
-						return nullptr;
+						return Err(ResourceLoadingError::DecodingError);
 					}
 
 					stream.SetCursorPos(curPos);
@@ -259,7 +241,7 @@ namespace Nz
 								if (!stream.Read(&rleValue, 1))
 								{
 									NazaraError("Failed to read stream (byte " + NumberToString(stream.GetCursorPos()) + ')');
-									return nullptr;
+									return Err(ResourceLoadingError::DecodingError);
 								}
 
 								if (rleValue < 0xc0)
@@ -270,7 +252,7 @@ namespace Nz
 									if (!stream.Read(&rleValue, 1))
 									{
 										NazaraError("Failed to read stream (byte " + NumberToString(stream.GetCursorPos()) + ')');
-										return nullptr;
+										return Err(ResourceLoadingError::DecodingError);
 									}
 								}
 							}
@@ -303,7 +285,7 @@ namespace Nz
 									if (!stream.Read(&rleValue, 1))
 									{
 										NazaraError("Failed to read stream (byte " + NumberToString(stream.GetCursorPos()) + ')');
-										return nullptr;
+										return Err(ResourceLoadingError::DecodingError);
 									}
 
 									if (rleValue < 0xc0)
@@ -314,7 +296,7 @@ namespace Nz
 										if (!stream.Read(&rleValue, 1))
 										{
 											NazaraError("Failed to read stream (byte " + NumberToString(stream.GetCursorPos()) + ')');
-											return nullptr;
+											return Err(ResourceLoadingError::DecodingError);
 										}
 									}
 								}
@@ -330,7 +312,7 @@ namespace Nz
 
 				default:
 					NazaraError("Unsupported " + NumberToString(bitCount) + " bitcount for pcx files");
-					return nullptr;
+					return Err(ResourceLoadingError::DecodingError);
 			}
 
 			if (parameters.loadFormat != PixelFormat::Undefined)
@@ -346,8 +328,15 @@ namespace Nz
 		{
 			ImageLoader::Entry loaderEntry;
 			loaderEntry.extensionSupport = IsPCXSupported;
-			loaderEntry.streamChecker = CheckPCX;
 			loaderEntry.streamLoader = LoadPCX;
+			loaderEntry.parameterFilter = [](const ImageParams& parameters)
+			{
+				bool skip;
+				if (parameters.custom.GetBooleanParameter("SkipBuiltinPCXLoader", &skip) && skip)
+					return false;
+
+				return true;
+			};
 
 			return loaderEntry;
 		}

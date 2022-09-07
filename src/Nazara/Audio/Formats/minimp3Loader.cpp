@@ -53,26 +53,10 @@ namespace Nz
 
 		bool IsMP3Supported(const std::string_view& extension)
 		{
-			return extension == "mp3";
+			return extension == ".mp3";
 		}
 
-		Ternary CheckMP3(Stream& stream, const ResourceParameters& parameters)
-		{
-			bool skip;
-			if (parameters.custom.GetBooleanParameter("SkipBuiltinMP3Loader", &skip) && skip)
-				return Ternary::False;
-
-			mp3dec_io_t io;
-			io.read = &MP3ReadCallback;
-			io.read_data = &stream;
-			io.seek = &MP3SeekCallback;
-			io.seek_data = &stream;
-
-			std::vector<UInt8> buffer(MINIMP3_BUF_SIZE);
-			return (mp3dec_detect_cb(&io, buffer.data(), buffer.size()) == 0) ? Ternary::True : Ternary::False;
-		}
-
-		std::shared_ptr<SoundBuffer> LoadMP3SoundBuffer(Stream& stream, const SoundBufferParams& parameters)
+		Result<std::shared_ptr<SoundBuffer>, ResourceLoadingError> LoadMP3SoundBuffer(Stream& stream, const SoundBufferParams& parameters)
 		{
 			static_assert(std::is_same_v<mp3d_sample_t, Int16>);
 
@@ -91,12 +75,20 @@ namespace Nz
 
 			mp3dec_t dec;
 			mp3dec_file_info_t info;
-			std::vector<UInt8> buffer(MINIMP3_BUF_SIZE);
-			int err = mp3dec_load_cb(&dec, &io, buffer.data(), buffer.size(), &info, nullptr, &userdata);
+
+			Nz::UInt64 cursorPos = stream.GetCursorPos();
+
+			std::unique_ptr<UInt8[]> buffer = std::make_unique<UInt8[]>(MINIMP3_BUF_SIZE);
+			if (mp3dec_detect_cb(&io, buffer.get(), MINIMP3_BUF_SIZE) != 0)
+				return Err(ResourceLoadingError::Unrecognized);
+
+			stream.SetCursorPos(cursorPos);
+
+			int err = mp3dec_load_cb(&dec, &io, buffer.get(), MINIMP3_BUF_SIZE, &info, nullptr, &userdata);
 			if (err != 0)
 			{
 				NazaraError(MP3ErrorToString(err));
-				return {};
+				return Err(ResourceLoadingError::DecodingError);
 			}
 
 			CallOnExit freeBuffer([&] { std::free(info.buffer); });
@@ -105,7 +97,7 @@ namespace Nz
 			if (!formatOpt)
 			{
 				NazaraError("unexpected channel count: " + std::to_string(info.channels));
-				return {};
+				return Err(ResourceLoadingError::Unsupported);
 			}
 
 			AudioFormat format = *formatOpt;
@@ -166,37 +158,45 @@ namespace Nz
 					return m_sampleRate;
 				}
 
-				bool Open(const std::filesystem::path& filePath, bool forceMono)
+				Result<void, ResourceLoadingError> Open(const std::filesystem::path& filePath, const SoundStreamParams& parameters)
 				{
 					std::unique_ptr<File> file = std::make_unique<File>();
 					if (!file->Open(filePath, OpenMode::ReadOnly))
 					{
 						NazaraError("failed to open stream from file: " + Error::GetLastError());
-						return false;
+						return Err(ResourceLoadingError::FailedToOpenFile);
 					}
 
 					m_ownedStream = std::move(file);
-					return Open(*m_ownedStream, forceMono);
+					return Open(*m_ownedStream, parameters);
 				}
 
-				bool Open(const void* data, std::size_t size, bool forceMono)
+				Result<void, ResourceLoadingError> Open(const void* data, std::size_t size, const SoundStreamParams& parameters)
 				{
 					m_ownedStream = std::make_unique<MemoryView>(data, size);
-					return Open(*m_ownedStream, forceMono);
+					return Open(*m_ownedStream, parameters);
 				}
 
-				bool Open(Stream& stream, bool forceMono)
+				Result<void, ResourceLoadingError> Open(Stream& stream, const SoundStreamParams& parameters)
 				{
 					m_io.read = &MP3ReadCallback;
 					m_io.read_data = &stream;
 					m_io.seek = &MP3SeekCallback;
 					m_io.seek_data = &stream;
 
+					Nz::UInt64 cursorPos = stream.GetCursorPos();
+
+					std::unique_ptr<UInt8[]> buffer = std::make_unique<UInt8[]>(MINIMP3_BUF_SIZE);
+					if (mp3dec_detect_cb(&m_io, buffer.get(), MINIMP3_BUF_SIZE) != 0)
+						return Err(ResourceLoadingError::Unrecognized);
+
+					stream.SetCursorPos(cursorPos);
+
 					int err = mp3dec_ex_open_cb(&m_decoder, &m_io, MP3D_SEEK_TO_SAMPLE);
 					if (err != 0)
 					{
 						NazaraError(MP3ErrorToString(err));
-						return {};
+						return Err(ResourceLoadingError::DecodingError);
 					}
 
 					CallOnExit resetOnError([this]
@@ -209,7 +209,7 @@ namespace Nz
 					if (!formatOpt)
 					{
 						NazaraError("unexpected channel count: " + std::to_string(m_decoder.info.channels));
-						return false;
+						return Err(ResourceLoadingError::Unsupported);
 					}
 
 					m_format = *formatOpt;
@@ -219,7 +219,7 @@ namespace Nz
 					m_sampleRate = m_decoder.info.hz;
 
 					// Mixing to mono will be done on the fly
-					if (forceMono && m_format != AudioFormat::I16_Mono)
+					if (parameters.forceMono && m_format != AudioFormat::I16_Mono)
 					{
 						m_mixToMono = true;
 						m_sampleCount = static_cast<UInt32>(m_decoder.samples / m_decoder.info.channels);
@@ -229,7 +229,7 @@ namespace Nz
 
 					resetOnError.Reset();
 
-					return true;
+					return Ok();
 				}
 
 				UInt64 Read(void* buffer, UInt64 sampleCount) override
@@ -282,40 +282,28 @@ namespace Nz
 				bool m_mixToMono;
 		};
 
-		std::shared_ptr<SoundStream> MP3LoadSoundStreamFile(const std::filesystem::path& filePath, const SoundStreamParams& parameters)
+		Result<std::shared_ptr<SoundStream>, ResourceLoadingError> LoadMP3SoundStreamFile(const std::filesystem::path& filePath, const SoundStreamParams& parameters)
 		{
 			std::shared_ptr<minimp3Stream> soundStream = std::make_shared<minimp3Stream>();
-			if (!soundStream->Open(filePath, parameters.forceMono))
-			{
-				NazaraError("failed to open sound stream");
-				return {};
-			}
+			Result<void, ResourceLoadingError> status = soundStream->Open(filePath, parameters);
 
-			return soundStream;
+			return status.Map([&] { return std::move(soundStream); });
 		}
 
-		std::shared_ptr<SoundStream> MP3LoadSoundStreamMemory(const void* data, std::size_t size, const SoundStreamParams& parameters)
+		Result<std::shared_ptr<SoundStream>, ResourceLoadingError> LoadMP3SoundStreamMemory(const void* data, std::size_t size, const SoundStreamParams& parameters)
 		{
 			std::shared_ptr<minimp3Stream> soundStream = std::make_shared<minimp3Stream>();
-			if (!soundStream->Open(data, size, parameters.forceMono))
-			{
-				NazaraError("failed to open music stream");
-				return {};
-			}
+			Result<void, ResourceLoadingError> status = soundStream->Open(data, size, parameters);
 
-			return soundStream;
+			return status.Map([&] { return std::move(soundStream); });
 		}
 
-		std::shared_ptr<SoundStream> MP3LoadSoundStreamStream(Stream& stream, const SoundStreamParams& parameters)
+		Result<std::shared_ptr<SoundStream>, ResourceLoadingError> LoadMP3SoundStreamStream(Stream& stream, const SoundStreamParams& parameters)
 		{
 			std::shared_ptr<minimp3Stream> soundStream = std::make_shared<minimp3Stream>();
-			if (!soundStream->Open(stream, parameters.forceMono))
-			{
-				NazaraError("failed to open music stream");
-				return {};
-			}
+			Result<void, ResourceLoadingError> status = soundStream->Open(stream, parameters);
 
-			return soundStream;
+			return status.Map([&] { return std::move(soundStream); });
 		}
 	}
 
@@ -325,8 +313,15 @@ namespace Nz
 		{
 			SoundBufferLoader::Entry loaderEntry;
 			loaderEntry.extensionSupport = IsMP3Supported;
-			loaderEntry.streamChecker = [](Stream& stream, const SoundBufferParams& parameters) { return CheckMP3(stream, parameters); };
 			loaderEntry.streamLoader = LoadMP3SoundBuffer;
+			loaderEntry.parameterFilter = [](const SoundBufferParams& parameters)
+			{
+				bool skip;
+				if (parameters.custom.GetBooleanParameter("SkipBuiltinMP3Loader", &skip) && skip)
+					return false;
+
+				return true;
+			};
 
 			return loaderEntry;
 		}
@@ -335,10 +330,17 @@ namespace Nz
 		{
 			SoundStreamLoader::Entry loaderEntry;
 			loaderEntry.extensionSupport = IsMP3Supported;
-			loaderEntry.streamChecker = [](Stream& stream, const SoundStreamParams& parameters) { return CheckMP3(stream, parameters); };
-			loaderEntry.fileLoader = MP3LoadSoundStreamFile;
-			loaderEntry.memoryLoader = MP3LoadSoundStreamMemory;
-			loaderEntry.streamLoader = MP3LoadSoundStreamStream;
+			loaderEntry.fileLoader = LoadMP3SoundStreamFile;
+			loaderEntry.memoryLoader = LoadMP3SoundStreamMemory;
+			loaderEntry.streamLoader = LoadMP3SoundStreamStream;
+			loaderEntry.parameterFilter = [](const SoundStreamParams& parameters)
+			{
+				bool skip;
+				if (parameters.custom.GetBooleanParameter("SkipBuiltinMP3Loader", &skip) && skip)
+					return false;
+
+				return true;
+			};
 
 			return loaderEntry;
 		}

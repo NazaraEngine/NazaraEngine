@@ -262,13 +262,10 @@ namespace Nz
 					return m_currentFrame;
 				}
 
-				bool Open()
+				Result<void, ResourceLoadingError> Open()
 				{
 					if (!Check())
-					{
-						NazaraError("stream has invalid GIF header");
-						return false;
-					}
+						return Err(ResourceLoadingError::Unrecognized);
 
 					m_byteStream >> m_header.width >> m_header.height;
 					m_byteStream >> m_header.flags >> m_header.backgroundPaletteIndex >> m_header.ratio;
@@ -322,13 +319,13 @@ namespace Nz
 								if (left + width > m_header.width)
 								{
 									NazaraError("corrupt gif (out of range)");
-									return false;
+									return Err(ResourceLoadingError::DecodingError);
 								}
 
 								if (top + height > m_header.height)
 								{
 									NazaraError("corrupt gif (out of range)");
-									return false;
+									return Err(ResourceLoadingError::DecodingError);
 								}
 
 								if (left != 0 || top != 0 || width < m_header.width || height < m_header.height)
@@ -343,7 +340,7 @@ namespace Nz
 								else if (!hasGlobalColorTable)
 								{
 									NazaraError("corrupt gif (no color table for image #" + std::to_string(m_frames.size() - 1) + ")");
-									return false;
+									return Err(ResourceLoadingError::DecodingError);
 								}
 
 								UInt8 minimumCodeSize;
@@ -351,7 +348,7 @@ namespace Nz
 								if (minimumCodeSize > 12)
 								{
 									NazaraError("unexpected LZW Minimum Code Size (" + std::to_string(minimumCodeSize) + ")");
-									return false;
+									return Err(ResourceLoadingError::DecodingError);
 								}
 
 								SkipUntilTerminationBlock();
@@ -382,7 +379,7 @@ namespace Nz
 										if (blockSize != 4)
 										{
 											NazaraError("corrupt gif (invalid block size for graphic control extension)");
-											return false;
+											return Err(ResourceLoadingError::DecodingError);
 										}
 
 										nextFrame.disposalMethod = (flags & 0b0001'1100) >> 2;
@@ -423,7 +420,7 @@ namespace Nz
 
 							default:
 								NazaraError("corrupt gif (unknown tag 0x" + NumberToString(tag, 16) + ")");
-								return false;
+								return Err(ResourceLoadingError::DecodingError);
 						}
 					}
 
@@ -445,7 +442,7 @@ namespace Nz
 
 					m_currentFrame = 0;
 
-					return true;
+					return Ok();
 				}
 
 				bool SetFile(const std::filesystem::path& filePath)
@@ -709,55 +706,35 @@ namespace Nz
 
 		bool CheckGIFExtension(const std::string_view& extension)
 		{
-			return extension == "gif";
+			return extension == ".gif";
 		}
 
-		Ternary CheckGIF(Stream& stream, const ImageStreamParams& parameters)
-		{
-			bool skip;
-			if (parameters.custom.GetBooleanParameter("SkipBuiltinGIFLoader", &skip) && skip)
-				return Ternary::False;
-
-			GIFImageStream gif;
-			gif.SetStream(stream);
-
-			if (gif.Check())
-				return Ternary::True;
-			else
-				return Ternary::False;
-		}
-
-		std::shared_ptr<ImageStream> LoadGIFFile(const std::filesystem::path& filePath, const ImageStreamParams& /*parameters*/)
+		Result<std::shared_ptr<ImageStream>, ResourceLoadingError> LoadGIFFile(const std::filesystem::path& filePath, const ImageStreamParams& /*parameters*/)
 		{
 			std::shared_ptr<GIFImageStream> gifStream = std::make_shared<GIFImageStream>();
-			gifStream->SetFile(filePath);
+			if (!gifStream->SetFile(filePath))
+				return Err(ResourceLoadingError::FailedToOpenFile);
 
-			if (!gifStream->Open())
-				return {};
-
-			return gifStream;
+			Result status = gifStream->Open();
+			return status.Map([&] { return std::move(gifStream); });
 		}
 
-		std::shared_ptr<ImageStream> LoadGIFMemory(const void* ptr, std::size_t size, const ImageStreamParams& /*parameters*/)
+		Result<std::shared_ptr<ImageStream>, ResourceLoadingError> LoadGIFMemory(const void* ptr, std::size_t size, const ImageStreamParams& /*parameters*/)
 		{
 			std::shared_ptr<GIFImageStream> gifStream = std::make_shared<GIFImageStream>();
 			gifStream->SetMemory(ptr, size);
 
-			if (!gifStream->Open())
-				return {};
-
-			return gifStream;
+			Result status = gifStream->Open();
+			return status.Map([&] { return std::move(gifStream); });
 		}
 
-		std::shared_ptr<ImageStream> LoadGIFStream(Stream& stream, const ImageStreamParams& /*parameters*/)
+		Result<std::shared_ptr<ImageStream>, ResourceLoadingError> LoadGIFStream(Stream& stream, const ImageStreamParams& /*parameters*/)
 		{
 			std::shared_ptr<GIFImageStream> gifStream = std::make_shared<GIFImageStream>();
 			gifStream->SetStream(stream);
 
-			if (!gifStream->Open())
-				return {};
-
-			return gifStream;
+			Result status = gifStream->Open();
+			return status.Map([&] { return std::move(gifStream); });
 		}
 	}
 
@@ -767,10 +744,17 @@ namespace Nz
 		{
 			ImageStreamLoader::Entry loaderEntry;
 			loaderEntry.extensionSupport = CheckGIFExtension;
-			loaderEntry.streamChecker = CheckGIF;
 			loaderEntry.fileLoader = LoadGIFFile;
 			loaderEntry.memoryLoader = LoadGIFMemory;
 			loaderEntry.streamLoader = LoadGIFStream;
+			loaderEntry.parameterFilter = [](const ImageStreamParams& parameters)
+			{
+				bool skip;
+				if (parameters.custom.GetBooleanParameter("SkipBuiltinGIFLoader", &skip) && skip)
+					return false;
+
+				return true;
+			};
 
 			return loaderEntry;
 		}

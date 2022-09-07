@@ -32,11 +32,13 @@ namespace Nz
 	* \brief Checks whether the extension of the file is supported
 	* \return true if supported
 	*
-	* \param extension Extension of the file (ex: "png")
+	* \param extension Extension of the file (ex: ".png")
 	*/
 	template<typename Type, typename Parameters>
 	bool ResourceLoader<Type, Parameters>::IsExtensionSupported(const std::string_view& extension) const
 	{
+		NazaraAssert(extension.size() >= 2 || extension.front() != '.', "extension should start with a .");
+
 		for (auto& loaderPtr : m_loaders)
 		{
 			const Entry& loader = *loaderPtr;
@@ -50,18 +52,12 @@ namespace Nz
 
 	/*!
 	* \brief Loads a resource from a file
-	* \return true if successfully loaded
+	* \return loaded resources or null pointer if failed
 	*
-	* \param resource Resource to load
 	* \param filePath Path to the resource
 	* \param parameters Parameters for the load
 	*
-	* \remark Produces a NazaraError if resource is nullptr with NAZARA_CORE_SAFE defined
-	* \remark Produces a NazaraError if parameters are invalid with NAZARA_CORE_SAFE defined
-	* \remark Produces a NazaraError if filePath has no extension
-	* \remark Produces a NazaraError if file count not be opened
-	* \remark Produces a NazaraWarning if loader failed
-	* \remark Produces a NazaraError if all loaders failed or no loader was found
+	* \ret Loaded resources
 	*/
 	template<typename Type, typename Parameters>
 	std::shared_ptr<Type> ResourceLoader<Type, Parameters>::LoadFromFile(const std::filesystem::path& filePath, const Parameters& parameters) const
@@ -75,9 +71,6 @@ namespace Nz
 			return nullptr;
 		}
 
-		if (ext[0] == '.')
-			ext.erase(ext.begin());
-
 		File file(filePath); // Open only if needed
 
 		bool found = false;
@@ -88,89 +81,61 @@ namespace Nz
 			if (loader.extensionSupport && !loader.extensionSupport(ext))
 				continue;
 
-			if (loader.streamChecker && !file.IsOpen())
-			{
-				if (!file.Open(OpenMode::ReadOnly))
-				{
-					NazaraError("Failed to load file: unable to open \"" + PathToString(filePath) + '"');
-					return nullptr;
-				}
-			}
+			if (loader.parameterFilter && !loader.parameterFilter(parameters))
+				continue;
 
-			Ternary recognized = Ternary::Unknown;
+			Result<std::shared_ptr<Type>, ResourceLoadingError> result = Nz::Err(ResourceLoadingError::Unrecognized);
+
 			if (loader.fileLoader)
+				result = loader.fileLoader(filePath, parameters);
+			else if (loader.streamLoader)
 			{
-				if (loader.streamChecker)
+				if (!file.IsOpen())
 				{
-					file.SetCursorPos(0);
-
-					recognized = loader.streamChecker(file, parameters);
-					if (recognized == Ternary::False)
-						continue;
-					else
-						found = true;
+					if (!file.Open(OpenMode::ReadOnly))
+					{
+						NazaraError("failed to load resource: unable to open \"" + PathToString(filePath) + '"');
+						return nullptr;
+					}
 				}
 				else
-				{
-					recognized = Ternary::Unknown;
-					found = true;
-				}
+					file.SetCursorPos(0);
 
-				std::shared_ptr<Type> resource = loader.fileLoader(filePath, parameters);
-				if (resource)
-				{
-					resource->SetFilePath(filePath);
-					return resource;
-				}
+				result = loader.streamLoader(file, parameters);
 			}
-			else
+
+			if (!result)
 			{
-				assert(loader.streamChecker);
-
-				file.SetCursorPos(0);
-
-				recognized = loader.streamChecker(file, parameters);
-				if (recognized == Ternary::False)
-					continue;
-				else if (recognized == Ternary::True)
+				ResourceLoadingError error = result.GetError();
+				if (error != ResourceLoadingError::Unrecognized)
+					NazaraError("failed to load resource: loader failed");
+				else
 					found = true;
 
-				file.SetCursorPos(0);
-
-				std::shared_ptr<Type> resource = loader.streamLoader(file, parameters);
-				if (resource)
-				{
-					resource->SetFilePath(filePath);
-					return resource;
-				}
+				continue;
 			}
 
-			if (recognized == Ternary::True)
-				NazaraWarning("Loader failed");
+			std::shared_ptr<Type> resource = std::move(result).GetValue();
+			resource->SetFilePath(filePath);
+
+			return resource;
 		}
 
 		if (found)
-			NazaraError("Failed to load file: all loaders failed");
+			NazaraError("failed to load resource from file \"" + PathToString(filePath) + "\": all loaders failed");
 		else
-			NazaraError("Failed to load file: no loader found for extension \"" + ext + '"');
+			NazaraError("failed to load resource from file \"" + PathToString(filePath) + "\": no loader found for extension \"" + ext + '"');
 
 		return nullptr;
 	}
 
 	/*!
 	* \brief Loads a resource from a raw memory, a size and parameters
-	* \return true if successfully loaded
+	* \return loaded resources or null pointer if failed
 	*
-	* \param resource Resource to load
 	* \param data Raw memory of the resource
 	* \param size Size available for the read
 	* \param parameters Parameters for the load
-	*
-	* \remark Produces a NazaraError if resource is nullptr with NAZARA_CORE_SAFE defined
-	* \remark Produces a NazaraError if size is 0 with NAZARA_CORE_SAFE defined
-	* \remark Produces a NazaraError if parameters are invalid with NAZARA_CORE_SAFE defined
-	* \remark Produces a NazaraWarning if loader failed
-	* \remark Produces a NazaraError if all loaders failed or no loader was found
 	*/
 	template<typename Type, typename Parameters>
 	std::shared_ptr<Type> ResourceLoader<Type, Parameters>::LoadFromMemory(const void* data, std::size_t size, const Parameters& parameters) const
@@ -181,77 +146,53 @@ namespace Nz
 
 		MemoryView stream(data, size);
 
-		UInt64 streamPos = stream.GetCursorPos();
 		bool found = false;
 		for (auto& loaderPtr : m_loaders)
 		{
 			const Entry& loader = *loaderPtr;
 
-			Ternary recognized = Ternary::Unknown;
+			if (loader.parameterFilter && !loader.parameterFilter(parameters))
+				continue;
+
+			Result<std::shared_ptr<Type>, ResourceLoadingError> result = Nz::Err(ResourceLoadingError::Unrecognized);
+
 			if (loader.memoryLoader)
+				result = loader.memoryLoader(data, size, parameters);
+			else if (loader.streamLoader)
 			{
-				if (loader.streamChecker)
-				{
-					stream.SetCursorPos(streamPos);
+				stream.SetCursorPos(0);
 
-					recognized = loader.streamChecker(stream, parameters);
-					if (recognized == Ternary::False)
-						continue;
-					else
-						found = true;
-				}
+				result = loader.streamLoader(stream, parameters);
+			}
+
+			if (!result)
+			{
+				ResourceLoadingError error = result.GetError();
+				if (error != ResourceLoadingError::Unrecognized)
+					NazaraError("failed to load resource: loader failed");
 				else
-				{
-					recognized = Ternary::Unknown;
-					found = true;
-				}
-
-				std::shared_ptr<Type> resource = loader.memoryLoader(data, size, parameters);
-				if (resource)
-					return resource;
-			}
-			else
-			{
-				stream.SetCursorPos(streamPos);
-
-				recognized = loader.streamChecker(stream, parameters);
-				if (recognized == Ternary::False)
-					continue;
-				else if (recognized == Ternary::True)
 					found = true;
 
-				stream.SetCursorPos(streamPos);
-
-				std::shared_ptr<Type> resource = loader.streamLoader(stream, parameters);
-				if (resource)
-					return resource;
+				continue;
 			}
 
-			if (recognized == Ternary::True)
-				NazaraWarning("Loader failed");
+			return std::move(result).GetValue();
 		}
 
 		if (found)
-			NazaraError("Failed to load file: all loaders failed");
+			NazaraError("failed to load resource from memory: all loaders failed");
 		else
-			NazaraError("Failed to load file: no loader found");
+			NazaraError("failed to load resource from memory: no loader found");
 
 		return nullptr;
 	}
 
 	/*!
 	* \brief Loads a resource from a stream and parameters
-	* \return true if successfully loaded
+	* \return loaded resources or null pointer if failed
 	*
-	* \param resource Resource to load
 	* \param stream Stream of the resource
 	* \param parameters Parameters for the load
-	*
-	* \remark Produces a NazaraError if resource is nullptr with NAZARA_CORE_SAFE defined
-	* \remark Produces a NazaraError if stream has no data with NAZARA_CORE_SAFE defined
-	* \remark Produces a NazaraError if parameters are invalid with NAZARA_CORE_SAFE defined
-	* \remark Produces a NazaraWarning if loader failed
-	* \remark Produces a NazaraError if all loaders failed or no loader was found
 	*/
 	template<typename Type, typename Parameters>
 	std::shared_ptr<Type> ResourceLoader<Type, Parameters>::LoadFromStream(Stream& stream, const Parameters& parameters) const
@@ -265,31 +206,31 @@ namespace Nz
 		{
 			const Entry& loader = *loaderPtr;
 
-			stream.SetCursorPos(streamPos);
-
-			// Does the loader support these data ?
-			Ternary recognized = loader.streamChecker(stream, parameters);
-			if (recognized == Ternary::False)
+			if (loader.parameterFilter && !loader.parameterFilter(parameters))
 				continue;
-			else if (recognized == Ternary::True)
-				found = true;
 
-			// We move the stream to its old position
 			stream.SetCursorPos(streamPos);
 
-			// Load of the resource
-			std::shared_ptr<Type> resource = loader.streamLoader(stream, parameters);
-			if (resource)
-				return resource;
+			// Load resource
+			Result<std::shared_ptr<Type>, ResourceLoadingError> result = loader.streamLoader(stream, parameters);
+			if (!result)
+			{
+				ResourceLoadingError error = result.GetError();
+				if (error != ResourceLoadingError::Unrecognized)
+					NazaraError("failed to load resource: loader failed");
+				else
+					found = true;
 
-			if (recognized == Ternary::True)
-				NazaraWarning("Loader failed");
+				continue;
+			}
+
+			return std::move(result).GetValue();
 		}
 
 		if (found)
-			NazaraError("Failed to load file: all loaders failed");
+			NazaraError("failed to load resource from stream: all loaders failed");
 		else
-			NazaraError("Failed to load file: no loader found");
+			NazaraError("Failed to load resource from from stream: no loader found");
 
 		return nullptr;
 	}
@@ -305,7 +246,6 @@ namespace Nz
 	template<typename Type, typename Parameters>
 	auto ResourceLoader<Type, Parameters>::RegisterLoader(Entry loader) -> const Entry*
 	{
-		NazaraAssert(loader.streamChecker || !loader.streamLoader, "StreamLoader present without StreamChecker");
 		NazaraAssert(loader.fileLoader || loader.memoryLoader || loader.streamLoader, "A loader function is mandatory");
 
 		auto it = m_loaders.emplace(m_loaders.begin(), std::make_unique<Entry>(std::move(loader)));

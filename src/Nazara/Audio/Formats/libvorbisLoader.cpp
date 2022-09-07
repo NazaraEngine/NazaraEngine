@@ -14,8 +14,9 @@
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Utils/CallOnExit.hpp>
 #include <Nazara/Utils/Endianness.hpp>
+#include <frozen/string.h>
+#include <frozen/unordered_set.h>
 #include <optional>
-#include <set>
 
 #define OV_EXCLUDE_STATIC_CALLBACKS
 #include <vorbis/vorbisfile.h>
@@ -75,16 +76,16 @@ namespace Nz
 		{
 			switch (errCode)
 			{
-				case 0: return "no error";
+			case 0:                 return "no error";
 				case OV_EBADHEADER: return "invalid Vorbis bitstream header";
-				case OV_EBADLINK: return "an invalid stream section was supplied to libvorbisfile, or the requested link is corrupt";
-				case OV_EFAULT: return "internal logic fault";
-				case OV_EINVAL: return "an invalid stream section was supplied to libvorbisfile, or the requested link is corrupt";
+				case OV_EBADLINK:   return "an invalid stream section was supplied to libvorbisfile, or the requested link is corrupt";
+				case OV_EFAULT:     return "internal logic fault";
+				case OV_EINVAL:     return "an invalid stream section was supplied to libvorbisfile, or the requested link is corrupt";
 				case OV_ENOTVORBIS: return "bitstream does not contain any Vorbis data";
-				case OV_EREAD: return "a read from media returned an error";
-				case OV_EVERSION: return "Vorbis version mismatch";
-				case OV_HOLE: return "there was an interruption in the data";
-				default: return "unknown error";
+				case OV_EREAD:      return "a read from media returned an error";
+				case OV_EVERSION:   return "Vorbis version mismatch";
+				case OV_HOLE:       return "there was an interruption in the data";
+				default:            return "unknown error";
 			}
 		}
 
@@ -116,38 +117,19 @@ namespace Nz
 			return sampleCount - remainingBytes / sizeof(Int16);
 		}
 
-		bool IsVorbisSupported(const std::string_view& extension)
-		{
-			static std::set<std::string_view> supportedExtensions = {
-				"oga", "ogg", "ogm", "ogv", "ogx", "opus", "spx"
-			};
+		constexpr auto s_supportedExtensions = frozen::make_unordered_set<frozen::string>({ ".oga", ".ogg", ".ogm", ".ogv", ".ogx", ".opus", ".spx" });
 
-			return supportedExtensions.find(extension) != supportedExtensions.end();
+		bool IsVorbisSupported(std::string_view extension)
+		{
+			return s_supportedExtensions.find(extension) != s_supportedExtensions.end();
 		}
 
-		Ternary CheckOgg(Stream& stream, const ResourceParameters& parameters)
-		{
-			bool skip;
-			if (parameters.custom.GetBooleanParameter("SkipBuiltinVorbisLoader", &skip) && skip)
-				return Ternary::False;
-
-			OggVorbis_File file;
-			if (ov_test_callbacks(&stream, &file, nullptr, 0, s_vorbisCallbacks) != 0)
-				return Ternary::False;
-
-			ov_clear(&file);
-			return Ternary::True;
-		}
-
-		std::shared_ptr<SoundBuffer> LoadVorbisSoundBuffer(Stream& stream, const SoundBufferParams& parameters)
+		Result<std::shared_ptr<SoundBuffer>, ResourceLoadingError> LoadVorbisSoundBuffer(Stream& stream, const SoundBufferParams& parameters)
 		{
 			OggVorbis_File file;
 			int err = ov_open_callbacks(&stream, &file, nullptr, 0, s_vorbisCallbacks);
 			if (err != 0)
-			{
-				NazaraError(VorbisErrToString(err));
-				return {};
-			}
+				return Err(ResourceLoadingError::Unrecognized);
 
 			CallOnExit clearOnExit([&] { ov_clear(&file); });
 
@@ -158,7 +140,7 @@ namespace Nz
 			if (!formatOpt)
 			{
 				NazaraError("unexpected channel count: " + std::to_string(info->channels));
-				return {};
+				return Err(ResourceLoadingError::Unsupported);
 			}
 
 			AudioFormat format = *formatOpt;
@@ -169,12 +151,12 @@ namespace Nz
 
 			UInt64 readSample = ReadOgg(&file, samples.get(), sampleCount);
 			if (readSample == 0)
-				return {};
+				return Err(ResourceLoadingError::DecodingError);
 
 			if (readSample != sampleCount)
 			{
 				NazaraError("failed to read the whole file");
-				return {};
+				return Err(ResourceLoadingError::DecodingError);
 			}
 
 			if (parameters.forceMono && format != AudioFormat::I16_Mono)
@@ -230,33 +212,30 @@ namespace Nz
 					return m_sampleRate;
 				}
 
-				bool Open(const std::filesystem::path& filePath, bool forceMono)
+				Result<void, ResourceLoadingError> Open(const std::filesystem::path& filePath, const SoundStreamParams& parameters)
 				{
 					std::unique_ptr<File> file = std::make_unique<File>();
 					if (!file->Open(filePath, OpenMode::ReadOnly))
 					{
 						NazaraError("failed to open stream from file: " + Error::GetLastError());
-						return false;
+						return Err(ResourceLoadingError::FailedToOpenFile);
 					}
 
 					m_ownedStream = std::move(file);
-					return Open(*m_ownedStream, forceMono);
+					return Open(*m_ownedStream, parameters);
 				}
 
-				bool Open(const void* data, std::size_t size, bool forceMono)
+				Result<void, ResourceLoadingError> Open(const void* data, std::size_t size, const SoundStreamParams& parameters)
 				{
 					m_ownedStream = std::make_unique<MemoryView>(data, size);
-					return Open(*m_ownedStream, forceMono);
+					return Open(*m_ownedStream, parameters);
 				}
 
-				bool Open(Stream& stream, bool forceMono)
+				Result<void, ResourceLoadingError> Open(Stream& stream, const SoundStreamParams& parameters)
 				{
 					int err = ov_open_callbacks(&stream, &m_decoder, nullptr, 0, s_vorbisCallbacks);
 					if (err != 0)
-					{
-						NazaraError(VorbisErrToString(err));
-						return {};
-					}
+						return Err(ResourceLoadingError::Unrecognized);
 
 					CallOnExit clearOnError([&]
 					{
@@ -271,7 +250,7 @@ namespace Nz
 					if (!formatOpt)
 					{
 						NazaraError("unexpected channel count: " + std::to_string(info->channels));
-						return {};
+						return Err(ResourceLoadingError::Unsupported);
 					}
 
 					m_format = *formatOpt;
@@ -284,7 +263,7 @@ namespace Nz
 					m_sampleRate = info->rate;
 
 					// Mixing to mono will be done on the fly
-					if (forceMono && m_format != AudioFormat::I16_Mono)
+					if (parameters.forceMono && m_format != AudioFormat::I16_Mono)
 					{
 						m_mixToMono = true;
 						m_sampleCount = frameCount;
@@ -294,7 +273,7 @@ namespace Nz
 
 					clearOnError.Reset();
 
-					return true;
+					return Ok();
 				}
 
 				UInt64 Read(void* buffer, UInt64 sampleCount) override
@@ -347,40 +326,28 @@ namespace Nz
 				bool m_mixToMono;
 		};
 
-		std::shared_ptr<SoundStream> LoadVorbisSoundStreamFile(const std::filesystem::path& filePath, const SoundStreamParams& parameters)
+		Result<std::shared_ptr<SoundStream>, ResourceLoadingError> LoadVorbisSoundStreamFile(const std::filesystem::path& filePath, const SoundStreamParams& parameters)
 		{
 			std::shared_ptr<libvorbisStream> soundStream = std::make_shared<libvorbisStream>();
-			if (!soundStream->Open(filePath, parameters.forceMono))
-			{
-				NazaraError("failed to open sound stream");
-				return {};
-			}
+			Result<void, ResourceLoadingError> status = soundStream->Open(filePath, parameters);
 
-			return soundStream;
+			return status.Map([&] { return std::move(soundStream); });
 		}
 
-		std::shared_ptr<SoundStream> LoadVorbisSoundStreamMemory(const void* data, std::size_t size, const SoundStreamParams& parameters)
+		Result<std::shared_ptr<SoundStream>, ResourceLoadingError> LoadVorbisSoundStreamMemory(const void* data, std::size_t size, const SoundStreamParams& parameters)
 		{
 			std::shared_ptr<libvorbisStream> soundStream = std::make_shared<libvorbisStream>();
-			if (!soundStream->Open(data, size, parameters.forceMono))
-			{
-				NazaraError("failed to open music stream");
-				return {};
-			}
+			Result<void, ResourceLoadingError> status = soundStream->Open(data, size, parameters);
 
-			return soundStream;
+			return status.Map([&] { return std::move(soundStream); });
 		}
 
-		std::shared_ptr<SoundStream> LoadVorbisSoundStreamStream(Stream& stream, const SoundStreamParams& parameters)
+		Result<std::shared_ptr<SoundStream>, ResourceLoadingError> LoadVorbisSoundStreamStream(Stream& stream, const SoundStreamParams& parameters)
 		{
 			std::shared_ptr<libvorbisStream> soundStream = std::make_shared<libvorbisStream>();
-			if (!soundStream->Open(stream, parameters.forceMono))
-			{
-				NazaraError("failed to open music stream");
-				return {};
-			}
+			Result<void, ResourceLoadingError> status = soundStream->Open(stream, parameters);
 
-			return soundStream;
+			return status.Map([&] { return std::move(soundStream); });
 		}
 	}
 
@@ -390,8 +357,15 @@ namespace Nz
 		{
 			SoundBufferLoader::Entry loaderEntry;
 			loaderEntry.extensionSupport = IsVorbisSupported;
-			loaderEntry.streamChecker = [](Stream& stream, const SoundBufferParams& parameters) { return CheckOgg(stream, parameters); };
 			loaderEntry.streamLoader = LoadVorbisSoundBuffer;
+			loaderEntry.parameterFilter = [](const SoundBufferParams& parameters)
+			{
+				bool skip;
+				if (parameters.custom.GetBooleanParameter("SkipBuiltinVorbisLoader", &skip) && skip)
+					return false;
+
+				return true;
+			};
 
 			return loaderEntry;
 		}
@@ -400,10 +374,17 @@ namespace Nz
 		{
 			SoundStreamLoader::Entry loaderEntry;
 			loaderEntry.extensionSupport = IsVorbisSupported;
-			loaderEntry.streamChecker = [](Stream& stream, const SoundStreamParams& parameters) { return CheckOgg(stream, parameters); };
 			loaderEntry.fileLoader = LoadVorbisSoundStreamFile;
 			loaderEntry.memoryLoader = LoadVorbisSoundStreamMemory;
 			loaderEntry.streamLoader = LoadVorbisSoundStreamStream;
+			loaderEntry.parameterFilter = [](const SoundStreamParams& parameters)
+			{
+				bool skip;
+				if (parameters.custom.GetBooleanParameter("SkipBuiltinVorbisLoader", &skip) && skip)
+					return false;
+
+				return true;
+			};
 
 			return loaderEntry;
 		}

@@ -14,28 +14,26 @@ namespace Nz
 	{
 		bool IsMD5AnimSupported(const std::string_view& extension)
 		{
-			return (extension == "md5anim");
+			return extension == ".md5anim";
 		}
 
-		Ternary CheckMD5Anim(Stream& stream, const AnimationParams& parameters)
+		Result<std::shared_ptr<Animation>, ResourceLoadingError> LoadMD5Anim(Stream& stream, const AnimationParams& /*parameters*/)
 		{
-			bool skip;
-			if (parameters.custom.GetBooleanParameter("SkipBuiltinMD5AnimLoader", &skip) && skip)
-				return Ternary::False;
+			// TODO: Use parameters
 
 			MD5AnimParser parser(stream);
-			return parser.Check();
-		}
 
-		std::shared_ptr<Animation> LoadMD5Anim(Stream& stream, const AnimationParams& /*parameters*/)
-		{
-			///TODO: Utiliser les paramètres
-			MD5AnimParser parser(stream);
+			UInt64 streamPos = stream.GetCursorPos();
+
+			if (!parser.Check())
+				return Err(ResourceLoadingError::Unrecognized);
+
+			stream.SetCursorPos(streamPos);
 
 			if (!parser.Parse())
 			{
 				NazaraError("MD5Anim parser failed");
-				return nullptr;
+				return Err(ResourceLoadingError::DecodingError);
 			}
 
 			const MD5AnimParser::Frame* frames = parser.GetFrames();
@@ -99,8 +97,15 @@ namespace Nz
 		{
 			AnimationLoader::Entry loader;
 			loader.extensionSupport = IsMD5AnimSupported;
-			loader.streamChecker = CheckMD5Anim;
 			loader.streamLoader = LoadMD5Anim;
+			loader.parameterFilter = [](const AnimationParams& parameters)
+			{
+				bool skip;
+				if (parameters.custom.GetBooleanParameter("SkipBuiltinMD5AnimLoader", &skip) && skip)
+					return false;
+
+				return true;
+			};
 
 			return loader;
 		}

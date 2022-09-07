@@ -10,6 +10,7 @@
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
+#include <Nazara/Utils/Result.hpp>
 #include <filesystem>
 #include <functional>
 #include <memory>
@@ -29,11 +30,11 @@ namespace Nz
 
 		public:
 			struct Entry;
-			using ExtensionSupport = std::function<bool(const std::string_view& extension)>;
-			using FileLoader = std::function<std::shared_ptr<Type>(const std::filesystem::path& filePath, const Parameters& parameters)>;
-			using MemoryLoader = std::function<std::shared_ptr<Type>(const void* data, std::size_t size, const Parameters& parameters)>;
-			using StreamChecker = std::function<Ternary(Stream& stream, const Parameters& parameters)>;
-			using StreamLoader = std::function<std::shared_ptr<Type>(Stream& stream, const Parameters& parameters)>;
+			using ExtensionSupport = std::function<bool(std::string_view extension)>;
+			using FileLoader = std::function<Result<std::shared_ptr<Type>, ResourceLoadingError>(const std::filesystem::path& filePath, const Parameters& parameters)>;
+			using MemoryLoader = std::function<Result<std::shared_ptr<Type>, ResourceLoadingError>(const void* data, std::size_t size, const Parameters& parameters)>;
+			using ParameterFilter = std::function<bool(const Parameters& parameters)>;
+			using StreamLoader = std::function<Result<std::shared_ptr<Type>, ResourceLoadingError>(Stream& stream, const Parameters& parameters)>;
 
 			ResourceLoader() = default;
 			ResourceLoader(const ResourceLoader&) = delete;
@@ -59,7 +60,7 @@ namespace Nz
 				ExtensionSupport extensionSupport;
 				FileLoader fileLoader;
 				MemoryLoader memoryLoader;
-				StreamChecker streamChecker;
+				ParameterFilter parameterFilter;
 				StreamLoader streamLoader;
 			};
 

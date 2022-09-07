@@ -44,7 +44,7 @@ namespace Nz
 			MD5AnimParser(Stream& stream);
 			~MD5AnimParser();
 
-			Ternary Check();
+			bool Check();
 
 			UInt32 GetAnimatedComponentCount() const;
 			const Frame* GetFrames() const;

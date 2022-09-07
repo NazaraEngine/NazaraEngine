@@ -138,46 +138,10 @@ namespace Nz
 
 		bool IsFlacSupported(const std::string_view& extension)
 		{
-			return extension == "flac";
+			return extension == ".flac";
 		}
 
-		Ternary CheckFlac(Stream& stream, const ResourceParameters& parameters)
-		{
-			bool skip;
-			if (parameters.custom.GetBooleanParameter("SkipBuiltinFlacLoader", &skip) && skip)
-				return Ternary::False;
-
-			FLAC__StreamDecoder* decoder = FLAC__stream_decoder_new();
-			CallOnExit freeDecoder([&] { FLAC__stream_decoder_delete(decoder); });
-
-			bool hasError = false;
-
-			FlacUserdata ud;
-			ud.stream = &stream;
-			ud.errorCallback = [&](const FLAC__StreamDecoder* /*decoder*/, FLAC__StreamDecoderErrorStatus /*status*/)
-			{
-				hasError = true;
-			};
-
-			FLAC__StreamDecoderInitStatus status = FLAC__stream_decoder_init_stream(decoder, &FlacReadCallback, &FlacSeekCallback, &FlacTellCallback, &FlacLengthCallback, &FlacEofCallback, &WriteCallback, &MetadataCallback, &ErrorCallback, &ud);
-			if (status != FLAC__STREAM_DECODER_INIT_STATUS_OK)
-			{
-				NazaraWarning(FLAC__StreamDecoderInitStatusString[status]); //< an error shouldn't happen at this state
-				return Ternary::False;
-			}
-
-			CallOnExit finishDecoder([&] { FLAC__stream_decoder_finish(decoder); });
-
-			if (!FLAC__stream_decoder_process_until_end_of_metadata(decoder))
-				return Ternary::False;
-
-			if (hasError)
-				return Ternary::False;
-
-			return Ternary::True;
-		}
-
-		std::shared_ptr<SoundBuffer> LoadFlacSoundBuffer(Stream& stream, const SoundBufferParams& parameters)
+		Result<std::shared_ptr<SoundBuffer>, ResourceLoadingError> LoadFlacSoundBuffer(Stream& stream, const SoundBufferParams& parameters)
 		{
 			FLAC__StreamDecoder* decoder = FLAC__stream_decoder_new();
 			CallOnExit freeDecoder([&] { FLAC__stream_decoder_delete(decoder); });
@@ -236,34 +200,37 @@ namespace Nz
 			if (status != FLAC__STREAM_DECODER_INIT_STATUS_OK)
 			{
 				NazaraWarning(FLAC__StreamDecoderInitStatusString[status]); //< an error shouldn't happen at this state
-				return {};
+				return Err(ResourceLoadingError::Internal);
 			}
 
 			CallOnExit finishDecoder([&] { FLAC__stream_decoder_finish(decoder); });
 
+			if (!FLAC__stream_decoder_process_until_end_of_metadata(decoder))
+				return Err(ResourceLoadingError::Unrecognized);
+
 			if (!FLAC__stream_decoder_process_until_end_of_stream(decoder))
 			{
 				NazaraError("flac decoding failed");
-				return {};
+				return Err(ResourceLoadingError::DecodingError);
 			}
 
 			if (hasError)
 			{
 				NazaraError("an error occurred during decoding");
-				return {};
+				return Err(ResourceLoadingError::DecodingError);
 			}
 
 			if (channelCount == 0 || frameCount == 0 || sampleCount == 0 || sampleRate == 0)
 			{
 				NazaraError("invalid metadata");
-				return {};
+				return Err(ResourceLoadingError::DecodingError);
 			}
 
 			std::optional<AudioFormat> formatOpt = GuessAudioFormat(channelCount);
 			if (!formatOpt)
 			{
 				NazaraError("unexpected channel count: " + std::to_string(channelCount));
-				return {};
+				return Err(ResourceLoadingError::Unsupported);
 			}
 
 			AudioFormat format = *formatOpt;
@@ -326,26 +293,26 @@ namespace Nz
 					return m_sampleRate;
 				}
 
-				bool Open(const std::filesystem::path& filePath, bool forceMono)
+				Result<void, ResourceLoadingError> Open(const std::filesystem::path& filePath, const SoundStreamParams& parameters)
 				{
 					std::unique_ptr<File> file = std::make_unique<File>();
 					if (!file->Open(filePath, OpenMode::ReadOnly))
 					{
 						NazaraError("failed to open stream from file: " + Error::GetLastError());
-						return false;
+						return Err(ResourceLoadingError::FailedToOpenFile);
 					}
 
 					m_ownedStream = std::move(file);
-					return Open(*m_ownedStream, forceMono);
+					return Open(*m_ownedStream, parameters);
 				}
 
-				bool Open(const void* data, std::size_t size, bool forceMono)
+				Result<void, ResourceLoadingError> Open(const void* data, std::size_t size, const SoundStreamParams& parameters)
 				{
 					m_ownedStream = std::make_unique<MemoryView>(data, size);
-					return Open(*m_ownedStream, forceMono);
+					return Open(*m_ownedStream, parameters);
 				}
 
-				bool Open(Stream& stream, bool forceMono)
+				Result<void, ResourceLoadingError> Open(Stream& stream, const SoundStreamParams& parameters)
 				{
 					m_userData.stream = &stream;
 					m_userData.errorCallback = [this](const FLAC__StreamDecoder* /*decoder*/, FLAC__StreamDecoderErrorStatus status)
@@ -373,28 +340,25 @@ namespace Nz
 					if (status != FLAC__STREAM_DECODER_INIT_STATUS_OK)
 					{
 						NazaraWarning(FLAC__StreamDecoderInitStatusString[status]); //< an error shouldn't happen at this state
-						return {};
+						return Err(ResourceLoadingError::Internal);
 					}
 
 					CallOnExit finishDecoder([&] { FLAC__stream_decoder_finish(decoder); });
 
 					if (!FLAC__stream_decoder_process_until_end_of_metadata(decoder))
-					{
-						NazaraError("failed to decode metadata");
-						return false;
-					}
+						return Err(ResourceLoadingError::Unrecognized);
 
 					std::optional<AudioFormat> formatOpt = GuessAudioFormat(m_channelCount);
 					if (!formatOpt)
 					{
 						NazaraError("unexpected channel count: " + std::to_string(m_channelCount));
-						return false;
+						return Err(ResourceLoadingError::Unrecognized);
 					}
 
 					m_format = *formatOpt;
 
 					// Mixing to mono will be done on the fly
-					if (forceMono && m_format != AudioFormat::I16_Mono)
+					if (parameters.forceMono && m_format != AudioFormat::I16_Mono)
 					{
 						m_mixToMono = true;
 						m_sampleCount = frameCount;
@@ -406,7 +370,7 @@ namespace Nz
 					freeDecoder.Reset();
 					m_decoder = decoder;
 
-					return true;
+					return Ok();
 				}
 
 				UInt64 Read(void* buffer, UInt64 sampleCount) override
@@ -522,40 +486,28 @@ namespace Nz
 				bool m_mixToMono;
 		};
 
-		std::shared_ptr<SoundStream> LoadFlacSoundStreamFile(const std::filesystem::path& filePath, const SoundStreamParams& parameters)
+		Result<std::shared_ptr<SoundStream>, ResourceLoadingError> LoadFlacSoundStreamFile(const std::filesystem::path& filePath, const SoundStreamParams& parameters)
 		{
 			std::shared_ptr<libflacStream> soundStream = std::make_shared<libflacStream>();
-			if (!soundStream->Open(filePath, parameters.forceMono))
-			{
-				NazaraError("failed to open sound stream");
-				return {};
-			}
+			Result<void, ResourceLoadingError> status = soundStream->Open(filePath, parameters);
 
-			return soundStream;
+			return status.Map([&] { return std::move(soundStream); });
 		}
 
-		std::shared_ptr<SoundStream> LoadFlacSoundStreamMemory(const void* data, std::size_t size, const SoundStreamParams& parameters)
+		Result<std::shared_ptr<SoundStream>, ResourceLoadingError> LoadFlacSoundStreamMemory(const void* data, std::size_t size, const SoundStreamParams& parameters)
 		{
 			std::shared_ptr<libflacStream> soundStream = std::make_shared<libflacStream>();
-			if (!soundStream->Open(data, size, parameters.forceMono))
-			{
-				NazaraError("failed to open music stream");
-				return {};
-			}
+			Result<void, ResourceLoadingError> status = soundStream->Open(data, size, parameters);
 
-			return soundStream;
+			return status.Map([&] { return std::move(soundStream); });
 		}
 
-		std::shared_ptr<SoundStream> LoadFlacSoundStreamStream(Stream& stream, const SoundStreamParams& parameters)
+		Result<std::shared_ptr<SoundStream>, ResourceLoadingError> LoadFlacSoundStreamStream(Stream& stream, const SoundStreamParams& parameters)
 		{
 			std::shared_ptr<libflacStream> soundStream = std::make_shared<libflacStream>();
-			if (!soundStream->Open(stream, parameters.forceMono))
-			{
-				NazaraError("failed to open music stream");
-				return {};
-			}
+			Result<void, ResourceLoadingError> status = soundStream->Open(stream, parameters);
 
-			return soundStream;
+			return status.Map([&] { return std::move(soundStream); });
 		}
 	}
 
@@ -565,8 +517,15 @@ namespace Nz
 		{
 			SoundBufferLoader::Entry loaderEntry;
 			loaderEntry.extensionSupport = IsFlacSupported;
-			loaderEntry.streamChecker = [](Stream& stream, const SoundBufferParams& parameters) { return CheckFlac(stream, parameters); };
-			loaderEntry.streamLoader = LoadFlacSoundBuffer;
+			loaderEntry.streamLoader     = LoadFlacSoundBuffer;
+			loaderEntry.parameterFilter  = [](const SoundBufferParams& parameters)
+			{
+				bool skip;
+				if (parameters.custom.GetBooleanParameter("SkipBuiltinFlacLoader", &skip) && skip)
+					return false;
+
+				return true;
+			};
 
 			return loaderEntry;
 		}
@@ -575,10 +534,17 @@ namespace Nz
 		{
 			SoundStreamLoader::Entry loaderEntry;
 			loaderEntry.extensionSupport = IsFlacSupported;
-			loaderEntry.streamChecker = [](Stream& stream, const SoundStreamParams& parameters) { return CheckFlac(stream, parameters); };
-			loaderEntry.fileLoader = LoadFlacSoundStreamFile;
-			loaderEntry.memoryLoader = LoadFlacSoundStreamMemory;
-			loaderEntry.streamLoader = LoadFlacSoundStreamStream;
+			loaderEntry.fileLoader       = LoadFlacSoundStreamFile;
+			loaderEntry.memoryLoader     = LoadFlacSoundStreamMemory;
+			loaderEntry.streamLoader     = LoadFlacSoundStreamStream;
+			loaderEntry.parameterFilter  = [](const SoundStreamParams& parameters)
+			{
+				bool skip;
+				if (parameters.custom.GetBooleanParameter("SkipBuiltinFlacLoader", &skip) && skip)
+					return false;
+
+				return true;
+			};
 
 			return loaderEntry;
 		}

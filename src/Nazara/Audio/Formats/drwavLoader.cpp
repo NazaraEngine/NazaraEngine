@@ -51,31 +51,14 @@ namespace Nz
 
 		bool IsWavSupported(const std::string_view& extension)
 		{
-			return extension == "riff" || extension == "rf64" || extension == "wav" || extension == "w64";
+			return extension == ".riff" || extension == ".rf64" || extension == ".wav" || extension == ".w64";
 		}
 
-		Ternary CheckWav(Stream& stream, const ResourceParameters& parameters)
-		{
-			bool skip;
-			if (parameters.custom.GetBooleanParameter("SkipBuiltinWavLoader", &skip) && skip)
-				return Ternary::False;
-
-			drwav wav;
-			if (!drwav_init(&wav, &ReadWavCallback, &SeekWavCallback, &stream, nullptr))
-				return Ternary::False;
-
-			drwav_uninit(&wav);
-			return Ternary::True;
-		}
-
-		std::shared_ptr<SoundBuffer> LoadWavSoundBuffer(Stream& stream, const SoundBufferParams& parameters)
+		Result<std::shared_ptr<SoundBuffer>, ResourceLoadingError> LoadWavSoundBuffer(Stream& stream, const SoundBufferParams& parameters)
 		{
 			drwav wav;
 			if (!drwav_init(&wav, &ReadWavCallback, &SeekWavCallback, &stream, nullptr))
-			{
-				NazaraError("failed to decode wav stream");
-				return {};
-			}
+				return Err(ResourceLoadingError::Unrecognized);
 
 			CallOnExit uninitOnExit([&] { drwav_uninit(&wav); });
 
@@ -83,7 +66,7 @@ namespace Nz
 			if (!formatOpt)
 			{
 				NazaraError("unexpected channel count: " + std::to_string(wav.channels));
-				return {};
+				return Err(ResourceLoadingError::Unsupported);
 			}
 
 			AudioFormat format = *formatOpt;
@@ -94,7 +77,7 @@ namespace Nz
 			if (drwav_read_pcm_frames_s16(&wav, wav.totalPCMFrameCount, samples.get()) != wav.totalPCMFrameCount)
 			{
 				NazaraError("failed to read stream content");
-				return {};
+				return Err(ResourceLoadingError::DecodingError);
 			}
 
 			if (parameters.forceMono && format != AudioFormat::I16_Mono)
@@ -150,32 +133,29 @@ namespace Nz
 					return m_sampleRate;
 				}
 
-				bool Open(const std::filesystem::path& filePath, bool forceMono)
+				Result<void, ResourceLoadingError> Open(const std::filesystem::path& filePath, const SoundStreamParams& parameters)
 				{
 					std::unique_ptr<File> file = std::make_unique<File>();
 					if (!file->Open(filePath, OpenMode::ReadOnly))
 					{
 						NazaraError("failed to open stream from file: " + Error::GetLastError());
-						return false;
+						return Err(ResourceLoadingError::FailedToOpenFile);
 					}
 
 					m_ownedStream = std::move(file);
-					return Open(*m_ownedStream, forceMono);
+					return Open(*m_ownedStream, parameters);
 				}
 
-				bool Open(const void* data, std::size_t size, bool forceMono)
+				Result<void, ResourceLoadingError> Open(const void* data, std::size_t size, const SoundStreamParams& parameters)
 				{
 					m_ownedStream = std::make_unique<MemoryView>(data, size);
-					return Open(*m_ownedStream, forceMono);
+					return Open(*m_ownedStream, parameters);
 				}
 
-				bool Open(Stream& stream, bool forceMono)
+				Result<void, ResourceLoadingError> Open(Stream& stream, const SoundStreamParams& parameters)
 				{
 					if (!drwav_init(&m_decoder, &ReadWavCallback, &SeekWavCallback, &stream, nullptr))
-					{
-						NazaraError("failed to decode wav stream");
-						return {};
-					}
+						return Err(ResourceLoadingError::Unrecognized);
 
 					CallOnExit resetOnError([this]
 					{
@@ -187,7 +167,7 @@ namespace Nz
 					if (!formatOpt)
 					{
 						NazaraError("unexpected channel count: " + std::to_string(m_decoder.channels));
-						return false;
+						return Err(ResourceLoadingError::Unsupported);
 					}
 
 					m_format = *formatOpt;
@@ -197,7 +177,7 @@ namespace Nz
 					m_sampleRate = m_decoder.sampleRate;
 
 					// Mixing to mono will be done on the fly
-					if (forceMono && m_format != AudioFormat::I16_Mono)
+					if (parameters.forceMono && m_format != AudioFormat::I16_Mono)
 					{
 						m_mixToMono = true;
 						m_sampleCount = m_decoder.totalPCMFrameCount;
@@ -207,7 +187,7 @@ namespace Nz
 
 					resetOnError.Reset();
 
-					return true;
+					return Ok();
 				}
 
 				UInt64 Read(void* buffer, UInt64 sampleCount) override
@@ -257,40 +237,28 @@ namespace Nz
 				bool m_mixToMono;
 		};
 
-		std::shared_ptr<SoundStream> LoadWavSoundStreamFile(const std::filesystem::path& filePath, const SoundStreamParams& parameters)
+		Result<std::shared_ptr<SoundStream>, ResourceLoadingError> LoadWavSoundStreamFile(const std::filesystem::path& filePath, const SoundStreamParams& parameters)
 		{
 			std::shared_ptr<drwavStream> soundStream = std::make_shared<drwavStream>();
-			if (!soundStream->Open(filePath, parameters.forceMono))
-			{
-				NazaraError("failed to open sound stream");
-				return {};
-			}
+			Result<void, ResourceLoadingError> status = soundStream->Open(filePath, parameters);
 
-			return soundStream;
+			return status.Map([&] { return std::move(soundStream); });
 		}
 
-		std::shared_ptr<SoundStream> LoadWavSoundStreamMemory(const void* data, std::size_t size, const SoundStreamParams& parameters)
+		Result<std::shared_ptr<SoundStream>, ResourceLoadingError> LoadWavSoundStreamMemory(const void* data, std::size_t size, const SoundStreamParams& parameters)
 		{
 			std::shared_ptr<drwavStream> soundStream = std::make_shared<drwavStream>();
-			if (!soundStream->Open(data, size, parameters.forceMono))
-			{
-				NazaraError("failed to open music stream");
-				return {};
-			}
+			Result<void, ResourceLoadingError> status = soundStream->Open(data, size, parameters);
 
-			return soundStream;
+			return status.Map([&] { return std::move(soundStream); });
 		}
 
-		std::shared_ptr<SoundStream> LoadWavSoundStreamStream(Stream& stream, const SoundStreamParams& parameters)
+		Result<std::shared_ptr<SoundStream>, ResourceLoadingError> LoadWavSoundStreamStream(Stream& stream, const SoundStreamParams& parameters)
 		{
 			std::shared_ptr<drwavStream> soundStream = std::make_shared<drwavStream>();
-			if (!soundStream->Open(stream, parameters.forceMono))
-			{
-				NazaraError("failed to open music stream");
-				return {};
-			}
+			Result<void, ResourceLoadingError> status = soundStream->Open(stream, parameters);
 
-			return soundStream;
+			return status.Map([&] { return std::move(soundStream); });
 		}
 	}
 
@@ -300,8 +268,15 @@ namespace Nz
 		{
 			SoundBufferLoader::Entry loaderEntry;
 			loaderEntry.extensionSupport = IsWavSupported;
-			loaderEntry.streamChecker = [](Stream& stream, const SoundBufferParams& parameters) { return CheckWav(stream, parameters); };
 			loaderEntry.streamLoader = LoadWavSoundBuffer;
+			loaderEntry.parameterFilter = [](const SoundBufferParams& parameters)
+			{
+				bool skip;
+				if (parameters.custom.GetBooleanParameter("SkipBuiltinWavLoader", &skip) && skip)
+					return false;
+
+				return true;
+			};
 
 			return loaderEntry;
 		}
@@ -310,10 +285,17 @@ namespace Nz
 		{
 			SoundStreamLoader::Entry loaderEntry;
 			loaderEntry.extensionSupport = IsWavSupported;
-			loaderEntry.streamChecker = [](Stream& stream, const SoundStreamParams& parameters) { return CheckWav(stream, parameters); };
 			loaderEntry.fileLoader = LoadWavSoundStreamFile;
 			loaderEntry.memoryLoader = LoadWavSoundStreamMemory;
 			loaderEntry.streamLoader = LoadWavSoundStreamStream;
+			loaderEntry.parameterFilter = [](const SoundStreamParams& parameters)
+			{
+				bool skip;
+				if (parameters.custom.GetBooleanParameter("SkipBuiltinWavLoader", &skip) && skip)
+					return false;
+
+				return true;
+			};
 
 			return loaderEntry;
 		}

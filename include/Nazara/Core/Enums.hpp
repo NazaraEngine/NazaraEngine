@@ -191,6 +191,15 @@ namespace Nz
 
 	constexpr std::size_t ProcessorVendorCount = static_cast<std::size_t>(ProcessorVendor::Max) + 1;
 
+	enum class ResourceLoadingError
+	{
+		DecodingError,
+		FailedToOpenFile,
+		Internal,
+		Unsupported,
+		Unrecognized
+	};
+
 	enum class SphereType
 	{
 		Cubic,
@@ -218,15 +227,6 @@ namespace Nz
 	};
 
 	using StreamOptionFlags = Flags<StreamOption>;
-
-	enum class Ternary
-	{
-		False,
-		True,
-		Unknown,
-
-		Max = Unknown
-	};
 }
 
 #endif // NAZARA_CORE_ENUMS_HPP

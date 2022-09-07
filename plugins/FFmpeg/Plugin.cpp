@@ -73,7 +73,7 @@ namespace
 					av_free(&m_ioBuffer);
 			}
 
-			bool Check()
+			Nz::Result<void, Nz::ResourceLoadingError> Check()
 			{
 				constexpr std::size_t BufferSize = 32768;
 
@@ -82,14 +82,14 @@ namespace
 				if (!m_ioContext)
 				{
 					NazaraError("failed to create io context");
-					return false;
+					return Nz::Err(Nz::ResourceLoadingError::Internal);
 				}
 
 				m_formatContext = avformat_alloc_context();
 				if (!m_formatContext)
 				{
 					NazaraError("failed to allocate format context");
-					return false;
+					return Nz::Err(Nz::ResourceLoadingError::Internal);
 				}
 
 				m_formatContext->pb = m_ioContext;
@@ -99,36 +99,36 @@ namespace
 				if (int errCode = avformat_open_input(&m_formatContext, "", nullptr, nullptr); errCode != 0)
 				{
 					NazaraError("failed to open input: " + ErrorToString(errCode));
-					return false;
+					return Nz::Err(Nz::ResourceLoadingError::Unrecognized);
 				}
 
 				if (int errCode = avformat_find_stream_info(m_formatContext, nullptr); errCode != 0)
 				{
 					NazaraError("failed to find stream info: " + ErrorToString(errCode));
-					return false;
+					return Nz::Err(Nz::ResourceLoadingError::Unrecognized);
 				}
 
 				m_videoStream = av_find_best_stream(m_formatContext, AVMEDIA_TYPE_VIDEO, -1, -1, nullptr, 0);
 				if (m_videoStream < 0)
 				{
 					NazaraError("failed to find video stream");
-					return false;
+					return Nz::Err(Nz::ResourceLoadingError::Unrecognized);
 				}
 
 				if (m_formatContext->streams[m_videoStream]->nb_frames == 0)
 				{
 					NazaraError("unhandled 0 frame count");
-					return false;
+					return Nz::Err(Nz::ResourceLoadingError::Unsupported);
 				}
 
 				m_codec = avcodec_find_decoder(m_formatContext->streams[m_videoStream]->codecpar->codec_id);
 				if (!m_codec)
 				{
 					NazaraError("codec not found");
-					return false;
+					return Nz::Err(Nz::ResourceLoadingError::Unsupported);
 				}
 
-				return true;
+				return Nz::Ok();
 			}
 
 			bool DecodeNextFrame(void* frameBuffer, Nz::UInt64* frameTime) override
@@ -219,13 +219,11 @@ namespace
 				return { width, height };
 			}
 
-			bool Open()
+			Nz::Result<void, Nz::ResourceLoadingError> Open()
 			{
-				if (!Check())
-				{
-					NazaraError("stream has invalid GIF header");
-					return false;
-				}
+				auto checkResult = Check();
+				if (!checkResult)
+					return checkResult;
 
 				const AVCodecParameters* codecParameters = m_formatContext->streams[m_videoStream]->codecpar;
 
@@ -233,19 +231,19 @@ namespace
 				if (!m_codecContext)
 				{
 					NazaraError("failed to allocate codec context");
-					return false;
+					return Nz::Err(Nz::ResourceLoadingError::Internal);
 				}
 
 				if (int errCode = avcodec_parameters_to_context(m_codecContext, codecParameters); errCode < 0)
 				{
 					NazaraError("failed to copy codec params to codec context: " + ErrorToString(errCode));
-					return false;
+					return Nz::Err(Nz::ResourceLoadingError::Internal);
 				}
 
 				if (int errCode = avcodec_open2(m_codecContext, m_codec, nullptr); errCode < 0)
 				{
 					NazaraError("could not open codec: " + ErrorToString(errCode));
-					return false;
+					return Nz::Err(Nz::ResourceLoadingError::Internal);
 				}
 
 				m_rawFrame = av_frame_alloc();
@@ -253,7 +251,7 @@ namespace
 				if (!m_rawFrame || !m_rgbaFrame)
 				{
 					NazaraError("failed to allocate frames");
-					return false;
+					return Nz::Err(Nz::ResourceLoadingError::Internal);
 				}
 
 				m_rgbaFrame->format = AVPixelFormat::AV_PIX_FMT_RGBA;
@@ -263,17 +261,17 @@ namespace
 				if (int errCode = av_frame_get_buffer(m_rgbaFrame, 0); errCode < 0)
 				{
 					NazaraError("failed to open input: " + ErrorToString(errCode));
-					return false;
+					return Nz::Err(Nz::ResourceLoadingError::Internal);
 				}
 
 				m_conversionContext = sws_getContext(m_codecContext->width, m_codecContext->height, m_codecContext->pix_fmt, m_codecContext->width, m_codecContext->height, AVPixelFormat::AV_PIX_FMT_RGBA, SWS_FAST_BILINEAR, nullptr, nullptr, nullptr);
 				if (!m_conversionContext)
 				{
 					NazaraError("failed to allocate conversion context");
-					return false;
+					return Nz::Err(Nz::ResourceLoadingError::Internal);
 				}
 
-				return true;
+				return Nz::Ok();
 			}
 
 			void Seek(Nz::UInt64 frameIndex) override
@@ -396,56 +394,38 @@ namespace
 
 	bool CheckVideoExtension(const std::string_view& extension)
 	{
-		// TODO
-		return extension == "mp4";
+		const AVOutputFormat* format = av_guess_format(nullptr, extension.data(), nullptr);
+		if (!format)
+			return false;
+
+		return format->video_codec != AV_CODEC_ID_NONE;
 	}
 
-	Nz::Ternary CheckVideo(Nz::Stream& stream, const Nz::ImageStreamParams& parameters)
-	{
-		bool skip;
-		if (parameters.custom.GetBooleanParameter("SkipFFMpegLoader", &skip) && skip)
-			return Nz::Ternary::False;
-
-		FFmpegStream ffmpegStream;
-		ffmpegStream.SetStream(stream);
-
-		if (ffmpegStream.Check())
-			return Nz::Ternary::True;
-		else
-			return Nz::Ternary::False;
-	}
-
-	std::shared_ptr<Nz::ImageStream> LoadFile(const std::filesystem::path& filePath, const Nz::ImageStreamParams& /*parameters*/)
+	Nz::Result<std::shared_ptr<Nz::ImageStream>, Nz::ResourceLoadingError> LoadFile(const std::filesystem::path& filePath, const Nz::ImageStreamParams& /*parameters*/)
 	{
 		std::shared_ptr<FFmpegStream> ffmpegStream = std::make_shared<FFmpegStream>();
 		ffmpegStream->SetFile(filePath);
 
-		if (!ffmpegStream->Open())
-			return {};
-
-		return ffmpegStream;
+		Nz::Result<void, Nz::ResourceLoadingError> status = ffmpegStream->Open();
+		return status.Map([&] { return std::move(ffmpegStream); });
 	}
 
-	std::shared_ptr<Nz::ImageStream> LoadMemory(const void* ptr, std::size_t size, const Nz::ImageStreamParams& /*parameters*/)
+	Nz::Result<std::shared_ptr<Nz::ImageStream>, Nz::ResourceLoadingError> LoadMemory(const void* ptr, std::size_t size, const Nz::ImageStreamParams& /*parameters*/)
 	{
 		std::shared_ptr<FFmpegStream> ffmpegStream = std::make_shared<FFmpegStream>();
 		ffmpegStream->SetMemory(ptr, size);
 
-		if (!ffmpegStream->Open())
-			return {};
-
-		return ffmpegStream;
+		Nz::Result<void, Nz::ResourceLoadingError> status = ffmpegStream->Open();
+		return status.Map([&] { return std::move(ffmpegStream); });
 	}
 
-	std::shared_ptr<Nz::ImageStream> LoadStream(Nz::Stream& stream, const Nz::ImageStreamParams& /*parameters*/)
+	Nz::Result<std::shared_ptr<Nz::ImageStream>, Nz::ResourceLoadingError> LoadStream(Nz::Stream& stream, const Nz::ImageStreamParams& /*parameters*/)
 	{
 		std::shared_ptr<FFmpegStream> ffmpegStream = std::make_shared<FFmpegStream>();
 		ffmpegStream->SetStream(stream);
 
-		if (!ffmpegStream->Open())
-			return {};
-
-		return ffmpegStream;
+		Nz::Result<void, Nz::ResourceLoadingError> status = ffmpegStream->Open();
+		return status.Map([&] { return std::move(ffmpegStream); });
 	}
 
 	class FFmpegPluginImpl final : public Nz::FFmpegPlugin
@@ -458,10 +438,17 @@ namespace
 
 				Nz::ImageStreamLoader::Entry loaderEntry;
 				loaderEntry.extensionSupport = CheckVideoExtension;
-				loaderEntry.streamChecker = CheckVideo;
 				loaderEntry.fileLoader = LoadFile;
 				loaderEntry.memoryLoader = LoadMemory;
 				loaderEntry.streamLoader = LoadStream;
+				loaderEntry.parameterFilter = [](const Nz::ImageStreamParams& parameters)
+				{
+					bool skip;
+					if (parameters.custom.GetBooleanParameter("SkipFFMpegLoader", &skip) && skip)
+						return false;
+
+					return true;
+				};
 
 				Nz::ImageStreamLoader& imageStreamLoader = utility->GetImageStreamLoader();
 				m_ffmpegLoaderEntry = imageStreamLoader.RegisterLoader(loaderEntry);
@@ -476,6 +463,7 @@ namespace
 
 				Nz::ImageStreamLoader& imageStreamLoader = utility->GetImageStreamLoader();
 				imageStreamLoader.UnregisterLoader(m_ffmpegLoaderEntry);
+
 				m_ffmpegLoaderEntry = nullptr;
 			}
 

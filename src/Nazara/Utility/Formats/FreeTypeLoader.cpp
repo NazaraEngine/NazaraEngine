@@ -15,8 +15,9 @@
 #include <Nazara/Utility/Font.hpp>
 #include <Nazara/Utility/FontData.hpp>
 #include <Nazara/Utility/FontGlyph.hpp>
+#include <frozen/string.h>
+#include <frozen/unordered_set.h>
 #include <memory>
-#include <set>
 #include <string>
 #include <Nazara/Utility/Debug.hpp>
 
@@ -106,12 +107,6 @@ namespace Nz
 				{
 					if (m_face)
 						FT_Done_Face(m_face);
-				}
-
-				bool Check()
-				{
-					// Test d'ouverture (http://www.freetype.org/freetype2/docs/reference/ft2-base_interface.html#FT_Open_Face)
-					return FT_Open_Face(s_freetypeLibrary, &m_args, -1, nullptr) == 0;
 				}
 
 				bool ExtractGlyph(unsigned int characterSize, char32_t character, TextStyleFlags style, float outlineThickness, FontGlyph* dst) override
@@ -383,32 +378,14 @@ namespace Nz
 				mutable unsigned int m_characterSize;
 		};
 
+		constexpr auto s_supportedExtensions = frozen::make_unordered_set<frozen::string>({ ".afm", ".bdf", ".cff", ".cid", ".dfont", ".fnt", ".fon", ".otf", ".pfa", ".pfb", ".pfm", ".pfr", ".sfnt", ".ttc", ".tte", ".ttf" });
+
 		bool IsFreetypeSupported(const std::string_view& extension)
 		{
-			///FIXME: Je suppose qu'il en manque quelques unes..
-			static std::set<std::string_view> supportedExtensions = {
-				"afm", "bdf", "cff", "cid", "dfont", "fnt", "fon", "otf", "pfa", "pfb", "pfm", "pfr", "sfnt", "ttc", "tte", "ttf"
-			};
-
-			return supportedExtensions.find(extension) != supportedExtensions.end();
+			return s_supportedExtensions.find(extension) != s_supportedExtensions.end();
 		}
 
-		Ternary CheckFreetype(Stream& stream, const FontParams& parameters)
-		{
-			bool skip;
-			if (parameters.custom.GetBooleanParameter("SkipBuiltinFreeTypeLoader", &skip) && skip)
-				return Ternary::False;
-
-			FreeTypeStream face;
-			face.SetStream(stream);
-
-			if (face.Check())
-				return Ternary::True;
-			else
-				return Ternary::False;
-		}
-
-		std::shared_ptr<Font> LoadFreetypeFile(const std::filesystem::path& filePath, const FontParams& parameters)
+		Result<std::shared_ptr<Font>, ResourceLoadingError> LoadFreetypeFile(const std::filesystem::path& filePath, const FontParams& parameters)
 		{
 			NazaraUnused(parameters);
 
@@ -416,23 +393,20 @@ namespace Nz
 			if (!face->SetFile(filePath))
 			{
 				NazaraError("Failed to open file");
-				return nullptr;
+				return Err(ResourceLoadingError::FailedToOpenFile);
 			}
 
 			if (!face->Open())
-			{
-				NazaraError("Failed to open face");
-				return nullptr;
-			}
+				return Err(ResourceLoadingError::Unrecognized);
 
 			std::shared_ptr<Font> font = std::make_shared<Font>();
 			if (!font->Create(std::move(face)))
-				return nullptr;
+				return Err(ResourceLoadingError::Internal);
 
 			return font;
 		}
 
-		std::shared_ptr<Font> LoadFreetypeMemory(const void* data, std::size_t size, const FontParams& parameters)
+		Result<std::shared_ptr<Font>, ResourceLoadingError> LoadFreetypeMemory(const void* data, std::size_t size, const FontParams& parameters)
 		{
 			NazaraUnused(parameters);
 
@@ -440,34 +414,28 @@ namespace Nz
 			face->SetMemory(data, size);
 
 			if (!face->Open())
-			{
-				NazaraError("Failed to open face");
-				return nullptr;
-			}
+				return Err(ResourceLoadingError::Unrecognized);
 
 			std::shared_ptr<Font> font = std::make_shared<Font>();
 			if (!font->Create(std::move(face)))
-				return nullptr;
+				return Err(ResourceLoadingError::Internal);
 
 			return font;
 		}
 
-		std::shared_ptr<Font> LoadFreetypeStream(Stream& stream, const FontParams& parameters)
+		Result<std::shared_ptr<Font>, ResourceLoadingError> LoadFreetypeStream(Stream& stream, const FontParams& parameters)
 		{
 			NazaraUnused(parameters);
 
-			std::unique_ptr<FreeTypeStream> face(new FreeTypeStream);
+			std::unique_ptr<FreeTypeStream> face = std::make_unique<FreeTypeStream>();
 			face->SetStream(stream);
 
 			if (!face->Open())
-			{
-				NazaraError("Failed to open face");
-				return nullptr;
-			}
+				return Err(ResourceLoadingError::Unrecognized);
 
 			std::shared_ptr<Font> font = std::make_shared<Font>();
 			if (!font->Create(std::move(face)))
-				return nullptr;
+				return Err(ResourceLoadingError::Internal);
 
 			return font;
 		}
@@ -492,14 +460,21 @@ namespace Nz
 		{
 			NazaraAssert(s_freetypeLibraryOwner, "FreeType has not been initialized");
 
-			FontLoader::Entry entry;
-			entry.extensionSupport = IsFreetypeSupported;
-			entry.fileLoader = LoadFreetypeFile;
-			entry.memoryLoader = LoadFreetypeMemory;
-			entry.streamChecker = CheckFreetype;
-			entry.streamLoader = LoadFreetypeStream;
+			FontLoader::Entry loader;
+			loader.extensionSupport = IsFreetypeSupported;
+			loader.fileLoader = LoadFreetypeFile;
+			loader.memoryLoader = LoadFreetypeMemory;
+			loader.streamLoader = LoadFreetypeStream;
+			loader.parameterFilter = [](const FontParams& parameters)
+			{
+				bool skip;
+				if (parameters.custom.GetBooleanParameter("SkipBuiltinFreeTypeLoader", &skip) && skip)
+					return false;
 
-			return entry;
+				return true;
+			};
+
+			return loader;
 		}
 
 		void UninitializeFreeType()

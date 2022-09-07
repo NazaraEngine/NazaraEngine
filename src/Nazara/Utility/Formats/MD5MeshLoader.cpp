@@ -22,26 +22,24 @@ namespace Nz
 	{
 		bool IsMD5MeshSupported(const std::string_view& extension)
 		{
-			return (extension == "md5mesh");
+			return (extension == ".md5mesh");
 		}
 
-		Ternary CheckMD5Mesh(Stream& stream, const MeshParams& parameters)
-		{
-			bool skip;
-			if (parameters.custom.GetBooleanParameter("SkipBuiltinMD5MeshLoader", &skip) && skip)
-				return Ternary::False;
-
-			MD5MeshParser parser(stream);
-			return parser.Check();
-		}
-
-		std::shared_ptr<Mesh> LoadMD5Mesh(Stream& stream, const MeshParams& parameters)
+		Result<std::shared_ptr<Mesh>, ResourceLoadingError> LoadMD5Mesh(Stream& stream, const MeshParams& parameters)
 		{
 			MD5MeshParser parser(stream);
+
+			UInt64 streamPos = stream.GetCursorPos();
+
+			if (!parser.Check())
+				return Err(ResourceLoadingError::Unrecognized);
+
+			stream.SetCursorPos(streamPos);
+
 			if (!parser.Parse())
 			{
 				NazaraError("MD5Mesh parser failed");
-				return nullptr;
+				return Err(ResourceLoadingError::DecodingError);
 			}
 
 			UInt32 maxWeightCount = 4;
@@ -253,7 +251,7 @@ namespace Nz
 				if (!mesh->CreateStatic()) // Ne devrait jamais échouer
 				{
 					NazaraInternalError("Failed to create mesh");
-					return nullptr;
+					return Err(ResourceLoadingError::Internal);
 				}
 
 				mesh->SetMaterialCount(meshCount);
@@ -360,8 +358,15 @@ namespace Nz
 		{
 			MeshLoader::Entry loader;
 			loader.extensionSupport = IsMD5MeshSupported;
-			loader.streamChecker = CheckMD5Mesh;
 			loader.streamLoader = LoadMD5Mesh;
+			loader.parameterFilter = [](const MeshParams& parameters)
+			{
+				bool skip;
+				if (parameters.custom.GetBooleanParameter("SkipBuiltinMD5MeshLoader", &skip) && skip)
+					return false;
+
+				return true;
+			};
 
 			return loader;
 		}

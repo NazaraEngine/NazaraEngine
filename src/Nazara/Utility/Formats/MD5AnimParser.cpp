@@ -29,7 +29,7 @@ namespace Nz
 			m_stream.EnableTextMode(false);
 	}
 
-	Ternary MD5AnimParser::Check()
+	bool MD5AnimParser::Check()
 	{
 		if (Advance(false))
 		{
@@ -37,11 +37,11 @@ namespace Nz
 			if (std::sscanf(&m_currentLine[0], " MD5Version %u", &version) == 1)
 			{
 				if (version == 10)
-					return Ternary::True;
+					return true;
 			}
 		}
 
-		return Ternary::False;
+		return false;
 	}
 
 	UInt32 MD5AnimParser::GetAnimatedComponentCount() const

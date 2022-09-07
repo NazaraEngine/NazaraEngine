@@ -54,7 +54,7 @@ namespace Nz
 
 		bool IsOBJSupportedSave(const std::string_view& extension)
 		{
-			return (extension == "obj");
+			return (extension == ".obj");
 		}
 
 		bool SaveOBJToStream(const Mesh& mesh, const std::string& format, Stream& stream, const MeshParams& parameters)

@@ -236,30 +236,16 @@ void ProcessJoints(const Nz::MeshParams& parameters, const Nz::Matrix4f& transfo
 		ProcessJoints(parameters, transformMatrix, invTransformMatrix, skeletalMesh, skeleton, node->mChildren[i], nextJointIndex, boneToJointIndex, seenNodes);
 }
 
-bool IsSupported(const std::string_view& extension)
+bool IsSupported(std::string_view extension)
 {
-	std::string dotExt;
-	dotExt.reserve(extension.size() + 1);
-	dotExt += '.';
-	dotExt += extension;
-
-	return (aiIsExtensionSupported(dotExt.data()) == AI_TRUE);
+	return (aiIsExtensionSupported(extension.data()) == AI_TRUE);
 }
 
 /************************************************************************/
 /*                           Material loading                           */
 /************************************************************************/
 
-Nz::Ternary CheckAnimation(Nz::Stream& /*stream*/, const Nz::AnimationParams& parameters)
-{
-	bool skip;
-	if (parameters.custom.GetBooleanParameter("SkipAssimpLoader", &skip) && skip)
-		return Nz::Ternary::False;
-
-	return Nz::Ternary::Unknown;
-}
-
-std::shared_ptr<Nz::Animation> LoadAnimation(Nz::Stream& stream, const Nz::AnimationParams& parameters)
+Nz::Result<std::shared_ptr<Nz::Animation>, Nz::ResourceLoadingError> LoadAnimation(Nz::Stream& stream, const Nz::AnimationParams& parameters)
 {
 	NazaraAssert(parameters.IsValid(), "invalid animation parameters");
 
@@ -280,13 +266,13 @@ std::shared_ptr<Nz::Animation> LoadAnimation(Nz::Stream& stream, const Nz::Anima
 	if (!scene)
 	{
 		NazaraError("Assimp failed to import file: " + std::string(aiGetErrorString()));
-		return nullptr;
+		return Nz::Err(Nz::ResourceLoadingError::DecodingError);
 	}
 
 	if (!scene->HasAnimations())
 	{
 		NazaraError("File has no animation");
-		return nullptr;
+		return Nz::Err(Nz::ResourceLoadingError::DecodingError);
 	}
 
 	SceneInfo sceneInfo;
@@ -771,16 +757,7 @@ std::shared_ptr<Nz::SubMesh> ProcessSubMesh(const std::filesystem::path& originP
 	return subMesh;
 }
 
-Nz::Ternary CheckMesh(Nz::Stream& /*stream*/, const Nz::MeshParams& parameters)
-{
-	bool skip;
-	if (parameters.custom.GetBooleanParameter("SkipAssimpLoader", &skip) && skip)
-		return Nz::Ternary::False;
-
-	return Nz::Ternary::Unknown;
-}
-
-std::shared_ptr<Nz::Mesh> LoadMesh(Nz::Stream& stream, const Nz::MeshParams& parameters)
+Nz::Result<std::shared_ptr<Nz::Mesh>, Nz::ResourceLoadingError> LoadMesh(Nz::Stream& stream, const Nz::MeshParams& parameters)
 {
 	std::string streamPath = Nz::PathToString(stream.GetPath());
 
@@ -838,7 +815,7 @@ std::shared_ptr<Nz::Mesh> LoadMesh(Nz::Stream& stream, const Nz::MeshParams& par
 	if (!scene)
 	{
 		NazaraError("Assimp failed to import file: " + std::string(aiGetErrorString()));
-		return nullptr;
+		return Nz::Err(Nz::ResourceLoadingError::DecodingError);
 	}
 
 	SceneInfo sceneInfo;
@@ -846,7 +823,7 @@ std::shared_ptr<Nz::Mesh> LoadMesh(Nz::Stream& stream, const Nz::MeshParams& par
 
 	bool handleSkeletalMeshes = parameters.animated && !sceneInfo.skeletalMeshes.empty();
 	if (handleSkeletalMeshes && !FindSkeletonRoot(sceneInfo, scene->mRootNode))
-		return nullptr;
+		return Nz::Err(Nz::ResourceLoadingError::DecodingError);
 
 	std::shared_ptr<Nz::Mesh> mesh = std::make_shared<Nz::Mesh>();
 
@@ -897,23 +874,35 @@ namespace
 				Nz::Utility* utility = Nz::Utility::Instance();
 				NazaraAssert(utility, "utility module is not instancied");
 
+				Nz::AnimationLoader::Entry animationLoaderEntry;
+				animationLoaderEntry.extensionSupport = IsSupported;
+				animationLoaderEntry.streamLoader = LoadAnimation;
+				animationLoaderEntry.parameterFilter = [](const Nz::AnimationParams& parameters)
+				{
+					bool skip;
+					if (parameters.custom.GetBooleanParameter("SkipAssimpLoader", &skip) && skip)
+						return false;
+
+					return true;
+				};
+
 				Nz::AnimationLoader& animationLoader = utility->GetAnimationLoader();
-				m_animationLoaderEntry = animationLoader.RegisterLoader({
-					IsSupported,
-					nullptr,
-					nullptr,
-					CheckAnimation,
-					LoadAnimation
-					});
+				m_animationLoaderEntry = animationLoader.RegisterLoader(std::move(animationLoaderEntry));
+				
+				Nz::MeshLoader::Entry meshLoaderEntry;
+				meshLoaderEntry.extensionSupport = IsSupported;
+				meshLoaderEntry.streamLoader = LoadMesh;
+				meshLoaderEntry.parameterFilter = [](const Nz::MeshParams& parameters)
+				{
+					bool skip;
+					if (parameters.custom.GetBooleanParameter("SkipAssimpLoader", &skip) && skip)
+						return false;
+
+					return true;
+				};
 
 				Nz::MeshLoader& meshLoader = utility->GetMeshLoader();
-				m_meshLoaderEntry = meshLoader.RegisterLoader({
-					IsSupported,
-					nullptr,
-					nullptr,
-					CheckMesh,
-					LoadMesh
-				});
+				m_meshLoaderEntry = meshLoader.RegisterLoader(std::move(meshLoaderEntry));
 
 				return true;
 			}

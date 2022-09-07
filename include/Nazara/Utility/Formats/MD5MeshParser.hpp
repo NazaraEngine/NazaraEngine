@@ -55,7 +55,7 @@ namespace Nz
 			MD5MeshParser(Stream& stream);
 			~MD5MeshParser();
 
-			Ternary Check();
+			bool Check();
 
 			const Joint* GetJoints() const;
 			UInt32 GetJointCount() const;
