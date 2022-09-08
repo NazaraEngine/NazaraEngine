@@ -31,6 +31,7 @@ namespace Nz
 			using Dependencies = TypeList<Renderer>;
 
 			struct Config;
+			struct DefaultMaterials;
 			struct DefaultTextures;
 
 			Graphics(Config config);
@@ -38,6 +39,7 @@ namespace Nz
 
 			inline const std::shared_ptr<RenderPipeline>& GetBlitPipeline(bool transparent) const;
 			inline const std::shared_ptr<RenderPipelineLayout>& GetBlitPipelineLayout() const;
+			inline const DefaultMaterials& GetDefaultMaterials() const;
 			inline const DefaultTextures& GetDefaultTextures() const;
 			inline MaterialPassRegistry& GetMaterialPassRegistry();
 			inline const MaterialPassRegistry& GetMaterialPassRegistry() const;
@@ -55,6 +57,12 @@ namespace Nz
 				bool useDedicatedRenderDevice = true;
 			};
 
+			struct DefaultMaterials
+			{
+				std::shared_ptr<Material> depthMaterial;
+				std::shared_ptr<Material> noDepthMaterial;
+			};
+
 			struct DefaultTextures
 			{
 				std::array<std::shared_ptr<Texture>, ImageTypeCount> whiteTextures;
@@ -62,6 +70,7 @@ namespace Nz
 
 		private:
 			void BuildBlitPipeline();
+			void BuildDefaultMaterials();
 			void BuildDefaultTextures();
 			void RegisterMaterialPasses();
 			void RegisterShaderModules();
@@ -75,6 +84,7 @@ namespace Nz
 			std::shared_ptr<RenderPipeline> m_blitPipeline;
 			std::shared_ptr<RenderPipeline> m_blitPipelineTransparent;
 			std::shared_ptr<RenderPipelineLayout> m_blitPipelineLayout;
+			DefaultMaterials m_defaultMaterials;
 			DefaultTextures m_defaultTextures;
 			MaterialLoader m_materialLoader;
 			MaterialPassRegistry m_materialPassRegistry;

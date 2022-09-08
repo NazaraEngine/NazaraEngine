@@ -123,7 +123,11 @@ int main()
 	}
 
 	for (std::size_t i = 0; i < bobMesh->GetSubMeshCount(); ++i)
-		bobModel->SetMaterial(i, materials[bobMesh->GetSubMesh(i)->GetMaterialIndex()]);
+	{
+		std::size_t matIndex = bobMesh->GetSubMesh(i)->GetMaterialIndex();
+		if (materials[matIndex])
+			bobModel->SetMaterial(i, materials[matIndex]);
+	}
 
 	/*for (std::size_t y = 0; y < 10; ++y)
 	{

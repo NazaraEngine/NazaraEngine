@@ -17,6 +17,11 @@ namespace Nz
 		return m_blitPipelineLayout;
 	}
 
+	inline auto Graphics::GetDefaultMaterials() const -> const DefaultMaterials&
+	{
+		return m_defaultMaterials;
+	}
+
 	inline auto Graphics::GetDefaultTextures() const -> const DefaultTextures&
 	{
 		return m_defaultTextures;

@@ -3,6 +3,8 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/Graphics.hpp>
+#include <Nazara/Graphics/BasicMaterial.hpp>
+#include <Nazara/Graphics/DepthMaterial.hpp>
 #include <Nazara/Graphics/GuillotineTextureAtlas.hpp>
 #include <Nazara/Graphics/MaterialPipeline.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
@@ -118,6 +120,7 @@ namespace Nz
 		SelectDepthStencilFormats();
 
 		MaterialPipeline::Initialize();
+		BuildDefaultMaterials();
 
 		Font::SetDefaultAtlas(std::make_shared<GuillotineTextureAtlas>(*m_renderDevice));
 
@@ -156,7 +159,8 @@ namespace Nz
 		m_samplerCache.reset();
 		m_blitPipeline.reset();
 		m_blitPipelineLayout.reset();
-		m_defaultTextures.whiteTextures.fill(nullptr);
+		m_defaultMaterials = DefaultMaterials{};
+		m_defaultTextures = DefaultTextures{};
 	}
 
 	void Graphics::BuildBlitPipeline()
@@ -200,6 +204,27 @@ namespace Nz
 		pipelineInfo.blend.dstAlpha = BlendFunc::InvSrcAlpha;
 
 		m_blitPipelineTransparent = m_renderDevice->InstantiateRenderPipeline(std::move(pipelineInfo));
+	}
+
+	void Graphics::BuildDefaultMaterials()
+	{
+		m_defaultMaterials.depthMaterial = std::make_shared<Material>();
+		{
+			std::shared_ptr<Nz::MaterialPass> depthPass = std::make_shared<Nz::MaterialPass>(Nz::DepthMaterial::GetSettings());
+			depthPass->EnableDepthBuffer(true);
+
+			m_defaultMaterials.depthMaterial->AddPass("DepthPass", depthPass);
+
+			std::shared_ptr<Nz::MaterialPass> forwardPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
+			forwardPass->EnableDepthBuffer(true);
+
+			m_defaultMaterials.depthMaterial->AddPass("ForwardPass", forwardPass);
+		}
+
+		m_defaultMaterials.noDepthMaterial = std::make_shared<Material>();
+		{
+			m_defaultMaterials.noDepthMaterial->AddPass("ForwardPass", std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings()));
+		}
 	}
 
 	void Graphics::BuildDefaultTextures()

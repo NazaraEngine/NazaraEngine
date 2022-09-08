@@ -17,11 +17,13 @@ namespace Nz
 	Model::Model(std::shared_ptr<GraphicalMesh> graphicalMesh, const Boxf& aabb) :
 	m_graphicalMesh(std::move(graphicalMesh))
 	{
+		Graphics* graphics = Graphics::Instance();
+
 		m_submeshes.reserve(m_graphicalMesh->GetSubMeshCount());
 		for (std::size_t i = 0; i < m_graphicalMesh->GetSubMeshCount(); ++i)
 		{
 			auto& subMeshData = m_submeshes.emplace_back();
-			//subMeshData.material = DefaultMaterial; //< TODO
+			subMeshData.material = graphics->GetDefaultMaterials().depthMaterial;
 			subMeshData.vertexBufferData = {
 				{
 					0,
