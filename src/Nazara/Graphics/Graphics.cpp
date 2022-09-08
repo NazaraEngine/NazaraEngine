@@ -6,6 +6,7 @@
 #include <Nazara/Graphics/GuillotineTextureAtlas.hpp>
 #include <Nazara/Graphics/MaterialPipeline.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
+#include <Nazara/Graphics/Formats/TextureLoader.hpp>
 #include <Nazara/Utility/Font.hpp>
 #include <NZSL/Ast/AstSerializer.hpp>
 #include <NZSL/Ast/Module.hpp>
@@ -119,6 +120,8 @@ namespace Nz
 		MaterialPipeline::Initialize();
 
 		Font::SetDefaultAtlas(std::make_shared<GuillotineTextureAtlas>(*m_renderDevice));
+
+		m_materialLoader.RegisterLoader(Loaders::GetMaterialLoader_Texture()); // texture to material loader
 	}
 
 	Graphics::~Graphics()

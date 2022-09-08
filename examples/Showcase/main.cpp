@@ -118,34 +118,8 @@ int main()
 		std::string matPath;
 		bobMesh->GetMaterialData(i).GetStringParameter(Nz::MaterialData::BaseColorTexturePath, &matPath);
 
-		std::shared_ptr<Nz::Material> bobMat = std::make_shared<Nz::Material>();
-
-		std::shared_ptr<Nz::MaterialPass> bobMatPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
-
-		bobMatPass->EnableDepthBuffer(true);
-		{
-			std::filesystem::path path(matPath);
-			//path.replace_extension(".bmp");
-
-			Nz::BasicMaterial basicMat(*bobMatPass);
-			if (matPath.find("gob") != matPath.npos)
-			{
-				bobMatPass->EnableFlag(Nz::MaterialPassFlag::SortByDistance);
-
-				basicMat.SetAlphaMap(Nz::Texture::LoadFromFile(path, texParams));
-				bobMatPass->EnableDepthWrite(false);
-
-				bobMatPass->EnableBlending(true);
-				bobMatPass->SetBlendEquation(Nz::BlendEquation::Add, Nz::BlendEquation::Add);
-				bobMatPass->SetBlendFunc(Nz::BlendFunc::SrcAlpha, Nz::BlendFunc::InvSrcAlpha, Nz::BlendFunc::One, Nz::BlendFunc::Zero);
-			}
-			else
-				basicMat.SetBaseColorMap(Nz::Texture::LoadFromFile(path, texParams));
-		}
-
-		bobMat->AddPass("ForwardPass", bobMatPass);
-
-		materials[i] = bobMat;
+		if (!matPath.empty())
+			materials[i] = Nz::Material::LoadFromFile(matPath);
 	}
 
 	for (std::size_t i = 0; i < bobMesh->GetSubMeshCount(); ++i)

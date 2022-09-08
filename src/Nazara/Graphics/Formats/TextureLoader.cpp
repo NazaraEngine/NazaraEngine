@@ -29,11 +29,14 @@ namespace Nz
 				TextureParams texParams;
 				texParams.renderDevice = Graphics::Instance()->GetRenderDevice();
 
-				std::shared_ptr<Texture> texture = Texture::LoadFromStream(stream, {});
+				std::shared_ptr<Texture> texture = Texture::LoadFromStream(stream, texParams);
 				if (!texture)
 					return Err(ResourceLoadingError::Unrecognized);
 
 				std::shared_ptr<Material> material = std::make_shared<Material>();
+
+				bool hasAlphaTest = false;
+				parameters.custom.GetBooleanParameter("EnableAlphaTest", &hasAlphaTest);
 
 				// ForwardPass
 				{
@@ -50,7 +53,7 @@ namespace Nz
 					BasicMaterial forwardPass(*matPass);
 					forwardPass.SetBaseColorMap(texture);
 
-					if (PixelFormatInfo::HasAlpha(texture->GetFormat()))
+					if (hasAlphaTest && PixelFormatInfo::HasAlpha(texture->GetFormat()))
 						forwardPass.EnableAlphaTest(true);
 
 					material->AddPass("ForwardPass", std::move(matPass));
@@ -59,8 +62,9 @@ namespace Nz
 				// DepthPass
 				{
 					std::shared_ptr<MaterialPass> matPass = std::make_shared<MaterialPass>(DepthMaterial::GetSettings());
+					matPass->EnableDepthBuffer(true);
 
-					if (PixelFormatInfo::HasAlpha(texture->GetFormat()))
+					if (hasAlphaTest && PixelFormatInfo::HasAlpha(texture->GetFormat()))
 					{
 						BasicMaterial depthPass(*matPass);
 						depthPass.SetBaseColorMap(texture);
