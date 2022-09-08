@@ -1,13 +1,13 @@
-// Copyright (C) 2017 Jérôme Leclercq
+// Copyright (C) 2022 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/Formats/TextureLoader.hpp>
-#include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/BasicMaterial.hpp>
+#include <Nazara/Graphics/DepthMaterial.hpp>
+#include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/PhongLightingMaterial.hpp>
 #include <Nazara/Graphics/PhysicallyBasedMaterial.hpp>
-#include <Nazara/Graphics/DepthMaterial.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Utility/Utility.hpp>
 #include <Nazara/Graphics/Debug.hpp>
