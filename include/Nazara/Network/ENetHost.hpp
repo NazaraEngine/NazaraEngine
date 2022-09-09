@@ -95,7 +95,7 @@ namespace Nz
 			int ReceiveIncomingCommands(ENetEvent* event);
 
 			void NotifyConnect(ENetPeer* peer, ENetEvent* event, bool incoming);
-			void NotifyDisconnect(ENetPeer*, ENetEvent* event);
+			void NotifyDisconnect(ENetPeer*, ENetEvent* event, bool timeout);
 
 			void SendAcknowledgements(ENetPeer* peer);
 			bool SendReliableOutgoingCommands(ENetPeer* peer);

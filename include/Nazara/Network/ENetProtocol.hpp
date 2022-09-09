@@ -119,13 +119,18 @@ namespace Nz
 		None,
 
 		/** a peer has disconnected.  This event is generated on a successful
-		* completion of a disconnect initiated by enet_peer_disconnect, if
-		* a peer has timed out, or if a connection request initialized by
-		* enet_host_connect has timed out.  The peer field contains the peer
-		* which disconnected. The data field contains user supplied data
+		* completion of a disconnect initiated by enet_peer_disconnect.
+		* The peer field contains the peer which disconnected.
+		* The data field contains user supplied data
 		* describing the disconnection, or 0, if none is available.
 		*/
 		Disconnect,
+
+		/** a peer has timed out.  This event is generated if a connected peer timed out
+		* or if a enet_host_connected has timed out. The peer field contains the peer
+		* which disconnected.
+		*/
+		DisconnectTimeout,
 
 		/** a connection request initiated by enet_host_connect from this host has completed.
 		* The peer field contains the peer which successfully connected.

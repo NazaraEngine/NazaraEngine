@@ -163,6 +163,7 @@ namespace Nz
 		m_incomingUnsequencedGroup = 0;
 		m_outgoingUnsequencedGroup = 0;
 		m_eventData = 0;
+		m_timedOut = false;
 		m_totalByteReceived = 0;
 		m_totalByteSent = 0;
 		m_totalPacketReceived = 0;
@@ -308,7 +309,7 @@ namespace Nz
 			if (m_earliestTimeout != 0 && (ENetTimeDifference(serviceTime, m_earliestTimeout) >= m_timeoutMaximum ||
 			    (command.roundTripTimeout >= command.roundTripTimeoutLimit && ENetTimeDifference(serviceTime, m_earliestTimeout) >= m_timeoutMinimum)))
 			{
-				m_host->NotifyDisconnect(this, event);
+				m_host->NotifyDisconnect(this, event, true);
 				return true;
 			}
 
@@ -510,7 +511,7 @@ namespace Nz
 				if (commandNumber != ENetProtocolCommand_Disconnect)
 					return false;
 
-				m_host->NotifyDisconnect(this, event);
+				m_host->NotifyDisconnect(this, event, false);
 				break;
 
 			case ENetPeerState::DisconnectLater:

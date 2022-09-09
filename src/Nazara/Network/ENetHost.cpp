@@ -386,7 +386,7 @@ namespace Nz
 				case ENetPeerState::Zombie:
 					m_recalculateBandwidthLimits = true;
 
-					event->type = ENetEventType::Disconnect;
+					event->type = (peer.m_timedOut) ? ENetEventType::DisconnectTimeout : ENetEventType::Disconnect;
 					event->peer = &peer;
 					event->data = peer.m_eventData;
 
@@ -787,7 +787,7 @@ namespace Nz
 			peer->DispatchState((peer->GetState() == ENetPeerState::Connecting) ? ENetPeerState::ConnectionSucceeded : ENetPeerState::ConnectionPending);
 	}
 
-	void ENetHost::NotifyDisconnect(ENetPeer* peer, ENetEvent* event)
+	void ENetHost::NotifyDisconnect(ENetPeer* peer, ENetEvent* event, bool timeout)
 	{
 		if (peer->GetState() >= ENetPeerState::ConnectionPending)
 			m_recalculateBandwidthLimits = true;
@@ -796,7 +796,7 @@ namespace Nz
 			peer->Reset();
 		else if (event)
 		{
-			event->type = ENetEventType::Disconnect;
+			event->type = (timeout) ? ENetEventType::DisconnectTimeout : ENetEventType::Disconnect;
 			event->peer = peer;
 			event->data = peer->m_eventData;
 
@@ -805,6 +805,7 @@ namespace Nz
 		else
 		{
 			peer->m_eventData = 0;
+			peer->m_timedOut = timeout;
 
 			peer->DispatchState(ENetPeerState::Zombie);
 		}
@@ -1123,7 +1124,7 @@ namespace Nz
 								if (!currentPeer->IsConnected())
 								{
 									//< Network is down or unreachable (ex: IPv6 address when not supported), fails peer connection immediately
-									NotifyDisconnect(currentPeer, event);
+									NotifyDisconnect(currentPeer, event, true);
 									return 1;
 								}
 

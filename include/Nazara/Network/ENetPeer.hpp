@@ -246,6 +246,7 @@ namespace Nz
 			UInt64                                m_totalByteReceived;
 			UInt64                                m_totalByteSent;
 			bool                                  m_isSimulationEnabled;
+			bool                                  m_timedOut;
 	};
 }
 
