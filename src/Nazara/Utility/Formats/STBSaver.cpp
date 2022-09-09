@@ -175,17 +175,12 @@ namespace Nz
 				return false;
 			}
 
-			long long imageQuality;
-			if (parameters.custom.GetIntegerParameter("NativeJPEGSaver_Quality", &imageQuality))
+			long long imageQuality = parameters.custom.GetIntegerParameter("JPEGQuality").GetValueOr(100);
+			if (imageQuality <= 0 || imageQuality > 100)
 			{
-				if (imageQuality <= 0 || imageQuality > 100)
-				{
-					NazaraError("NativeJPEGSaver_Quality value (" + Nz::NumberToString(imageQuality) + ") does not fit in bounds ]0, 100], clamping...");
-					imageQuality = Nz::Clamp(imageQuality, 1LL, 100LL);
-				}
+				NazaraError("NativeJPEGSaver_Quality value (" + Nz::NumberToString(imageQuality) + ") does not fit in bounds ]0, 100], clamping...");
+				imageQuality = Nz::Clamp(imageQuality, 1LL, 100LL);
 			}
-			else
-				imageQuality = 100;
 
 			if (!stbi_write_jpg_to_func(&WriteToStream, &stream, tempImage.GetWidth(), tempImage.GetHeight(), componentCount, tempImage.GetConstPixels(), int(imageQuality)))
 			{

@@ -271,8 +271,7 @@ namespace Nz
 			loaderEntry.streamLoader = LoadWavSoundBuffer;
 			loaderEntry.parameterFilter = [](const SoundBufferParams& parameters)
 			{
-				bool skip;
-				if (parameters.custom.GetBooleanParameter("SkipBuiltinWavLoader", &skip) && skip)
+				if (auto result = parameters.custom.GetBooleanParameter("SkipBuiltinWavLoader"); result.GetValueOr(false))
 					return false;
 
 				return true;
@@ -290,8 +289,7 @@ namespace Nz
 			loaderEntry.streamLoader = LoadWavSoundStreamStream;
 			loaderEntry.parameterFilter = [](const SoundStreamParams& parameters)
 			{
-				bool skip;
-				if (parameters.custom.GetBooleanParameter("SkipBuiltinWavLoader", &skip) && skip)
+				if (auto result = parameters.custom.GetBooleanParameter("SkipBuiltinWavLoader"); result.GetValueOr(false))
 					return false;
 
 				return true;

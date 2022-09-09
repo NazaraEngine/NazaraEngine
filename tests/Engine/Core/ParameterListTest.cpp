@@ -29,27 +29,19 @@ SCENARIO("ParameterList", "[CORE][PARAMETERLIST]")
 
 			THEN("We can get it back")
 			{
-				bool retrievedValue = false;
-				CHECK(parameterList.GetBooleanParameter("bool", &retrievedValue));
-				CHECK(retrievedValue == boolean);
+				CHECK(parameterList.GetBooleanParameter("bool").GetValue() == true);
 			}
 
-			THEN("Conversion from int to bool should also work")
+			THEN("Conversion from int to bool should also work if strict mode is disabled")
 			{
-				bool retrievedValue = false;
-				CHECK(parameterList.GetBooleanParameter("intTrue", &retrievedValue));
-				CHECK(retrievedValue);
-				CHECK(parameterList.GetBooleanParameter("intFalse", &retrievedValue));
-				CHECK(!retrievedValue);
+				CHECK(parameterList.GetBooleanParameter("intTrue", false).GetValue() == true);
+				CHECK(parameterList.GetBooleanParameter("intFalse", false).GetValue() == false);
 			}
 
-			THEN("Conversion from str to bool should also work")
+			THEN("Conversion from str to bool should also work if strict mode is disabled")
 			{
-				bool retrievedValue = false;
-				CHECK(parameterList.GetBooleanParameter("strTrue", &retrievedValue));
-				CHECK(retrievedValue);
-				CHECK(parameterList.GetBooleanParameter("strFalse", &retrievedValue));
-				CHECK(!retrievedValue);
+				CHECK(parameterList.GetBooleanParameter("strTrue", false).GetValue() == true);
+				CHECK(parameterList.GetBooleanParameter("strFalse", false).GetValue() == false);
 			}
 		}
 
@@ -60,9 +52,7 @@ SCENARIO("ParameterList", "[CORE][PARAMETERLIST]")
 
 			THEN("We can get it back")
 			{
-				Nz::Color retrievedColor;
-				CHECK(parameterList.GetColorParameter("color", &retrievedColor));
-				CHECK(retrievedColor == rgb);
+				CHECK(parameterList.GetColorParameter("color").GetValue() == rgb);
 			}
 		}
 
@@ -79,23 +69,17 @@ SCENARIO("ParameterList", "[CORE][PARAMETERLIST]")
 
 			THEN("We can get it back")
 			{
-				double retrievedValue;
-				CHECK(parameterList.GetDoubleParameter("double", &retrievedValue));
-				CHECK(retrievedValue == fl);
+				CHECK(parameterList.GetDoubleParameter("double").GetValue() == fl);
 			}
 
-			THEN("Conversion from int to double should also work")
+			THEN("Conversion from int to double should also work if strict mode is disabled")
 			{
-				double retrievedValue;
-				CHECK(parameterList.GetDoubleParameter("intDouble", &retrievedValue));
-				CHECK(retrievedValue == fl);
+				CHECK(parameterList.GetDoubleParameter("intDouble", false).GetValue() == fl);
 			}
 
-			THEN("Conversion from string to double should also work")
+			THEN("Conversion from string to double should also work if strict mode is disabled")
 			{
-				double retrievedValue;
-				CHECK(parameterList.GetDoubleParameter("strDouble", &retrievedValue));
-				CHECK(retrievedValue == fl);
+				CHECK(parameterList.GetDoubleParameter("strDouble", false).GetValue() == fl);
 			}
 		}
 
@@ -117,32 +101,23 @@ SCENARIO("ParameterList", "[CORE][PARAMETERLIST]")
 
 			THEN("We can get it back")
 			{
-				long long retrievedValue;
-				CHECK(parameterList.GetIntegerParameter("int", &retrievedValue));
-				CHECK(retrievedValue == i);
+				CHECK(parameterList.GetIntegerParameter("int").GetValue() == i);
 			}
 
-			THEN("Conversion from bool to int should also work")
+			THEN("Conversion from bool to int should also work if strict mode is disabled")
 			{
-				long long retrievedValue;
-				CHECK(parameterList.GetIntegerParameter("trueInt", &retrievedValue));
-				CHECK(retrievedValue == trueInt);
-				CHECK(parameterList.GetIntegerParameter("falseInt", &retrievedValue));
-				CHECK(retrievedValue == falseInt);
+				CHECK(parameterList.GetIntegerParameter("trueInt", false).GetValue() == trueInt);
+				CHECK(parameterList.GetIntegerParameter("falseInt", false).GetValue() == falseInt);
 			}
 
-			THEN("Conversion from double to int should also work")
+			THEN("Conversion from double to int should also work if strict mode is disabled")
 			{
-				long long retrievedValue;
-				CHECK(parameterList.GetIntegerParameter("doubleInt", &retrievedValue));
-				CHECK(retrievedValue == i);
+				CHECK(parameterList.GetIntegerParameter("doubleInt", false).GetValue() == i);
 			}
 
-			THEN("Conversion from string to int should also work")
+			THEN("Conversion from string to int should also work if strict mode is disabled")
 			{
-				long long retrievedValue;
-				CHECK(parameterList.GetIntegerParameter("strInt", &retrievedValue));
-				CHECK(retrievedValue == i);
+				CHECK(parameterList.GetIntegerParameter("strInt", false).GetValue() == i);
 			}
 		}
 
@@ -167,39 +142,31 @@ SCENARIO("ParameterList", "[CORE][PARAMETERLIST]")
 
 			THEN("We can get it back")
 			{
-				std::string newString;
-				CHECK(parameterList.GetStringParameter("string", &newString));
-				CHECK(newString == string);
+				CHECK(parameterList.GetStringParameter("string").GetValue() == string);
+				CHECK(parameterList.GetStringViewParameter("string").GetValue() == string);
 			}
 
-			THEN("Conversion from bool to str should also work")
+			THEN("Conversion from bool to str should also work if strict mode is disabled")
 			{
-				std::string retrievedValue;
-				CHECK(parameterList.GetStringParameter("trueString", &retrievedValue));
-				CHECK(retrievedValue == "true");
-				CHECK(parameterList.GetStringParameter("falseString", &retrievedValue));
-				CHECK(retrievedValue == "false");
+				CHECK(parameterList.GetStringParameter("trueString", false).GetValue() == "true");
+				CHECK(parameterList.GetStringParameter("falseString", false).GetValue() == "false");
+				CHECK(parameterList.GetStringViewParameter("trueString", false).GetValue() == "true");
+				CHECK(parameterList.GetStringViewParameter("falseString", false).GetValue() == "false");
 			}
 
-			THEN("Conversion from color to string should also work")
+			THEN("Conversion from color to string should also work if strict mode is disabled")
 			{
-				std::string retrievedValue;
-				CHECK(parameterList.GetStringParameter("colorString", &retrievedValue));
-				CHECK(retrievedValue == colorString.ToString());
+				CHECK(parameterList.GetStringParameter("colorString", false).GetValue() == colorString.ToString());
 			}
 
-			THEN("Conversion from string to double should also work")
+			THEN("Conversion from string to double should also work if strict mode is disabled")
 			{
-				std::string retrievedValue;
-				CHECK(parameterList.GetStringParameter("doubleString", &retrievedValue));
-				CHECK(retrievedValue == "3.000000");
+				CHECK(parameterList.GetStringParameter("doubleString", false).GetValue() == "3.000000");
 			}
 
-			THEN("Conversion from string to int should also work")
+			THEN("Conversion from string to int should also work if strict mode is disabled")
 			{
-				std::string retrievedValue;
-				CHECK(parameterList.GetStringParameter("intString", &retrievedValue));
-				CHECK(retrievedValue == "3");
+				CHECK(parameterList.GetStringParameter("intString", false).GetValue() == "3");
 			}
 		}
 
@@ -211,9 +178,7 @@ SCENARIO("ParameterList", "[CORE][PARAMETERLIST]")
 
 			THEN("We can get it back")
 			{
-				void* newPtrToStackValue = nullptr;
-				CHECK(parameterList.GetPointerParameter("ptr", &newPtrToStackValue));
-				CHECK(newPtrToStackValue == ptrToStackValue);
+				CHECK(parameterList.GetPointerParameter("ptr").GetValue() == ptrToStackValue);
 			}
 		}
 
@@ -229,11 +194,10 @@ SCENARIO("ParameterList", "[CORE][PARAMETERLIST]")
 
 			THEN("We can get it back")
 			{
-				Data retrievedValue;
-				void* ptrToData = &retrievedValue;
+				void* ptrToData;
 
-				CHECK(parameterList.GetUserdataParameter("userData", &ptrToData));
-				Data* dataPtr = reinterpret_cast<Data*>(ptrToData);
+				CHECK_NOTHROW(ptrToData = parameterList.GetUserdataParameter("userData").GetValue());
+				Data* dataPtr = static_cast<Data*>(ptrToData);
 				CHECK(dataPtr->i == data.i);
 				CHECK(dataPtr->f == data.f);
 			}

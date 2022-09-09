@@ -43,10 +43,9 @@ namespace Nz
 			}
 
 			UInt32 maxWeightCount = 4;
-			long long customMaxWeightCount;
-			if (parameters.custom.GetIntegerParameter("MaxWeightCount", &customMaxWeightCount))
+			if (auto result = parameters.custom.GetIntegerParameter("MaxWeightCount"))
 			{
-				maxWeightCount = SafeCast<UInt32>(customMaxWeightCount);
+				maxWeightCount = SafeCast<UInt32>(result.GetValue());
 				if (maxWeightCount > 4)
 				{
 					NazaraWarning("MaxWeightCount cannot be over 4");
@@ -361,8 +360,7 @@ namespace Nz
 			loader.streamLoader = LoadMD5Mesh;
 			loader.parameterFilter = [](const MeshParams& parameters)
 			{
-				bool skip;
-				if (parameters.custom.GetBooleanParameter("SkipBuiltinMD5MeshLoader", &skip) && skip)
+				if (auto result = parameters.custom.GetBooleanParameter("SkipBuiltinMD5MeshLoader"); result.GetValueOr(false))
 					return false;
 
 				return true;

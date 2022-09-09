@@ -10,6 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Utils/MovablePtr.hpp>
+#include <Nazara/Utils/Result.hpp>
 #include <atomic>
 #include <string>
 #include <unordered_map>
@@ -20,6 +21,7 @@ namespace Nz
 	{
 		public:
 			using Destructor = void (*)(void* value);
+			enum class Error;
 
 			ParameterList() = default;
 			ParameterList(const ParameterList& list);
@@ -31,14 +33,15 @@ namespace Nz
 			inline void ForEach(const std::function<bool(const ParameterList& list, const std::string& name)>& callback);
 			inline void ForEach(const std::function<void(const ParameterList& list, const std::string& name)>& callback) const;
 
-			bool GetBooleanParameter(const std::string& name, bool* value) const;
-			bool GetColorParameter(const std::string& name, Color* value) const;
-			bool GetDoubleParameter(const std::string& name, double* value) const;
-			bool GetIntegerParameter(const std::string& name, long long* value) const;
-			bool GetParameterType(const std::string& name, ParameterType* type) const;
-			bool GetPointerParameter(const std::string& name, void** value) const;
-			bool GetStringParameter(const std::string& name, std::string* value) const;
-			bool GetUserdataParameter(const std::string& name, void** value) const;
+			Result<bool, Error> GetBooleanParameter(const std::string& name, bool strict = true) const;
+			Result<Color, Error> GetColorParameter(const std::string& name, bool strict = true) const;
+			Result<double, Error> GetDoubleParameter(const std::string& name, bool strict = true) const;
+			Result<long long, Error> GetIntegerParameter(const std::string& name, bool strict = true) const;
+			Result<ParameterType, Error> GetParameterType(const std::string& name) const;
+			Result<void*, Error> GetPointerParameter(const std::string& name, bool strict = true) const;
+			Result<std::string, Error> GetStringParameter(const std::string& name, bool strict = true) const;
+			Result<std::string_view, Error> GetStringViewParameter(const std::string& name, bool strict = true) const;
+			Result<void*, Error> GetUserdataParameter(const std::string& name, bool strict = true) const;
 
 			bool HasParameter(const std::string& name) const;
 
@@ -58,6 +61,14 @@ namespace Nz
 
 			ParameterList& operator=(const ParameterList& list);
 			ParameterList& operator=(ParameterList&&) = default;
+
+			enum class Error
+			{
+				ConversionFailed,
+				MissingValue,
+				WouldRequireConversion,
+				WrongType
+			};
 
 		private:
 			struct Parameter

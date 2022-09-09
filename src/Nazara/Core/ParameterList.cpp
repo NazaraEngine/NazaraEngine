@@ -4,7 +4,6 @@
 
 #include <Nazara/Core/ParameterList.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Utils/MemoryHelper.hpp>
 #include <cstring>
@@ -47,54 +46,43 @@ namespace Nz
 
 	/*!
 	* \brief Gets a parameter as a boolean
-	* \return true if the parameter could be represented as a boolean
+	* \return result containing the value or an error
 	*
 	* \param name Name of the parameter
-	* \param value Pointer to a boolean to hold the retrieved value
+	* \param strict If true, prevent conversions from compatible types
 	*
-	* \remark value must be a valid pointer
-	* \remark In case of failure, the variable pointed by value keep its value
-	* \remark If the parameter is not a boolean, a conversion will be performed, compatibles types are:
+	* \remark If the parameter is not a boolean, a conversion may be performed if strict parameter is set to false, compatibles types are:
 	          Integer: 0 is interpreted as false, any other value is interpreted as true
 	          std::string:  Conversion obeys the rule as described by std::string::ToBool
 	*/
-	bool ParameterList::GetBooleanParameter(const std::string& name, bool* value) const
+	auto ParameterList::GetBooleanParameter(const std::string& name, bool strict) const -> Result<bool, Error>
 	{
-		NazaraAssert(value, "Invalid pointer");
-
-		ErrorFlags flags(ErrorMode::Silent | ErrorMode::ThrowExceptionDisabled);
-
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
-		{
-			NazaraError("Parameter \"" + name + "\" is not present");
-			return false;
-		}
+			return Err(Error::MissingValue);
 
 		switch (it->second.type)
 		{
 			case ParameterType::Boolean:
-				*value = it->second.value.boolVal;
-				return true;
+				return it->second.value.boolVal;
 
 			case ParameterType::Integer:
-				*value = (it->second.value.intVal != 0);
-				return true;
+				if (strict)
+					return Err(Error::WouldRequireConversion);
+
+				return (it->second.value.intVal != 0);
 
 			case ParameterType::String:
 			{
-				if (it->second.value.stringVal == "1" || it->second.value.stringVal == "yes" || it->second.value.stringVal == "true")
-				{
-					*value = true;
-					return true;
-				}
-				else if (it->second.value.stringVal == "0" || it->second.value.stringVal == "no" || it->second.value.stringVal == "false")
-				{
-					*value = false;
-					return true;
-				}
+				if (strict)
+					return Err(Error::WouldRequireConversion);
 
-				break;
+				if (it->second.value.stringVal == "1" || it->second.value.stringVal == "yes" || it->second.value.stringVal == "true")
+					return true;
+				else if (it->second.value.stringVal == "0" || it->second.value.stringVal == "no" || it->second.value.stringVal == "false")
+					return false;
+
+				return Err(Error::ConversionFailed);
 			}
 
 			case ParameterType::Color:
@@ -105,39 +93,28 @@ namespace Nz
 				break;
 		}
 
-		NazaraError("Parameter value is not representable as a boolean");
-		return false;
+		return Err(Error::WrongType);
 	}
 
 	/*!
 	* \brief Gets a parameter as a color
-	* \return true if the parameter could be represented as a color
+	* \return result containing the value or an error
 	*
 	* \param name Name of the parameter
-	* \param value Pointer to a color to hold the retrieved value
+	* \param strict If true, prevent conversions from compatible types
 	*
-	* \remark value must be a valid pointer
-	* \remark In case of failure, the variable pointed by value keep its value
 	* \remark If the parameter is not a color, the function fails
 	*/
-	bool ParameterList::GetColorParameter(const std::string& name, Color* value) const
+	auto ParameterList::GetColorParameter(const std::string& name, bool /*strict*/) const -> Result<Color, Error>
 	{
-		NazaraAssert(value, "Invalid pointer");
-
-		ErrorFlags flags(ErrorMode::Silent | ErrorMode::ThrowExceptionDisabled);
-
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
-		{
-			NazaraError("Parameter \"" + name + "\" is not present");
-			return false;
-		}
+			return Err(Error::MissingValue);
 
 		switch (it->second.type)
 		{
 			case ParameterType::Color:
-				*value = it->second.value.colorVal;
-				return true;
+				return it->second.value.colorVal;
 
 			case ParameterType::Boolean:
 			case ParameterType::Double:
@@ -149,48 +126,42 @@ namespace Nz
 				break;
 		}
 
-		NazaraError("Parameter value is not representable as a color");
-		return false;
+		return Err(Error::WrongType);
 	}
 
 	/*!
 	* \brief Gets a parameter as a double
-	* \return true if the parameter could be represented as a double
+	* \return result containing the value or an error
 	*
 	* \param name Name of the parameter
-	* \param value Pointer to a double to hold the retrieved value
+	* \param strict If true, prevent conversions from compatible types
 	*
-	* \remark value must be a valid pointer
-	* \remark In case of failure, the variable pointed by value keep its value
-	* \remark If the parameter is not a double, a conversion will be performed, compatibles types are:
+	* \remark If the parameter is not a double, a conversion may be performed if strict parameter is set to false, compatibles types are:
 	          Integer: The integer value is converted to its double representation
 	          std::string:  Conversion obeys the rule as described by std::string::ToDouble
 	*/
-	bool ParameterList::GetDoubleParameter(const std::string& name, double* value) const
+	auto ParameterList::GetDoubleParameter(const std::string& name, bool strict) const -> Result<double, Error>
 	{
-		NazaraAssert(value, "Invalid pointer");
-
-		ErrorFlags flags(ErrorMode::Silent | ErrorMode::ThrowExceptionDisabled);
-
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
-		{
-			NazaraError("Parameter \"" + name + "\" is not present");
-			return false;
-		}
+			return Err(Error::MissingValue);
 
 		switch (it->second.type)
 		{
 			case ParameterType::Double:
-				*value = it->second.value.doubleVal;
-				return true;
+				return it->second.value.doubleVal;
 
 			case ParameterType::Integer:
-				*value = static_cast<double>(it->second.value.intVal);
-				return true;
+				if (strict)
+					return Err(Error::WouldRequireConversion);
+
+				return static_cast<double>(it->second.value.intVal);
 
 			case ParameterType::String:
 			{
+				if (strict)
+					return Err(Error::WouldRequireConversion);
+
 				const std::string& str = it->second.value.stringVal;
 
 				int& err = errno;
@@ -202,8 +173,7 @@ namespace Nz
 				if (str.data() == endStr || err == ERANGE)
 					break;
 
-				*value = ret;
-				return true;
+				return ret;
 			}
 
 			case ParameterType::Boolean:
@@ -214,53 +184,49 @@ namespace Nz
 				break;
 		}
 
-		NazaraError("Parameter value is not representable as a double");
-		return false;
+		return Err(Error::WrongType);
 	}
 
 	/*!
 	* \brief Gets a parameter as an integer
-	* \return true if the parameter could be represented as an integer
+	* \return result containing the value or an error
 	*
 	* \param name Name of the parameter
-	* \param value Pointer to an integer to hold the retrieved value
+	* \param strict If true, prevent conversions from compatible types
 	*
-	* \remark value must be a valid pointer
-	* \remark In case of failure, the variable pointed by value keep its value
-	* \remark If the parameter is not an integer, a conversion will be performed, compatibles types are:
+	* \remark If the parameter is not an integer, a conversion may be performed if strict parameter is set to false, compatibles types are:
 	          Boolean: The boolean is represented as 1 if true and 0 if false
 	          Double:  The floating-point value is truncated and converted to a integer
 	          std::string:  Conversion obeys the rule as described by std::string::ToInteger
 	*/
-	bool ParameterList::GetIntegerParameter(const std::string& name, long long* value) const
+	auto ParameterList::GetIntegerParameter(const std::string& name, bool strict) const -> Result<long long, Error>
 	{
-		NazaraAssert(value, "Invalid pointer");
-
-		ErrorFlags flags(ErrorMode::Silent | ErrorMode::ThrowExceptionDisabled);
-
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
-		{
-			NazaraError("Parameter \"" + name + "\" is not present");
-			return false;
-		}
+			return Err(Error::MissingValue);
 
 		switch (it->second.type)
 		{
 			case ParameterType::Boolean:
-				*value = (it->second.value.boolVal) ? 1 : 0;
-				return true;
+				if (strict)
+					return Err(Error::WouldRequireConversion);
+
+				return (it->second.value.boolVal) ? 1LL : 0LL;
 
 			case ParameterType::Double:
-				*value = static_cast<long long>(it->second.value.doubleVal);
-				return true;
+				if (strict)
+					return Err(Error::WouldRequireConversion);
+
+				return static_cast<long long>(it->second.value.doubleVal);
 
 			case ParameterType::Integer:
-				*value = it->second.value.intVal;
-				return true;
+				return it->second.value.intVal;
 
 			case ParameterType::String:
 			{
+				if (strict)
+					return Err(Error::WouldRequireConversion);
+
 				const std::string& str = it->second.value.stringVal;
 
 				int& err = errno;
@@ -272,8 +238,7 @@ namespace Nz
 				if (str.data() == endStr || err == ERANGE)
 					break;
 
-				*value = ret;
-				return true;
+				return ret;
 			}
 
 			case ParameterType::Color:
@@ -283,66 +248,52 @@ namespace Nz
 				break;
 		}
 
-		NazaraError("Parameter value is not representable as a integer");
-		return false;
+		return Err(Error::WrongType);
 	}
 
 	/*!
 	* \brief Gets a parameter type
-	* \return true if the parameter is present, its type being written to type
+	* \return result containing the parameter type or an error
 	*
 	* \param name Name of the variable
-	* \param type Pointer to a variable to hold the result
 	*
 	* \remark type must be a valid pointer to a ParameterType variable
 	*/
-	bool ParameterList::GetParameterType(const std::string& name, ParameterType* type) const
+	auto ParameterList::GetParameterType(const std::string& name) const -> Result<ParameterType, Error>
 	{
-		NazaraAssert(type, "Invalid pointer");
-
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
-			return false;
+			return Err(Error::MissingValue);
 
-		*type = it->second.type;
-
-		return true;
+		return it->second.type;
 	}
 
 	/*!
 	* \brief Gets a parameter as a pointer
-	* \return true if the parameter could be represented as a pointer
+	* \return result containing the value or an error
 	*
 	* \param name Name of the parameter
-	* \param value Pointer to a pointer to hold the retrieved value
+	* \param strict If true, prevent conversions from compatible types
 	*
-	* \remark value must be a valid pointer
-	* \remark In case of failure, the variable pointed by value keep its value
-	* \remark If the parameter is not a pointer, a conversion will be performed, compatibles types are:
+	* \remark If the parameter is not a pointer, a conversion may be performed if strict parameter is set to false, compatibles types are:
 	          Userdata: The pointer part of the userdata is returned
 	*/
-	bool ParameterList::GetPointerParameter(const std::string& name, void** value) const
+	auto ParameterList::GetPointerParameter(const std::string& name, bool strict) const -> Result<void*, Error>
 	{
-		NazaraAssert(value, "Invalid pointer");
-
-		ErrorFlags flags(ErrorMode::Silent | ErrorMode::ThrowExceptionDisabled);
-
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
-		{
-			NazaraError("Parameter \"" + name + "\" is not present");
-			return false;
-		}
+			return Err(Error::MissingValue);
 
 		switch (it->second.type)
 		{
 			case ParameterType::Pointer:
-				*value = it->second.value.ptrVal;
-				return true;
+				return it->second.value.ptrVal;
 
 			case ParameterType::Userdata:
-				*value = it->second.value.userdataVal->ptr;
-				return true;
+				if (strict)
+					return Err(Error::WouldRequireConversion);
+
+				return it->second.value.userdataVal->ptr.Get();
 
 			case ParameterType::Boolean:
 			case ParameterType::Color:
@@ -353,118 +304,150 @@ namespace Nz
 				break;
 		}
 
-		NazaraError("Parameter value is not a pointer");
-		return false;
+		return Err(Error::WrongType);
 	}
 
 	/*!
 	* \brief Gets a parameter as a string
-	* \return true if the parameter could be represented as a string
+	* \return result containing the value or an error
 	*
 	* \param name Name of the parameter
-	* \param value Pointer to a pointer to hold the retrieved value
+	* \param strict If true, prevent conversions from compatible types
 	*
-	* \remark value must be a valid pointer
-	* \remark In case of failure, the variable pointed by value keep its value
-	* \remark If the parameter is not a string, a conversion will be performed, all types are compatibles:
-	          Boolean:  Conversion obeys the rules of std::string::Boolean
+	* \remark If the parameter is not a string, a conversion may be performed if strict parameter is set to false, all types are compatibles:
+	          Boolean:  Returns "true" or "false" as a string
 	          Color:    Conversion obeys the rules of Color::ToString
-	          Double:   Conversion obeys the rules of std::string::Number
-	          Integer:  Conversion obeys the rules of std::string::Number
+	          Double:   Conversion obeys the rules of std::to_string
+	          Integer:  Conversion obeys the rules of std::to_string
 	          None:     An empty string is returned
 	          Pointer:  Conversion obeys the rules of PointerToString
 	          Userdata: Conversion obeys the rules of PointerToString
 	*/
-	bool ParameterList::GetStringParameter(const std::string& name, std::string* value) const
+	auto ParameterList::GetStringParameter(const std::string& name, bool strict) const -> Result<std::string, Error>
 	{
-		NazaraAssert(value, "Invalid pointer");
-
-		ErrorFlags flags(ErrorMode::Silent | ErrorMode::ThrowExceptionDisabled);
-
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
-		{
-			NazaraError("Parameter \"" + name + "\" is not present");
-			return false;
-		}
+			return Err(Error::MissingValue);
 
 		switch (it->second.type)
 		{
 			case ParameterType::Boolean:
-				*value = (it->second.value.boolVal) ? "true" : "false";
-				return true;
+				if (strict)
+					return Err(Error::WouldRequireConversion);
+
+				return std::string{ (it->second.value.boolVal) ? "true" : "false" };
 
 			case ParameterType::Color:
-				*value = it->second.value.colorVal.ToString();
-				return true;
+				if (strict)
+					return Err(Error::WouldRequireConversion);
+
+				return it->second.value.colorVal.ToString();
 
 			case ParameterType::Double:
-				*value = std::to_string(it->second.value.doubleVal);
-				return true;
+				if (strict)
+					return Err(Error::WouldRequireConversion);
+
+				return std::to_string(it->second.value.doubleVal);
 
 			case ParameterType::Integer:
-				*value = std::to_string(it->second.value.intVal);
-				return true;
+				if (strict)
+					return Err(Error::WouldRequireConversion);
+
+				return std::to_string(it->second.value.intVal);
 
 			case ParameterType::String:
-				*value = it->second.value.stringVal;
-				return true;
+				return it->second.value.stringVal;
 
 			case ParameterType::Pointer:
-				*value = PointerToString(it->second.value.ptrVal);
-				return true;
+				if (strict)
+					return Err(Error::WouldRequireConversion);
+
+				return PointerToString(it->second.value.ptrVal);
 
 			case ParameterType::Userdata:
-				*value = PointerToString(it->second.value.userdataVal->ptr);
-				return true;
+				if (strict)
+					return Err(Error::WouldRequireConversion);
+
+				return PointerToString(it->second.value.userdataVal->ptr);
 
 			case ParameterType::None:
-				*value = std::string();
-				return true;
+				if (strict)
+					return Err(Error::WouldRequireConversion);
+
+				return std::string{};
 		}
 
-		NazaraInternalError("Parameter value is not valid");
-		return false;
+		return Err(Error::WrongType);
+	}
+
+	/*!
+	* \brief Gets a parameter as a string view
+	* \return result containing the value or an error
+	*
+	* \param name Name of the parameter
+	* \param strict If true, prevent conversions from compatible types
+	*
+	* \remark If the parameter is not a string, a conversion may be performed if strict parameter is set to false, the following types are compatibles:
+			  Boolean:  A string view containing true or false
+			  None:     An empty string view is returned
+	*/
+	auto ParameterList::GetStringViewParameter(const std::string& name, bool strict) const -> Result<std::string_view, Error>
+	{
+		auto it = m_parameters.find(name);
+		if (it == m_parameters.end())
+			return Err(Error::MissingValue);
+
+		switch (it->second.type)
+		{
+			case ParameterType::Boolean:
+				if (strict)
+					return Err(Error::WouldRequireConversion);
+
+				return std::string_view{ (it->second.value.boolVal) ? "true" : "false" };
+
+			case ParameterType::String:
+				return std::string_view{ it->second.value.stringVal };
+
+			case ParameterType::None:
+				if (strict)
+					return Err(Error::WouldRequireConversion);
+
+				return std::string_view{};
+
+			case ParameterType::Color:
+			case ParameterType::Double:
+			case ParameterType::Integer:
+			case ParameterType::Pointer:
+			case ParameterType::Userdata:
+				break;
+		}
+
+		return Err(Error::WrongType);
 	}
 
 	/*!
 	* \brief Gets a parameter as an userdata
-	* \return true if the parameter could be represented as a userdata
+	* \return result containing the value or an error
 	*
 	* \param name Name of the parameter
-	* \param value Pointer to a pointer to hold the retrieved value
+	* \param strict If true, prevent conversions from compatible types
 	*
-	* \remark value must be a valid pointer
-	* \remark In case of failure, the variable pointed by value keep its value
 	* \remark If the parameter is not an userdata, the function fails
 	*
 	* \see GetPointerParameter
 	*/
-	bool ParameterList::GetUserdataParameter(const std::string& name, void** value) const
+	auto ParameterList::GetUserdataParameter(const std::string& name, bool /*strict*/) const -> Result<void*, Error>
 	{
-		NazaraAssert(value, "Invalid pointer");
-
-		ErrorFlags flags(ErrorMode::Silent | ErrorMode::ThrowExceptionDisabled);
-
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
-		{
-			NazaraError("Parameter \"" + name + "\" is not present");
-			return false;
-		}
+			return Err(Error::MissingValue);
 
 		const auto& parameter = it->second;
 
-		if (parameter.type == ParameterType::Userdata)
-		{
-			*value = parameter.value.userdataVal->ptr;
-			return true;
-		}
-		else
-		{
-			NazaraError("Parameter value is not a userdata");
-			return false;
-		}
+		if (parameter.type != ParameterType::Userdata)
+			return Err(Error::WrongType);
+
+		return parameter.value.userdataVal->ptr.Get();
 	}
 
 	/*!

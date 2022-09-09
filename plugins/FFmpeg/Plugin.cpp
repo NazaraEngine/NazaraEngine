@@ -443,8 +443,7 @@ namespace
 				loaderEntry.streamLoader = LoadStream;
 				loaderEntry.parameterFilter = [](const Nz::ImageStreamParams& parameters)
 				{
-					bool skip;
-					if (parameters.custom.GetBooleanParameter("SkipFFMpegLoader", &skip) && skip)
+					if (auto result = parameters.custom.GetBooleanParameter("SkipFFMpegLoader"); result.GetValueOr(false))
 						return false;
 
 					return true;
@@ -459,7 +458,7 @@ namespace
 			void Deactivate() override
 			{
 				Nz::Utility* utility = Nz::Utility::Instance();
-				NazaraAssert(utility, "utility module is not instancied");
+				NazaraAssert(utility, "utility module is not instanced");
 
 				Nz::ImageStreamLoader& imageStreamLoader = utility->GetImageStreamLoader();
 				imageStreamLoader.UnregisterLoader(m_ffmpegLoaderEntry);

@@ -775,14 +775,9 @@ Nz::Result<std::shared_ptr<Nz::Mesh>, Nz::ResourceLoadingError> LoadMesh(Nz::Str
 	if (parameters.optimizeIndexBuffers)
 		postProcess |= aiProcess_ImproveCacheLocality;
 
-	double smoothingAngle = 80.f;
-	parameters.custom.GetDoubleParameter("AssimpLoader_SmoothingAngle", &smoothingAngle);
-
-	long long triangleLimit = 1'000'000;
-	parameters.custom.GetIntegerParameter("AssimpLoader_TriangleLimit", &triangleLimit);
-
-	long long vertexLimit   = 1'000'000;
-	parameters.custom.GetIntegerParameter("AssimpLoader_VertexLimit", &vertexLimit);
+	double smoothingAngle = parameters.custom.GetDoubleParameter("AssimpLoader_SmoothingAngle").GetValueOr(80.0);
+	long long triangleLimit = parameters.custom.GetIntegerParameter("AssimpLoader_TriangleLimit").GetValueOr(1'000'000);
+	long long vertexLimit = parameters.custom.GetIntegerParameter("AssimpLoader_VertexLimit").GetValueOr(1'000'000);
 
 	int excludedComponents = 0;
 
@@ -879,8 +874,7 @@ namespace
 				animationLoaderEntry.streamLoader = LoadAnimation;
 				animationLoaderEntry.parameterFilter = [](const Nz::AnimationParams& parameters)
 				{
-					bool skip;
-					if (parameters.custom.GetBooleanParameter("SkipAssimpLoader", &skip) && skip)
+					if (auto result = parameters.custom.GetBooleanParameter("SkipAssimpLoader"); result.GetValueOr(false))
 						return false;
 
 					return true;
@@ -894,8 +888,7 @@ namespace
 				meshLoaderEntry.streamLoader = LoadMesh;
 				meshLoaderEntry.parameterFilter = [](const Nz::MeshParams& parameters)
 				{
-					bool skip;
-					if (parameters.custom.GetBooleanParameter("SkipAssimpLoader", &skip) && skip)
+					if (auto result = parameters.custom.GetBooleanParameter("SkipAssimpLoader"); result.GetValueOr(false))
 						return false;
 
 					return true;
@@ -910,7 +903,7 @@ namespace
 			void Deactivate() override
 			{
 				Nz::Utility* utility = Nz::Utility::Instance();
-				NazaraAssert(utility, "utility module is not instancied");
+				NazaraAssert(utility, "utility module is not instanced");
 
 				Nz::AnimationLoader& animationLoader = utility->GetAnimationLoader();
 				animationLoader.UnregisterLoader(m_animationLoaderEntry);

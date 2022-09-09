@@ -62,7 +62,7 @@ namespace Nz
 			if (!ptr)
 			{
 				NazaraError("Failed to load image: " + std::string(stbi_failure_reason()));
-				return Err(ResourceLoadingError::Unrecognized);
+				return Err(ResourceLoadingError::DecodingError);
 			}
 
 			CallOnExit freeStbiImage([ptr]()
@@ -103,8 +103,7 @@ namespace Nz
 			loaderEntry.streamLoader = LoadSTB;
 			loaderEntry.parameterFilter = [](const ImageParams& parameters)
 			{
-				bool skip;
-				if (parameters.custom.GetBooleanParameter("SkipBuiltinSTBLoader", &skip) && skip)
+				if (auto result = parameters.custom.GetBooleanParameter("SkipBuiltinSTBLoader"); result.GetValueOr(false))
 					return false;
 
 				return true;

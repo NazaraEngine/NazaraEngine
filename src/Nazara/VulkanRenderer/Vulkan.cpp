@@ -129,26 +129,14 @@ namespace Nz
 
 		CallOnExit onExit(Vulkan::Uninitialize);
 
-		std::string appName = "Another application made with Nazara Engine";
-		std::string engineName = "Nazara Engine - Vulkan Renderer";
+		std::string appName = parameters.GetStringParameter("VkAppInfo_OverrideApplicationName").GetValueOr("Another application made with Nazara Engine");
+		std::string engineName = parameters.GetStringParameter("VkAppInfo_OverrideEngineName").GetValueOr("Nazara Engine - Vulkan Renderer");
 
-		UInt32 appVersion = VK_MAKE_API_VERSION(0, 1, 0, 0);
-		UInt32 engineVersion = VK_MAKE_API_VERSION(0, 1, 0, 0);
+		UInt32 appVersion = parameters.GetIntegerParameter("VkAppInfo_OverrideApplicationVersion").GetValueOr(VK_MAKE_API_VERSION(0, 1, 0, 0));
+		UInt32 engineVersion = parameters.GetIntegerParameter("VkAppInfo_OverrideEngineVersion").GetValueOr(VK_MAKE_API_VERSION(0, 1, 0, 0));
 
-		parameters.GetStringParameter("VkAppInfo_OverrideApplicationName", &appName);
-		parameters.GetStringParameter("VkAppInfo_OverrideEngineName", &engineName);
-
-		bool bParam;
-		long long iParam;
-
-		if (parameters.GetIntegerParameter("VkAppInfo_OverrideAPIVersion", &iParam))
-			targetApiVersion = static_cast<UInt32>(iParam);
-
-		if (parameters.GetIntegerParameter("VkAppInfo_OverrideApplicationVersion", &iParam))
-			appVersion = static_cast<UInt32>(iParam);
-
-		if (parameters.GetIntegerParameter("VkAppInfo_OverrideEngineVersion", &iParam))
-			engineVersion = static_cast<UInt32>(iParam);
+		if (auto result = parameters.GetIntegerParameter("VkAppInfo_OverrideAPIVersion"))
+			targetApiVersion = SafeCast<UInt32>(result.GetValue());
 
 		if (Vk::Loader::vkEnumerateInstanceVersion)
 		{
@@ -171,10 +159,7 @@ namespace Nz
 			targetApiVersion
 		};
 
-		VkInstanceCreateFlags createFlags = 0;
-
-		if (parameters.GetIntegerParameter("VkInstanceInfo_OverrideCreateFlags", &iParam))
-			createFlags = static_cast<VkInstanceCreateFlags>(iParam);
+		VkInstanceCreateFlags createFlags = parameters.GetIntegerParameter("VkInstanceInfo_OverrideCreateFlags").GetValueOr(0);
 
 		std::vector<const char*> enabledLayers;
 
@@ -182,7 +167,7 @@ namespace Nz
 		std::unordered_map<std::string, std::size_t> availableLayerByName;
 		EnumerateVulkanLayers(availableLayers, availableLayerByName);
 
-		if (!parameters.GetBooleanParameter("VkInstanceInfo_OverrideEnabledLayers", &bParam) || !bParam)
+		if (auto result = parameters.GetBooleanParameter("VkInstanceInfo_OverrideEnabledLayers"); !result.GetValueOr(false))
 		{
 			//< Nazara default layers goes here
 
@@ -198,16 +183,15 @@ namespace Nz
 
 		std::vector<const char*> enabledExtensions;
 		std::vector<std::string> additionalLayers; // Just to keep the String alive
-		if (parameters.GetIntegerParameter("VkInstanceInfo_EnabledLayerCount", &iParam))
+		if (long long customLayerCount = parameters.GetIntegerParameter("VkInstanceInfo_EnabledLayerCount").GetValueOr(0) > 0)
 		{
-			additionalLayers.reserve(iParam);
-			for (long long i = 0; i < iParam; ++i)
+			additionalLayers.reserve(customLayerCount);
+			for (long long i = 0; i < customLayerCount; ++i)
 			{
 				std::string parameterName = "VkInstanceInfo_EnabledLayer" + NumberToString(i);
-				std::string layer;
-				if (parameters.GetStringParameter(parameterName, &layer))
+				if (auto result = parameters.GetStringParameter(parameterName))
 				{
-					additionalLayers.emplace_back(std::move(layer));
+					additionalLayers.emplace_back(std::move(result).GetValue());
 					enabledLayers.push_back(additionalLayers.back().c_str());
 				}
 				else
@@ -224,7 +208,7 @@ namespace Nz
 				availableExtensions.insert(extProperty.extensionName);
 		}
 
-		if (!parameters.GetBooleanParameter("VkInstanceInfo_OverrideEnabledExtensions", &bParam) || !bParam)
+		if (auto result = parameters.GetBooleanParameter("VkInstanceInfo_OverrideEnabledExtensions"); !result.GetValueOr(false))
 		{
 			enabledExtensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
 
@@ -260,16 +244,15 @@ namespace Nz
 		}
 
 		std::vector<std::string> additionalExtensions; // Just to keep the String alive
-		if (parameters.GetIntegerParameter("VkInstanceInfo_EnabledExtensionCount", &iParam))
+		if (long long customLayerCount = parameters.GetIntegerParameter("VkInstanceInfo_EnabledExtensionCount").GetValueOr(0) > 0)
 		{
-			additionalExtensions.reserve(iParam);
-			for (int i = 0; i < iParam; ++i)
+			additionalExtensions.reserve(customLayerCount);
+			for (int i = 0; i < customLayerCount; ++i)
 			{
 				std::string parameterName = "VkInstanceInfo_EnabledExtension" + NumberToString(i);
-				std::string extension;
-				if (parameters.GetStringParameter(parameterName, &extension))
+				if (auto result = parameters.GetStringParameter(parameterName))
 				{
-					additionalExtensions.emplace_back(std::move(extension));
+					additionalLayers.emplace_back(std::move(result).GetValue());
 					enabledExtensions.push_back(additionalExtensions.back().c_str());
 				}
 				else
@@ -526,25 +509,21 @@ namespace Nz
 		std::vector<const char*> enabledLayers;
 		std::vector<const char*> enabledExtensions;
 
-		bool bParam;
-		long long iParam;
-
-		if (!s_initializationParameters.GetBooleanParameter("VkDeviceInfo_OverrideEnabledLayers", &bParam) || !bParam)
+		if (auto result = s_initializationParameters.GetBooleanParameter("VkDeviceInfo_OverrideEnabledLayers"); !result.GetValueOr(false))
 		{
 			//< Nazara default layers goes here
 		}
 
 		std::vector<std::string> additionalLayers; // Just to keep the string alive
-		if (s_initializationParameters.GetIntegerParameter("VkDeviceInfo_EnabledLayerCount", &iParam))
+		if (long long customLayerCount = s_initializationParameters.GetIntegerParameter("VkDeviceInfo_EnabledLayerCount").GetValueOr(0))
 		{
-			additionalLayers.reserve(iParam);
-			for (long long i = 0; i < iParam; ++i)
+			additionalLayers.reserve(customLayerCount);
+			for (long long i = 0; i < customLayerCount; ++i)
 			{
 				std::string parameterName = "VkDeviceInfo_EnabledLayer" + NumberToString(i);
-				std::string layer;
-				if (s_initializationParameters.GetStringParameter(parameterName, &layer))
+				if (auto value = s_initializationParameters.GetStringViewParameter(parameterName))
 				{
-					additionalLayers.emplace_back(std::move(layer));
+					additionalLayers.emplace_back(std::move(value).GetValue());
 					enabledLayers.push_back(additionalLayers.back().c_str());
 				}
 				else
@@ -552,7 +531,7 @@ namespace Nz
 			}
 		}
 
-		if (!s_initializationParameters.GetBooleanParameter("VkDeviceInfo_OverrideEnabledExtensions", &bParam) || !bParam)
+		if (auto result = s_initializationParameters.GetBooleanParameter("VkDeviceInfo_OverrideEnabledExtensions"); !result.GetValueOr(false))
 		{
 			// Swapchain extension is required for rendering
 			enabledExtensions.emplace_back(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
@@ -574,15 +553,14 @@ namespace Nz
 		}
 
 		std::vector<std::string> additionalExtensions; // Just to keep the String alive
-		if (s_initializationParameters.GetIntegerParameter("VkDeviceInfo_EnabledExtensionCount", &iParam))
+		if (long long customExtCount = s_initializationParameters.GetIntegerParameter("VkDeviceInfo_EnabledExtensionCount").GetValueOr(0))
 		{
-			for (long long i = 0; i < iParam; ++i)
+			for (long long i = 0; i < customExtCount; ++i)
 			{
 				std::string parameterName = "VkDeviceInfo_EnabledExtension" + NumberToString(i);
-				std::string extension;
-				if (s_initializationParameters.GetStringParameter(parameterName, &extension))
+				if (auto value = s_initializationParameters.GetStringViewParameter(parameterName))
 				{
-					additionalExtensions.emplace_back(std::move(extension));
+					additionalExtensions.emplace_back(std::move(value).GetValue());
 					enabledExtensions.push_back(additionalExtensions.back().c_str());
 				}
 				else

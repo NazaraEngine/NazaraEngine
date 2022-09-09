@@ -60,7 +60,7 @@ namespace Nz
 				if (header.flags & DDSD_DEPTH)
 					depth = std::max(header.depth, 1U);
 
-				unsigned int levelCount = (parameters.levelCount > 0) ? std::min(parameters.levelCount, static_cast<UInt8>(header.levelCount)) : header.levelCount;
+				unsigned int levelCount = (parameters.levelCount > 0) ? std::min(parameters.levelCount, SafeCast<UInt8>(header.levelCount)) : header.levelCount;
 
 				// First, identify the type
 				ImageType type;
@@ -258,8 +258,7 @@ namespace Nz
 			loaderEntry.streamLoader = DDSLoader::Load;
 			loaderEntry.parameterFilter = [](const ImageParams& parameters)
 			{
-				bool skip;
-				if (parameters.custom.GetBooleanParameter("SkipBuiltinDDSLoader", &skip) && skip)
+				if (auto result = parameters.custom.GetBooleanParameter("SkipBuiltinDDSLoader"); result.GetValueOr(false))
 					return false;
 
 				return true;

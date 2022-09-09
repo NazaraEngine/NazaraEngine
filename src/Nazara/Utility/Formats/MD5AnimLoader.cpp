@@ -100,8 +100,7 @@ namespace Nz
 			loader.streamLoader = LoadMD5Anim;
 			loader.parameterFilter = [](const AnimationParams& parameters)
 			{
-				bool skip;
-				if (parameters.custom.GetBooleanParameter("SkipBuiltinMD5AnimLoader", &skip) && skip)
+				if (auto result = parameters.custom.GetBooleanParameter("SkipBuiltinMD5AnimLoader"); result.GetValueOr(false))
 					return false;
 
 				return true;

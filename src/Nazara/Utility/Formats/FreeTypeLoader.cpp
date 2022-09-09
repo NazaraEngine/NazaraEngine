@@ -467,8 +467,7 @@ namespace Nz
 			loader.streamLoader = LoadFreetypeStream;
 			loader.parameterFilter = [](const FontParams& parameters)
 			{
-				bool skip;
-				if (parameters.custom.GetBooleanParameter("SkipBuiltinFreeTypeLoader", &skip) && skip)
+				if (auto result = parameters.custom.GetBooleanParameter("SkipBuiltinFreeTypeLoader"); result.GetValueOr(false))
 					return false;
 
 				return true;

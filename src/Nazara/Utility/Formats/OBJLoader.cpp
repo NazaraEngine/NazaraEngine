@@ -144,9 +144,7 @@ namespace Nz
 
 		Result<std::shared_ptr<Mesh>, ResourceLoadingError> LoadOBJ(Stream& stream, const MeshParams& parameters)
 		{
-			long long reservedVertexCount;
-			if (!parameters.custom.GetIntegerParameter("NativeOBJLoader_VertexCount", &reservedVertexCount))
-				reservedVertexCount = 100;
+			long long reservedVertexCount = parameters.custom.GetIntegerParameter("ReserveVertexCount").GetValueOr(1'000);
 
 			OBJParser parser;
 
@@ -360,8 +358,7 @@ namespace Nz
 			loader.streamLoader = LoadOBJ;
 			loader.parameterFilter = [](const MeshParams& parameters)
 			{
-				bool skip;
-				if (parameters.custom.GetBooleanParameter("SkipBuiltinOBJLoader", &skip) && skip)
+				if (auto result = parameters.custom.GetBooleanParameter("SkipBuiltinOBJLoader"); result.GetValueOr(false))
 					return false;
 
 				return true;

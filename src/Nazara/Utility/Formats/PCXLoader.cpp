@@ -331,8 +331,7 @@ namespace Nz
 			loaderEntry.streamLoader = LoadPCX;
 			loaderEntry.parameterFilter = [](const ImageParams& parameters)
 			{
-				bool skip;
-				if (parameters.custom.GetBooleanParameter("SkipBuiltinPCXLoader", &skip) && skip)
+				if (auto result = parameters.custom.GetBooleanParameter("SkipBuiltinPCXLoader"); result.GetValueOr(false))
 					return false;
 
 				return true;

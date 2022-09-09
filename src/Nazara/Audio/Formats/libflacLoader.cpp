@@ -520,8 +520,7 @@ namespace Nz
 			loaderEntry.streamLoader     = LoadFlacSoundBuffer;
 			loaderEntry.parameterFilter  = [](const SoundBufferParams& parameters)
 			{
-				bool skip;
-				if (parameters.custom.GetBooleanParameter("SkipBuiltinFlacLoader", &skip) && skip)
+				if (auto result = parameters.custom.GetBooleanParameter("SkipBuiltinFlacLoader"); result.GetValueOr(false))
 					return false;
 
 				return true;
@@ -539,8 +538,7 @@ namespace Nz
 			loaderEntry.streamLoader     = LoadFlacSoundStreamStream;
 			loaderEntry.parameterFilter  = [](const SoundStreamParams& parameters)
 			{
-				bool skip;
-				if (parameters.custom.GetBooleanParameter("SkipBuiltinFlacLoader", &skip) && skip)
+				if (auto result = parameters.custom.GetBooleanParameter("SkipBuiltinFlacLoader"); result.GetValueOr(false))
 					return false;
 
 				return true;

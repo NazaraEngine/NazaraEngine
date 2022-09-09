@@ -259,8 +259,7 @@ namespace Nz
 			loader.streamLoader = LoadMD2;
 			loader.parameterFilter = [](const MeshParams& parameters)
 			{
-				bool skip;
-				if (parameters.custom.GetBooleanParameter("SkipBuiltinMD2Loader", &skip) && skip)
+				if (auto result = parameters.custom.GetBooleanParameter("SkipBuiltinMD2Loader"); result.GetValueOr(false))
 					return false;
 
 				return true;

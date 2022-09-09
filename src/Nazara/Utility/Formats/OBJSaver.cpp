@@ -103,7 +103,9 @@ namespace Nz
 				const ParameterList& matData = mesh.GetMaterialData(i);
 
 				std::string name;
-				if (!matData.GetStringParameter(MaterialData::Name, &name))
+				if (auto result = matData.GetStringParameter(MaterialData::Name))
+					name = std::move(result).GetValue();
+				else
 					name = "material_" + std::to_string(i);
 
 				// Makes sure we only have one material of that name
@@ -115,27 +117,32 @@ namespace Nz
 
 				MTLParser::Material* material = mtlFormat.AddMaterial(name);
 
-				if (!matData.GetStringParameter(MaterialData::FilePath, &material->diffuseMap))
+				auto pathResult = matData.GetStringParameter(MaterialData::FilePath);
+				if (!pathResult)
 				{
-					Color colorVal;
-					double dValue;
+					if (auto result = matData.GetColorParameter(MaterialData::AmbientColor))
+						material->ambient = result.GetValue();
 
-					if (matData.GetColorParameter(MaterialData::AmbientColor, &colorVal))
-						material->ambient = colorVal;
+					if (auto result = matData.GetColorParameter(MaterialData::BaseColor))
+						material->diffuse = result.GetValue();
 
-					if (matData.GetColorParameter(MaterialData::BaseColor, &colorVal))
-						material->diffuse = colorVal;
+					if (auto result = matData.GetColorParameter(MaterialData::SpecularColor))
+						material->specular = result.GetValue();
 
-					if (matData.GetColorParameter(MaterialData::SpecularColor, &colorVal))
-						material->specular = colorVal;
+					if (auto result = matData.GetDoubleParameter(MaterialData::Shininess))
+						material->shininess = SafeCast<float>(result.GetValue());
 
-					if (matData.GetDoubleParameter(MaterialData::Shininess, &dValue))
-						material->shininess = float(dValue);
+					if (auto result = matData.GetStringParameter(MaterialData::AlphaTexturePath))
+						material->alphaMap = std::move(result).GetValue();
 
-					matData.GetStringParameter(MaterialData::AlphaTexturePath, &material->alphaMap);
-					matData.GetStringParameter(MaterialData::BaseColorTexturePath, &material->diffuseMap);
-					matData.GetStringParameter(MaterialData::SpecularTexturePath, &material->specularMap);
+					if (auto result = matData.GetStringParameter(MaterialData::BaseColorTexturePath))
+						material->diffuseMap = std::move(result).GetValue();
+
+					if (auto result = matData.GetStringParameter(MaterialData::SpecularTexturePath))
+						material->specularMap = std::move(result).GetValue();
 				}
+				else
+					material->diffuseMap = std::move(pathResult).GetValue();
 			}
 
 			// Meshes

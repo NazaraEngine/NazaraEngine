@@ -316,8 +316,7 @@ namespace Nz
 			loaderEntry.streamLoader = LoadMP3SoundBuffer;
 			loaderEntry.parameterFilter = [](const SoundBufferParams& parameters)
 			{
-				bool skip;
-				if (parameters.custom.GetBooleanParameter("SkipBuiltinMP3Loader", &skip) && skip)
+				if (auto result = parameters.custom.GetBooleanParameter("SkipBuiltinMP3Loader"); result.GetValueOr(false))
 					return false;
 
 				return true;
@@ -335,8 +334,7 @@ namespace Nz
 			loaderEntry.streamLoader = LoadMP3SoundStreamStream;
 			loaderEntry.parameterFilter = [](const SoundStreamParams& parameters)
 			{
-				bool skip;
-				if (parameters.custom.GetBooleanParameter("SkipBuiltinMP3Loader", &skip) && skip)
+				if (auto result = parameters.custom.GetBooleanParameter("SkipBuiltinMP3Loader"); result.GetValueOr(false))
 					return false;
 
 				return true;

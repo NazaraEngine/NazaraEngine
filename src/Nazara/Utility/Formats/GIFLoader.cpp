@@ -749,8 +749,7 @@ namespace Nz
 			loaderEntry.streamLoader = LoadGIFStream;
 			loaderEntry.parameterFilter = [](const ImageStreamParams& parameters)
 			{
-				bool skip;
-				if (parameters.custom.GetBooleanParameter("SkipBuiltinGIFLoader", &skip) && skip)
+				if (auto result = parameters.custom.GetBooleanParameter("SkipBuiltinGIFLoader"); result.GetValueOr(false))
 					return false;
 
 				return true;

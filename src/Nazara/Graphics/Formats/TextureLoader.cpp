@@ -35,8 +35,7 @@ namespace Nz
 
 				std::shared_ptr<Material> material = std::make_shared<Material>();
 
-				bool hasAlphaTest = false;
-				parameters.custom.GetBooleanParameter("EnableAlphaTest", &hasAlphaTest);
+				bool hasAlphaTest = parameters.custom.GetBooleanParameter("EnableAlphaTest").GetValueOr(false);
 
 				// ForwardPass
 				{
@@ -79,8 +78,7 @@ namespace Nz
 
 			loaderEntry.parameterFilter = [](const MaterialParams& parameters)
 			{
-				bool skip;
-				if (parameters.custom.GetBooleanParameter("SkipNativeTextureLoader", &skip) && skip)
+				if (auto result = parameters.custom.GetBooleanParameter("SkipNativeTextureLoader"); result.GetValueOr(false))
 					return false;
 
 				return true;

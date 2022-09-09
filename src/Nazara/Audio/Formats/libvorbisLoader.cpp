@@ -360,8 +360,7 @@ namespace Nz
 			loaderEntry.streamLoader = LoadVorbisSoundBuffer;
 			loaderEntry.parameterFilter = [](const SoundBufferParams& parameters)
 			{
-				bool skip;
-				if (parameters.custom.GetBooleanParameter("SkipBuiltinVorbisLoader", &skip) && skip)
+				if (auto result = parameters.custom.GetBooleanParameter("SkipBuiltinVorbisLoader"); result.GetValueOr(false))
 					return false;
 
 				return true;
@@ -379,8 +378,7 @@ namespace Nz
 			loaderEntry.streamLoader = LoadVorbisSoundStreamStream;
 			loaderEntry.parameterFilter = [](const SoundStreamParams& parameters)
 			{
-				bool skip;
-				if (parameters.custom.GetBooleanParameter("SkipBuiltinVorbisLoader", &skip) && skip)
+				if (auto result = parameters.custom.GetBooleanParameter("SkipBuiltinVorbisLoader"); result.GetValueOr(false))
 					return false;
 
 				return true;

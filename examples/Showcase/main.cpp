@@ -115,9 +115,7 @@ int main()
 	std::vector<std::shared_ptr<Nz::Material>> materials(bobMesh->GetMaterialCount());
 	for (std::size_t i = 0; i < bobMesh->GetMaterialCount(); ++i)
 	{
-		std::string matPath;
-		bobMesh->GetMaterialData(i).GetStringParameter(Nz::MaterialData::BaseColorTexturePath, &matPath);
-
+		std::string matPath = bobMesh->GetMaterialData(i).GetStringParameter(Nz::MaterialData::BaseColorTexturePath).GetValueOr("");
 		if (!matPath.empty())
 			materials[i] = Nz::Material::LoadFromFile(matPath);
 	}
