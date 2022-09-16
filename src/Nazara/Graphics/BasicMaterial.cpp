@@ -7,7 +7,9 @@
 
 namespace Nz
 {
-	BasicMaterial::BasicMaterial(Material& material)
+	BasicMaterial::BasicMaterial(Material& material) :
+	m_isDepthPassEnabled(true),
+	m_isForwardPassEnabled(true)
 	{
 		if (auto forwardPass = material.FindPass("ForwardPass"))
 			m_forwardPass.emplace(*forwardPass);

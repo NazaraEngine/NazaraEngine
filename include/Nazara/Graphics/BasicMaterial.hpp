@@ -28,15 +28,12 @@ namespace Nz
 
 			inline void EnableAlphaTest(bool alphaTest);
 			inline void EnableBlending(bool blending);
-			inline void EnableColorWrite(bool colorWrite);
 			inline void EnableDepthBuffer(bool depthBuffer);
 			inline void EnableDepthClamp(bool depthClamp);
 			inline void EnableDepthPass(bool depthPass);
 			inline void EnableDepthWrite(bool depthWrite);
 			inline void EnableFaceCulling(bool faceCulling);
 			inline void EnableForwardPass(bool forwardPass);
-			inline void EnableScissorTest(bool scissorTest);
-			inline void EnableStencilTest(bool stencilTest);
 
 			inline const std::shared_ptr<Texture>& GetAlphaMap() const;
 			inline const TextureSamplerInfo& GetAlphaSampler() const;
@@ -104,6 +101,8 @@ namespace Nz
 
 			std::optional<BasicMaterialPass> m_forwardPass;
 			std::optional<DepthMaterialPass> m_depthPass;
+			bool m_isDepthPassEnabled;
+			bool m_isForwardPassEnabled;
 	};
 }
 

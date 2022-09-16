@@ -24,14 +24,19 @@ namespace Nz
 
 	inline void BasicMaterial::EnableDepthBuffer(bool depthBuffer)
 	{
-		if (m_depthPass)
-		{
-			MaterialPass& depthPass = m_depthPass->GetMaterialPass();
-			depthPass.Enable(depthBuffer && IsDepthWriteEnabled());
-		}
-
 		if (m_forwardPass)
 			m_forwardPass->GetMaterialPass().EnableDepthBuffer(depthBuffer);
+
+		UpdatePasses();
+	}
+
+	inline void BasicMaterial::EnableDepthClamp(bool depthClamp)
+	{
+		if (m_depthPass)
+			m_depthPass->GetMaterialPass().EnableDepthClamp(depthClamp);
+
+		if (m_forwardPass)
+			m_forwardPass->GetMaterialPass().EnableDepthClamp(depthClamp);
 	}
 
 	inline void BasicMaterial::EnableDepthPass(bool depthPass)
@@ -89,13 +94,23 @@ namespace Nz
 			return m_depthPass->GetAlphaSampler();
 	}
 
+	inline float BasicMaterial::GetAlphaTestThreshold() const
+	{
+		if (m_forwardPass)
+			return m_forwardPass->GetAlphaTestThreshold();
+		else if (m_depthPass)
+			return m_depthPass->GetAlphaTestThreshold();
+
+		return 0.0f;
+	}
+
 	inline void BasicMaterial::UpdatePasses()
 	{
 		if (m_depthPass)
-			m_depthPass->GetMaterialPass().Enable(IsDepthBufferEnabled() && IsDepthWriteEnabled());
+			m_depthPass->GetMaterialPass().Enable(m_isDepthPassEnabled && IsDepthBufferEnabled() && IsDepthWriteEnabled());
 
 		if (m_forwardPass)
-			m_forwardPass->GetMaterialPass().Enable(GetColorWriteMask() != )
+			m_forwardPass->GetMaterialPass().Enable(m_isForwardPassEnabled && GetColorWriteMask() != 0);
 	}
 }
 
