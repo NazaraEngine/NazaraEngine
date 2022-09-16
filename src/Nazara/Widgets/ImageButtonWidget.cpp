@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Widgets/ImageButtonWidget.hpp>
-#include <Nazara/Graphics/BasicMaterial.hpp>
+#include <Nazara/Graphics/BasicMaterialPass.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Widgets/Debug.hpp>
 
@@ -82,7 +82,7 @@ namespace Nz
 		// TODO: Move this in a separate function
 		if (const auto& material = m_material->FindPass("ForwardPass"))
 		{
-			BasicMaterial mat(*material);
+			BasicMaterialPass mat(*material);
 			if (mat.HasBaseColorMap())
 			{
 				// Material should always have textures but we're better safe than sorry

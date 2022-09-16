@@ -17,7 +17,6 @@ namespace Nz
 		#define NazaraRenderStateFloatMember(field, maxDiff) if (!NumberEquals(lhs.field, rhs.field, maxDiff)) return false
 
 		NazaraRenderStateBoolMember(blending);
-		NazaraRenderStateBoolMember(colorWrite);
 		NazaraRenderStateBoolMember(depthBuffer);
 		NazaraRenderStateBoolMember(depthClamp);
 		NazaraRenderStateBoolMember(faceCulling);
@@ -27,6 +26,7 @@ namespace Nz
 		if (lhs.depthBuffer)
 			NazaraRenderStateBoolMember(depthWrite);
 
+		NazaraRenderStateMember(colorWriteMask);
 		NazaraRenderStateMember(faceFilling);
 
 		if (lhs.blending) //< Remember, at this time we know lhs.blending == rhs.blending
@@ -91,10 +91,10 @@ namespace std
 			#define NazaraRenderStateBoolDep(dependency, member) parameterHash |= ((pipelineInfo.dependency && pipelineInfo.member) ? 1U : 0U) << (parameterIndex++)
 			#define NazaraRenderStateEnum(member) Nz::HashCombine(seed, static_cast<Nz::UInt8>(pipelineInfo.member))
 			#define NazaraRenderStateFloat(member, maxDiff) Nz::HashCombine(seed, std::floor(pipelineInfo.member / maxDiff) * maxDiff)
+			#define NazaraRenderStateUInt8(member) Nz::HashCombine(seed, pipelineInfo.member)
 			#define NazaraRenderStateUInt32(member) Nz::HashCombine(seed, pipelineInfo.member)
 
 			NazaraRenderStateBool(blending);
-			NazaraRenderStateBool(colorWrite);
 			NazaraRenderStateBool(depthBuffer);
 			NazaraRenderStateBool(depthClamp);
 			NazaraRenderStateBool(faceCulling);
@@ -103,6 +103,7 @@ namespace std
 
 			NazaraRenderStateBoolDep(depthBuffer, depthWrite);
 
+			NazaraRenderStateUInt8(colorWriteMask);
 			NazaraRenderStateEnum(faceFilling);
 
 			if (pipelineInfo.blending) //< we don't care about blending state if blending isn't enabled

@@ -5,12 +5,12 @@
 #include <Nazara/Graphics/MaterialPipeline.hpp>
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/Log.hpp>
-#include <Nazara/Graphics/BasicMaterial.hpp>
-#include <Nazara/Graphics/DepthMaterial.hpp>
+#include <Nazara/Graphics/BasicMaterialPass.hpp>
+#include <Nazara/Graphics/DepthMaterialPass.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
 #include <Nazara/Graphics/MaterialSettings.hpp>
-#include <Nazara/Graphics/PhongLightingMaterial.hpp>
-#include <Nazara/Graphics/PhysicallyBasedMaterial.hpp>
+#include <Nazara/Graphics/PhongLightingMaterialPass.hpp>
+#include <Nazara/Graphics/PhysicallyBasedMaterialPass.hpp>
 #include <Nazara/Graphics/UberShader.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
@@ -94,10 +94,10 @@ namespace Nz
 
 	bool MaterialPipeline::Initialize()
 	{
-		BasicMaterial::Initialize();
-		DepthMaterial::Initialize();
-		PhongLightingMaterial::Initialize();
-		PhysicallyBasedMaterial::Initialize();
+		BasicMaterialPass::Initialize();
+		DepthMaterialPass::Initialize();
+		PhongLightingMaterialPass::Initialize();
+		PhysicallyBasedMaterialPass::Initialize();
 
 		return true;
 	}
@@ -105,10 +105,10 @@ namespace Nz
 	void MaterialPipeline::Uninitialize()
 	{
 		s_pipelineCache.clear();
-		PhysicallyBasedMaterial::Uninitialize();
-		PhongLightingMaterial::Uninitialize();
-		DepthMaterial::Uninitialize();
-		BasicMaterial::Uninitialize();
+		PhysicallyBasedMaterialPass::Uninitialize();
+		PhongLightingMaterialPass::Uninitialize();
+		DepthMaterialPass::Uninitialize();
+		BasicMaterialPass::Uninitialize();
 	}
 
 	MaterialPipeline::PipelineCache MaterialPipeline::s_pipelineCache;

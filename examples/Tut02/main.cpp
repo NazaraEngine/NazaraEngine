@@ -35,7 +35,7 @@ int main()
 
 	std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>();
 
-	std::shared_ptr<Nz::MaterialPass> materialPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
+	std::shared_ptr<Nz::MaterialPass> materialPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterialPass::GetSettings());
 	materialPass->EnableDepthBuffer(true);
 	materialPass->EnableDepthWrite(false);
 	materialPass->EnableScissorTest(true);

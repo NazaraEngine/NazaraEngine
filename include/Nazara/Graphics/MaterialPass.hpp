@@ -43,8 +43,10 @@ namespace Nz
 			inline void Configure(std::shared_ptr<MaterialPipeline> pipeline);
 			inline void Configure(const MaterialPipelineInfo& pipelineInfo);
 
+			inline void Disable();
+			inline void Enable(bool enable = true);
+
 			inline void EnableBlending(bool blending);
-			inline void EnableColorWrite(bool colorWrite);
 			inline void EnableDepthBuffer(bool depthBuffer);
 			inline void EnableDepthClamp(bool depthClamp);
 			inline void EnableDepthWrite(bool depthWrite);
@@ -57,13 +59,14 @@ namespace Nz
 
 			void FillShaderBinding(std::vector<ShaderBinding::Binding>& bindings) const;
 
-			inline RendererComparison GetDepthCompareFunc() const;
 			inline BlendEquation GetBlendAlphaModeEquation() const;
 			inline BlendEquation GetBlendColorModeEquation() const;
 			inline BlendFunc GetBlendDstAlphaFunc() const;
 			inline BlendFunc GetBlendDstColorFunc() const;
 			inline BlendFunc GetBlendSrcAlphaFunc() const;
 			inline BlendFunc GetBlendSrcColorFunc() const;
+			inline ColorComponentMask GetColorWriteMask() const;
+			inline RendererComparison GetDepthCompareFunc() const;
 			inline FaceSide GetFaceCulling() const;
 			inline FaceFilling GetFaceFilling() const;
 			inline MaterialPassFlags GetFlags() const;
@@ -84,18 +87,19 @@ namespace Nz
 			inline bool HasTexture(std::size_t textureIndex) const;
 
 			inline bool IsBlendingEnabled() const;
-			inline bool IsColorWriteEnabled() const;
 			inline bool IsDepthBufferEnabled() const;
 			inline bool IsDepthClampEnabled() const;
 			inline bool IsDepthWriteEnabled() const;
+			inline bool IsEnabled() const;
 			inline bool IsFaceCullingEnabled() const;
 			inline bool IsFlagEnabled(MaterialPassFlag flag) const;
 			inline bool IsScissorTestEnabled() const;
 			inline bool IsStencilTestEnabled() const;
 
-			inline void SetDepthCompareFunc(RendererComparison depthFunc);
 			inline void SetBlendEquation(BlendEquation colorMode, BlendEquation alphaMode);
 			inline void SetBlendFunc(BlendFunc srcColor, BlendFunc dstColor, BlendFunc srcAlpha, BlendFunc dstAlpha);
+			inline void SetColorWriteMask(ColorComponentMask colorMask);
+			inline void SetDepthCompareFunc(RendererComparison depthFunc);
 			inline void SetFaceCulling(FaceSide faceSide);
 			inline void SetFaceFilling(FaceFilling filling);
 			inline void SetLineWidth(float lineWidth);
@@ -159,6 +163,7 @@ namespace Nz
 			mutable std::shared_ptr<MaterialPipeline> m_pipeline;
 			mutable MaterialPipelineInfo m_pipelineInfo;
 			MaterialPassFlags m_flags;
+			bool m_isEnabled;
 			mutable bool m_pipelineUpdated;
 	};
 }

@@ -19,6 +19,7 @@ namespace Nz
 
 	struct RenderStates
 	{
+		ColorComponentMask colorWriteMask = ColorComponentAll;
 		FaceFilling faceFilling = FaceFilling::Fill;
 		FaceSide cullingSide = FaceSide::Back;
 		FrontFace frontFace = FrontFace::CounterClockwise;
@@ -47,7 +48,6 @@ namespace Nz
 		} stencilBack, stencilFront;
 
 		bool blending    = false;
-		bool colorWrite  = true;
 		bool depthBuffer = false;
 		bool depthClamp  = false;
 		bool depthWrite  = true;

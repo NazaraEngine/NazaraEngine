@@ -4,21 +4,21 @@
 
 #pragma once
 
-#ifndef NAZARA_GRAPHICS_DEPTHMATERIAL_HPP
-#define NAZARA_GRAPHICS_DEPTHMATERIAL_HPP
+#ifndef NAZARA_GRAPHICS_DEPTHMATERIALPASS_HPP
+#define NAZARA_GRAPHICS_DEPTHMATERIALPASS_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Graphics/BasicMaterial.hpp>
+#include <Nazara/Graphics/BasicMaterialPass.hpp>
 
 namespace Nz
 {
-	class NAZARA_GRAPHICS_API DepthMaterial : public BasicMaterial
+	class NAZARA_GRAPHICS_API DepthMaterialPass : public BasicMaterialPass
 	{
 		friend class MaterialPipeline;
 
 		public:
-			using BasicMaterial::BasicMaterial;
-			~DepthMaterial() = default;
+			using BasicMaterialPass::BasicMaterialPass;
+			~DepthMaterialPass() = default;
 
 			static inline const std::shared_ptr<MaterialSettings>& GetSettings();
 
@@ -33,6 +33,6 @@ namespace Nz
 	};
 }
 
-#include <Nazara/Graphics/DepthMaterial.inl>
+#include <Nazara/Graphics/DepthMaterialPass.inl>
 
-#endif // NAZARA_GRAPHICS_DEPTHMATERIAL_HPP
+#endif // NAZARA_GRAPHICS_DEPTHMATERIALPASS_HPP

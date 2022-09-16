@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Graphics/PhongLightingMaterial.hpp>
+#include <Nazara/Graphics/PhongLightingMaterialPass.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
@@ -17,11 +17,11 @@
 
 namespace Nz
 {
-	PhongLightingMaterial::PhongLightingMaterial(MaterialPass& material) :
-	BasicMaterial(material, NoInit{})
+	PhongLightingMaterialPass::PhongLightingMaterialPass(MaterialPass& material) :
+	BasicMaterialPass(material, NoInit{})
 	{
 		// Most common case: don't fetch texture indexes as a little optimization
-		const std::shared_ptr<const MaterialSettings>& materialSettings = GetMaterial().GetSettings();
+		const std::shared_ptr<const MaterialSettings>& materialSettings = GetMaterialPass().GetSettings();
 		if (materialSettings == s_phongMaterialSettings)
 		{
 			m_basicUniformOffsets = s_basicUniformOffsets;
@@ -73,39 +73,39 @@ namespace Nz
 		}
 	}
 
-	Color PhongLightingMaterial::GetAmbientColor() const
+	Color PhongLightingMaterialPass::GetAmbientColor() const
 	{
 		NazaraAssert(HasAmbientColor(), "Material has no ambient color uniform");
 
-		const std::vector<UInt8>& bufferData = GetMaterial().GetUniformBufferConstData(m_uniformBlockIndex);
+		const std::vector<UInt8>& bufferData = GetMaterialPass().GetUniformBufferConstData(m_uniformBlockIndex);
 
 		const float* colorPtr = AccessByOffset<const float*>(bufferData.data(), m_phongUniformOffsets.ambientColor);
 		return Color(colorPtr[0], colorPtr[1], colorPtr[2], colorPtr[3]);
 	}
 
-	float Nz::PhongLightingMaterial::GetShininess() const
+	float Nz::PhongLightingMaterialPass::GetShininess() const
 	{
 		NazaraAssert(HasShininess(), "Material has no shininess uniform");
 
-		const std::vector<UInt8>& bufferData = GetMaterial().GetUniformBufferConstData(m_uniformBlockIndex);
+		const std::vector<UInt8>& bufferData = GetMaterialPass().GetUniformBufferConstData(m_uniformBlockIndex);
 		return AccessByOffset<const float&>(bufferData.data(), m_phongUniformOffsets.shininess);
 	}
 
-	Color PhongLightingMaterial::GetSpecularColor() const
+	Color PhongLightingMaterialPass::GetSpecularColor() const
 	{
 		NazaraAssert(HasSpecularColor(), "Material has no specular color uniform");
 
-		const std::vector<UInt8>& bufferData = GetMaterial().GetUniformBufferConstData(m_uniformBlockIndex);
+		const std::vector<UInt8>& bufferData = GetMaterialPass().GetUniformBufferConstData(m_uniformBlockIndex);
 
 		const float* colorPtr = AccessByOffset<const float*>(bufferData.data(), m_phongUniformOffsets.specularColor);
 		return Color(colorPtr[0], colorPtr[1], colorPtr[2], colorPtr[3]);
 	}
 
-	void PhongLightingMaterial::SetAmbientColor(const Color& ambient)
+	void PhongLightingMaterialPass::SetAmbientColor(const Color& ambient)
 	{
 		NazaraAssert(HasAmbientColor(), "Material has no ambient color uniform");
 
-		std::vector<UInt8>& bufferData = GetMaterial().GetUniformBufferData(m_uniformBlockIndex);
+		std::vector<UInt8>& bufferData = GetMaterialPass().GetUniformBufferData(m_uniformBlockIndex);
 		float* colorPtr = AccessByOffset<float*>(bufferData.data(), m_phongUniformOffsets.ambientColor);
 		colorPtr[0] = ambient.r;
 		colorPtr[1] = ambient.g;
@@ -113,19 +113,19 @@ namespace Nz
 		colorPtr[3] = ambient.a;
 	}
 
-	void PhongLightingMaterial::SetShininess(float shininess)
+	void PhongLightingMaterialPass::SetShininess(float shininess)
 	{
 		NazaraAssert(HasShininess(), "Material has no shininess uniform");
 
-		std::vector<UInt8>& bufferData = GetMaterial().GetUniformBufferData(m_uniformBlockIndex);
+		std::vector<UInt8>& bufferData = GetMaterialPass().GetUniformBufferData(m_uniformBlockIndex);
 		AccessByOffset<float&>(bufferData.data(), m_phongUniformOffsets.shininess) = shininess;
 	}
 
-	void PhongLightingMaterial::SetSpecularColor(const Color& specular)
+	void PhongLightingMaterialPass::SetSpecularColor(const Color& specular)
 	{
 		NazaraAssert(HasSpecularColor(), "Material has no specular color uniform");
 
-		std::vector<UInt8>& bufferData = GetMaterial().GetUniformBufferData(m_uniformBlockIndex);
+		std::vector<UInt8>& bufferData = GetMaterialPass().GetUniformBufferData(m_uniformBlockIndex);
 		float* colorPtr = AccessByOffset<float*>(bufferData.data(), m_phongUniformOffsets.specularColor);
 		colorPtr[0] = specular.r;
 		colorPtr[1] = specular.g;
@@ -133,14 +133,14 @@ namespace Nz
 		colorPtr[3] = specular.a;
 	}
 
-	const std::shared_ptr<MaterialSettings>& PhongLightingMaterial::GetSettings()
+	const std::shared_ptr<MaterialSettings>& PhongLightingMaterialPass::GetSettings()
 	{
 		return s_phongMaterialSettings;
 	}
 
-	MaterialSettings::Builder PhongLightingMaterial::Build(PhongBuildOptions& options)
+	MaterialSettings::Builder PhongLightingMaterialPass::Build(PhongBuildOptions& options)
 	{
-		MaterialSettings::Builder settings = BasicMaterial::Build(options);
+		MaterialSettings::Builder settings = BasicMaterialPass::Build(options);
 
 		assert(settings.uniformBlocks.size() == 1);
 		std::vector<MaterialSettings::UniformVariable> variables = std::move(settings.uniformBlocks.front().uniforms);
@@ -308,16 +308,16 @@ namespace Nz
 		return settings;
 	}
 
-	std::vector<std::shared_ptr<UberShader>> PhongLightingMaterial::BuildShaders()
+	std::vector<std::shared_ptr<UberShader>> PhongLightingMaterialPass::BuildShaders()
 	{
 		auto shader = std::make_shared<UberShader>(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, "PhongMaterial");
 
 		return { std::move(shader) };
 	}
 
-	auto PhongLightingMaterial::BuildUniformOffsets() -> std::pair<PhongUniformOffsets, nzsl::FieldOffsets>
+	auto PhongLightingMaterialPass::BuildUniformOffsets() -> std::pair<PhongUniformOffsets, nzsl::FieldOffsets>
 	{
-		auto basicOffsets = BasicMaterial::BuildUniformOffsets();
+		auto basicOffsets = BasicMaterialPass::BuildUniformOffsets();
 		nzsl::FieldOffsets fieldOffsets = basicOffsets.second;
 
 		PhongUniformOffsets uniformOffsets;
@@ -330,7 +330,7 @@ namespace Nz
 		return std::make_pair(std::move(uniformOffsets), std::move(fieldOffsets));
 	}
 
-	bool PhongLightingMaterial::Initialize()
+	bool PhongLightingMaterialPass::Initialize()
 	{
 		std::tie(s_phongUniformOffsets, std::ignore) = BuildUniformOffsets();
 
@@ -353,14 +353,14 @@ namespace Nz
 		return true;
 	}
 
-	void PhongLightingMaterial::Uninitialize()
+	void PhongLightingMaterialPass::Uninitialize()
 	{
 		s_phongMaterialSettings.reset();
 	}
 
-	std::shared_ptr<MaterialSettings> PhongLightingMaterial::s_phongMaterialSettings;
-	std::size_t PhongLightingMaterial::s_phongUniformBlockIndex;
-	PhongLightingMaterial::PhongOptionIndexes PhongLightingMaterial::s_phongOptionIndexes;
-	PhongLightingMaterial::PhongTextureIndexes PhongLightingMaterial::s_phongTextureIndexes;
-	PhongLightingMaterial::PhongUniformOffsets PhongLightingMaterial::s_phongUniformOffsets;
+	std::shared_ptr<MaterialSettings> PhongLightingMaterialPass::s_phongMaterialSettings;
+	std::size_t PhongLightingMaterialPass::s_phongUniformBlockIndex;
+	PhongLightingMaterialPass::PhongOptionIndexes PhongLightingMaterialPass::s_phongOptionIndexes;
+	PhongLightingMaterialPass::PhongTextureIndexes PhongLightingMaterialPass::s_phongTextureIndexes;
+	PhongLightingMaterialPass::PhongUniformOffsets PhongLightingMaterialPass::s_phongUniformOffsets;
 }

@@ -2,21 +2,21 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Graphics/DepthMaterial.hpp>
+#include <Nazara/Graphics/DepthMaterialPass.hpp>
 #include <NZSL/Parser.hpp>
 #include <NZSL/Math/FieldOffsets.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
 {
-	std::vector<std::shared_ptr<UberShader>> DepthMaterial::BuildShaders()
+	std::vector<std::shared_ptr<UberShader>> DepthMaterialPass::BuildShaders()
 	{
 		auto shader = std::make_shared<UberShader>(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, "DepthMaterial");
 
 		return { std::move(shader) };
 	}
 
-	bool DepthMaterial::Initialize()
+	bool DepthMaterialPass::Initialize()
 	{
 		BasicUniformOffsets offsets;
 		std::tie(offsets, std::ignore) = BuildUniformOffsets();
@@ -34,10 +34,10 @@ namespace Nz
 		return true;
 	}
 
-	void DepthMaterial::Uninitialize()
+	void DepthMaterialPass::Uninitialize()
 	{
 		s_depthMaterialSettings.reset();
 	}
 
-	std::shared_ptr<MaterialSettings> DepthMaterial::s_depthMaterialSettings;
+	std::shared_ptr<MaterialSettings> DepthMaterialPass::s_depthMaterialSettings;
 }

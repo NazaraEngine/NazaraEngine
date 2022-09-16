@@ -47,7 +47,7 @@ namespace Nz
 			const auto& submeshData = m_submeshes[i];
 
 			const auto& materialPass = submeshData.material->GetPass(passIndex);
-			if (!materialPass)
+			if (!materialPass || !materialPass->IsEnabled())
 				continue;
 
 			const auto& indexBuffer = m_graphicalMesh->GetIndexBuffer(i);

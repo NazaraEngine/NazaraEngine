@@ -1,5 +1,5 @@
 [nzsl_version("1.0")]
-module BasicMaterial;
+module BasicMaterialPass;
 
 import InstanceData from Engine.InstanceData;
 import SkeletalData from Engine.SkeletalData;

@@ -111,10 +111,10 @@ namespace Nz::GL
 
 	inline void Context::ResetColorWriteMasks() const
 	{
-		if (!m_state.renderStates.colorWrite)
+		if (m_state.renderStates.colorWriteMask != ColorComponentAll)
 		{
 			glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-			m_state.renderStates.colorWrite = true;
+			m_state.renderStates.colorWriteMask = ColorComponentAll;
 		}
 	}
 

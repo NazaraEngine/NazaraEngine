@@ -22,7 +22,7 @@ namespace Nz
 	void TextSprite::BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, std::vector<RenderElementOwner>& elements) const
 	{
 		const auto& materialPass = m_material->GetPass(passIndex);
-		if (!materialPass)
+		if (!materialPass || !materialPass->IsEnabled())
 			return;
 
 		const std::shared_ptr<VertexDeclaration>& vertexDeclaration = VertexDeclaration::Get(VertexLayout::XYZ_Color_UV);

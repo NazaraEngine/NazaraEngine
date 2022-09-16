@@ -31,6 +31,12 @@ namespace Nz
 		return RemovePass(registry.GetPassIndex(passName));
 	}
 
+
+	std::shared_ptr<Material> Material::Build(const ParameterList& materialData)
+	{
+		return std::shared_ptr<Material>();
+	}
+
 	std::shared_ptr<Material> Material::LoadFromFile(const std::filesystem::path& filePath, const MaterialParams& params)
 	{
 		Graphics* graphics = Graphics::Instance();

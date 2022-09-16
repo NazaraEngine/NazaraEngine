@@ -4,7 +4,7 @@
 
 #include <Nazara/Graphics/MaterialPass.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
-#include <Nazara/Graphics/BasicMaterial.hpp>
+#include <Nazara/Graphics/BasicMaterialPass.hpp>
 #include <Nazara/Graphics/UberShader.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/RenderFrame.hpp>
@@ -28,6 +28,7 @@ namespace Nz
 	*/
 	MaterialPass::MaterialPass(std::shared_ptr<const MaterialSettings> settings) :
 	m_settings(std::move(settings)),
+	m_isEnabled(true),
 	m_pipelineUpdated(false)
 	{
 		m_pipelineInfo.settings = m_settings;

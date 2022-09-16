@@ -175,7 +175,7 @@ int main()
 
 			std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>();
 
-			std::shared_ptr<Nz::MaterialPass> forwardPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
+			std::shared_ptr<Nz::MaterialPass> forwardPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterialPass::GetSettings());
 			forwardPass->EnableDepthBuffer(true);
 			forwardPass->EnableFaceCulling(true);
 
@@ -183,7 +183,7 @@ int main()
 
 			std::shared_ptr<Nz::Texture> normalMap = Nz::Texture::LoadFromFile(resourceDir / "Rusty/rustediron2_normal.png", texParams);
 
-			Nz::BasicMaterial pbrMat(*forwardPass);
+			Nz::BasicMaterialPass pbrMat(*forwardPass);
 			pbrMat.EnableAlphaTest(false);
 			pbrMat.SetAlphaMap(Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
 			pbrMat.SetBaseColorMap(Nz::Texture::LoadFromFile(resourceDir / "Rusty/rustediron2_basecolor.png", srgbTexParams));
@@ -231,10 +231,10 @@ int main()
 
 		std::shared_ptr<Nz::Material> planeMat = std::make_shared<Nz::Material>();
 
-		std::shared_ptr<Nz::MaterialPass> planeMatPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
+		std::shared_ptr<Nz::MaterialPass> planeMatPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterialPass::GetSettings());
 		planeMatPass->EnableDepthBuffer(true);
 		{
-			Nz::BasicMaterial basicMat(*planeMatPass);
+			Nz::BasicMaterialPass basicMat(*planeMatPass);
 			basicMat.SetBaseColorMap(Nz::Texture::LoadFromFile(resourceDir / "dev_grey.png", texParams));
 
 			Nz::TextureSamplerInfo planeSampler;

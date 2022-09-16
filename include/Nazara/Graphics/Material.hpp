@@ -52,6 +52,7 @@ namespace Nz
 			inline void RemovePass(std::size_t passIndex);
 			void RemovePass(const std::string& passName);
 
+			static std::shared_ptr<Material> Build(const ParameterList& materialData);
 			static std::shared_ptr<Material> LoadFromFile(const std::filesystem::path& filePath, const MaterialParams& params = MaterialParams());
 			static std::shared_ptr<Material> LoadFromMemory(const void* data, std::size_t size, const MaterialParams& params = MaterialParams());
 			static std::shared_ptr<Material> LoadFromStream(Stream& stream, const MaterialParams& params = MaterialParams());

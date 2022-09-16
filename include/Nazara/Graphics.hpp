@@ -32,11 +32,11 @@
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/Algorithm.hpp>
 #include <Nazara/Graphics/BakedFrameGraph.hpp>
-#include <Nazara/Graphics/BasicMaterial.hpp>
+#include <Nazara/Graphics/BasicMaterialPass.hpp>
 #include <Nazara/Graphics/Camera.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/DebugDrawPipelinePass.hpp>
-#include <Nazara/Graphics/DepthMaterial.hpp>
+#include <Nazara/Graphics/DepthMaterialPass.hpp>
 #include <Nazara/Graphics/DepthPipelinePass.hpp>
 #include <Nazara/Graphics/DirectionalLight.hpp>
 #include <Nazara/Graphics/ElementRenderer.hpp>
@@ -61,8 +61,8 @@
 #include <Nazara/Graphics/MaterialPipeline.hpp>
 #include <Nazara/Graphics/MaterialSettings.hpp>
 #include <Nazara/Graphics/Model.hpp>
-#include <Nazara/Graphics/PhongLightingMaterial.hpp>
-#include <Nazara/Graphics/PhysicallyBasedMaterial.hpp>
+#include <Nazara/Graphics/PhongLightingMaterialPass.hpp>
+#include <Nazara/Graphics/PhysicallyBasedMaterialPass.hpp>
 #include <Nazara/Graphics/PointLight.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>

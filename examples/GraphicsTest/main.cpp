@@ -63,7 +63,7 @@ int main()
 
 	std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>();
 
-	std::shared_ptr<Nz::MaterialPass> forwardPass = std::make_shared<Nz::MaterialPass>(Nz::PhongLightingMaterial::GetSettings());
+	std::shared_ptr<Nz::MaterialPass> forwardPass = std::make_shared<Nz::MaterialPass>(Nz::PhongLightingMaterialPass::GetSettings());
 	forwardPass->EnableDepthBuffer(true);
 	forwardPass->EnableFaceCulling(true);
 
@@ -71,7 +71,7 @@ int main()
 
 	std::shared_ptr<Nz::Texture> normalMap = Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/normal.png", texParams);
 
-	Nz::PhongLightingMaterial phongMat(*forwardPass);
+	Nz::PhongLightingMaterialPass phongMat(*forwardPass);
 	phongMat.EnableAlphaTest(false);
 	phongMat.SetAlphaMap(Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
 	phongMat.SetBaseColorMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));

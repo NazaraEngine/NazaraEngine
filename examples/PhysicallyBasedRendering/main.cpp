@@ -57,7 +57,7 @@ int main()
 
 	std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>();
 
-	std::shared_ptr<Nz::MaterialPass> forwardPass = std::make_shared<Nz::MaterialPass>(Nz::PhysicallyBasedMaterial::GetSettings());
+	std::shared_ptr<Nz::MaterialPass> forwardPass = std::make_shared<Nz::MaterialPass>(Nz::PhysicallyBasedMaterialPass::GetSettings());
 	forwardPass->EnableDepthBuffer(true);
 	forwardPass->EnableFaceCulling(true);
 
@@ -65,7 +65,7 @@ int main()
 
 	std::shared_ptr<Nz::Texture> normalMap = Nz::Texture::LoadFromFile(resourceDir / "Rusty/rustediron2_normal.png", texParams);
 
-	Nz::PhysicallyBasedMaterial pbrMat(*forwardPass);
+	Nz::PhysicallyBasedMaterialPass pbrMat(*forwardPass);
 	pbrMat.EnableAlphaTest(false);
 	pbrMat.SetAlphaMap(Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
 	pbrMat.SetBaseColorMap(Nz::Texture::LoadFromFile(resourceDir / "Rusty/rustediron2_basecolor.png", srgbTexParams));

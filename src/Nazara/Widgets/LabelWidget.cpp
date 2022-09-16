@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Widgets/LabelWidget.hpp>
-#include <Nazara/Graphics/BasicMaterial.hpp>
+#include <Nazara/Graphics/BasicMaterialPass.hpp>
 #include <Nazara/Graphics/Components/GraphicsComponent.hpp>
 #include <Nazara/Utility/AbstractTextDrawer.hpp>
 #include <Nazara/Utility/Components/NodeComponent.hpp>

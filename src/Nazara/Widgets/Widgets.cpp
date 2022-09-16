@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Widgets/Widgets.hpp>
-#include <Nazara/Graphics/BasicMaterial.hpp>
+#include <Nazara/Graphics/BasicMaterialPass.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
 #include <Nazara/Widgets/Debug.hpp>
@@ -23,7 +23,7 @@ namespace Nz
 
 	void Widgets::CreateDefaultMaterials()
 	{
-		m_opaqueMaterialPass = std::make_shared<MaterialPass>(BasicMaterial::GetSettings());
+		m_opaqueMaterialPass = std::make_shared<MaterialPass>(BasicMaterialPass::GetSettings());
 		m_opaqueMaterialPass->EnableDepthBuffer(true);
 		m_opaqueMaterialPass->EnableDepthWrite(false);
 		m_opaqueMaterialPass->EnableScissorTest(true);
@@ -31,7 +31,7 @@ namespace Nz
 		m_opaqueMaterial = std::make_shared<Material>();
 		m_opaqueMaterial->AddPass("ForwardPass", m_opaqueMaterialPass);
 
-		m_transparentMaterialPass = std::make_shared<MaterialPass>(BasicMaterial::GetSettings());
+		m_transparentMaterialPass = std::make_shared<MaterialPass>(BasicMaterialPass::GetSettings());
 		m_transparentMaterialPass->EnableDepthBuffer(true);
 		m_transparentMaterialPass->EnableDepthWrite(false);
 		m_transparentMaterialPass->EnableScissorTest(true);

@@ -53,6 +53,20 @@ namespace Nz
 		InvalidatePipeline();
 	}
 
+	inline void MaterialPass::Disable()
+	{
+		return Enable(false);
+	}
+
+	inline void MaterialPass::Enable(bool enable)
+	{
+		if (m_isEnabled != enable)
+		{
+			m_isEnabled = enable;
+			OnMaterialPassInvalidated(this);
+		}
+	}
+
 	/*!
 	* \brief Enable/Disable blending for this material
 	*
@@ -70,22 +84,6 @@ namespace Nz
 	inline void MaterialPass::EnableBlending(bool blending)
 	{
 		m_pipelineInfo.blending = blending;
-
-		InvalidatePipeline();
-	}
-
-	/*!
-	* \brief Enable/Disable color writing for this material
-	*
-	* \param colorWrite Defines if this material will use color writing
-	*
-	* \remark Invalidates the pipeline
-	*
-	* \see IsColorWritingEnabled
-	*/
-	inline void MaterialPass::EnableColorWrite(bool colorWrite)
-	{
-		m_pipelineInfo.colorWrite = colorWrite;
 
 		InvalidatePipeline();
 	}
@@ -241,19 +239,6 @@ namespace Nz
 			UpdatePipeline();
 	}
 
-	/*!
-	* \brief Gets the function to compare depth
-	*
-	* \return Function comparing the depth of two materials
-	*
-	* \see EnableDepthTest
-	* \see SetAmbientColor
-	*/
-	inline RendererComparison MaterialPass::GetDepthCompareFunc() const
-	{
-		return m_pipelineInfo.depthCompare;
-	}
-
 	inline BlendEquation MaterialPass::GetBlendAlphaModeEquation() const
 	{
 		return m_pipelineInfo.blend.modeAlpha;
@@ -282,6 +267,24 @@ namespace Nz
 	inline BlendFunc MaterialPass::GetBlendSrcColorFunc() const
 	{
 		return m_pipelineInfo.blend.srcColor;
+	}
+
+	inline ColorComponentMask MaterialPass::GetColorWriteMask() const
+	{
+		return m_pipelineInfo.colorWriteMask;
+	}
+
+	/*!
+	* \brief Gets the function to compare depth
+	*
+	* \return Function comparing the depth of two materials
+	*
+	* \see EnableDepthTest
+	* \see SetAmbientColor
+	*/
+	inline RendererComparison MaterialPass::GetDepthCompareFunc() const
+	{
+		return m_pipelineInfo.depthCompare;
 	}
 
 	/*!
@@ -421,15 +424,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Checks whether this material has color write enabled
-	* \return true If it is the case
-	*/
-	inline bool MaterialPass::IsColorWriteEnabled() const
-	{
-		return m_pipelineInfo.colorWrite;
-	}
-
-	/*!
 	* \brief Checks whether this material has depth buffer enabled
 	* \return true If it is the case
 	*/
@@ -454,6 +448,11 @@ namespace Nz
 	inline bool MaterialPass::IsDepthWriteEnabled() const
 	{
 		return m_pipelineInfo.depthWrite;
+	}
+
+	inline bool MaterialPass::IsEnabled() const
+	{
+		return m_isEnabled;
 	}
 
 	/*!
@@ -488,20 +487,6 @@ namespace Nz
 		return m_pipelineInfo.stencilTest;
 	}
 
-	/*!
-	* \brief Sets the depth functor
-	*
-	* \param depthFunc
-	*
-	* \remark Invalidates the pipeline
-	*/
-	inline void MaterialPass::SetDepthCompareFunc(RendererComparison depthFunc)
-	{
-		m_pipelineInfo.depthCompare = depthFunc;
-
-		InvalidatePipeline();
-	}
-
 	inline void MaterialPass::SetBlendEquation(BlendEquation colorMode, BlendEquation alphaMode)
 	{
 		m_pipelineInfo.blend.modeAlpha = alphaMode;
@@ -516,6 +501,27 @@ namespace Nz
 		m_pipelineInfo.blend.dstColor = dstColor;
 		m_pipelineInfo.blend.srcAlpha = srcAlpha;
 		m_pipelineInfo.blend.srcColor = srcColor;
+
+		InvalidatePipeline();
+	}
+
+	inline void MaterialPass::SetColorWriteMask(ColorComponentMask colorMask)
+	{
+		m_pipelineInfo.colorWriteMask = colorMask;
+
+		InvalidatePipeline();
+	}
+
+	/*!
+	* \brief Sets the depth functor
+	*
+	* \param depthFunc
+	*
+	* \remark Invalidates the pipeline
+	*/
+	inline void MaterialPass::SetDepthCompareFunc(RendererComparison depthFunc)
+	{
+		m_pipelineInfo.depthCompare = depthFunc;
 
 		InvalidatePipeline();
 	}

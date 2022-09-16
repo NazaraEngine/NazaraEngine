@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/LinearSlicedSprite.hpp>
-#include <Nazara/Graphics/BasicMaterial.hpp>
+#include <Nazara/Graphics/BasicMaterialPass.hpp>
 #include <Nazara/Graphics/ElementRendererRegistry.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/RenderSpriteChain.hpp>
@@ -26,7 +26,7 @@ namespace Nz
 	void LinearSlicedSprite::BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, std::vector<RenderElementOwner>& elements) const
 	{
 		const auto& materialPass = m_material->GetPass(passIndex);
-		if (!materialPass)
+		if (!materialPass || !materialPass->IsEnabled())
 			return;
 
 		const std::shared_ptr<VertexDeclaration>& vertexDeclaration = VertexDeclaration::Get(VertexLayout::XYZ_Color_UV);
@@ -62,7 +62,7 @@ namespace Nz
 		//TODO: Cache index in registry?
 		if (const auto& material = m_material->FindPass("ForwardPass"))
 		{
-			BasicMaterial mat(*material);
+			BasicMaterialPass mat(*material);
 			if (mat.HasBaseColorMap())
 			{
 				// Material should always have textures but we're better safe than sorry

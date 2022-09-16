@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Widgets/DefaultWidgetTheme.hpp>
-#include <Nazara/Graphics/BasicMaterial.hpp>
+#include <Nazara/Graphics/BasicMaterialPass.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
 #include <Nazara/Widgets/SimpleWidgetStyles.hpp>
@@ -127,7 +127,7 @@ namespace Nz
 
 		auto CreateMaterialFromTexture = [](std::shared_ptr<Texture> texture)
 		{
-			std::shared_ptr<MaterialPass> buttonMaterialPass = std::make_shared<MaterialPass>(BasicMaterial::GetSettings());
+			std::shared_ptr<MaterialPass> buttonMaterialPass = std::make_shared<MaterialPass>(BasicMaterialPass::GetSettings());
 			buttonMaterialPass->EnableDepthBuffer(true);
 			buttonMaterialPass->EnableDepthWrite(false);
 			buttonMaterialPass->EnableBlending(true);
@@ -137,7 +137,7 @@ namespace Nz
 			std::shared_ptr<Material> material = std::make_shared<Material>();
 			material->AddPass("ForwardPass", buttonMaterialPass);
 
-			BasicMaterial buttonBasicMat(*buttonMaterialPass);
+			BasicMaterialPass buttonBasicMat(*buttonMaterialPass);
 			buttonBasicMat.SetBaseColorMap(texture);
 
 			return material;

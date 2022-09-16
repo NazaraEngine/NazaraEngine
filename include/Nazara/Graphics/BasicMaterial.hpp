@@ -8,26 +8,35 @@
 #define NAZARA_GRAPHICS_BASICMATERIAL_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Graphics/Config.hpp>
+#include <Nazara/Graphics/BasicMaterialPass.hpp>
+#include <Nazara/Graphics/DepthMaterialPass.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
-
-namespace nzsl
-{
-	class FieldOffsets;
-}
+#include <optional>
 
 namespace Nz
 {
+	class Material;
+
 	class NAZARA_GRAPHICS_API BasicMaterial
 	{
-		friend class MaterialPipeline;
-
 		public:
-			struct BasicUniformOffsets;
-
-			BasicMaterial(MaterialPass& material);
+			BasicMaterial(Material& material);
+			BasicMaterial(const BasicMaterial&) = delete;
+			BasicMaterial(BasicMaterial&&) = delete;
 			~BasicMaterial() = default;
 
 			inline void EnableAlphaTest(bool alphaTest);
+			inline void EnableBlending(bool blending);
+			inline void EnableColorWrite(bool colorWrite);
+			inline void EnableDepthBuffer(bool depthBuffer);
+			inline void EnableDepthClamp(bool depthClamp);
+			inline void EnableDepthPass(bool depthPass);
+			inline void EnableDepthWrite(bool depthWrite);
+			inline void EnableFaceCulling(bool faceCulling);
+			inline void EnableForwardPass(bool forwardPass);
+			inline void EnableScissorTest(bool scissorTest);
+			inline void EnableStencilTest(bool stencilTest);
 
 			inline const std::shared_ptr<Texture>& GetAlphaMap() const;
 			inline const TextureSamplerInfo& GetAlphaSampler() const;
@@ -35,8 +44,23 @@ namespace Nz
 			Color GetBaseColor() const;
 			inline const std::shared_ptr<Texture>& GetBaseColorMap() const;
 			inline const TextureSamplerInfo& GetBaseColorSampler() const;
-
-			inline bool IsAlphaTestEnabled() const;
+			inline BlendEquation GetBlendAlphaModeEquation() const;
+			inline BlendEquation GetBlendColorModeEquation() const;
+			inline BlendFunc GetBlendDstAlphaFunc() const;
+			inline BlendFunc GetBlendDstColorFunc() const;
+			inline BlendFunc GetBlendSrcAlphaFunc() const;
+			inline BlendFunc GetBlendSrcColorFunc() const;
+			inline ColorComponentMask GetColorWriteMask() const;
+			inline RendererComparison GetDepthCompareFunc() const;
+			inline FaceSide GetFaceCulling() const;
+			inline FaceFilling GetFaceFilling() const;
+			inline MaterialPassFlags GetFlags() const;
+			inline float GetLineWidth() const;
+			inline const nzsl::Ast::ConstantSingleValue& GetOptionValue(std::size_t optionIndex) const;
+			inline const std::shared_ptr<MaterialPipeline>& GetPipeline() const;
+			inline const MaterialPipelineInfo& GetPipelineInfo() const;
+			inline float GetPointSize() const;
+			inline PrimitiveMode GetPrimitiveMode() const;
 
 			inline bool HasAlphaMap() const;
 			inline bool HasAlphaTest() const;
@@ -44,77 +68,42 @@ namespace Nz
 			inline bool HasBaseColor() const;
 			inline bool HasBaseColorMap() const;
 
+			inline bool IsAlphaTestEnabled() const;
+			inline bool IsBlendingEnabled() const;
+			inline bool IsColorWriteEnabled() const;
+			inline bool IsDepthBufferEnabled() const;
+			inline bool IsDepthClampEnabled() const;
+			inline bool IsDepthWriteEnabled() const;
+			inline bool IsFaceCullingEnabled() const;
+			inline bool IsFlagEnabled(MaterialPassFlag flag) const;
+			inline bool IsScissorTestEnabled() const;
+			inline bool IsStencilTestEnabled() const;
+
 			inline void SetAlphaMap(std::shared_ptr<Texture> alphaMap);
 			inline void SetAlphaSampler(TextureSamplerInfo alphaSampler);
 			void SetAlphaTestThreshold(float alphaThreshold);
 			void SetBaseColor(const Color& baseColor);
 			inline void SetBaseColorMap(std::shared_ptr<Texture> baseColorMap);
 			inline void SetBaseColorSampler(TextureSamplerInfo baseColorSampler);
+			inline void SetBlendEquation(BlendEquation colorMode, BlendEquation alphaMode);
+			inline void SetBlendFunc(BlendFunc srcColor, BlendFunc dstColor, BlendFunc srcAlpha, BlendFunc dstAlpha);
+			inline void SetDepthCompareFunc(RendererComparison depthFunc);
+			inline void SetFaceCulling(FaceSide faceSide);
+			inline void SetFaceFilling(FaceFilling filling);
+			inline void SetLineWidth(float lineWidth);
+			inline void SetPointSize(float pointSize);
+			inline void SetPrimitiveMode(PrimitiveMode mode);
 
-			static inline const BasicUniformOffsets& GetOffsets();
-			static inline const std::shared_ptr<MaterialSettings>& GetSettings();
+			BasicMaterial& operator=(const BasicMaterial&) = delete;
+			BasicMaterial& operator=(BasicMaterial&&) = delete;
 
-			struct BasicUniformOffsets
-			{
-				std::size_t alphaThreshold;
-				std::size_t baseColor;
-				std::size_t totalSize;
-			};
+			static std::shared_ptr<Material> Build();
 
 		protected:
-			struct NoInit {};
+			inline void UpdatePasses();
 
-			inline BasicMaterial(MaterialPass& material, NoInit);
-
-			struct BasicOptionIndexes
-			{
-				std::size_t alphaTest;
-				std::size_t hasAlphaMap;
-				std::size_t hasBaseColorMap;
-			};
-
-			struct BasicTextureIndexes
-			{
-				std::size_t alpha;
-				std::size_t baseColor;
-			};
-
-			struct BasicBuildOptions
-			{
-				// Common
-				std::vector<UInt8> defaultValues;
-				std::size_t* uniformBlockIndex = nullptr;
-				std::vector<std::shared_ptr<UberShader>> shaders;
-
-				// Basic
-				BasicUniformOffsets basicOffsets;
-				BasicOptionIndexes* basicOptionIndexes = nullptr;
-				BasicTextureIndexes* basicTextureIndexes = nullptr;
-			};
-
-			inline MaterialPass& GetMaterial();
-			inline const MaterialPass& GetMaterial() const;
-
-			static MaterialSettings::Builder Build(BasicBuildOptions& options);
-			static std::vector<std::shared_ptr<UberShader>> BuildShaders();
-			static std::pair<BasicUniformOffsets, nzsl::FieldOffsets> BuildUniformOffsets();
-
-			std::size_t m_uniformBlockIndex;
-			BasicOptionIndexes m_basicOptionIndexes;
-			BasicTextureIndexes m_basicTextureIndexes;
-			BasicUniformOffsets m_basicUniformOffsets;
-
-			static std::shared_ptr<MaterialSettings> s_basicMaterialSettings;
-			static std::size_t s_uniformBlockIndex;
-			static BasicOptionIndexes s_basicOptionIndexes;
-			static BasicTextureIndexes s_basicTextureIndexes;
-			static BasicUniformOffsets s_basicUniformOffsets;
-
-		private:
-			static bool Initialize();
-			static void Uninitialize();
-
-			MaterialPass& m_material;
+			std::optional<BasicMaterialPass> m_forwardPass;
+			std::optional<DepthMaterialPass> m_depthPass;
 	};
 }
 

@@ -192,7 +192,7 @@ int main()
 
 	std::shared_ptr<Nz::GraphicalMesh> coneMeshGfx = Nz::GraphicalMesh::BuildFromMesh(*coneMesh);
 
-	auto customSettings = Nz::BasicMaterial::GetSettings()->GetBuilderData();
+	auto customSettings = Nz::BasicMaterialPass::GetSettings()->GetBuilderData();
 	customSettings.shaders.clear();
 	customSettings.shaders.emplace_back(std::make_shared<Nz::UberShader>(nzsl::ShaderStageType::Fragment, nzsl::ParseFromFile(shaderDir / "deferred_frag.nzsl")));
 	customSettings.shaders.emplace_back(std::make_shared<Nz::UberShader>(nzsl::ShaderStageType::Vertex, nzsl::ParseFromFile(shaderDir / "deferred_vert.nzsl")));
@@ -204,7 +204,7 @@ int main()
 	std::shared_ptr<Nz::MaterialPass> spaceshipMatPass = std::make_shared<Nz::MaterialPass>(customMatSettings);
 	spaceshipMatPass->EnableDepthBuffer(true);
 	{
-		Nz::BasicMaterial basicMat(*spaceshipMatPass);
+		Nz::BasicMaterialPass basicMat(*spaceshipMatPass);
 		basicMat.EnableAlphaTest(false);
 		basicMat.SetAlphaMap(Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
 		basicMat.SetBaseColorMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
@@ -214,7 +214,7 @@ int main()
 	std::shared_ptr<Nz::Material> flareMaterial = std::make_shared<Nz::Material>();
 	std::shared_ptr<Nz::MaterialPass> flareMaterialPass;
 	{
-		flareMaterialPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
+		flareMaterialPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterialPass::GetSettings());
 		flareMaterialPass->EnableDepthBuffer(true);
 		flareMaterialPass->EnableDepthWrite(false);
 		flareMaterialPass->EnableDepthClamp(true);
@@ -225,7 +225,7 @@ int main()
 		flareMaterialPass->SetBlendEquation(Nz::BlendEquation::Add, Nz::BlendEquation::Add);
 		flareMaterialPass->SetBlendFunc(Nz::BlendFunc::SrcAlpha, Nz::BlendFunc::InvSrcAlpha, Nz::BlendFunc::One, Nz::BlendFunc::Zero);
 
-		Nz::BasicMaterial Osef(*flareMaterialPass);
+		Nz::BasicMaterialPass Osef(*flareMaterialPass);
 		Osef.SetBaseColorMap(Nz::Texture::LoadFromFile(resourceDir / "flare1.png", texParams));
 
 		flareMaterial->AddPass("ForwardPass", flareMaterialPass);
@@ -236,7 +236,7 @@ int main()
 	std::shared_ptr<Nz::MaterialPass> planeMatPass = std::make_shared<Nz::MaterialPass>(customMatSettings);
 	planeMatPass->EnableDepthBuffer(true);
 	{
-		Nz::BasicMaterial basicMat(*planeMatPass);
+		Nz::BasicMaterialPass basicMat(*planeMatPass);
 		basicMat.SetBaseColorMap(Nz::Texture::LoadFromFile(resourceDir / "dev_grey.png", texParams));
 
 		Nz::TextureSamplerInfo planeSampler;

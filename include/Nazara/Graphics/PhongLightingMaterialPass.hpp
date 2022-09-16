@@ -4,21 +4,21 @@
 
 #pragma once
 
-#ifndef NAZARA_GRAPHICS_PHONGLIGHTINGMATERIAL_HPP
-#define NAZARA_GRAPHICS_PHONGLIGHTINGMATERIAL_HPP
+#ifndef NAZARA_GRAPHICS_PHONGLIGHTINGMATERIALPASS_HPP
+#define NAZARA_GRAPHICS_PHONGLIGHTINGMATERIALPASS_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Graphics/BasicMaterial.hpp>
+#include <Nazara/Graphics/BasicMaterialPass.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
 
 namespace Nz
 {
-	class NAZARA_GRAPHICS_API PhongLightingMaterial : public BasicMaterial
+	class NAZARA_GRAPHICS_API PhongLightingMaterialPass : public BasicMaterialPass
 	{
 		friend class MaterialPipeline;
 
 		public:
-			PhongLightingMaterial(MaterialPass& material);
+			PhongLightingMaterialPass(MaterialPass& material);
 
 			Color GetAmbientColor() const;
 			inline const std::shared_ptr<Texture>& GetEmissiveMap() const;
@@ -106,6 +106,6 @@ namespace Nz
 	};
 }
 
-#include <Nazara/Graphics/PhongLightingMaterial.inl>
+#include <Nazara/Graphics/PhongLightingMaterialPass.inl>
 
-#endif // NAZARA_GRAPHICS_PHONGLIGHTINGMATERIAL_HPP
+#endif // NAZARA_GRAPHICS_PHONGLIGHTINGMATERIALPASS_HPP

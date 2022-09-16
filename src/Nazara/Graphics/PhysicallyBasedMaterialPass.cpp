@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Graphics/PhysicallyBasedMaterial.hpp>
+#include <Nazara/Graphics/PhysicallyBasedMaterialPass.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
@@ -17,11 +17,11 @@
 
 namespace Nz
 {
-	PhysicallyBasedMaterial::PhysicallyBasedMaterial(MaterialPass& material) :
-	BasicMaterial(material, NoInit{})
+	PhysicallyBasedMaterialPass::PhysicallyBasedMaterialPass(MaterialPass& material) :
+	BasicMaterialPass(material, NoInit{})
 	{
 		// Most common case: don't fetch texture indexes as a little optimization
-		const std::shared_ptr<const MaterialSettings>& materialSettings = GetMaterial().GetSettings();
+		const std::shared_ptr<const MaterialSettings>& materialSettings = GetMaterialPass().GetSettings();
 		if (materialSettings == s_pbrMaterialSettings)
 		{
 			m_basicUniformOffsets = s_basicUniformOffsets;
@@ -75,39 +75,39 @@ namespace Nz
 		}
 	}
 
-	Color PhysicallyBasedMaterial::GetAmbientColor() const
+	Color PhysicallyBasedMaterialPass::GetAmbientColor() const
 	{
 		NazaraAssert(HasAmbientColor(), "Material has no ambient color uniform");
 
-		const std::vector<UInt8>& bufferData = GetMaterial().GetUniformBufferConstData(m_uniformBlockIndex);
+		const std::vector<UInt8>& bufferData = GetMaterialPass().GetUniformBufferConstData(m_uniformBlockIndex);
 
 		const float* colorPtr = AccessByOffset<const float*>(bufferData.data(), m_pbrUniformOffsets.ambientColor);
 		return Color(colorPtr[0] * 255, colorPtr[1] * 255, colorPtr[2] * 255, colorPtr[3] * 255); //< TODO: Make color able to use float
 	}
 
-	float Nz::PhysicallyBasedMaterial::GetShininess() const
+	float Nz::PhysicallyBasedMaterialPass::GetShininess() const
 	{
 		NazaraAssert(HasShininess(), "Material has no shininess uniform");
 
-		const std::vector<UInt8>& bufferData = GetMaterial().GetUniformBufferConstData(m_uniformBlockIndex);
+		const std::vector<UInt8>& bufferData = GetMaterialPass().GetUniformBufferConstData(m_uniformBlockIndex);
 		return AccessByOffset<const float&>(bufferData.data(), m_pbrUniformOffsets.shininess);
 	}
 
-	Color PhysicallyBasedMaterial::GetSpecularColor() const
+	Color PhysicallyBasedMaterialPass::GetSpecularColor() const
 	{
 		NazaraAssert(HasSpecularColor(), "Material has no specular color uniform");
 
-		const std::vector<UInt8>& bufferData = GetMaterial().GetUniformBufferConstData(m_uniformBlockIndex);
+		const std::vector<UInt8>& bufferData = GetMaterialPass().GetUniformBufferConstData(m_uniformBlockIndex);
 
 		const float* colorPtr = AccessByOffset<const float*>(bufferData.data(), m_pbrUniformOffsets.specularColor);
 		return Color(colorPtr[0] * 255, colorPtr[1] * 255, colorPtr[2] * 255, colorPtr[3] * 255); //< TODO: Make color able to use float
 	}
 
-	void PhysicallyBasedMaterial::SetAmbientColor(const Color& ambient)
+	void PhysicallyBasedMaterialPass::SetAmbientColor(const Color& ambient)
 	{
 		NazaraAssert(HasAmbientColor(), "Material has no ambient color uniform");
 
-		std::vector<UInt8>& bufferData = GetMaterial().GetUniformBufferData(m_uniformBlockIndex);
+		std::vector<UInt8>& bufferData = GetMaterialPass().GetUniformBufferData(m_uniformBlockIndex);
 		float* colorPtr = AccessByOffset<float*>(bufferData.data(), m_pbrUniformOffsets.ambientColor);
 		colorPtr[0] = ambient.r;
 		colorPtr[1] = ambient.g;
@@ -115,19 +115,19 @@ namespace Nz
 		colorPtr[3] = ambient.a;
 	}
 
-	void PhysicallyBasedMaterial::SetShininess(float shininess)
+	void PhysicallyBasedMaterialPass::SetShininess(float shininess)
 	{
 		NazaraAssert(HasShininess(), "Material has no shininess uniform");
 
-		std::vector<UInt8>& bufferData = GetMaterial().GetUniformBufferData(m_uniformBlockIndex);
+		std::vector<UInt8>& bufferData = GetMaterialPass().GetUniformBufferData(m_uniformBlockIndex);
 		AccessByOffset<float&>(bufferData.data(), m_pbrUniformOffsets.shininess) = shininess;
 	}
 
-	void PhysicallyBasedMaterial::SetSpecularColor(const Color& specular)
+	void PhysicallyBasedMaterialPass::SetSpecularColor(const Color& specular)
 	{
 		NazaraAssert(HasSpecularColor(), "Material has no specular color uniform");
 
-		std::vector<UInt8>& bufferData = GetMaterial().GetUniformBufferData(m_uniformBlockIndex);
+		std::vector<UInt8>& bufferData = GetMaterialPass().GetUniformBufferData(m_uniformBlockIndex);
 		float* colorPtr = AccessByOffset<float*>(bufferData.data(), m_pbrUniformOffsets.specularColor);
 		colorPtr[0] = specular.r;
 		colorPtr[1] = specular.g;
@@ -135,14 +135,14 @@ namespace Nz
 		colorPtr[3] = specular.a;
 	}
 
-	const std::shared_ptr<MaterialSettings>& PhysicallyBasedMaterial::GetSettings()
+	const std::shared_ptr<MaterialSettings>& PhysicallyBasedMaterialPass::GetSettings()
 	{
 		return s_pbrMaterialSettings;
 	}
 
-	MaterialSettings::Builder PhysicallyBasedMaterial::Build(PbrBuildOptions& options)
+	MaterialSettings::Builder PhysicallyBasedMaterialPass::Build(PbrBuildOptions& options)
 	{
-		MaterialSettings::Builder settings = BasicMaterial::Build(options);
+		MaterialSettings::Builder settings = BasicMaterialPass::Build(options);
 
 		assert(settings.uniformBlocks.size() == 1);
 		std::vector<MaterialSettings::UniformVariable> variables = std::move(settings.uniformBlocks.front().uniforms);
@@ -340,16 +340,16 @@ namespace Nz
 		return settings;
 	}
 
-	std::vector<std::shared_ptr<UberShader>> PhysicallyBasedMaterial::BuildShaders()
+	std::vector<std::shared_ptr<UberShader>> PhysicallyBasedMaterialPass::BuildShaders()
 	{
 		auto shader = std::make_shared<UberShader>(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, "PhysicallyBasedMaterial");
 
 		return { std::move(shader) };
 	}
 
-	auto PhysicallyBasedMaterial::BuildUniformOffsets() -> std::pair<PbrUniformOffsets, nzsl::FieldOffsets>
+	auto PhysicallyBasedMaterialPass::BuildUniformOffsets() -> std::pair<PbrUniformOffsets, nzsl::FieldOffsets>
 	{
-		auto basicOffsets = BasicMaterial::BuildUniformOffsets();
+		auto basicOffsets = BasicMaterialPass::BuildUniformOffsets();
 		nzsl::FieldOffsets fieldOffsets = basicOffsets.second;
 
 		PbrUniformOffsets uniformOffsets;
@@ -362,7 +362,7 @@ namespace Nz
 		return std::make_pair(std::move(uniformOffsets), std::move(fieldOffsets));
 	}
 
-	bool PhysicallyBasedMaterial::Initialize()
+	bool PhysicallyBasedMaterialPass::Initialize()
 	{
 		std::tie(s_pbrUniformOffsets, std::ignore) = BuildUniformOffsets();
 
@@ -385,14 +385,14 @@ namespace Nz
 		return true;
 	}
 
-	void PhysicallyBasedMaterial::Uninitialize()
+	void PhysicallyBasedMaterialPass::Uninitialize()
 	{
 		s_pbrMaterialSettings.reset();
 	}
 
-	std::shared_ptr<MaterialSettings> PhysicallyBasedMaterial::s_pbrMaterialSettings;
-	std::size_t PhysicallyBasedMaterial::s_pbrUniformBlockIndex;
-	PhysicallyBasedMaterial::PbrOptionIndexes PhysicallyBasedMaterial::s_pbrOptionIndexes;
-	PhysicallyBasedMaterial::PbrTextureIndexes PhysicallyBasedMaterial::s_pbrTextureIndexes;
-	PhysicallyBasedMaterial::PbrUniformOffsets PhysicallyBasedMaterial::s_pbrUniformOffsets;
+	std::shared_ptr<MaterialSettings> PhysicallyBasedMaterialPass::s_pbrMaterialSettings;
+	std::size_t PhysicallyBasedMaterialPass::s_pbrUniformBlockIndex;
+	PhysicallyBasedMaterialPass::PbrOptionIndexes PhysicallyBasedMaterialPass::s_pbrOptionIndexes;
+	PhysicallyBasedMaterialPass::PbrTextureIndexes PhysicallyBasedMaterialPass::s_pbrTextureIndexes;
+	PhysicallyBasedMaterialPass::PbrUniformOffsets PhysicallyBasedMaterialPass::s_pbrUniformOffsets;
 }

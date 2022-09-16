@@ -64,7 +64,7 @@ int main()
 
 	std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>();
 
-	std::shared_ptr<Nz::MaterialPass> materialPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
+	std::shared_ptr<Nz::MaterialPass> materialPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterialPass::GetSettings());
 	material->AddPass("ForwardPass", materialPass);
 
 	Nz::TextureSamplerInfo samplerInfo;
@@ -74,7 +74,7 @@ int main()
 	texParams.renderDevice = device;
 	texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
 
-	Nz::BasicMaterial basicMat(*materialPass);
+	Nz::BasicMaterialPass basicMat(*materialPass);
 	basicMat.SetBaseColorMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
 	basicMat.SetBaseColorSampler(samplerInfo);
 
@@ -101,7 +101,7 @@ int main()
 	{
 		std::shared_ptr<Nz::Material> whiteMaterial = std::make_shared<Nz::Material>();
 
-		std::shared_ptr<Nz::MaterialPass> materialPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
+		std::shared_ptr<Nz::MaterialPass> materialPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterialPass::GetSettings());
 		whiteMaterial->AddPass("ForwardPass", materialPass);
 
 		std::shared_ptr<Nz::Sprite> sprite = std::make_shared<Nz::Sprite>(whiteMaterial);

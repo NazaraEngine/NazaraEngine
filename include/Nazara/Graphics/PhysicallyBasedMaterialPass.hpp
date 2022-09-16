@@ -4,21 +4,21 @@
 
 #pragma once
 
-#ifndef NAZARA_GRAPHICS_PHYSICALLYBASEDMATERIAL_HPP
-#define NAZARA_GRAPHICS_PHYSICALLYBASEDMATERIAL_HPP
+#ifndef NAZARA_GRAPHICS_PHYSICALLYBASEDMATERIALPASS_HPP
+#define NAZARA_GRAPHICS_PHYSICALLYBASEDMATERIALPASS_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Graphics/BasicMaterial.hpp>
+#include <Nazara/Graphics/BasicMaterialPass.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
 
 namespace Nz
 {
-	class NAZARA_GRAPHICS_API PhysicallyBasedMaterial : public BasicMaterial
+	class NAZARA_GRAPHICS_API PhysicallyBasedMaterialPass : public BasicMaterialPass
 	{
 		friend class MaterialPipeline;
 
 		public:
-			PhysicallyBasedMaterial(MaterialPass& material);
+			PhysicallyBasedMaterialPass(MaterialPass& material);
 
 			Color GetAmbientColor() const;
 			inline const std::shared_ptr<Texture>& GetEmissiveMap() const;
@@ -120,6 +120,6 @@ namespace Nz
 	};
 }
 
-#include <Nazara/Graphics/PhysicallyBasedMaterial.inl>
+#include <Nazara/Graphics/PhysicallyBasedMaterialPass.inl>
 
-#endif // NAZARA_GRAPHICS_PHYSICALLYBASEDMATERIAL_HPP
+#endif // NAZARA_GRAPHICS_PHYSICALLYBASEDMATERIALPASS_HPP

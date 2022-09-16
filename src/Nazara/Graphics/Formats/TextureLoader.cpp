@@ -3,11 +3,11 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/Formats/TextureLoader.hpp>
-#include <Nazara/Graphics/BasicMaterial.hpp>
-#include <Nazara/Graphics/DepthMaterial.hpp>
+#include <Nazara/Graphics/BasicMaterialPass.hpp>
+#include <Nazara/Graphics/DepthMaterialPass.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
-#include <Nazara/Graphics/PhongLightingMaterial.hpp>
-#include <Nazara/Graphics/PhysicallyBasedMaterial.hpp>
+#include <Nazara/Graphics/PhongLightingMaterialPass.hpp>
+#include <Nazara/Graphics/PhysicallyBasedMaterialPass.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Utility/Utility.hpp>
 #include <Nazara/Graphics/Debug.hpp>
@@ -41,15 +41,15 @@ namespace Nz
 				{
 					std::shared_ptr<MaterialPass> matPass;
 					if (parameters.lightingType == MaterialLightingType::Phong)
-						matPass = std::make_shared<MaterialPass>(PhongLightingMaterial::GetSettings());
+						matPass = std::make_shared<MaterialPass>(PhongLightingMaterialPass::GetSettings());
 					else if (parameters.lightingType == MaterialLightingType::PhysicallyBased)
-						matPass = std::make_shared<MaterialPass>(PhysicallyBasedMaterial::GetSettings());
+						matPass = std::make_shared<MaterialPass>(PhysicallyBasedMaterialPass::GetSettings());
 					else
-						matPass = std::make_shared<MaterialPass>(BasicMaterial::GetSettings());
+						matPass = std::make_shared<MaterialPass>(BasicMaterialPass::GetSettings());
 
 					matPass->EnableDepthBuffer(true);
 
-					BasicMaterial forwardPass(*matPass);
+					BasicMaterialPass forwardPass(*matPass);
 					forwardPass.SetBaseColorMap(texture);
 
 					if (hasAlphaTest && PixelFormatInfo::HasAlpha(texture->GetFormat()))
@@ -60,12 +60,12 @@ namespace Nz
 
 				// DepthPass
 				{
-					std::shared_ptr<MaterialPass> matPass = std::make_shared<MaterialPass>(DepthMaterial::GetSettings());
+					std::shared_ptr<MaterialPass> matPass = std::make_shared<MaterialPass>(DepthMaterialPass::GetSettings());
 					matPass->EnableDepthBuffer(true);
 
 					if (hasAlphaTest && PixelFormatInfo::HasAlpha(texture->GetFormat()))
 					{
-						BasicMaterial depthPass(*matPass);
+						BasicMaterialPass depthPass(*matPass);
 						depthPass.SetBaseColorMap(texture);
 						depthPass.EnableAlphaTest(true);
 					}
