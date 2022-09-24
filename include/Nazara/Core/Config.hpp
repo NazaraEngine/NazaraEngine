@@ -52,20 +52,8 @@
 // Incorporate the Unicode Character Data table (Necessary to make it work with the flag String::HandleUTF8)
 #define NAZARA_CORE_INCLUDE_UNICODEDATA 1
 
-// Use the MemoryManager to manage dynamic allocations (can detect memory leak but allocations/frees are slower)
-#define NAZARA_CORE_MANAGE_MEMORY 0
-
 // Activate the security tests based on the code (Advised for development)
 #define NAZARA_CORE_SAFE 1
-
-// Number of spinlocks to use with the Windows critical sections (0 to disable)
-#define NAZARA_CORE_WINDOWS_CS_SPINLOCKS 4096
-
-
-/*
-// Sets the time between waking thread timers and activating a timer (in milliseconds)
-#define NAZARA_CORE_TIMER_WAKEUPTIME 10
-*/
 
 /// Checking the values and types of certain constants
 #include <Nazara/Core/ConfigCheck.hpp>

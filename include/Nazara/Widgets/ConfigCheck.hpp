@@ -12,12 +12,6 @@
 #include <type_traits>
 #define NazaraCheckTypeAndVal(name, type, op, val, err) static_assert(std::is_ ##type <decltype(name)>::value && name op val, #type err)
 
-// We force the value of MANAGE_MEMORY in debug
-#if defined(NAZARA_DEBUG) && !NAZARA_WIDGETS_MANAGE_MEMORY
-	#undef NAZARA_WIDGETS_MANAGE_MEMORY
-	#define NAZARA_WIDGETS_MANAGE_MEMORY 0
-#endif
-
 #undef NazaraCheckTypeAndVal
 
 #endif // NAZARA_WIDGETS_CONFIGCHECK_HPP

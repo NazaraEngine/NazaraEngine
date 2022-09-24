@@ -49,6 +49,7 @@
 #include <Nazara/Graphics/FramePassAttachment.hpp>
 #include <Nazara/Graphics/FramePipeline.hpp>
 #include <Nazara/Graphics/FramePipelinePass.hpp>
+#include <Nazara/Graphics/GpuBuffer.hpp>
 #include <Nazara/Graphics/GraphicalMesh.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/GuillotineTextureAtlas.hpp>

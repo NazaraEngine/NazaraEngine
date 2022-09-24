@@ -34,9 +34,6 @@
 
 /// Each modification of a paramater of the module needs a recompilation of the unit
 
-// Use the MemoryManager to manage dynamic allocations (can detect memory leak but allocations/frees are slower)
-#define NAZARA_NETWORK_MANAGE_MEMORY 0
-
 // Activate the security tests based on the code (Advised for development)
 #define NAZARA_NETWORK_SAFE 1
 

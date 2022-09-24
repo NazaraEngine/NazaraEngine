@@ -7,12 +7,13 @@
 #ifndef NAZARA_PHYSICS2D_CONFIGCHECK_HPP
 #define NAZARA_PHYSICS2D_CONFIGCHECK_HPP
 
-/// Ce fichier sert à vérifier la valeur des constantes du fichier Config.hpp
+/// This file is used to check the constant values defined in Config.hpp
 
-// On force la valeur de MANAGE_MEMORY en mode debug
-#if defined(NAZARA_DEBUG) && !NAZARA_PHYSICS2D_MANAGE_MEMORY
-	#undef NAZARA_PHYSICS2D_MANAGE_MEMORY
-	#define NAZARA_PHYSICS2D_MANAGE_MEMORY 0
-#endif
+#include <type_traits>
+#define NazaraCheckTypeAndVal(name, type, op, val, err) static_assert(std::is_ ##type <decltype(name)>::value && name op val, #type err)
+
+// config checks
+
+#undef NazaraCheckTypeAndVal
 
 #endif // NAZARA_PHYSICS2D_CONFIGCHECK_HPP

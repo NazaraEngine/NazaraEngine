@@ -381,8 +381,6 @@ namespace Nz
 	* \brief Checks whether the file has reached the end of the stream
 	* \return true if cursor is at the end of the file
 	*
-	* \remark Produces a NazaraError if file is not open with NAZARA_CORE_SAFE defined
-	*
 	* \see EndOfFile
 	*/
 	bool File::TestStreamEnd() const

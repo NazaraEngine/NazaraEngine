@@ -192,8 +192,6 @@ namespace Nz
 
 	/*!
 	* \brief Plays the music
-	*
-	* \remark Produces a NazaraError if the sound is not playable with NAZARA_AUDIO_SAFE defined
 	*/
 	void Sound::Play()
 	{
@@ -203,11 +201,9 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets the internal buffer
+	* \brief Sets the audio buffer
 	*
-	* \param buffer Internal buffer
-	*
-	* \remark Produces a NazaraError if buffer is invalid with NAZARA_AUDIO_SAFE defined
+	* \param buffer Audio buffer
 	*/
 	void Sound::SetBuffer(std::shared_ptr<SoundBuffer> buffer)
 	{

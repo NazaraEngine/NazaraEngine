@@ -34,9 +34,6 @@
 
 /// Each modification of a parameter needs a recompilation of the module
 
-// Use the MemoryManager to manage dynamic allocations (can detect memory leak but allocations/frees are slower)
-#define NAZARA_WIDGETS_MANAGE_MEMORY 0
-
 /// Checking the values and types of certain constants
 #include <Nazara/Widgets/ConfigCheck.hpp>
 

@@ -52,7 +52,6 @@
 #include <Nazara/Core/HardwareInfo.hpp>
 #include <Nazara/Core/Initializer.hpp>
 #include <Nazara/Core/Log.hpp>
-#include <Nazara/Core/MemoryManager.hpp>
 #include <Nazara/Core/MemoryStream.hpp>
 #include <Nazara/Core/MemoryView.hpp>
 #include <Nazara/Core/ModuleBase.hpp>

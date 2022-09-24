@@ -40,9 +40,6 @@ namespace Nz
 	* \param sampleCount Number of samples
 	* \param sampleRate Rate of samples
 	* \param samples Samples raw data
-	*
-	* \remark Produces a NazaraError if creation went wrong with NAZARA_AUDIO_SAFE defined
-	* \remark Produces a std::runtime_error if creation went wrong with NAZARA_AUDIO_SAFE defined
 	*/
 	SoundBuffer::SoundBuffer(AudioFormat format, UInt64 sampleCount, UInt32 sampleRate, const Int16* samples)
 	{

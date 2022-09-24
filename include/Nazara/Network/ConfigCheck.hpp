@@ -10,11 +10,10 @@
 /// This file is used to check the constant values defined in Config.hpp
 
 #include <type_traits>
+#define NazaraCheckTypeAndVal(name, type, op, val, err) static_assert(std::is_ ##type <decltype(name)>::value && name op val, #type err)
 
-// We fore the value of MANAGE_MEMORY in debug
-#if defined(NAZARA_DEBUG) && !NAZARA_NETWORK_MANAGE_MEMORY
-	#undef NAZARA_NETWORK_MANAGE_MEMORY
-	#define NAZARA_NETWORK_MANAGE_MEMORY 0
-#endif
+// config checks
+
+#undef NazaraCheckTypeAndVal
 
 #endif // NAZARA_NETWORK_CONFIGCHECK_HPP

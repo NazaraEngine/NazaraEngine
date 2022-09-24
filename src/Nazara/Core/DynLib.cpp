@@ -41,18 +41,10 @@ namespace Nz
 	/*!
 	* \brief Gets the symbol for the name
 	* \return Function which is the symbol of the function name
-	*
-	* \remark Produces a NazaraError if library is not loaded with NAZARA_CORE_SAFE defined
 	*/
 	DynLibFunc DynLib::GetSymbol(const char* symbol) const
 	{
-		#if NAZARA_CORE_SAFE
-		if (!IsLoaded())
-		{
-			NazaraError("Library not opened");
-			return nullptr;
-		}
-		#endif
+		NazaraAssert(IsLoaded(), "library was not opened");
 
 		return m_impl->GetSymbol(symbol, &m_lastError);
 	}
