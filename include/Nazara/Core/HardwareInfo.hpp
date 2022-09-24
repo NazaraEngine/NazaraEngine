@@ -10,33 +10,45 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Enums.hpp>
-#include <string>
+#include <array>
+#include <string_view>
 
 namespace Nz
 {
 	class NAZARA_CORE_API HardwareInfo
 	{
 		public:
-			HardwareInfo() = delete;
-			~HardwareInfo() = delete;
+			HardwareInfo();
+			HardwareInfo(const HardwareInfo&) = delete;
+			HardwareInfo(HardwareInfo&&) = delete;
+			~HardwareInfo() = default;
+
+			inline const char* GetCpuBrandString() const;
+			inline unsigned int GetCpuThreadCount() const;
+			inline ProcessorVendor GetCpuVendor() const;
+			std::string_view GetCpuVendorName() const;
+			inline UInt64 GetSystemTotalMemory() const;
+
+			inline bool HasCapability(ProcessorCap capability) const;
 
 			static void Cpuid(UInt32 functionId, UInt32 subFunctionId, UInt32 result[4]);
-
-			static std::string_view GetProcessorBrandString();
-			static unsigned int GetProcessorCount();
-			static ProcessorVendor GetProcessorVendor();
-			static std::string_view GetProcessorVendorName();
-			static UInt64 GetTotalMemory();
-
-			static bool HasCapability(ProcessorCap capability);
-
-			static bool Initialize();
-
 			static bool IsCpuidSupported();
-			static bool IsInitialized();
 
-			static void Uninitialize();
+			HardwareInfo& operator=(const HardwareInfo&) = delete;
+			HardwareInfo& operator=(HardwareInfo&&) = delete;
+
+		private:
+			void FetchCPUInfo();
+			void FetchMemoryInfo();
+
+			std::array<bool, ProcessorCapCount> m_cpuCapabilities;
+			std::array<char, 3 * 4 * 4> m_cpuBrandString;
+			ProcessorVendor m_cpuVendor;
+			unsigned int m_cpuThreadCount;
+			UInt64 m_systemTotalMemory;
 	};
 }
+
+#include <Nazara/Core/HardwareInfo.inl>
 
 #endif // NAZARA_CORE_HARDWAREINFO_HPP

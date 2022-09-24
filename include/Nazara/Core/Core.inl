@@ -7,6 +7,10 @@
 
 namespace Nz
 {
+	inline const HardwareInfo& Core::GetHardwareInfo() const
+	{
+		return *m_hardwareInfo;
+	}
 }
 
 #include <Nazara/Core/DebugOff.hpp>

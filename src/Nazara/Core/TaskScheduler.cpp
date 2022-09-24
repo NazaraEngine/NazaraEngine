@@ -3,8 +3,8 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/TaskScheduler.hpp>
+#include <Nazara/Core/Core.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/HardwareInfo.hpp>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 	#include <Nazara/Core/Win32/TaskSchedulerImpl.hpp>
@@ -34,12 +34,12 @@ namespace Nz
 
 	/*!
 	* \brief Gets the number of threads
-	* \return Number of threads, if none, the number of simulatenous threads on the processor is returned
+	* \return Number of threads, if none, the number of logical threads on the processor is returned
 	*/
 
 	unsigned int TaskScheduler::GetWorkerCount()
 	{
-		return (s_workerCount > 0) ? s_workerCount : HardwareInfo::GetProcessorCount();
+		return (s_workerCount > 0) ? s_workerCount : Core::Instance()->GetHardwareInfo().GetCpuThreadCount();
 	}
 
 	/*!

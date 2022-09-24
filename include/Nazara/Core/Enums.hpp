@@ -147,10 +147,13 @@ namespace Nz
 	enum class ProcessorCap
 	{
 		x64,
+		AES,
 		AVX,
 		FMA3,
 		FMA4,
 		MMX,
+		Popcnt,
+		RDRAND,
 		XOP,
 		SSE,
 		SSE2,
@@ -169,14 +172,24 @@ namespace Nz
 	{
 		Unknown = -1,
 
+		ACRN,
 		AMD,
+		Ao486,
+		AppleRosetta2,
+		Bhyve,
 		Centaur,
 		Cyrix,
+		Elbrus,
+		Hygon,
+		HyperV,
 		Intel,
 		KVM,
-		HyperV,
+		MicrosoftXTA,
 		NSC,
 		NexGen,
+		Parallels,
+		QEMU,
+		QNX,
 		Rise,
 		SIS,
 		Transmeta,
@@ -185,8 +198,9 @@ namespace Nz
 		VMware,
 		Vortex,
 		XenHVM,
+		Zhaoxin,
 
-		Max = XenHVM
+		Max = Zhaoxin
 	};
 
 	constexpr std::size_t ProcessorVendorCount = static_cast<std::size_t>(ProcessorVendor::Max) + 1;

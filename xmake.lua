@@ -59,7 +59,7 @@ local modules = {
 				add_syslinks("dl", "pthread")
 			end
 		end,
-		Packages = { "entt" },
+		Packages = { "entt", "frozen" },
 		PublicPackages = { "nazarautils" }
 	},
 	Graphics = {

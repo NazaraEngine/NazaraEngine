@@ -17,7 +17,7 @@ namespace Nz
 	void HardwareInfoImpl::Cpuid(UInt32 functionId, UInt32 subFunctionId, UInt32 registers[4])
 	{
 	#if defined(NAZARA_COMPILER_MSVC)
-		static_assert(sizeof(UInt32) == sizeof(int), "Assertion failed");
+		static_assert(sizeof(UInt32) == sizeof(int));
 
 		// Use intrinsic function if available
 		__cpuidex(reinterpret_cast<int*>(registers), static_cast<int>(functionId), static_cast<int>(subFunctionId));

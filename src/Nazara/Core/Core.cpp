@@ -25,11 +25,14 @@ namespace Nz
 		Log::Initialize();
 
 		LogInit();
+
+		m_hardwareInfo.emplace();
 	}
 
 	Core::~Core()
 	{
-		HardwareInfo::Uninitialize();
+		m_hardwareInfo.reset();
+
 		TaskScheduler::Uninitialize();
 		LogUninit();
 		Log::Uninitialize();

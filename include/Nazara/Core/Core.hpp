@@ -8,9 +8,11 @@
 #define NAZARA_CORE_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/HardwareInfo.hpp>
 #include <Nazara/Core/ModuleBase.hpp>
 #include <Nazara/Core/Modules.hpp>
 #include <Nazara/Utils/TypeList.hpp>
+#include <optional>
 
 namespace Nz
 {
@@ -26,7 +28,11 @@ namespace Nz
 			Core(Config /*config*/);
 			~Core();
 
+			inline const HardwareInfo& GetHardwareInfo() const;
+
 		private:
+			std::optional<HardwareInfo> m_hardwareInfo;
+
 			static Core* s_instance;
 	};
 }
