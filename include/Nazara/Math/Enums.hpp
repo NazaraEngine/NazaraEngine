@@ -14,7 +14,8 @@ namespace Nz
 	enum class AngleUnit
 	{
 		Degree,
-		Radian
+		Radian,
+		Turn
 	};
 
 	enum class BoxCorner

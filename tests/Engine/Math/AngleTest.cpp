@@ -33,6 +33,19 @@ SCENARIO("Angle", "[MATH][ANGLE]")
 			}
 		}
 
+		WHEN("We convert it to turns")
+		{
+			Nz::TurnAnglef turnAngle(angle);
+
+			THEN("It should be equal to pi/2")
+			{
+				Nz::TurnAnglef expectedResult(1.f / 4.f);
+
+				CHECK(turnAngle == expectedResult);
+				CHECK(angle.ToTurnAngle() == expectedResult);
+			}
+		}
+
 		WHEN("We compute its sinus/cosinus separatly")
 		{
 			THEN("It should be equal to 1 and 0")
@@ -199,6 +212,23 @@ SCENARIO("Angle", "[MATH][ANGLE]")
 			THEN("It should be equal to a normalized version of itself")
 			{
 				Nz::RadianAnglef expectedResult(0.f);
+
+				CHECK(angle == expectedResult);
+			}
+		}
+	}
+
+	GIVEN("A turn angle of 1.5f")
+	{
+		Nz::TurnAnglef angle(1.5f);
+
+		WHEN("We normalize it")
+		{
+			angle.Normalize();
+
+			THEN("It should be equal to a normalized version of itself")
+			{
+				Nz::TurnAnglef expectedResult(0.5f);
 
 				CHECK(angle == expectedResult);
 			}

@@ -29,8 +29,7 @@ namespace Nz
 			constexpr Angle() = default;
 			constexpr Angle(T angle);
 			template<typename U> constexpr explicit Angle(const Angle<Unit, U>& Angle);
-			constexpr Angle(const Angle<AngleUnit::Degree, T>& angle);
-			constexpr Angle(const Angle<AngleUnit::Radian, T>& angle);
+			template<AngleUnit FromUnit> constexpr Angle(const Angle<FromUnit, T>& angle);
 			~Angle() = default;
 
 			T GetCos() const;
@@ -45,6 +44,8 @@ namespace Nz
 			constexpr Angle& Set(const Angle& ang);
 			template<typename U> constexpr Angle& Set(const Angle<Unit, U>& ang);
 
+			template<AngleUnit ToUnit> T To() const;
+			template<AngleUnit ToUnit> Angle<ToUnit, T> ToAngle() const;
 			constexpr T ToDegrees() const;
 			constexpr Angle<AngleUnit::Degree, T> ToDegreeAngle() const;
 			EulerAngles<T> ToEulerAngles() const;
@@ -52,6 +53,8 @@ namespace Nz
 			constexpr T ToRadians() const;
 			constexpr Angle<AngleUnit::Radian, T> ToRadianAngle() const;
 			std::string ToString() const;
+			constexpr T ToTurns() const;
+			constexpr Angle<AngleUnit::Turn, T> ToTurnAngle() const;
 
 			constexpr Angle& operator=(const Angle&) = default;
 
@@ -71,8 +74,10 @@ namespace Nz
 			constexpr bool operator==(const Angle& other) const;
 			constexpr bool operator!=(const Angle& other) const;
 
-			static constexpr Angle FromDegrees(T ang);
-			static constexpr Angle FromRadians(T ang);
+			template<AngleUnit FromUnit> static constexpr Angle From(T value);
+			static constexpr Angle FromDegrees(T degrees);
+			static constexpr Angle FromRadians(T radians);
+			static constexpr Angle FromTurns(T turn);
 			static constexpr Angle Zero();
 
 			T value;
@@ -89,6 +94,12 @@ namespace Nz
 
 	using RadianAngled = RadianAngle<double>;
 	using RadianAnglef = RadianAngle<float>;
+
+	template<typename T>
+	using TurnAngle = Angle<AngleUnit::Turn, T>;
+
+	using TurnAngled = TurnAngle<double>;
+	using TurnAnglef = TurnAngle<float>;
 
 	template<AngleUnit Unit, typename T> bool Serialize(SerializationContext& context, const Angle<Unit, T>& angle, TypeTag<Angle<Unit, T>>);
 	template<AngleUnit Unit, typename T> bool Unserialize(SerializationContext& context, Angle<Unit, T>* angle, TypeTag<Angle<Unit, T>>);

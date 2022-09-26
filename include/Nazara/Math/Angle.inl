@@ -17,6 +17,71 @@ namespace Nz
 {
 	namespace Detail
 	{
+		template<AngleUnit From, AngleUnit To> struct AngleConversion;
+
+		template<AngleUnit Unit>
+		struct AngleConversion<Unit, Unit>
+		{
+			template<typename T> static constexpr T Convert(T angle)
+			{
+				return angle;
+			}
+		};
+
+		template<>
+		struct AngleConversion<AngleUnit::Degree, AngleUnit::Radian>
+		{
+			template<typename T> static constexpr T Convert(T angle)
+			{
+				return DegreeToRadian(angle);
+			}
+		};
+
+		template<>
+		struct AngleConversion<AngleUnit::Degree, AngleUnit::Turn>
+		{
+			template<typename T> static constexpr T Convert(T angle)
+			{
+				return angle / T(360);
+			}
+		};
+
+		template<>
+		struct AngleConversion<AngleUnit::Radian, AngleUnit::Degree>
+		{
+			template<typename T> static constexpr T Convert(T angle)
+			{
+				return RadianToDegree(angle);
+			}
+		};
+
+		template<>
+		struct AngleConversion<AngleUnit::Radian, AngleUnit::Turn>
+		{
+			template<typename T> static constexpr T Convert(T angle)
+			{
+				return angle / (T(2) * Pi<T>);
+			}
+		};
+
+		template<>
+		struct AngleConversion<AngleUnit::Turn, AngleUnit::Degree>
+		{
+			template<typename T> static constexpr T Convert(T angle)
+			{
+				return angle * T(360);
+			}
+		};
+
+		template<>
+		struct AngleConversion<AngleUnit::Turn, AngleUnit::Radian>
+		{
+			template<typename T> static constexpr T Convert(T angle)
+			{
+				return angle * T(2) * Pi<T>;
+			}
+		};
+
 		template<AngleUnit Unit> struct AngleUtils;
 
 		template<>
@@ -29,27 +94,7 @@ namespace Nz
 
 			template<typename T> static constexpr T GetLimit()
 			{
-				return 180;
-			}
-
-			template<typename T> static constexpr T FromDegrees(T degrees)
-			{
-				return degrees;
-			}
-
-			template<typename T> static constexpr T FromRadians(T radians)
-			{
-				return RadianToDegree(radians);
-			}
-
-			template<typename T> static constexpr T ToDegrees(T degrees)
-			{
-				return degrees;
-			}
-
-			template<typename T> static constexpr T ToRadians(T degrees)
-			{
-				return DegreeToRadian(degrees);
+				return 360;
 			}
 
 			template<typename T> static std::ostream& ToString(std::ostream& out, T value)
@@ -68,32 +113,31 @@ namespace Nz
 
 			template<typename T> static constexpr T GetLimit()
 			{
-				return Pi<T>;
-			}
-
-			template<typename T> static constexpr T FromDegrees(T degrees)
-			{
-				return DegreeToRadian(degrees);
-			}
-
-			template<typename T> static constexpr T FromRadians(T radians)
-			{
-				return radians;
-			}
-
-			template<typename T> static constexpr T ToDegrees(T radians)
-			{
-				return RadianToDegree(radians);
-			}
-
-			template<typename T> static constexpr T ToRadians(T radians)
-			{
-				return radians;
+				return T(2) * Pi<T>;
 			}
 
 			template<typename T> static std::ostream& ToString(std::ostream& out, T value)
 			{
 				return out << "Angle(" << value << "rad)";
+			}
+		};
+
+		template<>
+		struct AngleUtils<AngleUnit::Turn>
+		{
+			template<typename T> static constexpr T GetEpsilon()
+			{
+				return T(1e-5);
+			}
+
+			template<typename T> static constexpr T GetLimit()
+			{
+				return 1;
+			}
+
+			template<typename T> static std::ostream& ToString(std::ostream& out, T value)
+			{
+				return out << "Angle(" << value << "turn)";
 			}
 		};
 
@@ -147,24 +191,14 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Constructs an Angle object from a angle in degrees, converting if required
+	* \brief Constructs an Angle object from a angle in a specific unit, converting if required
 	*
 	* \param value Angle object to copy
 	*/
 	template<AngleUnit Unit, typename T>
-	constexpr Angle<Unit, T>::Angle(const Angle<AngleUnit::Degree, T>& angle) :
-	value(Detail::AngleUtils<Unit>::FromDegrees(angle.value))
-	{
-	}
-
-	/*!
-	* \brief Constructs an Angle object from a angle in radians, converting if required
-	*
-	* \param value Angle object to copy
-	*/
-	template<AngleUnit Unit, typename T>
-	constexpr Angle<Unit, T>::Angle(const Angle<AngleUnit::Radian, T>& angle) :
-	value(Detail::AngleUtils<Unit>::FromRadians(angle.value))
+	template<AngleUnit FromUnit>
+	constexpr Angle<Unit, T>::Angle(const Angle<FromUnit, T>& angle) :
+	value(Detail::AngleConversion<FromUnit, Unit>::Convert(angle.value))
 	{
 	}
 
@@ -237,16 +271,16 @@ namespace Nz
 	* If angle exceeds local limits positively or negatively, bring it back between them.
 	* For degree angles, local limits are [-180, 180]
 	* For radian angles, local limits are [-Pi, Pi]
+	* For turn angles, local limits are [-1, 1]
 	*/
 	template<AngleUnit Unit, typename T>
 	constexpr Angle<Unit, T>& Angle<Unit, T>::Normalize()
 	{
 		constexpr T limit = Detail::AngleUtils<Unit>::template GetLimit<T>();
-		constexpr T twoLimit = limit * T(2);
 
-		value = std::fmod(value, twoLimit);
+		value = std::fmod(value, limit);
 		if (value < T(0))
-			value += twoLimit;
+			value += limit;
 
 		return *this;
 	}
@@ -279,13 +313,35 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Returns the ToUnit angle that is equivalent to this one
+	* \return Equivalent ToUnit angle value
+	*/
+	template<AngleUnit Unit, typename T>
+	template<AngleUnit ToUnit>
+	T Angle<Unit, T>::To() const
+	{
+		return Detail::AngleConversion<Unit, ToUnit>::Convert(value);
+	}
+
+	/*!
+	* \brief Returns the ToUnit angle that is equivalent to this one
+	* \return Equivalent ToUnit angle
+	*/
+	template<AngleUnit Unit, typename T>
+	template<AngleUnit ToUnit>
+	Angle<ToUnit, T> Angle<Unit, T>::ToAngle() const
+	{
+		return Angle<ToUnit, T>(To<ToUnit>());
+	}
+
+	/*!
 	* \brief Returns the degree angle that is equivalent to this one
 	* \return Equivalent degree angle value
 	*/
 	template<AngleUnit Unit, typename T>
 	constexpr T Angle<Unit, T>::ToDegrees() const
 	{
-		return Detail::AngleUtils<Unit>::ToDegrees(value);
+		return To<AngleUnit::Degree>();
 	}
 
 	/*!
@@ -295,7 +351,7 @@ namespace Nz
 	template<AngleUnit Unit, typename T>
 	constexpr Angle<AngleUnit::Degree, T> Angle<Unit, T>::ToDegreeAngle() const
 	{
-		return DegreeAngle<T>(ToDegrees());
+		return ToAngle<AngleUnit::Degree>();
 	}
 
 	/*!
@@ -333,7 +389,7 @@ namespace Nz
 	template<AngleUnit Unit, typename T>
 	constexpr T Angle<Unit, T>::ToRadians() const
 	{
-		return Detail::AngleUtils<Unit>::ToRadians(value);
+		return To<AngleUnit::Radian>();
 	}
 
 	/*!
@@ -343,7 +399,7 @@ namespace Nz
 	template<AngleUnit Unit, typename T>
 	constexpr Angle<AngleUnit::Radian, T> Angle<Unit, T>::ToRadianAngle() const
 	{
-		return RadianAngle<T>(ToRadians());
+		return ToAngle<AngleUnit::Radian>();
 	}
 
 	/*!
@@ -357,6 +413,26 @@ namespace Nz
 		Detail::AngleUtils<Unit>::ToString(oss, value);
 
 		return oss.str();
+	}
+
+	/*!
+	* \brief Returns the turn angle that is equivalent to this angle
+	* \return Equivalent turn angle value
+	*/
+	template<AngleUnit Unit, typename T>
+	constexpr T Angle<Unit, T>::ToTurns() const
+	{
+		return To<AngleUnit::Turn>(value);
+	}
+
+	/*!
+	* \brief Returns the turn angle that is equivalent to this angle
+	* \return Equivalent turn angle
+	*/
+	template<AngleUnit Unit, typename T>
+	constexpr Angle<AngleUnit::Turn, T> Angle<Unit, T>::ToTurnAngle() const
+	{
+		return ToAngle<AngleUnit::Turn>();
 	}
 
 	/*!
@@ -527,15 +603,28 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Builds an Angle instance using a FromUnit angle, converting if needed
+	* \return An angle describing the FromUnit angle as Unit
+	*
+	* \param ang Degree angle
+	*/
+	template<AngleUnit Unit, typename T>
+	template<AngleUnit FromUnit>
+	constexpr Angle<Unit, T> Angle<Unit, T>::From(T value)
+	{
+		return Angle(Detail::AngleConversion<FromUnit, Unit>::Convert(value));
+	}
+
+	/*!
 	* \brief Builds an Angle instance using a degree angle, converting if needed
 	* \return An angle describing the degree angle as Unit
 	*
 	* \param ang Degree angle
 	*/
 	template<AngleUnit Unit, typename T>
-	constexpr Angle<Unit, T> Angle<Unit, T>::FromDegrees(T ang)
+	constexpr Angle<Unit, T> Angle<Unit, T>::FromDegrees(T degrees)
 	{
-		return Angle(Detail::AngleUtils<Unit>::FromDegrees(ang));
+		return From<AngleUnit::Degree>(degrees);
 	}
 
 	/*!
@@ -545,9 +634,21 @@ namespace Nz
 	* \param ang Radian angle
 	*/
 	template<AngleUnit Unit, typename T>
-	constexpr Angle<Unit, T> Angle<Unit, T>::FromRadians(T ang)
+	constexpr Angle<Unit, T> Angle<Unit, T>::FromRadians(T radians)
 	{
-		return Angle(Detail::AngleUtils<Unit>::FromRadians(ang));
+		return From<AngleUnit::Radian>(radians);
+	}
+
+	/*!
+	* \brief Builds an Angle instance using a radian angle, converting if needed
+	* \return An angle describing the radian angle as Unit
+	*
+	* \param ang Radian angle
+	*/
+	template<AngleUnit Unit, typename T>
+	constexpr Angle<Unit, T> Angle<Unit, T>::FromTurns(T turns)
+	{
+		return From<AngleUnit::Turn>(turns);
 	}
 
 	/*!
