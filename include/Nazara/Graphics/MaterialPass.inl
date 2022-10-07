@@ -22,33 +22,15 @@ namespace Nz
 	/*!
 	* \brief Reset material pipeline state
 	*
-	* Sets the material pipeline
-	*
-	* \remark pipeline must be valid
-	*
-	* \see Configure
-	*/
-	inline void MaterialPass::Configure(std::shared_ptr<MaterialPipeline> pipeline)
-	{
-		NazaraAssert(pipeline, "Invalid material pipeline");
-
-		m_pipeline = std::move(pipeline);
-		m_pipelineInfo = m_pipeline->GetInfo();
-		m_pipelineUpdated = true;
-	}
-
-	/*!
-	* \brief Reset material pipeline state
-	*
 	* Sets the material pipeline using pipeline info
 	*
 	* \remark pipeline must be valid
 	*
 	* \see Configure
 	*/
-	inline void MaterialPass::Configure(const MaterialPipelineInfo& pipelineInfo)
+	inline void MaterialPass::Configure(const RenderStates& renderStates)
 	{
-		m_pipelineInfo = pipelineInfo;
+		static_cast<RenderStates&>(m_pipelineInfo) = renderStates;
 
 		InvalidatePipeline();
 	}
@@ -619,21 +601,6 @@ namespace Nz
 			return SetSharedUniformBuffer(sharedUboIndex, std::move(uniformBuffer), 0, 0);
 	}
 
-	inline void MaterialPass::SetSharedUniformBuffer(std::size_t sharedUboIndex, std::shared_ptr<RenderBuffer> uniformBuffer, UInt64 offset, UInt64 size)
-	{
-		NazaraAssert(sharedUboIndex < m_sharedUniformBuffers.size(), "Invalid shared uniform buffer index");
-
-		RenderBufferView bufferView(uniformBuffer.get(), offset, size);
-
-		if (m_sharedUniformBuffers[sharedUboIndex].bufferView != bufferView)
-		{
-			m_sharedUniformBuffers[sharedUboIndex].bufferView = bufferView;
-			m_sharedUniformBuffers[sharedUboIndex].buffer = std::move(uniformBuffer);
-
-			InvalidateShaderBinding();
-		}
-	}
-
 	inline void MaterialPass::SetTexture(std::size_t textureIndex, std::shared_ptr<Texture> texture)
 	{
 		NazaraAssert(textureIndex < m_textures.size(), "Invalid texture index");
@@ -674,15 +641,6 @@ namespace Nz
 		m_textures[textureIndex].sampler.reset();
 
 		InvalidateShaderBinding();
-	}
-
-	inline void MaterialPass::InvalidateUniformData(std::size_t uniformBufferIndex)
-	{
-		assert(uniformBufferIndex < m_uniformBuffers.size());
-		UniformBuffer& uboEntry = m_uniformBuffers[uniformBufferIndex];
-		uboEntry.dataInvalidated = true;
-
-		OnMaterialPassInvalidated(this);
 	}
 }
 

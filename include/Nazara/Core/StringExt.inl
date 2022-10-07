@@ -13,7 +13,7 @@ namespace Nz
 	inline bool EndsWith(const std::string_view& str, const std::string_view& s)
 	{
 		//FIXME: Replace with proper C++20 value once it's available
-#if __cplusplus > 201703L
+#if NAZARA_CPP_VER > 201703L
 		// C++20
 		return str.ends_with(s);
 #else
@@ -53,7 +53,7 @@ namespace Nz
 	inline bool StartsWith(const std::string_view& str, const std::string_view& s)
 	{
 		//FIXME: Replace with proper C++20 value once it's available
-#if __cplusplus > 201703L
+#if NAZARA_CPP_VER > 201703L
 		// C++20
 		return str.starts_with(s);
 #else

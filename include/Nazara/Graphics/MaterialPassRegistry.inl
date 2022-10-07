@@ -8,11 +8,11 @@
 
 namespace Nz
 {
-	std::size_t MaterialPassRegistry::GetPassIndex(const std::string& passName) const
+	std::size_t MaterialPassRegistry::GetPassIndex(std::string_view passName) const
 	{
 		auto it = m_passIndex.find(passName);
 		if (it == m_passIndex.end())
-			throw std::runtime_error("pass " + passName + " must be registered before being used");
+			throw std::runtime_error("pass " + std::string(passName) + " must be registered before being used");
 
 		return it->second;
 	}
@@ -22,8 +22,10 @@ namespace Nz
 		if (m_passIndex.find(passName) != m_passIndex.end())
 			throw std::runtime_error("pass " + passName + " is already registered");
 
+		m_passNames.push_back(std::move(passName));
+
 		std::size_t passIndex = m_passIndex.size();
-		m_passIndex.emplace(std::move(passName), passIndex);
+		m_passIndex.emplace(m_passNames.back(), passIndex);
 
 		return passIndex;
 	}

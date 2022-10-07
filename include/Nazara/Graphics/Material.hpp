@@ -14,6 +14,7 @@
 #include <Nazara/Core/ResourceSaver.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
+#include <Nazara/Graphics/TransferInterface.hpp>
 
 namespace Nz
 {
@@ -32,10 +33,10 @@ namespace Nz
 	using MaterialManager = ResourceManager<Material, MaterialParams>;
 	using MaterialSaver = ResourceSaver<Material, MaterialParams>;
 
-	class NAZARA_GRAPHICS_API Material : public Resource
+	class NAZARA_GRAPHICS_API Material : public Resource, public TransferInterface
 	{
 		public:
-			Material() = default;
+			Material(std::shared_ptr<const MaterialSettings> settings);
 			~Material() = default;
 
 			inline void AddPass(std::size_t passIndex, std::shared_ptr<MaterialPass> pass);

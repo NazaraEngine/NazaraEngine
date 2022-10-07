@@ -8,8 +8,8 @@
 #define NAZARA_GRAPHICS_MATERIALPASSREGISTRY_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Utils/Algorithm.hpp>
 #include <string>
-#include <unordered_map>
 
 namespace Nz
 {
@@ -21,7 +21,7 @@ namespace Nz
 			MaterialPassRegistry(MaterialPassRegistry&&) = default;
 			~MaterialPassRegistry() = default;
 
-			inline std::size_t GetPassIndex(const std::string& passName) const;
+			inline std::size_t GetPassIndex(std::string_view passName) const;
 
 			inline std::size_t RegisterPass(std::string passName);
 
@@ -29,7 +29,8 @@ namespace Nz
 			MaterialPassRegistry& operator=(MaterialPassRegistry&&) = default;
 
 		private:
-			std::unordered_map<std::string, std::size_t> m_passIndex;
+			std::unordered_map<std::string_view, std::size_t> m_passIndex;
+			std::vector<std::string> m_passNames; //< in order to allow std::string_view as a key in C++17
 	};
 }
 

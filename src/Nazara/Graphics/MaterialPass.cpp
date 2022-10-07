@@ -26,58 +26,50 @@ namespace Nz
 	*
 	* \see Reset
 	*/
-	MaterialPass::MaterialPass(std::shared_ptr<const MaterialSettings> settings) :
-	m_settings(std::move(settings)),
+	MaterialPass::MaterialPass(Settings&& settings) :
 	m_isEnabled(true),
 	m_pipelineUpdated(false)
 	{
-		m_pipelineInfo.settings = m_settings;
+		m_pipelineInfo.pipelineLayout = std::move(settings.pipelineLayout);
 
-		const auto& shaders = m_settings->GetShaders();
-
-		m_shaders.resize(shaders.size());
+		m_shaders.resize(settings.shaders.size());
 		for (std::size_t i = 0; i < m_shaders.size(); ++i)
 		{
 			auto& shaderData = m_pipelineInfo.shaders.emplace_back();
-			shaderData.uberShader = shaders[i];
+			shaderData.uberShader = std::move(settings.shaders[i].uberShader);
 
-			m_shaders[i].onShaderUpdated.Connect(shaders[i]->OnShaderUpdated, [this](UberShader*)
+			m_shaders[i].onShaderUpdated.Connect(shaderData.uberShader->OnShaderUpdated, [this](UberShader*)
 			{
 				InvalidatePipeline();
 			});
 		}
 
-		const auto& textureSettings = m_settings->GetTextures();
-		const auto& sharedUboSettings = m_settings->GetSharedUniformBlocks();
-		const auto& uboSettings = m_settings->GetUniformBlocks();
-
-		m_textures.resize(textureSettings.size());
-		m_sharedUniformBuffers.resize(sharedUboSettings.size());
-
-		m_uniformBuffers.reserve(uboSettings.size());
-		for (const auto& uniformBufferInfo : uboSettings)
+		m_textures.resize(settings.textures.size());
+		for (std::size_t i = 0; i < m_textures.size(); ++i)
 		{
-			auto& uniformBuffer = m_uniformBuffers.emplace_back();
+			auto&& textureInfo = std::move(settings.textures[i]);
 
-			uniformBuffer.buffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform, uniformBufferInfo.blockSize, BufferUsage::Dynamic | BufferUsage::Write);
+			m_textures[i].bindingIndex = textureInfo.bindingIndex;
+			m_textures[i].samplerInfo = std::move(textureInfo.samplerInfo);
+			m_textures[i].texture = std::move(textureInfo.texture);
+		}
 
-			assert(uniformBufferInfo.defaultValues.size() <= uniformBufferInfo.blockSize);
+		m_uniformBuffers.resize(settings.uniformBuffers.size());
+		for (std::size_t i = 0; i < m_uniformBuffers.size(); ++i)
+		{
+			auto&& uboInfo = std::move(settings.uniformBuffers[i]);
 
-			uniformBuffer.data.resize(uniformBufferInfo.blockSize);
-			std::memcpy(uniformBuffer.data.data(), uniformBufferInfo.defaultValues.data(), uniformBufferInfo.defaultValues.size());
+			m_uniformBuffers[i].bindingIndex = uboInfo.bindingIndex;
+			m_uniformBuffers[i].buffer = std::move(uboInfo.buffer);
+			m_uniformBuffers[i].bufferView = std::move(uboInfo.bufferView);
 		}
 	}
 
 	void MaterialPass::FillShaderBinding(std::vector<ShaderBinding::Binding>& bindings) const
 	{
-		const auto& textureSettings = m_settings->GetTextures();
-		const auto& sharedUboSettings = m_settings->GetSharedUniformBlocks();
-		const auto& uboSettings = m_settings->GetUniformBlocks();
-
 		// Textures
 		for (std::size_t i = 0; i < m_textures.size(); ++i)
 		{
-			const auto& textureSetting = textureSettings[i];
 			const auto& textureSlot = m_textures[i];
 
 			if (!textureSlot.sampler)
@@ -86,87 +78,39 @@ namespace Nz
 				textureSlot.sampler = samplerCache.Get(textureSlot.samplerInfo);
 			}
 
-			//TODO: Use "missing" texture
-			Texture* texture = textureSlot.texture.get();
-			if (!texture)
-			{
-				const auto& defaultTextures = Graphics::Instance()->GetDefaultTextures();
-				texture = defaultTextures.whiteTextures[UnderlyingCast(textureSetting.type)].get();
-			}
-
 			bindings.push_back({
-				textureSetting.bindingIndex,
+				textureSlot.bindingIndex,
 				ShaderBinding::TextureBinding {
-					texture, textureSlot.sampler.get()
+					textureSlot.texture.get(), textureSlot.sampler.get()
 				}
 			});
 		}
 
-		// Shared UBO
-		for (std::size_t i = 0; i < m_sharedUniformBuffers.size(); ++i)
-		{
-			const auto& sharedUboSlot = m_sharedUniformBuffers[i];
-			if (!sharedUboSlot.bufferView)
-				continue;
-
-			const auto& sharedUboSetting = sharedUboSettings[i];
-
-			bindings.push_back({
-				sharedUboSetting.bindingIndex,
-				ShaderBinding::UniformBufferBinding {
-					sharedUboSlot.bufferView.GetBuffer(), sharedUboSlot.bufferView.GetOffset(), sharedUboSlot.bufferView.GetSize()
-				}
-			});
-		}
-
-		// Owned UBO
+		// UBO
 		for (std::size_t i = 0; i < m_uniformBuffers.size(); ++i)
 		{
-			const auto& uboSetting = uboSettings[i];
-			const auto& uboSlot = m_uniformBuffers[i];
+			const auto& uboInfo = m_uniformBuffers[i];
 
 			bindings.push_back({
-				uboSetting.bindingIndex,
+				uboInfo.bindingIndex,
 				ShaderBinding::UniformBufferBinding {
-					uboSlot.buffer.get(), 0, uboSlot.buffer->GetSize()
+					uboInfo.bufferView.GetBuffer(), uboInfo.bufferView.GetOffset(), uboInfo.bufferView.GetSize()
 				}
 			});
-		}
-	}
-
-	void MaterialPass::Update(RenderFrame& renderFrame, CommandBufferBuilder& builder)
-	{
-		UploadPool& uploadPool = renderFrame.GetUploadPool();
-
-		for (auto& ubo : m_uniformBuffers)
-		{
-			if (ubo.dataInvalidated)
-			{
-				auto& allocation = uploadPool.Allocate(ubo.data.size());
-				std::memcpy(allocation.mappedPtr, ubo.data.data(), ubo.data.size());
-
-				builder.CopyBuffer(allocation, ubo.buffer.get());
-
-				ubo.dataInvalidated = false;
-			}
 		}
 	}
 
 	void MaterialPass::UpdatePipeline() const
 	{
-		m_pipelineInfo.optionCount = 0;
+		NazaraAssert(m_optionValues.size() < m_pipelineInfo.optionValues.size(), "too many options");
 
-		const auto& options = m_settings->GetOptions();
-		for (std::size_t optionIndex = 0; optionIndex < options.size(); ++optionIndex)
+		m_pipelineInfo.optionCount = m_optionValues.size();
+
+		for (auto&& [optionHash, value] : m_optionValues)
 		{
-			if (!std::holds_alternative<nzsl::Ast::NoValue>(m_optionValues[optionIndex]))
-			{
-				auto& optionValue = m_pipelineInfo.optionValues[m_pipelineInfo.optionCount];
-				optionValue.hash = options[optionIndex].hash;
-				optionValue.value = m_optionValues[optionIndex];
-
-				m_pipelineInfo.optionCount++;
-			}
+			auto& optionValue = m_pipelineInfo.optionValues[m_pipelineInfo.optionCount];
+			optionValue.hash = optionHash;
+			optionValue.value = value;
 		}
 
 		// make option values consistent (required for hash/equality)

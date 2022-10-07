@@ -35,8 +35,8 @@ namespace Nz
 
 		std::array<Option, 32> optionValues;
 		std::size_t optionCount = 0;
+		std::shared_ptr<RenderPipelineLayout> pipelineLayout;
 		std::vector<Shader> shaders;
-		std::shared_ptr<const MaterialSettings> settings;
 	};
 
 	inline bool operator==(const MaterialPipelineInfo& lhs, const MaterialPipelineInfo& rhs);

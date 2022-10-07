@@ -9,10 +9,13 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
-#include <Nazara/Graphics/BasicMaterialPass.hpp>
-#include <Nazara/Graphics/DepthMaterialPass.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
-#include <optional>
+#include <memory>
+
+namespace nzsl
+{
+	class FieldOffsets;
+}
 
 namespace Nz
 {
@@ -21,6 +24,10 @@ namespace Nz
 	class NAZARA_GRAPHICS_API BasicMaterial
 	{
 		public:
+			struct BasicOptionIndexes;
+			struct BasicTextureIndexes;
+			struct BasicUniformOffsets;
+
 			BasicMaterial(Material& material);
 			BasicMaterial(const BasicMaterial&) = delete;
 			BasicMaterial(BasicMaterial&&) = delete;
@@ -94,13 +101,77 @@ namespace Nz
 			BasicMaterial& operator=(const BasicMaterial&) = delete;
 			BasicMaterial& operator=(BasicMaterial&&) = delete;
 
-			static std::shared_ptr<Material> Build();
+			struct BasicOptionIndexes
+			{
+				std::size_t alphaTest;
+				std::size_t hasAlphaMap;
+				std::size_t hasBaseColorMap;
+			};
+
+			struct BasicTextureIndexes
+			{
+				std::size_t alpha;
+				std::size_t baseColor;
+			};
+
+			struct BasicUniformOffsets
+			{
+				std::size_t totalSize;
+
+				std::size_t alphaThreshold;
+				std::size_t baseColor;
+			};
+
+			struct BasicBuildSettings
+			{
+				// Common
+				std::vector<UInt8> defaultValues;
+				std::size_t* uniformBlockIndex = nullptr;
+				std::vector<std::shared_ptr<UberShader>> shaders;
+
+				// Basic
+				BasicOptionIndexes* basicOptionIndexes = nullptr;
+				BasicTextureIndexes* basicTextureIndexes = nullptr;
+				BasicUniformOffsets* basicUniformOffsets = nullptr;
+			};
+
+			struct BasicConfig
+			{
+				std::shared_ptr<Texture> alphaMap;
+				std::shared_ptr<Texture> baseColorMap;
+				std::vector<std::shared_ptr<UberShader>> depthShaders;
+				std::vector<std::shared_ptr<UberShader>> forwardShaders;
+				RenderStates depthStates;
+				RenderStates forwardRenderStates;
+				TextureSamplerInfo alphaMapSampler;
+				TextureSamplerInfo baseColorMapSampler;
+				bool depthPass = true;
+				bool forwardPass = true;
+			};
+
+			static std::shared_ptr<Material> Build(const BasicConfig& config);
+
+			static MaterialSettings::Builder BuildSettings(const BasicBuildSettings& options);
+
+			static std::vector<std::shared_ptr<UberShader>> BuildDepthPassShaders();
+			static std::vector<std::shared_ptr<UberShader>> BuildForwardPassShaders();
+
+			static std::pair<BasicUniformOffsets, nzsl::FieldOffsets> BuildUniformOffsets();
+
+			static std::shared_ptr<MaterialSettings> s_basicMaterialSettings;
+			static std::size_t s_uniformBlockIndex;
+			static BasicOptionIndexes s_basicOptionIndexes;
+			static BasicTextureIndexes s_basicTextureIndexes;
+			static BasicUniformOffsets s_basicUniformOffsets;
 
 		protected:
 			inline void UpdatePasses();
 
-			std::optional<BasicMaterialPass> m_forwardPass;
-			std::optional<DepthMaterialPass> m_depthPass;
+			static bool Initialize();
+			static void Uninitialize();
+
+			std::shared_ptr<MaterialPass> m_forwardPass;
+			std::shared_ptr<MaterialPass> m_depthPass;
 			bool m_isDepthPassEnabled;
 			bool m_isForwardPassEnabled;
 	};

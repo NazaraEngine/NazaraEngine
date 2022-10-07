@@ -23,18 +23,12 @@ namespace Nz
 	class MaterialSettings
 	{
 		public:
-			struct Builder;
-			struct Option;
-			struct SharedUniformBlock;
-			struct Texture;
-			struct UniformBlock;
-			using PredefinedBinding = std::array<std::size_t, PredefinedShaderBindingCount>;
-
-			inline MaterialSettings();
-			inline MaterialSettings(Builder builder);
+			MaterialSettings();
 			MaterialSettings(const MaterialSettings&) = default;
 			MaterialSettings(MaterialSettings&&) = delete;
 			~MaterialSettings() = default;
+
+			inline void AddProperty(std::string propertyName)
 
 			inline const Builder& GetBuilderData() const;
 			inline const std::vector<Option>& GetOptions() const;
@@ -63,7 +57,6 @@ namespace Nz
 			{
 				inline Builder();
 
-				std::vector<std::shared_ptr<UberShader>> shaders;
 				std::vector<Option> options;
 				std::vector<Texture> textures;
 				std::vector<UniformBlock> uniformBlocks;

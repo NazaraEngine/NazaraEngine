@@ -41,6 +41,15 @@ namespace Nz
 		Volume
 	};
 
+	enum class MaterialPropertyType
+	{
+		Float,
+		Float2,
+		Float3,
+		Float4,
+		Texture2D
+	};
+
 	enum class MaterialLightingType
 	{
 		None,

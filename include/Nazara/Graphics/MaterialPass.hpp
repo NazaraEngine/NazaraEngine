@@ -10,10 +10,6 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Core/Resource.hpp>
-#include <Nazara/Core/ResourceLoader.hpp>
-#include <Nazara/Core/ResourceManager.hpp>
-#include <Nazara/Core/ResourceParameters.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/MaterialPipeline.hpp>
@@ -35,13 +31,14 @@ namespace Nz
 	class NAZARA_GRAPHICS_API MaterialPass
 	{
 		public:
-			MaterialPass(std::shared_ptr<const MaterialSettings> settings);
+			struct Settings;
+
+			MaterialPass(Settings&& settings);
 			MaterialPass(const MaterialPass&) = delete;
 			MaterialPass(MaterialPass&&) = delete;
 			inline ~MaterialPass();
 
-			inline void Configure(std::shared_ptr<MaterialPipeline> pipeline);
-			inline void Configure(const MaterialPipelineInfo& pipelineInfo);
+			inline void Configure(const RenderStates& renderStates);
 
 			inline void Disable();
 			inline void Enable(bool enable = true);
@@ -111,8 +108,6 @@ namespace Nz
 			inline void SetTexture(std::size_t textureIndex, std::shared_ptr<Texture> texture);
 			inline void SetTextureSampler(std::size_t textureIndex, TextureSamplerInfo samplerInfo);
 
-			void Update(RenderFrame& renderFrame, CommandBufferBuilder& builder);
-
 			MaterialPass& operator=(const MaterialPass&) = delete;
 			MaterialPass& operator=(MaterialPass&&) = delete;
 
@@ -122,15 +117,42 @@ namespace Nz
 			NazaraSignal(OnMaterialPassShaderBindingInvalidated, const MaterialPass* /*materialPass*/);
 			NazaraSignal(OnMaterialPassRelease, const MaterialPass* /*materialPass*/);
 
+			struct Settings
+			{
+				struct ShaderInfo
+				{
+					std::shared_ptr<UberShader> uberShader;
+				};
+
+				struct TextureInfo
+				{
+					UInt32 bindingIndex;
+					std::shared_ptr<Texture> texture;
+					TextureSamplerInfo samplerInfo;
+				};
+
+				struct UniformBufferInfo
+				{
+					std::shared_ptr<RenderBuffer> buffer; //< kept for ownership
+					UInt32 bindingIndex;
+					RenderBufferView bufferView;
+				};
+
+				std::shared_ptr<RenderPipelineLayout> pipelineLayout;
+				std::vector<TextureInfo> textures;
+				std::vector<ShaderInfo> shaders;
+				std::vector<UniformBufferInfo> uniformBuffers;
+			};
+
 		private:
 			inline void InvalidatePipeline();
 			inline void InvalidateShaderBinding();
 			inline void InvalidateTextureSampler(std::size_t textureIndex);
-			inline void InvalidateUniformData(std::size_t uniformBufferIndex);
 			void UpdatePipeline() const;
 
 			struct MaterialTexture
 			{
+				UInt32 bindingIndex;
 				mutable std::shared_ptr<TextureSampler> sampler;
 				std::shared_ptr<Texture> texture;
 				TextureSamplerInfo samplerInfo;
@@ -141,24 +163,16 @@ namespace Nz
 				NazaraSlot(UberShader, OnShaderUpdated, onShaderUpdated);
 			};
 
-			struct ShaderUniformBuffer
+			struct UniformBuffer
 			{
+				UInt32 bindingIndex;
 				std::shared_ptr<RenderBuffer> buffer; //< kept for ownership
 				RenderBufferView bufferView;
 			};
 
-			struct UniformBuffer
-			{
-				std::shared_ptr<RenderBuffer> buffer;
-				std::vector<UInt8> data;
-				bool dataInvalidated = true;
-			};
-
-			std::array<nzsl::Ast::ConstantSingleValue, 64> m_optionValues;
-			std::shared_ptr<const MaterialSettings> m_settings;
+			std::unordered_map<UInt32, nzsl::Ast::ConstantSingleValue> m_optionValues;
 			std::vector<MaterialTexture> m_textures;
 			std::vector<ShaderEntry> m_shaders;
-			std::vector<ShaderUniformBuffer> m_sharedUniformBuffers;
 			std::vector<UniformBuffer> m_uniformBuffers;
 			mutable std::shared_ptr<MaterialPipeline> m_pipeline;
 			mutable MaterialPipelineInfo m_pipelineInfo;
