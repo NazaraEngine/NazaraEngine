@@ -43,11 +43,29 @@ namespace Nz
 
 	enum class MaterialPropertyType
 	{
+		Bool,
+		Bool2,
+		Bool3,
+		Bool4,
+		Color,
 		Float,
 		Float2,
 		Float3,
 		Float4,
-		Texture2D
+		Int,
+		Int2,
+		Int3,
+		Int4,
+		Texture1D,
+		Texture1DArray,
+		Texture2D,
+		Texture2DArray,
+		Texture3D,
+		TextureCubemap,
+		UInt,
+		UInt2,
+		UInt3,
+		UInt4
 	};
 
 	enum class MaterialLightingType

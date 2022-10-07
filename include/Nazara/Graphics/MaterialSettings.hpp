@@ -10,9 +10,9 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/UberShader.hpp>
-#include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/Renderer/ShaderModule.hpp>
 #include <Nazara/Utility/Enums.hpp>
+#include <Nazara/Utils/TypeList.hpp>
 #include <array>
 #include <limits>
 #include <string>
@@ -20,91 +20,46 @@
 
 namespace Nz
 {
+	template<typename T> struct TypeToMaterialPropertyType;
+
+	template<typename T> constexpr MaterialPropertyType TypeToMaterialPropertyType_v = TypeToMaterialPropertyType<T>::PropertyType;
+
+	using MaterialPropertyTypeList = TypeList<
+		Color,
+		bool, Vector2<bool>, Vector3<bool>, Vector4<bool>,
+		float, Vector2<float>, Vector3<float>, Vector4<float>,
+		Int32, Vector2<Int32>, Vector3<Int32>, Vector4<Int32>,
+		UInt32, Vector2<UInt32>, Vector3<UInt32>, Vector4<UInt32>
+	>;
+
 	class MaterialSettings
 	{
 		public:
+			struct TextureProperty;
+			struct ValueProperty;
+
+			using Value = TypeListInstantiate<MaterialPropertyTypeList, std::variant>;
+
 			MaterialSettings();
 			MaterialSettings(const MaterialSettings&) = default;
 			MaterialSettings(MaterialSettings&&) = delete;
 			~MaterialSettings() = default;
 
-			inline void AddProperty(std::string propertyName)
-
-			inline const Builder& GetBuilderData() const;
-			inline const std::vector<Option>& GetOptions() const;
-			inline std::size_t GetOptionIndex(const std::string_view& name) const;
-			inline std::size_t GetPredefinedBinding(PredefinedShaderBinding shaderBinding) const;
-			inline const std::shared_ptr<RenderPipelineLayout>& GetRenderPipelineLayout() const;
-			inline const std::shared_ptr<UberShader>& GetShader(nzsl::ShaderStageType stage) const;
-			inline const std::vector<std::shared_ptr<UberShader>>& GetShaders() const;
-			inline const std::vector<SharedUniformBlock>& GetSharedUniformBlocks() const;
-			inline std::size_t GetSharedUniformBlockIndex(const std::string_view& name) const;
-			inline std::size_t GetSharedUniformBlockVariableOffset(std::size_t uniformBlockIndex, const std::string_view& name) const;
-			inline const std::vector<Texture>& GetTextures() const;
-			inline std::size_t GetTextureIndex(const std::string_view& name) const;
-			inline const std::vector<UniformBlock>& GetUniformBlocks() const;
-			inline std::size_t GetUniformBlockIndex(const std::string_view& name) const;
-			inline std::size_t GetUniformBlockVariableOffset(std::size_t uniformBlockIndex, const std::string_view& name) const;
+			inline void AddProperty(std::string propertyName, MaterialPropertyType propertyType);
+			inline void AddTextureProperty(std::string propertyName, ImageType propertyType);
+			template<typename T> void AddValueProperty(std::string propertyName);
+			template<typename T, typename U> void AddValueProperty(std::string propertyName, U&& defaultValue);
 
 			MaterialSettings& operator=(const MaterialSettings&) = delete;
 			MaterialSettings& operator=(MaterialSettings&&) = delete;
 
-			static constexpr std::size_t InvalidIndex = std::numeric_limits<std::size_t>::max();
-
-			static inline void BuildOption(std::vector<Option>& options, std::string optionName, const std::string& shaderOptionName);
-
-			struct Builder
-			{
-				inline Builder();
-
-				std::vector<Option> options;
-				std::vector<Texture> textures;
-				std::vector<UniformBlock> uniformBlocks;
-				std::vector<SharedUniformBlock> sharedUniformBlocks;
-				PredefinedBinding predefinedBindings;
-			};
-
-			struct Option
+			struct ValueProperty
 			{
 				std::string name;
-				UInt32 hash;
-			};
-
-			struct UniformVariable
-			{
-				std::string name;
-				std::size_t offset;
-			};
-
-			struct SharedUniformBlock
-			{
-				UInt32 bindingIndex;
-				std::string name;
-				std::vector<UniformVariable> uniforms;
-				nzsl::ShaderStageTypeFlags shaderStages = nzsl::ShaderStageType_All;
-			};
-
-			struct Texture
-			{
-				UInt32 bindingIndex;
-				std::string name;
-				ImageType type;
-				nzsl::ShaderStageTypeFlags shaderStages = nzsl::ShaderStageType_All;
-			};
-
-			struct UniformBlock
-			{
-				UInt32 bindingIndex;
-				std::string name;
-				std::size_t blockSize;
-				std::vector<UniformVariable> uniforms;
-				std::vector<UInt8> defaultValues;
-				nzsl::ShaderStageTypeFlags shaderStages = nzsl::ShaderStageType_All;
+				MaterialPropertyType type;
 			};
 
 		private:
-			std::shared_ptr<RenderPipelineLayout> m_pipelineLayout;
-			Builder m_data;
 	};
 }
 
