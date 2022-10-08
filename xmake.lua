@@ -511,8 +511,9 @@ function ModuleTargetConfig(name, module)
 	end
 
 	if has_config("compile_shaders") then
-		for _, filepath in pairs(os.files("src/Nazara/" .. name .. "/Resources/**.nzsl")) do
-			add_files(filepath, {rule = "nzsl.compile.shaders"})
+		add_rules("@nzsl/compile.shaders", { inplace = true })
+		for _, filepath in pairs(table.join(os.files("src/Nazara/" .. name .. "/Resources/**.nzsl"), os.files("src/Nazara/" .. name .. "/Resources/**.nzslb"))) do
+			add_files(filepath)
 		end
 	end
 
