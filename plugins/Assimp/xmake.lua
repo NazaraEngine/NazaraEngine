@@ -1,9 +1,4 @@
-option("assimp")
-	set_default(true)
-	set_showmenu(true)
-	set_description("Build Assimp plugin")
-
-option_end()
+option("assimp", { description = "Build Assimp plugin", default = true })
 
 if has_config("assimp") then
 	add_requires("assimp v5.2.3")

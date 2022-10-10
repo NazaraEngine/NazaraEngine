@@ -1,9 +1,4 @@
-option("tests")
-	set_default(false)
-	set_showmenu(true)
-	set_description("Build unit tests")
-
-option_end()
+option("tests", { description = "Build unit tests", default = false })
 
 if has_config("tests") then
 	if is_mode("asan") then

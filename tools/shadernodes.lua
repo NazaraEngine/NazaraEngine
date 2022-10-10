@@ -1,9 +1,4 @@
-option("shadernodes")
-	set_default(false)
-	set_showmenu(true)
-	set_description("Build ShaderNodes tool")
-
-option_end()
+option("shadernodes", { description = "Build ShaderNodes tool (requires Qt)", default = false })
 
 if has_config("shadernodes") then
 	add_requires("nodeeditor", "qt5core", "qt5gui", "qt5widgets", {debug = is_mode("debug")})

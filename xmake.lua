@@ -133,41 +133,12 @@ NazaraModules = modules
 
 includes("xmake/**.lua")
 
-option("compile_shaders")
-	set_default(true)
-	set_showmenu(true)
-	set_description("Compile nzsl shaders into an includable binary version")
-option_end()
-
-option("embed_rendererbackends")
-	set_default(false)
-	set_showmenu(true)
-	set_description("Embed renderer backend code into NazaraRenderer instead of loading them dynamically")
-option_end()
-
-option("embed_resources")
-	set_default(true)
-	set_showmenu(true)
-	set_description("Turn builtin resources into includable headers")
-option_end()
-
-option("override_runtime")
-	set_default(true)
-	set_showmenu(true)
-	set_description("Override vs runtime to MD in release and MDd in debug")
-option_end()
-
-option("usepch")
-	set_default(false)
-	set_showmenu(true)
-	set_description("Use precompiled headers to speedup compilation")
-option_end()
-
-option("unitybuild")
-	set_default(false)
-	set_showmenu(true)
-	set_description("Build the engine using unity build")
-option_end()
+option("compile_shaders", { description = "Compile nzsl shaders into an includable binary version", default = true })
+option("embed_rendererbackends", { description = "Embed renderer backend code into NazaraRenderer instead of loading them dynamically", default = false })
+option("embed_resources", { description = "Turn builtin resources into includable headers", default = true })
+option("override_runtime", { description = "Override vs runtime to MD in release and MDd in debug", default = true })
+option("usepch", { description = "Use precompiled headers to speedup compilation", default = false })
+option("unitybuild", { description = "Build the engine using unity build", default = false })
 
 set_project("NazaraEngine")
 set_xmakever("2.6.3")

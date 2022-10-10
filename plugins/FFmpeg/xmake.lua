@@ -1,9 +1,4 @@
-option("ffmpeg")
-	set_default(false)
-	set_showmenu(true)
-	set_description("Build FFmpeg plugin")
-
-option_end()
+option("ffmpeg", { description = "Build FFmpeg plugin", default = false })
 
 if has_config("ffmpeg") then
 	add_requires("ffmpeg", { configs = { shared = true } })

@@ -1,9 +1,4 @@
-option("examples")
-	set_default(true)
-	set_showmenu(true)
-	set_description("Build examples")
-
-option_end()
+option("examples", { description = "Build examples", default = true })
 
 if has_config("examples") then
 	-- Common config
