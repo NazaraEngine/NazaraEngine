@@ -4,6 +4,7 @@
 
 #include <Nazara/Graphics/SkeletonInstance.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
@@ -38,22 +39,23 @@ namespace Nz
 		});
 	}
 
-	void SkeletonInstance::UpdateBuffers(UploadPool& uploadPool, CommandBufferBuilder& builder)
+	void SkeletonInstance::OnTransfer(UploadPool& uploadPool, CommandBufferBuilder& builder)
 	{
-		if (m_dataInvalided)
-		{
-			PredefinedSkeletalData skeletalUboOffsets = PredefinedSkeletalData::GetOffsets();
+		if (!m_dataInvalided)
+			return;
 
-			auto& allocation = uploadPool.Allocate(m_skeletalDataBuffer->GetSize());
-			Matrix4f* matrices = AccessByOffset<Matrix4f*>(allocation.mappedPtr, skeletalUboOffsets.jointMatricesOffset);
+		
+		PredefinedSkeletalData skeletalUboOffsets = PredefinedSkeletalData::GetOffsets();
 
-			for (std::size_t i = 0; i < m_skeleton->GetJointCount(); ++i)
-				matrices[i] = m_skeleton->GetJoint(i)->GetSkinningMatrix();
+		auto& allocation = uploadPool.Allocate(m_skeletalDataBuffer->GetSize());
+		Matrix4f* matrices = AccessByOffset<Matrix4f*>(allocation.mappedPtr, skeletalUboOffsets.jointMatricesOffset);
 
-			builder.CopyBuffer(allocation, m_skeletalDataBuffer.get());
+		for (std::size_t i = 0; i < m_skeleton->GetJointCount(); ++i)
+			matrices[i] = m_skeleton->GetJoint(i)->GetSkinningMatrix();
 
-			m_dataInvalided = false;
-		}
+		builder.CopyBuffer(allocation, m_skeletalDataBuffer.get());
+
+		m_dataInvalided = false;
 	}
 
 	SkeletonInstance& SkeletonInstance::operator=(SkeletonInstance&& skeletonInstance) noexcept

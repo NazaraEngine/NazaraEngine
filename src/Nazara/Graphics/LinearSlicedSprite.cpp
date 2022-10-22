@@ -3,15 +3,15 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/LinearSlicedSprite.hpp>
-#include <Nazara/Graphics/BasicMaterialPass.hpp>
 #include <Nazara/Graphics/ElementRendererRegistry.hpp>
+#include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/RenderSpriteChain.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
 {
-	LinearSlicedSprite::LinearSlicedSprite(std::shared_ptr<Material> material, Orientation orientation) :
+	LinearSlicedSprite::LinearSlicedSprite(std::shared_ptr<MaterialInstance> material, Orientation orientation) :
 	m_material(std::move(material)),
 	m_sectionCount(0),
 	m_spriteCount(0),
@@ -26,7 +26,7 @@ namespace Nz
 	void LinearSlicedSprite::BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, std::vector<RenderElementOwner>& elements) const
 	{
 		const auto& materialPass = m_material->GetPass(passIndex);
-		if (!materialPass || !materialPass->IsEnabled())
+		if (!materialPass)
 			return;
 
 		const std::shared_ptr<VertexDeclaration>& vertexDeclaration = VertexDeclaration::Get(VertexLayout::XYZ_Color_UV);
@@ -42,7 +42,7 @@ namespace Nz
 		elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer(), materialPass, renderPipeline, *elementData.worldInstance, vertexDeclaration, whiteTexture, m_spriteCount, m_vertices.data(), *elementData.scissorBox));
 	}
 
-	const std::shared_ptr<Material>& LinearSlicedSprite::GetMaterial(std::size_t i) const
+	const std::shared_ptr<MaterialInstance>& LinearSlicedSprite::GetMaterial(std::size_t i) const
 	{
 		assert(i == 0);
 		NazaraUnused(i);
@@ -60,7 +60,7 @@ namespace Nz
 		assert(m_material);
 
 		//TODO: Cache index in registry?
-		if (const auto& material = m_material->FindPass("ForwardPass"))
+		/*if (const auto& material = m_material->FindPass("ForwardPass"))
 		{
 			BasicMaterialPass mat(*material);
 			if (mat.HasBaseColorMap())
@@ -69,7 +69,7 @@ namespace Nz
 				if (const auto& texture = mat.GetBaseColorMap())
 					return texture->GetSize();
 			}
-		}
+		}*/
 
 		// Couldn't get material pass or texture
 		return Vector3ui::Unit(); //< prevents division by zero

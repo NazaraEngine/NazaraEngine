@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_GRAPHICS_GPUBUFFER_HPP
-#define NAZARA_GRAPHICS_GPUBUFFER_HPP
+#ifndef NAZARA_GRAPHICS_TRANSFERINTERFACE_HPP
+#define NAZARA_GRAPHICS_TRANSFERINTERFACE_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
@@ -32,4 +32,4 @@ namespace Nz
 
 #include <Nazara/Graphics/TransferInterface.inl>
 
-#endif // NAZARA_GRAPHICS_GPUBUFFER_HPP
+#endif // NAZARA_GRAPHICS_TRANSFERINTERFACE_HPP

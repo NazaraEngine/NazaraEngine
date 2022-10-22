@@ -86,6 +86,12 @@ namespace Nz
 
 		if (m_deviceInfo.features.storageBuffers)
 		{
+			GLint minStorageOffsetAlignment;
+			m_referenceContext->glGetIntegerv(GL_SHADER_STORAGE_BUFFER_OFFSET_ALIGNMENT, &minStorageOffsetAlignment);
+
+			assert(minStorageOffsetAlignment >= 1);
+			m_deviceInfo.limits.minStorageBufferOffsetAlignment = static_cast<UInt64>(minStorageOffsetAlignment);
+
 			GLint maxStorageBlockSize;
 			m_referenceContext->glGetIntegerv(GL_MAX_SHADER_STORAGE_BLOCK_SIZE, &maxStorageBlockSize);
 

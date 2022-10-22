@@ -3,8 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/Graphics.hpp>
-#include <Nazara/Graphics/BasicMaterialPass.hpp>
-#include <Nazara/Graphics/DepthMaterialPass.hpp>
 #include <Nazara/Graphics/GuillotineTextureAtlas.hpp>
 #include <Nazara/Graphics/MaterialPipeline.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
@@ -208,7 +206,7 @@ namespace Nz
 
 	void Graphics::BuildDefaultMaterials()
 	{
-		m_defaultMaterials.depthMaterial = std::make_shared<Material>();
+		/*m_defaultMaterials.depthMaterial = std::make_shared<Material>();
 		{
 			std::shared_ptr<Nz::MaterialPass> depthPass = std::make_shared<Nz::MaterialPass>(Nz::DepthMaterialPass::GetSettings());
 			depthPass->EnableDepthBuffer(true);
@@ -224,7 +222,7 @@ namespace Nz
 		m_defaultMaterials.noDepthMaterial = std::make_shared<Material>();
 		{
 			m_defaultMaterials.noDepthMaterial->AddPass("ForwardPass", std::make_shared<Nz::MaterialPass>(Nz::BasicMaterialPass::GetSettings()));
-		}
+		}*/
 	}
 
 	void Graphics::BuildDefaultTextures()

@@ -23,19 +23,19 @@ namespace Nz
 		m_instanceDataBuffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform, instanceUboOffsets.totalSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write);
 	}
 
-	void WorldInstance::UpdateBuffers(UploadPool& uploadPool, CommandBufferBuilder& builder)
+	void WorldInstance::OnTransfer(UploadPool& uploadPool, CommandBufferBuilder& builder)
 	{
-		if (m_dataInvalided)
-		{
-			PredefinedInstanceData instanceUboOffsets = PredefinedInstanceData::GetOffsets();
+		if (!m_dataInvalided)
+			return;
 
-			auto& allocation = uploadPool.Allocate(m_instanceDataBuffer->GetSize());
-			AccessByOffset<Matrix4f&>(allocation.mappedPtr, instanceUboOffsets.worldMatrixOffset) = m_worldMatrix;
-			AccessByOffset<Matrix4f&>(allocation.mappedPtr, instanceUboOffsets.invWorldMatrixOffset) = m_invWorldMatrix;
+		PredefinedInstanceData instanceUboOffsets = PredefinedInstanceData::GetOffsets();
 
-			builder.CopyBuffer(allocation, m_instanceDataBuffer.get());
+		auto& allocation = uploadPool.Allocate(m_instanceDataBuffer->GetSize());
+		AccessByOffset<Matrix4f&>(allocation.mappedPtr, instanceUboOffsets.worldMatrixOffset) = m_worldMatrix;
+		AccessByOffset<Matrix4f&>(allocation.mappedPtr, instanceUboOffsets.invWorldMatrixOffset) = m_invWorldMatrix;
 
-			m_dataInvalided = false;
-		}
+		builder.CopyBuffer(allocation, m_instanceDataBuffer.get());
+
+		m_dataInvalided = false;
 	}
 }

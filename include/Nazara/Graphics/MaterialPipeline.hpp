@@ -11,6 +11,7 @@
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/MaterialSettings.hpp>
+#include <Nazara/Graphics/UberShader.hpp>
 #include <Nazara/Renderer/RenderPipeline.hpp>
 #include <NZSL/Ast/ConstantValue.hpp>
 #include <array>

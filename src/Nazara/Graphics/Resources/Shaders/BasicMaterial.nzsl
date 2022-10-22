@@ -17,7 +17,7 @@ option BillboardSizeRotLocation: i32 = -1;
 
 // Vertex declaration related options
 option ColorLocation: i32 = -1;
-option PosLocation: i32;
+option PosLocation: i32 = 0; //< FIXME: shouldn't be set
 option UvLocation: i32 = -1;
 
 option JointIndicesLocation: i32 = -1;

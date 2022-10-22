@@ -4,7 +4,7 @@
 
 #include <Nazara/Graphics/MaterialPass.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
-#include <Nazara/Graphics/BasicMaterialPass.hpp>
+#include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/UberShader.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/RenderFrame.hpp>
@@ -27,7 +27,6 @@ namespace Nz
 	* \see Reset
 	*/
 	MaterialPass::MaterialPass(Settings&& settings) :
-	m_isEnabled(true),
 	m_pipelineUpdated(false)
 	{
 		m_pipelineInfo.pipelineLayout = std::move(settings.pipelineLayout);
@@ -38,64 +37,11 @@ namespace Nz
 			auto& shaderData = m_pipelineInfo.shaders.emplace_back();
 			shaderData.uberShader = std::move(settings.shaders[i].uberShader);
 
+			// TODO: Ensure pipeline layout compatibility using ShaderReflection
+
 			m_shaders[i].onShaderUpdated.Connect(shaderData.uberShader->OnShaderUpdated, [this](UberShader*)
 			{
 				InvalidatePipeline();
-			});
-		}
-
-		m_textures.resize(settings.textures.size());
-		for (std::size_t i = 0; i < m_textures.size(); ++i)
-		{
-			auto&& textureInfo = std::move(settings.textures[i]);
-
-			m_textures[i].bindingIndex = textureInfo.bindingIndex;
-			m_textures[i].samplerInfo = std::move(textureInfo.samplerInfo);
-			m_textures[i].texture = std::move(textureInfo.texture);
-		}
-
-		m_uniformBuffers.resize(settings.uniformBuffers.size());
-		for (std::size_t i = 0; i < m_uniformBuffers.size(); ++i)
-		{
-			auto&& uboInfo = std::move(settings.uniformBuffers[i]);
-
-			m_uniformBuffers[i].bindingIndex = uboInfo.bindingIndex;
-			m_uniformBuffers[i].buffer = std::move(uboInfo.buffer);
-			m_uniformBuffers[i].bufferView = std::move(uboInfo.bufferView);
-		}
-	}
-
-	void MaterialPass::FillShaderBinding(std::vector<ShaderBinding::Binding>& bindings) const
-	{
-		// Textures
-		for (std::size_t i = 0; i < m_textures.size(); ++i)
-		{
-			const auto& textureSlot = m_textures[i];
-
-			if (!textureSlot.sampler)
-			{
-				TextureSamplerCache& samplerCache = Graphics::Instance()->GetSamplerCache();
-				textureSlot.sampler = samplerCache.Get(textureSlot.samplerInfo);
-			}
-
-			bindings.push_back({
-				textureSlot.bindingIndex,
-				ShaderBinding::TextureBinding {
-					textureSlot.texture.get(), textureSlot.sampler.get()
-				}
-			});
-		}
-
-		// UBO
-		for (std::size_t i = 0; i < m_uniformBuffers.size(); ++i)
-		{
-			const auto& uboInfo = m_uniformBuffers[i];
-
-			bindings.push_back({
-				uboInfo.bindingIndex,
-				ShaderBinding::UniformBufferBinding {
-					uboInfo.bufferView.GetBuffer(), uboInfo.bufferView.GetOffset(), uboInfo.bufferView.GetSize()
-				}
 			});
 		}
 	}

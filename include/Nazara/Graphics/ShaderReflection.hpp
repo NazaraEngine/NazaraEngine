@@ -23,7 +23,7 @@ namespace Nz
 			struct ExternalBlockData;
 			struct StructData;
 
-			ShaderReflection(nzsl::Ast::Module& module);
+			ShaderReflection() = default;
 			ShaderReflection(const ShaderReflection&) = delete;
 			ShaderReflection(ShaderReflection&&) = delete;
 			~ShaderReflection() = default;
@@ -31,6 +31,8 @@ namespace Nz
 			inline const RenderPipelineLayoutInfo& GetPipelineLayoutInfo() const;
 			inline const ExternalBlockData* GetExternalBlockByTag(const std::string& tag) const;
 			inline const StructData* GetStructByIndex(std::size_t structIndex) const;
+
+			void Reflect(nzsl::Ast::Module& module);
 
 			ShaderReflection& operator=(const ShaderReflection&) = delete;
 			ShaderReflection& operator=(ShaderReflection&&) = delete;
@@ -41,7 +43,7 @@ namespace Nz
 				UInt32 bindingIndex;
 			};
 
-			struct ExternalStorageBuffer : ExternalData
+			struct ExternalStorageBlock : ExternalData
 			{
 				std::size_t structIndex;
 			};
@@ -52,16 +54,16 @@ namespace Nz
 				nzsl::Ast::PrimitiveType sampledType;
 			};
 
-			struct ExternalUniformBuffer : ExternalData
+			struct ExternalUniformBlock : ExternalData
 			{
 				std::size_t structIndex;
 			};
 
 			struct ExternalBlockData
 			{
-				std::unordered_map<std::string /*tag*/, ExternalStorageBuffer> storageBuffers;
-				std::unordered_map<std::string /*tag*/, ExternalTexture> textures;
-				std::unordered_map<std::string /*tag*/, ExternalUniformBuffer> uniformBuffers;
+				std::unordered_map<std::string /*tag*/, ExternalStorageBlock> storageBlocks;
+				std::unordered_map<std::string /*tag*/, ExternalTexture> samplers;
+				std::unordered_map<std::string /*tag*/, ExternalUniformBlock> uniformBlocks;
 			};
 
 			struct StructMemberData

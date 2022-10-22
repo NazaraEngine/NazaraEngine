@@ -56,18 +56,18 @@ namespace Nz
 
 			struct Config
 			{
-				std::shared_ptr<Material> scrollbarButtonDownMaterial;
-				std::shared_ptr<Material> scrollbarButtonDownHoveredMaterial;
-				std::shared_ptr<Material> scrollbarButtonDownPressedMaterial;
-				std::shared_ptr<Material> scrollbarButtonLeftMaterial;
-				std::shared_ptr<Material> scrollbarButtonLeftHoveredMaterial;
-				std::shared_ptr<Material> scrollbarButtonLeftPressedMaterial;
-				std::shared_ptr<Material> scrollbarButtonRightMaterial;
-				std::shared_ptr<Material> scrollbarButtonRightHoveredMaterial;
-				std::shared_ptr<Material> scrollbarButtonRightPressedMaterial;
-				std::shared_ptr<Material> scrollbarButtonUpMaterial;
-				std::shared_ptr<Material> scrollbarButtonUpHoveredMaterial;
-				std::shared_ptr<Material> scrollbarButtonUpPressedMaterial;
+				std::shared_ptr<MaterialInstance> scrollbarButtonDownMaterial;
+				std::shared_ptr<MaterialInstance> scrollbarButtonDownHoveredMaterial;
+				std::shared_ptr<MaterialInstance> scrollbarButtonDownPressedMaterial;
+				std::shared_ptr<MaterialInstance> scrollbarButtonLeftMaterial;
+				std::shared_ptr<MaterialInstance> scrollbarButtonLeftHoveredMaterial;
+				std::shared_ptr<MaterialInstance> scrollbarButtonLeftPressedMaterial;
+				std::shared_ptr<MaterialInstance> scrollbarButtonRightMaterial;
+				std::shared_ptr<MaterialInstance> scrollbarButtonRightHoveredMaterial;
+				std::shared_ptr<MaterialInstance> scrollbarButtonRightPressedMaterial;
+				std::shared_ptr<MaterialInstance> scrollbarButtonUpMaterial;
+				std::shared_ptr<MaterialInstance> scrollbarButtonUpHoveredMaterial;
+				std::shared_ptr<MaterialInstance> scrollbarButtonUpPressedMaterial;
 				float scrollbarButtonCornerSize;
 				float scrollbarButtonCornerTexcoords;
 			};

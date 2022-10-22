@@ -123,16 +123,16 @@ namespace Nz
 			}
 		});
 
-		renderableData->onMaterialInvalidated.Connect(instancedRenderable->OnMaterialInvalidated, [this](InstancedRenderable* instancedRenderable, std::size_t materialIndex, const std::shared_ptr<Material>& newMaterial)
+		renderableData->onMaterialInvalidated.Connect(instancedRenderable->OnMaterialInvalidated, [this](InstancedRenderable* instancedRenderable, std::size_t materialIndex, const std::shared_ptr<MaterialInstance>& newMaterial)
 		{
 			if (newMaterial)
 			{
 				for (auto& viewerData : m_viewerPool)
 				{
 					if (viewerData.depthPrepass)
-						viewerData.depthPrepass->RegisterMaterial(*newMaterial);
+						viewerData.depthPrepass->RegisterMaterialInstance(*newMaterial);
 
-					viewerData.forwardPass->RegisterMaterial(*newMaterial);
+					viewerData.forwardPass->RegisterMaterialInstance(*newMaterial);
 				}
 			}
 
@@ -142,9 +142,9 @@ namespace Nz
 				for (auto& viewerData : m_viewerPool)
 				{
 					if (viewerData.depthPrepass)
-						viewerData.depthPrepass->UnregisterMaterial(*prevMaterial);
+						viewerData.depthPrepass->UnregisterMaterialInstance(*prevMaterial);
 
-					viewerData.forwardPass->UnregisterMaterial(*prevMaterial);
+					viewerData.forwardPass->UnregisterMaterialInstance(*prevMaterial);
 				}
 			}
 		});
@@ -152,14 +152,14 @@ namespace Nz
 		std::size_t matCount = instancedRenderable->GetMaterialCount();
 		for (std::size_t i = 0; i < matCount; ++i)
 		{
-			if (Material* mat = instancedRenderable->GetMaterial(i).get())
+			if (MaterialInstance* mat = instancedRenderable->GetMaterial(i).get())
 			{
 				for (auto& viewerData : m_viewerPool)
 				{
 					if (viewerData.depthPrepass)
-						viewerData.depthPrepass->RegisterMaterial(*mat);
+						viewerData.depthPrepass->RegisterMaterialInstance(*mat);
 
-					viewerData.forwardPass->RegisterMaterial(*mat);
+					viewerData.forwardPass->RegisterMaterialInstance(*mat);
 				}
 			}
 		}
@@ -258,19 +258,19 @@ namespace Nz
 				for (std::size_t viewerIndex = m_invalidatedViewerInstances.FindFirst(); viewerIndex != m_invalidatedViewerInstances.npos; viewerIndex = m_invalidatedViewerInstances.FindNext(viewerIndex))
 				{
 					ViewerData* viewerData = m_viewerPool.RetrieveFromIndex(viewerIndex);
-					viewerData->viewer->GetViewerInstance().UpdateBuffers(uploadPool, builder);
+					viewerData->viewer->GetViewerInstance().OnTransfer(uploadPool, builder);
 				}
 				m_invalidatedViewerInstances.Reset();
 
 				for (std::size_t worldInstanceIndex = m_invalidatedWorldInstances.FindFirst(); worldInstanceIndex != m_invalidatedWorldInstances.npos; worldInstanceIndex = m_invalidatedWorldInstances.FindNext(worldInstanceIndex))
 				{
 					WorldInstancePtr& worldInstance = *m_worldInstances.RetrieveFromIndex(worldInstanceIndex);
-					worldInstance->UpdateBuffers(uploadPool, builder);
+					worldInstance->OnTransfer(uploadPool, builder);
 				}
 				m_invalidatedWorldInstances.Reset();
 
-				for (MaterialPass* materialPass : m_invalidatedMaterialPasses)
-					materialPass->Update(renderFrame, builder);
+				//for (MaterialPass* materialPass : m_invalidatedMaterialPasses)
+				//	materialPass->Update(renderFrame, builder);
 
 				m_invalidatedMaterialPasses.clear();
 
@@ -458,9 +458,9 @@ namespace Nz
 			{
 				const auto& material = renderable.renderable->GetMaterial(i);
 				if (viewerData.depthPrepass)
-					viewerData.depthPrepass->UnregisterMaterial(*material);
+					viewerData.depthPrepass->UnregisterMaterialInstance(*material);
 
-				viewerData.forwardPass->UnregisterMaterial(*material);
+				viewerData.forwardPass->UnregisterMaterialInstance(*material);
 			}
 		}
 

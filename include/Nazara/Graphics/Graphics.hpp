@@ -10,6 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/MaterialPassRegistry.hpp>
 #include <Nazara/Graphics/TextureSamplerCache.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
@@ -59,8 +60,8 @@ namespace Nz
 
 			struct DefaultMaterials
 			{
-				std::shared_ptr<Material> depthMaterial;
-				std::shared_ptr<Material> noDepthMaterial;
+				std::shared_ptr<MaterialInstance> depthMaterial;
+				std::shared_ptr<MaterialInstance> noDepthMaterial;
 			};
 
 			struct DefaultTextures

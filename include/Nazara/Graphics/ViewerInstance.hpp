@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
+#include <Nazara/Graphics/TransferInterface.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
 #include <memory>
@@ -20,7 +21,7 @@ namespace Nz
 	class RenderBuffer;
 	class UploadPool;
 
-	class NAZARA_GRAPHICS_API ViewerInstance
+	class NAZARA_GRAPHICS_API ViewerInstance : public TransferInterface
 	{
 		public:
 			ViewerInstance();
@@ -39,7 +40,6 @@ namespace Nz
 			inline std::shared_ptr<RenderBuffer>& GetViewerBuffer();
 			inline const std::shared_ptr<RenderBuffer>& GetViewerBuffer() const;
 
-			void UpdateBuffers(UploadPool& uploadPool, CommandBufferBuilder& builder);
 			inline void UpdateEyePosition(const Vector3f& eyePosition);
 			inline void UpdateProjectionMatrix(const Matrix4f& projectionMatrix);
 			inline void UpdateProjectionMatrix(const Matrix4f& projectionMatrix, const Matrix4f& invProjectionMatrix);
@@ -54,6 +54,8 @@ namespace Nz
 			ViewerInstance& operator=(ViewerInstance&&) noexcept = default;
 
 		private:
+			void OnTransfer(UploadPool& uploadPool, CommandBufferBuilder& builder);
+
 			std::shared_ptr<RenderBuffer> m_viewerDataBuffer;
 			Matrix4f m_invProjectionMatrix;
 			Matrix4f m_invViewProjMatrix;

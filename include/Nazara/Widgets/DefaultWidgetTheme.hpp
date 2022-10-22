@@ -34,20 +34,20 @@ namespace Nz
 			DefaultWidgetTheme& operator=(DefaultWidgetTheme&&) = default;
 
 		private:
-			std::shared_ptr<Material> m_buttonMaterial;
-			std::shared_ptr<Material> m_buttonHoveredMaterial;
-			std::shared_ptr<Material> m_buttonPressedHoveredMaterial;
-			std::shared_ptr<Material> m_buttonPressedMaterial;
-			std::shared_ptr<Material> m_checkboxBackgroundMaterial;
-			std::shared_ptr<Material> m_checkboxBackgroundHoveredMaterial;
-			std::shared_ptr<Material> m_checkboxCheckMaterial;
-			std::shared_ptr<Material> m_checkboxTristateMaterial;
-			std::shared_ptr<Material> m_hoveredMaterial;
-			std::shared_ptr<Material> m_scrollbarBackgroundHorizontalMaterial;
-			std::shared_ptr<Material> m_scrollbarBackgroundVerticalMaterial;
-			std::shared_ptr<Material> m_scrollbarButtonMaterial;
-			std::shared_ptr<Material> m_scrollbarButtonHoveredMaterial;
-			std::shared_ptr<Material> m_scrollbarButtonGrabbedMaterial;
+			std::shared_ptr<MaterialInstance> m_buttonMaterial;
+			std::shared_ptr<MaterialInstance> m_buttonHoveredMaterial;
+			std::shared_ptr<MaterialInstance> m_buttonPressedHoveredMaterial;
+			std::shared_ptr<MaterialInstance> m_buttonPressedMaterial;
+			std::shared_ptr<MaterialInstance> m_checkboxBackgroundMaterial;
+			std::shared_ptr<MaterialInstance> m_checkboxBackgroundHoveredMaterial;
+			std::shared_ptr<MaterialInstance> m_checkboxCheckMaterial;
+			std::shared_ptr<MaterialInstance> m_checkboxTristateMaterial;
+			std::shared_ptr<MaterialInstance> m_hoveredMaterial;
+			std::shared_ptr<MaterialInstance> m_scrollbarBackgroundHorizontalMaterial;
+			std::shared_ptr<MaterialInstance> m_scrollbarBackgroundVerticalMaterial;
+			std::shared_ptr<MaterialInstance> m_scrollbarButtonMaterial;
+			std::shared_ptr<MaterialInstance> m_scrollbarButtonHoveredMaterial;
+			std::shared_ptr<MaterialInstance> m_scrollbarButtonGrabbedMaterial;
 	};
 }
 

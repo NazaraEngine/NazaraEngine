@@ -10,11 +10,10 @@
 
 namespace Nz
 {
-	ShaderReflection::ShaderReflection(nzsl::Ast::Module& module)
+	void ShaderReflection::Reflect(nzsl::Ast::Module& module)
 	{
 		module.rootNode->Visit(*this);
 	}
-
 
 	void ShaderReflection::Visit(nzsl::Ast::DeclareExternalStatement& node)
 	{
@@ -58,10 +57,10 @@ namespace Nz
 				{
 					case ShaderBindingType::StorageBuffer:
 					{
-						if (externalBlock->storageBuffers.find(externalVar.tag) != externalBlock->storageBuffers.end())
+						if (externalBlock->storageBlocks.find(externalVar.tag) != externalBlock->storageBlocks.end())
 							throw std::runtime_error("duplicate storage buffer tag " + externalVar.tag + " in external block " + node.tag);
 
-						ExternalStorageBuffer& storageBuffer = externalBlock->storageBuffers[externalVar.tag];
+						ExternalStorageBlock& storageBuffer = externalBlock->storageBlocks[externalVar.tag];
 						storageBuffer.bindingIndex = bindingIndex;
 						storageBuffer.bindingSet   = bindingSet;
 						storageBuffer.structIndex  = std::get<nzsl::Ast::StorageType>(varType).containedType.structIndex;
@@ -70,12 +69,12 @@ namespace Nz
 
 					case ShaderBindingType::Texture:
 					{
-						if (externalBlock->textures.find(externalVar.tag) != externalBlock->textures.end())
+						if (externalBlock->samplers.find(externalVar.tag) != externalBlock->samplers.end())
 							throw std::runtime_error("duplicate textures tag " + externalVar.tag + " in external block " + node.tag);
 
 						const auto& samplerType = std::get<nzsl::Ast::SamplerType>(varType);
 
-						ExternalTexture& texture = externalBlock->textures[externalVar.tag];
+						ExternalTexture& texture = externalBlock->samplers[externalVar.tag];
 						texture.bindingIndex = bindingIndex;
 						texture.bindingSet   = bindingSet;
 						texture.imageType    = samplerType.dim;
@@ -85,10 +84,10 @@ namespace Nz
 
 					case ShaderBindingType::UniformBuffer:
 					{
-						if (externalBlock->uniformBuffers.find(externalVar.tag) != externalBlock->uniformBuffers.end())
+						if (externalBlock->uniformBlocks.find(externalVar.tag) != externalBlock->uniformBlocks.end())
 							throw std::runtime_error("duplicate storage buffer tag " + externalVar.tag + " in external block " + node.tag);
 
-						ExternalUniformBuffer& uniformBuffer = externalBlock->uniformBuffers[externalVar.tag];
+						ExternalUniformBlock& uniformBuffer = externalBlock->uniformBlocks[externalVar.tag];
 						uniformBuffer.bindingIndex = bindingIndex;
 						uniformBuffer.bindingSet = bindingSet;
 						uniformBuffer.structIndex = std::get<nzsl::Ast::UniformType>(varType).containedType.structIndex;

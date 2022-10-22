@@ -40,9 +40,6 @@ namespace Nz
 
 			inline void Configure(const RenderStates& renderStates);
 
-			inline void Disable();
-			inline void Enable(bool enable = true);
-
 			inline void EnableBlending(bool blending);
 			inline void EnableDepthBuffer(bool depthBuffer);
 			inline void EnableDepthClamp(bool depthClamp);
@@ -53,8 +50,6 @@ namespace Nz
 			inline void EnableStencilTest(bool stencilTest);
 
 			inline void EnsurePipelineUpdate() const;
-
-			void FillShaderBinding(std::vector<ShaderBinding::Binding>& bindings) const;
 
 			inline BlendEquation GetBlendAlphaModeEquation() const;
 			inline BlendEquation GetBlendColorModeEquation() const;
@@ -73,21 +68,12 @@ namespace Nz
 			inline const MaterialPipelineInfo& GetPipelineInfo() const;
 			inline float GetPointSize() const;
 			inline PrimitiveMode GetPrimitiveMode() const;
-			inline const std::shared_ptr<const MaterialSettings>& GetSettings() const;
 			inline const std::shared_ptr<UberShader>& GetShader(nzsl::ShaderStageType shaderStage) const;
-			inline const std::shared_ptr<Texture>& GetTexture(std::size_t textureIndex) const;
-			inline const TextureSamplerInfo& GetTextureSampler(std::size_t textureIndex) const;
-			inline const std::shared_ptr<RenderBuffer>& GetUniformBuffer(std::size_t bufferIndex) const;
-			inline const std::vector<UInt8>& GetUniformBufferConstData(std::size_t bufferIndex) const;
-			inline std::vector<UInt8>& GetUniformBufferData(std::size_t bufferIndex);
-
-			inline bool HasTexture(std::size_t textureIndex) const;
 
 			inline bool IsBlendingEnabled() const;
 			inline bool IsDepthBufferEnabled() const;
 			inline bool IsDepthClampEnabled() const;
 			inline bool IsDepthWriteEnabled() const;
-			inline bool IsEnabled() const;
 			inline bool IsFaceCullingEnabled() const;
 			inline bool IsFlagEnabled(MaterialPassFlag flag) const;
 			inline bool IsScissorTestEnabled() const;
@@ -103,10 +89,6 @@ namespace Nz
 			inline void SetOptionValue(std::size_t optionIndex, nzsl::Ast::ConstantSingleValue value);
 			inline void SetPointSize(float pointSize);
 			inline void SetPrimitiveMode(PrimitiveMode mode);
-			inline void SetSharedUniformBuffer(std::size_t sharedUboIndex, std::shared_ptr<RenderBuffer> uniformBuffer);
-			inline void SetSharedUniformBuffer(std::size_t sharedUboIndex, std::shared_ptr<RenderBuffer> uniformBuffer, UInt64 offset, UInt64 size);
-			inline void SetTexture(std::size_t textureIndex, std::shared_ptr<Texture> texture);
-			inline void SetTextureSampler(std::size_t textureIndex, TextureSamplerInfo samplerInfo);
 
 			MaterialPass& operator=(const MaterialPass&) = delete;
 			MaterialPass& operator=(MaterialPass&&) = delete;
@@ -114,7 +96,6 @@ namespace Nz
 			// Signals:
 			NazaraSignal(OnMaterialPassInvalidated, const MaterialPass* /*materialPass*/);
 			NazaraSignal(OnMaterialPassPipelineInvalidated, const MaterialPass* /*materialPass*/);
-			NazaraSignal(OnMaterialPassShaderBindingInvalidated, const MaterialPass* /*materialPass*/);
 			NazaraSignal(OnMaterialPassRelease, const MaterialPass* /*materialPass*/);
 
 			struct Settings
@@ -124,60 +105,24 @@ namespace Nz
 					std::shared_ptr<UberShader> uberShader;
 				};
 
-				struct TextureInfo
-				{
-					UInt32 bindingIndex;
-					std::shared_ptr<Texture> texture;
-					TextureSamplerInfo samplerInfo;
-				};
-
-				struct UniformBufferInfo
-				{
-					std::shared_ptr<RenderBuffer> buffer; //< kept for ownership
-					UInt32 bindingIndex;
-					RenderBufferView bufferView;
-				};
-
 				std::shared_ptr<RenderPipelineLayout> pipelineLayout;
-				std::vector<TextureInfo> textures;
 				std::vector<ShaderInfo> shaders;
-				std::vector<UniformBufferInfo> uniformBuffers;
 			};
 
 		private:
 			inline void InvalidatePipeline();
-			inline void InvalidateShaderBinding();
-			inline void InvalidateTextureSampler(std::size_t textureIndex);
 			void UpdatePipeline() const;
-
-			struct MaterialTexture
-			{
-				UInt32 bindingIndex;
-				mutable std::shared_ptr<TextureSampler> sampler;
-				std::shared_ptr<Texture> texture;
-				TextureSamplerInfo samplerInfo;
-			};
 
 			struct ShaderEntry
 			{
 				NazaraSlot(UberShader, OnShaderUpdated, onShaderUpdated);
 			};
 
-			struct UniformBuffer
-			{
-				UInt32 bindingIndex;
-				std::shared_ptr<RenderBuffer> buffer; //< kept for ownership
-				RenderBufferView bufferView;
-			};
-
 			std::unordered_map<UInt32, nzsl::Ast::ConstantSingleValue> m_optionValues;
-			std::vector<MaterialTexture> m_textures;
 			std::vector<ShaderEntry> m_shaders;
-			std::vector<UniformBuffer> m_uniformBuffers;
 			mutable std::shared_ptr<MaterialPipeline> m_pipeline;
 			mutable MaterialPipelineInfo m_pipelineInfo;
 			MaterialPassFlags m_flags;
-			bool m_isEnabled;
 			mutable bool m_pipelineUpdated;
 	};
 }

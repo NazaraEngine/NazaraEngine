@@ -23,7 +23,7 @@ namespace Nz
 
 	using SkeletonInstancePtr = std::shared_ptr<SkeletonInstance>;
 
-	class NAZARA_GRAPHICS_API SkeletonInstance
+	class NAZARA_GRAPHICS_API SkeletonInstance : public TransferInterface
 	{
 		public:
 			SkeletonInstance(std::shared_ptr<const Skeleton> skeleton);
@@ -35,12 +35,12 @@ namespace Nz
 			inline const std::shared_ptr<RenderBuffer>& GetSkeletalBuffer() const;
 			inline const std::shared_ptr<const Skeleton>& GetSkeleton() const;
 
-			void UpdateBuffers(UploadPool& uploadPool, CommandBufferBuilder& builder);
-
 			SkeletonInstance& operator=(const SkeletonInstance&) = delete;
 			SkeletonInstance& operator=(SkeletonInstance&& skeletonInstance) noexcept;
 
 		private:
+			void OnTransfer(UploadPool& uploadPool, CommandBufferBuilder& builder);
+
 			NazaraSlot(Skeleton, OnSkeletonJointsInvalidated, m_onSkeletonJointsInvalidated);
 
 			std::shared_ptr<RenderBuffer> m_skeletalDataBuffer;

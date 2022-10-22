@@ -18,7 +18,7 @@ namespace Nz
 {
 	class CommandBufferBuilder;
 	class ElementRendererRegistry;
-	class Material;
+	class MaterialInstance;
 	class RenderElement;
 	class SkeletonInstance;
 	class WorldInstance;
@@ -36,7 +36,7 @@ namespace Nz
 			virtual void BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, std::vector<RenderElementOwner>& elements) const = 0;
 
 			inline const Boxf& GetAABB() const;
-			virtual const std::shared_ptr<Material>& GetMaterial(std::size_t i) const = 0;
+			virtual const std::shared_ptr<MaterialInstance>& GetMaterial(std::size_t i) const = 0;
 			virtual std::size_t GetMaterialCount() const = 0;
 			inline int GetRenderLayer() const;
 
@@ -47,7 +47,7 @@ namespace Nz
 
 			NazaraSignal(OnAABBUpdate, InstancedRenderable* /*instancedRenderable*/, const Boxf& /*aabb*/);
 			NazaraSignal(OnElementInvalidated, InstancedRenderable* /*instancedRenderable*/);
-			NazaraSignal(OnMaterialInvalidated, InstancedRenderable* /*instancedRenderable*/, std::size_t /*materialIndex*/, const std::shared_ptr<Material>& /*newMaterial*/);
+			NazaraSignal(OnMaterialInvalidated, InstancedRenderable* /*instancedRenderable*/, std::size_t /*materialIndex*/, const std::shared_ptr<MaterialInstance>& /*newMaterial*/);
 
 			struct ElementData
 			{

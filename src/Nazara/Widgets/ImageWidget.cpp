@@ -11,7 +11,7 @@
 
 namespace Nz
 {
-	ImageWidget::ImageWidget(BaseWidget* parent, std::shared_ptr<Material> material) :
+	ImageWidget::ImageWidget(BaseWidget* parent, std::shared_ptr<MaterialInstance> material) :
 	BaseWidget(parent)
 	{
 		m_sprite = std::make_shared<Sprite>(Widgets::Instance()->GetTransparentMaterial());

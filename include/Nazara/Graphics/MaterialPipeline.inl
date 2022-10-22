@@ -40,7 +40,7 @@ namespace Nz
 
 		#define NazaraPipelineMember(field) if (lhs.field != rhs.field) return false
 
-		NazaraPipelineMember(settings);
+		//NazaraPipelineMember(settings);
 		NazaraPipelineMember(optionCount);
 
 		for (std::size_t i = 0; i < lhs.shaders.size(); ++i)
@@ -86,7 +86,7 @@ namespace std
 			#define NazaraPipelineMember(member) Nz::HashCombine(seed, pipelineInfo.member)
 			#define NazaraPipelineBoolMember(member) parameterHash |= ((pipelineInfo.member) ? 1U : 0U) << (parameterIndex++)
 
-			NazaraPipelineMember(settings.get()); //< Hash pointer
+			//NazaraPipelineMember(settings.get()); //< Hash pointer
 
 			for (std::size_t i = 0; i < pipelineInfo.optionCount; ++i)
 			{

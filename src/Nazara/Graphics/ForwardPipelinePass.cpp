@@ -7,6 +7,7 @@
 #include <Nazara/Graphics/ElementRendererRegistry.hpp>
 #include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Graphics/FramePipeline.hpp>
+#include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
@@ -32,8 +33,13 @@ namespace Nz
 
 	ForwardPipelinePass::~ForwardPipelinePass()
 	{
-		for (auto&& [materialPass, entry] : m_materialPasses)
+		for (auto&& [materialInstance, entry] : m_materialInstances)
+		{
+			MaterialPass* materialPass = materialInstance->GetPass(m_forwardPassIndex).get();
+			assert(materialPass);
+
 			m_pipeline.UnregisterMaterialPass(materialPass);
+		}
 	}
 
 	void ForwardPipelinePass::Prepare(RenderFrame& renderFrame, const Frustumf& frustum, const std::vector<FramePipelinePass::VisibleRenderable>& visibleRenderables, const std::vector<const Light*>& visibleLights, std::size_t visibilityHash)
@@ -244,25 +250,24 @@ namespace Nz
 		}
 	}
 
-	void ForwardPipelinePass::RegisterMaterial(const Material& material)
+	void ForwardPipelinePass::RegisterMaterialInstance(const MaterialInstance& materialInstance)
 	{
-		if (!material.HasPass(m_forwardPassIndex))
+		MaterialPass* materialPass = materialInstance.GetPass(m_forwardPassIndex).get();
+		if (!materialPass)
 			return;
 
-		MaterialPass* materialPass = material.GetPass(m_forwardPassIndex).get();
-
-		auto it = m_materialPasses.find(materialPass);
-		if (it == m_materialPasses.end())
+		auto it = m_materialInstances.find(&materialInstance);
+		if (it == m_materialInstances.end())
 		{
 			m_pipeline.RegisterMaterialPass(materialPass);
 
-			auto& matPassEntry = m_materialPasses[materialPass];
+			auto& matPassEntry = m_materialInstances[&materialInstance];
 			matPassEntry.onMaterialPipelineInvalidated.Connect(materialPass->OnMaterialPassPipelineInvalidated, [=](const MaterialPass*)
 			{
 				m_rebuildElements = true;
 			});
 
-			matPassEntry.onMaterialShaderBindingInvalidated.Connect(materialPass->OnMaterialPassShaderBindingInvalidated, [=](const MaterialPass*)
+			matPassEntry.onMaterialInstanceShaderBindingInvalidated.Connect(materialInstance.OnMaterialInstanceShaderBindingInvalidated, [=](const MaterialInstance*)
 			{
 				m_rebuildCommandBuffer = true;
 			});
@@ -307,19 +312,18 @@ namespace Nz
 		});
 	}
 
-	void ForwardPipelinePass::UnregisterMaterial(const Material& material)
+	void ForwardPipelinePass::UnregisterMaterialInstance(const MaterialInstance& materialInstance)
 	{
-		if (!material.HasPass(m_forwardPassIndex))
-			return;
-
-		MaterialPass* materialPass = material.GetPass(m_forwardPassIndex).get();
-
-		auto it = m_materialPasses.find(materialPass);
-		if (it != m_materialPasses.end())
+		auto it = m_materialInstances.find(&materialInstance);
+		if (it != m_materialInstances.end())
 		{
 			if (--it->second.usedCount == 0)
 			{
-				m_materialPasses.erase(it);
+				m_materialInstances.erase(it);
+
+				MaterialPass* materialPass = materialInstance.GetPass(m_forwardPassIndex).get();
+				assert(materialPass);
+
 				m_pipeline.UnregisterMaterialPass(materialPass);
 			}
 		}

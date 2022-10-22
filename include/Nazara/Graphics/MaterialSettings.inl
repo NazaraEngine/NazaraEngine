@@ -4,6 +4,7 @@
 
 #include <Nazara/Graphics/MaterialSettings.hpp>
 #include <Nazara/Utils/Algorithm.hpp>
+#include <stdexcept>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
@@ -39,6 +40,117 @@ namespace Nz
 	template<> struct TypeToMaterialPropertyType<Vector2<UInt32>> { static constexpr MaterialPropertyType PropertyType = MaterialPropertyType::Int2; };
 	template<> struct TypeToMaterialPropertyType<Vector3<UInt32>> { static constexpr MaterialPropertyType PropertyType = MaterialPropertyType::Int3; };
 	template<> struct TypeToMaterialPropertyType<Vector4<UInt32>> { static constexpr MaterialPropertyType PropertyType = MaterialPropertyType::Int4; };
+
+	inline void MaterialSettings::AddPropertyHandler(std::unique_ptr<PropertyHandler> propertyHandler)
+	{
+		m_propertyHandlers.emplace_back(std::move(propertyHandler));
+	}
+
+	inline void MaterialSettings::AddTextureProperty(std::string propertyName, ImageType propertyType)
+	{
+		auto& textureProperty = m_textureProperties.emplace_back();
+		textureProperty.name = std::move(propertyName);
+		textureProperty.type = propertyType;
+	}
+
+	inline void MaterialSettings::AddTextureProperty(std::string propertyName, ImageType propertyType, std::shared_ptr<Texture> defaultTexture)
+	{
+		if (defaultTexture && defaultTexture->GetType() != propertyType)
+			throw std::runtime_error("default texture type doesn't match property image type");
+
+		auto& textureProperty = m_textureProperties.emplace_back();
+		textureProperty.name = std::move(propertyName);
+		textureProperty.type = propertyType;
+		textureProperty.defaultTexture = std::move(defaultTexture);
+	}
+
+	inline void MaterialSettings::AddValueProperty(std::string propertyName, MaterialPropertyType propertyType, Value defaultValue)
+	{
+		std::visit([&](auto&& arg)
+		{
+			using T = std::decay_t<decltype(arg)>;
+
+			if constexpr (!std::is_same_v<T, MaterialPropertyNoValue>)
+			{
+				constexpr MaterialPropertyType valueType = TypeToMaterialPropertyType_v<T>;
+				if (propertyType != valueType)
+					throw std::runtime_error("default value type doesn't match property type");
+			}
+			else
+				throw std::runtime_error("value properties must have a default value");
+		}, defaultValue);
+
+		auto& valueProperty = m_valueProperties.emplace_back();
+		valueProperty.name = std::move(propertyName);
+		valueProperty.type = propertyType;
+		valueProperty.defaultValue = std::move(defaultValue);
+	}
+
+	inline std::size_t MaterialSettings::FindTextureProperty(std::string_view propertyName) const
+	{
+		for (std::size_t i = 0; i < m_textureProperties.size(); ++i)
+		{
+			if (m_textureProperties[i].name == propertyName)
+				return i;
+		}
+
+		return InvalidPropertyIndex;
+	}
+
+	inline std::size_t MaterialSettings::FindValueProperty(std::string_view propertyName) const
+	{
+		for (std::size_t i = 0; i < m_valueProperties.size(); ++i)
+		{
+			if (m_valueProperties[i].name == propertyName)
+				return i;
+		}
+
+		return InvalidPropertyIndex;
+	}
+
+	inline const std::vector<std::unique_ptr<PropertyHandler>>& MaterialSettings::GetPropertyHandlers() const
+	{
+		return m_propertyHandlers;
+	}
+
+	inline auto MaterialSettings::GetTextureProperty(std::size_t texturePropertyIndex) const -> const TextureProperty&
+	{
+		assert(texturePropertyIndex < m_textureProperties.size());
+		return m_textureProperties[texturePropertyIndex];
+	}
+
+	inline std::size_t MaterialSettings::GetTexturePropertyCount() const
+	{
+		return m_textureProperties.size();
+	}
+
+	inline auto MaterialSettings::GetValueProperty(std::size_t valuePropertyIndex) const -> const ValueProperty&
+	{
+		assert(valuePropertyIndex < m_valueProperties.size());
+		return m_valueProperties[valuePropertyIndex];
+	}
+
+	inline std::size_t MaterialSettings::GetValuePropertyCount() const
+	{
+		return m_valueProperties.size();
+	}
+
+	template<typename T>
+	void MaterialSettings::AddValueProperty(std::string propertyName)
+	{
+		return AddValueProperty(std::move(propertyName), TypeToMaterialPropertyType_v<T>);
+	}
+
+	template<typename T, typename U>
+	void MaterialSettings::AddValueProperty(std::string propertyName, U&& defaultValue)
+	{
+		constexpr std::size_t TypeIndex = TypeListFind<MaterialPropertyTypeList, T>;
+
+		auto& valueProperty = m_valueProperties.emplace_back();
+		valueProperty.name = std::move(propertyName);
+		valueProperty.type = TypeToMaterialPropertyType_v<T>;
+		valueProperty.defaultValue.emplace<TypeIndex>(std::forward<U>(defaultValue));
+	}
 }
 
 #include <Nazara/Graphics/DebugOff.hpp>

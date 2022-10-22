@@ -15,7 +15,7 @@ namespace Nz
 		OnElementInvalidated(this);
 	}
 
-	inline void TextSprite::SetMaterial(std::shared_ptr<Material> material)
+	inline void TextSprite::SetMaterial(std::shared_ptr<MaterialInstance> material)
 	{
 		assert(material);
 

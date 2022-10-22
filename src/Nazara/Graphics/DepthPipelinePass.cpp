@@ -29,8 +29,13 @@ namespace Nz
 
 	DepthPipelinePass::~DepthPipelinePass()
 	{
-		for (auto&& [materialPass, entry] : m_materialPasses)
+		for (auto&& [materialInstance, entry] : m_materialInstances)
+		{
+			MaterialPass* materialPass = materialInstance->GetPass(m_depthPassIndex).get();
+			assert(materialPass);
+
 			m_pipeline.UnregisterMaterialPass(materialPass);
+		}
 	}
 
 	void DepthPipelinePass::Prepare(RenderFrame& renderFrame, const Frustumf& frustum, const std::vector<FramePipelinePass::VisibleRenderable>& visibleRenderables, std::size_t visibilityHash)
@@ -109,25 +114,24 @@ namespace Nz
 		}
 	}
 
-	void DepthPipelinePass::RegisterMaterial(const Material& material)
+	void DepthPipelinePass::RegisterMaterialInstance(const MaterialInstance& materialInstance)
 	{
-		if (!material.HasPass(m_depthPassIndex))
+		MaterialPass* materialPass = materialInstance.GetPass(m_depthPassIndex).get();
+		if (!materialPass)
 			return;
 
-		MaterialPass* materialPass = material.GetPass(m_depthPassIndex).get();
-
-		auto it = m_materialPasses.find(materialPass);
-		if (it == m_materialPasses.end())
+		auto it = m_materialInstances.find(&materialInstance);
+		if (it == m_materialInstances.end())
 		{
 			m_pipeline.RegisterMaterialPass(materialPass);
 
-			auto& matPassEntry = m_materialPasses[materialPass];
+			auto& matPassEntry = m_materialInstances[&materialInstance];
 			matPassEntry.onMaterialPipelineInvalidated.Connect(materialPass->OnMaterialPassPipelineInvalidated, [=](const MaterialPass*)
 			{
 				m_rebuildElements = true;
 			});
 
-			matPassEntry.onMaterialShaderBindingInvalidated.Connect(materialPass->OnMaterialPassShaderBindingInvalidated, [=](const MaterialPass*)
+			matPassEntry.onMaterialInstanceShaderBindingInvalidated.Connect(materialInstance.OnMaterialInstanceShaderBindingInvalidated, [=](const MaterialInstance*)
 			{
 				m_rebuildCommandBuffer = true;
 			});
@@ -166,20 +170,19 @@ namespace Nz
 		});
 	}
 
-	void DepthPipelinePass::UnregisterMaterial(const Material& material)
+	void DepthPipelinePass::UnregisterMaterialInstance(const MaterialInstance& materialInstance)
 	{
-		if (!material.HasPass(m_depthPassIndex))
-			return;
-
-		MaterialPass* materialPass = material.GetPass(m_depthPassIndex).get();
-
-		auto it = m_materialPasses.find(materialPass);
-		if (it != m_materialPasses.end())
+		auto it = m_materialInstances.find(&materialInstance);
+		if (it != m_materialInstances.end())
 		{
 			if (--it->second.usedCount == 0)
 			{
+				m_materialInstances.erase(it);
+
+				MaterialPass* materialPass = materialInstance.GetPass(m_depthPassIndex).get();
+				assert(materialPass);
+
 				m_pipeline.UnregisterMaterialPass(materialPass);
-				m_materialPasses.erase(it);
 			}
 		}
 	}

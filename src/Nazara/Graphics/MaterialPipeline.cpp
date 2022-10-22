@@ -5,12 +5,8 @@
 #include <Nazara/Graphics/MaterialPipeline.hpp>
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/Log.hpp>
-#include <Nazara/Graphics/BasicMaterialPass.hpp>
-#include <Nazara/Graphics/DepthMaterialPass.hpp>
+#include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
-#include <Nazara/Graphics/MaterialSettings.hpp>
-#include <Nazara/Graphics/PhongLightingMaterialPass.hpp>
-#include <Nazara/Graphics/PhysicallyBasedMaterialPass.hpp>
 #include <Nazara/Graphics/UberShader.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
@@ -50,7 +46,7 @@ namespace Nz
 		RenderPipelineInfo renderPipelineInfo;
 		static_cast<RenderStates&>(renderPipelineInfo).operator=(m_pipelineInfo); // Not the line I'm the most proud of
 
-		renderPipelineInfo.pipelineLayout = m_pipelineInfo.settings->GetRenderPipelineLayout();
+		renderPipelineInfo.pipelineLayout = m_pipelineInfo.pipelineLayout;
 
 		std::unordered_map<UInt32, nzsl::Ast::ConstantSingleValue> optionValues;
 		for (std::size_t i = 0; i < m_pipelineInfo.optionCount; ++i)
@@ -94,10 +90,10 @@ namespace Nz
 
 	bool MaterialPipeline::Initialize()
 	{
-		BasicMaterialPass::Initialize();
+		/*BasicMaterialPass::Initialize();
 		DepthMaterialPass::Initialize();
 		PhongLightingMaterialPass::Initialize();
-		PhysicallyBasedMaterialPass::Initialize();
+		PhysicallyBasedMaterialPass::Initialize();*/
 
 		return true;
 	}
@@ -105,10 +101,10 @@ namespace Nz
 	void MaterialPipeline::Uninitialize()
 	{
 		s_pipelineCache.clear();
-		PhysicallyBasedMaterialPass::Uninitialize();
+		/*PhysicallyBasedMaterialPass::Uninitialize();
 		PhongLightingMaterialPass::Uninitialize();
 		DepthMaterialPass::Uninitialize();
-		BasicMaterialPass::Uninitialize();
+		BasicMaterialPass::Uninitialize();*/
 	}
 
 	MaterialPipeline::PipelineCache MaterialPipeline::s_pipelineCache;

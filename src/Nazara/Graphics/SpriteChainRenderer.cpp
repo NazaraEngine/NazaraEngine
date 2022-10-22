@@ -55,15 +55,13 @@ namespace Nz
 		return std::make_unique<SpriteChainRendererData>();
 	}
 
-	void SpriteChainRenderer::Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderFrame& currentFrame, std::size_t elementCount, const Pointer<const RenderElement>* elements, const RenderStates* renderStates)
+	void SpriteChainRenderer::Prepare(const ViewerInstance& /*viewerInstance*/, ElementRendererData& rendererData, RenderFrame& currentFrame, std::size_t elementCount, const Pointer<const RenderElement>* elements, const RenderStates* renderStates)
 	{
 		Graphics* graphics = Graphics::Instance();
 
 		auto& data = static_cast<SpriteChainRendererData&>(rendererData);
 
 		Recti invalidScissorBox(-1, -1, -1, -1);
-
-		const auto& defaultSampler = graphics->GetSamplerCache().Get({});
 
 		std::size_t oldDrawCallCount = data.drawCalls.size();
 
@@ -155,10 +153,10 @@ namespace Nz
 					m_bindingCache.clear();
 
 					const MaterialPass& materialPass = spriteChain.GetMaterialPass();
-					materialPass.FillShaderBinding(m_bindingCache);
+					//materialPass.FillShaderBinding(m_bindingCache);
 
 					// Predefined shader bindings
-					const auto& matSettings = materialPass.GetSettings();
+					/*const auto& matSettings = materialPass.GetSettings();
 					if (std::size_t bindingIndex = matSettings->GetPredefinedBinding(PredefinedShaderBinding::InstanceDataUbo); bindingIndex != MaterialSettings::InvalidIndex)
 					{
 						const auto& instanceBuffer = m_pendingData.currentWorldInstance->GetInstanceBuffer();
@@ -200,7 +198,7 @@ namespace Nz
 						bindingEntry.content = ShaderBinding::TextureBinding{
 							m_pendingData.currentTextureOverlay, defaultSampler.get()
 						};
-					}
+					}*/
 
 					ShaderBindingPtr drawDataBinding = m_pendingData.currentPipeline->GetPipelineInfo().pipelineLayout->AllocateShaderBinding(0);
 					drawDataBinding->Update(m_bindingCache.data(), m_bindingCache.size());

@@ -12,7 +12,7 @@ namespace Nz
 		return m_sprite->GetColor();
 	}
 
-	inline const std::shared_ptr<Material>& ImageWidget::GetMaterial() const
+	inline const std::shared_ptr<MaterialInstance>& ImageWidget::GetMaterial() const
 	{
 		return m_sprite->GetMaterial();
 	}
@@ -27,7 +27,7 @@ namespace Nz
 		m_sprite->SetColor(color);
 	}
 
-	inline void ImageWidget::SetMaterial(const std::shared_ptr<Material>& texture)
+	inline void ImageWidget::SetMaterial(const std::shared_ptr<MaterialInstance>& texture)
 	{
 		m_sprite->SetMaterial(texture);
 		UpdatePreferredSize();

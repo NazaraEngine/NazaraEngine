@@ -35,20 +35,6 @@ namespace Nz
 		InvalidatePipeline();
 	}
 
-	inline void MaterialPass::Disable()
-	{
-		return Enable(false);
-	}
-
-	inline void MaterialPass::Enable(bool enable)
-	{
-		if (m_isEnabled != enable)
-		{
-			m_isEnabled = enable;
-			OnMaterialPassInvalidated(this);
-		}
-	}
-
 	/*!
 	* \brief Enable/Disable blending for this material
 	*
@@ -306,8 +292,9 @@ namespace Nz
 
 	inline const nzsl::Ast::ConstantSingleValue& MaterialPass::GetOptionValue(std::size_t optionIndex) const
 	{
-		assert(optionIndex < m_optionValues.size());
-		return m_optionValues[optionIndex];
+		//assert(optionIndex < m_optionValues.size());
+		//return m_optionValues[optionIndex];
+		return {};
 	}
 
 	/*!
@@ -344,11 +331,6 @@ namespace Nz
 		return m_pipelineInfo.primitiveMode;
 	}
 
-	inline const std::shared_ptr<const MaterialSettings>& MaterialPass::GetSettings() const
-	{
-		return m_settings;
-	}
-
 	/*!
 	* \brief Gets the über-shader used by this material
 	* \return Constant pointer to the über-shader used
@@ -356,44 +338,6 @@ namespace Nz
 	inline const std::shared_ptr<UberShader>& MaterialPass::GetShader(nzsl::ShaderStageType shaderStage) const
 	{
 		return m_pipelineInfo.shaders[UnderlyingCast(shaderStage)].uberShader;
-	}
-
-	inline const std::shared_ptr<Texture>& MaterialPass::GetTexture(std::size_t textureIndex) const
-	{
-		NazaraAssert(textureIndex < m_textures.size(), "Invalid texture index");
-		return m_textures[textureIndex].texture;
-	}
-
-	inline const TextureSamplerInfo& MaterialPass::GetTextureSampler(std::size_t textureIndex) const
-	{
-		NazaraAssert(textureIndex < m_textures.size(), "Invalid texture index");
-		return m_textures[textureIndex].samplerInfo;
-	}
-
-	inline const std::shared_ptr<RenderBuffer>& MaterialPass::GetUniformBuffer(std::size_t bufferIndex) const
-	{
-		NazaraAssert(bufferIndex < m_uniformBuffers.size(), "Invalid uniform buffer index");
-		return m_uniformBuffers[bufferIndex].buffer;
-	}
-
-	inline const std::vector<UInt8>& MaterialPass::GetUniformBufferConstData(std::size_t bufferIndex) const
-	{
-		NazaraAssert(bufferIndex < m_uniformBuffers.size(), "Invalid uniform buffer index");
-		return m_uniformBuffers[bufferIndex].data;
-	}
-
-	inline std::vector<UInt8>& MaterialPass::GetUniformBufferData(std::size_t bufferIndex)
-	{
-		NazaraAssert(bufferIndex < m_uniformBuffers.size(), "Invalid uniform buffer index");
-		UniformBuffer& uboEntry = m_uniformBuffers[bufferIndex];
-		InvalidateUniformData(bufferIndex);
-
-		return uboEntry.data;
-	}
-
-	inline bool MaterialPass::HasTexture(std::size_t textureIndex) const
-	{
-		return GetTexture(textureIndex) != nullptr;
 	}
 
 	/*!
@@ -430,11 +374,6 @@ namespace Nz
 	inline bool MaterialPass::IsDepthWriteEnabled() const
 	{
 		return m_pipelineInfo.depthWrite;
-	}
-
-	inline bool MaterialPass::IsEnabled() const
-	{
-		return m_isEnabled;
 	}
 
 	/*!
@@ -590,57 +529,11 @@ namespace Nz
 		InvalidatePipeline();
 	}
 
-	inline void MaterialPass::SetSharedUniformBuffer(std::size_t sharedUboIndex, std::shared_ptr<RenderBuffer> uniformBuffer)
-	{
-		if (uniformBuffer)
-		{
-			UInt64 size = uniformBuffer->GetSize();
-			return SetSharedUniformBuffer(sharedUboIndex, std::move(uniformBuffer), 0, size);
-		}
-		else
-			return SetSharedUniformBuffer(sharedUboIndex, std::move(uniformBuffer), 0, 0);
-	}
-
-	inline void MaterialPass::SetTexture(std::size_t textureIndex, std::shared_ptr<Texture> texture)
-	{
-		NazaraAssert(textureIndex < m_textures.size(), "Invalid texture index");
-		if (m_textures[textureIndex].texture != texture)
-		{
-			m_textures[textureIndex].texture = std::move(texture);
-
-			InvalidateShaderBinding();
-		}
-	}
-
-	inline void MaterialPass::SetTextureSampler(std::size_t textureIndex, TextureSamplerInfo samplerInfo)
-	{
-		NazaraAssert(textureIndex < m_textures.size(), "Invalid texture index");
-		if (m_textures[textureIndex].samplerInfo != samplerInfo)
-		{
-			m_textures[textureIndex].samplerInfo = std::move(samplerInfo);
-
-			InvalidateTextureSampler(textureIndex);
-		}
-	}
-
 	inline void MaterialPass::InvalidatePipeline()
 	{
 		m_pipelineUpdated = false;
 
 		OnMaterialPassPipelineInvalidated(this);
-	}
-
-	inline void MaterialPass::InvalidateShaderBinding()
-	{
-		OnMaterialPassShaderBindingInvalidated(this);
-	}
-
-	inline void MaterialPass::InvalidateTextureSampler(std::size_t textureIndex)
-	{
-		assert(textureIndex < m_textures.size());
-		m_textures[textureIndex].sampler.reset();
-
-		InvalidateShaderBinding();
 	}
 }
 

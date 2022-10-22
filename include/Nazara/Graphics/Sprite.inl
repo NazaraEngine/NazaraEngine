@@ -47,7 +47,7 @@ namespace Nz
 		UpdateVertices();
 	}
 
-	inline void Sprite::SetMaterial(std::shared_ptr<Material> material)
+	inline void Sprite::SetMaterial(std::shared_ptr<MaterialInstance> material)
 	{
 		assert(material);
 

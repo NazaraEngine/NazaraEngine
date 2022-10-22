@@ -30,10 +30,10 @@ namespace Nz
 			Widgets(Config config);
 			~Widgets() = default;
 
-			inline const std::shared_ptr<Material>& GetOpaqueMaterial() const;
+			inline const std::shared_ptr<MaterialInstance>& GetOpaqueMaterial() const;
 			inline const std::shared_ptr<MaterialPass>& GetOpaqueMaterialPass() const;
 
-			inline const std::shared_ptr<Material>& GetTransparentMaterial() const;
+			inline const std::shared_ptr<MaterialInstance>& GetTransparentMaterial() const;
 			inline const std::shared_ptr<MaterialPass>& GetTransparentMaterialPass() const;
 
 			struct Config {};
@@ -41,8 +41,8 @@ namespace Nz
 		private:
 			void CreateDefaultMaterials();
 
-			std::shared_ptr<Material> m_opaqueMaterial;
-			std::shared_ptr<Material> m_transparentMaterial;
+			std::shared_ptr<MaterialInstance> m_opaqueMaterial;
+			std::shared_ptr<MaterialInstance> m_transparentMaterial;
 			std::shared_ptr<MaterialPass> m_opaqueMaterialPass;
 			std::shared_ptr<MaterialPass> m_transparentMaterialPass;
 

@@ -3,11 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/Formats/TextureLoader.hpp>
-#include <Nazara/Graphics/BasicMaterialPass.hpp>
-#include <Nazara/Graphics/DepthMaterialPass.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
-#include <Nazara/Graphics/PhongLightingMaterialPass.hpp>
-#include <Nazara/Graphics/PhysicallyBasedMaterialPass.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Utility/Utility.hpp>
 #include <Nazara/Graphics/Debug.hpp>
@@ -33,12 +29,12 @@ namespace Nz
 				if (!texture)
 					return Err(ResourceLoadingError::Unrecognized);
 
-				std::shared_ptr<Material> material = std::make_shared<Material>();
+				//std::shared_ptr<Material> material = std::make_shared<Material>();
 
 				bool hasAlphaTest = parameters.custom.GetBooleanParameter("EnableAlphaTest").GetValueOr(false);
 
 				// ForwardPass
-				{
+				/* {
 					std::shared_ptr<MaterialPass> matPass;
 					if (parameters.lightingType == MaterialLightingType::Phong)
 						matPass = std::make_shared<MaterialPass>(PhongLightingMaterialPass::GetSettings());
@@ -71,9 +67,10 @@ namespace Nz
 					}
 
 					material->AddPass("DepthPass", std::move(matPass));
-				}
+				}*/
 
-				return material;
+				//return material;
+				return Err(ResourceLoadingError::Internal);
 			};
 
 			loaderEntry.parameterFilter = [](const MaterialParams& parameters)

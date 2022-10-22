@@ -23,7 +23,7 @@ namespace Nz
 			enum class Orientation;
 			struct Section;
 
-			LinearSlicedSprite(std::shared_ptr<Material> material, Orientation orientation);
+			LinearSlicedSprite(std::shared_ptr<MaterialInstance> material, Orientation orientation);
 			LinearSlicedSprite(const LinearSlicedSprite&) = delete;
 			LinearSlicedSprite(LinearSlicedSprite&&) noexcept = default;
 			~LinearSlicedSprite() = default;
@@ -35,7 +35,7 @@ namespace Nz
 			inline void Clear();
 
 			inline const Color& GetColor() const;
-			const std::shared_ptr<Material>& GetMaterial(std::size_t i = 0) const override;
+			const std::shared_ptr<MaterialInstance>& GetMaterial(std::size_t i = 0) const override;
 			std::size_t GetMaterialCount() const override;
 			inline Orientation GetOrientation() const;
 			inline const Section& GetSection(std::size_t sectionIndex) const;
@@ -46,7 +46,7 @@ namespace Nz
 			inline void RemoveSection(std::size_t sectionIndex);
 
 			inline void SetColor(const Color& color);
-			inline void SetMaterial(std::shared_ptr<Material> material);
+			inline void SetMaterial(std::shared_ptr<MaterialInstance> material);
 			inline void SetSection(std::size_t sectionIndex, float size, float textureCoord);
 			inline void SetSectionSize(std::size_t sectionIndex, float size);
 			inline void SetSectionTextureCoord(std::size_t sectionIndex, float textureCoord);
@@ -76,7 +76,7 @@ namespace Nz
 
 			std::array<Section, MaxSection> m_sections;
 			std::array<VertexStruct_XYZ_Color_UV, 4 * MaxSection> m_vertices;
-			std::shared_ptr<Material> m_material;
+			std::shared_ptr<MaterialInstance> m_material;
 			std::size_t m_sectionCount;
 			std::size_t m_spriteCount;
 			Color m_color;

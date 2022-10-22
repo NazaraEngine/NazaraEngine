@@ -47,7 +47,7 @@ namespace Nz
 			const auto& submeshData = m_submeshes[i];
 
 			const auto& materialPass = submeshData.material->GetPass(passIndex);
-			if (!materialPass || !materialPass->IsEnabled())
+			if (!materialPass)
 				continue;
 
 			const auto& indexBuffer = m_graphicalMesh->GetIndexBuffer(i);
@@ -71,7 +71,7 @@ namespace Nz
 		return m_graphicalMesh->GetIndexCount(subMeshIndex);
 	}
 
-	const std::shared_ptr<Material>& Model::GetMaterial(std::size_t subMeshIndex) const
+	const std::shared_ptr<MaterialInstance>& Model::GetMaterial(std::size_t subMeshIndex) const
 	{
 		assert(subMeshIndex < m_submeshes.size());
 		const auto& subMeshData = m_submeshes[subMeshIndex];

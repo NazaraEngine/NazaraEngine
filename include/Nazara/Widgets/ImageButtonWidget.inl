@@ -7,12 +7,12 @@
 
 namespace Nz
 {
-	inline ImageButtonWidget::ImageButtonWidget(BaseWidget* parent, std::shared_ptr<Material> material) :
+	inline ImageButtonWidget::ImageButtonWidget(BaseWidget* parent, std::shared_ptr<MaterialInstance> material) :
 	ImageButtonWidget(parent, std::move(material), {}, {}, 0.f, 0.f)
 	{
 	}
 
-	inline ImageButtonWidget::ImageButtonWidget(BaseWidget* parent, std::shared_ptr<Material> material, float cornerSize, float cornerTexCoords) :
+	inline ImageButtonWidget::ImageButtonWidget(BaseWidget* parent, std::shared_ptr<MaterialInstance> material, float cornerSize, float cornerTexCoords) :
 	ImageButtonWidget(parent, std::move(material), {}, {}, cornerSize, cornerTexCoords)
 	{
 	}
@@ -32,17 +32,17 @@ namespace Nz
 		return m_cornerTexCoords;
 	}
 
-	inline const std::shared_ptr<Material>& ImageButtonWidget::GetHoveredMaterial() const
+	inline const std::shared_ptr<MaterialInstance>& ImageButtonWidget::GetHoveredMaterial() const
 	{
 		return m_hoveredMaterial;
 	}
 
-	inline const std::shared_ptr<Material>& ImageButtonWidget::GetMaterial() const
+	inline const std::shared_ptr<MaterialInstance>& ImageButtonWidget::GetMaterial() const
 	{
 		return m_material;
 	}
 
-	inline const std::shared_ptr<Material>& ImageButtonWidget::GetPressedMaterial() const
+	inline const std::shared_ptr<MaterialInstance>& ImageButtonWidget::GetPressedMaterial() const
 	{
 		return m_pressedMaterial;
 	}
@@ -67,14 +67,14 @@ namespace Nz
 		m_style->OnUpdate();
 	}
 
-	inline void ImageButtonWidget::SetHoveredMaterial(std::shared_ptr<Material> material)
+	inline void ImageButtonWidget::SetHoveredMaterial(std::shared_ptr<MaterialInstance> material)
 	{
 		m_hoveredMaterial = std::move(material);
 
 		m_style->OnUpdate();
 	}
 
-	inline void ImageButtonWidget::SetMaterial(std::shared_ptr<Material> material)
+	inline void ImageButtonWidget::SetMaterial(std::shared_ptr<MaterialInstance> material)
 	{
 		m_material = std::move(material);
 		UpdatePreferredSize();
@@ -82,7 +82,7 @@ namespace Nz
 		m_style->OnUpdate();
 	}
 
-	inline void ImageButtonWidget::SetPressedMaterial(std::shared_ptr<Material> material)
+	inline void ImageButtonWidget::SetPressedMaterial(std::shared_ptr<MaterialInstance> material)
 	{
 		m_pressedMaterial = std::move(material);
 

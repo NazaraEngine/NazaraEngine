@@ -4,7 +4,7 @@
 
 #include <Nazara/Graphics/TextSprite.hpp>
 #include <Nazara/Graphics/ElementRendererRegistry.hpp>
-#include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/RenderSpriteChain.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
 #include <Nazara/Utility/AbstractTextDrawer.hpp>
@@ -13,7 +13,7 @@
 
 namespace Nz
 {
-	TextSprite::TextSprite(std::shared_ptr<Material> material) :
+	TextSprite::TextSprite(std::shared_ptr<MaterialInstance> material) :
 	InstancedRenderable(),
 	m_material(std::move(material))
 	{
@@ -22,7 +22,7 @@ namespace Nz
 	void TextSprite::BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, std::vector<RenderElementOwner>& elements) const
 	{
 		const auto& materialPass = m_material->GetPass(passIndex);
-		if (!materialPass || !materialPass->IsEnabled())
+		if (!materialPass)
 			return;
 
 		const std::shared_ptr<VertexDeclaration>& vertexDeclaration = VertexDeclaration::Get(VertexLayout::XYZ_Color_UV);
@@ -43,7 +43,7 @@ namespace Nz
 		}
 	}
 
-	const std::shared_ptr<Material>& TextSprite::GetMaterial(std::size_t i) const
+	const std::shared_ptr<MaterialInstance>& TextSprite::GetMaterial(std::size_t i) const
 	{
 		assert(i == 0);
 		NazaraUnused(i);

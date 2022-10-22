@@ -8,14 +8,18 @@
 #define NAZARA_GRAPHICS_MATERIALSETTINGS_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/Color.hpp>
 #include <Nazara/Graphics/Enums.hpp>
-#include <Nazara/Graphics/UberShader.hpp>
-#include <Nazara/Renderer/ShaderModule.hpp>
-#include <Nazara/Utility/Enums.hpp>
+#include <Nazara/Graphics/PropertyHandler/PropertyHandler.hpp>
+#include <Nazara/Renderer/Texture.hpp>
+#include <Nazara/Math/Vector2.hpp>
+#include <Nazara/Math/Vector3.hpp>
+#include <Nazara/Math/Vector4.hpp>
 #include <Nazara/Utils/TypeList.hpp>
-#include <array>
 #include <limits>
+#include <optional>
 #include <string>
+#include <variant>
 #include <vector>
 
 namespace Nz
@@ -24,7 +28,10 @@ namespace Nz
 
 	template<typename T> constexpr MaterialPropertyType TypeToMaterialPropertyType_v = TypeToMaterialPropertyType<T>::PropertyType;
 
+	struct MaterialPropertyNoValue {};
+
 	using MaterialPropertyTypeList = TypeList<
+		MaterialPropertyNoValue,
 		Color,
 		bool, Vector2<bool>, Vector3<bool>, Vector4<bool>,
 		float, Vector2<float>, Vector3<float>, Vector4<float>,
@@ -40,26 +47,50 @@ namespace Nz
 
 			using Value = TypeListInstantiate<MaterialPropertyTypeList, std::variant>;
 
-			MaterialSettings();
+			MaterialSettings() = default;
 			MaterialSettings(const MaterialSettings&) = default;
-			MaterialSettings(MaterialSettings&&) = delete;
+			MaterialSettings(MaterialSettings&&) = default;
 			~MaterialSettings() = default;
 
-			inline void AddProperty(std::string propertyName, MaterialPropertyType propertyType);
+			inline void AddPropertyHandler(std::unique_ptr<PropertyHandler> propertyHandler);
 			inline void AddTextureProperty(std::string propertyName, ImageType propertyType);
+			inline void AddTextureProperty(std::string propertyName, ImageType propertyType, std::shared_ptr<Texture> defaultTexture);
+			inline void AddValueProperty(std::string propertyName, MaterialPropertyType propertyType, Value defaultValue);
 			template<typename T> void AddValueProperty(std::string propertyName);
 			template<typename T, typename U> void AddValueProperty(std::string propertyName, U&& defaultValue);
 
+			inline std::size_t FindTextureProperty(std::string_view propertyName) const;
+			inline std::size_t FindValueProperty(std::string_view propertyName) const;
+
+			inline const std::vector<std::unique_ptr<PropertyHandler>>& GetPropertyHandlers() const;
+			inline const TextureProperty& GetTextureProperty(std::size_t texturePropertyIndex) const;
+			inline std::size_t GetTexturePropertyCount() const;
+			inline const ValueProperty& GetValueProperty(std::size_t valuePropertyIndex) const;
+			inline std::size_t GetValuePropertyCount() const;
+
 			MaterialSettings& operator=(const MaterialSettings&) = delete;
-			MaterialSettings& operator=(MaterialSettings&&) = delete;
+			MaterialSettings& operator=(MaterialSettings&&) = default;
+
+			struct TextureProperty
+			{
+				std::shared_ptr<Texture> defaultTexture;
+				std::string name;
+				ImageType type;
+			};
 
 			struct ValueProperty
 			{
+				Value defaultValue;
 				std::string name;
 				MaterialPropertyType type;
 			};
 
+			static constexpr std::size_t InvalidPropertyIndex = std::numeric_limits<std::size_t>::max();
+
 		private:
+			std::vector<std::unique_ptr<PropertyHandler>> m_propertyHandlers;
+			std::vector<TextureProperty> m_textureProperties;
+			std::vector<ValueProperty> m_valueProperties;
 	};
 }
 

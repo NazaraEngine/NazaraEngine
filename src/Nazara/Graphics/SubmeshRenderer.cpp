@@ -121,10 +121,10 @@ namespace Nz
 				assert(currentMaterialPass);
 
 				m_bindingCache.clear();
-				currentMaterialPass->FillShaderBinding(m_bindingCache);
+				//currentMaterialPass->FillShaderBinding(m_bindingCache);
 
 				// Predefined shader bindings
-				const auto& matSettings = currentMaterialPass->GetSettings();
+				/*const auto& matSettings = currentMaterialPass->GetSettings();
 				if (std::size_t bindingIndex = matSettings->GetPredefinedBinding(PredefinedShaderBinding::InstanceDataUbo); bindingIndex != MaterialSettings::InvalidIndex)
 				{
 					assert(currentWorldInstance);
@@ -179,7 +179,7 @@ namespace Nz
 					bindingEntry.content = ShaderBinding::TextureBinding{
 						whiteTexture.get(), defaultSampler.get()
 					};
-				}
+				}*/
 
 				assert(currentPipeline);
 				ShaderBindingPtr drawDataBinding = currentPipeline->GetPipelineInfo().pipelineLayout->AllocateShaderBinding(0);

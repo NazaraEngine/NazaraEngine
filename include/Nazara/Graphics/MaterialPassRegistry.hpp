@@ -9,7 +9,9 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Utils/Algorithm.hpp>
+#include <list>
 #include <string>
+#include <unordered_map>
 
 namespace Nz
 {
@@ -29,8 +31,8 @@ namespace Nz
 			MaterialPassRegistry& operator=(MaterialPassRegistry&&) = default;
 
 		private:
+			std::list<std::string> m_passNames; //< in order to allow std::string_view as a key in C++17 (keep std::string stable as well because of SSO)
 			std::unordered_map<std::string_view, std::size_t> m_passIndex;
-			std::vector<std::string> m_passNames; //< in order to allow std::string_view as a key in C++17
 	};
 }
 

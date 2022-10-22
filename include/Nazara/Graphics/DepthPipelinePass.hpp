@@ -11,6 +11,7 @@
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/ElementRenderer.hpp>
 #include <Nazara/Graphics/FramePipelinePass.hpp>
+#include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>
 #include <Nazara/Graphics/RenderElementOwner.hpp>
@@ -24,7 +25,6 @@ namespace Nz
 	class ElementRendererRegistry;
 	class FrameGraph;
 	class FramePipeline;
-	class Material;
 
 	class NAZARA_GRAPHICS_API DepthPipelinePass : public FramePipelinePass
 	{
@@ -39,10 +39,10 @@ namespace Nz
 
 			void Prepare(RenderFrame& renderFrame, const Frustumf& frustum, const std::vector<FramePipelinePass::VisibleRenderable>& visibleRenderables, std::size_t visibilityHash);
 
-			void RegisterMaterial(const Material& material);
+			void RegisterMaterialInstance(const MaterialInstance& materialInstance);
 			void RegisterToFrameGraph(FrameGraph& frameGraph, std::size_t depthBufferIndex);
 
-			void UnregisterMaterial(const Material& material);
+			void UnregisterMaterialInstance(const MaterialInstance& materialInstance);
 
 			DepthPipelinePass& operator=(const DepthPipelinePass&) = delete;
 			DepthPipelinePass& operator=(DepthPipelinePass&&) = delete;
@@ -52,8 +52,8 @@ namespace Nz
 			{
 				std::size_t usedCount = 1;
 
+				NazaraSlot(MaterialInstance, OnMaterialInstanceShaderBindingInvalidated, onMaterialInstanceShaderBindingInvalidated);
 				NazaraSlot(MaterialPass, OnMaterialPassPipelineInvalidated, onMaterialPipelineInvalidated);
-				NazaraSlot(MaterialPass, OnMaterialPassShaderBindingInvalidated, onMaterialShaderBindingInvalidated);
 			};
 
 			std::size_t m_depthPassIndex;
@@ -61,7 +61,7 @@ namespace Nz
 			std::vector<std::unique_ptr<ElementRendererData>> m_elementRendererData;
 			std::vector<ElementRenderer::RenderStates> m_renderStates;
 			std::vector<RenderElementOwner> m_renderElements;
-			std::unordered_map<MaterialPass*, MaterialPassEntry> m_materialPasses;
+			std::unordered_map<const MaterialInstance*, MaterialPassEntry> m_materialInstances;
 			RenderQueue<const RenderElement*> m_renderQueue;
 			RenderQueueRegistry m_renderQueueRegistry;
 			AbstractViewer* m_viewer;

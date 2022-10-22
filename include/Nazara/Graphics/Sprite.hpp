@@ -20,7 +20,7 @@ namespace Nz
 	class NAZARA_GRAPHICS_API Sprite : public InstancedRenderable
 	{
 		public:
-			Sprite(std::shared_ptr<Material> material);
+			Sprite(std::shared_ptr<MaterialInstance> material);
 			Sprite(const Sprite&) = delete;
 			Sprite(Sprite&&) noexcept = default;
 			~Sprite() = default;
@@ -29,7 +29,7 @@ namespace Nz
 
 			inline const Color& GetColor() const;
 			inline const Color& GetCornerColor(RectCorner corner) const;
-			const std::shared_ptr<Material>& GetMaterial(std::size_t i = 0) const override;
+			const std::shared_ptr<MaterialInstance>& GetMaterial(std::size_t i = 0) const override;
 			std::size_t GetMaterialCount() const override;
 			inline const Vector3f& GetOrigin() const;
 			inline const Vector2f& GetSize() const;
@@ -38,7 +38,7 @@ namespace Nz
 
 			inline void SetColor(const Color& color);
 			inline void SetCornerColor(RectCorner corner, const Color& color);
-			inline void SetMaterial(std::shared_ptr<Material> material);
+			inline void SetMaterial(std::shared_ptr<MaterialInstance> material);
 			inline void SetOrigin(const Vector3f& origin);
 			inline void SetSize(const Vector2f& size);
 			inline void SetTextureCoords(const Rectf& textureCoords);
@@ -52,7 +52,7 @@ namespace Nz
 
 			std::array<Color, RectCornerCount> m_cornerColor;
 			std::array<VertexStruct_XYZ_Color_UV, 4> m_vertices;
-			std::shared_ptr<Material> m_material;
+			std::shared_ptr<MaterialInstance> m_material;
 			Color m_color;
 			Rectf m_textureCoords;
 			Vector2f m_size;
