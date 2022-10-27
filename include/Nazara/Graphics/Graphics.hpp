@@ -10,7 +10,6 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Material.hpp>
-#include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/MaterialPassRegistry.hpp>
 #include <Nazara/Graphics/TextureSamplerCache.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
@@ -22,6 +21,7 @@
 
 namespace Nz
 {
+	class MaterialInstance;
 	class RenderBuffer;
 
 	class NAZARA_GRAPHICS_API Graphics : public ModuleBase<Graphics>

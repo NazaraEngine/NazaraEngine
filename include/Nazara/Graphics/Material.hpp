@@ -18,6 +18,7 @@
 #include <Nazara/Graphics/RenderBufferPool.hpp>
 #include <Nazara/Graphics/ShaderReflection.hpp>
 #include <NZSL/Ast/Module.hpp>
+#include <array>
 #include <memory>
 #include <unordered_map>
 
@@ -31,7 +32,6 @@ namespace Nz
 	};
 
 	class Material;
-	class MaterialPass;
 	class RenderPipelineLayout;
 
 	using MaterialLibrary = ObjectLibrary<Material>;
@@ -49,27 +49,16 @@ namespace Nz
 			Material(MaterialSettings settings, const nzsl::Ast::ModulePtr& referenceModule);
 			~Material() = default;
 
-			inline void AddPass(std::size_t passIndex, std::shared_ptr<MaterialPass> pass);
-			void AddPass(std::string passName, std::shared_ptr<MaterialPass> pass);
-
-			const std::shared_ptr<MaterialPass>& FindPass(const std::string& passName) const;
 			inline std::size_t FindTextureByTag(const std::string& tag) const;
-			inline std::size_t FindUniformByTag(const std::string& tag) const;
+			inline std::size_t FindUniformBlockByTag(const std::string& tag) const;
 
-			template<typename F> void ForEachPass(F&& callback);
-
-			inline const std::shared_ptr<MaterialPass>& GetPass(std::size_t passIndex) const;
+			inline UInt32 GetEngineBindingIndex(EngineShaderBinding shaderBinding) const;
 			inline const std::shared_ptr<RenderPipelineLayout>& GetRenderPipelineLayout() const;
 			inline const MaterialSettings& GetSettings() const;
 			inline const TextureData& GetTextureData(std::size_t textureIndex) const;
 			inline std::size_t GetTextureCount() const;
 			inline const UniformBlockData& GetUniformBlockData(std::size_t uniformBlockIndex) const;
 			inline std::size_t GetUniformBlockCount() const;
-
-			inline bool HasPass(std::size_t passIndex) const;
-
-			inline void RemovePass(std::size_t passIndex);
-			void RemovePass(const std::string& passName);
 
 			static std::shared_ptr<Material> Build(const ParameterList& materialData);
 			static std::shared_ptr<Material> LoadFromFile(const std::filesystem::path& filePath, const MaterialParams& params = MaterialParams());
@@ -78,6 +67,7 @@ namespace Nz
 
 			static inline ImageType ToImageType(nzsl::ImageType imageType);
 
+			static constexpr UInt32 InvalidBindingIndex = std::numeric_limits<UInt32>::max();
 			static constexpr std::size_t InvalidIndex = std::numeric_limits<std::size_t>::max();
 
 			struct TextureData
@@ -91,14 +81,16 @@ namespace Nz
 			{
 				UInt32 bindingSet;
 				UInt32 bindingIndex;
+				std::size_t structIndex;
 				std::unique_ptr<RenderBufferPool> bufferPool;
 			};
 
 		private:
+			std::array<UInt32, PredefinedShaderBindingCount> m_engineShaderBindings;
 			std::shared_ptr<RenderPipelineLayout> m_renderPipelineLayout;
+			std::unordered_map<UInt32, nzsl::Ast::ConstantSingleValue> m_optionValues;
 			std::unordered_map<std::string /*tag*/, std::size_t> m_textureByTag;
 			std::unordered_map<std::string /*tag*/, std::size_t> m_uniformBlockByTag;
-			std::vector<std::shared_ptr<MaterialPass>> m_passes;
 			std::vector<TextureData> m_textures;
 			std::vector<UniformBlockData> m_uniformBlocks;
 			MaterialSettings m_settings;

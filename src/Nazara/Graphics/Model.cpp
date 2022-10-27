@@ -6,7 +6,7 @@
 #include <Nazara/Graphics/ElementRendererRegistry.hpp>
 #include <Nazara/Graphics/GraphicalMesh.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
-#include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/RenderSubmesh.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
@@ -46,18 +46,18 @@ namespace Nz
 		{
 			const auto& submeshData = m_submeshes[i];
 
-			const auto& materialPass = submeshData.material->GetPass(passIndex);
-			if (!materialPass)
+			const auto& materialPipeline = submeshData.material->GetPipeline(passIndex);
+			if (!materialPipeline)
 				continue;
 
 			const auto& indexBuffer = m_graphicalMesh->GetIndexBuffer(i);
 			const auto& vertexBuffer = m_graphicalMesh->GetVertexBuffer(i);
-			const auto& renderPipeline = materialPass->GetPipeline()->GetRenderPipeline(submeshData.vertexBufferData.data(), submeshData.vertexBufferData.size());
+			const auto& renderPipeline = materialPipeline->GetRenderPipeline(submeshData.vertexBufferData.data(), submeshData.vertexBufferData.size());
 
 			std::size_t indexCount = m_graphicalMesh->GetIndexCount(i);
 			IndexType indexType = m_graphicalMesh->GetIndexType(i);
 
-			elements.emplace_back(registry.AllocateElement<RenderSubmesh>(GetRenderLayer(), materialPass, renderPipeline, *elementData.worldInstance, elementData.skeletonInstance, indexCount, indexType, indexBuffer, vertexBuffer, *elementData.scissorBox));
+			elements.emplace_back(registry.AllocateElement<RenderSubmesh>(GetRenderLayer(), submeshData.material, renderPipeline, *elementData.worldInstance, elementData.skeletonInstance, indexCount, indexType, indexBuffer, vertexBuffer, *elementData.scissorBox));
 		}
 	}
 

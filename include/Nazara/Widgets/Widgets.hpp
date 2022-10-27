@@ -16,7 +16,6 @@
 namespace Nz
 {
 	class Material;
-	class MaterialPass;
 
 	class NAZARA_WIDGETS_API Widgets : public ModuleBase<Widgets>
 	{

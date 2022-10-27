@@ -54,6 +54,7 @@
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/LinearSlicedSprite.hpp>
 #include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
 #include <Nazara/Graphics/MaterialPassRegistry.hpp>
 #include <Nazara/Graphics/MaterialPipeline.hpp>
@@ -61,6 +62,7 @@
 #include <Nazara/Graphics/Model.hpp>
 #include <Nazara/Graphics/PointLight.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
+#include <Nazara/Graphics/RenderBufferPool.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>
 #include <Nazara/Graphics/RenderElementOwner.hpp>
 #include <Nazara/Graphics/RenderElementPool.hpp>

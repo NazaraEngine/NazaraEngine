@@ -41,6 +41,14 @@ namespace Nz
 	template<> struct TypeToMaterialPropertyType<Vector3<UInt32>> { static constexpr MaterialPropertyType PropertyType = MaterialPropertyType::Int3; };
 	template<> struct TypeToMaterialPropertyType<Vector4<UInt32>> { static constexpr MaterialPropertyType PropertyType = MaterialPropertyType::Int4; };
 
+	inline void MaterialSettings::AddPass(std::size_t passIndex, MaterialPass materialPass)
+	{
+		if (passIndex >= m_materialPasses.size())
+			m_materialPasses.resize(passIndex + 1);
+
+		m_materialPasses[passIndex] = std::move(materialPass);
+	}
+
 	inline void MaterialSettings::AddPropertyHandler(std::unique_ptr<PropertyHandler> propertyHandler)
 	{
 		m_propertyHandlers.emplace_back(std::move(propertyHandler));
@@ -106,6 +114,19 @@ namespace Nz
 		}
 
 		return InvalidPropertyIndex;
+	}
+
+	inline const MaterialPass* MaterialSettings::GetPass(std::size_t passIndex) const
+	{
+		if (passIndex > m_materialPasses.size() || !m_materialPasses[passIndex].has_value())
+			return nullptr;
+
+		return &m_materialPasses[passIndex].value();
+	}
+
+	inline const std::vector<std::optional<MaterialPass>>& MaterialSettings::GetPasses() const
+	{
+		return m_materialPasses;
 	}
 
 	inline const std::vector<std::unique_ptr<PropertyHandler>>& MaterialSettings::GetPropertyHandlers() const

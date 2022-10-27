@@ -15,6 +15,7 @@
 namespace Nz
 {
 	class Material;
+	class MaterialInstance;
 	class ShaderReflection;
 
 	class NAZARA_GRAPHICS_API PropertyHandler
@@ -25,7 +26,12 @@ namespace Nz
 			PropertyHandler(PropertyHandler&&) = delete;
 			virtual ~PropertyHandler();
 
+			virtual bool NeedsUpdateOnTextureUpdate(std::size_t updatedTexturePropertyIndex) const;
+			virtual bool NeedsUpdateOnValueUpdate(std::size_t updatedValuePropertyIndex) const;
+
 			virtual void Setup(const Material& material, const ShaderReflection& reflection) = 0;
+
+			virtual void Update(MaterialInstance& materialInstance) const = 0;
 
 			PropertyHandler& operator=(const PropertyHandler&) = delete;
 			PropertyHandler& operator=(PropertyHandler&&) = delete;

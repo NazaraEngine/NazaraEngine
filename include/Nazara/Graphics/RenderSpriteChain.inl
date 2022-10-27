@@ -9,9 +9,9 @@
 
 namespace Nz
 {
-	inline RenderSpriteChain::RenderSpriteChain(int renderLayer, std::shared_ptr<MaterialPass> materialPass, std::shared_ptr<RenderPipeline> renderPipeline, const WorldInstance& worldInstance, std::shared_ptr<VertexDeclaration> vertexDeclaration, std::shared_ptr<Texture> textureOverlay, std::size_t spriteCount, const void* spriteData, const Recti& scissorBox) :
+	inline RenderSpriteChain::RenderSpriteChain(int renderLayer, std::shared_ptr<MaterialInstance> materialInstance, std::shared_ptr<RenderPipeline> renderPipeline, const WorldInstance& worldInstance, std::shared_ptr<VertexDeclaration> vertexDeclaration, std::shared_ptr<Texture> textureOverlay, std::size_t spriteCount, const void* spriteData, const Recti& scissorBox) :
 	RenderElement(BasicRenderElement::SpriteChain),
-	m_materialPass(std::move(materialPass)),
+	m_materialInstance(std::move(materialInstance)),
 	m_renderPipeline(std::move(renderPipeline)),
 	m_vertexDeclaration(std::move(vertexDeclaration)),
 	m_textureOverlay(std::move(textureOverlay)),
@@ -27,6 +27,7 @@ namespace Nz
 	{
 		UInt64 layerIndex = registry.FetchLayerIndex(m_renderLayer);
 
+#if 0
 		if (m_materialPass->IsFlagEnabled(MaterialPassFlag::SortByDistance))
 		{
 			UInt64 matFlags = 1;
@@ -47,8 +48,9 @@ namespace Nz
 		}
 		else
 		{
+#endif
 			UInt64 elementType = GetElementType();
-			UInt64 materialPassIndex = registry.FetchMaterialPassIndex(m_materialPass.get());
+			UInt64 materialInstanceIndex = registry.FetchMaterialInstanceIndex(m_materialInstance.get());
 			UInt64 pipelineIndex = registry.FetchPipelineIndex(m_renderPipeline.get());
 			UInt64 vertexDeclarationIndex = registry.FetchVertexDeclaration(m_vertexDeclaration.get());
 
@@ -67,14 +69,14 @@ namespace Nz
 			       (matFlags)                      << 52 |
 			       (elementType & 0xF)             << 51 |
 			       (pipelineIndex & 0xFFFF)        << 35 |
-			       (materialPassIndex & 0xFFFF)    << 23 |
+			       (materialInstanceIndex & 0xFFFF)    << 23 |
 			       (vertexDeclarationIndex & 0xFF) <<  7;
-		}
+//		}
 	}
 
-	inline const MaterialPass& RenderSpriteChain::GetMaterialPass() const
+	inline const MaterialInstance& RenderSpriteChain::GetMaterialInstance() const
 	{
-		return *m_materialPass;
+		return *m_materialInstance;
 	}
 
 	inline const RenderPipeline& RenderSpriteChain::GetRenderPipeline() const
@@ -115,7 +117,7 @@ namespace Nz
 	inline void RenderSpriteChain::Register(RenderQueueRegistry& registry) const
 	{
 		registry.RegisterLayer(m_renderLayer);
-		registry.RegisterMaterialPass(m_materialPass.get());
+		registry.RegisterMaterialInstance(m_materialInstance.get());
 		registry.RegisterPipeline(m_renderPipeline.get());
 		registry.RegisterVertexDeclaration(m_vertexDeclaration.get());
 	}

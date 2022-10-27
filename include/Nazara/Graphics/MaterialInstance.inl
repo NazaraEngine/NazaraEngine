@@ -17,44 +17,49 @@ namespace Nz
 		return m_materialSettings.FindValueProperty(propertyName);
 	}
 
-	inline const std::shared_ptr<Texture>& MaterialInstance::GetTexture(std::size_t textureIndex) const
+	inline const std::shared_ptr<Material>& MaterialInstance::GetParentMaterial() const
 	{
-		if (const std::shared_ptr<Texture>& textureOverride = GetTextureOverride(textureIndex))
+		return m_parent;
+	}
+
+	inline const std::shared_ptr<Texture>& MaterialInstance::GetTextureProperty(std::size_t textureIndex) const
+	{
+		if (const std::shared_ptr<Texture>& textureOverride = GetTexturePropertyOverride(textureIndex))
 			return textureOverride;
 		else
 			return m_materialSettings.GetTextureProperty(textureIndex).defaultTexture;
 	}
 
-	inline const std::shared_ptr<Texture>& MaterialInstance::GetTextureOverride(std::size_t textureIndex) const
+	inline const std::shared_ptr<Texture>& MaterialInstance::GetTexturePropertyOverride(std::size_t textureIndex) const
 	{
 		assert(textureIndex < m_textureOverride.size());
 		return m_textureOverride[textureIndex].texture;
 	}
 
-	inline const MaterialSettings::Value& MaterialInstance::GetValue(std::size_t valueIndex) const
+	inline const MaterialSettings::Value& MaterialInstance::GetValueProperty(std::size_t valueIndex) const
 	{
-		if (const MaterialSettings::Value& valueOverride = GetValueOverride(valueIndex); !std::holds_alternative<MaterialPropertyNoValue>(valueOverride))
+		if (const MaterialSettings::Value& valueOverride = GetValuePropertyOverride(valueIndex); !std::holds_alternative<MaterialPropertyNoValue>(valueOverride))
 			return valueOverride;
 		else
 			return m_materialSettings.GetValueProperty(valueIndex).defaultValue;
 	}
 
-	inline const MaterialSettings::Value& MaterialInstance::GetValueOverride(std::size_t valueIndex) const
+	inline const MaterialSettings::Value& MaterialInstance::GetValuePropertyOverride(std::size_t valueIndex) const
 	{
 		assert(valueIndex < m_valueOverride.size());
 		return m_valueOverride[valueIndex];
 	}
 
-	inline void MaterialInstance::SetTexture(std::size_t textureIndex, std::shared_ptr<Texture> texture)
+	inline bool MaterialInstance::HasPass(std::size_t passIndex) const
 	{
-		assert(textureIndex < m_textureOverride.size());
-		m_textureOverride[textureIndex].texture = std::move(texture);
+		return passIndex < m_passes.size() && m_passes[passIndex].enabled;
 	}
 
-	inline void MaterialInstance::SetValue(std::size_t valueIndex, const MaterialSettings::Value& value)
+	inline void MaterialInstance::InvalidatePassPipeline(std::size_t passIndex)
 	{
-		assert(valueIndex < m_valueOverride.size());
-		m_valueOverride[valueIndex] = value;
+		assert(passIndex < m_passes.size());
+		m_passes[passIndex].pipeline.reset();
+		OnMaterialInstancePipelineInvalidated(this, passIndex);
 	}
 
 	inline void MaterialInstance::InvalidateShaderBinding()

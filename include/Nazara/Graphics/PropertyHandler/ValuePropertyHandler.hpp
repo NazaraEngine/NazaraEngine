@@ -9,21 +9,36 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
+#include <Nazara/Graphics/PropertyHandler/PropertyHandler.hpp>
 
 namespace Nz
 {
-	class NAZARA_GRAPHICS_API ValuePropertyHandler
+	class NAZARA_GRAPHICS_API ValuePropertyHandler : public PropertyHandler
 	{
 		public:
-			ValuePropertyHandler() = default;
+			inline ValuePropertyHandler(std::string propertyName, std::string blockTag = "Settings");
+			inline ValuePropertyHandler(std::string propertyName, std::string memberTag, std::string blockTag = "Settings");
 			ValuePropertyHandler(const ValuePropertyHandler&) = delete;
 			ValuePropertyHandler(ValuePropertyHandler&&) = delete;
 			~ValuePropertyHandler() = default;
 
+			bool NeedsUpdateOnValueUpdate(std::size_t updatedPropertyIndex) const override;
+
+			void Setup(const Material& material, const ShaderReflection& reflection) override;
+
+			void Update(MaterialInstance& materialInstance) const override;
+
 			ValuePropertyHandler& operator=(const ValuePropertyHandler&) = delete;
 			ValuePropertyHandler& operator=(ValuePropertyHandler&&) = delete;
-
+			
 		private:
+			std::size_t m_propertyIndex;
+			std::size_t m_offset;
+			std::size_t m_size;
+			std::size_t m_uniformBlockIndex;
+			std::string m_blockTag;
+			std::string m_propertyName;
+			std::string m_memberTag;
 	};
 }
 

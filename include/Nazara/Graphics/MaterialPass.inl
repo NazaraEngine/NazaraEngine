@@ -9,6 +9,7 @@
 
 namespace Nz
 {
+#if 0
 	/*!
 	* \brief Destructs the object and calls OnMaterialRelease
 	*
@@ -193,20 +194,6 @@ namespace Nz
 		InvalidatePipeline();
 	}
 
-	/*!
-	* \brief Ensures the pipeline gets updated
-	*
-	* When the pipeline gets invalidated, it's not updated until required (per example by calling GetPipeline).
-	* Using this function forces the pipeline update, making GetPipeline thread-safe as long as the pipeline does not get invalidated.
-	*
-	* \see GetPipeline
-	*/
-	inline void MaterialPass::EnsurePipelineUpdate() const
-	{
-		if (!m_pipelineUpdated)
-			UpdatePipeline();
-	}
-
 	inline BlendEquation MaterialPass::GetBlendAlphaModeEquation() const
 	{
 		return m_pipelineInfo.blend.modeAlpha;
@@ -290,22 +277,19 @@ namespace Nz
 		return m_pipelineInfo.lineWidth;
 	}
 
-	inline const nzsl::Ast::ConstantSingleValue& MaterialPass::GetOptionValue(std::size_t optionIndex) const
+	inline const nzsl::Ast::ConstantSingleValue* MaterialPass::GetOptionValue(UInt32 optionHash) const
 	{
-		//assert(optionIndex < m_optionValues.size());
-		//return m_optionValues[optionIndex];
-		return {};
-	}
+		auto begin = m_pipelineInfo.optionValues.begin();
+		auto end = begin + m_pipelineInfo.optionCount;
+		auto it = std::find_if(begin, end, [&](const MaterialPipelineInfo::Option& option)
+		{
+			return option.hash == optionHash;
+		});
 
-	/*!
-	* \brief Gets the render states
-	* \return Constant reference to the render states
-	*/
-	inline const std::shared_ptr<MaterialPipeline>& MaterialPass::GetPipeline() const
-	{
-		EnsurePipelineUpdate();
+		if (it == end)
+			return nullptr;
 
-		return m_pipeline;
+		return &it->value;
 	}
 
 	/*!
@@ -493,14 +477,44 @@ namespace Nz
 		InvalidatePipeline();
 	}
 
-	inline void MaterialPass::SetOptionValue(std::size_t optionIndex, nzsl::Ast::ConstantSingleValue value)
+	inline void MaterialPass::SetOptionValue(UInt32 optionHash, const nzsl::Ast::ConstantSingleValue& value)
 	{
-		assert(optionIndex < m_optionValues.size());
-		if (m_optionValues[optionIndex] != value)
+		auto begin = m_pipelineInfo.optionValues.begin();
+		auto end = begin + m_pipelineInfo.optionCount;
+		auto it = std::find_if(begin, end, [&](const MaterialPipelineInfo::Option& option)
 		{
-			m_optionValues[optionIndex] = std::move(value);
-			InvalidatePipeline();
+			return option.hash == optionHash;
+		});
+
+		if (it != end)
+		{
+			if (it->value == value)
+				return;
+
+			if (std::holds_alternative<nzsl::Ast::NoValue>(value))
+			{
+				// "swap and pop"
+				if (m_pipelineInfo.optionCount > 1)
+					*it = m_pipelineInfo.optionValues[m_pipelineInfo.optionCount - 1];
+
+				m_pipelineInfo.optionCount--;
+			}
+			else
+				it->value = value;
 		}
+		else
+		{
+			if (std::holds_alternative<nzsl::Ast::NoValue>(value))
+				return;
+
+			NazaraAssert(end != m_pipelineInfo.optionValues.end(), "too many options");
+			end->hash = optionHash;
+			end->value = value;
+
+			m_pipelineInfo.optionCount++;
+		}
+
+		InvalidatePipeline();
 	}
 
 	/*!
@@ -531,10 +545,9 @@ namespace Nz
 
 	inline void MaterialPass::InvalidatePipeline()
 	{
-		m_pipelineUpdated = false;
-
 		OnMaterialPassPipelineInvalidated(this);
 	}
+#endif
 }
 
 #include <Nazara/Graphics/DebugOff.hpp>

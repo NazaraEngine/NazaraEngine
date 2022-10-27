@@ -21,8 +21,8 @@ namespace Nz
 
 	void TextSprite::BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, std::vector<RenderElementOwner>& elements) const
 	{
-		const auto& materialPass = m_material->GetPass(passIndex);
-		if (!materialPass)
+		const auto& materialPipeline = m_material->GetPipeline(passIndex);
+		if (!materialPipeline)
 			return;
 
 		const std::shared_ptr<VertexDeclaration>& vertexDeclaration = VertexDeclaration::Get(VertexLayout::XYZ_Color_UV);
@@ -31,7 +31,7 @@ namespace Nz
 			0,
 			vertexDeclaration
 		};
-		const auto& renderPipeline = materialPass->GetPipeline()->GetRenderPipeline(&vertexBufferData, 1);
+		const auto& renderPipeline = materialPipeline->GetRenderPipeline(&vertexBufferData, 1);
 
 		for (auto& pair : m_renderInfos)
 		{
@@ -39,7 +39,7 @@ namespace Nz
 			RenderIndices& indices = pair.second;
 
 			if (indices.count > 0)
-				elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer(), materialPass, renderPipeline, *elementData.worldInstance, vertexDeclaration, key.texture->shared_from_this(), indices.count, &m_vertices[indices.first * 4], *elementData.scissorBox));
+				elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer(), m_material, renderPipeline, *elementData.worldInstance, vertexDeclaration, key.texture->shared_from_this(), indices.count, &m_vertices[indices.first * 4], *elementData.scissorBox));
 		}
 	}
 

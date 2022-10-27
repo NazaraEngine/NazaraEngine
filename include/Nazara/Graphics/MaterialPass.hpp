@@ -20,11 +20,20 @@
 #include <Nazara/Utils/Signal.hpp>
 #include <NZSL/Ast/ConstantValue.hpp>
 #include <array>
+#include <memory>
 #include <string>
 #include <vector>
 
 namespace Nz
 {
+	struct MaterialPass
+	{
+		MaterialPassFlags flags;
+		RenderStates states;
+		std::unordered_map<UInt32, nzsl::Ast::ConstantSingleValue> options;
+		std::vector<std::shared_ptr<UberShader>> shaders;
+	};
+#if 0
 	class CommandBufferBuilder;
 	class RenderFrame;
 
@@ -49,8 +58,6 @@ namespace Nz
 			inline void EnableScissorTest(bool scissorTest);
 			inline void EnableStencilTest(bool stencilTest);
 
-			inline void EnsurePipelineUpdate() const;
-
 			inline BlendEquation GetBlendAlphaModeEquation() const;
 			inline BlendEquation GetBlendColorModeEquation() const;
 			inline BlendFunc GetBlendDstAlphaFunc() const;
@@ -63,8 +70,7 @@ namespace Nz
 			inline FaceFilling GetFaceFilling() const;
 			inline MaterialPassFlags GetFlags() const;
 			inline float GetLineWidth() const;
-			inline const nzsl::Ast::ConstantSingleValue& GetOptionValue(std::size_t optionIndex) const;
-			inline const std::shared_ptr<MaterialPipeline>& GetPipeline() const;
+			inline const nzsl::Ast::ConstantSingleValue* GetOptionValue(UInt32 optionHash) const;
 			inline const MaterialPipelineInfo& GetPipelineInfo() const;
 			inline float GetPointSize() const;
 			inline PrimitiveMode GetPrimitiveMode() const;
@@ -86,7 +92,7 @@ namespace Nz
 			inline void SetFaceCulling(FaceSide faceSide);
 			inline void SetFaceFilling(FaceFilling filling);
 			inline void SetLineWidth(float lineWidth);
-			inline void SetOptionValue(std::size_t optionIndex, nzsl::Ast::ConstantSingleValue value);
+			inline void SetOptionValue(UInt32 optionHash, const nzsl::Ast::ConstantSingleValue& value);
 			inline void SetPointSize(float pointSize);
 			inline void SetPrimitiveMode(PrimitiveMode mode);
 
@@ -94,7 +100,6 @@ namespace Nz
 			MaterialPass& operator=(MaterialPass&&) = delete;
 
 			// Signals:
-			NazaraSignal(OnMaterialPassInvalidated, const MaterialPass* /*materialPass*/);
 			NazaraSignal(OnMaterialPassPipelineInvalidated, const MaterialPass* /*materialPass*/);
 			NazaraSignal(OnMaterialPassRelease, const MaterialPass* /*materialPass*/);
 
@@ -118,13 +123,11 @@ namespace Nz
 				NazaraSlot(UberShader, OnShaderUpdated, onShaderUpdated);
 			};
 
-			std::unordered_map<UInt32, nzsl::Ast::ConstantSingleValue> m_optionValues;
 			std::vector<ShaderEntry> m_shaders;
-			mutable std::shared_ptr<MaterialPipeline> m_pipeline;
 			mutable MaterialPipelineInfo m_pipelineInfo;
 			MaterialPassFlags m_flags;
-			mutable bool m_pipelineUpdated;
 	};
+#endif
 }
 
 #include <Nazara/Graphics/MaterialPass.inl>

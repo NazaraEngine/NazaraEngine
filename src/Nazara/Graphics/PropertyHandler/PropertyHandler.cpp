@@ -8,4 +8,14 @@
 namespace Nz
 {
 	PropertyHandler::~PropertyHandler() = default;
+
+	bool PropertyHandler::NeedsUpdateOnTextureUpdate(std::size_t /*updatedTexturePropertyIndex*/) const
+	{
+		return false;
+	}
+
+	bool PropertyHandler::NeedsUpdateOnValueUpdate(std::size_t /*updatedValuePropertyIndex*/) const
+	{
+		return false;
+	}
 }

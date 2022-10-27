@@ -31,17 +31,6 @@ namespace Nz
 		m_lightUboPool = std::make_shared<LightUboPool>();
 	}
 
-	ForwardPipelinePass::~ForwardPipelinePass()
-	{
-		for (auto&& [materialInstance, entry] : m_materialInstances)
-		{
-			MaterialPass* materialPass = materialInstance->GetPass(m_forwardPassIndex).get();
-			assert(materialPass);
-
-			m_pipeline.UnregisterMaterialPass(materialPass);
-		}
-	}
-
 	void ForwardPipelinePass::Prepare(RenderFrame& renderFrame, const Frustumf& frustum, const std::vector<FramePipelinePass::VisibleRenderable>& visibleRenderables, const std::vector<const Light*>& visibleLights, std::size_t visibilityHash)
 	{
 		if (m_lastVisibilityHash != visibilityHash || m_rebuildElements) //< FIXME
@@ -252,18 +241,18 @@ namespace Nz
 
 	void ForwardPipelinePass::RegisterMaterialInstance(const MaterialInstance& materialInstance)
 	{
-		MaterialPass* materialPass = materialInstance.GetPass(m_forwardPassIndex).get();
-		if (!materialPass)
+		if (!materialInstance.HasPass(m_forwardPassIndex))
 			return;
 
 		auto it = m_materialInstances.find(&materialInstance);
 		if (it == m_materialInstances.end())
 		{
-			m_pipeline.RegisterMaterialPass(materialPass);
-
 			auto& matPassEntry = m_materialInstances[&materialInstance];
-			matPassEntry.onMaterialPipelineInvalidated.Connect(materialPass->OnMaterialPassPipelineInvalidated, [=](const MaterialPass*)
+			matPassEntry.onMaterialInstancePipelineInvalidated.Connect(materialInstance.OnMaterialInstancePipelineInvalidated, [=](const MaterialInstance*, std::size_t passIndex)
 			{
+				if (passIndex != m_forwardPassIndex)
+					return;
+
 				m_rebuildElements = true;
 			});
 
@@ -318,14 +307,7 @@ namespace Nz
 		if (it != m_materialInstances.end())
 		{
 			if (--it->second.usedCount == 0)
-			{
 				m_materialInstances.erase(it);
-
-				MaterialPass* materialPass = materialInstance.GetPass(m_forwardPassIndex).get();
-				assert(materialPass);
-
-				m_pipeline.UnregisterMaterialPass(materialPass);
-			}
 		}
 	}
 }

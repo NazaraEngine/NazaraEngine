@@ -7,6 +7,7 @@
 #include <Nazara/Graphics/MaterialSettings.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
+#include <Nazara/Renderer/RenderFrame.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
 #include <Nazara/Utils/StackVector.hpp>
 #include <Nazara/Graphics/Debug.hpp>
@@ -23,14 +24,14 @@ namespace Nz
 		m_instanceDataBuffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform, instanceUboOffsets.totalSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write);
 	}
 
-	void WorldInstance::OnTransfer(UploadPool& uploadPool, CommandBufferBuilder& builder)
+	void WorldInstance::OnTransfer(RenderFrame& renderFrame, CommandBufferBuilder& builder)
 	{
 		if (!m_dataInvalided)
 			return;
 
 		PredefinedInstanceData instanceUboOffsets = PredefinedInstanceData::GetOffsets();
 
-		auto& allocation = uploadPool.Allocate(m_instanceDataBuffer->GetSize());
+		auto& allocation = renderFrame.GetUploadPool().Allocate(m_instanceDataBuffer->GetSize());
 		AccessByOffset<Matrix4f&>(allocation.mappedPtr, instanceUboOffsets.worldMatrixOffset) = m_worldMatrix;
 		AccessByOffset<Matrix4f&>(allocation.mappedPtr, instanceUboOffsets.invWorldMatrixOffset) = m_invWorldMatrix;
 

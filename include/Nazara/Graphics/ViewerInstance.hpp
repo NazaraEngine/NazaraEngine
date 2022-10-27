@@ -40,6 +40,8 @@ namespace Nz
 			inline std::shared_ptr<RenderBuffer>& GetViewerBuffer();
 			inline const std::shared_ptr<RenderBuffer>& GetViewerBuffer() const;
 
+			void OnTransfer(RenderFrame& renderFrame, CommandBufferBuilder& builder) override;
+
 			inline void UpdateEyePosition(const Vector3f& eyePosition);
 			inline void UpdateProjectionMatrix(const Matrix4f& projectionMatrix);
 			inline void UpdateProjectionMatrix(const Matrix4f& projectionMatrix, const Matrix4f& invProjectionMatrix);
@@ -54,7 +56,7 @@ namespace Nz
 			ViewerInstance& operator=(ViewerInstance&&) noexcept = default;
 
 		private:
-			void OnTransfer(UploadPool& uploadPool, CommandBufferBuilder& builder);
+			inline void InvalidateData();
 
 			std::shared_ptr<RenderBuffer> m_viewerDataBuffer;
 			Matrix4f m_invProjectionMatrix;

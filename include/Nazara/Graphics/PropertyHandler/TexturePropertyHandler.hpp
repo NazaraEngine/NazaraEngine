@@ -10,7 +10,6 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/PropertyHandler/PropertyHandler.hpp>
-#include <optional>
 #include <string>
 
 namespace Nz
@@ -19,12 +18,16 @@ namespace Nz
 	{
 		public:
 			inline TexturePropertyHandler(std::string propertyName);
-			inline TexturePropertyHandler(std::string propertyName, std::string samplerTag);
+			inline TexturePropertyHandler(std::string propertyName, std::string samplerTag, std::string optionName);
 			TexturePropertyHandler(const TexturePropertyHandler&) = delete;
 			TexturePropertyHandler(TexturePropertyHandler&&) = delete;
 			~TexturePropertyHandler() = default;
 
+			bool NeedsUpdateOnTextureUpdate(std::size_t updatedPropertyIndex) const override;
+
 			void Setup(const Material& material, const ShaderReflection& reflection) override;
+
+			void Update(MaterialInstance& materialInstance) const override;
 
 			TexturePropertyHandler& operator=(const TexturePropertyHandler&) = delete;
 			TexturePropertyHandler& operator=(TexturePropertyHandler&&) = delete;
@@ -32,8 +35,10 @@ namespace Nz
 		private:
 			std::size_t m_propertyIndex;
 			std::size_t m_textureIndex;
+			std::string m_optionName;
 			std::string m_propertyName;
 			std::string m_samplerTag;
+			UInt32 m_optionHash;
 	};
 }
 

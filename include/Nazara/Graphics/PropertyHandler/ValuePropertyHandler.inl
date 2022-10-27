@@ -7,6 +7,19 @@
 
 namespace Nz
 {
+	inline ValuePropertyHandler::ValuePropertyHandler(std::string propertyName, std::string blockTag) :
+	m_blockTag(std::move(blockTag)),
+	m_propertyName(std::move(propertyName)),
+	m_memberTag(m_propertyName)
+	{
+	}
+
+	inline ValuePropertyHandler::ValuePropertyHandler(std::string propertyName, std::string memberTag, std::string blockTag) :
+	m_blockTag(std::move(blockTag)),
+	m_propertyName(std::move(propertyName)),
+	m_memberTag(std::move(memberTag))
+	{
+	}
 }
 
 #include <Nazara/Graphics/DebugOff.hpp>

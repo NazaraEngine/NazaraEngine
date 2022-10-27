@@ -21,6 +21,7 @@ namespace Nz
 	{
 		public:
 			struct ExternalBlockData;
+			struct OptionData;
 			struct StructData;
 
 			ShaderReflection() = default;
@@ -30,6 +31,7 @@ namespace Nz
 
 			inline const RenderPipelineLayoutInfo& GetPipelineLayoutInfo() const;
 			inline const ExternalBlockData* GetExternalBlockByTag(const std::string& tag) const;
+			inline const OptionData* GetOptionByName(const std::string& optionName) const;
 			inline const StructData* GetStructByIndex(std::size_t structIndex) const;
 
 			void Reflect(nzsl::Ast::Module& module);
@@ -66,9 +68,16 @@ namespace Nz
 				std::unordered_map<std::string /*tag*/, ExternalUniformBlock> uniformBlocks;
 			};
 
+			struct OptionData
+			{
+				nzsl::Ast::ExpressionType type;
+				UInt32 hash;
+			};
+
 			struct StructMemberData
 			{
 				std::size_t offset;
+				std::size_t size;
 				nzsl::Ast::ExpressionType type;
 			};
 
@@ -81,12 +90,16 @@ namespace Nz
 			};
 
 		private:
+			void Visit(nzsl::Ast::ConditionalStatement& node) override;
 			void Visit(nzsl::Ast::DeclareExternalStatement& node) override;
+			void Visit(nzsl::Ast::DeclareOptionStatement& node) override;
 			void Visit(nzsl::Ast::DeclareStructStatement& node) override;
 
 			std::unordered_map<std::string /*tag*/, ExternalBlockData> m_externalBlocks;
+			std::unordered_map<std::string /*name*/, OptionData> m_options;
 			std::unordered_map<std::size_t /*structIndex*/, StructData> m_structs;
 			RenderPipelineLayoutInfo m_pipelineLayoutInfo;
+			bool m_isConditional;
 	};
 }
 

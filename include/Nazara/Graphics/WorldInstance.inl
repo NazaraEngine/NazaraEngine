@@ -34,14 +34,21 @@ namespace Nz
 		if (!m_worldMatrix.GetInverseTransform(&m_invWorldMatrix))
 			NazaraError("failed to inverse world matrix");
 
-		m_dataInvalided = true;
+		InvalidateData();
 	}
 
 	inline void WorldInstance::UpdateWorldMatrix(const Matrix4f& worldMatrix, const Matrix4f& invWorldMatrix)
 	{
 		m_worldMatrix = worldMatrix;
 		m_invWorldMatrix = invWorldMatrix;
+
+		InvalidateData();
+	}
+
+	void WorldInstance::InvalidateData()
+	{
 		m_dataInvalided = true;
+		OnTransferRequired(this);
 	}
 }
 

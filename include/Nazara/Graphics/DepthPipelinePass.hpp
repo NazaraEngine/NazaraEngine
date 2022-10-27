@@ -32,7 +32,7 @@ namespace Nz
 			DepthPipelinePass(FramePipeline& owner, ElementRendererRegistry& elementRegistry, AbstractViewer* viewer);
 			DepthPipelinePass(const DepthPipelinePass&) = delete;
 			DepthPipelinePass(DepthPipelinePass&&) = delete;
-			~DepthPipelinePass();
+			~DepthPipelinePass() = default;
 
 			inline void InvalidateCommandBuffers();
 			inline void InvalidateElements();
@@ -52,8 +52,8 @@ namespace Nz
 			{
 				std::size_t usedCount = 1;
 
+				NazaraSlot(MaterialInstance, OnMaterialInstancePipelineInvalidated, onMaterialInstancePipelineInvalidated);
 				NazaraSlot(MaterialInstance, OnMaterialInstanceShaderBindingInvalidated, onMaterialInstanceShaderBindingInvalidated);
-				NazaraSlot(MaterialPass, OnMaterialPassPipelineInvalidated, onMaterialPipelineInvalidated);
 			};
 
 			std::size_t m_depthPassIndex;

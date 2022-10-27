@@ -4,6 +4,7 @@
 
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/GuillotineTextureAtlas.hpp>
+#include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/MaterialPipeline.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/Formats/TextureLoader.hpp>

@@ -21,6 +21,15 @@ namespace Nz
 		return &it->second;
 	}
 
+	inline auto ShaderReflection::GetOptionByName(const std::string& optionName) const -> const OptionData*
+	{
+		auto it = m_options.find(optionName);
+		if (it == m_options.end())
+			return nullptr;
+
+		return &it->second;
+	}
+
 	inline auto ShaderReflection::GetStructByIndex(std::size_t structIndex) const -> const StructData*
 	{
 		auto it = m_structs.find(structIndex);

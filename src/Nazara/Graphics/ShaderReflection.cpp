@@ -12,7 +12,22 @@ namespace Nz
 {
 	void ShaderReflection::Reflect(nzsl::Ast::Module& module)
 	{
+		m_isConditional = false;
+
+		for (auto& importedModule : module.importedModules)
+			importedModule.module->rootNode->Visit(*this);
+
 		module.rootNode->Visit(*this);
+	}
+
+	void ShaderReflection::Visit(nzsl::Ast::ConditionalStatement& node)
+	{
+		bool previousConditional = m_isConditional;
+		m_isConditional = true;
+
+		RecursiveVisitor::Visit(node);
+
+		m_isConditional = previousConditional;
 	}
 
 	void ShaderReflection::Visit(nzsl::Ast::DeclareExternalStatement& node)
@@ -25,6 +40,9 @@ namespace Nz
 
 			externalBlock = &m_externalBlocks[node.tag];
 		}
+
+		if (m_isConditional)
+			throw std::runtime_error("external block " + node.tag + " condition must be resolved");
 
 		for (auto& externalVar : node.externalVars)
 		{
@@ -98,6 +116,19 @@ namespace Nz
 		}
 	}
 
+	void ShaderReflection::Visit(nzsl::Ast::DeclareOptionStatement& node)
+	{
+		if (!node.optType.IsResultingValue())
+			throw std::runtime_error("option " + node.optName + " has unresolved type " + node.optName);
+
+		if (m_isConditional)
+			throw std::runtime_error("option " + node.optName + " condition must be resolved");
+
+		OptionData& optionData = m_options[node.optName];
+		optionData.hash = CRC32(node.optName);
+		optionData.type = node.optType.GetResultingValue();
+	}
+
 	void ShaderReflection::Visit(nzsl::Ast::DeclareStructStatement& node)
 	{
 		if (!node.description.layout.HasValue())
@@ -106,7 +137,7 @@ namespace Nz
 		if (node.description.layout.GetResultingValue() != nzsl::Ast::MemoryLayout::Std140)
 			throw std::runtime_error("unexpected layout for struct " + node.description.name);
 
-		if (node.description.isConditional)
+		if (node.description.isConditional || m_isConditional)
 			throw std::runtime_error("struct " + node.description.name + " condition must be resolved");
 
 		StructData structData(nzsl::StructLayout::Std140);
@@ -114,7 +145,10 @@ namespace Nz
 		for (auto& member : node.description.members)
 		{
 			if (member.cond.HasValue() && !member.cond.IsResultingValue())
-				throw std::runtime_error("unresolved member " + member.name + " in struct " + node.description.name);
+				throw std::runtime_error("unresolved member " + member.name + " condition in struct " + node.description.name);
+
+			if (!member.type.IsResultingValue())
+				throw std::runtime_error("unresolved member " + member.name + " type in struct " + node.description.name);
 
 			std::size_t offset = nzsl::Ast::RegisterStructField(structData.fieldOffsets, member.type.GetResultingValue(), [&](std::size_t structIndex) -> const nzsl::FieldOffsets&
 			{
@@ -124,6 +158,8 @@ namespace Nz
 
 				return it->second.fieldOffsets;
 			});
+
+			std::size_t size = structData.fieldOffsets.GetSize() - offset;
 			
 			if (member.tag.empty())
 				continue;
@@ -133,6 +169,7 @@ namespace Nz
 
 			auto& structMember = structData.members[member.tag];
 			structMember.offset = offset;
+			structMember.size = size;
 			structMember.type = member.type.GetResultingValue();
 		}
 

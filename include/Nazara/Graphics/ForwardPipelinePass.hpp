@@ -35,7 +35,7 @@ namespace Nz
 			ForwardPipelinePass(FramePipeline& owner, ElementRendererRegistry& elementRegistry, AbstractViewer* viewer);
 			ForwardPipelinePass(const ForwardPipelinePass&) = delete;
 			ForwardPipelinePass(ForwardPipelinePass&&) = delete;
-			~ForwardPipelinePass();
+			~ForwardPipelinePass() = default;
 
 			inline void InvalidateCommandBuffers();
 			inline void InvalidateElements();
@@ -57,8 +57,8 @@ namespace Nz
 			{
 				std::size_t usedCount = 1;
 
+				NazaraSlot(MaterialInstance, OnMaterialInstancePipelineInvalidated, onMaterialInstancePipelineInvalidated);
 				NazaraSlot(MaterialInstance, OnMaterialInstanceShaderBindingInvalidated, onMaterialInstanceShaderBindingInvalidated);
-				NazaraSlot(MaterialPass, OnMaterialPassPipelineInvalidated, onMaterialPipelineInvalidated);
 			};
 
 			using LightKey = std::array<const Light*, MaxLightCountPerDraw>;

@@ -27,17 +27,6 @@ namespace Nz
 		m_depthPassIndex = Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex("DepthPass");
 	}
 
-	DepthPipelinePass::~DepthPipelinePass()
-	{
-		for (auto&& [materialInstance, entry] : m_materialInstances)
-		{
-			MaterialPass* materialPass = materialInstance->GetPass(m_depthPassIndex).get();
-			assert(materialPass);
-
-			m_pipeline.UnregisterMaterialPass(materialPass);
-		}
-	}
-
 	void DepthPipelinePass::Prepare(RenderFrame& renderFrame, const Frustumf& frustum, const std::vector<FramePipelinePass::VisibleRenderable>& visibleRenderables, std::size_t visibilityHash)
 	{
 		if (m_lastVisibilityHash != visibilityHash)
@@ -116,18 +105,18 @@ namespace Nz
 
 	void DepthPipelinePass::RegisterMaterialInstance(const MaterialInstance& materialInstance)
 	{
-		MaterialPass* materialPass = materialInstance.GetPass(m_depthPassIndex).get();
-		if (!materialPass)
+		if (!materialInstance.HasPass(m_depthPassIndex))
 			return;
 
 		auto it = m_materialInstances.find(&materialInstance);
 		if (it == m_materialInstances.end())
 		{
-			m_pipeline.RegisterMaterialPass(materialPass);
-
 			auto& matPassEntry = m_materialInstances[&materialInstance];
-			matPassEntry.onMaterialPipelineInvalidated.Connect(materialPass->OnMaterialPassPipelineInvalidated, [=](const MaterialPass*)
+			matPassEntry.onMaterialInstancePipelineInvalidated.Connect(materialInstance.OnMaterialInstancePipelineInvalidated, [=](const MaterialInstance*, std::size_t passIndex)
 			{
+				if (passIndex != m_depthPassIndex)
+					return;
+
 				m_rebuildElements = true;
 			});
 
@@ -176,14 +165,7 @@ namespace Nz
 		if (it != m_materialInstances.end())
 		{
 			if (--it->second.usedCount == 0)
-			{
 				m_materialInstances.erase(it);
-
-				MaterialPass* materialPass = materialInstance.GetPass(m_depthPassIndex).get();
-				assert(materialPass);
-
-				m_pipeline.UnregisterMaterialPass(materialPass);
-			}
 		}
 	}
 }

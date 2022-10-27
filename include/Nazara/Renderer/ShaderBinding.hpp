@@ -62,7 +62,7 @@ namespace Nz
 
 			struct Binding
 			{
-				std::size_t bindingIndex;
+				UInt32 bindingIndex;
 				std::variant<StorageBufferBinding, TextureBinding, UniformBufferBinding> content;
 			};
 

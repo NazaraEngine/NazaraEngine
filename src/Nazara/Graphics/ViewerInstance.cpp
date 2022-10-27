@@ -7,6 +7,7 @@
 #include <Nazara/Graphics/MaterialSettings.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
+#include <Nazara/Renderer/RenderFrame.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
 #include <Nazara/Utils/StackVector.hpp>
 #include <Nazara/Graphics/Debug.hpp>
@@ -29,14 +30,14 @@ namespace Nz
 		m_viewerDataBuffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform, viewerUboOffsets.totalSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write);
 	}
 
-	void ViewerInstance::OnTransfer(UploadPool& uploadPool, CommandBufferBuilder& builder)
+	void ViewerInstance::OnTransfer(RenderFrame& renderFrame, CommandBufferBuilder& builder)
 	{
 		if (!m_dataInvalidated)
 			return;
 
 		PredefinedViewerData viewerDataOffsets = PredefinedViewerData::GetOffsets();
 
-		auto& allocation = uploadPool.Allocate(viewerDataOffsets.totalSize);
+		auto& allocation = renderFrame.GetUploadPool().Allocate(viewerDataOffsets.totalSize);
 		AccessByOffset<Vector3f&>(allocation.mappedPtr, viewerDataOffsets.eyePositionOffset) = m_eyePosition;
 		AccessByOffset<Vector2f&>(allocation.mappedPtr, viewerDataOffsets.invTargetSizeOffset) = 1.f / m_targetSize;
 		AccessByOffset<Vector2f&>(allocation.mappedPtr, viewerDataOffsets.targetSizeOffset) = m_targetSize;

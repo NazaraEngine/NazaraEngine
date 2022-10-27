@@ -5,7 +5,7 @@
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Nazara/Graphics/ElementRendererRegistry.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
-#include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/RenderSpriteChain.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
 #include <Nazara/Graphics/Debug.hpp>
@@ -26,8 +26,8 @@ namespace Nz
 
 	void Sprite::BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, std::vector<RenderElementOwner>& elements) const
 	{
-		const auto& materialPass = m_material->GetPass(passIndex);
-		if (!materialPass)
+		const auto& materialPipeline = m_material->GetPipeline(passIndex);
+		if (!materialPipeline)
 			return;
 
 		const std::shared_ptr<VertexDeclaration>& vertexDeclaration = VertexDeclaration::Get(VertexLayout::XYZ_Color_UV);
@@ -36,11 +36,11 @@ namespace Nz
 			0,
 			vertexDeclaration
 		};
-		const auto& renderPipeline = materialPass->GetPipeline()->GetRenderPipeline(&vertexBufferData, 1);
+		const auto& renderPipeline = materialPipeline->GetRenderPipeline(&vertexBufferData, 1);
 
 		const auto& whiteTexture = Graphics::Instance()->GetDefaultTextures().whiteTextures[UnderlyingCast(ImageType::E2D)];
 
-		elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer(), materialPass, renderPipeline, *elementData.worldInstance, vertexDeclaration, whiteTexture, 1, m_vertices.data(), *elementData.scissorBox));
+		elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer(), m_material, renderPipeline, *elementData.worldInstance, vertexDeclaration, whiteTexture, 1, m_vertices.data(), *elementData.scissorBox));
 	}
 
 	const std::shared_ptr<MaterialInstance>& Sprite::GetMaterial(std::size_t i) const

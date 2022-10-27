@@ -26,7 +26,7 @@ namespace Nz
 		return it->second;
 	}
 
-	inline std::size_t RenderQueueRegistry::FetchMaterialPassIndex(const MaterialPass* materialPass) const
+	inline std::size_t RenderQueueRegistry::FetchMaterialInstanceIndex(const MaterialInstance* materialPass) const
 	{
 		auto it = m_materialPassRegistry.find(materialPass);
 		assert(it != m_materialPassRegistry.end());
@@ -78,9 +78,9 @@ namespace Nz
 		m_renderLayers.insert(renderLayer);
 	}
 
-	inline void RenderQueueRegistry::RegisterMaterialPass(const MaterialPass* materialPass)
+	inline void RenderQueueRegistry::RegisterMaterialInstance(const MaterialInstance* materialInstance)
 	{
-		m_materialPassRegistry.try_emplace(materialPass, m_materialPassRegistry.size());
+		m_materialPassRegistry.try_emplace(materialInstance, m_materialPassRegistry.size());
 	}
 
 	inline void RenderQueueRegistry::RegisterPipeline(const RenderPipeline* pipeline)

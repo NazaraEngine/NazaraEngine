@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
+#include <Nazara/Utils/Signal.hpp>
 
 namespace Nz
 {
@@ -27,6 +28,8 @@ namespace Nz
 
 			TransferInterface& operator=(const TransferInterface&) = delete;
 			TransferInterface& operator=(TransferInterface&&) = delete;
+
+			NazaraSignal(OnTransferRequired, TransferInterface* /*transfer*/);
 	};
 }
 

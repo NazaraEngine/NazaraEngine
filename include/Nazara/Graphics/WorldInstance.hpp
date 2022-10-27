@@ -36,6 +36,8 @@ namespace Nz
 			inline const Matrix4f& GetInvWorldMatrix() const;
 			inline const Matrix4f& GetWorldMatrix() const;
 
+			void OnTransfer(RenderFrame& renderFrame, CommandBufferBuilder& builder) override;
+
 			inline void UpdateWorldMatrix(const Matrix4f& worldMatrix);
 			inline void UpdateWorldMatrix(const Matrix4f& worldMatrix, const Matrix4f& invWorldMatrix);
 
@@ -43,7 +45,7 @@ namespace Nz
 			WorldInstance& operator=(WorldInstance&&) noexcept = default;
 
 		private:
-			void OnTransfer(UploadPool& uploadPool, CommandBufferBuilder& builder);
+			inline void InvalidateData();
 
 			std::shared_ptr<RenderBuffer> m_instanceDataBuffer;
 			Matrix4f m_invWorldMatrix;

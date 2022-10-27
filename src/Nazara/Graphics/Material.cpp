@@ -69,33 +69,95 @@ namespace Nz
 				uniformBlock.bindingIndex = shaderBlock.bindingIndex;
 				uniformBlock.bindingSet = shaderBlock.bindingSet;
 				uniformBlock.bufferPool = std::make_unique<RenderBufferPool>(renderDevice, BufferType::Uniform, size);
+				uniformBlock.structIndex = shaderBlock.structIndex;
 
 				m_uniformBlockByTag.emplace(tag, blockIndex);
 			}
 		}
 
+		m_engineShaderBindings.fill(InvalidBindingIndex);
+		if (const ShaderReflection::ExternalBlockData* block = m_reflection.GetExternalBlockByTag("Engine"))
+		{
+			// TODO: Ensure structs layout is what's expected
+
+			if (auto it = block->uniformBlocks.find("InstanceData"); it != block->uniformBlocks.end())
+				m_engineShaderBindings[UnderlyingCast(EngineShaderBinding::InstanceDataUbo)] = it->second.bindingIndex;
+
+			if (auto it = block->uniformBlocks.find("LightData"); it != block->uniformBlocks.end())
+				m_engineShaderBindings[UnderlyingCast(EngineShaderBinding::LightDataUbo)] = it->second.bindingIndex;
+
+			if (auto it = block->uniformBlocks.find("ViewerData"); it != block->uniformBlocks.end())
+				m_engineShaderBindings[UnderlyingCast(EngineShaderBinding::ViewerDataUbo)] = it->second.bindingIndex;
+
+			if (auto it = block->uniformBlocks.find("SkeletalData"); it != block->uniformBlocks.end())
+				m_engineShaderBindings[UnderlyingCast(EngineShaderBinding::SkeletalDataUbo)] = it->second.bindingIndex;
+
+			if (auto it = block->samplers.find("TextureOverlay"); it != block->samplers.end())
+				m_engineShaderBindings[UnderlyingCast(EngineShaderBinding::OverlayTexture)] = it->second.bindingIndex;
+		}
+
 		for (const auto& handlerPtr : m_settings.GetPropertyHandlers())
 			handlerPtr->Setup(*this, m_reflection);
-	}
 
-	void Material::AddPass(std::string passName, std::shared_ptr<MaterialPass> pass)
-	{
-		auto& registry = Graphics::Instance()->GetMaterialPassRegistry();
-		return AddPass(registry.GetPassIndex(passName), std::move(pass));
-	}
+		for (const auto& passOpt : m_settings.GetPasses())
+		{
+			if (!passOpt)
+				continue;
 
-	const std::shared_ptr<MaterialPass>& Material::FindPass(const std::string& passName) const
-	{
-		auto& registry = Graphics::Instance()->GetMaterialPassRegistry();
-		return GetPass(registry.GetPassIndex(passName));
-	}
+			for (const auto& uberShader : passOpt->shaders)
+			{
+				uberShader->UpdateConfigCallback([=](UberShader::Config& config, const std::vector<RenderPipelineInfo::VertexBufferData>& vertexBuffers)
+				{
+					if (vertexBuffers.empty())
+						return;
 
-	void Material::RemovePass(const std::string& passName)
-	{
-		auto& registry = Graphics::Instance()->GetMaterialPassRegistry();
-		return RemovePass(registry.GetPassIndex(passName));
-	}
+					const VertexDeclaration& vertexDeclaration = *vertexBuffers.front().declaration;
+					const auto& components = vertexDeclaration.GetComponents();
 
+					Int32 locationIndex = 0;
+					for (const auto& component : components)
+					{
+						switch (component.component)
+						{
+							case VertexComponent::Color:
+								config.optionValues[CRC32("VertexColorLoc")] = locationIndex;
+								break;
+
+							case VertexComponent::Normal:
+								config.optionValues[CRC32("VertexNormalLoc")] = locationIndex;
+								break;
+
+							case VertexComponent::Position:
+								config.optionValues[CRC32("VertexPositionLoc")] = locationIndex;
+								break;
+
+							case VertexComponent::Tangent:
+								config.optionValues[CRC32("VertexTangentLoc")] = locationIndex;
+								break;
+
+							case VertexComponent::TexCoord:
+								config.optionValues[CRC32("VertexUvLoc")] = locationIndex;
+								break;
+
+							case VertexComponent::JointIndices:
+								config.optionValues[CRC32("VertexJointIndicesLoc")] = locationIndex;
+								break;
+
+							case VertexComponent::JointWeights:
+								config.optionValues[CRC32("VertexJointWeightsLoc")] = locationIndex;
+								break;
+
+							case VertexComponent::Unused:
+							case VertexComponent::Userdata:
+								break;
+						}
+
+						++locationIndex;
+					}
+				});
+			}
+		}
+	}
 
 	std::shared_ptr<Material> Material::Build(const ParameterList& materialData)
 	{

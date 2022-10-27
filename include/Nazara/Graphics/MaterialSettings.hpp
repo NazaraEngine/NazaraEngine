@@ -10,6 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Graphics/Enums.hpp>
+#include <Nazara/Graphics/MaterialPass.hpp>
 #include <Nazara/Graphics/PropertyHandler/PropertyHandler.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Math/Vector2.hpp>
@@ -52,6 +53,7 @@ namespace Nz
 			MaterialSettings(MaterialSettings&&) = default;
 			~MaterialSettings() = default;
 
+			inline void AddPass(std::size_t passIndex, MaterialPass materialPass);
 			inline void AddPropertyHandler(std::unique_ptr<PropertyHandler> propertyHandler);
 			inline void AddTextureProperty(std::string propertyName, ImageType propertyType);
 			inline void AddTextureProperty(std::string propertyName, ImageType propertyType, std::shared_ptr<Texture> defaultTexture);
@@ -62,6 +64,8 @@ namespace Nz
 			inline std::size_t FindTextureProperty(std::string_view propertyName) const;
 			inline std::size_t FindValueProperty(std::string_view propertyName) const;
 
+			inline const MaterialPass* GetPass(std::size_t passIndex) const;
+			inline const std::vector<std::optional<MaterialPass>>& GetPasses() const;
 			inline const std::vector<std::unique_ptr<PropertyHandler>>& GetPropertyHandlers() const;
 			inline const TextureProperty& GetTextureProperty(std::size_t texturePropertyIndex) const;
 			inline std::size_t GetTexturePropertyCount() const;
@@ -89,6 +93,7 @@ namespace Nz
 
 		private:
 			std::vector<std::unique_ptr<PropertyHandler>> m_propertyHandlers;
+			std::vector<std::optional<MaterialPass>> m_materialPasses;
 			std::vector<TextureProperty> m_textureProperties;
 			std::vector<ValueProperty> m_valueProperties;
 	};

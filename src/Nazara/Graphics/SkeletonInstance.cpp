@@ -7,6 +7,7 @@
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
+#include <Nazara/Renderer/RenderFrame.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
 #include <Nazara/Utility/Joint.hpp>
 #include <Nazara/Graphics/Debug.hpp>
@@ -25,6 +26,7 @@ namespace Nz
 		m_onSkeletonJointsInvalidated.Connect(m_skeleton->OnSkeletonJointsInvalidated, [this](const Skeleton*)
 		{
 			m_dataInvalided = true;
+			OnTransferRequired(this);
 		});
 	}
 
@@ -36,18 +38,18 @@ namespace Nz
 		m_onSkeletonJointsInvalidated.Connect(m_skeleton->OnSkeletonJointsInvalidated, [this](const Skeleton*)
 		{
 			m_dataInvalided = true;
+			OnTransferRequired(this);
 		});
 	}
 
-	void SkeletonInstance::OnTransfer(UploadPool& uploadPool, CommandBufferBuilder& builder)
+	void SkeletonInstance::OnTransfer(RenderFrame& renderFrame, CommandBufferBuilder& builder)
 	{
 		if (!m_dataInvalided)
 			return;
 
-		
 		PredefinedSkeletalData skeletalUboOffsets = PredefinedSkeletalData::GetOffsets();
 
-		auto& allocation = uploadPool.Allocate(m_skeletalDataBuffer->GetSize());
+		auto& allocation = renderFrame.GetUploadPool().Allocate(m_skeletalDataBuffer->GetSize());
 		Matrix4f* matrices = AccessByOffset<Matrix4f*>(allocation.mappedPtr, skeletalUboOffsets.jointMatricesOffset);
 
 		for (std::size_t i = 0; i < m_skeleton->GetJointCount(); ++i)
@@ -67,6 +69,7 @@ namespace Nz
 		m_onSkeletonJointsInvalidated.Connect(m_skeleton->OnSkeletonJointsInvalidated, [this](const Skeleton*)
 		{
 			m_dataInvalided = true;
+			OnTransferRequired(this);
 		});
 
 		return *this;

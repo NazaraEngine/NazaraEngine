@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
+#include <Nazara/Graphics/TransferInterface.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
@@ -35,12 +36,12 @@ namespace Nz
 			inline const std::shared_ptr<RenderBuffer>& GetSkeletalBuffer() const;
 			inline const std::shared_ptr<const Skeleton>& GetSkeleton() const;
 
+			void OnTransfer(RenderFrame& renderFrame, CommandBufferBuilder& builder) override;
+
 			SkeletonInstance& operator=(const SkeletonInstance&) = delete;
 			SkeletonInstance& operator=(SkeletonInstance&& skeletonInstance) noexcept;
 
 		private:
-			void OnTransfer(UploadPool& uploadPool, CommandBufferBuilder& builder);
-
 			NazaraSlot(Skeleton, OnSkeletonJointsInvalidated, m_onSkeletonJointsInvalidated);
 
 			std::shared_ptr<RenderBuffer> m_skeletalDataBuffer;

@@ -7,14 +7,6 @@
 
 namespace Nz
 {
-	inline void Material::AddPass(std::size_t passIndex, std::shared_ptr<MaterialPass> pass)
-	{
-		if (passIndex >= m_passes.size())
-			m_passes.resize(passIndex + 1);
-
-		m_passes[passIndex] = std::move(pass);
-	}
-
 	inline std::size_t Material::FindTextureByTag(const std::string& tag) const
 	{
 		auto it = m_textureByTag.find(tag);
@@ -24,7 +16,7 @@ namespace Nz
 		return it->second;
 	}
 
-	inline std::size_t Material::FindUniformByTag(const std::string& tag) const
+	inline std::size_t Material::FindUniformBlockByTag(const std::string& tag) const
 	{
 		auto it = m_uniformBlockByTag.find(tag);
 		if (it == m_uniformBlockByTag.end())
@@ -33,25 +25,9 @@ namespace Nz
 		return it->second;
 	}
 
-	template<typename F>
-	void Material::ForEachPass(F&& callback)
+	inline UInt32 Material::GetEngineBindingIndex(EngineShaderBinding shaderBinding) const
 	{
-		for (std::size_t i = 0; i < m_passes.size(); ++i)
-		{
-			if (m_passes[i])
-				callback(i, m_passes[i]);
-		}
-	}
-
-	inline const std::shared_ptr<MaterialPass>& Material::GetPass(std::size_t passIndex) const
-	{
-		if (passIndex >= m_passes.size())
-		{
-			static std::shared_ptr<MaterialPass> dummy;
-			return dummy;
-		}
-
-		return m_passes[passIndex];
+		return m_engineShaderBindings[UnderlyingCast(shaderBinding)];
 	}
 
 	inline const std::shared_ptr<RenderPipelineLayout>& Material::GetRenderPipelineLayout() const
@@ -86,22 +62,6 @@ namespace Nz
 		return m_uniformBlocks.size();
 	}
 
-	inline bool Material::HasPass(std::size_t passIndex) const
-	{
-		if (passIndex >= m_passes.size())
-			return false;
-
-		return m_passes[passIndex] != nullptr;
-	}
-
-	inline void Material::RemovePass(std::size_t passIndex)
-	{
-		if (passIndex >= m_passes.size())
-			return;
-
-		m_passes[passIndex].reset();
-	}
-	
 	inline ImageType Material::ToImageType(nzsl::ImageType imageType)
 	{
 		switch (imageType)

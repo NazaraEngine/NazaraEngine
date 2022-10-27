@@ -4,10 +4,16 @@
 
 #include <Nazara/Graphics/PropertyHandler/TexturePropertyHandler.hpp>
 #include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
 {
+	bool TexturePropertyHandler::NeedsUpdateOnTextureUpdate(std::size_t updatedPropertyIndex) const
+	{
+		return m_propertyIndex == updatedPropertyIndex;
+	}
+
 	void TexturePropertyHandler::Setup(const Material& material, const ShaderReflection& reflection)
 	{
 		const MaterialSettings& settings = material.GetSettings();
@@ -19,7 +25,7 @@ namespace Nz
 		const auto& textureProperty = settings.GetTextureProperty(m_propertyIndex);
 
 		m_textureIndex = material.FindTextureByTag(m_samplerTag);
-		if (m_textureIndex == MaterialSettings::InvalidPropertyIndex)
+		if (m_textureIndex == Material::InvalidIndex)
 			return;
 
 		const auto& textureData = material.GetTextureData(m_textureIndex);
@@ -31,5 +37,29 @@ namespace Nz
 				" but shader sampler is of type " +
 				std::to_string(UnderlyingCast(textureData.imageType)));
 		}
+
+		m_optionHash = 0;
+		if (const ShaderReflection::OptionData* optionData = reflection.GetOptionByName(m_optionName))
+		{
+			if (IsPrimitiveType(optionData->type) && std::get<nzsl::Ast::PrimitiveType>(optionData->type) == nzsl::Ast::PrimitiveType::Boolean)
+			{
+				NazaraAssert(optionData->hash != 0, "unexpected option hash");
+				m_optionHash = optionData->hash;
+			}
+			else
+				NazaraError("option " + m_optionName + " is not a boolean option (got " + ToString(optionData->type) + ")");
+		}
+	}
+
+	void TexturePropertyHandler::Update(MaterialInstance& materialInstance) const
+	{
+		if (m_propertyIndex == MaterialSettings::InvalidPropertyIndex || m_textureIndex == Material::InvalidIndex)
+			return;
+
+		const std::shared_ptr<Texture>& texture = materialInstance.GetTextureProperty(m_propertyIndex);
+
+		materialInstance.UpdateTextureBinding(m_textureIndex, texture);
+		if (m_optionHash != 0)
+			materialInstance.UpdateOptionValue(m_optionHash, texture != nullptr);
 	}
 }
