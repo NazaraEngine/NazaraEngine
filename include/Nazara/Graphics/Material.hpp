@@ -32,6 +32,7 @@ namespace Nz
 	};
 
 	class Material;
+	class MaterialInstance;
 	class RenderPipelineLayout;
 
 	using MaterialLibrary = ObjectLibrary<Material>;
@@ -39,7 +40,7 @@ namespace Nz
 	using MaterialManager = ResourceManager<Material, MaterialParams>;
 	using MaterialSaver = ResourceSaver<Material, MaterialParams>;
 
-	class NAZARA_GRAPHICS_API Material : public Resource
+	class NAZARA_GRAPHICS_API Material : public Resource, std::enable_shared_from_this<Material>
 	{
 		public:
 			struct TextureData;
@@ -48,6 +49,10 @@ namespace Nz
 			Material(MaterialSettings settings, const std::string& referenceModuleName);
 			Material(MaterialSettings settings, const nzsl::Ast::ModulePtr& referenceModule);
 			~Material() = default;
+
+			std::shared_ptr<MaterialInstance> CreateInstance() const;
+
+			std::shared_ptr<MaterialInstance> GetDefaultInstance() const;
 
 			inline std::size_t FindTextureByTag(const std::string& tag) const;
 			inline std::size_t FindUniformBlockByTag(const std::string& tag) const;
@@ -93,6 +98,7 @@ namespace Nz
 			std::unordered_map<std::string /*tag*/, std::size_t> m_uniformBlockByTag;
 			std::vector<TextureData> m_textures;
 			std::vector<UniformBlockData> m_uniformBlocks;
+			mutable std::weak_ptr<MaterialInstance> m_defaultInstance;
 			MaterialSettings m_settings;
 			ShaderReflection m_reflection;
 	};

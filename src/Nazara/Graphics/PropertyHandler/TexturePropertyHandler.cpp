@@ -16,10 +16,12 @@ namespace Nz
 
 	void TexturePropertyHandler::Setup(const Material& material, const ShaderReflection& reflection)
 	{
+		m_propertyIndex = MaterialSettings::InvalidPropertyIndex;
+
 		const MaterialSettings& settings = material.GetSettings();
 
-		m_propertyIndex = settings.FindTextureProperty(m_propertyName);
-		if (m_propertyIndex == MaterialSettings::InvalidPropertyIndex)
+		std::size_t propertyIndex = settings.FindTextureProperty(m_propertyName);
+		if (propertyIndex == MaterialSettings::InvalidPropertyIndex)
 			return;
 
 		const auto& textureProperty = settings.GetTextureProperty(m_propertyIndex);
@@ -36,7 +38,11 @@ namespace Nz
 				std::to_string(UnderlyingCast(textureProperty.type)) +
 				" but shader sampler is of type " +
 				std::to_string(UnderlyingCast(textureData.imageType)));
+
+			return;
 		}
+
+		m_propertyIndex = propertyIndex;
 
 		m_optionHash = 0;
 		if (const ShaderReflection::OptionData* optionData = reflection.GetOptionByName(m_optionName))
@@ -53,7 +59,7 @@ namespace Nz
 
 	void TexturePropertyHandler::Update(MaterialInstance& materialInstance) const
 	{
-		if (m_propertyIndex == MaterialSettings::InvalidPropertyIndex || m_textureIndex == Material::InvalidIndex)
+		if (m_propertyIndex == MaterialSettings::InvalidPropertyIndex)
 			return;
 
 		const std::shared_ptr<Texture>& texture = materialInstance.GetTextureProperty(m_propertyIndex);

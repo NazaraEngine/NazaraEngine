@@ -159,6 +159,23 @@ namespace Nz
 		}
 	}
 
+	std::shared_ptr<MaterialInstance> Material::CreateInstance() const
+	{
+		return std::make_shared<MaterialInstance>(shared_from_this());
+	}
+
+	std::shared_ptr<MaterialInstance> Material::GetDefaultInstance() const
+	{
+		std::shared_ptr<MaterialInstance> instance = m_defaultInstance.lock();
+		if (!instance)
+		{
+			instance = CreateInstance();
+			m_defaultInstance = std::weak_ptr<MaterialInstance>(instance);
+		}
+
+		return instance;
+	}
+
 	std::shared_ptr<Material> Material::Build(const ParameterList& materialData)
 	{
 		return std::shared_ptr<Material>();

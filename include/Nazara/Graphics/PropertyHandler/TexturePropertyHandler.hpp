@@ -18,6 +18,7 @@ namespace Nz
 	{
 		public:
 			inline TexturePropertyHandler(std::string propertyName);
+			inline TexturePropertyHandler(std::string propertyName, std::string optionName);
 			inline TexturePropertyHandler(std::string propertyName, std::string samplerTag, std::string optionName);
 			TexturePropertyHandler(const TexturePropertyHandler&) = delete;
 			TexturePropertyHandler(TexturePropertyHandler&&) = delete;

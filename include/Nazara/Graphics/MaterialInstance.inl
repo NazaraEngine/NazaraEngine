@@ -7,12 +7,12 @@
 
 namespace Nz
 {
-	inline std::size_t MaterialInstance::FindTextureProperty(std::string_view propertyName)
+	inline std::size_t MaterialInstance::FindTextureProperty(std::string_view propertyName) const
 	{
 		return m_materialSettings.FindTextureProperty(propertyName);
 	}
 
-	inline std::size_t MaterialInstance::FindValueProperty(std::string_view propertyName)
+	inline std::size_t MaterialInstance::FindValueProperty(std::string_view propertyName) const
 	{
 		return m_materialSettings.FindValueProperty(propertyName);
 	}

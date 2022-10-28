@@ -27,18 +27,18 @@ namespace Nz
 	class NAZARA_GRAPHICS_API MaterialInstance : public TransferInterface
 	{
 		public:
-			MaterialInstance(std::shared_ptr<Material> parent);
+			MaterialInstance(std::shared_ptr<const Material> parent);
 			MaterialInstance(const MaterialInstance&) = delete;
 			MaterialInstance(MaterialInstance&&) = delete;
 			~MaterialInstance();
 
 			void FillShaderBinding(std::vector<ShaderBinding::Binding>& bindings) const;
 
-			inline std::size_t FindTextureProperty(std::string_view propertyName);
-			inline std::size_t FindValueProperty(std::string_view propertyName);
+			inline std::size_t FindTextureProperty(std::string_view propertyName) const;
+			inline std::size_t FindValueProperty(std::string_view propertyName) const;
 
 			const std::shared_ptr<MaterialPipeline>& GetPipeline(std::size_t passIndex) const;
-			inline const std::shared_ptr<Material>& GetParentMaterial() const;
+			inline const std::shared_ptr<const Material>& GetParentMaterial() const;
 
 			inline const std::shared_ptr<Texture>& GetTextureProperty(std::size_t textureIndex) const;
 			inline const std::shared_ptr<Texture>& GetTexturePropertyOverride(std::size_t textureIndex) const;
@@ -97,7 +97,7 @@ namespace Nz
 				bool dataInvalidated = true;
 			};
 
-			std::shared_ptr<Material> m_parent;
+			std::shared_ptr<const Material> m_parent;
 			std::unordered_map<UInt32, nzsl::Ast::ConstantSingleValue> m_optionValuesOverride;
 			std::vector<MaterialSettings::Value> m_valueOverride;
 			std::vector<PassData> m_passes;

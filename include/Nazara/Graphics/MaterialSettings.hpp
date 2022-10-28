@@ -12,10 +12,10 @@
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
 #include <Nazara/Graphics/PropertyHandler/PropertyHandler.hpp>
-#include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Math/Vector4.hpp>
+#include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Utils/TypeList.hpp>
 #include <limits>
 #include <optional>

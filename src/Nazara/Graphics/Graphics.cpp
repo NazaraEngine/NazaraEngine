@@ -8,6 +8,8 @@
 #include <Nazara/Graphics/MaterialPipeline.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/Formats/TextureLoader.hpp>
+#include <Nazara/Graphics/PropertyHandler/TexturePropertyHandler.hpp>
+#include <Nazara/Graphics/PropertyHandler/UniformValuePropertyHandler.hpp>
 #include <Nazara/Utility/Font.hpp>
 #include <NZSL/Ast/AstSerializer.hpp>
 #include <NZSL/Ast/Module.hpp>
@@ -207,7 +209,22 @@ namespace Nz
 
 	void Graphics::BuildDefaultMaterials()
 	{
-		/*m_defaultMaterials.depthMaterial = std::make_shared<Material>();
+		Nz::MaterialSettings settings;
+		settings.AddValueProperty<Nz::Color>("BaseColor", Nz::Color::White);
+		settings.AddTextureProperty("BaseColorMap", Nz::ImageType::E2D);
+		settings.AddPropertyHandler(std::make_unique<Nz::TexturePropertyHandler>("BaseColorMap", "BaseColorMap", "HasBaseColorTexture"));
+		settings.AddPropertyHandler(std::make_unique<Nz::UniformValuePropertyHandler>("BaseColor"));
+
+		Nz::MaterialPass forwardPass;
+		forwardPass.states.depthBuffer = true;
+		forwardPass.shaders.push_back(std::make_shared<Nz::UberShader>(nzsl::ShaderStageType_All, "BasicMaterialPass"));
+
+		settings.AddPass(Nz::Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex("ForwardPass"), std::move(forwardPass));
+
+		std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>(std::move(settings), "BasicMaterialPass");
+
+
+		m_defaultMaterials.depthMaterial = std::make_shared<Material>();
 		{
 			std::shared_ptr<Nz::MaterialPass> depthPass = std::make_shared<Nz::MaterialPass>(Nz::DepthMaterialPass::GetSettings());
 			depthPass->EnableDepthBuffer(true);
@@ -223,7 +240,7 @@ namespace Nz
 		m_defaultMaterials.noDepthMaterial = std::make_shared<Material>();
 		{
 			m_defaultMaterials.noDepthMaterial->AddPass("ForwardPass", std::make_shared<Nz::MaterialPass>(Nz::BasicMaterialPass::GetSettings()));
-		}*/
+		}
 	}
 
 	void Graphics::BuildDefaultTextures()

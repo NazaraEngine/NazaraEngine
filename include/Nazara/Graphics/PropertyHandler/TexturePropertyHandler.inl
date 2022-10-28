@@ -13,6 +13,13 @@ namespace Nz
 	{
 	}
 
+	inline TexturePropertyHandler::TexturePropertyHandler(std::string propertyName, std::string optionName) :
+	m_optionName(std::move(optionName)),
+	m_propertyName(std::move(propertyName)),
+	m_samplerTag(m_propertyName)
+	{
+	}
+
 	inline TexturePropertyHandler::TexturePropertyHandler(std::string propertyName, std::string samplerTag, std::string optionName) :
 	m_optionName(std::move(optionName)),
 	m_propertyName(std::move(propertyName)),

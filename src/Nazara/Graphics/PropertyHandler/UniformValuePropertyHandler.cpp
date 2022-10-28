@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Graphics/PropertyHandler/ValuePropertyHandler.hpp>
+#include <Nazara/Graphics/PropertyHandler/UniformValuePropertyHandler.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/MaterialInstance.hpp>
 #include <type_traits>
@@ -10,20 +10,22 @@
 
 namespace Nz
 {
-	bool ValuePropertyHandler::NeedsUpdateOnValueUpdate(std::size_t updatedPropertyIndex) const
+	bool UniformValuePropertyHandler::NeedsUpdateOnValueUpdate(std::size_t updatedPropertyIndex) const
 	{
 		return m_propertyIndex == updatedPropertyIndex;
 	}
 
-	void ValuePropertyHandler::Setup(const Material& material, const ShaderReflection& reflection)
+	void UniformValuePropertyHandler::Setup(const Material& material, const ShaderReflection& reflection)
 	{
+		m_propertyIndex = MaterialSettings::InvalidPropertyIndex;
+
 		const MaterialSettings& settings = material.GetSettings();
 
-		m_propertyIndex = settings.FindValueProperty(m_propertyName);
-		if (m_propertyIndex == MaterialSettings::InvalidPropertyIndex)
+		std::size_t propertyIndex = settings.FindValueProperty(m_propertyName);
+		if (propertyIndex == MaterialSettings::InvalidPropertyIndex)
 			return;
 
-		const auto& valueProperty = settings.GetValueProperty(m_propertyIndex);
+		const auto& valueProperty = settings.GetValueProperty(propertyIndex);
 
 		m_uniformBlockIndex = material.FindUniformBlockByTag(m_blockTag);
 		if (m_uniformBlockIndex == Material::InvalidIndex)
@@ -40,12 +42,16 @@ namespace Nz
 
 		m_offset = it->second.offset;
 		m_size = it->second.size;
+		m_propertyIndex = propertyIndex;
 
 		// TODO: Check if member type matches property type
 	}
 
-	void ValuePropertyHandler::Update(MaterialInstance& materialInstance) const
+	void UniformValuePropertyHandler::Update(MaterialInstance& materialInstance) const
 	{
+		if (m_propertyIndex == MaterialSettings::InvalidPropertyIndex)
+			return;
+
 		const MaterialSettings::Value& value = materialInstance.GetValueProperty(m_propertyIndex);
 		std::visit([&](auto&& arg)
 		{

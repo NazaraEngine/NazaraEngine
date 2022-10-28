@@ -60,6 +60,10 @@ namespace Nz
 
 			struct DefaultMaterials
 			{
+				std::shared_ptr<Material> basicMaterial;
+				std::shared_ptr<Material> phongMaterial;
+				std::shared_ptr<Material> pbrMaterial;
+
 				std::shared_ptr<MaterialInstance> depthMaterial;
 				std::shared_ptr<MaterialInstance> noDepthMaterial;
 			};
