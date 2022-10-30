@@ -251,7 +251,7 @@ namespace Nz
 							{
 								context->ResetColorWriteMasks();
 
-								Color color = command.clearValues[colorAttachmentIndex].color;
+								const Color& color = command.clearValues[colorAttachmentIndex].color;
 								context->glClearColor(color.r, color.g, color.b, color.a);
 
 								clearFields |= GL_COLOR_BUFFER_BIT;
@@ -286,7 +286,12 @@ namespace Nz
 						}
 
 						if (clearFields)
+						{
+							const Vector2ui& size = command.framebuffer->GetSize();
+							context->SetScissorBox(0, 0, size.x, size.y);
+							context->SetViewport(0, 0, size.x, size.y);
 							context->glClear(clearFields);
+						}
 					}
 
 					if (!invalidateAttachments.empty())

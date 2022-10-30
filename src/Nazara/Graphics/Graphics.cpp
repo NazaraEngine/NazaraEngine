@@ -8,6 +8,7 @@
 #include <Nazara/Graphics/MaterialPipeline.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/Formats/TextureLoader.hpp>
+#include <Nazara/Graphics/PropertyHandler/OptionValuePropertyHandler.hpp>
 #include <Nazara/Graphics/PropertyHandler/TexturePropertyHandler.hpp>
 #include <Nazara/Graphics/PropertyHandler/UniformValuePropertyHandler.hpp>
 #include <Nazara/Utility/Font.hpp>
@@ -27,10 +28,6 @@ namespace Nz
 
 		const UInt8 r_basicMaterialShader[] = {
 			#include <Nazara/Graphics/Resources/Shaders/BasicMaterial.nzslb.h>
-		};
-
-		const UInt8 r_depthMaterialShader[] = {
-			#include <Nazara/Graphics/Resources/Shaders/DepthMaterial.nzslb.h>
 		};
 
 		const UInt8 r_fullscreenVertexShader[] = {
@@ -73,7 +70,7 @@ namespace Nz
 
 	/*!
 	* \ingroup graphics
-	* \class Nz::Graphics
+	* \class Graphics
 	* \brief Graphics class that represents the module initializer of Graphics
 	*/
 	Graphics::Graphics(Config config) :
@@ -209,45 +206,115 @@ namespace Nz
 
 	void Graphics::BuildDefaultMaterials()
 	{
-		Nz::MaterialSettings settings;
-		settings.AddValueProperty<Nz::Color>("BaseColor", Nz::Color::White);
-		settings.AddTextureProperty("BaseColorMap", Nz::ImageType::E2D);
-		settings.AddPropertyHandler(std::make_unique<Nz::TexturePropertyHandler>("BaseColorMap", "BaseColorMap", "HasBaseColorTexture"));
-		settings.AddPropertyHandler(std::make_unique<Nz::UniformValuePropertyHandler>("BaseColor"));
+		std::size_t depthPassIndex = m_materialPassRegistry.GetPassIndex("DepthPass");
+		std::size_t forwardPassIndex = m_materialPassRegistry.GetPassIndex("ForwardPass");
 
-		Nz::MaterialPass forwardPass;
-		forwardPass.states.depthBuffer = true;
-		forwardPass.shaders.push_back(std::make_shared<Nz::UberShader>(nzsl::ShaderStageType_All, "BasicMaterialPass"));
-
-		settings.AddPass(Nz::Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex("ForwardPass"), std::move(forwardPass));
-
-		std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>(std::move(settings), "BasicMaterialPass");
-
-
-		m_defaultMaterials.depthMaterial = std::make_shared<Material>();
+		auto AddCommonProperties = [](MaterialSettings& settings)
 		{
-			std::shared_ptr<Nz::MaterialPass> depthPass = std::make_shared<Nz::MaterialPass>(Nz::DepthMaterialPass::GetSettings());
-			depthPass->EnableDepthBuffer(true);
+			settings.AddValueProperty<Color>("BaseColor", Color::White);
+			settings.AddValueProperty<bool>("AlphaTest", false);
+			settings.AddValueProperty<float>("AlphaTestThreshold", 0.2f);
+			settings.AddTextureProperty("BaseColorMap", ImageType::E2D);
+			settings.AddTextureProperty("AlphaMap", ImageType::E2D);
+			settings.AddPropertyHandler(std::make_unique<OptionValuePropertyHandler>("AlphaTest", "AlphaTest"));
+			settings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("BaseColorMap", "HasBaseColorTexture"));
+			settings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("BaseColorMap", "HasAlphaTexture"));
+			settings.AddPropertyHandler(std::make_unique<UniformValuePropertyHandler>("BaseColor"));
+			settings.AddPropertyHandler(std::make_unique<UniformValuePropertyHandler>("AlphaTestThreshold"));
+		};
 
-			m_defaultMaterials.depthMaterial->AddPass("DepthPass", depthPass);
+		// BasicMaterial
+		{
+			MaterialSettings basicSettings;
+			AddCommonProperties(basicSettings);
 
-			std::shared_ptr<Nz::MaterialPass> forwardPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterialPass::GetSettings());
-			forwardPass->EnableDepthBuffer(true);
+			MaterialPass basicForwardPass;
+			basicForwardPass.states.depthBuffer = true;
+			basicForwardPass.shaders.push_back(std::make_shared<UberShader>(nzsl::ShaderStageType_All, "BasicMaterial"));
+			basicSettings.AddPass(forwardPassIndex, basicForwardPass);
 
-			m_defaultMaterials.depthMaterial->AddPass("ForwardPass", forwardPass);
+			MaterialPass basicDepthPass = basicForwardPass;
+			basicDepthPass.options[CRC32("DepthPass")] = true;
+			basicSettings.AddPass(depthPassIndex, basicDepthPass);
+
+			m_defaultMaterials.basicMaterial = std::make_shared<Material>(std::move(basicSettings), "BasicMaterial");
 		}
 
-		m_defaultMaterials.noDepthMaterial = std::make_shared<Material>();
+		// PbrMaterial
 		{
-			m_defaultMaterials.noDepthMaterial->AddPass("ForwardPass", std::make_shared<Nz::MaterialPass>(Nz::BasicMaterialPass::GetSettings()));
+			MaterialSettings pbrSettings;
+			AddCommonProperties(pbrSettings);
+			pbrSettings.AddTextureProperty("EmissiveMap", ImageType::E2D);
+			pbrSettings.AddTextureProperty("HeightMap", ImageType::E2D);
+			pbrSettings.AddTextureProperty("MetallicMap", ImageType::E2D);
+			pbrSettings.AddTextureProperty("NormalMap", ImageType::E2D);
+			pbrSettings.AddTextureProperty("RoughnessMap", ImageType::E2D);
+			pbrSettings.AddTextureProperty("SpecularMap", ImageType::E2D);
+			pbrSettings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("EmissiveMap", "HasEmissiveTexture"));
+			pbrSettings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("HeightMap", "HasHeightTexture"));
+			pbrSettings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("MetallicMap", "HasMetallicTexture"));
+			pbrSettings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("NormalMap", "HasNormalTexture"));
+			pbrSettings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("RoughnessMap", "HasRoughnessTexture"));
+			pbrSettings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("SpecularMap", "HasSpecularTexture"));
+
+			MaterialPass pbrForwardPass;
+			pbrForwardPass.states.depthBuffer = true;
+			pbrForwardPass.shaders.push_back(std::make_shared<UberShader>(nzsl::ShaderStageType_All, "PhysicallyBasedMaterial"));
+			pbrSettings.AddPass(forwardPassIndex, pbrForwardPass);
+
+			MaterialPass pbrDepthPass = pbrForwardPass;
+			pbrDepthPass.options[CRC32("DepthPass")] = true;
+			pbrSettings.AddPass(depthPassIndex, pbrDepthPass);
+
+			m_defaultMaterials.pbrMaterial = std::make_shared<Material>(std::move(pbrSettings), "PhysicallyBasedMaterial");
 		}
+
+		// PhongMaterial
+		{
+			MaterialSettings phongSettings;
+			AddCommonProperties(phongSettings);
+			phongSettings.AddValueProperty<Color>("AmbientColor", Color::Black);
+			phongSettings.AddValueProperty<Color>("SpecularColor", Color::White);
+			phongSettings.AddValueProperty<float>("Shininess", 2.f);
+			phongSettings.AddTextureProperty("EmissiveMap", ImageType::E2D);
+			phongSettings.AddTextureProperty("HeightMap", ImageType::E2D);
+			phongSettings.AddTextureProperty("NormalMap", ImageType::E2D);
+			phongSettings.AddTextureProperty("SpecularMap", ImageType::E2D);
+			phongSettings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("EmissiveMap", "HasEmissiveTexture"));
+			phongSettings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("HeightMap", "HasHeightMap"));
+			phongSettings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("NormalMap", "HasNormalMap"));
+			phongSettings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("SpecularMap", "HasSpecularMap"));
+			phongSettings.AddPropertyHandler(std::make_unique<UniformValuePropertyHandler>("AmbientColor"));
+			phongSettings.AddPropertyHandler(std::make_unique<UniformValuePropertyHandler>("SpecularColor"));
+			phongSettings.AddPropertyHandler(std::make_unique<UniformValuePropertyHandler>("Shininess"));
+
+			MaterialPass phongForwardPass;
+			phongForwardPass.states.depthBuffer = true;
+			phongForwardPass.shaders.push_back(std::make_shared<UberShader>(nzsl::ShaderStageType_All, "PhongMaterial"));
+			phongSettings.AddPass(forwardPassIndex, phongForwardPass);
+
+			MaterialPass phongDepthPass = phongForwardPass;
+			phongDepthPass.options[CRC32("DepthPass")] = true;
+			phongSettings.AddPass(forwardPassIndex, phongDepthPass);
+
+			m_defaultMaterials.phongMaterial = std::make_shared<Material>(std::move(phongSettings), "PhongMaterial");
+		}
+
+		m_defaultMaterials.defaultBasicMaterial = m_defaultMaterials.basicMaterial->GetDefaultInstance();
+
+		m_defaultMaterials.noDepthMaterial = m_defaultMaterials.basicMaterial->CreateInstance();
+		m_defaultMaterials.noDepthMaterial->DisablePass(depthPassIndex);
+		m_defaultMaterials.noDepthMaterial->UpdatePassStates(forwardPassIndex, [](RenderStates& states)
+		{
+			states.depthBuffer = false;
+		});
 	}
 
 	void Graphics::BuildDefaultTextures()
 	{
 		// White texture 2D
 		{
-			Nz::TextureInfo texInfo;
+			TextureInfo texInfo;
 			texInfo.width = texInfo.height = texInfo.depth = texInfo.mipmapLevel = 1;
 			texInfo.pixelFormat = PixelFormat::L8;
 
@@ -273,7 +340,6 @@ namespace Nz
 	{
 		m_shaderModuleResolver = std::make_shared<nzsl::FilesystemModuleResolver>();
 		RegisterEmbedShaderModule(r_basicMaterialShader);
-		RegisterEmbedShaderModule(r_depthMaterialShader);
 		RegisterEmbedShaderModule(r_fullscreenVertexShader);
 		RegisterEmbedShaderModule(r_instanceDataModule);
 		RegisterEmbedShaderModule(r_lightDataModule);

@@ -32,26 +32,34 @@ namespace Nz
 			MaterialInstance(MaterialInstance&&) = delete;
 			~MaterialInstance();
 
+			inline void DisablePass(std::size_t passIndex);
+			inline void EnablePass(std::size_t passIndex, bool enable);
+
 			void FillShaderBinding(std::vector<ShaderBinding::Binding>& bindings) const;
 
 			inline std::size_t FindTextureProperty(std::string_view propertyName) const;
 			inline std::size_t FindValueProperty(std::string_view propertyName) const;
 
-			const std::shared_ptr<MaterialPipeline>& GetPipeline(std::size_t passIndex) const;
 			inline const std::shared_ptr<const Material>& GetParentMaterial() const;
+			const std::shared_ptr<MaterialPipeline>& GetPipeline(std::size_t passIndex) const;
 
+			inline const std::shared_ptr<Texture>* GetTextureProperty(std::string_view propertyName) const;
 			inline const std::shared_ptr<Texture>& GetTextureProperty(std::size_t textureIndex) const;
 			inline const std::shared_ptr<Texture>& GetTexturePropertyOverride(std::size_t textureIndex) const;
 
+			inline const MaterialSettings::Value* GetValueProperty(std::string_view propertyName) const;
 			inline const MaterialSettings::Value& GetValueProperty(std::size_t valueIndex) const;
 			inline const MaterialSettings::Value& GetValuePropertyOverride(std::size_t valueIndex) const;
 
 			inline bool HasPass(std::size_t passIndex) const;
 
+			inline void SetTextureProperty(std::string_view propertyName, std::shared_ptr<Texture> texture);
 			void SetTextureProperty(std::size_t textureIndex, std::shared_ptr<Texture> texture);
+			inline void SetValueProperty(std::string_view propertyName, const MaterialSettings::Value& value);
 			void SetValueProperty(std::size_t valueIndex, const MaterialSettings::Value& value);
 
 			void UpdateOptionValue(UInt32 optionHash, const nzsl::Ast::ConstantSingleValue& value);
+			template<typename F> void UpdatePassStates(std::size_t passIndex, F&& stateUpdater);
 			void UpdateTextureBinding(std::size_t textureBinding, std::shared_ptr<Texture> texture);
 			void UpdateUniformBufferData(std::size_t uniformBufferIndex, std::size_t offset, std::size_t size, const void* data);
 

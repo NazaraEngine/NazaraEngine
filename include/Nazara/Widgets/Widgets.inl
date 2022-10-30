@@ -12,19 +12,9 @@ namespace Nz
 		return m_opaqueMaterial;
 	}
 
-	inline const std::shared_ptr<MaterialPass>& Widgets::GetOpaqueMaterialPass() const
-	{
-		return m_opaqueMaterialPass;
-	}
-
 	inline const std::shared_ptr<MaterialInstance>& Widgets::GetTransparentMaterial() const
 	{
 		return m_transparentMaterial;
-	}
-
-	inline const std::shared_ptr<MaterialPass>& Widgets::GetTransparentMaterialPass() const
-	{
-		return m_transparentMaterialPass;
 	}
 }
 

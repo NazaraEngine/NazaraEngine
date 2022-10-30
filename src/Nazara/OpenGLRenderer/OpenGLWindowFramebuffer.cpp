@@ -22,4 +22,9 @@ namespace Nz
 	{
 		return 1;
 	}
+
+	const Vector2ui& OpenGLWindowFramebuffer::GetSize() const
+	{
+		return m_renderWindow.GetSize();
+	}
 }

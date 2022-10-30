@@ -17,7 +17,7 @@ namespace Nz
 	{
 		public:
 			inline OptionValuePropertyHandler(std::string propertyName, std::string optionName);
-			OptionValuePropertyHandler(const OptionValuePropertyHandler&) = delete;
+			OptionValuePropertyHandler(const OptionValuePropertyHandler&) = default;
 			OptionValuePropertyHandler(OptionValuePropertyHandler&&) = delete;
 			~OptionValuePropertyHandler() = default;
 
@@ -27,8 +27,8 @@ namespace Nz
 
 			void Update(MaterialInstance& materialInstance) const override;
 
-			UniformValuePropertyHandler& operator=(const UniformValuePropertyHandler&) = delete;
-			UniformValuePropertyHandler& operator=(UniformValuePropertyHandler&&) = delete;
+			OptionValuePropertyHandler& operator=(const OptionValuePropertyHandler&) = delete;
+			OptionValuePropertyHandler& operator=(OptionValuePropertyHandler&&) = delete;
 			
 		private:
 			std::size_t m_propertyIndex;
@@ -38,6 +38,6 @@ namespace Nz
 	};
 }
 
-#include <Nazara/Graphics/PropertyHandler/UniformValuePropertyHandler.inl>
+#include <Nazara/Graphics/PropertyHandler/OptionValuePropertyHandler.inl>
 
 #endif // NAZARA_GRAPHICS_PROPERTYHANDLER_OPTIONVALUEPROPERTYHANDLER_HPP

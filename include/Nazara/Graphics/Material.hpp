@@ -40,7 +40,7 @@ namespace Nz
 	using MaterialManager = ResourceManager<Material, MaterialParams>;
 	using MaterialSaver = ResourceSaver<Material, MaterialParams>;
 
-	class NAZARA_GRAPHICS_API Material : public Resource, std::enable_shared_from_this<Material>
+	class NAZARA_GRAPHICS_API Material : public Resource, public std::enable_shared_from_this<Material>
 	{
 		public:
 			struct TextureData;

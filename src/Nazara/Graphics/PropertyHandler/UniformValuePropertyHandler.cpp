@@ -59,40 +59,13 @@ namespace Nz
 
 			if constexpr (!std::is_same_v<T, MaterialPropertyNoValue>)
 			{
-				// bool cannot be copied since their size isn't fixed
-				if constexpr (std::is_same_v<T, bool>)
-				{
-					UInt32 value = arg;
-					assert(sizeof(value) == m_size);
+				constexpr MaterialPropertyType PropertyType = TypeToMaterialPropertyType_v<T>;
 
-					materialInstance.UpdateUniformBufferData(m_uniformBlockIndex, m_offset, m_size, &value);
-				}
-				else if constexpr (std::is_same_v<T, Vector2<bool>>)
-				{
-					Vector2ui32 value{ arg.x, arg.y };
-					assert(sizeof(value) == m_size);
+				using BufferType = typename MaterialPropertyTypeInfo<PropertyType>::BufferType;
 
-					materialInstance.UpdateUniformBufferData(m_uniformBlockIndex, m_offset, m_size, &value);
-				}
-				else if constexpr (std::is_same_v<T, Vector3<bool>>)
-				{
-					Vector3ui32 value{ arg.x, arg.y, arg.z };
-					assert(sizeof(value) == m_size);
-
-					materialInstance.UpdateUniformBufferData(m_uniformBlockIndex, m_offset, m_size, &value);
-				}
-				else if constexpr (std::is_same_v<T, Vector4<bool>>)
-				{
-					Vector4ui32 value{ arg.x, arg.y, arg.z, arg.w };
-					assert(sizeof(value) == m_size);
-
-					materialInstance.UpdateUniformBufferData(m_uniformBlockIndex, m_offset, m_size, &value);
-				}
-				else
-				{
-					assert(sizeof(arg) == m_size);
-					materialInstance.UpdateUniformBufferData(m_uniformBlockIndex, m_offset, m_size, &arg);
-				}
+				BufferType value = MaterialPropertyTypeInfo<PropertyType>::EncodeToBuffer(arg);
+				assert(sizeof(value) == m_size);
+				materialInstance.UpdateUniformBufferData(m_uniformBlockIndex, m_offset, m_size, &value);
 			}
 			else
 				throw std::runtime_error("value properties must have a default value");

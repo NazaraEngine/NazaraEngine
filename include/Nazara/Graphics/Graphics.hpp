@@ -64,7 +64,7 @@ namespace Nz
 				std::shared_ptr<Material> phongMaterial;
 				std::shared_ptr<Material> pbrMaterial;
 
-				std::shared_ptr<MaterialInstance> depthMaterial;
+				std::shared_ptr<MaterialInstance> defaultBasicMaterial;
 				std::shared_ptr<MaterialInstance> noDepthMaterial;
 			};
 

@@ -29,6 +29,8 @@ namespace Nz
 
 	template<typename T> constexpr MaterialPropertyType TypeToMaterialPropertyType_v = TypeToMaterialPropertyType<T>::PropertyType;
 
+	template<MaterialPropertyType P> struct MaterialPropertyTypeInfo;
+
 	struct MaterialPropertyNoValue {};
 
 	using MaterialPropertyTypeList = TypeList<
@@ -49,8 +51,8 @@ namespace Nz
 			using Value = TypeListInstantiate<MaterialPropertyTypeList, std::variant>;
 
 			MaterialSettings() = default;
-			MaterialSettings(const MaterialSettings&) = default;
-			MaterialSettings(MaterialSettings&&) = default;
+			MaterialSettings(const MaterialSettings&) = delete;
+			MaterialSettings(MaterialSettings&&) noexcept = default;
 			~MaterialSettings() = default;
 
 			inline void AddPass(std::size_t passIndex, MaterialPass materialPass);

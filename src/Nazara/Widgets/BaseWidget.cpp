@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Widgets/BaseWidget.hpp>
-#include <Nazara/Graphics/BasicMaterialPass.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/Components/GraphicsComponent.hpp>
 #include <Nazara/Utility/Components/NodeComponent.hpp>

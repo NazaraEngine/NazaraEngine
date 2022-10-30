@@ -19,7 +19,7 @@ namespace Nz
 	class RenderPass;
 	class Texture;
 
-	class NAZARA_OPENGLRENDERER_API OpenGLFboFramebuffer : public OpenGLFramebuffer
+	class NAZARA_OPENGLRENDERER_API OpenGLFboFramebuffer final : public OpenGLFramebuffer
 	{
 		public:
 			OpenGLFboFramebuffer(OpenGLDevice& device, const std::vector<std::shared_ptr<Texture>>& attachments);
@@ -31,12 +31,15 @@ namespace Nz
 
 			std::size_t GetColorBufferCount() const override;
 
+			const Vector2ui& GetSize() const override;
+
 			OpenGLFboFramebuffer& operator=(const OpenGLFboFramebuffer&) = delete;
 			OpenGLFboFramebuffer& operator=(OpenGLFboFramebuffer&&) = delete;
 
 		private:
 			GL::Framebuffer m_framebuffer;
 			std::size_t m_colorAttachmentCount;
+			Vector2ui m_size;
 	};
 }
 

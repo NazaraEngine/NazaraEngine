@@ -26,6 +26,8 @@ namespace Nz
 
 			std::size_t GetColorBufferCount() const override;
 
+			const Vector2ui& GetSize() const override;
+
 			OpenGLWindowFramebuffer& operator=(const OpenGLWindowFramebuffer&) = delete;
 			OpenGLWindowFramebuffer& operator=(OpenGLWindowFramebuffer&&) = delete;
 

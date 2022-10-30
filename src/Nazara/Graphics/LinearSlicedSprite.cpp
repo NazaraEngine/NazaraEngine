@@ -59,19 +59,14 @@ namespace Nz
 	{
 		assert(m_material);
 
-		//TODO: Cache index in registry?
-		/*if (const auto& material = m_material->FindPass("ForwardPass"))
+		// TODO: Move this in a separate function
+		if (const std::shared_ptr<Texture>* textureOpt = m_material->GetTextureProperty("BaseColorMap"))
 		{
-			BasicMaterialPass mat(*material);
-			if (mat.HasBaseColorMap())
-			{
-				// Material should always have textures but we're better safe than sorry
-				if (const auto& texture = mat.GetBaseColorMap())
-					return texture->GetSize();
-			}
-		}*/
+			// Material should always have textures but we're better safe than sorry
+			if (const std::shared_ptr<Texture>& texture = *textureOpt)
+				return texture->GetSize();
+		}
 
-		// Couldn't get material pass or texture
 		return Vector3ui::Unit(); //< prevents division by zero
 	}
 

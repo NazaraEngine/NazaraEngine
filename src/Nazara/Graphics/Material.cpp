@@ -5,6 +5,8 @@
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
+#include <Nazara/Graphics/MaterialInstance.hpp>
+#include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <NZSL/Ast/SanitizeVisitor.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
@@ -31,6 +33,7 @@ namespace Nz
 		const std::shared_ptr<RenderDevice>& renderDevice = graphics->GetRenderDevice();
 
 		nzsl::Ast::SanitizeVisitor::Options options;
+		options.optionValues[CRC32("MaxLightCount")] = SafeCast<UInt32>(PredefinedLightData::MaxLightCount);
 		options.allowPartialSanitization = true;
 		options.moduleResolver = graphics->GetShaderModuleResolver();
 

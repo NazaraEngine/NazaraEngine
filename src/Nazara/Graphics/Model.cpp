@@ -23,7 +23,7 @@ namespace Nz
 		for (std::size_t i = 0; i < m_graphicalMesh->GetSubMeshCount(); ++i)
 		{
 			auto& subMeshData = m_submeshes.emplace_back();
-			subMeshData.material = graphics->GetDefaultMaterials().depthMaterial;
+			subMeshData.material = graphics->GetDefaultMaterials().defaultBasicMaterial;
 			subMeshData.vertexBufferData = {
 				{
 					0,

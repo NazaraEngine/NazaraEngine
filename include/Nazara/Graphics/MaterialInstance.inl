@@ -7,6 +7,21 @@
 
 namespace Nz
 {
+	inline void MaterialInstance::DisablePass(std::size_t passIndex)
+	{
+		EnablePass(passIndex, false);
+	}
+
+	inline void MaterialInstance::EnablePass(std::size_t passIndex, bool enable)
+	{
+		assert(passIndex < m_passes.size());
+		if (m_passes[passIndex].enabled != enable)
+		{
+			m_passes[passIndex].enabled = enable;
+			InvalidatePassPipeline(passIndex);
+		}
+	}
+
 	inline std::size_t MaterialInstance::FindTextureProperty(std::string_view propertyName) const
 	{
 		return m_materialSettings.FindTextureProperty(propertyName);
@@ -17,9 +32,21 @@ namespace Nz
 		return m_materialSettings.FindValueProperty(propertyName);
 	}
 
-	inline const std::shared_ptr<Material>& MaterialInstance::GetParentMaterial() const
+	inline const std::shared_ptr<const Material>& MaterialInstance::GetParentMaterial() const
 	{
 		return m_parent;
+	}
+
+	inline const std::shared_ptr<Texture>* MaterialInstance::GetTextureProperty(std::string_view propertyName) const
+	{
+		std::size_t propertyIndex = FindTextureProperty(propertyName);
+		if (propertyIndex == MaterialSettings::InvalidPropertyIndex)
+		{
+			NazaraError("material has no texture property named " + std::string(propertyName));
+			return nullptr;
+		}
+
+		return &GetTextureProperty(propertyIndex);
 	}
 
 	inline const std::shared_ptr<Texture>& MaterialInstance::GetTextureProperty(std::size_t textureIndex) const
@@ -34,6 +61,18 @@ namespace Nz
 	{
 		assert(textureIndex < m_textureOverride.size());
 		return m_textureOverride[textureIndex].texture;
+	}
+
+	inline const MaterialSettings::Value* MaterialInstance::GetValueProperty(std::string_view propertyName) const
+	{
+		std::size_t propertyIndex = FindValueProperty(propertyName);
+		if (propertyIndex == MaterialSettings::InvalidPropertyIndex)
+		{
+			NazaraError("material has no value property named " + std::string(propertyName));
+			return nullptr;
+		}
+
+		return &GetValueProperty(propertyIndex);
 	}
 
 	inline const MaterialSettings::Value& MaterialInstance::GetValueProperty(std::size_t valueIndex) const
@@ -53,6 +92,39 @@ namespace Nz
 	inline bool MaterialInstance::HasPass(std::size_t passIndex) const
 	{
 		return passIndex < m_passes.size() && m_passes[passIndex].enabled;
+	}
+
+	inline void MaterialInstance::SetTextureProperty(std::string_view propertyName, std::shared_ptr<Texture> texture)
+	{
+		std::size_t propertyIndex = FindTextureProperty(propertyName);
+		if (propertyIndex == MaterialSettings::InvalidPropertyIndex)
+		{
+			NazaraError("material has no texture property named " + std::string(propertyName));
+			return;
+		}
+
+		return SetTextureProperty(propertyIndex, std::move(texture));
+	}
+
+	inline void MaterialInstance::SetValueProperty(std::string_view propertyName, const MaterialSettings::Value& value)
+	{
+		std::size_t propertyIndex = FindValueProperty(propertyName);
+		if (propertyIndex == MaterialSettings::InvalidPropertyIndex)
+		{
+			NazaraError("material has no value property named " + std::string(propertyName));
+			return;
+		}
+
+		return SetValueProperty(propertyIndex, value);
+	}
+
+	template<typename F>
+	void MaterialInstance::UpdatePassStates(std::size_t passIndex, F&& stateUpdater)
+	{
+		assert(passIndex < m_passes.size());
+		stateUpdater(static_cast<RenderStates&>(m_passes[passIndex].pipelineInfo));
+
+		InvalidatePassPipeline(passIndex);
 	}
 
 	inline void MaterialInstance::InvalidatePassPipeline(std::size_t passIndex)

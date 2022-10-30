@@ -24,7 +24,7 @@ namespace Nz
 		if (propertyIndex == MaterialSettings::InvalidPropertyIndex)
 			return;
 
-		const auto& textureProperty = settings.GetTextureProperty(m_propertyIndex);
+		const auto& textureProperty = settings.GetTextureProperty(propertyIndex);
 
 		m_textureIndex = material.FindTextureByTag(m_samplerTag);
 		if (m_textureIndex == Material::InvalidIndex)

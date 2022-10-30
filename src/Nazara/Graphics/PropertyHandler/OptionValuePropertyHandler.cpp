@@ -25,7 +25,7 @@ namespace Nz
 		if (propertyIndex == MaterialSettings::InvalidPropertyIndex)
 			return;
 
-		const auto& valueProperty = settings.GetValueProperty(m_propertyIndex);
+		const auto& valueProperty = settings.GetValueProperty(propertyIndex);
 
 		if (const ShaderReflection::OptionData* optionData = reflection.GetOptionByName(m_optionName))
 		{
@@ -47,7 +47,13 @@ namespace Nz
 			using T = std::decay_t<decltype(arg)>;
 
 			if constexpr (!std::is_same_v<T, MaterialPropertyNoValue>)
-				materialInstance.UpdateOptionValue(m_optionHash, arg);
+			{
+				constexpr MaterialPropertyType PropertyType = TypeToMaterialPropertyType_v<T>;
+
+				using BufferType = typename MaterialPropertyTypeInfo<PropertyType>::BufferType;
+
+				materialInstance.UpdateOptionValue(m_optionHash, MaterialPropertyTypeInfo<PropertyType>::EncodeToOption(arg));
+			}
 			else
 				throw std::runtime_error("value properties must have a default value");
 		}, value);

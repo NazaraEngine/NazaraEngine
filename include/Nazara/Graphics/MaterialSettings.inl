@@ -36,10 +36,151 @@ namespace Nz
 	template<> struct TypeToMaterialPropertyType<Vector3<Int32>>  { static constexpr MaterialPropertyType PropertyType = MaterialPropertyType::Int3; };
 	template<> struct TypeToMaterialPropertyType<Vector4<Int32>>  { static constexpr MaterialPropertyType PropertyType = MaterialPropertyType::Int4; };
 	
-	template<> struct TypeToMaterialPropertyType<UInt32>          { static constexpr MaterialPropertyType PropertyType = MaterialPropertyType::Int; };
-	template<> struct TypeToMaterialPropertyType<Vector2<UInt32>> { static constexpr MaterialPropertyType PropertyType = MaterialPropertyType::Int2; };
-	template<> struct TypeToMaterialPropertyType<Vector3<UInt32>> { static constexpr MaterialPropertyType PropertyType = MaterialPropertyType::Int3; };
-	template<> struct TypeToMaterialPropertyType<Vector4<UInt32>> { static constexpr MaterialPropertyType PropertyType = MaterialPropertyType::Int4; };
+	template<> struct TypeToMaterialPropertyType<UInt32>          { static constexpr MaterialPropertyType PropertyType = MaterialPropertyType::UInt; };
+	template<> struct TypeToMaterialPropertyType<Vector2<UInt32>> { static constexpr MaterialPropertyType PropertyType = MaterialPropertyType::UInt2; };
+	template<> struct TypeToMaterialPropertyType<Vector3<UInt32>> { static constexpr MaterialPropertyType PropertyType = MaterialPropertyType::UInt3; };
+	template<> struct TypeToMaterialPropertyType<Vector4<UInt32>> { static constexpr MaterialPropertyType PropertyType = MaterialPropertyType::UInt4; };
+
+	template<MaterialPropertyType P>
+	struct MaterialPropertyTypeInfo
+	{
+	};
+
+	template<typename T>
+	struct MaterialPropertyTypeInfoPrimitive
+	{
+		using Type = T;
+		using BufferType = T;
+		using OptionType = T;
+
+		static Type DecodeFromBuffer(BufferType value) { return value; }
+		static Type DecodeFromOption(OptionType value) { return value; }
+		static BufferType EncodeToBuffer(Type value) { return value; }
+		static OptionType EncodeToOption(Type value) { return value; }
+	};
+
+	template<typename T, std::size_t N>
+	struct MaterialPropertyTypeInfoVector;
+
+	template<typename T>
+	struct MaterialPropertyTypeInfoVector<T, 2>
+	{
+		using Type = Vector2<T>;
+		using BufferType = nzsl::Vector2<T>;
+		using OptionType = nzsl::Vector2<T>;
+
+		static Type DecodeFromBuffer(BufferType value) { return { value.x(), value.y() }; }
+		static Type DecodeFromOption(OptionType value) { return { value.x(), value.y() }; }
+		static BufferType EncodeToBuffer(Type value) { return BufferType{ value.x, value.y }; }
+		static OptionType EncodeToOption(Type value) { return OptionType{ value.x, value.y }; }
+	};
+
+	template<typename T>
+	struct MaterialPropertyTypeInfoVector<T, 3>
+	{
+		using Type = Vector3<T>;
+		using BufferType = nzsl::Vector3<T>;
+		using OptionType = nzsl::Vector3<T>;
+
+		static Type DecodeFromBuffer(BufferType value) { return { value.x(), value.y(), value.z() }; }
+		static Type DecodeFromOption(OptionType value) { return { value.x(), value.y(), value.z() }; }
+		static BufferType EncodeToBuffer(Type value) { return BufferType{ value.x, value.y, value.z }; }
+		static OptionType EncodeToOption(Type value) { return OptionType{ value.x, value.y, value.z }; }
+	};
+
+	template<typename T>
+	struct MaterialPropertyTypeInfoVector<T, 4>
+	{
+		using Type = Vector4<T>;
+		using BufferType = nzsl::Vector4<T>;
+		using OptionType = nzsl::Vector4<T>;
+
+		static Type DecodeFromBuffer(BufferType value) { return { value.x(), value.y(), value.z(), value.w() }; }
+		static Type DecodeFromOption(OptionType value) { return { value.x(), value.y(), value.z(), value.w() }; }
+		static BufferType EncodeToBuffer(Type value) { return BufferType{ value.x, value.y, value.z, value.w }; }
+		static OptionType EncodeToOption(Type value) { return OptionType{ value.x, value.y, value.z, value.w }; }
+	};
+
+	template<>
+	struct MaterialPropertyTypeInfo<MaterialPropertyType::Bool>
+	{
+		using Type = bool;
+		using BufferType = UInt32;
+		using OptionType = bool;
+
+		static Type DecodeFromBuffer(BufferType value) { return value != 0; }
+		static Type DecodeFromOption(OptionType value) { return value; }
+		static BufferType EncodeToBuffer(Type value) { return value; }
+		static OptionType EncodeToOption(Type value) { return value; }
+	};
+
+	template<>
+	struct MaterialPropertyTypeInfo<MaterialPropertyType::Bool2>
+	{
+		using Type = Vector2<bool>;
+		using BufferType = nzsl::Vector2u32;
+		using OptionType = nzsl::Vector2<bool>;
+
+		static Type DecodeFromBuffer(BufferType value) { return { value.x() != 0, value.y() != 0 }; }
+		static Type DecodeFromOption(OptionType value) { return { value.x(), value.y() }; }
+		static BufferType EncodeToBuffer(Type value) { return BufferType{ value.x, value.y }; }
+		static OptionType EncodeToOption(Type value) { return OptionType{ value.x, value.y }; }
+	};
+
+	template<>
+	struct MaterialPropertyTypeInfo<MaterialPropertyType::Bool3>
+	{
+		using Type = Vector3<bool>;
+		using BufferType = nzsl::Vector3u32;
+		using OptionType = nzsl::Vector3<bool>;
+
+		static Type DecodeFromBuffer(BufferType value) { return { value.x() != 0, value.y() != 0, value.z() != 0 }; }
+		static Type DecodeFromOption(OptionType value) { return { value.x(), value.y(), value.z() }; }
+		static BufferType EncodeToBuffer(Type value) { return BufferType{ value.x, value.y, value.z }; }
+		static OptionType EncodeToOption(Type value) { return OptionType{ value.x, value.y, value.z }; }
+	};
+
+	template<>
+	struct MaterialPropertyTypeInfo<MaterialPropertyType::Bool4>
+	{
+		using Type = Vector4<bool>;
+		using BufferType = nzsl::Vector4u32;
+		using OptionType = nzsl::Vector4<bool>;
+
+		static Type DecodeFromBuffer(BufferType value) { return { value.x() != 0, value.y() != 0, value.z() != 0, value.w() != 0}; }
+		static Type DecodeFromOption(OptionType value) { return { value.x(), value.y(), value.z(), value.w() }; }
+		static BufferType EncodeToBuffer(Type value) { return BufferType{ value.x, value.y, value.z, value.w }; }
+		static OptionType EncodeToOption(Type value) { return OptionType{ value.x, value.y, value.z, value.w }; }
+	};
+
+	template<>
+	struct MaterialPropertyTypeInfo<MaterialPropertyType::Color>
+	{
+		using Type = Color;
+		using BufferType = nzsl::Vector4f32;
+		using OptionType = nzsl::Vector4f32;
+
+		static Type DecodeFromBuffer(BufferType value) { return { value.x(), value.y(), value.z(), value.w() }; }
+		static Type DecodeFromOption(OptionType value) { return { value.x(), value.y(), value.z(), value.w() }; }
+		static BufferType EncodeToBuffer(Type value) { return BufferType{ value.r, value.g, value.b, value.a }; }
+		static OptionType EncodeToOption(Type value) { return BufferType{ value.r, value.g, value.b, value.a }; }
+	};
+
+	template<> struct MaterialPropertyTypeInfo<MaterialPropertyType::Float>  : MaterialPropertyTypeInfoPrimitive<float> {};
+	template<> struct MaterialPropertyTypeInfo<MaterialPropertyType::Float2> : MaterialPropertyTypeInfoVector<float, 2> {};
+	template<> struct MaterialPropertyTypeInfo<MaterialPropertyType::Float3> : MaterialPropertyTypeInfoVector<float, 3> {};
+	template<> struct MaterialPropertyTypeInfo<MaterialPropertyType::Float4> : MaterialPropertyTypeInfoVector<float, 4> {};
+
+	template<> struct MaterialPropertyTypeInfo<MaterialPropertyType::Int>  : MaterialPropertyTypeInfoPrimitive<Int32> {};
+	template<> struct MaterialPropertyTypeInfo<MaterialPropertyType::Int2> : MaterialPropertyTypeInfoVector<Int32, 2> {};
+	template<> struct MaterialPropertyTypeInfo<MaterialPropertyType::Int3> : MaterialPropertyTypeInfoVector<Int32, 3> {};
+	template<> struct MaterialPropertyTypeInfo<MaterialPropertyType::Int4> : MaterialPropertyTypeInfoVector<Int32, 4> {};
+
+	template<> struct MaterialPropertyTypeInfo<MaterialPropertyType::UInt>  : MaterialPropertyTypeInfoPrimitive<UInt32> {};
+	template<> struct MaterialPropertyTypeInfo<MaterialPropertyType::UInt2> : MaterialPropertyTypeInfoVector<UInt32, 2> {};
+	template<> struct MaterialPropertyTypeInfo<MaterialPropertyType::UInt3> : MaterialPropertyTypeInfoVector<UInt32, 3> {};
+	template<> struct MaterialPropertyTypeInfo<MaterialPropertyType::UInt4> : MaterialPropertyTypeInfoVector<UInt32, 4> {};
+
 
 	inline void MaterialSettings::AddPass(std::size_t passIndex, MaterialPass materialPass)
 	{

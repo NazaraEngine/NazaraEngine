@@ -20,7 +20,7 @@ namespace Nz
 	{
 		const auto& settings = m_parent->GetSettings();
 		m_textureOverride.resize(settings.GetTexturePropertyCount());
-		m_valueOverride.resize(settings.GetTexturePropertyCount());
+		m_valueOverride.resize(settings.GetValuePropertyCount());
 
 		const auto& passSettings = settings.GetPasses();
 		m_passes.resize(passSettings.size());

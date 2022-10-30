@@ -1,10 +1,14 @@
 [nzsl_version("1.0")]
-module BasicMaterialPass;
+module BasicMaterial;
 
 import InstanceData from Engine.InstanceData;
 import SkeletalData from Engine.SkeletalData;
 import ViewerData from Engine.ViewerData;
 
+// Pass-specific options
+option DepthPass: bool = false;
+
+// Material options
 option HasBaseColorTexture: bool = false;
 option HasAlphaTexture: bool = false;
 option AlphaTest: bool = false;
@@ -31,7 +35,7 @@ const HasSkinning = (VertexJointIndicesLoc >= 0 && VertexJointWeightsLoc >= 0);
 [layout(std140)]
 struct MaterialSettings
 {
-	[tag("AlphaThreshold")]
+	[tag("AlphaTestThreshold")]
 	AlphaThreshold: f32,
 
 	[tag("BaseColor")]
@@ -67,7 +71,7 @@ struct FragOut
 	[location(0)] RenderTarget0: vec4[f32]
 }
 
-[entry(frag)]
+[entry(frag), cond(!DepthPass || AlphaTest)]
 fn main(input: FragIn) -> FragOut
 {
 	let color = settings.BaseColor;
@@ -94,6 +98,10 @@ fn main(input: FragIn) -> FragOut
 	output.RenderTarget0 = color;
 	return output;
 }
+
+// Dummy fragment shader (TODO: Add a way to delete stage?)
+[entry(frag), cond(DepthPass && !AlphaTest)]
+fn main() {}
 
 // Vertex stage
 struct VertIn

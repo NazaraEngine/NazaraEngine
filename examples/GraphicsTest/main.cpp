@@ -65,21 +65,10 @@ int main()
 
 	std::shared_ptr<Nz::Texture> diffuseTexture = Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams);
 
-	Nz::MaterialSettings settings;
-	settings.AddValueProperty<Nz::Color>("BaseColor", Nz::Color::White);
-	settings.AddTextureProperty("BaseColorMap", Nz::ImageType::E2D, diffuseTexture);
-	settings.AddPropertyHandler(std::make_unique<Nz::TexturePropertyHandler>("BaseColorMap", "BaseColorMap", "HasBaseColorTexture"));
-	settings.AddPropertyHandler(std::make_unique<Nz::ValuePropertyHandler>("BaseColor"));
-
-	Nz::MaterialPass forwardPass;
-	forwardPass.states.depthBuffer = true;
-	forwardPass.shaders.push_back(std::make_shared<Nz::UberShader>(nzsl::ShaderStageType_All, "BasicMaterialPass"));
-
-	settings.AddPass(Nz::Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex("ForwardPass"), std::move(forwardPass));
-
-	std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>(std::move(settings), "BasicMaterialPass");
+	std::shared_ptr<Nz::Material> material = Nz::Graphics::Instance()->GetDefaultMaterials().basicMaterial;
 
 	std::shared_ptr<Nz::MaterialInstance> materialInstance = std::make_shared<Nz::MaterialInstance>(material);
+	materialInstance->SetTextureProperty(0, diffuseTexture);
 	materialInstance->SetValueProperty(0, Nz::Color::White);
 
 	std::shared_ptr<Nz::MaterialInstance> materialInstance2 = std::make_shared<Nz::MaterialInstance>(material);

@@ -16,7 +16,6 @@
 namespace Nz
 {
 	class AbstractTextDrawer;
-	class MaterialPass;
 
 	class NAZARA_WIDGETS_API ButtonWidget : public BaseWidget
 	{
