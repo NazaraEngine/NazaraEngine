@@ -4,6 +4,7 @@
 
 #include <Nazara/Graphics/SpriteChainRenderer.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
+#include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/RenderSpriteChain.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
@@ -59,11 +60,11 @@ namespace Nz
 	{
 		Graphics* graphics = Graphics::Instance();
 
+		const auto& defaultSampler = graphics->GetSamplerCache().Get({});
+
 		auto& data = static_cast<SpriteChainRendererData&>(rendererData);
 
 		Recti invalidScissorBox(-1, -1, -1, -1);
-
-		const auto& defaultSampler = graphics->GetSamplerCache().Get({});
 
 		std::size_t oldDrawCallCount = data.drawCalls.size();
 
@@ -90,10 +91,10 @@ namespace Nz
 				m_pendingData.currentPipeline = pipeline;
 			}
 
-			if (const MaterialPass* materialPass = &spriteChain.GetMaterialPass(); m_pendingData.currentMaterialPass != materialPass)
+			if (const MaterialInstance* materialInstance = &spriteChain.GetMaterialInstance(); m_pendingData.currentMaterialInstance != materialInstance)
 			{
 				FlushDrawData();
-				m_pendingData.currentMaterialPass = materialPass;
+				m_pendingData.currentMaterialInstance = materialInstance;
 			}
 
 			if (const WorldInstance* worldInstance = &spriteChain.GetWorldInstance(); m_pendingData.currentWorldInstance != worldInstance)
@@ -154,12 +155,13 @@ namespace Nz
 				{
 					m_bindingCache.clear();
 
-					const MaterialPass& materialPass = spriteChain.GetMaterialPass();
-					materialPass.FillShaderBinding(m_bindingCache);
+					const MaterialInstance& materialInstance = spriteChain.GetMaterialInstance();
+					materialInstance.FillShaderBinding(m_bindingCache);
 
-					// Predefined shader bindings
-					const auto& matSettings = materialPass.GetSettings();
-					if (std::size_t bindingIndex = matSettings->GetPredefinedBinding(PredefinedShaderBinding::InstanceDataUbo); bindingIndex != MaterialSettings::InvalidIndex)
+					// Engine shader bindings
+					const Material& material = *materialInstance.GetParentMaterial();
+
+					if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::InstanceDataUbo); bindingIndex != Material::InvalidBindingIndex)
 					{
 						const auto& instanceBuffer = m_pendingData.currentWorldInstance->GetInstanceBuffer();
 
@@ -171,7 +173,7 @@ namespace Nz
 						};
 					}
 
-					if (std::size_t bindingIndex = matSettings->GetPredefinedBinding(PredefinedShaderBinding::LightDataUbo); bindingIndex != MaterialSettings::InvalidIndex && m_pendingData.currentLightData)
+					if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::LightDataUbo); bindingIndex != Material::InvalidBindingIndex && m_pendingData.currentLightData)
 					{
 						auto& bindingEntry = m_bindingCache.emplace_back();
 						bindingEntry.bindingIndex = bindingIndex;
@@ -181,7 +183,7 @@ namespace Nz
 						};
 					}
 
-					if (std::size_t bindingIndex = matSettings->GetPredefinedBinding(PredefinedShaderBinding::ViewerDataUbo); bindingIndex != MaterialSettings::InvalidIndex)
+					if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::ViewerDataUbo); bindingIndex != Material::InvalidBindingIndex)
 					{
 						const auto& viewerBuffer = viewerInstance.GetViewerBuffer();
 
@@ -193,7 +195,7 @@ namespace Nz
 						};
 					}
 
-					if (std::size_t bindingIndex = matSettings->GetPredefinedBinding(PredefinedShaderBinding::OverlayTexture); bindingIndex != MaterialSettings::InvalidIndex)
+					if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::OverlayTexture); bindingIndex != Material::InvalidBindingIndex)
 					{
 						auto& bindingEntry = m_bindingCache.emplace_back();
 						bindingEntry.bindingIndex = bindingIndex;

@@ -192,60 +192,49 @@ int main()
 
 	std::shared_ptr<Nz::GraphicalMesh> coneMeshGfx = Nz::GraphicalMesh::BuildFromMesh(*coneMesh);
 
-	auto customSettings = Nz::BasicMaterial::GetSettings()->GetBuilderData();
-	customSettings.shaders.clear();
-	customSettings.shaders.emplace_back(std::make_shared<Nz::UberShader>(nzsl::ShaderStageType::Fragment, nzsl::ParseFromFile(shaderDir / "deferred_frag.nzsl")));
-	customSettings.shaders.emplace_back(std::make_shared<Nz::UberShader>(nzsl::ShaderStageType::Vertex, nzsl::ParseFromFile(shaderDir / "deferred_vert.nzsl")));
+	Nz::MaterialSettings settings;
+	Nz::PredefinedMaterials::AddBasicSettings(settings);
 
-	auto customMatSettings = std::make_shared<Nz::MaterialSettings>(std::move(customSettings));
+	Nz::MaterialPass customForwardPass;
+	customForwardPass.states.depthBuffer = true;
+	customForwardPass.shaders.emplace_back(std::make_shared<Nz::UberShader>(nzsl::ShaderStageType::Fragment, nzsl::ParseFromFile(shaderDir / "deferred_frag.nzsl")));
+	customForwardPass.shaders.emplace_back(std::make_shared<Nz::UberShader>(nzsl::ShaderStageType::Vertex, nzsl::ParseFromFile(shaderDir / "deferred_vert.nzsl")));
+	settings.AddPass("ForwardPass", customForwardPass);
 
-	std::shared_ptr<Nz::Material> spaceshipMat = std::make_shared<Nz::Material>();
+	Nz::MaterialPass customDepthPass = customForwardPass;
+	customDepthPass.options[Nz::CRC32("DepthPass")] = true;
+	settings.AddPass("DepthPass", customDepthPass);
 
-	std::shared_ptr<Nz::MaterialPass> spaceshipMatPass = std::make_shared<Nz::MaterialPass>(customMatSettings);
-	spaceshipMatPass->EnableDepthBuffer(true);
+	auto deferredMaterial = std::make_shared<Nz::Material>(std::move(settings), "BasicMaterial");
+
+	std::shared_ptr<Nz::MaterialInstance> spaceshipMat = deferredMaterial->CreateInstance();
+	spaceshipMat->SetTextureProperty("AlphaMap", Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
+	spaceshipMat->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
+
+	std::shared_ptr<Nz::MaterialInstance> flareMaterial = deferredMaterial->CreateInstance();
+	flareMaterial->UpdatePassStates("ForwardPass", [](Nz::RenderStates& renderStates)
 	{
-		Nz::BasicMaterial basicMat(*spaceshipMatPass);
-		basicMat.EnableAlphaTest(false);
-		basicMat.SetAlphaMap(Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
-		basicMat.SetBaseColorMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
-	}
-	spaceshipMat->AddPass("ForwardPass", spaceshipMatPass);
+		renderStates.depthClamp = true;
+		renderStates.depthWrite = false;
+		renderStates.blending = true;
+		renderStates.blend.modeColor = Nz::BlendEquation::Add;
+		renderStates.blend.modeAlpha = Nz::BlendEquation::Add;
+		renderStates.blend.srcColor = Nz::BlendFunc::SrcAlpha;
+		renderStates.blend.dstColor = Nz::BlendFunc::InvSrcAlpha;
+		renderStates.blend.srcAlpha = Nz::BlendFunc::One;
+		renderStates.blend.dstAlpha = Nz::BlendFunc::One;
+		return true;
+	});
+	flareMaterial->UpdatePassFlags("ForwardPass", Nz::MaterialPassFlag::SortByDistance);
+	flareMaterial->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(resourceDir / "flare1.png", texParams));
 
-	std::shared_ptr<Nz::Material> flareMaterial = std::make_shared<Nz::Material>();
-	std::shared_ptr<Nz::MaterialPass> flareMaterialPass;
-	{
-		flareMaterialPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
-		flareMaterialPass->EnableDepthBuffer(true);
-		flareMaterialPass->EnableDepthWrite(false);
-		flareMaterialPass->EnableDepthClamp(true);
+	Nz::TextureSamplerInfo planeSampler;
+	planeSampler.anisotropyLevel = 16;
+	planeSampler.wrapModeU = Nz::SamplerWrap::Repeat;
+	planeSampler.wrapModeV = Nz::SamplerWrap::Repeat;
 
-		flareMaterialPass->EnableFlag(Nz::MaterialPassFlag::SortByDistance);
-
-		flareMaterialPass->EnableBlending(true);
-		flareMaterialPass->SetBlendEquation(Nz::BlendEquation::Add, Nz::BlendEquation::Add);
-		flareMaterialPass->SetBlendFunc(Nz::BlendFunc::SrcAlpha, Nz::BlendFunc::InvSrcAlpha, Nz::BlendFunc::One, Nz::BlendFunc::Zero);
-
-		Nz::BasicMaterial Osef(*flareMaterialPass);
-		Osef.SetBaseColorMap(Nz::Texture::LoadFromFile(resourceDir / "flare1.png", texParams));
-
-		flareMaterial->AddPass("ForwardPass", flareMaterialPass);
-	}
-
-	std::shared_ptr<Nz::Material> planeMat = std::make_shared<Nz::Material>();
-
-	std::shared_ptr<Nz::MaterialPass> planeMatPass = std::make_shared<Nz::MaterialPass>(customMatSettings);
-	planeMatPass->EnableDepthBuffer(true);
-	{
-		Nz::BasicMaterial basicMat(*planeMatPass);
-		basicMat.SetBaseColorMap(Nz::Texture::LoadFromFile(resourceDir / "dev_grey.png", texParams));
-
-		Nz::TextureSamplerInfo planeSampler;
-		planeSampler.anisotropyLevel = 16;
-		planeSampler.wrapModeU = Nz::SamplerWrap::Repeat;
-		planeSampler.wrapModeV = Nz::SamplerWrap::Repeat;
-		basicMat.SetBaseColorSampler(planeSampler);
-	}
-	planeMat->AddPass("ForwardPass", planeMatPass);
+	std::shared_ptr<Nz::MaterialInstance> planeMat = deferredMaterial->CreateInstance();
+	planeMat->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(resourceDir / "dev_grey.png", texParams), planeSampler);
 
 	Nz::Model spaceshipModel(std::move(gfxMesh), spaceship->GetAABB());
 	for (std::size_t i = 0; i < spaceshipModel.GetSubMeshCount(); ++i)
@@ -537,7 +526,7 @@ int main()
 	std::shared_ptr<Nz::ShaderBinding> godRaysShaderBinding = godraysPipelineInfo.pipelineLayout->AllocateShaderBinding(0);
 
 	/*
-			uniformExposure = 0.0034f;
+		uniformExposure = 0.0034f;
 		uniformDecay = 1.0f;
 		uniformDensity = 0.84f;
 		uniformWeight = 5.65f;
@@ -588,7 +577,7 @@ int main()
 		meshPrimitiveParams.vertexDeclaration
 	});
 
-	stencilPipelineInfo.colorWrite = false;
+	stencilPipelineInfo.colorWriteMask = 0;
 	stencilPipelineInfo.depthBuffer = true;
 	stencilPipelineInfo.depthWrite = false;
 	stencilPipelineInfo.faceCulling = false;
@@ -1466,15 +1455,15 @@ int main()
 			{
 				builder.PreTransferBarrier();
 
-				modelInstance1.UpdateBuffers(uploadPool, builder);
-				modelInstance2.UpdateBuffers(uploadPool, builder);
-				planeInstance.UpdateBuffers(uploadPool, builder);
+				modelInstance1.OnTransfer(frame, builder);
+				modelInstance2.OnTransfer(frame, builder);
+				planeInstance.OnTransfer(frame, builder);
 
 				Nz::EulerAnglesf flareRotation(0.f, 0.f, elapsedTime * 10.f);
 				flareInstance.UpdateWorldMatrix(Nz::Matrix4f::Transform(viewerPos + flarePosition, flareRotation));
-				flareInstance.UpdateBuffers(uploadPool, builder);
+				flareInstance.OnTransfer(frame, builder);
 
-				viewerInstance.UpdateBuffers(uploadPool, builder);
+				viewerInstance.OnTransfer(frame, builder);
 
 				// Update light buffer
 				if (!spotLights.empty() && (lightUpdate || lightAnimation))
@@ -1527,9 +1516,9 @@ int main()
 					builder.CopyBuffer(lightScatteringAllocation, godRaysUBO.get());
 				}
 
-				spaceshipMatPass->Update(frame, builder);
-				planeMatPass->Update(frame, builder);
-				flareMaterialPass->Update(frame, builder);
+				spaceshipMat->OnTransfer(frame, builder);
+				planeMat->OnTransfer(frame, builder);
+				flareMaterial->OnTransfer(frame, builder);
 
 				builder.PostTransferBarrier();
 			}

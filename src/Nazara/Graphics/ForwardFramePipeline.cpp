@@ -43,21 +43,6 @@ namespace Nz
 		m_viewerPool.Clear();
 	}
 
-	void ForwardFramePipeline::InvalidateSkeletalInstance(std::size_t skeletalInstanceIndex)
-	{
-		m_invalidatedSkeletonInstances.Set(skeletalInstanceIndex);
-	}
-
-	void ForwardFramePipeline::InvalidateViewer(std::size_t viewerIndex)
-	{
-		m_invalidatedViewerInstances.Set(viewerIndex);
-	}
-
-	void ForwardFramePipeline::InvalidateWorldInstance(std::size_t worldInstanceIndex)
-	{
-		m_invalidatedWorldInstances.Set(worldInstanceIndex);
-	}
-
 	std::size_t ForwardFramePipeline::RegisterLight(std::shared_ptr<Light> light, UInt32 renderMask)
 	{
 		std::size_t lightIndex;
@@ -77,23 +62,6 @@ namespace Nz
 		});
 
 		return lightIndex;
-	}
-
-	void ForwardFramePipeline::RegisterMaterialPass(MaterialPass* materialPass)
-	{
-		auto it = m_activeMaterialPasses.find(materialPass);
-		if (it == m_activeMaterialPasses.end())
-		{
-			it = m_activeMaterialPasses.emplace(materialPass, MaterialPassData{}).first;
-			it->second.onMaterialPassInvalided.Connect(materialPass->OnMaterialPassInvalidated, [=](const MaterialPass* /*material*/)
-			{
-				m_invalidatedMaterialPasses.insert(materialPass);
-			});
-
-			m_invalidatedMaterialPasses.insert(materialPass);
-		}
-
-		it->second.usedCount++;
 	}
 	
 	std::size_t ForwardFramePipeline::RegisterRenderable(std::size_t worldInstanceIndex, std::size_t skeletonInstanceIndex, const InstancedRenderable* instancedRenderable, UInt32 renderMask, const Recti& scissorBox)
@@ -123,28 +91,32 @@ namespace Nz
 			}
 		});
 
-		renderableData->onMaterialInvalidated.Connect(instancedRenderable->OnMaterialInvalidated, [this](InstancedRenderable* instancedRenderable, std::size_t materialIndex, const std::shared_ptr<Material>& newMaterial)
+		renderableData->onMaterialInvalidated.Connect(instancedRenderable->OnMaterialInvalidated, [this](InstancedRenderable* instancedRenderable, std::size_t materialIndex, const std::shared_ptr<MaterialInstance>& newMaterial)
 		{
 			if (newMaterial)
 			{
+				RegisterMaterialInstance(newMaterial.get());
+
 				for (auto& viewerData : m_viewerPool)
 				{
 					if (viewerData.depthPrepass)
-						viewerData.depthPrepass->RegisterMaterial(*newMaterial);
+						viewerData.depthPrepass->RegisterMaterialInstance(*newMaterial);
 
-					viewerData.forwardPass->RegisterMaterial(*newMaterial);
+					viewerData.forwardPass->RegisterMaterialInstance(*newMaterial);
 				}
 			}
 
 			const auto& prevMaterial = instancedRenderable->GetMaterial(materialIndex);
 			if (prevMaterial)
 			{
+				UnregisterMaterialInstance(prevMaterial.get());
+
 				for (auto& viewerData : m_viewerPool)
 				{
 					if (viewerData.depthPrepass)
-						viewerData.depthPrepass->UnregisterMaterial(*prevMaterial);
+						viewerData.depthPrepass->UnregisterMaterialInstance(*prevMaterial);
 
-					viewerData.forwardPass->UnregisterMaterial(*prevMaterial);
+					viewerData.forwardPass->UnregisterMaterialInstance(*prevMaterial);
 				}
 			}
 		});
@@ -152,14 +124,16 @@ namespace Nz
 		std::size_t matCount = instancedRenderable->GetMaterialCount();
 		for (std::size_t i = 0; i < matCount; ++i)
 		{
-			if (Material* mat = instancedRenderable->GetMaterial(i).get())
+			if (MaterialInstance* mat = instancedRenderable->GetMaterial(i).get())
 			{
+				RegisterMaterialInstance(mat);
+
 				for (auto& viewerData : m_viewerPool)
 				{
 					if (viewerData.depthPrepass)
-						viewerData.depthPrepass->RegisterMaterial(*mat);
+						viewerData.depthPrepass->RegisterMaterialInstance(*mat);
 
-					viewerData.forwardPass->RegisterMaterial(*mat);
+					viewerData.forwardPass->RegisterMaterialInstance(*mat);
 				}
 			}
 		}
@@ -170,9 +144,13 @@ namespace Nz
 	std::size_t ForwardFramePipeline::RegisterSkeleton(SkeletonInstancePtr skeletonInstance)
 	{
 		std::size_t skeletonInstanceIndex;
-		m_skeletonInstances.Allocate(skeletonInstanceIndex, std::move(skeletonInstance));
-
-		m_invalidatedSkeletonInstances.UnboundedSet(skeletonInstanceIndex);
+		SkeletonInstanceData& skeletonInstanceData = *m_skeletonInstances.Allocate(skeletonInstanceIndex);
+		skeletonInstanceData.skeleton = std::move(skeletonInstance);
+		skeletonInstanceData.onTransferRequired.Connect(skeletonInstanceData.skeleton->OnTransferRequired, [this](TransferInterface* transferInterface)
+		{
+			m_transferSet.insert(transferInterface);
+		});
+		m_transferSet.insert(skeletonInstanceData.skeleton.get());
 
 		return skeletonInstanceIndex;
 	}
@@ -186,8 +164,13 @@ namespace Nz
 		viewerData.depthPrepass = std::make_unique<DepthPipelinePass>(*this, m_elementRegistry, viewerInstance);
 		viewerData.forwardPass = std::make_unique<ForwardPipelinePass>(*this, m_elementRegistry, viewerInstance);
 		viewerData.viewer = viewerInstance;
+		viewerData.onTransferRequired.Connect(viewerInstance->GetViewerInstance().OnTransferRequired, [this](TransferInterface* transferInterface)
+		{
+			m_transferSet.insert(transferInterface);
+		});
 
-		m_invalidatedViewerInstances.UnboundedSet(viewerIndex);
+		m_transferSet.insert(&viewerInstance->GetViewerInstance());
+
 		m_rebuildFrameGraph = true;
 
 		return viewerIndex;
@@ -196,9 +179,14 @@ namespace Nz
 	std::size_t ForwardFramePipeline::RegisterWorldInstance(WorldInstancePtr worldInstance)
 	{
 		std::size_t worldInstanceIndex;
-		m_worldInstances.Allocate(worldInstanceIndex, std::move(worldInstance));
+		WorldInstanceData& worldInstanceData = *m_worldInstances.Allocate(worldInstanceIndex);
+		worldInstanceData.worldInstance = std::move(worldInstance);
+		worldInstanceData.onTransferRequired.Connect(worldInstanceData.worldInstance->OnTransferRequired, [this](TransferInterface* transferInterface)
+		{
+			m_transferSet.insert(transferInterface);
+		});
 
-		m_invalidatedWorldInstances.UnboundedSet(worldInstanceIndex);
+		m_transferSet.insert(worldInstanceData.worldInstance.get());
 
 		return worldInstanceIndex;
 	}
@@ -238,41 +226,17 @@ namespace Nz
 		}
 
 		// Update UBOs and materials
-		UploadPool& uploadPool = renderFrame.GetUploadPool();
-
 		renderFrame.Execute([&](CommandBufferBuilder& builder)
 		{
 			builder.BeginDebugRegion("CPU to GPU transfers", Color::Yellow);
 			{
 				builder.PreTransferBarrier();
 
+				for (TransferInterface* transferInterface : m_transferSet)
+					transferInterface->OnTransfer(renderFrame, builder);
+				m_transferSet.clear();
+
 				OnTransfer(this, renderFrame, builder);
-
-				for (std::size_t skeletonIndex = m_invalidatedSkeletonInstances.FindFirst(); skeletonIndex != m_invalidatedSkeletonInstances.npos; skeletonIndex = m_invalidatedSkeletonInstances.FindNext(skeletonIndex))
-				{
-					SkeletonInstancePtr& skeletonInstance = *m_skeletonInstances.RetrieveFromIndex(skeletonIndex);
-					skeletonInstance->UpdateBuffers(uploadPool, builder);
-				}
-				m_invalidatedSkeletonInstances.Reset();
-
-				for (std::size_t viewerIndex = m_invalidatedViewerInstances.FindFirst(); viewerIndex != m_invalidatedViewerInstances.npos; viewerIndex = m_invalidatedViewerInstances.FindNext(viewerIndex))
-				{
-					ViewerData* viewerData = m_viewerPool.RetrieveFromIndex(viewerIndex);
-					viewerData->viewer->GetViewerInstance().UpdateBuffers(uploadPool, builder);
-				}
-				m_invalidatedViewerInstances.Reset();
-
-				for (std::size_t worldInstanceIndex = m_invalidatedWorldInstances.FindFirst(); worldInstanceIndex != m_invalidatedWorldInstances.npos; worldInstanceIndex = m_invalidatedWorldInstances.FindNext(worldInstanceIndex))
-				{
-					WorldInstancePtr& worldInstance = *m_worldInstances.RetrieveFromIndex(worldInstanceIndex);
-					worldInstance->UpdateBuffers(uploadPool, builder);
-				}
-				m_invalidatedWorldInstances.Reset();
-
-				for (MaterialPass* materialPass : m_invalidatedMaterialPasses)
-					materialPass->Update(renderFrame, builder);
-
-				m_invalidatedMaterialPasses.clear();
 
 				builder.PostTransferBarrier();
 			}
@@ -302,7 +266,7 @@ namespace Nz
 				if ((renderMask & renderableData.renderMask) == 0)
 					continue;
 
-				WorldInstancePtr& worldInstance = *m_worldInstances.RetrieveFromIndex(renderableData.worldInstanceIndex);
+				WorldInstancePtr& worldInstance = m_worldInstances.RetrieveFromIndex(renderableData.worldInstanceIndex)->worldInstance;
 
 				// Get global AABB
 				BoundingVolumef boundingVolume(renderableData.renderable->GetAABB());
@@ -317,7 +281,7 @@ namespace Nz
 				visibleRenderable.worldInstance = worldInstance.get();
 
 				if (renderableData.skeletonInstanceIndex != NoSkeletonInstance)
-					visibleRenderable.skeletonInstance = m_skeletonInstances.RetrieveFromIndex(renderableData.skeletonInstanceIndex)->get();
+					visibleRenderable.skeletonInstance = m_skeletonInstances.RetrieveFromIndex(renderableData.skeletonInstanceIndex)->skeleton.get();
 				else
 					visibleRenderable.skeletonInstance = nullptr;
 
@@ -436,17 +400,6 @@ namespace Nz
 		m_lightPool.Free(lightIndex);
 	}
 
-	void ForwardFramePipeline::UnregisterMaterialPass(MaterialPass* materialPass)
-	{
-		auto it = m_activeMaterialPasses.find(materialPass);
-		assert(it != m_activeMaterialPasses.end());
-
-		MaterialPassData& materialData = it->second;
-		assert(materialData.usedCount > 0);
-		if (--materialData.usedCount == 0)
-			m_activeMaterialPasses.erase(materialPass);
-	}
-
 	void ForwardFramePipeline::UnregisterRenderable(std::size_t renderableIndex)
 	{
 		RenderableData& renderable = *m_renderablePool.RetrieveFromIndex(renderableIndex);
@@ -457,10 +410,12 @@ namespace Nz
 			for (auto& viewerData : m_viewerPool)
 			{
 				const auto& material = renderable.renderable->GetMaterial(i);
-				if (viewerData.depthPrepass)
-					viewerData.depthPrepass->UnregisterMaterial(*material);
+				UnregisterMaterialInstance(material.get());
 
-				viewerData.forwardPass->UnregisterMaterial(*material);
+				if (viewerData.depthPrepass)
+					viewerData.depthPrepass->UnregisterMaterialInstance(*material);
+
+				viewerData.forwardPass->UnregisterMaterialInstance(*material);
 			}
 		}
 
@@ -622,5 +577,32 @@ namespace Nz
 		}
 
 		return frameGraph.Bake();
+	}
+
+	void ForwardFramePipeline::RegisterMaterialInstance(MaterialInstance* materialInstance)
+	{
+		auto it = m_materialInstances.find(materialInstance);
+		if (it == m_materialInstances.end())
+		{
+			it = m_materialInstances.emplace(materialInstance, MaterialInstanceData{}).first;
+			it->second.onTransferRequired.Connect(materialInstance->OnTransferRequired, [this](TransferInterface* transferInterface)
+			{
+				m_transferSet.insert(transferInterface);
+			});
+			m_transferSet.insert(materialInstance);
+		}
+
+		it->second.usedCount++;
+	}
+
+	void ForwardFramePipeline::UnregisterMaterialInstance(MaterialInstance* materialInstance)
+	{
+		auto it = m_materialInstances.find(materialInstance);
+		assert(it != m_materialInstances.end());
+
+		MaterialInstanceData& materialInstanceData = it->second;
+		assert(materialInstanceData.usedCount > 0);
+		if (--materialInstanceData.usedCount == 0)
+			m_materialInstances.erase(it);
 	}
 }

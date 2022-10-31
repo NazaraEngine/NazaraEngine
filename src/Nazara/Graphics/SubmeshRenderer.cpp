@@ -4,6 +4,7 @@
 
 #include <Nazara/Graphics/SubmeshRenderer.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
+#include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/RenderSubmesh.hpp>
 #include <Nazara/Graphics/SkeletonInstance.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
@@ -33,7 +34,7 @@ namespace Nz
 
 		const RenderBuffer* currentIndexBuffer = nullptr;
 		const RenderBuffer* currentVertexBuffer = nullptr;
-		const MaterialPass* currentMaterialPass = nullptr;
+		const MaterialInstance* currentMaterialInstance = nullptr;
 		const RenderPipeline* currentPipeline = nullptr;
 		const ShaderBinding* currentShaderBinding = nullptr;
 		const SkeletonInstance* currentSkeletonInstance = nullptr;
@@ -70,10 +71,10 @@ namespace Nz
 				currentPipeline = pipeline;
 			}
 
-			if (const MaterialPass* materialPass = &submesh.GetMaterialPass(); currentMaterialPass != materialPass)
+			if (const MaterialInstance* materialInstance = &submesh.GetMaterialInstance(); currentMaterialInstance != materialInstance)
 			{
 				FlushDrawData();
-				currentMaterialPass = materialPass;
+				currentMaterialInstance = materialInstance;
 			}
 
 			if (const RenderBuffer* indexBuffer = submesh.GetIndexBuffer(); currentIndexBuffer != indexBuffer)
@@ -118,14 +119,15 @@ namespace Nz
 
 			if (!currentShaderBinding)
 			{
-				assert(currentMaterialPass);
+				assert(currentMaterialInstance);
 
 				m_bindingCache.clear();
-				currentMaterialPass->FillShaderBinding(m_bindingCache);
+				currentMaterialInstance->FillShaderBinding(m_bindingCache);
+
+				const Material& material = *currentMaterialInstance->GetParentMaterial();
 
 				// Predefined shader bindings
-				const auto& matSettings = currentMaterialPass->GetSettings();
-				if (std::size_t bindingIndex = matSettings->GetPredefinedBinding(PredefinedShaderBinding::InstanceDataUbo); bindingIndex != MaterialSettings::InvalidIndex)
+				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::InstanceDataUbo); bindingIndex != Material::InvalidBindingIndex)
 				{
 					assert(currentWorldInstance);
 					const auto& instanceBuffer = currentWorldInstance->GetInstanceBuffer();
@@ -138,7 +140,7 @@ namespace Nz
 					};
 				}
 
-				if (std::size_t bindingIndex = matSettings->GetPredefinedBinding(PredefinedShaderBinding::LightDataUbo); bindingIndex != MaterialSettings::InvalidIndex && currentLightData)
+				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::LightDataUbo); bindingIndex != Material::InvalidBindingIndex && currentLightData)
 				{
 					auto& bindingEntry = m_bindingCache.emplace_back();
 					bindingEntry.bindingIndex = bindingIndex;
@@ -148,7 +150,7 @@ namespace Nz
 					};
 				}
 
-				if (std::size_t bindingIndex = matSettings->GetPredefinedBinding(PredefinedShaderBinding::SkeletalDataUbo); bindingIndex != MaterialSettings::InvalidIndex && currentSkeletonInstance)
+				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::SkeletalDataUbo); bindingIndex != Material::InvalidBindingIndex && currentSkeletonInstance)
 				{
 					const auto& skeletalBuffer = currentSkeletonInstance->GetSkeletalBuffer();
 
@@ -160,7 +162,7 @@ namespace Nz
 					};
 				}
 
-				if (std::size_t bindingIndex = matSettings->GetPredefinedBinding(PredefinedShaderBinding::ViewerDataUbo); bindingIndex != MaterialSettings::InvalidIndex)
+				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::ViewerDataUbo); bindingIndex != Material::InvalidBindingIndex)
 				{
 					const auto& viewerBuffer = viewerInstance.GetViewerBuffer();
 
@@ -172,7 +174,7 @@ namespace Nz
 					};
 				}
 
-				if (std::size_t bindingIndex = matSettings->GetPredefinedBinding(PredefinedShaderBinding::OverlayTexture); bindingIndex != MaterialSettings::InvalidIndex)
+				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::OverlayTexture); bindingIndex != Material::InvalidBindingIndex)
 				{
 					auto& bindingEntry = m_bindingCache.emplace_back();
 					bindingEntry.bindingIndex = bindingIndex;

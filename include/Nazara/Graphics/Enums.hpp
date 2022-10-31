@@ -41,6 +41,27 @@ namespace Nz
 		Volume
 	};
 
+	enum class MaterialPropertyType
+	{
+		Bool,
+		Bool2,
+		Bool3,
+		Bool4,
+		Color,
+		Float,
+		Float2,
+		Float3,
+		Float4,
+		Int,
+		Int2,
+		Int3,
+		Int4,
+		UInt,
+		UInt2,
+		UInt3,
+		UInt4
+	};
+
 	enum class MaterialLightingType
 	{
 		None,
@@ -69,7 +90,7 @@ namespace Nz
 		Perspective
 	};
 
-	enum class PredefinedShaderBinding
+	enum class EngineShaderBinding
 	{
 		InstanceDataUbo,
 		LightDataUbo,
@@ -80,7 +101,7 @@ namespace Nz
 		Max = ViewerDataUbo
 	};
 
-	constexpr std::size_t PredefinedShaderBindingCount = static_cast<std::size_t>(PredefinedShaderBinding::Max) + 1;
+	constexpr std::size_t PredefinedShaderBindingCount = static_cast<std::size_t>(EngineShaderBinding::Max) + 1;
 }
 
 #endif // NAZARA_GRAPHICS_ENUMS_HPP

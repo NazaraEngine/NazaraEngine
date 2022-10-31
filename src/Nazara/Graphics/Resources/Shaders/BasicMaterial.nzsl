@@ -5,6 +5,10 @@ import InstanceData from Engine.InstanceData;
 import SkeletalData from Engine.SkeletalData;
 import ViewerData from Engine.ViewerData;
 
+// Pass-specific options
+option DepthPass: bool = false;
+
+// Material options
 option HasBaseColorTexture: bool = false;
 option HasAlphaTexture: bool = false;
 option AlphaTest: bool = false;
@@ -16,34 +20,43 @@ option BillboardColorLocation: i32 = -1;
 option BillboardSizeRotLocation: i32 = -1;
 
 // Vertex declaration related options
-option ColorLocation: i32 = -1;
-option PosLocation: i32;
-option UvLocation: i32 = -1;
+option VertexColorLoc: i32 = -1;
+option VertexPositionLoc: i32;
+option VertexUvLoc: i32 = -1;
 
-option JointIndicesLocation: i32 = -1;
-option JointWeightsLocation: i32 = -1;
+option VertexJointIndicesLoc: i32 = -1;
+option VertexJointWeightsLoc: i32 = -1;
 
-const HasVertexColor = (ColorLocation >= 0);
+const HasVertexColor = (VertexColorLoc >= 0);
 const HasColor = (HasVertexColor || Billboard);
-const HasUV = (UvLocation >= 0);
-const HasSkinning = (JointIndicesLocation >= 0 && JointWeightsLocation >= 0);
+const HasUV = (VertexUvLoc >= 0);
+const HasSkinning = (VertexJointIndicesLoc >= 0 && VertexJointWeightsLoc >= 0);
 
 [layout(std140)]
 struct MaterialSettings
 {
+	[tag("AlphaTestThreshold")]
 	AlphaThreshold: f32,
+
+	[tag("BaseColor")]
 	BaseColor: vec4[f32]
 }
 
+[tag("Material")]
 external
 {
-	[binding(0)] settings: uniform[MaterialSettings],
-	[binding(1)] MaterialBaseColorMap: sampler2D[f32],
-	[binding(2)] MaterialAlphaMap: sampler2D[f32],
-	[binding(3)] TextureOverlay: sampler2D[f32],
-	[binding(4)] instanceData: uniform[InstanceData],
-	[binding(5)] viewerData: uniform[ViewerData],
-	[binding(6)] skeletalData: uniform[SkeletalData]
+	[tag("Settings"), binding(0)] settings: uniform[MaterialSettings],
+	[tag("BaseColorMap"), binding(1)] MaterialBaseColorMap: sampler2D[f32],
+	[tag("AlphaMap"), binding(2)] MaterialAlphaMap: sampler2D[f32],
+}
+
+[tag("Engine")]
+external
+{
+	[tag("TextureOverlay"), binding(3)] TextureOverlay: sampler2D[f32],
+	[tag("InstanceData"), binding(4)] instanceData: uniform[InstanceData],
+	[tag("ViewerData"), binding(5)] viewerData: uniform[ViewerData],
+	[tag("SkeletalData"), binding(6)] skeletalData: uniform[SkeletalData]
 }
 
 // Fragment stage
@@ -58,7 +71,7 @@ struct FragOut
 	[location(0)] RenderTarget0: vec4[f32]
 }
 
-[entry(frag)]
+[entry(frag), cond(!DepthPass || AlphaTest)]
 fn main(input: FragIn) -> FragOut
 {
 	let color = settings.BaseColor;
@@ -86,22 +99,26 @@ fn main(input: FragIn) -> FragOut
 	return output;
 }
 
+// Dummy fragment shader (TODO: Add a way to delete stage?)
+[entry(frag), cond(DepthPass && !AlphaTest)]
+fn main() {}
+
 // Vertex stage
 struct VertIn
 {
-	[location(PosLocation)] 
+	[location(VertexPositionLoc)] 
 	pos: vec3[f32],
 
-	[cond(HasVertexColor), location(ColorLocation)] 
+	[cond(HasVertexColor), location(VertexColorLoc)] 
 	color: vec4[f32],
 
-	[cond(HasUV), location(UvLocation)] 
+	[cond(HasUV), location(VertexUvLoc)] 
 	uv: vec2[f32],
 
-	[cond(HasSkinning), location(JointIndicesLocation)]
+	[cond(HasSkinning), location(VertexJointIndicesLoc)]
 	jointIndices: vec4[i32],
 
-	[cond(HasSkinning), location(JointWeightsLocation)]
+	[cond(HasSkinning), location(VertexJointWeightsLoc)]
 	jointWeights: vec4[f32],
 
 	[cond(Billboard), location(BillboardCenterLocation)]

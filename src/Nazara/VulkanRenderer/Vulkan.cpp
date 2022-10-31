@@ -60,6 +60,7 @@ namespace Nz
 
 		deviceInfo.limits.maxStorageBufferSize = physDevice.properties.limits.maxStorageBufferRange;
 		deviceInfo.limits.maxUniformBufferSize = physDevice.properties.limits.maxUniformBufferRange;
+		deviceInfo.limits.minStorageBufferOffsetAlignment = physDevice.properties.limits.minStorageBufferOffsetAlignment;
 		deviceInfo.limits.minUniformBufferOffsetAlignment = physDevice.properties.limits.minUniformBufferOffsetAlignment;
 
 		switch (physDevice.properties.deviceType)

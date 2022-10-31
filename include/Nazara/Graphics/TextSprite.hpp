@@ -23,7 +23,7 @@ namespace Nz
 	class NAZARA_GRAPHICS_API TextSprite : public InstancedRenderable
 	{
 		public:
-			TextSprite(std::shared_ptr<Material> material);
+			TextSprite(std::shared_ptr<MaterialInstance> material = {});
 			TextSprite(const TextSprite&) = delete;
 			TextSprite(TextSprite&&) noexcept = default;
 			~TextSprite() = default;
@@ -32,10 +32,10 @@ namespace Nz
 
 			inline void Clear();
 
-			const std::shared_ptr<Material>& GetMaterial(std::size_t i = 0) const override;
+			const std::shared_ptr<MaterialInstance>& GetMaterial(std::size_t i = 0) const override;
 			std::size_t GetMaterialCount() const override;
 
-			inline void SetMaterial(std::shared_ptr<Material> material);
+			inline void SetMaterial(std::shared_ptr<MaterialInstance> material);
 
 			void Update(const AbstractTextDrawer& drawer, float scale = 1.f);
 
@@ -92,7 +92,7 @@ namespace Nz
 
 			std::unordered_map<const AbstractAtlas*, AtlasSlots> m_atlases;
 			mutable std::unordered_map<RenderKey, RenderIndices, HashRenderKey> m_renderInfos;
-			std::shared_ptr<Material> m_material;
+			std::shared_ptr<MaterialInstance> m_material;
 			std::vector<RenderData> m_data;
 			std::vector<VertexStruct_XYZ_Color_UV> m_vertices;
 			Recti m_scissorBox;

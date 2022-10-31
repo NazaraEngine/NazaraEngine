@@ -4,7 +4,8 @@
 
 #include <Nazara/Graphics/TextSprite.hpp>
 #include <Nazara/Graphics/ElementRendererRegistry.hpp>
-#include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/Graphics.hpp>
+#include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/RenderSpriteChain.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
 #include <Nazara/Utility/AbstractTextDrawer.hpp>
@@ -13,17 +14,21 @@
 
 namespace Nz
 {
-	TextSprite::TextSprite(std::shared_ptr<Material> material) :
+	TextSprite::TextSprite(std::shared_ptr<MaterialInstance> material) :
 	InstancedRenderable(),
 	m_material(std::move(material))
 	{
+		if (!m_material)
+			m_material = Graphics::Instance()->GetDefaultMaterials().basicTransparent->Clone();
 	}
 
 	void TextSprite::BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, std::vector<RenderElementOwner>& elements) const
 	{
-		const auto& materialPass = m_material->GetPass(passIndex);
-		if (!materialPass)
+		const auto& materialPipeline = m_material->GetPipeline(passIndex);
+		if (!materialPipeline)
 			return;
+
+		MaterialPassFlags passFlags = m_material->GetPassFlags(passIndex);
 
 		const std::shared_ptr<VertexDeclaration>& vertexDeclaration = VertexDeclaration::Get(VertexLayout::XYZ_Color_UV);
 
@@ -31,7 +36,7 @@ namespace Nz
 			0,
 			vertexDeclaration
 		};
-		const auto& renderPipeline = materialPass->GetPipeline()->GetRenderPipeline(&vertexBufferData, 1);
+		const auto& renderPipeline = materialPipeline->GetRenderPipeline(&vertexBufferData, 1);
 
 		for (auto& pair : m_renderInfos)
 		{
@@ -39,11 +44,11 @@ namespace Nz
 			RenderIndices& indices = pair.second;
 
 			if (indices.count > 0)
-				elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer(), materialPass, renderPipeline, *elementData.worldInstance, vertexDeclaration, key.texture->shared_from_this(), indices.count, &m_vertices[indices.first * 4], *elementData.scissorBox));
+				elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer(), m_material, passFlags, renderPipeline, *elementData.worldInstance, vertexDeclaration, key.texture->shared_from_this(), indices.count, &m_vertices[indices.first * 4], *elementData.scissorBox));
 		}
 	}
 
-	const std::shared_ptr<Material>& TextSprite::GetMaterial(std::size_t i) const
+	const std::shared_ptr<MaterialInstance>& TextSprite::GetMaterial(std::size_t i) const
 	{
 		assert(i == 0);
 		NazaraUnused(i);

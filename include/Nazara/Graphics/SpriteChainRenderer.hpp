@@ -19,7 +19,6 @@
 
 namespace Nz
 {
-	class MaterialPass;
 	class RenderDevice;
 	class RenderPipeline;
 	class ShaderBinding;
@@ -85,7 +84,7 @@ namespace Nz
 				UInt8* currentAllocationMemPtr = nullptr;
 				const VertexDeclaration* currentVertexDeclaration = nullptr;
 				RenderBuffer* currentVertexBuffer = nullptr;
-				const MaterialPass* currentMaterialPass = nullptr;
+				const MaterialInstance* currentMaterialInstance = nullptr;
 				const RenderPipeline* currentPipeline = nullptr;
 				const ShaderBinding* currentShaderBinding = nullptr;
 				const Texture* currentTextureOverlay = nullptr;

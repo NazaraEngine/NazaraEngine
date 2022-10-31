@@ -10,7 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
-#include <Nazara/Graphics/MaterialSettings.hpp>
+#include <Nazara/Graphics/UberShader.hpp>
 #include <Nazara/Renderer/RenderPipeline.hpp>
 #include <NZSL/Ast/ConstantValue.hpp>
 #include <array>
@@ -33,10 +33,9 @@ namespace Nz
 			std::shared_ptr<UberShader> uberShader;
 		};
 
-		std::array<Option, 32> optionValues;
-		std::size_t optionCount = 0;
-		std::vector<Shader> shaders;
-		std::shared_ptr<const MaterialSettings> settings;
+		std::shared_ptr<RenderPipelineLayout> pipelineLayout;
+		std::vector<Option> optionValues; //< TODO: FixedVector
+		std::vector<Shader> shaders; //< TODO: FixedVector
 	};
 
 	inline bool operator==(const MaterialPipelineInfo& lhs, const MaterialPipelineInfo& rhs);

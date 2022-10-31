@@ -9,20 +9,29 @@ option HasAlphaTexture: bool = false;
 option AlphaTest: bool = false;
 
 [layout(std140)]
-struct BasicSettings
+struct MaterialSettings
 {
+	[tag("AlphaTestThreshold")]
 	AlphaThreshold: f32,
+
+	[tag("BaseColor")]
 	BaseColor: vec4[f32]
 }
 
+[tag("Material")]
 external
 {
-	[binding(0)] settings: uniform[BasicSettings],
-	[binding(1)] MaterialBaseColorMap: sampler2D[f32],
-	[binding(2)] MaterialAlphaMap: sampler2D[f32],
-	[binding(3)] TextureOverlay: sampler2D[f32],
-	[binding(4)] instanceData: uniform[InstanceData],
-	[binding(5)] viewerData: uniform[ViewerData],
+	[tag("Settings"), binding(0)] settings: uniform[MaterialSettings],
+	[tag("BaseColorMap"), binding(1)] MaterialBaseColorMap: sampler2D[f32],
+	[tag("AlphaMap"), binding(2)] MaterialAlphaMap: sampler2D[f32],
+}
+
+[tag("Engine")]
+external
+{
+	[tag("TextureOverlay"), binding(3)] TextureOverlay: sampler2D[f32],
+	[tag("InstanceData"), binding(4)] instanceData: uniform[InstanceData],
+	[tag("ViewerData"), binding(5)] viewerData: uniform[ViewerData],
 }
 
 struct InputData

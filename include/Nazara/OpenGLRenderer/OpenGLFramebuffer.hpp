@@ -8,6 +8,7 @@
 #define NAZARA_OPENGLRENDERER_OPENGLFRAMEBUFFER_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Math/Vector2.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/Renderer/Framebuffer.hpp>
 
@@ -25,6 +26,8 @@ namespace Nz
 			virtual void Activate() const = 0;
 
 			virtual std::size_t GetColorBufferCount() const = 0;
+
+			virtual const Vector2ui& GetSize() const = 0;
 
 			OpenGLFramebuffer& operator=(const OpenGLFramebuffer&) = delete;
 			OpenGLFramebuffer& operator=(OpenGLFramebuffer&&) noexcept = default;

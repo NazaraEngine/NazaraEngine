@@ -8,110 +8,100 @@
 #define NAZARA_GRAPHICS_MATERIALSETTINGS_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/Color.hpp>
 #include <Nazara/Graphics/Enums.hpp>
-#include <Nazara/Graphics/UberShader.hpp>
-#include <Nazara/Renderer/RenderPipelineLayout.hpp>
-#include <Nazara/Renderer/ShaderModule.hpp>
-#include <Nazara/Utility/Enums.hpp>
-#include <array>
+#include <Nazara/Graphics/MaterialPass.hpp>
+#include <Nazara/Graphics/PropertyHandler/PropertyHandler.hpp>
+#include <Nazara/Math/Vector2.hpp>
+#include <Nazara/Math/Vector3.hpp>
+#include <Nazara/Math/Vector4.hpp>
+#include <Nazara/Renderer/Texture.hpp>
+#include <Nazara/Utils/TypeList.hpp>
 #include <limits>
+#include <optional>
 #include <string>
+#include <variant>
 #include <vector>
 
 namespace Nz
 {
-	class MaterialSettings
+	template<typename T> struct TypeToMaterialPropertyType;
+
+	template<typename T> constexpr MaterialPropertyType TypeToMaterialPropertyType_v = TypeToMaterialPropertyType<T>::PropertyType;
+
+	template<MaterialPropertyType P> struct MaterialPropertyTypeInfo;
+
+	struct MaterialPropertyNoValue {};
+
+	using MaterialPropertyTypeList = TypeList<
+		MaterialPropertyNoValue,
+		Color,
+		bool, Vector2<bool>, Vector3<bool>, Vector4<bool>,
+		float, Vector2<float>, Vector3<float>, Vector4<float>,
+		Int32, Vector2<Int32>, Vector3<Int32>, Vector4<Int32>,
+		UInt32, Vector2<UInt32>, Vector3<UInt32>, Vector4<UInt32>
+	>;
+
+	class NAZARA_GRAPHICS_API MaterialSettings
 	{
 		public:
-			struct Builder;
-			struct Option;
-			struct SharedUniformBlock;
-			struct Texture;
-			struct UniformBlock;
-			using PredefinedBinding = std::array<std::size_t, PredefinedShaderBindingCount>;
+			struct TextureProperty;
+			struct ValueProperty;
 
-			inline MaterialSettings();
-			inline MaterialSettings(Builder builder);
-			MaterialSettings(const MaterialSettings&) = default;
-			MaterialSettings(MaterialSettings&&) = delete;
+			using Value = TypeListInstantiate<MaterialPropertyTypeList, std::variant>;
+
+			MaterialSettings() = default;
+			MaterialSettings(const MaterialSettings&) = delete;
+			MaterialSettings(MaterialSettings&&) noexcept = default;
 			~MaterialSettings() = default;
 
-			inline const Builder& GetBuilderData() const;
-			inline const std::vector<Option>& GetOptions() const;
-			inline std::size_t GetOptionIndex(const std::string_view& name) const;
-			inline std::size_t GetPredefinedBinding(PredefinedShaderBinding shaderBinding) const;
-			inline const std::shared_ptr<RenderPipelineLayout>& GetRenderPipelineLayout() const;
-			inline const std::shared_ptr<UberShader>& GetShader(nzsl::ShaderStageType stage) const;
-			inline const std::vector<std::shared_ptr<UberShader>>& GetShaders() const;
-			inline const std::vector<SharedUniformBlock>& GetSharedUniformBlocks() const;
-			inline std::size_t GetSharedUniformBlockIndex(const std::string_view& name) const;
-			inline std::size_t GetSharedUniformBlockVariableOffset(std::size_t uniformBlockIndex, const std::string_view& name) const;
-			inline const std::vector<Texture>& GetTextures() const;
-			inline std::size_t GetTextureIndex(const std::string_view& name) const;
-			inline const std::vector<UniformBlock>& GetUniformBlocks() const;
-			inline std::size_t GetUniformBlockIndex(const std::string_view& name) const;
-			inline std::size_t GetUniformBlockVariableOffset(std::size_t uniformBlockIndex, const std::string_view& name) const;
+			void AddPass(std::string_view passName, MaterialPass materialPass);
+			inline void AddPass(std::size_t passIndex, MaterialPass materialPass);
+			inline void AddPropertyHandler(std::unique_ptr<PropertyHandler> propertyHandler);
+			inline void AddTextureProperty(std::string propertyName, ImageType propertyType);
+			inline void AddTextureProperty(std::string propertyName, ImageType propertyType, std::shared_ptr<Texture> defaultTexture);
+			inline void AddTextureProperty(std::string propertyName, ImageType propertyType, std::shared_ptr<Texture> defaultTexture, const TextureSamplerInfo& defaultSamplerInfo);
+			inline void AddValueProperty(std::string propertyName, MaterialPropertyType propertyType, Value defaultValue);
+			template<typename T> void AddValueProperty(std::string propertyName);
+			template<typename T, typename U> void AddValueProperty(std::string propertyName, U&& defaultValue);
+
+			inline std::size_t FindTextureProperty(std::string_view propertyName) const;
+			inline std::size_t FindValueProperty(std::string_view propertyName) const;
+
+			const MaterialPass* GetPass(std::string_view passName) const;
+			inline const MaterialPass* GetPass(std::size_t passIndex) const;
+			inline const std::vector<std::optional<MaterialPass>>& GetPasses() const;
+			inline const std::vector<std::unique_ptr<PropertyHandler>>& GetPropertyHandlers() const;
+			inline const TextureProperty& GetTextureProperty(std::size_t texturePropertyIndex) const;
+			inline std::size_t GetTexturePropertyCount() const;
+			inline const ValueProperty& GetValueProperty(std::size_t valuePropertyIndex) const;
+			inline std::size_t GetValuePropertyCount() const;
 
 			MaterialSettings& operator=(const MaterialSettings&) = delete;
-			MaterialSettings& operator=(MaterialSettings&&) = delete;
+			MaterialSettings& operator=(MaterialSettings&&) = default;
 
-			static constexpr std::size_t InvalidIndex = std::numeric_limits<std::size_t>::max();
-
-			static inline void BuildOption(std::vector<Option>& options, std::string optionName, const std::string& shaderOptionName);
-
-			struct Builder
+			struct TextureProperty
 			{
-				inline Builder();
-
-				std::vector<std::shared_ptr<UberShader>> shaders;
-				std::vector<Option> options;
-				std::vector<Texture> textures;
-				std::vector<UniformBlock> uniformBlocks;
-				std::vector<SharedUniformBlock> sharedUniformBlocks;
-				PredefinedBinding predefinedBindings;
-			};
-
-			struct Option
-			{
-				std::string name;
-				UInt32 hash;
-			};
-
-			struct UniformVariable
-			{
-				std::string name;
-				std::size_t offset;
-			};
-
-			struct SharedUniformBlock
-			{
-				UInt32 bindingIndex;
-				std::string name;
-				std::vector<UniformVariable> uniforms;
-				nzsl::ShaderStageTypeFlags shaderStages = nzsl::ShaderStageType_All;
-			};
-
-			struct Texture
-			{
-				UInt32 bindingIndex;
+				std::shared_ptr<Texture> defaultTexture;
 				std::string name;
 				ImageType type;
-				nzsl::ShaderStageTypeFlags shaderStages = nzsl::ShaderStageType_All;
+				TextureSamplerInfo defaultSamplerInfo;
 			};
 
-			struct UniformBlock
+			struct ValueProperty
 			{
-				UInt32 bindingIndex;
+				Value defaultValue;
 				std::string name;
-				std::size_t blockSize;
-				std::vector<UniformVariable> uniforms;
-				std::vector<UInt8> defaultValues;
-				nzsl::ShaderStageTypeFlags shaderStages = nzsl::ShaderStageType_All;
+				MaterialPropertyType type;
 			};
+
+			static constexpr std::size_t InvalidPropertyIndex = std::numeric_limits<std::size_t>::max();
 
 		private:
-			std::shared_ptr<RenderPipelineLayout> m_pipelineLayout;
-			Builder m_data;
+			std::vector<std::unique_ptr<PropertyHandler>> m_propertyHandlers;
+			std::vector<std::optional<MaterialPass>> m_materialPasses;
+			std::vector<TextureProperty> m_textureProperties;
+			std::vector<ValueProperty> m_valueProperties;
 	};
 }
 

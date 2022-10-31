@@ -16,19 +16,19 @@
 
 namespace Nz
 {
-	class MaterialPass;
+	class MaterialInstance;
 	class VertexDeclaration;
 	class ViewerInstance;
 
 	class RenderSpriteChain : public RenderElement
 	{
 		public:
-			inline RenderSpriteChain(int renderLayer, std::shared_ptr<MaterialPass> materialPass, std::shared_ptr<RenderPipeline> renderPipeline, const WorldInstance& worldInstance, std::shared_ptr<VertexDeclaration> vertexDeclaration, std::shared_ptr<Texture> textureOverlay, std::size_t spriteCount, const void* spriteData, const Recti& scissorBox);
+			inline RenderSpriteChain(int renderLayer, std::shared_ptr<MaterialInstance> materialInstance, MaterialPassFlags materialFlags, std::shared_ptr<RenderPipeline> renderPipeline, const WorldInstance& worldInstance, std::shared_ptr<VertexDeclaration> vertexDeclaration, std::shared_ptr<Texture> textureOverlay, std::size_t spriteCount, const void* spriteData, const Recti& scissorBox);
 			~RenderSpriteChain() = default;
 
 			inline UInt64 ComputeSortingScore(const Frustumf& frustum, const RenderQueueRegistry& registry) const override;
 
-			inline const MaterialPass& GetMaterialPass() const;
+			inline const MaterialInstance& GetMaterialInstance() const;
 			inline const RenderPipeline& GetRenderPipeline() const;
 			inline const Recti& GetScissorBox() const;
 			inline std::size_t GetSpriteCount() const;
@@ -42,13 +42,14 @@ namespace Nz
 			static constexpr BasicRenderElement ElementType = BasicRenderElement::SpriteChain;
 
 		private:
-			std::shared_ptr<MaterialPass> m_materialPass;
+			std::shared_ptr<MaterialInstance> m_materialInstance;
 			std::shared_ptr<RenderPipeline> m_renderPipeline;
 			std::shared_ptr<VertexDeclaration> m_vertexDeclaration;
 			std::shared_ptr<Texture> m_textureOverlay;
 			std::size_t m_spriteCount;
 			const void* m_spriteData;
 			const WorldInstance& m_worldInstance;
+			MaterialPassFlags m_materialFlags;
 			Recti m_scissorBox;
 			int m_renderLayer;
 	};

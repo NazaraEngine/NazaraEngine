@@ -3,8 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Widgets/Widgets.hpp>
-#include <Nazara/Graphics/BasicMaterial.hpp>
-#include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
 #include <Nazara/Widgets/Debug.hpp>
 
@@ -23,24 +22,36 @@ namespace Nz
 
 	void Widgets::CreateDefaultMaterials()
 	{
-		m_opaqueMaterialPass = std::make_shared<MaterialPass>(BasicMaterial::GetSettings());
-		m_opaqueMaterialPass->EnableDepthBuffer(true);
-		m_opaqueMaterialPass->EnableDepthWrite(false);
-		m_opaqueMaterialPass->EnableScissorTest(true);
+		const auto& defaultMaterials = Graphics::Instance()->GetDefaultMaterials();
 
-		m_opaqueMaterial = std::make_shared<Material>();
-		m_opaqueMaterial->AddPass("ForwardPass", m_opaqueMaterialPass);
+		const MaterialPassRegistry& materialPassRegistry = Graphics::Instance()->GetMaterialPassRegistry();
+		std::size_t depthPassIndex = materialPassRegistry.GetPassIndex("DepthPass");
+		std::size_t forwardPassIndex = materialPassRegistry.GetPassIndex("ForwardPass");
 
-		m_transparentMaterialPass = std::make_shared<MaterialPass>(BasicMaterial::GetSettings());
-		m_transparentMaterialPass->EnableDepthBuffer(true);
-		m_transparentMaterialPass->EnableDepthWrite(false);
-		m_transparentMaterialPass->EnableScissorTest(true);
-		m_transparentMaterialPass->EnableBlending(true);
-		m_transparentMaterialPass->SetBlendEquation(BlendEquation::Add, BlendEquation::Add);
-		m_transparentMaterialPass->SetBlendFunc(BlendFunc::SrcAlpha, BlendFunc::InvSrcAlpha, BlendFunc::One, BlendFunc::One);
+		m_opaqueMaterial = defaultMaterials.basicMaterial->CreateInstance();
+		for (std::size_t passIndex : { depthPassIndex, forwardPassIndex })
+		{
+			m_opaqueMaterial->UpdatePassStates(passIndex, [](RenderStates& renderStates)
+			{
+				renderStates.scissorTest = true;
+			});
+		}
 
-		m_transparentMaterial = std::make_shared<Material>();
-		m_transparentMaterial->AddPass("ForwardPass", m_transparentMaterialPass);
+		m_transparentMaterial = defaultMaterials.basicMaterial->CreateInstance();
+		m_transparentMaterial->DisablePass(depthPassIndex);
+
+		m_transparentMaterial->UpdatePassStates(forwardPassIndex, [](RenderStates& renderStates)
+		{
+			renderStates.blending = true;
+			renderStates.blend.modeColor = BlendEquation::Add;
+			renderStates.blend.modeAlpha = BlendEquation::Add;
+			renderStates.blend.srcColor = BlendFunc::SrcAlpha;
+			renderStates.blend.dstColor = BlendFunc::InvSrcAlpha;
+			renderStates.blend.srcAlpha = BlendFunc::One;
+			renderStates.blend.dstAlpha = BlendFunc::One;
+			renderStates.depthWrite = false;
+			renderStates.scissorTest = true;
+		});
 	}
 
 	Widgets* Widgets::s_instance = nullptr;

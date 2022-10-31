@@ -7,49 +7,75 @@
 
 namespace Nz
 {
-	inline void Material::AddPass(std::size_t passIndex, std::shared_ptr<MaterialPass> pass)
+	inline std::size_t Material::FindTextureByTag(const std::string& tag) const
 	{
-		if (passIndex >= m_passes.size())
-			m_passes.resize(passIndex + 1);
+		auto it = m_textureByTag.find(tag);
+		if (it == m_textureByTag.end())
+			return InvalidIndex;
 
-		m_passes[passIndex] = std::move(pass);
+		return it->second;
 	}
 
-	template<typename F>
-	void Material::ForEachPass(F&& callback)
+	inline std::size_t Material::FindUniformBlockByTag(const std::string& tag) const
 	{
-		for (std::size_t i = 0; i < m_passes.size(); ++i)
+		auto it = m_uniformBlockByTag.find(tag);
+		if (it == m_uniformBlockByTag.end())
+			return InvalidIndex;
+
+		return it->second;
+	}
+
+	inline UInt32 Material::GetEngineBindingIndex(EngineShaderBinding shaderBinding) const
+	{
+		return m_engineShaderBindings[UnderlyingCast(shaderBinding)];
+	}
+
+	inline const std::shared_ptr<RenderPipelineLayout>& Material::GetRenderPipelineLayout() const
+	{
+		return m_renderPipelineLayout;
+	}
+
+	inline const MaterialSettings& Material::GetSettings() const
+	{
+		return m_settings;
+	}
+
+	inline auto Material::GetTextureData(std::size_t textureIndex) const -> const TextureData&
+	{
+		assert(textureIndex < m_textures.size());
+		return m_textures[textureIndex];
+	}
+
+	inline std::size_t Material::GetTextureCount() const
+	{
+		return m_textures.size();
+	}
+
+	inline auto Material::GetUniformBlockData(std::size_t uniformBlockIndex) const -> const UniformBlockData&
+	{
+		assert(uniformBlockIndex < m_uniformBlocks.size());
+		return m_uniformBlocks[uniformBlockIndex];
+	}
+
+	inline std::size_t Material::GetUniformBlockCount() const
+	{
+		return m_uniformBlocks.size();
+	}
+
+	inline ImageType Material::ToImageType(nzsl::ImageType imageType)
+	{
+		switch (imageType)
 		{
-			if (m_passes[i])
-				callback(i, m_passes[i]);
-		}
-	}
-
-	inline const std::shared_ptr<MaterialPass>& Material::GetPass(std::size_t passIndex) const
-	{
-		if (passIndex >= m_passes.size())
-		{
-			static std::shared_ptr<MaterialPass> dummy;
-			return dummy;
+			case nzsl::ImageType::E1D:       return ImageType::E1D;
+			case nzsl::ImageType::E1D_Array: return ImageType::E1D_Array;
+			case nzsl::ImageType::E2D:       return ImageType::E2D;
+			case nzsl::ImageType::E2D_Array: return ImageType::E2D_Array;
+			case nzsl::ImageType::E3D:       return ImageType::E3D;
+			case nzsl::ImageType::Cubemap:   return ImageType::Cubemap;
 		}
 
-		return m_passes[passIndex];
-	}
-
-	inline bool Material::HasPass(std::size_t passIndex) const
-	{
-		if (passIndex >= m_passes.size())
-			return false;
-
-		return m_passes[passIndex] != nullptr;
-	}
-
-	inline void Material::RemovePass(std::size_t passIndex)
-	{
-		if (passIndex >= m_passes.size())
-			return;
-
-		m_passes[passIndex].reset();
+		NazaraError("invalid image type 0x" + NumberToString(UnderlyingCast(imageType), 16));
+		return ImageType::E2D;
 	}
 }
 

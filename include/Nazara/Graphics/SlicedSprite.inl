@@ -59,7 +59,7 @@ namespace Nz
 		UpdateVertices();
 	}
 
-	inline void SlicedSprite::SetMaterial(std::shared_ptr<Material> material)
+	inline void SlicedSprite::SetMaterial(std::shared_ptr<MaterialInstance> material)
 	{
 		assert(material);
 

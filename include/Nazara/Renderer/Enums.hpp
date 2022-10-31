@@ -24,6 +24,24 @@ namespace Nz
 		Store
 	};
 
+	enum class ColorComponent
+	{
+		Red,
+		Green,
+		Blue,
+		Alpha
+	};
+
+	template<>
+	struct EnumAsFlags<ColorComponent>
+	{
+		static constexpr ColorComponent max = ColorComponent::Alpha;
+	};
+
+	using ColorComponentMask = Flags<ColorComponent>;
+
+	constexpr ColorComponentMask ColorComponentAll = ColorComponent::Red | ColorComponent::Green | ColorComponent::Blue | ColorComponent::Alpha;
+
 	enum class FramebufferType
 	{
 		Texture,

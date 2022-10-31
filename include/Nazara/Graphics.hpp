@@ -32,11 +32,9 @@
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/Algorithm.hpp>
 #include <Nazara/Graphics/BakedFrameGraph.hpp>
-#include <Nazara/Graphics/BasicMaterial.hpp>
 #include <Nazara/Graphics/Camera.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/DebugDrawPipelinePass.hpp>
-#include <Nazara/Graphics/DepthMaterial.hpp>
 #include <Nazara/Graphics/DepthPipelinePass.hpp>
 #include <Nazara/Graphics/DirectionalLight.hpp>
 #include <Nazara/Graphics/ElementRenderer.hpp>
@@ -56,15 +54,16 @@
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/LinearSlicedSprite.hpp>
 #include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
 #include <Nazara/Graphics/MaterialPassRegistry.hpp>
 #include <Nazara/Graphics/MaterialPipeline.hpp>
 #include <Nazara/Graphics/MaterialSettings.hpp>
 #include <Nazara/Graphics/Model.hpp>
-#include <Nazara/Graphics/PhongLightingMaterial.hpp>
-#include <Nazara/Graphics/PhysicallyBasedMaterial.hpp>
 #include <Nazara/Graphics/PointLight.hpp>
+#include <Nazara/Graphics/PredefinedMaterials.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
+#include <Nazara/Graphics/RenderBufferPool.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>
 #include <Nazara/Graphics/RenderElementOwner.hpp>
 #include <Nazara/Graphics/RenderElementPool.hpp>
@@ -72,6 +71,7 @@
 #include <Nazara/Graphics/RenderQueueRegistry.hpp>
 #include <Nazara/Graphics/RenderSpriteChain.hpp>
 #include <Nazara/Graphics/RenderSubmesh.hpp>
+#include <Nazara/Graphics/ShaderReflection.hpp>
 #include <Nazara/Graphics/SkeletonInstance.hpp>
 #include <Nazara/Graphics/SlicedSprite.hpp>
 #include <Nazara/Graphics/SpotLight.hpp>
@@ -80,6 +80,7 @@
 #include <Nazara/Graphics/SubmeshRenderer.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
 #include <Nazara/Graphics/TextureSamplerCache.hpp>
+#include <Nazara/Graphics/TransferInterface.hpp>
 #include <Nazara/Graphics/UberShader.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>

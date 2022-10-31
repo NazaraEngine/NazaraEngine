@@ -111,13 +111,18 @@ int main()
 	const Nz::Boxf& bobAABB = bobMesh->GetAABB();
 	std::shared_ptr<Nz::GraphicalMesh> bobGfxMesh = Nz::GraphicalMesh::BuildFromMesh(*bobMesh);
 
+	std::shared_ptr<Nz::Material> material = Nz::Graphics::Instance()->GetDefaultMaterials().basicMaterial;
+
 	std::shared_ptr<Nz::Model> bobModel = std::make_shared<Nz::Model>(std::move(bobGfxMesh), bobAABB);
-	std::vector<std::shared_ptr<Nz::Material>> materials(bobMesh->GetMaterialCount());
+	std::vector<std::shared_ptr<Nz::MaterialInstance>> materials(bobMesh->GetMaterialCount());
+
 	for (std::size_t i = 0; i < bobMesh->GetMaterialCount(); ++i)
 	{
+		materials[i] = std::make_shared<Nz::MaterialInstance>(material);
+
 		std::string matPath = bobMesh->GetMaterialData(i).GetStringParameter(Nz::MaterialData::BaseColorTexturePath).GetValueOr("");
 		if (!matPath.empty())
-			materials[i] = Nz::Material::LoadFromFile(matPath);
+			materials[i]->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(matPath, texParams));
 	}
 
 	for (std::size_t i = 0; i < bobMesh->GetSubMeshCount(); ++i)
@@ -148,7 +153,7 @@ int main()
 		auto& bobNode = bobEntity.emplace<Nz::NodeComponent>();
 		//bobNode.SetRotation(Nz::EulerAnglesf(-90.f, -90.f, 0.f));
 		//bobNode.SetScale(1.f / 40.f * 0.5f);
-		//bobNode.SetPosition(bobNode.GetScale() * Nz::Vector3f(0.f, -bobAABB.height / 2.f + bobAABB.y, 0.f));
+		//bobNode.SetPosition(Nz::Vector3f(0.f, -1.f, 0.f));
 
 		auto& bobGfx = bobEntity.emplace<Nz::GraphicsComponent>();
 		bobGfx.AttachRenderable(bobModel, 0xFFFFFFFF);
@@ -173,24 +178,12 @@ int main()
 			Nz::TextureParams srgbTexParams = texParams;
 			srgbTexParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
 
-			std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>();
-
-			std::shared_ptr<Nz::MaterialPass> forwardPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
-			forwardPass->EnableDepthBuffer(true);
-			forwardPass->EnableFaceCulling(true);
-
-			material->AddPass("ForwardPass", forwardPass);
-
-			std::shared_ptr<Nz::Texture> normalMap = Nz::Texture::LoadFromFile(resourceDir / "Rusty/rustediron2_normal.png", texParams);
-
-			Nz::BasicMaterial pbrMat(*forwardPass);
-			pbrMat.EnableAlphaTest(false);
-			pbrMat.SetAlphaMap(Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
-			pbrMat.SetBaseColorMap(Nz::Texture::LoadFromFile(resourceDir / "Rusty/rustediron2_basecolor.png", srgbTexParams));
+			std::shared_ptr<Nz::MaterialInstance> sphereMat = std::make_shared<Nz::MaterialInstance>(material);
+			sphereMat->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(resourceDir / "Rusty/rustediron2_basecolor.png", srgbTexParams));
 
 			std::shared_ptr<Nz::Model> sphereModel = std::make_shared<Nz::Model>(std::move(gfxMesh), sphereMesh->GetAABB());
 			for (std::size_t i = 0; i < sphereModel->GetSubMeshCount(); ++i)
-				sphereModel->SetMaterial(i, material);
+				sphereModel->SetMaterial(i, sphereMat);
 
 			auto& sphereNode = registry.emplace<Nz::NodeComponent>(sphereEntity);
 			sphereNode.SetScale(0.1f);
@@ -229,32 +222,24 @@ int main()
 
 		std::shared_ptr<Nz::GraphicalMesh> planeMeshGfx = Nz::GraphicalMesh::BuildFromMesh(planeMesh);
 
-		std::shared_ptr<Nz::Material> planeMat = std::make_shared<Nz::Material>();
+		Nz::TextureSamplerInfo planeSampler;
+		planeSampler.anisotropyLevel = 16;
+		planeSampler.wrapModeU = Nz::SamplerWrap::Repeat;
+		planeSampler.wrapModeV = Nz::SamplerWrap::Repeat;
 
-		std::shared_ptr<Nz::MaterialPass> planeMatPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
-		planeMatPass->EnableDepthBuffer(true);
-		{
-			Nz::BasicMaterial basicMat(*planeMatPass);
-			basicMat.SetBaseColorMap(Nz::Texture::LoadFromFile(resourceDir / "dev_grey.png", texParams));
-
-			Nz::TextureSamplerInfo planeSampler;
-			planeSampler.anisotropyLevel = 16;
-			planeSampler.wrapModeU = Nz::SamplerWrap::Repeat;
-			planeSampler.wrapModeV = Nz::SamplerWrap::Repeat;
-			basicMat.SetBaseColorSampler(planeSampler);
-		}
-		planeMat->AddPass("ForwardPass", planeMatPass);
+		std::shared_ptr<Nz::MaterialInstance> planeMat = std::make_shared<Nz::MaterialInstance>(material);
+		planeMat->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(resourceDir / "dev_grey.png", texParams), planeSampler);
 
 		std::shared_ptr<Nz::Model> planeModel = std::make_shared<Nz::Model>(std::move(planeMeshGfx), planeMesh.GetAABB());
 		planeModel->SetMaterial(0, planeMat);
+
+		auto& planeGfx = registry.emplace<Nz::GraphicsComponent>(planeEntity);
+		planeGfx.AttachRenderable(planeModel, 0xFFFFFFFF);
 
 		auto& planeNode = registry.emplace<Nz::NodeComponent>(planeEntity);
 
 		auto& planeBody = registry.emplace<Nz::RigidBody3DComponent>(planeEntity, &physSytem.GetPhysWorld());
 		planeBody.SetGeom(std::make_shared<Nz::BoxCollider3D>(Nz::Vector3f(planeSize.x, 0.5f, planeSize.y), Nz::Vector3f(0.f, -0.25f, 0.f)));
-
-		auto& planeGfx = registry.emplace<Nz::GraphicsComponent>(planeEntity);
-		planeGfx.AttachRenderable(planeModel, 0xFFFFFFFF);
 	}
 
 	window.EnableEventPolling(true);
@@ -266,6 +251,8 @@ int main()
 	Nz::EulerAnglesf camAngles = Nz::EulerAnglesf(-30.f, 0.f, 0.f);
 	Nz::UInt64 lastTime = Nz::GetElapsedMicroseconds();
 	Nz::UInt64 fps = 0;
+	bool paused = false;
+
 	while (window.IsOpen())
 	{
 		Nz::UInt64 now = Nz::GetElapsedMicroseconds();
@@ -282,7 +269,12 @@ int main()
 					break;
 
 				case Nz::WindowEventType::KeyPressed:
+				{
+					if (event.type == Nz::WindowEventType::KeyPressed && event.key.virtualKey == Nz::Keyboard::VKey::P)
+						paused = !paused;
+
 					break;
+				}
 
 				case Nz::WindowEventType::MouseMoved:
 				{
@@ -329,20 +321,23 @@ int main()
 			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Right) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::D))
 				playerBody.AddForce(Nz::Vector3f::Right() * 25.f * mass, Nz::CoordSys::Local);
 
-			incr += updateTime * bobAnim->GetSequence(0)->frameRate * 1.5f;
-			while (incr >= 1.f)
+			if (!paused)
 			{
-				incr -= 1.f;
+				incr += updateTime * bobAnim->GetSequence(0)->frameRate * 1.5f;
+				while (incr >= 1.f)
+				{
+					incr -= 1.f;
 
-				currentFrame = nextFrame;
-				nextFrame++;
-				if (nextFrame >= bobAnim->GetFrameCount())
-					nextFrame = 0;
+					currentFrame = nextFrame;
+					nextFrame++;
+					if (nextFrame >= bobAnim->GetFrameCount())
+						nextFrame = 0;
+				}
+
+				std::cout << currentFrame << std::endl;
+
+				bobAnim->AnimateSkeleton(skeleton.get(), currentFrame, nextFrame, incr);
 			}
-
-			std::cout << currentFrame << std::endl;
-
-			bobAnim->AnimateSkeleton(skeleton.get(), currentFrame, nextFrame, incr);
 			//for (std::size_t i = 0; i < skeleton.GetJointCount(); ++i)
 			//	matrices[i] = skeleton.GetJoint(i)->GetSkinningMatrix();
 

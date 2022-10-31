@@ -22,7 +22,7 @@ namespace Nz
 		public:
 			struct Corner;
 
-			SlicedSprite(std::shared_ptr<Material> material);
+			SlicedSprite(std::shared_ptr<MaterialInstance> material);
 			SlicedSprite(const SlicedSprite&) = delete;
 			SlicedSprite(SlicedSprite&&) noexcept = default;
 			~SlicedSprite() = default;
@@ -31,7 +31,7 @@ namespace Nz
 
 			inline const Color& GetColor() const;
 			inline const Corner& GetBottomRightCorner() const;
-			const std::shared_ptr<Material>& GetMaterial(std::size_t i = 0) const override;
+			const std::shared_ptr<MaterialInstance>& GetMaterial(std::size_t i = 0) const override;
 			std::size_t GetMaterialCount() const override;
 			inline const Corner& GetTopLeftCorner() const;
 			inline const Rectf& GetTextureCoords() const;
@@ -41,7 +41,7 @@ namespace Nz
 			inline void SetCorners(const Corner& topLeftCorner, const Corner& bottomRightCorner);
 			inline void SetCornersSize(const Vector2f& topLeftSize, const Vector2f& bottomRightSize);
 			inline void SetCornersTextureCoords(const Vector2f& topLeftTextureCoords, const Vector2f& bottomRightTextureCoords);
-			inline void SetMaterial(std::shared_ptr<Material> material);
+			inline void SetMaterial(std::shared_ptr<MaterialInstance> material);
 			inline void SetSize(const Vector2f& size);
 			inline void SetTextureCoords(const Rectf& textureCoords);
 			inline void SetTextureRect(const Rectf& textureRect);
@@ -59,7 +59,7 @@ namespace Nz
 			void UpdateVertices();
 
 			std::array<VertexStruct_XYZ_Color_UV, 4 * 9> m_vertices;
-			std::shared_ptr<Material> m_material;
+			std::shared_ptr<MaterialInstance> m_material;
 			std::size_t m_spriteCount;
 			Color m_color;
 			Corner m_topLeftCorner;

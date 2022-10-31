@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
+#include <Nazara/Graphics/TransferInterface.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
 #include <memory>
@@ -22,7 +23,7 @@ namespace Nz
 
 	using WorldInstancePtr = std::shared_ptr<WorldInstance>;
 
-	class NAZARA_GRAPHICS_API WorldInstance
+	class NAZARA_GRAPHICS_API WorldInstance : public TransferInterface
 	{
 		public:
 			WorldInstance();
@@ -35,7 +36,8 @@ namespace Nz
 			inline const Matrix4f& GetInvWorldMatrix() const;
 			inline const Matrix4f& GetWorldMatrix() const;
 
-			void UpdateBuffers(UploadPool& uploadPool, CommandBufferBuilder& builder);
+			void OnTransfer(RenderFrame& renderFrame, CommandBufferBuilder& builder) override;
+
 			inline void UpdateWorldMatrix(const Matrix4f& worldMatrix);
 			inline void UpdateWorldMatrix(const Matrix4f& worldMatrix, const Matrix4f& invWorldMatrix);
 
@@ -43,6 +45,8 @@ namespace Nz
 			WorldInstance& operator=(WorldInstance&&) noexcept = default;
 
 		private:
+			inline void InvalidateData();
+
 			std::shared_ptr<RenderBuffer> m_instanceDataBuffer;
 			Matrix4f m_invWorldMatrix;
 			Matrix4f m_worldMatrix;

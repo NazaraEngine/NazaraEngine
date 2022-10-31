@@ -331,7 +331,7 @@ namespace Nz
 	}
 
 
-	SimpleLabelWidgetStyle::SimpleLabelWidgetStyle(LabelWidget* labelWidget, std::shared_ptr<Material> material, std::shared_ptr<Material> hoveredMaterial) :
+	SimpleLabelWidgetStyle::SimpleLabelWidgetStyle(LabelWidget* labelWidget, std::shared_ptr<MaterialInstance> material, std::shared_ptr<MaterialInstance> hoveredMaterial) :
 	LabelWidgetStyle(labelWidget, 1),
 	m_hoveredMaterial(std::move(hoveredMaterial)),
 	m_material(std::move(material))

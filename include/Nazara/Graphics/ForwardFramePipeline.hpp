@@ -21,6 +21,7 @@
 #include <Nazara/Graphics/RenderElement.hpp>
 #include <Nazara/Graphics/RenderQueue.hpp>
 #include <Nazara/Graphics/RenderQueueRegistry.hpp>
+#include <Nazara/Graphics/TransferInterface.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
 #include <Nazara/Utils/MemoryPool.hpp>
 #include <memory>
@@ -42,12 +43,7 @@ namespace Nz
 			ForwardFramePipeline(ForwardFramePipeline&&) = delete;
 			~ForwardFramePipeline();
 
-			void InvalidateSkeletalInstance(std::size_t skeletalInstanceIndex) override;
-			void InvalidateViewer(std::size_t viewerIndex) override;
-			void InvalidateWorldInstance(std::size_t renderableIndex) override;
-
 			std::size_t RegisterLight(std::shared_ptr<Light> light, UInt32 renderMask) override;
-			void RegisterMaterialPass(MaterialPass* materialPass) override;
 			std::size_t RegisterRenderable(std::size_t worldInstanceIndex, std::size_t skeletonInstanceIndex, const InstancedRenderable* instancedRenderable, UInt32 renderMask, const Recti& scissorBox) override;
 			std::size_t RegisterSkeleton(SkeletonInstancePtr skeletonInstance) override;
 			std::size_t RegisterViewer(AbstractViewer* viewerInstance, Int32 renderOrder) override;
@@ -56,7 +52,6 @@ namespace Nz
 			void Render(RenderFrame& renderFrame) override;
 
 			void UnregisterLight(std::size_t lightIndex) override;
-			void UnregisterMaterialPass(MaterialPass* material) override;
 			void UnregisterRenderable(std::size_t renderableIndex) override;
 			void UnregisterSkeleton(std::size_t skeletonIndex) override;
 			void UnregisterViewer(std::size_t viewerIndex) override;
@@ -73,6 +68,9 @@ namespace Nz
 		private:
 			BakedFrameGraph BuildFrameGraph();
 
+			void RegisterMaterialInstance(MaterialInstance* materialPass);
+			void UnregisterMaterialInstance(MaterialInstance* material);
+
 			struct ViewerData;
 
 			struct LightData
@@ -83,11 +81,11 @@ namespace Nz
 				NazaraSlot(Light, OnLightDataInvalided, onLightInvalidated);
 			};
 
-			struct MaterialPassData
+			struct MaterialInstanceData
 			{
 				std::size_t usedCount = 0;
 
-				NazaraSlot(MaterialPass, OnMaterialPassInvalidated, onMaterialPassInvalided);
+				NazaraSlot(TransferInterface, OnTransferRequired, onTransferRequired);
 			};
 
 			struct RenderableData
@@ -109,6 +107,13 @@ namespace Nz
 				ShaderBindingPtr blitShaderBinding;
 			};
 
+			struct SkeletonInstanceData
+			{
+				SkeletonInstancePtr skeleton;
+
+				NazaraSlot(TransferInterface, OnTransferRequired, onTransferRequired);
+			};
+
 			struct ViewerData
 			{
 				std::size_t forwardColorAttachment;
@@ -122,27 +127,33 @@ namespace Nz
 				RenderQueueRegistry forwardRegistry;
 				RenderQueue<RenderElement*> forwardRenderQueue;
 				ShaderBindingPtr blitShaderBinding;
+
+				NazaraSlot(TransferInterface, OnTransferRequired, onTransferRequired);
 			};
 
-			std::unordered_map<MaterialPass*, MaterialPassData> m_activeMaterialPasses;
+			struct WorldInstanceData
+			{
+				WorldInstancePtr worldInstance;
+
+				NazaraSlot(TransferInterface, OnTransferRequired, onTransferRequired);
+			};
+
 			std::unordered_map<const RenderTarget*, RenderTargetData> m_renderTargets;
-			std::unordered_set<MaterialPass*> m_invalidatedMaterialPasses;
+			std::unordered_map<MaterialInstance*, MaterialInstanceData> m_materialInstances;
 			std::vector<ElementRenderer::RenderStates> m_renderStates;
 			std::vector<FramePipelinePass::VisibleRenderable> m_visibleRenderables;
 			std::vector<const Light*> m_visibleLights;
+			robin_hood::unordered_set<TransferInterface*> m_transferSet;
 			BakedFrameGraph m_bakedFrameGraph;
-			Bitset<UInt64> m_invalidatedSkeletonInstances;
-			Bitset<UInt64> m_invalidatedViewerInstances;
-			Bitset<UInt64> m_invalidatedWorldInstances;
 			Bitset<UInt64> m_removedSkeletonInstances;
 			Bitset<UInt64> m_removedViewerInstances;
 			Bitset<UInt64> m_removedWorldInstances;
 			ElementRendererRegistry& m_elementRegistry;
 			MemoryPool<RenderableData> m_renderablePool;
 			MemoryPool<LightData> m_lightPool;
-			MemoryPool<SkeletonInstancePtr> m_skeletonInstances;
+			MemoryPool<SkeletonInstanceData> m_skeletonInstances;
 			MemoryPool<ViewerData> m_viewerPool;
-			MemoryPool<WorldInstancePtr> m_worldInstances;
+			MemoryPool<WorldInstanceData> m_worldInstances;
 			RenderFrame* m_currentRenderFrame;
 			bool m_rebuildFrameGraph;
 	};

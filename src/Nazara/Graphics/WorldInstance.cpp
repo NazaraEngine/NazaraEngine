@@ -7,6 +7,7 @@
 #include <Nazara/Graphics/MaterialSettings.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
+#include <Nazara/Renderer/RenderFrame.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
 #include <Nazara/Utils/StackVector.hpp>
 #include <Nazara/Graphics/Debug.hpp>
@@ -23,19 +24,19 @@ namespace Nz
 		m_instanceDataBuffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform, instanceUboOffsets.totalSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write);
 	}
 
-	void WorldInstance::UpdateBuffers(UploadPool& uploadPool, CommandBufferBuilder& builder)
+	void WorldInstance::OnTransfer(RenderFrame& renderFrame, CommandBufferBuilder& builder)
 	{
-		if (m_dataInvalided)
-		{
-			PredefinedInstanceData instanceUboOffsets = PredefinedInstanceData::GetOffsets();
+		if (!m_dataInvalided)
+			return;
 
-			auto& allocation = uploadPool.Allocate(m_instanceDataBuffer->GetSize());
-			AccessByOffset<Matrix4f&>(allocation.mappedPtr, instanceUboOffsets.worldMatrixOffset) = m_worldMatrix;
-			AccessByOffset<Matrix4f&>(allocation.mappedPtr, instanceUboOffsets.invWorldMatrixOffset) = m_invWorldMatrix;
+		PredefinedInstanceData instanceUboOffsets = PredefinedInstanceData::GetOffsets();
 
-			builder.CopyBuffer(allocation, m_instanceDataBuffer.get());
+		auto& allocation = renderFrame.GetUploadPool().Allocate(m_instanceDataBuffer->GetSize());
+		AccessByOffset<Matrix4f&>(allocation.mappedPtr, instanceUboOffsets.worldMatrixOffset) = m_worldMatrix;
+		AccessByOffset<Matrix4f&>(allocation.mappedPtr, instanceUboOffsets.invWorldMatrixOffset) = m_invWorldMatrix;
 
-			m_dataInvalided = false;
-		}
+		builder.CopyBuffer(allocation, m_instanceDataBuffer.get());
+
+		m_dataInvalided = false;
 	}
 }

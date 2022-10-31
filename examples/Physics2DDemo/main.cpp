@@ -52,7 +52,7 @@ int main()
 
 	Nz::Vector2ui windowSize = window.GetSize();
 
-	physSytem.GetPhysWorld().SetGravity({ 0.f, -9.81f });
+	physSytem.GetPhysWorld().SetGravity({ 0.f, -98.1f });
 
 	entt::entity viewer = registry.create();
 	{
@@ -62,11 +62,6 @@ int main()
 		cameraComponent.UpdateClearColor(Nz::Color(0.5f, 0.5f, 0.5f));
 	}
 
-	std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>();
-
-	std::shared_ptr<Nz::MaterialPass> materialPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
-	material->AddPass("ForwardPass", materialPass);
-
 	Nz::TextureSamplerInfo samplerInfo;
 	samplerInfo.anisotropyLevel = 8;
 
@@ -74,9 +69,8 @@ int main()
 	texParams.renderDevice = device;
 	texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
 
-	Nz::BasicMaterial basicMat(*materialPass);
-	basicMat.SetBaseColorMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
-	basicMat.SetBaseColorSampler(samplerInfo);
+	std::shared_ptr<Nz::MaterialInstance> material = Nz::Graphics::Instance()->GetDefaultMaterials().phongMaterial->CreateInstance();
+	material->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
 
 	for (std::size_t y = 0; y < 10; ++y)
 	{
@@ -99,12 +93,7 @@ int main()
 
 	entt::entity groundEntity = registry.create();
 	{
-		std::shared_ptr<Nz::Material> whiteMaterial = std::make_shared<Nz::Material>();
-
-		std::shared_ptr<Nz::MaterialPass> materialPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
-		whiteMaterial->AddPass("ForwardPass", materialPass);
-
-		std::shared_ptr<Nz::Sprite> sprite = std::make_shared<Nz::Sprite>(whiteMaterial);
+		std::shared_ptr<Nz::Sprite> sprite = std::make_shared<Nz::Sprite>(Nz::Graphics::Instance()->GetDefaultMaterials().basicDefault);
 		sprite->SetSize({ 800.f, 20.f });
 		sprite->SetOrigin({ 400.f, 10.f, 0.f });
 
@@ -156,13 +145,6 @@ int main()
 				default:
 					break;
 			}
-		}
-
-		if (updateClock.GetMilliseconds() > 1000 / 60)
-		{
-			float updateTime = updateClock.Restart() / 1'000'000.f;
-
-			physSytem.Update(1000.f / 60.f);
 		}
 
 		systemGraph.Update();

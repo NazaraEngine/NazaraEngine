@@ -17,17 +17,17 @@ namespace Nz
 	class NAZARA_WIDGETS_API ImageWidget : public BaseWidget
 	{
 		public:
-			ImageWidget(BaseWidget* parent, std::shared_ptr<Material> material);
+			ImageWidget(BaseWidget* parent, std::shared_ptr<MaterialInstance> material);
 			ImageWidget(const ImageWidget&) = delete;
 			ImageWidget(ImageWidget&&) = default;
 			~ImageWidget() = default;
 
 			inline const Color& GetColor() const;
-			inline const std::shared_ptr<Material>& GetMaterial() const;
+			inline const std::shared_ptr<MaterialInstance>& GetMaterial() const;
 			inline const Rectf& GetTextureCoords() const;
 
 			inline void SetColor(const Color& color);
-			inline void SetMaterial(const std::shared_ptr<Material>& texture);
+			inline void SetMaterial(const std::shared_ptr<MaterialInstance>& texture);
 			inline void SetTextureCoords(const Rectf& coords);
 			inline void SetTextureRect(const Rectf& rect);
 

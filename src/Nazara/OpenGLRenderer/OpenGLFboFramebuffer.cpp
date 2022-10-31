@@ -17,13 +17,20 @@ namespace Nz
 			throw std::runtime_error("failed to create framebuffer object");
 
 		std::size_t colorAttachmentCount = 0;
-		bool hasDepth = false; 
+		bool hasDepth = false;
 		bool hasStencil = false;
 
 		for (std::size_t i = 0; i < attachments.size(); ++i)
 		{
 			assert(attachments[i]);
 			const OpenGLTexture& glTexture = static_cast<const OpenGLTexture&>(*attachments[i]);
+
+			Vector2ui textureSize = Vector2ui(glTexture.GetSize());
+
+			if (i == 0)
+				m_size = textureSize;
+			else
+				m_size.Minimize(textureSize);
 
 			PixelFormat textureFormat = glTexture.GetFormat();
 
@@ -88,5 +95,10 @@ namespace Nz
 	std::size_t OpenGLFboFramebuffer::GetColorBufferCount() const
 	{
 		return m_colorAttachmentCount;
+	}
+
+	const Vector2ui& OpenGLFboFramebuffer::GetSize() const
+	{
+		return m_size;
 	}
 }

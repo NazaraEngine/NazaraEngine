@@ -55,27 +55,22 @@ int main()
 	Nz::TextureParams srgbTexParams = texParams;
 	srgbTexParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
 
-	std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>();
-
-	std::shared_ptr<Nz::MaterialPass> forwardPass = std::make_shared<Nz::MaterialPass>(Nz::PhysicallyBasedMaterial::GetSettings());
-	forwardPass->EnableDepthBuffer(true);
-	forwardPass->EnableFaceCulling(true);
-
-	material->AddPass("ForwardPass", forwardPass);
-
 	std::shared_ptr<Nz::Texture> normalMap = Nz::Texture::LoadFromFile(resourceDir / "Rusty/rustediron2_normal.png", texParams);
 
-	Nz::PhysicallyBasedMaterial pbrMat(*forwardPass);
-	pbrMat.EnableAlphaTest(false);
-	pbrMat.SetAlphaMap(Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
-	pbrMat.SetBaseColorMap(Nz::Texture::LoadFromFile(resourceDir / "Rusty/rustediron2_basecolor.png", srgbTexParams));
-	pbrMat.SetMetallicMap(Nz::Texture::LoadFromFile(resourceDir / "Rusty/rustediron2_metallic.png", texParams));
-	pbrMat.SetRoughnessMap(Nz::Texture::LoadFromFile(resourceDir / "Rusty/rustediron2_roughness.png", texParams));
-	pbrMat.SetNormalMap(normalMap);
+	std::shared_ptr<Nz::Material> material = Nz::Graphics::Instance()->GetDefaultMaterials().pbrMaterial;
+
+	std::shared_ptr<Nz::MaterialInstance> materialInstance = std::make_shared<Nz::MaterialInstance>(material);
+	materialInstance->SetTextureProperty("AlphaMap", Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
+	materialInstance->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(resourceDir / "Rusty/rustediron2_basecolor.png", texParams));
+	materialInstance->SetTextureProperty("MetallicMap", Nz::Texture::LoadFromFile(resourceDir / "Rusty/rustediron2_metallic.png", texParams));
+	materialInstance->SetTextureProperty("RoughnessMap", Nz::Texture::LoadFromFile(resourceDir / "Rusty/rustediron2_roughness.png", texParams));
+
+	std::size_t normalMapProperty = materialInstance->FindTextureProperty("NormalMap");
+	materialInstance->SetTextureProperty(normalMapProperty, normalMap);
 
 	Nz::Model model(std::move(gfxMesh), sphereMesh->GetAABB());
 	for (std::size_t i = 0; i < model.GetSubMeshCount(); ++i)
-		model.SetMaterial(i, material);
+		model.SetMaterial(i, materialInstance);
 
 	Nz::Vector2ui windowSize = window.GetSize();
 
@@ -129,10 +124,10 @@ int main()
 				case Nz::WindowEventType::KeyPressed:
 					if (event.key.virtualKey == Nz::Keyboard::VKey::N)
 					{
-						if (pbrMat.GetNormalMap())
-							pbrMat.SetNormalMap({});
+						if (materialInstance->GetTextureProperty(normalMapProperty))
+							materialInstance->SetTextureProperty(normalMapProperty, {});
 						else
-							pbrMat.SetNormalMap(normalMap);
+							materialInstance->SetTextureProperty(normalMapProperty, normalMap);
 					}
 					break;
 
@@ -206,8 +201,6 @@ int main()
 
 		viewerInstance.UpdateViewMatrix(Nz::Matrix4f::TransformInverse(viewerPos, camAngles));
 		viewerInstance.UpdateEyePosition(viewerPos);
-
-		framePipeline.InvalidateViewer(cameraIndex);
 
 		framePipeline.Render(frame);
 

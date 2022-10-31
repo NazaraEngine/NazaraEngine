@@ -23,6 +23,7 @@ namespace Nz
 
 	struct RenderDeviceLimits
 	{
+		UInt64 minStorageBufferOffsetAlignment;
 		UInt64 minUniformBufferOffsetAlignment;
 		UInt64 maxStorageBufferSize;
 		UInt64 maxUniformBufferSize;

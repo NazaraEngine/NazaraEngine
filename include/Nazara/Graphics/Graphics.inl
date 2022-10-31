@@ -37,6 +37,16 @@ namespace Nz
 		return m_materialPassRegistry;
 	}
 
+	inline MaterialInstanceLoader& Graphics::GetMaterialInstanceLoader()
+	{
+		return m_materialInstanceLoader;
+	}
+
+	inline const MaterialInstanceLoader& Graphics::GetMaterialInstanceLoader() const
+	{
+		return m_materialInstanceLoader;
+	}
+
 	inline MaterialLoader& Graphics::GetMaterialLoader()
 	{
 		return m_materialLoader;

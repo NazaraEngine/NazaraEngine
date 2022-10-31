@@ -16,7 +16,6 @@
 namespace Nz
 {
 	class Material;
-	class MaterialPass;
 
 	class NAZARA_WIDGETS_API Widgets : public ModuleBase<Widgets>
 	{
@@ -30,21 +29,16 @@ namespace Nz
 			Widgets(Config config);
 			~Widgets() = default;
 
-			inline const std::shared_ptr<Material>& GetOpaqueMaterial() const;
-			inline const std::shared_ptr<MaterialPass>& GetOpaqueMaterialPass() const;
-
-			inline const std::shared_ptr<Material>& GetTransparentMaterial() const;
-			inline const std::shared_ptr<MaterialPass>& GetTransparentMaterialPass() const;
+			inline const std::shared_ptr<MaterialInstance>& GetOpaqueMaterial() const;
+			inline const std::shared_ptr<MaterialInstance>& GetTransparentMaterial() const;
 
 			struct Config {};
 
 		private:
 			void CreateDefaultMaterials();
 
-			std::shared_ptr<Material> m_opaqueMaterial;
-			std::shared_ptr<Material> m_transparentMaterial;
-			std::shared_ptr<MaterialPass> m_opaqueMaterialPass;
-			std::shared_ptr<MaterialPass> m_transparentMaterialPass;
+			std::shared_ptr<MaterialInstance> m_opaqueMaterial;
+			std::shared_ptr<MaterialInstance> m_transparentMaterial;
 
 			static Widgets* s_instance;
 	};

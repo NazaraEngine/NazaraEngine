@@ -1,6 +1,8 @@
 #include <Nazara/Core.hpp>
 #include <Nazara/Platform.hpp>
 #include <Nazara/Graphics.hpp>
+#include <Nazara/Graphics/PropertyHandler/TexturePropertyHandler.hpp>
+#include <Nazara/Graphics/PropertyHandler/UniformValuePropertyHandler.hpp>
 #include <Nazara/Renderer.hpp>
 #include <Nazara/Utility.hpp>
 #include <array>
@@ -19,7 +21,7 @@ int main()
 	if (std::getchar() == 'y')
 		rendererConfig.preferredAPI = Nz::RenderAPI::Vulkan;
 	else
-		rendererConfig.preferredAPI = Nz::RenderAPI::OpenGL;
+		rendererConfig.preferredAPI = Nz::RenderAPI::Vulkan;
 
 	Nz::Modules<Nz::Graphics> nazara(rendererConfig);
 
@@ -61,30 +63,25 @@ int main()
 	texParams.renderDevice = device;
 	texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
 
-	std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>();
+	std::shared_ptr<Nz::Texture> diffuseTexture = Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams);
 
-	std::shared_ptr<Nz::MaterialPass> forwardPass = std::make_shared<Nz::MaterialPass>(Nz::PhongLightingMaterial::GetSettings());
-	forwardPass->EnableDepthBuffer(true);
-	forwardPass->EnableFaceCulling(true);
+	std::shared_ptr<Nz::Material> material = Nz::Graphics::Instance()->GetDefaultMaterials().basicMaterial;
 
-	material->AddPass("ForwardPass", forwardPass);
+	std::shared_ptr<Nz::MaterialInstance> materialInstance = std::make_shared<Nz::MaterialInstance>(material);
+	materialInstance->SetTextureProperty(0, diffuseTexture);
+	materialInstance->SetValueProperty(0, Nz::Color::White);
 
-	std::shared_ptr<Nz::Texture> normalMap = Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/normal.png", texParams);
-
-	Nz::PhongLightingMaterial phongMat(*forwardPass);
-	phongMat.EnableAlphaTest(false);
-	phongMat.SetAlphaMap(Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
-	phongMat.SetBaseColorMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
-	phongMat.SetNormalMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/normal.png", texParams));
+	std::shared_ptr<Nz::MaterialInstance> materialInstance2 = std::make_shared<Nz::MaterialInstance>(material);
+	materialInstance2->SetValueProperty(0, Nz::Color::Green);
 
 	Nz::Model model(std::move(gfxMesh), spaceshipMesh->GetAABB());
 	for (std::size_t i = 0; i < model.GetSubMeshCount(); ++i)
-		model.SetMaterial(i, material);
+		model.SetMaterial(i, materialInstance);
 
 	Nz::Vector2ui windowSize = window.GetSize();
 
 	Nz::Camera camera(window.GetRenderTarget());
-	//camera.UpdateClearColor(Nz::Color::Gray);
+	camera.UpdateClearColor(Nz::Color::Gray);
 
 	Nz::ViewerInstance& viewerInstance = camera.GetViewerInstance();
 	viewerInstance.UpdateTargetSize(Nz::Vector2f(window.GetSize()));
@@ -138,18 +135,18 @@ int main()
 
 				case Nz::WindowEventType::KeyPressed:
 					if (event.key.virtualKey == Nz::Keyboard::VKey::A)
-						phongMat.EnableAlphaTest(!phongMat.IsAlphaTestEnabled());
-					else if (event.key.virtualKey == Nz::Keyboard::VKey::N)
 					{
-						if (phongMat.GetNormalMap())
-							phongMat.SetNormalMap({});
-						else
-							phongMat.SetNormalMap(normalMap);
+						for (std::size_t i = 0; i < model.GetSubMeshCount(); ++i)
+							model.SetMaterial(i, materialInstance);
+					}
+					else if (event.key.virtualKey == Nz::Keyboard::VKey::B)
+					{
+						for (std::size_t i = 0; i < model.GetSubMeshCount(); ++i)
+							model.SetMaterial(i, materialInstance2);
 					}
 					else if (event.key.virtualKey == Nz::Keyboard::VKey::Space)
 					{
 						modelInstance->UpdateWorldMatrix(Nz::Matrix4f::Translate(viewerPos));
-						framePipeline.InvalidateWorldInstance(worldInstanceIndex1);
 					}
 
 					break;
@@ -226,8 +223,6 @@ int main()
 
 		viewerInstance.UpdateViewMatrix(Nz::Matrix4f::TransformInverse(viewerPos, camAngles));
 		viewerInstance.UpdateEyePosition(viewerPos);
-
-		framePipeline.InvalidateViewer(cameraIndex);
 
 		framePipeline.Render(frame);
 

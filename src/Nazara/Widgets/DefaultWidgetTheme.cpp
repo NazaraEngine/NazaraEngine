@@ -3,8 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Widgets/DefaultWidgetTheme.hpp>
-#include <Nazara/Graphics/BasicMaterial.hpp>
-#include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
 #include <Nazara/Widgets/SimpleWidgetStyles.hpp>
 #include <Nazara/Widgets/Widgets.hpp>
@@ -125,20 +124,30 @@ namespace Nz
 		texParams.renderDevice = Graphics::Instance()->GetRenderDevice();
 		texParams.loadFormat = PixelFormat::RGBA8; //< TODO: Re-enable gamma correction
 
-		auto CreateMaterialFromTexture = [](std::shared_ptr<Texture> texture)
+		const auto& defaultBasicMaterial = Graphics::Instance()->GetDefaultMaterials();
+		const MaterialPassRegistry& materialPassRegistry = Graphics::Instance()->GetMaterialPassRegistry();
+
+		std::size_t depthPassIndex = materialPassRegistry.GetPassIndex("DepthPass");
+		std::size_t forwardPassIndex = materialPassRegistry.GetPassIndex("ForwardPass");
+
+		auto CreateMaterialFromTexture = [&](std::shared_ptr<Texture> texture)
 		{
-			std::shared_ptr<MaterialPass> buttonMaterialPass = std::make_shared<MaterialPass>(BasicMaterial::GetSettings());
-			buttonMaterialPass->EnableDepthBuffer(true);
-			buttonMaterialPass->EnableDepthWrite(false);
-			buttonMaterialPass->EnableBlending(true);
-			buttonMaterialPass->SetBlendEquation(BlendEquation::Add, BlendEquation::Add);
-			buttonMaterialPass->SetBlendFunc(BlendFunc::SrcAlpha, BlendFunc::InvSrcAlpha, BlendFunc::One, BlendFunc::One);
+			std::shared_ptr<MaterialInstance> material = defaultBasicMaterial.basicMaterial->CreateInstance();
+			material->DisablePass(depthPassIndex);
+			material->UpdatePassStates(forwardPassIndex, [](RenderStates& renderStates)
+			{
+				renderStates.depthWrite = false;
+				renderStates.scissorTest = true;
+				renderStates.blending = true;
+				renderStates.blend.modeColor = BlendEquation::Add;
+				renderStates.blend.modeAlpha = BlendEquation::Add;
+				renderStates.blend.srcColor = BlendFunc::SrcAlpha;
+				renderStates.blend.dstColor = BlendFunc::InvSrcAlpha;
+				renderStates.blend.srcAlpha = BlendFunc::One;
+				renderStates.blend.dstAlpha = BlendFunc::One;
+			});
 
-			std::shared_ptr<Material> material = std::make_shared<Material>();
-			material->AddPass("ForwardPass", buttonMaterialPass);
-
-			BasicMaterial buttonBasicMat(*buttonMaterialPass);
-			buttonBasicMat.SetBaseColorMap(texture);
+			material->SetTextureProperty("BaseColorMap", std::move(texture));
 
 			return material;
 		};

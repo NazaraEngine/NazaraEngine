@@ -21,7 +21,6 @@ namespace Nz
 	class AbstractViewer;
 	class InstancedRenderable;
 	class Light;
-	class MaterialPass;
 	class RenderFrame;
 
 	class NAZARA_GRAPHICS_API FramePipeline
@@ -34,12 +33,7 @@ namespace Nz
 
 			inline DebugDrawer& GetDebugDrawer();
 
-			virtual void InvalidateSkeletalInstance(std::size_t skeletalInstanceIndex) = 0;
-			virtual void InvalidateViewer(std::size_t viewerIndex) = 0;
-			virtual void InvalidateWorldInstance(std::size_t worldInstance) = 0;
-
 			virtual std::size_t RegisterLight(std::shared_ptr<Light> light, UInt32 renderMask) = 0;
-			virtual void RegisterMaterialPass(MaterialPass* materialPass) = 0;
 			virtual std::size_t RegisterRenderable(std::size_t worldInstanceIndex, std::size_t skeletonInstanceIndex, const InstancedRenderable* instancedRenderable, UInt32 renderMask, const Recti& scissorBox) = 0;
 			virtual std::size_t RegisterSkeleton(SkeletonInstancePtr skeletonInstance) = 0;
 			virtual std::size_t RegisterViewer(AbstractViewer* viewerInstance, Int32 renderOrder) = 0;
@@ -48,7 +42,6 @@ namespace Nz
 			virtual void Render(RenderFrame& renderFrame) = 0;
 
 			virtual void UnregisterLight(std::size_t lightIndex) = 0;
-			virtual void UnregisterMaterialPass(MaterialPass* materialPass) = 0;
 			virtual void UnregisterRenderable(std::size_t renderableIndex) = 0;
 			virtual void UnregisterSkeleton(std::size_t skeletonIndex) = 0;
 			virtual void UnregisterViewer(std::size_t viewerIndex) = 0;

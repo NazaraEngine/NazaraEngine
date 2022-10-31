@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
+#include <Nazara/Graphics/TransferInterface.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
@@ -23,7 +24,7 @@ namespace Nz
 
 	using SkeletonInstancePtr = std::shared_ptr<SkeletonInstance>;
 
-	class NAZARA_GRAPHICS_API SkeletonInstance
+	class NAZARA_GRAPHICS_API SkeletonInstance : public TransferInterface
 	{
 		public:
 			SkeletonInstance(std::shared_ptr<const Skeleton> skeleton);
@@ -35,7 +36,7 @@ namespace Nz
 			inline const std::shared_ptr<RenderBuffer>& GetSkeletalBuffer() const;
 			inline const std::shared_ptr<const Skeleton>& GetSkeleton() const;
 
-			void UpdateBuffers(UploadPool& uploadPool, CommandBufferBuilder& builder);
+			void OnTransfer(RenderFrame& renderFrame, CommandBufferBuilder& builder) override;
 
 			SkeletonInstance& operator=(const SkeletonInstance&) = delete;
 			SkeletonInstance& operator=(SkeletonInstance&& skeletonInstance) noexcept;

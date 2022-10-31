@@ -6,6 +6,9 @@ import LightData from Engine.LightData;
 import SkeletalData from Engine.SkeletalData;
 import ViewerData from Engine.ViewerData;
 
+// Pass-specific options
+option DepthPass: bool = false;
+
 // Basic material options
 option HasBaseColorTexture: bool = false;
 option HasAlphaTexture: bool = false;
@@ -24,30 +27,39 @@ option BillboardColorLocation: i32 = -1;
 option BillboardSizeRotLocation: i32 = -1;
 
 // Vertex declaration related options
-option ColorLocation: i32 = -1;
-option NormalLocation: i32 = -1;
-option PosLocation: i32;
-option TangentLocation: i32 = -1;
-option UvLocation: i32 = -1;
+option VertexColorLoc: i32 = -1;
+option VertexNormalLoc: i32 = -1;
+option VertexPositionLoc: i32;
+option VertexTangentLoc: i32 = -1;
+option VertexUvLoc: i32 = -1;
 
-const HasNormal = (NormalLocation >= 0);
-const HasVertexColor = (ColorLocation >= 0);
+const HasNormal = (VertexNormalLoc >= 0);
+const HasVertexColor = (VertexColorLoc >= 0);
 const HasColor = (HasVertexColor || Billboard);
-const HasTangent = (TangentLocation >= 0);
-const HasUV = (UvLocation >= 0);
-const HasNormalMapping = HasNormalTexture && HasNormal && HasTangent;
+const HasTangent = (VertexTangentLoc >= 0);
+const HasUV = (VertexUvLoc >= 0);
+const HasNormalMapping = HasNormalTexture && HasNormal && HasTangent && !DepthPass;
+
 
 [layout(std140)]
 struct MaterialSettings
 {
-	// BasicSettings
+	// Basic settings
+	[tag("AlphaTestThreshold")]
 	AlphaThreshold: f32,
+
+	[tag("BaseColor")]
 	BaseColor: vec4[f32],
 
-	// PhongSettings
-	AmbientColor: vec3[f32],
-	SpecularColor: vec3[f32],
-	Shininess: f32,
+	// Phong settings
+	[tag("AmbientColor")]
+	AmbientColor: vec4[f32], //< TODO: Switch to vec3[f32]
+
+	[tag("SpecularColor")]
+	SpecularColor: vec4[f32], //< TODO: Switch to vec3[f32
+
+	[tag("Shininess")]
+	Shininess: f32
 }
 
 // TODO: Add enums
@@ -55,20 +67,26 @@ const DirectionalLight = 0;
 const PointLight = 1;
 const SpotLight = 2;
 
+[tag("Material")]
 external
 {
-	[binding(0)] settings: uniform[MaterialSettings],
-	[binding(1)] MaterialBaseColorMap: sampler2D[f32],
-	[binding(2)] MaterialAlphaMap: sampler2D[f32],
-	[binding(3)] TextureOverlay: sampler2D[f32],
-	[binding(4)] instanceData: uniform[InstanceData],
-	[binding(5)] viewerData: uniform[ViewerData],
-	[binding(6)] skeletalData: uniform[SkeletalData],
-	[binding(7)] lightData: uniform[LightData],
-	[binding(8)] MaterialEmissiveMap: sampler2D[f32],
-	[binding(9)] MaterialHeightMap: sampler2D[f32],
-	[binding(10)] MaterialNormalMap: sampler2D[f32],
-	[binding(11)] MaterialSpecularMap: sampler2D[f32],
+	[tag("Settings"), binding(0)] settings: uniform[MaterialSettings],
+	[tag("BaseColorMap"), binding(1)] MaterialBaseColorMap: sampler2D[f32],
+	[tag("AlphaMap"), binding(2)] MaterialAlphaMap: sampler2D[f32],
+	[tag("EmissiveMap"), binding(3)] MaterialEmissiveMap: sampler2D[f32],
+	[tag("HeightMap"), binding(4)] MaterialHeightMap: sampler2D[f32],
+	[tag("NormalMap"), binding(5)] MaterialNormalMap: sampler2D[f32],
+	[tag("SpecularMap"), binding(6)] MaterialSpecularMap: sampler2D[f32],
+}
+
+[tag("Engine")]
+external
+{
+	[tag("TextureOverlay"), binding(7)] TextureOverlay: sampler2D[f32],
+	[tag("InstanceData"), binding(8)] instanceData: uniform[InstanceData],
+	[tag("ViewerData"), binding(9)] viewerData: uniform[ViewerData],
+	[tag("SkeletalData"), binding(10)] skeletalData: uniform[SkeletalData],
+	[tag("LightData"), binding(11)] lightData: uniform[LightData]
 }
 
 struct VertToFrag
@@ -87,7 +105,7 @@ struct FragOut
 	[location(0)] RenderTarget0: vec4[f32]
 }
 
-[entry(frag)]
+[entry(frag), cond(!DepthPass || AlphaTest)]
 fn main(input: VertToFrag) -> FragOut
 {
 	let color = settings.BaseColor;
@@ -110,7 +128,7 @@ fn main(input: VertToFrag) -> FragOut
 			discard;
 	}
 
-	const if (HasNormal)
+	const if (HasNormal && !DepthPass)
 	{
 		let lightAmbient = vec3[f32](0.0, 0.0, 0.0);
 		let lightDiffuse = vec3[f32](0.0, 0.0, 0.0);
@@ -143,7 +161,7 @@ fn main(input: VertToFrag) -> FragOut
 			{
 				let lightDir = light.parameter1.xyz;
 
-				lightAmbient += light.color.rgb * lightAmbientFactor * settings.AmbientColor;
+				lightAmbient += light.color.rgb * lightAmbientFactor * settings.AmbientColor.rgb;
 
 				let lambert = max(dot(normal, -lightDir), 0.0);
 
@@ -166,7 +184,7 @@ fn main(input: VertToFrag) -> FragOut
 
 				let attenuationFactor = max(1.0 - dist * lightInvRadius, 0.0);
 
-				lightAmbient += attenuationFactor * light.color.rgb * lightAmbientFactor * settings.AmbientColor;
+				lightAmbient += attenuationFactor * light.color.rgb * lightAmbientFactor * settings.AmbientColor.rgb;
 
 				let lambert = max(dot(normal, -lightToPosNorm), 0.0);
 
@@ -196,7 +214,7 @@ fn main(input: VertToFrag) -> FragOut
 				let attenuationFactor = max(1.0 - dist * lightInvRadius, 0.0);
 				attenuationFactor *= max((curAngle - lightOuterAngle) / innerMinusOuterAngle, 0.0);			
 
-				lightAmbient += attenuationFactor * light.color.rgb * lightAmbientFactor * settings.AmbientColor;
+				lightAmbient += attenuationFactor * light.color.rgb * lightAmbientFactor * settings.AmbientColor.rgb;
 
 				let lambert = max(dot(normal, -lightToPosNorm), 0.0);
 
@@ -210,7 +228,7 @@ fn main(input: VertToFrag) -> FragOut
 			}
 		}
 
-		lightSpecular *= settings.SpecularColor;
+		lightSpecular *= settings.SpecularColor.rgb;
 
 		const if (HasSpecularTexture)
 			lightSpecular *= MaterialSpecularMap.Sample(input.uv).rgb;
@@ -229,22 +247,27 @@ fn main(input: VertToFrag) -> FragOut
 	}
 }
 
+// Dummy fragment shader (TODO: Add a way to delete stage?)
+[entry(frag), cond(DepthPass && !AlphaTest)]
+fn main() {}
+
+
 // Vertex stage
 struct VertIn
 {
-	[location(PosLocation)] 
+	[location(VertexPositionLoc)] 
 	pos: vec3[f32],
 
-	[cond(HasVertexColor), location(ColorLocation)] 
+	[cond(HasVertexColor), location(VertexColorLoc)] 
 	color: vec4[f32],
 
-	[cond(HasUV), location(UvLocation)] 
+	[cond(HasUV), location(VertexUvLoc)] 
 	uv: vec2[f32],
 
-	[cond(HasNormal), location(NormalLocation)]
+	[cond(HasNormal), location(VertexNormalLoc)]
 	normal: vec3[f32],
 
-	[cond(HasTangent), location(TangentLocation)]
+	[cond(HasTangent), location(VertexTangentLoc)]
 	tangent: vec3[f32],
 
 	[cond(Billboard), location(BillboardCenterLocation)]

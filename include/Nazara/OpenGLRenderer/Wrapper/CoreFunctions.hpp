@@ -23,6 +23,9 @@
 typedef void (GL_APIENTRYP PFNGLDRAWBUFFERPROC) (GLenum buf);
 typedef void (GL_APIENTRYP PFNGLPOLYGONMODEPROC) (GLenum face, GLenum mode);
 
+// Depth clamp (OpenGL 3.2)
+#define GL_DEPTH_CLAMP                     0x864F
+
 // Clip control (OpenGL 4.5)
 #define GL_LOWER_LEFT                      0x8CA1
 #define GL_UPPER_LEFT                      0x8CA2

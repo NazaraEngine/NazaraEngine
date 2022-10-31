@@ -394,9 +394,9 @@ namespace Nz::GL
 		if ((m_params.type == ContextType::OpenGL && glVersion >= 430) || (m_params.type == ContextType::OpenGL_ES && glVersion >= 320))
 			m_extensionStatus[UnderlyingCast(Extension::DebugOutput)] = ExtensionStatus::Core;
 		else if (m_supportedExtensions.count("GL_KHR_debug"))
-			m_extensionStatus[UnderlyingCast(Extension::DepthClamp)] = ExtensionStatus::KHR;
+			m_extensionStatus[UnderlyingCast(Extension::DebugOutput)] = ExtensionStatus::KHR;
 		else if (m_supportedExtensions.count("GL_ARB_debug_output"))
-			m_extensionStatus[UnderlyingCast(Extension::DepthClamp)] = ExtensionStatus::ARB;
+			m_extensionStatus[UnderlyingCast(Extension::DebugOutput)] = ExtensionStatus::ARB;
 
 		// Depth clamp
 		if (m_params.type == ContextType::OpenGL && glVersion >= 320)
@@ -558,7 +558,7 @@ namespace Nz::GL
 		m_state.viewport = { res[0], res[1], res[2], res[3] };
 
 		m_state.renderStates.depthCompare = RendererComparison::Less; //< OpenGL default depth mode is GL_LESS
-		m_state.renderStates.frontFace = FrontFace::CounterClockwise; //< OpenGL default front face is counter-clockwise
+		m_state.renderStates.frontFace = FrontFace::CounterClockwise; //< OpenGL default front face is GL_CCW
 
 		EnableVerticalSync(false);
 
@@ -774,12 +774,10 @@ namespace Nz::GL
 		}
 
 		// Color write
-		if (m_state.renderStates.colorWrite != renderStates.colorWrite)
+		if (m_state.renderStates.colorWriteMask != renderStates.colorWriteMask)
 		{
-			GLboolean param = (renderStates.colorWrite) ? GL_TRUE : GL_FALSE;
-			glColorMask(param, param, param, param);
-
-			m_state.renderStates.colorWrite = renderStates.colorWrite;
+			glColorMask(renderStates.colorWriteMask.Test(ColorComponent::Red), renderStates.colorWriteMask.Test(ColorComponent::Green), renderStates.colorWriteMask.Test(ColorComponent::Blue), renderStates.colorWriteMask.Test(ColorComponent::Alpha));
+			m_state.renderStates.colorWriteMask = renderStates.colorWriteMask;
 		}
 
 		// Depth buffer
@@ -799,9 +797,9 @@ namespace Nz::GL
 			assert(IsExtensionSupported(Extension::DepthClamp));
 
 			if (renderStates.depthClamp)
-				glEnable(GL_DEPTH_CLAMP_EXT);
+				glEnable(GL_DEPTH_CLAMP);
 			else
-				glDisable(GL_DEPTH_CLAMP_EXT);
+				glDisable(GL_DEPTH_CLAMP);
 
 			m_state.renderStates.depthClamp = renderStates.depthClamp;
 		}

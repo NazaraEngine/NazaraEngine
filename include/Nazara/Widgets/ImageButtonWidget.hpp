@@ -16,14 +16,13 @@
 namespace Nz
 {
 	class AbstractTextDrawer;
-	class MaterialPass;
 
 	class NAZARA_WIDGETS_API ImageButtonWidget : public BaseWidget
 	{
 		public:
-			inline ImageButtonWidget(BaseWidget* parent, std::shared_ptr<Material> material);
-			inline ImageButtonWidget(BaseWidget* parent, std::shared_ptr<Material> material, float cornerSize, float cornerTexCoords);
-			ImageButtonWidget(BaseWidget* parent, std::shared_ptr<Material> material, std::shared_ptr<Material> hoveredMaterial, std::shared_ptr<Material> pressedMaterial, float cornerSize, float cornerTexCoords);
+			inline ImageButtonWidget(BaseWidget* parent, std::shared_ptr<MaterialInstance> material);
+			inline ImageButtonWidget(BaseWidget* parent, std::shared_ptr<MaterialInstance> material, float cornerSize, float cornerTexCoords);
+			ImageButtonWidget(BaseWidget* parent, std::shared_ptr<MaterialInstance> material, std::shared_ptr<MaterialInstance> hoveredMaterial, std::shared_ptr<MaterialInstance> pressedMaterial, float cornerSize, float cornerTexCoords);
 			ImageButtonWidget(const ImageButtonWidget&) = delete;
 			ImageButtonWidget(ImageButtonWidget&&) = default;
 			~ImageButtonWidget() = default;
@@ -31,16 +30,16 @@ namespace Nz
 			inline const Color& GetColor() const;
 			inline float GetCornerSize() const;
 			inline float GetCornerTexCoords() const;
-			inline const std::shared_ptr<Material>& GetHoveredMaterial() const;
-			inline const std::shared_ptr<Material>& GetMaterial() const;
-			inline const std::shared_ptr<Material>& GetPressedMaterial() const;
+			inline const std::shared_ptr<MaterialInstance>& GetHoveredMaterial() const;
+			inline const std::shared_ptr<MaterialInstance>& GetMaterial() const;
+			inline const std::shared_ptr<MaterialInstance>& GetPressedMaterial() const;
 			inline const Rectf& GetTextureCoords() const;
 
 			inline void SetColor(const Color& color);
 			inline void SetCorner(float size, float texcoords);
-			inline void SetHoveredMaterial(std::shared_ptr<Material> material);
-			inline void SetMaterial(std::shared_ptr<Material> material);
-			inline void SetPressedMaterial(std::shared_ptr<Material> material);
+			inline void SetHoveredMaterial(std::shared_ptr<MaterialInstance> material);
+			inline void SetMaterial(std::shared_ptr<MaterialInstance> material);
+			inline void SetPressedMaterial(std::shared_ptr<MaterialInstance> material);
 			inline void SetTextureCoords(const Rectf& coords);
 
 			ImageButtonWidget& operator=(const ImageButtonWidget&) = delete;
@@ -61,9 +60,9 @@ namespace Nz
 			void UpdatePreferredSize();
 
 			std::unique_ptr<ImageButtonWidgetStyle> m_style;
-			std::shared_ptr<Material> m_hoveredMaterial;
-			std::shared_ptr<Material> m_material;
-			std::shared_ptr<Material> m_pressedMaterial;
+			std::shared_ptr<MaterialInstance> m_hoveredMaterial;
+			std::shared_ptr<MaterialInstance> m_material;
+			std::shared_ptr<MaterialInstance> m_pressedMaterial;
 			Color m_color;
 			Rectf m_textureCoords;
 			float m_cornerSize;

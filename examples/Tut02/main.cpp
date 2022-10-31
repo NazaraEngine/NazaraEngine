@@ -33,20 +33,7 @@ int main()
 	textDrawer.SetOutlineThickness(4.f);
 	textDrawer.SetText("Press a key");
 
-	std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>();
-
-	std::shared_ptr<Nz::MaterialPass> materialPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
-	materialPass->EnableDepthBuffer(true);
-	materialPass->EnableDepthWrite(false);
-	materialPass->EnableScissorTest(true);
-	materialPass->EnableBlending(true);
-	materialPass->SetBlendEquation(Nz::BlendEquation::Add, Nz::BlendEquation::Add);
-	materialPass->SetBlendFunc(Nz::BlendFunc::SrcAlpha, Nz::BlendFunc::InvSrcAlpha, Nz::BlendFunc::One, Nz::BlendFunc::One);
-
-	material = std::make_shared<Nz::Material>();
-	material->AddPass("ForwardPass", materialPass);
-
-	std::shared_ptr<Nz::TextSprite> textSprite = std::make_shared<Nz::TextSprite>(material);
+	std::shared_ptr<Nz::TextSprite> textSprite = std::make_shared<Nz::TextSprite>();
 	textSprite->Update(textDrawer);
 
 	entt::entity textEntity = registry.create();

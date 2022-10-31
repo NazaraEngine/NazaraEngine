@@ -3,10 +3,10 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/Graphics.hpp>
-#include <Nazara/Graphics/BasicMaterial.hpp>
-#include <Nazara/Graphics/DepthMaterial.hpp>
 #include <Nazara/Graphics/GuillotineTextureAtlas.hpp>
+#include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/MaterialPipeline.hpp>
+#include <Nazara/Graphics/PredefinedMaterials.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/Formats/TextureLoader.hpp>
 #include <Nazara/Utility/Font.hpp>
@@ -26,10 +26,6 @@ namespace Nz
 
 		const UInt8 r_basicMaterialShader[] = {
 			#include <Nazara/Graphics/Resources/Shaders/BasicMaterial.nzslb.h>
-		};
-
-		const UInt8 r_depthMaterialShader[] = {
-			#include <Nazara/Graphics/Resources/Shaders/DepthMaterial.nzslb.h>
 		};
 
 		const UInt8 r_fullscreenVertexShader[] = {
@@ -72,7 +68,7 @@ namespace Nz
 
 	/*!
 	* \ingroup graphics
-	* \class Nz::Graphics
+	* \class Graphics
 	* \brief Graphics class that represents the module initializer of Graphics
 	*/
 	Graphics::Graphics(Config config) :
@@ -124,7 +120,7 @@ namespace Nz
 
 		Font::SetDefaultAtlas(std::make_shared<GuillotineTextureAtlas>(*m_renderDevice));
 
-		m_materialLoader.RegisterLoader(Loaders::GetMaterialLoader_Texture()); // texture to material loader
+		m_materialInstanceLoader.RegisterLoader(Loaders::GetMaterialInstanceLoader_Texture()); // texture to material loader
 	}
 
 	Graphics::~Graphics()
@@ -208,30 +204,91 @@ namespace Nz
 
 	void Graphics::BuildDefaultMaterials()
 	{
-		m_defaultMaterials.depthMaterial = std::make_shared<Material>();
+		std::size_t depthPassIndex = m_materialPassRegistry.GetPassIndex("DepthPass");
+		std::size_t forwardPassIndex = m_materialPassRegistry.GetPassIndex("ForwardPass");
+
+		// BasicMaterial
 		{
-			std::shared_ptr<Nz::MaterialPass> depthPass = std::make_shared<Nz::MaterialPass>(Nz::DepthMaterial::GetSettings());
-			depthPass->EnableDepthBuffer(true);
+			MaterialSettings settings;
+			PredefinedMaterials::AddBasicSettings(settings);
 
-			m_defaultMaterials.depthMaterial->AddPass("DepthPass", depthPass);
+			MaterialPass forwardPass;
+			forwardPass.states.depthBuffer = true;
+			forwardPass.shaders.push_back(std::make_shared<UberShader>(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, "BasicMaterial"));
+			settings.AddPass(forwardPassIndex, forwardPass);
 
-			std::shared_ptr<Nz::MaterialPass> forwardPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
-			forwardPass->EnableDepthBuffer(true);
+			MaterialPass depthPass = forwardPass;
+			depthPass.options[CRC32("DepthPass")] = true;
+			settings.AddPass(depthPassIndex, depthPass);
 
-			m_defaultMaterials.depthMaterial->AddPass("ForwardPass", forwardPass);
+			m_defaultMaterials.basicMaterial = std::make_shared<Material>(std::move(settings), "BasicMaterial");
 		}
 
-		m_defaultMaterials.noDepthMaterial = std::make_shared<Material>();
+		// PbrMaterial
 		{
-			m_defaultMaterials.noDepthMaterial->AddPass("ForwardPass", std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings()));
+			MaterialSettings settings;
+			PredefinedMaterials::AddBasicSettings(settings);
+			PredefinedMaterials::AddPbrSettings(settings);
+
+			MaterialPass forwardPass;
+			forwardPass.states.depthBuffer = true;
+			forwardPass.shaders.push_back(std::make_shared<UberShader>(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, "PhysicallyBasedMaterial"));
+			settings.AddPass(forwardPassIndex, forwardPass);
+
+			MaterialPass depthPass = forwardPass;
+			depthPass.options[CRC32("DepthPass")] = true;
+			settings.AddPass(depthPassIndex, depthPass);
+
+			m_defaultMaterials.pbrMaterial = std::make_shared<Material>(std::move(settings), "PhysicallyBasedMaterial");
 		}
+
+		// PhongMaterial
+		{
+			MaterialSettings settings;
+			PredefinedMaterials::AddBasicSettings(settings);
+			PredefinedMaterials::AddPhongSettings(settings);
+
+			MaterialPass forwardPass;
+			forwardPass.states.depthBuffer = true;
+			forwardPass.shaders.push_back(std::make_shared<UberShader>(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, "PhongMaterial"));
+			settings.AddPass(forwardPassIndex, forwardPass);
+
+			MaterialPass depthPass = forwardPass;
+			depthPass.options[CRC32("DepthPass")] = true;
+			settings.AddPass(depthPassIndex, depthPass);
+
+			m_defaultMaterials.phongMaterial = std::make_shared<Material>(std::move(settings), "PhongMaterial");
+		}
+
+		m_defaultMaterials.basicDefault = m_defaultMaterials.basicMaterial->GetDefaultInstance();
+
+		m_defaultMaterials.basicNoDepth = m_defaultMaterials.basicMaterial->CreateInstance();
+		m_defaultMaterials.basicNoDepth->DisablePass(depthPassIndex);
+		m_defaultMaterials.basicNoDepth->UpdatePassStates(forwardPassIndex, [](RenderStates& states)
+		{
+			states.depthBuffer = false;
+		});
+
+		m_defaultMaterials.basicTransparent = m_defaultMaterials.basicMaterial->CreateInstance();
+		m_defaultMaterials.basicTransparent->DisablePass(depthPassIndex);
+		m_defaultMaterials.basicTransparent->UpdatePassStates(forwardPassIndex, [](RenderStates& renderStates)
+		{
+			renderStates.depthWrite = false;
+			renderStates.blending = true;
+			renderStates.blend.modeColor = BlendEquation::Add;
+			renderStates.blend.modeAlpha = BlendEquation::Add;
+			renderStates.blend.srcColor = BlendFunc::SrcAlpha;
+			renderStates.blend.dstColor = BlendFunc::InvSrcAlpha;
+			renderStates.blend.srcAlpha = BlendFunc::One;
+			renderStates.blend.dstAlpha = BlendFunc::One;
+		});
 	}
 
 	void Graphics::BuildDefaultTextures()
 	{
 		// White texture 2D
 		{
-			Nz::TextureInfo texInfo;
+			TextureInfo texInfo;
 			texInfo.width = texInfo.height = texInfo.depth = texInfo.mipmapLevel = 1;
 			texInfo.pixelFormat = PixelFormat::L8;
 
@@ -257,7 +314,6 @@ namespace Nz
 	{
 		m_shaderModuleResolver = std::make_shared<nzsl::FilesystemModuleResolver>();
 		RegisterEmbedShaderModule(r_basicMaterialShader);
-		RegisterEmbedShaderModule(r_depthMaterialShader);
 		RegisterEmbedShaderModule(r_fullscreenVertexShader);
 		RegisterEmbedShaderModule(r_instanceDataModule);
 		RegisterEmbedShaderModule(r_lightDataModule);

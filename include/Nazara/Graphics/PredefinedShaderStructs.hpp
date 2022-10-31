@@ -35,7 +35,6 @@ namespace Nz
 		static constexpr std::size_t MaxLightCount = 3;
 
 		static PredefinedLightData GetOffsets();
-		static MaterialSettings::SharedUniformBlock GetUniformBlock(UInt32 bindingIndex, nzsl::ShaderStageTypeFlags shaderStages);
 	};
 
 	struct NAZARA_GRAPHICS_API PredefinedInstanceData
@@ -45,7 +44,6 @@ namespace Nz
 		std::size_t worldMatrixOffset;
 
 		static PredefinedInstanceData GetOffsets();
-		static MaterialSettings::SharedUniformBlock GetUniformBlock(UInt32 bindingIndex, nzsl::ShaderStageTypeFlags shaderStages);
 	};
 
 	struct NAZARA_GRAPHICS_API PredefinedSkeletalData
@@ -56,7 +54,6 @@ namespace Nz
 		static constexpr std::size_t MaxMatricesCount = 256;
 
 		static PredefinedSkeletalData GetOffsets();
-		static MaterialSettings::SharedUniformBlock GetUniformBlock(UInt32 bindingIndex, nzsl::ShaderStageTypeFlags shaderStages);
 	};
 
 	struct NAZARA_GRAPHICS_API PredefinedViewerData
@@ -73,7 +70,6 @@ namespace Nz
 		std::size_t viewProjMatrixOffset;
 
 		static PredefinedViewerData GetOffsets();
-		static MaterialSettings::SharedUniformBlock GetUniformBlock(UInt32 bindingIndex, nzsl::ShaderStageTypeFlags shaderStages);
 	};
 }
 

@@ -27,15 +27,9 @@ namespace Nz
 		m_depthPassIndex = Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex("DepthPass");
 	}
 
-	DepthPipelinePass::~DepthPipelinePass()
-	{
-		for (auto&& [materialPass, entry] : m_materialPasses)
-			m_pipeline.UnregisterMaterialPass(materialPass);
-	}
-
 	void DepthPipelinePass::Prepare(RenderFrame& renderFrame, const Frustumf& frustum, const std::vector<FramePipelinePass::VisibleRenderable>& visibleRenderables, std::size_t visibilityHash)
 	{
-		if (m_lastVisibilityHash != visibilityHash)
+		if (m_lastVisibilityHash != visibilityHash || m_rebuildElements) //< FIXME
 		{
 			renderFrame.PushForRelease(std::move(m_renderElements));
 			m_renderElements.clear();
@@ -109,25 +103,24 @@ namespace Nz
 		}
 	}
 
-	void DepthPipelinePass::RegisterMaterial(const Material& material)
+	void DepthPipelinePass::RegisterMaterialInstance(const MaterialInstance& materialInstance)
 	{
-		if (!material.HasPass(m_depthPassIndex))
+		if (!materialInstance.HasPass(m_depthPassIndex))
 			return;
 
-		MaterialPass* materialPass = material.GetPass(m_depthPassIndex).get();
-
-		auto it = m_materialPasses.find(materialPass);
-		if (it == m_materialPasses.end())
+		auto it = m_materialInstances.find(&materialInstance);
+		if (it == m_materialInstances.end())
 		{
-			m_pipeline.RegisterMaterialPass(materialPass);
-
-			auto& matPassEntry = m_materialPasses[materialPass];
-			matPassEntry.onMaterialPipelineInvalidated.Connect(materialPass->OnMaterialPassPipelineInvalidated, [=](const MaterialPass*)
+			auto& matPassEntry = m_materialInstances[&materialInstance];
+			matPassEntry.onMaterialInstancePipelineInvalidated.Connect(materialInstance.OnMaterialInstancePipelineInvalidated, [=](const MaterialInstance*, std::size_t passIndex)
 			{
+				if (passIndex != m_depthPassIndex)
+					return;
+
 				m_rebuildElements = true;
 			});
 
-			matPassEntry.onMaterialShaderBindingInvalidated.Connect(materialPass->OnMaterialPassShaderBindingInvalidated, [=](const MaterialPass*)
+			matPassEntry.onMaterialInstanceShaderBindingInvalidated.Connect(materialInstance.OnMaterialInstanceShaderBindingInvalidated, [=](const MaterialInstance*)
 			{
 				m_rebuildCommandBuffer = true;
 			});
@@ -166,21 +159,13 @@ namespace Nz
 		});
 	}
 
-	void DepthPipelinePass::UnregisterMaterial(const Material& material)
+	void DepthPipelinePass::UnregisterMaterialInstance(const MaterialInstance& materialInstance)
 	{
-		if (!material.HasPass(m_depthPassIndex))
-			return;
-
-		MaterialPass* materialPass = material.GetPass(m_depthPassIndex).get();
-
-		auto it = m_materialPasses.find(materialPass);
-		if (it != m_materialPasses.end())
+		auto it = m_materialInstances.find(&materialInstance);
+		if (it != m_materialInstances.end())
 		{
 			if (--it->second.usedCount == 0)
-			{
-				m_pipeline.UnregisterMaterialPass(materialPass);
-				m_materialPasses.erase(it);
-			}
+				m_materialInstances.erase(it);
 		}
 	}
 }

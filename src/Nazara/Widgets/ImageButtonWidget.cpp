@@ -3,13 +3,12 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Widgets/ImageButtonWidget.hpp>
-#include <Nazara/Graphics/BasicMaterial.hpp>
-#include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Widgets/Debug.hpp>
 
 namespace Nz
 {
-	ImageButtonWidget::ImageButtonWidget(BaseWidget* parent, std::shared_ptr<Material> material, std::shared_ptr<Material> hoveredMaterial, std::shared_ptr<Material> pressedMaterial, float cornerSize, float cornerTexCoords) :
+	ImageButtonWidget::ImageButtonWidget(BaseWidget* parent, std::shared_ptr<MaterialInstance> material, std::shared_ptr<MaterialInstance> hoveredMaterial, std::shared_ptr<MaterialInstance> pressedMaterial, float cornerSize, float cornerTexCoords) :
 	BaseWidget(parent),
 	m_hoveredMaterial(std::move(hoveredMaterial)),
 	m_material(std::move(material)),
@@ -80,20 +79,16 @@ namespace Nz
 		const Rectf& textureCoords = GetTextureCoords();
 
 		// TODO: Move this in a separate function
-		if (const auto& material = m_material->FindPass("ForwardPass"))
+		if (const std::shared_ptr<Texture>* textureOpt = m_material->GetTextureProperty("BaseColorMap"))
 		{
-			BasicMaterial mat(*material);
-			if (mat.HasBaseColorMap())
+			// Material should always have textures but we're better safe than sorry
+			if (const std::shared_ptr<Texture>& texture = *textureOpt)
 			{
-				// Material should always have textures but we're better safe than sorry
-				if (const auto& texture = mat.GetBaseColorMap())
-				{
-					Vector2f textureSize = Vector2f(Vector2ui(texture->GetSize()));
-					textureSize.x *= textureCoords.width;
-					textureSize.y *= textureCoords.height;
+				Vector2f textureSize = Vector2f(Vector2ui(texture->GetSize()));
+				textureSize.x *= textureCoords.width;
+				textureSize.y *= textureCoords.height;
 
-					SetPreferredSize(textureSize);
-				}
+				SetPreferredSize(textureSize);
 			}
 		}
 	}

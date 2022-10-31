@@ -10,6 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/MaterialPassRegistry.hpp>
 #include <Nazara/Graphics/TextureSamplerCache.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
@@ -43,8 +44,10 @@ namespace Nz
 			inline const DefaultTextures& GetDefaultTextures() const;
 			inline MaterialPassRegistry& GetMaterialPassRegistry();
 			inline const MaterialPassRegistry& GetMaterialPassRegistry() const;
-			MaterialLoader& GetMaterialLoader();
-			const MaterialLoader& GetMaterialLoader() const;
+			inline MaterialInstanceLoader& GetMaterialInstanceLoader();
+			inline const MaterialInstanceLoader& GetMaterialInstanceLoader() const;
+			inline MaterialLoader& GetMaterialLoader();
+			inline const MaterialLoader& GetMaterialLoader() const;
 			inline PixelFormat GetPreferredDepthStencilFormat() const;
 			inline const std::shared_ptr<RenderDevice>& GetRenderDevice() const;
 			inline const RenderPassCache& GetRenderPassCache() const;
@@ -59,8 +62,13 @@ namespace Nz
 
 			struct DefaultMaterials
 			{
-				std::shared_ptr<Material> depthMaterial;
-				std::shared_ptr<Material> noDepthMaterial;
+				std::shared_ptr<Material> basicMaterial;
+				std::shared_ptr<Material> phongMaterial;
+				std::shared_ptr<Material> pbrMaterial;
+
+				std::shared_ptr<MaterialInstance> basicDefault;
+				std::shared_ptr<MaterialInstance> basicNoDepth;
+				std::shared_ptr<MaterialInstance> basicTransparent;
 			};
 
 			struct DefaultTextures
@@ -86,6 +94,7 @@ namespace Nz
 			std::shared_ptr<RenderPipelineLayout> m_blitPipelineLayout;
 			DefaultMaterials m_defaultMaterials;
 			DefaultTextures m_defaultTextures;
+			MaterialInstanceLoader m_materialInstanceLoader;
 			MaterialLoader m_materialLoader;
 			MaterialPassRegistry m_materialPassRegistry;
 			PixelFormat m_preferredDepthStencilFormat;

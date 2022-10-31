@@ -12,6 +12,7 @@
 #include <Nazara/Graphics/ElementRenderer.hpp>
 #include <Nazara/Graphics/FramePipelinePass.hpp>
 #include <Nazara/Graphics/Light.hpp>
+#include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>
 #include <Nazara/Graphics/RenderElementOwner.hpp>
@@ -27,7 +28,6 @@ namespace Nz
 	class FrameGraph;
 	class FramePipeline;
 	class Light;
-	class Material;
 
 	class NAZARA_GRAPHICS_API ForwardPipelinePass : public FramePipelinePass
 	{
@@ -35,17 +35,17 @@ namespace Nz
 			ForwardPipelinePass(FramePipeline& owner, ElementRendererRegistry& elementRegistry, AbstractViewer* viewer);
 			ForwardPipelinePass(const ForwardPipelinePass&) = delete;
 			ForwardPipelinePass(ForwardPipelinePass&&) = delete;
-			~ForwardPipelinePass();
+			~ForwardPipelinePass() = default;
 
 			inline void InvalidateCommandBuffers();
 			inline void InvalidateElements();
 
 			void Prepare(RenderFrame& renderFrame, const Frustumf& frustum, const std::vector<FramePipelinePass::VisibleRenderable>& visibleRenderables, const std::vector<const Light*>& visibleLights, std::size_t visibilityHash);
 
-			void RegisterMaterial(const Material& material);
+			void RegisterMaterialInstance(const MaterialInstance& material);
 			void RegisterToFrameGraph(FrameGraph& frameGraph, std::size_t colorBufferIndex, std::size_t depthBufferIndex, bool hasDepthPrepass);
 
-			void UnregisterMaterial(const Material& material);
+			void UnregisterMaterialInstance(const MaterialInstance& material);
 
 			ForwardPipelinePass& operator=(const ForwardPipelinePass&) = delete;
 			ForwardPipelinePass& operator=(ForwardPipelinePass&&) = delete;
@@ -57,8 +57,8 @@ namespace Nz
 			{
 				std::size_t usedCount = 1;
 
-				NazaraSlot(MaterialPass, OnMaterialPassPipelineInvalidated, onMaterialPipelineInvalidated);
-				NazaraSlot(MaterialPass, OnMaterialPassShaderBindingInvalidated, onMaterialShaderBindingInvalidated);
+				NazaraSlot(MaterialInstance, OnMaterialInstancePipelineInvalidated, onMaterialInstancePipelineInvalidated);
+				NazaraSlot(MaterialInstance, OnMaterialInstanceShaderBindingInvalidated, onMaterialInstanceShaderBindingInvalidated);
 			};
 
 			using LightKey = std::array<const Light*, MaxLightCountPerDraw>;
@@ -86,7 +86,7 @@ namespace Nz
 			std::vector<std::unique_ptr<ElementRendererData>> m_elementRendererData;
 			std::vector<ElementRenderer::RenderStates> m_renderStates;
 			std::vector<RenderElementOwner> m_renderElements;
-			std::unordered_map<MaterialPass*, MaterialPassEntry> m_materialPasses;
+			std::unordered_map<const MaterialInstance*, MaterialPassEntry> m_materialInstances;
 			std::unordered_map<const RenderElement*, RenderBufferView> m_lightPerRenderElement;
 			std::unordered_map<LightKey, RenderBufferView, LightKeyHasher> m_lightBufferPerLights;
 			std::vector<LightDataUbo> m_lightDataBuffers;

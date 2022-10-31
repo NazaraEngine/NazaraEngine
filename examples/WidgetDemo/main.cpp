@@ -66,10 +66,7 @@ int main()
 		labelWidget->UpdateText(Nz::SimpleTextDrawer::Draw("You clicked the button " + std::to_string(++clickCount) + " times", 72));
 	});
 
-	std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>();
-
-	std::shared_ptr<Nz::MaterialPass> materialPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
-	material->AddPass("ForwardPass", materialPass);
+	std::shared_ptr<Nz::Material> material = Nz::Graphics::Instance()->GetDefaultMaterials().basicMaterial;
 
 	Nz::TextureSamplerInfo samplerInfo;
 	samplerInfo.anisotropyLevel = 8;
@@ -78,15 +75,14 @@ int main()
 	texParams.renderDevice = device;
 	texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
 
-	Nz::BasicMaterial basicMat(*materialPass);
-	basicMat.SetBaseColorMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
-	basicMat.SetBaseColorSampler(samplerInfo);
+	std::shared_ptr<Nz::MaterialInstance> materialInstance = material->CreateInstance();
+	materialInstance->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
 
-	Nz::ImageWidget* imageWidget = canvas2D.Add<Nz::ImageWidget>(material);
+	Nz::ImageWidget* imageWidget = canvas2D.Add<Nz::ImageWidget>(materialInstance);
 	imageWidget->SetPosition(1200.f, 200.f);
 	imageWidget->Resize(imageWidget->GetPreferredSize() / 4.f);
 
-	Nz::ImageButtonWidget* imageButtonWidget = canvas2D.Add<Nz::ImageButtonWidget>(material);
+	Nz::ImageButtonWidget* imageButtonWidget = canvas2D.Add<Nz::ImageButtonWidget>(materialInstance);
 	imageButtonWidget->SetPosition(1400, 500.f);
 	imageButtonWidget->Resize(imageButtonWidget->GetPreferredSize() / 4.f);
 

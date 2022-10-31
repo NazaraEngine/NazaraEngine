@@ -5,12 +5,8 @@
 #include <Nazara/Graphics/MaterialPipeline.hpp>
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/Log.hpp>
-#include <Nazara/Graphics/BasicMaterial.hpp>
-#include <Nazara/Graphics/DepthMaterial.hpp>
+#include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
-#include <Nazara/Graphics/MaterialSettings.hpp>
-#include <Nazara/Graphics/PhongLightingMaterial.hpp>
-#include <Nazara/Graphics/PhysicallyBasedMaterial.hpp>
 #include <Nazara/Graphics/UberShader.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
@@ -50,10 +46,10 @@ namespace Nz
 		RenderPipelineInfo renderPipelineInfo;
 		static_cast<RenderStates&>(renderPipelineInfo).operator=(m_pipelineInfo); // Not the line I'm the most proud of
 
-		renderPipelineInfo.pipelineLayout = m_pipelineInfo.settings->GetRenderPipelineLayout();
+		renderPipelineInfo.pipelineLayout = m_pipelineInfo.pipelineLayout;
 
 		std::unordered_map<UInt32, nzsl::Ast::ConstantSingleValue> optionValues;
-		for (std::size_t i = 0; i < m_pipelineInfo.optionCount; ++i)
+		for (std::size_t i = 0; i < m_pipelineInfo.optionValues.size(); ++i)
 		{
 			const auto& option = m_pipelineInfo.optionValues[i];
 
@@ -94,10 +90,10 @@ namespace Nz
 
 	bool MaterialPipeline::Initialize()
 	{
-		BasicMaterial::Initialize();
-		DepthMaterial::Initialize();
-		PhongLightingMaterial::Initialize();
-		PhysicallyBasedMaterial::Initialize();
+		/*BasicMaterialPass::Initialize();
+		DepthMaterialPass::Initialize();
+		PhongLightingMaterialPass::Initialize();
+		PhysicallyBasedMaterialPass::Initialize();*/
 
 		return true;
 	}
@@ -105,10 +101,10 @@ namespace Nz
 	void MaterialPipeline::Uninitialize()
 	{
 		s_pipelineCache.clear();
-		PhysicallyBasedMaterial::Uninitialize();
-		PhongLightingMaterial::Uninitialize();
-		DepthMaterial::Uninitialize();
-		BasicMaterial::Uninitialize();
+		/*PhysicallyBasedMaterialPass::Uninitialize();
+		PhongLightingMaterialPass::Uninitialize();
+		DepthMaterialPass::Uninitialize();
+		BasicMaterialPass::Uninitialize();*/
 	}
 
 	MaterialPipeline::PipelineCache MaterialPipeline::s_pipelineCache;

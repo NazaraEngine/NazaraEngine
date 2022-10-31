@@ -33,25 +33,6 @@ namespace Nz
 		return lightData;
 	}
 
-	MaterialSettings::SharedUniformBlock PredefinedLightData::GetUniformBlock(UInt32 bindingIndex, nzsl::ShaderStageTypeFlags shaderStages)
-	{
-		PredefinedLightData lightData = GetOffsets();
-
-		std::vector<MaterialSettings::UniformVariable> variables;
-		auto& var = variables.emplace_back();
-		var.name = "Lights";
-		var.offset = lightData.lightsOffset;
-
-		MaterialSettings::SharedUniformBlock uniformBlock = {
-			bindingIndex,
-			"LightData",
-			std::move(variables),
-			shaderStages
-		};
-
-		return uniformBlock;
-	}
-
 	// PredefinedInstanceData
 	PredefinedInstanceData PredefinedInstanceData::GetOffsets()
 	{
@@ -66,27 +47,6 @@ namespace Nz
 		return instanceData;
 	}
 
-	MaterialSettings::SharedUniformBlock PredefinedInstanceData::GetUniformBlock(UInt32 bindingIndex, nzsl::ShaderStageTypeFlags shaderStages)
-	{
-		PredefinedInstanceData instanceData = GetOffsets();
-
-		std::vector<MaterialSettings::UniformVariable> variables = {
-			{
-				{ "WorldMatrix", instanceData.worldMatrixOffset },
-				{ "InvWorldMatrix", instanceData.invWorldMatrixOffset }
-			}
-		};
-
-		MaterialSettings::SharedUniformBlock uniformBlock = {
-			bindingIndex,
-			"InstanceData",
-			std::move(variables),
-			shaderStages
-		};
-
-		return uniformBlock;
-	}
-
 	// PredefinedSkeletalData
 	PredefinedSkeletalData PredefinedSkeletalData::GetOffsets()
 	{
@@ -98,26 +58,6 @@ namespace Nz
 		skeletalData.totalSize = skeletalStruct.GetAlignedSize();
 
 		return skeletalData;
-	}
-
-	MaterialSettings::SharedUniformBlock PredefinedSkeletalData::GetUniformBlock(UInt32 bindingIndex, nzsl::ShaderStageTypeFlags shaderStages)
-	{
-		PredefinedSkeletalData skeletalData = GetOffsets();
-
-		std::vector<MaterialSettings::UniformVariable> variables = {
-			{
-				{ "JointMatrices", skeletalData.jointMatricesOffset }
-			}
-		};
-
-		MaterialSettings::SharedUniformBlock uniformBlock = {
-			bindingIndex,
-			"SkeletalData",
-			std::move(variables),
-			shaderStages
-		};
-
-		return uniformBlock;
 	}
 
 	// PredefinedViewerData
@@ -139,33 +79,5 @@ namespace Nz
 		viewerData.totalSize = viewerStruct.GetAlignedSize();
 
 		return viewerData;
-	}
-
-	MaterialSettings::SharedUniformBlock PredefinedViewerData::GetUniformBlock(UInt32 bindingIndex, nzsl::ShaderStageTypeFlags shaderStages)
-	{
-		PredefinedViewerData viewerData = GetOffsets();
-
-		std::vector<MaterialSettings::UniformVariable> variables = {
-			{
-				{ "EyePosition", viewerData.eyePositionOffset },
-				{ "InvProjMatrix", viewerData.invProjMatrixOffset },
-				{ "InvTargetSize", viewerData.invTargetSizeOffset },
-				{ "InvViewMatrix", viewerData.invViewMatrixOffset },
-				{ "InvViewProjMatrix", viewerData.invViewProjMatrixOffset },
-				{ "ProjMatrix", viewerData.projMatrixOffset },
-				{ "TargetSize", viewerData.targetSizeOffset },
-				{ "ViewMatrix", viewerData.viewMatrixOffset },
-				{ "ViewProjMatrix", viewerData.viewProjMatrixOffset }
-			}
-		};
-
-		MaterialSettings::SharedUniformBlock uniformBlock = {
-			bindingIndex,
-			"ViewerData",
-			std::move(variables),
-			shaderStages
-		};
-
-		return uniformBlock;
 	}
 }

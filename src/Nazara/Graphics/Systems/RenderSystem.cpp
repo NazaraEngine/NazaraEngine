@@ -222,8 +222,6 @@ namespace Nz
 			ViewerInstance& viewerInstance = entityCamera.GetViewerInstance();
 			viewerInstance.UpdateEyePosition(cameraPosition);
 			viewerInstance.UpdateViewMatrix(Nz::Matrix4f::TransformInverse(cameraPosition, entityNode.GetRotation(CoordSys::Global)));
-
-			m_pipeline->InvalidateViewer(cameraEntity->viewerIndex);
 		}
 		m_invalidatedCameraNode.clear();
 
@@ -236,8 +234,6 @@ namespace Nz
 
 			const WorldInstancePtr& worldInstance = entityGraphics.GetWorldInstance();
 			worldInstance->UpdateWorldMatrix(entityNode.GetTransformMatrix());
-
-			m_pipeline->InvalidateWorldInstance(graphicsEntity->worldInstanceIndex);
 		}
 		m_invalidatedGfxWorldNode.clear();
 
@@ -437,10 +433,6 @@ namespace Nz
 				SharedSkeleton& sharedSkeleton = m_sharedSkeletonInstances[skeleton.get()];
 				sharedSkeleton.skeletonInstanceIndex = m_pipeline->RegisterSkeleton(std::make_shared<SkeletonInstance>(skeleton));
 				sharedSkeleton.useCount = 1;
-				sharedSkeleton.onJointsInvalidated.Connect(skeleton->OnSkeletonJointsInvalidated, [this, instanceIndex = sharedSkeleton.skeletonInstanceIndex](const Skeleton* /*skeleton*/)
-				{
-					m_pipeline->InvalidateSkeletalInstance(instanceIndex);
-				});
 
 				graphicsEntity->skeletonInstanceIndex = sharedSkeleton.skeletonInstanceIndex;
 			}
@@ -459,10 +451,6 @@ namespace Nz
 			const std::shared_ptr<Skeleton>& skeleton = skeletonComponent.GetSkeleton();
 
 			graphicsEntity->skeletonInstanceIndex = m_pipeline->RegisterSkeleton(std::make_shared<SkeletonInstance>(skeleton));
-			graphicsEntity->onSkeletonJointsInvalidated.Connect(skeleton->OnSkeletonJointsInvalidated, [this, instanceIndex = graphicsEntity->skeletonInstanceIndex](const Skeleton* /*skeleton*/)
-			{
-				m_pipeline->InvalidateSkeletalInstance(instanceIndex);
-			});
 		});
 	}
 

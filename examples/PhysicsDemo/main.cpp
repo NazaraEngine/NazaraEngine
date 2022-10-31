@@ -56,22 +56,6 @@ int main()
 	const Nz::Boxf& spaceshipAABB = spaceshipMesh->GetAABB();
 	std::shared_ptr<Nz::GraphicalMesh> gfxMesh = Nz::GraphicalMesh::BuildFromMesh(*spaceshipMesh);
 
-	// Texture
-	std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>();
-
-	std::shared_ptr<Nz::MaterialPass> depthPass = std::make_shared<Nz::MaterialPass>(Nz::DepthMaterial::GetSettings());
-	depthPass->EnableDepthBuffer(true);
-	depthPass->EnableDepthClamp(true);
-	depthPass->EnableFaceCulling(true);
-
-	std::shared_ptr<Nz::MaterialPass> materialPass = std::make_shared<Nz::MaterialPass>(Nz::PhongLightingMaterial::GetSettings());
-	materialPass->EnableDepthBuffer(true);
-	materialPass->EnableDepthClamp(true);
-	materialPass->EnableFaceCulling(true);
-
-	material->AddPass("DepthPass", depthPass);
-	material->AddPass("ForwardPass", materialPass);
-
 	Nz::TextureSamplerInfo samplerInfo;
 	samplerInfo.anisotropyLevel = 8;
 
@@ -79,35 +63,15 @@ int main()
 	texParams.renderDevice = device;
 	texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
 
-	Nz::BasicMaterial basicMat(*materialPass);
-	basicMat.EnableAlphaTest(false);
-	basicMat.SetAlphaMap(Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
-	basicMat.SetBaseColorMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
-	basicMat.SetBaseColorSampler(samplerInfo);
-
-	Nz::DepthMaterial basicMatDepth(*depthPass);
-	basicMatDepth.SetAlphaMap(Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
+	std::shared_ptr<Nz::MaterialInstance> material = Nz::Graphics::Instance()->GetDefaultMaterials().phongMaterial->CreateInstance();
+	material->SetTextureProperty("AlphaMap", Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
+	material->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
 
 	std::shared_ptr<Nz::Model> model = std::make_shared<Nz::Model>(std::move(gfxMesh), spaceshipAABB);
 	for (std::size_t i = 0; i < model->GetSubMeshCount(); ++i)
 		model->SetMaterial(i, material);
 
-	std::shared_ptr<Nz::Material> spriteMaterial = std::make_shared<Nz::Material>();
-
-	std::shared_ptr<Nz::MaterialPass> spriteMaterialPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
-	spriteMaterialPass->EnableDepthBuffer(true);
-	spriteMaterialPass->EnableDepthWrite(false);
-	spriteMaterialPass->EnableDepthClamp(true);
-
-	spriteMaterialPass->EnableFlag(Nz::MaterialPassFlag::SortByDistance);
-
-	spriteMaterialPass->EnableBlending(true);
-	spriteMaterialPass->SetBlendEquation(Nz::BlendEquation::Add, Nz::BlendEquation::Add);
-	spriteMaterialPass->SetBlendFunc(Nz::BlendFunc::SrcAlpha, Nz::BlendFunc::InvSrcAlpha, Nz::BlendFunc::One, Nz::BlendFunc::Zero);
-
-	spriteMaterial->AddPass("ForwardPass", spriteMaterialPass);
-
-	std::shared_ptr<Nz::TextSprite> sprite = std::make_shared<Nz::TextSprite>(spriteMaterial);
+	std::shared_ptr<Nz::TextSprite> sprite = std::make_shared<Nz::TextSprite>();
 	sprite->Update(Nz::SimpleTextDrawer::Draw("Voix ambiguë d'un cœur qui, au zéphyr, préfère les jattes de kiwis", 72), 0.01f);
 
 	Nz::VertexMapper vertexMapper(*spaceshipMesh->GetSubMesh(0));
@@ -134,16 +98,16 @@ int main()
 
 	auto shipCollider = std::make_shared<Nz::ConvexCollider3D>(vertices, vertexMapper.GetVertexCount(), 0.01f);
 
-	std::shared_ptr<Nz::Material> colliderMat = std::make_shared<Nz::Material>();
-
-	std::shared_ptr<Nz::MaterialPass> colliderMatPass = std::make_shared<Nz::MaterialPass>(Nz::BasicMaterial::GetSettings());
-	colliderMatPass->EnableDepthBuffer(true);
-	colliderMatPass->SetPrimitiveMode(Nz::PrimitiveMode::LineList);
-
-	colliderMat->AddPass("ForwardPass", colliderMatPass);
-
-	Nz::BasicMaterial colliderBasicMat(*colliderMatPass);
-	colliderBasicMat.SetBaseColor(Nz::Color::Green);
+	std::shared_ptr<Nz::MaterialInstance> colliderMat = Nz::Graphics::Instance()->GetDefaultMaterials().basicMaterial->CreateInstance();
+	colliderMat->SetValueProperty("BaseColor", Nz::Color::Green);
+	for (std::string_view passName : { "DepthPass", "ForwardPass" })
+	{
+		colliderMat->UpdatePassStates(passName, [](Nz::RenderStates& states)
+		{
+			states.primitiveMode = Nz::PrimitiveMode::LineList;
+			return true;
+		});
+	}
 
 	std::shared_ptr<Nz::Model> colliderModel;
 	{
@@ -245,9 +209,8 @@ int main()
 				case Nz::WindowEventType::KeyPressed:
 					if (event.key.virtualKey == Nz::Keyboard::VKey::A)
 					{
-						//canvas2D.Resize({ 1920.f, 1080.f });
-						basicMat.EnableAlphaTest(!basicMat.IsAlphaTestEnabled());
-						basicMatDepth.EnableAlphaTest(!basicMatDepth.IsAlphaTestEnabled());
+						bool alphaTestEnabled = std::get<bool>(*material->GetValueProperty("AlphaTest"));
+						material->SetValueProperty("AlphaTest", !alphaTestEnabled);
 					}
 					else if (event.key.virtualKey == Nz::Keyboard::VKey::B)
 					{

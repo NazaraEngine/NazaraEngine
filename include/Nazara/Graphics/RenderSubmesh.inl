@@ -9,16 +9,17 @@
 
 namespace Nz
 {
-	inline RenderSubmesh::RenderSubmesh(int renderLayer, std::shared_ptr<MaterialPass> materialPass, std::shared_ptr<RenderPipeline> renderPipeline, const WorldInstance& worldInstance, const SkeletonInstance* skeletonInstance, std::size_t indexCount, IndexType indexType, std::shared_ptr<RenderBuffer> indexBuffer, std::shared_ptr<RenderBuffer> vertexBuffer, const Recti& scissorBox) :
+	inline RenderSubmesh::RenderSubmesh(int renderLayer, std::shared_ptr<MaterialInstance> materialInstance, MaterialPassFlags materialFlags, std::shared_ptr<RenderPipeline> renderPipeline, const WorldInstance& worldInstance, const SkeletonInstance* skeletonInstance, std::size_t indexCount, IndexType indexType, std::shared_ptr<RenderBuffer> indexBuffer, std::shared_ptr<RenderBuffer> vertexBuffer, const Recti& scissorBox) :
 	RenderElement(BasicRenderElement::Submesh),
 	m_indexBuffer(std::move(indexBuffer)),
 	m_vertexBuffer(std::move(vertexBuffer)),
-	m_materialPass(std::move(materialPass)),
+	m_materialInstance(std::move(materialInstance)),
 	m_renderPipeline(std::move(renderPipeline)),
 	m_indexCount(indexCount),
 	m_skeletonInstance(skeletonInstance),
 	m_worldInstance(worldInstance),
 	m_indexType(indexType),
+	m_materialFlags(materialFlags),
 	m_scissorBox(scissorBox),
 	m_renderLayer(renderLayer)
 	{
@@ -27,8 +28,8 @@ namespace Nz
 	inline UInt64 RenderSubmesh::ComputeSortingScore(const Frustumf& frustum, const RenderQueueRegistry& registry) const
 	{
 		UInt64 layerIndex = registry.FetchLayerIndex(m_renderLayer);
-		
-		if (m_materialPass->IsFlagEnabled(MaterialPassFlag::SortByDistance))
+
+		if (m_materialFlags.Test(MaterialPassFlag::SortByDistance))
 		{
 			UInt64 matFlags = 1;
 
@@ -48,7 +49,7 @@ namespace Nz
 		else
 		{
 			UInt64 elementType = GetElementType();
-			UInt64 materialPassIndex = registry.FetchMaterialPassIndex(m_materialPass.get());
+			UInt64 materialInstanceIndex = registry.FetchMaterialInstanceIndex(m_materialInstance.get());
 			UInt64 pipelineIndex = registry.FetchPipelineIndex(m_renderPipeline.get());
 			UInt64 vertexBufferIndex = registry.FetchVertexBuffer(m_vertexBuffer.get());
 
@@ -67,12 +68,12 @@ namespace Nz
 			// - VertexBuffer (8bits)
 			// - Skeleton (8bits)
 
-			return (layerIndex & 0xFF)             << 60 |
-			       (matFlags)                      << 52 |
-			       (elementType & 0xF)             << 51 |
-			       (pipelineIndex & 0xFFFF)        << 35 |
-			       (materialPassIndex & 0xFFFF)    << 23 |
-			       (vertexBufferIndex & 0xFF)      <<  7 |
+			return (layerIndex & 0xFF)              << 60 |
+			       (matFlags)                       << 52 |
+			       (elementType & 0xF)              << 51 |
+			       (pipelineIndex & 0xFFFF)         << 35 |
+			       (materialInstanceIndex & 0xFFFF) << 23 |
+			       (vertexBufferIndex & 0xFF)       <<  7 |
 			       (skeletonIndex     & 0xFF);
 		}
 	}
@@ -92,9 +93,9 @@ namespace Nz
 		return m_indexType;
 	}
 
-	inline const MaterialPass& RenderSubmesh::GetMaterialPass() const
+	inline const MaterialInstance& RenderSubmesh::GetMaterialInstance() const
 	{
-		return *m_materialPass;
+		return *m_materialInstance;
 	}
 
 	inline const RenderPipeline* RenderSubmesh::GetRenderPipeline() const
@@ -125,7 +126,7 @@ namespace Nz
 	inline void RenderSubmesh::Register(RenderQueueRegistry& registry) const
 	{
 		registry.RegisterLayer(m_renderLayer);
-		registry.RegisterMaterialPass(m_materialPass.get());
+		registry.RegisterMaterialInstance(m_materialInstance.get());
 		registry.RegisterPipeline(m_renderPipeline.get());
 		registry.RegisterVertexBuffer(m_vertexBuffer.get());
 		if (m_skeletonInstance)

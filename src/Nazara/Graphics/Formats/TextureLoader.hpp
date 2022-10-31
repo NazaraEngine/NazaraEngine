@@ -8,11 +8,11 @@
 #define NAZARA_GRAPHICS_FORMATS_TEXTURELOADER_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/MaterialInstance.hpp>
 
 namespace Nz::Loaders
 {
-	MaterialLoader::Entry GetMaterialLoader_Texture();
+	MaterialInstanceLoader::Entry GetMaterialInstanceLoader_Texture();
 }
 
 #endif // NAZARA_GRAPHICS_FORMATS_TEXTURELOADER_HPP

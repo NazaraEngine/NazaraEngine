@@ -17,14 +17,14 @@
 
 namespace Nz
 {
-	class MaterialPass;
+	class MaterialInstance;
 	class RenderPipeline;
 	class ShaderBinding;
 
 	class RenderSubmesh : public RenderElement
 	{
 		public:
-			inline RenderSubmesh(int renderLayer, std::shared_ptr<MaterialPass> materialPass, std::shared_ptr<RenderPipeline> renderPipeline, const WorldInstance& worldInstance, const SkeletonInstance* skeletonInstance, std::size_t indexCount, IndexType indexType, std::shared_ptr<RenderBuffer> indexBuffer, std::shared_ptr<RenderBuffer> vertexBuffer, const Recti& scissorBox);
+			inline RenderSubmesh(int renderLayer, std::shared_ptr<MaterialInstance> materialInstance, MaterialPassFlags materialFlags, std::shared_ptr<RenderPipeline> renderPipeline, const WorldInstance& worldInstance, const SkeletonInstance* skeletonInstance, std::size_t indexCount, IndexType indexType, std::shared_ptr<RenderBuffer> indexBuffer, std::shared_ptr<RenderBuffer> vertexBuffer, const Recti& scissorBox);
 			~RenderSubmesh() = default;
 
 			inline UInt64 ComputeSortingScore(const Frustumf& frustum, const RenderQueueRegistry& registry) const override;
@@ -32,7 +32,7 @@ namespace Nz
 			inline const RenderBuffer* GetIndexBuffer() const;
 			inline std::size_t GetIndexCount() const;
 			inline IndexType GetIndexType() const;
-			inline const MaterialPass& GetMaterialPass() const;
+			inline const MaterialInstance& GetMaterialInstance() const;
 			inline const RenderPipeline* GetRenderPipeline() const;
 			inline const Recti& GetScissorBox() const;
 			inline const SkeletonInstance* GetSkeletonInstance() const;
@@ -46,12 +46,13 @@ namespace Nz
 		private:
 			std::shared_ptr<RenderBuffer> m_indexBuffer;
 			std::shared_ptr<RenderBuffer> m_vertexBuffer;
-			std::shared_ptr<MaterialPass> m_materialPass;
+			std::shared_ptr<MaterialInstance> m_materialInstance;
 			std::shared_ptr<RenderPipeline> m_renderPipeline;
 			std::size_t m_indexCount;
 			const SkeletonInstance* m_skeletonInstance;
 			const WorldInstance& m_worldInstance;
 			IndexType m_indexType;
+			MaterialPassFlags m_materialFlags;
 			Recti m_scissorBox;
 			int m_renderLayer;
 	};

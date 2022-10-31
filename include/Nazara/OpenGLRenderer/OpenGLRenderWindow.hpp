@@ -22,7 +22,7 @@ namespace Nz
 {
 	class RenderWindow;
 
-	class NAZARA_OPENGLRENDERER_API OpenGLRenderWindow : public RenderWindowImpl
+	class NAZARA_OPENGLRENDERER_API OpenGLRenderWindow final : public RenderWindowImpl
 	{
 		public:
 			OpenGLRenderWindow(RenderWindow& owner);

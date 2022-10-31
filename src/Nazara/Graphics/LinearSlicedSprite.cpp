@@ -3,15 +3,15 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/LinearSlicedSprite.hpp>
-#include <Nazara/Graphics/BasicMaterial.hpp>
 #include <Nazara/Graphics/ElementRendererRegistry.hpp>
-#include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/Graphics.hpp>
+#include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/RenderSpriteChain.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
 {
-	LinearSlicedSprite::LinearSlicedSprite(std::shared_ptr<Material> material, Orientation orientation) :
+	LinearSlicedSprite::LinearSlicedSprite(std::shared_ptr<MaterialInstance> material, Orientation orientation) :
 	m_material(std::move(material)),
 	m_sectionCount(0),
 	m_spriteCount(0),
@@ -25,9 +25,11 @@ namespace Nz
 
 	void LinearSlicedSprite::BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, std::vector<RenderElementOwner>& elements) const
 	{
-		const auto& materialPass = m_material->GetPass(passIndex);
-		if (!materialPass)
+		const auto& materialPipeline = m_material->GetPipeline(passIndex);
+		if (!materialPipeline)
 			return;
+
+		MaterialPassFlags passFlags = m_material->GetPassFlags(passIndex);
 
 		const std::shared_ptr<VertexDeclaration>& vertexDeclaration = VertexDeclaration::Get(VertexLayout::XYZ_Color_UV);
 
@@ -35,14 +37,14 @@ namespace Nz
 			0,
 			vertexDeclaration
 		};
-		const auto& renderPipeline = materialPass->GetPipeline()->GetRenderPipeline(&vertexBufferData, 1);
+		const auto& renderPipeline = materialPipeline->GetRenderPipeline(&vertexBufferData, 1);
 
 		const auto& whiteTexture = Graphics::Instance()->GetDefaultTextures().whiteTextures[UnderlyingCast(ImageType::E2D)];
 
-		elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer(), materialPass, renderPipeline, *elementData.worldInstance, vertexDeclaration, whiteTexture, m_spriteCount, m_vertices.data(), *elementData.scissorBox));
+		elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer(), m_material, passFlags, renderPipeline, *elementData.worldInstance, vertexDeclaration, whiteTexture, m_spriteCount, m_vertices.data(), *elementData.scissorBox));
 	}
 
-	const std::shared_ptr<Material>& LinearSlicedSprite::GetMaterial(std::size_t i) const
+	const std::shared_ptr<MaterialInstance>& LinearSlicedSprite::GetMaterial(std::size_t i) const
 	{
 		assert(i == 0);
 		NazaraUnused(i);
@@ -59,19 +61,14 @@ namespace Nz
 	{
 		assert(m_material);
 
-		//TODO: Cache index in registry?
-		if (const auto& material = m_material->FindPass("ForwardPass"))
+		// TODO: Move this in a separate function
+		if (const std::shared_ptr<Texture>* textureOpt = m_material->GetTextureProperty("BaseColorMap"))
 		{
-			BasicMaterial mat(*material);
-			if (mat.HasBaseColorMap())
-			{
-				// Material should always have textures but we're better safe than sorry
-				if (const auto& texture = mat.GetBaseColorMap())
-					return texture->GetSize();
-			}
+			// Material should always have textures but we're better safe than sorry
+			if (const std::shared_ptr<Texture>& texture = *textureOpt)
+				return texture->GetSize();
 		}
 
-		// Couldn't get material pass or texture
 		return Vector3ui::Unit(); //< prevents division by zero
 	}
 

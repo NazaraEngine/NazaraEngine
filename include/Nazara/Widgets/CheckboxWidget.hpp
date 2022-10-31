@@ -16,8 +16,6 @@
 
 namespace Nz
 {
-	class MaterialPass;
-
 	class NAZARA_WIDGETS_API CheckboxWidget : public BaseWidget
 	{
 		public:
