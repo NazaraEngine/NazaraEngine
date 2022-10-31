@@ -20,6 +20,9 @@ namespace Nz
 	{
 		const auto& settings = m_parent->GetSettings();
 		m_textureOverride.resize(settings.GetTexturePropertyCount());
+		for (std::size_t i = 0; i < m_textureOverride.size(); ++i)
+			m_textureOverride[i].samplerInfo = settings.GetTextureProperty(i).defaultSamplerInfo;
+
 		m_valueOverride.resize(settings.GetValuePropertyCount());
 
 		const auto& passSettings = settings.GetPasses();
@@ -34,6 +37,7 @@ namespace Nz
 
 			auto& pass = m_passes[i];
 			pass.enabled = true;
+			pass.flags = passSetting.flags;
 
 			static_cast<RenderStates&>(pass.pipelineInfo) = passSetting.states;
 
@@ -67,6 +71,44 @@ namespace Nz
 			handler->Update(*this);
 	}
 
+	MaterialInstance::MaterialInstance(const MaterialInstance& material, CopyToken) :
+	m_parent(material.m_parent),
+	m_optionValuesOverride(material.m_optionValuesOverride),
+	m_valueOverride(material.m_valueOverride),
+	m_textureBinding(material.m_textureBinding),
+	m_textureOverride(material.m_textureOverride),
+	m_materialSettings(material.m_materialSettings)
+	{
+		m_passes.resize(material.m_passes.size());
+		for (std::size_t i = 0; i < m_passes.size(); ++i)
+		{
+			m_passes[i].enabled = material.m_passes[i].enabled;
+			m_passes[i].flags = material.m_passes[i].flags;
+			m_passes[i].pipeline = material.m_passes[i].pipeline;
+			m_passes[i].pipelineInfo = material.m_passes[i].pipelineInfo;
+			m_passes[i].shaders.resize(material.m_passes[i].shaders.size());
+			for (std::size_t j = 0; j < m_passes[i].shaders.size(); ++j)
+			{
+				m_passes[i].shaders[j].shader = material.m_passes[i].shaders[j].shader;
+				m_passes[i].shaders[j].onShaderUpdated.Connect(m_passes[i].shaders[j].shader->OnShaderUpdated, [this, passIndex = i](UberShader*)
+				{
+					InvalidatePassPipeline(passIndex);
+				});
+			}
+		}
+
+		m_uniformBuffers.resize(m_parent->GetUniformBlockCount());
+		for (std::size_t i = 0; i < m_uniformBuffers.size(); ++i)
+		{
+			const auto& uniformBlockData = m_parent->GetUniformBlockData(i);
+
+			auto& uniformBuffer = m_uniformBuffers[i];
+			uniformBuffer.bufferView = uniformBlockData.bufferPool->Allocate(uniformBuffer.bufferIndex);
+			assert(material.m_uniformBuffers[i].values.size() == uniformBlockData.bufferPool->GetBufferSize());
+			uniformBuffer.values = material.m_uniformBuffers[i].values;
+		}
+	}
+
 	MaterialInstance::~MaterialInstance()
 	{
 		for (std::size_t i = 0; i < m_uniformBuffers.size(); ++i)
@@ -76,15 +118,22 @@ namespace Nz
 		}
 	}
 
+	void MaterialInstance::DisablePass(std::string_view passName)
+	{
+		std::size_t passIndex = Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex(passName);
+		return DisablePass(passIndex);
+	}
+
+	void MaterialInstance::EnablePass(std::string_view passName, bool enable)
+	{
+		std::size_t passIndex = Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex(passName);
+		return EnablePass(passIndex, enable);
+	}
+
 	void MaterialInstance::FillShaderBinding(std::vector<ShaderBinding::Binding>& bindings) const
 	{
 		// Textures
 		const auto& defaultTextures = Graphics::Instance()->GetDefaultTextures();
-		TextureSamplerCache& samplerCache = Graphics::Instance()->GetSamplerCache();
-
-		TextureSamplerInfo samplerInfo;
-		samplerInfo.wrapModeU = Nz::SamplerWrap::Repeat;
-		samplerInfo.wrapModeV = Nz::SamplerWrap::Repeat;
 
 		for (std::size_t i = 0; i < m_textureBinding.size(); ++i)
 		{
@@ -92,7 +141,7 @@ namespace Nz
 			const auto& textureBinding = m_textureBinding[i];
 
 			const std::shared_ptr<Texture>& texture = (textureBinding.texture) ? textureBinding.texture : defaultTextures.whiteTextures[UnderlyingCast(textureSlot.imageType)];
-			const std::shared_ptr<TextureSampler>& sampler = samplerCache.Get(samplerInfo); //< TODO
+			const std::shared_ptr<TextureSampler>& sampler = (textureBinding.sampler) ? textureBinding.sampler : Graphics::Instance()->GetSamplerCache().Get({});
 
 			bindings.push_back({
 				textureSlot.bindingIndex,
@@ -164,6 +213,12 @@ namespace Nz
 		return m_passes[passIndex].pipeline;
 	}
 
+	bool MaterialInstance::HasPass(std::string_view passName) const
+	{
+		std::size_t passIndex = Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex(passName);
+		return HasPass(passIndex);
+	}
+
 	void MaterialInstance::OnTransfer(RenderFrame& renderFrame, CommandBufferBuilder& builder)
 	{
 		UploadPool& uploadPool = renderFrame.GetUploadPool();
@@ -181,10 +236,47 @@ namespace Nz
 		}
 	}
 
+	void MaterialInstance::UpdatePassFlags(std::string_view passName, MaterialPassFlags materialFlags)
+	{
+		std::size_t passIndex = Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex(passName);
+		return UpdatePassFlags(passIndex, materialFlags);
+	}
+
+	void MaterialInstance::UpdatePassStates(std::string_view passName, FunctionRef<bool(RenderStates&)> stateUpdater)
+	{
+		std::size_t passIndex = Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex(passName);
+		return UpdatePassStates(passIndex, stateUpdater);
+	}
+
 	void MaterialInstance::SetTextureProperty(std::size_t textureIndex, std::shared_ptr<Texture> texture)
 	{
 		assert(textureIndex < m_textureOverride.size());
 		m_textureOverride[textureIndex].texture = std::move(texture);
+
+		for (const auto& handler : m_materialSettings.GetPropertyHandlers())
+		{
+			if (handler->NeedsUpdateOnTextureUpdate(textureIndex))
+				handler->Update(*this);
+		}
+	}
+
+	void MaterialInstance::SetTextureProperty(std::size_t textureIndex, std::shared_ptr<Texture> texture, const TextureSamplerInfo& samplerInfo)
+	{
+		assert(textureIndex < m_textureOverride.size());
+		m_textureOverride[textureIndex].samplerInfo = samplerInfo;
+		m_textureOverride[textureIndex].texture = std::move(texture);
+
+		for (const auto& handler : m_materialSettings.GetPropertyHandlers())
+		{
+			if (handler->NeedsUpdateOnTextureUpdate(textureIndex))
+				handler->Update(*this);
+		}
+	}
+
+	void MaterialInstance::SetTextureSamplerProperty(std::size_t textureIndex, const TextureSamplerInfo& samplerInfo)
+	{
+		assert(textureIndex < m_textureOverride.size());
+		m_textureOverride[textureIndex].samplerInfo = samplerInfo;
 
 		for (const auto& handler : m_materialSettings.GetPropertyHandlers())
 		{
@@ -219,11 +311,12 @@ namespace Nz
 			InvalidatePassPipeline(i);
 	}
 
-	void MaterialInstance::UpdateTextureBinding(std::size_t textureBinding, std::shared_ptr<Texture> texture)
+	void MaterialInstance::UpdateTextureBinding(std::size_t textureBinding, std::shared_ptr<Texture> texture, std::shared_ptr<TextureSampler> textureSampler)
 	{
 		assert(textureBinding < m_textureBinding.size());
 		auto& binding = m_textureBinding[textureBinding];
 		binding.texture = std::move(texture);
+		binding.sampler = std::move(textureSampler);
 
 		InvalidateShaderBinding();
 	}

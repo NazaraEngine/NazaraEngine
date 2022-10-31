@@ -6,11 +6,9 @@
 #include <Nazara/Graphics/GuillotineTextureAtlas.hpp>
 #include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/MaterialPipeline.hpp>
+#include <Nazara/Graphics/PredefinedMaterials.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/Formats/TextureLoader.hpp>
-#include <Nazara/Graphics/PropertyHandler/OptionValuePropertyHandler.hpp>
-#include <Nazara/Graphics/PropertyHandler/TexturePropertyHandler.hpp>
-#include <Nazara/Graphics/PropertyHandler/UniformValuePropertyHandler.hpp>
 #include <Nazara/Utility/Font.hpp>
 #include <NZSL/Ast/AstSerializer.hpp>
 #include <NZSL/Ast/Module.hpp>
@@ -209,104 +207,80 @@ namespace Nz
 		std::size_t depthPassIndex = m_materialPassRegistry.GetPassIndex("DepthPass");
 		std::size_t forwardPassIndex = m_materialPassRegistry.GetPassIndex("ForwardPass");
 
-		auto AddCommonProperties = [](MaterialSettings& settings)
-		{
-			settings.AddValueProperty<Color>("BaseColor", Color::White);
-			settings.AddValueProperty<bool>("AlphaTest", false);
-			settings.AddValueProperty<float>("AlphaTestThreshold", 0.2f);
-			settings.AddTextureProperty("BaseColorMap", ImageType::E2D);
-			settings.AddTextureProperty("AlphaMap", ImageType::E2D);
-			settings.AddPropertyHandler(std::make_unique<OptionValuePropertyHandler>("AlphaTest", "AlphaTest"));
-			settings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("BaseColorMap", "HasBaseColorTexture"));
-			settings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("BaseColorMap", "HasAlphaTexture"));
-			settings.AddPropertyHandler(std::make_unique<UniformValuePropertyHandler>("BaseColor"));
-			settings.AddPropertyHandler(std::make_unique<UniformValuePropertyHandler>("AlphaTestThreshold"));
-		};
-
 		// BasicMaterial
 		{
-			MaterialSettings basicSettings;
-			AddCommonProperties(basicSettings);
+			MaterialSettings settings;
+			PredefinedMaterials::AddBasicSettings(settings);
 
-			MaterialPass basicForwardPass;
-			basicForwardPass.states.depthBuffer = true;
-			basicForwardPass.shaders.push_back(std::make_shared<UberShader>(nzsl::ShaderStageType_All, "BasicMaterial"));
-			basicSettings.AddPass(forwardPassIndex, basicForwardPass);
+			MaterialPass forwardPass;
+			forwardPass.states.depthBuffer = true;
+			forwardPass.shaders.push_back(std::make_shared<UberShader>(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, "BasicMaterial"));
+			settings.AddPass(forwardPassIndex, forwardPass);
 
-			MaterialPass basicDepthPass = basicForwardPass;
-			basicDepthPass.options[CRC32("DepthPass")] = true;
-			basicSettings.AddPass(depthPassIndex, basicDepthPass);
+			MaterialPass depthPass = forwardPass;
+			depthPass.options[CRC32("DepthPass")] = true;
+			settings.AddPass(depthPassIndex, depthPass);
 
-			m_defaultMaterials.basicMaterial = std::make_shared<Material>(std::move(basicSettings), "BasicMaterial");
+			m_defaultMaterials.basicMaterial = std::make_shared<Material>(std::move(settings), "BasicMaterial");
 		}
 
 		// PbrMaterial
 		{
-			MaterialSettings pbrSettings;
-			AddCommonProperties(pbrSettings);
-			pbrSettings.AddTextureProperty("EmissiveMap", ImageType::E2D);
-			pbrSettings.AddTextureProperty("HeightMap", ImageType::E2D);
-			pbrSettings.AddTextureProperty("MetallicMap", ImageType::E2D);
-			pbrSettings.AddTextureProperty("NormalMap", ImageType::E2D);
-			pbrSettings.AddTextureProperty("RoughnessMap", ImageType::E2D);
-			pbrSettings.AddTextureProperty("SpecularMap", ImageType::E2D);
-			pbrSettings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("EmissiveMap", "HasEmissiveTexture"));
-			pbrSettings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("HeightMap", "HasHeightTexture"));
-			pbrSettings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("MetallicMap", "HasMetallicTexture"));
-			pbrSettings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("NormalMap", "HasNormalTexture"));
-			pbrSettings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("RoughnessMap", "HasRoughnessTexture"));
-			pbrSettings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("SpecularMap", "HasSpecularTexture"));
+			MaterialSettings settings;
+			PredefinedMaterials::AddBasicSettings(settings);
+			PredefinedMaterials::AddPbrSettings(settings);
 
-			MaterialPass pbrForwardPass;
-			pbrForwardPass.states.depthBuffer = true;
-			pbrForwardPass.shaders.push_back(std::make_shared<UberShader>(nzsl::ShaderStageType_All, "PhysicallyBasedMaterial"));
-			pbrSettings.AddPass(forwardPassIndex, pbrForwardPass);
+			MaterialPass forwardPass;
+			forwardPass.states.depthBuffer = true;
+			forwardPass.shaders.push_back(std::make_shared<UberShader>(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, "PhysicallyBasedMaterial"));
+			settings.AddPass(forwardPassIndex, forwardPass);
 
-			MaterialPass pbrDepthPass = pbrForwardPass;
-			pbrDepthPass.options[CRC32("DepthPass")] = true;
-			pbrSettings.AddPass(depthPassIndex, pbrDepthPass);
+			MaterialPass depthPass = forwardPass;
+			depthPass.options[CRC32("DepthPass")] = true;
+			settings.AddPass(depthPassIndex, depthPass);
 
-			m_defaultMaterials.pbrMaterial = std::make_shared<Material>(std::move(pbrSettings), "PhysicallyBasedMaterial");
+			m_defaultMaterials.pbrMaterial = std::make_shared<Material>(std::move(settings), "PhysicallyBasedMaterial");
 		}
 
 		// PhongMaterial
 		{
-			MaterialSettings phongSettings;
-			AddCommonProperties(phongSettings);
-			phongSettings.AddValueProperty<Color>("AmbientColor", Color::Black);
-			phongSettings.AddValueProperty<Color>("SpecularColor", Color::White);
-			phongSettings.AddValueProperty<float>("Shininess", 2.f);
-			phongSettings.AddTextureProperty("EmissiveMap", ImageType::E2D);
-			phongSettings.AddTextureProperty("HeightMap", ImageType::E2D);
-			phongSettings.AddTextureProperty("NormalMap", ImageType::E2D);
-			phongSettings.AddTextureProperty("SpecularMap", ImageType::E2D);
-			phongSettings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("EmissiveMap", "HasEmissiveTexture"));
-			phongSettings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("HeightMap", "HasHeightMap"));
-			phongSettings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("NormalMap", "HasNormalMap"));
-			phongSettings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("SpecularMap", "HasSpecularMap"));
-			phongSettings.AddPropertyHandler(std::make_unique<UniformValuePropertyHandler>("AmbientColor"));
-			phongSettings.AddPropertyHandler(std::make_unique<UniformValuePropertyHandler>("SpecularColor"));
-			phongSettings.AddPropertyHandler(std::make_unique<UniformValuePropertyHandler>("Shininess"));
+			MaterialSettings settings;
+			PredefinedMaterials::AddBasicSettings(settings);
+			PredefinedMaterials::AddPbrSettings(settings);
 
-			MaterialPass phongForwardPass;
-			phongForwardPass.states.depthBuffer = true;
-			phongForwardPass.shaders.push_back(std::make_shared<UberShader>(nzsl::ShaderStageType_All, "PhongMaterial"));
-			phongSettings.AddPass(forwardPassIndex, phongForwardPass);
+			MaterialPass forwardPass;
+			forwardPass.states.depthBuffer = true;
+			forwardPass.shaders.push_back(std::make_shared<UberShader>(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, "PhongMaterial"));
+			settings.AddPass(forwardPassIndex, forwardPass);
 
-			MaterialPass phongDepthPass = phongForwardPass;
-			phongDepthPass.options[CRC32("DepthPass")] = true;
-			phongSettings.AddPass(forwardPassIndex, phongDepthPass);
+			MaterialPass depthPass = forwardPass;
+			depthPass.options[CRC32("DepthPass")] = true;
+			settings.AddPass(depthPassIndex, depthPass);
 
-			m_defaultMaterials.phongMaterial = std::make_shared<Material>(std::move(phongSettings), "PhongMaterial");
+			m_defaultMaterials.phongMaterial = std::make_shared<Material>(std::move(settings), "PhongMaterial");
 		}
 
-		m_defaultMaterials.defaultBasicMaterial = m_defaultMaterials.basicMaterial->GetDefaultInstance();
+		m_defaultMaterials.basicDefault = m_defaultMaterials.basicMaterial->GetDefaultInstance();
 
-		m_defaultMaterials.noDepthMaterial = m_defaultMaterials.basicMaterial->CreateInstance();
-		m_defaultMaterials.noDepthMaterial->DisablePass(depthPassIndex);
-		m_defaultMaterials.noDepthMaterial->UpdatePassStates(forwardPassIndex, [](RenderStates& states)
+		m_defaultMaterials.basicNoDepth = m_defaultMaterials.basicMaterial->CreateInstance();
+		m_defaultMaterials.basicNoDepth->DisablePass(depthPassIndex);
+		m_defaultMaterials.basicNoDepth->UpdatePassStates(forwardPassIndex, [](RenderStates& states)
 		{
 			states.depthBuffer = false;
+		});
+
+		m_defaultMaterials.basicTransparent = m_defaultMaterials.basicMaterial->CreateInstance();
+		m_defaultMaterials.basicTransparent->DisablePass(depthPassIndex);
+		m_defaultMaterials.basicTransparent->UpdatePassStates(forwardPassIndex, [](RenderStates& renderStates)
+		{
+			renderStates.depthWrite = false;
+			renderStates.blending = true;
+			renderStates.blend.modeColor = BlendEquation::Add;
+			renderStates.blend.modeAlpha = BlendEquation::Add;
+			renderStates.blend.srcColor = BlendFunc::SrcAlpha;
+			renderStates.blend.dstColor = BlendFunc::InvSrcAlpha;
+			renderStates.blend.srcAlpha = BlendFunc::One;
+			renderStates.blend.dstAlpha = BlendFunc::One;
 		});
 	}
 

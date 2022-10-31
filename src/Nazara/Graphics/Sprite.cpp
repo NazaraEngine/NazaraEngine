@@ -30,6 +30,8 @@ namespace Nz
 		if (!materialPipeline)
 			return;
 
+		MaterialPassFlags passFlags = m_material->GetPassFlags(passIndex);
+
 		const std::shared_ptr<VertexDeclaration>& vertexDeclaration = VertexDeclaration::Get(VertexLayout::XYZ_Color_UV);
 
 		RenderPipelineInfo::VertexBufferData vertexBufferData = {
@@ -40,7 +42,7 @@ namespace Nz
 
 		const auto& whiteTexture = Graphics::Instance()->GetDefaultTextures().whiteTextures[UnderlyingCast(ImageType::E2D)];
 
-		elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer(), m_material, renderPipeline, *elementData.worldInstance, vertexDeclaration, whiteTexture, 1, m_vertices.data(), *elementData.scissorBox));
+		elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer(), m_material, passFlags, renderPipeline, *elementData.worldInstance, vertexDeclaration, whiteTexture, 1, m_vertices.data(), *elementData.scissorBox));
 	}
 
 	const std::shared_ptr<MaterialInstance>& Sprite::GetMaterial(std::size_t i) const

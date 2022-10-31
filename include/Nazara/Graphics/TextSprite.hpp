@@ -23,7 +23,7 @@ namespace Nz
 	class NAZARA_GRAPHICS_API TextSprite : public InstancedRenderable
 	{
 		public:
-			TextSprite(std::shared_ptr<MaterialInstance> material);
+			TextSprite(std::shared_ptr<MaterialInstance> material = {});
 			TextSprite(const TextSprite&) = delete;
 			TextSprite(TextSprite&&) noexcept = default;
 			~TextSprite() = default;

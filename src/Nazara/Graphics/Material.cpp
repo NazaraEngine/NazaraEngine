@@ -33,9 +33,10 @@ namespace Nz
 		const std::shared_ptr<RenderDevice>& renderDevice = graphics->GetRenderDevice();
 
 		nzsl::Ast::SanitizeVisitor::Options options;
-		options.optionValues[CRC32("MaxLightCount")] = SafeCast<UInt32>(PredefinedLightData::MaxLightCount);
 		options.allowPartialSanitization = true;
 		options.moduleResolver = graphics->GetShaderModuleResolver();
+		options.optionValues[CRC32("MaxLightCount")] = SafeCast<UInt32>(PredefinedLightData::MaxLightCount);
+		options.optionValues[CRC32("MaxJointCount")] = SafeCast<UInt32>(PredefinedSkeletalData::MaxMatricesCount);
 
 		nzsl::Ast::ModulePtr sanitizedModule = nzsl::Ast::Sanitize(*referenceModule, options);
 

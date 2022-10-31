@@ -53,10 +53,10 @@ struct MaterialSettings
 
 	// Phong settings
 	[tag("AmbientColor")]
-	AmbientColor: vec3[f32],
+	AmbientColor: vec4[f32], //< TODO: Switch to vec3[f32]
 
 	[tag("SpecularColor")]
-	SpecularColor: vec3[f32],
+	SpecularColor: vec4[f32], //< TODO: Switch to vec3[f32
 
 	[tag("Shininess")]
 	Shininess: f32
@@ -128,7 +128,7 @@ fn main(input: VertToFrag) -> FragOut
 			discard;
 	}
 
-	const if (HasNormal && !DepthPass)
+	const if (HasNormal && !DepthPass && false)
 	{
 		let lightAmbient = vec3[f32](0.0, 0.0, 0.0);
 		let lightDiffuse = vec3[f32](0.0, 0.0, 0.0);
@@ -161,7 +161,7 @@ fn main(input: VertToFrag) -> FragOut
 			{
 				let lightDir = light.parameter1.xyz;
 
-				lightAmbient += light.color.rgb * lightAmbientFactor * settings.AmbientColor;
+				lightAmbient += light.color.rgb * lightAmbientFactor * settings.AmbientColor.rgb;
 
 				let lambert = max(dot(normal, -lightDir), 0.0);
 
@@ -184,7 +184,7 @@ fn main(input: VertToFrag) -> FragOut
 
 				let attenuationFactor = max(1.0 - dist * lightInvRadius, 0.0);
 
-				lightAmbient += attenuationFactor * light.color.rgb * lightAmbientFactor * settings.AmbientColor;
+				lightAmbient += attenuationFactor * light.color.rgb * lightAmbientFactor * settings.AmbientColor.rgb;
 
 				let lambert = max(dot(normal, -lightToPosNorm), 0.0);
 
@@ -214,7 +214,7 @@ fn main(input: VertToFrag) -> FragOut
 				let attenuationFactor = max(1.0 - dist * lightInvRadius, 0.0);
 				attenuationFactor *= max((curAngle - lightOuterAngle) / innerMinusOuterAngle, 0.0);			
 
-				lightAmbient += attenuationFactor * light.color.rgb * lightAmbientFactor * settings.AmbientColor;
+				lightAmbient += attenuationFactor * light.color.rgb * lightAmbientFactor * settings.AmbientColor.rgb;
 
 				let lambert = max(dot(normal, -lightToPosNorm), 0.0);
 
@@ -228,7 +228,7 @@ fn main(input: VertToFrag) -> FragOut
 			}
 		}
 
-		lightSpecular *= settings.SpecularColor;
+		lightSpecular *= settings.SpecularColor.rgb;
 
 		const if (HasSpecularTexture)
 			lightSpecular *= MaterialSpecularMap.Sample(input.uv).rgb;

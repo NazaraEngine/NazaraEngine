@@ -9,7 +9,7 @@
 
 namespace Nz
 {
-	inline RenderSpriteChain::RenderSpriteChain(int renderLayer, std::shared_ptr<MaterialInstance> materialInstance, std::shared_ptr<RenderPipeline> renderPipeline, const WorldInstance& worldInstance, std::shared_ptr<VertexDeclaration> vertexDeclaration, std::shared_ptr<Texture> textureOverlay, std::size_t spriteCount, const void* spriteData, const Recti& scissorBox) :
+	inline RenderSpriteChain::RenderSpriteChain(int renderLayer, std::shared_ptr<MaterialInstance> materialInstance, MaterialPassFlags materialFlags, std::shared_ptr<RenderPipeline> renderPipeline, const WorldInstance& worldInstance, std::shared_ptr<VertexDeclaration> vertexDeclaration, std::shared_ptr<Texture> textureOverlay, std::size_t spriteCount, const void* spriteData, const Recti& scissorBox) :
 	RenderElement(BasicRenderElement::SpriteChain),
 	m_materialInstance(std::move(materialInstance)),
 	m_renderPipeline(std::move(renderPipeline)),
@@ -18,6 +18,7 @@ namespace Nz
 	m_spriteCount(spriteCount),
 	m_spriteData(spriteData),
 	m_worldInstance(worldInstance),
+	m_materialFlags(materialFlags),
 	m_scissorBox(scissorBox),
 	m_renderLayer(renderLayer)
 	{
@@ -27,8 +28,7 @@ namespace Nz
 	{
 		UInt64 layerIndex = registry.FetchLayerIndex(m_renderLayer);
 
-#if 0
-		if (m_materialPass->IsFlagEnabled(MaterialPassFlag::SortByDistance))
+		if (m_materialFlags.Test(MaterialPassFlag::SortByDistance))
 		{
 			UInt64 matFlags = 1;
 
@@ -48,7 +48,6 @@ namespace Nz
 		}
 		else
 		{
-#endif
 			UInt64 elementType = GetElementType();
 			UInt64 materialInstanceIndex = registry.FetchMaterialInstanceIndex(m_materialInstance.get());
 			UInt64 pipelineIndex = registry.FetchPipelineIndex(m_renderPipeline.get());
@@ -71,7 +70,7 @@ namespace Nz
 			       (pipelineIndex & 0xFFFF)        << 35 |
 			       (materialInstanceIndex & 0xFFFF)    << 23 |
 			       (vertexDeclarationIndex & 0xFF) <<  7;
-//		}
+		}
 	}
 
 	inline const MaterialInstance& RenderSpriteChain::GetMaterialInstance() const

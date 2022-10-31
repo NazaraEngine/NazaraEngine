@@ -64,8 +64,9 @@ namespace Nz
 				std::shared_ptr<Material> phongMaterial;
 				std::shared_ptr<Material> pbrMaterial;
 
-				std::shared_ptr<MaterialInstance> defaultBasicMaterial;
-				std::shared_ptr<MaterialInstance> noDepthMaterial;
+				std::shared_ptr<MaterialInstance> basicDefault;
+				std::shared_ptr<MaterialInstance> basicNoDepth;
+				std::shared_ptr<MaterialInstance> basicTransparent;
 			};
 
 			struct DefaultTextures

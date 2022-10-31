@@ -226,8 +226,6 @@ namespace Nz
 		}
 
 		// Update UBOs and materials
-		UploadPool& uploadPool = renderFrame.GetUploadPool();
-
 		renderFrame.Execute([&](CommandBufferBuilder& builder)
 		{
 			builder.BeginDebugRegion("CPU to GPU transfers", Color::Yellow);

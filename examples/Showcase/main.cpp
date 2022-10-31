@@ -113,24 +113,10 @@ int main()
 	const Nz::Boxf& bobAABB = bobMesh->GetAABB();
 	std::shared_ptr<Nz::GraphicalMesh> bobGfxMesh = Nz::GraphicalMesh::BuildFromMesh(*bobMesh);
 
-	Nz::MaterialSettings settings;
-	settings.AddValueProperty<Nz::Color>("BaseColor", Nz::Color::White);
-	settings.AddTextureProperty("BaseColorMap", Nz::ImageType::E2D);
-	settings.AddPropertyHandler(std::make_unique<Nz::TexturePropertyHandler>("BaseColorMap", "BaseColorMap", "HasBaseColorTexture"));
-	settings.AddPropertyHandler(std::make_unique<Nz::ValuePropertyHandler>("BaseColor"));
-
-	Nz::MaterialPass forwardPass;
-	forwardPass.states.depthBuffer = true;
-	forwardPass.shaders.push_back(std::make_shared<Nz::UberShader>(nzsl::ShaderStageType_All, "BasicMaterialPass"));
-
-	settings.AddPass(Nz::Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex("ForwardPass"), std::move(forwardPass));
-
-	std::shared_ptr<Nz::Material> material = std::make_shared<Nz::Material>(std::move(settings), "BasicMaterialPass");
+	std::shared_ptr<Nz::Material> material = Nz::Graphics::Instance()->GetDefaultMaterials().basicMaterial;
 
 	std::shared_ptr<Nz::Model> bobModel = std::make_shared<Nz::Model>(std::move(bobGfxMesh), bobAABB);
 	std::vector<std::shared_ptr<Nz::MaterialInstance>> materials(bobMesh->GetMaterialCount());
-
-	std::size_t baseMapProperty = material->GetSettings().FindTextureProperty("BaseColorMap");
 
 	for (std::size_t i = 0; i < bobMesh->GetMaterialCount(); ++i)
 	{
@@ -138,7 +124,7 @@ int main()
 
 		std::string matPath = bobMesh->GetMaterialData(i).GetStringParameter(Nz::MaterialData::BaseColorTexturePath).GetValueOr("");
 		if (!matPath.empty())
-			materials[i]->SetTextureProperty(baseMapProperty, Nz::Texture::LoadFromFile(matPath, texParams));
+			materials[i]->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(matPath, texParams));
 	}
 
 	for (std::size_t i = 0; i < bobMesh->GetSubMeshCount(); ++i)
@@ -195,7 +181,7 @@ int main()
 			srgbTexParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
 
 			std::shared_ptr<Nz::MaterialInstance> sphereMat = std::make_shared<Nz::MaterialInstance>(material);
-			sphereMat->SetTextureProperty(baseMapProperty, Nz::Texture::LoadFromFile(resourceDir / "Rusty/rustediron2_basecolor.png", srgbTexParams));
+			sphereMat->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(resourceDir / "Rusty/rustediron2_basecolor.png", srgbTexParams));
 
 			std::shared_ptr<Nz::Model> sphereModel = std::make_shared<Nz::Model>(std::move(gfxMesh), sphereMesh->GetAABB());
 			for (std::size_t i = 0; i < sphereModel->GetSubMeshCount(); ++i)
@@ -238,8 +224,13 @@ int main()
 
 		std::shared_ptr<Nz::GraphicalMesh> planeMeshGfx = Nz::GraphicalMesh::BuildFromMesh(planeMesh);
 
+		Nz::TextureSamplerInfo planeSampler;
+		planeSampler.anisotropyLevel = 16;
+		planeSampler.wrapModeU = Nz::SamplerWrap::Repeat;
+		planeSampler.wrapModeV = Nz::SamplerWrap::Repeat;
+
 		std::shared_ptr<Nz::MaterialInstance> planeMat = std::make_shared<Nz::MaterialInstance>(material);
-		planeMat->SetTextureProperty(baseMapProperty, Nz::Texture::LoadFromFile(resourceDir / "dev_grey.png", texParams));
+		planeMat->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(resourceDir / "dev_grey.png", texParams), planeSampler);
 
 		std::shared_ptr<Nz::Model> planeModel = std::make_shared<Nz::Model>(std::move(planeMeshGfx), planeMesh.GetAABB());
 		planeModel->SetMaterial(0, planeMat);

@@ -9,7 +9,7 @@
 
 namespace Nz
 {
-	inline RenderSubmesh::RenderSubmesh(int renderLayer, std::shared_ptr<MaterialInstance> materialInstance, std::shared_ptr<RenderPipeline> renderPipeline, const WorldInstance& worldInstance, const SkeletonInstance* skeletonInstance, std::size_t indexCount, IndexType indexType, std::shared_ptr<RenderBuffer> indexBuffer, std::shared_ptr<RenderBuffer> vertexBuffer, const Recti& scissorBox) :
+	inline RenderSubmesh::RenderSubmesh(int renderLayer, std::shared_ptr<MaterialInstance> materialInstance, MaterialPassFlags materialFlags, std::shared_ptr<RenderPipeline> renderPipeline, const WorldInstance& worldInstance, const SkeletonInstance* skeletonInstance, std::size_t indexCount, IndexType indexType, std::shared_ptr<RenderBuffer> indexBuffer, std::shared_ptr<RenderBuffer> vertexBuffer, const Recti& scissorBox) :
 	RenderElement(BasicRenderElement::Submesh),
 	m_indexBuffer(std::move(indexBuffer)),
 	m_vertexBuffer(std::move(vertexBuffer)),
@@ -19,6 +19,7 @@ namespace Nz
 	m_skeletonInstance(skeletonInstance),
 	m_worldInstance(worldInstance),
 	m_indexType(indexType),
+	m_materialFlags(materialFlags),
 	m_scissorBox(scissorBox),
 	m_renderLayer(renderLayer)
 	{
@@ -28,8 +29,7 @@ namespace Nz
 	{
 		UInt64 layerIndex = registry.FetchLayerIndex(m_renderLayer);
 
-#if 0
-		if (m_materialPass->IsFlagEnabled(MaterialPassFlag::SortByDistance))
+		if (m_materialFlags.Test(MaterialPassFlag::SortByDistance))
 		{
 			UInt64 matFlags = 1;
 
@@ -48,7 +48,6 @@ namespace Nz
 		}
 		else
 		{
-#endif
 			UInt64 elementType = GetElementType();
 			UInt64 materialInstanceIndex = registry.FetchMaterialInstanceIndex(m_materialInstance.get());
 			UInt64 pipelineIndex = registry.FetchPipelineIndex(m_renderPipeline.get());
@@ -76,7 +75,7 @@ namespace Nz
 			       (materialInstanceIndex & 0xFFFF) << 23 |
 			       (vertexBufferIndex & 0xFF)       <<  7 |
 			       (skeletonIndex     & 0xFF);
-//		}
+		}
 	}
 
 	inline const RenderBuffer* RenderSubmesh::GetIndexBuffer() const

@@ -61,6 +61,7 @@
 #include <Nazara/Graphics/MaterialSettings.hpp>
 #include <Nazara/Graphics/Model.hpp>
 #include <Nazara/Graphics/PointLight.hpp>
+#include <Nazara/Graphics/PredefinedMaterials.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/RenderBufferPool.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>

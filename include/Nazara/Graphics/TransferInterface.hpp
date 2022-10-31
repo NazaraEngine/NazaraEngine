@@ -20,14 +20,14 @@ namespace Nz
 	{
 		public:
 			TransferInterface() = default;
-			TransferInterface(const TransferInterface&) = delete;
-			TransferInterface(TransferInterface&&) = delete;
+			TransferInterface(const TransferInterface&) = default;
+			TransferInterface(TransferInterface&&) = default;
 			virtual ~TransferInterface();
 
 			virtual void OnTransfer(RenderFrame& renderFrame, CommandBufferBuilder& builder) = 0;
 
-			TransferInterface& operator=(const TransferInterface&) = delete;
-			TransferInterface& operator=(TransferInterface&&) = delete;
+			TransferInterface& operator=(const TransferInterface&) = default;
+			TransferInterface& operator=(TransferInterface&&) = default;
 
 			NazaraSignal(OnTransferRequired, TransferInterface* /*transfer*/);
 	};

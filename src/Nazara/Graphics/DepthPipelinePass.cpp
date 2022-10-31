@@ -29,7 +29,7 @@ namespace Nz
 
 	void DepthPipelinePass::Prepare(RenderFrame& renderFrame, const Frustumf& frustum, const std::vector<FramePipelinePass::VisibleRenderable>& visibleRenderables, std::size_t visibilityHash)
 	{
-		if (m_lastVisibilityHash != visibilityHash)
+		if (m_lastVisibilityHash != visibilityHash || m_rebuildElements) //< FIXME
 		{
 			renderFrame.PushForRelease(std::move(m_renderElements));
 			m_renderElements.clear();

@@ -23,7 +23,7 @@ namespace Nz
 	class RenderSpriteChain : public RenderElement
 	{
 		public:
-			inline RenderSpriteChain(int renderLayer, std::shared_ptr<MaterialInstance> materialInstance, std::shared_ptr<RenderPipeline> renderPipeline, const WorldInstance& worldInstance, std::shared_ptr<VertexDeclaration> vertexDeclaration, std::shared_ptr<Texture> textureOverlay, std::size_t spriteCount, const void* spriteData, const Recti& scissorBox);
+			inline RenderSpriteChain(int renderLayer, std::shared_ptr<MaterialInstance> materialInstance, MaterialPassFlags materialFlags, std::shared_ptr<RenderPipeline> renderPipeline, const WorldInstance& worldInstance, std::shared_ptr<VertexDeclaration> vertexDeclaration, std::shared_ptr<Texture> textureOverlay, std::size_t spriteCount, const void* spriteData, const Recti& scissorBox);
 			~RenderSpriteChain() = default;
 
 			inline UInt64 ComputeSortingScore(const Frustumf& frustum, const RenderQueueRegistry& registry) const override;
@@ -49,6 +49,7 @@ namespace Nz
 			std::size_t m_spriteCount;
 			const void* m_spriteData;
 			const WorldInstance& m_worldInstance;
+			MaterialPassFlags m_materialFlags;
 			Recti m_scissorBox;
 			int m_renderLayer;
 	};

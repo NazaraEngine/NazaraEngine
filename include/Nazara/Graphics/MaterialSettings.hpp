@@ -42,7 +42,7 @@ namespace Nz
 		UInt32, Vector2<UInt32>, Vector3<UInt32>, Vector4<UInt32>
 	>;
 
-	class MaterialSettings
+	class NAZARA_GRAPHICS_API MaterialSettings
 	{
 		public:
 			struct TextureProperty;
@@ -55,10 +55,12 @@ namespace Nz
 			MaterialSettings(MaterialSettings&&) noexcept = default;
 			~MaterialSettings() = default;
 
+			void AddPass(std::string_view passName, MaterialPass materialPass);
 			inline void AddPass(std::size_t passIndex, MaterialPass materialPass);
 			inline void AddPropertyHandler(std::unique_ptr<PropertyHandler> propertyHandler);
 			inline void AddTextureProperty(std::string propertyName, ImageType propertyType);
 			inline void AddTextureProperty(std::string propertyName, ImageType propertyType, std::shared_ptr<Texture> defaultTexture);
+			inline void AddTextureProperty(std::string propertyName, ImageType propertyType, std::shared_ptr<Texture> defaultTexture, const TextureSamplerInfo& defaultSamplerInfo);
 			inline void AddValueProperty(std::string propertyName, MaterialPropertyType propertyType, Value defaultValue);
 			template<typename T> void AddValueProperty(std::string propertyName);
 			template<typename T, typename U> void AddValueProperty(std::string propertyName, U&& defaultValue);
@@ -66,6 +68,7 @@ namespace Nz
 			inline std::size_t FindTextureProperty(std::string_view propertyName) const;
 			inline std::size_t FindValueProperty(std::string_view propertyName) const;
 
+			const MaterialPass* GetPass(std::string_view passName) const;
 			inline const MaterialPass* GetPass(std::size_t passIndex) const;
 			inline const std::vector<std::optional<MaterialPass>>& GetPasses() const;
 			inline const std::vector<std::unique_ptr<PropertyHandler>>& GetPropertyHandlers() const;
@@ -82,6 +85,7 @@ namespace Nz
 				std::shared_ptr<Texture> defaultTexture;
 				std::string name;
 				ImageType type;
+				TextureSamplerInfo defaultSamplerInfo;
 			};
 
 			struct ValueProperty

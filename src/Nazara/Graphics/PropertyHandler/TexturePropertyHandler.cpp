@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/PropertyHandler/TexturePropertyHandler.hpp>
+#include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/Debug.hpp>
@@ -63,8 +64,9 @@ namespace Nz
 			return;
 
 		const std::shared_ptr<Texture>& texture = materialInstance.GetTextureProperty(m_propertyIndex);
+		const std::shared_ptr<TextureSampler>& sampler = Graphics::Instance()->GetSamplerCache().Get(materialInstance.GetTextureSamplerProperty(m_propertyIndex));
 
-		materialInstance.UpdateTextureBinding(m_textureIndex, texture);
+		materialInstance.UpdateTextureBinding(m_textureIndex, texture, sampler);
 		if (m_optionHash != 0)
 			materialInstance.UpdateOptionValue(m_optionHash, texture != nullptr);
 	}

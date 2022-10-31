@@ -23,7 +23,7 @@ namespace Nz
 		for (std::size_t i = 0; i < m_graphicalMesh->GetSubMeshCount(); ++i)
 		{
 			auto& subMeshData = m_submeshes.emplace_back();
-			subMeshData.material = graphics->GetDefaultMaterials().defaultBasicMaterial;
+			subMeshData.material = graphics->GetDefaultMaterials().basicDefault;
 			subMeshData.vertexBufferData = {
 				{
 					0,
@@ -50,6 +50,8 @@ namespace Nz
 			if (!materialPipeline)
 				continue;
 
+			MaterialPassFlags passFlags = submeshData.material->GetPassFlags(passIndex);
+
 			const auto& indexBuffer = m_graphicalMesh->GetIndexBuffer(i);
 			const auto& vertexBuffer = m_graphicalMesh->GetVertexBuffer(i);
 			const auto& renderPipeline = materialPipeline->GetRenderPipeline(submeshData.vertexBufferData.data(), submeshData.vertexBufferData.size());
@@ -57,7 +59,7 @@ namespace Nz
 			std::size_t indexCount = m_graphicalMesh->GetIndexCount(i);
 			IndexType indexType = m_graphicalMesh->GetIndexType(i);
 
-			elements.emplace_back(registry.AllocateElement<RenderSubmesh>(GetRenderLayer(), submeshData.material, renderPipeline, *elementData.worldInstance, elementData.skeletonInstance, indexCount, indexType, indexBuffer, vertexBuffer, *elementData.scissorBox));
+			elements.emplace_back(registry.AllocateElement<RenderSubmesh>(GetRenderLayer(), submeshData.material, passFlags, renderPipeline, *elementData.worldInstance, elementData.skeletonInstance, indexCount, indexType, indexBuffer, vertexBuffer, *elementData.scissorBox));
 		}
 	}
 
