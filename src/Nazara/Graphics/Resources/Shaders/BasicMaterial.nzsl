@@ -43,20 +43,22 @@ struct MaterialSettings
 }
 
 [tag("Material")]
+[auto_binding]
 external
 {
-	[tag("Settings"), binding(0)] settings: uniform[MaterialSettings],
-	[tag("BaseColorMap"), binding(1)] MaterialBaseColorMap: sampler2D[f32],
-	[tag("AlphaMap"), binding(2)] MaterialAlphaMap: sampler2D[f32],
+	[tag("Settings")] settings: uniform[MaterialSettings],
+	[tag("BaseColorMap")] MaterialBaseColorMap: sampler2D[f32],
+	[tag("AlphaMap")] MaterialAlphaMap: sampler2D[f32],
 }
 
 [tag("Engine")]
+[auto_binding]
 external
 {
-	[tag("TextureOverlay"), binding(3)] TextureOverlay: sampler2D[f32],
-	[tag("InstanceData"), binding(4)] instanceData: uniform[InstanceData],
-	[tag("ViewerData"), binding(5)] viewerData: uniform[ViewerData],
-	[tag("SkeletalData"), binding(6)] skeletalData: uniform[SkeletalData]
+	[tag("TextureOverlay")] TextureOverlay: sampler2D[f32],
+	[tag("InstanceData")] instanceData: uniform[InstanceData],
+	[tag("ViewerData")] viewerData: uniform[ViewerData],
+	[tag("SkeletalData")] skeletalData: uniform[SkeletalData]
 }
 
 // Fragment stage

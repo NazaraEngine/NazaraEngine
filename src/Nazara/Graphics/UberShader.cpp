@@ -99,7 +99,7 @@ namespace Nz
 		// Try to partially sanitize shader
 
 		nzsl::Ast::SanitizeVisitor::Options sanitizeOptions;
-		sanitizeOptions.allowPartialSanitization = true;
+		sanitizeOptions.partialSanitization = true;
 		sanitizeOptions.moduleResolver = Graphics::Instance()->GetShaderModuleResolver();
 
 		nzsl::Ast::ModulePtr sanitizedModule = nzsl::Ast::Sanitize(module, sanitizeOptions);

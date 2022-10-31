@@ -68,25 +68,27 @@ const PointLight = 1;
 const SpotLight = 2;
 
 [tag("Material")]
+[auto_binding]
 external
 {
-	[tag("Settings"), binding(0)] settings: uniform[MaterialSettings],
-	[tag("BaseColorMap"), binding(1)] MaterialBaseColorMap: sampler2D[f32],
-	[tag("AlphaMap"), binding(2)] MaterialAlphaMap: sampler2D[f32],
-	[tag("EmissiveMap"), binding(3)] MaterialEmissiveMap: sampler2D[f32],
-	[tag("HeightMap"), binding(4)] MaterialHeightMap: sampler2D[f32],
-	[tag("NormalMap"), binding(5)] MaterialNormalMap: sampler2D[f32],
-	[tag("SpecularMap"), binding(6)] MaterialSpecularMap: sampler2D[f32],
+	[tag("Settings")] settings: uniform[MaterialSettings],
+	[tag("BaseColorMap")] MaterialBaseColorMap: sampler2D[f32],
+	[tag("AlphaMap")] MaterialAlphaMap: sampler2D[f32],
+	[tag("EmissiveMap")] MaterialEmissiveMap: sampler2D[f32],
+	[tag("HeightMap")] MaterialHeightMap: sampler2D[f32],
+	[tag("NormalMap")] MaterialNormalMap: sampler2D[f32],
+	[tag("SpecularMap")] MaterialSpecularMap: sampler2D[f32],
 }
 
 [tag("Engine")]
+[auto_binding]
 external
 {
-	[tag("TextureOverlay"), binding(7)] TextureOverlay: sampler2D[f32],
-	[tag("InstanceData"), binding(8)] instanceData: uniform[InstanceData],
-	[tag("ViewerData"), binding(9)] viewerData: uniform[ViewerData],
-	[tag("SkeletalData"), binding(10)] skeletalData: uniform[SkeletalData],
-	[tag("LightData"), binding(11)] lightData: uniform[LightData]
+	[tag("TextureOverlay")] TextureOverlay: sampler2D[f32],
+	[tag("InstanceData")] instanceData: uniform[InstanceData],
+	[tag("ViewerData")] viewerData: uniform[ViewerData],
+	[tag("SkeletalData")] skeletalData: uniform[SkeletalData],
+	[tag("LightData")] lightData: uniform[LightData]
 }
 
 struct VertToFrag
