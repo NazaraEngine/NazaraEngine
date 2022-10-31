@@ -23,7 +23,7 @@ namespace Nz
 		NazaraAssert(m_buffer->GetType() == BufferType::Index, "buffer must be an index buffer");
 
 		m_endOffset = m_buffer->GetSize();
-		m_indexCount = m_endOffset / GetStride();
+		m_indexCount = SafeCast<UInt32>(m_endOffset / GetStride());
 	}
 
 	IndexBuffer::IndexBuffer(IndexType indexType, std::shared_ptr<Buffer> buffer, UInt64 offset, UInt64 size) :
@@ -36,10 +36,10 @@ namespace Nz
 		NazaraAssert(m_buffer->GetType() == BufferType::Index, "buffer must be an index buffer");
 		NazaraAssert(size > 0, "invalid buffer size");
 
-		m_indexCount = size / GetStride();
+		m_indexCount = SafeCast<UInt32>(size / GetStride());
 	}
 
-	IndexBuffer::IndexBuffer(IndexType indexType, UInt64 indexCount, BufferUsageFlags usage, const BufferFactory& bufferFactory, const void* initialData) :
+	IndexBuffer::IndexBuffer(IndexType indexType, UInt32 indexCount, BufferUsageFlags usage, const BufferFactory& bufferFactory, const void* initialData) :
 	m_indexType(indexType),
 	m_indexCount(indexCount),
 	m_startOffset(0)

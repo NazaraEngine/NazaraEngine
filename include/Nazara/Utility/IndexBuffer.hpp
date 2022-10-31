@@ -18,7 +18,7 @@ namespace Nz
 			IndexBuffer() = default;
 			IndexBuffer(IndexType indexType, std::shared_ptr<Buffer> buffer);
 			IndexBuffer(IndexType indexType, std::shared_ptr<Buffer> buffer, UInt64 offset, UInt64 size);
-			IndexBuffer(IndexType indexType, UInt64 indexCount, BufferUsageFlags usage, const BufferFactory& bufferFactory, const void* initialData = nullptr);
+			IndexBuffer(IndexType indexType, UInt32 indexCount, BufferUsageFlags usage, const BufferFactory& bufferFactory, const void* initialData = nullptr);
 			IndexBuffer(const IndexBuffer&) = default;
 			IndexBuffer(IndexBuffer&&) noexcept = default;
 			~IndexBuffer() = default;
@@ -30,7 +30,7 @@ namespace Nz
 
 			inline const std::shared_ptr<Buffer>& GetBuffer() const;
 			inline UInt64 GetEndOffset() const;
-			inline UInt64 GetIndexCount() const;
+			inline UInt32 GetIndexCount() const;
 			inline IndexType GetIndexType() const;
 			inline UInt64 GetStride() const;
 			inline UInt64 GetStartOffset() const;
@@ -52,7 +52,7 @@ namespace Nz
 		private:
 			std::shared_ptr<Buffer> m_buffer;
 			IndexType m_indexType;
-			UInt64 m_indexCount;
+			UInt32 m_indexCount;
 			UInt64 m_endOffset;
 			UInt64 m_startOffset;
 	};

@@ -217,11 +217,11 @@ namespace Nz
 					Clear();
 				}
 
-				VertexCache(IndexIterator indices, UInt64 indexCount)
+				VertexCache(IndexIterator indices, UInt32 indexCount)
 				{
 					Clear();
 
-					for (UInt64 i = 0; i < indexCount; ++i)
+					for (UInt32 i = 0; i < indexCount; ++i)
 						AddVertex(*indices++);
 				}
 
@@ -252,7 +252,7 @@ namespace Nz
 					m_misses = 0;
 				}
 
-				UInt64 GetMissCount() const
+				UInt32 GetMissCount() const
 				{
 					return m_misses;
 				}
@@ -281,7 +281,7 @@ namespace Nz
 				}
 
 				std::array<int, 40> m_cache;
-				UInt64 m_misses; // cache miss count
+				UInt32 m_misses; // cache miss count
 		};
 
 		class VertexCacheOptimizer
@@ -306,7 +306,7 @@ namespace Nz
 				}
 
 				// stores new indices in place
-				Result Optimize(IndexIterator indices, UInt64 indexCount)
+				Result Optimize(IndexIterator indices, UInt32 indexCount)
 				{
 					if (indexCount == 0)
 						return Fail_NoVerts;
@@ -426,7 +426,7 @@ namespace Nz
 					return Success;
 				}
 
-				Result Init(IndexIterator indices, UInt64 indexCount, UInt64 vertexCount)
+				Result Init(IndexIterator indices, UInt32 indexCount, UInt32 vertexCount)
 				{
 					// clear the draw list
 					m_drawList.clear();
@@ -436,7 +436,7 @@ namespace Nz
 					m_vertices.resize(vertexCount);
 
 					m_triangles.clear();
-					for (UInt64 i = 0; i < indexCount; i += 3)
+					for (UInt32 i = 0; i < indexCount; i += 3)
 					{
 						TriangleCacheData dat;
 						for (unsigned int j = 0; j < 3; ++j)
@@ -447,7 +447,7 @@ namespace Nz
 
 					// copy the indices
 					m_indices.resize(indexCount);
-					for (UInt64 i = 0; i < indexCount; ++i)
+					for (UInt32 i = 0; i < indexCount; ++i)
 						m_indices[i] = indices[i];
 
 					m_vertexCache.Clear();
@@ -633,7 +633,7 @@ namespace Nz
 
 	/**********************************Compute**********************************/
 
-	Boxf ComputeAABB(SparsePtr<const Vector3f> positionPtr, UInt64 vertexCount)
+	Boxf ComputeAABB(SparsePtr<const Vector3f> positionPtr, UInt32 vertexCount)
 	{
 		Boxf aabb;
 		if (vertexCount > 0)
@@ -641,7 +641,7 @@ namespace Nz
 			aabb.Set(positionPtr->x, positionPtr->y, positionPtr->z, 0.f, 0.f, 0.f);
 			++positionPtr;
 
-			for (UInt64 i = 1; i < vertexCount; ++i)
+			for (UInt32 i = 1; i < vertexCount; ++i)
 				aabb.ExtendTo(*positionPtr++);
 		}
 		else
@@ -650,10 +650,10 @@ namespace Nz
 		return aabb;
 	}
 
-	void ComputeBoxIndexVertexCount(const Vector3ui& subdivision, UInt64* indexCount, UInt64* vertexCount)
+	void ComputeBoxIndexVertexCount(const Vector3ui& subdivision, UInt32* indexCount, UInt32* vertexCount)
 	{
-		UInt64 xIndexCount, yIndexCount, zIndexCount;
-		UInt64 xVertexCount, yVertexCount, zVertexCount;
+		UInt32 xIndexCount, yIndexCount, zIndexCount;
+		UInt32 xVertexCount, yVertexCount, zVertexCount;
 
 		ComputePlaneIndexVertexCount(Vector2ui(subdivision.y, subdivision.z), &xIndexCount, &xVertexCount);
 		ComputePlaneIndexVertexCount(Vector2ui(subdivision.x, subdivision.z), &yIndexCount, &yVertexCount);
@@ -666,7 +666,7 @@ namespace Nz
 			*vertexCount = xVertexCount*2 + yVertexCount*2 + zVertexCount*2;
 	}
 
-	UInt64 ComputeCacheMissCount(IndexIterator indices, UInt64 indexCount)
+	UInt32 ComputeCacheMissCount(IndexIterator indices, UInt32 indexCount)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
@@ -674,7 +674,7 @@ namespace Nz
 		return cache.GetMissCount();
 	}
 
-	void ComputeConeIndexVertexCount(unsigned int subdivision, UInt64* indexCount, UInt64* vertexCount)
+	void ComputeConeIndexVertexCount(unsigned int subdivision, UInt32* indexCount, UInt32* vertexCount)
 	{
 		if (indexCount)
 			*indexCount = (subdivision-1)*6;
@@ -683,7 +683,7 @@ namespace Nz
 			*vertexCount = subdivision + 2;
 	}
 
-	void ComputeCubicSphereIndexVertexCount(unsigned int subdivision, UInt64* indexCount, UInt64* vertexCount)
+	void ComputeCubicSphereIndexVertexCount(unsigned int subdivision, UInt32* indexCount, UInt32* vertexCount)
 	{
 		// Comme tous nos plans sont identiques, on peut optimiser un peu
 		ComputePlaneIndexVertexCount(Vector2ui(subdivision), indexCount, vertexCount);
@@ -695,7 +695,7 @@ namespace Nz
 			*vertexCount *= 6;
 	}
 
-	void ComputeIcoSphereIndexVertexCount(unsigned int recursionLevel, UInt64* indexCount, UInt64* vertexCount)
+	void ComputeIcoSphereIndexVertexCount(unsigned int recursionLevel, UInt32* indexCount, UInt32* vertexCount)
 	{
 		if (indexCount)
 			*indexCount = 3 * 20 * IntegralPow(4, recursionLevel);
@@ -704,7 +704,7 @@ namespace Nz
 			*vertexCount = IntegralPow(4, recursionLevel)*10 + 2;
 	}
 
-	void ComputePlaneIndexVertexCount(const Vector2ui& subdivision, UInt64* indexCount, UInt64* vertexCount)
+	void ComputePlaneIndexVertexCount(const Vector2ui& subdivision, UInt32* indexCount, UInt32* vertexCount)
 	{
 		// Le nombre de faces appartenant à un axe est équivalent à 2 exposant la subdivision (1,2,4,8,16,32,...)
 		unsigned int horizontalFaceCount = (1 << subdivision.x);
@@ -721,7 +721,7 @@ namespace Nz
 			*vertexCount = horizontalVertexCount*verticalVertexCount;
 	}
 
-	void ComputeUvSphereIndexVertexCount(unsigned int sliceCount, unsigned int stackCount, UInt64* indexCount, UInt64* vertexCount)
+	void ComputeUvSphereIndexVertexCount(unsigned int sliceCount, unsigned int stackCount, UInt32* indexCount, UInt32* vertexCount)
 	{
 		if (indexCount)
 			*indexCount = (sliceCount-1) * (stackCount-1) * 6;
@@ -732,12 +732,12 @@ namespace Nz
 
 	/**********************************Generate*********************************/
 
-	void GenerateBox(const Vector3f& lengths, const Vector3ui& subdivision, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb, UInt64 indexOffset)
+	void GenerateBox(const Vector3f& lengths, const Vector3ui& subdivision, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb, UInt32 indexOffset)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
-		UInt64 xIndexCount, yIndexCount, zIndexCount;
-		UInt64 xVertexCount, yVertexCount, zVertexCount;
+		UInt32 xIndexCount, yIndexCount, zIndexCount;
+		UInt32 xVertexCount, yVertexCount, zVertexCount;
 
 		ComputePlaneIndexVertexCount(Vector2ui(subdivision.y, subdivision.z), &xIndexCount, &xVertexCount);
 		ComputePlaneIndexVertexCount(Vector2ui(subdivision.x, subdivision.z), &yIndexCount, &yVertexCount);
@@ -855,7 +855,7 @@ namespace Nz
 		}
 	}
 
-	void GenerateCone(float length, float radius, unsigned int subdivision, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb, UInt64 indexOffset)
+	void GenerateCone(float length, float radius, unsigned int subdivision, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb, UInt32 indexOffset)
 	{
 		constexpr float round = 2.f * Pi<float>;
 		float delta = round/subdivision;
@@ -903,10 +903,10 @@ namespace Nz
 		}
 	}
 
-	void GenerateCubicSphere(float size, unsigned int subdivision, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb, UInt64 indexOffset)
+	void GenerateCubicSphere(float size, unsigned int subdivision, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb, UInt32 indexOffset)
 	{
 		///DOC: Cette fonction va accéder aux pointeurs en écriture ET en lecture
-		UInt64 vertexCount;
+		UInt32 vertexCount;
 		ComputeBoxIndexVertexCount(Vector3ui(subdivision), nullptr, &vertexCount);
 
 		// On envoie une matrice identité de sorte à ce que la boîte ne subisse aucune transformation (rendant plus facile l'étape suivante)
@@ -931,7 +931,7 @@ namespace Nz
 		}
 	}
 
-	void GenerateIcoSphere(float size, unsigned int recursionLevel, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb, UInt64 indexOffset)
+	void GenerateIcoSphere(float size, unsigned int recursionLevel, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb, UInt32 indexOffset)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
@@ -939,7 +939,7 @@ namespace Nz
 		builder.Generate(size, recursionLevel, textureCoords, vertexPointers, indices, aabb, indexOffset);
 	}
 
-	void GeneratePlane(const Vector2ui& subdivision, const Vector2f& size, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb, UInt64 indexOffset)
+	void GeneratePlane(const Vector2ui& subdivision, const Vector2f& size, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb, UInt32 indexOffset)
 	{
 		// Pour plus de facilité, on va construire notre plan en considérant que la normale est de 0,1,0
 		// Et appliquer ensuite une matrice "finissant le travail"
@@ -998,7 +998,7 @@ namespace Nz
 			aabb->Set(matrix.Transform(Vector3f(-halfSizeX, 0.f, -halfSizeY), 0.f), matrix.Transform(Vector3f(halfSizeX, 0.f, halfSizeY), 0.f));
 	}
 
-	void GenerateUvSphere(float size, unsigned int sliceCount, unsigned int stackCount, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb, UInt64 indexOffset)
+	void GenerateUvSphere(float size, unsigned int sliceCount, unsigned int stackCount, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb, UInt32 indexOffset)
 	{
 		// http://stackoverflow.com/questions/14080932/implementing-opengl-sphere-example-code
 		float invSliceCount = 1.f / (sliceCount-1);
@@ -1054,7 +1054,7 @@ namespace Nz
 
 	/**********************************Optimize*********************************/
 
-	void OptimizeIndices(IndexIterator indices, UInt64 indexCount)
+	void OptimizeIndices(IndexIterator indices, UInt32 indexCount)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
@@ -1065,12 +1065,12 @@ namespace Nz
 
 	/************************************Skin***********************************/
 
-	void SkinLinearBlend(const SkinningData& skinningInfos, UInt64 startVertex, UInt64 vertexCount)
+	void SkinLinearBlend(const SkinningData& skinningInfos, UInt32 startVertex, UInt32 vertexCount)
 	{
 		NazaraAssert(skinningInfos.inputJointIndices, "missing input joint indices");
 		NazaraAssert(skinningInfos.inputJointWeights, "missing input joint weights");
 
-		UInt64 endVertex = startVertex + vertexCount - 1;
+		UInt32 endVertex = startVertex + vertexCount - 1;
 		if (skinningInfos.outputPositions || skinningInfos.outputNormals || skinningInfos.outputTangents)
 		{
 			NazaraAssert(skinningInfos.joints, "missing skeleton joints");
@@ -1088,7 +1088,7 @@ namespace Nz
 			bool hasNormals = skinningInfos.inputNormals && skinningInfos.outputNormals;
 			bool hasTangents = skinningInfos.inputTangents && skinningInfos.outputTangents;
 
-			for (UInt64 i = startVertex; i <= endVertex; ++i)
+			for (UInt32 i = startVertex; i <= endVertex; ++i)
 			{
 				Vector3f finalPosition = Vector3f::Zero();
 				Vector3f finalNormal = Vector3f::Zero();

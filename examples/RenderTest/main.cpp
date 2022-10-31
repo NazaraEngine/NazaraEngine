@@ -284,7 +284,7 @@ int main()
 
 				case Nz::WindowEventType::Resized:
 				{
-					Nz::Vector2ui windowSize = window.GetSize();
+					windowSize = window.GetSize();
 					ubo.projectionMatrix = Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(windowSize.x) / windowSize.y, 0.1f, 1000.f);
 					uboUpdate = true;
 					break;

@@ -36,7 +36,7 @@ namespace Nz
 		return m_vertexBuffer;
 	}
 
-	UInt64 SkeletalMesh::GetVertexCount() const
+	UInt32 SkeletalMesh::GetVertexCount() const
 	{
 		return m_vertexBuffer->GetVertexCount();
 	}

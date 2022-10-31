@@ -21,7 +21,7 @@ namespace Nz
 	{
 	}
 
-	inline IndexIterator::IndexIterator(IndexMapper* mapper, std::size_t index) :
+	inline IndexIterator::IndexIterator(IndexMapper* mapper, UInt32 index) :
 	m_mapper(mapper),
 	m_index(index)
 	{
@@ -32,7 +32,7 @@ namespace Nz
 		return Reference(m_mapper, m_index);
 	}
 
-	inline IndexIterator::Reference IndexIterator::operator[](std::size_t index) const
+	inline IndexIterator::Reference IndexIterator::operator[](UInt32 index) const
 	{
 		return Reference(m_mapper, m_index+index);
 	}
@@ -45,24 +45,24 @@ namespace Nz
 		return *this;
 	}
 
-	inline IndexIterator IndexIterator::operator+(std::size_t indexCount) const
+	inline IndexIterator IndexIterator::operator+(UInt32 indexCount) const
 	{
 		return IndexIterator(m_mapper, m_index + indexCount);
 	}
 
-	inline IndexIterator IndexIterator::operator-(std::size_t indexCount) const
+	inline IndexIterator IndexIterator::operator-(UInt32 indexCount) const
 	{
 		return IndexIterator(m_mapper, m_index - indexCount);
 	}
 
-	inline IndexIterator& IndexIterator::operator+=(std::size_t indexCount)
+	inline IndexIterator& IndexIterator::operator+=(UInt32 indexCount)
 	{
 		m_index += indexCount;
 
 		return *this;
 	}
 
-	inline IndexIterator& IndexIterator::operator-=(std::size_t indexCount)
+	inline IndexIterator& IndexIterator::operator-=(UInt32 indexCount)
 	{
 		m_index += indexCount;
 
@@ -134,7 +134,7 @@ namespace Nz
 
 	/**************************IndexIterator::Reference*************************/
 
-	inline IndexIterator::Reference::Reference(IndexMapper* mapper, std::size_t index) :
+	inline IndexIterator::Reference::Reference(IndexMapper* mapper, UInt32 index) :
 	m_mapper(mapper),
 	m_index(index)
 	{

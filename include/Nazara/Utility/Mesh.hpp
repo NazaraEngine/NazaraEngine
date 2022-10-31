@@ -125,8 +125,8 @@ namespace Nz
 			const std::shared_ptr<SubMesh>& GetSubMesh(std::size_t index) const;
 			std::size_t GetSubMeshCount() const;
 			std::size_t GetSubMeshIndex(const std::string& identifier) const;
-			UInt64 GetTriangleCount() const;
-			UInt64 GetVertexCount() const;
+			UInt32 GetTriangleCount() const;
+			UInt32 GetVertexCount() const;
 
 			bool HasSubMesh(const std::string& identifier) const;
 			bool HasSubMesh(std::size_t index = 0) const;

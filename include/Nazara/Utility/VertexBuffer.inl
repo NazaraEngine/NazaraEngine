@@ -28,7 +28,7 @@ namespace Nz
 		return m_startOffset;
 	}
 
-	inline UInt64 VertexBuffer::GetVertexCount() const
+	inline UInt32 VertexBuffer::GetVertexCount() const
 	{
 		return m_vertexCount;
 	}

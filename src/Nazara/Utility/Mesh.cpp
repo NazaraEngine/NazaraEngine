@@ -89,8 +89,8 @@ namespace Nz
 		{
 			case PrimitiveType::Box:
 			{
-				UInt64 indexCount;
-				UInt64 vertexCount;
+				UInt32 indexCount;
+				UInt32 vertexCount;
 				ComputeBoxIndexVertexCount(primitive.box.subdivision, &indexCount, &vertexCount);
 
 				bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
@@ -113,8 +113,8 @@ namespace Nz
 
 			case PrimitiveType::Cone:
 			{
-				UInt64 indexCount;
-				UInt64 vertexCount;
+				UInt32 indexCount;
+				UInt32 vertexCount;
 				ComputeConeIndexVertexCount(primitive.cone.subdivision, &indexCount, &vertexCount);
 
 				bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
@@ -137,8 +137,8 @@ namespace Nz
 
 			case PrimitiveType::Plane:
 			{
-				UInt64 indexCount;
-				UInt64 vertexCount;
+				UInt32 indexCount;
+				UInt32 vertexCount;
 				ComputePlaneIndexVertexCount(primitive.plane.subdivision, &indexCount, &vertexCount);
 
 				bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
@@ -165,8 +165,8 @@ namespace Nz
 				{
 					case SphereType::Cubic:
 					{
-						UInt64 indexCount;
-						UInt64 vertexCount;
+						UInt32 indexCount;
+						UInt32 vertexCount;
 						ComputeCubicSphereIndexVertexCount(primitive.sphere.cubic.subdivision, &indexCount, &vertexCount);
 
 						bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
@@ -189,8 +189,8 @@ namespace Nz
 
 					case SphereType::Ico:
 					{
-						UInt64 indexCount;
-						UInt64 vertexCount;
+						UInt32 indexCount;
+						UInt32 vertexCount;
 						ComputeIcoSphereIndexVertexCount(primitive.sphere.ico.recursionLevel, &indexCount, &vertexCount);
 
 						bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
@@ -213,8 +213,8 @@ namespace Nz
 
 					case SphereType::UV:
 					{
-						UInt64 indexCount;
-						UInt64 vertexCount;
+						UInt32 indexCount;
+						UInt32 vertexCount;
 						ComputeUvSphereIndexVertexCount(primitive.sphere.uv.sliceCount, primitive.sphere.uv.stackCount, &indexCount, &vertexCount);
 
 						bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
@@ -439,22 +439,22 @@ namespace Nz
 		return it->second;
 	}
 
-	UInt64 Mesh::GetTriangleCount() const
+	UInt32 Mesh::GetTriangleCount() const
 	{
 		NazaraAssert(m_isValid, "Mesh should be created first");
 
-		UInt64 triangleCount = 0;
+		UInt32 triangleCount = 0;
 		for (const SubMeshData& data : m_subMeshes)
 			triangleCount += data.subMesh->GetTriangleCount();
 
 		return triangleCount;
 	}
 
-	UInt64 Mesh::GetVertexCount() const
+	UInt32 Mesh::GetVertexCount() const
 	{
 		NazaraAssert(m_isValid, "Mesh should be created first");
 
-		UInt64 vertexCount = 0;
+		UInt32 vertexCount = 0;
 		for (const SubMeshData& data : m_subMeshes)
 			vertexCount += data.subMesh->GetVertexCount();
 

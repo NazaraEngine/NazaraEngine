@@ -94,8 +94,8 @@ namespace Nz
 				{
 					const MD5MeshParser::Mesh& md5Mesh = meshes[i];
 
-					UInt64 indexCount = md5Mesh.triangles.size() * 3;
-					UInt64 vertexCount = md5Mesh.vertices.size();
+					UInt32 indexCount = SafeCast<UInt32>(md5Mesh.triangles.size() * 3);
+					UInt32 vertexCount = SafeCast<UInt32>(md5Mesh.vertices.size());
 
 					bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());
 
@@ -257,8 +257,8 @@ namespace Nz
 				for (UInt32 i = 0; i < meshCount; ++i)
 				{
 					const MD5MeshParser::Mesh& md5Mesh = meshes[i];
-					UInt64 indexCount = md5Mesh.triangles.size() * 3;
-					UInt64 vertexCount = md5Mesh.vertices.size();
+					UInt32 indexCount = SafeCast<UInt32>(md5Mesh.triangles.size() * 3);
+					UInt32 vertexCount = SafeCast<UInt32>(md5Mesh.vertices.size());
 
 					// Index buffer
 					bool largeIndices = (vertexCount > std::numeric_limits<UInt16>::max());

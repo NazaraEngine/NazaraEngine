@@ -38,8 +38,8 @@ namespace Nz
 			virtual const std::shared_ptr<IndexBuffer>& GetIndexBuffer() const = 0;
 			std::size_t GetMaterialIndex() const;
 			PrimitiveMode GetPrimitiveMode() const;
-			UInt64 GetTriangleCount() const;
-			virtual UInt64 GetVertexCount() const = 0;
+			UInt32 GetTriangleCount() const;
+			virtual UInt32 GetVertexCount() const = 0;
 
 			virtual bool IsAnimated() const = 0;
 

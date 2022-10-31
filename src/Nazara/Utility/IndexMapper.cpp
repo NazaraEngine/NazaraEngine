@@ -67,7 +67,7 @@ namespace Nz
 		}
 	}
 
-	IndexMapper::IndexMapper(IndexBuffer& indexBuffer, std::size_t indexCount) :
+	IndexMapper::IndexMapper(IndexBuffer& indexBuffer, UInt32 indexCount) :
 	m_indexCount((indexCount != 0) ? indexCount : indexBuffer.GetIndexCount())
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
@@ -127,7 +127,7 @@ namespace Nz
 		return m_mapper.GetBuffer();
 	}
 
-	std::size_t IndexMapper::GetIndexCount() const
+	UInt32 IndexMapper::GetIndexCount() const
 	{
 		return m_indexCount;
 	}

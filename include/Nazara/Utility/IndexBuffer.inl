@@ -19,7 +19,7 @@ namespace Nz
 		return m_endOffset;
 	}
 
-	inline UInt64 IndexBuffer::GetIndexCount() const
+	inline UInt32 IndexBuffer::GetIndexCount() const
 	{
 		return m_indexCount;
 	}

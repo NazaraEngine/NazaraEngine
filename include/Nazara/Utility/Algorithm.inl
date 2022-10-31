@@ -35,11 +35,11 @@ namespace Nz
 		scale    = TransformScaleTRS(transformScale, scale);
 	}
 
-	inline void TransformVertices(VertexPointers vertexPointers, UInt64 vertexCount, const Matrix4f& matrix)
+	inline void TransformVertices(VertexPointers vertexPointers, UInt32 vertexCount, const Matrix4f& matrix)
 	{
 		if (vertexPointers.positionPtr)
 		{
-			for (UInt64 i = 0; i < vertexCount; ++i)
+			for (UInt32 i = 0; i < vertexCount; ++i)
 				*vertexPointers.positionPtr++ = matrix.Transform(*vertexPointers.positionPtr);
 		}
 

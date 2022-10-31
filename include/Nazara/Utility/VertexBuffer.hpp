@@ -19,7 +19,7 @@ namespace Nz
 			VertexBuffer() = default;
 			VertexBuffer(std::shared_ptr<const VertexDeclaration> vertexDeclaration, std::shared_ptr<Buffer> buffer);
 			VertexBuffer(std::shared_ptr<const VertexDeclaration> vertexDeclaration, std::shared_ptr<Buffer> buffer, UInt64 offset, UInt64 size);
-			VertexBuffer(std::shared_ptr<const VertexDeclaration> vertexDeclaration, UInt64 vertexCount, BufferUsageFlags usage, const BufferFactory& bufferFactory, const void* initialData = nullptr);
+			VertexBuffer(std::shared_ptr<const VertexDeclaration> vertexDeclaration, UInt32 vertexCount, BufferUsageFlags usage, const BufferFactory& bufferFactory, const void* initialData = nullptr);
 			VertexBuffer(const VertexBuffer&) = default;
 			VertexBuffer(VertexBuffer&&) noexcept = default;
 			~VertexBuffer() = default;
@@ -31,7 +31,7 @@ namespace Nz
 			inline UInt64 GetEndOffset() const;
 			inline UInt64 GetStartOffset() const;
 			inline UInt64 GetStride() const;
-			inline UInt64 GetVertexCount() const;
+			inline UInt32 GetVertexCount() const;
 			inline const std::shared_ptr<const VertexDeclaration>& GetVertexDeclaration() const;
 
 			inline bool IsValid() const;
@@ -51,9 +51,9 @@ namespace Nz
 		private:
 			std::shared_ptr<Buffer> m_buffer;
 			std::shared_ptr<const VertexDeclaration> m_vertexDeclaration;
+			UInt32 m_vertexCount;
 			UInt64 m_endOffset;
 			UInt64 m_startOffset;
-			UInt64 m_vertexCount;
 	};
 }
 
