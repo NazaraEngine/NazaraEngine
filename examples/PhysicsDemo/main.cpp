@@ -42,7 +42,7 @@ int main()
 
 	Nz::MeshParams meshParams;
 	meshParams.center = true;
-	meshParams.vertexRotation = Nz::EulerAnglesf(0.f, -90.f, 0.f);
+	meshParams.vertexRotation = Nz::EulerAnglesf(0.f, 90.f, 0.f);
 	meshParams.vertexScale = Nz::Vector3f(0.002f);
 	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_Normal_UV_Tangent);
 
@@ -64,6 +64,15 @@ int main()
 	texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
 
 	std::shared_ptr<Nz::MaterialInstance> material = Nz::Graphics::Instance()->GetDefaultMaterials().phongMaterial->CreateInstance();
+	for (std::string_view passName : { "DepthPass", "ForwardPass" })
+	{
+		material->UpdatePassStates(passName, [](Nz::RenderStates& states)
+		{
+			states.depthClamp = true;
+			return true;
+		});
+	}
+
 	material->SetTextureProperty("AlphaMap", Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
 	material->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
 
@@ -71,7 +80,15 @@ int main()
 	for (std::size_t i = 0; i < model->GetSubMeshCount(); ++i)
 		model->SetMaterial(i, material);
 
-	std::shared_ptr<Nz::TextSprite> sprite = std::make_shared<Nz::TextSprite>();
+	std::shared_ptr<Nz::MaterialInstance> textMaterial = Nz::Graphics::Instance()->GetDefaultMaterials().basicTransparent->Clone();
+	textMaterial->UpdatePassFlags("ForwardPass", Nz::MaterialPassFlag::SortByDistance);
+	textMaterial->UpdatePassStates("ForwardPass", [](Nz::RenderStates& states)
+	{
+		states.depthClamp = true;
+		return true;
+	});
+
+	std::shared_ptr<Nz::TextSprite> sprite = std::make_shared<Nz::TextSprite>(textMaterial);
 	sprite->Update(Nz::SimpleTextDrawer::Draw("Voix ambiguë d'un cœur qui, au zéphyr, préfère les jattes de kiwis", 72), 0.01f);
 
 	Nz::VertexMapper vertexMapper(*spaceshipMesh->GetSubMesh(0));
@@ -164,6 +181,7 @@ int main()
 
 				auto& entityNode = registry.emplace<Nz::NodeComponent>(entity);
 				entityNode.SetPosition(Nz::Vector3f(x * 2.f, y * 1.5f, z * 2.f));
+				entityNode.SetRotation(Nz::EulerAnglesf(0.f, Nz::TurnAnglef(0.5f), 0.f));
 
 				auto& entityPhys = registry.emplace<Nz::RigidBody3DComponent>(entity, physSytem.CreateRigidBody(shipCollider));
 				entityPhys.SetMass(1.f);
@@ -187,7 +205,7 @@ int main()
 	float elapsedTime = 0.f;
 	Nz::UInt64 time = Nz::GetElapsedMicroseconds();
 
-	Nz::PidController<Nz::Vector3f> headingController(0.5f, 0.f, 0.05f);
+	Nz::PidController<Nz::Vector3f> headingController(0.3f, 0.f, 0.1f);
 	Nz::PidController<Nz::Vector3f> upController(1.f, 0.f, 0.1f);
 
 	bool showColliders = false;
@@ -217,14 +235,14 @@ int main()
 						showColliders = !showColliders;
 						if (showColliders)
 						{
-							auto view = registry.view<Nz::GraphicsComponent>();
-							for (auto [entity, gfxComponent] : view.each())
+							auto view = registry.view<Nz::GraphicsComponent, Nz::RigidBody3DComponent>();
+							for (auto [entity, gfxComponent, _] : view.each())
 								gfxComponent.AttachRenderable(colliderModel, 1);
 						}
 						else
 						{
-							auto view = registry.view<Nz::GraphicsComponent>();
-							for (auto [entity, gfxComponent] : view.each())
+							auto view = registry.view<Nz::GraphicsComponent, Nz::RigidBody3DComponent>();
+							for (auto [entity, gfxComponent, _] : view.each())
 								gfxComponent.DetachRenderable(colliderModel);
 						}
 					}
