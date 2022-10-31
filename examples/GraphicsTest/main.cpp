@@ -17,11 +17,11 @@ int main()
 		resourceDir = "../.." / resourceDir;
 
 	Nz::Renderer::Config rendererConfig;
-	/*std::cout << "Run using Vulkan? (y/n)" << std::endl;
+	std::cout << "Run using Vulkan? (y/n)" << std::endl;
 	if (std::getchar() == 'y')
 		rendererConfig.preferredAPI = Nz::RenderAPI::Vulkan;
 	else
-		*/rendererConfig.preferredAPI = Nz::RenderAPI::Vulkan;
+		rendererConfig.preferredAPI = Nz::RenderAPI::Vulkan;
 
 	Nz::Modules<Nz::Graphics> nazara(rendererConfig);
 
@@ -73,22 +73,6 @@ int main()
 
 	std::shared_ptr<Nz::MaterialInstance> materialInstance2 = std::make_shared<Nz::MaterialInstance>(material);
 	materialInstance2->SetValueProperty(0, Nz::Color::Green);
-
-	//return 0;
-
-	/*std::shared_ptr<Nz::MaterialPass> forwardPass = std::make_shared<Nz::MaterialPass>(Nz::PhongLightingMaterialPass::GetSettings());
-	forwardPass->EnableDepthBuffer(true);
-	forwardPass->EnableFaceCulling(true);
-
-	material->AddPass("ForwardPass", forwardPass);
-
-	std::shared_ptr<Nz::Texture> normalMap = Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/normal.png", texParams);
-
-	Nz::PhongLightingMaterialPass phongMat(*forwardPass);
-	phongMat.EnableAlphaTest(false);
-	phongMat.SetAlphaMap(Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
-	phongMat.SetBaseColorMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
-	phongMat.SetNormalMap(Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/normal.png", texParams));*/
 
 	Nz::Model model(std::move(gfxMesh), spaceshipMesh->GetAABB());
 	for (std::size_t i = 0; i < model.GetSubMeshCount(); ++i)

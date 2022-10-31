@@ -120,7 +120,7 @@ namespace Nz
 
 		Font::SetDefaultAtlas(std::make_shared<GuillotineTextureAtlas>(*m_renderDevice));
 
-		m_materialLoader.RegisterLoader(Loaders::GetMaterialLoader_Texture()); // texture to material loader
+		m_materialInstanceLoader.RegisterLoader(Loaders::GetMaterialInstanceLoader_Texture()); // texture to material loader
 	}
 
 	Graphics::~Graphics()
@@ -246,7 +246,7 @@ namespace Nz
 		{
 			MaterialSettings settings;
 			PredefinedMaterials::AddBasicSettings(settings);
-			PredefinedMaterials::AddPbrSettings(settings);
+			PredefinedMaterials::AddPhongSettings(settings);
 
 			MaterialPass forwardPass;
 			forwardPass.states.depthBuffer = true;

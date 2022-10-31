@@ -14,6 +14,11 @@
 
 namespace Nz
 {
+	bool MaterialInstanceParams::IsValid() const
+	{
+		return true;
+	}
+
 	MaterialInstance::MaterialInstance(std::shared_ptr<const Material> parent) :
 	m_parent(std::move(parent)),
 	m_materialSettings(m_parent->GetSettings())

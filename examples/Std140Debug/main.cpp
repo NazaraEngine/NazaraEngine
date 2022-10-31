@@ -7,30 +7,25 @@
 #include <numeric>
 
 const char fragmentSource[] = R"(
-#version 460
+#version 300 es
 
-struct Inner
-{
-	mat2x3 a;
-	dmat3x3 b;
-	mat4x3 c;
-	mat3x4 d[7];
-};
+#if GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
 
-layout(std140) uniform Outer
+layout(std140) uniform LightParameters
 {
-	Inner a;
-	vec3 b;
-	Inner c[3];
-	ivec2 d;
-	bvec4 e;
-	dvec2 f;
-	bool g;
-	float h;
-	double i[3];
-	int j;
-	uint k[2];
-	uvec2 l;
+	mat4 projectionMatrix;
+	mat4 invProjectionMatrix;
+	mat4 viewMatrix;
+	mat4 invViewMatrix;
+	mat4 viewProjMatrix;
+	mat4 invViewProjMatrix;
+	vec2 renderTargetSize;
+	vec2 invRenderTargetSize;
+	vec3 eyePosition;
 };
 
 void main()
@@ -126,7 +121,7 @@ int main()
 	}
 
 	// Get infos
-	GLuint blockIndex = program.GetUniformBlockIndex("Outer");
+	GLuint blockIndex = program.GetUniformBlockIndex("LightParameters");
 	if (blockIndex == GL_INVALID_INDEX)
 	{
 		std::cerr << "Failed to find uniform block in program" << std::endl;
@@ -138,20 +133,6 @@ int main()
 	std::vector<GLint> offsets = program.GetActiveUniforms(GLsizei(uniformIndices.size()), reinterpret_cast<GLuint*>(uniformIndices.data()), GL_UNIFORM_OFFSET);
 
 	auto p = SortIndexes(offsets, std::less<std::size_t>());
-
-	GLint dataSize;
-	program.GetActiveUniformBlock(blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &dataSize);
-
-	for (std::size_t i = 0; i < uniformIndices.size(); ++i)
-	{
-		GLint realOffset = offsets[p[i]];
-		std::cout << program.GetActiveUniformName(uniformIndices[p[i]]) << ": " << realOffset;
-		//if (realOffset != computedOffsets[i])
-		//	std::cout << " ERR";
-
-		std::cout << std::endl;
-	}
-	return 0;
 
 	std::vector<std::size_t> computedOffsets;
 	
@@ -166,6 +147,9 @@ int main()
 	computedOffsets.push_back(fieldOffsets.AddField(nzsl::StructFieldType::Float2));
 	computedOffsets.push_back(fieldOffsets.AddField(nzsl::StructFieldType::Float3));
 
+
+	GLint dataSize;
+	program.GetActiveUniformBlock(blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &dataSize);
 
 	if (fieldOffsets.GetAlignedSize() != dataSize)
 		std::cout << "size mismatch (computed " << fieldOffsets.GetAlignedSize() << ", reference has " << dataSize << ")" << std::endl;;

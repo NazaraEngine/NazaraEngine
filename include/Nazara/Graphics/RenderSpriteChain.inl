@@ -64,12 +64,12 @@ namespace Nz
 			// - VertexDeclaration (8bits)
 			// - ?? (8bits) - Depth?
 
-			return (layerIndex & 0xFF)             << 60 |
-			       (matFlags)                      << 52 |
-			       (elementType & 0xF)             << 51 |
-			       (pipelineIndex & 0xFFFF)        << 35 |
-			       (materialInstanceIndex & 0xFFFF)    << 23 |
-			       (vertexDeclarationIndex & 0xFF) <<  7;
+			return (layerIndex & 0xFF)              << 60 |
+			       (matFlags)                       << 52 |
+			       (elementType & 0xF)              << 51 |
+			       (pipelineIndex & 0xFFFF)         << 35 |
+			       (materialInstanceIndex & 0xFFFF) << 23 |
+			       (vertexDeclarationIndex & 0xFF)  <<  7;
 		}
 	}
 

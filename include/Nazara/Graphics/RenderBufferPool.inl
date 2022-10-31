@@ -7,17 +7,17 @@
 
 namespace Nz
 {
-	inline std::size_t Nz::RenderBufferPool::GetBufferAlignedSize() const
+	inline UInt64 Nz::RenderBufferPool::GetBufferAlignedSize() const
 	{
 		return m_bufferAlignedSize;
 	}
 
-	inline std::size_t RenderBufferPool::GetBufferPerBlock() const
+	inline UInt64 RenderBufferPool::GetBufferPerBlock() const
 	{
 		return m_bufferPerBlock;
 	}
 
-	inline std::size_t RenderBufferPool::GetBufferSize() const
+	inline UInt64 RenderBufferPool::GetBufferSize() const
 	{
 		return m_bufferSize;
 	}

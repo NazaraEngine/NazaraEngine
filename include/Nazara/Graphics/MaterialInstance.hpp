@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
+#include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/MaterialSettings.hpp>
 #include <Nazara/Graphics/TransferInterface.hpp>
 #include <Nazara/Renderer/RenderBufferView.hpp>
@@ -21,9 +22,22 @@
 
 namespace Nz
 {
+	struct NAZARA_GRAPHICS_API MaterialInstanceParams : ResourceParameters
+	{
+		MaterialLightingType lightingType = MaterialLightingType::None;
+
+		bool IsValid() const;
+	};
+
 	class Material;
+	class MaterialInstance;
 	class MaterialPipeline;
 	class Texture;
+
+	using MaterialInstanceLibrary = ObjectLibrary<MaterialInstance>;
+	using MaterialInstanceLoader = ResourceLoader<MaterialInstance, MaterialInstanceParams>;
+	using MaterialInstanceManager = ResourceManager<MaterialInstance, MaterialInstanceParams>;
+	using MaterialInstanceSaver = ResourceSaver<MaterialInstance, MaterialInstanceParams>;
 
 	class NAZARA_GRAPHICS_API MaterialInstance : public TransferInterface
 	{

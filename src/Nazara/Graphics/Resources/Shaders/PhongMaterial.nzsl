@@ -128,7 +128,7 @@ fn main(input: VertToFrag) -> FragOut
 			discard;
 	}
 
-	const if (HasNormal && !DepthPass && false)
+	const if (HasNormal && !DepthPass)
 	{
 		let lightAmbient = vec3[f32](0.0, 0.0, 0.0);
 		let lightDiffuse = vec3[f32](0.0, 0.0, 0.0);

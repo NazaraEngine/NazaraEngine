@@ -30,18 +30,18 @@ namespace Nz
 
 			void Free(std::size_t index);
 
-			inline std::size_t GetBufferAlignedSize() const;
-			inline std::size_t GetBufferPerBlock() const;
-			inline std::size_t GetBufferSize() const;
+			inline UInt64 GetBufferAlignedSize() const;
+			inline UInt64 GetBufferPerBlock() const;
+			inline UInt64 GetBufferSize() const;
 			inline BufferType GetBufferType() const;
 
 			RenderBufferPool& operator=(const RenderBufferPool&) = delete;
 			RenderBufferPool& operator=(RenderBufferPool&&) = delete;
 
 		private:
-			std::size_t m_bufferAlignedSize;
-			std::size_t m_bufferPerBlock;
-			std::size_t m_bufferSize;
+			UInt64 m_bufferAlignedSize;
+			UInt64 m_bufferPerBlock;
+			UInt64 m_bufferSize;
 			std::shared_ptr<RenderDevice> m_renderDevice;
 			std::vector<std::shared_ptr<RenderBuffer>> m_bufferBlocks;
 			Bitset<UInt64> m_availableEntries;

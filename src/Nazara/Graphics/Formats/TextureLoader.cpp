@@ -12,15 +12,15 @@ namespace Nz
 {
 	namespace Loaders
 	{
-		MaterialLoader::Entry GetMaterialLoader_Texture()
+		MaterialInstanceLoader::Entry GetMaterialInstanceLoader_Texture()
 		{
-			MaterialLoader::Entry loaderEntry;
+			MaterialInstanceLoader::Entry loaderEntry;
 			loaderEntry.extensionSupport = [](std::string_view extension)
 			{
 				return Utility::Instance()->GetImageLoader().IsExtensionSupported(extension);
 			};
 
-			loaderEntry.streamLoader = [](Stream& stream, const MaterialParams& parameters) -> Result<std::shared_ptr<Material>, ResourceLoadingError>
+			loaderEntry.streamLoader = [](Stream& stream, const MaterialInstanceParams& parameters) -> Result<std::shared_ptr<MaterialInstance>, ResourceLoadingError>
 			{
 				TextureParams texParams;
 				texParams.renderDevice = Graphics::Instance()->GetRenderDevice();
@@ -29,51 +29,35 @@ namespace Nz
 				if (!texture)
 					return Err(ResourceLoadingError::Unrecognized);
 
-				//std::shared_ptr<Material> material = std::make_shared<Material>();
-
 				bool hasAlphaTest = parameters.custom.GetBooleanParameter("EnableAlphaTest").GetValueOr(false);
 
-				// ForwardPass
-				/* {
-					std::shared_ptr<MaterialPass> matPass;
-					if (parameters.lightingType == MaterialLightingType::Phong)
-						matPass = std::make_shared<MaterialPass>(PhongLightingMaterialPass::GetSettings());
-					else if (parameters.lightingType == MaterialLightingType::PhysicallyBased)
-						matPass = std::make_shared<MaterialPass>(PhysicallyBasedMaterialPass::GetSettings());
-					else
-						matPass = std::make_shared<MaterialPass>(BasicMaterialPass::GetSettings());
+				std::shared_ptr<MaterialInstance> materialInstance;
+				switch (parameters.lightingType)
+				{
+					case MaterialLightingType::Phong:
+						materialInstance = Graphics::Instance()->GetDefaultMaterials().phongMaterial->CreateInstance();
+						break;
 
-					matPass->EnableDepthBuffer(true);
+					case MaterialLightingType::PhysicallyBased:
+						materialInstance = Graphics::Instance()->GetDefaultMaterials().pbrMaterial->CreateInstance();
+						break;
 
-					BasicMaterialPass forwardPass(*matPass);
-					forwardPass.SetBaseColorMap(texture);
-
-					if (hasAlphaTest && PixelFormatInfo::HasAlpha(texture->GetFormat()))
-						forwardPass.EnableAlphaTest(true);
-
-					material->AddPass("ForwardPass", std::move(matPass));
+					case MaterialLightingType::None:
+						break;
 				}
 
-				// DepthPass
-				{
-					std::shared_ptr<MaterialPass> matPass = std::make_shared<MaterialPass>(DepthMaterialPass::GetSettings());
-					matPass->EnableDepthBuffer(true);
+				if (!materialInstance)
+					materialInstance = Graphics::Instance()->GetDefaultMaterials().basicMaterial->CreateInstance();
 
-					if (hasAlphaTest && PixelFormatInfo::HasAlpha(texture->GetFormat()))
-					{
-						BasicMaterialPass depthPass(*matPass);
-						depthPass.SetBaseColorMap(texture);
-						depthPass.EnableAlphaTest(true);
-					}
+				if (hasAlphaTest && PixelFormatInfo::HasAlpha(texture->GetFormat()))
+					materialInstance->SetValueProperty("AlphaTest", true);
 
-					material->AddPass("DepthPass", std::move(matPass));
-				}*/
+				materialInstance->SetTextureProperty("BaseColorMap", std::move(texture));
 
-				//return material;
-				return Err(ResourceLoadingError::Internal);
+				return materialInstance;
 			};
 
-			loaderEntry.parameterFilter = [](const MaterialParams& parameters)
+			loaderEntry.parameterFilter = [](const MaterialInstanceParams& parameters)
 			{
 				if (auto result = parameters.custom.GetBooleanParameter("SkipNativeTextureLoader"); result.GetValueOr(false))
 					return false;

@@ -26,8 +26,6 @@ namespace Nz
 {
 	struct NAZARA_GRAPHICS_API MaterialParams : ResourceParameters
 	{
-		MaterialLightingType lightingType = MaterialLightingType::None;
-
 		bool IsValid() const;
 	};
 
