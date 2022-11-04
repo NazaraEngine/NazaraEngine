@@ -5,6 +5,7 @@
 #include <Nazara/Graphics/Formats/TextureLoader.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Renderer/Texture.hpp>
+#include <Nazara/Utility/Image.hpp>
 #include <Nazara/Utility/Utility.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
@@ -24,12 +25,27 @@ namespace Nz
 			{
 				TextureParams texParams;
 				texParams.renderDevice = Graphics::Instance()->GetRenderDevice();
+				// TODO: Set format as sRGB
 
-				std::shared_ptr<Texture> texture = Texture::LoadFromStream(stream, texParams);
-				if (!texture)
+				std::shared_ptr<Image> image = Image::LoadFromStream(stream, texParams);
+				if (!image)
 					return Err(ResourceLoadingError::Unrecognized);
 
-				bool hasAlphaTest = parameters.custom.GetBooleanParameter("EnableAlphaTest").GetValueOr(false);
+				std::shared_ptr<Texture> texture = Texture::CreateFromImage(*image, texParams);
+				if (!texture)
+					return Err(ResourceLoadingError::Internal);
+
+				bool enableAlphaTest = parameters.custom.GetBooleanParameter("EnableAlphaTest").GetValueOr(false);
+				bool enableAlphaBlending = parameters.custom.GetBooleanParameter("EnableAlphaBlending").GetValueOr(false);
+
+				bool hasAlpha;
+				if (enableAlphaTest || enableAlphaBlending)
+					hasAlpha = image->HasAlpha();
+				else
+					hasAlpha = false;
+
+				// Delete image to free memory
+				image.reset();
 
 				std::shared_ptr<MaterialInstance> materialInstance;
 				switch (parameters.lightingType)
@@ -49,8 +65,27 @@ namespace Nz
 				if (!materialInstance)
 					materialInstance = Graphics::Instance()->GetDefaultMaterials().basicMaterial->Instantiate();
 
-				if (hasAlphaTest && PixelFormatInfo::HasAlpha(texture->GetFormat()))
+				if (enableAlphaTest && hasAlpha)
 					materialInstance->SetValueProperty("AlphaTest", true);
+
+				if (enableAlphaBlending && hasAlpha)
+				{
+					materialInstance->DisablePass("DepthPass");
+					materialInstance->UpdatePassStates("ForwardPass", [](RenderStates& renderStates)
+					{
+						renderStates.depthBuffer = true;
+						renderStates.depthWrite = false;
+						renderStates.blending = true;
+						renderStates.blend.modeColor = BlendEquation::Add;
+						renderStates.blend.modeAlpha = BlendEquation::Add;
+						renderStates.blend.srcColor = BlendFunc::SrcAlpha;
+						renderStates.blend.dstColor = BlendFunc::InvSrcAlpha;
+						renderStates.blend.srcAlpha = BlendFunc::One;
+						renderStates.blend.dstAlpha = BlendFunc::One;
+
+						return true;
+					});
+				}
 
 				materialInstance->SetTextureProperty("BaseColorMap", std::move(texture));
 
