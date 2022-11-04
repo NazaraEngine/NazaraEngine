@@ -44,12 +44,14 @@ namespace Nz
 		texParams.width = image.GetWidth();
 		texParams.usageFlags = params.usageFlags;
 
-		std::shared_ptr<Nz::Texture> texture = params.renderDevice->InstantiateTexture(texParams);
+		std::shared_ptr<Texture> texture = params.renderDevice->InstantiateTexture(texParams);
 		if (!texture->Update(image.GetConstPixels()))
 		{
 			NazaraError("failed to update texture");
 			return {};
 		}
+
+		texture->SetFilePath(image.GetFilePath());
 
 		return texture;
 	}
