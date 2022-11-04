@@ -19,6 +19,7 @@ local rendererBackends = {
 	},
 	VulkanRenderer = {
 		Deps = {"NazaraRenderer"},
+		Packages = {"spirv-tools"},
 		Custom = function()
 			add_defines("VK_NO_PROTOTYPES")
 			if is_plat("windows", "mingw") then
@@ -148,6 +149,7 @@ add_requires("freetype", { configs = { bzip2 = true, png = true, woff2 = true, z
 add_requires("libvorbis", { configs = { with_vorbisenc = false } })
 add_requires("openal-soft", { configs = { shared = true }})
 add_requires("newtondynamics3", { debug = is_plat("windows") and is_mode("debug") }) -- Newton doesn't like compiling in Debug on Linux
+add_requires("spirv-tools")
 
 add_repositories("nazara-engine-repo https://github.com/NazaraEngine/xmake-repo")
 add_requires("nazarautils")

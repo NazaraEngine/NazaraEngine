@@ -8,6 +8,9 @@
 #include <NZSL/SpirvWriter.hpp>
 #include <NZSL/Ast/AstSerializer.hpp>
 #include <NZSL/SpirV/SpirvDecoder.hpp>
+#include <NZSL/SpirV/SpirvPrinter.hpp>
+#include <spirv-tools/optimizer.hpp>
+#include <iostream>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
@@ -131,6 +134,47 @@ namespace Nz
 				{
 					NazaraError("Vulkan shader module does not handle all requested stage types");
 					return false;
+				}
+
+				std::vector<UInt32> optimizedSpv;
+
+				if (true)
+				{
+					spvtools::SpirvTools spirvTools(spv_target_env::SPV_ENV_VULKAN_1_2);
+					spirvTools.SetMessageConsumer([&](spv_message_level_t /*level*/, const char* /*source*/, const spv_position_t& /*position*/, const char* message)
+					{
+						nzsl::SpirvPrinter printer;
+						std::cout << printer.Print(reinterpret_cast<const UInt32*>(source), sourceSize / sizeof(UInt32)) << std::endl;
+
+						std::string fullSpirv;
+						if (!spirvTools.Disassemble(reinterpret_cast<const UInt32*>(source), sourceSize / sizeof(UInt32), &fullSpirv))
+							fullSpirv = "<failed to disassemble SPIR-V>";
+
+						std::cout << fullSpirv << std::endl;
+					});
+
+					spirvTools.Validate(reinterpret_cast<const UInt32*>(source), sourceSize / sizeof(UInt32));
+
+					spvtools::Optimizer optimizer(spv_target_env::SPV_ENV_VULKAN_1_2);
+					optimizer.RegisterPerformancePasses();
+					optimizer.SetMessageConsumer([](
+						spv_message_level_t level, const char* source,
+						const spv_position_t& position, const char* message
+						)
+						{
+							std::cout << message << std::endl;
+						});
+
+					optimizer.SetTimeReport(&std::cout);
+
+					bool yay = optimizer.Run(reinterpret_cast<const UInt32*>(source), sourceSize / sizeof(UInt32), &optimizedSpv);
+					if (!yay)
+					{
+
+					}
+
+					source = optimizedSpv.data();
+					sourceSize = optimizedSpv.size() * sizeof(UInt32);
 				}
 
 				if (!m_shaderModule.Create(device, reinterpret_cast<const UInt32*>(source), sourceSize))
