@@ -48,8 +48,6 @@ namespace Nz
 			Material(MaterialSettings settings, const nzsl::Ast::ModulePtr& referenceModule);
 			~Material() = default;
 
-			std::shared_ptr<MaterialInstance> CreateInstance() const;
-
 			std::shared_ptr<MaterialInstance> GetDefaultInstance() const;
 
 			inline std::size_t FindTextureByTag(const std::string& tag) const;
@@ -62,6 +60,8 @@ namespace Nz
 			inline std::size_t GetTextureCount() const;
 			inline const UniformBlockData& GetUniformBlockData(std::size_t uniformBlockIndex) const;
 			inline std::size_t GetUniformBlockCount() const;
+
+			std::shared_ptr<MaterialInstance> Instantiate() const;
 
 			static std::shared_ptr<Material> Build(const ParameterList& materialData);
 			static std::shared_ptr<Material> LoadFromFile(const std::filesystem::path& filePath, const MaterialParams& params = MaterialParams());

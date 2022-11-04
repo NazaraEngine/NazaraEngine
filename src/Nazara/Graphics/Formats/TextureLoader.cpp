@@ -35,11 +35,11 @@ namespace Nz
 				switch (parameters.lightingType)
 				{
 					case MaterialLightingType::Phong:
-						materialInstance = Graphics::Instance()->GetDefaultMaterials().phongMaterial->CreateInstance();
+						materialInstance = Graphics::Instance()->GetDefaultMaterials().phongMaterial->Instantiate();
 						break;
 
 					case MaterialLightingType::PhysicallyBased:
-						materialInstance = Graphics::Instance()->GetDefaultMaterials().pbrMaterial->CreateInstance();
+						materialInstance = Graphics::Instance()->GetDefaultMaterials().pbrMaterial->Instantiate();
 						break;
 
 					case MaterialLightingType::None:
@@ -47,7 +47,7 @@ namespace Nz
 				}
 
 				if (!materialInstance)
-					materialInstance = Graphics::Instance()->GetDefaultMaterials().basicMaterial->CreateInstance();
+					materialInstance = Graphics::Instance()->GetDefaultMaterials().basicMaterial->Instantiate();
 
 				if (hasAlphaTest && PixelFormatInfo::HasAlpha(texture->GetFormat()))
 					materialInstance->SetValueProperty("AlphaTest", true);

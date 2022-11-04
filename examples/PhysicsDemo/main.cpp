@@ -63,7 +63,7 @@ int main()
 	texParams.renderDevice = device;
 	texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
 
-	std::shared_ptr<Nz::MaterialInstance> material = Nz::Graphics::Instance()->GetDefaultMaterials().phongMaterial->CreateInstance();
+	std::shared_ptr<Nz::MaterialInstance> material = Nz::Graphics::Instance()->GetDefaultMaterials().phongMaterial->Instantiate();
 	for (std::string_view passName : { "DepthPass", "ForwardPass" })
 	{
 		material->UpdatePassStates(passName, [](Nz::RenderStates& states)
@@ -115,7 +115,7 @@ int main()
 
 	auto shipCollider = std::make_shared<Nz::ConvexCollider3D>(vertices, vertexMapper.GetVertexCount(), 0.01f);
 
-	std::shared_ptr<Nz::MaterialInstance> colliderMat = Nz::Graphics::Instance()->GetDefaultMaterials().basicMaterial->CreateInstance();
+	std::shared_ptr<Nz::MaterialInstance> colliderMat = Nz::Graphics::Instance()->GetDefaultMaterials().basicMaterial->Instantiate();
 	colliderMat->SetValueProperty("BaseColor", Nz::Color::Green);
 	for (std::string_view passName : { "DepthPass", "ForwardPass" })
 	{

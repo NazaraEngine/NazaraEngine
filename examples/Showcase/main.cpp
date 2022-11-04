@@ -178,7 +178,7 @@ int main()
 			Nz::TextureParams srgbTexParams = texParams;
 			srgbTexParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
 
-			std::shared_ptr<Nz::MaterialInstance> sphereMat = std::make_shared<Nz::MaterialInstance>(material);
+			std::shared_ptr<Nz::MaterialInstance> sphereMat = Nz::Graphics::Instance()->GetDefaultMaterials().phongMaterial->Instantiate();
 			sphereMat->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(resourceDir / "Rusty/rustediron2_basecolor.png", srgbTexParams));
 
 			std::shared_ptr<Nz::Model> sphereModel = std::make_shared<Nz::Model>(std::move(gfxMesh), sphereMesh->GetAABB());
@@ -227,7 +227,7 @@ int main()
 		planeSampler.wrapModeU = Nz::SamplerWrap::Repeat;
 		planeSampler.wrapModeV = Nz::SamplerWrap::Repeat;
 
-		std::shared_ptr<Nz::MaterialInstance> planeMat = std::make_shared<Nz::MaterialInstance>(material);
+		std::shared_ptr<Nz::MaterialInstance> planeMat = Nz::Graphics::Instance()->GetDefaultMaterials().phongMaterial->Instantiate();
 		planeMat->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(resourceDir / "dev_grey.png", texParams), planeSampler);
 
 		std::shared_ptr<Nz::Model> planeModel = std::make_shared<Nz::Model>(std::move(planeMeshGfx), planeMesh.GetAABB());

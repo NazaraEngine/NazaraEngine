@@ -28,7 +28,7 @@ namespace Nz
 		std::size_t depthPassIndex = materialPassRegistry.GetPassIndex("DepthPass");
 		std::size_t forwardPassIndex = materialPassRegistry.GetPassIndex("ForwardPass");
 
-		m_opaqueMaterial = defaultMaterials.basicMaterial->CreateInstance();
+		m_opaqueMaterial = defaultMaterials.basicMaterial->Instantiate();
 		for (std::size_t passIndex : { depthPassIndex, forwardPassIndex })
 		{
 			m_opaqueMaterial->UpdatePassStates(passIndex, [](RenderStates& renderStates)
@@ -37,7 +37,7 @@ namespace Nz
 			});
 		}
 
-		m_transparentMaterial = defaultMaterials.basicMaterial->CreateInstance();
+		m_transparentMaterial = defaultMaterials.basicMaterial->Instantiate();
 		m_transparentMaterial->DisablePass(depthPassIndex);
 
 		m_transparentMaterial->UpdatePassStates(forwardPassIndex, [](RenderStates& renderStates)

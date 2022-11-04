@@ -262,14 +262,14 @@ namespace Nz
 
 		m_defaultMaterials.basicDefault = m_defaultMaterials.basicMaterial->GetDefaultInstance();
 
-		m_defaultMaterials.basicNoDepth = m_defaultMaterials.basicMaterial->CreateInstance();
+		m_defaultMaterials.basicNoDepth = m_defaultMaterials.basicMaterial->Instantiate();
 		m_defaultMaterials.basicNoDepth->DisablePass(depthPassIndex);
 		m_defaultMaterials.basicNoDepth->UpdatePassStates(forwardPassIndex, [](RenderStates& states)
 		{
 			states.depthBuffer = false;
 		});
 
-		m_defaultMaterials.basicTransparent = m_defaultMaterials.basicMaterial->CreateInstance();
+		m_defaultMaterials.basicTransparent = m_defaultMaterials.basicMaterial->Instantiate();
 		m_defaultMaterials.basicTransparent->DisablePass(depthPassIndex);
 		m_defaultMaterials.basicTransparent->UpdatePassStates(forwardPassIndex, [](RenderStates& renderStates)
 		{

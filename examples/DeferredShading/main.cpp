@@ -207,11 +207,11 @@ int main()
 
 	auto deferredMaterial = std::make_shared<Nz::Material>(std::move(settings), "BasicMaterial");
 
-	std::shared_ptr<Nz::MaterialInstance> spaceshipMat = deferredMaterial->CreateInstance();
+	std::shared_ptr<Nz::MaterialInstance> spaceshipMat = deferredMaterial->Instantiate();
 	spaceshipMat->SetTextureProperty("AlphaMap", Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
 	spaceshipMat->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
 
-	std::shared_ptr<Nz::MaterialInstance> flareMaterial = deferredMaterial->CreateInstance();
+	std::shared_ptr<Nz::MaterialInstance> flareMaterial = deferredMaterial->Instantiate();
 	flareMaterial->UpdatePassStates("ForwardPass", [](Nz::RenderStates& renderStates)
 	{
 		renderStates.depthClamp = true;
@@ -233,7 +233,7 @@ int main()
 	planeSampler.wrapModeU = Nz::SamplerWrap::Repeat;
 	planeSampler.wrapModeV = Nz::SamplerWrap::Repeat;
 
-	std::shared_ptr<Nz::MaterialInstance> planeMat = deferredMaterial->CreateInstance();
+	std::shared_ptr<Nz::MaterialInstance> planeMat = deferredMaterial->Instantiate();
 	planeMat->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(resourceDir / "dev_grey.png", texParams), planeSampler);
 
 	Nz::Model spaceshipModel(std::move(gfxMesh), spaceship->GetAABB());
