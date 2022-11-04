@@ -337,4 +337,28 @@ namespace Nz
 
 		OnTransferRequired(this);
 	}
+
+	std::shared_ptr<MaterialInstance> MaterialInstance::LoadFromFile(const std::filesystem::path& filePath, const MaterialInstanceParams& params)
+	{
+		Graphics* graphics = Graphics::Instance();
+		NazaraAssert(graphics, "Utility module has not been initialized");
+
+		return graphics->GetMaterialInstanceLoader().LoadFromFile(filePath, params);
+	}
+
+	std::shared_ptr<MaterialInstance> MaterialInstance::LoadFromMemory(const void* data, std::size_t size, const MaterialInstanceParams& params)
+	{
+		Graphics* graphics = Graphics::Instance();
+		NazaraAssert(graphics, "Utility module has not been initialized");
+
+		return graphics->GetMaterialInstanceLoader().LoadFromMemory(data, size, params);
+	}
+
+	std::shared_ptr<MaterialInstance> MaterialInstance::LoadFromStream(Stream& stream, const MaterialInstanceParams& params)
+	{
+		Graphics* graphics = Graphics::Instance();
+		NazaraAssert(graphics, "Utility module has not been initialized");
+
+		return graphics->GetMaterialInstanceLoader().LoadFromStream(stream, params);
+	}
 }

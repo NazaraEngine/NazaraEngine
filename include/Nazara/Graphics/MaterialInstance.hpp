@@ -39,7 +39,7 @@ namespace Nz
 	using MaterialInstanceManager = ResourceManager<MaterialInstance, MaterialInstanceParams>;
 	using MaterialInstanceSaver = ResourceSaver<MaterialInstance, MaterialInstanceParams>;
 
-	class NAZARA_GRAPHICS_API MaterialInstance : public TransferInterface
+	class NAZARA_GRAPHICS_API MaterialInstance : public Resource, public TransferInterface
 	{
 		struct CopyToken {};
 
@@ -105,6 +105,10 @@ namespace Nz
 			MaterialInstance& operator=(MaterialInstance&&) = delete;
 
 			static constexpr std::size_t InvalidPropertyIndex = MaterialSettings::InvalidPropertyIndex;
+
+			static std::shared_ptr<MaterialInstance> LoadFromFile(const std::filesystem::path& filePath, const MaterialInstanceParams& params = MaterialInstanceParams());
+			static std::shared_ptr<MaterialInstance> LoadFromMemory(const void* data, std::size_t size, const MaterialInstanceParams& params = MaterialInstanceParams());
+			static std::shared_ptr<MaterialInstance> LoadFromStream(Stream& stream, const MaterialInstanceParams& params = MaterialInstanceParams());
 
 			NazaraSignal(OnMaterialInstancePipelineInvalidated, const MaterialInstance* /*matInstance*/, std::size_t /*passIndex*/);
 			NazaraSignal(OnMaterialInstanceShaderBindingInvalidated, const MaterialInstance* /*matInstance*/);
