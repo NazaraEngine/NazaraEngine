@@ -1,0 +1,23 @@
+[nzsl_version("1.0")]
+module Engine.SkinningData;
+
+[export]
+struct SkinPositionOutput
+{
+    position: vec3[f32]
+}
+
+[export]
+struct SkinPositionNormalOutput
+{
+    position: vec3[f32],
+    normal: vec3[f32]
+}
+
+[export]
+struct SkinPositionNormalTangentOutput
+{
+    position: vec3[f32],
+    normal: vec3[f32],
+    tangent: vec3[f32]
+}

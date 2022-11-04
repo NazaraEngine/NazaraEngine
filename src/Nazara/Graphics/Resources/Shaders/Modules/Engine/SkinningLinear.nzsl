@@ -1,0 +1,35 @@
+[nzsl_version("1.0")]
+module Engine.SkinningLinear;
+
+import * from Engine.SkinningData;
+
+[export]
+fn SkinLinearPosition(jointMatrices: array[mat4[f32], 4], jointWeights: vec4[f32], position: vec3[f32]) -> SkinPositionOutput
+{
+    let skinMatrix = mat4[f32](0.0);
+
+    [unroll]
+    for i in 0 -> 4
+        skinMatrix += jointMatrices[i] * jointWeights[i];
+
+    let output: SkinPositionOutput;
+    output.position = (skinMatrix * vec4[f32](position, 1.0)).xyz;
+    return output;
+}
+
+[export]
+fn SkinLinearPositionNormal(jointMatrices: array[mat4[f32], 4], jointWeights: vec4[f32], position: vec3[f32], normal: vec3[f32]) -> SkinPositionNormalOutput
+{
+    let skinMatrix = mat4[f32](0.0);
+
+    [unroll]
+    for i in 0 -> 4
+        skinMatrix += jointMatrices[i] * jointWeights[i];
+
+    let inverseTransposeSkinMatrix = transpose(inverse(mat3[f32](skinMatrix)));
+
+    let output: SkinPositionNormalOutput;
+    output.position = (skinMatrix * vec4[f32](position, 1.0)).xyz;
+    output.normal = inverseTransposeSkinMatrix * normal;
+    return output;
+}

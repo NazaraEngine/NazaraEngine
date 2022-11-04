@@ -4,6 +4,7 @@ module BasicMaterial;
 import InstanceData from Engine.InstanceData;
 import SkeletalData from Engine.SkeletalData;
 import ViewerData from Engine.ViewerData;
+import SkinLinearPosition from Engine.SkinningLinear;
 
 // Pass-specific options
 option DepthPass: bool = false;
@@ -175,22 +176,23 @@ fn billboardMain(input: VertIn) -> VertOut
 fn main(input: VertIn) -> VertOut
 {
 	let pos: vec3[f32];
+
 	const if (HasSkinning)
 	{
-		pos = vec3[f32](0.0, 0.0, 0.0);
+		let jointMatrices = array[mat4[f32]](
+			skeletalData.jointMatrices[input.jointIndices[0]],
+			skeletalData.jointMatrices[input.jointIndices[1]],
+			skeletalData.jointMatrices[input.jointIndices[2]],
+			skeletalData.jointMatrices[input.jointIndices[3]]
+		);
 
-		[unroll]
-		for i in 0 -> 4
-		{
-			let jointIndex = input.jointIndices[i];
-			let jointWeight = input.jointWeights[i];
-
-			let jointMatrix = skeletalData.JointMatrices[jointIndex];
-			pos += (jointMatrix * vec4[f32](input.pos, 1.0)).xyz * jointWeight;
-		}
+		let skinningOutput = SkinLinearPosition(jointMatrices, input.jointWeights, input.pos);
+		pos = skinningOutput.position;
 	}
 	else
 		pos = input.pos;
+
+	let worldPosition = instanceData.worldMatrix * vec4[f32](pos, 1.0);
 
 	let output: VertOut;
 	output.position = viewerData.viewProjMatrix * instanceData.worldMatrix * vec4[f32](pos, 1.0);

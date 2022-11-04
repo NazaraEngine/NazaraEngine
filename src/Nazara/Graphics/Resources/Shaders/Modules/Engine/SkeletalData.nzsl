@@ -9,5 +9,5 @@ const MaxJointCount: u32 = u32(256); //< FIXME: Fix integral value types
 [layout(std140)]
 struct SkeletalData
 {
-	JointMatrices: array[mat4[f32], MaxJointCount]
+	jointMatrices: array[mat4[f32], MaxJointCount]
 }
