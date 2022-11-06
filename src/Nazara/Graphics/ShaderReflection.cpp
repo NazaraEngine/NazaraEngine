@@ -50,24 +50,39 @@ namespace Nz
 			UInt32 bindingSet = externalVar.bindingSet.GetResultingValue();
 
 			ShaderBindingType bindingType;
-			const auto& varType = externalVar.type.GetResultingValue();
-			if (IsStorageType(varType))
+			UInt32 arraySize = 1;
+			const auto* varType = &externalVar.type.GetResultingValue();
+
+			if (IsStorageType(*varType))
 				bindingType = ShaderBindingType::StorageBuffer;
-			else if (IsSamplerType(varType))
+			else if (IsSamplerType(*varType))
 				bindingType = ShaderBindingType::Texture;
-			else if (IsUniformType(varType))
+			else if (IsUniformType(*varType))
 				bindingType = ShaderBindingType::UniformBuffer;
+			else if (IsArrayType(*varType))
+			{
+				const auto& arrayType = std::get<nzsl::Ast::ArrayType>(*varType);
+				const auto& innerType = arrayType.containedType->type;
+				if (!IsSamplerType(innerType))
+					throw std::runtime_error("unexpected type " + ToString(innerType) + " in array " + ToString(arrayType));
+
+				arraySize = arrayType.length;
+				bindingType = ShaderBindingType::Texture;
+				varType = &innerType;
+			}
 			else
 				throw std::runtime_error("unexpected type " + ToString(varType));
 
-			// TODO: Get correct shader stage type
-
-			m_pipelineLayoutInfo.bindings.push_back({
-				bindingSet,               // setIndex
-				bindingIndex,             // bindingIndex
-				bindingType,              // type
-				nzsl::ShaderStageType_All // shaderStageFlags
-			});
+			for (UInt32 i = 0; i < arraySize; ++i)
+			{
+				// TODO: Get more precise shader stage type
+				m_pipelineLayoutInfo.bindings.push_back({
+					bindingSet,               // setIndex
+					bindingIndex + i,         // bindingIndex
+					bindingType,              // type
+					nzsl::ShaderStageType_All // shaderStageFlags
+				});
+			}
 
 			if (!externalVar.tag.empty() && externalBlock)
 			{
@@ -81,7 +96,7 @@ namespace Nz
 						ExternalStorageBlock& storageBuffer = externalBlock->storageBlocks[externalVar.tag];
 						storageBuffer.bindingIndex = bindingIndex;
 						storageBuffer.bindingSet   = bindingSet;
-						storageBuffer.structIndex  = std::get<nzsl::Ast::StorageType>(varType).containedType.structIndex;
+						storageBuffer.structIndex  = std::get<nzsl::Ast::StorageType>(*varType).containedType.structIndex;
 						break;
 					}
 
@@ -90,7 +105,7 @@ namespace Nz
 						if (externalBlock->samplers.find(externalVar.tag) != externalBlock->samplers.end())
 							throw std::runtime_error("duplicate textures tag " + externalVar.tag + " in external block " + node.tag);
 
-						const auto& samplerType = std::get<nzsl::Ast::SamplerType>(varType);
+						const auto& samplerType = std::get<nzsl::Ast::SamplerType>(*varType);
 
 						ExternalTexture& texture = externalBlock->samplers[externalVar.tag];
 						texture.bindingIndex = bindingIndex;
@@ -108,7 +123,7 @@ namespace Nz
 						ExternalUniformBlock& uniformBuffer = externalBlock->uniformBlocks[externalVar.tag];
 						uniformBuffer.bindingIndex = bindingIndex;
 						uniformBuffer.bindingSet = bindingSet;
-						uniformBuffer.structIndex = std::get<nzsl::Ast::UniformType>(varType).containedType.structIndex;
+						uniformBuffer.structIndex = std::get<nzsl::Ast::UniformType>(*varType).containedType.structIndex;
 						break;
 					}
 				}
