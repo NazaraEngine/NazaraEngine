@@ -48,6 +48,7 @@ namespace Nz
 			inline const MaterialInstanceLoader& GetMaterialInstanceLoader() const;
 			inline MaterialLoader& GetMaterialLoader();
 			inline const MaterialLoader& GetMaterialLoader() const;
+			inline PixelFormat GetPreferredDepthFormat() const;
 			inline PixelFormat GetPreferredDepthStencilFormat() const;
 			inline const std::shared_ptr<RenderDevice>& GetRenderDevice() const;
 			inline const RenderPassCache& GetRenderPassCache() const;
@@ -97,6 +98,7 @@ namespace Nz
 			MaterialInstanceLoader m_materialInstanceLoader;
 			MaterialLoader m_materialLoader;
 			MaterialPassRegistry m_materialPassRegistry;
+			PixelFormat m_preferredDepthFormat;
 			PixelFormat m_preferredDepthStencilFormat;
 
 			static Graphics* s_instance;

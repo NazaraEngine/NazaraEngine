@@ -355,6 +355,18 @@ namespace Nz
 
 	void Graphics::SelectDepthStencilFormats()
 	{
+		for (PixelFormat depthStencilCandidate : { PixelFormat::Depth24, PixelFormat::Depth32F, PixelFormat::Depth16 })
+		{
+			if (m_renderDevice->IsTextureFormatSupported(depthStencilCandidate, TextureUsage::DepthStencilAttachment))
+			{
+				m_preferredDepthFormat = depthStencilCandidate;
+				break;
+			}
+		}
+
+		if (m_preferredDepthFormat == PixelFormat::Undefined)
+			throw std::runtime_error("no supported depth format found");
+
 		for (PixelFormat depthStencilCandidate : { PixelFormat::Depth24Stencil8, PixelFormat::Depth32FStencil8, PixelFormat::Depth16Stencil8 })
 		{
 			if (m_renderDevice->IsTextureFormatSupported(depthStencilCandidate, TextureUsage::DepthStencilAttachment))

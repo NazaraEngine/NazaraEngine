@@ -57,6 +57,11 @@ namespace Nz
 		return m_materialLoader;
 	}
 
+	inline PixelFormat Graphics::GetPreferredDepthFormat() const
+	{
+		return m_preferredDepthFormat;
+	}
+
 	inline PixelFormat Graphics::GetPreferredDepthStencilFormat() const
 	{
 		return m_preferredDepthStencilFormat;
