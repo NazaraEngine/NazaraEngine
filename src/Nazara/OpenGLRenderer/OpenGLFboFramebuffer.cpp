@@ -20,12 +20,14 @@ namespace Nz
 		bool hasDepth = false;
 		bool hasStencil = false;
 
+		m_attachmentSizes.resize(attachments.size());
 		for (std::size_t i = 0; i < attachments.size(); ++i)
 		{
 			assert(attachments[i]);
 			const OpenGLTexture& glTexture = static_cast<const OpenGLTexture&>(*attachments[i]);
 
 			Vector2ui textureSize = Vector2ui(glTexture.GetSize());
+			m_attachmentSizes[i] = textureSize;
 
 			if (i == 0)
 				m_size = textureSize;

@@ -29,6 +29,8 @@ namespace Nz
 
 			void Activate() const override;
 
+			inline const Vector2ui& GetAttachmentSize(std::size_t i) const;
+
 			std::size_t GetColorBufferCount() const override;
 
 			const Vector2ui& GetSize() const override;
@@ -39,10 +41,11 @@ namespace Nz
 		private:
 			GL::Framebuffer m_framebuffer;
 			std::size_t m_colorAttachmentCount;
+			std::vector<Vector2ui> m_attachmentSizes;
 			Vector2ui m_size;
 	};
 }
 
-#include <Nazara/OpenGLRenderer/OpenGLFboFramebuffer.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLFboFramebuffer.inl>
 
 #endif // NAZARA_OPENGLRENDERER_OPENGLFBOFRAMEBUFFER_HPP

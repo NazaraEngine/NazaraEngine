@@ -3,11 +3,14 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/OpenGLRenderer/OpenGLFboFramebuffer.hpp>
-#include <Nazara/OpenGLRenderer/OpenGLFramebuffer.hpp>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
 namespace Nz
 {
+	inline const Vector2ui& OpenGLFboFramebuffer::GetAttachmentSize(std::size_t i) const
+	{
+		return m_attachmentSizes[i];
+	}
 }
 
 #include <Nazara/OpenGLRenderer/DebugOff.hpp>

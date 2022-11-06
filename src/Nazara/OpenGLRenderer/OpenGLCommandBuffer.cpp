@@ -4,6 +4,7 @@
 
 #include <Nazara/OpenGLRenderer/OpenGLCommandBuffer.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLCommandPool.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLFboFramebuffer.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderPass.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderPipelineLayout.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLVaoCache.hpp>
@@ -172,6 +173,8 @@ namespace Nz
 
 					if (command.framebuffer->GetType() == FramebufferType::Texture)
 					{
+						const OpenGLFboFramebuffer& fboFramebuffer = static_cast<const OpenGLFboFramebuffer&>(*command.framebuffer);
+
 						context->glDrawBuffers(GLsizei(colorBufferCount), fboDrawBuffers.data());
 
 						invalidateAttachments = NazaraStackVector(GLenum, colorBufferCount + 1);
@@ -187,6 +190,11 @@ namespace Nz
 							if (attachmentInfo.loadOp == AttachmentLoadOp::Clear)
 							{
 								context->ResetColorWriteMasks();
+
+								// Reset scissor as it affects clear commands if enabled (disabling it would work too but it seems more expansive)
+								const Vector2ui& attachmentSize = fboFramebuffer.GetAttachmentSize(i);
+								context->SetScissorBox(0, 0, attachmentSize.x, attachmentSize.y);
+
 								context->glClearBufferfv(GL_COLOR, GLint(i), clearColor.data());
 							}
 							else if (attachmentInfo.loadOp == AttachmentLoadOp::Discard)
@@ -199,6 +207,14 @@ namespace Nz
 							const auto& clearValues = command.clearValues[attachmentIndex];
 
 							const auto& depthStencilAttachment = command.renderpass->GetAttachment(attachmentIndex);
+
+							// Reset scissor as it affects clear commands if enabled (disabling it would work too but it seems more expansive)
+							if (depthStencilAttachment.loadOp == AttachmentLoadOp::Clear || depthStencilAttachment.stencilLoadOp == AttachmentLoadOp::Clear)
+							{
+								const Vector2ui& attachmentSize = fboFramebuffer.GetAttachmentSize(attachmentIndex);
+								context->SetScissorBox(0, 0, attachmentSize.x, attachmentSize.y);
+							}
+
 							if (depthStencilAttachment.loadOp == AttachmentLoadOp::Clear && depthStencilAttachment.stencilLoadOp == AttachmentLoadOp::Clear)
 							{
 								context->ResetDepthWriteMasks();
@@ -287,9 +303,10 @@ namespace Nz
 
 						if (clearFields)
 						{
+							// Reset scissor as it affects clear commands if enabled (disabling it would work too but it seems more expansive)
 							const Vector2ui& size = command.framebuffer->GetSize();
 							context->SetScissorBox(0, 0, size.x, size.y);
-							context->SetViewport(0, 0, size.x, size.y);
+
 							context->glClear(clearFields);
 						}
 					}
