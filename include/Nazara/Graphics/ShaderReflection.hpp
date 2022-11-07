@@ -52,6 +52,7 @@ namespace Nz
 
 			struct ExternalTexture : ExternalData
 			{
+				UInt32 arraySize;
 				nzsl::ImageType imageType;
 				nzsl::Ast::PrimitiveType sampledType;
 			};
