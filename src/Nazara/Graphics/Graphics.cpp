@@ -81,6 +81,7 @@ namespace Nz
 	*/
 	Graphics::Graphics(Config config) :
 	ModuleBase("Graphics", this),
+	m_preferredDepthFormat(PixelFormat::Undefined),
 	m_preferredDepthStencilFormat(PixelFormat::Undefined)
 	{
 		Renderer* renderer = Renderer::Instance();
@@ -213,6 +214,7 @@ namespace Nz
 	void Graphics::BuildDefaultMaterials()
 	{
 		std::size_t depthPassIndex = m_materialPassRegistry.GetPassIndex("DepthPass");
+		std::size_t shadowPassIndex = m_materialPassRegistry.GetPassIndex("ShadowPass");
 		std::size_t forwardPassIndex = m_materialPassRegistry.GetPassIndex("ForwardPass");
 
 		// BasicMaterial
@@ -228,6 +230,7 @@ namespace Nz
 			MaterialPass depthPass = forwardPass;
 			depthPass.options[CRC32("DepthPass")] = true;
 			settings.AddPass(depthPassIndex, depthPass);
+			settings.AddPass(shadowPassIndex, depthPass);
 
 			m_defaultMaterials.basicMaterial = std::make_shared<Material>(std::move(settings), "BasicMaterial");
 		}
@@ -246,6 +249,7 @@ namespace Nz
 			MaterialPass depthPass = forwardPass;
 			depthPass.options[CRC32("DepthPass")] = true;
 			settings.AddPass(depthPassIndex, depthPass);
+			settings.AddPass(shadowPassIndex, depthPass);
 
 			m_defaultMaterials.pbrMaterial = std::make_shared<Material>(std::move(settings), "PhysicallyBasedMaterial");
 		}
@@ -264,6 +268,7 @@ namespace Nz
 			MaterialPass depthPass = forwardPass;
 			depthPass.options[CRC32("DepthPass")] = true;
 			settings.AddPass(depthPassIndex, depthPass);
+			settings.AddPass(shadowPassIndex, depthPass);
 
 			m_defaultMaterials.phongMaterial = std::make_shared<Material>(std::move(settings), "PhongMaterial");
 		}
@@ -272,6 +277,7 @@ namespace Nz
 
 		m_defaultMaterials.basicNoDepth = m_defaultMaterials.basicMaterial->Instantiate();
 		m_defaultMaterials.basicNoDepth->DisablePass(depthPassIndex);
+		m_defaultMaterials.basicNoDepth->DisablePass(shadowPassIndex);
 		m_defaultMaterials.basicNoDepth->UpdatePassStates(forwardPassIndex, [](RenderStates& states)
 		{
 			states.depthBuffer = false;
@@ -279,6 +285,7 @@ namespace Nz
 
 		m_defaultMaterials.basicTransparent = m_defaultMaterials.basicMaterial->Instantiate();
 		m_defaultMaterials.basicTransparent->DisablePass(depthPassIndex);
+		m_defaultMaterials.basicTransparent->DisablePass(shadowPassIndex);
 		m_defaultMaterials.basicTransparent->UpdatePassStates(forwardPassIndex, [](RenderStates& renderStates)
 		{
 			renderStates.depthWrite = false;
@@ -316,6 +323,7 @@ namespace Nz
 	{
 		m_materialPassRegistry.RegisterPass("ForwardPass");
 		m_materialPassRegistry.RegisterPass("DepthPass");
+		m_materialPassRegistry.RegisterPass("ShadowPass");
 	}
 
 	void Graphics::RegisterShaderModules()

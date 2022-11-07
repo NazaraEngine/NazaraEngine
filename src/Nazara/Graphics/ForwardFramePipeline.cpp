@@ -11,6 +11,7 @@
 #include <Nazara/Graphics/PointLight.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>
+#include <Nazara/Graphics/SpotLight.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
 #include <Nazara/Math/Angle.hpp>
@@ -60,6 +61,25 @@ namespace Nz
 					viewerData.forwardPass->InvalidateElements();
 			}
 		});
+
+		lightData->onLightShadowCastingChanged.Connect(lightData->light->OnLightShadowCastingChanged, [=](Light* light, bool isCastingShadows)
+		{
+			if (isCastingShadows)
+				m_shadowCastingLights.UnboundedSet(lightIndex);
+			else
+			{
+				m_shadowCastingLights.Reset(lightIndex);
+				lightData->pass.reset();
+			}
+
+			m_rebuildFrameGraph = true;
+		});
+
+		if (lightData->light->IsShadowCaster())
+		{
+			m_shadowCastingLights.UnboundedSet(lightIndex);
+			m_rebuildFrameGraph = true;
+		}
 
 		return lightIndex;
 	}
@@ -248,6 +268,48 @@ namespace Nz
 			return currentHash * 23 + newHash;
 		};
 
+		// Shadow map handling
+		for (std::size_t i = m_shadowCastingLights.FindFirst(); i != m_shadowCastingLights.npos; i = m_shadowCastingLights.FindNext(i))
+		{
+			LightData* lightData = m_lightPool.RetrieveFromIndex(i);
+
+			const Matrix4f& viewProjMatrix = lightData->camera->GetViewerInstance().GetViewProjMatrix();
+
+			Frustumf frustum = Frustumf::Extract(viewProjMatrix);
+
+			std::size_t visibilityHash = 5U;
+
+			m_visibleRenderables.clear();
+			for (const RenderableData& renderableData : m_renderablePool)
+			{
+				if ((lightData->renderMask & renderableData.renderMask) == 0)
+					continue;
+
+				WorldInstancePtr& worldInstance = m_worldInstances.RetrieveFromIndex(renderableData.worldInstanceIndex)->worldInstance;
+
+				// Get global AABB
+				BoundingVolumef boundingVolume(renderableData.renderable->GetAABB());
+				boundingVolume.Update(worldInstance->GetWorldMatrix());
+
+				if (!frustum.Contains(boundingVolume))
+					continue;
+
+				auto& visibleRenderable = m_visibleRenderables.emplace_back();
+				visibleRenderable.instancedRenderable = renderableData.renderable;
+				visibleRenderable.scissorBox = renderableData.scissorBox;
+				visibleRenderable.worldInstance = worldInstance.get();
+
+				if (renderableData.skeletonInstanceIndex != NoSkeletonInstance)
+					visibleRenderable.skeletonInstance = m_skeletonInstances.RetrieveFromIndex(renderableData.skeletonInstanceIndex)->skeleton.get();
+				else
+					visibleRenderable.skeletonInstance = nullptr;
+
+				visibilityHash = CombineHash(visibilityHash, std::hash<const void*>()(&renderableData));
+			}
+
+			lightData->pass->Prepare(renderFrame, frustum, m_visibleRenderables, visibilityHash);
+		}
+
 		// Render queues handling
 		for (auto& viewerData : m_viewerPool)
 		{
@@ -398,6 +460,7 @@ namespace Nz
 	void ForwardFramePipeline::UnregisterLight(std::size_t lightIndex)
 	{
 		m_lightPool.Free(lightIndex);
+		m_shadowCastingLights.UnboundedReset(lightIndex);
 	}
 
 	void ForwardFramePipeline::UnregisterRenderable(std::size_t renderableIndex)
@@ -486,6 +549,56 @@ namespace Nz
 	{
 		FrameGraph frameGraph;
 
+		for (std::size_t i = m_shadowCastingLights.FindFirst(); i != m_shadowCastingLights.npos; i = m_shadowCastingLights.FindNext(i))
+		{
+			LightData* lightData = m_lightPool.RetrieveFromIndex(i);
+
+			assert(lightData->light->GetLightType() == UnderlyingCast(BasicLightType::Spot));
+			SpotLight& spotLight = SafeCast<SpotLight&>(*lightData->light);
+
+			PixelFormat shadowMapFormat = lightData->light->GetShadowMapFormat();
+			UInt32 shadowMapSize = lightData->light->GetShadowMapSize();
+
+			lightData->shadowMapAttachmentIndex = frameGraph.AddAttachment({
+				"Shadowmap",
+				shadowMapFormat,
+				shadowMapSize, shadowMapSize,
+				true // fixed size
+			});
+
+			if (!lightData->camera)
+			{
+				lightData->camera = std::make_unique<Camera>(nullptr);
+				ViewerInstance& viewerInstance = lightData->camera->GetViewerInstance();
+				viewerInstance.OnTransferRequired.Connect([this](TransferInterface* transferInterface)
+				{
+					m_transferSet.insert(transferInterface);
+				});
+
+				lightData->camera->UpdateFOV(spotLight.GetOuterAngle());
+				lightData->camera->UpdateZFar(spotLight.GetRadius());
+				lightData->camera->UpdateViewport(Recti(0, 0, SafeCast<int>(shadowMapSize), SafeCast<int>(shadowMapSize)));
+
+				viewerInstance.UpdateViewMatrix(Nz::Matrix4f::TransformInverse(spotLight.GetPosition(), spotLight.GetRotation()));
+			}
+
+			if (!lightData->pass)
+			{
+				lightData->pass = std::make_unique<DepthPipelinePass>(*this, m_elementRegistry, lightData->camera.get());
+				for (RenderableData& renderable : m_renderablePool)
+				{
+					std::size_t matCount = renderable.renderable->GetMaterialCount();
+					for (std::size_t i = 0; i < matCount; ++i)
+					{
+						if (MaterialInstance* mat = renderable.renderable->GetMaterial(i).get())
+							lightData->pass->RegisterMaterialInstance(*mat);
+					}
+				}
+
+				lightData->pass->RegisterToFrameGraph(frameGraph, lightData->shadowMapAttachmentIndex);
+			}
+		}
+
 		for (auto& viewerData : m_viewerPool)
 		{
 			viewerData.forwardColorAttachment = frameGraph.AddAttachment({
@@ -503,7 +616,12 @@ namespace Nz
 			if (viewerData.depthPrepass)
 				viewerData.depthPrepass->RegisterToFrameGraph(frameGraph, viewerData.depthStencilAttachment);
 
-			viewerData.forwardPass->RegisterToFrameGraph(frameGraph, viewerData.forwardColorAttachment, viewerData.depthStencilAttachment, viewerData.depthPrepass != nullptr);
+			FramePass& forwardPass = viewerData.forwardPass->RegisterToFrameGraph(frameGraph, viewerData.forwardColorAttachment, viewerData.depthStencilAttachment, viewerData.depthPrepass != nullptr);
+			for (std::size_t i = m_shadowCastingLights.FindFirst(); i != m_shadowCastingLights.npos; i = m_shadowCastingLights.FindNext(i))
+			{
+				LightData* lightData = m_lightPool.RetrieveFromIndex(i);
+				forwardPass.AddInput(lightData->shadowMapAttachmentIndex);
+			}
 
 			viewerData.debugDrawPass->RegisterToFrameGraph(frameGraph, viewerData.forwardColorAttachment, viewerData.debugColorAttachment);
 		}
@@ -548,7 +666,7 @@ namespace Nz
 			mergePass.AddOutput(renderTargetData.finalAttachment);
 			mergePass.SetClearColor(0, Color::Black);
 
-			mergePass.SetCommandCallback([&targetViewers](CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
+			mergePass.SetCommandCallback([&targetViewers](CommandBufferBuilder& builder, const FramePassEnvironment& env)
 			{
 				builder.SetScissor(env.renderRect);
 				builder.SetViewport(env.renderRect);

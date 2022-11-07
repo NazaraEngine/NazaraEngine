@@ -129,7 +129,7 @@ namespace Nz
 			it->second.usedCount++;
 	}
 
-	void DepthPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, std::size_t depthBufferIndex)
+	FramePass& DepthPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, std::size_t depthBufferIndex)
 	{
 		FramePass& depthPrepass = frameGraph.AddPass("Depth pre-pass");
 		depthPrepass.SetDepthStencilOutput(depthBufferIndex);
@@ -157,6 +157,8 @@ namespace Nz
 
 			m_rebuildCommandBuffer = false;
 		});
+
+		return depthPrepass;
 	}
 
 	void DepthPipelinePass::UnregisterMaterialInstance(const MaterialInstance& materialInstance)

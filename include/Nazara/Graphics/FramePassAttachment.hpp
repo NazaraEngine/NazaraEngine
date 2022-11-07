@@ -20,6 +20,7 @@ namespace Nz
 		PixelFormat format;
 		unsigned int width = 100'000;
 		unsigned int height = 100'000;
+		bool hasFixedSize = false;
 	};
 }
 

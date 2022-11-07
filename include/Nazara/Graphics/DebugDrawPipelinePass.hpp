@@ -21,6 +21,7 @@ namespace Nz
 {
 	class AbstractViewer;
 	class FrameGraph;
+	class FramePass;
 	class FramePipeline;
 	class Material;
 
@@ -34,7 +35,7 @@ namespace Nz
 
 			void Prepare(RenderFrame& renderFrame);
 
-			void RegisterToFrameGraph(FrameGraph& frameGraph, std::size_t inputColorBufferIndex, std::size_t outputColorBufferIndex);
+			FramePass& RegisterToFrameGraph(FrameGraph& frameGraph, std::size_t inputColorBufferIndex, std::size_t outputColorBufferIndex);
 
 			DebugDrawPipelinePass& operator=(const DebugDrawPipelinePass&) = delete;
 			DebugDrawPipelinePass& operator=(DebugDrawPipelinePass&&) = delete;

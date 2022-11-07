@@ -38,6 +38,8 @@ option VertexUvLoc: i32 = -1;
 option VertexJointIndicesLoc: i32 = -1;
 option VertexJointWeightsLoc: i32 = -1;
 
+option MaxLightCount: u32 = u32(3); //< FIXME: Fix integral value types
+
 const HasNormal = (VertexNormalLoc >= 0);
 const HasVertexColor = (VertexColorLoc >= 0);
 const HasColor = (HasVertexColor || Billboard);
@@ -93,7 +95,9 @@ external
 	[tag("InstanceData")] instanceData: uniform[InstanceData],
 	[tag("ViewerData")] viewerData: uniform[ViewerData],
 	[tag("SkeletalData")] skeletalData: uniform[SkeletalData],
-	[tag("LightData")] lightData: uniform[LightData]
+	[tag("LightData")] lightData: uniform[LightData],
+	[tag("ShadowMaps2D")] shadowMaps2D: array[sampler2D[f32], MaxLightCount],
+	[tag("ShadowMapsCube")] shadowMapsCube: array[samplerCube[f32], MaxLightCount]
 }
 
 struct VertToFrag

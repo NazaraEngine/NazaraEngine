@@ -115,6 +115,7 @@ namespace Nz
 			auto& bakedTexture = bakedTextures.emplace_back();
 			bakedTexture.name = std::move(texture.name);
 			bakedTexture.format = texture.format;
+			bakedTexture.hasFixedSize = texture.hasFixedSize;
 			bakedTexture.height = texture.height;
 			bakedTexture.usage = texture.usage;
 			bakedTexture.width = texture.width;
@@ -952,7 +953,8 @@ namespace Nz
 					TextureData& data = m_pending.textures[textureId];
 					if (data.format != attachmentData.format ||
 						data.width != attachmentData.width ||
-						data.height != attachmentData.height)
+						data.height != attachmentData.height ||
+						data.hasFixedSize != attachmentData.hasFixedSize)
 						continue;
 
 					m_pending.texturePool.erase(it);
@@ -972,6 +974,7 @@ namespace Nz
 				data.format = attachmentData.format;
 				data.width = attachmentData.width;
 				data.height = attachmentData.height;
+				data.hasFixedSize = attachmentData.hasFixedSize;
 
 				return textureId;
 			}

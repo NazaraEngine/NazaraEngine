@@ -131,8 +131,8 @@ namespace Nz
 
 	bool BakedFrameGraph::Resize(RenderFrame& renderFrame)
 	{
-		auto [width, height] = renderFrame.GetSize();
-		if (m_width == width && m_height == height)
+		auto [frameWidth, frameHeight] = renderFrame.GetSize();
+		if (m_width == frameWidth && m_height == frameHeight)
 			return false;
 
 		const std::shared_ptr<RenderDevice>& renderDevice = Graphics::Instance()->GetRenderDevice();
@@ -151,10 +151,18 @@ namespace Nz
 		{
 			TextureInfo textureCreationParams;
 			textureCreationParams.type = ImageType::E2D;
-			textureCreationParams.width = textureData.width * width / 100'000;
-			textureCreationParams.height = textureData.height * height / 100'000;
 			textureCreationParams.usageFlags = textureData.usage;
 			textureCreationParams.pixelFormat = textureData.format;
+			if (textureData.hasFixedSize)
+			{
+				textureCreationParams.width = textureData.width;
+				textureCreationParams.height = textureData.height;
+			}
+			else
+			{
+				textureCreationParams.width = textureData.width * frameWidth / 100'000;
+				textureCreationParams.height = textureData.height * frameHeight / 100'000;
+			}
 
 			textureData.texture = renderDevice->InstantiateTexture(textureCreationParams);
 			if (!textureData.name.empty())
@@ -173,12 +181,22 @@ namespace Nz
 				auto& textureData = m_textures[textureId];
 				textures.push_back(textureData.texture);
 
-				framebufferWidth = std::min(framebufferWidth, textureData.width);
-				framebufferHeight = std::min(framebufferHeight, textureData.height);
-			}
+				unsigned int width;
+				unsigned int height;
+				if (textureData.hasFixedSize)
+				{
+					width = textureData.width;
+					height = textureData.height;
+				}
+				else
+				{
+					width = frameWidth * textureData.width / 100'000;
+					height = frameHeight * textureData.height / 100'000;
+				}
 
-			framebufferWidth = framebufferWidth * width / 100'000;
-			framebufferHeight = framebufferHeight * height / 100'000;
+				framebufferWidth = std::min(framebufferWidth, width);
+				framebufferHeight = std::min(framebufferHeight, height);
+			}
 
 			passData.renderRect.Set(0, 0, int(framebufferWidth), int(framebufferHeight));
 
@@ -189,8 +207,8 @@ namespace Nz
 			passData.forceCommandBufferRegeneration = true;
 		}
 
-		m_width = width;
-		m_height = height;
+		m_width = frameWidth;
+		m_height = frameHeight;
 
 		return true;
 	}

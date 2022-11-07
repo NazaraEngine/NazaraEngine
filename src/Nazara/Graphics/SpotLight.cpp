@@ -4,6 +4,7 @@
 
 #include <Nazara/Graphics/SpotLight.hpp>
 #include <Nazara/Graphics/Enums.hpp>
+#include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Math/Vector3.hpp>

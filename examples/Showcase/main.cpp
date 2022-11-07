@@ -18,6 +18,7 @@
 #include <NZSL/Math/FieldOffsets.hpp>
 #include <entt/entt.hpp>
 #include <array>
+#include <bitset>
 #include <iostream>
 #include <limits>
 
@@ -111,18 +112,27 @@ int main()
 	const Nz::Boxf& bobAABB = bobMesh->GetAABB();
 	std::shared_ptr<Nz::GraphicalMesh> bobGfxMesh = Nz::GraphicalMesh::BuildFromMesh(*bobMesh);
 
-	std::shared_ptr<Nz::Material> material = Nz::Graphics::Instance()->GetDefaultMaterials().basicMaterial;
+	//std::shared_ptr<Nz::Material> material = Nz::Graphics::Instance()->GetDefaultMaterials().basicTransparent;
 
 	std::shared_ptr<Nz::Model> bobModel = std::make_shared<Nz::Model>(std::move(bobGfxMesh), bobAABB);
 	std::vector<std::shared_ptr<Nz::MaterialInstance>> materials(bobMesh->GetMaterialCount());
 
+	std::bitset<5> alphaMaterials("01010");
 	for (std::size_t i = 0; i < bobMesh->GetMaterialCount(); ++i)
 	{
-		materials[i] = std::make_shared<Nz::MaterialInstance>(material);
-
-		std::string matPath = bobMesh->GetMaterialData(i).GetStringParameter(Nz::MaterialData::BaseColorTexturePath).GetValueOr("");
+		const Nz::ParameterList& materialData = bobMesh->GetMaterialData(i);
+		std::string matPath = materialData.GetStringParameter(Nz::MaterialData::BaseColorTexturePath).GetValueOr("");
 		if (!matPath.empty())
-			materials[i]->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(matPath, texParams));
+		{
+			Nz::MaterialInstanceParams params;
+			params.lightingType = Nz::MaterialLightingType::Phong;
+			if (alphaMaterials.test(i))
+				params.custom.SetParameter("EnableAlphaBlending", true);
+
+			materials[i] = Nz::MaterialInstance::LoadFromFile(matPath, params);
+		}
+		else
+			materials[i] = Nz::Graphics::Instance()->GetDefaultMaterials().basicDefault;
 	}
 
 	for (std::size_t i = 0; i < bobMesh->GetSubMeshCount(); ++i)
@@ -149,7 +159,21 @@ int main()
 	}*/
 
 	entt::handle bobEntity = entt::handle(registry, registry.create());
+	entt::entity bobLight = registry.create();
 	{
+		auto& lightNode = registry.emplace<Nz::NodeComponent>(bobLight);
+		lightNode.SetPosition(Nz::Vector3f::Up() * 3.f);
+		lightNode.SetRotation(Nz::EulerAnglesf(-90.f, 0.f, 0.f));
+
+		auto spotLight = std::make_shared<Nz::SpotLight>();
+		spotLight->UpdateAmbientFactor(1.f);
+		spotLight->UpdateInnerAngle(Nz::DegreeAnglef(15.f));
+		spotLight->UpdateOuterAngle(Nz::DegreeAnglef(20.f));
+		spotLight->EnableShadowCasting(true);
+
+		auto& cameraLight = registry.emplace<Nz::LightComponent>(bobLight);
+		cameraLight.AttachLight(spotLight, 0xFFFFFFFF);
+
 		auto& bobNode = bobEntity.emplace<Nz::NodeComponent>();
 		//bobNode.SetRotation(Nz::EulerAnglesf(-90.f, -90.f, 0.f));
 		//bobNode.SetScale(1.f / 40.f * 0.5f);
@@ -172,9 +196,6 @@ int main()
 			std::shared_ptr<Nz::GraphicalMesh> gfxMesh = Nz::GraphicalMesh::BuildFromMesh(*sphereMesh);
 
 			// Textures
-			Nz::TextureParams texParams;
-			texParams.renderDevice = device;
-
 			Nz::TextureParams srgbTexParams = texParams;
 			srgbTexParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
 
@@ -209,6 +230,7 @@ int main()
 
 
 	entt::entity planeEntity = registry.create();
+	Nz::Boxf floorBox;
 	{
 		Nz::MeshParams meshPrimitiveParams;
 		meshPrimitiveParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_Normal_UV);
@@ -230,13 +252,15 @@ int main()
 		std::shared_ptr<Nz::MaterialInstance> planeMat = Nz::Graphics::Instance()->GetDefaultMaterials().phongMaterial->Instantiate();
 		planeMat->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(resourceDir / "dev_grey.png", texParams), planeSampler);
 
+		floorBox = planeMesh.GetAABB();
+
 		std::shared_ptr<Nz::Model> planeModel = std::make_shared<Nz::Model>(std::move(planeMeshGfx), planeMesh.GetAABB());
 		planeModel->SetMaterial(0, planeMat);
 
 		auto& planeGfx = registry.emplace<Nz::GraphicsComponent>(planeEntity);
 		planeGfx.AttachRenderable(planeModel, 0xFFFFFFFF);
 
-		auto& planeNode = registry.emplace<Nz::NodeComponent>(planeEntity);
+		registry.emplace<Nz::NodeComponent>(planeEntity);
 
 		auto& planeBody = registry.emplace<Nz::RigidBody3DComponent>(planeEntity, &physSytem.GetPhysWorld());
 		planeBody.SetGeom(std::make_shared<Nz::BoxCollider3D>(Nz::Vector3f(planeSize.x, 0.5f, planeSize.y), Nz::Vector3f(0.f, -0.25f, 0.f)));
@@ -255,10 +279,6 @@ int main()
 
 	while (window.IsOpen())
 	{
-		Nz::UInt64 now = Nz::GetElapsedMicroseconds();
-		Nz::UInt64 elapsedTime = (now - lastTime) / 1'000'000.f;
-		lastTime = now;
-
 		Nz::WindowEvent event;
 		while (window.PollEvent(&event))
 		{
@@ -389,8 +409,14 @@ int main()
 				playerShipBody.AddForce(Nz::Vector3f::Down() * 3.f * mass, Nz::CoordSys::Local);*/
 		}
 
-		Nz::DebugDrawer& debugDrawer = renderSystem.GetFramePipeline().GetDebugDrawer();
-		//debugDrawer.DrawSkeleton(*skeleton, Nz::Color::Red);
+		
+		/*Nz::DebugDrawer& debugDrawer = renderSystem.GetFramePipeline().GetDebugDrawer();
+		Nz::Boxf test = spotLight->GetBoundingVolume().aabb;
+		debugDrawer.DrawBox(test, Nz::Color::Blue);
+		debugDrawer.DrawBox(floorBox, Nz::Color::Red);
+		Nz::Boxf intersection;
+		if (floorBox.Intersect(test, &intersection))
+			debugDrawer.DrawBox(intersection, Nz::Color::Green);*/
 
 		systemGraph.Update();
 

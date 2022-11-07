@@ -24,6 +24,7 @@ namespace Nz
 	class AbstractViewer;
 	class ElementRendererRegistry;
 	class FrameGraph;
+	class FramePass;
 	class FramePipeline;
 
 	class NAZARA_GRAPHICS_API DepthPipelinePass : public FramePipelinePass
@@ -40,7 +41,7 @@ namespace Nz
 			void Prepare(RenderFrame& renderFrame, const Frustumf& frustum, const std::vector<FramePipelinePass::VisibleRenderable>& visibleRenderables, std::size_t visibilityHash);
 
 			void RegisterMaterialInstance(const MaterialInstance& materialInstance);
-			void RegisterToFrameGraph(FrameGraph& frameGraph, std::size_t depthBufferIndex);
+			FramePass& RegisterToFrameGraph(FrameGraph& frameGraph, std::size_t depthBufferIndex);
 
 			void UnregisterMaterialInstance(const MaterialInstance& materialInstance);
 

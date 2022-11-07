@@ -91,6 +91,7 @@ namespace Nz
 				TextureUsageFlags usage;
 				unsigned int width;
 				unsigned int height;
+				bool hasFixedSize;
 			};
 
 			struct WorkData
