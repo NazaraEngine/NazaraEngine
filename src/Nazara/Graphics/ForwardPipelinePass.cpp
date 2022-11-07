@@ -265,7 +265,7 @@ namespace Nz
 			it->second.usedCount++;
 	}
 
-	void ForwardPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, std::size_t colorBufferIndex, std::size_t depthBufferIndex, bool hasDepthPrepass)
+	FramePass& ForwardPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, std::size_t colorBufferIndex, std::size_t depthBufferIndex, bool hasDepthPrepass)
 	{
 		FramePass& forwardPass = frameGraph.AddPass("Forward pass");
 		forwardPass.AddOutput(colorBufferIndex);
@@ -299,6 +299,8 @@ namespace Nz
 
 			m_rebuildCommandBuffer = false;
 		});
+
+		return forwardPass;
 	}
 
 	void ForwardPipelinePass::UnregisterMaterialInstance(const MaterialInstance& materialInstance)

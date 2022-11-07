@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/BakedFrameGraph.hpp>
+#include <Nazara/Graphics/Camera.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/DebugDrawPipelinePass.hpp>
 #include <Nazara/Graphics/DepthPipelinePass.hpp>
@@ -76,9 +77,13 @@ namespace Nz
 			struct LightData
 			{
 				std::shared_ptr<Light> light;
+				std::size_t shadowMapAttachmentIndex;
+				std::unique_ptr<Camera> camera;
+				std::unique_ptr<DepthPipelinePass> pass;
 				UInt32 renderMask;
 
 				NazaraSlot(Light, OnLightDataInvalided, onLightInvalidated);
+				NazaraSlot(Light, OnLightShadowCastingChanged, onLightShadowCastingChanged);
 			};
 
 			struct MaterialInstanceData
@@ -145,6 +150,7 @@ namespace Nz
 			std::vector<const Light*> m_visibleLights;
 			robin_hood::unordered_set<TransferInterface*> m_transferSet;
 			BakedFrameGraph m_bakedFrameGraph;
+			Bitset<UInt64> m_shadowCastingLights;
 			Bitset<UInt64> m_removedSkeletonInstances;
 			Bitset<UInt64> m_removedViewerInstances;
 			Bitset<UInt64> m_removedWorldInstances;

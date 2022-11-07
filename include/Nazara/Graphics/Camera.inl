@@ -178,12 +178,21 @@ namespace Nz
 
 	inline void Camera::UpdateViewport(const Recti& viewport)
 	{
-		NazaraAssert(m_renderTarget, "no render target");
+		if (m_renderTarget)
+		{
+			// We compute the region necessary to make this view port with the actual size of the target
+			Vector2f invSize = 1.f / Vector2f(m_renderTarget->GetSize());
 
-		// We compute the region necessary to make this view port with the actual size of the target
-		Vector2f invSize = 1.f / Vector2f(m_renderTarget->GetSize());
+			UpdateTargetRegion(Rectf(invSize.x * viewport.x, invSize.y * viewport.y, invSize.x * viewport.width, invSize.y * viewport.height));
+		}
+		else
+		{
+			m_aspectRatio = float(viewport.width) / float(viewport.height);
+			m_viewport = viewport;
+			m_viewerInstance.UpdateTargetSize(Vector2f(viewport.GetLengths()));
 
-		UpdateTargetRegion(Rectf(invSize.x * viewport.x, invSize.y * viewport.y, invSize.x * viewport.width, invSize.y * viewport.height));
+			UpdateProjectionMatrix();
+		}
 	}
 
 	inline void Camera::UpdateSize(const Vector2f& size)

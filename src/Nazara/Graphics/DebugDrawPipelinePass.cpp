@@ -26,7 +26,7 @@ namespace Nz
 		debugDrawer.Prepare(renderFrame);
 	}
 
-	void DebugDrawPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, std::size_t inputColorBufferIndex, std::size_t outputColorBufferIndex)
+	FramePass& DebugDrawPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, std::size_t inputColorBufferIndex, std::size_t outputColorBufferIndex)
 	{
 		FramePass& debugDrawPass = frameGraph.AddPass("Debug draw pass");
 		debugDrawPass.AddInput(inputColorBufferIndex);
@@ -47,5 +47,7 @@ namespace Nz
 			DebugDrawer& debugDrawer = m_pipeline.GetDebugDrawer();
 			debugDrawer.Draw(builder);
 		});
+
+		return debugDrawPass;
 	}
 }

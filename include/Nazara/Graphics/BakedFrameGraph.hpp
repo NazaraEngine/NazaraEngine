@@ -89,6 +89,7 @@ namespace Nz
 				TextureUsageFlags usage;
 				unsigned int width;
 				unsigned int height;
+				bool hasFixedSize;
 			};
 
 			std::shared_ptr<CommandPool> m_commandPool;
