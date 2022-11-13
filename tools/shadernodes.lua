@@ -3,7 +3,7 @@ option("shadernodes", { description = "Build ShaderNodes tool (requires Qt)", de
 if has_config("shadernodes") then
 	add_requires("nodeeditor", "qt5core", "qt5gui", "qt5widgets", {debug = is_mode("debug")})
 
-	rule("qt5.env")
+	rule("qt5.env", function ()
 		after_load(function (target)
 			-- retrieve qtbase
 			local qtdir
@@ -21,9 +21,9 @@ if has_config("shadernodes") then
 
 			target:data_set("qt", qtdir)
 		end)
+	end)
 
-
-	rule("qt5.moc")
+	rule("qt5.moc", function ()
 		add_deps("qt5.env")
 		set_extensions(".h", ".hpp")
 		before_buildcmd_file(function (target, batchcmds, sourcefile, opt)
@@ -92,8 +92,9 @@ if has_config("shadernodes") then
 			batchcmds:set_depmtime(os.mtime(objectfile))
 			batchcmds:set_depcache(target:dependfile(objectfile))
 		end)
+	end)
 
-	target("NazaraShaderNodes")
+	target("NazaraShaderNodes", function ()
 		set_group("Tools")
 		set_kind("binary")
 		add_rules("qt5.moc")
@@ -114,5 +115,5 @@ if has_config("shadernodes") then
 		add_headerfiles("../src/ShaderNode/**.hpp", "../src/ShaderNode/**.inl", { prefixdir = "private", install = false })
 		add_files("../src/ShaderNode/**.cpp")
 		add_files("../src/ShaderNode/Previews/PreviewValues.cpp", { unity_ignored = true }) -- fixes an issue with MSVC and operator*
-
+	end)
 end

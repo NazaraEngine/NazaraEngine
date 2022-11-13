@@ -112,11 +112,6 @@ local modules = {
 				for name, module in pairs(rendererBackends) do
 					ModuleTargetConfig(name, module)
 				end
-			else
-				-- Register backends as separate modules
-				for name, module in pairs(rendererBackends) do
-					ModuleTarget(name, module)
-				end
 			end
 		end
 	},
@@ -129,6 +124,18 @@ local modules = {
 		Packages = {"entt", "kiwisolver"}
 	}
 }
+
+if not has_config("embed_rendererbackends") then
+	-- Register backends as separate modules
+	for name, module in pairs(rendererBackends) do
+		if (modules[name] ~= nil) then
+			os.raise("overriding module " .. name)
+		end
+
+		modules[name] = module
+	end
+end
+
 NazaraModules = modules
 
 includes("xmake/**.lua")
@@ -141,7 +148,7 @@ option("usepch", { description = "Use precompiled headers to speedup compilation
 option("unitybuild", { description = "Build the engine using unity build", default = false })
 
 set_project("NazaraEngine")
-set_xmakever("2.6.3")
+set_xmakever("2.7.3")
 
 add_requires("chipmunk2d", "dr_wav", "efsw", "entt 3.10.1", "fmt", "frozen", "kiwisolver", "libflac", "libsdl", "minimp3", "ordered_map", "stb")
 add_requires("freetype", { configs = { bzip2 = true, png = true, woff2 = true, zlib = true, debug = is_mode("debug") } })
@@ -287,8 +294,8 @@ function ModuleTargetConfig(name, module)
 	end
 end
 
-function ModuleTarget(name, module)
-	target("Nazara" .. name)
+for name, module in pairs(modules) do
+	target("Nazara" .. name, function ()
 		set_kind("shared")
 		set_group("Modules")
 
@@ -323,10 +330,7 @@ function ModuleTarget(name, module)
 		add_includedirs("src")
 
 		ModuleTargetConfig(name, module)
-end
-
-for name, module in pairs(modules) do
-	ModuleTarget(name, module)
+	end)
 end
 
 includes("tools/*.lua")

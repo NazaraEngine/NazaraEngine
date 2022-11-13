@@ -23,10 +23,11 @@ if has_config("tests") then
 		add_rules("c++.unity_build")
 	end
 
-	target("NazaraUnitTests")
+	target("NazaraUnitTests", function ()
 		add_files("main.cpp", {unity_ignored = true})
 
 		if has_config("usepch") then
 			set_pcxxheader("Engine/Modules.hpp")
 		end
+	end)
 end
