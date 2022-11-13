@@ -48,8 +48,6 @@ jobs:
     # Install xmake
     - name: Setup xmake
       uses: xmake-io/github-action-setup-xmake@v1
-      with:
-        xmake-version: branch@dev
 
     # Update xmake repository (in order to have the file that will be cached)
     - name: Update xmake repository
@@ -82,7 +80,7 @@ jobs:
 
     # Setup installation configuration
     - name: Configure xmake for installation
-      run: xmake config --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --ffmpeg=n --shadernodes=y --tests=y --yes
+      run: xmake config --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --ccache=n --ffmpeg=n --shadernodes=y --tests=y --yes
 
     # Install the result files
     - name: Install Nazara
