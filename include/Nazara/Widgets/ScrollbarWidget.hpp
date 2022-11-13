@@ -40,7 +40,7 @@ namespace Nz
 			void OnMouseEnter() override;
 			void OnMouseExit() override;
 
-			void OnRenderLayerUpdated(int baseRenderLayer);
+			void OnRenderLayerUpdated(int baseRenderLayer) override;
 
 			std::unique_ptr<ScrollbarWidgetStyle> m_style;
 			ImageButtonWidget* m_scrollBackButton;

@@ -18,14 +18,8 @@ namespace Nz
 	{
 		public:
 			using Framebuffer::Framebuffer;
-			VulkanFramebuffer(const VulkanFramebuffer&) = delete;
-			VulkanFramebuffer(VulkanFramebuffer&&) noexcept = default;
-			~VulkanFramebuffer() = default;
 
 			virtual const Vk::Framebuffer& GetFramebuffer() const = 0;
-
-			VulkanFramebuffer& operator=(const VulkanFramebuffer&) = delete;
-			VulkanFramebuffer& operator=(VulkanFramebuffer&&) noexcept = default;
 	};
 }
 

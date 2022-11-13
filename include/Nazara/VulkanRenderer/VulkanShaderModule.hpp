@@ -22,19 +22,11 @@ namespace Nz
 		public:
 			struct Stage;
 
-			VulkanShaderModule() = default;
-			VulkanShaderModule(const VulkanShaderModule&) = delete;
-			VulkanShaderModule(VulkanShaderModule&&) = delete;
-			~VulkanShaderModule() = default;
-
 			bool Create(Vk::Device& device, nzsl::ShaderStageTypeFlags shaderStages, const nzsl::Ast::Module& shaderModule, const nzsl::ShaderWriter::States& states);
 			bool Create(Vk::Device& device, nzsl::ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const nzsl::ShaderWriter::States& states);
 
 			inline const Vk::ShaderModule& GetHandle() const;
 			inline const std::vector<Stage>& GetStages() const;
-
-			VulkanShaderModule& operator=(const VulkanShaderModule&) = delete;
-			VulkanShaderModule& operator=(VulkanShaderModule&&) = delete;
 
 			struct Stage
 			{

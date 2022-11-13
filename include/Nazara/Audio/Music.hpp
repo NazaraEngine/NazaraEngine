@@ -28,7 +28,7 @@ namespace Nz
 			Music();
 			Music(AudioDevice& device);
 			Music(const Music&) = delete;
-			Music(Music&&) noexcept = default;
+			Music(Music&&) = delete;
 			~Music();
 
 			bool Create(std::shared_ptr<SoundStream> soundStream);
@@ -57,7 +57,7 @@ namespace Nz
 			void Stop() override;
 
 			Music& operator=(const Music&) = delete;
-			Music& operator=(Music&&) noexcept = default;
+			Music& operator=(Music&&) = delete;
 
 		private:
 			AudioFormat m_audioFormat;

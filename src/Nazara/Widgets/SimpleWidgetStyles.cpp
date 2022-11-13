@@ -416,12 +416,6 @@ namespace Nz
 
 	void SimpleScrollbarWidgetStyle::Layout(const Vector2f& size)
 	{
-		float totalSize;
-		if (GetOwnerWidget<ScrollbarWidget>()->GetOrientation() == ScrollbarOrientation::Horizontal)
-			totalSize = size.x;
-		else
-			totalSize = size.y;
-
 		m_backgroundScrollbarSprite->SetSize(size);
 	}
 

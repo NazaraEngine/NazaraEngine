@@ -21,13 +21,13 @@ namespace Nz
 		public:
 			LabelWidget(BaseWidget* parent);
 			LabelWidget(const LabelWidget&) = delete;
-			LabelWidget(LabelWidget&&) = default;
+			LabelWidget(LabelWidget&&) = delete;
 			~LabelWidget() = default;
 
 			void UpdateText(const AbstractTextDrawer& drawer);
 
 			LabelWidget& operator=(const LabelWidget&) = delete;
-			LabelWidget& operator=(LabelWidget&&) = default;
+			LabelWidget& operator=(LabelWidget&&) = delete;
 
 		private:
 			void OnMouseEnter() override;

@@ -17,7 +17,7 @@ namespace Nz
 		public:
 			RichTextAreaWidget(BaseWidget* parent);
 			RichTextAreaWidget(const RichTextAreaWidget&) = delete;
-			RichTextAreaWidget(RichTextAreaWidget&&) = default;
+			RichTextAreaWidget(RichTextAreaWidget&&) = delete;
 			~RichTextAreaWidget() = default;
 
 			void AppendText(const std::string& text);
@@ -47,7 +47,7 @@ namespace Nz
 			void Write(const std::string& text, std::size_t glyphPosition) override;
 
 			RichTextAreaWidget& operator=(const RichTextAreaWidget&) = delete;
-			RichTextAreaWidget& operator=(RichTextAreaWidget&&) = default;
+			RichTextAreaWidget& operator=(RichTextAreaWidget&&) = delete;
 
 		private:
 			void CopySelectionToClipboard(const Vector2ui& selectionBegin, const Vector2ui& selectionEnd) override;

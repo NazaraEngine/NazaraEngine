@@ -24,7 +24,7 @@ namespace Nz
 			inline ImageButtonWidget(BaseWidget* parent, std::shared_ptr<MaterialInstance> material, float cornerSize, float cornerTexCoords);
 			ImageButtonWidget(BaseWidget* parent, std::shared_ptr<MaterialInstance> material, std::shared_ptr<MaterialInstance> hoveredMaterial, std::shared_ptr<MaterialInstance> pressedMaterial, float cornerSize, float cornerTexCoords);
 			ImageButtonWidget(const ImageButtonWidget&) = delete;
-			ImageButtonWidget(ImageButtonWidget&&) = default;
+			ImageButtonWidget(ImageButtonWidget&&) = delete;
 			~ImageButtonWidget() = default;
 
 			inline const Color& GetColor() const;
@@ -43,7 +43,7 @@ namespace Nz
 			inline void SetTextureCoords(const Rectf& coords);
 
 			ImageButtonWidget& operator=(const ImageButtonWidget&) = delete;
-			ImageButtonWidget& operator=(ImageButtonWidget&&) = default;
+			ImageButtonWidget& operator=(ImageButtonWidget&&) = delete;
 
 			NazaraSignal(OnButtonTrigger, const ImageButtonWidget* /*button*/);
 

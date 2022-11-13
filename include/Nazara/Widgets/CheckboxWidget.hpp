@@ -21,7 +21,7 @@ namespace Nz
 		public:
 			CheckboxWidget(BaseWidget* parent);
 			CheckboxWidget(const CheckboxWidget&) = delete;
-			CheckboxWidget(CheckboxWidget&&) = default;
+			CheckboxWidget(CheckboxWidget&&) = delete;
 			~CheckboxWidget() = default;
 
 			inline void EnableTristate(bool enabled);
@@ -34,7 +34,7 @@ namespace Nz
 			inline void SwitchToNextState();
 
 			CheckboxWidget& operator=(const CheckboxWidget&) = delete;
-			CheckboxWidget& operator=(CheckboxWidget&&) = default;
+			CheckboxWidget& operator=(CheckboxWidget&&) = delete;
 
 			NazaraSignal(OnCheckboxStateUpdate, const CheckboxWidget* /*button*/, CheckboxState /*newState*/);
 

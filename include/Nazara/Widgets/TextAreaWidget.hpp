@@ -17,7 +17,7 @@ namespace Nz
 		public:
 			TextAreaWidget(BaseWidget* parent);
 			TextAreaWidget(const TextAreaWidget&) = delete;
-			TextAreaWidget(TextAreaWidget&&) = default;
+			TextAreaWidget(TextAreaWidget&&) = delete;
 			~TextAreaWidget() = default;
 
 			void AppendText(const std::string& text);
@@ -52,7 +52,7 @@ namespace Nz
 			void Write(const std::string& text, std::size_t glyphPosition) override;
 
 			TextAreaWidget& operator=(const TextAreaWidget&) = delete;
-			TextAreaWidget& operator=(TextAreaWidget&&) = default;
+			TextAreaWidget& operator=(TextAreaWidget&&) = delete;
 
 			NazaraSignal(OnTextChanged, const AbstractTextAreaWidget* /*textArea*/, const std::string& /*text*/);
 

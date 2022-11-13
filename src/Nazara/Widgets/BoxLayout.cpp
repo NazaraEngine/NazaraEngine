@@ -77,12 +77,12 @@ namespace Nz
 			m_state->sizeVar.emplace_back();
 			auto& sizeVar = m_state->sizeVar.back();
 
-			m_state->solver.addConstraint({ sizeVar >= minimumSize | kiwi::strength::required });
+			m_state->solver.addConstraint({ (sizeVar >= minimumSize) | kiwi::strength::required });
 
 			if (maximumSize < std::numeric_limits<float>::infinity())
-				m_state->solver.addConstraint({ sizeVar <= maximumSize | kiwi::strength::required });
+				m_state->solver.addConstraint({ (sizeVar <= maximumSize) | kiwi::strength::required });
 
-			m_state->solver.addConstraint({ sizeVar >= perfectSpacePerWidget | kiwi::strength::medium });
+			m_state->solver.addConstraint({ (sizeVar >= perfectSpacePerWidget) | kiwi::strength::medium });
 
 			sizeSum = sizeSum + sizeVar;
 		});

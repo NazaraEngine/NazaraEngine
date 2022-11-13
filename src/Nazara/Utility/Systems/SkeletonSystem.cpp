@@ -39,8 +39,6 @@ namespace Nz
 			SkeletonComponent& entitySkeleton = m_registry.get<SkeletonComponent>(entity);
 
 			// TODO: When attaching for the first time, set the skeleton to the position of the node before attaching the node
-			Node* skeletonRoot = entitySkeleton.GetRootNode();
-
 			entityNode.SetParent(entitySkeleton.GetRootNode());
 		});
 

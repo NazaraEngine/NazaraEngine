@@ -23,7 +23,7 @@ namespace Nz
 
 			AbstractTextAreaWidget(BaseWidget* parent);
 			AbstractTextAreaWidget(const AbstractTextAreaWidget&) = delete;
-			AbstractTextAreaWidget(AbstractTextAreaWidget&&) = default;
+			AbstractTextAreaWidget(AbstractTextAreaWidget&&) = delete;
 			~AbstractTextAreaWidget() = default;
 
 			virtual void Clear();
@@ -69,7 +69,7 @@ namespace Nz
 			virtual void Write(const std::string& text, std::size_t glyphPosition) = 0;
 
 			AbstractTextAreaWidget& operator=(const AbstractTextAreaWidget&) = delete;
-			AbstractTextAreaWidget& operator=(AbstractTextAreaWidget&&) = default;
+			AbstractTextAreaWidget& operator=(AbstractTextAreaWidget&&) = delete;
 
 			NazaraSignal(OnTextAreaCursorMove, const AbstractTextAreaWidget* /*textArea*/, Vector2ui* /*newCursorPosition*/);
 			NazaraSignal(OnTextAreaKeyBackspace, const AbstractTextAreaWidget* /*textArea*/, bool* /*ignoreDefaultAction*/);

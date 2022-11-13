@@ -31,7 +31,7 @@ namespace Nz
 			inline InstancedRenderable();
 			InstancedRenderable(const InstancedRenderable&) = delete;
 			InstancedRenderable(InstancedRenderable&&) noexcept = default;
-			~InstancedRenderable();
+			virtual ~InstancedRenderable();
 
 			virtual void BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, std::vector<RenderElementOwner>& elements) const = 0;
 

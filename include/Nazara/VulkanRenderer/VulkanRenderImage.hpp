@@ -25,7 +25,7 @@ namespace Nz
 		public:
 			VulkanRenderImage(VulkanRenderWindow& owner);
 			VulkanRenderImage(const VulkanRenderImage&) = delete;
-			VulkanRenderImage(VulkanRenderImage&&) noexcept = default;
+			VulkanRenderImage(VulkanRenderImage&&) = delete;
 			~VulkanRenderImage();
 
 			void Execute(const std::function<void(CommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags) override;

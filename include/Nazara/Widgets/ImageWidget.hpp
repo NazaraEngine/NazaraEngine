@@ -19,7 +19,7 @@ namespace Nz
 		public:
 			ImageWidget(BaseWidget* parent, std::shared_ptr<MaterialInstance> material);
 			ImageWidget(const ImageWidget&) = delete;
-			ImageWidget(ImageWidget&&) = default;
+			ImageWidget(ImageWidget&&) = delete;
 			~ImageWidget() = default;
 
 			inline const Color& GetColor() const;
@@ -32,7 +32,7 @@ namespace Nz
 			inline void SetTextureRect(const Rectf& rect);
 
 			ImageWidget& operator=(const ImageWidget&) = delete;
-			ImageWidget& operator=(ImageWidget&&) = default;
+			ImageWidget& operator=(ImageWidget&&) = delete;
 
 		private:
 			void Layout() override;

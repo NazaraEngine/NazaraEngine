@@ -143,12 +143,13 @@ namespace Nz::GL
 		return context;
 	}
 
-	std::unique_ptr<Context> EGLLoader::CreateContext(const OpenGLDevice* device, const ContextParams& params, WindowHandle handle, Context* shareContext) const
+	std::unique_ptr<Context> EGLLoader::CreateContext([[maybe_unused]] const OpenGLDevice* device, const ContextParams& params, WindowHandle handle, Context* shareContext) const
 	{
 		std::unique_ptr<EGLContextBase> context;
 		switch (handle.type)
 		{
 			case WindowBackend::Invalid:
+			case WindowBackend::Cocoa: //< TODO?
 				break;
 
 			case WindowBackend::X11:

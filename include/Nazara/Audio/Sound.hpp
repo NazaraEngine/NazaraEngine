@@ -20,7 +20,7 @@ namespace Nz
 			using SoundEmitter::SoundEmitter;
 			Sound();
 			Sound(AudioDevice& audioDevice, std::shared_ptr<SoundBuffer> soundBuffer);
-			Sound(const Sound&) = default;
+			Sound(const Sound&) = delete;
 			Sound(Sound&&) = default;
 			~Sound();
 
@@ -46,7 +46,7 @@ namespace Nz
 
 			void Stop() override;
 
-			Sound& operator=(const Sound&) = default;
+			Sound& operator=(const Sound&) = delete;
 			Sound& operator=(Sound&&) = default;
 
 		private:

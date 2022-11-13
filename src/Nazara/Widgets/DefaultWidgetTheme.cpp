@@ -238,7 +238,7 @@ namespace Nz
 
 	std::unique_ptr<ScrollAreaWidgetStyle> DefaultWidgetTheme::CreateStyle(ScrollAreaWidget* scrollAreaWidget) const
 	{
-		return nullptr;
+		return nullptr; //< TODO
 	}
 
 	std::unique_ptr<ScrollbarWidgetStyle> DefaultWidgetTheme::CreateStyle(ScrollbarWidget* scrollBarWidget) const

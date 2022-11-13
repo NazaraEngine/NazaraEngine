@@ -35,8 +35,8 @@ namespace Nz
 
 	VertexBuffer::VertexBuffer(std::shared_ptr<const VertexDeclaration> vertexDeclaration, UInt32 vertexCount, BufferUsageFlags usage, const BufferFactory& bufferFactory, const void* initialData) :
 	m_vertexDeclaration(std::move(vertexDeclaration)),
-	m_startOffset(0),
-	m_vertexCount(vertexCount)
+	m_vertexCount(vertexCount),
+	m_startOffset(0)
 	{
 		NazaraAssert(m_vertexDeclaration, "invalid vertex declaration");
 		NazaraAssert(vertexCount > 0, "invalid vertex count");

@@ -247,7 +247,7 @@ namespace Nz
 		}
 	}
 
-	void TextAreaWidget::HandleWordSelection(const Vector2ui& position)
+	void TextAreaWidget::HandleWordSelection(const Vector2ui& /*position*/)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 

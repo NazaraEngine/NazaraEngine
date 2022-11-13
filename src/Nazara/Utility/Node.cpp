@@ -43,6 +43,9 @@ namespace Nz
 	}
 
 	Node::Node(Node&& node) noexcept :
+	OnNodeInvalidation(std::move(node.OnNodeInvalidation)),
+	OnNodeNewParent(std::move(node.OnNodeNewParent)),
+	OnNodeRelease(std::move(node.OnNodeRelease)),
 	m_childs(std::move(node.m_childs)),
 	m_initialRotation(node.m_initialRotation),
 	m_rotation(node.m_rotation),
@@ -55,10 +58,7 @@ namespace Nz
 	m_inheritPosition(node.m_inheritPosition),
 	m_inheritRotation(node.m_inheritRotation),
 	m_inheritScale(node.m_inheritScale),
-	m_transformMatrixUpdated(false),
-	OnNodeInvalidation(std::move(node.OnNodeInvalidation)),
-	OnNodeNewParent(std::move(node.OnNodeNewParent)),
-	OnNodeRelease(std::move(node.OnNodeRelease))
+	m_transformMatrixUpdated(false)
 	{
 		if (m_parent)
 		{

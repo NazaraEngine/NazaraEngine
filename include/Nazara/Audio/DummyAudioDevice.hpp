@@ -21,7 +21,7 @@ namespace Nz
 		public:
 			DummyAudioDevice();
 			DummyAudioDevice(const DummyAudioDevice&) = delete;
-			DummyAudioDevice(DummyAudioDevice&&) = default;
+			DummyAudioDevice(DummyAudioDevice&&) = delete;
 			~DummyAudioDevice() = default;
 
 			std::shared_ptr<AudioBuffer> CreateBuffer() override;
@@ -46,7 +46,7 @@ namespace Nz
 			void SetSpeedOfSound(float speed) override;
 
 			DummyAudioDevice& operator=(const DummyAudioDevice&) = delete;
-			DummyAudioDevice& operator=(DummyAudioDevice&&) = default;
+			DummyAudioDevice& operator=(DummyAudioDevice&&) = delete;
 
 		private:
 			Quaternionf m_listenerRotation;

@@ -150,7 +150,7 @@ namespace Nz
 		UpdateHoveredWidget(event.x, event.y);
 	}
 
-	void Canvas::OnEventMouseEntered(const EventHandler* eventHandler)
+	void Canvas::OnEventMouseEntered(const EventHandler* /*eventHandler*/)
 	{
 		// Keep previous mouse states but not new ones
 		if (m_mouseOwner != InvalidCanvasIndex)

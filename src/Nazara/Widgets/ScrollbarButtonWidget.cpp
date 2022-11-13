@@ -37,7 +37,7 @@ namespace Nz
 		return false;
 	}
 
-	bool ScrollbarButtonWidget::OnMouseButtonRelease(int x, int y, Mouse::Button button)
+	bool ScrollbarButtonWidget::OnMouseButtonRelease(int /*x*/, int /*y*/, Mouse::Button button)
 	{
 		if (button == Mouse::Left)
 		{

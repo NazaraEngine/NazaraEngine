@@ -21,9 +21,6 @@ namespace Nz
 	{
 		public:
 			OpenGLRenderImage(OpenGLRenderWindow& owner);
-			OpenGLRenderImage(const OpenGLRenderImage&) = delete;
-			OpenGLRenderImage(OpenGLRenderImage&&) noexcept = default;
-			~OpenGLRenderImage() = default;
 
 			void Execute(const std::function<void(CommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags) override;
 
@@ -32,9 +29,6 @@ namespace Nz
 			void Present() override;
 
 			void SubmitCommandBuffer(CommandBuffer* commandBuffer, QueueTypeFlags queueTypeFlags) override;
-
-			OpenGLRenderImage& operator=(const OpenGLRenderImage&) = delete;
-			OpenGLRenderImage& operator=(OpenGLRenderImage&&) = delete;
 
 		private:
 			OpenGLRenderWindow& m_owner;

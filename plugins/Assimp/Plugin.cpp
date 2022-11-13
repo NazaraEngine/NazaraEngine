@@ -476,10 +476,7 @@ std::shared_ptr<Nz::SubMesh> ProcessSubMesh(const std::filesystem::path& originP
 		if (meshData->HasVertexColors(0))
 		{
 			for (unsigned int vertexIndex = 0; vertexIndex < vertexCount; ++vertexIndex)
-			{
-				aiColor4D color = meshData->mColors[0][vertexIndex];
 				*colorPtr++ = FromAssimp(meshData->mColors[0][vertexIndex]);
-			}
 		}
 		else
 		{

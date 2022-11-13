@@ -39,7 +39,7 @@ namespace Nz
 		public:
 			OpenALDevice(OpenALLibrary& library, ALCdevice* device);
 			OpenALDevice(const OpenALDevice&) = delete;
-			OpenALDevice(OpenALDevice&&) = default;
+			OpenALDevice(OpenALDevice&&) = delete;
 			~OpenALDevice();
 
 			std::shared_ptr<AudioBuffer> CreateBuffer() override;
@@ -69,7 +69,7 @@ namespace Nz
 			inline ALenum TranslateAudioFormat(AudioFormat format) const;
 
 			OpenALDevice& operator=(const OpenALDevice&) = delete;
-			OpenALDevice& operator=(OpenALDevice&&) = default;
+			OpenALDevice& operator=(OpenALDevice&&) = delete;
 
 		private:
 			std::array<ALenum, AudioFormatCount> m_audioFormatValues;

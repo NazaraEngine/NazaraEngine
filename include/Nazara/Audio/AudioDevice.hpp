@@ -26,7 +26,7 @@ namespace Nz
 		public:
 			AudioDevice() = default;
 			AudioDevice(const AudioDevice&) = delete;
-			AudioDevice(AudioDevice&&) = default;
+			AudioDevice(AudioDevice&&) = delete;
 			virtual ~AudioDevice();
 
 			virtual std::shared_ptr<AudioBuffer> CreateBuffer() = 0;
@@ -52,7 +52,7 @@ namespace Nz
 			virtual void SetSpeedOfSound(float speed) = 0;
 
 			AudioDevice& operator=(const AudioDevice&) = delete;
-			AudioDevice& operator=(AudioDevice&&) = default;
+			AudioDevice& operator=(AudioDevice&&) = delete;
 
 			NazaraSignal(OnAudioDeviceRelease, AudioDevice* /*audioDevice*/);
 	};

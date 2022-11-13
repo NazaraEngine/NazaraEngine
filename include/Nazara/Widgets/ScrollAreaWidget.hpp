@@ -20,7 +20,7 @@ namespace Nz
 		public:
 			ScrollAreaWidget(BaseWidget* parent, BaseWidget* content);
 			ScrollAreaWidget(const ScrollAreaWidget&) = delete;
-			ScrollAreaWidget(ScrollAreaWidget&&) = default;
+			ScrollAreaWidget(ScrollAreaWidget&&) = delete;
 			~ScrollAreaWidget() = default;
 
 			void EnableScrollbar(bool enable);
@@ -36,7 +36,7 @@ namespace Nz
 			void ScrollToRatio(float ratio);
 
 			ScrollAreaWidget& operator=(const ScrollAreaWidget&) = delete;
-			ScrollAreaWidget& operator=(ScrollAreaWidget&&) = default;
+			ScrollAreaWidget& operator=(ScrollAreaWidget&&) = delete;
 
 		private:
 			void Layout() override;

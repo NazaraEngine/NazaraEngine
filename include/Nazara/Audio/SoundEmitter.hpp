@@ -57,7 +57,7 @@ namespace Nz
 
 			virtual void Stop() = 0;
 
-			SoundEmitter& operator=(const SoundEmitter&) = delete;
+			SoundEmitter& operator=(const SoundEmitter&) = default;
 			SoundEmitter& operator=(SoundEmitter&&) noexcept = default;
 
 		protected:

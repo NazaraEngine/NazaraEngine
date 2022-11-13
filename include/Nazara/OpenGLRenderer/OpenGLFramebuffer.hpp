@@ -18,19 +18,12 @@ namespace Nz
 	{
 		public:
 			using Framebuffer::Framebuffer;
-			OpenGLFramebuffer() = default;
-			OpenGLFramebuffer(const OpenGLFramebuffer&) = delete;
-			OpenGLFramebuffer(OpenGLFramebuffer&&) noexcept = default;
-			~OpenGLFramebuffer() = default;
 
 			virtual void Activate() const = 0;
 
 			virtual std::size_t GetColorBufferCount() const = 0;
 
 			virtual const Vector2ui& GetSize() const = 0;
-
-			OpenGLFramebuffer& operator=(const OpenGLFramebuffer&) = delete;
-			OpenGLFramebuffer& operator=(OpenGLFramebuffer&&) noexcept = default;
 	};
 }
 
