@@ -30,7 +30,8 @@ jobs:
     steps:
     - name: Get current date as package key
       id: pkg_key
-      run: echo "::set-output name=key::$(date +'%W')"
+      run: echo "key=$(date +'%W')" >> $GITHUB_OUTPUT
+      shell: bash
 
     - name: Checkout repository
       uses: actions/checkout@v3
@@ -68,8 +69,14 @@ jobs:
 
     # Fetch xmake dephash
     - name: Retrieve dependencies hash
-      id: dep_hash
-      run: echo "::set-output name=hash::$(xmake l utils.ci.packageskey)"
+      if: runner.os == 'Linux'
+      id: dep_hash_linux
+      run: echo "hash=$(xmake l utils.ci.packageskey)" >> $GITHUB_OUTPUT
+
+    - name: Retrieve dependencies hash
+      if: runner.os == 'Windows'
+      id: dep_hash_windows
+      run: echo "hash=$(xmake l utils.ci.packageskey)" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
 
     # Cache xmake dependencies
     - name: Retrieve cached xmake dependencies (Linux)
@@ -77,15 +84,14 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
-        key: Linux-${{ matrix.config.arch }}-coverage-${{ steps.dep_hash.outputs.hash }}-W${{ steps.pkg_key.outputs.key }}
+        key: Linux-${{ matrix.config.arch }}-coverage-${{ steps.dep_hash_linux.outputs.hash }}-W${{ steps.pkg_key.outputs.key }}
 
-    # Cache xmake dependencies
     - name: Retrieve cached xmake dependencies (Windows)
       if: runner.os == 'Windows'
       uses: actions/cache@v3
       with:
         path: ${{ env.XMAKE_GLOBALDIR }}\.xmake\packages
-        key: MSVC-${{ matrix.config.arch }}-coverage-${{ steps.dep_hash.outputs.hash }}-W${{ steps.pkg_key.outputs.key }}
+        key: MSVC-${{ matrix.config.arch }}-coverage-${{ steps.dep_hash_windows.outputs.hash }}-W${{ steps.pkg_key.outputs.key }}
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
