@@ -156,6 +156,7 @@ add_requires("libvorbis", { configs = { with_vorbisenc = false } })
 add_requires("openal-soft", { configs = { shared = true }})
 add_requires("newtondynamics3", { debug = is_plat("windows") and is_mode("debug") }) -- Newton doesn't like compiling in Debug on Linux
 
+add_repositories("local-repo xmake-repo")
 add_repositories("nazara-engine-repo https://github.com/NazaraEngine/xmake-repo")
 add_requires("nazarautils")
 add_requires("nzsl", { debug = is_mode("debug"), configs = { with_symbols = not is_mode("release"), shared = true } })
