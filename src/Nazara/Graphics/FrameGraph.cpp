@@ -215,7 +215,20 @@ namespace Nz
 				if (std::size_t depthStencilOutput = framePass.GetDepthStencilOutput(); depthStencilOutput != FramePass::InvalidAttachmentId)
 				{
 					if (auto it = m_pending.attachmentToTextures.find(depthStencilOutput); it == m_pending.attachmentToTextures.end())
+					{
+						// Special case where multiples attachements point simultaneously to the same texture
 						m_pending.attachmentToTextures.emplace(depthStencilOutput, textureId);
+
+						auto inputIt = m_pending.attachmentLastUse.find(depthStencilInput);
+						auto outputIt = m_pending.attachmentLastUse.find(depthStencilInput);
+						if (inputIt != m_pending.attachmentLastUse.end() && outputIt != m_pending.attachmentLastUse.end())
+						{
+							if (inputIt->second > outputIt->second)
+								m_pending.attachmentLastUse.erase(outputIt);
+							else
+								m_pending.attachmentLastUse.erase(inputIt);
+						}
+					}
 					else if (it->second != textureId)
 						throw std::runtime_error("depth-stencil output already assigned");
 				}
@@ -233,22 +246,20 @@ namespace Nz
 			{
 				attachmentId = ResolveAttachmentIndex(attachmentId);
 
-				std::size_t lastUsingPassId = Retrieve(m_pending.attachmentLastUse, attachmentId);
+				auto it = m_pending.attachmentLastUse.find(attachmentId);
 
 				// If this pass is the last one where this attachment is used, push the texture to the reuse pool
-				if (passIndex == lastUsingPassId)
+				if (it != m_pending.attachmentLastUse.end() && passIndex == it->second)
 				{
 					std::size_t textureId = Retrieve(m_pending.attachmentToTextures, attachmentId);
-					if (m_pending.texturePool.empty())
-					{
-						assert(std::find(m_pending.texturePool.begin(), m_pending.texturePool.end(), textureId) == m_pending.texturePool.end());
-						m_pending.texturePool.push_back(textureId);
-					}
+
+					assert(std::find(m_pending.texturePool.begin(), m_pending.texturePool.end(), textureId) == m_pending.texturePool.end());
+					m_pending.texturePool.push_back(textureId);
 				}
 			});
 		}
 
-		// Add TextureUsage::Sampled to backbuffer output
+		// Add TextureUsage::ShaderSampling to backbuffer output
 		for (std::size_t output : m_backbufferOutputs)
 		{
 			auto it = m_pending.attachmentToTextures.find(output);
