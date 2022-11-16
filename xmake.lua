@@ -28,6 +28,7 @@ local rendererBackends = {
 				add_defines("VK_USE_PLATFORM_XLIB_KHR")
 				add_defines("VK_USE_PLATFORM_WAYLAND_KHR")
 				add_packages("wayland", { links = {} }) -- we only need wayland headers
+				add_packages("libx11", { links = {} }) -- we only need X11 headers
 			elseif is_plat("macosx") then
 				add_defines("VK_USE_PLATFORM_METAL_EXT")
 				add_files("src/Nazara/VulkanRenderer/**.mm")
@@ -96,6 +97,7 @@ local modules = {
 			elseif is_plat("linux") then
 				add_defines("SDL_VIDEO_DRIVER_X11=1")
 				add_defines("SDL_VIDEO_DRIVER_WAYLAND=1")
+				add_packages("libx11", { links = {} }) -- we only need X11 headers
 			elseif is_plat("macosx") then
 				add_defines("SDL_VIDEO_DRIVER_COCOA=1")
 				add_packages("libx11", { links = {} }) -- we only need X11 headers
@@ -162,7 +164,7 @@ add_requires("nazarautils")
 add_requires("nzsl", { debug = is_mode("debug"), configs = { with_symbols = not is_mode("release"), shared = true } })
 
 if is_plat("linux") then
-	add_requires("libuuid", "wayland")
+	add_requires("libuuid", "wayland", "libx11")
 elseif is_plat("macosx") then
 	add_requires("libx11")
 end
