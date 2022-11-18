@@ -82,7 +82,7 @@ nzsl::Ast::NodePtr SampleTexture::BuildNode(nzsl::Ast::ExpressionPtr* expression
 	params.push_back(std::move(expressions[0]));
 	params.push_back(std::move(expressions[1]));
 
-	return nzsl::ShaderBuilder::Intrinsic(nzsl::Ast::IntrinsicType::SampleTexture, std::move(params));
+	return nzsl::ShaderBuilder::Intrinsic(nzsl::Ast::IntrinsicType::TextureSampleImplicitLod, std::move(params));
 }
 
 auto SampleTexture::dataType(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const -> QtNodes::NodeDataType
