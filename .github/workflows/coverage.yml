@@ -29,7 +29,7 @@ jobs:
 
     steps:
     - name: Get current date as package key
-      id: pkg_key
+      id: cache_key
       run: echo "key=$(date +'%W')" >> $GITHUB_OUTPUT
       shell: bash
 
@@ -62,6 +62,7 @@ jobs:
       uses: xmake-io/github-action-setup-xmake@v1
       with:
         xmake-version: branch@dev
+        actions-cache-folder: .xmake-cache-W${{ steps.cache_key.outputs.key }}
 
     # Update xmake repository (in order to have the file that will be cached)
     - name: Update xmake repository
@@ -84,14 +85,14 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
-        key: Linux-${{ matrix.config.arch }}-coverage-${{ steps.dep_hash_linux.outputs.hash }}-W${{ steps.pkg_key.outputs.key }}
+        key: Linux-${{ matrix.config.arch }}-coverage-${{ steps.dep_hash_linux.outputs.hash }}-W${{ steps.cache_key.outputs.key }}
 
     - name: Retrieve cached xmake dependencies (Windows)
       if: runner.os == 'Windows'
       uses: actions/cache@v3
       with:
         path: ${{ env.XMAKE_GLOBALDIR }}\.xmake\packages
-        key: MSVC-${{ matrix.config.arch }}-coverage-${{ steps.dep_hash_windows.outputs.hash }}-W${{ steps.pkg_key.outputs.key }}
+        key: MSVC-${{ matrix.config.arch }}-coverage-${{ steps.dep_hash_windows.outputs.hash }}-W${{ steps.cache_key.outputs.key }}
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies

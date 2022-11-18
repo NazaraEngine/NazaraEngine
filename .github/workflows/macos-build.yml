@@ -28,7 +28,7 @@ jobs:
 
     steps:
     - name: Get current date as package key
-      id: pkg_key
+      id: cache_key
       run: echo "key=$(date +'%W')" >> $GITHUB_OUTPUT
 
     - name: Checkout repository
@@ -43,6 +43,7 @@ jobs:
       uses: xmake-io/github-action-setup-xmake@v1
       with:
         xmake-version: branch@dev
+        actions-cache-folder: .xmake-cache-W${{ steps.cache_key.outputs.key }}
 
     # Update xmake repository (in order to have the file that will be cached)
     - name: Update xmake repository
@@ -58,7 +59,7 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
-        key: macOS-${{ matrix.arch }}-${{ matrix.mode }}-${{ steps.dep_hash.outputs.hash }}-W${{ steps.pkg_key.outputs.key }}
+        key: macOS-${{ matrix.arch }}-${{ matrix.mode }}-${{ steps.dep_hash.outputs.hash }}-W${{ steps.cache_key.outputs.key }}
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
