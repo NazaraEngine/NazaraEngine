@@ -16,7 +16,7 @@ namespace Nz
 	{
 		public:
 			inline EmptyStream();
-			EmptyStream(const EmptyStream&) = default;
+			EmptyStream(const EmptyStream&) = delete;
 			EmptyStream(EmptyStream&&) noexcept = default;
 			~EmptyStream() = default;
 
@@ -24,7 +24,7 @@ namespace Nz
 
 			UInt64 GetSize() const override;
 
-			EmptyStream& operator=(const EmptyStream&) = default;
+			EmptyStream& operator=(const EmptyStream&) = delete;
 			EmptyStream& operator=(EmptyStream&&) noexcept = default;
 
 		private:

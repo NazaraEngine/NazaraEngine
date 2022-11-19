@@ -53,7 +53,7 @@ namespace Nz
 			virtual void UpdateViewerRenderMask(std::size_t viewerIndex, Int32 renderOrder) = 0;
 
 			FramePipeline& operator=(const FramePipeline&) = delete;
-			FramePipeline& operator=(FramePipeline&&) noexcept = default;
+			FramePipeline& operator=(FramePipeline&&) = delete;
 
 			NazaraSignal(OnTransfer, FramePipeline* /*pipeline*/, RenderFrame& /*renderFrame*/, CommandBufferBuilder& /*builder*/);
 

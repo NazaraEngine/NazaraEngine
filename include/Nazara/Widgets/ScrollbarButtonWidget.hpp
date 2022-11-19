@@ -22,11 +22,11 @@ namespace Nz
 		public:
 			ScrollbarButtonWidget(BaseWidget* parent);
 			ScrollbarButtonWidget(const ScrollbarButtonWidget&) = delete;
-			ScrollbarButtonWidget(ScrollbarButtonWidget&&) = default;
+			ScrollbarButtonWidget(ScrollbarButtonWidget&&) = delete;
 			~ScrollbarButtonWidget() = default;
 
 			ScrollbarButtonWidget& operator=(const ScrollbarButtonWidget&) = delete;
-			ScrollbarButtonWidget& operator=(ScrollbarButtonWidget&&) = default;
+			ScrollbarButtonWidget& operator=(ScrollbarButtonWidget&&) = delete;
 
 			NazaraSignal(OnButtonGrabbed, ScrollbarButtonWidget* /*emitter*/, int /*x*/, int /*y*/);
 			NazaraSignal(OnButtonMoved, ScrollbarButtonWidget* /*emitter*/, int /*x*/, int /*y*/);

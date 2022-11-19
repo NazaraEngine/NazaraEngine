@@ -34,7 +34,7 @@ namespace Nz
 		public:
 			DebugDrawer(RenderDevice& renderDevice, std::size_t maxVertexPerDraw = DefaultVertexBlockSize);
 			DebugDrawer(const DebugDrawer&) = delete;
-			DebugDrawer(DebugDrawer&&) = delete;
+			DebugDrawer(DebugDrawer&&) noexcept = default;
 			~DebugDrawer();
 
 			void Draw(CommandBufferBuilder& builder);

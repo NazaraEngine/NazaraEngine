@@ -20,7 +20,7 @@ namespace Nz
 		public:
 			inline MemoryStream();
 			inline MemoryStream(ByteArray* byteArray, OpenModeFlags openMode = OpenMode_ReadWrite);
-			MemoryStream(const MemoryStream&) = default;
+			MemoryStream(const MemoryStream&) = delete;
 			MemoryStream(MemoryStream&&) noexcept = default;
 			~MemoryStream() = default;
 
@@ -32,7 +32,7 @@ namespace Nz
 
 			void SetBuffer(ByteArray* byteArray, OpenModeFlags openMode = OpenMode_ReadWrite);
 
-			MemoryStream& operator=(const MemoryStream&) = default;
+			MemoryStream& operator=(const MemoryStream&) = delete;
 			MemoryStream& operator=(MemoryStream&&) noexcept = default;
 
 		private:

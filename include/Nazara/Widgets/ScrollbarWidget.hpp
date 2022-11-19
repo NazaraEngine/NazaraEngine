@@ -18,7 +18,7 @@ namespace Nz
 		public:
 			ScrollbarWidget(BaseWidget* parent, ScrollbarOrientation orientation);
 			ScrollbarWidget(const ScrollbarWidget&) = delete;
-			ScrollbarWidget(ScrollbarWidget&&) = default;
+			ScrollbarWidget(ScrollbarWidget&&) = delete;
 			~ScrollbarWidget() = default;
 
 			inline ScrollbarOrientation GetOrientation() const;
@@ -30,7 +30,7 @@ namespace Nz
 			inline void SetValue(float newValue);
 
 			ScrollbarWidget& operator=(const ScrollbarWidget&) = delete;
-			ScrollbarWidget& operator=(ScrollbarWidget&&) = default;
+			ScrollbarWidget& operator=(ScrollbarWidget&&) = delete;
 
 			NazaraSignal(OnScrollbarValueUpdate, ScrollbarWidget* /*emitter*/, float /*newValue*/);
 
