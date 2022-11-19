@@ -6,7 +6,7 @@ import ViewerData from Engine.ViewerData;
 external
 {
 	[binding(0)] viewerData: uniform[ViewerData],
-	[binding(1)] skybox: samplerCube[f32]
+	[binding(1)] skybox: sampler_cube[f32]
 }
 
 struct VertOut
