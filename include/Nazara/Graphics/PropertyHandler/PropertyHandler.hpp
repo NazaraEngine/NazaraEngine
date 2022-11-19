@@ -22,7 +22,7 @@ namespace Nz
 	{
 		public:
 			PropertyHandler() = default;
-			PropertyHandler(const PropertyHandler&) = delete;
+			PropertyHandler(const PropertyHandler&) = default;
 			PropertyHandler(PropertyHandler&&) = delete;
 			virtual ~PropertyHandler();
 
@@ -33,7 +33,7 @@ namespace Nz
 
 			virtual void Update(MaterialInstance& materialInstance) const = 0;
 
-			PropertyHandler& operator=(const PropertyHandler&) = delete;
+			PropertyHandler& operator=(const PropertyHandler&) = default;
 			PropertyHandler& operator=(PropertyHandler&&) = delete;
 
 			struct SamplerData

@@ -467,7 +467,7 @@ namespace
 				m_ffmpegLoaderEntry = nullptr;
 			}
 
-			std::string_view GetDescription() const
+			std::string_view GetDescription() const override
 			{
 				return "Adds supports to load and decode videos streams";
 			}
