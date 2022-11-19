@@ -33,7 +33,7 @@ namespace Nz
 	inline GLenum ToOpenGL(BlendEquation blendEquation);
 	inline GLenum ToOpenGL(BlendFunc blendFunc);
 	inline GLenum ToOpenGL(FaceFilling filling);
-	inline GLenum ToOpenGL(FaceSide side);
+	inline GLenum ToOpenGL(FaceCulling side);
 	inline GLenum ToOpenGL(FrontFace face);
 	inline GLenum ToOpenGL(IndexType indexType);
 	inline GLenum ToOpenGL(PrimitiveMode primitiveMode);

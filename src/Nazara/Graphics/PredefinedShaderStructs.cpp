@@ -21,6 +21,7 @@ namespace Nz
 		lightData.lightMemberOffsets.parameter2 = lightStruct.AddField(nzsl::StructFieldType::Float4);
 		lightData.lightMemberOffsets.parameter3 = lightStruct.AddField(nzsl::StructFieldType::Float4);
 		lightData.lightMemberOffsets.shadowMappingFlag = lightStruct.AddField(nzsl::StructFieldType::Bool1);
+		lightData.lightMemberOffsets.viewProjMatrix = lightStruct.AddMatrix(nzsl::StructFieldType::Float1, 4, 4, true);
 
 		lightData.lightSize = lightStruct.GetAlignedSize();
 

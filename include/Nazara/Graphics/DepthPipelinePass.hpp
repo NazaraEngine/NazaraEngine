@@ -30,7 +30,7 @@ namespace Nz
 	class NAZARA_GRAPHICS_API DepthPipelinePass : public FramePipelinePass
 	{
 		public:
-			DepthPipelinePass(FramePipeline& owner, ElementRendererRegistry& elementRegistry, AbstractViewer* viewer);
+			DepthPipelinePass(FramePipeline& owner, ElementRendererRegistry& elementRegistry, AbstractViewer* viewer, std::size_t passIndex, std::string passName);
 			DepthPipelinePass(const DepthPipelinePass&) = delete;
 			DepthPipelinePass(DepthPipelinePass&&) = delete;
 			~DepthPipelinePass() = default;
@@ -57,8 +57,9 @@ namespace Nz
 				NazaraSlot(MaterialInstance, OnMaterialInstanceShaderBindingInvalidated, onMaterialInstanceShaderBindingInvalidated);
 			};
 
-			std::size_t m_depthPassIndex;
+			std::size_t m_passIndex;
 			std::size_t m_lastVisibilityHash;
+			std::string m_passName;
 			std::vector<std::unique_ptr<ElementRendererData>> m_elementRendererData;
 			std::vector<ElementRenderer::RenderStates> m_renderStates;
 			std::vector<RenderElementOwner> m_renderElements;

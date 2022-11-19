@@ -173,7 +173,7 @@ namespace Nz
 		RenderPipelineLayoutInfo layoutInfo;
 		layoutInfo.bindings.assign({
 			{
-				0, 0,
+				1, 0, 0,
 				ShaderBindingType::Texture,
 				nzsl::ShaderStageType::Fragment
 			}
@@ -230,7 +230,10 @@ namespace Nz
 			MaterialPass depthPass = forwardPass;
 			depthPass.options[CRC32("DepthPass")] = true;
 			settings.AddPass(depthPassIndex, depthPass);
-			settings.AddPass(shadowPassIndex, depthPass);
+
+			MaterialPass shadowPass = depthPass;
+			shadowPass.states.faceCulling = FaceCulling::Front;
+			settings.AddPass(shadowPassIndex, shadowPass);
 
 			m_defaultMaterials.basicMaterial = std::make_shared<Material>(std::move(settings), "BasicMaterial");
 		}
@@ -249,7 +252,10 @@ namespace Nz
 			MaterialPass depthPass = forwardPass;
 			depthPass.options[CRC32("DepthPass")] = true;
 			settings.AddPass(depthPassIndex, depthPass);
-			settings.AddPass(shadowPassIndex, depthPass);
+
+			MaterialPass shadowPass = depthPass;
+			shadowPass.states.faceCulling = FaceCulling::Front;
+			settings.AddPass(shadowPassIndex, shadowPass);
 
 			m_defaultMaterials.pbrMaterial = std::make_shared<Material>(std::move(settings), "PhysicallyBasedMaterial");
 		}
@@ -268,7 +274,13 @@ namespace Nz
 			MaterialPass depthPass = forwardPass;
 			depthPass.options[CRC32("DepthPass")] = true;
 			settings.AddPass(depthPassIndex, depthPass);
-			settings.AddPass(shadowPassIndex, depthPass);
+
+			MaterialPass shadowPass = depthPass;
+			shadowPass.states.faceCulling = FaceCulling::Front;
+			shadowPass.states.depthBias = true;
+			shadowPass.states.depthBiasConstantFactor = 0.005f;
+			shadowPass.states.depthBiasSlopeFactor = 0.05f;
+			settings.AddPass(shadowPassIndex, shadowPass);
 
 			m_defaultMaterials.phongMaterial = std::make_shared<Material>(std::move(settings), "PhongMaterial");
 		}
@@ -301,6 +313,38 @@ namespace Nz
 
 	void Graphics::BuildDefaultTextures()
 	{
+		// Depth textures (white but with a depth format)
+		{
+			PixelFormat depthFormat = PixelFormat::Undefined;
+			for (PixelFormat depthStencilCandidate : { PixelFormat::Depth16, PixelFormat::Depth24, PixelFormat::Depth32F })
+			{
+				if (m_renderDevice->IsTextureFormatSupported(depthStencilCandidate, TextureUsage::ShaderSampling))
+				{
+					depthFormat = depthStencilCandidate;
+					break;
+				}
+			}
+
+			if (depthFormat == PixelFormat::Undefined)
+				throw std::runtime_error("couldn't find a sampling-compatible depth pixel format");
+
+			TextureInfo texInfo;
+			texInfo.width = texInfo.height = texInfo.depth = texInfo.mipmapLevel = 1;
+			texInfo.pixelFormat = depthFormat;
+
+			std::array<UInt8, 6> whitePixels = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+
+			for (std::size_t i = 0; i < ImageTypeCount; ++i)
+			{
+				texInfo.type = static_cast<ImageType>(i);
+				if (texInfo.type == ImageType::E3D)
+					continue;
+
+				m_defaultTextures.depthTextures[i] = m_renderDevice->InstantiateTexture(texInfo);
+				m_defaultTextures.depthTextures[i]->Update(whitePixels.data());
+			}
+		}
+
 		// White texture 2D
 		{
 			TextureInfo texInfo;

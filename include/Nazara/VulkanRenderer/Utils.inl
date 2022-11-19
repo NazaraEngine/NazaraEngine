@@ -130,14 +130,14 @@ namespace Nz
 		return VK_FORMAT_UNDEFINED;
 	}
 
-	inline VkCullModeFlagBits ToVulkan(FaceSide faceSide)
+	inline VkCullModeFlagBits ToVulkan(FaceCulling faceSide)
 	{
 		switch (faceSide)
 		{
-			case FaceSide::None:         return VK_CULL_MODE_NONE;
-			case FaceSide::Back:         return VK_CULL_MODE_BACK_BIT;
-			case FaceSide::Front:        return VK_CULL_MODE_FRONT_BIT;
-			case FaceSide::FrontAndBack: return VK_CULL_MODE_FRONT_AND_BACK;
+			case FaceCulling::None:         return VK_CULL_MODE_NONE;
+			case FaceCulling::Back:         return VK_CULL_MODE_BACK_BIT;
+			case FaceCulling::Front:        return VK_CULL_MODE_FRONT_BIT;
+			case FaceCulling::FrontAndBack: return VK_CULL_MODE_FRONT_AND_BACK;
 		}
 
 		NazaraError("Unhandled FaceSide 0x" + NumberToString(UnderlyingCast(faceSide), 16));

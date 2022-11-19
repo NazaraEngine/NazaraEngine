@@ -218,7 +218,7 @@ namespace Nz
 				{
 					if (auto it = m_pending.attachmentToTextures.find(depthStencilOutput); it == m_pending.attachmentToTextures.end())
 					{
-						// Special case where multiples attachements point simultaneously to the same texture
+						// Special case where multiples attachments point simultaneously to the same texture
 						m_pending.attachmentToTextures.emplace(depthStencilOutput, textureId);
 
 						auto inputIt = m_pending.attachmentLastUse.find(depthStencilInput);

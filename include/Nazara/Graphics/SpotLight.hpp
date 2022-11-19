@@ -55,9 +55,11 @@ namespace Nz
 
 		private:
 			inline void UpdateBoundingVolume();
+			inline void UpdateViewProjMatrix();
 
 			Color m_color;
 			Quaternionf m_rotation;
+			Matrix4f m_viewProjMatrix;
 			RadianAnglef m_innerAngle;
 			RadianAnglef m_outerAngle;
 			Vector3f m_direction;

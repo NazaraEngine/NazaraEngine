@@ -31,7 +31,11 @@ int main()
 		resourceDir = "../.." / resourceDir;
 
 	Nz::Renderer::Config rendererConfig;
-	rendererConfig.preferredAPI = Nz::RenderAPI::OpenGL;
+	std::cout << "Run using Vulkan? (y/n)" << std::endl;
+	if (std::getchar() == 'y')
+		rendererConfig.preferredAPI = Nz::RenderAPI::Vulkan;
+	else
+		rendererConfig.preferredAPI = Nz::RenderAPI::OpenGL;
 
 	Nz::Modules<Nz::Graphics> nazara(rendererConfig);
 
@@ -70,7 +74,7 @@ int main()
 		playerRotNode.SetParent(playerNode);
 
 		auto& cameraNode = registry.emplace<Nz::NodeComponent>(playerCamera);
-		cameraNode.SetParent(playerRotNode);
+		//cameraNode.SetParent(playerRotNode);
 
 		auto& cameraComponent = registry.emplace<Nz::CameraComponent>(playerCamera, window.GetRenderTarget());
 		cameraComponent.UpdateZNear(0.2f);
@@ -160,10 +164,11 @@ int main()
 
 	entt::handle bobEntity = entt::handle(registry, registry.create());
 	entt::entity bobLight = registry.create();
+
 	{
 		auto& lightNode = registry.emplace<Nz::NodeComponent>(bobLight);
-		lightNode.SetPosition(Nz::Vector3f::Up() * 3.f);
-		lightNode.SetRotation(Nz::EulerAnglesf(-90.f, 0.f, 0.f));
+		lightNode.SetPosition(Nz::Vector3f::Up() * 3.f + Nz::Vector3f::Backward() * 1.f);
+		lightNode.SetRotation(Nz::EulerAnglesf(-70.f, 0.f, 0.f));
 
 		auto spotLight = std::make_shared<Nz::SpotLight>();
 		spotLight->UpdateAmbientFactor(1.f);
@@ -228,6 +233,36 @@ int main()
 		registry.emplace<Nz::SharedSkeletonComponent>(smallBobEntity, skeleton);
 	}
 
+	std::shared_ptr<Nz::MaterialInstance> textMat = Nz::Graphics::Instance()->GetDefaultMaterials().phongMaterial->Instantiate();
+	textMat->UpdatePassStates("ForwardPass", [](Nz::RenderStates& renderStates)
+	{
+		renderStates.depthWrite = false;
+		renderStates.blending = true;
+		renderStates.faceCulling = Nz::FaceCulling::None;
+		renderStates.blend.modeColor = Nz::BlendEquation::Add;
+		renderStates.blend.modeAlpha = Nz::BlendEquation::Add;
+		renderStates.blend.srcColor = Nz::BlendFunc::SrcAlpha;
+		renderStates.blend.dstColor = Nz::BlendFunc::InvSrcAlpha;
+		renderStates.blend.srcAlpha = Nz::BlendFunc::One;
+		renderStates.blend.dstAlpha = Nz::BlendFunc::One;
+		return true;
+	});
+
+	textMat->SetValueProperty("AlphaTest", true);
+
+	std::shared_ptr<Nz::TextSprite> sprite = std::make_shared<Nz::TextSprite>(textMat);
+	sprite->UpdateRenderLayer(1);
+	sprite->Update(Nz::SimpleTextDrawer::Draw("Shadow-mapping !", 72), 0.002f);
+
+	entt::entity textEntity = registry.create();
+	{
+		auto& entityGfx = registry.emplace<Nz::GraphicsComponent>(textEntity);
+		entityGfx.AttachRenderable(sprite, 1);
+
+		auto& entityNode = registry.emplace<Nz::NodeComponent>(textEntity);
+		entityNode.SetPosition(Nz::Vector3f::Up() * 0.5f + Nz::Vector3f::Backward() * 0.66f + Nz::Vector3f::Left() * 0.5f);
+		entityNode.SetRotation(Nz::EulerAnglesf(-45.f, 0.f, 0.f));
+	}
 
 	entt::entity planeEntity = registry.create();
 	Nz::Boxf floorBox;
@@ -264,6 +299,20 @@ int main()
 
 		auto& planeBody = registry.emplace<Nz::RigidBody3DComponent>(planeEntity, &physSytem.GetPhysWorld());
 		planeBody.SetGeom(std::make_shared<Nz::BoxCollider3D>(Nz::Vector3f(planeSize.x, 0.5f, planeSize.y), Nz::Vector3f(0.f, -0.25f, 0.f)));
+
+		Nz::Mesh boxMesh;
+		boxMesh.CreateStatic();
+		boxMesh.BuildSubMesh(Nz::Primitive::Box(Nz::Vector3f(0.5f, 0.5f, 0.5f)), meshPrimitiveParams);
+		boxMesh.SetMaterialCount(1);
+
+		std::shared_ptr<Nz::GraphicalMesh> boxMeshGfx = Nz::GraphicalMesh::BuildFromMesh(boxMesh);
+
+		std::shared_ptr<Nz::Model> boxModel = std::make_shared<Nz::Model>(std::move(boxMeshGfx), boxMesh.GetAABB());
+		boxModel->SetMaterial(0, planeMat);
+
+		entt::entity boxEntity = registry.create();
+		registry.emplace<Nz::NodeComponent>(boxEntity).SetPosition(Nz::Vector3f(0.f, 0.25f, -0.5f));
+		registry.emplace<Nz::GraphicsComponent>(boxEntity).AttachRenderable(boxModel, 0xFFFFFFFF);
 	}
 
 	window.EnableEventPolling(true);
@@ -308,7 +357,9 @@ int main()
 					// Idem, mais pour éviter les problèmes de calcul de la matrice de vue, on restreint les angles
 					camAngles.pitch = Nz::Clamp(camAngles.pitch - event.mouseMove.deltaY * sensitivity, -89.f, 89.f);
 
-					auto& playerRotNode = registry.get<Nz::NodeComponent>(playerRotation);
+					/*auto& playerRotNode = registry.get<Nz::NodeComponent>(playerRotation);
+					playerRotNode.SetRotation(camAngles);*/
+					auto& playerRotNode = registry.get<Nz::NodeComponent>(playerCamera);
 					playerRotNode.SetRotation(camAngles);
 					break;
 				}
@@ -322,7 +373,7 @@ int main()
 		{
 			float updateTime = updateClock.Restart() / 1'000'000.f;
 
-			auto& playerBody = registry.get<Nz::RigidBody3DComponent>(playerEntity);
+			/*auto& playerBody = registry.get<Nz::RigidBody3DComponent>(playerEntity);
 
 			float mass = playerBody.GetMass();
 
@@ -339,7 +390,25 @@ int main()
 				playerBody.AddForce(Nz::Vector3f::Left() * 25.f * mass, Nz::CoordSys::Local);
 
 			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Right) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::D))
-				playerBody.AddForce(Nz::Vector3f::Right() * 25.f * mass, Nz::CoordSys::Local);
+				playerBody.AddForce(Nz::Vector3f::Right() * 25.f * mass, Nz::CoordSys::Local);*/
+
+			float cameraSpeed = 2.f;
+
+			auto& cameraNode = registry.get<Nz::NodeComponent>(playerCamera);
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Space))
+				cameraNode.Move(Nz::Vector3f::Up() * cameraSpeed * updateTime, Nz::CoordSys::Global);
+
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Up) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Z))
+				cameraNode.Move(Nz::Vector3f::Forward() * cameraSpeed * updateTime, Nz::CoordSys::Local);
+
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Down) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::S))
+				cameraNode.Move(Nz::Vector3f::Backward() * cameraSpeed * updateTime, Nz::CoordSys::Local);
+
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Left) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Q))
+				cameraNode.Move(Nz::Vector3f::Left() * cameraSpeed * updateTime, Nz::CoordSys::Local);
+
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Right) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::D))
+				cameraNode.Move(Nz::Vector3f::Right() * cameraSpeed * updateTime, Nz::CoordSys::Local);
 
 			if (!paused)
 			{

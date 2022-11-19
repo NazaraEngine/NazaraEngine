@@ -23,7 +23,18 @@ namespace Nz
 		{
 			using DescriptorType = std::decay_t<decltype(descriptor)>;
 
-			auto bindingIt = std::find_if(layoutInfo.bindings.begin(), layoutInfo.bindings.end(), [&](const auto& binding) { return binding.setIndex == setIndex && binding.bindingIndex == bindingIndex; });
+			auto bindingIt = std::find_if(layoutInfo.bindings.begin(), layoutInfo.bindings.end(), [&](const auto& binding)
+			{
+				if (binding.setIndex != setIndex)
+					return false;
+
+				assert(binding.arraySize > 0);
+				if (bindingIndex < binding.bindingIndex || bindingIndex >= binding.bindingIndex + binding.arraySize)
+					return false;
+
+				return true;
+			});
+
 			if (bindingIt == layoutInfo.bindings.end())
 				throw std::runtime_error("invalid binding index");
 
@@ -88,26 +99,11 @@ namespace Nz
 						storageDescriptor.buffer = 0;
 				}
 				else if constexpr (std::is_same_v<T, TextureBinding>)
+					HandleTextureBinding(binding.bindingIndex, arg);
+				else if constexpr (std::is_same_v<T, TextureBindings>)
 				{
-					auto& textureDescriptor = m_owner.GetTextureDescriptor(m_poolIndex, m_bindingIndex, binding.bindingIndex);
-
-					if (const OpenGLTexture* glTexture = static_cast<const OpenGLTexture*>(arg.texture))
-					{
-						textureDescriptor.texture = glTexture->GetTexture().GetObjectId();
-
-						if (const OpenGLTextureSampler* glSampler = static_cast<const OpenGLTextureSampler*>(arg.sampler))
-							textureDescriptor.sampler = glSampler->GetSampler(glTexture->GetLevelCount() > 1).GetObjectId();
-						else
-							textureDescriptor.sampler = 0;
-
-						textureDescriptor.textureTarget = OpenGLTexture::ToTextureTarget(glTexture->GetType());
-					}
-					else
-					{
-						textureDescriptor.sampler = 0;
-						textureDescriptor.texture = 0;
-						textureDescriptor.textureTarget = GL::TextureTarget::Target2D;
-					}
+					for (UInt32 i = 0; i < arg.arraySize; ++i)
+						HandleTextureBinding(binding.bindingIndex + i, arg.textureBindings[i]);
 				}
 				else if constexpr (std::is_same_v<T, UniformBufferBinding>)
 				{
@@ -135,6 +131,29 @@ namespace Nz
 	void OpenGLShaderBinding::UpdateDebugName(std::string_view name)
 	{
 		// No OpenGL object to name
+	}
+
+	void OpenGLShaderBinding::HandleTextureBinding(UInt32 bindingIndex, const TextureBinding& textureBinding)
+	{
+		auto& textureDescriptor = m_owner.GetTextureDescriptor(m_poolIndex, m_bindingIndex, bindingIndex);
+
+		if (const OpenGLTexture* glTexture = static_cast<const OpenGLTexture*>(textureBinding.texture))
+		{
+			textureDescriptor.texture = glTexture->GetTexture().GetObjectId();
+
+			if (const OpenGLTextureSampler* glSampler = static_cast<const OpenGLTextureSampler*>(textureBinding.sampler))
+				textureDescriptor.sampler = glSampler->GetSampler(glTexture->GetLevelCount() > 1).GetObjectId();
+			else
+				textureDescriptor.sampler = 0;
+
+			textureDescriptor.textureTarget = OpenGLTexture::ToTextureTarget(glTexture->GetType());
+		}
+		else
+		{
+			textureDescriptor.sampler = 0;
+			textureDescriptor.texture = 0;
+			textureDescriptor.textureTarget = GL::TextureTarget::Target2D;
+		}
 	}
 
 	void OpenGLShaderBinding::Release()

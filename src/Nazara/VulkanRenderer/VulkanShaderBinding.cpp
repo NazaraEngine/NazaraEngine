@@ -15,8 +15,34 @@ namespace Nz
 {
 	void VulkanShaderBinding::Update(const Binding* bindings, std::size_t bindingCount)
 	{
-		StackVector<VkDescriptorBufferInfo> bufferBinding = NazaraStackVector(VkDescriptorBufferInfo, bindingCount);
-		StackVector<VkDescriptorImageInfo> imageBinding = NazaraStackVector(VkDescriptorImageInfo, bindingCount);
+		std::size_t bufferBindingCount = 0;
+		std::size_t imageBindingCount = 0;
+		for (std::size_t i = 0; i < bindingCount; ++i)
+		{
+			const Binding& binding = bindings[i];
+
+			std::visit([&](auto&& arg)
+			{
+				using T = std::decay_t<decltype(arg)>;
+
+				if constexpr (std::is_same_v<T, StorageBufferBinding> || std::is_same_v<T, UniformBufferBinding>)
+					bufferBindingCount++;
+				else if constexpr (std::is_same_v<T, TextureBinding>)
+					imageBindingCount++;
+				else if constexpr (std::is_same_v<T, TextureBindings>)
+					imageBindingCount += arg.arraySize;
+				else
+					static_assert(AlwaysFalse<T>(), "non-exhaustive visitor");
+
+			}, binding.content);
+		}
+
+		NazaraAssert(bufferBindingCount < 128, "too many concurrent buffer update");
+		NazaraAssert(imageBindingCount < 128, "too many concurrent image binding update");
+		NazaraAssert(bindingCount < 128, "too many binding update");
+
+		StackVector<VkDescriptorBufferInfo> bufferBinding = NazaraStackVector(VkDescriptorBufferInfo, bufferBindingCount);
+		StackVector<VkDescriptorImageInfo> imageBinding = NazaraStackVector(VkDescriptorImageInfo, imageBindingCount);
 		StackVector<VkWriteDescriptorSet> writeOps = NazaraStackVector(VkWriteDescriptorSet, bindingCount);
 
 		for (std::size_t i = 0; i < bindingCount; ++i)
@@ -34,7 +60,7 @@ namespace Nz
 
 				if constexpr (std::is_same_v<T, StorageBufferBinding>)
 				{
-					VulkanBuffer* vkBuffer = static_cast<VulkanBuffer*>(arg.buffer);
+					VulkanBuffer* vkBuffer = SafeCast<VulkanBuffer*>(arg.buffer);
 
 					VkDescriptorBufferInfo& bufferInfo = bufferBinding.emplace_back();
 					bufferInfo.buffer = (vkBuffer) ? vkBuffer->GetBuffer() : VK_NULL_HANDLE;
@@ -47,8 +73,8 @@ namespace Nz
 				}
 				else if constexpr (std::is_same_v<T, TextureBinding>)
 				{
-					const VulkanTexture* vkTexture = static_cast<const VulkanTexture*>(arg.texture);
-					const VulkanTextureSampler* vkSampler = static_cast<const VulkanTextureSampler*>(arg.sampler);
+					const VulkanTexture* vkTexture = SafeCast<const VulkanTexture*>(arg.texture);
+					const VulkanTextureSampler* vkSampler = SafeCast<const VulkanTextureSampler*>(arg.sampler);
 
 					VkDescriptorImageInfo& imageInfo = imageBinding.emplace_back();
 					imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
@@ -58,6 +84,23 @@ namespace Nz
 					writeOp.descriptorCount = 1;
 					writeOp.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 					writeOp.pImageInfo = &imageInfo;
+				}
+				else if constexpr (std::is_same_v<T, TextureBindings>)
+				{
+					for (UInt32 i = 0; i < arg.arraySize; ++i)
+					{
+						const VulkanTexture* vkTexture = SafeCast<const VulkanTexture*>(arg.textureBindings[i].texture);
+						const VulkanTextureSampler* vkSampler = SafeCast<const VulkanTextureSampler*>(arg.textureBindings[i].sampler);
+
+						VkDescriptorImageInfo& imageInfo = imageBinding.emplace_back();
+						imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+						imageInfo.imageView = (vkTexture) ? vkTexture->GetImageView() : VK_NULL_HANDLE;
+						imageInfo.sampler = (vkSampler) ? vkSampler->GetSampler() : VK_NULL_HANDLE;
+					}
+
+					writeOp.descriptorCount = arg.arraySize;
+					writeOp.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+					writeOp.pImageInfo = &imageBinding[imageBinding.size() - arg.arraySize];
 				}
 				else if constexpr (std::is_same_v<T, UniformBufferBinding>)
 				{

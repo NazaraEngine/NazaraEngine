@@ -11,8 +11,10 @@
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
+#include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/RenderElementPool.hpp>
 #include <Nazara/Renderer/RenderBufferView.hpp>
+#include <array>
 #include <memory>
 #include <optional>
 #include <vector>
@@ -43,6 +45,14 @@ namespace Nz
 
 			struct RenderStates
 			{
+				RenderStates()
+				{
+					shadowMaps2D.fill(nullptr);
+					shadowMapsCube.fill(nullptr);
+				}
+
+				std::array<const Texture*, PredefinedLightData::MaxLightCount> shadowMaps2D;
+				std::array<const Texture*, PredefinedLightData::MaxLightCount> shadowMapsCube;
 				RenderBufferView lightData;
 			};
 	};

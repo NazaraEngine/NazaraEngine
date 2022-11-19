@@ -159,7 +159,7 @@ int main()
 	skyboxPipelineInfo.depthBuffer = true;
 	skyboxPipelineInfo.depthCompare = Nz::RendererComparison::Equal;
 	skyboxPipelineInfo.faceCulling = true;
-	skyboxPipelineInfo.cullingSide = Nz::FaceSide::Front;
+	skyboxPipelineInfo.faceCulling = Nz::FaceCulling::Front;
 	skyboxPipelineInfo.pipelineLayout = skyboxPipelineLayout;
 	skyboxPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, shaderDir / "skybox.nzsl", states));
 	skyboxPipelineInfo.vertexBuffers.push_back({
@@ -558,7 +558,7 @@ int main()
 	});
 	lightingPipelineInfo.depthBuffer = false;
 	lightingPipelineInfo.faceCulling = true;
-	lightingPipelineInfo.cullingSide = Nz::FaceSide::Front;
+	lightingPipelineInfo.faceCulling = Nz::FaceCulling::Front;
 	lightingPipelineInfo.stencilTest = true;
 	lightingPipelineInfo.stencilBack.compare = Nz::RendererComparison::NotEqual;
 	lightingPipelineInfo.stencilBack.fail = Nz::StencilOperation::Zero;

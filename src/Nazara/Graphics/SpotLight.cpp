@@ -30,6 +30,7 @@ namespace Nz
 		AccessByOffset<Vector4f&>(data, lightOffset.lightMemberOffsets.parameter2) = Vector4f(m_direction.x, m_direction.y, m_direction.z, 0.f);
 		AccessByOffset<Vector4f&>(data, lightOffset.lightMemberOffsets.parameter3) = Vector4f(m_innerAngleCos, m_outerAngleCos, 0.f, 0.f);
 		AccessByOffset<UInt8&>(data, lightOffset.lightMemberOffsets.shadowMappingFlag) = 0;
+		AccessByOffset<Matrix4f&>(data, lightOffset.lightMemberOffsets.viewProjMatrix) = m_viewProjMatrix;
 	}
 
 	void SpotLight::UpdateTransform(const Vector3f& position, const Quaternionf& rotation, const Vector3f& /*scale*/)

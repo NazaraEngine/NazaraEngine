@@ -1,0 +1,13 @@
+[0mchecking for platform ... [38;5;2;1mlinux[0m
+[0mchecking for architecture ... [38;5;2;1mx86_64[0m
+[0mchecking for gcc ... [38;5;2;1m/usr/bin/gcc[0m
+[0m[38;5;3;1mcheckinfo: [0;2mcannot runv(dmd --version), No such file or directory[0m
+[0mchecking for dmd ... [38;5;1;1mno[0m
+[0m[38;5;3;1mcheckinfo: [0;2mcannot runv(ldc2 --version), No such file or directory[0m
+[0mchecking for ldc2 ... [38;5;1;1mno[0m
+[0m[38;5;3;1mcheckinfo: [0;2mcannot runv(gdc --version), No such file or directory[0m
+[0mchecking for gdc ... [38;5;1;1mno[0m
+[0m[38;5;3;1mcheckinfo: [0;2mcannot runv(zig version), No such file or directory[0m
+[0mchecking for zig ... [38;5;1;1mno[0m
+[0m[38;5;3;1mcheckinfo: [0;2mcannot runv(zig version), No such file or directory[0m
+[0mchecking for zig ... [38;5;1;1mno[0m

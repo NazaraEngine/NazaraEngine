@@ -47,6 +47,7 @@ const HasTangent = (VertexTangentLoc >= 0);
 const HasUV = (VertexUvLoc >= 0);
 const HasNormalMapping = HasNormalTexture && HasNormal && HasTangent && !DepthPass;
 const HasSkinning = (VertexJointIndicesLoc >= 0 && VertexJointWeightsLoc >= 0);
+const HasLighting = HasNormal && !DepthPass;
 
 [layout(std140)]
 struct MaterialSettings
@@ -96,8 +97,8 @@ external
 	[tag("ViewerData")] viewerData: uniform[ViewerData],
 	[tag("SkeletalData")] skeletalData: uniform[SkeletalData],
 	[tag("LightData")] lightData: uniform[LightData],
-	[tag("ShadowMaps2D")] shadowMaps2D: array[sampler2D[f32], MaxLightCount],
-	[tag("ShadowMapsCube")] shadowMapsCube: array[samplerCube[f32], MaxLightCount]
+	[tag("ShadowMaps2D")] shadowMaps2D: array[depth_sampler2D[f32], MaxLightCount],
+	[tag("ShadowMapsCube")] shadowMapsCube: array[depth_sampler_cube[f32], MaxLightCount]
 }
 
 struct VertToFrag
@@ -107,6 +108,7 @@ struct VertToFrag
 	[location(2), cond(HasColor)] color: vec4[f32],
 	[location(3), cond(HasNormal)] normal: vec3[f32],
 	[location(4), cond(HasNormalMapping)] tangent: vec3[f32],
+	[location(5), cond(HasLighting)] lightProjPos: array[vec4[f32], MaxLightCount],
 	[builtin(position)] position: vec4[f32],
 }
 
@@ -139,7 +141,7 @@ fn main(input: VertToFrag) -> FragOut
 			discard;
 	}
 
-	const if (HasNormal && !DepthPass)
+	const if (HasLighting)
 	{
 		let lightAmbient = vec3[f32](0.0, 0.0, 0.0);
 		let lightDiffuse = vec3[f32](0.0, 0.0, 0.0);
@@ -225,17 +227,41 @@ fn main(input: VertToFrag) -> FragOut
 				let attenuationFactor = max(1.0 - dist * lightInvRadius, 0.0);
 				attenuationFactor *= max((curAngle - lightOuterAngle) / innerMinusOuterAngle, 0.0);			
 
-				lightAmbient += attenuationFactor * light.color.rgb * lightAmbientFactor * settings.AmbientColor.rgb;
-
 				let lambert = max(dot(normal, -lightToPosNorm), 0.0);
-
-				lightDiffuse += attenuationFactor * lambert * light.color.rgb * lightDiffuseFactor;
 
 				let reflection = reflect(lightToPosNorm, normal);
 				let specFactor = max(dot(reflection, eyeVec), 0.0);
 				specFactor = pow(specFactor, settings.Shininess);
 
-				lightSpecular += attenuationFactor * specFactor * light.color.rgb;
+				let shadowFactor = 0.0;
+				if (true) //< TODO: HasShadowMapping
+				{
+					let shadowTexSize = 1.0 / 512.0; //< FIXME
+
+					let offsetArray = array[vec2[f32], 9](
+						vec2[f32](-1.0, -1.0),
+						vec2[f32](-1.0, 0.0),
+						vec2[f32](-1.0, 1.0),
+						vec2[f32](0.0, -1.0),
+						vec2[f32](0.0, 0.0),
+						vec2[f32](0.0, 1.0),
+						vec2[f32](1.0, -1.0),
+						vec2[f32](1.0, 0.0),
+						vec2[f32](1.0, 1.0)
+					);
+
+					for offset in offsetArray
+					{
+						let shadowCoords = input.lightProjPos[i].xyz / input.lightProjPos[i].w;
+						shadowCoords.xy += offset * shadowTexSize;
+						shadowFactor += shadowMaps2D[i].SampleDepthComp(shadowCoords.xy, shadowCoords.z).r;
+					}
+					shadowFactor /= 9.0;
+				}
+
+				lightAmbient += attenuationFactor * light.color.rgb * lightAmbientFactor * settings.AmbientColor.rgb;
+				lightDiffuse += shadowFactor * attenuationFactor * lambert * light.color.rgb * lightDiffuseFactor;
+				lightSpecular += shadowFactor * attenuationFactor * specFactor * light.color.rgb;
 			}
 		}
 
@@ -381,6 +407,12 @@ fn main(input: VertIn) -> VertToFrag
 
 	const if (HasNormalMapping)
 		output.tangent = rotationMatrix * input.tangent;
+
+	const if (HasLighting)
+	{
+		for i in u32(0) -> lightData.lightCount
+			output.lightProjPos[i] = lightData.lights[i].viewProjMatrix * worldPosition;
+	}
 
 	return output;
 }

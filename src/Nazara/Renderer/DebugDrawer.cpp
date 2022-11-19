@@ -39,7 +39,7 @@ namespace Nz
 		RenderPipelineLayoutInfo layoutInfo;
 		layoutInfo.bindings.assign({
 			{
-				0, 0,
+				1, 0, 0,
 				ShaderBindingType::UniformBuffer,
 				nzsl::ShaderStageType::Vertex
 			}

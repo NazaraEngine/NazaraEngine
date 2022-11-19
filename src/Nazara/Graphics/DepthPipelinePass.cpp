@@ -8,7 +8,6 @@
 #include <Nazara/Graphics/ElementRendererRegistry.hpp>
 #include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Graphics/FramePipeline.hpp>
-#include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Renderer/RenderFrame.hpp>
@@ -16,15 +15,16 @@
 
 namespace Nz
 {
-	DepthPipelinePass::DepthPipelinePass(FramePipeline& owner, ElementRendererRegistry& elementRegistry, AbstractViewer* viewer) :
+	DepthPipelinePass::DepthPipelinePass(FramePipeline& owner, ElementRendererRegistry& elementRegistry, AbstractViewer* viewer, std::size_t passIndex, std::string passName) :
+	m_passIndex(passIndex),
 	m_lastVisibilityHash(0),
+	m_passName(std::move(passName)),
 	m_viewer(viewer),
 	m_elementRegistry(elementRegistry),
 	m_pipeline(owner),
 	m_rebuildCommandBuffer(false),
 	m_rebuildElements(false)
 	{
-		m_depthPassIndex = Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex("DepthPass");
 	}
 
 	void DepthPipelinePass::Prepare(RenderFrame& renderFrame, const Frustumf& frustum, const std::vector<FramePipelinePass::VisibleRenderable>& visibleRenderables, std::size_t visibilityHash)
@@ -42,7 +42,7 @@ namespace Nz
 					renderableData.worldInstance
 				};
 
-				renderableData.instancedRenderable->BuildElement(m_elementRegistry, elementData, m_depthPassIndex, m_renderElements);
+				renderableData.instancedRenderable->BuildElement(m_elementRegistry, elementData, m_passIndex, m_renderElements);
 			}
 
 			m_renderQueueRegistry.Clear();
@@ -105,7 +105,7 @@ namespace Nz
 
 	void DepthPipelinePass::RegisterMaterialInstance(const MaterialInstance& materialInstance)
 	{
-		if (!materialInstance.HasPass(m_depthPassIndex))
+		if (!materialInstance.HasPass(m_passIndex))
 			return;
 
 		auto it = m_materialInstances.find(&materialInstance);
@@ -114,7 +114,7 @@ namespace Nz
 			auto& matPassEntry = m_materialInstances[&materialInstance];
 			matPassEntry.onMaterialInstancePipelineInvalidated.Connect(materialInstance.OnMaterialInstancePipelineInvalidated, [=](const MaterialInstance*, std::size_t passIndex)
 			{
-				if (passIndex != m_depthPassIndex)
+				if (passIndex != m_passIndex)
 					return;
 
 				m_rebuildElements = true;
@@ -131,7 +131,7 @@ namespace Nz
 
 	FramePass& DepthPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, std::size_t depthBufferIndex)
 	{
-		FramePass& depthPrepass = frameGraph.AddPass("Depth pre-pass");
+		FramePass& depthPrepass = frameGraph.AddPass(m_passName);
 		depthPrepass.SetDepthStencilOutput(depthBufferIndex);
 		depthPrepass.SetDepthStencilClear(1.f, 0);
 

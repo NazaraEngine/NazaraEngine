@@ -196,11 +196,11 @@ int main()
 
 	std::shared_ptr<Nz::RenderPipelineLayout> basePipelineLayout = device->InstantiateRenderPipelineLayout(pipelineLayoutInfo);
 
-	auto& textureBinding = pipelineLayoutInfo.bindings.emplace_back();
-	textureBinding.setIndex = 1;
-	textureBinding.bindingIndex = 0;
-	textureBinding.shaderStageFlags = nzsl::ShaderStageType::Fragment;
-	textureBinding.type = Nz::ShaderBindingType::Texture;
+	auto& pipelineTextureBinding = pipelineLayoutInfo.bindings.emplace_back();
+	pipelineTextureBinding.setIndex = 1;
+	pipelineTextureBinding.bindingIndex = 0;
+	pipelineTextureBinding.shaderStageFlags = nzsl::ShaderStageType::Fragment;
+	pipelineTextureBinding.type = Nz::ShaderBindingType::Texture;
 
 	std::shared_ptr<Nz::RenderPipelineLayout> renderPipelineLayout = device->InstantiateRenderPipelineLayout(std::move(pipelineLayoutInfo));
 
@@ -218,11 +218,15 @@ int main()
 		}
 	});
 
+	Nz::ShaderBinding::TextureBinding textureBinding {
+		texture.get(), textureSampler.get()
+	};
+
 	textureShaderBinding->Update({
 		{
 			0,
-			Nz::ShaderBinding::TextureBinding {
-				texture.get(), textureSampler.get()
+			Nz::ShaderBinding::TextureBindings {
+				1, &textureBinding
 			}
 		}
 	});

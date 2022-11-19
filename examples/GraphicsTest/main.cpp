@@ -21,7 +21,7 @@ int main()
 	if (std::getchar() == 'y')
 		rendererConfig.preferredAPI = Nz::RenderAPI::Vulkan;
 	else
-		rendererConfig.preferredAPI = Nz::RenderAPI::Vulkan;
+		rendererConfig.preferredAPI = Nz::RenderAPI::OpenGL;
 
 	Nz::Modules<Nz::Graphics> nazara(rendererConfig);
 

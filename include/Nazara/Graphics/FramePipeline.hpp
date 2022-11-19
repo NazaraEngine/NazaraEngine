@@ -39,6 +39,9 @@ namespace Nz
 			virtual std::size_t RegisterViewer(AbstractViewer* viewerInstance, Int32 renderOrder) = 0;
 			virtual std::size_t RegisterWorldInstance(WorldInstancePtr worldInstance) = 0;
 
+			virtual const Light* RetrieveLight(std::size_t lightIndex) const = 0;
+			virtual const Texture* RetrieveLightShadowmap(std::size_t lightIndex) const = 0;
+
 			virtual void Render(RenderFrame& renderFrame) = 0;
 
 			virtual void UnregisterLight(std::size_t lightIndex) = 0;

@@ -52,7 +52,7 @@ SOFTWARE.
 #include <unordered_set>
 #include <vector>
 
-constexpr unsigned int AssimpFlags = aiProcess_CalcTangentSpace      | aiProcess_FixInfacingNormals | aiProcess_FlipWindingOrder
+constexpr unsigned int AssimpFlags = aiProcess_CalcTangentSpace      | aiProcess_FixInfacingNormals
                                    | aiProcess_FlipUVs               | aiProcess_GenSmoothNormals   | aiProcess_GenUVCoords
                                    | aiProcess_JoinIdenticalVertices | aiProcess_RemoveComponent    | aiProcess_SortByPType
                                    | aiProcess_TransformUVCoords     | aiProcess_Triangulate;

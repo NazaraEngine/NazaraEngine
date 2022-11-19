@@ -31,7 +31,7 @@ namespace Nz
 		m_lightUboPool = std::make_shared<LightUboPool>();
 	}
 
-	void ForwardPipelinePass::Prepare(RenderFrame& renderFrame, const Frustumf& frustum, const std::vector<FramePipelinePass::VisibleRenderable>& visibleRenderables, const std::vector<const Light*>& visibleLights, std::size_t visibilityHash)
+	void ForwardPipelinePass::Prepare(RenderFrame& renderFrame, const Frustumf& frustum, const std::vector<FramePipelinePass::VisibleRenderable>& visibleRenderables, const std::vector<std::size_t>& visibleLights, std::size_t visibilityHash)
 	{
 		if (m_lastVisibilityHash != visibilityHash || m_rebuildElements) //< FIXME
 		{
@@ -65,17 +65,22 @@ namespace Nz
 
 				// Select lights
 				m_renderableLights.clear();
-				for (const Light* light : visibleLights)
+				for (std::size_t lightIndex : visibleLights)
 				{
+					const Light* light = m_pipeline.RetrieveLight(lightIndex);
+
 					const BoundingVolumef& boundingVolume = light->GetBoundingVolume();
 					if (boundingVolume.Intersect(renderableBoundingVolume.aabb))
-						m_renderableLights.push_back(light);
+					{
+						float contributionScore = light->ComputeContributionScore(renderableBoundingVolume);
+						m_renderableLights.push_back({ light, lightIndex, contributionScore });
+					}
 				}
 
 				// Sort lights
-				std::sort(m_renderableLights.begin(), m_renderableLights.end(), [&](const Light* lhs, const Light* rhs)
+				std::sort(m_renderableLights.begin(), m_renderableLights.end(), [&](const RenderableLight& lhs, const RenderableLight& rhs)
 				{
-					return lhs->ComputeContributionScore(renderableBoundingVolume) < rhs->ComputeContributionScore(renderableBoundingVolume);
+					return lhs.contributionScore < rhs.contributionScore;
 				});
 
 				std::size_t lightCount = std::min(m_renderableLights.size(), MaxLightCountPerDraw);
@@ -83,7 +88,7 @@ namespace Nz
 				LightKey lightKey;
 				lightKey.fill(nullptr);
 				for (std::size_t i = 0; i < lightCount; ++i)
-					lightKey[i] = m_renderableLights[i];
+					lightKey[i] = m_renderableLights[i].light;
 
 				RenderBufferView lightUboView;
 
@@ -130,7 +135,7 @@ namespace Nz
 					UInt8* lightPtr = static_cast<UInt8*>(lightDataPtr) + lightOffsets.lightsOffset;
 					for (std::size_t i = 0; i < lightCount; ++i)
 					{
-						m_renderableLights[i]->FillLightData(lightPtr);
+						m_renderableLights[i].light->FillLightData(lightPtr);
 						lightPtr += lightOffsets.lightSize;
 					}
 
@@ -155,7 +160,15 @@ namespace Nz
 				for (std::size_t i = previousCount; i < m_renderElements.size(); ++i)
 				{
 					const RenderElement* element = m_renderElements[i].GetElement();
-					m_lightPerRenderElement.emplace(element, lightUboView);
+
+					LightPerElementData perElementData;
+					perElementData.lightCount = lightCount;
+					perElementData.lightUniformBuffer = lightUboView;
+
+					for (std::size_t i = 0; i < lightCount; ++i)
+						perElementData.shadowMaps[i] = m_pipeline.RetrieveLightShadowmap(m_renderableLights[i].lightIndex);
+
+					m_lightPerRenderElement.emplace(element, perElementData);
 				}
 			}
 
@@ -222,8 +235,25 @@ namespace Nz
 					auto it = lightPerRenderElement.find(elements[i]);
 					assert(it != lightPerRenderElement.end());
 
+					const LightPerElementData& lightData = it->second;
+
 					auto& renderStates = m_renderStates.emplace_back();
-					renderStates.lightData = it->second;
+					renderStates.lightData = lightData.lightUniformBuffer;
+
+					for (std::size_t i = 0; i < lightData.lightCount; ++i)
+					{
+						const Texture* texture = lightData.shadowMaps[i];
+						if (!texture)
+							continue;
+
+						if (texture->GetType() == ImageType::E2D)
+							renderStates.shadowMaps2D[i] = texture;
+						else
+						{
+							assert(texture->GetType() == ImageType::Cubemap);
+							renderStates.shadowMapsCube[i] = texture;
+						}
+					}
 				}
 
 				elementRenderer.Prepare(viewerInstance, *m_elementRendererData[elementType], renderFrame, elementCount, elements, m_renderStates.data());
