@@ -43,7 +43,7 @@ namespace Nz
 			callback(std::string_view("."), ourselves);
 			if (VirtualDirectoryPtr parent = m_parent.lock())
 			{
-				Entry parentEntry = VirtualDirectoryEntry{ parent };
+				Entry parentEntry = VirtualDirectoryEntry{ { parent } };
 				if (!CallbackReturn(callback, std::string_view(".."), parentEntry))
 					return;
 			}
@@ -79,7 +79,7 @@ namespace Nz
 				else if (std::filesystem::is_directory(status))
 				{
 					VirtualDirectoryPtr virtualDir = std::make_shared<VirtualDirectory>(physicalEntry.path(), weak_from_this());
-					entry = PhysicalDirectoryEntry{ std::move(virtualDir), physicalEntry.path() };
+					entry = PhysicalDirectoryEntry{ { std::move(virtualDir) }, physicalEntry.path() };
 				}
 				else
 					continue;
@@ -179,7 +179,7 @@ namespace Nz
 				else if (std::filesystem::is_directory(status))
 				{
 					VirtualDirectoryPtr virtualDir = std::make_shared<VirtualDirectory>(filePath, weak_from_this());
-					entry = PhysicalDirectoryEntry{ std::move(virtualDir), std::move(filePath) };
+					entry = PhysicalDirectoryEntry{ { std::move(virtualDir) }, std::move(filePath) };
 				}
 				else
 					return false; //< either not known or of a special type
@@ -247,7 +247,7 @@ namespace Nz
 		if (entryName == "." || entryName == "..")
 			throw std::runtime_error("invalid entry name");
 
-		return dir->StoreInternal(std::string(entryName), VirtualDirectoryEntry{ std::move(directory) });
+		return dir->StoreInternal(std::string(entryName), VirtualDirectoryEntry{ { std::move(directory) } });
 	}
 
 	inline auto VirtualDirectory::StoreDirectory(std::string_view path, std::filesystem::path directoryPath) -> PhysicalDirectoryEntry&
@@ -318,7 +318,7 @@ namespace Nz
 	{
 		if (name == ".")
 		{
-			Entry entry{ VirtualDirectoryEntry{ shared_from_this() } };
+			Entry entry{ VirtualDirectoryEntry{ { shared_from_this() } } };
 			return CallbackReturn(callback, entry);
 		}
 
@@ -332,7 +332,7 @@ namespace Nz
 
 			if (parentEntry)
 			{
-				Entry entry = VirtualDirectoryEntry{ std::move(parentEntry) };
+				Entry entry = VirtualDirectoryEntry{ { std::move(parentEntry) } };
 				return CallbackReturn(callback, entry);
 			}
 		}
@@ -355,7 +355,7 @@ namespace Nz
 				else if (std::filesystem::is_directory(status))
 				{
 					VirtualDirectoryPtr virtualDir = std::make_shared<VirtualDirectory>(filePath, weak_from_this());
-					entry = PhysicalDirectoryEntry{ std::move(virtualDir), std::move(filePath) };
+					entry = PhysicalDirectoryEntry{ { std::move(virtualDir) }, std::move(filePath) };
 				}
 				else
 					return false; //< either not known or of a special type

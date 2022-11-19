@@ -22,13 +22,13 @@ namespace Nz
 		public:
 			ButtonWidget(BaseWidget* parent);
 			ButtonWidget(const ButtonWidget&) = delete;
-			ButtonWidget(ButtonWidget&&) = default;
+			ButtonWidget(ButtonWidget&&) = delete;
 			~ButtonWidget() = default;
 
 			void UpdateText(const AbstractTextDrawer& drawer);
 
 			ButtonWidget& operator=(const ButtonWidget&) = delete;
-			ButtonWidget& operator=(ButtonWidget&&) = default;
+			ButtonWidget& operator=(ButtonWidget&&) = delete;
 
 			NazaraSignal(OnButtonTrigger, const ButtonWidget* /*button*/);
 
