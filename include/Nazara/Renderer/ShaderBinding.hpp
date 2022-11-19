@@ -56,6 +56,12 @@ namespace Nz
 				const TextureSampler* sampler;
 			};
 
+			struct TextureBindings
+			{
+				UInt32 arraySize;
+				const TextureBinding* textureBindings;
+			};
+
 			struct UniformBufferBinding
 			{
 				RenderBuffer* buffer;
@@ -66,7 +72,7 @@ namespace Nz
 			struct Binding
 			{
 				UInt32 bindingIndex;
-				std::variant<StorageBufferBinding, TextureBinding, UniformBufferBinding> content;
+				std::variant<StorageBufferBinding, TextureBinding, TextureBindings, UniformBufferBinding> content;
 			};
 
 		protected:

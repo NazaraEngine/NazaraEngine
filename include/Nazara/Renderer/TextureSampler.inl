@@ -32,6 +32,12 @@ namespace Nz
 		if (wrapModeW != samplerInfo.wrapModeW)
 			return false;
 
+		if (depthCompare != samplerInfo.depthCompare)
+			return false;
+
+		if (depthComparison != samplerInfo.depthComparison)
+			return false;
+
 		return true;
 	}
 
@@ -54,6 +60,8 @@ struct std::hash<Nz::TextureSamplerInfo>
 		Nz::HashCombine(seed, sampler.wrapModeU);
 		Nz::HashCombine(seed, sampler.wrapModeV);
 		Nz::HashCombine(seed, sampler.wrapModeW);
+		Nz::HashCombine(seed, sampler.depthCompare);
+		Nz::HashCombine(seed, sampler.depthComparison);
 
 		return seed;
 	}

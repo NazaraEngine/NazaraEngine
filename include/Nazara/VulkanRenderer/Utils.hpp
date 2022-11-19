@@ -23,7 +23,7 @@ namespace Nz
 	inline VkAttachmentStoreOp ToVulkan(AttachmentStoreOp storeOp);
 	inline VkBufferUsageFlags ToVulkan(BufferType bufferType);
 	inline VkFormat ToVulkan(ComponentType componentType);
-	inline VkCullModeFlagBits ToVulkan(FaceSide faceSide);
+	inline VkCullModeFlagBits ToVulkan(FaceCulling faceSide);
 	inline VkPolygonMode ToVulkan(FaceFilling faceFilling);
 	inline VkFrontFace ToVulkan(FrontFace frontFace);
 	inline VkIndexType ToVulkan(IndexType indexType);

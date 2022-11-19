@@ -73,16 +73,14 @@ namespace Nz
 			else
 				throw std::runtime_error("unexpected type " + ToString(varType));
 
-			for (UInt32 i = 0; i < arraySize; ++i)
-			{
-				// TODO: Get more precise shader stage type
-				m_pipelineLayoutInfo.bindings.push_back({
-					bindingSet,               // setIndex
-					bindingIndex + i,         // bindingIndex
-					bindingType,              // type
-					nzsl::ShaderStageType_All // shaderStageFlags
-				});
-			}
+			// TODO: Get more precise shader stage type
+			m_pipelineLayoutInfo.bindings.push_back({
+				arraySize,                // arraySize
+				bindingIndex,             // bindingIndex
+				bindingSet,               // setIndex
+				bindingType,              // type
+				nzsl::ShaderStageType_All // shaderStageFlags
+			});
 
 			if (!externalVar.tag.empty() && externalBlock)
 			{

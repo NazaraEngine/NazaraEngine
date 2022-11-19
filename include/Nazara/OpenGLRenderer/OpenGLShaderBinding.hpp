@@ -16,7 +16,7 @@ namespace Nz
 {
 	class OpenGLRenderPipelineLayout;
 
-	class NAZARA_OPENGLRENDERER_API OpenGLShaderBinding : public ShaderBinding
+	class NAZARA_OPENGLRENDERER_API OpenGLShaderBinding final : public ShaderBinding
 	{
 		public:
 			inline OpenGLShaderBinding(OpenGLRenderPipelineLayout& owner, std::size_t poolIndex, std::size_t bindingIndex);
@@ -38,6 +38,7 @@ namespace Nz
 			OpenGLShaderBinding& operator=(OpenGLShaderBinding&&) = delete;
 
 		private:
+			void HandleTextureBinding(UInt32 bindingIndex, const TextureBinding& textureBinding);
 			void Release() override;
 
 			OpenGLRenderPipelineLayout& m_owner;

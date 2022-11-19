@@ -177,11 +177,13 @@ namespace Nz
 
 	std::size_t ForwardFramePipeline::RegisterViewer(AbstractViewer* viewerInstance, Int32 renderOrder)
 	{
+		std::size_t depthPassIndex = Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex("DepthPass");
+
 		std::size_t viewerIndex;
 		auto& viewerData = *m_viewerPool.Allocate(viewerIndex);
 		viewerData.renderOrder = renderOrder;
 		viewerData.debugDrawPass = std::make_unique<DebugDrawPipelinePass>(*this, viewerInstance);
-		viewerData.depthPrepass = std::make_unique<DepthPipelinePass>(*this, m_elementRegistry, viewerInstance);
+		viewerData.depthPrepass = std::make_unique<DepthPipelinePass>(*this, m_elementRegistry, viewerInstance, depthPassIndex, "Depth pre-pass");
 		viewerData.forwardPass = std::make_unique<ForwardPipelinePass>(*this, m_elementRegistry, viewerInstance);
 		viewerData.viewer = viewerInstance;
 		viewerData.onTransferRequired.Connect(viewerInstance->GetViewerInstance().OnTransferRequired, [this](TransferInterface* transferInterface)
@@ -209,6 +211,20 @@ namespace Nz
 		m_transferSet.insert(worldInstanceData.worldInstance.get());
 
 		return worldInstanceIndex;
+	}
+
+	const Light* ForwardFramePipeline::RetrieveLight(std::size_t lightIndex) const
+	{
+		return m_lightPool.RetrieveFromIndex(lightIndex)->light.get();
+	}
+
+	const Texture* ForwardFramePipeline::RetrieveLightShadowmap(std::size_t lightIndex) const
+	{
+		if (!m_shadowCastingLights.UnboundedTest(lightIndex))
+			return nullptr;
+
+		std::size_t shadowmapIndex = m_lightPool.RetrieveFromIndex(lightIndex)->shadowMapAttachmentIndex;
+		return m_bakedFrameGraph.GetAttachmentTexture(shadowmapIndex).get();
 	}
 
 	void ForwardFramePipeline::Render(RenderFrame& renderFrame)
@@ -355,13 +371,17 @@ namespace Nz
 
 			m_visibleLights.clear();
 			for (const LightData& lightData : m_lightPool)
+			for (auto it = m_lightPool.begin(); it != m_lightPool.end(); ++it)
 			{
+				const LightData& lightData = *it;
+				std::size_t lightIndex = it.GetIndex();
+
 				const BoundingVolumef& boundingVolume = lightData.light->GetBoundingVolume();
 
 				// TODO: Use more precise tests for point lights (frustum/sphere is cheap)
 				if (renderMask & lightData.renderMask && frustum.Contains(boundingVolume))
 				{
-					m_visibleLights.push_back(lightData.light.get());
+					m_visibleLights.push_back(lightIndex);
 					visibilityHash = CombineHash(visibilityHash, std::hash<const void*>()(lightData.light.get()));
 				}
 			}
@@ -575,7 +595,7 @@ namespace Nz
 					m_transferSet.insert(transferInterface);
 				});
 
-				lightData->camera->UpdateFOV(spotLight.GetOuterAngle());
+				lightData->camera->UpdateFOV(spotLight.GetOuterAngle() * 2.f);
 				lightData->camera->UpdateZFar(spotLight.GetRadius());
 				lightData->camera->UpdateViewport(Recti(0, 0, SafeCast<int>(shadowMapSize), SafeCast<int>(shadowMapSize)));
 
@@ -584,13 +604,15 @@ namespace Nz
 
 			if (!lightData->pass)
 			{
-				lightData->pass = std::make_unique<DepthPipelinePass>(*this, m_elementRegistry, lightData->camera.get());
+				std::size_t shadowPassIndex = Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex("ShadowPass");
+
+				lightData->pass = std::make_unique<DepthPipelinePass>(*this, m_elementRegistry, lightData->camera.get(), shadowPassIndex, "Spot shadowmap");
 				for (RenderableData& renderable : m_renderablePool)
 				{
 					std::size_t matCount = renderable.renderable->GetMaterialCount();
-					for (std::size_t i = 0; i < matCount; ++i)
+					for (std::size_t j = 0; j < matCount; ++j)
 					{
-						if (MaterialInstance* mat = renderable.renderable->GetMaterial(i).get())
+						if (MaterialInstance* mat = renderable.renderable->GetMaterial(j).get())
 							lightData->pass->RegisterMaterialInstance(*mat);
 					}
 				}

@@ -159,7 +159,10 @@ namespace Nz
 	{
 		VkPipelineRasterizationStateCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
-		createInfo.cullMode = (pipelineInfo.faceCulling) ? ToVulkan(pipelineInfo.cullingSide) : VK_CULL_MODE_NONE;
+		createInfo.cullMode = ToVulkan(pipelineInfo.faceCulling);
+		createInfo.depthBiasEnable = pipelineInfo.depthBias;
+		createInfo.depthBiasConstantFactor = pipelineInfo.depthBiasConstantFactor;
+		createInfo.depthBiasSlopeFactor = pipelineInfo.depthBiasSlopeFactor;
 		createInfo.depthClampEnable = pipelineInfo.depthClamp;
 		createInfo.frontFace = ToVulkan(pipelineInfo.frontFace);
 		createInfo.lineWidth = pipelineInfo.lineWidth;

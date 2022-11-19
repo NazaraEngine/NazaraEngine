@@ -293,15 +293,19 @@ namespace Nz
 		if (!copyCommandBuffer->Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT))
 			return false;
 
+		VkImageAspectFlagBits aspect = VK_IMAGE_ASPECT_COLOR_BIT;
+		if (PixelFormatInfo::GetContent(m_params.pixelFormat) == PixelFormatContent::Depth)
+			aspect = VK_IMAGE_ASPECT_DEPTH_BIT;
+
 		VkImageSubresourceLayers subresourceLayers = { //< FIXME
-			VK_IMAGE_ASPECT_COLOR_BIT,
+			aspect,
 			level, //< mipLevel
 			0, //< baseArrayLayer
 			UInt32((m_params.type == ImageType::Cubemap) ? 6 : 1) //< layerCount
 		};
 
 		VkImageSubresourceRange subresourceRange = { //< FIXME
-			VK_IMAGE_ASPECT_COLOR_BIT,
+			aspect,
 			0, //< baseMipLevel
 			1, //< levelCount
 			subresourceLayers.baseArrayLayer, //< baseArrayLayer

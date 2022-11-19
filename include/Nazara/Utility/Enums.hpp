@@ -147,7 +147,7 @@ namespace Nz
 		Max = Point
 	};
 
-	enum class FaceSide
+	enum class FaceCulling
 	{
 		None,
 

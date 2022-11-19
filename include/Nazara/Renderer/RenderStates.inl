@@ -17,9 +17,9 @@ namespace Nz
 		#define NazaraRenderStateFloatMember(field, maxDiff) if (!NumberEquals(lhs.field, rhs.field, maxDiff)) return false
 
 		NazaraRenderStateBoolMember(blending);
+		NazaraRenderStateBoolMember(depthBias);
 		NazaraRenderStateBoolMember(depthBuffer);
 		NazaraRenderStateBoolMember(depthClamp);
-		NazaraRenderStateBoolMember(faceCulling);
 		NazaraRenderStateBoolMember(scissorTest);
 		NazaraRenderStateBoolMember(stencilTest);
 
@@ -27,6 +27,7 @@ namespace Nz
 			NazaraRenderStateBoolMember(depthWrite);
 
 		NazaraRenderStateMember(colorWriteMask);
+		NazaraRenderStateMember(faceCulling);
 		NazaraRenderStateMember(faceFilling);
 
 		if (lhs.blending) //< Remember, at this time we know lhs.blending == rhs.blending
@@ -42,8 +43,11 @@ namespace Nz
 		if (lhs.depthBuffer)
 			NazaraRenderStateMember(depthCompare);
 
-		if (lhs.faceCulling)
-			NazaraRenderStateMember(cullingSide);
+		if (lhs.depthBias)
+		{
+			NazaraRenderStateMember(depthBiasConstantFactor);
+			NazaraRenderStateMember(depthBiasSlopeFactor);
+		}
 
 		if (lhs.stencilTest)
 		{
@@ -95,15 +99,16 @@ namespace std
 			#define NazaraRenderStateUInt32(member) Nz::HashCombine(seed, pipelineInfo.member)
 
 			NazaraRenderStateBool(blending);
+			NazaraRenderStateBool(depthBias);
 			NazaraRenderStateBool(depthBuffer);
 			NazaraRenderStateBool(depthClamp);
-			NazaraRenderStateBool(faceCulling);
 			NazaraRenderStateBool(scissorTest);
 			NazaraRenderStateBool(stencilTest);
 
 			NazaraRenderStateBoolDep(depthBuffer, depthWrite);
 
 			NazaraRenderStateUInt8(colorWriteMask);
+			NazaraRenderStateEnum(faceCulling);
 			NazaraRenderStateEnum(faceFilling);
 
 			if (pipelineInfo.blending) //< we don't care about blending state if blending isn't enabled
@@ -119,8 +124,11 @@ namespace std
 			if (pipelineInfo.depthBuffer)
 				NazaraRenderStateEnum(depthCompare);
 
-			if (pipelineInfo.faceCulling)
-				NazaraRenderStateEnum(cullingSide);
+			if (pipelineInfo.depthBias)
+			{
+				NazaraRenderStateFloat(depthBiasConstantFactor, 0.001f);
+				NazaraRenderStateFloat(depthBiasSlopeFactor, 0.001f);
+			}
 
 			if (pipelineInfo.stencilTest) //< we don't care about stencil state if stencil isn't enabled
 			{

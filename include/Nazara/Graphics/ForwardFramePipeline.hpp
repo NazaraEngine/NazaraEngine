@@ -50,6 +50,9 @@ namespace Nz
 			std::size_t RegisterViewer(AbstractViewer* viewerInstance, Int32 renderOrder) override;
 			std::size_t RegisterWorldInstance(WorldInstancePtr worldInstance) override;
 
+			const Light* RetrieveLight(std::size_t lightIndex) const override;
+			const Texture* RetrieveLightShadowmap(std::size_t lightIndex) const override;
+
 			void Render(RenderFrame& renderFrame) override;
 
 			void UnregisterLight(std::size_t lightIndex) override;
@@ -147,7 +150,7 @@ namespace Nz
 			std::unordered_map<MaterialInstance*, MaterialInstanceData> m_materialInstances;
 			std::vector<ElementRenderer::RenderStates> m_renderStates;
 			std::vector<FramePipelinePass::VisibleRenderable> m_visibleRenderables;
-			std::vector<const Light*> m_visibleLights;
+			std::vector<std::size_t> m_visibleLights;
 			robin_hood::unordered_set<TransferInterface*> m_transferSet;
 			BakedFrameGraph m_bakedFrameGraph;
 			Bitset<UInt64> m_shadowCastingLights;

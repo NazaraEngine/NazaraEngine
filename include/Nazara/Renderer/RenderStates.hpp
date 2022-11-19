@@ -20,13 +20,13 @@ namespace Nz
 	struct RenderStates
 	{
 		ColorComponentMask colorWriteMask = ColorComponentAll;
+		FaceCulling faceCulling = FaceCulling::Back;
 		FaceFilling faceFilling = FaceFilling::Fill;
-		FaceSide cullingSide = FaceSide::Back;
 		FrontFace frontFace = FrontFace::CounterClockwise;
 		RendererComparison depthCompare = RendererComparison::LessOrEqual;
 		PrimitiveMode primitiveMode = PrimitiveMode::TriangleList;
 
-		struct 
+		struct
 		{
 			BlendEquation modeAlpha = BlendEquation::Add;
 			BlendEquation modeColor = BlendEquation::Add;
@@ -48,13 +48,15 @@ namespace Nz
 		} stencilBack, stencilFront;
 
 		bool blending    = false;
+		bool depthBias   = false;
 		bool depthBuffer = false;
 		bool depthClamp  = false;
 		bool depthWrite  = true;
-		bool faceCulling = false;
 		bool scissorTest = false;
 		bool stencilTest = false;
 
+		float depthBiasConstantFactor = 0.f;
+		float depthBiasSlopeFactor = 0.f;
 		float lineWidth = 1.f;
 		float pointSize = 1.f;
 	};

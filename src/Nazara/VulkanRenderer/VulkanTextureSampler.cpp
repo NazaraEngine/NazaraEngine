@@ -22,6 +22,8 @@ namespace Nz
 		createInfo.addressModeW = ToVulkan(samplerInfo.wrapModeW);
 		createInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
 		createInfo.mipmapMode = ToVulkan(samplerInfo.mipmapMode);
+		createInfo.compareEnable = samplerInfo.depthCompare;
+		createInfo.compareOp = ToVulkan(samplerInfo.depthComparison);
 
 		if (samplerInfo.anisotropyLevel > 1.f)
 		{

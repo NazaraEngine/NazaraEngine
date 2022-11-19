@@ -565,8 +565,13 @@ namespace Nz::GL
 		glGetIntegerv(GL_VIEWPORT, res.data());
 		m_state.viewport = { res[0], res[1], res[2], res[3] };
 
-		m_state.renderStates.depthCompare = RendererComparison::Less; //< OpenGL default depth mode is GL_LESS
-		m_state.renderStates.frontFace = FrontFace::CounterClockwise; //< OpenGL default front face is GL_CCW
+		// Set default OpenGL states
+		m_state.renderStates.depthBuffer = false;
+		m_state.renderStates.depthCompare = RendererComparison::Less;
+		m_state.renderStates.faceCulling = FaceCulling::None;
+		m_state.renderStates.frontFace = FrontFace::CounterClockwise;
+		m_state.renderStates.scissorTest = false;
+		m_state.renderStates.stencilTest = false;
 
 		EnableVerticalSync(false);
 
@@ -671,6 +676,18 @@ namespace Nz::GL
 		if (!SetCurrentContext(this))
 			throw std::runtime_error("failed to activate context");
 
+		// Depth bias
+		if (renderStates.depthBias)
+		{
+			if (!NumberEquals(m_state.renderStates.depthBiasConstantFactor, renderStates.depthBiasConstantFactor) ||
+			    !NumberEquals(m_state.renderStates.depthBiasSlopeFactor, renderStates.depthBiasSlopeFactor))
+			{
+				glPolygonOffset(renderStates.depthBiasConstantFactor, renderStates.depthBiasSlopeFactor);
+				m_state.renderStates.depthBiasConstantFactor = renderStates.depthBiasConstantFactor;
+				m_state.renderStates.depthBiasSlopeFactor = renderStates.depthBiasSlopeFactor;
+			}
+		}
+
 		// Depth compare and depth write
 		if (renderStates.depthBuffer)
 		{
@@ -687,14 +704,23 @@ namespace Nz::GL
 			}
 		}
 
-		// Face culling side
-		if (renderStates.faceCulling)
+		// Face culling
+		if (m_state.renderStates.faceCulling != renderStates.faceCulling)
 		{
-			if (m_state.renderStates.cullingSide != renderStates.cullingSide)
+			bool wasEnabled = (m_state.renderStates.faceCulling != FaceCulling::None);
+			bool isEnabled = (renderStates.faceCulling != FaceCulling::None);
+
+			if (isEnabled)
 			{
-				glCullFace(ToOpenGL(renderStates.cullingSide));
-				m_state.renderStates.cullingSide = renderStates.cullingSide;
+				if (!wasEnabled)
+					glEnable(GL_CULL_FACE);
+
+				glCullFace(ToOpenGL(renderStates.faceCulling));
 			}
+			else if (wasEnabled)
+				glDisable(GL_CULL_FACE);
+
+			m_state.renderStates.faceCulling = renderStates.faceCulling;
 		}
 
 		// Front face
@@ -811,6 +837,18 @@ namespace Nz::GL
 			m_state.renderStates.colorWriteMask = renderStates.colorWriteMask;
 		}
 
+		// Depth bias
+		if (m_state.renderStates.depthBias != renderStates.depthBias)
+		{
+			// TODO: Handle line and points
+			if (renderStates.depthBias)
+				glEnable(GL_POLYGON_OFFSET_FILL);
+			else
+				glDisable(GL_POLYGON_OFFSET_FILL);
+
+			m_state.renderStates.depthBias = renderStates.depthBias;
+		}
+
 		// Depth buffer
 		if (m_state.renderStates.depthBuffer != renderStates.depthBuffer)
 		{
@@ -833,17 +871,6 @@ namespace Nz::GL
 				glDisable(GL_DEPTH_CLAMP);
 
 			m_state.renderStates.depthClamp = renderStates.depthClamp;
-		}
-
-		// Face culling
-		if (m_state.renderStates.faceCulling != renderStates.faceCulling)
-		{
-			if (renderStates.faceCulling)
-				glEnable(GL_CULL_FACE);
-			else
-				glDisable(GL_CULL_FACE);
-
-			m_state.renderStates.faceCulling = renderStates.faceCulling;
 		}
 
 		// Scissor test

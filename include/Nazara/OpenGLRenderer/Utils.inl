@@ -92,16 +92,16 @@ namespace Nz
 		return {};
 	}
 
-	inline GLenum ToOpenGL(FaceSide side)
+	inline GLenum ToOpenGL(FaceCulling side)
 	{
 		switch (side)
 		{
-			case FaceSide::None:
+			case FaceCulling::None:
 				break;
 
-			case FaceSide::Back:         return GL_BACK;
-			case FaceSide::Front:        return GL_FRONT;
-			case FaceSide::FrontAndBack: return GL_FRONT_AND_BACK;
+			case FaceCulling::Back:         return GL_BACK;
+			case FaceCulling::Front:        return GL_FRONT;
+			case FaceCulling::FrontAndBack: return GL_FRONT_AND_BACK;
 		}
 
 		NazaraError("Unhandled FaceSide 0x" + NumberToString(UnderlyingCast(side), 16));

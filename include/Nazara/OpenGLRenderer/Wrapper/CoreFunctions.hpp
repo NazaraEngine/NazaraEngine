@@ -141,6 +141,7 @@ typedef void (GL_APIENTRYP PFNGLSPECIALIZESHADERPROC) (GLuint shader, const GLch
 	cb(glLinkProgram, PFNGLLINKPROGRAMPROC) \
 	cb(glMapBufferRange, PFNGLMAPBUFFERRANGEPROC) \
 	cb(glPixelStorei, PFNGLPIXELSTOREIPROC) \
+	cb(glPolygonOffset, PFNGLPOLYGONOFFSETPROC) \
 	cb(glProgramBinary, PFNGLPROGRAMBINARYPROC) \
 	cb(glProgramParameteri, PFNGLPROGRAMPARAMETERIPROC) \
 	cb(glReadPixels, PFNGLREADPIXELSPROC) \

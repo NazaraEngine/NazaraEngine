@@ -36,6 +36,12 @@ namespace Nz
 
 		if (samplerInfo.anisotropyLevel > 1.f)
 			sampler.SetParameterf(GL_TEXTURE_MAX_ANISOTROPY_EXT, samplerInfo.anisotropyLevel);
+
+		if (samplerInfo.depthCompare)
+		{
+			sampler.SetParameteri(GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE);
+			sampler.SetParameteri(GL_TEXTURE_COMPARE_FUNC, ToOpenGL(samplerInfo.depthComparison));
+		}
 	}
 
 	void OpenGLTextureSampler::UpdateDebugName(std::string_view name)

@@ -21,10 +21,14 @@ namespace Nz
 		unsigned int bindingIndex = 0;
 		for (const auto& binding : m_layoutInfo.bindings)
 		{
-			UInt64 bindingKey = UInt64(binding.setIndex) << 32 | UInt64(binding.bindingIndex);
+			for (UInt32 i = 0; i < binding.arraySize; ++i)
+			{
+				UInt64 bindingKey = UInt64(binding.setIndex) << 32 | UInt64(binding.bindingIndex + i);
 
-			m_bindingMapping[bindingKey] = bindingIndex++;
-			m_maxDescriptorCount = std::max<std::size_t>(m_maxDescriptorCount, binding.bindingIndex + 1);
+				m_bindingMapping[bindingKey] = bindingIndex++;
+			}
+
+			m_maxDescriptorCount = std::max<std::size_t>(m_maxDescriptorCount, binding.bindingIndex + binding.arraySize);
 		}
 	}
 

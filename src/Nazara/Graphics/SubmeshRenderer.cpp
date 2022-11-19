@@ -54,8 +54,15 @@ namespace Nz
 			currentShaderBinding = nullptr;
 		};
 
-		const auto& whiteTexture = Graphics::Instance()->GetDefaultTextures().whiteTextures[UnderlyingCast(ImageType::E2D)];
+		const auto& depthTexture2D = Graphics::Instance()->GetDefaultTextures().depthTextures[UnderlyingCast(ImageType::E2D)];
+		const auto& depthTextureCube = Graphics::Instance()->GetDefaultTextures().depthTextures[UnderlyingCast(ImageType::Cubemap)];
+		const auto& whiteTexture2D = Graphics::Instance()->GetDefaultTextures().whiteTextures[UnderlyingCast(ImageType::E2D)];
+		const auto& whiteTextureCube = Graphics::Instance()->GetDefaultTextures().whiteTextures[UnderlyingCast(ImageType::Cubemap)];
 		const auto& defaultSampler = graphics->GetSamplerCache().Get({});
+
+		TextureSamplerInfo samplerInfo;
+		samplerInfo.depthCompare = true;
+		const auto& shadowSampler = graphics->GetSamplerCache().Get(samplerInfo);
 
 		std::size_t oldDrawCallCount = data.drawCalls.size();
 
@@ -122,6 +129,8 @@ namespace Nz
 				assert(currentMaterialInstance);
 
 				m_bindingCache.clear();
+				m_textureBindingCache.clear();
+				m_textureBindingCache.reserve(renderState.shadowMaps2D.size() + renderState.shadowMapsCube.size());
 				currentMaterialInstance->FillShaderBinding(m_bindingCache);
 
 				const Material& material = *currentMaterialInstance->GetParentMaterial();
@@ -147,6 +156,50 @@ namespace Nz
 					bindingEntry.content = ShaderBinding::UniformBufferBinding{
 						currentLightData.GetBuffer(),
 						currentLightData.GetOffset(), currentLightData.GetSize()
+					};
+				}
+
+				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::Shadowmap2D); bindingIndex != Material::InvalidBindingIndex)
+				{
+					std::size_t textureBindingBaseIndex = m_textureBindingCache.size();
+
+					for (std::size_t j = 0; j < renderState.shadowMaps2D.size(); ++j)
+					{
+						const Texture* texture = renderState.shadowMaps2D[j];
+						if (!texture)
+							texture = depthTexture2D.get();
+
+						auto& textureEntry = m_textureBindingCache.emplace_back();
+						textureEntry.texture = texture;
+						textureEntry.sampler = shadowSampler.get();
+					}
+
+					auto& bindingEntry = m_bindingCache.emplace_back();
+					bindingEntry.bindingIndex = bindingIndex;
+					bindingEntry.content = ShaderBinding::TextureBindings {
+						SafeCast<UInt32>(renderState.shadowMaps2D.size()), &m_textureBindingCache[textureBindingBaseIndex]
+					};
+				}
+
+				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::ShadowmapCube); bindingIndex != Material::InvalidBindingIndex)
+				{
+					std::size_t textureBindingBaseIndex = m_textureBindingCache.size();
+					
+					for (std::size_t j = 0; j < renderState.shadowMapsCube.size(); ++j)
+					{
+						const Texture* texture = renderState.shadowMapsCube[j];
+						if (!texture)
+							texture = depthTextureCube.get();
+
+						auto& textureEntry = m_textureBindingCache.emplace_back();
+						textureEntry.texture = texture;
+						textureEntry.sampler = shadowSampler.get();
+					}
+
+					auto& bindingEntry = m_bindingCache.emplace_back();
+					bindingEntry.bindingIndex = bindingIndex;
+					bindingEntry.content = ShaderBinding::TextureBindings {
+						SafeCast<UInt32>(renderState.shadowMaps2D.size()), &m_textureBindingCache[textureBindingBaseIndex]
 					};
 				}
 
@@ -179,7 +232,7 @@ namespace Nz
 					auto& bindingEntry = m_bindingCache.emplace_back();
 					bindingEntry.bindingIndex = bindingIndex;
 					bindingEntry.content = ShaderBinding::TextureBinding{
-						whiteTexture.get(), defaultSampler.get()
+						whiteTexture2D.get(), defaultSampler.get()
 					};
 				}
 

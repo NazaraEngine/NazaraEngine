@@ -24,6 +24,7 @@ namespace Nz
 			std::size_t parameter2;
 			std::size_t parameter3;
 			std::size_t shadowMappingFlag;
+			std::size_t viewProjMatrix;
 		};
 
 		std::size_t lightsOffset;

@@ -41,7 +41,7 @@ namespace Nz
 			inline void InvalidateCommandBuffers();
 			inline void InvalidateElements();
 
-			void Prepare(RenderFrame& renderFrame, const Frustumf& frustum, const std::vector<FramePipelinePass::VisibleRenderable>& visibleRenderables, const std::vector<const Light*>& visibleLights, std::size_t visibilityHash);
+			void Prepare(RenderFrame& renderFrame, const Frustumf& frustum, const std::vector<FramePipelinePass::VisibleRenderable>& visibleRenderables, const std::vector<std::size_t>& visibleLights, std::size_t visibilityHash);
 
 			void RegisterMaterialInstance(const MaterialInstance& material);
 			FramePass& RegisterToFrameGraph(FrameGraph& frameGraph, std::size_t colorBufferIndex, std::size_t depthBufferIndex, bool hasDepthPrepass);
@@ -76,9 +76,23 @@ namespace Nz
 				UploadPool::Allocation* allocation = nullptr;
 			};
 
+			struct LightPerElementData
+			{
+				RenderBufferView lightUniformBuffer;
+				std::array<const Texture*, MaxLightCountPerDraw> shadowMaps;
+				std::size_t lightCount;
+			};
+
 			struct LightUboPool
 			{
 				std::vector<std::shared_ptr<RenderBuffer>> lightUboBuffers;
+			};
+
+			struct RenderableLight
+			{
+				const Light* light;
+				std::size_t lightIndex;
+				float contributionScore;
 			};
 
 			std::size_t m_forwardPassIndex;
@@ -88,10 +102,10 @@ namespace Nz
 			std::vector<ElementRenderer::RenderStates> m_renderStates;
 			std::vector<RenderElementOwner> m_renderElements;
 			std::unordered_map<const MaterialInstance*, MaterialPassEntry> m_materialInstances;
-			std::unordered_map<const RenderElement*, RenderBufferView> m_lightPerRenderElement;
+			std::unordered_map<const RenderElement*, LightPerElementData> m_lightPerRenderElement;
 			std::unordered_map<LightKey, RenderBufferView, LightKeyHasher> m_lightBufferPerLights;
 			std::vector<LightDataUbo> m_lightDataBuffers;
-			std::vector<const Light*> m_renderableLights;
+			std::vector<RenderableLight> m_renderableLights;
 			RenderQueue<const RenderElement*> m_renderQueue;
 			RenderQueueRegistry m_renderQueueRegistry;
 			AbstractViewer* m_viewer;

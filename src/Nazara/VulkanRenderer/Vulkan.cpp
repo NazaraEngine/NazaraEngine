@@ -133,8 +133,8 @@ namespace Nz
 		std::string appName = parameters.GetStringParameter("VkAppInfo_OverrideApplicationName").GetValueOr("Another application made with Nazara Engine");
 		std::string engineName = parameters.GetStringParameter("VkAppInfo_OverrideEngineName").GetValueOr("Nazara Engine - Vulkan Renderer");
 
-		UInt32 appVersion = parameters.GetIntegerParameter("VkAppInfo_OverrideApplicationVersion").GetValueOr(VK_MAKE_API_VERSION(0, 1, 0, 0));
-		UInt32 engineVersion = parameters.GetIntegerParameter("VkAppInfo_OverrideEngineVersion").GetValueOr(VK_MAKE_API_VERSION(0, 1, 0, 0));
+		UInt32 appVersion = SafeCast<UInt32>(parameters.GetIntegerParameter("VkAppInfo_OverrideApplicationVersion").GetValueOr(VK_MAKE_API_VERSION(0, 1, 0, 0)));
+		UInt32 engineVersion = SafeCast<UInt32>(parameters.GetIntegerParameter("VkAppInfo_OverrideEngineVersion").GetValueOr(VK_MAKE_API_VERSION(0, 1, 0, 0)));
 
 		if (auto result = parameters.GetIntegerParameter("VkAppInfo_OverrideAPIVersion"))
 			targetApiVersion = SafeCast<UInt32>(result.GetValue());
@@ -160,7 +160,7 @@ namespace Nz
 			targetApiVersion
 		};
 
-		VkInstanceCreateFlags createFlags = parameters.GetIntegerParameter("VkInstanceInfo_OverrideCreateFlags").GetValueOr(0);
+		VkInstanceCreateFlags createFlags = SafeCast<VkInstanceCreateFlags>(parameters.GetIntegerParameter("VkInstanceInfo_OverrideCreateFlags").GetValueOr(0));
 
 		std::vector<const char*> enabledLayers;
 

@@ -24,6 +24,8 @@ namespace Nz
 		SamplerWrap wrapModeU = SamplerWrap::Clamp;
 		SamplerWrap wrapModeV = SamplerWrap::Clamp;
 		SamplerWrap wrapModeW = SamplerWrap::Clamp;
+		bool depthCompare = false;
+		RendererComparison depthComparison = RendererComparison::LessOrEqual;
 
 		inline bool operator==(const TextureSamplerInfo& samplerInfo) const;
 		inline bool operator!=(const TextureSamplerInfo& samplerInfo) const;

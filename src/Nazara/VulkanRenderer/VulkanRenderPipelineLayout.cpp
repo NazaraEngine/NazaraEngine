@@ -69,7 +69,7 @@ namespace Nz
 
 			VkDescriptorSetLayoutBinding& layoutBinding = descriptorSetLayoutInfo.bindings.emplace_back();
 			layoutBinding.binding = bindingInfo.bindingIndex;
-			layoutBinding.descriptorCount = 1U;
+			layoutBinding.descriptorCount = bindingInfo.arraySize;
 			layoutBinding.descriptorType = ToVulkan(bindingInfo.type);
 			layoutBinding.pImmutableSamplers = nullptr;
 			layoutBinding.stageFlags = ToVulkan(bindingInfo.shaderStageFlags);

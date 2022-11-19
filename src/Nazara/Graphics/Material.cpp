@@ -94,6 +94,12 @@ namespace Nz
 			if (auto it = block->uniformBlocks.find("ViewerData"); it != block->uniformBlocks.end())
 				m_engineShaderBindings[UnderlyingCast(EngineShaderBinding::ViewerDataUbo)] = it->second.bindingIndex;
 
+			if (auto it = block->samplers.find("ShadowMaps2D"); it != block->samplers.end())
+				m_engineShaderBindings[UnderlyingCast(EngineShaderBinding::Shadowmap2D)] = it->second.bindingIndex;
+
+			if (auto it = block->samplers.find("ShadowMapsCube"); it != block->samplers.end())
+				m_engineShaderBindings[UnderlyingCast(EngineShaderBinding::ShadowmapCube)] = it->second.bindingIndex;
+
 			if (auto it = block->uniformBlocks.find("SkeletalData"); it != block->uniformBlocks.end())
 				m_engineShaderBindings[UnderlyingCast(EngineShaderBinding::SkeletalDataUbo)] = it->second.bindingIndex;
 

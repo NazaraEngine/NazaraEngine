@@ -97,8 +97,6 @@ namespace Nz
 	{
 		m_innerAngle = innerAngle;
 		m_innerAngleCos = m_innerAngle.GetCos();
-
-		UpdateBoundingVolume();
 	}
 
 	inline void SpotLight::UpdateOuterAngle(RadianAnglef outerAngle)
@@ -108,6 +106,7 @@ namespace Nz
 		m_outerAngleTan = m_outerAngle.GetTan();
 
 		UpdateBoundingVolume();
+		UpdateViewProjMatrix();
 	}
 
 	inline void SpotLight::UpdatePosition(const Vector3f& position)
@@ -115,6 +114,7 @@ namespace Nz
 		m_position = position;
 
 		UpdateBoundingVolume();
+		UpdateViewProjMatrix();
 	}
 
 	inline void SpotLight::UpdateRadius(float radius)
@@ -123,6 +123,7 @@ namespace Nz
 		m_invRadius = 1.f / m_radius;
 
 		UpdateBoundingVolume();
+		UpdateViewProjMatrix();
 	}
 
 	inline void SpotLight::UpdateRotation(const Quaternionf& rotation)
@@ -131,6 +132,7 @@ namespace Nz
 		m_direction = rotation * Vector3f::Forward();
 
 		UpdateBoundingVolume();
+		UpdateViewProjMatrix();
 	}
 
 	inline void SpotLight::UpdateBoundingVolume()
@@ -157,6 +159,19 @@ namespace Nz
 		boundingVolume.Update(Matrix4f::Transform(m_position, m_rotation));
 
 		Light::UpdateBoundingVolume(boundingVolume); //< will trigger OnLightDataInvalided
+	}
+
+	inline void SpotLight::UpdateViewProjMatrix()
+	{
+		Matrix4f biasMatrix(0.5f, 0.0f, 0.0f, 0.0f,
+		                    0.0f, 0.5f, 0.0f, 0.0f,
+		                    0.0f, 0.0f, 1.0f, 0.0f,
+		                    0.5f, 0.5f, 0.0f, 1.0f);
+
+		Matrix4f projection = Matrix4f::Perspective(m_outerAngle * 2.f, 1.f, 1.f, m_radius);
+		Matrix4f view = Matrix4f::TransformInverse(m_position, m_rotation);
+
+		m_viewProjMatrix = view * projection * biasMatrix;
 	}
 }
 
