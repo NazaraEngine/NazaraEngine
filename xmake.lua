@@ -27,7 +27,7 @@ local rendererBackends = {
 			elseif is_plat("linux") then
 				add_defines("VK_USE_PLATFORM_XLIB_KHR")
 				add_defines("VK_USE_PLATFORM_WAYLAND_KHR")
-				add_packages("xorgproto", "libx11", "wayland", { links = {} }) -- we only need X11 and waylands headers
+				add_packages("libxext", "wayland", { links = {} }) -- we only need X11 and waylands headers
 			elseif is_plat("macosx") then
 				add_defines("VK_USE_PLATFORM_METAL_EXT")
 				add_files("src/Nazara/VulkanRenderer/**.mm")
@@ -96,10 +96,9 @@ local modules = {
 			elseif is_plat("linux") then
 				add_defines("SDL_VIDEO_DRIVER_X11=1")
 				add_defines("SDL_VIDEO_DRIVER_WAYLAND=1")
-				add_packages("xorgproto", "libx11", { links = {} }) -- we only need X11 headers
+				add_packages("libxext", "wayland", { links = {} }) -- we only need X11 headers
 			elseif is_plat("macosx") then
 				add_defines("SDL_VIDEO_DRIVER_COCOA=1")
-				add_packages("xorgproto", "libx11", { links = {} }) -- we only need X11 headers
 			end
 		end
 	},
@@ -162,11 +161,8 @@ add_repositories("nazara-engine-repo https://github.com/NazaraEngine/xmake-repo"
 add_requires("nazarautils")
 add_requires("nzsl", { debug = is_mode("debug"), configs = { with_symbols = not is_mode("release"), shared = true } })
 
-if is_plat("linux", "macosx") then
-	add_requires("xorgproto", "libx11")
-	if is_plat("linux") then
-		add_requires("libuuid", "wayland")
-	end
+if is_plat("linux") then
+	add_requires("libxext", "libuuid", "wayland")
 end
 
 add_rules("mode.asan", "mode.tsan", "mode.coverage", "mode.debug", "mode.releasedbg", "mode.release")
