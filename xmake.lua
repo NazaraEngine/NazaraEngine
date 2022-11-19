@@ -99,7 +99,6 @@ local modules = {
 				add_packages("libxext", "wayland", { links = {} }) -- we only need X11 headers
 			elseif is_plat("macosx") then
 				add_defines("SDL_VIDEO_DRIVER_COCOA=1")
-				add_packages("libxext", { links = {} }) -- we only need X11 headers
 			end
 		end
 	},
@@ -162,11 +161,8 @@ add_repositories("nazara-engine-repo https://github.com/NazaraEngine/xmake-repo"
 add_requires("nazarautils")
 add_requires("nzsl", { debug = is_mode("debug"), configs = { with_symbols = not is_mode("release"), shared = true } })
 
-if is_plat("linux", "macosx") then
-	add_requires("libxext")
-	if is_plat("linux") then
-		add_requires("libuuid", "wayland")
-	end
+if is_plat("linux") then
+	add_requires("libxext", "libuuid", "wayland")
 end
 
 add_rules("mode.asan", "mode.tsan", "mode.coverage", "mode.debug", "mode.releasedbg", "mode.release")
