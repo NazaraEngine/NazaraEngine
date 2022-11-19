@@ -13,7 +13,6 @@
 #include <Nazara/Platform/SDL2/SDLHelper.hpp>
 #include <Nazara/Utility/Image.hpp>
 #include <SDL.h>
-#define SDL_VIDEO_DRIVER_X11 0 //< test to trigger warning
 #include <SDL_syswm.h>
 #include <Utfcpp/utf8.h>
 #include <cstdio>
