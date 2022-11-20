@@ -293,7 +293,7 @@ namespace Nz
 		if (!copyCommandBuffer->Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT))
 			return false;
 
-		VkImageAspectFlagBits aspect = VK_IMAGE_ASPECT_COLOR_BIT;
+		VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT;
 		if (PixelFormatInfo::GetContent(m_params.pixelFormat) == PixelFormatContent::Depth)
 			aspect = VK_IMAGE_ASPECT_DEPTH_BIT;
 
