@@ -148,8 +148,12 @@ int main()
 
 	entt::entity headingEntity = registry.create();
 	{
+		auto spotLight = std::make_shared<Nz::SpotLight>();
+		spotLight->EnableShadowCasting(true);
+		spotLight->UpdateShadowMapSize(1024);
+
 		auto& entityLight = registry.emplace<Nz::LightComponent>(playerEntity);
-		entityLight.AttachLight(std::make_shared<Nz::SpotLight>(), 1);
+		entityLight.AttachLight(std::move(spotLight), 1);
 
 		auto& entityGfx = registry.emplace<Nz::GraphicsComponent>(playerEntity);
 		entityGfx.AttachRenderable(model, 1);

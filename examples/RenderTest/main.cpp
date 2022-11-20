@@ -233,7 +233,7 @@ int main()
 
 	Nz::RenderPipelineInfo pipelineInfo;
 	pipelineInfo.pipelineLayout = renderPipelineLayout;
-	pipelineInfo.faceCulling = true;
+	pipelineInfo.faceCulling = Nz::FaceCulling::Back;
 
 	pipelineInfo.depthBuffer = true;
 	pipelineInfo.shaderModules.emplace_back(fragVertShader);

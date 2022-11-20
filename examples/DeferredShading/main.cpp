@@ -142,7 +142,7 @@ int main()
 
 	Nz::RenderPipelineLayoutInfo skyboxPipelineLayoutInfo;
 	skyboxPipelineLayoutInfo.bindings.push_back({
-		0, 0,
+		0, 0, 1,
 		Nz::ShaderBindingType::UniformBuffer,
 		nzsl::ShaderStageType_All
 	});
@@ -158,7 +158,6 @@ int main()
 	Nz::RenderPipelineInfo skyboxPipelineInfo;
 	skyboxPipelineInfo.depthBuffer = true;
 	skyboxPipelineInfo.depthCompare = Nz::RendererComparison::Equal;
-	skyboxPipelineInfo.faceCulling = true;
 	skyboxPipelineInfo.faceCulling = Nz::FaceCulling::Front;
 	skyboxPipelineInfo.pipelineLayout = skyboxPipelineLayout;
 	skyboxPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, shaderDir / "skybox.nzsl", states));
@@ -264,7 +263,7 @@ int main()
 
 	Nz::RenderPipelineLayoutInfo lightingPipelineLayoutInfo;
 	lightingPipelineLayoutInfo.bindings.push_back({
-		0, 0,
+		0, 0, 1,
 		Nz::ShaderBindingType::UniformBuffer,
 		nzsl::ShaderStageType_All
 	});
@@ -274,6 +273,7 @@ int main()
 		lightingPipelineLayoutInfo.bindings.push_back({
 			0,
 			i + 1,
+			1,
 			Nz::ShaderBindingType::Texture,
 			nzsl::ShaderStageType::Fragment,
 		});
@@ -282,6 +282,7 @@ int main()
 	lightingPipelineLayoutInfo.bindings.push_back({
 		1,
 		0,
+		1,
 		Nz::ShaderBindingType::UniformBuffer,
 		nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex,
 	});
@@ -358,13 +359,13 @@ int main()
 
 	Nz::RenderPipelineLayoutInfo fullscreenPipelineLayoutInfoViewer;
 	fullscreenPipelineLayoutInfoViewer.bindings.push_back({
-		0, 0,
+		0, 0, 1,
 		Nz::ShaderBindingType::UniformBuffer,
 		nzsl::ShaderStageType_All
 	});
 
 	fullscreenPipelineLayoutInfoViewer.bindings.push_back({
-		0, 1,
+		0, 1, 1,
 		Nz::ShaderBindingType::Texture,
 		nzsl::ShaderStageType::Fragment,
 	});
@@ -384,7 +385,7 @@ int main()
 	Nz::RenderPipelineLayoutInfo gaussianBlurPipelineLayoutInfo = fullscreenPipelineLayoutInfoViewer;
 
 	gaussianBlurPipelineLayoutInfo.bindings.push_back({
-		0, 2,
+		0, 2, 1,
 		Nz::ShaderBindingType::UniformBuffer,
 		nzsl::ShaderStageType::Fragment,
 	});
@@ -437,19 +438,19 @@ int main()
 
 	Nz::RenderPipelineLayoutInfo bloomBlendPipelineLayoutInfo;
 	bloomBlendPipelineLayoutInfo.bindings.push_back({
-		0, 0,
+		0, 0, 1,
 		Nz::ShaderBindingType::UniformBuffer,
 		nzsl::ShaderStageType_All
 	});
 
 	/*bloomBlendPipelineLayoutInfo.bindings.push_back({
-		0, 1,
+		0, 1, 1,
 		Nz::ShaderBindingType::Texture,
 		nzsl::ShaderStageType::Fragment,
 	});*/
 
 	bloomBlendPipelineLayoutInfo.bindings.push_back({
-		0, 2,
+		0, 2, 1,
 		Nz::ShaderBindingType::Texture,
 		nzsl::ShaderStageType::Fragment,
 	});
@@ -473,7 +474,7 @@ int main()
 	Nz::RenderPipelineLayoutInfo fullscreenPipelineLayoutInfo;
 
 	fullscreenPipelineLayoutInfo.bindings.push_back({
-		0, 0,
+		0, 0, 1,
 		Nz::ShaderBindingType::Texture,
 		nzsl::ShaderStageType::Fragment,
 	});
@@ -491,17 +492,17 @@ int main()
 	godraysPipelineLayoutInfo.bindings = {
 		{
 			{
-				0, 0,
+				0, 0, 1,
 				Nz::ShaderBindingType::UniformBuffer,
 				nzsl::ShaderStageType::Fragment,
 			},
 			{
-				0, 1,
+				0, 1, 1,
 				Nz::ShaderBindingType::UniformBuffer,
 				nzsl::ShaderStageType::Fragment,
 			},
 			{
-				0, 2,
+				0, 2, 1,
 				Nz::ShaderBindingType::Texture,
 				nzsl::ShaderStageType::Fragment,
 			},
@@ -557,7 +558,6 @@ int main()
 		meshPrimitiveParams.vertexDeclaration
 	});
 	lightingPipelineInfo.depthBuffer = false;
-	lightingPipelineInfo.faceCulling = true;
 	lightingPipelineInfo.faceCulling = Nz::FaceCulling::Front;
 	lightingPipelineInfo.stencilTest = true;
 	lightingPipelineInfo.stencilBack.compare = Nz::RendererComparison::NotEqual;
@@ -580,7 +580,7 @@ int main()
 	stencilPipelineInfo.colorWriteMask = 0;
 	stencilPipelineInfo.depthBuffer = true;
 	stencilPipelineInfo.depthWrite = false;
-	stencilPipelineInfo.faceCulling = false;
+	stencilPipelineInfo.faceCulling = Nz::FaceCulling::None;
 	stencilPipelineInfo.stencilTest = true;
 	stencilPipelineInfo.stencilFront.compare = Nz::RendererComparison::Always;
 	stencilPipelineInfo.stencilFront.depthFail = Nz::StencilOperation::Invert;
