@@ -35,7 +35,7 @@ namespace Nz
 
 	void SpotLight::UpdateTransform(const Vector3f& position, const Quaternionf& rotation, const Vector3f& /*scale*/)
 	{
-		UpdatePosition(position);
+		m_position = position; //< don't call UpdatePosition to prevent double update
 		UpdateRotation(rotation);
 	}
 }

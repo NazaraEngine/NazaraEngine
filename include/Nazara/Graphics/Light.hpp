@@ -56,6 +56,7 @@ namespace Nz
 			NazaraSignal(OnLightDataInvalided, Light* /*emitter*/);
 			NazaraSignal(OnLightShadowCastingChanged, Light* /*light*/, bool /*isShadowCasting*/);
 			NazaraSignal(OnLightShadowMapSettingChange, Light* /*light*/, PixelFormat /*newPixelFormat*/, UInt32 /*newSize*/);
+			NazaraSignal(OnLightTransformInvalided, Light* /*emitter*/);
 
 		protected:
 			inline void UpdateBoundingVolume(const BoundingVolumef& boundingVolume);
