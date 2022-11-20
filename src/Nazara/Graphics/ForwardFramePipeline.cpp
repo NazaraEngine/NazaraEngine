@@ -292,6 +292,7 @@ namespace Nz
 			const Matrix4f& viewProjMatrix = lightData->camera->GetViewerInstance().GetViewProjMatrix();
 
 			Frustumf frustum = Frustumf::Extract(viewProjMatrix);
+			GetDebugDrawer().DrawFrustum(frustum, Nz::Color::Blue);
 
 			std::size_t visibilityHash = 5U;
 
@@ -599,6 +600,12 @@ namespace Nz
 				lightData->camera->UpdateZFar(spotLight.GetRadius());
 				lightData->camera->UpdateViewport(Recti(0, 0, SafeCast<int>(shadowMapSize), SafeCast<int>(shadowMapSize)));
 
+				lightData->onLightTransformInvalidated.Connect(lightData->light->OnLightTransformInvalided, [lightData](Light* light)
+				{
+					SpotLight& spotLight = SafeCast<SpotLight&>(*light);
+					ViewerInstance& viewerInstance = lightData->camera->GetViewerInstance();
+					viewerInstance.UpdateViewMatrix(Nz::Matrix4f::TransformInverse(spotLight.GetPosition(), spotLight.GetRotation()));
+				});
 				viewerInstance.UpdateViewMatrix(Nz::Matrix4f::TransformInverse(spotLight.GetPosition(), spotLight.GetRotation()));
 			}
 

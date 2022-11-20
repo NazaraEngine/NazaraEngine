@@ -115,6 +115,7 @@ namespace Nz
 
 		UpdateBoundingVolume();
 		UpdateViewProjMatrix();
+		OnLightTransformInvalided(this);
 	}
 
 	inline void SpotLight::UpdateRadius(float radius)
@@ -133,6 +134,7 @@ namespace Nz
 
 		UpdateBoundingVolume();
 		UpdateViewProjMatrix();
+		OnLightTransformInvalided(this);
 	}
 
 	inline void SpotLight::UpdateBoundingVolume()

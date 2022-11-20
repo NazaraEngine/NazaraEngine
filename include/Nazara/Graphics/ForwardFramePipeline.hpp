@@ -86,6 +86,7 @@ namespace Nz
 				UInt32 renderMask;
 
 				NazaraSlot(Light, OnLightDataInvalided, onLightInvalidated);
+				NazaraSlot(Light, OnLightTransformInvalided, onLightTransformInvalidated);
 				NazaraSlot(Light, OnLightShadowCastingChanged, onLightShadowCastingChanged);
 			};
 
