@@ -234,27 +234,18 @@ fn main(input: VertToFrag) -> FragOut
 				specFactor = pow(specFactor, settings.Shininess);
 
 				let shadowFactor = 0.0;
-				if (true) //< TODO: HasShadowMapping
+				if (light.invShadowMapSize.x > 0.0)
 				{
-					let shadowTexSize = 1.0 / 512.0; //< FIXME
-
-					let offsetArray = array[vec2[f32], 9](
-						vec2[f32](-1.0, -1.0),
-						vec2[f32](-1.0, 0.0),
-						vec2[f32](-1.0, 1.0),
-						vec2[f32](0.0, -1.0),
-						vec2[f32](0.0, 0.0),
-						vec2[f32](0.0, 1.0),
-						vec2[f32](1.0, -1.0),
-						vec2[f32](1.0, 0.0),
-						vec2[f32](1.0, 1.0)
-					);
-
-					for offset in offsetArray
+					let shadowCoords = input.lightProjPos[i].xyz / input.lightProjPos[i].w;
+					[unroll]
+					for x in -1 -> 2
 					{
-						let shadowCoords = input.lightProjPos[i].xyz / input.lightProjPos[i].w;
-						shadowCoords.xy += offset * shadowTexSize;
-						shadowFactor += shadowMaps2D[i].SampleDepthComp(shadowCoords.xy, shadowCoords.z).r;
+						[unroll]
+						for y in -1 -> 2
+						{
+							let coords = shadowCoords.xy + vec2[f32](f32(x), f32(y)) * light.invShadowMapSize;
+							shadowFactor += shadowMaps2D[i].SampleDepthComp(coords, shadowCoords.z).r;
+						}
 					}
 					shadowFactor /= 9.0;
 				}

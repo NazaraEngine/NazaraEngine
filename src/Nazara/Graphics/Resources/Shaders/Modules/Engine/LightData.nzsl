@@ -13,7 +13,7 @@ struct Light
 	parameter1: vec4[f32],
 	parameter2: vec4[f32],
 	parameter3: vec4[f32],
-	hasShadowMapping: u32,
+	invShadowMapSize: vec2[f32],
 	viewProjMatrix: mat4[f32]
 }
 
