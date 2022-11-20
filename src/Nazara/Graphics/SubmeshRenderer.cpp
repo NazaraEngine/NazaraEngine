@@ -57,7 +57,6 @@ namespace Nz
 		const auto& depthTexture2D = Graphics::Instance()->GetDefaultTextures().depthTextures[UnderlyingCast(ImageType::E2D)];
 		const auto& depthTextureCube = Graphics::Instance()->GetDefaultTextures().depthTextures[UnderlyingCast(ImageType::Cubemap)];
 		const auto& whiteTexture2D = Graphics::Instance()->GetDefaultTextures().whiteTextures[UnderlyingCast(ImageType::E2D)];
-		const auto& whiteTextureCube = Graphics::Instance()->GetDefaultTextures().whiteTextures[UnderlyingCast(ImageType::Cubemap)];
 		const auto& defaultSampler = graphics->GetSamplerCache().Get({});
 
 		TextureSamplerInfo samplerInfo;

@@ -292,7 +292,6 @@ namespace Nz
 			const Matrix4f& viewProjMatrix = lightData->camera->GetViewerInstance().GetViewProjMatrix();
 
 			Frustumf frustum = Frustumf::Extract(viewProjMatrix);
-			GetDebugDrawer().DrawFrustum(frustum, Nz::Color::Blue);
 
 			std::size_t visibilityHash = 5U;
 
@@ -371,7 +370,6 @@ namespace Nz
 			std::size_t depthVisibilityHash = visibilityHash;
 
 			m_visibleLights.clear();
-			for (const LightData& lightData : m_lightPool)
 			for (auto it = m_lightPool.begin(); it != m_lightPool.end(); ++it)
 			{
 				const LightData& lightData = *it;
@@ -597,6 +595,7 @@ namespace Nz
 				});
 
 				lightData->camera->UpdateFOV(spotLight.GetOuterAngle() * 2.f);
+				lightData->camera->UpdateZNear(0.01f);
 				lightData->camera->UpdateZFar(spotLight.GetRadius());
 				lightData->camera->UpdateViewport(Recti(0, 0, SafeCast<int>(shadowMapSize), SafeCast<int>(shadowMapSize)));
 
