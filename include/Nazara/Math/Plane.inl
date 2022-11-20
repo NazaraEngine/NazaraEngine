@@ -331,6 +331,28 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Intersects three planes to retrieve a single intersection point
+	* \return The intersection point
+	*
+	* \param p0 First plane
+	* \param p1 Second plane
+	* \param p2 Third plane
+	*
+	* \remark All three planes must have differents normals otherwise result is undefined
+	*/
+	template<typename T>
+	Vector3<T> Plane<T>::Intersect(const Plane& p0, const Plane& p1, const Plane& p2)
+	{
+		// From https://donw.io/post/frustum-point-extraction/
+		Vector3f bxc = Vector3f::CrossProduct(p1.normal, p2.normal);
+		Vector3f cxa = Vector3f::CrossProduct(p2.normal, p0.normal);
+		Vector3f axb = Vector3f::CrossProduct(p0.normal, p1.normal);
+		Vector3f r = -p0.distance * bxc - p1.distance * cxa - p2.distance * axb;
+
+		return r * (T(1.0) / Vector3f::DotProduct(p0.normal, bxc));
+	}
+
+	/*!
 	* \brief Interpolates the plane to other one with a factor of interpolation
 	* \return A new plane which is the interpolation of two planes
 	*
@@ -343,7 +365,6 @@ namespace Nz
 	*
 	* \see Lerp
 	*/
-
 	template<typename T>
 	Plane<T> Plane<T>::Lerp(const Plane& from, const Plane& to, T interpolation)
 	{

@@ -26,6 +26,26 @@ namespace Nz
 		DrawLine({ max.x, min.y, min.z }, { max.x, min.y, max.z }, color);
 	}
 
+	inline void DebugDrawer::DrawFrustum(const Frustumf& frustum, const Color& color)
+	{
+		std::array<Vector3f, BoxCornerCount> corners;
+		for (std::size_t i = 0; i < BoxCornerCount; ++i)
+			corners[i] = frustum.ComputeCorner(static_cast<BoxCorner>(i));
+
+		DrawLine(corners[UnderlyingCast(BoxCorner::NearLeftBottom)],  corners[UnderlyingCast(BoxCorner::NearRightBottom)], color);
+		DrawLine(corners[UnderlyingCast(BoxCorner::NearLeftBottom)],  corners[UnderlyingCast(BoxCorner::NearLeftTop)],     color);
+		DrawLine(corners[UnderlyingCast(BoxCorner::NearLeftBottom)],  corners[UnderlyingCast(BoxCorner::FarLeftBottom)],   color);
+		DrawLine(corners[UnderlyingCast(BoxCorner::FarRightTop)],     corners[UnderlyingCast(BoxCorner::FarLeftTop)],      color);
+		DrawLine(corners[UnderlyingCast(BoxCorner::FarRightTop)],     corners[UnderlyingCast(BoxCorner::FarRightBottom)],  color);
+		DrawLine(corners[UnderlyingCast(BoxCorner::FarRightTop)],     corners[UnderlyingCast(BoxCorner::NearRightTop)],    color);
+		DrawLine(corners[UnderlyingCast(BoxCorner::FarLeftBottom)],   corners[UnderlyingCast(BoxCorner::FarRightBottom)],  color);
+		DrawLine(corners[UnderlyingCast(BoxCorner::FarLeftBottom)],   corners[UnderlyingCast(BoxCorner::FarLeftTop)],      color);
+		DrawLine(corners[UnderlyingCast(BoxCorner::NearLeftTop)],     corners[UnderlyingCast(BoxCorner::NearRightTop)],    color);
+		DrawLine(corners[UnderlyingCast(BoxCorner::NearLeftTop)],     corners[UnderlyingCast(BoxCorner::FarLeftTop)],      color);
+		DrawLine(corners[UnderlyingCast(BoxCorner::NearRightBottom)], corners[UnderlyingCast(BoxCorner::NearRightTop)],    color);
+		DrawLine(corners[UnderlyingCast(BoxCorner::NearRightBottom)], corners[UnderlyingCast(BoxCorner::FarRightBottom)],  color);
+	}
+
 	inline void DebugDrawer::DrawLine(const Vector3f& start, const Vector3f& end, const Color& color)
 	{
 		return DrawLine(start, end, color, color);
