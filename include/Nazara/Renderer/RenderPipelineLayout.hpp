@@ -21,9 +21,9 @@ namespace Nz
 	{
 		struct Binding
 		{
-			UInt32 arraySize = 1;
-			UInt32 bindingIndex;
 			UInt32 setIndex = 0;
+			UInt32 bindingIndex;
+			UInt32 arraySize = 1;
 			ShaderBindingType type;
 			nzsl::ShaderStageTypeFlags shaderStageFlags;
 		};
