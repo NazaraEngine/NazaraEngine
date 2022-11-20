@@ -50,6 +50,31 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Computes the position of a frustum corner
+	* \return The corner position
+	*
+	* \param corner Which corner to compute
+	*/
+	template<typename T>
+	Vector3<T> Frustum<T>::ComputeCorner(BoxCorner corner) const
+	{
+		switch (corner)
+		{
+			case BoxCorner::FarLeftBottom:   return Plane<T>::Intersect(GetPlane(FrustumPlane::Far),  GetPlane(FrustumPlane::Left),  GetPlane(FrustumPlane::Bottom));
+			case BoxCorner::FarLeftTop:      return Plane<T>::Intersect(GetPlane(FrustumPlane::Far),  GetPlane(FrustumPlane::Left),  GetPlane(FrustumPlane::Top));
+			case BoxCorner::FarRightBottom:  return Plane<T>::Intersect(GetPlane(FrustumPlane::Far),  GetPlane(FrustumPlane::Right), GetPlane(FrustumPlane::Bottom));
+			case BoxCorner::FarRightTop:     return Plane<T>::Intersect(GetPlane(FrustumPlane::Far),  GetPlane(FrustumPlane::Right), GetPlane(FrustumPlane::Top));
+			case BoxCorner::NearLeftBottom:  return Plane<T>::Intersect(GetPlane(FrustumPlane::Near), GetPlane(FrustumPlane::Left),  GetPlane(FrustumPlane::Bottom));
+			case BoxCorner::NearLeftTop:     return Plane<T>::Intersect(GetPlane(FrustumPlane::Near), GetPlane(FrustumPlane::Left),  GetPlane(FrustumPlane::Top));
+			case BoxCorner::NearRightBottom: return Plane<T>::Intersect(GetPlane(FrustumPlane::Near), GetPlane(FrustumPlane::Right), GetPlane(FrustumPlane::Bottom));
+			case BoxCorner::NearRightTop:    return Plane<T>::Intersect(GetPlane(FrustumPlane::Near), GetPlane(FrustumPlane::Right), GetPlane(FrustumPlane::Top));
+		}
+
+		NazaraError("invalid frustum corner");
+		return Vector3<T>();
+	}
+
+	/*!
 	* \brief Checks whether or not a bounding volume is contained in the frustum
 	* \return true if the bounding volume is entirely in the frustum
 	*

@@ -32,6 +32,8 @@ namespace Nz
 			Frustum(const Frustum& frustum) = default;
 			~Frustum() = default;
 
+			Vector3<T> ComputeCorner(BoxCorner corner) const;
+
 			bool Contains(const BoundingVolume<T>& volume) const;
 			bool Contains(const Box<T>& box) const;
 			bool Contains(const OrientedBox<T>& orientedBox) const;
@@ -46,8 +48,6 @@ namespace Nz
 			IntersectionSide Intersect(const OrientedBox<T>& orientedBox) const;
 			IntersectionSide Intersect(const Sphere<T>& sphere) const;
 			IntersectionSide Intersect(const Vector3<T>* points, std::size_t pointCount) const;
-
-			template<typename U> Frustum& Set(const Frustum<U>& frustum);
 
 			std::string ToString() const;
 

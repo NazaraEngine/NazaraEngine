@@ -49,6 +49,7 @@ namespace Nz
 			bool operator==(const Plane& plane) const;
 			bool operator!=(const Plane& plane) const;
 
+			static Vector3<T> Intersect(const Plane& p0, const Plane& p1, const Plane& p2);
 			static Plane Lerp(const Plane& from, const Plane& to, T interpolation);
 			static Plane XY();
 			static Plane XZ();
