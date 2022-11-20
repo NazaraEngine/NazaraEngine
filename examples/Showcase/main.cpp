@@ -163,22 +163,39 @@ int main()
 	}*/
 
 	entt::handle bobEntity = entt::handle(registry, registry.create());
-	entt::entity bobLight = registry.create();
-
+	entt::entity lightEntity1 = registry.create();
 	{
-		auto& lightNode = registry.emplace<Nz::NodeComponent>(bobLight);
+		auto& lightNode = registry.emplace<Nz::NodeComponent>(lightEntity1);
 		lightNode.SetPosition(Nz::Vector3f::Up() * 3.f + Nz::Vector3f::Backward() * 1.f);
 		lightNode.SetRotation(Nz::EulerAnglesf(-70.f, 0.f, 0.f));
 
 		auto spotLight = std::make_shared<Nz::SpotLight>();
-		spotLight->UpdateAmbientFactor(1.f);
+		spotLight->UpdateColor(Nz::Color::Red);
 		spotLight->UpdateInnerAngle(Nz::DegreeAnglef(15.f));
 		spotLight->UpdateOuterAngle(Nz::DegreeAnglef(20.f));
 		spotLight->EnableShadowCasting(true);
 
-		auto& cameraLight = registry.emplace<Nz::LightComponent>(bobLight);
+		auto& cameraLight = registry.emplace<Nz::LightComponent>(lightEntity1);
 		cameraLight.AttachLight(spotLight, 0xFFFFFFFF);
+	}
 
+	entt::entity lightEntity2 = registry.create();
+	{
+		auto& lightNode = registry.emplace<Nz::NodeComponent>(lightEntity2);
+		lightNode.SetPosition(Nz::Vector3f::Up() * 3.5f + Nz::Vector3f::Right() * 1.5f);
+		lightNode.SetRotation(Nz::EulerAnglesf(-70.f, 90.f, 0.f));
+
+		auto spotLight = std::make_shared<Nz::SpotLight>();
+		spotLight->UpdateColor(Nz::Color::Green);
+		spotLight->EnableShadowCasting(true);
+		spotLight->UpdateShadowMapSize(1024);
+
+		auto& cameraLight = registry.emplace<Nz::LightComponent>(lightEntity2);
+		cameraLight.AttachLight(spotLight, 0xFFFFFFFF);
+	}
+	entt::entity lightEntity3 = registry.create();
+
+	{
 		auto& bobNode = bobEntity.emplace<Nz::NodeComponent>();
 		//bobNode.SetRotation(Nz::EulerAnglesf(-90.f, -90.f, 0.f));
 		//bobNode.SetScale(1.f / 40.f * 0.5f);
@@ -231,14 +248,38 @@ int main()
 		smallBobGfx.AttachRenderable(bobModel, 0xFFFFFFFF);
 
 		registry.emplace<Nz::SharedSkeletonComponent>(smallBobEntity, skeleton);
+
+		{
+			auto& lightNode = registry.emplace<Nz::NodeComponent>(lightEntity3);
+			lightNode.SetPosition(Nz::Vector3f::Backward() * 2.f);
+			lightNode.SetRotation(Nz::EulerAnglesf(-45.f, 180.f, 0.f));
+			lightNode.SetParentJoint(bobEntity, "Spine2");
+
+			auto spotLight = std::make_shared<Nz::SpotLight>();
+			spotLight->UpdateColor(Nz::Color::Blue);
+			spotLight->UpdateInnerAngle(Nz::DegreeAnglef(15.f));
+			spotLight->UpdateOuterAngle(Nz::DegreeAnglef(20.f));
+			spotLight->EnableShadowCasting(true);
+
+			auto& cameraLight = registry.emplace<Nz::LightComponent>(lightEntity3);
+			cameraLight.AttachLight(spotLight, 0xFFFFFFFF);
+		}
 	}
 
 	std::shared_ptr<Nz::MaterialInstance> textMat = Nz::Graphics::Instance()->GetDefaultMaterials().phongMaterial->Instantiate();
+	for (const char* pass : { "DepthPass", "ShadowPass", "ForwardPass" })
+	{
+		textMat->UpdatePassStates(pass, [](Nz::RenderStates& renderStates)
+		{
+			renderStates.faceCulling = Nz::FaceCulling::None;
+			return true;
+		});
+	}
+
 	textMat->UpdatePassStates("ForwardPass", [](Nz::RenderStates& renderStates)
 	{
 		renderStates.depthWrite = false;
 		renderStates.blending = true;
-		renderStates.faceCulling = Nz::FaceCulling::None;
 		renderStates.blend.modeColor = Nz::BlendEquation::Add;
 		renderStates.blend.modeAlpha = Nz::BlendEquation::Add;
 		renderStates.blend.srcColor = Nz::BlendFunc::SrcAlpha;
@@ -479,8 +520,10 @@ int main()
 		}
 
 		
-		/*Nz::DebugDrawer& debugDrawer = renderSystem.GetFramePipeline().GetDebugDrawer();
-		Nz::Boxf test = spotLight->GetBoundingVolume().aabb;
+		Nz::DebugDrawer& debugDrawer = renderSystem.GetFramePipeline().GetDebugDrawer();
+		auto& lightNode = registry.get<Nz::NodeComponent>(lightEntity3);
+		debugDrawer.DrawLine(lightNode.GetPosition(Nz::CoordSys::Global), lightNode.GetForward() * 10.f, Nz::Color::Blue);
+		/*Nz::Boxf test = spotLight->GetBoundingVolume().aabb;
 		debugDrawer.DrawBox(test, Nz::Color::Blue);
 		debugDrawer.DrawBox(floorBox, Nz::Color::Red);
 		Nz::Boxf intersection;
