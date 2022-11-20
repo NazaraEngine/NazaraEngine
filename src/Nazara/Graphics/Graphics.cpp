@@ -173,7 +173,7 @@ namespace Nz
 		RenderPipelineLayoutInfo layoutInfo;
 		layoutInfo.bindings.assign({
 			{
-				1, 0, 0,
+				0, 0, 1,
 				ShaderBindingType::Texture,
 				nzsl::ShaderStageType::Fragment
 			}

@@ -75,9 +75,9 @@ namespace Nz
 
 			// TODO: Get more precise shader stage type
 			m_pipelineLayoutInfo.bindings.push_back({
-				arraySize,                // arraySize
-				bindingIndex,             // bindingIndex
 				bindingSet,               // setIndex
+				bindingIndex,             // bindingIndex
+				arraySize,                // arraySize
 				bindingType,              // type
 				nzsl::ShaderStageType_All // shaderStageFlags
 			});
