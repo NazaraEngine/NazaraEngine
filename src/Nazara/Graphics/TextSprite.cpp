@@ -191,19 +191,23 @@ namespace Nz
 			uvRect.height *= invHeight;
 
 			// Our glyph may be flipped in the atlas, to render it correctly we need to change the uv coordinates accordingly
-			const RectCorner normalCorners[4] = { RectCorner::LeftTop, RectCorner::RightTop, RectCorner::LeftBottom, RectCorner::RightBottom };
-			const RectCorner flippedCorners[4] = { RectCorner::LeftBottom, RectCorner::LeftTop, RectCorner::RightBottom, RectCorner::RightTop };
+			constexpr RectCorner normalCorners[4] = { RectCorner::LeftTop, RectCorner::RightTop, RectCorner::LeftBottom, RectCorner::RightBottom };
+			constexpr RectCorner flippedCorners[4] = { RectCorner::LeftBottom, RectCorner::LeftTop, RectCorner::RightBottom, RectCorner::RightTop };
 
-			// Set the position, color and UV of our vertices
-			for (unsigned int j = 0; j < 4; ++j)
+			// Glyph are in clockwise order, but the sprite expects them as CCW
+			std::size_t offset = indices->first + indices->count;
+			offset *= 4;
+
+			for (std::size_t index : { 0, 2, 1, 3 })
 			{
+				// Set the position, color and UV of our vertices
 				// Remember that indices->count is a counter here, not a count value
-				std::size_t offset = (indices->first + indices->count) * 4 + j;
 				m_vertices[offset].color = glyph.color;
-				m_vertices[offset].position = glyph.corners[j];
+				m_vertices[offset].position = glyph.corners[index];
 				m_vertices[offset].position.y = bounds.height - m_vertices[offset].position.y;
 				m_vertices[offset].position *= scale;
-				m_vertices[offset].uv.Set(uvRect.GetCorner((glyph.flipped) ? flippedCorners[j] : normalCorners[j]));
+				m_vertices[offset].uv.Set(uvRect.GetCorner((glyph.flipped) ? flippedCorners[index] : normalCorners[index]));
+				offset++;
 			}
 
 			// Increment the counter, go to next glyph
