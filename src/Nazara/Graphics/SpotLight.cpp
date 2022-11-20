@@ -29,7 +29,7 @@ namespace Nz
 		AccessByOffset<Vector4f&>(data, lightOffset.lightMemberOffsets.parameter1) = Vector4f(m_position.x, m_position.y, m_position.z, m_invRadius);
 		AccessByOffset<Vector4f&>(data, lightOffset.lightMemberOffsets.parameter2) = Vector4f(m_direction.x, m_direction.y, m_direction.z, 0.f);
 		AccessByOffset<Vector4f&>(data, lightOffset.lightMemberOffsets.parameter3) = Vector4f(m_innerAngleCos, m_outerAngleCos, 0.f, 0.f);
-		AccessByOffset<UInt8&>(data, lightOffset.lightMemberOffsets.shadowMappingFlag) = 0;
+		AccessByOffset<Vector2f&>(data, lightOffset.lightMemberOffsets.shadowMapSize) = (IsShadowCaster()) ? Vector2f(1.f / GetShadowMapSize()) : Vector2f(-1.f, -1.f);
 		AccessByOffset<Matrix4f&>(data, lightOffset.lightMemberOffsets.viewProjMatrix) = m_viewProjMatrix;
 	}
 

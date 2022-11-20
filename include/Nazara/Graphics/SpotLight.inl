@@ -170,7 +170,7 @@ namespace Nz
 		                    0.0f, 0.0f, 1.0f, 0.0f,
 		                    0.5f, 0.5f, 0.0f, 1.0f);
 
-		Matrix4f projection = Matrix4f::Perspective(m_outerAngle * 2.f, 1.f, 1.f, m_radius);
+		Matrix4f projection = Matrix4f::Perspective(m_outerAngle * 2.f, 1.f, 0.01f, m_radius);
 		Matrix4f view = Matrix4f::TransformInverse(m_position, m_rotation);
 
 		m_viewProjMatrix = view * projection * biasMatrix;

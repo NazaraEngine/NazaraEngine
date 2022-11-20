@@ -27,7 +27,7 @@ namespace Nz
 		AccessByOffset<Vector4f&>(data, lightOffset.lightMemberOffsets.color) = Vector4f(m_color.r, m_color.g, m_color.b, m_color.a);
 		AccessByOffset<Vector2f&>(data, lightOffset.lightMemberOffsets.factor) = Vector2f(m_ambientFactor, m_diffuseFactor);
 		AccessByOffset<Vector4f&>(data, lightOffset.lightMemberOffsets.parameter1) = Vector4f(m_position.x, m_position.y, m_position.z, m_invRadius);
-		AccessByOffset<UInt8&>(data, lightOffset.lightMemberOffsets.shadowMappingFlag) = 0;
+		AccessByOffset<Vector2f&>(data, lightOffset.lightMemberOffsets.shadowMapSize) = Vector2f(-1.f, -1.f);
 	}
 
 	void PointLight::UpdateTransform(const Vector3f& position, const Quaternionf& /*rotation*/, const Vector3f& /*scale*/)
