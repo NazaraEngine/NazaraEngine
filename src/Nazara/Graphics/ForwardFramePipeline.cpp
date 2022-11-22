@@ -581,8 +581,8 @@ namespace Nz
 			lightData->shadowMapAttachmentIndex = frameGraph.AddAttachment({
 				"Shadowmap",
 				shadowMapFormat,
+				FramePassAttachmentSize::Fixed,
 				shadowMapSize, shadowMapSize,
-				true // fixed size
 			});
 
 			if (!lightData->camera)

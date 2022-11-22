@@ -153,15 +153,20 @@ namespace Nz
 			textureCreationParams.type = ImageType::E2D;
 			textureCreationParams.usageFlags = textureData.usage;
 			textureCreationParams.pixelFormat = textureData.format;
-			if (textureData.hasFixedSize)
+			
+			textureCreationParams.width = 1;
+			textureCreationParams.height = 1;
+			switch (textureData.size)
 			{
-				textureCreationParams.width = textureData.width;
-				textureCreationParams.height = textureData.height;
-			}
-			else
-			{
-				textureCreationParams.width = textureData.width * frameWidth / 100'000;
-				textureCreationParams.height = textureData.height * frameHeight / 100'000;
+				case FramePassAttachmentSize::Fixed:
+					textureCreationParams.width = textureData.width;
+					textureCreationParams.height = textureData.height;
+					break;
+
+				case FramePassAttachmentSize::SwapchainFactor:
+					textureCreationParams.width = frameWidth * textureData.width / 100'000;
+					textureCreationParams.height = frameHeight * textureData.height / 100'000;
+					break;
 			}
 
 			textureData.texture = renderDevice->InstantiateTexture(textureCreationParams);
@@ -181,17 +186,19 @@ namespace Nz
 				auto& textureData = m_textures[textureId];
 				textures.push_back(textureData.texture);
 
-				unsigned int width;
-				unsigned int height;
-				if (textureData.hasFixedSize)
+				unsigned int width = 1;
+				unsigned int height = 1;
+				switch (textureData.size)
 				{
-					width = textureData.width;
-					height = textureData.height;
-				}
-				else
-				{
-					width = frameWidth * textureData.width / 100'000;
-					height = frameHeight * textureData.height / 100'000;
+					case FramePassAttachmentSize::Fixed:
+						width = textureData.width;
+						height = textureData.height;
+						break;
+
+					case FramePassAttachmentSize::SwapchainFactor:
+						width = frameWidth * textureData.width / 100'000;
+						height = frameHeight * textureData.height / 100'000;
+						break;
 				}
 
 				framebufferWidth = std::min(framebufferWidth, width);

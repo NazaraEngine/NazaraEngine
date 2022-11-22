@@ -198,15 +198,15 @@ namespace Nz
 			std::size_t offset = indices->first + indices->count;
 			offset *= 4;
 
-			for (std::size_t index : { 0, 2, 1, 3 })
+			for (std::size_t cornerIndex : { 0, 2, 1, 3 })
 			{
 				// Set the position, color and UV of our vertices
 				// Remember that indices->count is a counter here, not a count value
 				m_vertices[offset].color = glyph.color;
-				m_vertices[offset].position = glyph.corners[index];
+				m_vertices[offset].position = glyph.corners[cornerIndex];
 				m_vertices[offset].position.y = bounds.height - m_vertices[offset].position.y;
 				m_vertices[offset].position *= scale;
-				m_vertices[offset].uv.Set(uvRect.GetCorner((glyph.flipped) ? flippedCorners[index] : normalCorners[index]));
+				m_vertices[offset].uv.Set(uvRect.GetCorner((glyph.flipped) ? flippedCorners[cornerIndex] : normalCorners[cornerIndex]));
 				offset++;
 			}
 

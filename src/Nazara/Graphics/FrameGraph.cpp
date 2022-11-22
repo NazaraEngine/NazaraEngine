@@ -115,10 +115,10 @@ namespace Nz
 			auto& bakedTexture = bakedTextures.emplace_back();
 			bakedTexture.name = std::move(texture.name);
 			bakedTexture.format = texture.format;
-			bakedTexture.hasFixedSize = texture.hasFixedSize;
 			bakedTexture.height = texture.height;
-			bakedTexture.usage = texture.usage;
-			bakedTexture.width = texture.width;
+			bakedTexture.size   = texture.size;
+			bakedTexture.usage  = texture.usage;
+			bakedTexture.width  = texture.width;
 		}
 
 		return BakedFrameGraph(std::move(bakedPasses), std::move(bakedTextures), std::move(m_pending.attachmentToTextures), std::move(m_pending.passIdToPhysicalPassIndex));
@@ -954,7 +954,7 @@ namespace Nz
 					if (data.format != attachmentData.format ||
 						data.width != attachmentData.width ||
 						data.height != attachmentData.height ||
-						data.hasFixedSize != attachmentData.hasFixedSize)
+						data.size != attachmentData.size)
 						continue;
 
 					m_pending.texturePool.erase(it);
@@ -974,7 +974,7 @@ namespace Nz
 				data.format = attachmentData.format;
 				data.width = attachmentData.width;
 				data.height = attachmentData.height;
-				data.hasFixedSize = attachmentData.hasFixedSize;
+				data.size = attachmentData.size;
 
 				return textureId;
 			}
