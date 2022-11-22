@@ -14,13 +14,19 @@
 
 namespace Nz
 {
+	enum class FramePassAttachmentSize
+	{
+		Fixed,
+		SwapchainFactor
+	};
+
 	struct FramePassAttachment
 	{
 		std::string name;
 		PixelFormat format;
+		FramePassAttachmentSize size = FramePassAttachmentSize::SwapchainFactor;
 		unsigned int width = 100'000;
 		unsigned int height = 100'000;
-		bool hasFixedSize = false;
 	};
 }
 

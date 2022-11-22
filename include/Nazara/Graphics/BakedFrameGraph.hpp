@@ -85,11 +85,11 @@ namespace Nz
 			{
 				std::string name;
 				std::shared_ptr<Texture> texture;
+				FramePassAttachmentSize size;
 				PixelFormat format;
 				TextureUsageFlags usage;
 				unsigned int width;
 				unsigned int height;
-				bool hasFixedSize;
 			};
 
 			std::shared_ptr<CommandPool> m_commandPool;

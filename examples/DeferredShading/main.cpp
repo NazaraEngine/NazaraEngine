@@ -719,6 +719,7 @@ int main()
 		godRaysTexture = graph.AddAttachment({
 			"God rays texture",
 			Nz::PixelFormat::RGBA16F,
+			Nz::FramePassAttachmentSize::SwapchainFactor,
 			50'000,
 			50'000
 		});
@@ -729,6 +730,7 @@ int main()
 		bloomBrightOutput = graph.AddAttachment({
 			"Bloom bright output",
 			Nz::PixelFormat::RGBA16F,
+			Nz::FramePassAttachmentSize::SwapchainFactor,
 			bloomSize,
 			bloomSize
 		});
@@ -738,6 +740,7 @@ int main()
 			bloomTextures[i * 2 + 0] = graph.AddAttachment({
 				"Bloom texture #" + std::to_string(i),
 				Nz::PixelFormat::RGBA16F,
+				Nz::FramePassAttachmentSize::SwapchainFactor,
 				bloomSize,
 				bloomSize
 			});
@@ -746,6 +749,7 @@ int main()
 			bloomTextures[i * 2 + 1] = graph.AddAttachment({
 				"Bloom texture #" + std::to_string(i),
 				Nz::PixelFormat::RGBA16F,
+				Nz::FramePassAttachmentSize::SwapchainFactor,
 				bloomSize,
 				bloomSize
 			});
@@ -756,6 +760,7 @@ int main()
 		toneMappingOutput = graph.AddAttachment({
 			"Tone mapping",
 			Nz::PixelFormat::RGBA8,
+			Nz::FramePassAttachmentSize::SwapchainFactor,
 			100'000,
 			100'000
 		});
