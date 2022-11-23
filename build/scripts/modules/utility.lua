@@ -6,10 +6,12 @@ MODULE.Libraries = {
 }
 
 MODULE.OsLibraries.Windows = {
-	"freetype"
+	"freetype",
+	"zlib"
 }
 
 MODULE.OsLibraries.Posix = {
-	"freetype"
+	"freetype",
+	"zlib"
 }
 
