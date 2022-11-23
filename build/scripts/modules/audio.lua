@@ -11,7 +11,7 @@ MODULE.Libraries = {
 }
 
 MODULE.OsLibraries.Windows = {
-	"sndfile-1"
+	"sndfile"
 }
 
 MODULE.OsLibraries.Posix = {
