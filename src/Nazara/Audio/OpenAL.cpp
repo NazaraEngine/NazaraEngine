@@ -5,6 +5,7 @@
 #include <Nazara/Audio/OpenAL.hpp>
 #include <Nazara/Core/DynLib.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <cstring>
 #include <sstream>
@@ -140,6 +141,8 @@ namespace Nz
 		bool succeeded = false;
 		for (const char* path : libs)
 		{
+			ErrorFlags errFlags(Nz::ErrorFlag_ThrowExceptionDisabled);
+			
 			String libPath(path);
 			if (!s_library.Load(libPath))
 				continue;
