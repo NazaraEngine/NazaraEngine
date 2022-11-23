@@ -6,7 +6,7 @@ MODULE.Libraries = {
 }
 
 MODULE.OsLibraries.Windows = {
-	"freetype-s"
+	"freetype"
 }
 
 MODULE.OsLibraries.Posix = {

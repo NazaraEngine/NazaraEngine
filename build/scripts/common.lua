@@ -834,6 +834,12 @@ function NazaraBuild:PrepareGeneric()
 	self:FilterLibDirectory("../thirdparty/genlib/", libdirs)
 	self:FilterLibDirectory("../thirdparty/lib/", libdirs)
 
+    if self.Config["ExtlibIncludeDirs"] then
+		includedirs(self.Config["ExtlibIncludeDirs"])
+
+    if self.Config["ExtlibLinkDirs"] then
+		libdirs(self.Config["ExtlibLinkDirs"])
+
 	-- Fixes Premake stuff
 	filter({"kind:SharedLib", clangGccActions})
 		implibprefix("lib")
