@@ -2,7 +2,6 @@
 #include <Nazara/Core/Systems.hpp>
 #include <Nazara/Platform.hpp>
 #include <Nazara/Graphics.hpp>
-#include <Nazara/Graphics/TextSprite.hpp>
 #include <Nazara/Graphics/Components.hpp>
 #include <Nazara/Graphics/Systems.hpp>
 #include <Nazara/Math/PidController.hpp>
@@ -93,13 +92,28 @@ int main()
 
 	entt::entity groundEntity = registry.create();
 	{
-		std::shared_ptr<Nz::Sprite> sprite = std::make_shared<Nz::Sprite>(Nz::Graphics::Instance()->GetDefaultMaterials().basicDefault);
-		sprite->SetSize({ 800.f, 20.f });
-		sprite->SetOrigin({ 400.f, 10.f, 0.f });
+		std::shared_ptr<Nz::Tilemap> tilemap = std::make_shared<Nz::Tilemap>(Nz::Vector2ui(40, 20), Nz::Vector2f(64.f, 64.f), 18);
+		tilemap->SetOrigin(Nz::Vector2f(0.5f, 0.5f));
+		tilemap->EnableIsometricMode(true);
+		for (std::size_t i = 0; i < 18; ++i)
+		{
+			std::shared_ptr<Nz::MaterialInstance> material = Nz::Graphics::Instance()->GetDefaultMaterials().basicTransparent->Clone();
+			material->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(resourceDir / "tiles" / (std::to_string(i + 1) + ".png"), texParams));
 
-		registry.emplace<Nz::NodeComponent>(groundEntity).SetPosition(1920.f / 2.f, 50.f);
-		registry.emplace<Nz::GraphicsComponent>(groundEntity).AttachRenderable(sprite, 1);
-		auto& rigidBody = registry.emplace<Nz::RigidBody2DComponent>(groundEntity, physSytem.CreateRigidBody(0.f, std::make_shared<Nz::BoxCollider2D>(Nz::Vector2f(800.f, 20.f))));
+			tilemap->SetMaterial(i, material);
+		}
+
+		for (unsigned int y = 0; y < 20; ++y)
+		{
+			for (unsigned int x = 0; x < 40; ++x)
+			{
+				tilemap->EnableTile({ x, y }, Nz::Rectf{ 0.f, 0.f, 1.f, 1.f }, Nz::Color::White, (y == 0) ? 1 : 4);
+			}
+		}
+
+		registry.emplace<Nz::NodeComponent>(groundEntity).SetPosition(1920.f / 2.f, 0.f);
+		registry.emplace<Nz::GraphicsComponent>(groundEntity).AttachRenderable(tilemap, 1);
+		auto& rigidBody = registry.emplace<Nz::RigidBody2DComponent>(groundEntity, physSytem.CreateRigidBody(0.f, std::make_shared<Nz::BoxCollider2D>(tilemap->GetSize())));
 		rigidBody.SetElasticity(0.99f);
 	}
 

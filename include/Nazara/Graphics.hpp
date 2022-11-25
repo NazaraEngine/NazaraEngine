@@ -80,6 +80,7 @@
 #include <Nazara/Graphics/SubmeshRenderer.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
 #include <Nazara/Graphics/TextureSamplerCache.hpp>
+#include <Nazara/Graphics/Tilemap.hpp>
 #include <Nazara/Graphics/TransferInterface.hpp>
 #include <Nazara/Graphics/UberShader.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
