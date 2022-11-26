@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/Components/LightComponent.hpp>
+#include <stdexcept>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
@@ -12,20 +13,25 @@ namespace Nz
 	{
 	}
 
-	inline void LightComponent::AttachLight(std::shared_ptr<Light> light, UInt32 renderMask)
+	template<typename T, typename... Args>
+	T& LightComponent::AddLight(UInt32 renderMask, Args&&... args)
 	{
+		static_assert(std::is_base_of_v<Light, T>, "Type must inherit Light");
+
 		for (std::size_t i = 0; i < m_lightEntries.size(); ++i)
 		{
 			auto& entry = m_lightEntries[i];
 			if (entry.light)
 				continue;
 
-			entry.light = std::move(light);
+			entry.light = std::make_unique<T>(std::forward<Args>(args)...);
 			entry.renderMask = renderMask;
 
 			OnLightAttached(this, i);
-			break;
+			return static_cast<T&>(*entry.light);
 		}
+
+		throw std::runtime_error("too many lights attached to the same entity");
 	}
 
 	inline void LightComponent::Clear()
@@ -33,22 +39,11 @@ namespace Nz
 		for (std::size_t i = 0; i < m_lightEntries.size(); ++i)
 		{
 			auto& entry = m_lightEntries[i];
-			if (entry.light)
+			if (!entry.light)
 				continue;
 
 			OnLightDetach(this, i);
 			entry.light.reset();
-		}
-	}
-
-	inline void LightComponent::DetachLight(const std::shared_ptr<Light>& light)
-	{
-		auto it = std::find_if(m_lightEntries.begin(), m_lightEntries.end(), [&](const auto& lightEntry) { return lightEntry.light == light; });
-		if (it != m_lightEntries.end())
-		{
-			OnLightDetach(this, std::distance(m_lightEntries.begin(), it));
-
-			it->light.reset();
 		}
 	}
 
@@ -71,6 +66,24 @@ namespace Nz
 	inline bool LightComponent::IsVisible() const
 	{
 		return m_isVisible;
+	}
+
+	inline void LightComponent::RemoveLight(std::size_t lightIndex)
+	{
+		assert(lightIndex < m_lightEntries.size());
+		auto& entry = m_lightEntries[lightIndex];
+		if (!entry.light)
+			return;
+
+		OnLightDetach(this, lightIndex);
+		entry.light.reset();
+	}
+
+	inline void LightComponent::RemoveLight(const Light& light)
+	{
+		auto it = std::find_if(m_lightEntries.begin(), m_lightEntries.end(), [&](const auto& lightEntry) { return lightEntry.light.get() == &light; });
+		if (it != m_lightEntries.end())
+			RemoveLight(std::distance(m_lightEntries.begin(), it));
 	}
 
 	inline void LightComponent::Show(bool show)

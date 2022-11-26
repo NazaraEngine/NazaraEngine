@@ -28,11 +28,9 @@ namespace Nz
 			LightComponent(LightComponent&&) = default;
 			~LightComponent() = default;
 
-			inline void AttachLight(std::shared_ptr<Light> renderable, UInt32 renderMask);
+			template<typename T, typename... Args> T& AddLight(UInt32 renderMask, Args&&... args);
 
 			inline void Clear();
-
-			inline void DetachLight(const std::shared_ptr<Light>& renderable);
 
 			inline const LightEntry& GetLightEntry(std::size_t lightIndex) const;
 			inline const std::array<LightEntry, MaxLightCount>& GetLights() const;
@@ -40,6 +38,9 @@ namespace Nz
 			inline void Hide();
 
 			inline bool IsVisible() const;
+
+			inline void RemoveLight(std::size_t lightIndex);
+			inline void RemoveLight(const Light& renderable);
 
 			inline void Show(bool show = true);
 
@@ -52,7 +53,7 @@ namespace Nz
 
 			struct LightEntry
 			{
-				std::shared_ptr<Light> light;
+				std::unique_ptr<Light> light;
 				UInt32 renderMask;
 			};
 

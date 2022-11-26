@@ -103,11 +103,11 @@ int main()
 	framePipeline.RegisterRenderable(worldInstanceIndex1, Nz::FramePipeline::NoSkeletonInstance, &model, 0xFFFFFFFF, scissorBox);
 	framePipeline.RegisterRenderable(worldInstanceIndex2, Nz::FramePipeline::NoSkeletonInstance, &model, 0xFFFFFFFF, scissorBox);
 
-	std::shared_ptr<Nz::SpotLight> light = std::make_shared<Nz::SpotLight>();
+	std::unique_ptr<Nz::SpotLight> light = std::make_unique<Nz::SpotLight>();
 	light->UpdateInnerAngle(Nz::DegreeAnglef(15.f));
 	light->UpdateOuterAngle(Nz::DegreeAnglef(20.f));
 
-	framePipeline.RegisterLight(light, 0xFFFFFFFF);
+	framePipeline.RegisterLight(light.get(), 0xFFFFFFFF);
 
 	Nz::Vector3f viewerPos = Nz::Vector3f::Zero();
 
