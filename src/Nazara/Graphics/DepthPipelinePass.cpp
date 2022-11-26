@@ -129,10 +129,10 @@ namespace Nz
 			it->second.usedCount++;
 	}
 
-	FramePass& DepthPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, std::size_t depthBufferIndex)
+	FramePass& DepthPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, std::size_t outputAttachment)
 	{
 		FramePass& depthPrepass = frameGraph.AddPass(m_passName);
-		depthPrepass.SetDepthStencilOutput(depthBufferIndex);
+		depthPrepass.SetDepthStencilOutput(outputAttachment);
 		depthPrepass.SetDepthStencilClear(1.f, 0);
 
 		depthPrepass.SetExecutionCallback([&]()

@@ -32,7 +32,7 @@ namespace Nz
 			inline DegreeAnglef GetFOV() const;
 			UInt32 GetRenderMask() const override;
 			inline Int32 GetRenderOrder() const;
-			const RenderTarget& GetRenderTarget() override;
+			const RenderTarget& GetRenderTarget() const;
 			inline const Vector2f& GetSize() const;
 			inline const Rectf& GetTargetRegion() const;
 			ViewerInstance& GetViewerInstance() override;

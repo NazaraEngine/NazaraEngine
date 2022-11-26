@@ -38,6 +38,8 @@ namespace Nz
 			inline const Quaternionf& GetRotation() const;
 			inline float GetRadius() const;
 
+			std::unique_ptr<LightShadowData> InstanciateShadowData(FramePipeline& pipeline, ElementRendererRegistry& elementRegistry) const override;
+
 			inline void UpdateAmbientFactor(float factor);
 			inline void UpdateColor(Color color);
 			inline void UpdateDiffuseFactor(float factor);

@@ -18,6 +18,7 @@
 #include <Nazara/Graphics/FramePipeline.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/Light.hpp>
+#include <Nazara/Graphics/LightShadowData.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>
 #include <Nazara/Graphics/RenderQueue.hpp>
@@ -44,7 +45,13 @@ namespace Nz
 			ForwardFramePipeline(ForwardFramePipeline&&) = delete;
 			~ForwardFramePipeline();
 
-			std::size_t RegisterLight(std::shared_ptr<Light> light, UInt32 renderMask) override;
+			const std::vector<FramePipelinePass::VisibleRenderable>& FrustumCull(const Frustumf& frustum, UInt32 mask, std::size_t& visibilityHash) const override;
+
+			void ForEachRegisteredMaterialInstance(FunctionRef<void(const MaterialInstance& materialInstance)> callback) override;
+
+			void QueueTransfer(TransferInterface* transfer) override;
+
+			std::size_t RegisterLight(const Light* light, UInt32 renderMask) override;
 			std::size_t RegisterRenderable(std::size_t worldInstanceIndex, std::size_t skeletonInstanceIndex, const InstancedRenderable* instancedRenderable, UInt32 renderMask, const Recti& scissorBox) override;
 			std::size_t RegisterSkeleton(SkeletonInstancePtr skeletonInstance) override;
 			std::size_t RegisterViewer(AbstractViewer* viewerInstance, Int32 renderOrder) override;
@@ -79,14 +86,11 @@ namespace Nz
 
 			struct LightData
 			{
-				std::shared_ptr<Light> light;
-				std::size_t shadowMapAttachmentIndex;
-				std::unique_ptr<Camera> camera;
-				std::unique_ptr<DepthPipelinePass> pass;
+				std::unique_ptr<LightShadowData> shadowData;
+				const Light* light;
 				UInt32 renderMask;
 
 				NazaraSlot(Light, OnLightDataInvalided, onLightInvalidated);
-				NazaraSlot(Light, OnLightTransformInvalided, onLightTransformInvalidated);
 				NazaraSlot(Light, OnLightShadowCastingChanged, onLightShadowCastingChanged);
 			};
 
@@ -150,7 +154,7 @@ namespace Nz
 			std::unordered_map<const RenderTarget*, RenderTargetData> m_renderTargets;
 			std::unordered_map<MaterialInstance*, MaterialInstanceData> m_materialInstances;
 			std::vector<ElementRenderer::RenderStates> m_renderStates;
-			std::vector<FramePipelinePass::VisibleRenderable> m_visibleRenderables;
+			mutable std::vector<FramePipelinePass::VisibleRenderable> m_visibleRenderables;
 			std::vector<std::size_t> m_visibleLights;
 			robin_hood::unordered_set<TransferInterface*> m_transferSet;
 			BakedFrameGraph m_bakedFrameGraph;
@@ -159,7 +163,7 @@ namespace Nz
 			Bitset<UInt64> m_removedViewerInstances;
 			Bitset<UInt64> m_removedWorldInstances;
 			ElementRendererRegistry& m_elementRegistry;
-			MemoryPool<RenderableData> m_renderablePool;
+			mutable MemoryPool<RenderableData> m_renderablePool; //< FIXME: has to be mutable because MemoryPool has no const_iterator
 			MemoryPool<LightData> m_lightPool;
 			MemoryPool<SkeletonInstanceData> m_skeletonInstances;
 			MemoryPool<ViewerData> m_viewerPool;

@@ -54,7 +54,6 @@ namespace Nz
 
 			std::shared_ptr<GraphicalMesh> m_graphicalMesh;
 			std::vector<SubMeshData> m_submeshes;
-			Recti m_scissorBox;
 	};
 }
 

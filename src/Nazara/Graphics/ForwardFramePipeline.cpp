@@ -44,11 +44,67 @@ namespace Nz
 		m_viewerPool.Clear();
 	}
 
-	std::size_t ForwardFramePipeline::RegisterLight(std::shared_ptr<Light> light, UInt32 renderMask)
+	const std::vector<Nz::FramePipelinePass::VisibleRenderable>& ForwardFramePipeline::FrustumCull(const Frustumf& frustum, UInt32 mask, std::size_t& visibilityHash) const
+	{
+		auto CombineHash = [](std::size_t currentHash, std::size_t newHash)
+		{
+			return currentHash * 23 + newHash;
+		};
+
+		m_visibleRenderables.clear();
+		for (const RenderableData& renderableData : m_renderablePool)
+		{
+			if ((mask & renderableData.renderMask) == 0)
+				continue;
+
+			const WorldInstancePtr& worldInstance = m_worldInstances.RetrieveFromIndex(renderableData.worldInstanceIndex)->worldInstance;
+
+			// Get global AABB
+			BoundingVolumef boundingVolume(renderableData.renderable->GetAABB());
+			boundingVolume.Update(worldInstance->GetWorldMatrix());
+
+			if (!frustum.Contains(boundingVolume))
+				continue;
+
+			auto& visibleRenderable = m_visibleRenderables.emplace_back();
+			visibleRenderable.instancedRenderable = renderableData.renderable;
+			visibleRenderable.scissorBox = renderableData.scissorBox;
+			visibleRenderable.worldInstance = worldInstance.get();
+
+			if (renderableData.skeletonInstanceIndex != NoSkeletonInstance)
+				visibleRenderable.skeletonInstance = m_skeletonInstances.RetrieveFromIndex(renderableData.skeletonInstanceIndex)->skeleton.get();
+			else
+				visibleRenderable.skeletonInstance = nullptr;
+
+			visibilityHash = CombineHash(visibilityHash, std::hash<const void*>()(&renderableData));
+		}
+
+		return m_visibleRenderables;
+	}
+
+	void ForwardFramePipeline::ForEachRegisteredMaterialInstance(FunctionRef<void(const MaterialInstance& materialInstance)> callback)
+	{
+		for (RenderableData& renderable : m_renderablePool)
+		{
+			std::size_t matCount = renderable.renderable->GetMaterialCount();
+			for (std::size_t j = 0; j < matCount; ++j)
+			{
+				if (MaterialInstance* mat = renderable.renderable->GetMaterial(j).get())
+					callback(*mat);
+			}
+		}
+	}
+
+	void ForwardFramePipeline::QueueTransfer(TransferInterface* transfer)
+	{
+		m_transferSet.insert(transfer);
+	}
+
+	std::size_t ForwardFramePipeline::RegisterLight(const Light* light, UInt32 renderMask)
 	{
 		std::size_t lightIndex;
 		LightData* lightData = m_lightPool.Allocate(lightIndex);
-		lightData->light = std::move(light);
+		lightData->light = light;
 		lightData->renderMask = renderMask;
 		lightData->onLightInvalidated.Connect(lightData->light->OnLightDataInvalided, [=](Light*)
 		{
@@ -65,11 +121,14 @@ namespace Nz
 		lightData->onLightShadowCastingChanged.Connect(lightData->light->OnLightShadowCastingChanged, [=](Light* light, bool isCastingShadows)
 		{
 			if (isCastingShadows)
+			{
 				m_shadowCastingLights.UnboundedSet(lightIndex);
+				lightData->shadowData = light->InstanciateShadowData(*this, m_elementRegistry);
+			}
 			else
 			{
 				m_shadowCastingLights.Reset(lightIndex);
-				lightData->pass.reset();
+				lightData->shadowData.reset();
 			}
 
 			m_rebuildFrameGraph = true;
@@ -78,6 +137,7 @@ namespace Nz
 		if (lightData->light->IsShadowCaster())
 		{
 			m_shadowCastingLights.UnboundedSet(lightIndex);
+			lightData->shadowData = light->InstanciateShadowData(*this, m_elementRegistry);
 			m_rebuildFrameGraph = true;
 		}
 
@@ -215,7 +275,7 @@ namespace Nz
 
 	const Light* ForwardFramePipeline::RetrieveLight(std::size_t lightIndex) const
 	{
-		return m_lightPool.RetrieveFromIndex(lightIndex)->light.get();
+		return m_lightPool.RetrieveFromIndex(lightIndex)->light;
 	}
 
 	const Texture* ForwardFramePipeline::RetrieveLightShadowmap(std::size_t lightIndex) const
@@ -223,8 +283,7 @@ namespace Nz
 		if (!m_shadowCastingLights.UnboundedTest(lightIndex))
 			return nullptr;
 
-		std::size_t shadowmapIndex = m_lightPool.RetrieveFromIndex(lightIndex)->shadowMapAttachmentIndex;
-		return m_bakedFrameGraph.GetAttachmentTexture(shadowmapIndex).get();
+		return m_lightPool.RetrieveFromIndex(lightIndex)->shadowData->RetrieveLightShadowmap(m_bakedFrameGraph);
 	}
 
 	void ForwardFramePipeline::Render(RenderFrame& renderFrame)
@@ -279,51 +338,11 @@ namespace Nz
 			builder.EndDebugRegion();
 		}, QueueType::Transfer);
 
-		auto CombineHash = [](std::size_t currentHash, std::size_t newHash)
-		{
-			return currentHash * 23 + newHash;
-		};
-
 		// Shadow map handling
 		for (std::size_t i = m_shadowCastingLights.FindFirst(); i != m_shadowCastingLights.npos; i = m_shadowCastingLights.FindNext(i))
 		{
 			LightData* lightData = m_lightPool.RetrieveFromIndex(i);
-
-			const Matrix4f& viewProjMatrix = lightData->camera->GetViewerInstance().GetViewProjMatrix();
-
-			Frustumf frustum = Frustumf::Extract(viewProjMatrix);
-
-			std::size_t visibilityHash = 5U;
-
-			m_visibleRenderables.clear();
-			for (const RenderableData& renderableData : m_renderablePool)
-			{
-				if ((lightData->renderMask & renderableData.renderMask) == 0)
-					continue;
-
-				WorldInstancePtr& worldInstance = m_worldInstances.RetrieveFromIndex(renderableData.worldInstanceIndex)->worldInstance;
-
-				// Get global AABB
-				BoundingVolumef boundingVolume(renderableData.renderable->GetAABB());
-				boundingVolume.Update(worldInstance->GetWorldMatrix());
-
-				if (!frustum.Contains(boundingVolume))
-					continue;
-
-				auto& visibleRenderable = m_visibleRenderables.emplace_back();
-				visibleRenderable.instancedRenderable = renderableData.renderable;
-				visibleRenderable.scissorBox = renderableData.scissorBox;
-				visibleRenderable.worldInstance = worldInstance.get();
-
-				if (renderableData.skeletonInstanceIndex != NoSkeletonInstance)
-					visibleRenderable.skeletonInstance = m_skeletonInstances.RetrieveFromIndex(renderableData.skeletonInstanceIndex)->skeleton.get();
-				else
-					visibleRenderable.skeletonInstance = nullptr;
-
-				visibilityHash = CombineHash(visibilityHash, std::hash<const void*>()(&renderableData));
-			}
-
-			lightData->pass->Prepare(renderFrame, frustum, m_visibleRenderables, visibilityHash);
+			lightData->shadowData->PrepareRendering(renderFrame);
 		}
 
 		// Render queues handling
@@ -335,36 +354,8 @@ namespace Nz
 			const Matrix4f& viewProjMatrix = viewerData.viewer->GetViewerInstance().GetViewProjMatrix();
 
 			Frustumf frustum = Frustumf::Extract(viewProjMatrix);
-
-			std::size_t visibilityHash = 5U;
-
-			m_visibleRenderables.clear();
-			for (const RenderableData& renderableData : m_renderablePool)
-			{
-				if ((renderMask & renderableData.renderMask) == 0)
-					continue;
-
-				WorldInstancePtr& worldInstance = m_worldInstances.RetrieveFromIndex(renderableData.worldInstanceIndex)->worldInstance;
-
-				// Get global AABB
-				BoundingVolumef boundingVolume(renderableData.renderable->GetAABB());
-				boundingVolume.Update(worldInstance->GetWorldMatrix());
-
-				if (!frustum.Contains(boundingVolume))
-					continue;
-
-				auto& visibleRenderable = m_visibleRenderables.emplace_back();
-				visibleRenderable.instancedRenderable = renderableData.renderable;
-				visibleRenderable.scissorBox = renderableData.scissorBox;
-				visibleRenderable.worldInstance = worldInstance.get();
-
-				if (renderableData.skeletonInstanceIndex != NoSkeletonInstance)
-					visibleRenderable.skeletonInstance = m_skeletonInstances.RetrieveFromIndex(renderableData.skeletonInstanceIndex)->skeleton.get();
-				else
-					visibleRenderable.skeletonInstance = nullptr;
-
-				visibilityHash = CombineHash(visibilityHash, std::hash<const void*>()(&renderableData));
-			}
+			std::size_t visibilityHash = 5;
+			const auto& visibleRenderables = FrustumCull(frustum, renderMask, visibilityHash);
 
 			// Lights update don't trigger a rebuild of the depth pre-pass
 			std::size_t depthVisibilityHash = visibilityHash;
@@ -381,14 +372,20 @@ namespace Nz
 				if (renderMask & lightData.renderMask && frustum.Contains(boundingVolume))
 				{
 					m_visibleLights.push_back(lightIndex);
-					visibilityHash = CombineHash(visibilityHash, std::hash<const void*>()(lightData.light.get()));
+
+					auto CombineHash = [](std::size_t currentHash, std::size_t newHash)
+					{
+						return currentHash * 23 + newHash;
+					};
+
+					visibilityHash = CombineHash(visibilityHash, std::hash<const void*>()(lightData.light));
 				}
 			}
 
 			if (viewerData.depthPrepass)
-				viewerData.depthPrepass->Prepare(renderFrame, frustum, m_visibleRenderables, depthVisibilityHash);
+				viewerData.depthPrepass->Prepare(renderFrame, frustum, visibleRenderables, depthVisibilityHash);
 
-			viewerData.forwardPass->Prepare(renderFrame, frustum, m_visibleRenderables, m_visibleLights, visibilityHash);
+			viewerData.forwardPass->Prepare(renderFrame, frustum, visibleRenderables, m_visibleLights, visibilityHash);
 
 			viewerData.debugDrawPass->Prepare(renderFrame);
 		}
@@ -571,60 +568,7 @@ namespace Nz
 		for (std::size_t i = m_shadowCastingLights.FindFirst(); i != m_shadowCastingLights.npos; i = m_shadowCastingLights.FindNext(i))
 		{
 			LightData* lightData = m_lightPool.RetrieveFromIndex(i);
-
-			assert(lightData->light->GetLightType() == UnderlyingCast(BasicLightType::Spot));
-			SpotLight& spotLight = SafeCast<SpotLight&>(*lightData->light);
-
-			PixelFormat shadowMapFormat = lightData->light->GetShadowMapFormat();
-			UInt32 shadowMapSize = lightData->light->GetShadowMapSize();
-
-			lightData->shadowMapAttachmentIndex = frameGraph.AddAttachment({
-				"Shadowmap",
-				shadowMapFormat,
-				FramePassAttachmentSize::Fixed,
-				shadowMapSize, shadowMapSize,
-			});
-
-			if (!lightData->camera)
-			{
-				lightData->camera = std::make_unique<Camera>(nullptr);
-				ViewerInstance& viewerInstance = lightData->camera->GetViewerInstance();
-				viewerInstance.OnTransferRequired.Connect([this](TransferInterface* transferInterface)
-				{
-					m_transferSet.insert(transferInterface);
-				});
-
-				lightData->camera->UpdateFOV(spotLight.GetOuterAngle() * 2.f);
-				lightData->camera->UpdateZNear(0.01f);
-				lightData->camera->UpdateZFar(spotLight.GetRadius());
-				lightData->camera->UpdateViewport(Recti(0, 0, SafeCast<int>(shadowMapSize), SafeCast<int>(shadowMapSize)));
-
-				lightData->onLightTransformInvalidated.Connect(lightData->light->OnLightTransformInvalided, [lightData](Light* light)
-				{
-					SpotLight& spotLight = SafeCast<SpotLight&>(*light);
-					ViewerInstance& viewerInstance = lightData->camera->GetViewerInstance();
-					viewerInstance.UpdateViewMatrix(Nz::Matrix4f::TransformInverse(spotLight.GetPosition(), spotLight.GetRotation()));
-				});
-				viewerInstance.UpdateViewMatrix(Nz::Matrix4f::TransformInverse(spotLight.GetPosition(), spotLight.GetRotation()));
-			}
-
-			if (!lightData->pass)
-			{
-				std::size_t shadowPassIndex = Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex("ShadowPass");
-
-				lightData->pass = std::make_unique<DepthPipelinePass>(*this, m_elementRegistry, lightData->camera.get(), shadowPassIndex, "Spot shadowmap");
-				for (RenderableData& renderable : m_renderablePool)
-				{
-					std::size_t matCount = renderable.renderable->GetMaterialCount();
-					for (std::size_t j = 0; j < matCount; ++j)
-					{
-						if (MaterialInstance* mat = renderable.renderable->GetMaterial(j).get())
-							lightData->pass->RegisterMaterialInstance(*mat);
-					}
-				}
-
-				lightData->pass->RegisterToFrameGraph(frameGraph, lightData->shadowMapAttachmentIndex);
-			}
+			lightData->shadowData->RegisterToFrameGraph(frameGraph);
 		}
 
 		for (auto& viewerData : m_viewerPool)
@@ -648,7 +592,7 @@ namespace Nz
 			for (std::size_t i = m_shadowCastingLights.FindFirst(); i != m_shadowCastingLights.npos; i = m_shadowCastingLights.FindNext(i))
 			{
 				LightData* lightData = m_lightPool.RetrieveFromIndex(i);
-				forwardPass.AddInput(lightData->shadowMapAttachmentIndex);
+				lightData->shadowData->RegisterPassInputs(forwardPass);
 			}
 
 			viewerData.debugDrawPass->RegisterToFrameGraph(frameGraph, viewerData.forwardColorAttachment, viewerData.debugColorAttachment);

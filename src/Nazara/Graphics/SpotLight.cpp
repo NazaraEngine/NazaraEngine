@@ -6,6 +6,7 @@
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
+#include <Nazara/Graphics/SpotLightShadowData.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Math/Vector4.hpp>
@@ -31,6 +32,11 @@ namespace Nz
 		AccessByOffset<Vector4f&>(data, lightOffset.lightMemberOffsets.parameter3) = Vector4f(m_innerAngleCos, m_outerAngleCos, 0.f, 0.f);
 		AccessByOffset<Vector2f&>(data, lightOffset.lightMemberOffsets.shadowMapSize) = (IsShadowCaster()) ? Vector2f(1.f / GetShadowMapSize()) : Vector2f(-1.f, -1.f);
 		AccessByOffset<Matrix4f&>(data, lightOffset.lightMemberOffsets.viewProjMatrix) = m_viewProjMatrix;
+	}
+
+	std::unique_ptr<LightShadowData> SpotLight::InstanciateShadowData(FramePipeline& pipeline, ElementRendererRegistry& elementRegistry) const
+	{
+		return std::make_unique<SpotLightShadowData>(pipeline, elementRegistry, *this);
 	}
 
 	void SpotLight::UpdateTransform(const Vector3f& position, const Quaternionf& rotation, const Vector3f& /*scale*/)
