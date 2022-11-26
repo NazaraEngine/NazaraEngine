@@ -378,7 +378,7 @@ namespace Nz
 					return;
 
 				const auto& lightEntry = light->GetLightEntry(lightIndex);
-				lightEntity->lightIndices[lightIndex] =	m_pipeline->RegisterLight(lightEntry.light, lightEntry.renderMask);
+				lightEntity->lightIndices[lightIndex] =	m_pipeline->RegisterLight(lightEntry.light.get(), lightEntry.renderMask);
 			});
 
 			lightEntity->onLightDetach.Connect(entityLight.OnLightDetach, [this, lightEntity](LightComponent* light, std::size_t lightIndex)
@@ -413,7 +413,7 @@ namespace Nz
 					if (!lightEntry.light)
 						continue;
 
-					lightEntity->lightIndices[lightIndex] = m_pipeline->RegisterLight(lightEntry.light, lightEntry.renderMask);
+					lightEntity->lightIndices[lightIndex] = m_pipeline->RegisterLight(lightEntry.light.get(), lightEntry.renderMask);
 				}
 			}
 
@@ -515,7 +515,7 @@ namespace Nz
 				if (!lightEntry.light)
 					continue;
 
-				lightEntity->lightIndices[renderableIndex] = m_pipeline->RegisterLight(lightEntry.light, lightEntry.renderMask);
+				lightEntity->lightIndices[renderableIndex] = m_pipeline->RegisterLight(lightEntry.light.get(), lightEntry.renderMask);
 			}
 		}
 		m_newlyVisibleGfxEntities.clear();

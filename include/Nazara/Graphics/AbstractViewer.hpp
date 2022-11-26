@@ -25,7 +25,7 @@ namespace Nz
 
 			virtual const Color& GetClearColor() const = 0;
 			virtual UInt32 GetRenderMask() const = 0;
-			virtual const RenderTarget& GetRenderTarget() = 0;
+			virtual const RenderTarget& GetRenderTarget() const = 0;
 			virtual ViewerInstance& GetViewerInstance() = 0;
 			virtual const ViewerInstance& GetViewerInstance() const = 0;
 			virtual const Recti& GetViewport() const = 0;

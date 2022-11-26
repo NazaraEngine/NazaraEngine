@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
+#include <Nazara/Graphics/LightShadowData.hpp>
 #include <Nazara/Math/BoundingVolume.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
@@ -19,6 +20,8 @@
 namespace Nz
 {
 	class CommandBufferBuilder;
+	class ElementRendererRegistry;
+	class FramePipeline;
 	class RenderBuffer;
 	class RenderFrame;
 	class Texture;
@@ -41,6 +44,8 @@ namespace Nz
 			inline UInt8 GetLightType() const;
 			inline PixelFormat GetShadowMapFormat() const;
 			inline UInt32 GetShadowMapSize() const;
+
+			virtual std::unique_ptr<LightShadowData> InstanciateShadowData(FramePipeline& pipeline, ElementRendererRegistry& elementRegistry) const = 0;
 
 			inline bool IsShadowCaster() const;
 

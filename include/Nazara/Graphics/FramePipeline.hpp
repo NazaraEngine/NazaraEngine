@@ -9,10 +9,12 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
+#include <Nazara/Graphics/FramePipelinePass.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>
 #include <Nazara/Graphics/SkeletonInstance.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
 #include <Nazara/Renderer/DebugDrawer.hpp>
+#include <Nazara/Utils/FunctionRef.hpp>
 #include <memory>
 #include <vector>
 
@@ -21,6 +23,7 @@ namespace Nz
 	class AbstractViewer;
 	class InstancedRenderable;
 	class Light;
+	class MaterialInstance;
 	class RenderFrame;
 
 	class NAZARA_GRAPHICS_API FramePipeline
@@ -31,9 +34,16 @@ namespace Nz
 			FramePipeline(FramePipeline&&) noexcept = default;
 			virtual ~FramePipeline();
 
+			// TODO: Move RenderQueue handling to proper classes (allowing to reuse them)
+			virtual const std::vector<FramePipelinePass::VisibleRenderable>& FrustumCull(const Frustumf& frustum, UInt32 mask, std::size_t& visibilityHash) const = 0;
+
+			virtual void ForEachRegisteredMaterialInstance(FunctionRef<void(const MaterialInstance& materialInstance)> callback) = 0;
+
 			inline DebugDrawer& GetDebugDrawer();
 
-			virtual std::size_t RegisterLight(std::shared_ptr<Light> light, UInt32 renderMask) = 0;
+			virtual void QueueTransfer(TransferInterface* transfer) = 0;
+
+			virtual std::size_t RegisterLight(const Light* light, UInt32 renderMask) = 0;
 			virtual std::size_t RegisterRenderable(std::size_t worldInstanceIndex, std::size_t skeletonInstanceIndex, const InstancedRenderable* instancedRenderable, UInt32 renderMask, const Recti& scissorBox) = 0;
 			virtual std::size_t RegisterSkeleton(SkeletonInstancePtr skeletonInstance) = 0;
 			virtual std::size_t RegisterViewer(AbstractViewer* viewerInstance, Int32 renderOrder) = 0;

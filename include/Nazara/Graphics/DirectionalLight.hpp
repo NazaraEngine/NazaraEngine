@@ -28,6 +28,8 @@ namespace Nz
 
 			void FillLightData(void* data) const override;
 
+			std::unique_ptr<LightShadowData> InstanciateShadowData(FramePipeline& pipeline, ElementRendererRegistry& elementRegistry) const override;
+
 			inline float GetAmbientFactor() const;
 			inline float GetDiffuseFactor() const;
 			inline Color GetColor() const;

@@ -165,8 +165,8 @@ namespace Nz
 					perElementData.lightCount = lightCount;
 					perElementData.lightUniformBuffer = lightUboView;
 
-					for (std::size_t i = 0; i < lightCount; ++i)
-						perElementData.shadowMaps[i] = m_pipeline.RetrieveLightShadowmap(m_renderableLights[i].lightIndex);
+					for (std::size_t j = 0; j < lightCount; ++j)
+						perElementData.shadowMaps[j] = m_pipeline.RetrieveLightShadowmap(m_renderableLights[j].lightIndex);
 
 					m_lightPerRenderElement.emplace(element, perElementData);
 				}
@@ -240,18 +240,18 @@ namespace Nz
 					auto& renderStates = m_renderStates.emplace_back();
 					renderStates.lightData = lightData.lightUniformBuffer;
 
-					for (std::size_t i = 0; i < lightData.lightCount; ++i)
+					for (std::size_t j = 0; j < lightData.lightCount; ++j)
 					{
-						const Texture* texture = lightData.shadowMaps[i];
+						const Texture* texture = lightData.shadowMaps[j];
 						if (!texture)
 							continue;
 
 						if (texture->GetType() == ImageType::E2D)
-							renderStates.shadowMaps2D[i] = texture;
+							renderStates.shadowMaps2D[j] = texture;
 						else
 						{
 							assert(texture->GetType() == ImageType::Cubemap);
-							renderStates.shadowMapsCube[i] = texture;
+							renderStates.shadowMapsCube[j] = texture;
 						}
 					}
 				}

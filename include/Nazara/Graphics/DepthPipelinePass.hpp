@@ -41,7 +41,7 @@ namespace Nz
 			void Prepare(RenderFrame& renderFrame, const Frustumf& frustum, const std::vector<FramePipelinePass::VisibleRenderable>& visibleRenderables, std::size_t visibilityHash);
 
 			void RegisterMaterialInstance(const MaterialInstance& materialInstance);
-			FramePass& RegisterToFrameGraph(FrameGraph& frameGraph, std::size_t depthBufferIndex);
+			FramePass& RegisterToFrameGraph(FrameGraph& frameGraph, std::size_t outputAttachment);
 
 			void UnregisterMaterialInstance(const MaterialInstance& materialInstance);
 

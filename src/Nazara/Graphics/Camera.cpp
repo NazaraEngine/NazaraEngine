@@ -18,7 +18,7 @@ namespace Nz
 		return m_renderMask;
 	}
 
-	const RenderTarget& Camera::GetRenderTarget()
+	const RenderTarget& Camera::GetRenderTarget() const
 	{
 		if (!m_renderTarget)
 			throw std::runtime_error("no rendertarget set");

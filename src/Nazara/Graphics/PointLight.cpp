@@ -30,6 +30,11 @@ namespace Nz
 		AccessByOffset<Vector2f&>(data, lightOffset.lightMemberOffsets.shadowMapSize) = Vector2f(-1.f, -1.f);
 	}
 
+	std::unique_ptr<LightShadowData> PointLight::InstanciateShadowData(FramePipeline& pipeline, ElementRendererRegistry& elementRegistry) const
+	{
+		return nullptr; //< TODO
+	}
+
 	void PointLight::UpdateTransform(const Vector3f& position, const Quaternionf& /*rotation*/, const Vector3f& /*scale*/)
 	{
 		UpdatePosition(position);
