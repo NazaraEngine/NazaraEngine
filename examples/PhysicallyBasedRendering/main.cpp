@@ -92,10 +92,10 @@ int main()
 	std::size_t worldInstanceIndex1 = framePipeline.RegisterWorldInstance(modelInstance);
 	framePipeline.RegisterRenderable(worldInstanceIndex1, Nz::FramePipeline::NoSkeletonInstance, &model, 0xFFFFFFFF, scissorBox);
 
-	std::shared_ptr<Nz::DirectionalLight> light = std::make_shared<Nz::DirectionalLight>();
+	std::unique_ptr<Nz::DirectionalLight> light = std::make_unique<Nz::DirectionalLight>();
 	light->UpdateRotation(Nz::EulerAnglesf(-45.f, 0.f, 0.f));
 
-	framePipeline.RegisterLight(light, 0xFFFFFFFF);
+	framePipeline.RegisterLight(light.get(), 0xFFFFFFFF);
 
 	Nz::Vector3f viewerPos = Nz::Vector3f::Zero();
 
