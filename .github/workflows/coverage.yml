@@ -115,7 +115,7 @@ jobs:
         "C:\Program Files\OpenCppCoverage\OpenCppCoverage.exe" --export_type cobertura:coverage.out --sources "NazaraEngine\include\Nazara\*" --sources "NazaraEngine\src\Nazara\*" --modules "NazaraEngine\bin\*" --cover_children -- xmake run NazaraUnitTests
 
     - name: Upload Coverage Report to Codecov
-      uses: codecov/codecov-action@v2
+      uses: codecov/codecov-action@v3
       with:
         files: ./coverage.out
         fail_ci_if_error: true
