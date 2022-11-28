@@ -16,7 +16,7 @@
 
 namespace Nz
 {
-	namespace
+	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
 		template<typename T>
 		class VertexCache
@@ -59,6 +59,8 @@ namespace Nz
 
 		bool SaveOBJToStream(const Mesh& mesh, const std::string& format, Stream& stream, const MeshParams& parameters)
 		{
+			NAZARA_USE_ANONYMOUS_NAMESPACE
+
 			NazaraUnused(parameters);
 
 			if (!mesh.IsValid())
@@ -219,6 +221,8 @@ namespace Nz
 	{
 		MeshSaver::Entry GetMeshSaver_OBJ()
 		{
+			NAZARA_USE_ANONYMOUS_NAMESPACE
+
 			MeshSaver::Entry entry;
 			entry.formatSupport = IsOBJSupportedSave;
 			entry.streamSaver = SaveOBJToStream;
