@@ -1,3 +1,7 @@
+if not has_config("assimp") then
+	return
+end
+
 target("Showcase")
 	set_group("Examples")
 	set_kind("binary")

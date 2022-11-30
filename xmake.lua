@@ -200,7 +200,7 @@ if not is_plat("wasm") then
 	add_requires("freetype", { configs = { bzip2 = true, png = true, woff2 = true, zlib = true, debug = is_mode("debug") } })
 	add_requires("libvorbis", { configs = { with_vorbisenc = false } })
 	add_requires("openal-soft", { configs = { shared = true }})
-	add_requires("newtondynamics", { debug = is_plat("windows") and is_mode("debug") }) -- Newton doesn't like compiling in Debug on Linux
+	add_requires("newtondynamics3", { debug = is_plat("windows") and is_mode("debug") }) -- Newton doesn't like compiling in Debug on Linux
 end
 
 add_repositories("nazara-engine-repo https://github.com/NazaraEngine/xmake-repo")
@@ -337,9 +337,9 @@ function ModuleTargetConfig(name, module)
 	end
 end
 
-function ModuleTarget(name, module)
-	target("Nazara" .. name)
-		set_kind("shared")
+for name, module in pairs(modules) do
+	target("Nazara" .. name, function ()
+		set_kind("$(kind)")
 		set_group("Modules")
 
 		add_rpathdirs("$ORIGIN")
