@@ -62,14 +62,14 @@ namespace Nz
 		{
 			m_scrollCenterButton->OnButtonGrabbed.Connect([this](const ScrollbarButtonWidget* button, int /*x*/, int y)
 			{
-				m_grabbedPosition = button->GetPosition().y + y;
+				m_grabbedPosition = SafeCast<int>(button->GetPosition().y + y);
 				m_grabbedValue = GetValue();
 				m_style->OnButtonGrab();
 			});
 		
 			m_scrollCenterButton->OnButtonMoved.Connect([this](const ScrollbarButtonWidget* button, int /*x*/, int y)
 			{
-				int deltaY = m_grabbedPosition - (button->GetPosition().y + y);
+				int deltaY = SafeCast<int>(m_grabbedPosition - (button->GetPosition().y + y));
 				if (deltaY == 0)
 					return;
 
