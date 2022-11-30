@@ -26,6 +26,9 @@ typedef void (GL_APIENTRYP PFNGLPOLYGONMODEPROC) (GLenum face, GLenum mode);
 // Depth clamp (OpenGL 3.2)
 #define GL_DEPTH_CLAMP                     0x864F
 
+// Texture views (OpenGL 4.3)
+typedef void (GL_APIENTRYP PFNGLTEXTUREVIEWPROC) (GLuint texture, GLenum target, GLuint origtexture, GLenum internalformat, GLuint minlevel, GLuint numlevels, GLuint minlayer, GLuint numlayers);
+
 // Clip control (OpenGL 4.5)
 #define GL_LOWER_LEFT                      0x8CA1
 #define GL_UPPER_LEFT                      0x8CA2
@@ -200,6 +203,8 @@ typedef void (GL_APIENTRYP PFNGLSPECIALIZESHADERPROC) (GLuint shader, const GLch
 	extCb(glObjectLabel, PFNGLOBJECTLABELPROC) \
 	extCb(glPopDebugGroup, PFNGLPOPDEBUGGROUPPROC) \
 	extCb(glPushDebugGroup, PFNGLPUSHDEBUGGROUPPROC) \
+	/* OpenGL 4.3 - GL_ARB_texture_view */ \
+	extCb(glTextureView, PFNGLTEXTUREVIEWPROC) \
 	/* OpenGL 4.5 - GL_ARB_clip_control/GL_EXT_clip_control */ \
 	extCb(glClipControl, PFNGLCLIPCONTROLPROC) \
 	/* OpenGL 4.6 - GL_ARB_spirv_extensions */\

@@ -10,55 +10,85 @@
 
 namespace Nz
 {
-	OpenGLTexture::OpenGLTexture(OpenGLDevice& device, const TextureInfo& params) :
-	m_params(params)
+	OpenGLTexture::OpenGLTexture(OpenGLDevice& device, const TextureInfo& textureInfo) :
+	m_textureInfo(textureInfo)
 	{
 		if (!m_texture.Create(device))
 			throw std::runtime_error("failed to create texture object");
 
-		auto format = DescribeTextureFormat(params.pixelFormat);
+		auto format = DescribeTextureFormat(textureInfo.pixelFormat);
 		if (!format)
 			throw std::runtime_error("unsupported texture format");
 
 		const GL::Context& context = m_texture.EnsureDeviceContext();
 		context.ClearErrorStack();
 
-		switch (params.type)
+		switch (textureInfo.type)
 		{
 			case ImageType::E2D:
-				m_texture.TexStorage2D(GL::TextureTarget::Target2D, params.mipmapLevel, format->internalFormat, params.width, params.height);
+				m_texture.TexStorage2D(GL::TextureTarget::Target2D, textureInfo.levelCount, format->internalFormat, textureInfo.width, textureInfo.height);
 				break;
 
 			case ImageType::E2D_Array:
-				m_texture.TexStorage3D(GL::TextureTarget::Target2D_Array, params.mipmapLevel, format->internalFormat, params.width, params.height, params.layerCount);
+				m_texture.TexStorage3D(GL::TextureTarget::Target2D_Array, textureInfo.levelCount, format->internalFormat, textureInfo.width, textureInfo.height, textureInfo.layerCount);
 				break;
 
 			case ImageType::E3D:
-				m_texture.TexStorage3D(GL::TextureTarget::Target3D, params.mipmapLevel, format->internalFormat, params.width, params.height, params.depth);
+				m_texture.TexStorage3D(GL::TextureTarget::Target3D, textureInfo.levelCount, format->internalFormat, textureInfo.width, textureInfo.height, textureInfo.depth);
 				break;
 
 			case ImageType::Cubemap:
-				m_texture.TexStorage2D(GL::TextureTarget::Cubemap, params.mipmapLevel, format->internalFormat, params.width, params.height);
+				m_texture.TexStorage2D(GL::TextureTarget::Cubemap, textureInfo.levelCount, format->internalFormat, textureInfo.width, textureInfo.height);
 				break;
 
 			// OpenGL ES doesn't support 1D textures, use 2D textures with a height of 1 instead
 			case ImageType::E1D:
-				m_texture.TexStorage2D(GL::TextureTarget::Target2D, params.mipmapLevel, format->internalFormat, params.width, 1);
+				m_texture.TexStorage2D(GL::TextureTarget::Target2D, textureInfo.levelCount, format->internalFormat, textureInfo.width, 1);
 				break;
 
 			case ImageType::E1D_Array:
-				m_texture.TexStorage2D(GL::TextureTarget::Target2D, params.mipmapLevel, format->internalFormat, params.width, params.layerCount);
+				m_texture.TexStorage2D(GL::TextureTarget::Target2D, textureInfo.levelCount, format->internalFormat, textureInfo.width, textureInfo.layerCount);
 				break;
 		}
 
 		if (!context.DidLastCallSucceed())
 			throw std::runtime_error("failed to create texture");
 
-		m_texture.SetParameteri(GL_TEXTURE_MAX_LEVEL, m_params.mipmapLevel);
+		m_texture.SetParameteri(GL_TEXTURE_MAX_LEVEL, m_textureInfo.levelCount);
 		m_texture.SetParameteri(GL_TEXTURE_SWIZZLE_R, format->swizzleR);
 		m_texture.SetParameteri(GL_TEXTURE_SWIZZLE_G, format->swizzleG);
 		m_texture.SetParameteri(GL_TEXTURE_SWIZZLE_B, format->swizzleB);
 		m_texture.SetParameteri(GL_TEXTURE_SWIZZLE_A, format->swizzleA);
+	}
+
+	OpenGLTexture::OpenGLTexture(std::shared_ptr<OpenGLTexture> parentTexture, const TextureViewInfo& viewInfo) :
+	m_parentTexture(std::move(parentTexture))
+	{
+		const GL::Context& context = m_parentTexture->m_texture.EnsureDeviceContext();
+
+		NazaraAssert(viewInfo.layerCount <= m_parentTexture->m_textureInfo.layerCount - viewInfo.baseArrayLayer, "layer count exceeds number of layers");
+		NazaraAssert(viewInfo.levelCount <= m_parentTexture->m_textureInfo.levelCount - viewInfo.baseMipLevel, "level count exceeds number of levels");
+
+		m_viewInfo = viewInfo;
+
+		// Try to use texture views if supported (core in GL 4.3 or extension)
+		if (context.IsExtensionSupported(GL::Extension::TextureView))
+		{
+			if (m_texture.Create(*m_parentTexture->m_texture.GetDevice()))
+			{
+				auto format = DescribeTextureFormat(viewInfo.reinterpretFormat);
+				GLenum target = ToOpenGL(ToTextureTarget(viewInfo.viewType));
+
+				context.ClearErrorStack();
+
+				m_texture.TextureView(target, m_parentTexture->m_texture.GetObjectId(), format->internalFormat, viewInfo.baseMipLevel, viewInfo.levelCount, viewInfo.baseArrayLayer, viewInfo.layerCount);
+
+				if (!context.DidLastCallSucceed())
+					m_texture.Destroy();
+			}
+		}
+
+		// If texture views are not supported, they will be emulated when using them as attachments
 	}
 
 	bool OpenGLTexture::Copy(const Texture& source, const Boxui& srcBox, const Vector3ui& dstPos)
@@ -69,34 +99,57 @@ namespace Nz
 		return context.CopyTexture(glTexture.GetTexture(), m_texture, srcBox, dstPos);
 	}
 
+	std::shared_ptr<Texture> OpenGLTexture::CreateView(const TextureViewInfo& viewInfo)
+	{
+		if (m_parentTexture)
+		{
+			assert(m_viewInfo);
+			NazaraAssert(viewInfo.layerCount <= m_viewInfo->layerCount - viewInfo.baseArrayLayer, "layer count exceeds number of layers");
+			NazaraAssert(viewInfo.levelCount <= m_viewInfo->levelCount - viewInfo.baseMipLevel, "level count exceeds number of levels");
+
+			TextureViewInfo ajustedView = viewInfo;
+			ajustedView.baseArrayLayer += m_viewInfo->baseArrayLayer;
+			ajustedView.baseMipLevel += m_viewInfo->baseMipLevel;
+
+			return m_parentTexture->CreateView(ajustedView);
+		}
+
+		return std::make_shared<OpenGLTexture>(std::static_pointer_cast<OpenGLTexture>(shared_from_this()), viewInfo);
+	}
+
 	PixelFormat OpenGLTexture::GetFormat() const
 	{
-		return m_params.pixelFormat;
+		return m_textureInfo.pixelFormat;
 	}
 
 	UInt8 OpenGLTexture::GetLevelCount() const
 	{
-		return m_params.mipmapLevel;
+		return m_textureInfo.levelCount;
+	}
+
+	OpenGLTexture* OpenGLTexture::GetParentTexture() const
+	{
+		return m_parentTexture.get();
 	}
 
 	Vector3ui OpenGLTexture::GetSize(UInt8 level) const
 	{
-		return Vector3ui(GetLevelSize(m_params.width, level), GetLevelSize(m_params.height, level), GetLevelSize(m_params.depth, level));
+		return Vector3ui(GetLevelSize(m_textureInfo.width, level), GetLevelSize(m_textureInfo.height, level), GetLevelSize(m_textureInfo.depth, level));
 	}
 
 	ImageType OpenGLTexture::GetType() const
 	{
-		return m_params.type;
+		return m_textureInfo.type;
 	}
 
 	bool OpenGLTexture::Update(const void* ptr, const Boxui& box, unsigned int srcWidth, unsigned int srcHeight, UInt8 level)
 	{
-		auto format = DescribeTextureFormat(m_params.pixelFormat);
+		auto format = DescribeTextureFormat(m_textureInfo.pixelFormat);
 		assert(format);
 
 		const GL::Context& context = m_texture.EnsureDeviceContext();
 
-		UInt8 bpp = PixelFormatInfo::GetBytesPerPixel(m_params.pixelFormat);
+		UInt8 bpp = PixelFormatInfo::GetBytesPerPixel(m_textureInfo.pixelFormat);
 		if (bpp % 8 == 0)
 			context.glPixelStorei(GL_UNPACK_ALIGNMENT, 8);
 		else if (bpp % 4 == 0)
@@ -109,7 +162,7 @@ namespace Nz
 		context.glPixelStorei(GL_UNPACK_ROW_LENGTH,   srcWidth);
 		context.glPixelStorei(GL_UNPACK_IMAGE_HEIGHT, srcHeight);
 
-		switch (m_params.type)
+		switch (m_textureInfo.type)
 		{
 			case ImageType::E1D:
 				break;
@@ -129,7 +182,7 @@ namespace Nz
 
 			case ImageType::Cubemap:
 			{
-				std::size_t faceSize = PixelFormatInfo::ComputeSize(m_params.pixelFormat, m_params.width, m_params.height, 1);
+				std::size_t faceSize = PixelFormatInfo::ComputeSize(m_textureInfo.pixelFormat, m_textureInfo.width, m_textureInfo.height, 1);
 				const UInt8* facePtr = static_cast<const UInt8*>(ptr);
 
 				for (GL::TextureTarget face : { GL::TextureTarget::CubemapPositiveX, GL::TextureTarget::CubemapNegativeX, GL::TextureTarget::CubemapPositiveY, GL::TextureTarget::CubemapNegativeY, GL::TextureTarget::CubemapPositiveZ, GL::TextureTarget::CubemapNegativeZ })

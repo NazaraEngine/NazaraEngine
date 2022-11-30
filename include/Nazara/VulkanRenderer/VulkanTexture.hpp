@@ -18,17 +18,20 @@ namespace Nz
 	class NAZARA_VULKANRENDERER_API VulkanTexture : public Texture
 	{
 		public:
-			VulkanTexture(Vk::Device& device, const TextureInfo& params);
+			VulkanTexture(Vk::Device& device, const TextureInfo& textureInfo);
+			VulkanTexture(std::shared_ptr<VulkanTexture> parentTexture, const TextureViewInfo& viewInfo);
 			VulkanTexture(const VulkanTexture&) = delete;
 			VulkanTexture(VulkanTexture&&) = delete;
 			~VulkanTexture();
 
 			bool Copy(const Texture& source, const Boxui& srcBox, const Vector3ui& dstPos) override;
+			std::shared_ptr<Texture> CreateView(const TextureViewInfo& viewInfo) override;
 
 			PixelFormat GetFormat() const override;
 			inline VkImage GetImage() const;
 			inline VkImageView GetImageView() const;
 			UInt8 GetLevelCount() const override;
+			VulkanTexture* GetParentTexture() const override;
 			Vector3ui GetSize(UInt8 level = 0) const override;
 			ImageType GetType() const override;
 
@@ -43,11 +46,12 @@ namespace Nz
 		private:
 			static void InitViewForFormat(PixelFormat pixelFormat, VkImageViewCreateInfo& createImageView);
 
+			std::shared_ptr<VulkanTexture> m_parentTexture;
 			VkImage m_image;
 			VmaAllocation m_allocation;
 			Vk::Device& m_device;
 			Vk::ImageView m_imageView;
-			TextureInfo m_params;
+			TextureInfo m_textureInfo;
 	};
 }
 

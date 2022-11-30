@@ -13,15 +13,15 @@
 
 namespace Nz
 {
-	VulkanTexture::VulkanTexture(Vk::Device& device, const TextureInfo& params) :
+	VulkanTexture::VulkanTexture(Vk::Device& device, const TextureInfo& textureInfo) :
 	m_image(VK_NULL_HANDLE),
 	m_allocation(nullptr),
 	m_device(device),
-	m_params(params)
+	m_textureInfo(textureInfo)
 	{
 		VkImageViewCreateInfo createInfoView = {};
 		createInfoView.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		InitViewForFormat(params.pixelFormat, createInfoView);
+		InitViewForFormat(textureInfo.pixelFormat, createInfoView);
 		
 		VkImageCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -29,66 +29,66 @@ namespace Nz
 		createInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 		createInfo.samples = VK_SAMPLE_COUNT_1_BIT;
 		createInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
-		createInfo.usage = ToVulkan(params.usageFlags);
+		createInfo.usage = ToVulkan(textureInfo.usageFlags);
 
-		switch (params.type)
+		switch (textureInfo.type)
 		{
 			case ImageType::E1D:
-				NazaraAssert(params.width > 0, "Width must be over zero");
-				NazaraAssert(params.height == 1, "Height must be one");
-				NazaraAssert(params.depth == 1, "Depth must be one");
-				NazaraAssert(params.layerCount == 1, "Array count must be one");
+				NazaraAssert(textureInfo.width > 0, "Width must be over zero");
+				NazaraAssert(textureInfo.height == 1, "Height must be one");
+				NazaraAssert(textureInfo.depth == 1, "Depth must be one");
+				NazaraAssert(textureInfo.layerCount == 1, "Array count must be one");
 
 				createInfo.imageType = VK_IMAGE_TYPE_1D;
 				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_1D;
-				createInfo.extent.width = params.width;
+				createInfo.extent.width = textureInfo.width;
 				break;
 
 			case ImageType::E1D_Array:
-				NazaraAssert(params.width > 0, "Width must be over zero");
-				NazaraAssert(params.height == 1, "Height must be one");
-				NazaraAssert(params.depth == 1, "Depth must be one");
-				NazaraAssert(params.layerCount > 0, "Array count must be over zero");
+				NazaraAssert(textureInfo.width > 0, "Width must be over zero");
+				NazaraAssert(textureInfo.height == 1, "Height must be one");
+				NazaraAssert(textureInfo.depth == 1, "Depth must be one");
+				NazaraAssert(textureInfo.layerCount > 0, "Array count must be over zero");
 
 				createInfo.imageType = VK_IMAGE_TYPE_1D;
 				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_1D_ARRAY;
 				break;
 
 			case ImageType::E2D:
-				NazaraAssert(params.width > 0, "Width must be over zero");
-				NazaraAssert(params.height > 0, "Height must be over zero");
-				NazaraAssert(params.depth == 1, "Depth must be one");
-				NazaraAssert(params.layerCount == 1, "Array count must be one");
+				NazaraAssert(textureInfo.width > 0, "Width must be over zero");
+				NazaraAssert(textureInfo.height > 0, "Height must be over zero");
+				NazaraAssert(textureInfo.depth == 1, "Depth must be one");
+				NazaraAssert(textureInfo.layerCount == 1, "Array count must be one");
 
 				createInfo.imageType = VK_IMAGE_TYPE_2D;
 				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_2D;
 				break;
 
 			case ImageType::E2D_Array:
-				NazaraAssert(params.width > 0, "Width must be over zero");
-				NazaraAssert(params.height > 0, "Height must be over zero");
-				NazaraAssert(params.depth == 1, "Depth must be one");
-				NazaraAssert(params.layerCount > 0, "Array count must be over zero");
+				NazaraAssert(textureInfo.width > 0, "Width must be over zero");
+				NazaraAssert(textureInfo.height > 0, "Height must be over zero");
+				NazaraAssert(textureInfo.depth == 1, "Depth must be one");
+				NazaraAssert(textureInfo.layerCount > 0, "Array count must be over zero");
 
 				createInfo.imageType = VK_IMAGE_TYPE_2D;
 				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
 				break;
 
 			case ImageType::E3D:
-				NazaraAssert(params.width > 0, "Width must be over zero");
-				NazaraAssert(params.height > 0, "Height must be over zero");
-				NazaraAssert(params.depth > 0, "Depth must be over zero");
-				NazaraAssert(params.layerCount == 1, "Array count must be one");
+				NazaraAssert(textureInfo.width > 0, "Width must be over zero");
+				NazaraAssert(textureInfo.height > 0, "Height must be over zero");
+				NazaraAssert(textureInfo.depth > 0, "Depth must be over zero");
+				NazaraAssert(textureInfo.layerCount == 1, "Array count must be one");
 
 				createInfo.imageType = VK_IMAGE_TYPE_3D;
 				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_3D;
 				break;
 
 			case ImageType::Cubemap:
-				NazaraAssert(params.width > 0, "Width must be over zero");
-				NazaraAssert(params.height > 0, "Height must be over zero");
-				NazaraAssert(params.depth == 1, "Depth must be one");
-				NazaraAssert(params.layerCount % 6 == 0, "Array count must be a multiple of 6");
+				NazaraAssert(textureInfo.width > 0, "Width must be over zero");
+				NazaraAssert(textureInfo.height > 0, "Height must be over zero");
+				NazaraAssert(textureInfo.depth == 1, "Depth must be one");
+				NazaraAssert(textureInfo.layerCount % 6 == 0, "Array count must be a multiple of 6");
 
 				createInfo.imageType = VK_IMAGE_TYPE_2D;
 				createInfo.flags |= VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
@@ -99,11 +99,11 @@ namespace Nz
 				break;
 		}
 
-		createInfo.extent.width = params.width;
-		createInfo.extent.height = params.height;
-		createInfo.extent.depth = params.depth;
-		createInfo.arrayLayers = params.layerCount;
-		createInfo.mipLevels = params.mipmapLevel;
+		createInfo.extent.width = textureInfo.width;
+		createInfo.extent.height = textureInfo.height;
+		createInfo.extent.depth = textureInfo.depth;
+		createInfo.arrayLayers = textureInfo.layerCount;
+		createInfo.mipLevels = textureInfo.levelCount;
 
 		VmaAllocationCreateInfo allocInfo = {};
 		allocInfo.usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE;
@@ -115,7 +115,7 @@ namespace Nz
 		CallOnExit releaseImage([&]{ vmaDestroyImage(m_device.GetMemoryAllocator(), m_image, m_allocation); });
 
 		createInfoView.subresourceRange = {
-			ToVulkan(PixelFormatInfo::GetContent(params.pixelFormat)),
+			ToVulkan(PixelFormatInfo::GetContent(textureInfo.pixelFormat)),
 			0,                      //< baseMipLevel
 			createInfo.mipLevels,   //< levelCount
 			0,                      //< baseArrayLayer
@@ -128,17 +128,40 @@ namespace Nz
 			throw std::runtime_error("Failed to create default image view: " + TranslateVulkanError(m_imageView.GetLastErrorCode()));
 
 		releaseImage.Reset();
-		createInfoView.image = m_image;
+	}
 
-		{
-			// FIXME
-			vmaDestroyImage(m_device.GetMemoryAllocator(), m_image, m_allocation);
-		}
+	VulkanTexture::VulkanTexture(std::shared_ptr<VulkanTexture> parentTexture, const TextureViewInfo& viewInfo) :
+	m_parentTexture(std::move(parentTexture)),
+	m_image(m_parentTexture->m_image),
+	m_allocation(nullptr),
+	m_device(m_parentTexture->m_device)
+	{
+		m_textureInfo = ApplyView(m_parentTexture->m_textureInfo, viewInfo);
+
+		NazaraAssert(viewInfo.layerCount <= m_parentTexture->m_textureInfo.layerCount - viewInfo.baseArrayLayer, "layer count exceeds number of layers");
+		NazaraAssert(viewInfo.levelCount <= m_parentTexture->m_textureInfo.levelCount - viewInfo.baseMipLevel, "level count exceeds number of levels");
+
+		VkImageViewCreateInfo createInfoView = {};
+		createInfoView.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		createInfoView.image = m_image;
+		createInfoView.subresourceRange = {
+			ToVulkan(PixelFormatInfo::GetContent(m_textureInfo.pixelFormat)),
+			0,                      //< baseMipLevel
+			m_textureInfo.levelCount,   //< levelCount
+			0,                      //< baseArrayLayer
+			m_textureInfo.layerCount     //< layerCount, will be set if the type is an array/cubemap
+		};
+
+		InitViewForFormat(viewInfo.reinterpretFormat, createInfoView);
+
+		if (!m_imageView.Create(m_device, createInfoView))
+			throw std::runtime_error("Failed to create image view: " + TranslateVulkanError(m_imageView.GetLastErrorCode()));
 	}
 
 	VulkanTexture::~VulkanTexture()
 	{
-		vmaDestroyImage(m_device.GetMemoryAllocator(), m_image, m_allocation);
+		if (m_allocation)
+			vmaDestroyImage(m_device.GetMemoryAllocator(), m_image, m_allocation);
 	}
 
 	bool VulkanTexture::Copy(const Texture& source, const Boxui& srcBox, const Vector3ui& dstPos)
@@ -192,30 +215,43 @@ namespace Nz
 		return true;
 	}
 
+	std::shared_ptr<Texture> VulkanTexture::CreateView(const TextureViewInfo& viewInfo)
+	{
+		if (m_parentTexture)
+			return m_parentTexture->CreateView(viewInfo);
+
+		return std::make_shared<VulkanTexture>(std::static_pointer_cast<VulkanTexture>(shared_from_this()), viewInfo);
+	}
+
 	PixelFormat VulkanTexture::GetFormat() const
 	{
-		return m_params.pixelFormat;
+		return m_textureInfo.pixelFormat;
 	}
 
 	UInt8 VulkanTexture::GetLevelCount() const
 	{
-		return m_params.mipmapLevel;
+		return m_textureInfo.levelCount;
+	}
+
+	VulkanTexture* VulkanTexture::GetParentTexture() const
+	{
+		return m_parentTexture.get();
 	}
 
 	Vector3ui VulkanTexture::GetSize(UInt8 level) const
 	{
-		return Vector3ui(GetLevelSize(m_params.width, level), GetLevelSize(m_params.height, level), GetLevelSize(m_params.depth, level));
+		return Vector3ui(GetLevelSize(m_textureInfo.width, level), GetLevelSize(m_textureInfo.height, level), GetLevelSize(m_textureInfo.depth, level));
 	}
 
 	ImageType VulkanTexture::GetType() const
 	{
-		return m_params.type;
+		return m_textureInfo.type;
 	}
 
 	bool VulkanTexture::Update(const void* ptr, const Boxui& box, unsigned int srcWidth, unsigned int srcHeight, UInt8 level)
 	{
-		std::size_t textureSize = box.width * box.height * box.depth * PixelFormatInfo::GetBytesPerPixel(m_params.pixelFormat);
-		if (m_params.type == ImageType::Cubemap)
+		std::size_t textureSize = box.width * box.height * box.depth * PixelFormatInfo::GetBytesPerPixel(m_textureInfo.pixelFormat);
+		if (m_textureInfo.type == ImageType::Cubemap)
 			textureSize *= 6;
 
 		VkBufferCreateInfo createInfo = {};
@@ -256,7 +292,7 @@ namespace Nz
 			unsigned int dstWidth = box.width;
 			unsigned int dstHeight = box.height;
 
-			unsigned int bpp = PixelFormatInfo::GetBytesPerPixel(m_params.pixelFormat);
+			unsigned int bpp = PixelFormatInfo::GetBytesPerPixel(m_textureInfo.pixelFormat);
 			unsigned int lineStride = box.width * bpp;
 			unsigned int dstLineStride = dstWidth * bpp;
 			unsigned int dstFaceStride = dstLineStride * dstHeight;
@@ -287,14 +323,14 @@ namespace Nz
 			return false;
 
 		VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT;
-		if (PixelFormatInfo::GetContent(m_params.pixelFormat) == PixelFormatContent::Depth)
+		if (PixelFormatInfo::GetContent(m_textureInfo.pixelFormat) == PixelFormatContent::Depth)
 			aspect = VK_IMAGE_ASPECT_DEPTH_BIT;
 
 		VkImageSubresourceLayers subresourceLayers = { //< FIXME
 			aspect,
 			level, //< mipLevel
 			0, //< baseArrayLayer
-			UInt32((m_params.type == ImageType::Cubemap) ? 6 : 1) //< layerCount
+			UInt32((m_textureInfo.type == ImageType::Cubemap) ? 6 : 1) //< layerCount
 		};
 
 		VkImageSubresourceRange subresourceRange = { //< FIXME

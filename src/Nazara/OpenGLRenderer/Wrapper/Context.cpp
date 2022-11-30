@@ -446,6 +446,16 @@ namespace Nz::GL
 		else if (m_supportedExtensions.count("GL_EXT_texture_filter_anisotropic"))
 			m_extensionStatus[UnderlyingCast(Extension::TextureFilterAnisotropic)] = ExtensionStatus::EXT;
 
+		// Texture view
+		if (m_params.type == ContextType::OpenGL && glVersion >= 430)
+			m_extensionStatus[UnderlyingCast(Extension::TextureView)] = ExtensionStatus::Core;
+		else if (m_supportedExtensions.count("GL_ARB_texture_view"))
+			m_extensionStatus[UnderlyingCast(Extension::TextureView)] = ExtensionStatus::ARB;
+		else if (m_supportedExtensions.count("GL_OES_texture_view"))
+			m_extensionStatus[UnderlyingCast(Extension::TextureView)] = ExtensionStatus::KHR; //< not sure about the OES => KHR mapping
+		else if (m_supportedExtensions.count("GL_EXT_texture_view"))
+			m_extensionStatus[UnderlyingCast(Extension::TextureView)] = ExtensionStatus::EXT; //< not sure about the OES => KHR mapping
+
 #define NAZARA_OPENGLRENDERER_FUNC(name, sig)
 #define NAZARA_OPENGLRENDERER_EXT_FUNC(name, sig) loader.Load<sig, UnderlyingCast(FunctionIndex:: name)>(name, #name, false);
 		NAZARA_OPENGLRENDERER_FOREACH_GLES_FUNC(NAZARA_OPENGLRENDERER_FUNC, NAZARA_OPENGLRENDERER_EXT_FUNC)
@@ -958,6 +968,12 @@ namespace Nz::GL
 		{
 			constexpr std::size_t functionIndex = UnderlyingCast(FunctionIndex::glSpecializeShader);
 			return loader.Load<PFNGLSPECIALIZESHADERPROC, functionIndex>(glSpecializeShader, "glSpecializeShaderARB", false); //< from GL_ARB_spirv_extensions
+		}
+		else if (function == "glTextureView")
+		{
+			constexpr std::size_t functionIndex = UnderlyingCast(FunctionIndex::glTextureView);
+			return loader.Load<PFNGLTEXTUREVIEWPROC, functionIndex>(glTextureView, "glTextureViewOES", false) ||
+			       loader.Load<PFNGLTEXTUREVIEWPROC, functionIndex>(glTextureView, "glTextureViewEXT", false); //< from GL_EXT_texture_view
 		}
 
 		return false;
