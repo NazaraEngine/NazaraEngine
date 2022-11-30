@@ -39,6 +39,7 @@ namespace Nz::GL
 			inline void TexStorage3D(TextureTarget target, GLint levels, GLint internalFormat, GLsizei width, GLsizei height, GLsizei depth);
 			inline void TexSubImage2D(TextureTarget target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLenum type, const void* data);
 			inline void TexSubImage3D(TextureTarget target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, const void* data);
+			inline void TextureView(GLenum target, GLuint origtexture, GLenum internalformat, GLuint minlevel, GLuint numlevels, GLuint minlayer, GLuint numlayers);
 
 			Texture& operator=(const Texture&) = delete;
 			Texture& operator=(Texture&&) noexcept = default;

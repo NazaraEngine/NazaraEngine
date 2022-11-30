@@ -13,6 +13,11 @@ namespace Nz
 		return m_texture;
 	}
 
+	inline bool OpenGLTexture::RequireTextureViewEmulation() const
+	{
+		return m_viewInfo.has_value() && !m_texture.IsValid();
+	}
+
 	inline GL::TextureTarget OpenGLTexture::ToTextureTarget(ImageType imageType)
 	{
 		switch (imageType)

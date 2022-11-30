@@ -111,6 +111,12 @@ namespace Nz::GL
 		//< TODO: Handle errors
 	}
 
+	inline void Texture::TextureView(GLenum target, GLuint origtexture, GLenum internalformat, GLuint minlevel, GLuint numlevels, GLuint minlayer, GLuint numlayers)
+	{
+		const Context& context = EnsureDeviceContext();
+		context.glTextureView(m_objectId, target, origtexture, internalformat, minlevel, numlevels, minlayer, numlayers);
+	}
+
 	inline GLuint Texture::CreateHelper(OpenGLDevice& /*device*/, const Context& context)
 	{
 		GLuint texture = 0;

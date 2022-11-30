@@ -329,7 +329,7 @@ namespace Nz
 				throw std::runtime_error("couldn't find a sampling-compatible depth pixel format");
 
 			TextureInfo texInfo;
-			texInfo.width = texInfo.height = texInfo.depth = texInfo.mipmapLevel = 1;
+			texInfo.width = texInfo.height = texInfo.depth = texInfo.levelCount = 1;
 			texInfo.pixelFormat = depthFormat;
 
 			std::array<UInt8, 6> whitePixels = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
@@ -350,7 +350,7 @@ namespace Nz
 		// White texture 2D
 		{
 			TextureInfo texInfo;
-			texInfo.width = texInfo.height = texInfo.depth = texInfo.mipmapLevel = 1;
+			texInfo.width = texInfo.height = texInfo.depth = texInfo.levelCount = 1;
 			texInfo.pixelFormat = PixelFormat::L8;
 
 			std::array<UInt8, 6> whitePixels = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };

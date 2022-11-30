@@ -26,11 +26,21 @@ namespace Nz
 		PixelFormat pixelFormat;
 		ImageType type;
 		TextureUsageFlags usageFlags = TextureUsage::ShaderSampling | TextureUsage::TransferDestination;
-		UInt8 mipmapLevel = 1;
+		UInt8 levelCount = 1;
 		unsigned int layerCount = 1;
 		unsigned int depth = 1;
 		unsigned int height;
 		unsigned int width;
+	};
+
+	struct TextureViewInfo
+	{
+		ImageType viewType;
+		PixelFormat reinterpretFormat;
+		UInt8 baseMipLevel = 0;
+		UInt8 levelCount = 1;
+		unsigned int baseArrayLayer = 0;
+		unsigned int layerCount = 1;
 	};
 
 	struct NAZARA_RENDERER_API TextureParams : ImageParams
@@ -56,9 +66,11 @@ namespace Nz
 			virtual ~Texture();
 
 			virtual bool Copy(const Texture& source, const Boxui& srcBox, const Vector3ui& dstPos = Vector3ui::Zero()) = 0;
+			virtual std::shared_ptr<Texture> CreateView(const TextureViewInfo& viewInfo) = 0;
 
 			virtual PixelFormat GetFormat() const = 0;
 			virtual UInt8 GetLevelCount() const = 0;
+			virtual Texture* GetParentTexture() const = 0;
 			virtual Vector3ui GetSize(UInt8 level = 0) const = 0;
 			virtual ImageType GetType() const = 0;
 
@@ -67,6 +79,7 @@ namespace Nz
 			Texture& operator=(const Texture&) = delete;
 			Texture& operator=(Texture&&) = delete;
 
+			static inline TextureInfo ApplyView(TextureInfo textureInfo, const TextureViewInfo& viewInfo);
 			static inline unsigned int GetLevelSize(unsigned int size, unsigned int level);
 
 			static std::shared_ptr<Texture> CreateFromImage(const Image& image, const TextureParams& params);

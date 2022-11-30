@@ -60,8 +60,9 @@ namespace Nz::GL
 		StorageBuffers,
 		TextureCompressionS3tc,
 		TextureFilterAnisotropic,
+		TextureView,
 
-		Max = TextureFilterAnisotropic
+		Max = TextureView
 	};
 
 	enum class ExtensionStatus
