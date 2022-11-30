@@ -19,127 +19,120 @@ namespace Nz
 	m_device(device),
 	m_params(params)
 	{
+		VkImageViewCreateInfo createInfoView = {};
+		createInfoView.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		InitViewForFormat(params.pixelFormat, createInfoView);
+		
 		VkImageCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+		createInfo.format = createInfoView.format;
 		createInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		createInfo.mipLevels = params.mipmapLevel;
 		createInfo.samples = VK_SAMPLE_COUNT_1_BIT;
 		createInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
 		createInfo.usage = ToVulkan(params.usageFlags);
-
-		VkImageViewCreateInfo createInfoView = {};
-		createInfoView.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-		createInfoView.subresourceRange = {
-			ToVulkan(PixelFormatInfo::GetContent(params.pixelFormat)),
-			0,
-			1,
-			0,
-			1
-		};
-
-		InitForFormat(params.pixelFormat, createInfo, createInfoView);
 
 		switch (params.type)
 		{
 			case ImageType::E1D:
 				NazaraAssert(params.width > 0, "Width must be over zero");
-
-				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_1D;
+				NazaraAssert(params.height == 1, "Height must be one");
+				NazaraAssert(params.depth == 1, "Depth must be one");
+				NazaraAssert(params.layerCount == 1, "Array count must be one");
 
 				createInfo.imageType = VK_IMAGE_TYPE_1D;
+				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_1D;
 				createInfo.extent.width = params.width;
-				createInfo.extent.height = 1;
-				createInfo.extent.depth = 1;
-				createInfo.arrayLayers = 1;
 				break;
 
 			case ImageType::E1D_Array:
 				NazaraAssert(params.width > 0, "Width must be over zero");
-				NazaraAssert(params.height > 0, "Height must be over zero");
-
-				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_1D_ARRAY;
+				NazaraAssert(params.height == 1, "Height must be one");
+				NazaraAssert(params.depth == 1, "Depth must be one");
+				NazaraAssert(params.layerCount > 0, "Array count must be over zero");
 
 				createInfo.imageType = VK_IMAGE_TYPE_1D;
-				createInfo.extent.width = params.width;
-				createInfo.extent.height = 1;
-				createInfo.extent.depth = 1;
-				createInfo.arrayLayers = params.height;
+				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_1D_ARRAY;
 				break;
 
 			case ImageType::E2D:
 				NazaraAssert(params.width > 0, "Width must be over zero");
 				NazaraAssert(params.height > 0, "Height must be over zero");
-
-				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_2D;
+				NazaraAssert(params.depth == 1, "Depth must be one");
+				NazaraAssert(params.layerCount == 1, "Array count must be one");
 
 				createInfo.imageType = VK_IMAGE_TYPE_2D;
-				createInfo.extent.width = params.width;
-				createInfo.extent.height = params.height;
-				createInfo.extent.depth = 1;
-				createInfo.arrayLayers = 1;
+				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_2D;
 				break;
 
 			case ImageType::E2D_Array:
 				NazaraAssert(params.width > 0, "Width must be over zero");
 				NazaraAssert(params.height > 0, "Height must be over zero");
-				NazaraAssert(params.depth > 0, "Depth must be over zero");
-
-				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
+				NazaraAssert(params.depth == 1, "Depth must be one");
+				NazaraAssert(params.layerCount > 0, "Array count must be over zero");
 
 				createInfo.imageType = VK_IMAGE_TYPE_2D;
-				createInfo.extent.width = params.width;
-				createInfo.extent.height = params.height;
-				createInfo.extent.depth = 1;
-				createInfo.arrayLayers = params.depth;
+				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
 				break;
 
 			case ImageType::E3D:
 				NazaraAssert(params.width > 0, "Width must be over zero");
 				NazaraAssert(params.height > 0, "Height must be over zero");
 				NazaraAssert(params.depth > 0, "Depth must be over zero");
-
-				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_3D;
+				NazaraAssert(params.layerCount == 1, "Array count must be one");
 
 				createInfo.imageType = VK_IMAGE_TYPE_3D;
-				createInfo.extent.width = params.width;
-				createInfo.extent.height = params.height;
-				createInfo.extent.depth = params.depth;
-				createInfo.arrayLayers = 1;
+				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_3D;
 				break;
 
 			case ImageType::Cubemap:
 				NazaraAssert(params.width > 0, "Width must be over zero");
 				NazaraAssert(params.height > 0, "Height must be over zero");
-
-				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_CUBE;
-				createInfoView.subresourceRange.layerCount = 6;
+				NazaraAssert(params.depth == 1, "Depth must be one");
+				NazaraAssert(params.layerCount % 6 == 0, "Array count must be a multiple of 6");
 
 				createInfo.imageType = VK_IMAGE_TYPE_2D;
-				createInfo.extent.width = params.width;
-				createInfo.extent.height = params.height;
-				createInfo.extent.depth = 1;
-				createInfo.arrayLayers = 6;
 				createInfo.flags |= VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
+				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_CUBE;
 				break;
 
 			default:
 				break;
 		}
 
+		createInfo.extent.width = params.width;
+		createInfo.extent.height = params.height;
+		createInfo.extent.depth = params.depth;
+		createInfo.arrayLayers = params.layerCount;
+		createInfo.mipLevels = params.mipmapLevel;
+
 		VmaAllocationCreateInfo allocInfo = {};
-		allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
+		allocInfo.usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE;
 
 		VkResult result = vmaCreateImage(m_device.GetMemoryAllocator(), &createInfo, &allocInfo, &m_image, &m_allocation, nullptr);
 		if (result != VK_SUCCESS)
 			throw std::runtime_error("Failed to allocate image: " + TranslateVulkanError(result));
 
+		CallOnExit releaseImage([&]{ vmaDestroyImage(m_device.GetMemoryAllocator(), m_image, m_allocation); });
+
+		createInfoView.subresourceRange = {
+			ToVulkan(PixelFormatInfo::GetContent(params.pixelFormat)),
+			0,                      //< baseMipLevel
+			createInfo.mipLevels,   //< levelCount
+			0,                      //< baseArrayLayer
+			createInfo.arrayLayers  //< layerCount, will be set if the type is an array/cubemap
+		};
+
 		createInfoView.image = m_image;
 
-		if (!m_imageView.Create(device, createInfoView))
+		if (!m_imageView.Create(m_device, createInfoView))
+			throw std::runtime_error("Failed to create default image view: " + TranslateVulkanError(m_imageView.GetLastErrorCode()));
+
+		releaseImage.Reset();
+		createInfoView.image = m_image;
+
 		{
 			// FIXME
 			vmaDestroyImage(m_device.GetMemoryAllocator(), m_image, m_allocation);
-			throw std::runtime_error("Failed to create image view: " + TranslateVulkanError(m_imageView.GetLastErrorCode()));
 		}
 	}
 
@@ -160,7 +153,7 @@ namespace Nz
 			VK_IMAGE_ASPECT_COLOR_BIT,
 			0, //< mipLevel
 			0, //< baseArrayLayer
-			1 //< layerCount
+			1  //< layerCount
 		};
 
 		VkImageSubresourceRange subresourceRange = { //< FIXME
@@ -348,7 +341,7 @@ namespace Nz
 		return m_device.SetDebugName(VK_OBJECT_TYPE_IMAGE, static_cast<UInt64>(reinterpret_cast<std::uintptr_t>(m_image)), name);
 	}
 
-	void VulkanTexture::InitForFormat(PixelFormat pixelFormat, VkImageCreateInfo& createImage, VkImageViewCreateInfo& createImageView)
+	void VulkanTexture::InitViewForFormat(PixelFormat pixelFormat, VkImageViewCreateInfo& createImageView)
 	{
 		createImageView.components = {
 			VK_COMPONENT_SWIZZLE_R,
@@ -377,16 +370,14 @@ namespace Nz
 			case PixelFormat::RGBA16F:
 			case PixelFormat::RGBA32F:
 			{
-				createImage.format = ToVulkan(pixelFormat);
-				createImageView.format = createImage.format;
+				createImageView.format = ToVulkan(pixelFormat);
 				break;
 			}
 
 			// "emulated" formats
 			case PixelFormat::A8:
 			{
-				createImage.format = VK_FORMAT_R8_UNORM;
-				createImageView.format = createImage.format;
+				createImageView.format = VK_FORMAT_R8_UNORM;
 				createImageView.components = {
 					VK_COMPONENT_SWIZZLE_ONE,
 					VK_COMPONENT_SWIZZLE_ONE,
@@ -398,8 +389,7 @@ namespace Nz
 
 			case PixelFormat::L8:
 			{
-				createImage.format = VK_FORMAT_R8_UNORM;
-				createImageView.format = createImage.format;
+				createImageView.format = VK_FORMAT_R8_UNORM;
 				createImageView.components = {
 					VK_COMPONENT_SWIZZLE_R,
 					VK_COMPONENT_SWIZZLE_R,
@@ -411,8 +401,7 @@ namespace Nz
 
 			case PixelFormat::LA8:
 			{
-				createImage.format = VK_FORMAT_R8G8_UNORM;
-				createImageView.format = createImage.format;
+				createImageView.format = VK_FORMAT_R8G8_UNORM;
 				createImageView.components = {
 					VK_COMPONENT_SWIZZLE_R,
 					VK_COMPONENT_SWIZZLE_R,
@@ -425,6 +414,14 @@ namespace Nz
 			default:
 				throw std::runtime_error("Unsupported pixel format " + PixelFormatInfo::GetName(pixelFormat));
 		}
+
+		createImageView.subresourceRange = {
+			ToVulkan(PixelFormatInfo::GetContent(pixelFormat)),
+			0,
+			1,
+			0,
+			1
+		};
 	}
 }
 

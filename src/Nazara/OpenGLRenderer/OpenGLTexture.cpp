@@ -25,20 +25,12 @@ namespace Nz
 
 		switch (params.type)
 		{
-			case ImageType::E1D:
-				m_texture.TexStorage2D(GL::TextureTarget::Target2D, params.mipmapLevel, format->internalFormat, params.width, 1);
-				break;
-
-			case ImageType::E1D_Array:
-				m_texture.TexStorage2D(GL::TextureTarget::Target2D, params.mipmapLevel, format->internalFormat, params.width, params.height);
-				break;
-
 			case ImageType::E2D:
 				m_texture.TexStorage2D(GL::TextureTarget::Target2D, params.mipmapLevel, format->internalFormat, params.width, params.height);
 				break;
 
 			case ImageType::E2D_Array:
-				m_texture.TexStorage3D(GL::TextureTarget::Target2D_Array, params.mipmapLevel, format->internalFormat, params.width, params.height, params.depth);
+				m_texture.TexStorage3D(GL::TextureTarget::Target2D_Array, params.mipmapLevel, format->internalFormat, params.width, params.height, params.layerCount);
 				break;
 
 			case ImageType::E3D:
@@ -47,6 +39,15 @@ namespace Nz
 
 			case ImageType::Cubemap:
 				m_texture.TexStorage2D(GL::TextureTarget::Cubemap, params.mipmapLevel, format->internalFormat, params.width, params.height);
+				break;
+
+			// OpenGL ES doesn't support 1D textures, use 2D textures with a height of 1 instead
+			case ImageType::E1D:
+				m_texture.TexStorage2D(GL::TextureTarget::Target2D, params.mipmapLevel, format->internalFormat, params.width, 1);
+				break;
+
+			case ImageType::E1D_Array:
+				m_texture.TexStorage2D(GL::TextureTarget::Target2D, params.mipmapLevel, format->internalFormat, params.width, params.layerCount);
 				break;
 		}
 

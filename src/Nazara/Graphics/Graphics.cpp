@@ -340,6 +340,8 @@ namespace Nz
 				if (texInfo.type == ImageType::E3D)
 					continue;
 
+				texInfo.layerCount = (texInfo.type == ImageType::Cubemap) ? 6 : 1;
+
 				m_defaultTextures.depthTextures[i] = m_renderDevice->InstantiateTexture(texInfo);
 				m_defaultTextures.depthTextures[i]->Update(whitePixels.data());
 			}
@@ -356,6 +358,7 @@ namespace Nz
 			for (std::size_t i = 0; i < ImageTypeCount; ++i)
 			{
 				texInfo.type = static_cast<ImageType>(i);
+				texInfo.layerCount = (texInfo.type == ImageType::Cubemap) ? 6 : 1;
 
 				m_defaultTextures.whiteTextures[i] = m_renderDevice->InstantiateTexture(texInfo);
 				m_defaultTextures.whiteTextures[i]->Update(whitePixels.data());

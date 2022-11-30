@@ -41,7 +41,7 @@ namespace Nz
 			VulkanTexture& operator=(VulkanTexture&&) = delete;
 
 		private:
-			static void InitForFormat(PixelFormat pixelFormat, VkImageCreateInfo& createImage, VkImageViewCreateInfo& createImageView);
+			static void InitViewForFormat(PixelFormat pixelFormat, VkImageViewCreateInfo& createImageView);
 
 			VkImage m_image;
 			VmaAllocation m_allocation;
