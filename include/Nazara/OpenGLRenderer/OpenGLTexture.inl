@@ -20,13 +20,14 @@ namespace Nz
 			case ImageType::E2D:       return GL::TextureTarget::Target2D;
 			case ImageType::E2D_Array: return GL::TextureTarget::Target2D_Array;
 			case ImageType::E3D:       return GL::TextureTarget::Target3D;
-			case ImageType::Cubemap:  return GL::TextureTarget::Cubemap;
+			case ImageType::Cubemap:   return GL::TextureTarget::Cubemap;
 
-			case ImageType::E1D:
-			case ImageType::E1D_Array:
-			default:
-				throw std::runtime_error("unsupported texture type");
+			// OpenGL ES doesn't support 1D textures, use 2D textures with a height of 1 instead
+			case ImageType::E1D:       return GL::TextureTarget::Target2D;
+			case ImageType::E1D_Array: return GL::TextureTarget::Target2D_Array;
 		}
+
+		throw std::runtime_error("unsupported texture type");
 	}
 }
 
