@@ -139,6 +139,8 @@ namespace Nz
 
 		if (const OpenGLTexture* glTexture = static_cast<const OpenGLTexture*>(textureBinding.texture))
 		{
+			// TODO: Add texture view emulation
+
 			textureDescriptor.texture = glTexture->GetTexture().GetObjectId();
 
 			if (const OpenGLTextureSampler* glSampler = static_cast<const OpenGLTextureSampler*>(textureBinding.sampler))

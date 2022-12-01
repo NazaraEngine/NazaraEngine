@@ -114,15 +114,17 @@ namespace Nz
 
 		CallOnExit releaseImage([&]{ vmaDestroyImage(m_device.GetMemoryAllocator(), m_image, m_allocation); });
 
-		createInfoView.subresourceRange = {
+		// Create default view (viewing the whole texture)
+		m_imageRange = {
 			ToVulkan(PixelFormatInfo::GetContent(textureInfo.pixelFormat)),
 			0,                      //< baseMipLevel
 			createInfo.mipLevels,   //< levelCount
 			0,                      //< baseArrayLayer
-			createInfo.arrayLayers  //< layerCount, will be set if the type is an array/cubemap
+			createInfo.arrayLayers  //< layerCount
 		};
 
 		createInfoView.image = m_image;
+		createInfoView.subresourceRange = m_imageRange;
 
 		if (!m_imageView.Create(m_device, createInfoView))
 			throw std::runtime_error("Failed to create default image view: " + TranslateVulkanError(m_imageView.GetLastErrorCode()));
@@ -141,16 +143,19 @@ namespace Nz
 		NazaraAssert(viewInfo.layerCount <= m_parentTexture->m_textureInfo.layerCount - viewInfo.baseArrayLayer, "layer count exceeds number of layers");
 		NazaraAssert(viewInfo.levelCount <= m_parentTexture->m_textureInfo.levelCount - viewInfo.baseMipLevel, "level count exceeds number of levels");
 
+		m_viewInfo = viewInfo;
+		m_imageRange = {
+			ToVulkan(PixelFormatInfo::GetContent(viewInfo.reinterpretFormat)),
+			viewInfo.baseMipLevel,
+			viewInfo.levelCount,
+			viewInfo.baseArrayLayer,
+			viewInfo.layerCount
+		};
+
 		VkImageViewCreateInfo createInfoView = {};
 		createInfoView.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 		createInfoView.image = m_image;
-		createInfoView.subresourceRange = {
-			ToVulkan(PixelFormatInfo::GetContent(m_textureInfo.pixelFormat)),
-			0,                      //< baseMipLevel
-			m_textureInfo.levelCount,   //< levelCount
-			0,                      //< baseArrayLayer
-			m_textureInfo.layerCount     //< layerCount, will be set if the type is an array/cubemap
-		};
+		createInfoView.subresourceRange = m_imageRange;
 
 		InitViewForFormat(viewInfo.reinterpretFormat, createInfoView);
 
@@ -218,7 +223,17 @@ namespace Nz
 	std::shared_ptr<Texture> VulkanTexture::CreateView(const TextureViewInfo& viewInfo)
 	{
 		if (m_parentTexture)
-			return m_parentTexture->CreateView(viewInfo);
+		{
+			assert(m_viewInfo);
+			NazaraAssert(viewInfo.layerCount <= m_viewInfo->layerCount - viewInfo.baseArrayLayer, "layer count exceeds number of layers");
+			NazaraAssert(viewInfo.levelCount <= m_viewInfo->levelCount - viewInfo.baseMipLevel, "level count exceeds number of levels");
+
+			TextureViewInfo ajustedView = viewInfo;
+			ajustedView.baseArrayLayer += m_viewInfo->baseArrayLayer;
+			ajustedView.baseMipLevel += m_viewInfo->baseMipLevel;
+
+			return m_parentTexture->CreateView(ajustedView);
+		}
 
 		return std::make_shared<VulkanTexture>(std::static_pointer_cast<VulkanTexture>(shared_from_this()), viewInfo);
 	}
@@ -329,13 +344,13 @@ namespace Nz
 		VkImageSubresourceLayers subresourceLayers = { //< FIXME
 			aspect,
 			level, //< mipLevel
-			0, //< baseArrayLayer
+			m_imageRange.baseArrayLayer, //< baseArrayLayer
 			UInt32((m_textureInfo.type == ImageType::Cubemap) ? 6 : 1) //< layerCount
 		};
 
 		VkImageSubresourceRange subresourceRange = { //< FIXME
 			aspect,
-			0, //< baseMipLevel
+			m_imageRange.baseMipLevel, //< baseMipLevel
 			1, //< levelCount
 			subresourceLayers.baseArrayLayer, //< baseArrayLayer
 			subresourceLayers.layerCount      //< layerCount
@@ -379,13 +394,6 @@ namespace Nz
 
 	void VulkanTexture::InitViewForFormat(PixelFormat pixelFormat, VkImageViewCreateInfo& createImageView)
 	{
-		createImageView.components = {
-			VK_COMPONENT_SWIZZLE_R,
-			VK_COMPONENT_SWIZZLE_G,
-			VK_COMPONENT_SWIZZLE_B,
-			VK_COMPONENT_SWIZZLE_A
-		};
-
 		// TODO: Fill this switch
 		switch (pixelFormat)
 		{
@@ -407,6 +415,13 @@ namespace Nz
 			case PixelFormat::RGBA32F:
 			{
 				createImageView.format = ToVulkan(pixelFormat);
+				createImageView.components = {
+					VK_COMPONENT_SWIZZLE_R,
+					VK_COMPONENT_SWIZZLE_G,
+					VK_COMPONENT_SWIZZLE_B,
+					VK_COMPONENT_SWIZZLE_A
+				};
+
 				break;
 			}
 
@@ -450,14 +465,6 @@ namespace Nz
 			default:
 				throw std::runtime_error("Unsupported pixel format " + PixelFormatInfo::GetName(pixelFormat));
 		}
-
-		createImageView.subresourceRange = {
-			ToVulkan(PixelFormatInfo::GetContent(pixelFormat)),
-			0,
-			1,
-			0,
-			1
-		};
 	}
 }
 

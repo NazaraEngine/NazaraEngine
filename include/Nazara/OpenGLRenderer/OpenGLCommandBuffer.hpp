@@ -25,6 +25,7 @@ namespace Nz
 	class OpenGLCommandPool;
 	class OpenGLFramebuffer;
 	class OpenGLRenderPass;
+	class OpenGLTexture;
 
 	class NAZARA_OPENGLRENDERER_API OpenGLCommandBuffer final : public CommandBuffer
 	{
@@ -41,11 +42,11 @@ namespace Nz
 			inline void BindPipeline(const OpenGLRenderPipeline* pipeline);
 			inline void BindShaderBinding(const OpenGLRenderPipelineLayout& pipelineLayout, UInt32 set, const OpenGLShaderBinding* binding);
 			inline void BindVertexBuffer(UInt32 binding, GLuint vertexBuffer, UInt64 offset = 0);
-			inline void BlitTexture(const GL::Texture& source, const Boxui& sourceBox, const GL::Texture& target, const Boxui& targetBox, SamplerFilter filter = SamplerFilter::Nearest);
+			inline void BlitTexture(const OpenGLTexture& source, const Boxui& sourceBox, const OpenGLTexture& target, const Boxui& targetBox, SamplerFilter filter = SamplerFilter::Nearest);
 
 			inline void CopyBuffer(GLuint source, GLuint target, UInt64 size, UInt64 sourceOffset = 0, UInt64 targetOffset = 0);
 			inline void CopyBuffer(const UploadPool::Allocation& allocation, GLuint target, UInt64 size, UInt64 sourceOffset = 0, UInt64 targetOffset = 0);
-			inline void CopyTexture(const GL::Texture& source, const Boxui& sourceBox, const GL::Texture& target, const Vector3ui& targetPoint);
+			inline void CopyTexture(const OpenGLTexture& source, const Boxui& sourceBox, const OpenGLTexture& target, const Vector3ui& targetPoint);
 
 			inline void Draw(UInt32 vertexCount, UInt32 instanceCount = 1, UInt32 firstVertex = 0, UInt32 firstInstance = 0);
 			inline void DrawIndexed(UInt32 indexCount, UInt32 instanceCount = 1, UInt32 firstIndex = 0, UInt32 firstInstance = 0);
@@ -81,8 +82,8 @@ namespace Nz
 
 			struct BlitTextureData
 			{
-				const GL::Texture* source;
-				const GL::Texture* target;
+				const OpenGLTexture* source;
+				const OpenGLTexture* target;
 				Boxui sourceBox;
 				Boxui targetBox;
 				SamplerFilter filter;
@@ -99,8 +100,8 @@ namespace Nz
 
 			struct CopyTextureData
 			{
-				const GL::Texture* source;
-				const GL::Texture* target;
+				const OpenGLTexture* source;
+				const OpenGLTexture* target;
 				Boxui sourceBox;
 				Vector3ui targetPoint;
 			};

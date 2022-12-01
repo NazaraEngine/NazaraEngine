@@ -19,6 +19,7 @@ namespace Nz
 		bool depthClamping = false;
 		bool nonSolidFaceFilling = false;
 		bool storageBuffers = false;
+		bool unrestrictedTextureViews = false;
 	};
 
 	struct RenderDeviceLimits
