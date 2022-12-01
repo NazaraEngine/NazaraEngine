@@ -280,28 +280,58 @@ namespace Nz::GL
 		}
 	}
 
-	bool Context::BlitTexture(const Texture& source, const Texture& destination, const Boxui& srcBox, const Boxui& dstBox, SamplerFilter filter) const
+	bool Context::BlitTexture(const OpenGLTexture& texture, const OpenGLTexture& destination, const Boxui& srcBox, const Boxui& dstBox, SamplerFilter filter) const
 	{
 		if (!m_blitFramebuffers && !InitializeBlitFramebuffers())
 			return false;
-
-		//TODO: handle other textures types
-		assert(source.GetTarget() == TextureTarget::Target2D);
-		assert(destination.GetTarget() == TextureTarget::Target2D);
 
 		// Bind framebuffers before configuring them (so they won't override each other)
 		BindFramebuffer(FramebufferTarget::Draw, m_blitFramebuffers->drawFBO.GetObjectId());
 		BindFramebuffer(FramebufferTarget::Read, m_blitFramebuffers->readFBO.GetObjectId());
 
+		auto BindTexture = [](GL::Framebuffer& framebuffer, const OpenGLTexture& texture)
+		{
+			if (texture.RequiresTextureViewEmulation())
+			{
+				const TextureViewInfo& texViewInfo = texture.GetTextureViewInfo();
+
+				GLenum texTarget;
+				if (texture.GetType() == ImageType::Cubemap)
+				{
+					constexpr std::array<GLenum, 6> faceTargets = { GL_TEXTURE_CUBE_MAP_POSITIVE_X, GL_TEXTURE_CUBE_MAP_NEGATIVE_X, GL_TEXTURE_CUBE_MAP_POSITIVE_Y, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, GL_TEXTURE_CUBE_MAP_POSITIVE_Z, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z };
+					assert(texViewInfo.baseArrayLayer < faceTargets.size());
+					texTarget = faceTargets[texViewInfo.baseArrayLayer];
+				}
+				else if (texture.GetType() == ImageType::E2D)
+					texTarget = GL_TEXTURE_2D;
+				else
+					throw std::runtime_error("unrestricted texture views are not supported on this device, blit is only permitted from/to a cubemap face or a 2D texture");
+
+				//TODO: Support texture arrays (one slice at a time)
+
+				framebuffer.Texture2D(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture.GetParentTexture()->GetTexture().GetObjectId(), texture.GetTextureViewInfo().baseMipLevel);
+
+			}
+			else
+			{
+				if (texture.GetTexture().GetTarget() != TextureTarget::Target2D)
+					throw std::runtime_error("blit is not yet supported from other texture type than 2D textures");
+
+				framebuffer.Texture2D(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture.GetTexture().GetObjectId(), 0);
+			}
+		};
+
 		// Attach textures to color attachment
-		m_blitFramebuffers->drawFBO.Texture2D(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, destination.GetObjectId());
+		BindTexture(m_blitFramebuffers->readFBO, texture);
+		BindTexture(m_blitFramebuffers->drawFBO, destination);
+
+		// Validate framebuffer completeness
 		if (GLenum checkResult = m_blitFramebuffers->drawFBO.Check(); checkResult != GL_FRAMEBUFFER_COMPLETE)
 		{
 			NazaraError("Blit draw FBO is incomplete: " + TranslateOpenGLError(checkResult));
 			return false;
 		}
 
-		m_blitFramebuffers->readFBO.Texture2D(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, source.GetObjectId());
 		if (GLenum checkResult = m_blitFramebuffers->readFBO.Check(); checkResult != GL_FRAMEBUFFER_COMPLETE)
 		{
 			NazaraError("Blit read FBO is incomplete: " + TranslateOpenGLError(checkResult));
@@ -324,18 +354,20 @@ namespace Nz::GL
 		return true;
 	}
 
-	bool Context::CopyTexture(const Texture& source, const Texture& destination, const Boxui& srcBox, const Vector3ui& dstPos) const
+	bool Context::CopyTexture(const OpenGLTexture& source, const OpenGLTexture& destination, const Boxui& srcBox, const Vector3ui& dstPos) const
 	{
 		// Use glCopyImageSubData if available
-		if (glCopyImageSubData)
+		// TODO: Emulate texture views (which aren't available on GL ES, even though glCopyImageSubData is)
+		if (glCopyImageSubData && !source.RequiresTextureViewEmulation() && !destination.RequiresTextureViewEmulation())
 		{
-			GLuint srcImage = source.GetObjectId();
-			GLenum srcTarget = ToOpenGL(source.GetTarget());
+			GLuint srcImage = source.GetTexture().GetObjectId();
+			GLenum srcTarget = ToOpenGL(source.GetTexture().GetTarget());
 
-			GLuint dstImage = destination.GetObjectId();
-			GLenum dstTarget = ToOpenGL(destination.GetTarget());
+			GLuint dstImage = destination.GetTexture().GetObjectId();
+			GLenum dstTarget = ToOpenGL(destination.GetTexture().GetTarget());
 
 			glCopyImageSubData(srcImage, srcTarget, 0, GLint(srcBox.x), GLint(srcBox.y), GLint(srcBox.z), dstImage, dstTarget, 0, GLint(dstPos.x), GLint(dstPos.y), GLint(dstPos.z), GLsizei(srcBox.width), GLsizei(srcBox.height), GLsizei(srcBox.depth));
+
 			return true;
 		}
 		else

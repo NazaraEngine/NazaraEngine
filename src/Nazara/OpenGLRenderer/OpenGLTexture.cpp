@@ -96,7 +96,7 @@ namespace Nz
 		const OpenGLTexture& glTexture = static_cast<const OpenGLTexture&>(source);
 
 		const GL::Context& context = m_texture.EnsureDeviceContext();
-		return context.CopyTexture(glTexture.GetTexture(), m_texture, srcBox, dstPos);
+		return context.CopyTexture(glTexture, *this, srcBox, dstPos);
 	}
 
 	std::shared_ptr<Texture> OpenGLTexture::CreateView(const TextureViewInfo& viewInfo)

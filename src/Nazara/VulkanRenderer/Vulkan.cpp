@@ -57,6 +57,7 @@ namespace Nz
 		deviceInfo.features.depthClamping = physDevice.features.depthClamp;
 		deviceInfo.features.nonSolidFaceFilling = physDevice.features.fillModeNonSolid;
 		deviceInfo.features.storageBuffers = true;
+		deviceInfo.features.unrestrictedTextureViews = true;
 
 		deviceInfo.limits.maxStorageBufferSize = physDevice.properties.limits.maxStorageBufferRange;
 		deviceInfo.limits.maxUniformBufferSize = physDevice.properties.limits.maxUniformBufferRange;

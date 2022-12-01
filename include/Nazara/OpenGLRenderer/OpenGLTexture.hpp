@@ -33,9 +33,10 @@ namespace Nz
 			OpenGLTexture* GetParentTexture() const override;
 			Vector3ui GetSize(UInt8 level = 0) const override;
 			inline const GL::Texture& GetTexture() const;
+			inline const TextureViewInfo& GetTextureViewInfo() const;
 			ImageType GetType() const override;
 
-			inline bool RequireTextureViewEmulation() const;
+			inline bool RequiresTextureViewEmulation() const;
 
 			using Texture::Update;
 			bool Update(const void* ptr, const Boxui& box, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0) override;

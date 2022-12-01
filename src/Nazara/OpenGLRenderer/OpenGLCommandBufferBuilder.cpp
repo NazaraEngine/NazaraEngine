@@ -11,6 +11,7 @@
 #include <Nazara/OpenGLRenderer/OpenGLTexture.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLUploadPool.hpp>
 #include <Nazara/Utils/StackArray.hpp>
+#include <stdexcept>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
 namespace Nz
@@ -66,7 +67,7 @@ namespace Nz
 		const OpenGLTexture& sourceTexture = static_cast<const OpenGLTexture&>(fromTexture);
 		const OpenGLTexture& targetTexture = static_cast<const OpenGLTexture&>(toTexture);
 
-		m_commandBuffer.BlitTexture(sourceTexture.GetTexture(), fromBox, targetTexture.GetTexture(), toBox, filter);
+		m_commandBuffer.BlitTexture(sourceTexture, fromBox, targetTexture, toBox, filter);
 	}
 
 	void OpenGLCommandBufferBuilder::CopyBuffer(const RenderBufferView& source, const RenderBufferView& target, UInt64 size, UInt64 sourceOffset, UInt64 targetOffset)
@@ -89,7 +90,7 @@ namespace Nz
 		const OpenGLTexture& sourceTexture = static_cast<const OpenGLTexture&>(fromTexture);
 		const OpenGLTexture& targetTexture = static_cast<const OpenGLTexture&>(toTexture);
 
-		m_commandBuffer.CopyTexture(sourceTexture.GetTexture(), fromBox, targetTexture.GetTexture(), toPos);
+		m_commandBuffer.CopyTexture(sourceTexture, fromBox, targetTexture, toPos);
 	}
 
 	void OpenGLCommandBufferBuilder::Draw(UInt32 vertexCount, UInt32 instanceCount, UInt32 firstVertex, UInt32 firstInstance)

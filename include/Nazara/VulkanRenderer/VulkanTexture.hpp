@@ -12,6 +12,7 @@
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Image.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/ImageView.hpp>
+#include <optional>
 
 namespace Nz
 {
@@ -46,8 +47,10 @@ namespace Nz
 		private:
 			static void InitViewForFormat(PixelFormat pixelFormat, VkImageViewCreateInfo& createImageView);
 
+			std::optional<TextureViewInfo> m_viewInfo;
 			std::shared_ptr<VulkanTexture> m_parentTexture;
 			VkImage m_image;
+			VkImageSubresourceRange m_imageRange;
 			VmaAllocation m_allocation;
 			Vk::Device& m_device;
 			Vk::ImageView m_imageView;

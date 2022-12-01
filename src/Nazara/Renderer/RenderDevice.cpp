@@ -34,28 +34,19 @@ namespace Nz
 
 	void RenderDevice::ValidateFeatures(const RenderDeviceFeatures& supportedFeatures, RenderDeviceFeatures& enabledFeatures)
 	{
-		if (enabledFeatures.anisotropicFiltering && !supportedFeatures.anisotropicFiltering)
-		{
-			NazaraWarning("anistropic filtering was enabled but device doesn't support it, disabling...");
-			enabledFeatures.anisotropicFiltering = false;
+#define NzValidateFeature(field, name) \
+		if (enabledFeatures.field && !supportedFeatures.field) \
+		{ \
+			NazaraWarning(name " was enabled but device doesn't support it, disabling..."); \
+			enabledFeatures.field = false; \
 		}
 
-		if (enabledFeatures.depthClamping && !supportedFeatures.depthClamping)
-		{
-			NazaraWarning("depth clamping was enabled but device doesn't support it, disabling...");
-			enabledFeatures.depthClamping = false;
-		}
+		NzValidateFeature(anisotropicFiltering, "anistropic filtering feature")
+		NzValidateFeature(depthClamping, "depth clamping feature")
+		NzValidateFeature(nonSolidFaceFilling, "non-solid face filling feature")
+		NzValidateFeature(storageBuffers, "storage buffers support")
+		NzValidateFeature(unrestrictedTextureViews, "unrestricted texture view support")
 
-		if (enabledFeatures.nonSolidFaceFilling && !supportedFeatures.nonSolidFaceFilling)
-		{
-			NazaraWarning("non-solid face filling was enabled but device doesn't support it, disabling...");
-			enabledFeatures.nonSolidFaceFilling = false;
-		}
-
-		if (enabledFeatures.storageBuffers && !supportedFeatures.storageBuffers)
-		{
-			NazaraWarning("storage buffers support was enabled but device doesn't support it, disabling...");
-			enabledFeatures.storageBuffers = false;
-		}
+#undef NzValidateFeature
 	}
 }

@@ -13,7 +13,13 @@ namespace Nz
 		return m_texture;
 	}
 
-	inline bool OpenGLTexture::RequireTextureViewEmulation() const
+	inline const TextureViewInfo& OpenGLTexture::GetTextureViewInfo() const
+	{
+		assert(m_viewInfo);
+		return *m_viewInfo;
+	}
+
+	inline bool OpenGLTexture::RequiresTextureViewEmulation() const
 	{
 		return m_viewInfo.has_value() && !m_texture.IsValid();
 	}

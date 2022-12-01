@@ -14,6 +14,7 @@
 namespace Nz
 {
 	class OpenGLCommandBuffer;
+	class OpenGLTexture;
 
 	class NAZARA_OPENGLRENDERER_API OpenGLCommandBufferBuilder final : public CommandBufferBuilder
 	{
