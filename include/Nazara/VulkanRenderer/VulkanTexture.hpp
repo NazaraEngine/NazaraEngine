@@ -35,6 +35,8 @@ namespace Nz
 			using Texture::Update;
 			bool Update(const void* ptr, const Boxui& box, unsigned int srcWidth, unsigned int srcHeight, UInt8 level) override;
 
+			void UpdateDebugName(std::string_view name) override;
+
 			VulkanTexture& operator=(const VulkanTexture&) = delete;
 			VulkanTexture& operator=(VulkanTexture&&) = delete;
 

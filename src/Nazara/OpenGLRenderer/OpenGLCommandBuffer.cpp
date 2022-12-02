@@ -321,6 +321,11 @@ namespace Nz
 		}
 	}
 
+	void OpenGLCommandBuffer::UpdateDebugName(std::string_view name)
+	{
+		// No OpenGL object to name
+	}
+
 	void OpenGLCommandBuffer::ApplyStates(const GL::Context& context, const DrawStates& states)
 	{
 		states.pipeline->Apply(context, states.shouldFlipY);

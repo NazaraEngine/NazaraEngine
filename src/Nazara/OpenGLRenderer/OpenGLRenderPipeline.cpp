@@ -103,4 +103,9 @@ namespace Nz
 			m_isViewportFlipped = flipViewport;
 		}
 	}
+
+	void OpenGLRenderPipeline::UpdateDebugName(std::string_view name)
+	{
+		m_program.SetDebugName(name);
+	}
 }

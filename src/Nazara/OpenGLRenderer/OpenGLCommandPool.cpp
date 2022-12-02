@@ -36,6 +36,11 @@ namespace Nz
 		return commandBuffer;
 	}
 
+	void OpenGLCommandPool::UpdateDebugName(std::string_view name)
+	{
+		// No OpenGL object to name
+	}
+
 	auto OpenGLCommandPool::AllocatePool() -> CommandPool&
 	{
 		constexpr UInt32 MaxSet = 128;

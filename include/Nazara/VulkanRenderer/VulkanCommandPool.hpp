@@ -30,6 +30,8 @@ namespace Nz
 
 			CommandBufferPtr BuildCommandBuffer(const std::function<void(CommandBufferBuilder& builder)>& callback) override;
 
+			void UpdateDebugName(std::string_view name) override;
+
 			VulkanCommandPool& operator=(const VulkanCommandPool&) = delete;
 			VulkanCommandPool& operator=(VulkanCommandPool&&) = delete;
 

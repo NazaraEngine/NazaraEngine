@@ -113,6 +113,9 @@ namespace Nz
 			if (!shader.Create(m_device, ToOpenGL(shaderEntry.stage)))
 				throw std::runtime_error("failed to create shader"); //< TODO: Handle error message
 
+			if (!m_debugName.empty())
+				shader.SetDebugName(m_debugName);
+
 			std::visit([&](auto&& arg)
 			{
 				using T = std::decay_t<decltype(arg)>;
@@ -159,6 +162,11 @@ namespace Nz
 		}
 
 		return stageFlags;
+	}
+
+	void OpenGLShaderModule::UpdateDebugName(std::string_view name)
+	{
+		m_debugName = name;
 	}
 
 	void OpenGLShaderModule::Create(OpenGLDevice& /*device*/, nzsl::ShaderStageTypeFlags shaderStages, const nzsl::Ast::Module& shaderModule, const nzsl::ShaderWriter::States& states)

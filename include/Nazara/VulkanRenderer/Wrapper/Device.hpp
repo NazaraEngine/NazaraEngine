@@ -64,6 +64,10 @@ namespace Nz
 				inline bool IsExtensionLoaded(const std::string& extensionName);
 				inline bool IsLayerLoaded(const std::string& layerName);
 
+				inline void SetDebugName(VkObjectType objectType, UInt64 objectHandle, const char* name);
+				inline void SetDebugName(VkObjectType objectType, UInt64 objectHandle, std::string_view name);
+				inline void SetDebugName(VkObjectType objectType, UInt64 objectHandle, const std::string& name);
+
 				inline bool WaitForIdle();
 
 				Device& operator=(const Device&) = delete;

@@ -32,6 +32,8 @@ namespace Nz
 			void* Map(UInt64 offset, UInt64 size) override;
 			bool Unmap() override;
 
+			void UpdateDebugName(std::string_view name) override;
+
 			OpenGLBuffer& operator=(const OpenGLBuffer&) = delete;
 			OpenGLBuffer& operator=(OpenGLBuffer&&) = delete;
 

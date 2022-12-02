@@ -103,4 +103,9 @@ namespace Nz
 	{
 		return m_size;
 	}
+
+	void OpenGLFboFramebuffer::UpdateDebugName(std::string_view name)
+	{
+		m_framebuffer.SetDebugName(name);
+	}
 }

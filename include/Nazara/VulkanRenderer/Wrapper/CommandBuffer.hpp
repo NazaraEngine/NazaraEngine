@@ -77,6 +77,7 @@ namespace Nz
 
 				inline void Free();
 
+				inline VkResult GetLastErrorCode() const;
 				inline CommandPool& GetPool();
 
 				inline void ImageBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkDependencyFlags dependencyFlags, VkAccessFlags srcAccessMask, VkAccessFlags dstAccessMask, VkImageLayout oldLayout, VkImageLayout newLayout, VkImage image, VkImageAspectFlags aspectFlags);
@@ -103,8 +104,6 @@ namespace Nz
 				inline void SetImageLayout(VkImage image, VkImageLayout oldImageLayout, VkImageLayout newImageLayout, const VkImageSubresourceRange& subresourceRange);
 				inline void SetImageLayout(VkImage image, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout);
 				inline void SetImageLayout(VkImage image, VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkImageLayout oldImageLayout, VkImageLayout newImageLayout, const VkImageSubresourceRange& subresourceRange);
-
-				inline VkResult GetLastErrorCode() const;
 
 				CommandBuffer& operator=(const CommandBuffer&) = delete;
 				CommandBuffer& operator=(CommandBuffer&& commandBuffer) noexcept;

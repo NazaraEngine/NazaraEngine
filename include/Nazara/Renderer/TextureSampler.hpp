@@ -38,6 +38,8 @@ namespace Nz
 			TextureSampler(TextureSampler&&) = delete;
 			virtual ~TextureSampler();
 
+			virtual void UpdateDebugName(std::string_view name) = 0;
+
 			TextureSampler& operator=(const TextureSampler&) = delete;
 			TextureSampler& operator=(TextureSampler&&) = delete;
 

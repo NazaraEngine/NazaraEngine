@@ -5,6 +5,7 @@
 #include <Nazara/VulkanRenderer/Wrapper/Device.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
+#include <Nazara/Utils/StackArray.hpp>
 #include <Nazara/VulkanRenderer/Utils.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Instance.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
@@ -85,6 +86,40 @@ namespace Nz::Vk
 	inline bool Device::IsLayerLoaded(const std::string& layerName)
 	{
 		return m_loadedLayers.count(layerName) > 0;
+	}
+
+	inline void Device::SetDebugName(VkObjectType objectType, UInt64 objectHandle, const char* name)
+	{
+		if (vkSetDebugUtilsObjectNameEXT)
+		{
+			VkDebugUtilsObjectNameInfoEXT debugName = {
+				VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT,
+				nullptr,
+				objectType,
+				objectHandle,
+				name
+			};
+
+			vkSetDebugUtilsObjectNameEXT(m_device, &debugName);
+		}
+	}
+
+	inline void Device::SetDebugName(VkObjectType objectType, UInt64 objectHandle, std::string_view name)
+	{
+		if (vkSetDebugUtilsObjectNameEXT)
+		{
+			// Ensure \0 at the end of string
+			StackArray<char> nullTerminatedName = NazaraStackArrayNoInit(char, name.size() + 1);
+			std::memcpy(nullTerminatedName.data(), name.data(), name.size());
+			nullTerminatedName[name.size()] = '\0';
+
+			return SetDebugName(objectType, objectHandle, nullTerminatedName.data());
+		}
+	}
+
+	inline void Device::SetDebugName(VkObjectType objectType, UInt64 objectHandle, const std::string& name)
+	{
+		return SetDebugName(objectType, objectHandle, name.data());
 	}
 
 	inline bool Device::WaitForIdle()

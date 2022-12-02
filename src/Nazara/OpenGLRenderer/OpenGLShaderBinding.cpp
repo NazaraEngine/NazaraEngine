@@ -132,6 +132,11 @@ namespace Nz
 		}
 	}
 
+	void OpenGLShaderBinding::UpdateDebugName(std::string_view name)
+	{
+		// No OpenGL object to name
+	}
+
 	void OpenGLShaderBinding::Release()
 	{
 		m_owner.Release(*this);

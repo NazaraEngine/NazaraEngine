@@ -59,6 +59,11 @@ namespace Nz
 		return bindingPtr;
 	}
 
+	void OpenGLRenderPipelineLayout::UpdateDebugName(std::string_view name)
+	{
+		// No OpenGL object to name
+	}
+
 	auto OpenGLRenderPipelineLayout::AllocatePool() -> DescriptorPool&
 	{
 		constexpr UInt32 MaxSet = 128;

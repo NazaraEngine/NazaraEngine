@@ -7,6 +7,11 @@
 
 namespace Nz
 {
+	inline Vk::Framebuffer& VulkanTextureFramebuffer::GetFramebuffer()
+	{
+		return m_framebuffer;
+	}
+
 	inline const Vk::Framebuffer& VulkanTextureFramebuffer::GetFramebuffer() const
 	{
 		return m_framebuffer;

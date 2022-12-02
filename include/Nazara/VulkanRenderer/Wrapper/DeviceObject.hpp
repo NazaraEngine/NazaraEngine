@@ -32,8 +32,7 @@ namespace Nz::Vk
 			Device* GetDevice() const;
 			VkResult GetLastErrorCode() const;
 
-			void SetDebugName(const char* name);
-			void SetDebugName(const std::string& name);
+			template<typename T> void SetDebugName(T&& name);
 
 			DeviceObject& operator=(const DeviceObject&) = delete;
 			DeviceObject& operator=(DeviceObject&& object) noexcept;

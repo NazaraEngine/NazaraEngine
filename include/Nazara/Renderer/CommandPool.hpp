@@ -26,6 +26,8 @@ namespace Nz
 
 			virtual CommandBufferPtr BuildCommandBuffer(const std::function<void(CommandBufferBuilder& builder)>& callback) = 0;
 
+			virtual void UpdateDebugName(std::string_view name) = 0;
+
 			CommandPool& operator=(const CommandPool&) = delete;
 			CommandPool& operator=(CommandPool&&) = default;
 	};

@@ -36,6 +36,8 @@ namespace Nz
 			inline const nzsl::GlslWriter::BindingMapping& GetBindingMapping() const;
 			inline const RenderPipelineLayoutInfo& GetLayoutInfo() const;
 
+			void UpdateDebugName(std::string_view name) override;
+
 			OpenGLRenderPipelineLayout& operator=(const OpenGLRenderPipelineLayout&) = delete;
 			OpenGLRenderPipelineLayout& operator=(OpenGLRenderPipelineLayout&&) = delete;
 

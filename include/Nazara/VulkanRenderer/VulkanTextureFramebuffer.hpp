@@ -23,6 +23,7 @@ namespace Nz
 			VulkanTextureFramebuffer(VulkanTextureFramebuffer&&) = delete;
 			~VulkanTextureFramebuffer() = default;
 
+			inline Vk::Framebuffer& GetFramebuffer() override;
 			inline const Vk::Framebuffer& GetFramebuffer() const override;
 
 			VulkanTextureFramebuffer& operator=(const VulkanTextureFramebuffer&) = delete;

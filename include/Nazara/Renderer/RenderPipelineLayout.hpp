@@ -37,6 +37,8 @@ namespace Nz
 			virtual ~RenderPipelineLayout();
 
 			virtual ShaderBindingPtr AllocateShaderBinding(UInt32 setIndex) = 0;
+
+			virtual void UpdateDebugName(std::string_view name) = 0;
 	};
 }
 

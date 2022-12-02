@@ -32,6 +32,8 @@ namespace Nz
 
 			void Update(const Binding* bindings, std::size_t bindingCount) override;
 
+			void UpdateDebugName(std::string_view name) override;
+
 			OpenGLShaderBinding& operator=(const OpenGLShaderBinding&) = delete;
 			OpenGLShaderBinding& operator=(OpenGLShaderBinding&&) = delete;
 

@@ -83,31 +83,16 @@ namespace Nz::Vk
 	}
 
 	template<typename C, typename VkType, typename CreateInfo, VkObjectType ObjectType>
-	void DeviceObject<C, VkType, CreateInfo, ObjectType>::SetDebugName(const char* name)
+	template<typename T>
+	void DeviceObject<C, VkType, CreateInfo, ObjectType>::SetDebugName(T&& name)
 	{
-		if (m_device->vkSetDebugUtilsObjectNameEXT)
-		{
-			VkDebugUtilsObjectNameInfoEXT debugName = {
-				VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT,
-				nullptr,
-				ObjectType,
-				0,
-				name
-			};
+		UInt64 objectHandle;
+		if constexpr (std::is_pointer_v<VkType>)
+			objectHandle = static_cast<UInt64>(reinterpret_cast<std::uintptr_t>(m_handle));
+		else
+			objectHandle = static_cast<UInt64>(m_handle);
 
-			if constexpr (std::is_pointer_v<VkType>)
-				debugName.objectHandle = static_cast<UInt64>(reinterpret_cast<std::uintptr_t>(m_handle));
-			else
-				debugName.objectHandle = static_cast<UInt64>(m_handle);
-
-			m_device->vkSetDebugUtilsObjectNameEXT(*m_device, &debugName);
-		}
-	}
-
-	template<typename C, typename VkType, typename CreateInfo, VkObjectType ObjectType>
-	void DeviceObject<C, VkType, CreateInfo, ObjectType>::SetDebugName(const std::string& name)
-	{
-		return SetDebugName(name.data());
+		return m_device->SetDebugName(ObjectType, objectHandle, std::forward<T>(name));
 	}
 
 	template<typename C, typename VkType, typename CreateInfo, VkObjectType ObjectType>

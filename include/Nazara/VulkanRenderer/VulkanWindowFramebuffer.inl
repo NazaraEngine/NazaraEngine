@@ -13,7 +13,12 @@ namespace Nz
 	{
 	}
 
-	inline const Vk::Framebuffer& Nz::VulkanWindowFramebuffer::GetFramebuffer() const
+	inline Vk::Framebuffer& VulkanWindowFramebuffer::GetFramebuffer()
+	{
+		return m_framebuffer;
+	}
+
+	inline const Vk::Framebuffer& VulkanWindowFramebuffer::GetFramebuffer() const
 	{
 		return m_framebuffer;
 	}

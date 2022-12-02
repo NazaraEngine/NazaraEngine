@@ -62,6 +62,8 @@ namespace Nz
 			inline void SetScissor(const Recti& scissorRegion);
 			inline void SetViewport(const Recti& viewportRegion);
 
+			void UpdateDebugName(std::string_view name) override;
+
 			OpenGLCommandBuffer& operator=(const OpenGLCommandBuffer&) = delete;
 			OpenGLCommandBuffer& operator=(OpenGLCommandBuffer&&) = delete;
 

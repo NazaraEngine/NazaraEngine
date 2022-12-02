@@ -61,6 +61,11 @@ namespace Nz
 			virtual Vector3ui GetSize(UInt8 level = 0) const = 0;
 			virtual ImageType GetType() const = 0;
 
+			virtual void UpdateDebugName(std::string_view name) = 0;
+
+			Texture& operator=(const Texture&) = delete;
+			Texture& operator=(Texture&&) = delete;
+
 			static inline unsigned int GetLevelSize(unsigned int size, unsigned int level);
 
 			static std::shared_ptr<Texture> CreateFromImage(const Image& image, const TextureParams& params);
@@ -79,9 +84,6 @@ namespace Nz
 			static std::shared_ptr<Texture> LoadCubemapFromFile(const std::filesystem::path& filePath, const TextureParams& textureParams, const CubemapParams& cubemapParams = CubemapParams());
 			static std::shared_ptr<Texture> LoadCubemapFromMemory(const void* data, std::size_t size, const TextureParams& textureParams, const CubemapParams& cubemapParams = CubemapParams());
 			static std::shared_ptr<Texture> LoadCubemapFromStream(Stream& stream, const TextureParams& textureParams, const CubemapParams& cubemapParams = CubemapParams());
-
-			Texture& operator=(const Texture&) = delete;
-			Texture& operator=(Texture&&) = delete;
 	};
 }
 

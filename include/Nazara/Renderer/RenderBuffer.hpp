@@ -27,6 +27,8 @@ namespace Nz
 			inline RenderDevice& GetRenderDevice();
 			inline const RenderDevice& GetRenderDevice() const;
 
+			virtual void UpdateDebugName(std::string_view name) = 0;
+
 			RenderBuffer& operator=(const RenderBuffer&) = delete;
 			RenderBuffer& operator=(RenderBuffer&&) = delete;
 

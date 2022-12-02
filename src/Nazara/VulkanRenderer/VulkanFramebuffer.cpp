@@ -7,6 +7,10 @@
 
 namespace Nz
 {
+	void VulkanFramebuffer::UpdateDebugName(std::string_view name)
+	{
+		GetFramebuffer().SetDebugName(name);
+	}
 }
 
 #if defined(NAZARA_PLATFORM_WINDOWS)

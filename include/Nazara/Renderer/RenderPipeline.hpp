@@ -36,6 +36,8 @@ namespace Nz
 
 			virtual const RenderPipelineInfo& GetPipelineInfo() const = 0;
 
+			virtual void UpdateDebugName(std::string_view name) = 0;
+
 		protected:
 			static void ValidatePipelineInfo(const RenderDevice& device, RenderPipelineInfo& pipelineInfo);
 	};

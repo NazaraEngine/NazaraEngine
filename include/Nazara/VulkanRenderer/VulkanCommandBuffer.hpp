@@ -30,6 +30,8 @@ namespace Nz
 			inline std::size_t GetPoolIndex() const;
 			inline const VulkanCommandPool& GetOwner() const;
 
+			void UpdateDebugName(std::string_view name) override;
+
 			VulkanCommandBuffer& operator=(const VulkanCommandBuffer&) = delete;
 			VulkanCommandBuffer& operator=(VulkanCommandBuffer&&) = delete;
 

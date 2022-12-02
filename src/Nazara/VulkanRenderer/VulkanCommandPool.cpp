@@ -38,7 +38,12 @@ namespace Nz
 
 		return AllocateFromPool(newPoolIndex, std::move(commandBuffer));
 	}
-	
+
+	void VulkanCommandPool::UpdateDebugName(std::string_view name)
+	{
+		m_commandPool.SetDebugName(name);
+	}
+
 	auto VulkanCommandPool::AllocatePool() -> CommandPool&
 	{
 		constexpr UInt32 MaxSet = 128;

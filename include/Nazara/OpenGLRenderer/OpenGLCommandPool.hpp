@@ -27,6 +27,8 @@ namespace Nz
 
 			CommandBufferPtr BuildCommandBuffer(const std::function<void(CommandBufferBuilder& builder)>& callback) override;
 
+			void UpdateDebugName(std::string_view name) override;
+
 			OpenGLCommandPool& operator=(const OpenGLCommandPool&) = delete;
 			OpenGLCommandPool& operator=(OpenGLCommandPool&&) = delete;
 

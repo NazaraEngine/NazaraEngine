@@ -27,4 +27,9 @@ namespace Nz
 	{
 		return m_renderWindow.GetSize();
 	}
+
+	void OpenGLWindowFramebuffer::UpdateDebugName(std::string_view name)
+	{
+		// No OpenGL object to name
+	}
 }

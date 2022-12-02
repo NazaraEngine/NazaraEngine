@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DeviceObject.hpp>
+#include <string_view>
 
 namespace Nz 
 {
@@ -28,6 +29,8 @@ namespace Nz
 
 				inline Device& GetDevice() const;
 				inline VkResult GetLastErrorCode() const;
+
+				inline void SetDebugName(std::string_view name);
 
 				Pipeline& operator=(const Pipeline&) = delete;
 				Pipeline& operator=(Pipeline&&) = delete;

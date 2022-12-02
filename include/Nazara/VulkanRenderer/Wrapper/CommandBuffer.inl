@@ -345,6 +345,11 @@ namespace Nz
 			}
 		}
 
+		inline VkResult CommandBuffer::GetLastErrorCode() const
+		{
+			return m_lastErrorCode;
+		}
+
 		inline CommandPool& CommandBuffer::GetPool()
 		{
 			return *m_pool;
@@ -584,11 +589,6 @@ namespace Nz
 		inline void CommandBuffer::SetViewport(UInt32 firstViewport, UInt32 viewportCount, const VkViewport* viewports)
 		{
 			return m_pool->GetDevice()->vkCmdSetViewport(m_handle, firstViewport, viewportCount, viewports);
-		}
-
-		inline VkResult CommandBuffer::GetLastErrorCode() const
-		{
-			return m_lastErrorCode;
 		}
 
 		inline CommandBuffer& CommandBuffer::operator=(CommandBuffer&& commandBuffer) noexcept

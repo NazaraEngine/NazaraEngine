@@ -157,6 +157,8 @@ namespace Nz
 			textureCreationParams.pixelFormat = textureData.format;
 
 			textureData.texture = renderDevice->InstantiateTexture(textureCreationParams);
+			if (!textureData.name.empty())
+				textureData.texture->UpdateDebugName(textureData.name);
 		}
 
 		std::vector<std::shared_ptr<Texture>> textures;
@@ -181,6 +183,9 @@ namespace Nz
 			passData.renderRect.Set(0, 0, int(framebufferWidth), int(framebufferHeight));
 
 			passData.framebuffer = renderDevice->InstantiateFramebuffer(framebufferWidth, framebufferHeight, passData.renderPass, textures);
+			if (!passData.name.empty())
+				passData.framebuffer->UpdateDebugName(passData.name);
+
 			passData.forceCommandBufferRegeneration = true;
 		}
 

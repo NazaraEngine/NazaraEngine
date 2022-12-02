@@ -23,6 +23,8 @@ namespace Nz
 
 			inline FramebufferType GetType() const;
 
+			virtual void UpdateDebugName(std::string_view name) = 0;
+
 			Framebuffer& operator=(const Framebuffer&) = delete;
 			Framebuffer& operator=(Framebuffer&&) noexcept = default;
 

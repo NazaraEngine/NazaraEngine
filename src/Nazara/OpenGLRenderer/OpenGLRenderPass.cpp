@@ -7,4 +7,8 @@
 
 namespace Nz
 {
+	void OpenGLRenderPass::UpdateDebugName(std::string_view name)
+	{
+		// No OpenGL object to name
+	}
 }

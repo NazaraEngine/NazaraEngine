@@ -33,6 +33,8 @@ namespace Nz
 			void* Map(UInt64 offset, UInt64 size) override;
 			bool Unmap() override;
 
+			void UpdateDebugName(std::string_view name) override;
+
 			VulkanBuffer& operator=(const VulkanBuffer&) = delete;
 			VulkanBuffer& operator=(VulkanBuffer&&) = delete; ///TODO
 

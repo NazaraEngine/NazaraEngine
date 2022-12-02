@@ -10,6 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <memory>
+#include <string_view>
 
 namespace Nz
 {
@@ -27,6 +28,8 @@ namespace Nz
 			CommandBuffer(const CommandBuffer&) = delete;
 			CommandBuffer(CommandBuffer&&) = delete;
 			virtual ~CommandBuffer();
+
+			virtual void UpdateDebugName(std::string_view name) = 0;
 
 			CommandBuffer& operator=(const CommandBuffer&) = delete;
 			CommandBuffer& operator=(CommandBuffer&&) = delete;

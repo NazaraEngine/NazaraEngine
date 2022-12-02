@@ -39,6 +39,8 @@ namespace Nz
 
 			inline const Vk::PipelineLayout& GetPipelineLayout() const;
 
+			void UpdateDebugName(std::string_view name) override;
+
 		private:
 			struct DescriptorPool;
 

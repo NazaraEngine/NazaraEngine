@@ -83,6 +83,7 @@ namespace Nz
 
 			struct TextureData
 			{
+				std::string name;
 				std::shared_ptr<Texture> texture;
 				PixelFormat format;
 				TextureUsageFlags usage;

@@ -4,6 +4,7 @@
 
 #include <Nazara/VulkanRenderer/Wrapper/Pipeline.hpp>
 #include <Nazara/VulkanRenderer/Utils.hpp>
+#include <Nazara/Utils/StackArray.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
@@ -56,6 +57,11 @@ namespace Nz
 		inline VkResult Pipeline::GetLastErrorCode() const
 		{
 			return m_lastErrorCode;
+		}
+
+		inline void Pipeline::SetDebugName(std::string_view name)
+		{
+			return m_device->SetDebugName(VK_OBJECT_TYPE_PIPELINE, static_cast<UInt64>(reinterpret_cast<std::uintptr_t>(m_handle)), name);
 		}
 
 		inline Pipeline::operator VkPipeline() const

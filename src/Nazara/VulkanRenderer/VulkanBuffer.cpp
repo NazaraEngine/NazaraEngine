@@ -136,6 +136,11 @@ namespace Nz
 			return true;
 		}
 	}
+
+	void VulkanBuffer::UpdateDebugName(std::string_view name)
+	{
+		return m_device.SetDebugName(VK_OBJECT_TYPE_BUFFER, static_cast<UInt64>(reinterpret_cast<std::uintptr_t>(m_buffer)), name);
+	}
 }
 
 #if defined(NAZARA_PLATFORM_WINDOWS)

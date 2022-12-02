@@ -62,4 +62,9 @@ namespace Nz
 	{
 		return m_buffer.Unmap();
 	}
+
+	void OpenGLBuffer::UpdateDebugName(std::string_view name)
+	{
+		m_buffer.SetDebugName(name);
+	}
 }

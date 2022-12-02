@@ -52,6 +52,8 @@ namespace Nz
 		}
 
 		texture->SetFilePath(image.GetFilePath());
+		if (std::string debugName = image.GetFilePath().generic_u8string(); !debugName.empty())
+			texture->UpdateDebugName(debugName);
 
 		return texture;
 	}

@@ -113,6 +113,7 @@ namespace Nz
 		for (auto& texture : m_pending.textures)
 		{
 			auto& bakedTexture = bakedTextures.emplace_back();
+			bakedTexture.name = std::move(texture.name);
 			bakedTexture.format = texture.format;
 			bakedTexture.height = texture.height;
 			bakedTexture.usage = texture.usage;
@@ -161,7 +162,7 @@ namespace Nz
 				if (currentPass.name.empty())
 					currentPass.name = pass.GetName();
 				else
-					currentPass.name += " + " + pass.GetName();
+					currentPass.name += " / " + pass.GetName();
 
 				auto& subpass = currentPass.passes.emplace_back();
 				subpass.passIndex = *it;
@@ -957,6 +958,9 @@ namespace Nz
 					m_pending.texturePool.erase(it);
 					m_pending.attachmentToTextures.emplace(attachmentIndex, textureId);
 
+					if (!attachmentData.name.empty() && data.name != attachmentData.name)
+						data.name += " / " + attachmentData.name;
+
 					return textureId;
 				}
 
@@ -964,6 +968,7 @@ namespace Nz
 				m_pending.attachmentToTextures.emplace(attachmentIndex, textureId);
 
 				TextureData& data = m_pending.textures.emplace_back();
+				data.name = attachmentData.name;
 				data.format = attachmentData.format;
 				data.width = attachmentData.width;
 				data.height = attachmentData.height;

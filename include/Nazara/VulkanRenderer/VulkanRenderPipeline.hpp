@@ -15,6 +15,7 @@
 #include <Nazara/VulkanRenderer/Wrapper/Device.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Pipeline.hpp>
 #include <Nazara/Utils/MovablePtr.hpp>
+#include <string>
 #include <vector>
 
 namespace Nz
@@ -34,6 +35,8 @@ namespace Nz
 			VkPipeline Get(const VulkanRenderPass& renderPass, std::size_t subpassIndex) const;
 
 			inline const RenderPipelineInfo& GetPipelineInfo() const override;
+
+			void UpdateDebugName(std::string_view name) override;
 
 			VulkanRenderPipeline& operator=(const VulkanRenderPipeline&) = delete;
 			VulkanRenderPipeline& operator=(VulkanRenderPipeline&&) = delete;
@@ -93,6 +96,7 @@ namespace Nz
 				Vk::Pipeline pipeline;
 			};
 
+			std::string m_debugName;
 			mutable std::unordered_map<std::pair<VkRenderPass, std::size_t>, PipelineData, PipelineHasher> m_pipelines;
 			MovablePtr<Vk::Device> m_device;
 			mutable CreateInfo m_pipelineCreateInfo;

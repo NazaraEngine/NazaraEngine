@@ -19,7 +19,10 @@ namespace Nz
 		public:
 			using Framebuffer::Framebuffer;
 
+			virtual Vk::Framebuffer& GetFramebuffer() = 0;
 			virtual const Vk::Framebuffer& GetFramebuffer() const = 0;
+
+			void UpdateDebugName(std::string_view name) override;
 	};
 }
 

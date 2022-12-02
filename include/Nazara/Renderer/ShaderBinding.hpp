@@ -10,6 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <memory>
+#include <string_view>
 #include <variant>
 
 namespace Nz
@@ -36,6 +37,8 @@ namespace Nz
 
 			virtual void Update(const Binding* bindings, std::size_t bindingCount) = 0;
 			inline void Update(std::initializer_list<Binding> bindings);
+
+			virtual void UpdateDebugName(std::string_view name) = 0;
 
 			ShaderBinding& operator=(const ShaderBinding&) = delete;
 			ShaderBinding& operator=(ShaderBinding&&) = delete;

@@ -15,6 +15,7 @@
 #include <Nazara/Renderer/ShaderModule.hpp>
 #include <NZSL/GlslWriter.hpp>
 #include <NZSL/Ast/Module.hpp>
+#include <string>
 #include <vector>
 
 namespace Nz
@@ -30,6 +31,8 @@ namespace Nz
 			nzsl::ShaderStageTypeFlags Attach(GL::Program& program, const nzsl::GlslWriter::BindingMapping& bindingMapping, std::vector<ExplicitBinding>* explicitBindings) const;
 
 			inline const std::vector<ExplicitBinding>& GetExplicitBindings() const;
+
+			void UpdateDebugName(std::string_view name) override;
 
 			struct ExplicitBinding
 			{
@@ -61,6 +64,7 @@ namespace Nz
 
 			OpenGLDevice& m_device;
 			nzsl::ShaderWriter::States m_states;
+			std::string m_debugName;
 			std::vector<ExplicitBinding> m_explicitBindings;
 			std::vector<Shader> m_shaders;
 	};

@@ -146,6 +146,11 @@ namespace Nz
 		NazaraError("this language is not supported");
 		return false;
 	}
+
+	void VulkanShaderModule::UpdateDebugName(std::string_view name)
+	{
+		m_shaderModule.SetDebugName(name);
+	}
 }
 
 #if defined(NAZARA_PLATFORM_WINDOWS)

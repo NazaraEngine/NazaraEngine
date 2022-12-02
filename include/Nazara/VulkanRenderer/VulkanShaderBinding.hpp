@@ -30,6 +30,8 @@ namespace Nz
 
 			void Update(const Binding* bindings, std::size_t bindingCount) override;
 
+			void UpdateDebugName(std::string_view name) override;
+
 			VulkanShaderBinding& operator=(const VulkanShaderBinding&) = delete;
 			VulkanShaderBinding& operator=(VulkanShaderBinding&&) = delete;
 

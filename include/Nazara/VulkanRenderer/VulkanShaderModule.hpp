@@ -28,6 +28,8 @@ namespace Nz
 			inline const Vk::ShaderModule& GetHandle() const;
 			inline const std::vector<Stage>& GetStages() const;
 
+			void UpdateDebugName(std::string_view name) override;
+
 			struct Stage
 			{
 				nzsl::ShaderStageType stage;

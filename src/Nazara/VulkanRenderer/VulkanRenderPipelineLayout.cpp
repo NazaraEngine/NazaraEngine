@@ -87,6 +87,11 @@ namespace Nz
 		return true;
 	}
 
+	void VulkanRenderPipelineLayout::UpdateDebugName(std::string_view name)
+	{
+		m_pipelineLayout.SetDebugName(name);
+	}
+
 	auto VulkanRenderPipelineLayout::AllocatePool() -> DescriptorPool&
 	{
 		StackVector<VkDescriptorPoolSize> poolSizes = NazaraStackVector(VkDescriptorPoolSize, m_layoutInfo.bindings.size());

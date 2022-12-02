@@ -145,4 +145,9 @@ namespace Nz
 
 		return true;
 	}
+
+	void OpenGLTexture::UpdateDebugName(std::string_view name)
+	{
+		m_texture.SetDebugName(name);
+	}
 }

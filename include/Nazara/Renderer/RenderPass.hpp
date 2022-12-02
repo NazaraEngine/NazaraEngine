@@ -35,6 +35,8 @@ namespace Nz
 			inline const std::vector<SubpassDescription>& GetSubpassDescriptions() const;
 			inline const std::vector<SubpassDependency>& GetSubpassDependencies() const;
 
+			virtual void UpdateDebugName(std::string_view name) = 0;
+
 			RenderPass& operator=(const RenderPass&) = delete;
 			RenderPass& operator=(RenderPass&&) noexcept = default;
 

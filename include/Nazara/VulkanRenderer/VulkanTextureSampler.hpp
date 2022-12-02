@@ -25,6 +25,8 @@ namespace Nz
 
 			inline VkSampler GetSampler() const;
 
+			void UpdateDebugName(std::string_view name) override;
+
 			VulkanTextureSampler& operator=(const VulkanTextureSampler&) = delete;
 			VulkanTextureSampler& operator=(VulkanTextureSampler&&) = delete;
 

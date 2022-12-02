@@ -18,6 +18,8 @@ namespace Nz
 		public:
 			ShaderModule() = default;
 			virtual ~ShaderModule();
+
+			virtual void UpdateDebugName(std::string_view name) = 0;
 	};
 }
 

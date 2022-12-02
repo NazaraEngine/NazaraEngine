@@ -37,4 +37,10 @@ namespace Nz
 		if (samplerInfo.anisotropyLevel > 1.f)
 			sampler.SetParameterf(GL_TEXTURE_MAX_ANISOTROPY_EXT, samplerInfo.anisotropyLevel);
 	}
+
+	void OpenGLTextureSampler::UpdateDebugName(std::string_view name)
+	{
+		m_samplerWithMipmaps.SetDebugName(name);
+		m_samplerWithoutMipmaps.SetDebugName(name);
+	}
 }

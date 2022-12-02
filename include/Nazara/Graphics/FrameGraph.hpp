@@ -86,6 +86,7 @@ namespace Nz
 
 			struct TextureData
 			{
+				std::string name;
 				PixelFormat format;
 				TextureUsageFlags usage;
 				unsigned int width;

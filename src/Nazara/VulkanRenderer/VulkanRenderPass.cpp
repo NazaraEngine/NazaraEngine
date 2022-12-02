@@ -133,6 +133,11 @@ namespace Nz
 	{
 		OnRenderPassRelease(this);
 	}
+
+	void VulkanRenderPass::UpdateDebugName(std::string_view name)
+	{
+		return m_renderPass.SetDebugName(name);
+	}
 }
 
 #if defined(NAZARA_PLATFORM_WINDOWS)

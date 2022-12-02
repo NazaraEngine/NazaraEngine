@@ -24,6 +24,8 @@ namespace Nz
 
 			inline const GL::Sampler& GetSampler(bool mipmaps) const;
 
+			void UpdateDebugName(std::string_view name) override;
+
 			OpenGLTextureSampler& operator=(const OpenGLTextureSampler&) = delete;
 			OpenGLTextureSampler& operator=(OpenGLTextureSampler&&) = delete;
 

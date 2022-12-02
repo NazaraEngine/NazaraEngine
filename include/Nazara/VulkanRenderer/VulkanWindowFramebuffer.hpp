@@ -20,6 +20,7 @@ namespace Nz
 			VulkanWindowFramebuffer(VulkanWindowFramebuffer&&) noexcept = default;
 			~VulkanWindowFramebuffer() = default;
 
+			inline Vk::Framebuffer& GetFramebuffer() override;
 			inline const Vk::Framebuffer& GetFramebuffer() const override;
 
 			VulkanWindowFramebuffer& operator=(const VulkanWindowFramebuffer&) = delete;

@@ -26,6 +26,8 @@ namespace Nz
 
 			inline const RenderPipelineInfo& GetPipelineInfo() const override;
 
+			void UpdateDebugName(std::string_view name) override;
+
 		private:
 			RenderPipelineInfo m_pipelineInfo;
 			GL::Program m_program;

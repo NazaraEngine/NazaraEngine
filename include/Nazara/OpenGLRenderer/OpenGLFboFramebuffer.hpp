@@ -35,6 +35,8 @@ namespace Nz
 
 			const Vector2ui& GetSize() const override;
 
+			void UpdateDebugName(std::string_view name) override;
+
 			OpenGLFboFramebuffer& operator=(const OpenGLFboFramebuffer&) = delete;
 			OpenGLFboFramebuffer& operator=(OpenGLFboFramebuffer&&) = delete;
 

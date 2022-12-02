@@ -22,6 +22,8 @@ namespace Nz
 			OpenGLRenderPass(OpenGLRenderPass&&) noexcept = default;
 			~OpenGLRenderPass() = default;
 
+			void UpdateDebugName(std::string_view name) override;
+
 			OpenGLRenderPass& operator=(const OpenGLRenderPass&) = delete;
 			OpenGLRenderPass& operator=(OpenGLRenderPass&&) noexcept = default;
 	};

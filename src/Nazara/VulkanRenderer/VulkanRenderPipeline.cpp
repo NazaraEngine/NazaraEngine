@@ -51,8 +51,16 @@ namespace Nz
 		if (!pipelineData.pipeline.CreateGraphics(*m_device, pipelineCreateInfo))
 			return VK_NULL_HANDLE;
 
+		if (!m_debugName.empty())
+			pipelineData.pipeline.SetDebugName(m_debugName);
+
 		auto it = m_pipelines.emplace(key, std::move(pipelineData)).first;
 		return it->second.pipeline;
+	}
+
+	void VulkanRenderPipeline::UpdateDebugName(std::string_view name)
+	{
+		m_debugName = name;
 	}
 
 	std::vector<VkPipelineColorBlendAttachmentState> VulkanRenderPipeline::BuildColorBlendAttachmentStateList(const RenderPipelineInfo& pipelineInfo)

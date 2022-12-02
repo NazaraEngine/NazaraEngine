@@ -28,6 +28,8 @@ namespace Nz
 
 			const Vector2ui& GetSize() const override;
 
+			void UpdateDebugName(std::string_view name) override;
+
 			OpenGLWindowFramebuffer& operator=(const OpenGLWindowFramebuffer&) = delete;
 			OpenGLWindowFramebuffer& operator=(OpenGLWindowFramebuffer&&) = delete;
 

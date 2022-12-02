@@ -32,6 +32,11 @@ namespace Nz
 		if (!m_sampler.Create(device, createInfo))
 			throw std::runtime_error("Failed to create sampler: " + TranslateVulkanError(m_sampler.GetLastErrorCode()));
 	}
+
+	void VulkanTextureSampler::UpdateDebugName(std::string_view name)
+	{
+		return m_sampler.SetDebugName(name);
+	}
 }
 
 #if defined(NAZARA_PLATFORM_WINDOWS)

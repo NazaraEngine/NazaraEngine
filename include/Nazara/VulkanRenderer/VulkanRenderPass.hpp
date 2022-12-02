@@ -27,6 +27,8 @@ namespace Nz
 			inline Vk::RenderPass& GetRenderPass();
 			inline const Vk::RenderPass& GetRenderPass() const;
 
+			void UpdateDebugName(std::string_view name) override;
+
 			VulkanRenderPass& operator=(const VulkanRenderPass&) = delete;
 			VulkanRenderPass& operator=(VulkanRenderPass&&) noexcept = default;
 
