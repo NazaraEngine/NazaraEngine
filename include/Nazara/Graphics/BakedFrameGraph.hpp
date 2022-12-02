@@ -84,7 +84,6 @@ namespace Nz
 
 			struct TextureData : FrameGraphTextureData
 			{
-				std::string name;
 				std::shared_ptr<Texture> texture;
 			};
 
