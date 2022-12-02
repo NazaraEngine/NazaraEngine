@@ -34,6 +34,7 @@ namespace Nz
 			UInt8 GetLevelCount() const override;
 			VulkanTexture* GetParentTexture() const override;
 			Vector3ui GetSize(UInt8 level = 0) const override;
+			inline const VkImageSubresourceRange& GetSubresourceRange() const;
 			ImageType GetType() const override;
 
 			using Texture::Update;

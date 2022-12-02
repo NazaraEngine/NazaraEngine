@@ -355,7 +355,7 @@ namespace Nz
 			return *m_pool;
 		}
 
-		inline void CommandBuffer::ImageBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkDependencyFlags dependencyFlags, VkAccessFlags srcAccessMask, VkAccessFlags dstAccessMask, VkImageLayout oldLayout, VkImageLayout newLayout, VkImage image, VkImageAspectFlags aspectFlags)
+		inline void CommandBuffer::ImageBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkDependencyFlags dependencyFlags, VkAccessFlags srcAccessMask, VkAccessFlags dstAccessMask, VkImageLayout oldLayout, VkImageLayout newLayout, VkImage image, const VkImageSubresourceRange& subresourceRange)
 		{
 			VkImageMemoryBarrier imageBarrier = {
 				VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER,
@@ -367,11 +367,7 @@ namespace Nz
 				VK_QUEUE_FAMILY_IGNORED,
 				VK_QUEUE_FAMILY_IGNORED,
 				image,
-				{
-					aspectFlags,
-					0, 1,
-					0, 1
-				}
+				subresourceRange
 			};
 
 			return PipelineBarrier(srcStageMask, dstStageMask, dependencyFlags, imageBarrier);

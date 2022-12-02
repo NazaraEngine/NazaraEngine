@@ -258,8 +258,7 @@ namespace Nz
 	{
 		const VulkanTexture& vkTexture = static_cast<const VulkanTexture&>(texture);
 
-		VkImageAspectFlags aspectFlags = ToVulkan(PixelFormatInfo::GetContent(vkTexture.GetFormat()));
-		m_commandBuffer.ImageBarrier(ToVulkan(srcStageMask), ToVulkan(dstStageMask), VkDependencyFlags(0), ToVulkan(srcAccessMask), ToVulkan(dstAccessMask), ToVulkan(oldLayout), ToVulkan(newLayout), vkTexture.GetImage(), aspectFlags);
+		m_commandBuffer.ImageBarrier(ToVulkan(srcStageMask), ToVulkan(dstStageMask), VkDependencyFlags(0), ToVulkan(srcAccessMask), ToVulkan(dstAccessMask), ToVulkan(oldLayout), ToVulkan(newLayout), vkTexture.GetImage(), vkTexture.GetSubresourceRange());
 	}
 }
 
