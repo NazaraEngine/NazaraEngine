@@ -27,6 +27,7 @@ namespace Nz::GL
 			inline void DrawBuffers(GLsizei n, const GLenum* bufs);
 			inline void Renderbuffer(GLenum attachment, GLenum renderbuffer);
 			inline void Texture2D(GLenum attachment, GLenum textarget, GLuint texture, GLint level = 0);
+			inline void TextureLayer(GLenum attachment, GLuint texture, GLint level = 0, GLint layer = 0);
 
 			Framebuffer& operator=(const Framebuffer&) = delete;
 			Framebuffer& operator=(Framebuffer&&) noexcept = default;
