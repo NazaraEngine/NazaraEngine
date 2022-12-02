@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
+#include <Nazara/Graphics/FrameGraphStructs.hpp>
 #include <Nazara/Graphics/FramePass.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
@@ -81,15 +82,10 @@ namespace Nz
 				bool forceCommandBufferRegeneration = true;
 			};
 
-			struct TextureData
+			struct TextureData : FrameGraphTextureData
 			{
 				std::string name;
 				std::shared_ptr<Texture> texture;
-				FramePassAttachmentSize size;
-				PixelFormat format;
-				TextureUsageFlags usage;
-				unsigned int width;
-				unsigned int height;
 			};
 
 			std::shared_ptr<CommandPool> m_commandPool;

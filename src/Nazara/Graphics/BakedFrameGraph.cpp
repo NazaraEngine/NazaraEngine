@@ -149,29 +149,48 @@ namespace Nz
 
 		for (auto& textureData : m_textures)
 		{
-			TextureInfo textureCreationParams;
-			textureCreationParams.type = ImageType::E2D;
-			textureCreationParams.usageFlags = textureData.usage;
-			textureCreationParams.pixelFormat = textureData.format;
-			
-			textureCreationParams.width = 1;
-			textureCreationParams.height = 1;
-			switch (textureData.size)
+			if (textureData.viewData)
 			{
-				case FramePassAttachmentSize::Fixed:
-					textureCreationParams.width = textureData.width;
-					textureCreationParams.height = textureData.height;
-					break;
+				TextureData& parentTexture = m_textures[textureData.viewData->parentTextureId];
 
-				case FramePassAttachmentSize::SwapchainFactor:
-					textureCreationParams.width = frameWidth * textureData.width / 100'000;
-					textureCreationParams.height = frameHeight * textureData.height / 100'000;
-					break;
+				// This is a view on another texture
+				TextureViewInfo textureViewParams;
+				textureViewParams.viewType = textureData.type;
+				textureViewParams.reinterpretFormat = textureData.format;
+				textureViewParams.baseArrayLayer = textureData.viewData->arrayLayer;
+
+				textureData.texture = parentTexture.texture->CreateView(textureViewParams);
 			}
+			else
+			{
 
-			textureData.texture = renderDevice->InstantiateTexture(textureCreationParams);
-			if (!textureData.name.empty())
-				textureData.texture->UpdateDebugName(textureData.name);
+				TextureInfo textureCreationParams;
+				textureCreationParams.type = textureData.type;
+				textureCreationParams.usageFlags = textureData.usage;
+				textureCreationParams.pixelFormat = textureData.format;
+
+				if (textureCreationParams.type == ImageType::Cubemap)
+					textureCreationParams.layerCount = 6;
+
+				textureCreationParams.width = 1;
+				textureCreationParams.height = 1;
+				switch (textureData.size)
+				{
+					case FramePassAttachmentSize::Fixed:
+						textureCreationParams.width = textureData.width;
+						textureCreationParams.height = textureData.height;
+						break;
+
+					case FramePassAttachmentSize::SwapchainFactor:
+						textureCreationParams.width = frameWidth * textureData.width / 100'000;
+						textureCreationParams.height = frameHeight * textureData.height / 100'000;
+						break;
+				}
+
+				textureData.texture = renderDevice->InstantiateTexture(textureCreationParams);
+				if (!textureData.name.empty())
+					textureData.texture->UpdateDebugName(textureData.name);
+			}
 		}
 
 		std::vector<std::shared_ptr<Texture>> textures;

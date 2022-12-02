@@ -10,6 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Graphics/BakedFrameGraph.hpp>
 #include <Nazara/Graphics/Config.hpp>
+#include <Nazara/Graphics/FrameGraphStructs.hpp>
 #include <Nazara/Graphics/FramePass.hpp>
 #include <Nazara/Graphics/FramePassAttachment.hpp>
 #include <Nazara/Renderer/Enums.hpp>
@@ -32,6 +33,8 @@ namespace Nz
 			~FrameGraph() = default;
 
 			inline std::size_t AddAttachment(FramePassAttachment attachment);
+			inline std::size_t AddAttachmentCube(FramePassAttachment attachment);
+			inline std::size_t AddAttachmentCubeFace(std::size_t attachmentId, CubemapFace face);
 			inline std::size_t AddAttachmentProxy(std::string name, std::size_t attachmentId);
 			inline void AddBackbufferOutput(std::size_t backbufferOutput);
 			inline FramePass& AddPass(std::string name);
@@ -51,6 +54,16 @@ namespace Nz
 			using AttachmentIdToTextureId = std::unordered_map<std::size_t /*attachmentId*/, std::size_t /*textureId*/>;
 			using PassIdToPhysicalPassIndex = std::unordered_map<std::size_t /*passId*/, std::size_t /*physicalPassId*/>;
 			using TextureBarrier = BakedFrameGraph::TextureBarrier;
+
+			struct AttachmentCube : FramePassAttachment
+			{
+			};
+
+			struct AttachmentLayer
+			{
+				std::size_t attachmentId;
+				std::size_t layerIndex;
+			};
 
 			struct AttachmentProxy
 			{
@@ -84,22 +97,13 @@ namespace Nz
 				std::vector<Subpass> passes;
 			};
 
-			struct TextureData
-			{
-				std::string name;
-				PixelFormat format;
-				FramePassAttachmentSize size;
-				TextureUsageFlags usage;
-				unsigned int width;
-				unsigned int height;
-			};
-
 			struct WorkData
 			{
 				std::vector<std::shared_ptr<RenderPass>> renderPasses;
 				std::vector<PhysicalPassData> physicalPasses;
-				std::vector<TextureData> textures;
-				std::vector<std::size_t> texturePool;
+				std::vector<FrameGraphTextureData> textures;
+				std::vector<std::size_t> texture2DPool;
+				std::vector<std::size_t> textureCubePool;
 				AttachmentIdToPassId attachmentLastUse;
 				AttachmentIdToPassMap attachmentReadList;
 				AttachmentIdToPassMap attachmentWriteList;
@@ -123,9 +127,11 @@ namespace Nz
 			void ReorderPasses();
 			void TraverseGraph(std::size_t passIndex);
 
+			using AttachmentType = std::variant<FramePassAttachment, AttachmentProxy, AttachmentCube, AttachmentLayer>;
+
 			std::vector<std::size_t> m_backbufferOutputs;
 			std::vector<FramePass> m_framePasses;
-			std::vector<std::variant<FramePassAttachment, AttachmentProxy>> m_attachments;
+			std::vector<AttachmentType> m_attachments;
 			WorkData m_pending;
 	};
 }
