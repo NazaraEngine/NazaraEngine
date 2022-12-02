@@ -39,7 +39,8 @@ namespace Nz
 		m_pending.physicalPasses.clear();
 		m_pending.renderPasses.clear();
 		m_pending.textures.clear();
-		m_pending.texturePool.clear();
+		m_pending.texture2DPool.clear();
+		m_pending.textureCubePool.clear();
 
 		BuildReadWriteList();
 
@@ -113,12 +114,7 @@ namespace Nz
 		for (auto& texture : m_pending.textures)
 		{
 			auto& bakedTexture = bakedTextures.emplace_back();
-			bakedTexture.name = std::move(texture.name);
-			bakedTexture.format = texture.format;
-			bakedTexture.height = texture.height;
-			bakedTexture.size   = texture.size;
-			bakedTexture.usage  = texture.usage;
-			bakedTexture.width  = texture.width;
+			static_cast<FrameGraphTextureData&>(bakedTexture) = std::move(texture);
 		}
 
 		return BakedFrameGraph(std::move(bakedPasses), std::move(bakedTextures), std::move(m_pending.attachmentToTextures), std::move(m_pending.passIdToPhysicalPassIndex));
@@ -195,7 +191,7 @@ namespace Nz
 			{
 				std::size_t textureId = RegisterTexture(input.attachmentId);
 
-				TextureData& attachmentData = m_pending.textures[textureId];
+				FrameGraphTextureData& attachmentData = m_pending.textures[textureId];
 				attachmentData.usage |= TextureUsage::ShaderSampling;
 			}
 
@@ -203,7 +199,7 @@ namespace Nz
 			{
 				std::size_t textureId = RegisterTexture(output.attachmentId);
 
-				TextureData& attachmentData = m_pending.textures[textureId];
+				FrameGraphTextureData& attachmentData = m_pending.textures[textureId];
 				attachmentData.usage |= TextureUsage::ColorAttachment;
 			}
 
@@ -211,7 +207,7 @@ namespace Nz
 			{
 				std::size_t textureId = RegisterTexture(depthStencilInput);
 
-				TextureData& attachmentData = m_pending.textures[textureId];
+				FrameGraphTextureData& attachmentData = m_pending.textures[textureId];
 				attachmentData.usage |= TextureUsage::DepthStencilAttachment;
 
 				if (std::size_t depthStencilOutput = framePass.GetDepthStencilOutput(); depthStencilOutput != FramePass::InvalidAttachmentId)
@@ -240,7 +236,7 @@ namespace Nz
 			{
 				std::size_t textureId = RegisterTexture(depthStencilOutput);
 
-				TextureData& attachmentData = m_pending.textures[textureId];
+				FrameGraphTextureData& attachmentData = m_pending.textures[textureId];
 				attachmentData.usage |= TextureUsage::DepthStencilAttachment;
 			}
 
@@ -253,10 +249,21 @@ namespace Nz
 				// If this pass is the last one where this attachment is used, push the texture to the reuse pool
 				if (it != m_pending.attachmentLastUse.end() && passIndex == it->second)
 				{
-					std::size_t textureId = Retrieve(m_pending.attachmentToTextures, attachmentId);
+					const auto& attachmentData = m_attachments[attachmentId];
+					if (std::holds_alternative<FramePassAttachment>(attachmentData))
+					{
+						std::size_t textureId = Retrieve(m_pending.attachmentToTextures, attachmentId);
 
-					assert(std::find(m_pending.texturePool.begin(), m_pending.texturePool.end(), textureId) == m_pending.texturePool.end());
-					m_pending.texturePool.push_back(textureId);
+						assert(std::find(m_pending.texture2DPool.begin(), m_pending.texture2DPool.end(), textureId) == m_pending.texture2DPool.end());
+						m_pending.texture2DPool.push_back(textureId);
+					}
+					else if (std::holds_alternative<AttachmentCube>(attachmentData))
+					{
+						std::size_t textureId = Retrieve(m_pending.attachmentToTextures, attachmentId);
+
+						assert(std::find(m_pending.textureCubePool.begin(), m_pending.textureCubePool.end(), textureId) == m_pending.textureCubePool.end());
+						m_pending.textureCubePool.push_back(textureId);
+					}
 				}
 			});
 		}
@@ -269,6 +276,16 @@ namespace Nz
 
 			auto& backbufferTexture = m_pending.textures[it->second];
 			backbufferTexture.usage |= TextureUsage::ShaderSampling;
+		}
+
+		// Apply texture view usage to their parents
+		for (auto& textureData : m_pending.textures)
+		{
+			if (textureData.viewData)
+			{
+				auto& parentTextureData = m_pending.textures[textureData.viewData->parentTextureId];
+				parentTextureData.usage |= textureData.usage;
+			}
 		}
 	}
 
@@ -946,18 +963,20 @@ namespace Nz
 				const FramePassAttachment& attachmentData = arg;
 
 				// Fetch from reuse pool if possible
-				for (auto it = m_pending.texturePool.begin(); it != m_pending.texturePool.end(); ++it)
+				for (auto it = m_pending.texture2DPool.begin(); it != m_pending.texture2DPool.end(); ++it)
 				{
 					std::size_t textureId = *it;
 
-					TextureData& data = m_pending.textures[textureId];
+					FrameGraphTextureData& data = m_pending.textures[textureId];
+					assert(data.type == ImageType::E2D);
+
 					if (data.format != attachmentData.format ||
-						data.width != attachmentData.width ||
+						data.width  != attachmentData.width  ||
 						data.height != attachmentData.height ||
-						data.size != attachmentData.size)
+						data.size   != attachmentData.size)
 						continue;
 
-					m_pending.texturePool.erase(it);
+					m_pending.texture2DPool.erase(it);
 					m_pending.attachmentToTextures.emplace(attachmentIndex, textureId);
 
 					if (!attachmentData.name.empty() && data.name != attachmentData.name)
@@ -969,12 +988,79 @@ namespace Nz
 				std::size_t textureId = m_pending.textures.size();
 				m_pending.attachmentToTextures.emplace(attachmentIndex, textureId);
 
-				TextureData& data = m_pending.textures.emplace_back();
+				FrameGraphTextureData& data = m_pending.textures.emplace_back();
+				data.type = ImageType::E2D;
 				data.name = attachmentData.name;
 				data.format = attachmentData.format;
 				data.width = attachmentData.width;
 				data.height = attachmentData.height;
 				data.size = attachmentData.size;
+
+				return textureId;
+			}
+			else if constexpr (std::is_same_v<T, AttachmentCube>)
+			{
+				const AttachmentCube& attachmentData = arg;
+
+				// Fetch from reuse pool if possible
+				for (auto it = m_pending.textureCubePool.begin(); it != m_pending.textureCubePool.end(); ++it)
+				{
+					std::size_t textureId = *it;
+
+					FrameGraphTextureData& data = m_pending.textures[textureId];
+					assert(data.type == ImageType::Cubemap);
+
+					if (data.format != attachmentData.format ||
+						data.width  != attachmentData.width  ||
+						data.height != attachmentData.height ||
+						data.size   != attachmentData.size)
+						continue;
+
+					m_pending.textureCubePool.erase(it);
+					m_pending.attachmentToTextures.emplace(attachmentIndex, textureId);
+
+					if (!attachmentData.name.empty() && data.name != attachmentData.name)
+						data.name += " / " + attachmentData.name;
+
+					return textureId;
+				}
+
+				std::size_t textureId = m_pending.textures.size();
+				m_pending.attachmentToTextures.emplace(attachmentIndex, textureId);
+
+				FrameGraphTextureData& data = m_pending.textures.emplace_back();
+				data.type = ImageType::Cubemap;
+				data.name = attachmentData.name;
+				data.format = attachmentData.format;
+				data.width = attachmentData.width;
+				data.height = attachmentData.height;
+				data.size = attachmentData.size;
+
+				return textureId;
+			}
+			else if constexpr (std::is_same_v<T, AttachmentLayer>)
+			{
+				const AttachmentLayer& texLayer = arg;
+
+				// TODO: Reuse texture views from pool?
+
+				std::size_t parentTextureId = RegisterTexture(texLayer.attachmentId);
+
+				std::size_t textureId = m_pending.textures.size();
+				m_pending.attachmentToTextures.emplace(attachmentIndex, textureId);
+
+				FrameGraphTextureData& data = m_pending.textures.emplace_back();
+				const FrameGraphTextureData& parentTexture = m_pending.textures[parentTextureId];
+
+				data.type = ImageType::E2D;
+				data.format = parentTexture.format;
+				data.width = parentTexture.width;
+				data.height = parentTexture.height;
+				data.size = parentTexture.size;
+				data.viewData = {
+					parentTextureId,
+					texLayer.layerIndex
+				};
 
 				return textureId;
 			}
@@ -1022,8 +1108,9 @@ namespace Nz
 	std::size_t FrameGraph::ResolveAttachmentIndex(std::size_t attachmentIndex) const
 	{
 		assert(attachmentIndex < m_attachments.size());
-		if (const AttachmentProxy* proxy = std::get_if<AttachmentProxy>(&m_attachments[attachmentIndex]))
-			return proxy->attachmentId;
+
+		while (const AttachmentProxy* proxy = std::get_if<AttachmentProxy>(&m_attachments[attachmentIndex]))
+			attachmentIndex = proxy->attachmentId;
 
 		return attachmentIndex;
 	}
