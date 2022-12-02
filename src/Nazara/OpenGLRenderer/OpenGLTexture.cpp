@@ -69,6 +69,7 @@ namespace Nz
 		NazaraAssert(viewInfo.layerCount <= m_parentTexture->m_textureInfo.layerCount - viewInfo.baseArrayLayer, "layer count exceeds number of layers");
 		NazaraAssert(viewInfo.levelCount <= m_parentTexture->m_textureInfo.levelCount - viewInfo.baseMipLevel, "level count exceeds number of levels");
 
+		m_textureInfo = ApplyView(m_parentTexture->m_textureInfo, viewInfo);
 		m_viewInfo = viewInfo;
 
 		// Try to use texture views if supported (core in GL 4.3 or extension)
@@ -77,11 +78,10 @@ namespace Nz
 			if (m_texture.Create(*m_parentTexture->m_texture.GetDevice()))
 			{
 				auto format = DescribeTextureFormat(viewInfo.reinterpretFormat);
-				GLenum target = ToOpenGL(ToTextureTarget(viewInfo.viewType));
 
 				context.ClearErrorStack();
 
-				m_texture.TextureView(target, m_parentTexture->m_texture.GetObjectId(), format->internalFormat, viewInfo.baseMipLevel, viewInfo.levelCount, viewInfo.baseArrayLayer, viewInfo.layerCount);
+				m_texture.TextureView(ToTextureTarget(viewInfo.viewType), m_parentTexture->m_texture.GetObjectId(), format->internalFormat, viewInfo.baseMipLevel, viewInfo.levelCount, viewInfo.baseArrayLayer, viewInfo.layerCount);
 
 				if (!context.DidLastCallSucceed())
 					m_texture.Destroy();

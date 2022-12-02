@@ -44,6 +44,15 @@ namespace Nz::GL
 		context.glFramebufferTexture2D(target, attachment, textarget, texture, level);
 	}
 
+	inline void Framebuffer::TextureLayer(GLenum attachment, GLuint texture, GLint level, GLint layer)
+	{
+		assert(m_objectId);
+
+		const Context& context = EnsureContext();
+		GLenum target = context.BindFramebuffer(m_objectId);
+		context.glFramebufferTextureLayer(target, attachment, texture, level, layer);
+	}
+
 	inline GLuint Framebuffer::CreateHelper(const Context& context)
 	{
 		GLuint fbo = 0;

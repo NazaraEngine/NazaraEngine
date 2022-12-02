@@ -78,7 +78,40 @@ namespace Nz
 					throw std::runtime_error("unhandled pixel format " + PixelFormatInfo::GetName(textureFormat));
 			}
 
-			m_framebuffer.Texture2D(attachment, ToOpenGL(OpenGLTexture::ToTextureTarget(glTexture.GetType())), glTexture.GetTexture().GetObjectId());
+			if (glTexture.RequiresTextureViewEmulation())
+			{
+				const TextureViewInfo& texViewInfo = glTexture.GetTextureViewInfo();
+				if (texViewInfo.viewType != ImageType::E2D)
+					throw std::runtime_error("unrestricted texture views can only be used as 2D texture attachment");
+
+				const OpenGLTexture& parentTexture = *glTexture.GetParentTexture();
+
+				switch (parentTexture.GetType())
+				{
+					case ImageType::Cubemap:
+					{
+						constexpr std::array<GLenum, 6> faceTargets = { GL_TEXTURE_CUBE_MAP_POSITIVE_X, GL_TEXTURE_CUBE_MAP_NEGATIVE_X, GL_TEXTURE_CUBE_MAP_POSITIVE_Y, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, GL_TEXTURE_CUBE_MAP_POSITIVE_Z, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z };
+						assert(texViewInfo.baseArrayLayer < faceTargets.size());
+
+						GLenum texTarget = faceTargets[texViewInfo.baseArrayLayer];
+						m_framebuffer.Texture2D(GL_COLOR_ATTACHMENT0, texTarget, parentTexture.GetTexture().GetObjectId(), texViewInfo.baseMipLevel);
+						break;
+					}
+
+					case ImageType::E1D:
+					case ImageType::E2D:
+						m_framebuffer.Texture2D(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, parentTexture.GetTexture().GetObjectId(), texViewInfo.baseMipLevel);
+						break;
+
+					case ImageType::E1D_Array:
+					case ImageType::E2D_Array:
+					case ImageType::E3D:
+						m_framebuffer.TextureLayer(GL_COLOR_ATTACHMENT0, parentTexture.GetTexture().GetObjectId(), texViewInfo.baseArrayLayer, texViewInfo.baseMipLevel);
+						break;
+				}
+			}
+			else
+				m_framebuffer.Texture2D(attachment, ToOpenGL(OpenGLTexture::ToTextureTarget(glTexture.GetType())), glTexture.GetTexture().GetObjectId());
 		}
 
 		GLenum status = m_framebuffer.Check();

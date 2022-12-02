@@ -14,8 +14,8 @@ namespace Nz
 		textureInfo.width       = GetLevelSize(textureInfo.width,  viewInfo.baseMipLevel);
 		textureInfo.height      = GetLevelSize(textureInfo.height, viewInfo.baseMipLevel);
 		textureInfo.depth       = GetLevelSize(textureInfo.depth,  viewInfo.baseMipLevel);
-		textureInfo.levelCount = (textureInfo.levelCount > viewInfo.baseMipLevel) ? (textureInfo.levelCount - viewInfo.baseMipLevel) : 1;
-		textureInfo.layerCount  = (textureInfo.layerCount > viewInfo.baseArrayLayer) ? (textureInfo.layerCount - viewInfo.baseArrayLayer) : 1;
+		textureInfo.levelCount  = viewInfo.levelCount;
+		textureInfo.layerCount  = viewInfo.layerCount;
 
 		return textureInfo;
 	}

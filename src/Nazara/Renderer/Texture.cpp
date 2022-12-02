@@ -37,12 +37,31 @@ namespace Nz
 		NazaraAssert(params.IsValid(), "Invalid TextureParams");
 
 		Nz::TextureInfo texParams;
-		texParams.depth = image.GetDepth();
 		texParams.height = image.GetHeight();
 		texParams.pixelFormat = image.GetFormat();
 		texParams.type = image.GetType();
 		texParams.width = image.GetWidth();
 		texParams.usageFlags = params.usageFlags;
+
+		switch (image.GetType())
+		{
+			case ImageType::E1D:
+			case ImageType::E2D:
+			case ImageType::E3D:
+				break;
+
+			case ImageType::E1D_Array:
+				texParams.layerCount = image.GetHeight();
+				break;
+
+			case ImageType::E2D_Array:
+				texParams.layerCount = image.GetDepth();
+				break;
+
+			case ImageType::Cubemap:
+				texParams.layerCount = 6;
+				break;
+		}
 
 		std::shared_ptr<Texture> texture = params.renderDevice->InstantiateTexture(texParams);
 		if (!texture->Update(image.GetConstPixels()))
