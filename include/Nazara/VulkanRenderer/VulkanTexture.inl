@@ -16,6 +16,11 @@ namespace Nz
 	{
 		return m_imageView;
 	}
+
+	inline const VkImageSubresourceRange& VulkanTexture::GetSubresourceRange() const
+	{
+		return m_imageRange;
+	}
 }
 
 #include <Nazara/VulkanRenderer/DebugOff.hpp>
