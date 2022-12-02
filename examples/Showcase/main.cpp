@@ -74,6 +74,7 @@ int main()
 		playerRotNode.SetParent(playerNode);
 
 		auto& cameraNode = registry.emplace<Nz::NodeComponent>(playerCamera);
+		cameraNode.SetPosition(Nz::Vector3f::Up() * 2.f + Nz::Vector3f::Backward());
 		//cameraNode.SetParent(playerRotNode);
 
 		auto& cameraComponent = registry.emplace<Nz::CameraComponent>(playerCamera, window.GetRenderTarget());

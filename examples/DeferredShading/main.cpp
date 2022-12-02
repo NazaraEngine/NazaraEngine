@@ -215,6 +215,7 @@ int main()
 	{
 		renderStates.depthClamp = true;
 		renderStates.depthWrite = false;
+		renderStates.faceCulling = Nz::FaceCulling::None;
 		renderStates.blending = true;
 		renderStates.blend.modeColor = Nz::BlendEquation::Add;
 		renderStates.blend.modeAlpha = Nz::BlendEquation::Add;
