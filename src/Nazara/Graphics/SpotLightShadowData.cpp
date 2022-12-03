@@ -14,10 +14,10 @@ namespace Nz
 {
 	SpotLightShadowData::SpotLightShadowData(FramePipeline& pipeline, ElementRendererRegistry& elementRegistry, const SpotLight& light) :
 	m_pipeline(pipeline),
-	m_light(light),
-	m_viewer(Recti(0, 0, 1, 1), 0xFFFFFFFF)
+	m_light(light)
 	{
 		UInt32 shadowMapSize = light.GetShadowMapSize();
+		m_viewer.UpdateRenderMask(0xFFFFFFFF);
 		m_viewer.UpdateViewport(Recti(0, 0, SafeCast<int>(shadowMapSize), SafeCast<int>(shadowMapSize)));
 
 		ViewerInstance& viewerInstance = m_viewer.GetViewerInstance();

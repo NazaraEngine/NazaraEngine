@@ -12,6 +12,7 @@
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/FramePassAttachment.hpp>
 #include <Nazara/Math/Rect.hpp>
+#include <Nazara/Renderer/Enums.hpp>
 #include <functional>
 #include <limits>
 #include <optional>
@@ -73,6 +74,7 @@ namespace Nz
 			inline void SetDepthStencilInput(std::size_t attachmentId);
 			inline void SetDepthStencilOutput(std::size_t attachmentId);
 			inline void SetExecutionCallback(ExecutionCallback callback);
+			inline void SetInputLayout(std::size_t inputIndex, TextureLayout layout);
 			inline void SetReadInput(std::size_t inputIndex, bool doesRead);
 
 			FramePass& operator=(const FramePass&) = delete;
@@ -89,6 +91,7 @@ namespace Nz
 			struct Input
 			{
 				std::size_t attachmentId;
+				std::optional<TextureLayout> assumedLayout;
 				bool doesRead = true;
 			};
 

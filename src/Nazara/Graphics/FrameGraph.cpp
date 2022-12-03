@@ -712,9 +712,13 @@ namespace Nz
 				std::size_t textureId = Retrieve(m_pending.attachmentToTextures, input.attachmentId);
 
 				TextureLayout& textureLayout = textureLayouts[textureId];
-				assert(textureLayouts[textureId] != TextureLayout::Undefined);
-
-				textureLayout = TextureLayout::ColorInput;
+				if (!input.assumedLayout)
+				{
+					assert(textureLayouts[textureId] != TextureLayout::Undefined);
+					textureLayout = TextureLayout::ColorInput;
+				}
+				else
+					textureLayout = *input.assumedLayout;
 			};
 
 			auto RegisterColorOutput = [&](const FramePass::Output& output, bool shouldLoad)
@@ -949,7 +953,21 @@ namespace Nz
 
 		return false;
 	}
-	
+
+	void FrameGraph::RegisterPassInput(std::size_t passIndex, std::size_t attachmentIndex)
+	{
+		auto it = m_pending.attachmentWriteList.find(attachmentIndex);
+		if (it != m_pending.attachmentWriteList.end())
+		{
+			const PassList& dependencyPassList = it->second;
+			for (std::size_t dependencyPass : dependencyPassList)
+			{
+				if (dependencyPass != passIndex)
+					TraverseGraph(dependencyPass);
+			}
+		}
+	}
+
 	std::size_t FrameGraph::RegisterTexture(std::size_t attachmentIndex)
 	{
 		if (auto it = m_pending.attachmentToTextures.find(attachmentIndex); it != m_pending.attachmentToTextures.end())
@@ -1126,31 +1144,9 @@ namespace Nz
 
 		const FramePass& framePass = m_framePasses[passIndex];
 		for (const auto& input : framePass.GetInputs())
-		{
-			auto it = m_pending.attachmentWriteList.find(input.attachmentId);
-			if (it != m_pending.attachmentWriteList.end())
-			{
-				const PassList& dependencyPassList = it->second;
-				for (std::size_t dependencyPass : dependencyPassList)
-				{
-					if (dependencyPass != passIndex)
-						TraverseGraph(dependencyPass);
-				}
-			}
-		}
+			RegisterPassInput(passIndex, input.attachmentId);
 
 		if (std::size_t dsInput = framePass.GetDepthStencilInput(); dsInput != FramePass::InvalidAttachmentId)
-		{
-			auto it = m_pending.attachmentWriteList.find(dsInput);
-			if (it != m_pending.attachmentWriteList.end())
-			{
-				const PassList& dependencyPassList = it->second;
-				for (std::size_t dependencyPass : dependencyPassList)
-				{
-					if (dependencyPass != passIndex)
-						TraverseGraph(dependencyPass);
-				}
-			}
-		}
+			RegisterPassInput(passIndex, dsInput);
 	}
 }

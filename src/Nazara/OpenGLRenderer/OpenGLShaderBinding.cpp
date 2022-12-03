@@ -128,7 +128,7 @@ namespace Nz
 		}
 	}
 
-	void OpenGLShaderBinding::UpdateDebugName(std::string_view name)
+	void OpenGLShaderBinding::UpdateDebugName(std::string_view /*name*/)
 	{
 		// No OpenGL object to name
 	}
