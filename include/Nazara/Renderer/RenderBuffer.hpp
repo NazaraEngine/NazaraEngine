@@ -11,6 +11,7 @@
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Utility/Buffer.hpp>
 #include <memory>
+#include <string_view>
 
 namespace Nz
 {
