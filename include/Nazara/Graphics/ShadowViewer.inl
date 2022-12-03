@@ -7,12 +7,6 @@
 
 namespace Nz
 {
-	inline ShadowViewer::ShadowViewer(const Recti& viewport, UInt32 renderMask) :
-	m_renderMask(renderMask)
-	{
-		UpdateViewport(viewport);
-	}
-
 	inline void ShadowViewer::UpdateRenderMask(UInt32 renderMask)
 	{
 		m_renderMask = renderMask;

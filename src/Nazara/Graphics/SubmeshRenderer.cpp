@@ -198,7 +198,7 @@ namespace Nz
 					auto& bindingEntry = m_bindingCache.emplace_back();
 					bindingEntry.bindingIndex = bindingIndex;
 					bindingEntry.content = ShaderBinding::TextureBindings {
-						SafeCast<UInt32>(renderState.shadowMaps2D.size()), &m_textureBindingCache[textureBindingBaseIndex]
+						SafeCast<UInt32>(renderState.shadowMapsCube.size()), &m_textureBindingCache[textureBindingBaseIndex]
 					};
 				}
 

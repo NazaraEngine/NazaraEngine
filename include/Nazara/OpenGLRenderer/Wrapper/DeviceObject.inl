@@ -97,7 +97,7 @@ namespace Nz::GL
 		const Context& context = EnsureDeviceContext();
 
 		if (context.glObjectLabel)
-			context.glObjectLabel(ObjectType, m_objectId, name.size(), name.data());
+			context.glObjectLabel(ObjectType, m_objectId, SafeCast<GLsizei>(name.size()), name.data());
 	}
 }
 

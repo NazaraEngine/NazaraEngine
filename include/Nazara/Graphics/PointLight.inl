@@ -70,6 +70,7 @@ namespace Nz
 		m_position = position;
 
 		UpdateBoundingVolume();
+		OnLightTransformInvalided(this);
 	}
 
 	inline void PointLight::UpdateRadius(float radius)

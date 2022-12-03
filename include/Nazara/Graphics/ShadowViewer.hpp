@@ -16,7 +16,7 @@ namespace Nz
 	class NAZARA_GRAPHICS_API ShadowViewer : public AbstractViewer
 	{
 		public:
-			inline ShadowViewer(const Recti& viewport, UInt32 renderMask);
+			ShadowViewer() = default;
 			ShadowViewer(const ShadowViewer&) = delete;
 			ShadowViewer(ShadowViewer&&) = delete;
 			~ShadowViewer() = default;

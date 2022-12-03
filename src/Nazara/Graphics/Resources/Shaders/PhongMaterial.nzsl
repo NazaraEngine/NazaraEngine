@@ -98,7 +98,7 @@ external
 	[tag("SkeletalData")] skeletalData: uniform[SkeletalData],
 	[tag("LightData")] lightData: uniform[LightData],
 	[tag("ShadowMaps2D")] shadowMaps2D: array[depth_sampler2D[f32], MaxLightCount],
-	[tag("ShadowMapsCube")] shadowMapsCube: array[depth_sampler_cube[f32], MaxLightCount]
+	[tag("ShadowMapsCube")] shadowMapsCube: array[sampler_cube[f32], MaxLightCount]
 }
 
 struct VertToFrag
@@ -116,6 +116,11 @@ struct VertToFrag
 struct FragOut
 {
 	[location(0)] RenderTarget0: vec4[f32]
+}
+
+fn LinearizeDepth(depth: f32, zNear: f32, zFar: f32) -> f32
+{
+    return zNear * zFar / (zFar + depth * (zNear - zFar));
 }
 
 [entry(frag), cond(!DepthPass || AlphaTest)]
@@ -189,25 +194,60 @@ fn main(input: VertToFrag) -> FragOut
 			else if (light.type == PointLight)
 			{
 				let lightPos = light.parameter1.xyz;
-				let lightInvRadius = light.parameter1.w;
+				let lightRadius = light.parameter2.x;
+				let lightInvRadius = light.parameter2.y;
 
 				let lightToPos = input.worldPos - lightPos;
 				let dist = length(lightToPos);
 				let lightToPosNorm = lightToPos / max(dist, 0.0001);
 
 				let attenuationFactor = max(1.0 - dist * lightInvRadius, 0.0);
-
-				lightAmbient += attenuationFactor * light.color.rgb * lightAmbientFactor * settings.AmbientColor.rgb;
-
 				let lambert = max(dot(normal, -lightToPosNorm), 0.0);
-
-				lightDiffuse += attenuationFactor * lambert * light.color.rgb * lightDiffuseFactor;
 
 				let reflection = reflect(lightToPosNorm, normal);
 				let specFactor = max(dot(reflection, eyeVec), 0.0);
 				specFactor = pow(specFactor, settings.Shininess);
 
-				lightSpecular += attenuationFactor * specFactor * light.color.rgb;
+				let shadowFactor = 1.0;
+				if (light.invShadowMapSize.x > 0.0)
+				{
+					shadowFactor = 0.0;
+
+					let sampleDir = vec3[f32](lightToPosNorm.x, lightToPosNorm.y, -lightToPosNorm.z);
+
+					const sampleCount = 4;
+					const offset = 0.005;
+					const bias = 0.05;
+
+					const invSampleCount = 1.0 / f32(sampleCount);
+					const start = vec3[f32](offset * 0.5, offset * 0.5, offset * 0.5);
+					const shadowContribution = 1.0 / f32(sampleCount * sampleCount * sampleCount);
+
+					[unroll]
+					for x in 0 -> sampleCount
+					{
+						[unroll]
+						for y in 0 -> sampleCount
+						{
+							[unroll]
+							for z in 0 -> sampleCount
+							{
+								let dirOffset = vec3[f32](f32(x), f32(y), f32(z)) * invSampleCount * offset - start;
+								let sampleDir = sampleDir + dirOffset;
+
+								let depth = shadowMapsCube[i].Sample(sampleDir).r;
+								depth = LinearizeDepth(depth, 0.01, lightRadius);
+			
+								if (depth > dist - bias)
+									shadowFactor += shadowContribution;
+							}
+						}
+					}
+				}
+
+				lightAmbient += attenuationFactor * light.color.rgb * lightAmbientFactor * settings.AmbientColor.rgb;
+				lightDiffuse += shadowFactor * attenuationFactor * lambert * light.color.rgb * lightDiffuseFactor;
+				lightSpecular += shadowFactor * attenuationFactor * specFactor * light.color.rgb;
 			}
 			else if (light.type == SpotLight)
 			{
@@ -233,10 +273,11 @@ fn main(input: VertToFrag) -> FragOut
 				let specFactor = max(dot(reflection, eyeVec), 0.0);
 				specFactor = pow(specFactor, settings.Shininess);
 
-				let shadowFactor = 0.0;
+				let shadowFactor = 1.0;
 				if (light.invShadowMapSize.x > 0.0)
 				{
 					let shadowCoords = input.lightProjPos[i].xyz / input.lightProjPos[i].w;
+					shadowFactor = 0.0;
 					[unroll]
 					for x in -1 -> 2
 					{

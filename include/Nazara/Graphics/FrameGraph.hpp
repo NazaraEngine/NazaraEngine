@@ -123,6 +123,7 @@ namespace Nz
 			bool HasAttachment(const std::vector<FramePass::Input>& inputs, std::size_t attachmentIndex) const;
 			void RemoveDuplicatePasses();
 			std::size_t ResolveAttachmentIndex(std::size_t attachmentIndex) const;
+			void RegisterPassInput(std::size_t passIndex, std::size_t attachmentIndex);
 			std::size_t RegisterTexture(std::size_t attachmentIndex);
 			void ReorderPasses();
 			void TraverseGraph(std::size_t passIndex);

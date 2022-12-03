@@ -250,17 +250,18 @@ int main()
 
 		{
 			auto& lightNode = registry.emplace<Nz::NodeComponent>(lightEntity3);
-			lightNode.SetPosition(Nz::Vector3f::Backward() * 2.f);
-			lightNode.SetRotation(Nz::EulerAnglesf(-45.f, 180.f, 0.f));
+			//lightNode.SetPosition(Nz::Vector3f::Up() * 4.f);
+			lightNode.SetPosition(Nz::Vector3f::Down() * 7.5f + Nz::Vector3f::Backward() * 2.5f);
+			//lightNode.SetRotation(Nz::EulerAnglesf(-45.f, 180.f, 0.f));
 			lightNode.SetParentJoint(bobEntity, "Spine2");
 
 			auto& cameraLight = registry.emplace<Nz::LightComponent>(lightEntity3);
 
-			auto& spotLight = cameraLight.AddLight<Nz::SpotLight>(0xFFFFFFFF);
-			spotLight.UpdateColor(Nz::Color::Blue);
-			spotLight.UpdateInnerAngle(Nz::DegreeAnglef(15.f));
-			spotLight.UpdateOuterAngle(Nz::DegreeAnglef(20.f));
-			spotLight.EnableShadowCasting(true);
+			auto& pointLight = cameraLight.AddLight<Nz::PointLight>(0xFFFFFFFF);
+			pointLight.UpdateColor(Nz::Color::Blue);
+			pointLight.UpdateRadius(3.f);
+			pointLight.EnableShadowCasting(true);
+			pointLight.UpdateShadowMapSize(2048);
 		}
 	}
 
@@ -521,9 +522,9 @@ int main()
 		Nz::DebugDrawer& debugDrawer = renderSystem.GetFramePipeline().GetDebugDrawer();
 		auto& lightNode = registry.get<Nz::NodeComponent>(lightEntity3);
 		//debugDrawer.DrawLine(lightNode.GetPosition(Nz::CoordSys::Global), lightNode.GetForward() * 10.f, Nz::Color::Blue);
-		/*Nz::Boxf test = spotLight->GetBoundingVolume().aabb;
-		debugDrawer.DrawBox(test, Nz::Color::Blue);
-		debugDrawer.DrawBox(floorBox, Nz::Color::Red);
+		Nz::Vector3f pos = lightNode.GetPosition(Nz::CoordSys::Global);
+		debugDrawer.DrawBox(Nz::Boxf(pos.x - 0.05f, pos.y - 0.05f, pos.z - 0.05f, 0.1f, 0.1f, 0.1f), Nz::Color::Blue);
+		/*debugDrawer.DrawBox(floorBox, Nz::Color::Red);
 		Nz::Boxf intersection;
 		if (floorBox.Intersect(test, &intersection))
 			debugDrawer.DrawBox(intersection, Nz::Color::Green);*/
