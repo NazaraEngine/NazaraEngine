@@ -69,7 +69,6 @@ namespace Nz
 				NazaraAssert(textureInfo.depth == 1, "Depth must be one");
 				NazaraAssert(textureInfo.layerCount > 0, "Array count must be over zero");
 
-				createInfo.flags |= VK_IMAGE_CREATE_2D_ARRAY_COMPATIBLE_BIT;
 				createInfo.imageType = VK_IMAGE_TYPE_2D;
 				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
 				break;
