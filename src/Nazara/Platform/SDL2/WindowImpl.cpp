@@ -196,6 +196,8 @@ namespace Nz
 	{
 #ifdef NAZARA_PLATFORM_WEB
 		WindowHandle handle;
+		handle.type = WindowBackend::Web;
+
 		return handle;
 #else
 		SDL_SysWMinfo wmInfo;

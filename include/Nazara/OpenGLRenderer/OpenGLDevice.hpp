@@ -29,8 +29,8 @@ namespace Nz
 			OpenGLDevice(OpenGLDevice&&) = delete; ///TODO?
 			~OpenGLDevice();
 
-			std::unique_ptr<GL::Context> CreateContext(GL::ContextParams params) const;
-			std::unique_ptr<GL::Context> CreateContext(GL::ContextParams params, WindowHandle handle) const;
+			std::shared_ptr<GL::Context> CreateContext(GL::ContextParams params) const;
+			std::shared_ptr<GL::Context> CreateContext(GL::ContextParams params, WindowHandle handle) const;
 
 			const RenderDeviceInfo& GetDeviceInfo() const override;
 			const RenderDeviceFeatures& GetEnabledFeatures() const override;
@@ -62,7 +62,7 @@ namespace Nz
 		private:
 			inline void NotifyContextDestruction(const GL::Context& context) const;
 
-			std::unique_ptr<GL::Context> m_referenceContext;
+			std::shared_ptr<GL::Context> m_referenceContext;
 			mutable std::unordered_set<const GL::Context*> m_contexts;
 			RenderDeviceInfo m_deviceInfo;
 			GL::Loader& m_loader;

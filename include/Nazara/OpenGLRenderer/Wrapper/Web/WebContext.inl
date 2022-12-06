@@ -10,8 +10,7 @@ namespace Nz::GL
 	inline WebContext::WebContext(const OpenGLDevice* device, const WebLoader& loader) :
 	Context(device),
 	m_loader(loader),
-	//m_handle(0),
-	m_ownsDisplay(false)
+	m_handle(0)
 	{
 	}
 

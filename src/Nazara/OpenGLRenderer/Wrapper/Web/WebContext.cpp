@@ -25,55 +25,6 @@ namespace Nz::GL
 
 		m_params = params;
 
-		std::size_t configCount;
-		std::array<EmscriptenWebGLContextAttributes, 0xFF> configs;
-		if (!ChooseConfig(configs.data(), configs.size(), &configCount))
-			return false;
-
-		std::size_t configIndex = 0;
-
-		return CreateInternal(configs[configIndex], shareContext);
-	}
-
-	bool WebContext::Create(const ContextParams& params, WindowHandle /*window*/, const WebContext* /*shareContext*/)
-	{
-		/*NazaraError("Unexpected context creation call");
-		return false;*/
-
-		return Create(params, nullptr);
-	}
-
-	void WebContext::Destroy()
-	{
-		if (s_handle > 0)
-		{
-			assert(s_handle > 0);
-
-			OnContextRelease();
-			NotifyContextDestruction(this);
-
-			s_handleCounter--;
-
-			if(s_handleCounter == 0)
-			{
-				emscripten_webgl_destroy_context(s_handle);
-				s_handle = 0;
-			}
-		}
-	}
-
-	void WebContext::EnableVerticalSync(bool /*enabled*/)
-	{
-		// TODO
-	}
-
-	void WebContext::SwapBuffers()
-	{
-		emscripten_webgl_commit_frame();
-	}
-
-	bool WebContext::ChooseConfig(EmscriptenWebGLContextAttributes* configs, std::size_t maxConfigCount, std::size_t* configCount)
-	{
 		EmscriptenWebGLContextAttributes configAttributes;
 		emscripten_webgl_init_context_attributes(&configAttributes);
 
@@ -93,23 +44,38 @@ namespace Nz::GL
 		configAttributes.renderViaOffscreenBackBuffer = false; // todo
 		configAttributes.proxyContextToMainThread = false; // todo
 
-		size_t numConfig = 1;
+		return CreateInternal(configAttributes, shareContext);
+	}
 
-		configs[0] = configAttributes;
+	bool WebContext::Create(const ContextParams& params, WindowHandle /*window*/, const WebContext* /*shareContext*/)
+	{
+		return Create(params, nullptr);
+	}
 
-		*configCount = numConfig;
+	void WebContext::Destroy()
+	{
+		if (m_handle != 0)
+		{
+			OnContextRelease();
+			NotifyContextDestruction(this);
 
-		return true;
+			emscripten_webgl_destroy_context(m_handle);
+			m_handle = 0;
+		}
+	}
+
+	void WebContext::EnableVerticalSync(bool /*enabled*/)
+	{
+		// TODO
+	}
+
+	void WebContext::SwapBuffers()
+	{
+		emscripten_webgl_commit_frame();
 	}
 
 	bool WebContext::CreateInternal(EmscriptenWebGLContextAttributes config, const WebContext* shareContext)
 	{
-		if(s_handleCounter > 0)
-		{
-			s_handleCounter++;
-			return true;
-		}
-
 		if (shareContext)
 		{
 			NazaraWarning(std::string("shared contexes are not supported by WebGL but shareContext is not null"));
@@ -145,8 +111,8 @@ namespace Nz::GL
 				config.majorVersion = version.major;
 				config.minorVersion = version.minor;
 
-				s_handle = emscripten_webgl_create_context("canvas", &config);
-				if (s_handle > 0)
+				m_handle = emscripten_webgl_create_context("canvas", &config);
+				if (m_handle > 0)
 				{
 					break;
 				}
@@ -158,15 +124,13 @@ namespace Nz::GL
 			return false;
 		}
 
-		if (s_handle <= 0)
+		if (m_handle <= 0)
 		{
-			NazaraError(std::string("failed to create Web context: ") + WebLoader::TranslateError(static_cast<EMSCRIPTEN_RESULT>(s_handle)));
+			NazaraError(std::string("failed to create Web context: ") + WebLoader::TranslateError(static_cast<EMSCRIPTEN_RESULT>(m_handle)));
 			return false;
 		}
 
 		LoadExt();
-
-		s_handleCounter++;
 		return true;
 	}
 
@@ -197,7 +161,7 @@ namespace Nz::GL
 
 	bool WebContext::Activate() const
 	{
-		EMSCRIPTEN_RESULT succeeded = emscripten_webgl_make_context_current(s_handle);
+		EMSCRIPTEN_RESULT succeeded = emscripten_webgl_make_context_current(m_handle);
 		if (succeeded != EMSCRIPTEN_RESULT_SUCCESS)
 		{
 			NazaraError("failed to activate context");
@@ -226,6 +190,8 @@ namespace Nz::GL
 			return false;
 
 		char* extensionString = emscripten_webgl_get_supported_extensions();
+		CallOnExit releaseStr([&] { free(extensionString); });
+
 		if (extensionString)
 		{
 			SplitString(extensionString, " ", [&](std::string_view extension)
@@ -234,20 +200,14 @@ namespace Nz::GL
 
 				std::string ext(extension);
 
-				emscripten_webgl_enable_extension(s_handle, ext.c_str());
+				emscripten_webgl_enable_extension(m_handle, ext.c_str());
 
 				return true;
 			});
 		}
 
-		free(extensionString);
-
 		return true;
 	}
-
-
-	EMSCRIPTEN_WEBGL_CONTEXT_HANDLE WebContext::s_handle = 0;
-	size_t WebContext::s_handleCounter = 0;
 }
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
