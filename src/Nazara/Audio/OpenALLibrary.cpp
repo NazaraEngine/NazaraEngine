@@ -26,6 +26,13 @@ namespace Nz
 
 		auto PostLoad = [&]
 		{
+			// Load ext
+#define NAZARA_AUDIO_AL_ALC_FUNCTION(name)
+#define NAZARA_AUDIO_AL_EXT_BEGIN(ext) if (alIsExtensionPresent(#ext)) {
+#define NAZARA_AUDIO_AL_EXT_END() }
+#define NAZARA_AUDIO_AL_FUNCTION_EXT(name) name = reinterpret_cast<decltype(&::name)>(alGetProcAddress(#name));
+#include <Nazara/Audio/OpenALFunctions.hpp>
+
 			m_hasCaptureSupport = alcIsExtensionPresent(nullptr, "ALC_EXT_CAPTURE");
 			m_isLoaded = true;
 
@@ -72,12 +79,8 @@ namespace Nz
 
 			try
 			{
-#define NAZARA_AUDIO_FUNC(name, sig) name = reinterpret_cast<sig>(LoadSymbol(#name, false));
-#define NAZARA_AUDIO_EXT_FUNC(name, sig) name = reinterpret_cast<sig>(LoadSymbol(#name, true));
-				NAZARA_AUDIO_FOREACH_AL_FUNC(NAZARA_AUDIO_FUNC, NAZARA_AUDIO_EXT_FUNC)
-				NAZARA_AUDIO_FOREACH_ALC_FUNC(NAZARA_AUDIO_FUNC, NAZARA_AUDIO_EXT_FUNC)
-#undef NAZARA_AUDIO_FUNC
-#undef NAZARA_AUDIO_EXT_FUNC
+#define NAZARA_AUDIO_AL_ALC_FUNCTION(name) name = reinterpret_cast<decltype(&::name)>(LoadSymbol(#name, false));
+#include <Nazara/Audio/OpenALFunctions.hpp>
 			}
 			catch (const std::exception& e)
 			{
@@ -98,13 +101,6 @@ namespace Nz
 		// Load core
 #define NAZARA_AUDIO_AL_ALC_FUNCTION(name) name = &::name;
 #define NAZARA_AUDIO_AL_EXT_FUNCTION(name)
-#include <Nazara/Audio/OpenALFunctions.hpp>
-
-		// Load ext
-#define NAZARA_AUDIO_AL_ALC_FUNCTION(name)
-#define NAZARA_AUDIO_AL_EXT_BEGIN(ext) if (alIsExtensionPresent(#ext)) {
-#define NAZARA_AUDIO_AL_EXT_END() }
-#define NAZARA_AUDIO_AL_FUNCTION_EXT(name) name = reinterpret_cast<decltype(name)>(alGetProcAddress(#name));
 #include <Nazara/Audio/OpenALFunctions.hpp>
 
 		PostLoad();

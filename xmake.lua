@@ -52,6 +52,7 @@ local modules = {
 					add_packages("openal-soft")
 				end
 			else
+				add_defines("AL_ALEXT_PROTOTYPES")
 				add_packages("openal-soft", { links = {} })
 			end
 		end
