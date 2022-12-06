@@ -129,7 +129,6 @@ int main()
 	}
 
 	Nz::MeshParams meshParams;
-	meshParams.bufferFactory = Nz::GetRenderBufferFactory(device);
 	meshParams.center = true;
 	meshParams.vertexRotation = Nz::EulerAnglesf(0.f, -90.f, 0.f);
 	meshParams.vertexScale = Nz::Vector3f(0.002f);
@@ -152,6 +151,17 @@ int main()
 
 	// Vertex buffer
 	std::cout << "Vertex count: " << meshVB->GetVertexCount() << std::endl;
+
+	// Create renderbuffers (GPU buffers)
+	const std::shared_ptr<Nz::RenderDevice>& renderDevice = window.GetRenderDevice();
+
+	assert(meshIB->GetBuffer()->GetStorage() == Nz::DataStorage::Software);
+	assert(meshVB->GetBuffer()->GetStorage() == Nz::DataStorage::Software);
+	const Nz::SoftwareBuffer* indexBufferContent = static_cast<const Nz::SoftwareBuffer*>(meshIB->GetBuffer().get());
+	const Nz::SoftwareBuffer* vertexBufferContent = static_cast<const Nz::SoftwareBuffer*>(meshVB->GetBuffer().get());
+
+	std::shared_ptr<Nz::RenderBuffer> renderBufferIB = renderDevice->InstantiateBuffer(Nz::BufferType::Index, indexBufferContent->GetSize(), Nz::BufferUsage::DeviceLocal, indexBufferContent->GetData());
+	std::shared_ptr<Nz::RenderBuffer> renderBufferVB = renderDevice->InstantiateBuffer(Nz::BufferType::Vertex, vertexBufferContent->GetSize(), Nz::BufferUsage::DeviceLocal, vertexBufferContent->GetData());
 
 	// Texture
 	Nz::TextureParams texParams;
@@ -230,12 +240,7 @@ int main()
 
 	std::shared_ptr<Nz::RenderPipeline> pipeline = device->InstantiateRenderPipeline(pipelineInfo);
 
-	const std::shared_ptr<Nz::RenderDevice>& renderDevice = window.GetRenderDevice();
-
 	std::shared_ptr<Nz::CommandPool> commandPool = renderDevice->InstantiateCommandPool(Nz::QueueType::Graphics);
-
-	Nz::RenderBuffer& renderBufferIB = static_cast<Nz::RenderBuffer&>(*meshIB->GetBuffer());
-	Nz::RenderBuffer& renderBufferVB = static_cast<Nz::RenderBuffer&>(*meshVB->GetBuffer());
 
 	Nz::Vector3f viewerPos = Nz::Vector3f::Zero();
 
@@ -379,9 +384,9 @@ int main()
 			{
 				builder.BeginRenderPass(windowRT->GetFramebuffer(frame.GetFramebufferIndex()), windowRT->GetRenderPass(), renderRect, { clearValues[0], clearValues[1] });
 				{
-					builder.BindIndexBuffer(renderBufferIB, Nz::IndexType::U16);
+					builder.BindIndexBuffer(*renderBufferIB, Nz::IndexType::U16);
 					builder.BindPipeline(*pipeline);
-					builder.BindVertexBuffer(0, renderBufferVB);
+					builder.BindVertexBuffer(0, *renderBufferVB);
 					builder.BindShaderBinding(0, *viewerShaderBinding);
 					builder.BindShaderBinding(1, *textureShaderBinding);
 
