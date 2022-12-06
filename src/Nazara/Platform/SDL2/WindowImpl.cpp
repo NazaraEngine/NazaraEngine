@@ -194,6 +194,10 @@ namespace Nz
 
 	WindowHandle WindowImpl::GetSystemHandle() const
 	{
+#ifdef NAZARA_PLATFORM_WEB
+		WindowHandle handle;
+		return handle;
+#else
 		SDL_SysWMinfo wmInfo;
 		SDL_VERSION(&wmInfo.version);
 
@@ -256,6 +260,7 @@ namespace Nz
 		}
 
 		return handle;
+#endif
 	}
 
 	bool WindowImpl::HasFocus() const

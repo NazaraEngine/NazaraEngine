@@ -4,10 +4,10 @@
 
 #pragma once
 
-#ifndef NAZARA_BASIC_MAINLOOP_HPP
-#define NAZARA_BASIC_MAINLOOP_HPP
+#ifndef NAZARA_UTILITY_BASICMAINLOOP_HPP
+#define NAZARA_UTILITY_BASICMAINLOOP_HPP
 
-#include <Nazara/Renderer.hpp>
+#include <Nazara/Platform/Window.hpp>
 
 #ifdef NAZARA_PLATFORM_WEB
 #include <emscripten/html5.h>
@@ -16,7 +16,7 @@
 namespace Nz
 {
 	template <typename CallbackT>
-	void BasicMainloop(RenderWindow& window, CallbackT&& callback)
+	void BasicMainloop(Window& window, CallbackT&& callback)
 	{
 #ifndef NAZARA_PLATFORM_WEB
 		while (window.IsOpen())
@@ -40,4 +40,4 @@ namespace Nz
 }
 
 
-#endif // NAZARA_BASIC_MAINLOOP_HPP
+#endif // NAZARA_UTILITY_BASICMAINLOOP_HPP
