@@ -24,8 +24,8 @@ namespace Nz::GL
 			WGLLoader(const Renderer::Config& config);
 			~WGLLoader() = default;
 
-			std::unique_ptr<Context> CreateContext(const OpenGLDevice* device, const ContextParams& params, Context* shareContext) const override;
-			std::unique_ptr<Context> CreateContext(const OpenGLDevice* device, const ContextParams& params, WindowHandle handle, Context* shareContext) const override;
+			std::shared_ptr<Context> CreateContext(const OpenGLDevice* device, const ContextParams& params, Context* shareContext) const override;
+			std::shared_ptr<Context> CreateContext(const OpenGLDevice* device, const ContextParams& params, WindowHandle handle, Context* shareContext) const override;
 
 			ContextType GetPreferredContextType() const override;
 

@@ -25,8 +25,8 @@ namespace Nz::GL
 			EGLLoader(const Renderer::Config& config);
 			~EGLLoader();
 
-			std::unique_ptr<Context> CreateContext(const OpenGLDevice* device, const ContextParams& params, Context* shareContext) const override;
-			std::unique_ptr<Context> CreateContext(const OpenGLDevice* device, const ContextParams& params, WindowHandle handle, Context* shareContext) const override;
+			std::shared_ptr<Context> CreateContext(const OpenGLDevice* device, const ContextParams& params, Context* shareContext) const override;
+			std::shared_ptr<Context> CreateContext(const OpenGLDevice* device, const ContextParams& params, WindowHandle handle, Context* shareContext) const override;
 
 			inline EGLDisplay GetDefaultDisplay() const;
 			ContextType GetPreferredContextType() const override;

@@ -147,14 +147,11 @@ namespace Nz::GL
 
 	GLenum Context::BindFramebuffer(GLuint fbo) const
 	{
-		// it looks like emscripten wants us to rebind the FBO everytime
-#ifndef NAZARA_PLATFORM_WEB
 		if (m_state.boundDrawFBO == fbo)
 			return GL_DRAW_FRAMEBUFFER;
 		else if (m_state.boundReadFBO == fbo)
 			return GL_READ_FRAMEBUFFER;
 		else
-#endif
 		{
 			if (!SetCurrentContext(this))
 				throw std::runtime_error("failed to activate context");
@@ -169,10 +166,7 @@ namespace Nz::GL
 	void Context::BindFramebuffer(FramebufferTarget target, GLuint fbo) const
 	{
 		auto& currentFbo = (target == FramebufferTarget::Draw) ? m_state.boundDrawFBO : m_state.boundReadFBO;
-		// it looks like emscripten wants us to rebind the FBO everytime
-#ifndef NAZARA_PLATFORM_WEB
 		if (currentFbo != fbo)
-#endif
 		{
 			if (!SetCurrentContext(this))
 				throw std::runtime_error("failed to activate context");

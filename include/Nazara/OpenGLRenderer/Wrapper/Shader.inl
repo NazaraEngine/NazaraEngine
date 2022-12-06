@@ -102,7 +102,7 @@ namespace Nz::GL
 
 	inline void Shader::DestroyHelper(OpenGLDevice& /*device*/, const Context& context, GLuint objectId)
 	{
-		// context.glDeleteShader(objectId);
+		context.glDeleteShader(objectId);
 	}
 }
 

@@ -93,9 +93,9 @@ namespace Nz::GL
 			throw std::runtime_error("failed to create or initialize base context");
 	}
 
-	std::unique_ptr<Context> WGLLoader::CreateContext(const OpenGLDevice* device, const ContextParams& params, Context* shareContext) const
+	std::shared_ptr<Context> WGLLoader::CreateContext(const OpenGLDevice* device, const ContextParams& params, Context* shareContext) const
 	{
-		auto context = std::make_unique<WGLContext>(device, *this);
+		auto context = std::make_shared<WGLContext>(device, *this);
 		if (!context->Create(&m_baseContext, params, static_cast<WGLContext*>(shareContext)))
 		{
 			NazaraError("failed to create context");
@@ -111,9 +111,9 @@ namespace Nz::GL
 		return context;
 	}
 
-	std::unique_ptr<Context> WGLLoader::CreateContext(const OpenGLDevice* device, const ContextParams& params, WindowHandle handle, Context* shareContext) const
+	std::shared_ptr<Context> WGLLoader::CreateContext(const OpenGLDevice* device, const ContextParams& params, WindowHandle handle, Context* shareContext) const
 	{
-		auto context = std::make_unique<WGLContext>(device, *this);
+		auto context = std::make_shared<WGLContext>(device, *this);
 		if (!context->Create(&m_baseContext, params, handle, static_cast<WGLContext*>(shareContext)))
 		{
 			NazaraError("failed to create context");

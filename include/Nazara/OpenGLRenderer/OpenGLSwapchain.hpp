@@ -45,7 +45,7 @@ namespace Nz
 			std::optional<OpenGLRenderPass> m_renderPass;
 			std::size_t m_currentFrame;
 			std::vector<std::unique_ptr<OpenGLRenderImage>> m_renderImage;
-			std::unique_ptr<GL::Context> m_context;
+			std::shared_ptr<GL::Context> m_context;
 			OpenGLWindowFramebuffer m_framebuffer;
 			Vector2ui m_size;
 			bool m_sizeInvalidated;

@@ -133,14 +133,14 @@ namespace Nz::GL
 			eglTerminate(m_defaultDisplay);
 	}
 
-	std::unique_ptr<Context> EGLLoader::CreateContext(const OpenGLDevice* device, const ContextParams& params, Context* shareContext) const
+	std::shared_ptr<Context> EGLLoader::CreateContext(const OpenGLDevice* device, const ContextParams& params, Context* shareContext) const
 	{
-		std::unique_ptr<EGLContextBase> context;
+		std::shared_ptr<EGLContextBase> context;
 #ifdef NAZARA_PLATFORM_WINDOWS
 		// On Windows context sharing seems to work only with window contexts
-		context = std::make_unique<EGLContextWin32>(device, *this);
+		context = std::make_shared<EGLContextWin32>(device, *this);
 #else
-		context = std::make_unique<EGLContextBase>(device, *this);
+		context = std::make_shared<EGLContextBase>(device, *this);
 #endif
 
 		if (!context->Create(params, static_cast<EGLContextBase*>(shareContext)))
@@ -158,9 +158,9 @@ namespace Nz::GL
 		return context;
 	}
 
-	std::unique_ptr<Context> EGLLoader::CreateContext([[maybe_unused]] const OpenGLDevice* device, const ContextParams& params, WindowHandle handle, Context* shareContext) const
+	std::shared_ptr<Context> EGLLoader::CreateContext([[maybe_unused]] const OpenGLDevice* device, const ContextParams& params, WindowHandle handle, Context* shareContext) const
 	{
-		std::unique_ptr<EGLContextBase> context;
+		std::shared_ptr<EGLContextBase> context;
 		switch (handle.type)
 		{
 			case WindowBackend::Invalid:
@@ -169,19 +169,19 @@ namespace Nz::GL
 
 			case WindowBackend::X11:
 #ifdef NAZARA_PLATFORM_LINUX
-				context = std::make_unique<EGLContextX11>(device, *this);
+				context = std::make_shared<EGLContextX11>(device, *this);
 #endif
 				break;
 
 			case WindowBackend::Windows:
 #ifdef NAZARA_PLATFORM_WINDOWS
-				context = std::make_unique<EGLContextWin32>(device, *this);
+				context = std::make_shared<EGLContextWin32>(device, *this);
 #endif
 				break;
 
 			case WindowBackend::Wayland:
 #ifdef NAZARA_PLATFORM_LINUX
-				context = std::make_unique<EGLContextWayland>(device, *this);
+				context = std::make_shared<EGLContextWayland>(device, *this);
 #endif
 				break;
 		}

@@ -136,10 +136,7 @@ namespace Nz
 		std::strcpy(m_cpuBrandString.data(), "CPU from unknown vendor - cpuid not supported");
 
 		if (!HardwareInfoImpl::IsCpuidSupported())
-		{
-			NazaraWarning("Cpuid is not supported");
 			return;
-		}
 
 		// To begin, we get the id of the constructor and the id of maximal functions supported by the CPUID
 		std::array<UInt32, 4> registers;

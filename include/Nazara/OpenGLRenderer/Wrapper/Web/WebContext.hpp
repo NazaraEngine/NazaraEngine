@@ -65,9 +65,7 @@ namespace Nz::GL
 			Fallback fallbacks; //< m_ omitted
 
 			std::unordered_set<std::string> m_supportedPlatformExtensions;
-			static EMSCRIPTEN_WEBGL_CONTEXT_HANDLE s_handle;
-			static size_t s_handleCounter;
-			bool m_ownsDisplay;
+			EMSCRIPTEN_WEBGL_CONTEXT_HANDLE m_handle;
 	};
 }
 

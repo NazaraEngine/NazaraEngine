@@ -43,9 +43,9 @@ namespace Nz::GL
 		WebLoader& loader;
 	};
 
-	std::unique_ptr<Context> WebLoader::CreateContext(const OpenGLDevice* device, const ContextParams& params, Context* shareContext) const
+	std::shared_ptr<Context> WebLoader::CreateContext(const OpenGLDevice* device, const ContextParams& params, Context* shareContext) const
 	{
-		std::unique_ptr<WebContext> context = std::make_unique<WebContext>(device, *this);
+		std::shared_ptr<WebContext> context = std::make_shared<WebContext>(device, *this);
 
 		if (!context->Create(params, static_cast<WebContext*>(shareContext)))
 		{
@@ -62,25 +62,15 @@ namespace Nz::GL
 		return context;
 	}
 
-	std::unique_ptr<Context> WebLoader::CreateContext(const OpenGLDevice* device, const ContextParams& params, WindowHandle handle, Context* shareContext) const
+	std::shared_ptr<Context> WebLoader::CreateContext(const OpenGLDevice* device, const ContextParams& params, WindowHandle handle, Context* shareContext) const
 	{
-		std::unique_ptr<WebContext> context;
-		switch (handle.type)
-		{
-			case WindowBackend::Invalid:
-				break;
-
-			case WindowBackend::Web:
-				context = std::make_unique<WebContext>(device, *this);
-				break;
-		}
-
-		if (!context)
+		if (handle.type != WindowBackend::Web)
 		{
 			NazaraError("unsupported window type");
 			return {};
 		}
 
+		std::shared_ptr<WebContext> context = std::make_shared<WebContext>(device, *this);
 		if (!context->Create(params, handle, static_cast<WebContext*>(shareContext)))
 		{
 			NazaraError("failed to create context");
@@ -103,15 +93,7 @@ namespace Nz::GL
 
 	GLFunction WebLoader::LoadFunction(const char* name) const
 	{
-		/*GLFunction func = reinterpret_cast<GLFunction>(m_WebLib.GetSymbol(name));
-		if (!func && WebGetProcAddress)
-			func = reinterpret_cast<GLFunction>(WebGetProcAddress(name));
-
-		return func;*/
-
 		return reinterpret_cast<GLFunction>(emscripten_webgl_get_proc_address(name));
-
-		//return nullptr;
 	}
 
 	const char* WebLoader::TranslateError(EMSCRIPTEN_RESULT errorId)
