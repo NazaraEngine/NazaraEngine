@@ -74,6 +74,10 @@ local modules = {
 			-- NazaraMath is header-only, make it part of the core project
 			add_headerfiles("include/(Nazara/Math/**.hpp)", "include/(Nazara/Math/**.inl)")
 
+			if has_config("embed_plugins") then
+				add_defines("NAZARA_PLUGINS_STATIC", { public = true })
+			end
+
 			if is_plat("windows", "mingw") then
 				add_syslinks("ole32")
 			elseif is_plat("linux") then
@@ -131,8 +135,8 @@ local modules = {
 				add_defines("SDL_VIDEO_DRIVER_COCOA=1")
 				add_packages("libx11", { links = {} }) -- we only need X11 headers
 			elseif is_plat("wasm") then
-				add_cxflags("-s USE_SDL=2")
-				add_ldflags("-s USE_SDL=2", { public = true })
+				add_cxflags("-sUSE_SDL=2")
+				add_ldflags("-sUSE_SDL=2", { public = true })
 			end
 		end
 	},
@@ -151,13 +155,7 @@ local modules = {
 	},
 	Utility = {
 		Deps = {"NazaraCore"},
-		Packages = {"entt", "freetype", "frozen", "ordered_map", "stb"},
-		Custom = function()
-			if is_plat("wasm") then
-				add_cxflags("-s USE_FREETYPE=1")
-				add_ldflags("-s USE_FREETYPE=1", { public = true })
-			end
-		end
+		Packages = {"entt", "freetype", "frozen", "ordered_map", "stb"}
 	},
 	Widgets = {
 		Deps = {"NazaraGraphics"},
@@ -183,6 +181,7 @@ includes("xmake/**.lua")
 option("compile_shaders", { description = "Compile nzsl shaders into an includable binary version", default = true })
 option("embed_rendererbackends", { description = "Embed renderer backend code into NazaraRenderer instead of loading them dynamically", default = false })
 option("embed_resources", { description = "Turn builtin resources into includable headers", default = true })
+option("embed_plugins", { description = "Embed enabled plugins code as static libraries", default = false })
 option("link_openal", { description = "Link OpenAL in the executable instead of dynamically loading it", default = false })
 option("override_runtime", { description = "Override vs runtime to MD in release and MDd in debug", default = true })
 option("usepch", { description = "Use precompiled headers to speedup compilation", default = false })
@@ -192,13 +191,16 @@ set_project("NazaraEngine")
 set_xmakever("2.7.3")
 
 add_requires("chipmunk2d", "dr_wav", "entt 3.10.1", "fmt", "frozen", "kiwisolver", "libflac", "minimp3", "ordered_map", "stb")
+add_requires("freetype", { configs = { bzip2 = true, png = true, woff2 = true, zlib = true, debug = is_mode("debug") } })
 add_requires("libvorbis", { configs = { with_vorbisenc = false } })
 
 if is_plat("wasm") then
 	-- Enable some flags for emscripten
-	add_cxflags("-g", "-sNO_DISABLE_EXCEPTION_CATCHING")
-	add_ldflags("-g", "-sNO_DISABLE_EXCEPTION_CATCHING", "-sALLOW_MEMORY_GROWTH", "-sWASM_BIGINT")
-	add_ldflags("-sERROR_ON_WASM_CHANGES_AFTER_LINK", { force = true })
+	add_cxflags("-sNO_DISABLE_EXCEPTION_CATCHING")
+	add_ldflags("-sNO_DISABLE_EXCEPTION_CATCHING", "-sALLOW_MEMORY_GROWTH", "-sWASM_BIGINT")
+	if is_mode("debug") then
+		add_ldflags("-sERROR_ON_WASM_CHANGES_AFTER_LINK", { force = true })
+	end
 
 	-- we can't use wasm nzsl to compile shaders
 	if has_config("compile_shaders") then
@@ -207,7 +209,6 @@ if is_plat("wasm") then
 else
 	-- these libraries have ports in emscripten
 	add_requires("libsdl")
-	add_requires("freetype", { configs = { bzip2 = true, png = true, woff2 = true, zlib = true, debug = is_mode("debug") } })
 	add_requires("openal-soft", { configs = { shared = true }})
 
 	-- these libraries aren't supported on emscripten
@@ -215,6 +216,7 @@ else
 	add_requires("newtondynamics3", { debug = is_plat("windows") and is_mode("debug") }) -- Newton doesn't like compiling in Debug on Linux
 end
 
+add_repositories("local-repo xmake-repo")
 add_repositories("nazara-engine-repo https://github.com/NazaraEngine/xmake-repo")
 add_requires("nazarautils")
 add_requires("nzsl", { debug = is_mode("debug"), configs = { with_symbols = not is_mode("release"), shared = not is_plat("wasm") } })
@@ -254,14 +256,21 @@ elseif is_mode("releasedbg", "release") then
 	add_vectorexts("sse", "sse2", "sse3", "ssse3")
 end
 
+if is_kind("static") then
+	add_defines("NAZARA_STATIC")
+end
+
 add_includedirs("include")
 add_sysincludedirs("thirdparty/include")
 
 set_languages("c89", "cxx17")
 set_rundir("./bin/$(plat)_$(arch)_$(mode)")
-set_symbols("debug", "hidden")
 set_targetdir("./bin/$(plat)_$(arch)_$(mode)")
 set_warnings("allextra")
+
+if not is_mode("release") then
+	set_symbols("debug", "hidden")
+end
 
 if is_mode("debug") then
 	add_defines("NAZARA_DEBUG")
@@ -391,4 +400,4 @@ end
 includes("tools/*.lua")
 includes("tests/*.lua")
 includes("examples/*.lua")
-includes("plugins/*/xmake.lua")
+includes("plugins/*.lua")

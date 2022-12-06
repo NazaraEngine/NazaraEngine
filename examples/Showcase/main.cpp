@@ -50,7 +50,7 @@ int main()
 	Nz::Window& mainWindow = windowing.CreateWindow(Nz::VideoMode(1280, 720), windowTitle);
 	auto& windowSwapchain = renderSystem.CreateSwapchain(mainWindow);
 
-	physSytem.GetPhysWorld().SetGravity({ 0.f, -9.81f, 0.f });
+	//physSytem.GetPhysWorld().SetGravity({ 0.f, -9.81f, 0.f });
 
 	Nz::TextureParams texParams;
 	texParams.renderDevice = device;
@@ -516,6 +516,4 @@ int main()
 	});
 
 	return app.Run();
-
-	return EXIT_SUCCESS;
 }

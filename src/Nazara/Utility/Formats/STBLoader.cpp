@@ -10,13 +10,16 @@
 #include <Nazara/Utils/Endianness.hpp>
 #include <frozen/string.h>
 #include <frozen/unordered_set.h>
+
+#define STB_IMAGE_STATIC
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
+
 #include <Nazara/Utility/Debug.hpp>
 
 namespace Nz
 {
-	namespace
+	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
 		int StbiEof(void* userdata)
 		{
@@ -98,6 +101,8 @@ namespace Nz
 	{
 		ImageLoader::Entry GetImageLoader_STB()
 		{
+			NAZARA_USE_ANONYMOUS_NAMESPACE
+
 			ImageLoader::Entry loaderEntry;
 			loaderEntry.extensionSupport = IsSTBSupported;
 			loaderEntry.streamLoader = LoadSTB;

@@ -939,6 +939,15 @@ namespace
 	};
 }
 
+#ifdef NAZARA_PLUGINS_STATIC
+namespace Nz
+{
+	std::unique_ptr<AssimpPlugin> PluginProvider<AssimpPlugin>::Instantiate()
+	{
+		return std::make_unique<AssimpPluginImpl>();
+	}
+}
+#else
 extern "C"
 {
 	NAZARA_EXPORT Nz::PluginInterface* PluginLoad()
@@ -954,3 +963,4 @@ extern "C"
 		return plugin.release();
 	}
 }
+#endif

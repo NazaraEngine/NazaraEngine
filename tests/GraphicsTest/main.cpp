@@ -17,11 +17,12 @@ int main()
 		resourceDir = "../.." / resourceDir;
 
 	Nz::Renderer::Config rendererConfig;
-	std::cout << "Run using Vulkan? (y/n)" << std::endl;
+	rendererConfig.preferredAPI = Nz::RenderAPI::OpenGL;
+	/*std::cout << "Run using Vulkan? (y/n)" << std::endl;
 	if (std::getchar() == 'y')
 		rendererConfig.preferredAPI = Nz::RenderAPI::Vulkan;
 	else
-		rendererConfig.preferredAPI = Nz::RenderAPI::OpenGL;
+		rendererConfig.preferredAPI = Nz::RenderAPI::OpenGL;*/
 
 	Nz::Modules<Nz::Graphics> nazara(rendererConfig);
 
@@ -29,7 +30,7 @@ int main()
 	meshParams.center = true;
 	meshParams.vertexRotation = Nz::EulerAnglesf(0.f, -90.f, 0.f);
 	meshParams.vertexScale = Nz::Vector3f(0.002f);
-	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_Normal_UV_Tangent);
+	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_Normal_UV);
 
 	std::shared_ptr<Nz::RenderDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
 
@@ -218,6 +219,14 @@ int main()
 		}
 
 		framePipeline.GetDebugDrawer().DrawLine(Nz::Vector3f::Zero(), Nz::Vector3f::Forward(), Nz::Color::Blue());
+
+		for (const Nz::WorldInstancePtr& worldInstance : { modelInstance, modelInstance2 })
+		{
+			Nz::Boxf aabb = model.GetAABB();
+			aabb.Transform(worldInstance->GetWorldMatrix());
+
+			framePipeline.GetDebugDrawer().DrawBox(aabb, Nz::Color::Green);
+		}
 
 		viewerInstance.UpdateViewMatrix(Nz::Matrix4f::TransformInverse(viewerPos, camAngles));
 		viewerInstance.UpdateEyePosition(viewerPos);

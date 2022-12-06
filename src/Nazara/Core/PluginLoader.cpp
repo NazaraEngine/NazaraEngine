@@ -24,6 +24,7 @@ namespace Nz
 		m_directories.push_back(std::filesystem::absolute(directoryPath));
 	}
 
+#ifndef NAZARA_PLUGINS_STATIC
 	GenericPlugin PluginLoader::Load(const std::filesystem::path& pluginPath, bool activate)
 	{
 		std::filesystem::path path = pluginPath;
@@ -60,6 +61,7 @@ namespace Nz
 
 		return GenericPlugin(std::move(library), std::move(pluginInterface), activate);
 	}
+#endif
 
 	void PluginLoader::RemoveSearchDirectory(const std::filesystem::path& directoryPath)
 	{

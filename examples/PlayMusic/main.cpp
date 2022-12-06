@@ -8,35 +8,49 @@
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Platform/Keyboard.hpp>
 #include <Nazara/Platform/Platform.hpp>
+#include <Nazara/Utility/BasicMainloop.hpp>
 #include <chrono>
 #include <iostream>
 #include <thread>
 
 int main()
 {
-	std::filesystem::path resourceDir = "assets/examples";
-	if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory("../.." / resourceDir))
-		resourceDir = "../.." / resourceDir;
-
-	Nz::Modules<Nz::Audio> audio;
-
-	Nz::SoundStreamParams streamParams;
-	streamParams.forceMono = false;
-
-	Nz::Music music;
-	if (!music.OpenFromFile(resourceDir / "Audio/file_example_MP3_700KB.mp3", streamParams))
+	try
 	{
-		std::cout << "Failed to load sound" << std::endl;
+
+		std::filesystem::path resourceDir = "assets/examples";
+		if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory("../.." / resourceDir))
+			resourceDir = "../.." / resourceDir;
+
+		Nz::Modules<Nz::Audio> audio;
+
+		Nz::SoundStreamParams streamParams;
+		streamParams.forceMono = false;
+
+		Nz::Music music;
+		if (!music.OpenFromFile(resourceDir / "Audio/file_example_MP3_700KB.mp3", streamParams))
+		{
+			std::cout << "Failed to load sound" << std::endl;
+			std::getchar();
+			return EXIT_FAILURE;
+		}
+
 		std::getchar();
-		return EXIT_FAILURE;
+
+		music.Play();
+
+		std::cout << "Playing sound..." << std::endl;
+
+		Nz::Window window;
+
+		Nz::Clock clock;
+		Nz::BasicMainloop(window, [&] {
+		});
+
+		return EXIT_SUCCESS;
 	}
-
-	music.Play();
-
-	std::cout << "Playing sound..." << std::endl;
-
-	while (music.IsPlaying())
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-	return EXIT_SUCCESS;
+	catch (const std::exception& e)
+	{
+		std::cerr << e.what() << std::endl;
+	}
 }
