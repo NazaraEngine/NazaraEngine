@@ -7,12 +7,12 @@
 #ifndef NAZARA_OPENGLRENDERER_WRAPPER_WEB_WEBCONTEXT_HPP
 #define NAZARA_OPENGLRENDERER_WRAPPER_WEB_WEBCONTEXT_HPP
 
-#include <emscripten/html5.h>
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/DynLib.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/Platform/WindowHandle.hpp>
+#include <emscripten/html5.h>
 #include <string>
 #include <type_traits>
 #include <unordered_set>

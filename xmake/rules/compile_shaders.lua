@@ -1,16 +1,19 @@
 -- Compile shaders to includables headers
 rule("nzsl.compile.shaders")
-	on_load(function (target)
-		target:add("packages", "nzsl")
-	end)
+	set_extensions(".nzsl", ".nzslb")
 
 	before_buildcmd_file(function (target, batchcmds, shaderfile, opt)
+		import("core.project.project")
 		import("core.tool.toolchain")
 
-		local nzslc = path.join(target:pkg("nzsl"):installdir(), "bin", "nzslc")
+		local nzsl = project.required_package("nzsl~host") or project.required_package("nzsl")
+		assert(nzsl, "nzsl package not found")
+
+		-- warning: project.required_package is not a stable interface, this may break in the future
+		local nzslc = path.join(nzsl:installdir(), "bin", "nzslc")
 
 		-- add commands
-		batchcmds:show_progress(opt.progress, "${color.build.object}compiling shader %s", shaderfile)
+		batchcmds:show_progress(opt.progress, "${color.build.object}compiling.shader %s", shaderfile)
 		local argv = { "--compile=nzslb-header", "--partial", "--optimize" }
 
 		-- handle --log-format
@@ -21,6 +24,7 @@ rule("nzsl.compile.shaders")
 
 		table.insert(argv, shaderfile)
 
+		-- on mingw we need run envs because of .dll dependencies which may be not part of the PATH
 		local envs
 		if is_plat("mingw") then
 			local mingw = toolchain.load("mingw")
@@ -28,7 +32,6 @@ rule("nzsl.compile.shaders")
 				envs = mingw:runenvs()
 			end
 		end
-	
 		batchcmds:vrunv(nzslc, argv, { curdir = ".", envs = envs })
 
 		local outputFile = path.join(path.directory(shaderfile), path.basename(shaderfile) .. ".nzslb.h")

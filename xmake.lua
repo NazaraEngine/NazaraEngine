@@ -176,9 +176,6 @@ if not has_config("embed_rendererbackends") then
 	end
 end
 
-add_ldflags("-g -s NO_DISABLE_EXCEPTION_CATCHING -s ALLOW_MEMORY_GROWTH=1")
-add_cxflags("-g -s NO_DISABLE_EXCEPTION_CATCHING")
-
 NazaraModules = modules
 
 includes("xmake/**.lua")
@@ -194,12 +191,27 @@ option("unitybuild", { description = "Build the engine using unity build", defau
 set_project("NazaraEngine")
 set_xmakever("2.7.3")
 
-add_requires("dr_wav", "entt 3.10.1", "fmt", "frozen", "kiwisolver", "minimp3", "ordered_map", "stb")
-if not is_plat("wasm") then
-	add_requires("chipmunk2d", "libsdl", "libflac", "efsw")
+add_requires("chipmunk2d", "dr_wav", "entt 3.10.1", "fmt", "frozen", "kiwisolver", "libflac", "minimp3", "ordered_map", "stb")
+add_requires("libvorbis", { configs = { with_vorbisenc = false } })
+
+if is_plat("wasm") then
+	-- Enable some flags for emscripten
+	add_cxflags("-g", "-sNO_DISABLE_EXCEPTION_CATCHING")
+	add_ldflags("-g", "-sNO_DISABLE_EXCEPTION_CATCHING", "-sALLOW_MEMORY_GROWTH", "-sWASM_BIGINT")
+	add_ldflags("-sERROR_ON_WASM_CHANGES_AFTER_LINK", { force = true })
+
+	-- we can't use wasm nzsl to compile shaders
+	if has_config("compile_shaders") then
+		add_requires("nzsl~host", { kind = "binary" })
+	end
+else
+	-- these libraries have ports in emscripten
+	add_requires("libsdl")
 	add_requires("freetype", { configs = { bzip2 = true, png = true, woff2 = true, zlib = true, debug = is_mode("debug") } })
-	add_requires("libvorbis", { configs = { with_vorbisenc = false } })
 	add_requires("openal-soft", { configs = { shared = true }})
+
+	-- these libraries aren't supported on emscripten
+	add_requires("efsw")
 	add_requires("newtondynamics3", { debug = is_plat("windows") and is_mode("debug") }) -- Newton doesn't like compiling in Debug on Linux
 end
 
