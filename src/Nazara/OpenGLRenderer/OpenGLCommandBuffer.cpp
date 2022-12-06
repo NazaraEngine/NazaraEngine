@@ -315,7 +315,7 @@ namespace Nz
 		}
 	}
 
-	void OpenGLCommandBuffer::UpdateDebugName(std::string_view name)
+	void OpenGLCommandBuffer::UpdateDebugName(std::string_view /*name*/)
 	{
 		// No OpenGL object to name
 	}

@@ -47,14 +47,14 @@ namespace Nz::GL
 					{
 						funcPtr(std::forward<Args>(args)...);
 
-						if (!context->ProcessErrorStack())
+						if (context->ProcessErrorStack())
 							context->PrintFunctionCall(FuncIndex, std::forward<Args>(args)...);
 					}
 					else
 					{
 						Ret r = funcPtr(std::forward<Args>(args)...);
 
-						if (!context->ProcessErrorStack())
+						if (context->ProcessErrorStack())
 							context->PrintFunctionCall(FuncIndex, std::forward<Args>(args)...);
 
 						return r;

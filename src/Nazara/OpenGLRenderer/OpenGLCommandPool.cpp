@@ -36,7 +36,7 @@ namespace Nz
 		return commandBuffer;
 	}
 
-	void OpenGLCommandPool::UpdateDebugName(std::string_view name)
+	void OpenGLCommandPool::UpdateDebugName(std::string_view /*name*/)
 	{
 		// No OpenGL object to name
 	}

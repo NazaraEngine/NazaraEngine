@@ -59,7 +59,7 @@ namespace Nz
 		return bindingPtr;
 	}
 
-	void OpenGLRenderPipelineLayout::UpdateDebugName(std::string_view name)
+	void OpenGLRenderPipelineLayout::UpdateDebugName(std::string_view /*name*/)
 	{
 		// No OpenGL object to name
 	}

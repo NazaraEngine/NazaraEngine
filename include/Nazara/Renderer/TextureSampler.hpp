@@ -11,6 +11,7 @@
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <functional>
+#include <string_view>
 
 namespace Nz
 {

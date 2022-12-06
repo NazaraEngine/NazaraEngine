@@ -71,7 +71,7 @@ namespace Nz
 			struct DrawStates;
 
 			void ApplyStates(const GL::Context& context, const DrawStates& states);
-			void Release();
+			void Release() override;
 
 			struct BeginDebugRegionData
 			{
