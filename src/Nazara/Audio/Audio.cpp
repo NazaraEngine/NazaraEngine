@@ -9,6 +9,7 @@
 #include <Nazara/Audio/DummyAudioDevice.hpp>
 #include <Nazara/Audio/Enums.hpp>
 #include <Nazara/Audio/OpenALDevice.hpp>
+#include <Nazara/Audio/OpenALLibrary.hpp>
 #include <Nazara/Audio/Formats/drwavLoader.hpp>
 #include <Nazara/Audio/Formats/libflacLoader.hpp>
 #include <Nazara/Audio/Formats/libvorbisLoader.hpp>
