@@ -4,7 +4,6 @@ if has_config("ffmpeg") then
 	add_requires("ffmpeg", { configs = { shared = true } })
 
 	target("PluginFFmpeg")
-		set_kind("shared")
 		set_group("Plugins")
 		add_rpathdirs("$ORIGIN")
 

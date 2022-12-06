@@ -14,6 +14,8 @@
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Platform/Keyboard.hpp>
 #include <Nazara/Platform/Platform.hpp>
+#include <Nazara/Platform/Window.hpp>
+#include <Nazara/Utility/BasicMainloop.hpp>
 #include <chrono>
 #include <iostream>
 #include <thread>
@@ -66,14 +68,17 @@ int main()
 		Nz::Vector3f pos = sound.GetPosition() + sound.GetVelocity() * clock.GetElapsedTime().AsSeconds();
 		sound.SetPosition(pos);
 
-		std::cout << "Sound position: " << pos << std::endl;
+			std::cout << "Sound position: " << pos << std::endl;
 
-		// Si la position de la source atteint une certaine position, ou si l'utilisateur appuie sur echap
-		if (pos.x > Nz::Vector3f::Left().x*-50.f || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Escape))
-			sound.Stop(); // On arrête le son (Stoppant également la boucle)
+			// Si la position de la source atteint une certaine position, ou si l'utilisateur appuie sur echap
+			if (pos.x > Nz::Vector3f::Left().x * -50.f || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Escape))
+				sound.Stop(); // On arrête le son (Stoppant également la boucle)
 
-		clock.Restart();
-	}
+			clock.Restart();
+		}
+	});
+
+	// La boucle du programme (Pour déplacer le son)
 
 	return 0;
 }

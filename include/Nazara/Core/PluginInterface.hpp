@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Config.hpp>
+#include <Nazara/Utils/Algorithm.hpp>
 #include <string>
 
 #ifdef NAZARA_COMPILER_MSVC
@@ -37,6 +38,14 @@ namespace Nz
 			PluginInterface& operator=(const PluginInterface&) = delete;
 			PluginInterface& operator=(PluginInterface&&) = delete;
 	};
+
+#ifdef NAZARA_PLUGINS_STATIC
+	template<typename T>
+	struct PluginProvider
+	{
+		static_assert(AlwaysFalse<T>(), "unknown plugin");
+	};
+#endif
 }
 
 #include <Nazara/Core/PluginInterface.inl>

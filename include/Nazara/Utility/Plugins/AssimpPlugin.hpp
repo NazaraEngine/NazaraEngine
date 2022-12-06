@@ -31,6 +31,14 @@ namespace Nz
 			AssimpPlugin& operator=(const AssimpPlugin&) = delete;
 			AssimpPlugin& operator=(AssimpPlugin&&) = delete;
 	};
+
+#ifdef NAZARA_PLUGINS_STATIC
+	template<>
+	struct PluginProvider<AssimpPlugin>
+	{
+		static std::unique_ptr<AssimpPlugin> Instantiate();
+	};
+#endif
 }
 
 #include <Nazara/Utility/Plugins/AssimpPlugin.inl>

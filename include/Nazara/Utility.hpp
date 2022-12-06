@@ -34,6 +34,7 @@
 #include <Nazara/Utility/AbstractTextDrawer.hpp>
 #include <Nazara/Utility/Algorithm.hpp>
 #include <Nazara/Utility/Animation.hpp>
+#include <Nazara/Utility/BasicMainloop.hpp>
 #include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/Config.hpp>
