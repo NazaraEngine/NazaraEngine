@@ -4,6 +4,7 @@
 
 #include <Nazara/Audio/OpenALSource.hpp>
 #include <Nazara/Audio/OpenALBuffer.hpp>
+#include <Nazara/Audio/OpenALDevice.hpp>
 #include <Nazara/Audio/OpenALLibrary.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Error.hpp>
@@ -84,6 +85,7 @@ namespace Nz
 	auto OpenALSource::GetSampleOffsetAndLatency() const -> OffsetWithLatency
 	{
 		OffsetWithLatency offsetWithLatency;
+#ifdef AL_SOFT_source_latency
 		if (GetDevice().IsExtensionSupported(OpenALExtension::SourceLatency))
 		{
 			GetDevice().MakeContextCurrent();
@@ -96,6 +98,7 @@ namespace Nz
 
 		}
 		else
+#endif
 		{
 			offsetWithLatency.sampleOffset = GetSampleOffset() * 1'000;
 			offsetWithLatency.sourceLatency = 0;

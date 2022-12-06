@@ -43,7 +43,17 @@ local modules = {
 		Deps = {"NazaraCore"},
 		Packages = {"dr_wav", "frozen", "libflac", "libvorbis", "minimp3"},
 		Custom = function ()
-			add_packages("openal-soft", { links = {} }) -- Don't link OpenAL (it will be loaded dynamically)
+			if is_plat("wasm") or has_config("link_openal") then
+				add_defines("NAZARA_AUDIO_OPENAL_LINK")
+				if is_plat("wasm") then
+					add_syslinks("openal")
+				else
+					add_defines("AL_ALEXT_PROTOTYPES")
+					add_packages("openal-soft")
+				end
+			else
+				add_packages("openal-soft", { links = {} })
+			end
 		end
 	},
 	Core = {
@@ -143,6 +153,7 @@ includes("xmake/**.lua")
 option("compile_shaders", { description = "Compile nzsl shaders into an includable binary version", default = true })
 option("embed_rendererbackends", { description = "Embed renderer backend code into NazaraRenderer instead of loading them dynamically", default = false })
 option("embed_resources", { description = "Turn builtin resources into includable headers", default = true })
+option("link_openal", { description = "Link OpenAL in the executable instead of dynamically loading it", default = false })
 option("override_runtime", { description = "Override vs runtime to MD in release and MDd in debug", default = true })
 option("usepch", { description = "Use precompiled headers to speedup compilation", default = false })
 option("unitybuild", { description = "Build the engine using unity build", default = false })

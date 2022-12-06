@@ -7,6 +7,12 @@
 
 namespace Nz
 {
+	inline OpenALLibrary::OpenALLibrary() :
+	m_hasCaptureSupport(false),
+	m_isLoaded(false)
+	{
+	}
+
 	inline OpenALLibrary::~OpenALLibrary()
 	{
 		Unload();
@@ -14,7 +20,7 @@ namespace Nz
 
 	inline bool OpenALLibrary::IsLoaded() const
 	{
-		return m_library.IsLoaded();
+		return m_isLoaded;
 	}
 }
 

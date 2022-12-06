@@ -13,17 +13,18 @@
 #include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/Enums.hpp>
 #include <Nazara/Audio/OpenAL.hpp>
-#include <Nazara/Audio/OpenALDevice.hpp>
 #include <Nazara/Core/DynLib.hpp>
 #include <string>
 #include <vector>
 
 namespace Nz
 {
+	class OpenALDevice;
+
 	class NAZARA_AUDIO_API OpenALLibrary
 	{
 		public:
-			OpenALLibrary() = default;
+			inline OpenALLibrary();
 			OpenALLibrary(const OpenALLibrary&) = delete;
 			OpenALLibrary(OpenALLibrary&&) = delete;
 			inline ~OpenALLibrary();
@@ -42,15 +43,14 @@ namespace Nz
 			OpenALLibrary& operator=(const OpenALLibrary&) = delete;
 			OpenALLibrary& operator=(OpenALLibrary&&) = delete;
 
-#define NAZARA_AUDIO_FUNC(name, sig) sig name;
-			NAZARA_AUDIO_FOREACH_AL_FUNC(NAZARA_AUDIO_FUNC, NAZARA_AUDIO_FUNC)
-			NAZARA_AUDIO_FOREACH_ALC_FUNC(NAZARA_AUDIO_FUNC, NAZARA_AUDIO_FUNC)
-#undef NAZARA_AUDIO_FUNC
+#define NAZARA_AUDIO_AL_ALC_FUNCTION(name) decltype(&::name) name;
+#include <Nazara/Audio/OpenALFunctions.hpp>
 
 		private:
 			std::vector<std::string> ParseDevices(const char* deviceString);
 
 			DynLib m_library;
+			bool m_isLoaded;
 			bool m_hasCaptureSupport;
 	};
 }

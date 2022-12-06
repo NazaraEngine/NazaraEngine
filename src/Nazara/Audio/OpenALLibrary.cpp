@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Audio/OpenALLibrary.hpp>
+#include <Nazara/Audio/OpenALDevice.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
@@ -23,6 +24,16 @@ namespace Nz
 
 		CallOnExit unloadOnFailure([this] { Unload(); });
 
+		auto PostLoad = [&]
+		{
+			m_hasCaptureSupport = alcIsExtensionPresent(nullptr, "ALC_EXT_CAPTURE");
+			m_isLoaded = true;
+
+			unloadOnFailure.Reset();
+		};
+
+#ifndef NAZARA_AUDIO_OPENAL_LINK
+		// Dynamically load OpenAL
 #if defined(NAZARA_PLATFORM_WINDOWS)
 		std::array libs{
 			"soft_oal.dll",
@@ -74,15 +85,32 @@ namespace Nz
 				continue;
 			}
 
-			m_hasCaptureSupport = alcIsExtensionPresent(nullptr, "ALC_EXT_CAPTURE");
-
-			unloadOnFailure.Reset();
+			PostLoad();
 			return true;
 		}
 
 		NazaraError("failed to load OpenAL library");
 		return false;
-	}
+
+#else
+		// OpenAL is linked to the executable
+
+		// Load core
+#define NAZARA_AUDIO_AL_ALC_FUNCTION(name) name = &::name;
+#define NAZARA_AUDIO_AL_EXT_FUNCTION(name)
+#include <Nazara/Audio/OpenALFunctions.hpp>
+
+		// Load ext
+#define NAZARA_AUDIO_AL_ALC_FUNCTION(name)
+#define NAZARA_AUDIO_AL_EXT_BEGIN(ext) if (alIsExtensionPresent(#ext)) {
+#define NAZARA_AUDIO_AL_EXT_END() }
+#define NAZARA_AUDIO_AL_FUNCTION_EXT(name) name = reinterpret_cast<decltype(name)>(alGetProcAddress(#name));
+#include <Nazara/Audio/OpenALFunctions.hpp>
+
+		PostLoad();
+		return true;
+#endif
+		}
 
 	std::vector<std::string> OpenALLibrary::QueryInputDevices()
 	{
@@ -111,10 +139,8 @@ namespace Nz
 		if (!m_library.IsLoaded())
 			return;
 
-#define NAZARA_AUDIO_FUNC(name, sig) name = nullptr;
-		NAZARA_AUDIO_FOREACH_AL_FUNC(NAZARA_AUDIO_FUNC, NAZARA_AUDIO_FUNC)
-		NAZARA_AUDIO_FOREACH_ALC_FUNC(NAZARA_AUDIO_FUNC, NAZARA_AUDIO_FUNC)
-#undef NAZARA_AUDIO_FUNC
+#define NAZARA_AUDIO_AL_ALC_FUNCTION(name) name = nullptr;
+#include <Nazara/Audio/OpenALFunctions.hpp>
 
 		m_library.Unload();
 	}
