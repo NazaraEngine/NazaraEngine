@@ -24,6 +24,7 @@ namespace Nz::GL
 
 			inline GLenum Check() const;
 
+			inline void DrawBuffers(GLsizei n, const GLenum* bufs);
 			inline void Renderbuffer(GLenum attachment, GLenum renderbuffer);
 			inline void Texture2D(GLenum attachment, GLenum textarget, GLuint texture, GLint level = 0);
 

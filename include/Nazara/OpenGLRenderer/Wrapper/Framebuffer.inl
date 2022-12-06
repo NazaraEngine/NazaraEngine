@@ -17,6 +17,15 @@ namespace Nz::GL
 		return context.glCheckFramebufferStatus(target);
 	}
 
+	inline void Framebuffer::DrawBuffers(GLsizei n, const GLenum* bufs)
+	{
+		assert(m_objectId);
+
+		const Context& context = EnsureContext();
+		context.BindFramebuffer(FramebufferTarget::Draw, m_objectId);
+		context.glDrawBuffers(n, bufs);
+	}
+
 	inline void Framebuffer::Renderbuffer(GLenum attachment, GLenum renderbuffer)
 	{
 		assert(m_objectId);

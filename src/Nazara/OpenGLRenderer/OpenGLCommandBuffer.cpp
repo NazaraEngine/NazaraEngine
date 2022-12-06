@@ -61,10 +61,6 @@ namespace Nz
 	{
 		const GL::Context* context = GL::Context::GetCurrentContext();
 
-		StackArray<GLenum> fboDrawBuffers = NazaraStackArrayNoInit(GLenum, m_maxColorBufferCount);
-		for (std::size_t i = 0; i < m_maxColorBufferCount; ++i)
-			fboDrawBuffers[i] = GLenum(GL_COLOR_ATTACHMENT0 + i);
-
 		StackArray<std::size_t> colorIndexes = NazaraStackArrayNoInit(std::size_t, m_maxColorBufferCount);
 
 		for (const auto& commandVariant : m_commands)
@@ -129,7 +125,7 @@ namespace Nz
 					context = GL::Context::GetCurrentContext();
 
 					std::size_t colorBufferCount = command.framebuffer->GetColorBufferCount();
-					assert(colorBufferCount <= fboDrawBuffers.size());
+					assert(colorBufferCount <= colorIndexes.size());
 
 					colorIndexes.fill(0);
 					std::size_t colorIndex = 0;
@@ -174,8 +170,6 @@ namespace Nz
 					if (command.framebuffer->GetType() == FramebufferType::Texture)
 					{
 						const OpenGLFboFramebuffer& fboFramebuffer = static_cast<const OpenGLFboFramebuffer&>(*command.framebuffer);
-
-						context->glDrawBuffers(GLsizei(colorBufferCount), fboDrawBuffers.data());
 
 						invalidateAttachments = NazaraStackVector(GLenum, colorBufferCount + 1);
 

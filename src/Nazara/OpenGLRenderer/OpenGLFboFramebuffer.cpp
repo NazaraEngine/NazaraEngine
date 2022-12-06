@@ -5,6 +5,7 @@
 #include <Nazara/OpenGLRenderer/OpenGLFboFramebuffer.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderPass.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLTexture.hpp>
+#include <Nazara/Utils/StackArray.hpp>
 #include <stdexcept>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
@@ -85,6 +86,20 @@ namespace Nz
 			throw std::runtime_error("invalid framebuffer: 0x" + NumberToString(status, 16));
 
 		m_colorAttachmentCount = colorAttachmentCount;
+
+		if (m_colorAttachmentCount > 0)
+		{
+			StackArray<GLenum> fboDrawBuffers = NazaraStackArrayNoInit(GLenum, m_colorAttachmentCount);
+			for (std::size_t i = 0; i < m_colorAttachmentCount; ++i)
+				fboDrawBuffers[i] = GLenum(GL_COLOR_ATTACHMENT0 + i);
+
+			m_framebuffer.DrawBuffers(SafeCast<GLsizei>(m_colorAttachmentCount), fboDrawBuffers.data());
+		}
+		else
+		{
+			GLenum buffer = GL_NONE;
+			m_framebuffer.DrawBuffers(1, &buffer);
+		}
 	}
 
 	void OpenGLFboFramebuffer::Activate() const
