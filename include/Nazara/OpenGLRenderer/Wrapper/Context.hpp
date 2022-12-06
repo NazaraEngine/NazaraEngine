@@ -163,6 +163,7 @@ namespace Nz::GL
 			inline void NotifyTextureDestruction(GLuint texture) const;
 			inline void NotifyVertexArrayDestruction(GLuint vao) const;
 
+			template<typename... Args> void PrintFunctionCall(std::size_t funcIndex, Args... args) const;
 			bool ProcessErrorStack() const;
 
 			inline void ResetColorWriteMasks() const;

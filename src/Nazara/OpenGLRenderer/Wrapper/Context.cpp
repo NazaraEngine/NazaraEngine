@@ -22,6 +22,12 @@ namespace Nz::GL
 
 	namespace
 	{
+		constexpr std::array s_functionNames = {
+#define NAZARA_OPENGLRENDERER_FUNC(name, sig) #name,
+				NAZARA_OPENGLRENDERER_FOREACH_GLES_FUNC(NAZARA_OPENGLRENDERER_FUNC, NAZARA_OPENGLRENDERER_FUNC)
+#undef NAZARA_OPENGLRENDERER_FUNC
+		};
+
 		template<typename FuncType, std::size_t FuncIndex, typename>
 		struct GLWrapper;
 
@@ -41,13 +47,15 @@ namespace Nz::GL
 					{
 						funcPtr(std::forward<Args>(args)...);
 
-						context->ProcessErrorStack();
+						if (!context->ProcessErrorStack())
+							context->PrintFunctionCall(FuncIndex, std::forward<Args>(args)...);
 					}
 					else
 					{
 						Ret r = funcPtr(std::forward<Args>(args)...);
 
-						context->ProcessErrorStack();
+						if (!context->ProcessErrorStack())
+							context->PrintFunctionCall(FuncIndex, std::forward<Args>(args)...);
 
 						return r;
 					}
@@ -563,6 +571,29 @@ namespace Nz::GL
 		EnableVerticalSync(false);
 
 		return true;
+	}
+
+	template<typename... Args>
+	void Context::PrintFunctionCall(std::size_t funcIndex, Args... args) const
+	{
+		std::stringstream ss;
+		ss << s_functionNames[funcIndex] << "(";
+		if constexpr (sizeof...(args) > 0)
+		{
+			bool first = true;
+			auto PrintParam = [&](auto value)
+			{
+				if (!first)
+					ss << ", ";
+
+				ss << +value;
+				first = false;
+			};
+
+			(PrintParam(args), ...);
+		}
+		ss << ")";
+		NazaraDebug(ss.str());
 	}
 
 	bool Context::ProcessErrorStack() const
