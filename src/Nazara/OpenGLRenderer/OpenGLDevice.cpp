@@ -125,24 +125,34 @@ namespace Nz
 		m_referenceContext.reset();
 	}
 
-	std::unique_ptr<GL::Context> OpenGLDevice::CreateContext(GL::ContextParams params) const
+	std::shared_ptr<GL::Context> OpenGLDevice::CreateContext([[maybe_unused]] GL::ContextParams params) const
 	{
+#ifdef NAZARA_PLATFORM_WEB
+		// WebGL doesn't support context sharing and we support only one canvas, return the reference context
+		return m_referenceContext;
+#else
 		params.type = m_referenceContext->GetParams().type;
 
 		auto contextPtr = m_loader.CreateContext(this, params, m_referenceContext.get());
 		m_contexts.insert(contextPtr.get());
 
 		return contextPtr;
+#endif
 	}
 
-	std::unique_ptr<GL::Context> OpenGLDevice::CreateContext(GL::ContextParams params, WindowHandle handle) const
+	std::shared_ptr<GL::Context> OpenGLDevice::CreateContext([[maybe_unused]] GL::ContextParams params, [[maybe_unused]] WindowHandle handle) const
 	{
+#ifdef NAZARA_PLATFORM_WEB
+		// WebGL doesn't support context sharing and we support only one canvas, return the reference context
+		return m_referenceContext;
+#else
 		params.type = m_referenceContext->GetParams().type;
 
 		auto contextPtr = m_loader.CreateContext(this, params, handle, m_referenceContext.get());
 		m_contexts.insert(contextPtr.get());
 
 		return contextPtr;
+#endif
 	}
 
 	const RenderDeviceInfo& OpenGLDevice::GetDeviceInfo() const
