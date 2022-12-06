@@ -240,7 +240,7 @@ namespace Nz
 						assert(command.framebuffer->GetType() == FramebufferType::Window);
 
 						// glDrawBuffers doesn't accept GL_BACK on OpenGL non-ES, and glDrawBuffer must be used instead
-						if (context->glDrawBuffer)
+						if (context->GetParams().type != GL::ContextType::OpenGL_ES && context->glDrawBuffer)
 							context->glDrawBuffer(GL_BACK);
 						else
 						{
