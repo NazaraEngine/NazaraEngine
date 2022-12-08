@@ -192,7 +192,7 @@ namespace Nz
 
 						auto& textureEntry = m_textureBindingCache.emplace_back();
 						textureEntry.texture = texture;
-						textureEntry.sampler = shadowSampler.get();
+						textureEntry.sampler = defaultSampler.get(); //< cube shadowmap don't use depth compare
 					}
 
 					auto& bindingEntry = m_bindingCache.emplace_back();

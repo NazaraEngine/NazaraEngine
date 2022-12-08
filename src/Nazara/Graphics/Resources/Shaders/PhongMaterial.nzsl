@@ -217,7 +217,6 @@ fn main(input: VertToFrag) -> FragOut
 
 					const sampleCount = 4;
 					const offset = 0.005;
-					const bias = 0.05;
 
 					const invSampleCount = 1.0 / f32(sampleCount);
 					const start = vec3[f32](offset * 0.5, offset * 0.5, offset * 0.5);
@@ -237,8 +236,8 @@ fn main(input: VertToFrag) -> FragOut
 
 								let depth = shadowMapsCube[i].Sample(sampleDir).r;
 								depth = LinearizeDepth(depth, 0.01, lightRadius);
-			
-								if (depth > dist - bias)
+
+								if (depth > dist)
 									shadowFactor += shadowContribution;
 							}
 						}
