@@ -1297,7 +1297,7 @@ namespace Nz
 	* \remark x and y must both be comprised in range [0,4[
 	*/
 	template<typename T>
-	T Matrix4<T>::operator()(std::size_t x, std::size_t y) const
+	const T& Matrix4<T>::operator()(std::size_t x, std::size_t y) const
 	{
 		NazaraAssert(x <= 3, "index out of range");
 		NazaraAssert(y <= 3, "index out of range");
@@ -1326,7 +1326,7 @@ namespace Nz
 	* \remark i must be comprised in range [0,16[
 	*/
 	template<typename T>
-	T Matrix4<T>::operator[](std::size_t i) const
+	const T& Matrix4<T>::operator[](std::size_t i) const
 	{
 		NazaraAssert(i <= 16, "index out of range");
 

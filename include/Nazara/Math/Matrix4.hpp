@@ -101,10 +101,10 @@ namespace Nz
 			Matrix4& Transpose();
 
 			T& operator()(std::size_t x, std::size_t y);
-			T operator()(std::size_t x, std::size_t y) const;
+			const T& operator()(std::size_t x, std::size_t y) const;
 
 			T& operator[](std::size_t i);
-			T operator[](std::size_t i) const;
+			const T& operator[](std::size_t i) const;
 
 			Matrix4& operator=(const Matrix4& matrix) = default;
 

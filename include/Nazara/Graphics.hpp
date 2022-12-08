@@ -43,6 +43,7 @@
 #include <Nazara/Graphics/ForwardFramePipeline.hpp>
 #include <Nazara/Graphics/ForwardPipelinePass.hpp>
 #include <Nazara/Graphics/FrameGraph.hpp>
+#include <Nazara/Graphics/FrameGraphStructs.hpp>
 #include <Nazara/Graphics/FramePass.hpp>
 #include <Nazara/Graphics/FramePassAttachment.hpp>
 #include <Nazara/Graphics/FramePipeline.hpp>
@@ -52,6 +53,7 @@
 #include <Nazara/Graphics/GuillotineTextureAtlas.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/Light.hpp>
+#include <Nazara/Graphics/LightShadowData.hpp>
 #include <Nazara/Graphics/LinearSlicedSprite.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/MaterialInstance.hpp>
@@ -61,6 +63,7 @@
 #include <Nazara/Graphics/MaterialSettings.hpp>
 #include <Nazara/Graphics/Model.hpp>
 #include <Nazara/Graphics/PointLight.hpp>
+#include <Nazara/Graphics/PointLightShadowData.hpp>
 #include <Nazara/Graphics/PredefinedMaterials.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/RenderBufferPool.hpp>
@@ -72,9 +75,11 @@
 #include <Nazara/Graphics/RenderSpriteChain.hpp>
 #include <Nazara/Graphics/RenderSubmesh.hpp>
 #include <Nazara/Graphics/ShaderReflection.hpp>
+#include <Nazara/Graphics/ShadowViewer.hpp>
 #include <Nazara/Graphics/SkeletonInstance.hpp>
 #include <Nazara/Graphics/SlicedSprite.hpp>
 #include <Nazara/Graphics/SpotLight.hpp>
+#include <Nazara/Graphics/SpotLightShadowData.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Nazara/Graphics/SpriteChainRenderer.hpp>
 #include <Nazara/Graphics/SubmeshRenderer.hpp>
