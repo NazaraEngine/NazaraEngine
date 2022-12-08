@@ -129,7 +129,7 @@ fn main(input: VertToFrag) -> FragOut
 	let color = settings.BaseColor;
 
 	const if (HasUV)
-		color *= TextureOverlay.Sample(input.uv).rrra;
+		color *= TextureOverlay.Sample(input.uv).rrrg;
 
 	const if (HasColor)
 		color *= input.color;
