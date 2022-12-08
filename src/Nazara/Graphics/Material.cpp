@@ -68,7 +68,7 @@ namespace Nz
 				const ShaderReflection::StructData* structData = m_reflection.GetStructByIndex(shaderBlock.structIndex);
 				assert(structData);
 
-				std::size_t size = structData->fieldOffsets.GetSize();
+				std::size_t size = structData->fieldOffsets.GetAlignedSize();
 
 				auto& uniformBlock = m_uniformBlocks.emplace_back();
 				uniformBlock.bindingIndex = shaderBlock.bindingIndex;
