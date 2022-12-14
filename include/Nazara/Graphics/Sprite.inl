@@ -83,8 +83,8 @@ namespace Nz
 
 	inline void Sprite::SetTextureRect(const Rectf& textureRect)
 	{
-		Vector2ui textureSize(GetTextureSize());
-		return SetTextureCoords(textureRect / Vector2f(textureSize));
+		Vector2f invTextureSize = 1.f / Vector2f(Vector2ui(GetTextureSize()));
+		return SetTextureCoords(Rectf(textureRect.x * invTextureSize.x, textureRect.y * invTextureSize.y, textureRect.width * invTextureSize.x, textureRect.height * invTextureSize.y));
 	}
 
 	inline void Sprite::UpdateVertices()
