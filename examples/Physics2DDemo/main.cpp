@@ -79,7 +79,7 @@ int main()
 			{
 				std::shared_ptr<Nz::Sprite> sprite = std::make_shared<Nz::Sprite>(material);
 				sprite->SetSize({ 32.f, 32.f });
-				sprite->SetOrigin({ 16.f, 16.f, 0.f });
+				sprite->SetOrigin({ 0.5f, 0.5f });
 
 				registry.emplace<Nz::NodeComponent>(spriteEntity).SetPosition(1920 / 2 + x * 36.f, 1080 / 2 + y * 36.f);
 
@@ -93,7 +93,7 @@ int main()
 	entt::entity groundEntity = registry.create();
 	{
 		std::shared_ptr<Nz::Tilemap> tilemap = std::make_shared<Nz::Tilemap>(Nz::Vector2ui(40, 20), Nz::Vector2f(64.f, 64.f), 18);
-		tilemap->SetOrigin(Nz::Vector2f(0.5f, 0.5f));
+		tilemap->SetOrigin({ 0.5f, 0.5f });
 		tilemap->EnableIsometricMode(true);
 		for (std::size_t i = 0; i < 18; ++i)
 		{
