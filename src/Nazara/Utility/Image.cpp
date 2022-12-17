@@ -1368,7 +1368,7 @@ namespace Nz
 	UInt8 Image::GetMaxLevel(unsigned int width, unsigned int height, unsigned int depth)
 	{
 		// Le niveau maximal est le niveau requis pour la plus grande taille
-		return std::max(IntegralLog2(std::max({width, height, depth})), 1U);
+		return SafeCast<UInt8>(std::max(IntegralLog2(std::max({width, height, depth})), 1U));
 	}
 
 	UInt8 Image::GetMaxLevel(ImageType type, unsigned int width, unsigned int height, unsigned int depth)
@@ -1425,9 +1425,9 @@ namespace Nz
 		if (m_sharedImage->refCount > 1)
 		{
 			SharedImage::PixelContainer levels(m_sharedImage->levels.size());
-			for (unsigned int i = 0; i < levels.size(); ++i)
+			for (std::size_t i = 0; i < levels.size(); ++i)
 			{
-				std::size_t size = GetMemoryUsage(i);
+				std::size_t size = GetMemoryUsage(SafeCast<UInt8>(i));
 				levels[i] = std::make_unique<UInt8[]>(size);
 				std::memcpy(levels[i].get(), m_sharedImage->levels[i].get(), size);
 			}

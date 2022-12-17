@@ -43,10 +43,6 @@ namespace Nz
 			case BoxLayoutOrientation::Vertical:
 				axis = 1; //< y
 				break;
-
-			default:
-				assert(false);
-				break;
 		}
 
 		//TODO: Keep solver state when widgets don't change
@@ -106,7 +102,7 @@ namespace Nz
 				return;
 
 			Nz::Vector2f newSize = layoutSize;
-			newSize[axis] = m_state->sizeVar[varIndex].value();
+			newSize[axis] = SafeCast<float>(m_state->sizeVar[varIndex].value());
 
 			child->Resize(newSize);
 			remainingSize -= newSize[axis];
