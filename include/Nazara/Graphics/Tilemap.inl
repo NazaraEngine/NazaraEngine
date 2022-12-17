@@ -311,6 +311,15 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Gets the tilemap origin
+	* \return Tilemap origin
+	*/
+	inline const Vector2f& Tilemap::GetOrigin() const
+	{
+		return m_origin;
+	}
+
+	/*!
 	* \brief Returns the size of the tilemap in units (which is equivalent to GetMapSize() * GetTileSize())
 	* \return Maximum size in units occupied by this tilemap
 	*
@@ -359,7 +368,7 @@ namespace Nz
 		return m_isometricModeEnabled;
 	}
 
-	inline void Tilemap::SetOrigin(const Vector3f& origin)
+	inline void Tilemap::SetOrigin(const Vector2f& origin)
 	{
 		m_origin = origin;
 

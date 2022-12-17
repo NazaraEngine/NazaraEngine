@@ -47,6 +47,7 @@ namespace Nz
 			inline const Vector2ui& GetMapSize() const;
 			const std::shared_ptr<MaterialInstance>& GetMaterial(std::size_t i) const override;
 			std::size_t GetMaterialCount() const override;
+			inline const Vector2f& GetOrigin() const;
 			inline Vector2f GetSize() const;
 			inline const Tile& GetTile(const Vector2ui& tilePos) const;
 			inline const Vector2f& GetTileSize() const;
@@ -54,7 +55,7 @@ namespace Nz
 			inline bool IsIsometricModeEnabled() const;
 
 			void SetMaterial(std::size_t matIndex, std::shared_ptr<MaterialInstance> material);
-			inline void SetOrigin(const Vector3f& origin);
+			inline void SetOrigin(const Vector2f& origin);
 
 			struct Tile
 			{
@@ -82,8 +83,8 @@ namespace Nz
 			std::vector<Tile> m_tiles;
 			std::vector<Layer> m_layers;
 			Vector2ui m_mapSize;
+			Vector2f m_origin;
 			Vector2f m_tileSize;
-			Vector3f m_origin;
 			bool m_isometricModeEnabled;
 			mutable bool m_shouldRebuildVertices;
 	};

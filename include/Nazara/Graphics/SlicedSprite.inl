@@ -23,6 +23,16 @@ namespace Nz
 		return m_textureCoords;
 	}
 
+	inline const Vector2f& SlicedSprite::GetOrigin() const
+	{
+		return m_origin;
+	}
+
+	inline const Vector2f& SlicedSprite::GetSize() const
+	{
+		return m_size;
+	}
+
 	inline auto SlicedSprite::GetTopLeftCorner() const -> const Corner&
 	{
 		return m_topLeftCorner;
@@ -70,6 +80,13 @@ namespace Nz
 
 			OnElementInvalidated(this);
 		}
+	}
+
+	inline void SlicedSprite::SetOrigin(const Vector2f& origin)
+	{
+		m_origin = origin;
+
+		UpdateVertices();
 	}
 
 	inline void SlicedSprite::SetSize(const Vector2f& size)

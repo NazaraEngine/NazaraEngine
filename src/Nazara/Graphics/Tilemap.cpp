@@ -27,6 +27,7 @@ namespace Nz
 	m_layers(materialCount),
 	m_mapSize(mapSize),
 	m_tileSize(tileSize),
+	m_origin(0.f, 0.f),
 	m_isometricModeEnabled(false),
 	m_shouldRebuildVertices(false)
 	{
@@ -120,9 +121,8 @@ namespace Nz
 		m_vertices.resize(spriteCount * 4);
 		VertexStruct_XYZ_Color_UV* vertexPtr = reinterpret_cast<VertexStruct_XYZ_Color_UV*>(m_vertices.data());
 
-		Vector3f originShift = m_origin * GetSize();
-
 		float topCorner = m_tileSize.y * (m_mapSize.y - 1);
+		Vector3f originShift = m_origin * GetSize();
 
 		for (const Layer& layer : m_layers)
 		{

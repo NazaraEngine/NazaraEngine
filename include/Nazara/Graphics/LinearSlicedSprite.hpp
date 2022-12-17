@@ -38,8 +38,10 @@ namespace Nz
 			const std::shared_ptr<MaterialInstance>& GetMaterial(std::size_t i = 0) const override;
 			std::size_t GetMaterialCount() const override;
 			inline Orientation GetOrientation() const;
+			inline const Vector2f& GetOrigin() const;
 			inline const Section& GetSection(std::size_t sectionIndex) const;
 			std::size_t GetSectionCount() const;
+			inline float GetSize() const;
 			inline const Rectf& GetTextureCoords() const;
 			Vector3ui GetTextureSize() const;
 
@@ -47,10 +49,11 @@ namespace Nz
 
 			inline void SetColor(const Color& color);
 			inline void SetMaterial(std::shared_ptr<MaterialInstance> material);
+			inline void SetOrigin(const Vector2f& origin);
 			inline void SetSection(std::size_t sectionIndex, float size, float textureCoord);
 			inline void SetSectionSize(std::size_t sectionIndex, float size);
 			inline void SetSectionTextureCoord(std::size_t sectionIndex, float textureCoord);
-			inline void SetSize(const Vector2f& size);
+			inline void SetSize(float size);
 			inline void SetTextureCoords(const Rectf& textureCoords);
 			inline void SetTextureRect(const Rectf& textureRect);
 
@@ -82,7 +85,8 @@ namespace Nz
 			Color m_color;
 			Orientation m_orientation;
 			Rectf m_textureCoords;
-			Vector2f m_size;
+			Vector2f m_origin;
+			float m_size;
 	};
 }
 

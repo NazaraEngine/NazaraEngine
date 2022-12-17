@@ -15,6 +15,7 @@ namespace Nz
 	m_material(std::move(material)),
 	m_color(Color::White),
 	m_textureCoords(0.f, 0.f, 1.f, 1.f),
+	m_origin(0.f, 0.f),
 	m_size(64.f, 64.f)
 	{
 		UpdateVertices();
@@ -98,7 +99,8 @@ namespace Nz
 			m_bottomRightCorner.textureCoords.y * m_textureCoords.height
 		};
 
-		Vector3f origin = Vector3f::Zero();
+		Vector3f originShift = m_origin * m_size;
+		Vector3f topLeftCorner = -originShift;
 		Vector2f topLeftUV = m_textureCoords.GetCorner(RectCorner::LeftTop);
 
 		m_spriteCount = 0;
@@ -113,36 +115,36 @@ namespace Nz
 					if (width > 0.f)
 					{
 						vertices->color = m_color;
-						vertices->position = origin;
+						vertices->position = topLeftCorner;
 						vertices->uv = topLeftUV;
 						vertices++;
 
 						vertices->color = m_color;
-						vertices->position = origin + width * Vector3f::Right();
+						vertices->position = topLeftCorner + width * Vector3f::Right();
 						vertices->uv = topLeftUV + Vector2f(texCoordsX[x], 0.f);
 						vertices++;
 
 						vertices->color = m_color;
-						vertices->position = origin + height * Vector3f::Up();
+						vertices->position = topLeftCorner + height * Vector3f::Up();
 						vertices->uv = topLeftUV + Vector2f(0.f, texCoordsY[y]);
 						vertices++;
 
 						vertices->color = m_color;
-						vertices->position = origin + width * Vector3f::Right() + height * Vector3f::Up();
+						vertices->position = topLeftCorner + width * Vector3f::Right() + height * Vector3f::Up();
 						vertices->uv = topLeftUV + Vector2f(texCoordsX[x], texCoordsY[y]);
 						vertices++;
 
-						origin.x += width;
+						topLeftCorner.x += width;
 						m_spriteCount++;
 					}
 
 					topLeftUV.x += texCoordsX[x];
 				}
 
-				origin.y += height;
+				topLeftCorner.y += height;
 			}
 
-			origin.x = 0;
+			topLeftCorner.x = -originShift.x;
 
 			topLeftUV.x = m_textureCoords.x;
 			topLeftUV.y += texCoordsY[y];

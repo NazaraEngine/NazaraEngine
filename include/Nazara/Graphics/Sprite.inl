@@ -18,7 +18,7 @@ namespace Nz
 		return m_cornerColor[UnderlyingCast(corner)];
 	}
 
-	inline const Vector3f& Sprite::GetOrigin() const
+	inline const Vector2f& Sprite::GetOrigin() const
 	{
 		return m_origin;
 	}
@@ -60,7 +60,7 @@ namespace Nz
 		}
 	}
 
-	inline void Sprite::SetOrigin(const Vector3f& origin)
+	inline void Sprite::SetOrigin(const Vector2f& origin)
 	{
 		m_origin = origin;
 
@@ -99,10 +99,12 @@ namespace Nz
 		cornerExtent[UnderlyingCast(RectCorner::LeftTop)] = Vector2f(0.f, 1.f);
 		cornerExtent[UnderlyingCast(RectCorner::RightTop)] = Vector2f(1.f, 1.f);
 
+		Vector3f originShift = m_origin * m_size;
+
 		for (RectCorner corner : { RectCorner::LeftBottom, RectCorner::RightBottom, RectCorner::LeftTop, RectCorner::RightTop })
 		{
 			vertices->color = m_color * m_cornerColor[UnderlyingCast(corner)];
-			vertices->position = Vector3f(m_size * cornerExtent[UnderlyingCast(corner)], 0.f) - m_origin;
+			vertices->position = Vector3f(m_size * cornerExtent[UnderlyingCast(corner)], 0.f) - originShift;
 			vertices->uv = m_textureCoords.GetCorner(corner);
 
 			if (aabb.IsValid())

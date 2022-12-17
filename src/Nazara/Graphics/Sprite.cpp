@@ -16,8 +16,8 @@ namespace Nz
 	m_material(std::move(material)),
 	m_color(Color::White),
 	m_textureCoords(0.f, 0.f, 1.f, 1.f),
-	m_size(64.f, 64.f),
-	m_origin(0.f, 0.f, 0.f)
+	m_origin(0.f, 0.f),
+	m_size(64.f, 64.f)
 	{
 		m_cornerColor.fill(Color::White);
 

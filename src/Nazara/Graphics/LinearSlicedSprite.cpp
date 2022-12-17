@@ -18,7 +18,8 @@ namespace Nz
 	m_color(Color::White),
 	m_orientation(orientation),
 	m_textureCoords(0.f, 0.f, 1.f, 1.f),
-	m_size(64.f, 64.f)
+	m_origin(0.f, 0.f),
+	m_size(64.f)
 	{
 		UpdateVertices();
 	}
@@ -74,16 +75,20 @@ namespace Nz
 
 	void LinearSlicedSprite::UpdateVertices()
 	{
-		VertexStruct_XYZ_Color_UV* vertices = m_vertices.data();
+		float totalSectionSize = 0.f;
+		for (const Section& section : m_sections)
+			totalSectionSize += std::max(section.size, 0.f);
 
-		Vector3f origin = Vector3f::Zero();
+		Vector2f originShift = m_origin * ((m_orientation == Orientation::Horizontal) ? Vector2f(totalSectionSize, m_size) : Vector2f(m_size, totalSectionSize));
+
+		Vector3f topLeftCorner = -originShift;
 		Vector2f topLeftUV = m_textureCoords.GetCorner(RectCorner::LeftTop);
 
 		m_spriteCount = 0;
 
-		for (std::size_t i = 0; i < m_sectionCount; ++i)
+		VertexStruct_XYZ_Color_UV* vertices = m_vertices.data();
+		for (const Section& section : m_sections)
 		{
-			const auto& section = m_sections[i];
 			if (section.size <= 0.f)
 				continue;
 
@@ -93,37 +98,37 @@ namespace Nz
 			if (m_orientation == Orientation::Horizontal)
 			{
 				dir = Vector2(1.f, 0.f);
-				size = Vector2f(section.size, m_size.y);
+				size = Vector2f(section.size, m_size);
 				texCoords = Vector2f(section.textureCoord, m_textureCoords.height);
 			}
 			else
 			{
 				dir = Vector2(0.f, 1.f);
-				size = Vector2f(m_size.x, section.size);
+				size = Vector2f(m_size, section.size);
 				texCoords = Vector2f(m_textureCoords.width, section.textureCoord);
 			}
 			
 			vertices->color = m_color;
-			vertices->position = origin;
+			vertices->position = topLeftCorner;
 			vertices->uv = topLeftUV;
 			vertices++;
 
 			vertices->color = m_color;
-			vertices->position = origin + size.x * Vector3f::Right();
+			vertices->position = topLeftCorner + size.x * Vector3f::Right();
 			vertices->uv = topLeftUV + Vector2f(texCoords.x, 0.f);
 			vertices++;
 
 			vertices->color = m_color;
-			vertices->position = origin + size.y * Vector3f::Up();
+			vertices->position = topLeftCorner + size.y * Vector3f::Up();
 			vertices->uv = topLeftUV + Vector2f(0.f, texCoords.y);
 			vertices++;
 
 			vertices->color = m_color;
-			vertices->position = origin + size.x * Vector3f::Right() + size.y * Vector3f::Up();
+			vertices->position = topLeftCorner + size.x * Vector3f::Right() + size.y * Vector3f::Up();
 			vertices->uv = topLeftUV + Vector2f(texCoords.x, texCoords.y);
 			vertices++;
 
-			origin += dir * section.size;
+			topLeftCorner += dir * section.size;
 			topLeftUV += dir * section.textureCoord;
 			m_spriteCount++;
 		}

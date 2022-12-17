@@ -37,6 +37,11 @@ namespace Nz
 		return m_orientation;
 	}
 
+	inline const Vector2f& LinearSlicedSprite::GetOrigin() const
+	{
+		return m_origin;
+	}
+
 	inline auto LinearSlicedSprite::GetSection(std::size_t sectionIndex) const -> const Section&
 	{
 		NazaraAssert(sectionIndex < m_sectionCount, "out of range section");
@@ -46,6 +51,11 @@ namespace Nz
 	inline std::size_t LinearSlicedSprite::GetSectionCount() const
 	{
 		return m_sectionCount;
+	}
+
+	inline float LinearSlicedSprite::GetSize() const
+	{
+		return m_size;
 	}
 
 	inline const Rectf& LinearSlicedSprite::GetTextureCoords() const
@@ -84,6 +94,13 @@ namespace Nz
 		}
 	}
 
+	inline void LinearSlicedSprite::SetOrigin(const Vector2f& origin)
+	{
+		m_origin = origin;
+
+		UpdateVertices();
+	}
+
 	inline void LinearSlicedSprite::SetSection(std::size_t sectionIndex, float size, float textureCoord)
 	{
 		NazaraAssert(sectionIndex < m_sectionCount, "out of range section");
@@ -115,10 +132,9 @@ namespace Nz
 		UpdateVertices();
 	}
 
-	inline void LinearSlicedSprite::SetSize(const Vector2f& size)
+	inline void LinearSlicedSprite::SetSize(float size)
 	{
-		NazaraAssert(size.x >= 0.f, "width must be positive");
-		NazaraAssert(size.y >= 0.f, "height must be positive");
+		NazaraAssert(size >= 0.f, "size must be positive");
 
 		m_size = size;
 

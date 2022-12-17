@@ -31,7 +31,7 @@ namespace Nz
 			inline const Color& GetCornerColor(RectCorner corner) const;
 			const std::shared_ptr<MaterialInstance>& GetMaterial(std::size_t i = 0) const override;
 			std::size_t GetMaterialCount() const override;
-			inline const Vector3f& GetOrigin() const;
+			inline const Vector2f& GetOrigin() const;
 			inline const Vector2f& GetSize() const;
 			inline const Rectf& GetTextureCoords() const;
 			Vector3ui GetTextureSize() const;
@@ -39,7 +39,7 @@ namespace Nz
 			inline void SetColor(const Color& color);
 			inline void SetCornerColor(RectCorner corner, const Color& color);
 			inline void SetMaterial(std::shared_ptr<MaterialInstance> material);
-			inline void SetOrigin(const Vector3f& origin);
+			inline void SetOrigin(const Vector2f& origin);
 			inline void SetSize(const Vector2f& size);
 			inline void SetTextureCoords(const Rectf& textureCoords);
 			inline void SetTextureRect(const Rectf& textureRect);
@@ -55,8 +55,8 @@ namespace Nz
 			std::shared_ptr<MaterialInstance> m_material;
 			Color m_color;
 			Rectf m_textureCoords;
+			Vector2f m_origin;
 			Vector2f m_size;
-			Vector3f m_origin;
 	};
 }
 
