@@ -66,14 +66,14 @@ int main()
 
 	Nz::TextureParams texParams;
 	texParams.renderDevice = device;
-	texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
+	texParams.loadFormat = Nz::PixelFormat::RGBA8;
 
 	std::shared_ptr<Nz::MaterialInstance> material = Nz::Graphics::Instance()->GetDefaultMaterials().phongMaterial->Instantiate();
-	material->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
+	material->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(resourceDir / "box.png", texParams));
 
-	for (std::size_t y = 0; y < 10; ++y)
+	for (std::size_t y = 0; y < 30; ++y)
 	{
-		for (std::size_t x = 0; x < 10; ++x)
+		for (std::size_t x = 0; x < 30; ++x)
 		{
 			entt::entity spriteEntity = registry.create();
 			{
@@ -81,11 +81,12 @@ int main()
 				sprite->SetSize({ 32.f, 32.f });
 				sprite->SetOrigin({ 0.5f, 0.5f });
 
-				registry.emplace<Nz::NodeComponent>(spriteEntity).SetPosition(1920 / 2 + x * 36.f, 1080 / 2 + y * 36.f);
+				registry.emplace<Nz::NodeComponent>(spriteEntity).SetPosition(windowSize.x * 0.5f + x * 48.f - 15.f * 48.f, windowSize.y / 2 + y * 48.f);
 
 				registry.emplace<Nz::GraphicsComponent>(spriteEntity).AttachRenderable(sprite, 1);
 				auto& rigidBody = registry.emplace<Nz::RigidBody2DComponent>(spriteEntity, physSytem.CreateRigidBody(50.f, std::make_shared<Nz::BoxCollider2D>(Nz::Vector2f(32.f, 32.f))));
-				rigidBody.SetElasticity(0.99f);
+				rigidBody.SetFriction(0.9f);
+				//rigidBody.SetElasticity(0.99f);
 			}
 		}
 	}
@@ -94,7 +95,6 @@ int main()
 	{
 		std::shared_ptr<Nz::Tilemap> tilemap = std::make_shared<Nz::Tilemap>(Nz::Vector2ui(40, 20), Nz::Vector2f(64.f, 64.f), 18);
 		tilemap->SetOrigin({ 0.5f, 0.5f });
-		tilemap->EnableIsometricMode(true);
 		for (std::size_t i = 0; i < 18; ++i)
 		{
 			std::shared_ptr<Nz::MaterialInstance> material = Nz::Graphics::Instance()->GetDefaultMaterials().basicTransparent->Clone();
@@ -111,10 +111,10 @@ int main()
 			}
 		}
 
-		registry.emplace<Nz::NodeComponent>(groundEntity).SetPosition(1920.f / 2.f, 0.f);
+		registry.emplace<Nz::NodeComponent>(groundEntity).SetPosition(windowSize.x * 0.5f, -windowSize.y * 0.2f);
 		registry.emplace<Nz::GraphicsComponent>(groundEntity).AttachRenderable(tilemap, 1);
 		auto& rigidBody = registry.emplace<Nz::RigidBody2DComponent>(groundEntity, physSytem.CreateRigidBody(0.f, std::make_shared<Nz::BoxCollider2D>(tilemap->GetSize())));
-		rigidBody.SetElasticity(0.99f);
+		rigidBody.SetFriction(0.9f);
 	}
 
 	Nz::EulerAnglesf camAngles(0.f, 0.f, 0.f);
