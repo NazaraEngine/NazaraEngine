@@ -93,7 +93,7 @@ int main()
 	Nz::WorldInstancePtr modelInstance2 = std::make_shared<Nz::WorldInstance>();
 	modelInstance2->UpdateWorldMatrix(Nz::Matrix4f::Translate(Nz::Vector3f::Forward() * 2 + Nz::Vector3f::Right()));
 
-	Nz::Recti scissorBox(Nz::Vector2i(window.GetSize()));
+	Nz::Recti scissorBox(Nz::Vector2i::Zero(), Nz::Vector2i(window.GetSize()));
 
 	Nz::ElementRendererRegistry elementRegistry;
 	Nz::ForwardFramePipeline framePipeline(elementRegistry);

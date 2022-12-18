@@ -330,12 +330,12 @@ namespace Nz
 			std::size_t subMeshCount = m_subMeshes.size();
 			if (subMeshCount > 0)
 			{
-				m_aabb.Set(m_subMeshes.front().subMesh->GetAABB());
+				m_aabb = Boxf(m_subMeshes.front().subMesh->GetAABB());
 				for (std::size_t i = 1; i < subMeshCount; ++i)
 					m_aabb.ExtendTo(m_subMeshes[i].subMesh->GetAABB());
 			}
 			else
-				m_aabb.MakeZero();
+				m_aabb = Boxf::Zero();
 
 			m_aabbUpdated = true;
 		}

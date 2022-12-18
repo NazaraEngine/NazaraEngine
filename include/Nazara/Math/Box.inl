@@ -29,9 +29,14 @@ namespace Nz
 	*/
 
 	template<typename T>
-	Box<T>::Box(T Width, T Height, T Depth)
+	Box<T>::Box(T Width, T Height, T Depth) :
+	x(0),
+	y(0),
+	z(0),
+	width(Width),
+	height(Height),
+	depth(Depth)
 	{
-		Set(Width, Height, Depth);
 	}
 
 	/*!
@@ -44,23 +49,15 @@ namespace Nz
 	* \param Height Height of the box (following Y)
 	* \param Depth Depth of the box (following Z)
 	*/
-
 	template<typename T>
-	Box<T>::Box(T X, T Y, T Z, T Width, T Height, T Depth)
+	Box<T>::Box(T X, T Y, T Z, T Width, T Height, T Depth) :
+	x(X),
+	y(Y),
+	z(Z),
+	width(Width),
+	height(Height),
+	depth(Depth)
 	{
-		Set(X, Y, Z, Width, Height, Depth);
-	}
-
-	/*!
-	* \brief Constructs a Box object from an array of six elements
-	*
-	* \param vec[6] vec[0] is X position, vec[1] is Y position, vec[2] is Z position, vec[3] is width, vec[4] is height and vec[5] is depth
-	*/
-
-	template<typename T>
-	Box<T>::Box(const T vec[6])
-	{
-		Set(vec);
 	}
 
 	/*!
@@ -70,39 +67,32 @@ namespace Nz
 	*
 	* \remark Z position is 0 and depth is 1
 	*/
-
 	template<typename T>
-	Box<T>::Box(const Rect<T>& rect)
+	Box<T>::Box(const Rect<T>& rect) :
+	x(rect.x),
+	y(rect.y),
+	z(0),
+	width(rect.width),
+	height(rect.height),
+	depth(0)
 	{
-		Set(rect);
 	}
 
 	/*!
-	* \brief Constructs a Box object from a vector representing width, height and depth
+	* \brief Constructs a Box object from two vector representing position and lengths
 	*
+	* \param pos (X, Y, Z) of the box
 	* \param lengths (Width, Height, Depth) of the box
-	*
-	* \remark Positions will be (0, 0, 0)
 	*/
-
 	template<typename T>
-	Box<T>::Box(const Vector3<T>& lengths)
+	Box<T>::Box(const Vector3<T>& pos, const Vector3<T>& lengths) :
+	x(pos.x),
+	y(pos.y),
+	z(pos.z),
+	width(lengths.x),
+	height(lengths.y),
+	depth(lengths.z)
 	{
-		Set(lengths);
-	}
-
-	/*!
-	* \brief Constructs a Box object from two vectors representing point of the space
-	* (X, Y, Z) will be the components minimum of the two vectors and the (width, height, depth) will be the components maximum - minimum
-	*
-	* \param vec1 First point
-	* \param vec2 Second point
-	*/
-
-	template<typename T>
-	Box<T>::Box(const Vector3<T>& vec1, const Vector3<T>& vec2)
-	{
-		Set(vec1, vec2);
 	}
 
 	/*!
@@ -113,9 +103,14 @@ namespace Nz
 
 	template<typename T>
 	template<typename U>
-	Box<T>::Box(const Box<U>& box)
+	Box<T>::Box(const Box<U>& box) :
+	x(static_cast<T>(box.x)),
+	y(static_cast<T>(box.y)),
+	z(static_cast<T>(box.z)),
+	width(static_cast<T>(box.width)),
+	height(static_cast<T>(box.height)),
+	depth(static_cast<T>(box.depth))
 	{
-		Set(box);
 	}
 
 	/*!
@@ -482,179 +477,52 @@ namespace Nz
 
 	/*!
 	* \brief Checks whether this box is valid
-	* \return true if the box has a strictly positive width, height and depth
+	* \return true if the box has a negative or zero width, height and depth
 	*/
+	template<typename T>
+	bool Box<T>::IsNull() const
+	{
+		return width <= T(0.0) && height <= T(0.0) && depth <= T(0.0);
+	}
 
+	/*!
+	* \brief Checks whether this box is valid
+	* \return true if the box has a positive width, height and depth
+	*/
 	template<typename T>
 	bool Box<T>::IsValid() const
 	{
-		return width > T(0.0) && height > T(0.0) && depth > T(0.0);
+		return width >= T(0.0) && height >= T(0.0) && depth >= T(0.0);
 	}
 
 	/*!
-	* \brief Makes the box position (0, 0, 0) and lengths (0, 0, 0)
-	* \return A reference to this box with position (0, 0, 0) and lengths (0, 0, 0)
+	* \brief Multiplies the lengths of this box with the scalar
+	* \return A reference to this box where lengths are the product of these lengths and the scalar
 	*
-	* \see Zero
+	* \param scalar The scalar to multiply width, height and depth with
 	*/
-
 	template<typename T>
-	Box<T>& Box<T>::MakeZero()
+	Box<T>& Box<T>::Scale(T scalar)
 	{
-		x = T(0.0);
-		y = T(0.0);
-		z = T(0.0);
-		width = T(0.0);
-		height = T(0.0);
-		depth = T(0.0);
+		width *= scalar;
+		height *= scalar;
+		depth *= scalar;
 
 		return *this;
 	}
 
 	/*!
-	* \brief Sets the components of the box with width, height and depth
-	* \return A reference to this box
+	* \brief Multiplies the lengths of this box with the vector
+	* \return A reference to this box where width, height and depth are the product of the old width,  height and depth with the vec
 	*
-	* \param Width Width of the box (following X)
-	* \param Height Height of the box (following Y)
-	* \param Depth Depth of the box (following Z)
-	*
-	* \remark Position will be (0, 0, 0)
+	* \param vec The vector where component one multiply width, two height and three depth
 	*/
-
 	template<typename T>
-	Box<T>& Box<T>::Set(T Width, T Height, T Depth)
+	Box<T>& Box<T>::Scale(const Vector3<T>& vec)
 	{
-		x = T(0.0);
-		y = T(0.0);
-		z = T(0.0);
-		width = Width;
-		height = Height;
-		depth = Depth;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Constructs a Box object from its position and sizes
-	*
-	* \param X X component of position
-	* \param Y Y component of position
-	* \param Z Z component of position
-	* \param Width Width of the box (following X)
-	* \param Height Height of the box (following Y)
-	* \param Depth Depth of the box (following Z)
-	*/
-
-	template<typename T>
-	Box<T>& Box<T>::Set(T X, T Y, T Z, T Width, T Height, T Depth)
-	{
-		x = X;
-		y = Y;
-		z = Z;
-		width = Width;
-		height = Height;
-		depth = Depth;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the box from an array of six elements
-	* \return A reference to this box
-	*
-	* \param box[6] box[0] is X position, box[1] is Y position, box[2] is Z position, box[3] is width, box[4] is height and box[5] is depth
-	*/
-
-	template<typename T>
-	Box<T>& Box<T>::Set(const T box[6])
-	{
-		x = box[0];
-		y = box[1];
-		z = box[2];
-		width = box[3];
-		height = box[4];
-		depth = box[5];
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the box with components from a Rect
-	* \return A reference to this box
-	*
-	* \param rect Rectangle which describes (X, Y) position and (width, height) lenghts
-	*
-	* \remark Z position is 0 and depth is 1
-	*/
-
-	template<typename T>
-	Box<T>& Box<T>::Set(const Rect<T>& rect)
-	{
-		x = rect.x;
-		y = rect.y;
-		z = T(0.0);
-		width = rect.width;
-		height = rect.height;
-		depth = T(1.0);
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the box from a vector representing width, height and depth
-	* \return A reference to this box
-	*
-	* \param lengths (Width, Height, depth) of the box
-	*
-	* \remark Position will be (0, 0, 0)
-	*/
-
-	template<typename T>
-	Box<T>& Box<T>::Set(const Vector3<T>& lengths)
-	{
-		return Set(lengths.x, lengths.y, lengths.z);
-	}
-
-	/*!
-	* \brief Sets the components of the box from two vectors representing point of the space
-	* (X, Y, Z) will be the components minimum of the two vectors and the (width, height, depth) will be the components maximum - minimum
-	* \return A reference to this box
-	*
-	* \param vec1 First point
-	* \param vec2 Second point
-	*/
-
-	template<typename T>
-	Box<T>& Box<T>::Set(const Vector3<T>& vec1, const Vector3<T>& vec2)
-	{
-		x = std::min(vec1.x, vec2.x);
-		y = std::min(vec1.y, vec2.y);
-		z = std::min(vec1.z, vec2.z);
-		width = (vec2.x > vec1.x) ? vec2.x - vec1.x : vec1.x - vec2.x;
-		height = (vec2.y > vec1.y) ? vec2.y - vec1.y : vec1.y - vec2.y;
-		depth = (vec2.z > vec1.z) ? vec2.z - vec1.z : vec1.z - vec2.z;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the box from another type of Box
-	* \return A reference to this box
-	*
-	* \param box Box of type U to convert its components
-	*/
-
-	template<typename T>
-	template<typename U>
-	Box<T>& Box<T>::Set(const Box<U>& box)
-	{
-		x = T(box.x);
-		y = T(box.y);
-		z = T(box.z);
-		width = T(box.width);
-		height = T(box.height);
-		depth = T(box.depth);
+		width *= vec.x;
+		height *= vec.y;
+		depth *= vec.z;
 
 		return *this;
 	}
@@ -663,7 +531,6 @@ namespace Nz
 	* \brief Gives a string representation
 	* \return A string representation of the object: "Box(x, y, z, width, height, depth)"
 	*/
-
 	template<typename T>
 	std::string Box<T>::ToString() const
 	{
@@ -691,7 +558,7 @@ namespace Nz
 		             std::abs(matrix(0,1)) * halfSize.x + std::abs(matrix(1,1)) * halfSize.y + std::abs(matrix(2,1)) * halfSize.z,
 		             std::abs(matrix(0,2)) * halfSize.x + std::abs(matrix(1,2)) * halfSize.y + std::abs(matrix(2,2)) * halfSize.z);
 
-		return Set(center - halfSize, center + halfSize);
+		return operator=(Boxf::FromExtends(center - halfSize, center + halfSize));
 	}
 
 	/*!
@@ -738,71 +605,11 @@ namespace Nz
 	*/
 
 	template<typename T>
-	T Box<T>::operator[](std::size_t i) const
+	const T& Box<T>::operator[](std::size_t i) const
 	{
 		NazaraAssert(i < 6, "Index out of range");
 
 		return *(&x+i);
-	}
-
-	/*!
-	* \brief Multiplies the lengths with the scalar
-	* \return A box where the position is the same and width, height and depth are the product of the old width, height and depth and the scalar
-	*
-	* \param scalar The scalar to multiply width, height and depth with
-	*/
-
-	template<typename T>
-	Box<T> Box<T>::operator*(T scalar) const
-	{
-		return Box(x, y, z, width * scalar, height * scalar, depth * scalar);
-	}
-
-	/*!
-	* \brief Multiplies the lengths with the vector
-	* \return A box where the position is the same and width, height and depth are the product of the old width, height and depth with the vec
-	*
-	* \param vec The vector where component one multiply width, two height and three depth
-	*/
-
-	template<typename T>
-	Box<T> Box<T>::operator*(const Vector3<T>& vec) const
-	{
-		return Box(x, y, z, width * vec.x, height * vec.y, depth * vec.z);
-	}
-
-	/*!
-	* \brief Multiplies the lengths of this box with the scalar
-	* \return A reference to this box where lengths are the product of these lengths and the scalar
-	*
-	* \param scalar The scalar to multiply width, height and depth with
-	*/
-
-	template<typename T>
-	Box<T>& Box<T>::operator*=(T scalar)
-	{
-		width *= scalar;
-		height *= scalar;
-		depth *= scalar;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Multiplies the lengths of this box with the vector
-	* \return A reference to this box where width, height and depth are the product of the old width,  height and depth with the vec
-	*
-	* \param vec The vector where component one multiply width, two height and three depth
-	*/
-
-	template<typename T>
-	Box<T>& Box<T>::operator*=(const Vector3<T>& vec)
-	{
-		width *= vec.x;
-		height *= vec.y;
-		depth *= vec.z;
-
-		return *this;
 	}
 
 	/*!
@@ -845,18 +652,33 @@ namespace Nz
 	*
 	* \see Lerp
 	*/
+	template<typename T>
+	Box<T> Box<T>::FromExtends(const Vector3<T>& vec1, const Vector3<T>& vec2)
+	{
+		Box box;
+		box.x = std::min(vec1.x, vec2.x);
+		box.y = std::min(vec1.y, vec2.y);
+		box.z = std::min(vec1.z, vec2.z);
+		box.width = (vec2.x > vec1.x) ? vec2.x - vec1.x : vec1.x - vec2.x;
+		box.height = (vec2.y > vec1.y) ? vec2.y - vec1.y : vec1.y - vec2.y;
+		box.depth = (vec2.z > vec1.z) ? vec2.z - vec1.z : vec1.z - vec2.z;
 
+		return box;
+	}
+
+	/*!
+	* \brief Interpolates the box to other one with a factor of interpolation
+	* \return A new box which is the interpolation of two rectangles
+	*
+	* \param from Initial box
+	* \param to Target box
+	* \param interpolation Factor of interpolation
+	*
+	* \see Lerp
+	*/
 	template<typename T>
 	Box<T> Box<T>::Lerp(const Box& from, const Box& to, T interpolation)
 	{
-		#ifdef NAZARA_DEBUG
-		if (interpolation < T(0.0) || interpolation > T(1.0))
-		{
-			NazaraError("Interpolation must be in range [0..1] (Got " + NumberToString(interpolation) + ')');
-			return Zero();
-		}
-		#endif
-
 		Box box;
 		box.x = Nz::Lerp(from.x, to.x, interpolation);
 		box.y = Nz::Lerp(from.y, to.y, interpolation);
@@ -874,14 +696,22 @@ namespace Nz
 	*
 	* \see MakeZero
 	*/
+	template<typename T>
+	Box<T> Box<T>::Invalid()
+	{
+		return Box(-1, -1, -1, -1, -1, -1);
+	}
 
+	/*!
+	* \brief Shorthand for the box (0, 0, 0, 0, 0, 0)
+	* \return A box with position (0, 0, 0) and lengths (0, 0, 0)
+	*
+	* \see MakeZero
+	*/
 	template<typename T>
 	Box<T> Box<T>::Zero()
 	{
-		Box box;
-		box.MakeZero();
-
-		return box;
+		return Box(Vector3<T>::Zero(), Vector3<T>::Zero());
 	}
 
 	/*!

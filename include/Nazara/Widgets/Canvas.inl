@@ -69,7 +69,7 @@ namespace Nz
 		Nz::Vector3f pos = entry.widget->GetPosition(Nz::CoordSys::Global);
 		Nz::Vector2f size = entry.widget->GetSize();
 
-		entry.box.Set(pos.x, pos.y, pos.z, size.x, size.y, 1.f);
+		entry.box = Boxf(pos.x, pos.y, pos.z, size.x, size.y, 1.f);
 	}
 
 	inline void Canvas::NotifyWidgetCursorUpdate(std::size_t index)

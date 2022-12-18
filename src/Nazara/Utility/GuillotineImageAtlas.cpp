@@ -175,7 +175,7 @@ namespace Nz
 	{
 		std::shared_ptr<Image> newImage = std::make_shared<Image>(ImageType::E2D, PixelFormat::A8, size.x, size.y);
 		if (oldImage)
-			newImage->Copy(static_cast<Image&>(*oldImage), Rectui(Vector2ui(oldImage->GetSize())), Vector2ui(0, 0)); // Copie des anciennes données
+			newImage->Copy(static_cast<Image&>(*oldImage), Rectui(Vector2ui::Zero(), Vector2ui(oldImage->GetSize())), Vector2ui(0, 0)); // Copie des anciennes données
 
 		return newImage;
 	}

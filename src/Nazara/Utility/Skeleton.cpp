@@ -55,12 +55,12 @@ namespace Nz
 			if (jointCount > 0)
 			{
 				Vector3f pos = m_impl->joints[0].GetPosition();
-				m_impl->aabb.Set(pos.x, pos.y, pos.z, 0.f, 0.f, 0.f);
+				m_impl->aabb = Boxf(pos, Vector3f::Zero());
 				for (std::size_t i = 1; i < jointCount; ++i)
 					m_impl->aabb.ExtendTo(m_impl->joints[i].GetPosition());
 			}
 			else
-				m_impl->aabb.MakeZero();
+				m_impl->aabb = Boxf::Zero();
 
 			m_impl->aabbUpdated = true;
 		}

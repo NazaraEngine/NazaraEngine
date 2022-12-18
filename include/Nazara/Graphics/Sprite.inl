@@ -89,8 +89,6 @@ namespace Nz
 
 	inline void Sprite::UpdateVertices()
 	{
-		Boxf aabb(-1.f, -1.f, -1.f);
-
 		VertexStruct_XYZ_Color_UV* vertices = m_vertices.data();
 
 		std::array<Vector2f, RectCornerCount> cornerExtent;
@@ -107,15 +105,10 @@ namespace Nz
 			vertices->position = Vector3f(m_size * cornerExtent[UnderlyingCast(corner)], 0.f) - originShift;
 			vertices->uv = m_textureCoords.GetCorner(corner);
 
-			if (aabb.IsValid())
-				aabb.ExtendTo(vertices->position);
-			else
-				aabb.Set(vertices->position);
-
 			vertices++;
 		}
 
-		UpdateAABB(aabb);
+		UpdateAABB(Rectf(-originShift.x, -originShift.y, m_size.x, m_size.y));
 		OnElementInvalidated(this);
 	}
 }

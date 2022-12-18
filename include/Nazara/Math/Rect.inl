@@ -30,9 +30,12 @@ namespace Nz
 	*/
 
 	template<typename T>
-	Rect<T>::Rect(T Width, T Height)
+	Rect<T>::Rect(T Width, T Height) :
+	x(0),
+	y(0),
+	width(Width),
+	height(Height)
 	{
-		Set(Width, Height);
 	}
 
 	/*!
@@ -43,53 +46,29 @@ namespace Nz
 	* \param Width Width of the rectangle (following X)
 	* \param Height Height of the rectangle (following Y)
 	*/
-
 	template<typename T>
-	Rect<T>::Rect(T X, T Y, T Width, T Height)
+	Rect<T>::Rect(T X, T Y, T Width, T Height) :
+	x(X),
+	y(Y),
+	width(Width),
+	height(Height)
 	{
-		Set(X, Y, Width, Height);
 	}
 
 	/*!
-	* \brief Constructs a Rect object from an array of four elements
+	* \brief Constructs a Rect object from two vector representing position and lengths
 	*
-	* \param vec[4] vec[0] is X position, vec[1] is Y position, vec[2] is width and vec[3] is height
+	* \param pos (X, Y) of the rect
+	* \param lengths (Width, Height) of the rect
 	*/
-
 	template<typename T>
-	Rect<T>::Rect(const T vec[4])
+	Rect<T>::Rect(const Vector2<T>& pos, const Vector2<T>& lengths) :
+	x(pos.x),
+	y(pos.y),
+	width(lengths.x),
+	height(lengths.y)
 	{
-		Set(vec);
 	}
-
-	/*!
-	* \brief Constructs a Rect object from a vector representing width and height
-	*
-	* \param lengths (Width, Height) of the rectangle
-	*
-	* \remark X and Y will be (0, 0)
-	*/
-
-	template<typename T>
-	Rect<T>::Rect(const Vector2<T>& lengths)
-	{
-		Set(lengths);
-	}
-
-	/*!
-	* \brief Constructs a Rect object from two vectors representing point of the space
-	* (X, Y) will be the components minimum of the two vectors and the width and height will be the components maximum - minimum
-	*
-	* \param vec1 First point
-	* \param vec2 Second point
-	*/
-
-	template<typename T>
-	Rect<T>::Rect(const Vector2<T>& vec1, const Vector2<T>& vec2)
-	{
-		Set(vec1, vec2);
-	}
-
 	/*!
 	* \brief Constructs a Rect object from another type of Rect
 	*
@@ -98,9 +77,12 @@ namespace Nz
 
 	template<typename T>
 	template<typename U>
-	Rect<T>::Rect(const Rect<U>& rect)
+	Rect<T>::Rect(const Rect<U>& rect) :
+	x(static_cast<T>(rect.x)),
+	y(static_cast<T>(rect.y)),
+	width(static_cast<T>(rect.width)),
+	height(static_cast<T>(rect.height))
 	{
-		Set(rect);
 	}
 
 	/*!
@@ -128,7 +110,6 @@ namespace Nz
 	*
 	* \see Contains
 	*/
-
 	template<typename T>
 	bool Rect<T>::Contains(const Rect<T>& rect) const
 	{
@@ -144,7 +125,6 @@ namespace Nz
 	*
 	* \see Contains
 	*/
-
 	template<typename T>
 	bool Rect<T>::Contains(const Vector2<T>& point) const
 	{
@@ -160,7 +140,6 @@ namespace Nz
 	*
 	* \see ExtendTo
 	*/
-
 	template<typename T>
 	Rect<T>& Rect<T>::ExtendTo(T X, T Y)
 	{
@@ -184,7 +163,6 @@ namespace Nz
 	*
 	* \see ExtendTo
 	*/
-
 	template<typename T>
 	Rect<T>& Rect<T>::ExtendTo(const Rect& rect)
 	{
@@ -385,13 +363,22 @@ namespace Nz
 
 	/*!
 	* \brief Checks whether this rectangle is valid
-	* \return true if the rectangle has a strictly positive width and height
+	* \return true if the rectangle has a positive width and height
 	*/
+	template<typename T>
+	bool Rect<T>::IsNull() const
+	{
+		return width <= T(0.0) && height <= T(0.0);
+	}
 
+	/*!
+	* \brief Checks whether this rectangle is valid
+	* \return true if the rectangle has a positive width and height
+	*/
 	template<typename T>
 	bool Rect<T>::IsValid() const
 	{
-		return width > T(0.0) && height > T(0.0);
+		return width >= T(0.0) && height >= T(0.0);
 	}
 
 	/*!
@@ -413,115 +400,33 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets the components of the rectangle with width and height
-	* \return A reference to this rectangle
+	* \brief Multiplies the lengths of this rectangle with the scalar
+	* \return A reference to this rectangle where lengths are the product of these lengths and the scalar
 	*
-	* \param Width Width of the rectangle (following X)
-	* \param Height Height of the rectangle (following Y)
-	*
-	* \remark Position will be (0, 0)
+	* \param scalar The scalar to multiply width and height with
 	*/
 
 	template<typename T>
-	Rect<T>& Rect<T>::Set(T Width, T Height)
+	Rect<T>& Rect<T>::Scale(T scalar)
 	{
-		x = T(0.0);
-		y = T(0.0);
-		width = Width;
-		height = Height;
+		width *= scalar;
+		height *= scalar;
 
 		return *this;
 	}
 
 	/*!
-	* \brief Sets the components of the rectangle
-	* \return A reference to this rectangle
+	* \brief Multiplies the lengths of this rectangle with the vector
+	* \return A reference to this rectangle where width and height are the product of the old width and height with the vec
 	*
-	* \param X X position
-	* \param Y Y position
-	* \param Width Width of the rectangle (following X)
-	* \param Height Height of the rectangle (following Y)
+	* \param vec The vector where component one multiply width and two height
 	*/
 
 	template<typename T>
-	Rect<T>& Rect<T>::Set(T X, T Y, T Width, T Height)
+	Rect<T>& Rect<T>::Scale(const Vector2<T>& vec)
 	{
-		x = X;
-		y = Y;
-		width = Width;
-		height = Height;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the rectangle from an array of four elements
-	* \return A reference to this rectangle
-	*
-	* \param rect[4] rect[0] is X position, rect[1] is Y position, rect[2] is width and rect[3] is height
-	*/
-
-	template<typename T>
-	Rect<T>& Rect<T>::Set(const T rect[4])
-	{
-		x = rect[0];
-		y = rect[1];
-		width = rect[2];
-		height = rect[3];
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the rectange from a vector representing width and height
-	* \return A reference to this rectangle
-	*
-	* \param lengths (Width, Height) of the rectangle
-	*
-	* \remark Position will be (0, 0)
-	*/
-
-	template<typename T>
-	Rect<T>& Rect<T>::Set(const Vector2<T>& lengths)
-	{
-		return Set(lengths.x, lengths.y);
-	}
-
-	/*!
-	* \brief Sets a Rect object from two vectors representing point of the space
-	* (X, Y) will be the components minimum of the two vectors and the width and height will be the components maximum - minimum
-	* \return A reference to this rectangle
-	*
-	* \param vec1 First point
-	* \param vec2 Second point
-	*/
-
-	template<typename T>
-	Rect<T>& Rect<T>::Set(const Vector2<T>& vec1, const Vector2<T>& vec2)
-	{
-		x = std::min(vec1.x, vec2.x);
-		y = std::min(vec1.y, vec2.y);
-		width = (vec2.x > vec1.x) ? vec2.x - vec1.x : vec1.x - vec2.x;
-		height = (vec2.y > vec1.y) ? vec2.y - vec1.y : vec1.y - vec2.y;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the rectangle from another type of Rect
-	* \return A reference to this rectangle
-	*
-	* \param rect Rectangle of type U to convert its components
-	*/
-
-	template<typename T>
-	template<typename U>
-	Rect<T>& Rect<T>::Set(const Rect<U>& rect)
-	{
-		x = T(rect.x);
-		y = T(rect.y);
-		width = T(rect.width);
-		height = T(rect.height);
+		width *= vec.x;
+		height *= vec.y;
 
 		return *this;
 	}
@@ -583,127 +488,11 @@ namespace Nz
 	*/
 
 	template<typename T>
-	T Rect<T>::operator[](std::size_t i) const
+	const T& Rect<T>::operator[](std::size_t i) const
 	{
 		NazaraAssert(i < 4, "Index out of range");
 
 		return *(&x+i);
-	}
-
-	/*!
-	* \brief Multiplies the lengths with the scalar
-	* \return A rectangle where the position is the same and width and height are the product of the old width and height and the scalar
-	*
-	* \param scalar The scalar to multiply width and height with
-	*/
-
-	template<typename T>
-	Rect<T> Rect<T>::operator*(T scalar) const
-	{
-		return Rect(x, y, width * scalar, height * scalar);
-	}
-
-	/*!
-	* \brief Multiplies the lengths with the vector
-	* \return A rectangle where the position is the same and width and height are the product of the old width and height with the vec
-	*
-	* \param vec The vector where component one multiply width and two height
-	*/
-
-	template<typename T>
-	Rect<T> Rect<T>::operator*(const Vector2<T>& vec) const
-	{
-		return Rect(x, y, width*vec.x, height*vec.y);
-	}
-
-	/*!
-	* \brief Divides the lengths with the scalar
-	* \return A rectangle where the position is the same and width and height are the quotient of the old width and height and the scalar
-	*
-	* \param scalar The scalar to divide width and height with
-	*/
-
-	template<typename T>
-	Rect<T> Rect<T>::operator/(T scalar) const
-	{
-		return Rect(x, y, width / scalar, height / scalar);
-	}
-
-	/*!
-	* \brief Divides the lengths with the vector
-	* \return A rectangle where the position is the same and width and height are the quotient of the old width and height with the vec
-	*
-	* \param vec The vector where component one divide width and two height
-	*/
-
-	template<typename T>
-	Rect<T> Rect<T>::operator/(const Vector2<T>& vec) const
-	{
-		return Rect(x, y, width/vec.x, height/vec.y);
-	}
-
-	/*!
-	* \brief Multiplies the lengths of this rectangle with the scalar
-	* \return A reference to this rectangle where lengths are the product of these lengths and the scalar
-	*
-	* \param scalar The scalar to multiply width and height with
-	*/
-
-	template<typename T>
-	Rect<T>& Rect<T>::operator*=(T scalar)
-	{
-		width *= scalar;
-		height *= scalar;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Multiplies the lengths of this rectangle with the vector
-	* \return A reference to this rectangle where width and height are the product of the old width and height with the vec
-	*
-	* \param vec The vector where component one multiply width and two height
-	*/
-
-	template<typename T>
-	Rect<T>& Rect<T>::operator*=(const Vector2<T>& vec)
-	{
-		width *= vec.x;
-		height *= vec.y;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Divides the lengths of this rectangle with the scalar
-	* \return A reference to this rectangle where lengths are the quotient of these lengths and the scalar
-	*
-	* \param scalar The scalar to divide width and height with
-	*/
-
-	template<typename T>
-	Rect<T>& Rect<T>::operator/=(T scalar)
-	{
-		width /= scalar;
-		height /= scalar;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Divives the lengths of this rectangle with the vector
-	* \return A reference to this rectangle where width and height are the quotient of the old width and height with the vec
-	*
-	* \param vec The vector where component one divide width and two height
-	*/
-
-	template<typename T>
-	Rect<T>& Rect<T>::operator/=(const Vector2<T>& vec)
-	{
-		width /= vec.x;
-		height /= vec.y;
-
-		return *this;
 	}
 
 	/*!
@@ -734,6 +523,26 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Sets a Rect object from two vectors representing point of the space
+	* (X, Y) will be the components minimum of the two vectors and the width and height will be the components maximum - minimum
+	* \return A reference to this rectangle
+	*
+	* \param vec1 First point
+	* \param vec2 Second point
+	*/
+	template<typename T>
+	Rect<T> Rect<T>::FromExtends(const Vector2<T>& vec1, const Vector2<T>& vec2)
+	{
+		Rect rect;
+		rect.x = std::min(vec1.x, vec2.x);
+		rect.y = std::min(vec1.y, vec2.y);
+		rect.width = (vec2.x > vec1.x) ? vec2.x - vec1.x : vec1.x - vec2.x;
+		rect.height = (vec2.y > vec1.y) ? vec2.y - vec1.y : vec1.y - vec2.y;
+
+		return rect;
+	}
+
+	/*!
 	* \brief Interpolates the rectangle to other one with a factor of interpolation
 	* \return A new rectangle which is the interpolation of two rectangles
 	*
@@ -741,23 +550,11 @@ namespace Nz
 	* \param to Target rectangle
 	* \param interpolation Factor of interpolation
 	*
-	* \remark interpolation is meant to be between 0 and 1, other values are potentially undefined behavior
-	* \remark With NAZARA_DEBUG, a NazaraError is thrown and Zero() is returned
-	*
 	* \see Lerp
 	*/
-
 	template<typename T>
 	Rect<T> Rect<T>::Lerp(const Rect& from, const Rect& to, T interpolation)
 	{
-		#ifdef NAZARA_DEBUG
-		if (interpolation < T(0.0) || interpolation > T(1.0))
-		{
-			NazaraError("Interpolation must be in range [0..1] (Got " + NumberToString(interpolation) + ')');
-			return Zero();
-		}
-		#endif
-
 		Rect rect;
 		rect.x = Nz::Lerp(from.x, to.x, interpolation);
 		rect.y = Nz::Lerp(from.y, to.y, interpolation);
@@ -773,14 +570,22 @@ namespace Nz
 	*
 	* \see MakeZero
 	*/
+	template<typename T>
+	Rect<T> Rect<T>::Invalid()
+	{
+		return Rect(-1, -1, -1, -1);
+	}
 
+	/*!
+	* \brief Shorthand for the rectangle (0, 0, 0, 0)
+	* \return A rectangle with position (0, 0) and lengths (0, 0)
+	*
+	* \see MakeZero
+	*/
 	template<typename T>
 	Rect<T> Rect<T>::Zero()
 	{
-		Rect rect;
-		rect.MakeZero();
-
-		return rect;
+		return Rect(0, 0, 0, 0);
 	}
 
 	/*!

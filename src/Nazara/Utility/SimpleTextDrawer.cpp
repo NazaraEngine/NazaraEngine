@@ -153,7 +153,7 @@ namespace Nz
 			glyph.flipped = fontGlyph.flipped;
 			glyph.renderOrder = renderOrder;
 
-			glyph.bounds.Set(fontGlyph.aabb);
+			glyph.bounds = Rectf(fontGlyph.aabb);
 
 			if (lineWrap && ShouldLineWrap(glyph.bounds.width))
 				AppendNewLine(m_lastSeparatorGlyph, m_lastSeparatorPosition);
@@ -245,7 +245,7 @@ namespace Nz
 					AppendNewLine(m_lastSeparatorGlyph, m_lastSeparatorPosition);
 
 				glyph.atlas = nullptr;
-				glyph.bounds.Set(m_drawPos.x, m_lines.back().bounds.y, advance, GetLineHeight(sizeInfo));
+				glyph.bounds = Rectf(m_drawPos.x, m_lines.back().bounds.y, advance, GetLineHeight(sizeInfo));
 
 				glyph.corners[0].Set(glyph.bounds.GetCorner(RectCorner::LeftTop));
 				glyph.corners[1].Set(glyph.bounds.GetCorner(RectCorner::RightTop));

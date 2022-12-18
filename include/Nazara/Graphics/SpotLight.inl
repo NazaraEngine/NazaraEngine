@@ -140,7 +140,7 @@ namespace Nz
 	inline void SpotLight::UpdateBoundingVolume()
 	{
 		// We make a box center in the origin
-		Boxf box(Vector3f::Zero());
+		Boxf box = Boxf::Zero();
 
 		// We compute the other points
 		Vector3f base(Vector3f::Forward() * m_radius);

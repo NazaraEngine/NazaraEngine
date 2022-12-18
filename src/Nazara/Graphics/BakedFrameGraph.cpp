@@ -224,7 +224,7 @@ namespace Nz
 				framebufferHeight = std::min(framebufferHeight, height);
 			}
 
-			passData.renderRect.Set(0, 0, int(framebufferWidth), int(framebufferHeight));
+			passData.renderRect = Recti(0, 0, int(framebufferWidth), int(framebufferHeight));
 
 			passData.framebuffer = renderDevice->InstantiateFramebuffer(framebufferWidth, framebufferHeight, passData.renderPass, textures);
 			if (!passData.name.empty())

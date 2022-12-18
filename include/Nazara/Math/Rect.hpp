@@ -22,9 +22,7 @@ namespace Nz
 			Rect() = default;
 			Rect(T Width, T Height);
 			Rect(T X, T Y, T Width, T Height);
-			Rect(const T rect[4]);
-			Rect(const Vector2<T>& lengths);
-			Rect(const Vector2<T>& vec1, const Vector2<T>& vec2);
+			explicit Rect(const Vector2<T>& vec1, const Vector2<T>& vec2);
 			template<typename U> explicit Rect(const Rect<U>& rect);
 			Rect(const Rect& rect) = default;
 			~Rect() = default;
@@ -48,39 +46,30 @@ namespace Nz
 
 			bool Intersect(const Rect& rect, Rect* intersection = nullptr) const;
 
+			bool IsNull() const;
 			bool IsValid() const;
 
 			Rect& MakeZero();
 
-			Rect& Set(T Width, T Height);
-			Rect& Set(T X, T Y, T Width, T Height);
-			Rect& Set(const T rect[4]);
-			Rect& Set(const Vector2<T>& lengths);
-			Rect& Set(const Vector2<T>& vec1, const Vector2<T>& vec2);
-			template<typename U> Rect& Set(const Rect<U>& rect);
+			Rect& Scale(T scalar);
+			Rect& Scale(const Vector2<T>& vec);
 
 			std::string ToString() const;
 
 			Rect& Translate(const Vector2<T>& translation);
 
 			T& operator[](std::size_t i);
-			T operator[](std::size_t i) const;
+			const T& operator[](std::size_t i) const;
 
-			Rect operator*(T scalar) const;
-			Rect operator*(const Vector2<T>& vec) const;
-			Rect operator/(T scalar) const;
-			Rect operator/(const Vector2<T>& vec) const;
-			Rect& operator=(const Rect& other) = default;
-
-			Rect& operator*=(T scalar);
-			Rect& operator*=(const Vector2<T>& vec);
-			Rect& operator/=(T scalar);
-			Rect& operator/=(const Vector2<T>& vec);
+			Rect& operator=(const Rect&) = default;
+			Rect& operator=(Rect&&) = default;
 
 			bool operator==(const Rect& rect) const;
 			bool operator!=(const Rect& rect) const;
 
+			static Rect FromExtends(const Vector2<T>& vec1, const Vector2<T>& vec2);
 			static Rect Lerp(const Rect& from, const Rect& to, T interpolation);
+			static Rect Invalid();
 			static Rect Zero();
 
 			T x, y, width, height;

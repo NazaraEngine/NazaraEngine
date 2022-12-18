@@ -225,7 +225,7 @@ namespace Nz
 
 		Boxf aabb(-halfLengths.x, -halfLengths.y, -halfLengths.z, m_lengths.x, m_lengths.y, m_lengths.z);
 		aabb.Transform(offsetMatrix, true);
-		aabb *= scale;
+		aabb.Scale(scale);
 
 		return aabb;
 	}

@@ -15,7 +15,7 @@ namespace Nz
 {
 
 	/*!
-    * \ingroup math
+	* \ingroup math
 	* \class Nz::BoundingVolume
 	* \brief Math class that represents a bounding volume, a combination of a box and an oriented box
 	*
@@ -396,7 +396,7 @@ namespace Nz
 	{
 		obb.Update(transformMatrix);
 
-		aabb.Set(obb(0), obb(1));
+		aabb = Boxf::FromExtends(obb(0), obb(1));
 		for (unsigned int i = 2; i < 8; ++i)
 			aabb.ExtendTo(obb(i));
 	}
@@ -412,7 +412,7 @@ namespace Nz
 	{
 		obb.Update(translation);
 
-		aabb.Set(obb(0), obb(1));
+		aabb = Boxf::FromExtends(obb(0), obb(1));
 		for (unsigned int i = 2; i < 8; ++i)
 			aabb.ExtendTo(obb(i));
 	}

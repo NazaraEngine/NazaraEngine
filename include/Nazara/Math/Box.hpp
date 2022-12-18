@@ -25,10 +25,8 @@ namespace Nz
 			Box() = default;
 			Box(T Width, T Height, T Depth);
 			Box(T X, T Y, T Z, T Width, T Height, T Depth);
-			Box(const T box[6]);
 			Box(const Rect<T>& rect);
-			Box(const Vector3<T>& lengths);
-			Box(const Vector3<T>& vec1, const Vector3<T>& vec2);
+			explicit Box(const Vector3<T>& pos, const Vector3<T>& lengths);
 			template<typename U> explicit Box(const Box<U>& box);
 			Box(const Box& box) = default;
 			~Box() = default;
@@ -56,17 +54,11 @@ namespace Nz
 
 			bool Intersect(const Box& box, Box* intersection = nullptr) const;
 
+			bool IsNull() const;
 			bool IsValid() const;
 
-			Box& MakeZero();
-
-			Box& Set(T Width, T Height, T Depth);
-			Box& Set(T X, T Y, T Z, T Width, T Height, T Depth);
-			Box& Set(const T box[6]);
-			Box& Set(const Rect<T>& rect);
-			Box& Set(const Vector3<T>& lengths);
-			Box& Set(const Vector3<T>& vec1, const Vector3<T>& vec2);
-			template<typename U> Box& Set(const Box<U>& box);
+			Box& Scale(T scalar);
+			Box& Scale(const Vector3<T>& vec);
 
 			std::string ToString() const;
 
@@ -74,19 +66,17 @@ namespace Nz
 			Box& Translate(const Vector3<T>& translation);
 
 			T& operator[](std::size_t i);
-			T operator[](std::size_t i) const;
+			const T& operator[](std::size_t i) const;
 
-			Box operator*(T scalar) const;
-			Box operator*(const Vector3<T>& vec) const;
-			Box& operator=(const Box& other) = default;
-
-			Box& operator*=(T scalar);
-			Box& operator*=(const Vector3<T>& vec);
+			Box& operator=(const Box&) = default;
+			Box& operator=(Box&&) = default;
 
 			bool operator==(const Box& box) const;
 			bool operator!=(const Box& box) const;
 
+			static Box FromExtends(const Vector3<T>& vec1, const Vector3<T>& vec2);
 			static Box Lerp(const Box& from, const Box& to, T interpolation);
+			static Box Invalid();
 			static Box Zero();
 
 			T x, y, z, width, height, depth;

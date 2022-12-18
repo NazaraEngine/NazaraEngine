@@ -54,11 +54,6 @@ namespace Nz
 				NazaraSlot(AbstractAtlas, OnAtlasRelease, releaseSlot);
 			};
 
-			struct RenderData
-			{
-
-			};
-
 			struct RenderKey
 			{
 				Texture* texture;
@@ -93,9 +88,7 @@ namespace Nz
 			std::unordered_map<const AbstractAtlas*, AtlasSlots> m_atlases;
 			mutable std::unordered_map<RenderKey, RenderIndices, HashRenderKey> m_renderInfos;
 			std::shared_ptr<MaterialInstance> m_material;
-			std::vector<RenderData> m_data;
 			std::vector<VertexStruct_XYZ_Color_UV> m_vertices;
-			Recti m_scissorBox;
 	};
 }
 

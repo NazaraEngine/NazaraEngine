@@ -238,7 +238,7 @@ namespace Nz
 		m_aspectRatio = fViewport.width / fViewport.height;
 
 		// Convert it back to int
-		m_viewport.Set(fViewport);
+		m_viewport = Recti(fViewport);
 
 		m_viewerInstance.UpdateTargetSize(fViewport.GetLengths());
 

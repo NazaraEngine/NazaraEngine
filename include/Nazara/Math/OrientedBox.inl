@@ -14,7 +14,7 @@
 namespace Nz
 {
 	/*!
-    * \ingroup math
+	* \ingroup math
 	* \class Nz::OrientedBox
 	* \brief Math class that represents an oriented three dimensional box
 	*
@@ -164,7 +164,7 @@ namespace Nz
 	template<typename T>
 	OrientedBox<T>& OrientedBox<T>::Set(const Box<T>& box)
 	{
-		localBox.Set(box);
+		localBox = box;
 
 		return *this;
 	}

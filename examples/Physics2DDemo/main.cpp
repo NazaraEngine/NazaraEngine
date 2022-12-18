@@ -49,7 +49,7 @@ int main()
 	std::string windowTitle = "Graphics Test";
 	Nz::RenderWindow& window = renderSystem.CreateWindow(device, Nz::VideoMode(1920, 1080), windowTitle);
 
-	Nz::Vector2ui windowSize = window.GetSize();
+	Nz::Vector2f windowSize = Nz::Vector2f(window.GetSize());
 
 	physSytem.GetPhysWorld().SetGravity({ 0.f, -98.1f });
 

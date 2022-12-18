@@ -47,13 +47,13 @@ namespace Nz
 				{
 				}
 
-				void Generate(float size, unsigned int recursionLevel, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb, unsigned int indexOffset)
+				void Generate(float radius, unsigned int recursionLevel, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb, unsigned int indexOffset)
 				{
 					// Grandement inspiré de http://blog.andreaskahler.com/2009/06/creating-icosphere-mesh-in-code.html
 					const float t = (1.f + 2.236067f)/2.f;
 
 					m_cache.clear();
-					m_size = size;
+					m_size = radius;
 					m_vertices = vertexPointers;
 					m_vertexIndex = 0;
 
@@ -133,8 +133,8 @@ namespace Nz
 
 					if (aabb)
 					{
-						Vector3f totalSize = size * m_matrix.GetScale();
-						aabb->Set(-totalSize, totalSize);
+						Vector3f halfSize = radius * m_matrix.GetScale() * 0.5f;
+						*aabb = Boxf::FromExtends(-halfSize, halfSize);
 					}
 				}
 
@@ -638,14 +638,14 @@ namespace Nz
 		Boxf aabb;
 		if (vertexCount > 0)
 		{
-			aabb.Set(positionPtr->x, positionPtr->y, positionPtr->z, 0.f, 0.f, 0.f);
+			aabb = Boxf(positionPtr->x, positionPtr->y, positionPtr->z, 0.f, 0.f, 0.f);
 			++positionPtr;
 
 			for (UInt32 i = 1; i < vertexCount; ++i)
 				aabb.ExtendTo(*positionPtr++);
 		}
 		else
-			aabb.MakeZero();
+			aabb = Boxf::Zero();
 
 		return aabb;
 	}
@@ -850,7 +850,7 @@ namespace Nz
 
 		if (aabb)
 		{
-			aabb->Set(-halfLengths, halfLengths);
+			*aabb = Boxf::FromExtends(-halfLengths, halfLengths);
 			aabb->Transform(matrix, false);
 		}
 	}
@@ -886,7 +886,7 @@ namespace Nz
 
 		if (aabb)
 		{
-			aabb->MakeZero();
+			*aabb = Boxf::Zero();
 
 			// On calcule le reste des points
 			Vector3f base(Vector3f::Down()*length);
@@ -914,8 +914,8 @@ namespace Nz
 
 		if (aabb)
 		{
-			Vector3f totalSize = size * matrix.GetScale();
-			aabb->Set(-totalSize, totalSize);
+			Vector3f halfSize = size * matrix.GetScale() * 0.5f;
+			*aabb = Boxf::FromExtends(-halfSize, halfSize);
 		}
 
 		for (unsigned int i = 0; i < vertexCount; ++i)
@@ -995,10 +995,10 @@ namespace Nz
 		}
 
 		if (aabb)
-			aabb->Set(matrix.Transform(Vector3f(-halfSizeX, 0.f, -halfSizeY), 0.f), matrix.Transform(Vector3f(halfSizeX, 0.f, halfSizeY), 0.f));
+			*aabb = Boxf::FromExtends(matrix.Transform(Vector3f(-halfSizeX, 0.f, -halfSizeY), 0.f), matrix.Transform(Vector3f(halfSizeX, 0.f, halfSizeY), 0.f));
 	}
 
-	void GenerateUvSphere(float size, unsigned int sliceCount, unsigned int stackCount, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb, UInt32 indexOffset)
+	void GenerateUvSphere(float radius, unsigned int sliceCount, unsigned int stackCount, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb, UInt32 indexOffset)
 	{
 		// http://stackoverflow.com/questions/14080932/implementing-opengl-sphere-example-code
 		float invSliceCount = 1.f / (sliceCount-1);
@@ -1024,7 +1024,7 @@ namespace Nz
 				normal.x = sincos.second * sinStackValPi;
 				normal.z = sincos.first * sinStackValPi;
 
-				*vertexPointers.positionPtr++ = matrix.Transform(size * normal);
+				*vertexPointers.positionPtr++ = matrix.Transform(radius * normal);
 
 				if (vertexPointers.normalPtr)
 					*vertexPointers.normalPtr++ = matrix.Transform(normal, 0.f);
@@ -1047,8 +1047,8 @@ namespace Nz
 
 		if (aabb)
 		{
-			Vector3f totalSize = size * matrix.GetScale();
-			aabb->Set(-totalSize, totalSize);
+			Vector3f halfSize = radius * matrix.GetScale();
+			*aabb = Boxf::FromExtends(-halfSize, halfSize);
 		}
 	}
 

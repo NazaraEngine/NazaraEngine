@@ -9,7 +9,7 @@ namespace Nz
 {
 	inline bool AbstractImage::Update(const void* pixels, unsigned int srcWidth, unsigned int srcHeight, UInt8 level)
 	{
-		return Update(pixels, GetSize(level), srcWidth, srcHeight, level);
+		return Update(pixels, Boxui(Vector3ui::Zero(), GetSize(level)), srcWidth, srcHeight, level);
 	}
 
 	inline bool AbstractImage::Update(const void* pixels, const Rectui& rect, unsigned int z, unsigned int srcWidth, unsigned int srcHeight, UInt8 level)

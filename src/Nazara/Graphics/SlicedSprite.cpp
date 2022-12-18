@@ -159,7 +159,7 @@ namespace Nz
 			for (std::size_t i = 0; i < vertexCount; ++i)
 				m_vertices[i].uv.y = m_textureCoords.height - m_vertices[i].uv.y;
 
-			aabb.Set(m_vertices[0].position);
+			aabb = Boxf(m_vertices[0].position, Vector2f::Zero());
 			for (std::size_t i = 1; i < vertexCount; ++i)
 				aabb.ExtendTo(m_vertices[i].position);
 		}
