@@ -309,44 +309,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Checks whether or not this ray intersects with the OrientedBox
-	* \return true if it intersects
-	*
-	* \param orientedBox OrientedBox to check
-	* \param closestHit Optional argument to get the closest parameter where the intersection is only if it happened
-	* \param furthestHit Optional argument to get the furthest parameter where the intersection is only if it happened
-	*
-	* \see Intersect
-	*/
-
-	template<typename T>
-	bool Ray<T>::Intersect(const OrientedBox<T>& orientedBox, T* closestHit, T* furthestHit) const
-	{
-		Vector3<T> corner = orientedBox.GetCorner(BoxCorner::FarLeftBottom);
-		Vector3<T> oppositeCorner = orientedBox.GetCorner(BoxCorner::NearRightTop);
-
-		Vector3<T> width = (orientedBox.GetCorner(BoxCorner::NearLeftBottom) - corner);
-		Vector3<T> height = (orientedBox.GetCorner(BoxCorner::FarLeftTop) - corner);
-		Vector3<T> depth = (orientedBox.GetCorner(BoxCorner::FarRightBottom) - corner);
-
-		// Construction de la matrice de transformation de l'OBB
-		Matrix4<T> matrix(width.x, height.x, depth.x, corner.x,
-		                  width.y, height.y, depth.y, corner.y,
-		                  width.z, height.z, depth.z, corner.z,
-		                  T(0.0),  T(0.0),   T(0.0),  T(1.0));
-
-		matrix.InverseTransform();
-
-		corner = matrix.Transform(corner);
-		oppositeCorner = matrix.Transform(oppositeCorner);
-
-		Box<T> tmpBox(corner, oppositeCorner);
-		Ray<T> tmpRay(matrix.Transform(origin), matrix.Transform(direction));
-
-		return tmpRay.Intersect(tmpBox, closestHit, furthestHit);
-	}
-
-	/*!
 	* \brief Checks whether or not this ray intersects with the plane
 	* \return true if it intersects
 	*

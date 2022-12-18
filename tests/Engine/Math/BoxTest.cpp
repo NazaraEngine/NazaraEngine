@@ -17,15 +17,17 @@ SCENARIO("Box", "[MATH][BOX]")
 			THEN("They should stay the same")
 			{
 				REQUIRE(firstZero == secondZero);
-				CHECK(!firstZero.IsValid());
-				CHECK(!secondZero.IsValid());
+				CHECK(firstZero.IsValid());
+				CHECK(firstZero.IsNull());
+				CHECK(secondZero.IsValid());
+				CHECK(secondZero.IsNull());
 			}
 		}
 	}
 
 	GIVEN("Two unit and center boxes")
 	{
-		Nz::Boxf firstCenterAndUnit(Nz::Rectf(Nz::Vector2f::Zero(), Nz::Vector2f::Unit()));
+		Nz::Boxf firstCenterAndUnit(Nz::Vector3f::Zero(), Nz::Vector3f::Unit());
 		Nz::Boxf secondCenterAndUnit(1.f, 1.f, 1.f);
 
 		WHEN("We ask for some informations")
@@ -91,8 +93,8 @@ SCENARIO("Box", "[MATH][BOX]")
 
 	GIVEN("Two wrong box (negative width, height and depth")
 	{
-		Nz::Boxf firstWrongBox = Nz::Boxf::Invalid();
-		Nz::Boxf secondWrongBox = Nz::Boxf::Invalid();
+		Nz::Boxf firstWrongBox(-Nz::Vector3f::Unit());
+		Nz::Boxf secondWrongBox(-Nz::Vector3f::Unit());
 
 		WHEN("We check if valid")
 		{
@@ -121,8 +123,8 @@ SCENARIO("Box", "[MATH][BOX]")
 					CHECK(firstWrongBox.Contains(0.f, 0.f, 0.f));
 					CHECK(secondWrongBox.Contains(0.f, 0.f, 0.f));
 
-					secondWrongBox = secondWrongBox.Lerp(Nz::Boxf::Zero(), secondWrongBox, 0.f); // Zeroed
-					secondWrongBox.ExtendTo(Nz::Boxf(Nz::Vector3f(0.1f, 0.1f, 0.1f), Nz::Vector3f(0.9f, 0.9f, 0.9f)));
+					secondWrongBox = Nz::Boxf::Lerp(Nz::Boxf::Zero(), secondWrongBox, 0.f); // Zeroed
+					secondWrongBox.ExtendTo(Nz::Boxf::FromExtends(Nz::Vector3f(0.1f, 0.1f, 0.1f), Nz::Vector3f(0.9f, 0.9f, 0.9f)));
 					secondWrongBox.Translate(Nz::Vector3f(0.05f, 0.05f, 0.05f)); // Box 0.15 to 0.95
 					CHECK(firstWrongBox.Contains(secondWrongBox));
 

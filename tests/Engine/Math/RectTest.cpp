@@ -7,7 +7,7 @@ SCENARIO("Rect", "[MATH][RECT]")
 	GIVEN("Two same Nz::Rectangles center and unit lengths")
 	{
 		Nz::Rectf firstCenterAndUnit(0.f, 0.f, 1.f, 1.f);
-		Nz::Rectf secondCenterAndUnit(Nz::Recti(Nz::Vector2i::Unit(), Nz::Vector2i::Zero()));
+		Nz::Rectf secondCenterAndUnit(Nz::Recti::FromExtends(Nz::Vector2i::Unit(), Nz::Vector2i::Zero()));
 
 		WHEN("We ask if they are the same")
 		{
@@ -32,11 +32,11 @@ SCENARIO("Rect", "[MATH][RECT]")
 			}
 		}
 
-		WHEN("We make an empty")
+		WHEN("We make it empty")
 		{
 			THEN("It's not valid")
 			{
-				CHECK(!(firstCenterAndUnit.Scale(0.f)).IsValid());
+				CHECK(firstCenterAndUnit.Scale(0.f).IsNull());
 			}
 		}
 

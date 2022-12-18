@@ -51,7 +51,7 @@ SCENARIO("Sphere", "[MATH][SPHERE]")
 
 		WHEN("We get sphere from box unit and center")
 		{
-			Nz::Boxf centerUnitBox(Nz::Vector3f::Unit() * -0.5f, Nz::Vector3f::Unit() * 0.5f);
+			Nz::Boxf centerUnitBox = Nz::Boxf::FromExtends(Nz::Vector3f::Unit() * -0.5f, Nz::Vector3f::Unit() * 0.5f);
 
 			THEN("This is equal to sphere center and radius 0.75")
 			{

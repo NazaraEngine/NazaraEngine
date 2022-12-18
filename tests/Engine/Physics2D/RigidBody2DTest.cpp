@@ -310,7 +310,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 		{
 			THEN("We expect this to be true")
 			{
-				Nz::Rectf segmentAABB(positionA, positionB);
+				Nz::Rectf segmentAABB = Nz::Rectf::FromExtends(positionA, positionB);
 				REQUIRE(body.GetAABB() == segmentAABB);
 			}
 		}
