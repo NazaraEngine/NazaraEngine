@@ -11,9 +11,9 @@
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
+#include <Nazara/Utils/Bitset.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
 #include <memory>
-#include <set>
 
 namespace Nz
 {
@@ -71,12 +71,14 @@ namespace Nz
 		private:
 			Vector3ui GetTextureSize(std::size_t matIndex) const;
 			inline void InvalidateVertices();
+			void UpdateAABB();
 			void UpdateVertices() const;
 
 			struct Layer
 			{
-				std::set<std::size_t> tiles;
 				std::shared_ptr<MaterialInstance> material;
+				Bitset<UInt64> enabledTiles;
+				std::size_t enabledTileCount = 0; //< cached bitset popcount
 			};
 
 			mutable std::vector<VertexStruct_XYZ_Color_UV> m_vertices;

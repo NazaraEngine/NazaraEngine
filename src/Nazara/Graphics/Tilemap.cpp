@@ -38,6 +38,8 @@ namespace Nz
 		std::shared_ptr<MaterialInstance> defaultMaterialInstance = Graphics::Instance()->GetDefaultMaterials().basicDefault;
 		for (auto& layer : m_layers)
 			layer.material = defaultMaterialInstance;
+
+		UpdateAABB();
 	}
 
 	void Tilemap::BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, std::vector<RenderElementOwner>& elements) const
@@ -58,7 +60,7 @@ namespace Nz
 		for (std::size_t layerIndex = 0; layerIndex < m_layers.size(); ++layerIndex)
 		{
 			const auto& layer = m_layers[layerIndex];
-			if (layer.tiles.empty())
+			if (!layer.enabledTiles.TestAny())
 				continue;
 
 			const auto& materialPipeline = layer.material->GetPipeline(passIndex);
@@ -69,7 +71,7 @@ namespace Nz
 
 			const auto& renderPipeline = materialPipeline->GetRenderPipeline(&vertexBufferData, 1);
 
-			std::size_t spriteCount = layer.tiles.size();
+			std::size_t spriteCount = layer.enabledTileCount;
 			elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer(), layer.material, passFlags, renderPipeline, *elementData.worldInstance, vertexDeclaration, whiteTexture, spriteCount, vertices, *elementData.scissorBox));
 
 			vertices += 4 * spriteCount;
@@ -114,22 +116,27 @@ namespace Nz
 
 	void Tilemap::UpdateVertices() const
 	{
+		std::array<Vector2f, RectCornerCount> cornerExtent;
+		cornerExtent[UnderlyingCast(RectCorner::LeftBottom)] = Vector2f(0.f, 0.f);
+		cornerExtent[UnderlyingCast(RectCorner::RightBottom)] = Vector2f(1.f, 0.f);
+		cornerExtent[UnderlyingCast(RectCorner::LeftTop)] = Vector2f(0.f, 1.f);
+		cornerExtent[UnderlyingCast(RectCorner::RightTop)] = Vector2f(1.f, 1.f);
+
 		std::size_t spriteCount = 0;
 		for (const Layer& layer : m_layers)
-			spriteCount += layer.tiles.size();
+			spriteCount += layer.enabledTileCount;
 
 		m_vertices.resize(spriteCount * 4);
-		VertexStruct_XYZ_Color_UV* vertexPtr = reinterpret_cast<VertexStruct_XYZ_Color_UV*>(m_vertices.data());
+		VertexStruct_XYZ_Color_UV* vertexPtr = m_vertices.data();
 
 		float topCorner = m_tileSize.y * (m_mapSize.y - 1);
-		Vector3f originShift = m_origin * GetSize();
+		Vector2f originShift = m_origin * GetSize();
 
 		for (const Layer& layer : m_layers)
 		{
-			for (std::size_t tileIndex : layer.tiles)
+			for (std::size_t tileIndex = layer.enabledTiles.FindFirst(); tileIndex != layer.enabledTiles.npos; tileIndex = layer.enabledTiles.FindNext(tileIndex))
 			{
 				const Tile& tile = m_tiles[tileIndex];
-				NazaraAssert(tile.enabled, "Tile specified for rendering is not enabled");
 
 				std::size_t x = tileIndex % m_mapSize.x;
 				std::size_t y = tileIndex / m_mapSize.x;
@@ -140,17 +147,12 @@ namespace Nz
 				else
 					tileLeftBottom.Set(x * m_tileSize.x, topCorner - y * m_tileSize.y, 0.f);
 
-				std::array<Vector2f, RectCornerCount> cornerExtent;
-				cornerExtent[UnderlyingCast(RectCorner::LeftBottom)] = Vector2f(0.f, 0.f);
-				cornerExtent[UnderlyingCast(RectCorner::RightBottom)] = Vector2f(1.f, 0.f);
-				cornerExtent[UnderlyingCast(RectCorner::LeftTop)] = Vector2f(0.f, 1.f);
-				cornerExtent[UnderlyingCast(RectCorner::RightTop)] = Vector2f(1.f, 1.f);
-
 				for (RectCorner corner : { RectCorner::LeftBottom, RectCorner::RightBottom, RectCorner::LeftTop, RectCorner::RightTop })
 				{
 					vertexPtr->color = tile.color;
-					vertexPtr->position = tileLeftBottom + Vector3f(m_tileSize * cornerExtent[UnderlyingCast(corner)], 0.f) - originShift;
+					vertexPtr->position = tileLeftBottom + Vector3f(m_tileSize * cornerExtent[UnderlyingCast(corner)] - originShift, 0.f);
 					vertexPtr->uv = tile.textureCoords.GetCorner(corner);
+
 					++vertexPtr;
 				}
 			}

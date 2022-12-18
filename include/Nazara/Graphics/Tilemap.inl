@@ -20,9 +20,14 @@ namespace Nz
 
 		std::size_t tileIndex = tilePos.y * m_mapSize.x + tilePos.x;
 		Tile& tile = m_tiles[tileIndex];
-		tile.enabled = false;
+		if (tile.enabled)
+		{
+			tile.enabled = false;
 
-		m_layers[tile.layerIndex].tiles.erase(tileIndex);
+			Layer& layer = m_layers[tile.layerIndex];
+			layer.enabledTiles.Reset(tileIndex);
+			layer.enabledTileCount = layer.enabledTiles.Count();
+		}
 
 		InvalidateVertices();
 	}
@@ -36,7 +41,10 @@ namespace Nz
 			tile.enabled = false;
 
 		for (Layer& layer : m_layers)
-			layer.tiles.clear();
+		{
+			layer.enabledTiles.Reset();
+			layer.enabledTileCount = 0;
+		}
 
 		InvalidateVertices();
 	}
@@ -57,22 +65,26 @@ namespace Nz
 	{
 		NazaraAssert(tilesPos || tileCount == 0, "Invalid tile position array with a non-zero tileCount");
 
-		UInt32 invalidatedLayers = 0;
-
 		for (std::size_t i = 0; i < tileCount; ++i)
 		{
 			NazaraAssert(tilesPos->x < m_mapSize.x&& tilesPos->y < m_mapSize.y, "Tile position is out of bounds");
 
 			std::size_t tileIndex = tilesPos->y * m_mapSize.x + tilesPos->x;
 			Tile& tile = m_tiles[tileIndex];
-			tile.enabled = false;
 
-			m_layers[tile.layerIndex].tiles.erase(tileIndex);
+			if (tile.enabled)
+			{
+				tile.enabled = false;
 
-			invalidatedLayers |= 1U << tile.layerIndex;
+				Layer& layer = m_layers[tile.layerIndex];
+				layer.enabledTiles.Reset(tileIndex);
+			}
 
 			tilesPos++;
 		}
+
+		for (Layer& layer : m_layers)
+			layer.enabledTileCount = layer.enabledTiles.Count();
 
 		if (tileCount > 0)
 			InvalidateVertices();
@@ -111,19 +123,25 @@ namespace Nz
 		NazaraAssert(tilePos.x < m_mapSize.x&& tilePos.y < m_mapSize.y, "Tile position is out of bounds");
 		NazaraAssert(materialIndex < m_layers.size(), "Material out of bounds");
 
-		UInt32 invalidatedLayers = 1U << materialIndex;
-
 		std::size_t tileIndex = tilePos.y * m_mapSize.x + tilePos.x;
 		Tile& tile = m_tiles[tilePos.y * m_mapSize.x + tilePos.x];
 
 		if (!tile.enabled)
-			m_layers[materialIndex].tiles.insert(tileIndex);
+		{
+			Layer& layer = m_layers[materialIndex];
+			layer.enabledTiles.UnboundedSet(tileIndex);
+			layer.enabledTileCount = layer.enabledTiles.Count();
+		}
 		else if (materialIndex != tile.layerIndex)
 		{
-			m_layers[tile.layerIndex].tiles.erase(tileIndex);
-			m_layers[materialIndex].tiles.insert(tileIndex);
+			Layer& oldLayer = m_layers[tile.layerIndex];
+			Layer& newLayer = m_layers[tile.layerIndex];
 
-			invalidatedLayers |= 1U << tile.layerIndex;
+			oldLayer.enabledTiles.Reset(tileIndex);
+			oldLayer.enabledTileCount = oldLayer.enabledTiles.Count();
+
+			newLayer.enabledTiles.UnboundedSet(tileIndex);
+			newLayer.enabledTileCount = newLayer.enabledTiles.Count();
 		}
 
 		tile.enabled = true;
@@ -180,7 +198,7 @@ namespace Nz
 		NazaraAssert(materialIndex < m_layers.size(), "Material out of bounds");
 
 		for (Layer& layer : m_layers)
-			layer.tiles.clear();
+			layer.enabledTiles.Reset();
 
 		std::size_t tileIndex = 0;
 		for (Tile& tile : m_tiles)
@@ -190,8 +208,10 @@ namespace Nz
 			tile.textureCoords = coords;
 			tile.layerIndex = materialIndex;
 
-			m_layers[materialIndex].tiles.insert(tileIndex++);
+			m_layers[materialIndex].enabledTiles.UnboundedSet(tileIndex++);
 		}
+
+		m_layers[materialIndex].enabledTileCount = m_layers[materialIndex].enabledTiles.Count();
 
 		InvalidateVertices();
 	}
@@ -240,8 +260,6 @@ namespace Nz
 		NazaraAssert(tilesPos || tileCount == 0, "Invalid tile position array with a non-zero tileCount");
 		NazaraAssert(materialIndex < m_layers.size(), "Material out of bounds");
 
-		UInt32 invalidatedLayers = 1U << materialIndex;
-
 		for (std::size_t i = 0; i < tileCount; ++i)
 		{
 			NazaraAssert(tilesPos->x < m_mapSize.x&& tilesPos->y < m_mapSize.y, "Tile position is out of bounds");
@@ -250,13 +268,21 @@ namespace Nz
 			Tile& tile = m_tiles[tileIndex];
 
 			if (!tile.enabled)
-				m_layers[materialIndex].tiles.insert(tileIndex);
+			{
+				Layer& layer = m_layers[materialIndex];
+				layer.enabledTiles.UnboundedSet(tileIndex);
+				layer.enabledTileCount = layer.enabledTiles.Count();
+			}
 			else if (materialIndex != tile.layerIndex)
 			{
-				m_layers[tile.layerIndex].tiles.erase(tileIndex);
-				m_layers[materialIndex].tiles.insert(tileIndex);
+				Layer& oldLayer = m_layers[tile.layerIndex];
+				Layer& newLayer = m_layers[tile.layerIndex];
 
-				invalidatedLayers |= 1U << tile.layerIndex;
+				oldLayer.enabledTiles.Reset(tileIndex);
+				oldLayer.enabledTileCount = oldLayer.enabledTiles.Count();
+
+				newLayer.enabledTiles.UnboundedSet(tileIndex);
+				newLayer.enabledTileCount = newLayer.enabledTiles.Count();
 			}
 
 			tile.enabled = true;
@@ -265,6 +291,9 @@ namespace Nz
 			tile.layerIndex = materialIndex;
 			tilesPos++;
 		}
+
+		for (Layer& layer : m_layers)
+			layer.enabledTileCount = layer.enabledTiles.Count();
 
 		if (tileCount > 0)
 			InvalidateVertices();
@@ -373,12 +402,19 @@ namespace Nz
 		m_origin = origin;
 
 		InvalidateVertices();
+		UpdateAABB();
 	}
 
 	inline void Tilemap::InvalidateVertices()
 	{
 		m_shouldRebuildVertices = true;
 		OnElementInvalidated(this);
+	}
+
+	inline void Tilemap::UpdateAABB()
+	{
+		Vector2f size = GetSize();
+		InstancedRenderable::UpdateAABB(Rectf(-m_origin * size, size));
 	}
 }
 
