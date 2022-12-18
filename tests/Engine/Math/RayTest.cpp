@@ -70,14 +70,14 @@ SCENARIO("Ray", "[MATH][RAY]")
 				float tmpClosest;
 				float tmpFurthest;
 
-				Nz::OrientedBoxf obb(-0.5f, 1.f, -0.5f, 1.f, 1.f, 1.f);
+				Nz::OrientedBoxf obb(Nz::Boxf(-0.5f, 1.f, -0.5f, 1.f, 1.f, 1.f));
 				obb.Update(Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, 90.f, 0.f).ToQuaternion()));
 
 				CHECK(ray.Intersect(obb, &tmpClosest, &tmpFurthest));
 				REQUIRE(ray.GetPoint(tmpClosest) == Nz::Vector3f::UnitY());
 				REQUIRE(ray.GetPoint(tmpFurthest) == (Nz::Vector3f::UnitY() * 2.f));
 
-				obb = Nz::OrientedBoxf(-10.f, 1.f, -10.f, 1.f, 1.f, 1.f);
+				obb = Nz::OrientedBoxf(Nz::Boxf(-10.f, 1.f, -10.f, 1.f, 1.f, 1.f));
 				obb.Update(Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, 0.f, 90.f).ToQuaternion()));
 				CHECK(!ray.Intersect(obb, &tmpClosest, &tmpFurthest));
 			}

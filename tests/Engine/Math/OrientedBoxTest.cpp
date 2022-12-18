@@ -6,8 +6,8 @@ SCENARIO("OrientedBox", "[MATH][ORIENTEDBOX]")
 {
 	GIVEN("Two center and unit oriented boxes")
 	{
-		Nz::OrientedBoxf firstCenterAndUnit(0.f, 0.f, 0.f, 1.f, 1.f, 1.f);
-		Nz::OrientedBoxf secondCenterAndUnit(Nz::OrientedBox<int>(Nz::Vector3i::Zero(), Nz::Vector3i::Unit()));
+		Nz::OrientedBoxf firstCenterAndUnit(Nz::Boxf(0.f, 0.f, 0.f, 1.f, 1.f, 1.f));
+		Nz::OrientedBoxf secondCenterAndUnit(Nz::OrientedBox<int>(Nz::Boxi(Nz::Vector3i::Zero(), Nz::Vector3i::Unit())));
 
 		firstCenterAndUnit.Update(Nz::Matrix4f::Identity());
 		secondCenterAndUnit.Update(Nz::Matrix4f::Identity());
@@ -33,7 +33,7 @@ SCENARIO("OrientedBox", "[MATH][ORIENTEDBOX]")
 		{
 			THEN("Results are different between operator * and update(ScaleMatrix) but corners are the same")
 			{
-				firstCenterAndUnit *= 2.f;
+				firstCenterAndUnit.localBox.Scale(2.f);
 				firstCenterAndUnit.Update(Nz::Matrix4f::Identity());
 				secondCenterAndUnit.Update(Nz::Matrix4f::Scale(Nz::Vector3f::Unit() * 2.f));
 
@@ -53,7 +53,7 @@ SCENARIO("OrientedBox", "[MATH][ORIENTEDBOX]")
 				Nz::OrientedBoxf centerAndUnit = firstCenterAndUnit;
 				nullOrientedBox.Update(Nz::Matrix4f::Identity());
 				centerAndUnit.Update(Nz::Matrix4f::Identity());
-				Nz::OrientedBoxf result(Nz::Vector3f::Zero(), Nz::Vector3f::Unit() * 0.5f);
+				Nz::OrientedBoxf result(Nz::Boxf(Nz::Vector3f::Zero(), Nz::Vector3f::Unit() * 0.5f));
 				result.Update(Nz::Matrix4f::Identity());
 
 				REQUIRE(Nz::OrientedBoxf::Lerp(nullOrientedBox, centerAndUnit, 0.5f) == result);

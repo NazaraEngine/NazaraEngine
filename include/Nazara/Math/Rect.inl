@@ -56,6 +56,18 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Constructs a Rect object from a vector representing its length
+	* The position will be set to zero
+	*
+	* \param lengths (Width, Height) of the rect
+	*/
+	template<typename T>
+	Rect<T>::Rect(const Vector2<T>& lengths) :
+	Rect(Vector2<T>::Zero(), lengths)
+	{
+	}
+
+	/*!
 	* \brief Constructs a Rect object from two vector representing position and lengths
 	*
 	* \param pos (X, Y) of the rect

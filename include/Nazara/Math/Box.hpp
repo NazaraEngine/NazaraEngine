@@ -26,9 +26,11 @@ namespace Nz
 			Box(T Width, T Height, T Depth);
 			Box(T X, T Y, T Z, T Width, T Height, T Depth);
 			Box(const Rect<T>& rect);
+			explicit Box(const Vector3<T>& lengths);
 			explicit Box(const Vector3<T>& pos, const Vector3<T>& lengths);
 			template<typename U> explicit Box(const Box<U>& box);
-			Box(const Box& box) = default;
+			Box(const Box&) = default;
+			Box(Box&&) noexcept = default;
 			~Box() = default;
 
 			bool Contains(T X, T Y, T Z) const;
@@ -69,7 +71,7 @@ namespace Nz
 			const T& operator[](std::size_t i) const;
 
 			Box& operator=(const Box&) = default;
-			Box& operator=(Box&&) = default;
+			Box& operator=(Box&&) noexcept = default;
 
 			bool operator==(const Box& box) const;
 			bool operator!=(const Box& box) const;

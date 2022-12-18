@@ -12,11 +12,11 @@ SCENARIO("Frustum", "[MATH][FRUSTUM]")
 		{
 			THEN("These results are expected")
 			{
-				Nz::BoundingVolumef bv(Nz::Vector3f::Zero(), Nz::Vector3f::Unit());
+				Nz::BoundingVolumef bv(Nz::Boxf(Nz::Vector3f::Zero(), Nz::Vector3f::Unit()));
 				bv.Update(Nz::Matrix4f::Identity());
 				REQUIRE(Nz::IntersectionSide::Outside == frustum.Intersect(bv));
 				REQUIRE(Nz::IntersectionSide::Outside == frustum.Intersect(Nz::Boxf(Nz::Vector3f::Zero(), Nz::Vector3f::Unit() * 0.9f)));
-				Nz::OrientedBoxf obb(Nz::Vector3f::Zero(), Nz::Vector3f::Unit() * 0.9f);
+				Nz::OrientedBoxf obb(Nz::Boxf(Nz::Vector3f::Zero(), Nz::Vector3f::Unit() * 0.9f));
 				obb.Update(Nz::Matrix4f::Identity());
 				REQUIRE(Nz::IntersectionSide::Outside == frustum.Intersect(obb));
 				REQUIRE(Nz::IntersectionSide::Outside == frustum.Intersect(Nz::Spheref(Nz::Vector3f::Zero(), 0.5f)));
@@ -31,12 +31,12 @@ SCENARIO("Frustum", "[MATH][FRUSTUM]")
 		{
 			THEN("These results are expected")
 			{
-				Nz::BoundingVolumef bv(500.f, -0.5f, -0.5f, 1.f, 1.f, 1.f);
+				Nz::BoundingVolumef bv(Nz::Boxf(500.f, -0.5f, -0.5f, 1.f, 1.f, 1.f));
 				bv.Update(Nz::Matrix4f::Identity());
 
 				REQUIRE(Nz::IntersectionSide::Inside == frustum.Intersect(bv));
 				REQUIRE(Nz::IntersectionSide::Inside == frustum.Intersect(Nz::Boxf(Nz::Vector3f::UnitX() * 500.f, Nz::Vector3f::Unit())));
-				Nz::OrientedBoxf obb(Nz::Vector3f::UnitX() * 100.f, Nz::Vector3f::Unit());
+				Nz::OrientedBoxf obb(Nz::Boxf(Nz::Vector3f::UnitX() * 100.f, Nz::Vector3f::Unit()));
 				obb.Update(Nz::Matrix4f::Identity());
 				REQUIRE(Nz::IntersectionSide::Inside == frustum.Intersect(obb));
 				REQUIRE(Nz::IntersectionSide::Inside == frustum.Intersect(Nz::Spheref(Nz::Vector3f::UnitX() * 100.f, 0.5f)));
@@ -49,11 +49,11 @@ SCENARIO("Frustum", "[MATH][FRUSTUM]")
 		{
 			THEN("These results are expected")
 			{
-				Nz::BoundingVolumef bv(0.f, -0.25f, -0.25f, 0.5f, 0.5f, 0.5f);
+				Nz::BoundingVolumef bv(Nz::Boxf(0.f, -0.25f, -0.25f, 0.5f, 0.5f, 0.5f));
 				bv.Update(Nz::Matrix4f::Identity());
 				CHECK(!frustum.Contains(bv));
 				CHECK(!frustum.Contains(Nz::Boxf(0.f, -0.25f, -0.25f, 0.5f, 0.5f, 0.5f)));
-				Nz::OrientedBoxf obb(0.f, -0.25f, -0.25f, 0.5f, 0.5f, 0.5f);
+				Nz::OrientedBoxf obb(Nz::Boxf(0.f, -0.25f, -0.25f, 0.5f, 0.5f, 0.5f));
 				obb.Update(Nz::Matrix4f::Identity());
 				CHECK(!frustum.Contains(obb));
 				CHECK(!frustum.Contains(Nz::Spheref(Nz::Vector3f::Zero(), 0.5f)));
@@ -66,11 +66,11 @@ SCENARIO("Frustum", "[MATH][FRUSTUM]")
 		{
 			THEN("These results are expected")
 			{
-				Nz::BoundingVolumef bv(500.f, -0.5f, -0.5f, 1.f, 1.f, 1.f);
+				Nz::BoundingVolumef bv(Nz::Boxf(500.f, -0.5f, -0.5f, 1.f, 1.f, 1.f));
 				bv.Update(Nz::Matrix4f::Identity());
 				CHECK(frustum.Contains(bv));
 				CHECK(frustum.Contains(Nz::Boxf(500.f, -0.5f, -0.5f, 1.f, 1.f, 1.f)));
-				Nz::OrientedBoxf obb(500.f, -0.5f, -0.5f, 1.f, 1.f, 1.f);
+				Nz::OrientedBoxf obb(Nz::Boxf(500.f, -0.5f, -0.5f, 1.f, 1.f, 1.f));
 				obb.Update(Nz::Matrix4f::Identity());
 				CHECK(frustum.Contains(obb));
 				CHECK(frustum.Contains(Nz::Spheref(Nz::Vector3f::UnitX() * 500.f, 1.f)));

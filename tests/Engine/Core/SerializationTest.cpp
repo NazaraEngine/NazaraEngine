@@ -119,7 +119,7 @@ SCENARIO("Serialization", "[CORE][SERIALIZATION]")
 				Nz::OrientedBoxf zeroOBB = Nz::OrientedBoxf::Zero();
 				Nz::OrientedBoxf copy(zeroOBB);
 				REQUIRE(Serialize(context, zeroOBB));
-				zeroOBB = Nz::OrientedBoxf(1, 1, 1, 1, 1, 1); // Random values
+				zeroOBB = Nz::OrientedBoxf(Nz::Boxf(1, 1, 1, 1, 1, 1)); // Random values
 				REQUIRE(zeroOBB != copy);
 				context.stream->SetCursorPos(0);
 				REQUIRE(Unserialize(context, &zeroOBB));

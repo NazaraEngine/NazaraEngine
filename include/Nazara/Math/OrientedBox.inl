@@ -22,46 +22,15 @@ namespace Nz
 	*/
 
 	/*!
-	* \brief Constructs a OrientedBox object from its position and sizes
-	*
-	* \param X X component of position
-	* \param Y Y component of position
-	* \param Z Z component of position
-	* \param Width Width of the box (following X)
-	* \param Height Height of the box (following Y)
-	* \param Depth Depth of the box (following Z)
-	*/
-
-	template<typename T>
-	OrientedBox<T>::OrientedBox(T X, T Y, T Z, T Width, T Height, T Depth)
-	{
-		Set(X, Y, Z, Width, Height, Depth);
-	}
-
-	/*!
 	* \brief Constructs a OrientedBox object from a box
 	*
 	* \param box Box<T> object
 	*/
 
 	template<typename T>
-	OrientedBox<T>::OrientedBox(const Box<T>& box)
+	OrientedBox<T>::OrientedBox(const Box<T>& box) :
+	localBox(box)
 	{
-		Set(box);
-	}
-
-	/*!
-	* \brief Constructs a OrientedBox object from two vectors representing point of the space
-	* (X, Y, Z) will be the components minimum of the two vectors and the (width, height, depth) will be the components maximum - minimum
-	*
-	* \param vec1 First point
-	* \param vec2 Second point
-	*/
-
-	template<typename T>
-	OrientedBox<T>::OrientedBox(const Vector3<T>& vec1, const Vector3<T>& vec2)
-	{
-		Set(vec1, vec2);
 	}
 
 	/*!
@@ -72,9 +41,11 @@ namespace Nz
 
 	template<typename T>
 	template<typename U>
-	OrientedBox<T>::OrientedBox(const OrientedBox<U>& orientedBox)
+	OrientedBox<T>::OrientedBox(const OrientedBox<U>& orientedBox) :
+	localBox(orientedBox.localBox)
 	{
-		Set(orientedBox);
+		for (unsigned int i = 0; i < BoxCornerCount; ++i)
+			m_corners[i] = Vector3<T>(orientedBox(i));
 	}
 
 	/*!
@@ -117,91 +88,6 @@ namespace Nz
 	bool OrientedBox<T>::IsValid() const
 	{
 		return localBox.IsValid();
-	}
-
-	/*!
-	* \brief Makes the oriented box position (0, 0, 0) and lengths (0, 0, 0)
-	* \return A reference to this oriented box with position (0, 0, 0) and lengths (0, 0, 0)
-	*
-	* \see Zero
-	*/
-
-	template<typename T>
-	OrientedBox<T>& OrientedBox<T>::MakeZero()
-	{
-		localBox.MakeZero();
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the oriented box
-	* \return A reference to this oriented box
-	*
-	* \param X X position
-	* \param Y Y position
-	* \param Z Z position
-	* \param Width Width of the oriented box (following X)
-	* \param Height Height of the oriented box (following Y)
-	* \param Depth Depth of the oriented box (following Z)
-	*/
-
-	template<typename T>
-	OrientedBox<T>& OrientedBox<T>::Set(T X, T Y, T Z, T Width, T Height, T Depth)
-	{
-		localBox.Set(X, Y, Z, Width, Height, Depth);
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the oriented box from a box
-	* \return A reference to this oriented box
-	*
-	* \param box Box<T> object
-	*/
-
-	template<typename T>
-	OrientedBox<T>& OrientedBox<T>::Set(const Box<T>& box)
-	{
-		localBox = box;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets a OrientedBox object from two vectors representing point of the space
-	* (X, Y, Z) will be the components minimum of the two vectors and the (width, height, depth) will be the components maximum - minimum
-	*
-	* \param vec1 First point
-	* \param vec2 Second point
-	*/
-
-	template<typename T>
-	OrientedBox<T>& OrientedBox<T>::Set(const Vector3<T>& vec1, const Vector3<T>& vec2)
-	{
-		localBox.Set(vec1, vec2);
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the orientedBox from another type of OrientedBox
-	* \return A reference to this orientedBox
-	*
-	* \param orientedBox OrientedBox of type U to convert its components
-	*/
-
-	template<typename T>
-	template<typename U>
-	OrientedBox<T>& OrientedBox<T>::Set(const OrientedBox<U>& orientedBox)
-	{
-		for (unsigned int i = 0; i < BoxCornerCount; ++i)
-			m_corners[i].Set(orientedBox(i));
-
-		localBox.Set(orientedBox.localBox);
-
-		return *this;
 	}
 
 	/*!
@@ -278,7 +164,7 @@ namespace Nz
 	*/
 
 	template<typename T>
-	Vector3<T> OrientedBox<T>::operator()(unsigned int i) const
+	const Vector3<T>& OrientedBox<T>::operator()(unsigned int i) const
 	{
 #if NAZARA_MATH_SAFE
 		if (i >= BoxCornerCount)
@@ -292,37 +178,6 @@ namespace Nz
 #endif
 
 		return m_corners[i];
-	}
-
-	/*!
-	* \brief Multiplies the lengths with the scalar
-	* \return A OrientedBox where the position is the same and width, height and depth are the product of the old width, height and depth and the scalar
-	*
-	* \param scalar The scalar to multiply width, height and depth with
-	*/
-
-	template<typename T>
-	OrientedBox<T> OrientedBox<T>::operator*(T scalar) const
-	{
-		OrientedBox box(*this);
-		box *= scalar;
-
-		return box;
-	}
-
-	/*!
-	* \brief Multiplies the lengths of this oriented box with the scalar
-	* \return A reference to this oriented box where lengths are the product of these lengths and the scalar
-	*
-	* \param scalar The scalar to multiply width, height and depth with
-	*/
-
-	template<typename T>
-	OrientedBox<T>& OrientedBox<T>::operator*=(T scalar)
-	{
-		localBox *= scalar;
-
-		return *this;
 	}
 
 	/*!
@@ -368,10 +223,7 @@ namespace Nz
 	template<typename T>
 	OrientedBox<T> OrientedBox<T>::Lerp(const OrientedBox& from, const OrientedBox& to, T interpolation)
 	{
-		OrientedBox orientedBox;
-		orientedBox.Set(Box<T>::Lerp(from.localBox, to.localBox, interpolation));
-
-		return orientedBox;
+		return OrientedBox{ Box<T>::Lerp(from.localBox, to.localBox, interpolation) };
 	}
 
 	/*!
@@ -384,10 +236,7 @@ namespace Nz
 	template<typename T>
 	OrientedBox<T> OrientedBox<T>::Zero()
 	{
-		OrientedBox orientedBox;
-		orientedBox.MakeZero();
-
-		return orientedBox;
+		return OrientedBox{ Box<T>::Zero() };
 	}
 
 	/*!

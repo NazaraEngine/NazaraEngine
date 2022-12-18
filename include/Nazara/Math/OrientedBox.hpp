@@ -22,11 +22,10 @@ namespace Nz
 	{
 		public:
 			OrientedBox() = default;
-			OrientedBox(T X, T Y, T Z, T Width, T Height, T Depth);
 			OrientedBox(const Box<T>& box);
-			OrientedBox(const Vector3<T>& vec1, const Vector3<T>& vec2);
 			template<typename U> explicit OrientedBox(const OrientedBox<U>& orientedBox);
-			OrientedBox(const OrientedBox& orientedBox) = default;
+			OrientedBox(const OrientedBox&) = default;
+			OrientedBox(OrientedBox&&) noexcept = default;
 			~OrientedBox() = default;
 
 			const Vector3<T>& GetCorner(BoxCorner corner) const;
@@ -34,25 +33,16 @@ namespace Nz
 
 			bool IsValid() const;
 
-			OrientedBox& MakeZero();
-
-			OrientedBox& Set(T X, T Y, T Z, T Width, T Height, T Depth);
-			OrientedBox& Set(const Box<T>& box);
-			OrientedBox& Set(const Vector3<T>& vec1, const Vector3<T>& vec2);
-			template<typename U> OrientedBox& Set(const OrientedBox<U>& orientedBox);
-
 			std::string ToString() const;
 
 			void Update(const Matrix4<T>& transformMatrix);
 			void Update(const Vector3<T>& transformMatrix);
 
 			Vector3<T>& operator()(unsigned int i);
-			Vector3<T> operator()(unsigned int i) const;
+			const Vector3<T>& operator()(unsigned int i) const;
 
-			OrientedBox operator*(T scalar) const;
-			OrientedBox& operator=(const OrientedBox& other) = default;
-
-			OrientedBox& operator*=(T scalar);
+			OrientedBox& operator=(const OrientedBox&) = default;
+			OrientedBox& operator=(OrientedBox&&) noexcept = default;
 
 			bool operator==(const OrientedBox& box) const;
 			bool operator!=(const OrientedBox& box) const;

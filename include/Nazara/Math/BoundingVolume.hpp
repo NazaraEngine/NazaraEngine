@@ -24,10 +24,8 @@ namespace Nz
 		public:
 			BoundingVolume();
 			BoundingVolume(Extend Extend);
-			BoundingVolume(T X, T Y, T Z, T Width, T Height, T Depth);
 			BoundingVolume(const Box<T>& box);
 			BoundingVolume(const OrientedBox<T>& orientedBox);
-			BoundingVolume(const Vector3<T>& vec1, const Vector3<T>& vec2);
 			template<typename U> explicit BoundingVolume(const BoundingVolume<U>& volume);
 			BoundingVolume(const BoundingVolume& volume) = default;
 			~BoundingVolume() = default;
@@ -39,17 +37,6 @@ namespace Nz
 			bool IsFinite() const;
 			bool IsInfinite() const;
 			bool IsNull() const;
-
-			BoundingVolume& MakeInfinite();
-			BoundingVolume& MakeNull();
-
-			BoundingVolume& Set(Extend Extend);
-			BoundingVolume& Set(T X, T Y, T Z, T Width, T Height, T Depth);
-			BoundingVolume& Set(const BoundingVolume<T>& volume);
-			BoundingVolume& Set(const Box<T>& box);
-			BoundingVolume& Set(const OrientedBox<T>& orientedBox);
-			BoundingVolume& Set(const Vector3<T>& vec1, const Vector3<T>& vec2);
-			template<typename U> BoundingVolume& Set(const BoundingVolume<U>& volume);
 
 			std::string ToString() const;
 

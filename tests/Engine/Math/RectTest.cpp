@@ -36,7 +36,7 @@ SCENARIO("Rect", "[MATH][RECT]")
 		{
 			THEN("It's not valid")
 			{
-				CHECK(!(firstCenterAndUnit * 0.f).IsValid());
+				CHECK(!(firstCenterAndUnit.Scale(0.f)).IsValid());
 			}
 		}
 

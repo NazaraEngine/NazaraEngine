@@ -22,9 +22,11 @@ namespace Nz
 			Rect() = default;
 			Rect(T Width, T Height);
 			Rect(T X, T Y, T Width, T Height);
-			explicit Rect(const Vector2<T>& vec1, const Vector2<T>& vec2);
+			explicit Rect(const Vector2<T>& lengths);
+			explicit Rect(const Vector2<T>& pos, const Vector2<T>& lengths);
 			template<typename U> explicit Rect(const Rect<U>& rect);
-			Rect(const Rect& rect) = default;
+			Rect(const Rect&) = default;
+			Rect(Rect&&) noexcept = default;
 			~Rect() = default;
 
 			bool Contains(T X, T Y) const;
@@ -62,7 +64,7 @@ namespace Nz
 			const T& operator[](std::size_t i) const;
 
 			Rect& operator=(const Rect&) = default;
-			Rect& operator=(Rect&&) = default;
+			Rect& operator=(Rect&&) noexcept = default;
 
 			bool operator==(const Rect& rect) const;
 			bool operator!=(const Rect& rect) const;

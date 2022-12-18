@@ -79,6 +79,19 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Constructs a Rect object from a vector representing its length
+	* The position will be set to zero
+	*
+	* \param pos (X, Y, Z) of the box
+	* \param lengths (Width, Height, Depth) of the box
+	*/
+	template<typename T>
+	Box<T>::Box(const Vector3<T>& lengths) :
+	Box(Vector3<T>::Zero(), lengths)
+	{
+	}
+
+	/*!
 	* \brief Constructs a Box object from two vector representing position and lengths
 	*
 	* \param pos (X, Y, Z) of the box

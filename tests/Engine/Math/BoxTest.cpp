@@ -9,10 +9,10 @@ SCENARIO("Box", "[MATH][BOX]")
 		Nz::Boxf firstZero(Nz::Boxf::Zero());
 		Nz::Boxf secondZero(Nz::Vector3f::Zero(), Nz::Vector3f::Zero());
 
-		WHEN("We multiply them")
+		WHEN("We scale them")
 		{
-			firstZero = firstZero * 1.f;
-			secondZero = secondZero * Nz::Vector3f::Unit() * 3.f;
+			firstZero.Scale(1.f);
+			secondZero.Scale(Nz::Vector3f::Unit() * 3.f);
 
 			THEN("They should stay the same")
 			{
@@ -91,8 +91,8 @@ SCENARIO("Box", "[MATH][BOX]")
 
 	GIVEN("Two wrong box (negative width, height and depth")
 	{
-		Nz::Boxf firstWrongBox(-Nz::Vector3f::Unit());
-		Nz::Boxf secondWrongBox(-Nz::Vector3f::Unit());
+		Nz::Boxf firstWrongBox = Nz::Boxf::Invalid();
+		Nz::Boxf secondWrongBox = Nz::Boxf::Invalid();
 
 		WHEN("We check if valid")
 		{

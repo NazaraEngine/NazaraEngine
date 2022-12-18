@@ -42,28 +42,9 @@ namespace Nz
 	*/
 
 	template<typename T>
-	BoundingVolume<T>::BoundingVolume(Extend Extend)
+	BoundingVolume<T>::BoundingVolume(Extend Extend) :
+	extend(Extend)
 	{
-		Set(Extend);
-	}
-
-	/*!
-	* \brief Constructs a BoundingVolume object from its position and sizes
-	*
-	* \param X X component of position
-	* \param Y Y component of position
-	* \param Z Z component of position
-	* \param Width Width of the box (following X)
-	* \param Height Height of the box (following Y)
-	* \param Depth Depth of the box (following Z)
-	*
-	* \remark Aabb is uninitialized
-	*/
-
-	template<typename T>
-	BoundingVolume<T>::BoundingVolume(T X, T Y, T Z, T Width, T Height, T Depth)
-	{
-		Set(X, Y, Z, Width, Height, Depth);
 	}
 
 	/*!
@@ -75,9 +56,10 @@ namespace Nz
 	*/
 
 	template<typename T>
-	BoundingVolume<T>::BoundingVolume(const Box<T>& box)
+	BoundingVolume<T>::BoundingVolume(const Box<T>& box) :
+	extend(Extend::Finite),
+	obb(box)
 	{
-		Set(box);
 	}
 
 	/*!
@@ -89,25 +71,10 @@ namespace Nz
 	*/
 
 	template<typename T>
-	BoundingVolume<T>::BoundingVolume(const OrientedBox<T>& orientedBox)
+	BoundingVolume<T>::BoundingVolume(const OrientedBox<T>& orientedBox) :
+	extend(Extend::Finite),
+	obb(orientedBox)
 	{
-		Set(orientedBox);
-	}
-
-	/*!
-	* \brief Constructs a BoundingVolume object from two vectors representing point of the space
-	* (X, Y, Z) will be the components minimum of the two vectors and the (width, height, depth) will be the components maximum - minimum
-	*
-	* \param vec1 First point
-	* \param vec2 Second point
-	*
-	* \remark Aabb is uninitialized
-	*/
-
-	template<typename T>
-	BoundingVolume<T>::BoundingVolume(const Vector3<T>& vec1, const Vector3<T>& vec2)
-	{
-		Set(vec1, vec2);
 	}
 
 	/*!
@@ -118,11 +85,12 @@ namespace Nz
 
 	template<typename T>
 	template<typename U>
-	BoundingVolume<T>::BoundingVolume(const BoundingVolume<U>& volume)
+	BoundingVolume<T>::BoundingVolume(const BoundingVolume<U>& volume) :
+	extend(volume.extend),
+	aabb(volume.aabb),
+	obb(volume.obb)
 	{
-		Set(volume);
 	}
-
 
 	/*!
 	* \brief Extends the bounding volume to contain another bounding volume
@@ -149,7 +117,7 @@ namespace Nz
 					}
 
 					case Extend::Infinite:
-						MakeInfinite();
+						extend = Extend::Infinite;
 						break;
 
 					case Extend::Null:
@@ -217,156 +185,6 @@ namespace Nz
 	bool BoundingVolume<T>::IsNull() const
 	{
 		return extend == Extend::Null;
-	}
-
-	/*!
-	* \brief Makes the bounding volume infinite
-	* \return A reference to this bounding volume with Extend::Infinite for extend
-	*
-	* \see Infinite
-	*/
-
-	template<typename T>
-	BoundingVolume<T>& BoundingVolume<T>::MakeInfinite()
-	{
-		extend = Extend::Infinite;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Makes the bounding volume null
-	* \return A reference to this bounding volume with Extend::Null for extend
-	*
-	* \see Null
-	*/
-
-	template<typename T>
-	BoundingVolume<T>& BoundingVolume<T>::MakeNull()
-	{
-		extend = Extend::Null;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the extend of the bounding volume from Extend
-	* \return A reference to this bounding volume
-	*
-	* \param Extend New extend
-	*
-	* \remark This method is meant to be called with Extend::Infinite or Extend::Null
-	*/
-
-	template<typename T>
-	BoundingVolume<T>& BoundingVolume<T>::Set(Extend Extend)
-	{
-		extend = Extend;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the bounding volume
-	* \return A reference to this bounding volume
-	*
-	* \param X X position
-	* \param Y Y position
-	* \param Z Z position
-	* \param Width Width of the oriented box (following X)
-	* \param Height Height of the oriented box (following Y)
-	* \param Depth Depth of the oriented box (following Z)
-	*/
-
-	template<typename T>
-	BoundingVolume<T>& BoundingVolume<T>::Set(T X, T Y, T Z, T Width, T Height, T Depth)
-	{
-		obb.Set(X, Y, Z, Width, Height, Depth);
-		extend = Extend::Finite;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the bounding volume from another bounding volume
-	* \return A reference to this bounding volume
-	*
-	* \param volume The other bounding volume
-	*/
-
-	template<typename T>
-	BoundingVolume<T>& BoundingVolume<T>::Set(const BoundingVolume<T>& volume)
-	{
-		obb.Set(volume.obb); // Only OBB is important for the moment
-		extend = volume.extend;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the bounding volume from a box
-	* \return A reference to this bounding volume
-	*
-	* \param box Box<T> object
-	*/
-
-	template<typename T>
-	BoundingVolume<T>& BoundingVolume<T>::Set(const Box<T>& box)
-	{
-		obb.Set(box);
-		extend = Extend::Finite;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the bounding volume from an oriented box
-	* \return A reference to this bounding volume
-	*
-	* \param orientedBox OrientedBox<T> object
-	*/
-
-	template<typename T>
-	BoundingVolume<T>& BoundingVolume<T>::Set(const OrientedBox<T>& orientedBox)
-	{
-		obb.Set(orientedBox);
-		extend = Extend::Finite;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets a BoundingVolume object from two vectors representing point of the space
-	* (X, Y, Z) will be the components minimum of the two vectors and the (width, height, depth) will be the components maximum - minimum
-	*
-	* \param vec1 First point
-	* \param vec2 Second point
-	*/
-
-	template<typename T>
-	BoundingVolume<T>& BoundingVolume<T>::Set(const Vector3<T>& vec1, const Vector3<T>& vec2)
-	{
-		obb.Set(vec1, vec2);
-		extend = Extend::Finite;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the bounding volume from another type of BoundingVolume
-	* \return A reference to this bounding volume
-	*
-	* \param volume BoundingVolume of type U to convert its components
-	*/
-
-	template<typename T>
-	template<typename U>
-	BoundingVolume<T>& BoundingVolume<T>::Set(const BoundingVolume<U>& volume)
-	{
-		obb.Set(volume.obb);
-		extend = volume.extend;
-
-		return *this;
 	}
 
 	/*!
@@ -491,7 +309,7 @@ namespace Nz
 	BoundingVolume<T> BoundingVolume<T>::Infinite()
 	{
 		BoundingVolume volume;
-		volume.MakeInfinite();
+		volume.extend = Extend::Infinite;
 
 		return volume;
 	}
@@ -514,14 +332,6 @@ namespace Nz
 	template<typename T>
 	BoundingVolume<T> BoundingVolume<T>::Lerp(const BoundingVolume& from, const BoundingVolume& to, T interpolation)
 	{
-		#ifdef NAZARA_DEBUG
-		if (interpolation < T(0.0) || interpolation > T(1.0))
-		{
-			NazaraError("Interpolation must be in range [0..1] (Got " + NumberToString(interpolation) + ')');
-			return Null();
-		}
-		#endif
-
 		if (NumberEquals(interpolation, T(0.0)))
 			return from;
 
@@ -535,18 +345,18 @@ namespace Nz
 				switch (from.extend)
 				{
 					case Extend::Finite:
-					{
-						BoundingVolume volume;
-						volume.Set(OrientedBox<T>::Lerp(from.obb, to.obb, interpolation));
-
-						return volume;
-					}
+						return BoundingVolume{ OrientedBox<T>::Lerp(from.obb, to.obb, interpolation) };
 
 					case Extend::Infinite:
 						return Infinite();
 
 					case Extend::Null:
-						return to.obb * interpolation;
+					{
+						Box<T> destBox = to.obb.localBox;
+						destBox.Scale(interpolation);
+
+						return { destBox };
+					}
 				}
 
 				// If we arrive here, the extend is invalid
@@ -562,7 +372,12 @@ namespace Nz
 				switch (from.extend)
 				{
 					case Extend::Finite:
-						return from.obb * (T(1.0) - interpolation);
+					{
+						Box<T> fromBox = from.obb.localBox;
+						fromBox.Scale(T(1.0) - interpolation);
+
+						return { fromBox };
+					}
 
 					case Extend::Infinite:
 						return Infinite();
@@ -593,7 +408,7 @@ namespace Nz
 	BoundingVolume<T> BoundingVolume<T>::Null()
 	{
 		BoundingVolume volume;
-		volume.MakeNull();
+		volume.extend = Extend::Null;
 
 		return volume;
 	}

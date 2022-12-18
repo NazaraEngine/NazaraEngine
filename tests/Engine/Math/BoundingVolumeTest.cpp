@@ -26,26 +26,6 @@ SCENARIO("BoundingVolume", "[MATH][BOUNDINGVOLUME]")
 			}
 		}
 
-		WHEN("If we multiply them")
-		{
-			THEN("They should still be different")
-			{
-				nullVolume *= 5.f;
-				infiniteVolume = infiniteVolume * 0.5f;
-
-				REQUIRE(nullVolume != infiniteVolume);
-
-				AND_WHEN("We ask for the characteristic (infinite and null)")
-				{
-					THEN("They should still be respectively null and infinite")
-					{
-						CHECK(nullVolume.IsNull());
-						CHECK(infiniteVolume.IsInfinite());
-					}
-				}
-			}
-		}
-
 		WHEN("We compare two null or two infinite")
 		{
 			THEN("Everything should be ok")
@@ -58,8 +38,8 @@ SCENARIO("BoundingVolume", "[MATH][BOUNDINGVOLUME]")
 
 	GIVEN("Two same bounding volume with different constructor")
 	{
-		Nz::BoundingVolumef firstCenterAndUnit(0.f, 0.f, 0.f, 1.f, 1.f, 1.f);
-		Nz::BoundingVolumef secondCenterAndUnit(Nz::Vector3f::Zero(), Nz::Vector3f::Unit());
+		Nz::BoundingVolumef firstCenterAndUnit(Nz::Boxf(0.f, 0.f, 0.f, 1.f, 1.f, 1.f));
+		Nz::BoundingVolumef secondCenterAndUnit{ Nz::Boxf(Nz::Vector3f::Unit()) };
 		firstCenterAndUnit.Update(Nz::Matrix4f::Identity());
 		secondCenterAndUnit.Update(Nz::Matrix4f::Identity());
 
@@ -105,11 +85,11 @@ SCENARIO("BoundingVolume", "[MATH][BOUNDINGVOLUME]")
 		{
 			THEN("Compilation should be fine")
 			{
-				Nz::BoundingVolumef nullBoundingVolume = Nz::BoundingVolumef(Nz::Vector3f::Zero(), Nz::Vector3f::Zero());
+				Nz::BoundingVolumef nullBoundingVolume = Nz::BoundingVolumef(Nz::Boxf::Zero());
 				Nz::BoundingVolumef centerAndUnit = firstCenterAndUnit;
 				nullBoundingVolume.Update(Nz::Matrix4f::Identity());
 				centerAndUnit.Update(Nz::Matrix4f::Identity());
-				Nz::BoundingVolumef result(Nz::Vector3f::Zero(), Nz::Vector3f::Unit() * 0.5f);
+				Nz::BoundingVolumef result(Nz::Boxf(Nz::Vector3f::Zero(), Nz::Vector3f::Unit() * 0.5f));
 				result.Update(Nz::Matrix4f::Identity());
 
 				REQUIRE(Nz::BoundingVolumef::Lerp(nullBoundingVolume, centerAndUnit, 0.5f) == result);
@@ -118,7 +98,7 @@ SCENARIO("BoundingVolume", "[MATH][BOUNDINGVOLUME]")
 
 		WHEN("We lerp with special cases")
 		{
-			Nz::OrientedBoxf centerAndUnitOBB(0.f, 0.f, 0.f, 1.f, 1.f, 1.f);
+			Nz::OrientedBoxf centerAndUnitOBB(Nz::Boxf(0.f, 0.f, 0.f, 1.f, 1.f, 1.f));
 			centerAndUnitOBB.Update(Nz::Matrix4f::Identity());
 
 			Nz::BoundingVolumef centerAndUnit(centerAndUnitOBB);
@@ -128,7 +108,7 @@ SCENARIO("BoundingVolume", "[MATH][BOUNDINGVOLUME]")
 
 			THEN("Normal to null should give a smaller volume")
 			{
-				Nz::BoundingVolumef result(Nz::Vector3f::Zero(), Nz::Vector3f::Unit() * 0.5f);
+				Nz::BoundingVolumef result(Nz::Boxf(Nz::Vector3f::Zero(), Nz::Vector3f::Unit() * 0.5f));
 				result.Update(Nz::Matrix4f::Identity());
 
 				REQUIRE(Nz::BoundingVolumef::Lerp(centerAndUnit, nullBoundingVolume, 0.5f) == result);
@@ -141,7 +121,7 @@ SCENARIO("BoundingVolume", "[MATH][BOUNDINGVOLUME]")
 
 			THEN("Null to normal should give a small volume")
 			{
-				Nz::BoundingVolumef result(Nz::Vector3f::Zero(), Nz::Vector3f::Unit() * 0.5f);
+				Nz::BoundingVolumef result(Nz::Boxf(Nz::Vector3f::Zero(), Nz::Vector3f::Unit() * 0.5f));
 				result.Update(Nz::Matrix4f::Identity());
 
 				REQUIRE(Nz::BoundingVolumef::Lerp(nullBoundingVolume, centerAndUnit, 0.5f) == result);
