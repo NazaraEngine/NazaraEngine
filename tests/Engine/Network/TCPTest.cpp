@@ -46,6 +46,8 @@ SCENARIO("TCP", "[NETWORK][TCP]")
 			packet << vector123;
 			REQUIRE(client.SendPacket(packet));
 
+			std::this_thread::yield();
+
 			THEN("We should get it on the server")
 			{
 				CHECK(!serverToClient.EndOfStream());
