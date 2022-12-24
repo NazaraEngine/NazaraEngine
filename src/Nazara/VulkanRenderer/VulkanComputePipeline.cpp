@@ -17,7 +17,7 @@ namespace Nz
 	VulkanComputePipeline::VulkanComputePipeline(VulkanDevice& device, ComputePipelineInfo pipelineInfo) :
 	m_pipelineInfo(std::move(pipelineInfo))
 	{
-		if (device.GetEnabledFeatures().computeShaders)
+		if (!device.GetEnabledFeatures().computeShaders)
 			throw std::runtime_error("compute shaders are not enabled on the device");
 
 		VulkanShaderModule& vulkanModule = static_cast<VulkanShaderModule&>(*m_pipelineInfo.shaderModule);

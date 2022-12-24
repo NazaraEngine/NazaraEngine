@@ -104,14 +104,9 @@ namespace Nz
 					nzsl::ShaderStageType stageType;
 					switch (entryPoint.executionModel)
 					{
-						case nzsl::SpirvExecutionModel::Fragment:
-							stageType = nzsl::ShaderStageType::Fragment;
-							break;
-
-						case nzsl::SpirvExecutionModel::Vertex:
-							stageType = nzsl::ShaderStageType::Vertex;
-							break;
-
+						case nzsl::SpirvExecutionModel::GLCompute: stageType = nzsl::ShaderStageType::Compute;  break;
+						case nzsl::SpirvExecutionModel::Fragment:  stageType = nzsl::ShaderStageType::Fragment; break;
+						case nzsl::SpirvExecutionModel::Vertex:    stageType = nzsl::ShaderStageType::Vertex;   break;
 						default:
 							continue; //< Ignore
 					}
