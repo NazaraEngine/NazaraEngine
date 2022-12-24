@@ -175,7 +175,7 @@ namespace Nz
 
 					auto& bindingEntry = m_bindingCache.emplace_back();
 					bindingEntry.bindingIndex = bindingIndex;
-					bindingEntry.content = ShaderBinding::TextureBindings {
+					bindingEntry.content = ShaderBinding::SampledTextureBindings {
 						SafeCast<UInt32>(renderState.shadowMaps2D.size()), &m_textureBindingCache[textureBindingBaseIndex]
 					};
 				}
@@ -197,7 +197,7 @@ namespace Nz
 
 					auto& bindingEntry = m_bindingCache.emplace_back();
 					bindingEntry.bindingIndex = bindingIndex;
-					bindingEntry.content = ShaderBinding::TextureBindings {
+					bindingEntry.content = ShaderBinding::SampledTextureBindings {
 						SafeCast<UInt32>(renderState.shadowMapsCube.size()), &m_textureBindingCache[textureBindingBaseIndex]
 					};
 				}
@@ -230,7 +230,7 @@ namespace Nz
 				{
 					auto& bindingEntry = m_bindingCache.emplace_back();
 					bindingEntry.bindingIndex = bindingIndex;
-					bindingEntry.content = ShaderBinding::TextureBinding{
+					bindingEntry.content = ShaderBinding::SampledTextureBinding{
 						whiteTexture2D.get(), defaultSampler.get()
 					};
 				}
@@ -285,7 +285,7 @@ namespace Nz
 
 			if (currentPipeline != drawData.renderPipeline)
 			{
-				commandBuffer.BindPipeline(*drawData.renderPipeline);
+				commandBuffer.BindRenderPipeline(*drawData.renderPipeline);
 				currentPipeline = drawData.renderPipeline;
 			}
 

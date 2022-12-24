@@ -38,7 +38,7 @@ namespace Nz
 			OpenGLShaderBinding& operator=(OpenGLShaderBinding&&) = delete;
 
 		private:
-			void HandleTextureBinding(UInt32 bindingIndex, const TextureBinding& textureBinding);
+			void HandleTextureBinding(UInt32 bindingIndex, const SampledTextureBinding& textureBinding);
 			void Release() override;
 
 			OpenGLRenderPipelineLayout& m_owner;

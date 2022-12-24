@@ -54,9 +54,12 @@ namespace Nz::GL
 	enum class Extension
 	{
 		ClipControl,
+		ComputeShader,
 		DebugOutput,
 		DepthClamp,
 		PolygonMode,
+		ShaderImageLoadFormatted,
+		ShaderImageLoadStore,
 		SpirV,
 		StorageBuffers,
 		TextureCompressionS3tc,
@@ -127,6 +130,7 @@ namespace Nz::GL
 			void BindBuffer(BufferTarget target, GLuint buffer, bool force = false) const;
 			[[nodiscard]] GLenum BindFramebuffer(GLuint fbo) const;
 			void BindFramebuffer(FramebufferTarget target, GLuint fbo) const;
+			void BindImageTexture(GLuint imageUnit, GLuint texture, GLint level, GLboolean layered, GLint layer, GLenum access, GLenum format) const;
 			void BindProgram(GLuint program) const;
 			void BindSampler(UInt32 textureUnit, GLuint sampler) const;
 			void BindStorageBuffer(UInt32 storageUnit, GLuint buffer, GLintptr offset, GLsizeiptr size) const;
@@ -145,11 +149,16 @@ namespace Nz::GL
 
 			virtual void EnableVerticalSync(bool enabled) = 0;
 
+			inline bool GetBoolean(GLenum name) const;
+			inline bool GetBoolean(GLenum name, GLuint index) const;
 			inline const OpenGLDevice* GetDevice() const;
 			inline ExtensionStatus GetExtensionStatus(Extension extension) const;
+			inline float GetFloat(GLenum name) const;
 			inline GLFunction GetFunctionByIndex(std::size_t funcIndex) const;
-			inline const OpenGLVaoCache& GetVaoCache() const;
+			template<typename T> T GetInteger(GLenum name) const;
+			template<typename T> T GetInteger(GLenum name, GLuint index) const;
 			inline const ContextParams& GetParams() const;
+			inline const OpenGLVaoCache& GetVaoCache() const;
 
 			inline bool IsExtensionSupported(Extension extension) const;
 			inline bool IsExtensionSupported(const std::string& extension) const;
@@ -232,6 +241,16 @@ namespace Nz::GL
 					GLsizeiptr size = 0;
 				};
 
+				struct ImageUnits
+				{
+					GLboolean layered = GL_FALSE;
+					GLenum access = GL_READ_ONLY;
+					GLenum format = GL_RGBA8;
+					GLint layer = 0;
+					GLint level = 0;
+					GLuint texture = 0;
+				};
+
 				struct TextureUnit
 				{
 					GLuint sampler = 0;
@@ -239,9 +258,10 @@ namespace Nz::GL
 				};
 
 				std::array<GLuint, UnderlyingCast(BufferTarget::Max) + 1> bufferTargets = { 0 };
-				std::vector<TextureUnit> textureUnits;
 				std::vector<BufferBinding> storageUnits;
 				std::vector<BufferBinding> uboUnits;
+				std::vector<ImageUnits> imageUnits;
+				std::vector<TextureUnit> textureUnits;
 				Box scissorBox;
 				Box viewport;
 				GLuint boundProgram = 0;

@@ -42,9 +42,14 @@ namespace Nz
 		}
 
 		NzValidateFeature(anisotropicFiltering, "anistropic filtering feature")
+		NzValidateFeature(computeShaders, "compute shaders feature")
 		NzValidateFeature(depthClamping, "depth clamping feature")
 		NzValidateFeature(nonSolidFaceFilling, "non-solid face filling feature")
 		NzValidateFeature(storageBuffers, "storage buffers support")
+		NzValidateFeature(textureRead, "texture read")
+		NzValidateFeature(textureReadWithoutFormat, "texture read without format")
+		NzValidateFeature(textureWrite, "texture write")
+		NzValidateFeature(textureWriteWithoutFormat, "texture write without format")
 		NzValidateFeature(unrestrictedTextureViews, "unrestricted texture view support")
 
 #undef NzValidateFeature

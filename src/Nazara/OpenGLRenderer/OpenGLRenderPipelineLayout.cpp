@@ -96,6 +96,16 @@ namespace Nz
 		return ShaderBindingPtr(PlacementNew(freeBindingMemory, *this, poolIndex, freeBindingId));
 	}
 
+	auto OpenGLRenderPipelineLayout::GetSampledTextureDescriptor(std::size_t poolIndex, std::size_t bindingIndex, std::size_t descriptorIndex) -> SampledTextureDescriptor&
+	{
+		assert(poolIndex < m_descriptorPools.size());
+		auto& pool = m_descriptorPools[poolIndex];
+		assert(!pool.freeBindings.Test(bindingIndex));
+		assert(descriptorIndex < m_maxDescriptorCount);
+
+		return pool.descriptors[bindingIndex * m_maxDescriptorCount + descriptorIndex].emplace<SampledTextureDescriptor>();
+	}
+
 	auto OpenGLRenderPipelineLayout::GetStorageBufferDescriptor(std::size_t poolIndex, std::size_t bindingIndex, std::size_t descriptorIndex) -> StorageBufferDescriptor&
 	{
 		assert(poolIndex < m_descriptorPools.size());

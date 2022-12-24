@@ -200,7 +200,7 @@ int main()
 	pipelineTextureBinding.setIndex = 1;
 	pipelineTextureBinding.bindingIndex = 0;
 	pipelineTextureBinding.shaderStageFlags = nzsl::ShaderStageType::Fragment;
-	pipelineTextureBinding.type = Nz::ShaderBindingType::Texture;
+	pipelineTextureBinding.type = Nz::ShaderBindingType::Sampler;
 
 	std::shared_ptr<Nz::RenderPipelineLayout> renderPipelineLayout = device->InstantiateRenderPipelineLayout(std::move(pipelineLayoutInfo));
 
@@ -218,14 +218,14 @@ int main()
 		}
 	});
 
-	Nz::ShaderBinding::TextureBinding textureBinding {
+	Nz::ShaderBinding::SampledTextureBinding textureBinding {
 		texture.get(), textureSampler.get()
 	};
 
 	textureShaderBinding->Update({
 		{
 			0,
-			Nz::ShaderBinding::TextureBindings {
+			Nz::ShaderBinding::SampledTextureBindings {
 				1, &textureBinding
 			}
 		}
@@ -389,7 +389,7 @@ int main()
 				builder.BeginRenderPass(windowRT->GetFramebuffer(frame.GetFramebufferIndex()), windowRT->GetRenderPass(), renderRect, { clearValues[0], clearValues[1] });
 				{
 					builder.BindIndexBuffer(*renderBufferIB, Nz::IndexType::U16);
-					builder.BindPipeline(*pipeline);
+					builder.BindRenderPipeline(*pipeline);
 					builder.BindVertexBuffer(0, *renderBufferVB);
 					builder.BindShaderBinding(0, *viewerShaderBinding);
 					builder.BindShaderBinding(1, *textureShaderBinding);

@@ -150,7 +150,7 @@ namespace Nz
 
 			bindings.push_back({
 				textureSlot.bindingIndex,
-				ShaderBinding::TextureBinding {
+				ShaderBinding::SampledTextureBinding {
 					texture.get(), sampler.get()
 				}
 			});

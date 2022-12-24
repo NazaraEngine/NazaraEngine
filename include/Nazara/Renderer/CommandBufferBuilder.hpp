@@ -20,6 +20,7 @@
 
 namespace Nz
 {
+	class ComputePipeline;
 	class Framebuffer;
 	class RenderPass;
 	class RenderPipeline;
@@ -42,8 +43,9 @@ namespace Nz
 			inline void BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, const Recti& renderRect);
 			inline void BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, const Recti& renderRect, std::initializer_list<ClearValues> clearValues);
 
+			virtual void BindComputePipeline(const ComputePipeline& pipeline) = 0;
 			virtual void BindIndexBuffer(const RenderBuffer& indexBuffer, IndexType indexType, UInt64 offset = 0) = 0;
-			virtual void BindPipeline(const RenderPipeline& pipeline) = 0;
+			virtual void BindRenderPipeline(const RenderPipeline& pipeline) = 0;
 			virtual void BindShaderBinding(UInt32 set, const ShaderBinding& binding) = 0;
 			virtual void BindShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding) = 0;
 			virtual void BindVertexBuffer(UInt32 binding, const RenderBuffer& vertexBuffer, UInt64 offset = 0) = 0;
@@ -58,6 +60,8 @@ namespace Nz
 
 			virtual void Draw(UInt32 vertexCount, UInt32 instanceCount = 1, UInt32 firstVertex = 0, UInt32 firstInstance = 0) = 0;
 			virtual void DrawIndexed(UInt32 indexCount, UInt32 instanceCount = 1, UInt32 firstIndex = 0, UInt32 firstInstance = 0) = 0;
+
+			virtual void Dispatch(UInt32 workgroupX, UInt32 workgroupY, UInt32 workgroupZ) = 0;
 
 			virtual void EndDebugRegion() = 0;
 			virtual void EndRenderPass() = 0;

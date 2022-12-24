@@ -4,6 +4,7 @@
 
 #include <Nazara/OpenGLRenderer/OpenGLCommandBufferBuilder.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLCommandBuffer.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLComputePipeline.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderPass.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderPipeline.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderPipelineLayout.hpp>
@@ -26,6 +27,13 @@ namespace Nz
 		m_commandBuffer.SetFramebuffer(static_cast<const OpenGLFramebuffer&>(framebuffer), static_cast<const OpenGLRenderPass&>(renderPass), clearValues, clearValueCount);
 	}
 
+	void OpenGLCommandBufferBuilder::BindComputePipeline(const ComputePipeline& pipeline)
+	{
+		const OpenGLComputePipeline& glPipeline = static_cast<const OpenGLComputePipeline&>(pipeline);
+
+		m_commandBuffer.BindComputePipeline(&glPipeline);
+	}
+
 	void OpenGLCommandBufferBuilder::BindIndexBuffer(const RenderBuffer& indexBuffer, IndexType indexType, UInt64 offset)
 	{
 		const OpenGLBuffer& glBuffer = static_cast<const OpenGLBuffer&>(indexBuffer);
@@ -33,11 +41,11 @@ namespace Nz
 		m_commandBuffer.BindIndexBuffer(glBuffer.GetBuffer().GetObjectId(), indexType, offset);
 	}
 
-	void OpenGLCommandBufferBuilder::BindPipeline(const RenderPipeline& pipeline)
+	void OpenGLCommandBufferBuilder::BindRenderPipeline(const RenderPipeline& pipeline)
 	{
 		const OpenGLRenderPipeline& glPipeline = static_cast<const OpenGLRenderPipeline&>(pipeline);
 
-		m_commandBuffer.BindPipeline(&glPipeline);
+		m_commandBuffer.BindRenderPipeline(&glPipeline);
 	}
 
 	void OpenGLCommandBufferBuilder::BindShaderBinding(UInt32 set, const ShaderBinding& binding)
@@ -91,6 +99,11 @@ namespace Nz
 		const OpenGLTexture& targetTexture = static_cast<const OpenGLTexture&>(toTexture);
 
 		m_commandBuffer.CopyTexture(sourceTexture, fromBox, targetTexture, toPos);
+	}
+
+	void OpenGLCommandBufferBuilder::Dispatch(UInt32 workgroupX, UInt32 workgroupY, UInt32 workgroupZ)
+	{
+		m_commandBuffer.Dispatch(workgroupX, workgroupY, workgroupZ);
 	}
 
 	void OpenGLCommandBufferBuilder::Draw(UInt32 vertexCount, UInt32 instanceCount, UInt32 firstVertex, UInt32 firstInstance)

@@ -54,11 +54,20 @@ namespace Nz
 		deviceInfo.name = physDevice.properties.deviceName;
 
 		deviceInfo.features.anisotropicFiltering = physDevice.features.samplerAnisotropy;
+		deviceInfo.features.computeShaders = true;
 		deviceInfo.features.depthClamping = physDevice.features.depthClamp;
 		deviceInfo.features.nonSolidFaceFilling = physDevice.features.fillModeNonSolid;
 		deviceInfo.features.storageBuffers = true;
+		deviceInfo.features.textureRead = true;
+		deviceInfo.features.textureReadWithoutFormat = physDevice.features.shaderStorageImageReadWithoutFormat;
+		deviceInfo.features.textureWrite = true;
+		deviceInfo.features.textureWriteWithoutFormat = physDevice.features.shaderStorageImageWriteWithoutFormat;
 		deviceInfo.features.unrestrictedTextureViews = true;
 
+		deviceInfo.limits.maxComputeSharedMemorySize = physDevice.properties.limits.maxComputeSharedMemorySize;
+		deviceInfo.limits.maxComputeWorkGroupCount = { physDevice.properties.limits.maxComputeWorkGroupCount[0], physDevice.properties.limits.maxComputeWorkGroupCount[1], physDevice.properties.limits.maxComputeWorkGroupCount[2] };
+		deviceInfo.limits.maxComputeWorkGroupSize = { physDevice.properties.limits.maxComputeWorkGroupSize[0], physDevice.properties.limits.maxComputeWorkGroupSize[1], physDevice.properties.limits.maxComputeWorkGroupSize[2] };
+		deviceInfo.limits.maxComputeWorkGroupInvocations = physDevice.properties.limits.maxComputeWorkGroupInvocations;
 		deviceInfo.limits.maxStorageBufferSize = physDevice.properties.limits.maxStorageBufferRange;
 		deviceInfo.limits.maxUniformBufferSize = physDevice.properties.limits.maxUniformBufferRange;
 		deviceInfo.limits.minStorageBufferOffsetAlignment = physDevice.properties.limits.minStorageBufferOffsetAlignment;

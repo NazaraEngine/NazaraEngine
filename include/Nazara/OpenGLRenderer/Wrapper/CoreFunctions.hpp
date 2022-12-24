@@ -118,9 +118,13 @@ typedef void (GL_APIENTRYP PFNGLSPECIALIZESHADERPROC) (GLuint shader, const GLch
 	cb(glGetActiveUniformBlockiv, PFNGLGETACTIVEUNIFORMBLOCKIVPROC) \
 	cb(glGetActiveUniformBlockName, PFNGLGETACTIVEUNIFORMBLOCKNAMEPROC) \
 	cb(glGetBooleanv, PFNGLGETBOOLEANVPROC) \
+	cb(glGetBooleani_v, PFNGLGETBOOLEANI_VPROC) \
 	cb(glGetBufferParameteriv, PFNGLGETBUFFERPARAMETERIVPROC) \
 	cb(glGetError, PFNGLGETERRORPROC) \
 	cb(glGetFloatv, PFNGLGETFLOATVPROC) \
+	cb(glGetInteger64i_v, PFNGLGETINTEGER64I_VPROC) \
+	cb(glGetInteger64v, PFNGLGETINTEGER64VPROC) \
+	cb(glGetIntegeri_v, PFNGLGETINTEGERI_VPROC) \
 	cb(glGetIntegerv, PFNGLGETINTEGERVPROC) \
 	cb(glGetProgramBinary, PFNGLGETPROGRAMBINARYPROC) \
 	cb(glGetProgramInfoLog, PFNGLGETPROGRAMINFOLOGPROC) \
@@ -195,8 +199,11 @@ typedef void (GL_APIENTRYP PFNGLSPECIALIZESHADERPROC) (GLuint shader, const GLch
 	extCb(glDrawBuffer, PFNGLDRAWBUFFERPROC) \
 	extCb(glPolygonMode, PFNGLPOLYGONMODEPROC) \
 	/* OpenGL 4.2 - OpenGL ES 3.1 */\
+	extCb(glBindImageTexture, PFNGLBINDIMAGETEXTUREPROC) \
 	extCb(glMemoryBarrier, PFNGLMEMORYBARRIERPROC) \
 	extCb(glMemoryBarrierByRegion, PFNGLMEMORYBARRIERBYREGIONPROC) \
+	/* OpenGL 4.3 - OpenGL ES 3.1 */\
+	extCb(glDispatchCompute, PFNGLDISPATCHCOMPUTEPROC) \
 	/* OpenGL 4.3 - OpenGL ES 3.2 */\
 	extCb(glCopyImageSubData, PFNGLCOPYIMAGESUBDATAPROC) \
 	extCb(glDebugMessageCallback, PFNGLDEBUGMESSAGECALLBACKPROC) \

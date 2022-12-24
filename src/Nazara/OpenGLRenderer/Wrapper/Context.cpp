@@ -172,6 +172,32 @@ namespace Nz::GL
 		}
 	}
 
+	void Context::BindImageTexture(GLuint imageUnit, GLuint texture, GLint level, GLboolean layered, GLint layer, GLenum access, GLenum format) const
+	{
+		if (imageUnit >= m_state.imageUnits.size())
+			throw std::runtime_error("unsupported image unit #" + std::to_string(imageUnit));
+
+		layer = (layered == GL_TRUE) ? layer : 0;
+
+		auto& unit = m_state.imageUnits[imageUnit];
+		if (unit.texture != texture || unit.level != level || unit.layered != layered || unit.layer != layer || unit.access != access || unit.format != format)
+		{
+			if (!SetCurrentContext(this))
+				throw std::runtime_error("failed to activate context");
+
+			if (!glBindImageTexture)
+				throw std::runtime_error("image binding is not supported");
+
+			glBindImageTexture(imageUnit, texture, level, layered, layer, access, format);
+			unit.access = access;
+			unit.format = format;
+			unit.layer = layer;
+			unit.layered = layered;
+			unit.level = level;
+			unit.texture = texture;
+		}
+	}
+
 	void Context::BindProgram(GLuint program) const
 	{
 		if (m_state.boundProgram != program)
@@ -413,21 +439,13 @@ namespace Nz::GL
 			return false;
 		}
 
-		GLint majorVersion = 0;
-		glGetIntegerv(GL_MAJOR_VERSION, &majorVersion);
+		m_params.glMajorVersion = GetInteger<unsigned int>(GL_MAJOR_VERSION);
+		m_params.glMinorVersion = GetInteger<unsigned int>(GL_MINOR_VERSION);
 
-		GLint minorVersion = 0;
-		glGetIntegerv(GL_MINOR_VERSION, &minorVersion);
-
-		m_params.glMajorVersion = majorVersion;
-		m_params.glMinorVersion = minorVersion;
-
-		unsigned int glVersion = majorVersion * 100 + minorVersion * 10;
+		unsigned int glVersion = m_params.glMajorVersion * 100 + m_params.glMinorVersion * 10;
 
 		// Load extensions
-		GLint extensionCount = 0;
-		glGetIntegerv(GL_NUM_EXTENSIONS, &extensionCount);
-
+		GLint extensionCount = GetInteger<GLint>(GL_NUM_EXTENSIONS);
 		for (GLint i = 0; i < extensionCount; ++i)
 			m_supportedExtensions.emplace(reinterpret_cast<const char*>(glGetStringi(GL_EXTENSIONS, i)));
 
@@ -440,6 +458,12 @@ namespace Nz::GL
 			m_extensionStatus[UnderlyingCast(Extension::ClipControl)] = ExtensionStatus::ARB;
 		else if (m_supportedExtensions.count("GL_EXT_clip_control"))
 			m_extensionStatus[UnderlyingCast(Extension::ClipControl)] = ExtensionStatus::EXT;
+
+		// Compute shaders
+		if ((m_params.type == ContextType::OpenGL && glVersion >= 430) || (m_params.type == ContextType::OpenGL_ES && glVersion >= 310))
+			m_extensionStatus[UnderlyingCast(Extension::ComputeShader)] = ExtensionStatus::Core;
+		else if (m_supportedExtensions.count("GL_ARB_compute_shader"))
+			m_extensionStatus[UnderlyingCast(Extension::ComputeShader)] = ExtensionStatus::ARB;
 
 		// Debug output
 		if ((m_params.type == ContextType::OpenGL && glVersion >= 430) || (m_params.type == ContextType::OpenGL_ES && glVersion >= 320))
@@ -464,6 +488,18 @@ namespace Nz::GL
 			m_extensionStatus[UnderlyingCast(Extension::PolygonMode)] = ExtensionStatus::Core;
 		else if (m_supportedExtensions.count("GL_NV_polygon_mode"))
 			m_extensionStatus[UnderlyingCast(Extension::DepthClamp)] = ExtensionStatus::Vendor;
+
+		// Shader image load formatted
+		if (m_supportedExtensions.count("GL_EXT_shader_image_load_formatted"))
+			m_extensionStatus[UnderlyingCast(Extension::ShaderImageLoadFormatted)] = ExtensionStatus::EXT;
+
+		// Shader image load/store
+		if ((m_params.type == ContextType::OpenGL && glVersion >= 420) || (m_params.type == ContextType::OpenGL_ES && glVersion >= 310))
+			m_extensionStatus[UnderlyingCast(Extension::ShaderImageLoadStore)] = ExtensionStatus::Core;
+		else if (m_supportedExtensions.count("GL_ARB_shader_image_load_store"))
+			m_extensionStatus[UnderlyingCast(Extension::ShaderImageLoadStore)] = ExtensionStatus::ARB;
+		else if (m_supportedExtensions.count("GL_EXT_shader_image_load_store"))
+			m_extensionStatus[UnderlyingCast(Extension::ShaderImageLoadStore)] = ExtensionStatus::EXT;
 
 		// SPIR-V support
 		if (m_params.type == ContextType::OpenGL && glVersion >= 460)
@@ -583,16 +619,14 @@ namespace Nz::GL
 		else
 			m_params.validationLevel = m_params.validationLevel;
 
-		GLint maxTextureUnits = -1;
-		glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &maxTextureUnits);
+		unsigned int maxTextureUnits = GetInteger<unsigned int>(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
 		if (maxTextureUnits < 32) //< OpenGL ES 3.0 requires at least 32 textures units
 			NazaraWarning("GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS is " + std::to_string(maxTextureUnits) + ", expected >= 32");
 
 		assert(maxTextureUnits > 0);
 		m_state.textureUnits.resize(maxTextureUnits);
 
-		GLint maxUniformBufferUnits = -1;
-		glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, &maxUniformBufferUnits);
+		unsigned int maxUniformBufferUnits = GetInteger<unsigned int>(GL_MAX_UNIFORM_BUFFER_BINDINGS);
 		if (maxUniformBufferUnits < 24) //< OpenGL ES 3.0 requires at least 24 uniform buffers units
 			NazaraWarning("GL_MAX_UNIFORM_BUFFER_BINDINGS is " + std::to_string(maxUniformBufferUnits) + ", expected >= 24");
 
@@ -601,8 +635,7 @@ namespace Nz::GL
 
 		if (IsExtensionSupported(Extension::StorageBuffers))
 		{
-			GLint maxStorageBufferUnits = -1;
-			glGetIntegerv(GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS, &maxStorageBufferUnits);
+			unsigned int maxStorageBufferUnits = GetInteger<unsigned int>(GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS);
 			if (maxStorageBufferUnits < 8) //< OpenGL ES 3.1 requires at least 8 storage buffers units
 				NazaraWarning("GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS is " + std::to_string(maxUniformBufferUnits) + ", expected >= 8");
 

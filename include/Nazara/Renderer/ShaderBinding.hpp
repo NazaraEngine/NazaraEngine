@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/Config.hpp>
+#include <Nazara/Renderer/Enums.hpp>
 #include <memory>
 #include <string_view>
 #include <variant>
@@ -43,6 +44,18 @@ namespace Nz
 			ShaderBinding& operator=(const ShaderBinding&) = delete;
 			ShaderBinding& operator=(ShaderBinding&&) = delete;
 
+			struct SampledTextureBinding
+			{
+				const Texture* texture;
+				const TextureSampler* sampler;
+			};
+
+			struct SampledTextureBindings
+			{
+				UInt32 arraySize;
+				const SampledTextureBinding* textureBindings;
+			};
+
 			struct StorageBufferBinding
 			{
 				RenderBuffer* buffer;
@@ -53,13 +66,7 @@ namespace Nz
 			struct TextureBinding
 			{
 				const Texture* texture;
-				const TextureSampler* sampler;
-			};
-
-			struct TextureBindings
-			{
-				UInt32 arraySize;
-				const TextureBinding* textureBindings;
+				TextureAccess access;
 			};
 
 			struct UniformBufferBinding
@@ -72,7 +79,7 @@ namespace Nz
 			struct Binding
 			{
 				UInt32 bindingIndex;
-				std::variant<StorageBufferBinding, TextureBinding, TextureBindings, UniformBufferBinding> content;
+				std::variant<SampledTextureBinding, SampledTextureBindings, StorageBufferBinding, TextureBinding, UniformBufferBinding> content;
 			};
 
 		protected:

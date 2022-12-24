@@ -33,7 +33,7 @@ namespace Nz
 
 		private:
 			std::vector<ShaderBinding::Binding> m_bindingCache;
-			std::vector<ShaderBinding::TextureBinding> m_textureBindingCache;
+			std::vector<ShaderBinding::SampledTextureBinding> m_textureBindingCache;
 			RenderElementPool<RenderSubmesh> m_submeshPool;
 	};
 

@@ -43,6 +43,7 @@ namespace Nz
 
 		private:
 			struct DescriptorPool;
+			struct SampledTextureDescriptor;
 			struct StorageBufferDescriptor;
 			struct TextureDescriptor;
 			struct UniformBufferDescriptor;
@@ -50,11 +51,19 @@ namespace Nz
 			DescriptorPool& AllocatePool();
 			ShaderBindingPtr AllocateFromPool(std::size_t poolIndex, UInt32 setIndex);
 			template<typename F> void ForEachDescriptor(std::size_t poolIndex, std::size_t bindingIndex, F&& functor);
+			SampledTextureDescriptor& GetSampledTextureDescriptor(std::size_t poolIndex, std::size_t bindingIndex, std::size_t descriptorIndex);
 			StorageBufferDescriptor& GetStorageBufferDescriptor(std::size_t poolIndex, std::size_t bindingIndex, std::size_t descriptorIndex);
 			TextureDescriptor& GetTextureDescriptor(std::size_t poolIndex, std::size_t bindingIndex, std::size_t descriptorIndex);
 			UniformBufferDescriptor& GetUniformBufferDescriptor(std::size_t poolIndex, std::size_t bindingIndex, std::size_t descriptorIndex);
 			void Release(ShaderBinding& binding);
 			inline void TryToShrink();
+
+			struct SampledTextureDescriptor
+			{
+				GLuint texture;
+				GLuint sampler;
+				GL::TextureTarget textureTarget;
+			};
 
 			struct StorageBufferDescriptor
 			{
@@ -65,9 +74,12 @@ namespace Nz
 
 			struct TextureDescriptor
 			{
+				GLboolean layered;
+				GLenum access;
+				GLenum format;
+				GLint layer;
+				GLint level;
 				GLuint texture;
-				GLuint sampler;
-				GL::TextureTarget textureTarget;
 			};
 
 			struct UniformBufferDescriptor
@@ -77,7 +89,7 @@ namespace Nz
 				GLsizeiptr size;
 			};
 
-			using Descriptor = std::variant<std::monostate, StorageBufferDescriptor, TextureDescriptor, UniformBufferDescriptor>;
+			using Descriptor = std::variant<std::monostate, SampledTextureDescriptor, StorageBufferDescriptor, TextureDescriptor, UniformBufferDescriptor>;
 
 			struct DescriptorPool
 			{

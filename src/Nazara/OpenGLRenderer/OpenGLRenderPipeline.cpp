@@ -88,7 +88,7 @@ namespace Nz
 				if (location == -1)
 					continue;
 
-				m_program.Uniform(location, static_cast<int>(explicitBinding.binding)); //< FIXME: Use SafeCast
+				m_program.Uniform(location, SafeCast<int>(explicitBinding.binding));
 			}
 		}
 	}

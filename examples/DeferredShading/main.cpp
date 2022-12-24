@@ -151,7 +151,7 @@ int main()
 	textureBinding.setIndex = 0;
 	textureBinding.bindingIndex = 1;
 	textureBinding.shaderStageFlags = nzsl::ShaderStageType::Fragment;
-	textureBinding.type = Nz::ShaderBindingType::Texture;
+	textureBinding.type = Nz::ShaderBindingType::Sampler;
 
 	std::shared_ptr<Nz::RenderPipelineLayout> skyboxPipelineLayout = device->InstantiateRenderPipelineLayout(std::move(skyboxPipelineLayoutInfo));
 
@@ -275,7 +275,7 @@ int main()
 			0,
 			i + 1,
 			1,
-			Nz::ShaderBindingType::Texture,
+			Nz::ShaderBindingType::Sampler,
 			nzsl::ShaderStageType::Fragment,
 		});
 	}
@@ -367,7 +367,7 @@ int main()
 
 	fullscreenPipelineLayoutInfoViewer.bindings.push_back({
 		0, 1, 1,
-		Nz::ShaderBindingType::Texture,
+		Nz::ShaderBindingType::Sampler,
 		nzsl::ShaderStageType::Fragment,
 	});
 
@@ -452,7 +452,7 @@ int main()
 
 	bloomBlendPipelineLayoutInfo.bindings.push_back({
 		0, 2, 1,
-		Nz::ShaderBindingType::Texture,
+		Nz::ShaderBindingType::Sampler,
 		nzsl::ShaderStageType::Fragment,
 	});
 
@@ -476,7 +476,7 @@ int main()
 
 	fullscreenPipelineLayoutInfo.bindings.push_back({
 		0, 0, 1,
-		Nz::ShaderBindingType::Texture,
+		Nz::ShaderBindingType::Sampler,
 		nzsl::ShaderStageType::Fragment,
 	});
 
@@ -504,7 +504,7 @@ int main()
 			},
 			{
 				0, 2, 1,
-				Nz::ShaderBindingType::Texture,
+				Nz::ShaderBindingType::Sampler,
 				nzsl::ShaderStageType::Fragment,
 			},
 		}
@@ -613,7 +613,7 @@ int main()
 		},
 		{
 			1,
-			Nz::ShaderBinding::TextureBinding {
+			Nz::ShaderBinding::SampledTextureBinding {
 				skyboxTexture.get(),
 				textureSampler.get()
 			}
@@ -837,10 +837,10 @@ int main()
 			{
 				builder.BindShaderBinding(1, *lightingShaderBindings[i]);
 
-				builder.BindPipeline(*stencilPipeline);
+				builder.BindRenderPipeline(*stencilPipeline);
 				builder.DrawIndexed(coneMeshGfx->GetIndexCount(0));
 
-				builder.BindPipeline(*lightingPipeline);
+				builder.BindRenderPipeline(*lightingPipeline);
 				builder.DrawIndexed(coneMeshGfx->GetIndexCount(0));
 			}
 		});
@@ -862,7 +862,7 @@ int main()
 
 			builder.BindIndexBuffer(*cubeMeshGfx->GetIndexBuffer(0), Nz::IndexType::U16);
 			builder.BindVertexBuffer(0, *cubeMeshGfx->GetVertexBuffer(0));
-			builder.BindPipeline(*skyboxPipeline);
+			builder.BindRenderPipeline(*skyboxPipeline);
 
 			builder.DrawIndexed(Nz::SafeCast<Nz::UInt32>(cubeMeshGfx->GetIndexCount(0)));
 
@@ -932,7 +932,7 @@ int main()
 
 			builder.BindShaderBinding(0, *godRaysShaderBinding);
 
-			builder.BindPipeline(*godraysPipeline);
+			builder.BindRenderPipeline(*godraysPipeline);
 
 			builder.Draw(3);
 		});
@@ -948,7 +948,7 @@ int main()
 
 			builder.BindShaderBinding(0, *bloomBrightShaderBinding);
 
-			builder.BindPipeline(*bloomBrightPipeline);
+			builder.BindRenderPipeline(*bloomBrightPipeline);
 
 			builder.Draw(3);
 		});
@@ -970,7 +970,7 @@ int main()
 				builder.SetViewport(env.renderRect);
 
 				builder.BindShaderBinding(0, *gaussianBlurShaderBinding[i * 2 + 0]);
-				builder.BindPipeline(*gaussianBlurPipeline);
+				builder.BindRenderPipeline(*gaussianBlurPipeline);
 
 				builder.Draw(3);
 			});
@@ -990,7 +990,7 @@ int main()
 				builder.SetViewport(env.renderRect);
 
 				builder.BindShaderBinding(0, *gaussianBlurShaderBinding[i * 2 + 1]);
-				builder.BindPipeline(*gaussianBlurPipeline);
+				builder.BindRenderPipeline(*gaussianBlurPipeline);
 
 				builder.Draw(3);
 			});
@@ -1011,7 +1011,7 @@ int main()
 			builder.SetViewport(env.renderRect);
 
 			// Blend bloom
-			builder.BindPipeline(*bloomBlendPipeline);
+			builder.BindRenderPipeline(*bloomBlendPipeline);
 			for (std::size_t i = 0; i < BloomSubdivisionCount; ++i)
 			{
 				builder.BindShaderBinding(0, *bloomBlendShaderBinding[i]);
@@ -1046,7 +1046,7 @@ int main()
 			builder.SetViewport(env.renderRect);
 
 			builder.BindShaderBinding(0, *toneMappingShaderBinding);
-			builder.BindPipeline(*toneMappingPipeline);
+			builder.BindRenderPipeline(*toneMappingPipeline);
 
 			builder.Draw(3);
 		});
@@ -1218,21 +1218,21 @@ int main()
 				},
 				{
 					1,
-					Nz::ShaderBinding::TextureBinding {
+					Nz::ShaderBinding::SampledTextureBinding {
 						bakedGraph.GetAttachmentTexture(colorTexture).get(),
 						textureSampler.get()
 					}
 				},
 				{
 					2,
-					Nz::ShaderBinding::TextureBinding {
+					Nz::ShaderBinding::SampledTextureBinding {
 						bakedGraph.GetAttachmentTexture(normalTexture).get(),
 						textureSampler.get()
 					}
 				},
 				{
 					3,
-					Nz::ShaderBinding::TextureBinding {
+					Nz::ShaderBinding::SampledTextureBinding {
 						bakedGraph.GetAttachmentTexture(positionTexture).get(),
 						textureSampler.get()
 					}
@@ -1271,7 +1271,7 @@ int main()
 				},
 				{
 					1,
-					Nz::ShaderBinding::TextureBinding {
+					Nz::ShaderBinding::SampledTextureBinding {
 						bakedGraph.GetAttachmentTexture(lightOutput).get(),
 						textureSampler.get()
 					}
@@ -1296,7 +1296,7 @@ int main()
 						},
 						{
 							1,
-							Nz::ShaderBinding::TextureBinding {
+							Nz::ShaderBinding::SampledTextureBinding {
 								bakedGraph.GetAttachmentTexture((i == 0 && j == 0) ? bloomBrightOutput : bloomTextures[bloomTextureIndex++]).get(),
 								textureSampler.get()
 							}
@@ -1331,7 +1331,7 @@ int main()
 					},*/
 					{
 						2,
-						Nz::ShaderBinding::TextureBinding {
+						Nz::ShaderBinding::SampledTextureBinding {
 							bakedGraph.GetAttachmentTexture(bloomTextures[i * 2 + 1]).get(),
 							textureSampler.get()
 						}
@@ -1345,7 +1345,7 @@ int main()
 			bloomBlitBinding->Update({
 				{
 					0,
-					Nz::ShaderBinding::TextureBinding {
+					Nz::ShaderBinding::SampledTextureBinding {
 						bakedGraph.GetAttachmentTexture(lightOutput).get(),
 						textureSampler.get()
 					}
@@ -1358,7 +1358,7 @@ int main()
 			bloomSkipBlit->Update({
 				{
 					0,
-					Nz::ShaderBinding::TextureBinding {
+					Nz::ShaderBinding::SampledTextureBinding {
 						bakedGraph.GetAttachmentTexture(lightOutput).get(),
 						textureSampler.get()
 					}
@@ -1385,7 +1385,7 @@ int main()
 				},
 				{
 					2,
-					Nz::ShaderBinding::TextureBinding {
+					Nz::ShaderBinding::SampledTextureBinding {
 						bakedGraph.GetAttachmentTexture(occluderTexture).get(),
 						textureSampler.get()
 					}
@@ -1405,7 +1405,7 @@ int main()
 				},
 				{
 					1,
-					Nz::ShaderBinding::TextureBinding {
+					Nz::ShaderBinding::SampledTextureBinding {
 						bakedGraph.GetAttachmentTexture(bloomOutput).get(),
 						textureSampler.get()
 					}
@@ -1432,7 +1432,7 @@ int main()
 				},*/
 				{
 					2,
-					Nz::ShaderBinding::TextureBinding {
+					Nz::ShaderBinding::SampledTextureBinding {
 						bakedGraph.GetAttachmentTexture(godRaysTexture).get(),
 						textureSampler.get()
 					}
@@ -1445,7 +1445,7 @@ int main()
 			finalBlitBinding->Update({
 				{
 					0,
-					Nz::ShaderBinding::TextureBinding {
+					Nz::ShaderBinding::SampledTextureBinding {
 						bakedGraph.GetAttachmentTexture(toneMappingOutput).get(),
 						textureSampler.get()
 					}
@@ -1548,7 +1548,7 @@ int main()
 					builder.SetViewport(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
 
 					builder.BindShaderBinding(0, *finalBlitBinding);
-					builder.BindPipeline(*fullscreenPipeline);
+					builder.BindRenderPipeline(*fullscreenPipeline);
 
 					builder.Draw(3);
 				}
