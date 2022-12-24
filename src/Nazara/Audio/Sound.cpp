@@ -43,7 +43,8 @@ namespace Nz
 	*/
 	Sound::~Sound()
 	{
-		Stop();
+		if (m_source)
+			Stop();
 	}
 
 	/*!
