@@ -27,9 +27,9 @@ namespace Nz
 
 				if constexpr (std::is_same_v<T, StorageBufferBinding> || std::is_same_v<T, UniformBufferBinding>)
 					bufferBindingCount++;
-				else if constexpr (std::is_same_v<T, TextureBinding>)
+				else if constexpr (std::is_same_v<T, SampledTextureBinding> || std::is_same_v<T, TextureBinding>)
 					imageBindingCount++;
-				else if constexpr (std::is_same_v<T, TextureBindings>)
+				else if constexpr (std::is_same_v<T, SampledTextureBindings>)
 					imageBindingCount += arg.arraySize;
 				else
 					static_assert(AlwaysFalse<T>(), "non-exhaustive visitor");
@@ -58,20 +58,7 @@ namespace Nz
 			{
 				using T = std::decay_t<decltype(arg)>;
 
-				if constexpr (std::is_same_v<T, StorageBufferBinding>)
-				{
-					VulkanBuffer* vkBuffer = SafeCast<VulkanBuffer*>(arg.buffer);
-
-					VkDescriptorBufferInfo& bufferInfo = bufferBinding.emplace_back();
-					bufferInfo.buffer = (vkBuffer) ? vkBuffer->GetBuffer() : VK_NULL_HANDLE;
-					bufferInfo.offset = arg.offset;
-					bufferInfo.range = arg.range;
-
-					writeOp.descriptorCount = 1;
-					writeOp.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-					writeOp.pBufferInfo = &bufferInfo;
-				}
-				else if constexpr (std::is_same_v<T, TextureBinding>)
+				if constexpr (std::is_same_v<T, SampledTextureBinding>)
 				{
 					const VulkanTexture* vkTexture = SafeCast<const VulkanTexture*>(arg.texture);
 					const VulkanTextureSampler* vkSampler = SafeCast<const VulkanTextureSampler*>(arg.sampler);
@@ -85,7 +72,7 @@ namespace Nz
 					writeOp.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 					writeOp.pImageInfo = &imageInfo;
 				}
-				else if constexpr (std::is_same_v<T, TextureBindings>)
+				else if constexpr (std::is_same_v<T, SampledTextureBindings>)
 				{
 					for (UInt32 i = 0; i < arg.arraySize; ++i)
 					{
@@ -101,6 +88,32 @@ namespace Nz
 					writeOp.descriptorCount = arg.arraySize;
 					writeOp.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 					writeOp.pImageInfo = &imageBinding[imageBinding.size() - arg.arraySize];
+				}
+				else if constexpr (std::is_same_v<T, StorageBufferBinding>)
+				{
+					VulkanBuffer* vkBuffer = SafeCast<VulkanBuffer*>(arg.buffer);
+
+					VkDescriptorBufferInfo& bufferInfo = bufferBinding.emplace_back();
+					bufferInfo.buffer = (vkBuffer) ? vkBuffer->GetBuffer() : VK_NULL_HANDLE;
+					bufferInfo.offset = arg.offset;
+					bufferInfo.range = arg.range;
+
+					writeOp.descriptorCount = 1;
+					writeOp.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+					writeOp.pBufferInfo = &bufferInfo;
+				}
+				else if constexpr (std::is_same_v<T, TextureBinding>)
+				{
+					const VulkanTexture* vkTexture = SafeCast<const VulkanTexture*>(arg.texture);
+
+					VkDescriptorImageInfo& imageInfo = imageBinding.emplace_back();
+					imageInfo.imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+					imageInfo.imageView = (vkTexture) ? vkTexture->GetImageView() : VK_NULL_HANDLE;
+					imageInfo.sampler = VK_NULL_HANDLE;
+
+					writeOp.descriptorCount = 1;
+					writeOp.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+					writeOp.pImageInfo = &imageInfo;
 				}
 				else if constexpr (std::is_same_v<T, UniformBufferBinding>)
 				{

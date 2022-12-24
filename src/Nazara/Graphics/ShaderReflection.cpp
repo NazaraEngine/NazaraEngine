@@ -56,6 +56,8 @@ namespace Nz
 			if (IsStorageType(*varType))
 				bindingType = ShaderBindingType::StorageBuffer;
 			else if (IsSamplerType(*varType))
+				bindingType = ShaderBindingType::Sampler;
+			else if (IsTextureType(*varType))
 				bindingType = ShaderBindingType::Texture;
 			else if (IsUniformType(*varType))
 				bindingType = ShaderBindingType::UniformBuffer;
@@ -67,7 +69,7 @@ namespace Nz
 					throw std::runtime_error("unexpected type " + ToString(innerType) + " in array " + ToString(arrayType));
 
 				arraySize = arrayType.length;
-				bindingType = ShaderBindingType::Texture;
+				bindingType = ShaderBindingType::Sampler;
 				varType = &innerType;
 			}
 			else
@@ -86,6 +88,21 @@ namespace Nz
 			{
 				switch (bindingType)
 				{
+					case ShaderBindingType::Sampler:
+					{
+						if (externalBlock->samplers.find(externalVar.tag) != externalBlock->samplers.end())
+							throw std::runtime_error("duplicate sampler tag " + externalVar.tag + " in external block " + node.tag);
+
+						const auto& samplerType = std::get<nzsl::Ast::SamplerType>(*varType);
+
+						ExternalSampler& texture = externalBlock->samplers[externalVar.tag];
+						texture.bindingIndex = bindingIndex;
+						texture.bindingSet   = bindingSet;
+						texture.imageType    = samplerType.dim;
+						texture.sampledType  = samplerType.sampledType;
+						break;
+					}
+
 					case ShaderBindingType::StorageBuffer:
 					{
 						if (externalBlock->storageBlocks.find(externalVar.tag) != externalBlock->storageBlocks.end())
@@ -100,16 +117,18 @@ namespace Nz
 
 					case ShaderBindingType::Texture:
 					{
-						if (externalBlock->samplers.find(externalVar.tag) != externalBlock->samplers.end())
+						if (externalBlock->textures.find(externalVar.tag) != externalBlock->textures.end())
 							throw std::runtime_error("duplicate textures tag " + externalVar.tag + " in external block " + node.tag);
 
-						const auto& samplerType = std::get<nzsl::Ast::SamplerType>(*varType);
+						const auto& textureType = std::get<nzsl::Ast::TextureType>(*varType);
 
-						ExternalTexture& texture = externalBlock->samplers[externalVar.tag];
+						ExternalTexture& texture = externalBlock->textures[externalVar.tag];
 						texture.bindingIndex = bindingIndex;
-						texture.bindingSet   = bindingSet;
-						texture.imageType    = samplerType.dim;
-						texture.sampledType  = samplerType.sampledType;
+						texture.bindingSet = bindingSet;
+						texture.accessPolicy = textureType.accessPolicy;
+						texture.baseType = textureType.baseType;
+						texture.imageFormat = textureType.format;
+						texture.imageType = textureType.dim;
 						break;
 					}
 

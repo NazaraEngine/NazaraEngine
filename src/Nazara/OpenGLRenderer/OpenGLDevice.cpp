@@ -5,6 +5,7 @@
 #include <Nazara/OpenGLRenderer/OpenGLDevice.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLBuffer.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLCommandPool.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLComputePipeline.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLFboFramebuffer.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderPass.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderPipeline.hpp>
@@ -62,47 +63,58 @@ namespace Nz
 		if (m_referenceContext->IsExtensionSupported(GL::Extension::TextureFilterAnisotropic))
 			m_deviceInfo.features.anisotropicFiltering = true;
 
+		if (m_referenceContext->IsExtensionSupported(GL::Extension::ComputeShader))
+			m_deviceInfo.features.computeShaders = true;
+
 		if (m_referenceContext->IsExtensionSupported(GL::Extension::DepthClamp))
 			m_deviceInfo.features.depthClamping = true;
+
+		if (m_referenceContext->glPolygonMode) //< not supported in core OpenGL ES, but supported in OpenGL or with GL_NV_polygon_mode extension
+			m_deviceInfo.features.nonSolidFaceFilling = true;
 
 		if (m_referenceContext->IsExtensionSupported(GL::Extension::StorageBuffers))
 			m_deviceInfo.features.storageBuffers = true;
 
-		if (m_referenceContext->glPolygonMode) //< not supported in core OpenGL ES, but supported in OpenGL or with GL_NV_polygon_mode extension
-			m_deviceInfo.features.nonSolidFaceFilling = true;
+		if (m_referenceContext->IsExtensionSupported(GL::Extension::ShaderImageLoadStore))
+		{
+			m_deviceInfo.features.textureRead = true;
+			m_deviceInfo.features.textureWrite = true;
+			m_deviceInfo.features.textureWriteWithoutFormat = true;
+		}
+
+		if (m_referenceContext->IsExtensionSupported(GL::Extension::ShaderImageLoadFormatted))
+			m_deviceInfo.features.textureReadWithoutFormat = true;
 
 		if (m_referenceContext->IsExtensionSupported(GL::Extension::TextureView))
 			m_deviceInfo.features.unrestrictedTextureViews = true;
 
 		// Limits
-		GLint minUboOffsetAlignment;
-		m_referenceContext->glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &minUboOffsetAlignment);
-
-		assert(minUboOffsetAlignment >= 1);
-		m_deviceInfo.limits.minUniformBufferOffsetAlignment = static_cast<UInt64>(minUboOffsetAlignment);
-
-		GLint maxUboBlockSize;
-		m_referenceContext->glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, &maxUboBlockSize);
-
-		assert(maxUboBlockSize >= 1);
-		m_deviceInfo.limits.maxUniformBufferSize = static_cast<UInt64>(maxUboBlockSize);
+		m_deviceInfo.limits.maxUniformBufferSize = m_referenceContext->GetInteger<UInt64>(GL_MAX_UNIFORM_BLOCK_SIZE);
+		m_deviceInfo.limits.minUniformBufferOffsetAlignment = m_referenceContext->GetInteger<UInt64>(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT);
 
 		if (m_deviceInfo.features.storageBuffers)
 		{
-			GLint minStorageOffsetAlignment;
-			m_referenceContext->glGetIntegerv(GL_SHADER_STORAGE_BUFFER_OFFSET_ALIGNMENT, &minStorageOffsetAlignment);
-
-			assert(minStorageOffsetAlignment >= 1);
-			m_deviceInfo.limits.minStorageBufferOffsetAlignment = static_cast<UInt64>(minStorageOffsetAlignment);
-
-			GLint maxStorageBlockSize;
-			m_referenceContext->glGetIntegerv(GL_MAX_SHADER_STORAGE_BLOCK_SIZE, &maxStorageBlockSize);
-
-			assert(maxStorageBlockSize >= 1);
-			m_deviceInfo.limits.maxStorageBufferSize = static_cast<UInt64>(maxStorageBlockSize);
+			m_deviceInfo.limits.maxStorageBufferSize = m_referenceContext->GetInteger<UInt64>(GL_MAX_SHADER_STORAGE_BLOCK_SIZE);
+			m_deviceInfo.limits.minStorageBufferOffsetAlignment = m_referenceContext->GetInteger<UInt64>(GL_SHADER_STORAGE_BUFFER_OFFSET_ALIGNMENT);
 		}
-		else
-			m_deviceInfo.limits.maxStorageBufferSize = 0;
+
+		if (m_deviceInfo.features.computeShaders)
+		{
+			m_deviceInfo.limits.maxComputeSharedMemorySize = m_referenceContext->GetInteger<UInt64>(GL_MAX_COMPUTE_SHARED_MEMORY_SIZE);
+			m_deviceInfo.limits.maxComputeWorkGroupInvocations = m_referenceContext->GetInteger<UInt32>(GL_MAX_COMPUTE_WORK_GROUP_INVOCATIONS);
+
+			m_deviceInfo.limits.maxComputeWorkGroupCount = {
+				m_referenceContext->GetInteger<UInt32>(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0),
+				m_referenceContext->GetInteger<UInt32>(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 1),
+				m_referenceContext->GetInteger<UInt32>(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 2)
+			};
+
+			m_deviceInfo.limits.maxComputeWorkGroupSize = {
+				m_referenceContext->GetInteger<UInt32>(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 0),
+				m_referenceContext->GetInteger<UInt32>(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 1),
+				m_referenceContext->GetInteger<UInt32>(GL_MAX_COMPUTE_WORK_GROUP_SIZE, 2)
+			};
+		}
 
 		m_contexts.insert(m_referenceContext.get());
 	}
@@ -152,6 +164,11 @@ namespace Nz
 	std::shared_ptr<CommandPool> OpenGLDevice::InstantiateCommandPool(QueueType /*queueType*/)
 	{
 		return std::make_shared<OpenGLCommandPool>();
+	}
+
+	std::shared_ptr<ComputePipeline> OpenGLDevice::InstantiateComputePipeline(ComputePipelineInfo pipelineInfo)
+	{
+		return std::make_shared<OpenGLComputePipeline>(*this, std::move(pipelineInfo));
 	}
 
 	std::shared_ptr<Framebuffer> OpenGLDevice::InstantiateFramebuffer(unsigned int /*width*/, unsigned int /*height*/, const std::shared_ptr<RenderPass>& /*renderPass*/, const std::vector<std::shared_ptr<Texture>>& attachments)
@@ -246,7 +263,7 @@ namespace Nz
 			case PixelFormat::RGBA32F:
 			case PixelFormat::RGBA32I:
 			case PixelFormat::RGBA32UI:
-				return usage == TextureUsage::ColorAttachment || usage == TextureUsage::InputAttachment || usage == TextureUsage::ShaderSampling || usage == TextureUsage::TransferDestination || usage == TextureUsage::TransferSource;
+				return usage == TextureUsage::ColorAttachment || usage == TextureUsage::InputAttachment || usage == TextureUsage::ShaderSampling || usage == TextureUsage::ShaderReadWrite || usage == TextureUsage::TransferDestination || usage == TextureUsage::TransferSource;
 
 			case PixelFormat::DXT1:
 			case PixelFormat::DXT3:

@@ -382,8 +382,9 @@ namespace Nz
 	{
 		switch (bindingType)
 		{
+			case ShaderBindingType::Sampler:       return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 			case ShaderBindingType::StorageBuffer: return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-			case ShaderBindingType::Texture:       return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			case ShaderBindingType::Texture:       return VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
 			case ShaderBindingType::UniformBuffer: return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		}
 
@@ -395,6 +396,7 @@ namespace Nz
 	{
 		switch (stageType)
 		{
+			case nzsl::ShaderStageType::Compute:  return VK_SHADER_STAGE_COMPUTE_BIT;
 			case nzsl::ShaderStageType::Fragment: return VK_SHADER_STAGE_FRAGMENT_BIT;
 			case nzsl::ShaderStageType::Vertex:   return VK_SHADER_STAGE_VERTEX_BIT;
 		}
@@ -459,6 +461,7 @@ namespace Nz
 			case TextureUsage::ColorAttachment:        return VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 			case TextureUsage::DepthStencilAttachment: return VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
 			case TextureUsage::InputAttachment:        return VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
+			case TextureUsage::ShaderReadWrite:        return VK_IMAGE_USAGE_STORAGE_BIT;
 			case TextureUsage::ShaderSampling:         return VK_IMAGE_USAGE_SAMPLED_BIT;
 			case TextureUsage::TransferSource:         return VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
 			case TextureUsage::TransferDestination:    return VK_IMAGE_USAGE_TRANSFER_DST_BIT;

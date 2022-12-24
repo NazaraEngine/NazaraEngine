@@ -42,6 +42,7 @@ namespace Nz
 	inline GLenum ToOpenGL(SamplerWrap wrapMode);
 	inline GLenum ToOpenGL(nzsl::ShaderStageType stageType);
 	inline GLenum ToOpenGL(StencilOperation stencilOp);
+	inline GLenum ToOpenGL(TextureAccess textureAccess);
 	inline GLenum ToOpenGL(GL::BufferTarget bufferTarget);
 	inline GLenum ToOpenGL(GL::TextureTarget bufferTarget);
 

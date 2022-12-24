@@ -15,6 +15,22 @@ namespace Nz::GL
 		return !m_hadAnyError;
 	}
 
+	inline bool Context::GetBoolean(GLenum name) const
+	{
+		GLboolean value;
+		glGetBooleanv(name, &value);
+
+		return value != GL_FALSE;
+	}
+
+	inline bool Context::GetBoolean(GLenum name, GLuint index) const
+	{
+		GLboolean value;
+		glGetBooleani_v(name, index, &value);
+
+		return value != GL_FALSE;
+	}
+
 	inline const OpenGLDevice* Context::GetDevice() const
 	{
 		return m_device;
@@ -25,20 +41,66 @@ namespace Nz::GL
 		return m_extensionStatus[UnderlyingCast(extension)];
 	}
 
+	inline float Context::GetFloat(GLenum name) const
+	{
+		GLfloat value;
+		glGetFloatv(name, &value);
+
+		return value;
+	}
+
 	inline GLFunction Context::GetFunctionByIndex(std::size_t funcIndex) const
 	{
 		assert(funcIndex < m_originalFunctionPointer.size());
 		return m_originalFunctionPointer[funcIndex];
 	}
 
-	inline const OpenGLVaoCache& Context::GetVaoCache() const
+	template<typename T>
+	T Context::GetInteger(GLenum name) const
 	{
-		return m_vaoCache;
+		if constexpr (std::is_same_v<T, Int64> || std::is_same_v<T, UInt64>)
+		{
+			GLint64 value;
+			glGetInteger64v(name, &value);
+
+			return SafeCast<T>(value);
+		}
+		else
+		{
+			GLint value;
+			glGetIntegerv(name, &value);
+
+			return SafeCast<T>(value);
+		}
+	}
+
+	template<typename T>
+	T Context::GetInteger(GLenum name, GLuint index) const
+	{
+		if constexpr (std::is_same_v<T, Int64> || std::is_same_v<T, UInt64>)
+		{
+			GLint64 value;
+			glGetInteger64i_v(name, index, &value);
+
+			return SafeCast<T>(value);
+		}
+		else
+		{
+			GLint value;
+			glGetIntegeri_v(name, index, &value);
+
+			return SafeCast<T>(value);
+		}
 	}
 
 	inline const ContextParams& Context::GetParams() const
 	{
 		return m_params;
+	}
+
+	inline const OpenGLVaoCache& Context::GetVaoCache() const
+	{
+		return m_vaoCache;
 	}
 
 	inline bool Context::IsExtensionSupported(Extension extension) const

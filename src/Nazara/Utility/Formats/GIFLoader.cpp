@@ -243,7 +243,7 @@ namespace Nz
 
 				void Seek(UInt64 frameIndex) override
 				{
-					assert(frameIndex < m_frames.size());
+					assert(frameIndex <= m_frames.size());
 
 					if (m_requiresFrameHistory)
 					{

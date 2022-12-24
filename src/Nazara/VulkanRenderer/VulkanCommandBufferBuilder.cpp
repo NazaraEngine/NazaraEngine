@@ -5,6 +5,7 @@
 #include <Nazara/VulkanRenderer/VulkanCommandBufferBuilder.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
 #include <Nazara/VulkanRenderer/VulkanBuffer.hpp>
+#include <Nazara/VulkanRenderer/VulkanComputePipeline.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPass.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPipeline.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPipelineLayout.hpp>
@@ -72,6 +73,13 @@ namespace Nz
 		m_currentSubpassIndex = 0;
 	}
 
+	void VulkanCommandBufferBuilder::BindComputePipeline(const ComputePipeline& pipeline)
+	{
+		const VulkanComputePipeline& vkPipeline = static_cast<const VulkanComputePipeline&>(pipeline);
+
+		m_commandBuffer.BindPipeline(VK_PIPELINE_BIND_POINT_COMPUTE, vkPipeline.GetPipeline());
+	}
+
 	void VulkanCommandBufferBuilder::BindIndexBuffer(const RenderBuffer& indexBuffer, IndexType indexType, UInt64 offset)
 	{
 		const VulkanBuffer& vkBuffer = static_cast<const VulkanBuffer&>(indexBuffer);
@@ -79,14 +87,14 @@ namespace Nz
 		m_commandBuffer.BindIndexBuffer(vkBuffer.GetBuffer(), offset, ToVulkan(indexType));
 	}
 
-	void VulkanCommandBufferBuilder::BindPipeline(const RenderPipeline& pipeline)
+	void VulkanCommandBufferBuilder::BindRenderPipeline(const RenderPipeline& pipeline)
 	{
 		if (!m_currentRenderPass)
 			throw std::runtime_error("BindPipeline must be called in a RenderPass");
 
-		const VulkanRenderPipeline& vkBinding = static_cast<const VulkanRenderPipeline&>(pipeline);
+		const VulkanRenderPipeline& vkPipeline = static_cast<const VulkanRenderPipeline&>(pipeline);
 
-		m_commandBuffer.BindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, vkBinding.Get(*m_currentRenderPass, m_currentSubpassIndex));
+		m_commandBuffer.BindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, vkPipeline.Get(*m_currentRenderPass, m_currentSubpassIndex));
 	}
 
 	void VulkanCommandBufferBuilder::BindShaderBinding(UInt32 set, const ShaderBinding& binding)
@@ -205,6 +213,11 @@ namespace Nz
 		};
 
 		m_commandBuffer.CopyImage(vkFromTexture.GetImage(), ToVulkan(fromLayout), vkToTexture.GetImage(), ToVulkan(toLayout), region);
+	}
+
+	void VulkanCommandBufferBuilder::Dispatch(UInt32 workgroupX, UInt32 workgroupY, UInt32 workgroupZ)
+	{
+		m_commandBuffer.Dispatch(workgroupX, workgroupY, workgroupZ);
 	}
 
 	void VulkanCommandBufferBuilder::Draw(UInt32 vertexCount, UInt32 instanceCount, UInt32 firstVertex, UInt32 firstInstance)

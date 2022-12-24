@@ -33,32 +33,37 @@ namespace Nz
 		m_commands.emplace_back(std::move(beginDebugRegion));
 	}
 
-	inline void OpenGLCommandBuffer::BindIndexBuffer(GLuint indexBuffer, IndexType indexType, UInt64 offset)
+	inline void OpenGLCommandBuffer::BindComputePipeline(const OpenGLComputePipeline* pipeline)
 	{
-		m_currentStates.indexBuffer = indexBuffer;
-		m_currentStates.indexBufferOffset = offset;
-		m_currentStates.indexBufferType = indexType;
+		m_currentComputeStates.pipeline = pipeline;
 	}
 
-	inline void OpenGLCommandBuffer::BindPipeline(const OpenGLRenderPipeline* pipeline)
+	inline void OpenGLCommandBuffer::BindIndexBuffer(GLuint indexBuffer, IndexType indexType, UInt64 offset)
 	{
-		m_currentStates.pipeline = pipeline;
+		m_currentDrawStates.indexBuffer = indexBuffer;
+		m_currentDrawStates.indexBufferOffset = offset;
+		m_currentDrawStates.indexBufferType = indexType;
+	}
+
+	inline void OpenGLCommandBuffer::BindRenderPipeline(const OpenGLRenderPipeline* pipeline)
+	{
+		m_currentDrawStates.pipeline = pipeline;
 	}
 
 	inline void OpenGLCommandBuffer::BindShaderBinding(const OpenGLRenderPipelineLayout& pipelineLayout, UInt32 set, const OpenGLShaderBinding* binding)
 	{
-		if (set >= m_currentStates.shaderBindings.size())
-			m_currentStates.shaderBindings.resize(set + 1);
+		if (set >= m_currentDrawStates.shaderBindings.size())
+			m_currentDrawStates.shaderBindings.resize(set + 1);
 
-		m_currentStates.shaderBindings[set] = std::make_pair(&pipelineLayout, binding);
+		m_currentDrawStates.shaderBindings[set] = std::make_pair(&pipelineLayout, binding);
 	}
 
 	inline void OpenGLCommandBuffer::BindVertexBuffer(UInt32 binding, GLuint vertexBuffer, UInt64 offset)
 	{
-		if (binding >= m_currentStates.vertexBuffers.size())
-			m_currentStates.vertexBuffers.resize(binding + 1);
+		if (binding >= m_currentDrawStates.vertexBuffers.size())
+			m_currentDrawStates.vertexBuffers.resize(binding + 1);
 
-		auto& vertexBufferData = m_currentStates.vertexBuffers[binding];
+		auto& vertexBufferData = m_currentDrawStates.vertexBuffers[binding];
 		vertexBufferData.offset = offset;
 		vertexBufferData.vertexBuffer = vertexBuffer;
 	}
@@ -113,13 +118,27 @@ namespace Nz
 		m_commands.emplace_back(std::move(copyTexture));
 	}
 
+	inline void OpenGLCommandBuffer::Dispatch(UInt32 numGroupsX, UInt32 numGroupsY, UInt32 numGroupsZ)
+	{
+		if (!m_currentComputeStates.pipeline)
+			throw std::runtime_error("no pipeline bound");
+
+		DispatchData dispatch;
+		dispatch.states = m_currentComputeStates;
+		dispatch.numGroupsX = numGroupsX;
+		dispatch.numGroupsY = numGroupsY;
+		dispatch.numGroupsZ = numGroupsZ;
+
+		m_commands.emplace_back(std::move(dispatch));
+	}
+
 	inline void OpenGLCommandBuffer::Draw(UInt32 vertexCount, UInt32 instanceCount, UInt32 firstVertex, UInt32 firstInstance)
 	{
-		if (!m_currentStates.pipeline)
+		if (!m_currentDrawStates.pipeline)
 			throw std::runtime_error("no pipeline bound");
 
 		DrawData draw;
-		draw.states = m_currentStates;
+		draw.states = m_currentDrawStates;
 		draw.firstInstance = firstInstance;
 		draw.firstVertex = firstVertex;
 		draw.instanceCount = instanceCount;
@@ -130,11 +149,11 @@ namespace Nz
 
 	inline void OpenGLCommandBuffer::DrawIndexed(UInt32 indexCount, UInt32 instanceCount, UInt32 firstIndex, UInt32 firstInstance)
 	{
-		if (!m_currentStates.pipeline)
+		if (!m_currentDrawStates.pipeline)
 			throw std::runtime_error("no pipeline bound");
 
 		DrawIndexedData draw;
-		draw.states = m_currentStates;
+		draw.states = m_currentDrawStates;
 		draw.firstIndex = firstIndex;
 		draw.firstInstance = firstInstance;
 		draw.indexCount = indexCount;
@@ -177,17 +196,17 @@ namespace Nz
 
 		m_commands.emplace_back(std::move(setFramebuffer));
 
-		m_currentStates.shouldFlipY = (framebuffer.GetType() == FramebufferType::Window);
+		m_currentDrawStates.shouldFlipY = (framebuffer.GetType() == FramebufferType::Window);
 	}
 
 	inline void OpenGLCommandBuffer::SetScissor(const Recti& scissorRegion)
 	{
-		m_currentStates.scissorRegion = scissorRegion;
+		m_currentDrawStates.scissorRegion = scissorRegion;
 	}
 
 	inline void OpenGLCommandBuffer::SetViewport(const Recti& viewportRegion)
 	{
-		m_currentStates.viewportRegion = viewportRegion;
+		m_currentDrawStates.viewportRegion = viewportRegion;
 	}
 }
 

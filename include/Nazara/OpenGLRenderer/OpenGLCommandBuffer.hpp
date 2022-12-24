@@ -23,6 +23,7 @@
 namespace Nz
 {
 	class OpenGLCommandPool;
+	class OpenGLComputePipeline;
 	class OpenGLFramebuffer;
 	class OpenGLRenderPass;
 	class OpenGLTexture;
@@ -38,8 +39,9 @@ namespace Nz
 
 			inline void BeginDebugRegion(const std::string_view& regionName, const Color& color);
 
+			inline void BindComputePipeline(const OpenGLComputePipeline* pipeline);
 			inline void BindIndexBuffer(GLuint indexBuffer, IndexType indexType, UInt64 offset = 0);
-			inline void BindPipeline(const OpenGLRenderPipeline* pipeline);
+			inline void BindRenderPipeline(const OpenGLRenderPipeline* pipeline);
 			inline void BindShaderBinding(const OpenGLRenderPipelineLayout& pipelineLayout, UInt32 set, const OpenGLShaderBinding* binding);
 			inline void BindVertexBuffer(UInt32 binding, GLuint vertexBuffer, UInt64 offset = 0);
 			inline void BlitTexture(const OpenGLTexture& source, const Boxui& sourceBox, const OpenGLTexture& target, const Boxui& targetBox, SamplerFilter filter = SamplerFilter::Nearest);
@@ -47,6 +49,8 @@ namespace Nz
 			inline void CopyBuffer(GLuint source, GLuint target, UInt64 size, UInt64 sourceOffset = 0, UInt64 targetOffset = 0);
 			inline void CopyBuffer(const UploadPool::Allocation& allocation, GLuint target, UInt64 size, UInt64 sourceOffset = 0, UInt64 targetOffset = 0);
 			inline void CopyTexture(const OpenGLTexture& source, const Boxui& sourceBox, const OpenGLTexture& target, const Vector3ui& targetPoint);
+
+			inline void Dispatch(UInt32 numGroupsX, UInt32 numGroupsY, UInt32 numGroupsZ);
 
 			inline void Draw(UInt32 vertexCount, UInt32 instanceCount = 1, UInt32 firstVertex = 0, UInt32 firstInstance = 0);
 			inline void DrawIndexed(UInt32 indexCount, UInt32 instanceCount = 1, UInt32 firstIndex = 0, UInt32 firstInstance = 0);
@@ -89,6 +93,11 @@ namespace Nz
 				SamplerFilter filter;
 			};
 
+			struct ComputeStates
+			{
+				const OpenGLComputePipeline* pipeline = nullptr;
+			};
+
 			struct CopyBufferData
 			{
 				GLuint source;
@@ -112,6 +121,14 @@ namespace Nz
 				GLuint target;
 				UInt64 size;
 				UInt64 targetOffset;
+			};
+
+			struct DispatchData
+			{
+				ComputeStates states;
+				UInt32 numGroupsX;
+				UInt32 numGroupsY;
+				UInt32 numGroupsZ;
 			};
 
 			struct DrawStates
@@ -168,13 +185,15 @@ namespace Nz
 				CopyBufferData,
 				CopyBufferFromMemoryData,
 				CopyTextureData,
+				DispatchData,
 				DrawData,
 				DrawIndexedData,
 				EndDebugRegionData,
 				SetFrameBufferData
 			>;
 
-			DrawStates m_currentStates;
+			ComputeStates m_currentComputeStates;
+			DrawStates m_currentDrawStates;
 			std::size_t m_bindingIndex;
 			std::size_t m_maxColorBufferCount;
 			std::size_t m_poolIndex;

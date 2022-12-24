@@ -91,7 +91,7 @@ namespace Nz::GL
 		EnsureContext();
 
 		if (m_context->glObjectLabel)
-			m_context->glObjectLabel(ObjectType, m_objectId, name.size(), name.data());
+			m_context->glObjectLabel(ObjectType, m_objectId, SafeCast<GLsizei>(name.size()), name.data());
 	}
 }
 

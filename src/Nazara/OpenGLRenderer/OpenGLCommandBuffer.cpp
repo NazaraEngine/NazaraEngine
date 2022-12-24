@@ -4,6 +4,7 @@
 
 #include <Nazara/OpenGLRenderer/OpenGLCommandBuffer.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLCommandPool.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLComputePipeline.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLFboFramebuffer.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderPass.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderPipelineLayout.hpp>
@@ -92,6 +93,14 @@ namespace Nz
 				else if constexpr (std::is_same_v<T, CopyTextureData>)
 				{
 					context->CopyTexture(*command.source, *command.target, command.sourceBox, command.targetPoint);
+				}
+				else if constexpr (std::is_same_v<T, DispatchData>)
+				{
+					if (!context->glDispatchCompute)
+						throw std::runtime_error("compute shaders are not supported on this device");
+
+					command.states.pipeline->Apply(*context);
+					context->glDispatchCompute(command.numGroupsX, command.numGroupsY, command.numGroupsZ);
 				}
 				else if constexpr (std::is_same_v<T, DrawData>)
 				{

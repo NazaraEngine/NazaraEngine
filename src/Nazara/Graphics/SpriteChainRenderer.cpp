@@ -199,7 +199,7 @@ namespace Nz
 					{
 						auto& bindingEntry = m_bindingCache.emplace_back();
 						bindingEntry.bindingIndex = bindingIndex;
-						bindingEntry.content = ShaderBinding::TextureBinding{
+						bindingEntry.content = ShaderBinding::SampledTextureBinding{
 							m_pendingData.currentTextureOverlay, defaultSampler.get()
 						};
 					}
@@ -310,7 +310,7 @@ namespace Nz
 
 			if (currentPipeline != drawData.renderPipeline)
 			{
-				commandBuffer.BindPipeline(*drawData.renderPipeline);
+				commandBuffer.BindRenderPipeline(*drawData.renderPipeline);
 				currentPipeline = drawData.renderPipeline;
 			}
 

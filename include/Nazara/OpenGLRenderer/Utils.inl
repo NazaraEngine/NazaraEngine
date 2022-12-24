@@ -229,6 +229,7 @@ namespace Nz
 	{
 		switch (stageType)
 		{
+			case nzsl::ShaderStageType::Compute:  return GL_COMPUTE_SHADER;
 			case nzsl::ShaderStageType::Fragment: return GL_FRAGMENT_SHADER;
 			case nzsl::ShaderStageType::Vertex:   return GL_VERTEX_SHADER;
 		}
@@ -252,6 +253,19 @@ namespace Nz
 		}
 
 		NazaraError("Unhandled StencilOperation 0x" + NumberToString(UnderlyingCast(stencilOp), 16));
+		return {};
+	}
+
+	inline GLenum ToOpenGL(TextureAccess textureAccess)
+	{
+		switch (textureAccess)
+		{
+			case TextureAccess::ReadOnly:  return GL_READ_ONLY;
+			case TextureAccess::ReadWrite: return GL_READ_WRITE;
+			case TextureAccess::WriteOnly: return GL_WRITE_ONLY;
+		}
+
+		NazaraError("Unhandled TextureAccess 0x" + NumberToString(UnderlyingCast(textureAccess), 16));
 		return {};
 	}
 

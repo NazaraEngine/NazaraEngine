@@ -45,6 +45,13 @@ namespace Nz
 				UInt32 bindingIndex;
 			};
 
+			struct ExternalSampler : ExternalData
+			{
+				UInt32 arraySize;
+				nzsl::ImageType imageType;
+				nzsl::Ast::PrimitiveType sampledType;
+			};
+
 			struct ExternalStorageBlock : ExternalData
 			{
 				std::size_t structIndex;
@@ -53,8 +60,10 @@ namespace Nz
 			struct ExternalTexture : ExternalData
 			{
 				UInt32 arraySize;
+				nzsl::AccessPolicy accessPolicy;
+				nzsl::ImageFormat imageFormat;
 				nzsl::ImageType imageType;
-				nzsl::Ast::PrimitiveType sampledType;
+				nzsl::Ast::PrimitiveType baseType;
 			};
 
 			struct ExternalUniformBlock : ExternalData
@@ -64,8 +73,9 @@ namespace Nz
 
 			struct ExternalBlockData
 			{
+				std::unordered_map<std::string /*tag*/, ExternalSampler> samplers;
 				std::unordered_map<std::string /*tag*/, ExternalStorageBlock> storageBlocks;
-				std::unordered_map<std::string /*tag*/, ExternalTexture> samplers;
+				std::unordered_map<std::string /*tag*/, ExternalTexture> textures;
 				std::unordered_map<std::string /*tag*/, ExternalUniformBlock> uniformBlocks;
 			};
 

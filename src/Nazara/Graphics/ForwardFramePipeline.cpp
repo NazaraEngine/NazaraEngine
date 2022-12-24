@@ -402,7 +402,7 @@ namespace Nz
 				viewerData.blitShaderBinding->Update({
 					{
 						0,
-						ShaderBinding::TextureBinding {
+						ShaderBinding::SampledTextureBinding {
 							m_bakedFrameGraph.GetAttachmentTexture(viewerData.debugColorAttachment).get(),
 							sampler.get()
 						}
@@ -419,7 +419,7 @@ namespace Nz
 				renderTargetData.blitShaderBinding->Update({
 					{
 						0,
-						ShaderBinding::TextureBinding {
+						ShaderBinding::SampledTextureBinding {
 							m_bakedFrameGraph.GetAttachmentTexture(renderTargetData.finalAttachment).get(),
 							sampler.get()
 						}
@@ -456,7 +456,7 @@ namespace Nz
 					{
 						builder.SetScissor(renderRegion);
 						builder.SetViewport(renderRegion);
-						builder.BindPipeline(*graphics->GetBlitPipeline(false));
+						builder.BindRenderPipeline(*graphics->GetBlitPipeline(false));
 
 						builder.BindShaderBinding(0, *data.blitShaderBinding);
 						builder.Draw(3);
@@ -644,7 +644,7 @@ namespace Nz
 				builder.SetViewport(env.renderRect);
 
 				Graphics* graphics = Graphics::Instance();
-				builder.BindPipeline(*graphics->GetBlitPipeline(false));
+				builder.BindRenderPipeline(*graphics->GetBlitPipeline(false));
 
 				bool first = true;
 
@@ -657,7 +657,7 @@ namespace Nz
 
 					if (first)
 					{
-						builder.BindPipeline(*graphics->GetBlitPipeline(true));
+						builder.BindRenderPipeline(*graphics->GetBlitPipeline(true));
 						first = false;
 					}
 				}

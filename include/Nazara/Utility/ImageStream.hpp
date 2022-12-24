@@ -23,7 +23,6 @@ namespace Nz
 		bool IsValid() const;
 	};
 
-	class Mutex;
 	class ImageStream;
 
 	using ImageStreamLoader = ResourceLoader<ImageStream, ImageStreamParams>;

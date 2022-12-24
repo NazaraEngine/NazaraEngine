@@ -83,7 +83,7 @@ namespace Nz
 			return;
 
 		builder.BindShaderBinding(0, *m_currentViewerData.binding);
-		builder.BindPipeline(*m_renderPipeline);
+		builder.BindRenderPipeline(*m_renderPipeline);
 
 		for (auto& drawCall : m_drawCalls)
 		{

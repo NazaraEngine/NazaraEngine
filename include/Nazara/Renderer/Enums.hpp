@@ -164,6 +164,7 @@ namespace Nz
 
 	enum class ShaderBindingType
 	{
+		Sampler,
 		StorageBuffer,
 		Texture,
 		UniformBuffer,
@@ -179,6 +180,13 @@ namespace Nz
 		NazaraBinary,
 		NazaraShader,
 		SpirV
+	};
+
+	enum class TextureAccess
+	{
+		ReadOnly,
+		ReadWrite,
+		WriteOnly
 	};
 
 	enum class TextureLayout
@@ -198,6 +206,7 @@ namespace Nz
 		ColorAttachment,
 		DepthStencilAttachment,
 		InputAttachment,
+		ShaderReadWrite,
 		ShaderSampling,
 		TransferSource,
 		TransferDestination,

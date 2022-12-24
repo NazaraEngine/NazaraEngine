@@ -45,7 +45,15 @@ namespace Nz
 
 			UInt32 bindingPoint = bindingMappingIt->second;
 
-			if constexpr (std::is_same_v<DescriptorType, OpenGLRenderPipelineLayout::StorageBufferDescriptor>)
+			if constexpr (std::is_same_v<DescriptorType, OpenGLRenderPipelineLayout::SampledTextureDescriptor>)
+			{
+				if (bindingInfo.type != ShaderBindingType::Sampler)
+					throw std::runtime_error("descriptor (set=" + std::to_string(setIndex) + ", binding=" + std::to_string(bindingIndex) + ") is not a sampler");
+
+				context.BindSampler(bindingPoint, descriptor.sampler);
+				context.BindTexture(bindingPoint, descriptor.textureTarget, descriptor.texture);
+			}
+			else if constexpr (std::is_same_v<DescriptorType, OpenGLRenderPipelineLayout::StorageBufferDescriptor>)
 			{
 				if (bindingInfo.type != ShaderBindingType::StorageBuffer)
 					throw std::runtime_error("descriptor (set=" + std::to_string(setIndex) + ", binding=" + std::to_string(bindingIndex) + ") is not a storage buffer");
@@ -57,8 +65,7 @@ namespace Nz
 				if (bindingInfo.type != ShaderBindingType::Texture)
 					throw std::runtime_error("descriptor (set=" + std::to_string(setIndex) + ", binding=" + std::to_string(bindingIndex) + ") is not a texture");
 
-				context.BindSampler(bindingPoint, descriptor.sampler);
-				context.BindTexture(bindingPoint, descriptor.textureTarget, descriptor.texture);
+				context.BindImageTexture(bindingPoint, descriptor.texture, descriptor.level, descriptor.layered, descriptor.layer, descriptor.access, descriptor.format);
 			}
 			else if constexpr (std::is_same_v<DescriptorType, OpenGLRenderPipelineLayout::UniformBufferDescriptor>)
 			{
@@ -82,7 +89,14 @@ namespace Nz
 			{
 				using T = std::decay_t<decltype(arg)>;
 				
-				if constexpr (std::is_same_v<T, StorageBufferBinding>)
+				if constexpr (std::is_same_v<T, SampledTextureBinding>)
+					HandleTextureBinding(binding.bindingIndex, arg);
+				else if constexpr (std::is_same_v<T, SampledTextureBindings>)
+				{
+					for (UInt32 i = 0; i < arg.arraySize; ++i)
+						HandleTextureBinding(binding.bindingIndex + i, arg.textureBindings[i]);
+				}
+				else if constexpr (std::is_same_v<T, StorageBufferBinding>)
 				{
 					auto& storageDescriptor = m_owner.GetStorageBufferDescriptor(m_poolIndex, m_bindingIndex, binding.bindingIndex);
 					storageDescriptor.offset = arg.offset;
@@ -99,11 +113,41 @@ namespace Nz
 						storageDescriptor.buffer = 0;
 				}
 				else if constexpr (std::is_same_v<T, TextureBinding>)
-					HandleTextureBinding(binding.bindingIndex, arg);
-				else if constexpr (std::is_same_v<T, TextureBindings>)
 				{
-					for (UInt32 i = 0; i < arg.arraySize; ++i)
-						HandleTextureBinding(binding.bindingIndex + i, arg.textureBindings[i]);
+					auto& textureDescriptor = m_owner.GetTextureDescriptor(m_poolIndex, m_bindingIndex, binding.bindingIndex);
+					if (const OpenGLTexture* glTexture = static_cast<const OpenGLTexture*>(arg.texture))
+					{
+						const TextureViewInfo& viewInfo = glTexture->GetTextureViewInfo();
+
+						std::optional<GLTextureFormat> format = DescribeTextureFormat(viewInfo.reinterpretFormat);
+						if (!format)
+							throw std::runtime_error("unexpected texture format");
+
+						textureDescriptor.access = ToOpenGL(arg.access);
+						textureDescriptor.format = format->internalFormat;
+						if (viewInfo.layerCount > 1)
+						{
+							textureDescriptor.layered = true;
+							textureDescriptor.layer = 0;
+						}
+						else
+						{
+							textureDescriptor.layered = false;
+							textureDescriptor.layer = viewInfo.baseArrayLayer;
+						}
+
+						textureDescriptor.level = viewInfo.baseMipLevel;
+						textureDescriptor.texture = glTexture->GetTexture().GetObjectId();
+					}
+					else
+					{
+						textureDescriptor.access = GL_READ_ONLY;
+						textureDescriptor.format = GL_RGBA8;
+						textureDescriptor.layer = 0;
+						textureDescriptor.layered = GL_FALSE;
+						textureDescriptor.level = 0;
+						textureDescriptor.texture = 0;
+					}
 				}
 				else if constexpr (std::is_same_v<T, UniformBufferBinding>)
 				{
@@ -133,9 +177,9 @@ namespace Nz
 		// No OpenGL object to name
 	}
 
-	void OpenGLShaderBinding::HandleTextureBinding(UInt32 bindingIndex, const TextureBinding& textureBinding)
+	void OpenGLShaderBinding::HandleTextureBinding(UInt32 bindingIndex, const SampledTextureBinding& textureBinding)
 	{
-		auto& textureDescriptor = m_owner.GetTextureDescriptor(m_poolIndex, m_bindingIndex, bindingIndex);
+		auto& textureDescriptor = m_owner.GetSampledTextureDescriptor(m_poolIndex, m_bindingIndex, bindingIndex);
 
 		if (const OpenGLTexture* glTexture = static_cast<const OpenGLTexture*>(textureBinding.texture))
 		{

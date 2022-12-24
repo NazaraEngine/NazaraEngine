@@ -11,8 +11,8 @@
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
-#include <Nazara/Utils/Bitset.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
+#include <Nazara/Utils/Bitset.hpp>
 #include <memory>
 
 namespace Nz
