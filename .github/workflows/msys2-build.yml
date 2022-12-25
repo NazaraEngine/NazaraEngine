@@ -65,7 +65,8 @@ jobs:
       run: |
         git clone https://github.com/xmake-io/xmake.git --recurse-submodules -b dev xmake_git
         cd xmake_git
-        make build
+        ./configure
+        make -j4
 
     # Install xmake
     - name: Install xmake
