@@ -8,15 +8,45 @@
 
 namespace Nz
 {
+	inline PixelFormat OpenGLTexture::GetFormat() const
+	{
+		return m_textureInfo.pixelFormat;
+	}
+
+	inline UInt8 OpenGLTexture::GetLevelCount() const
+	{
+		return m_textureInfo.levelCount;
+	}
+
+	inline OpenGLTexture* OpenGLTexture::GetParentTexture() const
+	{
+		return m_parentTexture.get();
+	}
+
+	inline Vector3ui OpenGLTexture::GetSize(UInt8 level) const
+	{
+		return Vector3ui(GetLevelSize(m_textureInfo.width, level), GetLevelSize(m_textureInfo.height, level), GetLevelSize(m_textureInfo.depth, level));
+	}
+
 	inline const GL::Texture& OpenGLTexture::GetTexture() const
 	{
 		return m_texture;
+	}
+
+	inline const TextureInfo& OpenGLTexture::GetTextureInfo() const
+	{
+		return m_textureInfo;
 	}
 
 	inline const TextureViewInfo& OpenGLTexture::GetTextureViewInfo() const
 	{
 		assert(m_viewInfo);
 		return *m_viewInfo;
+	}
+
+	inline ImageType OpenGLTexture::GetType() const
+	{
+		return m_textureInfo.type;
 	}
 
 	inline bool OpenGLTexture::RequiresTextureViewEmulation() const

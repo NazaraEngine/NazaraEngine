@@ -391,8 +391,8 @@ int main()
 					builder.BindIndexBuffer(*renderBufferIB, Nz::IndexType::U16);
 					builder.BindRenderPipeline(*pipeline);
 					builder.BindVertexBuffer(0, *renderBufferVB);
-					builder.BindShaderBinding(0, *viewerShaderBinding);
-					builder.BindShaderBinding(1, *textureShaderBinding);
+					builder.BindRenderShaderBinding(0, *viewerShaderBinding);
+					builder.BindRenderShaderBinding(1, *textureShaderBinding);
 
 					builder.SetScissor(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
 					builder.SetViewport(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });

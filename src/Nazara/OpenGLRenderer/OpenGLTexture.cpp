@@ -117,31 +117,6 @@ namespace Nz
 		return std::make_shared<OpenGLTexture>(std::static_pointer_cast<OpenGLTexture>(shared_from_this()), viewInfo);
 	}
 
-	PixelFormat OpenGLTexture::GetFormat() const
-	{
-		return m_textureInfo.pixelFormat;
-	}
-
-	UInt8 OpenGLTexture::GetLevelCount() const
-	{
-		return m_textureInfo.levelCount;
-	}
-
-	OpenGLTexture* OpenGLTexture::GetParentTexture() const
-	{
-		return m_parentTexture.get();
-	}
-
-	Vector3ui OpenGLTexture::GetSize(UInt8 level) const
-	{
-		return Vector3ui(GetLevelSize(m_textureInfo.width, level), GetLevelSize(m_textureInfo.height, level), GetLevelSize(m_textureInfo.depth, level));
-	}
-
-	ImageType OpenGLTexture::GetType() const
-	{
-		return m_textureInfo.type;
-	}
-
 	bool OpenGLTexture::Update(const void* ptr, const Boxui& box, unsigned int srcWidth, unsigned int srcHeight, UInt8 level)
 	{
 		auto format = DescribeTextureFormat(m_textureInfo.pixelFormat);

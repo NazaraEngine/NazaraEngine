@@ -21,9 +21,8 @@ namespace Nz
 		bool depthClamping = false;
 		bool nonSolidFaceFilling = false;
 		bool storageBuffers = false;
-		bool textureRead = false;
 		bool textureReadWithoutFormat = false;
-		bool textureWrite = false;
+		bool textureReadWrite = false;
 		bool textureWriteWithoutFormat = false;
 		bool unrestrictedTextureViews = false;
 	};

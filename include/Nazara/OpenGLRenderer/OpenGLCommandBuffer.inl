@@ -38,6 +38,14 @@ namespace Nz
 		m_currentComputeStates.pipeline = pipeline;
 	}
 
+	inline void OpenGLCommandBuffer::BindComputeShaderBinding(const OpenGLRenderPipelineLayout& pipelineLayout, UInt32 set, const OpenGLShaderBinding* binding)
+	{
+		if (set >= m_currentComputeShaderBindings.shaderBindings.size())
+			m_currentComputeShaderBindings.shaderBindings.resize(set + 1);
+
+		m_currentComputeShaderBindings.shaderBindings[set] = std::make_pair(&pipelineLayout, binding);
+	}
+
 	inline void OpenGLCommandBuffer::BindIndexBuffer(GLuint indexBuffer, IndexType indexType, UInt64 offset)
 	{
 		m_currentDrawStates.indexBuffer = indexBuffer;
@@ -50,12 +58,12 @@ namespace Nz
 		m_currentDrawStates.pipeline = pipeline;
 	}
 
-	inline void OpenGLCommandBuffer::BindShaderBinding(const OpenGLRenderPipelineLayout& pipelineLayout, UInt32 set, const OpenGLShaderBinding* binding)
+	inline void OpenGLCommandBuffer::BindRenderShaderBinding(const OpenGLRenderPipelineLayout& pipelineLayout, UInt32 set, const OpenGLShaderBinding* binding)
 	{
-		if (set >= m_currentDrawStates.shaderBindings.size())
-			m_currentDrawStates.shaderBindings.resize(set + 1);
+		if (set >= m_currentGraphicsShaderBindings.shaderBindings.size())
+			m_currentGraphicsShaderBindings.shaderBindings.resize(set + 1);
 
-		m_currentDrawStates.shaderBindings[set] = std::make_pair(&pipelineLayout, binding);
+		m_currentGraphicsShaderBindings.shaderBindings[set] = std::make_pair(&pipelineLayout, binding);
 	}
 
 	inline void OpenGLCommandBuffer::BindVertexBuffer(UInt32 binding, GLuint vertexBuffer, UInt64 offset)
@@ -124,6 +132,7 @@ namespace Nz
 			throw std::runtime_error("no pipeline bound");
 
 		DispatchData dispatch;
+		dispatch.bindings = m_currentComputeShaderBindings;
 		dispatch.states = m_currentComputeStates;
 		dispatch.numGroupsX = numGroupsX;
 		dispatch.numGroupsY = numGroupsY;
@@ -138,6 +147,7 @@ namespace Nz
 			throw std::runtime_error("no pipeline bound");
 
 		DrawData draw;
+		draw.bindings = m_currentGraphicsShaderBindings;
 		draw.states = m_currentDrawStates;
 		draw.firstInstance = firstInstance;
 		draw.firstVertex = firstVertex;
@@ -153,6 +163,7 @@ namespace Nz
 			throw std::runtime_error("no pipeline bound");
 
 		DrawIndexedData draw;
+		draw.bindings = m_currentGraphicsShaderBindings;
 		draw.states = m_currentDrawStates;
 		draw.firstIndex = firstIndex;
 		draw.firstInstance = firstInstance;
@@ -181,6 +192,23 @@ namespace Nz
 	{
 		assert(m_owner);
 		return *m_owner;
+	}
+
+	inline void OpenGLCommandBuffer::InsertMemoryBarrier(GLbitfield barriers)
+	{
+		// Merge with previous barrier, if any (may happen because memory barriers are not relative to a texture with OpenGL)
+		if (!m_commands.empty() && std::holds_alternative<MemoryBarrier>(m_commands.back()))
+		{
+			MemoryBarrier& memBarrier = std::get<MemoryBarrier>(m_commands.back());
+			memBarrier.barriers |= barriers;
+		}
+		else
+		{
+			MemoryBarrier memBarrier;
+			memBarrier.barriers = barriers;
+
+			m_commands.emplace_back(std::move(memBarrier));
+		}
 	}
 
 	inline void OpenGLCommandBuffer::SetFramebuffer(const OpenGLFramebuffer& framebuffer, const OpenGLRenderPass& renderPass, const CommandBufferBuilder::ClearValues* clearValues, std::size_t clearValueCount)

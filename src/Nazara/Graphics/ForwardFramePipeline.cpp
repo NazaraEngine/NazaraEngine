@@ -458,7 +458,7 @@ namespace Nz
 						builder.SetViewport(renderRegion);
 						builder.BindRenderPipeline(*graphics->GetBlitPipeline(false));
 
-						builder.BindShaderBinding(0, *data.blitShaderBinding);
+						builder.BindRenderShaderBinding(0, *data.blitShaderBinding);
 						builder.Draw(3);
 					}
 					builder.EndDebugRegion();
@@ -652,7 +652,7 @@ namespace Nz
 				{
 					const ShaderBindingPtr& blitShaderBinding = viewerData->blitShaderBinding;
 
-					builder.BindShaderBinding(0, *blitShaderBinding);
+					builder.BindRenderShaderBinding(0, *blitShaderBinding);
 					builder.Draw(3);
 
 					if (first)

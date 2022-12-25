@@ -227,6 +227,7 @@ namespace Nz
 		{
 			case PipelineStage::TopOfPipe:                    return VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 			case PipelineStage::ColorOutput:                  return VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+			case PipelineStage::ComputeShader:                return VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT;
 			case PipelineStage::DrawIndirect:                 return VK_PIPELINE_STAGE_DRAW_INDIRECT_BIT;
 			case PipelineStage::FragmentShader:               return VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
 			case PipelineStage::FragmentTestsEarly:           return VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
@@ -444,6 +445,7 @@ namespace Nz
 			case TextureLayout::ColorOutput:           return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 			case TextureLayout::DepthStencilReadOnly:  return VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
 			case TextureLayout::DepthStencilReadWrite: return VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+			case TextureLayout::General:               return VK_IMAGE_LAYOUT_GENERAL;
 			case TextureLayout::Present:               return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 			case TextureLayout::TransferSource:        return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
 			case TextureLayout::TransferDestination:   return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;

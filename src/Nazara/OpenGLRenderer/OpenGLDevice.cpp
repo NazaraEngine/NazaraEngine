@@ -77,8 +77,7 @@ namespace Nz
 
 		if (m_referenceContext->IsExtensionSupported(GL::Extension::ShaderImageLoadStore))
 		{
-			m_deviceInfo.features.textureRead = true;
-			m_deviceInfo.features.textureWrite = true;
+			m_deviceInfo.features.textureReadWrite = true;
 			m_deviceInfo.features.textureWriteWithoutFormat = true;
 		}
 

@@ -291,7 +291,7 @@ namespace Nz
 
 			if (currentShaderBinding != drawData.shaderBinding)
 			{
-				commandBuffer.BindShaderBinding(0, *drawData.shaderBinding);
+				commandBuffer.BindRenderShaderBinding(0, *drawData.shaderBinding);
 				currentShaderBinding = drawData.shaderBinding;
 			}
 

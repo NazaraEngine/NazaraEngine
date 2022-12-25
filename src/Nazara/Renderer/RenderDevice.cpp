@@ -46,9 +46,8 @@ namespace Nz
 		NzValidateFeature(depthClamping, "depth clamping feature")
 		NzValidateFeature(nonSolidFaceFilling, "non-solid face filling feature")
 		NzValidateFeature(storageBuffers, "storage buffers support")
-		NzValidateFeature(textureRead, "texture read")
 		NzValidateFeature(textureReadWithoutFormat, "texture read without format")
-		NzValidateFeature(textureWrite, "texture write")
+		NzValidateFeature(textureReadWrite, "texture read/write")
 		NzValidateFeature(textureWriteWithoutFormat, "texture write without format")
 		NzValidateFeature(unrestrictedTextureViews, "unrestricted texture view support")
 

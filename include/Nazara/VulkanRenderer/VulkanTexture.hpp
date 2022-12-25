@@ -16,7 +16,7 @@
 
 namespace Nz
 {
-	class NAZARA_VULKANRENDERER_API VulkanTexture : public Texture
+	class NAZARA_VULKANRENDERER_API VulkanTexture final : public Texture
 	{
 		public:
 			VulkanTexture(Vk::Device& device, const TextureInfo& textureInfo);
@@ -28,14 +28,15 @@ namespace Nz
 			bool Copy(const Texture& source, const Boxui& srcBox, const Vector3ui& dstPos) override;
 			std::shared_ptr<Texture> CreateView(const TextureViewInfo& viewInfo) override;
 
-			PixelFormat GetFormat() const override;
+			inline PixelFormat GetFormat() const override;
 			inline VkImage GetImage() const;
 			inline VkImageView GetImageView() const;
-			UInt8 GetLevelCount() const override;
-			VulkanTexture* GetParentTexture() const override;
-			Vector3ui GetSize(UInt8 level = 0) const override;
+			inline UInt8 GetLevelCount() const override;
+			inline VulkanTexture* GetParentTexture() const override;
+			inline Vector3ui GetSize(UInt8 level = 0) const override;
 			inline const VkImageSubresourceRange& GetSubresourceRange() const;
-			ImageType GetType() const override;
+			inline const TextureInfo& GetTextureInfo() const override;
+			inline ImageType GetType() const override;
 
 			using Texture::Update;
 			bool Update(const void* ptr, const Boxui& box, unsigned int srcWidth, unsigned int srcHeight, UInt8 level) override;

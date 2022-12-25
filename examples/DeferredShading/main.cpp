@@ -831,11 +831,11 @@ int main()
 			builder.BindIndexBuffer(*coneMeshGfx->GetIndexBuffer(0).get(), Nz::IndexType::U16);
 			builder.BindVertexBuffer(0, *coneMeshGfx->GetVertexBuffer(0).get());
 
-			builder.BindShaderBinding(0, *gbufferShaderBinding);
+			builder.BindRenderShaderBinding(0, *gbufferShaderBinding);
 
 			for (std::size_t i = 0; i < spotLights.size(); ++i)
 			{
-				builder.BindShaderBinding(1, *lightingShaderBindings[i]);
+				builder.BindRenderShaderBinding(1, *lightingShaderBindings[i]);
 
 				builder.BindRenderPipeline(*stencilPipeline);
 				builder.DrawIndexed(coneMeshGfx->GetIndexCount(0));
@@ -858,7 +858,7 @@ int main()
 			builder.SetScissor(env.renderRect);
 			builder.SetViewport(env.renderRect);
 
-			builder.BindShaderBinding(0, *skyboxShaderBinding);
+			builder.BindRenderShaderBinding(0, *skyboxShaderBinding);
 
 			builder.BindIndexBuffer(*cubeMeshGfx->GetIndexBuffer(0), Nz::IndexType::U16);
 			builder.BindVertexBuffer(0, *cubeMeshGfx->GetVertexBuffer(0));
@@ -930,7 +930,7 @@ int main()
 			builder.SetScissor(env.renderRect);
 			builder.SetViewport(env.renderRect);
 
-			builder.BindShaderBinding(0, *godRaysShaderBinding);
+			builder.BindRenderShaderBinding(0, *godRaysShaderBinding);
 
 			builder.BindRenderPipeline(*godraysPipeline);
 
@@ -946,7 +946,7 @@ int main()
 			builder.SetScissor(env.renderRect);
 			builder.SetViewport(env.renderRect);
 
-			builder.BindShaderBinding(0, *bloomBrightShaderBinding);
+			builder.BindRenderShaderBinding(0, *bloomBrightShaderBinding);
 
 			builder.BindRenderPipeline(*bloomBrightPipeline);
 
@@ -969,7 +969,7 @@ int main()
 				builder.SetScissor(env.renderRect);
 				builder.SetViewport(env.renderRect);
 
-				builder.BindShaderBinding(0, *gaussianBlurShaderBinding[i * 2 + 0]);
+				builder.BindRenderShaderBinding(0, *gaussianBlurShaderBinding[i * 2 + 0]);
 				builder.BindRenderPipeline(*gaussianBlurPipeline);
 
 				builder.Draw(3);
@@ -989,7 +989,7 @@ int main()
 				builder.SetScissor(env.renderRect);
 				builder.SetViewport(env.renderRect);
 
-				builder.BindShaderBinding(0, *gaussianBlurShaderBinding[i * 2 + 1]);
+				builder.BindRenderShaderBinding(0, *gaussianBlurShaderBinding[i * 2 + 1]);
 				builder.BindRenderPipeline(*gaussianBlurPipeline);
 
 				builder.Draw(3);
@@ -1014,12 +1014,12 @@ int main()
 			builder.BindRenderPipeline(*bloomBlendPipeline);
 			for (std::size_t i = 0; i < BloomSubdivisionCount; ++i)
 			{
-				builder.BindShaderBinding(0, *bloomBlendShaderBinding[i]);
+				builder.BindRenderShaderBinding(0, *bloomBlendShaderBinding[i]);
 				builder.Draw(3);
 			}
 
 			// God rays
-			builder.BindShaderBinding(0, *godRaysBlitShaderBinding);
+			builder.BindRenderShaderBinding(0, *godRaysBlitShaderBinding);
 			builder.Draw(3);
 		});
 
@@ -1045,7 +1045,7 @@ int main()
 			builder.SetScissor(env.renderRect);
 			builder.SetViewport(env.renderRect);
 
-			builder.BindShaderBinding(0, *toneMappingShaderBinding);
+			builder.BindRenderShaderBinding(0, *toneMappingShaderBinding);
 			builder.BindRenderPipeline(*toneMappingPipeline);
 
 			builder.Draw(3);
@@ -1547,7 +1547,7 @@ int main()
 					builder.SetScissor(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
 					builder.SetViewport(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
 
-					builder.BindShaderBinding(0, *finalBlitBinding);
+					builder.BindRenderShaderBinding(0, *finalBlitBinding);
 					builder.BindRenderPipeline(*fullscreenPipeline);
 
 					builder.Draw(3);

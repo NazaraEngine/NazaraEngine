@@ -82,7 +82,7 @@ namespace Nz
 		if (m_drawCalls.empty())
 			return;
 
-		builder.BindShaderBinding(0, *m_currentViewerData.binding);
+		builder.BindRenderShaderBinding(0, *m_currentViewerData.binding);
 		builder.BindRenderPipeline(*m_renderPipeline);
 
 		for (auto& drawCall : m_drawCalls)

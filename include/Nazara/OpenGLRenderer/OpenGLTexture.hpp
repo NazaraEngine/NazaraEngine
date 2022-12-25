@@ -16,7 +16,7 @@
 
 namespace Nz
 {
-	class NAZARA_OPENGLRENDERER_API OpenGLTexture : public Texture
+	class NAZARA_OPENGLRENDERER_API OpenGLTexture final : public Texture
 	{
 		public:
 			OpenGLTexture(OpenGLDevice& device, const TextureInfo& textureInfo);
@@ -28,13 +28,14 @@ namespace Nz
 			bool Copy(const Texture& source, const Boxui& srcBox, const Vector3ui& dstPos) override;
 			std::shared_ptr<Texture> CreateView(const TextureViewInfo& viewInfo) override;
 
-			PixelFormat GetFormat() const override;
-			UInt8 GetLevelCount() const override;
-			OpenGLTexture* GetParentTexture() const override;
-			Vector3ui GetSize(UInt8 level = 0) const override;
+			inline PixelFormat GetFormat() const override;
+			inline UInt8 GetLevelCount() const override;
+			inline OpenGLTexture* GetParentTexture() const override;
+			inline Vector3ui GetSize(UInt8 level = 0) const override;
 			inline const GL::Texture& GetTexture() const;
+			inline const TextureInfo& GetTextureInfo() const override;
 			inline const TextureViewInfo& GetTextureViewInfo() const;
-			ImageType GetType() const override;
+			inline ImageType GetType() const override;
 
 			inline bool RequiresTextureViewEmulation() const;
 

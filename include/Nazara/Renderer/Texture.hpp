@@ -68,11 +68,8 @@ namespace Nz
 			virtual bool Copy(const Texture& source, const Boxui& srcBox, const Vector3ui& dstPos = Vector3ui::Zero()) = 0;
 			virtual std::shared_ptr<Texture> CreateView(const TextureViewInfo& viewInfo) = 0;
 
-			virtual PixelFormat GetFormat() const = 0;
-			virtual UInt8 GetLevelCount() const = 0;
 			virtual Texture* GetParentTexture() const = 0;
-			virtual Vector3ui GetSize(UInt8 level = 0) const = 0;
-			virtual ImageType GetType() const = 0;
+			virtual const TextureInfo& GetTextureInfo() const = 0;
 
 			virtual void UpdateDebugName(std::string_view name) = 0;
 
