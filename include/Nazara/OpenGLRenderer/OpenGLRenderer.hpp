@@ -35,7 +35,7 @@ namespace Nz
 			bool Prepare(const Renderer::Config& config) override;
 
 		private:
-			std::unique_ptr<GL::Loader> SelectLoader();
+			std::unique_ptr<GL::Loader> SelectLoader(const Renderer::Config& config);
 
 			std::shared_ptr<OpenGLDevice> m_device;
 			std::unique_ptr<GL::Loader> m_loader;

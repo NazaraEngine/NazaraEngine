@@ -82,6 +82,7 @@ namespace Nz
 			NazaraRendererPrefix "NazaraMantleRenderer"   NazaraRendererDebugSuffix, // Mantle
 			NazaraRendererPrefix "NazaraMetalRenderer"    NazaraRendererDebugSuffix, // Metal
 			NazaraRendererPrefix "NazaraOpenGLRenderer"   NazaraRendererDebugSuffix, // OpenGL
+			NazaraRendererPrefix "NazaraOpenGLRenderer"   NazaraRendererDebugSuffix, // OpenGL_ES
 			NazaraRendererPrefix "NazaraVulkanRenderer"   NazaraRendererDebugSuffix, // Vulkan
 
 			nullptr // Unknown
@@ -98,6 +99,11 @@ namespace Nz
 		};
 		std::vector<RendererImplementations> implementations;
 
+		RenderAPI preferredAPI = config.preferredAPI;
+		// OpenGL and OpenGL ES are handled by the same implementation (OpenGLES will be handled in OpenGLRenderer code)
+		if (preferredAPI == RenderAPI::OpenGL_ES)
+			preferredAPI = RenderAPI::OpenGL;
+
 #ifdef NAZARA_RENDERER_EMBEDDEDBACKENDS
 		auto RegisterImpl = [&](RenderAPI api, auto ComputeScore, std::function<std::unique_ptr<RendererImpl>()> factory)
 		{
@@ -112,7 +118,7 @@ namespace Nz
 			{
 				auto& impl = implementations.emplace_back();
 				impl.factory = std::move(factory);
-				impl.score = (config.preferredAPI == api) ? std::numeric_limits<int>::max() : score;
+				impl.score = (preferredAPI == api) ? std::numeric_limits<int>::max() : score;
 			}
 		};
 
@@ -132,7 +138,7 @@ namespace Nz
 			{
 				auto& impl = implementations.emplace_back();
 				impl.fileName = std::move(fileName);
-				impl.score = (config.preferredAPI == api) ? std::numeric_limits<int>::max() : score;
+				impl.score = (preferredAPI == api) ? std::numeric_limits<int>::max() : score;
 			}
 		};
 

@@ -60,7 +60,7 @@ namespace Nz
 	std::string VulkanRenderer::QueryAPIString() const
 	{
 		std::ostringstream ss;
-		ss << "Vulkan renderer " << VK_VERSION_MAJOR(APIVersion) << '.' << VK_VERSION_MINOR(APIVersion) << '.' << VK_VERSION_PATCH(APIVersion);
+		ss << "Vulkan renderer " << VK_API_VERSION_MAJOR(APIVersion) << '.' << VK_API_VERSION_MINOR(APIVersion) << '.' << VK_API_VERSION_PATCH(APIVersion);
 
 		return ss.str();
 	}

@@ -13,6 +13,7 @@
 #include <Nazara/OpenGLRenderer/Wrapper/Loader.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/WGL/WGLContext.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/WGL/WGLFunctions.hpp>
+#include <Nazara/Renderer/Renderer.hpp>
 #include <string>
 
 namespace Nz::GL
@@ -20,7 +21,7 @@ namespace Nz::GL
 	class NAZARA_OPENGLRENDERER_API WGLLoader : public Loader
 	{
 		public:
-			WGLLoader();
+			WGLLoader(const Renderer::Config& config);
 			~WGLLoader() = default;
 
 			std::unique_ptr<Context> CreateContext(const OpenGLDevice* device, const ContextParams& params, Context* shareContext) const override;

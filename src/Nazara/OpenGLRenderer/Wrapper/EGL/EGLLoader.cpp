@@ -52,7 +52,7 @@ namespace Nz::GL
 		EGLLoader& loader;
 	};
 
-	EGLLoader::EGLLoader() :
+	EGLLoader::EGLLoader(const Renderer::Config& config) :
 	m_defaultDisplay(nullptr)
 	{
 		if (!m_eglLib.Load("libEGL"))
@@ -80,14 +80,29 @@ namespace Nz::GL
 
 		// Try to create a dummy context in order to check OpenGL / OpenGL ES support
 
-		// Favor OpenGL on desktop and OpenGL ES on mobile
-		std::array<GL::ContextType, 2> contextTypes = {
+		std::array<GL::ContextType, 2> contextTypes;
+
+		RenderAPI preferredAPI = config.preferredAPI;
+		if (preferredAPI == RenderAPI::Unknown)
+		{
+			// Favor OpenGL on desktop and OpenGL ES on mobile
 #if defined(NAZARA_PLATFORM_DESKTOP)
-			GL::ContextType::OpenGL, GL::ContextType::OpenGL_ES
+			preferredAPI = RenderAPI::OpenGL;
 #else
-			GL::ContextType::OpenGL_ES, GL::ContextType::OpenGL
+			preferredAPI = RenderAPI::OpenGL_ES;
 #endif
-		};
+		}
+
+		if (config.preferredAPI == RenderAPI::OpenGL_ES)
+		{
+			contextTypes[0] = GL::ContextType::OpenGL_ES;
+			contextTypes[1] = GL::ContextType::OpenGL;
+		}
+		else
+		{
+			contextTypes[0] = GL::ContextType::OpenGL;
+			contextTypes[1] = GL::ContextType::OpenGL_ES;
+		}
 
 		ContextParams params;
 

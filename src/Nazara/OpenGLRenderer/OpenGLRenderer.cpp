@@ -55,7 +55,7 @@ namespace Nz
 
 	bool OpenGLRenderer::Prepare(const Renderer::Config& config)
 	{
-		std::unique_ptr<GL::Loader> loader = SelectLoader();
+		std::unique_ptr<GL::Loader> loader = SelectLoader(config);
 		if (!loader)
 		{
 			NazaraError("Failed to initialize OpenGL loader");
@@ -70,12 +70,12 @@ namespace Nz
 		return true;
 	}
 
-	std::unique_ptr<GL::Loader> OpenGLRenderer::SelectLoader()
+	std::unique_ptr<GL::Loader> OpenGLRenderer::SelectLoader(const Renderer::Config& config)
 	{
 #ifdef NAZARA_PLATFORM_WINDOWS
 		try
 		{
-			return std::make_unique<GL::WGLLoader>();
+			return std::make_unique<GL::WGLLoader>(config);
 		}
 		catch (const std::exception& e)
 		{
@@ -86,7 +86,7 @@ namespace Nz
 #if defined(NAZARA_PLATFORM_WINDOWS) || defined(NAZARA_PLATFORM_LINUX)
 		try
 		{
-			return std::make_unique<GL::EGLLoader>();
+			return std::make_unique<GL::EGLLoader>(config);
 		}
 		catch (const std::exception& e)
 		{
@@ -99,13 +99,19 @@ namespace Nz
 
 	RenderAPI OpenGLRenderer::QueryAPI() const
 	{
-		return RenderAPI::OpenGL;
+		return (m_device->GetReferenceContext().GetParams().type == GL::ContextType::OpenGL) ? RenderAPI::OpenGL : RenderAPI::OpenGL_ES;
 	}
 
 	std::string OpenGLRenderer::QueryAPIString() const
 	{
+		const auto& params = m_device->GetReferenceContext().GetParams();
+
 		std::ostringstream ss;
-		ss << "OpenGL ES renderer 3.0";
+		ss << "OpenGL";
+		if (params.type == GL::ContextType::OpenGL_ES)
+			ss << " ES";
+
+		ss << " renderer " << params.glMajorVersion << "." << params.glMinorVersion;
 
 		return ss.str();
 	}

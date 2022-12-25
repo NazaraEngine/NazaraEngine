@@ -11,6 +11,7 @@
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Loader.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/EGL/EGLContextBase.hpp>
+#include <Nazara/Renderer/Renderer.hpp>
 #include <string>
 
 namespace Nz::GL
@@ -21,7 +22,7 @@ namespace Nz::GL
 		friend SymbolLoader;
 
 		public:
-			EGLLoader();
+			EGLLoader(const Renderer::Config& config);
 			~EGLLoader();
 
 			std::unique_ptr<Context> CreateContext(const OpenGLDevice* device, const ContextParams& params, Context* shareContext) const override;

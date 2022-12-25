@@ -9,7 +9,7 @@
 
 namespace Nz::GL
 {
-	WGLLoader::WGLLoader() :
+	WGLLoader::WGLLoader(const Renderer::Config& config) :
 	m_baseContext(nullptr, *this)
 	{
 		if (!m_opengl32Lib.Load("opengl32" NAZARA_DYNLIB_EXTENSION))
@@ -50,14 +50,29 @@ namespace Nz::GL
 			throw std::runtime_error("failed to create load context");
 
 		ContextParams params;
-		// Favor OpenGL on desktop and OpenGL ES on mobile
-		std::array<GL::ContextType, 2> contextTypes = {
+		std::array<GL::ContextType, 2> contextTypes;
+
+		RenderAPI preferredAPI = config.preferredAPI;
+		if (preferredAPI == RenderAPI::Unknown)
+		{
+			// Favor OpenGL on desktop and OpenGL ES on mobile
 #if defined(NAZARA_PLATFORM_DESKTOP)
-			GL::ContextType::OpenGL, GL::ContextType::OpenGL_ES
+			preferredAPI = RenderAPI::OpenGL;
 #else
-			GL::ContextType::OpenGL_ES, GL::ContextType::OpenGL
+			preferredAPI = RenderAPI::OpenGL_ES;
 #endif
-		};
+		}
+
+		if (config.preferredAPI == RenderAPI::OpenGL_ES)
+		{
+			contextTypes[0] = GL::ContextType::OpenGL_ES;
+			contextTypes[1] = GL::ContextType::OpenGL;
+		}
+		else
+		{
+			contextTypes[0] = GL::ContextType::OpenGL;
+			contextTypes[1] = GL::ContextType::OpenGL_ES;
+		}
 
 		bool created = false;
 		for (GL::ContextType contextType : contextTypes)
