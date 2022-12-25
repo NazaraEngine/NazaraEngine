@@ -100,8 +100,8 @@ local modules = {
 	},
 	Platform = {
 		Deps = {"NazaraUtility"},
-		Packages = {"libsdl"},
 		Custom = function()
+			add_packages("libsdl", { components = {"lib"}})
 			if is_plat("windows", "mingw") then
 				add_defines("SDL_VIDEO_DRIVER_WINDOWS=1")
 			elseif is_plat("linux") then
