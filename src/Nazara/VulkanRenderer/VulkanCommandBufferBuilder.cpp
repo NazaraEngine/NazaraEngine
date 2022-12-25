@@ -80,6 +80,22 @@ namespace Nz
 		m_commandBuffer.BindPipeline(VK_PIPELINE_BIND_POINT_COMPUTE, vkPipeline.GetPipeline());
 	}
 
+	void VulkanCommandBufferBuilder::BindComputeShaderBinding(UInt32 set, const ShaderBinding& binding)
+	{
+		const VulkanShaderBinding& vkBinding = static_cast<const VulkanShaderBinding&>(binding);
+		const VulkanRenderPipelineLayout& pipelineLayout = vkBinding.GetOwner();
+
+		m_commandBuffer.BindDescriptorSet(VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout.GetPipelineLayout(), set, vkBinding.GetDescriptorSet());
+	}
+
+	void VulkanCommandBufferBuilder::BindComputeShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding)
+	{
+		const VulkanRenderPipelineLayout& vkPipelineLayout = static_cast<const VulkanRenderPipelineLayout&>(pipelineLayout);
+		const VulkanShaderBinding& vkBinding = static_cast<const VulkanShaderBinding&>(binding);
+
+		m_commandBuffer.BindDescriptorSet(VK_PIPELINE_BIND_POINT_COMPUTE, vkPipelineLayout.GetPipelineLayout(), set, vkBinding.GetDescriptorSet());
+	}
+
 	void VulkanCommandBufferBuilder::BindIndexBuffer(const RenderBuffer& indexBuffer, IndexType indexType, UInt64 offset)
 	{
 		const VulkanBuffer& vkBuffer = static_cast<const VulkanBuffer&>(indexBuffer);
@@ -97,7 +113,7 @@ namespace Nz
 		m_commandBuffer.BindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, vkPipeline.Get(*m_currentRenderPass, m_currentSubpassIndex));
 	}
 
-	void VulkanCommandBufferBuilder::BindShaderBinding(UInt32 set, const ShaderBinding& binding)
+	void VulkanCommandBufferBuilder::BindRenderShaderBinding(UInt32 set, const ShaderBinding& binding)
 	{
 		const VulkanShaderBinding& vkBinding = static_cast<const VulkanShaderBinding&>(binding);
 		const VulkanRenderPipelineLayout& pipelineLayout = vkBinding.GetOwner();
@@ -105,7 +121,7 @@ namespace Nz
 		m_commandBuffer.BindDescriptorSet(VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout.GetPipelineLayout(), set, vkBinding.GetDescriptorSet());
 	}
 
-	void VulkanCommandBufferBuilder::BindShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding)
+	void VulkanCommandBufferBuilder::BindRenderShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding)
 	{
 		const VulkanRenderPipelineLayout& vkPipelineLayout = static_cast<const VulkanRenderPipelineLayout&>(pipelineLayout);
 		const VulkanShaderBinding& vkBinding = static_cast<const VulkanShaderBinding&>(binding);

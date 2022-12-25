@@ -117,26 +117,22 @@ namespace Nz
 					auto& textureDescriptor = m_owner.GetTextureDescriptor(m_poolIndex, m_bindingIndex, binding.bindingIndex);
 					if (const OpenGLTexture* glTexture = static_cast<const OpenGLTexture*>(arg.texture))
 					{
-						const TextureViewInfo& viewInfo = glTexture->GetTextureViewInfo();
-
-						std::optional<GLTextureFormat> format = DescribeTextureFormat(viewInfo.reinterpretFormat);
+						std::optional<GLTextureFormat> format = DescribeTextureFormat(glTexture->GetFormat());
 						if (!format)
 							throw std::runtime_error("unexpected texture format");
 
 						textureDescriptor.access = ToOpenGL(arg.access);
 						textureDescriptor.format = format->internalFormat;
-						if (viewInfo.layerCount > 1)
-						{
-							textureDescriptor.layered = true;
-							textureDescriptor.layer = 0;
-						}
-						else
-						{
-							textureDescriptor.layered = false;
-							textureDescriptor.layer = viewInfo.baseArrayLayer;
-						}
 
-						textureDescriptor.level = viewInfo.baseMipLevel;
+						// Don't bother emulating texture views as their support is virtually guaranteed when compute shaders are available
+						if (Nz::ImageType imageType = glTexture->GetType(); imageType == ImageType::Cubemap || imageType == ImageType::E1D_Array || imageType == ImageType::E2D_Array)
+							textureDescriptor.layered = true;
+						else
+							textureDescriptor.layered = false;
+
+						textureDescriptor.level = 0;
+						textureDescriptor.layer = 0;
+
 						textureDescriptor.texture = glTexture->GetTexture().GetObjectId();
 					}
 					else

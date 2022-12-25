@@ -83,6 +83,7 @@ namespace Nz
 		TopOfPipe,
 
 		ColorOutput,
+		ComputeShader,
 		DrawIndirect,
 		FragmentShader,
 		FragmentTestsEarly,
@@ -195,6 +196,7 @@ namespace Nz
 		ColorOutput,
 		DepthStencilReadOnly,
 		DepthStencilReadWrite,
+		General,
 		Present,
 		TransferSource,
 		TransferDestination,

@@ -34,6 +34,21 @@ namespace Nz
 		m_commandBuffer.BindComputePipeline(&glPipeline);
 	}
 
+	void OpenGLCommandBufferBuilder::BindComputeShaderBinding(UInt32 set, const ShaderBinding& binding)
+	{
+		const OpenGLShaderBinding& glBinding = static_cast<const OpenGLShaderBinding&>(binding);
+
+		m_commandBuffer.BindComputeShaderBinding(glBinding.GetOwner(), set, &glBinding);
+	}
+
+	void OpenGLCommandBufferBuilder::BindComputeShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding)
+	{
+		const OpenGLRenderPipelineLayout& glPipelineLayout = static_cast<const OpenGLRenderPipelineLayout&>(pipelineLayout);
+		const OpenGLShaderBinding& glBinding = static_cast<const OpenGLShaderBinding&>(binding);
+
+		m_commandBuffer.BindComputeShaderBinding(glPipelineLayout, set, &glBinding);
+	}
+
 	void OpenGLCommandBufferBuilder::BindIndexBuffer(const RenderBuffer& indexBuffer, IndexType indexType, UInt64 offset)
 	{
 		const OpenGLBuffer& glBuffer = static_cast<const OpenGLBuffer&>(indexBuffer);
@@ -48,19 +63,19 @@ namespace Nz
 		m_commandBuffer.BindRenderPipeline(&glPipeline);
 	}
 
-	void OpenGLCommandBufferBuilder::BindShaderBinding(UInt32 set, const ShaderBinding& binding)
+	void OpenGLCommandBufferBuilder::BindRenderShaderBinding(UInt32 set, const ShaderBinding& binding)
 	{
 		const OpenGLShaderBinding& glBinding = static_cast<const OpenGLShaderBinding&>(binding);
 
-		m_commandBuffer.BindShaderBinding(glBinding.GetOwner(), set, &glBinding);
+		m_commandBuffer.BindRenderShaderBinding(glBinding.GetOwner(), set, &glBinding);
 	}
 
-	void OpenGLCommandBufferBuilder::BindShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding)
+	void OpenGLCommandBufferBuilder::BindRenderShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding)
 	{
 		const OpenGLRenderPipelineLayout& glPipelineLayout = static_cast<const OpenGLRenderPipelineLayout&>(pipelineLayout);
 		const OpenGLShaderBinding& glBinding = static_cast<const OpenGLShaderBinding&>(binding);
 
-		m_commandBuffer.BindShaderBinding(glPipelineLayout, set, &glBinding);
+		m_commandBuffer.BindRenderShaderBinding(glPipelineLayout, set, &glBinding);
 	}
 
 	void OpenGLCommandBufferBuilder::BindVertexBuffer(UInt32 binding, const RenderBuffer& vertexBuffer, UInt64 offset)
@@ -151,8 +166,23 @@ namespace Nz
 		m_commandBuffer.SetViewport(viewportRegion);
 	}
 
-	void OpenGLCommandBufferBuilder::TextureBarrier(PipelineStageFlags /*srcStageMask*/, PipelineStageFlags /*dstStageMask*/, MemoryAccessFlags /*srcAccessMask*/, MemoryAccessFlags /*dstAccessMask*/, TextureLayout /*oldLayout*/, TextureLayout /*newLayout*/, const Texture& /*texture*/)
+	void OpenGLCommandBufferBuilder::TextureBarrier(PipelineStageFlags /*srcStageMask*/, PipelineStageFlags /*dstStageMask*/, MemoryAccessFlags srcAccessMask, MemoryAccessFlags dstAccessMask, TextureLayout /*oldLayout*/, TextureLayout /*newLayout*/, const Texture& /*texture*/)
 	{
-		/* nothing to do */
+		if (srcAccessMask.Test(MemoryAccess::ShaderWrite))
+		{
+			GLbitfield barriers = 0;
+
+			if (dstAccessMask.Test(MemoryAccess::ColorRead))
+				barriers |= GL_TEXTURE_FETCH_BARRIER_BIT;
+
+			if (dstAccessMask.Test(MemoryAccess::ShaderRead))
+				barriers |= GL_TEXTURE_FETCH_BARRIER_BIT | GL_SHADER_IMAGE_ACCESS_BARRIER_BIT;
+
+			if (dstAccessMask.Test(MemoryAccess::ShaderWrite))
+				barriers |= GL_SHADER_IMAGE_ACCESS_BARRIER_BIT;
+
+			if (barriers != 0)
+				m_commandBuffer.InsertMemoryBarrier(barriers);
+		}
 	}
 }

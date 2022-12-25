@@ -58,9 +58,8 @@ namespace Nz
 		deviceInfo.features.depthClamping = physDevice.features.depthClamp;
 		deviceInfo.features.nonSolidFaceFilling = physDevice.features.fillModeNonSolid;
 		deviceInfo.features.storageBuffers = true;
-		deviceInfo.features.textureRead = true;
 		deviceInfo.features.textureReadWithoutFormat = physDevice.features.shaderStorageImageReadWithoutFormat;
-		deviceInfo.features.textureWrite = true;
+		deviceInfo.features.textureReadWrite = true;
 		deviceInfo.features.textureWriteWithoutFormat = physDevice.features.shaderStorageImageWriteWithoutFormat;
 		deviceInfo.features.unrestrictedTextureViews = true;
 

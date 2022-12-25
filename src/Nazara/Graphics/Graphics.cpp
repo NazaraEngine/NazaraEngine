@@ -112,9 +112,8 @@ namespace Nz
 		enabledFeatures.depthClamping = !config.forceDisableFeatures.depthClamping && renderDeviceInfo[bestRenderDeviceIndex].features.depthClamping;
 		enabledFeatures.nonSolidFaceFilling = !config.forceDisableFeatures.nonSolidFaceFilling && renderDeviceInfo[bestRenderDeviceIndex].features.nonSolidFaceFilling;
 		enabledFeatures.storageBuffers = !config.forceDisableFeatures.storageBuffers && renderDeviceInfo[bestRenderDeviceIndex].features.storageBuffers;
-		enabledFeatures.textureRead = !config.forceDisableFeatures.textureRead && renderDeviceInfo[bestRenderDeviceIndex].features.textureRead;
 		enabledFeatures.textureReadWithoutFormat = !config.forceDisableFeatures.textureReadWithoutFormat && renderDeviceInfo[bestRenderDeviceIndex].features.textureReadWithoutFormat;
-		enabledFeatures.textureWrite = !config.forceDisableFeatures.textureWrite && renderDeviceInfo[bestRenderDeviceIndex].features.textureWrite;
+		enabledFeatures.textureReadWrite = !config.forceDisableFeatures.textureReadWrite && renderDeviceInfo[bestRenderDeviceIndex].features.textureReadWrite;
 		enabledFeatures.textureWriteWithoutFormat = !config.forceDisableFeatures.textureWriteWithoutFormat && renderDeviceInfo[bestRenderDeviceIndex].features.textureWriteWithoutFormat;
 		enabledFeatures.unrestrictedTextureViews = !config.forceDisableFeatures.unrestrictedTextureViews && renderDeviceInfo[bestRenderDeviceIndex].features.unrestrictedTextureViews;
 

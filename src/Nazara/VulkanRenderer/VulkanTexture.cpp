@@ -294,31 +294,6 @@ namespace Nz
 		return std::make_shared<VulkanTexture>(std::static_pointer_cast<VulkanTexture>(shared_from_this()), viewInfo);
 	}
 
-	PixelFormat VulkanTexture::GetFormat() const
-	{
-		return m_textureInfo.pixelFormat;
-	}
-
-	UInt8 VulkanTexture::GetLevelCount() const
-	{
-		return m_textureInfo.levelCount;
-	}
-
-	VulkanTexture* VulkanTexture::GetParentTexture() const
-	{
-		return m_parentTexture.get();
-	}
-
-	Vector3ui VulkanTexture::GetSize(UInt8 level) const
-	{
-		return Vector3ui(GetLevelSize(m_textureInfo.width, level), GetLevelSize(m_textureInfo.height, level), GetLevelSize(m_textureInfo.depth, level));
-	}
-
-	ImageType VulkanTexture::GetType() const
-	{
-		return m_textureInfo.type;
-	}
-
 	bool VulkanTexture::Update(const void* ptr, const Boxui& box, unsigned int srcWidth, unsigned int srcHeight, UInt8 level)
 	{
 		std::size_t textureSize = box.width * box.height * box.depth * PixelFormatInfo::GetBytesPerPixel(m_textureInfo.pixelFormat);

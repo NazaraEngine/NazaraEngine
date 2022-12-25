@@ -40,9 +40,10 @@ namespace Nz
 			inline void BeginDebugRegion(const std::string_view& regionName, const Color& color);
 
 			inline void BindComputePipeline(const OpenGLComputePipeline* pipeline);
+			inline void BindComputeShaderBinding(const OpenGLRenderPipelineLayout& pipelineLayout, UInt32 set, const OpenGLShaderBinding* binding);
 			inline void BindIndexBuffer(GLuint indexBuffer, IndexType indexType, UInt64 offset = 0);
 			inline void BindRenderPipeline(const OpenGLRenderPipeline* pipeline);
-			inline void BindShaderBinding(const OpenGLRenderPipelineLayout& pipelineLayout, UInt32 set, const OpenGLShaderBinding* binding);
+			inline void BindRenderShaderBinding(const OpenGLRenderPipelineLayout& pipelineLayout, UInt32 set, const OpenGLShaderBinding* binding);
 			inline void BindVertexBuffer(UInt32 binding, GLuint vertexBuffer, UInt64 offset = 0);
 			inline void BlitTexture(const OpenGLTexture& source, const Boxui& sourceBox, const OpenGLTexture& target, const Boxui& targetBox, SamplerFilter filter = SamplerFilter::Nearest);
 
@@ -63,6 +64,8 @@ namespace Nz
 			inline std::size_t GetPoolIndex() const;
 			inline const OpenGLCommandPool& GetOwner() const;
 
+			inline void InsertMemoryBarrier(GLbitfield barriers);
+
 			inline void SetFramebuffer(const OpenGLFramebuffer& framebuffer, const OpenGLRenderPass& renderPass, const CommandBufferBuilder::ClearValues* clearValues, std::size_t clearValueCount);
 			inline void SetScissor(const Recti& scissorRegion);
 			inline void SetViewport(const Recti& viewportRegion);
@@ -74,7 +77,9 @@ namespace Nz
 
 		private:
 			struct DrawStates;
+			struct ShaderBindings;
 
+			void ApplyBindings(const GL::Context& context, const ShaderBindings& bindings);
 			void ApplyStates(const GL::Context& context, const DrawStates& states);
 			void Release() override;
 
@@ -123,9 +128,15 @@ namespace Nz
 				UInt64 targetOffset;
 			};
 
+			struct ShaderBindings
+			{
+				std::vector<std::pair<const OpenGLRenderPipelineLayout*, const OpenGLShaderBinding*>> shaderBindings;
+			};
+
 			struct DispatchData
 			{
 				ComputeStates states;
+				ShaderBindings bindings;
 				UInt32 numGroupsX;
 				UInt32 numGroupsY;
 				UInt32 numGroupsZ;
@@ -145,7 +156,6 @@ namespace Nz
 				IndexType indexBufferType;
 				std::optional<Recti> scissorRegion;
 				std::optional<Recti> viewportRegion;
-				std::vector<std::pair<const OpenGLRenderPipelineLayout*, const OpenGLShaderBinding*>> shaderBindings;
 				std::vector<VertexBuffer> vertexBuffers;
 				bool shouldFlipY = false;
 			};
@@ -153,6 +163,7 @@ namespace Nz
 			struct DrawData
 			{
 				DrawStates states;
+				ShaderBindings bindings;
 				UInt32 firstInstance;
 				UInt32 firstVertex;
 				UInt32 instanceCount;
@@ -162,6 +173,7 @@ namespace Nz
 			struct DrawIndexedData
 			{
 				DrawStates states;
+				ShaderBindings bindings;
 				UInt32 firstIndex;
 				UInt32 firstInstance;
 				UInt32 indexCount;
@@ -170,6 +182,11 @@ namespace Nz
 
 			struct EndDebugRegionData
 			{
+			};
+
+			struct MemoryBarrier
+			{
+				GLbitfield barriers;
 			};
 
 			struct SetFrameBufferData
@@ -189,11 +206,15 @@ namespace Nz
 				DrawData,
 				DrawIndexedData,
 				EndDebugRegionData,
+				MemoryBarrier,
 				SetFrameBufferData
 			>;
 
 			ComputeStates m_currentComputeStates;
 			DrawStates m_currentDrawStates;
+			ShaderBindings m_currentComputeShaderBindings;
+			ShaderBindings m_currentGraphicsShaderBindings;
+			std::optional<MemoryBarrier> m_pendingBarrier;
 			std::size_t m_bindingIndex;
 			std::size_t m_maxColorBufferCount;
 			std::size_t m_poolIndex;

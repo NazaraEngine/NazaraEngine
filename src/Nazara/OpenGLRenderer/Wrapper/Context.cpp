@@ -633,6 +633,13 @@ namespace Nz::GL
 		assert(maxUniformBufferUnits > 0);
 		m_state.uboUnits.resize(maxUniformBufferUnits);
 
+		if (IsExtensionSupported(Extension::ShaderImageLoadStore))
+		{
+			unsigned int maxImageUnits = GetInteger<unsigned int>(GL_MAX_IMAGE_UNITS);
+			assert(maxImageUnits > 0);
+			m_state.imageUnits.resize(maxImageUnits);
+		}
+
 		if (IsExtensionSupported(Extension::StorageBuffers))
 		{
 			unsigned int maxStorageBufferUnits = GetInteger<unsigned int>(GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS);

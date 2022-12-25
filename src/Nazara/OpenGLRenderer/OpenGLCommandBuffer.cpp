@@ -100,11 +100,13 @@ namespace Nz
 						throw std::runtime_error("compute shaders are not supported on this device");
 
 					command.states.pipeline->Apply(*context);
+					ApplyBindings(*context, command.bindings);
 					context->glDispatchCompute(command.numGroupsX, command.numGroupsY, command.numGroupsZ);
 				}
 				else if constexpr (std::is_same_v<T, DrawData>)
 				{
 					ApplyStates(*context, command.states);
+					ApplyBindings(*context, command.bindings);
 					context->glDrawArraysInstanced(ToOpenGL(command.states.pipeline->GetPipelineInfo().primitiveMode), command.firstVertex, command.vertexCount, command.instanceCount);
 				}
 				else if constexpr (std::is_same_v<T, DrawIndexedData>)
@@ -120,12 +122,18 @@ namespace Nz
 					}
 
 					ApplyStates(*context, command.states);
+					ApplyBindings(*context, command.bindings);
 					context->glDrawElementsInstanced(ToOpenGL(command.states.pipeline->GetPipelineInfo().primitiveMode), command.indexCount, ToOpenGL(command.states.indexBufferType), origin, command.instanceCount);
 				}
 				else if constexpr (std::is_same_v<T, EndDebugRegionData>)
 				{
 					if (context->glPopDebugGroup)
 						context->glPopDebugGroup();
+				}
+				else if constexpr (std::is_same_v<T, MemoryBarrier>)
+				{
+					if (context->glMemoryBarrier)
+						context->glMemoryBarrier(command.barriers);
 				}
 				else if constexpr (std::is_same_v<T, SetFrameBufferData>)
 				{
@@ -329,10 +337,8 @@ namespace Nz
 		// No OpenGL object to name
 	}
 
-	void OpenGLCommandBuffer::ApplyStates(const GL::Context& context, const DrawStates& states)
+	void OpenGLCommandBuffer::ApplyBindings(const GL::Context& context, const ShaderBindings& states)
 	{
-		states.pipeline->Apply(context, states.shouldFlipY);
-
 		unsigned int setIndex = 0;
 		for (const auto& [pipelineLayout, shaderBinding] : states.shaderBindings)
 		{
@@ -343,6 +349,11 @@ namespace Nz
 
 			setIndex++;
 		}
+	}
+
+	void OpenGLCommandBuffer::ApplyStates(const GL::Context& context, const DrawStates& states)
+	{
+		states.pipeline->Apply(context, states.shouldFlipY);
 
 		if (states.scissorRegion)
 			context.SetScissorBox(states.scissorRegion->x, states.scissorRegion->y, states.scissorRegion->width, states.scissorRegion->height);
