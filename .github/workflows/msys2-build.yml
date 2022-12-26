@@ -102,7 +102,7 @@ jobs:
     # Run unit tests
     - name: Run unit tests
       if: matrix.mode != 'releasedbg'
-      run: xmake run NazaraUnitTests
+      run: xmake run UnitTests
 
     # Setup installation configuration
     - name: Configure xmake for installation
