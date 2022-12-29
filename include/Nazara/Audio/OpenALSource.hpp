@@ -34,6 +34,7 @@ namespace Nz
 			float GetAttenuation() const override;
 			float GetMinDistance() const override;
 			float GetPitch() const override;
+			Time GetPlayingOffset() const override;
 			Vector3f GetPosition() const override;
 			UInt32 GetSampleOffset() const override;
 			OffsetWithLatency GetSampleOffsetAndLatency() const override;
@@ -53,6 +54,7 @@ namespace Nz
 			void SetBuffer(std::shared_ptr<AudioBuffer> audioBuffer) override;
 			void SetMinDistance(float minDistance) override;
 			void SetPitch(float pitch) override;
+			void SetPlayingOffset(Time offset) override;
 			void SetPosition(const Vector3f& position) override;
 			void SetSampleOffset(UInt32 offset) override;
 			void SetVelocity(const Vector3f& velocity) override;

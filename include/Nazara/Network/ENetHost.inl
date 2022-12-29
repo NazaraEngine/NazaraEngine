@@ -111,8 +111,8 @@ namespace Nz
 
 	inline void ENetHost::UpdateServiceTime()
 	{
-		// Compute service time as microseconds for extra precision
-		m_serviceTime = static_cast<UInt32>(GetElapsedMicroseconds() / 1000);
+		// Use high precision clock for extra precision
+		m_serviceTime = static_cast<UInt32>(GetElapsedNanoseconds().AsMilliseconds());
 	}
 }
 

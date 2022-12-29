@@ -6,6 +6,8 @@ std::filesystem::path GetAssetDir();
 
 SCENARIO("SoundBuffer", "[AUDIO][SOUNDBUFFER]")
 {
+	using namespace Nz::Literals;
+
 	GIVEN("A sound buffer")
 	{
 		WHEN("We load a .flac file")
@@ -15,7 +17,7 @@ SCENARIO("SoundBuffer", "[AUDIO][SOUNDBUFFER]")
 
 			THEN("We can ask the informations of the file")
 			{
-				CHECK(soundBuffer->GetDuration() == 8192);
+				CHECK(soundBuffer->GetDuration() == 8192_ms);
 				CHECK(soundBuffer->GetFormat() == Nz::AudioFormat::I16_Stereo);
 				CHECK(soundBuffer->GetSampleRate() == 96000);
 			}
@@ -28,7 +30,7 @@ SCENARIO("SoundBuffer", "[AUDIO][SOUNDBUFFER]")
 
 			THEN("We can ask the informations of the file")
 			{
-				CHECK(soundBuffer->GetDuration() == 27193);
+				CHECK(soundBuffer->GetDuration() == 27'193'468_us);
 				CHECK(soundBuffer->GetFormat() == Nz::AudioFormat::I16_Stereo);
 				CHECK(soundBuffer->GetSampleRate() == 32000);
 			}
@@ -41,7 +43,7 @@ SCENARIO("SoundBuffer", "[AUDIO][SOUNDBUFFER]")
 
 			THEN("We can ask the informations of the file")
 			{
-				CHECK(soundBuffer->GetDuration() == 63059);
+				CHECK(soundBuffer->GetDuration() == 63'059'591_us);
 				CHECK(soundBuffer->GetFormat() == Nz::AudioFormat::I16_Stereo);
 				CHECK(soundBuffer->GetSampleRate() == 44100);
 			}
@@ -54,7 +56,7 @@ SCENARIO("SoundBuffer", "[AUDIO][SOUNDBUFFER]")
 
 			THEN("We can ask the informations of the file")
 			{
-				CHECK(soundBuffer->GetDuration() == 2490);
+				CHECK(soundBuffer->GetDuration() == 2'490'340_us);
 				CHECK(soundBuffer->GetFormat() == Nz::AudioFormat::I16_Mono);
 				CHECK(soundBuffer->GetSampleRate() == 44100);
 			}

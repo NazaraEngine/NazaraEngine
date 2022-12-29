@@ -9,40 +9,46 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Config.hpp>
+#include <Nazara/Core/Time.hpp>
+#include <optional>
 
 namespace Nz
 {
-	class NAZARA_CORE_API Clock
+	template<bool HighPrecision>
+	class Clock
 	{
 		public:
-			Clock(UInt64 startingValue = 0, bool paused = false);
+			Clock(Time startingValue = Time::Zero(), bool paused = false);
 			Clock(const Clock& clock) = default;
-			Clock(Clock&& clock) = default;
+			Clock(Clock&& clock) noexcept = default;
 			~Clock() = default;
 
-			float GetSeconds() const;
-			UInt64 GetMicroseconds() const;
-			UInt64 GetMilliseconds() const;
+			Time GetElapsedTime() const;
 
 			bool IsPaused() const;
 
 			void Pause();
-			UInt64 Restart(UInt64 startingValue = 0, bool paused = false);
+
+			Time Restart(Time startingPoint = Time::Zero(), bool paused = false);
+			std::optional<Time> RestartIfOver(Time time);
+
 			void Unpause();
 
 			Clock& operator=(const Clock& clock) = default;
-			Clock& operator=(Clock&& clock) = default;
+			Clock& operator=(Clock&& clock) noexcept = default;
+
+			static Time Now();
 
 		private:
-			UInt64 m_elapsedTime;
-			UInt64 m_refTime;
+			Time m_elapsedTime;
+			Time m_refTime;
 			bool m_paused;
 	};
 
-	using ClockFunction = UInt64 (*)();
-
-	extern NAZARA_CORE_API ClockFunction GetElapsedMicroseconds;
-	extern NAZARA_CORE_API ClockFunction GetElapsedMilliseconds;
+	using HighPrecisionClock = Clock<true>;
+	using MillisecondClock = Clock<false>;
 }
+
+#include <Nazara/Core/Clock.inl>
 
 #endif // NAZARA_CORE_CLOCK_HPP

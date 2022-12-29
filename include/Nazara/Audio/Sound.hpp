@@ -14,7 +14,7 @@
 
 namespace Nz
 {
-	class NAZARA_AUDIO_API Sound : public SoundEmitter
+	class NAZARA_AUDIO_API Sound final : public SoundEmitter
 	{
 		public:
 			using SoundEmitter::SoundEmitter;
@@ -27,8 +27,10 @@ namespace Nz
 			void EnableLooping(bool loop) override;
 
 			const std::shared_ptr<SoundBuffer>& GetBuffer() const;
-			UInt32 GetDuration() const override;
-			UInt32 GetPlayingOffset() const override;
+			Time GetDuration() const override;
+			Time GetPlayingOffset() const override;
+			UInt64 GetSampleOffset() const override;
+			UInt32 GetSampleRate() const override;
 			SoundStatus GetStatus() const override;
 
 			bool IsLooping() const override;
@@ -42,7 +44,8 @@ namespace Nz
 			void Play() override;
 
 			void SetBuffer(std::shared_ptr<SoundBuffer> soundBuffer);
-			void SetPlayingOffset(UInt32 offset);
+
+			void SeekToSampleOffset(UInt64 offset) override;
 
 			void Stop() override;
 

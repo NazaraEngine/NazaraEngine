@@ -7,24 +7,24 @@
 
 namespace Nz
 {
-	inline LifetimeComponent::LifetimeComponent(float lifetime) :
+	inline LifetimeComponent::LifetimeComponent(Time lifetime) :
 	m_remainingLifetime(lifetime)
 	{
 	}
 
-	inline void LifetimeComponent::DecreaseLifetime(float elapsedTime)
+	inline void LifetimeComponent::DecreaseLifetime(Time elapsedTime)
 	{
 		m_remainingLifetime -= elapsedTime;
 	}
 
-	inline float LifetimeComponent::GetRemainingLifeTime() const
+	inline Time LifetimeComponent::GetRemainingLifeTime() const
 	{
 		return m_remainingLifetime;
 	}
 
 	inline bool LifetimeComponent::IsAlive() const
 	{
-		return m_remainingLifetime >= 0.f;
+		return m_remainingLifetime >= Time::Zero();
 	}
 }
 

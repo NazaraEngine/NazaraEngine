@@ -56,7 +56,7 @@ namespace Nz
 			std::shared_ptr<RenderDevice> m_renderDevice;
 			std::unique_ptr<RenderSurface> m_surface;
 			std::unique_ptr<RenderWindowImpl> m_impl;
-			Clock m_clock;
+			MillisecondClock m_clock;
 			RenderWindowParameters m_parameters;
 			unsigned int m_framerateLimit;
 		};

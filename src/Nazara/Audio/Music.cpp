@@ -67,7 +67,7 @@ namespace Nz
 		m_chunkSamples.resize(GetChannelCount(format) * m_sampleRate); // One second of samples
 		m_stream = std::move(soundStream);
 
-		SetPlayingOffset(0);
+		SeekToSampleOffset(0);
 
 		return true;
 	}
@@ -102,7 +102,7 @@ namespace Nz
 	*
 	* \remark Music must be valid when calling this function
 	*/
-	UInt32 Music::GetDuration() const
+	Time Music::GetDuration() const
 	{
 		NazaraAssert(m_stream, "Music not created");
 
@@ -123,30 +123,30 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Gets the current offset in the music
-	* \return Offset in milliseconds (works with entire seconds)
-	*
-	* \remark Music must be valid when calling this function
+	* \brief Gets the current playing offset of the music
+	* \return Time offset
 	*/
-	UInt32 Music::GetPlayingOffset() const
+	Time Music::GetPlayingOffset() const
 	{
 		NazaraAssert(m_stream, "Music not created");
 
 		if (!m_streaming)
-			return 0;
+			return Time::Zero();
 
 		// Prevent music thread from enqueuing new buffers while we're getting the count
 		std::lock_guard<std::recursive_mutex> lock(m_sourceLock);
 
-		UInt32 sampleOffset = m_source->GetSampleOffset();
-		UInt32 playingOffset = SafeCast<UInt32>((1000ULL * (sampleOffset + (m_processedSamples / GetChannelCount(m_stream->GetFormat())))) / m_sampleRate);
-		UInt32 duration = m_stream->GetDuration();
-		if (playingOffset > duration)
+		Time playingOffset = m_source->GetPlayingOffset();
+		Time processedTime = Time::Microseconds(1'000'000ll * m_processedSamples / (GetChannelCount(m_stream->GetFormat()) * m_sampleRate));
+		playingOffset += processedTime;
+
+		Time sampleCount = m_stream->GetDuration();
+		if (playingOffset > sampleCount)
 		{
 			if (m_looping)
-				playingOffset %= duration;
+				playingOffset %= sampleCount;
 			else
-				playingOffset = 0; //< stopped
+				playingOffset = Time::Zero(); //< stopped
 		}
 
 		return playingOffset;
@@ -163,6 +163,33 @@ namespace Nz
 		NazaraAssert(m_stream, "Music not created");
 
 		return m_stream->GetSampleCount();
+	}
+
+	/*!
+	* \brief Gets the current offset in the music
+	* \return Offset in samples
+	*/
+	UInt64 Music::GetSampleOffset() const
+	{
+		NazaraAssert(m_stream, "Music not created");
+
+		if (!m_streaming)
+			return 0;
+
+		// Prevent music thread from enqueuing new buffers while we're getting the count
+		std::lock_guard<std::recursive_mutex> lock(m_sourceLock);
+
+		UInt64 sampleOffset = m_processedSamples + m_source->GetSampleOffset();
+		UInt64 sampleCount = m_stream->GetSampleCount();
+		if (sampleOffset > sampleCount)
+		{
+			if (m_looping)
+				sampleOffset %= sampleCount;
+			else
+				sampleOffset = 0; //< stopped
+		}
+
+		return sampleOffset;
 	}
 
 	/*!
@@ -296,7 +323,7 @@ namespace Nz
 			switch (GetStatus())
 			{
 				case SoundStatus::Playing:
-					SetPlayingOffset(0);
+					SeekToSampleOffset(0);
 					break;
 
 				case SoundStatus::Paused:
@@ -325,11 +352,11 @@ namespace Nz
 	*
 	* If the music is not playing, this sets the playing offset for the next Play call
 	*
-	* \param offset The offset in milliseconds
+	* \param offset The offset in samples
 	*
 	* \remark Music must be valid when calling this function
 	*/
-	void Music::SetPlayingOffset(UInt32 offset)
+	void Music::SeekToSampleOffset(UInt64 offset)
 	{
 		NazaraAssert(m_stream, "Music not created");
 
@@ -339,7 +366,7 @@ namespace Nz
 		if (isPlaying)
 			StopThread();
 
-		UInt64 sampleOffset = UInt64(offset) * m_sampleRate * GetChannelCount(m_stream->GetFormat()) / 1000ULL;
+		UInt64 sampleOffset = offset * GetChannelCount(m_stream->GetFormat());
 
 		m_processedSamples = sampleOffset;
 		m_streamOffset = sampleOffset;
@@ -356,7 +383,7 @@ namespace Nz
 	void Music::Stop()
 	{
 		StopThread();
-		SetPlayingOffset(0);
+		SeekToSampleOffset(0);
 	}
 
 	bool Music::FillAndQueueBuffer(std::shared_ptr<AudioBuffer> buffer)

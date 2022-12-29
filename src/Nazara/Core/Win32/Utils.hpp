@@ -4,16 +4,16 @@
 
 #pragma once
 
-#ifndef NAZARA_CORE_WIN32_CLOCKIMPL_HPP
-#define NAZARA_CORE_WIN32_CLOCKIMPL_HPP
+#ifndef NAZARA_CORE_WIN32_UTILS_HPP
+#define NAZARA_CORE_WIN32_UTILS_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <ctime>
+#include <windows.h>
 
 namespace Nz
 {
-	bool ClockImplInitializeHighPrecision();
-	UInt64 ClockImplGetElapsedMicroseconds();
-	UInt64 ClockImplGetElapsedMilliseconds();
+	time_t FileTimeToTime(FILETIME* time);
 }
 
-#endif // NAZARA_CORE_WIN32_CLOCKIMPL_HPP
+#endif // NAZARA_CORE_WIN32_UTILS_HPP

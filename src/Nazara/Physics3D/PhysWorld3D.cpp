@@ -13,8 +13,8 @@ namespace Nz
 	PhysWorld3D::PhysWorld3D() :
 	m_maxStepCount(50),
 	m_gravity(Vector3f::Zero()),
-	m_stepSize(1.f / 120.f),
-	m_timestepAccumulator(0.f)
+	m_stepSize(Time::TickDuration(120)),
+	m_timestepAccumulator(Time::Zero())
 	{
 		m_world = NewtonCreate();
 		NewtonWorldSetUserData(m_world, this);
@@ -86,7 +86,7 @@ namespace Nz
 		return m_maxStepCount;
 	}
 
-	float PhysWorld3D::GetStepSize() const
+	Time PhysWorld3D::GetStepSize() const
 	{
 		return m_stepSize;
 	}
@@ -106,7 +106,7 @@ namespace Nz
 		m_maxStepCount = maxStepCount;
 	}
 
-	void PhysWorld3D::SetStepSize(float stepSize)
+	void PhysWorld3D::SetStepSize(Time stepSize)
 	{
 		m_stepSize = stepSize;
 	}
@@ -159,14 +159,16 @@ namespace Nz
 		NewtonMaterialSetSurfaceThickness(m_world, firstMaterial, secondMaterial, thickness);
 	}
 
-	void PhysWorld3D::Step(float timestep)
+	void PhysWorld3D::Step(Time timestep)
 	{
 		m_timestepAccumulator += timestep;
 
 		std::size_t stepCount = 0;
+		float dt = m_stepSize.AsSeconds<float>();
+
 		while (m_timestepAccumulator >= m_stepSize && stepCount < m_maxStepCount)
 		{
-			NewtonUpdate(m_world, m_stepSize);
+			NewtonUpdate(m_world, dt);
 			m_timestepAccumulator -= m_stepSize;
 			stepCount++;
 		}

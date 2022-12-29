@@ -23,7 +23,7 @@ namespace Nz
 		m_skeletonConstructObserver.disconnect();
 	}
 
-	void SkeletonSystem::Update(float /*elapsedTime*/)
+	void SkeletonSystem::Update(Time /*elapsedTime*/)
 	{
 		m_sharedSkeletonConstructObserver.each([&](entt::entity entity)
 		{

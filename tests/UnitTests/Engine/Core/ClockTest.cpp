@@ -8,14 +8,14 @@ SCENARIO("Clock", "[CORE][CLOCK]")
 {
 	GIVEN("A clock paused")
 	{
-		Nz::UInt64 initialTime = 100;
-		Nz::Clock clock(initialTime, true);
+		Nz::Time initialTime = Nz::Time::Microseconds(100);
+		Nz::HighPrecisionClock clock(initialTime, true);
 
 		WHEN("We get time since it is paused")
 		{
 			THEN("Time must be the initialTime")
 			{
-				CHECK(clock.GetMicroseconds() == initialTime);
+				CHECK(clock.GetElapsedTime() == initialTime);
 				CHECK(clock.IsPaused());
 			}
 		}
@@ -28,10 +28,11 @@ SCENARIO("Clock", "[CORE][CLOCK]")
 			THEN("Time must not be the initialTime")
 			{
 				std::this_thread::sleep_for(std::chrono::milliseconds(1));
-				Nz::UInt64 microSeconds = clock.GetMicroseconds();
-				CHECK(microSeconds != initialTime);
-				CHECK(microSeconds / 1000 <= clock.GetMilliseconds());
-				CHECK(microSeconds / (1000.f * 1000.f) <= clock.GetSeconds());
+				Nz::Time elapsedTime = clock.GetElapsedTime();
+				Nz::Int64 microseconds = elapsedTime.AsMicroseconds();
+				CHECK(microseconds != initialTime.AsMicroseconds());
+				CHECK(microseconds / 1000 <= elapsedTime.AsMilliseconds());
+				CHECK(microseconds / (1000.f * 1000.f) <= elapsedTime.AsSeconds());
 			}
 		}
 
@@ -44,7 +45,7 @@ SCENARIO("Clock", "[CORE][CLOCK]")
 				CHECK(!clock.IsPaused());
 				clock.Pause();
 				CHECK(clock.IsPaused());
-				CHECK(clock.GetMicroseconds() != initialTime);
+				CHECK(clock.GetElapsedTime() != initialTime);
 			}
 		}
 	}

@@ -11,10 +11,10 @@ namespace Nz
 
 	void SystemGraph::Update()
 	{
-		return Update(m_clock.Restart() / 1'000'000.f);
+		return Update(m_clock.Restart());
 	}
 
-	void SystemGraph::Update(float elapsedTime)
+	void SystemGraph::Update(Time elapsedTime)
 	{
 		if (!m_systemOrderUpdated)
 		{

@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
+#include <Nazara/Core/Time.hpp>
 #include <Nazara/Math/Angle.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Physics2D/Config.hpp>
@@ -59,7 +60,7 @@ namespace Nz
 			cpSpace* GetHandle() const;
 			std::size_t GetIterationCount() const;
 			std::size_t GetMaxStepCount() const;
-			float GetStepSize() const;
+			Time GetStepSize() const;
 
 			bool NearestBodyQuery(const Vector2f& from, float maxDistance, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, RigidBody2D** nearestBody = nullptr);
 			bool NearestBodyQuery(const Vector2f& from, float maxDistance, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, NearestQueryResult* result);
@@ -78,10 +79,10 @@ namespace Nz
 			void SetGravity(const Vector2f& gravity);
 			void SetIterationCount(std::size_t iterationCount);
 			void SetMaxStepCount(std::size_t maxStepCount);
-			void SetSleepTime(float sleepTime);
-			void SetStepSize(float stepSize);
+			void SetSleepTime(Time sleepTime);
+			void SetStepSize(Time stepSize);
 
-			void Step(float timestep);
+			void Step(Time timestep);
 
 			void UseSpatialHash(float cellSize, std::size_t entityCount);
 
@@ -156,8 +157,8 @@ namespace Nz
 			std::unordered_map<cpCollisionHandler*, std::unique_ptr<Callback>> m_callbacks;
 			std::unordered_map<RigidBody2D*, PostStepContainer> m_rigidPostSteps;
 			cpSpace* m_handle;
-			float m_stepSize;
-			float m_timestepAccumulator;
+			Time m_stepSize;
+			Time m_timestepAccumulator;
 	};
 }
 

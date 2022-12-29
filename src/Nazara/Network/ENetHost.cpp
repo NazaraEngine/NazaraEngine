@@ -1245,7 +1245,7 @@ namespace Nz
 
 	void ENetHost::ThrottleBandwidth()
 	{
-		UInt32 currentTime = UInt32(GetElapsedMilliseconds());
+		UInt32 currentTime = UInt32(GetElapsedMilliseconds().AsMilliseconds());
 		UInt32 elapsedTime = currentTime - m_bandwidthThrottleEpoch;
 
 		if (elapsedTime < ENetConstants::ENetHost_BandwidthThrottleInterval)

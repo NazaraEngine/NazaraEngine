@@ -48,7 +48,7 @@ namespace Nz
 		m_pipeline.reset();
 	}
 
-	void RenderSystem::Update(float /*elapsedTime*/)
+	void RenderSystem::Update(Time /*elapsedTime*/)
 	{
 		UpdateObservers();
 		UpdateVisibility();

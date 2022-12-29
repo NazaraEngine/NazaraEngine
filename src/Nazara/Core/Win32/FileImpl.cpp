@@ -5,7 +5,7 @@
 #include <Nazara/Core/Win32/FileImpl.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/StringExt.hpp>
-#include <Nazara/Core/Win32/Time.hpp>
+#include <Nazara/Core/Win32/Utils.hpp>
 #include <Nazara/Utils/CallOnExit.hpp>
 #include <memory>
 #include <Nazara/Core/Debug.hpp>

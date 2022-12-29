@@ -277,8 +277,6 @@ namespace Nz
 			return false;
 		}
 
-		m_clock.Restart();
-
 		return true;
 	}
 

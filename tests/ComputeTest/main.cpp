@@ -133,7 +133,7 @@ int main()
 	SpriteRenderData spriteRenderData1 = BuildSpriteData(*device, spriteRenderPipeline, Nz::Rectf(margin, windowSize.y - margin - textureSize, textureSize, textureSize), Nz::Vector2f(windowSize), *texture, *textureSampler);
 	SpriteRenderData spriteRenderData2 = BuildSpriteData(*device, spriteRenderPipeline, Nz::Rectf(windowSize.x - textureSize - margin, windowSize.y - margin - textureSize, textureSize, textureSize), Nz::Vector2f(windowSize), *targetTexture, *textureSampler);
 
-	Nz::Clock secondClock;
+	Nz::MillisecondClock fpsClock;
 	unsigned int fps = 0;
 
 	while (window.IsOpen())
@@ -205,13 +205,10 @@ int main()
 
 		fps++;
 
-		if (secondClock.GetMilliseconds() >= 1000)
+		if (fpsClock.RestartIfOver(Nz::Time::Second()))
 		{
 			window.SetTitle(windowTitle + " - " + Nz::NumberToString(fps) + " FPS");
-
 			fps = 0;
-
-			secondClock.Restart();
 		}
 	}
 

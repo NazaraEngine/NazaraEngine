@@ -22,7 +22,7 @@ namespace Nz
 {
 	class AudioBuffer;
 
-	class NAZARA_AUDIO_API Music : public Resource, public SoundEmitter
+	class NAZARA_AUDIO_API Music final : public Resource, public SoundEmitter
 	{
 		public:
 			Music();
@@ -36,11 +36,12 @@ namespace Nz
 
 			void EnableLooping(bool loop) override;
 
-			UInt32 GetDuration() const override;
+			Time GetDuration() const override;
 			AudioFormat GetFormat() const;
-			UInt32 GetPlayingOffset() const override;
+			Time GetPlayingOffset() const;
 			UInt64 GetSampleCount() const;
-			UInt32 GetSampleRate() const;
+			UInt64 GetSampleOffset() const override;
+			UInt32 GetSampleRate() const override;
 			SoundStatus GetStatus() const override;
 
 			bool IsLooping() const override;
@@ -52,7 +53,7 @@ namespace Nz
 			void Pause() override;
 			void Play() override;
 
-			void SetPlayingOffset(UInt32 offset);
+			void SeekToSampleOffset(UInt64 offset);
 
 			void Stop() override;
 

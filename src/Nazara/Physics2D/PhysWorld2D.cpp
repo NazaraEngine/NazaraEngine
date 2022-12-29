@@ -80,8 +80,8 @@ namespace Nz
 
 	PhysWorld2D::PhysWorld2D() :
 	m_maxStepCount(50),
-	m_stepSize(0.005f),
-	m_timestepAccumulator(0.f)
+	m_stepSize(Time::TickDuration(200)),
+	m_timestepAccumulator(Time::Zero())
 	{
 		m_handle = cpSpaceNew();
 		cpSpaceSetUserData(m_handle, this);
@@ -154,7 +154,7 @@ namespace Nz
 		return m_maxStepCount;
 	}
 
-	float PhysWorld2D::GetStepSize() const
+	Time PhysWorld2D::GetStepSize() const
 	{
 		return m_stepSize;
 	}
@@ -328,7 +328,7 @@ namespace Nz
 
 	void PhysWorld2D::SetIterationCount(std::size_t iterationCount)
 	{
-		cpSpaceSetIterations(m_handle, int(iterationCount));
+		cpSpaceSetIterations(m_handle, SafeCast<int>(iterationCount));
 	}
 
 	void PhysWorld2D::SetMaxStepCount(std::size_t maxStepCount)
@@ -336,30 +336,32 @@ namespace Nz
 		m_maxStepCount = maxStepCount;
 	}
 
-	void PhysWorld2D::SetSleepTime(float sleepTime)
+	void PhysWorld2D::SetSleepTime(Time sleepTime)
 	{
-		if (sleepTime > 0)
-			cpSpaceSetSleepTimeThreshold(m_handle, cpFloat(sleepTime));
+		if (sleepTime > Time::Zero())
+			cpSpaceSetSleepTimeThreshold(m_handle, sleepTime.AsSeconds<cpFloat>());
 		else
 			cpSpaceSetSleepTimeThreshold(m_handle, std::numeric_limits<cpFloat>::infinity());
 	}
 
-	void PhysWorld2D::SetStepSize(float stepSize)
+	void PhysWorld2D::SetStepSize(Time stepSize)
 	{
 		m_stepSize = stepSize;
 	}
 
-	void PhysWorld2D::Step(float timestep)
+	void PhysWorld2D::Step(Time timestep)
 	{
 		m_timestepAccumulator += timestep;
 
-		std::size_t stepCount = std::min(static_cast<std::size_t>(m_timestepAccumulator / m_stepSize), m_maxStepCount);
+		std::size_t stepCount = std::min(static_cast<std::size_t>(static_cast<Int64>(m_timestepAccumulator / m_stepSize)), m_maxStepCount);
 		float invStepCount = 1.f / stepCount;
+
+		cpFloat dt = m_stepSize.AsSeconds<float>(); //< FIXME: AsSeconds<cpFloat> is more precise but it fails unit tests on Linux
 		for (std::size_t i = 0; i < stepCount; ++i)
 		{
 			OnPhysWorld2DPreStep(this, invStepCount);
 
-			cpSpaceStep(m_handle, m_stepSize);
+			cpSpaceStep(m_handle, dt);
 
 			OnPhysWorld2DPostStep(this, invStepCount);
 			if (!m_rigidPostSteps.empty())

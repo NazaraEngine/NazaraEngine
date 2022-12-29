@@ -198,14 +198,11 @@ int main()
 
 	window.EnableEventPolling(true);
 
-	Nz::Clock updateClock;
-	Nz::Clock secondClock;
+	Nz::MillisecondClock updateClock;
+	Nz::MillisecondClock fpsClock;
 	unsigned int fps = 0;
 
 	Nz::Mouse::SetRelativeMouseMode(true);
-
-	float elapsedTime = 0.f;
-	Nz::UInt64 time = Nz::GetElapsedMicroseconds();
 
 	Nz::PidController<Nz::Vector3f> headingController(0.3f, 0.f, 0.1f);
 	Nz::PidController<Nz::Vector3f> upController(1.f, 0.f, 0.1f);
@@ -213,10 +210,6 @@ int main()
 	bool showColliders = false;
 	while (window.IsOpen())
 	{
-		Nz::UInt64 now = Nz::GetElapsedMicroseconds();
-		elapsedTime = (now - time) / 1'000'000.f;
-		time = now;
-
 		Nz::WindowEvent event;
 		while (window.PollEvent(&event))
 		{
@@ -286,8 +279,10 @@ int main()
 			}
 		}
 
-		if (updateClock.GetMilliseconds() > 1000 / 60)
+		if (std::optional<Nz::Time> deltaTime = updateClock.RestartIfOver(Nz::Time::TickDuration(60)))
 		{
+			float elapsedTime = deltaTime->AsSeconds();
+
 			auto spaceshipView = registry.view<Nz::NodeComponent, Nz::RigidBody3DComponent>();
 			for (auto&& [entity, node, _] : spaceshipView.each())
 			{
@@ -338,13 +333,10 @@ int main()
 
 		fps++;
 
-		if (secondClock.GetMilliseconds() >= 1000)
+		if (fpsClock.RestartIfOver(Nz::Time::Second()))
 		{
 			window.SetTitle(windowTitle + " - " + Nz::NumberToString(fps) + " FPS" + " - " + Nz::NumberToString(registry.alive()) + " entities");
-
 			fps = 0;
-
-			secondClock.Restart();
 		}
 	}
 

@@ -8,6 +8,7 @@
 #define NAZARA_CORE_COMPONENTS_LIFETIMECOMPONENT_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/Time.hpp>
 #include <Nazara/Utility/Config.hpp>
 
 namespace Nz
@@ -15,14 +16,14 @@ namespace Nz
 	class LifetimeComponent
 	{
 		public:
-			inline LifetimeComponent(float lifetime);
+			inline LifetimeComponent(Time lifetime);
 			LifetimeComponent(const LifetimeComponent&) = default;
 			LifetimeComponent(LifetimeComponent&&) = default;
 			~LifetimeComponent() = default;
 
-			inline void DecreaseLifetime(float elapsedTime);
+			inline void DecreaseLifetime(Time elapsedTime);
 
-			inline float GetRemainingLifeTime() const;
+			inline Time GetRemainingLifeTime() const;
 
 			inline bool IsAlive() const;
 
@@ -30,7 +31,7 @@ namespace Nz
 			LifetimeComponent& operator=(LifetimeComponent&&) = default;
 
 		private:
-			float m_remainingLifetime;
+			Time m_remainingLifetime;
 	};
 }
 

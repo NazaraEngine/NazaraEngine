@@ -69,6 +69,14 @@ local modules = {
 				add_packages("libuuid")
 				add_syslinks("dl", "pthread")
 			end
+
+			if is_plat("macosx", "iphoneos") then
+				add_headerfiles("src/Nazara/Core/Darwin/TimeImpl.hpp", { prefixdir = "private", install = false })
+				add_files("src/Nazara/Core/Darwin/TimeImpl.cpp")
+
+				remove_headerfiles("src/Nazara/Core/Posix/TimeImpl.hpp")
+				remove_files("src/Nazara/Core/Posix/TimeImpl.cpp")
+			end
 		end,
 		Packages = { "entt", "frozen" },
 		PublicPackages = { "nazarautils" }
@@ -277,26 +285,24 @@ function ModuleTargetConfig(name, module)
 	end
 
 	-- Remove platform-specific files
-	if is_plat("windows", "mingw") then
-		for _, ext in ipairs(headerExts) do
-			remove_headerfiles("src/Nazara/" .. name .. "/Posix/**" .. ext)
-		end
-
-		remove_files("src/Nazara/" .. name .. "/Posix/**.cpp")
-	else
-		for _, ext in ipairs(headerExts) do
-			remove_headerfiles("src/Nazara/" .. name .. "/Posix/**" .. ext)
-		end
-
-		remove_files("src/Nazara/" .. name .. "/Win32/**.cpp")
+	if not is_plat("windows", "mingw") then
+		remove_headerfiles("src/Nazara/" .. name .. "/Win32/**")
+		remove_files("src/Nazara/" .. name .. "/Win32/**")
 	end
 
-	if not is_plat("linux") then
-		for _, ext in ipairs(headerExts) do
-			remove_headerfiles("src/Nazara/" .. name .. "/Linux/**" .. ext)
-		end
+	if not is_plat("linux", "android", "cross") then
+		remove_headerfiles("src/Nazara/" .. name .. "/Linux/**")
+		remove_files("src/Nazara/" .. name .. "/Linux/**")
+	end
 
-		remove_files("src/Nazara/" .. name .. "/Linux/**.cpp")
+	if not is_plat("macosx", "iphoneos") then
+		remove_headerfiles("src/Nazara/" .. name .. "/Darwin/**")
+		remove_files("src/Nazara/" .. name .. "/Darwin/**")
+	end
+
+	if not is_plat("linux", "macosx", "iphoneos", "android", "wasm", "cross") then
+		remove_headerfiles("src/Nazara/" .. name .. "/Posix/**")
+		remove_files("src/Nazara/" .. name .. "/Posix/**")
 	end
 
 	if module.Custom then

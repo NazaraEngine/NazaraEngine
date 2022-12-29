@@ -130,7 +130,7 @@ namespace Nz
 					mp3dec_ex_close(&m_decoder);
 				}
 
-				UInt32 GetDuration() const override
+				Time GetDuration() const override
 				{
 					return m_duration;
 				}
@@ -214,7 +214,7 @@ namespace Nz
 
 					m_format = *formatOpt;
 
-					m_duration = static_cast<UInt32>(1000ULL * m_decoder.samples / (m_decoder.info.hz * m_decoder.info.channels));
+					m_duration = Time::Microseconds(1'000'000LL * m_decoder.samples / (m_decoder.info.hz * m_decoder.info.channels));
 					m_sampleCount = m_decoder.samples;
 					m_sampleRate = m_decoder.info.hz;
 
@@ -275,7 +275,7 @@ namespace Nz
 				AudioFormat m_format;
 				mp3dec_ex_t m_decoder;
 				mp3dec_io_t m_io;
-				UInt32 m_duration;
+				Time m_duration;
 				UInt32 m_sampleRate;
 				UInt64 m_readSampleCount;
 				UInt64 m_sampleCount;

@@ -8,6 +8,7 @@
 #define NAZARA_PHYSICS3D_PHYSWORLD3D_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/Time.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Physics3D/Config.hpp>
@@ -44,12 +45,12 @@ namespace Nz
 			NewtonWorld* GetHandle() const;
 			int GetMaterial(const std::string& name);
 			std::size_t GetMaxStepCount() const;
-			float GetStepSize() const;
+			Time GetStepSize() const;
 			unsigned int GetThreadCount() const;
 
 			void SetGravity(const Vector3f& gravity);
 			void SetMaxStepCount(std::size_t maxStepCount);
-			void SetStepSize(float stepSize);
+			void SetStepSize(Time stepSize);
 			void SetThreadCount(unsigned int threadCount);
 
 			void SetMaterialCollisionCallback(int firstMaterial, int secondMaterial, AABBOverlapCallback aabbOverlapCallback, CollisionCallback collisionCallback);
@@ -59,7 +60,7 @@ namespace Nz
 			void SetMaterialDefaultSoftness(int firstMaterial, int secondMaterial, float softness);
 			void SetMaterialSurfaceThickness(int firstMaterial, int secondMaterial, float thickness);
 
-			void Step(float timestep);
+			void Step(Time timestep);
 
 			PhysWorld3D& operator=(const PhysWorld3D&) = delete;
 			PhysWorld3D& operator=(PhysWorld3D&&) noexcept;
@@ -79,8 +80,8 @@ namespace Nz
 			std::size_t m_maxStepCount;
 			MovablePtr<NewtonWorld> m_world;
 			Vector3f m_gravity;
-			float m_stepSize;
-			float m_timestepAccumulator;
+			Time m_stepSize;
+			Time m_timestepAccumulator;
 	};
 }
 

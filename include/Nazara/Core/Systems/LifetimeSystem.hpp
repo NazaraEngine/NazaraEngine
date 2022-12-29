@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Config.hpp>
+#include <Nazara/Core/Time.hpp>
 #include <Nazara/Utils/TypeList.hpp>
 #include <entt/entt.hpp>
 
@@ -26,7 +27,7 @@ namespace Nz
 			LifetimeSystem(LifetimeSystem&&) = delete;
 			~LifetimeSystem() = default;
 
-			void Update(float elapsedTime);
+			void Update(Time elapsedTime);
 
 			LifetimeSystem& operator=(const LifetimeSystem&) = delete;
 			LifetimeSystem& operator=(LifetimeSystem&&) = delete;

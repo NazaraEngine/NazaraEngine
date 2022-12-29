@@ -10,6 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/Enums.hpp>
+#include <Nazara/Core/Time.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <limits>
 
@@ -32,11 +33,13 @@ namespace Nz
 			void EnableSpatialization(bool spatialization);
 
 			float GetAttenuation() const;
-			virtual UInt32 GetDuration() const = 0;
+			virtual Time GetDuration() const = 0;
 			float GetMinDistance() const;
 			float GetPitch() const;
-			virtual UInt32 GetPlayingOffset() const = 0;
+			virtual Time GetPlayingOffset() const = 0;
 			Vector3f GetPosition() const;
+			virtual UInt64 GetSampleOffset() const = 0;
+			virtual UInt32 GetSampleRate() const = 0;
 			Vector3f GetVelocity() const;
 			virtual SoundStatus GetStatus() const = 0;
 			float GetVolume() const;
@@ -47,6 +50,9 @@ namespace Nz
 
 			virtual void Pause() = 0;
 			virtual void Play() = 0;
+
+			virtual void SeekToPlayingOffset(Time offset);
+			virtual void SeekToSampleOffset(UInt64 offset) = 0;
 
 			void SetAttenuation(float attenuation);
 			void SetMinDistance(float minDistance);

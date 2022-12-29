@@ -31,7 +31,7 @@ namespace Nz
 			template<typename T> T& GetSystem() const;
 
 			void Update();
-			void Update(float elapsedTime);
+			void Update(Time elapsedTime);
 
 			SystemGraph& operator=(const SystemGraph&) = delete;
 			SystemGraph& operator=(SystemGraph&&) = delete;
@@ -41,7 +41,7 @@ namespace Nz
 			{
 				virtual ~NodeBase();
 
-				virtual void Update(float elapsedTime) = 0;
+				virtual void Update(Time elapsedTime) = 0;
 
 				Int64 executionOrder;
 			};
@@ -51,7 +51,7 @@ namespace Nz
 			{
 				template<typename... Args> Node(Args&&... args);
 
-				void Update(float elapsedTime) override;
+				void Update(Time elapsedTime) override;
 
 				T system;
 			};
@@ -60,7 +60,7 @@ namespace Nz
 			std::vector<NodeBase*> m_orderedNodes;
 			std::vector<std::unique_ptr<NodeBase>> m_nodes;
 			entt::registry& m_registry;
-			Nz::Clock m_clock;
+			Nz::HighPrecisionClock m_clock;
 			bool m_systemOrderUpdated;
 	};
 }

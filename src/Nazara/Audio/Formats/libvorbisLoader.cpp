@@ -184,7 +184,7 @@ namespace Nz
 						ov_clear(&m_decoder);
 				}
 
-				UInt32 GetDuration() const override
+				Time GetDuration() const override
 				{
 					return m_duration;
 				}
@@ -258,7 +258,7 @@ namespace Nz
 					UInt64 frameCount = UInt64(ov_pcm_total(&m_decoder, -1));
 
 					m_channelCount = info->channels;
-					m_duration = UInt32(1000ULL * frameCount / info->rate);
+					m_duration = Time::Microseconds(1'000'000LL * frameCount / info->rate);
 					m_sampleCount = UInt64(frameCount * info->channels);
 					m_sampleRate = info->rate;
 
@@ -319,8 +319,8 @@ namespace Nz
 				std::vector<Int16> m_mixBuffer;
 				AudioFormat m_format;
 				OggVorbis_File m_decoder;
+				Time m_duration;
 				UInt32 m_channelCount;
-				UInt32 m_duration;
 				UInt32 m_sampleRate;
 				UInt64 m_sampleCount;
 				bool m_mixToMono;

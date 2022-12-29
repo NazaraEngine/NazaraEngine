@@ -33,7 +33,7 @@ namespace Nz
 			rigidBodyComponent.Destroy();
 	}
 
-	void Physics2DSystem::Update(float elapsedTime)
+	void Physics2DSystem::Update(Time elapsedTime)
 	{
 		m_physWorld.Step(elapsedTime);
 

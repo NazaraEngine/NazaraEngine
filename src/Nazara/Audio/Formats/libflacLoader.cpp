@@ -265,7 +265,7 @@ namespace Nz
 					}
 				}
 
-				UInt32 GetDuration() const override
+				Time GetDuration() const override
 				{
 					return m_duration;
 				}
@@ -333,7 +333,7 @@ namespace Nz
 						m_sampleCount = frameCount * m_channelCount;
 						m_sampleRate = meta->data.stream_info.sample_rate;
 
-						m_duration = UInt32(1000ULL * frameCount / m_sampleRate);
+						m_duration = Time::Microseconds(1'000'000LL * frameCount / m_sampleRate);
 					};
 
 					FLAC__StreamDecoderInitStatus status = FLAC__stream_decoder_init_stream(decoder, &FlacReadCallback, &FlacSeekCallback, &FlacTellCallback, &FlacLengthCallback, &FlacEofCallback, &WriteCallback, &MetadataCallback, &ErrorCallback, &m_userData);
@@ -477,8 +477,8 @@ namespace Nz
 				FLAC__StreamDecoder* m_decoder;
 				AudioFormat m_format;
 				FlacUserdata m_userData;
+				Time m_duration;
 				UInt32 m_channelCount;
-				UInt32 m_duration;
 				UInt32 m_sampleRate;
 				UInt64 m_readSampleCount;
 				UInt64 m_sampleCount;
