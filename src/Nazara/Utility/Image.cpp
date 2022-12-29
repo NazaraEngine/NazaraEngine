@@ -1095,7 +1095,7 @@ namespace Nz
 			return false;
 		}
 
-		Copy(*image, Rectui(0, 0, faceSize, faceSize), Vector3ui(0, 0, UnderlyingCast(face)));
+		Copy(*image, Boxui(0, 0, 0, faceSize, faceSize, 1), Vector3ui(0, 0, UnderlyingCast(face)));
 		return true;
 	}
 
@@ -1123,7 +1123,7 @@ namespace Nz
 			return false;
 		}
 
-		Copy(*image, Rectui(0, 0, faceSize, faceSize), Vector3ui(0, 0, UnderlyingCast(face)));
+		Copy(*image, Boxui(0, 0, 0, faceSize, faceSize, 1), Vector3ui(0, 0, UnderlyingCast(face)));
 		return true;
 	}
 
@@ -1151,7 +1151,7 @@ namespace Nz
 			return false;
 		}
 
-		Copy(*image, Rectui(0, 0, faceSize, faceSize), Vector3ui(0, 0, UnderlyingCast(face)));
+		Copy(*image, Boxui(0, 0, 0, faceSize, faceSize, 1), Vector3ui(0, 0, UnderlyingCast(face)));
 		return true;
 	}
 
