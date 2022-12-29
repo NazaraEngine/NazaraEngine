@@ -71,11 +71,11 @@ local modules = {
 			end
 
 			if is_plat("macosx", "iphoneos") then
-				add_files("src/Nazara/Network/Darwin/TimeImpl.hpp")
-				add_files("src/Nazara/Network/Darwin/TimeImpl.cpp")
+				add_files("src/Nazara/Core/Darwin/TimeImpl.hpp")
+				add_files("src/Nazara/Core/Darwin/TimeImpl.cpp")
 
-				remove_files("src/Nazara/Network/Posix/TimeImpl.hpp")
-				remove_files("src/Nazara/Network/Posix/TimeImpl.cpp")
+				remove_files("src/Nazara/Core/Posix/TimeImpl.hpp")
+				remove_files("src/Nazara/Core/Posix/TimeImpl.cpp")
 			end
 		end,
 		Packages = { "entt", "frozen" },
