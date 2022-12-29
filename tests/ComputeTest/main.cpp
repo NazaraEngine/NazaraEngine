@@ -110,9 +110,16 @@ int main()
 	
 	moduleResolver->OnModuleUpdated.Connect([&](nzsl::ModuleResolver*, const std::string& moduleName)
 	{
-		std::cout << moduleName << " has been updated" << std::endl;
-		newComputePipeline = BuildComputePipeline(*device, computePipelineLayout, moduleResolver);
-		hasNewPipeline = true;
+		try
+		{
+			std::cout << moduleName << " has been updated" << std::endl;
+			newComputePipeline = BuildComputePipeline(*device, computePipelineLayout, moduleResolver);
+			hasNewPipeline = true;
+		}
+		catch (const std::exception& e)
+		{
+			std::cerr << e.what() << std::endl;
+		}
 	});
 
 
