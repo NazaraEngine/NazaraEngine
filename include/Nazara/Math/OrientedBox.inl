@@ -274,28 +274,26 @@ namespace Nz
 
 		return true;
 	}
-}
 
-/*!
-* \brief Output operator
-* \return The stream
-*
-* \param out The stream
-* \param orientedBox The orientedBox to output
-*/
-
-template<typename T>
-std::ostream& operator<<(std::ostream& out, const Nz::OrientedBox<T>& orientedBox)
-{
-	return out << "OrientedBox(FLB: " << orientedBox.GetCorner(Nz::BoxCorner::FarLeftBottom)   << ",\n"
-	           << "            FLT: " << orientedBox.GetCorner(Nz::BoxCorner::FarLeftTop)      << ",\n"
-	           << "            FRB: " << orientedBox.GetCorner(Nz::BoxCorner::FarRightBottom)  << ",\n"
-	           << "            FRT: " << orientedBox.GetCorner(Nz::BoxCorner::FarRightTop)     << ",\n"
-	           << "            NLB: " << orientedBox.GetCorner(Nz::BoxCorner::NearLeftBottom)  << ",\n"
-	           << "            NLT: " << orientedBox.GetCorner(Nz::BoxCorner::NearLeftTop)     << ",\n"
-	           << "            NRB: " << orientedBox.GetCorner(Nz::BoxCorner::NearRightBottom) << ",\n"
-	           << "            NRT: " << orientedBox.GetCorner(Nz::BoxCorner::NearRightTop)    << ")\n";
+	/*!
+	* \brief Output operator
+	* \return The stream
+	*
+	* \param out The stream
+	* \param orientedBox The orientedBox to output
+	*/
+	template<typename T>
+	std::ostream& operator<<(std::ostream& out, const Nz::OrientedBox<T>& orientedBox)
+	{
+		return out << "OrientedBox(FLB: " << orientedBox.GetCorner(Nz::BoxCorner::FarLeftBottom)   << ",\n"
+				   << "            FLT: " << orientedBox.GetCorner(Nz::BoxCorner::FarLeftTop)      << ",\n"
+				   << "            FRB: " << orientedBox.GetCorner(Nz::BoxCorner::FarRightBottom)  << ",\n"
+				   << "            FRT: " << orientedBox.GetCorner(Nz::BoxCorner::FarRightTop)     << ",\n"
+				   << "            NLB: " << orientedBox.GetCorner(Nz::BoxCorner::NearLeftBottom)  << ",\n"
+				   << "            NLT: " << orientedBox.GetCorner(Nz::BoxCorner::NearLeftTop)     << ",\n"
+				   << "            NRB: " << orientedBox.GetCorner(Nz::BoxCorner::NearRightBottom) << ",\n"
+				   << "            NRT: " << orientedBox.GetCorner(Nz::BoxCorner::NearRightTop)    << ")\n";
+	}
 }
 
 #include <Nazara/Core/DebugOff.hpp>
-#include "OrientedBox.hpp"

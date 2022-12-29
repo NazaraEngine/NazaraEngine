@@ -469,20 +469,19 @@ namespace Nz
 
 		return true;
 	}
-}
 
-/*!
-* \brief Output operator
-* \return The stream
-*
-* \param out The stream
-* \param plane The plane to output
-*/
-
-template<typename T>
-std::ostream& operator<<(std::ostream& out, const Nz::Plane<T>& plane)
-{
-	return out << "Plane(Normal: " << plane.normal << "; Distance: " << plane.distance << ')';
+	/*!
+	* \brief Output operator
+	* \return The stream
+	*
+	* \param out The stream
+	* \param plane The plane to output
+	*/
+	template<typename T>
+	std::ostream& operator<<(std::ostream& out, const Nz::Plane<T>& plane)
+	{
+		return out << "Plane(Normal: " << plane.normal << "; Distance: " << plane.distance << ')';
+	}
 }
 
 #include <Nazara/Core/DebugOff.hpp>

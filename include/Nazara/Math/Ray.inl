@@ -748,20 +748,20 @@ namespace Nz
 
 		return true;
 	}
-}
 
-/*!
-* \brief Output operator
-* \return The stream
-*
-* \param out The stream
-* \param ray The ray to output
-*/
+	/*!
+	* \brief Output operator
+	* \return The stream
+	*
+	* \param out The stream
+	* \param ray The ray to output
+	*/
 
-template<typename T>
-std::ostream& operator<<(std::ostream& out, const Nz::Ray<T>& ray)
-{
-	return out << "Ray(origin: " << ray.origin << ", direction: " << ray.direction << ")";
+	template<typename T>
+	std::ostream& operator<<(std::ostream& out, const Nz::Ray<T>& ray)
+	{
+		return out << "Ray(origin: " << ray.origin << ", direction: " << ray.direction << ")";
+	}
 }
 
 #include <Nazara/Core/DebugOff.hpp>

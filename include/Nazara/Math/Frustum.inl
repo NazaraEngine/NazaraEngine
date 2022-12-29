@@ -587,25 +587,24 @@ namespace Nz
 
 		return true;
 	}
-}
 
-/*!
-* \brief Output operator
-* \return The stream
-*
-* \param out The stream
-* \param frustum The frustum to output
-*/
-
-template<typename T>
-std::ostream& operator<<(std::ostream& out, const Nz::Frustum<T>& frustum)
-{
-	return out << "Frustum(Bottom: " << frustum.GetPlane(Nz::FrustumPlane::Bottom) << ",\n"
-	           << "        Far: "    << frustum.GetPlane(Nz::FrustumPlane::Far)    << ",\n"
-	           << "        Left: "   << frustum.GetPlane(Nz::FrustumPlane::Left)   << ",\n"
-	           << "        Near: "   << frustum.GetPlane(Nz::FrustumPlane::Near)   << ",\n"
-	           << "        Right: "  << frustum.GetPlane(Nz::FrustumPlane::Right)  << ",\n"
-	           << "        Top: "    << frustum.GetPlane(Nz::FrustumPlane::Top)    << ")\n";
+	/*!
+	* \brief Output operator
+	* \return The stream
+	*
+	* \param out The stream
+	* \param frustum The frustum to output
+	*/
+	template<typename T>
+	std::ostream& operator<<(std::ostream& out, const Nz::Frustum<T>& frustum)
+	{
+		return out << "Frustum(Bottom: " << frustum.GetPlane(Nz::FrustumPlane::Bottom) << ",\n"
+			<< "        Far: " << frustum.GetPlane(Nz::FrustumPlane::Far) << ",\n"
+			<< "        Left: " << frustum.GetPlane(Nz::FrustumPlane::Left) << ",\n"
+			<< "        Near: " << frustum.GetPlane(Nz::FrustumPlane::Near) << ",\n"
+			<< "        Right: " << frustum.GetPlane(Nz::FrustumPlane::Right) << ",\n"
+			<< "        Top: " << frustum.GetPlane(Nz::FrustumPlane::Top) << ")\n";
+	}
 }
 
 #include <Nazara/Core/DebugOff.hpp>

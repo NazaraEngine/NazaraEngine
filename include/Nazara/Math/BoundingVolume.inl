@@ -466,35 +466,34 @@ namespace Nz
 
 		return true;
 	}
-}
 
-/*!
-* \brief Output operator
-* \return The stream
-*
-* \param out The stream
-* \param volume The bounding volume to output
-*/
-
-template<typename T>
-std::ostream& operator<<(std::ostream& out, const Nz::BoundingVolume<T>& volume)
-{
-	switch (volume.extend)
+	/*!
+	* \brief Output operator
+	* \return The stream
+	*
+	* \param out The stream
+	* \param volume The bounding volume to output
+	*/
+	template<typename T>
+	std::ostream& operator<<(std::ostream& out, const Nz::BoundingVolume<T>& volume)
 	{
-		case Nz::Extend::Finite:
-			out << "BoundingVolume(localBox=" << volume.obb.localBox << ')';
-			break;
+		switch (volume.extend)
+		{
+			case Nz::Extend::Finite:
+				out << "BoundingVolume(localBox=" << volume.obb.localBox << ')';
+				break;
 
-		case Nz::Extend::Infinite:
-			out << "BoundingVolume(Infinite)";
-			break;
+			case Nz::Extend::Infinite:
+				out << "BoundingVolume(Infinite)";
+				break;
 
-		case Nz::Extend::Null:
-			out << "BoundingVolume(Null)";
-			break;
+			case Nz::Extend::Null:
+				out << "BoundingVolume(Null)";
+				break;
+		}
+
+		return out;
 	}
-
-	return out;
 }
 
 #include <Nazara/Core/DebugOff.hpp>

@@ -69,9 +69,9 @@ namespace Nz
 
 	template<typename T> bool Serialize(SerializationContext& context, const EulerAngles<T>& eulerAngles, TypeTag<EulerAngles<T>>);
 	template<typename T> bool Unserialize(SerializationContext& context, EulerAngles<T>* eulerAngles, TypeTag<EulerAngles<T>>);
-}
 
-template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::EulerAngles<T>& angles);
+	template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::EulerAngles<T>& angles);
+}
 
 
 #include <Nazara/Math/EulerAngles.inl>

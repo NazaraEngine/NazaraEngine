@@ -61,10 +61,9 @@ namespace Nz
 
 	template<typename T> bool Serialize(SerializationContext& context, const OrientedBox<T>& obb, TypeTag<OrientedBox<T>>);
 	template<typename T> bool Unserialize(SerializationContext& context, OrientedBox<T>* obb, TypeTag<OrientedBox<T>>);
-}
 
-template<typename T>
-std::ostream& operator<<(std::ostream& out, const Nz::OrientedBox<T>& orientedBox);
+	template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::OrientedBox<T>& orientedBox);
+}
 
 #include <Nazara/Math/OrientedBox.inl>
 

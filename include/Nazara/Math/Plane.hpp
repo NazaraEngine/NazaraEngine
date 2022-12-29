@@ -64,10 +64,9 @@ namespace Nz
 
 	template<typename T> bool Serialize(SerializationContext& context, const Plane<T>& plane, TypeTag<Plane<T>>);
 	template<typename T> bool Unserialize(SerializationContext& context, Plane<T>* plane, TypeTag<Plane<T>>);
-}
 
-template<typename T>
-std::ostream& operator<<(std::ostream& out, const Nz::Plane<T>& plane);
+	template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Plane<T>& plane);
+}
 
 #include <Nazara/Math/Plane.inl>
 

@@ -997,47 +997,43 @@ namespace Nz
 
 		return true;
 	}
-}
 
-/*!
-* \brief Output operator
-* \return The stream
-*
-* \param out The stream
-* \param vec The vector to output
-*/
+	/*!
+	* \brief Output operator
+	* \return The stream
+	*
+	* \param out The stream
+	* \param vec The vector to output
+	*/
+	template<typename T>
+	std::ostream& operator<<(std::ostream& out, const Vector4<T>& vec)
+	{
+		return out << "Vector4(" << vec.x << ", " << vec.y << ", " << vec.z << ", " << vec.w << ')';
+	}
 
-template<typename T>
-std::ostream& operator<<(std::ostream& out, const Nz::Vector4<T>& vec)
-{
-	return out << "Vector4(" << vec.x << ", " << vec.y << ", " << vec.z << ", " << vec.w << ')';
-}
+	/*!
+	* \brief Multiplies the components of the vector with a scalar
+	* \return A vector where components are the product of this vector and the scalar
+	*
+	* \param scale The scalar to multiply components with
+	*/
+	template<typename T>
+	Vector4<T> operator*(T scale, const Vector4<T>& vec)
+	{
+		return Nz::Vector4<T>(scale * vec.x, scale * vec.y, scale * vec.z, scale * vec.w);
+	}
 
-/*!
-* \brief Multiplies the components of the vector with a scalar
-* \return A vector where components are the product of this vector and the scalar
-*
-* \param scale The scalar to multiply components with
-*/
-
-
-template<typename T>
-Nz::Vector4<T> operator*(T scale, const Nz::Vector4<T>& vec)
-{
-	return Nz::Vector4<T>(scale * vec.x, scale * vec.y, scale * vec.z, scale * vec.w);
-}
-
-/*!
-* \brief Divides the components of the vector with a scalar
-* \return A vector where components are the quotient of this vector and the scalar
-*
-* \param scale The scalar to divide components with
-*/
-
-template<typename T>
-Nz::Vector4<T> operator/(T scale, const Nz::Vector4<T>& vec)
-{
-	return Nz::Vector4<T>(scale / vec.x, scale / vec.y, scale / vec.z, scale / vec.w);
+	/*!
+	* \brief Divides the components of the vector with a scalar
+	* \return A vector where components are the quotient of this vector and the scalar
+	*
+	* \param scale The scalar to divide components with
+	*/
+	template<typename T>
+	Vector4<T> operator/(T scale, const Vector4<T>& vec)
+	{
+		return Nz::Vector4<T>(scale / vec.x, scale / vec.y, scale / vec.z, scale / vec.w);
+	}
 }
 
 namespace std

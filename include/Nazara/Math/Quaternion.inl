@@ -927,20 +927,19 @@ namespace Nz
 
 		return true;
 	}
-}
 
-/*!
-* \brief Output operator
-* \return The stream
-*
-* \param out The stream
-* \param quat The quaternion to output
-*/
-
-template<typename T>
-std::ostream& operator<<(std::ostream& out, const Nz::Quaternion<T>& quat)
-{
-	return out << "Quaternion(" << quat.w << " | " << quat.x << ", " << quat.y << ", " << quat.z << ')';
+	/*!
+	* \brief Output operator
+	* \return The stream
+	*
+	* \param out The stream
+	* \param quat The quaternion to output
+	*/
+	template<typename T>
+	std::ostream& operator<<(std::ostream& out, const Nz::Quaternion<T>& quat)
+	{
+		return out << "Quaternion(" << quat.w << " | " << quat.x << ", " << quat.y << ", " << quat.z << ')';
+	}
 }
 
 #include <Nazara/Core/DebugOff.hpp>

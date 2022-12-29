@@ -886,6 +886,43 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Output operator
+	* \return The stream
+	*
+	* \param out The stream
+	* \param vec The vector to output
+	*/
+	template<typename T>
+	std::ostream& operator<<(std::ostream& out, const Vector2<T>& vec)
+	{
+		return out << "Vector2(" << vec.x << ", " << vec.y << ')';
+	}
+
+	/*!
+	* \brief Multiplies the components of the vector with a scalar
+	* \return A vector where components are the product of this vector and the scalar
+	*
+	* \param scale The scalar to multiply components with
+	*/
+	template<typename T>
+	Vector2<T> operator*(T scale, const Vector2<T>& vec)
+	{
+		return Vector2<T>(scale * vec.x, scale * vec.y);
+	}
+
+	/*!
+	* \brief Divides the components of the vector with a scalar
+	* \return A vector where components are the quotient of this vector and the scalar
+	*
+	* \param scale The scalar to divide components with
+	*/
+	template<typename T>
+	Vector2<T> operator/(T scale, const Vector2<T>& vec)
+	{
+		return Vector2<T>(scale / vec.x, scale / vec.y);
+	}
+
+	/*!
 	* \brief Serializes a Vector2
 	* \return true if successfully serialized
 	*
@@ -922,46 +959,6 @@ namespace Nz
 
 		return true;
 	}
-}
-
-/*!
-* \brief Output operator
-* \return The stream
-*
-* \param out The stream
-* \param vec The vector to output
-*/
-
-template<typename T>
-std::ostream& operator<<(std::ostream& out, const Nz::Vector2<T>& vec)
-{
-	return out << "Vector2(" << vec.x << ", " << vec.y << ')';
-}
-
-/*!
-* \brief Multiplies the components of the vector with a scalar
-* \return A vector where components are the product of this vector and the scalar
-*
-* \param scale The scalar to multiply components with
-*/
-
-template<typename T>
-Nz::Vector2<T> operator*(T scale, const Nz::Vector2<T>& vec)
-{
-	return Nz::Vector2<T>(scale * vec.x, scale * vec.y);
-}
-
-/*!
-* \brief Divides the components of the vector with a scalar
-* \return A vector where components are the quotient of this vector and the scalar
-*
-* \param scale The scalar to divide components with
-*/
-
-template<typename T>
-Nz::Vector2<T> operator/(T scale, const Nz::Vector2<T>& vec)
-{
-	return Nz::Vector2<T>(scale / vec.x, scale / vec.y);
 }
 
 namespace std

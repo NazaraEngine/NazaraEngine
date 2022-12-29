@@ -82,10 +82,9 @@ namespace Nz
 
 	template<typename T> bool Serialize(SerializationContext& context, const Sphere<T>& sphere, TypeTag<Sphere<T>>);
 	template<typename T> bool Unserialize(SerializationContext& context, Sphere<T>* sphere, TypeTag<Sphere<T>>);
-}
 
-template<typename T>
-std::ostream& operator<<(std::ostream& out, const Nz::Sphere<T>& sphere);
+	template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Sphere<T>& sphere);
+}
 
 #include <Nazara/Math/Sphere.inl>
 

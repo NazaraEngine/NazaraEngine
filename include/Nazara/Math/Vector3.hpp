@@ -137,12 +137,12 @@ namespace Nz
 
 	template<typename T> bool Serialize(SerializationContext& context, const Vector3<T>& vector, TypeTag<Vector3<T>>);
 	template<typename T> bool Unserialize(SerializationContext& context, Vector3<T>* vector, TypeTag<Vector3<T>>);
+
+	template<typename T> std::ostream& operator<<(std::ostream& out, const Vector3<T>& vec);
+
+	template<typename T> Vector3<T> operator*(T scale, const Vector3<T>& vec);
+	template<typename T> Vector3<T> operator/(T scale, const Vector3<T>& vec);
 }
-
-template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Vector3<T>& vec);
-
-template<typename T> Nz::Vector3<T> operator*(T scale, const Nz::Vector3<T>& vec);
-template<typename T> Nz::Vector3<T> operator/(T scale, const Nz::Vector3<T>& vec);
 
 namespace std
 {

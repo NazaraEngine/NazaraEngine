@@ -30,6 +30,8 @@ namespace Nz
 			constexpr Angle(T angle);
 			template<typename U> constexpr explicit Angle(const Angle<Unit, U>& Angle);
 			template<AngleUnit FromUnit> constexpr Angle(const Angle<FromUnit, T>& angle);
+			constexpr Angle(const Angle&) = default;
+			constexpr Angle(Angle&&) noexcept = default;
 			~Angle() = default;
 
 			T GetCos() const;
@@ -41,7 +43,7 @@ namespace Nz
 
 			constexpr Angle& Normalize();
 
-			constexpr Angle& Set(const Angle& ang);
+			constexpr Angle& Set(Angle ang);
 			template<typename U> constexpr Angle& Set(const Angle<Unit, U>& ang);
 
 			template<AngleUnit ToUnit> T To() const;
@@ -57,22 +59,23 @@ namespace Nz
 			constexpr Angle<AngleUnit::Turn, T> ToTurnAngle() const;
 
 			constexpr Angle& operator=(const Angle&) = default;
+			constexpr Angle& operator=(Angle&&) noexcept = default;
 
-			constexpr const Angle& operator+() const;
+			constexpr Angle operator+() const;
 			constexpr Angle operator-() const;
 
-			constexpr Angle operator+(const Angle& other) const;
-			constexpr Angle operator-(const Angle& other) const;
+			constexpr Angle operator+(Angle other) const;
+			constexpr Angle operator-(Angle other) const;
 			constexpr Angle operator*(T scalar) const;
 			constexpr Angle operator/(T divider) const;
 
-			constexpr Angle& operator+=(const Angle& other);
-			constexpr Angle& operator-=(const Angle& other);
+			constexpr Angle& operator+=(Angle other);
+			constexpr Angle& operator-=(Angle other);
 			constexpr Angle& operator*=(T scalar);
 			constexpr Angle& operator/=(T divider);
 
-			constexpr bool operator==(const Angle& other) const;
-			constexpr bool operator!=(const Angle& other) const;
+			constexpr bool operator==(Angle other) const;
+			constexpr bool operator!=(Angle other) const;
 
 			template<AngleUnit FromUnit> static constexpr Angle From(T value);
 			static constexpr Angle FromDegrees(T degrees);
@@ -101,18 +104,15 @@ namespace Nz
 	using TurnAngled = TurnAngle<double>;
 	using TurnAnglef = TurnAngle<float>;
 
-	template<AngleUnit Unit, typename T> bool Serialize(SerializationContext& context, const Angle<Unit, T>& angle, TypeTag<Angle<Unit, T>>);
+	template<AngleUnit Unit, typename T> Angle<Unit, T> operator*(T scale, Angle<Unit, T> angle);
+
+	template<AngleUnit Unit, typename T> Angle<Unit, T> operator/(T divider, Angle<Unit, T> angle);
+
+	template<AngleUnit Unit, typename T> std::ostream& operator<<(std::ostream& out, Angle<Unit, T> angle);
+
+	template<AngleUnit Unit, typename T> bool Serialize(SerializationContext& context, Angle<Unit, T> angle, TypeTag<Angle<Unit, T>>);
 	template<AngleUnit Unit, typename T> bool Unserialize(SerializationContext& context, Angle<Unit, T>* angle, TypeTag<Angle<Unit, T>>);
 }
-
-template<Nz::AngleUnit Unit, typename T>
-Nz::Angle<Unit, T> operator*(T scale, const Nz::Angle<Unit, T>& angle);
-
-template<Nz::AngleUnit Unit, typename T>
-Nz::Angle<Unit, T> operator/(T divider, const Nz::Angle<Unit, T>& angle);
-
-template<Nz::AngleUnit Unit, typename T>
-std::ostream& operator<<(std::ostream& out, const Nz::Angle<Unit, T>& angle);
 
 #include <Nazara/Math/Angle.inl>
 

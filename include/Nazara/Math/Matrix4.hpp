@@ -146,12 +146,11 @@ namespace Nz
 
 	template<typename T> bool Serialize(SerializationContext& context, const Matrix4<T>& matrix, TypeTag<Matrix4<T>>);
 	template<typename T> bool Unserialize(SerializationContext& context, Matrix4<T>* matrix, TypeTag<Matrix4<T>>);
+
+	template<typename T> std::ostream& operator<<(std::ostream& out, const Matrix4<T>& matrix);
+
+	template<typename T> Matrix4<T> operator*(T scale, const Matrix4<T>& matrix);
 }
-
-template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Matrix4<T>& matrix);
-
-template<typename T> Nz::Matrix4<T> operator*(T scale, const Nz::Matrix4<T>& matrix);
-
 
 #include <Nazara/Math/Matrix4.inl>
 

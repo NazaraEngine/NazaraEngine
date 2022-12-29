@@ -1769,38 +1769,38 @@ namespace Nz
 
 		return true;
 	}
+
+	/*!
+	* \brief Output operator
+	* \return The stream
+	*
+	* \param out The stream
+	* \param matrix The matrix to output
+	*/
+
+	template<typename T>
+	std::ostream& operator<<(std::ostream& out, const Matrix4<T>& matrix)
+	{
+		return out << "Matrix4(" << matrix.m11 << ", " << matrix.m12 << ", " << matrix.m13 << ", " << matrix.m14 << ",\n"
+			<< "        " <<        matrix.m21 << ", " << matrix.m22 << ", " << matrix.m23 << ", " << matrix.m24 << ",\n"
+			<< "        " <<        matrix.m31 << ", " << matrix.m32 << ", " << matrix.m33 << ", " << matrix.m34 << ",\n"
+			<< "        " <<        matrix.m41 << ", " << matrix.m42 << ", " << matrix.m43 << ", " << matrix.m44 << ')';
+	}
+
+	/*!
+	* \brief Multiplies the components of the matrix with a scalar
+	* \return A Matrix4 where components are the product of matrix'components and the scalar
+	*
+	* \param scale The scalar to multiply the matrix'components with
+	* \param matrix Matrix to multiply with
+	*/
+	template<typename T>
+	Matrix4<T> operator*(T scale, const Matrix4<T>& matrix)
+	{
+		return matrix * scale;
+	}
 }
 
-/*!
-* \brief Output operator
-* \return The stream
-*
-* \param out The stream
-* \param matrix The matrix to output
-*/
-
-template<typename T>
-std::ostream& operator<<(std::ostream& out, const Nz::Matrix4<T>& matrix)
-{
-	return out << "Matrix4(" << matrix.m11 << ", " << matrix.m12 << ", " << matrix.m13 << ", " << matrix.m14 << ",\n"
-	           << "        " << matrix.m21 << ", " << matrix.m22 << ", " << matrix.m23 << ", " << matrix.m24 << ",\n"
-	           << "        " << matrix.m31 << ", " << matrix.m32 << ", " << matrix.m33 << ", " << matrix.m34 << ",\n"
-	           << "        " << matrix.m41 << ", " << matrix.m42 << ", " << matrix.m43 << ", " << matrix.m44 << ')';
-}
-
-/*!
-* \brief Multiplies the components of the matrix with a scalar
-* \return A Matrix4 where components are the product of matrix'components and the scalar
-*
-* \param scale The scalar to multiply the matrix'components with
-* \param matrix Matrix to multiply with
-*/
-
-template<typename T>
-Nz::Matrix4<T> operator*(T scale, const Nz::Matrix4<T>& matrix)
-{
-	return matrix * scale;
-}
 
 #include <Nazara/Core/DebugOff.hpp>
-#include "Matrix4.hpp"
+

@@ -1188,46 +1188,43 @@ namespace Nz
 
 		return true;
 	}
-}
 
-/*!
-* \brief Output operator
-* \return The stream
-*
-* \param out The stream
-* \param vec The vector to output
-*/
+	/*!
+	* \brief Output operator
+	* \return The stream
+	*
+	* \param out The stream
+	* \param vec The vector to output
+	*/
+	template<typename T>
+	std::ostream& operator<<(std::ostream& out, const Vector3<T>& vec)
+	{
+		return out << "Vector3(" << vec.x << ", " << vec.y << ", " << vec.z << ')';
+	}
 
-template<typename T>
-std::ostream& operator<<(std::ostream& out, const Nz::Vector3<T>& vec)
-{
-	return out << "Vector3(" << vec.x << ", " << vec.y << ", " << vec.z << ')';
-}
+	/*!
+	* \brief Multiplies the components of the vector with a scalar
+	* \return A vector where components are the product of this vector and the scalar
+	*
+	* \param scale The scalar to multiply components with
+	*/
+	template<typename T>
+	Vector3<T> operator*(T scale, const Vector3<T>& vec)
+	{
+		return Vector3<T>(scale * vec.x, scale * vec.y, scale * vec.z);
+	}
 
-/*!
-* \brief Multiplies the components of the vector with a scalar
-* \return A vector where components are the product of this vector and the scalar
-*
-* \param scale The scalar to multiply components with
-*/
-
-template<typename T>
-Nz::Vector3<T> operator*(T scale, const Nz::Vector3<T>& vec)
-{
-	return Nz::Vector3<T>(scale * vec.x, scale * vec.y, scale * vec.z);
-}
-
-/*!
-* \brief Divides the components of the vector with a scalar
-* \return A vector where components are the quotient of this vector and the scalar
-*
-* \param scale The scalar to divide components with
-*/
-
-template<typename T>
-Nz::Vector3<T> operator/(T scale, const Nz::Vector3<T>& vec)
-{
-	return Nz::Vector3<T>(scale / vec.x, scale / vec.y, scale / vec.z);
+	/*!
+	* \brief Divides the components of the vector with a scalar
+	* \return A vector where components are the quotient of this vector and the scalar
+	*
+	* \param scale The scalar to divide components with
+	*/
+	template<typename T>
+	Vector3<T> operator/(T scale, const Vector3<T>& vec)
+	{
+		return Vector3<T>(scale / vec.x, scale / vec.y, scale / vec.z);
+	}
 }
 
 namespace std

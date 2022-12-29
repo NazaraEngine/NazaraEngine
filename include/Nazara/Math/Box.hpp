@@ -33,6 +33,8 @@ namespace Nz
 			Box(Box&&) noexcept = default;
 			~Box() = default;
 
+			bool ApproxEquals(const Box& box, T maxDifference = 0) const;
+
 			bool Contains(T X, T Y, T Z) const;
 			bool Contains(const Box& box) const;
 			bool Contains(const Vector3<T>& point) const;
@@ -93,11 +95,9 @@ namespace Nz
 
 	template<typename T> bool Serialize(SerializationContext& context, const Box<T>& box, TypeTag<Box<T>>);
 	template<typename T> bool Unserialize(SerializationContext& context, Box<T>* box, TypeTag<Box<T>>);
+
+	template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Box<T>& box);
 }
-
-template<typename T>
-std::ostream& operator<<(std::ostream& out, const Nz::Box<T>& box);
-
 
 #include <Nazara/Math/Box.inl>
 

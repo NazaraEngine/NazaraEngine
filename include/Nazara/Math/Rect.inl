@@ -97,6 +97,13 @@ namespace Nz
 	{
 	}
 
+	template<typename T>
+	bool Rect<T>::ApproxEquals(const Rect& rect, T maxDifference) const
+	{
+		return NumberEquals(x, rect.x, maxDifference) && NumberEquals(y, rect.y, maxDifference) &&
+		       NumberEquals(width, rect.width, maxDifference) && NumberEquals(height, rect.height, maxDifference);
+	}
+
 	/*!
 	* \brief Tests whether the rectangle contains the provided point inclusive of the edge of the rectangle
 	* \return true if inclusive
@@ -517,8 +524,7 @@ namespace Nz
 	template<typename T>
 	bool Rect<T>::operator==(const Rect& rect) const
 	{
-		return NumberEquals(x, rect.x) && NumberEquals(y, rect.y) &&
-		       NumberEquals(width, rect.width) && NumberEquals(height, rect.height);
+		return x == rect.x && y == rect.y && width == rect.width && height == rect.height;
 	}
 
 	/*!
@@ -649,20 +655,20 @@ namespace Nz
 
 		return true;
 	}
-}
 
-/*!
-* \brief Output operator
-* \return The stream
-*
-* \param out The stream
-* \param rect The rectangle to output
-*/
+	/*!
+	* \brief Output operator
+	* \return The stream
+	*
+	* \param out The stream
+	* \param rect The rectangle to output
+	*/
 
-template<typename T>
-std::ostream& operator<<(std::ostream& out, const Nz::Rect<T>& rect)
-{
-	return out << "Rect(" << rect.x << ", " << rect.y << ", " << rect.width << ", " << rect.height << ')';
+	template<typename T>
+	std::ostream& operator<<(std::ostream& out, const Nz::Rect<T>& rect)
+	{
+		return out << "Rect(" << rect.x << ", " << rect.y << ", " << rect.width << ", " << rect.height << ')';
+	}
 }
 
 #include <Nazara/Core/DebugOff.hpp>

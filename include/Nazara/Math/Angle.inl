@@ -175,7 +175,7 @@ namespace Nz
 	}
 	/*!
 	* \ingroup math
-	* \class Nz::Angle
+	* \class Angle
 	* \brief Math class that represents an angle
 	*/
 
@@ -291,7 +291,7 @@ namespace Nz
 	* \param Angle Angle which will be copied
 	*/
 	template<AngleUnit Unit, typename T>
-	constexpr Angle<Unit, T>& Angle<Unit, T>::Set(const Angle& ang)
+	constexpr Angle<Unit, T>& Angle<Unit, T>::Set(Angle ang)
 	{
 		value = ang.value;
 		return *this;
@@ -463,7 +463,7 @@ namespace Nz
 	* \return A constant reference to this angle
 	*/
 	template<AngleUnit Unit, typename T>
-	constexpr const Angle<Unit, T>& Angle<Unit, T>::operator+() const
+	constexpr Angle<Unit, T> Angle<Unit, T>::operator+() const
 	{
 		return *this;
 	}
@@ -485,7 +485,7 @@ namespace Nz
 	* \param other Angle to add
 	*/
 	template<AngleUnit Unit, typename T>
-	constexpr Angle<Unit, T> Angle<Unit, T>::operator+(const Angle& other) const
+	constexpr Angle<Unit, T> Angle<Unit, T>::operator+(Angle other) const
 	{
 		return Angle(value + other.value);
 	}
@@ -497,7 +497,7 @@ namespace Nz
 	* \param other Angle to subtract
 	*/
 	template<AngleUnit Unit, typename T>
-	constexpr Angle<Unit, T> Angle<Unit, T>::operator-(const Angle& other) const
+	constexpr Angle<Unit, T> Angle<Unit, T>::operator-(Angle other) const
 	{
 		return Angle(value - other.value);
 	}
@@ -533,7 +533,7 @@ namespace Nz
 	* \param other Angle to add
 	*/
 	template<AngleUnit Unit, typename T>
-	constexpr Angle<Unit, T>& Angle<Unit, T>::operator+=(const Angle& other)
+	constexpr Angle<Unit, T>& Angle<Unit, T>::operator+=(Angle other)
 	{
 		value += other.value;
 		return *this;
@@ -546,7 +546,7 @@ namespace Nz
 	* \param other Angle to subtract
 	*/
 	template<AngleUnit Unit, typename T>
-	constexpr Angle<Unit, T>& Angle<Unit, T>::operator-=(const Angle& other)
+	constexpr Angle<Unit, T>& Angle<Unit, T>::operator-=(Angle other)
 	{
 		value -= other.value;
 		return *this;
@@ -585,7 +585,7 @@ namespace Nz
 	* \param other The other angle to compare to
 	*/
 	template<AngleUnit Unit, typename T>
-	constexpr bool Angle<Unit, T>::operator==(const Angle& other) const
+	constexpr bool Angle<Unit, T>::operator==(Angle other) const
 	{
 		return NumberEquals(value, other.value, Detail::AngleUtils<Unit>::template GetEpsilon<T>());
 	}
@@ -597,7 +597,7 @@ namespace Nz
 	* \param other The other angle to compare to
 	*/
 	template<AngleUnit Unit, typename T>
-	constexpr bool Angle<Unit, T>::operator!=(const Angle& other) const
+	constexpr bool Angle<Unit, T>::operator!=(Angle other) const
 	{
 		return !NumberEquals(value, other.value, Detail::AngleUtils<Unit>::template GetEpsilon<T>());
 	}
@@ -665,6 +665,45 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Multiplication operator
+	* \return An angle corresponding to scale * angle
+	*
+	* \param scale Multiplier
+	* \param angle Angle
+	*/
+	template<AngleUnit Unit, typename T>
+	Angle<Unit, T> operator*(T scale, Angle<Unit, T> angle)
+	{
+		return Angle<Unit, T>(scale * angle.value);
+	}
+
+	/*!
+	* \brief Division operator
+	* \return An angle corresponding to scale / angle
+	*
+	* \param scale Divisor
+	* \param angle Angle
+	*/
+	template<AngleUnit Unit, typename T>
+	Angle<Unit, T> operator/(T scale, Angle<Unit, T> angle)
+	{
+		return Angle<Unit, T>(scale / angle.value);
+	}
+
+	/*!
+	* \brief Output operator
+	* \return The stream
+	*
+	* \param out The stream
+	* \param box The box to output
+	*/
+	template<AngleUnit Unit, typename T>
+	std::ostream& operator<<(std::ostream& out, Angle<Unit, T> angle)
+	{
+		return Detail::AngleUtils<Unit>::ToString(out, angle.value);
+	}
+
+	/*!
 	* \brief Serializes an Angle
 	* \return true if successfully serialized
 	*
@@ -672,7 +711,7 @@ namespace Nz
 	* \param angle Input Angle
 	*/
 	template<AngleUnit Unit, typename T>
-	bool Serialize(SerializationContext& context, const Angle<Unit, T>& angle, TypeTag<Angle<Unit, T>>)
+	bool Serialize(SerializationContext& context, Angle<Unit, T> angle, TypeTag<Angle<Unit, T>>)
 	{
 		if (!Serialize(context, angle.value))
 			return false;
@@ -695,45 +734,6 @@ namespace Nz
 
 		return true;
 	}
-}
-
-/*!
-* \brief Multiplication operator
-* \return An angle corresponding to scale * angle
-*
-* \param scale Multiplier
-* \param angle Angle
-*/
-template<Nz::AngleUnit Unit, typename T>
-Nz::Angle<Unit, T> operator*(T scale, const Nz::Angle<Unit, T>& angle)
-{
-	return Nz::Angle<Unit, T>(scale * angle.value);
-}
-
-/*!
-* \brief Division operator
-* \return An angle corresponding to scale / angle
-*
-* \param scale Divisor
-* \param angle Angle
-*/
-template<Nz::AngleUnit Unit, typename T>
-Nz::Angle<Unit, T> operator/(T scale, const Nz::Angle<Unit, T>& angle)
-{
-	return Nz::Angle<Unit, T>(scale / angle.value);
-}
-
-/*!
-* \brief Output operator
-* \return The stream
-*
-* \param out The stream
-* \param box The box to output
-*/
-template<Nz::AngleUnit Unit, typename T>
-std::ostream& operator<<(std::ostream& out, const Nz::Angle<Unit, T>& angle)
-{
-	return Nz::Detail::AngleUtils<Unit>::ToString(out, angle.value);
 }
 
 #include <Nazara/Core/DebugOff.hpp>

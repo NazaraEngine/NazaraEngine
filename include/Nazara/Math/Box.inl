@@ -138,6 +138,13 @@ namespace Nz
 	*/
 
 	template<typename T>
+	bool Box<T>::ApproxEquals(const Box& box, T maxDifference) const
+	{
+		return NumberEquals(x, box.x, maxDifference) && NumberEquals(y, box.y, maxDifference) && NumberEquals(z, box.z, maxDifference) &&
+		       NumberEquals(width, box.width, maxDifference) && NumberEquals(height, box.height, maxDifference) && NumberEquals(depth, box.depth, maxDifference);
+	}
+
+	template<typename T>
 	bool Box<T>::Contains(T X, T Y, T Z) const
 	{
 		return X >= x && X < x + width &&
@@ -635,8 +642,7 @@ namespace Nz
 	template<typename T>
 	bool Box<T>::operator==(const Box& box) const
 	{
-		return NumberEquals(x, box.x) && NumberEquals(y, box.y) && NumberEquals(z, box.z) &&
-		       NumberEquals(width, box.width) && NumberEquals(height, box.height) && NumberEquals(depth, box.depth);
+		return x == box.x && y == box.y && z == box.z && width == box.width && height == box.height && depth == box.depth;
 	}
 
 	/*!
@@ -788,20 +794,19 @@ namespace Nz
 
 		return true;
 	}
-}
 
-/*!
-* \brief Output operator
-* \return The stream
-*
-* \param out The stream
-* \param box The box to output
-*/
-
-template<typename T>
-std::ostream& operator<<(std::ostream& out, const Nz::Box<T>& box)
-{
-	return out << "Box(" << box.x << ", " << box.y << ", " << box.z << ", " << box.width << ", " << box.height << ", " << box.depth << ')';
+	/*!
+	* \brief Output operator
+	* \return The stream
+	*
+	* \param out The stream
+	* \param box The box to output
+	*/
+	template<typename T>
+	std::ostream& operator<<(std::ostream& out, const Nz::Box<T>& box)
+	{
+		return out << "Box(" << box.x << ", " << box.y << ", " << box.z << ", " << box.width << ", " << box.height << ", " << box.depth << ')';
+	}
 }
 
 #include <Nazara/Core/DebugOff.hpp>

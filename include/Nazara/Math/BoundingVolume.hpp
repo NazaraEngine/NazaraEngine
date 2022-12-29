@@ -65,10 +65,9 @@ namespace Nz
 
 	template<typename T> bool Serialize(SerializationContext& context, const BoundingVolume<T>& boundingVolume, TypeTag<BoundingVolume<T>>);
 	template<typename T> bool Unserialize(SerializationContext& context, BoundingVolume<T>* boundingVolume, TypeTag<BoundingVolume<T>>);
-}
 
-template<typename T>
-std::ostream& operator<<(std::ostream& out, const Nz::BoundingVolume<T>& volume);
+	template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::BoundingVolume<T>& volume);
+}
 
 #include <Nazara/Math/BoundingVolume.inl>
 

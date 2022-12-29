@@ -769,18 +769,17 @@ namespace Nz
 				break;
 		}
 	}
-}
 
-/*!
-* \brief Output operator
-* \return The stream
-*
-* \param out The stream
-* \param parameterList The ParameterList to output
-*/
-
-std::ostream& operator<<(std::ostream& out, const Nz::ParameterList& parameterList)
-{
-	out << parameterList.ToString();
-	return out;
+	/*!
+	* \brief Output operator
+	* \return The stream
+	*
+	* \param out The stream
+	* \param parameterList The ParameterList to output
+	*/
+	std::ostream& operator<<(std::ostream& out, const Nz::ParameterList& parameterList)
+	{
+		out << parameterList.ToString();
+		return out;
+	}
 }

@@ -29,6 +29,8 @@ namespace Nz
 			Rect(Rect&&) noexcept = default;
 			~Rect() = default;
 
+			bool ApproxEquals(const Rect& rect, T maxDifference = 0) const;
+
 			bool Contains(T X, T Y) const;
 			bool Contains(const Rect& rect) const;
 			bool Contains(const Vector2<T>& point) const;
@@ -88,10 +90,9 @@ namespace Nz
 
 	template<typename T> bool Serialize(SerializationContext& context, const Rect<T>& rect, TypeTag<Rect<T>>);
 	template<typename T> bool Unserialize(SerializationContext& context, Rect<T>* rect, TypeTag<Rect<T>>);
-}
 
-template<typename T>
-std::ostream& operator<<(std::ostream& out, const Nz::Rect<T>& rect);
+	template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Rect<T>& rect);
+}
 
 #include <Nazara/Math/Rect.inl>
 

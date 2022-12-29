@@ -383,20 +383,19 @@ namespace Nz
 
 		return true;
 	}
-}
 
-/*!
-* \brief Output operator
-* \return The stream
-*
-* \param out The stream
-* \param angles The euler angle to output
-*/
-
-template<typename T>
-std::ostream& operator<<(std::ostream& out, const Nz::EulerAngles<T>& angles)
-{
-	return out << "EulerAngles(" << angles.pitch << ", " << angles.yaw << ", " << angles.roll << ')';
+	/*!
+	* \brief Output operator
+	* \return The stream
+	*
+	* \param out The stream
+	* \param angles The euler angle to output
+	*/
+	template<typename T>
+	std::ostream& operator<<(std::ostream& out, const EulerAngles<T>& angles)
+	{
+		return out << "EulerAngles(" << angles.pitch << ", " << angles.yaw << ", " << angles.roll << ')';
+	}
 }
 
 #include <Nazara/Core/DebugOff.hpp>

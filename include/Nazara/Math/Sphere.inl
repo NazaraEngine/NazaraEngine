@@ -649,20 +649,19 @@ namespace Nz
 
 		return true;
 	}
-}
 
-/*!
-* \brief Output operator
-* \return The stream
-*
-* \param out The stream
-* \param sphere The sphere to output
-*/
-
-template<typename T>
-std::ostream& operator<<(std::ostream& out, const Nz::Sphere<T>& sphere)
-{
-	return out << "Sphere(" << sphere.x << ", " << sphere.y << ", " << sphere.z << "; " << sphere.radius << ')';
+	/*!
+	* \brief Output operator
+	* \return The stream
+	*
+	* \param out The stream
+	* \param sphere The sphere to output
+	*/
+	template<typename T>
+	std::ostream& operator<<(std::ostream& out, const Nz::Sphere<T>& sphere)
+	{
+		return out << "Sphere(" << sphere.x << ", " << sphere.y << ", " << sphere.z << "; " << sphere.radius << ')';
+	}
 }
 
 #include <Nazara/Core/DebugOff.hpp>

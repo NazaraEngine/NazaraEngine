@@ -114,9 +114,9 @@ namespace Nz
 			using ParameterMap = std::unordered_map<std::string, Parameter>;
 			ParameterMap m_parameters;
 	};
-}
 
-std::ostream& operator<<(std::ostream& out, const Nz::ParameterList& parameterList);
+	std::ostream& operator<<(std::ostream& out, const ParameterList& parameterList);
+}
 
 #include <Nazara/Core/ParameterList.inl>
 

@@ -68,10 +68,9 @@ namespace Nz
 
 	using Frustumd = Frustum<double>;
 	using Frustumf = Frustum<float>;
-}
 
-template<typename T>
-std::ostream& operator<<(std::ostream& out, const Nz::Frustum<T>& frustum);
+	template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Frustum<T>& frustum);
+}
 
 #include <Nazara/Math/Frustum.inl>
 
