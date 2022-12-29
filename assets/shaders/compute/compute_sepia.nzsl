@@ -1,0 +1,32 @@
+[nzsl_version("1.0")]
+module Compute.Sepia;
+
+external
+{
+	[binding(0)] input_tex: texture2D[f32, readonly, rgba8],
+	[binding(1)] output_tex: texture2D[f32, writeonly, rgba8]
+}
+
+struct Input
+{
+	[builtin(global_invocation_indices)] global_invocation_id: vec3[u32]
+}
+
+[entry(compute)]
+[workgroup(32, 32, 1)]
+fn main(input: Input)
+{
+	let indices = vec2[i32](input.global_invocation_id.xy);
+
+	let inputColor = input_tex.Read(indices).rgb;
+
+	let outputColor = vec4[f32]
+	(
+		inputColor.x * 0.393 + inputColor.y * 0.769 + inputColor.z * 0.189,
+		inputColor.x * 0.349 + inputColor.y * 0.686 + inputColor.z * 0.168,
+		inputColor.x * 0.372 + inputColor.y * 0.534 + inputColor.z * 0.131,
+		1.0
+	);
+
+	output_tex.Write(indices, outputColor);
+}

@@ -1,0 +1,59 @@
+[nzsl_version("1.0")]
+module Compute.EdgeDetection;
+
+external
+{
+	[binding(0)] input_tex: texture2D[f32, readonly, rgba8],
+	[binding(1)] output_tex: texture2D[f32, writeonly, rgba8]
+}
+
+struct Input
+{
+	[builtin(global_invocation_indices)] global_invocation_id: vec3[u32]
+}
+
+[entry(compute)]
+[workgroup(32, 32, 1)]
+fn main(input: Input)
+{
+	let indices = vec2[i32](input.global_invocation_id.xy);
+
+	// Fetch neighbouring texels
+	let avg: array[f32, 9];
+
+	let n = 0;
+	[unroll]
+	for i in -1 -> 2
+	{
+		[unroll]
+		for j in -1 -> 2
+		{
+			let rgb = input_tex.Read(indices + vec2[i32](i, j)).rgb;
+			avg[n] = (rgb.r + rgb.b + rgb.b) / 3.0;
+			n += 1;
+		}
+	}
+
+	let kernel: array[f32, 9];
+	[unroll]
+	for i in 0 -> 9
+	{
+		if (i == 4)
+			kernel[i] = 1.0;
+		else
+			kernel[i] = -1.0/8.0;
+	}
+
+	let res = vec4[f32](conv(kernel, avg, 0.1, 0.0).rrr, 1.0);
+	output_tex.Write(indices, res);
+}
+
+fn conv(kernel: array[f32, 9], data: array[f32, 9], denom: f32, offset: f32) -> f32
+{
+	let res = 0.0;
+	[unroll]
+	for i in 0 -> 9
+		res += kernel[i] * data[i];
+
+	return clamp(res/denom + offset, 0.0, 1.0);
+}
