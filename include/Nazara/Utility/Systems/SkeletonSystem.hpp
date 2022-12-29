@@ -8,6 +8,7 @@
 #define NAZARA_UTILITY_SYSTEMS_SKELETONSYSTEM_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/Time.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <entt/entt.hpp>
 
@@ -24,7 +25,7 @@ namespace Nz
 			SkeletonSystem(SkeletonSystem&&) = delete;
 			~SkeletonSystem();
 
-			void Update(float elapsedTime);
+			void Update(Time elapsedTime);
 
 			SkeletonSystem& operator=(const SkeletonSystem&) = delete;
 			SkeletonSystem& operator=(SkeletonSystem&&) = delete;

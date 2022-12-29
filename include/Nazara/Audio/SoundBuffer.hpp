@@ -16,6 +16,7 @@
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
+#include <Nazara/Core/Time.hpp>
 #include <memory>
 #include <unordered_map>
 
@@ -52,7 +53,7 @@ namespace Nz
 
 			const std::shared_ptr<AudioBuffer>& GetAudioBuffer(AudioDevice* device);
 
-			inline UInt32 GetDuration() const;
+			inline Time GetDuration() const;
 			inline AudioFormat GetFormat() const;
 			inline const Int16* GetSamples() const;
 			inline UInt64 GetSampleCount() const;
@@ -76,7 +77,7 @@ namespace Nz
 			std::unordered_map<AudioDevice*, AudioDeviceEntry> m_audioBufferByDevice;
 			std::unique_ptr<Int16[]> m_samples;
 			AudioFormat m_format;
-			UInt32 m_duration;
+			Time m_duration;
 			UInt32 m_sampleRate;
 			UInt64 m_sampleCount;
 	};

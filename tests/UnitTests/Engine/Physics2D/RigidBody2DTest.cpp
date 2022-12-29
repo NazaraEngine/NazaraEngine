@@ -34,14 +34,14 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 		bool userdata = false;
 		body.SetUserdata(&userdata);
 
-		world.Step(1.f);
+		world.Step(Nz::Time::Second());
 
 		WHEN("We copy construct the body")
 		{
 			body.AddForce(Nz::Vector2f(3.f, 5.f));
 			Nz::RigidBody2D copiedBody(body);
 			EQUALITY(copiedBody, body);
-			world.Step(1.f);
+			world.Step(Nz::Time::Second());
 			EQUALITY(copiedBody, body);
 		}
 
@@ -72,7 +72,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 			float radius = 5.f;
 			body.SetGeom(std::make_shared<Nz::CircleCollider2D>(radius));
 
-			world.Step(1.f);
+			world.Step(Nz::Time::Second());
 
 			THEN("The aabb should be updated")
 			{
@@ -96,7 +96,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 			tmp.push_back(CreateBody(world));
 			tmp.push_back(CreateBody(world));
 
-			world.Step(1.f);
+			world.Step(Nz::Time::Second());
 
 			THEN("They should be valid")
 			{
@@ -124,7 +124,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 		Nz::Vector2f position = Nz::Vector2f::Zero();
 		body.SetPosition(position);
 
-		world.Step(1.f);
+		world.Step(Nz::Time::Second());
 
 		WHEN("We retrieve standard information")
 		{
@@ -150,7 +150,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 			Nz::Vector2f velocity(Nz::Vector2f::Unit());
 			body.SetVelocity(velocity);
 			position += velocity;
-			world.Step(1.f);
+			world.Step(Nz::Time::Second());
 
 			THEN("We expect those to be true")
 			{
@@ -164,7 +164,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 			AND_THEN("We apply an impulse in the opposite direction")
 			{
 				body.AddImpulse(-velocity);
-				world.Step(1.f);
+				world.Step(Nz::Time::Second());
 
 				REQUIRE(body.GetVelocity() == Nz::Vector2f::Zero());
 			}
@@ -174,23 +174,24 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 		{
 			Nz::RadianAnglef angularSpeed = Nz::RadianAnglef::FromDegrees(90.f);
 			body.SetAngularVelocity(angularSpeed);
-			world.Step(1.f);
+
+			world.Step(Nz::Time::Second());
 
 			THEN("We expect those to be true")
 			{
 				CHECK(body.GetAngularVelocity() == angularSpeed);
 				CHECK(body.GetRotation() == angularSpeed);
-				CHECK(body.GetAABB() == Nz::Rectf(-6.f, 3.f, 2.f, 1.f));
+				CHECK(body.GetAABB().ApproxEquals(Nz::Rectf(-6.f, 3.f, 2.f, 1.f), 0.00001f));
 
-				world.Step(1.f);
+				world.Step(Nz::Time::Second());
 				CHECK(body.GetRotation() == 2.f * angularSpeed);
-				CHECK(body.GetAABB() == Nz::Rectf(-4.f, -6.f, 1.f, 2.f));
+				CHECK(body.GetAABB().ApproxEquals(Nz::Rectf(-4.f, -6.f, 1.f, 2.f), 0.00001f));
 
-				world.Step(1.f);
+				world.Step(Nz::Time::Second());
 				CHECK(body.GetRotation() == 3.f * angularSpeed);
-				CHECK(body.GetAABB() == Nz::Rectf(4.f, -4.f, 2.f, 1.f));
+				CHECK(body.GetAABB().ApproxEquals(Nz::Rectf(4.f, -4.f, 2.f, 1.f), 0.00001f));
 
-				world.Step(1.f);
+				world.Step(Nz::Time::Second());
 				CHECK(body.GetRotation() == 4.f * angularSpeed);
 			}
 		}
@@ -198,7 +199,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 		WHEN("We apply a torque")
 		{
 			body.AddTorque(Nz::DegreeAnglef(90.f));
-			world.Step(1.f);
+			world.Step(Nz::Time::Second());
 
 			THEN("It is also counter-clockwise")
 			{
@@ -220,7 +221,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 		Nz::RigidBody2D body(&world, mass);
 		body.SetGeom(circle, true, false);
 
-		world.Step(1.f);
+		world.Step(Nz::Time::Second());
 
 		WHEN("We ask for the aabb of the circle")
 		{
@@ -251,7 +252,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 		Nz::RigidBody2D body(&world, mass);
 		body.SetGeom(compound, true, false);
 
-		world.Step(1.f);
+		world.Step(Nz::Time::Second());
 
 		WHEN("We ask for the aabb of the compound")
 		{
@@ -280,7 +281,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 		Nz::RigidBody2D body(&world, mass);
 		body.SetGeom(convex, true, false);
 
-		world.Step(1.f);
+		world.Step(Nz::Time::Second());
 
 		WHEN("We ask for the aabb of the convex")
 		{
@@ -304,7 +305,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 		Nz::RigidBody2D body(&world, mass);
 		body.SetGeom(segment, true, false);
 
-		world.Step(1.f);
+		world.Step(Nz::Time::Second());
 
 		WHEN("We ask for the aabb of the segment")
 		{

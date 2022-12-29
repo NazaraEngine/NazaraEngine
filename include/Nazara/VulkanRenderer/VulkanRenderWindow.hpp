@@ -81,7 +81,6 @@ namespace Nz
 			Vk::QueueHandle m_presentQueue;
 			Vk::QueueHandle m_transferQueue;
 			Vk::Swapchain m_swapchain;
-			Clock m_clock;
 			RenderWindow& m_owner;
 			Vector2ui m_swapchainSize;
 			VkFormat m_depthStencilFormat;

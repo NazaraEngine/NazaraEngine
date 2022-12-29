@@ -53,17 +53,17 @@ int main()
 	sound.Play();
 
 	// La boucle du programme (Pour déplacer le son)
-	Nz::Clock clock;
+	Nz::MillisecondClock clock;
 	while (sound.GetStatus() == Nz::SoundStatus::Playing)
 	{
 		// Comme le son se joue dans un thread séparé, on peut mettre en pause le principal régulièrement
-		int sleepTime = int(1000/60 - clock.GetMilliseconds()); // 60 FPS
+		Nz::Time sleepTime = Nz::Time::TickDuration(60) - clock.GetElapsedTime(); // 60 FPS
 
-		if (sleepTime > 0)
-			std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
+		if (sleepTime > Nz::Time::Millisecond())
+			std::this_thread::sleep_for(sleepTime.AsDuration<std::chrono::milliseconds>());
 
 		// On bouge la source du son en fonction du temps depuis chaque mise à jour
-		Nz::Vector3f pos = sound.GetPosition() + sound.GetVelocity()*clock.GetSeconds();
+		Nz::Vector3f pos = sound.GetPosition() + sound.GetVelocity() * clock.GetElapsedTime().AsSeconds();
 		sound.SetPosition(pos);
 
 		std::cout << "Sound position: " << pos << std::endl;

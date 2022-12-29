@@ -24,7 +24,7 @@ SCENARIO("PhysWorld2D", "[PHYSICS2D][PHYSWORLD2D]")
 			}
 		}
 
-		world.Step(1.f);
+		world.Step(Nz::Time::Second());
 
 		WHEN("We ask for the nearest body")
 		{
@@ -130,7 +130,7 @@ SCENARIO("PhysWorld2D", "[PHYSICS2D][PHYSWORLD2D]")
 		Nz::RigidBody2D trigger(&world, 0.f, triggerBox);
 		trigger.SetPosition(Nz::Vector2f(2.f, 0.f));
 
-		world.Step(0.f);
+		world.Step(Nz::Time::Zero());
 
 		Nz::PhysWorld2D::Callback characterTriggerCallback;
 		characterTriggerCallback.startCallback = [&](Nz::PhysWorld2D&, Nz::Arbiter2D&, Nz::RigidBody2D&, Nz::RigidBody2D&, void*) -> bool {
@@ -164,27 +164,29 @@ SCENARIO("PhysWorld2D", "[PHYSICS2D][PHYSWORLD2D]")
 		{
 			character.SetVelocity(Nz::Vector2f(1.f, 0.f));
 			for (int i = 0; i != 11; ++i)
-				world.Step(0.1f);
+				world.Step(Nz::Time::TickDuration(10));
 
 			THEN("It should trigger several collisions")
 			{
 				CHECK(statusTriggerCollision == 3);
 				for (int i = 0; i != 20; ++i)
-					world.Step(0.1f);
+					world.Step(Nz::Time::TickDuration(10));
 				CHECK(statusTriggerCollision == 11);
 
 				CHECK(character.GetPosition().x == Catch::Approx(3.1f).margin(0.01f));
 
 				for (int i = 0; i != 9; ++i)
-					world.Step(0.1f);
+					world.Step(Nz::Time::TickDuration(10));
+
 				CHECK(character.GetPosition().x == Catch::Approx(4.f).margin(0.01f));
-				world.Step(0.1f);
+				world.Step(Nz::Time::TickDuration(10));
 				CHECK(character.GetPosition().x == Catch::Approx(4.f).margin(0.01f));
 				CHECK(statusWallCollision == 1); // It should be close to the wall
 
 				character.SetVelocity(Nz::Vector2f(-2.f, 0.f));
 				for (int i = 0; i != 10; ++i)
-					world.Step(0.1f);
+					world.Step(Nz::Time::TickDuration(10));
+
 				CHECK(statusWallCollision == 3);
 			}
 		}

@@ -9,7 +9,7 @@ namespace Nz
 {
 	inline DummyAudioSource::DummyAudioSource(std::shared_ptr<AudioDevice> device) :
 	AudioSource(std::move(device)),
-	m_playClock(0, true),
+	m_playClock(Time::Zero(), true),
 	m_status(SoundStatus::Stopped),
 	m_position(Vector3f::Zero()),
 	m_velocity(Vector3f::Zero()),

@@ -10,6 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/Enums.hpp>
+#include <Nazara/Core/Time.hpp>
 #include <Nazara/Math/Vector3.hpp>
 
 namespace Nz
@@ -34,6 +35,7 @@ namespace Nz
 			virtual float GetAttenuation() const = 0;
 			virtual float GetMinDistance() const = 0;
 			virtual float GetPitch() const = 0;
+			virtual Time GetPlayingOffset() const = 0;
 			virtual Vector3f GetPosition() const = 0;
 			virtual UInt32 GetSampleOffset() const = 0;
 			virtual OffsetWithLatency GetSampleOffsetAndLatency() const = 0;
@@ -53,6 +55,7 @@ namespace Nz
 			virtual void SetBuffer(std::shared_ptr<AudioBuffer> audioBuffer) = 0;
 			virtual void SetMinDistance(float minDistance) = 0;
 			virtual void SetPitch(float pitch) = 0;
+			virtual void SetPlayingOffset(Time offset) = 0;
 			virtual void SetPosition(const Vector3f& position) = 0;
 			virtual void SetSampleOffset(UInt32 offset) = 0;
 			virtual void SetVelocity(const Vector3f& velocity) = 0;
@@ -70,7 +73,7 @@ namespace Nz
 			struct OffsetWithLatency
 			{
 				UInt64 sampleOffset;
-				UInt64 sourceLatency;
+				Time sourceLatency;
 			};
 
 		private:

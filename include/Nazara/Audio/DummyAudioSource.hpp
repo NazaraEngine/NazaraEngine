@@ -30,6 +30,7 @@ namespace Nz
 			float GetAttenuation() const override;
 			float GetMinDistance() const override;
 			float GetPitch() const override;
+			Time GetPlayingOffset() const override;
 			Vector3f GetPosition() const override;
 			UInt32 GetSampleOffset() const override;
 			OffsetWithLatency GetSampleOffsetAndLatency() const override;
@@ -49,6 +50,7 @@ namespace Nz
 			void SetBuffer(std::shared_ptr<AudioBuffer> audioBuffer) override;
 			void SetMinDistance(float minDistance) override;
 			void SetPitch(float pitch) override;
+			void SetPlayingOffset(Time offset) override;
 			void SetPosition(const Vector3f& position) override;
 			void SetSampleOffset(UInt32 offset) override;
 			void SetVelocity(const Vector3f& velocity) override;
@@ -65,11 +67,11 @@ namespace Nz
 
 		private:
 			void RequeueBuffers();
-			UInt64 UpdateTime() const;
+			Time UpdateTime() const;
 
 			mutable std::vector<std::shared_ptr<DummyAudioBuffer>> m_queuedBuffers;
 			mutable std::vector<std::shared_ptr<DummyAudioBuffer>> m_processedBuffers;
-			mutable Clock m_playClock;
+			mutable MillisecondClock m_playClock;
 			mutable SoundStatus m_status;
 			Vector3f m_position;
 			Vector3f m_velocity;

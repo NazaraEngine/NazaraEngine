@@ -68,8 +68,8 @@ int main()
 	texParams.renderDevice = device;
 	texParams.loadFormat = Nz::PixelFormat::RGBA8;
 
-	std::shared_ptr<Nz::MaterialInstance> material = Nz::Graphics::Instance()->GetDefaultMaterials().phongMaterial->Instantiate();
-	material->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(resourceDir / "box.png", texParams));
+	std::shared_ptr<Nz::MaterialInstance> spriteMaterial = Nz::Graphics::Instance()->GetDefaultMaterials().phongMaterial->Instantiate();
+	spriteMaterial->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(resourceDir / "box.png", texParams));
 
 	for (std::size_t y = 0; y < 30; ++y)
 	{
@@ -77,7 +77,7 @@ int main()
 		{
 			entt::entity spriteEntity = registry.create();
 			{
-				std::shared_ptr<Nz::Sprite> sprite = std::make_shared<Nz::Sprite>(material);
+				std::shared_ptr<Nz::Sprite> sprite = std::make_shared<Nz::Sprite>(spriteMaterial);
 				sprite->SetSize({ 32.f, 32.f });
 				sprite->SetOrigin({ 0.5f, 0.5f });
 
@@ -97,10 +97,10 @@ int main()
 		tilemap->SetOrigin({ 0.5f, 0.5f });
 		for (std::size_t i = 0; i < 18; ++i)
 		{
-			std::shared_ptr<Nz::MaterialInstance> material = Nz::Graphics::Instance()->GetDefaultMaterials().basicTransparent->Clone();
-			material->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(resourceDir / "tiles" / (std::to_string(i + 1) + ".png"), texParams));
+			std::shared_ptr<Nz::MaterialInstance> tileMaterial = Nz::Graphics::Instance()->GetDefaultMaterials().basicTransparent->Clone();
+			tileMaterial->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(resourceDir / "tiles" / (std::to_string(i + 1) + ".png"), texParams));
 
-			tilemap->SetMaterial(i, material);
+			tilemap->SetMaterial(i, tileMaterial);
 		}
 
 		for (unsigned int y = 0; y < 20; ++y)
@@ -122,14 +122,12 @@ int main()
 
 	window.EnableEventPolling(true);
 
-	Nz::Clock updateClock;
-	Nz::Clock secondClock;
+	Nz::MillisecondClock secondClock;
 	unsigned int fps = 0;
 
 	//Nz::Mouse::SetRelativeMouseMode(true);
 
 	float elapsedTime = 0.f;
-	Nz::UInt64 time = Nz::GetElapsedMicroseconds();
 
 	Nz::PidController<Nz::Vector3f> headingController(0.5f, 0.f, 0.05f);
 	Nz::PidController<Nz::Vector3f> upController(1.f, 0.f, 0.1f);
@@ -137,10 +135,6 @@ int main()
 	bool showColliders = false;
 	while (window.IsOpen())
 	{
-		Nz::UInt64 now = Nz::GetElapsedMicroseconds();
-		elapsedTime = (now - time) / 1'000'000.f;
-		time = now;
-
 		Nz::WindowEvent event;
 		while (window.PollEvent(&event))
 		{
@@ -165,13 +159,10 @@ int main()
 
 		fps++;
 
-		if (secondClock.GetMilliseconds() >= 1000)
+		if (secondClock.RestartIfOver(Nz::Time::Second()))
 		{
 			window.SetTitle(windowTitle + " - " + Nz::NumberToString(fps) + " FPS" + " - " + Nz::NumberToString(registry.alive()) + " entities");
-
 			fps = 0;
-
-			secondClock.Restart();
 		}
 	}
 

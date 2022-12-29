@@ -357,12 +357,11 @@ int main()
 
 	window.EnableEventPolling(true);
 
-	Nz::Clock fpsClock, updateClock;
+	Nz::MillisecondClock fpsClock, updateClock;
 	float incr = 0.f;
 	unsigned int currentFrame = 0;
 	unsigned int nextFrame = 1;
 	Nz::EulerAnglesf camAngles = Nz::EulerAnglesf(-30.f, 0.f, 0.f);
-	Nz::UInt64 lastTime = Nz::GetElapsedMicroseconds();
 	Nz::UInt64 fps = 0;
 	bool paused = false;
 
@@ -409,9 +408,9 @@ int main()
 			}
 		}
 
-		if (updateClock.GetMilliseconds() > 1000 / 60)
+		if (std::optional<Nz::Time> deltaTime = updateClock.RestartIfOver(Nz::Time::TickDuration(60)))
 		{
-			float updateTime = updateClock.Restart() / 1'000'000.f;
+			float updateTime = deltaTime->AsSeconds();
 
 			/*auto& playerBody = registry.get<Nz::RigidBody3DComponent>(playerEntity);
 
@@ -533,12 +532,9 @@ int main()
 
 		fps++;
 
-		if (fpsClock.GetMilliseconds() >= 1000)
+		if (fpsClock.RestartIfOver(Nz::Time::Second()))
 		{
-			fpsClock.Restart();
-
 			window.SetTitle(windowTitle + " - " + Nz::NumberToString(fps) + " FPS" + " - " + Nz::NumberToString(registry.alive()) + " entities");
-
 			fps = 0;
 		}
 	}

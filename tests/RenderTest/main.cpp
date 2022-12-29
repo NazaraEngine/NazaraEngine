@@ -253,8 +253,8 @@ int main()
 
 	window.EnableEventPolling(true);
 
-	Nz::Clock updateClock;
-	Nz::Clock secondClock;
+	Nz::MillisecondClock updateClock;
+	Nz::MillisecondClock secondClock;
 	unsigned int fps = 0;
 	bool uboUpdate = true;
 
@@ -304,10 +304,9 @@ int main()
 			}
 		}
 
-		if (updateClock.GetMilliseconds() > 1000 / 60)
+		if (std::optional<Nz::Time> deltaTime = updateClock.RestartIfOver(Nz::Time::TickDuration(60)))
 		{
-			float cameraSpeed = 2.f * updateClock.GetSeconds();
-			updateClock.Restart();
+			float cameraSpeed = 2.f * deltaTime->AsSeconds();
 
 			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Up) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Z))
 				viewerPos += camQuat * Nz::Vector3f::Forward() * cameraSpeed;
@@ -412,7 +411,7 @@ int main()
 		// On incrémente le compteur de FPS improvisé
 		fps++;
 
-		if (secondClock.GetMilliseconds() >= 1000) // Toutes les secondes
+		if (secondClock.RestartIfOver(Nz::Time::Second()))
 		{
 			// Et on insère ces données dans le titre de la fenêtre
 			window.SetTitle(windowTitle + " - " + Nz::NumberToString(fps) + " FPS");
@@ -426,9 +425,6 @@ int main()
 
 			// Et on réinitialise le compteur de FPS
 			fps = 0;
-
-			// Et on relance l'horloge pour refaire ça dans une seconde
-			secondClock.Restart();
 		}
 	}
 

@@ -8,7 +8,7 @@
 
 namespace Nz
 {
-	void LifetimeSystem::Update(float elapsedTime)
+	void LifetimeSystem::Update(Time elapsedTime)
 	{
 		auto view = m_registry.view<LifetimeComponent>();
 		for (auto [entity, lifetimeComponent] : view.each())

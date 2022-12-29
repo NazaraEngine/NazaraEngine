@@ -106,6 +106,17 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Seek the sound to a point in time
+	*
+	* \param offset Time offset to seek
+	*/
+	void SoundEmitter::SeekToPlayingOffset(Time offset)
+	{
+		UInt64 microseconds = static_cast<UInt64>(std::max(offset.AsMicroseconds(), Int64(0)));
+		SeekToSampleOffset(SafeCast<UInt32>(microseconds * GetSampleRate() / 1'000'000));
+	}
+
+	/*!
 	* \brief Sets the attenuation
 	*
 	* \param attenuation Amount that your sound will drop off as by the inverse square law 

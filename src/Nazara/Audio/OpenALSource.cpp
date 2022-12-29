@@ -62,6 +62,29 @@ namespace Nz
 		return pitch;
 	}
 
+	Time OpenALSource::GetPlayingOffset() const
+	{
+		GetDevice().MakeContextCurrent();
+
+#ifdef AL_SOFT_source_latency
+		if (GetDevice().IsExtensionSupported(OpenALExtension::SourceLatency))
+		{
+			// alGetSourcedvSOFT has extra precision thanks to double
+			ALdouble playingOffset;
+			m_library.alGetSourcedvSOFT(m_sourceId, AL_SEC_OFFSET, &playingOffset);
+
+			return Time::Seconds(playingOffset);
+		}
+		else
+#endif
+		{
+			ALfloat playingOffset;
+			m_library.alGetSourcefv(m_sourceId, AL_SEC_OFFSET, &playingOffset);
+
+			return Time::Seconds(playingOffset);
+		}
+	}
+
 	Vector3f OpenALSource::GetPosition() const
 	{
 		GetDevice().MakeContextCurrent();
@@ -94,14 +117,14 @@ namespace Nz
 			m_library.alGetSourcei64vSOFT(m_sourceId, AL_SAMPLE_OFFSET_LATENCY_SOFT, values.data());
 
 			offsetWithLatency.sampleOffset = ((values[0] & 0xFFFFFFFF00000000) >> 32) * 1'000;
-			offsetWithLatency.sourceLatency = values[1] / 1'000;
+			offsetWithLatency.sourceLatency = Time::Nanoseconds(values[1] / 1'000);
 
 		}
 		else
 #endif
 		{
 			offsetWithLatency.sampleOffset = GetSampleOffset() * 1'000;
-			offsetWithLatency.sourceLatency = 0;
+			offsetWithLatency.sourceLatency = Time::Zero();
 		}
 
 		return offsetWithLatency;
@@ -237,6 +260,19 @@ namespace Nz
 		GetDevice().MakeContextCurrent();
 
 		m_library.alSourcef(m_sourceId, AL_PITCH, pitch);
+	}
+
+	void OpenALSource::SetPlayingOffset(Time offset)
+	{
+		GetDevice().MakeContextCurrent();
+
+#ifdef AL_SOFT_source_latency
+		if (GetDevice().IsExtensionSupported(OpenALExtension::SourceLatency))
+			// alGetSourcedvSOFT has extra precision thanks to double
+			m_library.alSourcedSOFT(m_sourceId, AL_SEC_OFFSET, offset.AsSeconds<ALdouble>());
+		else
+#endif
+			m_library.alSourcef(m_sourceId, AL_SEC_OFFSET, offset.AsSeconds<ALfloat>());
 	}
 
 	void OpenALSource::SetPosition(const Vector3f& position)

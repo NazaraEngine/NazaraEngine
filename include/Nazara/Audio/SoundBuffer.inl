@@ -10,10 +10,8 @@ namespace Nz
 	/*!
 	* \brief Gets the duration of the sound buffer
 	* \return Duration of the sound buffer in milliseconds
-	*
-	* \remark Produces a NazaraError if there is no sound buffer with NAZARA_AUDIO_SAFE defined
 	*/
-	inline UInt32 SoundBuffer::GetDuration() const
+	inline Time SoundBuffer::GetDuration() const
 	{
 		return m_duration;
 	}

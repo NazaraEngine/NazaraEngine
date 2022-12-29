@@ -9,6 +9,8 @@ std::filesystem::path GetAssetDir();
 
 SCENARIO("Music", "[AUDIO][MUSIC]")
 {
+	using namespace Nz::Literals;
+
 	GIVEN("A music")
 	{
 		Nz::Music music;
@@ -19,9 +21,9 @@ SCENARIO("Music", "[AUDIO][MUSIC]")
 
 			THEN("We can ask the informations of the file")
 			{
-				CHECK(music.GetDuration() == 63059); // 1 min 03 = 63s = 63000ms
+				CHECK(music.GetDuration() == 63'059'591_us); // 1 min 03 = 63s = 63000ms
 				CHECK(music.GetFormat() == Nz::AudioFormat::I16_Stereo);
-				CHECK(music.GetPlayingOffset() == 0);
+				CHECK(music.GetPlayingOffset() == 0_ms);
 				CHECK(music.GetSampleCount() <= 64 * 44100 * 2); // * 2 (stereo)
 				CHECK(music.GetSampleCount() >= 63 * 44100 * 2); // * 2 (stereo)
 				CHECK(music.GetSampleRate() == 44100 /* Hz */);
@@ -30,7 +32,7 @@ SCENARIO("Music", "[AUDIO][MUSIC]")
 				CHECK(music.IsSpatializationEnabled());
 				CHECK(music.GetMinDistance() == 1.f);
 				CHECK(music.GetPitch() == 1.f);
-				CHECK(music.GetPlayingOffset() == 0);
+				CHECK(music.GetPlayingOffset() == 0_ms);
 				CHECK(music.GetPosition() == Nz::Vector3f::Zero());
 				CHECK(music.GetVelocity() == Nz::Vector3f::Zero());
 				CHECK(music.GetVolume() == 1.f);
@@ -42,53 +44,54 @@ SCENARIO("Music", "[AUDIO][MUSIC]")
 
 				music.Play();
 				CHECK(music.GetStatus() == Nz::SoundStatus::Playing);
-				std::this_thread::sleep_for(std::chrono::seconds(1));
-				CHECK(music.GetPlayingOffset() >= 950);
+				std::this_thread::sleep_for(std::chrono::seconds(1)); 
+				Nz::Time t = music.GetPlayingOffset();
+				CHECK(music.GetPlayingOffset() >= 950_ms);
 				std::this_thread::sleep_for(std::chrono::milliseconds(200));
-				CHECK(music.GetPlayingOffset() <= 1500);
+				CHECK(music.GetPlayingOffset() <= 1500_ms);
 
-				music.SetPlayingOffset(4200);
+				music.SeekToPlayingOffset(4200_ms);
 				CHECK(music.GetStatus() == Nz::SoundStatus::Playing);
-				CHECK(music.GetPlayingOffset() >= 4150);
-				CHECK(music.GetPlayingOffset() < 4500);
+				CHECK(music.GetPlayingOffset() >= 4150_ms);
+				CHECK(music.GetPlayingOffset() < 4500_ms);
 				CHECK(music.GetStatus() == Nz::SoundStatus::Playing);
 
 				music.Pause();
-				Nz::UInt32 playingOffset = music.GetPlayingOffset();
+				Nz::Time playingOffset = music.GetPlayingOffset();
 				CHECK(music.GetStatus() == Nz::SoundStatus::Paused);
 				std::this_thread::sleep_for(std::chrono::milliseconds(50));
 				CHECK(music.GetStatus() == Nz::SoundStatus::Paused);
 				CHECK(music.GetPlayingOffset() == playingOffset);
 
-				music.SetPlayingOffset(3500);
+				music.SeekToPlayingOffset(3500_ms);
 				std::this_thread::sleep_for(std::chrono::milliseconds(200));
-				CHECK(music.GetPlayingOffset() == 3500);
+				CHECK(music.GetPlayingOffset() == 3500_ms);
 
 				music.Play();
 				std::this_thread::sleep_for(std::chrono::milliseconds(200));
 				CHECK(music.GetStatus() == Nz::SoundStatus::Playing);
-				CHECK(music.GetPlayingOffset() >= 3650);
+				CHECK(music.GetPlayingOffset() >= 3650_ms);
 
 				AND_WHEN("We let the sound stop by itself")
 				{
-					REQUIRE(music.GetDuration() == 63059);
+					REQUIRE(music.GetDuration() == 63'059'591_us);
 
-					music.SetPlayingOffset(62900);
+					music.SeekToPlayingOffset(62900_ms);
 					std::this_thread::sleep_for(std::chrono::milliseconds(300));
 					CHECK(music.GetStatus() == Nz::SoundStatus::Stopped);
-					CHECK(music.GetPlayingOffset() == 0);
+					CHECK(music.GetPlayingOffset() == 0_ms);
 
-					music.SetPlayingOffset(64000);
+					music.SeekToPlayingOffset(64000_ms);
 					music.Play();
 					std::this_thread::sleep_for(std::chrono::milliseconds(50));
 					CHECK(music.GetStatus() == Nz::SoundStatus::Playing);
-					CHECK(music.GetPlayingOffset() < 100);
+					CHECK(music.GetPlayingOffset() < 100_ms);
 
 					music.Stop();
-					music.SetPlayingOffset(62900);
+					music.SeekToPlayingOffset(62900_ms);
 					std::this_thread::sleep_for(std::chrono::milliseconds(50));
 					CHECK(music.GetStatus() == Nz::SoundStatus::Stopped);
-					CHECK(music.GetPlayingOffset() == 0); //< playing offset has no effect until Play()
+					CHECK(music.GetPlayingOffset() == 0_ms); //< playing offset has no effect until Play()
 
 					AND_WHEN("We enable looping")
 					{
@@ -96,10 +99,10 @@ SCENARIO("Music", "[AUDIO][MUSIC]")
 						CHECK(music.IsLooping());
 						music.Play();
 						CHECK(music.GetStatus() == Nz::SoundStatus::Playing);
-						CHECK(music.GetPlayingOffset() >= 62900);
+						CHECK(music.GetPlayingOffset() >= 62900_ms);
 						std::this_thread::sleep_for(std::chrono::milliseconds(300));
 						CHECK(music.GetStatus() == Nz::SoundStatus::Playing);
-						CHECK(music.GetPlayingOffset() < 300);
+						CHECK(music.GetPlayingOffset() < 300_ms);
 					}
 				}
 				Nz::Audio::Instance()->GetDefaultDevice()->SetGlobalVolume(100.f);

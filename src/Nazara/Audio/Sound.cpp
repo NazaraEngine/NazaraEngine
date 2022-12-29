@@ -72,7 +72,7 @@ namespace Nz
 	*
 	* \remark Produces a NazaraError if there is no buffer
 	*/
-	UInt32 Sound::GetDuration() const
+	Time Sound::GetDuration() const
 	{
 		NazaraAssert(m_buffer, "Invalid sound buffer");
 
@@ -80,13 +80,30 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Gets the current offset in the sound
-	* \return Offset in milliseconds (works with entire seconds)
+	* \brief Gets the current playing offset of the sound
+	* \return Offset
 	*/
-	UInt32 Sound::GetPlayingOffset() const
+	Time Sound::GetPlayingOffset() const
 	{
-		UInt32 sampleCount = m_source->GetSampleOffset();
-		return SafeCast<UInt32>(1000ULL * sampleCount / m_buffer->GetSampleRate());
+		return m_source->GetPlayingOffset();
+	}
+
+	/*!
+	* \brief Gets the current sample offset of the sound
+	* \return Offset
+	*/
+	UInt64 Sound::GetSampleOffset() const
+	{
+		return m_source->GetSampleOffset();
+	}
+
+	/*!
+	* \brief Gets the sample rate of the sound
+	* \return Offset
+	*/
+	UInt32 Sound::GetSampleRate() const
+	{
+		return m_buffer->GetSampleRate();
 	}
 
 	/*!
@@ -220,19 +237,17 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets the playing offset for the sound
+	* \brief Sets the source to a sample offset
 	*
-	* \param offset Offset in the sound in milliseconds
+	* \param offset Sample offset
 	*/
-	void Sound::SetPlayingOffset(UInt32 offset)
+	void Sound::SeekToSampleOffset(UInt64 offset)
 	{
-		m_source->SetSampleOffset(SafeCast<UInt32>(UInt64(offset) * m_buffer->GetSampleRate() / 1000));
+		m_source->SetSampleOffset(SafeCast<UInt32>(offset));
 	}
 
 	/*!
 	* \brief Stops the sound
-	*
-	* \remark This is one of the only function that can be called on a moved sound (and does nothing)
 	*/
 	void Sound::Stop()
 	{

@@ -104,8 +104,8 @@ int main()
 
 	window.EnableEventPolling(true);
 
-	Nz::Clock updateClock;
-	Nz::Clock secondClock;
+	Nz::MillisecondClock updateClock;
+	Nz::MillisecondClock fpsClock;
 	unsigned int fps = 0;
 
 	Nz::Mouse::SetRelativeMouseMode(true);
@@ -161,10 +161,9 @@ int main()
 			}
 		}
 
-		if (updateClock.GetMilliseconds() > 1000 / 60)
+		if (std::optional<Nz::Time> deltaTime = updateClock.RestartIfOver(Nz::Time::TickDuration(60)))
 		{
-			float cameraSpeed = 2.f * updateClock.GetSeconds();
-			updateClock.Restart();
+			float cameraSpeed = 2.f * deltaTime->AsSeconds();
 
 			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Up) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Z))
 				viewerPos += camQuat * Nz::Vector3f::Forward() * cameraSpeed;
@@ -209,23 +208,10 @@ int main()
 		// On incrémente le compteur de FPS improvisé
 		fps++;
 
-		if (secondClock.GetMilliseconds() >= 1000) // Toutes les secondes
+		if (fpsClock.RestartIfOver(Nz::Time::Second()))
 		{
-			// Et on insère ces données dans le titre de la fenêtre
 			window.SetTitle(windowTitle + " - " + Nz::NumberToString(fps) + " FPS");
-
-			/*
-			Note: En C++11 il est possible d'insérer de l'Unicode de façon standard, quel que soit l'encodage du fichier,
-			via quelque chose de similaire à u8"Cha\u00CEne de caract\u00E8res".
-			Cependant, si le code source est encodé en UTF-8 (Comme c'est le cas dans ce fichier),
-			cela fonctionnera aussi comme ceci : "Chaîne de caractères".
-			*/
-
-			// Et on réinitialise le compteur de FPS
 			fps = 0;
-
-			// Et on relance l'horloge pour refaire ça dans une seconde
-			secondClock.Restart();
 		}
 	}
 

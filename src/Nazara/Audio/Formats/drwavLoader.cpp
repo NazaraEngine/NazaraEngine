@@ -105,7 +105,7 @@ namespace Nz
 					drwav_uninit(&m_decoder);
 				}
 
-				UInt32 GetDuration() const override
+				Time GetDuration() const override
 				{
 					return m_duration;
 				}
@@ -172,7 +172,7 @@ namespace Nz
 
 					m_format = *formatOpt;
 
-					m_duration = static_cast<UInt32>(1000ULL * m_decoder.totalPCMFrameCount / m_decoder.sampleRate);
+					m_duration = Time::Microseconds(1'000'000LL * m_decoder.totalPCMFrameCount / m_decoder.sampleRate);
 					m_sampleCount = m_decoder.totalPCMFrameCount * m_decoder.channels;
 					m_sampleRate = m_decoder.sampleRate;
 
@@ -230,7 +230,7 @@ namespace Nz
 				std::vector<Int16> m_mixBuffer;
 				AudioFormat m_format;
 				drwav m_decoder;
-				UInt32 m_duration;
+				Time m_duration;
 				UInt32 m_sampleRate;
 				UInt64 m_readSampleCount;
 				UInt64 m_sampleCount;

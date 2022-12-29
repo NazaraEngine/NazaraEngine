@@ -11,6 +11,7 @@
 #include <Nazara/Audio/AudioBuffer.hpp>
 #include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/Enums.hpp>
+#include <Nazara/Core/Time.hpp>
 
 namespace Nz
 {
@@ -23,7 +24,7 @@ namespace Nz
 			~DummyAudioBuffer() = default;
 
 			AudioFormat GetAudioFormat() const;
-			UInt32 GetDuration() const;
+			Time GetDuration() const;
 			UInt64 GetSampleCount() const override;
 			UInt64 GetSize() const override;
 			UInt32 GetSampleRate() const override;

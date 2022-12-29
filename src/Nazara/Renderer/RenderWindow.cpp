@@ -22,7 +22,7 @@ namespace Nz
 
 		if (m_framerateLimit > 0)
 		{
-			int remainingTime = 1000 / static_cast<int>(m_framerateLimit) - static_cast<int>(m_clock.GetMilliseconds());
+			int remainingTime = 1000 / static_cast<int>(m_framerateLimit) - static_cast<int>(m_clock.GetElapsedTime().AsMilliseconds());
 			if (remainingTime > 0)
 				std::this_thread::sleep_for(std::chrono::milliseconds(remainingTime));
 

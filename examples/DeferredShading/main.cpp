@@ -1063,16 +1063,16 @@ int main()
 
 	window.EnableEventPolling(true);
 
-	Nz::Clock updateClock;
-	Nz::Clock secondClock;
+	Nz::MillisecondClock updateClock;
+	Nz::MillisecondClock fpsClock;
 	unsigned int fps = 0;
 
 	std::size_t totalFrameCount = 0;
 
 	Nz::Mouse::SetRelativeMouseMode(true);
 
-	float elapsedTime = 0.f;
-	Nz::UInt64 time = Nz::GetElapsedMicroseconds();
+	Nz::Time elapsedTime = Nz::Time::Zero();
+	Nz::Time time = Nz::GetElapsedNanoseconds();
 
 	auto ComputeLightAnimationSpeed = [](const Nz::Vector3f& position)
 	{
@@ -1095,9 +1095,9 @@ int main()
 
 	while (window.IsOpen())
 	{
-		Nz::UInt64 now = Nz::GetElapsedMicroseconds();
+		Nz::Time now = Nz::GetElapsedNanoseconds();
 		if (lightAnimation)
-			elapsedTime += (now - time) / 1'000'000.f;
+			elapsedTime += now - time;
 		time = now;
 
 		Nz::WindowEvent event;
@@ -1129,13 +1129,14 @@ int main()
 				{
 					if (event.key.scancode == Nz::Keyboard::Scancode::Space)
 					{
+						float elapsedSeconds = elapsedTime.AsSeconds();
 						float rotationSpeed = ComputeLightAnimationSpeed(viewerPos);
 
 						auto& spotLight = spotLights.emplace_back();
 						spotLight.color = Nz::Color(0.4f, 0.4f, 1.f);
 						spotLight.radius = 5.f;
-						spotLight.position = AnimateLightPosition(viewerPos, rotationSpeed, -elapsedTime);
-						spotLight.direction = AnimateLightDirection(camQuat * Nz::Vector3f::Forward(), rotationSpeed, -elapsedTime);
+						spotLight.position = AnimateLightPosition(viewerPos, rotationSpeed, -elapsedSeconds);
+						spotLight.direction = AnimateLightDirection(camQuat * Nz::Vector3f::Forward(), rotationSpeed, -elapsedSeconds);
 
 						lightUpdate = true;
 					}
@@ -1163,10 +1164,9 @@ int main()
 			}
 		}
 
-		if (updateClock.GetMilliseconds() > 1000 / 60)
+		if (std::optional<Nz::Time> deltaTime = updateClock.RestartIfOver(Nz::Time::TickDuration(60)))
 		{
-			float cameraSpeed = 2.f * updateClock.GetSeconds();
-			updateClock.Restart();
+			float cameraSpeed = 2.f * deltaTime->AsSeconds();
 
 			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Up) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Z))
 				viewerPos += camQuat * Nz::Vector3f::Forward() * cameraSpeed;
@@ -1465,7 +1465,9 @@ int main()
 				modelInstance2.OnTransfer(frame, builder);
 				planeInstance.OnTransfer(frame, builder);
 
-				Nz::EulerAnglesf flareRotation(0.f, 0.f, elapsedTime * 10.f);
+				float elapsedSeconds = elapsedTime.AsSeconds();
+
+				Nz::EulerAnglesf flareRotation(0.f, 0.f, elapsedSeconds * 10.f);
 				flareInstance.UpdateWorldMatrix(Nz::Matrix4f::Transform(viewerPos + flarePosition, flareRotation));
 				flareInstance.OnTransfer(frame, builder);
 
@@ -1481,8 +1483,8 @@ int main()
 					{
 						float rotationSpeed = ComputeLightAnimationSpeed(spotLight.position);
 
-						Nz::Vector3f position = AnimateLightPosition(spotLight.position, rotationSpeed, elapsedTime);
-						Nz::Vector3f direction = AnimateLightDirection(spotLight.direction, rotationSpeed, elapsedTime);
+						Nz::Vector3f position = AnimateLightPosition(spotLight.position, rotationSpeed, elapsedSeconds);
+						Nz::Vector3f direction = AnimateLightDirection(spotLight.direction, rotationSpeed, elapsedSeconds);
 
 						Nz::AccessByOffset<Nz::Vector3f&>(lightDataPtr, colorOffset) = Nz::Vector3f(spotLight.color.r, spotLight.color.g, spotLight.color.b);
 						Nz::AccessByOffset<Nz::Vector3f&>(lightDataPtr, positionOffset) = position;
@@ -1565,23 +1567,10 @@ int main()
 		fps++;
 		totalFrameCount++;
 
-		if (secondClock.GetMilliseconds() >= 1000) // Toutes les secondes
+		if (fpsClock.RestartIfOver(Nz::Time::Second()))
 		{
-			// Et on insère ces données dans le titre de la fenêtre
 			window.SetTitle(windowTitle + " - " + Nz::NumberToString(fps) + " FPS");
-
-			/*
-			Note: En C++11 il est possible d'insérer de l'Unicode de façon standard, quel que soit l'encodage du fichier,
-			via quelque chose de similaire à u8"Cha\u00CEne de caract\u00E8res".
-			Cependant, si le code source est encodé en UTF-8 (Comme c'est le cas dans ce fichier),
-			cela fonctionnera aussi comme ceci : "Chaîne de caractères".
-			*/
-
-			// Et on réinitialise le compteur de FPS
 			fps = 0;
-
-			// Et on relance l'horloge pour refaire ça dans une seconde
-			secondClock.Restart();
 		}
 	}
 

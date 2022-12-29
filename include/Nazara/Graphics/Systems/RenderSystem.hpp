@@ -8,6 +8,7 @@
 #define NAZARA_GRAPHICS_SYSTEMS_RENDERSYSTEM_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/Time.hpp>
 #include <Nazara/Graphics/ElementRendererRegistry.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/Components/GraphicsComponent.hpp>
@@ -45,7 +46,7 @@ namespace Nz
 			inline FramePipeline& GetFramePipeline();
 			inline const FramePipeline& GetFramePipeline() const;
 
-			void Update(float elapsedTime);
+			void Update(Time elapsedTime);
 
 			RenderSystem& operator=(const RenderSystem&) = delete;
 			RenderSystem& operator=(RenderSystem&&) = delete;

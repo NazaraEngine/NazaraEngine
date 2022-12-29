@@ -13,6 +13,7 @@
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
+#include <Nazara/Core/Time.hpp>
 #include <mutex>
 
 namespace Nz
@@ -35,7 +36,7 @@ namespace Nz
 			SoundStream() = default;
 			virtual ~SoundStream();
 
-			virtual UInt32 GetDuration() const = 0;
+			virtual Time GetDuration() const = 0;
 			virtual AudioFormat GetFormat() const = 0;
 			virtual std::mutex& GetMutex() = 0;
 			virtual UInt64 GetSampleCount() const = 0;

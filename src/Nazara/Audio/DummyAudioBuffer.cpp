@@ -15,9 +15,9 @@ namespace Nz
 		return m_format;
 	}
 
-	UInt32 DummyAudioBuffer::GetDuration() const
+	Time DummyAudioBuffer::GetDuration() const
 	{
-		return SafeCast<UInt32>((1000ULL * m_sampleCount / (GetChannelCount(m_format) * m_sampleRate)));
+		return Time::Microseconds((1'000'000LL * m_sampleCount / (GetChannelCount(m_format) * m_sampleRate)));
 	}
 
 	UInt64 DummyAudioBuffer::GetSampleCount() const

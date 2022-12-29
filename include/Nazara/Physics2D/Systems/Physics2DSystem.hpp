@@ -8,6 +8,7 @@
 #define NAZARA_PHYSICS2D_SYSTEMS_PHYSICS2DSYSTEM_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/Time.hpp>
 #include <Nazara/Physics2D/PhysWorld2D.hpp>
 #include <Nazara/Physics2D/Components/RigidBody2DComponent.hpp>
 #include <Nazara/Utils/TypeList.hpp>
@@ -31,7 +32,7 @@ namespace Nz
 			inline PhysWorld2D& GetPhysWorld();
 			inline const PhysWorld2D& GetPhysWorld() const;
 
-			void Update(float elapsedTime);
+			void Update(Time elapsedTime);
 
 			Physics2DSystem& operator=(const Physics2DSystem&) = delete;
 			Physics2DSystem& operator=(Physics2DSystem&&) = delete;

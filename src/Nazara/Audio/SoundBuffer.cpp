@@ -47,7 +47,7 @@ namespace Nz
 		NazaraAssert(sampleRate > 0, "sample rate must be different from zero");
 		NazaraAssert(samples, "invalid samples");
 
-		m_duration = SafeCast<UInt32>((1000ULL*sampleCount / (GetChannelCount(format) * sampleRate)));
+		m_duration = Time::Microseconds((1'000'000LL * sampleCount / (GetChannelCount(format) * sampleRate)));
 		m_format = format;
 		m_sampleCount = sampleCount;
 		m_sampleRate = sampleRate;

@@ -127,19 +127,11 @@ int main()
 
 	mainWindow.EnableEventPolling(true);
 
-	Nz::Clock updateClock;
-	Nz::Clock secondClock;
+	Nz::MillisecondClock fpsClock;
 	unsigned int fps = 0;
-
-	float elapsedTime = 0.f;
-	Nz::UInt64 time = Nz::GetElapsedMicroseconds();
 
 	while (mainWindow.IsOpen())
 	{
-		Nz::UInt64 now = Nz::GetElapsedMicroseconds();
-		elapsedTime = (now - time) / 1'000'000.f;
-		time = now;
-
 		Nz::WindowEvent event;
 		while (mainWindow.PollEvent(&event))
 		{
@@ -158,13 +150,10 @@ int main()
 
 		fps++;
 
-		if (secondClock.GetMilliseconds() >= 1000)
+		if (fpsClock.RestartIfOver(Nz::Time::Second()))
 		{
 			mainWindow.SetTitle(windowTitle + " - " + Nz::NumberToString(fps) + " FPS" + " - " + Nz::NumberToString(registry.alive()) + " entities");
-
 			fps = 0;
-
-			secondClock.Restart();
 		}
 	}
 

@@ -39,6 +39,27 @@ namespace Nz
 		return m_pitch;
 	}
 
+	Time DummyAudioSource::GetPlayingOffset() const
+	{
+		if (m_status == SoundStatus::Stopped)
+			return Time::Zero(); //< Always return 0 when stopped, to mimic OpenAL behavior
+
+		Time bufferTime = UpdateTime();
+
+		Time playingOffset = Time::Zero();
+		// All processed buffers count
+		for (const auto& processedBuffer : m_processedBuffers)
+			playingOffset += processedBuffer->GetDuration();
+
+		if (!m_queuedBuffers.empty())
+		{
+			auto& frontBuffer = m_queuedBuffers.front();
+			playingOffset += std::min(bufferTime, frontBuffer->GetDuration());
+		}
+
+		return playingOffset;
+	}
+
 	Vector3f DummyAudioSource::GetPosition() const
 	{
 		return m_position;
@@ -49,7 +70,7 @@ namespace Nz
 		if (m_status == SoundStatus::Stopped)
 			return 0; //< Always return 0 when stopped, to mimic OpenAL behavior
 
-		UInt64 bufferTime = UpdateTime();
+		Time bufferTime = UpdateTime();
 
 		UInt64 sampleOffset = 0;
 		// All processed buffers count in sample offset
@@ -59,7 +80,7 @@ namespace Nz
 		if (!m_queuedBuffers.empty())
 		{
 			auto& frontBuffer = m_queuedBuffers.front();
-			UInt64 bufferOffset = bufferTime * frontBuffer->GetSampleRate() / 1000;
+			UInt64 bufferOffset = bufferTime.AsMicroseconds() * frontBuffer->GetSampleRate() / 1'000'000ll;
 			UInt64 bufferDuration = frontBuffer->GetSampleCount() / GetChannelCount(frontBuffer->GetAudioFormat());
 
 			sampleOffset += std::min(bufferOffset, bufferDuration);
@@ -72,7 +93,7 @@ namespace Nz
 	{
 		OffsetWithLatency info;
 		info.sampleOffset = GetSampleOffset() * 1000;
-		info.sourceLatency = 0;
+		info.sourceLatency = Time::Zero();
 
 		return info;
 	}
@@ -120,19 +141,19 @@ namespace Nz
 
 	void DummyAudioSource::Play()
 	{
-		if (m_status == SoundStatus::Paused)
-			m_playClock.Unpause();
-		else
+		if (m_status != SoundStatus::Paused)
 		{
 			// playing or stopped, restart
 			RequeueBuffers();
 
 			// special case, we are stopped but SetSampleOffset has been called
-			if (m_status == SoundStatus::Stopped && m_playClock.GetMilliseconds() != 0)
+			if (m_status == SoundStatus::Stopped && m_playClock.GetElapsedTime() != Time::Zero())
 				m_playClock.Unpause();
 			else
 				m_playClock.Restart(); //< already playing or stopped, restart from beginning
 		}
+		else
+			m_playClock.Unpause();
 
 		m_status = SoundStatus::Playing;
 	}
@@ -161,6 +182,13 @@ namespace Nz
 		m_pitch = pitch;
 	}
 
+	void DummyAudioSource::SetPlayingOffset(Time offset)
+	{
+		// Next UpdateTime call will handle this properly
+		RequeueBuffers();
+		m_playClock.Restart(offset, m_playClock.IsPaused());
+	}
+
 	void DummyAudioSource::SetPosition(const Vector3f& position)
 	{
 		m_position = position;
@@ -187,7 +215,7 @@ namespace Nz
 
 		if (!m_queuedBuffers.empty())
 		{
-			UInt64 timeOffset = 1'000'000ULL * offset / m_queuedBuffers.front()->GetSampleRate();
+			Time timeOffset = Time::Microseconds(1'000'000ll * offset / m_queuedBuffers.front()->GetSampleRate());
 			m_playClock.Restart(timeOffset, m_playClock.IsPaused());
 		}
 		else
@@ -206,7 +234,7 @@ namespace Nz
 
 	void DummyAudioSource::Stop()
 	{
-		m_playClock.Restart(0, true);
+		m_playClock.Restart(Time::Zero(), true);
 		m_status = SoundStatus::Stopped;
 	}
 
@@ -246,9 +274,10 @@ namespace Nz
 		}
 	}
 
-	UInt64 DummyAudioSource::UpdateTime() const
+	Time DummyAudioSource::UpdateTime() const
 	{
-		UInt64 currentTime = m_playClock.GetMilliseconds();
+		Time currentTime = m_playClock.GetElapsedTime();
+		bool isPaused = m_playClock.IsPaused();
 
 		while (!m_queuedBuffers.empty() && currentTime >= m_queuedBuffers.front()->GetDuration())
 		{
@@ -278,10 +307,14 @@ namespace Nz
 				}
 			}
 			else
+			{
 				m_status = SoundStatus::Stopped;
+				currentTime = Time::Zero();
+				isPaused = m_playClock.IsPaused();
+			}
 		}
 
-		m_playClock.Restart(currentTime * 1000, m_playClock.IsPaused()); //< Adjust time
+		m_playClock.Restart(currentTime, isPaused); //< Adjust time
 		return currentTime;
 	}
 }

@@ -32,7 +32,7 @@ namespace Nz
 	}
 
 	template<typename T>
-	void SystemGraph::Node<T>::Update(float elapsedTime)
+	void SystemGraph::Node<T>::Update(Time elapsedTime)
 	{
 		system.Update(elapsedTime);
 	}
