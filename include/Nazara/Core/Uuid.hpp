@@ -19,39 +19,36 @@ namespace Nz
 	class NAZARA_CORE_API Uuid
 	{
 		public:
-			inline Uuid();
-			inline Uuid(const std::array<UInt8, 16> uuid);
+			constexpr Uuid();
+			constexpr Uuid(const std::array<UInt8, 16>& uuid);
 			Uuid(const Uuid&) = default;
-			Uuid(Uuid&& generator) = default;
+			Uuid(Uuid&&) = default;
 			~Uuid() = default;
 
-			inline bool IsNull() const;
+			constexpr bool IsNull() const;
 
-			inline const std::array<UInt8, 16>& ToArray() const;
+			constexpr const std::array<UInt8, 16>& ToArray() const;
 			inline std::string ToString() const;
 			std::array<char, 37> ToStringArray() const;
 
 			Uuid& operator=(const Uuid&) = default;
 			Uuid& operator=(Uuid&&) = default;
 
-			static Uuid FromString(std::string_view str);
+			static constexpr Uuid FromString(std::string_view str);
 			static Uuid Generate();
 
 		private:
 			std::array<UInt8, 16> m_uuid;
 	};
 
-	NAZARA_CORE_API std::ostream& operator<<(std::ostream& out, const Uuid& uuid);
-	inline bool operator==(const Uuid& lhs, const Uuid& rhs);
-	inline bool operator!=(const Uuid& lhs, const Uuid& rhs);
-	inline bool operator<(const Uuid& lhs, const Uuid& rhs);
-	inline bool operator<=(const Uuid& lhs, const Uuid& rhs);
-	inline bool operator>(const Uuid& lhs, const Uuid& rhs);
-	inline bool operator>=(const Uuid& lhs, const Uuid& rhs);
-}
+	inline std::ostream& operator<<(std::ostream& out, const Uuid& uuid);
+	constexpr bool operator==(const Uuid& lhs, const Uuid& rhs);
+	constexpr bool operator!=(const Uuid& lhs, const Uuid& rhs);
+	constexpr bool operator<(const Uuid& lhs, const Uuid& rhs);
+	constexpr bool operator<=(const Uuid& lhs, const Uuid& rhs);
+	constexpr bool operator>(const Uuid& lhs, const Uuid& rhs);
+	constexpr bool operator>=(const Uuid& lhs, const Uuid& rhs);
 
-namespace Nz
-{
 	inline bool Serialize(SerializationContext& context, const Uuid& value, TypeTag<Uuid>);
 	inline bool Unserialize(SerializationContext& context, Uuid* value, TypeTag<Uuid>);
 }

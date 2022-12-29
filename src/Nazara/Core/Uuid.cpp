@@ -15,28 +15,6 @@
 
 namespace Nz
 {
-	namespace
-	{
-		bool ParseHexadecimalPair(Pointer<const char>& str, UInt8& number)
-		{
-			number = 0;
-
-			for (UInt8 mul : { UInt8(0x10), UInt8(1) })
-			{
-				if (*str >= '0' && *str <= '9')
-					number += (*str - '0') * mul;
-				else if (((*str & 0x5F) >= 'A' && (*str & 0x5F) <= 'F'))
-					number += ((*str & 0x5F) - 'A' + 10) * mul;
-				else
-					return false;
-
-				str++;
-			}
-
-			return true;
-		}
-	}
-
 	std::array<char, 37> Uuid::ToStringArray() const
 	{
 		std::array<char, 37> uuidStr; //< Including \0
@@ -45,34 +23,6 @@ namespace Nz
 		              m_uuid[8], m_uuid[9], m_uuid[10], m_uuid[11], m_uuid[12], m_uuid[13], m_uuid[14], m_uuid[15]);
 
 		return uuidStr;
-	}
-
-	Uuid Uuid::FromString(std::string_view str)
-	{
-		if (str.size() != 36)
-			return {};
-
-		const char* ptr = str.data();
-
-		std::array<UInt8, 16> uuid;
-		UInt8* uuidPart = &uuid[0];
-
-		bool first = true;
-		for (std::size_t groupSize : { 4, 2, 2, 2, 6 })
-		{
-			if (!first && *ptr++ != '-')
-				return {};
-
-			first = false;
-
-			for (std::size_t i = 0; i < groupSize; ++i)
-			{
-				if (!ParseHexadecimalPair(ptr, *uuidPart++))
-					return {};
-			}
-		}
-
-		return Uuid{ uuid };
 	}
 
 	Uuid Uuid::Generate()
@@ -104,12 +54,5 @@ namespace Nz
 #endif
 
 		return uuid;
-	}
-
-	std::ostream& operator<<(std::ostream& out, const Uuid& guid)
-	{
-		std::array<char, 37> uuidStr = guid.ToStringArray();
-
-		return out << uuidStr.data();
 	}
 }

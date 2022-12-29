@@ -7,23 +7,45 @@
 
 namespace Nz
 {
-	inline Uuid::Uuid()
+	namespace Detail
 	{
-		m_uuid.fill(0);
+		constexpr bool ParseHexadecimalPair(Pointer<const char>& str, UInt8& number)
+		{
+			number = 0;
+
+			for (UInt8 mul : { UInt8(0x10), UInt8(1) })
+			{
+				if (*str >= '0' && *str <= '9')
+					number += (*str - '0') * mul;
+				else if (((*str & 0x5F) >= 'A' && (*str & 0x5F) <= 'F'))
+					number += ((*str & 0x5F) - 'A' + 10) * mul;
+				else
+					return false;
+
+				str++;
+			}
+
+			return true;
+		}
 	}
 
-	inline Uuid::Uuid(const std::array<UInt8, 16> uuid) :
+	constexpr Uuid::Uuid() :
+	m_uuid{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }
+	{
+	}
+
+	constexpr Uuid::Uuid(const std::array<UInt8, 16>& uuid) :
 	m_uuid(uuid)
 	{
 	}
 
-	inline bool Uuid::IsNull() const
+	constexpr bool Uuid::IsNull() const
 	{
 		Uuid nullUuid;
 		return *this == nullUuid;
 	}
 
-	inline const std::array<UInt8, 16>& Uuid::ToArray() const
+	constexpr const std::array<UInt8, 16>& Uuid::ToArray() const
 	{
 		return m_uuid;
 	}
@@ -35,39 +57,80 @@ namespace Nz
 		return std::string(uuidStr.data(), uuidStr.size() - 1);
 	}
 
-	bool operator==(const Uuid& lhs, const Uuid& rhs)
+	constexpr Uuid Uuid::FromString(std::string_view str)
 	{
-		return lhs.ToArray() == rhs.ToArray();
+		if (str.size() != 36)
+			return {};
+
+		const char* ptr = str.data();
+
+		std::array<UInt8, 16> uuid = { 0 };
+		UInt8* uuidPart = &uuid[0];
+
+		bool first = true;
+		for (std::size_t groupSize : { 4, 2, 2, 2, 6 })
+		{
+			if (!first && *ptr++ != '-')
+				return {};
+
+			first = false;
+
+			for (std::size_t i = 0; i < groupSize; ++i)
+			{
+				if (!Detail::ParseHexadecimalPair(ptr, *uuidPart++))
+					return {};
+			}
+		}
+
+		return Uuid{ uuid };
 	}
 
-	bool operator!=(const Uuid& lhs, const Uuid& rhs)
+	constexpr bool operator==(const Uuid& lhs, const Uuid& rhs)
 	{
-		return lhs.ToArray() != rhs.ToArray();
+		const std::array<UInt8, 16>& lhsArray = lhs.ToArray();
+		const std::array<UInt8, 16>& rhsArray = rhs.ToArray();
+		for (std::size_t i = 0; i < lhsArray.size(); ++i)
+		{
+			if (lhsArray[i] != rhsArray[i])
+				return false;
+		}
+
+		return true;
 	}
 
-	bool operator<(const Uuid& lhs, const Uuid& rhs)
+	constexpr bool operator!=(const Uuid& lhs, const Uuid& rhs)
 	{
-		return lhs.ToArray() < rhs.ToArray();
+		return !(lhs == rhs);
 	}
 
-	bool operator<=(const Uuid& lhs, const Uuid& rhs)
+	constexpr bool operator<(const Uuid& lhs, const Uuid& rhs)
 	{
-		return lhs.ToArray() <= rhs.ToArray();
+		const std::array<UInt8, 16>& lhsArray = lhs.ToArray();
+		const std::array<UInt8, 16>& rhsArray = rhs.ToArray();
+		for (std::size_t i = 0; i < lhsArray.size(); ++i)
+		{
+			if (lhsArray[i] != rhsArray[i])
+				return lhsArray[i] < rhsArray[i];
+		}
+
+		return false;
 	}
 
-	bool operator>(const Uuid& lhs, const Uuid& rhs)
+	constexpr bool operator<=(const Uuid& lhs, const Uuid& rhs)
 	{
-		return lhs.ToArray() > rhs.ToArray();
+		return !(rhs < lhs);
 	}
 
-	bool operator>=(const Uuid& lhs, const Uuid& rhs)
+	constexpr bool operator>(const Uuid& lhs, const Uuid& rhs)
 	{
-		return lhs.ToArray() >= rhs.ToArray();
+		return rhs < lhs;
 	}
-}
 
-namespace Nz
-{
+	constexpr bool operator>=(const Uuid& lhs, const Uuid& rhs)
+	{
+		return !(lhs < rhs);
+	}
+
 	bool Serialize(SerializationContext& context, const Uuid& value, TypeTag<Uuid>)
 	{
 		const std::array<Nz::UInt8, 16>& array = value.ToArray();
@@ -85,6 +148,13 @@ namespace Nz
 
 		*value = Uuid(array);
 		return true;
+	}
+
+	std::ostream& operator<<(std::ostream& out, const Uuid& guid)
+	{
+		std::array<char, 37> uuidStr = guid.ToStringArray();
+
+		return out << uuidStr.data();
 	}
 }
 
