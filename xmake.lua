@@ -71,10 +71,10 @@ local modules = {
 			end
 
 			if is_plat("macosx", "iphoneos") then
-				add_files("src/Nazara/Core/Darwin/TimeImpl.hpp")
+				add_headerfiles("src/Nazara/Core/Darwin/TimeImpl.hpp", { prefixdir = "private", install = false })
 				add_files("src/Nazara/Core/Darwin/TimeImpl.cpp")
 
-				remove_files("src/Nazara/Core/Posix/TimeImpl.hpp")
+				remove_headerfiles("src/Nazara/Core/Posix/TimeImpl.hpp")
 				remove_files("src/Nazara/Core/Posix/TimeImpl.cpp")
 			end
 		end,
