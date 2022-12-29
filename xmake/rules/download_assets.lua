@@ -39,4 +39,4 @@ local function downloadAssetsRule(name)
 end
 
 downloadAssetsRule("examples")
-downloadAssetsRule("tests")
+downloadAssetsRule("unittests")

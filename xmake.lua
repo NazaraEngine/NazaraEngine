@@ -185,7 +185,7 @@ if has_config("examples") then
 end
 
 if has_config("tests") then
-	add_rules("download.assets.tests")
+	add_rules("download.assets.unittests")
 end
 
 set_allowedplats("windows", "mingw", "linux", "macosx")

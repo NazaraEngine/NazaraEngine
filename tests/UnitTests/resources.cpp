@@ -8,7 +8,7 @@ std::filesystem::path GetAssetDir()
 		if (!std::filesystem::is_directory(dir) && std::filesystem::is_directory("../.." / dir))
 			dir = "../.." / dir;
 
-		return dir / "tests";
+		return dir / "unittests";
 	}();
 
 	return resourceDir;
