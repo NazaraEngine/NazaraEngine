@@ -27,8 +27,7 @@ namespace Nz
 			~Time() = default;
 
 			template<typename T> constexpr T AsDuration() const;
-			template<typename T> constexpr T AsSeconds() const;
-			constexpr float AsSeconds() const;
+			template<typename T = float> constexpr T AsSeconds() const;
 			constexpr Int64 AsMicroseconds() const;
 			constexpr Int64 AsMilliseconds() const;
 			constexpr Int64 AsNanoseconds() const;

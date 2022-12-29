@@ -21,11 +21,6 @@ namespace Nz
 			return std::chrono::duration_cast<T>(std::chrono::nanoseconds(m_nanoseconds));
 	}
 
-	constexpr float Time::AsSeconds() const
-	{
-		return AsSeconds<float>();
-	}
-
 	template<typename T>
 	constexpr T Time::AsSeconds() const
 	{
