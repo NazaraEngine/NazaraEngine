@@ -60,9 +60,9 @@ namespace Nz
 			inline SimpleTextDrawer& operator=(const SimpleTextDrawer& drawer);
 			inline SimpleTextDrawer& operator=(SimpleTextDrawer&& drawer) noexcept;
 
-			static inline SimpleTextDrawer Draw(const std::string& str, unsigned int characterSize, TextStyleFlags style = TextStyle_Regular, const Color& color = Color::White);
+			static inline SimpleTextDrawer Draw(const std::string& str, unsigned int characterSize, TextStyleFlags style = TextStyle_Regular, const Color& color = Color::White());
 			static inline SimpleTextDrawer Draw(const std::string& str, unsigned int characterSize, TextStyleFlags style, const Color& color, float outlineThickness, const Color& outlineColor);
-			static inline SimpleTextDrawer Draw(const std::shared_ptr<Font>& font, const std::string& str, unsigned int characterSize, TextStyleFlags style = TextStyle_Regular, const Color& color = Color::White);
+			static inline SimpleTextDrawer Draw(const std::shared_ptr<Font>& font, const std::string& str, unsigned int characterSize, TextStyleFlags style = TextStyle_Regular, const Color& color = Color::White());
 			static inline SimpleTextDrawer Draw(const std::shared_ptr<Font>& font, const std::string& str, unsigned int characterSize, TextStyleFlags style, const Color& color, float outlineThickness, const Color& outlineColor);
 
 		private:

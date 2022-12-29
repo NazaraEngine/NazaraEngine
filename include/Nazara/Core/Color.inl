@@ -17,13 +17,6 @@ namespace Nz
 	*/
 
 	/*!
-	* \brief Constructs a Color object by default
-	*/
-	inline Color::Color()
-	{
-	}
-
-	/*!
 	* \brief Constructs a Color object with values
 	*
 	* \param red Red value
@@ -31,8 +24,7 @@ namespace Nz
 	* \param blue Blue value
 	* \param alpha Alpha value
 	*/
-
-	inline Color::Color(float red, float green, float blue, float alpha) :
+	constexpr Color::Color(float red, float green, float blue, float alpha) :
 	r(red),
 	g(green),
 	b(blue),
@@ -45,8 +37,7 @@ namespace Nz
 	*
 	* \param lightness Value for r, g and b
 	*/
-
-	inline Color::Color(float lightness) :
+	constexpr Color::Color(float lightness) :
 	r(lightness),
 	g(lightness),
 	b(lightness),
@@ -58,7 +49,7 @@ namespace Nz
 	* \brief Return true is the color has no degree of transparency
 	* \return true if the color has an alpha value of 255
 	*/
-	inline bool Color::IsOpaque() const
+	constexpr bool Color::IsOpaque() const
 	{
 		return a >= 1.f;
 	}
@@ -87,16 +78,9 @@ namespace Nz
 	*
 	* \param color Other color
 	*/
-
-	inline Color Color::operator+(const Color& color) const
+	constexpr Color Color::operator+(const Color& color) const
 	{
-		Color c;
-		c.r = r + color.r;
-		c.g = g + color.g;
-		c.b = b + color.b;
-		c.a = a + color.a;
-
-		return c;
+		return Color(r + color.r, g + color.g, b + color.b, a + color.a);
 	}
 
 	/*!
@@ -105,16 +89,9 @@ namespace Nz
 	*
 	* \param color Other color
 	*/
-
-	inline Color Color::operator*(const Color& color) const
+	constexpr Color Color::operator*(const Color& color) const
 	{
-		Color c;
-		c.r = r * color.r;
-		c.g = g * color.g;
-		c.b = b * color.b;
-		c.a = a * color.a;
-
-		return c;
+		return Color(r * color.r, g * color.g, b * color.b, a * color.a);
 	}
 
 	/*!
@@ -123,8 +100,7 @@ namespace Nz
 	*
 	* \param color Other color
 	*/
-
-	inline Color Color::operator+=(const Color& color)
+	constexpr Color Color::operator+=(const Color& color)
 	{
 		return operator=(operator+(color));
 	}
@@ -135,8 +111,7 @@ namespace Nz
 	*
 	* \param color Other color
 	*/
-
-	inline Color Color::operator*=(const Color& color)
+	constexpr Color Color::operator*=(const Color& color)
 	{
 		return operator=(operator*(color));
 	}
@@ -147,8 +122,7 @@ namespace Nz
 	*
 	* \param color Color to compare
 	*/
-
-	inline bool Color::operator==(const Color& color) const
+	constexpr bool Color::operator==(const Color& color) const
 	{
 		return NumberEquals(r, color.r) &&
 		       NumberEquals(g, color.g) &&
@@ -162,8 +136,7 @@ namespace Nz
 	*
 	* \param color Color to compare
 	*/
-
-	inline bool Color::operator!=(const Color& color) const
+	constexpr bool Color::operator!=(const Color& color) const
 	{
 		return !operator==(color);
 	}
@@ -178,7 +151,7 @@ namespace Nz
 	* \param magenta Magenta component
 	* \param yellow Yellow component
 	*/
-	inline Color Color::FromCMY(float cyan, float magenta, float yellow)
+	constexpr Color Color::FromCMY(float cyan, float magenta, float yellow)
 	{
 		return Color(1.f - cyan, 1.f - magenta, 1.f - yellow);
 	}
@@ -192,7 +165,7 @@ namespace Nz
 	* \param yellow Yellow component
 	* \param black Black component
 	*/
-	inline Color Color::FromCMYK(float cyan, float magenta, float yellow, float black)
+	constexpr Color Color::FromCMYK(float cyan, float magenta, float yellow, float black)
 	{
 		return FromCMY(cyan * (1.f - black) + black,
 		               magenta * (1.f - black) + black,
@@ -207,13 +180,13 @@ namespace Nz
 	* \param saturation Saturation component [0, 1]
 	* \param lightness Lightness component [0, 1]
 	*/
-	inline Color Color::FromHSL(float hue, float saturation, float lightness)
+	constexpr Color Color::FromHSL(float hue, float saturation, float lightness)
 	{
 		if (NumberEquals(saturation, 0.f))
 			return Color(lightness);
 		else
 		{
-			float v2;
+			float v2 = 0.f;
 			if (lightness < 0.5f)
 				v2 = lightness * (1.f + saturation);
 			else
@@ -236,7 +209,7 @@ namespace Nz
 	* \param saturation Saturation component in [0, 1]
 	* \param value Value component in [0, 1]
 	*/
-	inline Color Color::FromHSV(float hue, float saturation, float value)
+	constexpr Color Color::FromHSV(float hue, float saturation, float value)
 	{
 		if (NumberEquals(saturation, 0.f))
 			return Color(value);
@@ -252,7 +225,9 @@ namespace Nz
 			float v2 = value * (1.f - saturation * (h - i));
 			float v3 = value * (1.f - saturation * (1.f - (h - i)));
 
-			float r, g, b;
+			float r = 0.f;
+			float g = 0.f;
+			float b = 0.f;
 			switch (i)
 			{
 				case 0:
@@ -304,7 +279,7 @@ namespace Nz
 	* \param g Green value
 	* \param b Blue value
 	*/
-	inline Color Color::FromRGB8(UInt8 r, UInt8 g, UInt8 b)
+	constexpr Color Color::FromRGB8(UInt8 r, UInt8 g, UInt8 b)
 	{
 		return Color(r / 255.f, g / 255.f, b / 255.f);
 	}
@@ -318,7 +293,7 @@ namespace Nz
 	* \param b Blue value
 	* \param a Alpha value
 	*/
-	inline Color Color::FromRGBA8(UInt8 r, UInt8 g, UInt8 b, UInt8 a)
+	constexpr Color Color::FromRGBA8(UInt8 r, UInt8 g, UInt8 b, UInt8 a)
 	{
 		return Color(r / 255.f, g / 255.f, b / 255.f, a / 255.f);
 	}
@@ -329,7 +304,7 @@ namespace Nz
 	*
 	* \param vec Vector3 representing the space color
 	*/
-	inline Color Color::FromXYZ(const Vector3f& vec)
+	constexpr Color Color::FromXYZ(const Vector3f& vec)
 	{
 		return FromXYZ(vec.x, vec.y, vec.z);
 	}
@@ -342,7 +317,7 @@ namespace Nz
 	* \param y Y component
 	* \param z Z component
 	*/
-	inline Color Color::FromXYZ(float x, float y, float z)
+	constexpr Color Color::FromXYZ(float x, float y, float z)
 	{
 		x /= 100.f; // X from 0 to  95.047
 		y /= 100.f; // Y from 0 to 100.000
@@ -378,7 +353,7 @@ namespace Nz
 	* \param magenta Magenta component
 	* \param yellow Yellow component
 	*/
-	inline void Color::ToCMY(const Color& color, float* cyan, float* magenta, float* yellow)
+	constexpr void Color::ToCMY(const Color& color, float* cyan, float* magenta, float* yellow)
 	{
 		*cyan = 1.f - color.r;
 		*magenta = 1.f - color.g;
@@ -393,10 +368,11 @@ namespace Nz
 	* \param magenta Magenta component
 	* \param yellow Yellow component
 	*/
-
-	inline void Color::ToCMYK(const Color& color, float* cyan, float* magenta, float* yellow, float* black)
+	constexpr void Color::ToCMYK(const Color& color, float* cyan, float* magenta, float* yellow, float* black)
 	{
-		float c, m, y;
+		float c = 0.f;
+		float m = 0.f;
+		float y = 0.f;
 		ToCMY(color, &c, &m, &y);
 
 		float k = std::min({1.f, c, m, y});
@@ -426,7 +402,7 @@ namespace Nz
 	* \param saturation Saturation component in [0, 1]
 	* \param lightness Lightness component in [0, 1]
 	*/
-	inline void Color::ToHSL(const Color& color, float* hue, float* saturation, float* lightness)
+	constexpr void Color::ToHSL(const Color& color, float* hue, float* saturation, float* lightness)
 	{
 		float r = color.r;
 		float g = color.g;
@@ -457,7 +433,7 @@ namespace Nz
 			float deltaG = ((max - g) / 6.f + deltaMax / 2.f) / deltaMax;
 			float deltaB = ((max - b) / 6.f + deltaMax / 2.f) / deltaMax;
 
-			float h;
+			float h = 0.f;
 
 			if (NumberEquals(r, max))
 				h = deltaB - deltaG;
@@ -483,7 +459,7 @@ namespace Nz
 	* \param saturation Saturation component
 	* \param value Value component
 	*/
-	inline void Color::ToHSV(const Color& color, float* hue, float* saturation, float* value)
+	constexpr void Color::ToHSV(const Color& color, float* hue, float* saturation, float* value)
 	{
 		float r = color.r;
 		float g = color.g;
@@ -511,7 +487,7 @@ namespace Nz
 			float deltaG = ((max - g) / 6.f + deltaMax / 2.f) / deltaMax;
 			float deltaB = ((max - b) / 6.f + deltaMax / 2.f) / deltaMax;
 
-			float h;
+			float h = 0.f;
 
 			if (NumberEquals(r, max))
 				h = deltaB - deltaG;
@@ -539,7 +515,7 @@ namespace Nz
 	*
 	* \remark Values are clamped to [0;255]
 	*/
-	static inline void ToRGB8(const Color& color, UInt8* r, UInt8* g, UInt8* b)
+	constexpr void Color::ToRGB8(const Color& color, UInt8* r, UInt8* g, UInt8* b)
 	{
 		*r = static_cast<UInt8>(Clamp(color.r * 255.f, 0.f, 255.f));
 		*g = static_cast<UInt8>(Clamp(color.g * 255.f, 0.f, 255.f));
@@ -557,7 +533,7 @@ namespace Nz
 	*
 	* \remark Values are clamped to [0;255]
 	*/
-	static inline void ToRGBA8(const Color& color, UInt8* r, UInt8* g, UInt8* b, UInt8* a)
+	constexpr void Color::ToRGBA8(const Color& color, UInt8* r, UInt8* g, UInt8* b, UInt8* a)
 	{
 		*r = static_cast<UInt8>(Clamp(color.r * 255.f, 0.f, 255.f));
 		*g = static_cast<UInt8>(Clamp(color.g * 255.f, 0.f, 255.f));
@@ -571,7 +547,7 @@ namespace Nz
 	* \param color Color to transform
 	* \param vec Vector3 representing the space color
 	*/
-	inline void Color::ToXYZ(const Color& color, Vector3f* vec)
+	constexpr void Color::ToXYZ(const Color& color, Vector3f* vec)
 	{
 		return ToXYZ(color, &vec->x, &vec->y, &vec->z);
 	}
@@ -584,7 +560,7 @@ namespace Nz
 	* \param y Y component
 	* \param z Z component
 	*/
-	inline void Color::ToXYZ(const Color& color, float* x, float* y, float* z)
+	constexpr void Color::ToXYZ(const Color& color, float* x, float* y, float* z)
 	{
 		float r = color.r; //< R from 0 to 255
 		float g = color.g; //< G from 0 to 255
@@ -615,6 +591,56 @@ namespace Nz
 		*z = r*0.0193f + g*0.1192f + b*0.9505f;
 	}
 
+	constexpr Color Color::Black()
+	{
+		return Color(0.f, 0.f, 0.f);
+	}
+
+	constexpr Color Color::Blue()
+	{
+		return Color(0.f, 0.f, 1.f);
+	}
+
+	constexpr Color Color::Cyan()
+	{
+		return Color(0.f, 1.f, 1.f);
+	}
+
+	constexpr Color Color::Gray()
+	{
+		return Color(80.f / 255.f, 80.f / 255.f, 80.f / 255.f);
+	}
+
+	constexpr Color Color::Green()
+	{
+		return Color(0.f, 1.f, 0.f);
+	}
+
+	constexpr Color Color::Magenta()
+	{
+		return Color(1.f, 0.f, 1.f);
+	}
+
+	constexpr Color Color::Orange()
+	{
+		return Color(1.f, 165.f / 255.f, 0.f);
+	}
+
+	constexpr Color Color::Red()
+	{
+		return Color(1.f, 0.f, 0.f);
+	}
+
+	constexpr Color Color::Yellow()
+	{
+		return Color(1.f, 1.f, 0.f);
+	}
+
+	constexpr Color Color::White()
+	{
+		return Color(1.f, 1.f, 1.f);
+	}
+
 	/*!
 	* \brief Converts HUE representation to RGV
 	* \return RGB corresponding
@@ -623,7 +649,7 @@ namespace Nz
 	* \param v2 V2 component
 	* \param vH VH component
 	*/
-	inline float Color::Hue2RGB(float v1, float v2, float vH)
+	constexpr float Color::Hue2RGB(float v1, float v2, float vH)
 	{
 		if (vH < 0.f)
 			vH += 1;
@@ -690,19 +716,18 @@ namespace Nz
 
 		return true;
 	}
-}
 
-/*!
-* \brief Output operator
-* \return The stream
-*
-* \param out The stream
-* \param color The color to output
-*/
-
-inline std::ostream& operator<<(std::ostream& out, const Nz::Color& color)
-{
-	return out << color.ToString();
+	/*!
+	* \brief Output operator
+	* \return The stream
+	*
+	* \param out The stream
+	* \param color The color to output
+	*/
+	inline std::ostream& operator<<(std::ostream& out, const Color& color)
+	{
+		return out << color.ToString();
+	}
 }
 
 #include <Nazara/Core/DebugOff.hpp>

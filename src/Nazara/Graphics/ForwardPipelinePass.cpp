@@ -182,7 +182,7 @@ namespace Nz
 
 			renderFrame.Execute([&](CommandBufferBuilder& builder)
 			{
-				builder.BeginDebugRegion("Light UBO Update", Color::Yellow);
+				builder.BeginDebugRegion("Light UBO Update", Color::Yellow());
 				{
 					for (auto& lightUboData : m_lightDataBuffers)
 					{

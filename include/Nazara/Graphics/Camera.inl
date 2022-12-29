@@ -10,7 +10,7 @@ namespace Nz
 {
 	inline Camera::Camera(const RenderTarget* renderTarget, ProjectionType projectionType) :
 	m_renderTarget(nullptr),
-	m_clearColor(Color::Black),
+	m_clearColor(Color::Black()),
 	m_fov(90.f),
 	m_renderOrder(0),
 	m_projectionType(projectionType),

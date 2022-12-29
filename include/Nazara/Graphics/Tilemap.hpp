@@ -37,12 +37,12 @@ namespace Nz
 
 			inline void EnableIsometricMode(bool isometric);
 
-			inline void EnableTile(const Vector2ui& tilePos, const Rectf& coords, const Color& color = Color::White, std::size_t materialIndex = 0U);
-			inline void EnableTile(const Vector2ui& tilePos, const Rectui& rect, const Color& color = Color::White, std::size_t materialIndex = 0U);
-			inline void EnableTiles(const Rectf& coords, const Color& color = Color::White, std::size_t materialIndex = 0U);
-			inline void EnableTiles(const Rectui& rect, const Color& color = Color::White, std::size_t materialIndex = 0U);
-			inline void EnableTiles(const Vector2ui* tilesPos, std::size_t tileCount, const Rectf& coords, const Color& color = Color::White, std::size_t materialIndex = 0U);
-			inline void EnableTiles(const Vector2ui* tilesPos, std::size_t tileCount, const Rectui& rect, const Color& color = Color::White, std::size_t materialIndex = 0U);
+			inline void EnableTile(const Vector2ui& tilePos, const Rectf& coords, const Color& color = Color::White(), std::size_t materialIndex = 0U);
+			inline void EnableTile(const Vector2ui& tilePos, const Rectui& rect, const Color& color = Color::White(), std::size_t materialIndex = 0U);
+			inline void EnableTiles(const Rectf& coords, const Color& color = Color::White(), std::size_t materialIndex = 0U);
+			inline void EnableTiles(const Rectui& rect, const Color& color = Color::White(), std::size_t materialIndex = 0U);
+			inline void EnableTiles(const Vector2ui* tilesPos, std::size_t tileCount, const Rectf& coords, const Color& color = Color::White(), std::size_t materialIndex = 0U);
+			inline void EnableTiles(const Vector2ui* tilesPos, std::size_t tileCount, const Rectui& rect, const Color& color = Color::White(), std::size_t materialIndex = 0U);
 
 			inline const Vector2ui& GetMapSize() const;
 			const std::shared_ptr<MaterialInstance>& GetMaterial(std::size_t i) const override;
@@ -60,7 +60,7 @@ namespace Nz
 			struct Tile
 			{
 				std::size_t layerIndex = 0U;
-				Color color = Color::White;
+				Color color = Color::White();
 				Rectf textureCoords = Rectf::Zero();
 				bool enabled = false;
 			};

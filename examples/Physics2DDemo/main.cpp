@@ -107,7 +107,7 @@ int main()
 		{
 			for (unsigned int x = 0; x < 40; ++x)
 			{
-				tilemap->EnableTile({ x, y }, Nz::Rectf{ 0.f, 0.f, 1.f, 1.f }, Nz::Color::White, (y == 0) ? 1 : 4);
+				tilemap->EnableTile({ x, y }, Nz::Rectf{ 0.f, 0.f, 1.f, 1.f }, Nz::Color::White(), (y == 0) ? 1 : 4);
 			}
 		}
 

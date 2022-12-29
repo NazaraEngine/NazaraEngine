@@ -173,7 +173,7 @@ namespace Nz
 		{
 			renderFrame.Execute([&](CommandBufferBuilder& builder)
 			{
-				builder.BeginDebugRegion("Debug drawer upload", Color::Yellow);
+				builder.BeginDebugRegion("Debug drawer upload", Color::Yellow());
 				{
 					if (m_viewerDataUpdated)
 					{

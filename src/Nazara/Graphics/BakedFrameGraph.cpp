@@ -65,7 +65,7 @@ namespace Nz
 				builder.BeginRenderPass(*passData.framebuffer, *passData.renderPass, passData.renderRect, passData.outputClearValues.data(), passData.outputClearValues.size());
 
 				if (!passData.name.empty())
-					builder.BeginDebugRegion(passData.name, Color::Green);
+					builder.BeginDebugRegion(passData.name, Color::Green());
 
 				FramePassEnvironment env{
 					*this,

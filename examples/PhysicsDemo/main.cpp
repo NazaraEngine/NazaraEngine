@@ -116,7 +116,7 @@ int main()
 	auto shipCollider = std::make_shared<Nz::ConvexCollider3D>(vertices, vertexMapper.GetVertexCount(), 0.01f);
 
 	std::shared_ptr<Nz::MaterialInstance> colliderMat = Nz::Graphics::Instance()->GetDefaultMaterials().basicMaterial->Instantiate();
-	colliderMat->SetValueProperty("BaseColor", Nz::Color::Green);
+	colliderMat->SetValueProperty("BaseColor", Nz::Color::Green());
 	for (std::string_view passName : { "DepthPass", "ForwardPass" })
 	{
 		colliderMat->UpdatePassStates(passName, [](Nz::RenderStates& states)

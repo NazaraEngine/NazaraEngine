@@ -120,7 +120,7 @@ namespace Nz
 
 		inline void CommandBuffer::BeginDebugRegion(const char* label)
 		{
-			return BeginDebugRegion(label, Color::Black);
+			return BeginDebugRegion(label, Color::Black());
 		}
 
 		inline void CommandBuffer::BeginDebugRegion(const char* label, Color color)
@@ -380,7 +380,7 @@ namespace Nz
 
 		inline void CommandBuffer::InsertDebugLabel(const char* label)
 		{
-			return InsertDebugLabel(label, Color::Black);
+			return InsertDebugLabel(label, Color::Black());
 		}
 
 		inline void CommandBuffer::InsertDebugLabel(const char* label, Color color)

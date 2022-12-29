@@ -10,8 +10,8 @@
 namespace Nz
 {
 	RichTextDrawer::RichTextDrawer() :
-	m_defaultColor(Color::White),
-	m_defaultOutlineColor(Color::Black),
+	m_defaultColor(Color::White()),
+	m_defaultOutlineColor(Color::Black()),
 	m_defaultStyle(TextStyle_Regular),
 	m_glyphUpdated(false),
 	m_defaultCharacterSpacingOffset(0.f),

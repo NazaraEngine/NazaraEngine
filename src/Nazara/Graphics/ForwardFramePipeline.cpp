@@ -323,7 +323,7 @@ namespace Nz
 		// Update UBOs and materials
 		renderFrame.Execute([&](CommandBufferBuilder& builder)
 		{
-			builder.BeginDebugRegion("CPU to GPU transfers", Color::Yellow);
+			builder.BeginDebugRegion("CPU to GPU transfers", Color::Yellow());
 			{
 				builder.PreTransferBarrier();
 
@@ -446,13 +446,13 @@ namespace Nz
 				builder.TextureBarrier(PipelineStage::ColorOutput, PipelineStage::FragmentShader, MemoryAccess::ColorWrite, MemoryAccess::ShaderRead, TextureLayout::ColorOutput, TextureLayout::ColorInput, *sourceTexture);
 
 				std::array<CommandBufferBuilder::ClearValues, 2> clearValues;
-				clearValues[0].color = Color::Black;
+				clearValues[0].color = Color::Black();
 				clearValues[1].depth = 1.f;
 				clearValues[1].stencil = 0;
 
 				builder.BeginRenderPass(renderTarget.GetFramebuffer(renderFrame.GetFramebufferIndex()), renderTarget.GetRenderPass(), renderRegion, { clearValues[0], clearValues[1] });
 				{
-					builder.BeginDebugRegion("Main window rendering", Color::Green);
+					builder.BeginDebugRegion("Main window rendering", Color::Green());
 					{
 						builder.SetScissor(renderRegion);
 						builder.SetViewport(renderRegion);
@@ -636,7 +636,7 @@ namespace Nz
 				mergePass.AddInput(viewerData->debugColorAttachment);
 
 			mergePass.AddOutput(renderTargetData.finalAttachment);
-			mergePass.SetClearColor(0, Color::Black);
+			mergePass.SetClearColor(0, Color::Black());
 
 			mergePass.SetCommandCallback([&targetViewers](CommandBufferBuilder& builder, const FramePassEnvironment& env)
 			{

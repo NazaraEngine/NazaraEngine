@@ -481,7 +481,7 @@ std::shared_ptr<Nz::SubMesh> ProcessSubMesh(const std::filesystem::path& originP
 		else
 		{
 			for (unsigned int vertexIndex = 0; vertexIndex < vertexCount; ++vertexIndex)
-				*colorPtr++ = Nz::Color::White;
+				*colorPtr++ = Nz::Color::White();
 		}
 	}
 

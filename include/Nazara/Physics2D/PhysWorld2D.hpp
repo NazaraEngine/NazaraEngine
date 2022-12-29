@@ -34,11 +34,11 @@ namespace Nz
 		using ContactPostSolveCallback = std::function<void(PhysWorld2D& world, Arbiter2D& arbiter, RigidBody2D& bodyA, RigidBody2D& bodyB, void* userdata)>;
 		using ContactStartCallback = std::function<bool(PhysWorld2D& world, Arbiter2D& arbiter, RigidBody2D& bodyA, RigidBody2D& bodyB, void* userdata)>;
 
-		using DebugDrawCircleCallback = std::function<void(const Vector2f& origin, const RadianAnglef& rotation, float radius, Color outlineColor, Color fillColor, void* userdata)>;
-		using DebugDrawDotCallback = std::function<void(const Vector2f& origin, float radius, Color color, void* userdata)>;
-		using DebugDrawPolygonCallback = std::function<void(const Vector2f* vertices, std::size_t vertexCount, float radius, Color outlineColor, Color fillColor, void* userdata)>;
-		using DebugDrawSegmentCallback = std::function<void(const Vector2f& first, const Vector2f& second, Color color, void* userdata)>;
-		using DebugDrawTickSegmentCallback = std::function<void(const Vector2f& first, const Vector2f& second, float thickness, Color outlineColor, Color fillColor, void* userdata)>;
+		using DebugDrawCircleCallback = std::function<void(const Vector2f& origin, const RadianAnglef& rotation, float radius, const Color& outlineColor, const Color& fillColor, void* userdata)>;
+		using DebugDrawDotCallback = std::function<void(const Vector2f& origin, float radius, const Color& color, void* userdata)>;
+		using DebugDrawPolygonCallback = std::function<void(const Vector2f* vertices, std::size_t vertexCount, float radius, const Color& outlineColor, const Color& fillColor, void* userdata)>;
+		using DebugDrawSegmentCallback = std::function<void(const Vector2f& first, const Vector2f& second, const Color& color, void* userdata)>;
+		using DebugDrawTickSegmentCallback = std::function<void(const Vector2f& first, const Vector2f& second, float thickness, const Color& outlineColor, const Color& fillColor, void* userdata)>;
 		using DebugDrawGetColorCallback = std::function<Color(RigidBody2D& body, std::size_t shapeIndex, void* userdata)>;
 
 		public:

@@ -11,7 +11,7 @@ namespace Nz
 {
 	inline PointLight::PointLight() :
 	Light(SafeCast<UInt8>(BasicLightType::Point)),
-	m_color(Color::White),
+	m_color(Color::White()),
 	m_position(Vector3f::Zero()),
 	m_ambientFactor(0.2f),
 	m_diffuseFactor(1.f)

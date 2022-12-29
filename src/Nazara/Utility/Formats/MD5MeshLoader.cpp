@@ -205,7 +205,7 @@ namespace Nz
 					if (auto colorPtr = vertexMapper.GetComponentPtr<Color>(VertexComponent::Color))
 					{
 						for (std::size_t j = 0; j < md5Mesh.vertices.size(); ++j)
-							*colorPtr++ = Color::White;
+							*colorPtr++ = Color::White();
 					}
 
 					vertexMapper.Unmap();
@@ -316,7 +316,7 @@ namespace Nz
 					if (auto colorPtr = vertexMapper.GetComponentPtr<Color>(VertexComponent::Color))
 					{
 						for (std::size_t j = 0; j < md5Mesh.vertices.size(); ++j)
-							*colorPtr++ = Color::White;
+							*colorPtr++ = Color::White();
 					}
 
 					vertexMapper.Unmap();

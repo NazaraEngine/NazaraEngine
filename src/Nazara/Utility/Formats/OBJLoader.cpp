@@ -313,7 +313,7 @@ namespace Nz
 				if (auto colorPtr = vertexMapper.GetComponentPtr<Color>(VertexComponent::Color))
 				{
 					for (UInt32 j = 0; j < vertexCount; ++j)
-						colorPtr[j] = Color::White;
+						colorPtr[j] = Color::White();
 				}
 
 				vertexMapper.Unmap();

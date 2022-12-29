@@ -46,7 +46,7 @@ struct SpotLight
 
 struct PointLight
 {
-	Nz::Color color = Nz::Color::White;
+	Nz::Color color = Nz::Color::White();
 	Nz::Vector3f position = Nz::Vector3f::Zero();
 
 	float radius = 1.f;
@@ -54,7 +54,7 @@ struct PointLight
 
 struct SpotLight
 {
-	Nz::Color color = Nz::Color::White;
+	Nz::Color color = Nz::Color::White();
 	Nz::Matrix4f transformMatrix;
 	Nz::Vector3f position = Nz::Vector3f::Zero();
 	Nz::Vector3f direction = Nz::Vector3f::Forward();
@@ -769,13 +769,13 @@ int main()
 		Nz::FramePass& gbufferPass = graph.AddPass("GBuffer");
 
 		std::size_t geometryAlbedo = gbufferPass.AddOutput(colorTexture);
-		gbufferPass.SetClearColor(geometryAlbedo, Nz::Color::Black);
+		gbufferPass.SetClearColor(geometryAlbedo, Nz::Color::Black());
 
 		std::size_t geometryNormal = gbufferPass.AddOutput(normalTexture);
-		gbufferPass.SetClearColor(geometryNormal, Nz::Color::Black);
+		gbufferPass.SetClearColor(geometryNormal, Nz::Color::Black());
 
 		std::size_t positionAttachment = gbufferPass.AddOutput(positionTexture);
-		gbufferPass.SetClearColor(positionAttachment, Nz::Color::Black);
+		gbufferPass.SetClearColor(positionAttachment, Nz::Color::Black());
 
 		gbufferPass.SetDepthStencilClear(1.f, 0);
 
@@ -849,7 +849,7 @@ int main()
 		lightingPass.AddInput(normalTexture);
 		lightingPass.AddInput(positionTexture);
 
-		lightingPass.SetClearColor(lightingPass.AddOutput(lightOutput), Nz::Color::Black);
+		lightingPass.SetClearColor(lightingPass.AddOutput(lightOutput), Nz::Color::Black());
 		lightingPass.SetDepthStencilInput(depthBuffer1);
 
 		Nz::FramePass& forwardPass = graph.AddPass("Forward pass");
@@ -921,7 +921,7 @@ int main()
 		});
 
 		occluderPass.AddOutput(occluderTexture);
-		occluderPass.SetClearColor(0, Nz::Color::Black);
+		occluderPass.SetClearColor(0, Nz::Color::Black());
 		occluderPass.SetDepthStencilInput(depthBuffer1);
 
 		Nz::FramePass& godraysPass = graph.AddPass("Light scattering pass");
@@ -1457,7 +1457,7 @@ int main()
 
 		frame.Execute([&](Nz::CommandBufferBuilder& builder)
 		{
-			builder.BeginDebugRegion("UBO Update", Nz::Color::Yellow);
+			builder.BeginDebugRegion("UBO Update", Nz::Color::Yellow());
 			{
 				builder.PreTransferBarrier();
 
@@ -1542,7 +1542,7 @@ int main()
 
 			builder.BeginRenderPass(windowRT->GetFramebuffer(frame.GetFramebufferIndex()), windowRT->GetRenderPass(), windowRenderRect);
 			{
-				builder.BeginDebugRegion("Main window rendering", Nz::Color::Green);
+				builder.BeginDebugRegion("Main window rendering", Nz::Color::Green());
 				{
 					builder.SetScissor(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
 					builder.SetViewport(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });

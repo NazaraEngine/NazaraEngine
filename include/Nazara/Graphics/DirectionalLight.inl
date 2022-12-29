@@ -11,7 +11,7 @@ namespace Nz
 {
 	inline DirectionalLight::DirectionalLight() :
 	Light(SafeCast<UInt8>(BasicLightType::Directional)),
-	m_color(Color::White),
+	m_color(Color::White()),
 	m_ambientFactor(0.2f),
 	m_diffuseFactor(1.f)
 	{

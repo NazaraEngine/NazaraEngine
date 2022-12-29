@@ -13,7 +13,7 @@ namespace Nz
 {
 	void PredefinedMaterials::AddBasicSettings(MaterialSettings& settings)
 	{
-		settings.AddValueProperty<Color>("BaseColor", Color::White);
+		settings.AddValueProperty<Color>("BaseColor", Color::White());
 		settings.AddValueProperty<bool>("AlphaTest", false);
 		settings.AddValueProperty<float>("AlphaTestThreshold", 0.2f);
 		settings.AddTextureProperty("BaseColorMap", ImageType::E2D);
@@ -43,8 +43,8 @@ namespace Nz
 
 	void PredefinedMaterials::AddPhongSettings(MaterialSettings& settings)
 	{
-		settings.AddValueProperty<Color>("AmbientColor", Color::Black);
-		settings.AddValueProperty<Color>("SpecularColor", Color::White);
+		settings.AddValueProperty<Color>("AmbientColor", Color::Black());
+		settings.AddValueProperty<Color>("SpecularColor", Color::White());
 		settings.AddValueProperty<float>("Shininess", 2.f);
 		settings.AddTextureProperty("EmissiveMap", ImageType::E2D);
 		settings.AddTextureProperty("HeightMap", ImageType::E2D);

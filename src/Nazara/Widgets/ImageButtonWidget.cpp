@@ -13,7 +13,7 @@ namespace Nz
 	m_hoveredMaterial(std::move(hoveredMaterial)),
 	m_material(std::move(material)),
 	m_pressedMaterial(std::move(pressedMaterial)),
-	m_color(Color::White),
+	m_color(Color::White()),
 	m_textureCoords(0.f, 0.f, 1.f, 1.f),
 	m_cornerSize(cornerSize),
 	m_cornerTexCoords(cornerTexCoords)

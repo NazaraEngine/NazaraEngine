@@ -236,10 +236,10 @@ SCENARIO("Serialization", "[CORE][SERIALIZATION]")
 			THEN("Color")
 			{
 				context.stream->SetCursorPos(0);
-				Nz::Color red = Nz::Color::Red;
+				Nz::Color red = Nz::Color::Red();
 				Nz::Color copy(red);
 				REQUIRE(Serialize(context, red));
-				red = Nz::Color::Black;
+				red = Nz::Color::Black();
 				REQUIRE(red != copy);
 				context.stream->SetCursorPos(0);
 				REQUIRE(Unserialize(context, &red));

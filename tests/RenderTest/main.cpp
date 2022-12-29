@@ -348,7 +348,7 @@ int main()
 		Nz::Boxf aabb = spaceship->GetAABB();
 		aabb.Transform(ubo.modelMatrix);
 
-		debugDrawer.DrawBox(aabb, Nz::Color::Green);
+		debugDrawer.DrawBox(aabb, Nz::Color::Green());
 
 		ubo.viewMatrix = Nz::Matrix4f::TransformInverse(viewerPos, camAngles);
 
@@ -360,7 +360,7 @@ int main()
 
 			frame.Execute([&](Nz::CommandBufferBuilder& builder)
 			{
-				builder.BeginDebugRegion("UBO Update", Nz::Color::Yellow);
+				builder.BeginDebugRegion("UBO Update", Nz::Color::Yellow());
 				{
 					builder.PreTransferBarrier();
 					builder.CopyBuffer(allocation, uniformBuffer.get());
@@ -380,11 +380,11 @@ int main()
 			Nz::Recti renderRect(0, 0, window.GetSize().x, window.GetSize().y);
 
 			Nz::CommandBufferBuilder::ClearValues clearValues[2];
-			clearValues[0].color = Nz::Color::Black;
+			clearValues[0].color = Nz::Color::Black();
 			clearValues[1].depth = 1.f;
 			clearValues[1].stencil = 0;
 
-			builder.BeginDebugRegion("Main window rendering", Nz::Color::Green);
+			builder.BeginDebugRegion("Main window rendering", Nz::Color::Green());
 			{
 				builder.BeginRenderPass(windowRT->GetFramebuffer(frame.GetFramebufferIndex()), windowRT->GetRenderPass(), renderRect, { clearValues[0], clearValues[1] });
 				{

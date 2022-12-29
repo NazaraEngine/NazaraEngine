@@ -8,8 +8,8 @@
 namespace Nz
 {
 	inline SimpleTextDrawer::SimpleTextDrawer() :
-	m_color(Color::White),
-	m_outlineColor(Color::Black),
+	m_color(Color::White()),
+	m_outlineColor(Color::Black()),
 	m_style(TextStyle_Regular),
 	m_colorUpdated(true),
 	m_glyphUpdated(true),

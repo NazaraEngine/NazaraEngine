@@ -612,7 +612,7 @@ namespace Nz
 				float endX = (i == m_cursorPositionEnd.y) ? GetGlyphPos({ m_cursorPositionEnd.x, i }) : lineInfo.bounds.width;
 				float spriteSize = std::max(endX - beginX, 1.f);
 
-				cursor.sprite->SetColor((m_cursorPositionBegin == m_cursorPositionEnd) ? Color::Black : Color(0.f, 0.f, 0.f, 0.2f));
+				cursor.sprite->SetColor((m_cursorPositionBegin == m_cursorPositionEnd) ? Color::Black() : Color(0.f, 0.f, 0.f, 0.2f));
 				cursor.sprite->SetSize(Vector2f(spriteSize, lineInfo.bounds.height));
 
 				registry.get<NodeComponent>(cursor.entity).SetPosition(beginX, textHeight - lineInfo.bounds.y - lineInfo.bounds.height);

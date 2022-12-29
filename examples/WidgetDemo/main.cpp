@@ -90,8 +90,8 @@ int main()
 	textAreaWidget->SetPosition(800.f, 500.f);
 	textAreaWidget->SetText("Je suis un TextAreaWidget !");
 	textAreaWidget->Resize(Nz::Vector2f(400.f, textAreaWidget->GetPreferredHeight() * 5.f));
-	textAreaWidget->SetBackgroundColor(Nz::Color::White);
-	textAreaWidget->SetTextColor(Nz::Color::Black);
+	textAreaWidget->SetBackgroundColor(Nz::Color::White());
+	textAreaWidget->SetTextColor(Nz::Color::Black());
 	textAreaWidget->EnableMultiline(true);
 
 	Nz::CheckboxWidget* checkboxWidget = canvas2D.Add<Nz::CheckboxWidget>();
@@ -103,8 +103,8 @@ int main()
 	Nz::TextAreaWidget* longTextArea = canvas2D.Add<Nz::TextAreaWidget>();
 	longTextArea->EnableLineWrap(true);
 	longTextArea->EnableMultiline(true);
-	longTextArea->SetBackgroundColor(Nz::Color::White);
-	longTextArea->SetTextColor(Nz::Color::Black);
+	longTextArea->SetBackgroundColor(Nz::Color::White());
+	longTextArea->SetTextColor(Nz::Color::Black());
 	longTextArea->SetText("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum");
 	
 	Nz::ScrollAreaWidget* scrollBarWidget = canvas2D.Add<Nz::ScrollAreaWidget>(longTextArea);
@@ -115,8 +115,8 @@ int main()
 	textAreaWidget2->SetPosition(800.f, 700.f);
 	textAreaWidget2->SetText("Je suis un autre TextAreaWidget !");
 	textAreaWidget2->Resize(Nz::Vector2f(500.f, textAreaWidget2->GetPreferredHeight()));
-	textAreaWidget2->SetBackgroundColor(Nz::Color::White);
-	textAreaWidget2->SetTextColor(Nz::Color::Black);*/
+	textAreaWidget2->SetBackgroundColor(Nz::Color::White());
+	textAreaWidget2->SetTextColor(Nz::Color::Black());*/
 
 	entt::entity viewer2D = registry.create();
 	{

@@ -35,9 +35,9 @@ namespace Nz
 
 			struct Material
 			{
-				Color ambient = Color::White;
-				Color diffuse = Color::White;
-				Color specular = Color::White;
+				Color ambient = Color::White();
+				Color diffuse = Color::White();
+				Color specular = Color::White();
 				std::string alphaMap;
 				std::string ambientMap;
 				std::string bumpMap;

@@ -83,7 +83,7 @@ namespace Nz
 
 			struct ClearValues
 			{
-				Color color = Color::Black;
+				Color color = Color::Black();
 				float depth = 1.f;
 				UInt32 stencil = 0;
 			};

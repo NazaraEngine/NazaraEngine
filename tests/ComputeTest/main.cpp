@@ -171,12 +171,12 @@ int main()
 			}
 			builder.EndDebugRegion();
 
-			builder.BeginDebugRegion("Main window rendering", Nz::Color::Green);
+			builder.BeginDebugRegion("Main window rendering", Nz::Color::Green());
 			{
 				Nz::Recti renderRect(0, 0, window.GetSize().x, window.GetSize().y);
 
 				Nz::CommandBufferBuilder::ClearValues clearValues[2];
-				clearValues[0].color = Nz::Color::Gray;
+				clearValues[0].color = Nz::Color::Gray();
 				clearValues[1].depth = 1.f;
 				clearValues[1].stencil = 0;
 

@@ -69,10 +69,10 @@ int main()
 
 	std::shared_ptr<Nz::MaterialInstance> materialInstance = std::make_shared<Nz::MaterialInstance>(material);
 	materialInstance->SetTextureProperty(0, diffuseTexture);
-	materialInstance->SetValueProperty(0, Nz::Color::White);
+	materialInstance->SetValueProperty(0, Nz::Color::White());
 
 	std::shared_ptr<Nz::MaterialInstance> materialInstance2 = std::make_shared<Nz::MaterialInstance>(material);
-	materialInstance2->SetValueProperty(0, Nz::Color::Green);
+	materialInstance2->SetValueProperty(0, Nz::Color::Green());
 
 	Nz::Model model(std::move(gfxMesh), spaceshipMesh->GetAABB());
 	for (std::size_t i = 0; i < model.GetSubMeshCount(); ++i)
@@ -81,7 +81,7 @@ int main()
 	Nz::Vector2ui windowSize = window.GetSize();
 
 	Nz::Camera camera(window.GetRenderTarget());
-	camera.UpdateClearColor(Nz::Color::Gray);
+	camera.UpdateClearColor(Nz::Color::Gray());
 
 	Nz::ViewerInstance& viewerInstance = camera.GetViewerInstance();
 	viewerInstance.UpdateTargetSize(Nz::Vector2f(window.GetSize()));
@@ -219,7 +219,7 @@ int main()
 			continue;
 		}
 
-		framePipeline.GetDebugDrawer().DrawLine(Nz::Vector3f::Zero(), Nz::Vector3f::Forward(), Nz::Color::Blue);
+		framePipeline.GetDebugDrawer().DrawLine(Nz::Vector3f::Zero(), Nz::Vector3f::Forward(), Nz::Color::Blue());
 
 		viewerInstance.UpdateViewMatrix(Nz::Matrix4f::TransformInverse(viewerPos, camAngles));
 		viewerInstance.UpdateEyePosition(viewerPos);

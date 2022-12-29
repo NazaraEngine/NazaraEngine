@@ -15,7 +15,7 @@ namespace Nz
 	m_material(std::move(material)),
 	m_sectionCount(0),
 	m_spriteCount(0),
-	m_color(Color::White),
+	m_color(Color::White()),
 	m_orientation(orientation),
 	m_textureCoords(0.f, 0.f, 1.f, 1.f),
 	m_origin(0.f, 0.f),
