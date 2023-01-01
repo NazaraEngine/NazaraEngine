@@ -34,7 +34,7 @@ namespace Nz
 		m_inFlightCommandBuffers.clear();
 	}
 
-	void VulkanRenderImage::Execute(const std::function<void(CommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags)
+	void VulkanRenderImage::Execute(const FunctionRef<void(CommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags)
 	{
 		Vk::CommandBuffer* commandBuffer;
 		if (m_currentCommandBuffer >= m_inFlightCommandBuffers.size())

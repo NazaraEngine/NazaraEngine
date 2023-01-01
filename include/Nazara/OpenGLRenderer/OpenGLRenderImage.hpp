@@ -22,7 +22,7 @@ namespace Nz
 		public:
 			OpenGLRenderImage(OpenGLRenderWindow& owner);
 
-			void Execute(const std::function<void(CommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags) override;
+			void Execute(const FunctionRef<void(CommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags) override;
 
 			OpenGLUploadPool& GetUploadPool() override;
 

@@ -10,6 +10,7 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
+#include <Nazara/Utils/FunctionRef.hpp>
 #include <functional>
 #include <vector>
 
@@ -27,7 +28,7 @@ namespace Nz
 
 			virtual ~RenderImage();
 
-			virtual void Execute(const std::function<void(CommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags) = 0;
+			virtual void Execute(const FunctionRef<void(CommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags) = 0;
 
 			inline void FlushReleaseQueue();
 

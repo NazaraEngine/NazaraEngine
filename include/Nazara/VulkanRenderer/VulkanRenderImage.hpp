@@ -28,7 +28,7 @@ namespace Nz
 			VulkanRenderImage(VulkanRenderImage&&) = delete;
 			~VulkanRenderImage();
 
-			void Execute(const std::function<void(CommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags) override;
+			void Execute(const FunctionRef<void(CommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags) override;
 
 			inline Vk::Fence& GetInFlightFence();
 			inline Vk::Semaphore& GetImageAvailableSemaphore();

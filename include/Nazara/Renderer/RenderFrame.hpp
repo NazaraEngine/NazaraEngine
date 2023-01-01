@@ -12,6 +12,7 @@
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/RenderImage.hpp>
+#include <Nazara/Utils/FunctionRef.hpp>
 #include <functional>
 
 namespace Nz
@@ -29,7 +30,7 @@ namespace Nz
 			RenderFrame(RenderFrame&&) = delete;
 			~RenderFrame() = default;
 
-			void Execute(const std::function<void(CommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags);
+			void Execute(const FunctionRef<void(CommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags);
 
 			inline std::size_t GetFramebufferIndex() const;
 			const Vector2ui& GetSize() const;

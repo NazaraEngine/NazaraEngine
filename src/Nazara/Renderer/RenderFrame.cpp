@@ -9,7 +9,7 @@
 
 namespace Nz
 {
-	void RenderFrame::Execute(const std::function<void(CommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags)
+	void RenderFrame::Execute(const FunctionRef<void(CommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags)
 	{
 		if (!m_image)
 			throw std::runtime_error("frame is either invalid or has already been presented");
