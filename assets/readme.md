@@ -4,4 +4,4 @@ Assets for examples and unit tests are not part of the repository. When building
 
 You can also download them manually at :
 - https://nazara.digitalpulse.software/assets_examples.zip
-- https://nazara.digitalpulse.software/assets_tests.zip
+- https://nazara.digitalpulse.software/assets_unittests.zip
