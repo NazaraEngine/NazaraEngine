@@ -86,8 +86,16 @@ int main()
 	std::shared_ptr<nzsl::FilesystemModuleResolver> moduleResolver = std::make_shared<nzsl::FilesystemModuleResolver>();
 	moduleResolver->RegisterModuleDirectory(resourceDir / "../shaders/", true);
 
-	std::shared_ptr<Nz::ComputePipeline> computePipeline = BuildComputePipeline(*device, computePipelineLayout, moduleResolver);
-	std::shared_ptr<Nz::ComputePipeline> newComputePipeline;
+	std::shared_ptr<Nz::ComputePipeline> computePipeline;
+	try
+	{
+		computePipeline = BuildComputePipeline(*device, computePipelineLayout, moduleResolver);
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << "failed to compile compute shaders: " << e.what() << std::endl;
+		std::abort();
+	}
 	std::atomic_bool hasNewPipeline = false;
 
 	std::shared_ptr<Nz::ShaderBinding> computeBinding = computePipelineLayout->AllocateShaderBinding(0);
@@ -107,21 +115,12 @@ int main()
 			}
 		}
 	});
-	
+
 	moduleResolver->OnModuleUpdated.Connect([&](nzsl::ModuleResolver*, const std::string& moduleName)
 	{
-		try
-		{
-			std::cout << moduleName << " has been updated" << std::endl;
-			newComputePipeline = BuildComputePipeline(*device, computePipelineLayout, moduleResolver);
-			hasNewPipeline = true;
-		}
-		catch (const std::exception& e)
-		{
-			std::cerr << e.what() << std::endl;
-		}
+		std::cout << moduleName << " has been updated" << std::endl;
+		hasNewPipeline = true;
 	});
-
 
 	std::string windowTitle = "Compute test";
 
@@ -156,9 +155,17 @@ int main()
 
 		if (hasNewPipeline)
 		{
-			frame.PushForRelease(std::move(computePipeline));
-			computePipeline = std::move(newComputePipeline);
-			hasNewPipeline = false;
+			try
+			{
+				hasNewPipeline = false;
+				std::shared_ptr<Nz::ComputePipeline> newComputePipeline = BuildComputePipeline(*device, computePipelineLayout, moduleResolver);
+				frame.PushForRelease(std::move(computePipeline));
+				computePipeline = std::move(newComputePipeline);
+			}
+			catch (const std::exception& e)
+			{
+				std::cerr << e.what() << std::endl;
+			}
 		}
 
 		const Nz::RenderTarget* windowRT = window.GetRenderTarget();
@@ -224,43 +231,35 @@ int main()
 
 std::shared_ptr<Nz::ComputePipeline> BuildComputePipeline(Nz::RenderDevice& device, std::shared_ptr<Nz::RenderPipelineLayout> pipelineLayout, std::shared_ptr<nzsl::ModuleResolver> moduleResolver)
 {
-	try
+	nzsl::Ast::ModulePtr shaderModule = moduleResolver->Resolve("Compute.Sepia");
+	if (!shaderModule)
 	{
-		nzsl::Ast::ModulePtr shaderModule = moduleResolver->Resolve("Compute.Sepia");
-		if (!shaderModule)
-		{
-			std::cout << "Failed to parse shader module" << std::endl;
-			std::abort();
-		}
-
-		nzsl::ShaderWriter::States states;
-		states.optimize = true;
-
-		auto computeShader = device.InstantiateShaderModule(nzsl::ShaderStageType::Compute, *shaderModule, states);
-		if (!computeShader)
-		{
-			std::cout << "Failed to instantiate shader" << std::endl;
-			std::abort();
-		}
-
-		Nz::ComputePipelineInfo computePipelineInfo;
-		computePipelineInfo.pipelineLayout = pipelineLayout;
-		computePipelineInfo.shaderModule = computeShader;
-
-		std::shared_ptr<Nz::ComputePipeline> pipeline = device.InstantiateComputePipeline(computePipelineInfo);
-		if (!pipeline)
-		{
-			std::cout << "Failed to instantiate compute pipeline" << std::endl;
-			std::abort();
-		}
-
-		return pipeline;
-	}
-	catch (const std::exception& e)
-	{
-		std::cerr << e.what() << std::endl;
+		std::cout << "Failed to parse shader module" << std::endl;
 		std::abort();
 	}
+
+	nzsl::ShaderWriter::States states;
+	states.optimize = true;
+
+	auto computeShader = device.InstantiateShaderModule(nzsl::ShaderStageType::Compute, *shaderModule, states);
+	if (!computeShader)
+	{
+		std::cout << "Failed to instantiate shader" << std::endl;
+		std::abort();
+	}
+
+	Nz::ComputePipelineInfo computePipelineInfo;
+	computePipelineInfo.pipelineLayout = pipelineLayout;
+	computePipelineInfo.shaderModule = computeShader;
+
+	std::shared_ptr<Nz::ComputePipeline> pipeline = device.InstantiateComputePipeline(computePipelineInfo);
+	if (!pipeline)
+	{
+		std::cout << "Failed to instantiate compute pipeline" << std::endl;
+		std::abort();
+	}
+
+	return pipeline;
 }
 
 const char fragVertSource[] = R"(
