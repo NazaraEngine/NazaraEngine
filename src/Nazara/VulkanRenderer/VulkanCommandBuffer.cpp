@@ -10,7 +10,7 @@ namespace Nz
 {
 	void VulkanCommandBuffer::UpdateDebugName(std::string_view name)
 	{
-		return m_owner.m_device->SetDebugName(VK_OBJECT_TYPE_COMMAND_BUFFER, static_cast<UInt64>(reinterpret_cast<std::uintptr_t>(static_cast<VkCommandBuffer>(m_commandBuffer))), name);
+		return m_owner.m_device->SetDebugName(VK_OBJECT_TYPE_COMMAND_BUFFER, VulkanHandleToInteger(static_cast<VkCommandBuffer>(m_commandBuffer)), name);
 	}
 
 	void VulkanCommandBuffer::Release()

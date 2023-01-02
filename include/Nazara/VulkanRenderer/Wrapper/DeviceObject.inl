@@ -86,13 +86,7 @@ namespace Nz::Vk
 	template<typename T>
 	void DeviceObject<C, VkType, CreateInfo, ObjectType>::SetDebugName(T&& name)
 	{
-		UInt64 objectHandle;
-		if constexpr (std::is_pointer_v<VkType>)
-			objectHandle = static_cast<UInt64>(reinterpret_cast<std::uintptr_t>(m_handle));
-		else
-			objectHandle = static_cast<UInt64>(m_handle);
-
-		return m_device->SetDebugName(ObjectType, objectHandle, std::forward<T>(name));
+		return m_device->SetDebugName(ObjectType, VulkanHandleToInteger(m_handle), std::forward<T>(name));
 	}
 
 	template<typename C, typename VkType, typename CreateInfo, VkObjectType ObjectType>

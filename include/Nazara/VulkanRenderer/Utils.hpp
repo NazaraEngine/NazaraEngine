@@ -48,6 +48,8 @@ namespace Nz
 	inline VkVertexInputRate ToVulkan(VertexInputRate inputRate);
 
 	NAZARA_VULKANRENDERER_API std::string TranslateVulkanError(VkResult code);
+
+	template<typename T> UInt64 VulkanHandleToInteger(T handle);
 }
 
 #include <Nazara/VulkanRenderer/Utils.inl>

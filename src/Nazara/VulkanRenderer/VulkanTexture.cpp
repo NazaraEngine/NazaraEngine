@@ -420,7 +420,7 @@ namespace Nz
 
 	void VulkanTexture::UpdateDebugName(std::string_view name)
 	{
-		return m_device.SetDebugName(VK_OBJECT_TYPE_IMAGE, static_cast<UInt64>(reinterpret_cast<std::uintptr_t>(m_image)), name);
+		return m_device.SetDebugName(VK_OBJECT_TYPE_IMAGE, VulkanHandleToInteger(m_image), name);
 	}
 
 	void VulkanTexture::InitViewForFormat(PixelFormat pixelFormat, VkImageViewCreateInfo& createImageView)

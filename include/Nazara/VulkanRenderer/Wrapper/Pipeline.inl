@@ -61,7 +61,7 @@ namespace Nz
 
 		inline void Pipeline::SetDebugName(std::string_view name)
 		{
-			return m_device->SetDebugName(VK_OBJECT_TYPE_PIPELINE, static_cast<UInt64>(reinterpret_cast<std::uintptr_t>(m_handle)), name);
+			return m_device->SetDebugName(VK_OBJECT_TYPE_PIPELINE, VulkanHandleToInteger(m_handle), name);
 		}
 
 		inline Pipeline::operator VkPipeline() const

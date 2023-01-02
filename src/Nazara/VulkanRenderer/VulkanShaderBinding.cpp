@@ -139,7 +139,7 @@ namespace Nz
 
 	void VulkanShaderBinding::UpdateDebugName(std::string_view name)
 	{
-		return m_owner.m_device->SetDebugName(VK_OBJECT_TYPE_DESCRIPTOR_SET, static_cast<UInt64>(reinterpret_cast<std::uintptr_t>(static_cast<VkDescriptorSet>(m_descriptorSet))), name);
+		return m_owner.m_device->SetDebugName(VK_OBJECT_TYPE_DESCRIPTOR_SET, VulkanHandleToInteger(static_cast<VkDescriptorSet>(m_descriptorSet)), name);
 	}
 
 	void VulkanShaderBinding::Release()

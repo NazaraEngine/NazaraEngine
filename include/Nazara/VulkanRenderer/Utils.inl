@@ -497,6 +497,18 @@ namespace Nz
 		NazaraError("Unhandled VertexInputRate 0x" + NumberToString(UnderlyingCast(inputRate), 16));
 		return {};
 	}
+
+	template<typename T>
+	UInt64 VulkanHandleToInteger(T handle)
+	{
+		if constexpr (std::is_pointer_v<T>)
+			return static_cast<UInt64>(reinterpret_cast<std::uintptr_t>(handle));
+		else
+		{
+			static_assert(std::is_integral_v<T>);
+			return static_cast<UInt64>(handle);
+		}
+	}
 }
 
 #include <Nazara/VulkanRenderer/DebugOff.hpp>
