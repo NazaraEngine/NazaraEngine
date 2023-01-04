@@ -1,0 +1,50 @@
+[nzsl_version("1.0")]
+module Compute.Particles;
+
+[layout(std140)]
+struct Particle
+{
+	color: vec3[f32],
+	position: vec2[f32],
+	velocity: vec2[f32]
+}
+
+[layout(std140)]
+struct ParticleData
+{
+	particle_count: u32,
+	particles: dyn_array[Particle]
+}
+
+[layout(std140)]
+struct SceneData
+{
+	deltaTime: f32,
+	mousePos: vec2[f32]
+}
+
+external
+{
+	[binding(0)] data: storage[ParticleData],
+	[binding(1)] sceneData: uniform[SceneData]
+}
+
+struct Input
+{
+	[builtin(global_invocation_indices)] indices: vec3[u32]
+}
+
+[entry(compute)]
+[workgroup(64, 1, 1)]
+fn main(input: Input)
+{
+	let index = input.indices.x;
+	if (index >= data.particle_count)
+		return;
+
+	let attract_pos = sceneData.mousePos;
+	let dist = length(attract_pos - data.particles[index].position);
+	data.particles[index].velocity += 10000.0 * (attract_pos - data.particles[index].position) * sceneData.deltaTime / (dist * dist);	
+
+	data.particles[index].position += data.particles[index].velocity * sceneData.deltaTime;
+}

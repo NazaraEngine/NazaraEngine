@@ -4,6 +4,7 @@
 
 #include <Nazara/OpenGLRenderer/OpenGLDevice.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLBuffer.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLCommandBufferBuilder.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLCommandPool.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLComputePipeline.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLFboFramebuffer.hpp>
@@ -153,6 +154,22 @@ namespace Nz
 
 		return contextPtr;
 #endif
+	}
+
+	void OpenGLDevice::Execute(const FunctionRef<void(CommandBufferBuilder& builder)>& callback, QueueType /*queueType*/)
+	{
+		const GL::Context* activeContext = GL::Context::GetCurrentContext();
+		if (!activeContext || activeContext->GetDevice() != this)
+		{
+			if (!GL::Context::SetCurrentContext(m_referenceContext.get()))
+				throw std::runtime_error("failed to activate context");
+		}
+
+		OpenGLCommandBuffer commandBuffer; //< TODO: Use a pool and remove default constructor
+		OpenGLCommandBufferBuilder builder(commandBuffer);
+		callback(builder);
+
+		commandBuffer.Execute();
 	}
 
 	const RenderDeviceInfo& OpenGLDevice::GetDeviceInfo() const
@@ -317,5 +334,17 @@ namespace Nz
 		}
 
 		return false;
+	}
+
+	void OpenGLDevice::WaitForIdle()
+	{
+		const GL::Context* activeContext = GL::Context::GetCurrentContext();
+		if (!activeContext || activeContext->GetDevice() != this)
+		{
+			if (!GL::Context::SetCurrentContext(m_referenceContext.get()))
+				throw std::runtime_error("failed to activate context");
+		}
+
+		m_referenceContext->glFinish();
 	}
 }

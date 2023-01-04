@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/VulkanRenderer/VulkanDevice.hpp>
+#include <Nazara/VulkanRenderer/VulkanCommandBufferBuilder.hpp>
 #include <Nazara/VulkanRenderer/VulkanCommandPool.hpp>
 #include <Nazara/VulkanRenderer/VulkanComputePipeline.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPass.hpp>
@@ -13,11 +14,28 @@
 #include <Nazara/VulkanRenderer/VulkanTexture.hpp>
 #include <Nazara/VulkanRenderer/VulkanTextureFramebuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanTextureSampler.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/QueueHandle.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
 {
 	VulkanDevice::~VulkanDevice() = default;
+
+	void VulkanDevice::Execute(const FunctionRef<void(CommandBufferBuilder& builder)>& callback, QueueType queueType)
+	{
+		Vk::AutoCommandBuffer commandBuffer = AllocateCommandBuffer(queueType);
+		if (!commandBuffer->Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT))
+			throw std::runtime_error("failed to begin command buffer: " + TranslateVulkanError(commandBuffer->GetLastErrorCode()));
+
+		VulkanCommandBufferBuilder builder(commandBuffer);
+		callback(builder);
+
+		if (!commandBuffer->End())
+			throw std::runtime_error("failed to build command buffer: " + TranslateVulkanError(commandBuffer->GetLastErrorCode()));
+
+		GetQueue(GetDefaultFamilyIndex(queueType), 0).Submit(commandBuffer);
+		GetQueue(GetDefaultFamilyIndex(queueType), 0).WaitIdle();
+	}
 
 	const RenderDeviceInfo& VulkanDevice::GetDeviceInfo() const
 	{
@@ -143,5 +161,10 @@ namespace Nz
 
 		VkFormatProperties formatProperties = GetInstance().GetPhysicalDeviceFormatProperties(GetPhysicalDevice(), vulkanFormat);
 		return formatProperties.optimalTilingFeatures & flags; //< Assume optimal tiling
+	}
+
+	void VulkanDevice::WaitForIdle()
+	{
+		Device::WaitForIdle();
 	}
 }

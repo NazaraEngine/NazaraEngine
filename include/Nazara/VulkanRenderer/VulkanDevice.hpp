@@ -23,6 +23,8 @@ namespace Nz
 			VulkanDevice(VulkanDevice&&) = delete; ///TODO?
 			~VulkanDevice();
 
+			void Execute(const FunctionRef<void(CommandBufferBuilder& builder)>& callback, QueueType queueType) override;
+
 			const RenderDeviceInfo& GetDeviceInfo() const override;
 			const RenderDeviceFeatures& GetEnabledFeatures() const override;
 
@@ -41,6 +43,8 @@ namespace Nz
 			std::shared_ptr<TextureSampler> InstantiateTextureSampler(const TextureSamplerInfo& params) override;
 
 			bool IsTextureFormatSupported(PixelFormat format, TextureUsage usage) const override;
+
+			void WaitForIdle() override;
 
 			VulkanDevice& operator=(const VulkanDevice&) = delete;
 			VulkanDevice& operator=(VulkanDevice&&) = delete; ///TODO?

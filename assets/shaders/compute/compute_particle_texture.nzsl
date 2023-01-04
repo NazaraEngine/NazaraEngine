@@ -1,0 +1,30 @@
+[nzsl_version("1.0")]
+module Compute.ParticleTexture;
+
+external
+{
+	[binding(0)] output_tex: texture2D[f32, writeonly, rgba8]
+}
+
+struct Input
+{
+	[builtin(global_invocation_indices)] global_invocation_id: vec3[u32]
+}
+
+[entry(compute)]
+[workgroup(32, 32, 1)]
+fn main(input: Input)
+{
+	let indices = vec2[i32](input.global_invocation_id.xy);
+
+	let uv = vec2[f32](indices) / vec2[f32](256.0, 256.0);
+	uv -= vec2[f32](0.5, 0.5);
+
+	let outputColor = vec4[f32]
+	(
+		(pow(1.0 - length(uv), 20.0)).xxx,
+		1.0
+	);
+
+	output_tex.Write(indices, outputColor);
+}
