@@ -22,6 +22,7 @@
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
+#include <Nazara/Utils/FunctionRef.hpp>
 #include <NZSL/ShaderWriter.hpp>
 #include <NZSL/Ast/Module.hpp>
 #include <memory>
@@ -29,6 +30,7 @@
 
 namespace Nz
 {
+	class CommandBufferBuilder;
 	class CommandPool;
 	class ShaderModule;
 
@@ -37,6 +39,8 @@ namespace Nz
 		public:
 			RenderDevice() = default;
 			virtual ~RenderDevice();
+
+			virtual void Execute(const FunctionRef<void(CommandBufferBuilder& builder)>& callback, QueueType queueType) = 0;
 
 			virtual const RenderDeviceInfo& GetDeviceInfo() const = 0;
 			virtual const RenderDeviceFeatures& GetEnabledFeatures() const = 0;
@@ -57,6 +61,8 @@ namespace Nz
 			virtual std::shared_ptr<TextureSampler> InstantiateTextureSampler(const TextureSamplerInfo& params) = 0;
 
 			virtual bool IsTextureFormatSupported(PixelFormat format, TextureUsage usage) const = 0;
+
+			virtual void WaitForIdle() = 0;
 
 			static void ValidateFeatures(const RenderDeviceFeatures& supportedFeatures, RenderDeviceFeatures& enabledFeatures);
 	};

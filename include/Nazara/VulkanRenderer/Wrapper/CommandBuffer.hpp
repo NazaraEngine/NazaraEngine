@@ -122,8 +122,9 @@ namespace Nz::Vk
 		public:
 			using AutoFree::AutoFree;
 
-			operator VkCommandBuffer() const { return Get(); }
-	};
+				operator VkCommandBuffer() const { return Get(); }
+		};
+	}
 }
 
 #include <Nazara/VulkanRenderer/Wrapper/CommandBuffer.inl>

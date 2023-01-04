@@ -32,6 +32,8 @@ namespace Nz
 			std::shared_ptr<GL::Context> CreateContext(GL::ContextParams params) const;
 			std::shared_ptr<GL::Context> CreateContext(GL::ContextParams params, WindowHandle handle) const;
 
+			void Execute(const FunctionRef<void(CommandBufferBuilder& builder)>& callback, QueueType queueType) override;
+
 			const RenderDeviceInfo& GetDeviceInfo() const override;
 			const RenderDeviceFeatures& GetEnabledFeatures() const override;
 			inline const GL::Context& GetReferenceContext() const;
@@ -56,6 +58,8 @@ namespace Nz
 			inline void NotifyProgramDestruction(GLuint program) const;
 			inline void NotifySamplerDestruction(GLuint sampler) const;
 			inline void NotifyTextureDestruction(GLuint texture) const;
+
+			void WaitForIdle() override;
 
 			OpenGLDevice& operator=(const OpenGLDevice&) = delete;
 			OpenGLDevice& operator=(OpenGLDevice&&) = delete; ///TODO?

@@ -99,6 +99,7 @@ typedef void (GL_APIENTRYP PFNGLSPECIALIZESHADERPROC) (GLuint shader, const GLch
 	cb(glEnable, PFNGLENABLEPROC) \
 	cb(glEnableVertexAttribArray, PFNGLENABLEVERTEXATTRIBARRAYPROC) \
 	cb(glEndQuery, PFNGLENDQUERYPROC) \
+	cb(glFinish, PFNGLFINISHPROC) \
 	cb(glFlush, PFNGLFLUSHPROC) \
 	cb(glFramebufferRenderbuffer, PFNGLFRAMEBUFFERRENDERBUFFERPROC) \
 	cb(glFramebufferTexture2D, PFNGLFRAMEBUFFERTEXTURE2DPROC) \
