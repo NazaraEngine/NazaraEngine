@@ -8,39 +8,25 @@
 #define NAZARA_CORE_APPLICATION_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/ApplicationComponent.hpp>
-#include <Nazara/Core/Clock.hpp>
-#include <atomic>
-#include <vector>
+#include <Nazara/Core/ApplicationBase.hpp>
+#include <Nazara/Core/Modules.hpp>
 
 namespace Nz
 {
-	class NAZARA_CORE_API Application
+	template<typename... ModuleList>
+	class Application : public ApplicationBase
 	{
 		public:
-			inline Application();
-			inline Application(int argc, char** argv);
-			Application(int argc, const char** argv);
+			using ApplicationBase::ApplicationBase;
 			Application(const Application&) = delete;
 			Application(Application&&) = delete;
 			~Application() = default;
-
-			template<typename T, typename... Args> T& AddComponent(Args&&... args);
-			inline void AddComponent(std::unique_ptr<ApplicationComponent>&& component);
-
-			int Run();
-
-			inline void Quit();
-
-			void Update(Time elapsedTime);
 
 			Application& operator=(const Application&) = delete;
 			Application& operator=(Application&&) = delete;
 
 		private:
-			std::atomic_bool m_running;
-			std::vector<ApplicationComponent> m_components;
-			HighPrecisionClock m_clock;
+			Modules<ModuleList...> m_modules;
 	};
 }
 

@@ -1,5 +1,6 @@
 // Sources pour https://github.com/NazaraEngine/NazaraEngine/wiki/(FR)-Tutoriel:-%5B01%5D-Hello-World
 
+#include <Nazara/Core/Application.hpp>
 #include <Nazara/Core/Systems.hpp>
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Graphics/Components.hpp>
@@ -14,7 +15,7 @@
 
 int main()
 {
-	Nz::Modules<Nz::Graphics> nazara;
+	Nz::Application<Nz::Graphics> app;
 
 	entt::registry registry;
 	Nz::SystemGraph systemGraph(registry);

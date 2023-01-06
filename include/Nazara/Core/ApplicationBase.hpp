@@ -1,0 +1,49 @@
+// Copyright (C) 2022 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Core module"
+// For conditions of distribution and use, see copyright notice in Config.hpp
+
+#pragma once
+
+#ifndef NAZARA_CORE_APPLICATIONBASE_HPP
+#define NAZARA_CORE_APPLICATIONBASE_HPP
+
+#include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/ApplicationComponent.hpp>
+#include <Nazara/Core/Clock.hpp>
+#include <atomic>
+#include <vector>
+
+namespace Nz
+{
+	class NAZARA_CORE_API ApplicationBase
+	{
+		public:
+			inline ApplicationBase();
+			inline ApplicationBase(int argc, char** argv);
+			ApplicationBase(int argc, const Pointer<const char>* argv);
+			ApplicationBase(const ApplicationBase&) = delete;
+			ApplicationBase(ApplicationBase&&) = delete;
+			~ApplicationBase() = default;
+
+			template<typename T, typename... Args> T& AddComponent(Args&&... args);
+			inline void AddComponent(std::unique_ptr<ApplicationComponent>&& component);
+
+			int Run();
+
+			inline void Quit();
+
+			void Update(Time elapsedTime);
+
+			ApplicationBase& operator=(const ApplicationBase&) = delete;
+			ApplicationBase& operator=(ApplicationBase&&) = delete;
+
+		private:
+			std::atomic_bool m_running;
+			std::vector<std::unique_ptr<ApplicationComponent>> m_components;
+			HighPrecisionClock m_clock;
+	};
+}
+
+#include <Nazara/Core/ApplicationBase.inl>
+
+#endif // NAZARA_CORE_APPLICATIONBASE_HPP
