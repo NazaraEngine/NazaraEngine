@@ -506,7 +506,16 @@ std::shared_ptr<Nz::SubMesh> ProcessSubMesh(const std::filesystem::path& originP
 			for (unsigned int boneIndex = 0; boneIndex < meshData->mNumBones; ++boneIndex)
 			{
 				const aiBone* bone = meshData->mBones[boneIndex];
-				unsigned int jointIndex = Nz::Retrieve(boneToJointIndex, bone);
+
+				auto it = boneToJointIndex.find(bone);
+				if (it == boneToJointIndex.end())
+				{
+					// Some nodes are not attached to vertices but may influence other nodes or serve as attachment points
+					assert(bone->mNumWeights == 0);
+					continue;
+				}
+
+				unsigned int jointIndex = it->second;
 
 				for (unsigned int weightIndex = 0; weightIndex < bone->mNumWeights; ++weightIndex)
 				{
