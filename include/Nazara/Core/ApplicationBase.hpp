@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ApplicationComponent.hpp>
+#include <Nazara/Core/ApplicationUpdater.hpp>
 #include <Nazara/Core/Clock.hpp>
 #include <atomic>
 #include <vector>
@@ -26,6 +27,7 @@ namespace Nz
 			~ApplicationBase() = default;
 
 			template<typename T, typename... Args> T& AddComponent(Args&&... args);
+			template<typename F> void AddUpdater(F&& functor);
 
 			inline void ClearComponents();
 
@@ -36,7 +38,7 @@ namespace Nz
 
 			inline void Quit();
 
-			void Update(Time elapsedTime);
+			bool Update(Time elapsedTime);
 
 			ApplicationBase& operator=(const ApplicationBase&) = delete;
 			ApplicationBase& operator=(ApplicationBase&&) = delete;
@@ -44,6 +46,7 @@ namespace Nz
 		private:
 			std::atomic_bool m_running;
 			std::vector<std::unique_ptr<ApplicationComponent>> m_components;
+			std::vector<std::unique_ptr<ApplicationUpdater>> m_updaters;
 			HighPrecisionClock m_clock;
 	};
 }

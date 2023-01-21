@@ -32,11 +32,11 @@
 #include <Nazara/Core/AbstractHash.hpp>
 #include <Nazara/Core/AbstractLogger.hpp>
 #include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Core/AppEntitySystemComponent.hpp>
 #include <Nazara/Core/Application.hpp>
 #include <Nazara/Core/ApplicationBase.hpp>
 #include <Nazara/Core/ApplicationComponent.hpp>
 #include <Nazara/Core/ApplicationComponentRegistry.hpp>
+#include <Nazara/Core/ApplicationUpdater.hpp>
 #include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/ByteArrayPool.hpp>
 #include <Nazara/Core/ByteStream.hpp>

@@ -37,6 +37,12 @@ namespace Nz
 		return componentRef;
 	}
 
+	template<typename F>
+	void ApplicationBase::AddUpdater(F&& functor)
+	{
+		m_updaters.emplace_back(std::make_unique<ApplicationUpdaterFunctor<std::decay_t<F>>>(std::forward<F>(functor)));
+	}
+
 	inline void ApplicationBase::ClearComponents()
 	{
 		m_components.clear();
