@@ -17,7 +17,9 @@ namespace Nz
 	class Application : public ApplicationBase
 	{
 		public:
-			using ApplicationBase::ApplicationBase;
+			template<typename... ModuleConfig> Application(ModuleConfig&&... configs);
+			template<typename... ModuleConfig> Application(int argc, char** argv, ModuleConfig&&... configs);
+			template<typename... ModuleConfig> Application(int argc, const Pointer<const char>* argv, ModuleConfig&&... configs);
 			Application(const Application&) = delete;
 			Application(Application&&) = delete;
 			~Application();
