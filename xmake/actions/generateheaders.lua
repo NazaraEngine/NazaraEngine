@@ -73,7 +73,7 @@ on_run(function ()
 	end
 
 	paths["Audio"].Excludes["OpenALFunctions.hpp"] = true
-	paths["Core"].Excludes["ECS.hpp"] = true
+	paths["Core"].Excludes["AppEntitySystemComponent.hpp"] = true
 	paths["OpenGLRenderer"].Excludes["Wrapper.hpp"] = true
 	paths["VulkanRenderer"].Excludes["Wrapper.hpp"] = true
 
