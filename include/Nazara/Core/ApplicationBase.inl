@@ -3,20 +3,12 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/ApplicationBase.hpp>
+#include <Nazara/Core/ApplicationComponentRegistry.hpp>
+#include <stdexcept>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {
-	template<typename T, typename ...Args>
-	T& Nz::ApplicationBase::AddComponent(Args&& ...args)
-	{
-		std::unique_ptr<T> component = std::make_unique<T>(std::forward<Args>(args)...);
-		T& componentRef = *component;
-		AddComponent(std::move(component));
-
-		return componentRef;
-	}
-
 	inline ApplicationBase::ApplicationBase() :
 	ApplicationBase(0, static_cast<const char**>(nullptr))
 	{
@@ -27,9 +19,47 @@ namespace Nz
 	{
 	}
 
-	void ApplicationBase::AddComponent(std::unique_ptr<ApplicationComponent>&& component)
+	template<typename T, typename... Args>
+	T& ApplicationBase::AddComponent(Args&&... args)
 	{
-		m_components.emplace_back(std::move(component));
+		std::size_t componentIndex = ApplicationComponentRegistry<T>::GetComponentId();
+
+		std::unique_ptr<T> component = std::make_unique<T>(*this, std::forward<Args>(args)...);
+		T& componentRef = *component;
+
+		if (componentIndex >= m_components.size())
+			m_components.resize(componentIndex + 1);
+		else if (m_components[componentIndex] != nullptr)
+			throw std::runtime_error("component was added multiple times");
+
+		m_components[componentIndex] = std::move(component);
+
+		return componentRef;
+	}
+
+	inline void ApplicationBase::ClearComponents()
+	{
+		m_components.clear();
+	}
+
+	template<typename T>
+	T* ApplicationBase::GetComponent()
+	{
+		std::size_t componentIndex = ApplicationComponentRegistry<T>::GetComponentId();
+		if (componentIndex >= m_components.size())
+			return nullptr;
+
+		return m_components[componentIndex].get();
+	}
+	
+	template<typename T>
+	const T* ApplicationBase::GetComponent() const
+	{
+		std::size_t componentIndex = ApplicationComponentRegistry<T>::GetComponentId();
+		if (componentIndex >= m_components.size())
+			return nullptr;
+
+		return m_components[componentIndex].get();
 	}
 
 	inline void ApplicationBase::Quit()

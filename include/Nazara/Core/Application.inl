@@ -7,6 +7,12 @@
 
 namespace Nz
 {
+	template<typename... ModuleList>
+	Application<ModuleList...>::~Application()
+	{
+		// Clear components before releasing modules
+		ClearComponents();
+	}
 }
 
 #include <Nazara/Core/DebugOff.hpp>

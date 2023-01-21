@@ -26,7 +26,11 @@ namespace Nz
 			~ApplicationBase() = default;
 
 			template<typename T, typename... Args> T& AddComponent(Args&&... args);
-			inline void AddComponent(std::unique_ptr<ApplicationComponent>&& component);
+
+			inline void ClearComponents();
+
+			template<typename T> T* GetComponent();
+			template<typename T> const T* GetComponent() const;
 
 			int Run();
 

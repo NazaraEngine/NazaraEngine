@@ -10,21 +10,33 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ApplicationComponent.hpp>
 #include <Nazara/Platform/Config.hpp>
+#include <Nazara/Platform/Window.hpp>
 
 namespace Nz
 {
 	class NAZARA_PLATFORM_API AppWindowingComponent : public ApplicationComponent
 	{
 		public:
-			AppWindowingComponent() = default;
+			using ApplicationComponent::ApplicationComponent;
 			AppWindowingComponent(const AppWindowingComponent&) = delete;
 			AppWindowingComponent(AppWindowingComponent&&) = delete;
 			~AppWindowingComponent() = default;
+
+			template<typename... Args> Window& CreateWindow(Args&&... args);
+
+			inline void DisableQuitOnLastWindowClosed();
+			inline void EnableQuitOnLastWindowClosed(bool enable = true);
+
+			inline bool IsQuitOnLastWindowClosedEnabled() const;
 
 			void Update(Time elapsedTime) override;
 
 			AppWindowingComponent& operator=(const AppWindowingComponent&) = delete;
 			AppWindowingComponent& operator=(AppWindowingComponent&&) = delete;
+
+		private:
+			std::vector<std::unique_ptr<Window>> m_windows;
+			bool m_quitOnLastWindowClosed;
 	};
 }
 
