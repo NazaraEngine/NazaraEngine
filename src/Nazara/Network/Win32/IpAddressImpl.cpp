@@ -169,7 +169,7 @@ namespace Nz
 
 		IpAddress::IPv6 ipv6;
 		for (unsigned int i = 0; i < 8; ++i)
-			ipv6[i] = Nz::UInt16(rawIpV6[i * 2]) << 8 | rawIpV6[i * 2 + 1];
+			ipv6[i] = UInt16(rawIpV6[i * 2]) << 8 | rawIpV6[i * 2 + 1];
 
 		return IpAddress(ipv6, ntohs(addressv6->sin6_port));
 	}

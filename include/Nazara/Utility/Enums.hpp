@@ -378,7 +378,7 @@ namespace Nz
 
 	using TextStyleFlags = Flags<TextStyle>;
 
-	constexpr TextStyleFlags TextStyle_Regular = 0;
+	constexpr TextStyleFlags TextStyle_Regular = TextStyleFlags{};
 
 	enum class VertexComponent
 	{
