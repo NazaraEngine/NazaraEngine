@@ -10,17 +10,14 @@
 #include <Nazara/Renderer.hpp>
 #include <Nazara/Utility.hpp>
 #include <Nazara/Utility/Components.hpp>
-#include <entt/entt.hpp>
-#include <chrono>
 #include <iostream>
-#include <thread>
 
 int main()
 {
 	Nz::Application<Nz::Graphics> app;
 
 	auto& windowing = app.AddComponent<Nz::AppWindowingComponent>();
-	Nz::Window& mainWindow = windowing.CreateWindow(Nz::VideoMode(1280, 720), "Hello world");
+	Nz::Window& mainWindow = windowing.CreateWindow(Nz::VideoMode(1280, 720), "Tut01 - Hello world");
 
 	auto& ecs = app.AddComponent<Nz::AppEntitySystemComponent>();
 

@@ -21,24 +21,21 @@ int main()
 	else
 		rendererConfig.preferredAPI = Nz::RenderAPI::OpenGL;
 
-	Nz::Modules<Nz::Graphics> nazara(rendererConfig);
+	Nz::Application<Nz::Graphics> app(rendererConfig);
 
-	Nz::RenderWindow window;
+	std::shared_ptr<Nz::RenderDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
+
+	auto& windowing = app.AddComponent<Nz::AppWindowingComponent>();
+
+	std::string windowTitle = "Physically Based Rendering Test";
+	Nz::Window& window = windowing.CreateWindow(Nz::VideoMode(1920, 1080), windowTitle);
+	Nz::WindowSwapchain windowSwapchain(device, window);
 
 	Nz::MeshParams meshParams;
 	meshParams.center = true;
 	meshParams.vertexRotation = Nz::EulerAnglesf(0.f, -90.f, 0.f);
 	meshParams.vertexScale = Nz::Vector3f(0.002f);
 	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_Normal_UV_Tangent);
-
-	std::shared_ptr<Nz::RenderDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
-
-	std::string windowTitle = "Physically Based Rendering Test";
-	if (!window.Create(device, Nz::VideoMode(1920, 1080, 32), windowTitle))
-	{
-		std::cout << "Failed to create Window" << std::endl;
-		return __LINE__;
-	}
 
 	std::shared_ptr<Nz::Mesh> sphereMesh = std::make_shared<Nz::Mesh>();
 	sphereMesh->CreateStatic();
@@ -74,7 +71,7 @@ int main()
 
 	Nz::Vector2ui windowSize = window.GetSize();
 
-	Nz::Camera camera(window.GetRenderTarget());
+	Nz::Camera camera(&windowSwapchain.GetSwapchain());
 	//camera.UpdateClearColor(Nz::Color::Gray);
 
 	Nz::ViewerInstance& viewerInstance = camera.GetViewerInstance();
@@ -102,65 +99,58 @@ int main()
 	Nz::EulerAnglesf camAngles(0.f, 0.f, 0.f);
 	Nz::Quaternionf camQuat(camAngles);
 
-	window.EnableEventPolling(true);
-
 	Nz::MillisecondClock updateClock;
 	Nz::MillisecondClock fpsClock;
 	unsigned int fps = 0;
 
 	Nz::Mouse::SetRelativeMouseMode(true);
 
-	while (window.IsOpen())
+	window.GetEventHandler().OnEvent.Connect([&](const Nz::WindowEventHandler*, const Nz::WindowEvent& event)
 	{
-		Nz::WindowEvent event;
-		while (window.PollEvent(&event))
+		switch (event.type)
 		{
-			switch (event.type)
+			case Nz::WindowEventType::KeyPressed:
+				if (event.key.virtualKey == Nz::Keyboard::VKey::N)
+				{
+					if (materialInstance->GetTextureProperty(normalMapProperty))
+						materialInstance->SetTextureProperty(normalMapProperty, {});
+					else
+						materialInstance->SetTextureProperty(normalMapProperty, normalMap);
+				}
+				break;
+
+			case Nz::WindowEventType::MouseMoved: // La souris a bougé
 			{
-				case Nz::WindowEventType::Quit:
-					window.Close();
-					break;
+				// Gestion de la caméra free-fly (Rotation)
+				float sensitivity = 0.3f; // Sensibilité de la souris
 
-				case Nz::WindowEventType::KeyPressed:
-					if (event.key.virtualKey == Nz::Keyboard::VKey::N)
-					{
-						if (materialInstance->GetTextureProperty(normalMapProperty))
-							materialInstance->SetTextureProperty(normalMapProperty, {});
-						else
-							materialInstance->SetTextureProperty(normalMapProperty, normalMap);
-					}
-					break;
+				// On modifie l'angle de la caméra grâce au déplacement relatif sur X de la souris
+				camAngles.yaw = camAngles.yaw - event.mouseMove.deltaX * sensitivity;
+				camAngles.yaw.Normalize();
 
-				case Nz::WindowEventType::MouseMoved: // La souris a bougé
-				{
-					// Gestion de la caméra free-fly (Rotation)
-					float sensitivity = 0.3f; // Sensibilité de la souris
+				// Idem, mais pour éviter les problèmes de calcul de la matrice de vue, on restreint les angles
+				camAngles.pitch = Nz::Clamp(camAngles.pitch - event.mouseMove.deltaY*sensitivity, -89.f, 89.f);
 
-					// On modifie l'angle de la caméra grâce au déplacement relatif sur X de la souris
-					camAngles.yaw = camAngles.yaw - event.mouseMove.deltaX * sensitivity;
-					camAngles.yaw.Normalize();
-
-					// Idem, mais pour éviter les problèmes de calcul de la matrice de vue, on restreint les angles
-					camAngles.pitch = Nz::Clamp(camAngles.pitch - event.mouseMove.deltaY*sensitivity, -89.f, 89.f);
-
-					camQuat = camAngles;
-					//light->UpdateRotation(camQuat);
-					break;
-				}
-
-				case Nz::WindowEventType::Resized:
-				{
-					Nz::Vector2ui newWindowSize = window.GetSize();
-					viewerInstance.UpdateProjectionMatrix(Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(newWindowSize.x) / newWindowSize.y, 0.1f, 1000.f));
-					viewerInstance.UpdateTargetSize(Nz::Vector2f(newWindowSize));
-					break;
-				}
-
-				default:
-					break;
+				camQuat = camAngles;
+				//light->UpdateRotation(camQuat);
+				break;
 			}
-		}
 
+			case Nz::WindowEventType::Resized:
+			{
+				Nz::Vector2ui newWindowSize = window.GetSize();
+				viewerInstance.UpdateProjectionMatrix(Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(newWindowSize.x) / newWindowSize.y, 0.1f, 1000.f));
+				viewerInstance.UpdateTargetSize(Nz::Vector2f(newWindowSize));
+				break;
+			}
+
+			default:
+				break;
+		}
+	});
+
+	app.AddUpdater([&](Nz::Time elapsedTime)
+	{
 		if (std::optional<Nz::Time> deltaTime = updateClock.RestartIfOver(Nz::Time::TickDuration(60)))
 		{
 			float cameraSpeed = 2.f * deltaTime->AsSeconds();
@@ -191,11 +181,11 @@ int main()
 			//light->UpdatePosition(viewerPos);
 		}
 
-		Nz::RenderFrame frame = window.AcquireFrame();
+		Nz::RenderFrame frame = windowSwapchain.AcquireFrame();
 		if (!frame)
 		{
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
-			continue;
+			return;
 		}
 
 		viewerInstance.UpdateViewMatrix(Nz::Matrix4f::TransformInverse(viewerPos, camAngles));
@@ -213,7 +203,7 @@ int main()
 			window.SetTitle(windowTitle + " - " + Nz::NumberToString(fps) + " FPS");
 			fps = 0;
 		}
-	}
+	});
 
-	return EXIT_SUCCESS;
+	return app.Run();
 }

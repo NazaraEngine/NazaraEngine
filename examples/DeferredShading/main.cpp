@@ -82,12 +82,10 @@ int main()
 	else
 		rendererConfig.preferredAPI = Nz::RenderAPI::OpenGL;
 
-	Nz::Modules<Nz::Graphics> nazara(rendererConfig);
+	Nz::Application<Nz::Graphics> app(rendererConfig);
 
 	nzsl::ShaderWriter::States states;
 	states.shaderModuleResolver = Nz::Graphics::Instance()->GetShaderModuleResolver();
-
-	Nz::RenderWindow window;
 
 	Nz::MeshParams meshParams;
 	meshParams.center = true;
@@ -98,12 +96,11 @@ int main()
 	std::shared_ptr<Nz::RenderDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
 	const Nz::RenderDeviceInfo& deviceInfo = device->GetDeviceInfo();
 
+	auto& windowing = app.AddComponent<Nz::AppWindowingComponent>();
+
 	std::string windowTitle = "Graphics Test";
-	if (!window.Create(device, Nz::VideoMode(1920, 1080, 32), windowTitle))
-	{
-		std::cout << "Failed to create Window" << std::endl;
-		return __LINE__;
-	}
+	Nz::Window& window = windowing.CreateWindow(Nz::VideoMode(1920, 1080), windowTitle);
+	Nz::WindowSwapchain windowSwapchain(device, window);
 
 	std::shared_ptr<Nz::Mesh> spaceship = Nz::Mesh::LoadFromFile(resourceDir / "Spaceship/spaceship.obj", meshParams);
 	if (!spaceship)
@@ -1061,8 +1058,6 @@ int main()
 	Nz::EulerAnglesf camAngles(-30.f, 0.f, 0.f);
 	Nz::Quaternionf camQuat(camAngles);
 
-	window.EnableEventPolling(true);
-
 	Nz::MillisecondClock updateClock;
 	Nz::MillisecondClock fpsClock;
 	unsigned int fps = 0;
@@ -1093,76 +1088,69 @@ int main()
 		return Nz::Matrix4f::Rotate(Nz::EulerAnglesf(0.f, elapsedTime * rotationSpeed, 0.f)) * direction;
 	};
 
-	while (window.IsOpen())
+	window.GetEventHandler().OnEvent.Connect([&](const Nz::WindowEventHandler*, const Nz::WindowEvent& event)
 	{
-		Nz::Time now = Nz::GetElapsedNanoseconds();
-		if (lightAnimation)
-			elapsedTime += now - time;
-		time = now;
-
-		Nz::WindowEvent event;
-		while (window.PollEvent(&event))
+		switch (event.type)
 		{
-			switch (event.type)
+			case Nz::WindowEventType::MouseMoved: // La souris a bougé
 			{
-				case Nz::WindowEventType::Quit:
-					window.Close();
-					break;
+				// Gestion de la caméra free-fly (Rotation)
+				float sensitivity = 0.3f; // Sensibilité de la souris
 
-				case Nz::WindowEventType::MouseMoved: // La souris a bougé
-				{
-					// Gestion de la caméra free-fly (Rotation)
-					float sensitivity = 0.3f; // Sensibilité de la souris
+				// On modifie l'angle de la caméra grâce au déplacement relatif sur X de la souris
+				camAngles.yaw = camAngles.yaw - event.mouseMove.deltaX*sensitivity;
+				camAngles.yaw.Normalize();
 
-					// On modifie l'angle de la caméra grâce au déplacement relatif sur X de la souris
-					camAngles.yaw = camAngles.yaw - event.mouseMove.deltaX*sensitivity;
-					camAngles.yaw.Normalize();
+				// Idem, mais pour éviter les problèmes de calcul de la matrice de vue, on restreint les angles
+				camAngles.pitch = Nz::Clamp(camAngles.pitch - event.mouseMove.deltaY*sensitivity, -89.f, 89.f);
 
-					// Idem, mais pour éviter les problèmes de calcul de la matrice de vue, on restreint les angles
-					camAngles.pitch = Nz::Clamp(camAngles.pitch - event.mouseMove.deltaY*sensitivity, -89.f, 89.f);
-
-					camQuat = camAngles;
-					break;
-				}
-
-				case Nz::WindowEventType::KeyPressed:
-				{
-					if (event.key.scancode == Nz::Keyboard::Scancode::Space)
-					{
-						float elapsedSeconds = elapsedTime.AsSeconds();
-						float rotationSpeed = ComputeLightAnimationSpeed(viewerPos);
-
-						auto& spotLight = spotLights.emplace_back();
-						spotLight.color = Nz::Color(0.4f, 0.4f, 1.f);
-						spotLight.radius = 5.f;
-						spotLight.position = AnimateLightPosition(viewerPos, rotationSpeed, -elapsedSeconds);
-						spotLight.direction = AnimateLightDirection(camQuat * Nz::Vector3f::Forward(), rotationSpeed, -elapsedSeconds);
-
-						lightUpdate = true;
-					}
-					else if (event.key.virtualKey == Nz::Keyboard::VKey::F)
-						forwardEnabled = !forwardEnabled;
-					else if (event.key.virtualKey == Nz::Keyboard::VKey::A)
-						lightAnimation = !lightAnimation;
-					else if (event.key.virtualKey == Nz::Keyboard::VKey::B)
-						bloomEnabled = !bloomEnabled;
-					else if (event.key.virtualKey == Nz::Keyboard::VKey::E)
-						modelInstance1.UpdateWorldMatrix(Nz::Matrix4f::Transform(viewerPos, camQuat));
-
-					break;
-				}
-
-				case Nz::WindowEventType::Resized:
-				{
-					Nz::Vector2ui newSize = window.GetSize();
-					viewerInstance.UpdateProjectionMatrix(Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(newSize.x) / newSize.y, 0.1f, 1000.f));
-					break;
-				}
-
-				default:
-					break;
+				camQuat = camAngles;
+				break;
 			}
+
+			case Nz::WindowEventType::KeyPressed:
+			{
+				if (event.key.scancode == Nz::Keyboard::Scancode::Space)
+				{
+					float elapsedSeconds = elapsedTime.AsSeconds();
+					float rotationSpeed = ComputeLightAnimationSpeed(viewerPos);
+
+					auto& spotLight = spotLights.emplace_back();
+					spotLight.color = Nz::Color(0.4f, 0.4f, 1.f);
+					spotLight.radius = 5.f;
+					spotLight.position = AnimateLightPosition(viewerPos, rotationSpeed, -elapsedSeconds);
+					spotLight.direction = AnimateLightDirection(camQuat * Nz::Vector3f::Forward(), rotationSpeed, -elapsedSeconds);
+
+					lightUpdate = true;
+				}
+				else if (event.key.virtualKey == Nz::Keyboard::VKey::F)
+					forwardEnabled = !forwardEnabled;
+				else if (event.key.virtualKey == Nz::Keyboard::VKey::A)
+					lightAnimation = !lightAnimation;
+				else if (event.key.virtualKey == Nz::Keyboard::VKey::B)
+					bloomEnabled = !bloomEnabled;
+				else if (event.key.virtualKey == Nz::Keyboard::VKey::E)
+					modelInstance1.UpdateWorldMatrix(Nz::Matrix4f::Transform(viewerPos, camQuat));
+
+				break;
+			}
+
+			case Nz::WindowEventType::Resized:
+			{
+				Nz::Vector2ui newSize = window.GetSize();
+				viewerInstance.UpdateProjectionMatrix(Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(newSize.x) / newSize.y, 0.1f, 1000.f));
+				break;
+			}
+
+			default:
+				break;
 		}
+	});
+
+	app.AddUpdater([&](Nz::Time deltaTime)
+	{
+		if (lightAnimation)
+			elapsedTime += deltaTime;
 
 		if (std::optional<Nz::Time> deltaTime = updateClock.RestartIfOver(Nz::Time::TickDuration(60)))
 		{
@@ -1194,11 +1182,11 @@ int main()
 			viewerInstance.UpdateViewMatrix(Nz::Matrix4f::TransformInverse(viewerPos, camQuat));
 		}
 
-		Nz::RenderFrame frame = window.AcquireFrame();
+		Nz::RenderFrame frame = windowSwapchain.AcquireFrame();
 		if (!frame)
 		{
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
-			continue;
+			return;
 		}
 
 		currentFrame = &frame;
@@ -1535,7 +1523,7 @@ int main()
 
 		bakedGraph.Execute(frame);
 
-		const Nz::RenderTarget* windowRT = window.GetRenderTarget();
+		const Nz::RenderTarget* windowRT = &windowSwapchain.GetSwapchain();
 		frame.Execute([&](Nz::CommandBufferBuilder& builder)
 		{
 			Nz::Recti windowRenderRect(0, 0, window.GetSize().x, window.GetSize().y);
@@ -1572,7 +1560,7 @@ int main()
 			window.SetTitle(windowTitle + " - " + Nz::NumberToString(fps) + " FPS");
 			fps = 0;
 		}
-	}
+	});
 
-	return EXIT_SUCCESS;
+	return app.Run();
 }

@@ -1,4 +1,5 @@
 #include <Nazara/Core.hpp>
+#include <Nazara/Core/AppEntitySystemComponent.hpp>
 #include <Nazara/Core/Systems.hpp>
 #include <Nazara/Platform.hpp>
 #include <Nazara/Graphics.hpp>
@@ -37,47 +38,49 @@ int main()
 	else
 		rendererConfig.preferredAPI = Nz::RenderAPI::OpenGL;
 
-	Nz::Modules<Nz::Graphics> nazara(rendererConfig);
+	Nz::Application<Nz::Graphics> app(rendererConfig);
 
 	Nz::PluginLoader loader;
 	Nz::Plugin<Nz::AssimpPlugin> assimp = loader.Load<Nz::AssimpPlugin>();
 
 	std::shared_ptr<Nz::RenderDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
 
-	entt::registry registry;
-	Nz::SystemGraph systemGraph(registry);
-	systemGraph.AddSystem<Nz::SkeletonSystem>();
+	auto& ecs = app.AddComponent<Nz::AppEntitySystemComponent>();
+	ecs.AddSystem<Nz::SkeletonSystem>();
 
-	Nz::Physics3DSystem& physSytem = systemGraph.AddSystem<Nz::Physics3DSystem>();
-	Nz::RenderSystem& renderSystem = systemGraph.AddSystem<Nz::RenderSystem>();
+	Nz::Physics3DSystem& physSytem = ecs.AddSystem<Nz::Physics3DSystem>();
+	Nz::RenderSystem& renderSystem = ecs.AddSystem<Nz::RenderSystem>();
+
+	auto& windowing = app.AddComponent<Nz::AppWindowingComponent>();
 
 	std::string windowTitle = "Skinning test";
-	Nz::RenderWindow& window = renderSystem.CreateWindow(device, Nz::VideoMode(1280, 720, 32), windowTitle);
+	Nz::Window& mainWindow = windowing.CreateWindow(Nz::VideoMode(1280, 720), windowTitle);
+	auto& windowSwapchain = renderSystem.CreateSwapchain(mainWindow);
 
 	physSytem.GetPhysWorld().SetGravity({ 0.f, -9.81f, 0.f });
 
 	Nz::TextureParams texParams;
 	texParams.renderDevice = device;
 
-	entt::entity playerEntity = registry.create();
-	entt::entity playerRotation = registry.create();
-	entt::entity playerCamera = registry.create();
+	entt::handle playerEntity = ecs.CreateEntity();
+	entt::handle playerRotation = ecs.CreateEntity();
+	entt::handle playerCamera = ecs.CreateEntity();
 	{
-		auto& playerNode = registry.emplace<Nz::NodeComponent>(playerEntity);
+		auto& playerNode = playerEntity.emplace<Nz::NodeComponent>();
 		playerNode.SetPosition(0.f, 1.8f, 1.f);
 
-		auto& playerBody = registry.emplace<Nz::RigidBody3DComponent>(playerEntity, &physSytem.GetPhysWorld());
+		auto& playerBody = playerEntity.emplace<Nz::RigidBody3DComponent>(&physSytem.GetPhysWorld());
 		playerBody.SetMass(42.f);
 		playerBody.SetGeom(std::make_shared<Nz::BoxCollider3D>(Nz::Vector3f::Unit()));
 
-		auto& playerRotNode = registry.emplace<Nz::NodeComponent>(playerRotation);
+		auto& playerRotNode = playerRotation.emplace<Nz::NodeComponent>();
 		playerRotNode.SetParent(playerNode);
 
-		auto& cameraNode = registry.emplace<Nz::NodeComponent>(playerCamera);
+		auto& cameraNode = playerCamera.emplace<Nz::NodeComponent>();
 		cameraNode.SetPosition(Nz::Vector3f::Up() * 2.f + Nz::Vector3f::Backward());
 		//cameraNode.SetParent(playerRotNode);
 
-		auto& cameraComponent = registry.emplace<Nz::CameraComponent>(playerCamera, window.GetRenderTarget());
+		auto& cameraComponent = playerCamera.emplace<Nz::CameraComponent>(&windowSwapchain.GetSwapchain());
 		cameraComponent.UpdateZNear(0.2f);
 		cameraComponent.UpdateZFar(10000.f);
 		cameraComponent.UpdateRenderMask(1);
@@ -163,14 +166,14 @@ int main()
 		}
 	}*/
 
-	entt::handle bobEntity = entt::handle(registry, registry.create());
-	entt::entity lightEntity1 = registry.create();
+	entt::handle bobEntity = ecs.CreateEntity();
+	entt::handle lightEntity1 = ecs.CreateEntity();
 	{
-		auto& lightNode = registry.emplace<Nz::NodeComponent>(lightEntity1);
+		auto& lightNode = lightEntity1.emplace<Nz::NodeComponent>();
 		lightNode.SetPosition(Nz::Vector3f::Up() * 3.f + Nz::Vector3f::Backward() * 1.f);
 		lightNode.SetRotation(Nz::EulerAnglesf(-70.f, 0.f, 0.f));
 
-		auto& cameraLight = registry.emplace<Nz::LightComponent>(lightEntity1);
+		auto& cameraLight = lightEntity1.emplace<Nz::LightComponent>();
 
 		auto& spotLight = cameraLight.AddLight<Nz::SpotLight>(0xFFFFFFFF);
 		spotLight.UpdateColor(Nz::Color::Red());
@@ -179,20 +182,21 @@ int main()
 		spotLight.EnableShadowCasting(true);
 	}
 
-	entt::entity lightEntity2 = registry.create();
+	entt::handle lightEntity2 = ecs.CreateEntity();
 	{
-		auto& lightNode = registry.emplace<Nz::NodeComponent>(lightEntity2);
+		auto& lightNode = lightEntity2.emplace<Nz::NodeComponent>();
 		lightNode.SetPosition(Nz::Vector3f::Up() * 3.5f + Nz::Vector3f::Right() * 1.5f);
 		lightNode.SetRotation(Nz::EulerAnglesf(-70.f, 90.f, 0.f));
 
-		auto& cameraLight = registry.emplace<Nz::LightComponent>(lightEntity2);
+		auto& cameraLight = lightEntity2.emplace<Nz::LightComponent>();
 
 		auto& spotLight = cameraLight.AddLight<Nz::SpotLight>(0xFFFFFFFF);
 		spotLight.UpdateColor(Nz::Color::Green());
 		spotLight.EnableShadowCasting(true);
 		spotLight.UpdateShadowMapSize(1024);
 	}
-	entt::entity lightEntity3 = registry.create();
+
+	entt::handle lightEntity3 = ecs.CreateEntity();
 
 	{
 		auto& bobNode = bobEntity.emplace<Nz::NodeComponent>();
@@ -205,8 +209,7 @@ int main()
 
 		auto& sharedSkeleton = bobEntity.emplace<Nz::SharedSkeletonComponent>(skeleton);
 
-
-		entt::entity sphereEntity = registry.create();
+		entt::handle sphereEntity = ecs.CreateEntity();
 		{
 			std::shared_ptr<Nz::Mesh> sphereMesh = std::make_shared<Nz::Mesh>();
 			sphereMesh->CreateStatic();
@@ -227,35 +230,35 @@ int main()
 			for (std::size_t i = 0; i < sphereModel->GetSubMeshCount(); ++i)
 				sphereModel->SetMaterial(i, sphereMat);
 
-			auto& sphereNode = registry.emplace<Nz::NodeComponent>(sphereEntity);
+			auto& sphereNode = sphereEntity.emplace<Nz::NodeComponent>();
 			sphereNode.SetScale(0.1f);
 			sphereNode.SetInheritScale(false);
 			sphereNode.SetParentJoint(bobEntity, "RightHand");
 
-			auto& sphereBody = registry.emplace<Nz::RigidBody3DComponent>(sphereEntity, &physSytem.GetPhysWorld());
+			auto& sphereBody = sphereEntity.emplace<Nz::RigidBody3DComponent>(&physSytem.GetPhysWorld());
 			sphereBody.SetGeom(std::make_shared<Nz::SphereCollider3D>(0.1f));
 
-			auto& sphereGfx = registry.emplace<Nz::GraphicsComponent>(sphereEntity);
+			auto& sphereGfx = sphereEntity.emplace<Nz::GraphicsComponent>();
 			sphereGfx.AttachRenderable(sphereModel, 0xFFFFFFFF);
 		}
 
-		entt::entity smallBobEntity = registry.create();
-		auto& smallBobNode = registry.emplace<Nz::NodeComponent>(smallBobEntity);
+		entt::handle smallBobEntity = ecs.CreateEntity();
+		auto& smallBobNode = smallBobEntity.emplace<Nz::NodeComponent>();
 		smallBobNode.SetParentJoint(bobEntity, "LeftHand");
 
-		auto& smallBobGfx = registry.emplace<Nz::GraphicsComponent>(smallBobEntity);
+		auto& smallBobGfx = smallBobEntity.emplace<Nz::GraphicsComponent>();
 		smallBobGfx.AttachRenderable(bobModel, 0xFFFFFFFF);
 
-		registry.emplace<Nz::SharedSkeletonComponent>(smallBobEntity, skeleton);
+		smallBobEntity.emplace<Nz::SharedSkeletonComponent>(skeleton);
 
 		{
-			auto& lightNode = registry.emplace<Nz::NodeComponent>(lightEntity3);
+			auto& lightNode = lightEntity3.emplace<Nz::NodeComponent>();
 			//lightNode.SetPosition(Nz::Vector3f::Up() * 4.f);
 			lightNode.SetPosition(Nz::Vector3f::Down() * 7.5f + Nz::Vector3f::Backward() * 2.5f);
 			//lightNode.SetRotation(Nz::EulerAnglesf(-45.f, 180.f, 0.f));
 			lightNode.SetParentJoint(bobEntity, "Spine2");
 
-			auto& cameraLight = registry.emplace<Nz::LightComponent>(lightEntity3);
+			auto& cameraLight = lightEntity3.emplace<Nz::LightComponent>();
 
 			auto& pointLight = cameraLight.AddLight<Nz::PointLight>(0xFFFFFFFF);
 			pointLight.UpdateColor(Nz::Color::Blue());
@@ -294,17 +297,17 @@ int main()
 	sprite->UpdateRenderLayer(1);
 	sprite->Update(Nz::SimpleTextDrawer::Draw("Shadow-mapping !", 72), 0.002f);
 
-	entt::entity textEntity = registry.create();
+	entt::handle textEntity = ecs.CreateEntity();
 	{
-		auto& entityGfx = registry.emplace<Nz::GraphicsComponent>(textEntity);
+		auto& entityGfx = textEntity.emplace<Nz::GraphicsComponent>();
 		entityGfx.AttachRenderable(sprite, 1);
 
-		auto& entityNode = registry.emplace<Nz::NodeComponent>(textEntity);
+		auto& entityNode = textEntity.emplace<Nz::NodeComponent>();
 		entityNode.SetPosition(Nz::Vector3f::Up() * 0.5f + Nz::Vector3f::Backward() * 0.66f + Nz::Vector3f::Left() * 0.5f);
 		entityNode.SetRotation(Nz::EulerAnglesf(-45.f, 0.f, 0.f));
 	}
 
-	entt::entity planeEntity = registry.create();
+	entt::handle planeEntity = ecs.CreateEntity();
 	Nz::Boxf floorBox;
 	{
 		Nz::MeshParams meshPrimitiveParams;
@@ -332,12 +335,12 @@ int main()
 		std::shared_ptr<Nz::Model> planeModel = std::make_shared<Nz::Model>(std::move(planeMeshGfx), planeMesh.GetAABB());
 		planeModel->SetMaterial(0, planeMat);
 
-		auto& planeGfx = registry.emplace<Nz::GraphicsComponent>(planeEntity);
+		auto& planeGfx = planeEntity.emplace<Nz::GraphicsComponent>();
 		planeGfx.AttachRenderable(planeModel, 0xFFFFFFFF);
 
-		registry.emplace<Nz::NodeComponent>(planeEntity);
+		planeEntity.emplace<Nz::NodeComponent>();
 
-		auto& planeBody = registry.emplace<Nz::RigidBody3DComponent>(planeEntity, &physSytem.GetPhysWorld());
+		auto& planeBody = planeEntity.emplace<Nz::RigidBody3DComponent>(&physSytem.GetPhysWorld());
 		planeBody.SetGeom(std::make_shared<Nz::BoxCollider3D>(Nz::Vector3f(planeSize.x, 0.5f, planeSize.y), Nz::Vector3f(0.f, -0.25f, 0.f)));
 
 		Nz::Mesh boxMesh;
@@ -350,12 +353,10 @@ int main()
 		std::shared_ptr<Nz::Model> boxModel = std::make_shared<Nz::Model>(std::move(boxMeshGfx), boxMesh.GetAABB());
 		boxModel->SetMaterial(0, planeMat);
 
-		entt::entity boxEntity = registry.create();
-		registry.emplace<Nz::NodeComponent>(boxEntity).SetPosition(Nz::Vector3f(0.f, 0.25f, -0.5f));
-		registry.emplace<Nz::GraphicsComponent>(boxEntity).AttachRenderable(boxModel, 0xFFFFFFFF);
+		entt::handle boxEntity = ecs.CreateEntity();
+		boxEntity.emplace<Nz::NodeComponent>().SetPosition(Nz::Vector3f(0.f, 0.25f, -0.5f));
+		boxEntity.emplace<Nz::GraphicsComponent>().AttachRenderable(boxModel, 0xFFFFFFFF);
 	}
-
-	window.EnableEventPolling(true);
 
 	Nz::MillisecondClock fpsClock, updateClock;
 	float incr = 0.f;
@@ -365,49 +366,33 @@ int main()
 	Nz::UInt64 fps = 0;
 	bool paused = false;
 
-	while (window.IsOpen())
+	Nz::WindowEventHandler& eventHandler = mainWindow.GetEventHandler();
+	eventHandler.OnKeyPressed.Connect([&](const Nz::WindowEventHandler*, const Nz::WindowEvent::KeyEvent& event)
 	{
-		Nz::WindowEvent event;
-		while (window.PollEvent(&event))
-		{
-			switch (event.type)
-			{
-				case Nz::WindowEventType::Quit:
-					window.Close();
-					break;
+		if (event.virtualKey == Nz::Keyboard::VKey::P)
+			paused = !paused;
+	});
 
-				case Nz::WindowEventType::KeyPressed:
-				{
-					if (event.type == Nz::WindowEventType::KeyPressed && event.key.virtualKey == Nz::Keyboard::VKey::P)
-						paused = !paused;
+	eventHandler.OnMouseMoved.Connect([&](const Nz::WindowEventHandler*, const Nz::WindowEvent::MouseMoveEvent& event)
+	{
+		// Gestion de la caméra free-fly (Rotation)
+		float sensitivity = 0.3f; // Sensibilité de la souris
 
-					break;
-				}
+		// On modifie l'angle de la caméra grâce au déplacement relatif sur X de la souris
+		camAngles.yaw = camAngles.yaw - event.deltaX * sensitivity;
+		camAngles.yaw.Normalize();
 
-				case Nz::WindowEventType::MouseMoved:
-				{
-					// Gestion de la caméra free-fly (Rotation)
-					float sensitivity = 0.3f; // Sensibilité de la souris
+		// Idem, mais pour éviter les problèmes de calcul de la matrice de vue, on restreint les angles
+		camAngles.pitch = Nz::Clamp(camAngles.pitch - event.deltaY * sensitivity, -89.f, 89.f);
 
-					// On modifie l'angle de la caméra grâce au déplacement relatif sur X de la souris
-					camAngles.yaw = camAngles.yaw - event.mouseMove.deltaX * sensitivity;
-					camAngles.yaw.Normalize();
+		/*auto& playerRotNode = registry.get<Nz::NodeComponent>(playerRotation);
+		playerRotNode.SetRotation(camAngles);*/
+		auto& playerRotNode = playerCamera.get<Nz::NodeComponent>();
+		playerRotNode.SetRotation(camAngles);
+	});
 
-					// Idem, mais pour éviter les problèmes de calcul de la matrice de vue, on restreint les angles
-					camAngles.pitch = Nz::Clamp(camAngles.pitch - event.mouseMove.deltaY * sensitivity, -89.f, 89.f);
-
-					/*auto& playerRotNode = registry.get<Nz::NodeComponent>(playerRotation);
-					playerRotNode.SetRotation(camAngles);*/
-					auto& playerRotNode = registry.get<Nz::NodeComponent>(playerCamera);
-					playerRotNode.SetRotation(camAngles);
-					break;
-				}
-
-				default:
-					break;
-			}
-		}
-
+	app.AddUpdater([&](Nz::Time elapsedTime)
+	{
 		if (std::optional<Nz::Time> deltaTime = updateClock.RestartIfOver(Nz::Time::TickDuration(60)))
 		{
 			float updateTime = deltaTime->AsSeconds();
@@ -433,7 +418,7 @@ int main()
 
 			float cameraSpeed = 2.f;
 
-			auto& cameraNode = registry.get<Nz::NodeComponent>(playerCamera);
+			auto& cameraNode = playerCamera.get<Nz::NodeComponent>();
 			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Space))
 				cameraNode.Move(Nz::Vector3f::Up() * cameraSpeed * updateTime, Nz::CoordSys::Global);
 
@@ -517,9 +502,9 @@ int main()
 				playerShipBody.AddForce(Nz::Vector3f::Down() * 3.f * mass, Nz::CoordSys::Local);*/
 		}
 
-		
+
 		Nz::DebugDrawer& debugDrawer = renderSystem.GetFramePipeline().GetDebugDrawer();
-		auto& lightNode = registry.get<Nz::NodeComponent>(lightEntity3);
+		auto& lightNode = lightEntity3.get<Nz::NodeComponent>();
 		//debugDrawer.DrawLine(lightNode.GetPosition(Nz::CoordSys::Global), lightNode.GetForward() * 10.f, Nz::Color::Blue());
 		Nz::Vector3f pos = lightNode.GetPosition(Nz::CoordSys::Global);
 		debugDrawer.DrawBox(Nz::Boxf(pos.x - 0.05f, pos.y - 0.05f, pos.z - 0.05f, 0.1f, 0.1f, 0.1f), Nz::Color::Blue());
@@ -528,16 +513,16 @@ int main()
 		if (floorBox.Intersect(test, &intersection))
 			debugDrawer.DrawBox(intersection, Nz::Color::Green());*/
 
-		systemGraph.Update();
-
 		fps++;
 
 		if (fpsClock.RestartIfOver(Nz::Time::Second()))
 		{
-			window.SetTitle(windowTitle + " - " + Nz::NumberToString(fps) + " FPS" + " - " + Nz::NumberToString(registry.alive()) + " entities");
+			mainWindow.SetTitle(windowTitle + " - " + Nz::NumberToString(fps) + " FPS" + " - " + Nz::NumberToString(ecs.GetRegistry().alive()) + " entities");
 			fps = 0;
 		}
-	}
+	});
+
+	return app.Run();
 
 	return EXIT_SUCCESS;
 }

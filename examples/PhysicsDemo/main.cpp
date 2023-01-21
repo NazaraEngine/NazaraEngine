@@ -1,10 +1,11 @@
 #include <Nazara/Core.hpp>
+#include <Nazara/Core/AppEntitySystemComponent.hpp>
 #include <Nazara/Core/Systems.hpp>
 #include <Nazara/Platform.hpp>
 #include <Nazara/Graphics.hpp>
-#include <Nazara/Graphics/TextSprite.hpp>
 #include <Nazara/Graphics/Components.hpp>
 #include <Nazara/Graphics/Systems.hpp>
+#include <Nazara/Graphics/TextSprite.hpp>
 #include <Nazara/Math/PidController.hpp>
 #include <Nazara/Physics3D.hpp>
 #include <Nazara/Physics3D/Components.hpp>
@@ -36,7 +37,17 @@ int main()
 
 	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-	Nz::Modules<Nz::Graphics, Nz::Physics3D> nazara(rendererConfig);
+	Nz::Application<Nz::Graphics, Nz::Physics3D> app(rendererConfig);
+
+	auto& windowing = app.AddComponent<Nz::AppWindowingComponent>();
+
+	auto& ecs = app.AddComponent<Nz::AppEntitySystemComponent>();
+	Nz::Physics3DSystem& physSytem = ecs.AddSystem<Nz::Physics3DSystem>();
+	Nz::RenderSystem& renderSystem = ecs.AddSystem<Nz::RenderSystem>();
+
+	std::string windowTitle = "Physics 3D";
+	Nz::Window& window = windowing.CreateWindow(Nz::VideoMode(1920, 1080, 32), windowTitle);
+	Nz::WindowSwapchain& windowSwapchain = renderSystem.CreateSwapchain(window);
 
 	std::shared_ptr<Nz::RenderDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
 
@@ -94,21 +105,12 @@ int main()
 	Nz::VertexMapper vertexMapper(*spaceshipMesh->GetSubMesh(0));
 	Nz::SparsePtr<Nz::Vector3f> vertices = vertexMapper.GetComponentPtr<Nz::Vector3f>(Nz::VertexComponent::Position);
 
-	entt::registry registry;
-
-	Nz::SystemGraph systemGraph(registry);
-	Nz::Physics3DSystem& physSytem = systemGraph.AddSystem<Nz::Physics3DSystem>();
-	Nz::RenderSystem& renderSystem = systemGraph.AddSystem<Nz::RenderSystem>();
-
-	std::string windowTitle = "Graphics Test";
-	Nz::RenderWindow& window = renderSystem.CreateWindow(device, Nz::VideoMode(1920, 1080, 32), windowTitle);
-
 	Nz::Vector2ui windowSize = window.GetSize();
 
-	entt::entity viewer = registry.create();
+	entt::handle viewer = ecs.CreateEntity();
 	{
-		registry.emplace<Nz::NodeComponent>(viewer);
-		auto& cameraComponent = registry.emplace<Nz::CameraComponent>(viewer, window.GetRenderTarget());
+		viewer.emplace<Nz::NodeComponent>();
+		auto& cameraComponent = viewer.emplace<Nz::CameraComponent>(&windowSwapchain.GetSwapchain());
 		cameraComponent.UpdateRenderMask(1);
 		cameraComponent.UpdateClearColor(Nz::Color(0.5f, 0.5f, 0.5f));
 	}
@@ -136,40 +138,40 @@ int main()
 			colliderModel->SetMaterial(i, colliderMat);
 	}
 
-	entt::entity textEntity = registry.create();
+	entt::handle textEntity = ecs.CreateEntity();
 	{
-		auto& entityGfx = registry.emplace<Nz::GraphicsComponent>(textEntity);
+		auto& entityGfx = textEntity.emplace<Nz::GraphicsComponent>();
 		entityGfx.AttachRenderable(sprite, 1);
 
-		auto& entityNode = registry.emplace<Nz::NodeComponent>(textEntity);
+		auto& entityNode = textEntity.emplace<Nz::NodeComponent>();
 		entityNode.SetPosition(0.f, 5.f, 0.f);
 	}
-	entt::entity playerEntity = registry.create();
+	entt::handle playerEntity = ecs.CreateEntity();
 
-	entt::entity headingEntity = registry.create();
+	entt::handle headingEntity = ecs.CreateEntity();
 	{
-		auto& entityLight = registry.emplace<Nz::LightComponent>(playerEntity);
+		auto& entityLight = playerEntity.emplace<Nz::LightComponent>();
 		auto& spotLight = entityLight.AddLight<Nz::SpotLight>(1);
 		spotLight.EnableShadowCasting(true);
 		spotLight.UpdateShadowMapSize(1024);
 
-		auto& entityGfx = registry.emplace<Nz::GraphicsComponent>(playerEntity);
+		auto& entityGfx = playerEntity.emplace<Nz::GraphicsComponent>();
 		entityGfx.AttachRenderable(model, 1);
 
-		auto& entityNode = registry.emplace<Nz::NodeComponent>(playerEntity);
+		auto& entityNode = playerEntity.emplace<Nz::NodeComponent>();
 		entityNode.SetPosition(Nz::Vector3f(12.5f, 0.f, 25.f));
 
-		auto& entityPhys = registry.emplace<Nz::RigidBody3DComponent>(playerEntity, physSytem.CreateRigidBody(shipCollider));
+		auto& entityPhys = playerEntity.emplace<Nz::RigidBody3DComponent>(physSytem.CreateRigidBody(shipCollider));
 		entityPhys.SetMass(50.f);
 		entityPhys.SetAngularDamping(Nz::Vector3f::Zero());
 
-		auto& headingNode = registry.emplace<Nz::NodeComponent>(headingEntity);
+		auto& headingNode = headingEntity.emplace<Nz::NodeComponent>();
 		headingNode.SetInheritRotation(false);
 		headingNode.SetParent(entityNode);
 	}
 
-	registry.get<Nz::NodeComponent>(viewer).SetParent(entt::handle(registry, headingEntity));
-	registry.get<Nz::NodeComponent>(viewer).SetPosition(Nz::Vector3f::Backward() * 2.5f + Nz::Vector3f::Up() * 1.f);
+	viewer.get<Nz::NodeComponent>().SetParent(headingEntity);
+	viewer.get<Nz::NodeComponent>().SetPosition(Nz::Vector3f::Backward() * 2.5f + Nz::Vector3f::Up() * 1.f);
 
 	for (std::size_t x = 0; x < 3; ++x)
 	{
@@ -177,15 +179,15 @@ int main()
 		{
 			for (std::size_t z = 0; z < 3; ++z)
 			{
-				entt::entity entity = registry.create();
-				auto& entityGfx = registry.emplace<Nz::GraphicsComponent>(entity);
+				entt::handle entity = ecs.CreateEntity();
+				auto& entityGfx = entity.emplace<Nz::GraphicsComponent>();
 				entityGfx.AttachRenderable(model, 1);
 
-				auto& entityNode = registry.emplace<Nz::NodeComponent>(entity);
+				auto& entityNode = entity.emplace<Nz::NodeComponent>();
 				entityNode.SetPosition(Nz::Vector3f(x * 2.f, y * 1.5f, z * 2.f));
 				entityNode.SetRotation(Nz::EulerAnglesf(0.f, Nz::TurnAnglef(0.5f), 0.f));
 
-				auto& entityPhys = registry.emplace<Nz::RigidBody3DComponent>(entity, physSytem.CreateRigidBody(shipCollider));
+				auto& entityPhys = entity.emplace<Nz::RigidBody3DComponent>(physSytem.CreateRigidBody(shipCollider));
 				entityPhys.SetMass(1.f);
 				entityPhys.SetAngularDamping(Nz::Vector3f::Zero());
 				entityPhys.SetLinearDamping(0.f);
@@ -195,8 +197,6 @@ int main()
 
 	Nz::EulerAnglesf camAngles(0.f, 0.f, 0.f);
 	Nz::Quaternionf camQuat(camAngles);
-
-	window.EnableEventPolling(true);
 
 	Nz::MillisecondClock updateClock;
 	Nz::MillisecondClock fpsClock;
@@ -208,82 +208,69 @@ int main()
 	Nz::PidController<Nz::Vector3f> upController(1.f, 0.f, 0.1f);
 
 	bool showColliders = false;
-	while (window.IsOpen())
+
+	Nz::WindowEventHandler& eventHandler = window.GetEventHandler();
+	eventHandler.OnKeyPressed.Connect([&](const Nz::WindowEventHandler*, const Nz::WindowEvent::KeyEvent& event)
 	{
-		Nz::WindowEvent event;
-		while (window.PollEvent(&event))
+		if (event.virtualKey == Nz::Keyboard::VKey::A)
 		{
-			switch (event.type)
+			bool alphaTestEnabled = std::get<bool>(*material->GetValueProperty("AlphaTest"));
+			material->SetValueProperty("AlphaTest", !alphaTestEnabled);
+		}
+		else if (event.virtualKey == Nz::Keyboard::VKey::B)
+		{
+			showColliders = !showColliders;
+			if (showColliders)
 			{
-				case Nz::WindowEventType::Quit:
-					window.Close();
-					break;
-
-				case Nz::WindowEventType::KeyPressed:
-					if (event.key.virtualKey == Nz::Keyboard::VKey::A)
-					{
-						bool alphaTestEnabled = std::get<bool>(*material->GetValueProperty("AlphaTest"));
-						material->SetValueProperty("AlphaTest", !alphaTestEnabled);
-					}
-					else if (event.key.virtualKey == Nz::Keyboard::VKey::B)
-					{
-						showColliders = !showColliders;
-						if (showColliders)
-						{
-							auto view = registry.view<Nz::GraphicsComponent, Nz::RigidBody3DComponent>();
-							for (auto [entity, gfxComponent, _] : view.each())
-								gfxComponent.AttachRenderable(colliderModel, 1);
-						}
-						else
-						{
-							auto view = registry.view<Nz::GraphicsComponent, Nz::RigidBody3DComponent>();
-							for (auto [entity, gfxComponent, _] : view.each())
-								gfxComponent.DetachRenderable(colliderModel);
-						}
-					}
-					else if (event.key.virtualKey == Nz::Keyboard::VKey::Space)
-					{
-						entt::entity entity = registry.create();
-						auto& entityGfx = registry.emplace<Nz::GraphicsComponent>(entity);
-						entityGfx.AttachRenderable(model, 1);
-						if (showColliders)
-							entityGfx.AttachRenderable(colliderModel, 1);
-
-						registry.emplace<Nz::NodeComponent>(entity);
-
-						auto& entityPhys = registry.emplace<Nz::RigidBody3DComponent>(entity, physSytem.CreateRigidBody(shipCollider));
-						entityPhys.SetMass(1.f);
-						entityPhys.SetAngularDamping(Nz::Vector3f::Zero());
-						entityPhys.SetLinearDamping(0.f);
-					}
-
-					break;
-
-				case Nz::WindowEventType::MouseMoved:
-				{
-					float sensitivity = 0.3f;
-
-					camAngles.yaw = camAngles.yaw - event.mouseMove.deltaX * sensitivity;
-					camAngles.pitch = camAngles.pitch - event.mouseMove.deltaY * sensitivity;
-
-					camAngles.Normalize();
-
-					camQuat = camAngles;
-
-					registry.get<Nz::NodeComponent>(headingEntity).SetRotation(camQuat);
-					break;
-				}
-
-				default:
-					break;
+				auto view = ecs.GetRegistry().view<Nz::GraphicsComponent, Nz::RigidBody3DComponent>();
+				for (auto [entity, gfxComponent, _] : view.each())
+					gfxComponent.AttachRenderable(colliderModel, 1);
+			}
+			else
+			{
+				auto view = ecs.GetRegistry().view<Nz::GraphicsComponent, Nz::RigidBody3DComponent>();
+				for (auto [entity, gfxComponent, _] : view.each())
+					gfxComponent.DetachRenderable(colliderModel);
 			}
 		}
+		else if (event.virtualKey == Nz::Keyboard::VKey::Space)
+		{
+			entt::handle entity = ecs.CreateEntity();
+			auto& entityGfx = entity.emplace<Nz::GraphicsComponent>();
+			entityGfx.AttachRenderable(model, 1);
+			if (showColliders)
+				entityGfx.AttachRenderable(colliderModel, 1);
 
+			entity.emplace<Nz::NodeComponent>();
+
+			auto& entityPhys = entity.emplace<Nz::RigidBody3DComponent>(physSytem.CreateRigidBody(shipCollider));
+			entityPhys.SetMass(1.f);
+			entityPhys.SetAngularDamping(Nz::Vector3f::Zero());
+			entityPhys.SetLinearDamping(0.f);
+		}
+	});
+
+	eventHandler.OnMouseMoved.Connect([&](const Nz::WindowEventHandler*, const Nz::WindowEvent::MouseMoveEvent& event)
+	{
+		float sensitivity = 0.3f;
+
+		camAngles.yaw = camAngles.yaw - event.deltaX * sensitivity;
+		camAngles.pitch = camAngles.pitch - event.deltaY * sensitivity;
+
+		camAngles.Normalize();
+
+		camQuat = camAngles;
+
+		headingEntity.get<Nz::NodeComponent>().SetRotation(camQuat);
+	});
+
+	app.AddUpdater([&](Nz::Time elapsedTime)
+	{
 		if (std::optional<Nz::Time> deltaTime = updateClock.RestartIfOver(Nz::Time::TickDuration(60)))
 		{
 			float elapsedTime = deltaTime->AsSeconds();
 
-			auto spaceshipView = registry.view<Nz::NodeComponent, Nz::RigidBody3DComponent>();
+			auto spaceshipView = ecs.GetRegistry().view<Nz::NodeComponent, Nz::RigidBody3DComponent>();
 			for (auto&& [entity, node, _] : spaceshipView.each())
 			{
 				if (entity == playerEntity)
@@ -291,17 +278,17 @@ int main()
 
 				Nz::Vector3f spaceshipPos = node.GetPosition(Nz::CoordSys::Global);
 				if (spaceshipPos.GetSquaredLength() > Nz::IntegralPow(20.f, 2))
-					registry.destroy(entity);
+					ecs.GetRegistry().destroy(entity);
 			}
 
-			Nz::RigidBody3DComponent& playerShipBody = registry.get<Nz::RigidBody3DComponent>(playerEntity);
+			Nz::RigidBody3DComponent& playerShipBody = playerEntity.get<Nz::RigidBody3DComponent>();
 			Nz::Quaternionf currentRotation = playerShipBody.GetRotation();
 
-			Nz::Vector3f desiredHeading = registry.get<Nz::NodeComponent>(headingEntity).GetForward();
+			Nz::Vector3f desiredHeading = headingEntity.get<Nz::NodeComponent>().GetForward();
 			Nz::Vector3f currentHeading = currentRotation * Nz::Vector3f::Forward();
 			Nz::Vector3f headingError = currentHeading.CrossProduct(desiredHeading);
 
-			Nz::Vector3f desiredUp = registry.get<Nz::NodeComponent>(headingEntity).GetUp();
+			Nz::Vector3f desiredUp = headingEntity.get<Nz::NodeComponent>().GetUp();
 			Nz::Vector3f currentUp = currentRotation * Nz::Vector3f::Up();
 			Nz::Vector3f upError = currentUp.CrossProduct(desiredUp);
 
@@ -329,16 +316,14 @@ int main()
 				playerShipBody.AddForce(Nz::Vector3f::Down() * 3.f * mass, Nz::CoordSys::Local);
 		}
 
-		systemGraph.Update();
-
 		fps++;
 
 		if (fpsClock.RestartIfOver(Nz::Time::Second()))
 		{
-			window.SetTitle(windowTitle + " - " + Nz::NumberToString(fps) + " FPS" + " - " + Nz::NumberToString(registry.alive()) + " entities");
+			window.SetTitle(windowTitle + " - " + Nz::NumberToString(fps) + " FPS" + " - " + Nz::NumberToString(ecs.GetRegistry().alive()) + " entities");
 			fps = 0;
 		}
-	}
+	});
 
-	return EXIT_SUCCESS;
+	return app.Run();
 }

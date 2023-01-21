@@ -1,4 +1,5 @@
 #include <Nazara/Core.hpp>
+#include <Nazara/Core/AppEntitySystemComponent.hpp>
 #include <Nazara/Core/Systems.hpp>
 #include <Nazara/Platform.hpp>
 #include <Nazara/Graphics.hpp>
@@ -37,18 +38,17 @@ int main()
 
 	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-	Nz::Modules<Nz::Graphics, Nz::Physics3D, Nz::Widgets> nazara(rendererConfig);
+	Nz::Application<Nz::Graphics, Nz::Widgets> app(rendererConfig);
 
-	std::shared_ptr<Nz::RenderDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
+	auto& windowing = app.AddComponent<Nz::AppWindowingComponent>();
+	Nz::Window& mainWindow = windowing.CreateWindow(Nz::VideoMode(1920, 1080), "Widget demo");
 
-	std::string windowTitle = "Widget Test";
+	auto& ecs = app.AddComponent<Nz::AppEntitySystemComponent>();
 
-	entt::registry registry;
-	Nz::SystemGraph systemGraph(registry);
-	Nz::RenderSystem& renderSystem = systemGraph.AddSystem<Nz::RenderSystem>();
-	Nz::RenderWindow& mainWindow = renderSystem.CreateWindow(device, Nz::VideoMode(1920, 1080), windowTitle);
+	Nz::RenderSystem& renderSystem = ecs.AddSystem<Nz::RenderSystem>();
+	auto& windowSwapchain = renderSystem.CreateSwapchain(mainWindow);
 
-	Nz::Canvas canvas2D(registry, mainWindow.GetEventHandler(), mainWindow.GetCursorController().CreateHandle(), 0xFFFFFFFF);
+	Nz::Canvas canvas2D(ecs.GetRegistry(), mainWindow.GetEventHandler(), mainWindow.GetCursorController().CreateHandle(), 0xFFFFFFFF);
 	canvas2D.Resize(Nz::Vector2f(mainWindow.GetSize()));
 
 	Nz::LabelWidget* labelWidget = canvas2D.Add<Nz::LabelWidget>();
@@ -72,7 +72,7 @@ int main()
 	samplerInfo.anisotropyLevel = 8;
 
 	Nz::TextureParams texParams;
-	texParams.renderDevice = device;
+	texParams.renderDevice = Nz::Graphics::Instance()->GetRenderDevice();
 	texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
 
 	std::shared_ptr<Nz::MaterialInstance> materialInstance = material->Instantiate();
@@ -118,44 +118,13 @@ int main()
 	textAreaWidget2->SetBackgroundColor(Nz::Color::White());
 	textAreaWidget2->SetTextColor(Nz::Color::Black());*/
 
-	entt::entity viewer2D = registry.create();
+	entt::handle viewer2D = ecs.CreateEntity();
 	{
-		registry.emplace<Nz::NodeComponent>(viewer2D);
-		auto& cameraComponent = registry.emplace<Nz::CameraComponent>(viewer2D, mainWindow.GetRenderTarget(), Nz::ProjectionType::Orthographic);
-		cameraComponent.UpdateClearColor(Nz::Color(0.678f, 0.847f, 0.9f, 1.f));
+		viewer2D.emplace<Nz::NodeComponent>();
+
+		auto& cameraComponent = viewer2D.emplace<Nz::CameraComponent>(&windowSwapchain.GetSwapchain(), Nz::ProjectionType::Orthographic);
+		cameraComponent.UpdateClearColor(Nz::Color(0.46f, 0.48f, 0.84f, 1.f));
 	}
 
-	mainWindow.EnableEventPolling(true);
-
-	Nz::MillisecondClock fpsClock;
-	unsigned int fps = 0;
-
-	while (mainWindow.IsOpen())
-	{
-		Nz::WindowEvent event;
-		while (mainWindow.PollEvent(&event))
-		{
-			switch (event.type)
-			{
-				case Nz::WindowEventType::Quit:
-					mainWindow.Close();
-					break;
-
-				default:
-					break;
-			}
-		}
-
-		systemGraph.Update();
-
-		fps++;
-
-		if (fpsClock.RestartIfOver(Nz::Time::Second()))
-		{
-			mainWindow.SetTitle(windowTitle + " - " + Nz::NumberToString(fps) + " FPS" + " - " + Nz::NumberToString(registry.alive()) + " entities");
-			fps = 0;
-		}
-	}
-
-	return EXIT_SUCCESS;
+	return app.Run();
 }
