@@ -8,6 +8,29 @@
 namespace Nz
 {
 	template<typename... ModuleList>
+	template<typename... ModuleConfig>
+	Application<ModuleList...>::Application(ModuleConfig&&... configs) :
+	m_modules(std::forward<ModuleConfig>(configs)...)
+	{
+	}
+
+	template<typename... ModuleList>
+	template<typename... ModuleConfig>
+	Application<ModuleList...>::Application(int argc, char** argv, ModuleConfig&&... configs) :
+	ApplicationBase(argc, argv),
+	m_modules(std::forward<ModuleConfig>(configs)...)
+	{
+	}
+	
+	template<typename... ModuleList>
+	template<typename... ModuleConfig>
+	Application<ModuleList...>::Application(int argc, const Pointer<const char>* argv, ModuleConfig&&... configs) :
+	ApplicationBase(argc, argv),
+	m_modules(std::forward<ModuleConfig>(configs)...)
+	{
+	}
+
+	template<typename... ModuleList>
 	Application<ModuleList...>::~Application()
 	{
 		// Clear components before releasing modules
