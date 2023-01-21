@@ -19,7 +19,7 @@ namespace Nz
 		Create(mode, title, style);
 	}
 
-	inline Window::Window(void* handle) :
+	inline Window::Window(WindowHandle handle) :
 	Window()
 	{
 		ErrorFlags flags(ErrorMode::ThrowException, true);
@@ -36,16 +36,6 @@ namespace Nz
 		m_closeOnQuit = closeOnQuit;
 	}
 
-	inline void Window::EnableEventPolling(bool enable)
-	{
-		m_eventPolling = enable;
-		if (!m_eventPolling)
-		{
-			while (!m_events.empty())
-				m_events.pop();
-		}
-	}
-
 	inline const std::shared_ptr<Cursor>& Window::GetCursor() const
 	{
 		return m_cursor;
@@ -56,7 +46,7 @@ namespace Nz
 		return m_cursorController;
 	}
 
-	inline EventHandler& Nz::Window::GetEventHandler()
+	inline WindowEventHandler& Nz::Window::GetEventHandler()
 	{
 		return m_eventHandler;
 	}
@@ -90,34 +80,14 @@ namespace Nz
 		SetCursor(Cursor::Get(systemCursor));
 	}
 
-	inline void Window::PushEvent(const WindowEvent& event)
-	{
-		if (!m_asyncWindow)
-			HandleEvent(event);
-		else
-		{
-			{
-				std::lock_guard<std::mutex> eventLock(m_eventMutex);
-
-				m_pendingEvents.push_back(event);
-			}
-
-			if (m_waitForEvent)
-			{
-				std::lock_guard<std::mutex> lock(m_eventConditionMutex);
-				m_eventCondition.notify_all();
-			}
-		}
-	}
-
 	inline WindowImpl* Window::GetImpl()
 	{
-		return m_impl;
+		return m_impl.get();
 	}
 
 	inline const WindowImpl* Window::GetImpl() const
 	{
-		return m_impl;
+		return m_impl.get();
 	}
 }
 

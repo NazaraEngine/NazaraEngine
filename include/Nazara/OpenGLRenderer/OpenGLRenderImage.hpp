@@ -15,12 +15,12 @@
 namespace Nz
 {
 	class OpenGLCommandBuffer;
-	class OpenGLRenderWindow;
+	class OpenGLSwapchain;
 
 	class NAZARA_OPENGLRENDERER_API OpenGLRenderImage : public RenderImage
 	{
 		public:
-			OpenGLRenderImage(OpenGLRenderWindow& owner);
+			OpenGLRenderImage(OpenGLSwapchain& owner);
 
 			void Execute(const FunctionRef<void(CommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags) override;
 
@@ -31,7 +31,7 @@ namespace Nz
 			void SubmitCommandBuffer(CommandBuffer* commandBuffer, QueueTypeFlags queueTypeFlags) override;
 
 		private:
-			OpenGLRenderWindow& m_owner;
+			OpenGLSwapchain& m_owner;
 			OpenGLUploadPool m_uploadPool;
 	};
 }

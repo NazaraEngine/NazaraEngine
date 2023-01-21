@@ -35,19 +35,17 @@ namespace Nz
 			~WindowImpl() = default;
 
 			bool Create(const VideoMode& mode, const std::string& title, WindowStyleFlags style);
-			bool Create(void* handle);
+			bool Create(WindowHandle handle);
 
 			void Destroy();
 
-			void EnableKeyRepeat(bool enable);
-			void EnableSmoothScrolling(bool enable);
+			Vector2i FetchPosition() const;
+			Vector2ui FetchSize() const;
+			WindowStyleFlags FetchStyle() const;
+			std::string FetchTitle() const;
 
 			SDL_Window* GetHandle() const;
-			Vector2i GetPosition() const;
-			Vector2ui GetSize() const;
-			WindowStyleFlags GetStyle() const;
 			WindowHandle GetSystemHandle() const;
-			std::string GetTitle() const;
 
 			bool HasFocus() const;
 
@@ -56,52 +54,40 @@ namespace Nz
 			bool IsMinimized() const;
 			bool IsVisible() const;
 
+			void RaiseFocus();
 			void RefreshCursor();
 
-			void ProcessEvents(bool block);
+			void UpdateCursor(const Cursor& cursor);
+			void UpdateIcon(const Icon& icon);
+			void UpdateMaximumSize(int width, int height);
+			void UpdateMinimumSize(int width, int height);
+			void UpdatePosition(int x, int y);
+			void UpdateSize(unsigned int width, unsigned int height);
+			void UpdateStayOnTop(bool stayOnTop);
+			void UpdateTitle(const std::string& title);
 
-			void SetCursor(const Cursor& cursor);
-			void SetEventListener(bool listener);
-			void SetFocus();
-			void SetIcon(const Icon& icon);
-			void SetMaximumSize(int width, int height);
-			void SetMinimumSize(int width, int height);
-			void SetPosition(int x, int y);
-			void SetSize(unsigned int width, unsigned int height);
-			void SetStayOnTop(bool stayOnTop);
-			void SetTitle(const std::string& title);
-			void SetVisible(bool visible);
+			void Show(bool visible);
 
 			WindowImpl& operator=(const WindowImpl&) = delete;
 			WindowImpl& operator=(WindowImpl&&) = delete; ///TODO?
 
+			static void ProcessEvents();
 			static bool Initialize();
 			static void Uninitialize();
 
 		private:
+			void SetEventListener(bool listener);
+
 			static int SDLCALL HandleEvent(void* userdata, SDL_Event* event);
 
-			void PrepareWindow(bool fullscreen);
-
-			int m_lastEditEventLength = 0;
+			UInt32 m_windowId;
 			SDL_Cursor* m_cursor;
 			SDL_Window* m_handle;
-			WindowStyleFlags m_style;
-			Vector2i m_maxSize;
-			Vector2i m_minSize;
-			Vector2i m_mousePos;
-			Vector2i m_position;
-			Vector2ui m_size;
 			Window* m_parent;
 			bool m_eventListener;
-			bool m_ignoreNextMouseMove = false;
-			bool m_keyRepeat;
-			bool m_mouseInside;
+			bool m_ignoreNextMouseMove;
 			bool m_ownsWindow;
-			bool m_sizemove;
-			bool m_smoothScrolling;
-			bool m_threadActive;
-			short m_scrolling;
+			int m_lastEditEventLength;
 	};
 }
 

@@ -12,33 +12,22 @@
 
 namespace Nz
 {
-	namespace NAZARA_ANONYMOUS_NAMESPACE
-	{
-		Window* s_fullscreenWindow = nullptr;
-	}
-
 	Window::Window() :
 	m_impl(nullptr),
-	m_asyncWindow(false),
 	m_closeOnQuit(true),
-	m_eventPolling(false),
 	m_waitForEvent(false)
 	{
 		ConnectSlots();
 	}
 
-	Window::Window(Window&& window) :
-	m_events(std::move(window.m_events)),
-	m_pendingEvents(std::move(window.m_pendingEvents)),
+	Window::Window(Window&& window) noexcept :
 	m_cursorController(std::move(window.m_cursorController)),
 	m_cursor(std::move(window.m_cursor)),
 	m_eventHandler(std::move(window.m_eventHandler)),
 	m_icon(std::move(window.m_icon)),
-	m_asyncWindow(window.m_asyncWindow),
-	m_closed(window.m_asyncWindow),
+	m_closed(window.m_closed),
 	m_closeOnQuit(window.m_closeOnQuit),
-	m_eventPolling(window.m_eventPolling),
-	m_ownsWindow(window.m_asyncWindow),
+	m_ownsWindow(window.m_ownsWindow),
 	m_waitForEvent(window.m_waitForEvent)
 	{
 		window.DisconnectSlots();
@@ -52,214 +41,136 @@ namespace Nz
 
 	bool Window::Create(VideoMode mode, const std::string& title, WindowStyleFlags style)
 	{
-		NAZARA_USE_ANONYMOUS_NAMESPACE
-
 		// If the window is already open, we keep its position
 		bool opened = IsOpen();
 		Vector2i position;
 		if (opened)
-			position = m_impl->GetPosition();
+			position = m_position;
 
 		Destroy();
 
-		// Inspired by the code of the SFML by Laurent Gomila (and its team)
-		if (style & WindowStyle::Fullscreen)
-		{
-			if (s_fullscreenWindow)
-			{
-				NazaraError("Window " + PointerToString(s_fullscreenWindow) + " already in fullscreen mode");
-				style &= ~WindowStyle::Fullscreen;
-			}
-			else
-			{
-				if (!mode.IsFullscreenValid())
-				{
-					NazaraWarning("Video mode is not fullscreen valid");
-					mode = VideoMode::GetFullscreenModes()[0];
-				}
-
-				s_fullscreenWindow = this;
-			}
-		}
-		else if (style & WindowStyle::Closable || style & WindowStyle::Resizable)
+		if (style & WindowStyle::Closable || style & WindowStyle::Resizable)
 			style |= WindowStyle::Titlebar;
 
-		m_asyncWindow = (style & WindowStyle::Threaded) != 0;
-
-		std::unique_ptr<WindowImpl> impl = std::make_unique<WindowImpl>(this);
-		if (!impl->Create(mode, title, style))
+		m_impl = std::make_unique<WindowImpl>(this);
+		if (!m_impl->Create(mode, title, style))
 		{
 			NazaraError("Failed to create window implementation");
 			return false;
 		}
 
-		m_impl = impl.release();
 		CallOnExit destroyOnFailure([this] () { Destroy(); });
 
 		m_closed = false;
 		m_ownsWindow = true;
 
-		if (!OnWindowCreated())
-		{
-			NazaraError("Failed to initialize window extension");
-			return false;
-		}
+		m_position = m_impl->FetchPosition();
+		m_size = m_impl->FetchSize();
 
 		// Default parameters
-		m_impl->EnableKeyRepeat(true);
-		m_impl->EnableSmoothScrolling(false);
-		m_impl->SetMaximumSize(-1, -1);
-		m_impl->SetMinimumSize(-1, -1);
-		m_impl->SetVisible(true);
+		m_impl->UpdateMaximumSize(-1, -1);
+		m_impl->UpdateMinimumSize(-1, -1);
+		m_impl->Show(true);
 
 		if (opened)
-			m_impl->SetPosition(position.x, position.y);
-
-		OnWindowResized();
+			m_impl->UpdatePosition(position.x, position.y);
 
 		destroyOnFailure.Reset();
+
+		m_eventHandler.Dispatch({ WindowEventType::Created });
 
 		return true;
 	}
 
-	bool Window::Create(void* handle)
+	bool Window::Create(WindowHandle handle)
 	{
 		Destroy();
 
-		m_asyncWindow = false;
-		m_impl = new WindowImpl(this);
+		m_impl = std::make_unique<WindowImpl>(this);
 		if (!m_impl->Create(handle))
 		{
 			NazaraError("Unable to create window implementation");
-			delete m_impl;
-			m_impl = nullptr;
-
+			m_impl.reset();
 			return false;
 		}
+
+		m_position = m_impl->FetchPosition();
+		m_size = m_impl->FetchSize();
 
 		m_closed = false;
 		m_ownsWindow = false;
 
-		if (!OnWindowCreated())
-		{
-			NazaraError("Failed to initialize window's derivate");
-			delete m_impl;
-			m_impl = nullptr;
-
-			return false;
-		}
+		m_eventHandler.Dispatch({ WindowEventType::Created });
 
 		return true;
 	}
 
 	void Window::Destroy()
 	{
-		NAZARA_USE_ANONYMOUS_NAMESPACE
-
-		m_cursor.reset();
-
 		if (m_impl)
 		{
-			OnWindowDestroy();
+			m_eventHandler.Dispatch({ WindowEventType::Destruction });
 
 			m_impl->Destroy();
-			delete m_impl;
-			m_impl = nullptr;
-
-			if (s_fullscreenWindow == this)
-				s_fullscreenWindow = nullptr;
+			m_impl.reset();
 		}
-	}
 
-	void Window::EnableKeyRepeat(bool enable)
-	{
-		#if NAZARA_PLATFORM_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Window not created");
-			return;
-		}
-		#endif
-
-		m_impl->EnableKeyRepeat(enable);
-	}
-
-	void Window::EnableSmoothScrolling(bool enable)
-	{
-		#if NAZARA_PLATFORM_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Window not created");
-			return;
-		}
-		#endif
-
-		m_impl->EnableSmoothScrolling(enable);
+		m_cursor.reset();
 	}
 
 	Vector2i Window::GetPosition() const
 	{
-		#if NAZARA_PLATFORM_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Window not created");
-			return Vector2i::Zero();
-		}
-		#endif
-
-		return m_impl->GetPosition();
+		NazaraAssert(m_impl, "Window not created");
+		return m_position;
 	}
 
 	Vector2ui Window::GetSize() const
 	{
-		#if NAZARA_PLATFORM_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Window not created");
-			return Vector2ui::Zero();
-		}
-		#endif
-
-		return m_impl->GetSize();
+		NazaraAssert(m_impl, "Window not created");
+		return m_size;
 	}
 
 	WindowStyleFlags Window::GetStyle() const
 	{
-		#if NAZARA_PLATFORM_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Window not created");
-			return 0;
-		}
-		#endif
-
-		return m_impl->GetStyle();
-	}
-
-	WindowHandle Window::GetSystemHandle() const
-	{
-#if NAZARA_PLATFORM_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Window not created");
-			return {};
-		}
-#endif
-
-		return m_impl->GetSystemHandle();
+		NazaraAssert(m_impl, "Window not created");
+		return m_impl->FetchStyle();
 	}
 
 	std::string Window::GetTitle() const
 	{
-		#if NAZARA_PLATFORM_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Window not created");
-			return {};
-		}
-		#endif
+		NazaraAssert(m_impl, "Window not created");
+		return m_impl->FetchTitle();
+	}
 
-		return m_impl->GetTitle();
+	void Window::HandleEvent(const WindowEvent& event)
+	{
+		m_eventHandler.Dispatch(event);
+
+		switch (event.type)
+		{
+			case WindowEventType::Moved:
+			{
+				m_position = { event.position.x, event.position.y };
+				break;
+			}
+
+			case WindowEventType::Quit:
+			{
+				if (m_closeOnQuit)
+					Close();
+
+				break;
+			}
+
+			case WindowEventType::Resized:
+			{
+				m_size = { event.size.width, event.size.height };
+				break;
+			}
+
+			default:
+				break;
+		}
 	}
 
 	bool Window::HasFocus() const
@@ -301,76 +212,13 @@ namespace Nz
 		return m_impl->IsVisible();
 	}
 
-	bool Window::PollEvent(WindowEvent* event)
-	{
-		#if NAZARA_PLATFORM_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Window not created");
-			return false;
-		}
-		#endif
-
-		if (!m_asyncWindow)
-			m_impl->ProcessEvents(false);
-
-		if (!m_events.empty())
-		{
-			if (event)
-				*event = m_events.front();
-
-			m_events.pop();
-
-			return true;
-		}
-
-		return false;
-	}
-
-	void Window::ProcessEvents(bool block)
-	{
-		NazaraAssert(m_impl, "Window not created");
-		NazaraUnused(block);
-
-		if (!m_asyncWindow)
-			m_impl->ProcessEvents(block);
-		else
-		{
-			std::lock_guard<std::mutex> eventLock(m_eventMutex);
-
-			for (const WindowEvent& event : m_pendingEvents)
-				HandleEvent(event);
-
-			m_pendingEvents.clear();
-		}
-	}
-
 	void Window::SetCursor(std::shared_ptr<Cursor> cursor)
 	{
 		NazaraAssert(m_impl, "Window not created");
 		NazaraAssert(cursor && cursor->IsValid(), "Invalid cursor");
 
 		m_cursor = std::move(cursor);
-		m_impl->SetCursor(*m_cursor);
-	}
-
-	void Window::SetEventListener(bool listener)
-	{
-		#if NAZARA_PLATFORM_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Window not created");
-			return;
-		}
-		#endif
-
-		m_impl->SetEventListener(listener);
-		if (!listener)
-		{
-			// Empty the event queue
-			while (!m_events.empty())
-				m_events.pop();
-		}
+		m_impl->UpdateCursor(*m_cursor);
 	}
 
 	void Window::SetFocus()
@@ -383,7 +231,7 @@ namespace Nz
 		}
 		#endif
 
-		m_impl->SetFocus();
+		m_impl->RaiseFocus();
 	}
 
 	void Window::SetIcon(std::shared_ptr<Icon> icon)
@@ -392,7 +240,7 @@ namespace Nz
 		NazaraAssert(icon, "Invalid icon");
 
 		m_icon = std::move(icon);
-		m_impl->SetIcon(*m_icon);
+		m_impl->UpdateIcon(*m_icon);
 	}
 
 	void Window::SetMaximumSize(const Vector2i& maxSize)
@@ -405,7 +253,7 @@ namespace Nz
 		}
 		#endif
 
-		m_impl->SetMaximumSize(maxSize.x, maxSize.y);
+		m_impl->UpdateMaximumSize(maxSize.x, maxSize.y);
 	}
 
 	void Window::SetMaximumSize(int width, int height)
@@ -418,7 +266,7 @@ namespace Nz
 		}
 		#endif
 
-		m_impl->SetMaximumSize(width, height);
+		m_impl->UpdateMaximumSize(width, height);
 	}
 
 	void Window::SetMinimumSize(const Vector2i& minSize)
@@ -431,7 +279,7 @@ namespace Nz
 		}
 		#endif
 
-		m_impl->SetMinimumSize(minSize.x, minSize.y);
+		m_impl->UpdateMinimumSize(minSize.x, minSize.y);
 	}
 
 	void Window::SetMinimumSize(int width, int height)
@@ -444,7 +292,7 @@ namespace Nz
 		}
 		#endif
 
-		m_impl->SetMinimumSize(width, height);
+		m_impl->UpdateMinimumSize(width, height);
 	}
 
 	void Window::SetPosition(const Vector2i& position)
@@ -457,7 +305,7 @@ namespace Nz
 		}
 		#endif
 
-		m_impl->SetPosition(position.x, position.y);
+		m_impl->UpdatePosition(position.x, position.y);
 	}
 
 	void Window::SetPosition(int x, int y)
@@ -470,7 +318,7 @@ namespace Nz
 		}
 		#endif
 
-		m_impl->SetPosition(x, y);
+		m_impl->UpdatePosition(x, y);
 	}
 
 	void Window::SetSize(const Vector2i& size)
@@ -483,7 +331,7 @@ namespace Nz
 		}
 		#endif
 
-		m_impl->SetSize(size.x, size.y);
+		m_impl->UpdateSize(size.x, size.y);
 	}
 
 	void Window::SetSize(unsigned int width, unsigned int height)
@@ -496,7 +344,7 @@ namespace Nz
 		}
 		#endif
 
-		m_impl->SetSize(width, height);
+		m_impl->UpdateSize(width, height);
 	}
 
 	void Window::SetStayOnTop(bool stayOnTop)
@@ -509,7 +357,7 @@ namespace Nz
 		}
 		#endif
 
-		m_impl->SetStayOnTop(stayOnTop);
+		m_impl->UpdateStayOnTop(stayOnTop);
 	}
 
 	void Window::SetTitle(const std::string& title)
@@ -522,7 +370,7 @@ namespace Nz
 		}
 		#endif
 
-		m_impl->SetTitle(title);
+		m_impl->UpdateTitle(title);
 	}
 
 	void Window::SetVisible(bool visible)
@@ -535,76 +383,18 @@ namespace Nz
 		}
 		#endif
 
-		m_impl->SetVisible(visible);
+		m_impl->Show(visible);
 	}
 
-	bool Window::WaitEvent(WindowEvent* event)
+	Window& Window::operator=(Window&& window) noexcept
 	{
-		#if NAZARA_PLATFORM_SAFE
-		if (!m_impl)
-		{
-			NazaraError("Window not created");
-			return false;
-		}
-		#endif
-
-		if (!m_asyncWindow)
-		{
-			while (m_events.empty())
-				m_impl->ProcessEvents(true);
-
-			if (event)
-				*event = m_events.front();
-
-			m_events.pop();
-
-			return true;
-		}
-		else
-		{
-			std::lock_guard<std::mutex> lock(m_eventMutex);
-
-			if (m_events.empty())
-			{
-				m_waitForEvent = true;
-				{
-					m_eventMutex.unlock();
-
-					std::unique_lock<std::mutex> eventConditionLock(m_eventConditionMutex);
-					m_eventCondition.wait(eventConditionLock);
-
-					m_eventMutex.lock();
-				}
-				m_waitForEvent = false;
-			}
-
-			if (!m_events.empty())
-			{
-				if (event)
-					*event = m_events.front();
-
-				m_events.pop();
-
-				return true;
-			}
-
-			return false;
-		}
-	}
-
-	Window& Window::operator=(Window&& window)
-	{
-		m_events = std::move(window.m_events);
-		m_pendingEvents = std::move(window.m_pendingEvents);
 		m_cursorController = std::move(window.m_cursorController);
 		m_cursor = std::move(window.m_cursor);
 		m_eventHandler = std::move(window.m_eventHandler);
 		m_icon = std::move(window.m_icon);
-		m_asyncWindow = window.m_asyncWindow;
-		m_closed = window.m_asyncWindow;
+		m_closed = window.m_closed;
 		m_closeOnQuit = window.m_closeOnQuit;
-		m_eventPolling = window.m_eventPolling;
-		m_ownsWindow = window.m_asyncWindow;
+		m_ownsWindow = window.m_ownsWindow;
 		m_waitForEvent = window.m_waitForEvent;
 
 		window.DisconnectSlots();
@@ -613,22 +403,14 @@ namespace Nz
 		return *this;
 	}
 
-	void* Window::GetHandle()
+	void Window::ProcessEvents()
 	{
-		return (m_impl) ? m_impl->GetHandle() : nullptr;
+		WindowImpl::ProcessEvents();
 	}
 
-	bool Window::OnWindowCreated()
+	WindowHandle Window::GetHandle() const
 	{
-		return true;
-	}
-
-	void Window::OnWindowDestroy()
-	{
-	}
-
-	void Window::OnWindowResized()
-	{
+		return (m_impl) ? m_impl->GetSystemHandle() : WindowHandle{};
 	}
 
 	void Window::ConnectSlots()
@@ -656,34 +438,6 @@ namespace Nz
 		#endif
 
 		m_impl->IgnoreNextMouseEvent(mouseX, mouseY);
-	}
-
-	void Window::HandleEvent(const WindowEvent& event)
-	{
-		if (m_eventPolling)
-			m_events.push(event);
-
-		m_eventHandler.Dispatch(event);
-
-		switch (event.type)
-		{
-			case WindowEventType::MouseEntered:
-				m_impl->RefreshCursor();
-				break;
-
-			case WindowEventType::Resized:
-				OnWindowResized();
-				break;
-
-			case WindowEventType::Quit:
-				if (m_closeOnQuit)
-					Close();
-
-				break;
-
-			default:
-				break;
-		}
 	}
 
 	bool Window::Initialize()

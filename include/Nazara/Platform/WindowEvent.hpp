@@ -9,11 +9,10 @@
 #ifndef NAZARA_PLATFORM_EVENT_HPP
 #define NAZARA_PLATFORM_EVENT_HPP
 
-#include <array>
-
 #include <Nazara/Platform/Enums.hpp>
 #include <Nazara/Platform/Keyboard.hpp>
 #include <Nazara/Platform/Mouse.hpp>
+#include <array>
 
 namespace Nz
 {

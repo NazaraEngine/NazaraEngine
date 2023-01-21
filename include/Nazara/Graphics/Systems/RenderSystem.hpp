@@ -13,6 +13,7 @@
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/Components/GraphicsComponent.hpp>
 #include <Nazara/Graphics/Components/LightComponent.hpp>
+#include <Nazara/Renderer/WindowSwapchain.hpp>
 #include <Nazara/Utility/Node.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
 #include <Nazara/Utils/MemoryPool.hpp>
@@ -27,7 +28,6 @@ namespace Nz
 	class CommandBufferBuilder;
 	class FramePipeline;
 	class RenderFrame;
-	class RenderWindow;
 	class UploadPool;
 
 	class NAZARA_GRAPHICS_API RenderSystem
@@ -41,7 +41,7 @@ namespace Nz
 			RenderSystem(RenderSystem&&) = delete;
 			~RenderSystem();
 
-			template<typename T = RenderWindow, typename... Args> T& CreateWindow(Args&&... args);
+			WindowSwapchain& CreateSwapchain(Window& window, const SwapchainParameters& parameters = SwapchainParameters{});
 
 			inline FramePipeline& GetFramePipeline();
 			inline const FramePipeline& GetFramePipeline() const;
@@ -133,7 +133,7 @@ namespace Nz
 			std::unordered_set<GraphicsEntity*> m_newlyVisibleGfxEntities;
 			std::unordered_set<LightEntity*> m_newlyHiddenLightEntities;
 			std::unordered_set<LightEntity*> m_newlyVisibleLightEntities;
-			std::vector<std::unique_ptr<RenderWindow>> m_renderWindows;
+			std::vector<std::unique_ptr<WindowSwapchain>> m_windowSwapchains;
 			ElementRendererRegistry m_elementRegistry;
 			MemoryPool<CameraEntity> m_cameraEntityPool;
 			MemoryPool<GraphicsEntity> m_graphicsEntityPool;

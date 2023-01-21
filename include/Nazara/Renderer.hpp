@@ -51,15 +51,14 @@
 #include <Nazara/Renderer/RenderPipeline.hpp>
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
-#include <Nazara/Renderer/RenderSurface.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
-#include <Nazara/Renderer/RenderWindow.hpp>
-#include <Nazara/Renderer/RenderWindowImpl.hpp>
-#include <Nazara/Renderer/RenderWindowParameters.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
 #include <Nazara/Renderer/ShaderModule.hpp>
+#include <Nazara/Renderer/Swapchain.hpp>
+#include <Nazara/Renderer/SwapchainParameters.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
+#include <Nazara/Renderer/WindowSwapchain.hpp>
 
 #endif // NAZARA_GLOBAL_RENDERER_HPP

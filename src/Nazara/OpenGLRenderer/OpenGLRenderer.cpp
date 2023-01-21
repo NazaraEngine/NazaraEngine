@@ -4,11 +4,9 @@
 
 #include <Nazara/OpenGLRenderer/OpenGLRenderer.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
-#include <Nazara/OpenGLRenderer/DummySurface.hpp>
-#include <Nazara/OpenGLRenderer/OpenGLRenderWindow.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLSwapchain.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
-#include <Nazara/Renderer/RenderSurface.hpp>
-#include <Nazara/Renderer/RenderWindowImpl.hpp>
+#include <Nazara/Renderer/Swapchain.hpp>
 #include <cassert>
 #include <sstream>
 
@@ -30,17 +28,7 @@ namespace Nz
 		m_device.reset();
 	}
 
-	std::unique_ptr<RenderSurface> OpenGLRenderer::CreateRenderSurfaceImpl()
-	{
-		return std::make_unique<DummySurface>();
-	}
-
-	std::unique_ptr<RenderWindowImpl> OpenGLRenderer::CreateRenderWindowImpl(RenderWindow& owner)
-	{
-		return std::make_unique<OpenGLRenderWindow>(owner);
-	}
-
-	std::shared_ptr<RenderDevice> OpenGLRenderer::InstanciateRenderDevice(std::size_t deviceIndex, const RenderDeviceFeatures& enabledFeatures)
+	std::shared_ptr<RenderDevice> OpenGLRenderer::InstanciateRenderDevice([[maybe_unused]] std::size_t deviceIndex, const RenderDeviceFeatures& enabledFeatures)
 	{
 		assert(deviceIndex == 0);
 

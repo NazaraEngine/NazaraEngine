@@ -34,8 +34,8 @@
 #include <Nazara/Platform/Cursor.hpp>
 #include <Nazara/Platform/CursorController.hpp>
 #include <Nazara/Platform/Enums.hpp>
-#include <Nazara/Platform/Event.hpp>
-#include <Nazara/Platform/EventHandler.hpp>
+#include <Nazara/Platform/WindowEvent.hpp>
+#include <Nazara/Platform/WindowEventHandler.hpp>
 #include <Nazara/Platform/Icon.hpp>
 #include <Nazara/Platform/Joystick.hpp>
 #include <Nazara/Platform/Keyboard.hpp>

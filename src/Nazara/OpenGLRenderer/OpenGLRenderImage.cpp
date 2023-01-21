@@ -5,13 +5,13 @@
 #include <Nazara/OpenGLRenderer/OpenGLRenderImage.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLCommandBuffer.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLCommandBufferBuilder.hpp>
-#include <Nazara/OpenGLRenderer/OpenGLRenderWindow.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLSwapchain.hpp>
 #include <stdexcept>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
 namespace Nz
 {
-	OpenGLRenderImage::OpenGLRenderImage(OpenGLRenderWindow& owner) :
+	OpenGLRenderImage::OpenGLRenderImage(OpenGLSwapchain& owner) :
 	m_owner(owner),
 	m_uploadPool(2 * 1024 * 1024)
 	{

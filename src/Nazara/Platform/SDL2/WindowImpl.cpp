@@ -34,16 +34,11 @@ namespace Nz
 		{
 			switch (sdlButton)
 			{
-				case SDL_BUTTON_LEFT:
-					return Mouse::Left;
-				case SDL_BUTTON_MIDDLE:
-					return Mouse::Middle;
-				case SDL_BUTTON_RIGHT:
-					return Mouse::Right;
-				case SDL_BUTTON_X1:
-					return Mouse::XButton1;
-				case SDL_BUTTON_X2:
-					return Mouse::XButton2;
+				case SDL_BUTTON_LEFT:   return Mouse::Left;
+				case SDL_BUTTON_MIDDLE: return Mouse::Middle;
+				case SDL_BUTTON_RIGHT:  return Mouse::Right;
+				case SDL_BUTTON_X1:     return Mouse::XButton1;
+				case SDL_BUTTON_X2:     return Mouse::XButton2;
 				default:
 					NazaraAssert(false, "Unkown mouse button");
 					return Mouse::Left;
@@ -54,30 +49,16 @@ namespace Nz
 	WindowImpl::WindowImpl(Window* parent) :
 	m_cursor(nullptr),
 	m_handle(nullptr),
-	//m_callback(0),
-	m_style(0),
-	m_maxSize(-1),
-	m_minSize(-1),
 	m_parent(parent),
-	m_keyRepeat(true),
-	m_mouseInside(false),
-	m_smoothScrolling(false),
-	m_scrolling(0)
+	m_eventListener(false),
+	m_ignoreNextMouseMove(false),
+	m_lastEditEventLength(0)
 	{
 		m_cursor = SDL_GetDefaultCursor();
 	}
 
 	bool WindowImpl::Create(const VideoMode& mode, const std::string& title, WindowStyleFlags style)
 	{
-		bool async = (style & WindowStyle::Threaded) != 0;
-		if (async)
-		{
-			NazaraError("SDL2 backend doesn't support asyn window for now");
-
-			return false;
-		}
-
-
 		bool fullscreen = (style & WindowStyle::Fullscreen) != 0;
 
 		Uint32 winStyle = 0;
@@ -88,7 +69,6 @@ namespace Nz
 		if (fullscreen)
 			winStyle |= SDL_WINDOW_FULLSCREEN;
 
-		// Testé une seconde fois car sa valeur peut changer
 		if (fullscreen)
 		{
 			x = 0;
@@ -105,72 +85,106 @@ namespace Nz
 
 		if (style & WindowStyle::Resizable)
 			winStyle |= SDL_WINDOW_RESIZABLE;
-		if (style & WindowStyle::Max)
-			winStyle |= SDL_WINDOW_MAXIMIZED;
 
-		m_eventListener = true;
 		m_ownsWindow = true;
-		m_sizemove = false;
-		m_style = style;
 
 		m_handle = SDL_CreateWindow(title.c_str(), x, y, width, height, winStyle);
-
 		if (!m_handle)
 		{
 			NazaraError("Failed to create window: " + Error::GetLastSystemError());
 			return false;
 		}
 
-		PrepareWindow(fullscreen);
-
-		SDL_AddEventWatch(HandleEvent, this);
-
+		m_windowId = SDL_GetWindowID(m_handle);
+		SetEventListener(true);
 		return true;
 	}
 
-	bool WindowImpl::Create(void* handle)
+	bool WindowImpl::Create(WindowHandle handle)
 	{
-		m_handle = SDL_CreateWindowFrom(handle);
+		void* systemHandle = nullptr;
+		switch (handle.type)
+		{
+			case WindowBackend::Invalid:
+			{
+				NazaraError("unsupported creation from a Wayland handle");
+				return false;
+			}
+
+			case WindowBackend::Wayland:
+			{
+				NazaraError("unsupported creation from a Wayland handle");
+				return false;
+			}
+
+			case WindowBackend::Cocoa:   systemHandle = handle.cocoa.window;       break;
+			case WindowBackend::X11:     systemHandle = (void*) handle.x11.window; break;
+			case WindowBackend::Windows: systemHandle = handle.windows.window;     break;
+		}
+
+		m_ownsWindow = false;
+
+		m_handle = SDL_CreateWindowFrom(systemHandle);
 		if (!m_handle)
 		{
 			NazaraError("Invalid handle");
 			return false;
 		}
 
-		m_eventListener = false;
-		m_ownsWindow = false;
-		m_sizemove = false;
-
-		SDL_GetWindowPosition(m_handle, &m_position.x, &m_position.y);
-
-		int width;
-		int height;
-		SDL_GetWindowSize(m_handle, &width, &height);
-
-		m_size.Set(width, height);
-
+		m_windowId = SDL_GetWindowID(m_handle);
+		SetEventListener(true);
 		return true;
 	}
 
 	void WindowImpl::Destroy()
 	{
-		if (m_ownsWindow && m_handle)
+		SetEventListener(false);
+
+		if (m_handle)
 		{
-			SDL_DelEventWatch(HandleEvent, this);
-			SDL_DestroyWindow(m_handle);
+			if (m_ownsWindow)
+				SDL_DestroyWindow(m_handle);
+
+			m_handle = nullptr;
 		}
-		else
-			SetEventListener(false);
 	}
 
-	void WindowImpl::EnableKeyRepeat(bool enable)
+	Vector2i WindowImpl::FetchPosition() const
 	{
-		m_keyRepeat = enable;
+		int x, y;
+		SDL_GetWindowPosition(m_handle, &x, &y);
+
+		return { x, y };
 	}
 
-	void WindowImpl::EnableSmoothScrolling(bool enable)
+	Vector2ui WindowImpl::FetchSize() const
 	{
-		m_smoothScrolling = enable;
+		int width, height;
+		SDL_GetWindowSize(m_handle, &width, &height);
+
+		return { SafeCast<unsigned int>(width), SafeCast<unsigned int>(height) };
+	}
+
+	WindowStyleFlags WindowImpl::FetchStyle() const
+	{
+		UInt32 windowFlags = SDL_GetWindowFlags(m_handle);
+
+		WindowStyleFlags styleFlags;
+		if (windowFlags & SDL_WINDOW_RESIZABLE)
+			styleFlags |= WindowStyle::Resizable;
+
+		if ((windowFlags & SDL_WINDOW_BORDERLESS) == 0)
+			styleFlags |= WindowStyle::Titlebar | WindowStyle::Closable;
+
+		if (windowFlags & SDL_WINDOW_FULLSCREEN)
+			styleFlags |= WindowStyle::Fullscreen;
+
+		return styleFlags;
+	}
+
+	std::string WindowImpl::FetchTitle() const
+	{
+		return SDL_GetWindowTitle(m_handle);
 	}
 
 	SDL_Window* WindowImpl::GetHandle() const
@@ -178,21 +192,6 @@ namespace Nz
 		return m_handle;
 	}
 
-	Vector2i WindowImpl::GetPosition() const
-	{
-		return m_position;
-	}
-
-	Vector2ui WindowImpl::GetSize() const
-	{
-		return m_size;
-	}
-
-	WindowStyleFlags WindowImpl::GetStyle() const
-	{
-		return m_style;
-	}
-	
 	WindowHandle WindowImpl::GetSystemHandle() const
 	{
 		SDL_SysWMinfo wmInfo;
@@ -253,22 +252,14 @@ namespace Nz
 		return handle;
 	}
 
-	std::string WindowImpl::GetTitle() const
-	{
-		return SDL_GetWindowTitle(m_handle);
-	}
-
 	bool WindowImpl::HasFocus() const
 	{
 		return (SDL_GetWindowFlags(m_handle) & SDL_WINDOW_INPUT_FOCUS) != 0;
 	}
 
-	void WindowImpl::IgnoreNextMouseEvent(int mouseX, int mouseY)
+	void WindowImpl::IgnoreNextMouseEvent(int /*mouseX*/, int /*mouseY*/)
 	{
 		m_ignoreNextMouseMove = true;
-		// Petite astuce ... probablement foireuse dans certains cas :ahde:
-		m_mousePos.x = mouseX;
-		m_mousePos.y = mouseY;
 	}
 
 	bool WindowImpl::IsMinimized() const
@@ -297,27 +288,7 @@ namespace Nz
 		}
 	}
 
-	void WindowImpl::ProcessEvents(bool block)
-	{
-		if (m_ownsWindow)
-			SDL_PumpEvents();
-
-
-		/*if (m_ownsWindow)
-		   {
-		    if (block)
-		        WaitMessage();
-
-		    MSG message;
-		    while (PeekMessageW(&message, nullptr, 0, 0, PM_REMOVE))
-		    {
-		        TranslateMessage(&message);
-		        DispatchMessageW(&message);
-		    }
-		   }*/
-	}
-
-	int WindowImpl::HandleEvent(void *userdata, SDL_Event* event)
+	int WindowImpl::HandleEvent(void* userdata, SDL_Event* event)
 	{
 		try
 		{
@@ -327,7 +298,7 @@ namespace Nz
 			{
 				case SDL_WINDOWEVENT:
 				{
-					if (SDL_GetWindowID(window->m_handle) != event->window.windowID)
+					if (window->m_windowId != event->window.windowID)
 						return 0;
 
 					WindowEvent windowEvent;
@@ -337,20 +308,16 @@ namespace Nz
 							windowEvent.type = WindowEventType::Quit;
 							break;
 
-						case SDL_WINDOWEVENT_RESIZED:
+						case SDL_WINDOWEVENT_SIZE_CHANGED:
 							windowEvent.type = WindowEventType::Resized;
 							windowEvent.size.width = static_cast<unsigned int>(std::max(0, event->window.data1));
 							windowEvent.size.height = static_cast<unsigned int>(std::max(0, event->window.data2));
-
-							window->m_size.Set(windowEvent.size.width, windowEvent.size.height);
 							break;
 
 						case SDL_WINDOWEVENT_MOVED:
 							windowEvent.type = WindowEventType::Moved;
 							windowEvent.position.x = event->window.data1;
 							windowEvent.position.y = event->window.data2;
-
-							window->m_position.Set(event->window.data1, event->window.data2);
 							break;
 
 						case SDL_WINDOWEVENT_FOCUS_GAINED:
@@ -364,23 +331,35 @@ namespace Nz
 
 						case SDL_WINDOWEVENT_ENTER:
 							windowEvent.type = WindowEventType::MouseEntered;
+							window->RefreshCursor();
 							break;
 
 						case SDL_WINDOWEVENT_LEAVE:
 							windowEvent.type = WindowEventType::MouseLeft;
 							break;
+
+						case SDL_WINDOWEVENT_MINIMIZED:
+							windowEvent.type = WindowEventType::Minimized;
+							break;
+
+						case SDL_WINDOWEVENT_RESTORED:
+							windowEvent.type = WindowEventType::Restored;
+							break;
+
+						default:
+							return 0;
 					}
 
-					window->m_parent->PushEvent(windowEvent);
+					window->m_parent->HandleEvent(windowEvent);
 					break;
 				}
 
 				case SDL_MOUSEMOTION:
 				{
-					if (SDL_GetWindowID(window->m_handle) != event->motion.windowID)
+					if (window->m_windowId != event->motion.windowID)
 						return 0;
 
-					if (window->m_ignoreNextMouseMove /*&& event->motion.x == window->m_mousePos.x && event->motion.y == window->m_mousePos.y*/)
+					if (window->m_ignoreNextMouseMove)
 					{
 						window->m_ignoreNextMouseMove = false;
 						return 0;
@@ -393,13 +372,13 @@ namespace Nz
 					windowEvent.mouseMove.deltaX = event->motion.xrel;
 					windowEvent.mouseMove.deltaY = event->motion.yrel;
 
-					window->m_parent->PushEvent(windowEvent);
+					window->m_parent->HandleEvent(windowEvent);
 					break;
 				}
 
 				case SDL_MOUSEBUTTONDOWN:
 				{
-					if (SDL_GetWindowID(window->m_handle) != event->button.windowID)
+					if (window->m_windowId != event->button.windowID)
 						return 0;
 
 					WindowEvent windowEvent;
@@ -409,13 +388,13 @@ namespace Nz
 					windowEvent.mouseButton.y = event->button.y;
 					windowEvent.mouseButton.clickCount = event->button.clicks;
 
-					window->m_parent->PushEvent(windowEvent);
+					window->m_parent->HandleEvent(windowEvent);
 					break;
 				}
 
 				case SDL_MOUSEBUTTONUP:
 				{
-					if (SDL_GetWindowID(window->m_handle) != event->button.windowID)
+					if (window->m_windowId != event->button.windowID)
 						return 0;
 
 					WindowEvent windowEvent;
@@ -424,25 +403,28 @@ namespace Nz
 					windowEvent.mouseButton.x = event->button.x;
 					windowEvent.mouseButton.y = event->button.y;
 
-					window->m_parent->PushEvent(windowEvent);
+					window->m_parent->HandleEvent(windowEvent);
 					break;
 				}
 
 				case SDL_MOUSEWHEEL:
 				{
-					if (SDL_GetWindowID(window->m_handle) != event->wheel.windowID)
+					if (window->m_windowId != event->wheel.windowID)
 						return 0;
 
 					WindowEvent windowEvent;
 					windowEvent.type = WindowEventType::MouseWheelMoved;
-					windowEvent.mouseWheel.delta = event->wheel.y;
+					windowEvent.mouseWheel.delta = event->wheel.preciseY;
+					windowEvent.mouseWheel.x = event->wheel.mouseX;
+					windowEvent.mouseWheel.y = event->wheel.mouseY;
 
-					window->m_parent->PushEvent(windowEvent);
+					window->m_parent->HandleEvent(windowEvent);
 					break;
 				}
 
 				case SDL_KEYDOWN:
-					if (SDL_GetWindowID(window->m_handle) != event->key.windowID)
+				{
+					if (window->m_windowId != event->key.windowID)
 						return 0;
 
 					WindowEvent windowEvent;
@@ -455,7 +437,7 @@ namespace Nz
 					windowEvent.key.system = (event->key.keysym.mod & KMOD_GUI) != 0;
 					windowEvent.key.virtualKey = SDLHelper::FromSDL(event->key.keysym.sym);
 
-					window->m_parent->PushEvent(windowEvent);
+					window->m_parent->HandleEvent(windowEvent);
 
 					// implements X11/Win32 APIs behavior for Enter and Backspace
 					switch (windowEvent.key.virtualKey)
@@ -470,7 +452,7 @@ namespace Nz
 							windowEvent.text.character = U'\n';
 							windowEvent.text.repeated = event->key.repeat != 0;
 
-							window->m_parent->PushEvent(windowEvent);
+							window->m_parent->HandleEvent(windowEvent);
 							break;
 						}
 
@@ -479,7 +461,7 @@ namespace Nz
 							windowEvent.text.character = U'\b';
 							windowEvent.text.repeated = event->key.repeat != 0;
 
-							window->m_parent->PushEvent(windowEvent);
+							window->m_parent->HandleEvent(windowEvent);
 							break;
 
 						default:
@@ -487,12 +469,14 @@ namespace Nz
 					}
 
 					break;
+				}
 
 				case SDL_KEYUP:
 				{
-					if (SDL_GetWindowID(window->m_handle) != event->key.windowID)
+					if (window->m_windowId != event->key.windowID)
 						return 0;
 
+					WindowEvent windowEvent;
 					windowEvent.type = WindowEventType::KeyReleased;
 					windowEvent.key.alt = (event->key.keysym.mod & KMOD_ALT) != 0;
 					windowEvent.key.control = (event->key.keysym.mod & KMOD_CTRL) != 0;
@@ -502,15 +486,16 @@ namespace Nz
 					windowEvent.key.system = (event->key.keysym.mod & KMOD_GUI) != 0;
 					windowEvent.key.virtualKey = SDLHelper::FromSDL(event->key.keysym.sym);
 
-					window->m_parent->PushEvent(windowEvent);
+					window->m_parent->HandleEvent(windowEvent);
 					break;
 				}
 
 				case SDL_TEXTINPUT:
 				{
-					if (SDL_GetWindowID(window->m_handle) != event->text.windowID)
+					if (window->m_windowId != event->text.windowID)
 						return 0;
 
+					WindowEvent windowEvent;
 					windowEvent.type = WindowEventType::TextEntered;
 					windowEvent.text.repeated = false;
 
@@ -519,7 +504,7 @@ namespace Nz
 					{
 						windowEvent.text.character = *it;
 
-						window->m_parent->PushEvent(windowEvent);
+						window->m_parent->HandleEvent(windowEvent);
 					}
 					while (*it++);
 
@@ -528,9 +513,10 @@ namespace Nz
 
 				case SDL_TEXTEDITING:
 				{
-					if (SDL_GetWindowID(window->m_handle) != event->edit.windowID)
+					if (window->m_windowId != event->edit.windowID)
 						return 0;
 
+					WindowEvent windowEvent;
 					windowEvent.type = WindowEventType::TextEdited;
 					windowEvent.edit.length = event->edit.length;
 					window->m_lastEditEventLength = windowEvent.edit.length;
@@ -540,7 +526,7 @@ namespace Nz
 						windowEvent.edit.text[i] = event->edit.text[i];
 					}
 
-					window->m_parent->PushEvent(windowEvent);
+					window->m_parent->HandleEvent(windowEvent);
 					break;
 				}
 			}
@@ -557,7 +543,7 @@ namespace Nz
 		return 0;
 	}
 
-	void WindowImpl::SetCursor(const Cursor& cursor)
+	void WindowImpl::UpdateCursor(const Cursor& cursor)
 	{
 		m_cursor = cursor.m_impl->GetCursor();
 
@@ -565,73 +551,57 @@ namespace Nz
 			RefreshCursor();
 	}
 
-	void WindowImpl::SetEventListener(bool listener)
-	{
-		if (m_ownsWindow)
-			return;
-
-		if (listener)
-			SDL_AddEventWatch(HandleEvent, this);
-		else
-			SDL_DelEventWatch(HandleEvent, this);
-	}
-
-	void WindowImpl::SetFocus()
+	void WindowImpl::RaiseFocus()
 	{
 		SDL_RaiseWindow(m_handle);
 	}
 
-	void WindowImpl::SetIcon(const Icon& icon)
+	void WindowImpl::UpdateIcon(const Icon& icon)
 	{
 		SDL_SetWindowIcon(m_handle, icon.m_impl->GetIcon());
 	}
 
-	void WindowImpl::SetMaximumSize(int width, int height)
+	void WindowImpl::UpdateMaximumSize(int width, int height)
 	{
 		SDL_SetWindowMaximumSize(m_handle, width, height);
 	}
 
-	void WindowImpl::SetMinimumSize(int width, int height)
+	void WindowImpl::UpdateMinimumSize(int width, int height)
 	{
 		SDL_SetWindowMinimumSize(m_handle, width, height);
 	}
 
-	void WindowImpl::SetPosition(int x, int y)
+	void WindowImpl::UpdatePosition(int x, int y)
 	{
 		SDL_SetWindowPosition(m_handle, x, y);
 	}
 
-	void WindowImpl::SetSize(unsigned int width, unsigned int height)
+	void WindowImpl::UpdateSize(unsigned int width, unsigned int height)
 	{
-		m_size.Set(width, height);
 		SDL_SetWindowSize(m_handle, width, height);
 	}
 
-	void WindowImpl::SetStayOnTop(bool stayOnTop)
+	void WindowImpl::UpdateStayOnTop(bool stayOnTop)
 	{
-		NazaraDebug("Stay on top isn't supported by SDL2 backend for now");
+		SDL_SetWindowAlwaysOnTop(m_handle, (stayOnTop) ? SDL_TRUE : SDL_FALSE);
 	}
 
-	void WindowImpl::SetTitle(const std::string& title)
+	void WindowImpl::UpdateTitle(const std::string& title)
 	{
 		SDL_SetWindowTitle(m_handle, title.c_str());
 	}
 
-	void WindowImpl::SetVisible(bool visible)
+	void WindowImpl::Show(bool visible)
 	{
-		visible ? SDL_ShowWindow(m_handle) : SDL_HideWindow(m_handle);
+		if (visible)
+			SDL_ShowWindow(m_handle);
+		else
+			SDL_HideWindow(m_handle);
 	}
 
-	void WindowImpl::PrepareWindow(bool fullscreen)
+	void WindowImpl::ProcessEvents()
 	{
-		(void)fullscreen;     // ignore param warning
-
-		SDL_GetWindowPosition(m_handle, &m_position.x, &m_position.y);
-
-		int width, height;
-		SDL_GetWindowSize(m_handle, &width, &height);
-
-		m_size.Set(width, height);
+		SDL_PumpEvents();
 	}
 
 	bool WindowImpl::Initialize()
@@ -650,27 +620,18 @@ namespace Nz
 		SDL_Quit();
 	}
 
-	// not implemented for now, wait for mainloop friendly input
-	//void WindowImpl::WindowThread(SDL_Window* handle, /*DWORD styleEx,*/ const String& title, /*DWORD style,*/ bool fullscreen, const Rectui& dimensions, WindowImpl* window, Mutex* mutex, ConditionVariable* condition)
-	//{
-	//	SDL_Window& winHandle = *handle;
-	/*winHandle = CreateWindowExW(styleEx, className, title.GetWideString().data(), style, dimensions.x, dimensions.y, dimensions.width, dimensions.height, nullptr, nullptr, GetModuleHandle(nullptr), window);
+	void WindowImpl::SetEventListener(bool listener)
+	{
+		if (m_eventListener == listener)
+			return;
 
-	   if (winHandle)
-	    window->PrepareWindow(fullscreen);
+		if (listener)
+			SDL_AddEventWatch(HandleEvent, this);
+		else
+			SDL_DelEventWatch(HandleEvent, this);
 
-	   mutex->Lock();
-	   condition->Signal();
-	   mutex->Unlock(); // mutex and condition may be destroyed after this line
-
-	   if (!winHandle)
-	    return;
-
-	   while (window->m_threadActive)
-	    window->ProcessEvents(true);
-
-	   DestroyWindow(winHandle);*/
-	//}
+		m_eventListener = listener;
+	}
 }
 
 #if defined(NAZARA_PLATFORM_WINDOWS)

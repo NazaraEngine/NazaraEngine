@@ -2,14 +2,14 @@
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Renderer/RenderWindowImpl.hpp>
+#include <Nazara/Renderer/Swapchain.hpp>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace Nz
 {
-	RenderWindowImpl::~RenderWindowImpl() = default;
+	Swapchain::~Swapchain() = default;
 
-	void RenderWindowImpl::BuildRenderPass(PixelFormat colorFormat, PixelFormat depthFormat, std::vector<RenderPass::Attachment>& attachments, std::vector<RenderPass::SubpassDescription>& subpassDescriptions, std::vector<RenderPass::SubpassDependency>& subpassDependencies)
+	void Swapchain::BuildRenderPass(PixelFormat colorFormat, PixelFormat depthFormat, std::vector<RenderPass::Attachment>& attachments, std::vector<RenderPass::SubpassDescription>& subpassDescriptions, std::vector<RenderPass::SubpassDependency>& subpassDependencies)
 	{
 		assert(colorFormat != PixelFormat::Undefined);
 

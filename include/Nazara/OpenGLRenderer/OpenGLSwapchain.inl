@@ -2,14 +2,16 @@
 // This file is part of the "Nazara Engine - OpenGL renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/OpenGLRenderer/DummySurface.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLSwapchain.hpp>
+#include <cassert>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
 namespace Nz
 {
-	inline WindowHandle DummySurface::GetWindowHandle() const
+	inline GL::Context& OpenGLSwapchain::GetContext()
 	{
-		return m_handle;
+		assert(m_context);
+		return *m_context;
 	}
 }
 

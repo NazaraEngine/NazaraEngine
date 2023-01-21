@@ -2,23 +2,31 @@
 // This file is part of the "Nazara Engine - Platform module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Platform/EventHandler.hpp>
+#include <Nazara/Platform/WindowEventHandler.hpp>
 #include <memory>
 #include <Nazara/Platform/Debug.hpp>
 
 namespace Nz
 {
-	inline EventHandler::EventHandler(const EventHandler& other) :
+	inline WindowEventHandler::WindowEventHandler(const WindowEventHandler& other) :
 	HandledObject(other)
 	{
 	}
 
-	inline void EventHandler::Dispatch(const WindowEvent& event)
+	inline void WindowEventHandler::Dispatch(const WindowEvent& event)
 	{
 		OnEvent(this, event);
 
 		switch (event.type)
 		{
+			case WindowEventType::Created:
+				OnCreated(this);
+				break;
+
+			case WindowEventType::Destruction:
+				OnDestruction(this);
+				break;
+
 			case WindowEventType::GainedFocus:
 				OnGainedFocus(this);
 				break;
@@ -33,6 +41,10 @@ namespace Nz
 
 			case WindowEventType::LostFocus:
 				OnLostFocus(this);
+				break;
+
+			case WindowEventType::Minimized:
+				OnMinimized(this);
 				break;
 
 			case WindowEventType::MouseButtonPressed:
@@ -69,6 +81,10 @@ namespace Nz
 
 			case WindowEventType::Resized:
 				OnResized(this, event.size);
+				break;
+
+			case WindowEventType::Restored:
+				OnRestored(this);
 				break;
 
 			case WindowEventType::TextEntered:
