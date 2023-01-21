@@ -240,10 +240,8 @@ namespace Nz
 	* \param oldLayer Pointer to the previous layer
 	* \param newLayer Pointer to the new layer
 	*/
-	void TextSprite::OnAtlasLayerChange(const AbstractAtlas* atlas, AbstractImage* oldLayer, AbstractImage* newLayer)
+	void TextSprite::OnAtlasLayerChange([[maybe_unused]] const AbstractAtlas* atlas, AbstractImage* oldLayer, AbstractImage* newLayer)
 	{
-		NazaraUnused(atlas);
-
 		assert(m_atlases.find(atlas) != m_atlases.end());
 
 		if (!oldLayer)
@@ -258,13 +256,19 @@ namespace Nz
 
 		Vector2ui oldSize(oldTexture->GetSize());
 		Vector2ui newSize(newTexture->GetSize());
-		Vector2f scale = Vector2f(oldSize) / Vector2f(newSize); // ratio of the old one to the new one
+		Vector2f scale = Vector2f(oldSize) / Vector2f(newSize);
 
-		// It is possible we actually use that texture multiple times, check them all
-		for (auto it = m_renderInfos.begin(); it != m_renderInfos.end(); ++it)
+		// Rebuild new render infos with adjusted texture
+		decltype(m_renderInfos) newRenderInfos;
+		newRenderInfos.reserve(m_renderInfos.size());
+
+		for (auto&& [renderKey, indices] : m_renderInfos)
 		{
-			const RenderKey& renderKey = it->first;
-			const RenderIndices& indices = it->second;
+			if (renderKey.texture != oldTexture)
+			{
+				newRenderInfos.emplace(renderKey, indices);
+				continue;
+			}
 
 			// Adjust texture coordinates by size ratio
 			SparsePtr<Vector2f> texCoordPtr(&m_vertices[indices.first].uv, sizeof(VertexStruct_XY_Color_UV));
@@ -274,10 +278,11 @@ namespace Nz
 					m_vertices[i * 4 + j].uv *= scale;
 			}
 
-			// Erase and re-insert with the new texture handle
-			m_renderInfos.erase(it);
-			m_renderInfos.insert(std::make_pair(RenderKey{ newTexture, renderKey.renderOrder }, indices));
-			it = m_renderInfos.begin(); //< std::unordered_map::insert may invalidate all iterators, start from the beginning...
+			newRenderInfos.emplace(RenderKey{ newTexture, renderKey.renderOrder }, indices);
 		}
+
+		m_renderInfos = std::move(newRenderInfos);
+
+		OnElementInvalidated(this);
 	}
 }

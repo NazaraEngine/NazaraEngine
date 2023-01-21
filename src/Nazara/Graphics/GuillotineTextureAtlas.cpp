@@ -41,6 +41,7 @@ namespace Nz
 		textureInfo.height = size.y;
 		textureInfo.pixelFormat = PixelFormat::A8;
 		textureInfo.type = ImageType::E2D;
+		textureInfo.usageFlags = TextureUsage::ShaderSampling | TextureUsage::TransferSource | TextureUsage::TransferDestination;
 		
 		std::shared_ptr<Texture> newTexture;
 		try
@@ -58,7 +59,7 @@ namespace Nz
 			const Texture& oldTexture = static_cast<const Texture&>(*oldImage);
 			Vector3ui oldSize = oldTexture.GetSize();
 
-			if (!newTexture->Copy(oldTexture, Rectui(0, 0, oldSize.x, oldSize.y)))
+			if (!newTexture->Copy(oldTexture, Boxui(0, 0, 0, oldSize.x, oldSize.y, oldSize.z)))
 			{
 				NazaraError("Failed to update texture");
 				return nullptr;
