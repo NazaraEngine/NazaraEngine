@@ -7,8 +7,8 @@ local function downloadAssetsRule(name)
 			import("net.http")
 			import("utils.archive")
 		
-			local referenceVersion = io.readfile("assets/" .. name .. "_version.txt")
-			local currentVersion = os.exists("assets/" .. name .. "/version.txt") and io.readfile("assets/" .. name .. "/version.txt")
+			local referenceVersion = tonumber(io.readfile("assets/" .. name .. "_version.txt"))
+			local currentVersion = os.exists("assets/" .. name .. "/version.txt") and tonumber(io.readfile("assets/" .. name .. "/version.txt"))
 			if referenceVersion == currentVersion then
 				utils.vprintf(name .. " assets are up-to-date, ignoring\n")
 				return
