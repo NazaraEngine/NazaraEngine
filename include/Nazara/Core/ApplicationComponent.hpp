@@ -13,18 +13,26 @@
 
 namespace Nz
 {
+	class ApplicationBase;
+
 	class NAZARA_CORE_API ApplicationComponent
 	{
 		public:
-			ApplicationComponent() = default;
+			inline ApplicationComponent(ApplicationBase& app);
 			ApplicationComponent(const ApplicationComponent&) = delete;
 			ApplicationComponent(ApplicationComponent&&) = delete;
 			virtual ~ApplicationComponent();
+
+			inline ApplicationBase& GetApp();
+			inline const ApplicationBase& GetApp() const;
 
 			virtual void Update(Time elapsedTime);
 
 			ApplicationComponent& operator=(const ApplicationComponent&) = delete;
 			ApplicationComponent& operator=(ApplicationComponent&&) = delete;
+
+		private:
+			ApplicationBase& m_app;
 	};
 }
 

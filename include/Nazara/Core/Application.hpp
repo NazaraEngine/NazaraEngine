@@ -20,7 +20,7 @@ namespace Nz
 			using ApplicationBase::ApplicationBase;
 			Application(const Application&) = delete;
 			Application(Application&&) = delete;
-			~Application() = default;
+			~Application();
 
 			Application& operator=(const Application&) = delete;
 			Application& operator=(Application&&) = delete;

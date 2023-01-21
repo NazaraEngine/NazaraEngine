@@ -28,5 +28,10 @@ namespace Nz
 
 	void ApplicationBase::Update(Time elapsedTime)
 	{
+		for (auto& componentPtr : m_components)
+		{
+			if (componentPtr)
+				componentPtr->Update(elapsedTime);
+		}
 	}
 }
