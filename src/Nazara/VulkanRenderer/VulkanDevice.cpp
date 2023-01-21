@@ -9,6 +9,7 @@
 #include <Nazara/VulkanRenderer/VulkanRenderPipeline.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPipelineLayout.hpp>
 #include <Nazara/VulkanRenderer/VulkanShaderModule.hpp>
+#include <Nazara/VulkanRenderer/VulkanSwapchain.hpp>
 #include <Nazara/VulkanRenderer/VulkanTexture.hpp>
 #include <Nazara/VulkanRenderer/VulkanTextureFramebuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanTextureSampler.hpp>
@@ -83,6 +84,11 @@ namespace Nz
 			throw std::runtime_error("failed to instantiate vulkan shader module");
 
 		return stage;
+	}
+
+	std::shared_ptr<Swapchain> VulkanDevice::InstantiateSwapchain(WindowHandle windowHandle, const Vector2ui& windowSize, const SwapchainParameters& parameters)
+	{
+		return std::make_shared<VulkanSwapchain>(*this, windowHandle, windowSize, parameters);
 	}
 
 	std::shared_ptr<Texture> VulkanDevice::InstantiateTexture(const TextureInfo& params)

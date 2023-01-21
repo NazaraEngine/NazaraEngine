@@ -7,7 +7,7 @@
 
 namespace Nz
 {
-	inline OpenGLWindowFramebuffer::OpenGLWindowFramebuffer(OpenGLRenderWindow& renderWindow) :
+	inline OpenGLWindowFramebuffer::OpenGLWindowFramebuffer(OpenGLSwapchain& renderWindow) :
 	OpenGLFramebuffer(FramebufferType::Window),
 	m_renderWindow(renderWindow)
 	{

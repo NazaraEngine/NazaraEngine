@@ -12,8 +12,9 @@
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Renderer/Enums.hpp>
-#include <Nazara/Renderer/RenderWindowImpl.hpp>
+#include <Nazara/Renderer/Swapchain.hpp>
 #include <Nazara/Renderer/RendererImpl.hpp>
+#include <Nazara/Renderer/SwapchainParameters.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/VulkanDevice.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderImage.hpp>
@@ -33,17 +34,15 @@
 
 namespace Nz
 {
-	class NAZARA_VULKANRENDERER_API VulkanRenderWindow : public RenderWindowImpl
+	class NAZARA_VULKANRENDERER_API VulkanSwapchain : public Swapchain
 	{
 		public:
-			VulkanRenderWindow(RenderWindow& owner);
-			VulkanRenderWindow(const VulkanRenderWindow&) = delete;
-			VulkanRenderWindow(VulkanRenderWindow&&) = delete; ///TODO
-			~VulkanRenderWindow();
+			VulkanSwapchain(VulkanDevice& device, WindowHandle windowHandle, const Vector2ui& windowSize, const SwapchainParameters& parameters);
+			VulkanSwapchain(const VulkanSwapchain&) = delete;
+			VulkanSwapchain(VulkanSwapchain&&) = delete;
+			~VulkanSwapchain();
 
-			RenderFrame Acquire() override;
-
-			bool Create(RendererImpl* renderer, RenderSurface* surface, const RenderWindowParameters& parameters) override;
+			RenderFrame AcquireFrame() override;
 
 			std::shared_ptr<CommandPool> CreateCommandPool(QueueType queueType) override;
 
@@ -56,20 +55,22 @@ namespace Nz
 			const Vector2ui& GetSize() const override;
 			inline const Vk::Swapchain& GetSwapchain() const;
 
+			void NotifyResize(const Vector2ui& newSize) override;
+
 			void Present(UInt32 imageIndex, VkSemaphore waitSemaphore = VK_NULL_HANDLE);
 
-			VulkanRenderWindow& operator=(const VulkanRenderWindow&) = delete;
-			VulkanRenderWindow& operator=(VulkanRenderWindow&&) = delete; ///TODO
+			VulkanSwapchain& operator=(const VulkanSwapchain&) = delete;
+			VulkanSwapchain& operator=(VulkanSwapchain&&) = delete;
 
 		private:
-			bool CreateSwapchain(Vk::Surface& surface, const Vector2ui& size);
-			bool SetupDepthBuffer(const Vector2ui& size);
-			bool SetupFrameBuffers(const Vector2ui& size);
+			bool CreateSwapchain();
+			bool SetupDepthBuffer();
+			bool SetupFrameBuffers();
 			bool SetupRenderPass();
-			bool SetupSwapchain(const Vk::PhysicalDevice& deviceInfo, Vk::Surface& surface, const Vector2ui& size);
+			bool SetupSurface(WindowHandle windowHandle);
+			bool SetupSwapchain(const Vk::PhysicalDevice& deviceInfo);
 
 			std::optional<VulkanRenderPass> m_renderPass;
-			std::shared_ptr<VulkanDevice> m_device;
 			std::size_t m_currentFrame;
 			std::vector<VulkanWindowFramebuffer> m_framebuffers;
 			std::vector<Vk::Fence*> m_inflightFences;
@@ -80,15 +81,16 @@ namespace Nz
 			Vk::QueueHandle m_graphicsQueue;
 			Vk::QueueHandle m_presentQueue;
 			Vk::QueueHandle m_transferQueue;
+			Vk::Surface m_surface;
 			Vk::Swapchain m_swapchain;
-			RenderWindow& m_owner;
 			Vector2ui m_swapchainSize;
 			VkFormat m_depthStencilFormat;
 			VkSurfaceFormatKHR m_surfaceFormat;
+			VulkanDevice& m_device;
 			bool m_shouldRecreateSwapchain;
 	};
 }
 
-#include <Nazara/VulkanRenderer/VulkanRenderWindow.inl>
+#include <Nazara/VulkanRenderer/VulkanSwapchain.inl>
 
 #endif // NAZARA_VULKANRENDERER_VULKANRENDERWINDOW_HPP

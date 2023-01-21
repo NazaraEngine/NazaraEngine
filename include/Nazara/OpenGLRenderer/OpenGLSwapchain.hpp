@@ -14,23 +14,21 @@
 #include <Nazara/OpenGLRenderer/OpenGLRenderPass.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLWindowFramebuffer.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
-#include <Nazara/Renderer/RenderWindowImpl.hpp>
+#include <Nazara/Renderer/Swapchain.hpp>
+#include <Nazara/Renderer/SwapchainParameters.hpp>
 #include <optional>
 #include <vector>
 
 namespace Nz
 {
-	class RenderWindow;
-
-	class NAZARA_OPENGLRENDERER_API OpenGLRenderWindow final : public RenderWindowImpl
+	class NAZARA_OPENGLRENDERER_API OpenGLSwapchain final : public Swapchain
 	{
 		public:
-			OpenGLRenderWindow(RenderWindow& owner);
-			~OpenGLRenderWindow() = default;
+			OpenGLSwapchain(OpenGLDevice& device, WindowHandle windowHandle, const Vector2ui& windowSize, const SwapchainParameters& parameters);
+			~OpenGLSwapchain() = default;
 
-			RenderFrame Acquire() override;
+			RenderFrame AcquireFrame() override;
 
-			bool Create(RendererImpl* renderer, RenderSurface* surface, const RenderWindowParameters& parameters) override;
 			std::shared_ptr<CommandPool> CreateCommandPool(QueueType queueType) override;
 
 			inline GL::Context& GetContext();
@@ -38,6 +36,8 @@ namespace Nz
 			std::size_t GetFramebufferCount() const override;
 			const OpenGLRenderPass& GetRenderPass() const override;
 			const Vector2ui& GetSize() const override;
+
+			void NotifyResize(const Vector2ui& newSize) override;
 
 			void Present();
 
@@ -47,11 +47,11 @@ namespace Nz
 			std::vector<std::unique_ptr<OpenGLRenderImage>> m_renderImage;
 			std::unique_ptr<GL::Context> m_context;
 			OpenGLWindowFramebuffer m_framebuffer;
-			RenderWindow& m_owner;
 			Vector2ui m_size;
+			bool m_sizeInvalidated;
 	};
 }
 
-#include <Nazara/OpenGLRenderer/OpenGLRenderWindow.inl>
+#include <Nazara/OpenGLRenderer/OpenGLSwapchain.inl>
 
 #endif // NAZARA_OPENGLRENDERER_OPENGLRENDERWINDOW_HPP

@@ -4,41 +4,38 @@
 
 #pragma once
 
-#ifndef NAZARA_RENDERER_RENDERWINDOWIMPL_HPP
-#define NAZARA_RENDERER_RENDERWINDOWIMPL_HPP
+#ifndef NAZARA_RENDERER_SWAPCHAIN_HPP
+#define NAZARA_RENDERER_SWAPCHAIN_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Platform/WindowHandle.hpp>
 #include <Nazara/Renderer/Config.hpp>
-#include <Nazara/Renderer/RenderDevice.hpp>
 #include <Nazara/Renderer/RenderFrame.hpp>
 #include <Nazara/Renderer/RenderPass.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
-#include <Nazara/Renderer/RenderWindowParameters.hpp>
 #include <vector>
 
 namespace Nz
 {
 	class CommandPool;
-	class RendererImpl;
 	class RenderDevice;
-	class RenderSurface;
 
-	class NAZARA_RENDERER_API RenderWindowImpl : public RenderTarget
+	class NAZARA_RENDERER_API Swapchain : public RenderTarget
 	{
 		public:
-			RenderWindowImpl() = default;
-			virtual ~RenderWindowImpl();
+			Swapchain() = default;
+			virtual ~Swapchain();
 
-			virtual RenderFrame Acquire() = 0;
+			virtual RenderFrame AcquireFrame() = 0;
 
-			virtual bool Create(RendererImpl* renderer, RenderSurface* surface, const RenderWindowParameters& parameters) = 0;
 			virtual std::shared_ptr<CommandPool> CreateCommandPool(QueueType queueType) = 0;
+
+			virtual void NotifyResize(const Vector2ui& newSize) = 0;
 
 		protected:
 			static void BuildRenderPass(PixelFormat colorFormat, PixelFormat depthFormat, std::vector<RenderPass::Attachment>& attachments, std::vector<RenderPass::SubpassDescription>& subpassDescriptions, std::vector<RenderPass::SubpassDependency>& subpassDependencies);
 	};
 }
 
-#endif // NAZARA_RENDERER_RENDERWINDOWIMPL_HPP
+#endif // NAZARA_RENDERER_SWAPCHAIN_HPP

@@ -9,7 +9,7 @@
 
 namespace Nz
 {
-	Canvas::Canvas(entt::registry& registry, Nz::EventHandler& eventHandler, Nz::CursorControllerHandle cursorController, UInt32 renderMask, int initialRenderLayer) :
+	Canvas::Canvas(entt::registry& registry, Nz::WindowEventHandler& eventHandler, Nz::CursorControllerHandle cursorController, UInt32 renderMask, int initialRenderLayer) :
 	BaseWidget(std::make_shared<DefaultWidgetTheme>()),
 	m_cursorController(cursorController),
 	m_renderMask(renderMask),
@@ -106,7 +106,7 @@ namespace Nz
 		}
 	}
 
-	void Canvas::OnEventMouseButtonPressed(const EventHandler* /*eventHandler*/, const WindowEvent::MouseButtonEvent& event)
+	void Canvas::OnEventMouseButtonPressed(const WindowEventHandler* /*eventHandler*/, const WindowEvent::MouseButtonEvent& event)
 	{
 		UpdateHoveredWidget(event.x, event.y);
 
@@ -130,7 +130,7 @@ namespace Nz
 		m_mouseOwnerButtons[event.button] = true;
 	}
 
-	void Canvas::OnEventMouseButtonRelease(const EventHandler* /*eventHandler*/, const WindowEvent::MouseButtonEvent& event)
+	void Canvas::OnEventMouseButtonRelease(const WindowEventHandler* /*eventHandler*/, const WindowEvent::MouseButtonEvent& event)
 	{
 		if (std::size_t targetWidgetIndex = GetMouseEventTarget(); targetWidgetIndex != InvalidCanvasIndex)
 		{
@@ -150,7 +150,7 @@ namespace Nz
 		UpdateHoveredWidget(event.x, event.y);
 	}
 
-	void Canvas::OnEventMouseEntered(const EventHandler* /*eventHandler*/)
+	void Canvas::OnEventMouseEntered(const WindowEventHandler* /*eventHandler*/)
 	{
 		// Keep previous mouse states but not new ones
 		if (m_mouseOwner != InvalidCanvasIndex)
@@ -176,7 +176,7 @@ namespace Nz
 			m_mouseOwnerButtons.reset();
 	}
 
-	void Canvas::OnEventMouseLeft(const EventHandler* /*eventHandler*/)
+	void Canvas::OnEventMouseLeft(const WindowEventHandler* /*eventHandler*/)
 	{
 		if (std::size_t targetWidgetIndex = GetMouseEventTarget(); targetWidgetIndex != InvalidCanvasIndex)
 		{
@@ -185,7 +185,7 @@ namespace Nz
 		}
 	}
 
-	void Canvas::OnEventMouseMoved(const EventHandler* /*eventHandler*/, const WindowEvent::MouseMoveEvent& event)
+	void Canvas::OnEventMouseMoved(const WindowEventHandler* /*eventHandler*/, const WindowEvent::MouseMoveEvent& event)
 	{
 		// Don't update hovered widget while the user doesn't release its mouse
 		UpdateHoveredWidget(event.x, event.y);
@@ -201,7 +201,7 @@ namespace Nz
 		}
 	}
 
-	void Canvas::OnEventMouseWheelMoved(const EventHandler* /*eventHandler*/, const WindowEvent::MouseWheelEvent& event)
+	void Canvas::OnEventMouseWheelMoved(const WindowEventHandler* /*eventHandler*/, const WindowEvent::MouseWheelEvent& event)
 	{
 		if (std::size_t targetWidgetIndex = GetMouseEventTarget(); targetWidgetIndex != InvalidCanvasIndex)
 		{
@@ -215,7 +215,7 @@ namespace Nz
 		}
 	}
 
-	void Canvas::OnEventKeyPressed(const EventHandler* eventHandler, const WindowEvent::KeyEvent& event)
+	void Canvas::OnEventKeyPressed(const WindowEventHandler* eventHandler, const WindowEvent::KeyEvent& event)
 	{
 		if (m_keyboardOwner != InvalidCanvasIndex)
 		{
@@ -273,7 +273,7 @@ namespace Nz
 		OnUnhandledKeyPressed(eventHandler, event);
 	}
 
-	void Canvas::OnEventKeyReleased(const EventHandler* eventHandler, const WindowEvent::KeyEvent& event)
+	void Canvas::OnEventKeyReleased(const WindowEventHandler* eventHandler, const WindowEvent::KeyEvent& event)
 	{
 		if (m_keyboardOwner != InvalidCanvasIndex)
 			m_widgetEntries[m_keyboardOwner].widget->OnKeyReleased(event);
@@ -281,13 +281,13 @@ namespace Nz
 		OnUnhandledKeyReleased(eventHandler, event);
 	}
 
-	void Canvas::OnEventTextEntered(const EventHandler* /*eventHandler*/, const WindowEvent::TextEvent& event)
+	void Canvas::OnEventTextEntered(const WindowEventHandler* /*eventHandler*/, const WindowEvent::TextEvent& event)
 	{
 		if (m_keyboardOwner != InvalidCanvasIndex)
 			m_widgetEntries[m_keyboardOwner].widget->OnTextEntered(event.character, event.repeated);
 	}
 
-	void Canvas::OnEventTextEdited(const EventHandler* /*eventHandler*/, const WindowEvent::EditEvent& event)
+	void Canvas::OnEventTextEdited(const WindowEventHandler* /*eventHandler*/, const WindowEvent::EditEvent& event)
 	{
 		if (m_keyboardOwner != InvalidCanvasIndex)
 			m_widgetEntries[m_keyboardOwner].widget->OnTextEdited(event.text, event.length);

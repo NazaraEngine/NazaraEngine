@@ -5,13 +5,13 @@
 #include <Nazara/VulkanRenderer/VulkanRenderImage.hpp>
 #include <Nazara/VulkanRenderer/VulkanCommandBuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanCommandBufferBuilder.hpp>
-#include <Nazara/VulkanRenderer/VulkanRenderWindow.hpp>
+#include <Nazara/VulkanRenderer/VulkanSwapchain.hpp>
 #include <stdexcept>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
 {
-	VulkanRenderImage::VulkanRenderImage(VulkanRenderWindow& owner) :
+	VulkanRenderImage::VulkanRenderImage(VulkanSwapchain& owner) :
 	m_owner(owner),
 	m_uploadPool(m_owner.GetDevice(), 2 * 1024 * 1024)
 	{

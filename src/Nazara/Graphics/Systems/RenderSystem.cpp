@@ -10,7 +10,7 @@
 #include <Nazara/Graphics/Components/GraphicsComponent.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/RenderFrame.hpp>
-#include <Nazara/Renderer/RenderWindow.hpp>
+#include <Nazara/Renderer/WindowSwapchain.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
 #include <Nazara/Utility/Components/NodeComponent.hpp>
 #include <Nazara/Utility/Components/SharedSkeletonComponent.hpp>
@@ -48,13 +48,18 @@ namespace Nz
 		m_pipeline.reset();
 	}
 
+	WindowSwapchain& RenderSystem::CreateSwapchain(Window& window, const SwapchainParameters& parameters)
+	{
+		return *m_windowSwapchains.emplace_back(std::make_unique<WindowSwapchain>(Graphics::Instance()->GetRenderDevice(), window, parameters));
+	}
+
 	void RenderSystem::Update(Time /*elapsedTime*/)
 	{
 		UpdateObservers();
 		UpdateVisibility();
 		UpdateInstances();
 
-		for (auto& windowPtr : m_renderWindows)
+		for (auto& windowPtr : m_windowSwapchains)
 		{
 			RenderFrame frame = windowPtr->AcquireFrame();
 			if (!frame)

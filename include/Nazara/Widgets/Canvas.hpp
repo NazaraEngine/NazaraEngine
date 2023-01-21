@@ -8,7 +8,7 @@
 #define NAZARA_WIDGETS_CANVAS_HPP
 
 #include <Nazara/Platform/CursorController.hpp>
-#include <Nazara/Platform/EventHandler.hpp>
+#include <Nazara/Platform/WindowEventHandler.hpp>
 #include <Nazara/Widgets/BaseWidget.hpp>
 #include <entt/entity/registry.hpp>
 #include <bitset>
@@ -20,7 +20,7 @@ namespace Nz
 		friend BaseWidget;
 
 		public:
-			Canvas(entt::registry& registry, EventHandler& eventHandler, CursorControllerHandle cursorController, UInt32 renderMask, int initialRenderLayer = 0);
+			Canvas(entt::registry& registry, WindowEventHandler& eventHandler, CursorControllerHandle cursorController, UInt32 renderMask, int initialRenderLayer = 0);
 			Canvas(const Canvas&) = delete;
 			Canvas(Canvas&&) = delete;
 			inline ~Canvas();
@@ -32,8 +32,8 @@ namespace Nz
 			Canvas& operator=(const Canvas&) = delete;
 			Canvas& operator=(Canvas&&) = delete;
 
-			NazaraSignal(OnUnhandledKeyPressed, const EventHandler* /*eventHandler*/, const WindowEvent::KeyEvent& /*event*/);
-			NazaraSignal(OnUnhandledKeyReleased, const EventHandler* /*eventHandler*/, const WindowEvent::KeyEvent& /*event*/);
+			NazaraSignal(OnUnhandledKeyPressed, const WindowEventHandler* /*eventHandler*/, const WindowEvent::KeyEvent& /*event*/);
+			NazaraSignal(OnUnhandledKeyReleased, const WindowEventHandler* /*eventHandler*/, const WindowEvent::KeyEvent& /*event*/);
 
 		protected:
 			inline void ClearKeyboardOwner(std::size_t canvasIndex);
@@ -57,17 +57,17 @@ namespace Nz
 		private:
 			template<typename F> void DispatchEvent(std::size_t widgetIndex, F&& functor);
 			
-			void OnEventMouseButtonPressed(const EventHandler* eventHandler, const WindowEvent::MouseButtonEvent& event);
-			void OnEventMouseButtonRelease(const EventHandler* eventHandler, const WindowEvent::MouseButtonEvent& event);
-			void OnEventMouseEntered(const EventHandler* eventHandler);
-			void OnEventMouseLeft(const EventHandler* eventHandler);
-			void OnEventMouseMoved(const EventHandler* eventHandler, const WindowEvent::MouseMoveEvent& event);
+			void OnEventMouseButtonPressed(const WindowEventHandler* eventHandler, const WindowEvent::MouseButtonEvent& event);
+			void OnEventMouseButtonRelease(const WindowEventHandler* eventHandler, const WindowEvent::MouseButtonEvent& event);
+			void OnEventMouseEntered(const WindowEventHandler* eventHandler);
+			void OnEventMouseLeft(const WindowEventHandler* eventHandler);
+			void OnEventMouseMoved(const WindowEventHandler* eventHandler, const WindowEvent::MouseMoveEvent& event);
 
-			void OnEventMouseWheelMoved(const EventHandler* eventHandler, const WindowEvent::MouseWheelEvent& event);
-			void OnEventKeyPressed(const EventHandler* eventHandler, const WindowEvent::KeyEvent& event);
-			void OnEventKeyReleased(const EventHandler* eventHandler, const WindowEvent::KeyEvent& event);
-			void OnEventTextEntered(const EventHandler* eventHandler, const WindowEvent::TextEvent& event);
-			void OnEventTextEdited(const EventHandler* eventHandler, const WindowEvent::EditEvent& event);
+			void OnEventMouseWheelMoved(const WindowEventHandler* eventHandler, const WindowEvent::MouseWheelEvent& event);
+			void OnEventKeyPressed(const WindowEventHandler* eventHandler, const WindowEvent::KeyEvent& event);
+			void OnEventKeyReleased(const WindowEventHandler* eventHandler, const WindowEvent::KeyEvent& event);
+			void OnEventTextEntered(const WindowEventHandler* eventHandler, const WindowEvent::TextEvent& event);
+			void OnEventTextEdited(const WindowEventHandler* eventHandler, const WindowEvent::EditEvent& event);
 
 			void UpdateHoveredWidget(int x, int y);
 
@@ -78,16 +78,16 @@ namespace Nz
 				SystemCursor cursor;
 			};
 
-			NazaraSlot(EventHandler, OnKeyPressed, m_keyPressedSlot);
-			NazaraSlot(EventHandler, OnKeyReleased, m_keyReleasedSlot);
-			NazaraSlot(EventHandler, OnMouseButtonPressed, m_mouseButtonPressedSlot);
-			NazaraSlot(EventHandler, OnMouseButtonReleased, m_mouseButtonReleasedSlot);
-			NazaraSlot(EventHandler, OnMouseEntered, m_mouseEnteredSlot);
-			NazaraSlot(EventHandler, OnMouseLeft, m_mouseLeftSlot);
-			NazaraSlot(EventHandler, OnMouseMoved, m_mouseMovedSlot);
-			NazaraSlot(EventHandler, OnMouseWheelMoved, m_mouseWheelMovedSlot);
-			NazaraSlot(EventHandler, OnTextEntered, m_textEnteredSlot);
-			NazaraSlot(EventHandler, OnTextEdited, m_textEditedSlot);
+			NazaraSlot(WindowEventHandler, OnKeyPressed, m_keyPressedSlot);
+			NazaraSlot(WindowEventHandler, OnKeyReleased, m_keyReleasedSlot);
+			NazaraSlot(WindowEventHandler, OnMouseButtonPressed, m_mouseButtonPressedSlot);
+			NazaraSlot(WindowEventHandler, OnMouseButtonReleased, m_mouseButtonReleasedSlot);
+			NazaraSlot(WindowEventHandler, OnMouseEntered, m_mouseEnteredSlot);
+			NazaraSlot(WindowEventHandler, OnMouseLeft, m_mouseLeftSlot);
+			NazaraSlot(WindowEventHandler, OnMouseMoved, m_mouseMovedSlot);
+			NazaraSlot(WindowEventHandler, OnMouseWheelMoved, m_mouseWheelMovedSlot);
+			NazaraSlot(WindowEventHandler, OnTextEntered, m_textEnteredSlot);
+			NazaraSlot(WindowEventHandler, OnTextEdited, m_textEditedSlot);
 
 			CursorControllerHandle m_cursorController;
 			UInt32 m_renderMask;

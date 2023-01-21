@@ -8,7 +8,7 @@
 #define NAZARA_WIDGETS_BASEWIDGET_HPP
 
 #include <Nazara/Graphics/Sprite.hpp>
-#include <Nazara/Platform/Event.hpp>
+#include <Nazara/Platform/WindowEvent.hpp>
 #include <Nazara/Platform/Mouse.hpp>
 #include <Nazara/Utility/Node.hpp>
 #include <Nazara/Widgets/Config.hpp>

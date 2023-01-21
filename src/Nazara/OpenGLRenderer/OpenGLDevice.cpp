@@ -11,6 +11,7 @@
 #include <Nazara/OpenGLRenderer/OpenGLRenderPipeline.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderPipelineLayout.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLShaderModule.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLSwapchain.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLTexture.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLTextureSampler.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Loader.hpp>
@@ -198,6 +199,11 @@ namespace Nz
 	std::shared_ptr<ShaderModule> OpenGLDevice::InstantiateShaderModule(nzsl::ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const nzsl::ShaderWriter::States& states)
 	{
 		return std::make_shared<OpenGLShaderModule>(*this, shaderStages, lang, source, sourceSize, states);
+	}
+
+	std::shared_ptr<Swapchain> OpenGLDevice::InstantiateSwapchain(WindowHandle windowHandle, const Vector2ui& windowSize, const SwapchainParameters& parameters)
+	{
+		return std::make_shared<OpenGLSwapchain>(*this, windowHandle, windowSize, parameters);
 	}
 
 	std::shared_ptr<Texture> OpenGLDevice::InstantiateTexture(const TextureInfo& params)

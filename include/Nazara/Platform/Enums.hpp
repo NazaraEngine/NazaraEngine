@@ -48,10 +48,13 @@ namespace Nz
 
 	enum class WindowEventType
 	{
+		Created,
+		Destruction,
 		GainedFocus,
 		LostFocus,
 		KeyPressed,
 		KeyReleased,
+		Minimized,
 		MouseButtonPressed,
 		MouseButtonReleased,
 		MouseEntered,
@@ -61,6 +64,7 @@ namespace Nz
 		Moved,
 		Quit,
 		Resized,
+		Restored,
 		TextEdited,
 		TextEntered,
 

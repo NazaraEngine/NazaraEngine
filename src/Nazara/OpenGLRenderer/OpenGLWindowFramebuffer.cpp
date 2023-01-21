@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/OpenGLRenderer/OpenGLWindowFramebuffer.hpp>
-#include <Nazara/OpenGLRenderer/OpenGLRenderWindow.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLSwapchain.hpp>
 #include <stdexcept>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 

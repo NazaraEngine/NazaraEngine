@@ -25,9 +25,6 @@ namespace Nz
 			VulkanRenderer() = default;
 			~VulkanRenderer();
 
-			std::unique_ptr<RenderSurface> CreateRenderSurfaceImpl() override;
-			std::unique_ptr<RenderWindowImpl> CreateRenderWindowImpl(RenderWindow& owner) override;
-
 			std::shared_ptr<RenderDevice> InstanciateRenderDevice(std::size_t deviceIndex, const RenderDeviceFeatures& enabledFeatures) override;
 
 			RenderAPI QueryAPI() const override;

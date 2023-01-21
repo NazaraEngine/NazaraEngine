@@ -2,34 +2,160 @@
 // This file is part of the "Nazara Engine - Vulkan renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/VulkanRenderer/VulkanRenderWindow.hpp>
+#include <Nazara/VulkanRenderer/VulkanSwapchain.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Math/Vector2.hpp>
-#include <Nazara/Renderer/RenderWindow.hpp>
+#include <Nazara/Renderer/WindowSwapchain.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
 #include <Nazara/VulkanRenderer/Vulkan.hpp>
 #include <Nazara/VulkanRenderer/VulkanCommandPool.hpp>
 #include <Nazara/VulkanRenderer/VulkanDevice.hpp>
-#include <Nazara/VulkanRenderer/VulkanSurface.hpp>
 #include <Nazara/Utils/StackArray.hpp>
 #include <array>
 #include <stdexcept>
+
+#ifdef VK_USE_PLATFORM_METAL_EXT
+#include <objc/runtime.h>
+#include <vulkan/vulkan_metal.h>
+#endif
+
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
 {
-	VulkanRenderWindow::VulkanRenderWindow(RenderWindow& owner) :
+#ifdef VK_USE_PLATFORM_METAL_EXT
+	id CreateAndAttachMetalLayer(void* window);
+#endif
+
+	VulkanSwapchain::VulkanSwapchain(VulkanDevice& device, WindowHandle windowHandle, const Vector2ui& windowSize, const SwapchainParameters& parameters) :
 	m_currentFrame(0),
-	m_owner(owner),
+	m_surface(device.GetInstance()),
+	m_swapchainSize(windowSize),
+	m_device(device),
 	m_shouldRecreateSwapchain(false)
 	{
+		if (!SetupSurface(windowHandle))
+			throw std::runtime_error("failed to create surface");
+
+		const auto& physDeviceInfo = m_device.GetPhysicalDeviceInfo();
+
+		const std::vector<Vk::Device::QueueFamilyInfo>& queueFamilyInfo = m_device.GetEnabledQueues();
+		UInt32 graphicsFamilyQueueIndex = UINT32_MAX;
+		UInt32 presentableFamilyQueueIndex = UINT32_MAX;
+
+		for (const Vk::Device::QueueFamilyInfo& queueInfo : queueFamilyInfo)
+		{
+			bool supported = false;
+			if (m_surface.GetSupportPresentation(physDeviceInfo.physDevice, queueInfo.familyIndex, &supported) && supported)
+			{
+				if (presentableFamilyQueueIndex == UINT32_MAX || queueInfo.flags & VK_QUEUE_GRAPHICS_BIT)
+				{
+					presentableFamilyQueueIndex = queueInfo.familyIndex;
+					if (queueInfo.flags & VK_QUEUE_GRAPHICS_BIT)
+					{
+						graphicsFamilyQueueIndex = queueInfo.familyIndex;
+						break;
+					}
+				}
+			}
+		}
+
+		if (presentableFamilyQueueIndex == UINT32_MAX)
+			throw std::runtime_error("device doesn't support presenting to this surface");
+
+		if (graphicsFamilyQueueIndex == UINT32_MAX)
+		{
+			for (const Vk::Device::QueueFamilyInfo& queueInfo : queueFamilyInfo)
+			{
+				if (queueInfo.flags & VK_QUEUE_GRAPHICS_BIT)
+				{
+					graphicsFamilyQueueIndex = queueInfo.familyIndex;
+					break;
+				}
+			}
+		}
+
+		if (graphicsFamilyQueueIndex == UINT32_MAX)
+			throw std::runtime_error("device doesn't support graphics operation");
+
+		UInt32 transferFamilyQueueIndex = UINT32_MAX;
+		// Search for a transfer queue (first one being different to the graphics one)
+		for (const Vk::Device::QueueFamilyInfo& queueInfo : queueFamilyInfo)
+		{
+			// Transfer bit is not mandatory if compute and graphics bits are set (as they implicitly support transfer)
+			if (queueInfo.flags & (VK_QUEUE_COMPUTE_BIT | VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT))
+			{
+				transferFamilyQueueIndex = queueInfo.familyIndex;
+				if (transferFamilyQueueIndex != graphicsFamilyQueueIndex)
+					break;
+			}
+		}
+
+		assert(transferFamilyQueueIndex != UINT32_MAX);
+
+		m_graphicsQueue = m_device.GetQueue(graphicsFamilyQueueIndex, 0);
+		m_presentQueue = m_device.GetQueue(presentableFamilyQueueIndex, 0);
+		m_transferQueue = m_device.GetQueue(transferFamilyQueueIndex, 0);
+
+		std::vector<VkSurfaceFormatKHR> surfaceFormats;
+		if (!m_surface.GetFormats(physDeviceInfo.physDevice, &surfaceFormats))
+			throw std::runtime_error("failed to query supported surface formats");
+
+		m_surfaceFormat = [&]() -> VkSurfaceFormatKHR
+		{
+			if (surfaceFormats.size() == 1 && surfaceFormats.front().format == VK_FORMAT_UNDEFINED)
+			{
+				// If the list contains one undefined format, it means any format can be used
+				return { VK_FORMAT_R8G8B8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR };
+			}
+			else
+			{
+				// Search for RGBA8 and default to first format
+				for (const VkSurfaceFormatKHR& surfaceFormat : surfaceFormats)
+				{
+					if (surfaceFormat.format == VK_FORMAT_R8G8B8A8_UNORM)
+						return surfaceFormat;
+				}
+
+				return surfaceFormats.front();
+			}
+		}();
+
+		m_depthStencilFormat = VK_FORMAT_UNDEFINED;
+		if (!parameters.depthFormats.empty())
+		{
+			for (PixelFormat format : parameters.depthFormats)
+			{
+				PixelFormatContent formatContent = PixelFormatInfo::GetContent(format);
+				if (formatContent != PixelFormatContent::DepthStencil && formatContent != PixelFormatContent::Stencil)
+					NazaraWarning("Invalid format " + PixelFormatInfo::GetName(format) + " for depth-stencil attachment");
+
+				m_depthStencilFormat = ToVulkan(format);
+				if (m_depthStencilFormat == VK_FORMAT_UNDEFINED)
+					continue;
+
+				VkFormatProperties formatProperties = m_device.GetInstance().GetPhysicalDeviceFormatProperties(physDeviceInfo.physDevice, m_depthStencilFormat);
+				if (formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
+					break; //< Found it
+
+				m_depthStencilFormat = VK_FORMAT_UNDEFINED;
+			}
+
+			if (m_depthStencilFormat == VK_FORMAT_UNDEFINED)
+				throw std::runtime_error("failed to find a support depth-stencil format");
+		}
+
+		if (!SetupRenderPass())
+			throw std::runtime_error("failed to create renderpass");
+
+		if (!CreateSwapchain())
+			throw std::runtime_error("failed to create swapchain");
 	}
 
-	VulkanRenderWindow::~VulkanRenderWindow()
+	VulkanSwapchain::~VulkanSwapchain()
 	{
-		if (m_device)
-			m_device->WaitForIdle();
+		m_device.WaitForIdle();
 
 		m_concurrentImageData.clear();
 		m_renderPass.reset();
@@ -37,22 +163,13 @@ namespace Nz
 		m_swapchain.Destroy();
 	}
 
-	RenderFrame VulkanRenderWindow::Acquire()
+	RenderFrame VulkanSwapchain::AcquireFrame()
 	{
 		bool invalidateFramebuffer = false;
 
-		Vector2ui size = m_owner.GetSize();
-		// Special case: window is minimized
-		if (size == Nz::Vector2ui::Zero() || m_owner.IsMinimized())
-			return RenderFrame();
-
-		if (m_shouldRecreateSwapchain || size != m_swapchainSize)
+		if (m_shouldRecreateSwapchain)
 		{
-			Vk::Surface& vulkanSurface = static_cast<VulkanSurface*>(m_owner.GetSurface())->GetSurface();
-
-			OnRenderTargetSizeChange(this, size);
-
-			if (!CreateSwapchain(vulkanSurface, size))
+			if (!CreateSwapchain())
 				throw std::runtime_error("failed to recreate swapchain");
 
 			m_shouldRecreateSwapchain = false;
@@ -79,7 +196,7 @@ namespace Nz
 
 			case VK_ERROR_OUT_OF_DATE_KHR:
 				m_shouldRecreateSwapchain = true;
-				return Acquire();
+				return AcquireFrame();
 
 			// Not expected (since timeout is infinite)
 			case VK_TIMEOUT:
@@ -102,191 +219,16 @@ namespace Nz
 
 		currentFrame.Reset(imageIndex);
 
-		return RenderFrame(&currentFrame, invalidateFramebuffer, size, imageIndex);
+		return RenderFrame(&currentFrame, invalidateFramebuffer, m_swapchainSize, imageIndex);
 	}
 
-	bool VulkanRenderWindow::Create(RendererImpl* /*renderer*/, RenderSurface* surface, const RenderWindowParameters& parameters)
-	{
-		std::shared_ptr<VulkanDevice> device = std::static_pointer_cast<VulkanDevice>(m_owner.GetRenderDevice());
-
-		const auto& physDeviceInfo = device->GetPhysicalDeviceInfo();
-
-		Vk::Surface& vulkanSurface = static_cast<VulkanSurface*>(surface)->GetSurface();
-
-		const std::vector<Vk::Device::QueueFamilyInfo>& queueFamilyInfo = device->GetEnabledQueues();
-		UInt32 graphicsFamilyQueueIndex = UINT32_MAX;
-		UInt32 presentableFamilyQueueIndex = UINT32_MAX;
-
-		for (const Vk::Device::QueueFamilyInfo& queueInfo : queueFamilyInfo)
-		{
-			bool supported = false;
-			if (vulkanSurface.GetSupportPresentation(physDeviceInfo.physDevice, queueInfo.familyIndex, &supported) && supported)
-			{
-				if (presentableFamilyQueueIndex == UINT32_MAX || queueInfo.flags & VK_QUEUE_GRAPHICS_BIT)
-				{
-					presentableFamilyQueueIndex = queueInfo.familyIndex;
-					if (queueInfo.flags & VK_QUEUE_GRAPHICS_BIT)
-					{
-						graphicsFamilyQueueIndex = queueInfo.familyIndex;
-						break;
-					}
-				}
-			}
-		}
-
-		if (presentableFamilyQueueIndex == UINT32_MAX)
-		{
-			NazaraError("device doesn't support presenting to this surface");
-			return false;
-		}
-
-		if (graphicsFamilyQueueIndex == UINT32_MAX)
-		{
-			for (const Vk::Device::QueueFamilyInfo& queueInfo : queueFamilyInfo)
-			{
-				if (queueInfo.flags & VK_QUEUE_GRAPHICS_BIT)
-				{
-					graphicsFamilyQueueIndex = queueInfo.familyIndex;
-					break;
-				}
-			}
-		}
-
-		if (graphicsFamilyQueueIndex == UINT32_MAX)
-		{
-			NazaraError("device doesn't support graphics operations");
-			return false;
-		}
-
-		UInt32 transferFamilyQueueIndex = UINT32_MAX;
-		// Search for a transfer queue (first one being different to the graphics one)
-		for (const Vk::Device::QueueFamilyInfo& queueInfo : queueFamilyInfo)
-		{
-			// Transfer bit is not mandatory if compute and graphics bits are set (as they implicitly support transfer)
-			if (queueInfo.flags & (VK_QUEUE_COMPUTE_BIT | VK_QUEUE_GRAPHICS_BIT | VK_QUEUE_TRANSFER_BIT))
-			{
-				transferFamilyQueueIndex = queueInfo.familyIndex;
-				if (transferFamilyQueueIndex != graphicsFamilyQueueIndex)
-					break;
-			}
-		}
-
-		assert(transferFamilyQueueIndex != UINT32_MAX);
-
-		m_device = std::move(device);
-
-		m_graphicsQueue = m_device->GetQueue(graphicsFamilyQueueIndex, 0);
-		m_presentQueue = m_device->GetQueue(presentableFamilyQueueIndex, 0);
-		m_transferQueue = m_device->GetQueue(transferFamilyQueueIndex, 0);
-
-		std::vector<VkSurfaceFormatKHR> surfaceFormats;
-		if (!vulkanSurface.GetFormats(physDeviceInfo.physDevice, &surfaceFormats))
-		{
-			NazaraError("Failed to query supported surface formats");
-			return false;
-		}
-
-		m_surfaceFormat = [&] () -> VkSurfaceFormatKHR
-		{
-			if (surfaceFormats.size() == 1 && surfaceFormats.front().format == VK_FORMAT_UNDEFINED)
-			{
-				// If the list contains one undefined format, it means any format can be used
-				return { VK_FORMAT_R8G8B8A8_UNORM, VK_COLOR_SPACE_SRGB_NONLINEAR_KHR };
-			}
-			else
-			{
-				// Search for RGBA8 and default to first format
-				for (const VkSurfaceFormatKHR& surfaceFormat : surfaceFormats)
-				{
-					if (surfaceFormat.format == VK_FORMAT_R8G8B8A8_UNORM)
-						return surfaceFormat;
-				}
-
-				return surfaceFormats.front();
-			}
-		}();
-
-		m_depthStencilFormat = VK_FORMAT_MAX_ENUM;
-		if (!parameters.depthFormats.empty())
-		{
-			for (PixelFormat format : parameters.depthFormats)
-			{
-				switch (format)
-				{
-					case PixelFormat::Depth16:
-						m_depthStencilFormat = VK_FORMAT_D16_UNORM;
-						break;
-
-					case PixelFormat::Depth16Stencil8:
-						m_depthStencilFormat = VK_FORMAT_D16_UNORM_S8_UINT;
-						break;
-
-					case PixelFormat::Depth24:
-					case PixelFormat::Depth24Stencil8:
-						m_depthStencilFormat = VK_FORMAT_D24_UNORM_S8_UINT;
-						break;
-
-					case PixelFormat::Depth32F:
-						m_depthStencilFormat = VK_FORMAT_D32_SFLOAT;
-						break;
-
-					case PixelFormat::Depth32FStencil8:
-						m_depthStencilFormat = VK_FORMAT_D32_SFLOAT_S8_UINT;
-						break;
-
-					case PixelFormat::Stencil1:
-					case PixelFormat::Stencil4:
-					case PixelFormat::Stencil8:
-						m_depthStencilFormat = VK_FORMAT_S8_UINT;
-						break;
-
-					case PixelFormat::Stencil16:
-						continue;
-
-					default:
-					{
-						PixelFormatContent formatContent = PixelFormatInfo::GetContent(format);
-						if (formatContent != PixelFormatContent::DepthStencil && formatContent != PixelFormatContent::Stencil)
-							NazaraWarning("Invalid format " + PixelFormatInfo::GetName(format) + " for depth-stencil attachment");
-
-						m_depthStencilFormat = VK_FORMAT_MAX_ENUM;
-						break;
-					}
-				}
-
-				if (m_depthStencilFormat != VK_FORMAT_MAX_ENUM)
-				{
-					VkFormatProperties formatProperties = m_device->GetInstance().GetPhysicalDeviceFormatProperties(physDeviceInfo.physDevice, m_depthStencilFormat);
-					if (formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
-						break; //< Found it
-
-					m_depthStencilFormat = VK_FORMAT_MAX_ENUM;
-				}
-			}
-		}
-
-		if (!SetupRenderPass())
-		{
-			NazaraError("Failed to create render pass");
-			return false;
-		}
-
-		if (!CreateSwapchain(vulkanSurface, m_owner.GetSize()))
-		{
-			NazaraError("failed to create swapchain");
-			return false;
-		}
-
-		return true;
-	}
-
-	std::shared_ptr<CommandPool> VulkanRenderWindow::CreateCommandPool(QueueType queueType)
+	std::shared_ptr<CommandPool> VulkanSwapchain::CreateCommandPool(QueueType queueType)
 	{
 		UInt32 queueFamilyIndex = [&] {
 			switch (queueType)
 			{
 				case QueueType::Compute:
-					return m_device->GetDefaultFamilyIndex(QueueType::Compute);
+					return m_device.GetDefaultFamilyIndex(QueueType::Compute);
 
 				case QueueType::Graphics:
 					return m_graphicsQueue.GetQueueFamilyIndex();
@@ -298,31 +240,62 @@ namespace Nz
 			throw std::runtime_error("invalid queue type " + std::to_string(UnderlyingCast(queueType)));
 		}();
 
-		return std::make_shared<VulkanCommandPool>(*m_device, queueFamilyIndex);
+		return std::make_shared<VulkanCommandPool>(m_device, queueFamilyIndex);
 	}
 
-	const VulkanWindowFramebuffer& VulkanRenderWindow::GetFramebuffer(std::size_t i) const
+	bool VulkanSwapchain::CreateSwapchain()
+	{
+		if (!SetupSwapchain(m_device.GetPhysicalDeviceInfo()))
+		{
+			NazaraError("Failed to create swapchain");
+			return false;
+		}
+
+		if (m_depthStencilFormat != VK_FORMAT_MAX_ENUM && !SetupDepthBuffer())
+		{
+			NazaraError("Failed to create depth buffer");
+			return false;
+		}
+
+		if (!SetupFrameBuffers())
+		{
+			NazaraError("failed to create framebuffers");
+			return false;
+		}
+
+		return true;
+	}
+
+	const VulkanWindowFramebuffer& VulkanSwapchain::GetFramebuffer(std::size_t i) const
 	{
 		assert(i < m_framebuffers.size());
 		return m_framebuffers[i];
 	}
 
-	std::size_t VulkanRenderWindow::GetFramebufferCount() const
+	std::size_t VulkanSwapchain::GetFramebufferCount() const
 	{
 		return m_framebuffers.size();
 	}
 
-	const VulkanRenderPass& VulkanRenderWindow::GetRenderPass() const
+	const VulkanRenderPass& VulkanSwapchain::GetRenderPass() const
 	{
 		return *m_renderPass;
 	}
 
-	const Vector2ui& VulkanRenderWindow::GetSize() const
+	const Vector2ui& VulkanSwapchain::GetSize() const
 	{
 		return m_swapchainSize;
 	}
 
-	void VulkanRenderWindow::Present(UInt32 imageIndex, VkSemaphore waitSemaphore)
+	void VulkanSwapchain::NotifyResize(const Vector2ui& newSize)
+	{
+		OnRenderTargetSizeChange(this, newSize);
+
+		m_swapchainSize = newSize;
+		m_shouldRecreateSwapchain = true;
+	}
+
+	void VulkanSwapchain::Present(UInt32 imageIndex, VkSemaphore waitSemaphore)
 	{
 		NazaraAssert(imageIndex < m_inflightFences.size(), "Invalid image index");
 
@@ -354,31 +327,7 @@ namespace Nz
 		}
 	}
 
-	bool VulkanRenderWindow::CreateSwapchain(Vk::Surface& surface, const Vector2ui& size)
-	{
-		assert(m_device);
-		if (!SetupSwapchain(m_device->GetPhysicalDeviceInfo(), surface, size))
-		{
-			NazaraError("Failed to create swapchain");
-			return false;
-		}
-
-		if (m_depthStencilFormat != VK_FORMAT_MAX_ENUM && !SetupDepthBuffer(size))
-		{
-			NazaraError("Failed to create depth buffer");
-			return false;
-		}
-
-		if (!SetupFrameBuffers(size))
-		{
-			NazaraError("failed to create framebuffers");
-			return false;
-		}
-
-		return true;
-	}
-
-	bool VulkanRenderWindow::SetupDepthBuffer(const Vector2ui& size)
+	bool VulkanSwapchain::SetupDepthBuffer()
 	{
 		VkImageCreateInfo imageCreateInfo = {
 			VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO,                                           // VkStructureType          sType;
@@ -386,7 +335,7 @@ namespace Nz
 			0U,                                                                            // VkImageCreateFlags       flags;
 			VK_IMAGE_TYPE_2D,                                                              // VkImageType              imageType;
 			m_depthStencilFormat,                                                          // VkFormat                 format;
-			{size.x, size.y, 1U},                                                          // VkExtent3D               extent;
+			{ m_swapchainSize.x, m_swapchainSize.y, 1U },                                  // VkExtent3D               extent;
 			1U,                                                                            // uint32_t                 mipLevels;
 			1U,                                                                            // uint32_t                 arrayLayers;
 			VK_SAMPLE_COUNT_1_BIT,                                                         // VkSampleCountFlagBits    samples;
@@ -398,14 +347,14 @@ namespace Nz
 			VK_IMAGE_LAYOUT_UNDEFINED,                                                     // VkImageLayout            initialLayout;
 		};
 
-		if (!m_depthBuffer.Create(*m_device, imageCreateInfo))
+		if (!m_depthBuffer.Create(m_device, imageCreateInfo))
 		{
 			NazaraError("Failed to create depth buffer");
 			return false;
 		}
 
 		VkMemoryRequirements memoryReq = m_depthBuffer.GetMemoryRequirements();
-		if (!m_depthBufferMemory.Create(*m_device, memoryReq.size, memoryReq.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT))
+		if (!m_depthBufferMemory.Create(m_device, memoryReq.size, memoryReq.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT))
 		{
 			NazaraError("Failed to allocate depth buffer memory");
 			return false;
@@ -433,21 +382,21 @@ namespace Nz
 			VK_IMAGE_VIEW_TYPE_2D,                    // VkImageViewType            viewType;
 			m_depthStencilFormat,                     // VkFormat                   format;
 			{                                         // VkComponentMapping         components;
-				VK_COMPONENT_SWIZZLE_R,               // VkComponentSwizzle         .r;
-				VK_COMPONENT_SWIZZLE_G,               // VkComponentSwizzle         .g;
-				VK_COMPONENT_SWIZZLE_B,               // VkComponentSwizzle         .b;
-				VK_COMPONENT_SWIZZLE_A                // VkComponentSwizzle         .a;
+			    VK_COMPONENT_SWIZZLE_R,               // VkComponentSwizzle         .r;
+			    VK_COMPONENT_SWIZZLE_G,               // VkComponentSwizzle         .g;
+			    VK_COMPONENT_SWIZZLE_B,               // VkComponentSwizzle         .b;
+			    VK_COMPONENT_SWIZZLE_A                // VkComponentSwizzle         .a;
 			},
 			{                                         // VkImageSubresourceRange    subresourceRange;
-				aspectMask,                           // VkImageAspectFlags         .aspectMask;
-				0,                                    // uint32_t                   .baseMipLevel;
-				1,                                    // uint32_t                   .levelCount;
-				0,                                    // uint32_t                   .baseArrayLayer;
-				1                                     // uint32_t                   .layerCount;
+			    aspectMask,                           // VkImageAspectFlags         .aspectMask;
+			    0,                                    // uint32_t                   .baseMipLevel;
+			    1,                                    // uint32_t                   .levelCount;
+			    0,                                    // uint32_t                   .baseArrayLayer;
+			    1                                     // uint32_t                   .layerCount;
 			}
 		};
 
-		if (!m_depthBufferView.Create(*m_device, imageViewCreateInfo))
+		if (!m_depthBufferView.Create(m_device, imageViewCreateInfo))
 		{
 			NazaraError("Failed to create depth buffer view");
 			return false;
@@ -456,7 +405,7 @@ namespace Nz
 		return true;
 	}
 
-	bool VulkanRenderWindow::SetupFrameBuffers(const Vector2ui& size)
+	bool VulkanSwapchain::SetupFrameBuffers()
 	{
 		UInt32 imageCount = m_swapchain.GetImageCount();
 
@@ -473,14 +422,14 @@ namespace Nz
 				m_renderPass->GetRenderPass(),
 				(attachments[1] != VK_NULL_HANDLE) ? 2U : 1U,
 				attachments.data(),
-				size.x,
-				size.y,
+				m_swapchainSize.x,
+				m_swapchainSize.y,
 				1U
 			};
 
 			Vk::Framebuffer framebuffer;
 
-			if (!framebuffer.Create(*m_device, frameBufferCreate))
+			if (!framebuffer.Create(*m_swapchain.GetDevice(), frameBufferCreate))
 			{
 				NazaraError("Failed to create framebuffer for image #" + NumberToString(i) + ": " + TranslateVulkanError(framebuffer.GetLastErrorCode()));
 				return false;
@@ -492,7 +441,7 @@ namespace Nz
 		return true;
 	}
 
-	bool VulkanRenderWindow::SetupRenderPass()
+	bool VulkanSwapchain::SetupRenderPass()
 	{
 		std::optional<PixelFormat> colorFormat = FromVulkan(m_surfaceFormat.format);
 		if (!colorFormat)
@@ -517,34 +466,98 @@ namespace Nz
 		std::vector<RenderPass::SubpassDependency> subpassDependencies;
 
 		BuildRenderPass(*colorFormat, depthStencilFormat.value_or(PixelFormat::Undefined), attachments, subpassDescriptions, subpassDependencies);
-		m_renderPass.emplace(*m_device, std::move(attachments), std::move(subpassDescriptions), std::move(subpassDependencies));
+		m_renderPass.emplace(m_device, std::move(attachments), std::move(subpassDescriptions), std::move(subpassDependencies));
 		return true;
 	}
 
-	bool VulkanRenderWindow::SetupSwapchain(const Vk::PhysicalDevice& deviceInfo, Vk::Surface& surface, const Vector2ui& size)
+	bool VulkanSwapchain::SetupSurface(WindowHandle windowHandle)
+	{
+		bool success = false;
+#if defined(NAZARA_PLATFORM_WINDOWS)
+		{
+			NazaraAssert(windowHandle.type == WindowBackend::Windows, "expected Windows window");
+
+			HWND winHandle = reinterpret_cast<HWND>(windowHandle.windows.window);
+			HINSTANCE instance = reinterpret_cast<HINSTANCE>(GetWindowLongPtrW(winHandle, GWLP_HINSTANCE));
+
+			success = m_surface.Create(instance, winHandle);
+		}
+#elif defined(NAZARA_PLATFORM_LINUX)
+		{
+			switch (windowHandle.type)
+			{
+#ifdef VK_USE_PLATFORM_WAYLAND_KHR
+				case WindowBackend::Wayland:
+				{
+					wl_display* display = static_cast<wl_display*>(windowHandle.wayland.display);
+					wl_surface* surface = static_cast<wl_surface*>(windowHandle.wayland.surface);
+
+					success = m_surface.Create(display, surface);
+					break;
+				}
+#endif
+
+#ifdef VK_USE_PLATFORM_XLIB_KHR
+				case WindowBackend::X11:
+				{
+					Display* display = static_cast<Display*>(windowHandle.x11.display);
+					::Window window = static_cast<::Window>(windowHandle.x11.window);
+
+					success = m_surface.Create(display, window);
+					break;
+				}
+#endif
+
+				default:
+				{
+					NazaraError("unhandled window type");
+					return false;
+				}
+			}
+		}
+#elif defined(NAZARA_PLATFORM_MACOS)
+		{
+			NazaraAssert(windowHandle.type == WindowBackend::Cocoa, "expected cocoa window");
+			id layer = CreateAndAttachMetalLayer(windowHandle.cocoa.window);
+			success = m_surface.Create(layer);
+		}
+#else
+#error This OS is not supported by Vulkan
+#endif
+
+		if (!success)
+		{
+			NazaraError("Failed to create Vulkan surface: " + TranslateVulkanError(m_surface.GetLastErrorCode()));
+			return false;
+		}
+
+		return true;
+	}
+
+	bool VulkanSwapchain::SetupSwapchain(const Vk::PhysicalDevice& deviceInfo)
 	{
 		VkSurfaceCapabilitiesKHR surfaceCapabilities;
-		if (!surface.GetCapabilities(deviceInfo.physDevice, &surfaceCapabilities))
+		if (!m_surface.GetCapabilities(deviceInfo.physDevice, &surfaceCapabilities))
 		{
 			NazaraError("Failed to query surface capabilities");
 			return false;
 		}
 
-		Nz::UInt32 imageCount = surfaceCapabilities.minImageCount + 1;
+		UInt32 imageCount = surfaceCapabilities.minImageCount + 1;
 		if (surfaceCapabilities.maxImageCount > 0 && imageCount > surfaceCapabilities.maxImageCount)
 			imageCount = surfaceCapabilities.maxImageCount;
 
 		VkExtent2D extent;
 		if (surfaceCapabilities.currentExtent.width == 0xFFFFFFFF)
 		{
-			extent.width = Nz::Clamp<Nz::UInt32>(size.x, surfaceCapabilities.minImageExtent.width, surfaceCapabilities.maxImageExtent.width);
-			extent.height = Nz::Clamp<Nz::UInt32>(size.y, surfaceCapabilities.minImageExtent.height, surfaceCapabilities.maxImageExtent.height);
+			extent.width = std::clamp<UInt32>(m_swapchainSize.x, surfaceCapabilities.minImageExtent.width, surfaceCapabilities.maxImageExtent.width);
+			extent.height = std::clamp<UInt32>(m_swapchainSize.y, surfaceCapabilities.minImageExtent.height, surfaceCapabilities.maxImageExtent.height);
 		}
 		else
 			extent = surfaceCapabilities.currentExtent;
 
 		std::vector<VkPresentModeKHR> presentModes;
-		if (!surface.GetPresentModes(deviceInfo.physDevice, &presentModes))
+		if (!m_surface.GetPresentModes(deviceInfo.physDevice, &presentModes))
 		{
 			NazaraError("Failed to query supported present modes");
 			return false;
@@ -564,13 +577,13 @@ namespace Nz
 		}
 
 		// Ensure all operations on the device have been finished before recreating the swapchain (this can be avoided but is more complicated)
-		m_device->WaitForIdle();
+		m_device.WaitForIdle();
 
 		VkSwapchainCreateInfoKHR swapchainInfo = {
 			VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR,
 			nullptr,
 			0,
-			surface,
+			m_surface,
 			imageCount,
 			m_surfaceFormat.format,
 			m_surfaceFormat.colorSpace,
@@ -587,14 +600,13 @@ namespace Nz
 		};
 
 		Vk::Swapchain newSwapchain;
-		if (!newSwapchain.Create(*m_device, swapchainInfo))
+		if (!newSwapchain.Create(m_device, swapchainInfo))
 		{
 			NazaraError("failed to create swapchain: " + TranslateVulkanError(newSwapchain.GetLastErrorCode()));
 			return false;
 		}
 
 		m_swapchain = std::move(newSwapchain);
-		m_swapchainSize = size;
 
 		// Framebuffers
 		imageCount = m_swapchain.GetImageCount();

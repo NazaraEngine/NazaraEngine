@@ -2,7 +2,6 @@
 #include <Nazara/Math.hpp>
 #include <Nazara/Platform.hpp>
 #include <Nazara/Renderer.hpp>
-#include <Nazara/Renderer/DebugDrawer.hpp>
 #include <NZSL/FilesystemModuleResolver.hpp>
 #include <NZSL/LangWriter.hpp>
 #include <NZSL/Parser.hpp>
@@ -12,6 +11,7 @@
 #include <chrono>
 #include <iostream>
 #include <thread>
+#include <Windows.h>
 
 NAZARA_REQUEST_DEDICATED_GPU()
 
@@ -101,10 +101,11 @@ int main()
 
 	std::shared_ptr<Nz::RenderDevice> device = Nz::Renderer::Instance()->InstanciateRenderDevice(0);
 
-	Nz::RenderWindow window;
+	Nz::Window window;
+	Nz::WindowSwapchain windowSwapchain(device, window);
 
 	std::string windowTitle = "Render Test";
-	if (!window.Create(device, Nz::VideoMode(800, 600, 32), windowTitle))
+	if (!window.Create(Nz::VideoMode(1280, 720), windowTitle))
 	{
 		std::cout << "Failed to create Window" << std::endl;
 		return __LINE__;
@@ -153,15 +154,13 @@ int main()
 	std::cout << "Vertex count: " << meshVB->GetVertexCount() << std::endl;
 
 	// Create renderbuffers (GPU buffers)
-	const std::shared_ptr<Nz::RenderDevice>& renderDevice = window.GetRenderDevice();
-
 	assert(meshIB->GetBuffer()->GetStorage() == Nz::DataStorage::Software);
 	assert(meshVB->GetBuffer()->GetStorage() == Nz::DataStorage::Software);
 	const Nz::SoftwareBuffer* indexBufferContent = static_cast<const Nz::SoftwareBuffer*>(meshIB->GetBuffer().get());
 	const Nz::SoftwareBuffer* vertexBufferContent = static_cast<const Nz::SoftwareBuffer*>(meshVB->GetBuffer().get());
 
-	std::shared_ptr<Nz::RenderBuffer> renderBufferIB = renderDevice->InstantiateBuffer(Nz::BufferType::Index, indexBufferContent->GetSize(), Nz::BufferUsage::DeviceLocal, indexBufferContent->GetData());
-	std::shared_ptr<Nz::RenderBuffer> renderBufferVB = renderDevice->InstantiateBuffer(Nz::BufferType::Vertex, vertexBufferContent->GetSize(), Nz::BufferUsage::DeviceLocal, vertexBufferContent->GetData());
+	std::shared_ptr<Nz::RenderBuffer> renderBufferIB = device->InstantiateBuffer(Nz::BufferType::Index, indexBufferContent->GetSize(), Nz::BufferUsage::DeviceLocal, indexBufferContent->GetData());
+	std::shared_ptr<Nz::RenderBuffer> renderBufferVB = device->InstantiateBuffer(Nz::BufferType::Vertex, vertexBufferContent->GetSize(), Nz::BufferUsage::DeviceLocal, vertexBufferContent->GetData());
 
 	// Texture
 	Nz::TextureParams texParams;
@@ -244,14 +243,12 @@ int main()
 
 	std::shared_ptr<Nz::RenderPipeline> pipeline = device->InstantiateRenderPipeline(pipelineInfo);
 
-	std::shared_ptr<Nz::CommandPool> commandPool = renderDevice->InstantiateCommandPool(Nz::QueueType::Graphics);
+	std::shared_ptr<Nz::CommandPool> commandPool = device->InstantiateCommandPool(Nz::QueueType::Graphics);
 
 	Nz::Vector3f viewerPos = Nz::Vector3f::Zero();
 
 	Nz::EulerAnglesf camAngles(0.f, 0.f, 0.f);
 	Nz::Quaternionf camQuat(camAngles);
-
-	window.EnableEventPolling(true);
 
 	Nz::MillisecondClock updateClock;
 	Nz::MillisecondClock secondClock;
@@ -260,49 +257,42 @@ int main()
 
 	Nz::Mouse::SetRelativeMouseMode(true);
 
-	Nz::DebugDrawer debugDrawer(*renderDevice);
+	Nz::DebugDrawer debugDrawer(*device);
+
+	Nz::WindowEventHandler& windowEvents = window.GetEventHandler();
+	windowEvents.OnKeyPressed.Connect([&](const Nz::WindowEventHandler*, const Nz::WindowEvent::KeyEvent& key)
+	{
+		if (key.virtualKey == Nz::Keyboard::VKey::F1)
+			window.Create(Nz::VideoMode(1920, 1080), windowTitle);
+	});
+
+	windowEvents.OnMouseMoved.Connect([&](const Nz::WindowEventHandler*, const Nz::WindowEvent::MouseMoveEvent& mouseMove)
+	{
+		// Gestion de la caméra free-fly (Rotation)
+		float sensitivity = 0.3f; // Sensibilité de la souris
+
+		// On modifie l'angle de la caméra grâce au déplacement relatif sur X de la souris
+		camAngles.yaw = camAngles.yaw - mouseMove.deltaX * sensitivity;
+		camAngles.yaw.Normalize();
+
+		// Idem, mais pour éviter les problèmes de calcul de la matrice de vue, on restreint les angles
+		camAngles.pitch = Nz::Clamp(camAngles.pitch - mouseMove.deltaY * sensitivity, -89.f, 89.f);
+
+		camQuat = camAngles;
+
+		uboUpdate = true;
+	});
+
+	windowEvents.OnResized.Connect([&](const Nz::WindowEventHandler*, const Nz::WindowEvent::SizeEvent& sizeEvent)
+	{
+		windowSize = { sizeEvent.width, sizeEvent.height };
+		ubo.projectionMatrix = Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(windowSize.x) / windowSize.y, 0.1f, 1000.f);
+		uboUpdate = true;
+	});
 
 	while (window.IsOpen())
 	{
-		Nz::WindowEvent event;
-		while (window.PollEvent(&event))
-		{
-			switch (event.type)
-			{
-				case Nz::WindowEventType::Quit:
-					window.Close();
-					break;
-
-				case Nz::WindowEventType::MouseMoved: // La souris a bougé
-				{
-					// Gestion de la caméra free-fly (Rotation)
-					float sensitivity = 0.3f; // Sensibilité de la souris
-
-					// On modifie l'angle de la caméra grâce au déplacement relatif sur X de la souris
-					camAngles.yaw = camAngles.yaw - event.mouseMove.deltaX * sensitivity;
-					camAngles.yaw.Normalize();
-
-					// Idem, mais pour éviter les problèmes de calcul de la matrice de vue, on restreint les angles
-					camAngles.pitch = Nz::Clamp(camAngles.pitch - event.mouseMove.deltaY*sensitivity, -89.f, 89.f);
-
-					camQuat = camAngles;
-					
-					uboUpdate = true;
-					break;
-				}
-
-				case Nz::WindowEventType::Resized:
-				{
-					windowSize = window.GetSize();
-					ubo.projectionMatrix = Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(windowSize.x) / windowSize.y, 0.1f, 1000.f);
-					uboUpdate = true;
-					break;
-				}
-
-				default:
-					break;
-			}
-		}
+		Nz::Window::ProcessEvents();
 
 		if (std::optional<Nz::Time> deltaTime = updateClock.RestartIfOver(Nz::Time::TickDuration(60)))
 		{
@@ -334,7 +324,7 @@ int main()
 			uboUpdate = true;
 		}
 
-		Nz::RenderFrame frame = window.AcquireFrame();
+		Nz::RenderFrame frame = windowSwapchain.AcquireFrame();
 		if (!frame)
 		{
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -373,10 +363,11 @@ int main()
 
 		debugDrawer.Prepare(frame);
 
-		const Nz::RenderTarget* windowRT = window.GetRenderTarget();
+		const Nz::RenderTarget& windowRT = windowSwapchain.GetSwapchain();
 		frame.Execute([&](Nz::CommandBufferBuilder& builder)
 		{
-			Nz::Recti renderRect(0, 0, window.GetSize().x, window.GetSize().y);
+			windowSize = window.GetSize();
+			Nz::Recti renderRect(0, 0, windowSize.x, windowSize.y);
 
 			Nz::CommandBufferBuilder::ClearValues clearValues[2];
 			clearValues[0].color = Nz::Color::Black();
@@ -385,7 +376,7 @@ int main()
 
 			builder.BeginDebugRegion("Main window rendering", Nz::Color::Green());
 			{
-				builder.BeginRenderPass(windowRT->GetFramebuffer(frame.GetFramebufferIndex()), windowRT->GetRenderPass(), renderRect, { clearValues[0], clearValues[1] });
+				builder.BeginRenderPass(windowRT.GetFramebuffer(frame.GetFramebufferIndex()), windowRT.GetRenderPass(), renderRect, { clearValues[0], clearValues[1] });
 				{
 					builder.BindIndexBuffer(*renderBufferIB, Nz::IndexType::U16);
 					builder.BindRenderPipeline(*pipeline);

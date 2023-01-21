@@ -23,8 +23,8 @@ namespace Nz
 	class RendererImpl;
 	class RenderDevice;
 	class RenderSurface;
-	class RenderWindow;
-	class RenderWindowImpl;
+	class WindowSwapchain;
+	class Swapchain;
 
 	using CreateRendererImplFunc = RendererImpl*(*)();
 
@@ -33,9 +33,6 @@ namespace Nz
 		public:
 			RendererImpl() = default;
 			virtual ~RendererImpl();
-
-			virtual std::unique_ptr<RenderSurface> CreateRenderSurfaceImpl() = 0;
-			virtual std::unique_ptr<RenderWindowImpl> CreateRenderWindowImpl(RenderWindow& owner) = 0;
 
 			virtual std::shared_ptr<RenderDevice> InstanciateRenderDevice(std::size_t deviceIndex, const RenderDeviceFeatures& enabledFeatures) = 0;
 

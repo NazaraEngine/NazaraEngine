@@ -15,7 +15,7 @@
 #include <Nazara/Platform/Cursor.hpp>
 #include <Nazara/Platform/CursorController.hpp>
 #include <Nazara/Platform/Enums.hpp>
-#include <Nazara/Platform/EventHandler.hpp>
+#include <Nazara/Platform/WindowEventHandler.hpp>
 #include <Nazara/Platform/Icon.hpp>
 #include <Nazara/Platform/VideoMode.hpp>
 #include <Nazara/Platform/WindowHandle.hpp>
@@ -38,34 +38,30 @@ namespace Nz
 		public:
 			Window();
 			inline Window(VideoMode mode, const std::string& title, WindowStyleFlags style = WindowStyle_Default);
-			inline explicit Window(void* handle);
+			inline explicit Window(WindowHandle handle);
 			Window(const Window&) = delete;
-			Window(Window&& window);
-			virtual ~Window();
+			Window(Window&& window) noexcept;
+			~Window();
 
 			inline void Close();
 
 			bool Create(VideoMode mode, const std::string& title, WindowStyleFlags style = WindowStyle_Default);
-			bool Create(void* handle);
+			bool Create(WindowHandle handle);
 
 			void Destroy();
 
 			inline void EnableCloseOnQuit(bool closeOnQuit);
 
-			NAZARA_DEPRECATED("Event pooling/waiting is deprecated, please use the EventHandler system")
-			inline void EnableEventPolling(bool enable);
-
-			void EnableKeyRepeat(bool enable);
-			void EnableSmoothScrolling(bool enable);
-
 			inline const std::shared_ptr<Cursor>& GetCursor() const;
 			inline CursorController& GetCursorController();
-			inline EventHandler& GetEventHandler();
+			inline WindowEventHandler& GetEventHandler();
+			WindowHandle GetHandle() const;
 			Vector2i GetPosition() const;
 			Vector2ui GetSize() const;
 			WindowStyleFlags GetStyle() const;
-			WindowHandle GetSystemHandle() const;
 			std::string GetTitle() const;
+
+			void HandleEvent(const WindowEvent& event);
 
 			bool HasFocus() const;
 
@@ -75,16 +71,8 @@ namespace Nz
 			inline bool IsValid() const;
 			bool IsVisible() const;
 
-			NAZARA_DEPRECATED("Event pooling/waiting is deprecated, please use the EventHandler system")
-			bool PollEvent(WindowEvent* event);
-
-			void PushEvent(const WindowEvent& event);
-
-			void ProcessEvents(bool block = false);
-
 			void SetCursor(std::shared_ptr<Cursor> cursor);
 			inline void SetCursor(SystemCursor systemCursor);
-			void SetEventListener(bool listener);
 			void SetFocus();
 			void SetIcon(std::shared_ptr<Icon> icon);
 			void SetMaximumSize(const Vector2i& maxSize);
@@ -99,20 +87,10 @@ namespace Nz
 			void SetTitle(const std::string& title);
 			void SetVisible(bool visible);
 
-			NAZARA_DEPRECATED("Event pooling/waiting is deprecated, please use the EventHandler system")
-			bool WaitEvent(WindowEvent* event);
-
 			Window& operator=(const Window&) = delete;
-			Window& operator=(Window&& window);
+			Window& operator=(Window&& window) noexcept;
 
-		protected:
-			void* GetHandle();
-
-			virtual bool OnWindowCreated();
-			virtual void OnWindowDestroy();
-			virtual void OnWindowResized();
-
-			MovablePtr<WindowImpl> m_impl;
+			static void ProcessEvents();
 
 		private:
 			void ConnectSlots();
@@ -122,26 +100,21 @@ namespace Nz
 			inline const WindowImpl* GetImpl() const;
 
 			void IgnoreNextMouseEvent(int mouseX, int mouseY) const;
-			void HandleEvent(const WindowEvent& event);
 
 			static bool Initialize();
 			static void Uninitialize();
 
 			NazaraSlot(CursorController, OnCursorUpdated, m_cursorUpdateSlot);
 
-			std::queue<WindowEvent> m_events;
-			std::vector<WindowEvent> m_pendingEvents;
-			std::condition_variable m_eventCondition;
-			CursorController m_cursorController;
 			std::shared_ptr<Cursor> m_cursor;
-			EventHandler m_eventHandler;
 			std::shared_ptr<Icon> m_icon;
-			std::mutex m_eventMutex;
-			std::mutex m_eventConditionMutex;
-			bool m_asyncWindow;
+			std::unique_ptr<WindowImpl> m_impl;
+			CursorController m_cursorController;
+			Vector2i m_position;
+			Vector2ui m_size;
+			WindowEventHandler m_eventHandler;
 			bool m_closed;
 			bool m_closeOnQuit;
-			bool m_eventPolling;
 			bool m_ownsWindow;
 			bool m_waitForEvent;
 	};

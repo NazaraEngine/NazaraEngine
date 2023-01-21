@@ -6,8 +6,7 @@
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
 #include <Nazara/VulkanRenderer/VulkanBuffer.hpp>
-#include <Nazara/VulkanRenderer/VulkanRenderWindow.hpp>
-#include <Nazara/VulkanRenderer/VulkanSurface.hpp>
+#include <Nazara/VulkanRenderer/VulkanSwapchain.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Loader.hpp>
 #include <cassert>
 #include <sstream>
@@ -18,16 +17,6 @@ namespace Nz
 	VulkanRenderer::~VulkanRenderer()
 	{
 		Vulkan::Uninitialize();
-	}
-
-	std::unique_ptr<RenderSurface> VulkanRenderer::CreateRenderSurfaceImpl()
-	{
-		return std::make_unique<VulkanSurface>();
-	}
-
-	std::unique_ptr<RenderWindowImpl> VulkanRenderer::CreateRenderWindowImpl(RenderWindow& owner)
-	{
-		return std::make_unique<VulkanRenderWindow>(owner);
 	}
 
 	std::shared_ptr<RenderDevice> VulkanRenderer::InstanciateRenderDevice(std::size_t deviceIndex, const RenderDeviceFeatures& enabledFeatures)

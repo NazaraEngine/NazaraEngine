@@ -12,12 +12,12 @@
 
 namespace Nz
 {
-	class OpenGLRenderWindow;
+	class OpenGLSwapchain;
 
 	class NAZARA_OPENGLRENDERER_API OpenGLWindowFramebuffer : public OpenGLFramebuffer
 	{
 		public:
-			inline OpenGLWindowFramebuffer(OpenGLRenderWindow& renderWindow);
+			inline OpenGLWindowFramebuffer(OpenGLSwapchain& renderWindow);
 			OpenGLWindowFramebuffer(const OpenGLWindowFramebuffer&) = delete;
 			OpenGLWindowFramebuffer(OpenGLWindowFramebuffer&&) noexcept = default;
 			~OpenGLWindowFramebuffer() = default;
@@ -34,7 +34,7 @@ namespace Nz
 			OpenGLWindowFramebuffer& operator=(OpenGLWindowFramebuffer&&) = delete;
 
 		private:
-			OpenGLRenderWindow& m_renderWindow;
+			OpenGLSwapchain& m_renderWindow;
 	};
 }
 

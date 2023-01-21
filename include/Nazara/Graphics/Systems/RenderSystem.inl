@@ -8,19 +8,6 @@
 
 namespace Nz
 {
-	template<typename T, typename ...Args>
-	T& RenderSystem::CreateWindow(Args&& ...args)
-	{
-		static_assert(std::is_base_of_v<RenderWindow, T>, "T must inherit RenderWindow");
-
-		auto windowPtr = std::make_unique<T>(std::forward<Args>(args)...);
-		T& windowRef = *windowPtr;
-
-		m_renderWindows.emplace_back(std::move(windowPtr));
-
-		return windowRef;
-	}
-
 	inline FramePipeline& RenderSystem::GetFramePipeline()
 	{
 		return *m_pipeline;
