@@ -6,10 +6,7 @@
 #include <NZSL/LangWriter.hpp>
 #include <NZSL/Parser.hpp>
 #include <Nazara/Utility.hpp>
-#include <array>
-#include <chrono>
 #include <iostream>
-#include <thread>
 
 NAZARA_REQUEST_DEDICATED_GPU()
 
@@ -123,13 +120,13 @@ int main()
 	});
 
 	std::string windowTitle = "Compute test";
-
-	Nz::RenderWindow window;
-	if (!window.Create(device, Nz::VideoMode(1280, 720, 32), windowTitle))
+	Nz::Window window;
+	if (!window.Create(Nz::VideoMode(1280, 720), windowTitle))
 	{
 		std::cout << "Failed to create Window" << std::endl;
 		std::abort();
 	}
+	Nz::WindowSwapchain windowSwapchain(device, window);
 
 	Nz::Vector2ui windowSize = window.GetSize();
 	constexpr float textureSize = 512.f;
@@ -146,7 +143,7 @@ int main()
 	{
 		window.ProcessEvents();
 
-		Nz::RenderFrame frame = window.AcquireFrame();
+		Nz::RenderFrame frame = windowSwapchain.AcquireFrame();
 		if (!frame)
 		{
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -168,7 +165,7 @@ int main()
 			}
 		}
 
-		const Nz::RenderTarget* windowRT = window.GetRenderTarget();
+		const Nz::RenderTarget* windowRT = &windowSwapchain.GetSwapchain();
 		frame.Execute([&](Nz::CommandBufferBuilder& builder)
 		{
 			builder.BeginDebugRegion("Compute part", Nz::Color::Blue());
