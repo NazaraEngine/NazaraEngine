@@ -6,8 +6,8 @@
 
 #pragma once
 
-#ifndef NAZARA_PLATFORM_EVENT_HPP
-#define NAZARA_PLATFORM_EVENT_HPP
+#ifndef NAZARA_PLATFORM_WINDOWEVENT_HPP
+#define NAZARA_PLATFORM_WINDOWEVENT_HPP
 
 #include <Nazara/Platform/Enums.hpp>
 #include <Nazara/Platform/Keyboard.hpp>
@@ -135,4 +135,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_PLATFORM_EVENT_HPP
+#endif // NAZARA_PLATFORM_WINDOWEVENT_HPP

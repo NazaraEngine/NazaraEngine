@@ -15,9 +15,9 @@
 #include <Nazara/Platform/Cursor.hpp>
 #include <Nazara/Platform/CursorController.hpp>
 #include <Nazara/Platform/Enums.hpp>
-#include <Nazara/Platform/WindowEventHandler.hpp>
 #include <Nazara/Platform/Icon.hpp>
 #include <Nazara/Platform/VideoMode.hpp>
+#include <Nazara/Platform/WindowEventHandler.hpp>
 #include <Nazara/Platform/WindowHandle.hpp>
 #include <Nazara/Utils/MovablePtr.hpp>
 #include <condition_variable>
