@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_RENDERER_RENDERWINDOW_HPP
-#define NAZARA_RENDERER_RENDERWINDOW_HPP
+#ifndef NAZARA_RENDERER_WINDOWSWAPCHAIN_HPP
+#define NAZARA_RENDERER_WINDOWSWAPCHAIN_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Platform/WindowEventHandler.hpp>
@@ -62,4 +62,4 @@ namespace Nz
 
 #include <Nazara/Renderer/WindowSwapchain.inl>
 
-#endif // NAZARA_RENDERER_RENDERWINDOW_HPP
+#endif // NAZARA_RENDERER_WINDOWSWAPCHAIN_HPP

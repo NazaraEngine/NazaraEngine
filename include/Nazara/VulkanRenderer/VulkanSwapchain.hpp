@@ -4,16 +4,16 @@
 
 #pragma once
 
-#ifndef NAZARA_VULKANRENDERER_VULKANRENDERWINDOW_HPP
-#define NAZARA_VULKANRENDERER_VULKANRENDERWINDOW_HPP
+#ifndef NAZARA_VULKANRENDERER_VULKANSWAPCHAIN_HPP
+#define NAZARA_VULKANRENDERER_VULKANSWAPCHAIN_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Renderer/Enums.hpp>
-#include <Nazara/Renderer/Swapchain.hpp>
 #include <Nazara/Renderer/RendererImpl.hpp>
+#include <Nazara/Renderer/Swapchain.hpp>
 #include <Nazara/Renderer/SwapchainParameters.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/VulkanDevice.hpp>
@@ -93,4 +93,4 @@ namespace Nz
 
 #include <Nazara/VulkanRenderer/VulkanSwapchain.inl>
 
-#endif // NAZARA_VULKANRENDERER_VULKANRENDERWINDOW_HPP
+#endif // NAZARA_VULKANRENDERER_VULKANSWAPCHAIN_HPP

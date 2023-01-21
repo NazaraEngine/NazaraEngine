@@ -10,8 +10,8 @@
 #include <Nazara/Graphics/Components/GraphicsComponent.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/RenderFrame.hpp>
-#include <Nazara/Renderer/WindowSwapchain.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
+#include <Nazara/Renderer/WindowSwapchain.hpp>
 #include <Nazara/Utility/Components/NodeComponent.hpp>
 #include <Nazara/Utility/Components/SharedSkeletonComponent.hpp>
 #include <Nazara/Utility/Components/SkeletonComponent.hpp>

@@ -32,7 +32,11 @@
 #include <Nazara/Core/AbstractHash.hpp>
 #include <Nazara/Core/AbstractLogger.hpp>
 #include <Nazara/Core/Algorithm.hpp>
+#include <Nazara/Core/AppEntitySystemComponent.hpp>
 #include <Nazara/Core/Application.hpp>
+#include <Nazara/Core/ApplicationBase.hpp>
+#include <Nazara/Core/ApplicationComponent.hpp>
+#include <Nazara/Core/ApplicationComponentRegistry.hpp>
 #include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/ByteArrayPool.hpp>
 #include <Nazara/Core/ByteStream.hpp>
@@ -78,6 +82,7 @@
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Core/TaskScheduler.hpp>
+#include <Nazara/Core/Time.hpp>
 #include <Nazara/Core/Unicode.hpp>
 #include <Nazara/Core/Updatable.hpp>
 #include <Nazara/Core/Uuid.hpp>

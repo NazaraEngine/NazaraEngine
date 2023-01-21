@@ -29,13 +29,12 @@
 #ifndef NAZARA_GLOBAL_PLATFORM_HPP
 #define NAZARA_GLOBAL_PLATFORM_HPP
 
+#include <Nazara/Platform/AppWindowingComponent.hpp>
 #include <Nazara/Platform/Clipboard.hpp>
 #include <Nazara/Platform/Config.hpp>
 #include <Nazara/Platform/Cursor.hpp>
 #include <Nazara/Platform/CursorController.hpp>
 #include <Nazara/Platform/Enums.hpp>
-#include <Nazara/Platform/WindowEvent.hpp>
-#include <Nazara/Platform/WindowEventHandler.hpp>
 #include <Nazara/Platform/Icon.hpp>
 #include <Nazara/Platform/Joystick.hpp>
 #include <Nazara/Platform/Keyboard.hpp>
@@ -43,6 +42,8 @@
 #include <Nazara/Platform/Platform.hpp>
 #include <Nazara/Platform/VideoMode.hpp>
 #include <Nazara/Platform/Window.hpp>
+#include <Nazara/Platform/WindowEvent.hpp>
+#include <Nazara/Platform/WindowEventHandler.hpp>
 #include <Nazara/Platform/WindowHandle.hpp>
 
 #endif // NAZARA_GLOBAL_PLATFORM_HPP
