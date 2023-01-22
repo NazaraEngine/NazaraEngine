@@ -7,6 +7,7 @@
 #include <NZSL/Parser.hpp>
 #include <Nazara/Utility.hpp>
 #include <iostream>
+#include <thread>
 
 NAZARA_REQUEST_DEDICATED_GPU()
 
