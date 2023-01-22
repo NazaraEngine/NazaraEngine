@@ -7,11 +7,8 @@
 #include <NZSL/Parser.hpp>
 #include <NZSL/Ast/SanitizeVisitor.hpp>
 #include <Nazara/Utility.hpp>
-#include <array>
-#include <chrono>
 #include <iostream>
 #include <thread>
-#include <Windows.h>
 
 NAZARA_REQUEST_DEDICATED_GPU()
 
