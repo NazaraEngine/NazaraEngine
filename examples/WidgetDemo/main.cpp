@@ -45,6 +45,9 @@ int main()
 
 	auto& ecs = app.AddComponent<Nz::AppEntitySystemComponent>();
 
+	auto& fs = app.AddComponent<Nz::AppFilesystemComponent>();
+	fs.RegisterPath(resourceDir);
+
 	Nz::RenderSystem& renderSystem = ecs.AddSystem<Nz::RenderSystem>();
 	auto& windowSwapchain = renderSystem.CreateSwapchain(mainWindow);
 
@@ -76,7 +79,7 @@ int main()
 	texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
 
 	std::shared_ptr<Nz::MaterialInstance> materialInstance = material->Instantiate();
-	materialInstance->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
+	materialInstance->SetTextureProperty("BaseColorMap", fs.GetOrLoad<Nz::Texture>("Spaceship/Texture/diffuse.png", texParams));
 
 	Nz::ImageWidget* imageWidget = canvas2D.Add<Nz::ImageWidget>(materialInstance);
 	imageWidget->SetPosition(1200.f, 200.f);

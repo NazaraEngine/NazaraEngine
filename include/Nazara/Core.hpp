@@ -32,6 +32,7 @@
 #include <Nazara/Core/AbstractHash.hpp>
 #include <Nazara/Core/AbstractLogger.hpp>
 #include <Nazara/Core/Algorithm.hpp>
+#include <Nazara/Core/AppFilesystemComponent.hpp>
 #include <Nazara/Core/Application.hpp>
 #include <Nazara/Core/ApplicationBase.hpp>
 #include <Nazara/Core/ApplicationComponent.hpp>
