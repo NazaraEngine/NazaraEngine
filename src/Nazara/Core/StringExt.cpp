@@ -48,48 +48,48 @@ namespace Nz
 		template<std::size_t S>
 		struct WideConverter
 		{
+			static_assert(AlwaysFalse<std::integral_constant<std::size_t, S>>(), "unsupported platform");
+		};
+
+#ifdef NAZARA_PLATFORM_WINDOWS
+		template<>
+		struct WideConverter<2>
+		{
+			// UTF-16 (Windows)
 			static std::string From(const wchar_t* wstr, std::size_t size)
 			{
-				if constexpr (S == 2)
-				{
-					// UTF-16 (Windows)
-					return FromUtf16String(std::u16string_view(reinterpret_cast<const char16_t*>(wstr), size));
-				}
-				else if constexpr (S == 4)
-				{
-					// UTF-32 (Linux)
-					return FromUtf32String(std::u32string_view(reinterpret_cast<const char32_t*>(wstr), size));
-				}
-				else
-				{
-					static_assert(AlwaysFalse<std::integral_constant<std::size_t, S>>::value, "Unsupported platform");
-					return std::string("<platform error>");
-				}
+				return FromUtf16String(std::u16string_view(reinterpret_cast<const char16_t*>(wstr), size));
 			}
 
 			static std::wstring To(const std::string_view& str)
 			{
-				if constexpr (S == 2)
-				{
-					std::wstring result;
-					utf8::utf8to16(str.begin(), str.end(), std::back_inserter(result));
+				std::wstring result;
+				utf8::utf8to16(str.begin(), str.end(), std::back_inserter(result));
 
-					return result;
-				}
-				else if constexpr (S == 4)
-				{
-					std::wstring result;
-					utf8::utf8to32(str.begin(), str.end(), std::back_inserter(result));
-
-					return result;
-				}
-				else
-				{
-					static_assert(AlwaysFalse<std::integral_constant<std::size_t, S>>::value, "Unsupported platform");
-					return std::wstring(L"<platform error>");
-				}
+				return result;
 			}
 		};
+#endif
+
+#ifndef NAZARA_PLATFORM_WINDOWS
+		template<>
+		struct WideConverter<4>
+		{
+			// UTF-32 (POSIX)
+			static std::string From(const wchar_t* wstr, std::size_t size)
+			{
+				return FromUtf32String(std::u32string_view(reinterpret_cast<const char32_t*>(wstr), size));
+			}
+
+			static std::wstring To(const std::string_view& str)
+			{
+				std::wstring result;
+				utf8::utf8to32(str.begin(), str.end(), std::back_inserter(result));
+
+				return result;
+			}
+		};
+#endif
 	}
 
 	std::size_t ComputeCharacterCount(const std::string_view& str)
