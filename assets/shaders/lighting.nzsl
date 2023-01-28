@@ -90,15 +90,15 @@ fn main(input: VertIn) -> VertOut
 
 fn compute_attenuation(worldPos: vec3[f32], normal: vec3[f32]) -> f32
 {
-	let distance = length(lightParameters.position - worldPos);
+	let dis = distance(lightParameters.position, worldPos);
 
-	let posToLight = (lightParameters.position - worldPos) / distance;
+	let posToLight = (lightParameters.position - worldPos) / dis;
 	let lambert = dot(normal, posToLight);
 
 	let curAngle = dot(lightParameters.direction, -posToLight);
 	let innerMinusOuterAngle = lightParameters.innerAngle - lightParameters.outerAngle;
 
-	let attenuation = max(1.0 - distance * lightParameters.invRadius, 0.0);
+	let attenuation = max(1.0 - dis * lightParameters.invRadius, 0.0);
 	attenuation = attenuation * lambert * max((curAngle - lightParameters.outerAngle) / innerMinusOuterAngle, 0.0);
 
 	return attenuation;
