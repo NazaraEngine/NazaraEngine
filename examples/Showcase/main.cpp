@@ -1,19 +1,10 @@
 #include <Nazara/Core.hpp>
-#include <Nazara/Core/AppEntitySystemComponent.hpp>
-#include <Nazara/Core/Systems.hpp>
 #include <Nazara/Platform.hpp>
 #include <Nazara/Graphics.hpp>
-#include <Nazara/Graphics/TextSprite.hpp>
-#include <Nazara/Graphics/Components.hpp>
-#include <Nazara/Graphics/Systems.hpp>
 #include <Nazara/Math/PidController.hpp>
 #include <Nazara/Physics3D.hpp>
-#include <Nazara/Physics3D/Components.hpp>
-#include <Nazara/Physics3D/Systems.hpp>
 #include <Nazara/Renderer.hpp>
 #include <Nazara/Utility.hpp>
-#include <Nazara/Utility/Components.hpp>
-#include <Nazara/Utility/Systems.hpp>
 #include <Nazara/Utility/Plugins/AssimpPlugin.hpp>
 #include <Nazara/Utils/CallOnExit.hpp>
 #include <NZSL/Math/FieldOffsets.hpp>
@@ -46,10 +37,12 @@ int main()
 	std::shared_ptr<Nz::RenderDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
 
 	auto& ecs = app.AddComponent<Nz::AppEntitySystemComponent>();
-	ecs.AddSystem<Nz::SkeletonSystem>();
 
-	Nz::Physics3DSystem& physSytem = ecs.AddSystem<Nz::Physics3DSystem>();
-	Nz::RenderSystem& renderSystem = ecs.AddSystem<Nz::RenderSystem>();
+	auto& world = ecs.AddWorld<Nz::EnttWorld>();
+	world.AddSystem<Nz::SkeletonSystem>();
+
+	Nz::Physics3DSystem& physSytem = world.AddSystem<Nz::Physics3DSystem>();
+	Nz::RenderSystem& renderSystem = world.AddSystem<Nz::RenderSystem>();
 
 	auto& windowing = app.AddComponent<Nz::AppWindowingComponent>();
 
@@ -62,9 +55,9 @@ int main()
 	Nz::TextureParams texParams;
 	texParams.renderDevice = device;
 
-	entt::handle playerEntity = ecs.CreateEntity();
-	entt::handle playerRotation = ecs.CreateEntity();
-	entt::handle playerCamera = ecs.CreateEntity();
+	entt::handle playerEntity = world.CreateEntity();
+	entt::handle playerRotation = world.CreateEntity();
+	entt::handle playerCamera = world.CreateEntity();
 	{
 		auto& playerNode = playerEntity.emplace<Nz::NodeComponent>();
 		playerNode.SetPosition(0.f, 1.8f, 1.f);
@@ -166,8 +159,8 @@ int main()
 		}
 	}*/
 
-	entt::handle bobEntity = ecs.CreateEntity();
-	entt::handle lightEntity1 = ecs.CreateEntity();
+	entt::handle bobEntity = world.CreateEntity();
+	entt::handle lightEntity1 = world.CreateEntity();
 	{
 		auto& lightNode = lightEntity1.emplace<Nz::NodeComponent>();
 		lightNode.SetPosition(Nz::Vector3f::Up() * 3.f + Nz::Vector3f::Backward() * 1.f);
@@ -182,7 +175,7 @@ int main()
 		spotLight.EnableShadowCasting(true);
 	}
 
-	entt::handle lightEntity2 = ecs.CreateEntity();
+	entt::handle lightEntity2 = world.CreateEntity();
 	{
 		auto& lightNode = lightEntity2.emplace<Nz::NodeComponent>();
 		lightNode.SetPosition(Nz::Vector3f::Up() * 3.5f + Nz::Vector3f::Right() * 1.5f);
@@ -196,7 +189,7 @@ int main()
 		spotLight.UpdateShadowMapSize(1024);
 	}
 
-	entt::handle lightEntity3 = ecs.CreateEntity();
+	entt::handle lightEntity3 = world.CreateEntity();
 
 	{
 		auto& bobNode = bobEntity.emplace<Nz::NodeComponent>();
@@ -209,7 +202,7 @@ int main()
 
 		auto& sharedSkeleton = bobEntity.emplace<Nz::SharedSkeletonComponent>(skeleton);
 
-		entt::handle sphereEntity = ecs.CreateEntity();
+		entt::handle sphereEntity = world.CreateEntity();
 		{
 			std::shared_ptr<Nz::Mesh> sphereMesh = std::make_shared<Nz::Mesh>();
 			sphereMesh->CreateStatic();
@@ -242,7 +235,7 @@ int main()
 			sphereGfx.AttachRenderable(sphereModel, 0xFFFFFFFF);
 		}
 
-		entt::handle smallBobEntity = ecs.CreateEntity();
+		entt::handle smallBobEntity = world.CreateEntity();
 		auto& smallBobNode = smallBobEntity.emplace<Nz::NodeComponent>();
 		smallBobNode.SetParentJoint(bobEntity, "LeftHand");
 
@@ -297,7 +290,7 @@ int main()
 	sprite->UpdateRenderLayer(1);
 	sprite->Update(Nz::SimpleTextDrawer::Draw("Shadow-mapping !", 72), 0.002f);
 
-	entt::handle textEntity = ecs.CreateEntity();
+	entt::handle textEntity = world.CreateEntity();
 	{
 		auto& entityGfx = textEntity.emplace<Nz::GraphicsComponent>();
 		entityGfx.AttachRenderable(sprite, 1);
@@ -307,7 +300,7 @@ int main()
 		entityNode.SetRotation(Nz::EulerAnglesf(-45.f, 0.f, 0.f));
 	}
 
-	entt::handle planeEntity = ecs.CreateEntity();
+	entt::handle planeEntity = world.CreateEntity();
 	Nz::Boxf floorBox;
 	{
 		Nz::MeshParams meshPrimitiveParams;
@@ -353,7 +346,7 @@ int main()
 		std::shared_ptr<Nz::Model> boxModel = std::make_shared<Nz::Model>(std::move(boxMeshGfx), boxMesh.GetAABB());
 		boxModel->SetMaterial(0, planeMat);
 
-		entt::handle boxEntity = ecs.CreateEntity();
+		entt::handle boxEntity = world.CreateEntity();
 		boxEntity.emplace<Nz::NodeComponent>().SetPosition(Nz::Vector3f(0.f, 0.25f, -0.5f));
 		boxEntity.emplace<Nz::GraphicsComponent>().AttachRenderable(boxModel, 0xFFFFFFFF);
 	}
@@ -517,7 +510,7 @@ int main()
 
 		if (fpsClock.RestartIfOver(Nz::Time::Second()))
 		{
-			mainWindow.SetTitle(windowTitle + " - " + Nz::NumberToString(fps) + " FPS" + " - " + Nz::NumberToString(ecs.GetRegistry().alive()) + " entities");
+			mainWindow.SetTitle(windowTitle + " - " + Nz::NumberToString(fps) + " FPS" + " - " + Nz::NumberToString(world.GetRegistry().alive()) + " entities");
 			fps = 0;
 		}
 	});

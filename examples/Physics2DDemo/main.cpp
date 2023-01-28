@@ -1,17 +1,10 @@
 #include <Nazara/Core.hpp>
-#include <Nazara/Core/AppEntitySystemComponent.hpp>
-#include <Nazara/Core/Systems.hpp>
 #include <Nazara/Platform.hpp>
 #include <Nazara/Graphics.hpp>
-#include <Nazara/Graphics/Components.hpp>
-#include <Nazara/Graphics/Systems.hpp>
 #include <Nazara/Math/PidController.hpp>
 #include <Nazara/Physics2D.hpp>
-#include <Nazara/Physics2D/Components.hpp>
-#include <Nazara/Physics2D/Systems.hpp>
 #include <Nazara/Renderer.hpp>
 #include <Nazara/Utility.hpp>
-#include <Nazara/Utility/Components.hpp>
 #include <Nazara/Widgets.hpp>
 #include <entt/entt.hpp>
 #include <array>
@@ -42,8 +35,10 @@ int main()
 	auto& windowing = app.AddComponent<Nz::AppWindowingComponent>();
 
 	auto& ecs = app.AddComponent<Nz::AppEntitySystemComponent>();
-	Nz::Physics2DSystem& physSytem = ecs.AddSystem<Nz::Physics2DSystem>();
-	Nz::RenderSystem& renderSystem = ecs.AddSystem<Nz::RenderSystem>();
+
+	auto& world = ecs.AddWorld<Nz::EnttWorld>();
+	Nz::Physics2DSystem& physSytem = world.AddSystem<Nz::Physics2DSystem>();
+	Nz::RenderSystem& renderSystem = world.AddSystem<Nz::RenderSystem>();
 
 	std::string windowTitle = "Physics 2D";
 	Nz::Window& window = windowing.CreateWindow(Nz::VideoMode(1920, 1080, 32), windowTitle);
@@ -55,7 +50,7 @@ int main()
 
 	physSytem.GetPhysWorld().SetGravity({ 0.f, -98.1f });
 
-	entt::handle viewer = ecs.CreateEntity();
+	entt::handle viewer = world.CreateEntity();
 	{
 		viewer.emplace<Nz::NodeComponent>();
 		auto& cameraComponent = viewer.emplace<Nz::CameraComponent>(&windowSwapchain.GetSwapchain(), Nz::ProjectionType::Orthographic);
@@ -77,7 +72,7 @@ int main()
 	{
 		for (std::size_t x = 0; x < 30; ++x)
 		{
-			entt::handle spriteEntity = ecs.CreateEntity();
+			entt::handle spriteEntity = world.CreateEntity();
 			{
 				std::shared_ptr<Nz::Sprite> sprite = std::make_shared<Nz::Sprite>(spriteMaterial);
 				sprite->SetSize({ 32.f, 32.f });
@@ -93,7 +88,7 @@ int main()
 		}
 	}
 
-	entt::handle groundEntity = ecs.CreateEntity();
+	entt::handle groundEntity = world.CreateEntity();
 	{
 		std::shared_ptr<Nz::Tilemap> tilemap = std::make_shared<Nz::Tilemap>(Nz::Vector2ui(40, 20), Nz::Vector2f(64.f, 64.f), 18);
 		tilemap->SetOrigin({ 0.5f, 0.5f });
@@ -138,7 +133,7 @@ int main()
 
 		if (secondClock.RestartIfOver(Nz::Time::Second()))
 		{
-			window.SetTitle(windowTitle + " - " + Nz::NumberToString(fps) + " FPS" + " - " + Nz::NumberToString(ecs.GetRegistry().alive()) + " entities");
+			window.SetTitle(windowTitle + " - " + Nz::NumberToString(fps) + " FPS" + " - " + Nz::NumberToString(world.GetRegistry().alive()) + " entities");
 			fps = 0;
 		}
 	});

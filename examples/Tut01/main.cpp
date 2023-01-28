@@ -1,15 +1,10 @@
 // Sources pour https://github.com/NazaraEngine/NazaraEngine/wiki/(FR)-Tutoriel:-%5B01%5D-Hello-World
 
-#include <Nazara/Core/Application.hpp>
-#include <Nazara/Core/AppEntitySystemComponent.hpp>
-#include <Nazara/Core/Systems.hpp>
+#include <Nazara/Core.hpp>
 #include <Nazara/Graphics.hpp>
-#include <Nazara/Graphics/Components.hpp>
-#include <Nazara/Graphics/Systems.hpp>
 #include <Nazara/Platform/AppWindowingComponent.hpp>
 #include <Nazara/Renderer.hpp>
 #include <Nazara/Utility.hpp>
-#include <Nazara/Utility/Components.hpp>
 #include <iostream>
 
 int main()
@@ -20,11 +15,12 @@ int main()
 	Nz::Window& mainWindow = windowing.CreateWindow(Nz::VideoMode(1280, 720), "Tut01 - Hello world");
 
 	auto& ecs = app.AddComponent<Nz::AppEntitySystemComponent>();
+	auto& world = ecs.AddWorld<Nz::EnttWorld>();
 
-	Nz::RenderSystem& renderSystem = ecs.AddSystem<Nz::RenderSystem>();
+	Nz::RenderSystem& renderSystem = world.AddSystem<Nz::RenderSystem>();
 	auto& windowSwapchain = renderSystem.CreateSwapchain(mainWindow);
 
-	entt::handle cameraEntity = ecs.CreateEntity();
+	entt::handle cameraEntity = world.CreateEntity();
 	{
 		cameraEntity.emplace<Nz::NodeComponent>();
 
@@ -40,7 +36,7 @@ int main()
 	std::shared_ptr<Nz::TextSprite> textSprite = std::make_shared<Nz::TextSprite>();
 	textSprite->Update(textDrawer);
 
-	entt::handle textEntity = ecs.CreateEntity();
+	entt::handle textEntity = world.CreateEntity();
 	{
 		auto& nodeComponent = textEntity.emplace<Nz::NodeComponent>();
 		auto& gfxComponent = textEntity.emplace<Nz::GraphicsComponent>();

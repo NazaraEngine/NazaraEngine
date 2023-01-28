@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_CORE_SYSTEMS_SYSTEMGRAPH_HPP
-#define NAZARA_CORE_SYSTEMS_SYSTEMGRAPH_HPP
+#ifndef NAZARA_CORE_ENTTSYSTEMGRAPH_HPP
+#define NAZARA_CORE_ENTTSYSTEMGRAPH_HPP
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/Clock.hpp>
@@ -18,13 +18,13 @@
 
 namespace Nz
 {
-	class NAZARA_CORE_API SystemGraph
+	class NAZARA_CORE_API EnttSystemGraph
 	{
 		public:
-			inline SystemGraph(entt::registry& registry);
-			SystemGraph(const SystemGraph&) = delete;
-			SystemGraph(SystemGraph&&) = delete;
-			~SystemGraph() = default;
+			inline EnttSystemGraph(entt::registry& registry);
+			EnttSystemGraph(const EnttSystemGraph&) = delete;
+			EnttSystemGraph(EnttSystemGraph&&) = delete;
+			~EnttSystemGraph() = default;
 
 			template<typename T, typename... Args> T& AddSystem(Args&&... args);
 
@@ -33,8 +33,8 @@ namespace Nz
 			void Update();
 			void Update(Time elapsedTime);
 
-			SystemGraph& operator=(const SystemGraph&) = delete;
-			SystemGraph& operator=(SystemGraph&&) = delete;
+			EnttSystemGraph& operator=(const EnttSystemGraph&) = delete;
+			EnttSystemGraph& operator=(EnttSystemGraph&&) = delete;
 
 		private:
 			struct NAZARA_CORE_API NodeBase
@@ -65,6 +65,6 @@ namespace Nz
 	};
 }
 
-#include <Nazara/Core/Systems/SystemGraph.inl>
+#include <Nazara/Core/EnttSystemGraph.inl>
 
-#endif // NAZARA_CORE_SYSTEMS_SYSTEMGRAPH_HPP
+#endif // NAZARA_CORE_ENTTSYSTEMGRAPH_HPP

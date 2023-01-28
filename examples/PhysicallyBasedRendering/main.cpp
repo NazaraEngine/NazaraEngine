@@ -3,7 +3,6 @@
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Renderer.hpp>
 #include <Nazara/Utility.hpp>
-#include <array>
 #include <chrono>
 #include <iostream>
 #include <thread>

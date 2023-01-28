@@ -1,21 +1,11 @@
 #include <Nazara/Core.hpp>
-#include <Nazara/Core/AppEntitySystemComponent.hpp>
-#include <Nazara/Core/Systems.hpp>
 #include <Nazara/Platform.hpp>
 #include <Nazara/Graphics.hpp>
-#include <Nazara/Graphics/TextSprite.hpp>
-#include <Nazara/Graphics/Components.hpp>
-#include <Nazara/Graphics/Systems.hpp>
 #include <Nazara/Math/PidController.hpp>
 #include <Nazara/Physics3D.hpp>
-#include <Nazara/Physics3D/Components.hpp>
-#include <Nazara/Physics3D/Systems.hpp>
 #include <Nazara/Renderer.hpp>
 #include <Nazara/Utility.hpp>
-#include <Nazara/Utility/Components.hpp>
 #include <Nazara/Widgets.hpp>
-#include <Nazara/Widgets/ImageButtonWidget.hpp>
-#include <Nazara/Widgets/ScrollAreaWidget.hpp>
 #include <entt/entt.hpp>
 #include <array>
 #include <iostream>
@@ -40,6 +30,7 @@ int main()
 	Nz::Window& mainWindow = windowing.CreateWindow(Nz::VideoMode(1920, 1080), "Widget demo");
 
 	auto& ecs = app.AddComponent<Nz::AppEntitySystemComponent>();
+	auto& world = ecs.AddWorld<Nz::EnttWorld>();
 
 	auto& fs = app.AddComponent<Nz::AppFilesystemComponent>();
 	{
@@ -50,10 +41,10 @@ int main()
 		fs.Mount("assets", resourceDir);
 	}
 
-	Nz::RenderSystem& renderSystem = ecs.AddSystem<Nz::RenderSystem>();
+	Nz::RenderSystem& renderSystem = world.AddSystem<Nz::RenderSystem>();
 	auto& windowSwapchain = renderSystem.CreateSwapchain(mainWindow);
 
-	Nz::Canvas canvas2D(ecs.GetRegistry(), mainWindow.GetEventHandler(), mainWindow.GetCursorController().CreateHandle(), 0xFFFFFFFF);
+	Nz::Canvas canvas2D(world, mainWindow.GetEventHandler(), mainWindow.GetCursorController().CreateHandle(), 0xFFFFFFFF);
 	canvas2D.Resize(Nz::Vector2f(mainWindow.GetSize()));
 
 	Nz::LabelWidget* labelWidget = canvas2D.Add<Nz::LabelWidget>();
@@ -119,7 +110,7 @@ int main()
 	textAreaWidget2->SetBackgroundColor(Nz::Color::White());
 	textAreaWidget2->SetTextColor(Nz::Color::Black());*/
 
-	entt::handle viewer2D = ecs.CreateEntity();
+	entt::handle viewer2D = world.CreateEntity();
 	{
 		viewer2D.emplace<Nz::NodeComponent>();
 

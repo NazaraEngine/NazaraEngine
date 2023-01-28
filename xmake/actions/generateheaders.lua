@@ -11,11 +11,11 @@ on_run(function ()
 	local paths = {}
 
 	local excludedFiles = {
-		["Components.hpp"] = true,
+		["Components.hpp"] = { Define = "NAZARA_ENTT" },
 		["ConfigCheck.hpp"] = true,
 		["Debug.hpp"] = true,
 		["DebugOff.hpp"] = true,
-		["Systems.hpp"] = true,
+		["Systems.hpp"] = { Define = "NAZARA_ENTT" },
 		["ThreadSafety.hpp"] = true,
 		["ThreadSafetyOff.hpp"] = true
 	}
@@ -73,7 +73,9 @@ on_run(function ()
 	end
 
 	paths["Audio"].Excludes["OpenALFunctions.hpp"] = true
-	paths["Core"].Excludes["AppEntitySystemComponent.hpp"] = true
+	paths["Core"].Excludes["AppEntitySystemComponent.hpp"] = { Define = "NAZARA_ENTT" }
+	paths["Core"].Excludes["EnttSystemGraph.hpp"] = { Define = "NAZARA_ENTT" }
+	paths["Core"].Excludes["EnttWorld.hpp"] = { Define = "NAZARA_ENTT" }
 	paths["OpenGLRenderer"].Excludes["Wrapper.hpp"] = true
 	paths["VulkanRenderer"].Excludes["Wrapper.hpp"] = true
 
@@ -127,6 +129,8 @@ on_run(function ()
 		header:write("#ifndef " .. v.HeaderGuard .. "\n")
 		header:write("#define " .. v.HeaderGuard .. "\n\n")
 
+		local gatedIncludes = {}
+
 		local count = 0
 		for _, filePath in pairs(files) do
 			local pathParts = path.split(filePath)
@@ -136,13 +140,31 @@ on_run(function ()
 
 			local include = table.concat(pathParts, "/")
 			local fileName = path.filename(filePath)
-			if (not v.Excludes[fileName]) then
+
+			local exclusion = v.Excludes[fileName]
+			if (not exclusion) then
 				header:write("#include <" .. include .. ">\n")
 				count = count + 1
+			elseif (type(exclusion) == "table" and exclusion.Define) then
+				local gatedFiles = gatedIncludes[exclusion.Define]
+				if not gatedFiles then
+					gatedFiles = {}
+					gatedIncludes[exclusion.Define] = gatedFiles
+				end
+				table.insert(gatedFiles, include)
 			end
 		end
-		
-		header:write("\n#endif // " .. v.HeaderGuard .. "\n")
+		header:write("\n")
+
+		for _, gatedDefine in ipairs(table.orderkeys(gatedIncludes)) do
+			header:write("#ifdef " .. gatedDefine .. "\n\n")
+			for _, include in ipairs(gatedIncludes[gatedDefine]) do
+				header:write("#include <" .. include .. ">\n")
+			end
+			header:write("\n#endif\n\n")
+		end
+
+		header:write("#endif // " .. v.HeaderGuard .. "\n")
 		header:close()
 		
 		print(string.format("-#include count: %d", count))
