@@ -16,12 +16,13 @@ namespace Nz
 		{
 			Window& window = **it;
 			if (!window.IsOpen(true))
+			{
 				it = m_windows.erase(it);
+				if (m_quitOnLastWindowClosed && m_windows.empty())
+					GetApp().Quit();
+			}
 			else
 				++it;
 		}
-
-		if (m_quitOnLastWindowClosed && m_windows.empty())
-			GetApp().Quit();
 	}
 }
