@@ -157,7 +157,7 @@ namespace Nz
 				TextureViewInfo textureViewParams;
 				textureViewParams.viewType = textureData.type;
 				textureViewParams.reinterpretFormat = textureData.format;
-				textureViewParams.baseArrayLayer = textureData.viewData->arrayLayer;
+				textureViewParams.baseArrayLayer = SafeCast<unsigned int>(textureData.viewData->arrayLayer);
 
 				textureData.texture = parentTexture.texture->CreateView(textureViewParams);
 			}

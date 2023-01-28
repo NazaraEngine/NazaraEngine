@@ -59,7 +59,7 @@ namespace Nz
 
 			// If user clicks inside button and holds it outside, a release mouse button event will be triggered outside of the widget
 			// we don't want this to trigger the button, so double-check
-			if (IsInside(x, y))
+			if (IsInside(float(x), float(y)))
 				SwitchToNextState();
 
 			return true;
