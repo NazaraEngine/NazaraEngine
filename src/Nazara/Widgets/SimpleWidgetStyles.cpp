@@ -316,8 +316,11 @@ namespace Nz
 				if (!pressed)
 					m_sprite->SetMaterial(owner->GetMaterial());
 
-				GraphicsComponent& gfxComponent = GetRegistry().get<GraphicsComponent>(m_entity);
-				gfxComponent.AttachRenderable(m_hoveredSprite, GetRenderMask());
+				if (!m_isHovered)
+				{
+					GraphicsComponent& gfxComponent = GetRegistry().get<GraphicsComponent>(m_entity);
+					gfxComponent.AttachRenderable(m_hoveredSprite, GetRenderMask());
+				}
 			}
 		}
 		else
@@ -325,8 +328,11 @@ namespace Nz
 			if (!pressed)
 				m_sprite->SetMaterial(owner->GetMaterial());
 
-			GraphicsComponent& gfxComponent = GetRegistry().get<GraphicsComponent>(m_entity);
-			gfxComponent.DetachRenderable(m_hoveredSprite);
+			if (m_isHovered)
+			{
+				GraphicsComponent& gfxComponent = GetRegistry().get<GraphicsComponent>(m_entity);
+				gfxComponent.DetachRenderable(m_hoveredSprite);
+			}
 		}
 	}
 
