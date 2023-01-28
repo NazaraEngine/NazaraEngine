@@ -43,6 +43,7 @@ namespace Nz
 		public:
 			struct Glyph;
 			struct SizeInfo;
+			using Params = FontParams;
 
 			Font();
 			Font(const Font&) = delete;

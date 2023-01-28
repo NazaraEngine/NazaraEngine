@@ -34,6 +34,7 @@ namespace Nz
 		UInt8 levelCount = 0;
 
 		bool IsValid() const;
+		void Merge(const ImageParams& params);
 	};
 
 	class Image;
@@ -46,6 +47,7 @@ namespace Nz
 	class NAZARA_UTILITY_API Image : public AbstractImage, public Resource
 	{
 		public:
+			using Params = ImageParams;
 			struct SharedImage;
 
 			Image();

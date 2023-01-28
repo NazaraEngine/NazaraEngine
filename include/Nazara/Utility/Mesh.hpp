@@ -93,6 +93,8 @@ namespace Nz
 	class NAZARA_UTILITY_API Mesh : public Resource
 	{
 		public:
+			using Params = MeshParams;
+
 			inline Mesh();
 			Mesh(const Mesh&) = delete;
 			Mesh(Mesh&&) = delete;

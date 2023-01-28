@@ -13,14 +13,13 @@ namespace Nz
 {
 	namespace Detail
 	{
-		template<typename>
-		struct BuildDepList;
-
 		template<typename Module, typename... Modules>
 		struct ModuleTuple : ModuleTuple<Module>, ModuleTuple<Modules...>
 		{
 			template<typename... ModuleConfig>
 			ModuleTuple(ModuleConfig&&... configs);
+
+			template<typename T> T& Get();
 		};
 
 		template<typename Module>
@@ -29,9 +28,15 @@ namespace Nz
 			template<typename... ModuleConfig>
 			ModuleTuple(ModuleConfig&&... configs);
 
+			template<typename T> T& Get();
+
 			Module m;
 		};
 	}
+
+	template<typename> struct OrderedModuleDependencyList;
+
+	template<typename ModuleList> using OrderedModuleDependencies = TypeListUnique<typename OrderedModuleDependencyList<ModuleList>::Result>;
 
 	template<typename... ModuleList>
 	class Modules
@@ -41,11 +46,30 @@ namespace Nz
 			Modules(ModuleConfig&&... configs);
 			~Modules() = default;
 
+			template<typename T> T& Get();
+
+			using ModuleTypeList = OrderedModuleDependencies<TypeList<ModuleList...>>;
+
 		private:
-			using OrderedModuleList = TypeListUnique<typename Detail::BuildDepList<TypeList<ModuleList...>>::Result>;
-			using Tuple = TypeListInstantiate<OrderedModuleList, Detail::ModuleTuple>;
+			using Tuple = TypeListInstantiate<ModuleTypeList, Detail::ModuleTuple>;
 
 			Tuple m_modules;
+	};
+
+
+	template<>
+	struct OrderedModuleDependencyList<TypeList<>>
+	{
+		using Result = TypeList<>;
+	};
+
+	template<typename Module, typename... ModuleList>
+	struct OrderedModuleDependencyList<TypeList<Module, ModuleList...>>
+	{
+		using ModuleDependencies = typename OrderedModuleDependencyList<typename Module::Dependencies>::Result;
+		using ModuleDependenciesIncModule = TypeListAppend<ModuleDependencies, Module>;
+		using RestDependencies = typename OrderedModuleDependencyList<TypeList<ModuleList...>>::Result;
+		using Result = TypeListConcat<ModuleDependenciesIncModule, RestDependencies>;
 	};
 }
 

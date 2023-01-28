@@ -45,6 +45,8 @@ namespace Nz
 		friend Sound;
 
 		public:
+			using Params = SoundBufferParams;
+
 			SoundBuffer() = default;
 			SoundBuffer(AudioFormat format, UInt64 sampleCount, UInt32 sampleRate, const Int16* samples);
 			SoundBuffer(const SoundBuffer&) = delete;

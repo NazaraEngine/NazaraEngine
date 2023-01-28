@@ -26,7 +26,6 @@ namespace Nz
 			ApplicationBase(ApplicationBase&&) = delete;
 			~ApplicationBase() = default;
 
-			template<typename T, typename... Args> T& AddComponent(Args&&... args);
 			template<typename F> void AddUpdater(F&& functor);
 
 			inline void ClearComponents();
@@ -42,6 +41,9 @@ namespace Nz
 
 			ApplicationBase& operator=(const ApplicationBase&) = delete;
 			ApplicationBase& operator=(ApplicationBase&&) = delete;
+
+		protected:
+			template<typename T, typename... Args> T& AddComponent(Args&&... args);
 
 		private:
 			std::atomic_bool m_running;

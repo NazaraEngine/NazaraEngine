@@ -49,6 +49,7 @@ namespace Nz
 		TextureUsageFlags usageFlags = TextureUsage::ShaderSampling | TextureUsage::TransferDestination;
 
 		bool IsValid() const;
+		void Merge(const TextureParams& params);
 	};
 
 	class Texture;
@@ -60,6 +61,8 @@ namespace Nz
 	class NAZARA_RENDERER_API Texture : public AbstractImage, public Resource, public std::enable_shared_from_this<Texture> //< FIXME
 	{
 		public:
+			using Params = TextureParams;
+
 			Texture() = default;
 			Texture(const Texture&) = delete;
 			Texture(Texture&&) = delete;

@@ -44,6 +44,8 @@ namespace Nz
 		struct CopyToken {};
 
 		public:
+			using Params = MaterialInstanceParams;
+
 			MaterialInstance(std::shared_ptr<const Material> parent);
 			MaterialInstance(const MaterialInstance&) = delete;
 			MaterialInstance(const MaterialInstance& material, CopyToken);

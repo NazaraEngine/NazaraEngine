@@ -24,6 +24,8 @@ namespace Nz
 			Application(Application&&) = delete;
 			~Application();
 
+			template<typename T, typename... Args> T& AddComponent(Args&&... args);
+
 			Application& operator=(const Application&) = delete;
 			Application& operator=(Application&&) = delete;
 

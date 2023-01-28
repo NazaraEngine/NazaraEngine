@@ -43,6 +43,7 @@ namespace Nz
 		public:
 			struct TextureData;
 			struct UniformBlockData;
+			using Params = MaterialParams;
 
 			Material(MaterialSettings settings, const std::string& referenceModuleName);
 			Material(MaterialSettings settings, const nzsl::Ast::ModulePtr& referenceModule);

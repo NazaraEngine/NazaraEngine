@@ -39,6 +39,13 @@ namespace Nz
 		return true; // Rien à vérifier
 	}
 
+	void ImageParams::Merge(const ImageParams& params)
+	{
+		if (loadFormat == PixelFormat::Undefined)
+			loadFormat = params.loadFormat;
+	}
+
+
 	Image::Image() :
 	m_sharedImage(&emptyImage)
 	{

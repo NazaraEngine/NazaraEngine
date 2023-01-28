@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/Graphics.hpp>
+#include <Nazara/Core/AppFilesystemComponent.hpp>
 #include <Nazara/Graphics/GuillotineTextureAtlas.hpp>
 #include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/MaterialPipeline.hpp>
@@ -172,6 +173,14 @@ namespace Nz
 		m_blitPipelineLayout.reset();
 		m_defaultMaterials = DefaultMaterials{};
 		m_defaultTextures = DefaultTextures{};
+	}
+
+	void Graphics::RegisterComponent(AppFilesystemComponent& component)
+	{
+		TextureParams defaultTexParams;
+		defaultTexParams.renderDevice = m_renderDevice;
+
+		component.SetDefaultResourceParameters<Texture>(defaultTexParams);
 	}
 
 	void Graphics::BuildBlitPipeline()

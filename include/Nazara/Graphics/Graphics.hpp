@@ -22,6 +22,7 @@
 
 namespace Nz
 {
+	class AppFilesystemComponent;
 	class RenderBuffer;
 
 	class NAZARA_GRAPHICS_API Graphics : public ModuleBase<Graphics>
@@ -54,6 +55,8 @@ namespace Nz
 			inline const RenderPassCache& GetRenderPassCache() const;
 			inline TextureSamplerCache& GetSamplerCache();
 			inline const std::shared_ptr<nzsl::FilesystemModuleResolver>& GetShaderModuleResolver() const;
+
+			void RegisterComponent(AppFilesystemComponent& component);
 
 			struct Config
 			{

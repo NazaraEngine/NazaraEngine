@@ -30,6 +30,8 @@ namespace Nz
 	class NAZARA_UTILITY_API ImageStream : public Resource
 	{
 		public:
+			using Params = ImageStreamParams;
+
 			ImageStream() = default;
 			virtual ~ImageStream();
 

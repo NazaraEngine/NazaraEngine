@@ -32,6 +32,16 @@ namespace Nz
 		return true;
 	}
 
+	void TextureParams::Merge(const TextureParams& params)
+	{
+		ImageParams::Merge(params);
+
+		if (!renderDevice)
+			renderDevice = params.renderDevice;
+
+		usageFlags |= params.usageFlags;
+	}
+
 	std::shared_ptr<Texture> Texture::CreateFromImage(const Image& image, const TextureParams& params)
 	{
 		NazaraAssert(params.IsValid(), "Invalid TextureParams");

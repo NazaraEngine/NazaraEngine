@@ -10,32 +10,50 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ApplicationComponent.hpp>
 #include <Nazara/Core/Config.hpp>
+#include <Nazara/Core/ResourceParameters.hpp>
 #include <Nazara/Core/VirtualDirectory.hpp>
 #include <memory>
 #include <vector>
 
 namespace Nz
 {
+	class Font;
+	class Image;
+	class ImageStream;
+	class Material;
+	class MaterialInstance;
+	class Mesh;
+	class SoundBuffer;
+	class SoundStream;
+	class Texture;
+
 	class NAZARA_CORE_API AppFilesystemComponent : public ApplicationComponent
 	{
 		public:
-			using ApplicationComponent::ApplicationComponent;
+			inline AppFilesystemComponent(ApplicationBase& app);
 			AppFilesystemComponent(const AppFilesystemComponent&) = delete;
 			AppFilesystemComponent(AppFilesystemComponent&&) = delete;
 			~AppFilesystemComponent() = default;
 
-			template<typename T, typename... Args> std::shared_ptr<T> GetOrLoad(std::string_view assetPath, Args&&... args);
+			template<typename T> const typename T::Params* GetDefaultResourceParameters() const;
 
-			inline const VirtualDirectoryPtr& RegisterPath(std::filesystem::path filepath);
-			inline const VirtualDirectoryPtr& RegisterVirtualDirectory(VirtualDirectoryPtr directory);
+			template<typename T> std::shared_ptr<T> GetOrLoad(std::string_view assetPath);
+			template<typename T> std::shared_ptr<T> GetOrLoad(std::string_view assetPath, typename T::Params params);
 
-			inline void UnregisterVirtualDirectory(const VirtualDirectoryPtr& directory);
+			inline const VirtualDirectoryPtr& Mount(std::string_view name, std::filesystem::path filepath);
+			inline const VirtualDirectoryPtr& Mount(std::string_view name, VirtualDirectoryPtr directory);
+
+			template<typename T> void SetDefaultResourceParameters(typename T::Params params);
 
 			AppFilesystemComponent& operator=(const AppFilesystemComponent&) = delete;
 			AppFilesystemComponent& operator=(AppFilesystemComponent&&) = delete;
 
 		private:
-			std::vector<VirtualDirectoryPtr> m_virtualDirectories;
+			template<typename T> std::shared_ptr<T> GetOrLoadImpl(std::string_view assetPath, const typename T::Params& params);
+			inline void RegisterResourceTypes();
+
+			std::vector<std::unique_ptr<ResourceParameters>> m_defaultParameters;
+			VirtualDirectoryPtr m_rootDirectory;
 	};
 }
 

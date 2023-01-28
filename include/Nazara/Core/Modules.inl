@@ -39,6 +39,16 @@ namespace Nz
 		{
 		}
 
+		template<typename Module, typename... Modules>
+		template<typename T>
+		T& ModuleTuple<Module, Modules...>::Get()
+		{
+			if constexpr (std::is_same_v<T, Module>)
+				return ModuleTuple<Module>::template Get<T>();
+			else
+				return ModuleTuple<Modules...>::template Get<T>();
+		}
+
 		template<typename Module>
 		template<typename... ModuleConfig>
 		ModuleTuple<Module>::ModuleTuple(ModuleConfig&&... configs) :
@@ -46,20 +56,13 @@ namespace Nz
 		{
 		}
 
-		template<>
-		struct BuildDepList<TypeList<>>
+		template<typename Module>
+		template<typename T>
+		T& ModuleTuple<Module>::Get()
 		{
-			using Result = TypeList<>;
-		};
-
-		template<typename Module, typename... ModuleList>
-		struct BuildDepList<TypeList<Module, ModuleList...>>
-		{
-			using ModuleDependencies = typename BuildDepList<typename Module::Dependencies>::Result;
-			using ModuleDependenciesIncModule = TypeListAppend<ModuleDependencies, Module>;
-			using RestDependencies = typename BuildDepList<TypeList<ModuleList...>>::Result;
-			using Result = TypeListConcat<ModuleDependenciesIncModule, RestDependencies>;
-		};
+			static_assert(std::is_same_v<T, Module>, "module is not in the list");
+			return m;
+		}
 	}
 
 	template<typename... ModuleList>
@@ -67,6 +70,13 @@ namespace Nz
 	Modules<ModuleList...>::Modules(ModuleConfig&&... configs) :
 	m_modules(std::forward<ModuleConfig>(configs)...)
 	{
+	}
+
+	template<typename... ModuleList>
+	template<typename T>
+	T& Modules<ModuleList...>::Get()
+	{
+		return m_modules.template Get<T>();
 	}
 }
 

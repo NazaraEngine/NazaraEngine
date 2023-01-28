@@ -18,7 +18,7 @@
 
 namespace Nz
 {
-	struct SoundStreamParams : public ResourceParameters
+	struct SoundStreamParams : ResourceParameters
 	{
 		bool forceMono = false;
 
@@ -33,6 +33,8 @@ namespace Nz
 	class NAZARA_AUDIO_API SoundStream : public Resource
 	{
 		public:
+			using Params = SoundStreamParams;
+
 			SoundStream() = default;
 			virtual ~SoundStream();
 

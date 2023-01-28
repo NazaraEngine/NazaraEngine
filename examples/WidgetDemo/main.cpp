@@ -25,10 +25,6 @@ NAZARA_REQUEST_DEDICATED_GPU()
 
 int main()
 {
-	std::filesystem::path resourceDir = "assets/examples";
-	if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory("../.." / resourceDir))
-		resourceDir = "../.." / resourceDir;
-
 	Nz::Renderer::Config rendererConfig;
 	std::cout << "Run using Vulkan? (y/n)" << std::endl;
 	if (std::getchar() != 'n')
@@ -46,7 +42,13 @@ int main()
 	auto& ecs = app.AddComponent<Nz::AppEntitySystemComponent>();
 
 	auto& fs = app.AddComponent<Nz::AppFilesystemComponent>();
-	fs.RegisterPath(resourceDir);
+	{
+		std::filesystem::path resourceDir = "assets/examples";
+		if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory("../.." / resourceDir))
+			resourceDir = "../.." / resourceDir;
+
+		fs.Mount("assets", resourceDir);
+	}
 
 	Nz::RenderSystem& renderSystem = ecs.AddSystem<Nz::RenderSystem>();
 	auto& windowSwapchain = renderSystem.CreateSwapchain(mainWindow);
@@ -74,12 +76,8 @@ int main()
 	Nz::TextureSamplerInfo samplerInfo;
 	samplerInfo.anisotropyLevel = 8;
 
-	Nz::TextureParams texParams;
-	texParams.renderDevice = Nz::Graphics::Instance()->GetRenderDevice();
-	texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
-
 	std::shared_ptr<Nz::MaterialInstance> materialInstance = material->Instantiate();
-	materialInstance->SetTextureProperty("BaseColorMap", fs.GetOrLoad<Nz::Texture>("Spaceship/Texture/diffuse.png", texParams));
+	materialInstance->SetTextureProperty("BaseColorMap", fs.GetOrLoad<Nz::Texture>("assets/lynix.jpg"));
 
 	Nz::ImageWidget* imageWidget = canvas2D.Add<Nz::ImageWidget>(materialInstance);
 	imageWidget->SetPosition(1200.f, 200.f);
