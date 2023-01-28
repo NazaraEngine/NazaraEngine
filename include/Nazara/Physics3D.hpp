@@ -3,7 +3,7 @@
 /*
 	Nazara Engine - Physics3D module
 
-	Copyright (C) 2022 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+	Copyright (C) 2023 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy of
 	this software and associated documentation files (the "Software"), to deal in
@@ -35,5 +35,12 @@
 #include <Nazara/Physics3D/Physics3D.hpp>
 #include <Nazara/Physics3D/PhysWorld3D.hpp>
 #include <Nazara/Physics3D/RigidBody3D.hpp>
+
+#ifdef NAZARA_ENTT
+
+#include <Nazara/Physics3D/Components.hpp>
+#include <Nazara/Physics3D/Systems.hpp>
+
+#endif
 
 #endif // NAZARA_GLOBAL_PHYSICS3D_HPP

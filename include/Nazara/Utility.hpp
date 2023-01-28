@@ -3,7 +3,7 @@
 /*
 	Nazara Engine - Utility module
 
-	Copyright (C) 2022 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+	Copyright (C) 2023 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy of
 	this software and associated documentation files (the "Software"), to deal in
@@ -69,5 +69,12 @@
 #include <Nazara/Utility/VertexDeclaration.hpp>
 #include <Nazara/Utility/VertexMapper.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
+
+#ifdef NAZARA_ENTT
+
+#include <Nazara/Utility/Components.hpp>
+#include <Nazara/Utility/Systems.hpp>
+
+#endif
 
 #endif // NAZARA_GLOBAL_UTILITY_HPP

@@ -10,25 +10,19 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Core/ApplicationComponent.hpp>
 #include <Nazara/Core/Config.hpp>
-#include <Nazara/Core/Systems/SystemGraph.hpp>
+#include <Nazara/Core/EntityWorld.hpp>
 
 namespace Nz
 {
 	class NAZARA_CORE_API AppEntitySystemComponent : public ApplicationComponent
 	{
 		public:
-			inline AppEntitySystemComponent(ApplicationBase& app);
+			using ApplicationComponent::ApplicationComponent;
 			AppEntitySystemComponent(const AppEntitySystemComponent&) = delete;
 			AppEntitySystemComponent(AppEntitySystemComponent&&) = delete;
 			~AppEntitySystemComponent() = default;
 
-			template<typename T, typename... Args> T& AddSystem(Args&&... args);
-
-			entt::handle CreateEntity();
-
-			entt::registry& GetRegistry();
-			const entt::registry& GetRegistry() const;
-			template<typename T> T& GetSystem() const;
+			template<typename T, typename... Args> T& AddWorld(Args&&... args);
 
 			void Update(Time elapsedTime) override;
 
@@ -36,8 +30,7 @@ namespace Nz
 			AppEntitySystemComponent& operator=(AppEntitySystemComponent&&) = delete;
 
 		private:
-			entt::registry m_registry;
-			SystemGraph m_systemGraph;
+			std::vector<std::unique_ptr<EntityWorld>> m_worlds;
 	};
 }
 

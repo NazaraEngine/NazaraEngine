@@ -2,19 +2,19 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Core/Systems/SystemGraph.hpp>
+#include <Nazara/Core/EnttSystemGraph.hpp>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {
-	SystemGraph::NodeBase::~NodeBase() = default;
+	EnttSystemGraph::NodeBase::~NodeBase() = default;
 
-	void SystemGraph::Update()
+	void EnttSystemGraph::Update()
 	{
 		return Update(m_clock.Restart());
 	}
 
-	void SystemGraph::Update(Time elapsedTime)
+	void EnttSystemGraph::Update(Time elapsedTime)
 	{
 		if (!m_systemOrderUpdated)
 		{

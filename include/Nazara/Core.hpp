@@ -3,7 +3,7 @@
 /*
 	Nazara Engine - Core module
 
-	Copyright (C) 2022 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+	Copyright (C) 2023 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy of
 	this software and associated documentation files (the "Software"), to deal in
@@ -47,6 +47,7 @@
 #include <Nazara/Core/Core.hpp>
 #include <Nazara/Core/DynLib.hpp>
 #include <Nazara/Core/EmptyStream.hpp>
+#include <Nazara/Core/EntityWorld.hpp>
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
@@ -77,6 +78,7 @@
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
+#include <Nazara/Core/ResourceRegistry.hpp>
 #include <Nazara/Core/ResourceSaver.hpp>
 #include <Nazara/Core/SerializationContext.hpp>
 #include <Nazara/Core/StdLogger.hpp>
@@ -88,5 +90,15 @@
 #include <Nazara/Core/Updatable.hpp>
 #include <Nazara/Core/Uuid.hpp>
 #include <Nazara/Core/VirtualDirectory.hpp>
+
+#ifdef NAZARA_ENTT
+
+#include <Nazara/Core/AppEntitySystemComponent.hpp>
+#include <Nazara/Core/Components.hpp>
+#include <Nazara/Core/EnttSystemGraph.hpp>
+#include <Nazara/Core/EnttWorld.hpp>
+#include <Nazara/Core/Systems.hpp>
+
+#endif
 
 #endif // NAZARA_GLOBAL_CORE_HPP
