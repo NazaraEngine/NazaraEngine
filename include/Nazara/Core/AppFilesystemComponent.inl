@@ -82,6 +82,38 @@ namespace Nz
 		m_defaultParameters[resourceIndex] = std::make_unique<typename T::Params>(std::move(params));
 	}
 
+	inline void AppFilesystemComponent::RegisterResourceTypes()
+	{
+		// TODO: Switch to hash-based approach like entt?
+
+		if (ResourceRegistry<Font>::GetResourceId() != 0)
+			throw std::runtime_error("Font has wrong resource index, please initialize AppFilesystemComponent before using ResourceRegistry");
+
+		if (ResourceRegistry<Image>::GetResourceId() != 1)
+			throw std::runtime_error("Image has wrong resource index, please initialize AppFilesystemComponent before using ResourceRegistry");
+
+		if (ResourceRegistry<ImageStream>::GetResourceId() != 2)
+			throw std::runtime_error("ImageStream has wrong resource index, please initialize AppFilesystemComponent before using ResourceRegistry");
+
+		if (ResourceRegistry<Material>::GetResourceId() != 3)
+			throw std::runtime_error("Material has wrong resource index, please initialize AppFilesystemComponent before using ResourceRegistry");
+
+		if (ResourceRegistry<MaterialInstance>::GetResourceId() != 4)
+			throw std::runtime_error("MaterialInstance has wrong resource index, please initialize AppFilesystemComponent before using ResourceRegistry");
+
+		if (ResourceRegistry<Mesh>::GetResourceId() != 5)
+			throw std::runtime_error("Mesh has wrong resource index, please initialize AppFilesystemComponent before using ResourceRegistry");
+
+		if (ResourceRegistry<SoundBuffer>::GetResourceId() != 6)
+			throw std::runtime_error("SoundBuffer has wrong resource index, please initialize AppFilesystemComponent before using ResourceRegistry");
+
+		if (ResourceRegistry<SoundStream>::GetResourceId() != 7)
+			throw std::runtime_error("SoundStream has wrong resource index, please initialize AppFilesystemComponent before using ResourceRegistry");
+
+		if (ResourceRegistry<Texture>::GetResourceId() != 8)
+			throw std::runtime_error("Texture has wrong resource index, please initialize AppFilesystemComponent before using ResourceRegistry");
+	}
+
 	template<typename T>
 	std::shared_ptr<T> AppFilesystemComponent::GetOrLoadImpl(std::string_view assetPath, const typename T::Params& params)
 	{
@@ -121,36 +153,6 @@ namespace Nz
 
 		m_rootDirectory->GetEntry(assetPath, callback);
 		return resource;
-	}
-
-	inline void AppFilesystemComponent::RegisterResourceTypes()
-	{
-		if (ResourceRegistry<Font>::GetResourceId() != 0)
-			throw std::runtime_error("Font has wrong resource index, please initialize AppFilesystemComponent before using ResourceRegistry");
-
-		if (ResourceRegistry<Image>::GetResourceId() != 1)
-			throw std::runtime_error("Image has wrong resource index, please initialize AppFilesystemComponent before using ResourceRegistry");
-
-		if (ResourceRegistry<ImageStream>::GetResourceId() != 2)
-			throw std::runtime_error("ImageStream has wrong resource index, please initialize AppFilesystemComponent before using ResourceRegistry");
-
-		if (ResourceRegistry<Material>::GetResourceId() != 3)
-			throw std::runtime_error("Material has wrong resource index, please initialize AppFilesystemComponent before using ResourceRegistry");
-
-		if (ResourceRegistry<MaterialInstance>::GetResourceId() != 4)
-			throw std::runtime_error("MaterialInstance has wrong resource index, please initialize AppFilesystemComponent before using ResourceRegistry");
-
-		if (ResourceRegistry<Mesh>::GetResourceId() != 5)
-			throw std::runtime_error("Mesh has wrong resource index, please initialize AppFilesystemComponent before using ResourceRegistry");
-
-		if (ResourceRegistry<SoundBuffer>::GetResourceId() != 6)
-			throw std::runtime_error("SoundBuffer has wrong resource index, please initialize AppFilesystemComponent before using ResourceRegistry");
-
-		if (ResourceRegistry<SoundStream>::GetResourceId() != 7)
-			throw std::runtime_error("SoundStream has wrong resource index, please initialize AppFilesystemComponent before using ResourceRegistry");
-
-		if (ResourceRegistry<Texture>::GetResourceId() != 8)
-			throw std::runtime_error("Texture has wrong resource index, please initialize AppFilesystemComponent before using ResourceRegistry");
 	}
 }
 

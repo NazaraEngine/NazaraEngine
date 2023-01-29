@@ -48,9 +48,10 @@ namespace Nz
 			AppFilesystemComponent& operator=(const AppFilesystemComponent&) = delete;
 			AppFilesystemComponent& operator=(AppFilesystemComponent&&) = delete;
 
+			static inline void RegisterResourceTypes();
+
 		private:
 			template<typename T> std::shared_ptr<T> GetOrLoadImpl(std::string_view assetPath, const typename T::Params& params);
-			inline void RegisterResourceTypes();
 
 			std::vector<std::unique_ptr<ResourceParameters>> m_defaultParameters;
 			VirtualDirectoryPtr m_rootDirectory;
