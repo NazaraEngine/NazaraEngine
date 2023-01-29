@@ -9,6 +9,7 @@
 
 int main()
 {
+	// Mise en place de l'application, de la fenêtre et du monde
 	Nz::Application<Nz::Graphics> app;
 
 	auto& windowing = app.AddComponent<Nz::AppWindowingComponent>();
@@ -20,16 +21,20 @@ int main()
 	auto& renderSystem = world.AddSystem<Nz::RenderSystem>();
 	Nz::WindowSwapchain& windowSwapchain = renderSystem.CreateSwapchain(mainWindow);
 
+	// Création de la caméra
 	entt::handle cameraEntity = world.CreateEntity();
-	cameraEntity.emplace<Nz::NodeComponent>();
+	{
+		cameraEntity.emplace<Nz::NodeComponent>();
 
-	auto& cameraComponent = cameraEntity.emplace<Nz::CameraComponent>(&windowSwapchain, Nz::ProjectionType::Orthographic);
-	cameraComponent.UpdateClearColor(Nz::Color(0.f, 0.f, 0.f, 1.f));
+		auto& cameraComponent = cameraEntity.emplace<Nz::CameraComponent>(&windowSwapchain, Nz::ProjectionType::Orthographic);
+		cameraComponent.UpdateClearColor(Nz::Color(0.46f, 0.48f, 0.84f, 1.f));
+	}
 
+	// Création d'un texte
 	Nz::SimpleTextDrawer textDrawer;
+	textDrawer.SetText("Hello world !");
 	textDrawer.SetCharacterSize(72);
 	textDrawer.SetOutlineThickness(4.f);
-	textDrawer.SetText("Hello world !");
 
 	std::shared_ptr<Nz::TextSprite> textSprite = std::make_shared<Nz::TextSprite>();
 	textSprite->Update(textDrawer);
@@ -37,6 +42,7 @@ int main()
 	entt::handle textEntity = world.CreateEntity();
 	{
 		auto& nodeComponent = textEntity.emplace<Nz::NodeComponent>();
+
 		auto& gfxComponent = textEntity.emplace<Nz::GraphicsComponent>();
 		gfxComponent.AttachRenderable(textSprite);
 
