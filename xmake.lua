@@ -170,7 +170,7 @@ option("unitybuild", { description = "Build the engine using unity build", defau
 set_project("NazaraEngine")
 set_xmakever("2.7.3")
 
-add_requires("chipmunk2d", "dr_wav", "efsw", "entt v3.11.1", "fmt", "frozen", "kiwisolver", "libflac", "libsdl", "minimp3", "ordered_map", "stb")
+add_requires("chipmunk2d", "dr_wav", "efsw", "entt v3.11.1", "fmt", "frozen", "kiwisolver", "libflac", "libsdl >=2.26.0", "minimp3", "ordered_map", "stb")
 add_requires("freetype", { configs = { bzip2 = true, png = true, woff2 = true, zlib = true, debug = is_mode("debug") } })
 add_requires("libvorbis", { configs = { with_vorbisenc = false } })
 add_requires("openal-soft", { configs = { shared = true }})
