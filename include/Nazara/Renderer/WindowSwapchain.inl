@@ -8,15 +8,9 @@
 
 namespace Nz
 {
-	inline WindowSwapchain::WindowSwapchain(WindowSwapchain&& windowSwapchain) noexcept :
-	m_renderDevice(std::move(windowSwapchain.m_renderDevice)),
-	m_swapchain(std::move(windowSwapchain.m_swapchain)),
-	m_window(std::move(windowSwapchain.m_window)),
-	m_renderOnlyIfFocused(windowSwapchain.m_renderOnlyIfFocused),
-	m_hasFocus(windowSwapchain.m_hasFocus),
-	m_isMinimized(windowSwapchain.m_isMinimized)
+	inline WindowSwapchain::~WindowSwapchain()
 	{
-		ConnectSignals();
+		OnRenderTargetRelease(this);
 	}
 
 	inline RenderFrame WindowSwapchain::AcquireFrame()
@@ -45,22 +39,6 @@ namespace Nz
 	inline const Swapchain& WindowSwapchain::GetSwapchain() const
 	{
 		return *m_swapchain;
-	}
-
-	inline WindowSwapchain& WindowSwapchain::operator=(WindowSwapchain&& windowSwapchain) noexcept
-	{
-		windowSwapchain.DisconnectSignals();
-
-		m_renderDevice = std::move(windowSwapchain.m_renderDevice);
-		m_swapchain = std::move(windowSwapchain.m_swapchain);
-		m_window = std::move(windowSwapchain.m_window);
-		m_renderOnlyIfFocused = windowSwapchain.m_renderOnlyIfFocused;
-		m_hasFocus = windowSwapchain.m_hasFocus;
-		m_isMinimized = windowSwapchain.m_isMinimized;
-
-		ConnectSignals();
-
-		return *this;
 	}
 
 	void WindowSwapchain::DisconnectSignals()

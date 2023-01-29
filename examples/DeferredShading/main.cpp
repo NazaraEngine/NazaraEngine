@@ -1523,7 +1523,7 @@ int main()
 
 		bakedGraph.Execute(frame);
 
-		const Nz::RenderTarget* windowRT = &windowSwapchain.GetSwapchain();
+		const Nz::RenderTarget* windowRT = &windowSwapchain;
 		frame.Execute([&](Nz::CommandBufferBuilder& builder)
 		{
 			Nz::Recti windowRenderRect(0, 0, window.GetSize().x, window.GetSize().y);

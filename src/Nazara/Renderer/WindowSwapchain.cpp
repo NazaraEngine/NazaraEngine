@@ -28,6 +28,26 @@ namespace Nz
 		ConnectSignals();
 	}
 
+	const Framebuffer& WindowSwapchain::GetFramebuffer(std::size_t i) const
+	{
+		return m_swapchain->GetFramebuffer(i);
+	}
+
+	std::size_t WindowSwapchain::GetFramebufferCount() const
+	{
+		return m_swapchain->GetFramebufferCount();
+	}
+
+	const RenderPass& WindowSwapchain::GetRenderPass() const
+	{
+		return m_swapchain->GetRenderPass();
+	}
+
+	const Vector2ui& WindowSwapchain::GetSize() const
+	{
+		return m_swapchain->GetSize();
+	}
+
 	void WindowSwapchain::ConnectSignals()
 	{
 		WindowEventHandler& windowEvents = m_window->GetEventHandler();
@@ -62,6 +82,7 @@ namespace Nz
 		m_onResized.Connect(windowEvents.OnResized, [this](const WindowEventHandler* /*eventHandler*/, const WindowEvent::SizeEvent& event)
 		{
 			m_swapchain->NotifyResize({ event.width, event.height });
+			OnRenderTargetSizeChange(this, m_swapchain->GetSize());
 		});
 
 		m_onRestored.Connect(windowEvents.OnRestored, [this](const WindowEventHandler* /*eventHandler*/)

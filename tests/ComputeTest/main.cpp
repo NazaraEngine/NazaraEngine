@@ -166,7 +166,7 @@ int main()
 			}
 		}
 
-		const Nz::RenderTarget* windowRT = &windowSwapchain.GetSwapchain();
+		const Nz::RenderTarget* windowRT = &windowSwapchain;
 		frame.Execute([&](Nz::CommandBufferBuilder& builder)
 		{
 			builder.BeginDebugRegion("Compute part", Nz::Color::Blue());

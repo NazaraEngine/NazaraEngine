@@ -8,7 +8,7 @@
 
 namespace Nz
 {
-	void AppWindowingComponent::Update(Time elapsedTime)
+	void AppWindowingComponent::Update(Time /*elapsedTime*/)
 	{
 		Window::ProcessEvents();
 

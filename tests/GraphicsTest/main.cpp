@@ -80,7 +80,7 @@ int main()
 
 	Nz::Vector2ui windowSize = window.GetSize();
 
-	Nz::Camera camera(&windowSwapchain.GetSwapchain());
+	Nz::Camera camera(&windowSwapchain);
 	camera.UpdateClearColor(Nz::Color::Gray());
 
 	Nz::ViewerInstance& viewerInstance = camera.GetViewerInstance();

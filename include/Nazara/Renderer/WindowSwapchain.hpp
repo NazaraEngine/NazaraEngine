@@ -9,6 +9,7 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/Platform/WindowEventHandler.hpp>
+#include <Nazara/Renderer/RenderTarget.hpp>
 #include <Nazara/Renderer/Swapchain.hpp>
 #include <Nazara/Renderer/SwapchainParameters.hpp>
 #include <memory>
@@ -18,13 +19,13 @@ namespace Nz
 	class RenderDevice;
 	class Window;
 
-	class NAZARA_RENDERER_API WindowSwapchain
+	class NAZARA_RENDERER_API WindowSwapchain : public RenderTarget
 	{
 		public:
 			WindowSwapchain(std::shared_ptr<RenderDevice> renderDevice, Window& window, SwapchainParameters parameters = SwapchainParameters());
 			WindowSwapchain(const WindowSwapchain&) = delete;
-			inline WindowSwapchain(WindowSwapchain&& windowSwapchain) noexcept;
-			~WindowSwapchain() = default;
+			WindowSwapchain(WindowSwapchain&&) = delete;
+			inline ~WindowSwapchain();
 
 			inline RenderFrame AcquireFrame();
 
@@ -32,11 +33,15 @@ namespace Nz
 
 			inline void EnableRenderOnlyIfFocused(bool enable = true);
 
+			const Framebuffer& GetFramebuffer(std::size_t i) const override;
+			std::size_t GetFramebufferCount() const override;
+			const RenderPass& GetRenderPass() const override;
+			const Vector2ui& GetSize() const override;
 			inline Swapchain& GetSwapchain();
 			inline const Swapchain& GetSwapchain() const;
 
-			WindowSwapchain& operator=(const WindowSwapchain&) = default;
-			inline WindowSwapchain& operator=(WindowSwapchain&& windowSwapchain) noexcept;
+			WindowSwapchain& operator=(const WindowSwapchain&) = delete;
+			WindowSwapchain& operator=(WindowSwapchain&& windowSwapchain) = delete;
 
 		private:
 			void ConnectSignals();

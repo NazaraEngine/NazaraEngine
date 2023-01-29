@@ -114,7 +114,7 @@ int main()
 	{
 		viewer2D.emplace<Nz::NodeComponent>();
 
-		auto& cameraComponent = viewer2D.emplace<Nz::CameraComponent>(&windowSwapchain.GetSwapchain(), Nz::ProjectionType::Orthographic);
+		auto& cameraComponent = viewer2D.emplace<Nz::CameraComponent>(&windowSwapchain, Nz::ProjectionType::Orthographic);
 		cameraComponent.UpdateClearColor(Nz::Color(0.46f, 0.48f, 0.84f, 1.f));
 	}
 

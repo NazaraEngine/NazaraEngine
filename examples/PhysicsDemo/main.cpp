@@ -104,7 +104,7 @@ int main()
 	entt::handle viewer = world.CreateEntity();
 	{
 		viewer.emplace<Nz::NodeComponent>();
-		auto& cameraComponent = viewer.emplace<Nz::CameraComponent>(&windowSwapchain.GetSwapchain());
+		auto& cameraComponent = viewer.emplace<Nz::CameraComponent>(&windowSwapchain);
 		cameraComponent.UpdateRenderMask(1);
 		cameraComponent.UpdateClearColor(Nz::Color(0.5f, 0.5f, 0.5f));
 	}

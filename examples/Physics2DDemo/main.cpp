@@ -53,7 +53,7 @@ int main()
 	entt::handle viewer = world.CreateEntity();
 	{
 		viewer.emplace<Nz::NodeComponent>();
-		auto& cameraComponent = viewer.emplace<Nz::CameraComponent>(&windowSwapchain.GetSwapchain(), Nz::ProjectionType::Orthographic);
+		auto& cameraComponent = viewer.emplace<Nz::CameraComponent>(&windowSwapchain, Nz::ProjectionType::Orthographic);
 		cameraComponent.UpdateRenderMask(1);
 		cameraComponent.UpdateClearColor(Nz::Color(0.5f, 0.5f, 0.5f));
 	}

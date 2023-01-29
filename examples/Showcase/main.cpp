@@ -73,7 +73,7 @@ int main()
 		cameraNode.SetPosition(Nz::Vector3f::Up() * 2.f + Nz::Vector3f::Backward());
 		//cameraNode.SetParent(playerRotNode);
 
-		auto& cameraComponent = playerCamera.emplace<Nz::CameraComponent>(&windowSwapchain.GetSwapchain());
+		auto& cameraComponent = playerCamera.emplace<Nz::CameraComponent>(&windowSwapchain);
 		cameraComponent.UpdateZNear(0.2f);
 		cameraComponent.UpdateZFar(10000.f);
 		cameraComponent.UpdateRenderMask(1);
