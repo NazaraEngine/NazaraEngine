@@ -158,13 +158,13 @@ int main()
 	});
 
 	std::string windowTitle = "Compute test";
-
-	Nz::RenderWindow window;
-	if (!window.Create(device, Nz::VideoMode(windowSize.x, windowSize.y, 32), windowTitle))
+	Nz::Window window;
+	if (!window.Create(Nz::VideoMode(1280, 720), windowTitle))
 	{
 		std::cout << "Failed to create Window" << std::endl;
 		std::abort();
 	}
+	Nz::WindowSwapchain windowSwapchain(device, window);
 
 	constexpr float textureSize = 512.f;
 	float margin = (windowSize.y - textureSize) * 0.5f;
@@ -193,7 +193,7 @@ int main()
 	{
 		window.ProcessEvents();
 
-		Nz::RenderFrame frame = window.AcquireFrame();
+		Nz::RenderFrame frame = windowSwapchain.AcquireFrame();
 		if (!frame)
 		{
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
@@ -219,7 +219,6 @@ int main()
 
 		Nz::UploadPool& uploadPool = frame.GetUploadPool();
 
-		const Nz::RenderTarget* windowRT = window.GetRenderTarget();
 		frame.Execute([&](Nz::CommandBufferBuilder& builder)
 		{
 			builder.BeginDebugRegion("Upload scene data", Nz::Color::Yellow());
@@ -253,7 +252,7 @@ int main()
 				clearValues[1].depth = 1.f;
 				clearValues[1].stencil = 0;
 
-				builder.BeginRenderPass(windowRT->GetFramebuffer(frame.GetFramebufferIndex()), windowRT->GetRenderPass(), renderRect, { clearValues[0], clearValues[1] });
+				builder.BeginRenderPass(windowSwapchain.GetFramebuffer(frame.GetFramebufferIndex()), windowSwapchain.GetRenderPass(), renderRect, { clearValues[0], clearValues[1] });
 				{
 					builder.SetScissor(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
 					builder.SetViewport(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
