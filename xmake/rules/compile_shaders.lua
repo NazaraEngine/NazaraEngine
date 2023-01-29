@@ -28,7 +28,7 @@ rule("nzsl.compile.shaders")
 				envs = mingw:runenvs()
 			end
 		end
-		
+	
 		batchcmds:vrunv(nzsl, argv, { curdir = ".", envs = envs })
 
 		local outputFile = path.join(path.directory(shaderfile), path.basename(shaderfile) .. ".nzslb.h")

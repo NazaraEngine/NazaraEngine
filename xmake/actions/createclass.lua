@@ -9,7 +9,7 @@ task("create-class")
 set_menu({
 	-- Settings menu usage
 	usage = "xmake create-class [options] name",
-	description = "Check every file for consistency (can fix some errors)",
+	description = "Helper for class creation",
 	options =
 	{
 		-- Set k mode as key-only bool parameter

@@ -1,5 +1,4 @@
 task("compile-shaders")
-
 	set_menu({
 		-- Settings menu usage
 		usage = "xmake compile-shaders [options]",
@@ -17,13 +16,16 @@ task("compile-shaders")
 
 		task.run("config", {}, {disable_dump = true})
 
-		local nzsl = path.join(project.required_package("nzsl"):installdir(), "bin", "nzslc")
+		local nzsl = project.required_package("nzsl")
+		local nzslc = path.join(project.required_package("nzsl"):installdir(), "bin", "nzslc")
 
-		local envs
+		local envs = nzsl:get("envs")
 		if is_plat("mingw") then
 			local mingw = toolchain.load("mingw")
 			if mingw and mingw:check() then
-				envs = mingw:runenvs()
+				for name, value in pairs(mingw:runenvs()) do
+					envs[name] = table.join(envs[name] or {}, table.wrap(value))
+				end
 			end
 		end
 
@@ -38,6 +40,6 @@ task("compile-shaders")
 				table.insert(argv, "--benchmark-iteration=" .. option.get("benchmark-iteration"))
 			end
 			table.insert(argv, filepath)
-			os.vrunv(nzsl, argv, { envs = envs })
+			os.vrunv(nzslc, argv, { envs = envs })
 		end
 	end)
