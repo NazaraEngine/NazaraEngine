@@ -40,7 +40,7 @@ int main()
 	{
 		auto& nodeComponent = textEntity.emplace<Nz::NodeComponent>();
 		auto& gfxComponent = textEntity.emplace<Nz::GraphicsComponent>();
-		gfxComponent.AttachRenderable(textSprite, 0xFFFFFFFF);
+		gfxComponent.AttachRenderable(textSprite);
 
 		Nz::Boxf textBox = textSprite->GetAABB();
 		Nz::Vector2ui windowSize = mainWindow.GetSize();

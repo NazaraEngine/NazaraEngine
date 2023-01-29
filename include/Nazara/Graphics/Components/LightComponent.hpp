@@ -28,7 +28,7 @@ namespace Nz
 			LightComponent(LightComponent&&) = default;
 			~LightComponent() = default;
 
-			template<typename T, typename... Args> T& AddLight(UInt32 renderMask, Args&&... args);
+			template<typename T, typename... Args> T& AddLight(UInt32 renderMask = 0xFFFFFFFF, Args&&... args);
 
 			inline void Clear();
 

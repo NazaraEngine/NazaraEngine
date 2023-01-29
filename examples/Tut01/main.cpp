@@ -17,16 +17,14 @@ int main()
 	auto& ecs = app.AddComponent<Nz::AppEntitySystemComponent>();
 	auto& world = ecs.AddWorld<Nz::EnttWorld>();
 
-	Nz::RenderSystem& renderSystem = world.AddSystem<Nz::RenderSystem>();
-	auto& windowSwapchain = renderSystem.CreateSwapchain(mainWindow);
+	auto& renderSystem = world.AddSystem<Nz::RenderSystem>();
+	Nz::WindowSwapchain& windowSwapchain = renderSystem.CreateSwapchain(mainWindow);
 
 	entt::handle cameraEntity = world.CreateEntity();
-	{
-		cameraEntity.emplace<Nz::NodeComponent>();
+	cameraEntity.emplace<Nz::NodeComponent>();
 
-		auto& cameraComponent = cameraEntity.emplace<Nz::CameraComponent>(&windowSwapchain, Nz::ProjectionType::Orthographic);
-		cameraComponent.UpdateClearColor(Nz::Color(0.46f, 0.48f, 0.84f, 1.f));
-	}
+	auto& cameraComponent = cameraEntity.emplace<Nz::CameraComponent>(&windowSwapchain, Nz::ProjectionType::Orthographic);
+	cameraComponent.UpdateClearColor(Nz::Color(0.f, 0.f, 0.f, 1.f));
 
 	Nz::SimpleTextDrawer textDrawer;
 	textDrawer.SetCharacterSize(72);
@@ -40,7 +38,7 @@ int main()
 	{
 		auto& nodeComponent = textEntity.emplace<Nz::NodeComponent>();
 		auto& gfxComponent = textEntity.emplace<Nz::GraphicsComponent>();
-		gfxComponent.AttachRenderable(textSprite, 0xFFFFFFFF);
+		gfxComponent.AttachRenderable(textSprite);
 
 		Nz::Boxf textBox = textSprite->GetAABB();
 		Nz::Vector2ui windowSize = mainWindow.GetSize();

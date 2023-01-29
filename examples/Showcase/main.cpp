@@ -155,7 +155,7 @@ int main()
 			//bobNode.SetScale(1.f / 40.f * 0.5f);
 
 			auto& bobGfx = registry.emplace<Nz::GraphicsComponent>(bobEntity);
-			bobGfx.AttachRenderable(bobModel, 0xFFFFFFFF);
+			bobGfx.AttachRenderable(bobModel);
 		}
 	}*/
 
@@ -168,7 +168,7 @@ int main()
 
 		auto& cameraLight = lightEntity1.emplace<Nz::LightComponent>();
 
-		auto& spotLight = cameraLight.AddLight<Nz::SpotLight>(0xFFFFFFFF);
+		auto& spotLight = cameraLight.AddLight<Nz::SpotLight>();
 		spotLight.UpdateColor(Nz::Color::Red());
 		spotLight.UpdateInnerAngle(Nz::DegreeAnglef(15.f));
 		spotLight.UpdateOuterAngle(Nz::DegreeAnglef(20.f));
@@ -183,7 +183,7 @@ int main()
 
 		auto& cameraLight = lightEntity2.emplace<Nz::LightComponent>();
 
-		auto& spotLight = cameraLight.AddLight<Nz::SpotLight>(0xFFFFFFFF);
+		auto& spotLight = cameraLight.AddLight<Nz::SpotLight>();
 		spotLight.UpdateColor(Nz::Color::Green());
 		spotLight.EnableShadowCasting(true);
 		spotLight.UpdateShadowMapSize(1024);
@@ -198,7 +198,7 @@ int main()
 		//bobNode.SetPosition(Nz::Vector3f(0.f, -1.f, 0.f));
 
 		auto& bobGfx = bobEntity.emplace<Nz::GraphicsComponent>();
-		bobGfx.AttachRenderable(bobModel, 0xFFFFFFFF);
+		bobGfx.AttachRenderable(bobModel);
 
 		auto& sharedSkeleton = bobEntity.emplace<Nz::SharedSkeletonComponent>(skeleton);
 
@@ -232,7 +232,7 @@ int main()
 			sphereBody.SetGeom(std::make_shared<Nz::SphereCollider3D>(0.1f));
 
 			auto& sphereGfx = sphereEntity.emplace<Nz::GraphicsComponent>();
-			sphereGfx.AttachRenderable(sphereModel, 0xFFFFFFFF);
+			sphereGfx.AttachRenderable(sphereModel);
 		}
 
 		entt::handle smallBobEntity = world.CreateEntity();
@@ -240,7 +240,7 @@ int main()
 		smallBobNode.SetParentJoint(bobEntity, "LeftHand");
 
 		auto& smallBobGfx = smallBobEntity.emplace<Nz::GraphicsComponent>();
-		smallBobGfx.AttachRenderable(bobModel, 0xFFFFFFFF);
+		smallBobGfx.AttachRenderable(bobModel);
 
 		smallBobEntity.emplace<Nz::SharedSkeletonComponent>(skeleton);
 
@@ -253,7 +253,7 @@ int main()
 
 			auto& cameraLight = lightEntity3.emplace<Nz::LightComponent>();
 
-			auto& pointLight = cameraLight.AddLight<Nz::PointLight>(0xFFFFFFFF);
+			auto& pointLight = cameraLight.AddLight<Nz::PointLight>();
 			pointLight.UpdateColor(Nz::Color::Blue());
 			pointLight.UpdateRadius(3.f);
 			pointLight.EnableShadowCasting(true);
@@ -329,7 +329,7 @@ int main()
 		planeModel->SetMaterial(0, planeMat);
 
 		auto& planeGfx = planeEntity.emplace<Nz::GraphicsComponent>();
-		planeGfx.AttachRenderable(planeModel, 0xFFFFFFFF);
+		planeGfx.AttachRenderable(planeModel);
 
 		planeEntity.emplace<Nz::NodeComponent>();
 
@@ -348,7 +348,7 @@ int main()
 
 		entt::handle boxEntity = world.CreateEntity();
 		boxEntity.emplace<Nz::NodeComponent>().SetPosition(Nz::Vector3f(0.f, 0.25f, -0.5f));
-		boxEntity.emplace<Nz::GraphicsComponent>().AttachRenderable(boxModel, 0xFFFFFFFF);
+		boxEntity.emplace<Nz::GraphicsComponent>().AttachRenderable(boxModel);
 	}
 
 	Nz::MillisecondClock fpsClock, updateClock;
