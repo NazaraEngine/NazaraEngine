@@ -11,6 +11,12 @@
 #include <Nazara/Core/Config.hpp>
 #include <string>
 
+#ifdef NAZARA_COMPILER_MSVC
+#define NazaraPluginPrefix ""
+#else
+#define NazaraPluginPrefix "lib"
+#endif
+
 namespace Nz
 {
 	class NAZARA_CORE_API PluginInterface

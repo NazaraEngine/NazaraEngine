@@ -18,9 +18,9 @@ namespace Nz
 	{
 		public:
 #ifdef NAZARA_DEBUG
-			static constexpr inline std::string_view Filename = "PluginFFmpeg-d";
+			static constexpr inline std::string_view Filename = NazaraPluginPrefix "PluginFFmpeg-d";
 #else
-			static constexpr inline std::string_view Filename = "PluginFFmpeg";
+			static constexpr inline std::string_view Filename = NazaraPluginPrefix "PluginFFmpeg";
 #endif
 
 			FFmpegPlugin() = default;

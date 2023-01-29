@@ -7,7 +7,6 @@ if has_config("ffmpeg") then
 		set_kind("shared")
 		set_group("Plugins")
 		add_rpathdirs("$ORIGIN")
-		set_prefixname("")
 
 		add_deps("NazaraUtility")
 		add_packages("ffmpeg")
