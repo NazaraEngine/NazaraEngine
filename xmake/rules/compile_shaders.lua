@@ -7,7 +7,7 @@ rule("nzsl.compile.shaders")
 	before_buildcmd_file(function (target, batchcmds, shaderfile, opt)
 		import("core.tool.toolchain")
 
-		local nzsl = path.join(target:pkg("nzsl"):installdir(), "bin", "nzslc")
+		local nzslc = path.join(target:pkg("nzsl"):installdir(), "bin", "nzslc")
 
 		-- add commands
 		batchcmds:show_progress(opt.progress, "${color.build.object}compiling shader %s", shaderfile)
@@ -29,7 +29,7 @@ rule("nzsl.compile.shaders")
 			end
 		end
 	
-		batchcmds:vrunv(nzsl, argv, { curdir = ".", envs = envs })
+		batchcmds:vrunv(nzslc, argv, { curdir = ".", envs = envs })
 
 		local outputFile = path.join(path.directory(shaderfile), path.basename(shaderfile) .. ".nzslb.h")
 

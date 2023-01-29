@@ -17,7 +17,7 @@ task("compile-shaders")
 		task.run("config", {}, {disable_dump = true})
 
 		local nzsl = project.required_package("nzsl")
-		local nzslc = path.join(project.required_package("nzsl"):installdir(), "bin", "nzslc")
+		local nzslc = path.join(nzsl:installdir(), "bin", "nzslc")
 
 		local envs = nzsl:get("envs")
 		if is_plat("mingw") then
