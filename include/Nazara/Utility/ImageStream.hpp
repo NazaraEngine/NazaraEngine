@@ -11,6 +11,7 @@
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
+#include <Nazara/Core/Time.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
@@ -35,7 +36,7 @@ namespace Nz
 			ImageStream() = default;
 			virtual ~ImageStream();
 
-			virtual bool DecodeNextFrame(void* frameBuffer, UInt64* frameTime) = 0;
+			virtual bool DecodeNextFrame(void* frameBuffer, Time* frameTime) = 0;
 
 			virtual UInt64 GetFrameCount() const = 0;
 			virtual PixelFormat GetPixelFormat() const = 0;

@@ -51,7 +51,7 @@ namespace Nz
 					return true;
 				}
 
-				bool DecodeNextFrame(void* frameBuffer, UInt64* frameTime) override
+				bool DecodeNextFrame(void* frameBuffer, Time* frameTime) override
 				{
 					if (m_currentFrame >= m_frames.size())
 					{
@@ -288,7 +288,7 @@ namespace Nz
 					bool hasPartialRendering = false;
 					bool terminated = false;
 
-					UInt64 frameTime = 0;
+					Time frameTime = Time::Zero();
 
 					FrameMetadata nextFrame;
 					while (!terminated)
@@ -384,7 +384,7 @@ namespace Nz
 
 										nextFrame.disposalMethod = (flags & 0b0001'1100) >> 2;
 										nextFrame.time = frameTime;
-										frameTime += delay * 10;
+										frameTime += Time::Milliseconds(delay * 10);
 
 										if (flags & 0b0000'0001)
 										{
@@ -651,7 +651,7 @@ namespace Nz
 				struct FrameMetadata
 				{
 					std::size_t transparentIndex = std::numeric_limits<std::size_t>::max();
-					UInt64 time;
+					Time time;
 					UInt64 streamOffset;
  					UInt8 disposalMethod = 0;
 				};
@@ -700,7 +700,7 @@ namespace Nz
 				Bitset<UInt64> m_affectedPixels;
 				ByteStream m_byteStream;
 				LogicalScreenDescriptor m_header;
-				UInt64 m_endFrameTime;
+				Time m_endFrameTime;
 				bool m_requiresFrameHistory;
 		};
 

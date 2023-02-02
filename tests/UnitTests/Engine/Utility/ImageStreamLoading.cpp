@@ -19,12 +19,14 @@ void CompareFrames(const Nz::ImageStream& gif, std::vector<Nz::UInt8>& frameData
 
 SCENARIO("Streamed images", "[Utility][ImageStream]")
 {
+	using namespace Nz::Literals;
+
 	std::vector<Nz::UInt8> frameData;
 
 	struct ExpectedFrame
 	{
 		std::shared_ptr<Nz::Image> referenceImage;
-		Nz::UInt64 time;
+		Nz::Time time;
 	};
 
 	std::filesystem::path resourcePath = GetAssetDir();
@@ -36,23 +38,23 @@ SCENARIO("Streamed images", "[Utility][ImageStream]")
 			std::array expectedFrames = {
 				ExpectedFrame{
 					Nz::Image::LoadFromFile(resourcePath / "Utility/GIF/canvas_bgnd/0.png"),
-					0
+					0_ms
 				},
 				ExpectedFrame{
 					Nz::Image::LoadFromFile(resourcePath / "Utility/GIF/canvas_bgnd/1.png"),
-					1000
+					1000_ms
 				},
 				ExpectedFrame{
 					Nz::Image::LoadFromFile(resourcePath / "Utility/GIF/canvas_bgnd/2.png"),
-					2000
+					2000_ms
 				},
 				ExpectedFrame{
 					Nz::Image::LoadFromFile(resourcePath / "Utility/GIF/canvas_bgnd/3.png"),
-					3000
+					3000_ms
 				},
 				ExpectedFrame{
 					Nz::Image::LoadFromFile(resourcePath / "Utility/GIF/canvas_bgnd/4.png"),
-					4000
+					4000_ms
 				}
 			};
 
@@ -67,7 +69,7 @@ SCENARIO("Streamed images", "[Utility][ImageStream]")
 			frameData.resize(Nz::PixelFormatInfo::ComputeSize(gif->GetPixelFormat(), size.x, size.y, 1));
 
 			// Decode all frames in order
-			Nz::UInt64 frameTime;
+			Nz::Time frameTime;
 			for (ExpectedFrame& expectedFrame : expectedFrames)
 			{
 				REQUIRE(expectedFrame.referenceImage);
@@ -80,7 +82,7 @@ SCENARIO("Streamed images", "[Utility][ImageStream]")
 
 			// Decoding the post-the-end frame fails but gives the end frametime
 			REQUIRE_FALSE(gif->DecodeNextFrame(frameData.data(), &frameTime));
-			CHECK(frameTime == 5000);
+			CHECK(frameTime == 5000_ms);
 
 			// Decode frames in arbitrary order, to ensure results are corrects
 			for (std::size_t frameIndex : { 2, 0, 3, 1, 4 })
@@ -102,23 +104,23 @@ SCENARIO("Streamed images", "[Utility][ImageStream]")
 			std::array expectedFrames = {
 				ExpectedFrame{
 					Nz::Image::LoadFromFile(resourcePath / "Utility/GIF/canvas_prev/0.png"),
-					0
+					0_ms
 				},
 				ExpectedFrame{
 					Nz::Image::LoadFromFile(resourcePath / "Utility/GIF/canvas_prev/1.png"),
-					100
+					100_ms
 				},
 				ExpectedFrame{
 					Nz::Image::LoadFromFile(resourcePath / "Utility/GIF/canvas_prev/2.png"),
-					1100
+					1100_ms
 				},
 				ExpectedFrame{
 					Nz::Image::LoadFromFile(resourcePath / "Utility/GIF/canvas_prev/3.png"),
-					2100
+					2100_ms
 				},
 				ExpectedFrame{
 					Nz::Image::LoadFromFile(resourcePath / "Utility/GIF/canvas_prev/4.png"),
-					3100
+					3100_ms
 				}
 			};
 
@@ -133,7 +135,7 @@ SCENARIO("Streamed images", "[Utility][ImageStream]")
 			frameData.resize(Nz::PixelFormatInfo::ComputeSize(gif->GetPixelFormat(), size.x, size.y, 1));
 
 			// Decode all frames in order
-			Nz::UInt64 frameTime;
+			Nz::Time frameTime;
 			for (ExpectedFrame& expectedFrame : expectedFrames)
 			{
 				REQUIRE(expectedFrame.referenceImage);
@@ -146,7 +148,7 @@ SCENARIO("Streamed images", "[Utility][ImageStream]")
 
 			// Decoding the post-the-end frame fails but gives the end frametime
 			REQUIRE_FALSE(gif->DecodeNextFrame(frameData.data(), &frameTime));
-			CHECK(frameTime == 4100);
+			CHECK(frameTime == 4100_ms);
 
 			// Decode frames in arbitrary order, to ensure results are corrects
 			for (std::size_t frameIndex : { 2, 0, 3, 1, 4 })
