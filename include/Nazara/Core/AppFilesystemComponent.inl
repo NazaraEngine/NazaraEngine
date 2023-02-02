@@ -73,6 +73,24 @@ namespace Nz
 	}
 
 	template<typename T>
+	std::shared_ptr<T> AppFilesystemComponent::Open(std::string_view assetPath)
+	{
+		return Open<T>(assetPath, typename T::Params{});
+	}
+
+	template<typename T>
+	std::shared_ptr<T> AppFilesystemComponent::Open(std::string_view assetPath, typename T::Params params)
+	{
+		if constexpr (Detail::ResourceParameterHasMerge<typename T::Params>::value)
+		{
+			if (const auto* defaultParams = GetDefaultResourceParameters<T>())
+				params.Merge(*defaultParams);
+		}
+
+		return OpenImpl<T>(assetPath, params);
+	}
+
+	template<typename T>
 	void AppFilesystemComponent::SetDefaultResourceParameters(typename T::Params params)
 	{
 		std::size_t resourceIndex = ResourceRegistry<T>::GetResourceId();
@@ -144,6 +162,47 @@ namespace Nz
 				else if constexpr (std::is_same_v<Param, VirtualDirectory::PhysicalFileEntry>)
 				{
 					resource = T::LoadFromFile(arg.filePath, params);
+					return true;
+				}
+				else
+					static_assert(AlwaysFalse<Param>(), "unhandled case");
+			}, entry);
+		};
+
+		m_rootDirectory->GetEntry(assetPath, callback);
+		return resource;
+	}
+
+	template<typename T>
+	std::shared_ptr<T> AppFilesystemComponent::OpenImpl(std::string_view assetPath, const typename T::Params& params)
+	{
+		std::shared_ptr<T> resource;
+		if (!m_rootDirectory)
+			return resource;
+
+		auto callback = [&](const VirtualDirectory::Entry& entry)
+		{
+			return std::visit([&](auto&& arg)
+			{
+				using Param = std::decay_t<decltype(arg)>;
+				if constexpr (std::is_base_of_v<VirtualDirectory::DirectoryEntry, Param>)
+				{
+					NazaraError(std::string(assetPath) + " is a directory");
+					return false;
+				}
+				else if constexpr (std::is_same_v<Param, VirtualDirectory::DataPointerEntry>)
+				{
+					resource = T::OpenFromMemory(arg.data, arg.size, params);
+					return true;
+				}
+				else if constexpr (std::is_same_v<Param, VirtualDirectory::FileContentEntry>)
+				{
+					resource = T::OpenFromMemory(&arg.data[0], arg.data.size(), params);
+					return true;
+				}
+				else if constexpr (std::is_same_v<Param, VirtualDirectory::PhysicalFileEntry>)
+				{
+					resource = T::OpenFromFile(arg.filePath, params);
 					return true;
 				}
 				else

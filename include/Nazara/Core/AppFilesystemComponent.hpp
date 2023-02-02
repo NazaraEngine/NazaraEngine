@@ -43,6 +43,9 @@ namespace Nz
 			inline const VirtualDirectoryPtr& Mount(std::string_view name, std::filesystem::path filepath);
 			inline const VirtualDirectoryPtr& Mount(std::string_view name, VirtualDirectoryPtr directory);
 
+			template<typename T> std::shared_ptr<T> Open(std::string_view assetPath);
+			template<typename T> std::shared_ptr<T> Open(std::string_view assetPath, typename T::Params params);
+
 			template<typename T> void SetDefaultResourceParameters(typename T::Params params);
 
 			AppFilesystemComponent& operator=(const AppFilesystemComponent&) = delete;
@@ -52,6 +55,7 @@ namespace Nz
 
 		private:
 			template<typename T> std::shared_ptr<T> LoadImpl(std::string_view assetPath, const typename T::Params& params);
+			template<typename T> std::shared_ptr<T> OpenImpl(std::string_view assetPath, const typename T::Params& params);
 
 			std::vector<std::unique_ptr<ResourceParameters>> m_defaultParameters;
 			VirtualDirectoryPtr m_rootDirectory;
