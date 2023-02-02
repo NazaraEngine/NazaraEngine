@@ -165,6 +165,7 @@ namespace Nz::GL
 		{
 			case WindowBackend::Invalid:
 			case WindowBackend::Cocoa: //< TODO?
+			case WindowBackend::Web: //< TODO?
 				break;
 
 			case WindowBackend::X11:

@@ -21,16 +21,7 @@ int main()
 	if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory("../.." / resourceDir))
 		resourceDir = "../.." / resourceDir;
 
-	Nz::Renderer::Config rendererConfig;
-	std::cout << "Run using Vulkan? (y/n)" << std::endl;
-	if (std::getchar() != 'n')
-		rendererConfig.preferredAPI = Nz::RenderAPI::Vulkan;
-	else
-		rendererConfig.preferredAPI = Nz::RenderAPI::OpenGL;
-
-	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-	Nz::Application<Nz::Graphics, Nz::Physics2D> app(rendererConfig);
+	Nz::Application<Nz::Graphics, Nz::Physics2D> app;
 
 	auto& windowing = app.AddComponent<Nz::AppWindowingComponent>();
 

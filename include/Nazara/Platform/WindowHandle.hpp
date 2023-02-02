@@ -19,8 +19,8 @@ namespace Nz
 		Cocoa,
 		X11,
 		Wayland,
-		Windows,
-		Web
+		Web,
+		Windows
 	};
 
 	struct WindowHandle

@@ -75,14 +75,7 @@ int main()
 	if (!std::filesystem::is_directory(shaderDir) && std::filesystem::is_directory("../.." / shaderDir))
 		shaderDir = "../.." / shaderDir;
 
-	Nz::Renderer::Config rendererConfig;
-	std::cout << "Run using Vulkan? (y/n)" << std::endl;
-	if (std::getchar() == 'y')
-		rendererConfig.preferredAPI = Nz::RenderAPI::Vulkan;
-	else
-		rendererConfig.preferredAPI = Nz::RenderAPI::OpenGL;
-
-	Nz::Application<Nz::Graphics> app(rendererConfig);
+	Nz::Application<Nz::Graphics> app;
 
 	nzsl::ShaderWriter::States states;
 	states.shaderModuleResolver = Nz::Graphics::Instance()->GetShaderModuleResolver();

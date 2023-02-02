@@ -431,7 +431,7 @@ namespace Nz::GL
 
 		try
 		{
-#define NAZARA_OPENGLRENDERER_FUNC(name, sig) loader.Load<sig, UnderlyingCast(FunctionIndex:: name)>(name, #name, false, true);
+#define NAZARA_OPENGLRENDERER_FUNC(name, sig) loader.Load<sig, UnderlyingCast(FunctionIndex:: name)>(name, #name, true, true);
 #define NAZARA_OPENGLRENDERER_EXT_FUNC(name, sig) //< Do nothing
 			NAZARA_OPENGLRENDERER_FOREACH_GLES_FUNC(NAZARA_OPENGLRENDERER_FUNC, NAZARA_OPENGLRENDERER_EXT_FUNC)
 #undef NAZARA_OPENGLRENDERER_EXT_FUNC

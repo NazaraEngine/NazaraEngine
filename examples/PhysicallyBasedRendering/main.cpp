@@ -13,14 +13,7 @@ int main()
 	if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory("../.." / resourceDir))
 		resourceDir = "../.." / resourceDir;
 
-	Nz::Renderer::Config rendererConfig;
-	std::cout << "Run using Vulkan? (y/n)" << std::endl;
-	if (std::getchar() == 'y')
-		rendererConfig.preferredAPI = Nz::RenderAPI::Vulkan;
-	else
-		rendererConfig.preferredAPI = Nz::RenderAPI::OpenGL;
-
-	Nz::Application<Nz::Graphics> app(rendererConfig);
+	Nz::Application<Nz::Graphics> app;
 
 	std::shared_ptr<Nz::RenderDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
 
