@@ -418,7 +418,7 @@ namespace Nz
 						m_vertices[index].totalValence++;
 						m_vertices[index].remainingValence++;
 
-						m_vertices[index].triIndices.push_back(i / 3);
+						m_vertices[index].triIndices.push_back(SafeCast<int>(i / 3));
 					}
 
 					m_bestTri = FullScoreRecalculation();

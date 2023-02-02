@@ -160,7 +160,7 @@ namespace Nz
 
 				return false;
 			});
-		}, 
+		},
 		[&](std::string_view name)
 		{
 			if (physicalPathBase)

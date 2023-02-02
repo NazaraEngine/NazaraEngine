@@ -9,7 +9,7 @@ namespace Nz
 {
 	ApplicationComponent::~ApplicationComponent() = default;
 
-	void ApplicationComponent::Update(Time elapsedTime)
+	void ApplicationComponent::Update(Time /*elapsedTime*/)
 	{
 	}
 }

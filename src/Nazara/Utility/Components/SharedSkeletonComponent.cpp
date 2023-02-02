@@ -58,7 +58,7 @@ namespace Nz
 		return m_attachedSkeleton;
 	}
 
-	void SharedSkeletonComponent::OnReferenceJointsInvalidated(const Skeleton* skeleton)
+	void SharedSkeletonComponent::OnReferenceJointsInvalidated(const Skeleton* /*skeleton*/)
 	{
 		m_skeletonJointInvalidated = true;
 	}
