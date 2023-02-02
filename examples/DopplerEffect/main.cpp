@@ -9,6 +9,7 @@
 */
 
 #include <Nazara/Audio.hpp>
+#include <Nazara/Core/Application.hpp>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/Modules.hpp>
 #include <Nazara/Math/Vector3.hpp>
@@ -26,7 +27,7 @@ int main()
 	if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory("../.." / resourceDir))
 		resourceDir = "../.." / resourceDir;
 
-	Nz::Modules<Nz::Audio> audio;
+	Nz::Application<Nz::Audio> app;
 
 	Nz::Sound sound;
 	if (!sound.LoadFromFile(resourceDir / "Audio/siren.wav"))
@@ -54,31 +55,20 @@ int main()
 	// On joue le son
 	sound.Play();
 
-	// La boucle du programme (Pour déplacer le son)
 	Nz::MillisecondClock clock;
-	while (sound.GetStatus() == Nz::SoundStatus::Playing)
+	app.AddUpdater([&](Nz::Time elapsedTime)
 	{
-		// Comme le son se joue dans un thread séparé, on peut mettre en pause le principal régulièrement
-		Nz::Time sleepTime = Nz::Time::TickDuration(60) - clock.GetElapsedTime(); // 60 FPS
-
-		if (sleepTime > Nz::Time::Millisecond())
-			std::this_thread::sleep_for(sleepTime.AsDuration<std::chrono::milliseconds>());
+		if (sound.GetStatus() != Nz::SoundStatus::Playing)
+			app.Quit();
 
 		// On bouge la source du son en fonction du temps depuis chaque mise à jour
 		Nz::Vector3f pos = sound.GetPosition() + sound.GetVelocity() * clock.GetElapsedTime().AsSeconds();
 		sound.SetPosition(pos);
 
-			std::cout << "Sound position: " << pos << std::endl;
-
-			// Si la position de la source atteint une certaine position, ou si l'utilisateur appuie sur echap
-			if (pos.x > Nz::Vector3f::Left().x * -50.f || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Escape))
-				sound.Stop(); // On arrête le son (Stoppant également la boucle)
-
-			clock.Restart();
-		}
+		// Si la position de la source atteint une certaine position, ou si l'utilisateur appuie sur echap
+		if (pos.x > Nz::Vector3f::Left().x * -50.f || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Escape))
+			sound.Stop(); // On arrête le son (Stoppant également la boucle)
 	});
 
-	// La boucle du programme (Pour déplacer le son)
-
-	return 0;
+	return app.Run();
 }
