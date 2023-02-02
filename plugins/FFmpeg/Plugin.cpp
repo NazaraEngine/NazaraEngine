@@ -131,7 +131,7 @@ namespace
 				return Nz::Ok();
 			}
 
-			bool DecodeNextFrame(void* frameBuffer, Nz::UInt64* frameTime) override
+			bool DecodeNextFrame(void* frameBuffer, Nz::Time* frameTime) override
 			{
 				AVPacket packet;
 
@@ -144,7 +144,7 @@ namespace
 							if (frameTime)
 							{
 								AVRational timebase = m_formatContext->streams[m_videoStream]->time_base;
-								*frameTime = 1000 * m_formatContext->streams[m_videoStream]->duration * timebase.num / timebase.den;
+								*frameTime = Nz::Time::Milliseconds(1000 * m_formatContext->streams[m_videoStream]->duration * timebase.num / timebase.den);
 							}
 
 							return false;
