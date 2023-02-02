@@ -37,8 +37,8 @@ namespace Nz
 
 			template<typename T> const typename T::Params* GetDefaultResourceParameters() const;
 
-			template<typename T> std::shared_ptr<T> GetOrLoad(std::string_view assetPath);
-			template<typename T> std::shared_ptr<T> GetOrLoad(std::string_view assetPath, typename T::Params params);
+			template<typename T> std::shared_ptr<T> Load(std::string_view assetPath);
+			template<typename T> std::shared_ptr<T> Load(std::string_view assetPath, typename T::Params params);
 
 			inline const VirtualDirectoryPtr& Mount(std::string_view name, std::filesystem::path filepath);
 			inline const VirtualDirectoryPtr& Mount(std::string_view name, VirtualDirectoryPtr directory);
@@ -51,7 +51,7 @@ namespace Nz
 			static inline void RegisterResourceTypes();
 
 		private:
-			template<typename T> std::shared_ptr<T> GetOrLoadImpl(std::string_view assetPath, const typename T::Params& params);
+			template<typename T> std::shared_ptr<T> LoadImpl(std::string_view assetPath, const typename T::Params& params);
 
 			std::vector<std::unique_ptr<ResourceParameters>> m_defaultParameters;
 			VirtualDirectoryPtr m_rootDirectory;

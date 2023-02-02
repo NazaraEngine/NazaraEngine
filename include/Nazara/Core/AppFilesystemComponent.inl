@@ -36,13 +36,13 @@ namespace Nz
 	}
 
 	template<typename T>
-	std::shared_ptr<T> AppFilesystemComponent::GetOrLoad(std::string_view assetPath)
+	std::shared_ptr<T> AppFilesystemComponent::Load(std::string_view assetPath)
 	{
-		return GetOrLoad<T>(assetPath, typename T::Params{});
+		return Load<T>(assetPath, typename T::Params{});
 	}
 
 	template<typename T>
-	std::shared_ptr<T> AppFilesystemComponent::GetOrLoad(std::string_view assetPath, typename T::Params params)
+	std::shared_ptr<T> AppFilesystemComponent::Load(std::string_view assetPath, typename T::Params params)
 	{
 		if constexpr (Detail::ResourceParameterHasMerge<typename T::Params>::value)
 		{
@@ -50,7 +50,7 @@ namespace Nz
 				params.Merge(*defaultParams);
 		}
 
-		return GetOrLoadImpl<T>(assetPath, params);
+		return LoadImpl<T>(assetPath, params);
 	}
 
 	inline const VirtualDirectoryPtr& AppFilesystemComponent::Mount(std::string_view name, std::filesystem::path filepath)
@@ -115,7 +115,7 @@ namespace Nz
 	}
 
 	template<typename T>
-	std::shared_ptr<T> AppFilesystemComponent::GetOrLoadImpl(std::string_view assetPath, const typename T::Params& params)
+	std::shared_ptr<T> AppFilesystemComponent::LoadImpl(std::string_view assetPath, const typename T::Params& params)
 	{
 		std::shared_ptr<T> resource;
 		if (!m_rootDirectory)
