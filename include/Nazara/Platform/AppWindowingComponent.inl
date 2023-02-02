@@ -13,6 +13,12 @@ namespace Nz
 		return *m_windows.emplace_back(std::make_unique<Window>(std::forward<Args>(args)...));
 	}
 
+	inline AppWindowingComponent::AppWindowingComponent(ApplicationBase& app) :
+	ApplicationComponent(app),
+	m_quitOnLastWindowClosed(true)
+	{
+	}
+
 	inline void AppWindowingComponent::DisableQuitOnLastWindowClosed()
 	{
 		return EnableQuitOnLastWindowClosed(false);

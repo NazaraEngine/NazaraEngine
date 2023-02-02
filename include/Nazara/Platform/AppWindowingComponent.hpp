@@ -17,7 +17,7 @@ namespace Nz
 	class NAZARA_PLATFORM_API AppWindowingComponent : public ApplicationComponent
 	{
 		public:
-			using ApplicationComponent::ApplicationComponent;
+			inline AppWindowingComponent(ApplicationBase& app);
 			AppWindowingComponent(const AppWindowingComponent&) = delete;
 			AppWindowingComponent(AppWindowingComponent&&) = delete;
 			~AppWindowingComponent() = default;
