@@ -14,16 +14,7 @@ NAZARA_REQUEST_DEDICATED_GPU()
 
 int main()
 {
-	Nz::Renderer::Config rendererConfig;
-	std::cout << "Run using Vulkan? (y/n)" << std::endl;
-	if (std::getchar() != 'n')
-		rendererConfig.preferredAPI = Nz::RenderAPI::Vulkan;
-	else
-		rendererConfig.preferredAPI = Nz::RenderAPI::OpenGL;
-
-	std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-
-	Nz::Application<Nz::Graphics, Nz::Widgets> app(rendererConfig);
+	Nz::Application<Nz::Graphics, Nz::Widgets> app;
 
 	auto& windowing = app.AddComponent<Nz::AppWindowingComponent>();
 	Nz::Window& mainWindow = windowing.CreateWindow(Nz::VideoMode(1920, 1080), "Widget demo");
@@ -67,7 +58,7 @@ int main()
 	samplerInfo.anisotropyLevel = 8;
 
 	std::shared_ptr<Nz::MaterialInstance> materialInstance = material->Instantiate();
-	materialInstance->SetTextureProperty("BaseColorMap", fs.GetOrLoad<Nz::Texture>("assets/lynix.jpg"));
+	materialInstance->SetTextureProperty("BaseColorMap", fs.Load<Nz::Texture>("assets/lynix.jpg"));
 
 	Nz::ImageWidget* imageWidget = canvas2D.Add<Nz::ImageWidget>(materialInstance);
 	imageWidget->SetPosition(1200.f, 200.f);

@@ -17,14 +17,16 @@ int main()
 		resourceDir = "../.." / resourceDir;
 
 	Nz::Renderer::Config rendererConfig;
-	rendererConfig.preferredAPI = Nz::RenderAPI::OpenGL;
-	/*std::cout << "Run using Vulkan? (y/n)" << std::endl;
+#ifndef NAZARA_PLATFORM_WEB
+	std::cout << "Run using Vulkan? (y/n)" << std::endl;
 	if (std::getchar() == 'y')
 		rendererConfig.preferredAPI = Nz::RenderAPI::Vulkan;
 	else
-		rendererConfig.preferredAPI = Nz::RenderAPI::OpenGL;*/
+		rendererConfig.preferredAPI = Nz::RenderAPI::OpenGL;
+#endif
 
-	Nz::Modules<Nz::Graphics> nazara(rendererConfig);
+	Nz::Application<Nz::Graphics> app(rendererConfig);
+	auto& windowingApp = app.AddComponent<Nz::AppWindowingComponent>();
 
 	Nz::MeshParams meshParams;
 	meshParams.center = true;
@@ -35,12 +37,7 @@ int main()
 	std::shared_ptr<Nz::RenderDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
 
 	std::string windowTitle = "Graphics Test";
-	Nz::Window window;
-	if (!window.Create(Nz::VideoMode(1280, 720), windowTitle))
-	{
-		std::cout << "Failed to create Window" << std::endl;
-		std::abort();
-	}
+	Nz::Window& window = windowingApp.CreateWindow(Nz::VideoMode(1280, 720), windowTitle);
 	Nz::WindowSwapchain windowSwapchain(device, window);
 
 	std::shared_ptr<Nz::Mesh> spaceshipMesh = Nz::Mesh::LoadFromFile(resourceDir / "Spaceship/spaceship.obj", meshParams);
@@ -177,10 +174,8 @@ int main()
 		}
 	});
 
-	while (window.IsOpen())
+	app.AddUpdater([&](Nz::Time /*elapsedTime*/)
 	{
-		Nz::Window::ProcessEvents();
-
 		if (std::optional<Nz::Time> deltaTime = updateClock.RestartIfOver(Nz::Time::TickDuration(60)))
 		{
 			float cameraSpeed = 2.f * deltaTime->AsSeconds();
@@ -215,7 +210,7 @@ int main()
 		if (!frame)
 		{
 			std::this_thread::sleep_for(std::chrono::milliseconds(1));
-			continue;
+			return;
 		}
 
 		framePipeline.GetDebugDrawer().DrawLine(Nz::Vector3f::Zero(), Nz::Vector3f::Forward(), Nz::Color::Blue());
@@ -243,7 +238,7 @@ int main()
 			window.SetTitle(windowTitle + " - " + Nz::NumberToString(fps) + " FPS");
 			fps = 0;
 		}
-	}
+	});
 
-	return EXIT_SUCCESS;
+	return app.Run();
 }

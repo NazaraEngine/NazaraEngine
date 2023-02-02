@@ -9,49 +9,39 @@
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Platform/Keyboard.hpp>
 #include <Nazara/Platform/Platform.hpp>
-#include <Nazara/Utility/BasicMainloop.hpp>
 #include <chrono>
 #include <iostream>
 #include <thread>
 
 int main()
 {
-	try
+	std::filesystem::path resourceDir = "assets/examples";
+	if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory("../.." / resourceDir))
+		resourceDir = "../.." / resourceDir;
+
+	Nz::Application<Nz::Audio> app;
+
+	Nz::SoundStreamParams streamParams;
+	streamParams.forceMono = false;
+
+	Nz::Music music;
+	if (!music.OpenFromFile(resourceDir / "Audio/file_example_MP3_700KB.mp3", streamParams))
 	{
-
-		std::filesystem::path resourceDir = "assets/examples";
-		if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory("../.." / resourceDir))
-			resourceDir = "../.." / resourceDir;
-
-		Nz::Application<Nz::Audio> app;
-
-		Nz::SoundStreamParams streamParams;
-		streamParams.forceMono = false;
-
-		Nz::Music music;
-		if (!music.OpenFromFile(resourceDir / "Audio/file_example_MP3_700KB.mp3", streamParams))
-		{
-			std::cout << "Failed to load sound" << std::endl;
-			std::getchar();
-			return EXIT_FAILURE;
-		}
-
-		std::getchar();
-
-		music.Play();
-
-		std::cout << "Playing sound..." << std::endl;
-
-		app.AddUpdater([&](Nz::Time /*elapsedTime*/)
-		{
-			if (!music.IsPlaying())
-				app.Quit();
-		});
-
-		return app.Run();
+		std::cout << "Failed to load sound" << std::endl;
+		return EXIT_FAILURE;
 	}
-	catch (const std::exception& e)
+
+	music.Play();
+
+	std::cout << "Playing sound..." << std::endl;
+
+	app.AddUpdater([&](Nz::Time /*elapsedTime*/)
 	{
-		std::cerr << e.what() << std::endl;
-	}
+		if (!music.IsPlaying())
+			app.Quit();
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	});
+
+	return app.Run();
 }

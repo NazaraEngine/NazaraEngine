@@ -45,10 +45,6 @@ local rendererBackends = {
 }
 NazaraRendererBackends = rendererBackends
 
-if is_plat("wasm") then
-	rendererBackends.VulkanRenderer = nil
-end
-
 local modules = {
 	Audio = {
 		Deps = {"NazaraCore"},
@@ -83,6 +79,13 @@ local modules = {
 			elseif is_plat("linux") then
 				add_packages("libuuid")
 				add_syslinks("dl", "pthread")
+			elseif is_plat("wasm") then
+				--[[
+				Have to fix issues with libsdl first
+				add_ldflags("-sPTHREAD_POOL_SIZE=4", { public = true })
+				add_cxflags("-pthread", { public = true })
+				add_ldflags("-pthread", { public = true })
+				]]
 			end
 
 			if is_plat("macosx", "iphoneos") then
@@ -164,6 +167,12 @@ local modules = {
 	}
 }
 
+-- Vulkan doesn't run on web and Newton does not (yet) compile using emscripten
+if is_plat("wasm") then
+	rendererBackends.VulkanRenderer = nil
+	modules.Physics3D = nil
+end
+
 if not has_config("embed_rendererbackends") then
 	-- Register backends as separate modules
 	for name, module in pairs(rendererBackends) do
@@ -217,6 +226,7 @@ else
 end
 
 add_repositories("nazara-engine-repo https://github.com/NazaraEngine/xmake-repo")
+--add_repositories("local-repo xmake-repo")
 add_requires("nazarautils")
 add_requires("nzsl", { debug = is_mode("debug"), configs = { with_symbols = not is_mode("release"), shared = not is_plat("wasm") } })
 

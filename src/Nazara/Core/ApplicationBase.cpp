@@ -32,7 +32,10 @@ namespace Nz
 		{
 			ApplicationBase* app = static_cast<ApplicationBase*>(application);
 			if (!app->m_running)
+			{
+				emscripten_cancel_main_loop();
 				return;
+			}
 
 			try
 			{
@@ -44,6 +47,7 @@ namespace Nz
 				NazaraError(e.what());
 			}
 		}, this, 0, 1);
+		emscripten_set_main_loop_timing(EM_TIMING_RAF, 1);
 #endif
 
 		return 0;

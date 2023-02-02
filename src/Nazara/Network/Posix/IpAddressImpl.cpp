@@ -169,7 +169,7 @@ namespace Nz
 					IpAddress::IPv6 address = ipAddress.ToIPv6();
 					for (unsigned int i = 0; i < 8; ++i)
 					{
-						u_short addressPart = htons(address[i]);
+						UInt16 addressPart = htons(address[i]);
 						socketAddress->sin6_addr.s6_addr[i * 2 + 0] = addressPart >> 0;
 						socketAddress->sin6_addr.s6_addr[i * 2 + 1] = addressPart >> 8;
 					}

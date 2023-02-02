@@ -88,25 +88,22 @@ int main()
 		resourceDir = "../.." / resourceDir;
 
 	Nz::Renderer::Config rendererConfig;
+#ifndef NAZARA_PLATFORM_WEB
 	std::cout << "Run using Vulkan? (y/n)" << std::endl;
 	if (std::getchar() == 'y')
 		rendererConfig.preferredAPI = Nz::RenderAPI::Vulkan;
 	else
 		rendererConfig.preferredAPI = Nz::RenderAPI::OpenGL;
+#endif
 
-	Nz::Modules<Nz::Renderer> nazara(rendererConfig);
+	Nz::Application<Nz::Renderer> app(rendererConfig);
+	auto& windowingApp = app.AddComponent<Nz::AppWindowingComponent>();
 
 	std::shared_ptr<Nz::RenderDevice> device = Nz::Renderer::Instance()->InstanciateRenderDevice(0);
 
-	Nz::Window window;
-	Nz::WindowSwapchain windowSwapchain(device, window);
-
 	std::string windowTitle = "Render Test";
-	if (!window.Create(Nz::VideoMode(1280, 720), windowTitle))
-	{
-		std::cout << "Failed to create Window" << std::endl;
-		return __LINE__;
-	}
+	Nz::Window& window = windowingApp.CreateWindow(Nz::VideoMode(1280, 720), windowTitle);
+	Nz::WindowSwapchain windowSwapchain(device, window);
 
 	nzsl::Ast::ModulePtr shaderModule = nzsl::Parse(std::string_view(shaderSource, sizeof(shaderSource)));
 	if (!shaderModule)
@@ -287,10 +284,8 @@ int main()
 		uboUpdate = true;
 	});
 
-	Nz::BasicMainloop(window, [&]
+	app.AddUpdater([&](Nz::Time /*elapsedTime*/)
 	{
-		Nz::Window::ProcessEvents();
-
 		if (std::optional<Nz::Time> deltaTime = updateClock.RestartIfOver(Nz::Time::TickDuration(60)))
 		{
 			float cameraSpeed = 2.f * deltaTime->AsSeconds();
@@ -416,5 +411,5 @@ int main()
 		}
 	});
 
-	return EXIT_SUCCESS;
+	return app.Run();
 }

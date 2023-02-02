@@ -78,7 +78,6 @@ typedef void (GL_APIENTRYP PFNGLSPECIALIZESHADERPROC) (GLuint shader, const GLch
 	cb(glCreateProgram, PFNGLCREATEPROGRAMPROC) \
 	cb(glCreateShader, PFNGLCREATESHADERPROC) \
 	cb(glCullFace, PFNGLCULLFACEPROC) \
-	cb(glDebugMessageControl, PFNGLDEBUGMESSAGECONTROLPROC) \
 	cb(glDeleteBuffers, PFNGLDELETEBUFFERSPROC) \
 	cb(glDeleteFramebuffers, PFNGLDELETEFRAMEBUFFERSPROC) \
 	cb(glDeleteProgram, PFNGLDELETEPROGRAMPROC) \
@@ -118,7 +117,6 @@ typedef void (GL_APIENTRYP PFNGLSPECIALIZESHADERPROC) (GLuint shader, const GLch
 	cb(glGetActiveUniformBlockiv, PFNGLGETACTIVEUNIFORMBLOCKIVPROC) \
 	cb(glGetActiveUniformBlockName, PFNGLGETACTIVEUNIFORMBLOCKNAMEPROC) \
 	cb(glGetBooleanv, PFNGLGETBOOLEANVPROC) \
-	cb(glGetBooleani_v, PFNGLGETBOOLEANI_VPROC) \
 	cb(glGetBufferParameteriv, PFNGLGETBUFFERPARAMETERIVPROC) \
 	cb(glGetError, PFNGLGETERRORPROC) \
 	cb(glGetFloatv, PFNGLGETFLOATVPROC) \
@@ -196,10 +194,12 @@ typedef void (GL_APIENTRYP PFNGLSPECIALIZESHADERPROC) (GLuint shader, const GLch
 	cb(glVertexAttribPointer, PFNGLVERTEXATTRIBPOINTERPROC) \
 	cb(glViewport, PFNGLVIEWPORTPROC) \
 	/* Core OpenGL (extension in OpenGL ES) */ \
+	extCb(glDebugMessageControl, PFNGLDEBUGMESSAGECONTROLPROC) \
 	extCb(glDrawBuffer, PFNGLDRAWBUFFERPROC) \
 	extCb(glPolygonMode, PFNGLPOLYGONMODEPROC) \
 	/* OpenGL 4.2 - OpenGL ES 3.1 */\
 	extCb(glBindImageTexture, PFNGLBINDIMAGETEXTUREPROC) \
+	extCb(glGetBooleani_v, PFNGLGETBOOLEANI_VPROC) \
 	extCb(glMemoryBarrier, PFNGLMEMORYBARRIERPROC) \
 	extCb(glMemoryBarrierByRegion, PFNGLMEMORYBARRIERBYREGIONPROC) \
 	/* OpenGL 4.3 - OpenGL ES 3.1 */\
