@@ -195,7 +195,7 @@ namespace
 				if (frameTime)
 				{
 					AVRational timebase = m_formatContext->streams[m_videoStream]->time_base;
-					*frameTime = 1000 * m_rawFrame->pts * timebase.num / timebase.den;
+					*frameTime = Nz::Time::Milliseconds(1000 * m_rawFrame->pts * timebase.num / timebase.den);
 				}
 
 				return true;
