@@ -18,9 +18,11 @@ namespace Nz
 	m_color(Color::White()),
 	m_orientation(orientation),
 	m_textureCoords(0.f, 0.f, 1.f, 1.f),
-	m_origin(0.f, 0.f),
-	m_size(64.f)
+	m_origin(0.f, 0.f)
 	{
+		Vector2ui size = Vector2ui(GetTextureSize());
+		m_size = (orientation == Orientation::Horizontal) ? size.x : size.y;
+
 		UpdateVertices();
 	}
 
