@@ -1,4 +1,4 @@
-// Sources pour https://github.com/NazaraEngine/NazaraEngine/wiki/(FR)-Tutoriel:-%5B02%5D-Gestion-des-événements
+// Sources pour https://github.com/NazaraEngine/NazaraEngine/wiki/(FR)-Tutoriel:-%5B02%5D-Signaux-et-gestion-des-%C3%A9v%C3%A9nements
 
 #include <Nazara/Core.hpp>
 #include <Nazara/Graphics.hpp>
@@ -11,15 +11,18 @@ int main()
 {
 	Nz::Application<Nz::Graphics> app;
 
+	// Création de la fenêtre
 	auto& windowing = app.AddComponent<Nz::AppWindowingComponent>();
-	Nz::Window& mainWindow = windowing.CreateWindow(Nz::VideoMode(1280, 720), "Tut02 - Hello world");
+	Nz::Window& mainWindow = windowing.CreateWindow(Nz::VideoMode(1280, 720), "Tut02 - Events");
 
+	// Ajout d'un monde
 	auto& ecs = app.AddComponent<Nz::AppEntitySystemComponent>();
 	auto& world = ecs.AddWorld<Nz::EnttWorld>();
 
 	Nz::RenderSystem& renderSystem = world.AddSystem<Nz::RenderSystem>();
 	auto& windowSwapchain = renderSystem.CreateSwapchain(mainWindow);
 
+	// Création de l'entité caméra
 	entt::handle cameraEntity = world.CreateEntity();
 	{
 		cameraEntity.emplace<Nz::NodeComponent>();
@@ -27,6 +30,12 @@ int main()
 		auto& cameraComponent = cameraEntity.emplace<Nz::CameraComponent>(&windowSwapchain, Nz::ProjectionType::Orthographic);
 		cameraComponent.UpdateClearColor(Nz::Color(0.46f, 0.48f, 0.84f, 1.f));
 	}
+
+	Nz::WindowEventHandler& eventHandler = mainWindow.GetEventHandler();
+	eventHandler.OnQuit.Connect([&](const Nz::WindowEventHandler*)
+	{
+		app.Quit(); //< fermeture de l'application
+	});
 
 	Nz::SimpleTextDrawer textDrawer;
 	textDrawer.SetCharacterSize(72);
@@ -47,7 +56,6 @@ int main()
 		nodeComponent.SetPosition(windowSize.x / 2 - textBox.width / 2, windowSize.y / 2 - textBox.height / 2);
 	}
 
-	Nz::WindowEventHandler& eventHandler = mainWindow.GetEventHandler();
 	eventHandler.OnKeyPressed.Connect([&](const Nz::WindowEventHandler*, const Nz::WindowEvent::KeyEvent& e)
 	{
 		textDrawer.SetText("You pressed " + Nz::Keyboard::GetKeyName(e.virtualKey));
