@@ -3,6 +3,7 @@
 */
 
 #include <Nazara/Audio.hpp>
+#include <Nazara/Core/Application.hpp>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/Modules.hpp>
 #include <Nazara/Math/Vector3.hpp>
@@ -22,7 +23,7 @@ int main()
 		if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory("../.." / resourceDir))
 			resourceDir = "../.." / resourceDir;
 
-		Nz::Modules<Nz::Audio> audio;
+		Nz::Application<Nz::Audio> app;
 
 		Nz::SoundStreamParams streamParams;
 		streamParams.forceMono = false;
@@ -41,13 +42,13 @@ int main()
 
 		std::cout << "Playing sound..." << std::endl;
 
-		Nz::Window window;
-
-		Nz::Clock clock;
-		Nz::BasicMainloop(window, [&] {
+		app.AddUpdater([&](Nz::Time /*elapsedTime*/)
+		{
+			if (!music.IsPlaying())
+				app.Quit();
 		});
 
-		return EXIT_SUCCESS;
+		return app.Run();
 	}
 	catch (const std::exception& e)
 	{

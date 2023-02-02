@@ -3,6 +3,10 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/ApplicationBase.hpp>
+#include <Nazara/Core/Error.hpp>
+#ifdef NAZARA_PLATFORM_WEB
+#include <emscripten/html5.h>
+#endif
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -17,11 +21,30 @@ namespace Nz
 		// Ignore time between creation and Run() call
 		m_clock.Restart();
 
+#ifndef NAZARA_PLATFORM_WEB
 		while (m_running)
 		{
 			Time elapsedTime = m_clock.Restart();
 			Update(elapsedTime);
 		}
+#else
+		emscripten_set_main_loop_arg([](void* application)
+		{
+			ApplicationBase* app = static_cast<ApplicationBase*>(application);
+			if (!app->m_running)
+				return;
+
+			try
+			{
+				Time elapsedTime = app->m_clock.Restart();
+				app->Update(elapsedTime);
+			}
+			catch (const std::exception& e)
+			{
+				NazaraError(e.what());
+			}
+		}, this, 0, 1);
+#endif
 
 		return 0;
 	}

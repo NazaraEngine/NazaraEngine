@@ -135,8 +135,9 @@ local modules = {
 				add_defines("SDL_VIDEO_DRIVER_COCOA=1")
 				add_packages("libx11", { links = {} }) -- we only need X11 headers
 			elseif is_plat("wasm") then
-				add_cxflags("-sUSE_SDL=2")
-				add_ldflags("-sUSE_SDL=2", { public = true })
+				-- emscripten enables USE_SDL by default which will conflict with the sdl headers
+				add_cxflags("-sUSE_SDL=0")
+				add_ldflags("-sUSE_SDL=0", { public = true })
 			end
 		end
 	},
@@ -190,7 +191,7 @@ option("unitybuild", { description = "Build the engine using unity build", defau
 set_project("NazaraEngine")
 set_xmakever("2.7.3")
 
-add_requires("chipmunk2d", "dr_wav", "entt 3.10.1", "fmt", "frozen", "kiwisolver", "libflac", "minimp3", "ordered_map", "stb")
+add_requires("chipmunk2d", "dr_wav", "entt 3.11.1", "fmt", "frozen", "kiwisolver", "libflac", "libsdl >=2.26.0", "minimp3", "ordered_map", "stb")
 add_requires("freetype", { configs = { bzip2 = true, png = true, woff2 = true, zlib = true, debug = is_mode("debug") } })
 add_requires("libvorbis", { configs = { with_vorbisenc = false } })
 
@@ -208,7 +209,6 @@ if is_plat("wasm") then
 	end
 else
 	-- these libraries have ports in emscripten
-	add_requires("libsdl")
 	add_requires("openal-soft", { configs = { shared = true }})
 
 	-- these libraries aren't supported on emscripten
@@ -216,7 +216,6 @@ else
 	add_requires("newtondynamics3", { debug = is_plat("windows") and is_mode("debug") }) -- Newton doesn't like compiling in Debug on Linux
 end
 
-add_repositories("local-repo xmake-repo")
 add_repositories("nazara-engine-repo https://github.com/NazaraEngine/xmake-repo")
 add_requires("nazarautils")
 add_requires("nzsl", { debug = is_mode("debug"), configs = { with_symbols = not is_mode("release"), shared = not is_plat("wasm") } })
