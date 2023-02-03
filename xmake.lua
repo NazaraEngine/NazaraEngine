@@ -265,7 +265,7 @@ elseif is_mode("releasedbg", "release") then
 	add_vectorexts("sse", "sse2", "sse3", "ssse3")
 end
 
-if is_plat("wasm")
+if not is_plat("wasm") then
 	set_kind("shared")
 else
 	set_kind("static")
