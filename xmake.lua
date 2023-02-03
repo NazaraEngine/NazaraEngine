@@ -265,13 +265,6 @@ elseif is_mode("releasedbg", "release") then
 	add_vectorexts("sse", "sse2", "sse3", "ssse3")
 end
 
-if not is_plat("wasm") then
-	set_kind("shared")
-else
-	set_kind("static")
-	add_defines("NAZARA_STATIC")
-end
-
 add_includedirs("include")
 add_sysincludedirs("thirdparty/include")
 
@@ -373,6 +366,14 @@ end
 for name, module in pairs(modules) do
 	target("Nazara" .. name, function ()
 		set_group("Modules")
+
+		-- for now only shared compilation is supported (except on platforms like wasm)
+		if not is_plat("wasm") then
+			set_kind("shared")
+		else
+			set_kind("static")
+			add_defines("NAZARA_STATIC", { public = true })
+		end
 
 		add_rpathdirs("$ORIGIN")
 
