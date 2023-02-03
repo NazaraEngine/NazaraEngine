@@ -265,7 +265,10 @@ elseif is_mode("releasedbg", "release") then
 	add_vectorexts("sse", "sse2", "sse3", "ssse3")
 end
 
-if is_kind("static") then
+if is_plat("wasm")
+	set_kind("shared")
+else
+	set_kind("static")
 	add_defines("NAZARA_STATIC")
 end
 
@@ -369,7 +372,6 @@ end
 
 for name, module in pairs(modules) do
 	target("Nazara" .. name, function ()
-		set_kind("$(kind)")
 		set_group("Modules")
 
 		add_rpathdirs("$ORIGIN")
