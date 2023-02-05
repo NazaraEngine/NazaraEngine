@@ -69,7 +69,7 @@ jobs:
 
     # Build the engine
     - name: Build Nazara
-      run: xmake --yes
+      run: 
 
     # Run unit tests
     - name: Run unit tests

@@ -17,15 +17,16 @@
 #include <stdexcept>
 
 #ifdef NAZARA_RENDERER_EMBEDDEDBACKENDS
+
 #include <Nazara/OpenGLRenderer/OpenGLRenderer.hpp>
+
+#ifndef NAZARA_PLATFORM_WEB
 #include <Nazara/VulkanRenderer/VulkanRenderer.hpp>
 #endif
 
-#include <Nazara/Renderer/Debug.hpp>
-
-#ifdef NAZARA_PLATFORM_WEB
-#include <Nazara/OpenGLRenderer/OpenGLRenderer.hpp>
 #endif
+
+#include <Nazara/Renderer/Debug.hpp>
 
 #ifdef NAZARA_COMPILER_MSVC
 #define NazaraRendererPrefix ""
@@ -128,7 +129,10 @@ namespace Nz
 		};
 
 		RegisterImpl(RenderAPI::OpenGL, [] { return 50; }, [] { return std::make_unique<OpenGLRenderer>(); });
+#ifndef NAZARA_PLATFORM_WEB
 		RegisterImpl(RenderAPI::Vulkan, [] { return 100; }, [] { return std::make_unique<VulkanRenderer>(); });
+#endif
+
 #else
 		auto RegisterImpl = [&](RenderAPI api, auto ComputeScore)
 		{
@@ -148,7 +152,10 @@ namespace Nz
 		};
 
 		RegisterImpl(RenderAPI::OpenGL, [] { return 50; });
+#ifndef NAZARA_PLATFORM_WEB
 		RegisterImpl(RenderAPI::Vulkan, [] { return 100; });
+#endif
+
 #endif
 
 		std::sort(implementations.begin(), implementations.end(), [](const auto& lhs, const auto& rhs) { return lhs.score > rhs.score; });
