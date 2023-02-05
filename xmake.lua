@@ -189,7 +189,7 @@ NazaraModules = modules
 includes("xmake/**.lua")
 
 option("compile_shaders", { description = "Compile nzsl shaders into an includable binary version", default = true })
-option("embed_rendererbackends", { description = "Embed renderer backend code into NazaraRenderer instead of loading them dynamically", default = false })
+option("embed_rendererbackends", { description = "Embed renderer backend code into NazaraRenderer instead of loading them dynamically", default = is_plat("wasm") or false })
 option("embed_resources", { description = "Turn builtin resources into includable headers", default = true })
 option("embed_plugins", { description = "Embed enabled plugins code as static libraries", default = is_plat("wasm") or false })
 option("link_openal", { description = "Link OpenAL in the executable instead of dynamically loading it", default = is_plat("wasm") or false })
