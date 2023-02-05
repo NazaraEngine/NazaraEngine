@@ -101,7 +101,7 @@ jobs:
 
     # Build the engine
     - name: Build Nazara
-      run: 
+      run: xmake --yes
 
     # Run unit tests to generate coverage reports
     - name: Run unit tests and generate coverage output (Linux)
