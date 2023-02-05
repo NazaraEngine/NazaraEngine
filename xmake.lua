@@ -226,7 +226,6 @@ else
 end
 
 add_repositories("nazara-engine-repo https://github.com/NazaraEngine/xmake-repo")
---add_repositories("local-repo xmake-repo")
 add_requires("nazarautils")
 add_requires("nzsl", { debug = is_mode("debug"), configs = { with_symbols = not is_mode("release"), shared = not is_plat("wasm") } })
 
