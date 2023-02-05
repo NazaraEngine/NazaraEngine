@@ -7,6 +7,7 @@ on:
       - '.github/workflows/linux-build.yml'
       - '.github/workflows/macos-build.yml'
       - '.github/workflows/msys2-build.yml'
+      - '.github/workflows/wasm-build.yml'
       - '.github/workflows/windows-build.yml'
       - '.gitignore'
       - 'LICENSE'

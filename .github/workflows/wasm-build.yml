@@ -1,4 +1,4 @@
-name: macOS build
+name: Emscripten (wasm) build
 
 on:
   pull_request:
@@ -6,8 +6,8 @@ on:
     paths-ignore:
       - '.github/workflows/coverage.yml'
       - '.github/workflows/linux-build.yml'
+      - '.github/workflows/macos-build.yml'
       - '.github/workflows/msys2-build.yml'
-      - '.github/workflows/wasm-build.yml'
       - '.github/workflows/windows-build.yml'
       - '.gitignore'
       - 'LICENSE'
@@ -19,10 +19,12 @@ on:
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
-        os: [macOS-latest]
+        os: [ubuntu-latest]
         arch: [x86_64]
-        mode: [debug, releasedbg]
+        mode: [debug, release]
+        kind: [static]
 
     runs-on: ${{ matrix.os }}
     if: "!contains(github.event.head_commit.message, 'ci skip')"
@@ -43,7 +45,6 @@ jobs:
     - name: Setup xmake
       uses: xmake-io/github-action-setup-xmake@v1
       with:
-        xmake-version: branch@dev
         actions-cache-folder: .xmake-cache-W${{ steps.cache_key.outputs.key }}
 
     # Update xmake repository (in order to have the file that will be cached)
@@ -55,29 +56,31 @@ jobs:
       id: dep_hash
       run: echo "hash=$(xmake l utils.ci.packageskey)" >> $GITHUB_OUTPUT
 
+    # Setup emsdk
+    - name: Setup emscripten
+      uses: mymindstorm/setup-emsdk@v11
+      with:
+        version: 1.38.40
+        actions-cache-folder: emsdk-cache-${{ matrix.mode }}-${{ matrix.kind }}
+
     # Cache xmake dependencies
     - name: Retrieve cached xmake dependencies
       uses: actions/cache@v3
       with:
         path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
-        key: macOS-${{ matrix.arch }}-${{ matrix.mode }}-${{ steps.dep_hash.outputs.hash }}-W${{ steps.cache_key.outputs.key }}
+        key: Wasm-${{ matrix.arch }}-${{ matrix.mode }}-${{ steps.dep_hash.outputs.hash }}-W${{ steps.cache_key.outputs.key }}
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
-      run: xmake config --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --ccache=n --ffmpeg=y --shadernodes=y --tests=y --unitybuild=y --yes
+      run: xmake config --plat=wasm --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --kind=${{ matrix.kind }} --ccache=n --fs_watcher=n --tests=n --unitybuild=y --yes
 
     # Build the engine
     - name: Build Nazara
       run: xmake --yes
 
-    # Run unit tests
-    - name: Run unit tests
-      if: matrix.mode != 'releasedbg'
-      run: xmake run UnitTests
-
     # Setup installation configuration
     - name: Configure xmake for installation
-      run: xmake config --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --ccache=n --ffmpeg=n --shadernodes=y --tests=y --yes
+      run: xmake config --plat=wasm --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --ccache=n --ffmpeg=n --shadernodes=y --tests=y --yes
 
     # Install the result files
     - name: Install Nazara
