@@ -59,7 +59,7 @@ jobs:
     - name: Setup emscripten
       uses: mymindstorm/setup-emsdk@v11
       with:
-        version: 1.38.40
+        version: 3.1.31
         actions-cache-folder: emsdk-cache-${{ matrix.mode }}-${{ matrix.kind }}
 
     # Cache xmake dependencies
@@ -71,15 +71,11 @@ jobs:
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
-      run: xmake config --plat=wasm --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --ccache=n --assimp=n --ffmpeg=n --shadernodes=n --tests=y --yes
+      run: xmake config --plat=wasm --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --ccache=n --assimp=n --embed_rendererbackends=y --embed_plugins=y --link_openal=y --ffmpeg=n --shadernodes=n --tests=y --yes
 
     # Build the engine
     - name: Build Nazara
       run: xmake --yes
-
-    # Setup installation configuration
-    - name: Configure xmake for installation
-      run: xmake config --plat=wasm --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --ccache=n --assimp=n --ffmpeg=n --shadernodes=n --tests=y --yes
 
     # Install the result files
     - name: Install Nazara

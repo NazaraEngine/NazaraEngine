@@ -4,6 +4,7 @@ Windows | [![Windows build status](https://github.com/NazaraEngine/NazaraEngine/
 MSYS2 (MinGW64) | [![Windows build status](https://github.com/NazaraEngine/NazaraEngine/actions/workflows/msys2-build.yml/badge.svg)](https://github.com/NazaraEngine/NazaraEngine/actions/workflows/msys2-build.yml)
 Linux | [![Linux build status](https://github.com/NazaraEngine/NazaraEngine/actions/workflows/linux-build.yml/badge.svg)](https://github.com/NazaraEngine/NazaraEngine/actions/workflows/linux-build.yml)
 macOS | [![macOS build status](https://github.com/NazaraEngine/NazaraEngine/actions/workflows/macos-build.yml/badge.svg)](https://github.com/NazaraEngine/NazaraEngine/actions/workflows/macos-build.yml)
+Emscripten | [![Emscripten build status](https://github.com/NazaraEngine/NazaraEngine/actions/workflows/wasm-build.yml/badge.svg)](https://github.com/NazaraEngine/NazaraEngine/actions/workflows/wasm-build.yml)
 
 # Nazara Engine  
 
