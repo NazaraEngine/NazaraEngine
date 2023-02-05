@@ -59,7 +59,7 @@ jobs:
     - name: Setup emscripten
       uses: mymindstorm/setup-emsdk@v11
       with:
-        version: 1.38.40
+        version: 3.1.31
         actions-cache-folder: emsdk-cache-${{ matrix.mode }}-${{ matrix.kind }}
 
     # Cache xmake dependencies
