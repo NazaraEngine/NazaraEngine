@@ -1,7 +1,7 @@
 option("assimp", { description = "Build Assimp plugin", default = true })
 
 if has_config("assimp") then
-	add_requires("assimp v5.2.3")
+	add_requires("assimp >=5.2.5")
 
 	target("PluginAssimp")
 		set_group("Plugins")
