@@ -82,7 +82,6 @@ namespace Nz
 
 	void Renderer::LoadBackend(const Config& config)
 	{
-#ifndef NAZARA_PLATFORM_WEB
 		constexpr std::array<const char*, RenderAPICount> rendererPaths = {
 			NazaraRendererPrefix "NazaraDirect3DRenderer" NazaraRendererDebugSuffix, // Direct3D
 			NazaraRendererPrefix "NazaraMantleRenderer"   NazaraRendererDebugSuffix, // Mantle
@@ -211,16 +210,6 @@ namespace Nz
 		m_rendererImpl = std::move(chosenImpl);
 #ifndef NAZARA_RENDERER_EMBEDDEDBACKENDS
 		m_rendererLib = std::move(chosenLib);
-#endif
-
-#else
-		std::unique_ptr<Nz::OpenGLRenderer> impl = std::make_unique<Nz::OpenGLRenderer>();
-		if (!impl || !impl->Prepare({}))
-		{
-			NazaraError("Failed to create renderer implementation");
-		}
-
-		m_rendererImpl = std::move(impl);
 #endif
 
 		NazaraDebug("Using " + m_rendererImpl->QueryAPIString() + " as renderer");

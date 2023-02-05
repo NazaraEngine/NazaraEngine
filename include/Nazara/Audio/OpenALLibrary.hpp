@@ -50,8 +50,8 @@ namespace Nz
 			std::vector<std::string> ParseDevices(const char* deviceString);
 
 			DynLib m_library;
-			bool m_isLoaded;
 			bool m_hasCaptureSupport;
+			bool m_isLoaded;
 	};
 }
 
