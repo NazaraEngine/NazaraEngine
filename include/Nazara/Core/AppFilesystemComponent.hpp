@@ -43,6 +43,8 @@ namespace Nz
 			inline const VirtualDirectoryPtr& Mount(std::string_view name, std::filesystem::path filepath);
 			inline const VirtualDirectoryPtr& Mount(std::string_view name, VirtualDirectoryPtr directory);
 
+			inline void MountDefaultDirectories();
+
 			template<typename T> std::shared_ptr<T> Open(std::string_view assetPath);
 			template<typename T> std::shared_ptr<T> Open(std::string_view assetPath, typename T::Params params);
 

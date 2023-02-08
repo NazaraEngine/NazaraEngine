@@ -72,6 +72,11 @@ namespace Nz
 		return m_rootDirectory->StoreDirectory(name, std::move(directory)).directory;
 	}
 
+	inline void AppFilesystemComponent::MountDefaultDirectories()
+	{
+		m_rootDirectory = std::make_shared<VirtualDirectory>(std::filesystem::current_path());
+	}
+
 	template<typename T>
 	std::shared_ptr<T> AppFilesystemComponent::Open(std::string_view assetPath)
 	{
