@@ -400,7 +400,9 @@ for name, module in pairs(modules) do
 		end
 
 		add_defines("NAZARA_BUILD")
-		add_defines("NAZARA_UTILS_WINDOWS_NT6=1")
+		if is_plat("windows", "mingw") then
+			add_defines("NAZARA_UTILS_WINDOWS_NT6=1")
+		end
 
 		add_includedirs("src")
 
