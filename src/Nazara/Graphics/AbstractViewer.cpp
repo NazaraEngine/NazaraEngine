@@ -7,4 +7,5 @@
 
 namespace Nz
 {
+    AbstractViewer::~AbstractViewer() = default;
 }

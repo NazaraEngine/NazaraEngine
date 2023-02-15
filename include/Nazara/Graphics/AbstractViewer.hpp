@@ -21,7 +21,7 @@ namespace Nz
 	{
 		public:
 			AbstractViewer() = default;
-			~AbstractViewer() = default;
+			virtual ~AbstractViewer();
 
 			virtual const Color& GetClearColor() const = 0;
 			virtual UInt32 GetRenderMask() const = 0;
