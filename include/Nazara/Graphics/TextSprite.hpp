@@ -15,6 +15,7 @@
 #include <Nazara/Utility/VertexDeclaration.hpp>
 #include <Nazara/Utility/VertexStruct.hpp>
 #include <array>
+#include <map>
 
 namespace Nz
 {
@@ -68,14 +69,13 @@ namespace Nz
 				{
 					return !operator==(rhs);
 				}
-			};
 
-			struct HashRenderKey
-			{
-				std::size_t operator()(const RenderKey& key) const
+				bool operator<(const RenderKey& rhs) const
 				{
-					// Since renderOrder will be very small, this will be enough
-					return std::hash<Texture*>()(key.texture) + key.renderOrder;
+					if (renderOrder != rhs.renderOrder)
+						return renderOrder < rhs.renderOrder;
+
+					return texture < rhs.texture;
 				}
 			};
 
@@ -85,8 +85,8 @@ namespace Nz
 				unsigned int count;
 			};
 
+			mutable std::map<RenderKey, RenderIndices> m_renderInfos;
 			std::unordered_map<const AbstractAtlas*, AtlasSlots> m_atlases;
-			mutable std::unordered_map<RenderKey, RenderIndices, HashRenderKey> m_renderInfos;
 			std::shared_ptr<MaterialInstance> m_material;
 			std::vector<VertexStruct_XYZ_Color_UV> m_vertices;
 	};

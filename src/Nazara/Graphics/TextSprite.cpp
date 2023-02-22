@@ -260,7 +260,6 @@ namespace Nz
 
 		// Rebuild new render infos with adjusted texture
 		decltype(m_renderInfos) newRenderInfos;
-		newRenderInfos.reserve(m_renderInfos.size());
 
 		for (auto&& [renderKey, indices] : m_renderInfos)
 		{
