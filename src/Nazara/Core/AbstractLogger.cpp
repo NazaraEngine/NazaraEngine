@@ -39,7 +39,7 @@ namespace Nz
 	* \param file Filename
 	* \param function Name of the function throwing the error
 	*/
-	void AbstractLogger::WriteError(ErrorType type, const std::string_view& error, unsigned int line, const char* file, const char* function)
+	void AbstractLogger::WriteError(ErrorType type, std::string_view error, unsigned int line, const char* file, const char* function)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 

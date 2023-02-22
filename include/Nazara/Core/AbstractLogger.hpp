@@ -26,8 +26,8 @@ namespace Nz
 
 			virtual bool IsStdReplicationEnabled() const = 0;
 
-			virtual void Write(const std::string_view& string) = 0;
-			virtual void WriteError(ErrorType type, const std::string_view& error, unsigned int line = 0, const char* file = nullptr, const char* function = nullptr);
+			virtual void Write(std::string_view string) = 0;
+			virtual void WriteError(ErrorType type, std::string_view error, unsigned int line = 0, const char* file = nullptr, const char* function = nullptr);
 
 			AbstractLogger& operator=(const AbstractLogger&) = default;
 			AbstractLogger& operator=(AbstractLogger&&) noexcept = default;

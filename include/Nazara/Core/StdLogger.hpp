@@ -24,8 +24,8 @@ namespace Nz
 
 			bool IsStdReplicationEnabled() const override;
 
-			void Write(const std::string_view& error) override;
-			void WriteError(ErrorType type, const std::string_view& error, unsigned int line = 0, const char* file = nullptr, const char* function = nullptr) override;
+			void Write(std::string_view string) override;
+			void WriteError(ErrorType type, std::string_view error, unsigned int line = 0, const char* file = nullptr, const char* function = nullptr) override;
 
 			StdLogger& operator=(const StdLogger&) = default;
 			StdLogger& operator=(StdLogger&&) noexcept = default;

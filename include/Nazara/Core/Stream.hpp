@@ -53,7 +53,7 @@ namespace Nz
 			bool SetCursorPos(UInt64 offset);
 
 			bool Write(const ByteArray& byteArray);
-			bool Write(const std::string_view& string);
+			bool Write(std::string_view string);
 			inline std::size_t Write(const void* buffer, std::size_t size);
 
 			Stream& operator=(const Stream&) = delete;

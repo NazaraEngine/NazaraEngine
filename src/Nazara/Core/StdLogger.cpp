@@ -61,9 +61,9 @@ namespace Nz
 	* \see WriteError
 	*/
 
-	void StdLogger::Write(const std::string_view& error)
+	void StdLogger::Write(std::string_view string)
 	{
-		fwrite(error.data(), sizeof(char), error.size(), stdout);
+		fwrite(string.data(), sizeof(char), string.size(), stdout);
 		fputc('\n', stdout);
 	}
 
@@ -79,7 +79,7 @@ namespace Nz
 	* \see Write
 	*/
 
-	void StdLogger::WriteError(ErrorType type, const std::string_view& error, unsigned int line, const char* file, const char* function)
+	void StdLogger::WriteError(ErrorType type, std::string_view error, unsigned int line, const char* file, const char* function)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 

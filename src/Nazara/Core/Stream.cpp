@@ -257,7 +257,7 @@ namespace Nz
 	* \param string String to write
 	*/
 
-	bool Stream::Write(const std::string_view& string)
+	bool Stream::Write(std::string_view string)
 	{
 		if (m_streamOptions & StreamOption::Text)
 		{

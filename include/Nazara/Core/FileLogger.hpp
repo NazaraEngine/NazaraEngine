@@ -29,8 +29,8 @@ namespace Nz
 			bool IsStdReplicationEnabled() const override;
 			bool IsTimeLoggingEnabled() const;
 
-			void Write(const std::string_view& string) override;
-			void WriteError(ErrorType type, const std::string_view& error, unsigned int line = 0, const char* file = nullptr, const char* function = nullptr) override;
+			void Write(std::string_view string) override;
+			void WriteError(ErrorType type, std::string_view error, unsigned int line = 0, const char* file = nullptr, const char* function = nullptr) override;
 
 			FileLogger& operator=(const FileLogger&) = delete;
 			FileLogger& operator=(FileLogger&&) = default;

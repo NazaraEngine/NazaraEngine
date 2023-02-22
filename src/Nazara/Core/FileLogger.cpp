@@ -91,7 +91,7 @@ namespace Nz
 	* \see WriteError
 	*/
 
-	void FileLogger::Write(const std::string_view& string)
+	void FileLogger::Write(std::string_view string)
 	{
 		if (m_forceStdOutput || m_stdReplicationEnabled)
 		{
@@ -147,7 +147,7 @@ namespace Nz
 	* \see Write
 	*/
 
-	void FileLogger::WriteError(ErrorType type, const std::string_view& error, unsigned int line, const char* file, const char* function)
+	void FileLogger::WriteError(ErrorType type, std::string_view error, unsigned int line, const char* file, const char* function)
 	{
 		AbstractLogger::WriteError(type, error, line, file, function);
 		m_outputFile.flush();

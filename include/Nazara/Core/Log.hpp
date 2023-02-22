@@ -39,8 +39,8 @@ namespace Nz
 
 			static void SetLogger(AbstractLogger* logger);
 
-			static void Write(const std::string_view& string);
-			static void WriteError(ErrorType type, const std::string_view& error, unsigned int line = 0, const char* file = nullptr, const char* function = nullptr);
+			static void Write(std::string_view string);
+			static void WriteError(ErrorType type, std::string_view error, unsigned int line = 0, const char* file = nullptr, const char* function = nullptr);
 
 			NazaraStaticSignal(OnLogWrite, const std::string_view& /*string*/);
 			NazaraStaticSignal(OnLogWriteError, ErrorType /*type*/, const std::string_view& /*error*/, unsigned int /*line*/, const char* /*file*/, const char* /*function*/);
