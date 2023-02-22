@@ -54,12 +54,20 @@ namespace Nz
 		if (!context.DidLastCallSucceed())
 			throw std::runtime_error("failed to create texture");
 
-#ifndef NAZARA_PLATFORM_WEB
 		m_texture.SetParameteri(GL_TEXTURE_MAX_LEVEL, m_textureInfo.levelCount);
-		m_texture.SetParameteri(GL_TEXTURE_SWIZZLE_R, format->swizzleR);
-		m_texture.SetParameteri(GL_TEXTURE_SWIZZLE_G, format->swizzleG);
-		m_texture.SetParameteri(GL_TEXTURE_SWIZZLE_B, format->swizzleB);
-		m_texture.SetParameteri(GL_TEXTURE_SWIZZLE_A, format->swizzleA);
+
+#ifndef NAZARA_PLATFORM_WEB
+		if (format->swizzleR != GL_RED)
+			m_texture.SetParameteri(GL_TEXTURE_SWIZZLE_R, format->swizzleR);
+
+		if (format->swizzleG != GL_GREEN)
+			m_texture.SetParameteri(GL_TEXTURE_SWIZZLE_G, format->swizzleG);
+
+		if (format->swizzleB != GL_BLUE)
+			m_texture.SetParameteri(GL_TEXTURE_SWIZZLE_B, format->swizzleB);
+
+		if (format->swizzleA != GL_ALPHA)
+			m_texture.SetParameteri(GL_TEXTURE_SWIZZLE_A, format->swizzleA);
 #endif
 	}
 

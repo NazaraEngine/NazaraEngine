@@ -233,6 +233,8 @@ namespace Nz
 			case PixelFormat::Undefined:
 				return false;
 
+			// the following formats are emulated using texture swizzling which isn't supported on WebGL
+			// https://registry.khronos.org/webgl/specs/latest/2.0/#5.19
 			case PixelFormat::A8:
 			case PixelFormat::BGR8:
 			case PixelFormat::BGR8_SRGB:
@@ -240,6 +242,12 @@ namespace Nz
 			case PixelFormat::BGRA8_SRGB:
 			case PixelFormat::L8:
 			case PixelFormat::LA8:
+#ifdef NAZARA_PLATFORM_WEB
+				return false;
+#else
+				[[fallthrough]];
+#endif
+
 			case PixelFormat::R8:
 			case PixelFormat::R8I:
 			case PixelFormat::R8UI:

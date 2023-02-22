@@ -21,6 +21,10 @@ namespace Nz
 			case VK_FORMAT_D24_UNORM_S8_UINT:  return PixelFormat::Depth24Stencil8;
 			case VK_FORMAT_D32_SFLOAT:         return PixelFormat::Depth32F;
 			case VK_FORMAT_D32_SFLOAT_S8_UINT: return PixelFormat::Depth32FStencil8;
+			case VK_FORMAT_R8_UNORM:           return PixelFormat::R8;
+			case VK_FORMAT_R8G8_UNORM:         return PixelFormat::RG8;
+			case VK_FORMAT_R8G8B8_UNORM:       return PixelFormat::RGB8;
+			case VK_FORMAT_R8G8B8_SRGB:        return PixelFormat::RGB8_SRGB;
 			case VK_FORMAT_R8G8B8A8_UNORM:     return PixelFormat::RGBA8;
 			case VK_FORMAT_R8G8B8A8_SRGB:      return PixelFormat::RGBA8_SRGB;
 			default: break;
@@ -274,6 +278,8 @@ namespace Nz
 			case PixelFormat::Depth24Stencil8:  return VK_FORMAT_D24_UNORM_S8_UINT;
 			case PixelFormat::Depth32F:         return VK_FORMAT_D32_SFLOAT;
 			case PixelFormat::Depth32FStencil8: return VK_FORMAT_D32_SFLOAT_S8_UINT;
+			case PixelFormat::R8:               return VK_FORMAT_R8_UNORM;
+			case PixelFormat::RG8:              return VK_FORMAT_R8G8_UNORM;
 			case PixelFormat::RGB8:             return VK_FORMAT_R8G8B8_UNORM;
 			case PixelFormat::RGB8_SRGB:        return VK_FORMAT_R8G8B8_SRGB;
 			case PixelFormat::RGBA8:            return VK_FORMAT_R8G8B8A8_UNORM;

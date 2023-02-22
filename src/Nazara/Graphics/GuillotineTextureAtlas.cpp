@@ -39,7 +39,7 @@ namespace Nz
 		TextureInfo textureInfo;
 		textureInfo.width = size.x;
 		textureInfo.height = size.y;
-		textureInfo.pixelFormat = PixelFormat::A8;
+		textureInfo.pixelFormat = PixelFormat::R8;
 		textureInfo.type = ImageType::E2D;
 		textureInfo.usageFlags = TextureUsage::ShaderSampling | TextureUsage::TransferSource | TextureUsage::TransferDestination;
 		

@@ -80,7 +80,7 @@ fn main(input: FragIn) -> FragOut
 	let color = settings.BaseColor;
 
 	const if (HasUV)
-		color *= TextureOverlay.Sample(input.uv).rrrg;
+		color.a *= TextureOverlay.Sample(input.uv).r;
 
 	const if (HasColor)
 		color *= input.color;

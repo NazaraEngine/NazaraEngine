@@ -26,6 +26,8 @@ namespace Nz
 		GLenum swizzleG;
 		GLenum swizzleB;
 		GLenum swizzleA;
+
+		inline bool HasSwizzle() const;
 	};
 
 	inline std::optional<GLTextureFormat> DescribeTextureFormat(PixelFormat pixelFormat);

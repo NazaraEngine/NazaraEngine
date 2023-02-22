@@ -438,6 +438,8 @@ namespace Nz
 			case PixelFormat::Depth24Stencil8:
 			case PixelFormat::Depth32F:
 			case PixelFormat::Depth32FStencil8:
+			case PixelFormat::R8:
+			case PixelFormat::RG8:
 			case PixelFormat::RGB8:
 			case PixelFormat::RGB8_SRGB:
 			case PixelFormat::RGBA8:
