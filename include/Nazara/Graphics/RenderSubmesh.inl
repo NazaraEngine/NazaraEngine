@@ -42,9 +42,9 @@ namespace Nz
 			// - Distance to near plane (32bits) - could by reduced to 24 or even 16 if required
 			// - ?? (23bits)
 
-			return (layerIndex & 0xFF) << 60 |
-			       (matFlags)          << 52 |
-			       (distance)          << 51;
+			return (layerIndex & 0xFF) << 56 |
+			       (matFlags)          << 55 |
+			       (distance)          << 23;
 		}
 		else
 		{
@@ -67,14 +67,15 @@ namespace Nz
 			// - MaterialPass (16bits)
 			// - VertexBuffer (8bits)
 			// - Skeleton (8bits)
+			// - Unused (3bits)
 
-			return (layerIndex & 0xFF)              << 60 |
-			       (matFlags)                       << 52 |
+			return (layerIndex & 0xFF)              << 56 |
+			       (matFlags)                       << 55 |
 			       (elementType & 0xF)              << 51 |
 			       (pipelineIndex & 0xFFFF)         << 35 |
-			       (materialInstanceIndex & 0xFFFF) << 23 |
-			       (vertexBufferIndex & 0xFF)       <<  7 |
-			       (skeletonIndex     & 0xFF);
+			       (materialInstanceIndex & 0xFFFF) << 19 |
+			       (vertexBufferIndex & 0xFF)       << 11 |
+			       (skeletonIndex     & 0xFF)       << 3;
 		}
 	}
 
