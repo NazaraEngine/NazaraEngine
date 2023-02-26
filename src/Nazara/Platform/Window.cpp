@@ -13,7 +13,6 @@
 namespace Nz
 {
 	Window::Window() :
-	m_impl(nullptr),
 	m_closeOnQuit(true),
 	m_waitForEvent(false)
 	{
@@ -25,6 +24,7 @@ namespace Nz
 	m_cursor(std::move(window.m_cursor)),
 	m_eventHandler(std::move(window.m_eventHandler)),
 	m_icon(std::move(window.m_icon)),
+	m_impl(std::move(window.m_impl)),
 	m_closed(window.m_closed),
 	m_closeOnQuit(window.m_closeOnQuit),
 	m_ownsWindow(window.m_ownsWindow),
@@ -116,18 +116,6 @@ namespace Nz
 		}
 
 		m_cursor.reset();
-	}
-
-	Vector2i Window::GetPosition() const
-	{
-		NazaraAssert(m_impl, "Window not created");
-		return m_position;
-	}
-
-	Vector2ui Window::GetSize() const
-	{
-		NazaraAssert(m_impl, "Window not created");
-		return m_size;
 	}
 
 	WindowStyleFlags Window::GetStyle() const
@@ -392,6 +380,7 @@ namespace Nz
 		m_cursor = std::move(window.m_cursor);
 		m_eventHandler = std::move(window.m_eventHandler);
 		m_icon = std::move(window.m_icon);
+		m_impl = std::move(window.m_impl);
 		m_closed = window.m_closed;
 		m_closeOnQuit = window.m_closeOnQuit;
 		m_ownsWindow = window.m_ownsWindow;
