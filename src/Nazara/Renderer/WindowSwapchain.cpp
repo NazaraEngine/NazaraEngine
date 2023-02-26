@@ -19,8 +19,10 @@ namespace Nz
 
 		if (m_window->IsValid())
 		{
-			m_swapchain = m_renderDevice->InstantiateSwapchain(window.GetHandle(), window.GetSize(), m_parameters);
 			m_isMinimized = window.IsMinimized();
+
+			if (!m_isMinimized)
+				m_swapchain = m_renderDevice->InstantiateSwapchain(window.GetHandle(), window.GetSize(), m_parameters);
 		}
 		else
 			m_isMinimized = true; //< consider it minimized so AcquireFrame returns no frame
@@ -45,7 +47,7 @@ namespace Nz
 
 	const Vector2ui& WindowSwapchain::GetSize() const
 	{
-		return m_swapchain->GetSize();
+		return (m_swapchain) ? m_swapchain->GetSize() : m_window->GetSize();
 	}
 
 	void WindowSwapchain::ConnectSignals()
@@ -53,9 +55,9 @@ namespace Nz
 		WindowEventHandler& windowEvents = m_window->GetEventHandler();
 		m_onCreated.Connect(windowEvents.OnCreated, [this](const WindowEventHandler* /*eventHandler*/)
 		{
-			// Recreate swapchain
-			m_swapchain = m_renderDevice->InstantiateSwapchain(m_window->GetHandle(), m_window->GetSize(), m_parameters);
 			m_isMinimized = m_window->IsMinimized();
+			if (!m_isMinimized)
+				m_swapchain = m_renderDevice->InstantiateSwapchain(m_window->GetHandle(), m_window->GetSize(), m_parameters);
 		});
 
 		m_onDestruction.Connect(windowEvents.OnDestruction, [this](const WindowEventHandler* /*eventHandler*/)
@@ -87,6 +89,9 @@ namespace Nz
 
 		m_onRestored.Connect(windowEvents.OnRestored, [this](const WindowEventHandler* /*eventHandler*/)
 		{
+			if (!m_swapchain)
+				m_swapchain = m_renderDevice->InstantiateSwapchain(m_window->GetHandle(), m_window->GetSize(), m_parameters);
+
 			m_isMinimized = false;
 		});
 	}

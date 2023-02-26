@@ -56,8 +56,8 @@ namespace Nz
 			inline CursorController& GetCursorController();
 			inline WindowEventHandler& GetEventHandler();
 			WindowHandle GetHandle() const;
-			Vector2i GetPosition() const;
-			Vector2ui GetSize() const;
+			const Vector2i& GetPosition() const;
+			const Vector2ui& GetSize() const;
 			WindowStyleFlags GetStyle() const;
 			std::string GetTitle() const;
 
