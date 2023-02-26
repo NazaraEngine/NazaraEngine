@@ -1,0 +1,5 @@
+.cxx
+build
+libs
+src/main/jniLibs
+src/main/res
