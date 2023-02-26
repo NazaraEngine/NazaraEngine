@@ -613,6 +613,7 @@ namespace Nz
 		}
 
 		m_swapchain = std::move(newSwapchain);
+		m_swapchainSize = { SafeCast<unsigned int>(extent.width), SafeCast<unsigned int>(extent.height) };
 
 		// Framebuffers
 		imageCount = m_swapchain.GetImageCount();
