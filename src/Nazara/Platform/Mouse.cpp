@@ -4,7 +4,12 @@
 
 #include <Nazara/Platform/Mouse.hpp>
 #include <Nazara/Platform/Window.hpp>
+
+#ifdef NAZARA_PLATFORM_ANDROID
+#include <Nazara/Platform/Android/InputImpl.hpp>
+#else
 #include <Nazara/Platform/SDL3/InputImpl.hpp>
+#endif
 
 namespace Nz
 {

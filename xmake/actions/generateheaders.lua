@@ -66,7 +66,20 @@ on_run(function ()
 				Name = "Nazara" .. moduleName .. " systems",
 				SearchDir = modulePath .. "/Systems",
 				Target = modulePath .. "/Systems.hpp"
-			}	
+			}
+		end
+
+		-- Android-specific headers
+		if os.isdir(modulePath .. "/Android") then
+			paths[moduleName].Excludes["Android.hpp"] = { Define = "NAZARA_PLATFORM_ANDROID" }
+			paths[moduleName .. "_Android"] = {
+				Excludes = table.copy(excludedFiles),
+				Header = head,
+				HeaderGuard = "NAZARA_" .. moduleName:upper() .. "_ANDROID_HPP",
+				Name = "Nazara" .. moduleName .. " android-specific",
+				SearchDir = modulePath .. "/Android",
+				Target = modulePath .. "/Android.hpp"
+			}
 		end
 	end
 

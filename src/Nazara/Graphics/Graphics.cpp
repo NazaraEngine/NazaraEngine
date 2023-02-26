@@ -29,6 +29,10 @@
 #include <array>
 #include <stdexcept>
 
+#ifdef NAZARA_PLATFORM_ANDROID
+#include <Nazara/Core/Android/AndroidActivity.hpp>
+#endif
+
 namespace Nz
 {
 	namespace
@@ -49,6 +53,10 @@ namespace Nz
 	m_preferredDepthStencilFormat(PixelFormat::Undefined)
 	{
 		Renderer* renderer = Renderer::Instance();
+
+#ifdef NAZARA_PLATFORM_ANDROID
+		AndroidActivity::Instance()->Poll();
+#endif
 
 		const std::vector<RenderDeviceInfo>& renderDeviceInfo = renderer->QueryRenderDevices();
 		if (renderDeviceInfo.empty())
@@ -106,6 +114,10 @@ namespace Nz
 		m_materialInstanceLoader.RegisterLoader(Loaders::GetMaterialInstanceLoader_Texture()); // texture to material loader
 		m_modelLoader.RegisterLoader(Loaders::GetModelLoader_Mesh());
 		m_pipelinePassListLoader.RegisterLoader(Loaders::GetPipelinePassListLoader()); // texture to material loader
+
+#ifdef NAZARA_PLATFORM_ANDROID
+		AndroidActivity::Instance()->Poll();
+#endif
 	}
 
 	Graphics::~Graphics()

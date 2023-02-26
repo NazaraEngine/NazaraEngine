@@ -19,7 +19,7 @@ namespace Nz
 	class CursorImpl
 	{
 		public:
-			CursorImpl(const Image& image, const Vector2i& hotSpot);
+			CursorImpl(const Image& cursor, const Vector2i& hotSpot);
 			CursorImpl(SystemCursor cursor);
 			CursorImpl(const CursorImpl&) = delete;
 			CursorImpl(CursorImpl&&) noexcept = default;

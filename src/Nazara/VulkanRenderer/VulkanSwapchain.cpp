@@ -581,6 +581,11 @@ namespace Nz
 			id layer = CreateAndAttachMetalLayer(windowHandle.cocoa.window);
 			success = m_surface.Create(layer);
 		}
+#elif defined(NAZARA_PLATFORM_ANDROID)
+		{
+			NazaraAssert(windowHandle.type == WindowBackend::Android, "expected android window");
+			success = m_surface.Create(static_cast<ANativeWindow*>(windowHandle.android.window));
+		}
 #else
 #error This OS is not supported by Vulkan
 #endif
