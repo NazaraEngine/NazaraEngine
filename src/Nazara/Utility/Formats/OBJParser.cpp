@@ -656,6 +656,8 @@ namespace Nz
 						m_currentLine.clear();
 				}
 
+				m_currentLine = Trim(m_currentLine);
+
 				if (m_currentLine.empty())
 					continue;
 			}
