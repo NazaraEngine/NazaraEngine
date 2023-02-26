@@ -82,17 +82,6 @@ namespace Nz
 
 	void Renderer::LoadBackend(const Config& config)
 	{
-		constexpr std::array<const char*, RenderAPICount> rendererPaths = {
-			NazaraRendererPrefix "NazaraDirect3DRenderer" NazaraRendererDebugSuffix, // Direct3D
-			NazaraRendererPrefix "NazaraMantleRenderer"   NazaraRendererDebugSuffix, // Mantle
-			NazaraRendererPrefix "NazaraMetalRenderer"    NazaraRendererDebugSuffix, // Metal
-			NazaraRendererPrefix "NazaraOpenGLRenderer"   NazaraRendererDebugSuffix, // OpenGL
-			NazaraRendererPrefix "NazaraOpenGLRenderer"   NazaraRendererDebugSuffix, // OpenGL_ES
-			NazaraRendererPrefix "NazaraVulkanRenderer"   NazaraRendererDebugSuffix, // Vulkan
-
-			nullptr // Unknown
-		};
-
 		struct RendererImplementations
 		{
 #ifdef NAZARA_RENDERER_EMBEDDEDBACKENDS
@@ -112,12 +101,6 @@ namespace Nz
 #ifdef NAZARA_RENDERER_EMBEDDEDBACKENDS
 		auto RegisterImpl = [&](RenderAPI api, auto ComputeScore, std::function<std::unique_ptr<RendererImpl>()> factory)
 		{
-			const char* rendererName = rendererPaths[UnderlyingCast(api)];
-			assert(rendererName);
-
-			std::filesystem::path fileName(rendererName);
-			fileName.replace_extension(NAZARA_DYNLIB_EXTENSION);
-
 			int score = ComputeScore();
 			if (score >= 0)
 			{
@@ -133,6 +116,17 @@ namespace Nz
 #endif
 
 #else
+		constexpr std::array<const char*, RenderAPICount> rendererPaths = {
+			NazaraRendererPrefix "NazaraDirect3DRenderer" NazaraRendererDebugSuffix, // Direct3D
+			NazaraRendererPrefix "NazaraMantleRenderer"   NazaraRendererDebugSuffix, // Mantle
+			NazaraRendererPrefix "NazaraMetalRenderer"    NazaraRendererDebugSuffix, // Metal
+			NazaraRendererPrefix "NazaraOpenGLRenderer"   NazaraRendererDebugSuffix, // OpenGL
+			NazaraRendererPrefix "NazaraOpenGLRenderer"   NazaraRendererDebugSuffix, // OpenGL_ES
+			NazaraRendererPrefix "NazaraVulkanRenderer"   NazaraRendererDebugSuffix, // Vulkan
+
+			nullptr // Unknown
+		};
+
 		auto RegisterImpl = [&](RenderAPI api, auto ComputeScore)
 		{
 			const char* rendererName = rendererPaths[UnderlyingCast(api)];
