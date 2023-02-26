@@ -84,7 +84,7 @@ namespace Nz
 	inline void PointLight::UpdateBoundingVolume()
 	{
 		Vector3f extent = Vector3f(m_radius, m_radius, m_radius) * Sqrt3<float>;
-		BoundingVolumef boundingVolume(Boxf(-extent, extent));
+		BoundingVolumef boundingVolume(Boxf(-extent * 0.5f, extent));
 		boundingVolume.Update(m_position);
 
 		Light::UpdateBoundingVolume(boundingVolume); //< will trigger OnLightDataInvalided
