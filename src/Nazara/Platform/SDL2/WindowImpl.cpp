@@ -220,6 +220,14 @@ namespace Nz
 
 		switch (wmInfo.subsystem)
 		{
+#if defined(SDL_VIDEO_DRIVER_ANDROID)
+			case SDL_SYSWM_ANDROID:
+			{
+				handle.type = WindowBackend::Android;
+				handle.android.window = wmInfo.info.android.window;
+				break;
+			}
+#endif
 #if defined(SDL_VIDEO_DRIVER_COCOA)
 			case SDL_SYSWM_COCOA:
 			{

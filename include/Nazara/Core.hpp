@@ -141,4 +141,10 @@
 
 #endif
 
+#ifdef NAZARA_PLATFORM_ANDROID
+
+#include <Nazara/Core/Android.hpp>
+
+#endif
+
 #endif // NAZARA_GLOBAL_CORE_HPP
