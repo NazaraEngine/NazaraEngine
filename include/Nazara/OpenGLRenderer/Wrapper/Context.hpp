@@ -199,6 +199,8 @@ namespace Nz::GL
 			static const Context* GetCurrentContext();
 			static bool SetCurrentContext(const Context* context);
 
+			NazaraSignal(OnContextDestruction, Context* /*context*/);
+
 		protected:
 			virtual bool Activate() const = 0;
 			virtual void Desactivate() const = 0;

@@ -7,9 +7,9 @@
 
 namespace Nz
 {
-	inline const Vector2ui& OpenGLFboFramebuffer::GetAttachmentSize(std::size_t i) const
+	inline Vector2ui OpenGLFboFramebuffer::GetAttachmentSize(std::size_t i) const
 	{
-		return m_attachmentSizes[i];
+		return Vector2ui(m_attachments[i]->GetSize());
 	}
 }
 

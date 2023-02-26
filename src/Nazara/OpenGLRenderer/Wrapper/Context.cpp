@@ -1023,6 +1023,8 @@ namespace Nz::GL
 
 	void Context::OnContextRelease()
 	{
+		OnContextDestruction(this);
+
 		m_blitFramebuffers.reset();
 		m_vaoCache.Clear();
 	}

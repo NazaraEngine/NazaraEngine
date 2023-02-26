@@ -11,29 +11,87 @@
 
 namespace Nz
 {
-	OpenGLFboFramebuffer::OpenGLFboFramebuffer(OpenGLDevice& device, const std::vector<std::shared_ptr<Texture>>& attachments) :
-	OpenGLFramebuffer(FramebufferType::Texture)
+	OpenGLFboFramebuffer::OpenGLFboFramebuffer(OpenGLDevice& device, std::vector<std::shared_ptr<Texture>> attachments) :
+	OpenGLFramebuffer(FramebufferType::Texture),
+	m_attachments(std::move(attachments)),
+	m_device(device)
 	{
-		if (!m_framebuffer.Create(device.GetReferenceContext()))
+		m_colorAttachmentCount = 0;
+		for (std::size_t i = 0; i < m_attachments.size(); ++i)
+		{
+			assert(m_attachments[i]);
+			Vector2ui textureSize = Vector2ui(m_attachments[i]->GetSize());
+			if (i == 0)
+				m_size = textureSize;
+			else
+				m_size.Minimize(textureSize);
+
+			PixelFormat textureFormat = m_attachments[i]->GetFormat();
+			if (PixelFormatInfo::GetContent(textureFormat) == PixelFormatContent::ColorRGBA)
+				m_colorAttachmentCount++;
+		}
+
+		// Create a framebuffer with the current context to ensure its completeness
+		const GL::Context* currentContext = GL::Context::GetCurrentContext();
+		if (!currentContext)
+		{
+			currentContext = &m_device.GetReferenceContext();
+			GL::Context::SetCurrentContext(currentContext);
+		}
+
+		CreateFramebuffer(*currentContext);
+	}
+
+	void OpenGLFboFramebuffer::Activate() const
+	{
+		const GL::Context* currentContext = GL::Context::GetCurrentContext();
+		if (!currentContext)
+		{
+			currentContext = &m_device.GetReferenceContext();
+			GL::Context::SetCurrentContext(currentContext);
+		}
+
+		GLuint fbo;
+		auto it = m_framebuffers.find(currentContext);
+		if (it == m_framebuffers.end())
+			fbo = CreateFramebuffer(*currentContext).GetObjectId();
+		else
+			fbo = it->second.framebuffer.GetObjectId();
+
+		currentContext->BindFramebuffer(GL::FramebufferTarget::Draw, fbo);
+	}
+
+	std::size_t OpenGLFboFramebuffer::GetColorBufferCount() const
+	{
+		return m_colorAttachmentCount;
+	}
+
+	const Vector2ui& OpenGLFboFramebuffer::GetSize() const
+	{
+		return m_size;
+	}
+
+	void OpenGLFboFramebuffer::UpdateDebugName(std::string_view name)
+	{
+		m_debugName = name;
+		for (auto&& [context, framebufferEntry] : m_framebuffers)
+			framebufferEntry.framebuffer.SetDebugName(m_debugName);
+	}
+
+	GL::Framebuffer& OpenGLFboFramebuffer::CreateFramebuffer(const GL::Context& context) const
+	{
+		GL::Framebuffer framebuffer;
+		if (!framebuffer.Create(context))
 			throw std::runtime_error("failed to create framebuffer object");
 
 		std::size_t colorAttachmentCount = 0;
 		bool hasDepth = false;
 		bool hasStencil = false;
 
-		m_attachmentSizes.resize(attachments.size());
-		for (std::size_t i = 0; i < attachments.size(); ++i)
+		for (std::size_t i = 0; i < m_attachments.size(); ++i)
 		{
-			assert(attachments[i]);
-			const OpenGLTexture& glTexture = static_cast<const OpenGLTexture&>(*attachments[i]);
-
-			Vector2ui textureSize = Vector2ui(glTexture.GetSize());
-			m_attachmentSizes[i] = textureSize;
-
-			if (i == 0)
-				m_size = textureSize;
-			else
-				m_size.Minimize(textureSize);
+			assert(m_attachments[i]);
+			const OpenGLTexture& glTexture = static_cast<const OpenGLTexture&>(*m_attachments[i]);
 
 			PixelFormat textureFormat = glTexture.GetFormat();
 
@@ -94,31 +152,34 @@ namespace Nz
 						assert(texViewInfo.baseArrayLayer < faceTargets.size());
 
 						GLenum texTarget = faceTargets[texViewInfo.baseArrayLayer];
-						m_framebuffer.Texture2D(GL_COLOR_ATTACHMENT0, texTarget, parentTexture.GetTexture().GetObjectId(), texViewInfo.baseMipLevel);
+						framebuffer.Texture2D(GL_COLOR_ATTACHMENT0, texTarget, parentTexture.GetTexture().GetObjectId(), texViewInfo.baseMipLevel);
 						break;
 					}
 
 					case ImageType::E1D:
 					case ImageType::E2D:
-						m_framebuffer.Texture2D(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, parentTexture.GetTexture().GetObjectId(), texViewInfo.baseMipLevel);
+						framebuffer.Texture2D(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, parentTexture.GetTexture().GetObjectId(), texViewInfo.baseMipLevel);
 						break;
 
 					case ImageType::E1D_Array:
 					case ImageType::E2D_Array:
 					case ImageType::E3D:
-						m_framebuffer.TextureLayer(GL_COLOR_ATTACHMENT0, parentTexture.GetTexture().GetObjectId(), texViewInfo.baseArrayLayer, texViewInfo.baseMipLevel);
+						framebuffer.TextureLayer(GL_COLOR_ATTACHMENT0, parentTexture.GetTexture().GetObjectId(), texViewInfo.baseArrayLayer, texViewInfo.baseMipLevel);
 						break;
 				}
 			}
 			else
-				m_framebuffer.Texture2D(attachment, ToOpenGL(OpenGLTexture::ToTextureTarget(glTexture.GetType())), glTexture.GetTexture().GetObjectId());
+				framebuffer.Texture2D(attachment, ToOpenGL(OpenGLTexture::ToTextureTarget(glTexture.GetType())), glTexture.GetTexture().GetObjectId());
 		}
 
-		GLenum status = m_framebuffer.Check();
+		GLenum status = framebuffer.Check();
 		if (status != GL_FRAMEBUFFER_COMPLETE)
 			throw std::runtime_error("invalid framebuffer: 0x" + NumberToString(status, 16));
 
-		m_colorAttachmentCount = colorAttachmentCount;
+		if (!m_debugName.empty())
+			framebuffer.SetDebugName(m_debugName);
+
+		assert(m_colorAttachmentCount == colorAttachmentCount);
 
 		if (m_colorAttachmentCount > 0)
 		{
@@ -126,34 +187,21 @@ namespace Nz
 			for (std::size_t i = 0; i < m_colorAttachmentCount; ++i)
 				fboDrawBuffers[i] = GLenum(GL_COLOR_ATTACHMENT0 + i);
 
-			m_framebuffer.DrawBuffers(SafeCast<GLsizei>(m_colorAttachmentCount), fboDrawBuffers.data());
+			framebuffer.DrawBuffers(SafeCast<GLsizei>(m_colorAttachmentCount), fboDrawBuffers.data());
 		}
 		else
 		{
 			GLenum buffer = GL_NONE;
-			m_framebuffer.DrawBuffers(1, &buffer);
+			framebuffer.DrawBuffers(1, &buffer);
 		}
-	}
 
-	void OpenGLFboFramebuffer::Activate() const
-	{
-		const GL::Context& context = m_framebuffer.EnsureContext();
+		auto& framebufferEntry = m_framebuffers[&context];
+		framebufferEntry.framebuffer = std::move(framebuffer);
+		framebufferEntry.onContextDestruction.Connect(context.OnContextDestruction, [this](GL::Context* context)
+		{
+			m_framebuffers.erase(context);
+		});
 
-		context.BindFramebuffer(GL::FramebufferTarget::Draw, m_framebuffer.GetObjectId());
-	}
-
-	std::size_t OpenGLFboFramebuffer::GetColorBufferCount() const
-	{
-		return m_colorAttachmentCount;
-	}
-
-	const Vector2ui& OpenGLFboFramebuffer::GetSize() const
-	{
-		return m_size;
-	}
-
-	void OpenGLFboFramebuffer::UpdateDebugName(std::string_view name)
-	{
-		m_framebuffer.SetDebugName(name);
+		return framebufferEntry.framebuffer;
 	}
 }

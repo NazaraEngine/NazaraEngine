@@ -9,9 +9,11 @@
 
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLFramebuffer.hpp>
+#include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Framebuffer.hpp>
 #include <memory>
 #include <vector>
+#include <unordered_map>
 
 namespace Nz
 {
@@ -22,14 +24,14 @@ namespace Nz
 	class NAZARA_OPENGLRENDERER_API OpenGLFboFramebuffer final : public OpenGLFramebuffer
 	{
 		public:
-			OpenGLFboFramebuffer(OpenGLDevice& device, const std::vector<std::shared_ptr<Texture>>& attachments);
+			OpenGLFboFramebuffer(OpenGLDevice& device, std::vector<std::shared_ptr<Texture>> attachments);
 			OpenGLFboFramebuffer(const OpenGLFboFramebuffer&) = delete;
-			OpenGLFboFramebuffer(OpenGLFboFramebuffer&&) noexcept = default;
+			OpenGLFboFramebuffer(OpenGLFboFramebuffer&&) = delete;
 			~OpenGLFboFramebuffer() = default;
 
 			void Activate() const override;
 
-			inline const Vector2ui& GetAttachmentSize(std::size_t i) const;
+			inline Vector2ui GetAttachmentSize(std::size_t i) const;
 
 			std::size_t GetColorBufferCount() const override;
 
@@ -41,9 +43,20 @@ namespace Nz
 			OpenGLFboFramebuffer& operator=(OpenGLFboFramebuffer&&) = delete;
 
 		private:
-			GL::Framebuffer m_framebuffer;
+			GL::Framebuffer& CreateFramebuffer(const GL::Context& context) const;
+
+			struct ContextFramebuffer
+			{
+				GL::Framebuffer framebuffer;
+
+				NazaraSlot(GL::Context, OnContextDestruction, onContextDestruction);
+			};
+
 			std::size_t m_colorAttachmentCount;
-			std::vector<Vector2ui> m_attachmentSizes;
+			std::string m_debugName;
+			std::vector<std::shared_ptr<Texture>> m_attachments;
+			mutable std::unordered_map<const GL::Context*, ContextFramebuffer> m_framebuffers;
+			OpenGLDevice& m_device;
 			Vector2ui m_size;
 	};
 }
