@@ -576,6 +576,12 @@ namespace Nz
 				swapchainPresentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
 		}
 
+		VkCompositeAlphaFlagBitsKHR compositeAlpha;
+		if (surfaceCapabilities.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR)
+			compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+		else
+			compositeAlpha = VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR;
+
 		// Ensure all operations on the device have been finished before recreating the swapchain (this can be avoided but is more complicated)
 		m_device.WaitForIdle();
 
@@ -593,7 +599,7 @@ namespace Nz
 			VK_SHARING_MODE_EXCLUSIVE,
 			0, nullptr,
 			surfaceCapabilities.currentTransform,
-			VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR,
+			compositeAlpha,
 			swapchainPresentMode,
 			VK_TRUE,
 			m_swapchain
