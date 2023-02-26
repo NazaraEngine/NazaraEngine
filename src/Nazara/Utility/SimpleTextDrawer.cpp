@@ -226,8 +226,10 @@ namespace Nz
 			Glyph glyph;
 			if (!whitespace)
 			{
+				int glyphRenderOrder = (m_outlineThickness > 0.f) ? 1 : 0;
+
 				int iAdvance;
-				if (!GenerateGlyph(glyph, character, 0.f, true, m_color, 0, &iAdvance))
+				if (!GenerateGlyph(glyph, character, 0.f, true, m_color, glyphRenderOrder, &iAdvance))
 					continue; // Glyph failed to load, just skip it (can't do much)
 
 				advance += float(iAdvance);
@@ -235,7 +237,7 @@ namespace Nz
 				if (m_outlineThickness > 0.f)
 				{
 					Glyph outlineGlyph;
-					if (GenerateGlyph(outlineGlyph, character, m_outlineThickness, false, m_outlineColor, -1, nullptr))
+					if (GenerateGlyph(outlineGlyph, character, m_outlineThickness, false, m_outlineColor, glyphRenderOrder - 1, nullptr))
 						m_glyphs.push_back(outlineGlyph);
 				}
 			}

@@ -19,7 +19,7 @@ namespace Nz
 	m_material(std::move(material))
 	{
 		if (!m_material)
-			m_material = Graphics::Instance()->GetDefaultMaterials().basicTransparent->Clone();
+			m_material = Graphics::Instance()->GetDefaultMaterials().basicTransparent;
 	}
 
 	void TextSprite::BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, std::vector<RenderElementOwner>& elements) const
@@ -44,7 +44,7 @@ namespace Nz
 			RenderIndices& indices = pair.second;
 
 			if (indices.count > 0)
-				elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer(), m_material, passFlags, renderPipeline, *elementData.worldInstance, vertexDeclaration, key.texture->shared_from_this(), indices.count, &m_vertices[indices.first * 4], *elementData.scissorBox));
+				elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer() + key.renderOrder, m_material, passFlags, renderPipeline, *elementData.worldInstance, vertexDeclaration, key.texture->shared_from_this(), indices.count, &m_vertices[indices.first * 4], *elementData.scissorBox));
 		}
 	}
 

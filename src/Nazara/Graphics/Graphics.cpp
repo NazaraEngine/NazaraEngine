@@ -315,8 +315,10 @@ namespace Nz
 		m_defaultMaterials.basicTransparent = m_defaultMaterials.basicMaterial->Instantiate();
 		m_defaultMaterials.basicTransparent->DisablePass(depthPassIndex);
 		m_defaultMaterials.basicTransparent->DisablePass(shadowPassIndex);
+		m_defaultMaterials.basicTransparent->UpdatePassFlags(forwardPassIndex, MaterialPassFlag::SortByDistance);
 		m_defaultMaterials.basicTransparent->UpdatePassStates(forwardPassIndex, [](RenderStates& renderStates)
 		{
+			renderStates.depthBuffer = true;
 			renderStates.depthWrite = false;
 			renderStates.blending = true;
 			renderStates.blend.modeColor = BlendEquation::Add;
