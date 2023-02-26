@@ -1,3 +1,5 @@
+----------------------- Modules -----------------------
+
 local rendererBackends = {
 	OpenGLRenderer = {
 		Deps = {"NazaraRenderer"},
@@ -151,7 +153,7 @@ local modules = {
 			if has_config("embed_rendererbackends") then
 				-- Embed backends code inside our own modules
 				add_defines("NAZARA_RENDERER_EMBEDDEDBACKENDS")
-				for name, module in pairs(rendererBackends) do
+				for name, module in table.orderpairs(rendererBackends) do
 					ModuleTargetConfig(name, module)
 				end
 			end
@@ -186,7 +188,12 @@ end
 
 NazaraModules = modules
 
+set_project("NazaraEngine")
+set_xmakever("2.7.3")
+
 includes("xmake/**.lua")
+
+----------------------- Global options -----------------------
 
 option("compile_shaders", { description = "Compile nzsl shaders into an includable binary version", default = true })
 option("embed_rendererbackends", { description = "Embed renderer backend code into NazaraRenderer instead of loading them dynamically", default = is_plat("wasm") or false })
@@ -197,41 +204,55 @@ option("override_runtime", { description = "Override vs runtime to MD in release
 option("usepch", { description = "Use precompiled headers to speedup compilation", default = false })
 option("unitybuild", { description = "Build the engine using unity build", default = false })
 
-set_project("NazaraEngine")
-set_xmakever("2.7.3")
+----------------------- Dependencies -----------------------
 
-add_requires("chipmunk2d", "dr_wav", "entt 3.11.1", "fmt", "frozen", "kiwisolver", "libflac", "libsdl >=2.26.0", "minimp3", "ordered_map", "stb")
+-- Nazara dependencies
+
+add_repositories("nazara-engine-repo https://github.com/NazaraEngine/xmake-repo")
+add_repositories("local-repo xmake-repo")
+add_requires("nazarautils")
+add_requires("nzsl", { debug = is_mode("debug"), configs = { with_symbols = not is_mode("release"), shared = not is_plat("wasm", "android") } })
+
+-- When cross-compiling, compile shaders using host shader compiler
+if is_plat("android", "iphoneos", "wasm") or (is_plat("mingw") and not is_host("windows")) then
+	if has_config("compile_shaders") then
+		add_requires("nzsl~host", { kind = "binary", host = true })
+	end
+end
+
+-- Thirdparty dependencies
+
+add_requires(
+	"chipmunk2d",
+	"dr_wav",
+	"entt 3.11.1",
+	"fmt",
+	"frozen",
+	"kiwisolver",
+	"libflac",
+	"libsdl >=2.26.0",
+	"minimp3",
+	"ordered_map",
+	"stb")
 add_requires("freetype", { configs = { bzip2 = true, png = true, woff2 = true, zlib = true, debug = is_mode("debug") } })
 add_requires("libvorbis", { configs = { with_vorbisenc = false } })
 
-if is_plat("wasm") then
-	-- Enable some flags for emscripten
-	add_cxflags("-sNO_DISABLE_EXCEPTION_CATCHING")
-	add_ldflags("-sNO_DISABLE_EXCEPTION_CATCHING", "-sALLOW_MEMORY_GROWTH", "-sWASM_BIGINT")
-	if is_mode("debug") then
-		add_ldflags("-sERROR_ON_WASM_CHANGES_AFTER_LINK", { force = true })
-	end
-
-	-- we can't use wasm nzsl to compile shaders
-	if has_config("compile_shaders") then
-		add_requires("nzsl~host", { kind = "binary" })
-	end
-else
-	-- these libraries have ports in emscripten
-	add_requires("openal-soft", { configs = { shared = true }})
-
-	-- these libraries aren't supported on emscripten
-	add_requires("efsw")
-	add_requires("newtondynamics3", { debug = is_plat("windows") and is_mode("debug") }) -- Newton doesn't like compiling in Debug on Linux
+if is_plat("linux", "android") then 
+	add_requires("libuuid")
 end
-
-add_repositories("nazara-engine-repo https://github.com/NazaraEngine/xmake-repo")
-add_requires("nazarautils")
-add_requires("nzsl", { debug = is_mode("debug"), configs = { with_symbols = not is_mode("release"), shared = not is_plat("wasm") } })
 
 if is_plat("linux") then
-	add_requires("libxext", "libuuid", "wayland")
+	add_requires("libxext", "wayland")
 end
+
+if not is_plat("wasm") then
+	-- these libraries aren't supported yet on emscripten
+	add_requires("efsw")
+	add_requires("newtondynamics3", { debug = is_plat("windows") and is_mode("debug") }) -- Newton doesn't like compiling in Debug on Linux
+	add_requires("openal-soft", { configs = { shared = true }})
+end
+
+----------------------- Global config -----------------------
 
 add_rules("mode.asan", "mode.tsan", "mode.coverage", "mode.debug", "mode.releasedbg", "mode.release")
 add_rules("plugin.vsxmake.autoupdate")
@@ -293,7 +314,15 @@ if is_plat("windows") then
 elseif is_plat("mingw") then
 	add_cxflags("-Og", "-Wa,-mbig-obj")
 	add_ldflags("-Wa,-mbig-obj")
+elseif is_plat("wasm") then
+	add_cxflags("-sNO_DISABLE_EXCEPTION_CATCHING")
+	add_ldflags("-sNO_DISABLE_EXCEPTION_CATCHING", "-sALLOW_MEMORY_GROWTH", "-sWASM_BIGINT")
+	if is_mode("debug") then
+		add_ldflags("-sERROR_ON_WASM_CHANGES_AFTER_LINK", { force = true })
+	end
 end
+
+----------------------- Targets -----------------------
 
 function ModuleTargetConfig(name, module)
 	add_defines("NAZARA_" .. name:upper() .. "_BUILD")
