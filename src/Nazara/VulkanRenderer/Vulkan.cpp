@@ -251,6 +251,8 @@ namespace Nz
 
 			if (availableExtensions.count(VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
 				enabledExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
+			else if (availableExtensions.count(VK_EXT_DEBUG_REPORT_EXTENSION_NAME))
+				enabledExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
 		}
 
 		std::vector<std::string> additionalExtensions; // Just to keep the String alive

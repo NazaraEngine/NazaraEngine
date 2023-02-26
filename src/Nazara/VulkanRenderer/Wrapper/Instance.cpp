@@ -7,6 +7,7 @@
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/VulkanRenderer/Utils.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/DebugReportCallbackEXT.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DebugUtilsMessengerEXT.hpp>
 #include <sstream>
 #include <Nazara/VulkanRenderer/Debug.hpp>
@@ -17,7 +18,7 @@ namespace Nz
 	{
 		namespace
 		{
-			VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback(
+			VKAPI_ATTR VkBool32 VKAPI_CALL DebugMessengerCallback(
 				VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
 				VkDebugUtilsMessageTypeFlagsEXT             messageTypes,
 				const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
@@ -77,10 +78,55 @@ namespace Nz
 
 				return VK_FALSE; //< Should the Vulkan call be aborted
 			}
+
+			VKAPI_ATTR VkBool32 VKAPI_CALL DebugReportCallback(
+				VkDebugReportFlagsEXT flags,
+				VkDebugReportObjectTypeEXT /*objectType*/,
+				uint64_t /*object*/,
+				size_t /*location*/,
+				int32_t messageCode,
+				const char* pLayerPrefix,
+				const char* pMessage,
+				void* /*pUserData*/)
+			{
+				std::stringstream ss;
+				ss << "Vulkan log: ";
+
+				if (flags & VK_DEBUG_REPORT_INFORMATION_BIT_EXT)
+					ss << "[Info]";
+
+				if (flags & VK_DEBUG_REPORT_WARNING_BIT_EXT)
+					ss << "[Warning]";
+
+				if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT)
+					ss << "[Error]";
+
+				if (flags & VK_DEBUG_REPORT_PERFORMANCE_WARNING_BIT_EXT)
+					ss << "[Performance]";
+
+				if (flags & VK_DEBUG_REPORT_DEBUG_BIT_EXT)
+					ss << "[Debug]";
+
+				ss << "[" << messageCode << "]";
+				if (pLayerPrefix)
+					ss << "[layer " << pLayerPrefix << "]";
+
+				ss << ": " << pMessage;
+
+				if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT)
+					NazaraError(ss.str());
+				else if (flags & VK_DEBUG_REPORT_WARNING_BIT_EXT)
+					NazaraWarning(ss.str());
+				else
+					NazaraNotice(ss.str());
+
+				return VK_FALSE; //< Should the Vulkan call be aborted
+			}
 		}
 
 		struct Instance::InternalData
 		{
+			DebugReportCallbackEXT debugCallback;
 			DebugUtilsMessengerEXT debugMessenger;
 		};
 
@@ -125,9 +171,12 @@ namespace Nz
 			{
 				ErrorFlags flags(ErrorMode::ThrowException, true);
 
-#define NAZARA_VULKANRENDERER_INSTANCE_EXT_BEGIN(ext) if (IsExtensionLoaded(#ext)) {
+#define NAZARA_VULKANRENDERER_INSTANCE_EXT_BEGIN(ext) if (IsExtensionLoaded(#ext)) { \
+				NazaraDebug(#ext " extension is supported");
 #define NAZARA_VULKANRENDERER_INSTANCE_EXT_END() }
-#define NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(func) func = reinterpret_cast<PFN_##func>(GetProcAddr(#func));
+#define NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(func) func = reinterpret_cast<PFN_##func>(GetProcAddr(#func)); \
+				if (!func) \
+					NazaraWarning("failed to get a function pointer for " #func " despite its being reported as supported");
 
 #define NAZARA_VULKANRENDERER_INSTANCE_CORE_EXT_FUNCTION(func, coreVersion, suffix, extName) \
 				if (m_apiVersion >= coreVersion)                                            \
@@ -226,24 +275,43 @@ namespace Nz
 		{
 			NazaraAssert(m_internalData, "Instance must be created before callbacks are installed");
 
-			if (!Vk::DebugUtilsMessengerEXT::IsSupported(*this))
+			if (Vk::DebugUtilsMessengerEXT::IsSupported(*this))
 			{
-				NazaraWarning(VK_EXT_DEBUG_UTILS_EXTENSION_NAME " is not supported, cannot install debug message callback");
+				VkDebugUtilsMessengerCreateInfoEXT callbackCreateInfo = {};
+				callbackCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+				callbackCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT;
+				callbackCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+				callbackCreateInfo.pfnUserCallback = &DebugMessengerCallback;
+				callbackCreateInfo.pUserData = this;
+
+				if (!m_internalData->debugMessenger.Create(*this, callbackCreateInfo))
+				{
+					NazaraWarning("failed to install debug message callback");
+					return;
+				}
+			}
+			else if (Vk::DebugReportCallbackEXT::IsSupported(*this))
+			{
+				NazaraWarning(VK_EXT_DEBUG_UTILS_EXTENSION_NAME " is not supported, falling back on " VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
+
+				VkDebugReportCallbackCreateInfoEXT callbackCreateInfo = {};
+				callbackCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CREATE_INFO_EXT;
+				callbackCreateInfo.flags = VK_DEBUG_REPORT_WARNING_BIT_EXT | VK_DEBUG_REPORT_ERROR_BIT_EXT | VK_DEBUG_REPORT_INFORMATION_BIT_EXT;
+				callbackCreateInfo.pfnCallback = &DebugReportCallback;
+				callbackCreateInfo.pUserData = this;
+
+				if (!m_internalData->debugCallback.Create(*this, callbackCreateInfo))
+				{
+					NazaraWarning("failed to install debug message callback");
+					return;
+				}
+			}
+			else
+			{
+				NazaraWarning(VK_EXT_DEBUG_UTILS_EXTENSION_NAME " nor " VK_EXT_DEBUG_REPORT_EXTENSION_NAME " are not supported, cannot install debug message callback");
 				return;
 			}
 
-			VkDebugUtilsMessengerCreateInfoEXT callbackCreateInfo = {};
-			callbackCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-			callbackCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT;
-			callbackCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-			callbackCreateInfo.pfnUserCallback = &DebugCallback;
-			callbackCreateInfo.pUserData = this;
-
-			if (!m_internalData->debugMessenger.Create(*this, callbackCreateInfo))
-			{
-				NazaraWarning("failed to install debug message callback");
-				return;
-			}
 		}
 
 		void Instance::DestroyInstance()

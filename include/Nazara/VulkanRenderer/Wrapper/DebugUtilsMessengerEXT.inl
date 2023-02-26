@@ -5,24 +5,21 @@
 #include <Nazara/VulkanRenderer/Wrapper/DebugUtilsMessengerEXT.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
-namespace Nz
+namespace Nz::Vk
 {
-	namespace Vk
+	inline bool DebugUtilsMessengerEXT::IsSupported(Instance& instance)
 	{
-		inline bool DebugUtilsMessengerEXT::IsSupported(Instance& instance)
-		{
-			return instance.vkCreateDebugUtilsMessengerEXT != nullptr;
-		}
+		return instance.vkCreateDebugUtilsMessengerEXT != nullptr;
+	}
 
-		inline VkResult DebugUtilsMessengerEXT::CreateHelper(Instance& instance, const VkDebugUtilsMessengerCreateInfoEXT* createInfo, const VkAllocationCallbacks* allocator, VkDebugUtilsMessengerEXT* handle)
-		{
-			return instance.vkCreateDebugUtilsMessengerEXT(instance, createInfo, allocator, handle);
-		}
+	inline VkResult DebugUtilsMessengerEXT::CreateHelper(Instance& instance, const VkDebugUtilsMessengerCreateInfoEXT* createInfo, const VkAllocationCallbacks* allocator, VkDebugUtilsMessengerEXT* handle)
+	{
+		return instance.vkCreateDebugUtilsMessengerEXT(instance, createInfo, allocator, handle);
+	}
 
-		inline void DebugUtilsMessengerEXT::DestroyHelper(Instance& instance, VkDebugUtilsMessengerEXT handle, const VkAllocationCallbacks* allocator)
-		{
-			return instance.vkDestroyDebugUtilsMessengerEXT(instance, handle, allocator);
-		}
+	inline void DebugUtilsMessengerEXT::DestroyHelper(Instance& instance, VkDebugUtilsMessengerEXT handle, const VkAllocationCallbacks* allocator)
+	{
+		return instance.vkDestroyDebugUtilsMessengerEXT(instance, handle, allocator);
 	}
 }
 

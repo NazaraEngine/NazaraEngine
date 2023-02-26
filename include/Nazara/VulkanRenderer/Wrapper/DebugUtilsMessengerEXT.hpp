@@ -10,30 +10,27 @@
 #include <Nazara/Prerequisites.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/InstanceObject.hpp>
 
-namespace Nz 
+namespace Nz::Vk
 {
-	namespace Vk
+	class DebugUtilsMessengerEXT : public InstanceObject<DebugUtilsMessengerEXT, VkDebugUtilsMessengerEXT, VkDebugUtilsMessengerCreateInfoEXT, VK_OBJECT_TYPE_DEBUG_UTILS_MESSENGER_EXT>
 	{
-		class DebugUtilsMessengerEXT : public InstanceObject<DebugUtilsMessengerEXT, VkDebugUtilsMessengerEXT, VkDebugUtilsMessengerCreateInfoEXT, VK_OBJECT_TYPE_DEBUG_UTILS_MESSENGER_EXT>
-		{
-			friend InstanceObject;
+		friend InstanceObject;
 
-			public:
-				DebugUtilsMessengerEXT() = default;
-				DebugUtilsMessengerEXT(const DebugUtilsMessengerEXT&) = delete;
-				DebugUtilsMessengerEXT(DebugUtilsMessengerEXT&&) = default;
-				~DebugUtilsMessengerEXT() = default;
+		public:
+			DebugUtilsMessengerEXT() = default;
+			DebugUtilsMessengerEXT(const DebugUtilsMessengerEXT&) = delete;
+			DebugUtilsMessengerEXT(DebugUtilsMessengerEXT&&) = default;
+			~DebugUtilsMessengerEXT() = default;
 
-				DebugUtilsMessengerEXT& operator=(const DebugUtilsMessengerEXT&) = delete;
-				DebugUtilsMessengerEXT& operator=(DebugUtilsMessengerEXT&&) = delete;
+			DebugUtilsMessengerEXT& operator=(const DebugUtilsMessengerEXT&) = delete;
+			DebugUtilsMessengerEXT& operator=(DebugUtilsMessengerEXT&&) = delete;
 
-				static inline bool IsSupported(Instance& instance);
+			static inline bool IsSupported(Instance& instance);
 
-			private:
-				static inline VkResult CreateHelper(Instance& instance, const VkDebugUtilsMessengerCreateInfoEXT* createInfo, const VkAllocationCallbacks* allocator, VkDebugUtilsMessengerEXT* handle);
-				static inline void DestroyHelper(Instance& instance, VkDebugUtilsMessengerEXT handle, const VkAllocationCallbacks* allocator);
-		};
-	}
+		private:
+			static inline VkResult CreateHelper(Instance& instance, const VkDebugUtilsMessengerCreateInfoEXT* createInfo, const VkAllocationCallbacks* allocator, VkDebugUtilsMessengerEXT* handle);
+			static inline void DestroyHelper(Instance& instance, VkDebugUtilsMessengerEXT handle, const VkAllocationCallbacks* allocator);
+	};
 }
 
 #include <Nazara/VulkanRenderer/Wrapper/DebugUtilsMessengerEXT.inl>
