@@ -23,7 +23,6 @@ android {
 
                 arguments '--assimp=n', '--embed_rendererbackends=y', '--embed_plugins=y', '--link_openal=y'
 
-                buildMode 'debug'
                 logLevel 'verbose'
 
                 abiFilters 'armeabi-v7a', 'arm64-v8a'
@@ -37,10 +36,20 @@ android {
         debug {
             applicationIdSuffix ".debug"
             debuggable true
+            externalNativeBuild {
+                xmake {
+                    buildMode 'debug'
+                }
+            }
         }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            externalNativeBuild {
+                xmake {
+                    buildMode 'release'
+                }
+            }
         }
     }
     compileOptions {
