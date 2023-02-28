@@ -17,7 +17,7 @@ int main()
 	Nz::Application<Nz::Graphics> app(rendererConfig);
 
 	auto& windowing = app.AddComponent<Nz::AppWindowingComponent>();
-	Nz::Window& mainWindow = windowing.CreateWindow(Nz::VideoMode(1920, 1080), "Android Test");
+	Nz::Window& mainWindow = windowing.CreateWindow(Nz::VideoMode(1920, 1080), "Hello Android");
 
 	auto& ecs = app.AddComponent<Nz::AppEntitySystemComponent>();
 	auto& world = ecs.AddWorld<Nz::EnttWorld>();
@@ -53,7 +53,7 @@ int main()
 
 		Nz::Boxf textBox = textSprite->GetAABB();
 		Nz::Vector2ui windowSize = mainWindow.GetSize();
-		nodeComponent.SetPosition(Nz::Vector3f::Forward() * 1.f + Nz::Vector3f::Left() * 2.f + Nz::Vector3f::Down() * 0.25f);
+		nodeComponent.SetPosition(Nz::Vector3f::Forward() * 1.f + Nz::Vector3f::Left() * 1.f + Nz::Vector3f::Down() * 0.25f);
 		nodeComponent.SetRotation(Nz::EulerAnglesf(0.f, 45.f, 0.f));
 	}
 
@@ -72,14 +72,14 @@ int main()
 	std::shared_ptr<Nz::GraphicalMesh> gfxMesh = Nz::GraphicalMesh::BuildFromMesh(*sphereMesh);
 
 	// Textures
-	std::shared_ptr<Nz::Material> material = Nz::Graphics::Instance()->GetDefaultMaterials().basicMaterial;
+	std::shared_ptr<Nz::Material> material = Nz::Graphics::Instance()->GetDefaultMaterials().phongMaterial;
 
 	std::mt19937 rd;
 	std::uniform_real_distribution<float> forwardDis(1.5f, 4.f);
 	std::uniform_real_distribution<float> posDis(-2.f, 2.f);
 	std::uniform_real_distribution<float> colorDis(0.f, 1.f);
 
-	for (std::size_t i = 0; i < 300; ++i)
+	for (std::size_t i = 0; i < 500; ++i)
 	{
 		entt::handle sphereEntity = world.CreateEntity();
 		{
@@ -99,6 +99,15 @@ int main()
 		}
 	}
 
+	entt::handle lightEntity = world.CreateEntity();
+	{
+		auto& nodeComponent = lightEntity.emplace<Nz::NodeComponent>();
+		nodeComponent.SetPosition(Nz::Vector3f::Forward() * 2.f);
+
+		auto& lightComponent = lightEntity.emplace<Nz::LightComponent>();
+		lightComponent.AddLight<Nz::PointLight>();
+	}
+
 	/*mainWindow.GetEventHandler().OnMouseButtonPressed.Connect([&](const Nz::WindowEventHandler*, const Nz::WindowEvent::MouseButtonEvent& event)
 	{
 		auto& nodeComponent = textEntity.get<Nz::NodeComponent>();
@@ -115,7 +124,7 @@ int main()
 		if (counter >= Nz::Time::Second())
 		{
 			textDrawer.SetText("Hello Android!\n(" + std::to_string(fps) + " FPS)");
-			textSprite->Update(textDrawer);
+			textSprite->Update(textDrawer, 0.01f);
 
 			counter -= Nz::Time::Second();
 			fps = 0;
