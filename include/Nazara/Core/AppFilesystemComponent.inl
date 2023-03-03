@@ -53,30 +53,6 @@ namespace Nz
 		return LoadImpl<T>(assetPath, params);
 	}
 
-	inline const VirtualDirectoryPtr& AppFilesystemComponent::Mount(std::string_view name, std::filesystem::path filepath)
-	{
-		return Mount(name, std::make_shared<VirtualDirectory>(std::move(filepath)));
-	}
-
-	inline const VirtualDirectoryPtr& AppFilesystemComponent::Mount(std::string_view name, VirtualDirectoryPtr directory)
-	{
-		if (name.empty())
-		{
-			m_rootDirectory = std::move(directory);
-			return m_rootDirectory;
-		}
-
-		if (!m_rootDirectory)
-			m_rootDirectory = std::make_shared<VirtualDirectory>();
-
-		return m_rootDirectory->StoreDirectory(name, std::move(directory)).directory;
-	}
-
-	inline void AppFilesystemComponent::MountDefaultDirectories()
-	{
-		m_rootDirectory = std::make_shared<VirtualDirectory>(std::filesystem::current_path());
-	}
-
 	template<typename T>
 	std::shared_ptr<T> AppFilesystemComponent::Open(std::string_view assetPath)
 	{
@@ -154,19 +130,9 @@ namespace Nz
 					NazaraError(std::string(assetPath) + " is a directory");
 					return false;
 				}
-				else if constexpr (std::is_same_v<Param, VirtualDirectory::DataPointerEntry>)
+				else if constexpr (std::is_same_v<Param, VirtualDirectory::FileEntry>)
 				{
-					resource = T::LoadFromMemory(arg.data, arg.size, params);
-					return true;
-				}
-				else if constexpr (std::is_same_v<Param, VirtualDirectory::FileContentEntry>)
-				{
-					resource = T::LoadFromMemory(&arg.data[0], arg.data.size(), params);
-					return true;
-				}
-				else if constexpr (std::is_same_v<Param, VirtualDirectory::PhysicalFileEntry>)
-				{
-					resource = T::LoadFromFile(arg.filePath, params);
+					resource = T::LoadFromStream(*arg.stream, params);
 					return true;
 				}
 				else
@@ -195,19 +161,9 @@ namespace Nz
 					NazaraError(std::string(assetPath) + " is a directory");
 					return false;
 				}
-				else if constexpr (std::is_same_v<Param, VirtualDirectory::DataPointerEntry>)
+				else if constexpr (std::is_same_v<Param, VirtualDirectory::FileEntry>)
 				{
-					resource = T::OpenFromMemory(arg.data, arg.size, params);
-					return true;
-				}
-				else if constexpr (std::is_same_v<Param, VirtualDirectory::FileContentEntry>)
-				{
-					resource = T::OpenFromMemory(&arg.data[0], arg.data.size(), params);
-					return true;
-				}
-				else if constexpr (std::is_same_v<Param, VirtualDirectory::PhysicalFileEntry>)
-				{
-					resource = T::OpenFromFile(arg.filePath, params);
+					resource = T::OpenFromStream(*arg.stream, params);
 					return true;
 				}
 				else

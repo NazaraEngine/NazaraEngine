@@ -2,6 +2,7 @@
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Core/VirtualDirectory.hpp>
+#include <Nazara/Core/VirtualDirectoryFilesystemResolver.hpp>
 #include <Nazara/Core/Hash/SHA256.hpp>
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
@@ -65,12 +66,12 @@ TEST_CASE("VirtualDirectory", "[Core][VirtualDirectory]")
 
 			CHECK(virtualDir->GetEntry("Foo", [](const Nz::VirtualDirectory::Entry& entry)
 			{
-				return std::holds_alternative<Nz::VirtualDirectory::VirtualDirectoryEntry>(entry);
+				return std::holds_alternative<Nz::VirtualDirectory::DirectoryEntry>(entry);
 			}));
 		
 			CHECK(virtualDir->GetEntry("Foo/Bar", [](const Nz::VirtualDirectory::Entry& entry)
 			{
-				return std::holds_alternative<Nz::VirtualDirectory::VirtualDirectoryEntry>(entry);
+				return std::holds_alternative<Nz::VirtualDirectory::DirectoryEntry>(entry);
 			}));
 		
 			CHECK_FALSE(virtualDir->GetEntry("Foo/Bar/File.bin", [](const Nz::VirtualDirectory::Entry& /*entry*/)
@@ -82,35 +83,28 @@ TEST_CASE("VirtualDirectory", "[Core][VirtualDirectory]")
 		std::mt19937 randGen(std::random_device{}());
 		auto GenerateRandomData = [&]
 		{
-			std::vector<Nz::UInt8> randomData;
+			Nz::ByteArray randomData;
 			for (std::size_t i = 0; i < 256; ++i)
 			{
 				unsigned int data = randGen();
-				randomData.push_back(Nz::SafeCast<Nz::UInt8>((data & 0x000000FF) >> 0));
-				randomData.push_back(Nz::SafeCast<Nz::UInt8>((data & 0x0000FF00) >> 8));
-				randomData.push_back(Nz::SafeCast<Nz::UInt8>((data & 0x00FF0000) >> 16));
-				randomData.push_back(Nz::SafeCast<Nz::UInt8>((data & 0xFF000000) >> 24));
+				randomData.PushBack(Nz::SafeCast<Nz::UInt8>((data & 0x000000FF) >> 0));
+				randomData.PushBack(Nz::SafeCast<Nz::UInt8>((data & 0x0000FF00) >> 8));
+				randomData.PushBack(Nz::SafeCast<Nz::UInt8>((data & 0x00FF0000) >> 16));
+				randomData.PushBack(Nz::SafeCast<Nz::UInt8>((data & 0xFF000000) >> 24));
 			}
 
 			return randomData;
 		};
 
-		auto CheckFile = [&](std::string_view path, const std::vector<Nz::UInt8>& expectedData)
+		auto CheckFile = [&](std::string_view path, const Nz::ByteArray& expectedData)
 		{
-			return virtualDir->GetEntry(path, [&](const Nz::VirtualDirectory::Entry& entry)
+			return virtualDir->GetFileContent(path, [&](const void* data, std::size_t length)
 			{
-				if (!std::holds_alternative<Nz::VirtualDirectory::FileContentEntry>(entry))
-				{
-					FAIL("Target is not a file");
-					return false;
-				}
-
-				const auto& contentEntry = std::get<Nz::VirtualDirectory::FileContentEntry>(entry);
-				return std::equal(expectedData.begin(), expectedData.end(), contentEntry.data.begin(), contentEntry.data.end());
+				return length == expectedData.size() && std::memcmp(data, &expectedData[0], length) == 0;
 			});
 		};
 
-		auto CheckFileContent = [&](std::string_view path, const std::vector<Nz::UInt8>& expectedData)
+		auto CheckFileContent = [&](std::string_view path, const Nz::ByteArray& expectedData)
 		{
 			return virtualDir->GetFileContent(path, [&](const void* data, std::size_t size)
 			{
@@ -120,7 +114,7 @@ TEST_CASE("VirtualDirectory", "[Core][VirtualDirectory]")
 					return false;
 				}
 
-				return std::memcmp(expectedData.data(), data, expectedData.size()) == 0;
+				return std::memcmp(&expectedData[0], data, expectedData.size()) == 0;
 			});
 		};
 
@@ -153,7 +147,7 @@ TEST_CASE("VirtualDirectory", "[Core][VirtualDirectory]")
 			struct File
 			{
 				std::string path;
-				std::vector<Nz::UInt8> data;
+				Nz::ByteArray data;
 			};
 
 			std::vector<File> files;
@@ -188,7 +182,7 @@ TEST_CASE("VirtualDirectory", "[Core][VirtualDirectory]")
 
 	SECTION("Accessing filesystem using a VirtualDirectory")
 	{
-		std::shared_ptr<Nz::VirtualDirectory> resourceDir = std::make_shared<Nz::VirtualDirectory>(GetAssetDir());
+		std::shared_ptr<Nz::VirtualDirectory> resourceDir = std::make_shared<Nz::VirtualDirectory>(std::make_shared<Nz::VirtualDirectoryFilesystemResolver>(GetAssetDir()));
 
 		WHEN("Iterating, it's not empty")
 		{
@@ -199,7 +193,7 @@ TEST_CASE("VirtualDirectory", "[Core][VirtualDirectory]")
 				CHECK_FALSE(name == "..");
 
 				INFO("Only physical files and directories are expected");
-				CHECK((std::holds_alternative<Nz::VirtualDirectory::PhysicalDirectoryEntry>(entry) || std::holds_alternative<Nz::VirtualDirectory::PhysicalFileEntry>(entry)));
+				CHECK((std::holds_alternative<Nz::VirtualDirectory::DirectoryEntry>(entry) || std::holds_alternative<Nz::VirtualDirectory::FileEntry>(entry)));
 				empty = false;
 			});
 
@@ -210,16 +204,14 @@ TEST_CASE("VirtualDirectory", "[Core][VirtualDirectory]")
 		{
 			return dir->GetEntry(filepath, [&](const Nz::VirtualDirectory::Entry& entry)
 			{
-				REQUIRE(std::holds_alternative<Nz::VirtualDirectory::PhysicalFileEntry>(entry));
+				REQUIRE(std::holds_alternative<Nz::VirtualDirectory::FileEntry>(entry));
 
-				const auto& physFileEntry = std::get<Nz::VirtualDirectory::PhysicalFileEntry>(entry);
-
-				Nz::File file(physFileEntry.filePath);
+				const auto& physFileEntry = std::get<Nz::VirtualDirectory::FileEntry>(entry);
 
 				Nz::SHA256Hash hash;
-				WHEN("We compute " << hash.GetHashName() << " of " << physFileEntry.filePath << " file")
+				WHEN("We compute " << hash.GetHashName() << " of " << physFileEntry.stream->GetPath() << " file")
 				{
-					CHECK(Nz::ToUpper(Nz::ComputeHash(hash, file).ToHex()) == expectedHash);
+					CHECK(Nz::ToUpper(Nz::ComputeHash(hash, *physFileEntry.stream).ToHex()) == expectedHash);
 				}
 				return true;
 			});
@@ -258,8 +250,8 @@ TEST_CASE("VirtualDirectory", "[Core][VirtualDirectory]")
 
 			auto CheckOurselves = [&](const auto& entry)
 			{
-				REQUIRE(std::holds_alternative<Nz::VirtualDirectory::VirtualDirectoryEntry>(entry));
-				const auto& dirEntry = std::get<Nz::VirtualDirectory::VirtualDirectoryEntry>(entry);
+				REQUIRE(std::holds_alternative<Nz::VirtualDirectory::DirectoryEntry>(entry));
+				const auto& dirEntry = std::get<Nz::VirtualDirectory::DirectoryEntry>(entry);
 				return dirEntry.directory == resourceDir;
 			};
 
@@ -272,7 +264,7 @@ TEST_CASE("VirtualDirectory", "[Core][VirtualDirectory]")
 		}
 		AND_THEN("Overriding the physical file with another one")
 		{
-			resourceDir->StoreFile("Logo.png", GetAssetDir() / "Audio/ambience.ogg");
+			resourceDir->StoreFile("Logo.png", std::make_shared<Nz::File>(GetAssetDir() / "Audio/ambience.ogg", Nz::OpenMode::ReadOnly));
 
 			CHECK(CheckFileHash(resourceDir, "Audio/ambience.ogg", "49C486F44E43F023D54C9F375D902C21375DDB2748D3FA1863C9581D30E17F94"));
 			CHECK(CheckFileHash(resourceDir, "Logo.png", "49C486F44E43F023D54C9F375D902C21375DDB2748D3FA1863C9581D30E17F94"));
@@ -289,7 +281,7 @@ TEST_CASE("VirtualDirectory", "[Core][VirtualDirectory]")
 				{
 					if (entryName == "GIF")
 					{
-						CHECK(std::holds_alternative<Nz::VirtualDirectory::PhysicalDirectoryEntry>(entry));
+						CHECK(std::holds_alternative<Nz::VirtualDirectory::DirectoryEntry>(entry));
 						found = true;
 					}
 				});
@@ -300,7 +292,7 @@ TEST_CASE("VirtualDirectory", "[Core][VirtualDirectory]")
 
 		WHEN("Testing uproot escape")
 		{
-			std::shared_ptr<Nz::VirtualDirectory> engineDir = std::make_shared<Nz::VirtualDirectory>(GetAssetDir() / "Audio");
+			std::shared_ptr<Nz::VirtualDirectory> engineDir = std::make_shared<Nz::VirtualDirectory>(std::make_shared<Nz::VirtualDirectoryFilesystemResolver>(GetAssetDir() / "Audio"));
 
 			CHECK_FALSE(engineDir->IsUprootAllowed());
 

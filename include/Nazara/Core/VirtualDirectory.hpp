@@ -8,8 +8,8 @@
 #define NAZARA_CORE_VIRTUALDIRECTORY_HPP
 
 #include <Nazara/Prerequisites.hpp>
-#include <filesystem>
-#include <map>
+#include <Nazara/Core/Stream.hpp>
+#include <Nazara/Utils/FunctionRef.hpp>
 #include <memory>
 #include <optional>
 #include <string>
@@ -19,23 +19,20 @@
 namespace Nz
 {
 	class VirtualDirectory;
+	class VirtualDirectoryResolver;
 
 	using VirtualDirectoryPtr = std::shared_ptr<VirtualDirectory>;
 
 	class VirtualDirectory : public std::enable_shared_from_this<VirtualDirectory>
 	{
 		public:
-			struct DataPointerEntry;
 			struct DirectoryEntry;
-			struct FileContentEntry;
-			struct PhysicalDirectoryEntry;
-			struct PhysicalFileEntry;
-			struct VirtualDirectoryEntry;
+			struct FileEntry;
 
-			using Entry = std::variant<DataPointerEntry, FileContentEntry, PhysicalDirectoryEntry, PhysicalFileEntry, VirtualDirectoryEntry>;
+			using Entry = std::variant<DirectoryEntry, FileEntry>;
 
 			inline VirtualDirectory(std::weak_ptr<VirtualDirectory> parentDirectory = {});
-			inline VirtualDirectory(std::filesystem::path physicalPath, std::weak_ptr<VirtualDirectory> parentDirectory = {});
+			inline VirtualDirectory(std::shared_ptr<VirtualDirectoryResolver> resolver, std::weak_ptr<VirtualDirectory> parentDirectory = {});
 			VirtualDirectory(const VirtualDirectory&) = delete;
 			VirtualDirectory(VirtualDirectory&&) = delete;
 			~VirtualDirectory() = default;
@@ -49,33 +46,23 @@ namespace Nz
 			template<typename F> bool GetDirectoryEntry(std::string_view path, F&& callback);
 			template<typename F> bool GetEntry(std::string_view path, F&& callback);
 			template<typename F> bool GetFileContent(std::string_view path, F&& callback);
+			inline const std::shared_ptr<VirtualDirectoryResolver>& GetResolver() const;
 
 			inline bool IsUprootAllowed() const;
 
-			inline VirtualDirectoryEntry& StoreDirectory(std::string_view path, VirtualDirectoryPtr directory);
-			inline PhysicalDirectoryEntry& StoreDirectory(std::string_view path, std::filesystem::path directoryPath);
-			inline FileContentEntry& StoreFile(std::string_view path, std::vector<UInt8> file);
-			inline PhysicalFileEntry& StoreFile(std::string_view path, std::filesystem::path filePath);
-			inline DataPointerEntry& StoreFile(std::string_view path, const void* data, std::size_t size);
+			inline DirectoryEntry& StoreDirectory(std::string_view path, std::shared_ptr<VirtualDirectoryResolver> resolver);
+			inline DirectoryEntry& StoreDirectory(std::string_view path, VirtualDirectoryPtr directory);
+			inline FileEntry& StoreFile(std::string_view path, std::shared_ptr<Stream> stream);
+			inline FileEntry& StoreFile(std::string_view path, ByteArray content);
+			inline FileEntry& StoreFile(std::string_view path, const void* data, std::size_t size);
 
 			VirtualDirectory& operator=(const VirtualDirectory&) = delete;
 			VirtualDirectory& operator=(VirtualDirectory&&) = delete;
 
 			// File entries
-			struct DataPointerEntry
+			struct FileEntry
 			{
-				const void* data;
-				std::size_t size;
-			};
-
-			struct FileContentEntry
-			{
-				std::vector<UInt8> data;
-			};
-
-			struct PhysicalFileEntry
-			{
-				std::filesystem::path filePath;
+				std::shared_ptr<Stream> stream;
 			};
 
 			// Directory entries
@@ -84,17 +71,8 @@ namespace Nz
 				VirtualDirectoryPtr directory;
 			};
 
-			struct PhysicalDirectoryEntry : DirectoryEntry
-			{
-				std::filesystem::path filePath;
-			};
-
-			struct VirtualDirectoryEntry : DirectoryEntry
-			{
-			};
-
 		private:
-			template<typename F> bool GetEntryInternal(std::string_view name, F&& callback);
+			template<typename F> bool GetEntryInternal(std::string_view name, bool allowResolve, F&& callback);
 			inline bool CreateOrRetrieveDirectory(std::string_view path, std::shared_ptr<VirtualDirectory>& directory, std::string_view& entryName);
 
 			template<typename T> T& StoreInternal(std::string name, T value);
@@ -108,10 +86,27 @@ namespace Nz
 				Entry entry;
 			};
 
-			std::optional<std::filesystem::path> m_physicalPath;
+			std::shared_ptr<VirtualDirectoryResolver> m_resolver;
+			std::vector<std::string_view> m_cachedDirectoryParts;
 			std::vector<ContentEntry> m_content;
 			std::weak_ptr<VirtualDirectory> m_parent;
 			bool m_isUprootAllowed;
+	};
+
+	class NAZARA_CORE_API VirtualDirectoryResolver
+	{
+		public:
+			VirtualDirectoryResolver() = default;
+			VirtualDirectoryResolver(const VirtualDirectoryResolver&) = delete;
+			VirtualDirectoryResolver(VirtualDirectoryResolver&&) = delete;
+			virtual ~VirtualDirectoryResolver();
+
+			virtual void ForEach(std::weak_ptr<VirtualDirectory> parent, FunctionRef<bool (std::string_view name, VirtualDirectory::Entry&& entry)> callback) const = 0;
+
+			virtual std::optional<VirtualDirectory::Entry> Resolve(std::weak_ptr<VirtualDirectory> parent, const std::string_view* parts, std::size_t partCount) const = 0;
+
+			VirtualDirectoryResolver& operator=(const VirtualDirectoryResolver&) = delete;
+			VirtualDirectoryResolver& operator=(VirtualDirectoryResolver&&) = delete;
 	};
 }
 
