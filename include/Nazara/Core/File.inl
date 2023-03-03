@@ -33,6 +33,20 @@ namespace Nz
 	{
 		return Nz::ComputeHash(hash, File(filePath));
 	}
+
+	inline bool File::CheckFileOpening()
+	{
+		if (m_openMode.Test(OpenMode::Defer))
+		{
+			if (!Open(m_filePath, m_openMode & ~OpenMode::Defer))
+			{
+				NazaraError("failed to open file");
+				return false;
+			}
+		}
+
+		return true;
+	}
 }
 
 #include <Nazara/Core/DebugOff.hpp>

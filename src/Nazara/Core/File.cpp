@@ -181,15 +181,21 @@ namespace Nz
 		if (openMode == OpenMode::NotOpen)
 			return false;
 
+		m_openMode = openMode;
+		if (m_openMode.Test(OpenMode::Defer))
+		{
+			// defer opening until a read/write operation is performed
+			return true;
+		}
+
 		std::unique_ptr<FileImpl> impl = std::make_unique<FileImpl>(this);
 		if (!impl->Open(m_filePath, openMode))
 		{
 			ErrorFlags flags(ErrorMode::Silent); // Silent by default
-			NazaraError("Failed to open \"" + m_filePath.generic_u8string() + "\": " + Error::GetLastSystemError());
+			NazaraError("failed to open \"" + m_filePath.generic_u8string() + "\": " + Error::GetLastSystemError());
 			return false;
 		}
 
-		m_openMode = openMode;
 		m_impl = std::move(impl);
 
 		EnableBuffering(!m_openMode.Test(OpenMode::Unbuffered));
@@ -259,6 +265,9 @@ namespace Nz
 	*/
 	bool File::SetSize(UInt64 size)
 	{
+		if (!CheckFileOpening())
+			return false;
+
 		NazaraAssert(IsOpen(), "File is not open");
 		NazaraAssert(IsWritable(), "File is not writable");
 
@@ -313,6 +322,9 @@ namespace Nz
 
 	void File::FlushStream()
 	{
+		if (!IsOpen() && m_openMode.Test(OpenMode::Defer))
+			return;
+
 		NazaraAssert(IsOpen(), "File is not open");
 
 		m_impl->Flush();
@@ -330,6 +342,9 @@ namespace Nz
 
 	std::size_t File::ReadBlock(void* buffer, std::size_t size)
 	{
+		if (!CheckFileOpening())
+			return false;
+
 		NazaraAssert(IsOpen(), "File is not open");
 
 		if (size == 0)
@@ -359,6 +374,9 @@ namespace Nz
 
 	bool File::SeekStreamCursor(UInt64 offset)
 	{
+		if (!CheckFileOpening())
+			return false;
+
 		NazaraAssert(IsOpen(), "File is not open");
 
 		return m_impl->SetCursorPos(CursorPosition::AtBegin, offset);
@@ -372,6 +390,9 @@ namespace Nz
 	*/
 	UInt64 File::TellStreamCursor() const
 	{
+		if (!IsOpen() && m_openMode.Test(OpenMode::Defer))
+			return 0;
+
 		NazaraAssert(IsOpen(), "File is not open");
 
 		return m_impl->GetCursorPos();
@@ -385,6 +406,9 @@ namespace Nz
 	*/
 	bool File::TestStreamEnd() const
 	{
+		if (!IsOpen() && m_openMode.Test(OpenMode::Defer))
+			return false;
+
 		NazaraAssert(IsOpen(), "File is not open");
 
 		return m_impl->EndOfFile();
@@ -402,6 +426,9 @@ namespace Nz
 	*/
 	std::size_t File::WriteBlock(const void* buffer, std::size_t size)
 	{
+		if (!CheckFileOpening())
+			return false;
+
 		NazaraAssert(IsOpen(), "File is not open");
 
 		if (size == 0)
@@ -423,7 +450,6 @@ namespace Nz
 	* \remark Produces a NazaraError if file could not be open
 	* \remark Produces a NazaraError if file could not be read
 	*/
-
 	NAZARA_CORE_API bool HashAppend(AbstractHash& hash, const File& originalFile)
 	{
 		File file(originalFile.GetPath());

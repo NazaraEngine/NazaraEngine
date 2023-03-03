@@ -97,6 +97,7 @@ namespace Nz
 		NotOpen,    // Use the current mod of opening
 
 		Append,     // Disable writing on existing parts and put the cursor at the end
+		Defer,      // Defer file opening until a read/write operation is performed on it
 		Lock,       // Disable modifying the file before it is open
 		MustExist,  // Fail if the file doesn't exists, even if opened in write mode
 		ReadOnly,   // Open in read only

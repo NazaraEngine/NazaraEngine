@@ -60,6 +60,7 @@ namespace Nz
 			static bool WriteWhole(const std::filesystem::path& path, const void* data, std::size_t size);
 
 		private:
+			inline bool CheckFileOpening();
 			void FlushStream() override;
 			std::size_t ReadBlock(void* buffer, std::size_t size) override;
 			bool SeekStreamCursor(UInt64 offset) override;
