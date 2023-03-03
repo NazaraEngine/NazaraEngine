@@ -17,6 +17,7 @@
 
 namespace Nz
 {
+	class AbstractHash;
 	class ByteArray;
 
 	class NAZARA_CORE_API Stream
@@ -33,18 +34,20 @@ namespace Nz
 
 			inline void Flush();
 
-			virtual std::filesystem::path GetDirectory() const;
-			virtual std::filesystem::path GetPath() const;
-			inline OpenModeFlags GetOpenMode() const;
-			inline StreamOptionFlags GetStreamOptions() const;
-
 			UInt64 GetCursorPos() const;
+			virtual std::filesystem::path GetDirectory() const;
+			inline const void* GetMappedPointer() const;
+			inline void* GetMappedPointerMutable();
+			inline OpenModeFlags GetOpenMode() const;
+			virtual std::filesystem::path GetPath() const;
 			virtual UInt64 GetSize() const = 0;
+			inline StreamOptionFlags GetStreamOptions() const;
 
 			std::size_t Read(void* buffer, std::size_t size);
 			virtual std::string ReadLine(unsigned int lineSize = 0);
 
 			inline bool IsBufferingEnabled() const;
+			inline bool IsMemoryMapped() const;
 			inline bool IsReadable() const;
 			inline bool IsSequential() const;
 			inline bool IsTextModeEnabled() const;
@@ -65,6 +68,7 @@ namespace Nz
 			inline Stream(StreamOptionFlags streamOptions = StreamOption::None, OpenModeFlags openMode = OpenMode::NotOpen);
 
 			virtual void FlushStream() = 0;
+			virtual void* GetMemoryMappedPointer() const;
 			virtual std::size_t ReadBlock(void* buffer, std::size_t size) = 0;
 			virtual bool SeekStreamCursor(UInt64 offset) = 0;
 			virtual UInt64 TellStreamCursor() const = 0;

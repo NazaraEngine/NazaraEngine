@@ -62,6 +62,11 @@ namespace Nz
 		// Nothing to flush
 	}
 
+	void* MemoryStream::GetMemoryMappedPointer() const
+	{
+		return m_buffer->GetBuffer();
+	}
+
 	/*!
 	* \brief Reads blocks
 	* \return Number of blocks read

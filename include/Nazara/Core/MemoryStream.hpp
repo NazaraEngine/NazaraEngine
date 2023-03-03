@@ -37,6 +37,7 @@ namespace Nz
 
 		private:
 			void FlushStream() override;
+			void* GetMemoryMappedPointer() const override;
 			std::size_t ReadBlock(void* buffer, std::size_t size) override;
 			bool SeekStreamCursor(UInt64 offset) override;
 			UInt64 TellStreamCursor() const override;

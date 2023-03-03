@@ -228,6 +228,7 @@ namespace Nz
 	{
 		None,
 
+		MemoryMapped,
 		Sequential,
 		Text,
 		Unbuffered,

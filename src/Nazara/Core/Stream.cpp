@@ -6,6 +6,7 @@
 #include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/StringExt.hpp>
+#include <Nazara/Utils/CallOnExit.hpp>
 #include <cstring>
 #include <Nazara/Core/Debug.hpp>
 
@@ -34,26 +35,6 @@ namespace Nz
 		return TestStreamEnd();
 	}
 
-	/*!
-	* \brief Gets the directory of the stream
-	* \return Empty string (meant to be virtual)
-	*/
-
-	std::filesystem::path Stream::GetDirectory() const
-	{
-		return {};
-	}
-
-	/*!
-	* \brief Gets the path of the stream
-	* \return Empty string (meant to be virtual)
-	*/
-
-	std::filesystem::path Stream::GetPath() const
-	{
-		return {};
-	}
-
 	UInt64 Stream::GetCursorPos() const
 	{
 		if (m_bufferCapacity == 0)
@@ -63,6 +44,24 @@ namespace Nz
 			assert(m_bufferCursor >= m_bufferSize);
 			return m_bufferCursor - m_bufferSize + m_bufferOffset;
 		}
+	}
+
+	/*!
+	* \brief Gets the directory of the stream
+	* \return Empty string (meant to be virtual)
+	*/
+	std::filesystem::path Stream::GetDirectory() const
+	{
+		return {};
+	}
+
+	/*!
+	* \brief Gets the path of the stream
+	* \return Empty string (meant to be virtual)
+	*/
+	std::filesystem::path Stream::GetPath() const
+	{
+		return {};
 	}
 
 	/*!
@@ -264,17 +263,22 @@ namespace Nz
 #if defined(NAZARA_PLATFORM_WINDOWS)
 			std::string temp(string);
 			ReplaceStr(temp, "\n", "\r\n");
-#elif defined(NAZARA_PLATFORM_LINUX) || defined(NAZARA_PLATFORM_WEB)
-			std::string_view temp(string);
-			// Nothing to do
+
+			string = temp;
 #elif defined(NAZARA_PLATFORM_MACOS)
 			std::string temp(string);
 			ReplaceStr(temp, "\n", "\r");
-#endif
 
-			return Write(temp.data(), temp.size()) == temp.size();
+			string = temp;
+#endif
 		}
-		else
-			return Write(string.data(), string.size()) == string.size();
+
+		return Write(string.data(), string.size()) == string.size();
+	}
+
+	void* Stream::GetMemoryMappedPointer() const
+	{
+		NazaraError("Stream set the MemoryMapped option but did not implement GetMemoryMappedPointer");
+		return nullptr;
 	}
 }

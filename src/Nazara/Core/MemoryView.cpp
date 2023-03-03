@@ -42,11 +42,24 @@ namespace Nz
 	*/
 
 	MemoryView::MemoryView(const void* ptr, UInt64 size) :
-	Stream(StreamOption::None, OpenMode::ReadOnly),
+	Stream(StreamOption::MemoryMapped, OpenMode::ReadOnly),
 	m_ptr(static_cast<UInt8*>(const_cast<void*>(ptr))), //< Okay, right, const_cast is bad, but this pointer is still read-only
 	m_pos(0),
 	m_size(size)
 	{
+	}
+
+	/*!
+	* \brief Flushes the stream
+	*/
+	void MemoryView::FlushStream()
+	{
+		// Nothing to do
+	}
+
+	void* MemoryView::GetMemoryMappedPointer() const
+	{
+		return m_ptr;
 	}
 
 	/*!
@@ -57,15 +70,6 @@ namespace Nz
 	UInt64 MemoryView::GetSize() const
 	{
 		return m_size;
-	}
-
-	/*!
-	* \brief Flushes the stream
-	*/
-
-	void MemoryView::FlushStream()
-	{
-		// Nothing to do
 	}
 
 	/*!
@@ -101,21 +105,21 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Gets the position of the cursor
-	* \return Position of the cursor
-	*/
-	UInt64 MemoryView::TellStreamCursor() const
-	{
-		return m_pos;
-	}
-
-	/*!
 	* \brief Checks whether the stream reached the end of the stream
 	* \return true if cursor is at the end of the stream
 	*/
 	bool MemoryView::TestStreamEnd() const
 	{
 		return m_pos >= m_size;
+	}
+
+	/*!
+	* \brief Gets the position of the cursor
+	* \return Position of the cursor
+	*/
+	UInt64 MemoryView::TellStreamCursor() const
+	{
+		return m_pos;
 	}
 
 	/*!

@@ -16,7 +16,6 @@ namespace Nz
 	* \param streamOptions Options for the stream
 	* \param openMode Reading/writing mode for the stream
 	*/
-
 	inline Stream::Stream(StreamOptionFlags streamOptions, OpenModeFlags openMode) :
 	m_bufferCapacity(0),
 	m_bufferOffset(0),
@@ -32,12 +31,11 @@ namespace Nz
 	*
 	* \param textMode Enables the mode or disables
 	*/
-
 	inline void Stream::EnableBuffering(bool buffering, std::size_t bufferSize)
 	{
 		if (buffering)
 		{
-			m_streamOptions &= ~StreamOption::Unbuffered;
+			m_streamOptions.Clear(StreamOption::Unbuffered);
 			if (m_bufferCapacity != bufferSize)
 			{
 				m_buffer = std::make_unique<UInt8[]>(bufferSize);
@@ -49,7 +47,7 @@ namespace Nz
 		}
 		else
 		{
-			m_streamOptions |= StreamOption::Unbuffered;
+			m_streamOptions.Set(StreamOption::Unbuffered);
 			m_buffer.reset();
 			m_bufferCapacity = 0;
 		}
@@ -58,9 +56,9 @@ namespace Nz
 	inline void Stream::EnableTextMode(bool textMode)
 	{
 		if (textMode)
-			m_streamOptions |= StreamOption::Text;
+			m_streamOptions.Set(StreamOption::Text);
 		else
-			m_streamOptions &= ~StreamOption::Text;
+			m_streamOptions.Clear(StreamOption::Text);
 	}
 
 	/*!
@@ -76,11 +74,24 @@ namespace Nz
 		FlushStream();
 	}
 
+	inline const void* Stream::GetMappedPointer() const
+	{
+		NazaraAssert(IsMemoryMapped(), "Stream is not memory-mapped");
+		NazaraAssert(IsReadable(), "Stream is not readable");
+		return GetMemoryMappedPointer();
+	}
+
+	inline void* Stream::GetMappedPointerMutable()
+	{
+		NazaraAssert(IsMemoryMapped(), "Stream is not memory-mapped");
+		NazaraAssert(IsWritable(), "Stream is not writable");
+		return GetMemoryMappedPointer();
+	}
+
 	/*!
 	* \brief Gets the open mode of the stream
 	* \return Reading/writing mode for the stream
 	*/
-
 	inline OpenModeFlags Stream::GetOpenMode() const
 	{
 		return m_openMode;
@@ -90,7 +101,6 @@ namespace Nz
 	* \brief Gets the options of the stream
 	* \return Options of the stream
 	*/
-
 	inline StreamOptionFlags Stream::GetStreamOptions() const
 	{
 		return m_streamOptions;
@@ -100,45 +110,46 @@ namespace Nz
 	* \brief Checks whether the stream is readable
 	* \return true if it is the case
 	*/
-
 	inline bool Stream::IsBufferingEnabled() const
 	{
-		return (m_streamOptions & StreamOption::Unbuffered) == 0;
+		return m_streamOptions.Test(StreamOption::Unbuffered);
+	}
+
+	inline bool Stream::IsMemoryMapped() const
+	{
+		return m_streamOptions.Test(StreamOption::MemoryMapped);
 	}
 
 	inline bool Stream::IsReadable() const
 	{
-		return (m_openMode & OpenMode::ReadOnly) != 0;
+		return m_openMode.Test(OpenMode::ReadOnly);
 	}
 
 	/*!
 	* \brief Checks whether the stream is sequential
 	* \return true if it is the case
 	*/
-
 	inline bool Stream::IsSequential() const
 	{
-		return (m_streamOptions & StreamOption::Sequential) != 0;
+		return m_streamOptions.Test(StreamOption::Sequential);
 	}
 
 	/*!
 	* \brief Checks whether the stream has text mode enabled
 	* \return true if it is the case
 	*/
-
 	inline bool Stream::IsTextModeEnabled() const
 	{
-		return (m_streamOptions & StreamOption::Text) != 0;
+		return m_streamOptions.Test(StreamOption::Text);
 	}
 
 	/*!
 	* \brief Checks whether the stream can be written
 	* \return true if it is the case
 	*/
-
 	inline bool Stream::IsWritable() const
 	{
-		return (m_openMode & OpenMode::WriteOnly) != 0;
+		return m_openMode.Test(OpenMode::WriteOnly);
 	}
 
 	/*!

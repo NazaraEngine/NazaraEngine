@@ -14,7 +14,7 @@ namespace Nz
 	* \brief Constructs a MemoryStream object by default
 	*/
 	inline MemoryStream::MemoryStream() :
-	Stream(StreamOption::None, OpenMode_ReadWrite),
+	Stream(StreamOption::MemoryMapped, OpenMode_ReadWrite),
 	m_pos(0)
 	{
 	}
