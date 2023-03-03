@@ -3,9 +3,9 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Posix/HardwareInfoImpl.hpp>
+#include <Nazara/Core/Error.hpp>
 #include <unistd.h>
 #include <Nazara/Core/Debug.hpp>
-#include <Nazara/Core/Error.hpp>
 
 namespace Nz
 {

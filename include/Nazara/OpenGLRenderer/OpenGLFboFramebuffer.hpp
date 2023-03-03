@@ -12,8 +12,8 @@
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Framebuffer.hpp>
 #include <memory>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 namespace Nz
 {
