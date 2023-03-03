@@ -23,8 +23,8 @@ namespace Nz
 {
 	class ByteArray;
 
-	template<typename T> ByteArray ComputeHash(HashType hash, const T& v);
-	template<typename T> ByteArray ComputeHash(AbstractHash& hash, const T& v);
+	template<typename T> ByteArray ComputeHash(HashType hash, T&& v);
+	template<typename T> ByteArray ComputeHash(AbstractHash& hash, T&& v);
 
 	inline bool HashAppend(AbstractHash* hash, const std::string_view& v);
 

@@ -281,4 +281,46 @@ namespace Nz
 		NazaraError("Stream set the MemoryMapped option but did not implement GetMemoryMappedPointer");
 		return nullptr;
 	}
+
+	bool HashAppend(AbstractHash& hash, Stream& stream)
+	{
+		if (stream.IsMemoryMapped())
+		{
+			const void* ptr = stream.GetMappedPointer();
+			UInt64 size = stream.GetSize();
+			if (ptr && size > 0)
+			{
+				hash.Append(static_cast<const UInt8*>(ptr), size);
+				return true;
+			}
+		}
+
+		std::array<UInt8, NAZARA_CORE_FILE_BUFFERSIZE> content;
+
+		// Save and restore cursor position after the call
+		std::size_t cursorPos = stream.GetCursorPos();
+		CallOnExit restoreCursorPos([&] { stream.SetCursorPos(cursorPos); });
+
+		stream.SetCursorPos(0);
+
+		while (!stream.EndOfStream())
+		{
+			std::size_t readSize = stream.Read(&content[0], content.size());
+			if (readSize > 0)
+				hash.Append(&content[0], readSize);
+
+			if (readSize != content.size())
+			{
+				if (!stream.EndOfStream())
+				{
+					NazaraError("failed to read from stream");
+					return false;
+				}
+
+				break;
+			}
+		}
+
+		return true;
+	}
 }

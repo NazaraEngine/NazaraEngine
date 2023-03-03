@@ -83,6 +83,8 @@ namespace Nz
 			StreamOptionFlags m_streamOptions;
 			UInt64 m_bufferCursor;
 	};
+
+	NAZARA_CORE_API bool HashAppend(AbstractHash& hash, Stream& stream);
 }
 
 #include <Nazara/Core/Stream.inl>

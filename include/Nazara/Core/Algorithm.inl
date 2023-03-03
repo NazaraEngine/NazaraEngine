@@ -30,9 +30,9 @@ namespace Nz
 	* \see ComputeHash
 	*/
 	template<typename T>
-	ByteArray ComputeHash(HashType hash, const T& v)
+	ByteArray ComputeHash(HashType hash, T&& v)
 	{
-		return ComputeHash(*AbstractHash::Get(hash), v);
+		return ComputeHash(*AbstractHash::Get(hash), std::forward<T>(v));
 	}
 
 	/*!
@@ -49,11 +49,11 @@ namespace Nz
 	* \see ComputeHash
 	*/
 	template<typename T>
-	ByteArray ComputeHash(AbstractHash& hash, const T& v)
+	ByteArray ComputeHash(AbstractHash& hash, T&& v)
 	{
 		hash.Begin();
 
-		HashAppend(hash, v);
+		HashAppend(hash, std::forward<T>(v));
 
 		return hash.End();
 	}
