@@ -40,6 +40,7 @@ namespace Nz
 			inline explicit ByteArray(size_type n);
 			inline ByteArray(const void* buffer, size_type n);
 			inline ByteArray(size_type n, value_type value);
+			inline explicit ByteArray(Container container);
 			template <class InputIterator> ByteArray(InputIterator first, InputIterator last);
 			ByteArray(const ByteArray& other) = default;
 			ByteArray(ByteArray&& other) noexcept = default;

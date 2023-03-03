@@ -46,6 +46,11 @@ namespace Nz
 	{
 	}
 
+	inline ByteArray::ByteArray(Container container) :
+	m_array(std::move(container))
+	{
+	}
+
 	/*!
 	* \brief Constructs a ByteArray object from two iterators
 	*
@@ -589,6 +594,15 @@ namespace Nz
 	*/
 
 	inline ByteArray::reverse_iterator ByteArray::rend() noexcept
+	{
+		return m_array.rend();
+	}
+
+	/*!
+	* \brief Returns a reversed iterator pointing to the end of the string
+	* \return End of the string
+	*/
+	inline ByteArray::const_reverse_iterator ByteArray::rend() const noexcept
 	{
 		return m_array.rend();
 	}
