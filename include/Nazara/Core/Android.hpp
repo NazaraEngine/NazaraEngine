@@ -30,6 +30,8 @@
 #define NAZARA_CORE_ANDROID_HPP
 
 #include <Nazara/Core/Android/AndroidActivity.hpp>
+#include <Nazara/Core/Android/AndroidAssetDirResolver.hpp>
+#include <Nazara/Core/Android/AndroidAssetStream.hpp>
 #include <Nazara/Core/Android/AndroidLogger.hpp>
 
 #endif // NAZARA_CORE_ANDROID_HPP
