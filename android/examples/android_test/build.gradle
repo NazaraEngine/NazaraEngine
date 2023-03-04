@@ -75,10 +75,17 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 }
 
-task copyTask {
+task copyAssets {
     copy {
         from '../../assets'
         into 'src/main/res/drawable'
         include 'icon.png'
     }
+
+    copy {
+        from '../../../assets'
+        into 'src/main/assets'
+    }
 }
+
+preBuild.dependsOn copyAssets
