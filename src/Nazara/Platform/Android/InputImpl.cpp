@@ -61,6 +61,7 @@ namespace Nz
 
 	bool InputImpl::SetRelativeMouseMode(bool relativeMouseMode)
 	{
+		return false;
 	}
 
 	void InputImpl::SetMousePosition(int x, int y)
