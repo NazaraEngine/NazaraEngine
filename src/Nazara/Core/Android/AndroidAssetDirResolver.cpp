@@ -3,20 +3,35 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Android/AndroidAssetDirResolver.hpp>
+#include <Nazara/Core/Android/AndroidActivity.hpp>
 #include <Nazara/Core/Android/AndroidAssetStream.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {
+	AndroidAssetDirResolver::AndroidAssetDirResolver(std::string basePath) :
+	AndroidAssetDirResolver(AndroidActivity::Instance()->GetNativeActivity()->assetManager, std::move(basePath))
+	{
+	}
+
 	AndroidAssetDirResolver::~AndroidAssetDirResolver()
 	{
-		AAssetDir_close(m_assetDir);
+		if (m_assetDir)
+			AAssetDir_close(m_assetDir);
 	}
 
 	void AndroidAssetDirResolver::ForEach(std::weak_ptr<VirtualDirectory> parent, FunctionRef<bool(std::string_view name, VirtualDirectory::Entry&& entry)> callback) const
 	{
-		AAssetDir_rewind(m_assetDir);
+		if (!m_assetDir)
+		{
+			m_assetDir = AAssetManager_openDir(m_manager, m_basePath.c_str());
+			if (!m_assetDir)
+				return;
+		}
+		else
+			AAssetDir_rewind(m_assetDir);
+
 		while (const char* filename = AAssetDir_getNextFileName(m_assetDir))
 		{
 			std::string fullPath = m_basePath + "/" + filename;
@@ -43,8 +58,16 @@ namespace Nz
 			return VirtualDirectory::FileEntry{ std::make_shared<AndroidAssetStream>(std::move(fullPath), asset) };
 		else if (AAssetDir* assetDir = AAssetManager_openDir(m_manager, fullPath.c_str()))
 		{
-			VirtualDirectoryPtr virtualDir = std::make_shared<VirtualDirectory>(std::make_shared<AndroidAssetDirResolver>(m_manager, std::move(fullPath), assetDir), parent);
-			return VirtualDirectory::DirectoryEntry{ { std::move(virtualDir) } };
+			// AAssetManager_openDir always returns a non-null pointer, even if the dir doesn't exist
+			// So we check if they contains at least one file, consequence of this is that empty directories
+			// won't be returned but that shouldn't be a big deal
+			if (AAssetDir_getNextFileName(assetDir) != nullptr)
+			{
+				VirtualDirectoryPtr virtualDir = std::make_shared<VirtualDirectory>(std::make_shared<AndroidAssetDirResolver>(m_manager, std::move(fullPath), assetDir), parent);
+				return VirtualDirectory::DirectoryEntry{ { std::move(virtualDir) } };
+			}
+			else
+				AAssetDir_close(assetDir);
 		}
 
 		return std::nullopt; //< not found

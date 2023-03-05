@@ -12,6 +12,7 @@ namespace Nz
     m_filePath(std::move(filePath)),
     m_asset(asset)
     {
+        EnableBuffering(true);
     }
 }
 
