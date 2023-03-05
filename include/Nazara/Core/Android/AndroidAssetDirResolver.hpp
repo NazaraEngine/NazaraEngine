@@ -17,7 +17,8 @@ namespace Nz
 	class NAZARA_CORE_API AndroidAssetDirResolver final : public VirtualDirectoryResolver
 	{
 		public:
-			inline AndroidAssetDirResolver(AAssetManager* manager, std::string basePath, AAssetDir* dir);
+			AndroidAssetDirResolver(std::string basePath);
+			inline AndroidAssetDirResolver(AAssetManager* manager, std::string basePath, AAssetDir* dir = nullptr);
 			AndroidAssetDirResolver(const AndroidAssetDirResolver&) = delete;
 			AndroidAssetDirResolver(AndroidAssetDirResolver&&) = delete;
 			~AndroidAssetDirResolver();
@@ -31,7 +32,7 @@ namespace Nz
 
 		private:
 			std::string m_basePath;
-			AAssetDir* m_assetDir;
+			mutable AAssetDir* m_assetDir;
 			AAssetManager* m_manager;
 	};
 }
