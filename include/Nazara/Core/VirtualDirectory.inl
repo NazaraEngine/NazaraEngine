@@ -144,7 +144,7 @@ namespace Nz
 			if (foundDir)
 				return true;
 
-			if (!isFile && m_resolver)
+			if (!isFile && currentDir->GetResolver())
 			{
 				assert(m_cachedDirectoryParts.empty());
 				m_cachedDirectoryParts.push_back(dirName);
@@ -161,7 +161,7 @@ namespace Nz
 				{
 					m_cachedDirectoryParts.push_back(name);
 
-					std::optional<Entry> entryOpt = m_resolver->Resolve({}, m_cachedDirectoryParts.data(), m_cachedDirectoryParts.size());
+					std::optional<Entry> entryOpt = resolver->Resolve({}, m_cachedDirectoryParts.data(), m_cachedDirectoryParts.size());
 					if (!entryOpt)
 						return false;
 
