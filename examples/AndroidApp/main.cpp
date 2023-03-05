@@ -8,6 +8,7 @@
 #include <iostream>
 #include <random>
 
+#if 0
 int main()
 {
 	Nz::Renderer::Config rendererConfig;
@@ -127,6 +128,170 @@ int main()
 			textSprite->Update(textDrawer, 0.01f);
 
 			counter -= Nz::Time::Second();
+			fps = 0;
+		}
+	});
+
+	return app.Run();
+}
+#endif
+
+int main()
+{
+	Nz::Renderer::Config rendererConfig;
+	rendererConfig.preferredAPI = Nz::RenderAPI::OpenGL_ES;
+
+	// Mise en place de l'application, de la fenêtre et du monde
+	Nz::Application<Nz::Graphics> app(rendererConfig);
+
+	auto& windowing = app.AddComponent<Nz::AppWindowingComponent>();
+
+	std::shared_ptr<Nz::RenderDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
+
+	std::string windowTitle = "Graphics Test";
+	Nz::Window& mainWindow = windowing.CreateWindow(Nz::VideoMode(1920, 1080), windowTitle);
+	Nz::WindowSwapchain windowSwapchain(device, mainWindow);
+
+	auto& fs = app.AddComponent<Nz::AppFilesystemComponent>();
+	{
+#ifdef NAZARA_PLATFORM_ANDROID
+		fs.Mount("assets", std::make_shared<Nz::VirtualDirectory>(std::make_shared<Nz::AndroidAssetDirResolver>("examples")));
+#else
+		std::filesystem::path resourceDir = "assets/examples";
+		if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory("../.." / resourceDir))
+			resourceDir = "../.." / resourceDir;
+
+		fs.Mount("assets", resourceDir);
+#endif
+	}
+
+	Nz::MeshParams meshParams;
+	meshParams.center = true;
+	meshParams.vertexRotation = Nz::EulerAnglesf(0.f, -90.f, 0.f);
+	meshParams.vertexScale = Nz::Vector3f(0.002f);
+	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_Normal_UV);
+
+	std::shared_ptr<Nz::Mesh> spaceshipMesh = fs.Load<Nz::Mesh>("assets/Spaceship/spaceship.obj", meshParams);
+	if (!spaceshipMesh)
+	{
+		NazaraError("Failed to load model");
+		return __LINE__;
+	}
+
+	std::shared_ptr<Nz::GraphicalMesh> gfxMesh = Nz::GraphicalMesh::BuildFromMesh(*spaceshipMesh);
+
+	// Texture
+	Nz::TextureParams texParams;
+	texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
+
+	std::shared_ptr<Nz::Texture> diffuseTexture = fs.Load<Nz::Texture>("assets/Spaceship/Texture/diffuse.png", texParams);
+
+	std::shared_ptr<Nz::Material> material = Nz::Graphics::Instance()->GetDefaultMaterials().basicMaterial;
+
+	std::shared_ptr<Nz::MaterialInstance> materialInstance = std::make_shared<Nz::MaterialInstance>(material);
+	materialInstance->SetTextureProperty(0, diffuseTexture);
+	materialInstance->SetValueProperty(0, Nz::Color::White());
+
+	std::shared_ptr<Nz::MaterialInstance> materialInstance2 = std::make_shared<Nz::MaterialInstance>(material);
+	materialInstance2->SetValueProperty(0, Nz::Color::Green());
+
+	Nz::Model model(std::move(gfxMesh), spaceshipMesh->GetAABB());
+	for (std::size_t i = 0; i < model.GetSubMeshCount(); ++i)
+		model.SetMaterial(i, materialInstance);
+
+	Nz::Vector2ui windowSize = mainWindow.GetSize();
+
+	Nz::Camera camera(&windowSwapchain);
+	camera.UpdateClearColor(Nz::Color::Gray());
+
+	Nz::ViewerInstance& viewerInstance = camera.GetViewerInstance();
+	viewerInstance.UpdateTargetSize(Nz::Vector2f(mainWindow.GetSize()));
+	viewerInstance.UpdateProjViewMatrices(Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(windowSize.x) / windowSize.y, 0.1f, 1000.f), Nz::Matrix4f::Translate(Nz::Vector3f::Backward() * 1));
+
+	Nz::WorldInstancePtr modelInstance = std::make_shared<Nz::WorldInstance>();
+	modelInstance->UpdateWorldMatrix(Nz::Matrix4f::Translate(Nz::Vector3f::Forward() * 2 + Nz::Vector3f::Left()));
+
+	Nz::WorldInstancePtr modelInstance2 = std::make_shared<Nz::WorldInstance>();
+	modelInstance2->UpdateWorldMatrix(Nz::Matrix4f::Translate(Nz::Vector3f::Forward() * 2 + Nz::Vector3f::Right()));
+
+	Nz::Recti scissorBox(Nz::Vector2i::Zero(), Nz::Vector2i(mainWindow.GetSize()));
+
+	Nz::ElementRendererRegistry elementRegistry;
+	Nz::ForwardFramePipeline framePipeline(elementRegistry);
+	std::size_t cameraIndex = framePipeline.RegisterViewer(&camera, 0);
+	std::size_t worldInstanceIndex1 = framePipeline.RegisterWorldInstance(modelInstance);
+	std::size_t worldInstanceIndex2 = framePipeline.RegisterWorldInstance(modelInstance2);
+	framePipeline.RegisterRenderable(worldInstanceIndex1, Nz::FramePipeline::NoSkeletonInstance, &model, 0xFFFFFFFF, scissorBox);
+	framePipeline.RegisterRenderable(worldInstanceIndex2, Nz::FramePipeline::NoSkeletonInstance, &model, 0xFFFFFFFF, scissorBox);
+
+	std::unique_ptr<Nz::SpotLight> light = std::make_unique<Nz::SpotLight>();
+	light->UpdateInnerAngle(Nz::DegreeAnglef(15.f));
+	light->UpdateOuterAngle(Nz::DegreeAnglef(20.f));
+
+	framePipeline.RegisterLight(light.get(), 0xFFFFFFFF);
+
+	Nz::Vector3f viewerPos = Nz::Vector3f::Zero();
+
+	Nz::EulerAnglesf camAngles(0.f, 0.f, 0.f);
+	Nz::Quaternionf camQuat(camAngles);
+
+	Nz::MillisecondClock updateClock;
+	Nz::MillisecondClock fpsClock;
+	unsigned int fps = 0;
+
+	Nz::Mouse::SetRelativeMouseMode(true);
+
+	mainWindow.GetEventHandler().OnEvent.Connect([&](const Nz::WindowEventHandler*, const Nz::WindowEvent& event)
+	{
+		switch (event.type)
+		{
+			case Nz::WindowEventType::Quit:
+				mainWindow.Close();
+				break;
+
+			case Nz::WindowEventType::Resized:
+			{
+				Nz::Vector2ui newWindowSize = mainWindow.GetSize();
+				viewerInstance.UpdateProjectionMatrix(Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(newWindowSize.x) / newWindowSize.y, 0.1f, 1000.f));
+				viewerInstance.UpdateTargetSize(Nz::Vector2f(newWindowSize));
+				break;
+			}
+
+			default:
+				break;
+		}
+	});
+
+	app.AddUpdater([&](Nz::Time /*elapsedTime*/)
+	{
+		Nz::RenderFrame frame = windowSwapchain.AcquireFrame();
+		if (!frame)
+		{
+			std::this_thread::sleep_for(std::chrono::milliseconds(1));
+			return;
+		}
+
+		for (const Nz::WorldInstancePtr& worldInstance : { modelInstance, modelInstance2 })
+		{
+			Nz::Boxf aabb = model.GetAABB();
+			aabb.Transform(worldInstance->GetWorldMatrix());
+
+			framePipeline.GetDebugDrawer().DrawBox(aabb, Nz::Color::Green());
+		}
+
+		viewerInstance.UpdateViewMatrix(Nz::Matrix4f::TransformInverse(viewerPos, camAngles));
+		viewerInstance.UpdateEyePosition(viewerPos);
+
+		framePipeline.Render(frame);
+
+		frame.Present();
+
+		// On incrémente le compteur de FPS improvisé
+		fps++;
+
+		if (fpsClock.RestartIfOver(Nz::Time::Second()))
+		{
+			mainWindow.SetTitle(windowTitle + " - " + Nz::NumberToString(fps) + " FPS");
 			fps = 0;
 		}
 	});
