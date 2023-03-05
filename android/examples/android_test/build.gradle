@@ -21,7 +21,7 @@ android {
                 sdkver 28
                 path '../../../xmake.lua'
 
-                arguments '--assimp=n', '--embed_rendererbackends=y', '--embed_plugins=y', '--link_openal=y'
+                arguments '--embed_rendererbackends=y', '--embed_plugins=y', '--link_openal=y'
 
                 logLevel 'verbose'
 
