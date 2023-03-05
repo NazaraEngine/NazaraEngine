@@ -66,6 +66,7 @@
 #include <Nazara/Core/ObjectHandle.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ObjectRef.hpp>
+#include <Nazara/Core/OwnedMemoryStream.hpp>
 #include <Nazara/Core/ParameterList.hpp>
 #include <Nazara/Core/Plugin.hpp>
 #include <Nazara/Core/PluginInterface.hpp>
@@ -90,6 +91,7 @@
 #include <Nazara/Core/Updatable.hpp>
 #include <Nazara/Core/Uuid.hpp>
 #include <Nazara/Core/VirtualDirectory.hpp>
+#include <Nazara/Core/VirtualDirectoryFilesystemResolver.hpp>
 
 #ifdef NAZARA_ENTT
 

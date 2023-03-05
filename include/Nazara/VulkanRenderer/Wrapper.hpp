@@ -33,6 +33,7 @@
 #include <Nazara/VulkanRenderer/Wrapper/Buffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandBuffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandPool.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/DebugReportCallbackEXT.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DebugUtilsMessengerEXT.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DescriptorPool.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DescriptorSet.hpp>
