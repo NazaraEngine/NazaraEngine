@@ -18,8 +18,8 @@ namespace Nz
 	{
 		public:
 			EnttWorld();
-			EnttWorld(const EnttWorld&) = default;
-			EnttWorld(EnttWorld&&) = default;
+			EnttWorld(const EnttWorld&) = delete;
+			EnttWorld(EnttWorld&&) = delete;
 			~EnttWorld() = default;
 
 			template<typename T, typename... Args> T& AddSystem(Args&&... args);

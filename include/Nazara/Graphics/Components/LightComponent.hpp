@@ -24,7 +24,7 @@ namespace Nz
 			static constexpr std::size_t MaxLightCount = 8;
 
 			inline LightComponent(bool initialyVisible = true);
-			LightComponent(const LightComponent&) = default;
+			LightComponent(const LightComponent&) = delete;
 			LightComponent(LightComponent&&) = default;
 			~LightComponent() = default;
 
@@ -44,7 +44,7 @@ namespace Nz
 
 			inline void Show(bool show = true);
 
-			LightComponent& operator=(const LightComponent&) = default;
+			LightComponent& operator=(const LightComponent&) = delete;
 			LightComponent& operator=(LightComponent&&) = default;
 
 			NazaraSignal(OnLightAttached, LightComponent* /*graphicsComponent*/, std::size_t /*lightIndex*/);
