@@ -2,10 +2,6 @@ if not has_config("assimp") then
 	return
 end
 
-if is_plat("wasm") then
-	return -- Physics3D is not yet supported on wasm because of Newton
-end
-
 target("Showcase")
 	set_group("Examples")
 	set_kind("binary")
