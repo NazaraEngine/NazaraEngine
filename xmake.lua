@@ -169,10 +169,9 @@ local modules = {
 	}
 }
 
--- Vulkan doesn't run on web and Newton does not (yet) compile using emscripten
+-- Vulkan doesn't run on web
 if is_plat("wasm") then
 	rendererBackends.VulkanRenderer = nil
-	modules.Physics3D = nil
 end
 
 if not has_config("embed_rendererbackends") then
