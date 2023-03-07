@@ -120,11 +120,11 @@ local modules = {
 	},
 	Physics2D = {
 		Deps = {"NazaraUtility"},
-		Packages = {"entt", "chipmunk2d"}
+		Packages = { "chipmunk2d", "entt" }
 	},
 	Physics3D = {
 		Deps = {"NazaraUtility"},
-		Packages = {"entt", "newtondynamics3"}
+		Packages = { "bullet3", "entt", "ordered_map" }
 	},
 	Platform = {
 		Deps = {"NazaraUtility"},
@@ -209,6 +209,8 @@ option("unitybuild", { description = "Build the engine using unity build", defau
 -- Nazara dependencies
 
 add_repositories("nazara-engine-repo https://github.com/NazaraEngine/xmake-repo")
+add_repositories("local-repo xmake-repo")
+
 add_requires("nazarautils")
 add_requires("nzsl", { debug = is_mode("debug"), configs = { with_symbols = not is_mode("release"), shared = not is_plat("wasm", "android") } })
 
@@ -222,6 +224,7 @@ end
 -- Thirdparty dependencies
 
 add_requires(
+	"bullet3",
 	"chipmunk2d",
 	"dr_wav",
 	"entt 3.11.1",
@@ -247,7 +250,6 @@ end
 if not is_plat("wasm") then
 	-- these libraries aren't supported yet on emscripten
 	add_requires("efsw")
-	add_requires("newtondynamics3", { debug = is_plat("windows") and is_mode("debug") }) -- Newton doesn't like compiling in Debug on Linux
 	add_requires("openal-soft", { configs = { shared = true }})
 end
 

@@ -25,8 +25,6 @@ namespace Nz
 			Physics3D(Config /*config*/);
 			~Physics3D() = default;
 
-			unsigned int GetMemoryUsed();
-
 		private:
 			static Physics3D* s_instance;
 	};

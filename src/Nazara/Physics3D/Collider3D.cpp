@@ -4,46 +4,26 @@
 
 #include <Nazara/Physics3D/Collider3D.hpp>
 #include <Nazara/Core/PrimitiveList.hpp>
-#include <Nazara/Physics3D/PhysWorld3D.hpp>
+#include <Nazara/Physics3D/BulletHelper.hpp>
+#include <Nazara/Utility/Algorithm.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/SoftwareBuffer.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
-#include <newton/Newton.h>
+#include <Nazara/Utils/MemoryHelper.hpp>
+#include <tsl/ordered_map.h>
+#include <BulletCollision/CollisionShapes/btBoxShape.h>
+#include <BulletCollision/CollisionShapes/btCapsuleShape.h>
+#include <BulletCollision/CollisionShapes/btCompoundShape.h>
+#include <BulletCollision/CollisionShapes/btConeShape.h>
+#include <BulletCollision/CollisionShapes/btConvexHullShape.h>
+#include <BulletCollision/CollisionShapes/btCylinderShape.h>
+#include <BulletCollision/CollisionShapes/btSphereShape.h>
 #include <Nazara/Physics3D/Debug.hpp>
 
 namespace Nz
 {
-	namespace
-	{
-		std::shared_ptr<Collider3D> CreateGeomFromPrimitive(const Primitive& primitive)
-		{
-			switch (primitive.type)
-			{
-				case PrimitiveType::Box:
-					return std::make_shared<BoxCollider3D>(primitive.box.lengths, primitive.matrix);
-
-				case PrimitiveType::Cone:
-					return std::make_shared<ConeCollider3D>(primitive.cone.length, primitive.cone.radius, primitive.matrix);
-
-				case PrimitiveType::Plane:
-					return std::make_shared<BoxCollider3D>(Vector3f(primitive.plane.size.x, 0.01f, primitive.plane.size.y), primitive.matrix);
-					///TODO: PlaneGeom?
-
-				case PrimitiveType::Sphere:
-					return std::make_shared<SphereCollider3D>(primitive.sphere.size, primitive.matrix.GetTranslation());
-			}
-
-			NazaraError("Primitive type not handled (0x" + NumberToString(UnderlyingCast(primitive.type), 16) + ')');
-			return std::shared_ptr<Collider3D>();
-		}
-	}
-
-	Collider3D::~Collider3D()
-	{
-		for (auto& pair : m_handles)
-			NewtonDestroyCollision(pair.second);
-	}
+	Collider3D::~Collider3D() = default;
 
 	Boxf Collider3D::ComputeAABB(const Vector3f& translation, const Quaternionf& rotation, const Vector3f& scale) const
 	{
@@ -52,122 +32,29 @@ namespace Nz
 
 	Boxf Collider3D::ComputeAABB(const Matrix4f& offsetMatrix, const Vector3f& scale) const
 	{
-		Vector3f min, max;
+		btTransform transform = ToBullet(offsetMatrix);
 
-		// Check for existing collision handles, and create a temporary one if none is available
-		if (m_handles.empty())
-		{
-			PhysWorld3D world;
+		btVector3 min, max;
+		GetShape()->getAabb(transform, min, max);
 
-			NewtonCollision* collision = CreateHandle(&world);
-			{
-				NewtonCollisionCalculateAABB(collision, &offsetMatrix.m11, &min.x, &max.x);
-			}
-			NewtonDestroyCollision(collision);
-		}
-		else
-			NewtonCollisionCalculateAABB(m_handles.begin()->second, &offsetMatrix.m11, &min.x, &max.x);
-
-		return Boxf(scale * min, scale * max);
+		return Boxf(scale * FromBullet(min), scale * FromBullet(max));
 	}
 
-	void Collider3D::ComputeInertialMatrix(Vector3f* inertia, Vector3f* center) const
+	void Collider3D::ComputeInertia(float mass, Vector3f* inertia) const
 	{
-		float inertiaMatrix[3];
-		float origin[3];
+		NazaraAssert(inertia, "invalid inertia pointer");
 
-		// Check for existing collision handles, and create a temporary one if none is available
-		if (m_handles.empty())
-		{
-			PhysWorld3D world;
+		btVector3 inertiaVec;
+		GetShape()->calculateLocalInertia(mass, inertiaVec);
 
-			NewtonCollision* collision = CreateHandle(&world);
-			{
-				NewtonConvexCollisionCalculateInertialMatrix(collision, inertiaMatrix, origin);
-			}
-			NewtonDestroyCollision(collision);
-		}
-		else
-			NewtonConvexCollisionCalculateInertialMatrix(m_handles.begin()->second, inertiaMatrix, origin);
-
-		if (inertia)
-			inertia->Set(inertiaMatrix);
-
-		if (center)
-			center->Set(origin);
+		*inertia = FromBullet(inertiaVec);
 	}
 
-	float Collider3D::ComputeVolume() const
-	{
-		float volume;
-
-		// Check for existing collision handles, and create a temporary one if none is available
-		if (m_handles.empty())
-		{
-			PhysWorld3D world;
-
-			NewtonCollision* collision = CreateHandle(&world);
-			{
-				volume = NewtonConvexCollisionCalculateVolume(collision);
-			}
-			NewtonDestroyCollision(collision);
-		}
-		else
-			volume = NewtonConvexCollisionCalculateVolume(m_handles.begin()->second);
-
-		return volume;
-	}
-
-	void Collider3D::ForEachPolygon(const std::function<void(const Vector3f* vertices, std::size_t vertexCount)>& callback) const
-	{
-		auto newtCallback = [](void* const userData, int vertexCount, const dFloat* const faceArray, int /*faceId*/)
-		{
-			static_assert(sizeof(Vector3f) == 3 * sizeof(float), "Vector3 is expected to contain 3 floats without padding");
-
-			const auto& cb = *static_cast<std::add_pointer_t<decltype(callback)>>(userData);
-			cb(reinterpret_cast<const Vector3f*>(faceArray), vertexCount);
-		};
-
-		// Check for existing collision handles, and create a temporary one if none is available
-		Matrix4f identity = Matrix4f::Identity();
-		if (m_handles.empty())
-		{
-			PhysWorld3D world;
-
-			NewtonCollision* collision = CreateHandle(&world);
-			{
-				NewtonCollisionForEachPolygonDo(collision, &identity.m11, newtCallback, const_cast<void*>(static_cast<const void*>(&callback))); //< This isn't that bad; pointer will not be used for writing
-			}
-			NewtonDestroyCollision(collision);
-		}
-		else
-			NewtonCollisionForEachPolygonDo(m_handles.begin()->second, &identity.m11, newtCallback, const_cast<void*>(static_cast<const void*>(&callback))); //< This isn't that bad; pointer will not be used for writing
-	}
-
-	std::shared_ptr<StaticMesh> Collider3D::GenerateMesh() const
+	std::shared_ptr<StaticMesh> Collider3D::GenerateDebugMesh() const
 	{
 		std::vector<Vector3f> colliderVertices;
 		std::vector<UInt16> colliderIndices;
-
-		// Generate a line list
-		ForEachPolygon([&](const Vector3f* vertices, std::size_t vertexCount)
-		{
-			UInt16 firstIndex = SafeCast<UInt16>(colliderVertices.size());
-			for (std::size_t i = 0; i < vertexCount; ++i)
-				colliderVertices.push_back(vertices[i]);
-
-			for (std::size_t i = 1; i < vertexCount; ++i)
-			{
-				colliderIndices.push_back(SafeCast<UInt16>(firstIndex + i - 1));
-				colliderIndices.push_back(SafeCast<UInt16>(firstIndex + i));
-			}
-
-			if (vertexCount > 2)
-			{
-				colliderIndices.push_back(SafeCast<UInt16>(firstIndex + vertexCount - 1));
-				colliderIndices.push_back(SafeCast<UInt16>(firstIndex));
-			}
-		});
+		BuildDebugMesh(colliderVertices, colliderIndices);
 
 		std::shared_ptr<VertexBuffer> colliderVB = std::make_shared<VertexBuffer>(VertexDeclaration::Get(VertexLayout::XYZ), SafeCast<UInt32>(colliderVertices.size()), BufferUsage::Write, SoftwareBufferFactory, colliderVertices.data());
 		std::shared_ptr<IndexBuffer> colliderIB = std::make_shared<IndexBuffer>(IndexType::U16, colliderIndices.size(), BufferUsage::Write, SoftwareBufferFactory, colliderIndices.data());
@@ -179,60 +66,105 @@ namespace Nz
 		return colliderSubMesh;
 	}
 
-	NewtonCollision* Collider3D::GetHandle(PhysWorld3D* world) const
-	{
-		auto it = m_handles.find(world);
-		if (it == m_handles.end())
-			it = m_handles.insert(std::make_pair(world, CreateHandle(world))).first;
-
-		return it->second;
-	}
-
 	std::shared_ptr<Collider3D> Collider3D::Build(const PrimitiveList& list)
 	{
 		std::size_t primitiveCount = list.GetSize();
 		if (primitiveCount > 1)
 		{
-			std::vector<std::shared_ptr<Collider3D>> geoms(primitiveCount);
+			std::vector<CompoundCollider3D::ChildCollider> childColliders(primitiveCount);
 
 			for (unsigned int i = 0; i < primitiveCount; ++i)
-				geoms[i] = CreateGeomFromPrimitive(list.GetPrimitive(i));
+			{
+				const Primitive& primitive = list.GetPrimitive(i);
+				childColliders[i].collider = CreateGeomFromPrimitive(primitive);
+				childColliders[i].offsetMatrix = primitive.matrix;
+			}
 
-			return std::make_shared<CompoundCollider3D>(std::move(geoms));
+			return std::make_shared<CompoundCollider3D>(std::move(childColliders));
 		}
 		else if (primitiveCount > 0)
 			return CreateGeomFromPrimitive(list.GetPrimitive(0));
 		else
 			return std::make_shared<NullCollider3D>();
 	}
+	
+	std::shared_ptr<Collider3D> Collider3D::CreateGeomFromPrimitive(const Primitive& primitive)
+	{
+		switch (primitive.type)
+		{
+			case PrimitiveType::Box:
+				return std::make_shared<BoxCollider3D>(primitive.box.lengths);
+
+			case PrimitiveType::Cone:
+				return std::make_shared<ConeCollider3D>(primitive.cone.length, primitive.cone.radius);
+
+			case PrimitiveType::Plane:
+				return std::make_shared<BoxCollider3D>(Vector3f(primitive.plane.size.x, 0.01f, primitive.plane.size.y));
+				///TODO: PlaneGeom?
+
+			case PrimitiveType::Sphere:
+				return std::make_shared<SphereCollider3D>(primitive.sphere.size);
+		}
+
+		NazaraError("Primitive type not handled (0x" + NumberToString(UnderlyingCast(primitive.type), 16) + ')');
+		return std::shared_ptr<Collider3D>();
+	}
 
 	/********************************** BoxCollider3D **********************************/
 
-	BoxCollider3D::BoxCollider3D(const Vector3f& lengths, const Matrix4f& transformMatrix) :
-	m_matrix(transformMatrix),
+	BoxCollider3D::BoxCollider3D(const Vector3f& lengths) :
 	m_lengths(lengths)
 	{
+		m_shape = std::make_unique<btBoxShape>(ToBullet(m_lengths));
 	}
 
-	BoxCollider3D::BoxCollider3D(const Vector3f& lengths, const Vector3f& translation, const Quaternionf& rotation) :
-	BoxCollider3D(lengths, Matrix4f::Transform(translation, rotation))
+	BoxCollider3D::~BoxCollider3D() = default;
+
+	void BoxCollider3D::BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const
 	{
+		auto InsertVertex = [&](float x, float y, float z) -> UInt16
+		{
+			UInt16 index = SafeCast<UInt16>(vertices.size());
+			vertices.push_back(offsetMatrix * Vector3f(x, y, z));
+			return index;
+		};
+
+		Vector3f halfLengths = m_lengths * 0.5f;
+
+		UInt16 v0 = InsertVertex(-halfLengths.x, -halfLengths.y, -halfLengths.z);
+		UInt16 v1 = InsertVertex(halfLengths.x, -halfLengths.y, -halfLengths.z);
+		UInt16 v2 = InsertVertex(halfLengths.x, -halfLengths.y, halfLengths.z);
+		UInt16 v3 = InsertVertex(-halfLengths.x, -halfLengths.y, halfLengths.z);
+
+		UInt16 v4 = InsertVertex(-halfLengths.x, halfLengths.y, -halfLengths.z);
+		UInt16 v5 = InsertVertex(halfLengths.x, halfLengths.y, -halfLengths.z);
+		UInt16 v6 = InsertVertex(halfLengths.x, halfLengths.y, halfLengths.z);
+		UInt16 v7 = InsertVertex(-halfLengths.x, halfLengths.y, halfLengths.z);
+
+		auto InsertEdge = [&](UInt16 from, UInt16 to)
+		{
+			indices.push_back(from);
+			indices.push_back(to);
+		};
+		InsertEdge(v0, v1);
+		InsertEdge(v1, v2);
+		InsertEdge(v2, v3);
+		InsertEdge(v3, v0);
+
+		InsertEdge(v4, v5);
+		InsertEdge(v5, v6);
+		InsertEdge(v6, v7);
+		InsertEdge(v7, v4);
+
+		InsertEdge(v0, v4);
+		InsertEdge(v1, v5);
+		InsertEdge(v2, v6);
+		InsertEdge(v3, v7);
 	}
 
-	Boxf BoxCollider3D::ComputeAABB(const Matrix4f& offsetMatrix, const Vector3f& scale) const
+	btCollisionShape* BoxCollider3D::GetShape() const
 	{
-		Vector3f halfLengths(m_lengths * 0.5f);
-
-		Boxf aabb(-halfLengths.x, -halfLengths.y, -halfLengths.z, m_lengths.x, m_lengths.y, m_lengths.z);
-		aabb.Transform(offsetMatrix, true);
-		aabb.Scale(scale);
-
-		return aabb;
-	}
-
-	float BoxCollider3D::ComputeVolume() const
-	{
-		return m_lengths.x * m_lengths.y * m_lengths.z;
+		return m_shape.get();
 	}
 
 	Vector3f BoxCollider3D::GetLengths() const
@@ -245,22 +177,18 @@ namespace Nz
 		return ColliderType3D::Box;
 	}
 
-	NewtonCollision* BoxCollider3D::CreateHandle(PhysWorld3D* world) const
-	{
-		return NewtonCreateBox(world->GetHandle(), m_lengths.x, m_lengths.y, m_lengths.z, 0, &m_matrix.m11);
-	}
-
 	/******************************** CapsuleCollider3D ********************************/
 
-	CapsuleCollider3D::CapsuleCollider3D(float length, float radius, const Matrix4f& transformMatrix) :
-	m_matrix(transformMatrix),
+	CapsuleCollider3D::CapsuleCollider3D(float length, float radius) :
 	m_length(length),
 	m_radius(radius)
 	{
+		m_shape = std::make_unique<btCapsuleShape>(radius, length);
 	}
 
-	CapsuleCollider3D::CapsuleCollider3D(float length, float radius, const Vector3f& translation, const Quaternionf& rotation) :
-	CapsuleCollider3D(length, radius, Matrix4f::Transform(translation, rotation))
+	CapsuleCollider3D::~CapsuleCollider3D() = default;
+
+	void CapsuleCollider3D::BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const
 	{
 	}
 
@@ -274,26 +202,45 @@ namespace Nz
 		return m_radius;
 	}
 
+	btCollisionShape* CapsuleCollider3D::GetShape() const
+	{
+		return m_shape.get();
+	}
+
 	ColliderType3D CapsuleCollider3D::GetType() const
 	{
 		return ColliderType3D::Capsule;
 	}
 
-	NewtonCollision* CapsuleCollider3D::CreateHandle(PhysWorld3D* world) const
-	{
-		return NewtonCreateCapsule(world->GetHandle(), m_radius, m_radius, m_length, 0, &m_matrix.m11);
-	}
-
 	/******************************* CompoundCollider3D ********************************/
 
-	CompoundCollider3D::CompoundCollider3D(std::vector<std::shared_ptr<Collider3D>> geoms) :
-	m_geoms(std::move(geoms))
+	CompoundCollider3D::CompoundCollider3D(std::vector<ChildCollider> childs) :
+	m_childs(std::move(childs))
 	{
+		m_shape = std::make_unique<btCompoundShape>();
+		for (const auto& child : m_childs)
+		{
+			btTransform transform = ToBullet(child.offsetMatrix);
+			m_shape->addChildShape(transform, child.collider->GetShape());
+		}
 	}
 
-	const std::vector<std::shared_ptr<Collider3D>>& CompoundCollider3D::GetGeoms() const
+	CompoundCollider3D::~CompoundCollider3D() = default;
+
+	void CompoundCollider3D::BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const
 	{
-		return m_geoms;
+		for (const auto& child : m_childs)
+			child.collider->BuildDebugMesh(vertices, indices, offsetMatrix * child.offsetMatrix);
+	}
+
+	auto CompoundCollider3D::GetGeoms() const -> const std::vector<ChildCollider>&
+	{
+		return m_childs;
+	}
+
+	btCollisionShape* CompoundCollider3D::GetShape() const
+	{
+		return m_shape.get();
 	}
 
 	ColliderType3D CompoundCollider3D::GetType() const
@@ -301,38 +248,18 @@ namespace Nz
 		return ColliderType3D::Compound;
 	}
 
-	NewtonCollision* CompoundCollider3D::CreateHandle(PhysWorld3D* world) const
-	{
-		NewtonCollision* compoundCollision = NewtonCreateCompoundCollision(world->GetHandle(), 0);
-
-		NewtonCompoundCollisionBeginAddRemove(compoundCollision);
-		for (const std::shared_ptr<Collider3D>& geom : m_geoms)
-		{
-			if (geom->GetType() == ColliderType3D::Compound)
-			{
-				CompoundCollider3D& compoundGeom = static_cast<CompoundCollider3D&>(*geom);
-				for (const std::shared_ptr<Collider3D>& piece : compoundGeom.GetGeoms())
-					NewtonCompoundCollisionAddSubCollision(compoundCollision, piece->GetHandle(world));
-			}
-			else
-				NewtonCompoundCollisionAddSubCollision(compoundCollision, geom->GetHandle(world));
-		}
-		NewtonCompoundCollisionEndAddRemove(compoundCollision);
-
-		return compoundCollision;
-	}
-
 	/********************************* ConeCollider3D **********************************/
 
-	ConeCollider3D::ConeCollider3D(float length, float radius, const Matrix4f& transformMatrix) :
-	m_matrix(transformMatrix),
+	ConeCollider3D::ConeCollider3D(float length, float radius) :
 	m_length(length),
 	m_radius(radius)
 	{
+		m_shape = std::make_unique<btConeShape>(radius, length);
 	}
 
-	ConeCollider3D::ConeCollider3D(float length, float radius, const Vector3f& translation, const Quaternionf& rotation) :
-	ConeCollider3D(length, radius, Matrix4f::Transform(translation, rotation))
+	ConeCollider3D::~ConeCollider3D() = default;
+
+	void ConeCollider3D::BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const
 	{
 	}
 
@@ -346,35 +273,59 @@ namespace Nz
 		return m_radius;
 	}
 
+	btCollisionShape* ConeCollider3D::GetShape() const
+	{
+		return m_shape.get();
+	}
+
 	ColliderType3D ConeCollider3D::GetType() const
 	{
 		return ColliderType3D::Cone;
 	}
 
-	NewtonCollision* ConeCollider3D::CreateHandle(PhysWorld3D* world) const
-	{
-		return NewtonCreateCone(world->GetHandle(), m_radius, m_length, 0, &m_matrix.m11);
-	}
-
 	/****************************** ConvexCollider3D *******************************/
 
-	ConvexCollider3D::ConvexCollider3D(SparsePtr<const Vector3f> vertices, unsigned int vertexCount, float tolerance, const Matrix4f& transformMatrix) :
-	m_matrix(transformMatrix),
-	m_tolerance(tolerance)
+	ConvexCollider3D::ConvexCollider3D(SparsePtr<const Vector3f> vertices, unsigned int vertexCount)
 	{
-		m_vertices.resize(vertexCount);
-		if (vertices.GetStride() != sizeof(Vector3f))
-		{
-			for (unsigned int i = 0; i < vertexCount; ++i)
-				m_vertices[i] = *vertices++;
-		}
-		else // Fast path
-			std::memcpy(m_vertices.data(), vertices.GetPtr(), vertexCount*sizeof(Vector3f));
+		static_assert(std::is_same_v<btScalar, float>);
+
+		m_shape = std::make_unique<btConvexHullShape>(reinterpret_cast<const float*>(vertices.GetPtr()), vertexCount, vertices.GetStride());
+		m_shape->optimizeConvexHull();
 	}
 
-	ConvexCollider3D::ConvexCollider3D(SparsePtr<const Vector3f> vertices, unsigned int vertexCount, float tolerance, const Vector3f& translation, const Quaternionf& rotation) :
-	ConvexCollider3D(vertices, vertexCount, tolerance, Matrix4f::Transform(translation, rotation))
+	ConvexCollider3D::~ConvexCollider3D() = default;
+
+	void ConvexCollider3D::BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const
 	{
+		tsl::ordered_map<Vector3f, UInt16> vertexCache;
+		auto InsertVertex = [&](const Vector3f& position) -> UInt16
+		{
+			auto it = vertexCache.find(position);
+			if (it != vertexCache.end())
+				return it->second;
+
+			UInt16 index = SafeCast<UInt16>(vertices.size());
+
+			vertices.push_back(position);
+			vertexCache.emplace(position, index);
+
+			return index;
+		};
+
+		int edgeCount = m_shape->getNumEdges();
+		for (int i = 0; i < edgeCount; ++i)
+		{
+			btVector3 from, to;
+			m_shape->getEdge(i, from, to);
+
+			indices.push_back(InsertVertex(offsetMatrix * FromBullet(from)));
+			indices.push_back(InsertVertex(offsetMatrix * FromBullet(to)));
+		}
+	}
+
+	btCollisionShape* ConvexCollider3D::GetShape() const
+	{
+		return m_shape.get();
 	}
 
 	ColliderType3D ConvexCollider3D::GetType() const
@@ -382,22 +333,19 @@ namespace Nz
 		return ColliderType3D::ConvexHull;
 	}
 
-	NewtonCollision* ConvexCollider3D::CreateHandle(PhysWorld3D* world) const
-	{
-		return NewtonCreateConvexHull(world->GetHandle(), static_cast<int>(m_vertices.size()), reinterpret_cast<const float*>(m_vertices.data()), sizeof(Vector3f), m_tolerance, 0, &m_matrix.m11);
-	}
-
 	/******************************* CylinderCollider3D ********************************/
 
-	CylinderCollider3D::CylinderCollider3D(float length, float radius, const Matrix4f& transformMatrix) :
-	m_matrix(transformMatrix),
+	CylinderCollider3D::CylinderCollider3D(float length, float radius) :
 	m_length(length),
 	m_radius(radius)
 	{
+		// TODO: Allow to use two different radius
+		m_shape = std::make_unique<btCylinderShape>(btVector3{ radius, length, radius });
 	}
 
-	CylinderCollider3D::CylinderCollider3D(float length, float radius, const Vector3f& translation, const Quaternionf& rotation) :
-	CylinderCollider3D(length, radius, Matrix4f::Transform(translation, rotation))
+	CylinderCollider3D::~CylinderCollider3D() = default;
+
+	void CylinderCollider3D::BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const
 	{
 	}
 
@@ -411,20 +359,30 @@ namespace Nz
 		return m_radius;
 	}
 
+	btCollisionShape* CylinderCollider3D::GetShape() const
+	{
+		return m_shape.get();
+	}
+
 	ColliderType3D CylinderCollider3D::GetType() const
 	{
 		return ColliderType3D::Cylinder;
 	}
 
-	NewtonCollision* CylinderCollider3D::CreateHandle(PhysWorld3D* world) const
-	{
-		return NewtonCreateCylinder(world->GetHandle(), m_radius, m_radius, m_length, 0, &m_matrix.m11);
-	}
-
 	/********************************* NullCollider3D **********************************/
 
-	NullCollider3D::NullCollider3D()
+	void NullCollider3D::BuildDebugMesh(std::vector<Vector3f>& /*vertices*/, std::vector<UInt16>& /*indices*/, const Matrix4f& /*offsetMatrix*/) const
 	{
+	}
+
+	void NullCollider3D::ComputeInertia(float /*mass*/, Vector3f* inertia) const
+	{
+		inertia->Set(1.f, 1.f, 1.f);
+	}
+
+	btCollisionShape* NullCollider3D::GetShape() const
+	{
+		return nullptr;
 	}
 
 	ColliderType3D NullCollider3D::GetType() const
@@ -432,44 +390,18 @@ namespace Nz
 		return ColliderType3D::Null;
 	}
 
-	void NullCollider3D::ComputeInertialMatrix(Vector3f* inertia, Vector3f* center) const
-	{
-		if (inertia)
-			inertia->MakeUnit();
-
-		if (center)
-			center->MakeZero();
-	}
-
-	NewtonCollision* NullCollider3D::CreateHandle(PhysWorld3D* world) const
-	{
-		return NewtonCreateNull(world->GetHandle());
-	}
-
 	/******************************** SphereCollider3D *********************************/
 
-	SphereCollider3D::SphereCollider3D(float radius, const Matrix4f& transformMatrix) :
-	SphereCollider3D(radius, transformMatrix.GetTranslation())
-	{
-	}
-
-	SphereCollider3D::SphereCollider3D(float radius, const Vector3f& translation, const Quaternionf& /*rotation*/) :
-	m_position(translation),
+	SphereCollider3D::SphereCollider3D(float radius) :
 	m_radius(radius)
 	{
+		m_shape = std::make_unique<btSphereShape>(radius);
 	}
 
-	Boxf SphereCollider3D::ComputeAABB(const Matrix4f& offsetMatrix, const Vector3f& scale) const
-	{
-		Vector3f size(m_radius * Sqrt5<float> * scale);
-		Vector3f position(offsetMatrix.GetTranslation());
+	SphereCollider3D::~SphereCollider3D() = default;
 
-		return Boxf(position - size, position + size);
-	}
-
-	float SphereCollider3D::ComputeVolume() const
+	void SphereCollider3D::BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const
 	{
-		return Pi<float> * m_radius * m_radius * m_radius / 3.f;
 	}
 
 	float SphereCollider3D::GetRadius() const
@@ -477,14 +409,13 @@ namespace Nz
 		return m_radius;
 	}
 
+	btCollisionShape* SphereCollider3D::GetShape() const
+	{
+		return m_shape.get();
+	}
+
 	ColliderType3D SphereCollider3D::GetType() const
 	{
 		return ColliderType3D::Sphere;
-	}
-
-	NewtonCollision* SphereCollider3D::CreateHandle(PhysWorld3D* world) const
-	{
-		Matrix4f transformMatrix = Matrix4f::Translate(m_position);
-		return NewtonCreateSphere(world->GetHandle(), m_radius, 0, &transformMatrix.m11);
 	}
 }

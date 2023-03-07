@@ -16,42 +16,40 @@
 #include <Nazara/Physics3D/Enums.hpp>
 #include <NazaraUtils/Signal.hpp>
 #include <NazaraUtils/SparsePtr.hpp>
-#include <unordered_map>
+#include <memory>
 
-class NewtonCollision;
+class btBoxShape;
+class btCapsuleShape;
+class btCompoundShape;
+class btCollisionShape;
+class btConeShape;
+class btConvexHullShape;
+class btCylinderShape;
+class btSphereShape;
 
 namespace Nz
 {
-	///TODO: CollisionModifier
-	///TODO: HeightfieldGeom
-	///TODO: PlaneGeom ?
-	///TODO: SceneGeom
-	///TODO: TreeGeom
-
 	class PrimitiveList;
-	class PhysWorld3D;
 	class StaticMesh;
+	struct Primitive;
 
 	class NAZARA_PHYSICS3D_API Collider3D
 	{
-		friend class Physics3D;
-
 		public:
 			Collider3D() = default;
 			Collider3D(const Collider3D&) = delete;
 			Collider3D(Collider3D&&) = delete;
 			virtual ~Collider3D();
 
+			virtual void BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix = Matrix4f::Identity()) const = 0;
+
 			Boxf ComputeAABB(const Vector3f& translation, const Quaternionf& rotation, const Vector3f& scale) const;
 			virtual Boxf ComputeAABB(const Matrix4f& offsetMatrix = Matrix4f::Identity(), const Vector3f& scale = Vector3f::Unit()) const;
-			virtual void ComputeInertialMatrix(Vector3f* inertia, Vector3f* center) const;
-			virtual float ComputeVolume() const;
+			virtual void ComputeInertia(float mass, Vector3f* inertia) const;
 
-			virtual void ForEachPolygon(const std::function<void(const Vector3f* vertices, std::size_t vertexCount)>& callback) const;
+			virtual std::shared_ptr<StaticMesh> GenerateDebugMesh() const;
 
-			virtual std::shared_ptr<StaticMesh> GenerateMesh() const;
-
-			NewtonCollision* GetHandle(PhysWorld3D* world) const;
+			virtual btCollisionShape* GetShape() const = 0;
 			virtual ColliderType3D GetType() const = 0;
 
 			Collider3D& operator=(const Collider3D&) = delete;
@@ -59,146 +57,153 @@ namespace Nz
 
 			static std::shared_ptr<Collider3D> Build(const PrimitiveList& list);
 
-			// Signals:
-			NazaraSignal(OnColliderRelease, const Collider3D* /*collider*/);
-
-		protected:
-			virtual NewtonCollision* CreateHandle(PhysWorld3D* world) const = 0;
-
-			mutable std::unordered_map<PhysWorld3D*, NewtonCollision*> m_handles;
+		private:
+			static std::shared_ptr<Collider3D> CreateGeomFromPrimitive(const Primitive& primitive);
 	};
 
-	class NAZARA_PHYSICS3D_API BoxCollider3D : public Collider3D
+	class NAZARA_PHYSICS3D_API BoxCollider3D final : public Collider3D
 	{
 		public:
-			BoxCollider3D(const Vector3f& lengths, const Matrix4f& transformMatrix = Matrix4f::Identity());
-			BoxCollider3D(const Vector3f& lengths, const Vector3f& translation, const Quaternionf& rotation = Quaternionf::Identity());
+			BoxCollider3D(const Vector3f& lengths);
+			~BoxCollider3D();
 
-			Boxf ComputeAABB(const Matrix4f& offsetMatrix = Matrix4f::Identity(), const Vector3f& scale = Vector3f::Unit()) const override;
-			float ComputeVolume() const override;
+			void BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const override;
 
 			Vector3f GetLengths() const;
+			btCollisionShape* GetShape() const override;
 			ColliderType3D GetType() const override;
 
 		private:
-			NewtonCollision* CreateHandle(PhysWorld3D* world) const override;
-
-			Matrix4f m_matrix;
+			std::unique_ptr<btBoxShape> m_shape;
 			Vector3f m_lengths;
 	};
 
-	class NAZARA_PHYSICS3D_API CapsuleCollider3D : public Collider3D
+	class NAZARA_PHYSICS3D_API CapsuleCollider3D final : public Collider3D
 	{
 		public:
-			CapsuleCollider3D(float length, float radius, const Matrix4f& transformMatrix = Matrix4f::Identity());
-			CapsuleCollider3D(float length, float radius, const Vector3f& translation, const Quaternionf& rotation = Quaternionf::Identity());
+			CapsuleCollider3D(float length, float radius);
+			~CapsuleCollider3D();
+
+			void BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const override;
 
 			float GetLength() const;
 			float GetRadius() const;
+			btCollisionShape* GetShape() const override;
 			ColliderType3D GetType() const override;
 
 		private:
-			NewtonCollision* CreateHandle(PhysWorld3D* world) const override;
+			std::unique_ptr<btCapsuleShape> m_shape;
+			float m_length;
+			float m_radius;
+	};
 
+	class NAZARA_PHYSICS3D_API CompoundCollider3D final : public Collider3D
+	{
+		public:
+			struct ChildCollider;
+
+			CompoundCollider3D(std::vector<ChildCollider> childs);
+			~CompoundCollider3D();
+
+			void BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const override;
+
+			const std::vector<ChildCollider>& GetGeoms() const;
+			btCollisionShape* GetShape() const override;
+			ColliderType3D GetType() const override;
+
+			struct ChildCollider
+			{
+				std::shared_ptr<Collider3D> collider;
+				Matrix4f offsetMatrix;
+			};
+
+		private:
+			std::unique_ptr<btCompoundShape> m_shape;
+			std::vector<ChildCollider> m_childs;
+	};
+
+	class NAZARA_PHYSICS3D_API ConeCollider3D final : public Collider3D
+	{
+		public:
+			ConeCollider3D(float length, float radius);
+			~ConeCollider3D();
+
+			void BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const override;
+
+			float GetLength() const;
+			float GetRadius() const;
+			btCollisionShape* GetShape() const override;
+			ColliderType3D GetType() const override;
+
+		private:
+			std::unique_ptr<btConeShape> m_shape;
+			float m_length;
+			float m_radius;
+	};
+
+	class NAZARA_PHYSICS3D_API ConvexCollider3D final : public Collider3D
+	{
+		public:
+			ConvexCollider3D(SparsePtr<const Vector3f> vertices, unsigned int vertexCount);
+			~ConvexCollider3D();
+
+			void BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const override;
+
+			btCollisionShape* GetShape() const override;
+			ColliderType3D GetType() const override;
+
+		private:
+			std::unique_ptr<btConvexHullShape> m_shape;
+	};
+
+	class NAZARA_PHYSICS3D_API CylinderCollider3D final : public Collider3D
+	{
+		public:
+			CylinderCollider3D(float length, float radius);
+			~CylinderCollider3D();
+
+			void BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const override;
+
+			float GetLength() const;
+			float GetRadius() const;
+			btCollisionShape* GetShape() const override;
+			ColliderType3D GetType() const override;
+
+		private:
+			std::unique_ptr<btCylinderShape> m_shape;
 			Matrix4f m_matrix;
 			float m_length;
 			float m_radius;
 	};
 
-	class NAZARA_PHYSICS3D_API CompoundCollider3D : public Collider3D
+	class NAZARA_PHYSICS3D_API NullCollider3D final : public Collider3D
 	{
 		public:
-			CompoundCollider3D(std::vector<std::shared_ptr<Collider3D>> geoms);
+			NullCollider3D() = default;
+			~NullCollider3D() = default;
 
-			const std::vector<std::shared_ptr<Collider3D>>& GetGeoms() const;
+			void BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const override;
+
+			void ComputeInertia(float mass, Vector3f* inertia) const override;
+
+			btCollisionShape* GetShape() const override;
 			ColliderType3D GetType() const override;
-
-		private:
-			NewtonCollision* CreateHandle(PhysWorld3D* world) const override;
-
-			std::vector<std::shared_ptr<Collider3D>> m_geoms;
 	};
 
-	class NAZARA_PHYSICS3D_API ConeCollider3D : public Collider3D
+	class NAZARA_PHYSICS3D_API SphereCollider3D final : public Collider3D
 	{
 		public:
-			ConeCollider3D(float length, float radius, const Matrix4f& transformMatrix = Matrix4f::Identity());
-			ConeCollider3D(float length, float radius, const Vector3f& translation, const Quaternionf& rotation = Quaternionf::Identity());
+			SphereCollider3D(float radius);
+			~SphereCollider3D();
 
-			float GetLength() const;
-			float GetRadius() const;
-			ColliderType3D GetType() const override;
-
-		private:
-			NewtonCollision* CreateHandle(PhysWorld3D* world) const override;
-
-			Matrix4f m_matrix;
-			float m_length;
-			float m_radius;
-	};
-
-	class NAZARA_PHYSICS3D_API ConvexCollider3D : public Collider3D
-	{
-		public:
-			ConvexCollider3D(SparsePtr<const Vector3f> vertices, unsigned int vertexCount, float tolerance = 0.002f, const Matrix4f& transformMatrix = Matrix4f::Identity());
-			ConvexCollider3D(SparsePtr<const Vector3f> vertices, unsigned int vertexCount, float tolerance, const Vector3f& translation, const Quaternionf& rotation = Quaternionf::Identity());
-
-			ColliderType3D GetType() const override;
-
-		private:
-			NewtonCollision* CreateHandle(PhysWorld3D* world) const override;
-
-			std::vector<Vector3f> m_vertices;
-			Matrix4f m_matrix;
-			float m_tolerance;
-	};
-
-	class NAZARA_PHYSICS3D_API CylinderCollider3D : public Collider3D
-	{
-		public:
-			CylinderCollider3D(float length, float radius, const Matrix4f& transformMatrix = Matrix4f::Identity());
-			CylinderCollider3D(float length, float radius, const Vector3f& translation, const Quaternionf& rotation = Quaternionf::Identity());
-
-			float GetLength() const;
-			float GetRadius() const;
-			ColliderType3D GetType() const override;
-
-		private:
-			NewtonCollision* CreateHandle(PhysWorld3D* world) const override;
-
-			Matrix4f m_matrix;
-			float m_length;
-			float m_radius;
-	};
-
-	class NAZARA_PHYSICS3D_API NullCollider3D : public Collider3D
-	{
-		public:
-			NullCollider3D();
-
-			void ComputeInertialMatrix(Vector3f* inertia, Vector3f* center) const override;
-
-			ColliderType3D GetType() const override;
-
-		private:
-			NewtonCollision* CreateHandle(PhysWorld3D* world) const override;
-	};
-
-	class NAZARA_PHYSICS3D_API SphereCollider3D : public Collider3D
-	{
-		public:
-			SphereCollider3D(float radius, const Matrix4f& transformMatrix = Matrix4f::Identity());
-			SphereCollider3D(float radius, const Vector3f& translation, const Quaternionf& rotation = Quaternionf::Identity());
-
-			Boxf ComputeAABB(const Matrix4f& offsetMatrix = Matrix4f::Identity(), const Vector3f& scale = Vector3f::Unit()) const override;
-			float ComputeVolume() const override;
+			void BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const override;
 
 			float GetRadius() const;
+			btCollisionShape* GetShape() const override;
 			ColliderType3D GetType() const override;
 
 		private:
-			NewtonCollision* CreateHandle(PhysWorld3D* world) const override;
-
+			std::unique_ptr<btSphereShape> m_shape;
 			Vector3f m_position;
 			float m_radius;
 	};
