@@ -28,6 +28,8 @@ int main()
 
 	auto& world = ecs.AddWorld<Nz::EnttWorld>();
 	Nz::Physics3DSystem& physSytem = world.AddSystem<Nz::Physics3DSystem>();
+	physSytem.GetPhysWorld().SetGravity(Nz::Vector3f::Zero());
+
 	Nz::RenderSystem& renderSystem = world.AddSystem<Nz::RenderSystem>();
 
 	std::string windowTitle = "Physics 3D";
@@ -100,7 +102,7 @@ int main()
 		cameraComponent.UpdateClearColor(Nz::Color(0.5f, 0.5f, 0.5f));
 	}
 
-	auto shipCollider = std::make_shared<Nz::ConvexCollider3D>(vertices, vertexMapper.GetVertexCount(), 0.01f);
+	auto shipCollider = std::make_shared<Nz::ConvexCollider3D>(vertices, vertexMapper.GetVertexCount());
 
 	std::shared_ptr<Nz::MaterialInstance> colliderMat = Nz::Graphics::Instance()->GetDefaultMaterials().basicMaterial->Instantiate();
 	colliderMat->SetValueProperty("BaseColor", Nz::Color::Green());
@@ -112,7 +114,7 @@ int main()
 
 	std::shared_ptr<Nz::Model> colliderModel;
 	{
-		std::shared_ptr<Nz::Mesh> colliderMesh = Nz::Mesh::Build(shipCollider->GenerateMesh());
+		std::shared_ptr<Nz::Mesh> colliderMesh = Nz::Mesh::Build(shipCollider->GenerateDebugMesh());
 		std::shared_ptr<Nz::GraphicalMesh> colliderGraphicalMesh = Nz::GraphicalMesh::BuildFromMesh(*colliderMesh);
 
 		colliderModel = std::make_shared<Nz::Model>(colliderGraphicalMesh);
@@ -132,11 +134,6 @@ int main()
 
 	entt::handle headingEntity = world.CreateEntity();
 	{
-		auto& entityLight = playerEntity.emplace<Nz::LightComponent>();
-		auto& spotLight = entityLight.AddLight<Nz::SpotLight>(1);
-		spotLight.EnableShadowCasting(true);
-		spotLight.UpdateShadowMapSize(1024);
-
 		auto& entityGfx = playerEntity.emplace<Nz::GraphicsComponent>();
 		entityGfx.AttachRenderable(model, 1);
 
@@ -145,11 +142,24 @@ int main()
 
 		auto& entityPhys = playerEntity.emplace<Nz::RigidBody3DComponent>(physSytem.CreateRigidBody(shipCollider));
 		entityPhys.SetMass(50.f);
-		entityPhys.SetAngularDamping(Nz::Vector3f::Zero());
+		entityPhys.SetAngularDamping(0.1f);
+		entityPhys.SetLinearDamping(0.5f);
 
 		auto& headingNode = headingEntity.emplace<Nz::NodeComponent>();
 		headingNode.SetInheritRotation(false);
 		headingNode.SetParent(entityNode);
+
+		entt::handle lightEntity = world.CreateEntity();
+
+		auto& lightNode = lightEntity.emplace<Nz::NodeComponent>();
+		lightNode.SetParent(playerEntity);
+		lightNode.SetPosition(Nz::Vector3f::Forward() * 1.f);
+
+		auto& entityLight = lightEntity.emplace<Nz::LightComponent>();
+		auto& spotLight = entityLight.AddLight<Nz::SpotLight>(1);
+		spotLight.EnableShadowCasting(true);
+		spotLight.UpdateShadowMapSize(1024);
+
 	}
 
 	viewer.get<Nz::NodeComponent>().SetParent(headingEntity);
@@ -171,7 +181,7 @@ int main()
 
 				auto& entityPhys = entity.emplace<Nz::RigidBody3DComponent>(physSytem.CreateRigidBody(shipCollider));
 				entityPhys.SetMass(1.f);
-				entityPhys.SetAngularDamping(Nz::Vector3f::Zero());
+				entityPhys.SetAngularDamping(0.f);
 				entityPhys.SetLinearDamping(0.f);
 			}
 		}
@@ -227,7 +237,7 @@ int main()
 
 			auto& entityPhys = entity.emplace<Nz::RigidBody3DComponent>(physSytem.CreateRigidBody(shipCollider));
 			entityPhys.SetMass(1.f);
-			entityPhys.SetAngularDamping(Nz::Vector3f::Zero());
+			entityPhys.SetAngularDamping(0.f);
 			entityPhys.SetLinearDamping(0.f);
 		}
 	});
@@ -246,7 +256,7 @@ int main()
 		headingEntity.get<Nz::NodeComponent>().SetRotation(camQuat);
 	});
 
-	app.AddUpdater([&](Nz::Time elapsedTime)
+	app.AddUpdater([&](Nz::Time /*elapsedTime*/)
 	{
 		if (std::optional<Nz::Time> deltaTime = updateClock.RestartIfOver(Nz::Time::TickDuration(60)))
 		{
@@ -274,28 +284,28 @@ int main()
 			Nz::Vector3f currentUp = currentRotation * Nz::Vector3f::Up();
 			Nz::Vector3f upError = currentUp.CrossProduct(desiredUp);
 
-			playerShipBody.AddTorque(headingController.Update(headingError, elapsedTime) * 10.f);
-			playerShipBody.AddTorque(upController.Update(upError, elapsedTime) * 10.f);
+			playerShipBody.AddTorque(headingController.Update(headingError, elapsedTime) * 200.f);
+			playerShipBody.AddTorque(upController.Update(upError, elapsedTime) * 200.f);
 
 			float mass = playerShipBody.GetMass();
 
 			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Up) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Z))
-				playerShipBody.AddForce(Nz::Vector3f::Forward() * 2.5f * mass, Nz::CoordSys::Local);
+				playerShipBody.AddForce(Nz::Vector3f::Forward() * 10.f * mass, Nz::CoordSys::Local);
 
 			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Down) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::S))
-				playerShipBody.AddForce(Nz::Vector3f::Backward() * 2.5f * mass, Nz::CoordSys::Local);
+				playerShipBody.AddForce(Nz::Vector3f::Backward() * 10.f * mass, Nz::CoordSys::Local);
 
 			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Left) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Q))
-				playerShipBody.AddForce(Nz::Vector3f::Left() * 2.5f * mass, Nz::CoordSys::Local);
+				playerShipBody.AddForce(Nz::Vector3f::Left() * 10.f * mass, Nz::CoordSys::Local);
 
 			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Right) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::D))
-				playerShipBody.AddForce(Nz::Vector3f::Right() * 2.5f * mass, Nz::CoordSys::Local);
+				playerShipBody.AddForce(Nz::Vector3f::Right() * 10.f * mass, Nz::CoordSys::Local);
 
 			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::LShift) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::RShift))
-				playerShipBody.AddForce(Nz::Vector3f::Up() * 3.f * mass, Nz::CoordSys::Local);
+				playerShipBody.AddForce(Nz::Vector3f::Up() * 15.f * mass, Nz::CoordSys::Local);
 
 			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::LControl) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::RControl))
-				playerShipBody.AddForce(Nz::Vector3f::Down() * 3.f * mass, Nz::CoordSys::Local);
+				playerShipBody.AddForce(Nz::Vector3f::Down() * 15.f * mass, Nz::CoordSys::Local);
 		}
 
 		fps++;
