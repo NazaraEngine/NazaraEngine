@@ -8,7 +8,6 @@
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Physics3D/Collider3D.hpp>
 #include <Nazara/Physics3D/Config.hpp>
-#include <newton/Newton.h>
 #include <Nazara/Physics3D/Debug.hpp>
 
 namespace Nz
@@ -16,11 +15,6 @@ namespace Nz
 	Physics3D::Physics3D(Config /*config*/) :
 	ModuleBase("Physics3D", this)
 	{
-	}
-
-	unsigned int Physics3D::GetMemoryUsed()
-	{
-		return NewtonGetMemoryUsed();
 	}
 
 	Physics3D* Physics3D::s_instance;
