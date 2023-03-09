@@ -97,7 +97,16 @@ namespace Nz
 
 	void RigidBody3D::EnableSleeping(bool enable)
 	{
-		m_body->setActivationState(DISABLE_DEACTIVATION);
+		if (enable)
+		{
+			if (m_body->getActivationState() == DISABLE_DEACTIVATION)
+				m_body->setActivationState(ACTIVE_TAG);
+		}
+		else
+		{
+			if (m_body->getActivationState() != DISABLE_DEACTIVATION)
+				m_body->setActivationState(DISABLE_DEACTIVATION);
+		}
 	}
 
 	void RigidBody3D::FallAsleep()
