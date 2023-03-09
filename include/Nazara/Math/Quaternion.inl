@@ -730,7 +730,7 @@ namespace Nz
 	{
 		// From https://gamedev.stackexchange.com/questions/53129/quaternion-look-at-with-up-vector
 
-		Vector3<T> forward_w(1, 0, 0);
+		Vector3<T> forward_w = Vector3<T>::Forward();
 		Vector3<T> axis = Vector3<T>::CrossProduct(forward, forward_w);
 		RadianAngle<T> angle = std::acos(Vector3<T>::DotProduct(forward, forward_w));
 
