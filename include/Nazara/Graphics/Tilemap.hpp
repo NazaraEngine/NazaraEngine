@@ -71,7 +71,7 @@ namespace Nz
 		private:
 			Vector3ui GetTextureSize(std::size_t matIndex) const;
 			inline void InvalidateVertices();
-			void UpdateAABB();
+			inline void UpdateAABB();
 			void UpdateVertices() const;
 
 			struct Layer
