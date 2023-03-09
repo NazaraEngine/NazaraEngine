@@ -55,7 +55,7 @@ int main()
 	sound.Play();
 
 	Nz::MillisecondClock clock;
-	app.AddUpdater([&](Nz::Time elapsedTime)
+	app.AddUpdater([&](Nz::Time /*elapsedTime*/)
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000 / 30));
 

@@ -141,7 +141,7 @@ int main()
 		}
 	});
 
-	app.AddUpdater([&](Nz::Time elapsedTime)
+	app.AddUpdater([&](Nz::Time /*elapsedTime*/)
 	{
 		if (std::optional<Nz::Time> deltaTime = updateClock.RestartIfOver(Nz::Time::TickDuration(60)))
 		{
