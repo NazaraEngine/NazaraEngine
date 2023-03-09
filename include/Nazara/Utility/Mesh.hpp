@@ -104,7 +104,7 @@ namespace Nz
 			void AddSubMesh(const std::string& identifier, std::shared_ptr<SubMesh> subMesh);
 
 			std::shared_ptr<SubMesh> BuildSubMesh(const Primitive& primitive, const MeshParams& params = MeshParams());
-			void BuildSubMeshes(const PrimitiveList& list, const MeshParams& params = MeshParams());
+			void BuildSubMeshes(const PrimitiveList& primitiveList, const MeshParams& params = MeshParams());
 
 			bool CreateSkeletal(std::size_t jointCount);
 			bool CreateStatic();
@@ -156,6 +156,8 @@ namespace Nz
 			Mesh& operator=(Mesh&&) = delete;
 
 			static inline std::shared_ptr<Mesh> Build(std::shared_ptr<StaticMesh> staticMesh);
+			static inline std::shared_ptr<Mesh> Build(const Primitive& primitive, const MeshParams& params = MeshParams());
+			static inline std::shared_ptr<Mesh> Build(const PrimitiveList& primitiveList, const MeshParams& params = MeshParams());
 
 			static std::shared_ptr<Mesh> LoadFromFile(const std::filesystem::path& filePath, const MeshParams& params = MeshParams());
 			static std::shared_ptr<Mesh> LoadFromMemory(const void* data, std::size_t size, const MeshParams& params = MeshParams());

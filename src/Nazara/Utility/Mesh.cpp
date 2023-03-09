@@ -249,10 +249,10 @@ namespace Nz
 		return subMesh;
 	}
 
-	void Mesh::BuildSubMeshes(const PrimitiveList& list, const MeshParams& params)
+	void Mesh::BuildSubMeshes(const PrimitiveList& primitiveList, const MeshParams& params)
 	{
-		for (std::size_t i = 0; i < list.GetSize(); ++i)
-			BuildSubMesh(list.GetPrimitive(i), params);
+		for (std::size_t i = 0; i < primitiveList.GetSize(); ++i)
+			BuildSubMesh(primitiveList.GetPrimitive(i), params);
 	}
 
 	bool Mesh::CreateSkeletal(std::size_t jointCount)
