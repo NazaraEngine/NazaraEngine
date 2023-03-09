@@ -54,6 +54,8 @@ namespace Nz
 			gfxMesh->AddSubMesh(std::move(submeshData));
 		}
 
+		gfxMesh->UpdateAABB(mesh.GetAABB());
+
 		return gfxMesh;
 	}
 }

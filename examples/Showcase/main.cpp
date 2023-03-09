@@ -108,7 +108,7 @@ int main()
 
 	//std::shared_ptr<Nz::Material> material = Nz::Graphics::Instance()->GetDefaultMaterials().basicTransparent;
 
-	std::shared_ptr<Nz::Model> bobModel = std::make_shared<Nz::Model>(std::move(bobGfxMesh), bobAABB);
+	std::shared_ptr<Nz::Model> bobModel = std::make_shared<Nz::Model>(std::move(bobGfxMesh));
 	std::vector<std::shared_ptr<Nz::MaterialInstance>> materials(bobMesh->GetMaterialCount());
 
 	std::bitset<5> alphaMaterials("01010");
@@ -212,7 +212,7 @@ int main()
 			std::shared_ptr<Nz::MaterialInstance> sphereMat = Nz::Graphics::Instance()->GetDefaultMaterials().phongMaterial->Instantiate();
 			sphereMat->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(resourceDir / "Rusty/rustediron2_basecolor.png", srgbTexParams));
 
-			std::shared_ptr<Nz::Model> sphereModel = std::make_shared<Nz::Model>(std::move(gfxMesh), sphereMesh->GetAABB());
+			std::shared_ptr<Nz::Model> sphereModel = std::make_shared<Nz::Model>(std::move(gfxMesh));
 			for (std::size_t i = 0; i < sphereModel->GetSubMeshCount(); ++i)
 				sphereModel->SetMaterial(i, sphereMat);
 
@@ -318,7 +318,7 @@ int main()
 
 		floorBox = planeMesh.GetAABB();
 
-		std::shared_ptr<Nz::Model> planeModel = std::make_shared<Nz::Model>(std::move(planeMeshGfx), planeMesh.GetAABB());
+		std::shared_ptr<Nz::Model> planeModel = std::make_shared<Nz::Model>(std::move(planeMeshGfx));
 		planeModel->SetMaterial(0, planeMat);
 
 		auto& planeGfx = planeEntity.emplace<Nz::GraphicsComponent>();
@@ -336,7 +336,7 @@ int main()
 
 		std::shared_ptr<Nz::GraphicalMesh> boxMeshGfx = Nz::GraphicalMesh::BuildFromMesh(boxMesh);
 
-		std::shared_ptr<Nz::Model> boxModel = std::make_shared<Nz::Model>(std::move(boxMeshGfx), boxMesh.GetAABB());
+		std::shared_ptr<Nz::Model> boxModel = std::make_shared<Nz::Model>(std::move(boxMeshGfx));
 		boxModel->SetMaterial(0, planeMat);
 
 		entt::handle boxEntity = world.CreateEntity();

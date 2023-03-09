@@ -226,11 +226,11 @@ int main()
 	std::shared_ptr<Nz::MaterialInstance> planeMat = deferredMaterial->Instantiate();
 	planeMat->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(resourceDir / "dev_grey.png", texParams), planeSampler);
 
-	Nz::Model spaceshipModel(std::move(gfxMesh), spaceship->GetAABB());
+	Nz::Model spaceshipModel(std::move(gfxMesh));
 	for (std::size_t i = 0; i < spaceshipModel.GetSubMeshCount(); ++i)
 		spaceshipModel.SetMaterial(i, spaceshipMat);
 
-	Nz::Model planeModel(std::move(planeMeshGfx), planeMesh->GetAABB());
+	Nz::Model planeModel(std::move(planeMeshGfx));
 	for (std::size_t i = 0; i < planeModel.GetSubMeshCount(); ++i)
 		planeModel.SetMaterial(i, planeMat);
 

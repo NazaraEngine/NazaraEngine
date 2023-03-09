@@ -31,6 +31,7 @@ namespace Nz
 
 			inline void Clear();
 
+			inline const Boxf& GetAABB() const;
 			inline const std::shared_ptr<RenderBuffer>& GetIndexBuffer(std::size_t subMesh) const;
 			inline UInt32 GetIndexCount(std::size_t subMesh) const;
 			inline IndexType GetIndexType(std::size_t subMesh) const;
@@ -38,6 +39,7 @@ namespace Nz
 			inline const std::shared_ptr<const VertexDeclaration>& GetVertexDeclaration(std::size_t subMesh) const;
 			inline std::size_t GetSubMeshCount() const;
 
+			inline void UpdateAABB(const Boxf& aabb);
 			inline void UpdateSubMeshIndexCount(std::size_t subMeshIndex, UInt32 indexCount);
 
 			GraphicalMesh& operator=(const GraphicalMesh&) = delete;
@@ -52,12 +54,15 @@ namespace Nz
 				UInt32 indexCount;
 			};
 
+			static inline std::shared_ptr<GraphicalMesh> Build(const Primitive& primitive, const MeshParams& params = MeshParams());
+			static inline std::shared_ptr<GraphicalMesh> Build(const PrimitiveList& primitiveList, const MeshParams& params = MeshParams());
 			static std::shared_ptr<GraphicalMesh> BuildFromMesh(const Mesh& mesh);
 
 			NazaraSignal(OnInvalidated, GraphicalMesh* /*gfxMesh*/);
 
 		private:
 			std::vector<SubMesh> m_subMeshes;
+			Boxf m_aabb;
 	};
 }
 

@@ -72,7 +72,7 @@ int main()
 	material->SetTextureProperty("AlphaMap", Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
 	material->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
 
-	std::shared_ptr<Nz::Model> model = std::make_shared<Nz::Model>(std::move(gfxMesh), spaceshipAABB);
+	std::shared_ptr<Nz::Model> model = std::make_shared<Nz::Model>(std::move(gfxMesh));
 	for (std::size_t i = 0; i < model->GetSubMeshCount(); ++i)
 		model->SetMaterial(i, material);
 
@@ -118,7 +118,7 @@ int main()
 		std::shared_ptr<Nz::Mesh> colliderMesh = Nz::Mesh::Build(shipCollider->GenerateMesh());
 		std::shared_ptr<Nz::GraphicalMesh> colliderGraphicalMesh = Nz::GraphicalMesh::BuildFromMesh(*colliderMesh);
 
-		colliderModel = std::make_shared<Nz::Model>(colliderGraphicalMesh, spaceshipAABB);
+		colliderModel = std::make_shared<Nz::Model>(colliderGraphicalMesh);
 		for (std::size_t i = 0; i < colliderModel->GetSubMeshCount(); ++i)
 			colliderModel->SetMaterial(i, colliderMat);
 	}

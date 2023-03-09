@@ -23,7 +23,7 @@ namespace Nz
 	class NAZARA_GRAPHICS_API Model : public InstancedRenderable
 	{
 		public:
-			Model(std::shared_ptr<GraphicalMesh> graphicalMesh, const Boxf& aabb);
+			Model(std::shared_ptr<GraphicalMesh> graphicalMesh);
 			Model(const Model&) = delete;
 			Model(Model&&) noexcept = default;
 			~Model() = default;

@@ -14,7 +14,7 @@
 
 namespace Nz
 {
-	Model::Model(std::shared_ptr<GraphicalMesh> graphicalMesh, const Boxf& aabb) :
+	Model::Model(std::shared_ptr<GraphicalMesh> graphicalMesh) :
 	m_graphicalMesh(std::move(graphicalMesh))
 	{
 		Graphics* graphics = Graphics::Instance();
@@ -34,10 +34,11 @@ namespace Nz
 
 		m_onInvalidated.Connect(m_graphicalMesh->OnInvalidated, [this](GraphicalMesh*)
 		{
+			UpdateAABB(m_graphicalMesh->GetAABB());
 			OnElementInvalidated(this);
 		});
 
-		UpdateAABB(aabb);
+		UpdateAABB(m_graphicalMesh->GetAABB());
 	}
 
 	void Model::BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, std::vector<RenderElementOwner>& elements) const

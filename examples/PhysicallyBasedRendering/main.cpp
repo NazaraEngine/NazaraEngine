@@ -57,7 +57,7 @@ int main()
 	std::size_t normalMapProperty = materialInstance->FindTextureProperty("NormalMap");
 	materialInstance->SetTextureProperty(normalMapProperty, normalMap);
 
-	Nz::Model model(std::move(gfxMesh), sphereMesh->GetAABB());
+	Nz::Model model(std::move(gfxMesh));
 	for (std::size_t i = 0; i < model.GetSubMeshCount(); ++i)
 		model.SetMaterial(i, materialInstance);
 

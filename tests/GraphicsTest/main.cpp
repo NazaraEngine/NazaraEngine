@@ -72,7 +72,7 @@ int main()
 	std::shared_ptr<Nz::MaterialInstance> materialInstance2 = std::make_shared<Nz::MaterialInstance>(material);
 	materialInstance2->SetValueProperty(0, Nz::Color::Green());
 
-	Nz::Model model(std::move(gfxMesh), spaceshipMesh->GetAABB());
+	Nz::Model model(std::move(gfxMesh));
 	for (std::size_t i = 0; i < model.GetSubMeshCount(); ++i)
 		model.SetMaterial(i, materialInstance);
 

@@ -25,6 +25,11 @@ namespace Nz
 		OnInvalidated(this);
 	}
 
+	inline const Boxf& GraphicalMesh::GetAABB() const
+	{
+		return m_aabb;
+	}
+
 	inline const std::shared_ptr<RenderBuffer>& GraphicalMesh::GetIndexBuffer(std::size_t subMesh) const
 	{
 		assert(subMesh < m_subMeshes.size());
@@ -60,6 +65,13 @@ namespace Nz
 		return m_subMeshes.size();
 	}
 
+	inline void GraphicalMesh::UpdateAABB(const Boxf& aabb)
+	{
+		m_aabb = aabb;
+
+		OnInvalidated(this);
+	}
+
 	inline void GraphicalMesh::UpdateSubMeshIndexCount(std::size_t subMeshIndex, UInt32 indexCount)
 	{
 		NazaraAssert(subMeshIndex < m_subMeshes.size(), "invalid submesh index");
@@ -67,6 +79,25 @@ namespace Nz
 
 		OnInvalidated(this);
 	}
+
+	inline std::shared_ptr<GraphicalMesh> GraphicalMesh::Build(const Primitive& primitive, const MeshParams& params)
+	{
+		Mesh mesh;
+		mesh.CreateStatic();
+		mesh.BuildSubMesh(primitive, params);
+
+		return BuildFromMesh(mesh);
+	}
+
+	inline std::shared_ptr<GraphicalMesh> GraphicalMesh::Build(const PrimitiveList& primitiveList, const MeshParams& params)
+	{
+		Mesh mesh;
+		mesh.CreateStatic();
+		mesh.BuildSubMeshes(primitiveList, params);
+
+		return BuildFromMesh(mesh);
+	}
+
 }
 
 #include <Nazara/Graphics/DebugOff.hpp>
