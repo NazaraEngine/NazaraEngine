@@ -96,10 +96,17 @@ namespace Nz
 			void SetValueProperty(std::size_t valueIndex, const MaterialSettings::Value& value);
 
 			void UpdateOptionValue(UInt32 optionHash, const nzsl::Ast::ConstantSingleValue& value);
+
 			void UpdatePassFlags(std::string_view passName, MaterialPassFlags materialFlags);
 			inline void UpdatePassFlags(std::size_t passName, MaterialPassFlags materialFlags);
+
 			void UpdatePassStates(std::string_view passName, FunctionRef<bool(RenderStates&)> stateUpdater);
 			template<typename F> void UpdatePassStates(std::size_t passIndex, F&& stateUpdater);
+
+			void UpdatePassesStates(std::initializer_list<std::string_view> passesName, FunctionRef<bool(RenderStates&)> stateUpdater);
+			template<typename F> void UpdatePassesStates(std::initializer_list<std::size_t> passesIndex, F&& stateUpdater);
+			template<typename F> void UpdatePassesStates(F&& stateUpdater, bool ignoreDisabled = true);
+
 			void UpdateTextureBinding(std::size_t textureBinding, std::shared_ptr<Texture> texture, std::shared_ptr<TextureSampler> textureSampler);
 			void UpdateUniformBufferData(std::size_t uniformBufferIndex, std::size_t offset, std::size_t size, const void* data);
 

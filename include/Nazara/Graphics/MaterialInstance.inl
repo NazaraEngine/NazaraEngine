@@ -200,6 +200,25 @@ namespace Nz
 		InvalidatePassPipeline(passIndex);
 	}
 
+	template<typename F>
+	void MaterialInstance::UpdatePassesStates(std::initializer_list<std::size_t> passesIndex, F&& stateUpdater)
+	{
+		for (std::size_t passIndex : passesIndex)
+			UpdatePassStates(passIndex, stateUpdater);
+	}
+
+	template<typename F>
+	void MaterialInstance::UpdatePassesStates(F&& stateUpdater, bool ignoreDisabled)
+	{
+		for (std::size_t i = 0; i < m_passes.size(); ++i)
+		{
+			if (ignoreDisabled && !m_passes[i].enabled)
+				continue;
+
+			UpdatePassStates(i, stateUpdater);
+		}
+	}
+
 	inline void MaterialInstance::InvalidatePassPipeline(std::size_t passIndex)
 	{
 		assert(passIndex < m_passes.size());

@@ -253,6 +253,13 @@ namespace Nz
 		return UpdatePassStates(passIndex, stateUpdater);
 	}
 
+	void MaterialInstance::UpdatePassesStates(std::initializer_list<std::string_view> passesName, FunctionRef<bool(RenderStates&)> stateUpdater)
+	{
+		auto& materialPassRegistry = Graphics::Instance()->GetMaterialPassRegistry();
+		for (std::string_view passName : passesName)
+			UpdatePassStates(materialPassRegistry.GetPassIndex(passName), stateUpdater);
+	}
+
 	void MaterialInstance::SetTextureProperty(std::size_t textureIndex, std::shared_ptr<Texture> texture)
 	{
 		assert(textureIndex < m_textureOverride.size());
