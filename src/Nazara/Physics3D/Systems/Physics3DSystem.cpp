@@ -16,7 +16,7 @@ namespace Nz
 
 	Physics3DSystem::~Physics3DSystem()
 	{
-		// Ensure every NewtonBody is destroyed before world is
+		// Ensure every RigidBody3D is destroyed before world is
 		auto rigidBodyView = m_registry.view<RigidBody3DComponent>();
 		for (auto [entity, rigidBodyComponent] : rigidBodyView.each())
 			rigidBodyComponent.Destroy();
@@ -45,8 +45,8 @@ namespace Nz
 		if (node)
 		{
 			RigidBody3DComponent& rigidBody = registry.get<RigidBody3DComponent>(entity);
-			rigidBody.SetPosition(node->GetPosition());
-			rigidBody.SetRotation(node->GetRotation());
+			rigidBody.SetPosition(node->GetPosition(CoordSys::Global));
+			rigidBody.SetRotation(node->GetRotation(CoordSys::Global));
 		}
 	}
 }
