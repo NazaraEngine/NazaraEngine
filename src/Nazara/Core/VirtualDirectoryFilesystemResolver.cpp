@@ -17,12 +17,12 @@ namespace Nz
 			std::filesystem::file_status status = physicalEntry.status();
 
 			VirtualDirectory::Entry entry;
-			if (std::filesystem::is_regular_file(status))
+			if (physicalEntry.is_regular_file())
 			{
 				if (!callback(filename, VirtualDirectory::FileEntry{ std::make_shared<File>(physicalEntry.path(), m_fileOpenMode) }))
 					return;
 			}
-			else if (std::filesystem::is_directory(status))
+			else if (physicalEntry.is_directory())
 			{
 				VirtualDirectoryPtr virtualDir = std::make_shared<VirtualDirectory>(std::make_shared<VirtualDirectoryFilesystemResolver>(physicalEntry.path()), parent);
 				if (!callback(filename, VirtualDirectory::DirectoryEntry{ { std::move(virtualDir) } }))

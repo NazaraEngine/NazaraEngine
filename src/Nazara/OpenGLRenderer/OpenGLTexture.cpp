@@ -26,28 +26,28 @@ namespace Nz
 		switch (textureInfo.type)
 		{
 			case ImageType::E2D:
-				m_texture.TexStorage2D(GL::TextureTarget::Target2D, textureInfo.levelCount, format->internalFormat, textureInfo.width, textureInfo.height);
+				m_texture.TexStorage2D(GL::TextureTarget::Target2D, m_textureInfo.levelCount, format->internalFormat, textureInfo.width, textureInfo.height);
 				break;
 
 			case ImageType::E2D_Array:
-				m_texture.TexStorage3D(GL::TextureTarget::Target2D_Array, textureInfo.levelCount, format->internalFormat, textureInfo.width, textureInfo.height, textureInfo.layerCount);
+				m_texture.TexStorage3D(GL::TextureTarget::Target2D_Array, m_textureInfo.levelCount, format->internalFormat, textureInfo.width, textureInfo.height, textureInfo.layerCount);
 				break;
 
 			case ImageType::E3D:
-				m_texture.TexStorage3D(GL::TextureTarget::Target3D, textureInfo.levelCount, format->internalFormat, textureInfo.width, textureInfo.height, textureInfo.depth);
+				m_texture.TexStorage3D(GL::TextureTarget::Target3D, m_textureInfo.levelCount, format->internalFormat, textureInfo.width, textureInfo.height, textureInfo.depth);
 				break;
 
 			case ImageType::Cubemap:
-				m_texture.TexStorage2D(GL::TextureTarget::Cubemap, textureInfo.levelCount, format->internalFormat, textureInfo.width, textureInfo.height);
+				m_texture.TexStorage2D(GL::TextureTarget::Cubemap, m_textureInfo.levelCount, format->internalFormat, textureInfo.width, textureInfo.height);
 				break;
 
 			// OpenGL ES doesn't support 1D textures, use 2D textures with a height of 1 instead
 			case ImageType::E1D:
-				m_texture.TexStorage2D(GL::TextureTarget::Target2D, textureInfo.levelCount, format->internalFormat, textureInfo.width, 1);
+				m_texture.TexStorage2D(GL::TextureTarget::Target2D, m_textureInfo.levelCount, format->internalFormat, textureInfo.width, 1);
 				break;
 
 			case ImageType::E1D_Array:
-				m_texture.TexStorage2D(GL::TextureTarget::Target2D, textureInfo.levelCount, format->internalFormat, textureInfo.width, textureInfo.layerCount);
+				m_texture.TexStorage2D(GL::TextureTarget::Target2D, m_textureInfo.levelCount, format->internalFormat, textureInfo.width, textureInfo.layerCount);
 				break;
 		}
 

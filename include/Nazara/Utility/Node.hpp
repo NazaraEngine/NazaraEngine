@@ -63,15 +63,15 @@ namespace Nz
 			Node& Scale(float scale);
 			Node& Scale(float scaleX, float scaleY, float scaleZ = 1.f);
 
+			void SetInheritPosition(bool inheritPosition);
 			void SetInheritRotation(bool inheritRotation);
 			void SetInheritScale(bool inheritScale);
-			void SetInheritPosition(bool inheritPosition);
+			void SetInitialPosition(const Vector3f& translation);
+			void SetInitialPosition(float translationX, float translationXY, float translationZ = 0.f);
 			void SetInitialRotation(const Quaternionf& quat);
 			void SetInitialScale(const Vector3f& scale);
 			void SetInitialScale(float scale);
 			void SetInitialScale(float scaleX, float scaleY, float scaleZ = 1.f);
-			void SetInitialPosition(const Vector3f& translation);
-			void SetInitialPosition(float translationX, float translationXY, float translationZ = 0.f);
 			void SetParent(const Node* node = nullptr, bool keepDerived = false);
 			void SetParent(const Node& node, bool keepDerived = false);
 			void SetPosition(const Vector3f& translation, CoordSys coordSys = CoordSys::Local);
