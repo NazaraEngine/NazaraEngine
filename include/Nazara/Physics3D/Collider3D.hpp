@@ -25,6 +25,7 @@ class btCollisionShape;
 class btConeShape;
 class btConvexHullShape;
 class btCylinderShape;
+class btEmptyShape;
 class btSphereShape;
 
 namespace Nz
@@ -179,8 +180,8 @@ namespace Nz
 	class NAZARA_PHYSICS3D_API NullCollider3D final : public Collider3D
 	{
 		public:
-			NullCollider3D() = default;
-			~NullCollider3D() = default;
+			NullCollider3D();
+			~NullCollider3D();
 
 			void BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const override;
 
@@ -188,6 +189,9 @@ namespace Nz
 
 			btCollisionShape* GetShape() const override;
 			ColliderType3D GetType() const override;
+
+		private:
+			std::unique_ptr<btEmptyShape> m_shape;
 	};
 
 	class NAZARA_PHYSICS3D_API SphereCollider3D final : public Collider3D
