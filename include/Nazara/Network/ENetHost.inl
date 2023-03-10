@@ -2,7 +2,6 @@
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Network/ENetHost.hpp>
 #include <utility>
 #include <Nazara/Network/Debug.hpp>
 

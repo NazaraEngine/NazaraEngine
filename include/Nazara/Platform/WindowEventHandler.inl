@@ -2,7 +2,6 @@
 // This file is part of the "Nazara Engine - Platform module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Platform/WindowEventHandler.hpp>
 #include <memory>
 #include <Nazara/Platform/Debug.hpp>
 

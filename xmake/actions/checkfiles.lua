@@ -303,7 +303,7 @@ on_run(function ()
 		end
 	})
 
-	-- Every source file should include its header first
+	-- Every source file should include its header first, except .inl files
 	table.insert(checks, {
 		Name = "inclusion",
 		Check = function (moduleName)
@@ -383,7 +383,8 @@ on_run(function ()
 						end
 
 						-- Add header inclusion if it's missing
-						if not headerInclude then
+						local isInl = path.extension(filePath) == ".inl"
+						if not headerInclude and not isInl then
 							print(filePath .. " is missing corresponding header inclusion")
 
 							table.insert(fixes, {
@@ -394,6 +395,17 @@ on_run(function ()
 
 									increment = increment + 1
 
+									return lines
+								end
+							})
+						elseif isInl then
+							print(filePath .. " has a header inclusion which breaks clangd (.inl should no longer includes their .hpp)")
+
+							table.insert(fixes, {
+								File = filePath,
+								Func = function (lines)
+									table.remove(lines, inclusions[headerInclude].line)
+									increment = increment - 1
 									return lines
 								end
 							})
@@ -411,7 +423,7 @@ on_run(function ()
 							})
 						end
 
-						if path.extension(filePath) == ".inl" then							
+						if isInl then
 							if not debugIncludeOff then
 								print(filePath .. ": has missing DebugOff include")
 								table.insert(fixes, {

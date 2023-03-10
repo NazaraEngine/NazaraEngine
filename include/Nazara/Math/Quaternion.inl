@@ -2,7 +2,6 @@
 // This file is part of the "Nazara Engine - Math module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Math/Config.hpp>

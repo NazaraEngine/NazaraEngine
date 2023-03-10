@@ -2,7 +2,6 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Core/ModuleBase.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Core/Debug.hpp>
 

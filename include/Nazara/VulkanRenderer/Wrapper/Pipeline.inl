@@ -2,7 +2,6 @@
 // This file is part of the "Nazara Engine - Vulkan renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/VulkanRenderer/Wrapper/Pipeline.hpp>
 #include <Nazara/VulkanRenderer/Utils.hpp>
 #include <Nazara/Utils/StackArray.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>

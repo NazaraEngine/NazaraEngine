@@ -2,7 +2,6 @@
 // This file is part of the "Nazara Engine - OpenGL renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/OpenGLRenderer/OpenGLVaoCache.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
