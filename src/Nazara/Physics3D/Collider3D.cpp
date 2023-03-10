@@ -116,7 +116,7 @@ namespace Nz
 	BoxCollider3D::BoxCollider3D(const Vector3f& lengths) :
 	m_lengths(lengths)
 	{
-		m_shape = std::make_unique<btBoxShape>(ToBullet(m_lengths));
+		m_shape = std::make_unique<btBoxShape>(ToBullet(m_lengths * 0.5f));
 	}
 
 	BoxCollider3D::~BoxCollider3D() = default;
