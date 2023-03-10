@@ -43,7 +43,7 @@ namespace Nz
 
 	void PredefinedMaterials::AddPhongSettings(MaterialSettings& settings)
 	{
-		settings.AddValueProperty<Color>("AmbientColor", Color::Black());
+		settings.AddValueProperty<Color>("AmbientColor", Color::White());
 		settings.AddValueProperty<Color>("SpecularColor", Color::White());
 		settings.AddValueProperty<float>("Shininess", 2.f);
 		settings.AddTextureProperty("EmissiveMap", ImageType::E2D);
