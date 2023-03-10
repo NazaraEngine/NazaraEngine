@@ -18,6 +18,7 @@
 #include <BulletCollision/CollisionShapes/btConeShape.h>
 #include <BulletCollision/CollisionShapes/btConvexHullShape.h>
 #include <BulletCollision/CollisionShapes/btCylinderShape.h>
+#include <BulletCollision/CollisionShapes/btEmptyShape.h>
 #include <BulletCollision/CollisionShapes/btSphereShape.h>
 #include <Nazara/Physics3D/Debug.hpp>
 
@@ -371,6 +372,13 @@ namespace Nz
 
 	/********************************* NullCollider3D **********************************/
 
+	NullCollider3D::NullCollider3D()
+	{
+		m_shape = std::make_unique<btEmptyShape>();
+	}
+
+	NullCollider3D::~NullCollider3D() = default;
+
 	void NullCollider3D::BuildDebugMesh(std::vector<Vector3f>& /*vertices*/, std::vector<UInt16>& /*indices*/, const Matrix4f& /*offsetMatrix*/) const
 	{
 	}
@@ -382,7 +390,7 @@ namespace Nz
 
 	btCollisionShape* NullCollider3D::GetShape() const
 	{
-		return nullptr;
+		return m_shape.get();
 	}
 
 	ColliderType3D NullCollider3D::GetType() const
