@@ -78,7 +78,8 @@ namespace Nz
 
 		private:
 			std::shared_ptr<Collider3D> m_geom;
-			std::unique_ptr<btRigidBody> m_body;
+			std::size_t m_bodyPoolIndex;
+			btRigidBody* m_body;
 			PhysWorld3D* m_world;
 	};
 }

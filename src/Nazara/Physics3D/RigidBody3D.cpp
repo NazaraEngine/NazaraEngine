@@ -5,6 +5,7 @@
 #include <Nazara/Physics3D/RigidBody3D.hpp>
 #include <Nazara/Physics3D/BulletHelper.hpp>
 #include <Nazara/Physics3D/PhysWorld3D.hpp>
+#include <Nazara/Utils/MemoryHelper.hpp>
 #include <BulletDynamics/Dynamics/btDynamicsWorld.h>
 #include <BulletDynamics/Dynamics/btRigidBody.h>
 #include <algorithm>
@@ -32,13 +33,26 @@ namespace Nz
 		m_geom->ComputeInertia(1.f, &inertia);
 
 		btRigidBody::btRigidBodyConstructionInfo constructionInfo(1.f, nullptr, m_geom->GetShape(), ToBullet(inertia));
+		constructionInfo.m_startWorldTransform = ToBullet(mat);
 
-		m_body = std::make_unique<btRigidBody>(constructionInfo);
-
-		m_world->GetDynamicsWorld()->addRigidBody(m_body.get());
+		m_body = m_world->AddRigidBody(m_bodyPoolIndex, [&](btRigidBody* body)
+		{
+			PlacementNew(body, constructionInfo);
+		});
+		m_body->setUserPointer(this);
 	}
 
-	RigidBody3D::RigidBody3D(RigidBody3D&& object) noexcept = default;
+	RigidBody3D::RigidBody3D(RigidBody3D&& object) noexcept :
+	m_geom(std::move(object.m_geom)),
+	m_bodyPoolIndex(object.m_bodyPoolIndex),
+	m_body(object.m_body),
+	m_world(object.m_world)
+	{
+		if (m_body)
+			m_body->setUserPointer(this);
+
+		object.m_body = nullptr;
+	}
 
 	RigidBody3D::~RigidBody3D()
 	{
@@ -170,7 +184,7 @@ namespace Nz
 
 	btRigidBody* RigidBody3D::GetRigidBody() const
 	{
-		return m_body.get();
+		return m_body;
 	}
 
 	Quaternionf RigidBody3D::GetRotation() const
@@ -288,9 +302,15 @@ namespace Nz
 	{
 		Destroy();
 
-		m_body  = std::move(object.m_body);
-		m_geom  = std::move(object.m_geom);
-		m_world = object.m_world;
+		m_body          = object.m_body;
+		m_bodyPoolIndex = object.m_bodyPoolIndex;
+		m_geom          = std::move(object.m_geom);
+		m_world         = object.m_world;
+
+		if (m_body)
+			m_body->setUserPointer(this);
+
+		object.m_body = nullptr;
 
 		return *this;
 	}
@@ -299,8 +319,8 @@ namespace Nz
 	{
 		if (m_body)
 		{
-			m_world->GetDynamicsWorld()->removeRigidBody(m_body.get());
-			m_body.reset();
+			m_world->RemoveRigidBody(m_body, m_bodyPoolIndex);
+			m_body = nullptr;
 		}
 
 		m_geom.reset();
