@@ -12,18 +12,26 @@
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Physics3D/Config.hpp>
+#include <NazaraUtils/FunctionRef.hpp>
 #include <NazaraUtils/MovablePtr.hpp>
 
 class btDynamicsWorld;
+class btRigidBody;
 
 namespace Nz
 {
+	class RigidBody3D;
+
 	class NAZARA_PHYSICS3D_API PhysWorld3D
 	{
+		friend RigidBody3D;
+
 		public:
+			struct RaycastHit;
+
 			PhysWorld3D();
 			PhysWorld3D(const PhysWorld3D&) = delete;
-			PhysWorld3D(PhysWorld3D&& ph) noexcept;
+			PhysWorld3D(PhysWorld3D&& ph) = delete;
 			~PhysWorld3D();
 
 			btDynamicsWorld* GetDynamicsWorld();
@@ -38,9 +46,20 @@ namespace Nz
 			void Step(Time timestep);
 
 			PhysWorld3D& operator=(const PhysWorld3D&) = delete;
-			PhysWorld3D& operator=(PhysWorld3D&&) noexcept;
+			PhysWorld3D& operator=(PhysWorld3D&&) = delete;
+
+			struct RaycastHit
+			{
+				float fraction;
+				RigidBody3D* hitBody;
+				Vector3f hitPosition;
+				Vector3f hitNormal;
+			};
 
 		private:
+			btRigidBody* AddRigidBody(std::size_t& rigidBodyIndex, FunctionRef<void(btRigidBody* body)> constructor);
+			void RemoveRigidBody(btRigidBody* rigidBody, std::size_t rigidBodyIndex);
+
 			struct BulletWorld;
 
 			std::size_t m_maxStepCount;

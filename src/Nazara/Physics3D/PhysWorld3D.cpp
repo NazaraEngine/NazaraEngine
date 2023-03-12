@@ -4,6 +4,7 @@
 
 #include <Nazara/Physics3D/PhysWorld3D.hpp>
 #include <Nazara/Physics3D/BulletHelper.hpp>
+#include <NazaraUtils/MemoryPool.hpp>
 #include <NazaraUtils/StackVector.hpp>
 #include <BulletCollision/BroadphaseCollision/btDbvtBroadphase.h>
 #include <BulletCollision/CollisionDispatch/btCollisionDispatcher.h>
@@ -22,10 +23,12 @@ namespace Nz
 		btDbvtBroadphase broadphase;
 		btSequentialImpulseConstraintSolver constraintSolver;
 		btDiscreteDynamicsWorld dynamicWorld;
+		MemoryPool<btRigidBody> rigidBodyPool;
 
 		BulletWorld() :
 		dispatcher(&collisionConfiguration),
-		dynamicWorld(&dispatcher, &broadphase, &constraintSolver, &collisionConfiguration)
+		dynamicWorld(&dispatcher, &broadphase, &constraintSolver, &collisionConfiguration),
+		rigidBodyPool(256)
 		{
 		}
 
@@ -44,8 +47,6 @@ namespace Nz
 	{
 		m_world = std::make_unique<BulletWorld>();
 	}
-
-	PhysWorld3D::PhysWorld3D(PhysWorld3D&& physWorld) noexcept = default;
 
 	PhysWorld3D::~PhysWorld3D() = default;
 
@@ -99,5 +100,37 @@ namespace Nz
 		}
 	}
 
-	PhysWorld3D& PhysWorld3D::operator=(PhysWorld3D&& physWorld) noexcept = default;
+	btRigidBody* PhysWorld3D::AddRigidBody(std::size_t& rigidBodyIndex, FunctionRef<void(btRigidBody* body)> constructor)
+	{
+		btRigidBody* rigidBody = m_world->rigidBodyPool.Allocate(m_world->rigidBodyPool.DeferConstruct, rigidBodyIndex);
+		constructor(rigidBody);
+
+		m_world->dynamicWorld.addRigidBody(rigidBody);
+
+		// Small hack to order rigid bodies to make it cache friendly
+		auto& rigidBodies = m_world->dynamicWorld.getNonStaticRigidBodies();
+		if (rigidBodies.size() >= 2 && rigidBodies[rigidBodies.size() - 1] == rigidBody)
+		{
+			// Sort rigid bodies
+			btRigidBody** startPtr = &rigidBodies[0];
+			btRigidBody** endPtr = startPtr + rigidBodies.size();
+			btRigidBody** lastPtr = endPtr - 1;
+
+			auto it = std::lower_bound(startPtr, endPtr, rigidBody);
+			if (it != lastPtr)
+			{
+				std::move_backward(it, lastPtr, endPtr);
+				*it = rigidBody;
+			}
+		}
+
+		return rigidBody;
+	}
+
+	void PhysWorld3D::RemoveRigidBody(btRigidBody* rigidBody, std::size_t rigidBodyIndex)
+	{
+		// TODO: Improve deletion (since rigid bodies are sorted)
+		m_world->dynamicWorld.removeRigidBody(rigidBody); //< this does a linear search
+		m_world->rigidBodyPool.Free(rigidBodyIndex);
+	}
 }
