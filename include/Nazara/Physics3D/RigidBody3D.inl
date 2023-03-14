@@ -10,6 +10,25 @@ namespace Nz
 	{
 		return EnableSleeping(false);
 	}
+
+	inline const std::shared_ptr<Collider3D>& RigidBody3D::GetGeom() const
+	{
+		return m_geom;
+	}
+
+	inline btRigidBody* RigidBody3D::GetRigidBody() const
+	{
+		return m_body;
+	}
+	inline std::size_t RigidBody3D::GetUniqueIndex() const
+	{
+		return m_bodyPoolIndex;
+	}
+
+	inline PhysWorld3D* RigidBody3D::GetWorld() const
+	{
+		return m_world;
+	}
 }
 
 #include <Nazara/Physics3D/DebugOff.hpp>
