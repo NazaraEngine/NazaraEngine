@@ -314,11 +314,16 @@ namespace Nz
 		}
 		m_removedWorldInstances.Clear();
 
+		bool frameGraphInvalidated;
 		if (m_rebuildFrameGraph)
 		{
 			renderFrame.PushForRelease(std::move(m_bakedFrameGraph));
 			m_bakedFrameGraph = BuildFrameGraph();
+			m_bakedFrameGraph.Resize(renderFrame);
+			frameGraphInvalidated = true;
 		}
+		else
+			frameGraphInvalidated = m_bakedFrameGraph.Resize(renderFrame);
 
 		// Update UBOs and materials
 		renderFrame.Execute([&](CommandBufferBuilder& builder)
@@ -390,7 +395,7 @@ namespace Nz
 			viewerData.debugDrawPass->Prepare(renderFrame);
 		}
 
-		if (m_bakedFrameGraph.Resize(renderFrame))
+		if (frameGraphInvalidated)
 		{
 			const std::shared_ptr<TextureSampler>& sampler = graphics->GetSamplerCache().Get({});
 			for (auto& viewerData : m_viewerPool)
