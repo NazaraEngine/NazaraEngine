@@ -43,16 +43,17 @@ namespace Nz
 			Boxf GetAABB() const;
 			float GetAngularDamping() const;
 			Vector3f GetAngularVelocity() const;
-			const std::shared_ptr<Collider3D>& GetGeom() const;
+			inline const std::shared_ptr<Collider3D>& GetGeom() const;
 			float GetLinearDamping() const;
 			Vector3f GetLinearVelocity() const;
 			float GetMass() const;
 			Vector3f GetMassCenter(CoordSys coordSys = CoordSys::Local) const;
 			Matrix4f GetMatrix() const;
 			Vector3f GetPosition() const;
-			btRigidBody* GetRigidBody() const;
+			inline btRigidBody* GetRigidBody() const;
 			Quaternionf GetRotation() const;
-			PhysWorld3D* GetWorld() const;
+			inline std::size_t GetUniqueIndex() const;
+			inline PhysWorld3D* GetWorld() const;
 
 			bool IsSimulationEnabled() const;
 			bool IsSleeping() const;
@@ -67,6 +68,11 @@ namespace Nz
 			void SetMassCenter(const Vector3f& center);
 			void SetPosition(const Vector3f& position);
 			void SetRotation(const Quaternionf& rotation);
+
+			Quaternionf ToLocal(const Quaternionf& worldRotation);
+			Vector3f ToLocal(const Vector3f& worldPosition);
+			Quaternionf ToWorld(const Quaternionf& localRotation);
+			Vector3f ToWorld(const Vector3f& localPosition);
 
 			void WakeUp();
 

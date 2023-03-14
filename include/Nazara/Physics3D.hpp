@@ -31,6 +31,7 @@
 
 #include <Nazara/Physics3D/Collider3D.hpp>
 #include <Nazara/Physics3D/Config.hpp>
+#include <Nazara/Physics3D/Constraint3D.hpp>
 #include <Nazara/Physics3D/Enums.hpp>
 #include <Nazara/Physics3D/Physics3D.hpp>
 #include <Nazara/Physics3D/PhysWorld3D.hpp>

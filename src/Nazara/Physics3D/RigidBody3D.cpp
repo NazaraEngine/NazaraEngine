@@ -147,11 +147,6 @@ namespace Nz
 		return FromBullet(m_body->getAngularVelocity());
 	}
 
-	const std::shared_ptr<Collider3D>& RigidBody3D::GetGeom() const
-	{
-		return m_geom;
-	}
-
 	float RigidBody3D::GetLinearDamping() const
 	{
 		return m_body->getLinearDamping();
@@ -182,19 +177,9 @@ namespace Nz
 		return FromBullet(m_body->getWorldTransform().getOrigin());
 	}
 
-	btRigidBody* RigidBody3D::GetRigidBody() const
-	{
-		return m_body;
-	}
-
 	Quaternionf RigidBody3D::GetRotation() const
 	{
 		return FromBullet(m_body->getWorldTransform().getRotation());
-	}
-
-	PhysWorld3D* RigidBody3D::GetWorld() const
-	{
-		return m_world;
 	}
 
 	bool RigidBody3D::IsSimulationEnabled() const
@@ -290,12 +275,30 @@ namespace Nz
 		m_body->setWorldTransform(worldTransform);
 	}
 
+	Quaternionf RigidBody3D::ToLocal(const Quaternionf& worldRotation)
+	{
+		return GetRotation().Conjugate() * worldRotation;
+	}
+
+	Vector3f RigidBody3D::ToLocal(const Vector3f& worldPosition)
+	{
+		btTransform worldTransform = m_body->getWorldTransform();
+		return GetMatrix().InverseTransform() * worldPosition;
+	}
+
+	Quaternionf RigidBody3D::ToWorld(const Quaternionf& localRotation)
+	{
+		return GetRotation() * localRotation;
+	}
+
+	Vector3f RigidBody3D::ToWorld(const Vector3f& localPosition)
+	{
+		return GetMatrix() * localPosition;
+	}
+
 	void RigidBody3D::WakeUp()
 	{
-		m_body->setDeactivationTime(0);
-
-		if (m_body->getActivationState() == ISLAND_SLEEPING)
-			m_body->setActivationState(ACTIVE_TAG);
+		m_body->activate();
 	}
 
 	RigidBody3D& RigidBody3D::operator=(RigidBody3D&& object) noexcept
