@@ -70,6 +70,27 @@ namespace Nz
 		return m_stepSize;
 	}
 
+	bool PhysWorld3D::RaycastQueryFirst(const Vector3f& from, const Vector3f& to, RaycastHit* hitInfo)
+	{
+		btCollisionWorld::ClosestRayResultCallback callback(ToBullet(from), ToBullet(to));
+		m_world->dynamicWorld.rayTest(ToBullet(from), ToBullet(to), callback);
+
+		if (!callback.hasHit())
+			return false;
+
+		if (hitInfo)
+		{
+			hitInfo->fraction = callback.m_closestHitFraction;
+			hitInfo->hitNormal = FromBullet(callback.m_hitNormalWorld);
+			hitInfo->hitPosition = FromBullet(callback.m_hitPointWorld);
+
+			if (const btRigidBody* body = btRigidBody::upcast(callback.m_collisionObject))
+				hitInfo->hitBody = static_cast<RigidBody3D*>(body->getUserPointer());
+		}
+
+		return true;
+	}
+
 	void PhysWorld3D::SetGravity(const Vector3f& gravity)
 	{
 		m_world->dynamicWorld.setGravity(ToBullet(gravity));
