@@ -36,7 +36,6 @@
 #include <Nazara/Platform/CursorController.hpp>
 #include <Nazara/Platform/Enums.hpp>
 #include <Nazara/Platform/Icon.hpp>
-#include <Nazara/Platform/Joystick.hpp>
 #include <Nazara/Platform/Keyboard.hpp>
 #include <Nazara/Platform/Mouse.hpp>
 #include <Nazara/Platform/Platform.hpp>
