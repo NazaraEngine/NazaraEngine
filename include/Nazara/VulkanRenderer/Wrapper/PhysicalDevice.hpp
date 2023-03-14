@@ -8,6 +8,7 @@
 #define NAZARA_VULKANRENDERER_WRAPPER_PHYSICALDEVICE_HPP
 
 #include <vulkan/vulkan_core.h>
+#include <string>
 #include <unordered_set>
 #include <vector>
 

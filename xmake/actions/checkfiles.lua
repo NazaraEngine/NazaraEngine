@@ -398,7 +398,7 @@ on_run(function ()
 									return lines
 								end
 							})
-						elseif isInl then
+						elseif headerInclude and isInl then
 							print(filePath .. " has a header inclusion which breaks clangd (.inl should no longer includes their .hpp)")
 
 							table.insert(fixes, {
