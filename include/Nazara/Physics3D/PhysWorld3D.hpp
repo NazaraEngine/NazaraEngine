@@ -39,6 +39,8 @@ namespace Nz
 			std::size_t GetMaxStepCount() const;
 			Time GetStepSize() const;
 
+			bool RaycastQueryFirst(const Vector3f& from, const Vector3f& to, RaycastHit* hitInfo = nullptr);
+
 			void SetGravity(const Vector3f& gravity);
 			void SetMaxStepCount(std::size_t maxStepCount);
 			void SetStepSize(Time stepSize);
@@ -51,7 +53,7 @@ namespace Nz
 			struct RaycastHit
 			{
 				float fraction;
-				RigidBody3D* hitBody;
+				RigidBody3D* hitBody = nullptr;
 				Vector3f hitPosition;
 				Vector3f hitNormal;
 			};
