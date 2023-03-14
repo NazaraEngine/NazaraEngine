@@ -2,7 +2,7 @@
 #include <Nazara/Platform.hpp>
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Math/PidController.hpp>
-#include <Nazara/Physics3D.hpp>
+#include <Nazara/BulletPhysics3D.hpp>
 #include <Nazara/Renderer.hpp>
 #include <Nazara/Utility.hpp>
 #include <Nazara/Utility/Plugins/AssimpPlugin.hpp>
@@ -30,7 +30,8 @@ int main()
 	auto& world = ecs.AddWorld<Nz::EnttWorld>();
 	world.AddSystem<Nz::SkeletonSystem>();
 
-	Nz::Physics3DSystem& physSytem = world.AddSystem<Nz::Physics3DSystem>();
+	Nz::BulletPhysics3DSystem& physSytem = world.AddSystem<Nz::BulletPhysics3DSystem>();
+	physSytem.GetPhysWorld().SetGravity(Nz::Vector3f::Zero());
 	Nz::RenderSystem& renderSystem = world.AddSystem<Nz::RenderSystem>();
 
 	auto& windowing = app.AddComponent<Nz::AppWindowingComponent>();
@@ -59,7 +60,7 @@ int main()
 
 		auto playerCollider = std::make_shared<Nz::BoxCollider3D>(Nz::Vector3f(0.2f, 1.8f, 0.2f));
 
-		auto& playerBody = playerEntity.emplace<Nz::RigidBody3DComponent>(physSytem.CreateRigidBody(playerCollider));
+		auto& playerBody = playerEntity.emplace<Nz::BulletRigidBody3DComponent>(physSytem.CreateRigidBody(playerCollider));
 		playerBody.SetMass(42.f);
 
 		std::shared_ptr<Nz::Mesh> colliderMesh = Nz::Mesh::Build(playerCollider->GenerateMesh());
@@ -240,6 +241,9 @@ int main()
 			sphereNode.SetInheritScale(false);
 			sphereNode.SetParentJoint(bobEntity, "RightHand");
 
+			auto& sphereBody = sphereEntity.emplace<Nz::BulletRigidBody3DComponent>(&physSytem.GetPhysWorld());
+			sphereBody.SetGeom(std::make_shared<Nz::SphereCollider3D>(0.1f));
+
 			auto& sphereGfx = sphereEntity.emplace<Nz::GraphicsComponent>();
 			sphereGfx.AttachRenderable(sphereModel);
 		}
@@ -331,8 +335,8 @@ int main()
 
 		floorEntity.emplace<Nz::NodeComponent>();
 
-		auto& planeBody = floorEntity.emplace<Nz::RigidBody3DComponent>(&physSytem.GetPhysWorld());
-		planeBody.SetGeom(std::make_shared<Nz::BoxCollider3D>(Nz::Vector3f(planeSize.x, 0.5f, planeSize.y), Nz::Vector3f(0.f, -0.25f, 0.f)));
+		auto& planeBody = planeEntity.emplace<Nz::BulletRigidBody3DComponent>(&physSytem.GetPhysWorld());
+		planeBody.SetGeom(std::make_shared<Nz::BoxCollider3D>(Nz::Vector3f(planeSize.x, 0.5f, planeSize.y)));
 
 		std::shared_ptr<Nz::GraphicalMesh> boxMeshGfx = Nz::GraphicalMesh::Build(Nz::Primitive::Box(Nz::Vector3f(0.5f, 0.5f, 0.5f)), meshPrimitiveParams);
 

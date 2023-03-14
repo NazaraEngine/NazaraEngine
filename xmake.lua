@@ -122,7 +122,7 @@ local modules = {
 		Deps = {"NazaraUtility"},
 		Packages = { "chipmunk2d", "entt" }
 	},
-	Physics3D = {
+	BulletPhysics3D = {
 		Deps = {"NazaraUtility"},
 		Packages = { "bullet3", "entt", "ordered_map" }
 	},
