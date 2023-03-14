@@ -2,7 +2,7 @@
 #include <Nazara/Platform.hpp>
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Math/PidController.hpp>
-#include <Nazara/Physics3D.hpp>
+#include <Nazara/BulletPhysics3D.hpp>
 #include <Nazara/Renderer.hpp>
 #include <Nazara/Utility.hpp>
 #include <entt/entt.hpp>
@@ -20,14 +20,14 @@ int main()
 	if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory("../.." / resourceDir))
 		resourceDir = "../.." / resourceDir;
 
-	Nz::Application<Nz::Graphics, Nz::Physics3D> app;
+	Nz::Application<Nz::Graphics, Nz::BulletPhysics3D> app;
 
 	auto& windowing = app.AddComponent<Nz::AppWindowingComponent>();
 
 	auto& ecs = app.AddComponent<Nz::AppEntitySystemComponent>();
 
 	auto& world = ecs.AddWorld<Nz::EnttWorld>();
-	Nz::Physics3DSystem& physSytem = world.AddSystem<Nz::Physics3DSystem>();
+	Nz::BulletPhysics3DSystem& physSytem = world.AddSystem<Nz::BulletPhysics3DSystem>();
 	physSytem.GetPhysWorld().SetGravity(Nz::Vector3f::Zero());
 
 	Nz::RenderSystem& renderSystem = world.AddSystem<Nz::RenderSystem>();
@@ -140,7 +140,7 @@ int main()
 		auto& entityNode = playerEntity.emplace<Nz::NodeComponent>();
 		entityNode.SetPosition(Nz::Vector3f(12.5f, 0.f, 25.f));
 
-		auto& entityPhys = playerEntity.emplace<Nz::RigidBody3DComponent>(physSytem.CreateRigidBody(shipCollider));
+		auto& entityPhys = playerEntity.emplace<Nz::BulletRigidBody3DComponent>(physSytem.CreateRigidBody(shipCollider));
 		entityPhys.SetMass(50.f);
 		entityPhys.SetAngularDamping(0.1f);
 		entityPhys.SetLinearDamping(0.5f);
@@ -179,7 +179,7 @@ int main()
 				entityNode.SetPosition(Nz::Vector3f(x * 2.f, y * 1.5f, z * 2.f));
 				entityNode.SetRotation(Nz::EulerAnglesf(0.f, Nz::TurnAnglef(0.5f), 0.f));
 
-				auto& entityPhys = entity.emplace<Nz::RigidBody3DComponent>(physSytem.CreateRigidBody(shipCollider));
+				auto& entityPhys = entity.emplace<Nz::BulletRigidBody3DComponent>(physSytem.CreateRigidBody(shipCollider));
 				entityPhys.SetMass(1.f);
 				entityPhys.SetAngularDamping(0.f);
 				entityPhys.SetLinearDamping(0.f);
@@ -214,13 +214,13 @@ int main()
 			showColliders = !showColliders;
 			if (showColliders)
 			{
-				auto view = world.GetRegistry().view<Nz::GraphicsComponent, Nz::RigidBody3DComponent>();
+				auto view = world.GetRegistry().view<Nz::GraphicsComponent, Nz::BulletRigidBody3DComponent>();
 				for (auto [entity, gfxComponent, _] : view.each())
 					gfxComponent.AttachRenderable(colliderModel, 1);
 			}
 			else
 			{
-				auto view = world.GetRegistry().view<Nz::GraphicsComponent, Nz::RigidBody3DComponent>();
+				auto view = world.GetRegistry().view<Nz::GraphicsComponent, Nz::BulletRigidBody3DComponent>();
 				for (auto [entity, gfxComponent, _] : view.each())
 					gfxComponent.DetachRenderable(colliderModel);
 			}
@@ -235,7 +235,7 @@ int main()
 
 			entity.emplace<Nz::NodeComponent>();
 
-			auto& entityPhys = entity.emplace<Nz::RigidBody3DComponent>(physSytem.CreateRigidBody(shipCollider));
+			auto& entityPhys = entity.emplace<Nz::BulletRigidBody3DComponent>(physSytem.CreateRigidBody(shipCollider));
 			entityPhys.SetMass(1.f);
 			entityPhys.SetAngularDamping(0.f);
 			entityPhys.SetLinearDamping(0.f);
@@ -262,7 +262,7 @@ int main()
 		{
 			float elapsedTime = deltaTime->AsSeconds();
 
-			auto spaceshipView = world.GetRegistry().view<Nz::NodeComponent, Nz::RigidBody3DComponent>();
+			auto spaceshipView = world.GetRegistry().view<Nz::NodeComponent, Nz::BulletRigidBody3DComponent>();
 			for (auto&& [entity, node, _] : spaceshipView.each())
 			{
 				if (entity == playerEntity)
@@ -273,7 +273,7 @@ int main()
 					world.GetRegistry().destroy(entity);
 			}
 
-			Nz::RigidBody3DComponent& playerShipBody = playerEntity.get<Nz::RigidBody3DComponent>();
+			Nz::BulletRigidBody3DComponent& playerShipBody = playerEntity.get<Nz::BulletRigidBody3DComponent>();
 			Nz::Quaternionf currentRotation = playerShipBody.GetRotation();
 
 			Nz::Vector3f desiredHeading = headingEntity.get<Nz::NodeComponent>().GetForward();
