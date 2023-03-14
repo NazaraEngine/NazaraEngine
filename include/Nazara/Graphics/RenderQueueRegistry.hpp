@@ -14,6 +14,7 @@
 namespace Nz
 {
 	class MaterialInstance;
+	class RenderBuffer;
 	class RenderPipeline;
 	class Skeleton;
 	class VertexDeclaration;

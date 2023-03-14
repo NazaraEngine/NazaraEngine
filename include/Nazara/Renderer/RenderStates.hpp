@@ -8,6 +8,7 @@
 #define NAZARA_RENDERER_RENDERSTATES_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
 #include <memory>

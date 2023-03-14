@@ -14,6 +14,7 @@
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Physics2D/Config.hpp>
 #include <Nazara/Physics2D/RigidBody2D.hpp>
+#include <Nazara/Utils/FunctionRef.hpp>
 #include <Nazara/Utils/Signal.hpp>
 #include <functional>
 #include <memory>
@@ -62,15 +63,15 @@ namespace Nz
 			std::size_t GetMaxStepCount() const;
 			Time GetStepSize() const;
 
-			bool NearestBodyQuery(const Vector2f& from, float maxDistance, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, RigidBody2D** nearestBody = nullptr);
-			bool NearestBodyQuery(const Vector2f& from, float maxDistance, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, NearestQueryResult* result);
+			bool NearestBodyQuery(const Vector2f& from, float maxDistance, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, RigidBody2D** nearestBody = nullptr);
+			bool NearestBodyQuery(const Vector2f& from, float maxDistance, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, NearestQueryResult* result);
 
-			void RaycastQuery(const Nz::Vector2f& from, const Nz::Vector2f& to, float radius, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, const std::function<void(const RaycastHit&)>& callback);
-			bool RaycastQuery(const Nz::Vector2f& from, const Nz::Vector2f& to, float radius, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, std::vector<RaycastHit>* hitInfos);
-			bool RaycastQueryFirst(const Nz::Vector2f& from, const Nz::Vector2f& to, float radius, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, RaycastHit* hitInfo = nullptr);
+			void RaycastQuery(const Vector2f& from, const Vector2f& to, float radius, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, const FunctionRef<void(const RaycastHit&)>& callback);
+			bool RaycastQuery(const Vector2f& from, const Vector2f& to, float radius, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, std::vector<RaycastHit>* hitInfos);
+			bool RaycastQueryFirst(const Vector2f& from, const Vector2f& to, float radius, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, RaycastHit* hitInfo = nullptr);
 
-			void RegionQuery(const Nz::Rectf& boundingBox, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, const std::function<void(Nz::RigidBody2D*)>& callback);
-			void RegionQuery(const Nz::Rectf& boundingBox, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, std::vector<Nz::RigidBody2D*>* bodies);
+			void RegionQuery(const Rectf& boundingBox, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, const FunctionRef<void(RigidBody2D*)>& callback);
+			void RegionQuery(const Rectf& boundingBox, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, std::vector<RigidBody2D*>* bodies);
 
 			void RegisterCallbacks(unsigned int collisionId, Callback callbacks);
 			void RegisterCallbacks(unsigned int collisionIdA, unsigned int collisionIdB, Callback callbacks);
@@ -116,17 +117,17 @@ namespace Nz
 
 			struct NearestQueryResult
 			{
-				Nz::RigidBody2D* nearestBody;
-				Nz::Vector2f closestPoint;
-				Nz::Vector2f fraction;
+				RigidBody2D* nearestBody;
+				Vector2f closestPoint;
+				Vector2f fraction;
 				float distance;
 			};
 
 			struct RaycastHit
 			{
-				Nz::RigidBody2D* nearestBody;
-				Nz::Vector2f hitPos;
-				Nz::Vector2f hitNormal;
+				RigidBody2D* nearestBody;
+				Vector2f hitPos;
+				Vector2f hitNormal;
 				float fraction;
 			};
 
@@ -136,7 +137,7 @@ namespace Nz
 		private:
 			void InitCallbacks(cpCollisionHandler* handler, Callback callbacks);
 
-			using PostStep = std::function<void(Nz::RigidBody2D* body)>;
+			using PostStep = std::function<void(RigidBody2D* body)>;
 
 			void OnRigidBodyMoved(RigidBody2D* oldPointer, RigidBody2D* newPointer);
 			void OnRigidBodyRelease(RigidBody2D* rigidBody);

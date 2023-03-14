@@ -159,14 +159,14 @@ namespace Nz
 		return m_stepSize;
 	}
 
-	bool PhysWorld2D::NearestBodyQuery(const Vector2f & from, float maxDistance, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, RigidBody2D** nearestBody)
+	bool PhysWorld2D::NearestBodyQuery(const Vector2f & from, float maxDistance, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, RigidBody2D** nearestBody)
 	{
 		cpShapeFilter filter = cpShapeFilterNew(collisionGroup, categoryMask, collisionMask);
 
 		if (cpShape* shape = cpSpacePointQueryNearest(m_handle, {from.x, from.y}, maxDistance, filter, nullptr))
 		{
 			if (nearestBody)
-				*nearestBody = static_cast<Nz::RigidBody2D*>(cpShapeGetUserData(shape));
+				*nearestBody = static_cast<RigidBody2D*>(cpShapeGetUserData(shape));
 
 			return true;
 		}
@@ -174,7 +174,7 @@ namespace Nz
 			return false;
 	}
 
-	bool PhysWorld2D::NearestBodyQuery(const Vector2f& from, float maxDistance, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, NearestQueryResult* result)
+	bool PhysWorld2D::NearestBodyQuery(const Vector2f& from, float maxDistance, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, NearestQueryResult* result)
 	{
 		cpShapeFilter filter = cpShapeFilterNew(collisionGroup, categoryMask, collisionMask);
 
@@ -184,10 +184,10 @@ namespace Nz
 
 			if (cpSpacePointQueryNearest(m_handle, { from.x, from.y }, maxDistance, filter, &queryInfo))
 			{
-				result->closestPoint.Set(Nz::Vector2<cpFloat>(queryInfo.point.x, queryInfo.point.y));
+				result->closestPoint.Set(Vector2<cpFloat>(queryInfo.point.x, queryInfo.point.y));
 				result->distance = float(queryInfo.distance);
-				result->fraction.Set(Nz::Vector2<cpFloat>(queryInfo.gradient.x, queryInfo.gradient.y));
-				result->nearestBody = static_cast<Nz::RigidBody2D*>(cpShapeGetUserData(queryInfo.shape));
+				result->fraction.Set(Vector2<cpFloat>(queryInfo.gradient.x, queryInfo.gradient.y));
+				result->nearestBody = static_cast<RigidBody2D*>(cpShapeGetUserData(queryInfo.shape));
 
 				return true;
 			}
@@ -203,7 +203,7 @@ namespace Nz
 		}
 	}
 
-	void PhysWorld2D::RaycastQuery(const Nz::Vector2f& from, const Nz::Vector2f& to, float radius, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, const std::function<void(const RaycastHit&)>& callback)
+	void PhysWorld2D::RaycastQuery(const Vector2f& from, const Vector2f& to, float radius, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, const FunctionRef<void(const RaycastHit&)>& callback)
 	{
 		using CallbackType = const std::function<void(const RaycastHit&)>;
 
@@ -213,9 +213,9 @@ namespace Nz
 
 			RaycastHit hitInfo;
 			hitInfo.fraction = float(alpha);
-			hitInfo.hitNormal.Set(Nz::Vector2<cpFloat>(normal.x, normal.y));
-			hitInfo.hitPos.Set(Nz::Vector2<cpFloat>(point.x, point.y));
-			hitInfo.nearestBody = static_cast<Nz::RigidBody2D*>(cpShapeGetUserData(shape));
+			hitInfo.hitNormal.Set(Vector2<cpFloat>(normal.x, normal.y));
+			hitInfo.hitPos.Set(Vector2<cpFloat>(point.x, point.y));
+			hitInfo.nearestBody = static_cast<RigidBody2D*>(cpShapeGetUserData(shape));
 
 			callback(hitInfo);
 		};
@@ -224,7 +224,7 @@ namespace Nz
 		cpSpaceSegmentQuery(m_handle, { from.x, from.y }, { to.x, to.y }, radius, filter, cpCallback, const_cast<void*>(static_cast<const void*>(&callback)));
 	}
 
-	bool PhysWorld2D::RaycastQuery(const Nz::Vector2f& from, const Nz::Vector2f& to, float radius, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, std::vector<RaycastHit>* hitInfos)
+	bool PhysWorld2D::RaycastQuery(const Vector2f& from, const Vector2f& to, float radius, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, std::vector<RaycastHit>* hitInfos)
 	{
 		using ResultType = decltype(hitInfos);
 
@@ -234,9 +234,9 @@ namespace Nz
 
 			RaycastHit hitInfo;
 			hitInfo.fraction = float(alpha);
-			hitInfo.hitNormal.Set(Nz::Vector2<cpFloat>(normal.x, normal.y));
-			hitInfo.hitPos.Set(Nz::Vector2<cpFloat>(point.x, point.y));
-			hitInfo.nearestBody = static_cast<Nz::RigidBody2D*>(cpShapeGetUserData(shape));
+			hitInfo.hitNormal.Set(Vector2<cpFloat>(normal.x, normal.y));
+			hitInfo.hitPos.Set(Vector2<cpFloat>(point.x, point.y));
+			hitInfo.nearestBody = static_cast<RigidBody2D*>(cpShapeGetUserData(shape));
 
 			results->emplace_back(std::move(hitInfo));
 		};
@@ -249,7 +249,7 @@ namespace Nz
 		return hitInfos->size() != previousSize;
 	}
 
-	bool PhysWorld2D::RaycastQueryFirst(const Nz::Vector2f& from, const Nz::Vector2f& to, float radius, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, RaycastHit* hitInfo)
+	bool PhysWorld2D::RaycastQueryFirst(const Vector2f& from, const Vector2f& to, float radius, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, RaycastHit* hitInfo)
 	{
 		cpShapeFilter filter = cpShapeFilterNew(collisionGroup, categoryMask, collisionMask);
 
@@ -260,9 +260,9 @@ namespace Nz
 			if (cpSpaceSegmentQueryFirst(m_handle, { from.x, from.y }, { to.x, to.y }, radius, filter, &queryInfo))
 			{
 				hitInfo->fraction = float(queryInfo.alpha);
-				hitInfo->hitNormal.Set(Nz::Vector2<cpFloat>(queryInfo.normal.x, queryInfo.normal.y));
-				hitInfo->hitPos.Set(Nz::Vector2<cpFloat>(queryInfo.point.x, queryInfo.point.y));
-				hitInfo->nearestBody = static_cast<Nz::RigidBody2D*>(cpShapeGetUserData(queryInfo.shape));
+				hitInfo->hitNormal.Set(Vector2<cpFloat>(queryInfo.normal.x, queryInfo.normal.y));
+				hitInfo->hitPos.Set(Vector2<cpFloat>(queryInfo.point.x, queryInfo.point.y));
+				hitInfo->nearestBody = static_cast<RigidBody2D*>(cpShapeGetUserData(queryInfo.shape));
 
 				return true;
 			}
@@ -278,28 +278,28 @@ namespace Nz
 		}
 	}
 
-	void PhysWorld2D::RegionQuery(const Nz::Rectf& boundingBox, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, const std::function<void(Nz::RigidBody2D*)>& callback)
+	void PhysWorld2D::RegionQuery(const Rectf& boundingBox, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, const FunctionRef<void(RigidBody2D*)>& callback)
 	{
-		using CallbackType = const std::function<void(Nz::RigidBody2D*)>;
+		using CallbackType = const std::function<void(RigidBody2D*)>;
 
 		auto cpCallback = [](cpShape* shape, void* data)
 		{
 			CallbackType& callback = *static_cast<CallbackType*>(data);
-			callback(static_cast<Nz::RigidBody2D*>(cpShapeGetUserData(shape)));
+			callback(static_cast<RigidBody2D*>(cpShapeGetUserData(shape)));
 		};
 
 		cpShapeFilter filter = cpShapeFilterNew(collisionGroup, categoryMask, collisionMask);
 		cpSpaceBBQuery(m_handle, cpBBNew(boundingBox.x, boundingBox.y, boundingBox.x + boundingBox.width, boundingBox.y + boundingBox.height), filter, cpCallback, const_cast<void*>(static_cast<const void*>(&callback)));
 	}
 
-	void PhysWorld2D::RegionQuery(const Nz::Rectf& boundingBox, Nz::UInt32 collisionGroup, Nz::UInt32 categoryMask, Nz::UInt32 collisionMask, std::vector<Nz::RigidBody2D*>* bodies)
+	void PhysWorld2D::RegionQuery(const Rectf& boundingBox, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, std::vector<RigidBody2D*>* bodies)
 	{
 		using ResultType = decltype(bodies);
 
 		auto callback = [] (cpShape* shape, void* data)
 		{
 			ResultType results = static_cast<ResultType>(data);
-			results->push_back(static_cast<Nz::RigidBody2D*>(cpShapeGetUserData(shape)));
+			results->push_back(static_cast<RigidBody2D*>(cpShapeGetUserData(shape)));
 		};
 
 		cpShapeFilter filter = cpShapeFilterNew(collisionGroup, categoryMask, collisionMask);

@@ -12,6 +12,7 @@
 #include <Nazara/Graphics/RenderQueueRegistry.hpp>
 #include <Nazara/Graphics/SkeletonInstance.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
+#include <Nazara/Utility/Enums.hpp>
 #include <memory>
 #include <vector>
 

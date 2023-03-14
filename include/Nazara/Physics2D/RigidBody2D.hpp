@@ -27,7 +27,7 @@ namespace Nz
 	class NAZARA_PHYSICS2D_API RigidBody2D
 	{
 		public:
-			using VelocityFunc = std::function<void(RigidBody2D& body2D, const Nz::Vector2f& gravity, float damping, float deltaTime)>;
+			using VelocityFunc = std::function<void(RigidBody2D& body2D, const Vector2f& gravity, float damping, float deltaTime)>;
 
 			RigidBody2D(PhysWorld2D* world, float mass);
 			RigidBody2D(PhysWorld2D* world, float mass, std::shared_ptr<Collider2D> geom);
@@ -41,11 +41,11 @@ namespace Nz
 			void AddImpulse(const Vector2f& impulse, const Vector2f& point, CoordSys coordSys = CoordSys::Global);
 			void AddTorque(const RadianAnglef& torque);
 
-			bool ClosestPointQuery(const Nz::Vector2f& position, Nz::Vector2f* closestPoint = nullptr, float* closestDistance = nullptr) const;
+			bool ClosestPointQuery(const Vector2f& position, Vector2f* closestPoint = nullptr, float* closestDistance = nullptr) const;
 
 			void EnableSimulation(bool simulation);
 
-			void ForEachArbiter(std::function<void(Nz::Arbiter2D& /*arbiter*/)> callback);
+			void ForEachArbiter(std::function<void(Arbiter2D& /*arbiter*/)> callback);
 			void ForceSleep();
 
 			Rectf GetAABB() const;
@@ -98,7 +98,7 @@ namespace Nz
 			void SetVelocity(const Vector2f& velocity);
 			void SetVelocityFunction(VelocityFunc velocityFunc);
 
-			void UpdateVelocity(const Nz::Vector2f& gravity, float damping, float deltaTime);
+			void UpdateVelocity(const Vector2f& gravity, float damping, float deltaTime);
 
 			void Wakeup();
 
