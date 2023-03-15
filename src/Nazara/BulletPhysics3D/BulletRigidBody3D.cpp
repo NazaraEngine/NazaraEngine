@@ -27,7 +27,7 @@ namespace Nz
 		NazaraAssert(m_world, "Invalid world");
 
 		if (!m_geom)
-			m_geom = std::make_shared<NullCollider3D>();
+			m_geom = std::make_shared<BulletNullCollider3D>();
 
 		Vector3f inertia;
 		m_geom->ComputeInertia(1.f, &inertia);
@@ -214,7 +214,7 @@ namespace Nz
 			if (geom)
 				m_geom = std::move(geom);
 			else
-				m_geom = std::make_shared<NullCollider3D>();
+				m_geom = std::make_shared<BulletNullCollider3D>();
 
 			m_body->setCollisionShape(m_geom->GetShape());
 			if (recomputeInertia)
@@ -263,6 +263,15 @@ namespace Nz
 	{
 		btTransform worldTransform = m_body->getWorldTransform();
 		worldTransform.setOrigin(ToBullet(position));
+
+		m_body->setWorldTransform(worldTransform);
+	}
+
+	void BulletRigidBody3D::SetPositionAndRotation(const Vector3f& position, const Quaternionf& rotation)
+	{
+		btTransform worldTransform;
+		worldTransform.setOrigin(ToBullet(position));
+		worldTransform.setRotation(ToBullet(rotation));
 
 		m_body->setWorldTransform(worldTransform);
 	}

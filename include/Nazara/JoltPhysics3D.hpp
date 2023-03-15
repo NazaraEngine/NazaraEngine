@@ -26,22 +26,22 @@
 
 #pragma once
 
-#ifndef NAZARA_GLOBAL_BULLETPHYSICS3D_HPP
-#define NAZARA_GLOBAL_BULLETPHYSICS3D_HPP
+#ifndef NAZARA_GLOBAL_JOLTPHYSICS3D_HPP
+#define NAZARA_GLOBAL_JOLTPHYSICS3D_HPP
 
-#include <Nazara/BulletPhysics3D/BulletCollider3D.hpp>
-#include <Nazara/BulletPhysics3D/BulletConstraint3D.hpp>
-#include <Nazara/BulletPhysics3D/BulletPhysics3D.hpp>
-#include <Nazara/BulletPhysics3D/BulletPhysWorld3D.hpp>
-#include <Nazara/BulletPhysics3D/BulletRigidBody3D.hpp>
-#include <Nazara/BulletPhysics3D/Config.hpp>
-#include <Nazara/BulletPhysics3D/Enums.hpp>
+#include <Nazara/JoltPhysics3D/Config.hpp>
+#include <Nazara/JoltPhysics3D/Enums.hpp>
+#include <Nazara/JoltPhysics3D/JoltCollider3D.hpp>
+#include <Nazara/JoltPhysics3D/JoltConstraint3D.hpp>
+#include <Nazara/JoltPhysics3D/JoltPhysics3D.hpp>
+#include <Nazara/JoltPhysics3D/JoltPhysWorld3D.hpp>
+#include <Nazara/JoltPhysics3D/JoltRigidBody3D.hpp>
 
 #ifdef NAZARA_ENTT
 
-#include <Nazara/BulletPhysics3D/Components.hpp>
-#include <Nazara/BulletPhysics3D/Systems.hpp>
+#include <Nazara/JoltPhysics3D/Components.hpp>
+#include <Nazara/JoltPhysics3D/Systems.hpp>
 
 #endif
 
-#endif // NAZARA_GLOBAL_BULLETPHYSICS3D_HPP
+#endif // NAZARA_GLOBAL_JOLTPHYSICS3D_HPP

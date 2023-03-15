@@ -1,5 +1,3 @@
-// this file was automatically generated and should not be edited
-
 /*
 	Nazara Engine - BulletPhysics3D module
 
@@ -26,22 +24,25 @@
 
 #pragma once
 
-#ifndef NAZARA_GLOBAL_BULLETPHYSICS3D_HPP
-#define NAZARA_GLOBAL_BULLETPHYSICS3D_HPP
+#ifndef NAZARA_JOLTPHYSICS3D_CONFIG_HPP
+#define NAZARA_JOLTPHYSICS3D_CONFIG_HPP
 
-#include <Nazara/BulletPhysics3D/BulletCollider3D.hpp>
-#include <Nazara/BulletPhysics3D/BulletConstraint3D.hpp>
-#include <Nazara/BulletPhysics3D/BulletPhysics3D.hpp>
-#include <Nazara/BulletPhysics3D/BulletPhysWorld3D.hpp>
-#include <Nazara/BulletPhysics3D/BulletRigidBody3D.hpp>
-#include <Nazara/BulletPhysics3D/Config.hpp>
-#include <Nazara/BulletPhysics3D/Enums.hpp>
+/// Chaque modification d'un paramètre du module nécessite une recompilation de celui-ci
 
-#ifdef NAZARA_ENTT
+// Active les tests de sécurité basés sur le code (Conseillé pour le développement)
+#define NAZARA_JOLTPHYSICS3D_SAFE 1
 
-#include <Nazara/BulletPhysics3D/Components.hpp>
-#include <Nazara/BulletPhysics3D/Systems.hpp>
+/// Vérification des valeurs et types de certaines constantes
+#include <Nazara/JoltPhysics3D/ConfigCheck.hpp>
 
+#if defined(NAZARA_STATIC)
+	#define NAZARA_JOLTPHYSICS3D_API
+#else
+	#ifdef NAZARA_JOLTPHYSICS3D_BUILD
+		#define NAZARA_JOLTPHYSICS3D_API NAZARA_EXPORT
+	#else
+		#define NAZARA_JOLTPHYSICS3D_API NAZARA_IMPORT
+	#endif
 #endif
 
-#endif // NAZARA_GLOBAL_BULLETPHYSICS3D_HPP
+#endif // NAZARA_JOLTPHYSICS3D_CONFIG_HPP
