@@ -121,11 +121,19 @@ namespace Nz
 		}
 	}
 
+#define HACK 0
+
 	btRigidBody* BulletPhysWorld3D::AddRigidBody(std::size_t& rigidBodyIndex, FunctionRef<void(btRigidBody* body)> constructor)
 	{
+#if HACK
+		static std::size_t index = 0;
+		rigidBodyIndex = index++;
+		btRigidBody* rigidBody = (btRigidBody*) ::operator new(sizeof(btRigidBody));
+		constructor(rigidBody);
+		m_world->dynamicWorld.addRigidBody(rigidBody);
+#else
 		btRigidBody* rigidBody = m_world->rigidBodyPool.Allocate(m_world->rigidBodyPool.DeferConstruct, rigidBodyIndex);
 		constructor(rigidBody);
-
 		m_world->dynamicWorld.addRigidBody(rigidBody);
 
 		// Small hack to order rigid bodies to make it cache friendly
@@ -144,6 +152,7 @@ namespace Nz
 				*it = rigidBody;
 			}
 		}
+#endif
 
 		return rigidBody;
 	}
@@ -152,6 +161,10 @@ namespace Nz
 	{
 		// TODO: Improve deletion (since rigid bodies are sorted)
 		m_world->dynamicWorld.removeRigidBody(rigidBody); //< this does a linear search
+#if HACK
+		::operator delete(rigidBody);
+#else
 		m_world->rigidBodyPool.Free(rigidBodyIndex);
+#endif
 	}
 }

@@ -66,6 +66,10 @@ local modules = {
 			end
 		end
 	},
+	BulletPhysics3D = {
+		Deps = {"NazaraUtility"},
+		Packages = { "bullet3", "entt", "ordered_map" }
+	},
 	Core = {
 		Custom = function ()
 			add_headerfiles("include/(Nazara/*.hpp)")
@@ -105,6 +109,10 @@ local modules = {
 		Deps = {"NazaraRenderer"},
 		Packages = {"entt"}
 	},
+	JoltPhysics3D = {
+		Deps = {"NazaraUtility"},
+		Packages = { "joltphysics", "entt" }
+	},
 	Network = {
 		Deps = {"NazaraCore"},
 		Custom = function()
@@ -121,10 +129,6 @@ local modules = {
 	Physics2D = {
 		Deps = {"NazaraUtility"},
 		Packages = { "chipmunk2d", "entt" }
-	},
-	BulletPhysics3D = {
-		Deps = {"NazaraUtility"},
-		Packages = { "bullet3", "entt", "ordered_map" }
 	},
 	Platform = {
 		Deps = {"NazaraUtility"},
@@ -234,6 +238,7 @@ add_requires(
 	"minimp3",
 	"ordered_map",
 	"stb")
+add_requires("joltphysics master", { configs = { debug = is_mode("debug") } })
 add_requires("freetype", { configs = { bzip2 = true, png = true, woff2 = true, zlib = true, debug = is_mode("debug") } })
 add_requires("libvorbis", { configs = { with_vorbisenc = false } })
 

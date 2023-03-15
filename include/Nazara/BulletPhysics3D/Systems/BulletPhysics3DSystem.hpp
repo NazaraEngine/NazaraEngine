@@ -8,6 +8,7 @@
 #define NAZARA_BULLETPHYSICS3D_SYSTEMS_BULLETPHYSICS3DSYSTEM_HPP
 
 #include <Nazara/Prerequisites.hpp>
+#include <Nazara/Core/Clock.hpp>
 #include <Nazara/BulletPhysics3D/BulletPhysWorld3D.hpp>
 #include <Nazara/BulletPhysics3D/Components/BulletRigidBody3DComponent.hpp>
 #include <Nazara/Core/Time.hpp>
@@ -32,6 +33,8 @@ namespace Nz
 
 			template<typename... Args> BulletRigidBody3DComponent CreateRigidBody(Args&&... args);
 
+			void Dump();
+
 			inline BulletPhysWorld3D& GetPhysWorld();
 			inline const BulletPhysWorld3D& GetPhysWorld() const;
 
@@ -51,12 +54,15 @@ namespace Nz
 			void OnConstruct(entt::registry& registry, entt::entity entity);
 			void OnDestruct(entt::registry& registry, entt::entity entity);
 
+			std::size_t m_stepCount;
 			std::vector<entt::entity> m_physicsEntities;
 			entt::registry& m_registry;
 			entt::observer m_physicsConstructObserver;
 			entt::scoped_connection m_constructConnection;
 			entt::scoped_connection m_destructConnection;
 			BulletPhysWorld3D m_physWorld;
+			Time m_physicsTime;
+			Time m_updateTime;
 	};
 }
 

@@ -62,11 +62,11 @@ namespace Nz
 			static std::shared_ptr<BulletCollider3D> CreateGeomFromPrimitive(const Primitive& primitive);
 	};
 
-	class NAZARA_BULLETPHYSICS3D_API BoxCollider3D final : public BulletCollider3D
+	class NAZARA_BULLETPHYSICS3D_API BulletBoxCollider3D final : public BulletCollider3D
 	{
 		public:
-			BoxCollider3D(const Vector3f& lengths);
-			~BoxCollider3D();
+			BulletBoxCollider3D(const Vector3f& lengths);
+			~BulletBoxCollider3D();
 
 			void BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const override;
 
@@ -79,11 +79,11 @@ namespace Nz
 			Vector3f m_lengths;
 	};
 
-	class NAZARA_BULLETPHYSICS3D_API CapsuleCollider3D final : public BulletCollider3D
+	class NAZARA_BULLETPHYSICS3D_API BulletCapsuleCollider3D final : public BulletCollider3D
 	{
 		public:
-			CapsuleCollider3D(float length, float radius);
-			~CapsuleCollider3D();
+			BulletCapsuleCollider3D(float length, float radius);
+			~BulletCapsuleCollider3D();
 
 			void BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const override;
 
@@ -98,13 +98,13 @@ namespace Nz
 			float m_radius;
 	};
 
-	class NAZARA_BULLETPHYSICS3D_API CompoundCollider3D final : public BulletCollider3D
+	class NAZARA_BULLETPHYSICS3D_API BulletCompoundCollider3D final : public BulletCollider3D
 	{
 		public:
 			struct ChildCollider;
 
-			CompoundCollider3D(std::vector<ChildCollider> childs);
-			~CompoundCollider3D();
+			BulletCompoundCollider3D(std::vector<ChildCollider> childs);
+			~BulletCompoundCollider3D();
 
 			void BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const override;
 
@@ -123,11 +123,11 @@ namespace Nz
 			std::vector<ChildCollider> m_childs;
 	};
 
-	class NAZARA_BULLETPHYSICS3D_API ConeCollider3D final : public BulletCollider3D
+	class NAZARA_BULLETPHYSICS3D_API BulletConeCollider3D final : public BulletCollider3D
 	{
 		public:
-			ConeCollider3D(float length, float radius);
-			~ConeCollider3D();
+			BulletConeCollider3D(float length, float radius);
+			~BulletConeCollider3D();
 
 			void BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const override;
 
@@ -142,11 +142,11 @@ namespace Nz
 			float m_radius;
 	};
 
-	class NAZARA_BULLETPHYSICS3D_API ConvexCollider3D final : public BulletCollider3D
+	class NAZARA_BULLETPHYSICS3D_API BulletConvexCollider3D final : public BulletCollider3D
 	{
 		public:
-			ConvexCollider3D(SparsePtr<const Vector3f> vertices, unsigned int vertexCount);
-			~ConvexCollider3D();
+			BulletConvexCollider3D(SparsePtr<const Vector3f> vertices, unsigned int vertexCount);
+			~BulletConvexCollider3D();
 
 			void BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const override;
 
@@ -157,11 +157,11 @@ namespace Nz
 			std::unique_ptr<btConvexHullShape> m_shape;
 	};
 
-	class NAZARA_BULLETPHYSICS3D_API CylinderCollider3D final : public BulletCollider3D
+	class NAZARA_BULLETPHYSICS3D_API BulletCylinderCollider3D final : public BulletCollider3D
 	{
 		public:
-			CylinderCollider3D(float length, float radius);
-			~CylinderCollider3D();
+			BulletCylinderCollider3D(float length, float radius);
+			~BulletCylinderCollider3D();
 
 			void BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const override;
 
@@ -177,11 +177,11 @@ namespace Nz
 			float m_radius;
 	};
 
-	class NAZARA_BULLETPHYSICS3D_API NullCollider3D final : public BulletCollider3D
+	class NAZARA_BULLETPHYSICS3D_API BulletNullCollider3D final : public BulletCollider3D
 	{
 		public:
-			NullCollider3D();
-			~NullCollider3D();
+			BulletNullCollider3D();
+			~BulletNullCollider3D();
 
 			void BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const override;
 
@@ -194,11 +194,11 @@ namespace Nz
 			std::unique_ptr<btEmptyShape> m_shape;
 	};
 
-	class NAZARA_BULLETPHYSICS3D_API SphereCollider3D final : public BulletCollider3D
+	class NAZARA_BULLETPHYSICS3D_API BulletSphereCollider3D final : public BulletCollider3D
 	{
 		public:
-			SphereCollider3D(float radius);
-			~SphereCollider3D();
+			BulletSphereCollider3D(float radius);
+			~BulletSphereCollider3D();
 
 			void BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const override;
 
