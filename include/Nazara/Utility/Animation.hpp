@@ -57,6 +57,8 @@ namespace Nz
 	class NAZARA_UTILITY_API Animation : public Resource
 	{
 		public:
+			using Params = AnimationParams;
+
 			Animation();
 			Animation(const Animation&) = delete;
 			Animation(Animation&&) noexcept;

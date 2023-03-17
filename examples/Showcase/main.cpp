@@ -18,10 +18,6 @@ NAZARA_REQUEST_DEDICATED_GPU()
 
 int main()
 {
-	std::filesystem::path resourceDir = "assets/examples";
-	if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory("../.." / resourceDir))
-		resourceDir = "../.." / resourceDir;
-
 	Nz::Application<Nz::Graphics> app;
 
 	Nz::PluginLoader loader;
@@ -43,10 +39,16 @@ int main()
 	Nz::Window& mainWindow = windowing.CreateWindow(Nz::VideoMode(1280, 720), windowTitle);
 	auto& windowSwapchain = renderSystem.CreateSwapchain(mainWindow);
 
-	//physSytem.GetPhysWorld().SetGravity({ 0.f, -9.81f, 0.f });
+	auto& fs = app.AddComponent<Nz::AppFilesystemComponent>();
+	{
+		std::filesystem::path resourceDir = "assets/examples";
+		if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory("../.." / resourceDir))
+			resourceDir = "../.." / resourceDir;
 
-	Nz::TextureParams texParams;
-	texParams.renderDevice = device;
+		fs.Mount("assets", resourceDir);
+	}
+
+	physSytem.GetPhysWorld().SetGravity({ 0.f, -9.81f, 0.f });
 
 	entt::handle playerEntity = world.CreateEntity();
 	entt::handle playerRotation = world.CreateEntity();
@@ -55,9 +57,28 @@ int main()
 		auto& playerNode = playerEntity.emplace<Nz::NodeComponent>();
 		playerNode.SetPosition(0.f, 1.8f, 1.f);
 
-		auto& playerBody = playerEntity.emplace<Nz::RigidBody3DComponent>(&physSytem.GetPhysWorld());
+		auto playerCollider = std::make_shared<Nz::BoxCollider3D>(Nz::Vector3f(0.2f, 1.8f, 0.2f));
+
+		auto& playerBody = playerEntity.emplace<Nz::RigidBody3DComponent>(physSytem.CreateRigidBody(playerCollider));
 		playerBody.SetMass(42.f);
-		playerBody.SetGeom(std::make_shared<Nz::BoxCollider3D>(Nz::Vector3f::Unit()));
+
+		std::shared_ptr<Nz::Mesh> colliderMesh = Nz::Mesh::Build(playerCollider->GenerateMesh());
+		std::shared_ptr<Nz::GraphicalMesh> colliderGraphicalMesh = Nz::GraphicalMesh::BuildFromMesh(*colliderMesh);
+
+		std::shared_ptr<Nz::MaterialInstance> colliderMat = Nz::Graphics::Instance()->GetDefaultMaterials().basicMaterial->Instantiate();
+		colliderMat->SetValueProperty("BaseColor", Nz::Color::Green());
+		colliderMat->UpdatePassesStates([](Nz::RenderStates& states)
+		{
+			states.primitiveMode = Nz::PrimitiveMode::LineList;
+			return true;
+		});
+
+		auto colliderModel = std::make_shared<Nz::Model>(colliderGraphicalMesh);
+		for (std::size_t i = 0; i < colliderModel->GetSubMeshCount(); ++i)
+			colliderModel->SetMaterial(i, colliderMat);
+
+		auto& playerGfx = playerEntity.emplace<Nz::GraphicsComponent>();
+		playerGfx.AttachRenderable(std::move(colliderModel));
 
 		auto& playerRotNode = playerRotation.emplace<Nz::NodeComponent>();
 		playerRotNode.SetParent(playerNode);
@@ -76,10 +97,10 @@ int main()
 	Nz::MeshParams meshParams;
 	meshParams.animated = true;
 	meshParams.center = true;
-	meshParams.vertexScale = Nz::Vector3f(0.1f, 0.1f, 0.1f);
+	meshParams.vertexScale = Nz::Vector3f(0.1f);
 	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_Normal_UV_Tangent_Skinning);
 
-	std::shared_ptr<Nz::Mesh> bobMesh = Nz::Mesh::LoadFromFile(resourceDir / "character/Gangnam Style.fbx", meshParams);
+	std::shared_ptr<Nz::Mesh> bobMesh = fs.Load<Nz::Mesh>("assets/character/Gangnam Style.fbx", meshParams);
 	if (!bobMesh)
 	{
 		NazaraError("Failed to load bob mesh");
@@ -92,7 +113,7 @@ int main()
 	animParam.jointScale = meshParams.vertexScale;
 	animParam.jointOffset = meshParams.vertexOffset;
 
-	std::shared_ptr<Nz::Animation> bobAnim = Nz::Animation::LoadFromFile(resourceDir / "character/Gangnam Style.fbx", animParam);
+	std::shared_ptr<Nz::Animation> bobAnim = fs.Load<Nz::Animation>("assets/character/Gangnam Style.fbx", animParam);
 	if (!bobAnim)
 	{
 		NazaraError("Failed to load bob anim");
@@ -103,12 +124,9 @@ int main()
 
 	std::cout << "joint count: " << skeleton->GetJointCount() << std::endl;
 
-	const Nz::Boxf& bobAABB = bobMesh->GetAABB();
 	std::shared_ptr<Nz::GraphicalMesh> bobGfxMesh = Nz::GraphicalMesh::BuildFromMesh(*bobMesh);
-
-	//std::shared_ptr<Nz::Material> material = Nz::Graphics::Instance()->GetDefaultMaterials().basicTransparent;
-
 	std::shared_ptr<Nz::Model> bobModel = std::make_shared<Nz::Model>(std::move(bobGfxMesh));
+
 	std::vector<std::shared_ptr<Nz::MaterialInstance>> materials(bobMesh->GetMaterialCount());
 
 	std::bitset<5> alphaMaterials("01010");
@@ -140,15 +158,17 @@ int main()
 	{
 		for (std::size_t x = 0; x < 10; ++x)
 		{
-			entt::entity bobEntity = registry.create();
+			entt::handle bobEntity = world.CreateEntity();
 
-			auto& bobNode = registry.emplace<Nz::NodeComponent>(bobEntity);
+			auto& bobNode = bobEntity.emplace<Nz::NodeComponent>();
 			bobNode.SetPosition(Nz::Vector3f(x - 5.f, 0.f, -float(y)));
 			//bobNode.SetRotation(Nz::EulerAnglesf(-90.f, -90.f, 0.f));
 			//bobNode.SetScale(1.f / 40.f * 0.5f);
 
-			auto& bobGfx = registry.emplace<Nz::GraphicsComponent>(bobEntity);
+			auto& bobGfx = bobEntity.emplace<Nz::GraphicsComponent>();
 			bobGfx.AttachRenderable(bobModel);
+
+			auto& sharedSkeleton = bobEntity.emplace<Nz::SharedSkeletonComponent>(skeleton);
 		}
 	}*/
 
@@ -201,16 +221,15 @@ int main()
 			sphereMesh->CreateStatic();
 			sphereMesh->BuildSubMesh(Nz::Primitive::UVSphere(1.f, 50, 50));
 			sphereMesh->SetMaterialCount(1);
-			sphereMesh->GenerateNormalsAndTangents();
 
 			std::shared_ptr<Nz::GraphicalMesh> gfxMesh = Nz::GraphicalMesh::BuildFromMesh(*sphereMesh);
 
 			// Textures
-			Nz::TextureParams srgbTexParams = texParams;
+			Nz::TextureParams srgbTexParams;
 			srgbTexParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
 
 			std::shared_ptr<Nz::MaterialInstance> sphereMat = Nz::Graphics::Instance()->GetDefaultMaterials().phongMaterial->Instantiate();
-			sphereMat->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(resourceDir / "Rusty/rustediron2_basecolor.png", srgbTexParams));
+			sphereMat->SetTextureProperty("BaseColorMap", fs.Load<Nz::Texture>("assets/Rusty/rustediron2_basecolor.png", srgbTexParams));
 
 			std::shared_ptr<Nz::Model> sphereModel = std::make_shared<Nz::Model>(std::move(gfxMesh));
 			for (std::size_t i = 0; i < sphereModel->GetSubMeshCount(); ++i)
@@ -220,9 +239,6 @@ int main()
 			sphereNode.SetScale(0.1f);
 			sphereNode.SetInheritScale(false);
 			sphereNode.SetParentJoint(bobEntity, "RightHand");
-
-			auto& sphereBody = sphereEntity.emplace<Nz::RigidBody3DComponent>(&physSytem.GetPhysWorld());
-			sphereBody.SetGeom(std::make_shared<Nz::SphereCollider3D>(0.1f));
 
 			auto& sphereGfx = sphereEntity.emplace<Nz::GraphicsComponent>();
 			sphereGfx.AttachRenderable(sphereModel);
@@ -255,14 +271,11 @@ int main()
 	}
 
 	std::shared_ptr<Nz::MaterialInstance> textMat = Nz::Graphics::Instance()->GetDefaultMaterials().phongMaterial->Instantiate();
-	for (const char* pass : { "DepthPass", "ShadowPass", "ForwardPass" })
+	textMat->UpdatePassesStates([](Nz::RenderStates& renderStates)
 	{
-		textMat->UpdatePassStates(pass, [](Nz::RenderStates& renderStates)
-		{
-			renderStates.faceCulling = Nz::FaceCulling::None;
-			return true;
-		});
-	}
+		renderStates.faceCulling = Nz::FaceCulling::None;
+		return true;
+	});
 
 	textMat->UpdatePassStates("ForwardPass", [](Nz::RenderStates& renderStates)
 	{
@@ -293,20 +306,14 @@ int main()
 		entityNode.SetRotation(Nz::EulerAnglesf(-45.f, 0.f, 0.f));
 	}
 
-	entt::handle planeEntity = world.CreateEntity();
-	Nz::Boxf floorBox;
+	entt::handle floorEntity = world.CreateEntity();
 	{
 		Nz::MeshParams meshPrimitiveParams;
 		meshPrimitiveParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_Normal_UV);
 
 		Nz::Vector2f planeSize(25.f, 25.f);
 
-		Nz::Mesh planeMesh;
-		planeMesh.CreateStatic();
-		planeMesh.BuildSubMesh(Nz::Primitive::Plane(planeSize, Nz::Vector2ui(0u), Nz::Matrix4f::Identity(), Nz::Rectf(0.f, 0.f, 10.f, 10.f)), meshPrimitiveParams);
-		planeMesh.SetMaterialCount(1);
-
-		std::shared_ptr<Nz::GraphicalMesh> planeMeshGfx = Nz::GraphicalMesh::BuildFromMesh(planeMesh);
+		std::shared_ptr<Nz::GraphicalMesh> planeMeshGfx = Nz::GraphicalMesh::Build(Nz::Primitive::Plane(planeSize, Nz::Vector2ui(0u), Nz::Matrix4f::Identity(), Nz::Rectf(0.f, 0.f, 10.f, 10.f)), meshPrimitiveParams);
 
 		Nz::TextureSamplerInfo planeSampler;
 		planeSampler.anisotropyLevel = 16;
@@ -314,33 +321,26 @@ int main()
 		planeSampler.wrapModeV = Nz::SamplerWrap::Repeat;
 
 		std::shared_ptr<Nz::MaterialInstance> planeMat = Nz::Graphics::Instance()->GetDefaultMaterials().phongMaterial->Instantiate();
-		planeMat->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(resourceDir / "dev_grey.png", texParams), planeSampler);
-
-		floorBox = planeMesh.GetAABB();
+		planeMat->SetTextureProperty("BaseColorMap", fs.Load<Nz::Texture>("assets/dev_grey.png"), planeSampler);
 
 		std::shared_ptr<Nz::Model> planeModel = std::make_shared<Nz::Model>(std::move(planeMeshGfx));
 		planeModel->SetMaterial(0, planeMat);
 
-		auto& planeGfx = planeEntity.emplace<Nz::GraphicsComponent>();
+		auto& planeGfx = floorEntity.emplace<Nz::GraphicsComponent>();
 		planeGfx.AttachRenderable(planeModel);
 
-		planeEntity.emplace<Nz::NodeComponent>();
+		floorEntity.emplace<Nz::NodeComponent>();
 
-		auto& planeBody = planeEntity.emplace<Nz::RigidBody3DComponent>(&physSytem.GetPhysWorld());
+		auto& planeBody = floorEntity.emplace<Nz::RigidBody3DComponent>(&physSytem.GetPhysWorld());
 		planeBody.SetGeom(std::make_shared<Nz::BoxCollider3D>(Nz::Vector3f(planeSize.x, 0.5f, planeSize.y), Nz::Vector3f(0.f, -0.25f, 0.f)));
 
-		Nz::Mesh boxMesh;
-		boxMesh.CreateStatic();
-		boxMesh.BuildSubMesh(Nz::Primitive::Box(Nz::Vector3f(0.5f, 0.5f, 0.5f)), meshPrimitiveParams);
-		boxMesh.SetMaterialCount(1);
-
-		std::shared_ptr<Nz::GraphicalMesh> boxMeshGfx = Nz::GraphicalMesh::BuildFromMesh(boxMesh);
+		std::shared_ptr<Nz::GraphicalMesh> boxMeshGfx = Nz::GraphicalMesh::Build(Nz::Primitive::Box(Nz::Vector3f(0.5f, 0.5f, 0.5f)), meshPrimitiveParams);
 
 		std::shared_ptr<Nz::Model> boxModel = std::make_shared<Nz::Model>(std::move(boxMeshGfx));
 		boxModel->SetMaterial(0, planeMat);
 
 		entt::handle boxEntity = world.CreateEntity();
-		boxEntity.emplace<Nz::NodeComponent>().SetPosition(Nz::Vector3f(0.f, 0.25f, -0.5f));
+		boxEntity.emplace<Nz::NodeComponent>();
 		boxEntity.emplace<Nz::GraphicsComponent>().AttachRenderable(boxModel);
 	}
 
@@ -383,24 +383,25 @@ int main()
 		{
 			float updateTime = deltaTime->AsSeconds();
 
-			/*auto& playerBody = registry.get<Nz::RigidBody3DComponent>(playerEntity);
+			auto& playerBody = playerEntity.get<Nz::RigidBody3DComponent>();
+			//playerBody.SetAngularDamping(std::numeric_limits<float>::max());
 
 			float mass = playerBody.GetMass();
 
-			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Space))
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::RShift))
 				playerBody.AddForce(Nz::Vector3f(0.f, mass * 50.f, 0.f));
 
-			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Up) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Z))
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Up))
 				playerBody.AddForce(Nz::Vector3f::Forward() * 25.f * mass, Nz::CoordSys::Local);
 
-			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Down) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::S))
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Down))
 				playerBody.AddForce(Nz::Vector3f::Backward() * 25.f * mass, Nz::CoordSys::Local);
 
-			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Left) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Q))
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Left))
 				playerBody.AddForce(Nz::Vector3f::Left() * 25.f * mass, Nz::CoordSys::Local);
 
-			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Right) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::D))
-				playerBody.AddForce(Nz::Vector3f::Right() * 25.f * mass, Nz::CoordSys::Local);*/
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Right))
+				playerBody.AddForce(Nz::Vector3f::Right() * 25.f * mass, Nz::CoordSys::Local);
 
 			float cameraSpeed = 2.f;
 
@@ -408,16 +409,16 @@ int main()
 			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Space))
 				cameraNode.Move(Nz::Vector3f::Up() * cameraSpeed * updateTime, Nz::CoordSys::Global);
 
-			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Up) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Z))
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Z))
 				cameraNode.Move(Nz::Vector3f::Forward() * cameraSpeed * updateTime, Nz::CoordSys::Local);
 
-			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Down) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::S))
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::S))
 				cameraNode.Move(Nz::Vector3f::Backward() * cameraSpeed * updateTime, Nz::CoordSys::Local);
 
-			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Left) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Q))
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Q))
 				cameraNode.Move(Nz::Vector3f::Left() * cameraSpeed * updateTime, Nz::CoordSys::Local);
 
-			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Right) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::D))
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::D))
 				cameraNode.Move(Nz::Vector3f::Right() * cameraSpeed * updateTime, Nz::CoordSys::Local);
 
 			if (!paused)

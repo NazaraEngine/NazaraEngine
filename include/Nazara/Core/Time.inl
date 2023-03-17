@@ -6,8 +6,8 @@
 
 namespace Nz
 {
-	constexpr Time::Time(Int64 microseconds) :
-	m_nanoseconds(microseconds)
+	constexpr Time::Time(Int64 nanoseconds) :
+	m_nanoseconds(nanoseconds)
 	{
 	}
 

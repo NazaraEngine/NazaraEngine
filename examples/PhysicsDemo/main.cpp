@@ -104,14 +104,11 @@ int main()
 
 	std::shared_ptr<Nz::MaterialInstance> colliderMat = Nz::Graphics::Instance()->GetDefaultMaterials().basicMaterial->Instantiate();
 	colliderMat->SetValueProperty("BaseColor", Nz::Color::Green());
-	for (std::string_view passName : { "DepthPass", "ForwardPass" })
+	colliderMat->UpdatePassesStates([](Nz::RenderStates& states)
 	{
-		colliderMat->UpdatePassStates(passName, [](Nz::RenderStates& states)
-		{
-			states.primitiveMode = Nz::PrimitiveMode::LineList;
-			return true;
-		});
-	}
+		states.primitiveMode = Nz::PrimitiveMode::LineList;
+		return true;
+	});
 
 	std::shared_ptr<Nz::Model> colliderModel;
 	{
