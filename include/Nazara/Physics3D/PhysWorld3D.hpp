@@ -14,6 +14,7 @@
 #include <Nazara/Physics3D/Config.hpp>
 #include <NazaraUtils/FunctionRef.hpp>
 #include <NazaraUtils/MovablePtr.hpp>
+#include <optional>
 
 class btDynamicsWorld;
 class btRigidBody;
@@ -39,6 +40,7 @@ namespace Nz
 			std::size_t GetMaxStepCount() const;
 			Time GetStepSize() const;
 
+			bool RaycastQuery(const Vector3f& from, const Vector3f& to, const FunctionRef<std::optional<float>(const RaycastHit& hitInfo)>& callback);
 			bool RaycastQueryFirst(const Vector3f& from, const Vector3f& to, RaycastHit* hitInfo = nullptr);
 
 			void SetGravity(const Vector3f& gravity);

@@ -26,6 +26,24 @@ namespace Nz
 			rigidBodyComponent.Destroy();
 	}
 
+	bool Physics3DSystem::RaycastQuery(const Vector3f& from, const Vector3f& to, const FunctionRef<std::optional<float>(const RaycastHit& hitInfo)>& callback)
+	{
+		return m_physWorld.RaycastQuery(from, to, [&](const PhysWorld3D::RaycastHit& hitInfo)
+		{
+			RaycastHit hitWithEntity;
+			static_cast<PhysWorld3D::RaycastHit&>(hitWithEntity) = hitInfo;
+
+			if (hitWithEntity.hitBody)
+			{
+				std::size_t uniqueIndex = hitWithEntity.hitBody->GetUniqueIndex();
+				if (uniqueIndex < m_physicsEntities.size())
+					hitWithEntity.hitEntity = entt::handle(m_registry, m_physicsEntities[uniqueIndex]);
+			}
+
+			return callback(hitWithEntity);
+		});
+	}
+
 	bool Physics3DSystem::RaycastQueryFirst(const Vector3f& from, const Vector3f& to, RaycastHit* hitInfo)
 	{
 		if (!m_physWorld.RaycastQueryFirst(from, to, hitInfo))

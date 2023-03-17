@@ -16,6 +16,38 @@
 
 namespace Nz
 {
+	class CallbackHitResult : public btCollisionWorld::RayResultCallback
+	{
+		public:
+			CallbackHitResult(const Vector3f& from, const Vector3f& to, const FunctionRef<std::optional<float>(const PhysWorld3D::RaycastHit& hitInfo)>& callback) :
+			m_callback(callback),
+			m_from(from),
+			m_to(to)
+			{
+			}
+
+			btScalar addSingleResult(btCollisionWorld::LocalRayResult& rayResult, bool normalInWorldSpace) override
+			{
+				m_collisionObject = rayResult.m_collisionObject;
+
+				PhysWorld3D::RaycastHit hitInfo;
+				hitInfo.fraction = rayResult.m_hitFraction;
+				hitInfo.hitPosition = Lerp(m_from, m_to, rayResult.m_hitFraction);
+				hitInfo.hitNormal = FromBullet((normalInWorldSpace) ? rayResult.m_hitNormalLocal : m_collisionObject->getWorldTransform().getBasis() * rayResult.m_hitNormalLocal);
+
+				if (const btRigidBody* body = btRigidBody::upcast(m_collisionObject))
+					hitInfo.hitBody = static_cast<RigidBody3D*>(body->getUserPointer());
+
+				m_closestHitFraction = std::max(m_callback(hitInfo).value_or(m_closestHitFraction), 0.f);
+				return m_closestHitFraction;
+			}
+
+		private:
+			const FunctionRef<std::optional<float>(const PhysWorld3D::RaycastHit& hitInfo)>& m_callback;
+			Vector3f m_from;
+			Vector3f m_to;
+	};
+
 	struct PhysWorld3D::BulletWorld
 	{
 		btDefaultCollisionConfiguration collisionConfiguration;
@@ -70,21 +102,29 @@ namespace Nz
 		return m_stepSize;
 	}
 
+	bool PhysWorld3D::RaycastQuery(const Vector3f& from, const Vector3f& to, const FunctionRef<std::optional<float>(const RaycastHit& hitInfo)>& callback)
+	{
+		CallbackHitResult resultHandler(from, to, callback);
+		m_world->dynamicWorld.rayTest(ToBullet(from), ToBullet(to), resultHandler);
+
+		return resultHandler.hasHit();
+	}
+
 	bool PhysWorld3D::RaycastQueryFirst(const Vector3f& from, const Vector3f& to, RaycastHit* hitInfo)
 	{
-		btCollisionWorld::ClosestRayResultCallback callback(ToBullet(from), ToBullet(to));
-		m_world->dynamicWorld.rayTest(ToBullet(from), ToBullet(to), callback);
+		btCollisionWorld::ClosestRayResultCallback resultHandler(ToBullet(from), ToBullet(to));
+		m_world->dynamicWorld.rayTest(ToBullet(from), ToBullet(to), resultHandler);
 
-		if (!callback.hasHit())
+		if (!resultHandler.hasHit())
 			return false;
 
 		if (hitInfo)
 		{
-			hitInfo->fraction = callback.m_closestHitFraction;
-			hitInfo->hitNormal = FromBullet(callback.m_hitNormalWorld);
-			hitInfo->hitPosition = FromBullet(callback.m_hitPointWorld);
+			hitInfo->fraction = resultHandler.m_closestHitFraction;
+			hitInfo->hitNormal = FromBullet(resultHandler.m_hitNormalWorld);
+			hitInfo->hitPosition = FromBullet(resultHandler.m_hitPointWorld);
 
-			if (const btRigidBody* body = btRigidBody::upcast(callback.m_collisionObject))
+			if (const btRigidBody* body = btRigidBody::upcast(resultHandler.m_collisionObject))
 				hitInfo->hitBody = static_cast<RigidBody3D*>(body->getUserPointer());
 		}
 
