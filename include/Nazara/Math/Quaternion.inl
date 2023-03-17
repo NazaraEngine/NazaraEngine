@@ -268,11 +268,30 @@ namespace Nz
 	template<typename T>
 	Quaternion<T>& Quaternion<T>::MakeRotationBetween(const Vector3<T>& from, const Vector3<T>& to)
 	{
-		// Based on: http://lolengine.net/blog/2013/09/18/beautiful-maths-quaternion-from-vectors
-		T norm = std::sqrt(from.GetSquaredLength() * to.GetSquaredLength());
-		Vector3<T> crossProduct = from.CrossProduct(to);
-		Set(norm + from.DotProduct(to), crossProduct.x, crossProduct.y, crossProduct.z);
-		return Normalize();
+		T dot = from.DotProduct(to);
+		if (dot < T(-0.999999))
+		{
+			Vector3<T> crossProduct;
+			if (from.DotProduct(Vector3<T>::UnitX()) < T(0.999999))
+				crossProduct = Vector3<T>::UnitX().CrossProduct(from);
+			else
+				crossProduct = Vector3<T>::UnitY().CrossProduct(from);
+
+			crossProduct.Normalize();
+			Set(Pi<T>, crossProduct);
+			return *this;
+		}
+		else if (dot > T(0.999999))
+		{
+			Set(T(1.0), T(0.0), T(0.0), T(0.0));
+			return *this;
+		}
+		else
+		{
+			Vector3<T> crossProduct = from.CrossProduct(to);
+			Set(T(1) + dot, crossProduct.x, crossProduct.y, crossProduct.z);
+			return Normalize();
+		}
 	}
 
 	/*!
