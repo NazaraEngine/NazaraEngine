@@ -118,7 +118,7 @@ namespace Nz
 			inline entt::registry& GetRegistry();
 			inline const entt::registry& GetRegistry() const;
 
-			void InvalidateNode() override;
+			void InvalidateNode(Invalidation invalidation) override;
 
 			Rectf GetScissorRect() const;
 

@@ -19,8 +19,9 @@ namespace Nz
 	class NAZARA_UTILITY_API Joint : public Node
 	{
 		public:
-			Joint(Skeleton* skeleton);
-			Joint(const Joint& joint);
+			inline Joint(Skeleton* skeleton);
+			inline Joint(const Joint& joint);
+			inline Joint(Joint&&) noexcept;
 			~Joint() = default;
 
 			void EnsureSkinningMatrixUpdate() const;
@@ -34,8 +35,11 @@ namespace Nz
 			void SetInverseBindMatrix(const Matrix4f& matrix);
 			void SetName(std::string name);
 
+			inline Joint& operator=(const Joint& joint);
+			inline Joint& operator=(Joint&& joint) noexcept;
+
 		private:
-			void InvalidateNode() override;
+			void InvalidateNode(Invalidation invalidation) override;
 			void UpdateSkinningMatrix() const;
 
 			Matrix4f m_inverseBindMatrix;
@@ -45,5 +49,7 @@ namespace Nz
 			mutable bool m_skinningMatrixUpdated;
 	};
 }
+
+#include <Nazara/Utility/Joint.inl>
 
 #endif // NAZARA_UTILITY_JOINT_HPP

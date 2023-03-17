@@ -77,19 +77,19 @@ namespace Nz
 
 	void SharedSkeletonComponent::UpdateAttachedSkeletonJoints()
 	{
-		assert(m_referenceSkeleton->GetJointCount() == m_attachedSkeleton.GetJointCount());
 		std::size_t jointCount = m_referenceSkeleton->GetJointCount();
+		assert(jointCount == m_attachedSkeleton.GetJointCount());
+		if (jointCount == 0)
+			return;
 
 		// TODO: This will trigger a lot of invalidation which can be avoided
-		for (std::size_t i = 0; i < jointCount; ++i)
-		{
-			const Joint* referenceJoint = m_referenceSkeleton->GetJoint(i);
-			Joint* attachedJoint = m_attachedSkeleton.GetJoint(i);
+		const Joint* referenceJoints = m_referenceSkeleton->GetJoints();
+		Joint* attachedJoints = m_attachedSkeleton.GetJoints();
 
-			attachedJoint->SetPosition(referenceJoint->GetPosition());
-			attachedJoint->SetRotation(referenceJoint->GetRotation());
-			attachedJoint->SetScale(referenceJoint->GetScale());
-		}
+		for (std::size_t i = 0; i < jointCount; ++i)
+			attachedJoints[i].SetTransform(referenceJoints[i].GetPosition(), referenceJoints[i].GetRotation(), referenceJoints[i].GetScale(), CoordSys::Local, Node::Invalidation::DontInvalidate);
+
+		m_attachedSkeleton.GetRootJoint()->Invalidate();
 
 		m_skeletonJointInvalidated = false;
 	}

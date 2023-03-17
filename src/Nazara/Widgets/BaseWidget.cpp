@@ -237,9 +237,9 @@ namespace Nz
 		UpdatePositionAndSize();
 	}
 
-	void BaseWidget::InvalidateNode()
+	void BaseWidget::InvalidateNode(Invalidation invalidation)
 	{
-		Node::InvalidateNode();
+		Node::InvalidateNode(invalidation);
 
 		UpdatePositionAndSize();
 	}
