@@ -11,6 +11,7 @@
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Quaternion.hpp>
+#include <Nazara/Math/Plane.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Physics3D/Config.hpp>
 #include <Nazara/Physics3D/Enums.hpp>
@@ -27,6 +28,7 @@ class btConvexHullShape;
 class btCylinderShape;
 class btEmptyShape;
 class btSphereShape;
+class btStaticPlaneShape;
 
 namespace Nz
 {
@@ -210,6 +212,26 @@ namespace Nz
 			std::unique_ptr<btSphereShape> m_shape;
 			Vector3f m_position;
 			float m_radius;
+	};
+
+	class NAZARA_PHYSICS3D_API StaticPlaneCollider3D final : public Collider3D
+	{
+		public:
+			StaticPlaneCollider3D(const Planef& plane);
+			StaticPlaneCollider3D(const Vector3f& normal, float distance);
+			~StaticPlaneCollider3D();
+
+			void BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const override;
+
+			float GetDistance() const;
+			const Vector3f& GetNormal() const;
+			btCollisionShape* GetShape() const override;
+			ColliderType3D GetType() const override;
+
+		private:
+			std::unique_ptr<btStaticPlaneShape> m_shape;
+			Vector3f m_normal;
+			float m_distance;
 	};
 }
 

@@ -21,9 +21,9 @@ namespace Nz
 		Null,
 		Scene,
 		Sphere,
-		Tree,
+		StaticPlane,
 
-		Max = Tree
+		Max = StaticPlane
 	};
 }
 
