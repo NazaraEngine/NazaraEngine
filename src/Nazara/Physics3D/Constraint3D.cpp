@@ -111,6 +111,16 @@ namespace Nz
 		return FromBullet(GetConstraint<btPoint2PointConstraint>()->getPivotInB());
 	}
 
+	float PivotConstraint3D::GetDamping() const
+	{
+		return GetConstraint<btPoint2PointConstraint>()->m_setting.m_damping;
+	}
+
+	float PivotConstraint3D::GetImpulseClamp() const
+	{
+		return GetConstraint<btPoint2PointConstraint>()->m_setting.m_impulseClamp;
+	}
+
 	void PivotConstraint3D::SetFirstAnchor(const Vector3f& firstAnchor)
 	{
 		GetConstraint<btPoint2PointConstraint>()->setPivotA(ToBullet(firstAnchor));
@@ -119,5 +129,15 @@ namespace Nz
 	void PivotConstraint3D::SetSecondAnchor(const Vector3f& secondAnchor)
 	{
 		GetConstraint<btPoint2PointConstraint>()->setPivotB(ToBullet(secondAnchor));
+	}
+
+	void PivotConstraint3D::SetDamping(float damping)
+	{
+		GetConstraint<btPoint2PointConstraint>()->m_setting.m_damping = damping;
+	}
+
+	void PivotConstraint3D::SetImpulseClamp(float impulseClamp)
+	{
+		GetConstraint<btPoint2PointConstraint>()->m_setting.m_impulseClamp = impulseClamp;
 	}
 }
