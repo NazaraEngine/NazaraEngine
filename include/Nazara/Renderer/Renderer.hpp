@@ -49,7 +49,7 @@ namespace Nz
 #ifdef NAZARA_DEBUG
 				RenderAPIValidationLevel validationLevel = RenderAPIValidationLevel::Verbose;
 #else
-				RenderAPIValidationLevel validationLevel = RenderAPIValidationLevel::Errors;
+				RenderAPIValidationLevel validationLevel = RenderAPIValidationLevel::None;
 #endif
 			};
 
