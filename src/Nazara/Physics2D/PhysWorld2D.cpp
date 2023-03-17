@@ -205,7 +205,7 @@ namespace Nz
 
 	void PhysWorld2D::RaycastQuery(const Vector2f& from, const Vector2f& to, float radius, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, const FunctionRef<void(const RaycastHit&)>& callback)
 	{
-		using CallbackType = const std::function<void(const RaycastHit&)>;
+		using CallbackType = std::remove_reference_t<decltype(callback)>;
 
 		auto cpCallback = [](cpShape* shape, cpVect point, cpVect normal, cpFloat alpha, void* data)
 		{
@@ -280,7 +280,7 @@ namespace Nz
 
 	void PhysWorld2D::RegionQuery(const Rectf& boundingBox, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, const FunctionRef<void(RigidBody2D*)>& callback)
 	{
-		using CallbackType = const std::function<void(RigidBody2D*)>;
+		using CallbackType = std::remove_reference_t<decltype(callback)>;
 
 		auto cpCallback = [](cpShape* shape, void* data)
 		{
