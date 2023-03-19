@@ -62,7 +62,7 @@ int main()
 		auto& playerBody = playerEntity.emplace<Nz::RigidBody3DComponent>(physSytem.CreateRigidBody(playerCollider));
 		playerBody.SetMass(42.f);
 
-		std::shared_ptr<Nz::Mesh> colliderMesh = Nz::Mesh::Build(playerCollider->GenerateMesh());
+		std::shared_ptr<Nz::Mesh> colliderMesh = Nz::Mesh::Build(playerCollider->GenerateDebugMesh());
 		std::shared_ptr<Nz::GraphicalMesh> colliderGraphicalMesh = Nz::GraphicalMesh::BuildFromMesh(*colliderMesh);
 
 		std::shared_ptr<Nz::MaterialInstance> colliderMat = Nz::Graphics::Instance()->GetDefaultMaterials().basicMaterial->Instantiate();
