@@ -3,6 +3,7 @@
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Math/PidController.hpp>
 #include <Nazara/BulletPhysics3D.hpp>
+#include <Nazara/JoltPhysics3D.hpp>
 #include <Nazara/Renderer.hpp>
 #include <Nazara/Utility.hpp>
 #include <Nazara/Utility/Plugins/AssimpPlugin.hpp>
@@ -18,7 +19,7 @@ NAZARA_REQUEST_DEDICATED_GPU()
 
 int main()
 {
-	Nz::Application<Nz::Graphics> app;
+	Nz::Application<Nz::Graphics, Nz::JoltPhysics3D> app;
 
 	Nz::PluginLoader loader;
 	Nz::Plugin<Nz::AssimpPlugin> assimp = loader.Load<Nz::AssimpPlugin>();
@@ -30,7 +31,7 @@ int main()
 	auto& world = ecs.AddWorld<Nz::EnttWorld>();
 	world.AddSystem<Nz::SkeletonSystem>();
 
-	Nz::BulletPhysics3DSystem& physSytem = world.AddSystem<Nz::BulletPhysics3DSystem>();
+	Nz::JoltPhysics3DSystem& physSytem = world.AddSystem<Nz::JoltPhysics3DSystem>();
 	physSytem.GetPhysWorld().SetGravity(Nz::Vector3f::Zero());
 	Nz::RenderSystem& renderSystem = world.AddSystem<Nz::RenderSystem>();
 
@@ -58,12 +59,12 @@ int main()
 		auto& playerNode = playerEntity.emplace<Nz::NodeComponent>();
 		playerNode.SetPosition(0.f, 1.8f, 1.f);
 
-		auto playerCollider = std::make_shared<Nz::BoxCollider3D>(Nz::Vector3f(0.2f, 1.8f, 0.2f));
+		auto playerCollider = std::make_shared<Nz::JoltBoxCollider3D>(Nz::Vector3f(0.2f, 1.8f, 0.2f));
 
-		auto& playerBody = playerEntity.emplace<Nz::BulletRigidBody3DComponent>(physSytem.CreateRigidBody(playerCollider));
+		auto& playerBody = playerEntity.emplace<Nz::JoltRigidBody3DComponent>(physSytem.CreateRigidBody(playerCollider));
 		playerBody.SetMass(42.f);
 
-		std::shared_ptr<Nz::Mesh> colliderMesh = Nz::Mesh::Build(playerCollider->GenerateMesh());
+		std::shared_ptr<Nz::Mesh> colliderMesh = Nz::Mesh::Build(playerCollider->GenerateDebugMesh());
 		std::shared_ptr<Nz::GraphicalMesh> colliderGraphicalMesh = Nz::GraphicalMesh::BuildFromMesh(*colliderMesh);
 
 		std::shared_ptr<Nz::MaterialInstance> colliderMat = Nz::Graphics::Instance()->GetDefaultMaterials().basicMaterial->Instantiate();
@@ -241,9 +242,6 @@ int main()
 			sphereNode.SetInheritScale(false);
 			sphereNode.SetParentJoint(bobEntity, "RightHand");
 
-			auto& sphereBody = sphereEntity.emplace<Nz::BulletRigidBody3DComponent>(&physSytem.GetPhysWorld());
-			sphereBody.SetGeom(std::make_shared<Nz::SphereCollider3D>(0.1f));
-
 			auto& sphereGfx = sphereEntity.emplace<Nz::GraphicsComponent>();
 			sphereGfx.AttachRenderable(sphereModel);
 		}
@@ -335,8 +333,8 @@ int main()
 
 		floorEntity.emplace<Nz::NodeComponent>();
 
-		auto& planeBody = planeEntity.emplace<Nz::BulletRigidBody3DComponent>(&physSytem.GetPhysWorld());
-		planeBody.SetGeom(std::make_shared<Nz::BoxCollider3D>(Nz::Vector3f(planeSize.x, 0.5f, planeSize.y)));
+		auto& planeBody = floorEntity.emplace<Nz::JoltRigidBody3DComponent>(physSytem.CreateRigidBody(std::make_shared<Nz::JoltBoxCollider3D>(Nz::Vector3f(planeSize.x, 0.5f, planeSize.y))));
+		planeBody.SetMass(0.f);
 
 		std::shared_ptr<Nz::GraphicalMesh> boxMeshGfx = Nz::GraphicalMesh::Build(Nz::Primitive::Box(Nz::Vector3f(0.5f, 0.5f, 0.5f)), meshPrimitiveParams);
 
@@ -387,7 +385,7 @@ int main()
 		{
 			float updateTime = deltaTime->AsSeconds();
 
-			auto& playerBody = playerEntity.get<Nz::RigidBody3DComponent>();
+			auto& playerBody = playerEntity.get<Nz::JoltRigidBody3DComponent>();
 			//playerBody.SetAngularDamping(std::numeric_limits<float>::max());
 
 			float mass = playerBody.GetMass();
