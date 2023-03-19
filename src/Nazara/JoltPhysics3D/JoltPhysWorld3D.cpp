@@ -179,6 +179,8 @@ namespace Nz
 		DitchMeAsap::BPLayerInterfaceImpl layerInterface;
 		DitchMeAsap::ObjectLayerPairFilterImpl objectLayerFilter;
 		DitchMeAsap::ObjectVsBroadPhaseLayerFilterImpl objectBroadphaseLayerFilter;
+		DitchMeAsap::MyBodyActivationListener bodyActivationListener;
+		DitchMeAsap::MyContactListener contactListener;
 
 		JoltWorld() = default;
 		JoltWorld(const JoltWorld&) = delete;
@@ -196,6 +198,8 @@ namespace Nz
 	{
 		m_world = std::make_unique<JoltWorld>();
 		m_world->physicsSystem.Init(0xFFFF, 0, 0xFFFF, 0xFFFF, m_world->layerInterface, m_world->objectBroadphaseLayerFilter, m_world->objectLayerFilter);
+		m_world->physicsSystem.SetBodyActivationListener(&m_world->bodyActivationListener);
+		//m_world->physicsSystem.SetContactListener(&m_world->contactListener);
 	}
 
 	JoltPhysWorld3D::~JoltPhysWorld3D() = default;

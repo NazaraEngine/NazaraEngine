@@ -19,6 +19,7 @@ constexpr float BoxDims = 16.f;
 
 int main()
 {
+	try {
 	// Mise en place de l'application, de la fenêtre et du monde
 	Nz::Renderer::Config renderConfig;
 	//renderConfig.preferredAPI = Nz::RenderAPI::OpenGL;
@@ -50,8 +51,9 @@ int main()
 	auto& physSystem = world.AddSystem<Nz::BulletPhysics3DSystem>();
 #endif
 	physSystem.GetPhysWorld().SetMaxStepCount(1);
-	//physSystem.GetPhysWorld().SetGravity(Nz::Vector3f::Down() * 9.81f);
-	physSystem.GetPhysWorld().SetGravity(Nz::Vector3f::Zero());
+	physSystem.GetPhysWorld().SetStepSize(Nz::Time::TickDuration(30));
+	physSystem.GetPhysWorld().SetGravity(Nz::Vector3f::Down() * 9.81f);
+	//physSystem.GetPhysWorld().SetGravity(Nz::Vector3f::Zero());
 
 	auto& renderSystem = world.AddSystem<Nz::RenderSystem>();
 	Nz::WindowSwapchain& windowSwapchain = renderSystem.CreateSwapchain(mainWindow);
@@ -146,9 +148,9 @@ int main()
 	//std::mt19937 rd(std::random_device{}());
 	std::mt19937 rd(42);
 	std::uniform_real_distribution<float> colorDis(0.f, 360.f);
-	std::uniform_real_distribution<float> radiusDis(0.05f, 0.5f);
+	std::uniform_real_distribution<float> radiusDis(0.1f, 0.5f);
 
-	constexpr std::size_t SphereCount = 3000;
+	constexpr std::size_t SphereCount = 2000;
 	for (std::size_t i = 0; i < SphereCount; ++i)
 	{
 		float radius = radiusDis(rd);
@@ -180,11 +182,11 @@ int main()
 #else
 		auto& ballPhysics = ballEntity.emplace<Nz::BulletRigidBody3DComponent>(physSystem.CreateRigidBody(sphereCollider));
 #endif
-		//ballPhysics.SetMass(4.f / 3.f * Nz::Pi<float> * Nz::IntegralPow(radius, 3));
-		ballPhysics.DisableSleeping();
+		ballPhysics.SetMass(4.f / 3.f * Nz::Pi<float> * Nz::IntegralPow(radius, 3));
+		//ballPhysics.DisableSleeping();
 	}
 
-	std::uniform_real_distribution<float> lengthDis(0.1f, 1.f);
+	std::uniform_real_distribution<float> lengthDis(0.2f, 1.5f);
 	std::shared_ptr<Nz::GraphicalMesh> boxMesh = Nz::GraphicalMesh::Build(Nz::Primitive::Box(Nz::Vector3f(1.f)));
 
 	constexpr std::size_t BoxCount = 100;
@@ -224,8 +226,8 @@ int main()
 #else
 		auto& ballPhysics = ballEntity.emplace<Nz::BulletRigidBody3DComponent>(physSystem.CreateRigidBody(boxCollider));
 #endif
-		//ballPhysics.SetMass(width * height * depth);
-		ballPhysics.DisableSleeping();
+		ballPhysics.SetMass(width * height * depth);
+		//ballPhysics.DisableSleeping();
 	}
 
 	// Lumière
@@ -270,40 +272,58 @@ int main()
 
 	NazaraSlot(Nz::WindowEventHandler, OnMouseMoved, cameraMove);
 	NazaraSlot(Nz::WindowEventHandler, OnMouseMoved, grabbedObjectMove);
-	//std::optional<Nz::JoltPivotConstraint3D> grabConstraint;
+	//std::optional<Nz::PivotConstraint3D> grabConstraint;
+
+	auto mouseMoveCallback = [&](const Nz::WindowEventHandler*, const Nz::WindowEvent::MouseMoveEvent& event)
+	{
+		constexpr float sensitivity = 0.3f;
+
+		camAngles.yaw -= event.deltaX * sensitivity;
+		camAngles.yaw.Normalize();
+
+		camAngles.pitch = Nz::Clamp(camAngles.pitch - event.deltaY * sensitivity, -89.f, 89.f);
+		UpdateCamera();
+	};
 
 	Nz::WindowEventHandler& eventHandler = mainWindow.GetEventHandler();
 	eventHandler.OnMouseButtonPressed.Connect([&](const Nz::WindowEventHandler*, const Nz::WindowEvent::MouseButtonEvent& event)
 	{
 		if (event.button == Nz::Mouse::Middle)
 		{
-			cameraMove.Connect(eventHandler.OnMouseMoved, [&](const Nz::WindowEventHandler*, const Nz::WindowEvent::MouseMoveEvent& event)
-			{
-				constexpr float sensitivity = 0.3f;
-
-				camAngles.yaw -= event.deltaX * sensitivity;
-				camAngles.yaw.Normalize();
-
-				camAngles.pitch = Nz::Clamp(camAngles.pitch - event.deltaY * sensitivity, -89.f, 89.f);
-				UpdateCamera();
-			});
+			cameraMove.Connect(eventHandler.OnMouseMoved, mouseMoveCallback);
 		}
 		else if (event.button == Nz::Mouse::Left)
 		{
-			auto& cameraNode = cameraEntity.get<Nz::NodeComponent>();
 			auto& cameraComponent = cameraEntity.get<Nz::CameraComponent>();
 
 			Nz::Vector3f from = cameraComponent.Unproject({ float(event.x), float(event.y), 0.f });
 			Nz::Vector3f to = cameraComponent.Unproject({ float(event.x), float(event.y), 1.f });
 
-			/*Nz::JoltPhysics3DSystem::RaycastHit hitInfo;
-			if (physSystem.RaycastQueryFirst(from, to, &hitInfo))
+			/*/Nz::Physics3DSystem::RaycastHit lastHitInfo;
+			auto callback = [&](const Nz::Physics3DSystem::RaycastHit& hitInfo) -> std::optional<float>
 			{
-				if (hitInfo.hitBody)
+				if (hitInfo.hitEntity == boxEntity)
 				{
-					grabConstraint.emplace(*hitInfo.hitBody, hitInfo.hitPosition);
+					Nz::Vector3f dirToCenter = Nz::Vector3f::Zero() - hitInfo.hitPosition;
+					dirToCenter.Normalize();
 
-					grabbedObjectMove.Connect(eventHandler.OnMouseMoved, [&, body = hitInfo.hitBody, distance = Nz::Vector3f::Distance(from, hitInfo.hitPosition)](const Nz::WindowEventHandler*, const Nz::WindowEvent::MouseMoveEvent& event)
+					if (Nz::Vector3f::DotProduct(dirToCenter, hitInfo.hitNormal) < 0.f)
+						return std::nullopt;
+				}
+
+				lastHitInfo = hitInfo;
+
+				return hitInfo.fraction;
+			};
+
+			if (physSystem.RaycastQuery(from, to, callback))
+			{
+				if (lastHitInfo.hitBody && lastHitInfo.hitEntity != boxEntity)
+				{
+					grabConstraint.emplace(*lastHitInfo.hitBody, lastHitInfo.hitPosition);
+					grabConstraint->SetImpulseClamp(30.f);
+
+					grabbedObjectMove.Connect(eventHandler.OnMouseMoved, [&, body = lastHitInfo.hitBody, distance = Nz::Vector3f::Distance(from, lastHitInfo.hitPosition)](const Nz::WindowEventHandler*, const Nz::WindowEvent::MouseMoveEvent& event)
 					{
 						Nz::Vector3f from = cameraComponent.Unproject({ float(event.x), float(event.y), 0.f });
 						Nz::Vector3f to = cameraComponent.Unproject({ float(event.x), float(event.y), 1.f });
@@ -312,7 +332,11 @@ int main()
 						grabConstraint->SetSecondAnchor(newPosition);
 					});
 				}
-			}*/
+				else
+					cameraMove.Connect(eventHandler.OnMouseMoved, mouseMoveCallback);
+			}
+			else
+				cameraMove.Connect(eventHandler.OnMouseMoved, mouseMoveCallback);*/
 		}
 	});
 
@@ -321,6 +345,7 @@ int main()
 		if (event.button == Nz::Mouse::Left)
 		{
 			//grabConstraint.reset();
+			cameraMove.Disconnect();
 			grabbedObjectMove.Disconnect();
 		}
 		else if (event.button == Nz::Mouse::Middle)
@@ -339,10 +364,17 @@ int main()
 		{
 			auto& cameraNode = cameraEntity.get<Nz::NodeComponent>();
 
-			physSystem.GetPhysWorld().SetGravity(cameraNode.GetBackward() * 9.81f);
+			//physSystem.GetPhysWorld().SetGravity(cameraNode.GetBackward() * 9.81f);
 		}
 	});
-	
+
+	Nz::DegreeAnglef rotation = 0.f;
+	app.AddUpdater([&](Nz::Time elapsedTime)
+	{
+		rotation += elapsedTime.AsSeconds() * 30.f;
+		physSystem.GetPhysWorld().SetGravity(Nz::Quaternionf(Nz::EulerAnglesf(0.f, rotation, 0.f)) * Nz::Vector3f::Forward());
+	});
+
 	Nz::MillisecondClock fpsClock;
 	unsigned int fps = 0;
 	app.AddUpdater([&](Nz::Time /*elapsedTime*/)
@@ -357,4 +389,9 @@ int main()
 	});
 
 	return app.Run();
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << e.what() << std::endl;
+	}
 }
