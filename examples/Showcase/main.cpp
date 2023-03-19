@@ -331,8 +331,9 @@ int main()
 
 		floorEntity.emplace<Nz::NodeComponent>();
 
-		auto& planeBody = floorEntity.emplace<Nz::RigidBody3DComponent>(&physSytem.GetPhysWorld());
-		planeBody.SetGeom(std::make_shared<Nz::BoxCollider3D>(Nz::Vector3f(planeSize.x, 0.5f, planeSize.y)));
+		auto& floorBody = floorEntity.emplace<Nz::RigidBody3DComponent>(&physSytem.GetPhysWorld());
+		floorBody.SetGeom(std::make_shared<Nz::StaticPlaneCollider3D>(Nz::Vector3f::Up(), 0.f));
+		floorBody.SetMass(0.f);
 
 		std::shared_ptr<Nz::GraphicalMesh> boxMeshGfx = Nz::GraphicalMesh::Build(Nz::Primitive::Box(Nz::Vector3f(0.5f, 0.5f, 0.5f)), meshPrimitiveParams);
 
