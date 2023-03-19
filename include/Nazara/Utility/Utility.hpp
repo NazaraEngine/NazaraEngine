@@ -7,7 +7,7 @@
 #ifndef NAZARA_UTILITY_HPP
 #define NAZARA_UTILITY_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Core.hpp>
 #include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Utility/Config.hpp>

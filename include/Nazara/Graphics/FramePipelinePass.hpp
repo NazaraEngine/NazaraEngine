@@ -7,7 +7,7 @@
 #ifndef NAZARA_GRAPHICS_FRAMEPIPELINEPASS_HPP
 #define NAZARA_GRAPHICS_FRAMEPIPELINEPASS_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Math/Rect.hpp>
 

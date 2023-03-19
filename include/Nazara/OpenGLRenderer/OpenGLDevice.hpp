@@ -7,7 +7,7 @@
 #ifndef NAZARA_OPENGLRENDERER_OPENGLDEVICE_HPP
 #define NAZARA_OPENGLRENDERER_OPENGLDEVICE_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/Platform/WindowHandle.hpp>

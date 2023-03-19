@@ -7,7 +7,7 @@
 #ifndef NAZARA_UTILITY_FORMATS_MTLPARSER_HPP
 #define NAZARA_UTILITY_FORMATS_MTLPARSER_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <unordered_map>

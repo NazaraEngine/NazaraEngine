@@ -7,7 +7,7 @@
 #ifndef NAZARA_UTILITY_FORMATS_STBLOADER_HPP
 #define NAZARA_UTILITY_FORMATS_STBLOADER_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Utility/Image.hpp>
 
 namespace Nz::Loaders

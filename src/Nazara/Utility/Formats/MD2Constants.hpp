@@ -7,7 +7,7 @@
 #ifndef NAZARA_UTILITY_FORMATS_MD2CONSTANTS_HPP
 #define NAZARA_UTILITY_FORMATS_MD2CONSTANTS_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Math/Vector3.hpp>
 
 namespace Nz

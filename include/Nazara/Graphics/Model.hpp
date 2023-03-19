@@ -7,7 +7,7 @@
 #ifndef NAZARA_GRAPHICS_MODEL_HPP
 #define NAZARA_GRAPHICS_MODEL_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/GraphicalMesh.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>

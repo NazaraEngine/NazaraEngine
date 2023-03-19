@@ -7,12 +7,12 @@
 #ifndef NAZARA_GRAPHICS_GRAPHICALMESH_HPP
 #define NAZARA_GRAPHICS_GRAPHICALMESH_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Renderer/RenderBuffer.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
-#include <Nazara/Utils/Signal.hpp>
+#include <NazaraUtils/Signal.hpp>
 #include <memory>
 
 namespace Nz

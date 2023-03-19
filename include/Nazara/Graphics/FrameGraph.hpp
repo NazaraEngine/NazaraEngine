@@ -7,7 +7,7 @@
 #ifndef NAZARA_GRAPHICS_FRAMEGRAPH_HPP
 #define NAZARA_GRAPHICS_FRAMEGRAPH_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/BakedFrameGraph.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/FrameGraphStructs.hpp>

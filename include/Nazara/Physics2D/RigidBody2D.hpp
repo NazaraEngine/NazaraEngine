@@ -7,13 +7,13 @@
 #ifndef NAZARA_PHYSICS2D_RIGIDBODY2D_HPP
 #define NAZARA_PHYSICS2D_RIGIDBODY2D_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Math/Angle.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Physics2D/Collider2D.hpp>
 #include <Nazara/Physics2D/Config.hpp>
-#include <Nazara/Utils/Signal.hpp>
+#include <NazaraUtils/Signal.hpp>
 #include <functional>
 #include <limits>
 

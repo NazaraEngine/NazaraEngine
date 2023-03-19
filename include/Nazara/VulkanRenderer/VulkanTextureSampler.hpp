@@ -7,7 +7,7 @@
 #ifndef NAZARA_VULKANRENDERER_VULKANTEXTURESAMPLER_HPP
 #define NAZARA_VULKANRENDERER_VULKANTEXTURESAMPLER_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Sampler.hpp>
 

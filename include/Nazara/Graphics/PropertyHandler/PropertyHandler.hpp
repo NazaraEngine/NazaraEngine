@@ -7,7 +7,7 @@
 #ifndef NAZARA_GRAPHICS_PROPERTYHANDLER_PROPERTYHANDLER_HPP
 #define NAZARA_GRAPHICS_PROPERTYHANDLER_PROPERTYHANDLER_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <NZSL/Enums.hpp>

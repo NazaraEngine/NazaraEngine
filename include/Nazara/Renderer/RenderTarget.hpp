@@ -7,10 +7,10 @@
 #ifndef NAZARA_RENDERER_RENDERTARGET_HPP
 #define NAZARA_RENDERER_RENDERTARGET_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Renderer/Config.hpp>
-#include <Nazara/Utils/Signal.hpp>
+#include <NazaraUtils/Signal.hpp>
 
 namespace Nz
 {

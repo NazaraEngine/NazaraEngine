@@ -5,7 +5,7 @@
 #include <Nazara/Core/ParameterList.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/StringExt.hpp>
-#include <Nazara/Utils/MemoryHelper.hpp>
+#include <NazaraUtils/MemoryHelper.hpp>
 #include <cstring>
 #include <Nazara/Core/Debug.hpp>
 

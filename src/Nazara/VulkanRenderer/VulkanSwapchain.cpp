@@ -11,7 +11,7 @@
 #include <Nazara/VulkanRenderer/Vulkan.hpp>
 #include <Nazara/VulkanRenderer/VulkanCommandPool.hpp>
 #include <Nazara/VulkanRenderer/VulkanDevice.hpp>
-#include <Nazara/Utils/StackArray.hpp>
+#include <NazaraUtils/StackArray.hpp>
 #include <array>
 #include <stdexcept>
 

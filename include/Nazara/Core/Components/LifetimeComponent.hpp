@@ -7,7 +7,7 @@
 #ifndef NAZARA_CORE_COMPONENTS_LIFETIMECOMPONENT_HPP
 #define NAZARA_CORE_COMPONENTS_LIFETIMECOMPONENT_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Time.hpp>
 #include <Nazara/Utility/Config.hpp>
 

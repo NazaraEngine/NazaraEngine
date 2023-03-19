@@ -7,7 +7,7 @@
 #ifndef NAZARA_OPENGLRENDERER_OPENGLSHADERBINDING_HPP
 #define NAZARA_OPENGLRENDERER_OPENGLSHADERBINDING_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>

@@ -17,12 +17,12 @@
 #ifndef NAZARA_NETWORK_ENETPEER_HPP
 #define NAZARA_NETWORK_ENETPEER_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Network/ENetPacket.hpp>
 #include <Nazara/Network/ENetProtocol.hpp>
 #include <Nazara/Network/IpAddress.hpp>
-#include <Nazara/Utils/Flags.hpp>
-#include <Nazara/Utils/MovablePtr.hpp>
+#include <NazaraUtils/Flags.hpp>
+#include <NazaraUtils/MovablePtr.hpp>
 #include <array>
 #include <list>
 #include <random>

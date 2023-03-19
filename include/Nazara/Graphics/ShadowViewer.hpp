@@ -7,7 +7,7 @@
 #ifndef NAZARA_GRAPHICS_SHADOWVIEWER_HPP
 #define NAZARA_GRAPHICS_SHADOWVIEWER_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
 

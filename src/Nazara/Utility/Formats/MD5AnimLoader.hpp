@@ -7,7 +7,7 @@
 #ifndef NAZARA_UTILITY_FORMATS_MD5ANIMLOADER_HPP
 #define NAZARA_UTILITY_FORMATS_MD5ANIMLOADER_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Utility/Animation.hpp>
 
 namespace Nz::Loaders

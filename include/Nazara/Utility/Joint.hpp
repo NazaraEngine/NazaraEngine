@@ -7,7 +7,7 @@
 #ifndef NAZARA_UTILITY_JOINT_HPP
 #define NAZARA_UTILITY_JOINT_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Utility/Node.hpp>
 #include <string>

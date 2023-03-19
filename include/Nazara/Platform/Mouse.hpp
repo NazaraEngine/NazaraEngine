@@ -9,7 +9,7 @@
 #ifndef NAZARA_PLATFORM_MOUSE_HPP
 #define NAZARA_PLATFORM_MOUSE_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Platform/Config.hpp>
 

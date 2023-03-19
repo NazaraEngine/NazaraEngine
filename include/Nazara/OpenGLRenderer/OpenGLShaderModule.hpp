@@ -7,7 +7,7 @@
 #ifndef NAZARA_OPENGLRENDERER_OPENGLSHADERMODULE_HPP
 #define NAZARA_OPENGLRENDERER_OPENGLSHADERMODULE_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Program.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Shader.hpp>

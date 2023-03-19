@@ -7,7 +7,7 @@
 #ifndef NAZARA_CORE_WIN32_DYNLIBIMPL_HPP
 #define NAZARA_CORE_WIN32_DYNLIBIMPL_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/DynLib.hpp>
 #include <filesystem>
 #include <windows.h>

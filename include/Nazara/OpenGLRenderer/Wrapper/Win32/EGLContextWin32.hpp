@@ -7,7 +7,7 @@
 #ifndef NAZARA_OPENGLRENDERER_WRAPPER_WIN32_EGLCONTEXTWIN32_HPP
 #define NAZARA_OPENGLRENDERER_WRAPPER_WIN32_EGLCONTEXTWIN32_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/EGL/EGLContextBase.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Win32/Win32Helper.hpp>
 

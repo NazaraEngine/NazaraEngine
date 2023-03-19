@@ -7,11 +7,11 @@
 #ifndef NAZARA_CORE_FILE_HPP
 #define NAZARA_CORE_FILE_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/Stream.hpp>
-#include <Nazara/Utils/Endianness.hpp>
-#include <Nazara/Utils/MovablePtr.hpp>
+#include <NazaraUtils/Endianness.hpp>
+#include <NazaraUtils/MovablePtr.hpp>
 #include <ctime>
 #include <filesystem>
 #include <fstream>

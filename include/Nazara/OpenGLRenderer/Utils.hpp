@@ -7,7 +7,7 @@
 #ifndef NAZARA_OPENGLRENDERER_UTILS_HPP
 #define NAZARA_OPENGLRENDERER_UTILS_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Utility/Enums.hpp>

@@ -7,7 +7,7 @@
 #ifndef NAZARA_VULKANRENDERER_VULKANSWAPCHAIN_HPP
 #define NAZARA_VULKANRENDERER_VULKANSWAPCHAIN_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector3.hpp>

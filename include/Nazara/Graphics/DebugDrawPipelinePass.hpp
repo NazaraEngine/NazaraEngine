@@ -7,7 +7,7 @@
 #ifndef NAZARA_GRAPHICS_DEBUGDRAWPIPELINEPASS_HPP
 #define NAZARA_GRAPHICS_DEBUGDRAWPIPELINEPASS_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/ElementRenderer.hpp>
 #include <Nazara/Graphics/FramePipelinePass.hpp>

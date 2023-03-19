@@ -7,7 +7,7 @@
 #ifndef NAZARA_VULKANRENDERER_VULKANBUFFER_HPP
 #define NAZARA_VULKANRENDERER_VULKANBUFFER_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Renderer/RenderBuffer.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Buffer.hpp>

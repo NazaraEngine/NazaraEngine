@@ -7,7 +7,7 @@
 #ifndef NAZARA_GRAPHICS_COMPONENTS_LIGHTCOMPONENT_HPP
 #define NAZARA_GRAPHICS_COMPONENTS_LIGHTCOMPONENT_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
 #include <entt/entt.hpp>

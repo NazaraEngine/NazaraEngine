@@ -7,7 +7,7 @@
 #ifndef NAZARA_OPENGLRENDERER_OPENGLRENDERIMAGE_HPP
 #define NAZARA_OPENGLRENDERER_OPENGLRENDERIMAGE_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLUploadPool.hpp>
 #include <Nazara/Renderer/RenderImage.hpp>
 #include <vector>

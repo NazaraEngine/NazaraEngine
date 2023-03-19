@@ -7,7 +7,7 @@
 #ifndef NAZARA_UTILITY_FORMATS_MD5MESHPARSER_HPP
 #define NAZARA_UTILITY_FORMATS_MD5MESHPARSER_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Math/Vector3.hpp>

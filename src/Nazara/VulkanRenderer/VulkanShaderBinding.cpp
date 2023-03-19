@@ -8,7 +8,7 @@
 #include <Nazara/VulkanRenderer/VulkanRenderPipelineLayout.hpp>
 #include <Nazara/VulkanRenderer/VulkanTexture.hpp>
 #include <Nazara/VulkanRenderer/VulkanTextureSampler.hpp>
-#include <Nazara/Utils/StackVector.hpp>
+#include <NazaraUtils/StackVector.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz

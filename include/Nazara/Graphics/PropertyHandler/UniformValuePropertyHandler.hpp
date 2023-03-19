@@ -7,7 +7,7 @@
 #ifndef NAZARA_GRAPHICS_PROPERTYHANDLER_UNIFORMVALUEPROPERTYHANDLER_HPP
 #define NAZARA_GRAPHICS_PROPERTYHANDLER_UNIFORMVALUEPROPERTYHANDLER_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/PropertyHandler/PropertyHandler.hpp>
 

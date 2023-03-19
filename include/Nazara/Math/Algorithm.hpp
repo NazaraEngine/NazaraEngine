@@ -7,9 +7,9 @@
 #ifndef NAZARA_MATH_ALGORITHM_HPP
 #define NAZARA_MATH_ALGORITHM_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Math/Enums.hpp>
-#include <Nazara/Utils/Algorithm.hpp>
+#include <NazaraUtils/Algorithm.hpp>
 #include <cmath>
 #include <limits>
 #include <string>

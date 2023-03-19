@@ -9,8 +9,8 @@
 
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Utils/Bitset.hpp>
-#include <Nazara/Utils/Signal.hpp>
+#include <NazaraUtils/Bitset.hpp>
+#include <NazaraUtils/Signal.hpp>
 #include <memory>
 #include <vector>
 

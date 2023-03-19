@@ -7,7 +7,7 @@
 #ifndef NAZARA_GRAPHICS_RENDERQUEUE_HPP
 #define NAZARA_GRAPHICS_RENDERQUEUE_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <vector>
 
 namespace Nz

@@ -3,7 +3,7 @@
 #ifndef NAZARA_SHADERNODES_SHADERGRAPH_HPP
 #define NAZARA_SHADERNODES_SHADERGRAPH_HPP
 
-#include <Nazara/Utils/Signal.hpp>
+#include <NazaraUtils/Signal.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <NZSL/Ast/Module.hpp>
 #include <nodes/FlowScene>

@@ -7,9 +7,9 @@
 #ifndef NAZARA_UTILITY_SYSTEMS_VELOCITYSYSTEM_HPP
 #define NAZARA_UTILITY_SYSTEMS_VELOCITYSYSTEM_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Utility/Config.hpp>
-#include <Nazara/Utils/TypeList.hpp>
+#include <NazaraUtils/TypeList.hpp>
 #include <entt/entt.hpp>
 
 namespace Nz

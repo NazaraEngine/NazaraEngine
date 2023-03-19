@@ -7,11 +7,11 @@
 #ifndef NAZARA_GRAPHICS_INSTANCEDRENDERABLE_HPP
 #define NAZARA_GRAPHICS_INSTANCEDRENDERABLE_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/RenderElementOwner.hpp>
 #include <Nazara/Math/Box.hpp>
-#include <Nazara/Utils/Signal.hpp>
+#include <NazaraUtils/Signal.hpp>
 #include <memory>
 
 namespace Nz

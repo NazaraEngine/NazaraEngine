@@ -7,7 +7,7 @@
 #ifndef NAZARA_VULKANRENDERER_WRAPPER_LOADER_HPP
 #define NAZARA_VULKANRENDERER_WRAPPER_LOADER_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/DynLib.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <vulkan/vulkan_core.h>

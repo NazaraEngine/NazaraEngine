@@ -7,14 +7,14 @@
 #ifndef NAZARA_GRAPHICS_MATERIALINSTANCE_HPP
 #define NAZARA_GRAPHICS_MATERIALINSTANCE_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/MaterialSettings.hpp>
 #include <Nazara/Graphics/TransferInterface.hpp>
 #include <Nazara/Renderer/RenderBufferView.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
-#include <Nazara/Utils/FunctionRef.hpp>
+#include <NazaraUtils/FunctionRef.hpp>
 #include <NZSL/Ast/ConstantValue.hpp>
 #include <memory>
 #include <unordered_map>

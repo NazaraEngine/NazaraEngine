@@ -11,7 +11,7 @@
 #include <Nazara/OpenGLRenderer/OpenGLShaderBinding.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLTexture.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLUploadPool.hpp>
-#include <Nazara/Utils/StackArray.hpp>
+#include <NazaraUtils/StackArray.hpp>
 #include <stdexcept>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 

@@ -7,7 +7,7 @@
 #ifndef NAZARA_OPENGLRENDERER_WRAPPER_CONTEXT_HPP
 #define NAZARA_OPENGLRENDERER_WRAPPER_CONTEXT_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/DynLib.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>

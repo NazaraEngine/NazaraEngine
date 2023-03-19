@@ -7,7 +7,7 @@
 #ifndef NAZARA_GRAPHICS_SHADERREFLECTION_HPP
 #define NAZARA_GRAPHICS_SHADERREFLECTION_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <NZSL/Ast/Module.hpp>

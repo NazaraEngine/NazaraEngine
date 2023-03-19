@@ -7,7 +7,7 @@
 #ifndef NAZARA_CORE_ENTTWORLD_HPP
 #define NAZARA_CORE_ENTTWORLD_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/ApplicationComponent.hpp>
 #include <Nazara/Core/EntityWorld.hpp>
 #include <Nazara/Core/EnttSystemGraph.hpp>

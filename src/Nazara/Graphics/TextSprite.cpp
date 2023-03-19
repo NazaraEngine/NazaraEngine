@@ -9,7 +9,7 @@
 #include <Nazara/Graphics/RenderSpriteChain.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
 #include <Nazara/Utility/AbstractTextDrawer.hpp>
-#include <Nazara/Utils/CallOnExit.hpp>
+#include <NazaraUtils/CallOnExit.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz

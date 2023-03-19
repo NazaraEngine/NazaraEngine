@@ -7,7 +7,7 @@
 #ifndef NAZARA_CORE_OBJECTREF_HPP
 #define NAZARA_CORE_OBJECTREF_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/RefCounted.hpp>
 #include <type_traits>

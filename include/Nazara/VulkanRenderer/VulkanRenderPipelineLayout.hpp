@@ -7,7 +7,7 @@
 #ifndef NAZARA_VULKANRENDERER_VULKANRENDERPIPELINELAYOUT_HPP
 #define NAZARA_VULKANRENDERER_VULKANRENDERPIPELINELAYOUT_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/VulkanShaderBinding.hpp>
@@ -16,7 +16,7 @@
 #include <Nazara/VulkanRenderer/Wrapper/DescriptorSetLayout.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Device.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/PipelineLayout.hpp>
-#include <Nazara/Utils/Bitset.hpp>
+#include <NazaraUtils/Bitset.hpp>
 #include <memory>
 #include <type_traits>
 #include <vector>

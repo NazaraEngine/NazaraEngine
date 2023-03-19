@@ -7,7 +7,7 @@
 #ifndef NAZARA_GRAPHICS_RENDERQUEUEREGISTRY_HPP
 #define NAZARA_GRAPHICS_RENDERQUEUEREGISTRY_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Thirdparty/robin_hood/robin_hood.h>
 #include <set>
 

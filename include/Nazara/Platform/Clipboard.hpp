@@ -7,7 +7,7 @@
 #ifndef NAZARA_PLATFORM_CLIPBOARD_HPP
 #define NAZARA_PLATFORM_CLIPBOARD_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Platform/Config.hpp>
 #include <Nazara/Platform/Enums.hpp>
 #include <string>

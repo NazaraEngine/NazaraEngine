@@ -7,10 +7,10 @@
 #ifndef NAZARA_CORE_ENTTSYSTEMGRAPH_HPP
 #define NAZARA_CORE_ENTTSYSTEMGRAPH_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/Config.hpp>
-#include <Nazara/Utils/MovablePtr.hpp>
+#include <NazaraUtils/MovablePtr.hpp>
 #include <entt/entt.hpp>
 #include <functional>
 #include <unordered_map>

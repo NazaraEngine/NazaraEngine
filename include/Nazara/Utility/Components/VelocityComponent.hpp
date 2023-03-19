@@ -7,7 +7,7 @@
 #ifndef NAZARA_UTILITY_COMPONENTS_VELOCITYCOMPONENT_HPP
 #define NAZARA_UTILITY_COMPONENTS_VELOCITYCOMPONENT_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Utility/Config.hpp>
 

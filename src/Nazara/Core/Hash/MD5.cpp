@@ -27,7 +27,7 @@
 */
 
 #include <Nazara/Core/Hash/MD5.hpp>
-#include <Nazara/Utils/Endianness.hpp>
+#include <NazaraUtils/Endianness.hpp>
 #include <cstring>
 #include <Nazara/Core/Debug.hpp>
 

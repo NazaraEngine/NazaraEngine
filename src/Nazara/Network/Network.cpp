@@ -8,7 +8,7 @@
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Network/Config.hpp>
 #include <Nazara/Network/NetPacket.hpp>
-#include <Nazara/Utils/CallOnExit.hpp>
+#include <NazaraUtils/CallOnExit.hpp>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 #include <Nazara/Network/Win32/SocketImpl.hpp>

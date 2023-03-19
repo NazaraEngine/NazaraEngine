@@ -7,7 +7,7 @@
 #ifndef NAZARA_VULKANRENDERER_VULKANTEXTURE_HPP
 #define NAZARA_VULKANRENDERER_VULKANTEXTURE_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Image.hpp>

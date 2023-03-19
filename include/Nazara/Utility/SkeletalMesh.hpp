@@ -7,7 +7,7 @@
 #ifndef NAZARA_UTILITY_SKELETALMESH_HPP
 #define NAZARA_UTILITY_SKELETALMESH_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/SubMesh.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>

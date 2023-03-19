@@ -9,7 +9,7 @@
 #include <Nazara/Audio/AudioDevice.hpp>
 #include <Nazara/Audio/AudioSource.hpp>
 #include <Nazara/Audio/SoundStream.hpp>
-#include <Nazara/Utils/CallOnExit.hpp>
+#include <NazaraUtils/CallOnExit.hpp>
 #include <array>
 #include <chrono>
 #include <optional>

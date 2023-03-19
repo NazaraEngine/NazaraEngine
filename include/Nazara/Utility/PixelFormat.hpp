@@ -7,11 +7,11 @@
 #ifndef NAZARA_UTILITY_PIXELFORMAT_HPP
 #define NAZARA_UTILITY_PIXELFORMAT_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
-#include <Nazara/Utils/Bitset.hpp>
+#include <NazaraUtils/Bitset.hpp>
 #include <array>
 #include <functional>
 

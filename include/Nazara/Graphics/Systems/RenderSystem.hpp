@@ -7,7 +7,7 @@
 #ifndef NAZARA_GRAPHICS_SYSTEMS_RENDERSYSTEM_HPP
 #define NAZARA_GRAPHICS_SYSTEMS_RENDERSYSTEM_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Time.hpp>
 #include <Nazara/Graphics/ElementRendererRegistry.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
@@ -16,7 +16,7 @@
 #include <Nazara/Renderer/WindowSwapchain.hpp>
 #include <Nazara/Utility/Node.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
-#include <Nazara/Utils/MemoryPool.hpp>
+#include <NazaraUtils/MemoryPool.hpp>
 #include <entt/entt.hpp>
 #include <array>
 #include <memory>

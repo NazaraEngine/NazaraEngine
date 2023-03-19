@@ -7,7 +7,7 @@
 #ifndef NAZARA_GRAPHICS_COMPONENTS_CAMERACOMPONENT_HPP
 #define NAZARA_GRAPHICS_COMPONENTS_CAMERACOMPONENT_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Camera.hpp>
 
 namespace Nz

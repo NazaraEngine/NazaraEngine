@@ -7,7 +7,7 @@
 #ifndef NAZARA_RENDERER_HPP
 #define NAZARA_RENDERER_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/DynLib.hpp>
 #include <Nazara/Core/ParameterList.hpp>
 #include <Nazara/Platform/Platform.hpp>

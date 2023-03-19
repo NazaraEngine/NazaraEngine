@@ -7,13 +7,13 @@
 #ifndef NAZARA_UTILITY_ABSTRACTATLAS_HPP
 #define NAZARA_UTILITY_ABSTRACTATLAS_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
-#include <Nazara/Utils/Signal.hpp>
-#include <Nazara/Utils/SparsePtr.hpp>
+#include <NazaraUtils/Signal.hpp>
+#include <NazaraUtils/SparsePtr.hpp>
 
 namespace Nz
 {

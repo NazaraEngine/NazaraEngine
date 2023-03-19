@@ -7,12 +7,12 @@
 #ifndef NAZARA_PHYSICS3D_PHYSWORLD3D_HPP
 #define NAZARA_PHYSICS3D_PHYSWORLD3D_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Time.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Physics3D/Config.hpp>
-#include <Nazara/Utils/MovablePtr.hpp>
+#include <NazaraUtils/MovablePtr.hpp>
 #include <string>
 #include <unordered_map>
 

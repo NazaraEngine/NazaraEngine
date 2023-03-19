@@ -38,7 +38,7 @@
  */
 
 #include <Nazara/Core/Hash/SHA/Internal.hpp>
-#include <Nazara/Utils/Endianness.hpp>
+#include <NazaraUtils/Endianness.hpp>
 #include <cstring>
 #include <Nazara/Core/Debug.hpp>
 

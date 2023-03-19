@@ -7,12 +7,12 @@
 #ifndef NAZARA_CORE_ALGORITHM_HPP
 #define NAZARA_CORE_ALGORITHM_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/AbstractHash.hpp>
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/SerializationContext.hpp>
-#include <Nazara/Utils/Algorithm.hpp>
-#include <Nazara/Utils/TypeTag.hpp>
+#include <NazaraUtils/Algorithm.hpp>
+#include <NazaraUtils/TypeTag.hpp>
 #include <functional>
 #include <string>
 #include <tuple>

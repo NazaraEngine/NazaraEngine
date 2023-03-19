@@ -7,7 +7,7 @@
 #ifndef NAZARA_OPENGLRENDERER_OPENGLRENDERPASS_HPP
 #define NAZARA_OPENGLRENDERER_OPENGLRENDERPASS_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/Renderer/RenderPass.hpp>
 #include <vector>

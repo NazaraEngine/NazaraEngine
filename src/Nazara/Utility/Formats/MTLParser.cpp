@@ -5,7 +5,7 @@
 #include <Nazara/Utility/Formats/MTLParser.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Utility/Config.hpp>
-#include <Nazara/Utils/CallOnExit.hpp>
+#include <NazaraUtils/CallOnExit.hpp>
 #include <cstdio>
 #include <Nazara/Utility/Debug.hpp>
 

@@ -7,7 +7,7 @@
 #ifndef NAZARA_OPENGLRENDERER_WRAPPER_FRAMEBUFFER_HPP
 #define NAZARA_OPENGLRENDERER_WRAPPER_FRAMEBUFFER_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/ContextObject.hpp>
 
 namespace Nz::GL

@@ -7,7 +7,7 @@
 #ifndef NAZARA_GRAPHICS_POINTLIGHT_HPP
 #define NAZARA_GRAPHICS_POINTLIGHT_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Light.hpp>

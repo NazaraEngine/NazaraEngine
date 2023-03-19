@@ -4,7 +4,7 @@
 
 #include <Nazara/Physics2D/PhysWorld2D.hpp>
 #include <Nazara/Physics2D/Arbiter2D.hpp>
-#include <Nazara/Utils/StackArray.hpp>
+#include <NazaraUtils/StackArray.hpp>
 #include <chipmunk/chipmunk.h>
 #include <Nazara/Physics2D/Debug.hpp>
 

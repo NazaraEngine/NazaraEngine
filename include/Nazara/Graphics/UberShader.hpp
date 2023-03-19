@@ -7,12 +7,12 @@
 #ifndef NAZARA_GRAPHICS_UBERSHADER_HPP
 #define NAZARA_GRAPHICS_UBERSHADER_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Renderer/RenderPipeline.hpp>
-#include <Nazara/Utils/Signal.hpp>
 #include <NZSL/ModuleResolver.hpp>
+#include <NazaraUtils/Signal.hpp>
 #include <NZSL/Ast/Module.hpp>
 #include <unordered_map>
 

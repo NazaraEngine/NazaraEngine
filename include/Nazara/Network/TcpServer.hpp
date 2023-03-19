@@ -7,7 +7,7 @@
 #ifndef NAZARA_NETWORK_TCPSERVER_HPP
 #define NAZARA_NETWORK_TCPSERVER_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Network/AbstractSocket.hpp>
 #include <Nazara/Network/IpAddress.hpp>
 

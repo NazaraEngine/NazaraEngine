@@ -7,7 +7,7 @@
 #ifndef NAZARA_UTILITY_ANIMATION_HPP
 #define NAZARA_UTILITY_ANIMATION_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
@@ -17,8 +17,8 @@
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
-#include <Nazara/Utils/MovablePtr.hpp>
-#include <Nazara/Utils/Signal.hpp>
+#include <NazaraUtils/MovablePtr.hpp>
+#include <NazaraUtils/Signal.hpp>
 #include <string>
 
 namespace Nz

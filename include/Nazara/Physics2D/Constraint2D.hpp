@@ -7,14 +7,14 @@
 #ifndef NAZARA_PHYSICS2D_CONSTRAINT2D_HPP
 #define NAZARA_PHYSICS2D_CONSTRAINT2D_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/HandledObject.hpp>
 #include <Nazara/Core/ObjectHandle.hpp>
 #include <Nazara/Math/Angle.hpp>
 #include <Nazara/Physics2D/Config.hpp>
 #include <Nazara/Physics2D/PhysWorld2D.hpp>
 #include <Nazara/Physics2D/RigidBody2D.hpp>
-#include <Nazara/Utils/MovablePtr.hpp>
+#include <NazaraUtils/MovablePtr.hpp>
 #include <vector>
 
 struct cpConstraint;

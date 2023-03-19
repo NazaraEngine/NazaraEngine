@@ -7,9 +7,9 @@
 #ifndef NAZARA_VULKANRENDERER_WRAPPER_DEVICEMEMORY_HPP
 #define NAZARA_VULKANRENDERER_WRAPPER_DEVICEMEMORY_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DeviceObject.hpp>
-#include <Nazara/Utils/MovablePtr.hpp>
+#include <NazaraUtils/MovablePtr.hpp>
 
 namespace Nz 
 {

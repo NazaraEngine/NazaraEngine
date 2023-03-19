@@ -7,7 +7,7 @@
 #ifndef NAZARA_CORE_APPENTITYSYSTEMCOMPONENT_HPP
 #define NAZARA_CORE_APPENTITYSYSTEMCOMPONENT_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/ApplicationComponent.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/EntityWorld.hpp>

@@ -7,7 +7,7 @@
 #ifndef NAZARA_VULKANRENDERER_WRAPPER_SWAPCHAIN_HPP
 #define NAZARA_VULKANRENDERER_WRAPPER_SWAPCHAIN_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DeviceObject.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/ImageView.hpp>
 

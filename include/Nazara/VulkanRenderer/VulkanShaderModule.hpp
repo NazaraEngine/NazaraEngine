@@ -7,7 +7,7 @@
 #ifndef NAZARA_VULKANRENDERER_VULKANSHADERMODULE_HPP
 #define NAZARA_VULKANRENDERER_VULKANSHADERMODULE_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/ShaderModule.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/ShaderModule.hpp>

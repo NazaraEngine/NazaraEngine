@@ -7,7 +7,7 @@
 #ifndef NAZARA_RENDERER_COMMANDPOOL_HPP
 #define NAZARA_RENDERER_COMMANDPOOL_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Renderer/CommandBuffer.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <functional>

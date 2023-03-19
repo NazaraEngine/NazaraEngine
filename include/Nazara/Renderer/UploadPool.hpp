@@ -7,7 +7,7 @@
 #ifndef NAZARA_RENDERER_UPLOADPOOL_HPP
 #define NAZARA_RENDERER_UPLOADPOOL_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Renderer/Config.hpp>
 
 namespace Nz

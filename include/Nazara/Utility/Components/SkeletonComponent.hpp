@@ -7,7 +7,7 @@
 #ifndef NAZARA_UTILITY_COMPONENTS_SKELETONCOMPONENT_HPP
 #define NAZARA_UTILITY_COMPONENTS_SKELETONCOMPONENT_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
 #include <Nazara/Utility/Components/SkeletonComponentBase.hpp>
 

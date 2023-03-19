@@ -7,7 +7,7 @@
 #ifndef NAZARA_AUDIO_FORMATS_DRWAVLOADER_HPP
 #define NAZARA_AUDIO_FORMATS_DRWAVLOADER_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Audio/SoundBuffer.hpp>
 #include <Nazara/Audio/SoundStream.hpp>
 

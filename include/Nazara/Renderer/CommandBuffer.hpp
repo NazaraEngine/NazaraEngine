@@ -7,7 +7,7 @@
 #ifndef NAZARA_RENDERER_COMMANDBUFFER_HPP
 #define NAZARA_RENDERER_COMMANDBUFFER_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <memory>
 #include <string_view>

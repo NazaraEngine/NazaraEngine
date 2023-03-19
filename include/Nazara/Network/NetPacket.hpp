@@ -7,7 +7,7 @@
 #ifndef NAZARA_NETWORK_NETPACKET_HPP
 #define NAZARA_NETWORK_NETPACKET_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/ByteStream.hpp>
 #include <Nazara/Core/MemoryStream.hpp>
 #include <Nazara/Network/Config.hpp>

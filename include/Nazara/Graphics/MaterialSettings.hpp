@@ -7,7 +7,7 @@
 #ifndef NAZARA_GRAPHICS_MATERIALSETTINGS_HPP
 #define NAZARA_GRAPHICS_MATERIALSETTINGS_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
@@ -16,7 +16,7 @@
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Math/Vector4.hpp>
 #include <Nazara/Renderer/Texture.hpp>
-#include <Nazara/Utils/TypeList.hpp>
+#include <NazaraUtils/TypeList.hpp>
 #include <limits>
 #include <optional>
 #include <string>

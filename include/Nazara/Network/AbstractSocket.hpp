@@ -7,11 +7,11 @@
 #ifndef NAZARA_NETWORK_ABSTRACTSOCKET_HPP
 #define NAZARA_NETWORK_ABSTRACTSOCKET_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Network/Config.hpp>
 #include <Nazara/Network/Enums.hpp>
 #include <Nazara/Network/SocketHandle.hpp>
-#include <Nazara/Utils/Signal.hpp>
+#include <NazaraUtils/Signal.hpp>
 
 namespace Nz
 {

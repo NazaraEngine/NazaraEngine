@@ -7,13 +7,13 @@
 #ifndef NAZARA_UTILITY_SUBMESH_HPP
 #define NAZARA_UTILITY_SUBMESH_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/IndexBuffer.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
-#include <Nazara/Utils/Signal.hpp>
+#include <NazaraUtils/Signal.hpp>
 
 namespace Nz
 {

@@ -7,7 +7,7 @@
 #ifndef NAZARA_GRAPHICS_FRAMEPASS_HPP
 #define NAZARA_GRAPHICS_FRAMEPASS_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/FramePassAttachment.hpp>

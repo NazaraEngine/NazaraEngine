@@ -7,7 +7,7 @@
 #ifndef NAZARA_RENDERER_WINDOWSWAPCHAIN_HPP
 #define NAZARA_RENDERER_WINDOWSWAPCHAIN_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Platform/WindowEventHandler.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
 #include <Nazara/Renderer/Swapchain.hpp>

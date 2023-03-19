@@ -7,7 +7,7 @@
 #ifndef NAZARA_GRAPHICS_MATERIALPASS_HPP
 #define NAZARA_GRAPHICS_MATERIALPASS_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Graphics/Config.hpp>
@@ -17,7 +17,7 @@
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
 #include <Nazara/Utility/UniformBuffer.hpp>
-#include <Nazara/Utils/Signal.hpp>
+#include <NazaraUtils/Signal.hpp>
 #include <NZSL/Ast/ConstantValue.hpp>
 #include <array>
 #include <memory>

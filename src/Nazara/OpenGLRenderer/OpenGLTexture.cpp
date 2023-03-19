@@ -4,7 +4,7 @@
 
 #include <Nazara/OpenGLRenderer/OpenGLTexture.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
-#include <Nazara/Utils/CallOnExit.hpp>
+#include <NazaraUtils/CallOnExit.hpp>
 #include <stdexcept>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 

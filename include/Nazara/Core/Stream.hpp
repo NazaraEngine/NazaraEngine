@@ -7,10 +7,10 @@
 #ifndef NAZARA_CORE_STREAM_HPP
 #define NAZARA_CORE_STREAM_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Enums.hpp>
-#include <Nazara/Utils/Endianness.hpp>
+#include <NazaraUtils/Endianness.hpp>
 #include <filesystem>
 #include <memory>
 #include <string>

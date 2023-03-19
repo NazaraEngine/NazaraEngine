@@ -7,11 +7,11 @@
 #ifndef NAZARA_CORE_LOG_HPP
 #define NAZARA_CORE_LOG_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Utils/Signal.hpp>
+#include <NazaraUtils/Signal.hpp>
 #include <string>
 
 #ifdef NAZARA_DEBUG

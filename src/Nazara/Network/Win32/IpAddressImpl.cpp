@@ -7,7 +7,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Network/Win32/SocketImpl.hpp>
-#include <Nazara/Utils/CallOnExit.hpp>
+#include <NazaraUtils/CallOnExit.hpp>
 #include <cstring>
 #include <Nazara/Network/Debug.hpp>
 

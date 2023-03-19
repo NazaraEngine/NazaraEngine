@@ -7,7 +7,7 @@
 #ifndef NAZARA_VULKANRENDERER_VULKANSHADERBINDING_HPP
 #define NAZARA_VULKANRENDERER_VULKANSHADERBINDING_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DescriptorSet.hpp>
 

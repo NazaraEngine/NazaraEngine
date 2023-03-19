@@ -6,9 +6,9 @@
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/VulkanRenderer/Utils.hpp>
 #include <Nazara/VulkanRenderer/VulkanDescriptorSetLayoutCache.hpp>
-#include <Nazara/Utils/MemoryHelper.hpp>
-#include <Nazara/Utils/StackArray.hpp>
-#include <Nazara/Utils/StackVector.hpp>
+#include <NazaraUtils/MemoryHelper.hpp>
+#include <NazaraUtils/StackArray.hpp>
+#include <NazaraUtils/StackVector.hpp>
 #include <cassert>
 #include <stdexcept>
 #include <Nazara/VulkanRenderer/Debug.hpp>

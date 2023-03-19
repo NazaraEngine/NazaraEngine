@@ -7,7 +7,7 @@
 #ifndef NAZARA_RENDERER_COMMANDBUFFERBUILDER_HPP
 #define NAZARA_RENDERER_COMMANDBUFFERBUILDER_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Rect.hpp>

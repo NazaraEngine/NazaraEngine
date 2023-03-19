@@ -7,7 +7,7 @@
 #ifndef NAZARA_UTILITY_VERTEXBUFFER_HPP
 #define NAZARA_UTILITY_VERTEXBUFFER_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
 

@@ -7,7 +7,7 @@
 #ifndef NAZARA_UTILITY_IMAGE_HPP
 #define NAZARA_UTILITY_IMAGE_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/Resource.hpp>
@@ -17,8 +17,8 @@
 #include <Nazara/Core/ResourceSaver.hpp>
 #include <Nazara/Utility/AbstractImage.hpp>
 #include <Nazara/Utility/CubemapParams.hpp>
-#include <Nazara/Utils/MovablePtr.hpp>
-#include <Nazara/Utils/Signal.hpp>
+#include <NazaraUtils/MovablePtr.hpp>
+#include <NazaraUtils/Signal.hpp>
 #include <atomic>
 
 ///TODO: Filtres

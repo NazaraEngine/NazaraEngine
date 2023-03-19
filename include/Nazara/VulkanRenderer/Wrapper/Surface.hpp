@@ -7,7 +7,7 @@
 #ifndef NAZARA_VULKANRENDERER_WRAPPER_SURFACE_HPP
 #define NAZARA_VULKANRENDERER_WRAPPER_SURFACE_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Instance.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Loader.hpp>

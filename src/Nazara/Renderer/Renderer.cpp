@@ -12,7 +12,7 @@
 #include <Nazara/Utility/Buffer.hpp>
 #include <Nazara/Utility/Image.hpp>
 #include <Nazara/Utility/Utility.hpp>
-#include <Nazara/Utils/CallOnExit.hpp>
+#include <NazaraUtils/CallOnExit.hpp>
 #include <filesystem>
 #include <stdexcept>
 

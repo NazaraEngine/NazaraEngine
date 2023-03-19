@@ -11,8 +11,8 @@
 #include <Nazara/OpenGLRenderer/OpenGLVaoCache.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/VertexArray.hpp>
-#include <Nazara/Utils/StackArray.hpp>
-#include <Nazara/Utils/StackVector.hpp>
+#include <NazaraUtils/StackArray.hpp>
+#include <NazaraUtils/StackVector.hpp>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
 namespace Nz

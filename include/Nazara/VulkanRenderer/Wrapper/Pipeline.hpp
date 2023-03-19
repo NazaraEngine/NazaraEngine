@@ -7,7 +7,7 @@
 #ifndef NAZARA_VULKANRENDERER_WRAPPER_PIPELINE_HPP
 #define NAZARA_VULKANRENDERER_WRAPPER_PIPELINE_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DeviceObject.hpp>
 #include <string_view>
 

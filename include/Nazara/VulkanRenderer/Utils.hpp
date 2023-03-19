@@ -7,7 +7,7 @@
 #ifndef NAZARA_VULKANRENDERER_UTILS_HPP
 #define NAZARA_VULKANRENDERER_UTILS_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Loader.hpp>

@@ -1,5 +1,5 @@
 #include <ShaderNode/DataModels/BufferField.hpp>
-#include <Nazara/Utils/CallOnExit.hpp>
+#include <NazaraUtils/CallOnExit.hpp>
 #include <ShaderNode/ShaderGraph.hpp>
 #include <ShaderNode/DataTypes/BoolData.hpp>
 #include <ShaderNode/DataTypes/FloatData.hpp>

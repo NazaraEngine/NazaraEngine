@@ -11,7 +11,7 @@
 
 #include <Nazara/Math/Angle.hpp>
 #include <Nazara/Math/Config.hpp>
-#include <Nazara/Utils/TypeTag.hpp>
+#include <NazaraUtils/TypeTag.hpp>
 #include <cstddef>
 #include <string>
 

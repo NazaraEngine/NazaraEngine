@@ -7,7 +7,7 @@
 #ifndef NAZARA_CORE_WIN32_UTILS_HPP
 #define NAZARA_CORE_WIN32_UTILS_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <ctime>
 #include <windows.h>
 

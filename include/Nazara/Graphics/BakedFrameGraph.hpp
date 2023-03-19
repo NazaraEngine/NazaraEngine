@@ -7,7 +7,7 @@
 #ifndef NAZARA_GRAPHICS_BAKEDFRAMEGRAPH_HPP
 #define NAZARA_GRAPHICS_BAKEDFRAMEGRAPH_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/FrameGraphStructs.hpp>
 #include <Nazara/Graphics/FramePass.hpp>

@@ -7,11 +7,11 @@
 #ifndef NAZARA_CORE_HPP
 #define NAZARA_CORE_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/HardwareInfo.hpp>
 #include <Nazara/Core/ModuleBase.hpp>
 #include <Nazara/Core/Modules.hpp>
-#include <Nazara/Utils/TypeList.hpp>
+#include <NazaraUtils/TypeList.hpp>
 #include <optional>
 
 namespace Nz

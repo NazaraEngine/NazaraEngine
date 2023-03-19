@@ -7,7 +7,7 @@
 #ifndef NAZARA_VULKANRENDERER_WRAPPER_DEBUGUTILSMESSENGEREXT_HPP
 #define NAZARA_VULKANRENDERER_WRAPPER_DEBUGUTILSMESSENGEREXT_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/InstanceObject.hpp>
 
 namespace Nz::Vk

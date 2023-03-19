@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Hash/CRC64.hpp>
-#include <Nazara/Utils/Endianness.hpp>
+#include <NazaraUtils/Endianness.hpp>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz

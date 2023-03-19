@@ -7,7 +7,7 @@
 #ifndef NAZARA_PHYSICS2D_COMPONENTS_RIGIDBODY2DCOMPONENT_HPP
 #define NAZARA_PHYSICS2D_COMPONENTS_RIGIDBODY2DCOMPONENT_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Physics2D/RigidBody2D.hpp>
 
 namespace Nz

@@ -7,11 +7,11 @@
 #ifndef NAZARA_PHYSICS2D_SYSTEMS_PHYSICS2DSYSTEM_HPP
 #define NAZARA_PHYSICS2D_SYSTEMS_PHYSICS2DSYSTEM_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Time.hpp>
 #include <Nazara/Physics2D/PhysWorld2D.hpp>
 #include <Nazara/Physics2D/Components/RigidBody2DComponent.hpp>
-#include <Nazara/Utils/TypeList.hpp>
+#include <NazaraUtils/TypeList.hpp>
 #include <entt/entt.hpp>
 
 namespace Nz

@@ -7,7 +7,7 @@
 #ifndef NAZARA_NETWORK_IPADDRESS_HPP
 #define NAZARA_NETWORK_IPADDRESS_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Network/Config.hpp>
 #include <Nazara/Network/Enums.hpp>
 #include <array>

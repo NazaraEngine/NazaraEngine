@@ -7,7 +7,7 @@
 #ifndef NAZARA_GRAPHICS_HPP
 #define NAZARA_GRAPHICS_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/MaterialInstance.hpp>

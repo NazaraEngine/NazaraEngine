@@ -6,7 +6,7 @@
 #include <Nazara/VulkanRenderer/VulkanCommandBuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanCommandBufferBuilder.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandBuffer.hpp>
-#include <Nazara/Utils/StackVector.hpp>
+#include <NazaraUtils/StackVector.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz

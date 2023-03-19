@@ -7,7 +7,7 @@
 #ifndef NAZARA_UTILITY_BUFFER_HPP
 #define NAZARA_UTILITY_BUFFER_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <functional>

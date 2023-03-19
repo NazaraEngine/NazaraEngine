@@ -7,7 +7,7 @@
 #ifndef NAZARA_AUDIO_ALGORITHM_HPP
 #define NAZARA_AUDIO_ALGORITHM_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Audio/Enums.hpp>
 #include <optional>
 

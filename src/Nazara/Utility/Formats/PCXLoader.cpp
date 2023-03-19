@@ -6,7 +6,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Utility/Image.hpp>
-#include <Nazara/Utils/Endianness.hpp>
+#include <NazaraUtils/Endianness.hpp>
 #include <memory>
 #include <Nazara/Utility/Debug.hpp>
 

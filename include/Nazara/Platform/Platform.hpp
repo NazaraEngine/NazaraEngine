@@ -7,7 +7,7 @@
 #ifndef NAZARA_PLATFORM_HPP
 #define NAZARA_PLATFORM_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Platform/Config.hpp>
 #include <Nazara/Utility/Utility.hpp>
 

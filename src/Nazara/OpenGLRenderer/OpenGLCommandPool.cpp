@@ -5,7 +5,7 @@
 #include <Nazara/OpenGLRenderer/OpenGLCommandPool.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLCommandBuffer.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLCommandBufferBuilder.hpp>
-#include <Nazara/Utils/MemoryHelper.hpp>
+#include <NazaraUtils/MemoryHelper.hpp>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
 namespace Nz

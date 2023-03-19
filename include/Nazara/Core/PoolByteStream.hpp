@@ -7,7 +7,7 @@
 #ifndef NAZARA_CORE_POOLBYTESTREAM_HPP
 #define NAZARA_CORE_POOLBYTESTREAM_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/ByteStream.hpp>
 #include <Nazara/Core/Config.hpp>

@@ -7,11 +7,11 @@
 #ifndef NAZARA_UTILITY_VERTEXMAPPER_HPP
 #define NAZARA_UTILITY_VERTEXMAPPER_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
-#include <Nazara/Utils/SparsePtr.hpp>
+#include <NazaraUtils/SparsePtr.hpp>
 
 namespace Nz
 {

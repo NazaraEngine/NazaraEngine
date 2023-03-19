@@ -7,11 +7,11 @@
 #ifndef NAZARA_CORE_SERIALIZATIONCONTEXT_HPP
 #define NAZARA_CORE_SERIALIZATIONCONTEXT_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Config.hpp>
-#include <Nazara/Utils/Endianness.hpp>
-#include <Nazara/Utils/MovablePtr.hpp>
-#include <Nazara/Utils/TypeTag.hpp>
+#include <NazaraUtils/Endianness.hpp>
+#include <NazaraUtils/MovablePtr.hpp>
+#include <NazaraUtils/TypeTag.hpp>
 
 namespace Nz
 {

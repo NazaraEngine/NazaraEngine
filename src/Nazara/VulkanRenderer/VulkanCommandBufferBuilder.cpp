@@ -14,7 +14,7 @@
 #include <Nazara/VulkanRenderer/VulkanTextureFramebuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanUploadPool.hpp>
 #include <Nazara/VulkanRenderer/VulkanWindowFramebuffer.hpp>
-#include <Nazara/Utils/StackArray.hpp>
+#include <NazaraUtils/StackArray.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz

@@ -7,7 +7,7 @@
 #ifndef NAZARA_CORE_REFCOUNTED_HPP
 #define NAZARA_CORE_REFCOUNTED_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <atomic>
 

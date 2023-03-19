@@ -8,9 +8,9 @@
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Utility/Image.hpp>
 #include <Nazara/Utility/Formats/STBLoader.hpp>
-#include <Nazara/Utils/Bitset.hpp>
-#include <Nazara/Utils/CallOnExit.hpp>
-#include <Nazara/Utils/Endianness.hpp>
+#include <NazaraUtils/Bitset.hpp>
+#include <NazaraUtils/CallOnExit.hpp>
+#include <NazaraUtils/Endianness.hpp>
 #include <Nazara/Utility/Debug.hpp>
 
 // based on https://www.w3.org/Graphics/GIF/spec-gif89a.txt, with help from the following public domain libraries source code:

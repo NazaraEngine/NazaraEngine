@@ -8,7 +8,7 @@
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
-#include <Nazara/Utils/StackArray.hpp>
+#include <NazaraUtils/StackArray.hpp>
 #include <algorithm>
 #include <Nazara/Audio/Debug.hpp>
 

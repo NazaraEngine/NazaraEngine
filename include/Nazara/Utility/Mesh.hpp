@@ -7,7 +7,7 @@
 #ifndef NAZARA_UTILITY_MESH_HPP
 #define NAZARA_UTILITY_MESH_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>

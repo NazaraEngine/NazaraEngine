@@ -7,7 +7,7 @@
 #ifndef NAZARA_OPENGLRENDERER_WRAPPER_WGL_WGLLOADER_HPP
 #define NAZARA_OPENGLRENDERER_WRAPPER_WGL_WGLLOADER_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/DynLib.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Loader.hpp>

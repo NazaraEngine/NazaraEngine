@@ -5,7 +5,7 @@
 #include <Nazara/VulkanRenderer/VulkanTextureFramebuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPass.hpp>
 #include <Nazara/VulkanRenderer/VulkanTexture.hpp>
-#include <Nazara/Utils/StackArray.hpp>
+#include <NazaraUtils/StackArray.hpp>
 #include <stdexcept>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 

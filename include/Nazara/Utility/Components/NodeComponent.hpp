@@ -7,7 +7,7 @@
 #ifndef NAZARA_UTILITY_COMPONENTS_NODECOMPONENT_HPP
 #define NAZARA_UTILITY_COMPONENTS_NODECOMPONENT_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Utility/Node.hpp>
 #include <entt/entt.hpp>
 

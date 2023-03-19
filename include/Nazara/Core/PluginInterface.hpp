@@ -7,9 +7,9 @@
 #ifndef NAZARA_CORE_PLUGININTERFACE_HPP
 #define NAZARA_CORE_PLUGININTERFACE_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Config.hpp>
-#include <Nazara/Utils/Algorithm.hpp>
+#include <NazaraUtils/Algorithm.hpp>
 #include <string>
 
 #ifdef NAZARA_COMPILER_MSVC

@@ -7,7 +7,7 @@
 #ifndef NAZARA_UTILITY_FORMATS_DDSLOADER_HPP
 #define NAZARA_UTILITY_FORMATS_DDSLOADER_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Utility/Image.hpp>
 
 namespace Nz::Loaders

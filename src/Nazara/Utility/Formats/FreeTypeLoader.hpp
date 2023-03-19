@@ -7,7 +7,7 @@
 #ifndef NAZARA_UTILITY_FORMATS_FREETYPELOADER_HPP
 #define NAZARA_UTILITY_FORMATS_FREETYPELOADER_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Utility/Font.hpp>
 
 namespace Nz::Loaders

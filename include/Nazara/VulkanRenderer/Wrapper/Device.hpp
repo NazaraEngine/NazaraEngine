@@ -7,7 +7,7 @@
 #ifndef NAZARA_VULKANRENDERER_WRAPPER_DEVICE_HPP
 #define NAZARA_VULKANRENDERER_WRAPPER_DEVICE_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>

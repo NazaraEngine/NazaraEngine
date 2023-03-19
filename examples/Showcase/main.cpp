@@ -6,7 +6,7 @@
 #include <Nazara/Renderer.hpp>
 #include <Nazara/Utility.hpp>
 #include <Nazara/Utility/Plugins/AssimpPlugin.hpp>
-#include <Nazara/Utils/CallOnExit.hpp>
+#include <NazaraUtils/CallOnExit.hpp>
 #include <NZSL/Math/FieldOffsets.hpp>
 #include <entt/entt.hpp>
 #include <array>

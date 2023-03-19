@@ -7,11 +7,11 @@
 #ifndef NAZARA_UTILITY_SKELETON_HPP
 #define NAZARA_UTILITY_SKELETON_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Utility/Config.hpp>
-#include <Nazara/Utils/Signal.hpp>
+#include <NazaraUtils/Signal.hpp>
 #include <string>
 
 namespace Nz

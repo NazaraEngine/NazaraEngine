@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Vulkan renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderer.hpp>
 
 #ifndef NAZARA_RENDERER_EMBEDDEDBACKENDS

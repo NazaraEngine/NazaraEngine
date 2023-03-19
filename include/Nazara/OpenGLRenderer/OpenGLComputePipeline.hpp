@@ -7,11 +7,11 @@
 #ifndef NAZARA_OPENGLRENDERER_OPENGLCOMPUTEPIPELINE_HPP
 #define NAZARA_OPENGLRENDERER_OPENGLCOMPUTEPIPELINE_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Program.hpp>
 #include <Nazara/Renderer/ComputePipeline.hpp>
-#include <Nazara/Utils/MovablePtr.hpp>
+#include <NazaraUtils/MovablePtr.hpp>
 #include <vector>
 
 namespace Nz

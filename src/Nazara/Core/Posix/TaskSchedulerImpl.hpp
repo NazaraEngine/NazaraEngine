@@ -7,7 +7,7 @@
 #ifndef NAZARA_CORE_POSIX_TASKSCHEDULERIMPL_HPP
 #define NAZARA_CORE_POSIX_TASKSCHEDULERIMPL_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <atomic>
 #include <memory>
 #include <queue>

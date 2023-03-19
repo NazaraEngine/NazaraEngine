@@ -7,7 +7,7 @@
 #ifndef NAZARA_GRAPHICS_MATERIALPIPELINE_HPP
 #define NAZARA_GRAPHICS_MATERIALPIPELINE_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/UberShader.hpp>

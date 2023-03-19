@@ -10,7 +10,7 @@
 #include <Nazara/OpenGLRenderer/OpenGLTexture.hpp>
 #include <Nazara/OpenGLRenderer/Utils.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Framebuffer.hpp>
-#include <Nazara/Utils/CallOnExit.hpp>
+#include <NazaraUtils/CallOnExit.hpp>
 #include <cstring>
 #include <sstream>
 #include <stdexcept>

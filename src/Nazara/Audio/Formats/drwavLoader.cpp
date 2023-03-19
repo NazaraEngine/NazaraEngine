@@ -12,8 +12,8 @@
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/MemoryView.hpp>
 #include <Nazara/Core/Stream.hpp>
-#include <Nazara/Utils/CallOnExit.hpp>
-#include <Nazara/Utils/Endianness.hpp>
+#include <NazaraUtils/CallOnExit.hpp>
+#include <NazaraUtils/Endianness.hpp>
 #include <optional>
 
 #define DR_WAV_IMPLEMENTATION

@@ -7,7 +7,7 @@
 #ifndef NAZARA_UTILITY_FORMATS_MD5ANIMPARSER_HPP
 #define NAZARA_UTILITY_FORMATS_MD5ANIMPARSER_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>

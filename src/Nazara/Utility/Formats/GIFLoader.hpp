@@ -7,7 +7,7 @@
 #ifndef NAZARA_UTILITY_FORMATS_GIFLOADER_HPP
 #define NAZARA_UTILITY_FORMATS_GIFLOADER_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Utility/Image.hpp>
 #include <Nazara/Utility/ImageStream.hpp>
 

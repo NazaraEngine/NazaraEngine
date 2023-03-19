@@ -25,7 +25,7 @@
 #include <Nazara/Utility/Formats/PCXLoader.hpp>
 #include <Nazara/Utility/Formats/STBLoader.hpp>
 #include <Nazara/Utility/Formats/STBSaver.hpp>
-#include <Nazara/Utils/CallOnExit.hpp>
+#include <NazaraUtils/CallOnExit.hpp>
 #include <stdexcept>
 #include <Nazara/Utility/Debug.hpp>
 

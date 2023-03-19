@@ -7,7 +7,7 @@
 #ifndef NAZARA_GRAPHICS_FRAMEGRAPHSTRUCTS_HPP
 #define NAZARA_GRAPHICS_FRAMEGRAPHSTRUCTS_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/FramePassAttachment.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Utility/Enums.hpp>

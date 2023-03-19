@@ -21,7 +21,7 @@
 #include <Nazara/Renderer/RenderFrame.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
-#include <Nazara/Utils/StackArray.hpp>
+#include <NazaraUtils/StackArray.hpp>
 #include <array>
 #include <Nazara/Graphics/Debug.hpp>
 

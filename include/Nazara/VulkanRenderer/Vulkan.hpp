@@ -7,7 +7,7 @@
 #ifndef NAZARA_VULKANRENDERER_VULKAN_HPP
 #define NAZARA_VULKANRENDERER_VULKAN_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Initializer.hpp>
 #include <Nazara/Core/ParameterList.hpp>
 #include <Nazara/Renderer/RenderDeviceInfo.hpp>

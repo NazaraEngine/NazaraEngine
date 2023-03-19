@@ -7,7 +7,7 @@
 #ifndef NAZARA_GRAPHICS_RENDERSPRITECHAIN_HPP
 #define NAZARA_GRAPHICS_RENDERSPRITECHAIN_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>
 #include <Nazara/Graphics/RenderQueueRegistry.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>

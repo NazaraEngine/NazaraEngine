@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Physics3D/PhysWorld3D.hpp>
-#include <Nazara/Utils/StackVector.hpp>
+#include <NazaraUtils/StackVector.hpp>
 #include <newton/Newton.h>
 #include <cassert>
 #include <Nazara/Physics3D/Debug.hpp>

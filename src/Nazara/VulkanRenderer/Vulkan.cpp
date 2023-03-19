@@ -9,7 +9,7 @@
 #include <Nazara/Utility/Utility.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/VulkanDevice.hpp>
-#include <Nazara/Utils/CallOnExit.hpp>
+#include <NazaraUtils/CallOnExit.hpp>
 #include <array>
 #include <unordered_set>
 #include <Nazara/VulkanRenderer/Debug.hpp>

@@ -7,7 +7,7 @@
 #ifndef NAZARA_AUDIO_SOUNDSTREAM_HPP
 #define NAZARA_AUDIO_SOUNDSTREAM_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/Enums.hpp>
 #include <Nazara/Core/Resource.hpp>

@@ -7,7 +7,7 @@
 #ifndef NAZARA_PLATFORM_APPWINDOWINGCOMPONENT_HPP
 #define NAZARA_PLATFORM_APPWINDOWINGCOMPONENT_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/ApplicationComponent.hpp>
 #include <Nazara/Platform/Config.hpp>
 #include <Nazara/Platform/Window.hpp>

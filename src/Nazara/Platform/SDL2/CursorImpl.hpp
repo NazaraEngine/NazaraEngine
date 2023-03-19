@@ -7,12 +7,12 @@
 #ifndef NAZARA_PLATFORM_SDL2_CURSORIMPL_HPP
 #define NAZARA_PLATFORM_SDL2_CURSORIMPL_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Platform/Enums.hpp>
 #include <Nazara/Utility/Image.hpp>
-#include <Nazara/Utils/MovablePtr.hpp>
 #include <SDL_mouse.h>
+#include <NazaraUtils/MovablePtr.hpp>
 
 namespace Nz
 {

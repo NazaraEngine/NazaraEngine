@@ -6,8 +6,8 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Utility/Image.hpp>
-#include <Nazara/Utils/CallOnExit.hpp>
-#include <Nazara/Utils/Endianness.hpp>
+#include <NazaraUtils/CallOnExit.hpp>
+#include <NazaraUtils/Endianness.hpp>
 #include <frozen/string.h>
 #include <frozen/unordered_set.h>
 

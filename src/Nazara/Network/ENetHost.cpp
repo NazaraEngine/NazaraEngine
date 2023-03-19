@@ -17,7 +17,7 @@
 #include <Nazara/Network/Algorithm.hpp>
 #include <Nazara/Network/ENetPeer.hpp>
 #include <Nazara/Network/NetPacket.hpp>
-#include <Nazara/Utils/OffsetOf.hpp>
+#include <NazaraUtils/OffsetOf.hpp>
 #include <Nazara/Network/Debug.hpp>
 
 namespace Nz

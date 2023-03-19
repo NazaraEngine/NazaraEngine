@@ -7,7 +7,7 @@
 #ifndef NAZARA_GRAPHICS_FORWARDFRAMEPIPELINE_HPP
 #define NAZARA_GRAPHICS_FORWARDFRAMEPIPELINE_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/BakedFrameGraph.hpp>
 #include <Nazara/Graphics/Camera.hpp>
 #include <Nazara/Graphics/Config.hpp>
@@ -25,7 +25,7 @@
 #include <Nazara/Graphics/RenderQueueRegistry.hpp>
 #include <Nazara/Graphics/TransferInterface.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
-#include <Nazara/Utils/MemoryPool.hpp>
+#include <NazaraUtils/MemoryPool.hpp>
 #include <memory>
 #include <optional>
 #include <unordered_map>

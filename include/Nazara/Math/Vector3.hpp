@@ -7,9 +7,9 @@
 #ifndef NAZARA_MATH_VECTOR3_HPP
 #define NAZARA_MATH_VECTOR3_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Math/Angle.hpp>
-#include <Nazara/Utils/TypeTag.hpp>
+#include <NazaraUtils/TypeTag.hpp>
 #include <functional>
 #include <string>
 

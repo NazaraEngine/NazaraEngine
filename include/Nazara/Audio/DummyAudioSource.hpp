@@ -7,7 +7,7 @@
 #ifndef NAZARA_AUDIO_DUMMYAUDIOSOURCE_HPP
 #define NAZARA_AUDIO_DUMMYAUDIOSOURCE_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Audio/AudioSource.hpp>
 #include <Nazara/Audio/Config.hpp>
 #include <Nazara/Core/Clock.hpp>

@@ -8,7 +8,7 @@
 
 #include <Nazara/Core/GuillotineBinPack.hpp>
 #include <Nazara/Core/Config.hpp>
-#include <Nazara/Utils/StackVector.hpp>
+#include <NazaraUtils/StackVector.hpp>
 #include <algorithm>
 #include <limits>
 #include <Nazara/Core/Debug.hpp>

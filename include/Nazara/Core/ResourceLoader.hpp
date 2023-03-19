@@ -10,7 +10,7 @@
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
-#include <Nazara/Utils/Result.hpp>
+#include <NazaraUtils/Result.hpp>
 #include <filesystem>
 #include <functional>
 #include <memory>

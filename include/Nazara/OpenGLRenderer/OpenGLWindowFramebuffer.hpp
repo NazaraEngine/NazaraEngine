@@ -7,7 +7,7 @@
 #ifndef NAZARA_OPENGLRENDERER_OPENGLWINDOWFRAMEBUFFER_HPP
 #define NAZARA_OPENGLRENDERER_OPENGLWINDOWFRAMEBUFFER_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLFramebuffer.hpp>
 
 namespace Nz

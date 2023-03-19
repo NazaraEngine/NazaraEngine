@@ -8,7 +8,7 @@
 #define NAZARA_GRAPHICS_ENUMS_HPP
 
 #include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Utils/Flags.hpp>
+#include <NazaraUtils/Flags.hpp>
 
 namespace Nz
 {

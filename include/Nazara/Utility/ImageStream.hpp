@@ -7,7 +7,7 @@
 #ifndef NAZARA_UTILITY_IMAGESTREAM_HPP
 #define NAZARA_UTILITY_IMAGESTREAM_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>

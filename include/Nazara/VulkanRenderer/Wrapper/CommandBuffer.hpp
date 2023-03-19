@@ -7,7 +7,7 @@
 #ifndef NAZARA_VULKANRENDERER_WRAPPER_COMMANDBUFFER_HPP
 #define NAZARA_VULKANRENDERER_WRAPPER_COMMANDBUFFER_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/AutoFree.hpp>

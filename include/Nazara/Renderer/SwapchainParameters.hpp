@@ -7,7 +7,7 @@
 #ifndef NAZARA_RENDERER_SWAPCHAINPARAMETERS_HPP
 #define NAZARA_RENDERER_SWAPCHAINPARAMETERS_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
 #include <vector>
 

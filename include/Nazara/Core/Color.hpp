@@ -7,7 +7,7 @@
 #ifndef NAZARA_CORE_COLOR_HPP
 #define NAZARA_CORE_COLOR_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <string>
 

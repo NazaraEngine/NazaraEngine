@@ -6,7 +6,7 @@
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Web/WebLoader.hpp>
-#include <Nazara/Utils/CallOnExit.hpp>
+#include <NazaraUtils/CallOnExit.hpp>
 #include <array>
 #include <cassert>
 #include <cstdlib>

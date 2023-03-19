@@ -7,7 +7,7 @@
 #ifndef NAZARA_PHYSICS2D_HPP
 #define NAZARA_PHYSICS2D_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Core.hpp>
 #include <Nazara/Physics2D/Config.hpp>
 

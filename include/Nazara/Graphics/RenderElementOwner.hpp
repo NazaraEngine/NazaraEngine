@@ -7,9 +7,9 @@
 #ifndef NAZARA_GRAPHICS_RENDERELEMENTOWNER_HPP
 #define NAZARA_GRAPHICS_RENDERELEMENTOWNER_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
-#include <Nazara/Utils/MovablePtr.hpp>
+#include <NazaraUtils/MovablePtr.hpp>
 
 namespace Nz
 {

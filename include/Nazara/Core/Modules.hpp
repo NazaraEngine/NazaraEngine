@@ -7,7 +7,7 @@
 #ifndef NAZARA_CORE_MODULES_HPP
 #define NAZARA_CORE_MODULES_HPP
 
-#include <Nazara/Utils/TypeList.hpp>
+#include <NazaraUtils/TypeList.hpp>
 
 namespace Nz
 {

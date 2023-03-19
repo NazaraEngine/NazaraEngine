@@ -7,7 +7,7 @@
 #ifndef NAZARA_GRAPHICS_SUBMESHRENDERER_HPP
 #define NAZARA_GRAPHICS_SUBMESHRENDERER_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/ElementRenderer.hpp>
 #include <Nazara/Graphics/RenderSubmesh.hpp>
 #include <Nazara/Math/Rect.hpp>

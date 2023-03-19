@@ -6,7 +6,7 @@
 #include <Nazara/Core/MemoryView.hpp>
 #include <Nazara/Core/OwnedMemoryStream.hpp>
 #include <Nazara/Core/StringExt.hpp>
-#include <Nazara/Utils/CallOnExit.hpp>
+#include <NazaraUtils/CallOnExit.hpp>
 #include <algorithm>
 #include <cassert>
 #include <Nazara/Core/Debug.hpp>

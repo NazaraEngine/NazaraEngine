@@ -7,7 +7,7 @@
 #ifndef NAZARA_RENDERER_SWAPCHAIN_HPP
 #define NAZARA_RENDERER_SWAPCHAIN_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Platform/WindowHandle.hpp>
 #include <Nazara/Renderer/Config.hpp>

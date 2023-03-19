@@ -7,12 +7,12 @@
 #ifndef NAZARA_VULKANRENDERER_VULKANCOMMANDPOOL_HPP
 #define NAZARA_VULKANRENDERER_VULKANCOMMANDPOOL_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Renderer/CommandPool.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/VulkanCommandBuffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandPool.hpp>
-#include <Nazara/Utils/Bitset.hpp>
+#include <NazaraUtils/Bitset.hpp>
 #include <vector>
 
 namespace Nz

@@ -7,15 +7,15 @@
 #ifndef NAZARA_PHYSICS2D_PHYSWORLD2D_HPP
 #define NAZARA_PHYSICS2D_PHYSWORLD2D_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/Time.hpp>
 #include <Nazara/Math/Angle.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Physics2D/Config.hpp>
 #include <Nazara/Physics2D/RigidBody2D.hpp>
-#include <Nazara/Utils/FunctionRef.hpp>
-#include <Nazara/Utils/Signal.hpp>
+#include <NazaraUtils/FunctionRef.hpp>
+#include <NazaraUtils/Signal.hpp>
 #include <functional>
 #include <memory>
 #include <unordered_map>

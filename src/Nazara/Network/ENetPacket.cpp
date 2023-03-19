@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Network/ENetPacket.hpp>
-#include <Nazara/Utils/MemoryPool.hpp>
+#include <NazaraUtils/MemoryPool.hpp>
 #include <Nazara/Network/Debug.hpp>
 
 namespace Nz

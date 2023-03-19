@@ -7,11 +7,11 @@
 #ifndef NAZARA_OPENGLRENDERER_OPENGLCOMMANDPOOL_HPP
 #define NAZARA_OPENGLRENDERER_OPENGLCOMMANDPOOL_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLCommandBuffer.hpp>
 #include <Nazara/Renderer/CommandPool.hpp>
-#include <Nazara/Utils/Bitset.hpp>
+#include <NazaraUtils/Bitset.hpp>
 
 namespace Nz
 {

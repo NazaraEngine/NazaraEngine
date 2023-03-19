@@ -7,7 +7,7 @@
 #ifndef NAZARA_AUDIO_DUMMYAUDIOBUFFER_HPP
 #define NAZARA_AUDIO_DUMMYAUDIOBUFFER_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Audio/AudioBuffer.hpp>
 #include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/Enums.hpp>

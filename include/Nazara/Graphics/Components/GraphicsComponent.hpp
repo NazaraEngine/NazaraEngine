@@ -7,7 +7,7 @@
 #ifndef NAZARA_GRAPHICS_COMPONENTS_GRAPHICSCOMPONENT_HPP
 #define NAZARA_GRAPHICS_COMPONENTS_GRAPHICSCOMPONENT_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
 #include <Nazara/Math/Rect.hpp>

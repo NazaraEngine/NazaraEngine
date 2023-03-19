@@ -4,7 +4,7 @@
 
 #include <Nazara/Core/FileLogger.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Utils/CallOnExit.hpp>
+#include <NazaraUtils/CallOnExit.hpp>
 #include <array>
 #include <ctime>
 #include <filesystem>

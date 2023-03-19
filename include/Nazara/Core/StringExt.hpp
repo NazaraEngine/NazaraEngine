@@ -7,10 +7,10 @@
 #ifndef NAZARA_CORE_STRINGEXT_HPP
 #define NAZARA_CORE_STRINGEXT_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Unicode.hpp>
 #include <Nazara/Math/Algorithm.hpp> //< FIXME
-#include <Nazara/Utils/Algorithm.hpp>
+#include <NazaraUtils/Algorithm.hpp>
 #include <string>
 
 namespace Nz

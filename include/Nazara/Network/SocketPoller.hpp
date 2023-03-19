@@ -7,9 +7,9 @@
 #ifndef NAZARA_NETWORK_SOCKETPOLLER_HPP
 #define NAZARA_NETWORK_SOCKETPOLLER_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Network/AbstractSocket.hpp>
-#include <Nazara/Utils/MovablePtr.hpp>
+#include <NazaraUtils/MovablePtr.hpp>
 
 namespace Nz
 {

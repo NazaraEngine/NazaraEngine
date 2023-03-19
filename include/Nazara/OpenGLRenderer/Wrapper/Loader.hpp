@@ -7,7 +7,7 @@
 #ifndef NAZARA_OPENGLRENDERER_WRAPPER_LOADER_HPP
 #define NAZARA_OPENGLRENDERER_WRAPPER_LOADER_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/Platform/WindowHandle.hpp>
 #include <memory>

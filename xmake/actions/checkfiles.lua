@@ -494,7 +494,7 @@ on_run(function ()
 					local order
 					if inclusions[i].path == headerPath then
 						order = 0 -- own include comes first
-					elseif inclusions[i].path == "Nazara/Prerequisites.hpp" then
+					elseif inclusions[i].path == "NazaraUtils/Prerequisites.hpp" then
 						order = 1 -- top engine includes
 					elseif inclusions[i].path == "Nazara/" .. debugIncludeModule .. "/Debug.hpp" then
 						order = 6 -- debug include

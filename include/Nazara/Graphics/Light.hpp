@@ -7,14 +7,14 @@
 #ifndef NAZARA_GRAPHICS_LIGHT_HPP
 #define NAZARA_GRAPHICS_LIGHT_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/LightShadowData.hpp>
 #include <Nazara/Math/BoundingVolume.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
-#include <Nazara/Utils/Signal.hpp>
+#include <NazaraUtils/Signal.hpp>
 #include <memory>
 
 namespace Nz

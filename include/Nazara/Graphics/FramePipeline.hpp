@@ -7,14 +7,14 @@
 #ifndef NAZARA_GRAPHICS_FRAMEPIPELINE_HPP
 #define NAZARA_GRAPHICS_FRAMEPIPELINE_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/FramePipelinePass.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>
 #include <Nazara/Graphics/SkeletonInstance.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
 #include <Nazara/Renderer/DebugDrawer.hpp>
-#include <Nazara/Utils/FunctionRef.hpp>
+#include <NazaraUtils/FunctionRef.hpp>
 #include <memory>
 #include <vector>
 

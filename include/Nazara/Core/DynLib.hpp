@@ -7,9 +7,9 @@
 #ifndef NAZARA_CORE_DYNLIB_HPP
 #define NAZARA_CORE_DYNLIB_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Config.hpp>
-#include <Nazara/Utils/MovablePtr.hpp>
+#include <NazaraUtils/MovablePtr.hpp>
 #include <filesystem>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)

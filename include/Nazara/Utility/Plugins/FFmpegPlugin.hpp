@@ -7,7 +7,7 @@
 #ifndef NAZARA_UTILITY_PLUGINS_FFMPEGPLUGIN_HPP
 #define NAZARA_UTILITY_PLUGINS_FFMPEGPLUGIN_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/PluginInterface.hpp>
 #include <Nazara/Utility/Config.hpp>
 

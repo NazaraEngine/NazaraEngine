@@ -7,10 +7,10 @@
 #ifndef NAZARA_GRAPHICS_RENDERELEMENTPOOL_HPP
 #define NAZARA_GRAPHICS_RENDERELEMENTPOOL_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/RenderElementOwner.hpp>
-#include <Nazara/Utils/MemoryPool.hpp>
+#include <NazaraUtils/MemoryPool.hpp>
 
 namespace Nz
 {

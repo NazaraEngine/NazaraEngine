@@ -7,10 +7,10 @@
 #ifndef NAZARA_OPENGLRENDERER_OPENGLUPLOADPOOL_HPP
 #define NAZARA_OPENGLRENDERER_OPENGLUPLOADPOOL_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
-#include <Nazara/Utils/MovablePtr.hpp>
+#include <NazaraUtils/MovablePtr.hpp>
 #include <array>
 #include <memory>
 #include <vector>

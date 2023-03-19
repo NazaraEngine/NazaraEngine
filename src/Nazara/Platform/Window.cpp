@@ -7,7 +7,7 @@
 #include <Nazara/Platform/Cursor.hpp>
 #include <Nazara/Platform/Icon.hpp>
 #include <Nazara/Platform/SDL2/WindowImpl.hpp>
-#include <Nazara/Utils/CallOnExit.hpp>
+#include <NazaraUtils/CallOnExit.hpp>
 #include <Nazara/Platform/Debug.hpp>
 
 namespace Nz

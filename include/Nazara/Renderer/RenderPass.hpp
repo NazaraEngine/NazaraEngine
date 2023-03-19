@@ -7,7 +7,7 @@
 #ifndef NAZARA_RENDERER_RENDERPASS_HPP
 #define NAZARA_RENDERER_RENDERPASS_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>

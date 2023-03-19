@@ -7,12 +7,12 @@
 #ifndef NAZARA_PLATFORM_WINDOWEVENTHANDLER_HPP
 #define NAZARA_PLATFORM_WINDOWEVENTHANDLER_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/HandledObject.hpp>
 #include <Nazara/Core/ObjectHandle.hpp>
 #include <Nazara/Platform/Config.hpp>
 #include <Nazara/Platform/WindowEvent.hpp>
-#include <Nazara/Utils/Signal.hpp>
+#include <NazaraUtils/Signal.hpp>
 
 namespace Nz
 {

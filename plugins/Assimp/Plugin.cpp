@@ -23,8 +23,8 @@ SOFTWARE.
 */
 
 #include <CustomStream.hpp>
-#include <Nazara/Utils/Bitset.hpp>
-#include <Nazara/Utils/CallOnExit.hpp>
+#include <NazaraUtils/Bitset.hpp>
+#include <NazaraUtils/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Utility/Mesh.hpp>

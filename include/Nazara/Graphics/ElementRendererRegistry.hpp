@@ -7,7 +7,7 @@
 #ifndef NAZARA_GRAPHICS_ELEMENTRENDERERREGISTRY_HPP
 #define NAZARA_GRAPHICS_ELEMENTRENDERERREGISTRY_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/ElementRenderer.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>

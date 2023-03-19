@@ -9,7 +9,7 @@
 #ifndef NAZARA_PLATFORM_SDL2_WINDOWIMPL_HPP
 #define NAZARA_PLATFORM_SDL2_WINDOWIMPL_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Platform/Config.hpp>

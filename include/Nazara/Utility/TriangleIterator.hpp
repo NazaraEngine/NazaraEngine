@@ -7,7 +7,7 @@
 #ifndef NAZARA_UTILITY_TRIANGLEITERATOR_HPP
 #define NAZARA_UTILITY_TRIANGLEITERATOR_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/IndexMapper.hpp>
 

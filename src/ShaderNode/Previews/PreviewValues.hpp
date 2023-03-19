@@ -3,7 +3,7 @@
 #ifndef NAZARA_SHADERNODES_PREVIEWVALUES_HPP
 #define NAZARA_SHADERNODES_PREVIEWVALUES_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <ShaderNode/Enums.hpp>
 #include <NZSL/Math/Vector.hpp>
 #include <array>

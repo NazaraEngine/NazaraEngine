@@ -4,7 +4,7 @@
 
 #include <Nazara/VulkanRenderer/VulkanRenderPass.hpp>
 #include <Nazara/VulkanRenderer/Utils.hpp>
-#include <Nazara/Utils/StackVector.hpp>
+#include <NazaraUtils/StackVector.hpp>
 #include <stdexcept>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 

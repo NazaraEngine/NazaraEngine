@@ -7,7 +7,7 @@
 #ifndef NAZARA_GRAPHICS_PREDEFINEDMATERIALS_HPP
 #define NAZARA_GRAPHICS_PREDEFINEDMATERIALS_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 
 namespace Nz

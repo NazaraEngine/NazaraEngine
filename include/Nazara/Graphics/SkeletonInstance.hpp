@@ -7,7 +7,7 @@
 #ifndef NAZARA_GRAPHICS_SKELETONINSTANCE_HPP
 #define NAZARA_GRAPHICS_SKELETONINSTANCE_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/TransferInterface.hpp>
 #include <Nazara/Math/Matrix4.hpp>

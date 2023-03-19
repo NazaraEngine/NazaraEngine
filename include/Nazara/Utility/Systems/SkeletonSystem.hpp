@@ -7,7 +7,7 @@
 #ifndef NAZARA_UTILITY_SYSTEMS_SKELETONSYSTEM_HPP
 #define NAZARA_UTILITY_SYSTEMS_SKELETONSYSTEM_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Time.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <entt/entt.hpp>

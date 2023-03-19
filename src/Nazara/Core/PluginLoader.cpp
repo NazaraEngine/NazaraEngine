@@ -5,7 +5,7 @@
 #include <Nazara/Core/PluginLoader.hpp>
 #include <Nazara/Core/DynLib.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Utils/Algorithm.hpp>
+#include <NazaraUtils/Algorithm.hpp>
 #include <stdexcept>
 #include <Nazara/Core/Debug.hpp>
 

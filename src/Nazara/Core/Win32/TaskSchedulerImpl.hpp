@@ -7,7 +7,7 @@
 #ifndef NAZARA_CORE_WIN32_TASKSCHEDULERIMPL_HPP
 #define NAZARA_CORE_WIN32_TASKSCHEDULERIMPL_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Functor.hpp>
 #include <atomic>
 #include <memory>

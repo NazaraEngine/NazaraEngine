@@ -6,8 +6,8 @@
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Physics2D/PhysWorld2D.hpp>
 #include <Nazara/Physics2D/RigidBody2D.hpp>
-#include <Nazara/Utils/CallOnExit.hpp>
-#include <Nazara/Utils/StackArray.hpp>
+#include <NazaraUtils/CallOnExit.hpp>
+#include <NazaraUtils/StackArray.hpp>
 #include <chipmunk/chipmunk.h>
 #include <chipmunk/chipmunk_structs.h>
 #include <array>

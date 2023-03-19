@@ -9,7 +9,7 @@
 
 #if defined(NAZARA_AUDIO_OPENAL) || defined(NAZARA_AUDIO_BUILD)
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Audio/AudioSource.hpp>
 #include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/OpenAL.hpp>

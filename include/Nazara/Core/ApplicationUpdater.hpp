@@ -7,7 +7,7 @@
 #ifndef NAZARA_CORE_APPLICATIONUPDATER_HPP
 #define NAZARA_CORE_APPLICATIONUPDATER_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Time.hpp>
 

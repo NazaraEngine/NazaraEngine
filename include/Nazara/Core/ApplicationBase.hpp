@@ -7,7 +7,7 @@
 #ifndef NAZARA_CORE_APPLICATIONBASE_HPP
 #define NAZARA_CORE_APPLICATIONBASE_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/ApplicationComponent.hpp>
 #include <Nazara/Core/ApplicationUpdater.hpp>
 #include <Nazara/Core/Clock.hpp>

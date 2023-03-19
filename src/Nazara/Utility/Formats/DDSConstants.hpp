@@ -7,7 +7,7 @@
 #ifndef NAZARA_UTILITY_FORMATS_DDSCONSTANTS_HPP
 #define NAZARA_UTILITY_FORMATS_DDSCONSTANTS_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/SerializationContext.hpp>
 #include <Nazara/Utility/Config.hpp>
 

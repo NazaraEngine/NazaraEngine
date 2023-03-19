@@ -7,7 +7,7 @@
 #ifndef NAZARA_CORE_WIN32_TIMEIMPL_HPP
 #define NAZARA_CORE_WIN32_TIMEIMPL_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Time.hpp>
 
 namespace Nz

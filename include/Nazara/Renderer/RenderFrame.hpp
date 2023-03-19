@@ -7,12 +7,12 @@
 #ifndef NAZARA_RENDERER_RENDERFRAME_HPP
 #define NAZARA_RENDERER_RENDERFRAME_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/RenderImage.hpp>
-#include <Nazara/Utils/FunctionRef.hpp>
+#include <NazaraUtils/FunctionRef.hpp>
 #include <functional>
 
 namespace Nz

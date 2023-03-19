@@ -7,7 +7,7 @@
 #ifndef NAZARA_OPENGLRENDERER_WRAPPER_WIN32_WIN32HELPER_HPP
 #define NAZARA_OPENGLRENDERER_WRAPPER_WIN32_WIN32HELPER_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <memory>
 #include <type_traits>
 #include <windows.h>

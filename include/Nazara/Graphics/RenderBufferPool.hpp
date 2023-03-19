@@ -7,10 +7,10 @@
 #ifndef NAZARA_GRAPHICS_RENDERBUFFERPOOL_HPP
 #define NAZARA_GRAPHICS_RENDERBUFFERPOOL_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Renderer/RenderBufferView.hpp>
-#include <Nazara/Utils/Bitset.hpp>
+#include <NazaraUtils/Bitset.hpp>
 #include <vector>
 
 namespace Nz

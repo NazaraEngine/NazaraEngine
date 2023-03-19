@@ -7,7 +7,7 @@
 #ifndef NAZARA_GRAPHICS_CAMERA_HPP
 #define NAZARA_GRAPHICS_CAMERA_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>

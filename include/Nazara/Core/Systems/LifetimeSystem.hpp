@@ -7,10 +7,10 @@
 #ifndef NAZARA_CORE_SYSTEMS_LIFETIMESYSTEM_HPP
 #define NAZARA_CORE_SYSTEMS_LIFETIMESYSTEM_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Time.hpp>
-#include <Nazara/Utils/TypeList.hpp>
+#include <NazaraUtils/TypeList.hpp>
 #include <entt/entt.hpp>
 
 namespace Nz

@@ -9,7 +9,7 @@
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/RenderFrame.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
-#include <Nazara/Utils/StackVector.hpp>
+#include <NazaraUtils/StackVector.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz

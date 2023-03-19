@@ -11,7 +11,7 @@
 #define _LARGEFILE64_SOURCE
 #endif
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Enums.hpp>
 #include <ctime>
 #include <filesystem>

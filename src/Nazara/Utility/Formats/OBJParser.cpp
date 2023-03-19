@@ -5,7 +5,7 @@
 #include <Nazara/Utility/Formats/OBJParser.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Utility/Config.hpp>
-#include <Nazara/Utils/CallOnExit.hpp>
+#include <NazaraUtils/CallOnExit.hpp>
 #include <tsl/ordered_map.h>
 #include <cctype>
 #include <memory>

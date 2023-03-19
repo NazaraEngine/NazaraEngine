@@ -6,7 +6,7 @@
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/VulkanRenderer/Utils.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Instance.hpp>
-#include <Nazara/Utils/StackArray.hpp>
+#include <NazaraUtils/StackArray.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz::Vk

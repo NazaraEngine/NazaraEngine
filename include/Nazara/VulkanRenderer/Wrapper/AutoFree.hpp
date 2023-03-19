@@ -7,7 +7,7 @@
 #ifndef NAZARA_VULKANRENDERER_WRAPPER_AUTOFREE_HPP
 #define NAZARA_VULKANRENDERER_WRAPPER_AUTOFREE_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 
 namespace Nz::Vk
 {

@@ -7,7 +7,7 @@
 #ifndef NAZARA_OPENGLRENDERER_WRAPPER_LINUX_EGLCONTEXTWAYLAND_HPP
 #define NAZARA_OPENGLRENDERER_WRAPPER_LINUX_EGLCONTEXTWAYLAND_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/EGL/EGLContextBase.hpp>
 
 namespace Nz::GL

@@ -9,7 +9,7 @@
 #include <Nazara/Network/Algorithm.hpp>
 #include <Nazara/Network/NetBuffer.hpp>
 #include <Nazara/Network/Posix/IpAddressImpl.hpp>
-#include <Nazara/Utils/StackArray.hpp>
+#include <NazaraUtils/StackArray.hpp>
 #include <cstring>
 #include <poll.h>
 #include <unistd.h>

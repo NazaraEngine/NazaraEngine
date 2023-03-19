@@ -7,10 +7,10 @@
 #ifndef NAZARA_CORE_PARAMETERLIST_HPP
 #define NAZARA_CORE_PARAMETERLIST_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
-#include <Nazara/Utils/MovablePtr.hpp>
-#include <Nazara/Utils/Result.hpp>
+#include <NazaraUtils/MovablePtr.hpp>
+#include <NazaraUtils/Result.hpp>
 #include <atomic>
 #include <string>
 #include <unordered_map>

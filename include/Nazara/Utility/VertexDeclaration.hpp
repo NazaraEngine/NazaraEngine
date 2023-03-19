@@ -7,11 +7,11 @@
 #ifndef NAZARA_UTILITY_VERTEXDECLARATION_HPP
 #define NAZARA_UTILITY_VERTEXDECLARATION_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
-#include <Nazara/Utils/SparsePtr.hpp>
+#include <NazaraUtils/SparsePtr.hpp>
 #include <array>
 #include <vector>
 

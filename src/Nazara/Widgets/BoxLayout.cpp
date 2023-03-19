@@ -4,7 +4,7 @@
 
 #include <Nazara/Widgets/BoxLayout.hpp>
 #include <Nazara/Core/Log.hpp>
-#include <Nazara/Utils/StackVector.hpp>
+#include <NazaraUtils/StackVector.hpp>
 #include <kiwi/kiwi.h>
 #include <cassert>
 #include <vector>

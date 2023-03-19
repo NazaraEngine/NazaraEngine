@@ -1,6 +1,6 @@
 #include <ShaderNode/ShaderGraph.hpp>
 #include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Utils/StackArray.hpp>
+#include <NazaraUtils/StackArray.hpp>
 #include <NZSL/Ast/Cloner.hpp>
 #include <NZSL/Ast/Utils.hpp>
 #include <NZSL/Ast/ExpressionType.hpp>

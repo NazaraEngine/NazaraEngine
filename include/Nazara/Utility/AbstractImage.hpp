@@ -7,7 +7,7 @@
 #ifndef NAZARA_UTILITY_ABSTRACTIMAGE_HPP
 #define NAZARA_UTILITY_ABSTRACTIMAGE_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector3.hpp>

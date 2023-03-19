@@ -7,9 +7,9 @@
 #ifndef NAZARA_CORE_VIRTUALDIRECTORY_HPP
 #define NAZARA_CORE_VIRTUALDIRECTORY_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Stream.hpp>
-#include <Nazara/Utils/FunctionRef.hpp>
+#include <NazaraUtils/FunctionRef.hpp>
 #include <memory>
 #include <optional>
 #include <string>

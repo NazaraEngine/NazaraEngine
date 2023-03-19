@@ -9,7 +9,7 @@
 
 #include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Math/Enums.hpp>
-#include <Nazara/Utils/TypeTag.hpp>
+#include <NazaraUtils/TypeTag.hpp>
 #include <ostream>
 #include <string>
 #include <type_traits>

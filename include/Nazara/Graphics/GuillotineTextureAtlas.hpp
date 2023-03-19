@@ -7,7 +7,7 @@
 #ifndef NAZARA_GRAPHICS_GUILLOTINETEXTUREATLAS_HPP
 #define NAZARA_GRAPHICS_GUILLOTINETEXTUREATLAS_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Utility/GuillotineImageAtlas.hpp>
 

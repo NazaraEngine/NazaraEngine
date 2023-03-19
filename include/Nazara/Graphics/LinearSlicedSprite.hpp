@@ -7,7 +7,7 @@
 #ifndef NAZARA_GRAPHICS_LINEARSLICEDSPRITE_HPP
 #define NAZARA_GRAPHICS_LINEARSLICEDSPRITE_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Renderer/RenderPipeline.hpp>

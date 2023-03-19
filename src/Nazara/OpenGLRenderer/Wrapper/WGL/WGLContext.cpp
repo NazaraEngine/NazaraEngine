@@ -5,7 +5,7 @@
 #include <Nazara/OpenGLRenderer/Wrapper/WGL/WGLContext.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/WGL/WGLLoader.hpp>
-#include <Nazara/Utils/CallOnExit.hpp>
+#include <NazaraUtils/CallOnExit.hpp>
 #include <array>
 #include <cassert>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
