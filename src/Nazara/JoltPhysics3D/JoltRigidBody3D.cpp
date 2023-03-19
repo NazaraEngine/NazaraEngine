@@ -37,7 +37,6 @@ namespace Nz
 		JPH::Quat rotation = ToJolt(mat.GetRotation().Normalize());
 
 		JPH::BodyCreationSettings settings(m_geom->GetShapeSettings(), position, rotation, JPH::EMotionType::Dynamic, 1);
-		settings.mAllowSleeping = false;
 
 		JPH::Body* body = body_interface.CreateBody(settings);
 		body->SetUserData(SafeCast<UInt64>(reinterpret_cast<std::uintptr_t>(this)));
@@ -59,23 +58,27 @@ namespace Nz
 		Destroy();
 	}
 
-#if 0
 	void JoltRigidBody3D::AddForce(const Vector3f& force, CoordSys coordSys)
 	{
 		switch (coordSys)
 		{
 			case CoordSys::Global:
-				WakeUp();
-				m_body->applyCentralForce(ToJolt(force));
+			{
+				JPH::BodyInterface& body_interface = m_world->GetPhysicsSystem()->GetBodyInterface();
+				body_interface.AddForce(JPH::BodyID(m_bodyIndex), ToJolt(force));
+				//WakeUp();
+				//m_body->applyCentralForce(ToJolt(force));
 				break;
+			}
 
 			case CoordSys::Local:
-				WakeUp();
-				m_body->applyCentralForce(ToJolt(GetRotation() * force));
+				//WakeUp();
+				//m_body->applyCentralForce(ToJolt(GetRotation() * force));
 				break;
 		}
 	}
 
+#if 0
 	void JoltRigidBody3D::AddForce(const Vector3f& force, const Vector3f& point, CoordSys coordSys)
 	{
 		switch (coordSys)
@@ -112,6 +115,13 @@ namespace Nz
 #endif
 	void JoltRigidBody3D::EnableSleeping(bool enable)
 	{
+		auto& body_interface = m_world->GetPhysicsSystem()->GetBodyLockInterface();
+		JPH::BodyLockWrite lock(body_interface, JPH::BodyID(m_bodyIndex));
+		if (lock.Succeeded())
+		{
+			JPH::Body& body = lock.GetBody();
+			body.SetAllowSleeping(enable);
+		}
 	}
 
 #if 0
@@ -148,12 +158,19 @@ namespace Nz
 	{
 		return FromJolt(m_body->getLinearVelocity());
 	}
+#endif
 
 	float JoltRigidBody3D::GetMass() const
 	{
-		return m_body->getMass();
-	}
+		auto& body_interface = m_world->GetPhysicsSystem()->GetBodyLockInterface();
+		JPH::BodyLockRead lock(body_interface, JPH::BodyID(m_bodyIndex));
+		if (!lock.Succeeded())
+			return 0.f;
 
+		const JPH::Body& body = lock.GetBody();
+		return 1.f / body.GetMotionProperties()->GetInverseMass();
+	}
+#if 0
 	Vector3f JoltRigidBody3D::GetMassCenter(CoordSys coordSys) const
 	{
 		return FromJolt(m_body->getCenterOfMassPosition());
@@ -190,12 +207,18 @@ namespace Nz
 		return !body_interface.IsActive(JPH::BodyID(m_bodyIndex));
 	}
 
-#if 0
 	bool JoltRigidBody3D::IsSleepingEnabled() const
 	{
-		return m_body->getActivationState() != DISABLE_DEACTIVATION;
+		auto& body_interface = m_world->GetPhysicsSystem()->GetBodyLockInterface();
+		JPH::BodyLockRead lock(body_interface, JPH::BodyID(m_bodyIndex));
+		if (!lock.Succeeded())
+			return true;
+
+		const JPH::Body& body = lock.GetBody();
+		return body.GetAllowSleeping();
 	}
 
+#if 0
 	void JoltRigidBody3D::SetAngularDamping(float angularDamping)
 	{
 		m_body->setDamping(m_body->getLinearDamping(), angularDamping);
@@ -205,7 +228,7 @@ namespace Nz
 	{
 		m_body->setAngularVelocity(ToJolt(angularVelocity));
 	}
-
+#endif
 	void JoltRigidBody3D::SetGeom(std::shared_ptr<JoltCollider3D> geom, bool recomputeInertia)
 	{
 		if (m_geom != geom)
@@ -213,21 +236,13 @@ namespace Nz
 			if (geom)
 				m_geom = std::move(geom);
 			else
-				m_geom = std::make_shared<NullCollider3D>();
+				m_geom = std::make_shared<JoltSphereCollider3D>(1.f);
 
-			m_body->setCollisionShape(m_geom->GetShape());
-			if (recomputeInertia)
-			{
-				float mass = GetMass();
-
-				Vector3f inertia;
-				m_geom->ComputeInertia(mass, &inertia);
-
-				m_body->setMassProps(mass, ToJolt(inertia));
-			}
+			JPH::BodyInterface& body_interface = m_world->GetPhysicsSystem()->GetBodyInterface();
+			body_interface.SetShape(JPH::BodyID(m_bodyIndex), m_geom->GetShapeSettings()->Create().Get(), true, JPH::EActivation::Activate);
 		}
 	}
-
+#if 0
 	void JoltRigidBody3D::SetLinearDamping(float damping)
 	{
 		m_body->setDamping(damping, m_body->getAngularDamping());
@@ -243,8 +258,25 @@ namespace Nz
 		NazaraAssert(mass >= 0.f, "Mass must be positive and finite");
 		NazaraAssert(std::isfinite(mass), "Mass must be positive and finite");
 
-		JPH::BodyInterface& body_interface = m_world->GetPhysicsSystem()->GetBodyInterface();
-		body_interface.SetMotionType(JPH::BodyID(m_bodyIndex), (mass > 0.f) ? JPH::EMotionType::Dynamic : JPH::EMotionType::Static, JPH::EActivation::Activate);
+		auto& bodyLock = m_world->GetPhysicsSystem()->GetBodyLockInterface();
+		JPH::BodyLockWrite lock(bodyLock, JPH::BodyID(m_bodyIndex));
+		if (!lock.Succeeded())
+			return;
+
+		JPH::Body& body = lock.GetBody();
+
+		if (mass > 0.f)
+		{
+			body.SetMotionType(JPH::EMotionType::Dynamic);
+			body.GetMotionProperties()->SetInverseMass(1.f / mass);
+		}
+		else
+		{
+			JPH::BodyInterface& body_interface = m_world->GetPhysicsSystem()->GetBodyInterfaceNoLock();
+
+			body_interface.DeactivateBody(body.GetID());
+			body.SetMotionType(JPH::EMotionType::Static);
+		}
 	}
 
 #if 0
@@ -290,12 +322,13 @@ namespace Nz
 	{
 		return GetMatrix() * localPosition;
 	}
+#endif
 
 	void JoltRigidBody3D::WakeUp()
 	{
-		m_body->activate();
+		JPH::BodyInterface& body_interface = m_world->GetPhysicsSystem()->GetBodyInterface();
+		body_interface.ActivateBody(JPH::BodyID(m_bodyIndex)); 
 	}
-#endif
 
 	JoltRigidBody3D& JoltRigidBody3D::operator=(JoltRigidBody3D&& object) noexcept
 	{

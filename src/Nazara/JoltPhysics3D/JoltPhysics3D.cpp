@@ -40,7 +40,7 @@ namespace Nz
 		JPH::Factory::sInstance = new JPH::Factory;
 		JPH::RegisterTypes();
 
-		m_threadPool = std::make_unique<JPH::JobSystemThreadPool>(JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers, Core::Instance()->GetHardwareInfo().GetCpuThreadCount());
+		m_threadPool = std::make_unique<JPH::JobSystemThreadPool>(JPH::cMaxPhysicsJobs, JPH::cMaxPhysicsBarriers, /* Core::Instance()->GetHardwareInfo().GetCpuThreadCount()*/0);
 	}
 
 	JoltPhysics3D::~JoltPhysics3D()
