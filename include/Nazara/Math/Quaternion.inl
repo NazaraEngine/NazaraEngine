@@ -288,8 +288,9 @@ namespace Nz
 		}
 		else
 		{
+			T norm = std::sqrt(from.GetSquaredLength() * to.GetSquaredLength());
 			Vector3<T> crossProduct = from.CrossProduct(to);
-			Set(T(1) + dot, crossProduct.x, crossProduct.y, crossProduct.z);
+			Set(norm + dot, crossProduct.x, crossProduct.y, crossProduct.z);
 			return Normalize();
 		}
 	}
