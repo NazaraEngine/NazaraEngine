@@ -11,8 +11,8 @@
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Renderer/RenderPipeline.hpp>
-#include <NZSL/ModuleResolver.hpp>
 #include <NazaraUtils/Signal.hpp>
+#include <NZSL/ModuleResolver.hpp>
 #include <NZSL/Ast/Module.hpp>
 #include <unordered_map>
 

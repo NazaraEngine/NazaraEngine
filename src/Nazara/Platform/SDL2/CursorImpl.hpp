@@ -11,8 +11,8 @@
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Platform/Enums.hpp>
 #include <Nazara/Utility/Image.hpp>
-#include <SDL_mouse.h>
 #include <NazaraUtils/MovablePtr.hpp>
+#include <SDL_mouse.h>
 
 namespace Nz
 {

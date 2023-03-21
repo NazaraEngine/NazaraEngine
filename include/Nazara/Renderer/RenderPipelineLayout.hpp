@@ -9,8 +9,8 @@
 
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
-#include <NZSL/Enums.hpp>
 #include <NazaraUtils/MovablePtr.hpp>
+#include <NZSL/Enums.hpp>
 #include <memory>
 #include <string>
 #include <vector>

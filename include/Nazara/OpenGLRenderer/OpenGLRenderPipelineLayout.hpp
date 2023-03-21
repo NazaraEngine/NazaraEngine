@@ -13,8 +13,8 @@
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/CoreFunctions.hpp>
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
-#include <NZSL/GlslWriter.hpp>
 #include <NazaraUtils/Bitset.hpp>
+#include <NZSL/GlslWriter.hpp>
 #include <memory>
 #include <type_traits>
 #include <vector>

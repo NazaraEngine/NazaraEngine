@@ -7,11 +7,11 @@
 #include <Nazara/Platform/Window.hpp>
 #include <Nazara/Platform/SDL2/SDLHelper.hpp>
 #include <Nazara/Platform/SDL2/WindowImpl.hpp>
+#include <NazaraUtils/CallOnExit.hpp>
 #include <SDL_clipboard.h>
 #include <SDL_keyboard.h>
 #include <SDL_keycode.h>
 #include <SDL_mouse.h>
-#include <NazaraUtils/CallOnExit.hpp>
 #include <Nazara/Platform/Debug.hpp>
 
 namespace Nz

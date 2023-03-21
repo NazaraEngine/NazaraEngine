@@ -498,7 +498,7 @@ on_run(function ()
 						order = 1 -- top engine includes
 					elseif inclusions[i].path == "Nazara/" .. debugIncludeModule .. "/Debug.hpp" then
 						order = 6 -- debug include
-					elseif inclusions[i].path:match("^Nazara/Utils/") then
+					elseif inclusions[i].path:match("^NazaraUtils/") then
 						order = 2.1 -- NazaraUtils
 					elseif inclusions[i].path:match("^Nazara/") then
 						order = 2 -- engine includes

@@ -12,9 +12,9 @@
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/MemoryView.hpp>
 #include <Nazara/Core/Stream.hpp>
-#include <FLAC/stream_decoder.h>
 #include <NazaraUtils/CallOnExit.hpp>
 #include <NazaraUtils/Endianness.hpp>
+#include <FLAC/stream_decoder.h>
 #include <optional>
 #include <set>
 #include <Nazara/Audio/Debug.hpp>
