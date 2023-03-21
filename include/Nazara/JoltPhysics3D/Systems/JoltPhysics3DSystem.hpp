@@ -7,12 +7,12 @@
 #ifndef NAZARA_JOLTPHYSICS3D_SYSTEMS_JOLTPHYSICS3DSYSTEM_HPP
 #define NAZARA_JOLTPHYSICS3D_SYSTEMS_JOLTPHYSICS3DSYSTEM_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/JoltPhysics3D/JoltPhysWorld3D.hpp>
 #include <Nazara/JoltPhysics3D/Components/JoltRigidBody3DComponent.hpp>
 #include <Nazara/Core/Time.hpp>
-#include <Nazara/Utils/TypeList.hpp>
+#include <NazaraUtils/TypeList.hpp>
 #include <entt/entt.hpp>
 #include <vector>
 

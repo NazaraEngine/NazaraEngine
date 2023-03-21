@@ -7,7 +7,7 @@
 #ifndef NAZARA_BULLETPHYSICS3D_BULLETHELPER_HPP
 #define NAZARA_BULLETPHYSICS3D_BULLETHELPER_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/BulletPhysics3D/Config.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Quaternion.hpp>

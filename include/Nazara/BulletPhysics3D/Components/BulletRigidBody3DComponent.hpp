@@ -7,7 +7,7 @@
 #ifndef NAZARA_BULLETPHYSICS3D_COMPONENTS_BULLETRIGIDBODY3DCOMPONENT_HPP
 #define NAZARA_BULLETPHYSICS3D_COMPONENTS_BULLETRIGIDBODY3DCOMPONENT_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/BulletPhysics3D/BulletRigidBody3D.hpp>
 
 namespace Nz

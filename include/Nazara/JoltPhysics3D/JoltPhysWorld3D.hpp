@@ -7,13 +7,15 @@
 #ifndef NAZARA_JOLTPHYSICS3D_JOLTPHYSWORLD3D_HPP
 #define NAZARA_JOLTPHYSICS3D_JOLTPHYSWORLD3D_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/JoltPhysics3D/Config.hpp>
 #include <Nazara/Core/Time.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Vector3.hpp>
-#include <Nazara/Utils/FunctionRef.hpp>
-#include <Nazara/Utils/MovablePtr.hpp>
+#include <NazaraUtils/FunctionRef.hpp>
+#include <NazaraUtils/MovablePtr.hpp>
+#include <atomic>
+#include <vector>
 
 namespace JPH
 {
@@ -22,10 +24,13 @@ namespace JPH
 
 namespace Nz
 {
+	class JoltCharacter;
 	class JoltRigidBody3D;
 
 	class NAZARA_JOLTPHYSICS3D_API JoltPhysWorld3D
 	{
+		friend JoltCharacter;
+
 		public:
 			struct RaycastHit;
 
@@ -34,10 +39,13 @@ namespace Nz
 			JoltPhysWorld3D(JoltPhysWorld3D&& ph) = delete;
 			~JoltPhysWorld3D();
 
+			UInt32 GetActiveBodyCount() const;
 			Vector3f GetGravity() const;
 			std::size_t GetMaxStepCount() const;
 			JPH::PhysicsSystem* GetPhysicsSystem();
 			Time GetStepSize() const;
+
+			inline bool IsBodyActive(UInt32 bodyIndex) const;
 
 			bool RaycastQueryFirst(const Vector3f& from, const Vector3f& to, RaycastHit* hitInfo = nullptr);
 
@@ -59,14 +67,24 @@ namespace Nz
 			};
 
 		private:
+			class BodyActivationListener;
+			friend BodyActivationListener;
+
 			struct JoltWorld;
 
+			inline void RegisterCharacter(JoltCharacter* character);
+			inline void UnregisterCharacter(JoltCharacter* character);
+
 			std::size_t m_maxStepCount;
+			std::unique_ptr<std::atomic_uint64_t[]> m_activeBodies;
 			std::unique_ptr<JoltWorld> m_world;
+			std::vector<JoltCharacter*> m_characters;
 			Vector3f m_gravity;
 			Time m_stepSize;
 			Time m_timestepAccumulator;
 	};
 }
+
+#include <Nazara/JoltPhysics3D/JoltPhysWorld3D.inl>
 
 #endif // NAZARA_JOLTPHYSICS3D_JOLTPHYSWORLD3D_HPP

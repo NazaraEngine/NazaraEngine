@@ -6,7 +6,7 @@
 #include <Nazara/JoltPhysics3D/JoltHelper.hpp>
 #include <Nazara/JoltPhysics3D/JoltPhysWorld3D.hpp>
 #include <Nazara/JoltPhysics3D/JoltRigidBody3D.hpp>
-#include <Nazara/Utils/MemoryHelper.hpp>
+#include <NazaraUtils/MemoryHelper.hpp>
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/PhysicsSystem.h>
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
@@ -29,28 +29,32 @@ namespace Nz
 		NazaraAssert(m_world, "Invalid world");
 
 		if (!m_geom)
-			m_geom = std::make_shared<JoltSphereCollider3D>(1.f);
+			m_geom = std::make_shared<JoltSphereCollider3D>(std::numeric_limits<float>::epsilon());
 
-		JPH::BodyInterface& body_interface = m_world->GetPhysicsSystem()->GetBodyInterface();
+		JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterface();
 
 		JPH::Vec3 position = ToJolt(mat.GetTranslation());
 		JPH::Quat rotation = ToJolt(mat.GetRotation().Normalize());
 
 		JPH::BodyCreationSettings settings(m_geom->GetShapeSettings(), position, rotation, JPH::EMotionType::Dynamic, 1);
 
-		JPH::Body* body = body_interface.CreateBody(settings);
-		body->SetUserData(SafeCast<UInt64>(reinterpret_cast<std::uintptr_t>(this)));
+		m_body = bodyInterface.CreateBody(settings);
+		m_body->SetUserData(SafeCast<UInt64>(reinterpret_cast<std::uintptr_t>(this)));
 
-		body_interface.AddBody(body->GetID(), JPH::EActivation::Activate);
-		m_bodyIndex = body->GetID().GetIndexAndSequenceNumber();
+		JPH::BodyID bodyId = m_body->GetID();
+
+		bodyInterface.AddBody(bodyId, JPH::EActivation::Activate);
+		m_bodyIndex = bodyId.GetIndex();
 	}
 
 	JoltRigidBody3D::JoltRigidBody3D(JoltRigidBody3D&& object) noexcept :
 	m_geom(std::move(object.m_geom)),
+	m_body(object.m_body),
 	m_bodyIndex(object.m_bodyIndex),
 	m_world(object.m_world)
 	{
-		object.m_bodyIndex = JPH::BodyID::cInvalidBodyID;
+		object.m_body = nullptr;
+		object.m_bodyIndex = std::numeric_limits<UInt32>::max();
 	}
 
 	JoltRigidBody3D::~JoltRigidBody3D()
@@ -64,16 +68,12 @@ namespace Nz
 		{
 			case CoordSys::Global:
 			{
-				JPH::BodyInterface& body_interface = m_world->GetPhysicsSystem()->GetBodyInterface();
-				body_interface.AddForce(JPH::BodyID(m_bodyIndex), ToJolt(force));
-				//WakeUp();
-				//m_body->applyCentralForce(ToJolt(force));
+				m_body->AddForce(ToJolt(force));
 				break;
 			}
 
 			case CoordSys::Local:
-				//WakeUp();
-				//m_body->applyCentralForce(ToJolt(GetRotation() * force));
+				m_body->AddForce(m_body->GetRotation() * ToJolt(force));
 				break;
 		}
 	}
@@ -115,13 +115,7 @@ namespace Nz
 #endif
 	void JoltRigidBody3D::EnableSleeping(bool enable)
 	{
-		auto& body_interface = m_world->GetPhysicsSystem()->GetBodyLockInterface();
-		JPH::BodyLockWrite lock(body_interface, JPH::BodyID(m_bodyIndex));
-		if (lock.Succeeded())
-		{
-			JPH::Body& body = lock.GetBody();
-			body.SetAllowSleeping(enable);
-		}
+		m_body->SetAllowSleeping(enable);
 	}
 
 #if 0
@@ -162,13 +156,7 @@ namespace Nz
 
 	float JoltRigidBody3D::GetMass() const
 	{
-		auto& body_interface = m_world->GetPhysicsSystem()->GetBodyLockInterface();
-		JPH::BodyLockRead lock(body_interface, JPH::BodyID(m_bodyIndex));
-		if (!lock.Succeeded())
-			return 0.f;
-
-		const JPH::Body& body = lock.GetBody();
-		return 1.f / body.GetMotionProperties()->GetInverseMass();
+		return 1.f / m_body->GetMotionProperties()->GetInverseMass();
 	}
 #if 0
 	Vector3f JoltRigidBody3D::GetMassCenter(CoordSys coordSys) const
@@ -184,14 +172,20 @@ namespace Nz
 
 	Vector3f JoltRigidBody3D::GetPosition() const
 	{
-		JPH::BodyInterface& body_interface = m_world->GetPhysicsSystem()->GetBodyInterface();
-		return FromJolt(body_interface.GetPosition(JPH::BodyID(m_bodyIndex)));
+		return FromJolt(m_body->GetPosition());
+	}
+
+	std::pair<Vector3f, Quaternionf> JoltRigidBody3D::GetPositionAndRotation() const
+	{
+		JPH::Vec3 position = m_body->GetPosition();
+		JPH::Quat rotation = m_body->GetRotation();
+
+		return { FromJolt(position), FromJolt(rotation) };
 	}
 
 	Quaternionf JoltRigidBody3D::GetRotation() const
 	{
-		JPH::BodyInterface& body_interface = m_world->GetPhysicsSystem()->GetBodyInterface();
-		return FromJolt(body_interface.GetRotation(JPH::BodyID(m_bodyIndex)));
+		return FromJolt(m_body->GetRotation());
 	}
 
 #if 0
@@ -203,19 +197,12 @@ namespace Nz
 
 	bool JoltRigidBody3D::IsSleeping() const
 	{
-		JPH::BodyInterface& body_interface = m_world->GetPhysicsSystem()->GetBodyInterface();
-		return !body_interface.IsActive(JPH::BodyID(m_bodyIndex));
+		return m_body->IsActive();
 	}
 
 	bool JoltRigidBody3D::IsSleepingEnabled() const
 	{
-		auto& body_interface = m_world->GetPhysicsSystem()->GetBodyLockInterface();
-		JPH::BodyLockRead lock(body_interface, JPH::BodyID(m_bodyIndex));
-		if (!lock.Succeeded())
-			return true;
-
-		const JPH::Body& body = lock.GetBody();
-		return body.GetAllowSleeping();
+		return m_body->GetAllowSleeping();
 	}
 
 #if 0
@@ -233,72 +220,79 @@ namespace Nz
 	{
 		if (m_geom != geom)
 		{
+			float mass = GetMass();
+
 			if (geom)
 				m_geom = std::move(geom);
 			else
-				m_geom = std::make_shared<JoltSphereCollider3D>(1.f);
+				m_geom = std::make_shared<JoltSphereCollider3D>(std::numeric_limits<float>::epsilon());
 
-			JPH::BodyInterface& body_interface = m_world->GetPhysicsSystem()->GetBodyInterface();
-			body_interface.SetShape(JPH::BodyID(m_bodyIndex), m_geom->GetShapeSettings()->Create().Get(), true, JPH::EActivation::Activate);
+			JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterface();
+			bodyInterface.SetShape(m_body->GetID(), m_geom->GetShapeSettings()->Create().Get(), false, JPH::EActivation::Activate);
+			if (recomputeInertia)
+			{
+				JPH::MassProperties massProperties = m_body->GetShape()->GetMassProperties();
+				massProperties.ScaleToMass(mass);
+				m_body->GetMotionProperties()->SetMassProperties(massProperties);
+			}
 		}
 	}
-#if 0
+
 	void JoltRigidBody3D::SetLinearDamping(float damping)
 	{
-		m_body->setDamping(damping, m_body->getAngularDamping());
+		m_body->GetMotionProperties()->SetLinearDamping(damping);
 	}
 
 	void JoltRigidBody3D::SetLinearVelocity(const Vector3f& velocity)
 	{
-		m_body->setLinearVelocity(ToJolt(velocity));
+		m_body->SetLinearVelocity(ToJolt(velocity));
 	}
-#endif 0
-	void JoltRigidBody3D::SetMass(float mass)
+
+	void JoltRigidBody3D::SetMass(float mass, bool recomputeInertia)
 	{
 		NazaraAssert(mass >= 0.f, "Mass must be positive and finite");
 		NazaraAssert(std::isfinite(mass), "Mass must be positive and finite");
 
-		auto& bodyLock = m_world->GetPhysicsSystem()->GetBodyLockInterface();
-		JPH::BodyLockWrite lock(bodyLock, JPH::BodyID(m_bodyIndex));
-		if (!lock.Succeeded())
-			return;
-
-		JPH::Body& body = lock.GetBody();
-
 		if (mass > 0.f)
 		{
-			body.SetMotionType(JPH::EMotionType::Dynamic);
-			body.GetMotionProperties()->SetInverseMass(1.f / mass);
+			m_body->SetMotionType(JPH::EMotionType::Dynamic);
+			if (recomputeInertia)
+			{
+				JPH::MassProperties massProperties = m_body->GetShape()->GetMassProperties();
+				massProperties.ScaleToMass(mass);
+				m_body->GetMotionProperties()->SetMassProperties(massProperties);
+			}
 		}
 		else
 		{
-			JPH::BodyInterface& body_interface = m_world->GetPhysicsSystem()->GetBodyInterfaceNoLock();
+			JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterfaceNoLock();
+			bodyInterface.DeactivateBody(m_body->GetID());
 
-			body_interface.DeactivateBody(body.GetID());
-			body.SetMotionType(JPH::EMotionType::Static);
+			m_body->SetMotionType(JPH::EMotionType::Static);
 		}
 	}
 
-#if 0
 	void JoltRigidBody3D::SetMassCenter(const Vector3f& center)
 	{
-		btTransform centerTransform;
-		centerTransform.setIdentity();
-		centerTransform.setOrigin(ToJolt(center));
-
-		m_body->setCenterOfMassTransform(centerTransform);
+		//m_body->GetMotionProperties()->set
 	}
-#endif 0
+
 	void JoltRigidBody3D::SetPosition(const Vector3f& position)
 	{
-		JPH::BodyInterface& body_interface = m_world->GetPhysicsSystem()->GetBodyInterface();
-		body_interface.SetPosition(JPH::BodyID(m_bodyIndex), ToJolt(position), JPH::EActivation::Activate);
+		JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterfaceNoLock();
+		bodyInterface.SetPosition(m_body->GetID(), ToJolt(position), JPH::EActivation::Activate);
 	}
 
 	void JoltRigidBody3D::SetRotation(const Quaternionf& rotation)
 	{
-		JPH::BodyInterface& body_interface = m_world->GetPhysicsSystem()->GetBodyInterface();
-		body_interface.SetRotation(JPH::BodyID(m_bodyIndex), ToJolt(rotation), JPH::EActivation::Activate);
+		JPH::BodyInterface& body_interface = m_world->GetPhysicsSystem()->GetBodyInterfaceNoLock();
+		body_interface.SetRotation(m_body->GetID(), ToJolt(rotation), JPH::EActivation::Activate);
+	}
+
+	void JoltRigidBody3D::TeleportTo(const Vector3f& position, const Quaternionf& rotation)
+	{
+		JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterfaceNoLock();
+		bodyInterface.SetPositionAndRotation(m_body->GetID(), ToJolt(position), ToJolt(rotation), JPH::EActivation::Activate);
 	}
 
 #if 0
@@ -327,30 +321,34 @@ namespace Nz
 	void JoltRigidBody3D::WakeUp()
 	{
 		JPH::BodyInterface& body_interface = m_world->GetPhysicsSystem()->GetBodyInterface();
-		body_interface.ActivateBody(JPH::BodyID(m_bodyIndex)); 
+		body_interface.ActivateBody(m_body->GetID()); 
 	}
 
 	JoltRigidBody3D& JoltRigidBody3D::operator=(JoltRigidBody3D&& object) noexcept
 	{
 		Destroy();
 
+		m_body          = object.m_body;
 		m_bodyIndex     = object.m_bodyIndex;
 		m_geom          = std::move(object.m_geom);
 		m_world         = object.m_world;
 
-		object.m_bodyIndex = JPH::BodyID::cInvalidBodyID;
+		object.m_body = nullptr;
+		object.m_bodyIndex = std::numeric_limits<UInt32>::max();
 
 		return *this;
 	}
 
 	void JoltRigidBody3D::Destroy()
 	{
-		if (m_bodyIndex != JPH::BodyID::cInvalidBodyID)
+		if (m_body)
 		{
-			JPH::BodyInterface& body_interface = m_world->GetPhysicsSystem()->GetBodyInterface();
-			body_interface.RemoveBody(JPH::BodyID(m_bodyIndex));
-			body_interface.DestroyBody(JPH::BodyID(m_bodyIndex));
-			m_bodyIndex = JPH::BodyID::cInvalidBodyID;
+			JPH::BodyID bodyId = m_body->GetID();
+
+			JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterface();
+			bodyInterface.RemoveBody(bodyId);
+			bodyInterface.DestroyBody(bodyId);
+			m_body = nullptr;
 		}
 
 		m_geom.reset();

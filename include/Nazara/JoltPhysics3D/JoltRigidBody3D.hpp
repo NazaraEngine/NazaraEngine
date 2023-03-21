@@ -7,14 +7,19 @@
 #ifndef NAZARA_JOLTPHYSICS3D_JOLTRIGIDBODY3D_HPP
 #define NAZARA_JOLTPHYSICS3D_JOLTRIGIDBODY3D_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/JoltPhysics3D/JoltCollider3D.hpp>
 #include <Nazara/JoltPhysics3D/Config.hpp>
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
-#include <Nazara/Utils/MovablePtr.hpp>
+#include <NazaraUtils/MovablePtr.hpp>
+
+namespace JPH
+{
+	class Body;
+}
 
 namespace Nz
 {
@@ -41,6 +46,7 @@ namespace Nz
 			Boxf GetAABB() const;
 			float GetAngularDamping() const;
 			Vector3f GetAngularVelocity() const;
+			inline UInt32 GetBodyIndex() const;
 			inline const std::shared_ptr<JoltCollider3D>& GetGeom() const;
 			float GetLinearDamping() const;
 			Vector3f GetLinearVelocity() const;
@@ -48,6 +54,7 @@ namespace Nz
 			Vector3f GetMassCenter(CoordSys coordSys = CoordSys::Local) const;
 			Matrix4f GetMatrix() const;
 			Vector3f GetPosition() const;
+			std::pair<Vector3f, Quaternionf> GetPositionAndRotation() const;
 			Quaternionf GetRotation() const;
 			inline JoltPhysWorld3D* GetWorld() const;
 
@@ -60,10 +67,12 @@ namespace Nz
 			void SetGeom(std::shared_ptr<JoltCollider3D> geom, bool recomputeInertia = true);
 			void SetLinearDamping(float damping);
 			void SetLinearVelocity(const Vector3f& velocity);
-			void SetMass(float mass);
+			void SetMass(float mass, bool recomputeInertia = true);
 			void SetMassCenter(const Vector3f& center);
 			void SetPosition(const Vector3f& position);
 			void SetRotation(const Quaternionf& rotation);
+
+			void TeleportTo(const Vector3f& position, const Quaternionf& rotation);
 
 			Quaternionf ToLocal(const Quaternionf& worldRotation);
 			Vector3f ToLocal(const Vector3f& worldPosition);
@@ -80,6 +89,7 @@ namespace Nz
 
 		private:
 			std::shared_ptr<JoltCollider3D> m_geom;
+			JPH::Body* m_body;
 			JoltPhysWorld3D* m_world;
 			UInt32 m_bodyIndex;
 	};

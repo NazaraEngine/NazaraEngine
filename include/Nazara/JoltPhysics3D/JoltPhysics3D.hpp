@@ -7,7 +7,7 @@
 #ifndef NAZARA_JOLTPHYSICS3D_HPP
 #define NAZARA_JOLTPHYSICS3D_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/JoltPhysics3D/Config.hpp>
 #include <Nazara/Core/Core.hpp>
 #include <memory>

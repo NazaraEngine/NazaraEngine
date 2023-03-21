@@ -52,6 +52,8 @@ int main()
 
 	physSytem.GetPhysWorld().SetGravity({ 0.f, -9.81f, 0.f });
 
+	std::optional<Nz::JoltCharacter> character;
+
 	entt::handle playerEntity = world.CreateEntity();
 	entt::handle playerRotation = world.CreateEntity();
 	entt::handle playerCamera = world.CreateEntity();
@@ -61,8 +63,18 @@ int main()
 
 		auto playerCollider = std::make_shared<Nz::JoltBoxCollider3D>(Nz::Vector3f(0.2f, 1.8f, 0.2f));
 
-		auto& playerBody = playerEntity.emplace<Nz::JoltRigidBody3DComponent>(physSytem.CreateRigidBody(playerCollider));
-		playerBody.SetMass(42.f);
+		//auto& playerBody = playerEntity.emplace<Nz::JoltRigidBody3DComponent>(physSytem.CreateRigidBody(playerCollider));
+		//playerBody.SetMass(42.f);
+
+		character.emplace(physSytem.GetPhysWorld(), playerCollider, Nz::Vector3f::Up() * 5.f);
+
+		app.AddUpdater([&](Nz::Time /*elapsedTime*/)
+		{
+			auto [position, rotation] = character->GetPositionAndRotation();
+
+			auto& playerNode = playerEntity.get<Nz::NodeComponent>();
+			playerNode.SetTransform(position, rotation, Nz::Vector3f::Unit());
+		});
 
 		std::shared_ptr<Nz::Mesh> colliderMesh = Nz::Mesh::Build(playerCollider->GenerateDebugMesh());
 		std::shared_ptr<Nz::GraphicalMesh> colliderGraphicalMesh = Nz::GraphicalMesh::BuildFromMesh(*colliderMesh);
@@ -215,7 +227,7 @@ int main()
 		auto& bobGfx = bobEntity.emplace<Nz::GraphicsComponent>();
 		bobGfx.AttachRenderable(bobModel);
 
-		auto& sharedSkeleton = bobEntity.emplace<Nz::SharedSkeletonComponent>(skeleton);
+		bobEntity.emplace<Nz::SharedSkeletonComponent>(skeleton);
 
 		entt::handle sphereEntity = world.CreateEntity();
 		{
@@ -333,7 +345,10 @@ int main()
 
 		floorEntity.emplace<Nz::NodeComponent>();
 
-		auto& planeBody = floorEntity.emplace<Nz::JoltRigidBody3DComponent>(physSytem.CreateRigidBody(std::make_shared<Nz::JoltBoxCollider3D>(Nz::Vector3f(planeSize.x, 0.5f, planeSize.y))));
+		auto floorCollider = std::make_shared<Nz::JoltBoxCollider3D>(Nz::Vector3f(planeSize.x, 1.f, planeSize.y));
+		auto translatedFloorCollider = std::make_shared<Nz::JoltTranslatedRotatedCollider3D>(std::move(floorCollider), Nz::Vector3f::Down() * 0.5f);
+
+		auto& planeBody = floorEntity.emplace<Nz::JoltRigidBody3DComponent>(physSytem.CreateRigidBody(translatedFloorCollider));
 		planeBody.SetMass(0.f);
 
 		std::shared_ptr<Nz::GraphicalMesh> boxMeshGfx = Nz::GraphicalMesh::Build(Nz::Primitive::Box(Nz::Vector3f(0.5f, 0.5f, 0.5f)), meshPrimitiveParams);
@@ -344,6 +359,27 @@ int main()
 		entt::handle boxEntity = world.CreateEntity();
 		boxEntity.emplace<Nz::NodeComponent>();
 		boxEntity.emplace<Nz::GraphicsComponent>().AttachRenderable(boxModel);
+
+		
+		std::shared_ptr<Nz::Model> colliderModel;
+		{
+			std::shared_ptr<Nz::MaterialInstance> colliderMat = Nz::Graphics::Instance()->GetDefaultMaterials().basicMaterial->Instantiate();
+			colliderMat->SetValueProperty("BaseColor", Nz::Color::Green());
+			colliderMat->UpdatePassesStates([](Nz::RenderStates& states)
+			{
+				states.primitiveMode = Nz::PrimitiveMode::LineList;
+				return true;
+			});
+
+			std::shared_ptr<Nz::Mesh> colliderMesh = Nz::Mesh::Build(translatedFloorCollider->GenerateDebugMesh());
+			std::shared_ptr<Nz::GraphicalMesh> colliderGraphicalMesh = Nz::GraphicalMesh::BuildFromMesh(*colliderMesh);
+
+			colliderModel = std::make_shared<Nz::Model>(colliderGraphicalMesh);
+			for (std::size_t i = 0; i < colliderModel->GetSubMeshCount(); ++i)
+				colliderModel->SetMaterial(i, colliderMat);
+
+			planeGfx.AttachRenderable(std::move(colliderModel));
+		}
 	}
 
 	Nz::MillisecondClock fpsClock, updateClock;
@@ -385,25 +421,32 @@ int main()
 		{
 			float updateTime = deltaTime->AsSeconds();
 
-			auto& playerBody = playerEntity.get<Nz::JoltRigidBody3DComponent>();
+			//auto& playerBody = playerEntity.get<Nz::JoltRigidBody3DComponent>();
 			//playerBody.SetAngularDamping(std::numeric_limits<float>::max());
 
-			float mass = playerBody.GetMass();
+			Nz::Vector3f velocity = character->GetLinearVelocity();
+			velocity.x = 0.f;
+			velocity.z = 0.f;
 
 			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::RShift))
-				playerBody.AddForce(Nz::Vector3f(0.f, mass * 50.f, 0.f));
+			{
+				if (character->IsOnGround())
+					velocity += Nz::Vector3f::Up() * 2.f;
+			}
 
 			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Up))
-				playerBody.AddForce(Nz::Vector3f::Forward() * 25.f * mass, Nz::CoordSys::Local);
+				velocity += Nz::Vector3f::Forward();
 
 			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Down))
-				playerBody.AddForce(Nz::Vector3f::Backward() * 25.f * mass, Nz::CoordSys::Local);
+				velocity += Nz::Vector3f::Backward();
 
 			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Left))
-				playerBody.AddForce(Nz::Vector3f::Left() * 25.f * mass, Nz::CoordSys::Local);
+				velocity += Nz::Vector3f::Left();
 
 			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Right))
-				playerBody.AddForce(Nz::Vector3f::Right() * 25.f * mass, Nz::CoordSys::Local);
+				velocity += Nz::Vector3f::Right();
+
+			character->SetLinearVelocity(velocity);
 
 			float cameraSpeed = 2.f;
 

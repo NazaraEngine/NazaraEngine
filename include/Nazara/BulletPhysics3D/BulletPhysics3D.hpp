@@ -7,7 +7,7 @@
 #ifndef NAZARA_BULLETPHYSICS3D_HPP
 #define NAZARA_BULLETPHYSICS3D_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/BulletPhysics3D/Config.hpp>
 #include <Nazara/Core/Core.hpp>
 

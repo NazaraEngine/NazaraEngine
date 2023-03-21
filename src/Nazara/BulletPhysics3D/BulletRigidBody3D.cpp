@@ -5,7 +5,7 @@
 #include <Nazara/BulletPhysics3D/BulletRigidBody3D.hpp>
 #include <Nazara/BulletPhysics3D/BulletHelper.hpp>
 #include <Nazara/BulletPhysics3D/BulletPhysWorld3D.hpp>
-#include <Nazara/Utils/MemoryHelper.hpp>
+#include <NazaraUtils/MemoryHelper.hpp>
 #include <BulletDynamics/Dynamics/btDynamicsWorld.h>
 #include <BulletDynamics/Dynamics/btRigidBody.h>
 #include <algorithm>
