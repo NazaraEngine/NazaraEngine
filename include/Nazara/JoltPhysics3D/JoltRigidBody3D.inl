@@ -11,6 +11,11 @@ namespace Nz
 		return EnableSleeping(false);
 	}
 
+	inline UInt32 JoltRigidBody3D::GetBodyIndex() const
+	{
+		return m_bodyIndex;
+	}
+
 	inline const std::shared_ptr<JoltCollider3D>& JoltRigidBody3D::GetGeom() const
 	{
 		return m_geom;

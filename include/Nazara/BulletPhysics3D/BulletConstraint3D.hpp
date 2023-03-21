@@ -7,7 +7,7 @@
 #ifndef NAZARA_BULLETPHYSICS3D_BULLETCONSTRAINT3D_HPP
 #define NAZARA_BULLETPHYSICS3D_BULLETCONSTRAINT3D_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/BulletPhysics3D/BulletPhysWorld3D.hpp>
 #include <Nazara/BulletPhysics3D/BulletRigidBody3D.hpp>
 #include <Nazara/BulletPhysics3D/Config.hpp>

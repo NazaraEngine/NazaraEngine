@@ -38,6 +38,7 @@ namespace Nz
 
 		std::cout << "Physics time: " << (m_physicsTime / Time::Nanoseconds(m_stepCount)) << std::endl;
 		std::cout << "Update time: " << (m_updateTime / Time::Nanoseconds(m_stepCount)) << std::endl;
+		std::cout << "Active body count: " << m_activeObjectCount << std::endl;
 		std::cout << "--" << std::endl;
 
 		m_stepCount = 0;
@@ -81,14 +82,18 @@ namespace Nz
 
 		// Replicate rigid body position to their node components
 		// TODO: Only replicate active entities
+		m_activeObjectCount = 0;
+
 		auto view = m_registry.view<NodeComponent, const BulletRigidBody3DComponent>();
-		for (auto [entity, nodeComponent, rigidBodyComponent] : view.each())
+		for (auto entity : view)
 		{
+			auto& rigidBodyComponent = view.get<const BulletRigidBody3DComponent>(entity);
 			if (rigidBodyComponent.IsSleeping())
 				continue;
 
-			nodeComponent.SetPosition(rigidBodyComponent.GetPosition(), CoordSys::Global);
-			nodeComponent.SetRotation(rigidBodyComponent.GetRotation(), CoordSys::Global);
+			auto& nodeComponent = view.get<NodeComponent>(entity);
+			nodeComponent.SetTransform(rigidBodyComponent.GetPosition(), rigidBodyComponent.GetRotation());
+			m_activeObjectCount++;
 		}
 
 		Time t3 = GetElapsedNanoseconds();

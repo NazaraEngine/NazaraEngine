@@ -7,12 +7,12 @@
 #ifndef NAZARA_BULLETPHYSICS3D_SYSTEMS_BULLETPHYSICS3DSYSTEM_HPP
 #define NAZARA_BULLETPHYSICS3D_SYSTEMS_BULLETPHYSICS3DSYSTEM_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/BulletPhysics3D/BulletPhysWorld3D.hpp>
 #include <Nazara/BulletPhysics3D/Components/BulletRigidBody3DComponent.hpp>
 #include <Nazara/Core/Time.hpp>
-#include <Nazara/Utils/TypeList.hpp>
+#include <NazaraUtils/TypeList.hpp>
 #include <entt/entt.hpp>
 #include <vector>
 
@@ -54,6 +54,7 @@ namespace Nz
 			void OnConstruct(entt::registry& registry, entt::entity entity);
 			void OnDestruct(entt::registry& registry, entt::entity entity);
 
+			std::size_t m_activeObjectCount;
 			std::size_t m_stepCount;
 			std::vector<entt::entity> m_physicsEntities;
 			entt::registry& m_registry;

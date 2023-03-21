@@ -7,7 +7,7 @@
 #ifndef NAZARA_JOLTPHYSICS3D_JOLTHELPER_HPP
 #define NAZARA_JOLTPHYSICS3D_JOLTHELPER_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/BulletPhysics3D/Config.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Quaternion.hpp>

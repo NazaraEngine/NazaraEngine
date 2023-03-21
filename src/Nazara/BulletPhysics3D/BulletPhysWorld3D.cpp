@@ -4,8 +4,8 @@
 
 #include <Nazara/BulletPhysics3D/BulletPhysWorld3D.hpp>
 #include <Nazara/BulletPhysics3D/BulletHelper.hpp>
-#include <Nazara/Utils/MemoryPool.hpp>
-#include <Nazara/Utils/StackVector.hpp>
+#include <NazaraUtils/MemoryPool.hpp>
+#include <NazaraUtils/StackVector.hpp>
 #include <BulletCollision/BroadphaseCollision/btDbvtBroadphase.h>
 #include <BulletCollision/CollisionDispatch/btCollisionDispatcher.h>
 #include <BulletCollision/CollisionDispatch/btDefaultCollisionConfiguration.h>

@@ -37,7 +37,8 @@ namespace Nz
 			m_stepCount = 1;
 
 		std::cout << "Physics time: " << (m_physicsTime / Time::Nanoseconds(m_stepCount)) << std::endl;
-		std::cout << "Update time: " << (m_updateTime / Time::Nanoseconds(m_stepCount)) << std::endl;
+		std::cout << "Replication time: " << (m_updateTime / Time::Nanoseconds(m_stepCount)) << std::endl;
+		std::cout << "Active entity count: " << m_physWorld.GetActiveBodyCount() << std::endl;
 		std::cout << "--" << std::endl;
 
 		m_stepCount = 0;
@@ -68,8 +69,7 @@ namespace Nz
 			JoltRigidBody3DComponent& entityPhysics = m_registry.get<JoltRigidBody3DComponent>(entity);
 			NodeComponent& entityNode = m_registry.get<NodeComponent>(entity);
 
-			entityPhysics.SetPosition(entityNode.GetPosition(CoordSys::Global));
-			entityPhysics.SetRotation(entityNode.GetRotation(CoordSys::Global));
+			entityPhysics.TeleportTo(entityNode.GetPosition(), entityNode.GetRotation());
 		});
 
 		Time t1 = GetElapsedNanoseconds();
@@ -80,16 +80,18 @@ namespace Nz
 
 		Time t2 = GetElapsedNanoseconds();
 
-		// Replicate rigid body position to their node components
-		// TODO: Only replicate active entities
+		// Replicate active rigid body position to their node components
 		auto view = m_registry.view<NodeComponent, const JoltRigidBody3DComponent>();
-		for (auto [entity, nodeComponent, rigidBodyComponent] : view.each())
+		for (auto entity : view)
 		{
-			if (rigidBodyComponent.IsSleeping())
+			auto& rigidBodyComponent = view.get<const JoltRigidBody3DComponent>(entity);
+			if (!m_physWorld.IsBodyActive(rigidBodyComponent.GetBodyIndex()))
 				continue;
 
-			nodeComponent.SetPosition(rigidBodyComponent.GetPosition(), CoordSys::Global);
-			nodeComponent.SetRotation(rigidBodyComponent.GetRotation(), CoordSys::Global);
+			auto& nodeComponent = view.get<NodeComponent>(entity);
+
+			auto [position, rotation] = rigidBodyComponent.GetPositionAndRotation();
+			nodeComponent.SetTransform(position, rotation);
 		}
 
 		Time t3 = GetElapsedNanoseconds();
@@ -100,9 +102,22 @@ namespace Nz
 
 	void JoltPhysics3DSystem::OnConstruct(entt::registry& registry, entt::entity entity)
 	{
+		// Register rigid body owning entity
+		JoltRigidBody3DComponent& rigidBody = registry.get<JoltRigidBody3DComponent>(entity);
+		std::size_t uniqueIndex = rigidBody.GetBodyIndex();
+		if (uniqueIndex >= m_physicsEntities.size())
+			m_physicsEntities.resize(uniqueIndex + 1);
+
+		m_physicsEntities[uniqueIndex] = entity;
 	}
 
 	void JoltPhysics3DSystem::OnDestruct(entt::registry& registry, entt::entity entity)
 	{
+		// Unregister owning entity
+		JoltRigidBody3DComponent& rigidBody = registry.get<JoltRigidBody3DComponent>(entity);
+		std::size_t uniqueIndex = rigidBody.GetBodyIndex();
+		assert(uniqueIndex <= m_physicsEntities.size());
+
+		m_physicsEntities[uniqueIndex] = entt::null;
 	}
 }

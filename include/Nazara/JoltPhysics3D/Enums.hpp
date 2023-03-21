@@ -15,6 +15,9 @@ namespace Nz
 		Compound,
 		Sphere,
 
+		TranslatedRotatedDecoration,
+		ScaleDecoration,
+
 		Max = Sphere
 	};
 }

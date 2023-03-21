@@ -3,11 +3,12 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/JoltPhysics3D/JoltPhysWorld3D.hpp>
+#include <Nazara/JoltPhysics3D/JoltCharacter.hpp>
 #include <Nazara/JoltPhysics3D/JoltHelper.hpp>
 #include <Nazara/JoltPhysics3D/JoltPhysics3D.hpp>
 #include <Nazara/JoltPhysics3D/JoltPhysWorld3D.hpp>
-#include <Nazara/Utils/MemoryPool.hpp>
-#include <Nazara/Utils/StackVector.hpp>
+#include <NazaraUtils/MemoryPool.hpp>
+#include <NazaraUtils/StackVector.hpp>
 #include <Jolt/Jolt.h>
 #include <Jolt/Core/TempAllocator.h>
 #include <Jolt/Physics/Collision/ObjectLayer.h>
@@ -152,37 +153,59 @@ namespace DitchMeAsap
 			cout << "A contact was removed" << endl;
 		}
 	};
-
-	// An example activation listener
-	class MyBodyActivationListener : public BodyActivationListener
-	{
-	public:
-		virtual void		OnBodyActivated(const BodyID& inBodyID, uint64 inBodyUserData) override
-		{
-			cout << "A body got activated" << endl;
-		}
-
-		virtual void		OnBodyDeactivated(const BodyID& inBodyID, uint64 inBodyUserData) override
-		{
-			cout << "A body went to sleep" << endl;
-		}
-	};
 }
 
 namespace Nz
 {
+	class JoltPhysWorld3D::BodyActivationListener : public JPH::BodyActivationListener
+	{
+		public:
+			static constexpr UInt32 BodyPerBlock = 64;
+
+			BodyActivationListener(JoltPhysWorld3D& physWorld) :
+			m_physWorld(physWorld)
+			{
+			}
+
+			void OnBodyActivated(const JPH::BodyID& inBodyID, UInt64 inBodyUserData) override
+			{
+				UInt32 bodyIndex = inBodyID.GetIndex();
+				UInt32 blockIndex = bodyIndex / 64;
+				UInt32 localIndex = bodyIndex % 64;
+
+				m_physWorld.m_activeBodies[blockIndex] |= UInt64(1u) << localIndex;
+			}
+
+			void OnBodyDeactivated(const JPH::BodyID& inBodyID, UInt64 inBodyUserData) override
+			{
+				UInt32 bodyIndex = inBodyID.GetIndex();
+				UInt32 blockIndex = bodyIndex / 64;
+				UInt32 localIndex = bodyIndex % 64;
+
+				m_physWorld.m_activeBodies[blockIndex] &= ~(UInt64(1u) << localIndex);
+			}
+
+		private:
+			JoltPhysWorld3D& m_physWorld;
+	};
+
 	struct JoltPhysWorld3D::JoltWorld
 	{
-		JPH::TempAllocatorMalloc tempAllocation;
+		JPH::TempAllocatorImpl tempAllocator;
 		JPH::PhysicsSystem physicsSystem;
+
+		JoltPhysWorld3D::BodyActivationListener bodyActivationListener;
 
 		DitchMeAsap::BPLayerInterfaceImpl layerInterface;
 		DitchMeAsap::ObjectLayerPairFilterImpl objectLayerFilter;
 		DitchMeAsap::ObjectVsBroadPhaseLayerFilterImpl objectBroadphaseLayerFilter;
-		DitchMeAsap::MyBodyActivationListener bodyActivationListener;
-		DitchMeAsap::MyContactListener contactListener;
 
-		JoltWorld() = default;
+		JoltWorld(JoltPhysWorld3D& world, JPH::uint tempAllocatorSize) :
+		tempAllocator(tempAllocatorSize),
+		bodyActivationListener(world)
+		{
+		}
+
 		JoltWorld(const JoltWorld&) = delete;
 		JoltWorld(JoltWorld&&) = delete;
 
@@ -196,13 +219,22 @@ namespace Nz
 	m_stepSize(Time::TickDuration(120)),
 	m_timestepAccumulator(Time::Zero())
 	{
-		m_world = std::make_unique<JoltWorld>();
-		m_world->physicsSystem.Init(0xFFFF, 0, 0xFFFF, 0xFFFF, m_world->layerInterface, m_world->objectBroadphaseLayerFilter, m_world->objectLayerFilter);
+		m_world = std::make_unique<JoltWorld>(*this, 10 * 1024 * 1024);
+		m_world->physicsSystem.Init(0xFFFF, 0, 0xFFFF, 10 * 1024, m_world->layerInterface, m_world->objectBroadphaseLayerFilter, m_world->objectLayerFilter);
 		m_world->physicsSystem.SetBodyActivationListener(&m_world->bodyActivationListener);
-		//m_world->physicsSystem.SetContactListener(&m_world->contactListener);
+
+		std::size_t blockCount = (m_world->physicsSystem.GetMaxBodies() - 1) / 64 + 1;
+		m_activeBodies = std::make_unique<std::atomic_uint64_t[]>(blockCount);
+		for (std::size_t i = 0; i < blockCount; ++i)
+			m_activeBodies[i] = 0;
 	}
 
 	JoltPhysWorld3D::~JoltPhysWorld3D() = default;
+
+	UInt32 JoltPhysWorld3D::GetActiveBodyCount() const
+	{
+		return m_world->physicsSystem.GetNumActiveBodies();
+	}
 
 	Vector3f JoltPhysWorld3D::GetGravity() const
 	{
@@ -280,7 +312,11 @@ namespace Nz
 		std::size_t stepCount = 0;
 		while (m_timestepAccumulator >= m_stepSize && stepCount < m_maxStepCount)
 		{
-			m_world->physicsSystem.Update(stepSize, 1, 1, &m_world->tempAllocation, &jobSystem);
+			m_world->physicsSystem.Update(stepSize, 1, 1, &m_world->tempAllocator, &jobSystem);
+
+			for (JoltCharacter* character : m_characters)
+				character->PostSimulate();
+
 			m_timestepAccumulator -= m_stepSize;
 			stepCount++;
 		}

@@ -10,15 +10,17 @@
 #include <Nazara/Utility/SoftwareBuffer.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
-#include <Nazara/Utils/MemoryHelper.hpp>
+#include <NazaraUtils/MemoryHelper.hpp>
 #include <Jolt/Core/Core.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
+#include <Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h>
 #include <Jolt/Physics/Collision/Shape/StaticCompoundShape.h>
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
 #include <Nazara/JoltPhysics3D/Debug.hpp>
 
 namespace Nz
 {
+	JoltCollider3D::JoltCollider3D() = default;
 	JoltCollider3D::~JoltCollider3D() = default;
 
 	std::shared_ptr<StaticMesh> JoltCollider3D::GenerateDebugMesh() const
@@ -85,13 +87,10 @@ namespace Nz
 
 	/********************************** BoxCollider3D **********************************/
 
-	JoltBoxCollider3D::JoltBoxCollider3D(const Vector3f& lengths, float convexRadius) :
-	m_lengths(lengths)
+	JoltBoxCollider3D::JoltBoxCollider3D(const Vector3f& lengths, float convexRadius)
 	{
-		m_shapeSettings = std::make_unique<JPH::BoxShapeSettings>(ToJolt(m_lengths * 0.5f), convexRadius);
+		SetupShapeSettings(std::make_unique<JPH::BoxShapeSettings>(ToJolt(lengths * 0.5f), convexRadius));
 	}
-
-	JoltBoxCollider3D::~JoltBoxCollider3D() = default;
 
 	void JoltBoxCollider3D::BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const
 	{
@@ -102,7 +101,7 @@ namespace Nz
 			return index;
 		};
 
-		Vector3f halfLengths = m_lengths * 0.5f;
+		Vector3f halfLengths = FromJolt(GetShapeSettingsAs<JPH::BoxShapeSettings>()->mHalfExtent);
 
 		UInt16 v0 = InsertVertex(-halfLengths.x, -halfLengths.y, -halfLengths.z);
 		UInt16 v1 = InsertVertex(halfLengths.x, -halfLengths.y, -halfLengths.z);
@@ -135,14 +134,9 @@ namespace Nz
 		InsertEdge(v3, v7);
 	}
 
-	JPH::ShapeSettings* JoltBoxCollider3D::GetShapeSettings() const
-	{
-		return m_shapeSettings.get();
-	}
-
 	Vector3f JoltBoxCollider3D::GetLengths() const
 	{
-		return m_lengths;
+		return FromJolt(GetShapeSettingsAs<JPH::BoxShapeSettings>()->mHalfExtent) * 2.f;
 	}
 
 	JoltColliderType3D JoltBoxCollider3D::GetType() const
@@ -155,12 +149,12 @@ namespace Nz
 	JoltCompoundCollider3D::JoltCompoundCollider3D(std::vector<ChildCollider> childs) :
 	m_childs(std::move(childs))
 	{
-		m_shapeSettings = std::make_unique<JPH::StaticCompoundShapeSettings>();
+		auto shapeSettings = std::make_unique<JPH::StaticCompoundShapeSettings>();
 		for (const auto& child : m_childs)
-			m_shapeSettings->AddShape(ToJolt(child.offset), ToJolt(child.rotation), child.collider->GetShapeSettings());
-	}
+			shapeSettings->AddShape(ToJolt(child.offset), ToJolt(child.rotation), child.collider->GetShapeSettings());
 
-	JoltCompoundCollider3D::~JoltCompoundCollider3D() = default;
+		SetupShapeSettings(std::move(shapeSettings));
+	}
 
 	void JoltCompoundCollider3D::BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const
 	{
@@ -173,11 +167,6 @@ namespace Nz
 		return m_childs;
 	}
 
-	JPH::ShapeSettings* JoltCompoundCollider3D::GetShapeSettings() const
-	{
-		return m_shapeSettings.get();
-	}
-
 	JoltColliderType3D JoltCompoundCollider3D::GetType() const
 	{
 		return JoltColliderType3D::Compound;
@@ -185,13 +174,10 @@ namespace Nz
 
 	/******************************** JoltSphereCollider3D *********************************/
 
-	JoltSphereCollider3D::JoltSphereCollider3D(float radius) :
-	m_radius(radius)
+	JoltSphereCollider3D::JoltSphereCollider3D(float radius)
 	{
-		m_shapeSettings = std::make_unique<JPH::SphereShapeSettings>(radius);
+		SetupShapeSettings(std::make_unique<JPH::SphereShapeSettings>(radius));
 	}
-
-	JoltSphereCollider3D::~JoltSphereCollider3D() = default;
 
 	void JoltSphereCollider3D::BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const
 	{
@@ -199,16 +185,29 @@ namespace Nz
 
 	float JoltSphereCollider3D::GetRadius() const
 	{
-		return m_radius;
-	}
-
-	JPH::ShapeSettings* JoltSphereCollider3D::GetShapeSettings() const
-	{
-		return m_shapeSettings.get();
+		return GetShapeSettingsAs<JPH::SphereShapeSettings>()->mRadius;
 	}
 
 	JoltColliderType3D JoltSphereCollider3D::GetType() const
 	{
 		return JoltColliderType3D::Sphere;
+	}
+
+	JoltTranslatedRotatedCollider3D::JoltTranslatedRotatedCollider3D(std::shared_ptr<JoltCollider3D> collider, const Vector3f& translation, const Quaternionf& rotation) :
+	m_collider(std::move(collider))
+	{
+		SetupShapeSettings(std::make_unique<JPH::RotatedTranslatedShapeSettings>(ToJolt(translation), ToJolt(rotation), m_collider->GetShapeSettings()));
+	}
+
+	void JoltTranslatedRotatedCollider3D::BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const
+	{
+		const JPH::RotatedTranslatedShapeSettings* settings = GetShapeSettingsAs<JPH::RotatedTranslatedShapeSettings>();
+
+		m_collider->BuildDebugMesh(vertices, indices, offsetMatrix * Matrix4f::Transform(FromJolt(settings->mPosition), FromJolt(settings->mRotation)));
+	}
+
+	JoltColliderType3D JoltTranslatedRotatedCollider3D::GetType() const
+	{
+		return JoltColliderType3D::TranslatedRotatedDecoration;
 	}
 }

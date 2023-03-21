@@ -1,6 +1,6 @@
 // Sources pour https://github.com/NazaraEngine/NazaraEngine/wiki/(FR)-Tutoriel:-%5B01%5D-Hello-World
 
-#define USE_JOLT 0
+#define USE_JOLT 1
 
 #include <Nazara/Core.hpp>
 #include <Nazara/Graphics.hpp>
@@ -22,7 +22,7 @@ int main()
 	try {
 	// Mise en place de l'application, de la fenêtre et du monde
 	Nz::Renderer::Config renderConfig;
-	//renderConfig.preferredAPI = Nz::RenderAPI::OpenGL;
+	renderConfig.validationLevel = Nz::RenderAPIValidationLevel::None;
 
 #if USE_JOLT
 	Nz::Application<Nz::Graphics, Nz::JoltPhysics3D> app(renderConfig);
@@ -150,7 +150,7 @@ int main()
 	std::uniform_real_distribution<float> colorDis(0.f, 360.f);
 	std::uniform_real_distribution<float> radiusDis(0.1f, 0.5f);
 
-	constexpr std::size_t SphereCount = 2000;
+	constexpr std::size_t SphereCount = 1000;
 	for (std::size_t i = 0; i < SphereCount; ++i)
 	{
 		float radius = radiusDis(rd);
@@ -364,15 +364,15 @@ int main()
 		{
 			auto& cameraNode = cameraEntity.get<Nz::NodeComponent>();
 
-			//physSystem.GetPhysWorld().SetGravity(cameraNode.GetBackward() * 9.81f);
+			physSystem.GetPhysWorld().SetGravity(cameraNode.GetBackward() * 9.81f);
 		}
 	});
 
 	Nz::DegreeAnglef rotation = 0.f;
 	app.AddUpdater([&](Nz::Time elapsedTime)
 	{
-		rotation += elapsedTime.AsSeconds() * 30.f;
-		physSystem.GetPhysWorld().SetGravity(Nz::Quaternionf(Nz::EulerAnglesf(0.f, rotation, 0.f)) * Nz::Vector3f::Forward());
+		rotation += elapsedTime.AsSeconds() * 45.f;
+		//physSystem.GetPhysWorld().SetGravity(Nz::Quaternionf(Nz::EulerAnglesf(0.f, rotation, 0.f)) * Nz::Vector3f::Forward() * 10.f);
 	});
 
 	Nz::MillisecondClock fpsClock;

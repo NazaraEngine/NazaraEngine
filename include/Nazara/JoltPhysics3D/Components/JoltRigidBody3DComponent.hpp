@@ -7,7 +7,7 @@
 #ifndef NAZARA_JOLTPHYSICS3D_COMPONENTS_JOLTRIGIDBODY3DCOMPONENT_HPP
 #define NAZARA_JOLTPHYSICS3D_COMPONENTS_JOLTRIGIDBODY3DCOMPONENT_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/JoltPhysics3D/JoltRigidBody3D.hpp>
 
 namespace Nz
