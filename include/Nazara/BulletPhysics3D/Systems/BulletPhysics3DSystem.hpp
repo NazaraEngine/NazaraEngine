@@ -38,6 +38,7 @@ namespace Nz
 			inline BulletPhysWorld3D& GetPhysWorld();
 			inline const BulletPhysWorld3D& GetPhysWorld() const;
 
+			bool RaycastQuery(const Vector3f& from, const Vector3f& to, const FunctionRef<std::optional<float>(const RaycastHit& hitInfo)>& callback);
 			bool RaycastQueryFirst(const Vector3f& from, const Vector3f& to, RaycastHit* hitInfo = nullptr);
 
 			void Update(Time elapsedTime);
