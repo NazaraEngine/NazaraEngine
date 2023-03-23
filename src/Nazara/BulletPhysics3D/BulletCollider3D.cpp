@@ -430,40 +430,40 @@ namespace Nz
 
 	/******************************** StaticPlaneCollider3D *********************************/
 
-	StaticPlaneCollider3D::StaticPlaneCollider3D(const Planef& plane) :
-	StaticPlaneCollider3D(plane.normal, plane.distance)
+	BulletStaticPlaneCollider3D::BulletStaticPlaneCollider3D(const Planef& plane) :
+	BulletStaticPlaneCollider3D(plane.normal, plane.distance)
 	{
 	}
 
-	StaticPlaneCollider3D::StaticPlaneCollider3D(const Vector3f& normal, float distance) :
+	BulletStaticPlaneCollider3D::BulletStaticPlaneCollider3D(const Vector3f& normal, float distance) :
 	m_normal(normal),
 	m_distance(distance)
 	{
 		m_shape = std::make_unique<btStaticPlaneShape>(ToBullet(m_normal), m_distance);
 	}
 
-	StaticPlaneCollider3D::~StaticPlaneCollider3D() = default;
+	BulletStaticPlaneCollider3D::~BulletStaticPlaneCollider3D() = default;
 
-	void StaticPlaneCollider3D::BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const
+	void BulletStaticPlaneCollider3D::BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const
 	{
 	}
 
-	float StaticPlaneCollider3D::GetDistance() const
+	float BulletStaticPlaneCollider3D::GetDistance() const
 	{
 		return m_distance;
 	}
 
-	const Vector3f& StaticPlaneCollider3D::GetNormal() const
+	const Vector3f& BulletStaticPlaneCollider3D::GetNormal() const
 	{
 		return m_normal;
 	}
 
-	btCollisionShape* StaticPlaneCollider3D::GetShape() const
+	btCollisionShape* BulletStaticPlaneCollider3D::GetShape() const
 	{
 		return m_shape.get();
 	}
 
-	ColliderType3D StaticPlaneCollider3D::GetType() const
+	ColliderType3D BulletStaticPlaneCollider3D::GetType() const
 	{
 		return ColliderType3D::StaticPlane;
 	}
