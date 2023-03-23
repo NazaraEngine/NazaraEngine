@@ -64,8 +64,14 @@ namespace Nz
 			Vector3f GetFirstAnchor() const;
 			Vector3f GetSecondAnchor() const;
 
+			float GetDamping() const;
+			float GetImpulseClamp() const;
+
 			void SetFirstAnchor(const Vector3f& firstAnchor);
 			void SetSecondAnchor(const Vector3f& secondAnchor);
+
+			void SetDamping(float damping);
+			void SetImpulseClamp(float impulseClamp);
 	};
 }
 
