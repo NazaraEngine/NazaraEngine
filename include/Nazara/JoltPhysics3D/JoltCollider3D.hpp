@@ -52,6 +52,7 @@ namespace Nz
 
 		protected:
 			template<typename T> const T* GetShapeSettingsAs() const;
+			void ResetShapeSettings();
 			template<typename T> void SetupShapeSettings(std::unique_ptr<T> shapeSettings);
 
 		private:
@@ -80,7 +81,7 @@ namespace Nz
 			struct ChildCollider;
 
 			JoltCompoundCollider3D(std::vector<ChildCollider> childs);
-			~JoltCompoundCollider3D() = default;
+			~JoltCompoundCollider3D();
 
 			void BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const override;
 
@@ -118,7 +119,7 @@ namespace Nz
 			inline JoltTranslatedRotatedCollider3D(std::shared_ptr<JoltCollider3D> collider, const Vector3f& translation);
 			inline JoltTranslatedRotatedCollider3D(std::shared_ptr<JoltCollider3D> collider, const Quaternionf& rotation);
 			JoltTranslatedRotatedCollider3D(std::shared_ptr<JoltCollider3D> collider, const Vector3f& translation, const Quaternionf& rotation);
-			~JoltTranslatedRotatedCollider3D() = default;
+			~JoltTranslatedRotatedCollider3D();
 
 			void BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const override;
 

@@ -61,6 +61,11 @@ namespace Nz
 		else
 			return nullptr;// std::make_shared<NullCollider3D>();  //< TODO
 	}
+
+	void JoltCollider3D::ResetShapeSettings()
+	{
+		m_shapeSettings.reset();
+	}
 	
 	std::shared_ptr<JoltCollider3D> JoltCollider3D::CreateGeomFromPrimitive(const Primitive& primitive)
 	{
@@ -156,6 +161,12 @@ namespace Nz
 		SetupShapeSettings(std::move(shapeSettings));
 	}
 
+	JoltCompoundCollider3D::~JoltCompoundCollider3D()
+	{
+		// We have to destroy shape settings first as it carries references on the inner colliders
+		ResetShapeSettings();
+	}
+
 	void JoltCompoundCollider3D::BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const
 	{
 		for (const auto& child : m_childs)
@@ -197,6 +208,12 @@ namespace Nz
 	m_collider(std::move(collider))
 	{
 		SetupShapeSettings(std::make_unique<JPH::RotatedTranslatedShapeSettings>(ToJolt(translation), ToJolt(rotation), m_collider->GetShapeSettings()));
+	}
+
+	JoltTranslatedRotatedCollider3D::~JoltTranslatedRotatedCollider3D()
+	{
+		// We have to destroy shape settings first as it carries references on the inner collider
+		ResetShapeSettings();
 	}
 
 	void JoltTranslatedRotatedCollider3D::BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const
