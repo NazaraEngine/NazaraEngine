@@ -10,7 +10,7 @@ namespace Nz
 {
 	namespace
 	{
-		inline Nz::RadianAnglef AngleFromQuaternion(const Nz::Quaternionf& quat)
+		inline RadianAnglef AngleFromQuaternion(const Quaternionf& quat)
 		{
 			float siny_cosp = 2.f * (quat.w * quat.z + quat.x * quat.y);
 			float cosy_cosp = 1.f - 2.f * (quat.y * quat.y + quat.z * quat.z);
@@ -20,14 +20,16 @@ namespace Nz
 	}
 
 	Physics2DSystem::Physics2DSystem(entt::registry& registry) :
-	m_registry(registry)
+	m_registry(registry),
+	m_physicsConstructObserver(m_registry, entt::collector.group<RigidBody2DComponent, NodeComponent>())
 	{
-		m_constructConnection = registry.on_construct<RigidBody2DComponent>().connect<OnConstruct>();
 	}
 
 	Physics2DSystem::~Physics2DSystem()
 	{
-		// Ensure every NewtonBody is destroyed before world is
+		m_physicsConstructObserver.disconnect();
+
+		// Ensure every body is destroyed before world is
 		auto rigidBodyView = m_registry.view<RigidBody2DComponent>();
 		for (auto [entity, rigidBodyComponent] : rigidBodyView.each())
 			rigidBodyComponent.Destroy();
@@ -35,6 +37,15 @@ namespace Nz
 
 	void Physics2DSystem::Update(Time elapsedTime)
 	{
+		// Move newly-created physics entities to their node position/rotation
+		m_physicsConstructObserver.each([&](entt::entity entity)
+		{
+			RigidBody2DComponent& entityPhysics = m_registry.get<RigidBody2DComponent>(entity);
+			NodeComponent& entityNode = m_registry.get<NodeComponent>(entity);
+
+			entityPhysics.TeleportTo(Vector2f(entityNode.GetPosition()), AngleFromQuaternion(entityNode.GetRotation()));
+		});
+
 		m_physWorld.Step(elapsedTime);
 
 		// Replicate rigid body position to their node components
@@ -44,20 +55,7 @@ namespace Nz
 			if (rigidBodyComponent.IsSleeping())
 				continue;
 
-			nodeComponent.SetPosition(rigidBodyComponent.GetPosition(), CoordSys::Global);
-			nodeComponent.SetRotation(rigidBodyComponent.GetRotation(), CoordSys::Global);
-		}
-	}
-
-	void Physics2DSystem::OnConstruct(entt::registry& registry, entt::entity entity)
-	{
-		// If our entity already has a node component when adding a rigid body, initialize it with its position/rotation
-		NodeComponent* node = registry.try_get<NodeComponent>(entity);
-		if (node)
-		{
-			RigidBody2DComponent& rigidBody = registry.get<RigidBody2DComponent>(entity);
-			rigidBody.SetPosition(Vector2f(node->GetPosition()));
-			rigidBody.SetRotation(AngleFromQuaternion(node->GetRotation()));
+			nodeComponent.SetTransform(rigidBodyComponent.GetPosition(), rigidBodyComponent.GetRotation());
 		}
 	}
 }

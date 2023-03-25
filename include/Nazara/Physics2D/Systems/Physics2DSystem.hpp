@@ -38,9 +38,8 @@ namespace Nz
 			Physics2DSystem& operator=(Physics2DSystem&&) = delete;
 
 		private:
-			static void OnConstruct(entt::registry& registry, entt::entity entity);
-
 			entt::registry& m_registry;
+			entt::observer m_physicsConstructObserver;
 			entt::scoped_connection m_constructConnection;
 			PhysWorld2D m_physWorld;
 	};

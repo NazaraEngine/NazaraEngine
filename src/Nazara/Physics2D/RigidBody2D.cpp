@@ -135,12 +135,12 @@ namespace Nz
 		cpBodySetTorque(m_handle, cpBodyGetTorque(m_handle) + torque.value);
 	}
 
-	bool RigidBody2D::ClosestPointQuery(const Nz::Vector2f& position, Nz::Vector2f* closestPoint, float* closestDistance) const
+	bool RigidBody2D::ClosestPointQuery(const Vector2f& position, Vector2f* closestPoint, float* closestDistance) const
 	{
 		cpVect pos = cpv(cpFloat(position.x), cpFloat(position.y));
 
 		float minDistance = std::numeric_limits<float>::infinity();
-		Nz::Vector2f closest;
+		Vector2f closest;
 		for (cpShape* shape : m_shapes)
 		{
 			cpPointQueryInfo result;
@@ -179,7 +179,7 @@ namespace Nz
 		}
 	}
 
-	void RigidBody2D::ForEachArbiter(std::function<void(Nz::Arbiter2D&)> callback)
+	void RigidBody2D::ForEachArbiter(std::function<void(Arbiter2D&)> callback)
 	{
 		using CallbackType = decltype(callback);
 
@@ -196,7 +196,7 @@ namespace Nz
 
 	void RigidBody2D::ForceSleep()
 	{
-		m_world->RegisterPostStep(this, [](Nz::RigidBody2D* body)
+		m_world->RegisterPostStep(this, [](RigidBody2D* body)
 		{
 			if (cpBodyGetType(body->GetHandle()) == CP_BODY_TYPE_DYNAMIC)
 				cpBodySleep(body->GetHandle());
@@ -221,13 +221,13 @@ namespace Nz
 		return float(cpBodyGetAngularVelocity(m_handle));
 	}
 
-	float Nz::RigidBody2D::GetElasticity(std::size_t shapeIndex) const
+	float RigidBody2D::GetElasticity(std::size_t shapeIndex) const
 	{
 		assert(shapeIndex < m_shapes.size());
 		return float(cpShapeGetElasticity(m_shapes[shapeIndex]));
 	}
 
-	float Nz::RigidBody2D::GetFriction(std::size_t shapeIndex) const
+	float RigidBody2D::GetFriction(std::size_t shapeIndex) const
 	{
 		assert(shapeIndex < m_shapes.size());
 		return float(cpShapeGetFriction(m_shapes[shapeIndex]));
@@ -290,7 +290,7 @@ namespace Nz
 		return std::distance(m_shapes.begin(), it);
 	}
 
-	Vector2f Nz::RigidBody2D::GetSurfaceVelocity(std::size_t shapeIndex) const
+	Vector2f RigidBody2D::GetSurfaceVelocity(std::size_t shapeIndex) const
 	{
 		assert(shapeIndex < m_shapes.size());
 		cpVect vel = cpShapeGetSurfaceVelocity(m_shapes[shapeIndex]);
@@ -421,7 +421,7 @@ namespace Nz
 		{
 			if (mass > 0.f)
 			{
-				m_world->RegisterPostStep(this, [mass, recomputeMoment](Nz::RigidBody2D* body)
+				m_world->RegisterPostStep(this, [mass, recomputeMoment](RigidBody2D* body)
 				{
 					cpBodySetMass(body->GetHandle(), mass);
 
@@ -430,11 +430,11 @@ namespace Nz
 				});
 			}
 			else
-				m_world->RegisterPostStep(this, [](Nz::RigidBody2D* body) { cpBodySetType(body->GetHandle(), (body->IsStatic()) ? CP_BODY_TYPE_STATIC : CP_BODY_TYPE_KINEMATIC); } );
+				m_world->RegisterPostStep(this, [](RigidBody2D* body) { cpBodySetType(body->GetHandle(), (body->IsStatic()) ? CP_BODY_TYPE_STATIC : CP_BODY_TYPE_KINEMATIC); } );
 		}
 		else if (mass > 0.f)
 		{
-			m_world->RegisterPostStep(this, [mass, recomputeMoment](Nz::RigidBody2D* body)
+			m_world->RegisterPostStep(this, [mass, recomputeMoment](RigidBody2D* body)
 			{
 				if (cpBodyGetType(body->GetHandle()) != CP_BODY_TYPE_DYNAMIC)
 				{
@@ -470,7 +470,7 @@ namespace Nz
 	void RigidBody2D::SetMomentOfInertia(float moment)
 	{
 		// Even though Chipmunk allows us to change this anytime, we need to do it in a post-step to prevent other post-steps to override this
-		m_world->RegisterPostStep(this, [moment] (Nz::RigidBody2D* body)
+		m_world->RegisterPostStep(this, [moment] (RigidBody2D* body)
 		{
 			cpBodySetMoment(body->GetHandle(), moment);
 		});
@@ -482,7 +482,7 @@ namespace Nz
 		cpBodySetPosition(m_handle, cpvadd(cpv(position.x, position.y), cpTransformVect(m_handle->transform, cpv(m_positionOffset.x, m_positionOffset.y))));
 		if (m_isStatic)
 		{
-			m_world->RegisterPostStep(this, [](Nz::RigidBody2D* body)
+			m_world->RegisterPostStep(this, [](RigidBody2D* body)
 			{
 				cpSpaceReindexShapesForBody(body->GetWorld()->GetHandle(), body->GetHandle());
 			});
@@ -491,7 +491,7 @@ namespace Nz
 
 	void RigidBody2D::SetPositionOffset(const Vector2f& offset)
 	{
-		Nz::Vector2f position = GetPosition();
+		Vector2f position = GetPosition();
 		m_positionOffset = offset;
 		SetPosition(position);
 	}
@@ -501,7 +501,7 @@ namespace Nz
 		cpBodySetAngle(m_handle, rotation.value);
 		if (m_isStatic)
 		{
-			m_world->RegisterPostStep(this, [](Nz::RigidBody2D* body)
+			m_world->RegisterPostStep(this, [](RigidBody2D* body)
 			{
 				cpSpaceReindexShapesForBody(body->GetWorld()->GetHandle(), body->GetHandle());
 			});
@@ -524,7 +524,7 @@ namespace Nz
 	void RigidBody2D::SetStatic(bool setStaticBody)
 	{
 		m_isStatic = setStaticBody;
-		m_world->RegisterPostStep(this, [](Nz::RigidBody2D* body)
+		m_world->RegisterPostStep(this, [](RigidBody2D* body)
 		{
 			if (body->IsStatic())
 			{
@@ -560,21 +560,35 @@ namespace Nz
 				const auto& callback = rigidBody->GetVelocityFunction();
 				assert(callback);
 
-				callback(*rigidBody, Nz::Vector2f(float(gravity.x), float(gravity.y)), float(damping), float(dt));
+				callback(*rigidBody, Vector2f(float(gravity.x), float(gravity.y)), float(damping), float(dt));
 			};
 		}
 		else
 			m_handle->velocity_func = cpBodyUpdateVelocity;
 	}
 
-	void RigidBody2D::UpdateVelocity(const Nz::Vector2f & gravity, float damping, float deltaTime)
+	void RigidBody2D::TeleportTo(const Vector2f& position, const RadianAnglef& rotation)
+	{
+		// Use cpTransformVect to rotate/scale the position offset
+		cpBodySetPosition(m_handle, cpvadd(cpv(position.x, position.y), cpTransformVect(m_handle->transform, cpv(m_positionOffset.x, m_positionOffset.y))));
+		cpBodySetAngle(m_handle, rotation.value);
+		if (m_isStatic)
+		{
+			m_world->RegisterPostStep(this, [](RigidBody2D* body)
+			{
+				cpSpaceReindexShapesForBody(body->GetWorld()->GetHandle(), body->GetHandle());
+			});
+		}
+	}
+
+	void RigidBody2D::UpdateVelocity(const Vector2f & gravity, float damping, float deltaTime)
 	{
 		cpBodyUpdateVelocity(m_handle, cpv(gravity.x, gravity.y), damping, deltaTime);
 	}
 
 	void RigidBody2D::Wakeup()
 	{
-		m_world->RegisterPostStep(this, [](Nz::RigidBody2D* body)
+		m_world->RegisterPostStep(this, [](RigidBody2D* body)
 		{
 			if (cpBodyGetType(body->GetHandle()) != CP_BODY_TYPE_STATIC)
 				cpBodyActivate(body->GetHandle());

@@ -98,6 +98,8 @@ namespace Nz
 			void SetVelocity(const Vector2f& velocity);
 			void SetVelocityFunction(VelocityFunc velocityFunc);
 
+			void TeleportTo(const Vector2f& position, const RadianAnglef& rotation);
+
 			void UpdateVelocity(const Vector2f& gravity, float damping, float deltaTime);
 
 			void Wakeup();
