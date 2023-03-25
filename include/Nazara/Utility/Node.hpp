@@ -85,6 +85,7 @@ namespace Nz
 			void SetScale(const Vector3f& scale, CoordSys coordSys = CoordSys::Local, Invalidation invalidation = Invalidation::InvalidateRecursively);
 			inline void SetScale(float scale, CoordSys coordSys = CoordSys::Local, Invalidation invalidation = Invalidation::InvalidateRecursively);
 			inline void SetScale(float scaleX, float scaleY, float scaleZ = 1.f, CoordSys coordSys = CoordSys::Local, Invalidation invalidation = Invalidation::InvalidateRecursively);
+			void SetTransform(const Vector3f& position, const Quaternionf& rotation, CoordSys coordSys = CoordSys::Local, Invalidation invalidation = Invalidation::InvalidateRecursively);
 			void SetTransform(const Vector3f& position, const Quaternionf& rotation, const Vector3f& scale, CoordSys coordSys = CoordSys::Local, Invalidation invalidation = Invalidation::InvalidateRecursively);
 			inline void SetTransformMatrix(const Matrix4f& matrix, Invalidation invalidation = Invalidation::InvalidateRecursively);
 

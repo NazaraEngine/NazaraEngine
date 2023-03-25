@@ -223,6 +223,44 @@ namespace Nz
 
 		Invalidate(invalidation);
 	}
+	
+	void Node::SetTransform(const Vector3f& position, const Quaternionf& rotation, CoordSys coordSys, Invalidation invalidation)
+	{
+		switch (coordSys)
+		{
+			case CoordSys::Global:
+			{
+				// Position
+				if (m_parent && m_inheritPosition)
+				{
+					m_parent->EnsureDerivedUpdate();
+
+					m_position = (m_parent->m_derivedRotation.GetConjugate() * (position - m_parent->m_derivedPosition)) / m_parent->m_derivedScale - m_initialPosition;
+				}
+				else
+					m_position = position - m_initialPosition;
+
+				// Rotation
+				if (m_parent && m_inheritRotation)
+				{
+					Quaternionf rot(m_parent->GetRotation() * m_initialRotation);
+
+					m_rotation = rot.GetConjugate() * rotation;
+				}
+				else
+					m_rotation = rotation;
+
+				break;
+			}
+
+			case CoordSys::Local:
+				m_position = position;
+				m_rotation = rotation;
+				break;
+		}
+
+		Invalidate(invalidation);
+	}
 
 	void Node::SetTransform(const Vector3f& position, const Quaternionf& rotation, const Vector3f& scale, CoordSys coordSys, Invalidation invalidation)
 	{
