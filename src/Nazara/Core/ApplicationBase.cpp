@@ -55,14 +55,14 @@ namespace Nz
 
 	bool ApplicationBase::Update(Time elapsedTime)
 	{
+		for (auto& updater : m_updaters)
+			updater->Update(elapsedTime);
+
 		for (auto& componentPtr : m_components)
 		{
 			if (componentPtr)
 				componentPtr->Update(elapsedTime);
 		}
-
-		for (auto& updater : m_updaters)
-			updater->Update(elapsedTime);
 
 		return m_running;
 	}
