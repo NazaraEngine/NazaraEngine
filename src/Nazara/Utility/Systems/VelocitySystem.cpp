@@ -9,13 +9,15 @@
 
 namespace Nz
 {
-	void VelocitySystem::Update(float elapsedTime)
+	void VelocitySystem::Update(Time elapsedTime)
 	{
+		float delta = elapsedTime.AsSeconds();
+
 		auto view = m_registry.view<NodeComponent, VelocityComponent>();
 		for (auto [entity, nodeComponent, velocityComponent] : view.each())
 		{
 			NazaraUnused(entity);
-			nodeComponent.Move(velocityComponent.GetLinearVelocity() * elapsedTime);
+			nodeComponent.Move(velocityComponent.GetLinearVelocity() * delta);
 		}
 	}
 }

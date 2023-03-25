@@ -8,6 +8,7 @@
 #define NAZARA_UTILITY_SYSTEMS_VELOCITYSYSTEM_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/Time.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <NazaraUtils/TypeList.hpp>
 #include <entt/entt.hpp>
@@ -24,7 +25,7 @@ namespace Nz
 			VelocitySystem(VelocitySystem&&) = delete;
 			~VelocitySystem() = default;
 
-			void Update(float elapsedTime);
+			void Update(Time elapsedTime);
 
 			VelocitySystem& operator=(const VelocitySystem&) = delete;
 			VelocitySystem& operator=(VelocitySystem&&) = delete;
