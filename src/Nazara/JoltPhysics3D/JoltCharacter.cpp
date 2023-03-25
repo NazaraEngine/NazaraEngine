@@ -39,24 +39,24 @@ namespace Nz
 
 	Vector3f JoltCharacter::GetLinearVelocity() const
 	{
-		return FromJolt(m_character->GetLinearVelocity());
+		return FromJolt(m_character->GetLinearVelocity(false));
 	}
 
 	Quaternionf JoltCharacter::GetRotation() const
 	{
-		return FromJolt(m_character->GetRotation());
+		return FromJolt(m_character->GetRotation(false));
 	}
 
 	Vector3f JoltCharacter::GetPosition() const
 	{
-		return FromJolt(m_character->GetPosition());
+		return FromJolt(m_character->GetPosition(false));
 	}
 
 	std::pair<Vector3f, Quaternionf> JoltCharacter::GetPositionAndRotation() const
 	{
 		JPH::Vec3 position;
 		JPH::Quat rotation;
-		m_character->GetPositionAndRotation(position, rotation);
+		m_character->GetPositionAndRotation(position, rotation, false);
 
 		return { FromJolt(position), FromJolt(rotation) };
 	}
@@ -68,7 +68,26 @@ namespace Nz
 
 	void JoltCharacter::SetLinearVelocity(const Vector3f& linearVel)
 	{
-		m_character->SetLinearVelocity(ToJolt(linearVel));
+		m_character->SetLinearVelocity(ToJolt(linearVel), false);
+	}
+
+	void JoltCharacter::SetRotation(const Quaternionf& rotation)
+	{
+		m_character->SetRotation(ToJolt(rotation), JPH::EActivation::Activate, false);
+	}
+
+	void JoltCharacter::SetUp(const Vector3f& up)
+	{
+		m_character->SetUp(ToJolt(up));
+	}
+
+	void JoltCharacter::WakeUp()
+	{
+		m_character->Activate(false);
+	}
+
+	void JoltCharacter::PreSimulate(float elapsedTime)
+	{
 	}
 
 	void JoltCharacter::PostSimulate()
