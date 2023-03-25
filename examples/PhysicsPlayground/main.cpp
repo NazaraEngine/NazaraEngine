@@ -299,16 +299,21 @@ int main()
 			Nz::Vector3f from = cameraComponent.Unproject({ float(event.x), float(event.y), 0.f });
 			Nz::Vector3f to = cameraComponent.Unproject({ float(event.x), float(event.y), 1.f });
 
-			/*/Nz::Physics3DSystem::RaycastHit lastHitInfo;
-			auto callback = [&](const Nz::Physics3DSystem::RaycastHit& hitInfo) -> std::optional<float>
+			Nz::JoltPhysics3DSystem::RaycastHit lastHitInfo;
+			auto callback = [&](const Nz::JoltPhysics3DSystem::RaycastHit& hitInfo) -> std::optional<float>
 			{
 				if (hitInfo.hitEntity == boxEntity)
 				{
 					Nz::Vector3f dirToCenter = Nz::Vector3f::Zero() - hitInfo.hitPosition;
 					dirToCenter.Normalize();
 
+#ifdef USE_JOLT
+					if (Nz::Vector3f::DotProduct(dirToCenter, (hitInfo.hitPosition - from).Normalize()) < 0.f)
+						return std::nullopt;
+#else
 					if (Nz::Vector3f::DotProduct(dirToCenter, hitInfo.hitNormal) < 0.f)
 						return std::nullopt;
+#endif
 				}
 
 				lastHitInfo = hitInfo;
@@ -320,8 +325,8 @@ int main()
 			{
 				if (lastHitInfo.hitBody && lastHitInfo.hitEntity != boxEntity)
 				{
-					grabConstraint.emplace(*lastHitInfo.hitBody, lastHitInfo.hitPosition);
-					grabConstraint->SetImpulseClamp(30.f);
+					//grabConstraint.emplace(*lastHitInfo.hitBody, lastHitInfo.hitPosition);
+					//grabConstraint->SetImpulseClamp(30.f);
 
 					grabbedObjectMove.Connect(eventHandler.OnMouseMoved, [&, body = lastHitInfo.hitBody, distance = Nz::Vector3f::Distance(from, lastHitInfo.hitPosition)](const Nz::WindowEventHandler*, const Nz::WindowEvent::MouseMoveEvent& event)
 					{
@@ -329,14 +334,14 @@ int main()
 						Nz::Vector3f to = cameraComponent.Unproject({ float(event.x), float(event.y), 1.f });
 
 						Nz::Vector3f newPosition = from + (to - from).Normalize() * distance;
-						grabConstraint->SetSecondAnchor(newPosition);
+						//grabConstraint->SetSecondAnchor(newPosition);
 					});
 				}
 				else
 					cameraMove.Connect(eventHandler.OnMouseMoved, mouseMoveCallback);
 			}
 			else
-				cameraMove.Connect(eventHandler.OnMouseMoved, mouseMoveCallback);*/
+				cameraMove.Connect(eventHandler.OnMouseMoved, mouseMoveCallback);
 		}
 	});
 
