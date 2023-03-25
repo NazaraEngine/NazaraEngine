@@ -22,8 +22,9 @@ namespace Nz
 	template<typename T>
 	void JoltCollider3D::SetupShapeSettings(std::unique_ptr<T> shapeSettings)
 	{
-		assert(!m_shapeSettings);
 		shapeSettings->SetEmbedded(); // Call SetEmbedded on the template type to prevent compiler to resolve it outside of a file including Jolt
+
+		assert(!m_shapeSettings);
 		m_shapeSettings = std::move(shapeSettings);
 	}
 
