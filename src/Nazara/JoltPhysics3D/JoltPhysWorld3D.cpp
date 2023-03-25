@@ -11,6 +11,9 @@
 #include <NazaraUtils/StackVector.hpp>
 #include <Jolt/Jolt.h>
 #include <Jolt/Core/TempAllocator.h>
+#include <Jolt/Physics/Collision/CastResult.h>
+#include <Jolt/Physics/Collision/CollisionCollectorImpl.h>
+#include <Jolt/Physics/Collision/RayCast.h>
 #include <Jolt/Physics/Collision/ObjectLayer.h>
 #include <Jolt/Physics/Collision/BroadPhase/BroadPhaseLayer.h>
 #include <Jolt/Physics/PhysicsSettings.h>
@@ -157,6 +160,59 @@ namespace DitchMeAsap
 
 namespace Nz
 {
+	namespace NAZARA_ANONYMOUS_NAMESPACE
+	{
+		class CallbackHitResult : public JPH::RayCastBodyCollector
+		{
+			public:
+				CallbackHitResult(const JPH::BodyLockInterface& bodyLockInterface, const Vector3f& from, const Vector3f& to, const FunctionRef<std::optional<float>(const JoltPhysWorld3D::RaycastHit& hitInfo)>& callback) :
+				m_bodyLockInterface(bodyLockInterface),
+				m_callback(callback),
+				m_from(from),
+				m_to(to),
+				m_didHit(false)
+				{
+				}
+
+				void AddHit(const JPH::BroadPhaseCastResult& result) override
+				{
+					JoltPhysWorld3D::RaycastHit hitInfo;
+					hitInfo.fraction = result.mFraction;
+					hitInfo.hitPosition = Lerp(m_from, m_to, result.mFraction);
+
+					JPH::BodyLockWrite lock(m_bodyLockInterface, result.mBodyID);
+					if (!lock.Succeeded())
+						return; //< body was destroyed
+
+					hitInfo.hitBody = reinterpret_cast<JoltRigidBody3D*>(static_cast<std::uintptr_t>(lock.GetBody().GetUserData()));
+
+					if (auto fractionOpt = m_callback(hitInfo))
+					{
+						float fraction = fractionOpt.value();
+						if (fraction > 0.f)
+						{
+							m_didHit = true;
+							UpdateEarlyOutFraction(fraction);
+						}
+						else
+							ForceEarlyOut();
+					}
+				}
+
+				bool DidHit() const
+				{
+					return m_didHit;
+				}
+
+			private:
+				const JPH::BodyLockInterface& m_bodyLockInterface;
+				const FunctionRef<std::optional<float>(const JoltPhysWorld3D::RaycastHit& hitInfo)>& m_callback;
+				Vector3f m_from;
+				Vector3f m_to;
+				bool m_didHit;
+		};
+	}
+
 	class JoltPhysWorld3D::BodyActivationListener : public JPH::BodyActivationListener
 	{
 		public:
@@ -256,27 +312,40 @@ namespace Nz
 		return m_stepSize;
 	}
 
-	bool JoltPhysWorld3D::RaycastQueryFirst(const Vector3f& from, const Vector3f& to, RaycastHit* hitInfo)
+	bool JoltPhysWorld3D::RaycastQuery(const Vector3f& from, const Vector3f& to, const FunctionRef<std::optional<float>(const RaycastHit& hitInfo)>& callback)
 	{
-		return false;
-		/*
-		btCollisionWorld::ClosestRayResultCallback callback(ToBullet(from), ToBullet(to));
-		m_world->dynamicWorld.rayTest(ToBullet(from), ToBullet(to), callback);
+		JPH::RayCast rayCast;
+		rayCast.mDirection = ToJolt(to - from);
+		rayCast.mOrigin = ToJolt(from);
 
-		if (!callback.hasHit())
+		CallbackHitResult collector(m_world->physicsSystem.GetBodyLockInterface(), from, to, callback);
+		m_world->physicsSystem.GetBroadPhaseQuery().CastRay(rayCast, collector);
+
+		return collector.DidHit();
+	}
+
+	bool JoltPhysWorld3D::RaycastQueryFirst(const Vector3f& from, const Vector3f& to, const FunctionRef<void(const RaycastHit& hitInfo)>& callback)
+	{
+		JPH::RayCast rayCast;
+		rayCast.mDirection = ToJolt(to - from);
+		rayCast.mOrigin = ToJolt(from);
+
+		JPH::ClosestHitCollisionCollector<JPH::RayCastBodyCollector> collector;
+		m_world->physicsSystem.GetBroadPhaseQuery().CastRay(rayCast, collector);
+
+		if (!collector.HadHit())
 			return false;
 
-		if (hitInfo)
-		{
-			hitInfo->fraction = callback.m_closestHitFraction;
-			hitInfo->hitNormal = FromBullet(callback.m_hitNormalWorld);
-			hitInfo->hitPosition = FromBullet(callback.m_hitPointWorld);
+		JPH::BodyLockWrite lock(m_world->physicsSystem.GetBodyLockInterface(), collector.mHit.mBodyID);
+		if (!lock.Succeeded())
+			return false; //< body was destroyed before lock
 
-			if (const btRigidBody* body = btRigidBody::upcast(callback.m_collisionObject))
-				hitInfo->hitBody = static_cast<BulletRigidBody3D*>(body->getUserPointer());
-		}
+		RaycastHit hitInfo;
+		hitInfo.fraction = collector.mHit.GetEarlyOutFraction();
+		hitInfo.hitPosition = Lerp(from, to, hitInfo.fraction);
+		hitInfo.hitBody = reinterpret_cast<JoltRigidBody3D*>(static_cast<std::uintptr_t>(lock.GetBody().GetUserData()));
 
-		return true;*/
+		return true;
 	}
 
 	void JoltPhysWorld3D::SetGravity(const Vector3f& gravity)

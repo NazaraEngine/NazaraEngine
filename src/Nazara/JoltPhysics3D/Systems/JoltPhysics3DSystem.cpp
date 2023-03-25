@@ -46,19 +46,40 @@ namespace Nz
 		m_updateTime = Time::Zero();
 	}
 
-	bool JoltPhysics3DSystem::RaycastQueryFirst(const Vector3f& from, const Vector3f& to, RaycastHit* hitInfo)
+	bool JoltPhysics3DSystem::RaycastQuery(const Vector3f& from, const Vector3f& to, const FunctionRef<std::optional<float>(const RaycastHit& hitInfo)>& callback)
 	{
-		if (!m_physWorld.RaycastQueryFirst(from, to, hitInfo))
-			return false;
-
-		/*if (hitInfo->hitBody)
+		return m_physWorld.RaycastQuery(from, to, [&](const JoltPhysWorld3D::RaycastHit& hitInfo)
 		{
-			std::size_t uniqueIndex = hitInfo->hitBody->GetUniqueIndex();
-			if (uniqueIndex < m_physicsEntities.size())
-				hitInfo->hitEntity = entt::handle(m_registry, m_physicsEntities[uniqueIndex]);
-		}*/
+			RaycastHit extendedHitInfo;
+			static_cast<JoltPhysWorld3D::RaycastHit&>(extendedHitInfo) = hitInfo;
 
-		return true;
+			if (extendedHitInfo.hitBody)
+			{
+				std::size_t bodyIndex = extendedHitInfo.hitBody->GetBodyIndex();
+				if (bodyIndex < m_physicsEntities.size())
+					extendedHitInfo.hitEntity = entt::handle(m_registry, m_physicsEntities[bodyIndex]);
+			}
+
+			return callback(extendedHitInfo);
+		});
+	}
+
+	bool JoltPhysics3DSystem::RaycastQueryFirst(const Vector3f& from, const Vector3f& to, const FunctionRef<void(const RaycastHit& hitInfo)>& callback)
+	{
+		return m_physWorld.RaycastQueryFirst(from, to, [&](const JoltPhysWorld3D::RaycastHit& hitInfo)
+		{
+			RaycastHit extendedHitInfo;
+			static_cast<JoltPhysWorld3D::RaycastHit&>(extendedHitInfo) = hitInfo;
+
+			if (extendedHitInfo.hitBody)
+			{
+				std::size_t bodyIndex = extendedHitInfo.hitBody->GetBodyIndex();
+				if (bodyIndex < m_physicsEntities.size())
+					extendedHitInfo.hitEntity = entt::handle(m_registry, m_physicsEntities[bodyIndex]);
+			}
+
+			callback(extendedHitInfo);
+		});
 	}
 
 	void JoltPhysics3DSystem::Update(Time elapsedTime)

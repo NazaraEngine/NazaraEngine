@@ -53,6 +53,8 @@ namespace Nz
 	m_bodyIndex(object.m_bodyIndex),
 	m_world(object.m_world)
 	{
+		m_body->SetUserData(SafeCast<UInt64>(reinterpret_cast<std::uintptr_t>(this)));
+
 		object.m_body = nullptr;
 		object.m_bodyIndex = std::numeric_limits<UInt32>::max();
 	}
@@ -332,6 +334,8 @@ namespace Nz
 		m_bodyIndex     = object.m_bodyIndex;
 		m_geom          = std::move(object.m_geom);
 		m_world         = object.m_world;
+
+		m_body->SetUserData(SafeCast<UInt64>(reinterpret_cast<std::uintptr_t>(this)));
 
 		object.m_body = nullptr;
 		object.m_bodyIndex = std::numeric_limits<UInt32>::max();

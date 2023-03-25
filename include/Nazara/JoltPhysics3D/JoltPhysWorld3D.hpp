@@ -47,7 +47,8 @@ namespace Nz
 
 			inline bool IsBodyActive(UInt32 bodyIndex) const;
 
-			bool RaycastQueryFirst(const Vector3f& from, const Vector3f& to, RaycastHit* hitInfo = nullptr);
+			bool RaycastQuery(const Vector3f& from, const Vector3f& to, const FunctionRef<std::optional<float>(const RaycastHit& hitInfo)>& callback);
+			bool RaycastQueryFirst(const Vector3f& from, const Vector3f& to, const FunctionRef<void(const RaycastHit& hitInfo)>& callback);
 
 			void SetGravity(const Vector3f& gravity);
 			void SetMaxStepCount(std::size_t maxStepCount);
@@ -63,7 +64,6 @@ namespace Nz
 				float fraction;
 				JoltRigidBody3D* hitBody = nullptr;
 				Vector3f hitPosition;
-				Vector3f hitNormal;
 			};
 
 		private:
