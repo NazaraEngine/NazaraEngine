@@ -41,13 +41,19 @@ namespace Nz
 			bool IsOnGround() const;
 
 			void SetLinearVelocity(const Vector3f& linearVel);
+			void SetRotation(const Quaternionf& rotation);
+			void SetUp(const Vector3f& up);
+
+			void WakeUp();
 
 			JoltCharacter& operator=(const JoltCharacter&) = delete;
 			JoltCharacter& operator=(JoltCharacter&&) = delete;
 
-		private:
-			void PostSimulate();
+		protected:
+			virtual void PreSimulate(float elapsedTime);
+			virtual void PostSimulate();
 
+		private:
 			std::shared_ptr<JoltCollider3D> m_collider;
 			std::unique_ptr<JPH::Character> m_character;
 			JoltPhysWorld3D& m_physicsWorld;

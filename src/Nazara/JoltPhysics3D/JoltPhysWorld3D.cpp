@@ -18,6 +18,7 @@
 #include <Jolt/Physics/Collision/BroadPhase/BroadPhaseLayer.h>
 #include <Jolt/Physics/PhysicsSettings.h>
 #include <Jolt/Physics/PhysicsSystem.h>
+#include <Jolt/Physics/PhysicsStepListener.h>
 #include <Jolt/Physics/Body/BodyActivationListener.h>
 #include <cassert>
 #include <iostream>
@@ -245,12 +246,30 @@ namespace Nz
 			JoltPhysWorld3D& m_physWorld;
 	};
 
+	class JoltPhysWorld3D::StepListener : public JPH::PhysicsStepListener
+	{
+		public:
+			StepListener(JoltPhysWorld3D& physWorld) :
+			m_physWorld(physWorld)
+			{
+			}
+
+			void OnStep(float inDeltaTime, JPH::PhysicsSystem& /*inPhysicsSystem*/) override
+			{
+				m_physWorld.OnPreStep(inDeltaTime);
+			}
+
+		private:
+			JoltPhysWorld3D& m_physWorld;
+	};
+
 	struct JoltPhysWorld3D::JoltWorld
 	{
 		JPH::TempAllocatorImpl tempAllocator;
 		JPH::PhysicsSystem physicsSystem;
 
 		JoltPhysWorld3D::BodyActivationListener bodyActivationListener;
+		JoltPhysWorld3D::StepListener stepListener;
 
 		DitchMeAsap::BPLayerInterfaceImpl layerInterface;
 		DitchMeAsap::ObjectLayerPairFilterImpl objectLayerFilter;
@@ -258,7 +277,8 @@ namespace Nz
 
 		JoltWorld(JoltPhysWorld3D& world, JPH::uint tempAllocatorSize) :
 		tempAllocator(tempAllocatorSize),
-		bodyActivationListener(world)
+		bodyActivationListener(world),
+		stepListener(world)
 		{
 		}
 
@@ -278,6 +298,8 @@ namespace Nz
 		m_world = std::make_unique<JoltWorld>(*this, 10 * 1024 * 1024);
 		m_world->physicsSystem.Init(0xFFFF, 0, 0xFFFF, 10 * 1024, m_world->layerInterface, m_world->objectBroadphaseLayerFilter, m_world->objectLayerFilter);
 		m_world->physicsSystem.SetBodyActivationListener(&m_world->bodyActivationListener);
+
+		m_world->physicsSystem.AddStepListener(&m_world->stepListener);
 
 		std::size_t blockCount = (m_world->physicsSystem.GetMaxBodies() - 1) / 64 + 1;
 		m_activeBodies = std::make_unique<std::atomic_uint64_t[]>(blockCount);
@@ -389,5 +411,11 @@ namespace Nz
 			m_timestepAccumulator -= m_stepSize;
 			stepCount++;
 		}
+	}
+
+	void JoltPhysWorld3D::OnPreStep(float deltatime)
+	{
+		for (JoltCharacter* character : m_characters)
+			character->PreSimulate(deltatime);
 	}
 }

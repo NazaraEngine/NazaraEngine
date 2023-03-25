@@ -70,7 +70,12 @@ namespace Nz
 			class BodyActivationListener;
 			friend BodyActivationListener;
 
+			class StepListener;
+			friend StepListener;
+
 			struct JoltWorld;
+
+			void OnPreStep(float deltatime);
 
 			inline void RegisterCharacter(JoltCharacter* character);
 			inline void UnregisterCharacter(JoltCharacter* character);
