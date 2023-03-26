@@ -11,6 +11,11 @@ namespace Nz
 		m_isTristateEnabled = enabled;
 	}
 
+	inline CheckboxState CheckboxWidget::GetState() const
+	{
+		return m_state;
+	}
+
 	inline bool CheckboxWidget::IsTristateEnabled() const
 	{
 		return m_isTristateEnabled;

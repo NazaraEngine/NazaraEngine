@@ -26,6 +26,7 @@ namespace Nz
 
 			inline void EnableTristate(bool enabled);
 
+			inline CheckboxState GetState() const;
 			inline bool IsTristateEnabled() const;
 
 			inline void SetState(bool checkboxState);
