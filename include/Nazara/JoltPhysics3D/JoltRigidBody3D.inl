@@ -11,6 +11,16 @@ namespace Nz
 		return EnableSleeping(false);
 	}
 
+	inline JPH::Body* JoltRigidBody3D::GetBody()
+	{
+		return m_body;
+	}
+
+	inline const JPH::Body* JoltRigidBody3D::GetBody() const
+	{
+		return m_body;
+	}
+
 	inline UInt32 JoltRigidBody3D::GetBodyIndex() const
 	{
 		return m_bodyIndex;

@@ -46,6 +46,8 @@ namespace Nz
 			Boxf GetAABB() const;
 			float GetAngularDamping() const;
 			Vector3f GetAngularVelocity() const;
+			inline JPH::Body* GetBody();
+			inline const JPH::Body* GetBody() const;
 			inline UInt32 GetBodyIndex() const;
 			inline const std::shared_ptr<JoltCollider3D>& GetGeom() const;
 			float GetLinearDamping() const;

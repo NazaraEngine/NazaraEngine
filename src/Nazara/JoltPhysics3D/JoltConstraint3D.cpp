@@ -1,125 +1,156 @@
 // Copyright (C) 2023 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - JoltPhysics3D module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
-#if 0
+
 #include <Nazara/JoltPhysics3D/JoltConstraint3D.hpp>
-#include <Nazara/BulletPhysics3D/BulletConstraint3D.hpp>
-#include <Nazara/BulletPhysics3D/BulletHelper.hpp>
-#include <BulletDynamics/ConstraintSolver/btPoint2PointConstraint.h>
-#include <BulletDynamics/Dynamics/btDynamicsWorld.h>
+#include <Nazara/JoltPhysics3D/JoltConstraint3D.hpp>
+#include <Nazara/JoltPhysics3D/JoltHelper.hpp>
+#include <Jolt/Jolt.h>
+#include <Jolt/Physics/PhysicsSystem.h>
+#include <Jolt/Physics/Constraints/PointConstraint.h>
+#include <cassert>
 #include <Nazara/JoltPhysics3D/Debug.hpp>
 
 namespace Nz
 {
-	BulletConstraint3D::BulletConstraint3D(std::unique_ptr<btTypedConstraint> constraint, bool disableCollisions) :
-	m_constraint(std::move(constraint)),
-	m_bodyCollisionEnabled(!disableCollisions)
-	{
-		btDynamicsWorld* world = GetWorld().GetDynamicsWorld();
-		world->addConstraint(m_constraint.get(), disableCollisions);
-	}
+	JoltConstraint3D::JoltConstraint3D() = default;
 
-	BulletConstraint3D::BulletConstraint3D(BulletConstraint3D&& constraint) noexcept :
-	m_constraint(std::move(constraint.m_constraint)),
-	m_bodyCollisionEnabled(constraint.m_bodyCollisionEnabled)
+	JoltConstraint3D::JoltConstraint3D(JoltConstraint3D&& constraint) noexcept :
+	m_constraint(std::move(constraint.m_constraint))
 	{
 		if (m_constraint)
-			m_constraint->setUserConstraintPtr(this);
+			m_constraint->SetUserData(SafeCast<UInt64>(reinterpret_cast<std::uintptr_t>(this)));
 	}
 
-	BulletConstraint3D::~BulletConstraint3D()
+	JoltConstraint3D::~JoltConstraint3D()
 	{
-		if (m_constraint)
-		{
-			btDynamicsWorld* world = GetWorld().GetDynamicsWorld();
-			world->removeConstraint(m_constraint.get());
-		}
+		Destroy();
 	}
 
-	BulletRigidBody3D& BulletConstraint3D::GetBodyA()
+	JoltRigidBody3D& JoltConstraint3D::GetBodyA()
 	{
-		return *static_cast<BulletRigidBody3D*>(m_constraint->getRigidBodyA().getUserPointer());
+		return *reinterpret_cast<JoltRigidBody3D*>(static_cast<std::uintptr_t>(m_constraint->GetBody1()->GetUserData()));
 	}
 
-	const BulletRigidBody3D& BulletConstraint3D::GetBodyA() const
+	const JoltRigidBody3D& JoltConstraint3D::GetBodyA() const
 	{
-		return *static_cast<BulletRigidBody3D*>(m_constraint->getRigidBodyA().getUserPointer());
+		return *reinterpret_cast<JoltRigidBody3D*>(static_cast<std::uintptr_t>(m_constraint->GetBody1()->GetUserData()));
 	}
 
-	BulletRigidBody3D& BulletConstraint3D::GetBodyB()
+	JoltRigidBody3D& JoltConstraint3D::GetBodyB()
 	{
 		NazaraAssert(!IsSingleBody(), "constraint is not attached to a second body");
-		return *static_cast<BulletRigidBody3D*>(m_constraint->getRigidBodyB().getUserPointer());
+		return *reinterpret_cast<JoltRigidBody3D*>(static_cast<std::uintptr_t>(m_constraint->GetBody2()->GetUserData()));
 	}
 
-	const BulletRigidBody3D& BulletConstraint3D::GetBodyB() const
+	const JoltRigidBody3D& JoltConstraint3D::GetBodyB() const
 	{
 		NazaraAssert(!IsSingleBody(), "constraint is not attached to a second body");
-		return *static_cast<BulletRigidBody3D*>(m_constraint->getRigidBodyB().getUserPointer());
+		return *reinterpret_cast<JoltRigidBody3D*>(static_cast<std::uintptr_t>(m_constraint->GetBody2()->GetUserData()));
 	}
 
-	BulletPhysWorld3D& BulletConstraint3D::GetWorld()
+	JoltPhysWorld3D& JoltConstraint3D::GetWorld()
 	{
 		return *GetBodyA().GetWorld();
 	}
 
-	const BulletPhysWorld3D& BulletConstraint3D::GetWorld() const
+	const JoltPhysWorld3D& JoltConstraint3D::GetWorld() const
 	{
 		return *GetBodyA().GetWorld();
 	}
 
-	bool BulletConstraint3D::IsSingleBody() const
+	bool JoltConstraint3D::IsSingleBody() const
 	{
-		return &m_constraint->getRigidBodyB() == &btTypedConstraint::getFixedBody();
+		return m_constraint->GetBody2() == &JPH::Body::sFixedToWorld;
 	}
 
-	BulletConstraint3D& BulletConstraint3D::operator=(BulletConstraint3D&& constraint) noexcept
+	JoltConstraint3D& JoltConstraint3D::operator=(JoltConstraint3D&& constraint) noexcept
 	{
-		m_constraint.reset();
+		Destroy();
 
 		m_constraint = std::move(constraint.m_constraint);
-		m_bodyCollisionEnabled = constraint.m_bodyCollisionEnabled;
 
 		if (m_constraint)
-			m_constraint->setUserConstraintPtr(this);
+			m_constraint->SetUserData(SafeCast<UInt64>(reinterpret_cast<std::uintptr_t>(this)));
 
 		return *this;
 	}
 
-
-	BulletPivotConstraint3D::BulletPivotConstraint3D(BulletRigidBody3D& first, const Vector3f& pivot) :
-	BulletConstraint3D(std::make_unique<btPoint2PointConstraint>(*first.GetRigidBody(), ToBullet(first.ToLocal(pivot))))
+	void JoltConstraint3D::Destroy()
 	{
+		if (m_constraint)
+		{
+			JPH::PhysicsSystem* physicsSystem = GetWorld().GetPhysicsSystem();
+			physicsSystem->RemoveConstraint(m_constraint.get());
+
+			m_constraint.reset();
+		}
 	}
 
-	BulletPivotConstraint3D::BulletPivotConstraint3D(BulletRigidBody3D& first, BulletRigidBody3D& second, const Vector3f& pivot, bool disableCollisions) :
-	BulletConstraint3D(std::make_unique<btPoint2PointConstraint>(*first.GetRigidBody(), *second.GetRigidBody(), ToBullet(first.ToLocal(pivot)), ToBullet(second.ToLocal(pivot))), disableCollisions)
+	void JoltConstraint3D::SetupConstraint(std::unique_ptr<JPH::TwoBodyConstraint> constraint)
 	{
+		assert(!m_constraint);
+		m_constraint = std::move(constraint);
+		m_constraint->SetEmbedded();
+		m_constraint->SetUserData(SafeCast<UInt64>(reinterpret_cast<std::uintptr_t>(this)));
+
+		JPH::PhysicsSystem* physicsSystem = GetWorld().GetPhysicsSystem();
+		physicsSystem->AddConstraint(m_constraint.get());
 	}
 
-	BulletPivotConstraint3D::BulletPivotConstraint3D(BulletRigidBody3D& first, BulletRigidBody3D& second, const Vector3f& firstAnchor, const Vector3f& secondAnchor, bool disableCollisions) :
-	BulletConstraint3D(std::make_unique<btPoint2PointConstraint>(*first.GetRigidBody(), *second.GetRigidBody(), ToBullet(firstAnchor), ToBullet(secondAnchor)), disableCollisions)
+
+	JoltPivotConstraint3D::JoltPivotConstraint3D(JoltRigidBody3D& first, const Vector3f& pivot)
 	{
+		JPH::PointConstraintSettings settings;
+		settings.mPoint1 = ToJolt(pivot);
+		settings.mPoint2 = ToJolt(pivot);
+		settings.mSpace = JPH::EConstraintSpace::WorldSpace;
+
+		SetupConstraint(std::make_unique<JPH::PointConstraint>(*first.GetBody(), JPH::Body::sFixedToWorld, settings));
 	}
 
-	Vector3f BulletPivotConstraint3D::GetFirstAnchor() const
+	JoltPivotConstraint3D::JoltPivotConstraint3D(JoltRigidBody3D& first, JoltRigidBody3D& second, const Vector3f& pivot)
 	{
-		return FromBullet(GetConstraint<btPoint2PointConstraint>()->getPivotInA());
+		JPH::PointConstraintSettings settings;
+		settings.mPoint1 = ToJolt(pivot);
+		settings.mPoint2 = ToJolt(pivot);
+		settings.mSpace = JPH::EConstraintSpace::WorldSpace;
+
+		SetupConstraint(std::make_unique<JPH::PointConstraint>(*first.GetBody(), *second.GetBody(), settings));
 	}
 
-	Vector3f BulletPivotConstraint3D::GetSecondAnchor() const
+	JoltPivotConstraint3D::JoltPivotConstraint3D(JoltRigidBody3D& first, JoltRigidBody3D& second, const Vector3f& firstAnchor, const Vector3f& secondAnchor)
 	{
-		return FromBullet(GetConstraint<btPoint2PointConstraint>()->getPivotInB());
+		JPH::PointConstraintSettings settings;
+		settings.mPoint1 = ToJolt(firstAnchor);
+		settings.mPoint2 = ToJolt(secondAnchor);
+		settings.mSpace = JPH::EConstraintSpace::WorldSpace;
+
+		SetupConstraint(std::make_unique<JPH::PointConstraint>(*first.GetBody(), *second.GetBody(), settings));
 	}
 
-	void BulletPivotConstraint3D::SetFirstAnchor(const Vector3f& firstAnchor)
+	Vector3f JoltPivotConstraint3D::GetFirstAnchor() const
 	{
-		GetConstraint<btPoint2PointConstraint>()->setPivotA(ToBullet(firstAnchor));
+		const JPH::PointConstraint* constraint = GetConstraint<JPH::PointConstraint>();
+
+		return FromJolt(constraint->GetBody1()->GetCenterOfMassTransform() * constraint->GetLocalSpacePoint1());
 	}
 
-	void BulletPivotConstraint3D::SetSecondAnchor(const Vector3f& secondAnchor)
+	Vector3f JoltPivotConstraint3D::GetSecondAnchor() const
 	{
-		GetConstraint<btPoint2PointConstraint>()->setPivotB(ToBullet(secondAnchor));
+		const JPH::PointConstraint* constraint = GetConstraint<JPH::PointConstraint>();
+
+		return FromJolt(constraint->GetBody2()->GetCenterOfMassTransform() * constraint->GetLocalSpacePoint2());
+	}
+
+	void JoltPivotConstraint3D::SetFirstAnchor(const Vector3f& firstAnchor)
+	{
+		GetConstraint<JPH::PointConstraint>()->SetPoint1(JPH::EConstraintSpace::WorldSpace, ToJolt(firstAnchor));
+		GetConstraint<JPH::PointConstraint>()->SetPoint2(JPH::EConstraintSpace::WorldSpace, ToJolt(firstAnchor));
+	}
+
+	void JoltPivotConstraint3D::SetSecondAnchor(const Vector3f& secondAnchor)
+	{
+		GetConstraint<JPH::PointConstraint>()->SetPoint2(JPH::EConstraintSpace::WorldSpace, ToJolt(secondAnchor));
 	}
 }
-#endif

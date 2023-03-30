@@ -3,63 +3,68 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
-#if 0
+
 #ifndef NAZARA_JOLTPHYSICS3D_JOLTCONSTRAINT3D_HPP
 #define NAZARA_JOLTPHYSICS3D_JOLTCONSTRAINT3D_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/BulletPhysics3D/BulletPhysWorld3D.hpp>
-#include <Nazara/BulletPhysics3D/BulletRigidBody3D.hpp>
-#include <Nazara/BulletPhysics3D/Config.hpp>
+#include <Nazara/JoltPhysics3D/JoltPhysWorld3D.hpp>
+#include <Nazara/JoltPhysics3D/JoltRigidBody3D.hpp>
+#include <Nazara/JoltPhysics3D/Config.hpp>
 #include <Nazara/Core/HandledObject.hpp>
 #include <Nazara/Core/ObjectHandle.hpp>
 
-class btTypedConstraint;
+namespace JPH
+{
+	class TwoBodyConstraint;
+}
 
 namespace Nz
 {
-	class BulletConstraint3D;
+	class JoltConstraint3D;
 
-	using BulletConstraint3DHandle = ObjectHandle<BulletConstraint3D>;
+	using JoltConstraint3DHandle = ObjectHandle<JoltConstraint3D>;
 
-	class NAZARA_BULLETPHYSICS3D_API BulletConstraint3D : public HandledObject<BulletConstraint3D>
+	class NAZARA_JOLTPHYSICS3D_API JoltConstraint3D : public HandledObject<JoltConstraint3D>
 	{
 		public:
-			BulletConstraint3D(const BulletConstraint3D&) = delete;
-			BulletConstraint3D(BulletConstraint3D&& constraint) noexcept;
-			virtual ~BulletConstraint3D();
+			JoltConstraint3D(const JoltConstraint3D&) = delete;
+			JoltConstraint3D(JoltConstraint3D&& constraint) noexcept;
+			virtual ~JoltConstraint3D();
 
-			BulletRigidBody3D& GetBodyA();
-			const BulletRigidBody3D& GetBodyA() const;
-			BulletRigidBody3D& GetBodyB();
-			const BulletRigidBody3D& GetBodyB() const;
-			BulletPhysWorld3D& GetWorld();
-			const BulletPhysWorld3D& GetWorld() const;
+			JoltRigidBody3D& GetBodyA();
+			const JoltRigidBody3D& GetBodyA() const;
+			JoltRigidBody3D& GetBodyB();
+			const JoltRigidBody3D& GetBodyB() const;
+			JoltPhysWorld3D& GetWorld();
+			const JoltPhysWorld3D& GetWorld() const;
 
-			inline bool IsBodyCollisionEnabled() const;
 			bool IsSingleBody() const;
 
-			BulletConstraint3D& operator=(const BulletConstraint3D&) = delete;
-			BulletConstraint3D& operator=(BulletConstraint3D&& constraint) noexcept;
+			JoltConstraint3D& operator=(const JoltConstraint3D&) = delete;
+			JoltConstraint3D& operator=(JoltConstraint3D&& constraint) noexcept;
 
 		protected:
-			BulletConstraint3D(std::unique_ptr<btTypedConstraint> constraint, bool disableCollisions = false);
+			JoltConstraint3D();
 
 			template<typename T> T* GetConstraint();
 			template<typename T> const T* GetConstraint() const;
 
+			void SetupConstraint(std::unique_ptr<JPH::TwoBodyConstraint> constraint);
+
 		private:
-			std::unique_ptr<btTypedConstraint> m_constraint;
-			bool m_bodyCollisionEnabled;
+			void Destroy();
+
+			std::unique_ptr<JPH::TwoBodyConstraint> m_constraint;
 	};
 
-	class NAZARA_BULLETPHYSICS3D_API BulletPivotConstraint3D : public BulletConstraint3D
+	class NAZARA_JOLTPHYSICS3D_API JoltPivotConstraint3D : public JoltConstraint3D
 	{
 		public:
-			BulletPivotConstraint3D(BulletRigidBody3D& first, const Vector3f& pivot);
-			BulletPivotConstraint3D(BulletRigidBody3D& first, BulletRigidBody3D& second, const Vector3f& pivot, bool disableCollisions = false);
-			BulletPivotConstraint3D(BulletRigidBody3D& first, BulletRigidBody3D& second, const Vector3f& firstAnchor, const Vector3f& secondAnchor, bool disableCollisions = false);
-			~BulletPivotConstraint3D() = default;
+			JoltPivotConstraint3D(JoltRigidBody3D& first, const Vector3f& pivot);
+			JoltPivotConstraint3D(JoltRigidBody3D& first, JoltRigidBody3D& second, const Vector3f& pivot);
+			JoltPivotConstraint3D(JoltRigidBody3D& first, JoltRigidBody3D& second, const Vector3f& firstAnchor, const Vector3f& secondAnchor);
+			~JoltPivotConstraint3D() = default;
 
 			Vector3f GetFirstAnchor() const;
 			Vector3f GetSecondAnchor() const;
@@ -69,7 +74,6 @@ namespace Nz
 	};
 }
 
-#include <Nazara/BulletPhysics3D/BulletConstraint3D.inl>
+#include <Nazara/JoltPhysics3D/JoltConstraint3D.inl>
 
 #endif // NAZARA_BULLETPHYSICS3D_BULLETCONSTRAINT3D_HPP
-#endif // NAZARA_JOLTPHYSICS3D_JOLTCONSTRAINT3D_HPP

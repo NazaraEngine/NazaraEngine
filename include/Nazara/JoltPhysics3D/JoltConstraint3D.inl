@@ -6,19 +6,14 @@
 
 namespace Nz
 {
-	inline bool BulletConstraint3D::IsBodyCollisionEnabled() const
-	{
-		return m_bodyCollisionEnabled;
-	}
-
 	template<typename T>
-	T* BulletConstraint3D::GetConstraint()
+	T* JoltConstraint3D::GetConstraint()
 	{
 		return SafeCast<T*>(m_constraint.get());
 	}
 
 	template<typename T>
-	const T* BulletConstraint3D::GetConstraint() const
+	const T* JoltConstraint3D::GetConstraint() const
 	{
 		return SafeCast<const T*>(m_constraint.get());
 	}
