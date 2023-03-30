@@ -163,7 +163,7 @@ namespace Nz
 {
 	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
-		class CallbackHitResult : public JPH::RayCastBodyCollector
+		class CallbackHitResult : public JPH::CastRayCollector
 		{
 			public:
 				CallbackHitResult(const JPH::BodyLockInterface& bodyLockInterface, const Vector3f& from, const Vector3f& to, const FunctionRef<std::optional<float>(const JoltPhysWorld3D::RaycastHit& hitInfo)>& callback) :
@@ -175,7 +175,7 @@ namespace Nz
 				{
 				}
 
-				void AddHit(const JPH::BroadPhaseCastResult& result) override
+				void AddHit(const JPH::RayCastResult& result) override
 				{
 					JoltPhysWorld3D::RaycastHit hitInfo;
 					hitInfo.fraction = result.mFraction;
@@ -185,7 +185,10 @@ namespace Nz
 					if (!lock.Succeeded())
 						return; //< body was destroyed
 
-					hitInfo.hitBody = reinterpret_cast<JoltRigidBody3D*>(static_cast<std::uintptr_t>(lock.GetBody().GetUserData()));
+					JPH::Body& body = lock.GetBody();
+
+					hitInfo.hitBody = reinterpret_cast<JoltRigidBody3D*>(static_cast<std::uintptr_t>(body.GetUserData()));
+					hitInfo.hitNormal = FromJolt(body.GetWorldSpaceSurfaceNormal(result.mSubShapeID2, ToJolt(hitInfo.hitPosition)));
 
 					if (auto fractionOpt = m_callback(hitInfo))
 					{
@@ -336,24 +339,28 @@ namespace Nz
 
 	bool JoltPhysWorld3D::RaycastQuery(const Vector3f& from, const Vector3f& to, const FunctionRef<std::optional<float>(const RaycastHit& hitInfo)>& callback)
 	{
-		JPH::RayCast rayCast;
+		JPH::RRayCast rayCast;
 		rayCast.mDirection = ToJolt(to - from);
 		rayCast.mOrigin = ToJolt(from);
 
+		JPH::RayCastSettings rayCastSettings;
+
 		CallbackHitResult collector(m_world->physicsSystem.GetBodyLockInterface(), from, to, callback);
-		m_world->physicsSystem.GetBroadPhaseQuery().CastRay(rayCast, collector);
+		m_world->physicsSystem.GetNarrowPhaseQuery().CastRay(rayCast, rayCastSettings, collector);
 
 		return collector.DidHit();
 	}
 
 	bool JoltPhysWorld3D::RaycastQueryFirst(const Vector3f& from, const Vector3f& to, const FunctionRef<void(const RaycastHit& hitInfo)>& callback)
 	{
-		JPH::RayCast rayCast;
+		JPH::RRayCast rayCast;
 		rayCast.mDirection = ToJolt(to - from);
 		rayCast.mOrigin = ToJolt(from);
 
-		JPH::ClosestHitCollisionCollector<JPH::RayCastBodyCollector> collector;
-		m_world->physicsSystem.GetBroadPhaseQuery().CastRay(rayCast, collector);
+		JPH::RayCastSettings rayCastSettings;
+
+		JPH::ClosestHitCollisionCollector<JPH::CastRayCollector> collector;
+		m_world->physicsSystem.GetNarrowPhaseQuery().CastRay(rayCast, rayCastSettings, collector);
 
 		if (!collector.HadHit())
 			return false;
@@ -362,10 +369,13 @@ namespace Nz
 		if (!lock.Succeeded())
 			return false; //< body was destroyed before lock
 
+		JPH::Body& body = lock.GetBody();
+
 		RaycastHit hitInfo;
 		hitInfo.fraction = collector.mHit.GetEarlyOutFraction();
 		hitInfo.hitPosition = Lerp(from, to, hitInfo.fraction);
-		hitInfo.hitBody = reinterpret_cast<JoltRigidBody3D*>(static_cast<std::uintptr_t>(lock.GetBody().GetUserData()));
+		hitInfo.hitBody = reinterpret_cast<JoltRigidBody3D*>(static_cast<std::uintptr_t>(body.GetUserData()));
+		hitInfo.hitNormal = FromJolt(body.GetWorldSpaceSurfaceNormal(collector.mHit.mSubShapeID2, rayCast.GetPointOnRay(collector.mHit.GetEarlyOutFraction())));
 
 		return true;
 	}

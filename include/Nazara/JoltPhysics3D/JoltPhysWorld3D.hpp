@@ -15,6 +15,7 @@
 #include <NazaraUtils/FunctionRef.hpp>
 #include <NazaraUtils/MovablePtr.hpp>
 #include <atomic>
+#include <optional>
 #include <vector>
 
 namespace JPH
@@ -63,6 +64,7 @@ namespace Nz
 			{
 				float fraction;
 				JoltRigidBody3D* hitBody = nullptr;
+				Vector3f hitNormal;
 				Vector3f hitPosition;
 			};
 
