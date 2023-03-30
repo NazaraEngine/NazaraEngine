@@ -49,6 +49,8 @@ namespace Nz
 			template<typename T> const T* GetConstraint() const;
 
 		private:
+			void Destroy();
+
 			std::unique_ptr<btTypedConstraint> m_constraint;
 			bool m_bodyCollisionEnabled;
 	};
