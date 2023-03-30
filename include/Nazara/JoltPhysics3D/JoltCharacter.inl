@@ -2,11 +2,14 @@
 // This file is part of the "Nazara Engine - JoltPhysics3D module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/JoltPhysics3D/JoltCharacter.hpp>
 #include <Nazara/JoltPhysics3D/Debug.hpp>
 
 namespace Nz
 {
+	inline void JoltCharacter::DisableSleeping()
+	{
+		return EnableSleeping(false);
+	}
 }
 
 #include <Nazara/JoltPhysics3D/DebugOff.hpp>

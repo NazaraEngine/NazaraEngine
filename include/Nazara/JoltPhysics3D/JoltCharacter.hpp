@@ -16,6 +16,7 @@
 namespace JPH
 {
 	class Character;
+	class Body;
 }
 
 namespace Nz
@@ -33,13 +34,18 @@ namespace Nz
 			JoltCharacter(JoltCharacter&&) = delete;
 			~JoltCharacter();
 
+			inline void DisableSleeping();
+			void EnableSleeping(bool enable);
+
 			Vector3f GetLinearVelocity() const;
 			Quaternionf GetRotation() const;
 			Vector3f GetPosition() const;
 			std::pair<Vector3f, Quaternionf> GetPositionAndRotation() const;
+			Vector3f GetUp() const;
 
 			bool IsOnGround() const;
 
+			void SetFriction(float friction);
 			void SetLinearVelocity(const Vector3f& linearVel);
 			void SetRotation(const Quaternionf& rotation);
 			void SetUp(const Vector3f& up);
