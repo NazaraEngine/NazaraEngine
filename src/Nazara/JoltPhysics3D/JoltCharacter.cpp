@@ -9,6 +9,7 @@
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/Collision/ObjectLayer.h>
 #include <Jolt/Physics/Character/Character.h>
+#include <Jolt/Physics/PhysicsSystem.h>
 #include <Nazara/JoltPhysics3D/Debug.hpp>
 
 namespace Nz
@@ -37,6 +38,16 @@ namespace Nz
 		m_physicsWorld.UnregisterCharacter(this);
 	}
 
+	void JoltCharacter::EnableSleeping(bool enable)
+	{
+		const JPH::BodyLockInterfaceNoLock& bodyInterface = m_physicsWorld.GetPhysicsSystem()->GetBodyLockInterfaceNoLock();
+		JPH::BodyLockWrite bodyLock(bodyInterface, m_character->GetBodyID());
+		if (!bodyLock.Succeeded())
+			return;
+
+		bodyLock.GetBody().SetAllowSleeping(enable);
+	}
+
 	Vector3f JoltCharacter::GetLinearVelocity() const
 	{
 		return FromJolt(m_character->GetLinearVelocity(false));
@@ -61,9 +72,20 @@ namespace Nz
 		return { FromJolt(position), FromJolt(rotation) };
 	}
 
+	Vector3f JoltCharacter::GetUp() const
+	{
+		return FromJolt(m_character->GetUp());
+	}
+
 	bool JoltCharacter::IsOnGround() const
 	{
 		return m_character->IsSupported();
+	}
+
+	void JoltCharacter::SetFriction(float friction)
+	{
+		JPH::BodyInterface& bodyInterface = m_physicsWorld.GetPhysicsSystem()->GetBodyInterfaceNoLock();
+		bodyInterface.SetFriction(m_character->GetBodyID(), friction);
 	}
 
 	void JoltCharacter::SetLinearVelocity(const Vector3f& linearVel)
