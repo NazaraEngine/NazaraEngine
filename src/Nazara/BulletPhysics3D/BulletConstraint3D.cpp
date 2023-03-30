@@ -14,6 +14,8 @@ namespace Nz
 	m_constraint(std::move(constraint)),
 	m_bodyCollisionEnabled(!disableCollisions)
 	{
+		m_constraint->setUserConstraintPtr(this);
+
 		btDynamicsWorld* world = GetWorld().GetDynamicsWorld();
 		world->addConstraint(m_constraint.get(), disableCollisions);
 	}
@@ -28,11 +30,7 @@ namespace Nz
 
 	BulletConstraint3D::~BulletConstraint3D()
 	{
-		if (m_constraint)
-		{
-			btDynamicsWorld* world = GetWorld().GetDynamicsWorld();
-			world->removeConstraint(m_constraint.get());
-		}
+		Destroy();
 	}
 
 	BulletRigidBody3D& BulletConstraint3D::GetBodyA()
@@ -74,7 +72,7 @@ namespace Nz
 
 	BulletConstraint3D& BulletConstraint3D::operator=(BulletConstraint3D&& constraint) noexcept
 	{
-		m_constraint.reset();
+		Destroy();
 
 		m_constraint = std::move(constraint.m_constraint);
 		m_bodyCollisionEnabled = constraint.m_bodyCollisionEnabled;
@@ -83,6 +81,17 @@ namespace Nz
 			m_constraint->setUserConstraintPtr(this);
 
 		return *this;
+	}
+
+	void BulletConstraint3D::Destroy()
+	{
+		if (m_constraint)
+		{
+			btDynamicsWorld* world = GetWorld().GetDynamicsWorld();
+			world->removeConstraint(m_constraint.get());
+
+			m_constraint.reset();
+		}
 	}
 
 
