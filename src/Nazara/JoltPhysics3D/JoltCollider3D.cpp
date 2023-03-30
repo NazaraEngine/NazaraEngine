@@ -13,6 +13,7 @@
 #include <NazaraUtils/MemoryHelper.hpp>
 #include <Jolt/Core/Core.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
+#include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
 #include <Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h>
 #include <Jolt/Physics/Collision/Shape/StaticCompoundShape.h>
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
@@ -90,7 +91,7 @@ namespace Nz
 		return std::shared_ptr<JoltCollider3D>();
 	}
 
-	/********************************** BoxCollider3D **********************************/
+	/********************************** JoltBoxCollider3D **********************************/
 
 	JoltBoxCollider3D::JoltBoxCollider3D(const Vector3f& lengths, float convexRadius)
 	{
@@ -147,6 +148,94 @@ namespace Nz
 	JoltColliderType3D JoltBoxCollider3D::GetType() const
 	{
 		return JoltColliderType3D::Box;
+	}
+
+	/********************************** JoltCapsuleCollider3D **********************************/
+
+	JoltCapsuleCollider3D::JoltCapsuleCollider3D(float height, float radius)
+	{
+		SetupShapeSettings(std::make_unique<JPH::CapsuleShapeSettings>(height * 0.5f, radius));
+	}
+
+	void JoltCapsuleCollider3D::BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const
+	{
+		constexpr unsigned int cornerStepCount = 10;
+		constexpr unsigned int sliceCount = 4;
+
+		const JPH::CapsuleShapeSettings* capsuleSettings = GetShapeSettingsAs<JPH::CapsuleShapeSettings>();
+		float radius = capsuleSettings->mRadius;
+		float halfHeight = capsuleSettings->mHalfHeightOfCylinder;
+
+		std::optional<std::size_t> firstVertex;
+		std::optional<std::size_t> lastVertex;
+
+		for (unsigned int slice = 0; slice < sliceCount; ++slice)
+		{
+			Quaternionf rot(RadianAnglef(2.f * Pi<float> * slice / sliceCount), Nz::Vector3f::Down());
+			
+			Vector3f top(0.f, halfHeight, 0.f);
+			for (unsigned int i = 0; i < cornerStepCount; ++i)
+			{
+				auto [sin, cos] = RadianAnglef(0.5f * Pi<float> * i / cornerStepCount).GetSinCos();
+
+				std::size_t index;
+				if (firstVertex && i == 0)
+					index = *firstVertex;
+				else
+				{
+					index = vertices.size();
+					vertices.push_back(top + rot * (radius * Vector3f(sin, cos, 0.f)));
+					if (i == 0)
+						firstVertex = index;
+				}
+
+				if (i > 1)
+				{
+					indices.push_back(index - 1);
+					indices.push_back(index);
+				}
+				else if (i == 1)
+				{
+					indices.push_back(*firstVertex);
+					indices.push_back(index);
+				}
+			}
+
+			Vector3f bottom(0.f, -halfHeight, 0.f);
+			for (unsigned int i = 0; i < cornerStepCount; ++i)
+			{
+				auto [sin, cos] = RadianAnglef(0.5f * Pi<float> * i / cornerStepCount).GetSinCos();
+
+				std::size_t index;
+				if (lastVertex && i == sliceCount - 1)
+					index = *lastVertex;
+				else
+				{
+					index = vertices.size();
+					vertices.push_back(bottom - rot * (radius * Vector3f(-cos, sin, 0.f)));
+					if (i == sliceCount - 1)
+						lastVertex = index;
+				}
+
+				indices.push_back(index - 1);
+				indices.push_back(index);
+			}
+		}
+	}
+
+	float JoltCapsuleCollider3D::GetHeight() const
+	{
+		return GetShapeSettingsAs<JPH::CapsuleShapeSettings>()->mHalfHeightOfCylinder * 2.0f;
+	}
+
+	float JoltCapsuleCollider3D::GetRadius() const
+	{
+		return GetShapeSettingsAs<JPH::CapsuleShapeSettings>()->mRadius;
+	}
+
+	JoltColliderType3D JoltCapsuleCollider3D::GetType() const
+	{
+		return JoltColliderType3D::Capsule;
 	}
 
 	/******************************* JoltCompoundCollider3D ********************************/

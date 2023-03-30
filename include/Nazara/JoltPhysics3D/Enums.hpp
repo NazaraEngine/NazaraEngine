@@ -12,13 +12,14 @@ namespace Nz
 	enum class JoltColliderType3D
 	{
 		Box,
+		Capsule,
 		Compound,
 		Sphere,
 
-		TranslatedRotatedDecoration,
 		ScaleDecoration,
+		TranslatedRotatedDecoration,
 
-		Max = Sphere
+		Max = TranslatedRotatedDecoration
 	};
 }
 

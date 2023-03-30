@@ -74,7 +74,20 @@ namespace Nz
 			Vector3f GetLengths() const;
 			JoltColliderType3D GetType() const override;
 	};
-	
+
+	class NAZARA_JOLTPHYSICS3D_API JoltCapsuleCollider3D final : public JoltCollider3D
+	{
+		public:
+			JoltCapsuleCollider3D(float height, float radius);
+			~JoltCapsuleCollider3D() = default;
+
+			void BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const override;
+
+			float GetHeight() const;
+			float GetRadius() const;
+			JoltColliderType3D GetType() const override;
+	};
+
 	class NAZARA_JOLTPHYSICS3D_API JoltCompoundCollider3D final : public JoltCollider3D
 	{
 		public:
