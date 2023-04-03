@@ -33,7 +33,11 @@ namespace Nz
 
 	bool DynLibImpl::Load(const std::filesystem::path& libraryPath, std::string* errorMessage)
 	{
-		m_handle = LoadLibraryExW(ToWideString(libraryPath.generic_u8string()).data(), nullptr, (libraryPath.is_absolute()) ? LOAD_WITH_ALTERED_SEARCH_PATH : 0);
+		if constexpr (std::is_same_v<std::filesystem::path::value_type, wchar_t>)
+			m_handle = LoadLibraryExW(libraryPath.c_str(), nullptr, (libraryPath.is_absolute()) ? LOAD_WITH_ALTERED_SEARCH_PATH : 0);
+		else
+			m_handle = LoadLibraryExW(ToWideString(libraryPath.generic_u8string()).data(), nullptr, (libraryPath.is_absolute()) ? LOAD_WITH_ALTERED_SEARCH_PATH : 0);
+
 		if (m_handle)
 			return true;
 		else

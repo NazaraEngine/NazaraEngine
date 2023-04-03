@@ -89,7 +89,11 @@ namespace Nz
 		if ((mode & OpenMode::Lock) == 0)
 			shareMode |= FILE_SHARE_WRITE;
 
-		m_handle = CreateFileW(ToWideString(filePath.generic_u8string()).data(), access, shareMode, nullptr, openMode, 0, nullptr);
+		if constexpr (std::is_same_v<std::filesystem::path::value_type, wchar_t>)
+			m_handle = CreateFileW(filePath.c_str(), access, shareMode, nullptr, openMode, 0, nullptr);
+		else
+			m_handle = CreateFileW(ToWideString(filePath.generic_u8string()).data(), access, shareMode, nullptr, openMode, 0, nullptr);
+
 		return m_handle != INVALID_HANDLE_VALUE;
 	}
 
