@@ -24,14 +24,14 @@ namespace Nz
 	#elif defined(NAZARA_COMPILER_CLANG) || defined(NAZARA_COMPILER_GCC) || defined(NAZARA_COMPILER_INTEL)
 		// https://en.wikipedia.org/wiki/CPUID
 		asm volatile(
-			#ifdef NAZARA_PLATFORM_x64
+			#ifdef NAZARA_ARCH_x86_64
 			"pushq %%rbx     \n\t" // save %rbx
 			#else
 			"pushl %%ebx     \n\t" // save %ebx
 			#endif
 			"cpuid            \n\t"
 			"movl %%ebx ,%[ebx]  \n\t" // write the result into output var
-			#ifdef NAZARA_PLATFORM_x64
+			#ifdef NAZARA_ARCH_x86_64
 			"popq %%rbx \n\t"
 			#else
 			"popl %%ebx \n\t"
@@ -63,7 +63,7 @@ namespace Nz
 
 	bool HardwareInfoImpl::IsCpuidSupported()
 	{
-	#ifdef NAZARA_PLATFORM_x64
+	#ifdef NAZARA_ARCH_x86_64
 		return true; // cpuid is always supported on x64 arch
 	#else
 		#if defined(NAZARA_COMPILER_MSVC)
