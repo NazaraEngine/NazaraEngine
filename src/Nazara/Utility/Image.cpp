@@ -854,7 +854,7 @@ namespace Nz
 	}
 
 	// LoadArray
-	std::shared_ptr<Image> Image::LoadArrayFromFile(const std::filesystem::path& filePath, const ImageParams& imageParams, const Vector2ui& atlasSize)
+	std::shared_ptr<Image> Image::LoadFromFile(const std::filesystem::path& filePath, const ImageParams& imageParams, const Vector2ui& atlasSize)
 	{
 		std::shared_ptr<Image> image = Image::LoadFromFile(filePath, imageParams);
 		if (!image)
@@ -863,10 +863,10 @@ namespace Nz
 			return nullptr;
 		}
 
-		return LoadArrayFromImage(*image, atlasSize);
+		return LoadFromImage(*image, atlasSize);
 	}
 
-	std::shared_ptr<Image> Image::LoadArrayFromImage(const Image& image, const Vector2ui& atlasSize)
+	std::shared_ptr<Image> Image::LoadFromImage(const Image& image, const Vector2ui& atlasSize)
 	{
 		NazaraAssert(image.IsValid(), "Invalid image");
 
@@ -931,7 +931,7 @@ namespace Nz
 		return arrayImage;
 	}
 
-	std::shared_ptr<Image> Image::LoadArrayFromMemory(const void* data, std::size_t size, const ImageParams& imageParams, const Vector2ui& atlasSize)
+	std::shared_ptr<Image> Image::LoadFromMemory(const void* data, std::size_t size, const ImageParams& imageParams, const Vector2ui& atlasSize)
 	{
 		std::shared_ptr<Image> image = Image::LoadFromMemory(data, size, imageParams);
 		if (!image)
@@ -940,10 +940,10 @@ namespace Nz
 			return nullptr;
 		}
 
-		return LoadArrayFromImage(*image, atlasSize);
+		return LoadFromImage(*image, atlasSize);
 	}
 
-	std::shared_ptr<Image> Image::LoadArrayFromStream(Stream& stream, const ImageParams& imageParams, const Vector2ui& atlasSize)
+	std::shared_ptr<Image> Image::LoadFromStream(Stream& stream, const ImageParams& imageParams, const Vector2ui& atlasSize)
 	{
 		std::shared_ptr<Image> image = Image::LoadFromStream(stream, imageParams);
 		if (!image)
@@ -952,10 +952,10 @@ namespace Nz
 			return nullptr;
 		}
 
-		return LoadArrayFromImage(*image, atlasSize);
+		return LoadFromImage(*image, atlasSize);
 	}
 
-	std::shared_ptr<Image> Image::LoadCubemapFromFile(const std::filesystem::path& filePath, const ImageParams& imageParams, const CubemapParams& cubemapParams)
+	std::shared_ptr<Image> Image::LoadFromFile(const std::filesystem::path& filePath, const ImageParams& imageParams, const CubemapParams& cubemapParams)
 	{
 		std::shared_ptr<Image> image = Image::LoadFromFile(filePath, imageParams);
 		if (!image)
@@ -964,10 +964,10 @@ namespace Nz
 			return nullptr;
 		}
 
-		return LoadCubemapFromImage(*image, cubemapParams);
+		return LoadFromImage(*image, cubemapParams);
 	}
 
-	std::shared_ptr<Image> Image::LoadCubemapFromImage(const Image& image, const CubemapParams& params)
+	std::shared_ptr<Image> Image::LoadFromImage(const Image& image, const CubemapParams& params)
 	{
 		NazaraAssert(image.IsValid(), "Invalid image");
 
@@ -1044,17 +1044,17 @@ namespace Nz
 			return nullptr;
 		}
 
-		cubemap->Copy(image, Rectui(backPos.x, backPos.y, faceSize, faceSize), Vector3ui(0, 0, UnderlyingCast(CubemapFace::NegativeZ)));
-		cubemap->Copy(image, Rectui(downPos.x, downPos.y, faceSize, faceSize), Vector3ui(0, 0, UnderlyingCast(CubemapFace::NegativeY)));
-		cubemap->Copy(image, Rectui(forwardPos.x, forwardPos.y, faceSize, faceSize), Vector3ui(0, 0, UnderlyingCast(CubemapFace::PositiveZ)));
-		cubemap->Copy(image, Rectui(leftPos.x, leftPos.y, faceSize, faceSize), Vector3ui(0, 0, UnderlyingCast(CubemapFace::NegativeX)));
-		cubemap->Copy(image, Rectui(rightPos.x, rightPos.y, faceSize, faceSize), Vector3ui(0, 0, UnderlyingCast(CubemapFace::PositiveX)));
-		cubemap->Copy(image, Rectui(upPos.x, upPos.y, faceSize, faceSize), Vector3ui(0, 0, UnderlyingCast(CubemapFace::PositiveY)));
+		cubemap->Copy(image, Boxui(backPos.x, backPos.y, 0, faceSize, faceSize, 1), Vector3ui(0, 0, UnderlyingCast(CubemapFace::NegativeZ)));
+		cubemap->Copy(image, Boxui(downPos.x, downPos.y, 0, faceSize, faceSize, 1), Vector3ui(0, 0, UnderlyingCast(CubemapFace::NegativeY)));
+		cubemap->Copy(image, Boxui(forwardPos.x, forwardPos.y, 0, faceSize, faceSize, 1), Vector3ui(0, 0, UnderlyingCast(CubemapFace::PositiveZ)));
+		cubemap->Copy(image, Boxui(leftPos.x, leftPos.y, 0, faceSize, faceSize, 1), Vector3ui(0, 0, UnderlyingCast(CubemapFace::NegativeX)));
+		cubemap->Copy(image, Boxui(rightPos.x, rightPos.y, 0, faceSize, faceSize, 1), Vector3ui(0, 0, UnderlyingCast(CubemapFace::PositiveX)));
+		cubemap->Copy(image, Boxui(upPos.x, upPos.y, 0, faceSize, faceSize, 1), Vector3ui(0, 0, UnderlyingCast(CubemapFace::PositiveY)));
 
 		return cubemap;
 	}
 
-	std::shared_ptr<Image> Image::LoadCubemapFromMemory(const void* data, std::size_t size, const ImageParams& imageParams, const CubemapParams& cubemapParams)
+	std::shared_ptr<Image> Image::LoadFromMemory(const void* data, std::size_t size, const ImageParams& imageParams, const CubemapParams& cubemapParams)
 	{
 		std::shared_ptr<Image> image = Image::LoadFromMemory(data, size, imageParams);
 		if (!image)
@@ -1063,10 +1063,10 @@ namespace Nz
 			return nullptr;
 		}
 
-		return LoadCubemapFromImage(*image, cubemapParams);
+		return LoadFromImage(*image, cubemapParams);
 	}
 
-	std::shared_ptr<Image> Image::LoadCubemapFromStream(Stream& stream, const ImageParams& imageParams, const CubemapParams& cubemapParams)
+	std::shared_ptr<Image> Image::LoadFromStream(Stream& stream, const ImageParams& imageParams, const CubemapParams& cubemapParams)
 	{
 		std::shared_ptr<Image> image = Image::LoadFromStream(stream, imageParams);
 		if (!image)
@@ -1075,7 +1075,7 @@ namespace Nz
 			return nullptr;
 		}
 
-		return LoadCubemapFromImage(*image, cubemapParams);
+		return LoadFromImage(*image, cubemapParams);
 	}
 
 	bool Image::LoadFaceFromFile(CubemapFace face, const std::filesystem::path& filePath, const ImageParams& params)

@@ -118,17 +118,17 @@ namespace Nz
 			static std::shared_ptr<Image> LoadFromMemory(const void* data, std::size_t size, const ImageParams& params = ImageParams());
 			static std::shared_ptr<Image> LoadFromStream(Stream& stream, const ImageParams& params = ImageParams());
 
-			// LoadArray
-			static std::shared_ptr<Image> LoadArrayFromFile(const std::filesystem::path& filePath, const ImageParams& imageParams = ImageParams(), const Vector2ui& atlasSize = Vector2ui(2, 2));
-			static std::shared_ptr<Image> LoadArrayFromImage(const Image& image, const Vector2ui& atlasSize = Vector2ui(2, 2));
-			static std::shared_ptr<Image> LoadArrayFromMemory(const void* data, std::size_t size, const ImageParams& imageParams = ImageParams(), const Vector2ui& atlasSize = Vector2ui(2, 2));
-			static std::shared_ptr<Image> LoadArrayFromStream(Stream& stream, const ImageParams& imageParams = ImageParams(), const Vector2ui& atlasSize = Vector2ui(2, 2));
+			// Load (array)
+			static std::shared_ptr<Image> LoadFromFile(const std::filesystem::path& filePath, const ImageParams& imageParams, const Vector2ui& atlasSize);
+			static std::shared_ptr<Image> LoadFromImage(const Image& image, const Vector2ui& atlasSize);
+			static std::shared_ptr<Image> LoadFromMemory(const void* data, std::size_t size, const ImageParams& imageParams, const Vector2ui& atlasSize);
+			static std::shared_ptr<Image> LoadFromStream(Stream& stream, const ImageParams& imageParams, const Vector2ui& atlasSize);
 
-			// LoadCubemap
-			static std::shared_ptr<Image> LoadCubemapFromFile(const std::filesystem::path& filePath, const ImageParams& imageParams = ImageParams(), const CubemapParams& cubemapParams = CubemapParams());
-			static std::shared_ptr<Image> LoadCubemapFromImage(const Image& image, const CubemapParams& params = CubemapParams());
-			static std::shared_ptr<Image> LoadCubemapFromMemory(const void* data, std::size_t size, const ImageParams& imageParams = ImageParams(), const CubemapParams& cubemapParams = CubemapParams());
-			static std::shared_ptr<Image> LoadCubemapFromStream(Stream& stream, const ImageParams& imageParams = ImageParams(), const CubemapParams& cubemapParams = CubemapParams());
+			// Load (cubemap)
+			static std::shared_ptr<Image> LoadFromFile(const std::filesystem::path& filePath, const ImageParams& imageParams, const CubemapParams& cubemapParams);
+			static std::shared_ptr<Image> LoadFromImage(const Image& image, const CubemapParams& params);
+			static std::shared_ptr<Image> LoadFromMemory(const void* data, std::size_t size, const ImageParams& imageParams, const CubemapParams& cubemapParams);
+			static std::shared_ptr<Image> LoadFromStream(Stream& stream, const ImageParams& imageParams, const CubemapParams& cubemapParams);
 
 			struct SharedImage
 			{

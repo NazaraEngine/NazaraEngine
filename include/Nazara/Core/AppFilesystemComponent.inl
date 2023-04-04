@@ -34,14 +34,14 @@ namespace Nz
 		return static_cast<const typename T::Params*>(m_defaultParameters[resourceIndex].get());
 	}
 
-	template<typename T>
-	std::shared_ptr<T> AppFilesystemComponent::Load(std::string_view assetPath)
+	template<typename T, typename... ExtraArgs>
+	std::shared_ptr<T> AppFilesystemComponent::Load(std::string_view assetPath, ExtraArgs&&... args)
 	{
-		return Load<T>(assetPath, typename T::Params{});
+		return Load<T>(assetPath, typename T::Params{}, std::forward<ExtraArgs>(args)...);
 	}
 
-	template<typename T>
-	std::shared_ptr<T> AppFilesystemComponent::Load(std::string_view assetPath, typename T::Params params)
+	template<typename T, typename... ExtraArgs>
+	std::shared_ptr<T> AppFilesystemComponent::Load(std::string_view assetPath, typename T::Params params, ExtraArgs&&... args)
 	{
 		if constexpr (Detail::ResourceParameterHasMerge<typename T::Params>::value)
 		{
@@ -49,17 +49,17 @@ namespace Nz
 				params.Merge(*defaultParams);
 		}
 
-		return LoadImpl<T>(assetPath, params);
+		return LoadImpl<T>(assetPath, params, std::forward<ExtraArgs>(args)...);
 	}
 
-	template<typename T>
-	std::shared_ptr<T> AppFilesystemComponent::Open(std::string_view assetPath)
+	template<typename T, typename... ExtraArgs>
+	std::shared_ptr<T> AppFilesystemComponent::Open(std::string_view assetPath, ExtraArgs&&... args)
 	{
-		return Open<T>(assetPath, typename T::Params{});
+		return Open<T>(assetPath, typename T::Params{}, std::forward<ExtraArgs>(args)...);
 	}
 
-	template<typename T>
-	std::shared_ptr<T> AppFilesystemComponent::Open(std::string_view assetPath, typename T::Params params)
+	template<typename T, typename... ExtraArgs>
+	std::shared_ptr<T> AppFilesystemComponent::Open(std::string_view assetPath, typename T::Params params, ExtraArgs&&... args)
 	{
 		if constexpr (Detail::ResourceParameterHasMerge<typename T::Params>::value)
 		{
@@ -67,7 +67,7 @@ namespace Nz
 				params.Merge(*defaultParams);
 		}
 
-		return OpenImpl<T>(assetPath, params);
+		return OpenImpl<T>(assetPath, params, std::forward<ExtraArgs>(args)...);
 	}
 
 	template<typename T>
@@ -112,8 +112,8 @@ namespace Nz
 			throw std::runtime_error("Texture has wrong resource index, please initialize AppFilesystemComponent before using ResourceRegistry");
 	}
 
-	template<typename T>
-	std::shared_ptr<T> AppFilesystemComponent::LoadImpl(std::string_view assetPath, const typename T::Params& params)
+	template<typename T, typename... ExtraArgs>
+	std::shared_ptr<T> AppFilesystemComponent::LoadImpl(std::string_view assetPath, const typename T::Params& params, ExtraArgs&&... args)
 	{
 		std::shared_ptr<T> resource;
 		if (!m_rootDirectory)
@@ -131,7 +131,7 @@ namespace Nz
 				}
 				else if constexpr (std::is_same_v<Param, VirtualDirectory::FileEntry>)
 				{
-					resource = T::LoadFromStream(*arg.stream, params);
+					resource = T::LoadFromStream(*arg.stream, params, std::forward<ExtraArgs>(args)...);
 					return true;
 				}
 				else
@@ -143,8 +143,8 @@ namespace Nz
 		return resource;
 	}
 
-	template<typename T>
-	std::shared_ptr<T> AppFilesystemComponent::OpenImpl(std::string_view assetPath, const typename T::Params& params)
+	template<typename T, typename... ExtraArgs>
+	std::shared_ptr<T> AppFilesystemComponent::OpenImpl(std::string_view assetPath, const typename T::Params& params, ExtraArgs&&... args)
 	{
 		std::shared_ptr<T> resource;
 		if (!m_rootDirectory)
@@ -162,7 +162,7 @@ namespace Nz
 				}
 				else if constexpr (std::is_same_v<Param, VirtualDirectory::FileEntry>)
 				{
-					resource = T::OpenFromStream(*arg.stream, params);
+					resource = T::OpenFromStream(*arg.stream, params, std::forward<ExtraArgs>(args)...);
 					return true;
 				}
 				else

@@ -37,16 +37,16 @@ namespace Nz
 
 			template<typename T> const typename T::Params* GetDefaultResourceParameters() const;
 
-			template<typename T> std::shared_ptr<T> Load(std::string_view assetPath);
-			template<typename T> std::shared_ptr<T> Load(std::string_view assetPath, typename T::Params params);
+			template<typename T, typename... ExtraArgs> std::shared_ptr<T> Load(std::string_view assetPath, ExtraArgs&&... args);
+			template<typename T, typename... ExtraArgs> std::shared_ptr<T> Load(std::string_view assetPath, typename T::Params params, ExtraArgs&&... args);
 
 			const VirtualDirectoryPtr& Mount(std::string_view name, std::filesystem::path filepath);
 			const VirtualDirectoryPtr& Mount(std::string_view name, VirtualDirectoryPtr directory);
 
 			void MountDefaultDirectories();
 
-			template<typename T> std::shared_ptr<T> Open(std::string_view assetPath);
-			template<typename T> std::shared_ptr<T> Open(std::string_view assetPath, typename T::Params params);
+			template<typename T, typename... ExtraArgs> std::shared_ptr<T> Open(std::string_view assetPath, ExtraArgs&&... args);
+			template<typename T, typename... ExtraArgs> std::shared_ptr<T> Open(std::string_view assetPath, typename T::Params params, ExtraArgs&&... args);
 
 			template<typename T> void SetDefaultResourceParameters(typename T::Params params);
 
@@ -56,8 +56,8 @@ namespace Nz
 			static inline void RegisterResourceTypes();
 
 		private:
-			template<typename T> std::shared_ptr<T> LoadImpl(std::string_view assetPath, const typename T::Params& params);
-			template<typename T> std::shared_ptr<T> OpenImpl(std::string_view assetPath, const typename T::Params& params);
+			template<typename T, typename... ExtraArgs> std::shared_ptr<T> LoadImpl(std::string_view assetPath, const typename T::Params& params, ExtraArgs&&... args);
+			template<typename T, typename... ExtraArgs> std::shared_ptr<T> OpenImpl(std::string_view assetPath, const typename T::Params& params, ExtraArgs&&... args);
 
 			std::vector<std::unique_ptr<ResourceParameters>> m_defaultParameters;
 			VirtualDirectoryPtr m_rootDirectory;
