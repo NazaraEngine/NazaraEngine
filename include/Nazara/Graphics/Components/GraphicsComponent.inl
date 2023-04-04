@@ -53,6 +53,18 @@ namespace Nz
 		}
 	}
 
+	inline Boxf GraphicsComponent::GetAABB() const
+	{
+		if (m_renderables.empty())
+			return Boxf::Zero();
+
+		Boxf aabb = m_renderables.front().renderable->GetAABB();
+		for (std::size_t i = 1; i < m_renderables.size(); ++i)
+			aabb.ExtendTo(m_renderables[i].renderable->GetAABB());
+
+		return aabb;
+	}
+
 	inline auto GraphicsComponent::GetRenderableEntry(std::size_t renderableIndex) const -> const Renderable&
 	{
 		assert(renderableIndex < m_renderables.size());
