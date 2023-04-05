@@ -15,20 +15,19 @@
 #include <Jolt/Physics/Collision/CollisionCollectorImpl.h>
 #include <Jolt/Physics/Collision/RayCast.h>
 #include <Jolt/Physics/Collision/ObjectLayer.h>
+#include <Jolt/Physics/Collision/Shape/SphereShape.h>
 #include <Jolt/Physics/Collision/BroadPhase/BroadPhaseLayer.h>
 #include <Jolt/Physics/PhysicsSettings.h>
 #include <Jolt/Physics/PhysicsSystem.h>
 #include <Jolt/Physics/PhysicsStepListener.h>
 #include <Jolt/Physics/Body/BodyActivationListener.h>
+#include <tsl/ordered_set.h>
 #include <cassert>
-#include <iostream>
 #include <Nazara/JoltPhysics3D/Debug.hpp>
 
 namespace DitchMeAsap
 {
 	using namespace JPH;
-	using std::cout;
-	using std::endl;
 
 	// Layer that objects can be in, determines which other objects it can collide with
 	// Typically you at least want to have 1 layer for moving bodies and 1 layer for static bodies, but you can have more
@@ -130,7 +129,7 @@ namespace DitchMeAsap
 	};
 
 	// An example contact listener
-	class MyContactListener : public ContactListener
+	/*class MyContactListener : public ContactListener
 	{
 	public:
 		// See: ContactListener
@@ -156,7 +155,7 @@ namespace DitchMeAsap
 		{
 			cout << "A contact was removed" << endl;
 		}
-	};
+	};*/
 }
 
 namespace Nz
@@ -227,7 +226,7 @@ namespace Nz
 			{
 			}
 
-			void OnBodyActivated(const JPH::BodyID& inBodyID, UInt64 inBodyUserData) override
+			void OnBodyActivated(const JPH::BodyID& inBodyID, UInt64 /*inBodyUserData*/) override
 			{
 				UInt32 bodyIndex = inBodyID.GetIndex();
 				UInt32 blockIndex = bodyIndex / 64;
@@ -236,7 +235,7 @@ namespace Nz
 				m_physWorld.m_activeBodies[blockIndex] |= UInt64(1u) << localIndex;
 			}
 
-			void OnBodyDeactivated(const JPH::BodyID& inBodyID, UInt64 inBodyUserData) override
+			void OnBodyDeactivated(const JPH::BodyID& inBodyID, UInt64 /*inBodyUserData*/) override
 			{
 				UInt32 bodyIndex = inBodyID.GetIndex();
 				UInt32 blockIndex = bodyIndex / 64;
@@ -268,8 +267,15 @@ namespace Nz
 
 	struct JoltPhysWorld3D::JoltWorld
 	{
+		using BodySet = tsl::ordered_set<JPH::BodyID, std::hash<JPH::BodyID>, std::equal_to<JPH::BodyID>, std::allocator<JPH::BodyID>, std::vector<JPH::BodyID>>;
+
 		JPH::TempAllocatorImpl tempAllocator;
 		JPH::PhysicsSystem physicsSystem;
+		BodySet pendingAdditionActivate;
+		BodySet pendingAdditionNoActivate;
+		BodySet pendingDeactivations;
+		std::vector<JPH::BodyID> tempBodyIDVec;
+		std::unique_ptr<JPH::SphereShape> nullShape;
 
 		JoltPhysWorld3D::BodyActivationListener bodyActivationListener;
 		JoltPhysWorld3D::StepListener stepListener;
@@ -305,9 +311,14 @@ namespace Nz
 		m_world->physicsSystem.AddStepListener(&m_world->stepListener);
 
 		std::size_t blockCount = (m_world->physicsSystem.GetMaxBodies() - 1) / 64 + 1;
+
 		m_activeBodies = std::make_unique<std::atomic_uint64_t[]>(blockCount);
 		for (std::size_t i = 0; i < blockCount; ++i)
 			m_activeBodies[i] = 0;
+
+		m_registeredBodies = std::make_unique<std::uint64_t[]>(blockCount);
+		for (std::size_t i = 0; i < blockCount; ++i)
+			m_registeredBodies[i] = 0;
 	}
 
 	JoltPhysWorld3D::~JoltPhysWorld3D() = default;
@@ -377,7 +388,55 @@ namespace Nz
 		hitInfo.hitBody = reinterpret_cast<JoltRigidBody3D*>(static_cast<std::uintptr_t>(body.GetUserData()));
 		hitInfo.hitNormal = FromJolt(body.GetWorldSpaceSurfaceNormal(collector.mHit.mSubShapeID2, rayCast.GetPointOnRay(collector.mHit.GetEarlyOutFraction())));
 
+		callback(hitInfo);
 		return true;
+	}
+
+	void JoltPhysWorld3D::RefreshBodies()
+	{
+		// Batch add bodies (keeps the broadphase efficient)
+		JPH::BodyInterface& bodyInterface = m_world->physicsSystem.GetBodyInterfaceNoLock();
+		auto AddBodies = [&](const JoltWorld::BodySet& bodies, JPH::EActivation activation)
+		{
+			for (const JPH::BodyID& bodyId : bodies)
+			{
+				UInt32 bodyIndex = bodyId.GetIndex();
+				UInt32 blockIndex = bodyIndex / 64;
+				UInt32 localIndex = bodyIndex % 64;
+
+				m_registeredBodies[blockIndex] |= UInt64(1u) << localIndex;
+			}
+
+			if (bodies.size() == 1)
+				bodyInterface.AddBody(bodies.front(), activation);
+			else
+			{
+				m_world->tempBodyIDVec.resize(bodies.size());
+				std::memcpy(&m_world->tempBodyIDVec[0], bodies.data(), bodies.size() * sizeof(JPH::BodyID));
+
+				JPH::BodyInterface::AddState addState = bodyInterface.AddBodiesPrepare(m_world->tempBodyIDVec.data(), SafeCast<int>(m_world->tempBodyIDVec.size()));
+				bodyInterface.AddBodiesFinalize(m_world->tempBodyIDVec.data(), SafeCast<int>(m_world->tempBodyIDVec.size()), addState, activation);
+			}
+		};
+
+		// Handle pending register/unregister bodies
+		if (!m_world->pendingAdditionActivate.empty())
+		{
+			AddBodies(m_world->pendingAdditionActivate, JPH::EActivation::Activate);
+			m_world->pendingAdditionActivate.clear();
+		}
+
+		if (!m_world->pendingAdditionNoActivate.empty())
+		{
+			AddBodies(m_world->pendingAdditionNoActivate, JPH::EActivation::DontActivate);
+			m_world->pendingAdditionNoActivate.clear();
+		}
+
+		if (!m_world->pendingDeactivations.empty())
+		{
+			bodyInterface.DeactivateBodies(m_world->pendingDeactivations.data(), SafeCast<int>(m_world->pendingDeactivations.size()));
+			m_world->pendingDeactivations.clear();
+		}
 	}
 
 	void JoltPhysWorld3D::SetGravity(const Vector3f& gravity)
@@ -397,18 +456,12 @@ namespace Nz
 
 	void JoltPhysWorld3D::Step(Time timestep)
 	{
+		RefreshBodies();
+
 		JPH::JobSystem& jobSystem = JoltPhysics3D::Instance()->GetThreadPool();
-
-		m_timestepAccumulator += timestep;
-
 		float stepSize = m_stepSize.AsSeconds<float>();
 
-		static bool firstStep = true;
-		if (firstStep)
-		{
-			m_world->physicsSystem.OptimizeBroadPhase();
-			firstStep = false;
-		}
+		m_timestepAccumulator += timestep;
 
 		std::size_t stepCount = 0;
 		while (m_timestepAccumulator >= m_stepSize && stepCount < m_maxStepCount)
@@ -421,6 +474,63 @@ namespace Nz
 			m_timestepAccumulator -= m_stepSize;
 			stepCount++;
 		}
+	}
+
+	void JoltPhysWorld3D::RegisterBody(const JPH::BodyID& bodyID, bool activate, bool removeFromDeactivationList)
+	{
+		assert(removeFromDeactivationList || !m_world->pendingDeactivations.contains(bodyID));
+
+		auto& activationSet = (activate) ? m_world->pendingAdditionActivate : m_world->pendingAdditionNoActivate;
+		activationSet.insert(bodyID);
+
+		if (removeFromDeactivationList)
+		{
+			auto& otherActivationSet = (activate) ? m_world->pendingAdditionNoActivate : m_world->pendingAdditionActivate;
+			otherActivationSet.erase(bodyID);
+
+			m_world->pendingDeactivations.erase(bodyID);
+		}
+	}
+
+	void JoltPhysWorld3D::UnregisterBody(const JPH::BodyID& bodyID, bool destroy, bool removeFromActivationList)
+	{
+		if (destroy)
+		{
+			auto& bodyInterface = m_world->physicsSystem.GetBodyInterface();
+
+			UInt32 bodyIndex = bodyID.GetIndex();
+			if (IsBodyRegistered(bodyIndex))
+			{
+				UInt32 blockIndex = bodyIndex / 64;
+				UInt32 localIndex = bodyIndex % 64;
+
+				m_registeredBodies[blockIndex] &= ~(UInt64(1u) << localIndex);
+
+				bodyInterface.RemoveBody(bodyID);
+			}
+
+			bodyInterface.DestroyBody(bodyID);
+
+		}
+		else
+			m_world->pendingDeactivations.insert(bodyID);
+
+		if (removeFromActivationList)
+		{
+			m_world->pendingAdditionActivate.erase(bodyID);
+			m_world->pendingAdditionNoActivate.erase(bodyID);
+		}
+	}
+
+	const JPH::Shape* JoltPhysWorld3D::GetNullShape() const
+	{
+		if (!m_world->nullShape)
+		{
+			m_world->nullShape = std::make_unique<JPH::SphereShape>(std::numeric_limits<float>::epsilon());
+			m_world->nullShape->SetEmbedded();
+		}
+
+		return m_world->nullShape.get();
 	}
 
 	void JoltPhysWorld3D::OnPreStep(float deltatime)

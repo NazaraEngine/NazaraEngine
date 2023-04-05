@@ -21,6 +21,12 @@ namespace Nz
 
 		Max = TranslatedRotatedDecoration
 	};
+
+	enum class JoltMotionQuality
+	{
+		Discrete,
+		LinearCast
+	};
 }
 
 #endif // NAZARA_JOLTPHYSICS3D_ENUMS_HPP

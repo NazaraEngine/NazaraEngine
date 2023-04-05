@@ -20,7 +20,9 @@
 
 namespace JPH
 {
+	class BodyID;
 	class PhysicsSystem;
+	class Shape;
 }
 
 namespace Nz
@@ -31,6 +33,7 @@ namespace Nz
 	class NAZARA_JOLTPHYSICS3D_API JoltPhysWorld3D
 	{
 		friend JoltCharacter;
+		friend JoltRigidBody3D;
 
 		public:
 			struct RaycastHit;
@@ -47,9 +50,12 @@ namespace Nz
 			Time GetStepSize() const;
 
 			inline bool IsBodyActive(UInt32 bodyIndex) const;
+			inline bool IsBodyRegistered(UInt32 bodyIndex) const;
 
 			bool RaycastQuery(const Vector3f& from, const Vector3f& to, const FunctionRef<std::optional<float>(const RaycastHit& hitInfo)>& callback);
 			bool RaycastQueryFirst(const Vector3f& from, const Vector3f& to, const FunctionRef<void(const RaycastHit& hitInfo)>& callback);
+
+			void RefreshBodies();
 
 			void SetGravity(const Vector3f& gravity);
 			void SetMaxStepCount(std::size_t maxStepCount);
@@ -77,13 +83,19 @@ namespace Nz
 
 			struct JoltWorld;
 
+			const JPH::Shape* GetNullShape() const;
+
 			void OnPreStep(float deltatime);
 
+			void RegisterBody(const JPH::BodyID& bodyID, bool activate, bool removeFromDeactivationList);
 			inline void RegisterCharacter(JoltCharacter* character);
+
+			void UnregisterBody(const JPH::BodyID& bodyID, bool destroy, bool removeFromRegisterList);
 			inline void UnregisterCharacter(JoltCharacter* character);
 
 			std::size_t m_maxStepCount;
 			std::unique_ptr<std::atomic_uint64_t[]> m_activeBodies;
+			std::unique_ptr<std::uint64_t[]> m_registeredBodies;
 			std::unique_ptr<JoltWorld> m_world;
 			std::vector<JoltCharacter*> m_characters;
 			Vector3f m_gravity;

@@ -52,12 +52,12 @@ namespace Nz
 
 	JoltPhysWorld3D& JoltConstraint3D::GetWorld()
 	{
-		return *GetBodyA().GetWorld();
+		return GetBodyA().GetWorld();
 	}
 
 	const JoltPhysWorld3D& JoltConstraint3D::GetWorld() const
 	{
-		return *GetBodyA().GetWorld();
+		return GetBodyA().GetWorld();
 	}
 
 	bool JoltConstraint3D::IsSingleBody() const
