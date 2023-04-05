@@ -9,13 +9,13 @@
 
 namespace Nz
 {
-	inline Node::Node() :
+	inline Node::Node(const Vector3f& translation, const Quaternionf& rotation, const Vector3f& scale) :
 	m_initialRotation(Quaternionf::Identity()),
-	m_rotation(Quaternionf::Identity()),
+	m_rotation(rotation),
 	m_initialPosition(Vector3f::Zero()),
 	m_initialScale(Vector3f(1.f, 1.f, 1.f)),
-	m_position(Vector3f::Zero()),
-	m_scale(Vector3f(1.f, 1.f, 1.f)),
+	m_position(translation),
+	m_scale(scale),
 	m_parent(nullptr),
 	m_derivedUpdated(false),
 	m_inheritPosition(true),

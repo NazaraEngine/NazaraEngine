@@ -16,7 +16,7 @@ namespace Nz
 	class NAZARA_UTILITY_API NodeComponent : public Node
 	{
 		public:
-			NodeComponent() = default;
+			using Node::Node;
 			NodeComponent(const NodeComponent&) = default;
 			NodeComponent(NodeComponent&&) noexcept = default;
 			~NodeComponent() = default;

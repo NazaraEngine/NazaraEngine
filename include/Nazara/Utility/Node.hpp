@@ -24,7 +24,7 @@ namespace Nz
 		public:
 			enum class Invalidation;
 
-			inline Node();
+			inline Node(const Vector3f& translation = Vector3f::Zero(), const Quaternionf& rotation = Quaternionf::Identity(), const Vector3f& scale = Vector3f::Unit());
 			inline Node(const Node& node);
 			inline Node(Node&& node) noexcept;
 			virtual ~Node();
