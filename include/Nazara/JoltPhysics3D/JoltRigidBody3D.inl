@@ -6,6 +6,11 @@
 
 namespace Nz
 {
+	inline void JoltRigidBody3D::DisableSimulation()
+	{
+		return EnableSimulation(false);
+	}
+
 	inline void JoltRigidBody3D::DisableSleeping()
 	{
 		return EnableSleeping(false);
@@ -31,9 +36,14 @@ namespace Nz
 		return m_geom;
 	}
 
-	inline JoltPhysWorld3D* JoltRigidBody3D::GetWorld() const
+	inline JoltPhysWorld3D& JoltRigidBody3D::GetWorld() const
 	{
-		return m_world;
+		return *m_world;
+	}
+
+	inline bool JoltRigidBody3D::IsSimulationEnabled() const
+	{
+		return m_isSimulationEnabled;
 	}
 }
 

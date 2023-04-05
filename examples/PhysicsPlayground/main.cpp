@@ -31,7 +31,7 @@ int main()
 #endif
 
 	auto& windowing = app.AddComponent<Nz::AppWindowingComponent>();
-	Nz::Window& mainWindow = windowing.CreateWindow(Nz::VideoMode(1920, 1080), "Physics playground");
+	Nz::Window& mainWindow = windowing.CreateWindow(Nz::VideoMode(1280, 720), "Physics playground");
 
 	auto& fs = app.AddComponent<Nz::AppFilesystemComponent>();
 	{
@@ -86,7 +86,8 @@ int main()
 		boxEntity.emplace<Nz::NodeComponent>();
 
 #if USE_JOLT
-		std::shared_ptr<Nz::JoltBoxCollider3D> wallCollider = std::make_shared<Nz::JoltBoxCollider3D>(Nz::Vector3f(BoxDims, BoxDims, 1.f));
+		float thickness = 1.f;
+		std::shared_ptr<Nz::JoltBoxCollider3D> wallCollider = std::make_shared<Nz::JoltBoxCollider3D>(Nz::Vector3f(BoxDims + thickness * 2.f, BoxDims + thickness * 2.f, thickness));
 #else
 		std::shared_ptr<Nz::BulletBoxCollider3D> wallCollider = std::make_shared<Nz::BulletBoxCollider3D>(Nz::Vector3f(BoxDims, BoxDims, 1.f));
 #endif
@@ -116,11 +117,13 @@ int main()
 #endif
 
 #if USE_JOLT
-		auto& ballPhysics = boxEntity.emplace<Nz::JoltRigidBody3DComponent>(physSystem.CreateRigidBody(boxCollider));
+		Nz::JoltRigidBody3D::StaticSettings settings;
+		settings.geom = boxCollider;
+
+		auto& boxBody = boxEntity.emplace<Nz::JoltRigidBody3DComponent>(physSystem.CreateRigidBody(settings));
 #else
-		auto& ballPhysics = boxEntity.emplace<Nz::BulletRigidBody3DComponent>(physSystem.CreateRigidBody(boxCollider));
+		auto& boxBody = boxEntity.emplace<Nz::BulletRigidBody3DComponent>(physSystem.CreateRigidBody(boxCollider));
 #endif
-		ballPhysics.SetMass(0.f);
 
 		std::shared_ptr<Nz::Model> colliderModel;
 		{
@@ -132,14 +135,14 @@ int main()
 				return true;
 			});
 
-			/*std::shared_ptr<Nz::Mesh> colliderMesh = Nz::Mesh::Build(boxCollider->GenerateDebugMesh());
+			std::shared_ptr<Nz::Mesh> colliderMesh = Nz::Mesh::Build(boxCollider->GenerateDebugMesh());
 			std::shared_ptr<Nz::GraphicalMesh> colliderGraphicalMesh = Nz::GraphicalMesh::BuildFromMesh(*colliderMesh);
 
 			colliderModel = std::make_shared<Nz::Model>(colliderGraphicalMesh);
 			for (std::size_t i = 0; i < colliderModel->GetSubMeshCount(); ++i)
 				colliderModel->SetMaterial(i, colliderMat);
 
-			boxGfx.AttachRenderable(std::move(colliderModel));*/
+			boxGfx.AttachRenderable(std::move(colliderModel));
 		}
 	}
 
@@ -178,11 +181,14 @@ int main()
 		ballNode.SetScale(radius);
 
 #if USE_JOLT
-		auto& ballPhysics = ballEntity.emplace<Nz::JoltRigidBody3DComponent>(physSystem.CreateRigidBody(sphereCollider));
+		Nz::JoltRigidBody3D::DynamicSettings settings;
+		settings.geom = sphereCollider;
+		settings.mass = 4.f / 3.f * Nz::Pi<float> * Nz::IntegralPow(radius, 3);
+
+		auto& ballPhysics = ballEntity.emplace<Nz::JoltRigidBody3DComponent>(physSystem.CreateRigidBody(settings));
 #else
 		auto& ballPhysics = ballEntity.emplace<Nz::BulletRigidBody3DComponent>(physSystem.CreateRigidBody(sphereCollider));
 #endif
-		ballPhysics.SetMass(4.f / 3.f * Nz::Pi<float> * Nz::IntegralPow(radius, 3));
 		//ballPhysics.DisableSleeping();
 	}
 
@@ -222,12 +228,14 @@ int main()
 #endif
 
 #if USE_JOLT
-		auto& ballPhysics = ballEntity.emplace<Nz::JoltRigidBody3DComponent>(physSystem.CreateRigidBody(boxCollider));
+		Nz::JoltRigidBody3D::DynamicSettings settings;
+		settings.geom = boxCollider;
+		settings.mass = width * height * depth;
+
+		ballEntity.emplace<Nz::JoltRigidBody3DComponent>(physSystem.CreateRigidBody(settings));
 #else
-		auto& ballPhysics = ballEntity.emplace<Nz::BulletRigidBody3DComponent>(physSystem.CreateRigidBody(boxCollider));
+		ballEntity.emplace<Nz::BulletRigidBody3DComponent>(physSystem.CreateRigidBody(boxCollider));
 #endif
-		ballPhysics.SetMass(width * height * depth);
-		//ballPhysics.DisableSleeping();
 	}
 
 	// Lumière
@@ -273,7 +281,43 @@ int main()
 	NazaraSlot(Nz::WindowEventHandler, OnMouseMoved, cameraMove);
 	NazaraSlot(Nz::WindowEventHandler, OnMouseMoved, grabbedObjectMove);
 #if USE_JOLT
-	std::optional<Nz::JoltPivotConstraint3D> grabConstraint;
+	struct GrabConstraint
+	{
+		GrabConstraint(Nz::JoltRigidBody3D& body, const Nz::Vector3f& grabPos) :
+		grabBody(body.GetWorld(), BodySettings(grabPos)),
+		grabConstraint(body, grabBody, grabPos)
+		{
+			body.WakeUp();
+			body.EnableSleeping(false);
+			grabConstraint.SetDamping(1.f);
+			grabConstraint.SetFrequency(5.f);
+		}
+
+		~GrabConstraint()
+		{
+			grabConstraint.GetBodyA().EnableSleeping(true);
+		}
+
+		void SetPosition(const Nz::Vector3f& pos)
+		{
+			grabBody.SetPosition(pos);
+		}
+
+		static Nz::JoltRigidBody3D::DynamicSettings BodySettings(const Nz::Vector3f& pos)
+		{
+			Nz::JoltRigidBody3D::DynamicSettings settings;
+			settings.mass = 0.f; //< kinematic
+			settings.isSimulationEnabled = false;
+			settings.position = pos;
+
+			return settings;
+		}
+
+		Nz::JoltRigidBody3D grabBody;
+		Nz::JoltDistanceConstraint3D grabConstraint;
+	};
+
+	std::optional<GrabConstraint> grabConstraint;
 #else
 	std::optional<Nz::BulletPivotConstraint3D> grabConstraint;
 #endif
@@ -328,8 +372,12 @@ int main()
 			{
 				if (lastHitInfo.hitBody && lastHitInfo.hitEntity != boxEntity)
 				{
+#if USE_JOLT
 					grabConstraint.emplace(*lastHitInfo.hitBody, lastHitInfo.hitPosition);
-					//grabConstraint->SetImpulseClamp(30.f);
+#else
+					grabConstraint.emplace(*lastHitInfo.hitBody, lastHitInfo.hitPosition);
+					grabConstraint->SetImpulseClamp(30.f);
+#endif
 
 					grabbedObjectMove.Connect(eventHandler.OnMouseMoved, [&, body = lastHitInfo.hitBody, distance = Nz::Vector3f::Distance(from, lastHitInfo.hitPosition)](const Nz::WindowEventHandler*, const Nz::WindowEvent::MouseMoveEvent& event)
 					{
@@ -337,7 +385,11 @@ int main()
 						Nz::Vector3f to = cameraComponent.Unproject({ float(event.x), float(event.y), 1.f });
 
 						Nz::Vector3f newPosition = from + (to - from).Normalize() * distance;
+#if USE_JOLT
+						grabConstraint->SetPosition(newPosition);
+#else
 						grabConstraint->SetSecondAnchor(newPosition);
+#endif
 					});
 				}
 				else

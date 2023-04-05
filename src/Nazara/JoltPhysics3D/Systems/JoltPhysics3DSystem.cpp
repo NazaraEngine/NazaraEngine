@@ -28,7 +28,7 @@ namespace Nz
 		// Ensure every RigidBody3D is destroyed before world is
 		auto rigidBodyView = m_registry.view<JoltRigidBody3DComponent>();
 		for (auto [entity, rigidBodyComponent] : rigidBodyView.each())
-			rigidBodyComponent.Destroy();
+			rigidBodyComponent.Destroy(true);
 	}
 
 	void JoltPhysics3DSystem::Dump()

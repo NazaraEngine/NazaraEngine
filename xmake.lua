@@ -111,7 +111,7 @@ local modules = {
 	},
 	JoltPhysics3D = {
 		Deps = {"NazaraUtility"},
-		Packages = { "joltphysics", "entt" }
+		Packages = { "joltphysics", "entt", "ordered_map" }
 	},
 	Network = {
 		Deps = {"NazaraCore"},

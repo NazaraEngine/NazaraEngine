@@ -348,8 +348,10 @@ int main()
 		auto floorCollider = std::make_shared<Nz::JoltBoxCollider3D>(Nz::Vector3f(planeSize.x, 1.f, planeSize.y));
 		auto translatedFloorCollider = std::make_shared<Nz::JoltTranslatedRotatedCollider3D>(std::move(floorCollider), Nz::Vector3f::Down() * 0.5f);
 
-		auto& planeBody = floorEntity.emplace<Nz::JoltRigidBody3DComponent>(physSytem.CreateRigidBody(translatedFloorCollider));
-		planeBody.SetMass(0.f);
+		Nz::JoltRigidBody3D::StaticSettings floorSettings;
+		floorSettings.geom = std::move(translatedFloorCollider);
+
+		auto& planeBody = floorEntity.emplace<Nz::JoltRigidBody3DComponent>(physSytem.CreateRigidBody(floorSettings));
 
 		std::shared_ptr<Nz::GraphicalMesh> boxMeshGfx = Nz::GraphicalMesh::Build(Nz::Primitive::Box(Nz::Vector3f(0.5f, 0.5f, 0.5f)), meshPrimitiveParams);
 

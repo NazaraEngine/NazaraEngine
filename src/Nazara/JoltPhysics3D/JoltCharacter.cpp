@@ -24,6 +24,7 @@ namespace Nz
 
 		JPH::CharacterSettings settings;
 		settings.mShape = shapeResult.Get();
+		settings.mLayer = 1;
 
 		m_character = std::make_unique<JPH::Character>(&settings, ToJolt(position), ToJolt(rotation), 0, m_physicsWorld.GetPhysicsSystem());
 		m_character->AddToPhysicsSystem();
@@ -108,7 +109,7 @@ namespace Nz
 		m_character->Activate(false);
 	}
 
-	void JoltCharacter::PreSimulate(float elapsedTime)
+	void JoltCharacter::PreSimulate(float /*elapsedTime*/)
 	{
 	}
 

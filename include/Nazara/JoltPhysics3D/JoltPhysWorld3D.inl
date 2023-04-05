@@ -14,6 +14,14 @@ namespace Nz
 		return m_activeBodies[blockIndex] & (UInt64(1u) << localIndex);
 	}
 
+	inline bool JoltPhysWorld3D::IsBodyRegistered(UInt32 bodyIndex) const
+	{
+		UInt32 blockIndex = bodyIndex / 64;
+		UInt32 localIndex = bodyIndex % 64;
+
+		return m_registeredBodies[blockIndex] & (UInt64(1u) << localIndex);
+	}
+
 	inline void JoltPhysWorld3D::RegisterCharacter(JoltCharacter* character)
 	{
 		auto it = std::lower_bound(m_characters.begin(), m_characters.end(), character);
