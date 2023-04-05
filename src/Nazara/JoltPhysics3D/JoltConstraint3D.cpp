@@ -7,6 +7,7 @@
 #include <Nazara/JoltPhysics3D/JoltHelper.hpp>
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/PhysicsSystem.h>
+#include <Jolt/Physics/Constraints/DistanceConstraint.h>
 #include <Jolt/Physics/Constraints/PointConstraint.h>
 #include <cassert>
 #include <Nazara/JoltPhysics3D/Debug.hpp>
@@ -96,6 +97,92 @@ namespace Nz
 
 		JPH::PhysicsSystem* physicsSystem = GetWorld().GetPhysicsSystem();
 		physicsSystem->AddConstraint(m_constraint.get());
+	}
+
+
+	JoltDistanceConstraint3D::JoltDistanceConstraint3D(JoltRigidBody3D& first, const Vector3f& pivot, float maxDist, float minDist)
+	{
+		JPH::DistanceConstraintSettings settings;
+		settings.mPoint1 = ToJolt(pivot);
+		settings.mPoint2 = ToJolt(pivot);
+		settings.mSpace = JPH::EConstraintSpace::WorldSpace;
+		settings.mMaxDistance = maxDist;
+		settings.mMinDistance = minDist;
+
+		SetupConstraint(std::make_unique<JPH::DistanceConstraint>(*first.GetBody(), JPH::Body::sFixedToWorld, settings));
+	}
+
+	JoltDistanceConstraint3D::JoltDistanceConstraint3D(JoltRigidBody3D& first, JoltRigidBody3D& second, const Vector3f& pivot, float maxDist, float minDist)
+	{
+		JPH::DistanceConstraintSettings settings;
+		settings.mPoint1 = ToJolt(pivot);
+		settings.mPoint2 = ToJolt(pivot);
+		settings.mSpace = JPH::EConstraintSpace::WorldSpace;
+		settings.mMaxDistance = maxDist;
+		settings.mMinDistance = minDist;
+
+		SetupConstraint(std::make_unique<JPH::DistanceConstraint>(*first.GetBody(), *second.GetBody(), settings));
+	}
+
+	JoltDistanceConstraint3D::JoltDistanceConstraint3D(JoltRigidBody3D& first, JoltRigidBody3D& second, const Vector3f& firstAnchor, const Vector3f& secondAnchor, float maxDist, float minDist)
+	{
+		JPH::DistanceConstraintSettings settings;
+		settings.mPoint1 = ToJolt(firstAnchor);
+		settings.mPoint2 = ToJolt(secondAnchor);
+		settings.mSpace = JPH::EConstraintSpace::WorldSpace;
+		settings.mMaxDistance = maxDist;
+		settings.mMinDistance = minDist;
+
+		SetupConstraint(std::make_unique<JPH::DistanceConstraint>(*first.GetBody(), *second.GetBody(), settings));
+	}
+
+	float JoltDistanceConstraint3D::GetDamping() const
+	{
+		return GetConstraint<JPH::DistanceConstraint>()->GetDamping();
+	}
+
+	float JoltDistanceConstraint3D::GetFrequency() const
+	{
+		return GetConstraint<JPH::DistanceConstraint>()->GetFrequency();
+	}
+
+	float JoltDistanceConstraint3D::GetMaxDistance() const
+	{
+		return GetConstraint<JPH::DistanceConstraint>()->GetMaxDistance();
+	}
+
+	float JoltDistanceConstraint3D::GetMinDistance() const
+	{
+		return GetConstraint<JPH::DistanceConstraint>()->GetMinDistance();
+	}
+
+	void JoltDistanceConstraint3D::SetDamping(float damping)
+	{
+		GetConstraint<JPH::DistanceConstraint>()->SetDamping(damping);
+	}
+
+	void JoltDistanceConstraint3D::SetDistance(float minDist, float maxDist)
+	{
+		GetConstraint<JPH::DistanceConstraint>()->SetDistance(minDist, maxDist);
+	}
+
+	void JoltDistanceConstraint3D::SetFrequency(float frequency)
+	{
+		GetConstraint<JPH::DistanceConstraint>()->SetFrequency(frequency);
+	}
+
+	void JoltDistanceConstraint3D::SetMaxDistance(float maxDist)
+	{
+		JPH::DistanceConstraint* constraint = GetConstraint<JPH::DistanceConstraint>();
+
+		constraint->SetDistance(constraint->GetMinDistance(), maxDist);
+	}
+
+	void JoltDistanceConstraint3D::SetMinDistance(float minDist)
+	{
+		JPH::DistanceConstraint* constraint = GetConstraint<JPH::DistanceConstraint>();
+
+		constraint->SetDistance(minDist, constraint->GetMaxDistance());
 	}
 
 

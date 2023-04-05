@@ -58,6 +58,26 @@ namespace Nz
 			std::unique_ptr<JPH::TwoBodyConstraint> m_constraint;
 	};
 
+	class NAZARA_JOLTPHYSICS3D_API JoltDistanceConstraint3D : public JoltConstraint3D
+	{
+		public:
+			JoltDistanceConstraint3D(JoltRigidBody3D& first, const Vector3f& pivot, float maxDist = -1.f, float minDist = -1.f);
+			JoltDistanceConstraint3D(JoltRigidBody3D& first, JoltRigidBody3D& second, const Vector3f& pivot, float maxDist = -1.f, float minDist = -1.f);
+			JoltDistanceConstraint3D(JoltRigidBody3D& first, JoltRigidBody3D& second, const Vector3f& firstAnchor, const Vector3f& secondAnchor, float maxDist = -1.f, float minDist = -1.f);
+			~JoltDistanceConstraint3D() = default;
+
+			float GetDamping() const;
+			float GetFrequency() const;
+			float GetMaxDistance() const;
+			float GetMinDistance() const;
+
+			void SetDamping(float damping);
+			void SetDistance(float minDist, float maxDist);
+			void SetFrequency(float frequency);
+			void SetMaxDistance(float maxDist);
+			void SetMinDistance(float minDist);
+	};
+
 	class NAZARA_JOLTPHYSICS3D_API JoltPivotConstraint3D : public JoltConstraint3D
 	{
 		public:
