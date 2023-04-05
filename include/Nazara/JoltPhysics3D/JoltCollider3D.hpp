@@ -66,7 +66,7 @@ namespace Nz
 	class NAZARA_JOLTPHYSICS3D_API JoltBoxCollider3D final : public JoltCollider3D
 	{
 		public:
-			JoltBoxCollider3D(const Vector3f& lengths, float convexRadius = 0.f);
+			JoltBoxCollider3D(const Vector3f& lengths, float convexRadius = 0.1f);
 			~JoltBoxCollider3D() = default;
 
 			void BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const override;
