@@ -24,6 +24,7 @@ namespace Nz
 			static constexpr std::size_t MaxRenderableCount = 8;
 
 			inline GraphicsComponent(bool initiallyVisible = true);
+			inline GraphicsComponent(std::shared_ptr<InstancedRenderable> renderable, UInt32 renderMask = 0xFFFFFFFF, bool initiallyVisible = true);
 			GraphicsComponent(const GraphicsComponent&) = default;
 			GraphicsComponent(GraphicsComponent&&) = default;
 			~GraphicsComponent() = default;

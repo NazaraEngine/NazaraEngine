@@ -12,6 +12,12 @@ namespace Nz
 	{
 		m_worldInstance = std::make_shared<WorldInstance>(); //< FIXME: Use pools
 	}
+	
+	inline GraphicsComponent::GraphicsComponent(std::shared_ptr<InstancedRenderable> renderable, UInt32 renderMask, bool initiallyVisible) :
+	GraphicsComponent(initiallyVisible)
+	{
+		AttachRenderable(std::move(renderable), renderMask);
+	}
 
 	inline void GraphicsComponent::AttachRenderable(std::shared_ptr<InstancedRenderable> renderable, UInt32 renderMask)
 	{
