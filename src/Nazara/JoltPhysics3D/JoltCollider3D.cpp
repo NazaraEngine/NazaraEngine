@@ -166,8 +166,8 @@ namespace Nz
 		float radius = capsuleSettings->mRadius;
 		float halfHeight = capsuleSettings->mHalfHeightOfCylinder;
 
-		std::optional<std::size_t> firstVertex;
-		std::optional<std::size_t> lastVertex;
+		std::optional<UInt16> firstVertex;
+		std::optional<UInt16> lastVertex;
 
 		for (unsigned int slice = 0; slice < sliceCount; ++slice)
 		{
@@ -178,20 +178,20 @@ namespace Nz
 			{
 				auto [sin, cos] = RadianAnglef(0.5f * Pi<float> * i / cornerStepCount).GetSinCos();
 
-				std::size_t index;
+				UInt16 index;
 				if (firstVertex && i == 0)
 					index = *firstVertex;
 				else
 				{
-					index = vertices.size();
-					vertices.push_back(top + rot * (radius * Vector3f(sin, cos, 0.f)));
+					index = SafeCast<UInt16>(vertices.size());
+					vertices.push_back(offsetMatrix * (top + rot * (radius * Vector3f(sin, cos, 0.f))));
 					if (i == 0)
 						firstVertex = index;
 				}
 
 				if (i > 1)
 				{
-					indices.push_back(index - 1);
+					indices.push_back(static_cast<UInt16>(index - 1));
 					indices.push_back(index);
 				}
 				else if (i == 1)
@@ -206,18 +206,18 @@ namespace Nz
 			{
 				auto [sin, cos] = RadianAnglef(0.5f * Pi<float> * i / cornerStepCount).GetSinCos();
 
-				std::size_t index;
+				UInt16 index;
 				if (lastVertex && i == sliceCount - 1)
 					index = *lastVertex;
 				else
 				{
-					index = vertices.size();
-					vertices.push_back(bottom - rot * (radius * Vector3f(-cos, sin, 0.f)));
+					index = SafeCast<UInt16>(vertices.size());
+					vertices.push_back(offsetMatrix * (bottom - rot * (radius * Vector3f(-cos, sin, 0.f))));
 					if (i == sliceCount - 1)
 						lastVertex = index;
 				}
 
-				indices.push_back(index - 1);
+				indices.push_back(static_cast<UInt16>(index - 1));
 				indices.push_back(index);
 			}
 		}
