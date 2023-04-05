@@ -16,37 +16,40 @@
 
 namespace Nz
 {
-	class CallbackHitResult : public btCollisionWorld::RayResultCallback
+	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
-		public:
-			CallbackHitResult(const Vector3f& from, const Vector3f& to, const FunctionRef<std::optional<float>(const BulletPhysWorld3D::RaycastHit& hitInfo)>& callback) :
-			m_callback(callback),
-			m_from(from),
-			m_to(to)
-			{
-			}
+		class CallbackHitResult : public btCollisionWorld::RayResultCallback
+		{
+			public:
+				CallbackHitResult(const Vector3f& from, const Vector3f& to, const FunctionRef<std::optional<float>(const BulletPhysWorld3D::RaycastHit& hitInfo)>& callback) :
+				m_callback(callback),
+				m_from(from),
+				m_to(to)
+				{
+				}
 
-			btScalar addSingleResult(btCollisionWorld::LocalRayResult& rayResult, bool normalInWorldSpace) override
-			{
-				m_collisionObject = rayResult.m_collisionObject;
+				btScalar addSingleResult(btCollisionWorld::LocalRayResult& rayResult, bool normalInWorldSpace) override
+				{
+					m_collisionObject = rayResult.m_collisionObject;
 
-				BulletPhysWorld3D::RaycastHit hitInfo;
-				hitInfo.fraction = rayResult.m_hitFraction;
-				hitInfo.hitPosition = Lerp(m_from, m_to, rayResult.m_hitFraction);
-				hitInfo.hitNormal = FromBullet((normalInWorldSpace) ? rayResult.m_hitNormalLocal : m_collisionObject->getWorldTransform().getBasis() * rayResult.m_hitNormalLocal);
+					BulletPhysWorld3D::RaycastHit hitInfo;
+					hitInfo.fraction = rayResult.m_hitFraction;
+					hitInfo.hitPosition = Lerp(m_from, m_to, rayResult.m_hitFraction);
+					hitInfo.hitNormal = FromBullet((normalInWorldSpace) ? rayResult.m_hitNormalLocal : m_collisionObject->getWorldTransform().getBasis() * rayResult.m_hitNormalLocal);
 
-				if (const btRigidBody* body = btRigidBody::upcast(m_collisionObject))
-					hitInfo.hitBody = static_cast<BulletRigidBody3D*>(body->getUserPointer());
+					if (const btRigidBody* body = btRigidBody::upcast(m_collisionObject))
+						hitInfo.hitBody = static_cast<BulletRigidBody3D*>(body->getUserPointer());
 
-				m_closestHitFraction = std::max(m_callback(hitInfo).value_or(m_closestHitFraction), 0.f);
-				return m_closestHitFraction;
-			}
+					m_closestHitFraction = std::max(m_callback(hitInfo).value_or(m_closestHitFraction), 0.f);
+					return m_closestHitFraction;
+				}
 
-		private:
-			const FunctionRef<std::optional<float>(const BulletPhysWorld3D::RaycastHit& hitInfo)>& m_callback;
-			Vector3f m_from;
-			Vector3f m_to;
-	};
+			private:
+				const FunctionRef<std::optional<float>(const BulletPhysWorld3D::RaycastHit& hitInfo)>& m_callback;
+				Vector3f m_from;
+				Vector3f m_to;
+		};
+	}
 
 	struct BulletPhysWorld3D::BulletWorld
 	{
@@ -104,6 +107,8 @@ namespace Nz
 
 	bool BulletPhysWorld3D::RaycastQuery(const Vector3f& from, const Vector3f& to, const FunctionRef<std::optional<float>(const RaycastHit& hitInfo)>& callback)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		CallbackHitResult resultHandler(from, to, callback);
 		m_world->dynamicWorld.rayTest(ToBullet(from), ToBullet(to), resultHandler);
 

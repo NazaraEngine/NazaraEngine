@@ -350,6 +350,8 @@ namespace Nz
 
 	bool JoltPhysWorld3D::RaycastQuery(const Vector3f& from, const Vector3f& to, const FunctionRef<std::optional<float>(const RaycastHit& hitInfo)>& callback)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		JPH::RRayCast rayCast;
 		rayCast.mDirection = ToJolt(to - from);
 		rayCast.mOrigin = ToJolt(from);
