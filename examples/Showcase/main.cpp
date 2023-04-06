@@ -349,7 +349,7 @@ int main()
 		auto translatedFloorCollider = std::make_shared<Nz::JoltTranslatedRotatedCollider3D>(std::move(floorCollider), Nz::Vector3f::Down() * 0.5f);
 
 		Nz::JoltRigidBody3D::StaticSettings floorSettings;
-		floorSettings.geom = std::move(translatedFloorCollider);
+		floorSettings.geom = translatedFloorCollider;
 
 		auto& planeBody = floorEntity.emplace<Nz::JoltRigidBody3DComponent>(physSytem.CreateRigidBody(floorSettings));
 
