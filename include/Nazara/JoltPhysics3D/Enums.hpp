@@ -14,6 +14,7 @@ namespace Nz
 		Box,
 		Capsule,
 		Compound,
+		Convex,
 		Sphere,
 
 		ScaleDecoration,
