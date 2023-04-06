@@ -11,9 +11,11 @@
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
 #include <NazaraUtils/MemoryHelper.hpp>
+#include <tsl/ordered_map.h>
 #include <Jolt/Core/Core.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
+#include <Jolt/Physics/Collision/Shape/ConvexHullShape.h>
 #include <Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h>
 #include <Jolt/Physics/Collision/Shape/StaticCompoundShape.h>
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
@@ -67,7 +69,17 @@ namespace Nz
 	{
 		m_shapeSettings.reset();
 	}
-	
+
+	void JoltCollider3D::SetupShapeSettings(std::unique_ptr<JPH::ShapeSettings>&& shapeSettings)
+	{
+		assert(!m_shapeSettings);
+		m_shapeSettings = std::move(shapeSettings);
+		m_shapeSettings->SetEmbedded();
+
+		if (auto result = m_shapeSettings->Create(); result.HasError())
+			throw std::runtime_error(std::string("shape creation failed: ") + result.GetError().c_str());
+	}
+
 	std::shared_ptr<JoltCollider3D> JoltCollider3D::CreateGeomFromPrimitive(const Primitive& primitive)
 	{
 		switch (primitive.type)
@@ -272,6 +284,57 @@ namespace Nz
 		return JoltColliderType3D::Compound;
 	}
 
+	/******************************** JoltConvexHullCollider3D *********************************/
+
+	JoltConvexHullCollider3D::JoltConvexHullCollider3D(SparsePtr<const Vector3f> vertices, std::size_t vertexCount, float hullTolerance, float convexRadius, float maxErrorConvexRadius)
+	{
+		std::unique_ptr<JPH::ConvexHullShapeSettings> settings = std::make_unique<JPH::ConvexHullShapeSettings>();
+		settings->mHullTolerance = hullTolerance;
+		settings->mMaxConvexRadius = convexRadius;
+		settings->mMaxErrorConvexRadius = maxErrorConvexRadius;
+
+		settings->mPoints.resize(vertexCount);
+		for (std::size_t i = 0; i < vertexCount; ++i)
+			settings->mPoints[i] = ToJolt(vertices[i]);
+
+		SetupShapeSettings(std::move(settings));
+	}
+
+	void JoltConvexHullCollider3D::BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const
+	{
+		tsl::ordered_map<Vector3f, UInt16> vertexCache;
+		auto InsertVertex = [&](const Vector3f& position) -> UInt16
+		{
+			auto it = vertexCache.find(position);
+			if (it != vertexCache.end())
+				return it->second;
+
+			UInt16 index = SafeCast<UInt16>(vertices.size());
+
+			vertices.push_back(position);
+			vertexCache.emplace(position, index);
+
+			return index;
+		};
+
+		const JPH::ConvexHullShapeSettings* settings = GetShapeSettingsAs<JPH::ConvexHullShapeSettings>();
+		const JPH::ConvexHullShape* shape = SafeCast<const JPH::ConvexHullShape*>(settings->Create().Get().GetPtr());
+
+		unsigned int pointCount = shape->GetNumPoints();
+		for (int i = 1; i < pointCount; ++i)
+		{
+			indices.push_back(InsertVertex(offsetMatrix * FromJolt(shape->GetPoint(i - 1))));
+			indices.push_back(InsertVertex(offsetMatrix * FromJolt(shape->GetPoint(i))));
+		}
+		indices.push_back(InsertVertex(offsetMatrix* FromJolt(shape->GetPoint(pointCount - 1))));
+		indices.push_back(InsertVertex(offsetMatrix* FromJolt(shape->GetPoint(0))));
+	}
+
+	JoltColliderType3D JoltConvexHullCollider3D::GetType() const
+	{
+		return JoltColliderType3D::Convex;
+	}
+
 	/******************************** JoltSphereCollider3D *********************************/
 
 	JoltSphereCollider3D::JoltSphereCollider3D(float radius)
@@ -292,6 +355,8 @@ namespace Nz
 	{
 		return JoltColliderType3D::Sphere;
 	}
+
+	/******************************** JoltTranslatedRotatedCollider3D *********************************/
 
 	JoltTranslatedRotatedCollider3D::JoltTranslatedRotatedCollider3D(std::shared_ptr<JoltCollider3D> collider, const Vector3f& translation, const Quaternionf& rotation) :
 	m_collider(std::move(collider))

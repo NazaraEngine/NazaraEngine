@@ -60,6 +60,14 @@ int main()
 
 	Nz::Vector3f target = Nz::Vector3f::Zero();
 
+	std::shared_ptr<Nz::MaterialInstance> colliderMat = Nz::Graphics::Instance()->GetDefaultMaterials().basicMaterial->Instantiate();
+	colliderMat->SetValueProperty("BaseColor", Nz::Color::Green());
+	colliderMat->UpdatePassesStates([](Nz::RenderStates& states)
+	{
+		states.primitiveMode = Nz::PrimitiveMode::LineList;
+		return true;
+	});
+
 	entt::handle boxEntity = world.CreateEntity();
 	{
 		std::shared_ptr<Nz::GraphicalMesh> boxMesh = Nz::GraphicalMesh::Build(Nz::Primitive::Box(Nz::Vector3f(BoxDims), Nz::Vector3ui::Zero(), Nz::Matrix4f::Scale(Nz::Vector3f(-1.f)), Nz::Rectf(0.f, 0.f, 2.f, 2.f)));
@@ -123,18 +131,11 @@ int main()
 		auto& boxBody = boxEntity.emplace<Nz::JoltRigidBody3DComponent>(physSystem.CreateRigidBody(settings));
 #else
 		auto& boxBody = boxEntity.emplace<Nz::BulletRigidBody3DComponent>(physSystem.CreateRigidBody(boxCollider));
+		boxBody.SetMass(0.f);
 #endif
 
 		std::shared_ptr<Nz::Model> colliderModel;
 		{
-			std::shared_ptr<Nz::MaterialInstance> colliderMat = Nz::Graphics::Instance()->GetDefaultMaterials().basicMaterial->Instantiate();
-			colliderMat->SetValueProperty("BaseColor", Nz::Color::Green());
-			colliderMat->UpdatePassesStates([](Nz::RenderStates& states)
-			{
-				states.primitiveMode = Nz::PrimitiveMode::LineList;
-				return true;
-			});
-
 			std::shared_ptr<Nz::Mesh> colliderMesh = Nz::Mesh::Build(boxCollider->GenerateDebugMesh());
 			std::shared_ptr<Nz::GraphicalMesh> colliderGraphicalMesh = Nz::GraphicalMesh::BuildFromMesh(*colliderMesh);
 
@@ -189,7 +190,6 @@ int main()
 #else
 		auto& ballPhysics = ballEntity.emplace<Nz::BulletRigidBody3DComponent>(physSystem.CreateRigidBody(sphereCollider));
 #endif
-		//ballPhysics.DisableSleeping();
 	}
 
 	std::uniform_real_distribution<float> lengthDis(0.2f, 1.5f);
@@ -206,7 +206,7 @@ int main()
 		std::uniform_real_distribution<float> yRandom(-BoxDims * 0.5f + height, BoxDims * 0.5f - height);
 		std::uniform_real_distribution<float> zRandom(-BoxDims * 0.5f + depth, BoxDims * 0.5f - depth);
 
-		entt::handle ballEntity = world.CreateEntity();
+		entt::handle boxEntity = world.CreateEntity();
 
 		std::shared_ptr<Nz::MaterialInstance> boxMaterial = Nz::Graphics::Instance()->GetDefaultMaterials().phongMaterial->Instantiate();
 		boxMaterial->SetValueProperty("BaseColor", Nz::Color::FromHSV(colorDis(rd), 1.f, 1.f));
@@ -214,10 +214,9 @@ int main()
 		std::shared_ptr<Nz::Model> sphereModel = std::make_shared<Nz::Model>(boxMesh);
 		sphereModel->SetMaterial(0, std::move(boxMaterial));
 
-		auto& ballGfx = ballEntity.emplace<Nz::GraphicsComponent>();
-		ballGfx.AttachRenderable(std::move(sphereModel));
+		boxEntity.emplace<Nz::GraphicsComponent>(std::move(sphereModel));
 
-		auto& ballNode = ballEntity.emplace<Nz::NodeComponent>();
+		auto& ballNode = boxEntity.emplace<Nz::NodeComponent>();
 		ballNode.SetPosition(xRandom(rd), yRandom(rd), zRandom(rd));
 		ballNode.SetScale(width, height, depth);
 
@@ -232,10 +231,91 @@ int main()
 		settings.geom = boxCollider;
 		settings.mass = width * height * depth;
 
-		ballEntity.emplace<Nz::JoltRigidBody3DComponent>(physSystem.CreateRigidBody(settings));
+		boxEntity.emplace<Nz::JoltRigidBody3DComponent>(physSystem.CreateRigidBody(settings));
 #else
-		ballEntity.emplace<Nz::BulletRigidBody3DComponent>(physSystem.CreateRigidBody(boxCollider));
+		boxEntity.emplace<Nz::BulletRigidBody3DComponent>(physSystem.CreateRigidBody(boxCollider));
 #endif
+	}
+
+	// Spaceships
+	{
+		Nz::MeshParams meshParams;
+		meshParams.center = true;
+		meshParams.vertexRotation = Nz::EulerAnglesf(0.f, 90.f, 0.f);
+		meshParams.vertexScale = Nz::Vector3f(0.002f);
+		meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_Normal_UV_Tangent);
+
+		std::shared_ptr<Nz::Mesh> spaceshipMesh = fs.Load<Nz::Mesh>("assets/Spaceship/spaceship.obj", meshParams);
+		if (!spaceshipMesh)
+		{
+			NazaraError("Failed to load model");
+			return __LINE__;
+		}
+
+		const Nz::Boxf& aabb = spaceshipMesh->GetAABB();
+
+		std::uniform_real_distribution<float> xRandom(-BoxDims * 0.5f + aabb.width, BoxDims * 0.5f - aabb.width);
+		std::uniform_real_distribution<float> yRandom(-BoxDims * 0.5f + aabb.height, BoxDims * 0.5f - aabb.height);
+		std::uniform_real_distribution<float> zRandom(-BoxDims * 0.5f + aabb.depth, BoxDims * 0.5f - aabb.depth);
+
+
+		std::shared_ptr<Nz::GraphicalMesh> gfxMesh = Nz::GraphicalMesh::BuildFromMesh(*spaceshipMesh);
+
+		Nz::TextureSamplerInfo samplerInfo;
+		samplerInfo.anisotropyLevel = 8;
+
+		std::shared_ptr<Nz::MaterialInstance> material = Nz::Graphics::Instance()->GetDefaultMaterials().phongMaterial->Instantiate();
+
+		Nz::TextureParams texParams;
+		texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
+
+		material->SetTextureProperty("BaseColorMap", fs.Load<Nz::Texture>("assets/Spaceship/Texture/diffuse.png", texParams));
+
+		std::shared_ptr<Nz::Model> model = std::make_shared<Nz::Model>(std::move(gfxMesh));
+		for (std::size_t i = 0; i < model->GetSubMeshCount(); ++i)
+			model->SetMaterial(i, material);
+
+		Nz::VertexMapper vertexMapper(*spaceshipMesh->GetSubMesh(0));
+		Nz::SparsePtr<Nz::Vector3f> vertices = vertexMapper.GetComponentPtr<Nz::Vector3f>(Nz::VertexComponent::Position);
+
+#if USE_JOLT
+		auto shipCollider = std::make_shared<Nz::JoltConvexHullCollider3D>(vertices, vertexMapper.GetVertexCount());
+#else
+		auto shipCollider = std::make_shared<Nz::BulletConvexCollider3D>(vertices, vertexMapper.GetVertexCount());
+#endif
+
+		std::shared_ptr<Nz::Model> colliderModel;
+		{
+			std::shared_ptr<Nz::Mesh> colliderMesh = Nz::Mesh::Build(shipCollider->GenerateDebugMesh());
+			std::shared_ptr<Nz::GraphicalMesh> colliderGraphicalMesh = Nz::GraphicalMesh::BuildFromMesh(*colliderMesh);
+
+			colliderModel = std::make_shared<Nz::Model>(colliderGraphicalMesh);
+			for (std::size_t i = 0; i < colliderModel->GetSubMeshCount(); ++i)
+				colliderModel->SetMaterial(i, colliderMat);
+		}
+
+		constexpr std::size_t ShipCount = 1000;
+		for (std::size_t i = 0; i < ShipCount; ++i)
+		{
+			entt::handle shipEntity = world.CreateEntity();
+
+			shipEntity.emplace<Nz::GraphicsComponent>(model);
+
+			auto& shipNode = shipEntity.emplace<Nz::NodeComponent>();
+			shipNode.SetPosition(xRandom(rd), yRandom(rd), zRandom(rd));
+
+#if USE_JOLT
+			Nz::JoltRigidBody3D::DynamicSettings settings;
+			settings.geom = shipCollider;
+			settings.mass = 100.f;
+
+			shipEntity.emplace<Nz::JoltRigidBody3DComponent>(physSystem.CreateRigidBody(settings));
+#else
+			shipEntity.emplace<Nz::BulletRigidBody3DComponent>(physSystem.CreateRigidBody(shipCollider));
+#endif
+
+			shipEntity.get<Nz::GraphicsComponent>().AttachRenderable(colliderModel);
+		}
 	}
 
 	// Lumière

@@ -53,7 +53,7 @@ namespace Nz
 		protected:
 			template<typename T> const T* GetShapeSettingsAs() const;
 			void ResetShapeSettings();
-			template<typename T> void SetupShapeSettings(std::unique_ptr<T> shapeSettings);
+			void SetupShapeSettings(std::unique_ptr<JPH::ShapeSettings>&& shapeSettings);
 
 		private:
 			static std::shared_ptr<JoltCollider3D> CreateGeomFromPrimitive(const Primitive& primitive);
@@ -66,7 +66,7 @@ namespace Nz
 	class NAZARA_JOLTPHYSICS3D_API JoltBoxCollider3D final : public JoltCollider3D
 	{
 		public:
-			JoltBoxCollider3D(const Vector3f& lengths, float convexRadius = 0.1f);
+			JoltBoxCollider3D(const Vector3f& lengths, float convexRadius = 0.01f);
 			~JoltBoxCollider3D() = default;
 
 			void BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const override;
@@ -110,6 +110,17 @@ namespace Nz
 
 		private:
 			std::vector<ChildCollider> m_childs;
+	};
+	
+	class NAZARA_JOLTPHYSICS3D_API JoltConvexHullCollider3D final : public JoltCollider3D
+	{
+		public:
+			JoltConvexHullCollider3D(SparsePtr<const Vector3f> vertices, std::size_t vertexCount, float hullTolerance = 0.001f, float convexRadius = 0.f, float maxErrorConvexRadius = 0.05f);
+			~JoltConvexHullCollider3D() = default;
+
+			void BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const override;
+
+			JoltColliderType3D GetType() const override;
 	};
 
 	class NAZARA_JOLTPHYSICS3D_API JoltSphereCollider3D final : public JoltCollider3D

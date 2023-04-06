@@ -19,15 +19,6 @@ namespace Nz
 		return SafeCast<T*>(m_shapeSettings.get());
 	}
 
-	template<typename T>
-	void JoltCollider3D::SetupShapeSettings(std::unique_ptr<T> shapeSettings)
-	{
-		shapeSettings->SetEmbedded(); // Call SetEmbedded on the template type to prevent compiler to resolve it outside of a file including Jolt
-
-		assert(!m_shapeSettings);
-		m_shapeSettings = std::move(shapeSettings);
-	}
-
 
 	inline JoltTranslatedRotatedCollider3D::JoltTranslatedRotatedCollider3D(std::shared_ptr<JoltCollider3D> collider, const Vector3f& translation) :
 	JoltTranslatedRotatedCollider3D(std::move(collider), translation, Quaternionf::Identity())
