@@ -165,7 +165,7 @@ namespace Nz
 					// If stream has an associated filesystem path, use OpenFromFile instead to make sure the File stream is kept alive
 					// (a temporary FileEntry may be created when resolving a filesystem folder)
 					if (std::filesystem::path filePath = arg.stream->GetPath(); !filePath.empty())
-						resource = T::OpenFromFile(*arg.stream, params, std::forward<ExtraArgs>(args)...);
+						resource = T::OpenFromFile(filePath, params, std::forward<ExtraArgs>(args)...);
 					else
 						resource = T::OpenFromStream(*arg.stream, params, std::forward<ExtraArgs>(args)...);
 
