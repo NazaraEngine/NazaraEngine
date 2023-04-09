@@ -68,7 +68,7 @@ local modules = {
 	},
 	BulletPhysics3D = {
 		Deps = {"NazaraUtility"},
-		Packages = { "bullet3", "entt", "ordered_map" }
+		Packages = { "bullet3", "entt" }
 	},
 	Core = {
 		Custom = function ()

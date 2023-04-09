@@ -11,7 +11,6 @@
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
 #include <NazaraUtils/StackArray.hpp>
-#include <tsl/ordered_map.h>
 #include <Jolt/Core/Core.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
@@ -19,6 +18,7 @@
 #include <Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h>
 #include <Jolt/Physics/Collision/Shape/StaticCompoundShape.h>
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
+#include <unordered_map>
 #include <Nazara/JoltPhysics3D/Debug.hpp>
 
 namespace Nz
@@ -302,7 +302,7 @@ namespace Nz
 
 	void JoltConvexHullCollider3D::BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const
 	{
-		tsl::ordered_map<Vector3f, UInt16> vertexCache;
+		std::unordered_map<Vector3f, UInt16> vertexCache;
 		auto InsertVertex = [&](const Vector3f& position) -> UInt16
 		{
 			auto it = vertexCache.find(position);
