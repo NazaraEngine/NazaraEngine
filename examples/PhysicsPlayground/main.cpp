@@ -279,7 +279,7 @@ int main()
 		Nz::SparsePtr<Nz::Vector3f> vertices = vertexMapper.GetComponentPtr<Nz::Vector3f>(Nz::VertexComponent::Position);
 
 #if USE_JOLT
-		auto shipCollider = std::make_shared<Nz::JoltConvexHullCollider3D>(vertices, vertexMapper.GetVertexCount());
+		auto shipCollider = std::make_shared<Nz::JoltConvexHullCollider3D>(vertices, vertexMapper.GetVertexCount(), 0.1f);
 #else
 		auto shipCollider = std::make_shared<Nz::BulletConvexCollider3D>(vertices, vertexMapper.GetVertexCount());
 #endif

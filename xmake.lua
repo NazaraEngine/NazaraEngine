@@ -238,7 +238,7 @@ add_requires(
 	"minimp3",
 	"ordered_map",
 	"stb")
-add_requires("joltphysics 352550fdd562ce6034b27ab12d1470840e879b56", { configs = { debug = is_mode("debug") }})
+add_requires("joltphysics 24147a6936c63f4f09c6c37173169d8f366f9fb4", { configs = { debug = is_mode("debug") }})
 add_requires("freetype", { configs = { bzip2 = true, png = true, woff2 = true, zlib = true, debug = is_mode("debug") } })
 add_requires("libvorbis", { configs = { with_vorbisenc = false } })
 
