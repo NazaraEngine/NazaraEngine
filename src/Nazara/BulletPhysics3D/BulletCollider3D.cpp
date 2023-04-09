@@ -11,7 +11,6 @@
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
 #include <NazaraUtils/MemoryHelper.hpp>
-#include <tsl/ordered_map.h>
 #include <BulletCollision/CollisionShapes/btBoxShape.h>
 #include <BulletCollision/CollisionShapes/btCapsuleShape.h>
 #include <BulletCollision/CollisionShapes/btCompoundShape.h>
@@ -21,6 +20,7 @@
 #include <BulletCollision/CollisionShapes/btEmptyShape.h>
 #include <BulletCollision/CollisionShapes/btSphereShape.h>
 #include <BulletCollision/CollisionShapes/btStaticPlaneShape.h>
+#include <unordered_map>
 #include <Nazara/BulletPhysics3D/Debug.hpp>
 
 namespace Nz
@@ -299,7 +299,7 @@ namespace Nz
 
 	void BulletConvexCollider3D::BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const
 	{
-		tsl::ordered_map<Vector3f, UInt16> vertexCache;
+		std::unordered_map<Vector3f, UInt16> vertexCache;
 		auto InsertVertex = [&](const Vector3f& position) -> UInt16
 		{
 			auto it = vertexCache.find(position);
