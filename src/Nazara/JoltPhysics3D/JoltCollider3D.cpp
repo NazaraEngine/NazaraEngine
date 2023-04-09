@@ -10,7 +10,7 @@
 #include <Nazara/Utility/SoftwareBuffer.hpp>
 #include <Nazara/Utility/StaticMesh.hpp>
 #include <Nazara/Utility/VertexBuffer.hpp>
-#include <NazaraUtils/MemoryHelper.hpp>
+#include <NazaraUtils/StackArray.hpp>
 #include <tsl/ordered_map.h>
 #include <Jolt/Core/Core.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
@@ -320,14 +320,27 @@ namespace Nz
 		const JPH::ConvexHullShapeSettings* settings = GetShapeSettingsAs<JPH::ConvexHullShapeSettings>();
 		const JPH::ConvexHullShape* shape = SafeCast<const JPH::ConvexHullShape*>(settings->Create().Get().GetPtr());
 
-		unsigned int pointCount = shape->GetNumPoints();
-		for (int i = 1; i < pointCount; ++i)
+		unsigned int faceCount = shape->GetNumFaces();
+		unsigned int maxVerticesInFace = 0;
+		for (unsigned int i = 0; i < faceCount; ++i)
+			maxVerticesInFace = std::max(maxVerticesInFace, shape->GetNumVerticesInFace(i));
+
+		StackArray<unsigned int> faceVertices = NazaraStackArrayNoInit(unsigned int, maxVerticesInFace);
+		for (unsigned int i = 0; i < faceCount; ++i)
 		{
-			indices.push_back(InsertVertex(offsetMatrix * FromJolt(shape->GetPoint(i - 1))));
-			indices.push_back(InsertVertex(offsetMatrix * FromJolt(shape->GetPoint(i))));
+			unsigned int vertexCount = shape->GetFaceVertices(i, maxVerticesInFace, faceVertices.data());
+			if (vertexCount > 2)
+			{
+				for (unsigned int i = 1; i < vertexCount; ++i)
+				{
+					indices.push_back(InsertVertex(offsetMatrix * FromJolt(shape->GetPoint(faceVertices[i - 1]))));
+					indices.push_back(InsertVertex(offsetMatrix * FromJolt(shape->GetPoint(faceVertices[i]))));
+				}
+
+				indices.push_back(InsertVertex(offsetMatrix * FromJolt(shape->GetPoint(faceVertices[vertexCount - 1]))));
+				indices.push_back(InsertVertex(offsetMatrix * FromJolt(shape->GetPoint(faceVertices[0]))));
+			}
 		}
-		indices.push_back(InsertVertex(offsetMatrix* FromJolt(shape->GetPoint(pointCount - 1))));
-		indices.push_back(InsertVertex(offsetMatrix* FromJolt(shape->GetPoint(0))));
 	}
 
 	JoltColliderType3D JoltConvexHullCollider3D::GetType() const
