@@ -2,6 +2,7 @@
 
 local rendererBackends = {
 	OpenGLRenderer = {
+		Option = "opengl",
 		Deps = {"NazaraRenderer"},
 		Custom = function()
 			if is_plat("windows", "mingw") then
@@ -27,6 +28,7 @@ local rendererBackends = {
 		end
 	},
 	VulkanRenderer = {
+		Option = "vulkan",
 		Deps = {"NazaraRenderer"},
 		Custom = function()
 			add_defines("VK_NO_PROTOTYPES")
@@ -49,6 +51,7 @@ NazaraRendererBackends = rendererBackends
 
 local modules = {
 	Audio = {
+		Option = "audio",
 		Deps = {"NazaraCore"},
 		Packages = {"dr_wav", "frozen", "libflac", "libvorbis", "minimp3"},
 		Custom = function ()
@@ -67,6 +70,7 @@ local modules = {
 		end
 	},
 	BulletPhysics3D = {
+		Option = "bulletphysics",
 		Deps = {"NazaraUtility"},
 		Packages = { "bullet3", "entt" }
 	},
@@ -106,14 +110,17 @@ local modules = {
 		PublicPackages = { "nazarautils" }
 	},
 	Graphics = {
+		Option = "graphics",
 		Deps = {"NazaraRenderer"},
 		Packages = {"entt"}
 	},
 	JoltPhysics3D = {
+		Option = "joltphysics",
 		Deps = {"NazaraUtility"},
 		Packages = { "joltphysics", "entt", "ordered_map" }
 	},
 	Network = {
+		Option = "network",
 		Deps = {"NazaraCore"},
 		Custom = function()
 			if is_plat("windows", "mingw") then
@@ -127,10 +134,12 @@ local modules = {
 		end
 	},
 	Physics2D = {
+		Option = "chipmunkphysics",
 		Deps = {"NazaraUtility"},
 		Packages = { "chipmunk2d", "entt" }
 	},
 	Platform = {
+		Option = "platform",
 		Deps = {"NazaraUtility"},
 		Custom = function()
 			add_packages("libsdl", { components = {"lib"}})
@@ -151,6 +160,7 @@ local modules = {
 		end
 	},
 	Renderer = {
+		Option = "renderer",
 		Deps = {"NazaraPlatform"},
 		PublicPackages = { "nazarautils", "nzsl" },
 		Custom = function ()
@@ -158,16 +168,20 @@ local modules = {
 				-- Embed backends code inside our own modules
 				add_defines("NAZARA_RENDERER_EMBEDDEDBACKENDS")
 				for name, module in table.orderpairs(rendererBackends) do
-					ModuleTargetConfig(name, module)
+					if not module.Option or has_config(module.Option) then
+						ModuleTargetConfig(name, module)
+					end
 				end
 			end
 		end
 	},
 	Utility = {
+		Option = "utility",
 		Deps = {"NazaraCore"},
 		Packages = {"entt", "freetype", "frozen", "ordered_map", "stb"}
 	},
 	Widgets = {
+		Option = "widgets",
 		Deps = {"NazaraGraphics"},
 		Packages = {"entt", "kiwisolver"}
 	}
@@ -207,53 +221,74 @@ option("override_runtime", { description = "Override vs runtime to MD in release
 option("usepch", { description = "Use precompiled headers to speedup compilation", default = false })
 option("unitybuild", { description = "Build the engine using unity build", default = false })
 
------------------------ Dependencies -----------------------
-
--- Nazara dependencies
-
-add_repositories("nazara-engine-repo https://github.com/NazaraEngine/xmake-repo")
-
-add_requires("nazarautils")
-add_requires("nzsl", { debug = is_mode("debug"), configs = { with_symbols = not is_mode("release"), shared = not is_plat("wasm", "android") } })
-
--- When cross-compiling, compile shaders using host shader compiler
-if is_plat("android", "iphoneos", "wasm") or (is_plat("mingw") and not is_host("windows")) then
-	if has_config("compile_shaders") then
-		add_requires("nzsl~host", { kind = "binary", host = true })
+-- Allow to disable some modules
+for name, module in pairs(modules) do
+	if module.Option then
+		option(module.Option, { description = "Enables the " .. name .. " module", default = true, category = "Modules" })
 	end
 end
 
--- Thirdparty dependencies
+----------------------- Dependencies -----------------------
 
-add_requires(
-	"bullet3",
-	"chipmunk2d",
-	"dr_wav",
-	"entt 3.11.1",
-	"fmt",
-	"frozen",
-	"kiwisolver",
-	"libflac",
-	"libsdl >=2.26.0",
-	"minimp3",
-	"ordered_map",
-	"stb")
-add_requires("joltphysics 24147a6936c63f4f09c6c37173169d8f366f9fb4", { configs = { debug = is_mode("debug") }})
-add_requires("freetype", { configs = { bzip2 = true, png = true, woff2 = true, zlib = true, debug = is_mode("debug") } })
-add_requires("libvorbis", { configs = { with_vorbisenc = false } })
+add_repositories("nazara-engine-repo https://github.com/NazaraEngine/xmake-repo")
 
+add_requires("entt 3.11.1", "fmt", "frozen", "kiwisolver", "nazarautils")
+
+-- Module dependencies
+if has_config("audio") then
+	add_requires("dr_wav", "libflac", "minimp3")
+	add_requires("libvorbis", { configs = { with_vorbisenc = false } })
+
+	if not is_plat("wasm") then
+		-- OpenAL is supported as a system library on wasm
+		add_requires("openal-soft", { configs = { shared = true }})
+	end
+end
+
+if has_config("bulletphysics") then
+	add_requires("bullet3", { configs = { debug = is_mode("debug") }})
+end
+
+if has_config("chipmunkphysics") then
+	add_requires("chipmunk2d")
+end
+
+if has_config("joltphysics") then
+	add_requires("joltphysics 24147a6936c63f4f09c6c37173169d8f366f9fb4", { configs = { debug = is_mode("debug") }})
+	add_requires("ordered_map")
+end
+
+if has_config("platform") then
+	add_requires("libsdl >=2.26.0")
+end
+
+if has_config("renderer") then
+	add_requires("nzsl", { debug = is_mode("debug"), configs = { with_symbols = not is_mode("release"), shared = not is_plat("wasm", "android") } })
+
+	-- When cross-compiling, compile shaders using host shader compiler
+	if is_plat("android", "iphoneos", "wasm") or (is_plat("mingw") and not is_host("windows")) then
+		if has_config("compile_shaders") then
+			add_requires("nzsl~host", { kind = "binary", host = true })
+		end
+	end
+end
+
+if has_config("utility") then
+	add_requires("freetype", { configs = { bzip2 = true, png = true, woff2 = true, zlib = true, debug = is_mode("debug") } })
+	add_requires("ordered_map", "stb")
+end
+
+if has_config("widgets") then
+	add_requires("kiwisolver")
+end
+
+-- Platform-specific dependencies
 if is_plat("linux", "android") then 
 	add_requires("libuuid")
 end
 
 if is_plat("linux") then
 	add_requires("libxext", "wayland")
-end
-
-if not is_plat("wasm") then
-	-- these libraries aren't supported yet on emscripten
-	add_requires("efsw")
-	add_requires("openal-soft", { configs = { shared = true }})
 end
 
 ----------------------- Global config -----------------------
@@ -396,6 +431,10 @@ function ModuleTargetConfig(name, module)
 end
 
 for name, module in pairs(modules) do
+	if module.Option and not has_config(module.Option) then
+		goto continue
+	end
+
 	target("Nazara" .. name, function ()
 		set_group("Modules")
 
@@ -441,6 +480,8 @@ for name, module in pairs(modules) do
 
 		ModuleTargetConfig(name, module)
 	end)
+
+	::continue::
 end
 
 includes("tools/*.lua")
