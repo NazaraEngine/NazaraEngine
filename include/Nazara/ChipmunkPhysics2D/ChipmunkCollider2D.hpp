@@ -1,18 +1,18 @@
 // Copyright (C) 2023 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
-// This file is part of the "Nazara Engine - Physics2D module"
+// This file is part of the "Nazara Engine - ChipmunkPhysics2D module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_CHIPMUNKPHYSICS2D_COLLIDER2D_HPP
-#define NAZARA_CHIPMUNKPHYSICS2D_COLLIDER2D_HPP
+#ifndef NAZARA_CHIPMUNKPHYSICS2D_CHIPMUNKCOLLIDER2D_HPP
+#define NAZARA_CHIPMUNKPHYSICS2D_CHIPMUNKCOLLIDER2D_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/ChipmunkPhysics2D/Config.hpp>
+#include <Nazara/ChipmunkPhysics2D/Enums.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector2.hpp>
-#include <Nazara/ChipmunkPhysics2D/Config.hpp>
-#include <Nazara/ChipmunkPhysics2D/Enums.hpp>
 #include <NazaraUtils/Signal.hpp>
 #include <NazaraUtils/SparsePtr.hpp>
 #include <vector>
@@ -208,4 +208,4 @@ namespace Nz
 
 #include <Nazara/ChipmunkPhysics2D/ChipmunkCollider2D.inl>
 
-#endif // NAZARA_CHIPMUNKPHYSICS2D_COLLIDER2D_HPP
+#endif // NAZARA_CHIPMUNKPHYSICS2D_CHIPMUNKCOLLIDER2D_HPP

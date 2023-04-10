@@ -7,9 +7,9 @@
 #include <Nazara/JoltPhysics3D/JoltHelper.hpp>
 #include <Nazara/JoltPhysics3D/JoltPhysWorld3D.hpp>
 #include <Jolt/Jolt.h>
-#include <Jolt/Physics/Collision/ObjectLayer.h>
-#include <Jolt/Physics/Character/Character.h>
 #include <Jolt/Physics/PhysicsSystem.h>
+#include <Jolt/Physics/Character/Character.h>
+#include <Jolt/Physics/Collision/ObjectLayer.h>
 #include <Nazara/JoltPhysics3D/Debug.hpp>
 
 namespace Nz

@@ -1,5 +1,5 @@
 // Copyright (C) 2023 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
-// This file is part of the "Nazara Engine - Physics2D module"
+// This file is part of the "Nazara Engine - ChipmunkPhysics2D module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
@@ -8,8 +8,8 @@
 #define NAZARA_CHIPMUNKPHYSICS2D_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Core/Core.hpp>
 #include <Nazara/ChipmunkPhysics2D/Config.hpp>
+#include <Nazara/Core/Core.hpp>
 
 namespace Nz
 {

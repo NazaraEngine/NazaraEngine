@@ -8,9 +8,9 @@
 #define NAZARA_JOLTPHYSICS3D_JOLTRIGIDBODY3D_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/JoltPhysics3D/JoltCollider3D.hpp>
-#include <Nazara/JoltPhysics3D/Config.hpp>
 #include <Nazara/Core/Enums.hpp>
+#include <Nazara/JoltPhysics3D/Config.hpp>
+#include <Nazara/JoltPhysics3D/JoltCollider3D.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>

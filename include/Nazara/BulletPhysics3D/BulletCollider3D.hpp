@@ -12,8 +12,8 @@
 #include <Nazara/BulletPhysics3D/Enums.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Math/Box.hpp>
-#include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Plane.hpp>
+#include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <NazaraUtils/Signal.hpp>
 #include <NazaraUtils/SparsePtr.hpp>

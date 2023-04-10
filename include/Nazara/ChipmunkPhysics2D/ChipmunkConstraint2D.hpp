@@ -1,19 +1,19 @@
 // Copyright (C) 2023 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
-// This file is part of the "Nazara Engine - Physics2D module"
+// This file is part of the "Nazara Engine - ChipmunkPhysics2D module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_CHIPMUNKPHYSICS2D_CONSTRAINT2D_HPP
-#define NAZARA_CHIPMUNKPHYSICS2D_CONSTRAINT2D_HPP
+#ifndef NAZARA_CHIPMUNKPHYSICS2D_CHIPMUNKCONSTRAINT2D_HPP
+#define NAZARA_CHIPMUNKPHYSICS2D_CHIPMUNKCONSTRAINT2D_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/ChipmunkPhysics2D/ChipmunkPhysWorld2D.hpp>
+#include <Nazara/ChipmunkPhysics2D/ChipmunkRigidBody2D.hpp>
+#include <Nazara/ChipmunkPhysics2D/Config.hpp>
 #include <Nazara/Core/HandledObject.hpp>
 #include <Nazara/Core/ObjectHandle.hpp>
 #include <Nazara/Math/Angle.hpp>
-#include <Nazara/ChipmunkPhysics2D/Config.hpp>
-#include <Nazara/ChipmunkPhysics2D/ChipmunkPhysWorld2D.hpp>
-#include <Nazara/ChipmunkPhysics2D/ChipmunkRigidBody2D.hpp>
 #include <NazaraUtils/MovablePtr.hpp>
 #include <vector>
 
@@ -230,4 +230,4 @@ namespace Nz
 
 #include <Nazara/ChipmunkPhysics2D/ChipmunkConstraint2D.inl>
 
-#endif // NAZARA_CHIPMUNKPHYSICS2D_CONSTRAINT2D_HPP
+#endif // NAZARA_CHIPMUNKPHYSICS2D_CHIPMUNKCONSTRAINT2D_HPP

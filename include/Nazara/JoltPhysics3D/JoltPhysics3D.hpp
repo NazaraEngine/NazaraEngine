@@ -8,8 +8,8 @@
 #define NAZARA_JOLTPHYSICS3D_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/JoltPhysics3D/Config.hpp>
 #include <Nazara/Core/Core.hpp>
+#include <Nazara/JoltPhysics3D/Config.hpp>
 #include <memory>
 
 namespace JPH
