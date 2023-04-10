@@ -33,7 +33,7 @@ To run the examples, unit tests or tools, you can either run them in the project
 `xmake run <exe>` with `<exe>` being the name of the executable you wish to run.
 
 Available examples names can be found in the `examples` folder (example: `xmake run PhysicsDemo`).
-You can also run unit tests with `xmake run Nazara(Client)UnitTests`.
+You can also run unit tests with `xmake run NazaraUnitTests`.
 
 ## Install
 
