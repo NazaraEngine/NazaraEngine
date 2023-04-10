@@ -2,7 +2,7 @@
 #include <Nazara/Platform.hpp>
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Math/PidController.hpp>
-#include <Nazara/Physics2D.hpp>
+#include <Nazara/ChipmunkPhysics2D.hpp>
 #include <Nazara/Renderer.hpp>
 #include <Nazara/Utility.hpp>
 #include <Nazara/Widgets.hpp>
@@ -21,14 +21,14 @@ int main()
 	if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory("../.." / resourceDir))
 		resourceDir = "../.." / resourceDir;
 
-	Nz::Application<Nz::Graphics, Nz::Physics2D> app;
+	Nz::Application<Nz::Graphics, Nz::ChipmunkPhysics2D> app;
 
 	auto& windowing = app.AddComponent<Nz::AppWindowingComponent>();
 
 	auto& ecs = app.AddComponent<Nz::AppEntitySystemComponent>();
 
 	auto& world = ecs.AddWorld<Nz::EnttWorld>();
-	Nz::Physics2DSystem& physSytem = world.AddSystem<Nz::Physics2DSystem>();
+	Nz::ChipmunkPhysics2DSystem& physSytem = world.AddSystem<Nz::ChipmunkPhysics2DSystem>();
 	Nz::RenderSystem& renderSystem = world.AddSystem<Nz::RenderSystem>();
 
 	std::string windowTitle = "Physics 2D";
@@ -72,7 +72,7 @@ int main()
 				spriteEntity.emplace<Nz::NodeComponent>().SetPosition(windowSize.x * 0.5f + x * 48.f - 15.f * 48.f, windowSize.y / 2 + y * 48.f);
 
 				spriteEntity.emplace<Nz::GraphicsComponent>().AttachRenderable(sprite, 1);
-				auto& rigidBody = spriteEntity.emplace<Nz::RigidBody2DComponent>(physSytem.CreateRigidBody(50.f, std::make_shared<Nz::BoxCollider2D>(Nz::Vector2f(32.f, 32.f))));
+				auto& rigidBody = spriteEntity.emplace<Nz::ChipmunkRigidBody2DComponent>(physSytem.CreateRigidBody(50.f, std::make_shared<Nz::ChipmunkBoxCollider2D>(Nz::Vector2f(32.f, 32.f))));
 				rigidBody.SetFriction(0.9f);
 				//rigidBody.SetElasticity(0.99f);
 			}
@@ -101,7 +101,7 @@ int main()
 
 		groundEntity.emplace<Nz::NodeComponent>().SetPosition(windowSize.x * 0.5f, -windowSize.y * 0.2f);
 		groundEntity.emplace<Nz::GraphicsComponent>().AttachRenderable(tilemap, 1);
-		auto& rigidBody = groundEntity.emplace<Nz::RigidBody2DComponent>(physSytem.CreateRigidBody(0.f, std::make_shared<Nz::BoxCollider2D>(tilemap->GetSize())));
+		auto& rigidBody = groundEntity.emplace<Nz::ChipmunkRigidBody2DComponent>(physSytem.CreateRigidBody(0.f, std::make_shared<Nz::ChipmunkBoxCollider2D>(tilemap->GetSize())));
 		rigidBody.SetFriction(0.9f);
 	}
 

@@ -53,7 +53,7 @@ namespace Nz
 			virtual std::shared_ptr<StaticMesh> GenerateDebugMesh() const;
 
 			virtual btCollisionShape* GetShape() const = 0;
-			virtual ColliderType3D GetType() const = 0;
+			virtual BulletColliderType3D GetType() const = 0;
 
 			BulletCollider3D& operator=(const BulletCollider3D&) = delete;
 			BulletCollider3D& operator=(BulletCollider3D&&) = delete;
@@ -74,7 +74,7 @@ namespace Nz
 
 			Vector3f GetLengths() const;
 			btCollisionShape* GetShape() const override;
-			ColliderType3D GetType() const override;
+			BulletColliderType3D GetType() const override;
 
 		private:
 			std::unique_ptr<btBoxShape> m_shape;
@@ -92,7 +92,7 @@ namespace Nz
 			float GetLength() const;
 			float GetRadius() const;
 			btCollisionShape* GetShape() const override;
-			ColliderType3D GetType() const override;
+			BulletColliderType3D GetType() const override;
 
 		private:
 			std::unique_ptr<btCapsuleShape> m_shape;
@@ -112,7 +112,7 @@ namespace Nz
 
 			const std::vector<ChildCollider>& GetGeoms() const;
 			btCollisionShape* GetShape() const override;
-			ColliderType3D GetType() const override;
+			BulletColliderType3D GetType() const override;
 
 			struct ChildCollider
 			{
@@ -136,7 +136,7 @@ namespace Nz
 			float GetLength() const;
 			float GetRadius() const;
 			btCollisionShape* GetShape() const override;
-			ColliderType3D GetType() const override;
+			BulletColliderType3D GetType() const override;
 
 		private:
 			std::unique_ptr<btConeShape> m_shape;
@@ -153,7 +153,7 @@ namespace Nz
 			void BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const override;
 
 			btCollisionShape* GetShape() const override;
-			ColliderType3D GetType() const override;
+			BulletColliderType3D GetType() const override;
 
 		private:
 			std::unique_ptr<btConvexHullShape> m_shape;
@@ -170,7 +170,7 @@ namespace Nz
 			float GetLength() const;
 			float GetRadius() const;
 			btCollisionShape* GetShape() const override;
-			ColliderType3D GetType() const override;
+			BulletColliderType3D GetType() const override;
 
 		private:
 			std::unique_ptr<btCylinderShape> m_shape;
@@ -190,7 +190,7 @@ namespace Nz
 			void ComputeInertia(float mass, Vector3f* inertia) const override;
 
 			btCollisionShape* GetShape() const override;
-			ColliderType3D GetType() const override;
+			BulletColliderType3D GetType() const override;
 
 		private:
 			std::unique_ptr<btEmptyShape> m_shape;
@@ -206,7 +206,7 @@ namespace Nz
 
 			float GetRadius() const;
 			btCollisionShape* GetShape() const override;
-			ColliderType3D GetType() const override;
+			BulletColliderType3D GetType() const override;
 
 		private:
 			std::unique_ptr<btSphereShape> m_shape;
@@ -226,7 +226,7 @@ namespace Nz
 			float GetDistance() const;
 			const Vector3f& GetNormal() const;
 			btCollisionShape* GetShape() const override;
-			ColliderType3D GetType() const override;
+			BulletColliderType3D GetType() const override;
 
 		private:
 			std::unique_ptr<btStaticPlaneShape> m_shape;

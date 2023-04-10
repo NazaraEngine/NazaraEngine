@@ -9,7 +9,7 @@
 
 namespace Nz
 {
-	enum class ColliderType3D
+	enum class BulletColliderType3D
 	{
 		Box,
 		Capsule,

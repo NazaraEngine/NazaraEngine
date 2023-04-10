@@ -174,9 +174,9 @@ namespace Nz
 		return m_lengths;
 	}
 
-	ColliderType3D BulletBoxCollider3D::GetType() const
+	BulletColliderType3D BulletBoxCollider3D::GetType() const
 	{
-		return ColliderType3D::Box;
+		return BulletColliderType3D::Box;
 	}
 
 	/******************************** CapsuleCollider3D ********************************/
@@ -209,9 +209,9 @@ namespace Nz
 		return m_shape.get();
 	}
 
-	ColliderType3D BulletCapsuleCollider3D::GetType() const
+	BulletColliderType3D BulletCapsuleCollider3D::GetType() const
 	{
-		return ColliderType3D::Capsule;
+		return BulletColliderType3D::Capsule;
 	}
 
 	/******************************* CompoundCollider3D ********************************/
@@ -245,9 +245,9 @@ namespace Nz
 		return m_shape.get();
 	}
 
-	ColliderType3D BulletCompoundCollider3D::GetType() const
+	BulletColliderType3D BulletCompoundCollider3D::GetType() const
 	{
-		return ColliderType3D::Compound;
+		return BulletColliderType3D::Compound;
 	}
 
 	/********************************* ConeCollider3D **********************************/
@@ -280,9 +280,9 @@ namespace Nz
 		return m_shape.get();
 	}
 
-	ColliderType3D BulletConeCollider3D::GetType() const
+	BulletColliderType3D BulletConeCollider3D::GetType() const
 	{
-		return ColliderType3D::Cone;
+		return BulletColliderType3D::Cone;
 	}
 
 	/****************************** ConvexCollider3D *******************************/
@@ -330,9 +330,9 @@ namespace Nz
 		return m_shape.get();
 	}
 
-	ColliderType3D BulletConvexCollider3D::GetType() const
+	BulletColliderType3D BulletConvexCollider3D::GetType() const
 	{
-		return ColliderType3D::ConvexHull;
+		return BulletColliderType3D::ConvexHull;
 	}
 
 	/******************************* CylinderCollider3D ********************************/
@@ -366,9 +366,9 @@ namespace Nz
 		return m_shape.get();
 	}
 
-	ColliderType3D BulletCylinderCollider3D::GetType() const
+	BulletColliderType3D BulletCylinderCollider3D::GetType() const
 	{
-		return ColliderType3D::Cylinder;
+		return BulletColliderType3D::Cylinder;
 	}
 
 	/********************************* NullCollider3D **********************************/
@@ -394,9 +394,9 @@ namespace Nz
 		return m_shape.get();
 	}
 
-	ColliderType3D BulletNullCollider3D::GetType() const
+	BulletColliderType3D BulletNullCollider3D::GetType() const
 	{
-		return ColliderType3D::Null;
+		return BulletColliderType3D::Null;
 	}
 
 	/******************************** SphereCollider3D *********************************/
@@ -423,9 +423,9 @@ namespace Nz
 		return m_shape.get();
 	}
 
-	ColliderType3D BulletSphereCollider3D::GetType() const
+	BulletColliderType3D BulletSphereCollider3D::GetType() const
 	{
-		return ColliderType3D::Sphere;
+		return BulletColliderType3D::Sphere;
 	}
 
 	/******************************** StaticPlaneCollider3D *********************************/
@@ -463,8 +463,8 @@ namespace Nz
 		return m_shape.get();
 	}
 
-	ColliderType3D BulletStaticPlaneCollider3D::GetType() const
+	BulletColliderType3D BulletStaticPlaneCollider3D::GetType() const
 	{
-		return ColliderType3D::StaticPlane;
+		return BulletColliderType3D::StaticPlane;
 	}
 }

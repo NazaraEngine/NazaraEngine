@@ -74,6 +74,11 @@ local modules = {
 		Deps = {"NazaraUtility"},
 		Packages = { "bullet3", "entt" }
 	},
+	ChipmunkPhysics2D = {
+		Option = "chipmunkphysics",
+		Deps = {"NazaraUtility"},
+		Packages = { "chipmunk2d", "entt" }
+	},
 	Core = {
 		Custom = function ()
 			add_headerfiles("include/(Nazara/*.hpp)")
@@ -132,11 +137,6 @@ local modules = {
 				remove_files("src/Nazara/Network/Posix/SocketPollerImpl.cpp")
 			end
 		end
-	},
-	Physics2D = {
-		Option = "chipmunkphysics",
-		Deps = {"NazaraUtility"},
-		Packages = { "chipmunk2d", "entt" }
 	},
 	Platform = {
 		Option = "platform",
@@ -232,7 +232,7 @@ end
 
 add_repositories("nazara-engine-repo https://github.com/NazaraEngine/xmake-repo")
 
-add_requires("entt 3.11.1", "fmt", "frozen", "kiwisolver", "nazarautils")
+add_requires("entt 3.11.1", "fmt", "frozen", "nazarautils")
 
 -- Module dependencies
 if has_config("audio") then
