@@ -8,11 +8,11 @@
 #define NAZARA_JOLTPHYSICS3D_JOLTCONSTRAINT3D_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/JoltPhysics3D/JoltPhysWorld3D.hpp>
-#include <Nazara/JoltPhysics3D/JoltRigidBody3D.hpp>
-#include <Nazara/JoltPhysics3D/Config.hpp>
 #include <Nazara/Core/HandledObject.hpp>
 #include <Nazara/Core/ObjectHandle.hpp>
+#include <Nazara/JoltPhysics3D/Config.hpp>
+#include <Nazara/JoltPhysics3D/JoltPhysWorld3D.hpp>
+#include <Nazara/JoltPhysics3D/JoltRigidBody3D.hpp>
 
 namespace JPH
 {
@@ -96,4 +96,4 @@ namespace Nz
 
 #include <Nazara/JoltPhysics3D/JoltConstraint3D.inl>
 
-#endif // NAZARA_BULLETPHYSICS3D_BULLETCONSTRAINT3D_HPP
+#endif // NAZARA_JOLTPHYSICS3D_JOLTCONSTRAINT3D_HPP

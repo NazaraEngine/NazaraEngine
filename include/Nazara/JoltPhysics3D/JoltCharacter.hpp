@@ -8,9 +8,9 @@
 #define NAZARA_JOLTPHYSICS3D_JOLTCHARACTER_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/JoltPhysics3D/Config.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
-#include <Nazara/JoltPhysics3D/Config.hpp>
 #include <memory>
 
 namespace JPH

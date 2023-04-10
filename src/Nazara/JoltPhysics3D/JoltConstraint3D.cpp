@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/JoltPhysics3D/JoltConstraint3D.hpp>
-#include <Nazara/JoltPhysics3D/JoltConstraint3D.hpp>
 #include <Nazara/JoltPhysics3D/JoltHelper.hpp>
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/PhysicsSystem.h>

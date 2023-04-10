@@ -1,19 +1,19 @@
 // Copyright (C) 2023 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
-// This file is part of the "Nazara Engine - Physics2D module"
+// This file is part of the "Nazara Engine - ChipmunkPhysics2D module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #pragma once
 
-#ifndef NAZARA_CHIPMUNKPHYSICS2D_PHYSWORLD2D_HPP
-#define NAZARA_CHIPMUNKPHYSICS2D_PHYSWORLD2D_HPP
+#ifndef NAZARA_CHIPMUNKPHYSICS2D_CHIPMUNKPHYSWORLD2D_HPP
+#define NAZARA_CHIPMUNKPHYSICS2D_CHIPMUNKPHYSWORLD2D_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/ChipmunkPhysics2D/ChipmunkRigidBody2D.hpp>
+#include <Nazara/ChipmunkPhysics2D/Config.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/Time.hpp>
 #include <Nazara/Math/Angle.hpp>
 #include <Nazara/Math/Vector2.hpp>
-#include <Nazara/ChipmunkPhysics2D/Config.hpp>
-#include <Nazara/ChipmunkPhysics2D/ChipmunkRigidBody2D.hpp>
 #include <NazaraUtils/FunctionRef.hpp>
 #include <NazaraUtils/Signal.hpp>
 #include <functional>
@@ -163,4 +163,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_CHIPMUNKPHYSICS2D_PHYSWORLD2D_HPP
+#endif // NAZARA_CHIPMUNKPHYSICS2D_CHIPMUNKPHYSWORLD2D_HPP

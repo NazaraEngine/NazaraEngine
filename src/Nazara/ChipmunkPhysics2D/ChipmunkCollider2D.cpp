@@ -1,11 +1,11 @@
 // Copyright (C) 2023 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
-// This file is part of the "Nazara Engine - Physics2D module"
+// This file is part of the "Nazara Engine - ChipmunkPhysics2D module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/ChipmunkPhysics2D/ChipmunkCollider2D.hpp>
-#include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/ChipmunkPhysics2D/ChipmunkPhysWorld2D.hpp>
 #include <Nazara/ChipmunkPhysics2D/ChipmunkRigidBody2D.hpp>
+#include <Nazara/Math/Quaternion.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
 #include <NazaraUtils/StackArray.hpp>
 #include <chipmunk/chipmunk.h>

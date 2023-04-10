@@ -5,7 +5,6 @@
 #include <Nazara/JoltPhysics3D/JoltRigidBody3D.hpp>
 #include <Nazara/JoltPhysics3D/JoltHelper.hpp>
 #include <Nazara/JoltPhysics3D/JoltPhysWorld3D.hpp>
-#include <Nazara/JoltPhysics3D/JoltRigidBody3D.hpp>
 #include <NazaraUtils/MemoryHelper.hpp>
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/PhysicsSystem.h>

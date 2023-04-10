@@ -8,8 +8,8 @@
 #define NAZARA_JOLTPHYSICS3D_JOLTPHYSWORLD3D_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/JoltPhysics3D/Config.hpp>
 #include <Nazara/Core/Time.hpp>
+#include <Nazara/JoltPhysics3D/Config.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <NazaraUtils/FunctionRef.hpp>
