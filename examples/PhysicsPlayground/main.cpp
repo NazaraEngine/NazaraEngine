@@ -294,7 +294,7 @@ int main()
 				colliderModel->SetMaterial(i, colliderMat);
 		}
 
-		constexpr std::size_t ShipCount = 1000;
+		constexpr std::size_t ShipCount = 20;
 		for (std::size_t i = 0; i < ShipCount; ++i)
 		{
 			entt::handle shipEntity = world.CreateEntity();
@@ -314,7 +314,7 @@ int main()
 			shipEntity.emplace<Nz::BulletRigidBody3DComponent>(physSystem.CreateRigidBody(shipCollider));
 #endif
 
-			shipEntity.get<Nz::GraphicsComponent>().AttachRenderable(colliderModel);
+			//shipEntity.get<Nz::GraphicsComponent>().AttachRenderable(colliderModel);
 		}
 	}
 
