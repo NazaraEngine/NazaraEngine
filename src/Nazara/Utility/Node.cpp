@@ -261,7 +261,7 @@ namespace Nz
 
 		Invalidate(invalidation);
 	}
-	
+
 	void Node::SetTransform(const Vector3f& position, const Quaternionf& rotation, const Vector3f& scale, CoordSys coordSys, Invalidation invalidation)
 	{
 		switch (coordSys)
