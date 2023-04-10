@@ -1,4 +1,4 @@
-option("ffmpeg", { description = "Build FFmpeg plugin", default = false })
+option("ffmpeg", { description = "Build FFmpeg plugin", default = false, category = "Plugins" })
 
 if has_config("ffmpeg") then
 	add_requires("ffmpeg", { configs = { shared = true } })
