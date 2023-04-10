@@ -18,6 +18,7 @@
 #include <Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h>
 #include <Jolt/Physics/Collision/Shape/StaticCompoundShape.h>
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
+#include <optional>
 #include <unordered_map>
 #include <Nazara/JoltPhysics3D/Debug.hpp>
 
@@ -302,23 +303,23 @@ namespace Nz
 
 	void JoltConvexHullCollider3D::BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const
 	{
-		std::unordered_map<Vector3f, UInt16> vertexCache;
-		auto InsertVertex = [&](const Vector3f& position) -> UInt16
+		const JPH::ConvexHullShapeSettings* settings = GetShapeSettingsAs<JPH::ConvexHullShapeSettings>();
+		const JPH::ConvexHullShape* shape = SafeCast<const JPH::ConvexHullShape*>(settings->Create().Get().GetPtr());
+
+		std::unordered_map<unsigned int, UInt16> vertexCache;
+		auto InsertVertex = [&](unsigned int vertexIndex) -> UInt16
 		{
-			auto it = vertexCache.find(position);
+			auto it = vertexCache.find(vertexIndex);
 			if (it != vertexCache.end())
 				return it->second;
 
 			UInt16 index = SafeCast<UInt16>(vertices.size());
 
-			vertices.push_back(position);
-			vertexCache.emplace(position, index);
+			vertices.push_back(offsetMatrix * FromJolt(shape->GetPoint(vertexIndex)));
+			vertexCache.emplace(vertexIndex, index);
 
 			return index;
 		};
-
-		const JPH::ConvexHullShapeSettings* settings = GetShapeSettingsAs<JPH::ConvexHullShapeSettings>();
-		const JPH::ConvexHullShape* shape = SafeCast<const JPH::ConvexHullShape*>(settings->Create().Get().GetPtr());
 
 		unsigned int faceCount = shape->GetNumFaces();
 		unsigned int maxVerticesInFace = 0;
@@ -329,16 +330,19 @@ namespace Nz
 		for (unsigned int i = 0; i < faceCount; ++i)
 		{
 			unsigned int vertexCount = shape->GetFaceVertices(i, maxVerticesInFace, faceVertices.data());
-			if (vertexCount > 2)
+			if NAZARA_LIKELY(vertexCount >= 2)
 			{
 				for (unsigned int i = 1; i < vertexCount; ++i)
 				{
-					indices.push_back(InsertVertex(offsetMatrix * FromJolt(shape->GetPoint(faceVertices[i - 1]))));
-					indices.push_back(InsertVertex(offsetMatrix * FromJolt(shape->GetPoint(faceVertices[i]))));
+					indices.push_back(InsertVertex(faceVertices[i - 1]));
+					indices.push_back(InsertVertex(faceVertices[i]));
 				}
 
-				indices.push_back(InsertVertex(offsetMatrix * FromJolt(shape->GetPoint(faceVertices[vertexCount - 1]))));
-				indices.push_back(InsertVertex(offsetMatrix * FromJolt(shape->GetPoint(faceVertices[0]))));
+				if NAZARA_LIKELY(vertexCount > 2)
+				{
+					indices.push_back(InsertVertex(faceVertices[vertexCount - 1]));
+					indices.push_back(InsertVertex(faceVertices[0]));
+				}
 			}
 		}
 	}

@@ -308,7 +308,7 @@ namespace Nz
 
 			UInt16 index = SafeCast<UInt16>(vertices.size());
 
-			vertices.push_back(position);
+			vertices.push_back(offsetMatrix * position);
 			vertexCache.emplace(position, index);
 
 			return index;
@@ -320,8 +320,8 @@ namespace Nz
 			btVector3 from, to;
 			m_shape->getEdge(i, from, to);
 
-			indices.push_back(InsertVertex(offsetMatrix * FromBullet(from)));
-			indices.push_back(InsertVertex(offsetMatrix * FromBullet(to)));
+			indices.push_back(InsertVertex(FromBullet(from)));
+			indices.push_back(InsertVertex(FromBullet(to)));
 		}
 	}
 
