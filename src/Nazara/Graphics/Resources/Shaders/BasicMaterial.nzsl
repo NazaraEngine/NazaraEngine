@@ -85,10 +85,10 @@ fn main(input: FragIn) -> FragOut
 	const if (HasColor)
 		color *= input.color;
 
-	const if (HasBaseColorTexture)
+	const if (HasUV && HasBaseColorTexture)
 		color *= MaterialBaseColorMap.Sample(input.uv);
 
-	const if (HasAlphaTexture)
+	const if (HasUV && HasAlphaTexture)
 		color.w *= MaterialAlphaMap.Sample(input.uv).x;
 
 	const if (AlphaTest)
@@ -195,7 +195,7 @@ fn main(input: VertIn) -> VertOut
 	let worldPosition = instanceData.worldMatrix * vec4[f32](pos, 1.0);
 
 	let output: VertOut;
-	output.position = viewerData.viewProjMatrix * instanceData.worldMatrix * vec4[f32](pos, 1.0);
+	output.position = viewerData.viewProjMatrix * worldPosition;
 
 	const if (HasColor)
 		output.color = input.color;
