@@ -246,7 +246,7 @@ if has_config("audio") then
 end
 
 if has_config("bulletphysics") then
-	add_requires("bullet3", { configs = { debug = is_mode("debug") }})
+	add_requires("bullet3")
 end
 
 if has_config("chipmunkphysics") then
