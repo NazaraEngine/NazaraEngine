@@ -6,6 +6,20 @@
 
 namespace Nz
 {
+	inline SkeletonComponent::SkeletonComponent(std::shared_ptr<Skeleton> skeleton) :
+	SkeletonComponentBase(std::move(skeleton))
+	{
+	}
+
+	inline Node* SkeletonComponent::GetRootNode()
+	{
+		return m_referenceSkeleton->GetRootJoint();
+	}
+
+	inline const Skeleton& SkeletonComponent::GetAttachedSkeleton() const
+	{
+		return *m_referenceSkeleton;
+	}
 }
 
 #include <Nazara/Utility/DebugOff.hpp>
