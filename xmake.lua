@@ -265,11 +265,34 @@ end
 if has_config("renderer") then
 	add_requires("nzsl", { debug = is_mode("debug"), configs = { with_symbols = not is_mode("release"), shared = not is_plat("wasm", "android") } })
 
-	-- When cross-compiling, compile shaders using host shader compiler
-	if is_plat("android", "iphoneos", "wasm") or (is_plat("mingw") and not is_host("windows")) then
-		if has_config("compile_shaders") then
-			add_requires("nzsl~host", { kind = "binary", host = true })
+	local function is_cross_compiling()
+		if os.host() == "windows" then
+			local host_arch = os.arch()
+			if is_plat("windows") then
+				-- maybe cross-compilation for arm64 on x86/x64
+				if (host_arch == "x86" or host_arch == "x64") and is_arch("arm64") then
+					return true
+				-- maybe cross-compilation for x86/64 on arm64
+				elseif host_arch == "arm64" and not is_arch("arm64") then
+					return true
+				end
+				return false
+			elseif is_plat("mingw") then
+				return false
+			end
 		end
+		if not is_plat(os.host()) and not is_plat(os.subhost()) then
+			return true
+		end
+		if not is_arch(os.arch()) and not is_arch(os.subarch()) then
+			return true
+		end
+		return false
+	end
+
+	-- When cross-compiling, compile shaders using host shader compiler
+	if has_config("compile_shaders") and is_cross_compiling() then
+		add_requires("nzsl~host", { kind = "binary", host = true })
 	end
 end
 
