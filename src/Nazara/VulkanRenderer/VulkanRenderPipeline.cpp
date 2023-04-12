@@ -328,7 +328,3 @@ namespace Nz
 		m_pipelineCreateInfo.stateData->colorBlendState = BuildColorBlendInfo(m_pipelineInfo, m_pipelineCreateInfo.colorBlendAttachmentState);
 	}
 }
-
-#if defined(NAZARA_PLATFORM_WINDOWS)
-#include <Nazara/Core/AntiWindows.hpp>
-#endif

@@ -12,7 +12,3 @@ namespace Nz
 		GetFramebuffer().SetDebugName(name);
 	}
 }
-
-#if defined(NAZARA_PLATFORM_WINDOWS)
-#include <Nazara/Core/AntiWindows.hpp>
-#endif

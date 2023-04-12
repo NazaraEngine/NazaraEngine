@@ -42,7 +42,3 @@ namespace Nz
 			throw std::runtime_error("failed to instantiate Vulkan framebuffer: " + TranslateVulkanError(m_framebuffer.GetLastErrorCode()));
 	}
 }
-
-#if defined(NAZARA_PLATFORM_WINDOWS)
-#include <Nazara/Core/AntiWindows.hpp>
-#endif

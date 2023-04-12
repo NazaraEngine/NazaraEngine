@@ -625,7 +625,3 @@ namespace Nz
 	Vk::Instance Vulkan::s_instance;
 	ParameterList Vulkan::s_initializationParameters;
 }
-
-#if defined(NAZARA_PLATFORM_WINDOWS)
-#include <Nazara/Core/AntiWindows.hpp>
-#endif

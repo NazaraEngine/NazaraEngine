@@ -23,7 +23,7 @@ namespace Nz
 		{
 		}
 
-		inline CommandBuffer::CommandBuffer(CommandBuffer&& commandBuffer) :
+		inline CommandBuffer::CommandBuffer(CommandBuffer&& commandBuffer) noexcept :
 		m_pool(commandBuffer.m_pool),
 		m_handle(commandBuffer.m_handle),
 		m_lastErrorCode(commandBuffer.m_lastErrorCode)

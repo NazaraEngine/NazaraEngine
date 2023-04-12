@@ -15,6 +15,11 @@
 #include <array>
 #include <stdexcept>
 
+#ifdef VK_USE_PLATFORM_WIN32_KHR
+#include <Windows.h>
+#include <vulkan/vulkan_win32.h>
+#endif
+
 #ifdef VK_USE_PLATFORM_METAL_EXT
 #include <objc/runtime.h>
 #include <vulkan/vulkan_metal.h>

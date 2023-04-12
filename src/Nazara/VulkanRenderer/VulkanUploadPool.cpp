@@ -103,7 +103,3 @@ namespace Nz
 		m_nextAllocationIndex = 0;
 	}
 }
-
-#if defined(NAZARA_PLATFORM_WINDOWS)
-#include <Nazara/Core/AntiWindows.hpp>
-#endif

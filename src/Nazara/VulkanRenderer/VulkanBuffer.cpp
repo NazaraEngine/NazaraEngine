@@ -143,6 +143,7 @@ namespace Nz
 	}
 }
 
+// vma includes vulkan.h which includes system headers
 #if defined(NAZARA_PLATFORM_WINDOWS)
 #include <Nazara/Core/AntiWindows.hpp>
 #elif defined(NAZARA_PLATFORM_LINUX)

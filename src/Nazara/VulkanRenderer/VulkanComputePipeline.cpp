@@ -54,7 +54,3 @@ namespace Nz
 		m_pipeline.SetDebugName(name);
 	}
 }
-
-#if defined(NAZARA_PLATFORM_WINDOWS)
-#include <Nazara/Core/AntiWindows.hpp>
-#endif

@@ -21,17 +21,24 @@
 #endif
 
 #ifdef VK_USE_PLATFORM_WAYLAND_KHR
-#include <wayland-client.h>
 #include <vulkan/vulkan_wayland.h>
 #endif
 
 #ifdef VK_USE_PLATFORM_WIN32_KHR
-#include <windows.h>
+typedef struct HINSTANCE__* HINSTANCE;
+typedef struct HWND__* HWND;
+typedef struct HMONITOR__* HMONITOR;
+typedef void* HANDLE;
+typedef /*_Null_terminated_*/ const wchar_t* LPCWSTR;
+typedef unsigned long DWORD;
+typedef struct _SECURITY_ATTRIBUTES SECURITY_ATTRIBUTES;
 #include <vulkan/vulkan_win32.h>
 #endif
 
 #ifdef VK_USE_PLATFORM_XCB_KHR
-#include <xcb/xcb.h>
+struct xcb_connection_t;
+typedef uint32_t xcb_window_t;
+typedef uint32_t xcb_visualid_t;
 #include <vulkan/vulkan_xcb.h>
 #endif
 
@@ -48,72 +55,69 @@ typedef unsigned long VisualID;
 #include <vulkan/vulkan_xlib.h>
 #endif
 
-namespace Nz 
+namespace Nz::Vk
 {
-	namespace Vk
+	class NAZARA_VULKANRENDERER_API Instance
 	{
-		class NAZARA_VULKANRENDERER_API Instance
-		{
-			public:
-				Instance();
-				Instance(const Instance&) = delete;
-				Instance(Instance&&) = delete;
-				~Instance();
+		public:
+			Instance();
+			Instance(const Instance&) = delete;
+			Instance(Instance&&) = delete;
+			~Instance();
 
-				bool Create(RenderAPIValidationLevel validationLevel, const VkInstanceCreateInfo& createInfo, const VkAllocationCallbacks* allocator = nullptr);
-				inline bool Create(RenderAPIValidationLevel validationLevel, const std::string& appName, UInt32 appVersion, const std::string& engineName, UInt32 engineVersion, UInt32 apiVersion, const std::vector<const char*>& layers, const std::vector<const char*>& extensions, const VkAllocationCallbacks* allocator = nullptr);
-				inline void Destroy();
+			bool Create(RenderAPIValidationLevel validationLevel, const VkInstanceCreateInfo& createInfo, const VkAllocationCallbacks* allocator = nullptr);
+			inline bool Create(RenderAPIValidationLevel validationLevel, const std::string& appName, UInt32 appVersion, const std::string& engineName, UInt32 engineVersion, UInt32 apiVersion, const std::vector<const char*>& layers, const std::vector<const char*>& extensions, const VkAllocationCallbacks* allocator = nullptr);
+			inline void Destroy();
 
-				bool EnumeratePhysicalDevices(std::vector<VkPhysicalDevice>* physicalDevices) const;
+			bool EnumeratePhysicalDevices(std::vector<VkPhysicalDevice>* physicalDevices) const;
 
-				inline PFN_vkVoidFunction GetDeviceProcAddr(VkDevice device, const char* name) const;
+			inline PFN_vkVoidFunction GetDeviceProcAddr(VkDevice device, const char* name) const;
 
-				inline UInt32 GetApiVersion() const;
-				inline VkResult GetLastErrorCode() const;
+			inline UInt32 GetApiVersion() const;
+			inline VkResult GetLastErrorCode() const;
 
-				bool GetPhysicalDeviceExtensions(VkPhysicalDevice device, std::vector<VkExtensionProperties>* extensionProperties) const;
-				inline VkPhysicalDeviceFeatures GetPhysicalDeviceFeatures(VkPhysicalDevice device) const;
-				inline VkFormatProperties GetPhysicalDeviceFormatProperties(VkPhysicalDevice device, VkFormat format) const;
-				inline bool GetPhysicalDeviceImageFormatProperties(VkPhysicalDevice physicalDevice, VkFormat format, VkImageType type, VkImageTiling tiling, VkImageUsageFlags usage, VkImageCreateFlags flags, VkImageFormatProperties* imageFormatProperties) const;
-				inline VkPhysicalDeviceMemoryProperties GetPhysicalDeviceMemoryProperties(VkPhysicalDevice device) const;
-				inline VkPhysicalDeviceProperties GetPhysicalDeviceProperties(VkPhysicalDevice device) const;
-				bool GetPhysicalDeviceQueueFamilyProperties(VkPhysicalDevice device, std::vector<VkQueueFamilyProperties>* queueFamilyProperties) const;
-				inline PFN_vkVoidFunction GetProcAddr(const char* name) const;
-				inline RenderAPIValidationLevel GetValidationLevel() const;
+			bool GetPhysicalDeviceExtensions(VkPhysicalDevice device, std::vector<VkExtensionProperties>* extensionProperties) const;
+			inline VkPhysicalDeviceFeatures GetPhysicalDeviceFeatures(VkPhysicalDevice device) const;
+			inline VkFormatProperties GetPhysicalDeviceFormatProperties(VkPhysicalDevice device, VkFormat format) const;
+			inline bool GetPhysicalDeviceImageFormatProperties(VkPhysicalDevice physicalDevice, VkFormat format, VkImageType type, VkImageTiling tiling, VkImageUsageFlags usage, VkImageCreateFlags flags, VkImageFormatProperties* imageFormatProperties) const;
+			inline VkPhysicalDeviceMemoryProperties GetPhysicalDeviceMemoryProperties(VkPhysicalDevice device) const;
+			inline VkPhysicalDeviceProperties GetPhysicalDeviceProperties(VkPhysicalDevice device) const;
+			bool GetPhysicalDeviceQueueFamilyProperties(VkPhysicalDevice device, std::vector<VkQueueFamilyProperties>* queueFamilyProperties) const;
+			inline PFN_vkVoidFunction GetProcAddr(const char* name) const;
+			inline RenderAPIValidationLevel GetValidationLevel() const;
 
-				void InstallDebugMessageCallback();
+			void InstallDebugMessageCallback();
 
-				inline bool IsExtensionLoaded(const std::string& extensionName) const;
-				inline bool IsLayerLoaded(const std::string& layerName) const;
-				inline bool IsValid() const;
+			inline bool IsExtensionLoaded(const std::string& extensionName) const;
+			inline bool IsLayerLoaded(const std::string& layerName) const;
+			inline bool IsValid() const;
 
-				Instance& operator=(const Instance&) = delete;
-				Instance& operator=(Instance&&) = delete;
+			Instance& operator=(const Instance&) = delete;
+			Instance& operator=(Instance&&) = delete;
 
-				inline operator VkInstance();
+			inline operator VkInstance();
 
-				// Vulkan functions
+			// Vulkan functions
 #define NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(func) PFN_##func func;
 #define NAZARA_VULKANRENDERER_INSTANCE_CORE_EXT_FUNCTION(func, ...) NAZARA_VULKANRENDERER_INSTANCE_FUNCTION(func)
 
 #include <Nazara/VulkanRenderer/Wrapper/InstanceFunctions.hpp>
 
-			private:
-				void DestroyInstance();
-				void ResetPointers();
+		private:
+			void DestroyInstance();
+			void ResetPointers();
 
-				struct InternalData;
+			struct InternalData;
 
-				std::unique_ptr<InternalData> m_internalData;
-				std::unordered_set<std::string> m_loadedExtensions;
-				std::unordered_set<std::string> m_loadedLayers;
-				VkAllocationCallbacks m_allocator;
-				VkInstance m_instance;
-				mutable VkResult m_lastErrorCode;
-				RenderAPIValidationLevel m_validationLevel;
-				UInt32 m_apiVersion;
-		};
-	}
+			std::unique_ptr<InternalData> m_internalData;
+			std::unordered_set<std::string> m_loadedExtensions;
+			std::unordered_set<std::string> m_loadedLayers;
+			VkAllocationCallbacks m_allocator;
+			VkInstance m_instance;
+			mutable VkResult m_lastErrorCode;
+			RenderAPIValidationLevel m_validationLevel;
+			UInt32 m_apiVersion;
+	};
 }
 
 #include <Nazara/VulkanRenderer/Wrapper/Instance.inl>
