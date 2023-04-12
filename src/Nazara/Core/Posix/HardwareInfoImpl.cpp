@@ -11,7 +11,7 @@ namespace Nz
 {
 	void HardwareInfoImpl::Cpuid(UInt32 functionId, UInt32 subFunctionId, UInt32 registers[4])
 	{
-#if defined(NAZARA_COMPILER_CLANG) || defined(NAZARA_COMPILER_GCC) || defined(NAZARA_COMPILER_INTEL) && (defined(NAZARA_ARCH_x86) || defined(NAZARA_ARCH_x86_64))
+#if (defined(NAZARA_COMPILER_CLANG) || defined(NAZARA_COMPILER_GCC) || defined(NAZARA_COMPILER_INTEL)) && (defined(NAZARA_ARCH_x86) || defined(NAZARA_ARCH_x86_64))
 		// https://en.wikipedia.org/wiki/CPUID
 		asm volatile(
 #ifdef NAZARA_ARCH_x86_64
