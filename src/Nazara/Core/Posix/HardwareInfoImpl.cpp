@@ -11,26 +11,26 @@ namespace Nz
 {
 	void HardwareInfoImpl::Cpuid(UInt32 functionId, UInt32 subFunctionId, UInt32 registers[4])
 	{
-	#if (defined(NAZARA_COMPILER_CLANG) || defined(NAZARA_COMPILER_GCC) || defined(NAZARA_COMPILER_INTEL)) && !defined(NAZARA_PLATFORM_WEB)
+#if defined(NAZARA_COMPILER_CLANG) || defined(NAZARA_COMPILER_GCC) || defined(NAZARA_COMPILER_INTEL) && (defined(NAZARA_ARCH_x86) || defined(NAZARA_ARCH_x86_64))
 		// https://en.wikipedia.org/wiki/CPUID
 		asm volatile(
-			#ifdef NAZARA_ARCH_x86_64
+#ifdef NAZARA_ARCH_x86_64
 			"pushq %%rbx     \n\t" // save %rbx
-			#else
+#else
 			"pushl %%ebx     \n\t" // save %ebx
-			#endif
+#endif
 			"cpuid            \n\t"
 			"movl %%ebx ,%[ebx]  \n\t" // write the result into output var
-			#ifdef NAZARA_ARCH_x86_64
+#ifdef NAZARA_ARCH_x86_64
 			"popq %%rbx \n\t"
-			#else
+#else
 			"popl %%ebx \n\t"
-			#endif
+#endif
 			: "=a"(registers[0]), [ebx] "=r"(registers[1]), "=c"(registers[2]), "=d"(registers[3])
 			: "a"(functionId), "c" (subFunctionId));
-	#else
+#else
 		NazaraInternalError("Cpuid has been called although it is not supported");
-	#endif
+#endif
 	}
 
 	unsigned int HardwareInfoImpl::GetProcessorCount()
@@ -49,12 +49,9 @@ namespace Nz
 
 	bool HardwareInfoImpl::IsCpuidSupported()
 	{
-	#ifdef NAZARA_ARCH_x86_64
-		return true; // cpuid is always supported on x64 arch
-	#elif defined(NAZARA_PLATFORM_WEB)
-		return false;
-	#else
-		#if defined(NAZARA_COMPILER_CLANG) || defined(NAZARA_COMPILER_GCC) || defined(NAZARA_COMPILER_INTEL)
+#if defined(NAZARA_ARCH_x86_64)
+		return true; // cpuid is always supported on x86_64 arch
+#elif defined(NAZARA_ARCH_x86) && (defined(NAZARA_COMPILER_CLANG) || defined(NAZARA_COMPILER_GCC) || defined(NAZARA_COMPILER_INTEL))
 		int supported;
 		asm volatile ("	pushfl\n"
 					  " pop %%eax\n"
@@ -73,9 +70,8 @@ namespace Nz
 					  : "eax", "ecx", "memory"); // clobbered register
 
 		return supported != 0;
-		#else
+#else
 		return false;
-		#endif
-	#endif
+#endif
 	}
 }
