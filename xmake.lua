@@ -491,7 +491,6 @@ for name, module in pairs(modules) do
 		end
 
 		if has_config("unitybuild") then
-			add_defines("NAZARA_UNITY_BUILD")
 			add_rules("c++.unity_build", {uniqueid = "NAZARA_UNITY_ID", batchsize = 12})
 		end
 
