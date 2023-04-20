@@ -254,7 +254,7 @@ if has_config("chipmunkphysics") then
 end
 
 if has_config("joltphysics") then
-	add_requires("joltphysics 24147a6936c63f4f09c6c37173169d8f366f9fb4", { configs = { debug = is_mode("debug") }})
+	add_requires("joltphysics 3", { configs = { debug = is_mode("debug") }})
 	add_requires("ordered_map")
 end
 
