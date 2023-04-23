@@ -35,7 +35,7 @@ int main()
 
 	std::cout << "Playing sound..." << std::endl;
 
-	app.AddUpdater([&](Nz::Time /*elapsedTime*/)
+	app.AddUpdaterFunc([&]
 	{
 		if (!music.IsPlaying())
 			app.Quit();

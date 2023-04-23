@@ -509,7 +509,7 @@ int main()
 	});
 
 	Nz::DegreeAnglef rotation = 0.f;
-	app.AddUpdater([&](Nz::Time elapsedTime)
+	app.AddUpdaterFunc([&](Nz::Time elapsedTime)
 	{
 		rotation += elapsedTime.AsSeconds() * 45.f;
 		//physSystem.GetPhysWorld().SetGravity(Nz::Quaternionf(Nz::EulerAnglesf(0.f, rotation, 0.f)) * Nz::Vector3f::Forward() * 10.f);
@@ -517,7 +517,7 @@ int main()
 
 	Nz::MillisecondClock fpsClock;
 	unsigned int fps = 0;
-	app.AddUpdater([&](Nz::Time /*elapsedTime*/)
+	app.AddUpdaterFunc([&]
 	{
 		fps++;
 		if (fpsClock.RestartIfOver(Nz::Time::Second()))

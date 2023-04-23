@@ -48,6 +48,7 @@ namespace Nz
 				return ModuleTuple<Modules...>::template Get<T>();
 		}
 
+
 		template<typename Module>
 		template<typename... ModuleConfig>
 		ModuleTuple<Module>::ModuleTuple(ModuleConfig&&... configs) :

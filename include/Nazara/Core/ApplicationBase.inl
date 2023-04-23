@@ -18,28 +18,31 @@ namespace Nz
 	{
 	}
 
-	template<typename T, typename... Args>
-	T& ApplicationBase::AddComponent(Args&&... args)
+	inline void ApplicationBase::AddUpdater(std::unique_ptr<ApplicationUpdater>&& functor)
 	{
-		std::size_t componentIndex = ApplicationComponentRegistry<T>::GetComponentId();
-
-		std::unique_ptr<T> component = std::make_unique<T>(*this, std::forward<Args>(args)...);
-		T& componentRef = *component;
-
-		if (componentIndex >= m_components.size())
-			m_components.resize(componentIndex + 1);
-		else if (m_components[componentIndex] != nullptr)
-			throw std::runtime_error("component was added multiple times");
-
-		m_components[componentIndex] = std::move(component);
-
-		return componentRef;
+		auto& updaterEntry = m_updaters.emplace_back();
+		updaterEntry.lastUpdate = Time::Zero();
+		updaterEntry.nextUpdate = Time::Zero();
+		updaterEntry.updater = std::move(functor);
 	}
 
 	template<typename F>
-	void ApplicationBase::AddUpdater(F&& functor)
+	void ApplicationBase::AddUpdaterFunc(F&& functor)
 	{
-		m_updaters.emplace_back(std::make_unique<ApplicationUpdaterFunctor<std::decay_t<F>>>(std::forward<F>(functor)));
+		static_assert(std::is_invocable_v<F> || std::is_invocable_v<F, Time>, "functor must be callable with either a Time parameter or no parameter");
+		return AddUpdater(std::make_unique<ApplicationUpdaterFunctor<std::decay_t<F>>>(std::forward<F>(functor)));
+	}
+
+	template<typename F>
+	void ApplicationBase::AddUpdaterFunc(FixedInterval fixedInterval, F&& functor)
+	{
+		return AddUpdaterFunc<F, true>(fixedInterval.interval, std::forward<F>(functor));
+	}
+
+	template<typename F>
+	void ApplicationBase::AddUpdaterFunc(Interval interval, F&& functor)
+	{
+		return AddUpdaterFunc<F, false>(interval.interval, std::forward<F>(functor));
 	}
 
 	inline void ApplicationBase::ClearComponents()
@@ -71,6 +74,36 @@ namespace Nz
 	{
 		m_running = false;
 	}
+	
+	template<typename T, typename... Args>
+	T& ApplicationBase::AddComponent(Args&&... args)
+	{
+		std::size_t componentIndex = ApplicationComponentRegistry<T>::GetComponentId();
+
+		std::unique_ptr<T> component = std::make_unique<T>(*this, std::forward<Args>(args)...);
+		T& componentRef = *component;
+
+		if (componentIndex >= m_components.size())
+			m_components.resize(componentIndex + 1);
+		else if (m_components[componentIndex] != nullptr)
+			throw std::runtime_error("component was added multiple times");
+
+		m_components[componentIndex] = std::move(component);
+
+		return componentRef;
+	}
+
+	template<typename F, bool FixedInterval>
+	void ApplicationBase::AddUpdaterFunc(Time interval, F&& functor)
+	{
+		if constexpr (std::is_invocable_r_v<void, F> || std::is_invocable_r_v<void, F, Time>)
+			return AddUpdater(std::make_unique<ApplicationUpdaterFunctorWithInterval<std::decay_t<F>, FixedInterval>>(std::forward<F>(functor), interval));
+		else if constexpr (std::is_invocable_r_v<Time, F> || std::is_invocable_r_v<Time, F, Time>)
+			return AddUpdater(std::make_unique<ApplicationUpdaterFunctor<std::decay_t<F>>>(std::forward<F>(functor)));
+		else
+			static_assert(AlwaysFalse<F>(), "functor must be callable with either elapsed time or nothing and return void or next update time");
+	}
+
 }
 
 #include <Nazara/Core/DebugOff.hpp>

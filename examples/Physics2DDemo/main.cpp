@@ -118,7 +118,7 @@ int main()
 	Nz::PidController<Nz::Vector3f> headingController(0.5f, 0.f, 0.05f);
 	Nz::PidController<Nz::Vector3f> upController(1.f, 0.f, 0.1f);
 
-	app.AddUpdater([&](Nz::Time /*elapsedTime*/)
+	app.AddUpdaterFunc([&]
 	{
 		fps++;
 

@@ -68,7 +68,7 @@ int main()
 
 		character.emplace(physSytem.GetPhysWorld(), playerCollider, Nz::Vector3f::Up() * 5.f);
 
-		app.AddUpdater([&](Nz::Time /*elapsedTime*/)
+		app.AddUpdaterFunc([&]
 		{
 			auto [position, rotation] = character->GetPositionAndRotation();
 
@@ -417,7 +417,7 @@ int main()
 		playerRotNode.SetRotation(camAngles);
 	});
 
-	app.AddUpdater([&](Nz::Time /*elapsedTime*/)
+	app.AddUpdaterFunc([&]
 	{
 		if (std::optional<Nz::Time> deltaTime = updateClock.RestartIfOver(Nz::Time::TickDuration(60)))
 		{

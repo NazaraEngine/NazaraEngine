@@ -21,21 +21,36 @@ namespace Nz
 			ApplicationUpdater(ApplicationUpdater&&) = delete;
 			virtual ~ApplicationUpdater();
 
-			virtual void Update(Time elapsedTime) = 0;
+			virtual Time Update(Time elapsedTime) = 0;
 
 			ApplicationUpdater& operator=(const ApplicationUpdater&) = delete;
 			ApplicationUpdater& operator=(ApplicationUpdater&&) = delete;
 	};
-
+	
 	template<typename F>
 	class ApplicationUpdaterFunctor : public ApplicationUpdater
 	{
 		public:
 			ApplicationUpdaterFunctor(F functor);
 
-			void Update(Time elapsedTime) override;
+			Time Update(Time elapsedTime) override;
 
 		private:
+			template<typename... Args> Time TriggerFunctor(Args&&... args);
+
+			F m_functor;
+	};
+
+	template<typename F, bool FixedInterval>
+	class ApplicationUpdaterFunctorWithInterval : public ApplicationUpdater
+	{
+		public:
+			ApplicationUpdaterFunctorWithInterval(F functor, Time interval);
+
+			Time Update(Time elapsedTime) override;
+
+		private:
+			Time m_interval;
 			F m_functor;
 	};
 }

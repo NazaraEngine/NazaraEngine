@@ -12,7 +12,8 @@
 namespace Nz
 {
 	ApplicationBase::ApplicationBase(int argc, const Pointer<const char>* argv) :
-	m_running(true)
+	m_running(true),
+	m_currentTime(Time::Zero())
 	{
 	}
 
@@ -55,8 +56,30 @@ namespace Nz
 
 	bool ApplicationBase::Update(Time elapsedTime)
 	{
-		for (auto& updater : m_updaters)
-			updater->Update(elapsedTime);
+		m_currentTime += elapsedTime;
+
+		for (auto& updaterEntry : m_updaters)
+		{
+			if (updaterEntry.nextUpdate > m_currentTime)
+				continue;
+
+			Time timeSinceLastUpdate = m_currentTime - updaterEntry.lastUpdate;
+
+			if NAZARA_UNLIKELY(updaterEntry.nextUpdate == updaterEntry.lastUpdate)
+			{
+				// First call
+				timeSinceLastUpdate = Time::Zero();
+				updaterEntry.lastUpdate = m_currentTime;
+			}
+
+			Time interval = updaterEntry.updater->Update(timeSinceLastUpdate);
+			if (interval >= Time::Zero())
+				updaterEntry.nextUpdate = m_currentTime + interval;
+			else
+				updaterEntry.nextUpdate = updaterEntry.lastUpdate + (-interval);
+
+			updaterEntry.nextUpdate = std::max(updaterEntry.nextUpdate, m_currentTime);
+		}
 
 		for (auto& componentPtr : m_components)
 		{

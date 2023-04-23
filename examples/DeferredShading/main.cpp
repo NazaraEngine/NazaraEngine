@@ -1140,7 +1140,7 @@ int main()
 		}
 	});
 
-	app.AddUpdater([&](Nz::Time deltaTime)
+	app.AddUpdaterFunc([&](Nz::Time deltaTime)
 	{
 		if (lightAnimation)
 			elapsedTime += deltaTime;

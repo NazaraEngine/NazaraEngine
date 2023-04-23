@@ -19,6 +19,9 @@ namespace Nz
 	class NAZARA_CORE_API ApplicationBase
 	{
 		public:
+			struct FixedInterval { Time interval; };
+			struct Interval { Time interval; };
+
 			inline ApplicationBase();
 			inline ApplicationBase(int argc, char** argv);
 			ApplicationBase(int argc, const Pointer<const char>* argv);
@@ -26,7 +29,10 @@ namespace Nz
 			ApplicationBase(ApplicationBase&&) = delete;
 			~ApplicationBase() = default;
 
-			template<typename F> void AddUpdater(F&& functor);
+			inline void AddUpdater(std::unique_ptr<ApplicationUpdater>&& functor);
+			template<typename F> void AddUpdaterFunc(F&& functor);
+			template<typename F> void AddUpdaterFunc(FixedInterval fixedInterval, F&& functor);
+			template<typename F> void AddUpdaterFunc(Interval interval, F&& functor);
 
 			inline void ClearComponents();
 
@@ -46,10 +52,20 @@ namespace Nz
 			template<typename T, typename... Args> T& AddComponent(Args&&... args);
 
 		private:
+			template<typename F, bool FixedInterval> void AddUpdaterFunc(Time interval, F&& functor);
+
+			struct Updater
+			{
+				std::unique_ptr<ApplicationUpdater> updater;
+				Time lastUpdate;
+				Time nextUpdate;
+			};
+
 			std::atomic_bool m_running;
 			std::vector<std::unique_ptr<ApplicationComponent>> m_components;
-			std::vector<std::unique_ptr<ApplicationUpdater>> m_updaters;
+			std::vector<Updater> m_updaters;
 			HighPrecisionClock m_clock;
+			Time m_currentTime;
 	};
 }
 

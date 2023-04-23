@@ -284,7 +284,7 @@ int main()
 		uboUpdate = true;
 	});
 
-	app.AddUpdater([&](Nz::Time /*elapsedTime*/)
+	app.AddUpdaterFunc([&]
 	{
 		if (std::optional<Nz::Time> deltaTime = updateClock.RestartIfOver(Nz::Time::TickDuration(60)))
 		{
