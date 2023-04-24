@@ -93,17 +93,16 @@ namespace Nz
 		return componentRef;
 	}
 
-	template<typename F, bool FixedInterval>
+	template<typename F, bool Fixed>
 	void ApplicationBase::AddUpdaterFunc(Time interval, F&& functor)
 	{
 		if constexpr (std::is_invocable_r_v<void, F> || std::is_invocable_r_v<void, F, Time>)
-			return AddUpdater(std::make_unique<ApplicationUpdaterFunctorWithInterval<std::decay_t<F>, FixedInterval>>(std::forward<F>(functor), interval));
+			return AddUpdater(std::make_unique<ApplicationUpdaterFunctorWithInterval<std::decay_t<F>, Fixed>>(std::forward<F>(functor), interval));
 		else if constexpr (std::is_invocable_r_v<Time, F> || std::is_invocable_r_v<Time, F, Time>)
 			return AddUpdater(std::make_unique<ApplicationUpdaterFunctor<std::decay_t<F>>>(std::forward<F>(functor)));
 		else
 			static_assert(AlwaysFalse<F>(), "functor must be callable with either elapsed time or nothing and return void or next update time");
 	}
-
 }
 
 #include <Nazara/Core/DebugOff.hpp>

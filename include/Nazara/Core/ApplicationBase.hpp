@@ -52,7 +52,7 @@ namespace Nz
 			template<typename T, typename... Args> T& AddComponent(Args&&... args);
 
 		private:
-			template<typename F, bool FixedInterval> void AddUpdaterFunc(Time interval, F&& functor);
+			template<typename F, bool Fixed> void AddUpdaterFunc(Time interval, F&& functor);
 
 			struct Updater
 			{
