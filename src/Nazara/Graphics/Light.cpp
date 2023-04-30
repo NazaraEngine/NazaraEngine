@@ -11,8 +11,8 @@ namespace Nz
 	Light::Light(UInt8 lightType) :
 	m_boundingVolume(BoundingVolumef::Null()),
 	m_shadowMapFormat(Graphics::Instance()->GetPreferredDepthFormat()),
-	m_shadowMapSize(512),
 	m_lightType(lightType),
+	m_shadowMapSize(512),
 	m_isShadowCaster(false)
 	{
 	}

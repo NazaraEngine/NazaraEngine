@@ -50,8 +50,6 @@ namespace Nz
 			{
 				constexpr MaterialPropertyType PropertyType = TypeToMaterialPropertyType_v<T>;
 
-				using BufferType = typename MaterialPropertyTypeInfo<PropertyType>::BufferType;
-
 				materialInstance.UpdateOptionValue(m_optionHash, MaterialPropertyTypeInfo<PropertyType>::EncodeToOption(arg));
 			}
 			else

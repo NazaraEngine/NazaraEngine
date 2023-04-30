@@ -20,11 +20,11 @@ namespace Nz
 	}
 
 	Window::Window(Window&& window) noexcept :
-	m_cursorController(std::move(window.m_cursorController)),
 	m_cursor(std::move(window.m_cursor)),
-	m_eventHandler(std::move(window.m_eventHandler)),
 	m_icon(std::move(window.m_icon)),
 	m_impl(std::move(window.m_impl)),
+	m_cursorController(std::move(window.m_cursorController)),
+	m_eventHandler(std::move(window.m_eventHandler)),
 	m_closed(window.m_closed),
 	m_closeOnQuit(window.m_closeOnQuit),
 	m_ownsWindow(window.m_ownsWindow),

@@ -23,11 +23,11 @@ namespace Nz
 	* \remark The default material is used for every material requested
 	*/
 	Tilemap::Tilemap(const Vector2ui& mapSize, const Vector2f& tileSize, std::size_t materialCount) :
-	m_tiles(mapSize.x* mapSize.y),
 	m_layers(materialCount),
-	m_mapSize(mapSize),
-	m_tileSize(tileSize),
+	m_tiles(mapSize.x* mapSize.y),
 	m_origin(0.f, 0.f),
+	m_tileSize(tileSize),
+	m_mapSize(mapSize),
 	m_isometricModeEnabled(false),
 	m_shouldRebuildVertices(false)
 	{

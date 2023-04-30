@@ -215,7 +215,8 @@ namespace Nz
 					}
 					else
 					{
-						constexpr std::size_t blockSize = 4 * 1024;
+						// File size isn't know, read it block by block until the end of stream
+						constexpr std::size_t blockSize = 4u * 1024;
 
 						while (!stream.EndOfStream())
 						{

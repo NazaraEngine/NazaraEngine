@@ -44,6 +44,9 @@ unsigned int Discard::nPorts(QtNodes::PortType portType) const
 {
 	switch (portType)
 	{
+		case QtNodes::PortType::None:
+			break;
+
 		case QtNodes::PortType::In: return 1;
 		case QtNodes::PortType::Out: return 0;
 	}

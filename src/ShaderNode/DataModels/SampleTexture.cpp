@@ -14,6 +14,9 @@ unsigned int SampleTexture::nPorts(QtNodes::PortType portType) const
 {
 	switch (portType)
 	{
+		case QtNodes::PortType::None:
+			break;
+
 		case QtNodes::PortType::In:  return 2;
 		case QtNodes::PortType::Out: return 1;
 	}

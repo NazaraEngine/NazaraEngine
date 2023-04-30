@@ -34,6 +34,9 @@ unsigned int InputValue::nPorts(QtNodes::PortType portType) const
 {
 	switch (portType)
 	{
+		case QtNodes::PortType::None:
+			break;
+
 		case QtNodes::PortType::In:  return 0;
 		case QtNodes::PortType::Out: return 1;
 	}

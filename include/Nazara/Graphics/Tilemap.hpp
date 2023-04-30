@@ -82,11 +82,11 @@ namespace Nz
 			};
 
 			mutable std::vector<VertexStruct_XYZ_Color_UV> m_vertices;
-			std::vector<Tile> m_tiles;
 			std::vector<Layer> m_layers;
-			Vector2ui m_mapSize;
+			std::vector<Tile> m_tiles;
 			Vector2f m_origin;
 			Vector2f m_tileSize;
+			Vector2ui m_mapSize;
 			bool m_isometricModeEnabled;
 			mutable bool m_shouldRebuildVertices;
 	};

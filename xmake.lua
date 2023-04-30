@@ -246,7 +246,7 @@ if has_config("audio") then
 end
 
 if has_config("bulletphysics") then
-	add_requires("bullet3")
+	add_requires("bullet3", { configs = { debug = is_mode("debug") }})
 end
 
 if has_config("chipmunkphysics") then
@@ -254,7 +254,7 @@ if has_config("chipmunkphysics") then
 end
 
 if has_config("joltphysics") then
-	add_requires("joltphysics 3", { configs = { debug = is_mode("debug") }})
+	add_requires("joltphysics >=3", { configs = { debug = is_mode("debug") }})
 	add_requires("ordered_map")
 end
 
@@ -332,8 +332,17 @@ set_allowedplats("windows", "mingw", "linux", "macosx", "wasm")
 set_allowedmodes("debug", "releasedbg", "release", "asan", "tsan", "coverage")
 set_defaultmode("debug")
 
+add_includedirs("include")
+add_sysincludedirs("thirdparty/include")
+
+set_languages("c89", "cxx17")
+set_rundir("./bin/$(plat)_$(arch)_$(mode)")
+set_targetdir("./bin/$(plat)_$(arch)_$(mode)")
+set_warnings("allextra")
+
 if is_mode("debug") then
 	add_rules("debug.suffix")
+	add_defines("NAZARA_DEBUG")
 elseif is_mode("asan") then
 	set_optimize("none") -- by default xmake will optimize asan builds
 elseif is_mode("tsan") then
@@ -347,35 +356,48 @@ elseif is_mode("releasedbg", "release") then
 	add_vectorexts("sse", "sse2", "sse3", "ssse3")
 end
 
-add_includedirs("include")
-add_sysincludedirs("thirdparty/include")
-
-set_languages("c89", "cxx17")
-set_rundir("./bin/$(plat)_$(arch)_$(mode)")
-set_targetdir("./bin/$(plat)_$(arch)_$(mode)")
-set_warnings("allextra")
-
 if not is_mode("release") then
 	set_symbols("debug", "hidden")
 end
 
-if is_mode("debug") then
-	add_defines("NAZARA_DEBUG")
+-- Compiler-specific options
+
+if is_plat("windows") then
+	-- MSVC
+	add_cxxflags("/bigobj", "/permissive-", "/Zc:__cplusplus", "/Zc:externConstexpr", "/Zc:inline", "/Zc:lambda", "/Zc:preprocessor", "/Zc:referenceBinding", "/Zc:strictStrings", "/Zc:throwingNew", {tools = "cl"})
+	add_defines("_CRT_SECURE_NO_WARNINGS", "_ENABLE_EXTENDED_ALIGNED_STORAGE")
+
+	-- Enable the following additional warnings:
+	add_cxflags("/we4062", {tools = "cl"}) -- Switch case not handled (warning as error)
+	add_cxflags("/we4426", {tools = "cl"}) -- Optimization flags changed after including header, may be due to #pragma optimize()
+	add_cxflags("/we5038", {tools = "cl"}) -- Data member will be initialized after data member
+
+	-- Disable the following warnings:
+	add_cxflags("/wd4251", {tools = "cl"}) -- class needs to have dll-interface to be used by clients of class blah blah blah
+	add_cxflags("/wd4275", {tools = "cl"}) -- DLL-interface class 'class_1' used as base for DLL-interface blah
+else
+	-- GCC-compatible (GCC, Clang, ...)
+	add_cxflags("-pedantic", "-pedantic-errors")
+	add_cxflags("-Wtrampolines")
+	add_cxflags("-Werror=reorder")
+	add_cxflags("-Werror=switch")
 end
+
+-- Platform-specific options
 
 if is_plat("windows") then
 	if has_config("override_runtime") then
 		set_runtimes(is_mode("debug") and "MDd" or "MD")
 	end
-
-	add_defines("_CRT_SECURE_NO_WARNINGS", "_ENABLE_EXTENDED_ALIGNED_STORAGE")
-	add_cxxflags("/bigobj", "/permissive-", "/Zc:__cplusplus", "/Zc:externConstexpr", "/Zc:inline", "/Zc:lambda", "/Zc:preprocessor", "/Zc:referenceBinding", "/Zc:strictStrings", "/Zc:throwingNew")
-	add_cxflags("/w44062") -- Enable warning: switch case not handled
-	add_cxflags("/wd4251") -- Disable warning: class needs to have dll-interface to be used by clients of class blah blah blah
-	add_cxflags("/wd4275") -- Disable warning: DLL-interface class 'class_1' used as base for DLL-interface blah
 elseif is_plat("mingw") then
-	add_cxflags("-Og", "-Wa,-mbig-obj")
+	-- Use some optimizations even in debug for MinGW to reduce object size
+	if is_mode("debug") then
+		add_cxflags("-Og")
+	end
+	add_cxflags("-Wa,-mbig-obj")
 	add_ldflags("-Wa,-mbig-obj")
+
+	-- Disable -Isystem for external packages as it seems to break Assimp
 	set_policy("package.include_external_headers", false)
 elseif is_plat("wasm") then
 	add_cxflags("-sNO_DISABLE_EXCEPTION_CATCHING")

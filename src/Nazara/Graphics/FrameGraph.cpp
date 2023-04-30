@@ -8,6 +8,7 @@
 #include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
+#include <NazaraUtils/Bitset.hpp>
 #include <NazaraUtils/StackArray.hpp>
 #include <stdexcept>
 #include <unordered_set>
@@ -1099,7 +1100,7 @@ namespace Nz
 	void FrameGraph::RemoveDuplicatePasses()
 	{
 		// A way to remove duplicates from a std::vector without sorting it
-		std::vector<bool> seen(m_framePasses.size());
+		Bitset<> seen(m_framePasses.size());
 
 		auto itRead = m_pending.passList.begin();
 		auto itWrite = m_pending.passList.begin();

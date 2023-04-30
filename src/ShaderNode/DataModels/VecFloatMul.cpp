@@ -32,6 +32,9 @@ QtNodes::NodeDataType VecFloatMul::dataType(QtNodes::PortType portType, QtNodes:
 {
 	switch (portType)
 	{
+		case QtNodes::PortType::None:
+			break;
+
 		case QtNodes::PortType::In:
 		{
 			assert(portIndex == 0 || portIndex == 1);
@@ -57,6 +60,9 @@ unsigned int VecFloatMul::nPorts(QtNodes::PortType portType) const
 {
 	switch (portType)
 	{
+		case QtNodes::PortType::None:
+			break;
+
 		case QtNodes::PortType::In:  return 2;
 		case QtNodes::PortType::Out: return 1;
 	}

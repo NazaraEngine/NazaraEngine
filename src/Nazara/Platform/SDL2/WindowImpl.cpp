@@ -117,6 +117,12 @@ namespace Nz
 				return false;
 			}
 
+			case WindowBackend::Web:
+			{
+				NazaraError("unsupported creation from a Web handle");
+				return false;
+			}
+
 			case WindowBackend::Cocoa:   systemHandle = handle.cocoa.window;       break;
 			case WindowBackend::X11:     systemHandle = reinterpret_cast<void*>(std::uintptr_t(handle.x11.window)); break;
 			case WindowBackend::Windows: systemHandle = handle.windows.window;     break;
