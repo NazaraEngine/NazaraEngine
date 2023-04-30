@@ -25,7 +25,7 @@ namespace Nz
 
 	inline void OpenGLCommandBuffer::BeginDebugRegion(const std::string_view& regionName, const Color& color)
 	{
-		BeginDebugRegionData beginDebugRegion;
+		BeginDebugRegionCommand beginDebugRegion;
 		beginDebugRegion.color = color;
 		beginDebugRegion.regionName = regionName;
 
@@ -77,7 +77,7 @@ namespace Nz
 
 	inline void OpenGLCommandBuffer::BlitTexture(const OpenGLTexture& source, const Boxui& sourceBox, const OpenGLTexture& target, const Boxui& targetBox, SamplerFilter filter)
 	{
-		BlitTextureData blitTexture = {
+		BlitTextureCommand blitTexture = {
 			&source,
 			&target,
 			sourceBox,
@@ -90,7 +90,7 @@ namespace Nz
 
 	inline void OpenGLCommandBuffer::CopyBuffer(GLuint source, GLuint target, UInt64 size, UInt64 sourceOffset, UInt64 targetOffset)
 	{
-		CopyBufferData copyBuffer = {
+		CopyBufferCommand copyBuffer = {
 			source,
 			target,
 			size,
@@ -103,7 +103,7 @@ namespace Nz
 
 	inline void OpenGLCommandBuffer::CopyBuffer(const UploadPool::Allocation& allocation, GLuint target, UInt64 size, UInt64 sourceOffset, UInt64 targetOffset)
 	{
-		CopyBufferFromMemoryData copyBuffer = {
+		CopyBufferFromMemoryCommand copyBuffer = {
 			static_cast<const UInt8*>(allocation.mappedPtr) + sourceOffset,
 			target,
 			size,
@@ -115,7 +115,7 @@ namespace Nz
 
 	inline void OpenGLCommandBuffer::CopyTexture(const OpenGLTexture& source, const Boxui& sourceBox, const OpenGLTexture& target, const Vector3ui& targetPoint)
 	{
-		CopyTextureData copyTexture = {
+		CopyTextureCommand copyTexture = {
 			&source,
 			&target,
 			sourceBox,
@@ -130,7 +130,7 @@ namespace Nz
 		if (!m_currentComputeStates.pipeline)
 			throw std::runtime_error("no pipeline bound");
 
-		DispatchData dispatch;
+		DispatchCommand dispatch;
 		dispatch.bindings = m_currentComputeShaderBindings;
 		dispatch.states = m_currentComputeStates;
 		dispatch.numGroupsX = numGroupsX;
@@ -145,7 +145,7 @@ namespace Nz
 		if (!m_currentDrawStates.pipeline)
 			throw std::runtime_error("no pipeline bound");
 
-		DrawData draw;
+		DrawCommand draw;
 		draw.bindings = m_currentGraphicsShaderBindings;
 		draw.states = m_currentDrawStates;
 		draw.firstInstance = firstInstance;
@@ -161,7 +161,7 @@ namespace Nz
 		if (!m_currentDrawStates.pipeline)
 			throw std::runtime_error("no pipeline bound");
 
-		DrawIndexedData draw;
+		DrawIndexedCommand draw;
 		draw.bindings = m_currentGraphicsShaderBindings;
 		draw.states = m_currentDrawStates;
 		draw.firstIndex = firstIndex;
@@ -174,7 +174,7 @@ namespace Nz
 
 	inline void OpenGLCommandBuffer::EndDebugRegion()
 	{
-		m_commands.emplace_back(EndDebugRegionData{});
+		m_commands.emplace_back(EndDebugRegionCommand{});
 	}
 
 	inline std::size_t OpenGLCommandBuffer::GetBindingIndex() const
@@ -214,7 +214,7 @@ namespace Nz
 	{
 		m_maxColorBufferCount = std::max(m_maxColorBufferCount, framebuffer.GetColorBufferCount());
 
-		SetFrameBufferData setFramebuffer;
+		SetFrameBufferCommand setFramebuffer;
 		setFramebuffer.framebuffer = &framebuffer;
 		setFramebuffer.renderpass = &renderPass;
 

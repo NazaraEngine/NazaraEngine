@@ -8,6 +8,7 @@
 #define NAZARA_OPENGLRENDERER_OPENGLCOMMANDBUFFER_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <NazaraUtils/TypeList.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
@@ -79,17 +80,57 @@ namespace Nz
 			struct DrawStates;
 			struct ShaderBindings;
 
+#define NAZARA_OPENGL_FOREACH_COMMANDS(cb, lastCb) \
+	cb(BeginDebugRegionCommand) \
+	cb(BlitTextureCommand) \
+	cb(CopyBufferCommand) \
+	cb(CopyBufferFromMemoryCommand) \
+	cb(CopyTextureCommand) \
+	cb(DispatchCommand) \
+	cb(DrawCommand) \
+	cb(DrawIndexedCommand) \
+	cb(EndDebugRegionCommand) \
+	cb(MemoryBarrier) \
+	lastCb(SetFrameBufferCommand) \
+
+#define NAZARA_OPENGL_COMMAND_CALLBACK(Command) struct Command;
+			NAZARA_OPENGL_FOREACH_COMMANDS(NAZARA_OPENGL_COMMAND_CALLBACK, NAZARA_OPENGL_COMMAND_CALLBACK)
+#undef NAZARA_OPENGL_COMMAND_CALLBACK
+
+			using CommandList = TypeList<
+
+#define NAZARA_OPENGL_COMMAND_CALLBACK(Command) Command,
+#define NAZARA_OPENGL_COMMAND_CALLBACK_LAST(Command) Command
+				NAZARA_OPENGL_FOREACH_COMMANDS(NAZARA_OPENGL_COMMAND_CALLBACK, NAZARA_OPENGL_COMMAND_CALLBACK_LAST)
+#undef NAZARA_OPENGL_COMMAND_CALLBACK_LAST
+#undef NAZARA_OPENGL_COMMAND_CALLBACK
+
+			>;
+
 			void ApplyBindings(const GL::Context& context, const ShaderBindings& bindings);
 			void ApplyStates(const GL::Context& context, const DrawStates& states);
+
+			inline void Execute(const GL::Context* context, const BeginDebugRegionCommand& command);
+			inline void Execute(const GL::Context* context, const BlitTextureCommand& command);
+			inline void Execute(const GL::Context* context, const CopyBufferCommand& command);
+			inline void Execute(const GL::Context* context, const CopyBufferFromMemoryCommand& command);
+			inline void Execute(const GL::Context* context, const CopyTextureCommand& command);
+			inline void Execute(const GL::Context* context, const DispatchCommand& command);
+			inline void Execute(const GL::Context* context, const DrawCommand& command);
+			inline void Execute(const GL::Context* context, const DrawIndexedCommand& command);
+			inline void Execute(const GL::Context* context, const EndDebugRegionCommand& command);
+			inline void Execute(const GL::Context* context, const MemoryBarrier& command);
+			inline void Execute(const GL::Context*& context, const SetFrameBufferCommand& command);
+
 			void Release() override;
 
-			struct BeginDebugRegionData
+			struct BeginDebugRegionCommand
 			{
 				std::string regionName;
 				Color color;
 			};
 
-			struct BlitTextureData
+			struct BlitTextureCommand
 			{
 				const OpenGLTexture* source;
 				const OpenGLTexture* target;
@@ -103,7 +144,7 @@ namespace Nz
 				const OpenGLComputePipeline* pipeline = nullptr;
 			};
 
-			struct CopyBufferData
+			struct CopyBufferCommand
 			{
 				GLuint source;
 				GLuint target;
@@ -112,7 +153,7 @@ namespace Nz
 				UInt64 targetOffset;
 			};
 
-			struct CopyTextureData
+			struct CopyTextureCommand
 			{
 				const OpenGLTexture* source;
 				const OpenGLTexture* target;
@@ -120,7 +161,7 @@ namespace Nz
 				Vector3ui targetPoint;
 			};
 
-			struct CopyBufferFromMemoryData
+			struct CopyBufferFromMemoryCommand
 			{
 				const void* memory;
 				GLuint target;
@@ -133,7 +174,7 @@ namespace Nz
 				std::vector<std::pair<const OpenGLRenderPipelineLayout*, const OpenGLShaderBinding*>> shaderBindings;
 			};
 
-			struct DispatchData
+			struct DispatchCommand
 			{
 				ComputeStates states;
 				ShaderBindings bindings;
@@ -160,7 +201,7 @@ namespace Nz
 				bool shouldFlipY = false;
 			};
 
-			struct DrawData
+			struct DrawCommand
 			{
 				DrawStates states;
 				ShaderBindings bindings;
@@ -170,7 +211,7 @@ namespace Nz
 				UInt32 vertexCount;
 			};
 
-			struct DrawIndexedData
+			struct DrawIndexedCommand
 			{
 				DrawStates states;
 				ShaderBindings bindings;
@@ -180,7 +221,7 @@ namespace Nz
 				UInt32 instanceCount;
 			};
 
-			struct EndDebugRegionData
+			struct EndDebugRegionCommand
 			{
 			};
 
@@ -189,26 +230,14 @@ namespace Nz
 				GLbitfield barriers;
 			};
 
-			struct SetFrameBufferData
+			struct SetFrameBufferCommand
 			{
 				std::array<CommandBufferBuilder::ClearValues, 16> clearValues; //< TODO: Remove hard limit?
 				const OpenGLFramebuffer* framebuffer;
 				const OpenGLRenderPass* renderpass;
 			};
 
-			using CommandData = std::variant<
-				BeginDebugRegionData,
-				BlitTextureData,
-				CopyBufferData,
-				CopyBufferFromMemoryData,
-				CopyTextureData,
-				DispatchData,
-				DrawData,
-				DrawIndexedData,
-				EndDebugRegionData,
-				MemoryBarrier,
-				SetFrameBufferData
-			>;
+			using CommandData = TypeListInstantiate<CommandList, std::variant>;
 
 			ComputeStates m_currentComputeStates;
 			DrawStates m_currentDrawStates;
