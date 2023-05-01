@@ -54,6 +54,7 @@ namespace Nz
 			inline const std::shared_ptr<RenderDevice>& GetRenderDevice() const;
 			inline const RenderPassCache& GetRenderPassCache() const;
 			inline TextureSamplerCache& GetSamplerCache();
+			inline std::shared_ptr<nzsl::FilesystemModuleResolver>& GetShaderModuleResolver();
 			inline const std::shared_ptr<nzsl::FilesystemModuleResolver>& GetShaderModuleResolver() const;
 
 			void RegisterComponent(AppFilesystemComponent& component);

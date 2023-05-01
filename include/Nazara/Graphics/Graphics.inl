@@ -82,6 +82,11 @@ namespace Nz
 		return *m_samplerCache;
 	}
 
+	inline std::shared_ptr<nzsl::FilesystemModuleResolver>& Graphics::GetShaderModuleResolver()
+	{
+		return m_shaderModuleResolver;
+	}
+
 	inline const std::shared_ptr<nzsl::FilesystemModuleResolver>& Graphics::GetShaderModuleResolver() const
 	{
 		return m_shaderModuleResolver;
