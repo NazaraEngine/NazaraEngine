@@ -369,15 +369,14 @@ if is_plat("windows") then
 
 	-- Enable the following additional warnings:
 	add_cxflags("/we4062", {tools = "cl"}) -- Switch case not handled (warning as error)
-	add_cxflags("/we4426", {tools = "cl"}) -- Optimization flags changed after including header, may be due to #pragma optimize()
-	add_cxflags("/we5038", {tools = "cl"}) -- Data member will be initialized after data member
+	add_cxflags("/we4426", {tools = "cl"}) -- Optimization flags changed after including header, may be due to #pragma optimize() (warning as error)
+	add_cxflags("/we5038", {tools = "cl"}) -- Data member will be initialized after data member (warning as error)
 
 	-- Disable the following warnings:
 	add_cxflags("/wd4251", {tools = "cl"}) -- class needs to have dll-interface to be used by clients of class blah blah blah
 	add_cxflags("/wd4275", {tools = "cl"}) -- DLL-interface class 'class_1' used as base for DLL-interface blah
 else
 	-- GCC-compatible (GCC, Clang, ...)
-	add_cxflags("-pedantic", "-pedantic-errors")
 	add_cxflags("-Wtrampolines")
 	add_cxflags("-Werror=reorder")
 	add_cxflags("-Werror=switch")
