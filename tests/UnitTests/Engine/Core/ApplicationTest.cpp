@@ -39,6 +39,8 @@ SCENARIO("Application", "[CORE][ABSTRACTHASH]")
 				INFO("First update should have elapsed time as zero");
 				CHECK(elapsedTime == Nz::Time::Zero());
 			}
+			else
+				CHECK(elapsedTime < Nz::Time::Milliseconds(200));
 
 			triggerCount++;
 		});
@@ -51,6 +53,10 @@ SCENARIO("Application", "[CORE][ABSTRACTHASH]")
 		CHECK(triggerCount == 2);
 		app.Update(Nz::Time::Milliseconds(90));
 		CHECK(triggerCount == 2); // this does not trigger since 100ms have not elapsed since last update
+		app.Update(Nz::Time::Milliseconds(10));
+		CHECK(triggerCount == 3);
+		app.Update(Nz::Time::Milliseconds(100));
+		CHECK(triggerCount == 4);
 	}
 
 	WHEN("Using fixed-time interval")

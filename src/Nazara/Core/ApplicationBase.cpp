@@ -78,6 +78,7 @@ namespace Nz
 			else
 				updaterEntry.nextUpdate = updaterEntry.lastUpdate + (-interval);
 
+			updaterEntry.lastUpdate = m_currentTime;
 			updaterEntry.nextUpdate = std::max(updaterEntry.nextUpdate, m_currentTime);
 		}
 
