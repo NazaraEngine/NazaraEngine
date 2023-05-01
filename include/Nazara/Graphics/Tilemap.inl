@@ -15,7 +15,7 @@ namespace Nz
 	*/
 	inline void Tilemap::DisableTile(const Vector2ui& tilePos)
 	{
-		NazaraAssert(tilePos.x < m_mapSize.x&& tilePos.y < m_mapSize.y, "Tile position is out of bounds");
+		NazaraAssert(tilePos.x < m_mapSize.x && tilePos.y < m_mapSize.y, "Tile position is out of bounds");
 
 		std::size_t tileIndex = tilePos.y * m_mapSize.x + tilePos.x;
 		Tile& tile = m_tiles[tileIndex];
@@ -134,7 +134,7 @@ namespace Nz
 		else if (materialIndex != tile.layerIndex)
 		{
 			Layer& oldLayer = m_layers[tile.layerIndex];
-			Layer& newLayer = m_layers[tile.layerIndex];
+			Layer& newLayer = m_layers[materialIndex];
 
 			oldLayer.enabledTiles.Reset(tileIndex);
 			oldLayer.enabledTileCount = oldLayer.enabledTiles.Count();
@@ -275,7 +275,7 @@ namespace Nz
 			else if (materialIndex != tile.layerIndex)
 			{
 				Layer& oldLayer = m_layers[tile.layerIndex];
-				Layer& newLayer = m_layers[tile.layerIndex];
+				Layer& newLayer = m_layers[materialIndex];
 
 				oldLayer.enabledTiles.Reset(tileIndex);
 				oldLayer.enabledTileCount = oldLayer.enabledTiles.Count();
