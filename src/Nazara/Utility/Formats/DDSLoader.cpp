@@ -60,7 +60,7 @@ namespace Nz
 				if (header.flags & DDSD_DEPTH)
 					depth = std::max(header.depth, 1U);
 
-				unsigned int levelCount = (parameters.levelCount > 0) ? std::min(parameters.levelCount, SafeCast<UInt8>(header.levelCount)) : header.levelCount;
+				UInt8 levelCount = (parameters.levelCount > 0) ? std::min(parameters.levelCount, SafeCast<UInt8>(header.levelCount)) : SafeCast<UInt8>(header.levelCount);
 
 				// First, identify the type
 				ImageType type;
