@@ -1100,7 +1100,7 @@ namespace Nz
 	void FrameGraph::RemoveDuplicatePasses()
 	{
 		// A way to remove duplicates from a std::vector without sorting it
-		Bitset<> seen(m_framePasses.size());
+		Bitset<> seen(m_framePasses.size(), false);
 
 		auto itRead = m_pending.passList.begin();
 		auto itWrite = m_pending.passList.begin();
