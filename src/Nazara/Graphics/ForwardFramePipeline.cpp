@@ -645,9 +645,6 @@ namespace Nz
 
 			mergePass.SetCommandCallback([&targetViewers](CommandBufferBuilder& builder, const FramePassEnvironment& env)
 			{
-				builder.SetScissor(env.renderRect);
-				builder.SetViewport(env.renderRect);
-
 				Graphics* graphics = Graphics::Instance();
 				builder.BindRenderPipeline(*graphics->GetBlitPipeline(false));
 
@@ -655,6 +652,11 @@ namespace Nz
 
 				for (const ViewerData* viewerData : targetViewers)
 				{
+					Recti renderRect = viewerData->viewer->GetViewport();
+
+					builder.SetScissor(renderRect);
+					builder.SetViewport(renderRect);
+
 					const ShaderBindingPtr& blitShaderBinding = viewerData->blitShaderBinding;
 
 					builder.BindRenderShaderBinding(0, *blitShaderBinding);
