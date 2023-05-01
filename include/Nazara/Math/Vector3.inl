@@ -180,6 +180,16 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Returns the absolute of this vector, ie: Vector3(abs(x), abs(y), abs(z))
+	* \return The absolute of this vector
+	*/
+	template<typename T>
+	Vector3<T> Vector3<T>::GetAbs() const
+	{
+		return Vector3(std::abs(x), std::abs(y), std::abs(z));
+	}
+
+	/*!
 	* \brief Calculates the length (magnitude) of the vector
 	* \return The length of the vector
 	*

@@ -43,6 +43,7 @@ namespace Nz
 			U Distance(const Vector3& vec) const;
 			T DotProduct(const Vector3& vec) const;
 
+			Vector3 GetAbs() const;
 			T GetLength() const;
 			float GetLengthf() const;
 			Vector3 GetNormal(T* length = nullptr) const;
