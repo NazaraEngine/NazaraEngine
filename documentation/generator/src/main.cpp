@@ -15,6 +15,7 @@
 #include <thread>
 
 nlohmann::ordered_json buildClass(const std::string& scope, const cppast::cpp_class& classNode);
+nlohmann::ordered_json buildEnum(const std::string& scope, const cppast::cpp_enum& enumNode);
 
 class simpleCodeGenerator : public cppast::code_generator
 {
@@ -192,6 +193,9 @@ int main()
 									}
 
 									std::cout << "found " << (enumNode.is_scoped() ? "enum class" : "enum") << " " << prefix() << e.name() << std::endl;
+									nlohmann::ordered_json enumDoc = buildEnum(prefix(), enumNode);
+									std::unique_lock lock(jsonMutex);
+									moduleEntryDoc["enums"].push_back(std::move(enumDoc));
 									break;
 								}
 
@@ -367,3 +371,21 @@ nlohmann::ordered_json buildClass(const std::string& scope, const cppast::cpp_cl
 
 	return classDoc;
 }
+
+nlohmann::ordered_json buildEnum(const std::string& scope, const cppast::cpp_enum& enumNode)
+{
+	nlohmann::ordered_json enumDoc;
+	enumDoc["name"] = scope + enumNode.name();
+	enumDoc["scoped"] = enumNode.is_scoped();
+	if (enumNode.has_explicit_type())
+		enumDoc["underlying_type"] = cppast::to_string(enumNode.underlying_type());
+
+	for (const auto& entry : enumNode)
+	{
+		auto& valueDoc = enumDoc["values"].emplace_back();
+		valueDoc["name"] = entry.name();
+		if (const auto& exprOpt = entry.value())
+
+	return enumDoc;
+}
+
