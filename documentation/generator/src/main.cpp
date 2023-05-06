@@ -30,6 +30,23 @@ public:
 		cppast::generate_code(*this, e);
 	}
 
+	simpleCodeGenerator(const cppast::cpp_expression& e)
+	{
+		struct dummy_entity : public cppast::cpp_entity
+		{
+			using cpp_entity::cpp_entity;
+
+			cppast::cpp_entity_kind do_get_entity_kind() const noexcept override
+			{
+				return cppast::cpp_entity_kind::unexposed_t;
+			}
+		};
+
+		dummy_entity dummy("dummy");
+		output output(type_safe::ref(*this), type_safe::ref(dummy), cppast::cpp_access_specifier_kind::cpp_public);
+		cppast::detail::write_expression(output, e);
+	}
+
 	// return the result
 	const std::string& str() const noexcept
 	{
@@ -283,8 +300,8 @@ nlohmann::ordered_json buildClass(const std::string& scope, const cppast::cpp_cl
 					auto& parameterDoc = parameterArray.emplace_back();
 					parameterDoc["name"] = parameter.name();
 					parameterDoc["type"] = cppast::to_string(parameter.type());
-					//if (const auto& defaultOpt = parameter.default_value())
-					//	parameterDoc["default"] = std::string(simpleCodeGenerator(defaultOpt.value()));
+					if (const auto& defaultOpt = parameter.default_value())
+						parameterDoc["default"] = simpleCodeGenerator(defaultOpt.value()).str();
 				}
 				break;
 			}
@@ -313,8 +330,8 @@ nlohmann::ordered_json buildClass(const std::string& scope, const cppast::cpp_cl
 					auto& parameterDoc = parameterArray.emplace_back();
 					parameterDoc["name"] = parameter.name();
 					parameterDoc["type"] = cppast::to_string(parameter.type());
-					//if (const auto& defaultOpt = parameter.default_value())
-					//	parameterDoc["default"] = std::string(simpleCodeGenerator(defaultOpt.value()));
+					if (const auto& defaultOpt = parameter.default_value())
+						parameterDoc["default"] = simpleCodeGenerator(defaultOpt.value()).str();
 				}
 				break;
 			}
@@ -353,8 +370,8 @@ nlohmann::ordered_json buildClass(const std::string& scope, const cppast::cpp_cl
 					auto& parameterDoc = parameterArray.emplace_back();
 					parameterDoc["name"] = parameter.name();
 					parameterDoc["type"] = cppast::to_string(parameter.type());
-					//if (const auto& defaultOpt = parameter.default_value())
-					//	parameterDoc["default"] = std::string(simpleCodeGenerator(defaultOpt.value()));
+					if (const auto& defaultOpt = parameter.default_value())
+						parameterDoc["default"] = simpleCodeGenerator(defaultOpt.value()).str();
 				}
 				break;
 			}
@@ -385,6 +402,8 @@ nlohmann::ordered_json buildEnum(const std::string& scope, const cppast::cpp_enu
 		auto& valueDoc = enumDoc["values"].emplace_back();
 		valueDoc["name"] = entry.name();
 		if (const auto& exprOpt = entry.value())
+			valueDoc["value"] = simpleCodeGenerator(exprOpt.value()).str();
+	}
 
 	return enumDoc;
 }
