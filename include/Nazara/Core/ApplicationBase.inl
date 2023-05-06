@@ -21,7 +21,7 @@ namespace Nz
 	inline void ApplicationBase::AddUpdater(std::unique_ptr<ApplicationUpdater>&& functor)
 	{
 		auto& updaterEntry = m_updaters.emplace_back();
-		updaterEntry.lastUpdate = Time::Zero();
+		updaterEntry.lastUpdate = -Time::Nanosecond();
 		updaterEntry.nextUpdate = Time::Zero();
 		updaterEntry.updater = std::move(functor);
 	}

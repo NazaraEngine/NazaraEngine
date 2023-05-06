@@ -16,15 +16,16 @@ SCENARIO("Application", "[CORE][ABSTRACTHASH]")
 				INFO("First update should have elapsed time as zero");
 				CHECK(elapsedTime == Nz::Time::Zero());
 			}
+			else
+				CHECK(elapsedTime == Nz::Time::Milliseconds(10));
 
 			triggerCount++;
 		});
 
-		app.Update(Nz::Time::Milliseconds(10));
-		app.Update(Nz::Time::Milliseconds(10));
-		app.Update(Nz::Time::Milliseconds(10));
+		for (std::size_t i = 0; i < 10; ++i)
+			app.Update(Nz::Time::Milliseconds(10));
 
-		CHECK(triggerCount == 3);
+		CHECK(triggerCount == 10);
 	}
 	
 	WHEN("Using interval")
@@ -40,7 +41,11 @@ SCENARIO("Application", "[CORE][ABSTRACTHASH]")
 				CHECK(elapsedTime == Nz::Time::Zero());
 			}
 			else
+			{
+				INFO("Following update should have elapsed time >= interval");
+				CHECK(elapsedTime >= Nz::Time::Milliseconds(100));
 				CHECK(elapsedTime < Nz::Time::Milliseconds(200));
+			}
 
 			triggerCount++;
 		});
@@ -57,6 +62,9 @@ SCENARIO("Application", "[CORE][ABSTRACTHASH]")
 		CHECK(triggerCount == 3);
 		app.Update(Nz::Time::Milliseconds(100));
 		CHECK(triggerCount == 4);
+		for (std::size_t i = 0; i < 10; ++i)
+			app.Update(Nz::Time::Milliseconds(10));
+		CHECK(triggerCount == 5);
 	}
 
 	WHEN("Using fixed-time interval")

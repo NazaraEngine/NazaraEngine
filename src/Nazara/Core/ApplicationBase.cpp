@@ -65,7 +65,7 @@ namespace Nz
 
 			Time timeSinceLastUpdate = m_currentTime - updaterEntry.lastUpdate;
 
-			if NAZARA_UNLIKELY(updaterEntry.nextUpdate == updaterEntry.lastUpdate)
+			if NAZARA_UNLIKELY(updaterEntry.lastUpdate < Time::Zero())
 			{
 				// First call
 				timeSinceLastUpdate = Time::Zero();
