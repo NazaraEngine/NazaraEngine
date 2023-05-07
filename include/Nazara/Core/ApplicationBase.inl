@@ -57,7 +57,7 @@ namespace Nz
 		if (componentIndex >= m_components.size())
 			return nullptr;
 
-		return m_components[componentIndex].get();
+		return static_cast<T*>(m_components[componentIndex].get());
 	}
 	
 	template<typename T>
@@ -67,7 +67,7 @@ namespace Nz
 		if (componentIndex >= m_components.size())
 			return nullptr;
 
-		return m_components[componentIndex].get();
+		return static_cast<const T*>(m_components[componentIndex].get());
 	}
 
 	inline void ApplicationBase::Quit()
