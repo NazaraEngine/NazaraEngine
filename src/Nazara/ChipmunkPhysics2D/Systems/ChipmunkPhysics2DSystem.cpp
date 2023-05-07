@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/ChipmunkPhysics2D/Systems/ChipmunkPhysics2DSystem.hpp>
+#include <Nazara/Core/Components/DisabledComponent.hpp>
 #include <Nazara/Utility/Components/NodeComponent.hpp>
 #include <Nazara/ChipmunkPhysics2D/Debug.hpp>
 
@@ -49,7 +50,7 @@ namespace Nz
 		m_physWorld.Step(elapsedTime);
 
 		// Replicate rigid body position to their node components
-		auto view = m_registry.view<NodeComponent, const ChipmunkRigidBody2DComponent>();
+		auto view = m_registry.view<NodeComponent, const ChipmunkRigidBody2DComponent>(entt::exclude<DisabledComponent>);
 		for (auto [entity, nodeComponent, rigidBodyComponent] : view.each())
 		{
 			if (rigidBodyComponent.IsSleeping())

@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/Systems/RenderSystem.hpp>
+#include <Nazara/Core/Components/DisabledComponent.hpp>
 #include <Nazara/Graphics/ForwardFramePipeline.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
@@ -21,16 +22,17 @@ namespace Nz
 {
 	RenderSystem::RenderSystem(entt::registry& registry) :
 	m_registry(registry),
-	m_cameraConstructObserver(registry, entt::collector.group<CameraComponent, NodeComponent>()),
-	m_graphicsConstructObserver(registry, entt::collector.group<GraphicsComponent, NodeComponent>()),
-	m_lightConstructObserver(registry, entt::collector.group<LightComponent, NodeComponent>()),
-	m_sharedSkeletonConstructObserver(registry, entt::collector.group<GraphicsComponent, NodeComponent, SharedSkeletonComponent>(entt::exclude<SkeletonComponent>)),
-	m_skeletonConstructObserver(registry, entt::collector.group<GraphicsComponent, NodeComponent, SkeletonComponent>(entt::exclude<SharedSkeletonComponent>)),
+	m_cameraConstructObserver(registry, entt::collector.group<CameraComponent, NodeComponent>(entt::exclude<DisabledComponent>)),
+	m_graphicsConstructObserver(registry, entt::collector.group<GraphicsComponent, NodeComponent>(entt::exclude<DisabledComponent>)),
+	m_lightConstructObserver(registry, entt::collector.group<LightComponent, NodeComponent>(entt::exclude<DisabledComponent>)),
+	m_sharedSkeletonConstructObserver(registry, entt::collector.group<GraphicsComponent, NodeComponent, SharedSkeletonComponent>(entt::exclude<DisabledComponent, SkeletonComponent>)),
+	m_skeletonConstructObserver(registry, entt::collector.group<GraphicsComponent, NodeComponent, SkeletonComponent>(entt::exclude<DisabledComponent, SharedSkeletonComponent>)),
 	m_cameraEntityPool(8),
 	m_graphicsEntityPool(1024),
 	m_lightEntityPool(32)
 	{
 		m_cameraDestroyConnection = registry.on_destroy<CameraComponent>().connect<&RenderSystem::OnCameraDestroy>(this);
+		m_disabledConstructedConnection = registry.on_construct<DisabledComponent>().connect<&RenderSystem::OnDisabledConstructed>(this);
 		m_graphicsDestroyConnection = registry.on_destroy<GraphicsComponent>().connect<&RenderSystem::OnGraphicsDestroy>(this);
 		m_lightDestroyConnection = registry.on_destroy<LightComponent>().connect<&RenderSystem::OnLightDestroy>(this);
 		m_nodeDestroyConnection = registry.on_destroy<NodeComponent>().connect<&RenderSystem::OnNodeDestroy>(this);
@@ -87,6 +89,12 @@ namespace Nz
 		m_pipeline->UnregisterViewer(cameraEntity->viewerIndex);
 
 		m_cameraEntityPool.Free(cameraEntity->poolIndex);
+	}
+
+	void RenderSystem::OnDisabledConstructed(entt::registry& registry, entt::entity entity)
+	{
+		// This is essentially the same
+		OnNodeDestroy(registry, entity);
 	}
 
 	void RenderSystem::OnGraphicsDestroy([[maybe_unused]] entt::registry& registry, entt::entity entity)

@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Systems/VelocitySystem.hpp>
+#include <Nazara/Core/Components/DisabledComponent.hpp>
 #include <Nazara/Utility/Components/NodeComponent.hpp>
 #include <Nazara/Utility/Components/VelocityComponent.hpp>
 #include <Nazara/Utility/Debug.hpp>
@@ -13,7 +14,7 @@ namespace Nz
 	{
 		float delta = elapsedTime.AsSeconds();
 
-		auto view = m_registry.view<NodeComponent, VelocityComponent>();
+		auto view = m_registry.view<NodeComponent, VelocityComponent>(entt::exclude<DisabledComponent>);
 		for (auto [entity, nodeComponent, velocityComponent] : view.each())
 		{
 			NazaraUnused(entity);

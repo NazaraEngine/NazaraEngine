@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Systems/SkeletonSystem.hpp>
+#include <Nazara/Core/Components/DisabledComponent.hpp>
 #include <Nazara/Utility/Components/NodeComponent.hpp>
 #include <Nazara/Utility/Components/SharedSkeletonComponent.hpp>
 #include <Nazara/Utility/Components/SkeletonComponent.hpp>
@@ -43,7 +44,7 @@ namespace Nz
 		});
 
 		// Updated attached skeleton joints (TODO: Only do this if necessary)
-		auto view = m_registry.view<NodeComponent, SharedSkeletonComponent>();
+		auto view = m_registry.view<NodeComponent, SharedSkeletonComponent>(entt::exclude<DisabledComponent>);
 		for (auto entity : view)
 		{
 			auto& sharedSkeletonComponent = view.get<SharedSkeletonComponent>(entity);

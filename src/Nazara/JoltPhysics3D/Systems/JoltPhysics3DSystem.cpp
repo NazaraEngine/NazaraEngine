@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/JoltPhysics3D/Systems/JoltPhysics3DSystem.hpp>
+#include <Nazara/Core/Components/DisabledComponent.hpp>
 #include <Nazara/Utility/Components/NodeComponent.hpp>
 #include <iostream>
 #include <Nazara/JoltPhysics3D/Debug.hpp>
@@ -102,7 +103,7 @@ namespace Nz
 		Time t2 = GetElapsedNanoseconds();
 
 		// Replicate active rigid body position to their node components
-		auto view = m_registry.view<NodeComponent, const JoltRigidBody3DComponent>();
+		auto view = m_registry.view<NodeComponent, const JoltRigidBody3DComponent>(entt::exclude<DisabledComponent>);
 		for (auto entity : view)
 		{
 			auto& rigidBodyComponent = view.get<const JoltRigidBody3DComponent>(entity);

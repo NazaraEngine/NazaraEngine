@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/BulletPhysics3D/Systems/BulletPhysics3DSystem.hpp>
+#include <Nazara/Core/Components/DisabledComponent.hpp>
 #include <Nazara/Utility/Components/NodeComponent.hpp>
 #include <iostream>
 #include <Nazara/BulletPhysics3D/Debug.hpp>
@@ -102,7 +103,7 @@ namespace Nz
 		// TODO: Only replicate active entities
 		m_activeObjectCount = 0;
 
-		auto view = m_registry.view<NodeComponent, const BulletRigidBody3DComponent>();
+		auto view = m_registry.view<NodeComponent, const BulletRigidBody3DComponent>(entt::exclude<DisabledComponent>);
 		for (auto entity : view)
 		{
 			auto& rigidBodyComponent = view.get<const BulletRigidBody3DComponent>(entity);

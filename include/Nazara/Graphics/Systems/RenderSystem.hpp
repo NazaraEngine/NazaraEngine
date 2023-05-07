@@ -53,6 +53,7 @@ namespace Nz
 
 		private:
 			void OnCameraDestroy(entt::registry& registry, entt::entity entity);
+			void OnDisabledConstructed(entt::registry& registry, entt::entity entity);
 			void OnGraphicsDestroy(entt::registry& registry, entt::entity entity);
 			void OnLightDestroy(entt::registry& registry, entt::entity entity);
 			void OnNodeDestroy(entt::registry& registry, entt::entity entity);
@@ -116,6 +117,8 @@ namespace Nz
 			entt::observer m_sharedSkeletonConstructObserver;
 			entt::observer m_skeletonConstructObserver;
 			entt::scoped_connection m_cameraDestroyConnection;
+			entt::scoped_connection m_disabledConstructedConnection;
+			entt::scoped_connection m_disabledDestroyConnection;
 			entt::scoped_connection m_graphicsDestroyConnection;
 			entt::scoped_connection m_lightDestroyConnection;
 			entt::scoped_connection m_nodeDestroyConnection;

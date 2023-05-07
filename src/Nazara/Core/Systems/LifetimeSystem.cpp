@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Systems/LifetimeSystem.hpp>
+#include <Nazara/Core/Components/DisabledComponent.hpp>
 #include <Nazara/Core/Components/LifetimeComponent.hpp>
 #include <Nazara/Core/Debug.hpp>
 
@@ -10,7 +11,7 @@ namespace Nz
 {
 	void LifetimeSystem::Update(Time elapsedTime)
 	{
-		auto view = m_registry.view<LifetimeComponent>();
+		auto view = m_registry.view<LifetimeComponent>(entt::exclude<DisabledComponent>);
 		for (auto [entity, lifetimeComponent] : view.each())
 		{
 			lifetimeComponent.DecreaseLifetime(elapsedTime);

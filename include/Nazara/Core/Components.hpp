@@ -29,6 +29,7 @@
 #ifndef NAZARA_CORE_COMPONENTS_HPP
 #define NAZARA_CORE_COMPONENTS_HPP
 
+#include <Nazara/Core/Components/DisabledComponent.hpp>
 #include <Nazara/Core/Components/LifetimeComponent.hpp>
 
 #endif // NAZARA_CORE_COMPONENTS_HPP
