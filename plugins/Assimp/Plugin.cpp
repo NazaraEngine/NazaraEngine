@@ -918,7 +918,7 @@ namespace
 				meshLoader.UnregisterLoader(m_meshLoaderEntry);
 			}
 
-			std::string_view GetDescription() const
+			std::string_view GetDescription() const override
 			{
 				return "Adds supports to load meshes and animations using Assimp";
 			}

@@ -378,7 +378,9 @@ if is_plat("windows") then
 else
 	-- GCC-compatible (GCC, Clang, ...)
 	add_cxflags("-Wtrampolines")
+	add_cxflags("-Werror=inconsistent-missing-override", {tools = "clang"})
 	add_cxflags("-Werror=reorder")
+	add_cxflags("-Werror=suggest-override", {tools = "gcc"})
 	add_cxflags("-Werror=switch")
 end
 

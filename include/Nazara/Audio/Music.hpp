@@ -38,7 +38,7 @@ namespace Nz
 
 			Time GetDuration() const override;
 			AudioFormat GetFormat() const;
-			Time GetPlayingOffset() const;
+			Time GetPlayingOffset() const override;
 			UInt64 GetSampleCount() const;
 			UInt64 GetSampleOffset() const override;
 			UInt32 GetSampleRate() const override;
@@ -53,7 +53,7 @@ namespace Nz
 			void Pause() override;
 			void Play() override;
 
-			void SeekToSampleOffset(UInt64 offset);
+			void SeekToSampleOffset(UInt64 offset) override;
 
 			void Stop() override;
 
