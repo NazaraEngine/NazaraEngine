@@ -91,6 +91,7 @@ namespace Nz
 
 			// LoadFace
 			bool LoadFaceFromFile(CubemapFace face, const std::filesystem::path& filePath, const ImageParams& params = ImageParams());
+			bool LoadFaceFromImage(CubemapFace face, const Image& image);
 			bool LoadFaceFromMemory(CubemapFace face, const void* data, std::size_t size, const ImageParams& params = ImageParams());
 			bool LoadFaceFromStream(CubemapFace face, Stream& stream, const ImageParams& params = ImageParams());
 

@@ -1080,8 +1080,6 @@ namespace Nz
 
 	bool Image::LoadFaceFromFile(CubemapFace face, const std::filesystem::path& filePath, const ImageParams& params)
 	{
-		NazaraAssert(IsValid() && IsCubemap(), "Texture must be a valid cubemap");
-
 		std::shared_ptr<Image> image = Image::LoadFromFile(filePath, params);
 		if (!image)
 		{
@@ -1089,27 +1087,35 @@ namespace Nz
 			return false;
 		}
 
-		if (!image->Convert(GetFormat()))
-		{
-			NazaraError("Failed to convert image to texture format");
-			return false;
-		}
+		return LoadFaceFromImage(face, *image);
+	}
+
+	bool Image::LoadFaceFromImage(CubemapFace face, const Image& image)
+	{
+		NazaraAssert(IsValid() && IsCubemap(), "Image must be a valid cubemap");
 
 		unsigned int faceSize = GetWidth();
-		if (image->GetWidth() != faceSize || image->GetHeight() != faceSize)
+		if (image.GetWidth() != faceSize || image.GetHeight() != faceSize)
 		{
-			NazaraError("Image size must match texture face size");
+			NazaraError("Image size must match cubemap face size");
 			return false;
 		}
 
-		Copy(*image, Boxui(0, 0, 0, faceSize, faceSize, 1), Vector3ui(0, 0, UnderlyingCast(face)));
-		return true;
+		// Image is based on COW, no useless copy will be made
+		Image convertedImage(image);
+
+		if (!convertedImage.Convert(GetFormat()))
+		{
+			NazaraError("Failed to convert image to cubemap format");
+			return false;
+		}
+
+		Copy(convertedImage, Boxui(0, 0, 0, faceSize, faceSize, 1), Vector3ui(0, 0, UnderlyingCast(face)));
+		return false;
 	}
 
 	bool Image::LoadFaceFromMemory(CubemapFace face, const void* data, std::size_t size, const ImageParams& params)
 	{
-		NazaraAssert(IsValid() && IsCubemap(), "Texture must be a valid cubemap");
-
 		std::shared_ptr<Image> image = Image::LoadFromMemory(data, size, params);
 		if (!image)
 		{
@@ -1117,27 +1123,11 @@ namespace Nz
 			return false;
 		}
 
-		if (!image->Convert(GetFormat()))
-		{
-			NazaraError("Failed to convert image to texture format");
-			return false;
-		}
-
-		unsigned int faceSize = GetWidth();
-		if (image->GetWidth() != faceSize || image->GetHeight() != faceSize)
-		{
-			NazaraError("Image size must match texture face size");
-			return false;
-		}
-
-		Copy(*image, Boxui(0, 0, 0, faceSize, faceSize, 1), Vector3ui(0, 0, UnderlyingCast(face)));
-		return true;
+		return LoadFaceFromImage(face, *image);
 	}
 
 	bool Image::LoadFaceFromStream(CubemapFace face, Stream& stream, const ImageParams& params)
 	{
-		NazaraAssert(IsValid() && IsCubemap(), "Texture must be a valid cubemap");
-
 		std::shared_ptr<Image> image = Image::LoadFromStream(stream, params);
 		if (!image)
 		{
@@ -1145,21 +1135,7 @@ namespace Nz
 			return false;
 		}
 
-		if (!image->Convert(GetFormat()))
-		{
-			NazaraError("Failed to convert image to texture format");
-			return false;
-	}
-
-		unsigned int faceSize = GetWidth();
-		if (image->GetWidth() != faceSize || image->GetHeight() != faceSize)
-		{
-			NazaraError("Image size must match texture face size");
-			return false;
-		}
-
-		Copy(*image, Boxui(0, 0, 0, faceSize, faceSize, 1), Vector3ui(0, 0, UnderlyingCast(face)));
-		return true;
+		return LoadFaceFromImage(face, *image);;
 	}
 
 	bool Image::SaveToFile(const std::filesystem::path& filePath, const ImageParams& params)
