@@ -491,11 +491,11 @@ namespace Nz
 		std::size_t matCount = renderable.renderable->GetMaterialCount();
 		for (std::size_t i = 0; i < matCount; ++i)
 		{
+			const auto& material = renderable.renderable->GetMaterial(i);
+			UnregisterMaterialInstance(material.get());
+
 			for (auto& viewerData : m_viewerPool)
 			{
-				const auto& material = renderable.renderable->GetMaterial(i);
-				UnregisterMaterialInstance(material.get());
-
 				if (viewerData.depthPrepass)
 					viewerData.depthPrepass->UnregisterMaterialInstance(*material);
 
