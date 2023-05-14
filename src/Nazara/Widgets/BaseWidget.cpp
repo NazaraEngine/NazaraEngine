@@ -34,7 +34,7 @@ namespace Nz
 		NazaraAssert(parent->GetCanvas(), "Parent has no canvas");
 
 		m_canvas = parent->GetCanvas();
-		m_widgetParent = parent;
+		m_parentWidget = parent;
 		m_registry = &m_canvas->GetRegistry();
 
 		RegisterToCanvas();
@@ -75,7 +75,7 @@ namespace Nz
 	{
 		NazaraAssert(this != m_canvas, "Canvas cannot be destroyed by calling Destroy()");
 
-		m_widgetParent->DestroyChild(this); //< This does delete us
+		m_parentWidget->DestroyChild(this); //< This does delete us
 	}
 
 	/*!
@@ -110,7 +110,7 @@ namespace Nz
 
 		OnRenderLayerUpdated(GetBaseRenderLayer());
 
-		for (const auto& widgetPtr : m_children)
+		for (const auto& widgetPtr : m_widgetChilds)
 			widgetPtr->SetBaseRenderLayer(m_baseRenderLayer + m_renderLayerCount);
 	}
 
@@ -128,14 +128,15 @@ namespace Nz
 
 	std::unique_ptr<BaseWidget> BaseWidget::ReleaseFromParent()
 	{
-		if (!m_widgetParent)
+		if (!m_parentWidget)
 			return {};
 
-		auto it = std::find_if(m_widgetParent->m_children.begin(), m_widgetParent->m_children.end(), [&](const std::unique_ptr<BaseWidget>& widgetPtr) { return widgetPtr.get() == this; });
-		assert(it != m_widgetParent->m_children.end());
+		auto it = std::find_if(m_parentWidget->m_widgetChilds.begin(), m_parentWidget->m_widgetChilds.end(), [&](const std::unique_ptr<BaseWidget>& widgetPtr) { return widgetPtr.get() == this; });
+		assert(it != m_parentWidget->m_widgetChilds.end());
 
 		std::unique_ptr<BaseWidget> ownerPtr = std::move(*it);
-		m_widgetParent->m_children.erase(it);
+		m_parentWidget->m_widgetChilds.erase(it);
+		m_parentWidget->OnChildRemoved(this);
 
 		return ownerPtr;
 	}
@@ -151,6 +152,8 @@ namespace Nz
 		m_size = newSize;
 
 		Layout();
+
+		OnWidgetResized(this, newSize);
 	}
 
 	void BaseWidget::SetBackgroundColor(const Color& color)
@@ -183,7 +186,7 @@ namespace Nz
 		m_renderingRect = renderingRect;
 
 		UpdatePositionAndSize();
-		for (const auto& widgetPtr : m_children)
+		for (const auto& widgetPtr : m_widgetChilds)
 			widgetPtr->UpdatePositionAndSize();
 	}
 
@@ -206,6 +209,9 @@ namespace Nz
 			}
 
 			ShowChildren(show);
+
+			if (m_parentWidget)
+				m_parentWidget->OnChildVisibilityUpdated(this);
 		}
 	}
 
@@ -262,6 +268,22 @@ namespace Nz
 		return false;
 	}
 
+	void BaseWidget::OnChildAdded(const BaseWidget* /*child*/)
+	{
+	}
+
+	void BaseWidget::OnChildPreferredSizeUpdated(const BaseWidget* /*child*/)
+	{
+	}
+
+	void BaseWidget::OnChildVisibilityUpdated(const BaseWidget* /*child*/)
+	{
+	}
+
+	void BaseWidget::OnChildRemoved(const BaseWidget* /*child*/)
+	{
+	}
+
 	void BaseWidget::OnFocusLost()
 	{
 	}
@@ -309,13 +331,13 @@ namespace Nz
 		return OnMouseButtonPress(x, y, button);
 	}
 
+	void BaseWidget::OnMouseExit()
+	{
+	}
+
 	bool BaseWidget::OnMouseWheelMoved(int /*x*/, int /*y*/, float /*delta*/)
 	{
 		return false;
-	}
-
-	void BaseWidget::OnMouseExit()
-	{
 	}
 
 	void BaseWidget::OnRenderLayerUpdated(int /*firstRenderLayer*/)
@@ -338,25 +360,25 @@ namespace Nz
 
 	void BaseWidget::ShowChildren(bool show)
 	{
-		for (const auto& widgetPtr : m_children)
+		for (const auto& widgetPtr : m_widgetChilds)
 			widgetPtr->Show(show);
 	}
 
 	void BaseWidget::DestroyChild(BaseWidget* widget)
 	{
-		auto it = std::find_if(m_children.begin(), m_children.end(), [widget] (const std::unique_ptr<BaseWidget>& widgetPtr) -> bool
+		auto it = std::find_if(m_widgetChilds.begin(), m_widgetChilds.end(), [widget] (const std::unique_ptr<BaseWidget>& widgetPtr) -> bool
 		{
 			return widgetPtr.get() == widget;
 		});
 
-		NazaraAssert(it != m_children.end(), "Child widget not found in parent");
+		NazaraAssert(it != m_widgetChilds.end(), "Child widget not found in parent");
 
-		m_children.erase(it);
+		m_widgetChilds.erase(it);
 	}
 
 	void BaseWidget::DestroyChildren()
 	{
-		m_children.clear();
+		m_widgetChilds.clear();
 	}
 
 	void BaseWidget::RegisterToCanvas()
@@ -375,7 +397,7 @@ namespace Nz
 		NazaraAssert(oldCanvas == newCanvas, "Transferring a widget between canvas is not yet supported");
 
 		Node::SetParent(widget);
-		m_widgetParent = widget;
+		m_parentWidget = widget;
 
 		Layout();
 	}
@@ -396,9 +418,9 @@ namespace Nz
 
 		Rectf scissorRect = GetScissorRect();
 
-		if (m_widgetParent)
+		if (m_parentWidget)
 		{
-			Rectf parentScissorRect = m_widgetParent->GetScissorRect();
+			Rectf parentScissorRect = m_parentWidget->GetScissorRect();
 
 			if (!scissorRect.Intersect(parentScissorRect, &scissorRect))
 				scissorRect = parentScissorRect;

@@ -48,8 +48,8 @@ namespace Nz
 
 			void EnableBackground(bool enable);
 
-			template<typename F> void ForEachWidgetChild(F iterator);
-			template<typename F> void ForEachWidgetChild(F iterator) const;
+			template<typename F> void ForEachWidgetChild(F&& iterator, bool onlyVisible = true);
+			template<typename F> void ForEachWidgetChild(F&& iterator, bool onlyVisible = true) const;
 
 			//virtual BaseWidget* Clone() const = 0;
 
@@ -74,6 +74,7 @@ namespace Nz
 
 			inline Vector2f GetSize() const;
 			const std::shared_ptr<WidgetTheme>& GetTheme() const;
+			inline std::size_t GetVisibleWidgetChildCount() const;
 			inline float GetWidth() const;
 			inline std::size_t GetWidgetChildCount() const;
 
@@ -108,6 +109,8 @@ namespace Nz
 			BaseWidget& operator=(const BaseWidget&) = delete;
 			BaseWidget& operator=(BaseWidget&&) = delete;
 
+			NazaraSignal(OnWidgetResized, const BaseWidget* /*widget*/, const Vector2f& /*size*/);
+
 		protected:
 			virtual void Layout();
 
@@ -125,6 +128,10 @@ namespace Nz
 			virtual bool IsFocusable() const;
 			inline bool IsInside(float x, float y) const;
 
+			virtual void OnChildAdded(const BaseWidget* child);
+			virtual void OnChildPreferredSizeUpdated(const BaseWidget* child);
+			virtual void OnChildVisibilityUpdated(const BaseWidget* child);
+			virtual void OnChildRemoved(const BaseWidget* child);
 			virtual void OnFocusLost();
 			virtual void OnFocusReceived();
 			virtual bool OnKeyPressed(const WindowEvent::KeyEvent& key);
@@ -135,8 +142,8 @@ namespace Nz
 			virtual bool OnMouseButtonPress(int x, int y, Mouse::Button button);
 			virtual bool OnMouseButtonRelease(int x, int y, Mouse::Button button);
 			virtual bool OnMouseButtonTriplePress(int x, int y, Mouse::Button button);
-			virtual bool OnMouseWheelMoved(int x, int y, float delta);
 			virtual void OnMouseExit();
+			virtual bool OnMouseWheelMoved(int x, int y, float delta);
 			virtual void OnRenderLayerUpdated(int baseRenderLayer);
 			virtual void OnParentResized(const Vector2f& newSize);
 			virtual bool OnTextEntered(char32_t character, bool repeated);
@@ -173,7 +180,7 @@ namespace Nz
 			std::shared_ptr<Sprite> m_backgroundSprite;
 			std::shared_ptr<WidgetTheme> m_theme;
 			std::vector<WidgetEntity> m_entities;
-			std::vector<std::unique_ptr<BaseWidget>> m_children;
+			std::vector<std::unique_ptr<BaseWidget>> m_widgetChilds;
 			entt::registry* m_registry;
 			Canvas* m_canvas;
 			Color m_backgroundColor;
@@ -183,7 +190,7 @@ namespace Nz
 			Vector2f m_minimumSize;
 			Vector2f m_preferredSize;
 			Vector2f m_size;
-			BaseWidget* m_widgetParent;
+			BaseWidget* m_parentWidget;
 			bool m_visible;
 			int m_baseRenderLayer;
 			int m_renderLayerCount;

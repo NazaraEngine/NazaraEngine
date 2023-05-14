@@ -134,9 +134,9 @@ namespace Nz
 			AbstractTextDrawer& textDrawer = GetTextDrawer();
 
 			textDrawer.SetMaxLineWidth(GetWidth());
-			UpdateTextSprite();
 		}
 
+		UpdateTextSprite();
 		RefreshCursor();
 	}
 
@@ -630,9 +630,17 @@ namespace Nz
 
 	void AbstractTextAreaWidget::UpdateTextSprite()
 	{
-		m_textSprite->Update(GetTextDrawer());
+		const AbstractTextDrawer& textDrawer = GetTextDrawer();
+		m_textSprite->Update(textDrawer);
+
+		float preferredHeight = 0.f;
+		std::size_t lineCount = textDrawer.GetLineCount();
+		for (std::size_t i = 0; i < lineCount; ++i)
+			preferredHeight += textDrawer.GetLine(i).bounds.height;
+
+		SetPreferredSize({ -1.f, preferredHeight + s_textAreaPaddingHeight * 2.f });
+
 		Vector2f textSize = Vector2f(m_textSprite->GetAABB().GetLengths());
-		SetPreferredSize(textSize);
 
 		auto& textNode = GetRegistry().get<NodeComponent>(m_textEntity);
 		textNode.SetPosition(s_textAreaPaddingWidth, GetHeight() - s_textAreaPaddingHeight - textSize.y);

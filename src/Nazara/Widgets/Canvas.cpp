@@ -20,7 +20,7 @@ namespace Nz
 	{
 		m_canvas = this;
 		BaseWidget::m_registry = &m_registry;
-		m_widgetParent = nullptr;
+		m_parentWidget = nullptr;
 
 		SetBaseRenderLayer(initialRenderLayer);
 
@@ -99,10 +99,10 @@ namespace Nz
 			if (functor(targetWidget))
 				return;
 
-			if (!targetWidget.widget->m_widgetParent)
+			if (!targetWidget.widget->m_parentWidget)
 				return;
 
-			widgetIndex = targetWidget.widget->m_widgetParent->m_canvasIndex;
+			widgetIndex = targetWidget.widget->m_parentWidget->m_canvasIndex;
 		}
 	}
 

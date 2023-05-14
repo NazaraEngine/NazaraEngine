@@ -11,8 +11,10 @@ namespace Nz
 {
 	enum class BoxLayoutOrientation
 	{
-		Horizontal,
-		Vertical
+		BottomToTop,
+		LeftToRight,
+		RightToLeft,
+		TopToBottom
 	};
 
 	enum class CheckboxState

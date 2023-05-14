@@ -23,7 +23,7 @@ namespace Nz
 
 		Vector2f size(drawer.GetBounds().GetLengths());
 		SetMinimumSize(size);
-		SetPreferredSize(size + Vector2f(20.f, 10.f));
+		SetPreferredSize(size + Vector2f(20.f, 10.f)); //< corner size (TODO: Retrieve them from theme)
 
 		Layout();
 	}

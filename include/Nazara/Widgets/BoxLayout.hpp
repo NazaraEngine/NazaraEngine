@@ -27,6 +27,13 @@ namespace Nz
 			BoxLayout& operator=(BoxLayout&&) = delete;
 
 		private:
+			void OnChildAdded(const BaseWidget* child) override;
+			void OnChildPreferredSizeUpdated(const BaseWidget* child) override;
+			void OnChildVisibilityUpdated(const BaseWidget* child) override;
+			void OnChildRemoved(const BaseWidget* child) override;
+
+			void RecomputePreferredSize();
+
 			struct State;
 
 			std::unique_ptr<State> m_state;

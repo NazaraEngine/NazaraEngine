@@ -21,7 +21,7 @@ namespace Nz
 	m_minimumSize(0.f),
 	m_preferredSize(-1),
 	m_size(50.f, 50.f),
-	m_widgetParent(nullptr),
+	m_parentWidget(nullptr),
 	m_visible(true),
 	m_baseRenderLayer(0),
 	m_renderLayerCount(1)
@@ -44,32 +44,33 @@ namespace Nz
 		widget->SetBaseRenderLayer(m_baseRenderLayer + m_renderLayerCount);
 		widget->Show(widget->IsVisible() && m_visible);
 
-		m_children.emplace_back(std::move(widget));
+		m_widgetChilds.emplace_back(std::move(widget));
+		OnChildAdded(m_widgetChilds.back().get());
 	}
 
 	inline void BaseWidget::Center()
 	{
-		NazaraAssert(m_widgetParent, "Widget has no parent");
+		NazaraAssert(m_parentWidget, "Widget has no parent");
 
-		Vector2f parentSize = m_widgetParent->GetSize();
+		Vector2f parentSize = m_parentWidget->GetSize();
 		Vector2f mySize = GetSize();
 		SetPosition((parentSize.x - mySize.x) / 2.f, (parentSize.y - mySize.y) / 2.f);
 	}
 
 	inline void BaseWidget::CenterHorizontal()
 	{
-		NazaraAssert(m_widgetParent, "Widget has no parent");
+		NazaraAssert(m_parentWidget, "Widget has no parent");
 
-		Vector2f parentSize = m_widgetParent->GetSize();
+		Vector2f parentSize = m_parentWidget->GetSize();
 		Vector2f mySize = GetSize();
 		SetPosition((parentSize.x - mySize.x) / 2.f, GetPosition(CoordSys::Local).y);
 	}
 
 	inline void BaseWidget::CenterVertical()
 	{
-		NazaraAssert(m_widgetParent, "Widget has no parent");
+		NazaraAssert(m_parentWidget, "Widget has no parent");
 
-		Vector2f parentSize = m_widgetParent->GetSize();
+		Vector2f parentSize = m_parentWidget->GetSize();
 		Vector2f mySize = GetSize();
 		SetPosition(GetPosition(CoordSys::Local).x, (parentSize.y - mySize.y) / 2.f);
 	}
@@ -80,17 +81,27 @@ namespace Nz
 	}
 
 	template<typename F>
-	inline void BaseWidget::ForEachWidgetChild(F iterator)
+	void BaseWidget::ForEachWidgetChild(F&& iterator, bool onlyVisible)
 	{
-		for (const auto& child : m_children)
+		for (const auto& child : m_widgetChilds)
+		{
+			if (onlyVisible && !child->IsVisible())
+				continue;
+
 			iterator(child.get());
+		}
 	}
 
 	template<typename F>
-	inline void BaseWidget::ForEachWidgetChild(F iterator) const
+	void BaseWidget::ForEachWidgetChild(F&& iterator, bool onlyVisible) const
 	{
-		for (const auto& child : m_children)
-			iterator(static_cast<const BaseWidget*>(child.get()));
+		for (const auto& child : m_widgetChilds)
+		{
+			if (onlyVisible && !child->IsVisible())
+				continue;
+
+			iterator(child.get());
+		}
 	}
 
 	inline const Color& BaseWidget::GetBackgroundColor() const
@@ -173,6 +184,15 @@ namespace Nz
 		return m_theme;
 	}
 
+	inline std::size_t BaseWidget::GetVisibleWidgetChildCount() const
+	{
+		std::size_t visibleChild = 0;
+		for (const auto& child : m_widgetChilds)
+			visibleChild += (child->IsVisible()) ? 1 : 0;
+
+		return visibleChild;
+	}
+
 	inline float BaseWidget::GetWidth() const
 	{
 		return m_size.x;
@@ -180,7 +200,7 @@ namespace Nz
 
 	inline std::size_t BaseWidget::GetWidgetChildCount() const
 	{
-		return m_children.size();
+		return m_widgetChilds.size();
 	}
 
 	inline void BaseWidget::Hide()
@@ -227,7 +247,8 @@ namespace Nz
 
 	inline void BaseWidget::SetMaximumSize(const Vector2f& maximumSize)
 	{
-		m_maximumSize = maximumSize;
+		m_maximumSize.x = std::max(m_minimumSize.x, maximumSize.x);
+		m_maximumSize.y = std::max(m_minimumSize.y, maximumSize.y);
 
 		Vector2f size = GetSize();
 		if (size.x > m_maximumSize.x || size.y > m_maximumSize.y)
@@ -252,7 +273,8 @@ namespace Nz
 
 	inline void BaseWidget::SetMinimumSize(const Vector2f& minimumSize)
 	{
-		m_minimumSize = minimumSize;
+		m_minimumSize.x = std::min(minimumSize.x, m_maximumSize.x);
+		m_minimumSize.y = std::min(minimumSize.y, m_maximumSize.y);
 
 		Vector2f size = GetSize();
 		if (size.x < m_minimumSize.x || size.y < m_minimumSize.y)
@@ -294,16 +316,20 @@ namespace Nz
 
 			OnRenderLayerUpdated(GetBaseRenderLayer());
 
-			for (const auto& widgetPtr : m_children)
+			for (const auto& widgetPtr : m_widgetChilds)
 				widgetPtr->SetBaseRenderLayer(m_baseRenderLayer + m_renderLayerCount);
 		}
 	}
 
 	inline void BaseWidget::SetPreferredSize(const Vector2f& preferredSize)
 	{
-		m_preferredSize = preferredSize;
+		if (m_preferredSize != preferredSize)
+		{
+			m_preferredSize = preferredSize;
 
-		//Resize(m_preferredSize);
+			if (m_parentWidget)
+				m_parentWidget->OnChildPreferredSizeUpdated(this);
+		}
 	}
 
 	inline void BaseWidget::SetRenderLayerCount(int renderLayerCount)
@@ -311,7 +337,7 @@ namespace Nz
 		if (m_renderLayerCount != renderLayerCount)
 		{
 			m_renderLayerCount = renderLayerCount;
-			for (const auto& widgetPtr : m_children)
+			for (const auto& widgetPtr : m_widgetChilds)
 				widgetPtr->SetBaseRenderLayer(m_baseRenderLayer + m_renderLayerCount);
 		}
 	}
@@ -323,7 +349,7 @@ namespace Nz
 
 	inline void BaseWidget::NotifyParentResized(const Vector2f& newSize)
 	{
-		for (const auto& widgetPtr : m_children)
+		for (const auto& widgetPtr : m_widgetChilds)
 			widgetPtr->OnParentResized(newSize);
 	}
 
@@ -334,3 +360,4 @@ namespace Nz
 }
 
 #include <Nazara/Widgets/DebugOff.hpp>
+
