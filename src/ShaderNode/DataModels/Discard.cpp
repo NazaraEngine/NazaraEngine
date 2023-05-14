@@ -54,7 +54,7 @@ unsigned int Discard::nPorts(QtNodes::PortType portType) const
 	return 0;
 }
 
-std::shared_ptr<QtNodes::NodeData> Discard::outData(QtNodes::PortIndex port)
+std::shared_ptr<QtNodes::NodeData> Discard::outData(QtNodes::PortIndex /*port*/)
 {
 	return {};
 }

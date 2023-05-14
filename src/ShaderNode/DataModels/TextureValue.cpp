@@ -170,7 +170,7 @@ std::shared_ptr<QtNodes::NodeData> TextureValue::outData(QtNodes::PortIndex port
 	return textureData;
 }
 
-QString TextureValue::portCaption(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
+QString TextureValue::portCaption(QtNodes::PortType portType, QtNodes::PortIndex /*portIndex*/) const
 {
 	assert(portType == QtNodes::PortType::Out);
 
@@ -181,7 +181,7 @@ QString TextureValue::portCaption(QtNodes::PortType portType, QtNodes::PortIndex
 	return QString::fromStdString(textureEntry.name);
 }
 
-bool TextureValue::portCaptionVisible(QtNodes::PortType portType, QtNodes::PortIndex portIndex) const
+bool TextureValue::portCaptionVisible(QtNodes::PortType portType, QtNodes::PortIndex /*portIndex*/) const
 {
 	switch (portType)
 	{

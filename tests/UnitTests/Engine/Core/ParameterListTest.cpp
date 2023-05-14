@@ -106,8 +106,8 @@ SCENARIO("ParameterList", "[CORE][PARAMETERLIST]")
 
 			THEN("Conversion from bool to int should also work if strict mode is disabled")
 			{
-				CHECK(parameterList.GetIntegerParameter("trueInt", false).GetValue() == trueInt);
-				CHECK(parameterList.GetIntegerParameter("falseInt", false).GetValue() == falseInt);
+				CHECK(parameterList.GetIntegerParameter("trueInt", false).GetValue() == +trueInt);
+				CHECK(parameterList.GetIntegerParameter("falseInt", false).GetValue() == +falseInt);
 			}
 
 			THEN("Conversion from double to int should also work if strict mode is disabled")

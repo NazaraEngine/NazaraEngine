@@ -89,7 +89,7 @@ void FloatValue::BuildNodeEdition(QFormLayout* layout)
 	layout->addRow(tr("Value"), spinbox);
 }
 
-nzsl::Ast::NodePtr FloatValue::BuildNode(nzsl::Ast::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
+nzsl::Ast::NodePtr FloatValue::BuildNode(nzsl::Ast::ExpressionPtr* /*expressions*/, std::size_t count, std::size_t outputIndex) const
 {
 	assert(count == 0);
 	assert(outputIndex == 0);

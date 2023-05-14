@@ -63,7 +63,7 @@ unsigned int VecDecomposition::nPorts(QtNodes::PortType portType) const
 	switch (portType)
 	{
 		case QtNodes::PortType::In: return 1;
-		case QtNodes::PortType::Out: return m_outputs.size();
+		case QtNodes::PortType::Out: return static_cast<unsigned int>(m_outputs.size());
 
 		default:
 			break;

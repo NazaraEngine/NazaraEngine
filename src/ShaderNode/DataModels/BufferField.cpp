@@ -49,7 +49,7 @@ ShaderNode(graph)
 	UpdatePreview();
 }
 
-nzsl::Ast::NodePtr BufferField::BuildNode(nzsl::Ast::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const
+nzsl::Ast::NodePtr BufferField::BuildNode(nzsl::Ast::ExpressionPtr* /*expressions*/, std::size_t count, std::size_t outputIndex) const
 {
 	assert(count == 0);
 	assert(outputIndex == 0);

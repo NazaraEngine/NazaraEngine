@@ -488,8 +488,8 @@ nzsl::Ast::ModulePtr ShaderGraph::ToModule() const
 		const auto& structInfo = m_structs[buffer.structIndex];
 
 		auto& extVar = external->externalVars.emplace_back();
-		extVar.bindingIndex = buffer.bindingIndex;
-		extVar.bindingSet = buffer.setIndex;
+		extVar.bindingIndex = Nz::SafeCast<Nz::UInt32>(buffer.bindingIndex);
+		extVar.bindingSet = Nz::SafeCast<Nz::UInt32>(buffer.setIndex);
 		extVar.name = buffer.name;
 		extVar.type = nzsl::Ast::ExpressionPtr{ nzsl::ShaderBuilder::Identifier(structInfo.name) };
 	}
@@ -497,8 +497,8 @@ nzsl::Ast::ModulePtr ShaderGraph::ToModule() const
 	for (const auto& texture : m_textures)
 	{
 		auto& extVar = external->externalVars.emplace_back();
-		extVar.bindingIndex = texture.bindingIndex;
-		extVar.bindingSet = texture.setIndex;
+		extVar.bindingIndex = Nz::SafeCast<Nz::UInt32>(texture.bindingIndex);
+		extVar.bindingSet = Nz::SafeCast<Nz::UInt32>(texture.setIndex);
 		extVar.name = texture.name;
 		extVar.type = ToShaderExpressionType(texture.type);
 	}

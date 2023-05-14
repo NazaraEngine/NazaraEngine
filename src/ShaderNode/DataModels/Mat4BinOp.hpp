@@ -13,7 +13,7 @@ class Mat4BinOp : public ShaderNode
 		Mat4BinOp(ShaderGraph& graph);
 		~Mat4BinOp() = default;
 
-		nzsl::Ast::NodePtr BuildNode(nzsl::Ast::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const;
+		nzsl::Ast::NodePtr BuildNode(nzsl::Ast::ExpressionPtr* expressions, std::size_t count, std::size_t outputIndex) const override;
 
 		unsigned int nPorts(QtNodes::PortType portType) const override;
 

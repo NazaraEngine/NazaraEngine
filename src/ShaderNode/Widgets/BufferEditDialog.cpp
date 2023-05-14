@@ -52,7 +52,7 @@ BufferEditDialog(shaderGraph, parent)
 	m_bindingIndex->setValue(int(buffer.bindingIndex));
 	m_setIndex->setValue(int(buffer.setIndex));
 	m_outputName->setText(QString::fromStdString(buffer.name));
-	m_structList->setCurrentIndex(buffer.structIndex);
+	m_structList->setCurrentIndex(int(buffer.structIndex));
 	m_typeList->setCurrentIndex(int(buffer.type));
 }
 
