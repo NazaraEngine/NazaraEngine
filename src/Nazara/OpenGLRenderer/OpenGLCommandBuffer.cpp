@@ -8,6 +8,7 @@
 #include <Nazara/OpenGLRenderer/OpenGLFboFramebuffer.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderPass.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderPipelineLayout.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLTexture.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLVaoCache.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/VertexArray.hpp>
@@ -145,6 +146,11 @@ namespace Nz
 		context->BlitTexture(*command.source, *command.target, command.sourceBox, command.targetBox, command.filter);
 	}
 
+	inline void OpenGLCommandBuffer::Execute(const GL::Context* /*context*/, const BuildTextureMipmapsCommand& command)
+	{
+		command.texture->GenerateMipmaps(command.baseLevel, command.levelCount);
+	}
+
 	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const CopyBufferCommand& command)
 	{
 		context->BindBuffer(GL::BufferTarget::CopyRead, command.source);
@@ -197,7 +203,7 @@ namespace Nz
 		context->glDrawElementsInstanced(ToOpenGL(command.states.pipeline->GetPipelineInfo().primitiveMode), command.indexCount, ToOpenGL(command.states.indexBufferType), origin, command.instanceCount);
 	}
 
-	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const EndDebugRegionCommand& command)
+	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const EndDebugRegionCommand& /*command*/)
 	{
 		if (context->glPopDebugGroup)
 			context->glPopDebugGroup();

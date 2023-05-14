@@ -7,6 +7,13 @@
 
 namespace Nz::GL
 {
+	inline void Texture::GenerateMipmap()
+	{
+		const Context& context = EnsureDeviceContext();
+		context.BindTexture(m_target, m_objectId);
+		context.glGenerateMipmap(ToOpenGL(m_target));
+	}
+
 	inline TextureTarget Texture::GetTarget() const
 	{
 		return m_target;

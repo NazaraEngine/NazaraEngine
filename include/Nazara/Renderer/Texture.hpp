@@ -25,8 +25,8 @@ namespace Nz
 	{
 		PixelFormat pixelFormat;
 		ImageType type;
-		TextureUsageFlags usageFlags = TextureUsage::ShaderSampling | TextureUsage::TransferDestination;
-		UInt8 levelCount = 1;
+		TextureUsageFlags usageFlags = TextureUsage::ShaderSampling | TextureUsage::TransferDestination | TextureUsage::TransferSource;
+		UInt8 levelCount = 0xFF;
 		unsigned int layerCount = 1;
 		unsigned int depth = 1;
 		unsigned int height;
@@ -46,7 +46,8 @@ namespace Nz
 	struct NAZARA_RENDERER_API TextureParams : ImageParams
 	{
 		std::shared_ptr<RenderDevice> renderDevice;
-		TextureUsageFlags usageFlags = TextureUsage::ShaderSampling | TextureUsage::TransferDestination;
+		TextureUsageFlags usageFlags = TextureUsage::ShaderSampling | TextureUsage::TransferDestination | TextureUsage::TransferSource;
+		bool buildMipmaps = true;
 
 		bool IsValid() const;
 		void Merge(const TextureParams& params);

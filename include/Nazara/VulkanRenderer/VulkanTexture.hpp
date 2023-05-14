@@ -16,14 +16,28 @@
 
 namespace Nz
 {
+	class VulkanBuffer;
+	class VulkanDevice;
+
+	namespace Vk
+	{
+		class CommandBuffer;
+	}
+
 	class NAZARA_VULKANRENDERER_API VulkanTexture final : public Texture
 	{
 		public:
-			VulkanTexture(Vk::Device& device, const TextureInfo& textureInfo);
+			VulkanTexture(VulkanDevice& device, const TextureInfo& textureInfo);
+			VulkanTexture(VulkanDevice& device, const TextureInfo& textureInfo, const void* initialData, bool buildMipmaps, unsigned int srcWidth = 0, unsigned int srcHeight = 0);
 			VulkanTexture(std::shared_ptr<VulkanTexture> parentTexture, const TextureViewInfo& viewInfo);
 			VulkanTexture(const VulkanTexture&) = delete;
 			VulkanTexture(VulkanTexture&&) = delete;
 			~VulkanTexture();
+
+			inline VkImageSubresourceLayers BuildSubresourceLayers(UInt32 level) const;
+			inline VkImageSubresourceLayers BuildSubresourceLayers(UInt32 level, UInt32 baseLayer, UInt32 layerCount) const;
+			inline VkImageSubresourceRange BuildSubresourceRange(UInt32 baseLevel, UInt32 levelCount) const;
+			inline VkImageSubresourceRange BuildSubresourceRange(UInt32 baseLevel, UInt32 levelCount, UInt32 baseLayer, UInt32 layerCount) const;
 
 			bool Copy(const Texture& source, const Boxui& srcBox, const Vector3ui& dstPos) override;
 			std::shared_ptr<Texture> CreateView(const TextureViewInfo& viewInfo) override;
@@ -40,6 +54,7 @@ namespace Nz
 
 			using Texture::Update;
 			bool Update(const void* ptr, const Boxui& box, unsigned int srcWidth, unsigned int srcHeight, UInt8 level) override;
+			bool Update(Vk::CommandBuffer& commandBuffer, std::unique_ptr<VulkanBuffer>& uploadBuffer, const void* ptr, const Boxui& box, unsigned int srcWidth, unsigned int srcHeight, UInt8 level);
 
 			void UpdateDebugName(std::string_view name) override;
 
@@ -51,12 +66,13 @@ namespace Nz
 
 			std::optional<TextureViewInfo> m_viewInfo;
 			std::shared_ptr<VulkanTexture> m_parentTexture;
+			VulkanDevice& m_device;
 			VkImage m_image;
-			VkImageSubresourceRange m_imageRange;
+			VkImageSubresourceRange m_subresourceRange;
 			VmaAllocation m_allocation;
-			Vk::Device& m_device;
 			Vk::ImageView m_imageView;
 			TextureInfo m_textureInfo;
+			TextureInfo m_textureViewInfo;
 	};
 }
 

@@ -28,7 +28,9 @@ namespace Nz
 
 		//TODO: Update for VMA 3.0
 		VmaAllocationCreateInfo allocInfo = {};
-		if (usage & BufferUsage::DeviceLocal)
+		if (type == BufferType::Upload)
+			allocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
+		else if (usage & BufferUsage::DeviceLocal)
 		{
 			if (usage & BufferUsage::DirectMapping)
 				allocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;

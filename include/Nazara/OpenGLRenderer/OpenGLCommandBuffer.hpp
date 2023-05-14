@@ -8,7 +8,6 @@
 #define NAZARA_OPENGLRENDERER_OPENGLCOMMANDBUFFER_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <NazaraUtils/TypeList.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
@@ -17,6 +16,7 @@
 #include <Nazara/OpenGLRenderer/OpenGLShaderBinding.hpp>
 #include <Nazara/Renderer/CommandBuffer.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
+#include <NazaraUtils/TypeList.hpp>
 #include <optional>
 #include <variant>
 #include <vector>
@@ -46,7 +46,10 @@ namespace Nz
 			inline void BindRenderPipeline(const OpenGLRenderPipeline* pipeline);
 			inline void BindRenderShaderBinding(const OpenGLRenderPipelineLayout& pipelineLayout, UInt32 set, const OpenGLShaderBinding* binding);
 			inline void BindVertexBuffer(UInt32 binding, GLuint vertexBuffer, UInt64 offset = 0);
+
 			inline void BlitTexture(const OpenGLTexture& source, const Boxui& sourceBox, const OpenGLTexture& target, const Boxui& targetBox, SamplerFilter filter = SamplerFilter::Nearest);
+
+			inline void BuildMipmaps(OpenGLTexture& texture, UInt8 baseLevel, UInt8 levelCount);
 
 			inline void CopyBuffer(GLuint source, GLuint target, UInt64 size, UInt64 sourceOffset = 0, UInt64 targetOffset = 0);
 			inline void CopyBuffer(const UploadPool::Allocation& allocation, GLuint target, UInt64 size, UInt64 sourceOffset = 0, UInt64 targetOffset = 0);
@@ -83,6 +86,7 @@ namespace Nz
 #define NAZARA_OPENGL_FOREACH_COMMANDS(cb, lastCb) \
 	cb(BeginDebugRegionCommand) \
 	cb(BlitTextureCommand) \
+	cb(BuildTextureMipmapsCommand) \
 	cb(CopyBufferCommand) \
 	cb(CopyBufferFromMemoryCommand) \
 	cb(CopyTextureCommand) \
@@ -112,6 +116,7 @@ namespace Nz
 
 			inline void Execute(const GL::Context* context, const BeginDebugRegionCommand& command);
 			inline void Execute(const GL::Context* context, const BlitTextureCommand& command);
+			inline void Execute(const GL::Context* context, const BuildTextureMipmapsCommand& command);
 			inline void Execute(const GL::Context* context, const CopyBufferCommand& command);
 			inline void Execute(const GL::Context* context, const CopyBufferFromMemoryCommand& command);
 			inline void Execute(const GL::Context* context, const CopyTextureCommand& command);
@@ -137,6 +142,13 @@ namespace Nz
 				Boxui sourceBox;
 				Boxui targetBox;
 				SamplerFilter filter;
+			};
+
+			struct BuildTextureMipmapsCommand
+			{
+				OpenGLTexture* texture;
+				UInt8 baseLevel;
+				UInt8 levelCount;
 			};
 
 			struct ComputeStates

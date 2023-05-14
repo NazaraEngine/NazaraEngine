@@ -24,6 +24,8 @@ namespace Nz::GL
 			Texture(Texture&&) noexcept = default;
 			~Texture() = default;
 
+			inline void GenerateMipmap();
+
 			inline TextureTarget GetTarget() const;
 
 			inline void SetParameterf(GLenum pname, GLfloat param);

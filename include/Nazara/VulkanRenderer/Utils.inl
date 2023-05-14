@@ -100,10 +100,11 @@ namespace Nz
 	{
 		switch (bufferType)
 		{
-			case BufferType::Index: return VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+			case BufferType::Index:   return VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
 			case BufferType::Storage: return VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
-			case BufferType::Vertex: return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+			case BufferType::Vertex:  return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 			case BufferType::Uniform: return VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+			case BufferType::Upload:  return VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
 		}
 
 		NazaraError("Unhandled BufferType 0x" + NumberToString(UnderlyingCast(bufferType), 16));

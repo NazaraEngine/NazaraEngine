@@ -88,6 +88,17 @@ namespace Nz
 		m_commands.emplace_back(std::move(blitTexture));
 	}
 
+	inline void OpenGLCommandBuffer::BuildMipmaps(OpenGLTexture& texture, UInt8 baseLevel, UInt8 levelCount)
+	{
+		BuildTextureMipmapsCommand buildMipmaps = {
+			&texture,
+			baseLevel,
+			levelCount
+		};
+
+		m_commands.emplace_back(std::move(buildMipmaps));
+	}
+
 	inline void OpenGLCommandBuffer::CopyBuffer(GLuint source, GLuint target, UInt64 size, UInt64 sourceOffset, UInt64 targetOffset)
 	{
 		CopyBufferCommand copyBuffer = {

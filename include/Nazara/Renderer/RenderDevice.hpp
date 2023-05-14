@@ -53,6 +53,7 @@ namespace Nz
 			std::shared_ptr<ShaderModule> InstantiateShaderModule(nzsl::ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const std::filesystem::path& sourcePath, const nzsl::ShaderWriter::States& states);
 			virtual std::shared_ptr<Swapchain> InstantiateSwapchain(WindowHandle windowHandle, const Vector2ui& windowSize, const SwapchainParameters& parameters) = 0;
 			virtual std::shared_ptr<Texture> InstantiateTexture(const TextureInfo& params) = 0;
+			virtual std::shared_ptr<Texture> InstantiateTexture(const TextureInfo& params, const void* initialData, bool buildMipmaps, unsigned int srcWidth = 0, unsigned int srcHeight = 0) = 0;
 			virtual std::shared_ptr<TextureSampler> InstantiateTextureSampler(const TextureSamplerInfo& params) = 0;
 
 			virtual bool IsTextureFormatSupported(PixelFormat format, TextureUsage usage) const = 0;

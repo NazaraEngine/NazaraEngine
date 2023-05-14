@@ -20,6 +20,7 @@ namespace Nz
 		{
 			case BufferType::Index:
 			case BufferType::Vertex:
+			case BufferType::Upload:
 				break; // TODO
 
 			case BufferType::Storage:

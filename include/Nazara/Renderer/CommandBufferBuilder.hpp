@@ -54,6 +54,8 @@ namespace Nz
 
 			virtual void BlitTexture(const Texture& fromTexture, const Boxui& fromBox, TextureLayout fromLayout, const Texture& toTexture, const Boxui& toBox, TextureLayout toLayout, SamplerFilter filter) = 0;
 
+			virtual void BuildMipmaps(Texture& texture, UInt8 baseLevel, UInt8 maxLevel) = 0;
+
 			inline void CopyBuffer(const RenderBufferView& source, const RenderBufferView& target);
 			virtual void CopyBuffer(const RenderBufferView& source, const RenderBufferView& target, UInt64 size, UInt64 fromOffset = 0, UInt64 toOffset = 0) = 0;
 			inline void CopyBuffer(const UploadPool::Allocation& allocation, const RenderBufferView& target);

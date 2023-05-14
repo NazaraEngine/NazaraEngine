@@ -1351,7 +1351,7 @@ namespace Nz
 	UInt8 Image::GetMaxLevel(unsigned int width, unsigned int height, unsigned int depth)
 	{
 		// Le niveau maximal est le niveau requis pour la plus grande taille
-		return SafeCast<UInt8>(std::max(IntegralLog2(std::max({width, height, depth})), 1U));
+		return SafeCast<UInt8>(std::max(IntegralLog2(std::max({ width, height, depth })), 1U));
 	}
 
 	UInt8 Image::GetMaxLevel(ImageType type, unsigned int width, unsigned int height, unsigned int depth)

@@ -110,9 +110,11 @@ namespace Nz
 			Image& operator=(const Image& image);
 			inline Image& operator=(Image&& image) noexcept;
 
+			static inline void ArrayToRegion(ImageType type, unsigned int baseLayer, unsigned int layerCount, Boxui& region);
 			static void Copy(UInt8* destination, const UInt8* source, PixelFormat format, unsigned int width, unsigned int height, unsigned int depth = 1, unsigned int dstWidth = 0, unsigned int dstHeight = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0);
 			static UInt8 GetMaxLevel(unsigned int width, unsigned int height, unsigned int depth = 1);
 			static UInt8 GetMaxLevel(ImageType type, unsigned int width, unsigned int height, unsigned int depth = 1);
+			static inline Boxui RegionToArray(ImageType type, Boxui region, unsigned int& baseLayer, unsigned int& layerCount);
 
 			// Load
 			static std::shared_ptr<Image> LoadFromFile(const std::filesystem::path& filePath, const ImageParams& params = ImageParams());

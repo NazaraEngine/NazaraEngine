@@ -24,6 +24,7 @@ namespace Nz
 		createInfo.mipmapMode = ToVulkan(samplerInfo.mipmapMode);
 		createInfo.compareEnable = samplerInfo.depthCompare;
 		createInfo.compareOp = ToVulkan(samplerInfo.depthComparison);
+		createInfo.maxLod = VK_LOD_CLAMP_NONE;
 
 		if (samplerInfo.anisotropyLevel > 1.f)
 		{

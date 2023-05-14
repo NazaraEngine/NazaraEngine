@@ -62,8 +62,9 @@ namespace Nz
 		Vertex,
 		Storage,
 		Uniform,
+		Upload,
 
-		Max = Uniform
+		Max = Upload
 	};
 
 	enum class BufferUsage

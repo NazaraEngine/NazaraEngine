@@ -141,15 +141,14 @@ namespace Nz
 		const VulkanTexture& vkFromTexture = static_cast<const VulkanTexture&>(fromTexture);
 		const VulkanTexture& vkToTexture = static_cast<const VulkanTexture&>(toTexture);
 
-		VkImageSubresourceLayers todo = {
-			VK_IMAGE_ASPECT_COLOR_BIT,
-			1,
-			0,
-			1
-		};
+		unsigned int fromBaseLayer, fromLayerCount;
+		Image::RegionToArray(vkFromTexture.GetType(), fromBox, fromBaseLayer, fromLayerCount);
+
+		unsigned int toBaseLayer, toLayerCount;
+		Image::RegionToArray(vkToTexture.GetType(), toBox, toBaseLayer, toLayerCount);
 
 		VkImageBlit region = {
-			todo,
+			vkFromTexture.BuildSubresourceLayers(0, fromBaseLayer, fromLayerCount),
 			{
 				{
 					SafeCast<Int32>(fromBox.x),
@@ -162,7 +161,7 @@ namespace Nz
 					SafeCast<Int32>(fromBox.z + fromBox.depth)
 				}
 			},
-			todo,
+			vkToTexture.BuildSubresourceLayers(0, toBaseLayer, toLayerCount),
 			{
 				{
 					SafeCast<Int32>(toBox.x),
@@ -178,6 +177,13 @@ namespace Nz
 		};
 
 		m_commandBuffer.BlitImage(vkFromTexture.GetImage(), ToVulkan(fromLayout), vkToTexture.GetImage(), ToVulkan(toLayout), region, ToVulkan(filter));
+	}
+
+	void VulkanCommandBufferBuilder::BuildMipmaps(Texture& texture, UInt8 baseLevel, UInt8 maxLevel)
+	{
+		VulkanTexture& vkTexture = static_cast<VulkanTexture&>(texture);
+
+		// TODO
 	}
 
 	void VulkanCommandBufferBuilder::CopyBuffer(const RenderBufferView& source, const RenderBufferView& target, UInt64 size, UInt64 sourceOffset, UInt64 targetOffset)
@@ -201,21 +207,20 @@ namespace Nz
 		const VulkanTexture& vkFromTexture = static_cast<const VulkanTexture&>(fromTexture);
 		const VulkanTexture& vkToTexture = static_cast<const VulkanTexture&>(toTexture);
 
-		VkImageSubresourceLayers todo = {
-			VK_IMAGE_ASPECT_COLOR_BIT,
-			1,
-			0,
-			1
-		};
+		unsigned int fromBaseLayer, fromLayerCount;
+		Image::RegionToArray(vkFromTexture.GetType(), fromBox, fromBaseLayer, fromLayerCount);
+
+		unsigned int toBaseLayer, toLayerCount;
+		Image::RegionToArray(vkToTexture.GetType(), Boxui(toPos.x, toPos.y, toPos.z, fromBox.width, fromBox.height, fromBox.depth), toBaseLayer, toLayerCount);
 
 		VkImageCopy region = {
-			todo,
+			vkFromTexture.BuildSubresourceLayers(0, fromBaseLayer, fromLayerCount),
 			{
 				SafeCast<Int32>(fromBox.x),
 				SafeCast<Int32>(fromBox.y),
 				SafeCast<Int32>(fromBox.z)
 			},
-			todo,
+			vkToTexture.BuildSubresourceLayers(0, toBaseLayer, toLayerCount),
 			{
 				SafeCast<Int32>(toPos.x),
 				SafeCast<Int32>(toPos.y),

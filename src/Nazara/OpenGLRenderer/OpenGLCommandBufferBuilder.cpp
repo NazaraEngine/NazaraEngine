@@ -93,6 +93,13 @@ namespace Nz
 		m_commandBuffer.BlitTexture(sourceTexture, fromBox, targetTexture, toBox, filter);
 	}
 
+	void OpenGLCommandBufferBuilder::BuildMipmaps(Texture& texture, UInt8 baseLevel, UInt8 maxLevel)
+	{
+		OpenGLTexture& glTexture = static_cast<OpenGLTexture&>(texture);
+
+		glTexture.GenerateMipmaps(baseLevel, maxLevel);
+	}
+
 	void OpenGLCommandBufferBuilder::CopyBuffer(const RenderBufferView& source, const RenderBufferView& target, UInt64 size, UInt64 sourceOffset, UInt64 targetOffset)
 	{
 		OpenGLBuffer& sourceBuffer = *static_cast<OpenGLBuffer*>(source.GetBuffer());

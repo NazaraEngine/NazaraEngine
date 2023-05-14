@@ -96,6 +96,11 @@ namespace Nz
 		return std::make_shared<VulkanTexture>(*this, params);
 	}
 
+	std::shared_ptr<Texture> VulkanDevice::InstantiateTexture(const TextureInfo& params, const void* initialData, bool buildMipmaps, unsigned int srcWidth, unsigned int srcHeight)
+	{
+		return std::make_shared<VulkanTexture>(*this, params, initialData, buildMipmaps, srcWidth, srcHeight);
+	}
+
 	std::shared_ptr<TextureSampler> VulkanDevice::InstantiateTextureSampler(const TextureSamplerInfo& params)
 	{
 		return std::make_shared<VulkanTextureSampler>(*this, params);

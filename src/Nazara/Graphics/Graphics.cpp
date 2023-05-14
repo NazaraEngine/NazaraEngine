@@ -361,8 +361,7 @@ namespace Nz
 
 				texInfo.layerCount = (texInfo.type == ImageType::Cubemap) ? 6 : 1;
 
-				m_defaultTextures.depthTextures[i] = m_renderDevice->InstantiateTexture(texInfo);
-				m_defaultTextures.depthTextures[i]->Update(whitePixels.data());
+				m_defaultTextures.depthTextures[i] = m_renderDevice->InstantiateTexture(texInfo, whitePixels.data(), false);
 			}
 		}
 
@@ -379,8 +378,7 @@ namespace Nz
 				texInfo.type = static_cast<ImageType>(i);
 				texInfo.layerCount = (texInfo.type == ImageType::Cubemap) ? 6 : 1;
 
-				m_defaultTextures.whiteTextures[i] = m_renderDevice->InstantiateTexture(texInfo);
-				m_defaultTextures.whiteTextures[i]->Update(whitePixels.data());
+				m_defaultTextures.whiteTextures[i] = m_renderDevice->InstantiateTexture(texInfo, whitePixels.data(), false);
 			}
 		}
 	}

@@ -2,11 +2,42 @@
 // This file is part of the "Nazara Engine - OpenGL renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Core/Error.hpp>
 #include <stdexcept>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
 namespace Nz
 {
+	inline void OpenGLTexture::GenerateMipmaps(UInt8 baseLevel, UInt8 levelCount)
+	{
+		NazaraAssert(baseLevel + levelCount < m_textureInfo.levelCount, "out of bounds");
+
+		GL::Texture* targetTexture;
+		if (RequiresTextureViewEmulation())
+		{
+			baseLevel += m_viewInfo->baseMipLevel;
+			levelCount += m_viewInfo->baseMipLevel;
+			targetTexture = &m_parentTexture->m_texture;
+		}
+		else
+			targetTexture = &m_texture;
+
+		if (baseLevel != 0)
+			targetTexture->SetParameteri(GL_TEXTURE_BASE_LEVEL, baseLevel);
+
+		if (levelCount != m_textureInfo.levelCount)
+			targetTexture->SetParameteri(GL_TEXTURE_MAX_LEVEL, levelCount);
+
+		targetTexture->GenerateMipmap();
+
+		// Reset level config
+		if (baseLevel != 0)
+			targetTexture->SetParameteri(GL_TEXTURE_BASE_LEVEL, 0);
+
+		if (levelCount != m_textureInfo.levelCount)
+			targetTexture->SetParameteri(GL_TEXTURE_MAX_LEVEL, m_textureInfo.levelCount);
+	}
+
 	inline PixelFormat OpenGLTexture::GetFormat() const
 	{
 		return m_textureInfo.pixelFormat;

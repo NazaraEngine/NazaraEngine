@@ -13,6 +13,8 @@ namespace Nz
 	OpenGLTexture::OpenGLTexture(OpenGLDevice& device, const TextureInfo& textureInfo) :
 	m_textureInfo(textureInfo)
 	{
+		m_textureInfo.levelCount = std::min(m_textureInfo.levelCount, Image::GetMaxLevel(m_textureInfo.type, m_textureInfo.width, m_textureInfo.height, m_textureInfo.depth));
+
 		if (!m_texture.Create(device))
 			throw std::runtime_error("failed to create texture object");
 
@@ -69,6 +71,16 @@ namespace Nz
 		if (format->swizzleA != GL_ALPHA)
 			m_texture.SetParameteri(GL_TEXTURE_SWIZZLE_A, format->swizzleA);
 #endif
+	}
+
+	OpenGLTexture::OpenGLTexture(OpenGLDevice& device, const TextureInfo& textureInfo, const void* initialData, bool buildMipmaps, unsigned int srcWidth, unsigned int srcHeight) :
+	OpenGLTexture(device, textureInfo)
+	{
+		NazaraAssert(initialData, "missing initial data");
+
+		Update(initialData, srcWidth, srcHeight, 0);
+		if (buildMipmaps && m_textureInfo.levelCount > 1)
+			m_texture.GenerateMipmap();
 	}
 
 	OpenGLTexture::OpenGLTexture(std::shared_ptr<OpenGLTexture> parentTexture, const TextureViewInfo& viewInfo) :

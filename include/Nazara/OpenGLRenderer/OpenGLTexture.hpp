@@ -20,6 +20,7 @@ namespace Nz
 	{
 		public:
 			OpenGLTexture(OpenGLDevice& device, const TextureInfo& textureInfo);
+			OpenGLTexture(OpenGLDevice& device, const TextureInfo& textureInfo, const void* initialData, bool buildMipmaps, unsigned int srcWidth = 0, unsigned int srcHeight = 0);
 			OpenGLTexture(std::shared_ptr<OpenGLTexture> parentTexture, const TextureViewInfo& viewInfo);
 			OpenGLTexture(const OpenGLTexture&) = delete;
 			OpenGLTexture(OpenGLTexture&&) = delete;
@@ -27,6 +28,8 @@ namespace Nz
 
 			bool Copy(const Texture& source, const Boxui& srcBox, const Vector3ui& dstPos) override;
 			std::shared_ptr<Texture> CreateView(const TextureViewInfo& viewInfo) override;
+
+			inline void GenerateMipmaps(UInt8 baseLevel, UInt8 levelCount);
 
 			inline PixelFormat GetFormat() const override;
 			inline UInt8 GetLevelCount() const override;

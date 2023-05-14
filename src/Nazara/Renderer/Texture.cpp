@@ -46,8 +46,7 @@ namespace Nz
 	{
 		NazaraAssert(params.IsValid(), "Invalid TextureParams");
 
-		Nz::TextureInfo texParams;
-		texParams.height = image.GetHeight();
+		TextureInfo texParams;
 		texParams.pixelFormat = image.GetFormat();
 		texParams.type = image.GetType();
 		texParams.width = image.GetWidth();
@@ -56,32 +55,38 @@ namespace Nz
 		switch (image.GetType())
 		{
 			case ImageType::E1D:
+				texParams.height = 1;
+				break;
+
 			case ImageType::E2D:
+				texParams.height = image.GetHeight();
+				break;
+
 			case ImageType::E3D:
+				texParams.height = image.GetHeight();
+				texParams.depth = image.GetDepth();
 				break;
 
 			case ImageType::E1D_Array:
+				texParams.height = 1;
 				texParams.layerCount = image.GetHeight();
 				break;
 
 			case ImageType::E2D_Array:
+				texParams.height = image.GetHeight();
 				texParams.layerCount = image.GetDepth();
 				break;
 
 			case ImageType::Cubemap:
+				texParams.height = image.GetHeight();
 				texParams.layerCount = 6;
 				break;
 		}
 
-		std::shared_ptr<Texture> texture = params.renderDevice->InstantiateTexture(texParams);
-		if (!texture->Update(image.GetConstPixels()))
-		{
-			NazaraError("failed to update texture");
-			return {};
-		}
+		std::shared_ptr<Texture> texture = params.renderDevice->InstantiateTexture(texParams, image.GetConstPixels(), params.buildMipmaps);
 
 		texture->SetFilePath(image.GetFilePath());
-		if (std::string debugName = image.GetFilePath().generic_u8string(); !debugName.empty())
+		if (std::string debugName = texture->GetFilePath().generic_u8string(); !debugName.empty())
 			texture->UpdateDebugName(debugName);
 
 		return texture;
