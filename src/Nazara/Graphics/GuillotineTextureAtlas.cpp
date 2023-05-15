@@ -42,6 +42,7 @@ namespace Nz
 		textureInfo.pixelFormat = PixelFormat::R8;
 		textureInfo.type = ImageType::E2D;
 		textureInfo.usageFlags = TextureUsage::ShaderSampling | TextureUsage::TransferSource | TextureUsage::TransferDestination;
+		textureInfo.levelCount = 1; //< FIXME: Disable mipmaps for now
 		
 		std::shared_ptr<Texture> newTexture;
 		try
