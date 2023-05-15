@@ -6,20 +6,6 @@
 
 namespace Nz
 {
-	inline void JoltCharacter::DisableSleeping()
-	{
-		return EnableSleeping(false);
-	}
-
-	inline UInt32 JoltCharacter::GetBodyIndex() const
-	{
-		return m_bodyIndex;
-	}
-
-	inline void JoltCharacter::SetImpl(std::shared_ptr<JoltCharacterImpl> characterImpl)
-	{
-		m_impl = std::move(characterImpl);
-	}
 }
 
 #include <Nazara/JoltPhysics3D/DebugOff.hpp>

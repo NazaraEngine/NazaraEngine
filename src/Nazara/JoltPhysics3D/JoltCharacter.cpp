@@ -16,7 +16,7 @@ namespace Nz
 {
 	JoltCharacter::JoltCharacter(JoltPhysWorld3D& physWorld, std::shared_ptr<JoltCollider3D> collider, const Vector3f& position, const Quaternionf& rotation) :
 	m_collider(std::move(collider)),
-	m_physicsWorld(physWorld)
+	m_world(&physWorld)
 	{
 		auto shapeResult = m_collider->GetShapeSettings()->Create();
 		if (!shapeResult.IsValid())
@@ -26,22 +26,35 @@ namespace Nz
 		settings.mShape = shapeResult.Get();
 		settings.mLayer = 1;
 
-		m_character = std::make_unique<JPH::Character>(&settings, ToJolt(position), ToJolt(rotation), 0, m_physicsWorld.GetPhysicsSystem());
+		m_character = std::make_unique<JPH::Character>(&settings, ToJolt(position), ToJolt(rotation), 0, m_world->GetPhysicsSystem());
 		m_character->AddToPhysicsSystem();
 
-		m_physicsWorld.RegisterCharacter(this);
+		m_bodyIndex = m_character->GetBodyID().GetIndex();
+
+		m_world->RegisterStepListener(this);
+	}
+
+	JoltCharacter::JoltCharacter(JoltCharacter&& character) noexcept :
+	m_impl(std::move(character.m_impl)),
+	m_collider(std::move(character.m_collider)),
+	m_character(std::move(character.m_character)),
+	m_world(std::move(character.m_world)),
+	m_bodyIndex(character.m_bodyIndex)
+	{
+		character.m_bodyIndex = std::numeric_limits<UInt32>::max();
+		
+		if (m_world)
+			m_world->RegisterStepListener(this);
 	}
 
 	JoltCharacter::~JoltCharacter()
 	{
-		m_character->RemoveFromPhysicsSystem();
-
-		m_physicsWorld.UnregisterCharacter(this);
+		Destroy();
 	}
 
 	void JoltCharacter::EnableSleeping(bool enable)
 	{
-		const JPH::BodyLockInterfaceNoLock& bodyInterface = m_physicsWorld.GetPhysicsSystem()->GetBodyLockInterfaceNoLock();
+		const JPH::BodyLockInterfaceNoLock& bodyInterface = m_world->GetPhysicsSystem()->GetBodyLockInterfaceNoLock();
 		JPH::BodyLockWrite bodyLock(bodyInterface, m_character->GetBodyID());
 		if (!bodyLock.Succeeded())
 			return;
@@ -85,7 +98,7 @@ namespace Nz
 
 	void JoltCharacter::SetFriction(float friction)
 	{
-		JPH::BodyInterface& bodyInterface = m_physicsWorld.GetPhysicsSystem()->GetBodyInterfaceNoLock();
+		JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterfaceNoLock();
 		bodyInterface.SetFriction(m_character->GetBodyID(), friction);
 	}
 
@@ -104,17 +117,71 @@ namespace Nz
 		m_character->SetUp(ToJolt(up));
 	}
 
+	void JoltCharacter::TeleportTo(const Vector3f& position, const Quaternionf& rotation)
+	{
+		m_character->SetPositionAndRotation(ToJolt(position), ToJolt(rotation), JPH::EActivation::Activate, false);
+	}
+
 	void JoltCharacter::WakeUp()
 	{
 		m_character->Activate(false);
 	}
-
-	void JoltCharacter::PreSimulate(float /*elapsedTime*/)
+	
+	JoltCharacter& JoltCharacter::operator=(JoltCharacter&& character) noexcept
 	{
+		if (m_world)
+			m_world->UnregisterStepListener(this);
+
+		m_impl = std::move(character.m_impl);
+		m_collider = std::move(character.m_collider);
+		m_character = std::move(character.m_character);
+		m_bodyIndex = character.m_bodyIndex;
+		m_world = std::move(character.m_world);
+
+		if (m_world)
+			m_world->RegisterStepListener(this);
+
+		character.m_bodyIndex = std::numeric_limits<UInt32>::max();
+
+		return *this;
+	}
+
+	void JoltCharacter::Destroy()
+	{
+		if (m_character)
+		{
+			m_character->RemoveFromPhysicsSystem();
+			m_character = nullptr;
+		}
+
+		if (m_world)
+		{
+			m_world->UnregisterStepListener(this);
+			m_world = nullptr;
+		}
+
+		m_collider.reset();
 	}
 
 	void JoltCharacter::PostSimulate()
 	{
 		m_character->PostSimulation(0.05f);
+		m_impl->PostSimulate(*this);
+	}
+
+	void JoltCharacter::PreSimulate(float elapsedTime)
+	{
+		m_impl->PreSimulate(*this, elapsedTime);
+	}
+
+
+	JoltCharacterImpl::~JoltCharacterImpl() = default;
+
+	void JoltCharacterImpl::PostSimulate(JoltCharacter& /*character*/)
+	{
+	}
+
+	void JoltCharacterImpl::PreSimulate(JoltCharacter& /*character*/, float /*elapsedTime*/)
+	{
 	}
 }

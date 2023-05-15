@@ -1,0 +1,32 @@
+// Copyright (C) 2023 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - JoltPhysics3D module"
+// For conditions of distribution and use, see copyright notice in Config.hpp
+
+#pragma once
+
+#ifndef NAZARA_JOLTPHYSICS3D_COMPONENTS_JOLTCHARACTERCOMPONENT_HPP
+#define NAZARA_JOLTPHYSICS3D_COMPONENTS_JOLTCHARACTERCOMPONENT_HPP
+
+#include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/JoltPhysics3D/JoltCharacter.hpp>
+
+namespace Nz
+{
+	class NAZARA_JOLTPHYSICS3D_API JoltCharacterComponent : public JoltCharacter
+	{
+		friend class JoltPhysics3DSystem;
+
+		public:
+			using JoltCharacter::JoltCharacter;
+			JoltCharacterComponent(const JoltCharacterComponent&) = default;
+			JoltCharacterComponent(JoltCharacterComponent&&) noexcept = default;
+			~JoltCharacterComponent() = default;
+
+			JoltCharacterComponent& operator=(const JoltCharacterComponent&) = default;
+			JoltCharacterComponent& operator=(JoltCharacterComponent&&) noexcept = default;
+	};
+}
+
+#include <Nazara/JoltPhysics3D/Components/JoltRigidBody3DComponent.inl>
+
+#endif // NAZARA_JOLTPHYSICS3D_COMPONENTS_JOLTCHARACTERCOMPONENT_HPP

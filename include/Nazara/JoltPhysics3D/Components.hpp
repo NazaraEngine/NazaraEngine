@@ -29,6 +29,7 @@
 #ifndef NAZARA_JOLTPHYSICS3D_COMPONENTS_HPP
 #define NAZARA_JOLTPHYSICS3D_COMPONENTS_HPP
 
+#include <Nazara/JoltPhysics3D/Components/JoltCharacterComponent.hpp>
 #include <Nazara/JoltPhysics3D/Components/JoltRigidBody3DComponent.hpp>
 
 #endif // NAZARA_JOLTPHYSICS3D_COMPONENTS_HPP

@@ -35,6 +35,7 @@
 #include <Nazara/JoltPhysics3D/JoltCollider3D.hpp>
 #include <Nazara/JoltPhysics3D/JoltConstraint3D.hpp>
 #include <Nazara/JoltPhysics3D/JoltPhysics3D.hpp>
+#include <Nazara/JoltPhysics3D/JoltPhysicsStepListener.hpp>
 #include <Nazara/JoltPhysics3D/JoltPhysWorld3D.hpp>
 #include <Nazara/JoltPhysics3D/JoltRigidBody3D.hpp>
 

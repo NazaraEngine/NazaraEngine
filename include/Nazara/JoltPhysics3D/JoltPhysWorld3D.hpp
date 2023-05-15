@@ -28,6 +28,8 @@ namespace JPH
 namespace Nz
 {
 	class JoltCharacter;
+	class JoltCharacterImpl;
+	class JoltPhysicsStepListener;
 	class JoltRigidBody3D;
 
 	class NAZARA_JOLTPHYSICS3D_API JoltPhysWorld3D
@@ -57,11 +59,15 @@ namespace Nz
 
 			void RefreshBodies();
 
+			inline void RegisterStepListener(JoltPhysicsStepListener* character);
+
 			void SetGravity(const Vector3f& gravity);
 			void SetMaxStepCount(std::size_t maxStepCount);
 			void SetStepSize(Time stepSize);
 
 			void Step(Time timestep);
+
+			inline void UnregisterStepListener(JoltPhysicsStepListener* character);
 
 			JoltPhysWorld3D& operator=(const JoltPhysWorld3D&) = delete;
 			JoltPhysWorld3D& operator=(JoltPhysWorld3D&&) = delete;
@@ -83,21 +89,21 @@ namespace Nz
 
 			struct JoltWorld;
 
+			std::shared_ptr<JoltCharacterImpl> GetDefaultCharacterImpl();
 			const JPH::Shape* GetNullShape() const;
 
 			void OnPreStep(float deltatime);
 
 			void RegisterBody(const JPH::BodyID& bodyID, bool activate, bool removeFromDeactivationList);
-			inline void RegisterCharacter(JoltCharacter* character);
 
 			void UnregisterBody(const JPH::BodyID& bodyID, bool destroy, bool removeFromRegisterList);
-			inline void UnregisterCharacter(JoltCharacter* character);
 
 			std::size_t m_maxStepCount;
+			std::shared_ptr<JoltCharacterImpl> m_defaultCharacterImpl;
 			std::unique_ptr<std::atomic_uint64_t[]> m_activeBodies;
 			std::unique_ptr<std::uint64_t[]> m_registeredBodies;
 			std::unique_ptr<JoltWorld> m_world;
-			std::vector<JoltCharacter*> m_characters;
+			std::vector<JoltPhysicsStepListener*> m_stepListeners;
 			Vector3f m_gravity;
 			Time m_stepSize;
 			Time m_timestepAccumulator;

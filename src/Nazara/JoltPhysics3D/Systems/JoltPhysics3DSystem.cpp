@@ -3,19 +3,20 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/JoltPhysics3D/Systems/JoltPhysics3DSystem.hpp>
+#include <Nazara/Core/Log.hpp>
 #include <Nazara/Core/Components/DisabledComponent.hpp>
 #include <Nazara/Utility/Components/NodeComponent.hpp>
-#include <iostream>
 #include <Nazara/JoltPhysics3D/Debug.hpp>
 
 namespace Nz
 {
 	JoltPhysics3DSystem::JoltPhysics3DSystem(entt::registry& registry) :
 	m_registry(registry),
-	m_physicsConstructObserver(m_registry, entt::collector.group<JoltRigidBody3DComponent, NodeComponent>())
+	m_characterConstructObserver(m_registry, entt::collector.group<JoltCharacterComponent,   NodeComponent>(entt::exclude<DisabledComponent, JoltRigidBody3DComponent>)),
+	m_rigidBodyConstructObserver(m_registry, entt::collector.group<JoltRigidBody3DComponent, NodeComponent>(entt::exclude<DisabledComponent, JoltCharacterComponent>))
 	{
-		m_constructConnection = registry.on_construct<JoltRigidBody3DComponent>().connect<&JoltPhysics3DSystem::OnConstruct>(this);
-		m_destructConnection = registry.on_destroy<JoltRigidBody3DComponent>().connect<&JoltPhysics3DSystem::OnDestruct>(this);
+		m_constructConnection = registry.on_construct<JoltRigidBody3DComponent>().connect<&JoltPhysics3DSystem::OnBodyConstruct>(this);
+		m_destructConnection = registry.on_destroy<JoltRigidBody3DComponent>().connect<&JoltPhysics3DSystem::OnBodyDestruct>(this);
 
 		m_stepCount = 0;
 		m_physicsTime = Time::Zero();
@@ -24,9 +25,14 @@ namespace Nz
 
 	JoltPhysics3DSystem::~JoltPhysics3DSystem()
 	{
-		m_physicsConstructObserver.disconnect();
+		m_characterConstructObserver.disconnect();
+		m_rigidBodyConstructObserver.disconnect();
 
 		// Ensure every RigidBody3D is destroyed before world is
+		auto characterView = m_registry.view<JoltCharacterComponent>();
+		for (auto [entity, characterComponent] : characterView.each())
+			characterComponent.Destroy();
+
 		auto rigidBodyView = m_registry.view<JoltRigidBody3DComponent>();
 		for (auto [entity, rigidBodyComponent] : rigidBodyView.each())
 			rigidBodyComponent.Destroy(true);
@@ -37,10 +43,12 @@ namespace Nz
 		if (m_stepCount == 0)
 			m_stepCount = 1;
 
-		std::cout << "Physics time: " << (m_physicsTime / Time::Nanoseconds(m_stepCount)) << std::endl;
-		std::cout << "Replication time: " << (m_updateTime / Time::Nanoseconds(m_stepCount)) << std::endl;
-		std::cout << "Active entity count: " << m_physWorld.GetActiveBodyCount() << std::endl;
-		std::cout << "--" << std::endl;
+/*
+		NazaraDebug("Physics time: " << (m_physicsTime / Time::Nanoseconds(m_stepCount)));
+		NazaraDebug("Replication time: " << (m_updateTime / Time::Nanoseconds(m_stepCount)));
+		NazaraDebug("Active entity count: " << m_physWorld.GetActiveBodyCount()));
+		NazaraDebug("--");
+*/
 
 		m_stepCount = 0;
 		m_physicsTime = Time::Zero();
@@ -86,13 +94,22 @@ namespace Nz
 	void JoltPhysics3DSystem::Update(Time elapsedTime)
 	{
 		// Move newly-created physics entities to their node position/rotation
-		m_physicsConstructObserver.each([&](entt::entity entity)
+		m_characterConstructObserver.each([this](entt::entity entity)
 		{
-			JoltRigidBody3DComponent& entityPhysics = m_registry.get<JoltRigidBody3DComponent>(entity);
+			JoltCharacterComponent& entityCharacter = m_registry.get<JoltCharacterComponent>(entity);
 			NodeComponent& entityNode = m_registry.get<NodeComponent>(entity);
 
-			entityPhysics.TeleportTo(entityNode.GetPosition(), entityNode.GetRotation());
+			entityCharacter.TeleportTo(entityNode.GetPosition(), entityNode.GetRotation());
 		});
+
+		m_rigidBodyConstructObserver.each([this](entt::entity entity)
+		{
+			JoltRigidBody3DComponent& entityBody = m_registry.get<JoltRigidBody3DComponent>(entity);
+			NodeComponent& entityNode = m_registry.get<NodeComponent>(entity);
+
+			entityBody.TeleportTo(entityNode.GetPosition(), entityNode.GetRotation());
+		});
+
 
 		Time t1 = GetElapsedNanoseconds();
 
@@ -102,18 +119,36 @@ namespace Nz
 
 		Time t2 = GetElapsedNanoseconds();
 
-		// Replicate active rigid body position to their node components
-		auto view = m_registry.view<NodeComponent, const JoltRigidBody3DComponent>(entt::exclude<DisabledComponent>);
-		for (auto entity : view)
+		// Replicate characters to their NodeComponent
 		{
-			auto& rigidBodyComponent = view.get<const JoltRigidBody3DComponent>(entity);
-			if (!m_physWorld.IsBodyActive(rigidBodyComponent.GetBodyIndex()))
-				continue;
+			auto view = m_registry.view<NodeComponent, const JoltCharacterComponent>(entt::exclude<DisabledComponent>);
+			for (auto entity : view)
+			{
+				auto& characterComponent = view.get<const JoltCharacterComponent>(entity);
+				if (!m_physWorld.IsBodyActive(characterComponent.GetBodyIndex()))
+					continue;
 
-			auto& nodeComponent = view.get<NodeComponent>(entity);
+				auto& nodeComponent = view.get<NodeComponent>(entity);
 
-			auto [position, rotation] = rigidBodyComponent.GetPositionAndRotation();
-			nodeComponent.SetTransform(position, rotation);
+				auto [position, rotation] = characterComponent.GetPositionAndRotation();
+				nodeComponent.SetTransform(position, rotation);
+			}
+		}
+
+		// Replicate active rigid body position to their node components
+		{
+			auto view = m_registry.view<NodeComponent, const JoltRigidBody3DComponent>(entt::exclude<DisabledComponent>);
+			for (auto entity : m_registry.view<NodeComponent, const JoltRigidBody3DComponent>(entt::exclude<DisabledComponent>))
+			{
+				auto& rigidBodyComponent = view.get<const JoltRigidBody3DComponent>(entity);
+				if (!m_physWorld.IsBodyActive(rigidBodyComponent.GetBodyIndex()))
+					continue;
+
+				auto& nodeComponent = view.get<NodeComponent>(entity);
+
+				auto [position, rotation] = rigidBodyComponent.GetPositionAndRotation();
+				nodeComponent.SetTransform(position, rotation);
+			}
 		}
 
 		Time t3 = GetElapsedNanoseconds();
@@ -122,7 +157,7 @@ namespace Nz
 		m_updateTime += (t3 - t2);
 	}
 
-	void JoltPhysics3DSystem::OnConstruct(entt::registry& registry, entt::entity entity)
+	void JoltPhysics3DSystem::OnBodyConstruct(entt::registry& registry, entt::entity entity)
 	{
 		// Register rigid body owning entity
 		JoltRigidBody3DComponent& rigidBody = registry.get<JoltRigidBody3DComponent>(entity);
@@ -133,7 +168,7 @@ namespace Nz
 		m_physicsEntities[uniqueIndex] = entity;
 	}
 
-	void JoltPhysics3DSystem::OnDestruct(entt::registry& registry, entt::entity entity)
+	void JoltPhysics3DSystem::OnBodyDestruct(entt::registry& registry, entt::entity entity)
 	{
 		// Unregister owning entity
 		JoltRigidBody3DComponent& rigidBody = registry.get<JoltRigidBody3DComponent>(entity);

@@ -56,13 +56,12 @@ namespace Nz
 
 	JoltRigidBody3D::JoltRigidBody3D(JoltRigidBody3D&& body) noexcept :
 	m_geom(std::move(body.m_geom)),
-	m_body(body.m_body),
-	m_world(body.m_world),
+	m_body(std::move(body.m_body)),
+	m_world(std::move(body.m_world)),
 	m_bodyIndex(body.m_bodyIndex),
 	m_isSimulationEnabled(body.m_isSimulationEnabled),
 	m_isTrigger(body.m_isTrigger)
 	{
-		body.m_body = nullptr;
 		body.m_bodyIndex = std::numeric_limits<UInt32>::max();
 
 		if (m_body)
@@ -343,14 +342,13 @@ namespace Nz
 	{
 		Destroy();
 
-		m_body                = body.m_body;
+		m_body                = std::move(body.m_body);
 		m_bodyIndex           = body.m_bodyIndex;
 		m_geom                = std::move(body.m_geom);
-		m_world               = body.m_world;
+		m_world               = std::move(body.m_world);
 		m_isSimulationEnabled = body.m_isSimulationEnabled;
 		m_isTrigger           = body.m_isTrigger;
 
-		body.m_body = nullptr;
 		body.m_bodyIndex = std::numeric_limits<UInt32>::max();
 
 		if (m_body)
@@ -417,9 +415,10 @@ namespace Nz
 		{
 			creationSettings.SetShape(m_world->GetNullShape());
 			creationSettings.mIsSensor = true; //< not the best solution but enough for now
-			creationSettings.mPosition = ToJolt(settings.position);
-			creationSettings.mRotation = ToJolt(settings.rotation);
 		}
+
+		creationSettings.mPosition = ToJolt(settings.position);
+		creationSettings.mRotation = ToJolt(settings.rotation);
 	}
 
 	bool JoltRigidBody3D::ShouldActivate() const

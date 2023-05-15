@@ -5,7 +5,6 @@
 #include <Nazara/BulletPhysics3D/Systems/BulletPhysics3DSystem.hpp>
 #include <Nazara/Core/Components/DisabledComponent.hpp>
 #include <Nazara/Utility/Components/NodeComponent.hpp>
-#include <iostream>
 #include <Nazara/BulletPhysics3D/Debug.hpp>
 
 namespace Nz
@@ -37,11 +36,13 @@ namespace Nz
 		if (m_stepCount == 0)
 			m_stepCount = 1;
 
+/*
 		std::cout << "Physics time: " << (m_physicsTime / Time::Nanoseconds(m_stepCount)) << std::endl;
 		std::cout << "Update time: " << (m_updateTime / Time::Nanoseconds(m_stepCount)) << std::endl;
 		std::cout << "Active body count: " << m_activeObjectCount << std::endl;
 		std::cout << "--" << std::endl;
 
+*/
 		m_stepCount = 0;
 		m_physicsTime = Time::Zero();
 		m_updateTime = Time::Zero();

@@ -3,9 +3,9 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/JoltPhysics3D/JoltPhysWorld3D.hpp>
-#include <Nazara/JoltPhysics3D/JoltCharacter.hpp>
 #include <Nazara/JoltPhysics3D/JoltHelper.hpp>
 #include <Nazara/JoltPhysics3D/JoltPhysics3D.hpp>
+#include <Nazara/JoltPhysics3D/JoltPhysicsStepListener.hpp>
 #include <NazaraUtils/MemoryPool.hpp>
 #include <NazaraUtils/StackVector.hpp>
 #include <Jolt/Jolt.h>
@@ -469,8 +469,8 @@ namespace Nz
 		{
 			m_world->physicsSystem.Update(stepSize, 1, 1, &m_world->tempAllocator, &jobSystem);
 
-			for (JoltCharacter* character : m_characters)
-				character->PostSimulate();
+			for (JoltPhysicsStepListener* stepListener : m_stepListeners)
+				stepListener->PostSimulate();
 
 			m_timestepAccumulator -= m_stepSize;
 			stepCount++;
@@ -523,6 +523,14 @@ namespace Nz
 		}
 	}
 
+	std::shared_ptr<JoltCharacterImpl> JoltPhysWorld3D::GetDefaultCharacterImpl()
+	{
+		if (!m_defaultCharacterImpl)
+			m_defaultCharacterImpl = std::make_shared<JoltCharacterImpl>();
+
+		return m_defaultCharacterImpl;
+	}
+
 	const JPH::Shape* JoltPhysWorld3D::GetNullShape() const
 	{
 		if (!m_world->nullShape)
@@ -536,7 +544,7 @@ namespace Nz
 
 	void JoltPhysWorld3D::OnPreStep(float deltatime)
 	{
-		for (JoltCharacter* character : m_characters)
-			character->PreSimulate(deltatime);
+		for (JoltPhysicsStepListener* stepListener : m_stepListeners)
+			stepListener->PreSimulate(deltatime);
 	}
 }

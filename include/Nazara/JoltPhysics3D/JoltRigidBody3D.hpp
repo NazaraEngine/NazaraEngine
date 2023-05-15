@@ -133,8 +133,8 @@ namespace Nz
 			bool ShouldActivate() const;
 
 			std::shared_ptr<JoltCollider3D> m_geom;
-			JPH::Body* m_body;
-			JoltPhysWorld3D* m_world;
+			MovablePtr<JPH::Body> m_body;
+			MovablePtr<JoltPhysWorld3D> m_world;
 			UInt32 m_bodyIndex;
 			bool m_isSimulationEnabled;
 			bool m_isTrigger;

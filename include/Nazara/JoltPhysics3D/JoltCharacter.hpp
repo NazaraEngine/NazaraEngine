@@ -9,8 +9,10 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/JoltPhysics3D/Config.hpp>
+#include <Nazara/JoltPhysics3D/JoltPhysicsStepListener.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <NazaraUtils/MovablePtr.hpp>
 #include <memory>
 
 namespace JPH
@@ -21,22 +23,24 @@ namespace JPH
 
 namespace Nz
 {
+	class JoltCharacterImpl;
 	class JoltCollider3D;
 	class JoltPhysWorld3D;
 
-	class NAZARA_JOLTPHYSICS3D_API JoltCharacter
+	class NAZARA_JOLTPHYSICS3D_API JoltCharacter : public JoltPhysicsStepListener
 	{
 		friend JoltPhysWorld3D;
 
 		public:
-			JoltCharacter(JoltPhysWorld3D& physWorld, std::shared_ptr<JoltCollider3D> collider, const Vector3f& position, const Quaternionf& rotation = Quaternionf::Identity());
+			JoltCharacter(JoltPhysWorld3D& physWorld, std::shared_ptr<JoltCollider3D> collider, const Vector3f& position = Vector3f::Zero(), const Quaternionf& rotation = Quaternionf::Identity());
 			JoltCharacter(const JoltCharacter&) = delete;
-			JoltCharacter(JoltCharacter&&) = delete;
+			JoltCharacter(JoltCharacter&& character) noexcept;
 			~JoltCharacter();
 
 			inline void DisableSleeping();
 			void EnableSleeping(bool enable);
 
+			inline UInt32 GetBodyIndex() const;
 			Vector3f GetLinearVelocity() const;
 			Quaternionf GetRotation() const;
 			Vector3f GetPosition() const;
@@ -46,23 +50,45 @@ namespace Nz
 			bool IsOnGround() const;
 
 			void SetFriction(float friction);
+			inline void SetImpl(std::shared_ptr<JoltCharacterImpl> characterImpl);
 			void SetLinearVelocity(const Vector3f& linearVel);
 			void SetRotation(const Quaternionf& rotation);
 			void SetUp(const Vector3f& up);
 
+			void TeleportTo(const Vector3f& position, const Quaternionf& rotation);
+
 			void WakeUp();
 
 			JoltCharacter& operator=(const JoltCharacter&) = delete;
-			JoltCharacter& operator=(JoltCharacter&&) = delete;
+			JoltCharacter& operator=(JoltCharacter&& character) noexcept;
 
 		protected:
-			virtual void PreSimulate(float elapsedTime);
-			virtual void PostSimulate();
+			void Destroy();
 
 		private:
+			void PostSimulate() override;
+			void PreSimulate(float elapsedTime) override;
+
+			std::shared_ptr<JoltCharacterImpl> m_impl;
 			std::shared_ptr<JoltCollider3D> m_collider;
 			std::unique_ptr<JPH::Character> m_character;
-			JoltPhysWorld3D& m_physicsWorld;
+			MovablePtr<JoltPhysWorld3D> m_world;
+			UInt32 m_bodyIndex;
+	};
+
+	class NAZARA_JOLTPHYSICS3D_API JoltCharacterImpl
+	{
+		public:
+			JoltCharacterImpl() = default;
+			JoltCharacterImpl(const JoltCharacterImpl&) = delete;
+			JoltCharacterImpl(JoltCharacterImpl&&) = delete;
+			virtual ~JoltCharacterImpl();
+
+			virtual void PostSimulate(JoltCharacter& character);
+			virtual void PreSimulate(JoltCharacter& character, float elapsedTime);
+
+			JoltCharacterImpl& operator=(const JoltCharacterImpl&) = delete;
+			JoltCharacterImpl& operator=(JoltCharacterImpl&&) = delete;
 	};
 }
 

@@ -22,17 +22,17 @@ namespace Nz
 		return m_registeredBodies[blockIndex] & (UInt64(1u) << localIndex);
 	}
 
-	inline void JoltPhysWorld3D::RegisterCharacter(JoltCharacter* character)
+	inline void JoltPhysWorld3D::RegisterStepListener(JoltPhysicsStepListener* stepListener)
 	{
-		auto it = std::lower_bound(m_characters.begin(), m_characters.end(), character);
-		m_characters.insert(it, character);
+		auto it = std::lower_bound(m_stepListeners.begin(), m_stepListeners.end(), stepListener);
+		m_stepListeners.insert(it, stepListener);
 	}
 
-	inline void JoltPhysWorld3D::UnregisterCharacter(JoltCharacter* character)
+	inline void JoltPhysWorld3D::UnregisterStepListener(JoltPhysicsStepListener* stepListener)
 	{
-		auto it = std::lower_bound(m_characters.begin(), m_characters.end(), character);
-		assert(*it == character);
-		m_characters.erase(it);
+		auto it = std::lower_bound(m_stepListeners.begin(), m_stepListeners.end(), stepListener);
+		assert(*it == stepListener);
+		m_stepListeners.erase(it);
 	}
 }
 

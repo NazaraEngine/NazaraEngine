@@ -11,6 +11,7 @@
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/Time.hpp>
 #include <Nazara/JoltPhysics3D/JoltPhysWorld3D.hpp>
+#include <Nazara/JoltPhysics3D/Components/JoltCharacterComponent.hpp>
 #include <Nazara/JoltPhysics3D/Components/JoltRigidBody3DComponent.hpp>
 #include <NazaraUtils/TypeList.hpp>
 #include <entt/entt.hpp>
@@ -22,7 +23,7 @@ namespace Nz
 	{
 		public:
 			static constexpr Int64 ExecutionOrder = 0;
-			using Components = TypeList<JoltRigidBody3DComponent, class NodeComponent>;
+			using Components = TypeList<JoltCharacterComponent, JoltRigidBody3DComponent, class NodeComponent>;
 
 			struct RaycastHit;
 
@@ -31,6 +32,7 @@ namespace Nz
 			JoltPhysics3DSystem(JoltPhysics3DSystem&&) = delete;
 			~JoltPhysics3DSystem();
 
+			template<typename... Args> JoltCharacterComponent CreateCharacter(Args&&... args);
 			template<typename... Args> JoltRigidBody3DComponent CreateRigidBody(Args&&... args);
 
 			void Dump();
@@ -52,13 +54,14 @@ namespace Nz
 			};
 
 		private:
-			void OnConstruct(entt::registry& registry, entt::entity entity);
-			void OnDestruct(entt::registry& registry, entt::entity entity);
+			void OnBodyConstruct(entt::registry& registry, entt::entity entity);
+			void OnBodyDestruct(entt::registry& registry, entt::entity entity);
 
 			std::size_t m_stepCount;
 			std::vector<entt::entity> m_physicsEntities;
 			entt::registry& m_registry;
-			entt::observer m_physicsConstructObserver;
+			entt::observer m_characterConstructObserver;
+			entt::observer m_rigidBodyConstructObserver;
 			entt::scoped_connection m_constructConnection;
 			entt::scoped_connection m_destructConnection;
 			JoltPhysWorld3D m_physWorld;
