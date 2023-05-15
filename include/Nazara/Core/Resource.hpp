@@ -23,7 +23,7 @@ namespace Nz
 
 			const std::filesystem::path& GetFilePath() const;
 
-			void SetFilePath(const std::filesystem::path& filePath);
+			void SetFilePath(std::filesystem::path filePath);
 
 			Resource& operator=(const Resource&) = default;
 			Resource& operator=(Resource&&) noexcept = default;

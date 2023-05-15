@@ -31,8 +31,8 @@ namespace Nz
 	* \param filePath Path to the resource
 	*/
 
-	void Resource::SetFilePath(const std::filesystem::path& filePath)
+	void Resource::SetFilePath(std::filesystem::path filePath)
 	{
-		m_filePath = filePath;
+		m_filePath = std::move(filePath);
 	}
 }
