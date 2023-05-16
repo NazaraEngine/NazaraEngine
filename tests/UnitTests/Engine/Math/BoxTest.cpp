@@ -89,6 +89,43 @@ SCENARIO("Box", "[MATH][BOX]")
 				REQUIRE(Nz::Boxf::Lerp(nullBox, centerAndUnit, 0.5f) == result);
 			}
 		}
+
+		WHEN("We scale the boxes")
+		{
+			WHEN("We scale uniformly")
+			{
+				firstCenterAndUnit.Scale(2.f);
+				CHECK(firstCenterAndUnit.GetCenter() == Nz::Vector3f::Unit());
+				CHECK(firstCenterAndUnit.GetLengths() == 2.f * Nz::Vector3f::Unit());
+			}
+
+			WHEN("We scale non-uniformly")
+			{
+				firstCenterAndUnit.Scale({ 2.f, 1.f, 0.01f });
+				CHECK(firstCenterAndUnit.GetCenter() == Nz::Vector3f(1.f, 0.5f, 0.005f));
+				CHECK(firstCenterAndUnit.GetLengths() == Nz::Vector3f(2.f, 1.f, 0.01f));
+			}
+
+			WHEN("We scale uniformly around center")
+			{
+				Nz::Vector3f center = firstCenterAndUnit.GetCenter();
+
+				firstCenterAndUnit.ScaleAroundCenter(2.f);
+
+				CHECK(firstCenterAndUnit.GetCenter() == center);
+				CHECK(firstCenterAndUnit.GetLengths() == 2.f * Nz::Vector3f::Unit());
+			}
+
+			WHEN("We scale non-uniformly around center")
+			{
+				Nz::Vector3f center = firstCenterAndUnit.GetCenter();
+
+				firstCenterAndUnit.ScaleAroundCenter({ 2.f, 1.f, 0.01f });
+
+				CHECK(firstCenterAndUnit.GetCenter() == center);
+				CHECK(firstCenterAndUnit.GetLengths() == Nz::Vector3f(2.f, 1.f, 0.01f));
+			}
+		}
 	}
 
 	GIVEN("Two wrong box (negative width, height and depth")

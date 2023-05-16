@@ -545,6 +545,46 @@ namespace Nz
 
 		return *this;
 	}
+	
+	/*!
+	* \brief Multiplies the lengths of this box with the scalar (the box center doesn't move)
+	* \return A reference to this box where lengths are the product of these lengths and the scalar
+	*
+	* \param scalar The scalar to multiply width, height and depth with
+	*/
+	template<typename T>
+	Box<T>& Box<T>::ScaleAroundCenter(T scalar)
+	{
+		x -= (width  * scalar - width)  / T(2.0);
+		y -= (height * scalar - height) / T(2.0);
+		z -= (depth  * scalar - depth)  / T(2.0);
+
+		width  *= scalar;
+		height *= scalar;
+		depth  *= scalar;
+
+		return *this;
+	}
+
+	/*!
+	* \brief Multiplies the lengths of this box with the vector but changes the origin (the box center doesn't move)
+	* \return A reference to this box where width, height and depth are the product of the old width,  height and depth with the vec
+	*
+	* \param vec The vector where component one multiply width, two height and three depth
+	*/
+	template<typename T>
+	Box<T>& Box<T>::ScaleAroundCenter(const Vector3<T>& vec)
+	{
+		x -= (width  * vec.x - width)  / T(2.0);
+		y -= (height * vec.y - height) / T(2.0);
+		z -= (depth  * vec.z - depth)  / T(2.0);
+
+		width  *= vec.x;
+		height *= vec.y;
+		depth  *= vec.z;
+
+		return *this;
+	}
 
 	/*!
 	* \brief Gives a string representation

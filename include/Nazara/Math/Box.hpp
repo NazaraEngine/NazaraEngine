@@ -64,6 +64,9 @@ namespace Nz
 			Box& Scale(T scalar);
 			Box& Scale(const Vector3<T>& vec);
 
+			Box& ScaleAroundCenter(T scalar);
+			Box& ScaleAroundCenter(const Vector3<T>& vec);
+
 			std::string ToString() const;
 
 			Box& Transform(const Matrix4<T>& matrix, bool applyTranslation = true);
