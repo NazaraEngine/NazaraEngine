@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/JoltPhysics3D/JoltPhysWorld3D.hpp>
+#include <Nazara/JoltPhysics3D/JoltCharacter.hpp>
 #include <Nazara/JoltPhysics3D/JoltHelper.hpp>
 #include <Nazara/JoltPhysics3D/JoltPhysics3D.hpp>
 #include <Nazara/JoltPhysics3D/JoltPhysicsStepListener.hpp>
