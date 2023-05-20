@@ -199,6 +199,9 @@ namespace Nz
 		NazaraAssert(stream.GetCursorPos() < stream.GetSize(), "No data to load");
 		NazaraAssert(parameters.IsValid(), "Invalid parameters");
 
+		// Retrieve extension from stream (if any)
+		std::string ext = ToLower(PathToString(stream.GetPath().extension()));
+
 		UInt64 streamPos = stream.GetCursorPos();
 		bool found = false;
 		for (auto& loaderPtr : m_loaders)
@@ -206,6 +209,9 @@ namespace Nz
 			const Entry& loader = *loaderPtr;
 
 			if (loader.parameterFilter && !loader.parameterFilter(parameters))
+				continue;
+
+			if (loader.extensionSupport && !ext.empty() && !loader.extensionSupport(ext))
 				continue;
 
 			stream.SetCursorPos(streamPos);
@@ -216,9 +222,10 @@ namespace Nz
 			{
 				ResourceLoadingError error = result.GetError();
 				if (error != ResourceLoadingError::Unrecognized)
+				{
 					NazaraError("failed to load resource: loader failed");
-				else
 					found = true;
+				}
 
 				continue;
 			}
