@@ -36,8 +36,8 @@ namespace Nz
 
 			inline void ClearComponents();
 
-			template<typename T> T* GetComponent();
-			template<typename T> const T* GetComponent() const;
+			template<typename T> T& GetComponent();
+			template<typename T> const T& GetComponent() const;
 
 			int Run();
 

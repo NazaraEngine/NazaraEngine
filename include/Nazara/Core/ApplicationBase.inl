@@ -51,23 +51,23 @@ namespace Nz
 	}
 
 	template<typename T>
-	T* ApplicationBase::GetComponent()
+	T& ApplicationBase::GetComponent()
 	{
 		std::size_t componentIndex = ApplicationComponentRegistry<T>::GetComponentId();
-		if (componentIndex >= m_components.size())
-			return nullptr;
+		if (componentIndex >= m_components.size() || !m_components[componentIndex])
+			throw std::runtime_error("component not found");
 
-		return static_cast<T*>(m_components[componentIndex].get());
+		return static_cast<T&>(*m_components[componentIndex]);
 	}
 	
 	template<typename T>
-	const T* ApplicationBase::GetComponent() const
+	const T& ApplicationBase::GetComponent() const
 	{
 		std::size_t componentIndex = ApplicationComponentRegistry<T>::GetComponentId();
-		if (componentIndex >= m_components.size())
-			return nullptr;
+		if (componentIndex >= m_components.size() || !m_components[componentIndex])
+			throw std::runtime_error("component not found");
 
-		return static_cast<const T*>(m_components[componentIndex].get());
+		return static_cast<const T&>(*m_components[componentIndex]);
 	}
 
 	inline void ApplicationBase::Quit()
