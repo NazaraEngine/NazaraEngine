@@ -66,7 +66,13 @@ namespace Nz
 
 		Boxf aabb = m_renderables.front().renderable->GetAABB();
 		for (std::size_t i = 1; i < m_renderables.size(); ++i)
+		{
+			auto& entry = m_renderables[i];
+			if (!entry.renderable)
+				continue;
+
 			aabb.ExtendTo(m_renderables[i].renderable->GetAABB());
+		}
 
 		return aabb;
 	}
