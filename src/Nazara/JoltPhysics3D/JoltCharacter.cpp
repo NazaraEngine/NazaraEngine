@@ -15,6 +15,7 @@
 namespace Nz
 {
 	JoltCharacter::JoltCharacter(JoltPhysWorld3D& physWorld, std::shared_ptr<JoltCollider3D> collider, const Vector3f& position, const Quaternionf& rotation) :
+	m_impl(physWorld.GetDefaultCharacterImpl()),
 	m_collider(std::move(collider)),
 	m_world(&physWorld)
 	{
@@ -44,7 +45,10 @@ namespace Nz
 		character.m_bodyIndex = std::numeric_limits<UInt32>::max();
 		
 		if (m_world)
+		{
+			m_world->UnregisterStepListener(&character);
 			m_world->RegisterStepListener(this);
+		}
 	}
 
 	JoltCharacter::~JoltCharacter()
@@ -129,8 +133,7 @@ namespace Nz
 	
 	JoltCharacter& JoltCharacter::operator=(JoltCharacter&& character) noexcept
 	{
-		if (m_world)
-			m_world->UnregisterStepListener(this);
+		Destroy();
 
 		m_impl = std::move(character.m_impl);
 		m_collider = std::move(character.m_collider);
@@ -139,7 +142,10 @@ namespace Nz
 		m_world = std::move(character.m_world);
 
 		if (m_world)
+		{
+			m_world->UnregisterStepListener(&character);
 			m_world->RegisterStepListener(this);
+		}
 
 		character.m_bodyIndex = std::numeric_limits<UInt32>::max();
 
