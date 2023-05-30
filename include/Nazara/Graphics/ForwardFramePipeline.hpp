@@ -108,6 +108,7 @@ namespace Nz
 				const InstancedRenderable* renderable;
 				Recti scissorBox;
 				UInt32 renderMask = 0;
+				UInt8 generation;
 
 				NazaraSlot(InstancedRenderable, OnElementInvalidated, onElementInvalidated);
 				NazaraSlot(InstancedRenderable, OnMaterialInvalidated, onMaterialInvalidated);
@@ -169,6 +170,7 @@ namespace Nz
 			MemoryPool<ViewerData> m_viewerPool;
 			MemoryPool<WorldInstanceData> m_worldInstances;
 			RenderFrame* m_currentRenderFrame;
+			UInt8 m_generationCounter;
 			bool m_rebuildFrameGraph;
 	};
 }

@@ -34,6 +34,7 @@ namespace Nz
 	m_skeletonInstances(1024),
 	m_viewerPool(8),
 	m_worldInstances(2048),
+	m_generationCounter(0),
 	m_rebuildFrameGraph(true)
 	{
 	}
@@ -76,7 +77,7 @@ namespace Nz
 			else
 				visibleRenderable.skeletonInstance = nullptr;
 
-			visibilityHash = CombineHash(visibilityHash, std::hash<const void*>()(&renderableData));
+			visibilityHash = CombineHash(visibilityHash, std::hash<const void*>()(&renderableData) + renderableData.generation);
 		}
 
 		return m_visibleRenderables;
@@ -148,6 +149,7 @@ namespace Nz
 	{
 		std::size_t renderableIndex;
 		RenderableData* renderableData = m_renderablePool.Allocate(renderableIndex);
+		renderableData->generation = m_generationCounter++;
 		renderableData->renderable = instancedRenderable;
 		renderableData->renderMask = renderMask;
 		renderableData->scissorBox = scissorBox;
