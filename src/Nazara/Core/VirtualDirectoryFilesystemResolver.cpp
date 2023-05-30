@@ -35,7 +35,7 @@ namespace Nz
 	{
 		std::filesystem::path filePath = m_physicalPath;
 		for (std::size_t i = 0; i < partCount; ++i)
-			filePath /= parts[i];
+			filePath /= Utf8Path(parts[i]);
 
 		std::filesystem::file_status status = std::filesystem::status(filePath); //< FIXME: This will follow symlink, is this the intended behavior? (see symlink_status)
 
