@@ -636,7 +636,7 @@ int main()
 	Nz::Sprite flareSprite(flareMaterial);
 	flareSprite.SetSize({ 128.f, 128.f });
 	flareSprite.SetSize(flareSprite.GetSize() * 0.1f);
-	flareSprite.SetOrigin(flareSprite.GetSize() / 2.f);
+	flareSprite.SetOrigin({ 0.5f, 0.5f });
 
 	Nz::Vector3f flarePosition = { 0.f, 6.f, 100.f };
 
