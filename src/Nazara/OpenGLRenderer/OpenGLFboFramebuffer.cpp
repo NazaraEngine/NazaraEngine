@@ -133,7 +133,7 @@ namespace Nz
 
 				case PixelFormatContent::Undefined:
 				default:
-					throw std::runtime_error("unhandled pixel format " + PixelFormatInfo::GetName(textureFormat));
+					throw std::runtime_error("unhandled pixel format " + std::string(PixelFormatInfo::GetName(textureFormat)));
 			}
 
 			if (glTexture.RequiresTextureViewEmulation())

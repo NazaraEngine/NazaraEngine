@@ -26,9 +26,9 @@ namespace Nz
 	{
 		inline PixelFormatDescription();
 		inline PixelFormatDescription(PixelFormatContent formatContent, UInt8 bpp, PixelFormatSubType subType);
-		inline PixelFormatDescription(const std::string& formatName, PixelFormatContent formatContent, UInt8 bpp, PixelFormatSubType subType);
-		inline PixelFormatDescription(const std::string& formatName, PixelFormatContent formatContent, Bitset<> rMask, Bitset<> gMask, Bitset<> bMask, Bitset<> aMask, PixelFormatSubType subType);
-		inline PixelFormatDescription(const std::string& formatName, PixelFormatContent formatContent, PixelFormatSubType rType, Bitset<> rMask, PixelFormatSubType gType, Bitset<> gMask, PixelFormatSubType bType, Bitset<> bMask, PixelFormatSubType aType, Bitset<> aMask, UInt8 bpp = 0);
+		inline PixelFormatDescription(std::string_view formatName, PixelFormatContent formatContent, UInt8 bpp, PixelFormatSubType subType);
+		inline PixelFormatDescription(std::string_view formatName, PixelFormatContent formatContent, Bitset<> rMask, Bitset<> gMask, Bitset<> bMask, Bitset<> aMask, PixelFormatSubType subType);
+		inline PixelFormatDescription(std::string_view formatName, PixelFormatContent formatContent, PixelFormatSubType rType, Bitset<> rMask, PixelFormatSubType gType, Bitset<> gMask, PixelFormatSubType bType, Bitset<> bMask, PixelFormatSubType aType, Bitset<> aMask, UInt8 bpp = 0);
 
 		inline void Clear();
 
@@ -39,7 +39,7 @@ namespace Nz
 
 		inline bool Validate() const;
 
-		std::string name;
+		std::string_view name;
 		// Warning: Masks bit order is reversed
 		Bitset<> redMask;
 		Bitset<> greenMask;
@@ -72,7 +72,7 @@ namespace Nz
 			static inline PixelFormatContent GetContent(PixelFormat format);
 			static inline UInt8 GetBytesPerPixel(PixelFormat format);
 			static inline const PixelFormatDescription& GetInfo(PixelFormat format);
-			static inline const std::string& GetName(PixelFormat format);
+			static inline std::string_view GetName(PixelFormat format);
 
 			static inline bool HasAlpha(PixelFormat format);
 

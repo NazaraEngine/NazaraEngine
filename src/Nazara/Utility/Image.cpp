@@ -94,7 +94,7 @@ namespace Nz
 
 		if (!PixelFormatInfo::IsConversionSupported(m_sharedImage->format, newFormat))
 		{
-			NazaraError("Conversion from " + PixelFormatInfo::GetName(m_sharedImage->format) + " to " + PixelFormatInfo::GetName(newFormat) + " is not supported");
+			NazaraError("Conversion from " + std::string(PixelFormatInfo::GetName(m_sharedImage->format)) + " to " + std::string(PixelFormatInfo::GetName(newFormat)) + " is not supported");
 			return false;
 		}
 		#endif
@@ -313,7 +313,7 @@ namespace Nz
 		std::unique_ptr<UInt8[]> colorBuffer(new UInt8[bpp]);
 		if (!PixelFormatInfo::Convert(PixelFormat::RGBA8, m_sharedImage->format, &color.r, colorBuffer.get()))
 		{
-			NazaraError("Failed to convert RGBA8 to " + PixelFormatInfo::GetName(m_sharedImage->format));
+			NazaraError("Failed to convert RGBA8 to " + std::string(PixelFormatInfo::GetName(m_sharedImage->format)));
 			return false;
 		}
 
@@ -391,7 +391,7 @@ namespace Nz
 		std::unique_ptr<UInt8[]> colorBuffer(new UInt8[bpp]);
 		if (!PixelFormatInfo::Convert(PixelFormat::RGBA8, m_sharedImage->format, &color.r, colorBuffer.get()))
 		{
-			NazaraError("Failed to convert RGBA8 to " + PixelFormatInfo::GetName(m_sharedImage->format));
+			NazaraError("Failed to convert RGBA8 to " + std::string(PixelFormatInfo::GetName(m_sharedImage->format)));
 			return false;
 		}
 
@@ -463,7 +463,7 @@ namespace Nz
 		std::unique_ptr<UInt8[]> colorBuffer(new UInt8[bpp]);
 		if (!PixelFormatInfo::Convert(PixelFormat::RGBA8, m_sharedImage->format, &color.r, colorBuffer.get()))
 		{
-			NazaraError("Failed to convert RGBA8 to " + PixelFormatInfo::GetName(m_sharedImage->format));
+			NazaraError("Failed to convert RGBA8 to " + std::string(PixelFormatInfo::GetName(m_sharedImage->format)));
 			return false;
 		}
 

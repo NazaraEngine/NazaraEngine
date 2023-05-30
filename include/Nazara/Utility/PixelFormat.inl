@@ -26,7 +26,7 @@ namespace Nz
 	{
 	}
 
-	inline PixelFormatDescription::PixelFormatDescription(const std::string& formatName, PixelFormatContent formatContent, UInt8 bpp, PixelFormatSubType subType) :
+	inline PixelFormatDescription::PixelFormatDescription(std::string_view formatName, PixelFormatContent formatContent, UInt8 bpp, PixelFormatSubType subType) :
 	name(formatName),
 	content(formatContent),
 	redType(subType),
@@ -37,12 +37,12 @@ namespace Nz
 	{
 	}
 
-	inline PixelFormatDescription::PixelFormatDescription(const std::string& formatName, PixelFormatContent formatContent, Bitset<> rMask, Bitset<> gMask, Bitset<> bMask, Bitset<> aMask, PixelFormatSubType subType) :
+	inline PixelFormatDescription::PixelFormatDescription(std::string_view formatName, PixelFormatContent formatContent, Bitset<> rMask, Bitset<> gMask, Bitset<> bMask, Bitset<> aMask, PixelFormatSubType subType) :
 	PixelFormatDescription(formatName, formatContent, subType, rMask, subType, gMask, subType, bMask, subType, aMask)
 	{
 	}
 
-	inline PixelFormatDescription::PixelFormatDescription(const std::string& formatName, PixelFormatContent formatContent, PixelFormatSubType rType, Bitset<> rMask, PixelFormatSubType gType, Bitset<> gMask, PixelFormatSubType bType, Bitset<> bMask, PixelFormatSubType aType, Bitset<> aMask, UInt8 bpp) :
+	inline PixelFormatDescription::PixelFormatDescription(std::string_view formatName, PixelFormatContent formatContent, PixelFormatSubType rType, Bitset<> rMask, PixelFormatSubType gType, Bitset<> gMask, PixelFormatSubType bType, Bitset<> bMask, PixelFormatSubType aType, Bitset<> aMask, UInt8 bpp) :
 	name(formatName),
 	redMask(rMask),
 	greenMask(gMask),
@@ -70,7 +70,7 @@ namespace Nz
 		blueMask.Clear();
 		greenMask.Clear();
 		redMask.Clear();
-		name.clear();
+		name = "";
 	}
 
 	inline bool PixelFormatDescription::IsCompressed() const
@@ -233,7 +233,7 @@ namespace Nz
 		return s_pixelFormatInfos[format];
 	}
 
-	inline const std::string& PixelFormatInfo::GetName(PixelFormat format)
+	inline std::string_view PixelFormatInfo::GetName(PixelFormat format)
 	{
 		return s_pixelFormatInfos[format].name;
 	}
