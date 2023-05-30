@@ -43,8 +43,8 @@ namespace Nz
 	OrientedBox<T>::OrientedBox(const OrientedBox<U>& orientedBox) :
 	localBox(orientedBox.localBox)
 	{
-		for (unsigned int i = 0; i < BoxCornerCount; ++i)
-			m_corners[i] = Vector3<T>(orientedBox(i));
+		for (auto&& [cornerEnum, corner] : m_corners.iter_kv())
+			corner = Vector3<T>(orientedBox.GetCorner(cornerEnum));
 	}
 
 	/*!
@@ -59,23 +59,14 @@ namespace Nz
 	template<typename T>
 	const Vector3<T>& OrientedBox<T>::GetCorner(BoxCorner corner) const
 	{
-		#ifdef NAZARA_DEBUG
-		if (UnderlyingCast(corner) > BoxCornerCount)
-		{
-			NazaraError("Corner not handled (0x" + NumberToString(UnderlyingCast(corner), 16) + ')');
-
-			static Vector3<T> dummy;
-			return dummy;
-		}
-		#endif
-
-		return m_corners[UnderlyingCast(corner)];
+		NazaraAssert(corner <= BoxCorner::Max, "invalid corner");
+		return m_corners[corner];
 	}
 
 	template<typename T>
 	const Vector3<T>* OrientedBox<T>::GetCorners() const
 	{
-		return &m_corners[0];
+		return &m_corners.front();
 	}
 
 	/*!
@@ -112,8 +103,8 @@ namespace Nz
 	template<typename T>
 	void OrientedBox<T>::Update(const Matrix4<T>& transformMatrix)
 	{
-		for (unsigned int i = 0; i < BoxCornerCount; ++i)
-			m_corners[i] = transformMatrix.Transform(localBox.GetCorner(static_cast<BoxCorner>(i)));
+		for (auto&& [corner, pos] : m_corners.iter_kv())
+			pos = transformMatrix.Transform(localBox.GetCorner(corner));
 	}
 
 	/*!
@@ -125,8 +116,8 @@ namespace Nz
 	template<typename T>
 	void OrientedBox<T>::Update(const Vector3<T>& translation)
 	{
-		for (unsigned int i = 0; i < BoxCornerCount; ++i)
-			m_corners[i] = localBox.GetCorner(static_cast<BoxCorner>(i)) + translation;
+		for (auto&& [corner, pos] : m_corners.iter_kv())
+			pos = localBox.GetCorner(corner) + translation;
 	}
 
 	/*!
@@ -140,18 +131,8 @@ namespace Nz
 	template<typename T>
 	Vector3<T>& OrientedBox<T>::operator()(unsigned int i)
 	{
-		#if NAZARA_MATH_SAFE
-		if (i >= BoxCornerCount)
-		{
-			std::ostringstream ss;
-			ss << "Index out of range: (" << i << " >= " << BoxCornerCount << ")";
-
-			NazaraError(ss.str());
-			throw std::out_of_range(ss.str());
-		}
-		#endif
-
-		return m_corners[i];
+		NazaraAssert(i < m_corners.size(), "corner out of range");
+		return m_corners[static_cast<BoxCorner>(i)];
 	}
 
 	/*!
@@ -165,18 +146,8 @@ namespace Nz
 	template<typename T>
 	const Vector3<T>& OrientedBox<T>::operator()(unsigned int i) const
 	{
-#if NAZARA_MATH_SAFE
-		if (i >= BoxCornerCount)
-		{
-			std::ostringstream ss;
-			ss << "Index out of range: (" << i << " >= " << BoxCornerCount << ")";
-
-			NazaraError(ss.str());
-			throw std::out_of_range(ss.str());
-		}
-#endif
-
-		return m_corners[i];
+		NazaraAssert(i < m_corners.size(), "corner out of range");
+		return m_corners[static_cast<BoxCorner>(i)];
 	}
 
 	/*!
@@ -282,16 +253,16 @@ namespace Nz
 	* \param orientedBox The orientedBox to output
 	*/
 	template<typename T>
-	std::ostream& operator<<(std::ostream& out, const Nz::OrientedBox<T>& orientedBox)
+	std::ostream& operator<<(std::ostream& out, const OrientedBox<T>& orientedBox)
 	{
-		return out << "OrientedBox(FLB: " << orientedBox.GetCorner(Nz::BoxCorner::FarLeftBottom)   << ",\n"
-				   << "            FLT: " << orientedBox.GetCorner(Nz::BoxCorner::FarLeftTop)      << ",\n"
-				   << "            FRB: " << orientedBox.GetCorner(Nz::BoxCorner::FarRightBottom)  << ",\n"
-				   << "            FRT: " << orientedBox.GetCorner(Nz::BoxCorner::FarRightTop)     << ",\n"
-				   << "            NLB: " << orientedBox.GetCorner(Nz::BoxCorner::NearLeftBottom)  << ",\n"
-				   << "            NLT: " << orientedBox.GetCorner(Nz::BoxCorner::NearLeftTop)     << ",\n"
-				   << "            NRB: " << orientedBox.GetCorner(Nz::BoxCorner::NearRightBottom) << ",\n"
-				   << "            NRT: " << orientedBox.GetCorner(Nz::BoxCorner::NearRightTop)    << ")\n";
+		return out << "OrientedBox(FLB: " << orientedBox.GetCorner(BoxCorner::FarLeftBottom) << ",\n"
+				   << "            FLT: " << orientedBox.GetCorner(BoxCorner::FarLeftTop)      << ",\n"
+				   << "            FRB: " << orientedBox.GetCorner(BoxCorner::FarRightBottom)  << ",\n"
+				   << "            FRT: " << orientedBox.GetCorner(BoxCorner::FarRightTop)     << ",\n"
+				   << "            NLB: " << orientedBox.GetCorner(BoxCorner::NearLeftBottom)  << ",\n"
+				   << "            NLT: " << orientedBox.GetCorner(BoxCorner::NearLeftTop)     << ",\n"
+				   << "            NRB: " << orientedBox.GetCorner(BoxCorner::NearRightBottom) << ",\n"
+				   << "            NRT: " << orientedBox.GetCorner(BoxCorner::NearRightTop)    << ")\n";
 	}
 }
 

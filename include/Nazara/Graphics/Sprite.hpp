@@ -50,7 +50,7 @@ namespace Nz
 		private:
 			inline void UpdateVertices();
 
-			std::array<Color, RectCornerCount> m_cornerColor;
+			EnumMap<RectCorner, Color> m_cornerColor;
 			std::array<VertexStruct_XYZ_Color_UV, 4> m_vertices;
 			std::shared_ptr<MaterialInstance> m_material;
 			Color m_color;

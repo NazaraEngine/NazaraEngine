@@ -86,25 +86,25 @@ namespace Nz
 			// TODO: Ensure structs layout is what's expected
 
 			if (auto it = block->uniformBlocks.find("InstanceData"); it != block->uniformBlocks.end())
-				m_engineShaderBindings[UnderlyingCast(EngineShaderBinding::InstanceDataUbo)] = it->second.bindingIndex;
+				m_engineShaderBindings[EngineShaderBinding::InstanceDataUbo] = it->second.bindingIndex;
 
 			if (auto it = block->uniformBlocks.find("LightData"); it != block->uniformBlocks.end())
-				m_engineShaderBindings[UnderlyingCast(EngineShaderBinding::LightDataUbo)] = it->second.bindingIndex;
+				m_engineShaderBindings[EngineShaderBinding::LightDataUbo] = it->second.bindingIndex;
 
 			if (auto it = block->uniformBlocks.find("ViewerData"); it != block->uniformBlocks.end())
-				m_engineShaderBindings[UnderlyingCast(EngineShaderBinding::ViewerDataUbo)] = it->second.bindingIndex;
+				m_engineShaderBindings[EngineShaderBinding::ViewerDataUbo] = it->second.bindingIndex;
 
 			if (auto it = block->samplers.find("ShadowMaps2D"); it != block->samplers.end())
-				m_engineShaderBindings[UnderlyingCast(EngineShaderBinding::Shadowmap2D)] = it->second.bindingIndex;
+				m_engineShaderBindings[EngineShaderBinding::Shadowmap2D] = it->second.bindingIndex;
 
 			if (auto it = block->samplers.find("ShadowMapsCube"); it != block->samplers.end())
-				m_engineShaderBindings[UnderlyingCast(EngineShaderBinding::ShadowmapCube)] = it->second.bindingIndex;
+				m_engineShaderBindings[EngineShaderBinding::ShadowmapCube] = it->second.bindingIndex;
 
 			if (auto it = block->uniformBlocks.find("SkeletalData"); it != block->uniformBlocks.end())
-				m_engineShaderBindings[UnderlyingCast(EngineShaderBinding::SkeletalDataUbo)] = it->second.bindingIndex;
+				m_engineShaderBindings[EngineShaderBinding::SkeletalDataUbo] = it->second.bindingIndex;
 
 			if (auto it = block->samplers.find("TextureOverlay"); it != block->samplers.end())
-				m_engineShaderBindings[UnderlyingCast(EngineShaderBinding::OverlayTexture)] = it->second.bindingIndex;
+				m_engineShaderBindings[EngineShaderBinding::OverlayTexture] = it->second.bindingIndex;
 		}
 
 		for (const auto& handlerPtr : m_settings.GetPropertyHandlers())

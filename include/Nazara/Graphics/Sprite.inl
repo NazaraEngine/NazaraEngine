@@ -14,7 +14,7 @@ namespace Nz
 
 	inline const Color& Sprite::GetCornerColor(RectCorner corner) const
 	{
-		return m_cornerColor[UnderlyingCast(corner)];
+		return m_cornerColor[corner];
 	}
 
 	inline const Vector2f& Sprite::GetOrigin() const
@@ -41,7 +41,7 @@ namespace Nz
 
 	inline void Sprite::SetCornerColor(RectCorner corner, const Color& color)
 	{
-		m_cornerColor[UnderlyingCast(corner)] = color;
+		m_cornerColor[corner] = color;
 
 		UpdateVertices();
 	}
@@ -90,18 +90,18 @@ namespace Nz
 	{
 		VertexStruct_XYZ_Color_UV* vertices = m_vertices.data();
 
-		std::array<Vector2f, RectCornerCount> cornerExtent;
-		cornerExtent[UnderlyingCast(RectCorner::LeftBottom)] = Vector2f(0.f, 0.f);
-		cornerExtent[UnderlyingCast(RectCorner::RightBottom)] = Vector2f(1.f, 0.f);
-		cornerExtent[UnderlyingCast(RectCorner::LeftTop)] = Vector2f(0.f, 1.f);
-		cornerExtent[UnderlyingCast(RectCorner::RightTop)] = Vector2f(1.f, 1.f);
+		EnumMap<RectCorner, Vector2f> cornerExtent;
+		cornerExtent[RectCorner::LeftBottom]  = Vector2f(0.f, 0.f);
+		cornerExtent[RectCorner::RightBottom] = Vector2f(1.f, 0.f);
+		cornerExtent[RectCorner::LeftTop]     = Vector2f(0.f, 1.f);
+		cornerExtent[RectCorner::RightTop]    = Vector2f(1.f, 1.f);
 
 		Vector3f originShift = m_origin * m_size;
 
 		for (RectCorner corner : { RectCorner::LeftBottom, RectCorner::RightBottom, RectCorner::LeftTop, RectCorner::RightTop })
 		{
-			vertices->color = m_color * m_cornerColor[UnderlyingCast(corner)];
-			vertices->position = Vector3f(m_size * cornerExtent[UnderlyingCast(corner)], 0.f) - originShift;
+			vertices->color = m_color * m_cornerColor[corner];
+			vertices->position = Vector3f(m_size * cornerExtent[corner], 0.f) - originShift;
 			vertices->uv = m_textureCoords.GetCorner(corner);
 
 			vertices++;

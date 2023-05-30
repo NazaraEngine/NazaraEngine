@@ -28,7 +28,7 @@ namespace Nz
 			{
 			}
 
-			std::array<Vk::CommandPool, QueueCount> commandPools;
+			EnumMap<QueueType, Vk::CommandPool> commandPools;
 			VulkanDescriptorSetLayoutCache setLayoutCache;
 		};
 
@@ -49,7 +49,7 @@ namespace Nz
 
 		AutoCommandBuffer Device::AllocateCommandBuffer(QueueType queueType)
 		{
-			return m_internalData->commandPools[UnderlyingCast(queueType)].AllocateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
+			return m_internalData->commandPools[queueType].AllocateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 		}
 
 		bool Device::Create(const Vk::PhysicalDevice& deviceInfo, const VkDeviceCreateInfo& createInfo, const VkAllocationCallbacks* allocator)
@@ -155,24 +155,23 @@ namespace Nz
 					return 0U;
 				};
 
-				std::size_t queueIndex = static_cast<std::size_t>(queueType);
 				for (const QueueFamilyInfo& familyInfo : m_enabledQueuesInfos)
 				{
 					if ((familyInfo.flags & QueueTypeToFlags(queueType)) == 0)
 						continue;
 
-					m_defaultQueues[queueIndex] = familyInfo.familyIndex;
+					m_defaultQueues[queueType] = familyInfo.familyIndex;
 
 					// Break only if queue has not been selected before
 					auto queueBegin = m_defaultQueues.begin();
-					auto queueEnd = queueBegin + queueIndex;
+					auto queueEnd = queueBegin + static_cast<std::size_t>(queueType);
 
 					if (std::find(queueBegin, queueEnd, familyInfo.familyIndex) == queueEnd)
 						break;
 				}
 
-				Vk::CommandPool& commandPool = m_internalData->commandPools[queueIndex];
-				if (!commandPool.Create(*this, m_defaultQueues[queueIndex], VK_COMMAND_POOL_CREATE_TRANSIENT_BIT))
+				Vk::CommandPool& commandPool = m_internalData->commandPools[queueType];
+				if (!commandPool.Create(*this, m_defaultQueues[queueType], VK_COMMAND_POOL_CREATE_TRANSIENT_BIT))
 				{
 					NazaraError("Failed to create command pool: " + TranslateVulkanError(commandPool.GetLastErrorCode()));
 					return false;

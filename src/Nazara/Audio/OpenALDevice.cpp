@@ -33,23 +33,23 @@ namespace Nz
 		// We complete the formats table
 		m_audioFormatValues.fill(0);
 
-		m_audioFormatValues[UnderlyingCast(AudioFormat::I16_Mono)] = AL_FORMAT_MONO16;
-		m_audioFormatValues[UnderlyingCast(AudioFormat::I16_Stereo)] = AL_FORMAT_STEREO16;
+		m_audioFormatValues[AudioFormat::I16_Mono] = AL_FORMAT_MONO16;
+		m_audioFormatValues[AudioFormat::I16_Stereo] = AL_FORMAT_STEREO16;
 
 		// "The presence of an enum value does not guarantee the applicability of an extension to the current context."
 		if (library.alIsExtensionPresent("AL_EXT_MCFORMATS"))
 		{
-			m_audioFormatValues[UnderlyingCast(AudioFormat::I16_Quad)] = m_library.alGetEnumValue("AL_FORMAT_QUAD16");
-			m_audioFormatValues[UnderlyingCast(AudioFormat::I16_5_1)] = m_library.alGetEnumValue("AL_FORMAT_51CHN16");
-			m_audioFormatValues[UnderlyingCast(AudioFormat::I16_6_1)] = m_library.alGetEnumValue("AL_FORMAT_61CHN16");
-			m_audioFormatValues[UnderlyingCast(AudioFormat::I16_7_1)] = m_library.alGetEnumValue("AL_FORMAT_71CHN16");
+			m_audioFormatValues[AudioFormat::I16_Quad] = m_library.alGetEnumValue("AL_FORMAT_QUAD16");
+			m_audioFormatValues[AudioFormat::I16_5_1] = m_library.alGetEnumValue("AL_FORMAT_51CHN16");
+			m_audioFormatValues[AudioFormat::I16_6_1] = m_library.alGetEnumValue("AL_FORMAT_61CHN16");
+			m_audioFormatValues[AudioFormat::I16_7_1] = m_library.alGetEnumValue("AL_FORMAT_71CHN16");
 		}
 		else if (library.alIsExtensionPresent("AL_LOKI_quadriphonic"))
-			m_audioFormatValues[UnderlyingCast(AudioFormat::I16_Quad)] = m_library.alGetEnumValue("AL_FORMAT_QUAD16_LOKI");
+			m_audioFormatValues[AudioFormat::I16_Quad] = m_library.alGetEnumValue("AL_FORMAT_QUAD16_LOKI");
 
 		m_extensionStatus.fill(false);
 		if (library.alIsExtensionPresent("AL_SOFT_source_latency"))
-			m_extensionStatus[UnderlyingCast(OpenALExtension::SourceLatency)] = true;
+			m_extensionStatus[OpenALExtension::SourceLatency] = true;
 
 		SetListenerDirection(Vector3f::Forward());
 	}
@@ -226,7 +226,7 @@ namespace Nz
 		if (format == AudioFormat::Unknown)
 			return false;
 
-		return m_audioFormatValues[UnderlyingCast(format)] != 0;
+		return m_audioFormatValues[format] != 0;
 	}
 
 	/*!

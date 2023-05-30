@@ -74,8 +74,7 @@ namespace Nz
 	inline const std::shared_ptr<VertexDeclaration>& VertexDeclaration::Get(VertexLayout layout)
 	{
 		NazaraAssert(layout <= VertexLayout::Max, "Vertex layout out of enum");
-
-		return s_declarations[UnderlyingCast(layout)];
+		return s_declarations[layout];
 	}
 }
 

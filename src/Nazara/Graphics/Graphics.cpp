@@ -353,15 +353,15 @@ namespace Nz
 
 			std::array<UInt8, 6> whitePixels = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 
-			for (std::size_t i = 0; i < ImageTypeCount; ++i)
+			for (auto&& [imageType, texture] : m_defaultTextures.depthTextures.iter_kv())
 			{
-				texInfo.type = static_cast<ImageType>(i);
-				if (texInfo.type == ImageType::E3D)
+				if (imageType == ImageType::E3D)
 					continue;
 
-				texInfo.layerCount = (texInfo.type == ImageType::Cubemap) ? 6 : 1;
+				texInfo.type = imageType;
+				texInfo.layerCount = (imageType == ImageType::Cubemap) ? 6 : 1;
 
-				m_defaultTextures.depthTextures[i] = m_renderDevice->InstantiateTexture(texInfo, whitePixels.data(), false);
+				texture = m_renderDevice->InstantiateTexture(texInfo, whitePixels.data(), false);
 			}
 		}
 
@@ -373,12 +373,12 @@ namespace Nz
 
 			std::array<UInt8, 6> whitePixels = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 
-			for (std::size_t i = 0; i < ImageTypeCount; ++i)
+			for (auto&& [imageType, texture] : m_defaultTextures.whiteTextures.iter_kv())
 			{
-				texInfo.type = static_cast<ImageType>(i);
-				texInfo.layerCount = (texInfo.type == ImageType::Cubemap) ? 6 : 1;
+				texInfo.type = imageType;
+				texInfo.layerCount = (imageType == ImageType::Cubemap) ? 6 : 1;
 
-				m_defaultTextures.whiteTextures[i] = m_renderDevice->InstantiateTexture(texInfo, whitePixels.data(), false);
+				texture = m_renderDevice->InstantiateTexture(texInfo, whitePixels.data(), false);
 			}
 		}
 	}

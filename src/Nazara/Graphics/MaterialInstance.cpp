@@ -145,7 +145,7 @@ namespace Nz
 			const auto& textureSlot = m_parent->GetTextureData(i);
 			const auto& textureBinding = m_textureBinding[i];
 
-			const std::shared_ptr<Texture>& texture = (textureBinding.texture) ? textureBinding.texture : defaultTextures.whiteTextures[UnderlyingCast(textureSlot.imageType)];
+			const std::shared_ptr<Texture>& texture = (textureBinding.texture) ? textureBinding.texture : defaultTextures.whiteTextures[textureSlot.imageType];
 			const std::shared_ptr<TextureSampler>& sampler = (textureBinding.sampler) ? textureBinding.sampler : Graphics::Instance()->GetSamplerCache().Get({});
 
 			bindings.push_back({

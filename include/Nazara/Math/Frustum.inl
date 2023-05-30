@@ -8,6 +8,7 @@
 
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Math/Algorithm.hpp>
+#include <NazaraUtils/EnumMap.hpp>
 #include <cstring>
 #include <sstream>
 #include <Nazara/Core/Debug.hpp>
@@ -30,7 +31,7 @@ namespace Nz
 	* \param planes Frustum of type U to convert to type T
 	*/
 	template<typename T>
-	Frustum<T>::Frustum(const std::array<Plane<T>, FrustumPlaneCount>& planes) :
+	Frustum<T>::Frustum(const EnumMap<FrustumPlane, Plane<T>>& planes) :
 	m_planes(planes)
 	{
 	}
@@ -44,8 +45,8 @@ namespace Nz
 	template<typename U>
 	Frustum<T>::Frustum(const Frustum<U>& frustum)
 	{
-		for (std::size_t i = 0; i < FrustumPlaneCount; ++i)
-			m_planes[i].Set(frustum.m_planes[i]);
+		for (auto&& [planeEnum, plane] : m_planes)
+			plane = Frustum(frustum.GetPlane(planeEnum));
 	}
 
 	/*!
@@ -129,9 +130,9 @@ namespace Nz
 	bool Frustum<T>::Contains(const Box<T>& box) const
 	{
 		// http://www.lighthouse3d.com/tutorials/view-frustum-culling/geometric-approach-testing-boxes-ii/
-		for (unsigned int i = 0; i < FrustumPlaneCount; i++)
+		for (const auto& plane : m_planes)
 		{
-			if (m_planes[i].Distance(box.GetPositiveVertex(m_planes[i].normal)) < T(0.0))
+			if (plane.Distance(box.GetPositiveVertex(plane.normal)) < T(0.0))
 				return false;
 		}
 
@@ -161,9 +162,9 @@ namespace Nz
 	template<typename T>
 	bool Frustum<T>::Contains(const Sphere<T>& sphere) const
 	{
-		for (unsigned int i = 0; i < FrustumPlaneCount; i++)
+		for (const auto& plane : m_planes)
 		{
-			if (m_planes[i].Distance(sphere.GetPosition()) < -sphere.radius)
+			if (plane.Distance(sphere.GetPosition()) < -sphere.radius)
 				return false;
 		}
 
@@ -180,9 +181,9 @@ namespace Nz
 	template<typename T>
 	bool Frustum<T>::Contains(const Vector3<T>& point) const
 	{
-		for (unsigned int i = 0; i < FrustumPlaneCount; ++i)
+		for (const auto& plane : m_planes)
 		{
-			if (m_planes[i].Distance(point) < T(0.0))
+			if (plane.Distance(point) < T(0.0))
 				return false;
 		}
 
@@ -200,12 +201,12 @@ namespace Nz
 	template<typename T>
 	bool Frustum<T>::Contains(const Vector3<T>* points, std::size_t pointCount) const
 	{
-		for (std::size_t i = 0; i < FrustumPlaneCount; ++i)
+		for (const auto& plane : m_planes)
 		{
 			std::size_t j;
 			for (j = 0; j < pointCount; j++ )
 			{
-				if (m_planes[i].Distance(points[j]) > T(0.0))
+				if (plane.Distance(points[j]) > T(0.0))
 					break;
 			}
 
@@ -228,8 +229,8 @@ namespace Nz
 	template<typename T>
 	const Plane<T>& Frustum<T>::GetPlane(FrustumPlane plane) const
 	{
-		NazaraAssert(UnderlyingCast(plane) < FrustumPlaneCount, "invalid plane");
-		return m_planes[UnderlyingCast(plane)];
+		NazaraAssert(plane <= FrustumPlane::Max, "invalid plane");
+		return m_planes[plane];
 	}
 
 	/*!
@@ -292,11 +293,11 @@ namespace Nz
 		// http://www.lighthouse3d.com/tutorials/view-frustum-culling/geometric-approach-testing-boxes-ii/
 		IntersectionSide side = IntersectionSide::Inside;
 
-		for (std::size_t i = 0; i < FrustumPlaneCount; i++)
+		for (const auto& plane : m_planes)
 		{
-			if (m_planes[i].Distance(box.GetPositiveVertex(m_planes[i].normal)) < T(0.0))
+			if (plane.Distance(box.GetPositiveVertex(plane.normal)) < T(0.0))
 				return IntersectionSide::Outside;
-			else if (m_planes[i].Distance(box.GetNegativeVertex(m_planes[i].normal)) < T(0.0))
+			else if (plane.Distance(box.GetNegativeVertex(plane.normal)) < T(0.0))
 				side = IntersectionSide::Intersecting;
 		}
 
@@ -329,9 +330,9 @@ namespace Nz
 		// http://www.lighthouse3d.com/tutorials/view-frustum-culling/geometric-approach-testing-points-and-spheres/
 		IntersectionSide side = IntersectionSide::Inside;
 
-		for (std::size_t i = 0; i < FrustumPlaneCount; i++)
+		for (const auto& plane : m_planes)
 		{
-			T distance = m_planes[i].Distance(sphere.GetPosition());
+			T distance = plane.Distance(sphere.GetPosition());
 			if (distance < -sphere.radius)
 				return IntersectionSide::Outside;
 			else if (distance < sphere.radius)
@@ -354,12 +355,12 @@ namespace Nz
 	{
 		std::size_t c = 0;
 
-		for (std::size_t i = 0; i < FrustumPlaneCount; ++i)
+		for (const auto& plane : m_planes)
 		{
 			std::size_t j;
 			for (j = 0; j < pointCount; j++ )
 			{
-				if (m_planes[i].Distance(points[j]) > T(0.0))
+				if (plane.Distance(points[j]) > T(0.0))
 					break;
 			}
 
@@ -418,25 +419,26 @@ namespace Nz
 		Vector3<T> fc = eye + f * zFar;
 
 		// Computing the frustum
-		std::array<Vector3<T>, BoxCornerCount> corners;
-		corners[UnderlyingCast(BoxCorner::FarLeftBottom)]  = fc - u * farH - s * farW;
-		corners[UnderlyingCast(BoxCorner::FarLeftTop)]     = fc + u * farH - s * farW;
-		corners[UnderlyingCast(BoxCorner::FarRightTop)]    = fc + u * farH + s * farW;
-		corners[UnderlyingCast(BoxCorner::FarRightBottom)] = fc - u * farH + s * farW;
+		EnumMap<BoxCorner, Vector3<T>> corners;
+		corners[BoxCorner::FarLeftBottom]  = fc - u * farH - s * farW;
+		corners[BoxCorner::FarLeftTop]     = fc + u * farH - s * farW;
+		corners[BoxCorner::FarRightTop]    = fc + u * farH + s * farW;
+		corners[BoxCorner::FarRightBottom] = fc - u * farH + s * farW;
 
-		corners[UnderlyingCast(BoxCorner::NearLeftBottom)]  = nc - u * nearH - s * nearW;
-		corners[UnderlyingCast(BoxCorner::NearLeftTop)]     = nc + u * nearH - s * nearW;
-		corners[UnderlyingCast(BoxCorner::NearRightTop)]    = nc + u * nearH + s * nearW;
-		corners[UnderlyingCast(BoxCorner::NearRightBottom)] = nc - u * nearH + s * nearW;
+		corners[BoxCorner::NearLeftBottom]  = nc - u * nearH - s * nearW;
+		corners[BoxCorner::NearLeftTop]     = nc + u * nearH - s * nearW;
+		corners[BoxCorner::NearRightTop]    = nc + u * nearH + s * nearW;
+		corners[BoxCorner::NearRightBottom] = nc - u * nearH + s * nearW;
 
 		// Construction of frustum's planes
-		std::array<Plane<T>, FrustumPlaneCount> planes;
-		planes[UnderlyingCast(FrustumPlane::Bottom)] = Plane(corners[UnderlyingCast(BoxCorner::NearLeftBottom)],  corners[UnderlyingCast(BoxCorner::NearRightBottom)], corners[UnderlyingCast(BoxCorner::FarRightBottom)]);
-		planes[UnderlyingCast(FrustumPlane::Far)]    = Plane(corners[UnderlyingCast(BoxCorner::FarRightTop)],     corners[UnderlyingCast(BoxCorner::FarLeftTop)],      corners[UnderlyingCast(BoxCorner::FarLeftBottom)]);
-		planes[UnderlyingCast(FrustumPlane::Left)]   = Plane(corners[UnderlyingCast(BoxCorner::NearLeftTop)],     corners[UnderlyingCast(BoxCorner::NearLeftBottom)],  corners[UnderlyingCast(BoxCorner::FarLeftBottom)]);
-		planes[UnderlyingCast(FrustumPlane::Near)]   = Plane(corners[UnderlyingCast(BoxCorner::NearLeftTop)],     corners[UnderlyingCast(BoxCorner::NearRightTop)],    corners[UnderlyingCast(BoxCorner::NearRightBottom)]);
-		planes[UnderlyingCast(FrustumPlane::Right)]  = Plane(corners[UnderlyingCast(BoxCorner::NearRightBottom)], corners[UnderlyingCast(BoxCorner::NearRightTop)],    corners[UnderlyingCast(BoxCorner::FarRightBottom)]);
-		planes[UnderlyingCast(FrustumPlane::Top)]    = Plane(corners[UnderlyingCast(BoxCorner::NearRightTop)],    corners[UnderlyingCast(BoxCorner::NearLeftTop)],     corners[UnderlyingCast(BoxCorner::FarLeftTop)]);
+
+		EnumMap<FrustumPlane, Plane<T>> planes;
+		planes[FrustumPlane::Bottom] = Plane(corners[BoxCorner::NearLeftBottom],  corners[BoxCorner::NearRightBottom], corners[BoxCorner::FarRightBottom]);
+		planes[FrustumPlane::Far]    = Plane(corners[BoxCorner::FarRightTop],     corners[BoxCorner::FarLeftTop],      corners[BoxCorner::FarLeftBottom]);
+		planes[FrustumPlane::Left]   = Plane(corners[BoxCorner::NearLeftTop],     corners[BoxCorner::NearLeftBottom],  corners[BoxCorner::FarLeftBottom]);
+		planes[FrustumPlane::Near]   = Plane(corners[BoxCorner::NearLeftTop],     corners[BoxCorner::NearRightTop],    corners[BoxCorner::NearRightBottom]);
+		planes[FrustumPlane::Right]  = Plane(corners[BoxCorner::NearRightBottom], corners[BoxCorner::NearRightTop],    corners[BoxCorner::FarRightBottom]);
+		planes[FrustumPlane::Top]    = Plane(corners[BoxCorner::NearRightTop],    corners[BoxCorner::NearLeftTop],     corners[BoxCorner::FarLeftTop]);
 
 		return Frustum(planes);
 	}
@@ -454,7 +456,7 @@ namespace Nz
 		T plane[4];
 		T invLength;
 
-		std::array<Plane<T>, FrustumPlaneCount> planes;
+		EnumMap<FrustumPlane, Plane<T>> planes;
 
 		// Extract the numbers for the RIGHT plane
 		plane[0] = viewProjMatrix[3] - viewProjMatrix[0];
@@ -469,7 +471,7 @@ namespace Nz
 		plane[2] *= invLength;
 		plane[3] *= -invLength;
 
-		planes[UnderlyingCast(FrustumPlane::Right)] = Plane<T>(plane);
+		planes[FrustumPlane::Right] = Plane<T>(plane);
 
 		// Extract the numbers for the LEFT plane
 		plane[0] = viewProjMatrix[3] + viewProjMatrix[0];
@@ -484,7 +486,7 @@ namespace Nz
 		plane[2] *= invLength;
 		plane[3] *= -invLength;
 
-		planes[UnderlyingCast(FrustumPlane::Left)] = Plane<T>(plane);
+		planes[FrustumPlane::Left] = Plane<T>(plane);
 
 		// Extract the BOTTOM plane
 		plane[0] = viewProjMatrix[3] + viewProjMatrix[1];
@@ -499,7 +501,7 @@ namespace Nz
 		plane[2] *= invLength;
 		plane[3] *= -invLength;
 
-		planes[UnderlyingCast(FrustumPlane::Bottom)] = Plane<T>(plane);
+		planes[FrustumPlane::Bottom] = Plane<T>(plane);
 
 		// Extract the TOP plane
 		plane[0] = viewProjMatrix[3] - viewProjMatrix[1];
@@ -514,7 +516,7 @@ namespace Nz
 		plane[2] *= invLength;
 		plane[3] *= -invLength;
 
-		planes[UnderlyingCast(FrustumPlane::Top)] = Plane<T>(plane);
+		planes[FrustumPlane::Top] = Plane<T>(plane);
 
 		// Extract the FAR plane
 		plane[0] = viewProjMatrix[3] - viewProjMatrix[2];
@@ -529,7 +531,7 @@ namespace Nz
 		plane[2] *= invLength;
 		plane[3] *= -invLength;
 
-		planes[UnderlyingCast(FrustumPlane::Far)] = Plane<T>(plane);
+		planes[FrustumPlane::Far] = Plane<T>(plane);
 
 		// Extract the NEAR plane
 		plane[0] = viewProjMatrix[3] + viewProjMatrix[2];
@@ -544,7 +546,7 @@ namespace Nz
 		plane[2] *= invLength;
 		plane[3] *= -invLength;
 
-		planes[UnderlyingCast(FrustumPlane::Near)] = Plane<T>(plane);
+		planes[FrustumPlane::Near] = Plane<T>(plane);
 
 		return Frustum(planes);
 	}
@@ -559,9 +561,9 @@ namespace Nz
 	template<typename T>
 	bool Serialize(SerializationContext& context, const Frustum<T>& frustum, TypeTag<Frustum<T>>)
 	{
-		for (unsigned int i = 0; i < FrustumPlaneCount; ++i)
+		for (const auto& plane : frustum.m_planes)
 		{
-			if (!Serialize(context, frustum.m_planes[i]))
+			if (!Serialize(context, plane))
 				return false;
 		}
 
@@ -578,9 +580,9 @@ namespace Nz
 	template<typename T>
 	bool Unserialize(SerializationContext& context, Frustum<T>* frustum, TypeTag<Frustum<T>>)
 	{
-		for (unsigned int i = 0; i < FrustumPlaneCount; ++i)
+		for (auto& plane : frustum->m_planes)
 		{
-			if (!Unserialize(context, &frustum->m_planes[i]))
+			if (!Unserialize(context, &plane))
 				return false;
 		}
 

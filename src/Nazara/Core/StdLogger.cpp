@@ -4,6 +4,7 @@
 
 #include <Nazara/Core/StdLogger.hpp>
 #include <Nazara/Core/Algorithm.hpp>
+#include <NazaraUtils/EnumMap.hpp>
 #include <cstdio>
 #include <Nazara/Core/Debug.hpp>
 
@@ -11,14 +12,12 @@ namespace Nz
 {
 	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
-		const char* errorType[] = {
-			"Assert failed",	// ErrorType::AssertFailed
-			"Internal error",	// ErrorType::Internal
-			"Error",		// ErrorType::Normal
-			"Warning"		// ErrorType::Warning
+		constexpr EnumMap<ErrorType, std::string_view> s_errorTypes = {
+			"Assert failed: ",  // ErrorType::AssertFailed
+			"Internal error: ", // ErrorType::Internal
+			"Error: ",          // ErrorType::Normal
+			"Warning: "         // ErrorType::Warning
 		};
-
-		static_assert(sizeof(errorType) / sizeof(const char*) == ErrorTypeCount, "Error type array is incomplete");
 	}
 
 	/*!
@@ -83,7 +82,7 @@ namespace Nz
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
-		fprintf(stderr, "%s: ", errorType[UnderlyingCast(type)]);
+		fprintf(stderr, "%s: ", s_errorTypes[type]);
 		fwrite(error.data(), sizeof(char), error.size(), stdout);
 
 		if (line != 0 && file && function)

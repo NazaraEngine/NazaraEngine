@@ -1411,7 +1411,7 @@ namespace Nz
 	{
 		NazaraAssert(IsValid(format), "invalid pixel format");
 
-		auto& flipFunction = s_flipFunctions[UnderlyingCast(format)][UnderlyingCast(flipping)];
+		auto& flipFunction = s_flipFunctions[format][flipping];
 		if (flipFunction)
 			flipFunction(width, height, depth, reinterpret_cast<const UInt8*>(src), reinterpret_cast<UInt8*>(dst));
 		else
@@ -1499,13 +1499,12 @@ namespace Nz
 
 	PixelFormat PixelFormatInfo::IdentifyFormat(const PixelFormatDescription& info)
 	{
-		for (unsigned int i = 0; i < PixelFormatCount; ++i)
+		for (auto&& [format, formatDesc] : s_pixelFormatInfos.iter_kv())
 		{
-			PixelFormatDescription& info2 = s_pixelFormatInfos[i];
-			if (info.bitsPerPixel == info2.bitsPerPixel && info.content == info2.content &&
-			    info.redMask == info2.redMask && info.greenMask == info2.greenMask && info.blueMask == info2.blueMask && info.alphaMask == info2.alphaMask &&
-			    info.redType == info2.redType && info.greenType == info2.greenType && info.blueType == info2.blueType && info.alphaType == info2.alphaType)
-				return static_cast<PixelFormat>(i);
+			if (info.bitsPerPixel == formatDesc.bitsPerPixel && info.content == formatDesc.content &&
+			    info.redMask == formatDesc.redMask && info.greenMask == formatDesc.greenMask && info.blueMask == formatDesc.blueMask && info.alphaMask == formatDesc.alphaMask &&
+			    info.redType == formatDesc.redType && info.greenType == formatDesc.greenType && info.blueType == formatDesc.blueType && info.alphaType == formatDesc.alphaType)
+				return format;
 		}
 
 		return PixelFormat::Undefined;
@@ -1517,7 +1516,7 @@ namespace Nz
 
 		auto SetupPixelFormat = [](PixelFormat format, PixelFormatDescription&& desc)
 		{
-			s_pixelFormatInfos[UnderlyingCast(format)] = std::move(desc);
+			s_pixelFormatInfos[format] = std::move(desc);
 		};
 
 		Bitset<> b8(0xFF);
@@ -1586,10 +1585,10 @@ namespace Nz
 		SetupPixelFormat(PixelFormat::Stencil8,         PixelFormatDescription("Stencil8",         PixelFormatContent::Stencil,      0xFF,               0,                  0,                  0,                  PixelFormatSubType::Unsigned));
 		SetupPixelFormat(PixelFormat::Stencil16,        PixelFormatDescription("Stencil16",        PixelFormatContent::Stencil,      0xFFFF,             0,                  0,                  0,                  PixelFormatSubType::Unsigned));
 
-		for (unsigned int i = 0; i < PixelFormatCount; ++i)
+		for (auto&& [pixelFormat, pixelFormatInfo] : s_pixelFormatInfos.iter_kv())
 		{
-			if (!s_pixelFormatInfos[i].Validate())
-				NazaraWarning("Pixel format 0x" + NumberToString(i, 16) + " (" + GetName(static_cast<Nz::PixelFormat>(i)) + ") failed validation tests");
+			if (!pixelFormatInfo.Validate())
+				NazaraWarning("Pixel format 0x" + NumberToString(UnderlyingCast(pixelFormat), 16) + " (" + std::string(GetName(pixelFormat)) + ") failed validation tests");
 		}
 
 		/***********************************A8************************************/
@@ -1824,18 +1823,19 @@ namespace Nz
 
 	void PixelFormatInfo::Uninitialize()
 	{
-		for (std::size_t i = 0; i < PixelFormatCount; ++i)
+		for (auto&& [pixelFormat, formatInfo] : s_pixelFormatInfos.iter_kv())
 		{
-			s_pixelFormatInfos[i].Clear();
-			for (std::size_t j = 0; j < PixelFormatCount; ++j)
-				s_convertFunctions[i][j] = nullptr;
+			formatInfo.Clear();
 
-			for (std::size_t j = 0; j < PixelFlippingCount; ++j)
-				s_flipFunctions[i][j] = nullptr;
+			for (auto& convertFuncs : s_convertFunctions)
+				convertFuncs.fill(nullptr);
+
+			for (auto& flipFuncs : s_flipFunctions)
+				flipFuncs.fill(nullptr);
 		}
 	}
 
-	std::array<std::array<PixelFormatInfo::ConvertFunction, PixelFormatCount>, PixelFormatCount> PixelFormatInfo::s_convertFunctions;
-	std::array<std::array<PixelFormatInfo::FlipFunction, PixelFlippingCount>, PixelFormatCount> PixelFormatInfo::s_flipFunctions;
-	std::array<PixelFormatDescription, PixelFormatCount> PixelFormatInfo::s_pixelFormatInfos;
+	EnumMap<PixelFormat, EnumMap<PixelFormat, PixelFormatInfo::ConvertFunction>> PixelFormatInfo::s_convertFunctions;
+	EnumMap<PixelFormat, EnumMap<PixelFlipping, PixelFormatInfo::FlipFunction>> PixelFormatInfo::s_flipFunctions;
+	EnumMap<PixelFormat, PixelFormatDescription> PixelFormatInfo::s_pixelFormatInfos;
 }

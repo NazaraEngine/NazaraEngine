@@ -20,7 +20,7 @@ namespace Nz
 
 	inline std::shared_ptr<Cursor>& Cursor::Get(SystemCursor cursor)
 	{
-		return s_systemCursors[UnderlyingCast(cursor)];
+		return s_systemCursors[cursor];
 	}
 }
 

@@ -134,14 +134,14 @@ namespace Nz::GL
 		force = true;
 #endif
 
-		if (m_state.bufferTargets[UnderlyingCast(target)] != buffer || force)
+		if (m_state.bufferTargets[target] != buffer || force)
 		{
 			if (!SetCurrentContext(this))
 				throw std::runtime_error("failed to activate context");
 
 			glBindBuffer(ToOpenGL(target), buffer);
 
-			m_state.bufferTargets[UnderlyingCast(target)] = buffer;
+			m_state.bufferTargets[target] = buffer;
 		}
 	}
 
@@ -248,7 +248,7 @@ namespace Nz::GL
 			unit.size = size;
 
 			// glBindBufferRange does replace the currently bound buffer
-			m_state.bufferTargets[UnderlyingCast(BufferTarget::Storage)] = buffer;
+			m_state.bufferTargets[BufferTarget::Storage] = buffer;
 		}
 	}
 
@@ -263,7 +263,7 @@ namespace Nz::GL
 			throw std::runtime_error("unsupported texture unit #" + std::to_string(textureUnit));
 
 		auto& unit = m_state.textureUnits[textureUnit];
-		if (unit.textureTargets[UnderlyingCast(target)] != texture)
+		if (unit.textureTargets[target] != texture)
 		{
 			if (!SetCurrentContext(this))
 				throw std::runtime_error("failed to activate context");
@@ -272,7 +272,7 @@ namespace Nz::GL
 
 			glBindTexture(ToOpenGL(target), texture);
 
-			unit.textureTargets[UnderlyingCast(target)] = texture;
+			unit.textureTargets[target] = texture;
 		}
 	}
 
@@ -294,7 +294,7 @@ namespace Nz::GL
 			unit.size = size;
 
 			// glBindBufferRange does replace the currently bound buffer
-			m_state.bufferTargets[UnderlyingCast(BufferTarget::Uniform)] = buffer;
+			m_state.bufferTargets[BufferTarget::Uniform] = buffer;
 		}
 	}
 
@@ -457,87 +457,87 @@ namespace Nz::GL
 
 		// Clip control
 		if (m_params.type == ContextType::OpenGL && glVersion >= 450)
-			m_extensionStatus[UnderlyingCast(Extension::ClipControl)] = ExtensionStatus::Core;
+			m_extensionStatus[Extension::ClipControl] = ExtensionStatus::Core;
 		else if (m_supportedExtensions.count("GL_ARB_clip_control"))
-			m_extensionStatus[UnderlyingCast(Extension::ClipControl)] = ExtensionStatus::ARB;
+			m_extensionStatus[Extension::ClipControl] = ExtensionStatus::ARB;
 		else if (m_supportedExtensions.count("GL_EXT_clip_control"))
-			m_extensionStatus[UnderlyingCast(Extension::ClipControl)] = ExtensionStatus::EXT;
+			m_extensionStatus[Extension::ClipControl] = ExtensionStatus::EXT;
 
 		// Compute shaders
 		if ((m_params.type == ContextType::OpenGL && glVersion >= 430) || (m_params.type == ContextType::OpenGL_ES && glVersion >= 310))
-			m_extensionStatus[UnderlyingCast(Extension::ComputeShader)] = ExtensionStatus::Core;
+			m_extensionStatus[Extension::ComputeShader] = ExtensionStatus::Core;
 		else if (m_supportedExtensions.count("GL_ARB_compute_shader"))
-			m_extensionStatus[UnderlyingCast(Extension::ComputeShader)] = ExtensionStatus::ARB;
+			m_extensionStatus[Extension::ComputeShader] = ExtensionStatus::ARB;
 
 		// Debug output
 		if ((m_params.type == ContextType::OpenGL && glVersion >= 430) || (m_params.type == ContextType::OpenGL_ES && glVersion >= 320))
-			m_extensionStatus[UnderlyingCast(Extension::DebugOutput)] = ExtensionStatus::Core;
+			m_extensionStatus[Extension::DebugOutput] = ExtensionStatus::Core;
 		else if (m_supportedExtensions.count("GL_KHR_debug"))
-			m_extensionStatus[UnderlyingCast(Extension::DebugOutput)] = ExtensionStatus::KHR;
+			m_extensionStatus[Extension::DebugOutput] = ExtensionStatus::KHR;
 		else if (m_supportedExtensions.count("GL_ARB_debug_output"))
-			m_extensionStatus[UnderlyingCast(Extension::DebugOutput)] = ExtensionStatus::ARB;
+			m_extensionStatus[Extension::DebugOutput] = ExtensionStatus::ARB;
 
 		// Depth clamp
 		if (m_params.type == ContextType::OpenGL && glVersion >= 320)
-			m_extensionStatus[UnderlyingCast(Extension::DepthClamp)] = ExtensionStatus::Core;
+			m_extensionStatus[Extension::DepthClamp] = ExtensionStatus::Core;
 		else if (m_supportedExtensions.count("GL_ARB_depth_clamp"))
-			m_extensionStatus[UnderlyingCast(Extension::DepthClamp)] = ExtensionStatus::ARB;
+			m_extensionStatus[Extension::DepthClamp] = ExtensionStatus::ARB;
 		else if (m_supportedExtensions.count("GL_EXT_depth_clamp"))
-			m_extensionStatus[UnderlyingCast(Extension::DepthClamp)] = ExtensionStatus::EXT;
+			m_extensionStatus[Extension::DepthClamp] = ExtensionStatus::EXT;
 		else if (m_supportedExtensions.count("GL_NV_depth_clamp"))
-			m_extensionStatus[UnderlyingCast(Extension::DepthClamp)] = ExtensionStatus::Vendor;
+			m_extensionStatus[Extension::DepthClamp] = ExtensionStatus::Vendor;
 
 		// Polygon mode
 		if (m_params.type == ContextType::OpenGL)
-			m_extensionStatus[UnderlyingCast(Extension::PolygonMode)] = ExtensionStatus::Core;
+			m_extensionStatus[Extension::PolygonMode] = ExtensionStatus::Core;
 		else if (m_supportedExtensions.count("GL_NV_polygon_mode"))
-			m_extensionStatus[UnderlyingCast(Extension::DepthClamp)] = ExtensionStatus::Vendor;
+			m_extensionStatus[Extension::DepthClamp] = ExtensionStatus::Vendor;
 
 		// Shader image load formatted
 		if (m_supportedExtensions.count("GL_EXT_shader_image_load_formatted"))
-			m_extensionStatus[UnderlyingCast(Extension::ShaderImageLoadFormatted)] = ExtensionStatus::EXT;
+			m_extensionStatus[Extension::ShaderImageLoadFormatted] = ExtensionStatus::EXT;
 
 		// Shader image load/store
 		if ((m_params.type == ContextType::OpenGL && glVersion >= 420) || (m_params.type == ContextType::OpenGL_ES && glVersion >= 310))
-			m_extensionStatus[UnderlyingCast(Extension::ShaderImageLoadStore)] = ExtensionStatus::Core;
+			m_extensionStatus[Extension::ShaderImageLoadStore] = ExtensionStatus::Core;
 		else if (m_supportedExtensions.count("GL_ARB_shader_image_load_store"))
-			m_extensionStatus[UnderlyingCast(Extension::ShaderImageLoadStore)] = ExtensionStatus::ARB;
+			m_extensionStatus[Extension::ShaderImageLoadStore] = ExtensionStatus::ARB;
 		else if (m_supportedExtensions.count("GL_EXT_shader_image_load_store"))
-			m_extensionStatus[UnderlyingCast(Extension::ShaderImageLoadStore)] = ExtensionStatus::EXT;
+			m_extensionStatus[Extension::ShaderImageLoadStore] = ExtensionStatus::EXT;
 
 		// SPIR-V support
 		if (m_params.type == ContextType::OpenGL && glVersion >= 460)
-			m_extensionStatus[UnderlyingCast(Extension::SpirV)] = ExtensionStatus::Core;
+			m_extensionStatus[Extension::SpirV] = ExtensionStatus::Core;
 		else if (m_supportedExtensions.count("GL_ARB_gl_spirv"))
-			m_extensionStatus[UnderlyingCast(Extension::SpirV)] = ExtensionStatus::ARB;
+			m_extensionStatus[Extension::SpirV] = ExtensionStatus::ARB;
 
 		// Storage buffers (SSBO)
 		if ((m_params.type == ContextType::OpenGL && glVersion >= 430) || (m_params.type == ContextType::OpenGL_ES && glVersion >= 310))
-			m_extensionStatus[UnderlyingCast(Extension::StorageBuffers)] = ExtensionStatus::Core;
+			m_extensionStatus[Extension::StorageBuffers] = ExtensionStatus::Core;
 		else if (m_supportedExtensions.count("GL_ARB_shader_storage_buffer_object"))
-			m_extensionStatus[UnderlyingCast(Extension::StorageBuffers)] = ExtensionStatus::ARB;
+			m_extensionStatus[Extension::StorageBuffers] = ExtensionStatus::ARB;
 
 		// Texture compression (S3tc)
 		if (m_supportedExtensions.count("GL_EXT_texture_compression_s3tc"))
-			m_extensionStatus[UnderlyingCast(Extension::TextureCompressionS3tc)] = ExtensionStatus::EXT;
+			m_extensionStatus[Extension::TextureCompressionS3tc] = ExtensionStatus::EXT;
 
 		// Texture anisotropic filter
 		if (m_params.type == ContextType::OpenGL && glVersion >= 460)
-			m_extensionStatus[UnderlyingCast(Extension::TextureFilterAnisotropic)] = ExtensionStatus::Core;
+			m_extensionStatus[Extension::TextureFilterAnisotropic] = ExtensionStatus::Core;
 		else if (m_supportedExtensions.count("GL_ARB_texture_filter_anisotropic"))
-			m_extensionStatus[UnderlyingCast(Extension::TextureFilterAnisotropic)] = ExtensionStatus::ARB;
+			m_extensionStatus[Extension::TextureFilterAnisotropic] = ExtensionStatus::ARB;
 		else if (m_supportedExtensions.count("GL_EXT_texture_filter_anisotropic"))
-			m_extensionStatus[UnderlyingCast(Extension::TextureFilterAnisotropic)] = ExtensionStatus::EXT;
+			m_extensionStatus[Extension::TextureFilterAnisotropic] = ExtensionStatus::EXT;
 
 		// Texture view
 		if (m_params.type == ContextType::OpenGL && glVersion >= 430)
-			m_extensionStatus[UnderlyingCast(Extension::TextureView)] = ExtensionStatus::Core;
+			m_extensionStatus[Extension::TextureView] = ExtensionStatus::Core;
 		else if (m_supportedExtensions.count("GL_ARB_texture_view"))
-			m_extensionStatus[UnderlyingCast(Extension::TextureView)] = ExtensionStatus::ARB;
+			m_extensionStatus[Extension::TextureView] = ExtensionStatus::ARB;
 		else if (m_supportedExtensions.count("GL_OES_texture_view"))
-			m_extensionStatus[UnderlyingCast(Extension::TextureView)] = ExtensionStatus::KHR; //< not sure about the OES => KHR mapping
+			m_extensionStatus[Extension::TextureView] = ExtensionStatus::KHR; //< not sure about the OES => KHR mapping
 		else if (m_supportedExtensions.count("GL_EXT_texture_view"))
-			m_extensionStatus[UnderlyingCast(Extension::TextureView)] = ExtensionStatus::EXT; //< not sure about the OES => KHR mapping
+			m_extensionStatus[Extension::TextureView] = ExtensionStatus::EXT; //< not sure about the OES => KHR mapping
 
 #define NAZARA_OPENGLRENDERER_FUNC(name, sig)
 #define NAZARA_OPENGLRENDERER_EXT_FUNC(name, sig) loader.Load<sig, UnderlyingCast(FunctionIndex:: name)>(name, #name, false);

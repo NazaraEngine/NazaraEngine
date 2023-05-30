@@ -54,9 +54,9 @@ namespace Nz
 			currentShaderBinding = nullptr;
 		};
 
-		const auto& depthTexture2D = Graphics::Instance()->GetDefaultTextures().depthTextures[UnderlyingCast(ImageType::E2D)];
-		const auto& depthTextureCube = Graphics::Instance()->GetDefaultTextures().depthTextures[UnderlyingCast(ImageType::Cubemap)];
-		const auto& whiteTexture2D = Graphics::Instance()->GetDefaultTextures().whiteTextures[UnderlyingCast(ImageType::E2D)];
+		const auto& depthTexture2D = Graphics::Instance()->GetDefaultTextures().depthTextures[ImageType::E2D];
+		const auto& depthTextureCube = Graphics::Instance()->GetDefaultTextures().depthTextures[ImageType::Cubemap];
+		const auto& whiteTexture2D = Graphics::Instance()->GetDefaultTextures().whiteTextures[ImageType::E2D];
 		const auto& defaultSampler = graphics->GetSamplerCache().Get({});
 
 		TextureSamplerInfo samplerInfo;

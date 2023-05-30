@@ -13,7 +13,7 @@ namespace Nz::Vk
 {
 	inline UInt32 Device::GetDefaultFamilyIndex(QueueType queueType) const
 	{
-		return m_defaultQueues[UnderlyingCast(queueType)];
+		return m_defaultQueues[queueType];
 	}
 
 	inline const std::vector<Device::QueueFamilyInfo>& Device::GetEnabledQueues() const

@@ -102,8 +102,6 @@ namespace Nz
 
 		Max = ViewerDataUbo
 	};
-
-	constexpr std::size_t PredefinedShaderBindingCount = static_cast<std::size_t>(EngineShaderBinding::Max) + 1;
 }
 
 #endif // NAZARA_GRAPHICS_ENUMS_HPP

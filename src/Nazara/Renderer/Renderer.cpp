@@ -13,6 +13,7 @@
 #include <Nazara/Utility/Image.hpp>
 #include <Nazara/Utility/Utility.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
+#include <NazaraUtils/EnumMap.hpp>
 #include <filesystem>
 #include <stdexcept>
 
@@ -116,7 +117,7 @@ namespace Nz
 #endif
 
 #else
-		constexpr std::array<const char*, RenderAPICount> rendererPaths = {
+		constexpr EnumMap<RenderAPI, const char*> rendererPaths = {
 			NazaraRendererPrefix "NazaraDirect3DRenderer" NazaraRendererDebugSuffix, // Direct3D
 			NazaraRendererPrefix "NazaraMantleRenderer"   NazaraRendererDebugSuffix, // Mantle
 			NazaraRendererPrefix "NazaraMetalRenderer"    NazaraRendererDebugSuffix, // Metal
@@ -129,7 +130,7 @@ namespace Nz
 
 		auto RegisterImpl = [&](RenderAPI api, auto ComputeScore)
 		{
-			const char* rendererName = rendererPaths[UnderlyingCast(api)];
+			const char* rendererName = rendererPaths[api];
 			assert(rendererName);
 
 			std::filesystem::path fileName(rendererName);

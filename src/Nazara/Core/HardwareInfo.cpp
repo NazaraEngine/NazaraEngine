@@ -4,6 +4,7 @@
 
 #include <Nazara/Core/HardwareInfo.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <NazaraUtils/EnumMap.hpp>
 #include <frozen/string.h>
 #include <frozen/unordered_map.h>
 #include <algorithm>
@@ -23,34 +24,34 @@ namespace Nz
 {
 	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
-		constexpr std::array s_vendorNames = {
-			std::string_view("ACRN"),                                // ProcessorVendor::ACRN
-			std::string_view("Advanced Micro Devices"),              // ProcessorVendor::AMD
-			std::string_view("ao486"),                               // ProcessorVendor::Ao486
-			std::string_view("Apple Rosetta 2"),                     // ProcessorVendor::AppleRosetta2
-			std::string_view("bhyve"),                               // ProcessorVendor::Bhyve
-			std::string_view("Centaur Technology"),                  // ProcessorVendor::Centaur
-			std::string_view("Cyrix Corporation"),                   // ProcessorVendor::Cyrix
-			std::string_view("MCST Elbrus"),                         // ProcessorVendor::Elbrus
-			std::string_view("Hygon"),                               // ProcessorVendor::Hygon
-			std::string_view("Microsoft Hyper-V"),                   // ProcessorVendor::HyperV
-			std::string_view("Intel Corporation"),                   // ProcessorVendor::Intel
-			std::string_view("Kernel-based Virtual Machine"),        // ProcessorVendor::KVM
-			std::string_view("Microsoft x86-to-ARM"),                // ProcessorVendor::MicrosoftXTA
-			std::string_view("National Semiconductor"),              // ProcessorVendor::NSC
-			std::string_view("NexGen"),                              // ProcessorVendor::NexGen
-			std::string_view("Parallels"),                           // ProcessorVendor::Parallels
-			std::string_view("QEMU"),                                // ProcessorVendor::QEMU
-			std::string_view("QNX Hypervisor"),                      // ProcessorVendor::QNX
-			std::string_view("Rise Technology"),                     // ProcessorVendor::Rise
-			std::string_view("Silicon Integrated Systems"),          // ProcessorVendor::SiS
-			std::string_view("Transmeta Corporation"),               // ProcessorVendor::Transmeta
-			std::string_view("United Microelectronics Corporation"), // ProcessorVendor::UMC
-			std::string_view("VIA Technologies"),                    // ProcessorVendor::VIA
-			std::string_view("VMware"),                              // ProcessorVendor::VMware
-			std::string_view("Vortex86"),                            // ProcessorVendor::Vortex
-			std::string_view("Xen"),                                 // ProcessorVendor::XenHVM
-			std::string_view("Zhaoxin)")                             // ProcessorVendor::Zhaoxin
+		constexpr EnumMap<ProcessorVendor, std::string_view> s_vendorNames {
+			"ACRN",                                // ProcessorVendor::ACRN
+			"Advanced Micro Devices",              // ProcessorVendor::AMD
+			"ao486",                               // ProcessorVendor::Ao486
+			"Apple Rosetta 2",                     // ProcessorVendor::AppleRosetta2
+			"bhyve",                               // ProcessorVendor::Bhyve
+			"Centaur Technology",                  // ProcessorVendor::Centaur
+			"Cyrix Corporation",                   // ProcessorVendor::Cyrix
+			"MCST Elbrus",                         // ProcessorVendor::Elbrus
+			"Hygon",                               // ProcessorVendor::Hygon
+			"Microsoft Hyper-V",                   // ProcessorVendor::HyperV
+			"Intel Corporation",                   // ProcessorVendor::Intel
+			"Kernel-based Virtual Machine",        // ProcessorVendor::KVM
+			"Microsoft x86-to-ARM",                // ProcessorVendor::MicrosoftXTA
+			"National Semiconductor",              // ProcessorVendor::NSC
+			"NexGen",                              // ProcessorVendor::NexGen
+			"Parallels",                           // ProcessorVendor::Parallels
+			"QEMU",                                // ProcessorVendor::QEMU
+			"QNX Hypervisor",                      // ProcessorVendor::QNX
+			"Rise Technology",                     // ProcessorVendor::Rise
+			"Silicon Integrated Systems",          // ProcessorVendor::SiS
+			"Transmeta Corporation",               // ProcessorVendor::Transmeta
+			"United Microelectronics Corporation", // ProcessorVendor::UMC
+			"VIA Technologies",                    // ProcessorVendor::VIA
+			"VMware",                              // ProcessorVendor::VMware
+			"Vortex86",                            // ProcessorVendor::Vortex
+			"Xen",                                 // ProcessorVendor::XenHVM
+			"Zhaoxin"                              // ProcessorVendor::Zhaoxin
 		};
 
 		static_assert(s_vendorNames.size() == ProcessorVendorCount, "Processor vendor name array is incomplete");
@@ -111,7 +112,7 @@ namespace Nz
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
-		return s_vendorNames[UnderlyingCast(m_cpuVendor)];
+		return s_vendorNames[m_cpuVendor];
 	}
 
 	void HardwareInfo::Cpuid(UInt32 functionId, UInt32 subFunctionId, UInt32 result[4])
@@ -160,18 +161,18 @@ namespace Nz
 			// Retrieval of certain capacities of the processor (ECX and EDX, function 1)
 			HardwareInfoImpl::Cpuid(1, 0, registers.data());
 
-			m_cpuCapabilities[UnderlyingCast(ProcessorCap::AES)]    = (ecx & (1U << 25)) != 0;
-			m_cpuCapabilities[UnderlyingCast(ProcessorCap::AVX)]    = (ecx & (1U << 28)) != 0;
-			m_cpuCapabilities[UnderlyingCast(ProcessorCap::FMA3)]   = (ecx & (1U << 12)) != 0;
-			m_cpuCapabilities[UnderlyingCast(ProcessorCap::MMX)]    = (edx & (1U << 23)) != 0;
-			m_cpuCapabilities[UnderlyingCast(ProcessorCap::Popcnt)] = (ecx & (1U << 23)) != 0;
-			m_cpuCapabilities[UnderlyingCast(ProcessorCap::RDRAND)] = (ecx & (1U << 30)) != 0;
-			m_cpuCapabilities[UnderlyingCast(ProcessorCap::SSE)]    = (edx & (1U << 25)) != 0;
-			m_cpuCapabilities[UnderlyingCast(ProcessorCap::SSE2)]   = (edx & (1U << 26)) != 0;
-			m_cpuCapabilities[UnderlyingCast(ProcessorCap::SSE3)]   = (ecx & (1U << 0)) != 0;
-			m_cpuCapabilities[UnderlyingCast(ProcessorCap::SSSE3)]  = (ecx & (1U << 9)) != 0;
-			m_cpuCapabilities[UnderlyingCast(ProcessorCap::SSE41)]  = (ecx & (1U << 19)) != 0;
-			m_cpuCapabilities[UnderlyingCast(ProcessorCap::SSE42)]  = (ecx & (1U << 20)) != 0;
+			m_cpuCapabilities[ProcessorCap::AES]    = (ecx & (1U << 25)) != 0;
+			m_cpuCapabilities[ProcessorCap::AVX]    = (ecx & (1U << 28)) != 0;
+			m_cpuCapabilities[ProcessorCap::FMA3]   = (ecx & (1U << 12)) != 0;
+			m_cpuCapabilities[ProcessorCap::MMX]    = (edx & (1U << 23)) != 0;
+			m_cpuCapabilities[ProcessorCap::Popcnt] = (ecx & (1U << 23)) != 0;
+			m_cpuCapabilities[ProcessorCap::RDRAND] = (ecx & (1U << 30)) != 0;
+			m_cpuCapabilities[ProcessorCap::SSE]    = (edx & (1U << 25)) != 0;
+			m_cpuCapabilities[ProcessorCap::SSE2]   = (edx & (1U << 26)) != 0;
+			m_cpuCapabilities[ProcessorCap::SSE3]   = (ecx & (1U << 0)) != 0;
+			m_cpuCapabilities[ProcessorCap::SSSE3]  = (ecx & (1U << 9)) != 0;
+			m_cpuCapabilities[ProcessorCap::SSE41]  = (ecx & (1U << 19)) != 0;
+			m_cpuCapabilities[ProcessorCap::SSE42]  = (ecx & (1U << 20)) != 0;
 		}
 
 		// Retrieval of biggest extended function handled (EAX, function 0x80000000)
@@ -183,10 +184,10 @@ namespace Nz
 			// Retrieval of extended capabilities of the processor (ECX and EDX, function 0x80000001)
 			HardwareInfoImpl::Cpuid(0x80000001, 0, registers.data());
 
-			m_cpuCapabilities[UnderlyingCast(ProcessorCap::x64)]   = (edx & (1U << 29)) != 0; // Support of 64bits, doesn't mean executable is 64bits
-			m_cpuCapabilities[UnderlyingCast(ProcessorCap::FMA4)]  = (ecx & (1U << 16)) != 0;
-			m_cpuCapabilities[UnderlyingCast(ProcessorCap::SSE4a)] = (ecx & (1U << 6)) != 0;
-			m_cpuCapabilities[UnderlyingCast(ProcessorCap::XOP)]   = (ecx & (1U << 11)) != 0;
+			m_cpuCapabilities[ProcessorCap::x64]   = (edx & (1U << 29)) != 0; // Support of 64bits, doesn't mean executable is 64bits
+			m_cpuCapabilities[ProcessorCap::FMA4]  = (ecx & (1U << 16)) != 0;
+			m_cpuCapabilities[ProcessorCap::SSE4a] = (ecx & (1U << 6)) != 0;
+			m_cpuCapabilities[ProcessorCap::XOP]   = (ecx & (1U << 11)) != 0;
 
 			if (maxSupportedExtendedFunction >= 0x80000004)
 			{

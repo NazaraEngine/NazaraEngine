@@ -10,9 +10,9 @@
 
 namespace Nz
 {
-	namespace
+	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
-		std::array<SDL_SystemCursor, SystemCursorCount> s_systemCursorIds =
+		constexpr EnumMap<SystemCursor, SDL_SystemCursor> s_systemCursorIds =
 		{
 			SDL_SYSTEM_CURSOR_CROSSHAIR, // SystemCursor::Crosshair
 			SDL_SYSTEM_CURSOR_ARROW,     // SystemCursor::Default
@@ -69,11 +69,13 @@ namespace Nz
 
 	CursorImpl::CursorImpl(SystemCursor cursor)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		ErrorFlags errFlags(ErrorMode::ThrowException);
 
 		if (cursor != SystemCursor::None)
 		{
-			m_cursor = SDL_CreateSystemCursor(s_systemCursorIds[UnderlyingCast(cursor)]);
+			m_cursor = SDL_CreateSystemCursor(s_systemCursorIds[cursor]);
 			if (!m_cursor)
 				NazaraError("failed to create SDL cursor: " + std::string(SDL_GetError()));
 		}

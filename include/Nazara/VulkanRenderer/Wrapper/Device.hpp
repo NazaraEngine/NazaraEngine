@@ -13,6 +13,7 @@
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Loader.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/PhysicalDevice.hpp>
+#include <NazaraUtils/EnumMap.hpp>
 #include <vulkan/vulkan_core.h>
 #include <array>
 #include <memory>
@@ -105,16 +106,14 @@ namespace Nz
 
 				struct InternalData;
 
-				static constexpr std::size_t QueueCount = static_cast<std::size_t>(QueueType::Max) + 1;
-
 				std::unique_ptr<InternalData> m_internalData;
-				std::array<UInt32, QueueCount> m_defaultQueues;
 				std::unordered_set<std::string> m_loadedExtensions;
 				std::unordered_set<std::string> m_loadedLayers;
 				std::vector<QueueFamilyInfo> m_enabledQueuesInfos;
 				std::vector<const QueueList*> m_queuesByFamily;
 				Instance& m_instance;
 				const Vk::PhysicalDevice* m_physicalDevice;
+				EnumMap<QueueType, UInt32> m_defaultQueues;
 				VkAllocationCallbacks m_allocator;
 				VkDevice m_device;
 				VkResult m_lastErrorCode;

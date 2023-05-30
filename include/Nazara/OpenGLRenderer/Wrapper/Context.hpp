@@ -16,6 +16,7 @@
 #include <Nazara/OpenGLRenderer/Wrapper/Loader.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
+#include <NazaraUtils/EnumMap.hpp>
 #include <array>
 #include <string>
 #include <unordered_set>
@@ -256,10 +257,10 @@ namespace Nz::GL
 				struct TextureUnit
 				{
 					GLuint sampler = 0;
-					std::array<GLuint, UnderlyingCast(TextureTarget::Max) + 1> textureTargets = { 0 };
+					EnumMap<TextureTarget, GLuint> textureTargets = { 0 };
 				};
 
-				std::array<GLuint, UnderlyingCast(BufferTarget::Max) + 1> bufferTargets = { 0 };
+				EnumMap<BufferTarget, GLuint> bufferTargets = { 0 };
 				std::vector<BufferBinding> storageUnits;
 				std::vector<BufferBinding> uboUnits;
 				std::vector<ImageUnits> imageUnits;
@@ -274,7 +275,7 @@ namespace Nz::GL
 				RenderStates renderStates;
 			};
 
-			std::array<ExtensionStatus, UnderlyingCast(Extension::Max) + 1> m_extensionStatus;
+			EnumMap<Extension, ExtensionStatus> m_extensionStatus;
 			std::array<GLFunction, UnderlyingCast(FunctionIndex::Count)> m_originalFunctionPointer;
 			mutable std::unique_ptr<BlitFramebuffers> m_blitFramebuffers;
 			std::unordered_set<std::string> m_supportedExtensions;

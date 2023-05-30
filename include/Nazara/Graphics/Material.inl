@@ -26,7 +26,7 @@ namespace Nz
 
 	inline UInt32 Material::GetEngineBindingIndex(EngineShaderBinding shaderBinding) const
 	{
-		return m_engineShaderBindings[UnderlyingCast(shaderBinding)];
+		return m_engineShaderBindings[shaderBinding];
 	}
 
 	inline const std::shared_ptr<RenderPipelineLayout>& Material::GetRenderPipelineLayout() const

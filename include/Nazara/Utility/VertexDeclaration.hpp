@@ -11,6 +11,7 @@
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
+#include <NazaraUtils/EnumMap.hpp>
 #include <NazaraUtils/SparsePtr.hpp>
 #include <array>
 #include <vector>
@@ -77,7 +78,7 @@ namespace Nz
 			std::size_t m_stride;
 			VertexInputRate m_inputRate;
 
-			static std::array<std::shared_ptr<VertexDeclaration>, VertexLayoutCount> s_declarations;
+			static EnumMap<VertexLayout, std::shared_ptr<VertexDeclaration>> s_declarations;
 	};
 }
 

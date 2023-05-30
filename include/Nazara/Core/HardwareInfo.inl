@@ -29,7 +29,7 @@ namespace Nz
 
 	inline bool HardwareInfo::HasCapability(ProcessorCap capability) const
 	{
-		return m_cpuCapabilities[UnderlyingCast(capability)];
+		return m_cpuCapabilities[capability];
 	}
 }
 

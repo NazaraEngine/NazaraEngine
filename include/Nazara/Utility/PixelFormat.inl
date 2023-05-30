@@ -197,16 +197,16 @@ namespace Nz
 			return true;
 		}
 
-		ConvertFunction func = s_convertFunctions[UnderlyingCast(srcFormat)][UnderlyingCast(dstFormat)];
+		ConvertFunction func = s_convertFunctions[srcFormat][dstFormat];
 		if (!func)
 		{
-			NazaraError("Pixel format conversion from " + GetName(srcFormat) + " to " + GetName(dstFormat) + " is not supported");
+			NazaraError("Pixel format conversion from " + std::string(GetName(srcFormat)) + " to " + std::string(GetName(dstFormat)) + " is not supported");
 			return false;
 		}
 
 		if (!func(reinterpret_cast<const UInt8*>(start), reinterpret_cast<const UInt8*>(end), reinterpret_cast<UInt8*>(dst)))
 		{
-			NazaraError("Pixel format conversion from " + GetName(srcFormat) + " to " + GetName(dstFormat) + " failed");
+			NazaraError("Pixel format conversion from " + std::string(GetName(srcFormat)) + " to " + std::string(GetName(dstFormat)) + " failed");
 			return false;
 		}
 
@@ -215,7 +215,7 @@ namespace Nz
 
 	inline UInt8 PixelFormatInfo::GetBitsPerPixel(PixelFormat format)
 	{
-		return s_pixelFormatInfos[UnderlyingCast(format)].bitsPerPixel;
+		return s_pixelFormatInfos[format].bitsPerPixel;
 	}
 
 	inline UInt8 PixelFormatInfo::GetBytesPerPixel(PixelFormat format)
@@ -225,27 +225,27 @@ namespace Nz
 
 	inline PixelFormatContent PixelFormatInfo::GetContent(PixelFormat format)
 	{
-		return s_pixelFormatInfos[UnderlyingCast(format)].content;
+		return s_pixelFormatInfos[format].content;
 	}
 
 	inline const PixelFormatDescription& PixelFormatInfo::GetInfo(PixelFormat format)
 	{
-		return s_pixelFormatInfos[UnderlyingCast(format)];
+		return s_pixelFormatInfos[format];
 	}
 
 	inline const std::string& PixelFormatInfo::GetName(PixelFormat format)
 	{
-		return s_pixelFormatInfos[UnderlyingCast(format)].name;
+		return s_pixelFormatInfos[format].name;
 	}
 
 	inline bool PixelFormatInfo::HasAlpha(PixelFormat format)
 	{
-		return s_pixelFormatInfos[UnderlyingCast(format)].alphaMask.TestAny();
+		return s_pixelFormatInfos[format].alphaMask.TestAny();
 	}
 
 	inline bool PixelFormatInfo::IsCompressed(PixelFormat format)
 	{
-		return s_pixelFormatInfos[UnderlyingCast(format)].IsCompressed();
+		return s_pixelFormatInfos[format].IsCompressed();
 	}
 
 	inline bool PixelFormatInfo::IsConversionSupported(PixelFormat srcFormat, PixelFormat dstFormat)
@@ -253,7 +253,7 @@ namespace Nz
 		if (srcFormat == dstFormat)
 			return true;
 
-		return s_convertFunctions[UnderlyingCast(srcFormat)][UnderlyingCast(dstFormat)] != nullptr;
+		return s_convertFunctions[srcFormat][dstFormat] != nullptr;
 	}
 
 	inline bool PixelFormatInfo::IsValid(PixelFormat format)
@@ -263,12 +263,12 @@ namespace Nz
 
 	inline void PixelFormatInfo::SetConvertFunction(PixelFormat srcFormat, PixelFormat dstFormat, ConvertFunction func)
 	{
-		s_convertFunctions[UnderlyingCast(srcFormat)][UnderlyingCast(dstFormat)] = func;
+		s_convertFunctions[srcFormat][dstFormat] = func;
 	}
 
 	inline void PixelFormatInfo::SetFlipFunction(PixelFlipping flipping, PixelFormat format, FlipFunction func)
 	{
-		s_flipFunctions[UnderlyingCast(flipping)][UnderlyingCast(format)] = func;
+		s_flipFunctions[format][flipping] = func;
 	}
 }
 

@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <NazaraUtils/EnumMap.hpp>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace Nz
@@ -27,22 +28,22 @@ namespace Nz
 
 	inline void DebugDrawer::DrawFrustum(const Frustumf& frustum, const Color& color)
 	{
-		std::array<Vector3f, BoxCornerCount> corners;
-		for (std::size_t i = 0; i < BoxCornerCount; ++i)
-			corners[i] = frustum.ComputeCorner(static_cast<BoxCorner>(i));
+		EnumMap<BoxCorner, Vector3f> corners;
+		for (auto&& [corner, pos] : corners.iter_kv())
+			pos = frustum.ComputeCorner(corner);
 
-		DrawLine(corners[UnderlyingCast(BoxCorner::NearLeftBottom)],  corners[UnderlyingCast(BoxCorner::NearRightBottom)], color);
-		DrawLine(corners[UnderlyingCast(BoxCorner::NearLeftBottom)],  corners[UnderlyingCast(BoxCorner::NearLeftTop)],     color);
-		DrawLine(corners[UnderlyingCast(BoxCorner::NearLeftBottom)],  corners[UnderlyingCast(BoxCorner::FarLeftBottom)],   color);
-		DrawLine(corners[UnderlyingCast(BoxCorner::FarRightTop)],     corners[UnderlyingCast(BoxCorner::FarLeftTop)],      color);
-		DrawLine(corners[UnderlyingCast(BoxCorner::FarRightTop)],     corners[UnderlyingCast(BoxCorner::FarRightBottom)],  color);
-		DrawLine(corners[UnderlyingCast(BoxCorner::FarRightTop)],     corners[UnderlyingCast(BoxCorner::NearRightTop)],    color);
-		DrawLine(corners[UnderlyingCast(BoxCorner::FarLeftBottom)],   corners[UnderlyingCast(BoxCorner::FarRightBottom)],  color);
-		DrawLine(corners[UnderlyingCast(BoxCorner::FarLeftBottom)],   corners[UnderlyingCast(BoxCorner::FarLeftTop)],      color);
-		DrawLine(corners[UnderlyingCast(BoxCorner::NearLeftTop)],     corners[UnderlyingCast(BoxCorner::NearRightTop)],    color);
-		DrawLine(corners[UnderlyingCast(BoxCorner::NearLeftTop)],     corners[UnderlyingCast(BoxCorner::FarLeftTop)],      color);
-		DrawLine(corners[UnderlyingCast(BoxCorner::NearRightBottom)], corners[UnderlyingCast(BoxCorner::NearRightTop)],    color);
-		DrawLine(corners[UnderlyingCast(BoxCorner::NearRightBottom)], corners[UnderlyingCast(BoxCorner::FarRightBottom)],  color);
+		DrawLine(corners[BoxCorner::NearLeftBottom],  corners[BoxCorner::NearRightBottom], color);
+		DrawLine(corners[BoxCorner::NearLeftBottom],  corners[BoxCorner::NearLeftTop],     color);
+		DrawLine(corners[BoxCorner::NearLeftBottom],  corners[BoxCorner::FarLeftBottom],   color);
+		DrawLine(corners[BoxCorner::FarRightTop],     corners[BoxCorner::FarLeftTop],      color);
+		DrawLine(corners[BoxCorner::FarRightTop],     corners[BoxCorner::FarRightBottom],  color);
+		DrawLine(corners[BoxCorner::FarRightTop],     corners[BoxCorner::NearRightTop],    color);
+		DrawLine(corners[BoxCorner::FarLeftBottom],   corners[BoxCorner::FarRightBottom],  color);
+		DrawLine(corners[BoxCorner::FarLeftBottom],   corners[BoxCorner::FarLeftTop],      color);
+		DrawLine(corners[BoxCorner::NearLeftTop],     corners[BoxCorner::NearRightTop],    color);
+		DrawLine(corners[BoxCorner::NearLeftTop],     corners[BoxCorner::FarLeftTop],      color);
+		DrawLine(corners[BoxCorner::NearRightBottom], corners[BoxCorner::NearRightTop],    color);
+		DrawLine(corners[BoxCorner::NearRightBottom], corners[BoxCorner::FarRightBottom],  color);
 	}
 
 	inline void DebugDrawer::DrawLine(const Vector3f& start, const Vector3f& end, const Color& color)

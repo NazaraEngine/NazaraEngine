@@ -9,6 +9,7 @@
 #include <Nazara/Network/Algorithm.hpp>
 #include <Nazara/Network/NetBuffer.hpp>
 #include <Nazara/Network/Posix/IpAddressImpl.hpp>
+#include <NazaraUtils/EnumMap.hpp>
 #include <NazaraUtils/StackArray.hpp>
 #include <cstring>
 #include <poll.h>
@@ -1016,31 +1017,29 @@ namespace Nz
 	int SocketImpl::TranslateNetProtocolToAF(NetProtocol protocol)
 	{
 		NazaraAssert(protocol <= NetProtocol::Max, "Protocol has value out of enum");
-
-		static int addressFamily[] = {
+		
+		constexpr EnumMap<NetProtocol, int> addressFamily {
 			AF_UNSPEC, //< NetProtocol::Any
 			AF_INET,   //< NetProtocol::IPv4
 			AF_INET6,  //< NetProtocol::IPv6
 			-1         //< NetProtocol::Unknown
 		};
-		static_assert(sizeof(addressFamily) / sizeof(int) == NetProtocolCount, "Address family array is incomplete");
 
-		return addressFamily[UnderlyingCast(protocol)];
+		return addressFamily[protocol];
 	}
 
 	int SocketImpl::TranslateSocketTypeToSock(SocketType type)
 	{
 		NazaraAssert(type <= SocketType::Max, "Socket type has value out of enum");
-
-		static int socketType[] = {
+		
+		constexpr EnumMap<SocketType, int> socketType {
 			SOCK_RAW,     //< SocketType::Raw
 			SOCK_STREAM,  //< SocketType::TCP
 			SOCK_DGRAM,   //< SocketType::UDP
 			-1            //< SocketType::Unknown
 		};
-		static_assert(sizeof(socketType) / sizeof(int) == SocketTypeCount, "Socket type array is incomplete");
 
-		return socketType[UnderlyingCast(type)];
+		return socketType[type];
 	}
 
 	void SocketImpl::Uninitialize()

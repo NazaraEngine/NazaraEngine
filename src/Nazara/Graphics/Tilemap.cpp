@@ -54,7 +54,7 @@ namespace Nz
 			vertexDeclaration
 		};
 
-		const auto& whiteTexture = Graphics::Instance()->GetDefaultTextures().whiteTextures[UnderlyingCast(ImageType::E2D)];
+		const auto& whiteTexture = Graphics::Instance()->GetDefaultTextures().whiteTextures[ImageType::E2D];
 
 		const VertexStruct_XYZ_Color_UV* vertices = reinterpret_cast<const VertexStruct_XYZ_Color_UV*>(m_vertices.data());
 		for (std::size_t layerIndex = 0; layerIndex < m_layers.size(); ++layerIndex)
@@ -116,11 +116,11 @@ namespace Nz
 
 	void Tilemap::UpdateVertices() const
 	{
-		std::array<Vector2f, RectCornerCount> cornerExtent;
-		cornerExtent[UnderlyingCast(RectCorner::LeftBottom)] = Vector2f(0.f, 0.f);
-		cornerExtent[UnderlyingCast(RectCorner::RightBottom)] = Vector2f(1.f, 0.f);
-		cornerExtent[UnderlyingCast(RectCorner::LeftTop)] = Vector2f(0.f, 1.f);
-		cornerExtent[UnderlyingCast(RectCorner::RightTop)] = Vector2f(1.f, 1.f);
+		EnumMap<RectCorner, Vector2f> cornerExtent;
+		cornerExtent[RectCorner::LeftBottom]  = Vector2f(0.f, 0.f);
+		cornerExtent[RectCorner::RightBottom] = Vector2f(1.f, 0.f);
+		cornerExtent[RectCorner::LeftTop]     = Vector2f(0.f, 1.f);
+		cornerExtent[RectCorner::RightTop]    = Vector2f(1.f, 1.f);
 
 		std::size_t spriteCount = 0;
 		for (const Layer& layer : m_layers)
@@ -150,7 +150,7 @@ namespace Nz
 				for (RectCorner corner : { RectCorner::LeftBottom, RectCorner::RightBottom, RectCorner::LeftTop, RectCorner::RightTop })
 				{
 					vertexPtr->color = tile.color;
-					vertexPtr->position = tileLeftBottom + Vector3f(m_tileSize * cornerExtent[UnderlyingCast(corner)] - originShift, 0.f);
+					vertexPtr->position = tileLeftBottom + Vector3f(m_tileSize * cornerExtent[corner] - originShift, 0.f);
 					vertexPtr->uv = tile.textureCoords.GetCorner(corner);
 
 					++vertexPtr;

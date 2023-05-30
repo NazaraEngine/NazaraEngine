@@ -73,10 +73,10 @@ namespace Nz
 
 	bool Cursor::Initialize()
 	{
-		for (std::size_t i = 0; i < SystemCursorCount; ++i)
+		for (auto&& [cursor, cursorPtr] : s_systemCursors.iter_kv())
 		{
-			s_systemCursors[i] = std::make_shared<Cursor>();
-			s_systemCursors[i]->Create(static_cast<SystemCursor>(i));
+			cursorPtr = std::make_shared<Cursor>();
+			cursorPtr->Create(cursor);
 		}
 
 		return true;
@@ -88,5 +88,5 @@ namespace Nz
 			cursor.reset();
 	}
 
-	std::array<std::shared_ptr<Cursor>, SystemCursorCount> Cursor::s_systemCursors;
+	EnumMap<SystemCursor, std::shared_ptr<Cursor>> Cursor::s_systemCursors;
 }

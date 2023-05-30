@@ -9,12 +9,12 @@ namespace Nz
 {
 	inline bool OpenALDevice::IsExtensionSupported(OpenALExtension extension) const
 	{
-		return m_extensionStatus[UnderlyingCast(extension)];
+		return m_extensionStatus[extension];
 	}
 
 	inline ALenum OpenALDevice::TranslateAudioFormat(AudioFormat format) const
 	{
-		return m_audioFormatValues[UnderlyingCast(format)];
+		return m_audioFormatValues[format];
 	}
 }
 

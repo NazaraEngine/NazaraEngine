@@ -78,8 +78,8 @@ namespace Nz
 
 			struct DefaultTextures
 			{
-				std::array<std::shared_ptr<Texture>, ImageTypeCount> depthTextures;
-				std::array<std::shared_ptr<Texture>, ImageTypeCount> whiteTextures;
+				EnumMap<ImageType, std::shared_ptr<Texture>> depthTextures;
+				EnumMap<ImageType, std::shared_ptr<Texture>> whiteTextures;
 			};
 
 		private:

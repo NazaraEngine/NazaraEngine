@@ -37,7 +37,7 @@ namespace Nz::GL
 
 	inline ExtensionStatus Context::GetExtensionStatus(Extension extension) const
 	{
-		return m_extensionStatus[UnderlyingCast(extension)];
+		return m_extensionStatus[extension];
 	}
 
 	inline float Context::GetFloat(GLenum name) const
