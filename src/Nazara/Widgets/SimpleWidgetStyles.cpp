@@ -10,6 +10,7 @@
 #include <Nazara/Widgets/CheckboxWidget.hpp>
 #include <Nazara/Widgets/ImageButtonWidget.hpp>
 #include <Nazara/Widgets/LabelWidget.hpp>
+#include <Nazara/Widgets/ScrollAreaWidget.hpp>
 #include <Nazara/Widgets/ScrollbarButtonWidget.hpp>
 #include <Nazara/Widgets/ScrollbarWidget.hpp>
 #include <Nazara/Widgets/Widgets.hpp>
