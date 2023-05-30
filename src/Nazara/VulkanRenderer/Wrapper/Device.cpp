@@ -28,7 +28,7 @@ namespace Nz
 			{
 			}
 
-			EnumMap<QueueType, Vk::CommandPool> commandPools;
+			EnumArray<QueueType, Vk::CommandPool> commandPools;
 			VulkanDescriptorSetLayoutCache setLayoutCache;
 		};
 

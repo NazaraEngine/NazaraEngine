@@ -97,7 +97,7 @@ namespace Nz
 			std::vector<TextureData> m_textures;
 			std::vector<UniformBlockData> m_uniformBlocks;
 			mutable std::weak_ptr<MaterialInstance> m_defaultInstance;
-			EnumMap<EngineShaderBinding, UInt32> m_engineShaderBindings;
+			EnumArray<EngineShaderBinding, UInt32> m_engineShaderBindings;
 			MaterialSettings m_settings;
 			ShaderReflection m_reflection;
 	};

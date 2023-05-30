@@ -8,7 +8,7 @@
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Network/Win32/IpAddressImpl.hpp>
-#include <NazaraUtils/EnumMap.hpp>
+#include <NazaraUtils/EnumArray.hpp>
 #include <NazaraUtils/StackArray.hpp>
 
 // Some compilers (older versions of MinGW) lack Mstcpip.h which defines some structs/defines
@@ -1000,7 +1000,7 @@ namespace Nz
 	{
 		NazaraAssert(protocol <= NetProtocol::Max, "Protocol has value out of enum");
 
-		constexpr EnumMap<NetProtocol, int> addressFamily {
+		constexpr EnumArray<NetProtocol, int> addressFamily {
 			AF_UNSPEC, //< NetProtocol::Any
 			AF_INET,   //< NetProtocol::IPv4
 			AF_INET6,  //< NetProtocol::IPv6
@@ -1014,7 +1014,7 @@ namespace Nz
 	{
 		NazaraAssert(type <= SocketType::Max, "Socket type has value out of enum");
 		
-		constexpr EnumMap<SocketType, int> socketType {
+		constexpr EnumArray<SocketType, int> socketType {
 			SOCK_RAW,     //< SocketType::Raw
 			SOCK_STREAM,  //< SocketType::TCP
 			SOCK_DGRAM,   //< SocketType::UDP

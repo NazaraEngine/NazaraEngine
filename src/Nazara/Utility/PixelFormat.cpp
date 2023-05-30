@@ -1835,7 +1835,7 @@ namespace Nz
 		}
 	}
 
-	EnumMap<PixelFormat, EnumMap<PixelFormat, PixelFormatInfo::ConvertFunction>> PixelFormatInfo::s_convertFunctions;
-	EnumMap<PixelFormat, EnumMap<PixelFlipping, PixelFormatInfo::FlipFunction>> PixelFormatInfo::s_flipFunctions;
-	EnumMap<PixelFormat, PixelFormatDescription> PixelFormatInfo::s_pixelFormatInfos;
+	EnumArray<PixelFormat, EnumArray<PixelFormat, PixelFormatInfo::ConvertFunction>> PixelFormatInfo::s_convertFunctions;
+	EnumArray<PixelFormat, EnumArray<PixelFlipping, PixelFormatInfo::FlipFunction>> PixelFormatInfo::s_flipFunctions;
+	EnumArray<PixelFormat, PixelFormatDescription> PixelFormatInfo::s_pixelFormatInfos;
 }

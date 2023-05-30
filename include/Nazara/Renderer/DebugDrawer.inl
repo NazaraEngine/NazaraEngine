@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <NazaraUtils/EnumMap.hpp>
+#include <NazaraUtils/EnumArray.hpp>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace Nz
@@ -28,7 +28,7 @@ namespace Nz
 
 	inline void DebugDrawer::DrawFrustum(const Frustumf& frustum, const Color& color)
 	{
-		EnumMap<BoxCorner, Vector3f> corners;
+		EnumArray<BoxCorner, Vector3f> corners;
 		for (auto&& [corner, pos] : corners.iter_kv())
 			pos = frustum.ComputeCorner(corner);
 

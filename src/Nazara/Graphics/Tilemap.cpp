@@ -116,7 +116,7 @@ namespace Nz
 
 	void Tilemap::UpdateVertices() const
 	{
-		EnumMap<RectCorner, Vector2f> cornerExtent;
+		EnumArray<RectCorner, Vector2f> cornerExtent;
 		cornerExtent[RectCorner::LeftBottom]  = Vector2f(0.f, 0.f);
 		cornerExtent[RectCorner::RightBottom] = Vector2f(1.f, 0.f);
 		cornerExtent[RectCorner::LeftTop]     = Vector2f(0.f, 1.f);

@@ -12,7 +12,7 @@
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <NazaraUtils/Bitset.hpp>
-#include <NazaraUtils/EnumMap.hpp>
+#include <NazaraUtils/EnumArray.hpp>
 #include <array>
 #include <functional>
 
@@ -89,9 +89,9 @@ namespace Nz
 			static bool Initialize();
 			static void Uninitialize();
 
-			static EnumMap<PixelFormat, EnumMap<PixelFormat, ConvertFunction>> s_convertFunctions;
-			static EnumMap<PixelFormat, EnumMap<PixelFlipping, FlipFunction>> s_flipFunctions;
-			static EnumMap<PixelFormat, PixelFormatDescription> s_pixelFormatInfos;
+			static EnumArray<PixelFormat, EnumArray<PixelFormat, ConvertFunction>> s_convertFunctions;
+			static EnumArray<PixelFormat, EnumArray<PixelFlipping, FlipFunction>> s_flipFunctions;
+			static EnumArray<PixelFormat, PixelFormatDescription> s_pixelFormatInfos;
 	};
 }
 

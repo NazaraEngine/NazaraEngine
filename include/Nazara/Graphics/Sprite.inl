@@ -90,7 +90,7 @@ namespace Nz
 	{
 		VertexStruct_XYZ_Color_UV* vertices = m_vertices.data();
 
-		EnumMap<RectCorner, Vector2f> cornerExtent;
+		EnumArray<RectCorner, Vector2f> cornerExtent;
 		cornerExtent[RectCorner::LeftBottom]  = Vector2f(0.f, 0.f);
 		cornerExtent[RectCorner::RightBottom] = Vector2f(1.f, 0.f);
 		cornerExtent[RectCorner::LeftTop]     = Vector2f(0.f, 1.f);

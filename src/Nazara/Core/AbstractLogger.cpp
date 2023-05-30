@@ -4,7 +4,7 @@
 
 #include <Nazara/Core/AbstractLogger.hpp>
 #include <Nazara/Core/Algorithm.hpp>
-#include <NazaraUtils/EnumMap.hpp>
+#include <NazaraUtils/EnumArray.hpp>
 #include <sstream>
 #include <Nazara/Core/Debug.hpp>
 
@@ -12,7 +12,7 @@ namespace Nz
 {
 	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
-		constexpr EnumMap<ErrorType, std::string_view> s_errorTypes = {
+		constexpr EnumArray<ErrorType, std::string_view> s_errorTypes = {
 			"Assert failed: ",  // ErrorType::AssertFailed
 			"Internal error: ", // ErrorType::Internal
 			"Error: ",          // ErrorType::Normal

@@ -4,7 +4,7 @@
 
 #include <Nazara/Core/HardwareInfo.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <NazaraUtils/EnumMap.hpp>
+#include <NazaraUtils/EnumArray.hpp>
 #include <frozen/string.h>
 #include <frozen/unordered_map.h>
 #include <algorithm>
@@ -24,7 +24,7 @@ namespace Nz
 {
 	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
-		constexpr EnumMap<ProcessorVendor, std::string_view> s_vendorNames {
+		constexpr EnumArray<ProcessorVendor, std::string_view> s_vendorNames {
 			"ACRN",                                // ProcessorVendor::ACRN
 			"Advanced Micro Devices",              // ProcessorVendor::AMD
 			"ao486",                               // ProcessorVendor::Ao486

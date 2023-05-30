@@ -12,7 +12,7 @@
 #include <Nazara/Platform/Config.hpp>
 #include <Nazara/Platform/Enums.hpp>
 #include <Nazara/Utility/Image.hpp>
-#include <NazaraUtils/EnumMap.hpp>
+#include <NazaraUtils/EnumArray.hpp>
 #include <array>
 
 namespace Nz
@@ -54,7 +54,7 @@ namespace Nz
 			SystemCursor m_systemCursor;
 			std::unique_ptr<CursorImpl> m_impl;
 
-			static EnumMap<SystemCursor, std::shared_ptr<Cursor>> s_systemCursors;
+			static EnumArray<SystemCursor, std::shared_ptr<Cursor>> s_systemCursors;
 	};
 }
 

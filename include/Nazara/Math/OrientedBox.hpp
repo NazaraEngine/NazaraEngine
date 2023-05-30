@@ -11,7 +11,7 @@
 #include <Nazara/Math/Enums.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Vector3.hpp>
-#include <NazaraUtils/EnumMap.hpp>
+#include <NazaraUtils/EnumArray.hpp>
 #include <string>
 
 namespace Nz
@@ -54,7 +54,7 @@ namespace Nz
 			Box<T> localBox;
 
 		private:
-			EnumMap<BoxCorner, Vector3<T>> m_corners;
+			EnumArray<BoxCorner, Vector3<T>> m_corners;
 	};
 
 	using OrientedBoxd = OrientedBox<double>;

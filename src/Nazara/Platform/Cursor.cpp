@@ -88,5 +88,5 @@ namespace Nz
 			cursor.reset();
 	}
 
-	EnumMap<SystemCursor, std::shared_ptr<Cursor>> Cursor::s_systemCursors;
+	EnumArray<SystemCursor, std::shared_ptr<Cursor>> Cursor::s_systemCursors;
 }

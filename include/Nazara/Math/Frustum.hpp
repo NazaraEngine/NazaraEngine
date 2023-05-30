@@ -15,7 +15,7 @@
 #include <Nazara/Math/Plane.hpp>
 #include <Nazara/Math/Sphere.hpp>
 #include <Nazara/Math/Vector3.hpp>
-#include <NazaraUtils/EnumMap.hpp>
+#include <NazaraUtils/EnumArray.hpp>
 #include <array>
 #include <string>
 
@@ -28,7 +28,7 @@ namespace Nz
 	{
 		public:
 			Frustum() = default;
-			explicit Frustum(const EnumMap<FrustumPlane, Plane<T>>& planes);
+			explicit Frustum(const EnumArray<FrustumPlane, Plane<T>>& planes);
 			template<typename U> explicit Frustum(const Frustum<U>& frustum);
 			Frustum(const Frustum& frustum) = default;
 			~Frustum() = default;
@@ -64,7 +64,7 @@ namespace Nz
 			friend bool Unserialize(SerializationContext& context, Frustum<U>* frustum, TypeTag<Frustum<U>>);
 
 		private:
-			EnumMap<FrustumPlane, Plane<T>> m_planes;
+			EnumArray<FrustumPlane, Plane<T>> m_planes;
 	};
 
 	using Frustumd = Frustum<double>;

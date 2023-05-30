@@ -13,7 +13,7 @@
 #include <Nazara/Utility/Image.hpp>
 #include <Nazara/Utility/Utility.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
-#include <NazaraUtils/EnumMap.hpp>
+#include <NazaraUtils/EnumArray.hpp>
 #include <filesystem>
 #include <stdexcept>
 
@@ -117,7 +117,7 @@ namespace Nz
 #endif
 
 #else
-		constexpr EnumMap<RenderAPI, const char*> rendererPaths = {
+		constexpr EnumArray<RenderAPI, const char*> rendererPaths = {
 			NazaraRendererPrefix "NazaraDirect3DRenderer" NazaraRendererDebugSuffix, // Direct3D
 			NazaraRendererPrefix "NazaraMantleRenderer"   NazaraRendererDebugSuffix, // Mantle
 			NazaraRendererPrefix "NazaraMetalRenderer"    NazaraRendererDebugSuffix, // Metal

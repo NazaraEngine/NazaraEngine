@@ -12,7 +12,7 @@ namespace Nz
 {
 	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
-		constexpr EnumMap<SystemCursor, SDL_SystemCursor> s_systemCursorIds =
+		constexpr EnumArray<SystemCursor, SDL_SystemCursor> s_systemCursorIds =
 		{
 			SDL_SYSTEM_CURSOR_CROSSHAIR, // SystemCursor::Crosshair
 			SDL_SYSTEM_CURSOR_ARROW,     // SystemCursor::Default

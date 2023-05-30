@@ -8,7 +8,7 @@
 
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Math/Algorithm.hpp>
-#include <NazaraUtils/EnumMap.hpp>
+#include <NazaraUtils/EnumArray.hpp>
 #include <cstring>
 #include <sstream>
 #include <Nazara/Core/Debug.hpp>
@@ -31,7 +31,7 @@ namespace Nz
 	* \param planes Frustum of type U to convert to type T
 	*/
 	template<typename T>
-	Frustum<T>::Frustum(const EnumMap<FrustumPlane, Plane<T>>& planes) :
+	Frustum<T>::Frustum(const EnumArray<FrustumPlane, Plane<T>>& planes) :
 	m_planes(planes)
 	{
 	}
@@ -419,7 +419,7 @@ namespace Nz
 		Vector3<T> fc = eye + f * zFar;
 
 		// Computing the frustum
-		EnumMap<BoxCorner, Vector3<T>> corners;
+		EnumArray<BoxCorner, Vector3<T>> corners;
 		corners[BoxCorner::FarLeftBottom]  = fc - u * farH - s * farW;
 		corners[BoxCorner::FarLeftTop]     = fc + u * farH - s * farW;
 		corners[BoxCorner::FarRightTop]    = fc + u * farH + s * farW;
@@ -432,7 +432,7 @@ namespace Nz
 
 		// Construction of frustum's planes
 
-		EnumMap<FrustumPlane, Plane<T>> planes;
+		EnumArray<FrustumPlane, Plane<T>> planes;
 		planes[FrustumPlane::Bottom] = Plane(corners[BoxCorner::NearLeftBottom],  corners[BoxCorner::NearRightBottom], corners[BoxCorner::FarRightBottom]);
 		planes[FrustumPlane::Far]    = Plane(corners[BoxCorner::FarRightTop],     corners[BoxCorner::FarLeftTop],      corners[BoxCorner::FarLeftBottom]);
 		planes[FrustumPlane::Left]   = Plane(corners[BoxCorner::NearLeftTop],     corners[BoxCorner::NearLeftBottom],  corners[BoxCorner::FarLeftBottom]);
@@ -456,7 +456,7 @@ namespace Nz
 		T plane[4];
 		T invLength;
 
-		EnumMap<FrustumPlane, Plane<T>> planes;
+		EnumArray<FrustumPlane, Plane<T>> planes;
 
 		// Extract the numbers for the RIGHT plane
 		plane[0] = viewProjMatrix[3] - viewProjMatrix[0];

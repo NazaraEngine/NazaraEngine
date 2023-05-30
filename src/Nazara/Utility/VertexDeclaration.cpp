@@ -16,7 +16,7 @@ namespace Nz
 {
 	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
-		constexpr EnumMap<ComponentType, std::size_t> s_componentStride = {
+		constexpr EnumArray<ComponentType, std::size_t> s_componentStride = {
 			4 * sizeof(float),    // ComponentType::Color
 			1 * sizeof(double),   // ComponentType::Double1
 			2 * sizeof(double),   // ComponentType::Double2
@@ -349,5 +349,5 @@ namespace Nz
 		s_declarations.fill(nullptr);
 	}
 
-	EnumMap<VertexLayout, std::shared_ptr<VertexDeclaration>> VertexDeclaration::s_declarations;
+	EnumArray<VertexLayout, std::shared_ptr<VertexDeclaration>> VertexDeclaration::s_declarations;
 }

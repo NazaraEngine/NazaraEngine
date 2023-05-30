@@ -10,7 +10,7 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Enums.hpp>
-#include <NazaraUtils/EnumMap.hpp>
+#include <NazaraUtils/EnumArray.hpp>
 #include <array>
 #include <string_view>
 
@@ -43,7 +43,7 @@ namespace Nz
 			void FetchMemoryInfo();
 
 			std::array<char, 3 * 4 * 4> m_cpuBrandString;
-			EnumMap<ProcessorCap, bool> m_cpuCapabilities;
+			EnumArray<ProcessorCap, bool> m_cpuCapabilities;
 			ProcessorVendor m_cpuVendor;
 			unsigned int m_cpuThreadCount;
 			UInt64 m_systemTotalMemory;

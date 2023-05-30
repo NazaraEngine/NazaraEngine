@@ -13,7 +13,7 @@
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Loader.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/PhysicalDevice.hpp>
-#include <NazaraUtils/EnumMap.hpp>
+#include <NazaraUtils/EnumArray.hpp>
 #include <vulkan/vulkan_core.h>
 #include <array>
 #include <memory>
@@ -113,7 +113,7 @@ namespace Nz
 				std::vector<const QueueList*> m_queuesByFamily;
 				Instance& m_instance;
 				const Vk::PhysicalDevice* m_physicalDevice;
-				EnumMap<QueueType, UInt32> m_defaultQueues;
+				EnumArray<QueueType, UInt32> m_defaultQueues;
 				VkAllocationCallbacks m_allocator;
 				VkDevice m_device;
 				VkResult m_lastErrorCode;

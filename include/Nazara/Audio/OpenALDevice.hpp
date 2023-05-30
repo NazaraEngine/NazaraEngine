@@ -15,7 +15,7 @@
 #include <Nazara/Audio/Enums.hpp>
 #include <Nazara/Audio/OpenAL.hpp>
 #include <Nazara/Core/Algorithm.hpp>
-#include <NazaraUtils/EnumMap.hpp>
+#include <NazaraUtils/EnumArray.hpp>
 #include <NazaraUtils/MovablePtr.hpp>
 #include <array>
 #include <string>
@@ -71,8 +71,8 @@ namespace Nz
 			OpenALDevice& operator=(OpenALDevice&&) = delete;
 
 		private:
-			EnumMap<AudioFormat, ALenum> m_audioFormatValues;
-			EnumMap<OpenALExtension, ALenum> m_extensionStatus;
+			EnumArray<AudioFormat, ALenum> m_audioFormatValues;
+			EnumArray<OpenALExtension, ALenum> m_extensionStatus;
 			std::string m_renderer;
 			std::string m_vendor;
 			OpenALLibrary& m_library;
