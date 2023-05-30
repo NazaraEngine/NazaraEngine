@@ -194,7 +194,7 @@ SCENARIO("ParameterList", "[CORE][PARAMETERLIST]")
 
 			THEN("We can get it back")
 			{
-				void* ptrToData;
+				void* ptrToData = nullptr; //< to stfu compiler
 
 				CHECK_NOTHROW(ptrToData = parameterList.GetUserdataParameter("userData").GetValue());
 				Data* dataPtr = static_cast<Data*>(ptrToData);

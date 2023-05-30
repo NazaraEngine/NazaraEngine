@@ -20,7 +20,7 @@ namespace Nz
 	{
 		public:
 			IndexMapper(IndexBuffer& indexBuffer, UInt32 indexCount = 0);
-			IndexMapper(SubMesh& subMes);
+			IndexMapper(SubMesh& subMesh);
 			~IndexMapper() = default;
 
 			UInt32 Get(std::size_t i) const;

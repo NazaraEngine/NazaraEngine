@@ -68,7 +68,7 @@ int main()
 		return true;
 	});
 
-	entt::handle boxEntity = world.CreateEntity();
+	entt::handle boxColliderEntity = world.CreateEntity();
 	{
 		std::shared_ptr<Nz::GraphicalMesh> boxMesh = Nz::GraphicalMesh::Build(Nz::Primitive::Box(Nz::Vector3f(BoxDims), Nz::Vector3ui::Zero(), Nz::Matrix4f::Scale(Nz::Vector3f(-1.f)), Nz::Rectf(0.f, 0.f, 2.f, 2.f)));
 
@@ -88,10 +88,10 @@ int main()
 		std::shared_ptr<Nz::Model> boxModel = std::make_shared<Nz::Model>(std::move(boxMesh));
 		boxModel->SetMaterial(0, std::move(boxMat));
 
-		auto& boxGfx = boxEntity.emplace<Nz::GraphicsComponent>();
+		auto& boxGfx = boxColliderEntity.emplace<Nz::GraphicsComponent>();
 		boxGfx.AttachRenderable(std::move(boxModel));
 
-		boxEntity.emplace<Nz::NodeComponent>();
+		boxColliderEntity.emplace<Nz::NodeComponent>();
 
 #if USE_JOLT
 		float thickness = 1.f;
@@ -128,9 +128,9 @@ int main()
 		Nz::JoltRigidBody3D::StaticSettings settings;
 		settings.geom = boxCollider;
 
-		auto& boxBody = boxEntity.emplace<Nz::JoltRigidBody3DComponent>(physSystem.CreateRigidBody(settings));
+		boxColliderEntity.emplace<Nz::JoltRigidBody3DComponent>(physSystem.CreateRigidBody(settings));
 #else
-		auto& boxBody = boxEntity.emplace<Nz::BulletRigidBody3DComponent>(physSystem.CreateRigidBody(boxCollider));
+		auto& boxBody = boxColliderEntity.emplace<Nz::BulletRigidBody3DComponent>(physSystem.CreateRigidBody(boxCollider));
 		boxBody.SetMass(0.f);
 #endif
 
@@ -186,9 +186,9 @@ int main()
 		settings.geom = sphereCollider;
 		settings.mass = 4.f / 3.f * Nz::Pi<float> * Nz::IntegralPow(radius, 3);
 
-		auto& ballPhysics = ballEntity.emplace<Nz::JoltRigidBody3DComponent>(physSystem.CreateRigidBody(settings));
+		ballEntity.emplace<Nz::JoltRigidBody3DComponent>(physSystem.CreateRigidBody(settings));
 #else
-		auto& ballPhysics = ballEntity.emplace<Nz::BulletRigidBody3DComponent>(physSystem.CreateRigidBody(sphereCollider));
+		ballEntity.emplace<Nz::BulletRigidBody3DComponent>(physSystem.CreateRigidBody(sphereCollider));
 #endif
 	}
 
@@ -434,7 +434,7 @@ int main()
 #endif
 			auto callback = [&](const decltype(lastHitInfo)& hitInfo) -> std::optional<float>
 			{
-				if (hitInfo.hitEntity == boxEntity)
+				if (hitInfo.hitEntity == boxColliderEntity)
 				{
 					Nz::Vector3f dirToCenter = Nz::Vector3f::Zero() - hitInfo.hitPosition;
 					dirToCenter.Normalize();
@@ -450,7 +450,7 @@ int main()
 
 			if (physSystem.RaycastQuery(from, to, callback))
 			{
-				if (lastHitInfo.hitBody && lastHitInfo.hitEntity != boxEntity)
+				if (lastHitInfo.hitBody && lastHitInfo.hitEntity != boxColliderEntity)
 				{
 #if USE_JOLT
 					grabConstraint.emplace(*lastHitInfo.hitBody, lastHitInfo.hitPosition);

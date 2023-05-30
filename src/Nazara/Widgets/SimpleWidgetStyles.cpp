@@ -391,15 +391,15 @@ namespace Nz
 
 
 	SimpleScrollAreaWidgetStyle::SimpleScrollAreaWidgetStyle(ScrollAreaWidget* scrollAreaWidget) :
-	ScrollAreaWidgetStyle((BaseWidget*) scrollAreaWidget, 0)
+	ScrollAreaWidgetStyle(scrollAreaWidget, 0)
 	{
 	}
 
-	void SimpleScrollAreaWidgetStyle::Layout(const Vector2f& size)
+	void SimpleScrollAreaWidgetStyle::Layout(const Vector2f& /*size*/)
 	{
 	}
 
-	void SimpleScrollAreaWidgetStyle::UpdateRenderLayer(int baseRenderLayer)
+	void SimpleScrollAreaWidgetStyle::UpdateRenderLayer(int /*baseRenderLayer*/)
 	{
 	}
 
