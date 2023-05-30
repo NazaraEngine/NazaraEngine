@@ -49,7 +49,7 @@ namespace Nz
 			NazaraUnused(dst);
 			NazaraUnused(end);
 
-			NazaraInternalError("Conversion from " + PixelFormatInfo::GetName(from) + " to " + PixelFormatInfo::GetName(to) + " is not supported");
+			NazaraInternalError("Conversion from " + std::string(PixelFormatInfo::GetName(from)) + " to " + std::string(PixelFormatInfo::GetName(to)) + " is not supported");
 			return nullptr;
 		}
 
