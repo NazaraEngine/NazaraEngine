@@ -29,18 +29,14 @@ namespace Nz
 		{
 			case ShaderLanguage::GLSL:
 			{
-				for (std::size_t i = 0; i < nzsl::ShaderStageTypeCount; ++i)
+				for (nzsl::ShaderStageType shaderStage : shaderStages)
 				{
-					nzsl::ShaderStageType shaderStage = static_cast<nzsl::ShaderStageType>(i);
-					if (shaderStages.Test(shaderStage))
-					{
-						NazaraAssert(shaderStages == shaderStage, "when supplying GLSL, only one shader stage type can be specified");
+					NazaraAssert(shaderStages == shaderStage, "when supplying GLSL, only one shader stage type can be specified");
 
-						auto& entry = m_shaders.emplace_back();
-						entry.shader = GlslShader{ std::string(reinterpret_cast<const char*>(source), std::size_t(sourceSize)) };
-						entry.stage = shaderStage;
-						break;
-					}
+					auto& entry = m_shaders.emplace_back();
+					entry.shader = GlslShader{ std::string(reinterpret_cast<const char*>(source), std::size_t(sourceSize)) };
+					entry.stage = shaderStage;
+					break;
 				}
 
 				break;
@@ -184,15 +180,11 @@ namespace Nz
 
 		nzsl::Ast::ModulePtr sanitized = nzsl::Ast::Sanitize(shaderModule, options);
 
-		for (std::size_t i = 0; i < nzsl::ShaderStageTypeCount; ++i)
+		for (nzsl::ShaderStageType shaderStage : shaderStages)
 		{
-			nzsl::ShaderStageType shaderStage = static_cast<nzsl::ShaderStageType>(i);
-			if (shaderStages.Test(shaderStage))
-			{
-				auto& entry = m_shaders.emplace_back();
-				entry.shader = ShaderStatement{ sanitized };
-				entry.stage = shaderStage;
-			}
+			auto& entry = m_shaders.emplace_back();
+			entry.shader = ShaderStatement{ sanitized };
+			entry.stage = shaderStage;
 		}
 	}
 

@@ -215,12 +215,8 @@ namespace Nz
 	inline VkAccessFlags ToVulkan(MemoryAccessFlags memoryAccessFlags)
 	{
 		VkShaderStageFlags accessBits = 0;
-		for (int i = 0; i <= UnderlyingCast(MemoryAccess::Max); ++i)
-		{
-			MemoryAccess memoryAccess = static_cast<MemoryAccess>(i);
-			if (memoryAccessFlags.Test(memoryAccess))
-				accessBits |= ToVulkan(memoryAccess);
-		}
+		for (MemoryAccess memoryAccess : memoryAccessFlags)
+			accessBits |= ToVulkan(memoryAccess);
 
 		return accessBits;
 	}
@@ -253,12 +249,8 @@ namespace Nz
 	inline VkPipelineStageFlags ToVulkan(PipelineStageFlags pipelineStages)
 	{
 		VkShaderStageFlags pipelineStageBits = 0;
-		for (int i = 0; i <= UnderlyingCast(PipelineStage::Max); ++i)
-		{
-			PipelineStage pipelineStage = static_cast<PipelineStage>(i);
-			if (pipelineStages.Test(pipelineStage))
-				pipelineStageBits |= ToVulkan(pipelineStage);
-		}
+		for (PipelineStage pipelineStage : pipelineStages)
+			pipelineStageBits |= ToVulkan(pipelineStage);
 
 		return pipelineStageBits;
 	}
@@ -415,12 +407,8 @@ namespace Nz
 	inline VkShaderStageFlags ToVulkan(nzsl::ShaderStageTypeFlags stageType)
 	{
 		VkShaderStageFlags shaderStageBits = 0;
-		for (int i = 0; i <= UnderlyingCast(nzsl::ShaderStageType::Max); ++i)
-		{
-			nzsl::ShaderStageType shaderStage = static_cast<nzsl::ShaderStageType>(i);
-			if (stageType.Test(shaderStage))
-				shaderStageBits |= ToVulkan(shaderStage);
-		}
+		for (nzsl::ShaderStageType shaderStage : stageType)
+			shaderStageBits |= ToVulkan(shaderStage);
 
 		return shaderStageBits;
 	}
@@ -482,12 +470,8 @@ namespace Nz
 	inline VkImageUsageFlags ToVulkan(TextureUsageFlags textureLayout)
 	{
 		VkImageUsageFlags imageUsageBits = 0;
-		for (int i = 0; i <= UnderlyingCast(TextureUsage::Max); ++i)
-		{
-			TextureUsage textureUsage = static_cast<TextureUsage>(i);
-			if (textureLayout.Test(textureUsage))
-				imageUsageBits |= ToVulkan(textureUsage);
-		}
+		for (TextureUsage textureUsage : textureLayout)
+			imageUsageBits |= ToVulkan(textureUsage);
 
 		return imageUsageBits;
 	}
