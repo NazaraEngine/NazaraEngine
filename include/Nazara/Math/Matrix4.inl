@@ -261,25 +261,11 @@ namespace Nz
 	* \return Vector4 which is the transformation of this axis
 	*
 	* \param column Index of the column you want
-	*
-	* \remark Produce a NazaraError if you try to access index greater than 3 with NAZARA_MATH_SAFE defined
-	* \throw std::out_of_range if NAZARA_MATH_SAFE is defined and if you try to access index greater than 3
 	*/
 	template<typename T>
-	constexpr Vector4<T> Matrix4<T>::GetColumn(unsigned int column) const
+	constexpr Vector4<T> Matrix4<T>::GetColumn(std::size_t column) const
 	{
-		///FIXME: Est-ce une bonne idée de gérer la matrice de cette façon ?
-
-		#if NAZARA_MATH_SAFE
-		if (column > 3)
-		{
-			std::string error("Column out of range: (" + std::to_string(column) + ") > 3");
-
-			NazaraError(error);
-			throw std::out_of_range(error);
-		}
-		#endif
-
+		NazaraAssert(column < 4, "column index out of range");
 		const T* ptr = &m11 + column * 4;
 		return Vector4<T>(ptr[0], ptr[1], ptr[2], ptr[3]);
 	}
@@ -647,19 +633,9 @@ namespace Nz
 	* \throw std::out_of_range if NAZARA_MATH_SAFE is defined and if you try to access index greater than 3
 	*/
 	template<typename T>
-	constexpr Vector4<T> Matrix4<T>::GetRow(unsigned int row) const
+	constexpr Vector4<T> Matrix4<T>::GetRow(std::size_t row) const
 	{
-		///FIXME: Est-ce une bonne idée de gérer la matrice de cette façon ?
-
-		#if NAZARA_MATH_SAFE
-		if (row > 3)
-		{
-			std::string error("Row out of range: (" + NumberToString(row) + ") > 3");
-
-			NazaraError(error);
-			throw std::out_of_range(error);
-		}
-		#endif
+		NazaraAssert(column < 4, "column index out of range");
 
 		const T* ptr = &m11;
 		return Vector4<T>(ptr[row], ptr[row+4], ptr[row+8], ptr[row+12]);

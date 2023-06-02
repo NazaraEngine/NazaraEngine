@@ -49,13 +49,13 @@ namespace Nz
 			constexpr Matrix4& Concatenate(const Matrix4& matrix);
 			constexpr Matrix4& ConcatenateTransform(const Matrix4& matrix);
 
-			constexpr Vector4<T> GetColumn(unsigned int column) const;
+			constexpr Vector4<T> GetColumn(std::size_t column) const;
 			constexpr T GetDeterminant() const;
 			constexpr T GetDeterminantTransform() const;
 			constexpr bool GetInverse(Matrix4* dest) const;
 			constexpr bool GetInverseTransform(Matrix4* dest) const;
 			Quaternion<T> GetRotation() const;
-			constexpr Vector4<T> GetRow(unsigned int row) const;
+			constexpr Vector4<T> GetRow(std::size_t row) const;
 			constexpr Vector3<T> GetScale() const;
 			constexpr Vector3<T> GetSquaredScale() const;
 			constexpr Vector3<T> GetTranslation() const;
