@@ -635,7 +635,7 @@ namespace Nz
 	template<typename T>
 	constexpr Vector4<T> Matrix4<T>::GetRow(std::size_t row) const
 	{
-		NazaraAssert(column < 4, "column index out of range");
+		NazaraAssert(row < 4, "row index out of range");
 
 		const T* ptr = &m11;
 		return Vector4<T>(ptr[row], ptr[row+4], ptr[row+8], ptr[row+12]);
