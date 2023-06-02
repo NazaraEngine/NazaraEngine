@@ -24,84 +24,75 @@ namespace Nz
 	class Vector2
 	{
 		public:
-			Vector2() = default;
-			Vector2(T X, T Y);
-			explicit Vector2(T scale);
-			template<typename U> explicit Vector2(const Vector2<U>& vec);
-			Vector2(const Vector2& vec) = default;
-			explicit Vector2(const Vector3<T>& vec);
-			explicit Vector2(const Vector4<T>& vec);
+			constexpr Vector2() = default;
+			constexpr Vector2(T X, T Y);
+			constexpr explicit Vector2(T scale);
+			template<typename U> constexpr explicit Vector2(const Vector2<U>& vec);
+			constexpr Vector2(const Vector2&) = default;
+			constexpr Vector2(Vector2&&) = default;
+			constexpr explicit Vector2(const Vector3<T>& vec);
+			constexpr explicit Vector2(const Vector4<T>& vec);
 			~Vector2() = default;
 
 			T AbsDotProduct(const Vector2& vec) const;
 			RadianAngle<T> AngleBetween(const Vector2& vec) const;
+			constexpr bool ApproxEqual(const Vector2& vec, T maxDifference = std::numeric_limits<T>::epsilon()) const;
 
-			template<typename U = T>
-			U Distance(const Vector2& vec) const;
-			T DotProduct(const Vector2& vec) const;
+			template<typename U = T> U Distance(const Vector2& vec) const;
+			constexpr T DotProduct(const Vector2& vec) const;
 
-			T GetLength() const;
-			float GetLengthf() const;
+			template<typename U = T> T GetLength() const;
 			Vector2 GetNormal(T* length = nullptr) const;
-			T GetSquaredLength() const;
+			constexpr T GetSquaredLength() const;
 
-			Vector2& MakeUnit();
-			Vector2& MakeUnitX();
-			Vector2& MakeUnitY();
-			Vector2& MakeZero();
-
-			Vector2& Maximize(const Vector2& vec);
-			Vector2& Minimize(const Vector2& vec);
+			constexpr Vector2& Maximize(const Vector2& vec);
+			constexpr Vector2& Minimize(const Vector2& vec);
 
 			Vector2& Normalize(T* length = nullptr);
 
-			Vector2& Set(T X, T Y);
-			Vector2& Set(T scale);
-			Vector2& Set(const T* vec);
-			Vector2& Set(const Vector3<T>& vec);
-			Vector2& Set(const Vector4<T>& vec);
-			template<typename U> Vector2& Set(const Vector2<U>& vec);
-
-			T SquaredDistance(const Vector2& vec) const;
+			constexpr T SquaredDistance(const Vector2& vec) const;
 
 			std::string ToString() const;
 
-			T& operator[](std::size_t i);
-			T operator[](std::size_t i) const;
+			constexpr T& operator[](std::size_t i);
+			constexpr T operator[](std::size_t i) const;
 
-			const Vector2& operator+() const;
-			Vector2 operator-() const;
+			constexpr const Vector2& operator+() const;
+			constexpr Vector2 operator-() const;
 
-			Vector2 operator+(const Vector2& vec) const;
-			Vector2 operator-(const Vector2& vec) const;
-			Vector2 operator*(const Vector2& vec) const;
-			Vector2 operator*(T scale) const;
-			Vector2 operator/(const Vector2& vec) const;
-			Vector2 operator/(T scale) const;
-			Vector2& operator=(const Vector2& other) = default;
+			constexpr Vector2 operator+(const Vector2& vec) const;
+			constexpr Vector2 operator-(const Vector2& vec) const;
+			constexpr Vector2 operator*(const Vector2& vec) const;
+			constexpr Vector2 operator*(T scale) const;
+			constexpr Vector2 operator/(const Vector2& vec) const;
+			constexpr Vector2 operator/(T scale) const;
 
-			Vector2& operator+=(const Vector2& vec);
-			Vector2& operator-=(const Vector2& vec);
-			Vector2& operator*=(const Vector2& vec);
-			Vector2& operator*=(T scale);
-			Vector2& operator/=(const Vector2& vec);
-			Vector2& operator/=(T scale);
+			constexpr Vector2& operator=(const Vector2&) = default;
+			constexpr Vector2& operator=(Vector2&&) = default;
 
-			bool operator==(const Vector2& vec) const;
-			bool operator!=(const Vector2& vec) const;
-			bool operator<(const Vector2& vec) const;
-			bool operator<=(const Vector2& vec) const;
-			bool operator>(const Vector2& vec) const;
-			bool operator>=(const Vector2& vec) const;
+			constexpr Vector2& operator+=(const Vector2& vec);
+			constexpr Vector2& operator-=(const Vector2& vec);
+			constexpr Vector2& operator*=(const Vector2& vec);
+			constexpr Vector2& operator*=(T scale);
+			constexpr Vector2& operator/=(const Vector2& vec);
+			constexpr Vector2& operator/=(T scale);
 
+			constexpr bool operator==(const Vector2& vec) const;
+			constexpr bool operator!=(const Vector2& vec) const;
+			constexpr bool operator<(const Vector2& vec) const;
+			constexpr bool operator<=(const Vector2& vec) const;
+			constexpr bool operator>(const Vector2& vec) const;
+			constexpr bool operator>=(const Vector2& vec) const;
+
+			static constexpr bool ApproxEqual(const Vector2& lhs, const Vector2& rhs, T maxDifference = std::numeric_limits<T>::epsilon());
 			template<typename U = T> static U Distance(const Vector2& vec1, const Vector2& vec2);
-			static T DotProduct(const Vector2& vec1, const Vector2& vec2);
-			static Vector2 Lerp(const Vector2& from, const Vector2& to, T interpolation);
+			static constexpr T DotProduct(const Vector2& vec1, const Vector2& vec2);
+			static constexpr Vector2 Lerp(const Vector2& from, const Vector2& to, T interpolation);
 			static Vector2 Normalize(const Vector2& vec);
-			static Vector2 Unit();
-			static Vector2 UnitX();
-			static Vector2 UnitY();
-			static Vector2 Zero();
+			static constexpr Vector2 Unit();
+			static constexpr Vector2 UnitX();
+			static constexpr Vector2 UnitY();
+			static constexpr Vector2 Zero();
 
 			T x, y;
 	};
@@ -120,8 +111,8 @@ namespace Nz
 
 	template<typename T> std::ostream& operator<<(std::ostream& out, const Vector2<T>& vec);
 
-	template<typename T> Vector2<T> operator*(T scale, const Nz::Vector2<T>& vec);
-	template<typename T> Vector2<T> operator/(T scale, const Nz::Vector2<T>& vec);
+	template<typename T> constexpr Vector2<T> operator*(T scale, const Nz::Vector2<T>& vec);
+	template<typename T> constexpr Vector2<T> operator/(T scale, const Nz::Vector2<T>& vec);
 }
 
 namespace std

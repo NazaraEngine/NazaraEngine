@@ -29,11 +29,12 @@ namespace Nz
 	* \param Y Yaw component = Y axis
 	* \param R Roll component = Z axis
 	*/
-
 	template<typename T>
-	EulerAngles<T>::EulerAngles(DegreeAngle<T> P, DegreeAngle<T> Y, DegreeAngle<T> R)
+	constexpr EulerAngles<T>::EulerAngles(DegreeAngle<T> P, DegreeAngle<T> Y, DegreeAngle<T> R) :
+	pitch(P),
+	yaw(Y),
+	roll(R)
 	{
-		Set(P, Y, R);
 	}
 
 	/*!
@@ -41,11 +42,10 @@ namespace Nz
 	*
 	* \param angles[3] angles[0] is pitch component, angles[1] is yaw component and angles[2] is roll component
 	*/
-
 	template<typename T>
-	EulerAngles<T>::EulerAngles(const DegreeAngle<T> angles[3])
+	constexpr EulerAngles<T>::EulerAngles(const DegreeAngle<T> angles[3]) :
+	EulerAngles(angles[0], angles[1], angles[2])
 	{
-		Set(angles);
 	}
 
 	/*!
@@ -55,9 +55,9 @@ namespace Nz
 	*/
 	template<typename T>
 	template<AngleUnit Unit>
-	EulerAngles<T>::EulerAngles(const Angle<Unit, T>& angle)
+	constexpr EulerAngles<T>::EulerAngles(const Angle<Unit, T>& angle) :
+	EulerAngles(angle.ToEulerAngles())
 	{
-		Set(angle);
 	}
 
 	/*!
@@ -66,9 +66,9 @@ namespace Nz
 	* \param quat Quaternion representing a rotation of space
 	*/
 	template<typename T>
-	EulerAngles<T>::EulerAngles(const Quaternion<T>& quat)
+	constexpr EulerAngles<T>::EulerAngles(const Quaternion<T>& quat) :
+	EulerAngles(quat.ToEulerAngles())
 	{
-		Set(quat);
 	}
 
 	/*!
@@ -79,21 +79,17 @@ namespace Nz
 
 	template<typename T>
 	template<typename U>
-	EulerAngles<T>::EulerAngles(const EulerAngles<U>& angles)
+	constexpr EulerAngles<T>::EulerAngles(const EulerAngles<U>& angles) :
+	pitch(DegreeAngle<T>(angles.pitch)),
+	yaw(DegreeAngle<T>(angles.yaw)),
+	roll(DegreeAngle<T>(angles.roll))
 	{
-		Set(angles);
 	}
 
-	/*!
-	* \brief Makes the euler angle (0, 0, 0)
-	*
-	* \see Zero
-	*/
-
 	template<typename T>
-	void EulerAngles<T>::MakeZero()
+	constexpr bool EulerAngles<T>::ApproxEqual(const EulerAngles& angles, T maxDifference) const
 	{
-		Set(T(0.0), T(0.0), T(0.0));
+		return pitch.ApproxEqual(angles.pitch, maxDifference) && yaw.ApproxEqual(angles.yaw, maxDifference) && roll.ApproxEqual(angles.roll, maxDifference);
 	}
 
 	/*!
@@ -102,9 +98,8 @@ namespace Nz
 	*
 	* \see NormalizeAngle
 	*/
-
 	template<typename T>
-	EulerAngles<T>& EulerAngles<T>::Normalize()
+	constexpr EulerAngles<T>& EulerAngles<T>::Normalize()
 	{
 		pitch.Normalize();
 		yaw.Normalize();
@@ -114,93 +109,9 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets the components of the euler angle
-	* \return A reference to this euler angle
-	*
-	* \param P Pitch component = X axis
-	* \param Y Yaw component = Y axis
-	* \param R Roll component = Z axis
-	*/
-
-	template<typename T>
-	EulerAngles<T>& EulerAngles<T>::Set(DegreeAngle<T> P, DegreeAngle<T> Y, DegreeAngle<T> R)
-	{
-		pitch = P;
-		yaw = Y;
-		roll = R;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the euler angle from an array of three elements
-	* \return A reference to this euler angle
-	*
-	* \param angles[3] angles[0] is pitch component, angles[1] is yaw component and angles[2] is roll component
-	*/
-
-	template<typename T>
-	EulerAngles<T>& EulerAngles<T>::Set(const DegreeAngle<T> angles[3])
-	{
-		pitch = angles[0];
-		yaw = angles[1];
-		roll = angles[2];
-
-		return *this;
-	}
-
-
-	/*!
-	* \brief Sets the components of the euler angle from a 2D rotation specified by an Angle
-	* \return A reference to this euler angle
-	*
-	* \param angle 2D angle
-	*
-	* \see Angle
-	*/
-	template<typename T>
-	template<AngleUnit Unit>
-	EulerAngles<T>& EulerAngles<T>::Set(const Angle<Unit, T>& angle)
-	{
-		return Set(angle.ToEulerAngles());
-	}
-
-	/*!
-	* \brief Sets the components of the euler angle from a quaternion
-	* \return A reference to this euler angle
-	*
-	* \param quat Quaternion representing a rotation of space
-	*/
-
-	template<typename T>
-	EulerAngles<T>& EulerAngles<T>::Set(const Quaternion<T>& quat)
-	{
-		return Set(quat.ToEulerAngles());
-	}
-
-	/*!
-	* \brief Sets the components of the euler angle from another type of EulerAngles
-	* \return A reference to this euler angle
-	*
-	* \param angles EulerAngles of type U to convert its components
-	*/
-
-	template<typename T>
-	template<typename U>
-	EulerAngles<T>& EulerAngles<T>::Set(const EulerAngles<U>& angles)
-	{
-		pitch.Set(angles.pitch);
-		yaw.Set(angles.yaw);
-		roll.Set(angles.roll);
-
-		return *this;
-	}
-
-	/*!
 	* \brief Converts the euler angle to quaternion
 	* \return A Quaternion which represents the rotation of this euler angle
 	*/
-
 	template<typename T>
 	Quaternion<T> EulerAngles<T>::ToQuaternion() const
 	{
@@ -223,7 +134,6 @@ namespace Nz
 	* \brief Gives a string representation
 	* \return A string representation of the object: "EulerAngles(pitch, yaw, roll)"
 	*/
-
 	template<typename T>
 	std::string EulerAngles<T>::ToString() const
 	{
@@ -239,9 +149,8 @@ namespace Nz
 	*
 	* \param angles The other euler angle to add components with
 	*/
-
 	template<typename T>
-	EulerAngles<T> EulerAngles<T>::operator+(const EulerAngles& angles) const
+	constexpr EulerAngles<T> EulerAngles<T>::operator+(const EulerAngles& angles) const
 	{
 		return EulerAngles(pitch + angles.pitch,
 		                   yaw + angles.yaw,
@@ -254,9 +163,8 @@ namespace Nz
 	*
 	* \param angles The other euler angle to substract components with
 	*/
-
 	template<typename T>
-	EulerAngles<T> EulerAngles<T>::operator-(const EulerAngles& angles) const
+	constexpr EulerAngles<T> EulerAngles<T>::operator-(const EulerAngles& angles) const
 	{
 		return EulerAngles(pitch - angles.pitch,
 		                   yaw - angles.yaw,
@@ -269,9 +177,8 @@ namespace Nz
 	*
 	* \param angles The other euler angle to add components with
 	*/
-
 	template<typename T>
-	EulerAngles<T>& EulerAngles<T>::operator+=(const EulerAngles& angles)
+	constexpr EulerAngles<T>& EulerAngles<T>::operator+=(const EulerAngles& angles)
 	{
 		pitch += angles.pitch;
 		yaw += angles.yaw;
@@ -286,9 +193,8 @@ namespace Nz
 	*
 	* \param angles The other euler angle to substract components with
 	*/
-
 	template<typename T>
-	EulerAngles<T>& EulerAngles<T>::operator-=(const EulerAngles& angles)
+	constexpr EulerAngles<T>& EulerAngles<T>::operator-=(const EulerAngles& angles)
 	{
 		pitch -= angles.pitch;
 		yaw -= angles.yaw;
@@ -303,9 +209,8 @@ namespace Nz
 	*
 	* \param angles Other euler angle to compare with
 	*/
-
 	template<typename T>
-	bool EulerAngles<T>::operator==(const EulerAngles& angles) const
+	constexpr bool EulerAngles<T>::operator==(const EulerAngles& angles) const
 	{
 		return pitch == angles.pitch && yaw == angles.yaw && roll == angles.roll;
 	}
@@ -316,27 +221,74 @@ namespace Nz
 	*
 	* \param angles Other euler angle to compare with
 	*/
-
 	template<typename T>
-	bool EulerAngles<T>::operator!=(const EulerAngles& angles) const
+	constexpr bool EulerAngles<T>::operator!=(const EulerAngles& angles) const
 	{
 		return !operator==(angles);
+	}
+
+	template<typename T>
+	constexpr bool EulerAngles<T>::operator<(const EulerAngles& angles) const
+	{
+		if (pitch != angles.pitch)
+			return pitch < angles.pitch;
+
+		if (yaw != angles.yaw)
+			return yaw < angles.yaw;
+
+		return roll < angles.roll;
+	}
+
+	template<typename T>
+	constexpr bool EulerAngles<T>::operator<=(const EulerAngles& angles) const
+	{
+		if (pitch != angles.pitch)
+			return pitch < angles.pitch;
+
+		if (yaw != angles.yaw)
+			return yaw < angles.yaw;
+
+		return roll <= angles.roll;
+	}
+
+	template<typename T>
+	constexpr bool EulerAngles<T>::operator>(const EulerAngles& angles) const
+	{
+		if (pitch != angles.pitch)
+			return pitch > angles.pitch;
+
+		if (yaw != angles.yaw)
+			return yaw > angles.yaw;
+
+		return roll > angles.roll;
+	}
+
+	template<typename T>
+	constexpr bool EulerAngles<T>::operator>=(const EulerAngles& angles) const
+	{
+		if (pitch != angles.pitch)
+			return pitch > angles.pitch;
+
+		if (yaw != angles.yaw)
+			return yaw > angles.yaw;
+
+		return roll >= angles.roll;
+	}
+
+	template<typename T>
+	constexpr bool EulerAngles<T>::ApproxEqual(const EulerAngles& lhs, const EulerAngles& rhs, T maxDifference)
+	{
+		return lhs.ApproxEqual(rhs, maxDifference);
 	}
 
 	/*!
 	* \brief Shorthand for the euler angle (0, 0, 0)
 	* \return A euler angle with components (0, 0, 0)
-	*
-	* \see MakeZero
 	*/
-
 	template<typename T>
-	EulerAngles<T> EulerAngles<T>::Zero()
+	constexpr EulerAngles<T> EulerAngles<T>::Zero()
 	{
-		EulerAngles angles;
-		angles.MakeZero();
-
-		return angles;
+		return EulerAngles(0, 0, 0);
 	}
 
 	/*!

@@ -7,7 +7,7 @@
 namespace Nz
 {
 	template<typename T>
-	PidController<T>::PidController(float p, float i, float d) :
+	constexpr PidController<T>::PidController(float p, float i, float d) :
 	m_lastError(0),
 	m_integral(0),
 	m_dFactor(d),
@@ -17,7 +17,7 @@ namespace Nz
 	}
 
 	template<typename T>
-	T PidController<T>::Update(const T& currentError, float elapsedTime)
+	constexpr T PidController<T>::Update(const T& currentError, float elapsedTime)
 	{
 		m_integral += currentError * elapsedTime;
 		T deriv = (currentError - m_lastError) / elapsedTime;

@@ -56,8 +56,8 @@ namespace Nz
 		textDrawer.Clear();
 		UpdateTextSprite();
 
-		m_cursorPositionBegin.MakeZero();
-		m_cursorPositionEnd.MakeZero();
+		m_cursorPositionBegin = Vector2ui::Zero();
+		m_cursorPositionEnd = Vector2ui::Zero();
 
 		RefreshCursor();
 	}

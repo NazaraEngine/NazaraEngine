@@ -10,7 +10,7 @@ namespace Nz
 {
 	namespace
 	{
-		const unsigned int s_guillotineAtlasStartSize = 512;
+		constexpr Vector2ui s_guillotineAtlasStartSize(512);
 	}
 
 	GuillotineImageAtlas::GuillotineImageAtlas() :
@@ -119,7 +119,7 @@ namespace Nz
 				// Dernière couche, et le glyphe ne rentre pas, peut-on agrandir la taille de l'image ?
 				Vector2ui newSize = layer.binPack.GetSize()*2;
 				if (newSize == Vector2ui::Zero())
-					newSize.Set(s_guillotineAtlasStartSize);
+					newSize = s_guillotineAtlasStartSize;
 
 				// Limit image atlas size to prevent allocating too much contiguous memory blocks
 				if (newSize.x <= m_maxLayerSize && newSize.y <= m_maxLayerSize && ResizeLayer(layer, newSize))
@@ -133,7 +133,7 @@ namespace Nz
 				else
 				{
 					// On ne peut plus agrandir la dernière couche, il est temps d'en créer une nouvelle
-					newSize.Set(s_guillotineAtlasStartSize);
+					newSize = s_guillotineAtlasStartSize;
 
 					Layer newLayer;
 					if (!ResizeLayer(newLayer, newSize))

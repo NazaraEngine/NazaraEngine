@@ -45,7 +45,7 @@ namespace Nz
 
 				StackArray<Vector2f> nVertices = NazaraStackArray(Vector2f, vertexCount);
 				for (int i = 0; i < vertexCount; ++i)
-					nVertices[i].Set(float(vertices[i].x), float(vertices[i].y));
+					nVertices[i] = Vector2f(float(vertices[i].x), float(vertices[i].y));
 
 				drawOptions->polygonCallback(nVertices.data(), vertexCount, float(radius), CpDebugColorToColor(outlineColor), CpDebugColorToColor(fillColor), drawOptions->userdata);
 			}
@@ -184,9 +184,9 @@ namespace Nz
 
 			if (cpSpacePointQueryNearest(m_handle, { from.x, from.y }, maxDistance, filter, &queryInfo))
 			{
-				result->closestPoint.Set(Vector2<cpFloat>(queryInfo.point.x, queryInfo.point.y));
+				result->closestPoint = Vector2f(Vector2<cpFloat>(queryInfo.point.x, queryInfo.point.y));
 				result->distance = float(queryInfo.distance);
-				result->fraction.Set(Vector2<cpFloat>(queryInfo.gradient.x, queryInfo.gradient.y));
+				result->fraction = Vector2f(Vector2<cpFloat>(queryInfo.gradient.x, queryInfo.gradient.y));
 				result->nearestBody = static_cast<ChipmunkRigidBody2D*>(cpShapeGetUserData(queryInfo.shape));
 
 				return true;
@@ -213,8 +213,8 @@ namespace Nz
 
 			RaycastHit hitInfo;
 			hitInfo.fraction = float(alpha);
-			hitInfo.hitNormal.Set(Vector2<cpFloat>(normal.x, normal.y));
-			hitInfo.hitPos.Set(Vector2<cpFloat>(point.x, point.y));
+			hitInfo.hitNormal = Vector2f(Vector2<cpFloat>(normal.x, normal.y));
+			hitInfo.hitPos = Vector2f(Vector2<cpFloat>(point.x, point.y));
 			hitInfo.nearestBody = static_cast<ChipmunkRigidBody2D*>(cpShapeGetUserData(shape));
 
 			callback(hitInfo);
@@ -234,8 +234,8 @@ namespace Nz
 
 			RaycastHit hitInfo;
 			hitInfo.fraction = float(alpha);
-			hitInfo.hitNormal.Set(Vector2<cpFloat>(normal.x, normal.y));
-			hitInfo.hitPos.Set(Vector2<cpFloat>(point.x, point.y));
+			hitInfo.hitNormal = Vector2f(Vector2<cpFloat>(normal.x, normal.y));
+			hitInfo.hitPos = Vector2f(Vector2<cpFloat>(point.x, point.y));
 			hitInfo.nearestBody = static_cast<ChipmunkRigidBody2D*>(cpShapeGetUserData(shape));
 
 			results->emplace_back(std::move(hitInfo));
@@ -260,8 +260,8 @@ namespace Nz
 			if (cpSpaceSegmentQueryFirst(m_handle, { from.x, from.y }, { to.x, to.y }, radius, filter, &queryInfo))
 			{
 				hitInfo->fraction = float(queryInfo.alpha);
-				hitInfo->hitNormal.Set(Vector2<cpFloat>(queryInfo.normal.x, queryInfo.normal.y));
-				hitInfo->hitPos.Set(Vector2<cpFloat>(queryInfo.point.x, queryInfo.point.y));
+				hitInfo->hitNormal = Vector2f(Vector2<cpFloat>(queryInfo.normal.x, queryInfo.normal.y));
+				hitInfo->hitPos = Vector2f(Vector2<cpFloat>(queryInfo.point.x, queryInfo.point.y));
 				hitInfo->nearestBody = static_cast<ChipmunkRigidBody2D*>(cpShapeGetUserData(queryInfo.shape));
 
 				return true;

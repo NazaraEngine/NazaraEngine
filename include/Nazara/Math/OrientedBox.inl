@@ -25,9 +25,8 @@ namespace Nz
 	*
 	* \param box Box<T> object
 	*/
-
 	template<typename T>
-	OrientedBox<T>::OrientedBox(const Box<T>& box) :
+	constexpr OrientedBox<T>::OrientedBox(const Box<T>& box) :
 	localBox(box)
 	{
 	}
@@ -37,14 +36,28 @@ namespace Nz
 	*
 	* \param orientedBox OrientedBox of type U to convert to type T
 	*/
-
 	template<typename T>
 	template<typename U>
-	OrientedBox<T>::OrientedBox(const OrientedBox<U>& orientedBox) :
+	constexpr OrientedBox<T>::OrientedBox(const OrientedBox<U>& orientedBox) :
 	localBox(orientedBox.localBox)
 	{
 		for (auto&& [cornerEnum, corner] : m_corners.iter_kv())
 			corner = Vector3<T>(orientedBox.GetCorner(cornerEnum));
+	}
+
+	template<typename T>
+	constexpr bool OrientedBox<T>::ApproxEqual(const OrientedBox& obb, T maxDifference) const
+	{
+		if (!localBox.ApproxEqual(obb.localBox, maxDifference))
+			return false;
+
+		for (auto&& [cornerEnum, corner] : m_corners.iter_kv())
+		{
+			if (!corner.ApproxEqual(obb.GetCorner(cornerEnum), maxDifference))
+				return false;
+		}
+
+		return true;
 	}
 
 	/*!
@@ -55,16 +68,15 @@ namespace Nz
 	*
 	* \remark If enumeration is not defined in BoxCorner, a NazaraError is thrown and a Vector3 uninitialised is returned
 	*/
-
 	template<typename T>
-	const Vector3<T>& OrientedBox<T>::GetCorner(BoxCorner corner) const
+	constexpr const Vector3<T>& OrientedBox<T>::GetCorner(BoxCorner corner) const
 	{
 		NazaraAssert(corner <= BoxCorner::Max, "invalid corner");
 		return m_corners[corner];
 	}
 
 	template<typename T>
-	const Vector3<T>* OrientedBox<T>::GetCorners() const
+	constexpr const Vector3<T>* OrientedBox<T>::GetCorners() const
 	{
 		return &m_corners.front();
 	}
@@ -73,9 +85,8 @@ namespace Nz
 	* \brief Checks whether this oriented box is valid
 	* \return true if the oriented box has a strictly positive width, height and depth
 	*/
-
 	template<typename T>
-	bool OrientedBox<T>::IsValid() const
+	constexpr bool OrientedBox<T>::IsValid() const
 	{
 		return localBox.IsValid();
 	}
@@ -84,7 +95,6 @@ namespace Nz
 	* \brief Gives a string representation
 	* \return A string representation of the object: "OrientedBox(...)"
 	*/
-
 	template<typename T>
 	std::string OrientedBox<T>::ToString() const
 	{
@@ -99,9 +109,8 @@ namespace Nz
 	*
 	* \param transformMatrix Matrix4 which represents the transformation to apply on the local box
 	*/
-
 	template<typename T>
-	void OrientedBox<T>::Update(const Matrix4<T>& transformMatrix)
+	constexpr void OrientedBox<T>::Update(const Matrix4<T>& transformMatrix)
 	{
 		for (auto&& [corner, pos] : m_corners.iter_kv())
 			pos = transformMatrix.Transform(localBox.GetCorner(corner));
@@ -112,9 +121,8 @@ namespace Nz
 	*
 	* \param translation Vector3 which represents the translation to apply on the local box
 	*/
-
 	template<typename T>
-	void OrientedBox<T>::Update(const Vector3<T>& translation)
+	constexpr void OrientedBox<T>::Update(const Vector3<T>& translation)
 	{
 		for (auto&& [corner, pos] : m_corners.iter_kv())
 			pos = localBox.GetCorner(corner) + translation;
@@ -127,9 +135,8 @@ namespace Nz
 	* \remark Produce a NazaraError if you try to access to index greather than BoxCorner::Max with NAZARA_MATH_SAFE defined. If not, it is undefined behaviour
 	* \throw std::out_of_range if NAZARA_MATH_SAFE is defined and you try to acces to index greather than BoxCorner::Max
 	*/
-
 	template<typename T>
-	Vector3<T>& OrientedBox<T>::operator()(unsigned int i)
+	constexpr Vector3<T>& OrientedBox<T>::operator()(unsigned int i)
 	{
 		NazaraAssert(i < m_corners.size(), "corner out of range");
 		return m_corners[static_cast<BoxCorner>(i)];
@@ -142,9 +149,8 @@ namespace Nz
 	* \remark Produce a NazaraError if you try to access to index greather than BoxCorner::Max with NAZARA_MATH_SAFE defined. If not, it is undefined behaviour
 	* \throw std::out_of_range if NAZARA_MATH_SAFE is defined and you try to acces to index greather than BoxCorner::Max
 	*/
-
 	template<typename T>
-	const Vector3<T>& OrientedBox<T>::operator()(unsigned int i) const
+	constexpr const Vector3<T>& OrientedBox<T>::operator()(unsigned int i) const
 	{
 		NazaraAssert(i < m_corners.size(), "corner out of range");
 		return m_corners[static_cast<BoxCorner>(i)];
@@ -156,11 +162,10 @@ namespace Nz
 	*
 	* \param box Other oriented box to compare with
 	*/
-
 	template<typename T>
-	bool OrientedBox<T>::operator==(const OrientedBox& box) const
+	constexpr bool OrientedBox<T>::operator==(const OrientedBox& box) const
 	{
-		return localBox == box.localBox;
+		return localBox == box.localBox && m_corners == box.m_corners;
 	}
 
 	/*!
@@ -169,9 +174,8 @@ namespace Nz
 	*
 	* \param box Other oriented box to compare with
 	*/
-
 	template<typename T>
-	bool OrientedBox<T>::operator!=(const OrientedBox& box) const
+	constexpr bool OrientedBox<T>::operator!=(const OrientedBox& box) const
 	{
 		return !operator==(box);
 	}
@@ -189,9 +193,14 @@ namespace Nz
 	*
 	* \see Lerp
 	*/
+	template<typename T>
+	constexpr bool OrientedBox<T>::ApproxEqual(const OrientedBox& lhs, const OrientedBox& rhs, T maxDifference)
+	{
+		return lhs.ApproxEqual(rhs, maxDifference);
+	}
 
 	template<typename T>
-	OrientedBox<T> OrientedBox<T>::Lerp(const OrientedBox& from, const OrientedBox& to, T interpolation)
+	constexpr OrientedBox<T> OrientedBox<T>::Lerp(const OrientedBox& from, const OrientedBox& to, T interpolation)
 	{
 		return OrientedBox{ Box<T>::Lerp(from.localBox, to.localBox, interpolation) };
 	}
@@ -199,12 +208,9 @@ namespace Nz
 	/*!
 	* \brief Shorthand for the oriented box (0, 0, 0, 0, 0, 0)
 	* \return A oriented box with position (0, 0, 0) and lengths (0, 0, 0)
-	*
-	* \see MakeZero
 	*/
-
 	template<typename T>
-	OrientedBox<T> OrientedBox<T>::Zero()
+	constexpr OrientedBox<T> OrientedBox<T>::Zero()
 	{
 		return OrientedBox{ Box<T>::Zero() };
 	}
@@ -215,14 +221,18 @@ namespace Nz
 	*
 	* \param context Serialization context
 	* \param obb Input oriented box
-	*
-	* \remark Does not save OBB corners
 	*/
 	template<typename T>
 	bool Serialize(SerializationContext& context, const OrientedBox<T>& obb, TypeTag<OrientedBox<T>>)
 	{
 		if (!Serialize(context, obb.localBox))
 			return false;
+
+		for (auto&& corner : obb.m_corners)
+		{
+			if (!Serialize(context, corner))
+				return false;
+		}
 
 		return true;
 	}
@@ -233,14 +243,18 @@ namespace Nz
 	*
 	* \param context Serialization context
 	* \param obb Output oriented box
-	*
-	* \remark The resulting oriented box corners will *not* be updated, a call to Update is required
 	*/
 	template<typename T>
 	bool Unserialize(SerializationContext& context, OrientedBox<T>* obb, TypeTag<OrientedBox<T>>)
 	{
 		if (!Unserialize(context, &obb->localBox))
 			return false;
+
+		for (auto&& corner : obb->m_corners)
+		{
+			if (!Unserialize(context, &corner))
+				return false;
+		}
 
 		return true;
 	}
@@ -267,3 +281,4 @@ namespace Nz
 }
 
 #include <Nazara/Core/DebugOff.hpp>
+#include "OrientedBox.hpp"

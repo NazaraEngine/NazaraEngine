@@ -27,9 +27,11 @@ namespace Nz
 	* \param Z Z component
 	*/
 	template<typename T>
-	Vector3<T>::Vector3(T X, T Y, T Z)
+	constexpr Vector3<T>::Vector3(T X, T Y, T Z) :
+	x(X),
+	y(Y),
+	z(Z)
 	{
-		Set(X, Y, Z);
 	}
 
 	/*!
@@ -39,9 +41,11 @@ namespace Nz
 	* \param vec vec.X = Y component and vec.y = Z component
 	*/
 	template<typename T>
-	Vector3<T>::Vector3(T X, const Vector2<T>& vec)
+	constexpr Vector3<T>::Vector3(T X, const Vector2<T>& vec) :
+	x(X),
+	y(vec.x),
+	z(vec.y)
 	{
-		Set(X, vec);
 	}
 
 	/*!
@@ -50,9 +54,11 @@ namespace Nz
 	* \param scale X component = Y component = Z component
 	*/
 	template<typename T>
-	Vector3<T>::Vector3(T scale)
+	constexpr Vector3<T>::Vector3(T scale) :
+	x(scale),
+	y(scale),
+	z(scale)
 	{
-		Set(scale);
 	}
 
 	/*!
@@ -62,9 +68,11 @@ namespace Nz
 	* \param Z Z component
 	*/
 	template<typename T>
-	Vector3<T>::Vector3(const Vector2<T>& vec, T Z)
+	constexpr Vector3<T>::Vector3(const Vector2<T>& vec, T Z) :
+	x(vec.x),
+	y(vec.y),
+	z(Z)
 	{
-		Set(vec, Z);
 	}
 
 	/*!
@@ -74,9 +82,11 @@ namespace Nz
 	*/
 	template<typename T>
 	template<typename U>
-	Vector3<T>::Vector3(const Vector3<U>& vec)
+	constexpr Vector3<T>::Vector3(const Vector3<U>& vec) :
+	x(static_cast<T>(vec.x)),
+	y(static_cast<T>(vec.y)),
+	z(static_cast<T>(vec.z))
 	{
-		Set(vec);
 	}
 
 	/*!
@@ -85,9 +95,11 @@ namespace Nz
 	* \param vec Vector4 where only the first three components are taken
 	*/
 	template<typename T>
-	Vector3<T>::Vector3(const Vector4<T>& vec)
+	constexpr Vector3<T>::Vector3(const Vector4<T>& vec):
+	x(vec.x),
+	y(vec.y),
+	z(vec.z)
 	{
-		Set(vec);
 	}
 
 	/*!
@@ -133,7 +145,13 @@ namespace Nz
 		#endif
 
 		T alpha = DotProduct(vec) / divisor;
-		return std::acos(Clamp(alpha, T(-1.0), T(1.0)));
+		return std::acos(Nz::Clamp(alpha, T(-1.0), T(1.0)));
+	}
+
+	template<typename T>
+	constexpr bool Vector3<T>::ApproxEqual(const Vector3& vec, T maxDifference) const
+	{
+		return NumberEquals(x, vec.x, maxDifference) && NumberEquals(y, vec.y, maxDifference) && NumberEquals(z, vec.z, maxDifference);
 	}
 
 	/*!
@@ -145,7 +163,7 @@ namespace Nz
 	* \see CrossProduct
 	*/
 	template<typename T>
-	Vector3<T> Vector3<T>::CrossProduct(const Vector3& vec) const
+	constexpr Vector3<T> Vector3<T>::CrossProduct(const Vector3& vec) const
 	{
 		return Vector3(y * vec.z - z * vec.y, z * vec.x - x * vec.z, x * vec.y - y * vec.x);
 	}
@@ -162,7 +180,7 @@ namespace Nz
 	template<typename U>
 	U Vector3<T>::Distance(const Vector3& vec) const
 	{
-		return static_cast<U>(std::sqrt(SquaredDistance(vec)));
+		return static_cast<U>(std::sqrt(static_cast<U>(SquaredDistance(vec))));
 	}
 
 	/*!
@@ -174,7 +192,7 @@ namespace Nz
 	* \see AbsDotProduct, DotProduct
 	*/
 	template<typename T>
-	T Vector3<T>::DotProduct(const Vector3& vec) const
+	constexpr T Vector3<T>::DotProduct(const Vector3& vec) const
 	{
 		return x * vec.x + y * vec.y + z * vec.z;
 	}
@@ -196,19 +214,10 @@ namespace Nz
 	* \see GetSquaredLength
 	*/
 	template<typename T>
-	T Vector3<T>::GetLength() const
+	template<typename U>
+	U Vector3<T>::GetLength() const
 	{
-		return static_cast<T>(std::sqrt(GetSquaredLength()));
-	}
-
-	/*!
-	* \brief Calculates the length (magnitude) of the vector
-	* \return The length in float of the vector
-	*/
-	template<typename T>
-	float Vector3<T>::GetLengthf() const
-	{
-		return std::sqrt(static_cast<float>(GetSquaredLength()));
+		return static_cast<U>(std::sqrt(static_cast<U>(GetSquaredLength())));
 	}
 
 	/*!
@@ -237,141 +246,9 @@ namespace Nz
 	* \see GetLength
 	*/
 	template<typename T>
-	T Vector3<T>::GetSquaredLength() const
+	constexpr T Vector3<T>::GetSquaredLength() const
 	{
 		return x*x + y*y + z*z;
-	}
-
-	/*!
-	* \brief Makes the vector (0, 0, 1)
-	* \return A reference to this vector with components (0, 0, 1)
-	*
-	* \see Backward
-	*/
-	template<typename T>
-	Vector3<T>& Vector3<T>::MakeBackward()
-	{
-		return Set(T(0.0), T(0.0), T(1.0));
-	}
-
-	/*!
-	* \brief Makes the vector (0, -1, 0)
-	* \return A reference to this vector with components (0, -1, 0)
-	*
-	* \see Down
-	*/
-	template<typename T>
-	Vector3<T>& Vector3<T>::MakeDown()
-	{
-		return Set(T(0.0), T(-1.0), T(0.0));
-	}
-
-	/*!
-	* \brief Makes the vector (0, 0, -1)
-	* \return A reference to this vector with components (0, 0, -1)
-	*
-	* \see Forward
-	*/
-	template<typename T>
-	Vector3<T>& Vector3<T>::MakeForward()
-	{
-		return Set(T(0.0), T(0.0), T(-1.0));
-	}
-
-	/*!
-	* \brief Makes the vector (-1, 0, 0)
-	* \return A reference to this vector with components (-1, 0, 0)
-	*
-	* \see Left
-	*/
-	template<typename T>
-	Vector3<T>& Vector3<T>::MakeLeft()
-	{
-		return Set(T(-1.0), T(0.0), T(0.0));
-	}
-
-	/*!
-	* \brief Makes the vector (1, 0, 0)
-	* \return A reference to this vector with components (1, 0, 0)
-	*
-	* \see Right
-	*/
-	template<typename T>
-	Vector3<T>& Vector3<T>::MakeRight()
-	{
-		return Set(T(1.0), T(0.0), T(0.0));
-	}
-
-	/*!
-	* \brief Makes the vector (1, 1, 1)
-	* \return A reference to this vector with components (1, 1, 1)
-	*
-	* \see Unit
-	*/
-	template<typename T>
-	Vector3<T>& Vector3<T>::MakeUnit()
-	{
-		return Set(T(1.0), T(1.0), T(1.0));
-	}
-
-	/*!
-	* \brief Makes the vector (1, 0, 0)
-	* \return A reference to this vector with components (1, 0, 0)
-	*
-	* \see UnitX
-	*/
-	template<typename T>
-	Vector3<T>& Vector3<T>::MakeUnitX()
-	{
-		return Set(T(1.0), T(0.0), T(0.0));
-	}
-
-	/*!
-	* \brief Makes the vector (0, 1, 0)
-	* \return A reference to this vector with components (0, 1, 0)
-	*
-	* \see UnitY
-	*/
-	template<typename T>
-	Vector3<T>& Vector3<T>::MakeUnitY()
-	{
-		return Set(T(0.0), T(1.0), T(0.0));
-	}
-
-	/*!
-	* \brief Makes the vector (0, 0, 1)
-	* \return A reference to this vector with components (0, 0, 1)
-	*
-	* \see UnitZ
-	*/
-	template<typename T>
-	Vector3<T>& Vector3<T>::MakeUnitZ()
-	{
-		return Set(T(0.0), T(0.0), T(1.0));
-	}
-
-	/*!
-	* \brief Makes the vector (0, 1, 0)
-	* \return A reference to this vector with components (0, 1, 0)
-	*
-	* \see Up
-	*/
-	template<typename T>
-	Vector3<T>& Vector3<T>::MakeUp()
-	{
-		return Set(T(0.0), T(1.0), T(0.0));
-	}
-
-	/*!
-	* \brief Makes the vector (0, 0, 0)
-	* \return A reference to this vector with components (0, 0, 0)
-	*
-	* \see Zero
-	*/
-	template<typename T>
-	Vector3<T>& Vector3<T>::MakeZero()
-	{
-		return Set(T(0.0), T(0.0), T(0.0));
 	}
 
 	/*!
@@ -383,7 +260,7 @@ namespace Nz
 	* \see Minimize
 	*/
 	template<typename T>
-	Vector3<T>& Vector3<T>::Maximize(const Vector3& vec)
+	constexpr Vector3<T>& Vector3<T>::Maximize(const Vector3& vec)
 	{
 		if (vec.x > x)
 			x = vec.x;
@@ -406,7 +283,7 @@ namespace Nz
 	* \see Maximize
 	*/
 	template<typename T>
-	Vector3<T>& Vector3<T>::Minimize(const Vector3& vec)
+	constexpr Vector3<T>& Vector3<T>::Minimize(const Vector3& vec)
 	{
 		if (vec.x < x)
 			x = vec.x;
@@ -449,121 +326,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets the components of the vector
-	* \return A reference to this vector
-	*
-	* \param X X component
-	* \param Y Y component
-	* \param Z Z component
-	*/
-	template<typename T>
-	Vector3<T>& Vector3<T>::Set(T X, T Y, T Z)
-	{
-		x = X;
-		y = Y;
-		z = Z;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the vector from a component and a Vector2
-	*
-	* \param X X component
-	* \param vec vec.X = Y component and vec.y = Z component
-	*/
-	template<typename T>
-	Vector3<T>& Vector3<T>::Set(T X, const Vector2<T>& vec)
-	{
-		x = X;
-		y = vec.x;
-		z = vec.y;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the vector from a "scale"
-	* \return A reference to this vector
-	*
-	* \param scale X component = Y component = Z component
-	*/
-	template<typename T>
-	Vector3<T>& Vector3<T>::Set(T scale)
-	{
-		x = scale;
-		y = scale;
-		z = scale;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the vector from an array of three elements
-	* \return A reference to this vector
-	*
-	* \param vec[3] vec[0] is X component, vec[1] is Y component and vec[2] is Z component
-	*/
-	template<typename T>
-	Vector3<T>& Vector3<T>::Set(const T* vec)
-	{
-		x = vec[0];
-		y = vec[1];
-		z = vec[2];
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the vector from a Vector2 and a component
-	*
-	* \param vec vec.X = X component and vec.y = Y component
-	* \param Z Z component
-	*/
-	template<typename T>
-	Vector3<T>& Vector3<T>::Set(const Vector2<T>& vec, T Z)
-	{
-		x = vec.x;
-		y = vec.y;
-		z = Z;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the vector from another type of Vector3
-	* \return A reference to this vector
-	*
-	* \param vec Vector of type U to convert its components
-	*/
-	template<typename T>
-	template<typename U>
-	Vector3<T>& Vector3<T>::Set(const Vector3<U>& vec)
-	{
-		x = T(vec.x);
-		y = T(vec.y);
-		z = T(vec.z);
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the vector from a Vector4
-	* \return A reference to this vector
-	*
-	* \param vec Vector4 where only the first three components are taken
-	*/
-	template<typename T>
-	Vector3<T>& Vector3<T>::Set(const Vector4<T>& vec)
-	{
-		x = vec.x;
-		y = vec.y;
-		z = vec.z;
-
-		return *this;
-	}
-
-	/*!
 	* \brief Calculates the squared distance between two vectors
 	* \return The metric distance between two vectors with the squared euclidean norm
 	*
@@ -572,7 +334,7 @@ namespace Nz
 	* \see Distance
 	*/
 	template<typename T>
-	T Vector3<T>::SquaredDistance(const Vector3& vec) const
+	constexpr T Vector3<T>::SquaredDistance(const Vector3& vec) const
 	{
 		return (*this - vec).GetSquaredLength();
 	}
@@ -592,7 +354,7 @@ namespace Nz
 	* \return X, Y, Z depending on index (0, 1, 2)
 	*/
 	template<typename T>
-	T& Vector3<T>::operator[](std::size_t i)
+	constexpr T& Vector3<T>::operator[](std::size_t i)
 	{
 		NazaraAssert(i < 3, "index out of range");
 		return *(&x + i);
@@ -603,7 +365,7 @@ namespace Nz
 	* \return X, Y, Z depending on index (0, 1, 2)
 	*/
 	template<typename T>
-	T Vector3<T>::operator[](std::size_t i) const
+	constexpr const T& Vector3<T>::operator[](std::size_t i) const
 	{
 		NazaraAssert(i < 3, "index out of range");
 		return *(&x + i);
@@ -614,7 +376,7 @@ namespace Nz
 	* \return A constant reference to this vector
 	*/
 	template<typename T>
-	const Vector3<T>& Vector3<T>::operator+() const
+	constexpr const Vector3<T>& Vector3<T>::operator+() const
 	{
 		return *this;
 	}
@@ -624,7 +386,7 @@ namespace Nz
 	* \return A constant reference to this vector with negate components
 	*/
 	template<typename T>
-	Vector3<T> Vector3<T>::operator-() const
+	constexpr Vector3<T> Vector3<T>::operator-() const
 	{
 		return Vector3(-x, -y, -z);
 	}
@@ -636,7 +398,7 @@ namespace Nz
 	* \param vec The other vector to add components with
 	*/
 	template<typename T>
-	Vector3<T> Vector3<T>::operator+(const Vector3& vec) const
+	constexpr Vector3<T> Vector3<T>::operator+(const Vector3& vec) const
 	{
 		return Vector3(x + vec.x, y + vec.y, z + vec.z);
 	}
@@ -648,7 +410,7 @@ namespace Nz
 	* \param vec The other vector to substract components with
 	*/
 	template<typename T>
-	Vector3<T> Vector3<T>::operator-(const Vector3& vec) const
+	constexpr Vector3<T> Vector3<T>::operator-(const Vector3& vec) const
 	{
 		return Vector3(x - vec.x, y - vec.y, z - vec.z);
 	}
@@ -660,7 +422,7 @@ namespace Nz
 	* \param vec The other vector to multiply components with
 	*/
 	template<typename T>
-	Vector3<T> Vector3<T>::operator*(const Vector3& vec) const
+	constexpr Vector3<T> Vector3<T>::operator*(const Vector3& vec) const
 	{
 		return Vector3(x * vec.x, y * vec.y, z * vec.z);
 	}
@@ -672,7 +434,7 @@ namespace Nz
 	* \param scale The scalar to multiply components with
 	*/
 	template<typename T>
-	Vector3<T> Vector3<T>::operator*(T scale) const
+	constexpr 	Vector3<T> Vector3<T>::operator*(T scale) const
 	{
 		return Vector3(x * scale, y * scale, z * scale);
 	}
@@ -684,7 +446,7 @@ namespace Nz
 	* \param vec The other vector to divide components with
 	*/
 	template<typename T>
-	Vector3<T> Vector3<T>::operator/(const Vector3& vec) const
+	constexpr Vector3<T> Vector3<T>::operator/(const Vector3& vec) const
 	{
 		return Vector3(x / vec.x, y / vec.y, z / vec.z);
 	}
@@ -696,7 +458,7 @@ namespace Nz
 	* \param scale The scalar to divide components with
 	*/
 	template<typename T>
-	Vector3<T> Vector3<T>::operator/(T scale) const
+	constexpr Vector3<T> Vector3<T>::operator/(T scale) const
 	{
 		return Vector3(x / scale, y / scale, z / scale);
 	}
@@ -708,7 +470,7 @@ namespace Nz
 	* \param vec The other vector to add components with
 	*/
 	template<typename T>
-	Vector3<T>& Vector3<T>::operator+=(const Vector3& vec)
+	constexpr Vector3<T>& Vector3<T>::operator+=(const Vector3& vec)
 	{
 		x += vec.x;
 		y += vec.y;
@@ -724,7 +486,7 @@ namespace Nz
 	* \param vec The other vector to substract components with
 	*/
 	template<typename T>
-	Vector3<T>& Vector3<T>::operator-=(const Vector3& vec)
+	constexpr Vector3<T>& Vector3<T>::operator-=(const Vector3& vec)
 	{
 		x -= vec.x;
 		y -= vec.y;
@@ -740,7 +502,7 @@ namespace Nz
 	* \param vec The other vector to multiply components with
 	*/
 	template<typename T>
-	Vector3<T>& Vector3<T>::operator*=(const Vector3& vec)
+	constexpr Vector3<T>& Vector3<T>::operator*=(const Vector3& vec)
 	{
 		x *= vec.x;
 		y *= vec.y;
@@ -756,7 +518,7 @@ namespace Nz
 	* \param scale The scalar to multiply components with
 	*/
 	template<typename T>
-	Vector3<T>& Vector3<T>::operator*=(T scale)
+	constexpr Vector3<T>& Vector3<T>::operator*=(T scale)
 	{
 		x *= scale;
 		y *= scale;
@@ -772,7 +534,7 @@ namespace Nz
 	* \param vec The other vector to multiply components with
 	*/
 	template<typename T>
-	Vector3<T>& Vector3<T>::operator/=(const Vector3& vec)
+	constexpr Vector3<T>& Vector3<T>::operator/=(const Vector3& vec)
 	{
 		x /= vec.x;
 		y /= vec.y;
@@ -788,7 +550,7 @@ namespace Nz
 	* \param scale The scalar to divide components with
 	*/
 	template<typename T>
-	Vector3<T>& Vector3<T>::operator/=(T scale)
+	constexpr Vector3<T>& Vector3<T>::operator/=(T scale)
 	{
 		x /= scale;
 		y /= scale;
@@ -804,11 +566,9 @@ namespace Nz
 	* \param vec Other vector to compare with
 	*/
 	template<typename T>
-	bool Vector3<T>::operator==(const Vector3& vec) const
+	constexpr bool Vector3<T>::operator==(const Vector3& vec) const
 	{
-		return NumberEquals(x, vec.x) &&
-		       NumberEquals(y, vec.y) &&
-		       NumberEquals(z, vec.z);
+		return x == vec.x && y == vec.y && z == vec.z;
 	}
 
 	/*!
@@ -818,7 +578,7 @@ namespace Nz
 	* \param vec Other vector to compare with
 	*/
 	template<typename T>
-	bool Vector3<T>::operator!=(const Vector3& vec) const
+	constexpr bool Vector3<T>::operator!=(const Vector3& vec) const
 	{
 		return !operator==(vec);
 	}
@@ -830,17 +590,15 @@ namespace Nz
 	* \param vec Other vector to compare with
 	*/
 	template<typename T>
-	bool Vector3<T>::operator<(const Vector3& vec) const
+	constexpr bool Vector3<T>::operator<(const Vector3& vec) const
 	{
-		if (NumberEquals(x, vec.x))
-		{
-			if (NumberEquals(y, vec.y))
-				return z < vec.z;
-			else
-				return y < vec.y;
-		}
-		else
+		if (x != vec.x)
 			return x < vec.x;
+
+		if (y != vec.y)
+			return y < vec.y;
+
+		return z < vec.z;
 	}
 
 	/*!
@@ -850,17 +608,15 @@ namespace Nz
 	* \param vec Other vector to compare with
 	*/
 	template<typename T>
-	bool Vector3<T>::operator<=(const Vector3& vec) const
+	constexpr bool Vector3<T>::operator<=(const Vector3& vec) const
 	{
-		if (NumberEquals(x, vec.x))
-		{
-			if (NumberEquals(y, vec.y))
-				return NumberEquals(z, vec.z) || z < vec.z;
-			else
-				return y < vec.y;
-		}
-		else
+		if (x != vec.x)
 			return x < vec.x;
+
+		if (y != vec.y)
+			return y < vec.y;
+
+		return z <= vec.z;
 	}
 
 	/*!
@@ -870,9 +626,15 @@ namespace Nz
 	* \param vec Other vector to compare with
 	*/
 	template<typename T>
-	bool Vector3<T>::operator>(const Vector3& vec) const
+	constexpr bool Vector3<T>::operator>(const Vector3& vec) const
 	{
-		return !operator<=(vec);
+		if (x != vec.x)
+			return x > vec.x;
+
+		if (y != vec.y)
+			return y > vec.y;
+
+		return z > vec.z;
 	}
 
 	/*!
@@ -882,9 +644,21 @@ namespace Nz
 	* \param vec Other vector to compare with
 	*/
 	template<typename T>
-	bool Vector3<T>::operator>=(const Vector3& vec) const
+	constexpr bool Vector3<T>::operator>=(const Vector3& vec) const
 	{
-		return !operator<(vec);
+		if (x != vec.x)
+			return x > vec.x;
+
+		if (y != vec.y)
+			return y > vec.y;
+
+		return z >= vec.z;
+	}
+
+	template<typename T>
+	constexpr bool Vector3<T>::ApproxEqual(const Vector3& lhs, const Vector3& rhs, T maxDifference)
+	{
+		return lhs.ApproxEqual(rhs, maxDifference);
 	}
 
 	/*!
@@ -897,7 +671,7 @@ namespace Nz
 	* \see CrossProduct
 	*/
 	template<typename T>
-	Vector3<T> Vector3<T>::CrossProduct(const Vector3& vec1, const Vector3& vec2)
+	constexpr Vector3<T> Vector3<T>::CrossProduct(const Vector3& vec1, const Vector3& vec2)
 	{
 		return vec1.CrossProduct(vec2);
 	}
@@ -912,7 +686,7 @@ namespace Nz
 	* \see AbsDotProduct, DotProduct
 	*/
 	template<typename T>
-	T Vector3<T>::DotProduct(const Vector3& vec1, const Vector3& vec2)
+	constexpr T Vector3<T>::DotProduct(const Vector3& vec1, const Vector3& vec2)
 	{
 		return vec1.DotProduct(vec2);
 	}
@@ -920,16 +694,21 @@ namespace Nz
 	/*!
 	* \brief Shorthand for the vector (0, 0, 1)
 	* \return A vector with components (0, 0, 1)
-	*
-	* \see MakeBackward
 	*/
 	template<typename T>
-	Vector3<T> Vector3<T>::Backward()
+	constexpr Vector3<T> Vector3<T>::Backward()
 	{
-		Vector3 vector;
-		vector.MakeBackward();
+		return Vector3(0, 0, 1);
+	}
 
-		return vector;
+	template<typename T>
+	constexpr Vector3<T> Vector3<T>::Clamp(const Vector3& vec, const Vector3& min, const Vector3& max)
+	{
+		return Vector3(
+			std::clamp(vec.x, min.x, max.x),
+			std::clamp(vec.y, min.y, max.y),
+			std::clamp(vec.z, min.z, max.z)
+		);
 	}
 
 	/*!
@@ -940,8 +719,6 @@ namespace Nz
 	* param vec2 the second point
 	*
 	* \return The distance between the two vectors
-	*
-	* \see SquaredDistance
 	*/
 	template<typename T>
 	template<typename U>
@@ -953,46 +730,31 @@ namespace Nz
 	/*!
 	* \brief Shorthand for the vector (0, -1, 0)
 	* \return A vector with components (0, -1, 0)
-	*
-	* \see MakeDown
 	*/
 	template<typename T>
-	Vector3<T> Vector3<T>::Down()
+	constexpr Vector3<T> Vector3<T>::Down()
 	{
-		Vector3 vector;
-		vector.MakeDown();
-
-		return vector;
+		return Vector3(0, -1, 0);
 	}
 
 	/*!
 	* \brief Shorthand for the vector (0, 0, -1)
 	* \return A vector with components (0, 0, -1)
-	*
-	* \see Forward
 	*/
 	template<typename T>
-	Vector3<T> Vector3<T>::Forward()
+	constexpr Vector3<T> Vector3<T>::Forward()
 	{
-		Vector3 vector;
-		vector.MakeForward();
-
-		return vector;
+		return Vector3(0, 0, -1);
 	}
 
 	/*!
 	* \brief Shorthand for the vector (-1, 0, 0)
 	* \return A vector with components (-1, 0, 0)
-	*
-	* \see MakeLeft
 	*/
 	template<typename T>
-	Vector3<T> Vector3<T>::Left()
+	constexpr Vector3<T> Vector3<T>::Left()
 	{
-		Vector3 vector;
-		vector.MakeLeft();
-
-		return vector;
+		return Vector3(-1, 0, 0);
 	}
 
 	/*!
@@ -1004,18 +766,34 @@ namespace Nz
 	* \param interpolation Factor of interpolation
 	*
 	* \remark interpolation is meant to be between 0 and 1, other values are potentially undefined behavior
-	*
-	* \see Lerp
 	*/
 	template<typename T>
-	Vector3<T> Vector3<T>::Lerp(const Vector3& from, const Vector3& to, T interpolation)
+	constexpr Vector3<T> Vector3<T>::Lerp(const Vector3& from, const Vector3& to, T interpolation)
 	{
-		Vector3 dummy;
-		dummy.x = Nz::Lerp(from.x, to.x, interpolation);
-		dummy.y = Nz::Lerp(from.y, to.y, interpolation);
-		dummy.z = Nz::Lerp(from.z, to.z, interpolation);
+		Vector3 result;
+		result.x = Nz::Lerp(from.x, to.x, interpolation);
+		result.y = Nz::Lerp(from.y, to.y, interpolation);
+		result.z = Nz::Lerp(from.z, to.z, interpolation);
 
-		return dummy;
+		return result;
+	}
+
+	template<typename T>
+	constexpr Vector3<T> Vector3<T>::Max(const Vector3& lhs, const Vector3& rhs)
+	{
+		Vector3 max = lhs;
+		max.Maximize(rhs);
+
+		return max;
+	}
+
+	template<typename T>
+	constexpr Vector3<T> Vector3<T>::Min(const Vector3& lhs, const Vector3& rhs)
+	{
+		Vector3 min = lhs;
+		min.Minimize(rhs);
+
+		return min;
 	}
 
 	/*!
@@ -1025,8 +803,6 @@ namespace Nz
 	* \param vec Vector to normalize
 	*
 	* \remark If the vector is (0, 0, 0), then it returns (0, 0, 0)
-	*
-	* \see GetNormal
 	*/
 	template<typename T>
 	Vector3<T> Vector3<T>::Normalize(const Vector3& vec)
@@ -1037,16 +813,11 @@ namespace Nz
 	/*!
 	* \brief Shorthand for the vector (1, 0, 0)
 	* \return A vector with components (1, 0, 0)
-	*
-	* \see MakeRight
 	*/
 	template<typename T>
-	Vector3<T> Vector3<T>::Right()
+	constexpr Vector3<T> Vector3<T>::Right()
 	{
-		Vector3 vector;
-		vector.MakeRight();
-
-		return vector;
+		return Vector3(1, 0, 0);
 	}
 
 	/*!
@@ -1059,7 +830,7 @@ namespace Nz
 	* \see Distance
 	*/
 	template<typename T>
-	T Vector3<T>::SquaredDistance(const Vector3& vec1, const Vector3& vec2)
+	constexpr T Vector3<T>::SquaredDistance(const Vector3& vec1, const Vector3& vec2)
 	{
 		return vec1.SquaredDistance(vec2);
 	}
@@ -1067,91 +838,61 @@ namespace Nz
 	/*!
 	* \brief Shorthand for the vector (1, 1, 1)
 	* \return A vector with components (1, 1, 1)
-	*
-	* \see MakeUnit
 	*/
 	template<typename T>
-	Vector3<T> Vector3<T>::Unit()
+	constexpr Vector3<T> Vector3<T>::Unit()
 	{
-		Vector3 vector;
-		vector.MakeUnit();
-
-		return vector;
+		return Vector3(1);
 	}
 
 	/*!
 	* \brief Shorthand for the vector (1, 0, 0)
 	* \return A vector with components (1, 0, 0)
-	*
-	* \see MakeUnitX
 	*/
 	template<typename T>
-	Vector3<T> Vector3<T>::UnitX()
+	constexpr Vector3<T> Vector3<T>::UnitX()
 	{
-		Vector3 vector;
-		vector.MakeUnitX();
-
-		return vector;
+		return Vector3(1, 0, 0);
 	}
 
 	/*!
 	* \brief Shorthand for the vector (0, 1, 0)
 	* \return A vector with components (0, 1, 0)
-	*
-	* \see MakeUnitY
 	*/
 	template<typename T>
-	Vector3<T> Vector3<T>::UnitY()
+	constexpr Vector3<T> Vector3<T>::UnitY()
 	{
-		Vector3 vector;
-		vector.MakeUnitY();
-
-		return vector;
+		return Vector3(0, 1, 0);
 	}
 
 	/*!
 	* \brief Shorthand for the vector (0, 0, 1)
 	* \return A vector with components (0, 0, 1)
-	*
-	* \see MakeUnitZ
 	*/
 	template<typename T>
-	Vector3<T> Vector3<T>::UnitZ()
+	constexpr Vector3<T> Vector3<T>::UnitZ()
 	{
-		Vector3 vector;
-		vector.MakeUnitZ();
-
-		return vector;
+		return Vector3(0, 0, 1);
 	}
 
 	/*!
 	* \brief Shorthand for the vector (0, 1, 0)
 	* \return A vector with components (0, 1, 0)
-	*
-	* \see MakeUp
 	*/
 	template<typename T>
-	Vector3<T> Vector3<T>::Up()
+	constexpr Vector3<T> Vector3<T>::Up()
 	{
-		Vector3 vector;
-		vector.MakeUp();
-
-		return vector;
+		return Vector3(0, 1, 0);
 	}
 
 	/*!
 	* \brief Shorthand for the vector (0, 0, 0)
 	* \return A vector with components (0, 0, 0)
-	*
-	* \see MakeZero
 	*/
 	template<typename T>
-	Vector3<T> Vector3<T>::Zero()
+	constexpr Vector3<T> Vector3<T>::Zero()
 	{
-		Vector3 vector;
-		vector.MakeZero();
-
-		return vector;
+		return Vector3(0, 0, 0);
 	}
 
 	/*!
@@ -1218,7 +959,7 @@ namespace Nz
 	* \param scale The scalar to multiply components with
 	*/
 	template<typename T>
-	Vector3<T> operator*(T scale, const Vector3<T>& vec)
+	constexpr Vector3<T> operator*(T scale, const Vector3<T>& vec)
 	{
 		return Vector3<T>(scale * vec.x, scale * vec.y, scale * vec.z);
 	}
@@ -1230,7 +971,7 @@ namespace Nz
 	* \param scale The scalar to divide components with
 	*/
 	template<typename T>
-	Vector3<T> operator/(T scale, const Vector3<T>& vec)
+	constexpr Vector3<T> operator/(T scale, const Vector3<T>& vec)
 	{
 		return Vector3<T>(scale / vec.x, scale / vec.y, scale / vec.z);
 	}

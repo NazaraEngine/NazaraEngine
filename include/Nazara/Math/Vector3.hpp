@@ -24,105 +24,91 @@ namespace Nz
 	class Vector3
 	{
 		public:
-			Vector3() = default;
-			Vector3(T X, T Y, T Z);
-			Vector3(T X, const Vector2<T>& vec);
-			explicit Vector3(T scale);
-			Vector3(const Vector2<T>& vec, T Z = 0.0);
-			template<typename U> explicit Vector3(const Vector3<U>& vec);
-			Vector3(const Vector3& vec) = default;
-			explicit Vector3(const Vector4<T>& vec);
+			constexpr Vector3() = default;
+			constexpr Vector3(T X, T Y, T Z);
+			constexpr Vector3(T X, const Vector2<T>& vec);
+			constexpr explicit Vector3(T scale);
+			constexpr Vector3(const Vector2<T>& vec, T Z = 0.0);
+			template<typename U> constexpr explicit Vector3(const Vector3<U>& vec);
+			constexpr Vector3(const Vector3&) = default;
+			constexpr Vector3(Vector3&&) = default;
+			constexpr explicit Vector3(const Vector4<T>& vec);
 			~Vector3() = default;
 
 			T AbsDotProduct(const Vector3& vec) const;
 			RadianAngle<T> AngleBetween(const Vector3& vec) const;
+			constexpr bool ApproxEqual(const Vector3& vec, T maxDifference = std::numeric_limits<T>::epsilon()) const;
 
-			Vector3 CrossProduct(const Vector3& vec) const;
+			constexpr Vector3 CrossProduct(const Vector3& vec) const;
 
-			template<typename U = T>
-			U Distance(const Vector3& vec) const;
-			T DotProduct(const Vector3& vec) const;
+			template<typename U = T> U Distance(const Vector3& vec) const;
+			constexpr T DotProduct(const Vector3& vec) const;
 
 			Vector3 GetAbs() const;
-			T GetLength() const;
-			float GetLengthf() const;
+			template<typename U = T> U GetLength() const;
 			Vector3 GetNormal(T* length = nullptr) const;
-			T GetSquaredLength() const;
+			constexpr T GetSquaredLength() const;
 
-			Vector3& MakeBackward();
-			Vector3& MakeDown();
-			Vector3& MakeForward();
-			Vector3& MakeLeft();
-			Vector3& MakeRight();
-			Vector3& MakeUnit();
-			Vector3& MakeUnitX();
-			Vector3& MakeUnitY();
-			Vector3& MakeUnitZ();
-			Vector3& MakeUp();
-			Vector3& MakeZero();
-
-			Vector3& Maximize(const Vector3& vec);
-			Vector3& Minimize(const Vector3& vec);
+			constexpr Vector3& Maximize(const Vector3& vec);
+			constexpr Vector3& Minimize(const Vector3& vec);
 
 			Vector3& Normalize(T* length = nullptr);
 
-			Vector3& Set(T X, T Y, T Z);
-			Vector3& Set(T X, const Vector2<T>& vec);
-			Vector3& Set(T scale);
-			Vector3& Set(const T* vec);
-			Vector3& Set(const Vector2<T>& vec, T Z = 0.0);
-			template<typename U> Vector3& Set(const Vector3<U>& vec);
-			Vector3& Set(const Vector4<T>& vec);
-
-			T SquaredDistance(const Vector3& vec) const;
+			constexpr T SquaredDistance(const Vector3& vec) const;
 
 			std::string ToString() const;
 
-			T& operator[](std::size_t i);
-			T operator[](std::size_t i) const;
+			constexpr T& operator[](std::size_t i);
+			constexpr const T& operator[](std::size_t i) const;
 
-			const Vector3& operator+() const;
-			Vector3 operator-() const;
+			constexpr const Vector3& operator+() const;
+			constexpr Vector3 operator-() const;
 
-			Vector3 operator+(const Vector3& vec) const;
-			Vector3 operator-(const Vector3& vec) const;
-			Vector3 operator*(const Vector3& vec) const;
-			Vector3 operator*(T scale) const;
-			Vector3 operator/(const Vector3& vec) const;
-			Vector3 operator/(T scale) const;
-			Vector3& operator=(const Vector3& vec) = default;
+			constexpr Vector3 operator+(const Vector3& vec) const;
+			constexpr Vector3 operator-(const Vector3& vec) const;
+			constexpr Vector3 operator*(const Vector3& vec) const;
+			constexpr Vector3 operator*(T scale) const;
+			constexpr Vector3 operator/(const Vector3& vec) const;
+			constexpr Vector3 operator/(T scale) const;
 
-			Vector3& operator+=(const Vector3& vec);
-			Vector3& operator-=(const Vector3& vec);
-			Vector3& operator*=(const Vector3& vec);
-			Vector3& operator*=(T scale);
-			Vector3& operator/=(const Vector3& vec);
-			Vector3& operator/=(T scale);
+			constexpr Vector3& operator=(const Vector3&) = default;
+			constexpr Vector3& operator=(Vector3&&) = default;
 
-			bool operator==(const Vector3& vec) const;
-			bool operator!=(const Vector3& vec) const;
-			bool operator<(const Vector3& vec) const;
-			bool operator<=(const Vector3& vec) const;
-			bool operator>(const Vector3& vec) const;
-			bool operator>=(const Vector3& vec) const;
+			constexpr Vector3& operator+=(const Vector3& vec);
+			constexpr Vector3& operator-=(const Vector3& vec);
+			constexpr Vector3& operator*=(const Vector3& vec);
+			constexpr Vector3& operator*=(T scale);
+			constexpr Vector3& operator/=(const Vector3& vec);
+			constexpr Vector3& operator/=(T scale);
 
-			static Vector3 Backward();
-			static Vector3 CrossProduct(const Vector3& vec1, const Vector3& vec2);
-			static T DotProduct(const Vector3& vec1, const Vector3& vec2);
+			constexpr bool operator==(const Vector3& vec) const;
+			constexpr bool operator!=(const Vector3& vec) const;
+			constexpr bool operator<(const Vector3& vec) const;
+			constexpr bool operator<=(const Vector3& vec) const;
+			constexpr bool operator>(const Vector3& vec) const;
+			constexpr bool operator>=(const Vector3& vec) const;
+
+			static constexpr bool ApproxEqual(const Vector3& lhs, const Vector3& rhs, T maxDifference = std::numeric_limits<T>::epsilon());
+			static constexpr Vector3 Backward();
+			static constexpr Vector3 Clamp(const Vector3& vec, const Vector3& min, const Vector3& max);
+			static constexpr Vector3 CrossProduct(const Vector3& vec1, const Vector3& vec2);
 			template<typename U = T> static U Distance(const Vector3& vec1, const Vector3& vec2);
-			static Vector3 Down();
-			static Vector3 Forward();
-			static Vector3 Left();
-			static Vector3 Lerp(const Vector3& from, const Vector3& to, T interpolation);
+			static constexpr T DotProduct(const Vector3& vec1, const Vector3& vec2);
+			static constexpr Vector3 Down();
+			static constexpr Vector3 Forward();
+			static constexpr Vector3 Left();
+			static constexpr Vector3 Lerp(const Vector3& from, const Vector3& to, T interpolation);
+			static constexpr Vector3 Max(const Vector3& lhs, const Vector3& rhs);
+			static constexpr Vector3 Min(const Vector3& lhs, const Vector3& rhs);
 			static Vector3 Normalize(const Vector3& vec);
-			static Vector3 Right();
-			static T SquaredDistance(const Vector3& vec1, const Vector3& vec2);
-			static Vector3 Unit();
-			static Vector3 UnitX();
-			static Vector3 UnitY();
-			static Vector3 UnitZ();
-			static Vector3 Up();
-			static Vector3 Zero();
+			static constexpr Vector3 Right();
+			static constexpr T SquaredDistance(const Vector3& vec1, const Vector3& vec2);
+			static constexpr Vector3 Unit();
+			static constexpr Vector3 UnitX();
+			static constexpr Vector3 UnitY();
+			static constexpr Vector3 UnitZ();
+			static constexpr Vector3 Up();
+			static constexpr Vector3 Zero();
 
 			T x, y, z;
 	};
@@ -141,8 +127,8 @@ namespace Nz
 
 	template<typename T> std::ostream& operator<<(std::ostream& out, const Vector3<T>& vec);
 
-	template<typename T> Vector3<T> operator*(T scale, const Vector3<T>& vec);
-	template<typename T> Vector3<T> operator/(T scale, const Vector3<T>& vec);
+	template<typename T> constexpr Vector3<T> operator*(T scale, const Vector3<T>& vec);
+	template<typename T> constexpr Vector3<T> operator/(T scale, const Vector3<T>& vec);
 }
 
 namespace std

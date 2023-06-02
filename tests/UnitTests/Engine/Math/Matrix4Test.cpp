@@ -103,44 +103,44 @@ SCENARIO("Matrix4", "[MATH][MATRIX4]")
 		{
 			THEN("Rotation around X")
 			{
-				transformedMatrix.MakeTransform(Nz::Vector3f::Zero(), Nz::EulerAnglesf(Nz::DegreeAnglef(45.f), 0.f, 0.f).ToQuaternion());
+				transformedMatrix = Nz::Matrix4f::Transform(Nz::Vector3f::Zero(), Nz::EulerAnglesf(Nz::DegreeAnglef(45.f), 0.f, 0.f).ToQuaternion());
 				Nz::Matrix4f rotation45X(1.f,  0.f,                  0.f,                  0.f,
 				                         0.f,  std::sqrt(2.f) / 2.f, std::sqrt(2.f) / 2.f, 0.f,
 				                         0.f, -std::sqrt(2.f) / 2.f, std::sqrt(2.f) / 2.f, 0.f,
 				                         0.f,  0.f,                  0.f,                  1.f);
 
-				CHECK(transformedMatrix == rotation45X);
-				transformedMatrix.MakeTransform(Nz::Vector3f::Unit(), Nz::EulerAnglesf(Nz::DegreeAnglef(45.f), 0.f, 0.f).ToQuaternion());
+				CHECK(transformedMatrix.ApproxEqual(rotation45X));
+				transformedMatrix = Nz::Matrix4f::Transform(Nz::Vector3f::Unit(), Nz::EulerAnglesf(Nz::DegreeAnglef(45.f), 0.f, 0.f).ToQuaternion());
 				rotation45X.ApplyTranslation(Nz::Vector3f::Unit());
-				CHECK(transformedMatrix == rotation45X);
+				CHECK(transformedMatrix.ApproxEqual(rotation45X));
 			}
 
 			THEN("Rotation around Y")
 			{
-				transformedMatrix.MakeTransform(Nz::Vector3f::Zero(), Nz::EulerAnglesf(0.f, Nz::DegreeAnglef(45.f), 0.f).ToQuaternion());
+				transformedMatrix = Nz::Matrix4f::Transform(Nz::Vector3f::Zero(), Nz::EulerAnglesf(0.f, Nz::DegreeAnglef(45.f), 0.f).ToQuaternion());
 				Nz::Matrix4f rotation45Y(std::sqrt(2.f) / 2.f, 0.f, -std::sqrt(2.f) / 2.f, 0.f,
 				                         0.f,                  1.f,  0.f,                  0.f,
 				                         std::sqrt(2.f) / 2.f, 0.f,  std::sqrt(2.f) / 2.f, 0.f,
 				                         0.f,                  0.f,  0.f,                  1.f);
 
-				CHECK(transformedMatrix == rotation45Y);
-				transformedMatrix.MakeTransform(Nz::Vector3f::Unit(), Nz::EulerAnglesf(0.f, Nz::DegreeAnglef(45.f), 0.f).ToQuaternion());
+				CHECK(transformedMatrix.ApproxEqual(rotation45Y));
+				transformedMatrix = Nz::Matrix4f::Transform(Nz::Vector3f::Unit(), Nz::EulerAnglesf(0.f, Nz::DegreeAnglef(45.f), 0.f).ToQuaternion());
 				rotation45Y.ApplyTranslation(Nz::Vector3f::Unit());
-				CHECK(transformedMatrix == rotation45Y);
+				CHECK(transformedMatrix.ApproxEqual(rotation45Y));
 			}
 
 			THEN("Rotation around Z")
 			{
-				transformedMatrix.MakeTransform(Nz::Vector3f::Zero(), Nz::EulerAnglesf(0.f, 0.f, Nz::DegreeAnglef(45.f)).ToQuaternion());
+				transformedMatrix = Nz::Matrix4f::Transform(Nz::Vector3f::Zero(), Nz::EulerAnglesf(0.f, 0.f, Nz::DegreeAnglef(45.f)).ToQuaternion());
 				Nz::Matrix4f rotation45Z( std::sqrt(2.f) / 2.f, std::sqrt(2.f) / 2.f, 0.f, 0.f,
 				                         -std::sqrt(2.f) / 2.f, std::sqrt(2.f) / 2.f, 0.f, 0.f,
 				                          0.f,                  0.f,                  1.f, 0.f,
 				                          0.f,                  0.f,                  0.f, 1.f);
 
-				CHECK(transformedMatrix == rotation45Z);
-				transformedMatrix.MakeTransform(Nz::Vector3f::Unit(), Nz::EulerAnglesf(Nz::EulerAnglesf(0.f, 0.f, Nz::DegreeAnglef(45.f)).ToQuaternion()));
+				CHECK(transformedMatrix.ApproxEqual(rotation45Z));
+				transformedMatrix = Nz::Matrix4f::Transform(Nz::Vector3f::Unit(), Nz::EulerAnglesf(Nz::EulerAnglesf(0.f, 0.f, Nz::DegreeAnglef(45.f)).ToQuaternion()));
 				rotation45Z.ApplyTranslation(Nz::Vector3f::Unit());
-				CHECK(transformedMatrix == rotation45Z);
+				CHECK(transformedMatrix.ApproxEqual(rotation45Z));
 			}
 		}
 	}
@@ -196,7 +196,7 @@ SCENARIO("Matrix4", "[MATH][MATRIX4]")
 
 			THEN("We should retrieve it")
 			{
-				REQUIRE(identity.GetRotation() == rotation);
+				REQUIRE(identity.GetRotation().ApproxEqual(rotation));
 			}
 		}
 

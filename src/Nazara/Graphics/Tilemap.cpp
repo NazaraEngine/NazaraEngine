@@ -143,9 +143,9 @@ namespace Nz
 
 				Vector3f tileLeftBottom;
 				if (m_isometricModeEnabled)
-					tileLeftBottom.Set(x * m_tileSize.x + m_tileSize.x / 2.f * (y % 2), topCorner - y / 2.f * m_tileSize.y, 0.f);
+					tileLeftBottom = Vector3f(x * m_tileSize.x + m_tileSize.x / 2.f * (y % 2), topCorner - y / 2.f * m_tileSize.y, 0.f);
 				else
-					tileLeftBottom.Set(x * m_tileSize.x, topCorner - y * m_tileSize.y, 0.f);
+					tileLeftBottom = Vector3f(x * m_tileSize.x, topCorner - y * m_tileSize.y, 0.f);
 
 				for (RectCorner corner : { RectCorner::LeftBottom, RectCorner::RightBottom, RectCorner::LeftTop, RectCorner::RightTop })
 				{

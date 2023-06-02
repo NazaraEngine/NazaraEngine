@@ -26,11 +26,11 @@ namespace Nz
 	* \param normalZ Z component of the normal
 	* \param D Distance to origin
 	*/
-
 	template<typename T>
-	Plane<T>::Plane(T normalX, T normalY, T normalZ, T D)
+	constexpr Plane<T>::Plane(T normalX, T normalY, T normalZ, T D) :
+	normal(normalX, normalY, normalZ),
+	distance(D)
 	{
-		Set(normalX, normalY, normalZ, D);
 	}
 
 	/*!
@@ -38,11 +38,11 @@ namespace Nz
 	*
 	* \param plane[4] plane[0] is X component, plane[1] is Y component, plane[2] is Z component and plane[3] is D
 	*/
-
 	template<typename T>
-	Plane<T>::Plane(const T plane[4])
+	constexpr Plane<T>::Plane(const T plane[4]) :
+	normal(plane[0], plane[1], plane[2]),
+	distance(plane[3])
 	{
-		Set(plane);
 	}
 
 	/*!
@@ -51,11 +51,11 @@ namespace Nz
 	* \param Normal normal of the vector
 	* \param D Distance to origin
 	*/
-
 	template<typename T>
-	Plane<T>::Plane(const Vector3<T>& Normal, T D)
+	constexpr Plane<T>::Plane(const Vector3<T>& Normal, T D) :
+	normal(Normal),
+	distance(D)
 	{
-		Set(Normal, D);
 	}
 
 	/*!
@@ -64,11 +64,11 @@ namespace Nz
 	* \param Normal Normal of the plane
 	* \param point Point which verifies the equation of the plane
 	*/
-
 	template<typename T>
-	Plane<T>::Plane(const Vector3<T>& Normal, const Vector3<T>& point)
+	constexpr Plane<T>::Plane(const Vector3<T>& Normal, const Vector3<T>& point) :
+	normal(Normal),
+	distance(-Normal.DotProduct(point))
 	{
-		Set(Normal, point);
 	}
 
 	/*!
@@ -80,11 +80,15 @@ namespace Nz
 	*
 	* \remark They are expected not to be colinear
 	*/
-
 	template<typename T>
 	Plane<T>::Plane(const Vector3<T>& point1, const Vector3<T>& point2, const Vector3<T>& point3)
 	{
-		Set(point1, point2, point3);
+		Vector3<T> edge1 = point2 - point1;
+		Vector3<T> edge2 = point3 - point1;
+		normal = edge1.CrossProduct(edge2);
+		normal.Normalize();
+
+		distance = normal.DotProduct(point3);
 	}
 
 	/*!
@@ -92,12 +96,21 @@ namespace Nz
 	*
 	* \param plane Plane of type U to convert to type T
 	*/
-
 	template<typename T>
 	template<typename U>
-	Plane<T>::Plane(const Plane<U>& plane)
+	constexpr Plane<T>::Plane(const Plane<U>& plane) :
+	normal(Vector3<T>(plane.normal)),
+	distance(T(plane.distance))
 	{
-		Set(plane);
+	}
+
+	template<typename T>
+	constexpr bool Plane<T>::ApproxEqual(const Plane& plane, T maxDifference) const
+	{
+		if (!normal.ApproxEqual(plane.normal, maxDifference))
+			return false;
+
+		return NumberEquals(distance, plane.distance, maxDifference);
 	}
 
 	/*!
@@ -112,9 +125,8 @@ namespace Nz
 	*
 	* \see Distance
 	*/
-
 	template<typename T>
-	T Plane<T>::Distance(T x, T y, T z) const
+	constexpr T Plane<T>::Distance(T x, T y, T z) const
 	{
 		return Distance(Vector3<T>(x, y, z));
 	}
@@ -129,160 +141,10 @@ namespace Nz
 	*
 	* \see Distance
 	*/
-
 	template<typename T>
-	T Plane<T>::Distance(const Vector3<T>& point) const
+	constexpr T Plane<T>::Distance(const Vector3<T>& point) const
 	{
 		return normal.DotProduct(point) - distance; // ax + by + cd - d = 0.
-	}
-
-	/*!
-	* \brief Makes the plane (0, 0, 1, 0)
-	* \return A reference to this plane with components (0, 0, 1, 0)
-	*
-	* \see XY
-	*/
-
-	template<typename T>
-	Plane<T>& Plane<T>::MakeXY()
-	{
-		return Set(T(0.0), T(0.0), T(1.0), T(0.0));
-	}
-
-	/*!
-	* \brief Makes the plane (0, 1, 0, 0)
-	* \return A reference to this plane with components (0, 1, 0, 0)
-	*
-	* \see XZ
-	*/
-
-	template<typename T>
-	Plane<T>& Plane<T>::MakeXZ()
-	{
-		return Set(T(0.0), T(1.0), T(0.0), T(0.0));
-	}
-
-	/*!
-	* \brief Makes the plane (1, 0, 0, 0)
-	* \return A reference to this plane with components (1, 0, 0, 0)
-	*
-	* \see YZ
-	*/
-
-	template<typename T>
-	Plane<T>& Plane<T>::MakeYZ()
-	{
-		return Set(T(1.0), T(0.0), T(0.0), T(0.0));
-	}
-
-	/*!
-	* \brief Sets the components of the plane
-	* \return A reference to this plane
-	*
-	* \param normalX X component of the normal
-	* \param normalY Y component of the normal
-	* \param normalZ Z component of the normal
-	* \param D Distance to origin
-	*/
-
-	template<typename T>
-	Plane<T>& Plane<T>::Set(T normalX, T normalY, T normalZ, T D)
-	{
-		distance = D;
-		normal.Set(normalX, normalY, normalZ);
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the plane from an array of four elements
-	* \return A reference to this plane
-	*
-	* \param plane[4] plane[0] is X component, plane[1] is Y component, plane[2] is Z component and plane[3] is D
-	*/
-
-	template<typename T>
-	Plane<T>& Plane<T>::Set(const T plane[4])
-	{
-		normal.Set(plane[0], plane[1], plane[2]);
-		distance = plane[3];
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the plane from a normal and a distance
-	* \return A reference to this plane
-	*
-	* \param Normal Normal of the vector
-	* \param D Distance to origin
-	*/
-
-	template<typename T>
-	Plane<T>& Plane<T>::Set(const Vector3<T>& Normal, T D)
-	{
-		distance = D;
-		normal = Normal;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the plane from a normal and a point
-	* \return A reference to this plane
-	*
-	* \param Normal Normal of the plane
-	* \param point Point which verifies the equation of the plane
-	*/
-
-	template<typename T>
-	Plane<T>& Plane<T>::Set(const Vector3<T>& Normal, const Vector3<T>& point)
-	{
-		normal = Normal;
-		distance = -normal.DotProduct(point);
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the plane from three points
-	* \return A reference to this plane
-	*
-	* \param point1 First point
-	* \param point2 Second point
-	* \param point3 Third point
-	*
-	* \remark They are expected not to be colinear
-	*/
-
-	template<typename T>
-	Plane<T>& Plane<T>::Set(const Vector3<T>& point1, const Vector3<T>& point2, const Vector3<T>& point3)
-	{
-		Vector3<T> edge1 = point2 - point1;
-		Vector3<T> edge2 = point3 - point1;
-		normal = edge1.CrossProduct(edge2);
-		normal.Normalize();
-
-		distance = normal.DotProduct(point3);
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the plane from another type of Plane
-	* \return A reference to this plane
-	*
-	* \param plane Plane of type U to convert its components
-	*/
-
-	template<typename T>
-	template<typename U>
-	Plane<T>& Plane<T>::Set(const Plane<U>& plane)
-	{
-		normal.Set(plane.normal);
-		distance = T(plane.distance);
-
-		return *this;
 	}
 
 	/*!
@@ -309,9 +171,9 @@ namespace Nz
 	*/
 
 	template<typename T>
-	bool Plane<T>::operator==(const Plane& plane) const
+	constexpr bool Plane<T>::operator==(const Plane& plane) const
 	{
-		return (normal == plane.normal && NumberEquals(distance, plane.distance)) || (normal == -plane.normal && NumberEquals(distance, -plane.distance));
+		return normal == plane.normal && distance == plane.distance;
 	}
 
 	/*!
@@ -324,9 +186,15 @@ namespace Nz
 	*/
 
 	template<typename T>
-	bool Plane<T>::operator!=(const Plane& plane) const
+	constexpr bool Plane<T>::operator!=(const Plane& plane) const
 	{
 		return !operator==(plane);
+	}
+
+	template<typename T>
+	constexpr bool Plane<T>::ApproxEqual(const Plane& lhs, const Plane& rhs, T maxDifference)
+	{
+		return lhs.ApproxEqual(rhs, maxDifference);
 	}
 
 	/*!
@@ -340,7 +208,7 @@ namespace Nz
 	* \remark All three planes must have differents normals otherwise result is undefined
 	*/
 	template<typename T>
-	Vector3<T> Plane<T>::Intersect(const Plane& p0, const Plane& p1, const Plane& p2)
+	constexpr Vector3<T> Plane<T>::Intersect(const Plane& p0, const Plane& p1, const Plane& p2)
 	{
 		// From https://donw.io/post/frustum-point-extraction/
 		Vector3f bxc = Vector3f::CrossProduct(p1.normal, p2.normal);
@@ -365,7 +233,7 @@ namespace Nz
 	* \see Lerp
 	*/
 	template<typename T>
-	Plane<T> Plane<T>::Lerp(const Plane& from, const Plane& to, T interpolation)
+	constexpr Plane<T> Plane<T>::Lerp(const Plane& from, const Plane& to, T interpolation)
 	{
 		#ifdef NAZARA_DEBUG
 		if (interpolation < T(0.0) || interpolation > T(1.0))
@@ -386,49 +254,31 @@ namespace Nz
 	/*!
 	* \brief Shorthand for the plane (0, 0, 1, 0)
 	* \return A plane with components (0, 0, 1, 0)
-	*
-	* \see MakeXY
 	*/
-
 	template<typename T>
-	Plane<T> Plane<T>::XY()
+	constexpr Plane<T> Plane<T>::XY()
 	{
-		Plane plane;
-		plane.MakeXY();
-
-		return plane;
+		return Plane(Vector3<T>::UnitZ(), 0);
 	}
 
 	/*!
 	* \brief Shorthand for the plane (0, 1, 0, 0)
 	* \return A plane with components (0, 1, 0, 0)
-	*
-	* \see MakeXZ
 	*/
-
 	template<typename T>
-	Plane<T> Plane<T>::XZ()
+	constexpr Plane<T> Plane<T>::XZ()
 	{
-		Plane plane;
-		plane.MakeXZ();
-
-		return plane;
+		return Plane(Vector3<T>::UnitY(), 0);
 	}
 
 	/*!
 	* \brief Shorthand for the plane (1, 0, 0, 0)
 	* \return A plane with components (1, 0, 0, 0)
-	*
-	* \see MakeYZ
 	*/
-
 	template<typename T>
-	Plane<T> Plane<T>::YZ()
+	constexpr Plane<T> Plane<T>::YZ()
 	{
-		Plane plane;
-		plane.MakeYZ();
-
-		return plane;
+		return Plane(Vector3<T>::UnitX(), 0);
 	}
 
 	/*!
@@ -484,3 +334,4 @@ namespace Nz
 }
 
 #include <Nazara/Core/DebugOff.hpp>
+#include "Plane.hpp"

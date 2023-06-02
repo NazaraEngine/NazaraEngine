@@ -27,9 +27,8 @@ namespace Nz
 	*
 	* \remark Position will be (0, 0)
 	*/
-
 	template<typename T>
-	Rect<T>::Rect(T Width, T Height) :
+	constexpr Rect<T>::Rect(T Width, T Height) :
 	x(0),
 	y(0),
 	width(Width),
@@ -46,7 +45,7 @@ namespace Nz
 	* \param Height Height of the rectangle (following Y)
 	*/
 	template<typename T>
-	Rect<T>::Rect(T X, T Y, T Width, T Height) :
+	constexpr Rect<T>::Rect(T X, T Y, T Width, T Height) :
 	x(X),
 	y(Y),
 	width(Width),
@@ -61,7 +60,7 @@ namespace Nz
 	* \param lengths (Width, Height) of the rect
 	*/
 	template<typename T>
-	Rect<T>::Rect(const Vector2<T>& lengths) :
+	constexpr Rect<T>::Rect(const Vector2<T>& lengths) :
 	Rect(Vector2<T>::Zero(), lengths)
 	{
 	}
@@ -73,13 +72,14 @@ namespace Nz
 	* \param lengths (Width, Height) of the rect
 	*/
 	template<typename T>
-	Rect<T>::Rect(const Vector2<T>& pos, const Vector2<T>& lengths) :
+	constexpr Rect<T>::Rect(const Vector2<T>& pos, const Vector2<T>& lengths) :
 	x(pos.x),
 	y(pos.y),
 	width(lengths.x),
 	height(lengths.y)
 	{
 	}
+
 	/*!
 	* \brief Constructs a Rect object from another type of Rect
 	*
@@ -88,7 +88,7 @@ namespace Nz
 
 	template<typename T>
 	template<typename U>
-	Rect<T>::Rect(const Rect<U>& rect) :
+	constexpr Rect<T>::Rect(const Rect<U>& rect) :
 	x(static_cast<T>(rect.x)),
 	y(static_cast<T>(rect.y)),
 	width(static_cast<T>(rect.width)),
@@ -97,7 +97,7 @@ namespace Nz
 	}
 
 	template<typename T>
-	bool Rect<T>::ApproxEquals(const Rect& rect, T maxDifference) const
+	constexpr bool Rect<T>::ApproxEqual(const Rect& rect, T maxDifference) const
 	{
 		return NumberEquals(x, rect.x, maxDifference) && NumberEquals(y, rect.y, maxDifference) &&
 		       NumberEquals(width, rect.width, maxDifference) && NumberEquals(height, rect.height, maxDifference);
@@ -112,9 +112,8 @@ namespace Nz
 	*
 	* \see Contains
 	*/
-
 	template<typename T>
-	bool Rect<T>::Contains(T X, T Y) const
+	constexpr bool Rect<T>::Contains(T X, T Y) const
 	{
 		return X >= x && X < (x + width) &&
 		       Y >= y && Y < (y + height);
@@ -129,7 +128,7 @@ namespace Nz
 	* \see Contains
 	*/
 	template<typename T>
-	bool Rect<T>::Contains(const Rect<T>& rect) const
+	constexpr bool Rect<T>::Contains(const Rect<T>& rect) const
 	{
 		return Contains(rect.x, rect.y) &&
 		       Contains(rect.x + rect.width, rect.y + rect.height);
@@ -144,7 +143,7 @@ namespace Nz
 	* \see Contains
 	*/
 	template<typename T>
-	bool Rect<T>::Contains(const Vector2<T>& point) const
+	constexpr bool Rect<T>::Contains(const Vector2<T>& point) const
 	{
 		return Contains(point.x, point.y);
 	}
@@ -159,7 +158,7 @@ namespace Nz
 	* \see ExtendTo
 	*/
 	template<typename T>
-	Rect<T>& Rect<T>::ExtendTo(T X, T Y)
+	constexpr Rect<T>& Rect<T>::ExtendTo(T X, T Y)
 	{
 		width = std::max(x + width, X);
 		height = std::max(y + height, Y);
@@ -182,7 +181,7 @@ namespace Nz
 	* \see ExtendTo
 	*/
 	template<typename T>
-	Rect<T>& Rect<T>::ExtendTo(const Rect& rect)
+	constexpr Rect<T>& Rect<T>::ExtendTo(const Rect& rect)
 	{
 		width = std::max(x + width, rect.x + rect.width);
 		height = std::max(y + height, rect.y + rect.height);
@@ -204,9 +203,8 @@ namespace Nz
 	*
 	* \see ExtendTo
 	*/
-
 	template<typename T>
-	Rect<T>& Rect<T>::ExtendTo(const Vector2<T>& point)
+	constexpr Rect<T>& Rect<T>::ExtendTo(const Vector2<T>& point)
 	{
 		return ExtendTo(point.x, point.y);
 	}
@@ -217,7 +215,7 @@ namespace Nz
 	*/
 
 	template<typename T>
-	Vector2<T> Rect<T>::GetCenter() const
+	constexpr Vector2<T> Rect<T>::GetCenter() const
 	{
 		return GetPosition() + GetLengths() / T(2.0);
 	}
@@ -230,9 +228,8 @@ namespace Nz
 	*
 	* \remark If enumeration is not defined in RectCorner, a NazaraError is thrown and a Vector2 uninitialised is returned
 	*/
-
 	template<typename T>
-	Vector2<T> Rect<T>::GetCorner(RectCorner corner) const
+	constexpr Vector2<T> Rect<T>::GetCorner(RectCorner corner) const
 	{
 		switch (corner)
 		{
@@ -257,9 +254,8 @@ namespace Nz
 	* \brief Gets a Vector2 for the lengths
 	* \return The lengths of the rectangle (width, height)
 	*/
-
 	template<typename T>
-	Vector2<T> Rect<T>::GetLengths() const
+	constexpr Vector2<T> Rect<T>::GetLengths() const
 	{
 		return Vector2<T>(width, height);
 	}
@@ -270,9 +266,8 @@ namespace Nz
 	*
 	* \see GetCorner
 	*/
-
 	template<typename T>
-	Vector2<T> Rect<T>::GetMaximum() const
+	constexpr Vector2<T> Rect<T>::GetMaximum() const
 	{
 		return GetPosition() + GetLengths();
 	}
@@ -283,9 +278,8 @@ namespace Nz
 	*
 	* \see GetCorner, GetPosition
 	*/
-
 	template<typename T>
-	Vector2<T> Rect<T>::GetMinimum() const
+	constexpr Vector2<T> Rect<T>::GetMinimum() const
 	{
 		return GetPosition();
 	}
@@ -298,9 +292,8 @@ namespace Nz
 	*
 	* \see GetPositiveVertex
 	*/
-
 	template<typename T>
-	Vector2<T> Rect<T>::GetNegativeVertex(const Vector2<T>& normal) const
+	constexpr Vector2<T> Rect<T>::GetNegativeVertex(const Vector2<T>& normal) const
 	{
 		Vector2<T> neg(GetPosition());
 
@@ -319,9 +312,8 @@ namespace Nz
 	*
 	* \see GetCorner, GetMinimum
 	*/
-
 	template<typename T>
-	Vector2<T> Rect<T>::GetPosition() const
+	constexpr Vector2<T> Rect<T>::GetPosition() const
 	{
 		return Vector2<T>(x, y);
 	}
@@ -334,9 +326,8 @@ namespace Nz
 	*
 	* \see GetNegativeVertex
 	*/
-
 	template<typename T>
-	Vector2<T> Rect<T>::GetPositiveVertex(const Vector2<T>& normal) const
+	constexpr Vector2<T> Rect<T>::GetPositiveVertex(const Vector2<T>& normal) const
 	{
 		Vector2<T> pos(GetPosition());
 
@@ -356,9 +347,8 @@ namespace Nz
 	* \param rect Rectangle to check
 	* \param intersection Optional argument for the rectangle which represent the intersection
 	*/
-
 	template<typename T>
-	bool Rect<T>::Intersect(const Rect& rect, Rect* intersection) const
+	constexpr bool Rect<T>::Intersect(const Rect& rect, Rect* intersection) const
 	{
 		T left = std::max(x, rect.x);
 		T right = std::min(x + width, rect.x + rect.width);
@@ -384,7 +374,7 @@ namespace Nz
 	* \return true if the rectangle has a positive width and height
 	*/
 	template<typename T>
-	bool Rect<T>::IsNull() const
+	constexpr bool Rect<T>::IsNull() const
 	{
 		return width <= T(0.0) && height <= T(0.0);
 	}
@@ -394,27 +384,9 @@ namespace Nz
 	* \return true if the rectangle has a positive width and height
 	*/
 	template<typename T>
-	bool Rect<T>::IsValid() const
+	constexpr bool Rect<T>::IsValid() const
 	{
 		return width >= T(0.0) && height >= T(0.0);
-	}
-
-	/*!
-	* \brief Makes the rectangle position (0, 0) and lengths (0, 0)
-	* \return A reference to this box with position (0, 0) and lengths (0, 0)
-	*
-	* \see Zero
-	*/
-
-	template<typename T>
-	Rect<T>& Rect<T>::MakeZero()
-	{
-		x = T(0.0);
-		y = T(0.0);
-		width = T(0.0);
-		height = T(0.0);
-
-		return *this;
 	}
 
 	/*!
@@ -423,9 +395,8 @@ namespace Nz
 	*
 	* \param scalar The scalar to multiply width and height with
 	*/
-
 	template<typename T>
-	Rect<T>& Rect<T>::Scale(T scalar)
+	constexpr Rect<T>& Rect<T>::Scale(T scalar)
 	{
 		width *= scalar;
 		height *= scalar;
@@ -439,10 +410,45 @@ namespace Nz
 	*
 	* \param vec The vector where component one multiply width and two height
 	*/
-
 	template<typename T>
-	Rect<T>& Rect<T>::Scale(const Vector2<T>& vec)
+	constexpr Rect<T>& Rect<T>::Scale(const Vector2<T>& vec)
 	{
+		width *= vec.x;
+		height *= vec.y;
+
+		return *this;
+	}
+
+	/*!
+	* \brief Multiplies the lengths of this box with the scalar (the box center doesn't move)
+	* \return A reference to this box where lengths are the product of these lengths and the scalar
+	*
+	* \param scalar The scalar to multiply width, height and depth with
+	*/
+	template<typename T>
+	constexpr Rect<T>& Rect<T>::ScaleAroundCenter(T scalar)
+	{
+		x -= (width * scalar - width) / T(2.0);
+		y -= (height * scalar - height) / T(2.0);
+
+		width *= scalar;
+		height *= scalar;
+
+		return *this;
+	}
+
+	/*!
+	* \brief Multiplies the lengths of this box with the vector but changes the origin (the box center doesn't move)
+	* \return A reference to this box where width, height and depth are the product of the old width,  height and depth with the vec
+	*
+	* \param vec The vector where component one multiply width, two height and three depth
+	*/
+	template<typename T>
+	constexpr Rect<T>& Rect<T>::ScaleAroundCenter(const Vector2<T>& vec)
+	{
+		x -= (width * vec.x - width) / T(2.0);
+		y -= (height * vec.y - height) / T(2.0);
+
 		width *= vec.x;
 		height *= vec.y;
 
@@ -469,9 +475,8 @@ namespace Nz
 	*
 	* \param translation Vector2 which is the translation for the position
 	*/
-
 	template<typename T>
-	Rect<T>& Rect<T>::Translate(const Vector2<T>& translation)
+	constexpr Rect<T>& Rect<T>::Translate(const Vector2<T>& translation)
 	{
 		x += translation.x;
 		y += translation.y;
@@ -487,9 +492,8 @@ namespace Nz
 	* \remark Produce a NazaraError if you try to access to index greater than 4 with NAZARA_MATH_SAFE defined
 	* \throw std::domain_error if NAZARA_MATH_SAFE is defined and one of you try to acces to index greather than 4
 	*/
-
 	template<typename T>
-	T& Rect<T>::operator[](std::size_t i)
+	constexpr T& Rect<T>::operator[](std::size_t i)
 	{
 		NazaraAssert(i < 4, "Index out of range");
 
@@ -504,9 +508,8 @@ namespace Nz
 	* \remark Produce a NazaraError if you try to access to index greater than 4 with NAZARA_MATH_SAFE defined
 	* \throw std::domain_error if NAZARA_MATH_SAFE is defined and one of you try to acces to index greather than 4
 	*/
-
 	template<typename T>
-	const T& Rect<T>::operator[](std::size_t i) const
+	constexpr const T& Rect<T>::operator[](std::size_t i) const
 	{
 		NazaraAssert(i < 4, "Index out of range");
 
@@ -521,7 +524,7 @@ namespace Nz
 	*/
 
 	template<typename T>
-	bool Rect<T>::operator==(const Rect& rect) const
+	constexpr bool Rect<T>::operator==(const Rect& rect) const
 	{
 		return x == rect.x && y == rect.y && width == rect.width && height == rect.height;
 	}
@@ -532,11 +535,16 @@ namespace Nz
 	*
 	* \param rect Other rectangle to compare with
 	*/
-
 	template<typename T>
-	bool Rect<T>::operator!=(const Rect& rect) const
+	constexpr bool Rect<T>::operator!=(const Rect& rect) const
 	{
 		return !operator==(rect);
+	}
+
+	template<typename T>
+	constexpr bool Rect<T>::ApproxEqual(const Rect& lhs, const Rect& rhs, T maxDifference)
+	{
+		return lhs.ApproxEqual(rhs, maxDifference);
 	}
 
 	/*!
@@ -548,7 +556,7 @@ namespace Nz
 	* \param vec2 Second point
 	*/
 	template<typename T>
-	Rect<T> Rect<T>::FromExtends(const Vector2<T>& vec1, const Vector2<T>& vec2)
+	constexpr Rect<T> Rect<T>::FromExtends(const Vector2<T>& vec1, const Vector2<T>& vec2)
 	{
 		Rect rect;
 		rect.x = std::min(vec1.x, vec2.x);
@@ -570,7 +578,7 @@ namespace Nz
 	* \see Lerp
 	*/
 	template<typename T>
-	Rect<T> Rect<T>::Lerp(const Rect& from, const Rect& to, T interpolation)
+	constexpr Rect<T> Rect<T>::Lerp(const Rect& from, const Rect& to, T interpolation)
 	{
 		Rect rect;
 		rect.x = Nz::Lerp(from.x, to.x, interpolation);
@@ -584,11 +592,9 @@ namespace Nz
 	/*!
 	* \brief Shorthand for the rectangle (0, 0, 0, 0)
 	* \return A rectangle with position (0, 0) and lengths (0, 0)
-	*
-	* \see MakeZero
 	*/
 	template<typename T>
-	Rect<T> Rect<T>::Invalid()
+	constexpr Rect<T> Rect<T>::Invalid()
 	{
 		return Rect(-1, -1, -1, -1);
 	}
@@ -596,11 +602,9 @@ namespace Nz
 	/*!
 	* \brief Shorthand for the rectangle (0, 0, 0, 0)
 	* \return A rectangle with position (0, 0) and lengths (0, 0)
-	*
-	* \see MakeZero
 	*/
 	template<typename T>
-	Rect<T> Rect<T>::Zero()
+	constexpr Rect<T> Rect<T>::Zero()
 	{
 		return Rect(0, 0, 0, 0);
 	}
@@ -671,3 +675,4 @@ namespace Nz
 }
 
 #include <Nazara/Core/DebugOff.hpp>
+#include "Rect.hpp"

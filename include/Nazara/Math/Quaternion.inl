@@ -30,11 +30,13 @@ namespace Nz
 	* \param Y Y component
 	* \param Z Z component
 	*/
-
 	template<typename T>
-	Quaternion<T>::Quaternion(T W, T X, T Y, T Z)
+	constexpr Quaternion<T>::Quaternion(T W, T X, T Y, T Z) :
+	w(W),
+	x(X),
+	y(Y),
+	z(Z)
 	{
-		Set(W, X, Y, Z);
 	}
 
 	/*!
@@ -44,9 +46,9 @@ namespace Nz
 	*/
 	template<typename T>
 	template<AngleUnit Unit>
-	Quaternion<T>::Quaternion(const Angle<Unit, T>& angle)
+	Quaternion<T>::Quaternion(const Angle<Unit, T>& angle) :
+	Quaternion(angle.ToQuaternion())
 	{
-		Set(angle);
 	}
 
 	/*!
@@ -57,9 +59,9 @@ namespace Nz
 	* \see EulerAngles
 	*/
 	template<typename T>
-	Quaternion<T>::Quaternion(const EulerAngles<T>& angles)
+	Quaternion<T>::Quaternion(const EulerAngles<T>& angles) :
+	Quaternion(angles.ToQuaternion())
 	{
-		Set(angles);
 	}
 
 	/*!
@@ -68,11 +70,21 @@ namespace Nz
 	* \param angle Angle to rotate along the axis
 	* \param axis Vector3 which represents a direction, no need to be normalized
 	*/
-
 	template<typename T>
-	Quaternion<T>::Quaternion(RadianAngle<T> angle, const Vector3<T>& axis)
+	constexpr Quaternion<T>::Quaternion(RadianAngle<T> angle, const Vector3<T>& axis)
 	{
-		Set(angle, axis);
+		angle /= T(2.0);
+
+		Vector3<T> normalizedAxis = axis.GetNormal();
+
+		auto sincos = angle.GetSinCos();
+
+		w = sincos.second;
+		x = normalizedAxis.x * sincos.first;
+		y = normalizedAxis.y * sincos.first;
+		z = normalizedAxis.z * sincos.first;
+
+		Normalize();
 	}
 
 	/*!
@@ -80,20 +92,14 @@ namespace Nz
 	*
 	* \param quat[4] quat[0] is W component, quat[1] is X component, quat[2] is Y component and quat[3] is Z component
 	*/
-
 	template<typename T>
-	Quaternion<T>::Quaternion(const T quat[4])
+	constexpr Quaternion<T>::Quaternion(const T quat[4]) :
+	w(quat[0]),
+	x(quat[1]),
+	y(quat[2]),
+	z(quat[3])
 	{
-		Set(quat);
 	}
-
-	/*
-	template<typename T>
-	Quaternion<T>::Quaternion(const Matrix3<T>& mat)
-	{
-		Set(mat);
-	}
-	*/
 
 	/*!
 	* \brief Constructs a Quaternion object from another type of Quaternion
@@ -103,16 +109,27 @@ namespace Nz
 
 	template<typename T>
 	template<typename U>
-	Quaternion<T>::Quaternion(const Quaternion<U>& quat)
+	constexpr Quaternion<T>::Quaternion(const Quaternion<U>& quat) :
+	w(static_cast<T>(quat.w)),
+	x(static_cast<T>(quat.x)),
+	y(static_cast<T>(quat.y)),
+	z(static_cast<T>(quat.z))
 	{
-		Set(quat);
+	}
+
+	template<typename T>
+	constexpr bool Quaternion<T>::ApproxEqual(const Quaternion& quat, T maxDifference) const
+	{
+		return NumberEquals(w, quat.w, maxDifference) &&
+		       NumberEquals(x, quat.x, maxDifference) &&
+		       NumberEquals(y, quat.y, maxDifference) &&
+		       NumberEquals(z, quat.z, maxDifference);
 	}
 
 	/*!
 	* \brief Computes the w component of the quaternion to make it unit
 	* \return A reference to this quaternion
 	*/
-
 	template<typename T>
 	Quaternion<T>& Quaternion<T>::ComputeW()
 	{
@@ -134,9 +151,8 @@ namespace Nz
 	*
 	* \see GetConjugate
 	*/
-
 	template<typename T>
-	Quaternion<T>& Quaternion<T>::Conjugate()
+	constexpr Quaternion<T>& Quaternion<T>::Conjugate()
 	{
 		x = -x;
 		y = -y;
@@ -151,9 +167,8 @@ namespace Nz
 	*
 	* \param quat The other quaternion to calculate the dot product with
 	*/
-
 	template<typename T>
-	T Quaternion<T>::DotProduct(const Quaternion& quat) const
+	constexpr T Quaternion<T>::DotProduct(const Quaternion& quat) const
 	{
 		return w * quat.w + x * quat.x + y * quat.y + z * quat.z;
 	}
@@ -166,9 +181,8 @@ namespace Nz
 	*
 	* \see Conjugate
 	*/
-
 	template<typename T>
-	Quaternion<T> Quaternion<T>::GetConjugate() const
+	constexpr Quaternion<T> Quaternion<T>::GetConjugate() const
 	{
 		Quaternion<T> quat(*this);
 		quat.Conjugate();
@@ -184,7 +198,6 @@ namespace Nz
 	*
 	* \see Inverse
 	*/
-
 	template<typename T>
 	Quaternion<T> Quaternion<T>::GetInverse() const
 	{
@@ -204,7 +217,6 @@ namespace Nz
 	*
 	* \see Normalize
 	*/
-
 	template<typename T>
 	Quaternion<T> Quaternion<T>::GetNormal(T* length) const
 	{
@@ -222,7 +234,6 @@ namespace Nz
 	*
 	* \see GetInverse
 	*/
-
 	template<typename T>
 	Quaternion<T>& Quaternion<T>::Inverse()
 	{
@@ -241,80 +252,11 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Makes the quaternion (1, 0, 0, 0)
-	* \return A reference to this vector with components (1, 0, 0, 0)
-	*
-	* \see Unit
-	*/
-
-	template<typename T>
-	Quaternion<T>& Quaternion<T>::MakeIdentity()
-	{
-		return Set(T(1.0), T(0.0), T(0.0), T(0.0));
-	}
-
-	/*!
-	* \brief Makes this quaternion to the rotation required to rotate direction Vector3 from to direction Vector3 to
-	* \return A reference to this vector which is the rotation needed
-	*
-	* \param from Initial vector
-	* \param to Target vector
-	*
-	* \remark Vectors are not required to be normalized
-	*
-	* \see RotationBetween
-	*/
-
-	template<typename T>
-	Quaternion<T>& Quaternion<T>::MakeRotationBetween(const Vector3<T>& from, const Vector3<T>& to)
-	{
-		T dot = from.DotProduct(to);
-		if (dot < T(-0.999999))
-		{
-			Vector3<T> crossProduct;
-			if (from.DotProduct(Vector3<T>::UnitX()) < T(0.999999))
-				crossProduct = Vector3<T>::UnitX().CrossProduct(from);
-			else
-				crossProduct = Vector3<T>::UnitY().CrossProduct(from);
-
-			crossProduct.Normalize();
-			Set(Pi<T>, crossProduct);
-			return *this;
-		}
-		else if (dot > T(0.999999))
-		{
-			Set(T(1.0), T(0.0), T(0.0), T(0.0));
-			return *this;
-		}
-		else
-		{
-			T norm = std::sqrt(from.GetSquaredLength() * to.GetSquaredLength());
-			Vector3<T> crossProduct = from.CrossProduct(to);
-			Set(norm + dot, crossProduct.x, crossProduct.y, crossProduct.z);
-			return Normalize();
-		}
-	}
-
-	/*!
-	* \brief Makes the quaternion (0, 0, 0, 0)
-	* \return A reference to this vector with components (0, 0, 0, 0)
-	*
-	* \see Zero
-	*/
-
-	template<typename T>
-	Quaternion<T>& Quaternion<T>::MakeZero()
-	{
-		return Set(T(0.0), T(0.0), T(0.0), T(0.0));
-	}
-
-	/*!
 	* \brief Calculates the magnitude (length) of the quaternion
 	* \return The magnitude
 	*
 	* \see SquaredMagnitude
 	*/
-
 	template<typename T>
 	T Quaternion<T>::Magnitude() const
 	{
@@ -331,7 +273,6 @@ namespace Nz
 	*
 	* \see GetNormal
 	*/
-
 	template<typename T>
 	Quaternion<T>& Quaternion<T>::Normalize(T* length)
 	{
@@ -352,126 +293,13 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets the components of the quaternion
-	* \return A reference to this quaternion
-	*
-	* \param W W component
-	* \param X X component
-	* \param Y Y component
-	* \param Z Z component
-	*/
-
-	template<typename T>
-	Quaternion<T>& Quaternion<T>::Set(T W, T X, T Y, T Z)
-	{
-		w = W;
-		x = X;
-		y = Y;
-		z = Z;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets this quaternion from a 2D rotation specified by an Angle
-	* \return A reference to this quaternion
-	*
-	* \param angle 2D angle
-	*
-	* \see Angle
-	*/
-	template<typename T>
-	template<AngleUnit Unit>
-	Quaternion<T>& Quaternion<T>::Set(const Angle<Unit, T>& angle)
-	{
-		return Set(angle.ToQuaternion());
-	}
-
-	/*!
-	* \brief Sets this quaternion from rotation specified by Euler angle
-	* \return A reference to this quaternion
-	*
-	* \param angles Easier representation of rotation of space
-	*
-	* \see EulerAngles
-	*/
-	template<typename T>
-	Quaternion<T>& Quaternion<T>::Set(const EulerAngles<T>& angles)
-	{
-		return Set(angles.ToQuaternion());
-	}
-
-	/*!
-	* \brief Sets this quaternion from rotation specified by axis and angle
-	* \return A reference to this quaternion
-	*
-	* \param angle Angle to rotate along the axis
-	* \param axis Vector3 which represents a direction, no need to be normalized
-	*/
-
-	template<typename T>
-	Quaternion<T>& Quaternion<T>::Set(RadianAngle<T> angle, const Vector3<T>& axis)
-	{
-		angle /= T(2.0);
-
-		Vector3<T> normalizedAxis = axis.GetNormal();
-
-		auto sincos = angle.GetSinCos();
-
-		w = sincos.second;
-		x = normalizedAxis.x * sincos.first;
-		y = normalizedAxis.y * sincos.first;
-		z = normalizedAxis.z * sincos.first;
-
-		return Normalize();
-	}
-
-	/*!
-	* \brief Sets the components of the quaternion from an array of four elements
-	* \return A reference to this quaternion
-	*
-	* \param quat[4] quat[0] is W component, quat[1] is X component, quat[2] is Y component and quat[3] is Z component
-	*/
-
-	template<typename T>
-	Quaternion<T>& Quaternion<T>::Set(const T quat[4])
-	{
-		w = quat[0];
-		x = quat[1];
-		y = quat[2];
-		z = quat[3];
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the quaternion from another type of Quaternion
-	* \return A reference to this quaternion
-	*
-	* \param quat Quaternion of type U to convert its components
-	*/
-
-	template<typename T>
-	template<typename U>
-	Quaternion<T>& Quaternion<T>::Set(const Quaternion<U>& quat)
-	{
-		w = T(quat.w);
-		x = T(quat.x);
-		y = T(quat.y);
-		z = T(quat.z);
-
-		return *this;
-	}
-
-	/*!
 	* \brief Calculates the squared magnitude (length) of the quaternion
 	* \return The squared magnitude
 	*
 	* \see Magnitude
 	*/
-
 	template<typename T>
-	T Quaternion<T>::SquaredMagnitude() const
+	constexpr T Quaternion<T>::SquaredMagnitude() const
 	{
 		return w * w + x * x + y * y + z * z;
 	}
@@ -518,7 +346,6 @@ namespace Nz
 	* \brief Gives a string representation
 	* \return A string representation of the object: "Quaternion(w | x, y, z)"
 	*/
-
 	template<typename T>
 	std::string Quaternion<T>::ToString() const
 	{
@@ -534,9 +361,8 @@ namespace Nz
 	*
 	* \param quat The other quaternion to add components with
 	*/
-
 	template<typename T>
-	Quaternion<T> Quaternion<T>::operator+(const Quaternion& quat) const
+	constexpr Quaternion<T> Quaternion<T>::operator+(const Quaternion& quat) const
 	{
 		Quaternion result;
 		result.w = w + quat.w;
@@ -553,9 +379,8 @@ namespace Nz
 	*
 	* \param quat The other quaternion to multiply with
 	*/
-
 	template<typename T>
-	Quaternion<T> Quaternion<T>::operator*(const Quaternion& quat) const
+	constexpr Quaternion<T> Quaternion<T>::operator*(const Quaternion& quat) const
 	{
 		Quaternion result;
 		result.w = w * quat.w - x * quat.x - y * quat.y - z * quat.z;
@@ -572,9 +397,8 @@ namespace Nz
 	*
 	* \param vec The vector to multiply with
 	*/
-
 	template<typename T>
-	Vector3<T> Quaternion<T>::operator*(const Vector3<T>& vec) const
+	constexpr Vector3<T> Quaternion<T>::operator*(const Vector3<T>& vec) const
 	{
 		Vector3<T> quatVec(x, y, z);
 		Vector3<T> uv = quatVec.CrossProduct(vec);
@@ -591,9 +415,8 @@ namespace Nz
 	*
 	* \param scale The scalar to multiply components with
 	*/
-
 	template<typename T>
-	Quaternion<T> Quaternion<T>::operator*(T scale) const
+	constexpr Quaternion<T> Quaternion<T>::operator*(T scale) const
 	{
 		return Quaternion(w * scale,
 		                  x * scale,
@@ -607,9 +430,8 @@ namespace Nz
 	*
 	* \param quat The other quaternion to divide with
 	*/
-
 	template<typename T>
-	Quaternion<T> Quaternion<T>::operator/(const Quaternion& quat) const
+	constexpr Quaternion<T> Quaternion<T>::operator/(const Quaternion& quat) const
 	{
 		return quat.GetConjugate() * (*this);
 	}
@@ -620,9 +442,8 @@ namespace Nz
 	*
 	* \param quat The other quaternion to add components with
 	*/
-
 	template<typename T>
-	Quaternion<T>& Quaternion<T>::operator+=(const Quaternion& quat)
+	constexpr Quaternion<T>& Quaternion<T>::operator+=(const Quaternion& quat)
 	{
 		return operator=(operator+(quat));
 	}
@@ -633,9 +454,8 @@ namespace Nz
 	*
 	* \param quat The other quaternion to multiply with
 	*/
-
 	template<typename T>
-	Quaternion<T>& Quaternion<T>::operator*=(const Quaternion& quat)
+	constexpr Quaternion<T>& Quaternion<T>::operator*=(const Quaternion& quat)
 	{
 		return operator=(operator*(quat));
 	}
@@ -646,9 +466,8 @@ namespace Nz
 	*
 	* \param scale The scalar to multiply components with
 	*/
-
 	template<typename T>
-	Quaternion<T>& Quaternion<T>::operator*=(T scale)
+	constexpr Quaternion<T>& Quaternion<T>::operator*=(T scale)
 	{
 		return operator=(operator*(scale));
 	}
@@ -659,9 +478,8 @@ namespace Nz
 	*
 	* \param quat The other quaternion to divide with
 	*/
-
 	template<typename T>
-	Quaternion<T>& Quaternion<T>::operator/=(const Quaternion& quat)
+	constexpr Quaternion<T>& Quaternion<T>::operator/=(const Quaternion& quat)
 	{
 		return operator=(operator/(quat));
 	}
@@ -672,14 +490,10 @@ namespace Nz
 	*
 	* \param quat Other quaternion to compare with
 	*/
-
 	template<typename T>
-	bool Quaternion<T>::operator==(const Quaternion& quat) const
+	constexpr bool Quaternion<T>::operator==(const Quaternion& quat) const
 	{
-		return NumberEquals(w, quat.w) &&
-		       NumberEquals(x, quat.x) &&
-		       NumberEquals(y, quat.y) &&
-		       NumberEquals(z, quat.z);
+		return w == quat.w && x == quat.x && y == quat.y && z == quat.z;
 	}
 
 	/*!
@@ -688,27 +502,90 @@ namespace Nz
 	*
 	* \param quat Other quaternion to compare with
 	*/
-
 	template<typename T>
-	bool Quaternion<T>::operator!=(const Quaternion& quat) const
+	constexpr bool Quaternion<T>::operator!=(const Quaternion& quat) const
 	{
 		return !operator==(quat);
+	}
+
+	template<typename T>
+	constexpr bool Quaternion<T>::operator<(const Quaternion& quat) const
+	{
+		if (w != quat.w)
+			return w < quat.w;
+
+		if (x != quat.x)
+			return x < quat.x;
+
+		if (y != quat.y)
+			return y < quat.y;
+
+		if (z != quat.z)
+			return z < quat.z;
+	}
+	
+	template<typename T>
+	constexpr bool Quaternion<T>::operator<=(const Quaternion& quat) const
+	{
+		if (w != quat.w)
+			return w < quat.w;
+
+		if (x != quat.x)
+			return x < quat.x;
+
+		if (y != quat.y)
+			return y < quat.y;
+
+		if (z != quat.z)
+			return z <= quat.z;
+	}
+	
+	template<typename T>
+	constexpr bool Quaternion<T>::operator>(const Quaternion& quat) const
+	{
+		if (w != quat.w)
+			return w > quat.w;
+
+		if (x != quat.x)
+			return x > quat.x;
+
+		if (y != quat.y)
+			return y > quat.y;
+
+		if (z != quat.z)
+			return z > quat.z;
+	}
+
+	template<typename T>
+	constexpr bool Quaternion<T>::operator>=(const Quaternion& quat) const
+	{
+		if (w != quat.w)
+			return w > quat.w;
+
+		if (x != quat.x)
+			return x > quat.x;
+
+		if (y != quat.y)
+			return y > quat.y;
+
+		if (z != quat.z)
+			return z >= quat.z;
+	}
+
+	template<typename T>
+	constexpr bool Quaternion<T>::ApproxEqual(const Quaternion& lhs, const Quaternion& rhs, T maxDifference)
+	{
+		return lhs.ApproxEqual(rhs, maxDifference);
 	}
 
 	/*!
 	* \brief Shorthand for the quaternion (1, 0, 0, 0)
 	* \return A quaternion with components (1, 0, 0, 0)
-	*
-	* \see MakeIdentity
 	*/
-
 	template<typename T>
-	Quaternion<T> Quaternion<T>::Identity()
+	constexpr Quaternion<T> Quaternion<T>::Identity()
 	{
-		Quaternion quaternion;
-		quaternion.MakeIdentity();
-
-		return quaternion;
+		return Quaternion(1, 0, 0, 0);
 	}
 
 	/*!
@@ -725,7 +602,7 @@ namespace Nz
 	* \see Lerp, Slerp
 	*/
 	template<typename T>
-	Quaternion<T> Quaternion<T>::Lerp(const Quaternion& from, const Quaternion& to, T interpolation)
+	constexpr Quaternion<T> Quaternion<T>::Lerp(const Quaternion& from, const Quaternion& to, T interpolation)
 	{
 		#ifdef NAZARA_DEBUG
 		if (interpolation < T(0.0) || interpolation > T(1.0))
@@ -780,7 +657,6 @@ namespace Nz
 	*
 	* \see GetNormal
 	*/
-
 	template<typename T>
 	Quaternion<T> Quaternion<T>::Normalize(const Quaternion& quat, T* length)
 	{
@@ -793,17 +669,31 @@ namespace Nz
 	*
 	* \param from Initial vector
 	* \param to Target vector
-	*
-	* \see MakeRotationBetween
 	*/
-
 	template<typename T>
 	Quaternion<T> Quaternion<T>::RotationBetween(const Vector3<T>& from, const Vector3<T>& to)
 	{
-		Quaternion quaternion;
-		quaternion.MakeRotationBetween(from, to);
+		T dot = from.DotProduct(to);
+		if (dot < T(-0.999999))
+		{
+			Vector3<T> crossProduct;
+			if (from.DotProduct(Vector3<T>::UnitX()) < T(0.999999))
+				crossProduct = Vector3<T>::UnitX().CrossProduct(from);
+			else
+				crossProduct = Vector3<T>::UnitY().CrossProduct(from);
 
-		return quaternion;
+			crossProduct.Normalize();
+			return Quaternion(Pi<T>, crossProduct);
+		}
+		else if (dot > T(0.999999))
+			return Quaternion(1, 0, 0, 0);
+		else
+		{
+			T norm = std::sqrt(from.GetSquaredLength() * to.GetSquaredLength());
+			Vector3<T> crossProduct = from.CrossProduct(to);
+
+			return Quaternion(norm + dot, crossProduct.x, crossProduct.y, crossProduct.z).GetNormal();
+		}
 	}
 
 	template<typename T>
@@ -833,7 +723,6 @@ namespace Nz
 	*
 	* \see Lerp
 	*/
-
 	template<typename T>
 	Quaternion<T> Quaternion<T>::Slerp(const Quaternion& from, const Quaternion& to, T interpolation)
 	{
@@ -851,11 +740,11 @@ namespace Nz
 		if (cosOmega < T(0.0))
 		{
 			// We invert everything
-			q.Set(-to.w, -to.x, -to.y, -to.z);
+			q = Quaternion(-to.w, -to.x, -to.y, -to.z);
 			cosOmega = -cosOmega;
 		}
 		else
-			q.Set(to);
+			q = Quaternion(to);
 
 		T k0, k1;
 		if (cosOmega > T(0.9999))
@@ -883,19 +772,12 @@ namespace Nz
 	/*!
 	* \brief Shorthand for the quaternion (0, 0, 0, 0)
 	* \return A quaternion with components (0, 0, 0, 0)
-	*
-	* \see MakeZero
 	*/
-
 	template<typename T>
-	Quaternion<T> Quaternion<T>::Zero()
+	constexpr Quaternion<T> Quaternion<T>::Zero()
 	{
-		Quaternion quaternion;
-		quaternion.MakeZero();
-
-		return quaternion;
+		return Quaternion(0, 0, 0, 0);
 	}
-
 
 	/*!
 	* \brief Serializes a Quaternion
@@ -962,3 +844,4 @@ namespace Nz
 }
 
 #include <Nazara/Core/DebugOff.hpp>
+#include "Quaternion.hpp"

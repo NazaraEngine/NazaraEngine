@@ -28,11 +28,13 @@ namespace Nz
 	* \param Z Z component
 	* \param W W component
 	*/
-
 	template<typename T>
-	Vector4<T>::Vector4(T X, T Y, T Z, T W)
+	constexpr Vector4<T>::Vector4(T X, T Y, T Z, T W) :
+	x(X),
+	y(Y),
+	z(Z),
+	w(W)
 	{
-		Set(X, Y, Z, W);
 	}
 
 	/*!
@@ -42,11 +44,13 @@ namespace Nz
 	* \param Y Y component
 	* \param vec vec.X = Z component and vec.y = W component
 	*/
-
 	template<typename T>
-	Vector4<T>::Vector4(T X, T Y, const Vector2<T>& vec)
+	constexpr Vector4<T>::Vector4(T X, T Y, const Vector2<T>& vec) :
+	x(X),
+	y(Y),
+	z(vec.x),
+	w(vec.y)
 	{
-		Set(X, Y, vec);
 	}
 
 	/*!
@@ -56,11 +60,13 @@ namespace Nz
 	* \param vec vec.X = Y component and vec.y = Z component
 	* \param W W component
 	*/
-
 	template<typename T>
-	Vector4<T>::Vector4(T X, const Vector2<T>& vec, T W)
+	constexpr Vector4<T>::Vector4(T X, const Vector2<T>& vec, T W) :
+	x(X),
+	y(vec.x),
+	z(vec.y),
+	w(W)
 	{
-		Set(X, vec, W);
 	}
 
 	/*!
@@ -69,11 +75,13 @@ namespace Nz
 	* \param X X component
 	* \param vec vec.X = Y component, vec.y = Z component and vec.z = W component
 	*/
-
 	template<typename T>
-	Vector4<T>::Vector4(T X, const Vector3<T>& vec)
+	constexpr Vector4<T>::Vector4(T X, const Vector3<T>& vec) :
+	x(X),
+	y(vec.x),
+	z(vec.y),
+	w(vec.z)
 	{
-		Set(X, vec);
 	}
 
 	/*!
@@ -81,11 +89,13 @@ namespace Nz
 	*
 	* \param scale X component = Y component = Z component = W component
 	*/
-
 	template<typename T>
-	Vector4<T>::Vector4(T scale)
+	constexpr Vector4<T>::Vector4(T scale) :
+	x(scale),
+	y(scale),
+	z(scale),
+	w(scale)
 	{
-		Set(scale);
 	}
 
 	/*!
@@ -95,11 +105,13 @@ namespace Nz
 	* \param Z Z component
 	* \param W W component
 	*/
-
 	template<typename T>
-	Vector4<T>::Vector4(const Vector2<T>& vec, T Z, T W)
+	constexpr Vector4<T>::Vector4(const Vector2<T>& vec, T Z, T W) :
+	x(vec.x),
+	y(vec.y),
+	z(Z),
+	w(W)
 	{
-		Set(vec, Z, W);
 	}
 
 	/*!
@@ -108,11 +120,13 @@ namespace Nz
 	* \param vec vec.X = X component, vec.y = Y component and vec.z = Z component
 	* \param W W component
 	*/
-
 	template<typename T>
-	Vector4<T>::Vector4(const Vector3<T>& vec, T W)
+	constexpr Vector4<T>::Vector4(const Vector3<T>& vec, T W) :
+	x(vec.x),
+	y(vec.y),
+	z(vec.z),
+	w(W)
 	{
-		Set(vec, W);
 	}
 
 	/*!
@@ -123,9 +137,12 @@ namespace Nz
 
 	template<typename T>
 	template<typename U>
-	Vector4<T>::Vector4(const Vector4<U>& vec)
+	constexpr Vector4<T>::Vector4(const Vector4<U>& vec) :
+	x(static_cast<T>(vec.x)),
+	y(static_cast<T>(vec.y)),
+	z(static_cast<T>(vec.z)),
+	w(static_cast<T>(vec.w))
 	{
-		Set(vec);
 	}
 
 	/*!
@@ -136,11 +153,16 @@ namespace Nz
 	*
 	* \see DotProduct
 	*/
-
 	template<typename T>
 	T Vector4<T>::AbsDotProduct(const Vector4& vec) const
 	{
 		return std::abs(x * vec.x) + std::abs(y * vec.y) + std::abs(z * vec.z) + std::abs(w * vec.w);
+	}
+
+	template<typename T>
+	constexpr bool Vector4<T>::ApproxEqual(const Vector4& vec, T maxDifference) const
+	{
+		return NumberEquals(x, vec.x, maxDifference) && NumberEquals(y, vec.y, maxDifference) && NumberEquals(z, vec.z, maxDifference) && NumberEquals(w, vec.w, maxDifference);
 	}
 
 	/*!
@@ -151,9 +173,8 @@ namespace Nz
 	*
 	* \see AbsDotProduct, DotProduct
 	*/
-
 	template<typename T>
-	T Vector4<T>::DotProduct(const Vector4& vec) const
+	constexpr T Vector4<T>::DotProduct(const Vector4& vec) const
 	{
 		return x*vec.x + y*vec.y + z*vec.z + w*vec.w;
 	}
@@ -166,7 +187,6 @@ namespace Nz
 	*
 	* \see Normalize
 	*/
-
 	template<typename T>
 	Vector4<T> Vector4<T>::GetNormal(T* length) const
 	{
@@ -177,58 +197,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Makes the vector (1, 0, 0, 1)
-	* \return A reference to this vector with components (1, 0, 0, 1)
-	*
-	* \see UnitX
-	*/
-
-	template<typename T>
-	Vector4<T>& Vector4<T>::MakeUnitX()
-	{
-		return Set(T(1.0), T(0.0), T(0.0), T(1.0));
-	}
-
-	/*!
-	* \brief Makes the vector (0, 1, 0, 1)
-	* \return A reference to this vector with components (0, 1, 0, 1)
-	*
-	* \see UnitY
-	*/
-
-	template<typename T>
-	Vector4<T>& Vector4<T>::MakeUnitY()
-	{
-		return Set(T(0.0), T(1.0), T(0.0), T(1.0));
-	}
-
-	/*!
-	* \brief Makes the vector (0, 0, 1, 1)
-	* \return A reference to this vector with components (0, 0, 1, 1)
-	*
-	* \see UnitZ
-	*/
-
-	template<typename T>
-	Vector4<T>& Vector4<T>::MakeUnitZ()
-	{
-		return Set(T(0.0), T(0.0), T(1.0), T(1.0));
-	}
-
-	/*!
-	* \brief Makes the vector (0, 0, 0, 1)
-	* \return A reference to this vector with components (0, 0, 0, 1)
-	*
-	* \see Zero
-	*/
-
-	template<typename T>
-	Vector4<T>& Vector4<T>::MakeZero()
-	{
-		return Set(T(0.0), T(0.0), T(0.0), T(1.0));
-	}
-
-	/*!
 	* \brief Sets this vector's components to the maximum of its own and other components
 	* \return A reference to this vector with replaced values with the corresponding max value
 	*
@@ -236,9 +204,8 @@ namespace Nz
 	*
 	* \see Minimize
 	*/
-
 	template<typename T>
-	Vector4<T>& Vector4<T>::Maximize(const Vector4& vec)
+	constexpr Vector4<T>& Vector4<T>::Maximize(const Vector4& vec)
 	{
 		if (vec.x > x)
 			x = vec.x;
@@ -263,9 +230,8 @@ namespace Nz
 	*
 	* \see Maximize
 	*/
-
 	template<typename T>
-	Vector4<T>& Vector4<T>::Minimize(const Vector4& vec)
+	constexpr Vector4<T>& Vector4<T>::Minimize(const Vector4& vec)
 	{
 		if (vec.x < x)
 			x = vec.x;
@@ -290,11 +256,10 @@ namespace Nz
 	*
 	* \see GetNormal
 	*/
-
 	template<typename T>
 	Vector4<T>& Vector4<T>::Normalize(T* length)
 	{
-		T invLength = T(1.0)/w;
+		T invLength = T(1.0) / w;
 		x *= invLength; // Warning, change this logic will break Frustum::Extract
 		y *= invLength;
 		z *= invLength;
@@ -308,181 +273,9 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets the components of the vector
-	* \return A reference to this vector
-	*
-	* \param X X component
-	* \param Y Y component
-	* \param Z Z component
-	* \param W W component
-	*/
-
-	template<typename T>
-	Vector4<T>& Vector4<T>::Set(T X, T Y, T Z, T W)
-	{
-		x = X;
-		y = Y;
-		z = Z;
-		w = W;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the vector from two components and a Vector2
-	* \return A reference to this vector
-	*
-	* \param X X component
-	* \param Y Y component
-	* \param vec vec.X = Z component and vec.y = W component
-	*/
-
-	template<typename T>
-	Vector4<T>& Vector4<T>::Set(T X, T Y, const Vector2<T>& vec)
-	{
-		x = X;
-		y = Y;
-		z = vec.x;
-		w = vec.y;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the vector from one component, a Vector2 and one component
-	* \return A reference to this vector
-	*
-	* \param X X component
-	* \param vec vec.X = Y component and vec.y = Z component
-	* \param W W component
-	*/
-
-	template<typename T>
-	Vector4<T>& Vector4<T>::Set(T X, const Vector2<T>& vec, T W)
-	{
-		x = X;
-		y = vec.x;
-		z = vec.y;
-		w = W;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the vector from one component and a Vector3
-	* \return A reference to this vector
-	*
-	* \param X X component
-	* \param vec vec.X = Y component, vec.y = Z component and vec.z = W component
-	*/
-
-	template<typename T>
-	Vector4<T>& Vector4<T>::Set(T X, const Vector3<T>& vec)
-	{
-		x = X;
-		y = vec.x;
-		z = vec.y;
-		w = vec.z;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the vector from a "scale"
-	* \return A reference to this vector
-	*
-	* \param scale X component = Y component = Z component = W component
-	*/
-
-	template<typename T>
-	Vector4<T>& Vector4<T>::Set(T scale)
-	{
-		x = scale;
-		y = scale;
-		z = scale;
-		w = scale;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the vector from an array of four elements
-	* \return A reference to this vector
-	*
-	* \param vec[4] vec[0] is X component, vec[1] is Y component, vec[2] is Z component and vec[3] is W component
-	*/
-	template<typename T>
-	Vector4<T>& Vector4<T>::Set(const T* vec)
-	{
-		x = vec[0];
-		y = vec[1];
-		z = vec[2];
-		w = vec[3];
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the vector from a Vector2 and two components
-	*
-	* \param vec vec.X = X component and vec.y = Y component
-	* \param Z Z component
-	* \param W W component
-	*/
-
-	template<typename T>
-	Vector4<T>& Vector4<T>::Set(const Vector2<T>& vec, T Z, T W)
-	{
-		x = vec.x;
-		y = vec.y;
-		z = Z;
-		w = W;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the vector from a Vector3 and one components
-	*
-	* \param vec vec.X = X component, vec.y = Y component and vec.z = Z component
-	* \param W W component
-	*/
-
-	template<typename T>
-	Vector4<T>& Vector4<T>::Set(const Vector3<T>& vec, T W)
-	{
-		x = vec.x;
-		y = vec.y;
-		z = vec.z;
-		w = W;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the vector from another type of Vector4
-	* \return A reference to this vector
-	*
-	* \param vec Vector of type U to convert its components
-	*/
-
-	template<typename T>
-	template<typename U>
-	Vector4<T>& Vector4<T>::Set(const Vector4<U>& vec)
-	{
-		x = T(vec.x);
-		y = T(vec.y);
-		z = T(vec.z);
-		w = T(vec.w);
-
-		return *this;
-	}
-
-	/*!
 	* \brief Gives a string representation
 	* \return A string representation of the object: "Vector4(x, y, z, w)"
 	*/
-
 	template<typename T>
 	std::string Vector4<T>::ToString() const
 	{
@@ -497,7 +290,7 @@ namespace Nz
 	* \return X, Y, Z depending on index (0, 1, 2)
 	*/
 	template<typename T>
-	T& Vector4<T>::operator[](std::size_t i)
+	constexpr T& Vector4<T>::operator[](std::size_t i)
 	{
 		NazaraAssert(i < 4, "index out of range");
 		return *(&x + i);
@@ -508,7 +301,7 @@ namespace Nz
 	* \return X, Y, Z depending on index (0, 1, 2)
 	*/
 	template<typename T>
-	T Vector4<T>::operator[](std::size_t i) const
+	constexpr const T& Vector4<T>::operator[](std::size_t i) const
 	{
 		NazaraAssert(i < 4, "index out of range");
 		return *(&x + i);
@@ -518,9 +311,8 @@ namespace Nz
 	* \brief Helps to represent the sign of the vector
 	* \return A constant reference to this vector
 	*/
-
 	template<typename T>
-	const Vector4<T>& Vector4<T>::operator+() const
+	constexpr const Vector4<T>& Vector4<T>::operator+() const
 	{
 		return *this;
 	}
@@ -529,9 +321,8 @@ namespace Nz
 	* \brief Negates the components of the vector
 	* \return A constant reference to this vector with negate components
 	*/
-
 	template<typename T>
-	Vector4<T> Vector4<T>::operator-() const
+	constexpr Vector4<T> Vector4<T>::operator-() const
 	{
 		return Vector4(-x, -y, -z, -w);
 	}
@@ -542,9 +333,8 @@ namespace Nz
 	*
 	* \param vec The other vector to add components with
 	*/
-
 	template<typename T>
-	Vector4<T> Vector4<T>::operator+(const Vector4& vec) const
+	constexpr Vector4<T> Vector4<T>::operator+(const Vector4& vec) const
 	{
 		return Vector4(x + vec.x, y + vec.y, z + vec.z, w + vec.w);
 	}
@@ -555,9 +345,8 @@ namespace Nz
 	*
 	* \param vec The other vector to substract components with
 	*/
-
 	template<typename T>
-	Vector4<T> Vector4<T>::operator-(const Vector4& vec) const
+	constexpr Vector4<T> Vector4<T>::operator-(const Vector4& vec) const
 	{
 		return Vector4(x - vec.x, y - vec.y, z - vec.z, w - vec.w);
 	}
@@ -568,9 +357,8 @@ namespace Nz
 	*
 	* \param vec The other vector to multiply components with
 	*/
-
 	template<typename T>
-	Vector4<T> Vector4<T>::operator*(const Vector4& vec) const
+	constexpr Vector4<T> Vector4<T>::operator*(const Vector4& vec) const
 	{
 		return Vector4(x * vec.x, y * vec.y, z * vec.z, w * vec.w);
 	}
@@ -581,9 +369,8 @@ namespace Nz
 	*
 	* \param scale The scalar to multiply components with
 	*/
-
 	template<typename T>
-	Vector4<T> Vector4<T>::operator*(T scale) const
+	constexpr Vector4<T> Vector4<T>::operator*(T scale) const
 	{
 		return Vector4(x * scale, y * scale, z * scale, w * scale);
 	}
@@ -594,9 +381,8 @@ namespace Nz
 	*
 	* \param vec The other vector to divide components with
 	*/
-
 	template<typename T>
-	Vector4<T> Vector4<T>::operator/(const Vector4& vec) const
+	constexpr Vector4<T> Vector4<T>::operator/(const Vector4& vec) const
 	{
 		return Vector4(x / vec.x, y / vec.y, z / vec.z, w / vec.w);
 	}
@@ -607,9 +393,8 @@ namespace Nz
 	*
 	* \param scale The scalar to divide components with
 	*/
-
 	template<typename T>
-	Vector4<T> Vector4<T>::operator/(T scale) const
+	constexpr Vector4<T> Vector4<T>::operator/(T scale) const
 	{
 		return Vector4(x / scale, y / scale, z / scale, w / scale);
 	}
@@ -620,9 +405,8 @@ namespace Nz
 	*
 	* \param vec The other vector to add components with
 	*/
-
 	template<typename T>
-	Vector4<T>& Vector4<T>::operator+=(const Vector4& vec)
+	constexpr Vector4<T>& Vector4<T>::operator+=(const Vector4& vec)
 	{
 		x += vec.x;
 		y += vec.y;
@@ -638,9 +422,8 @@ namespace Nz
 	*
 	* \param vec The other vector to substract components with
 	*/
-
 	template<typename T>
-	Vector4<T>& Vector4<T>::operator-=(const Vector4& vec)
+	constexpr Vector4<T>& Vector4<T>::operator-=(const Vector4& vec)
 	{
 		x -= vec.x;
 		y -= vec.y;
@@ -656,9 +439,8 @@ namespace Nz
 	*
 	* \param vec The other vector to multiply components with
 	*/
-
 	template<typename T>
-	Vector4<T>& Vector4<T>::operator*=(const Vector4& vec)
+	constexpr Vector4<T>& Vector4<T>::operator*=(const Vector4& vec)
 	{
 		x *= vec.x;
 		y *= vec.y;
@@ -674,9 +456,8 @@ namespace Nz
 	*
 	* \param scale The scalar to multiply components with
 	*/
-
 	template<typename T>
-	Vector4<T>& Vector4<T>::operator*=(T scale)
+	constexpr Vector4<T>& Vector4<T>::operator*=(T scale)
 	{
 		x *= scale;
 		y *= scale;
@@ -692,9 +473,8 @@ namespace Nz
 	*
 	* \param vec The other vector to multiply components with
 	*/
-
 	template<typename T>
-	Vector4<T>& Vector4<T>::operator/=(const Vector4& vec)
+	constexpr Vector4<T>& Vector4<T>::operator/=(const Vector4& vec)
 	{
 		x /= vec.x;
 		y /= vec.y;
@@ -710,9 +490,8 @@ namespace Nz
 	*
 	* \param scale The scalar to divide components with
 	*/
-
 	template<typename T>
-	Vector4<T>& Vector4<T>::operator/=(T scale)
+	constexpr Vector4<T>& Vector4<T>::operator/=(T scale)
 	{
 		x /= scale;
 		y /= scale;
@@ -728,14 +507,10 @@ namespace Nz
 	*
 	* \param vec Other vector to compare with
 	*/
-
 	template<typename T>
-	bool Vector4<T>::operator==(const Vector4& vec) const
+	constexpr bool Vector4<T>::operator==(const Vector4& vec) const
 	{
-		return NumberEquals(x, vec.x) &&
-		       NumberEquals(y, vec.y) &&
-		       NumberEquals(z, vec.z) &&
-		       NumberEquals(w, vec.w);
+		return x == vec.x && y == vec.y && z == vec.z && w == vec.w;
 	}
 
 	/*!
@@ -744,9 +519,8 @@ namespace Nz
 	*
 	* \param vec Other vector to compare with
 	*/
-
 	template<typename T>
-	bool Vector4<T>::operator!=(const Vector4& vec) const
+	constexpr bool Vector4<T>::operator!=(const Vector4& vec) const
 	{
 		return !operator==(vec);
 	}
@@ -757,24 +531,19 @@ namespace Nz
 	*
 	* \param vec Other vector to compare with
 	*/
-
 	template<typename T>
-	bool Vector4<T>::operator<(const Vector4& vec) const
+	constexpr bool Vector4<T>::operator<(const Vector4& vec) const
 	{
-		if (NumberEquals(x, vec.x))
-		{
-			if (NumberEquals(y, vec.y))
-			{
-				if (NumberEquals(z, vec.z))
-					return w < vec.w;
-				else
-					return z < vec.z;
-			}
-			else
-				return y < vec.y;
-		}
-		else
+		if (x != vec.x)
 			return x < vec.x;
+
+		if (y != vec.y)
+			return y < vec.y;
+
+		if (z != vec.z)
+			return z < vec.z;
+
+		return w < vec.w;
 	}
 
 	/*!
@@ -783,24 +552,19 @@ namespace Nz
 	*
 	* \param vec Other vector to compare with
 	*/
-
 	template<typename T>
-	bool Vector4<T>::operator<=(const Vector4& vec) const
+	constexpr bool Vector4<T>::operator<=(const Vector4& vec) const
 	{
-		if (NumberEquals(x, vec.x))
-		{
-			if (NumberEquals(y, vec.y))
-			{
-				if (NumberEquals(z, vec.z))
-					return NumberEquals(w, vec.w) || w < vec.w;
-				else
-					return z < vec.z;
-			}
-			else
-				return y < vec.y;
-		}
-		else
+		if (x != vec.x)
 			return x < vec.x;
+
+		if (y != vec.y)
+			return y < vec.y;
+
+		if (z != vec.z)
+			return z < vec.z;
+
+		return w <= vec.w;
 	}
 
 	/*!
@@ -809,11 +573,19 @@ namespace Nz
 	*
 	* \param vec Other vector to compare with
 	*/
-
 	template<typename T>
-	bool Vector4<T>::operator>(const Vector4& vec) const
+	constexpr bool Vector4<T>::operator>(const Vector4& vec) const
 	{
-		return !operator<=(vec);
+		if (x != vec.x)
+			return x > vec.x;
+
+		if (y != vec.y)
+			return y > vec.y;
+
+		if (z != vec.z)
+			return z > vec.z;
+
+		return w > vec.w;
 	}
 
 	/*!
@@ -822,11 +594,25 @@ namespace Nz
 	*
 	* \param vec Other vector to compare with
 	*/
+	template<typename T>
+	constexpr bool Vector4<T>::operator>=(const Vector4& vec) const
+	{
+		if (x != vec.x)
+			return x > vec.x;
+
+		if (y != vec.y)
+			return y > vec.y;
+
+		if (z != vec.z)
+			return z > vec.z;
+
+		return w >= vec.w;
+	}
 
 	template<typename T>
-	bool Vector4<T>::operator>=(const Vector4& vec) const
+	constexpr bool Vector4<T>::ApproxEqual(const Vector4& lhs, const Vector4& rhs, T maxDifference)
 	{
-		return !operator<(vec);
+		return lhs.ApproxEqual(rhs, maxDifference);
 	}
 
 	/*!
@@ -839,7 +625,7 @@ namespace Nz
 	* \see AbsDotProduct, DotProduct
 	*/
 	template<typename T>
-	T Vector4<T>::DotProduct(const Vector4& vec1, const Vector4& vec2)
+	constexpr T Vector4<T>::DotProduct(const Vector4& vec1, const Vector4& vec2)
 	{
 		return vec1.DotProduct(vec2);
 	}
@@ -857,7 +643,7 @@ namespace Nz
 	* \see Lerp
 	*/
 	template<typename T>
-	Vector4<T> Vector4<T>::Lerp(const Vector4& from, const Vector4& to, T interpolation)
+	constexpr Vector4<T> Vector4<T>::Lerp(const Vector4& from, const Vector4& to, T interpolation)
 	{
 		Vector4 dummy;
 		dummy.x = Nz::Lerp(from.x, to.x, interpolation);
@@ -876,7 +662,6 @@ namespace Nz
 	*
 	* \see GetNormal
 	*/
-
 	template<typename T>
 	Vector4<T> Vector4<T>::Normalize(const Vector4& vec)
 	{
@@ -886,65 +671,41 @@ namespace Nz
 	/*!
 	* \brief Shorthand for the vector (1, 0, 0, 1)
 	* \return A vector with components (1, 0, 0, 1)
-	*
-	* \see MakeUnitX
 	*/
-
 	template<typename T>
-	Vector4<T> Vector4<T>::UnitX()
+	constexpr Vector4<T> Vector4<T>::UnitX()
 	{
-		Vector4 vector;
-		vector.MakeUnitX();
-
-		return vector;
+		return Vector4(1, 0, 0, 1);
 	}
 
 	/*!
 	* \brief Shorthand for the vector (0, 1, 0, 1)
 	* \return A vector with components (0, 1, 0, 1)
-	*
-	* \see MakeUnitY
 	*/
-
 	template<typename T>
-	Vector4<T> Vector4<T>::UnitY()
+	constexpr Vector4<T> Vector4<T>::UnitY()
 	{
-		Vector4 vector;
-		vector.MakeUnitY();
-
-		return vector;
+		return Vector4(0, 1, 0, 1);
 	}
 
 	/*!
 	* \brief Shorthand for the vector (0, 0, 1, 1)
 	* \return A vector with components (0, 0, 1, 1)
-	*
-	* \see MakeUnitZ
 	*/
-
 	template<typename T>
-	Vector4<T> Vector4<T>::UnitZ()
+	constexpr Vector4<T> Vector4<T>::UnitZ()
 	{
-		Vector4 vector;
-		vector.MakeUnitZ();
-
-		return vector;
+		return Vector4(0, 0, 1, 1);
 	}
 
 	/*!
 	* \brief Shorthand for the vector (0, 0, 0, 1)
 	* \return A vector with components (0, 0, 0, 1)
-	*
-	* \see MakeZero
 	*/
-
 	template<typename T>
-	Vector4<T> Vector4<T>::Zero()
+	constexpr Vector4<T> Vector4<T>::Zero()
 	{
-		Vector4 vector;
-		vector.MakeZero();
-
-		return vector;
+		return Vector4(0, 0, 0, 1);
 	}
 
 	/*!
@@ -1017,7 +778,7 @@ namespace Nz
 	* \param scale The scalar to multiply components with
 	*/
 	template<typename T>
-	Vector4<T> operator*(T scale, const Vector4<T>& vec)
+	constexpr Vector4<T> operator*(T scale, const Vector4<T>& vec)
 	{
 		return Nz::Vector4<T>(scale * vec.x, scale * vec.y, scale * vec.z, scale * vec.w);
 	}
@@ -1029,7 +790,7 @@ namespace Nz
 	* \param scale The scalar to divide components with
 	*/
 	template<typename T>
-	Vector4<T> operator/(T scale, const Vector4<T>& vec)
+	constexpr Vector4<T> operator/(T scale, const Vector4<T>& vec)
 	{
 		return Nz::Vector4<T>(scale / vec.x, scale / vec.y, scale / vec.z, scale / vec.w);
 	}
@@ -1061,3 +822,4 @@ namespace std
 }
 
 #include <Nazara/Core/DebugOff.hpp>
+#include "Vector4.hpp"

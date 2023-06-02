@@ -196,7 +196,7 @@ SCENARIO("Angle", "[MATH][ANGLE]")
 			{
 				Nz::RadianAnglef expectedResult(Nz::Pi<float>);
 
-				CHECK(angle == expectedResult);
+				CHECK(angle.ApproxEqual(expectedResult));
 			}
 		}
 	}
@@ -213,7 +213,7 @@ SCENARIO("Angle", "[MATH][ANGLE]")
 			{
 				Nz::RadianAnglef expectedResult(0.f);
 
-				CHECK(angle == expectedResult);
+				CHECK(angle.ApproxEqual(expectedResult));
 			}
 		}
 	}
@@ -230,7 +230,7 @@ SCENARIO("Angle", "[MATH][ANGLE]")
 			{
 				Nz::TurnAnglef expectedResult(0.5f);
 
-				CHECK(angle == expectedResult);
+				CHECK(angle.ApproxEqual(expectedResult));
 			}
 		}
 	}

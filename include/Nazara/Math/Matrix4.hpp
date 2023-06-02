@@ -29,111 +29,95 @@ namespace Nz
 	class Matrix4
 	{
 		public:
-			Matrix4() = default;
-			Matrix4(T r11, T r12, T r13, T r14,
-			        T r21, T r22, T r23, T r24,
-			        T r31, T r32, T r33, T r34,
-			        T r41, T r42, T r43, T r44);
-			//Matrix4(const Matrix3<T>& matrix);
-			Matrix4(const T matrix[16]);
-			template<typename U> explicit Matrix4(const Matrix4<U>& matrix);
-			Matrix4(const Matrix4& matrix) = default;
+			constexpr Matrix4() = default;
+			constexpr Matrix4(T r11, T r12, T r13, T r14,
+			                  T r21, T r22, T r23, T r24,
+			                  T r31, T r32, T r33, T r34,
+			                  T r41, T r42, T r43, T r44);
+			constexpr Matrix4(const T matrix[16]);
+			template<typename U> constexpr explicit Matrix4(const Matrix4<U>& matrix);
+			constexpr Matrix4(const Matrix4&) = default;
+			constexpr Matrix4(Matrix4&&) = default;
 			~Matrix4() = default;
 
-			Matrix4& ApplyRotation(const Quaternion<T>& rotation);
-			Matrix4& ApplyScale(const Vector3<T>& scale);
-			Matrix4& ApplyTranslation(const Vector3<T>& translation);
+			constexpr Matrix4& ApplyRotation(const Quaternion<T>& rotation);
+			constexpr Matrix4& ApplyScale(const Vector3<T>& scale);
+			constexpr Matrix4& ApplyTranslation(const Vector3<T>& translation);
 
-			Matrix4& Concatenate(const Matrix4& matrix);
-			Matrix4& ConcatenateTransform(const Matrix4& matrix);
+			constexpr bool ApproxEqual(const Matrix4& vec, T maxDifference = std::numeric_limits<T>::epsilon()) const;
 
-			Vector4<T> GetColumn(unsigned int column) const;
-			T GetDeterminant() const;
-			T GetDeterminantTransform() const;
-			bool GetInverse(Matrix4* dest) const;
-			bool GetInverseTransform(Matrix4* dest) const;
+			constexpr Matrix4& Concatenate(const Matrix4& matrix);
+			constexpr Matrix4& ConcatenateTransform(const Matrix4& matrix);
+
+			constexpr Vector4<T> GetColumn(unsigned int column) const;
+			constexpr T GetDeterminant() const;
+			constexpr T GetDeterminantTransform() const;
+			constexpr bool GetInverse(Matrix4* dest) const;
+			constexpr bool GetInverseTransform(Matrix4* dest) const;
 			Quaternion<T> GetRotation() const;
-			//Matrix3 GetRotationMatrix() const;
-			Vector4<T> GetRow(unsigned int row) const;
-			Vector3<T> GetScale() const;
-			Vector3<T> GetSquaredScale() const;
-			Vector3<T> GetTranslation() const;
-			void GetTransposed(Matrix4* dest) const;
+			constexpr Vector4<T> GetRow(unsigned int row) const;
+			constexpr Vector3<T> GetScale() const;
+			constexpr Vector3<T> GetSquaredScale() const;
+			constexpr Vector3<T> GetTranslation() const;
+			constexpr void GetTransposed(Matrix4* dest) const;
 
-			bool HasNegativeScale() const;
-			bool HasScale() const;
+			constexpr bool HasNegativeScale() const;
+			constexpr bool HasScale() const;
 
-			Matrix4& Inverse(bool* succeeded = nullptr);
-			Matrix4& InverseTransform(bool* succeeded = nullptr);
+			constexpr Matrix4& Inverse(bool* succeeded = nullptr);
+			constexpr Matrix4& InverseTransform(bool* succeeded = nullptr);
 
-			bool IsTransformMatrix() const;
-			bool IsIdentity() const;
+			constexpr bool IsTransformMatrix() const;
+			constexpr bool IsIdentity() const;
 
-			Matrix4& MakeIdentity();
-			Matrix4& MakeLookAt(const Vector3<T>& eye, const Vector3<T>& target, const Vector3<T>& up = Vector3<T>::Up());
-			Matrix4& MakeOrtho(T left, T right, T top, T bottom, T zNear = -1.0, T zFar = 1.0);
-			Matrix4& MakePerspective(RadianAngle<T> angle, T ratio, T zNear, T zFar);
-			Matrix4& MakeRotation(const Quaternion<T>& rotation);
-			Matrix4& MakeScale(const Vector3<T>& scale);
-			Matrix4& MakeTranslation(const Vector3<T>& translation);
-			Matrix4& MakeTransform(const Vector3<T>& translation, const Quaternion<T>& rotation);
-			Matrix4& MakeTransform(const Vector3<T>& translation, const Quaternion<T>& rotation, const Vector3<T>& scale);
-			Matrix4& MakeTransformInverse(const Vector3<T>& translation, const Quaternion<T>& rotation);
-			Matrix4& MakeTransformInverse(const Vector3<T>& translation, const Quaternion<T>& rotation, const Vector3<T>& scale);
-			Matrix4& MakeZero();
-
-			Matrix4& Set(T r11, T r12, T r13, T r14,
-			             T r21, T r22, T r23, T r24,
-			             T r31, T r32, T r33, T r34,
-			             T r41, T r42, T r43, T r44);
-			//Matrix4(const Matrix3<T>& matrix);
-			template<typename U> Matrix4& Set(const Matrix4<U>& matrix);
-			Matrix4& SetRotation(const Quaternion<T>& rotation);
-			Matrix4& SetScale(const Vector3<T>& scale);
-			Matrix4& SetTranslation(const Vector3<T>& translation);
+			constexpr Matrix4& SetRotation(const Quaternion<T>& rotation);
+			constexpr Matrix4& SetScale(const Vector3<T>& scale);
+			constexpr Matrix4& SetTranslation(const Vector3<T>& translation);
 
 			std::string ToString() const;
 
-			Vector2<T> Transform(const Vector2<T>& vector, T z = 0.0, T w = 1.0) const;
-			Vector3<T> Transform(const Vector3<T>& vector, T w = 1.0) const;
-			Vector4<T> Transform(const Vector4<T>& vector) const;
+			constexpr Vector2<T> Transform(const Vector2<T>& vector, T z = 0.0, T w = 1.0) const;
+			constexpr Vector3<T> Transform(const Vector3<T>& vector, T w = 1.0) const;
+			constexpr Vector4<T> Transform(const Vector4<T>& vector) const;
 
-			Matrix4& Transpose();
+			constexpr Matrix4& Transpose();
 
-			T& operator()(std::size_t x, std::size_t y);
-			const T& operator()(std::size_t x, std::size_t y) const;
+			constexpr T& operator()(std::size_t x, std::size_t y);
+			constexpr const T& operator()(std::size_t x, std::size_t y) const;
 
-			T& operator[](std::size_t i);
-			const T& operator[](std::size_t i) const;
+			constexpr T& operator[](std::size_t i);
+			constexpr const T& operator[](std::size_t i) const;
 
-			Matrix4& operator=(const Matrix4& matrix) = default;
+			constexpr Matrix4& operator=(const Matrix4&) = default;
+			constexpr Matrix4& operator=(Matrix4&&) = default;
 
-			Matrix4 operator*(const Matrix4& matrix) const;
-			Vector2<T> operator*(const Vector2<T>& vector) const;
-			Vector3<T> operator*(const Vector3<T>& vector) const;
-			Vector4<T> operator*(const Vector4<T>& vector) const;
-			Matrix4 operator*(T scalar) const;
+			constexpr Matrix4 operator*(const Matrix4& matrix) const;
+			constexpr Vector2<T> operator*(const Vector2<T>& vector) const;
+			constexpr Vector3<T> operator*(const Vector3<T>& vector) const;
+			constexpr Vector4<T> operator*(const Vector4<T>& vector) const;
+			constexpr Matrix4 operator*(T scalar) const;
 
-			Matrix4& operator*=(const Matrix4& matrix);
-			Matrix4& operator*=(T scalar);
+			constexpr Matrix4& operator*=(const Matrix4& matrix);
+			constexpr Matrix4& operator*=(T scalar);
 
-			bool operator==(const Matrix4& mat) const;
-			bool operator!=(const Matrix4& mat) const;
+			constexpr bool operator==(const Matrix4& mat) const;
+			constexpr bool operator!=(const Matrix4& mat) const;
 
-			static Matrix4 Concatenate(const Matrix4& left, const Matrix4& right);
-			static Matrix4 ConcatenateTransform(const Matrix4& left, const Matrix4& right);
-			static Matrix4 Identity();
-			static Matrix4 LookAt(const Vector3<T>& eye, const Vector3<T>& target, const Vector3<T>& up = Vector3<T>::Up());
-			static Matrix4 Ortho(T left, T right, T top, T bottom, T zNear = -1.0, T zFar = 1.0);
+			static constexpr bool ApproxEqual(const Matrix4& lhs, const Matrix4& rhs, T maxDifference = std::numeric_limits<T>::epsilon());
+			static constexpr Matrix4 Concatenate(const Matrix4& left, const Matrix4& right);
+			static constexpr Matrix4 ConcatenateTransform(const Matrix4& left, const Matrix4& right);
+			static constexpr Matrix4 Identity();
+			static constexpr Matrix4 LookAt(const Vector3<T>& eye, const Vector3<T>& target, const Vector3<T>& up = Vector3<T>::Up());
+			static constexpr Matrix4 Ortho(T left, T right, T top, T bottom, T zNear = -1.0, T zFar = 1.0);
 			static Matrix4 Perspective(RadianAngle<T> angle, T ratio, T zNear, T zFar);
-			static Matrix4 Rotate(const Quaternion<T>& rotation);
-			static Matrix4 Scale(const Vector3<T>& scale);
-			static Matrix4 Translate(const Vector3<T>& translation);
-			static Matrix4 Transform(const Vector3<T>& translation, const Quaternion<T>& rotation);
-			static Matrix4 Transform(const Vector3<T>& translation, const Quaternion<T>& rotation, const Vector3<T>& scale);
-			static Matrix4 TransformInverse(const Vector3<T>& translation, const Quaternion<T>& rotation);
-			static Matrix4 TransformInverse(const Vector3<T>& translation, const Quaternion<T>& rotation, const Vector3<T>& scale);
-			static Matrix4 Zero();
+			static constexpr Matrix4 Rotate(const Quaternion<T>& rotation);
+			static constexpr Matrix4 Scale(const Vector3<T>& scale);
+			static constexpr Matrix4 Translate(const Vector3<T>& translation);
+			static constexpr Matrix4 Transform(const Vector3<T>& translation, const Quaternion<T>& rotation);
+			static constexpr Matrix4 Transform(const Vector3<T>& translation, const Quaternion<T>& rotation, const Vector3<T>& scale);
+			static constexpr Matrix4 TransformInverse(const Vector3<T>& translation, const Quaternion<T>& rotation);
+			static constexpr Matrix4 TransformInverse(const Vector3<T>& translation, const Quaternion<T>& rotation, const Vector3<T>& scale);
+			static constexpr Matrix4 Zero();
 
 			T m11, m12, m13, m14,
 			  m21, m22, m23, m24,
@@ -149,7 +133,7 @@ namespace Nz
 
 	template<typename T> std::ostream& operator<<(std::ostream& out, const Matrix4<T>& matrix);
 
-	template<typename T> Matrix4<T> operator*(T scale, const Matrix4<T>& matrix);
+	template<typename T> constexpr Matrix4<T> operator*(T scale, const Matrix4<T>& matrix);
 }
 
 #include <Nazara/Math/Matrix4.inl>

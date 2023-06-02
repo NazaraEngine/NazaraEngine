@@ -330,7 +330,7 @@ namespace Nz
 			lastLine.bounds.width -= lastLine.bounds.GetMaximum().x - glyphPosition;
 
 			// Regenerate bounds
-			m_bounds.MakeZero();
+			m_bounds = Rectf::Zero();
 			for (auto& line : m_lines)
 				m_bounds.ExtendTo(line.bounds);
 		}
@@ -362,10 +362,10 @@ namespace Nz
 			float italicTop = italic * glyph.bounds.y;
 			float italicBottom = italic * glyph.bounds.GetMaximum().y;
 
-			glyph.corners[0].Set(glyph.bounds.x - italicTop - outlineThickness, glyph.bounds.y - outlineThickness);
-			glyph.corners[1].Set(glyph.bounds.x + glyph.bounds.width - italicTop - outlineThickness, glyph.bounds.y - outlineThickness);
-			glyph.corners[2].Set(glyph.bounds.x - italicBottom - outlineThickness, glyph.bounds.y + glyph.bounds.height - outlineThickness);
-			glyph.corners[3].Set(glyph.bounds.x + glyph.bounds.width - italicBottom - outlineThickness, glyph.bounds.y + glyph.bounds.height - outlineThickness);
+			glyph.corners[0] = Vector2f(glyph.bounds.x - italicTop - outlineThickness, glyph.bounds.y - outlineThickness);
+			glyph.corners[1] = Vector2f(glyph.bounds.x + glyph.bounds.width - italicTop - outlineThickness, glyph.bounds.y - outlineThickness);
+			glyph.corners[2] = Vector2f(glyph.bounds.x - italicBottom - outlineThickness, glyph.bounds.y + glyph.bounds.height - outlineThickness);
+			glyph.corners[3] = Vector2f(glyph.bounds.x + glyph.bounds.width - italicBottom - outlineThickness, glyph.bounds.y + glyph.bounds.height - outlineThickness);
 
 			if (advance)
 				*advance = fontGlyph.advance;
@@ -460,10 +460,10 @@ namespace Nz
 				glyph.atlas = nullptr;
 				glyph.bounds = Rectf(m_drawPos.x, m_lines.back().bounds.y, advance, lineHeight);
 
-				glyph.corners[0].Set(glyph.bounds.GetCorner(RectCorner::LeftTop));
-				glyph.corners[1].Set(glyph.bounds.GetCorner(RectCorner::RightTop));
-				glyph.corners[2].Set(glyph.bounds.GetCorner(RectCorner::LeftBottom));
-				glyph.corners[3].Set(glyph.bounds.GetCorner(RectCorner::RightBottom));
+				glyph.corners[0] = glyph.bounds.GetCorner(RectCorner::LeftTop);
+				glyph.corners[1] = glyph.bounds.GetCorner(RectCorner::RightTop);
+				glyph.corners[2] = glyph.bounds.GetCorner(RectCorner::LeftBottom);
+				glyph.corners[3] = glyph.bounds.GetCorner(RectCorner::RightBottom);
 			}
 
 			m_lines.back().bounds.ExtendTo(glyph.bounds);
@@ -566,7 +566,7 @@ namespace Nz
 			else
 				m_lines.emplace_back(Line{ Rectf::Zero(), 0 });
 
-			m_drawPos.Set(0, float(firstBlock.characterSize));
+			m_drawPos = Vector2f(0.f, SafeCast<float>(firstBlock.characterSize));
 
 			for (const Block& block : m_blocks)
 			{

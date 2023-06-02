@@ -300,7 +300,7 @@ namespace Nz
 
 	inline void Node::SetInitialPosition(float positionX, float positionY, float positionZ, Invalidation invalidation)
 	{
-		m_initialPosition.Set(positionX, positionY, positionZ);
+		m_initialPosition = Vector3f(positionX, positionY, positionZ);
 
 		Invalidate(invalidation);
 	}
@@ -321,14 +321,14 @@ namespace Nz
 
 	inline void Node::SetInitialScale(float scale, Invalidation invalidation)
 	{
-		m_initialScale.Set(scale);
+		m_initialScale = Vector3f(scale);
 
 		Invalidate(invalidation);
 	}
 
 	inline void Node::SetInitialScale(float scaleX, float scaleY, float scaleZ, Invalidation invalidation)
 	{
-		m_initialScale.Set(scaleX, scaleY, scaleZ);
+		m_initialScale = Vector3f(scaleX, scaleY, scaleZ);
 
 		Invalidate(invalidation);
 	}

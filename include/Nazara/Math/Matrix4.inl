@@ -34,17 +34,28 @@ namespace Nz
 	*
 	* \param rIJ Matrix components at index(I, J)
 	*/
-
 	template<typename T>
-	Matrix4<T>::Matrix4(T r11, T r12, T r13, T r14,
-	                    T r21, T r22, T r23, T r24,
-	                    T r31, T r32, T r33, T r34,
-	                    T r41, T r42, T r43, T r44)
+	constexpr Matrix4<T>::Matrix4(T r11, T r12, T r13, T r14,
+	                              T r21, T r22, T r23, T r24,
+	                              T r31, T r32, T r33, T r34,
+	                              T r41, T r42, T r43, T r44) :
+	m11(r11),
+	m12(r12),
+	m13(r13),
+	m14(r14),
+	m21(r21),
+	m22(r22),
+	m23(r23),
+	m24(r24),
+	m31(r31),
+	m32(r32),
+	m33(r33),
+	m34(r34),
+	m41(r41),
+	m42(r42),
+	m43(r43),
+	m44(r44)
 	{
-		Set(r11, r12, r13, r14,
-		    r21, r22, r23, r24,
-		    r31, r32, r33, r34,
-		    r41, r42, r43, r44);
 	}
 
 	/*!
@@ -52,9 +63,8 @@ namespace Nz
 	*
 	* \param matrix[16] Matrix components
 	*/
-
 	template<typename T>
-	Matrix4<T>::Matrix4(const T matrix[16]) :
+	constexpr Matrix4<T>::Matrix4(const T matrix[16]) :
 	Matrix4(matrix[ 0], matrix[ 1], matrix[ 2], matrix[ 3],
 	        matrix[ 4], matrix[ 5], matrix[ 6], matrix[ 7],
 	        matrix[ 8], matrix[ 9], matrix[10], matrix[11],
@@ -70,9 +80,24 @@ namespace Nz
 
 	template<typename T>
 	template<typename U>
-	Matrix4<T>::Matrix4(const Matrix4<U>& matrix)
+	constexpr Matrix4<T>::Matrix4(const Matrix4<U>& matrix) :
+	m11(static_cast<T>(matrix.m11)),
+	m12(static_cast<T>(matrix.m12)),
+	m13(static_cast<T>(matrix.m13)),
+	m14(static_cast<T>(matrix.m14)),
+	m21(static_cast<T>(matrix.m21)),
+	m22(static_cast<T>(matrix.m22)),
+	m23(static_cast<T>(matrix.m23)),
+	m24(static_cast<T>(matrix.m24)),
+	m31(static_cast<T>(matrix.m31)),
+	m32(static_cast<T>(matrix.m32)),
+	m33(static_cast<T>(matrix.m33)),
+	m34(static_cast<T>(matrix.m34)),
+	m41(static_cast<T>(matrix.m41)),
+	m42(static_cast<T>(matrix.m42)),
+	m43(static_cast<T>(matrix.m43)),
+	m44(static_cast<T>(matrix.m44))
 	{
-		Set(matrix);
 	}
 
 	/*!
@@ -81,9 +106,8 @@ namespace Nz
 	*
 	* \param rotation Quaternion representing a rotation of space
 	*/
-
 	template<typename T>
-	Matrix4<T>& Matrix4<T>::ApplyRotation(const Quaternion<T>& rotation)
+	constexpr Matrix4<T>& Matrix4<T>::ApplyRotation(const Quaternion<T>& rotation)
 	{
 		return Concatenate(Matrix4<T>::Rotate(rotation));
 	}
@@ -94,9 +118,8 @@ namespace Nz
 	*
 	* \param scale Vector3 representing the homothety
 	*/
-
 	template<typename T>
-	Matrix4<T>& Matrix4<T>::ApplyScale(const Vector3<T>& scale)
+	constexpr Matrix4<T>& Matrix4<T>::ApplyScale(const Vector3<T>& scale)
 	{
 		m11 *= scale.x;
 		m12 *= scale.x;
@@ -119,15 +142,24 @@ namespace Nz
 	*
 	* \param translation Vector3 representing the translation
 	*/
-
 	template<typename T>
-	Matrix4<T>& Matrix4<T>::ApplyTranslation(const Vector3<T>& translation)
+	constexpr Matrix4<T>& Matrix4<T>::ApplyTranslation(const Vector3<T>& translation)
 	{
 		m41 += translation.x;
 		m42 += translation.y;
 		m43 += translation.z;
 
 		return *this;
+	}
+
+	template<typename T>
+	constexpr bool Matrix4<T>::ApproxEqual(const Matrix4& mat, T maxDifference) const
+	{
+		for (unsigned int i = 0; i < 16; ++i)
+			if (!NumberEquals((&m11)[i], (&mat.m11)[i], maxDifference))
+				return false;
+
+		return true;
 	}
 
 	/*!
@@ -141,7 +173,7 @@ namespace Nz
 	* \see ConcatenateTransform
 	*/
 	template<typename T>
-	Matrix4<T>& Matrix4<T>::Concatenate(const Matrix4& matrix)
+	constexpr Matrix4<T>& Matrix4<T>::Concatenate(const Matrix4& matrix)
 	{
 		#if NAZARA_MATH_MATRIX4_CHECK_TRANSFORM
 		if (IsTransformMatrix() && matrix.IsTransformMatrix())
@@ -151,25 +183,27 @@ namespace Nz
 		}
 		#endif
 
-		return Set(m11*matrix.m11 + m12*matrix.m21 + m13*matrix.m31 + m14*matrix.m41,
-		           m11*matrix.m12 + m12*matrix.m22 + m13*matrix.m32 + m14*matrix.m42,
-		           m11*matrix.m13 + m12*matrix.m23 + m13*matrix.m33 + m14*matrix.m43,
-		           m11*matrix.m14 + m12*matrix.m24 + m13*matrix.m34 + m14*matrix.m44,
+		return operator=(Matrix4(
+			m11 * matrix.m11 + m12 * matrix.m21 + m13 * matrix.m31 + m14 * matrix.m41,
+			m11 * matrix.m12 + m12 * matrix.m22 + m13 * matrix.m32 + m14 * matrix.m42,
+			m11 * matrix.m13 + m12 * matrix.m23 + m13 * matrix.m33 + m14 * matrix.m43,
+			m11 * matrix.m14 + m12 * matrix.m24 + m13 * matrix.m34 + m14 * matrix.m44,
 
-		           m21*matrix.m11 + m22*matrix.m21 + m23*matrix.m31 + m24*matrix.m41,
-		           m21*matrix.m12 + m22*matrix.m22 + m23*matrix.m32 + m24*matrix.m42,
-		           m21*matrix.m13 + m22*matrix.m23 + m23*matrix.m33 + m24*matrix.m43,
-		           m21*matrix.m14 + m22*matrix.m24 + m23*matrix.m34 + m24*matrix.m44,
+			m21 * matrix.m11 + m22 * matrix.m21 + m23 * matrix.m31 + m24 * matrix.m41,
+			m21 * matrix.m12 + m22 * matrix.m22 + m23 * matrix.m32 + m24 * matrix.m42,
+			m21 * matrix.m13 + m22 * matrix.m23 + m23 * matrix.m33 + m24 * matrix.m43,
+			m21 * matrix.m14 + m22 * matrix.m24 + m23 * matrix.m34 + m24 * matrix.m44,
 
-		           m31*matrix.m11 + m32*matrix.m21 + m33*matrix.m31 + m34*matrix.m41,
-		           m31*matrix.m12 + m32*matrix.m22 + m33*matrix.m32 + m34*matrix.m42,
-		           m31*matrix.m13 + m32*matrix.m23 + m33*matrix.m33 + m34*matrix.m43,
-		           m31*matrix.m14 + m32*matrix.m24 + m33*matrix.m34 + m34*matrix.m44,
+			m31 * matrix.m11 + m32 * matrix.m21 + m33 * matrix.m31 + m34 * matrix.m41,
+			m31 * matrix.m12 + m32 * matrix.m22 + m33 * matrix.m32 + m34 * matrix.m42,
+			m31 * matrix.m13 + m32 * matrix.m23 + m33 * matrix.m33 + m34 * matrix.m43,
+			m31 * matrix.m14 + m32 * matrix.m24 + m33 * matrix.m34 + m34 * matrix.m44,
 
-		           m41*matrix.m11 + m42*matrix.m21 + m43*matrix.m31 + m44*matrix.m41,
-		           m41*matrix.m12 + m42*matrix.m22 + m43*matrix.m32 + m44*matrix.m42,
-		           m41*matrix.m13 + m42*matrix.m23 + m43*matrix.m33 + m44*matrix.m43,
-		           m41*matrix.m14 + m42*matrix.m24 + m43*matrix.m34 + m44*matrix.m44);
+			m41 * matrix.m11 + m42 * matrix.m21 + m43 * matrix.m31 + m44 * matrix.m41,
+			m41 * matrix.m12 + m42 * matrix.m22 + m43 * matrix.m32 + m44 * matrix.m42,
+			m41 * matrix.m13 + m42 * matrix.m23 + m43 * matrix.m33 + m44 * matrix.m43,
+			m41 * matrix.m14 + m42 * matrix.m24 + m43 * matrix.m34 + m44 * matrix.m44
+		));
 	}
 
 	/*!
@@ -183,7 +217,7 @@ namespace Nz
 	* \see Concatenate
 	*/
 	template<typename T>
-	Matrix4<T>& Matrix4<T>::ConcatenateTransform(const Matrix4& matrix)
+	constexpr Matrix4<T>& Matrix4<T>::ConcatenateTransform(const Matrix4& matrix)
 	{
 		#if NAZARA_MATH_MATRIX4_CHECK_TRANSFORM
 		if (!IsTransformMatrix())
@@ -199,25 +233,27 @@ namespace Nz
 		}
 		#endif
 
-		return Set(m11*matrix.m11 + m12*matrix.m21 + m13*matrix.m31,
-		           m11*matrix.m12 + m12*matrix.m22 + m13*matrix.m32,
-		           m11*matrix.m13 + m12*matrix.m23 + m13*matrix.m33,
-		           T(0.0),
-
-		           m21*matrix.m11 + m22*matrix.m21 + m23*matrix.m31,
-		           m21*matrix.m12 + m22*matrix.m22 + m23*matrix.m32,
-		           m21*matrix.m13 + m22*matrix.m23 + m23*matrix.m33,
-		           T(0.0),
-
-		           m31*matrix.m11 + m32*matrix.m21 + m33*matrix.m31,
-		           m31*matrix.m12 + m32*matrix.m22 + m33*matrix.m32,
-		           m31*matrix.m13 + m32*matrix.m23 + m33*matrix.m33,
-		           T(0.0),
-
-		           m41*matrix.m11 + m42*matrix.m21 + m43*matrix.m31 + matrix.m41,
-		           m41*matrix.m12 + m42*matrix.m22 + m43*matrix.m32 + matrix.m42,
-		           m41*matrix.m13 + m42*matrix.m23 + m43*matrix.m33 + matrix.m43,
-		           T(1.0));
+		return operator=(Matrix4(
+			m11*matrix.m11 + m12*matrix.m21 + m13*matrix.m31,
+			m11*matrix.m12 + m12*matrix.m22 + m13*matrix.m32,
+			m11*matrix.m13 + m12*matrix.m23 + m13*matrix.m33,
+			T(0.0),
+			
+			m21*matrix.m11 + m22*matrix.m21 + m23*matrix.m31,
+			m21*matrix.m12 + m22*matrix.m22 + m23*matrix.m32,
+			m21*matrix.m13 + m22*matrix.m23 + m23*matrix.m33,
+			T(0.0),
+			
+			m31*matrix.m11 + m32*matrix.m21 + m33*matrix.m31,
+			m31*matrix.m12 + m32*matrix.m22 + m33*matrix.m32,
+			m31*matrix.m13 + m32*matrix.m23 + m33*matrix.m33,
+			T(0.0),
+			
+			m41*matrix.m11 + m42*matrix.m21 + m43*matrix.m31 + matrix.m41,
+			m41*matrix.m12 + m42*matrix.m22 + m43*matrix.m32 + matrix.m42,
+			m41*matrix.m13 + m42*matrix.m23 + m43*matrix.m33 + matrix.m43,
+			T(1.0)
+		));
 	}
 
 	/*!
@@ -229,9 +265,8 @@ namespace Nz
 	* \remark Produce a NazaraError if you try to access index greater than 3 with NAZARA_MATH_SAFE defined
 	* \throw std::out_of_range if NAZARA_MATH_SAFE is defined and if you try to access index greater than 3
 	*/
-
 	template<typename T>
-	Vector4<T> Matrix4<T>::GetColumn(unsigned int column) const
+	constexpr Vector4<T> Matrix4<T>::GetColumn(unsigned int column) const
 	{
 		///FIXME: Est-ce une bonne idée de gérer la matrice de cette façon ?
 
@@ -258,7 +293,7 @@ namespace Nz
 	* \see GetDeterminantTransform
 	*/
 	template<typename T>
-	T Matrix4<T>::GetDeterminant() const
+	constexpr T Matrix4<T>::GetDeterminant() const
 	{
 		#if NAZARA_MATH_MATRIX4_CHECK_TRANSFORM
 		if (IsTransformMatrix())
@@ -285,7 +320,7 @@ namespace Nz
 	* \see GetDeterminant
 	*/
 	template<typename T>
-	T Matrix4<T>::GetDeterminantTransform() const
+	constexpr T Matrix4<T>::GetDeterminantTransform() const
 	{
 		#if NAZARA_MATH_MATRIX4_CHECK_TRANSFORM
 		if (!IsTransformMatrix())
@@ -314,9 +349,8 @@ namespace Nz
 	*
 	* \see GetInverseAffine
 	*/
-
 	template<typename T>
-	bool Matrix4<T>::GetInverse(Matrix4* dest) const
+	constexpr bool Matrix4<T>::GetInverse(Matrix4* dest) const
 	{
 		NazaraAssert(dest, "destination matrix must be valid");
 
@@ -467,7 +501,7 @@ namespace Nz
 	* \see GetInverse
 	*/
 	template<typename T>
-	bool Matrix4<T>::GetInverseTransform(Matrix4* dest) const
+	constexpr bool Matrix4<T>::GetInverseTransform(Matrix4* dest) const
 	{
 		NazaraAssert(dest, "destination matrix must be valid");
 
@@ -554,7 +588,6 @@ namespace Nz
 	* \brief Gets the rotation from this matrix
 	* \return Quaternion which is the representation of the rotation in this matrix
 	*/
-
 	template<typename T>
 	Quaternion<T> Matrix4<T>::GetRotation() const
 	{
@@ -613,9 +646,8 @@ namespace Nz
 	* \remark Produce a NazaraError if you try to access index greater than 3 with NAZARA_MATH_SAFE defined
 	* \throw std::out_of_range if NAZARA_MATH_SAFE is defined and if you try to access index greater than 3
 	*/
-
 	template<typename T>
-	Vector4<T> Matrix4<T>::GetRow(unsigned int row) const
+	constexpr Vector4<T> Matrix4<T>::GetRow(unsigned int row) const
 	{
 		///FIXME: Est-ce une bonne idée de gérer la matrice de cette façon ?
 
@@ -639,9 +671,8 @@ namespace Nz
 	*
 	* \see GetSquaredScale
 	*/
-
 	template<typename T>
-	Vector3<T> Matrix4<T>::GetScale() const
+	constexpr Vector3<T> Matrix4<T>::GetScale() const
 	{
 		Vector3<T> squaredScale = GetSquaredScale();
 		return Vector3<T>(std::sqrt(squaredScale.x), std::sqrt(squaredScale.y), std::sqrt(squaredScale.z));
@@ -653,9 +684,8 @@ namespace Nz
 	*
 	* \see GetScale
 	*/
-
 	template<typename T>
-	Vector3<T> Matrix4<T>::GetSquaredScale() const
+	constexpr Vector3<T> Matrix4<T>::GetSquaredScale() const
 	{
 		return Vector3<T>(m11 * m11 + m12 * m12 + m13 * m13,
 		                  m21 * m21 + m22 * m22 + m23 * m23,
@@ -666,9 +696,8 @@ namespace Nz
 	* \brief Gets the translation from this matrix
 	* \return Vector3 which is the representation of the translation in this matrix
 	*/
-
 	template<typename T>
-	Vector3<T> Matrix4<T>::GetTranslation() const
+	constexpr Vector3<T> Matrix4<T>::GetTranslation() const
 	{
 		return Vector3<T>(m41, m42, m43);
 	}
@@ -683,9 +712,8 @@ namespace Nz
 	*
 	* \see Transpose
 	*/
-
 	template<typename T>
-	void Matrix4<T>::GetTransposed(Matrix4* dest) const
+	constexpr void Matrix4<T>::GetTransposed(Matrix4* dest) const
 	{
 		#ifdef NAZARA_DEBUG
 		if (!dest)
@@ -695,10 +723,12 @@ namespace Nz
 		}
 		#endif
 
-		dest->Set(m11, m21, m31, m41,
-		          m12, m22, m32, m42,
-		          m13, m23, m33, m43,
-		          m14, m24, m34, m44);
+		(*dest) = Matrix4f(
+			m11, m21, m31, m41,
+			m12, m22, m32, m42,
+			m13, m23, m33, m43,
+			m14, m24, m34, m44
+		);
 	}
 
 	/*!
@@ -707,9 +737,8 @@ namespace Nz
 	*
 	* \see GetDeterminant
 	*/
-
 	template<typename T>
-	bool Matrix4<T>::HasNegativeScale() const
+	constexpr bool Matrix4<T>::HasNegativeScale() const
 	{
 		return GetDeterminant() < T(0.0);
 	}
@@ -720,9 +749,8 @@ namespace Nz
 	*
 	* \see HasNegativeScale
 	*/
-
 	template<typename T>
-	bool Matrix4<T>::HasScale() const
+	constexpr bool Matrix4<T>::HasScale() const
 	{
 		T t = m11*m11 + m21*m21 + m31*m31;
 		if (!NumberEquals(t, T(1.0)))
@@ -748,7 +776,7 @@ namespace Nz
 	* \see InverseTransform
 	*/
 	template<typename T>
-	Matrix4<T>& Matrix4<T>::Inverse(bool* succeeded)
+	constexpr Matrix4<T>& Matrix4<T>::Inverse(bool* succeeded)
 	{
 		bool result = GetInverse(this);
 		if (succeeded)
@@ -766,7 +794,7 @@ namespace Nz
 	* \see Inverse
 	*/
 	template<typename T>
-	Matrix4<T>& Matrix4<T>::InverseTransform(bool* succeeded)
+	constexpr Matrix4<T>& Matrix4<T>::InverseTransform(bool* succeeded)
 	{
 		bool result = GetInverseTransform(this);
 		if (succeeded)
@@ -779,9 +807,8 @@ namespace Nz
 	* \brief Checks whether the matrix is affine
 	* \return true if matrix is affine
 	*/
-
 	template<typename T>
-	bool Matrix4<T>::IsTransformMatrix() const
+	constexpr bool Matrix4<T>::IsTransformMatrix() const
 	{
 		return NumberEquals(m14, T(0.0)) && NumberEquals(m24, T(0.0)) && NumberEquals(m34, T(0.0)) && NumberEquals(m44, T(1.0));
 	}
@@ -790,332 +817,13 @@ namespace Nz
 	* \brief Checks whether the matrix is identity
 	* \return true if matrix is identity
 	*/
-
 	template<typename T>
-	bool Matrix4<T>::IsIdentity() const
+	constexpr bool Matrix4<T>::IsIdentity() const
 	{
 		return (NumberEquals(m11, T(1.0)) && NumberEquals(m12, T(0.0)) && NumberEquals(m13, T(0.0)) && NumberEquals(m14, T(0.0)) &&
 		        NumberEquals(m21, T(0.0)) && NumberEquals(m22, T(1.0)) && NumberEquals(m23, T(0.0)) && NumberEquals(m24, T(0.0)) &&
 		        NumberEquals(m31, T(0.0)) && NumberEquals(m32, T(0.0)) && NumberEquals(m33, T(1.0)) && NumberEquals(m34, T(0.0)) &&
 		        NumberEquals(m41, T(0.0)) && NumberEquals(m42, T(0.0)) && NumberEquals(m43, T(0.0)) && NumberEquals(m44, T(1.0)));
-	}
-
-	/*!
-	* \brief Makes the matrix identity (with 1 on diagonal and 0 for others)
-	* \return A reference to this matrix with components (1 on diagonal and 0 for others)
-	*
-	* \see Identity
-	*/
-
-	template<typename T>
-	Matrix4<T>& Matrix4<T>::MakeIdentity()
-	{
-		Set(T(1.0), T(0.0), T(0.0), T(0.0),
-		    T(0.0), T(1.0), T(0.0), T(0.0),
-		    T(0.0), T(0.0), T(1.0), T(0.0),
-		    T(0.0), T(0.0), T(0.0), T(1.0));
-
-		return *this;
-	}
-
-	/*!
-	* \brief Makes the matrix a 'look at matrix'
-	* \return A reference to this matrix transformed in 'look at matrix'
-	*
-	* \param eye Position of the camera
-	* \param target Position of the target of the camera
-	* \param up Direction of up vector according to the orientation of camera
-	*
-	* \see LookAt
-	*/
-	template<typename T>
-	Matrix4<T>& Matrix4<T>::MakeLookAt(const Vector3<T>& eye, const Vector3<T>& target, const Vector3<T>& up)
-	{
-		Vector3<T> f = Vector3<T>::Normalize(target - eye);
-		Vector3<T> s = Vector3<T>::Normalize(f.CrossProduct(up));
-		Vector3<T> u = s.CrossProduct(f);
-
-		Set(s.x, u.x, -f.x, T(0.0),
-		    s.y, u.y, -f.y, T(0.0),
-		    s.z, u.z, -f.z, T(0.0),
-		    -s.DotProduct(eye), -u.DotProduct(eye), f.DotProduct(eye), T(1.0));
-
-		return *this;
-	}
-
-	/*!
-	* \brief Makes the matrix a 'orthographic matrix'
-	* \return A reference to this matrix transformed in 'orthographic matrix'
-	*
-	* \param left Distance between center and left
-	* \param right Distance between center and right
-	* \param top Distance between center and top
-	* \param bottom Distance between center and bottom
-	* \param zNear Distance where 'vision' begins
-	* \param zFar Distance where 'vision' ends
-	*
-	* \see Ortho
-	*/
-
-	template<typename T>
-	Matrix4<T>& Matrix4<T>::MakeOrtho(T left, T right, T top, T bottom, T zNear, T zFar)
-	{
-		// http://msdn.microsoft.com/en-us/library/windows/desktop/bb204942(v=vs.85).aspx
-		Set(T(2.0) / (right - left), T(0.0), T(0.0), T(0.0),
-		    T(0.0), T(2.0) / (top - bottom), T(0.0), T(0.0),
-		    T(0.0), T(0.0), T(1.0) / (zNear - zFar), T(0.0),
-		    (left + right) / (left - right), (top + bottom) / (bottom - top), zNear/(zNear - zFar), T(1.0));
-
-		return *this;
-	}
-
-	/*!
-	* \brief Makes the matrix a 'perspective matrix'
-	* \return A reference to this matrix transformed in 'perspective matrix'
-	*
-	* \param angle FOV angle
-	* \param ratio Rendering ratio (typically 16/9 or 4/3)
-	* \param zNear Distance where 'vision' begins
-	* \param zFar Distance where 'vision' ends
-	*
-	* \see Perspective
-	*/
-
-	template<typename T>
-	Matrix4<T>& Matrix4<T>::MakePerspective(RadianAngle<T> angle, T ratio, T zNear, T zFar)
-	{
-		angle /= T(2.0);
-
-		T yScale = angle.GetTan();
-
-		Set(T(1.0) / (ratio * yScale), T(0.0),              T(0.0),                           T(0.0),
-		    T(0.0),                    T(-1.0) / (yScale),  T(0.0),                           T(0.0),
-		    T(0.0),                    T(0.0),              zFar / (zNear - zFar),            T(-1.0),
-		    T(0.0),                    T(0.0),              -(zNear * zFar) / (zFar - zNear), T(0.0));
-
-		return *this;
-	}
-
-	/*!
-	* \brief Makes the matrix the representation of the quaternion
-	* \return A reference to this matrix which is the rotation of the quaternion
-	*
-	* \param rotation Quaternion representing a rotation of space
-	*
-	* \see Rotate
-	*/
-
-	template<typename T>
-	Matrix4<T>& Matrix4<T>::MakeRotation(const Quaternion<T>& rotation)
-	{
-		SetRotation(rotation);
-
-		// We complete the matrix
-		m14 = T(0.0);
-		m24 = T(0.0);
-		m34 = T(0.0);
-		m41 = T(0.0);
-		m42 = T(0.0);
-		m43 = T(0.0);
-		m44 = T(1.0);
-
-		return *this;
-	}
-
-	/*!
-	* \brief Makes the matrix with the scale
-	* \return A reference to this matrix which is the scale
-	*
-	* \param scale Vector3 representing the homothety
-	*
-	* \see Scale
-	*/
-
-	template<typename T>
-	Matrix4<T>& Matrix4<T>::MakeScale(const Vector3<T>& scale)
-	{
-		Set(scale.x, T(0.0),  T(0.0),  T(0.0),
-		    T(0.0),  scale.y, T(0.0),  T(0.0),
-		    T(0.0),  T(0.0),  scale.z, T(0.0),
-		    T(0.0),  T(0.0),  T(0.0),  T(1.0));
-
-		return *this;
-	}
-
-	/*!
-	* \brief Makes the matrix with the translation
-	* \return A reference to this matrix which is the translation
-	*
-	* \param translation Vector3 representing the translation
-	*
-	* \see Translate
-	*/
-
-	template<typename T>
-	Matrix4<T>& Matrix4<T>::MakeTranslation(const Vector3<T>& translation)
-	{
-		Set(T(1.0), T(0.0), T(0.0), T(0.0),
-		    T(0.0), T(1.0), T(0.0), T(0.0),
-		    T(0.0), T(0.0), T(1.0), T(0.0),
-		    translation.x, translation.y, translation.z, T(1.0));
-
-		return *this;
-	}
-
-	/*!
-	* \brief Makes the matrix with the translation and the rotation
-	* \return A reference to this matrix which is transformation obtained by the translation and the rotation
-	*
-	* \param translation Vector3 representing the translation
-	* \param rotation Quaternion representing a rotation of space
-	*
-	* \remark Rotation is applied first
-	*
-	* \see Transform
-	*/
-
-	template<typename T>
-	Matrix4<T>& Matrix4<T>::MakeTransform(const Vector3<T>& translation, const Quaternion<T>& rotation)
-	{
-		// The rotation and the translation may be directly applied
-		SetRotation(rotation);
-		SetTranslation(translation);
-
-		// We complete the matrix (the transformations are affine)
-		m14 = T(0.0);
-		m24 = T(0.0);
-		m34 = T(0.0);
-		m44 = T(1.0);
-
-		return *this;
-	}
-
-	/*!
-	* \brief Makes the matrix with the translation, the rotation and the scale
-	* \return A reference to this matrix which is transformation obtained by the translation, the rotation and the scale
-	*
-	* \param translation Vector3 representing the translation
-	* \param rotation Quaternion representing a rotation of space
-	* \param scale Vector3 representing the homothety
-	*
-	* \remark Rotation is applied first, then translation
-	*
-	* \see Transform
-	*/
-
-	template<typename T>
-	Matrix4<T>& Matrix4<T>::MakeTransform(const Vector3<T>& translation, const Quaternion<T>& rotation, const Vector3<T>& scale)
-	{
-		MakeTransform(translation, rotation);
-
-		// Then we apply the scale to current values
-		return ApplyScale(scale);
-	}
-
-	/*!
-	* \brief Makes the matrix an inverse transform matrix (aka view matrix)
-	* \return A reference to this matrix
-	*
-	* \param translation Vector3 representing the translation
-	* \param rotation Quaternion representing a rotation of space
-	*
-	* \see InverseTransformMatrix
-	*/
-	template<typename T>
-	Matrix4<T>& Matrix4<T>::MakeTransformInverse(const Vector3<T>& translation, const Quaternion<T>& rotation)
-	{
-		// A view matrix must apply an inverse transformation of the 'world' matrix
-		Quaternion<T> invRot = rotation.GetConjugate(); // Inverse of the rotation
-
-		return MakeTransform(-(invRot * translation), invRot);
-	}
-
-	/*!
-	* \brief Makes the matrix an inverse transform matrix (aka view matrix)
-	* \return A reference to this matrix
-	*
-	* \param translation Vector3 representing the translation
-	* \param rotation Quaternion representing a rotation of space
-	* \param scale Vector3 representing the scale
-	*
-	* \see InverseTransformMatrix
-	*/
-	template<typename T>
-	Matrix4<T>& Matrix4<T>::MakeTransformInverse(const Vector3<T>& translation, const Quaternion<T>& rotation, const Vector3<T>& scale)
-	{
-		MakeTransformInverse(translation, rotation);
-		ConcatenateTransform(Scale(T(1.0) / scale));
-
-		return *this;
-	}
-
-	/*!
-	* \brief Makes the matrix zero (with 0 everywhere)
-	* \return A reference to this matrix with components (0 everywhere)
-	*
-	* \see Zero
-	*/
-	template<typename T>
-	Matrix4<T>& Matrix4<T>::MakeZero()
-	{
-		Set(T(0.0), T(0.0), T(0.0), T(0.0),
-		    T(0.0), T(0.0), T(0.0), T(0.0),
-		    T(0.0), T(0.0), T(0.0), T(0.0),
-		    T(0.0), T(0.0), T(0.0), T(0.0));
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the matrix
-	* \return A reference to this matrix
-	*
-	* \param rIJ Matrix components at index(I, J)
-	*/
-
-	template<typename T>
-	Matrix4<T>& Matrix4<T>::Set(T r11, T r12, T r13, T r14,
-	                            T r21, T r22, T r23, T r24,
-	                            T r31, T r32, T r33, T r34,
-	                            T r41, T r42, T r43, T r44)
-	{
-		m11 = r11;
-		m12 = r12;
-		m13 = r13;
-		m14 = r14;
-		m21 = r21;
-		m22 = r22;
-		m23 = r23;
-		m24 = r24;
-		m31 = r31;
-		m32 = r32;
-		m33 = r33;
-		m34 = r34;
-		m41 = r41;
-		m42 = r42;
-		m43 = r43;
-		m44 = r44;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the matrix from another type of Matrix4
-	* \return A reference to this matrix
-	*
-	* \param matrix Matrix4 of type U to convert its components
-	*/
-
-	template<typename T>
-	template<typename U>
-	Matrix4<T>& Matrix4<T>::Set(const Matrix4<U>& matrix)
-	{
-		Set(T(matrix[ 0]), T(matrix[ 1]), T(matrix[ 2]), T(matrix[ 3]),
-		    T(matrix[ 4]), T(matrix[ 5]), T(matrix[ 6]), T(matrix[ 7]),
-		    T(matrix[ 8]), T(matrix[ 9]), T(matrix[10]), T(matrix[11]),
-		    T(matrix[12]), T(matrix[13]), T(matrix[14]), T(matrix[15]));
-
-		return *this;
 	}
 
 	/*!
@@ -1126,9 +834,8 @@ namespace Nz
 	*
 	* \remark 3rd column and row are unchanged. Scale is removed.
 	*/
-
 	template<typename T>
-	Matrix4<T>& Matrix4<T>::SetRotation(const Quaternion<T>& rotation)
+	constexpr Matrix4<T>& Matrix4<T>::SetRotation(const Quaternion<T>& rotation)
 	{
 		T qw = rotation.w;
 		T qx = rotation.x;
@@ -1162,9 +869,8 @@ namespace Nz
 	*
 	* \remark Components are unchanged, except the three first on the diagonal
 	*/
-
 	template<typename T>
-	Matrix4<T>& Matrix4<T>::SetScale(const Vector3<T>& scale)
+	constexpr Matrix4<T>& Matrix4<T>::SetScale(const Vector3<T>& scale)
 	{
 		m11 = scale.x;
 		m22 = scale.y;
@@ -1181,9 +887,8 @@ namespace Nz
 	*
 	* \remark Components are unchanged, except the three first on the third row
 	*/
-
 	template<typename T>
-	Matrix4<T>& Matrix4<T>::SetTranslation(const Vector3<T>& translation)
+	constexpr Matrix4<T>& Matrix4<T>::SetTranslation(const Vector3<T>& translation)
 	{
 		m41 = translation.x;
 		m42 = translation.y;
@@ -1214,9 +919,8 @@ namespace Nz
 	* \param z Z Component of the imaginary Vector4
 	* \param w W Component of the imaginary Vector4
 	*/
-
 	template<typename T>
-	Vector2<T> Matrix4<T>::Transform(const Vector2<T>& vector, T z, T w) const
+	constexpr Vector2<T> Matrix4<T>::Transform(const Vector2<T>& vector, T z, T w) const
 	{
 		return Vector2<T>(m11 * vector.x + m21 * vector.y + m31 * z + m41 * w,
 		                  m12 * vector.x + m22 * vector.y + m32 * z + m42 * w);
@@ -1229,9 +933,8 @@ namespace Nz
 	* \param vector To transform
 	* \param w W Component of the imaginary Vector4
 	*/
-
 	template<typename T>
-	Vector3<T> Matrix4<T>::Transform(const Vector3<T>& vector, T w) const
+	constexpr Vector3<T> Matrix4<T>::Transform(const Vector3<T>& vector, T w) const
 	{
 		return Vector3<T>(m11 * vector.x + m21 * vector.y + m31 * vector.z + m41 * w,
 		                  m12 * vector.x + m22 * vector.y + m32 * vector.z + m42 * w,
@@ -1244,9 +947,8 @@ namespace Nz
 	*
 	* \param vector To transform
 	*/
-
 	template<typename T>
-	Vector4<T> Matrix4<T>::Transform(const Vector4<T>& vector) const
+	constexpr Vector4<T> Matrix4<T>::Transform(const Vector4<T>& vector) const
 	{
 		return Vector4<T>(m11 * vector.x + m21 * vector.y + m31 * vector.z + m41 * vector.w,
 		                  m12 * vector.x + m22 * vector.y + m32 * vector.z + m42 * vector.w,
@@ -1260,9 +962,8 @@ namespace Nz
 	*
 	* \see GetTransposed
 	*/
-
 	template<typename T>
-	Matrix4<T>& Matrix4<T>::Transpose()
+	constexpr Matrix4<T>& Matrix4<T>::Transpose()
 	{
 		std::swap(m12, m21);
 		std::swap(m13, m31);
@@ -1281,7 +982,7 @@ namespace Nz
 	* \remark x and y must both be comprised in range [0,4[
 	*/
 	template<typename T>
-	T& Matrix4<T>::operator()(std::size_t x, std::size_t y)
+	constexpr T& Matrix4<T>::operator()(std::size_t x, std::size_t y)
 	{
 		NazaraAssert(x <= 3, "index out of range");
 		NazaraAssert(y <= 3, "index out of range");
@@ -1296,7 +997,7 @@ namespace Nz
 	* \remark x and y must both be comprised in range [0,4[
 	*/
 	template<typename T>
-	const T& Matrix4<T>::operator()(std::size_t x, std::size_t y) const
+	constexpr const T& Matrix4<T>::operator()(std::size_t x, std::size_t y) const
 	{
 		NazaraAssert(x <= 3, "index out of range");
 		NazaraAssert(y <= 3, "index out of range");
@@ -1311,7 +1012,7 @@ namespace Nz
 	* \remark i must be comprised in range [0,16[
 	*/
 	template<typename T>
-	T& Matrix4<T>::operator[](std::size_t i)
+	constexpr T& Matrix4<T>::operator[](std::size_t i)
 	{
 		NazaraAssert(i <= 16, "index out of range");
 
@@ -1325,7 +1026,7 @@ namespace Nz
 	* \remark i must be comprised in range [0,16[
 	*/
 	template<typename T>
-	const T& Matrix4<T>::operator[](std::size_t i) const
+	constexpr const T& Matrix4<T>::operator[](std::size_t i) const
 	{
 		NazaraAssert(i <= 16, "index out of range");
 
@@ -1338,9 +1039,8 @@ namespace Nz
 	*
 	* \param matrix The other matrix to multiply components with
 	*/
-
 	template<typename T>
-	Matrix4<T> Matrix4<T>::operator*(const Matrix4& matrix) const
+	constexpr Matrix4<T> Matrix4<T>::operator*(const Matrix4& matrix) const
 	{
 		Matrix4 result(*this);
 		return result.Concatenate(matrix);
@@ -1352,9 +1052,8 @@ namespace Nz
 	*
 	* \param vector The vector to multiply the matrix with
 	*/
-
 	template<typename T>
-	Vector2<T> Matrix4<T>::operator*(const Vector2<T>& vector) const
+	constexpr Vector2<T> Matrix4<T>::operator*(const Vector2<T>& vector) const
 	{
 		return Transform(vector);
 	}
@@ -1365,9 +1064,8 @@ namespace Nz
 	*
 	* \param vector The vector to multiply the matrix with
 	*/
-
 	template<typename T>
-	Vector3<T> Matrix4<T>::operator*(const Vector3<T>& vector) const
+	constexpr Vector3<T> Matrix4<T>::operator*(const Vector3<T>& vector) const
 	{
 		return Transform(vector);
 	}
@@ -1378,9 +1076,8 @@ namespace Nz
 	*
 	* \param vector The vector to multiply the matrix with
 	*/
-
 	template<typename T>
-	Vector4<T> Matrix4<T>::operator*(const Vector4<T>& vector) const
+	constexpr Vector4<T> Matrix4<T>::operator*(const Vector4<T>& vector) const
 	{
 		return Transform(vector);
 	}
@@ -1391,9 +1088,8 @@ namespace Nz
 	*
 	* \param scalar The scalar to multiply the matrix'components with
 	*/
-
 	template<typename T>
-	Matrix4<T> Matrix4<T>::operator*(T scalar) const
+	constexpr Matrix4<T> Matrix4<T>::operator*(T scalar) const
 	{
 		Matrix4 mat;
 		for (unsigned int i = 0; i < 16; ++i)
@@ -1408,9 +1104,8 @@ namespace Nz
 	*
 	* \param matrix The matrix to multiply with
 	*/
-
 	template<typename T>
-	Matrix4<T>& Matrix4<T>::operator*=(const Matrix4& matrix)
+	constexpr Matrix4<T>& Matrix4<T>::operator*=(const Matrix4& matrix)
 	{
 		Concatenate(matrix);
 
@@ -1423,9 +1118,8 @@ namespace Nz
 	*
 	* \param scalar The scalar to multiply with
 	*/
-
 	template<typename T>
-	Matrix4<T>& Matrix4<T>::operator*=(T scalar)
+	constexpr Matrix4<T>& Matrix4<T>::operator*=(T scalar)
 	{
 		for (unsigned int i = 0; i < 16; ++i)
 			(&m11)[i] *= scalar;
@@ -1439,12 +1133,11 @@ namespace Nz
 	*
 	* \param mat Other matrix to compare with
 	*/
-
 	template<typename T>
-	bool Matrix4<T>::operator==(const Matrix4& mat) const
+	constexpr bool Matrix4<T>::operator==(const Matrix4& mat) const
 	{
 		for (unsigned int i = 0; i < 16; ++i)
-			if (!NumberEquals((&m11)[i], (&mat.m11)[i]))
+			if ((&m11)[i] != (&mat.m11)[i])
 				return false;
 
 		return true;
@@ -1456,9 +1149,8 @@ namespace Nz
 	*
 	* \param mat Other matrix to compare with
 	*/
-
 	template<typename T>
-	bool Matrix4<T>::operator!=(const Matrix4& mat) const
+	constexpr bool Matrix4<T>::operator!=(const Matrix4& mat) const
 	{
 		return !operator==(mat);
 	}
@@ -1472,9 +1164,14 @@ namespace Nz
 	*
 	* \see Concatenate
 	*/
+	template<typename T>
+	constexpr bool Matrix4<T>::ApproxEqual(const Matrix4& lhs, const Matrix4& rhs, T maxDifference)
+	{
+		return lhs.ApproxEqual(rhs, maxDifference);
+	}
 
 	template<typename T>
-	Matrix4<T> Matrix4<T>::Concatenate(const Matrix4& left, const Matrix4& right)
+	constexpr Matrix4<T> Matrix4<T>::Concatenate(const Matrix4& left, const Matrix4& right)
 	{
 		Matrix4 matrix(left); // Copy of left-hand side matrix
 		matrix.Concatenate(right); // Concatenation with right-hand side
@@ -1492,7 +1189,7 @@ namespace Nz
 	* \see ConcatenateTransform
 	*/
 	template<typename T>
-	Matrix4<T> Matrix4<T>::ConcatenateTransform(const Matrix4& left, const Matrix4& right)
+	constexpr Matrix4<T> Matrix4<T>::ConcatenateTransform(const Matrix4& left, const Matrix4& right)
 	{
 		Matrix4 matrix(left); // Copy of left-hand side matrix
 		matrix.ConcatenateTransform(right); // Affine concatenation with right-hand side
@@ -1503,17 +1200,16 @@ namespace Nz
 	/*!
 	* \brief Shorthand for the identity matrix
 	* \return A Matrix4 which is the identity matrix
-	*
-	* \see MakeIdentity
 	*/
-
 	template<typename T>
-	Matrix4<T> Matrix4<T>::Identity()
+	constexpr Matrix4<T> Matrix4<T>::Identity()
 	{
-		Matrix4 matrix;
-		matrix.MakeIdentity();
-
-		return matrix;
+		return Matrix4(
+			T(1.0), T(0.0), T(0.0), T(0.0),
+			T(0.0), T(1.0), T(0.0), T(0.0),
+			T(0.0), T(0.0), T(1.0), T(0.0),
+			T(0.0), T(0.0), T(0.0), T(1.0)
+		);
 	}
 
 	/*!
@@ -1523,17 +1219,20 @@ namespace Nz
 	* \param eye Position of the camera
 	* \param target Position of the target of the camera
 	* \param up Direction of up vector according to the orientation of camera
-	*
-	* \see MakeLookAt
 	*/
-
 	template<typename T>
-	Matrix4<T> Matrix4<T>::LookAt(const Vector3<T>& eye, const Vector3<T>& target, const Vector3<T>& up)
+	constexpr Matrix4<T> Matrix4<T>::LookAt(const Vector3<T>& eye, const Vector3<T>& target, const Vector3<T>& up)
 	{
-		Matrix4 matrix;
-		matrix.MakeLookAt(eye, target, up);
+		Vector3<T> f = Vector3<T>::Normalize(target - eye);
+		Vector3<T> s = Vector3<T>::Normalize(f.CrossProduct(up));
+		Vector3<T> u = s.CrossProduct(f);
 
-		return matrix;
+		return Matrix4(
+			s.x, u.x, -f.x, T(0.0),
+			s.y, u.y, -f.y, T(0.0),
+			s.z, u.z, -f.z, T(0.0),
+			-s.DotProduct(eye), -u.DotProduct(eye), f.DotProduct(eye), T(1.0)
+		);
 	}
 
 	/*!
@@ -1546,17 +1245,17 @@ namespace Nz
 	* \param bottom Distance between center and bottom
 	* \param zNear Distance where 'vision' begins
 	* \param zFar Distance where 'vision' ends
-	*
-	* \see MakeOrtho
 	*/
-
 	template<typename T>
-	Matrix4<T> Matrix4<T>::Ortho(T left, T right, T top, T bottom, T zNear, T zFar)
+	constexpr Matrix4<T> Matrix4<T>::Ortho(T left, T right, T top, T bottom, T zNear, T zFar)
 	{
-		Matrix4 matrix;
-		matrix.MakeOrtho(left, right, top, bottom, zNear, zFar);
-
-		return matrix;
+		// http://msdn.microsoft.com/en-us/library/windows/desktop/bb204942(v=vs.85).aspx
+		return Matrix4(
+			T(2.0) / (right - left), T(0.0), T(0.0), T(0.0),
+			T(0.0), T(2.0) / (top - bottom), T(0.0), T(0.0),
+			T(0.0), T(0.0), T(1.0) / (zNear - zFar), T(0.0),
+			(left + right) / (left - right), (top + bottom) / (bottom - top), zNear / (zNear - zFar), T(1.0)
+		);
 	}
 
 	/*!
@@ -1567,17 +1266,20 @@ namespace Nz
 	* \param ratio Rendering ratio (typically 16/9 or 4/3)
 	* \param zNear Distance where 'vision' begins
 	* \param zFar Distance where 'vision' ends
-	*
-	* \see MakePerspective
 	*/
-
 	template<typename T>
 	Matrix4<T> Matrix4<T>::Perspective(RadianAngle<T> angle, T ratio, T zNear, T zFar)
 	{
-		Matrix4 matrix;
-		matrix.MakePerspective(angle, ratio, zNear, zFar);
+		angle /= T(2.0);
 
-		return matrix;
+		T yScale = angle.GetTan();
+
+		return Matrix4(
+			T(1.0) / (ratio * yScale), T(0.0),             T(0.0),                          T(0.0),
+			T(0.0),                    T(-1.0) / (yScale), T(0.0),                          T(0.0),
+			T(0.0),                    T(0.0),             zFar / (zNear - zFar),           T(-1.0),
+			T(0.0),                    T(0.0),            -(zNear * zFar) / (zFar - zNear), T(0.0)
+		);
 	}
 
 	/*!
@@ -1585,15 +1287,12 @@ namespace Nz
 	* \return A Matrix4 which is the rotation of the quaternion
 	*
 	* \param rotation Quaternion representing a rotation of space
-	*
-	* \see MakeRotation
 	*/
-
 	template<typename T>
-	Matrix4<T> Matrix4<T>::Rotate(const Quaternion<T>& rotation)
+	constexpr Matrix4<T> Matrix4<T>::Rotate(const Quaternion<T>& rotation)
 	{
-		Matrix4 matrix;
-		matrix.MakeRotation(rotation);
+		Matrix4 matrix = Matrix4::Identity();
+		matrix.SetRotation(rotation);
 
 		return matrix;
 	}
@@ -1603,17 +1302,16 @@ namespace Nz
 	* \return A Matrix4 which is is the scale
 	*
 	* \param scale Vector3 representing the scale
-	*
-	* \see MakeScale
 	*/
-
 	template<typename T>
-	Matrix4<T> Matrix4<T>::Scale(const Vector3<T>& scale)
+	constexpr Matrix4<T> Matrix4<T>::Scale(const Vector3<T>& scale)
 	{
-		Matrix4 matrix;
-		matrix.MakeScale(scale);
-
-		return matrix;
+		return Matrix4(
+			scale.x, T(0.0),  T(0.0),  T(0.0),
+			T(0.0),  scale.y, T(0.0),  T(0.0),
+			T(0.0),  T(0.0),  scale.z, T(0.0),
+			T(0.0),  T(0.0),  T(0.0),  T(1.0)
+		);
 	}
 
 	/*!
@@ -1621,17 +1319,16 @@ namespace Nz
 	* \return A Matrix4 which is is the translation
 	*
 	* \param translation Vector3 representing the translation
-	*
-	* \see MakeTranslation
 	*/
-
 	template<typename T>
-	Matrix4<T> Matrix4<T>::Translate(const Vector3<T>& translation)
+	constexpr Matrix4<T> Matrix4<T>::Translate(const Vector3<T>& translation)
 	{
-		Matrix4 mat;
-		mat.MakeTranslation(translation);
-
-		return mat;
+		return Matrix4(
+			T(1.0), T(0.0), T(0.0), T(0.0),
+			T(0.0), T(1.0), T(0.0), T(0.0),
+			T(0.0), T(0.0), T(1.0), T(0.0),
+			translation.x, translation.y, translation.z, T(1.0)
+		);
 	}
 
 	/*!
@@ -1642,15 +1339,13 @@ namespace Nz
 	* \param rotation Quaternion representing a rotation of space
 	*
 	* \remark Rotation is applied first
-	*
-	* \see MakeTransform
 	*/
-
 	template<typename T>
-	Matrix4<T> Matrix4<T>::Transform(const Vector3<T>& translation, const Quaternion<T>& rotation)
+	constexpr Matrix4<T> Matrix4<T>::Transform(const Vector3<T>& translation, const Quaternion<T>& rotation)
 	{
-		Matrix4 mat;
-		mat.MakeTransform(translation, rotation);
+		Matrix4 mat = Matrix4f::Identity();
+		mat.SetRotation(rotation);
+		mat.SetTranslation(translation);
 
 		return mat;
 	}
@@ -1664,15 +1359,12 @@ namespace Nz
 	* \param scale Vector3 representing the homothety
 	*
 	* \remark Rotation is applied first, then translation
-	*
-	* \see MakeTransform
 	*/
-
 	template<typename T>
-	Matrix4<T> Matrix4<T>::Transform(const Vector3<T>& translation, const Quaternion<T>& rotation, const Vector3<T>& scale)
+	constexpr Matrix4<T> Matrix4<T>::Transform(const Vector3<T>& translation, const Quaternion<T>& rotation, const Vector3<T>& scale)
 	{
-		Matrix4 mat;
-		mat.MakeTransform(translation, rotation, scale);
+		Matrix4 mat = Transform(translation, rotation);
+		mat.ApplyScale(scale);
 
 		return mat;
 	}
@@ -1683,16 +1375,14 @@ namespace Nz
 	*
 	* \param translation Vector3 representing the translation
 	* \param rotation Quaternion representing a rotation of space
-	*
-	* \see MakeInverseTransformMatrix
 	*/
 	template<typename T>
-	Matrix4<T> Matrix4<T>::TransformInverse(const Vector3<T>& translation, const Quaternion<T>& rotation)
+	constexpr Matrix4<T> Matrix4<T>::TransformInverse(const Vector3<T>& translation, const Quaternion<T>& rotation)
 	{
-		Matrix4 mat;
-		mat.MakeTransformInverse(translation, rotation);
+		// A view matrix must apply an inverse transformation of the 'world' matrix
+		Quaternion<T> invRot = rotation.GetConjugate(); // Inverse of the rotation
 
-		return mat;
+		return Transform(-(invRot * translation), invRot);
 	}
 
 	/*!
@@ -1702,32 +1392,26 @@ namespace Nz
 	* \param translation Vector3 representing the translation
 	* \param rotation Quaternion representing a rotation of space
 	* \param scale Vector3 representing the scale
-	*
-	* \see MakeInverseTransformMatrix
 	*/
 	template<typename T>
-	Matrix4<T> Matrix4<T>::TransformInverse(const Vector3<T>& translation, const Quaternion<T>& rotation, const Vector3<T>& scale)
+	constexpr Matrix4<T> Matrix4<T>::TransformInverse(const Vector3<T>& translation, const Quaternion<T>& rotation, const Vector3<T>& scale)
 	{
-		Matrix4 mat;
-		mat.MakeTransformInverse(translation, rotation, scale);
-
-		return mat;
+		return TransformInverse(translation, rotation).ApplyScale(T(1.0) / scale);
 	}
 
 	/*!
 	* \brief Shorthand for the 'zero' matrix
 	* \return A Matrix4 with components (0 everywhere)
-	*
-	* \see MakeZero
 	*/
-
 	template<typename T>
-	Matrix4<T> Matrix4<T>::Zero()
+	constexpr Matrix4<T> Matrix4<T>::Zero()
 	{
-		Matrix4 matrix;
-		matrix.MakeZero();
-
-		return matrix;
+		return Matrix4(
+			T(0.0), T(0.0), T(0.0), T(0.0),
+			T(0.0), T(0.0), T(0.0), T(0.0),
+			T(0.0), T(0.0), T(0.0), T(0.0),
+			T(0.0), T(0.0), T(0.0), T(0.0)
+		);
 	}
 
 	/*!
@@ -1794,7 +1478,7 @@ namespace Nz
 	* \param matrix Matrix to multiply with
 	*/
 	template<typename T>
-	Matrix4<T> operator*(T scale, const Matrix4<T>& matrix)
+	constexpr Matrix4<T> operator*(T scale, const Matrix4<T>& matrix)
 	{
 		return matrix * scale;
 	}
@@ -1802,3 +1486,4 @@ namespace Nz
 
 
 #include <Nazara/Core/DebugOff.hpp>
+#include "Matrix4.hpp"

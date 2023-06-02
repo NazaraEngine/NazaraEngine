@@ -13,9 +13,9 @@ namespace Nz
 	class PidController
 	{
 		public:
-			PidController(float p, float i, float d);
+			constexpr PidController(float p, float i, float d);
 
-			T Update(const T& currentError, float elapsedTime);
+			constexpr T Update(const T& currentError, float elapsedTime);
 
 		private:
 			T m_lastError;

@@ -132,7 +132,7 @@ namespace Nz
 		m_library.alGetListenerfv(AL_ORIENTATION, orientation);
 
 		if (up)
-			up->Set(orientation[3], orientation[4], orientation[5]);
+			(*up) = Vector3f(orientation[3], orientation[4], orientation[5]);
 
 		return Vector3f(orientation[0], orientation[1], orientation[2]);
 	}

@@ -26,19 +26,14 @@ namespace Nz
 	* \param Z Z position
 	* \param Radius half of the diameter
 	*/
-
 	template<typename T>
-	Sphere<T>::Sphere(T X, T Y, T Z, T Radius)
+	constexpr Sphere<T>::Sphere(T X, T Y, T Z, T Radius) :
+	x(X),
+	y(Y),
+	z(Z),
+	radius(Radius)
 	{
-		Set(X, Y, Z, Radius);
 	}
-	/*
-	template<typename T>
-	Sphere<T>::Sphere(const Circle<T>& circle)
-	{
-		Set(rect);
-	}
-	*/
 
 	/*!
 	* \brief Constructs a Sphere object from its position and radius
@@ -46,11 +41,13 @@ namespace Nz
 	* \param center Center of the sphere
 	* \param Radius Half of the diameter
 	*/
-
 	template<typename T>
-	Sphere<T>::Sphere(const Vector3<T>& center, T Radius)
+	constexpr Sphere<T>::Sphere(const Vector3<T>& center, T Radius) :
+	x(center.x),
+	y(center.y),
+	z(center.z),
+	radius(Radius)
 	{
-		Set(center, Radius);
 	}
 
 	/*!
@@ -58,11 +55,13 @@ namespace Nz
 	*
 	* \param sphere[4] sphere[0] is X component, sphere[1] is Y component, sphere[2] is Z component and sphere[3] is radius
 	*/
-
 	template<typename T>
-	Sphere<T>::Sphere(const T sphere[4])
+	constexpr Sphere<T>::Sphere(const T sphere[4]) :
+	x(sphere[0]),
+	y(sphere[1]),
+	z(sphere[2]),
+	radius(sphere[3])
 	{
-		Set(sphere);
 	}
 
 	/*!
@@ -70,12 +69,20 @@ namespace Nz
 	*
 	* \param sphere Sphere of type U to convert to type T
 	*/
-
 	template<typename T>
 	template<typename U>
-	Sphere<T>::Sphere(const Sphere<U>& sphere)
+	constexpr Sphere<T>::Sphere(const Sphere<U>& sphere) :
+	x(static_cast<T>(sphere.x)),
+	y(static_cast<T>(sphere.y)),
+	z(static_cast<T>(sphere.z)),
+	radius(static_cast<T>(sphere.radius))
 	{
-		Set(sphere);
+	}
+
+	template<typename T>
+	constexpr bool Sphere<T>::ApproxEqual(const Sphere& sphere, T maxDifference) const
+	{
+		return NumberEquals(x, sphere.x, maxDifference) && NumberEquals(y, sphere.y, maxDifference) && NumberEquals(z, sphere.z, maxDifference) && NumberEquals(radius, sphere.radius, maxDifference);
 	}
 
 	/*!
@@ -88,9 +95,8 @@ namespace Nz
 	*
 	* \see Contains
 	*/
-
 	template<typename T>
-	bool Sphere<T>::Contains(T X, T Y, T Z) const
+	constexpr bool Sphere<T>::Contains(T X, T Y, T Z) const
 	{
 		return Contains(Vector3<T>(X, Y, Z));
 	}
@@ -103,9 +109,8 @@ namespace Nz
 	*
 	* \see Contains
 	*/
-
 	template<typename T>
-	bool Sphere<T>::Contains(const Box<T>& box) const
+	constexpr bool Sphere<T>::Contains(const Box<T>& box) const
 	{
 		if (Contains(box.GetMinimum()) && Contains(box.GetMaximum()))
 			return true;
@@ -119,9 +124,8 @@ namespace Nz
 	*
 	* \param point Position of the point
 	*/
-
 	template<typename T>
-	bool Sphere<T>::Contains(const Vector3<T>& point) const
+	constexpr bool Sphere<T>::Contains(const Vector3<T>& point) const
 	{
 		return GetPosition().SquaredDistance(point) <= radius * radius;
 	}
@@ -134,7 +138,6 @@ namespace Nz
 	* \param Y Y position of the point
 	* \param Z Z position of the point
 	*/
-
 	template<typename T>
 	T Sphere<T>::Distance(T X, T Y, T Z) const
 	{
@@ -147,7 +150,6 @@ namespace Nz
 	*
 	* \param point Position of the point
 	*/
-
 	template<typename T>
 	T Sphere<T>::Distance(const Vector3<T>& point) const
 	{
@@ -164,7 +166,6 @@ namespace Nz
 	*
 	* \see ExtendTo
 	*/
-
 	template<typename T>
 	Sphere<T>& Sphere<T>::ExtendTo(T X, T Y, T Z)
 	{
@@ -181,7 +182,6 @@ namespace Nz
 	*
 	* \see ExtendTo
 	*/
-
 	template<typename T>
 	Sphere<T>& Sphere<T>::ExtendTo(const Vector3<T>& point)
 	{
@@ -196,9 +196,8 @@ namespace Nz
 	*
 	* \see GetPositiveVertex
 	*/
-
 	template<typename T>
-	Vector3<T> Sphere<T>::GetNegativeVertex(const Vector3<T>& normal) const
+	constexpr Vector3<T> Sphere<T>::GetNegativeVertex(const Vector3<T>& normal) const
 	{
 		Vector3<T> neg(GetPosition());
 		neg -= normal * radius;
@@ -210,9 +209,8 @@ namespace Nz
 	* \brief Gets a Vector3 of the position
 	* \return The position of the center of the sphere
 	*/
-
 	template<typename T>
-	Vector3<T> Sphere<T>::GetPosition() const
+	constexpr Vector3<T> Sphere<T>::GetPosition() const
 	{
 		return Vector3<T>(x, y, z);
 	}
@@ -225,9 +223,8 @@ namespace Nz
 	*
 	* \see GetNegativeVertex
 	*/
-
 	template<typename T>
-	Vector3<T> Sphere<T>::GetPositiveVertex(const Vector3<T>& normal) const
+	constexpr Vector3<T> Sphere<T>::GetPositiveVertex(const Vector3<T>& normal) const
 	{
 		Vector3<T> pos(GetPosition());
 		pos += normal * radius;
@@ -241,9 +238,8 @@ namespace Nz
 	*
 	* \param box Box to check
 	*/
-
 	template<typename T>
-	bool Sphere<T>::Intersect(const Box<T>& box) const
+	constexpr bool Sphere<T>::Intersect(const Box<T>& box) const
 	{
 		// Arvo's algorithm.
 		T squaredDistance = T(0.0);
@@ -289,9 +285,8 @@ namespace Nz
 	*
 	* \param sphere Sphere to check
 	*/
-
 	template<typename T>
-	bool Sphere<T>::Intersect(const Sphere& sphere) const
+	constexpr bool Sphere<T>::Intersect(const Sphere& sphere) const
 	{
 		return GetPosition().SquaredDistance(Vector3<T>(sphere.x, sphere.y, sphere.z)) <= IntegralPow(radius + sphere.radius, 2);
 	}
@@ -300,136 +295,10 @@ namespace Nz
 	* \brief Checks whether this sphere is valid
 	* \return true if the sphere has a strictly positive radius
 	*/
-
 	template<typename T>
-	bool Sphere<T>::IsValid() const
+	constexpr bool Sphere<T>::IsValid() const
 	{
 		return radius > T(0.0);
-	}
-
-	/*!
-	* \brief Makes the sphere position (0, 0, 0) and radius 1
-	* \return A reference to this vector with position (0, 0, 0) and radius 1
-	*
-	* \see Unit
-	*/
-
-	template<typename T>
-	Sphere<T>& Sphere<T>::MakeUnit()
-	{
-		x = T(0.0);
-		y = T(0.0);
-		z = T(0.0);
-		radius = T(1.0);
-
-		return *this;
-	}
-
-	/*!
-	* \brief Makes the sphere position (0, 0, 0) and radius 0
-	* \return A reference to this vector with position (0, 0, 0) and radius 0
-	*
-	* \see Zero
-	*/
-
-	template<typename T>
-	Sphere<T>& Sphere<T>::MakeZero()
-	{
-		x = T(0.0);
-		y = T(0.0);
-		z = T(0.0);
-		radius = T(0.0);
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the sphere with center and radius
-	* \return A reference to this sphere
-	*
-	* \param X X position
-	* \param Y Y position
-	* \param Z Z position
-	* \param Radius half of the diameter
-	*/
-
-	template<typename T>
-	Sphere<T>& Sphere<T>::Set(T X, T Y, T Z, T Radius)
-	{
-		x = X;
-		y = Y;
-		z = Z;
-		radius = Radius;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the sphere with center and radius
-	* \return A reference to this sphere
-	*
-	* \param center Center of the sphere
-	* \param Radius Half of the diameter
-	*/
-
-	template<typename T>
-	Sphere<T>& Sphere<T>::Set(const Vector3<T>& center, T Radius)
-	{
-		x = center.x;
-		y = center.y;
-		z = center.z;
-		radius = Radius;
-
-		return *this;
-	}
-	/*
-	template<typename T>
-	Sphere<T>& Sphere<T>::Set(const Circle<T>& circle)
-	{
-		x = circle.x;
-		y = circle.y;
-		z = T(0.0);
-		radius = circle.radius;
-
-		return *this;
-	}
-	*/
-
-	/*!
-	* \brief Sets the components of the sphere from an array of four elements
-	* \return A reference to this sphere
-	*
-	* \param sphere[4] sphere[0] is X position, sphere[1] is Y position, sphere[2] is Z position and sphere[3] is radius
-	*/
-
-	template<typename T>
-	Sphere<T>& Sphere<T>::Set(const T sphere[4])
-	{
-		x = sphere[0];
-		y = sphere[1];
-		z = sphere[2];
-		radius = sphere[3];
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the sphere from another type of Sphere
-	* \return A reference to this sphere
-	*
-	* \param sphere Sphere of type U to convert its components
-	*/
-
-	template<typename T>
-	template<typename U>
-	Sphere<T>& Sphere<T>::Set(const Sphere<U>& sphere)
-	{
-		x = T(sphere.x);
-		y = T(sphere.y);
-		z = T(sphere.z);
-		radius = T(sphere.radius);
-
-		return *this;
 	}
 
 	/*!
@@ -454,9 +323,8 @@ namespace Nz
 	* \remark Produce a NazaraError if you try to access to index greater than 4 with NAZARA_MATH_SAFE defined
 	* \throw std::domain_error if NAZARA_MATH_SAFE is defined and one of you try to acces to index greather than 4
 	*/
-
 	template<typename T>
-	T& Sphere<T>::operator[](std::size_t i)
+	constexpr T& Sphere<T>::operator[](std::size_t i)
 	{
 		NazaraAssert(i < 4, "Index out of range");
 
@@ -471,9 +339,8 @@ namespace Nz
 	* \remark Produce a NazaraError if you try to access to index greater than 4 with NAZARA_MATH_SAFE defined
 	* \throw std::domain_error if NAZARA_MATH_SAFE is defined and one of you try to acces to index greather than 4
 	*/
-
 	template<typename T>
-	T Sphere<T>::operator[](std::size_t i) const
+	constexpr T Sphere<T>::operator[](std::size_t i) const
 	{
 		NazaraAssert(i < 4, "Index out of range");
 
@@ -486,9 +353,8 @@ namespace Nz
 	*
 	* \param scalar The scalar to multiply radius with
 	*/
-
 	template<typename T>
-	Sphere<T> Sphere<T>::operator*(T scalar) const
+	constexpr Sphere<T> Sphere<T>::operator*(T scalar) const
 	{
 		return Sphere(x, y, z, radius * scalar);
 	}
@@ -499,9 +365,8 @@ namespace Nz
 	*
 	* \param scalar The scalar to multiply radius with
 	*/
-
 	template<typename T>
-	Sphere<T>& Sphere<T>::operator*=(T scalar)
+	constexpr Sphere<T>& Sphere<T>::operator*=(T scalar)
 	{
 		radius *= scalar;
 	}
@@ -512,12 +377,10 @@ namespace Nz
 	*
 	* \param sphere Other sphere to compare with
 	*/
-
 	template<typename T>
-	bool Sphere<T>::operator==(const Sphere& sphere) const
+	constexpr bool Sphere<T>::operator==(const Sphere& sphere) const
 	{
-		return NumberEquals(x, sphere.x) && NumberEquals(y, sphere.y) && NumberEquals(z, sphere.z) &&
-		       NumberEquals(radius, sphere.radius);
+		return x == sphere.x && y == sphere.y && z == sphere.z && radius == sphere.radius;
 	}
 
 	/*!
@@ -526,27 +389,86 @@ namespace Nz
 	*
 	* \param sphere Other sphere to compare with
 	*/
-
 	template<typename T>
-	bool Sphere<T>::operator!=(const Sphere& sphere) const
+	constexpr bool Sphere<T>::operator!=(const Sphere& sphere) const
 	{
 		return !operator==(sphere);
+	}
+
+	template<typename T>
+	constexpr bool Sphere<T>::operator<(const Sphere& sphere) const
+	{
+		if (x != sphere.x)
+			return x < sphere.x;
+
+		if (y != sphere.y)
+			return y < sphere.y;
+
+		if (z != sphere.z)
+			return z < sphere.z;
+
+		return radius < sphere.radius;
+	}
+
+	template<typename T>
+	constexpr bool Sphere<T>::operator<=(const Sphere& sphere) const
+	{
+		if (x != sphere.x)
+			return x < sphere.x;
+
+		if (y != sphere.y)
+			return y < sphere.y;
+
+		if (z != sphere.z)
+			return z < sphere.z;
+
+		return radius <= sphere.radius;
+	}
+
+	template<typename T>
+	constexpr bool Sphere<T>::operator>(const Sphere& sphere) const
+	{
+		if (x != sphere.x)
+			return x > sphere.x;
+
+		if (y != sphere.y)
+			return y > sphere.y;
+
+		if (z != sphere.z)
+			return z > sphere.z;
+
+		return radius > sphere.radius;
+	}
+
+	template<typename T>
+	constexpr bool Sphere<T>::operator>=(const Sphere& sphere) const
+	{
+		if (x != sphere.x)
+			return x > sphere.x;
+
+		if (y != sphere.y)
+			return y > sphere.y;
+
+		if (z != sphere.z)
+			return z > sphere.z;
+
+		return radius >= sphere.radius;
 	}
 
 	/*!
 	* \brief Shorthand for the sphere (0, 0, 0, 1)
 	* \return A sphere with center (0, 0, 0) and radius 1
-	*
-	* \see MakeUnit
 	*/
+	template<typename T>
+	constexpr Sphere<T> Sphere<T>::Unit()
+	{
+		return Sphere(0, 0, 0, 1);
+	}
 
 	template<typename T>
-	Sphere<T> Sphere<T>::Unit()
+	constexpr bool Sphere<T>::ApproxEqual(const Sphere& lhs, const Sphere& rhs, T maxDifference)
 	{
-		Sphere sphere;
-		sphere.MakeUnit();
-
-		return sphere;
+		return lhs.ApproxEqual(rhs, maxDifference);
 	}
 
 	/*!
@@ -562,9 +484,8 @@ namespace Nz
 	*
 	* \see Lerp
 	*/
-
 	template<typename T>
-	Sphere<T> Sphere<T>::Lerp(const Sphere& from, const Sphere& to, T interpolation)
+	constexpr Sphere<T> Sphere<T>::Lerp(const Sphere& from, const Sphere& to, T interpolation)
 	{
 		#ifdef NAZARA_DEBUG
 		if (interpolation < T(0.0) || interpolation > T(1.0))
@@ -586,17 +507,11 @@ namespace Nz
 	/*!
 	* \brief Shorthand for the sphere (0, 0, 0, 0)
 	* \return A sphere with center (0, 0, 0) and radius 0
-	*
-	* \see MakeZero
 	*/
-
 	template<typename T>
-	Sphere<T> Sphere<T>::Zero()
+	constexpr Sphere<T> Sphere<T>::Zero()
 	{
-		Sphere sphere;
-		sphere.MakeZero();
-
-		return sphere;
+		return Sphere(0, 0, 0, 0);
 	}
 
 	/*!
@@ -664,3 +579,4 @@ namespace Nz
 }
 
 #include <Nazara/Core/DebugOff.hpp>
+#include "Sphere.hpp"

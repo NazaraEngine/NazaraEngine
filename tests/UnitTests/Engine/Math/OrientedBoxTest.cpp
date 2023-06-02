@@ -56,7 +56,10 @@ SCENARIO("OrientedBox", "[MATH][ORIENTEDBOX]")
 				Nz::OrientedBoxf result(Nz::Boxf(Nz::Vector3f::Zero(), Nz::Vector3f::Unit() * 0.5f));
 				result.Update(Nz::Matrix4f::Identity());
 
-				REQUIRE(Nz::OrientedBoxf::Lerp(nullOrientedBox, centerAndUnit, 0.5f) == result);
+				Nz::OrientedBoxf lerpObb = Nz::OrientedBoxf::Lerp(nullOrientedBox, centerAndUnit, 0.5f);
+				lerpObb.Update(Nz::Vector3f::Zero());
+
+				REQUIRE(lerpObb.ApproxEqual(result));
 			}
 		}
 	}

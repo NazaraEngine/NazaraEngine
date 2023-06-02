@@ -20,75 +20,70 @@ namespace Nz
 	template<typename T> class Quaternion
 	{
 		public:
-			Quaternion() = default;
-			Quaternion(T W, T X, T Y, T Z);
+			constexpr Quaternion() = default;
+			constexpr Quaternion(T W, T X, T Y, T Z);
 			template<AngleUnit Unit> Quaternion(const Angle<Unit, T>& angle);
 			Quaternion(const EulerAngles<T>& angles);
-			Quaternion(RadianAngle<T> angle, const Vector3<T>& axis);
-			Quaternion(const T quat[4]);
-			//Quaternion(const Matrix3<T>& mat);
-			template<typename U> explicit Quaternion(const Quaternion<U>& quat);
-			Quaternion(const Quaternion& quat) = default;
+			constexpr Quaternion(RadianAngle<T> angle, const Vector3<T>& axis);
+			constexpr Quaternion(const T quat[4]);
+			template<typename U> constexpr explicit Quaternion(const Quaternion<U>& quat);
+			constexpr Quaternion(const Quaternion&) = default;
+			constexpr Quaternion(Quaternion&&) = default;
 			~Quaternion() = default;
 
+			constexpr bool ApproxEqual(const Quaternion& quat, T maxDifference = std::numeric_limits<T>::epsilon()) const;
+
 			Quaternion& ComputeW();
-			Quaternion& Conjugate();
+			constexpr Quaternion& Conjugate();
 
-			T DotProduct(const Quaternion& vec) const;
+			constexpr T DotProduct(const Quaternion& vec) const;
 
-			Quaternion GetConjugate() const;
+			constexpr Quaternion GetConjugate() const;
 			Quaternion GetInverse() const;
 			Quaternion GetNormal(T* length = nullptr) const;
 
 			Quaternion& Inverse();
 
-			Quaternion& MakeIdentity();
-			Quaternion& MakeRotationBetween(const Vector3<T>& from, const Vector3<T>& to);
-			Quaternion& MakeZero();
-
 			T Magnitude() const;
 
 			Quaternion& Normalize(T* length = nullptr);
 
-			Quaternion& Set(T W, T X, T Y, T Z);
-			template<AngleUnit Unit> Quaternion& Set(const Angle<Unit, T>& angle);
-			Quaternion& Set(const EulerAngles<T>& angles);
-			Quaternion& Set(RadianAngle<T> angle, const Vector3<T>& normalizedAxis);
-			Quaternion& Set(const T quat[4]);
-			//Quaternion& Set(const Matrix3<T>& mat);
-			template<typename U> Quaternion& Set(const Quaternion<U>& quat);
-
-			T SquaredMagnitude() const;
+			constexpr T SquaredMagnitude() const;
 
 			RadianAngle<T> To2DAngle() const;
 			EulerAngles<T> ToEulerAngles() const;
-			//Matrix3<T> ToRotationMatrix() const;
 			std::string ToString() const;
 
-			Quaternion& operator=(const Quaternion& quat) = default;
+			constexpr Quaternion& operator=(const Quaternion& quat) = default;
+			constexpr Quaternion& operator=(Quaternion&&) = default;
 
-			Quaternion operator+(const Quaternion& quat) const;
-			Quaternion operator*(const Quaternion& quat) const;
-			Vector3<T> operator*(const Vector3<T>& vec) const;
-			Quaternion operator*(T scale) const;
-			Quaternion operator/(const Quaternion& quat) const;
+			constexpr Quaternion operator+(const Quaternion& quat) const;
+			constexpr Quaternion operator*(const Quaternion& quat) const;
+			constexpr Vector3<T> operator*(const Vector3<T>& vec) const;
+			constexpr Quaternion operator*(T scale) const;
+			constexpr Quaternion operator/(const Quaternion& quat) const;
 
-			Quaternion& operator+=(const Quaternion& quat);
-			Quaternion& operator*=(const Quaternion& quat);
-			Quaternion& operator*=(T scale);
-			Quaternion& operator/=(const Quaternion& quat);
+			constexpr Quaternion& operator+=(const Quaternion& quat);
+			constexpr Quaternion& operator*=(const Quaternion& quat);
+			constexpr Quaternion& operator*=(T scale);
+			constexpr Quaternion& operator/=(const Quaternion& quat);
 
-			bool operator==(const Quaternion& quat) const;
-			bool operator!=(const Quaternion& quat) const;
+			constexpr bool operator==(const Quaternion& quat) const;
+			constexpr bool operator!=(const Quaternion& quat) const;
+			constexpr bool operator<(const Quaternion& quat) const;
+			constexpr bool operator<=(const Quaternion& quat) const;
+			constexpr bool operator>(const Quaternion& quat) const;
+			constexpr bool operator>=(const Quaternion& quat) const;
 
-			static Quaternion Identity();
-			static Quaternion Lerp(const Quaternion& from, const Quaternion& to, T interpolation);
+			static constexpr bool ApproxEqual(const Quaternion& lhs, const Quaternion& rhs, T maxDifference = std::numeric_limits<T>::epsilon());
+			static constexpr Quaternion Identity();
+			static constexpr Quaternion Lerp(const Quaternion& from, const Quaternion& to, T interpolation);
 			static Quaternion LookAt(const Vector3<T>& forward, const Vector3<T>& up);
 			static Quaternion Normalize(const Quaternion& quat, T* length = nullptr);
 			static Quaternion RotationBetween(const Vector3<T>& from, const Vector3<T>& to);
 			static Quaternion Mirror(Quaternion quat, const Vector3<T>& axis);
 			static Quaternion Slerp(const Quaternion& from, const Quaternion& to, T interpolation);
-			static Quaternion Zero();
+			static constexpr Quaternion Zero();
 
 			T w, x, y, z;
 	};

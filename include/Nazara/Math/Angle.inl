@@ -189,6 +189,13 @@ namespace Nz
 	{
 	}
 
+	template<AngleUnit Unit, typename T>
+	template<typename U>
+	constexpr Angle<Unit, T>::Angle(const Angle<Unit, U>& angle) :
+	value(static_cast<T>(angle.value))
+	{
+	}
+
 	/*!
 	* \brief Constructs an Angle object from a angle in a specific unit, converting if required
 	*
@@ -199,6 +206,18 @@ namespace Nz
 	constexpr Angle<Unit, T>::Angle(const Angle<FromUnit, T>& angle) :
 	value(Detail::AngleConversion<FromUnit, Unit>::Convert(angle.value))
 	{
+	}
+
+	template<AngleUnit Unit, typename T>
+	constexpr bool Angle<Unit, T>::ApproxEqual(const Angle& angle) const
+	{
+		return ApproxEqual(angle, Detail::AngleUtils<Unit>::template GetEpsilon<T>());
+	}
+
+	template<AngleUnit Unit, typename T>
+	constexpr bool Angle<Unit, T>::ApproxEqual(const Angle& angle, T maxDifference) const
+	{
+		return NumberEquals(value, angle.value, maxDifference);
 	}
 
 	/*!
@@ -255,16 +274,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Changes the angle value to zero
-	*/
-	template<AngleUnit Unit, typename T>
-	constexpr Angle<Unit, T>& Angle<Unit, T>::MakeZero()
-	{
-		value = T(0);
-		return *this;
-	}
-
-	/*!
 	* \brief Normalizes the angle value
 	*
 	* If angle exceeds local limits positively or negatively, bring it back between them.
@@ -281,33 +290,6 @@ namespace Nz
 		if (value < T(0))
 			value += limit;
 
-		return *this;
-	}
-
-	/*!
-	* \brief Copies the angle value of an angle
-	*
-	* \param Angle Angle which will be copied
-	*/
-	template<AngleUnit Unit, typename T>
-	constexpr Angle<Unit, T>& Angle<Unit, T>::Set(Angle ang)
-	{
-		value = ang.value;
-		return *this;
-	}
-
-	/*!
-	* \brief Changes the angle value to the same as an Angle of a different type
-	*
-	* \param Angle Angle which will be casted
-	*
-	* \remark Conversion from U to T occurs using static_cast
-	*/
-	template<AngleUnit Unit, typename T>
-	template<typename U>
-	constexpr Angle<Unit, T>& Angle<Unit, T>::Set(const Angle<Unit, U>& ang)
-	{
-		value = static_cast<T>(ang.value);
 		return *this;
 	}
 
@@ -586,7 +568,7 @@ namespace Nz
 	template<AngleUnit Unit, typename T>
 	constexpr bool Angle<Unit, T>::operator==(Angle other) const
 	{
-		return NumberEquals(value, other.value, Detail::AngleUtils<Unit>::template GetEpsilon<T>());
+		return value == other.value;
 	}
 
 	/*!
@@ -598,7 +580,43 @@ namespace Nz
 	template<AngleUnit Unit, typename T>
 	constexpr bool Angle<Unit, T>::operator!=(Angle other) const
 	{
-		return !NumberEquals(value, other.value, Detail::AngleUtils<Unit>::template GetEpsilon<T>());
+		return value != other.value;
+	}
+
+	template<AngleUnit Unit, typename T>
+	constexpr bool Angle<Unit, T>::operator<(Angle other) const
+	{
+		return value < other.value;
+	}
+
+	template<AngleUnit Unit, typename T>
+	constexpr bool Angle<Unit, T>::operator<=(Angle other) const
+	{
+		return value <= other.value;
+	}
+	
+	template<AngleUnit Unit, typename T>
+	constexpr bool Angle<Unit, T>::operator>(Angle other) const
+	{
+		return value > other.value;
+	}
+
+	template<AngleUnit Unit, typename T>
+	constexpr bool Angle<Unit, T>::operator>=(Angle other) const
+	{
+		return value >= other.value;
+	}
+
+	template<AngleUnit Unit, typename T>
+	constexpr bool Angle<Unit, T>::ApproxEqual(const Angle& lhs, const Angle& rhs)
+	{
+		return lhs.ApproxEqual(rhs);
+	}
+
+	template<AngleUnit Unit, typename T>
+	constexpr bool Angle<Unit, T>::ApproxEqual(const Angle& lhs, const Angle& rhs, T maxDifference)
+	{
+		return lhs.ApproxEqual(rhs, maxDifference);
 	}
 
 	/*!
