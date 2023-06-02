@@ -18,42 +18,34 @@ namespace Nz
 	class Plane
 	{
 		public:
-			Plane() = default;
-			Plane(T normalX, T normalY, T normalZ, T Distance);
-			Plane(const T plane[4]);
-			Plane(const Vector3<T>& Normal, T Distance);
-			Plane(const Vector3<T>& Normal, const Vector3<T>& point);
+			constexpr Plane() = default;
+			constexpr Plane(T normalX, T normalY, T normalZ, T Distance);
+			constexpr Plane(const T plane[4]);
+			constexpr Plane(const Vector3<T>& Normal, T Distance);
+			constexpr Plane(const Vector3<T>& Normal, const Vector3<T>& point);
 			Plane(const Vector3<T>& point1, const Vector3<T>& point2, const Vector3<T>& point3);
-			template<typename U> explicit Plane(const Plane<U>& plane);
-			Plane(const Plane& plane) = default;
+			template<typename U> constexpr explicit Plane(const Plane<U>& plane);
+			constexpr Plane(const Plane& plane) = default;
 			~Plane() = default;
 
-			T Distance(T x, T y, T z) const;
-			T Distance(const Vector3<T>& point) const;
+			constexpr bool ApproxEqual(const Plane& plane, T maxDifference = std::numeric_limits<T>::epsilon()) const;
 
-			Plane& MakeXY();
-			Plane& MakeXZ();
-			Plane& MakeYZ();
-
-			Plane& Set(T normalX, T normalY, T normalZ, T Distance);
-			Plane& Set(const T plane[4]);
-			Plane& Set(const Vector3<T>& Normal, T Distance);
-			Plane& Set(const Vector3<T>& Normal, const Vector3<T>& point);
-			Plane& Set(const Vector3<T>& point1, const Vector3<T>& point2, const Vector3<T>& point3);
-			template<typename U> Plane& Set(const Plane<U>& plane);
+			constexpr T Distance(T x, T y, T z) const;
+			constexpr T Distance(const Vector3<T>& point) const;
 
 			std::string ToString() const;
 
-			Plane& operator=(const Plane& other) = default;
+			constexpr Plane& operator=(const Plane& other) = default;
 
-			bool operator==(const Plane& plane) const;
-			bool operator!=(const Plane& plane) const;
+			constexpr bool operator==(const Plane& plane) const;
+			constexpr bool operator!=(const Plane& plane) const;
 
-			static Vector3<T> Intersect(const Plane& p0, const Plane& p1, const Plane& p2);
-			static Plane Lerp(const Plane& from, const Plane& to, T interpolation);
-			static Plane XY();
-			static Plane XZ();
-			static Plane YZ();
+			static constexpr bool ApproxEqual(const Plane& lhs, const Plane& rhs, T maxDifference = std::numeric_limits<T>::epsilon());
+			static constexpr Vector3<T> Intersect(const Plane& p0, const Plane& p1, const Plane& p2);
+			static constexpr Plane Lerp(const Plane& from, const Plane& to, T interpolation);
+			static constexpr Plane XY();
+			static constexpr Plane XZ();
+			static constexpr Plane YZ();
 
 			Vector3<T> normal;
 			T distance;

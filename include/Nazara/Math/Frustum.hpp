@@ -27,41 +27,46 @@ namespace Nz
 	class Frustum
 	{
 		public:
-			Frustum() = default;
-			explicit Frustum(const EnumArray<FrustumPlane, Plane<T>>& planes);
-			template<typename U> explicit Frustum(const Frustum<U>& frustum);
-			Frustum(const Frustum& frustum) = default;
+			constexpr Frustum() = default;
+			constexpr explicit Frustum(const EnumArray<FrustumPlane, Plane<T>>& planes);
+			template<typename U> constexpr explicit Frustum(const Frustum<U>& frustum);
+			constexpr Frustum(const Frustum&) = default;
+			constexpr Frustum(Frustum&&) = default;
 			~Frustum() = default;
 
-			Vector3<T> ComputeCorner(BoxCorner corner) const;
+			constexpr bool ApproxEqual(const Frustum& frustum, T maxDifference = std::numeric_limits<T>::epsilon()) const;
 
-			bool Contains(const BoundingVolume<T>& volume) const;
-			bool Contains(const Box<T>& box) const;
-			bool Contains(const OrientedBox<T>& orientedBox) const;
-			bool Contains(const Sphere<T>& sphere) const;
-			bool Contains(const Vector3<T>& point) const;
-			bool Contains(const Vector3<T>* points, std::size_t pointCount) const;
+			constexpr Vector3<T> ComputeCorner(BoxCorner corner) const;
 
-			const Plane<T>& GetPlane(FrustumPlane plane) const;
+			constexpr bool Contains(const BoundingVolume<T>& volume) const;
+			constexpr bool Contains(const Box<T>& box) const;
+			constexpr bool Contains(const OrientedBox<T>& orientedBox) const;
+			constexpr bool Contains(const Sphere<T>& sphere) const;
+			constexpr bool Contains(const Vector3<T>& point) const;
+			constexpr bool Contains(const Vector3<T>* points, std::size_t pointCount) const;
 
-			IntersectionSide Intersect(const BoundingVolume<T>& volume) const;
-			IntersectionSide Intersect(const Box<T>& box) const;
-			IntersectionSide Intersect(const OrientedBox<T>& orientedBox) const;
-			IntersectionSide Intersect(const Sphere<T>& sphere) const;
-			IntersectionSide Intersect(const Vector3<T>* points, std::size_t pointCount) const;
+			constexpr const Plane<T>& GetPlane(FrustumPlane plane) const;
+
+			constexpr IntersectionSide Intersect(const BoundingVolume<T>& volume) const;
+			constexpr IntersectionSide Intersect(const Box<T>& box) const;
+			constexpr IntersectionSide Intersect(const OrientedBox<T>& orientedBox) const;
+			constexpr IntersectionSide Intersect(const Sphere<T>& sphere) const;
+			constexpr IntersectionSide Intersect(const Vector3<T>* points, std::size_t pointCount) const;
 
 			std::string ToString() const;
 
-			Frustum& operator=(const Frustum& other) = default;
+			constexpr Frustum& operator=(const Frustum&) = default;
+			constexpr Frustum& operator=(Frustum&&) = default;
 
+			constexpr bool operator==(const Frustum& angles) const;
+			constexpr bool operator!=(const Frustum& angles) const;
+
+			static constexpr bool ApproxEqual(const Frustum& lhs, const Frustum& rhs, T maxDifference = std::numeric_limits<T>::epsilon());
 			static Frustum Build(RadianAngle<T> angle, T ratio, T zNear, T zFar, const Vector3<T>& eye, const Vector3<T>& target, const Vector3<T>& up = Vector3<T>::Up());
 			static Frustum Extract(const Matrix4<T>& viewProjMatrix);
 
-			template<typename U>
-			friend bool Serialize(SerializationContext& context, const Frustum<U>& frustum, TypeTag<Frustum<U>>);
-
-			template<typename U>
-			friend bool Unserialize(SerializationContext& context, Frustum<U>* frustum, TypeTag<Frustum<U>>);
+			template<typename U> friend bool Serialize(SerializationContext& context, const Frustum<U>& frustum, TypeTag<Frustum<U>>);
+			template<typename U> friend bool Unserialize(SerializationContext& context, Frustum<U>* frustum, TypeTag<Frustum<U>>);
 
 		private:
 			EnumArray<FrustumPlane, Plane<T>> m_planes;

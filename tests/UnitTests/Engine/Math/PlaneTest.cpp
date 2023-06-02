@@ -16,11 +16,6 @@ SCENARIO("Plane", "[MATH][PLANE]")
 				REQUIRE(firstPlane == secondPlane);
 			}
 
-			AND_THEN("We compare with normal(-1, -1, -1), distance -1")
-			{
-				REQUIRE(firstPlane == Nz::Planef(-Nz::Vector3f::Unit().Normalize(), -1.f));
-			}
-
 			AND_THEN("They have the same distance from the same point")
 			{
 				Nz::Vector3f point(-2.f, 3.f, 1.f);

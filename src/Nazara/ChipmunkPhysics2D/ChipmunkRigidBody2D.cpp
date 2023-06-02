@@ -149,7 +149,7 @@ namespace Nz
 			float resultDistance = float(result.distance);
 			if (resultDistance < minDistance)
 			{
-				closest.Set(float(result.point.x), float(result.point.y));
+				closest = Vector2f(float(result.point.x), float(result.point.y));
 				minDistance = resultDistance;
 			}
 		}

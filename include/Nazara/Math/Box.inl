@@ -26,9 +26,8 @@ namespace Nz
 	*
 	* \remark Position will be (0, 0, 0)
 	*/
-
 	template<typename T>
-	Box<T>::Box(T Width, T Height, T Depth) :
+	constexpr Box<T>::Box(T Width, T Height, T Depth) :
 	x(0),
 	y(0),
 	z(0),
@@ -49,7 +48,7 @@ namespace Nz
 	* \param Depth Depth of the box (following Z)
 	*/
 	template<typename T>
-	Box<T>::Box(T X, T Y, T Z, T Width, T Height, T Depth) :
+	constexpr Box<T>::Box(T X, T Y, T Z, T Width, T Height, T Depth) :
 	x(X),
 	y(Y),
 	z(Z),
@@ -67,7 +66,7 @@ namespace Nz
 	* \remark Z position is 0 and depth is 1
 	*/
 	template<typename T>
-	Box<T>::Box(const Rect<T>& rect) :
+	constexpr Box<T>::Box(const Rect<T>& rect) :
 	x(rect.x),
 	y(rect.y),
 	z(0),
@@ -85,7 +84,7 @@ namespace Nz
 	* \param lengths (Width, Height, Depth) of the box
 	*/
 	template<typename T>
-	Box<T>::Box(const Vector3<T>& lengths) :
+	constexpr Box<T>::Box(const Vector3<T>& lengths) :
 	Box(Vector3<T>::Zero(), lengths)
 	{
 	}
@@ -97,7 +96,7 @@ namespace Nz
 	* \param lengths (Width, Height, Depth) of the box
 	*/
 	template<typename T>
-	Box<T>::Box(const Vector3<T>& pos, const Vector3<T>& lengths) :
+	constexpr Box<T>::Box(const Vector3<T>& pos, const Vector3<T>& lengths) :
 	x(pos.x),
 	y(pos.y),
 	z(pos.z),
@@ -112,10 +111,9 @@ namespace Nz
 	*
 	* \param box Box of type U to convert to type T
 	*/
-
 	template<typename T>
 	template<typename U>
-	Box<T>::Box(const Box<U>& box) :
+	constexpr Box<T>::Box(const Box<U>& box) :
 	x(static_cast<T>(box.x)),
 	y(static_cast<T>(box.y)),
 	z(static_cast<T>(box.z)),
@@ -135,16 +133,15 @@ namespace Nz
 	*
 	* \see Contains
 	*/
-
 	template<typename T>
-	bool Box<T>::ApproxEquals(const Box& box, T maxDifference) const
+	constexpr bool Box<T>::ApproxEqual(const Box& box, T maxDifference) const
 	{
 		return NumberEquals(x, box.x, maxDifference) && NumberEquals(y, box.y, maxDifference) && NumberEquals(z, box.z, maxDifference) &&
 		       NumberEquals(width, box.width, maxDifference) && NumberEquals(height, box.height, maxDifference) && NumberEquals(depth, box.depth, maxDifference);
 	}
 
 	template<typename T>
-	bool Box<T>::Contains(T X, T Y, T Z) const
+	constexpr bool Box<T>::Contains(T X, T Y, T Z) const
 	{
 		return X >= x && X < x + width &&
 		       Y >= y && Y < y + height &&
@@ -159,9 +156,8 @@ namespace Nz
 	*
 	* \see Contains
 	*/
-
 	template<typename T>
-	bool Box<T>::Contains(const Box<T>& box) const
+	constexpr bool Box<T>::Contains(const Box<T>& box) const
 	{
 		return Contains(box.x, box.y, box.z) &&
 		       Contains(box.x + box.width, box.y + box.height, box.z + box.depth);
@@ -175,9 +171,8 @@ namespace Nz
 	*
 	* \see Contains
 	*/
-
 	template<typename T>
-	bool Box<T>::Contains(const Vector3<T>& point) const
+	constexpr bool Box<T>::Contains(const Vector3<T>& point) const
 	{
 		return Contains(point.x, point.y, point.z);
 	}
@@ -192,9 +187,8 @@ namespace Nz
 	*
 	* \see ExtendTo
 	*/
-
 	template<typename T>
-	Box<T>& Box<T>::ExtendTo(T X, T Y, T Z)
+	constexpr Box<T>& Box<T>::ExtendTo(T X, T Y, T Z)
 	{
 		width = std::max(x + width, X);
 		height = std::max(y + height, Y);
@@ -219,9 +213,8 @@ namespace Nz
 	*
 	* \see ExtendTo
 	*/
-
 	template<typename T>
-	Box<T>& Box<T>::ExtendTo(const Box& box)
+	constexpr Box<T>& Box<T>::ExtendTo(const Box& box)
 	{
 		width = std::max(x + width, box.x + box.width);
 		height = std::max(y + height, box.y + box.height);
@@ -246,9 +239,8 @@ namespace Nz
 	*
 	* \see ExtendTo
 	*/
-
 	template<typename T>
-	Box<T>& Box<T>::ExtendTo(const Vector3<T>& point)
+	constexpr Box<T>& Box<T>::ExtendTo(const Vector3<T>& point)
 	{
 		return ExtendTo(point.x, point.y, point.z);
 	}
@@ -259,9 +251,8 @@ namespace Nz
 	*
 	* \see GetSquaredBoundingSphere
 	*/
-
 	template<typename T>
-	Sphere<T> Box<T>::GetBoundingSphere() const
+	constexpr Sphere<T> Box<T>::GetBoundingSphere() const
 	{
 		return Sphere<T>(GetCenter(), GetRadius());
 	}
@@ -270,9 +261,8 @@ namespace Nz
 	* \brief Gets a Vector3 for the center
 	* \return The position of the center of the box
 	*/
-
 	template<typename T>
-	Vector3<T> Box<T>::GetCenter() const
+	constexpr Vector3<T> Box<T>::GetCenter() const
 	{
 		return GetPosition() + GetLengths() / T(2.0);
 	}
@@ -285,9 +275,8 @@ namespace Nz
 	*
 	* \remark If enumeration is not defined in BoxCorner, a NazaraError is thrown and a Vector3 uninitialised is returned
 	*/
-
 	template<typename T>
-	Vector3<T> Box<T>::GetCorner(BoxCorner corner) const
+	constexpr Vector3<T> Box<T>::GetCorner(BoxCorner corner) const
 	{
 		switch (corner)
 		{
@@ -324,9 +313,8 @@ namespace Nz
 	* \brief Gets a Vector3 for the lengths
 	* \return The lengths of the box (width, height, depth)
 	*/
-
 	template<typename T>
-	Vector3<T> Box<T>::GetLengths() const
+	constexpr Vector3<T> Box<T>::GetLengths() const
 	{
 		return Vector3<T>(width, height, depth);
 	}
@@ -337,9 +325,8 @@ namespace Nz
 	*
 	* \see GetCorner
 	*/
-
 	template<typename T>
-	Vector3<T> Box<T>::GetMaximum() const
+	constexpr Vector3<T> Box<T>::GetMaximum() const
 	{
 		return GetPosition() + GetLengths();
 	}
@@ -350,9 +337,8 @@ namespace Nz
 	*
 	* \see GetCorner, GetPosition
 	*/
-
 	template<typename T>
-	Vector3<T> Box<T>::GetMinimum() const
+	constexpr Vector3<T> Box<T>::GetMinimum() const
 	{
 		return GetPosition();
 	}
@@ -365,9 +351,8 @@ namespace Nz
 	*
 	* \see GetPositiveVertex
 	*/
-
 	template<typename T>
-	Vector3<T> Box<T>::GetNegativeVertex(const Vector3<T>& normal) const
+	constexpr Vector3<T> Box<T>::GetNegativeVertex(const Vector3<T>& normal) const
 	{
 		Vector3<T> neg(GetPosition());
 
@@ -389,9 +374,8 @@ namespace Nz
 	*
 	* \see GetCorner, GetMinimum
 	*/
-
 	template<typename T>
-	Vector3<T> Box<T>::GetPosition() const
+	constexpr Vector3<T> Box<T>::GetPosition() const
 	{
 		return Vector3<T>(x, y, z);
 	}
@@ -404,9 +388,8 @@ namespace Nz
 	*
 	* \see GetNegativeVertex
 	*/
-
 	template<typename T>
-	Vector3<T> Box<T>::GetPositiveVertex(const Vector3<T>& normal) const
+	constexpr Vector3<T> Box<T>::GetPositiveVertex(const Vector3<T>& normal) const
 	{
 		Vector3<T> pos(GetPosition());
 
@@ -426,9 +409,8 @@ namespace Nz
 	* \brief Gets the radius of the box
 	* \return Value of the radius which is the biggest distance between a corner and the center
 	*/
-
 	template<typename T>
-	T Box<T>::GetRadius() const
+	constexpr T Box<T>::GetRadius() const
 	{
 		return std::sqrt(GetSquaredRadius());
 	}
@@ -439,9 +421,8 @@ namespace Nz
 	*
 	* \see GetBoundingSphere
 	*/
-
 	template<typename T>
-	Sphere<T> Box<T>::GetSquaredBoundingSphere() const
+	constexpr Sphere<T> Box<T>::GetSquaredBoundingSphere() const
 	{
 		return Sphere<T>(GetCenter(), GetSquaredRadius());
 	}
@@ -450,9 +431,8 @@ namespace Nz
 	* \brief Gets the squared radius of the box
 	* \return Value of the squared radius which is the squared of biggest distance between a corner and the center
 	*/
-
 	template<typename T>
-	T Box<T>::GetSquaredRadius() const
+	constexpr T Box<T>::GetSquaredRadius() const
 	{
 		Vector3<T> size(GetLengths());
 		size /= T(2.0); // The size only depends on the lengths and not the center
@@ -467,9 +447,8 @@ namespace Nz
 	* \param box Box to check
 	* \param intersection Optional argument for the box which represent the intersection
 	*/
-
 	template<typename T>
-	bool Box<T>::Intersect(const Box& box, Box* intersection) const
+	constexpr bool Box<T>::Intersect(const Box& box, Box* intersection) const
 	{
 		T left = std::max(x, box.x);
 		T right = std::min(x + width, box.x + box.width);
@@ -499,7 +478,7 @@ namespace Nz
 	* \return true if the box has a negative or zero width, height and depth
 	*/
 	template<typename T>
-	bool Box<T>::IsNull() const
+	constexpr bool Box<T>::IsNull() const
 	{
 		return width <= T(0.0) && height <= T(0.0) && depth <= T(0.0);
 	}
@@ -509,7 +488,7 @@ namespace Nz
 	* \return true if the box has a positive width, height and depth
 	*/
 	template<typename T>
-	bool Box<T>::IsValid() const
+	constexpr bool Box<T>::IsValid() const
 	{
 		return width >= T(0.0) && height >= T(0.0) && depth >= T(0.0);
 	}
@@ -521,7 +500,7 @@ namespace Nz
 	* \param scalar The scalar to multiply width, height and depth with
 	*/
 	template<typename T>
-	Box<T>& Box<T>::Scale(T scalar)
+	constexpr Box<T>& Box<T>::Scale(T scalar)
 	{
 		width *= scalar;
 		height *= scalar;
@@ -537,7 +516,7 @@ namespace Nz
 	* \param vec The vector where component one multiply width, two height and three depth
 	*/
 	template<typename T>
-	Box<T>& Box<T>::Scale(const Vector3<T>& vec)
+	constexpr Box<T>& Box<T>::Scale(const Vector3<T>& vec)
 	{
 		width *= vec.x;
 		height *= vec.y;
@@ -553,7 +532,7 @@ namespace Nz
 	* \param scalar The scalar to multiply width, height and depth with
 	*/
 	template<typename T>
-	Box<T>& Box<T>::ScaleAroundCenter(T scalar)
+	constexpr Box<T>& Box<T>::ScaleAroundCenter(T scalar)
 	{
 		x -= (width  * scalar - width)  / T(2.0);
 		y -= (height * scalar - height) / T(2.0);
@@ -573,7 +552,7 @@ namespace Nz
 	* \param vec The vector where component one multiply width, two height and three depth
 	*/
 	template<typename T>
-	Box<T>& Box<T>::ScaleAroundCenter(const Vector3<T>& vec)
+	constexpr Box<T>& Box<T>::ScaleAroundCenter(const Vector3<T>& vec)
 	{
 		x -= (width  * vec.x - width)  / T(2.0);
 		y -= (height * vec.y - height) / T(2.0);
@@ -606,16 +585,15 @@ namespace Nz
 	* \param matrix Matrix4 representing the transformation
 	* \param applyTranslation Should transform the position or the direction
 	*/
-
 	template<typename T>
 	Box<T>& Box<T>::Transform(const Matrix4<T>& matrix, bool applyTranslation)
 	{
 		Vector3<T> center = matrix.Transform(GetCenter(), (applyTranslation) ? T(1.0) : T(0.0)); // Value multiplying the translation
 		Vector3<T> halfSize = GetLengths() / T(2.0);
 
-		halfSize.Set(std::abs(matrix(0,0)) * halfSize.x + std::abs(matrix(1,0)) * halfSize.y + std::abs(matrix(2,0)) * halfSize.z,
-		             std::abs(matrix(0,1)) * halfSize.x + std::abs(matrix(1,1)) * halfSize.y + std::abs(matrix(2,1)) * halfSize.z,
-		             std::abs(matrix(0,2)) * halfSize.x + std::abs(matrix(1,2)) * halfSize.y + std::abs(matrix(2,2)) * halfSize.z);
+		halfSize = Vector3f(std::abs(matrix(0,0)) * halfSize.x + std::abs(matrix(1,0)) * halfSize.y + std::abs(matrix(2,0)) * halfSize.z,
+		                    std::abs(matrix(0,1)) * halfSize.x + std::abs(matrix(1,1)) * halfSize.y + std::abs(matrix(2,1)) * halfSize.z,
+		                    std::abs(matrix(0,2)) * halfSize.x + std::abs(matrix(1,2)) * halfSize.y + std::abs(matrix(2,2)) * halfSize.z);
 
 		return operator=(Boxf::FromExtends(center - halfSize, center + halfSize));
 	}
@@ -626,9 +604,8 @@ namespace Nz
 	*
 	* \param translation Vector3 which is the translation for the position
 	*/
-
 	template<typename T>
-	Box<T>& Box<T>::Translate(const Vector3<T>& translation)
+	constexpr Box<T>& Box<T>::Translate(const Vector3<T>& translation)
 	{
 		x += translation.x;
 		y += translation.y;
@@ -645,9 +622,8 @@ namespace Nz
 	* \remark Produce a NazaraError if you try to access to index greater than 6 with NAZARA_MATH_SAFE defined
 	* \throw std::domain_error if NAZARA_MATH_SAFE is defined and one of you try to acces to index greather than 6
 	*/
-
 	template<typename T>
-	T& Box<T>::operator[](std::size_t i)
+	constexpr T& Box<T>::operator[](std::size_t i)
 	{
 		NazaraAssert(i < 6, "Index out of range");
 
@@ -662,9 +638,8 @@ namespace Nz
 	* \remark Produce a NazaraError if you try to access to index greater than 6 with NAZARA_MATH_SAFE defined
 	* \throw std::domain_error if NAZARA_MATH_SAFE is defined and one of you try to acces to index greather than 6
 	*/
-
 	template<typename T>
-	const T& Box<T>::operator[](std::size_t i) const
+	constexpr const T& Box<T>::operator[](std::size_t i) const
 	{
 		NazaraAssert(i < 6, "Index out of range");
 
@@ -677,9 +652,8 @@ namespace Nz
 	*
 	* \param box Other box to compare with
 	*/
-
 	template<typename T>
-	bool Box<T>::operator==(const Box& box) const
+	constexpr bool Box<T>::operator==(const Box& box) const
 	{
 		return x == box.x && y == box.y && z == box.z && width == box.width && height == box.height && depth == box.depth;
 	}
@@ -690,11 +664,16 @@ namespace Nz
 	*
 	* \param box Other box to compare with
 	*/
-
 	template<typename T>
-	bool Box<T>::operator!=(const Box& box) const
+	constexpr bool Box<T>::operator!=(const Box& box) const
 	{
 		return !operator==(box);
+	}
+
+	template<typename T>
+	constexpr Box<T> Box<T>::ApproxEqual(const Box& lhs, const Box& rhs, T maxDifference)
+	{
+		return lhs.ApproxEqual(rhs, maxDifference);
 	}
 
 	/*!
@@ -711,7 +690,7 @@ namespace Nz
 	* \see Lerp
 	*/
 	template<typename T>
-	Box<T> Box<T>::FromExtends(const Vector3<T>& vec1, const Vector3<T>& vec2)
+	constexpr Box<T> Box<T>::FromExtends(const Vector3<T>& vec1, const Vector3<T>& vec2)
 	{
 		Box box;
 		box.x = std::min(vec1.x, vec2.x);
@@ -735,7 +714,7 @@ namespace Nz
 	* \see Lerp
 	*/
 	template<typename T>
-	Box<T> Box<T>::Lerp(const Box& from, const Box& to, T interpolation)
+	constexpr Box<T> Box<T>::Lerp(const Box& from, const Box& to, T interpolation)
 	{
 		Box box;
 		box.x = Nz::Lerp(from.x, to.x, interpolation);
@@ -751,11 +730,9 @@ namespace Nz
 	/*!
 	* \brief Shorthand for the box (0, 0, 0, 0, 0, 0)
 	* \return A box with position (0, 0, 0) and lengths (0, 0, 0)
-	*
-	* \see MakeZero
 	*/
 	template<typename T>
-	Box<T> Box<T>::Invalid()
+	constexpr Box<T> Box<T>::Invalid()
 	{
 		return Box(-1, -1, -1, -1, -1, -1);
 	}
@@ -763,11 +740,9 @@ namespace Nz
 	/*!
 	* \brief Shorthand for the box (0, 0, 0, 0, 0, 0)
 	* \return A box with position (0, 0, 0) and lengths (0, 0, 0)
-	*
-	* \see MakeZero
 	*/
 	template<typename T>
-	Box<T> Box<T>::Zero()
+	constexpr Box<T> Box<T>::Zero()
 	{
 		return Box(Vector3<T>::Zero(), Vector3<T>::Zero());
 	}

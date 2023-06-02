@@ -117,7 +117,7 @@ namespace Nz
 
 			StackArray<Vector2f> nVertices = NazaraStackArray(Vector2f, vertexCount);
 			for (int i = 0; i < vertexCount; ++i)
-				nVertices[i].Set(float(vertices[i].x), float(vertices[i].y));
+				nVertices[i] = Vector2f(float(vertices[i].x), float(vertices[i].y));
 
 			callback(nVertices.data(), nVertices.size());
 		};
@@ -282,7 +282,7 @@ namespace Nz
 	{
 		m_vertices.resize(vertexCount);
 		for (std::size_t i = 0; i < vertexCount; ++i)
-			m_vertices[i].Set(*vertices++);
+			m_vertices[i] = Vector2<cpFloat>(*vertices++);
 	}
 
 	Vector2f ChipmunkConvexCollider2D::ComputeCenterOfMass() const

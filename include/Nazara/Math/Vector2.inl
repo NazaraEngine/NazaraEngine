@@ -24,11 +24,11 @@ namespace Nz
 	* \param X X component
 	* \param Y Y component
 	*/
-
 	template<typename T>
-	Vector2<T>::Vector2(T X, T Y)
+	constexpr Vector2<T>::Vector2(T X, T Y) :
+	x(X),
+	y(Y)
 	{
-		Set(X, Y);
 	}
 
 	/*!
@@ -36,11 +36,11 @@ namespace Nz
 	*
 	* \param scale X component = Y component
 	*/
-
 	template<typename T>
-	Vector2<T>::Vector2(T scale)
+	constexpr Vector2<T>::Vector2(T scale) :
+	x(scale),
+	y(scale)
 	{
-		Set(scale);
 	}
 
 	/*!
@@ -48,12 +48,12 @@ namespace Nz
 	*
 	* \param vec Vector of type U to convert to type T
 	*/
-
 	template<typename T>
 	template<typename U>
-	Vector2<T>::Vector2(const Vector2<U>& vec)
+	constexpr Vector2<T>::Vector2(const Vector2<U>& vec) :
+	x(static_cast<T>(vec.x)),
+	y(static_cast<T>(vec.y))
 	{
-		Set(vec);
 	}
 
 	/*!
@@ -61,11 +61,11 @@ namespace Nz
 	*
 	* \param vec Vector3 where only the first two components are taken
 	*/
-
 	template<typename T>
-	Vector2<T>::Vector2(const Vector3<T>& vec)
+	constexpr Vector2<T>::Vector2(const Vector3<T>& vec) :
+	x(vec.x),
+	y(vec.y)
 	{
-		Set(vec);
 	}
 
 	/*!
@@ -73,11 +73,11 @@ namespace Nz
 	*
 	* \param vec Vector4 where only the first two components are taken
 	*/
-
 	template<typename T>
-	Vector2<T>::Vector2(const Vector4<T>& vec)
+	constexpr Vector2<T>::Vector2(const Vector4<T>& vec) :
+	x(vec.x),
+	y(vec.y)
 	{
-		Set(vec);
 	}
 
 	/*!
@@ -88,7 +88,6 @@ namespace Nz
 	*
 	* \see DotProduct
 	*/
-
 	template<typename T>
 	T Vector2<T>::AbsDotProduct(const Vector2& vec) const
 	{
@@ -105,11 +104,16 @@ namespace Nz
 	*
 	* \see NormalizeAngle
 	*/
-
 	template<typename T>
 	RadianAngle<T> Vector2<T>::AngleBetween(const Vector2& vec) const
 	{
 		return std::atan2(vec.y, vec.x) - std::atan2(y, x);
+	}
+
+	template<typename T>
+	constexpr bool Vector2<T>::ApproxEqual(const Vector2& vec, T maxDifference) const
+	{
+		return NumberEquals(x, vec.x, maxDifference) && NumberEquals(y, vec.y, maxDifference);
 	}
 
 	/*!
@@ -120,7 +124,6 @@ namespace Nz
 	*
 	* \see SquaredDistance
 	*/
-
 	template<typename T>
 	template<typename U>
 	U Vector2<T>::Distance(const Vector2& vec) const
@@ -136,9 +139,8 @@ namespace Nz
 	*
 	* \see AbsDotProduct, DotProduct
 	*/
-
 	template<typename T>
-	T Vector2<T>::DotProduct(const Vector2& vec) const
+	constexpr T Vector2<T>::DotProduct(const Vector2& vec) const
 	{
 		return x*vec.x + y*vec.y;
 	}
@@ -149,22 +151,11 @@ namespace Nz
 	*
 	* \see GetSquaredLength
 	*/
-
 	template<typename T>
+	template<typename U>
 	T Vector2<T>::GetLength() const
 	{
-		return static_cast<T>(std::sqrt(GetSquaredLength()));
-	}
-
-	/*!
-	* \brief Calculates the length (magnitude) of the vector
-	* \return The length in float of the vector
-	*/
-
-	template<typename T>
-	float Vector2<T>::GetLengthf() const
-	{
-		return std::sqrt(static_cast<float>(GetSquaredLength()));
+		return static_cast<U>(std::sqrt(static_cast<U>(GetSquaredLength())));
 	}
 
 	/*!
@@ -177,7 +168,6 @@ namespace Nz
 	*
 	* \see Normalize
 	*/
-
 	template<typename T>
 	Vector2<T> Vector2<T>::GetNormal(T* length) const
 	{
@@ -193,63 +183,10 @@ namespace Nz
 	*
 	* \see GetLength
 	*/
-
 	template<typename T>
-	T Vector2<T>::GetSquaredLength() const
+	constexpr T Vector2<T>::GetSquaredLength() const
 	{
 		return x*x + y*y;
-	}
-
-	/*!
-	* \brief Makes the vector (1, 1)
-	* \return A reference to this vector with components (1, 1)
-	*
-	* \see Unit
-	*/
-
-	template<typename T>
-	Vector2<T>& Vector2<T>::MakeUnit()
-	{
-		return Set(T(1.0), T(1.0));
-	}
-
-	/*!
-	* \brief Makes the vector (1, 0)
-	* \return A reference to this vector with components (1, 0)
-	*
-	* \see UnitX
-	*/
-
-	template<typename T>
-	Vector2<T>& Vector2<T>::MakeUnitX()
-	{
-		return Set(T(1.0), T(0.0));
-	}
-
-	/*!
-	* \brief Makes the vector (0, 1)
-	* \return A reference to this vector with components (0, 1)
-	*
-	* \see UnitY
-	*/
-
-	template<typename T>
-	Vector2<T>& Vector2<T>::MakeUnitY()
-	{
-		return Set(T(0.0), T(1.0));
-	}
-
-	/*!
-	* \brief Makes the vector (0, 0)
-	* \return A reference to this vector with components (0, 0)
-	*
-	* \see Zero
-	*/
-
-	template<typename T>
-	Vector2<T>& Vector2<T>::MakeZero()
-	{
-		return Set(T(0.0), T(0.0));
 	}
 
 	/*!
@@ -260,9 +197,8 @@ namespace Nz
 	*
 	* \see Minimize
 	*/
-
 	template<typename T>
-	Vector2<T>& Vector2<T>::Maximize(const Vector2& vec)
+	constexpr Vector2<T>& Vector2<T>::Maximize(const Vector2& vec)
 	{
 		if (vec.x > x)
 			x = vec.x;
@@ -281,9 +217,8 @@ namespace Nz
 	*
 	* \see Maximize
 	*/
-
 	template<typename T>
-	Vector2<T>& Vector2<T>::Minimize(const Vector2& vec)
+	constexpr Vector2<T>& Vector2<T>::Minimize(const Vector2& vec)
 	{
 		if (vec.x < x)
 			x = vec.x;
@@ -304,7 +239,6 @@ namespace Nz
 	*
 	* \see GetNormal
 	*/
-
 	template<typename T>
 	Vector2<T>& Vector2<T>::Normalize(T* length)
 	{
@@ -323,103 +257,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Sets the components of the vector
-	* \return A reference to this vector
-	*
-	* \param X X component
-	* \param Y Y component
-	*/
-
-	template<typename T>
-	Vector2<T>& Vector2<T>::Set(T X, T Y)
-	{
-		x = X;
-		y = Y;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the vector from a "scale"
-	* \return A reference to this vector
-	*
-	* \param scale X component = Y component
-	*/
-
-	template<typename T>
-	Vector2<T>& Vector2<T>::Set(T scale)
-	{
-		x = scale;
-		y = scale;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the vector from an array of two elements
-	* \return A reference to this vector
-	*
-	* \param vec[2] vec[0] is X component and vec[1] is Y component
-	*/
-	template<typename T>
-	Vector2<T>& Vector2<T>::Set(const T* vec)
-	{
-		x = vec[0];
-		y = vec[1];
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the vector from another type of Vector2
-	* \return A reference to this vector
-	*
-	* \param vec Vector of type U to convert its components
-	*/
-
-	template<typename T>
-	template<typename U>
-	Vector2<T>& Vector2<T>::Set(const Vector2<U>& vec)
-	{
-		x = T(vec.x);
-		y = T(vec.y);
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the vector from a Vector3
-	* \return A reference to this vector
-	*
-	* \param vec Vector3 where only the first two components are taken
-	*/
-
-	template<typename T>
-	Vector2<T>& Vector2<T>::Set(const Vector3<T>& vec)
-	{
-		x = vec.x;
-		y = vec.y;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the vector from a Vector4
-	* \return A reference to this vector
-	*
-	* \param vec Vector4 where only the first two components are taken
-	*/
-
-	template<typename T>
-	Vector2<T>& Vector2<T>::Set(const Vector4<T>& vec)
-	{
-		x = vec.x;
-		y = vec.y;
-
-		return *this;
-	}
-
-	/*!
 	* \brief Calculates the squared distance between two vectors
 	* \return The metric distance between two vectors with the squared euclidean norm
 	*
@@ -427,9 +264,8 @@ namespace Nz
 	*
 	* \see Distance
 	*/
-
 	template<typename T>
-	T Vector2<T>::SquaredDistance(const Vector2& vec) const
+	constexpr T Vector2<T>::SquaredDistance(const Vector2& vec) const
 	{
 		return (*this - vec).GetSquaredLength();
 	}
@@ -450,7 +286,7 @@ namespace Nz
 	* \return X, Y depending on index (0, 1)
 	*/
 	template<typename T>
-	T& Vector2<T>::operator[](std::size_t i)
+	constexpr T& Vector2<T>::operator[](std::size_t i)
 	{
 		NazaraAssert(i < 2, "index out of range");
 		return *(&x + i);
@@ -461,7 +297,7 @@ namespace Nz
 	* \return X, Y depending on index (0, 1)
 	*/
 	template<typename T>
-	T Vector2<T>::operator[](std::size_t i) const
+	constexpr T Vector2<T>::operator[](std::size_t i) const
 	{
 		NazaraAssert(i < 2, "index out of range");
 		return *(&x + i);
@@ -471,9 +307,8 @@ namespace Nz
 	* \brief Helps to represent the sign of the vector
 	* \return A constant reference to this vector
 	*/
-
 	template<typename T>
-	const Vector2<T>& Vector2<T>::operator+() const
+	constexpr const Vector2<T>& Vector2<T>::operator+() const
 	{
 		return *this;
 	}
@@ -482,9 +317,8 @@ namespace Nz
 	* \brief Negates the components of the vector
 	* \return A constant reference to this vector with negate components
 	*/
-
 	template<typename T>
-	Vector2<T> Vector2<T>::operator-() const
+	constexpr Vector2<T> Vector2<T>::operator-() const
 	{
 		return Vector2(-x, -y);
 	}
@@ -495,9 +329,8 @@ namespace Nz
 	*
 	* \param vec The other vector to add components with
 	*/
-
 	template<typename T>
-	Vector2<T> Vector2<T>::operator+(const Vector2& vec) const
+	constexpr Vector2<T> Vector2<T>::operator+(const Vector2& vec) const
 	{
 		return Vector2(x + vec.x, y + vec.y);
 	}
@@ -508,9 +341,8 @@ namespace Nz
 	*
 	* \param vec The other vector to substract components with
 	*/
-
 	template<typename T>
-	Vector2<T> Vector2<T>::operator-(const Vector2& vec) const
+	constexpr Vector2<T> Vector2<T>::operator-(const Vector2& vec) const
 	{
 		return Vector2(x - vec.x, y - vec.y);
 	}
@@ -521,9 +353,8 @@ namespace Nz
 	*
 	* \param vec The other vector to multiply components with
 	*/
-
 	template<typename T>
-	Vector2<T> Vector2<T>::operator*(const Vector2& vec) const
+	constexpr Vector2<T> Vector2<T>::operator*(const Vector2& vec) const
 	{
 		return Vector2(x * vec.x, y * vec.y);
 	}
@@ -534,9 +365,8 @@ namespace Nz
 	*
 	* \param scale The scalar to multiply components with
 	*/
-
 	template<typename T>
-	Vector2<T> Vector2<T>::operator*(T scale) const
+	constexpr Vector2<T> Vector2<T>::operator*(T scale) const
 	{
 		return Vector2(x * scale, y * scale);
 	}
@@ -547,9 +377,8 @@ namespace Nz
 	*
 	* \param vec The other vector to divide components with
 	*/
-
 	template<typename T>
-	Vector2<T> Vector2<T>::operator/(const Vector2& vec) const
+	constexpr Vector2<T> Vector2<T>::operator/(const Vector2& vec) const
 	{
 		return Vector2(x / vec.x, y / vec.y);
 	}
@@ -560,9 +389,8 @@ namespace Nz
 	*
 	* \param scale The scalar to divide components with
 	*/
-
 	template<typename T>
-	Vector2<T> Vector2<T>::operator/(T scale) const
+	constexpr Vector2<T> Vector2<T>::operator/(T scale) const
 	{
 		return Vector2(x / scale, y / scale);
 	}
@@ -573,9 +401,8 @@ namespace Nz
 	*
 	* \param vec The other vector to add components with
 	*/
-
 	template<typename T>
-	Vector2<T>& Vector2<T>::operator+=(const Vector2& vec)
+	constexpr Vector2<T>& Vector2<T>::operator+=(const Vector2& vec)
 	{
 		x += vec.x;
 		y += vec.y;
@@ -589,9 +416,8 @@ namespace Nz
 	*
 	* \param vec The other vector to substract components with
 	*/
-
 	template<typename T>
-	Vector2<T>& Vector2<T>::operator-=(const Vector2& vec)
+	constexpr Vector2<T>& Vector2<T>::operator-=(const Vector2& vec)
 	{
 		x -= vec.x;
 		y -= vec.y;
@@ -605,9 +431,8 @@ namespace Nz
 	*
 	* \param vec The other vector to multiply components with
 	*/
-
 	template<typename T>
-	Vector2<T>& Vector2<T>::operator*=(const Vector2& vec)
+	constexpr Vector2<T>& Vector2<T>::operator*=(const Vector2& vec)
 	{
 		x *= vec.x;
 		y *= vec.y;
@@ -621,9 +446,8 @@ namespace Nz
 	*
 	* \param scale The scalar to multiply components with
 	*/
-
 	template<typename T>
-	Vector2<T>& Vector2<T>::operator*=(T scale)
+	constexpr Vector2<T>& Vector2<T>::operator*=(T scale)
 	{
 		x *= scale;
 		y *= scale;
@@ -637,9 +461,8 @@ namespace Nz
 	*
 	* \param vec The other vector to multiply components with
 	*/
-
 	template<typename T>
-	Vector2<T>& Vector2<T>::operator/=(const Vector2& vec)
+	constexpr Vector2<T>& Vector2<T>::operator/=(const Vector2& vec)
 	{
 		x /= vec.x;
 		y /= vec.y;
@@ -653,9 +476,8 @@ namespace Nz
 	*
 	* \param scale The scalar to divide components with
 	*/
-
 	template<typename T>
-	Vector2<T>& Vector2<T>::operator/=(T scale)
+	constexpr Vector2<T>& Vector2<T>::operator/=(T scale)
 	{
 		x /= scale;
 		y /= scale;
@@ -669,12 +491,10 @@ namespace Nz
 	*
 	* \param vec Other vector to compare with
 	*/
-
 	template<typename T>
-	bool Vector2<T>::operator==(const Vector2& vec) const
+	constexpr bool Vector2<T>::operator==(const Vector2& vec) const
 	{
-		return NumberEquals(x, vec.x) &&
-		       NumberEquals(y, vec.y);
+		return x == vec.x && y == vec.y;
 	}
 
 	/*!
@@ -683,9 +503,8 @@ namespace Nz
 	*
 	* \param vec Other vector to compare with
 	*/
-
 	template<typename T>
-	bool Vector2<T>::operator!=(const Vector2& vec) const
+	constexpr bool Vector2<T>::operator!=(const Vector2& vec) const
 	{
 		return !operator==(vec);
 	}
@@ -696,14 +515,13 @@ namespace Nz
 	*
 	* \param vec Other vector to compare with
 	*/
-
 	template<typename T>
-	bool Vector2<T>::operator<(const Vector2& vec) const
+	constexpr bool Vector2<T>::operator<(const Vector2& vec) const
 	{
-		if (x == vec.x)
-			return y < vec.y;
-		else
+		if (x != vec.x)
 			return x < vec.x;
+
+		return y < vec.y;
 	}
 
 	/*!
@@ -712,14 +530,13 @@ namespace Nz
 	*
 	* \param vec Other vector to compare with
 	*/
-
 	template<typename T>
-	bool Vector2<T>::operator<=(const Vector2& vec) const
+	constexpr bool Vector2<T>::operator<=(const Vector2& vec) const
 	{
-		if (x == vec.x)
-			return y <= vec.y;
-		else
+		if (x != vec.x)
 			return x < vec.x;
+
+		return y <= vec.y;
 	}
 
 	/*!
@@ -728,11 +545,13 @@ namespace Nz
 	*
 	* \param vec Other vector to compare with
 	*/
-
 	template<typename T>
-	bool Vector2<T>::operator>(const Vector2& vec) const
+	constexpr bool Vector2<T>::operator>(const Vector2& vec) const
 	{
-		return !operator<=(vec);
+		if (x != vec.x)
+			return x > vec.x;
+
+		return y > vec.y;
 	}
 
 	/*!
@@ -741,11 +560,19 @@ namespace Nz
 	*
 	* \param vec Other vector to compare with
 	*/
+	template<typename T>
+	constexpr bool Vector2<T>::operator>=(const Vector2& vec) const
+	{
+		if (x != vec.x)
+			return x > vec.x;
+
+		return y >= vec.y;
+	}
 
 	template<typename T>
-	bool Vector2<T>::operator>=(const Vector2& vec) const
+	constexpr bool Vector2<T>::ApproxEqual(const Vector2& lhs, const Vector2& rhs, T maxDifference)
 	{
-		return !operator<(vec);
+		return lhs.ApproxEqual(rhs, maxDifference);
 	}
 
 	/*!
@@ -775,9 +602,8 @@ namespace Nz
 	*
 	* \see AbsDotProduct, DotProduct
 	*/
-
 	template<typename T>
-	T Vector2<T>::DotProduct(const Vector2& vec1, const Vector2& vec2)
+	constexpr T Vector2<T>::DotProduct(const Vector2& vec1, const Vector2& vec2)
 	{
 		return vec1.DotProduct(vec2);
 	}
@@ -794,9 +620,8 @@ namespace Nz
 	*
 	* \see Lerp
 	*/
-
 	template<typename T>
-	Vector2<T> Vector2<T>::Lerp(const Vector2& from, const Vector2& to, T interpolation)
+	constexpr Vector2<T> Vector2<T>::Lerp(const Vector2& from, const Vector2& to, T interpolation)
 	{
 		Vector2 dummy;
 		dummy.x = Nz::Lerp(from.x, to.x, interpolation);
@@ -815,7 +640,6 @@ namespace Nz
 	*
 	* \see GetNormal
 	*/
-
 	template<typename T>
 	Vector2<T> Vector2<T>::Normalize(const Vector2& vec)
 	{
@@ -825,63 +649,41 @@ namespace Nz
 	/*!
 	* \brief Shorthand for the vector (1, 1)
 	* \return A vector with components (1, 1)
-	*
-	* \see MakeUnit
 	*/
-
 	template<typename T>
-	Vector2<T> Vector2<T>::Unit()
+	constexpr Vector2<T> Vector2<T>::Unit()
 	{
-		Vector2 vector;
-		vector.MakeUnit();
-
-		return vector;
+		return Vector2(1, 1);
 	}
 
 	/*!
 	* \brief Shorthand for the vector (1, 0)
 	* \return A vector with components (1, 0)
-	*
-	* \see MakeUnitX
 	*/
-
 	template<typename T>
-	Vector2<T> Vector2<T>::UnitX()
+	constexpr Vector2<T> Vector2<T>::UnitX()
 	{
-		Vector2 vector;
-		vector.MakeUnitX();
-
-		return vector;
+		return Vector2(1, 0);
 	}
 
 	/*!
 	* \brief Shorthand for the vector (0, 1)
 	* \return A vector with components (0, 1)
-	*
-	* \see MakeUnitY
 	*/
 	template<typename T>
-	Vector2<T> Vector2<T>::UnitY()
+	constexpr Vector2<T> Vector2<T>::UnitY()
 	{
-		Vector2 vector;
-		vector.MakeUnitY();
-
-		return vector;
+		return Vector2(0, 1);
 	}
 
 	/*!
 	* \brief Shorthand for the vector (0, 0)
 	* \return A vector with components (0, 0)
-	*
-	* \see MakeZero
 	*/
 	template<typename T>
-	Vector2<T> Vector2<T>::Zero()
+	constexpr Vector2<T> Vector2<T>::Zero()
 	{
-		Vector2 vector;
-		vector.MakeZero();
-
-		return vector;
+		return Vector2(0, 0);
 	}
 
 	/*!
@@ -904,7 +706,7 @@ namespace Nz
 	* \param scale The scalar to multiply components with
 	*/
 	template<typename T>
-	Vector2<T> operator*(T scale, const Vector2<T>& vec)
+	constexpr Vector2<T> operator*(T scale, const Vector2<T>& vec)
 	{
 		return Vector2<T>(scale * vec.x, scale * vec.y);
 	}
@@ -916,7 +718,7 @@ namespace Nz
 	* \param scale The scalar to divide components with
 	*/
 	template<typename T>
-	Vector2<T> operator/(T scale, const Vector2<T>& vec)
+	constexpr Vector2<T> operator/(T scale, const Vector2<T>& vec)
 	{
 		return Vector2<T>(scale / vec.x, scale / vec.y);
 	}
@@ -984,3 +786,4 @@ namespace std
 }
 
 #include <Nazara/Core/DebugOff.hpp>
+#include "Vector2.hpp"

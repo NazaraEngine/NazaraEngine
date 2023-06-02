@@ -27,11 +27,11 @@ namespace Nz
 	* \param DirectionY Y component of the vector direction
 	* \param DirectionY Y component of the vector direction
 	*/
-
 	template<typename T>
-	Ray<T>::Ray(T X, T Y, T Z, T DirectionX, T DirectionY, T DirectionZ)
+	constexpr Ray<T>::Ray(T X, T Y, T Z, T DirectionX, T DirectionY, T DirectionZ) :
+	direction(DirectionX, DirectionY, DirectionZ),
+	origin(X, Y, Z)
 	{
-		Set(X, Y, Z, DirectionX, DirectionY, DirectionZ);
 	}
 
 	/*!
@@ -40,11 +40,11 @@ namespace Nz
 	* \param Origin Vector which represents the origin of the ray
 	* \param Direction Vector which represents the direction of the ray
 	*/
-
 	template<typename T>
-	Ray<T>::Ray(const Vector3<T>& Origin, const Vector3<T>& Direction)
+	constexpr Ray<T>::Ray(const Vector3<T>& Origin, const Vector3<T>& Direction) :
+	direction(Direction),
+	origin(Origin)
 	{
-		Set(Origin, Direction);
 	}
 
 	/*!
@@ -53,11 +53,11 @@ namespace Nz
 	* \param Origin[3] Origin[0] is X position, Origin[1] is Y position and Origin[2] is Z position
 	* \param Direction[3] Direction[0] is X direction, Direction[1] is Y direction and Direction[2] is Z direction
 	*/
-
 	template<typename T>
-	Ray<T>::Ray(const T Origin[3], const T Direction[3])
+	constexpr Ray<T>::Ray(const T Origin[3], const T Direction[3]) :
+	direction(Direction),
+	origin(Origin)
 	{
-		Set(Origin, Direction);
 	}
 
 	/*!
@@ -69,11 +69,30 @@ namespace Nz
 	* \remark Produce a NazaraError if planes are parallel with NAZARA_MATH_SAFE defined
 	* \throw std::domain_error if NAZARA_MATH_SAFE is defined and planes are parallel
 	*/
-
 	template<typename T>
 	Ray<T>::Ray(const Plane<T>& planeOne, const Plane<T>& planeTwo)
 	{
-		Set(planeOne, planeTwo);
+		T termOne = planeOne.normal.GetLength();
+		T termTwo = planeOne.normal.DotProduct(planeTwo.normal);
+		T termFour = planeTwo.normal.GetLength();
+		T det = termOne * termFour - termTwo * termTwo;
+
+		#if NAZARA_MATH_SAFE
+		if (NumberEquals(det, T(0.0)))
+		{
+			std::string error("Planes are parallel");
+
+			NazaraError(error);
+			throw std::domain_error(error);
+		}
+		#endif
+
+		T invdet = T(1.0) / det;
+		T fc0 = (termFour * -planeOne.distance + termTwo * planeTwo.distance) * invdet;
+		T fc1 = (termOne * -planeTwo.distance + termTwo * planeOne.distance) * invdet;
+
+		direction = planeOne.normal.CrossProduct(planeTwo.normal);
+		origin = planeOne.normal * fc0 + planeTwo.normal * fc1;
 	}
 
 	/*!
@@ -84,9 +103,10 @@ namespace Nz
 
 	template<typename T>
 	template<typename U>
-	Ray<T>::Ray(const Ray<U>& ray)
+	constexpr Ray<T>::Ray(const Ray<U>& ray) :
+	direction(ray.direction),
+	origin(ray.origin)
 	{
-		Set(ray);
 	}
 
 	/*!
@@ -98,9 +118,16 @@ namespace Nz
 
 	template<typename T>
 	template<typename U>
-	Ray<T>::Ray(const Vector3<U>& Origin, const Vector3<U>& Direction)
+	constexpr Ray<T>::Ray(const Vector3<U>& Origin, const Vector3<U>& Direction) :
+	direction(Direction),
+	origin(Origin)
 	{
-		Set(Origin, Direction);
+	}
+
+	template<typename T>
+	constexpr bool Ray<T>::ApproxEqual(const Ray& ray, T maxDifference) const
+	{
+		return direction.ApproxEqual(ray.direction, maxDifference) && origin.ApproxEqual(ray.origin, maxDifference);
 	}
 
 	/*!
@@ -109,9 +136,8 @@ namespace Nz
 	*
 	* \param point The point to get the closest approach to
 	*/
-
 	template<typename T>
-	T Ray<T>::ClosestPoint(const Vector3<T>& point) const
+	constexpr T Ray<T>::ClosestPoint(const Vector3<T>& point) const
 	{
 		Vector3<T> delta = point - origin;
 		T vsq = direction.GetSquaredLength();
@@ -126,9 +152,8 @@ namespace Nz
 	*
 	* \param lambda Parameter to obtain a particular point on the ray
 	*/
-
 	template<typename T>
-	Vector3<T> Ray<T>::GetPoint(T lambda) const
+	constexpr Vector3<T> Ray<T>::GetPoint(T lambda) const
 	{
 		return origin + lambda * direction;
 	}
@@ -141,19 +166,18 @@ namespace Nz
 	* \param closestHit Optional argument to get the closest parameter where the intersection is only if it happened
 	* \param furthestHit Optional argument to get the furthest parameter where the intersection is only if it happened
 	*
-	* \remark If BoundingVolume is Extend::Infinite, then closestHit and furthestHit are equal to 0 et infinity
-	* \remark If BoundingVolume is Extend::Null, then closestHit and furthestHit are unchanged
-	* \remark If enumeration of BoundingVolume is not defined in Extend, a NazaraError is thrown and closestHit and furthestHit are unchanged
+	* \remark If BoundingVolume is Extent::Infinite, then closestHit and furthestHit are equal to 0 et infinity
+	* \remark If BoundingVolume is Extent::Null, then closestHit and furthestHit are unchanged
+	* \remark If enumeration of BoundingVolume is not defined in Extent, a NazaraError is thrown and closestHit and furthestHit are unchanged
 	*
 	* \see Intersect
 	*/
-
 	template<typename T>
-	bool Ray<T>::Intersect(const BoundingVolume<T>& volume, T* closestHit, T* furthestHit) const
+	constexpr bool Ray<T>::Intersect(const BoundingVolume<T>& volume, T* closestHit, T* furthestHit) const
 	{
-		switch (volume.extend)
+		switch (volume.extent)
 		{
-			case Extend::Finite:
+			case Extent::Finite:
 			{
 				if (Intersect(volume.aabb))
 					return Intersect(volume.obb, closestHit, furthestHit);
@@ -161,7 +185,7 @@ namespace Nz
 				return false;
 			}
 
-			case Extend::Infinite:
+			case Extent::Infinite:
 			{
 				if (closestHit)
 					*closestHit = T(0.0);
@@ -172,11 +196,11 @@ namespace Nz
 				return true;
 			}
 
-			case Extend::Null:
+			case Extent::Null:
 				return false;
 		}
 
-		NazaraError("Invalid extend type (0x" + NumberToString(UnderlyingCast(volume.extend), 16) + ')');
+		NazaraError("Invalid extent type (0x" + NumberToString(UnderlyingCast(volume.extent), 16) + ')');
 		return false;
 	}
 
@@ -190,9 +214,8 @@ namespace Nz
 	*
 	* \see Intersect
 	*/
-
 	template<typename T>
-	bool Ray<T>::Intersect(const Box<T>& box, T* closestHit, T* furthestHit) const
+	constexpr bool Ray<T>::Intersect(const Box<T>& box, T* closestHit, T* furthestHit) const
 	{
 		// http://www.gamedev.net/topic/429443-obb-ray-and-obb-plane-intersection/
 		T tfirst = T(0.0);
@@ -248,9 +271,8 @@ namespace Nz
 	*
 	* \see Intersect
 	*/
-
 	template<typename T>
-	bool Ray<T>::Intersect(const Box<T>& box, const Matrix4<T>& transform, T* closestHit, T* furthestHit) const
+	constexpr bool Ray<T>::Intersect(const Box<T>& box, const Matrix4<T>& transform, T* closestHit, T* furthestHit) const
 	{
 		// http://www.opengl-tutorial.org/miscellaneous/clicking-on-objects/picking-with-custom-ray-obb-function/
 		// Intersection method from Real-Time Rendering and Essential Mathematics for Games
@@ -316,9 +338,8 @@ namespace Nz
 	*
 	* \see Intersect
 	*/
-
 	template<typename T>
-	bool Ray<T>::Intersect(const Plane<T>& plane, T* hit) const
+	constexpr bool Ray<T>::Intersect(const Plane<T>& plane, T* hit) const
 	{
 		T divisor = plane.normal.DotProduct(direction);
 		if (NumberEquals(divisor, T(0.0)))
@@ -344,9 +365,8 @@ namespace Nz
 	*
 	* \see Intersect
 	*/
-
 	template<typename T>
-	bool Ray<T>::Intersect(const Sphere<T>& sphere, T* closestHit, T* furthestHit) const
+	constexpr bool Ray<T>::Intersect(const Sphere<T>& sphere, T* closestHit, T* furthestHit) const
 	{
 		Vector3<T> sphereRay = sphere.GetPosition() - origin;
 		T length = sphereRay.DotProduct(direction);
@@ -386,9 +406,8 @@ namespace Nz
 	*
 	* \see Intersect
 	*/
-
 	template<typename T>
-	bool Ray<T>::Intersect(const Vector3<T>& firstPoint, const Vector3<T>& secondPoint, const Vector3<T>& thirdPoint, T* hit) const
+	constexpr bool Ray<T>::Intersect(const Vector3<T>& firstPoint, const Vector3<T>& secondPoint, const Vector3<T>& thirdPoint, T* hit) const
 	{
 		// https://en.wikipedia.org/wiki/M%C3%B6ller%E2%80%93Trumbore_intersection_algorithm
 		Vector3<T> firstEdge = secondPoint - firstPoint;
@@ -421,178 +440,9 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Makes the ray with position (0, 0, 0) and direction (1, 0, 0)
-	* \return A reference to this ray with position (0, 0, 0) and direction (1, 0, 0)
-	*
-	* \see AxisX
-	*/
-
-	template<typename T>
-	Ray<T>& Ray<T>::MakeAxisX()
-	{
-		return Set(Vector3<T>::Zero(), Vector3<T>::UnitX());
-	}
-
-	/*!
-	* \brief Makes the ray with position (0, 0, 0) and direction (0, 1, 0)
-	* \return A reference to this ray with position (0, 0, 0) and direction (0, 1, 0)
-	*
-	* \see AxisY
-	*/
-
-	template<typename T>
-	Ray<T>& Ray<T>::MakeAxisY()
-	{
-		return Set(Vector3<T>::Zero(), Vector3<T>::UnitY());
-	}
-
-	/*!
-	* \brief Makes the ray with position (0, 0, 0) and direction (0, 0, 1)
-	* \return A reference to this ray with position (0, 0, 0) and direction (0, 0, 1)
-	*
-	* \see AxisZ
-	*/
-
-	template<typename T>
-	Ray<T>& Ray<T>::MakeAxisZ()
-	{
-		return Set(Vector3<T>::Zero(), Vector3<T>::UnitZ());
-	}
-
-	/*!
-	* \brief Sets the components of the ray with position and direction
-	* \return A reference to this ray
-	*
-	* \param X X position
-	* \param Y Y position
-	* \param Z Z position
-	* \param DirectionX X component of the vector direction
-	* \param DirectionY Y component of the vector direction
-	* \param DirectionY Y component of the vector direction
-	*/
-
-	template<typename T>
-	Ray<T>& Ray<T>::Set(T X, T Y, T Z, T directionX, T directionY, T directionZ)
-	{
-		direction.Set(directionX, directionY, directionZ);
-		origin.Set(X, Y, Z);
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the ray with position and direction
-	* \return A reference to this ray
-	*
-	* \param Origin Vector which represents the origin of the ray
-	* \param Direction Vector which represents the direction of the ray
-	*/
-
-	template<typename T>
-	Ray<T>& Ray<T>::Set(const Vector3<T>& Origin, const Vector3<T>& Direction)
-	{
-		direction = Direction;
-		origin = Origin;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of this ray from two arrays of three elements
-	* \return A reference to this ray
-	*
-	* \param Origin[3] Origin[0] is X position, Origin[1] is Y position and Origin[2] is Z position
-	* \param Direction[3] Direction[0] is X direction, Direction[1] is Y direction and Direction[2] is Z direction
-	*/
-
-	template<typename T>
-	Ray<T>& Ray<T>::Set(const T Origin[3], const T Direction[3])
-	{
-		direction.Set(Direction);
-		origin.Set(Origin);
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of this ray from the intersection of two planes
-	* \return A reference to this ray
-	*
-	* \param planeOne First plane
-	* \param planeTwo Second secant plane
-	*
-	* \remark Produce a NazaraError if planes are parallel with NAZARA_MATH_SAFE defined
-	* \throw std::domain_error if NAZARA_MATH_SAFE is defined and planes are parallel
-	*/
-
-	template<typename T>
-	Ray<T>& Ray<T>::Set(const Plane<T>& planeOne, const Plane<T>& planeTwo)
-	{
-		T termOne = planeOne.normal.GetLength();
-		T termTwo = planeOne.normal.DotProduct(planeTwo.normal);
-		T termFour = planeTwo.normal.GetLength();
-		T det = termOne * termFour - termTwo * termTwo;
-
-		#if NAZARA_MATH_SAFE
-		if (NumberEquals(det, T(0.0)))
-		{
-			std::string error("Planes are parallel");
-
-			NazaraError(error);
-			throw std::domain_error(error);
-		}
-		#endif
-
-		T invdet = T(1.0) / det;
-		T fc0 = (termFour * -planeOne.distance + termTwo * planeTwo.distance) * invdet;
-		T fc1 = (termOne * -planeTwo.distance + termTwo * planeOne.distance) * invdet;
-
-		direction = planeOne.normal.CrossProduct(planeTwo.normal);
-		origin = planeOne.normal * fc0 + planeTwo.normal * fc1;
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the ray from another type of Ray
-	* \return A reference to this ray
-	*
-	* \param ray Ray of type U to convert its components
-	*/
-
-	template<typename T>
-	template<typename U>
-	Ray<T>& Ray<T>::Set(const Ray<U>& ray)
-	{
-		direction.Set(ray.direction);
-		origin.Set(ray.origin);
-
-		return *this;
-	}
-
-	/*!
-	* \brief Sets the components of the ray from another type of Ray
-	* \return A reference to this ray
-	*
-	* \param Origin Origin of type U to convert to type T
-	* \param Direction Direction of type U to convert to type T
-	*/
-
-	template<typename T>
-	template<typename U>
-	Ray<T>& Ray<T>::Set(const Vector3<U>& Origin, const Vector3<U>& Direction)
-	{
-		direction.Set(Direction);
-		origin.Set(Origin);
-
-		return *this;
-	}
-
-	/*!
 	* \brief Gives a string representation
 	* \return A string representation of the object: "Ray(origin: Vector3(origin.x, origin.y, origin.z), direction: Vector3(direction.x, direction.y, direction.z))"
 	*/
-
 	template<typename T>
 	std::string Ray<T>::ToString() const
 	{
@@ -610,9 +460,8 @@ namespace Nz
 	*
 	* \see GetPoint
 	*/
-
 	template<typename T>
-	Vector3<T> Ray<T>::operator*(T lambda) const
+	constexpr Vector3<T> Ray<T>::operator*(T lambda) const
 	{
 		return GetPoint(lambda);
 	}
@@ -623,9 +472,8 @@ namespace Nz
 	*
 	* \param rec Other ray to compare with
 	*/
-
 	template<typename T>
-	bool Ray<T>::operator==(const Ray& ray) const
+	constexpr bool Ray<T>::operator==(const Ray& ray) const
 	{
 		return direction == ray.direction && origin == ray.origin;
 	}
@@ -636,59 +484,84 @@ namespace Nz
 	*
 	* \param rec Other ray to compare with
 	*/
-
 	template<typename T>
-	bool Ray<T>::operator!=(const Ray& ray) const
+	constexpr bool Ray<T>::operator!=(const Ray& ray) const
 	{
 		return !operator==(ray);
+	}
+
+	template<typename T>
+	constexpr bool Ray<T>::operator<(const Ray& ray) const
+	{
+		if (origin != ray.origin)
+			return origin < ray.origin;
+
+		return direction < ray.direction;
+	}
+
+	template<typename T>
+	constexpr bool Ray<T>::operator<=(const Ray& ray) const
+	{
+		if (origin != ray.origin)
+			return origin < ray.origin;
+
+		return direction <= ray.direction;
+	}
+
+	template<typename T>
+	constexpr bool Ray<T>::operator>(const Ray& ray) const
+	{
+		if (origin != ray.origin)
+			return origin > ray.origin;
+
+		return direction > ray.direction;
+	}
+
+	template<typename T>
+	constexpr bool Ray<T>::operator>=(const Ray& ray) const
+	{
+		if (origin != ray.origin)
+			return origin > ray.origin;
+
+		return direction >= ray.direction;
+	}
+
+	template<typename T>
+	constexpr bool Ray<T>::ApproxEqual(const Ray& lhs, const Ray& rhs, T maxDifference)
+	{
+		return lhs.ApproxEqual(rhs, maxDifference);
 	}
 
 	/*!
 	* \brief Shorthand for the ray (0, 0, 0), (1, 0, 0)
 	* \return A ray with position (0, 0, 0) and direction (1, 0, 0)
-	*
-	* \see MakeAxisX
 	*/
-
 	template<typename T>
-	Ray<T> Ray<T>::AxisX()
+	constexpr Ray<T> Ray<T>::AxisX()
 	{
-		Ray axis;
-		axis.MakeAxisX();
-
-		return axis;
+		return Ray(Vector3<T>::Zero(), Vector3<T>::UnitX());
 	}
 
 	/*!
 	* \brief Shorthand for the ray (0, 0, 0), (0, 1, 0)
 	* \return A ray with position (0, 0, 0) and direction (0, 1, 0)
-	*
-	* \see MakeAxisY
 	*/
 
 	template<typename T>
-	Ray<T> Ray<T>::AxisY()
+	constexpr Ray<T> Ray<T>::AxisY()
 	{
-		Ray axis;
-		axis.MakeAxisY();
-
-		return axis;
+		return Ray(Vector3<T>::Zero(), Vector3<T>::UnitY());
 	}
 
 	/*!
 	* \brief Shorthand for the ray (0, 0, 0), (0, 0, 1)
 	* \return A ray with position (0, 0, 0) and direction (0, 0, 1)
-	*
-	* \see MakeAxisZ
 	*/
 
 	template<typename T>
-	Ray<T> Ray<T>::AxisZ()
+	constexpr Ray<T> Ray<T>::AxisZ()
 	{
-		Ray axis;
-		axis.MakeAxisZ();
-
-		return axis;
+		return Ray(Vector3<T>::Zero(), Vector3<T>::UnitZ());
 	}
 
 	/*!
@@ -703,11 +576,10 @@ namespace Nz
 	*
 	* \see Lerp
 	*/
-
 	template<typename T>
-	Ray<T> Ray<T>::Lerp(const Ray& from, const Ray& to, T interpolation)
+	constexpr Ray<T> Ray<T>::Lerp(const Ray& from, const Ray& to, T interpolation)
 	{
-		return Ray<T>(Nz::Vector3<T>::Lerp(from.origin, to.origin, interpolation), Nz::Vector3<T>::Lerp(from.direction, to.direction, interpolation));
+		return Ray<T>(Vector3<T>::Lerp(from.origin, to.origin, interpolation), Vector3<T>::Lerp(from.direction, to.direction, interpolation));
 	}
 
 	/*!
@@ -764,3 +636,4 @@ namespace Nz
 }
 
 #include <Nazara/Core/DebugOff.hpp>
+#include "Ray.hpp"

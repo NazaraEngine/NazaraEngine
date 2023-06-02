@@ -386,7 +386,7 @@ namespace Nz
 
 	void BulletNullCollider3D::ComputeInertia(float /*mass*/, Vector3f* inertia) const
 	{
-		inertia->Set(1.f, 1.f, 1.f);
+		*inertia = Vector3f::Unit();
 	}
 
 	btCollisionShape* BulletNullCollider3D::GetShape() const

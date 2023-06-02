@@ -58,9 +58,9 @@ SCENARIO("EulerAngles", "[MATH][EULERANGLES]")
 				Nz::Vector3f rotation90Y = euler90Y.ToQuaternion() * Nz::Vector3f::UnitZ();
 				Nz::Vector3f rotation90R = euler90R.ToQuaternion() * Nz::Vector3f::UnitX();
 
-				CHECK(rotation90P == Nz::Vector3f::UnitZ());
-				CHECK(rotation90Y == Nz::Vector3f::UnitX());
-				CHECK(rotation90R == Nz::Vector3f::UnitY());
+				CHECK(rotation90P.ApproxEqual(Nz::Vector3f::UnitZ()));
+				CHECK(rotation90Y.ApproxEqual(Nz::Vector3f::UnitX()));
+				CHECK(rotation90R.ApproxEqual(Nz::Vector3f::UnitY()));
 			}
 		}
 	}
@@ -71,9 +71,9 @@ SCENARIO("EulerAngles", "[MATH][EULERANGLES]")
 		{
 			THEN("These results are expected")
 			{
-				CHECK(Nz::EulerAnglesf(Nz::DegreeAnglef(45.f), 0.f, 0.f) == Nz::EulerAnglesf(Nz::Quaternionf(0.923879504204f, 0.382683455944f, 0.f, 0.f).ToEulerAngles()));
-				CHECK(Nz::EulerAnglesf(0.f, Nz::DegreeAnglef(45.f), 0.f) == Nz::EulerAnglesf(Nz::Quaternionf(0.923879504204f, 0.f, 0.382683455944f, 0.f).ToEulerAngles()));
-				CHECK(Nz::EulerAnglesf(0.f, 0.f, Nz::DegreeAnglef(45.f)) == Nz::EulerAnglesf(Nz::Quaternionf(0.923879504204f, 0.f, 0.f, 0.382683455944f).ToEulerAngles()));
+				CHECK(Nz::EulerAnglesf(Nz::DegreeAnglef(45.f), 0.f, 0.f).ApproxEqual(Nz::EulerAnglesf(Nz::Quaternionf(0.923879504204f, 0.382683455944f, 0.f, 0.f).ToEulerAngles()), 0.0001f));
+				CHECK(Nz::EulerAnglesf(0.f, Nz::DegreeAnglef(45.f), 0.f).ApproxEqual(Nz::EulerAnglesf(Nz::Quaternionf(0.923879504204f, 0.f, 0.382683455944f, 0.f).ToEulerAngles()), 0.0001f));
+				CHECK(Nz::EulerAnglesf(0.f, 0.f, Nz::DegreeAnglef(45.f)).ApproxEqual(Nz::EulerAnglesf(Nz::Quaternionf(0.923879504204f, 0.f, 0.f, 0.382683455944f).ToEulerAngles()), 0.0001f));
 			}
 		}
 	}

@@ -24,50 +24,49 @@ namespace Nz
 	class Ray
 	{
 		public:
-			Ray() = default;
-			Ray(T X, T Y, T Z, T directionX, T directionY, T directionZ);
-			Ray(const Vector3<T>& origin, const Vector3<T>& direction);
-			Ray(const T origin[3], const T direction[3]);
+			constexpr Ray() = default;
+			constexpr Ray(T X, T Y, T Z, T directionX, T directionY, T directionZ);
+			constexpr Ray(const Vector3<T>& origin, const Vector3<T>& direction);
+			constexpr Ray(const T origin[3], const T direction[3]);
 			Ray(const Plane<T>& planeOne, const Plane<T>& planeTwo);
-			template<typename U> explicit Ray(const Ray<U>& ray);
-			template<typename U> explicit Ray(const Vector3<U>& origin, const Vector3<U>& direction);
-			Ray(const Ray<T>& ray) = default;
+			template<typename U> constexpr explicit Ray(const Ray<U>& ray);
+			template<typename U> constexpr explicit Ray(const Vector3<U>& origin, const Vector3<U>& direction);
+			constexpr Ray(const Ray&) = default;
+			constexpr Ray(Ray&&) = default;
 			~Ray() = default;
 
-			T ClosestPoint(const Vector3<T>& point) const;
+			constexpr bool ApproxEqual(const Ray& ray, T maxDifference = std::numeric_limits<T>::epsilon()) const;
 
-			Vector3<T> GetPoint(T lambda) const;
+			constexpr T ClosestPoint(const Vector3<T>& point) const;
 
-			bool Intersect(const BoundingVolume<T>& volume, T* closestHit = nullptr, T* furthestHit = nullptr) const;
-			bool Intersect(const Box<T>& box, T* closestHit = nullptr, T* furthestHit = nullptr) const;
-			bool Intersect(const Box<T>& box, const Matrix4<T>& transform, T* closestHit = nullptr, T* furthestHit = nullptr) const;
-			bool Intersect(const Plane<T>& plane, T* hit = nullptr) const;
-			bool Intersect(const Sphere<T>& sphere, T* closestHit = nullptr, T* furthestHit = nullptr) const;
-			bool Intersect(const Vector3<T>& firstPoint, const Vector3<T>& secondPoint, const Vector3<T>& thirdPoint, T* hit = nullptr) const;
+			constexpr Vector3<T> GetPoint(T lambda) const;
 
-			Ray& MakeAxisX();
-			Ray& MakeAxisY();
-			Ray& MakeAxisZ();
-
-			Ray& Set(T X, T Y, T Z, T directionX, T directionY, T directionZ);
-			Ray& Set(const Vector3<T>& origin, const Vector3<T>& direction);
-			Ray& Set(const T origin[3], const T direction[3]);
-			Ray& Set(const Plane<T>& planeOne, const Plane<T>& planeTwo);
-			template<typename U> Ray& Set(const Ray<U>& ray);
-			template<typename U> Ray& Set(const Vector3<U>& origin, const Vector3<U>& direction);
+			constexpr bool Intersect(const BoundingVolume<T>& volume, T* closestHit = nullptr, T* furthestHit = nullptr) const;
+			constexpr bool Intersect(const Box<T>& box, T* closestHit = nullptr, T* furthestHit = nullptr) const;
+			constexpr bool Intersect(const Box<T>& box, const Matrix4<T>& transform, T* closestHit = nullptr, T* furthestHit = nullptr) const;
+			constexpr bool Intersect(const Plane<T>& plane, T* hit = nullptr) const;
+			constexpr bool Intersect(const Sphere<T>& sphere, T* closestHit = nullptr, T* furthestHit = nullptr) const;
+			constexpr bool Intersect(const Vector3<T>& firstPoint, const Vector3<T>& secondPoint, const Vector3<T>& thirdPoint, T* hit = nullptr) const;
 
 			std::string ToString() const;
 
-			Vector3<T> operator*(T lambda) const;
-			Ray& operator=(const Ray& other) = default;
+			constexpr Ray& operator=(const Ray&) = default;
+			constexpr Ray& operator=(Ray&&) = default;
 
-			bool operator==(const Ray& ray) const;
-			bool operator!=(const Ray& ray) const;
+			constexpr Vector3<T> operator*(T lambda) const;
 
-			static Ray AxisX();
-			static Ray AxisY();
-			static Ray AxisZ();
-			static Ray Lerp(const Ray& from, const Ray& to, T interpolation);
+			constexpr bool operator==(const Ray& ray) const;
+			constexpr bool operator!=(const Ray& ray) const;
+			constexpr bool operator<(const Ray& ray) const;
+			constexpr bool operator<=(const Ray& ray) const;
+			constexpr bool operator>(const Ray& ray) const;
+			constexpr bool operator>=(const Ray& ray) const;
+
+			static constexpr bool ApproxEqual(const Ray& lhs, const Ray& rhs, T maxDifference = std::numeric_limits<T>::epsilon());
+			static constexpr Ray AxisX();
+			static constexpr Ray AxisY();
+			static constexpr Ray AxisZ();
+			static constexpr Ray Lerp(const Ray& from, const Ray& to, T interpolation);
 
 			Vector3<T> direction, origin;
 	};

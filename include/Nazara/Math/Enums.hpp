@@ -34,7 +34,7 @@ namespace Nz
 
 	constexpr std::size_t BoxCornerCount = UnderlyingCast(BoxCorner::Max) + 1;
 
-	enum class Extend
+	enum class Extent
 	{
 		Finite,
 		Infinite,

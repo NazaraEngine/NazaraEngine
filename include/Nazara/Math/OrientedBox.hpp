@@ -22,34 +22,40 @@ namespace Nz
 	class OrientedBox
 	{
 		public:
-			OrientedBox() = default;
-			OrientedBox(const Box<T>& box);
-			template<typename U> explicit OrientedBox(const OrientedBox<U>& orientedBox);
-			OrientedBox(const OrientedBox&) = default;
-			OrientedBox(OrientedBox&&) noexcept = default;
+			constexpr OrientedBox() = default;
+			constexpr OrientedBox(const Box<T>& box);
+			template<typename U> constexpr explicit OrientedBox(const OrientedBox<U>& orientedBox);
+			constexpr OrientedBox(const OrientedBox&) = default;
+			constexpr OrientedBox(OrientedBox&&) noexcept = default;
 			~OrientedBox() = default;
 
-			const Vector3<T>& GetCorner(BoxCorner corner) const;
-			const Vector3<T>* GetCorners() const;
+			constexpr bool ApproxEqual(const OrientedBox& obb, T maxDifference = std::numeric_limits<T>::epsilon()) const;
 
-			bool IsValid() const;
+			constexpr const Vector3<T>& GetCorner(BoxCorner corner) const;
+			constexpr const Vector3<T>* GetCorners() const;
+
+			constexpr bool IsValid() const;
 
 			std::string ToString() const;
 
-			void Update(const Matrix4<T>& transformMatrix);
-			void Update(const Vector3<T>& transformMatrix);
+			constexpr void Update(const Matrix4<T>& transformMatrix);
+			constexpr void Update(const Vector3<T>& transformMatrix);
 
-			Vector3<T>& operator()(unsigned int i);
-			const Vector3<T>& operator()(unsigned int i) const;
+			constexpr Vector3<T>& operator()(unsigned int i);
+			constexpr const Vector3<T>& operator()(unsigned int i) const;
 
-			OrientedBox& operator=(const OrientedBox&) = default;
-			OrientedBox& operator=(OrientedBox&&) noexcept = default;
+			constexpr OrientedBox& operator=(const OrientedBox&) = default;
+			constexpr OrientedBox& operator=(OrientedBox&&) noexcept = default;
 
-			bool operator==(const OrientedBox& box) const;
-			bool operator!=(const OrientedBox& box) const;
+			constexpr bool operator==(const OrientedBox& box) const;
+			constexpr bool operator!=(const OrientedBox& box) const;
 
-			static OrientedBox Lerp(const OrientedBox& from, const OrientedBox& to, T interpolation);
-			static OrientedBox Zero();
+			static constexpr bool ApproxEqual(const OrientedBox& lhs, const OrientedBox& rhs, T maxDifference = std::numeric_limits<T>::epsilon());
+			static constexpr OrientedBox Lerp(const OrientedBox& from, const OrientedBox& to, T interpolation);
+			static constexpr OrientedBox Zero();
+
+			template<typename U> friend bool Serialize(SerializationContext& context, const OrientedBox<U>& obb, TypeTag<OrientedBox<U>>);
+			template<typename U> friend bool Unserialize(SerializationContext& context, OrientedBox<U>* obb, TypeTag<OrientedBox<U>>);
 
 			Box<T> localBox;
 
@@ -59,9 +65,6 @@ namespace Nz
 
 	using OrientedBoxd = OrientedBox<double>;
 	using OrientedBoxf = OrientedBox<float>;
-
-	template<typename T> bool Serialize(SerializationContext& context, const OrientedBox<T>& obb, TypeTag<OrientedBox<T>>);
-	template<typename T> bool Unserialize(SerializationContext& context, OrientedBox<T>* obb, TypeTag<OrientedBox<T>>);
 
 	template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::OrientedBox<T>& orientedBox);
 }

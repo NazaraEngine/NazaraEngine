@@ -367,7 +367,7 @@ namespace Nz
 	{
 		EnsureDerivedUpdate();
 
-		m_transformMatrix.MakeTransform(m_derivedPosition, m_derivedRotation, m_derivedScale);
+		m_transformMatrix = Matrix4f::Transform(m_derivedPosition, m_derivedRotation, m_derivedScale);
 		m_transformMatrixUpdated = true;
 	}
 }

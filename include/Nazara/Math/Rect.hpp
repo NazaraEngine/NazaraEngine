@@ -19,62 +19,64 @@ namespace Nz
 	class Rect
 	{
 		public:
-			Rect() = default;
-			Rect(T Width, T Height);
-			Rect(T X, T Y, T Width, T Height);
-			explicit Rect(const Vector2<T>& lengths);
-			explicit Rect(const Vector2<T>& pos, const Vector2<T>& lengths);
-			template<typename U> explicit Rect(const Rect<U>& rect);
-			Rect(const Rect&) = default;
-			Rect(Rect&&) noexcept = default;
+			constexpr Rect() = default;
+			constexpr Rect(T Width, T Height);
+			constexpr Rect(T X, T Y, T Width, T Height);
+			constexpr explicit Rect(const Vector2<T>& lengths);
+			constexpr explicit Rect(const Vector2<T>& pos, const Vector2<T>& lengths);
+			template<typename U> constexpr explicit Rect(const Rect<U>& rect);
+			constexpr Rect(const Rect&) = default;
+			constexpr Rect(Rect&&) noexcept = default;
 			~Rect() = default;
 
-			bool ApproxEquals(const Rect& rect, T maxDifference = 0) const;
+			constexpr bool ApproxEqual(const Rect& rect, T maxDifference = std::numeric_limits<T>::epsilon()) const;
 
-			bool Contains(T X, T Y) const;
-			bool Contains(const Rect& rect) const;
-			bool Contains(const Vector2<T>& point) const;
+			constexpr bool Contains(T X, T Y) const;
+			constexpr bool Contains(const Rect& rect) const;
+			constexpr bool Contains(const Vector2<T>& point) const;
 
-			Rect& ExtendTo(T X, T Y);
-			Rect& ExtendTo(const Rect& rect);
-			Rect& ExtendTo(const Vector2<T>& point);
+			constexpr Rect& ExtendTo(T X, T Y);
+			constexpr Rect& ExtendTo(const Rect& rect);
+			constexpr Rect& ExtendTo(const Vector2<T>& point);
 
-			Vector2<T> GetCenter() const;
-			Vector2<T> GetCorner(RectCorner corner) const;
-			Vector2<T> GetLengths() const;
-			Vector2<T> GetMaximum() const;
-			Vector2<T> GetMinimum() const;
-			Vector2<T> GetNegativeVertex(const Vector2<T>& normal) const;
-			Vector2<T> GetPosition() const;
-			Vector2<T> GetPositiveVertex(const Vector2<T>& normal) const;
+			constexpr Vector2<T> GetCenter() const;
+			constexpr Vector2<T> GetCorner(RectCorner corner) const;
+			constexpr Vector2<T> GetLengths() const;
+			constexpr Vector2<T> GetMaximum() const;
+			constexpr Vector2<T> GetMinimum() const;
+			constexpr Vector2<T> GetNegativeVertex(const Vector2<T>& normal) const;
+			constexpr Vector2<T> GetPosition() const;
+			constexpr Vector2<T> GetPositiveVertex(const Vector2<T>& normal) const;
 
-			bool Intersect(const Rect& rect, Rect* intersection = nullptr) const;
+			constexpr bool Intersect(const Rect& rect, Rect* intersection = nullptr) const;
 
-			bool IsNull() const;
-			bool IsValid() const;
+			constexpr bool IsNull() const;
+			constexpr bool IsValid() const;
 
-			Rect& MakeZero();
+			constexpr Rect& Scale(T scalar);
+			constexpr Rect& Scale(const Vector2<T>& vec);
 
-			Rect& Scale(T scalar);
-			Rect& Scale(const Vector2<T>& vec);
+			constexpr Rect& ScaleAroundCenter(T scalar);
+			constexpr Rect& ScaleAroundCenter(const Vector2<T>& vec);
 
 			std::string ToString() const;
 
-			Rect& Translate(const Vector2<T>& translation);
+			constexpr Rect& Translate(const Vector2<T>& translation);
 
-			T& operator[](std::size_t i);
-			const T& operator[](std::size_t i) const;
+			constexpr T& operator[](std::size_t i);
+			constexpr const T& operator[](std::size_t i) const;
 
-			Rect& operator=(const Rect&) = default;
-			Rect& operator=(Rect&&) noexcept = default;
+			constexpr Rect& operator=(const Rect&) = default;
+			constexpr Rect& operator=(Rect&&) noexcept = default;
 
-			bool operator==(const Rect& rect) const;
-			bool operator!=(const Rect& rect) const;
+			constexpr bool operator==(const Rect& rect) const;
+			constexpr bool operator!=(const Rect& rect) const;
 
-			static Rect FromExtends(const Vector2<T>& vec1, const Vector2<T>& vec2);
-			static Rect Lerp(const Rect& from, const Rect& to, T interpolation);
-			static Rect Invalid();
-			static Rect Zero();
+			static constexpr bool ApproxEqual(const Rect& lhs, const Rect& rhs, T maxDifference = std::numeric_limits<T>::epsilon());
+			static constexpr Rect FromExtends(const Vector2<T>& vec1, const Vector2<T>& vec2);
+			static constexpr Rect Lerp(const Rect& from, const Rect& to, T interpolation);
+			static constexpr Rect Invalid();
+			static constexpr Rect Zero();
 
 			T x, y, width, height;
 	};

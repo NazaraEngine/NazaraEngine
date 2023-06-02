@@ -22,40 +22,46 @@ namespace Nz
 	class BoundingVolume
 	{
 		public:
-			BoundingVolume();
-			BoundingVolume(Extend Extend);
-			BoundingVolume(const Box<T>& box);
-			BoundingVolume(const OrientedBox<T>& orientedBox);
-			template<typename U> explicit BoundingVolume(const BoundingVolume<U>& volume);
-			BoundingVolume(const BoundingVolume& volume) = default;
+			constexpr BoundingVolume();
+			constexpr BoundingVolume(Extent Extend);
+			constexpr BoundingVolume(const Box<T>& box);
+			constexpr BoundingVolume(const OrientedBox<T>& orientedBox);
+			template<typename U> constexpr explicit BoundingVolume(const BoundingVolume<U>& volume);
+			constexpr BoundingVolume(const BoundingVolume&) = default;
+			constexpr BoundingVolume(BoundingVolume&&) = default;
 			~BoundingVolume() = default;
 
-			BoundingVolume& ExtendTo(const BoundingVolume& volume);
+			constexpr bool ApproxEqual(const BoundingVolume& volume, T maxDifference = std::numeric_limits<T>::epsilon()) const;
 
-			bool Intersect(const Box<T>& box) const;
+			constexpr BoundingVolume& ExtendTo(const BoundingVolume& volume);
 
-			bool IsFinite() const;
-			bool IsInfinite() const;
-			bool IsNull() const;
+			constexpr bool Intersect(const Box<T>& box) const;
+
+			constexpr bool IsFinite() const;
+			constexpr bool IsInfinite() const;
+			constexpr bool IsNull() const;
 
 			std::string ToString() const;
 
-			void Update(const Matrix4<T>& transformMatrix);
-			void Update(const Vector3<T>& translation);
+			constexpr void Update(const Matrix4<T>& transformMatrix);
+			constexpr void Update(const Vector3<T>& translation);
 
-			BoundingVolume operator*(T scalar) const;
-			BoundingVolume& operator=(const BoundingVolume& other) = default;
+			BoundingVolume& operator=(const BoundingVolume&) = default;
+			BoundingVolume& operator=(BoundingVolume&&) = default;
 
-			BoundingVolume& operator*=(T scalar);
+			constexpr BoundingVolume operator*(T scalar) const;
 
-			bool operator==(const BoundingVolume& volume) const;
-			bool operator!=(const BoundingVolume& volume) const;
+			constexpr BoundingVolume& operator*=(T scalar);
 
-			static BoundingVolume Infinite();
-			static BoundingVolume Lerp(const BoundingVolume& from, const BoundingVolume& to, T interpolation);
-			static BoundingVolume Null();
+			constexpr bool operator==(const BoundingVolume& volume) const;
+			constexpr bool operator!=(const BoundingVolume& volume) const;
 
-			Extend extend;
+			static constexpr bool ApproxEqual(const BoundingVolume& lhs, const BoundingVolume& rhs, T maxDifference = std::numeric_limits<T>::epsilon());
+			static constexpr BoundingVolume Infinite();
+			static constexpr BoundingVolume Lerp(const BoundingVolume& from, const BoundingVolume& to, T interpolation);
+			static constexpr BoundingVolume Null();
+
+			Extent extent;
 			Box<T> aabb;
 			OrientedBox<T> obb;
 	};

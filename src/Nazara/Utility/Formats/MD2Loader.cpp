@@ -197,7 +197,7 @@ namespace Nz
 						Vector2f uv(texC.u, texC.v);
 						uv *= invSkinSize;
 
-						uvPtr[triangles[i].vertices[fixedIndex]].Set(parameters.texCoordOffset + uv * parameters.texCoordScale);
+						uvPtr[triangles[i].vertices[fixedIndex]] = parameters.texCoordOffset + uv * parameters.texCoordScale;
 					}
 				}
 			}

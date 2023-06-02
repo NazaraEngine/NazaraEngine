@@ -34,17 +34,15 @@ namespace Nz
 			constexpr Angle(Angle&&) noexcept = default;
 			~Angle() = default;
 
+			constexpr bool ApproxEqual(const Angle& angle) const;
+			constexpr bool ApproxEqual(const Angle& angle, T maxDifference) const;
+
 			T GetCos() const;
 			T GetSin() const;
 			std::pair<T, T> GetSinCos() const;
 			T GetTan() const;
 
-			constexpr Angle& MakeZero();
-
 			constexpr Angle& Normalize();
-
-			constexpr Angle& Set(Angle ang);
-			template<typename U> constexpr Angle& Set(const Angle<Unit, U>& ang);
 
 			template<AngleUnit ToUnit> T To() const;
 			template<AngleUnit ToUnit> Angle<ToUnit, T> ToAngle() const;
@@ -76,7 +74,13 @@ namespace Nz
 
 			constexpr bool operator==(Angle other) const;
 			constexpr bool operator!=(Angle other) const;
+			constexpr bool operator<(Angle other) const;
+			constexpr bool operator<=(Angle other) const;
+			constexpr bool operator>(Angle other) const;
+			constexpr bool operator>=(Angle other) const;
 
+			static constexpr bool ApproxEqual(const Angle& lhs, const Angle& rhs);
+			static constexpr bool ApproxEqual(const Angle& lhs, const Angle& rhs, T maxDifference);
 			template<AngleUnit FromUnit> static constexpr Angle From(T value);
 			static constexpr Angle FromDegrees(T degrees);
 			static constexpr Angle FromRadians(T radians);

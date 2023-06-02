@@ -31,7 +31,7 @@ namespace Nz
 	* \param planes Frustum of type U to convert to type T
 	*/
 	template<typename T>
-	Frustum<T>::Frustum(const EnumArray<FrustumPlane, Plane<T>>& planes) :
+	constexpr Frustum<T>::Frustum(const EnumArray<FrustumPlane, Plane<T>>& planes) :
 	m_planes(planes)
 	{
 	}
@@ -43,10 +43,22 @@ namespace Nz
 	*/
 	template<typename T>
 	template<typename U>
-	Frustum<T>::Frustum(const Frustum<U>& frustum)
+	constexpr Frustum<T>::Frustum(const Frustum<U>& frustum)
 	{
-		for (auto&& [planeEnum, plane] : m_planes)
+		for (auto&& [planeEnum, plane] : m_planes.iter_kv())
 			plane = Frustum(frustum.GetPlane(planeEnum));
+	}
+
+	template<typename T>
+	constexpr bool Frustum<T>::ApproxEqual(const Frustum& frustum, T maxDifference) const
+	{
+		for (auto&& [planeEnum, plane] : m_planes.iter_kv())
+		{
+			if (!plane.ApproxEqual(frustum.GetPlane(planeEnum)))
+				return false;
+		}
+
+		return true;
 	}
 
 	/*!
@@ -56,7 +68,7 @@ namespace Nz
 	* \param corner Which corner to compute
 	*/
 	template<typename T>
-	Vector3<T> Frustum<T>::ComputeCorner(BoxCorner corner) const
+	constexpr Vector3<T> Frustum<T>::ComputeCorner(BoxCorner corner) const
 	{
 		switch (corner)
 		{
@@ -82,15 +94,15 @@ namespace Nz
 	*
 	* \remark If volume is infinite, true is returned
 	* \remark If volume is null, false is returned
-	* \remark If enumeration of the volume is not defined in Extend, a NazaraError is thrown and false is returned
+	* \remark If enumeration of the volume is not defined in Extent, a NazaraError is thrown and false is returned
 	* \remark If enumeration of the intersection is not defined in IntersectionSide, a NazaraError is thrown and false is returned. This should not never happen for a user of the library
 	*/
 	template<typename T>
-	bool Frustum<T>::Contains(const BoundingVolume<T>& volume) const
+	constexpr bool Frustum<T>::Contains(const BoundingVolume<T>& volume) const
 	{
-		switch (volume.extend)
+		switch (volume.extent)
 		{
-			case Extend::Finite:
+			case Extent::Finite:
 			{
 				IntersectionSide side = Intersect(volume.aabb);
 				switch (side)
@@ -109,14 +121,14 @@ namespace Nz
 				return false;
 			}
 
-			case Extend::Infinite:
+			case Extent::Infinite:
 				return true;
 
-			case Extend::Null:
+			case Extent::Null:
 				return false;
 		}
 
-		NazaraError("Invalid extend type (0x" + NumberToString(UnderlyingCast(volume.extend), 16) + ')');
+		NazaraError("Invalid extent type (0x" + NumberToString(UnderlyingCast(volume.extent), 16) + ')');
 		return false;
 	}
 
@@ -127,7 +139,7 @@ namespace Nz
 	* \param box Box to check
 	*/
 	template<typename T>
-	bool Frustum<T>::Contains(const Box<T>& box) const
+	constexpr bool Frustum<T>::Contains(const Box<T>& box) const
 	{
 		// http://www.lighthouse3d.com/tutorials/view-frustum-culling/geometric-approach-testing-boxes-ii/
 		for (const auto& plane : m_planes)
@@ -145,9 +157,8 @@ namespace Nz
 	*
 	* \param orientedbox Oriented box to check
 	*/
-
 	template<typename T>
-	bool Frustum<T>::Contains(const OrientedBox<T>& orientedbox) const
+	constexpr bool Frustum<T>::Contains(const OrientedBox<T>& orientedbox) const
 	{
 		return Contains(orientedbox.GetCorners(), 8);
 	}
@@ -158,9 +169,8 @@ namespace Nz
 	*
 	* \param sphere Sphere to check
 	*/
-
 	template<typename T>
-	bool Frustum<T>::Contains(const Sphere<T>& sphere) const
+	constexpr bool Frustum<T>::Contains(const Sphere<T>& sphere) const
 	{
 		for (const auto& plane : m_planes)
 		{
@@ -177,9 +187,8 @@ namespace Nz
 	*
 	* \param point Vector3 which represents a point in the space
 	*/
-
 	template<typename T>
-	bool Frustum<T>::Contains(const Vector3<T>& point) const
+	constexpr bool Frustum<T>::Contains(const Vector3<T>& point) const
 	{
 		for (const auto& plane : m_planes)
 		{
@@ -197,9 +206,8 @@ namespace Nz
 	* \param points Pointer to Vector3 which represents a set of points in the space
 	* \param pointCount Number of points to check
 	*/
-
 	template<typename T>
-	bool Frustum<T>::Contains(const Vector3<T>* points, std::size_t pointCount) const
+	constexpr bool Frustum<T>::Contains(const Vector3<T>* points, std::size_t pointCount) const
 	{
 		for (const auto& plane : m_planes)
 		{
@@ -225,9 +233,8 @@ namespace Nz
 	*
 	* \remark If enumeration is not defined in FrustumPlane and NAZARA_DEBUG defined, a NazaraError is thrown and a Plane uninitialised is returned
 	*/
-
 	template<typename T>
-	const Plane<T>& Frustum<T>::GetPlane(FrustumPlane plane) const
+	constexpr const Plane<T>& Frustum<T>::GetPlane(FrustumPlane plane) const
 	{
 		NazaraAssert(plane <= FrustumPlane::Max, "invalid plane");
 		return m_planes[plane];
@@ -241,16 +248,15 @@ namespace Nz
 	*
 	* \remark If volume is infinite, IntersectionSide::Intersecting is returned
 	* \remark If volume is null, IntersectionSide::Outside is returned
-	* \remark If enumeration of the volume is not defined in Extend, a NazaraError is thrown and IntersectionSide::Outside is returned
+	* \remark If enumeration of the volume is not defined in Extent, a NazaraError is thrown and IntersectionSide::Outside is returned
 	* \remark If enumeration of the intersection is not defined in IntersectionSide, a NazaraError is thrown and IntersectionSide::Outside is returned. This should not never happen for a user of the library
 	*/
-
 	template<typename T>
-	IntersectionSide Frustum<T>::Intersect(const BoundingVolume<T>& volume) const
+	constexpr IntersectionSide Frustum<T>::Intersect(const BoundingVolume<T>& volume) const
 	{
-		switch (volume.extend)
+		switch (volume.extent)
 		{
-			case Extend::Finite:
+			case Extent::Finite:
 			{
 				IntersectionSide side = Intersect(volume.aabb);
 				switch (side)
@@ -269,14 +275,14 @@ namespace Nz
 				return IntersectionSide::Outside;
 			}
 
-			case Extend::Infinite:
+			case Extent::Infinite:
 				return IntersectionSide::Intersecting; // We can not contain infinity
 
-			case Extend::Null:
+			case Extent::Null:
 				return IntersectionSide::Outside;
 		}
 
-		NazaraError("Invalid extend type (0x" + NumberToString(UnderlyingCast(volume.extend), 16) + ')');
+		NazaraError("Invalid extent type (0x" + NumberToString(UnderlyingCast(volume.extent), 16) + ')');
 		return IntersectionSide::Outside;
 	}
 
@@ -286,9 +292,8 @@ namespace Nz
 	*
 	* \param box Box to check
 	*/
-
 	template<typename T>
-	IntersectionSide Frustum<T>::Intersect(const Box<T>& box) const
+	constexpr IntersectionSide Frustum<T>::Intersect(const Box<T>& box) const
 	{
 		// http://www.lighthouse3d.com/tutorials/view-frustum-culling/geometric-approach-testing-boxes-ii/
 		IntersectionSide side = IntersectionSide::Inside;
@@ -310,9 +315,8 @@ namespace Nz
 	*
 	* \param oriented box OrientedBox to check
 	*/
-
 	template<typename T>
-	IntersectionSide Frustum<T>::Intersect(const OrientedBox<T>& orientedbox) const
+	constexpr IntersectionSide Frustum<T>::Intersect(const OrientedBox<T>& orientedbox) const
 	{
 		return Intersect(orientedbox.GetCorners(), 8);
 	}
@@ -323,9 +327,8 @@ namespace Nz
 	*
 	* \param sphere Sphere to check
 	*/
-
 	template<typename T>
-	IntersectionSide Frustum<T>::Intersect(const Sphere<T>& sphere) const
+	constexpr IntersectionSide Frustum<T>::Intersect(const Sphere<T>& sphere) const
 	{
 		// http://www.lighthouse3d.com/tutorials/view-frustum-culling/geometric-approach-testing-points-and-spheres/
 		IntersectionSide side = IntersectionSide::Inside;
@@ -349,9 +352,8 @@ namespace Nz
 	* \param points Pointer to Vector3 which represents a set of points in the space
 	* \param pointCount Number of points to check
 	*/
-
 	template<typename T>
-	IntersectionSide Frustum<T>::Intersect(const Vector3<T>* points, std::size_t pointCount) const
+	constexpr IntersectionSide Frustum<T>::Intersect(const Vector3<T>* points, std::size_t pointCount) const
 	{
 		std::size_t c = 0;
 
@@ -399,6 +401,30 @@ namespace Nz
 	* \param target Position of the target of the camera
 	* \param up Direction of up vector according to the orientation of camera
 	*/
+	template<typename T>
+	constexpr bool Frustum<T>::operator==(const Frustum& frustum) const
+	{
+		for (auto&& [planeEnum, plane] : m_planes.iter_kv())
+		{
+			if (!plane != frustum.GetPlane(planeEnum))
+				return false;
+		}
+
+		return true;
+	}
+
+	template<typename T>
+	constexpr bool Frustum<T>::operator!=(const Frustum& frustum) const
+	{
+		return !operator==(frustum);
+	}
+
+	template<typename T>
+	constexpr bool Frustum<T>::ApproxEqual(const Frustum& lhs, const Frustum& rhs, T maxDifference)
+	{
+		return lhs.ApproxEqual(rhs, maxDifference);
+	}
+
 	template<typename T>
 	Frustum<T> Frustum<T>::Build(RadianAngle<T> angle, T ratio, T zNear, T zFar, const Vector3<T>& eye, const Vector3<T>& target, const Vector3<T>& up)
 	{
@@ -609,3 +635,4 @@ namespace Nz
 }
 
 #include <Nazara/Core/DebugOff.hpp>
+#include "Frustum.hpp"

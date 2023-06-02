@@ -22,69 +22,70 @@ namespace Nz
 	class Box
 	{
 		public:
-			Box() = default;
-			Box(T Width, T Height, T Depth);
-			Box(T X, T Y, T Z, T Width, T Height, T Depth);
-			Box(const Rect<T>& rect);
-			explicit Box(const Vector3<T>& lengths);
-			explicit Box(const Vector3<T>& pos, const Vector3<T>& lengths);
-			template<typename U> explicit Box(const Box<U>& box);
-			Box(const Box&) = default;
-			Box(Box&&) noexcept = default;
+			constexpr Box() = default;
+			constexpr Box(T Width, T Height, T Depth);
+			constexpr Box(T X, T Y, T Z, T Width, T Height, T Depth);
+			constexpr Box(const Rect<T>& rect);
+			constexpr explicit Box(const Vector3<T>& lengths);
+			constexpr explicit Box(const Vector3<T>& pos, const Vector3<T>& lengths);
+			template<typename U> constexpr explicit Box(const Box<U>& box);
+			constexpr Box(const Box&) = default;
+			constexpr Box(Box&&) = default;
 			~Box() = default;
 
-			bool ApproxEquals(const Box& box, T maxDifference = 0) const;
+			constexpr bool ApproxEqual(const Box& box, T maxDifference = std::numeric_limits<T>::epsilon()) const;
 
-			bool Contains(T X, T Y, T Z) const;
-			bool Contains(const Box& box) const;
-			bool Contains(const Vector3<T>& point) const;
+			constexpr bool Contains(T X, T Y, T Z) const;
+			constexpr bool Contains(const Box& box) const;
+			constexpr bool Contains(const Vector3<T>& point) const;
 
-			Box& ExtendTo(T X, T Y, T Z);
-			Box& ExtendTo(const Box& box);
-			Box& ExtendTo(const Vector3<T>& point);
+			constexpr Box& ExtendTo(T X, T Y, T Z);
+			constexpr Box& ExtendTo(const Box& box);
+			constexpr Box& ExtendTo(const Vector3<T>& point);
 
-			Sphere<T> GetBoundingSphere() const;
-			Vector3<T> GetCenter() const;
-			Vector3<T> GetCorner(BoxCorner corner) const;
-			Vector3<T> GetLengths() const;
-			Vector3<T> GetMaximum() const;
-			Vector3<T> GetMinimum() const;
-			Vector3<T> GetNegativeVertex(const Vector3<T>& normal) const;
-			Vector3<T> GetPosition() const;
-			Vector3<T> GetPositiveVertex(const Vector3<T>& normal) const;
-			T GetRadius() const;
-			Sphere<T> GetSquaredBoundingSphere() const;
-			T GetSquaredRadius() const;
+			constexpr Sphere<T> GetBoundingSphere() const;
+			constexpr Vector3<T> GetCenter() const;
+			constexpr Vector3<T> GetCorner(BoxCorner corner) const;
+			constexpr Vector3<T> GetLengths() const;
+			constexpr Vector3<T> GetMaximum() const;
+			constexpr Vector3<T> GetMinimum() const;
+			constexpr Vector3<T> GetNegativeVertex(const Vector3<T>& normal) const;
+			constexpr Vector3<T> GetPosition() const;
+			constexpr Vector3<T> GetPositiveVertex(const Vector3<T>& normal) const;
+			constexpr T GetRadius() const;
+			constexpr Sphere<T> GetSquaredBoundingSphere() const;
+			constexpr T GetSquaredRadius() const;
 
-			bool Intersect(const Box& box, Box* intersection = nullptr) const;
+			constexpr bool Intersect(const Box& box, Box* intersection = nullptr) const;
 
-			bool IsNull() const;
-			bool IsValid() const;
+			constexpr bool IsNull() const;
+			constexpr bool IsValid() const;
 
-			Box& Scale(T scalar);
-			Box& Scale(const Vector3<T>& vec);
+			constexpr Box& Scale(T scalar);
+			constexpr Box& Scale(const Vector3<T>& vec);
 
-			Box& ScaleAroundCenter(T scalar);
-			Box& ScaleAroundCenter(const Vector3<T>& vec);
+			constexpr Box& ScaleAroundCenter(T scalar);
+			constexpr Box& ScaleAroundCenter(const Vector3<T>& vec);
 
 			std::string ToString() const;
 
 			Box& Transform(const Matrix4<T>& matrix, bool applyTranslation = true);
-			Box& Translate(const Vector3<T>& translation);
+			constexpr Box& Translate(const Vector3<T>& translation);
 
-			T& operator[](std::size_t i);
-			const T& operator[](std::size_t i) const;
+			constexpr T& operator[](std::size_t i);
+			constexpr const T& operator[](std::size_t i) const;
 
-			Box& operator=(const Box&) = default;
-			Box& operator=(Box&&) noexcept = default;
+			constexpr Box& operator=(const Box&) = default;
+			constexpr Box& operator=(Box&&) = default;
 
-			bool operator==(const Box& box) const;
-			bool operator!=(const Box& box) const;
+			constexpr bool operator==(const Box& box) const;
+			constexpr bool operator!=(const Box& box) const;
 
-			static Box FromExtends(const Vector3<T>& vec1, const Vector3<T>& vec2);
-			static Box Lerp(const Box& from, const Box& to, T interpolation);
-			static Box Invalid();
-			static Box Zero();
+			static constexpr Box ApproxEqual(const Box& lhs, const Box& rhs, T maxDifference = std::numeric_limits<T>::epsilon());
+			static constexpr Box FromExtends(const Vector3<T>& vec1, const Vector3<T>& vec2);
+			static constexpr Box Lerp(const Box& from, const Box& to, T interpolation);
+			static constexpr Box Invalid();
+			static constexpr Box Zero();
 
 			T x, y, z, width, height, depth;
 	};

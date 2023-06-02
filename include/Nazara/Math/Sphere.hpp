@@ -20,18 +20,20 @@ namespace Nz
 	class Sphere
 	{
 		public:
-			Sphere() = default;
-			Sphere(T X, T Y, T Z, T Radius);
-			//Sphere(const Circle<T>& circle);
-			Sphere(const Vector3<T>& center, T Radius);
-			Sphere(const T sphere[4]);
-			template<typename U> explicit Sphere(const Sphere<U>& sphere);
-			Sphere(const Sphere& sphere) = default;
+			constexpr Sphere() = default;
+			constexpr Sphere(T X, T Y, T Z, T Radius);
+			constexpr Sphere(const Vector3<T>& center, T Radius);
+			constexpr Sphere(const T sphere[4]);
+			template<typename U> constexpr explicit Sphere(const Sphere<U>& sphere);
+			constexpr Sphere(const Sphere&) = default;
+			constexpr Sphere(Sphere&&) = default;
 			~Sphere() = default;
 
-			bool Contains(T X, T Y, T Z) const;
-			bool Contains(const Box<T>& box) const;
-			bool Contains(const Vector3<T>& point) const;
+			constexpr bool ApproxEqual(const Sphere& sphere, T maxDifference = std::numeric_limits<T>::epsilon()) const;
+
+			constexpr bool Contains(T X, T Y, T Z) const;
+			constexpr bool Contains(const Box<T>& box) const;
+			constexpr bool Contains(const Vector3<T>& point) const;
 
 			T Distance(T X, T Y, T Z) const;
 			T Distance(const Vector3<T>& point) const;
@@ -39,40 +41,38 @@ namespace Nz
 			Sphere& ExtendTo(T X, T Y, T Z);
 			Sphere& ExtendTo(const Vector3<T>& point);
 
-			Vector3<T> GetNegativeVertex(const Vector3<T>& normal) const;
-			Vector3<T> GetPosition() const;
-			Vector3<T> GetPositiveVertex(const Vector3<T>& normal) const;
+			constexpr Vector3<T> GetNegativeVertex(const Vector3<T>& normal) const;
+			constexpr Vector3<T> GetPosition() const;
+			constexpr Vector3<T> GetPositiveVertex(const Vector3<T>& normal) const;
 
-			bool Intersect(const Box<T>& box) const;
-			bool Intersect(const Sphere& sphere) const;
+			constexpr bool Intersect(const Box<T>& box) const;
+			constexpr bool Intersect(const Sphere& sphere) const;
 
-			bool IsValid() const;
-
-			Sphere& MakeUnit();
-			Sphere& MakeZero();
-
-			Sphere& Set(T X, T Y, T Z, T Radius);
-			//Sphere& Set(const Circle<T>& rect);
-			Sphere& Set(const Vector3<T>& center, T Radius);
-			Sphere& Set(const T sphere[4]);
-			template<typename U> Sphere& Set(const Sphere<U>& sphere);
+			constexpr bool IsValid() const;
 
 			std::string ToString() const;
 
-			T& operator[](std::size_t i);
-			T operator[](std::size_t i) const;
+			constexpr T& operator[](std::size_t i);
+			constexpr T operator[](std::size_t i) const;
 
-			Sphere operator*(T scalar) const;
-			Sphere& operator=(const Sphere& other) = default;
+			constexpr Sphere operator*(T scalar) const;
 
-			Sphere& operator*=(T scalar);
+			constexpr Sphere& operator=(const Sphere& other) = default;
+			constexpr Sphere& operator=(Sphere&&) = default;
 
-			bool operator==(const Sphere& sphere) const;
-			bool operator!=(const Sphere& sphere) const;
+			constexpr Sphere& operator*=(T scalar);
 
-			static Sphere Lerp(const Sphere& from, const Sphere& to, T interpolation);
-			static Sphere Unit();
-			static Sphere Zero();
+			constexpr bool operator==(const Sphere& sphere) const;
+			constexpr bool operator!=(const Sphere& sphere) const;
+			constexpr bool operator<(const Sphere& sphere) const;
+			constexpr bool operator<=(const Sphere& sphere) const;
+			constexpr bool operator>(const Sphere& sphere) const;
+			constexpr bool operator>=(const Sphere& sphere) const;
+
+			static constexpr bool ApproxEqual(const Sphere& lhs, const Sphere& rhs, T maxDifference = std::numeric_limits<T>::epsilon());
+			static constexpr Sphere Lerp(const Sphere& from, const Sphere& to, T interpolation);
+			static constexpr Sphere Unit();
+			static constexpr Sphere Zero();
 
 			T x, y, z, radius;
 	};

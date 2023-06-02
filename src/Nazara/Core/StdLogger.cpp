@@ -82,7 +82,7 @@ namespace Nz
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
-		fprintf(stderr, "%s: ", s_errorTypes[type]);
+		fprintf(stderr, "%s: ", s_errorTypes[type].data());
 		fwrite(error.data(), sizeof(char), error.size(), stdout);
 
 		if (line != 0 && file && function)

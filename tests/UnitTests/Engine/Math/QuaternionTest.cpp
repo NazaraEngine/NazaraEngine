@@ -13,7 +13,7 @@ SCENARIO("Quaternion", "[MATH][QUATERNION]")
 		{
 			THEN("They are the same and the proprieties of quaternions are respected")
 			{
-				REQUIRE(firstQuaternion == secondQuaternion);
+				REQUIRE(firstQuaternion.ApproxEqual(secondQuaternion));
 				REQUIRE(firstQuaternion.ComputeW() == secondQuaternion.Normalize());
 				REQUIRE(firstQuaternion.Conjugate() == secondQuaternion.Inverse());
 				REQUIRE(firstQuaternion.DotProduct(secondQuaternion) == Catch::Approx(1.f));
@@ -24,13 +24,13 @@ SCENARIO("Quaternion", "[MATH][QUATERNION]")
 		{
 			THEN("Multiply with a vectorX is identity")
 			{
-				REQUIRE((firstQuaternion * Nz::Vector3f::UnitX()) == Nz::Vector3f::UnitX());
+				REQUIRE((firstQuaternion * Nz::Vector3f::UnitX()).ApproxEqual(Nz::Vector3f::UnitX()));
 			}
 
 			AND_THEN("Multiply with a vectorY or Z is opposite")
 			{
-				REQUIRE((firstQuaternion * Nz::Vector3f::UnitY()) == -Nz::Vector3f::UnitY());
-				REQUIRE((firstQuaternion * Nz::Vector3f::UnitZ()) == -Nz::Vector3f::UnitZ());
+				REQUIRE((firstQuaternion * Nz::Vector3f::UnitY()).ApproxEqual(-Nz::Vector3f::UnitY()));
+				REQUIRE((firstQuaternion * Nz::Vector3f::UnitZ()).ApproxEqual(-Nz::Vector3f::UnitZ()));
 			}
 		}
 
@@ -108,7 +108,7 @@ SCENARIO("Quaternion", "[MATH][QUATERNION]")
 		{
 			THEN("These results are expected")
 			{
-				REQUIRE(x20 == Nz::Quaternionf(Nz::DegreeAnglef(20.f), Nz::Vector3f::UnitX()));
+				REQUIRE(x20.ApproxEqual(Nz::Quaternionf(Nz::DegreeAnglef(20.f), Nz::Vector3f::UnitX())));
 				REQUIRE(x30a == x30b);
 			}
 		}
@@ -136,7 +136,7 @@ SCENARIO("Quaternion", "[MATH][QUATERNION]")
 
 				Nz::Quaternionf tmp(1.f, 1.f, 0.f, 0.f);
 				tmp.Normalize();
-				REQUIRE(tmp == tmp.ToEulerAngles().ToQuaternion());
+				REQUIRE(tmp.ApproxEqual(tmp.ToEulerAngles().ToQuaternion()));
 			}
 		}
 
@@ -154,8 +154,8 @@ SCENARIO("Quaternion", "[MATH][QUATERNION]")
 				REQUIRE(slerpx10x30b.x == Catch::Approx(x20.x));
 				REQUIRE(slerpx10x30b.y == Catch::Approx(x20.y));
 				REQUIRE(slerpx10x30b.z == Catch::Approx(x20.z));
-				REQUIRE(Nz::Quaternionf::Slerp(x10, x30a, 0.f) == x10);
-				REQUIRE(Nz::Quaternionf::Slerp(x10, x30a, 1.f) == x30a);
+				REQUIRE(Nz::Quaternionf::Slerp(x10, x30a, 0.f).ApproxEqual(x10));
+				REQUIRE(Nz::Quaternionf::Slerp(x10, x30a, 1.f).ApproxEqual(x30a));
 			}
 
 			AND_THEN("The half of 45 is 22.5")
@@ -178,21 +178,21 @@ SCENARIO("Quaternion", "[MATH][QUATERNION]")
 			{
 				Nz::Quaternionf rotationBetweenXY = Nz::Quaternionf::RotationBetween(Nz::Vector3f::UnitX(), Nz::Vector3f::UnitY());
 				Nz::Quaternionf rotation90Z(Nz::DegreeAnglef(90.f), Nz::Vector3f::UnitZ());
-				REQUIRE(rotation90Z == rotationBetweenXY);
+				REQUIRE(rotation90Z.ApproxEqual(rotationBetweenXY));
 			}
 
 			THEN("The rotation in right-handed is 90 degree on y")
 			{
 				Nz::Quaternionf rotationBetweenXZ = Nz::Quaternionf::RotationBetween(Nz::Vector3f::UnitX(), Nz::Vector3f::UnitZ());
 				Nz::Quaternionf rotation90Y(Nz::DegreeAnglef(-90.f), Nz::Vector3f::UnitY());
-				REQUIRE(rotation90Y == rotationBetweenXZ);
+				REQUIRE(rotation90Y.ApproxEqual(rotationBetweenXZ));
 			}
 
 			THEN("The rotation in right-handed is 90 degree on x")
 			{
 				Nz::Quaternionf rotationBetweenYZ = Nz::Quaternionf::RotationBetween(Nz::Vector3f::UnitY(), Nz::Vector3f::UnitZ());
 				Nz::Quaternionf rotation90X(Nz::DegreeAnglef(90.f), Nz::Vector3f::UnitX());
-				REQUIRE(rotation90X == rotationBetweenYZ);
+				REQUIRE(rotation90X.ApproxEqual(rotationBetweenYZ));
 			}
 
 			THEN("The rotation in right-handed is 90 degree on y with non-unit vectors")
@@ -200,7 +200,7 @@ SCENARIO("Quaternion", "[MATH][QUATERNION]")
 				Nz::Vector3f origin(1.f, 0.f, 1.f);
 				Nz::Vector3f extremity(-1.f, 0.f, 1.f);
 				Nz::Quaternionf rotation = Nz::Quaternionf::RotationBetween(origin, extremity);
-				REQUIRE(rotation * origin == extremity);
+				REQUIRE((rotation * origin).ApproxEqual(extremity));
 			}
 		}
 	} 
@@ -229,9 +229,9 @@ SCENARIO("Quaternion", "[MATH][QUATERNION]")
 				CHECK(Nz::NumberEquals(rotation90Y.ToEulerAngles().yaw.ToDegrees(), 90.f, 0.1f));
 				CHECK(Nz::NumberEquals(rotation90Z.ToEulerAngles().roll.ToDegrees(), 90.f, 0.1f));
 
-				CHECK(rotation180X == Nz::EulerAnglesf(180.f, 0.f, 0.f));
-				CHECK(rotation180Y == Nz::EulerAnglesf(0.f, 180.f, 0.f));
-				CHECK(rotation180Z == Nz::EulerAnglesf(0.f, 0.f, 180.f));
+				CHECK(rotation180X.ApproxEqual(Nz::EulerAnglesf(180.f, 0.f, 0.f)));
+				CHECK(rotation180Y.ApproxEqual(Nz::EulerAnglesf(0.f, 180.f, 0.f)));
+				CHECK(rotation180Z.ApproxEqual(Nz::EulerAnglesf(0.f, 0.f, 180.f)));
 
 				CHECK(Nz::NumberEquals(rotation270X.ToEulerAngles().pitch.ToDegrees(), -90.f, 0.1f));
 				CHECK(Nz::NumberEquals(rotation270Y.ToEulerAngles().yaw.ToDegrees(), -90.f, 0.1f));

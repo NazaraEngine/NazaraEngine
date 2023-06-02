@@ -83,7 +83,7 @@ namespace Nz
 						sequenceJoint.rotation = rotationQuat * frames[frameIndex].joints[jointIndex].orient;
 					}
 
-					sequenceJoint.scale.Set(1.f);
+					sequenceJoint.scale = Vector3f::Unit();
 				}
 			}
 

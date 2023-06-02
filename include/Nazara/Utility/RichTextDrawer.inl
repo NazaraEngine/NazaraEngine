@@ -170,12 +170,11 @@ namespace Nz
 
 	inline void RichTextDrawer::ClearGlyphs() const
 	{
-		m_bounds.MakeZero();
+		m_bounds = Rectf::Zero(); //< Compute bounds as float to speedup bounds computation (as casting between floats and integers is costly)
 		m_lastSeparatorGlyph = InvalidGlyph;
 		m_lines.clear();
 		m_glyphs.clear();
 		m_glyphUpdated = true;
-		m_bounds.MakeZero(); //< Compute bounds as float to speedup bounds computation (as casting between floats and integers is costly)
 	}
 
 	inline void RichTextDrawer::ConnectFontSlots()

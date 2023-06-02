@@ -30,7 +30,7 @@ namespace Nz
 			return;
 
 		for (UInt32 i = 0; i < vertexCount; ++i)
-			normals[i].MakeZero();
+			normals[i] = Vector3f::Zero();
 
 		TriangleIterator iterator(*this);
 		do
@@ -66,8 +66,8 @@ namespace Nz
 
 		for (UInt32 i = 0; i < vertexCount; ++i)
 		{
-			normals[i].MakeZero();
-			tangents[i].MakeZero();
+			normals[i] = Vector3f::Zero();
+			tangents[i] = Vector3f::Zero();
 		}
 
 		TriangleIterator iterator(*this);

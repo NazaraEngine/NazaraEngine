@@ -33,8 +33,8 @@ namespace Nz
 		UInt32 renderMask = GetRenderMask();
 
 		SlicedSprite::Corner corner;
-		corner.size.Set(config.cornerSize);
-		corner.textureCoords.Set(config.cornerTexCoords);
+		corner.size = Vector2f(config.cornerSize);
+		corner.textureCoords = Vector2f(config.cornerTexCoords);
 
 		m_sprite = std::make_shared<SlicedSprite>(m_material);
 		m_sprite->SetCorners(corner, corner);
@@ -122,8 +122,8 @@ namespace Nz
 		UInt32 renderMask = GetRenderMask();
 
 		SlicedSprite::Corner corner;
-		corner.size.Set(config.backgroundCornerSize);
-		corner.textureCoords.Set(config.backgroundCornerTexCoords);
+		corner.size = Vector2f(config.backgroundCornerSize);
+		corner.textureCoords = Vector2f(config.backgroundCornerTexCoords);
 
 		m_backgroundSprite = std::make_shared<SlicedSprite>(m_material);
 		m_backgroundSprite->SetCorners(corner, corner);
@@ -447,8 +447,8 @@ namespace Nz
 		UInt32 renderMask = GetRenderMask();
 
 		SlicedSprite::Corner corner;
-		corner.size.Set(config.cornerSize);
-		corner.textureCoords.Set(config.cornerTexCoords);
+		corner.size = Vector2f(config.cornerSize);
+		corner.textureCoords = Vector2f(config.cornerTexCoords);
 
 		m_sprite = std::make_shared<SlicedSprite>(m_material);
 		m_sprite->SetCorners(corner, corner);
