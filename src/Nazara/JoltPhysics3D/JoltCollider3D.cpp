@@ -15,6 +15,7 @@
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
 #include <Jolt/Physics/Collision/Shape/ConvexHullShape.h>
+#include <Jolt/Physics/Collision/Shape/MeshShape.h>
 #include <Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h>
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
 #include <Jolt/Physics/Collision/Shape/StaticCompoundShape.h>
@@ -350,6 +351,67 @@ namespace Nz
 	JoltColliderType3D JoltConvexHullCollider3D::GetType() const
 	{
 		return JoltColliderType3D::Convex;
+	}
+
+	/******************************** JoltMeshCollider3D *********************************/
+	
+	JoltMeshCollider3D::JoltMeshCollider3D(SparsePtr<const Vector3f> vertices, std::size_t vertexCount, SparsePtr<const UInt16> indices, std::size_t indexCount)
+	{
+		std::unique_ptr<JPH::MeshShapeSettings> settings = std::make_unique<JPH::MeshShapeSettings>();
+		settings->mTriangleVertices.resize(vertexCount);
+		for (std::size_t i = 0; i < vertexCount; ++i)
+		{
+			settings->mTriangleVertices[i].x = vertices[i].x;
+			settings->mTriangleVertices[i].y = vertices[i].y;
+			settings->mTriangleVertices[i].z = vertices[i].z;
+		}
+
+		std::size_t triangleCount = indexCount / 3;
+		settings->mIndexedTriangles.resize(triangleCount);
+		for (std::size_t i = 0; i < triangleCount; ++i)
+		{
+			settings->mIndexedTriangles[i].mIdx[0] = indices[i * 3 + 0];
+			settings->mIndexedTriangles[i].mIdx[1] = indices[i * 3 + 1];
+			settings->mIndexedTriangles[i].mIdx[2] = indices[i * 3 + 2];
+		}
+
+		settings->Sanitize();
+
+		SetupShapeSettings(std::move(settings));
+	}
+
+	JoltMeshCollider3D::JoltMeshCollider3D(SparsePtr<const Vector3f> vertices, std::size_t vertexCount, SparsePtr<const UInt32> indices, std::size_t indexCount)
+	{
+		std::unique_ptr<JPH::MeshShapeSettings> settings = std::make_unique<JPH::MeshShapeSettings>();
+		settings->mTriangleVertices.resize(vertexCount);
+		for (std::size_t i = 0; i < vertexCount; ++i)
+		{
+			settings->mTriangleVertices[i].x = vertices[i].x;
+			settings->mTriangleVertices[i].y = vertices[i].y;
+			settings->mTriangleVertices[i].z = vertices[i].z;
+		}
+
+		std::size_t triangleCount = indexCount / 3;
+		settings->mIndexedTriangles.resize(triangleCount);
+		for (std::size_t i = 0; i < triangleCount; ++i)
+		{
+			settings->mIndexedTriangles[i].mIdx[0] = indices[i * 3 + 0];
+			settings->mIndexedTriangles[i].mIdx[1] = indices[i * 3 + 1];
+			settings->mIndexedTriangles[i].mIdx[2] = indices[i * 3 + 2];
+		}
+
+		settings->Sanitize();
+
+		SetupShapeSettings(std::move(settings));
+	}
+
+	void JoltMeshCollider3D::BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const
+	{
+	}
+
+	JoltColliderType3D JoltMeshCollider3D::GetType() const
+	{
+		return JoltColliderType3D::Mesh;
 	}
 
 	/******************************** JoltSphereCollider3D *********************************/

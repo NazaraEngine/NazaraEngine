@@ -122,6 +122,18 @@ namespace Nz
 
 			JoltColliderType3D GetType() const override;
 	};
+	
+	class NAZARA_JOLTPHYSICS3D_API JoltMeshCollider3D final : public JoltCollider3D
+	{
+		public:
+			JoltMeshCollider3D(SparsePtr<const Vector3f> vertices, std::size_t vertexCount, SparsePtr<const UInt16> indices, std::size_t indexCount);
+			JoltMeshCollider3D(SparsePtr<const Vector3f> vertices, std::size_t vertexCount, SparsePtr<const UInt32> indices, std::size_t indexCount);
+			~JoltMeshCollider3D() = default;
+
+			void BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const override;
+
+			JoltColliderType3D GetType() const override;
+	};
 
 	class NAZARA_JOLTPHYSICS3D_API JoltSphereCollider3D final : public JoltCollider3D
 	{
