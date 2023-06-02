@@ -27,8 +27,8 @@ SCENARIO("Vector3", "[MATH][VECTOR3]")
 			{
 				REQUIRE(firstUnit.AbsDotProduct(tmp) == Catch::Approx(2.f));
 				REQUIRE(firstUnit.DotProduct(tmp) == Catch::Approx(0.f));
-				REQUIRE(firstUnit.AngleBetween(tmp) == Nz::DegreeAnglef(90.f));
-				REQUIRE(firstUnit.AngleBetween(-firstUnit) == Nz::DegreeAnglef(180.f));
+				REQUIRE(firstUnit.AngleBetween(tmp).ApproxEqual(Nz::DegreeAnglef(90.f)));
+				REQUIRE(firstUnit.AngleBetween(-firstUnit).ApproxEqual(Nz::DegreeAnglef(180.f)));
 			}
 		}
 
@@ -61,7 +61,7 @@ SCENARIO("Vector3", "[MATH][VECTOR3]")
 			THEN("For normal cases should be normal")
 			{
 				Nz::Vector3f normalized = firstUnit.GetNormal(&ratio);
-				REQUIRE(normalized == (Nz::Vector3f::Unit() / std::sqrt(3.f)));
+				REQUIRE(normalized.ApproxEqual(Nz::Vector3f::Unit() / std::sqrt(3.f)));
 				REQUIRE(ratio == Catch::Approx(std::sqrt(3.f)));
 			}
 
