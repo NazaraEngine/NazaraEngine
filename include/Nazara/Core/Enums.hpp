@@ -94,17 +94,17 @@ namespace Nz
 
 	enum class OpenMode
 	{
-		NotOpen,    // Use the current mod of opening
+		NotOpen,    //< File is not open
 
-		Append,     // Disable writing on existing parts and put the cursor at the end
-		Defer,      // Defer file opening until a read/write operation is performed on it
-		Lock,       // Disable modifying the file before it is open
-		MustExist,  // Fail if the file doesn't exists, even if opened in write mode
-		ReadOnly,   // Open in read only
-		Text,       // Open in text mod
-		Truncate,   // Create the file if it doesn't exist and empty it if it exists
-		Unbuffered, // Each read/write operation is equivalent to a read or write system call (slow)
-		WriteOnly,  // Open in write only, create the file if it doesn't exist
+		Append,     //< Disables writing to existing content, all write operations are performed at the end
+		Defer,      //< Defers file opening until a read/write operation is performed on it
+		Lock,       //< Prevents file modification by other handles while it's open
+		MustExist,  //< Fails if the file doesn't exists, even if opened in write mode
+		ReadOnly,   //< Allows read operations
+		Text,       //< Opens in text mode (converts system line endings from/to \n)
+		Truncate,   //< Creates the file if it doesn't exist and empties it otherwise
+		Unbuffered, //< Each read/write operations are performed directly using system calls (very slow)
+		WriteOnly,  //< Allows write operations, creates the file if it doesn't exist
 
 		Max = WriteOnly
 	};
