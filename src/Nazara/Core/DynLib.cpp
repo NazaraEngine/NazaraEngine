@@ -73,7 +73,7 @@ namespace Nz
 		if (libraryPath.extension() != NAZARA_DYNLIB_EXTENSION)
 			libraryPath += NAZARA_DYNLIB_EXTENSION;
 
-		auto impl = std::make_unique<DynLibImpl>(this);
+		auto impl = std::make_unique<DynLibImpl>();
 		if (!impl->Load(libraryPath, &m_lastError))
 		{
 			NazaraError("Failed to load library: " + m_lastError);

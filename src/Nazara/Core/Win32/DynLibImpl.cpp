@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Win32/DynLibImpl.hpp>
-#include <Nazara/Core/DynLib.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <memory>
@@ -11,11 +10,6 @@
 
 namespace Nz
 {
-	DynLibImpl::DynLibImpl(DynLib*) :
-	m_handle(nullptr)
-	{
-	}
-
 	DynLibImpl::~DynLibImpl()
 	{
 		if (m_handle)
@@ -24,7 +18,7 @@ namespace Nz
 
 	DynLibFunc DynLibImpl::GetSymbol(const char* symbol, std::string* errorMessage) const
 	{
-		DynLibFunc sym = reinterpret_cast<DynLibFunc>(GetProcAddress(m_handle, symbol));
+		DynLibFunc sym = reinterpret_cast<DynLibFunc>(::GetProcAddress(m_handle, symbol));
 		if (!sym)
 			*errorMessage = Error::GetLastSystemError();
 

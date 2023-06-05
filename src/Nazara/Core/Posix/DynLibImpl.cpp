@@ -3,17 +3,11 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Posix/DynLibImpl.hpp>
-#include <Nazara/Core/DynLib.hpp>
 #include <dlfcn.h>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {
-	DynLibImpl::DynLibImpl(DynLib*) :
-	m_handle(nullptr)
-	{
-	}
-
 	DynLibImpl::~DynLibImpl()
 	{
 		if (m_handle)
@@ -22,25 +16,19 @@ namespace Nz
 
 	DynLibFunc DynLibImpl::GetSymbol(const char* symbol, std::string* errorMessage) const
 	{
-		/*
-			Il n'est pas standard de cast un pointeur d'objet vers un pointeur de fonction.
-			Nous devons donc utiliser des techniques diaboliques venant du malin lui-même.. :D
-			Au moins ce n'est pas aussi terrible qu'un const_cast
-			-Lynix
-		*/
-		union
-		{
-			DynLibFunc func;
-			void* pointer;
-		} converter;
-
 		dlerror(); // Clear error flag
 
-		converter.pointer = dlsym(m_handle, symbol);
-		if (!converter.pointer)
+		void* ptr = dlsym(m_handle, symbol);
+		if (!ptr)
 			*errorMessage = dlerror();
 
-		return converter.func;
+		static_assert(sizeof(DynLibFunc) == sizeof(void*));
+
+		// poor man's std::bit_cast
+		DynLibFunc funcPtr;
+		std::memcpy(&funcPtr, &ptr, sizeof(funcPtr));
+
+		return funcPtr;
 	}
 
 	bool DynLibImpl::Load(const std::filesystem::path& libraryPath, std::string* errorMessage)
@@ -48,12 +36,12 @@ namespace Nz
 		dlerror(); // Clear error flag
 		m_handle = dlopen(libraryPath.generic_u8string().data(), RTLD_LAZY | RTLD_GLOBAL);
 
-		if (m_handle)
-			return true;
-		else
+		if (!m_handle)
 		{
 			*errorMessage = dlerror();
 			return false;
 		}
+
+		return true;
 	}
 }

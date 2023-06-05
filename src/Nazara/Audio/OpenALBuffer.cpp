@@ -74,8 +74,7 @@ namespace Nz
 		// We empty the error stack
 		while (m_library.alGetError() != AL_NO_ERROR);
 
-		// TODO: Use SafeCast
-		m_library.alBufferData(m_bufferId, alFormat, samples, static_cast<ALsizei>(sampleCount * sizeof(Int16)), static_cast<ALsizei>(sampleRate));
+		m_library.alBufferData(m_bufferId, alFormat, samples, SafeCast<ALsizei>(sampleCount * sizeof(Int16)), SafeCast<ALsizei>(sampleRate));
 
 		if (ALenum lastError = m_library.alGetError(); lastError != AL_NO_ERROR)
 		{

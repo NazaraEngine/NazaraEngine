@@ -14,8 +14,6 @@
 #include <Nazara/Math/Vector3.hpp>
 #include <limits>
 
-///TODO: Inherit SoundEmitter from Node
-
 namespace Nz
 {
 	class AudioDevice;

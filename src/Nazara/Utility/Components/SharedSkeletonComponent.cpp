@@ -82,7 +82,6 @@ namespace Nz
 		if (jointCount == 0)
 			return;
 
-		// TODO: This will trigger a lot of invalidation which can be avoided
 		const Joint* referenceJoints = m_referenceSkeleton->GetJoints();
 		Joint* attachedJoints = m_attachedSkeleton.GetJoints();
 

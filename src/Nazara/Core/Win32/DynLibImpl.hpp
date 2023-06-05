@@ -9,27 +9,28 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/DynLib.hpp>
+#include <NazaraUtils/MovablePtr.hpp>
 #include <filesystem>
-#include <windows.h>
+#include <Windows.h>
 
 namespace Nz
 {
 	class DynLibImpl
 	{
 		public:
-			DynLibImpl(DynLib* m_parent);
+			DynLibImpl() = default;
 			DynLibImpl(const DynLibImpl&) = delete;
-			DynLibImpl(DynLibImpl&&) = delete; ///TODO?
+			DynLibImpl(DynLibImpl&&) noexcept = default;
 			~DynLibImpl();
 
 			DynLibFunc GetSymbol(const char* symbol, std::string* errorMessage) const;
 			bool Load(const std::filesystem::path& libraryPath, std::string* errorMessage);
 
 			DynLibImpl& operator=(const DynLibImpl&) = delete;
-			DynLibImpl& operator=(DynLibImpl&&) = delete; ///TODO?
+			DynLibImpl& operator=(DynLibImpl&&) noexcept = default;
 
 		private:
-			HMODULE m_handle;
+			MovablePtr<std::remove_pointer_t<HMODULE>> m_handle;
 	};
 }
 

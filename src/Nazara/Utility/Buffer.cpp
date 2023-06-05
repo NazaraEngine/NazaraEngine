@@ -22,7 +22,7 @@ namespace Nz
 		else
 		{
 			// TODO: Implement GPU to CPU
-			throw std::runtime_error("buffer is not mappable not implemented");
+			throw std::runtime_error("buffer is not mappable: not implemented");
 		}
 	}
 }

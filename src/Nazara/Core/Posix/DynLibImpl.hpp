@@ -8,6 +8,7 @@
 #define NAZARA_CORE_POSIX_DYNLIBIMPL_HPP
 
 #include <Nazara/Core/DynLib.hpp>
+#include <NazaraUtils/MovablePtr.hpp>
 #include <filesystem>
 #include <string>
 
@@ -18,14 +19,19 @@ namespace Nz
 	class DynLibImpl
 	{
 		public:
-			DynLibImpl(DynLib* m_parent);
+			DynLibImpl() = default;
+			DynLibImpl(const DynLibImpl&) = delete;
+			DynLibImpl(DynLibImpl&&) noexcept = default;
 			~DynLibImpl();
 
 			DynLibFunc GetSymbol(const char* symbol, std::string* errorMessage) const;
 			bool Load(const std::filesystem::path& libraryPath, std::string* errorMessage);
 
+			DynLibImpl& operator=(const DynLibImpl&) = delete;
+			DynLibImpl& operator=(DynLibImpl&&) noexcept = default;
+
 		private:
-			void* m_handle;
+			MovablePtr<void> m_handle;
 	};
 }
 
