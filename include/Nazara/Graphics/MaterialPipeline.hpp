@@ -12,6 +12,7 @@
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/UberShader.hpp>
 #include <Nazara/Renderer/RenderPipeline.hpp>
+#include <NazaraUtils/FixedVector.hpp>
 #include <NZSL/Ast/ConstantValue.hpp>
 #include <array>
 #include <memory>
@@ -34,8 +35,8 @@ namespace Nz
 		};
 
 		std::shared_ptr<RenderPipelineLayout> pipelineLayout;
-		std::vector<Option> optionValues; //< TODO: FixedVector
-		std::vector<Shader> shaders; //< TODO: FixedVector
+		FixedVector<Option, 32> optionValues;
+		FixedVector<Shader, 8> shaders;
 	};
 
 	inline bool operator==(const MaterialPipelineInfo& lhs, const MaterialPipelineInfo& rhs);
