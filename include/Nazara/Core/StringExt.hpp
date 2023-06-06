@@ -9,7 +9,6 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Unicode.hpp>
-#include <Nazara/Math/Algorithm.hpp> //< FIXME
 #include <NazaraUtils/Algorithm.hpp>
 #include <string>
 
@@ -38,6 +37,8 @@ namespace Nz
 
 	NAZARA_CORE_API bool MatchPattern(const std::string_view& str, const std::string_view& pattern);
 
+	inline std::string NumberToString(long long number, UInt8 radix = 10);
+
 	NAZARA_CORE_API std::string PointerToString(const void* ptr);
 
 	inline std::string& ReplaceStr(std::string& str, const std::string_view& from, const std::string_view& to);
@@ -54,6 +55,8 @@ namespace Nz
 	inline bool StringEqual(const std::string_view& lhs, const std::string_view& rhs, CaseIndependent);
 	NAZARA_CORE_API bool StringEqual(const std::string_view& lhs, const std::string_view& rhs, UnicodeAware);
 	NAZARA_CORE_API bool StringEqual(const std::string_view& lhs, const std::string_view& rhs, CaseIndependent, UnicodeAware);
+
+	inline long long StringToNumber(const std::string_view& str, UInt8 radix = 10, bool* ok = nullptr);
 
 	NAZARA_CORE_API std::string ToLower(const std::string_view& str);
 	NAZARA_CORE_API std::string ToLower(const std::string_view& str, UnicodeAware);

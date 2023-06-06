@@ -1,4 +1,3 @@
-#include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Math/Angle.hpp>
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
@@ -81,63 +80,6 @@ TEST_CASE("GetNearestPowerOfTwo", "[MATH][ALGORITHM]")
 	SECTION("Nearest power of two of 17 = 32")
 	{
 		REQUIRE(Nz::GetNearestPowerOfTwo(17) == 32);
-	}
-}
-
-TEST_CASE("GetNumberLength", "[MATH][ALGORITHM]")
-{
-	SECTION("GetNumberLength of -127 signed char")
-	{
-		signed char minus127 = -127;
-		REQUIRE(Nz::GetNumberLength(minus127) == 4);
-	}
-
-	SECTION("GetNumberLength of 255 unsigned char")
-	{
-		unsigned char plus255 = 255;
-		REQUIRE(Nz::GetNumberLength(plus255) == 3);
-	}
-
-	SECTION("GetNumberLength of -1270 signed int")
-	{
-		signed int minus1270 = -1270;
-		REQUIRE(Nz::GetNumberLength(minus1270) == 5);
-	}
-
-	SECTION("GetNumberLength of 2550 unsigned int")
-	{
-		unsigned int plus2550 = 2550;
-		REQUIRE(Nz::GetNumberLength(plus2550) == 4);
-	}
-
-	SECTION("GetNumberLength of -1270 signed long long")
-	{
-		signed long long minus12700 = -12700;
-		REQUIRE(Nz::GetNumberLength(minus12700) == 6);
-	}
-
-	SECTION("GetNumberLength of 2550 unsigned long long")
-	{
-		unsigned long long plus25500 = 25500;
-		REQUIRE(Nz::GetNumberLength(plus25500) == 5);
-	}
-
-	SECTION("GetNumberLength of -2.456f float")
-	{
-		float minus2P456 = -2.456f;
-		REQUIRE(Nz::GetNumberLength(minus2P456, 3) == 6);
-	}
-
-	SECTION("GetNumberLength of -2.456 double")
-	{
-		double minus2P456 = -2.456;
-		REQUIRE(Nz::GetNumberLength(minus2P456, 3) == 6);
-	}
-
-	SECTION("GetNumberLength of -2.456 long double")
-	{
-		long double minus2P456 = -2.456L;
-		REQUIRE(Nz::GetNumberLength(minus2P456, 3) == 6);
 	}
 }
 

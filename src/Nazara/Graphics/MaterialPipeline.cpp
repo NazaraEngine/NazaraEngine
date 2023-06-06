@@ -44,7 +44,7 @@ namespace Nz
 		}
 
 		RenderPipelineInfo renderPipelineInfo;
-		static_cast<RenderStates&>(renderPipelineInfo).operator=(m_pipelineInfo);
+		static_cast<RenderStates&>(renderPipelineInfo) = m_pipelineInfo;
 
 		renderPipelineInfo.pipelineLayout = m_pipelineInfo.pipelineLayout;
 

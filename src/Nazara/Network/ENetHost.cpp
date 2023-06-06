@@ -13,7 +13,7 @@
 */
 
 #include <Nazara/Network/ENetHost.hpp>
-#include <Nazara/Math/Algorithm.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Network/Algorithm.hpp>
 #include <Nazara/Network/ENetPeer.hpp>
 #include <Nazara/Network/NetPacket.hpp>
@@ -24,7 +24,7 @@ namespace Nz
 {
 	namespace
 	{
-		static std::size_t s_enetCommandSizes[ENetProtocolCommand_Count] =
+		constexpr std::size_t s_enetCommandSizes[ENetProtocolCommand_Count] =
 		{
 			0,
 			sizeof(ENetProtocolAcknowledge),

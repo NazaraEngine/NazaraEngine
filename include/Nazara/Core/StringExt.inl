@@ -11,8 +11,7 @@ namespace Nz
 {
 	inline bool EndsWith(const std::string_view& str, const std::string_view& s)
 	{
-		//FIXME: Replace with proper C++20 value once it's available
-#if NAZARA_CPP_VER > 201703L
+#if NAZARA_CPP_VER >= NAZARA_CPP20
 		// C++20
 		return str.ends_with(s);
 #else
@@ -34,6 +33,49 @@ namespace Nz
 		return std::find_if(str.begin(), str.end(), [](unsigned char c) { return !std::isdigit(c); }) == str.end();
 	}
 
+
+	/*!
+	* \ingroup math
+	* \brief Converts the number to String
+	* \return String representation of the number
+	*
+	* \param number Number to represent
+	* \param radix Base of the number
+	*
+	* \remark radix is meant to be between 2 and 36, other values are potentially undefined behavior
+	* \remark With NAZARA_MATH_SAFE, a NazaraError is produced and String() is returned
+	*/
+	inline std::string NumberToString(long long number, UInt8 radix)
+	{
+		NazaraAssert(radix >= 2 && radix <= 36, "base must be between 2 and 36");
+
+		bool negative;
+		if (number < 0)
+		{
+			negative = true;
+			number = -number;
+		}
+		else
+			negative = false;
+
+		std::string str;
+
+		constexpr char symbols[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+		do
+		{
+			str.push_back(symbols[number % radix]);
+			number /= radix;
+		} while (number > 0);
+
+		if (negative)
+			str.push_back('-');
+
+		std::reverse(str.begin(), str.end());
+
+		return str;
+	}
+
 	inline std::string& ReplaceStr(std::string& str, const std::string_view& from, const std::string_view& to)
 	{
 		if (str.empty())
@@ -51,8 +93,7 @@ namespace Nz
 
 	inline bool StartsWith(const std::string_view& str, const std::string_view& s)
 	{
-		//FIXME: Replace with proper C++20 value once it's available
-#if NAZARA_CPP_VER > 201703L
+#if NAZARA_CPP_VER >= NAZARA_CPP20
 		// C++20
 		return str.starts_with(s);
 #else
@@ -114,6 +155,60 @@ namespace Nz
 		}
 
 		return true;
+	}
+	
+	/*!
+	* \ingroup math
+	* \brief Converts the string to number
+	* \return Number which is represented by the string
+	*
+	* \param str String representation
+	* \param radix Base of the number
+	* \param ok Optional argument to know if convertion is correct
+	*
+	* \remark radix is meant to be between 2 and 36, other values are potentially undefined behavior
+	* \remark With NAZARA_MATH_SAFE, a NazaraError is produced and 0 is returned
+	*/
+	inline long long StringToNumber(const std::string_view& str, UInt8 radix, bool* ok)
+	{
+		NazaraAssert(radix >= 2 && radix <= 36, "base must be between 2 and 36");
+
+		if (str.empty())
+		{
+			if (ok)
+				*ok = false;
+
+			return 0;
+		}
+
+		constexpr char symbols[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+		bool negative = (str.front() == '-');
+
+		const char* digit = &str[(negative) ? 1 : 0];
+		unsigned long long total = 0;
+		do
+		{
+			if (*digit == ' ')
+				continue;
+
+			total *= radix;
+			const char* c = std::strchr(symbols, *digit);
+			if (c && c - symbols < radix)
+				total += c - symbols;
+			else
+			{
+				if (ok)
+					*ok = false;
+
+				return 0;
+			}
+		} while (*++digit);
+
+		if (ok)
+			*ok = true;
+
+		return (negative) ? -static_cast<long long>(total) : total;
 	}
 
 	inline std::string_view Trim(std::string_view str)

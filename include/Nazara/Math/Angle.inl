@@ -619,6 +619,12 @@ namespace Nz
 		return lhs.ApproxEqual(rhs, maxDifference);
 	}
 
+	template<AngleUnit Unit, typename T>
+	constexpr Angle<Unit, T> Angle<Unit, T>::Clamp(Angle angle, Angle min, Angle max)
+	{
+		return Angle(std::clamp(angle.value, min.value, max.value));
+	}
+
 	/*!
 	* \brief Builds an Angle instance using a FromUnit angle, converting if needed
 	* \return An angle describing the FromUnit angle as Unit
@@ -718,6 +724,21 @@ namespace Nz
 	std::ostream& operator<<(std::ostream& out, Angle<Unit, T> angle)
 	{
 		return Detail::AngleUtils<Unit>::ToString(out, angle.value);
+	}
+
+	/*!
+	* \ingroup math
+	* \brief Clamps an angle value between min and max and returns the expected value
+	* \return If value is not in the interval of min..max, value obtained is the nearest limit of this interval
+	*
+	* \param value Value to clamp
+	* \param min Minimum of the interval
+	* \param max Maximum of the interval
+	*/
+	template<typename T, AngleUnit Unit>
+	constexpr Angle<Unit, T> Clamp(Angle<Unit, T> value, T min, T max)
+	{
+		return std::max(std::min(value.value, max), min);
 	}
 
 	/*!

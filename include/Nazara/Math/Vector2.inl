@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Math/Algorithm.hpp>
 #include <cstring>
 #include <limits>
 #include <sstream>

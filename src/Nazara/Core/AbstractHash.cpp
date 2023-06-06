@@ -5,6 +5,7 @@
 #include <Nazara/Core/AbstractHash.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Core/Hash/CRC32.hpp>
 #include <Nazara/Core/Hash/CRC64.hpp>
 #include <Nazara/Core/Hash/Fletcher16.hpp>
@@ -15,7 +16,6 @@
 #include <Nazara/Core/Hash/SHA384.hpp>
 #include <Nazara/Core/Hash/SHA512.hpp>
 #include <Nazara/Core/Hash/Whirlpool.hpp>
-#include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz

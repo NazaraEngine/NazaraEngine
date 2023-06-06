@@ -4,7 +4,6 @@
 
 #include <Nazara/Utility/PixelFormat.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Math/Algorithm.hpp>
 #include <NazaraUtils/Endianness.hpp>
 #include <Nazara/Utility/Debug.hpp>
 

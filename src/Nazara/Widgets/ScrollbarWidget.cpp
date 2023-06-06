@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Widgets/ScrollbarWidget.hpp>
-#include <Nazara/Math/Algorithm.hpp>
 #include <Nazara/Widgets/ImageButtonWidget.hpp>
 #include <Nazara/Widgets/ScrollbarButtonWidget.hpp>
 #include <Nazara/Widgets/Debug.hpp>

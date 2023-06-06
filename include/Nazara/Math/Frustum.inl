@@ -7,7 +7,6 @@
 // http://www.lighthouse3d.com/tutorials/view-frustum-culling/
 
 #include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Math/Algorithm.hpp>
 #include <NazaraUtils/EnumArray.hpp>
 #include <cstring>
 #include <sstream>
