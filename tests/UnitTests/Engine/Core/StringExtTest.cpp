@@ -152,3 +152,56 @@ SCENARIO("String", "[CORE][STRING]")
 		CHECK(Nz::Trim(unicodeString, Nz::Unicode::Category_Letter, Nz::UnicodeAware{}) == "");
 	}
 }
+
+TEST_CASE("NumberToString", "[MATH][ALGORITHM]")
+{
+	SECTION("0 to string")
+	{
+		REQUIRE(Nz::NumberToString(0) == "0");
+	}
+
+	SECTION("235 to string")
+	{
+		REQUIRE(Nz::NumberToString(235) == "235");
+	}
+
+	SECTION("-235 to string")
+	{
+		REQUIRE(Nz::NumberToString(-235) == "-235");
+	}
+
+	SECTION("16 in base 16 to string")
+	{
+		REQUIRE(Nz::NumberToString(16, 16) == "10");
+	}
+}
+
+TEST_CASE("StringToNumber", "[MATH][ALGORITHM]")
+{
+	SECTION("235 in string")
+	{
+		REQUIRE(Nz::StringToNumber("235") == 235);
+	}
+
+	SECTION("-235 in string")
+	{
+		REQUIRE(Nz::StringToNumber("-235") == -235);
+	}
+
+	SECTION("235 157 in string")
+	{
+		REQUIRE(Nz::StringToNumber("235 157") == 235157);
+	}
+
+	SECTION("16 in base 16 in string")
+	{
+		REQUIRE(Nz::StringToNumber("10", 16) == 16);
+	}
+
+	SECTION("8 in base 4 in string should not be valid")
+	{
+		bool ok = true;
+		REQUIRE(Nz::StringToNumber("8", 4, &ok) == 0);
+		REQUIRE(!ok);
+	}
+}
