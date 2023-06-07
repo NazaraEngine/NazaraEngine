@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Posix/ThreadImpl.hpp>
+#include <Nazara/Core/Error.hpp>
 #include <array>
 #include <Nazara/Core/Debug.hpp>
 
@@ -34,7 +35,7 @@ namespace Nz::PlatformImpl
 
 	void SetCurrentThreadName(const char* threadName)
 	{
-#if defined(__linux__)
+#if defined(__linux__) || defined(NAZARA_COMPILER_MINGW)
 		::pthread_setname_np(::pthread_self(), threadName);
 #elif defined(__APPLE__)
 		::pthread_setname_np(threadName);
@@ -47,7 +48,7 @@ namespace Nz::PlatformImpl
 
 	void SetThreadName(pthread_t threadHandle, const char* threadName)
 	{
-#if defined(__linux__)
+#if defined(__linux__) || defined(NAZARA_COMPILER_MINGW)
 		::pthread_setname_np(threadHandle, threadName);
 #elif defined(__APPLE__)
 		NazaraWarning("only current thread name can be set on MacOS X");

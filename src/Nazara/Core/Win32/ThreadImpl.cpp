@@ -9,6 +9,7 @@
 
 namespace Nz::PlatformImpl
 {
+#ifndef NAZARA_COMPILER_MINGW
 	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
 		// Windows 10, version 1607 added SetThreadDescription in order to name a thread
@@ -24,21 +25,27 @@ namespace Nz::PlatformImpl
 			DWORD dwFlags;
 		};
 #pragma pack(pop)
-#endif
+#endif // NAZARA_COMPILER_MSVC
 	}
+#endif // !NAZARA_COMPILER_MINGW
 
-	HANDLE GetCurrentThreadHandle()
+	ThreadHandle GetCurrentThreadHandle()
 	{
+#ifndef NAZARA_COMPILER_MINGW
 		return ::GetCurrentThread();
+#else
+		return ::pthread_self();
+#endif
 	}
 
 	std::string GetCurrentThreadName()
 	{
-		return GetThreadName(::GetCurrentThread());
+		return GetThreadName(GetCurrentThreadHandle());
 	}
 
-	std::string GetThreadName(HANDLE threadHandle)
+	std::string GetThreadName(ThreadHandle threadHandle)
 	{
+#ifndef NAZARA_COMPILER_MINGW
 		PWSTR namePtr;
 		HRESULT hr = ::GetThreadDescription(threadHandle, &namePtr);
 		if (FAILED(hr))
@@ -47,8 +54,15 @@ namespace Nz::PlatformImpl
 		CallOnExit freeName([&] { LocalFree(namePtr); });
 
 		return FromWideString(namePtr);
+#else
+		std::array<char, 16> name;
+		::pthread_getname_np(threadHandle, &name[0], name.size());
+
+		return std::string(&name[0]);
+#endif
 	}
 
+#ifndef NAZARA_COMPILER_MINGW
 	void RaiseThreadNameException(DWORD threadId, const char* threadName)
 	{
 #ifdef NAZARA_COMPILER_MSVC
@@ -80,14 +94,16 @@ namespace Nz::PlatformImpl
 		NazaraWarning("ThreadName exception is only supported with MSVC");
 #endif
 	}
+#endif
 
 	void SetCurrentThreadName(const char* threadName)
 	{
-		SetThreadName(::GetCurrentThread(), threadName);
+		SetThreadName(GetCurrentThreadHandle(), threadName);
 	}
 
-	void SetThreadName(HANDLE threadHandle, const char* threadName)
+	void SetThreadName(ThreadHandle threadHandle, const char* threadName)
 	{
+#ifndef NAZARA_COMPILER_MINGW
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
 		// Try to use SetThreadDescription if available
@@ -96,7 +112,12 @@ namespace Nz::PlatformImpl
 			SetThreadDescription(threadHandle, ToWideString(threadName).data());
 		else
 			RaiseThreadNameException(::GetThreadId(threadHandle), threadName);
+#else
+		::pthread_setname_np(threadHandle, threadName);
+#endif
 	}
 }
 
+#ifndef NAZARA_COMPILER_MINGW
 #include <Nazara/Core/AntiWindows.hpp>
+#endif

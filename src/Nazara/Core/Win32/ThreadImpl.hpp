@@ -9,18 +9,29 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <string>
+
+#ifdef NAZARA_COMPILER_MINGW
+#include <pthread.h>
+#else
 #include <Windows.h>
+#endif
 
 namespace Nz::PlatformImpl
 {
+#ifdef NAZARA_COMPILER_MINGW
+	using ThreadHandle = pthread_t;
+#else
 	using ThreadHandle = HANDLE;
+#endif
 
-	HANDLE GetCurrentThreadHandle();
+	ThreadHandle GetCurrentThreadHandle();
 	std::string GetCurrentThreadName();
-	std::string GetThreadName(HANDLE threadHandle);
+	std::string GetThreadName(ThreadHandle threadHandle);
+#ifndef NAZARA_COMPILER_MINGW
 	void RaiseThreadNameException(DWORD threadId, const char* threadName);
+#endif
 	void SetCurrentThreadName(const char* threadName);
-	void SetThreadName(HANDLE threadHandle, const char* threadName);
+	void SetThreadName(ThreadHandle threadHandle, const char* threadName);
 }
 
 #endif // NAZARA_CORE_WIN32_THREADIMPL_HPP
