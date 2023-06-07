@@ -9,6 +9,7 @@
 #include <Nazara/Audio/AudioDevice.hpp>
 #include <Nazara/Audio/AudioSource.hpp>
 #include <Nazara/Audio/SoundStream.hpp>
+#include <Nazara/Core/ThreadExt.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
 #include <array>
 #include <chrono>
@@ -425,6 +426,8 @@ namespace Nz
 
 	void Music::MusicThread(std::condition_variable& cv, std::mutex& m, std::exception_ptr& err, bool startPaused)
 	{
+		SetCurrentThreadName("MusicThread");
+
 		std::optional<std::lock_guard<std::recursive_mutex>> exitLock;
 
 		// Allocation of streaming buffers
