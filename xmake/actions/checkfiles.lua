@@ -49,7 +49,7 @@ local systemHeaders = {
 }
 
 local function IsSystemHeader(header)
-	if systemHeaders[header] then
+	if systemHeaders[header:lower()] then
 		return true
 	end
 

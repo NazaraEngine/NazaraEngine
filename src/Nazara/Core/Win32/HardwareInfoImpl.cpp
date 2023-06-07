@@ -4,7 +4,7 @@
 
 #include <Nazara/Core/Win32/HardwareInfoImpl.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <windows.h>
+#include <Windows.h>
 
 #ifdef NAZARA_COMPILER_MSVC
 	#include <intrin.h>

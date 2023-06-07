@@ -5,7 +5,7 @@
 #include <Nazara/Core/Win32/TimeImpl.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <ctime>
-#include <windows.h>
+#include <Windows.h>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz

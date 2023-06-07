@@ -10,7 +10,7 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/File.hpp>
 #include <ctime>
-#include <windows.h>
+#include <Windows.h>
 
 namespace Nz
 {

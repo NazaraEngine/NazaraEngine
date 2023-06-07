@@ -10,8 +10,8 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/DynLib.hpp>
 #include <NazaraUtils/MovablePtr.hpp>
-#include <Windows.h>
 #include <filesystem>
+#include <Windows.h>
 
 namespace Nz
 {

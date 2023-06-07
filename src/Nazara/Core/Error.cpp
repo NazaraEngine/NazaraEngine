@@ -10,7 +10,7 @@
 #include <stdexcept>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
-	#include <windows.h>
+	#include <Windows.h>
 #elif defined(NAZARA_PLATFORM_POSIX)
 	#include <cstring>
 	#include <errno.h>

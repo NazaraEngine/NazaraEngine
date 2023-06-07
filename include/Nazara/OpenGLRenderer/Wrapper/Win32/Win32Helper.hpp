@@ -10,7 +10,7 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <memory>
 #include <type_traits>
-#include <windows.h>
+#include <Windows.h>
 
 namespace Nz::GL
 {

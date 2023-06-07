@@ -12,7 +12,7 @@
 #include <atomic>
 #include <memory>
 #include <queue>
-#include <windows.h>
+#include <Windows.h>
 
 namespace Nz
 {

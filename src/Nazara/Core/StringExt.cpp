@@ -646,5 +646,3 @@ namespace Nz
 		return std::string_view(start.base(), it.base() - start.base());
 	}
 }
-
-#include <Nazara/Core/DebugOff.hpp>
