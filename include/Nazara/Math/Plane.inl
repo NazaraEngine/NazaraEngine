@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Algorithm.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <cstring>
 #include <sstream>
 #include <Nazara/Core/Debug.hpp>
