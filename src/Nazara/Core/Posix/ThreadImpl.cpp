@@ -15,6 +15,11 @@ namespace Nz::PlatformImpl
 		return ::pthread_self();
 	}
 
+	std::string GetCurrentThreadName()
+	{
+		return GetThreadName(::pthread_self());
+	}
+
 	std::string GetThreadName(pthread_t threadHandle)
 	{
 #if defined(__linux__) || defined(__APPLE__)
