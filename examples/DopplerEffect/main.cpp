@@ -12,10 +12,8 @@
 #include <Nazara/Core/Application.hpp>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/Modules.hpp>
+#include <Nazara/Core/SignalHandlerAppComponent.hpp>
 #include <Nazara/Math/Vector3.hpp>
-#include <Nazara/Platform/Keyboard.hpp>
-#include <Nazara/Platform/Platform.hpp>
-#include <Nazara/Platform/Window.hpp>
 #include <chrono>
 #include <iostream>
 #include <thread>
@@ -27,6 +25,7 @@ int main()
 		resourceDir = "../.." / resourceDir;
 
 	Nz::Application<Nz::Audio> app;
+	app.AddComponent<Nz::SignalHandlerAppComponent>();
 
 	Nz::Sound sound;
 	if (!sound.LoadFromFile(resourceDir / "Audio/siren.wav"))
@@ -36,44 +35,33 @@ int main()
 		return 1;
 	}
 
-	std::cout << "Demonstration de l'effet doppler avec Nazara" << std::endl;
-	std::cout << "Appuyez sur entree pour demarrer" << std::endl;
-	std::cout << "Appuyez sur echap pour arreter" << std::endl;
+	std::cout << "Doppler effect demo" << std::endl;
+	std::cout << "Press enter to start" << std::endl;
 
 	std::getchar();
 
-	// On fait en sorte de répéter le son
+	// Make a repeating sound, located to the left (and a bit forward so it doesn't switch from left to right speaker brutally) with a right velocity
 	sound.EnableLooping(true);
-
-	// La source du son se situe vers la gauche (Et un peu en avant)
 	sound.SetPosition(Nz::Vector3f::Left() * 50.f + Nz::Vector3f::Forward() * 5.f);
-
-	// Et possède une vitesse de 10 par seconde vers la droite
 	sound.SetVelocity(Nz::Vector3f::Right() * 10.f);
 
-	// On joue le son
 	sound.Play();
 
-	Nz::MillisecondClock clock;
-	app.AddUpdaterFunc([&]
+	app.AddUpdaterFunc([&](Nz::Time elapsedTime)
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000 / 30));
 
 		if (sound.GetStatus() != Nz::SoundStatus::Playing)
-		{
-			// On arrête le son et l'application
-			sound.Stop();
 			app.Quit();
-		}
 
-		// On bouge la source du son en fonction du temps depuis chaque mise à jour
-		Nz::Vector3f pos = sound.GetPosition() + sound.GetVelocity() * clock.Restart().AsSeconds();
+		// Move sound position according to its velocity
+		Nz::Vector3f pos = sound.GetPosition() + sound.GetVelocity() * elapsedTime.AsSeconds();
 		sound.SetPosition(pos);
 
 		std::cout << "Position: " << pos.x << std::endl;
 
-		// Si la position de la source atteint une certaine position, ou si l'utilisateur appuie sur echap
-		if (pos.x > Nz::Vector3f::Right().x * 50.f || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Escape))
+		// Stop once far enough
+		if (pos.x > Nz::Vector3f::Right().x * 50.f)
 		{
 			sound.Stop();
 			app.Quit();

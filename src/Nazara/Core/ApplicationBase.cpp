@@ -15,6 +15,14 @@ namespace Nz
 	m_running(true),
 	m_currentTime(Time::Zero())
 	{
+		NazaraAssert(s_instance == nullptr, "only one instance of ApplicationBase can exist at a given time");
+		s_instance = this;
+	}
+
+	ApplicationBase::~ApplicationBase()
+	{
+		assert(s_instance == this);
+		s_instance = nullptr;
 	}
 
 	int ApplicationBase::Run()
@@ -90,4 +98,6 @@ namespace Nz
 
 		return m_running;
 	}
+
+	ApplicationBase* ApplicationBase::s_instance = nullptr;
 }
