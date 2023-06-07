@@ -27,7 +27,7 @@ namespace Nz
 			ApplicationBase(int argc, const Pointer<const char>* argv);
 			ApplicationBase(const ApplicationBase&) = delete;
 			ApplicationBase(ApplicationBase&&) = delete;
-			~ApplicationBase() = default;
+			~ApplicationBase();
 
 			inline void AddUpdater(std::unique_ptr<ApplicationUpdater>&& functor);
 			template<typename F> void AddUpdaterFunc(F&& functor);
@@ -48,6 +48,8 @@ namespace Nz
 			ApplicationBase& operator=(const ApplicationBase&) = delete;
 			ApplicationBase& operator=(ApplicationBase&&) = delete;
 
+			static inline ApplicationBase* Instance();
+
 		protected:
 			template<typename T, typename... Args> T& AddComponent(Args&&... args);
 
@@ -66,6 +68,8 @@ namespace Nz
 			std::vector<Updater> m_updaters;
 			HighPrecisionClock m_clock;
 			Time m_currentTime;
+
+			static ApplicationBase* s_instance;
 	};
 }
 

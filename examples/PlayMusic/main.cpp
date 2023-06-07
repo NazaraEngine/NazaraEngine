@@ -6,6 +6,7 @@
 #include <Nazara/Core/Application.hpp>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/Modules.hpp>
+#include <Nazara/Core/SignalHandlerAppComponent.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Platform/Keyboard.hpp>
 #include <Nazara/Platform/Platform.hpp>
@@ -20,6 +21,7 @@ int main()
 		resourceDir = "../.." / resourceDir;
 
 	Nz::Application<Nz::Audio> app;
+	app.AddComponent<Nz::SignalHandlerAppComponent>();
 
 	Nz::SoundStreamParams streamParams;
 	streamParams.forceMono = false;

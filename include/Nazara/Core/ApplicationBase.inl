@@ -74,7 +74,12 @@ namespace Nz
 	{
 		m_running = false;
 	}
-	
+
+	inline ApplicationBase* ApplicationBase::Instance()
+	{
+		return s_instance;
+	}
+
 	template<typename T, typename... Args>
 	T& ApplicationBase::AddComponent(Args&&... args)
 	{
