@@ -10,6 +10,7 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <NazaraUtils/TypeTag.hpp>
 #include <functional>
+#include <limits>
 #include <string>
 
 namespace Nz
