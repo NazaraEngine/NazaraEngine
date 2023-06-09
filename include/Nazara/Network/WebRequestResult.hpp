@@ -7,6 +7,7 @@
 #ifndef NAZARA_NETWORK_WEBREQUESTRESULT_HPP
 #define NAZARA_NETWORK_WEBREQUESTRESULT_HPP
 
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Network/Config.hpp>
 #include <NazaraUtils/MovablePtr.hpp>
 #include <functional>
