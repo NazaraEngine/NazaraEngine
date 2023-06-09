@@ -10,9 +10,12 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Core.hpp>
 #include <Nazara/Network/Config.hpp>
+#include <memory>
 
 namespace Nz
 {
+	class WebService;
+
 	class NAZARA_NETWORK_API Network : public ModuleBase<Network>
 	{
 		friend ModuleBase;
@@ -20,12 +23,22 @@ namespace Nz
 		public:
 			using Dependencies = TypeList<Core>;
 
-			struct Config {};
+			struct Config;
 
-			Network(Config /*config*/);
+			Network(Config config);
 			~Network();
 
+			std::unique_ptr<WebService> InstantiateWebService();
+
+			struct Config
+			{
+				// Initialize web services and fails module initialization if it failed to initialize them
+				bool webServices = false;
+			};
+
 		private:
+			std::unique_ptr<class CurlLibrary> m_curlLibrary;
+
 			static Network* s_instance;
 	};
 }
