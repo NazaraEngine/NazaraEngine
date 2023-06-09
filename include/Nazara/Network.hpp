@@ -47,5 +47,8 @@
 #include <Nazara/Network/TcpClient.hpp>
 #include <Nazara/Network/TcpServer.hpp>
 #include <Nazara/Network/UdpSocket.hpp>
+#include <Nazara/Network/WebRequest.hpp>
+#include <Nazara/Network/WebRequestResult.hpp>
+#include <Nazara/Network/WebService.hpp>
 
 #endif // NAZARA_GLOBAL_NETWORK_HPP

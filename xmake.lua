@@ -127,7 +127,15 @@ local modules = {
 	Network = {
 		Option = "network",
 		Deps = {"NazaraCore"},
-		Custom = function()
+		Packages = { "fmt" },
+		Custom = function ()
+			if has_config("link_curl") then
+				add_defines("NAZARA_NETWORK_CURL_LINK")
+				add_packages("libcurl")
+			else
+				add_packages("libcurl", { links = {} })
+			end
+
 			if is_plat("windows", "mingw") then
 				add_syslinks("ws2_32")
 			end
@@ -216,6 +224,7 @@ option("compile_shaders", { description = "Compile nzsl shaders into an includab
 option("embed_rendererbackends", { description = "Embed renderer backend code into NazaraRenderer instead of loading them dynamically", default = is_plat("wasm") or false })
 option("embed_resources", { description = "Turn builtin resources into includable headers", default = true })
 option("embed_plugins", { description = "Embed enabled plugins code as static libraries", default = is_plat("wasm") or false })
+option("link_curl", { description = "Link libcurl in the executable instead of dynamically loading it", default = false })
 option("link_openal", { description = "Link OpenAL in the executable instead of dynamically loading it", default = is_plat("wasm") or false })
 option("override_runtime", { description = "Override vs runtime to MD in release and MDd in debug", default = true })
 option("usepch", { description = "Use precompiled headers to speedup compilation", default = false })
@@ -256,6 +265,14 @@ end
 if has_config("joltphysics") then
 	add_requires("joltphysics >=3", { configs = { debug = is_mode("debug") }})
 	add_requires("ordered_map")
+end
+
+if has_config("network") then
+	if has_config("link_curl") then
+		add_requires("libcurl")
+	else
+		add_requires("libcurl", { configs = { shared = true }})
+	end
 end
 
 if has_config("platform") then

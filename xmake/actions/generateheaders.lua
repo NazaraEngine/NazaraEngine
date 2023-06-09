@@ -76,6 +76,8 @@ on_run(function ()
 	paths["Core"].Excludes["AppEntitySystemComponent.hpp"] = { Define = "NAZARA_ENTT" }
 	paths["Core"].Excludes["EnttSystemGraph.hpp"] = { Define = "NAZARA_ENTT" }
 	paths["Core"].Excludes["EnttWorld.hpp"] = { Define = "NAZARA_ENTT" }
+	paths["Network"].Excludes["CurlLibrary.hpp"] = true
+	paths["Network"].Excludes["CurlFunctions.hpp"] = true
 	paths["OpenGLRenderer"].Excludes["Wrapper.hpp"] = true
 	paths["VulkanRenderer"].Excludes["Wrapper.hpp"] = true
 
