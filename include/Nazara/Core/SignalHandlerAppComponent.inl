@@ -6,7 +6,7 @@
 
 namespace Nz
 {
-	SignalHandlerAppComponent::SignalHandlerAppComponent(ApplicationBase& app) :
+	inline SignalHandlerAppComponent::SignalHandlerAppComponent(ApplicationBase& app) :
 	ApplicationComponent(app)
 	{
 		InstallSignalHandler();
