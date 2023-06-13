@@ -6,7 +6,8 @@
 #include <Nazara/Utility/Image.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
 #include <Nazara/Utility/Formats/STBLoader.hpp>
-#include <map>
+#include <frozen/string.h>
+#include <frozen/unordered_map.h>
 #include <stdexcept>
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include <stb_image_write.h>
@@ -14,11 +15,9 @@
 
 namespace Nz
 {
-	namespace
+	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
 		using FormatHandler = bool(*)(const Image& image, const ImageParams& parameters, Stream& stream);
-
-		std::map<std::string_view, FormatHandler> s_formatHandlers;
 
 		int ConvertToFloatFormat(Image& image)
 		{
@@ -103,43 +102,6 @@ namespace Nz
 			Stream* stream = static_cast<Stream*>(userdata);
 			if (stream->Write(data, size) != static_cast<std::size_t>(size))
 				throw std::runtime_error("Failed to write to stream");
-		}
-
-		bool FormatQuerier(const std::string_view& extension)
-		{
-			return s_formatHandlers.find(extension) != s_formatHandlers.end();
-		}
-
-		bool SaveToStream(const Image& image, const std::string& format, Stream& stream, const ImageParams& parameters)
-		{
-			NazaraUnused(parameters);
-
-			if (!image.IsValid())
-			{
-				NazaraError("Invalid image");
-				return false;
-			}
-
-			ImageType type = image.GetType();
-			if (type != ImageType::E1D && type != ImageType::E2D)
-			{
-				NazaraError("Image type 0x" + NumberToString(UnderlyingCast(type), 16) + " is not in a supported format");
-				return false;
-			}
-
-			auto it = s_formatHandlers.find(format);
-			NazaraAssert(it != s_formatHandlers.end(), "Invalid handler");
-
-			const FormatHandler& handler = it->second;
-			try
-			{
-				return handler(image, parameters, stream);
-			}
-			catch (const std::exception& e)
-			{
-				NazaraError(e.what());
-				return false;
-			}
 		}
 
 		bool SaveBMP(const Image& image, const ImageParams& parameters, Stream& stream)
@@ -256,18 +218,61 @@ namespace Nz
 
 			return true;
 		}
+
+		constexpr FormatHandler test = &SaveBMP;
+
+		constexpr frozen::unordered_map s_formatHandlers = frozen::make_unordered_map<frozen::string, FormatHandler>({
+			{ ".bmp",  &SaveBMP },
+			{ ".hdr",  &SaveHDR },
+			{ ".jpg",  &SaveJPEG },
+			{ ".jpeg", &SaveJPEG },
+			{ ".png",  &SavePNG },
+			{ ".tga",  &SaveTGA }
+		});
+		
+		bool FormatQuerier(const std::string_view& extension)
+		{
+			return s_formatHandlers.find(extension) != s_formatHandlers.end();
+		}
+
+		bool SaveToStream(const Image& image, const std::string& format, Stream& stream, const ImageParams& parameters)
+		{
+			NazaraUnused(parameters);
+
+			if (!image.IsValid())
+			{
+				NazaraError("Invalid image");
+				return false;
+			}
+
+			ImageType type = image.GetType();
+			if (type != ImageType::E1D && type != ImageType::E2D)
+			{
+				NazaraError("Image type 0x" + NumberToString(UnderlyingCast(type), 16) + " is not in a supported format");
+				return false;
+			}
+
+			auto it = s_formatHandlers.find(std::string_view(format));
+			NazaraAssert(it != s_formatHandlers.end(), "Invalid handler");
+
+			const FormatHandler& handler = it->second;
+			try
+			{
+				return handler(image, parameters, stream);
+			}
+			catch (const std::exception& e)
+			{
+				NazaraError(e.what());
+				return false;
+			}
+		}
 	}
 
 	namespace Loaders
 	{
 		ImageSaver::Entry GetImageSaver_STB()
 		{
-			s_formatHandlers[".bmp"] = &SaveBMP;
-			s_formatHandlers[".hdr"] = &SaveHDR;
-			s_formatHandlers[".jpg"] = &SaveJPEG;
-			s_formatHandlers[".jpeg"] = &SaveJPEG;
-			s_formatHandlers[".png"] = &SavePNG;
-			s_formatHandlers[".tga"] = &SaveTGA;
+			NAZARA_USE_ANONYMOUS_NAMESPACE
 
 			ImageSaver::Entry entry;
 			entry.formatSupport = FormatQuerier;
