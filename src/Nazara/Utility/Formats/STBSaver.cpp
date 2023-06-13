@@ -262,12 +262,12 @@ namespace Nz
 	{
 		ImageSaver::Entry GetImageSaver_STB()
 		{
-			s_formatHandlers["bmp"] = &SaveBMP;
-			s_formatHandlers["hdr"] = &SaveHDR;
-			s_formatHandlers["jpg"] = &SaveJPEG;
-			s_formatHandlers["jpeg"] = &SaveJPEG;
-			s_formatHandlers["png"] = &SavePNG;
-			s_formatHandlers["tga"] = &SaveTGA;
+			s_formatHandlers[".bmp"] = &SaveBMP;
+			s_formatHandlers[".hdr"] = &SaveHDR;
+			s_formatHandlers[".jpg"] = &SaveJPEG;
+			s_formatHandlers[".jpeg"] = &SaveJPEG;
+			s_formatHandlers[".png"] = &SavePNG;
+			s_formatHandlers[".tga"] = &SaveTGA;
 
 			ImageSaver::Entry entry;
 			entry.formatSupport = FormatQuerier;
