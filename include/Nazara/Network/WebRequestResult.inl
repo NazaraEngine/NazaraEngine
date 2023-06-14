@@ -2,53 +2,55 @@
 // This file is part of the "Nazara Engine - Network module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Network/Debug.hpp>
 #include <cassert>
+#include <Nazara/Network/Debug.hpp>
 
 namespace Nz
 {
-	inline WebRequestResult::WebRequestResult(WebService& webService, CURL* curl, std::string body) :
+#ifndef NAZARA_PLATFORM_WEB
+	inline WebRequestResult::WebRequestResult(WebService& webService, Result<std::string, std::string>&& bodyResult, CURL* curl) :
 	m_curlHandle(curl),
 	m_webService(webService),
-	m_bodyOrErr(std::move(body))
+	m_bodyResult(std::move(bodyResult))
 	{
 	}
-
-	inline WebRequestResult::WebRequestResult(WebService& webService, std::string errMessage) :
-	m_curlHandle(nullptr),
+#else
+	inline WebRequestResult::WebRequestResult(WebService& webService, Result<std::string, std::string>&& bodyResult, emscripten_fetch_t* fetchHandle, Time downloadTime) :
+	m_fetchHandle(fetchHandle),
 	m_webService(webService),
-	m_bodyOrErr(std::move(errMessage))
+	m_bodyResult(std::move(bodyResult)),
+	m_downloadTime(downloadTime)
 	{
 	}
+#endif
 
 	inline std::string& WebRequestResult::GetBody()
 	{
 		assert(HasSucceeded());
-		return m_bodyOrErr;
+		return m_bodyResult.GetValue();
 	}
 
 	inline const std::string& WebRequestResult::GetBody() const
 	{
 		assert(HasSucceeded());
-		return m_bodyOrErr;
+		return m_bodyResult.GetValue();
 	}
 
 	inline const std::string& WebRequestResult::GetErrorMessage() const
 	{
 		assert(!HasSucceeded());
-		return m_bodyOrErr;
+		return m_bodyResult.GetError();
 	}
 
 	inline bool WebRequestResult::HasSucceeded() const
 	{
-		return m_curlHandle != nullptr;
+		return m_bodyResult.IsOk();
 	}
 
 	inline WebRequestResult::operator bool() const
 	{
 		return HasSucceeded();
 	}
-
 }
 
 #include <Nazara/Network/DebugOff.hpp>

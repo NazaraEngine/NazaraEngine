@@ -5,12 +5,17 @@
 #include <Nazara/Network/WebService.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
-#include <Nazara/Network/CurlLibrary.hpp> //< include last because of curl/curl.h
+#ifndef NAZARA_PLATFORM_WEB
+#include <Nazara/Network/CurlLibrary.hpp>
+#else
+#include <emscripten/fetch.h>
+#endif
 #include <fmt/format.h>
 #include <Nazara/Network/Debug.hpp>
 
 namespace Nz
 {
+#ifndef NAZARA_PLATFORM_WEB
 	WebService::WebService(const CurlLibrary& curl) :
 	m_curl(curl)
 	{
@@ -20,9 +25,16 @@ namespace Nz
 
 		m_curlMulti = m_curl.multi_init();
 	}
+#else
+	WebService::WebService() :
+	m_userAgent("Nazara WebService - emscripten_fetch")
+	{
+	}
+#endif
 
 	WebService::~WebService()
 	{
+#ifndef NAZARA_PLATFORM_WEB
 		if (m_curlMulti)
 		{
 			for (auto&& [handle, request] : m_activeRequests)
@@ -30,10 +42,12 @@ namespace Nz
 
 			m_curl.multi_cleanup(m_curlMulti);
 		}
+#endif
 	}
-	
+
 	void WebService::Poll()
 	{
+#ifndef NAZARA_PLATFORM_WEB
 		assert(m_curlMulti);
 
 		int reportedActiveRequest;
@@ -59,9 +73,9 @@ namespace Nz
 				WebRequest& request = *it->second;
 
 				if (m->data.result == CURLE_OK)
-					request.TriggerCallback();
+					request.TriggerSuccessCallback();
 				else
-					request.TriggerCallback(m_curl.easy_strerror(m->data.result));
+					request.TriggerErrorCallback(m_curl.easy_strerror(m->data.result));
 
 				m_curl.multi_remove_handle(m_curlMulti, handle);
 
@@ -69,12 +83,28 @@ namespace Nz
 			}
 		}
 		while (m);
+#else
+		if (!m_finishedRequests.empty())
+		{
+			for (auto&& [request, succeeded] : m_finishedRequests)
+			{
+				if (succeeded)
+					request->TriggerSuccessCallback();
+				else
+					request->TriggerErrorCallback(request->GetFetchHandle()->statusText);
+			}
+
+			m_finishedRequests.clear();
+		}
+#endif
 	}
 
 	void WebService::QueueRequest(std::unique_ptr<WebRequest>&& request)
 	{
-		assert(m_curlMulti);
 		assert(request);
+
+#ifndef NAZARA_PLATFORM_WEB
+		assert(m_curlMulti);
 
 		CURL* handle = request->Prepare();
 
@@ -95,5 +125,57 @@ namespace Nz
 		m_activeRequests.emplace(handle, std::move(request));
 
 		m_curl.multi_add_handle(m_curlMulti, handle);
+#else
+		emscripten_fetch_attr_t attr;
+		emscripten_fetch_attr_init(&attr);
+
+		attr.attributes = EMSCRIPTEN_FETCH_LOAD_TO_MEMORY;
+
+		attr.onsuccess = [](emscripten_fetch_t* fetch)
+		{
+			WebService* service = static_cast<WebService*>(fetch->userData);
+
+			auto it = service->m_activeRequests.find(fetch);
+			if (it == service->m_activeRequests.end())
+			{
+				NazaraError("received emscripten fetch onsuccess with unbound request");
+				return;
+			}
+
+			std::unique_ptr<WebRequest>& request = it->second;
+			request->StopClock();
+			request->OnBodyResponse(fetch->data, SafeCast<std::size_t>(fetch->numBytes));
+
+			service->m_finishedRequests.push_back({
+				std::move(request),
+				true
+			});
+		};
+
+		attr.onerror = [](emscripten_fetch_t* fetch)
+		{
+			WebService* service = static_cast<WebService*>(fetch->userData);
+
+			auto it = service->m_activeRequests.find(fetch);
+			if (it == service->m_activeRequests.end())
+			{
+				NazaraError("received emscripten fetch onsuccess with unbound request");
+				return;
+			}
+
+			std::unique_ptr<WebRequest>& request = it->second;
+			request->StopClock();
+
+			service->m_finishedRequests.push_back({
+				std::move(request),
+				false
+			});
+		};
+
+		attr.userData = this;
+
+		emscripten_fetch_t* handle = request->Prepare(&attr);
+		m_activeRequests.emplace(handle, std::move(request));
+#endif
 	}
 }

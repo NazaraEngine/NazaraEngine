@@ -7,10 +7,14 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Network/Config.hpp>
-#include <Nazara/Network/CurlLibrary.hpp>
 #include <Nazara/Network/NetPacket.hpp>
 #include <Nazara/Network/WebService.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
+
+
+#ifndef NAZARA_PLATFORM_WEB
+#include <Nazara/Network/CurlLibrary.hpp>
+#endif
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 #include <Nazara/Network/Win32/SocketImpl.hpp>
@@ -42,18 +46,21 @@ namespace Nz
 		if (!NetPacket::Initialize())
 			throw std::runtime_error("failed to initialize packets");
 
+#ifndef NAZARA_PLATFORM_WEB
 		if (config.webServices)
 		{
 			m_curlLibrary = std::make_unique<CurlLibrary>();
 			if (!m_curlLibrary->Load())
 				throw std::runtime_error("failed to initialize curl");
 		}
+#endif
 	}
 
 	Network::~Network()
 	{
-		// Uninitialize module here
+#ifndef NAZARA_PLATFORM_WEB
 		m_curlLibrary.reset();
+#endif
 
 		NetPacket::Uninitialize();
 		SocketImpl::Uninitialize();
@@ -61,6 +68,7 @@ namespace Nz
 
 	std::unique_ptr<WebService> Network::InstantiateWebService()
 	{
+#ifndef NAZARA_PLATFORM_WEB
 		if (!m_curlLibrary)
 		{
 			std::unique_ptr<CurlLibrary> curlLibrary = std::make_unique<CurlLibrary>();
@@ -71,6 +79,9 @@ namespace Nz
 		}
 
 		return std::make_unique<WebService>(*m_curlLibrary);
+#else
+		return std::make_unique<WebService>();
+#endif
 	}
 
 	Network* Network::s_instance = nullptr;

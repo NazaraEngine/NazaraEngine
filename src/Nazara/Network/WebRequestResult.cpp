@@ -3,38 +3,55 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Network/WebRequestResult.hpp>
-#include <Nazara/Network/CurlLibrary.hpp> //< include last because of curl/curl.h
+#include <Nazara/Core/Error.hpp>
 #include <Nazara/Network/WebService.hpp>
+#include <NazaraUtils/Algorithm.hpp>
+
+#ifndef NAZARA_PLATFORM_WEB
+#include <Nazara/Network/CurlLibrary.hpp>
+#else
+#include <emscripten/fetch.h>
+#endif
+
 #include <Nazara/Network/Debug.hpp>
 
 namespace Nz
 {
-	Nz::UInt64 WebRequestResult::GetDownloadedSize() const
+	UInt64 WebRequestResult::GetDownloadedSize() const
 	{
-		assert(HasSucceeded());
+		NazaraAssert(HasSucceeded(), "web request failed");
 
+#ifndef NAZARA_PLATFORM_WEB
 		auto& libcurl = m_webService.GetCurlLibrary();
 
 		curl_off_t downloadedSize = 0;
 		libcurl.easy_getinfo(m_curlHandle, CURLINFO_SIZE_DOWNLOAD_T, &downloadedSize);
 
-		return downloadedSize;
+		return SafeCast<UInt64>(downloadedSize);
+#else
+		return m_fetchHandle->numBytes;
+#endif
 	}
 
-	std::size_t WebRequestResult::GetDownloadSpeed() const
+	UInt64 WebRequestResult::GetDownloadSpeed() const
 	{
-		assert(HasSucceeded());
+#ifndef NAZARA_PLATFORM_WEB
+		NazaraAssert(HasSucceeded(), "web request failed");
 
 		auto& libcurl = m_webService.GetCurlLibrary();
 
 		curl_off_t downloadSpeed = 0;
 		libcurl.easy_getinfo(m_curlHandle, CURLINFO_SPEED_DOWNLOAD_T, &downloadSpeed);
 
-		return downloadSpeed;
+		return SafeCast<UInt64>(downloadSpeed);
+#else
+		return 1000u * m_bodyResult.GetValue().size() / m_downloadTime.AsMilliseconds();
+#endif
 	}
 
-	long WebRequestResult::GetReponseCode() const
+	UInt32 WebRequestResult::GetStatusCode() const
 	{
+#ifndef NAZARA_PLATFORM_WEB
 		assert(HasSucceeded());
 
 		auto& libcurl = m_webService.GetCurlLibrary();
@@ -42,6 +59,9 @@ namespace Nz
 		long responseCode;
 		libcurl.easy_getinfo(m_curlHandle, CURLINFO_RESPONSE_CODE, &responseCode);
 
-		return responseCode;
+		return SafeCast<UInt32>(responseCode);
+#else
+		return m_fetchHandle->status;
+#endif
 	}
 }

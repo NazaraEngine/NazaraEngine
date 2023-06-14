@@ -37,7 +37,9 @@ namespace Nz
 			};
 
 		private:
+#ifndef NAZARA_PLATFORM_WEB
 			std::unique_ptr<class CurlLibrary> m_curlLibrary;
+#endif
 
 			static Network* s_instance;
 	};

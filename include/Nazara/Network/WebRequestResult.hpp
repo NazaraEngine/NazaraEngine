@@ -8,12 +8,18 @@
 #define NAZARA_NETWORK_WEBREQUESTRESULT_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/Time.hpp>
 #include <Nazara/Network/Config.hpp>
 #include <NazaraUtils/MovablePtr.hpp>
+#include <NazaraUtils/Result.hpp>
 #include <functional>
 #include <string>
 
+#ifndef NAZARA_PLATFORM_WEB
 using CURL = void;
+#else
+struct emscripten_fetch_t;
+#endif
 
 namespace Nz
 {
@@ -30,10 +36,10 @@ namespace Nz
 
 			inline std::string& GetBody();
 			inline const std::string& GetBody() const;
-			Nz::UInt64 GetDownloadedSize() const;
-			Nz::UInt64 GetDownloadSpeed() const;
+			UInt64 GetDownloadedSize() const;
+			UInt64 GetDownloadSpeed() const;
 			inline const std::string& GetErrorMessage() const;
-			long GetReponseCode() const;
+			UInt32 GetStatusCode() const;
 
 			inline bool HasSucceeded() const;
 
@@ -43,12 +49,23 @@ namespace Nz
 			WebRequestResult& operator=(WebRequestResult&&) = delete;
 
 		private:
-			inline WebRequestResult(WebService& webService, CURL* curl, std::string body);
-			inline WebRequestResult(WebService& webService, std::string errMessage);
+#ifndef NAZARA_PLATFORM_WEB
+			inline WebRequestResult(WebService& webService, Result<std::string, std::string>&& bodyResult, CURL* curl);
+#else
+			inline WebRequestResult(WebService& webService, Result<std::string, std::string>&& bodyResult, emscripten_fetch_t* fetchHandle, Time downloadTime);
+#endif
 
+#ifndef NAZARA_PLATFORM_WEB
 			CURL* m_curlHandle;
+#else
+			emscripten_fetch_t* m_fetchHandle;
+#endif
 			WebService& m_webService;
-			std::string m_bodyOrErr;
+			Result<std::string, std::string> m_bodyResult;
+#ifdef NAZARA_PLATFORM_WEB
+			Time m_downloadTime;
+#endif
+
 	};
 }
 
