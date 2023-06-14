@@ -10,8 +10,12 @@
 #include <Nazara/Network/Config.hpp>
 #include <Nazara/Network/WebRequest.hpp>
 #include <NazaraUtils/MovablePtr.hpp>
+#include <unordered_map>
+#include <vector>
 
+#ifndef NAZARA_PLATFORM_WEB
 using CURLM = void;
+#endif
 
 namespace Nz
 {
@@ -24,7 +28,11 @@ namespace Nz
 		friend WebRequestResult;
 
 		public:
+#ifndef NAZARA_PLATFORM_WEB
 			WebService(const CurlLibrary& library);
+#else
+			WebService();
+#endif
 			WebService(const WebService&) = delete;
 			WebService(WebService&&) = delete;
 			~WebService();
@@ -44,12 +52,25 @@ namespace Nz
 			WebService& operator=(WebService&&) = delete;
 
 		private:
+#ifndef NAZARA_PLATFORM_WEB
 			inline const CurlLibrary& GetCurlLibrary() const;
+#endif
 
 			std::string m_userAgent;
+#ifndef NAZARA_PLATFORM_WEB
 			std::unordered_map<CURL*, std::unique_ptr<WebRequest>> m_activeRequests;
 			const CurlLibrary& m_curl;
 			MovablePtr<CURLM> m_curlMulti;
+#else
+			struct FinishedRequest
+			{
+				std::unique_ptr<WebRequest> request;
+				bool succeeded;
+			};
+
+			std::unordered_map<emscripten_fetch_t*, std::unique_ptr<WebRequest>> m_activeRequests;
+			std::vector<FinishedRequest> m_finishedRequests;
+#endif
 	};
 }
 

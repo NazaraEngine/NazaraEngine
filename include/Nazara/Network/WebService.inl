@@ -36,10 +36,12 @@ namespace Nz
 		return m_userAgent;
 	}
 
+#ifndef NAZARA_PLATFORM_WEB
 	const CurlLibrary& WebService::GetCurlLibrary() const
 	{
 		return m_curl;
 	}
+#endif
 }
 
 #include <Nazara/Network/DebugOff.hpp>

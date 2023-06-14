@@ -129,11 +129,17 @@ local modules = {
 		Deps = {"NazaraCore"},
 		Packages = { "fmt" },
 		Custom = function ()
-			if has_config("link_curl") then
-				add_defines("NAZARA_NETWORK_CURL_LINK")
-				add_packages("libcurl")
+			if not is_plat("wasm") then
+				if has_config("link_curl") then
+					add_defines("NAZARA_NETWORK_CURL_LINK")
+					add_packages("libcurl")
+				else
+					add_packages("libcurl", { links = {} })
+				end
 			else
-				add_packages("libcurl", { links = {} })
+				add_ldflags("-sFETCH", { public = true })
+				remove_headerfiles("include/Nazara/Network/CurlLibrary.hpp")
+				remove_files("src/Nazara/Network/CurlLibrary.cpp")
 			end
 
 			if is_plat("windows", "mingw") then
@@ -268,10 +274,13 @@ if has_config("joltphysics") then
 end
 
 if has_config("network") then
-	if has_config("link_curl") then
-		add_requires("libcurl")
-	else
-		add_requires("libcurl", { configs = { shared = true }})
+	-- emscripten fetch API is used for WebService on wasm
+	if not is_plat("wasm") then
+		if has_config("link_curl") then
+			add_requires("libcurl")
+		else
+			add_requires("libcurl", { configs = { shared = true }})
+		end
 	end
 end
 

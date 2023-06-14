@@ -32,16 +32,42 @@ namespace Nz
 		return m_dataCallback(data, length);
 	}
 
-	inline void WebRequest::TriggerCallback()
+#ifdef NAZARA_PLATFORM_WEB
+	inline emscripten_fetch_t* WebRequest::GetFetchHandle() const
 	{
-		m_resultCallback(WebRequestResult(m_webService, m_curlHandle.Get(), std::move(m_responseBody)));
-		m_responseBody.clear();
+		return m_fetchHandle;
 	}
 
-	inline void WebRequest::TriggerCallback(std::string errorMessage)
+	inline Time WebRequest::GetRequestTime() const
 	{
-		m_resultCallback(WebRequestResult(m_webService, std::move(errorMessage)));
+		return m_clock.GetElapsedTime();
+	}
+
+	inline void WebRequest::StopClock()
+	{
+		m_clock.Pause();
+	}
+#endif
+
+	inline void WebRequest::TriggerErrorCallback(std::string errorMessage)
+	{
+#ifndef NAZARA_PLATFORM_WEB
+		m_resultCallback(WebRequestResult(m_webService, Nz::Err(std::move(errorMessage)), m_curlHandle.Get()));
+#else
+		m_resultCallback(WebRequestResult(m_webService, Nz::Err(std::move(errorMessage)), m_fetchHandle.Get(), m_clock.GetElapsedTime()));
+#endif
+	}
+
+	inline void WebRequest::TriggerSuccessCallback()
+	{
+#ifndef NAZARA_PLATFORM_WEB
+		m_resultCallback(WebRequestResult(m_webService, Nz::Ok(std::move(m_responseBody)), m_curlHandle.Get()));
+#else
+		m_resultCallback(WebRequestResult(m_webService, Nz::Ok(std::move(m_responseBody)), m_fetchHandle.Get(), m_clock.GetElapsedTime()));
+#endif
+		m_responseBody.clear();
 	}
 }
 
 #include <Nazara/Network/DebugOff.hpp>
+#include "WebRequest.hpp"

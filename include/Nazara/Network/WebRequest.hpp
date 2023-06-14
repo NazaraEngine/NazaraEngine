@@ -7,6 +7,8 @@
 #ifndef NAZARA_NETWORK_WEBREQUEST_HPP
 #define NAZARA_NETWORK_WEBREQUEST_HPP
 
+#include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/Clock.hpp>
 #include <Nazara/Network/Config.hpp>
 #include <Nazara/Network/Enums.hpp>
 #include <Nazara/Network/WebRequestResult.hpp>
@@ -15,7 +17,11 @@
 #include <string>
 #include <unordered_map>
 
+#ifndef NAZARA_PLATFORM_WEB
 struct curl_slist;
+#else
+struct emscripten_fetch_attr_t;
+#endif
 
 namespace Nz
 {
@@ -38,10 +44,10 @@ namespace Nz
 
 			inline void SetDataCallback(DataCallback callback);
 			inline void SetHeader(std::string header, std::string value);
-			void SetJSonContent(std::string_view encodedJSon);
+			void SetJSonContent(std::string encodedJSon);
 			void SetMaximumFileSize(UInt64 maxFileSize);
 			inline void SetResultCallback(ResultCallback callback);
-			void SetServiceName(const std::string_view& serviceName);
+			void SetServiceName(std::string serviceName);
 			void SetURL(const std::string& url);
 
 			void SetupGet();
@@ -50,21 +56,36 @@ namespace Nz
 			WebRequest& operator=(const WebRequest&) = delete;
 			WebRequest& operator=(WebRequest&&) = default;
 
-			static std::unique_ptr<WebRequest> Get(const std::string& url, ResultCallback callback = nullptr);
-			static std::unique_ptr<WebRequest> Post(const std::string& url, ResultCallback callback = nullptr);
-
 		private:
 			inline bool OnBodyResponse(const char* data, std::size_t length);
+#ifndef NAZARA_PLATFORM_WEB
 			CURL* Prepare();
-			inline void TriggerCallback();
-			inline void TriggerCallback(std::string errorMessage);
+#else
+			inline emscripten_fetch_t* GetFetchHandle() const;
+			inline Nz::Time GetRequestTime() const;
+			emscripten_fetch_t* Prepare(emscripten_fetch_attr_t* fetchAttr);
+			inline void StopClock();
+#endif
+			inline void TriggerErrorCallback(std::string errorMessage);
+			inline void TriggerSuccessCallback();
 
+#ifdef NAZARA_PLATFORM_WEB
+			std::string m_httpMethod;
+			std::string m_url;
+			std::vector<const char*> m_requestHeaders;
+#endif
+			std::string m_content;
 			std::string m_responseBody;
 			std::unordered_map<std::string, std::string> m_headers;
 			WebService& m_webService;
 			DataCallback m_dataCallback;
+#ifndef NAZARA_PLATFORM_WEB
 			MovablePtr<CURL> m_curlHandle;
 			MovablePtr<curl_slist> m_headerList;
+#else
+			HighPrecisionClock m_clock;
+			MovablePtr<emscripten_fetch_t> m_fetchHandle;
+#endif
 			ResultCallback m_resultCallback;
 			bool m_isUserAgentSet;
 	};
