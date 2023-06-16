@@ -705,7 +705,7 @@ nzsl::Ast::ExpressionType ShaderGraph::ToShaderExpressionType(TextureType type)
 {
 	switch (type)
 	{
-		case TextureType::Sampler2D: return nzsl::Ast::SamplerType{ nzsl::ImageType::E2D, nzsl::Ast::PrimitiveType::Float32 };
+		case TextureType::Sampler2D: return nzsl::Ast::SamplerType{ nzsl::ImageType::E2D, nzsl::Ast::PrimitiveType::Float32, false };
 	}
 
 	assert(false);

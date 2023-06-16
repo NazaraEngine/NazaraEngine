@@ -369,10 +369,8 @@ set_warnings("allextra")
 if is_mode("debug") then
 	add_rules("debug.suffix")
 	add_defines("NAZARA_DEBUG")
-elseif is_mode("asan") then
-	set_optimize("none") -- by default xmake will optimize asan builds
-elseif is_mode("tsan") then
-	set_optimize("none") -- by default xmake will optimize asan builds
+elseif is_mode("asan", "tsan") then
+	set_optimize("none") -- by default xmake will optimize asan/tsan builds
 elseif is_mode("coverage") then
 	if not is_plat("windows") then
 		add_links("gcov")

@@ -247,7 +247,7 @@ namespace Nz
 			}
 
 			JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterface();
-			bodyInterface.SetShape(m_body->GetID(), m_geom->GetShapeSettings()->Create().Get(), false, (ShouldActivate()) ? JPH::EActivation::Activate : JPH::EActivation::DontActivate);
+			bodyInterface.SetShape(m_body->GetID(), shape, false, (ShouldActivate()) ? JPH::EActivation::Activate : JPH::EActivation::DontActivate);
 			if (recomputeInertia)
 			{
 				JPH::MassProperties massProperties = m_body->GetShape()->GetMassProperties();
@@ -361,7 +361,6 @@ namespace Nz
 	{
 		if (m_body)
 		{
-			JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterface();
 			m_world->UnregisterBody(m_body->GetID(), true, !worldDestruction);
 			m_body = nullptr;
 		}

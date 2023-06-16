@@ -94,7 +94,7 @@ namespace Nz
 		if (extent != Extent::Finite)
 			return true;
 
-		return aabb.ApproxEqual(volume.aabb) && obb.ApproxEqual(volume.obb);
+		return aabb.ApproxEqual(volume.aabb, maxDifference) && obb.ApproxEqual(volume.obb, maxDifference);
 	}
 
 	/*!

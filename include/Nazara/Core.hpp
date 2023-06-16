@@ -82,12 +82,14 @@
 #include <Nazara/Core/ResourceRegistry.hpp>
 #include <Nazara/Core/ResourceSaver.hpp>
 #include <Nazara/Core/SerializationContext.hpp>
+#include <Nazara/Core/SignalHandlerAppComponent.hpp>
 #include <Nazara/Core/State.hpp>
 #include <Nazara/Core/StateMachine.hpp>
 #include <Nazara/Core/StdLogger.hpp>
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Core/TaskScheduler.hpp>
+#include <Nazara/Core/ThreadExt.hpp>
 #include <Nazara/Core/Time.hpp>
 #include <Nazara/Core/Unicode.hpp>
 #include <Nazara/Core/Updatable.hpp>
