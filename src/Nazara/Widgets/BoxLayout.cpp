@@ -99,7 +99,7 @@ namespace Nz
 
 		kiwi::Variable targetSize("LayoutSize");
 
-		m_state->solver.addConstraint(sizeSum <= targetSize | kiwi::strength::strong);
+		m_state->solver.addConstraint((sizeSum <= targetSize) | kiwi::strength::strong);
 
 		m_state->solver.addEditVariable(targetSize, kiwi::strength::strong);
 		m_state->solver.suggestValue(targetSize, availableSpace);
