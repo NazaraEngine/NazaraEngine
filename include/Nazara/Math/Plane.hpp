@@ -33,6 +33,8 @@ namespace Nz
 			constexpr T Distance(T x, T y, T z) const;
 			constexpr T Distance(const Vector3<T>& point) const;
 
+			Plane& Normalize(T* length = nullptr);
+
 			std::string ToString() const;
 
 			constexpr Plane& operator=(const Plane& other) = default;
@@ -43,6 +45,7 @@ namespace Nz
 			static constexpr bool ApproxEqual(const Plane& lhs, const Plane& rhs, T maxDifference = std::numeric_limits<T>::epsilon());
 			static constexpr Vector3<T> Intersect(const Plane& p0, const Plane& p1, const Plane& p2);
 			static constexpr Plane Lerp(const Plane& from, const Plane& to, T interpolation);
+			static Plane Normalize(const Plane& plane, T* length = nullptr);
 			static constexpr Plane XY();
 			static constexpr Plane XZ();
 			static constexpr Plane YZ();

@@ -140,10 +140,19 @@ namespace Nz
 	template<typename T>
 	constexpr bool Frustum<T>::Contains(const Box<T>& box) const
 	{
-		// http://www.lighthouse3d.com/tutorials/view-frustum-culling/geometric-approach-testing-boxes-ii/
+		// https://gdbooks.gitbooks.io/3dcollisions/content/Chapter2/static_aabb_plane.html
+		// https://learnopengl.com/Guest-Articles/2021/Scene/Frustum-Culling
+
+		Vector3<T> center = box.GetCenter();
+		Vector3<T> extents = box.GetLengths() * T(0.5);
+
 		for (const auto& plane : m_planes)
 		{
-			if (plane.Distance(box.GetPositiveVertex(plane.normal)) < T(0.0))
+			Vector3<T> projectedExtents = extents * plane.normal.GetAbs();
+			float radius = projectedExtents.x + projectedExtents.y + projectedExtents.z;
+
+			float distance = plane.Distance(center);
+			if (distance < T(-radius))
 				return false;
 		}
 
@@ -300,14 +309,23 @@ namespace Nz
 	template<typename T>
 	constexpr IntersectionSide Frustum<T>::Intersect(const Box<T>& box) const
 	{
-		// http://www.lighthouse3d.com/tutorials/view-frustum-culling/geometric-approach-testing-boxes-ii/
+		// https://gdbooks.gitbooks.io/3dcollisions/content/Chapter2/static_aabb_plane.html
+		// https://learnopengl.com/Guest-Articles/2021/Scene/Frustum-Culling
 		IntersectionSide side = IntersectionSide::Inside;
+
+		Vector3<T> center = box.GetCenter();
+		Vector3<T> extents = box.GetLengths() * T(0.5);
 
 		for (const auto& plane : m_planes)
 		{
-			if (plane.Distance(box.GetPositiveVertex(plane.normal)) < T(0.0))
+			Vector3<T> projectedExtents = extents * plane.normal.GetAbs();
+			float radius = projectedExtents.x + projectedExtents.y + projectedExtents.z;
+
+			float distance = plane.Distance(center);
+
+			if (distance < T(-radius))
 				return IntersectionSide::Outside;
-			else if (plane.Distance(box.GetNegativeVertex(plane.normal)) < T(0.0))
+			else if (distance < T(radius))
 				side = IntersectionSide::Intersecting;
 		}
 
@@ -483,101 +501,39 @@ namespace Nz
 	template<typename T>
 	Frustum<T> Frustum<T>::Extract(const Matrix4<T>& viewProjMatrix)
 	{
-		// http://www.crownandcutlass.com/features/technicaldetails/frustum.html
-		T plane[4];
-		T invLength;
-
 		EnumArray<FrustumPlane, Plane<T>> planes;
+		planes[FrustumPlane::Left].normal.x = viewProjMatrix(3, 0) + viewProjMatrix(0, 0);
+		planes[FrustumPlane::Left].normal.y = viewProjMatrix(3, 1) + viewProjMatrix(0, 1);
+		planes[FrustumPlane::Left].normal.z = viewProjMatrix(3, 2) + viewProjMatrix(0, 2);
+		planes[FrustumPlane::Left].distance = viewProjMatrix(3, 3) + viewProjMatrix(0, 3);
 
-		// Extract the numbers for the RIGHT plane
-		plane[0] = viewProjMatrix[3] - viewProjMatrix[0];
-		plane[1] = viewProjMatrix[7] - viewProjMatrix[4];
-		plane[2] = viewProjMatrix[11] - viewProjMatrix[8];
-		plane[3] = viewProjMatrix[15] - viewProjMatrix[12];
+		planes[FrustumPlane::Right].normal.x = viewProjMatrix(3, 0) - viewProjMatrix(0, 0);
+		planes[FrustumPlane::Right].normal.y = viewProjMatrix(3, 1) - viewProjMatrix(0, 1);
+		planes[FrustumPlane::Right].normal.z = viewProjMatrix(3, 2) - viewProjMatrix(0, 2);
+		planes[FrustumPlane::Right].distance = viewProjMatrix(3, 3) - viewProjMatrix(0, 3);
 
-		// Normalize the result
-		invLength = T(1.0) / std::sqrt(plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2]);
-		plane[0] *= invLength;
-		plane[1] *= invLength;
-		plane[2] *= invLength;
-		plane[3] *= -invLength;
+		planes[FrustumPlane::Bottom].normal.x = viewProjMatrix(3, 0) - viewProjMatrix(1, 0);
+		planes[FrustumPlane::Bottom].normal.y = viewProjMatrix(3, 1) - viewProjMatrix(1, 1);
+		planes[FrustumPlane::Bottom].normal.z = viewProjMatrix(3, 2) - viewProjMatrix(1, 2);
+		planes[FrustumPlane::Bottom].distance = viewProjMatrix(3, 3) - viewProjMatrix(1, 3);
 
-		planes[FrustumPlane::Right] = Plane<T>(plane);
+		planes[FrustumPlane::Top].normal.x = viewProjMatrix(3, 0) + viewProjMatrix(1, 0);
+		planes[FrustumPlane::Top].normal.y = viewProjMatrix(3, 1) + viewProjMatrix(1, 1);
+		planes[FrustumPlane::Top].normal.z = viewProjMatrix(3, 2) + viewProjMatrix(1, 2);
+		planes[FrustumPlane::Top].distance = viewProjMatrix(3, 3) + viewProjMatrix(1, 3);
 
-		// Extract the numbers for the LEFT plane
-		plane[0] = viewProjMatrix[3] + viewProjMatrix[0];
-		plane[1] = viewProjMatrix[7] + viewProjMatrix[4];
-		plane[2] = viewProjMatrix[11] + viewProjMatrix[8];
-		plane[3] = viewProjMatrix[15] + viewProjMatrix[12];
+		planes[FrustumPlane::Far].normal.x = viewProjMatrix(3, 0) + viewProjMatrix(2, 0);
+		planes[FrustumPlane::Far].normal.y = viewProjMatrix(3, 1) + viewProjMatrix(2, 1);
+		planes[FrustumPlane::Far].normal.z = viewProjMatrix(3, 2) + viewProjMatrix(2, 2);
+		planes[FrustumPlane::Far].distance = viewProjMatrix(3, 3) + viewProjMatrix(2, 3);
 
-		// Normalize the result
-		invLength = T(1.0) / std::sqrt(plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2]);
-		plane[0] *= invLength;
-		plane[1] *= invLength;
-		plane[2] *= invLength;
-		plane[3] *= -invLength;
+		planes[FrustumPlane::Near].normal.x = viewProjMatrix(3, 0) - viewProjMatrix(2, 0);
+		planes[FrustumPlane::Near].normal.y = viewProjMatrix(3, 1) - viewProjMatrix(2, 1);
+		planes[FrustumPlane::Near].normal.z = viewProjMatrix(3, 2) - viewProjMatrix(2, 2);
+		planes[FrustumPlane::Near].distance = viewProjMatrix(3, 3) - viewProjMatrix(2, 3);
 
-		planes[FrustumPlane::Left] = Plane<T>(plane);
-
-		// Extract the BOTTOM plane
-		plane[0] = viewProjMatrix[3] + viewProjMatrix[1];
-		plane[1] = viewProjMatrix[7] + viewProjMatrix[5];
-		plane[2] = viewProjMatrix[11] + viewProjMatrix[9];
-		plane[3] = viewProjMatrix[15] + viewProjMatrix[13];
-
-		// Normalize the result
-		invLength = T(1.0) / std::sqrt(plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2]);
-		plane[0] *= invLength;
-		plane[1] *= invLength;
-		plane[2] *= invLength;
-		plane[3] *= -invLength;
-
-		planes[FrustumPlane::Bottom] = Plane<T>(plane);
-
-		// Extract the TOP plane
-		plane[0] = viewProjMatrix[3] - viewProjMatrix[1];
-		plane[1] = viewProjMatrix[7] - viewProjMatrix[5];
-		plane[2] = viewProjMatrix[11] - viewProjMatrix[9];
-		plane[3] = viewProjMatrix[15] - viewProjMatrix[13];
-
-		// Normalize the result
-		invLength = T(1.0) / std::sqrt(plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2]);
-		plane[0] *= invLength;
-		plane[1] *= invLength;
-		plane[2] *= invLength;
-		plane[3] *= -invLength;
-
-		planes[FrustumPlane::Top] = Plane<T>(plane);
-
-		// Extract the FAR plane
-		plane[0] = viewProjMatrix[3] - viewProjMatrix[2];
-		plane[1] = viewProjMatrix[7] - viewProjMatrix[6];
-		plane[2] = viewProjMatrix[11] - viewProjMatrix[10];
-		plane[3] = viewProjMatrix[15] - viewProjMatrix[14];
-
-		// Normalize the result
-		invLength = T(1.0) / std::sqrt(plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2]);
-		plane[0] *= invLength;
-		plane[1] *= invLength;
-		plane[2] *= invLength;
-		plane[3] *= -invLength;
-
-		planes[FrustumPlane::Far] = Plane<T>(plane);
-
-		// Extract the NEAR plane
-		plane[0] = viewProjMatrix[3] + viewProjMatrix[2];
-		plane[1] = viewProjMatrix[7] + viewProjMatrix[6];
-		plane[2] = viewProjMatrix[11] + viewProjMatrix[10];
-		plane[3] = viewProjMatrix[15] + viewProjMatrix[14];
-
-		// Normalize the result
-		invLength = T(1.0) / std::sqrt(plane[0] * plane[0] + plane[1] * plane[1] + plane[2] * plane[2]);
-		plane[0] *= invLength;
-		plane[1] *= invLength;
-		plane[2] *= invLength;
-		plane[3] *= -invLength;
-
-		planes[FrustumPlane::Near] = Plane<T>(plane);
+		for (auto& plane : planes)
+			plane.Normalize();
 
 		return Frustum(planes);
 	}
@@ -631,13 +587,12 @@ namespace Nz
 	std::ostream& operator<<(std::ostream& out, const Nz::Frustum<T>& frustum)
 	{
 		return out << "Frustum(Bottom: " << frustum.GetPlane(Nz::FrustumPlane::Bottom) << ",\n"
-			<< "        Far: " << frustum.GetPlane(Nz::FrustumPlane::Far) << ",\n"
-			<< "        Left: " << frustum.GetPlane(Nz::FrustumPlane::Left) << ",\n"
-			<< "        Near: " << frustum.GetPlane(Nz::FrustumPlane::Near) << ",\n"
-			<< "        Right: " << frustum.GetPlane(Nz::FrustumPlane::Right) << ",\n"
-			<< "        Top: " << frustum.GetPlane(Nz::FrustumPlane::Top) << ")\n";
+		           << "        Far: "    << frustum.GetPlane(Nz::FrustumPlane::Far) << ",\n"
+		           << "        Left: "   << frustum.GetPlane(Nz::FrustumPlane::Left) << ",\n"
+		           << "        Near: "   << frustum.GetPlane(Nz::FrustumPlane::Near) << ",\n"
+		           << "        Right: "  << frustum.GetPlane(Nz::FrustumPlane::Right) << ",\n"
+		           << "        Top: "    << frustum.GetPlane(Nz::FrustumPlane::Top) << ")\n";
 	}
 }
 
 #include <Nazara/Core/DebugOff.hpp>
-#include "Frustum.hpp"

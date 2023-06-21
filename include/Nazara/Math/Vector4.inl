@@ -259,7 +259,7 @@ namespace Nz
 	Vector4<T>& Vector4<T>::Normalize(T* length)
 	{
 		T invLength = T(1.0) / w;
-		x *= invLength; // Warning, change this logic will break Frustum::Extract
+		x *= invLength;
 		y *= invLength;
 		z *= invLength;
 

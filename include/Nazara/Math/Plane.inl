@@ -144,14 +144,26 @@ namespace Nz
 	template<typename T>
 	constexpr T Plane<T>::Distance(const Vector3<T>& point) const
 	{
-		return normal.DotProduct(point) - distance; // ax + by + cd - d = 0.
+		return normal.DotProduct(point) + distance; // ax + by + cz + d = 0.
+	}
+
+	template<typename T>
+	Plane<T>& Plane<T>::Normalize(T* length)
+	{
+		T normalLength = normal.GetLength();
+		normal /= normalLength;
+		distance /= normalLength;
+
+		if (length)
+			*length = normalLength;
+
+		return *this;
 	}
 
 	/*!
 	* \brief Gives a string representation
 	* \return A string representation of the object: "Plane(Normal: Vector3(x, y, z); Distance: w)"
 	*/
-
 	template<typename T>
 	std::string Plane<T>::ToString() const
 	{
@@ -251,6 +263,15 @@ namespace Nz
 		return plane;
 	}
 
+	template<typename T>
+	Plane<T> Plane<T>::Normalize(const Plane& plane, T* length)
+	{
+		Plane normalizedPlane(plane);
+		normalizedPlane.Normalize(length);
+
+		return normalizedPlane;
+	}
+
 	/*!
 	* \brief Shorthand for the plane (0, 0, 1, 0)
 	* \return A plane with components (0, 0, 1, 0)
@@ -334,4 +355,3 @@ namespace Nz
 }
 
 #include <Nazara/Core/DebugOff.hpp>
-#include "Plane.hpp"
