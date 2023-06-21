@@ -21,7 +21,7 @@ namespace Nz
 	m_origin(0.f, 0.f)
 	{
 		Vector2ui size = Vector2ui(GetTextureSize());
-		m_size = (orientation == Orientation::Horizontal) ? size.x : size.y;
+		m_size = SafeCast<float>((orientation == Orientation::Horizontal) ? size.x : size.y);
 
 		UpdateVertices();
 	}
