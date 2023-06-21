@@ -291,7 +291,6 @@ namespace Nz
 
 	Vector3f BulletRigidBody3D::ToLocal(const Vector3f& worldPosition)
 	{
-		btTransform worldTransform = m_body->getWorldTransform();
 		return GetMatrix().InverseTransform() * worldPosition;
 	}
 
