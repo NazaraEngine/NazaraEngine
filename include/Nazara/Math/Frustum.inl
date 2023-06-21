@@ -239,6 +239,12 @@ namespace Nz
 		return m_planes[plane];
 	}
 
+	template<typename T>
+	constexpr const EnumArray<FrustumPlane, Plane<T>>& Frustum<T>::GetPlanes() const
+	{
+		return m_planes;
+	}
+
 	/*!
 	* \brief Checks whether or not a bounding volume intersects with the frustum
 	* \return IntersectionSide How the bounding volume is intersecting with the frustum

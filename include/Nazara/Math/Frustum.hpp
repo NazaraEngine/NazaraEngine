@@ -46,6 +46,7 @@ namespace Nz
 			constexpr bool Contains(const Vector3<T>* points, std::size_t pointCount) const;
 
 			constexpr const Plane<T>& GetPlane(FrustumPlane plane) const;
+			constexpr const EnumArray<FrustumPlane, Plane<T>>& GetPlanes() const;
 
 			constexpr IntersectionSide Intersect(const BoundingVolume<T>& volume) const;
 			constexpr IntersectionSide Intersect(const Box<T>& box) const;
