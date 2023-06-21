@@ -24,7 +24,7 @@ namespace Nz::PlatformImpl
 	std::string GetThreadName(pthread_t threadHandle)
 	{
 #if defined(__linux__) || defined(__APPLE__)
-		std::array<char, 16> name;
+		std::array<char, 16> name = { "<error>" };
 		::pthread_getname_np(threadHandle, &name[0], name.size());
 
 		return std::string(&name[0]);
@@ -35,12 +35,10 @@ namespace Nz::PlatformImpl
 
 	void SetCurrentThreadName(const char* threadName)
 	{
-#if defined(__linux__)
+#if defined(__linux__) || defined(__FreeBSD__)
 		::pthread_setname_np(::pthread_self(), threadName);
 #elif defined(__APPLE__)
 		::pthread_setname_np(threadName);
-#elif defined(__FreeBSD__)
-		::pthread_set_name_np(::pthread_self(), threadName);
 #else
 		NazaraWarning("setting current thread name is not supported on this platform");
 #endif
@@ -48,15 +46,12 @@ namespace Nz::PlatformImpl
 
 	void SetThreadName(pthread_t threadHandle, const char* threadName)
 	{
-#if defined(__linux__)
+#if defined(__linux__) || defined(__FreeBSD__)
 		::pthread_setname_np(threadHandle, threadName);
 #elif defined(__APPLE__)
 		NazaraWarning("only current thread name can be set on MacOS X");
-#elif defined(__FreeBSD__)
-		::pthread_set_name_np(threadHandle, threadName);
 #else
 		NazaraWarning("setting a thread name is not supported on this platform");
 #endif
 	}
 }
-
