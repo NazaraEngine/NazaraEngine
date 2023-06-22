@@ -151,7 +151,7 @@ namespace Nz
 			Vector3<T> projectedExtents = extents * plane.normal.GetAbs();
 			float radius = projectedExtents.x + projectedExtents.y + projectedExtents.z;
 
-			float distance = plane.Distance(center);
+			float distance = plane.SignedDistance(center);
 			if (distance < T(-radius))
 				return false;
 		}
@@ -182,7 +182,7 @@ namespace Nz
 	{
 		for (const auto& plane : m_planes)
 		{
-			if (plane.Distance(sphere.GetPosition()) < -sphere.radius)
+			if (plane.SignedDistance(sphere.GetPosition()) < -sphere.radius)
 				return false;
 		}
 
@@ -200,7 +200,7 @@ namespace Nz
 	{
 		for (const auto& plane : m_planes)
 		{
-			if (plane.Distance(point) < T(0.0))
+			if (plane.SignedDistance(point) < T(0.0))
 				return false;
 		}
 
@@ -222,7 +222,7 @@ namespace Nz
 			std::size_t j;
 			for (j = 0; j < pointCount; j++ )
 			{
-				if (plane.Distance(points[j]) > T(0.0))
+				if (plane.SignedDistance(points[j]) > T(0.0))
 					break;
 			}
 
@@ -321,7 +321,7 @@ namespace Nz
 			Vector3<T> projectedExtents = extents * plane.normal.GetAbs();
 			float radius = projectedExtents.x + projectedExtents.y + projectedExtents.z;
 
-			float distance = plane.Distance(center);
+			float distance = plane.SignedDistance(center);
 
 			if (distance < T(-radius))
 				return IntersectionSide::Outside;
@@ -358,7 +358,7 @@ namespace Nz
 
 		for (const auto& plane : m_planes)
 		{
-			T distance = plane.Distance(sphere.GetPosition());
+			T distance = plane.SignedDistance(sphere.GetPosition());
 			if (distance < -sphere.radius)
 				return IntersectionSide::Outside;
 			else if (distance < sphere.radius)
@@ -385,7 +385,7 @@ namespace Nz
 			std::size_t j;
 			for (j = 0; j < pointCount; j++ )
 			{
-				if (plane.Distance(points[j]) > T(0.0))
+				if (plane.SignedDistance(points[j]) > T(0.0))
 					break;
 			}
 

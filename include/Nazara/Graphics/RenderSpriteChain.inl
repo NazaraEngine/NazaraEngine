@@ -31,7 +31,7 @@ namespace Nz
 		{
 			UInt64 matFlags = 1;
 
-			float distanceNear = frustum.GetPlane(FrustumPlane::Near).Distance(m_worldInstance.GetWorldMatrix().GetTranslation());
+			float distanceNear = frustum.GetPlane(FrustumPlane::Near).SignedDistance(m_worldInstance.GetWorldMatrix().GetTranslation());
 			UInt64 distance = DistanceAsSortKey(distanceNear);
 
 			// Transparent RQ index:

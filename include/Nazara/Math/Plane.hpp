@@ -30,10 +30,9 @@ namespace Nz
 
 			constexpr bool ApproxEqual(const Plane& plane, T maxDifference = std::numeric_limits<T>::epsilon()) const;
 
-			constexpr T Distance(T x, T y, T z) const;
-			constexpr T Distance(const Vector3<T>& point) const;
-
 			Plane& Normalize(T* length = nullptr);
+
+			constexpr T SignedDistance(const Vector3<T>& point) const;
 
 			std::string ToString() const;
 

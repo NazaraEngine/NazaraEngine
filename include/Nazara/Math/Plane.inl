@@ -113,22 +113,17 @@ namespace Nz
 		return NumberEquals(distance, plane.distance, maxDifference);
 	}
 
-	/*!
-	* \brief Returns the distance from the plane to the point
-	* \return Distance to the point
-	*
-	* \param x X position of the point
-	* \param y Y position of the point
-	* \param z Z position of the point
-	*
-	* \remark If T is negative, it means that the point is in the opposite direction of the normal
-	*
-	* \see Distance
-	*/
 	template<typename T>
-	constexpr T Plane<T>::Distance(T x, T y, T z) const
+	Plane<T>& Plane<T>::Normalize(T* length)
 	{
-		return Distance(Vector3<T>(x, y, z));
+		T normalLength = normal.GetLength();
+		normal /= normalLength;
+		distance /= normalLength;
+
+		if (length)
+			*length = normalLength;
+
+		return *this;
 	}
 
 	/*!
@@ -142,22 +137,9 @@ namespace Nz
 	* \see Distance
 	*/
 	template<typename T>
-	constexpr T Plane<T>::Distance(const Vector3<T>& point) const
+	constexpr T Plane<T>::SignedDistance(const Vector3<T>& point) const
 	{
 		return normal.DotProduct(point) + distance; // ax + by + cz + d = 0.
-	}
-
-	template<typename T>
-	Plane<T>& Plane<T>::Normalize(T* length)
-	{
-		T normalLength = normal.GetLength();
-		normal /= normalLength;
-		distance /= normalLength;
-
-		if (length)
-			*length = normalLength;
-
-		return *this;
 	}
 
 	/*!
