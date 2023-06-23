@@ -20,29 +20,30 @@ SCENARIO("Plane", "[MATH][PLANE]")
 			{
 				Nz::Vector3f point(-2.f, 3.f, 1.f);
 				REQUIRE(firstPlane.SignedDistance(point) == Catch::Approx(secondPlane.SignedDistance(point)));
-				REQUIRE(firstPlane.SignedDistance({ -2.f, 3.f, 1.f }) == Catch::Approx(0.1547f));
+				REQUIRE(firstPlane.SignedDistance({ -2.f, 3.f, 1.f }) == Catch::Approx(2.1547f));
 			}
 
-			AND_THEN("Distance between Plane (0, 1, 0), distance 1 and point (0, 2, 0) should be 1")
+			AND_THEN("Distance between Plane (0, 1, 0), distance 1 and point (0, 2, 0) should be 3")
 			{
-				REQUIRE(Nz::Planef(Nz::Vector3f::UnitY(), 1.f).SignedDistance(Nz::Vector3f::UnitY() * 2.f) == Catch::Approx(1.f));
+				REQUIRE(Nz::Planef(Nz::Vector3f::UnitY(), 1.f).SignedDistance(Nz::Vector3f::Zero()) == Catch::Approx(1.f));
+				REQUIRE(Nz::Planef(Nz::Vector3f::UnitY(), 1.f).SignedDistance(Nz::Vector3f::UnitY() * 2.f) == Catch::Approx(3.f));
 			}
 
-			AND_THEN("Distance between Plane (0, 1, 0), distance 5 and point (0, 2, 0) should be -3")
+			AND_THEN("Distance between Plane (0, 1, 0), distance 5 and point (0, 2, 0) should be 7")
 			{
-				REQUIRE(Nz::Planef(Nz::Vector3f::UnitY(), 5.f).SignedDistance(Nz::Vector3f::UnitY() * 2.f) == Catch::Approx(-3.f));
+				REQUIRE(Nz::Planef(Nz::Vector3f::UnitY(), 5.f).SignedDistance(Nz::Vector3f::UnitY() * 2.f) == Catch::Approx(7.f));
 			}
 
 			AND_THEN("Distance between Plane (0, 1, 0), distance 1000 and point (0, 500, 0) and (0, 1500, 0)")
 			{
-				REQUIRE(Nz::Planef(Nz::Vector3f::UnitY(), 1000.f).SignedDistance(Nz::Vector3f::UnitY() * 500.f) == Catch::Approx(-500.f));
-				REQUIRE(Nz::Planef(Nz::Vector3f::UnitY(), 1000.f).SignedDistance(Nz::Vector3f::UnitY() * 1500.f) == Catch::Approx(500.f));
+				REQUIRE(Nz::Planef(Nz::Vector3f::UnitY(), 1000.f).SignedDistance(Nz::Vector3f::UnitY() * 500.f) == Catch::Approx(1500.f));
+				REQUIRE(Nz::Planef(Nz::Vector3f::UnitY(), 1000.f).SignedDistance(Nz::Vector3f::UnitY() * 1500.f) == Catch::Approx(2500.f));
 			}
 
 			AND_THEN("Distance between Plane (0, -1, 0), distance -1000 and point (0, 500, 0) and (0, 1500, 0)")
 			{
-				REQUIRE(Nz::Planef(-Nz::Vector3f::UnitY(), -1000.f).SignedDistance(Nz::Vector3f::UnitY() * 500.f) == Catch::Approx(500.f));
-				REQUIRE(Nz::Planef(-Nz::Vector3f::UnitY(), -1000.f).SignedDistance(Nz::Vector3f::UnitY() * 1500.f) == Catch::Approx(-500.f));
+				REQUIRE(Nz::Planef(-Nz::Vector3f::UnitY(), -1000.f).SignedDistance(Nz::Vector3f::UnitY() * 500.f) == Catch::Approx(-1500.f));
+				REQUIRE(Nz::Planef(-Nz::Vector3f::UnitY(), -1000.f).SignedDistance(Nz::Vector3f::UnitY() * 1500.f) == Catch::Approx(-2500.f));
 			}
 		}
 
@@ -67,7 +68,7 @@ SCENARIO("Plane", "[MATH][PLANE]")
 
 			THEN("It must be equal to XZ distance 1")
 			{
-				REQUIRE(xy == Nz::Planef(Nz::Vector3f::UnitY(), 1.f));
+				REQUIRE(xy == Nz::Planef(Nz::Vector3f::UnitY(), -1.f));
 			}
 		}
 
@@ -76,7 +77,7 @@ SCENARIO("Plane", "[MATH][PLANE]")
 			Nz::Planef xy(Nz::Vector3f(0.f, 1.f, 0.f), Nz::Vector3f(1.f, 1.f, 1.f), Nz::Vector3f(-1.f, 1.f, 0.f));
 			THEN("It must be equal to XZ distance 1")
 			{
-				REQUIRE(xy == Nz::Planef(-Nz::Vector3f::UnitY(), -1.f));
+				REQUIRE(xy == Nz::Planef(-Nz::Vector3f::UnitY(), 1.f));
 			}
 		}
 	}
