@@ -17,6 +17,8 @@ namespace Nz
 	template<typename T>
 	class Plane
 	{
+		// Note: this class follows the ax + by + cz + d = 0 equation, which means d is the distance from origin
+
 		public:
 			constexpr Plane() = default;
 			constexpr Plane(T normalX, T normalY, T normalZ, T Distance);

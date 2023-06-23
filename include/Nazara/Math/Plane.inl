@@ -88,7 +88,7 @@ namespace Nz
 		normal = edge1.CrossProduct(edge2);
 		normal.Normalize();
 
-		distance = normal.DotProduct(point3);
+		distance = -normal.DotProduct(point3);
 	}
 
 	/*!
@@ -139,7 +139,7 @@ namespace Nz
 	template<typename T>
 	constexpr T Plane<T>::SignedDistance(const Vector3<T>& point) const
 	{
-		return normal.DotProduct(point) + distance; // ax + by + cz + d = 0.
+		return normal.DotProduct(point) + distance; // ax + by + cz + d = 0
 	}
 
 	/*!

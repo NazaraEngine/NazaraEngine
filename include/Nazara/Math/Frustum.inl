@@ -460,7 +460,7 @@ namespace Nz
 		T farW = farH * ratio;
 
 		Vector3<T> f = Vector3<T>::Normalize(target - eye);
-		Vector3<T> u(up.GetNormal());
+		Vector3<T> u = Vector3<T>::Normalize(up);
 		Vector3<T> s = Vector3<T>::Normalize(f.CrossProduct(u));
 		u = s.CrossProduct(f);
 
