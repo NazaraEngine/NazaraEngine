@@ -64,7 +64,7 @@ namespace Nz
 			BoundingVolumef boundingVolume(renderableData.renderable->GetAABB());
 			boundingVolume.Update(worldInstance->GetWorldMatrix());
 
-			if (!frustum.Contains(boundingVolume))
+			if (frustum.Intersect(boundingVolume) == IntersectionSide::Outside)
 				continue;
 
 			auto& visibleRenderable = m_visibleRenderables.emplace_back();
