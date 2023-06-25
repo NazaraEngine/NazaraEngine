@@ -152,7 +152,7 @@ namespace Nz
 			float radius = projectedExtents.x + projectedExtents.y + projectedExtents.z;
 
 			float distance = plane.SignedDistance(center);
-			if (distance < T(-radius))
+			if (distance < T(radius))
 				return false;
 		}
 
@@ -219,15 +219,11 @@ namespace Nz
 	{
 		for (const auto& plane : m_planes)
 		{
-			std::size_t j;
-			for (j = 0; j < pointCount; j++ )
+			for (std::size_t i = 0; i < pointCount; ++i)
 			{
-				if (plane.SignedDistance(points[j]) > T(0.0))
-					break;
+				if (plane.SignedDistance(points[i]) < T(0.0))
+					return false;
 			}
-
-			if (j == pointCount)
-				return false;
 		}
 
 		return true;
@@ -378,24 +374,27 @@ namespace Nz
 	template<typename T>
 	constexpr IntersectionSide Frustum<T>::Intersect(const Vector3<T>* points, std::size_t pointCount) const
 	{
-		std::size_t c = 0;
+		IntersectionSide side = IntersectionSide::Inside;
 
 		for (const auto& plane : m_planes)
 		{
-			std::size_t j;
-			for (j = 0; j < pointCount; j++ )
+			bool outside = true;
+			std::size_t insidePoint = 0;
+			for (std::size_t i = 0; i < pointCount; ++i)
 			{
-				if (plane.SignedDistance(points[j]) > T(0.0))
-					break;
+				// If at least one point is outside of the frustum, we're intersecting
+				if (plane.SignedDistance(points[i]) < T(0.0))
+					side = IntersectionSide::Intersecting;
+				else
+					outside = false;
 			}
 
-			if (j == pointCount)
+			// But if no point is intersecting on this plane, then it's outside
+			if (outside)
 				return IntersectionSide::Outside;
-			else
-				c++;
 		}
 
-		return (c == 6) ? IntersectionSide::Inside : IntersectionSide::Intersecting;
+		return side;
 	}
 
 	/*!

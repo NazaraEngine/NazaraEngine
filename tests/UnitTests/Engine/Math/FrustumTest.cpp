@@ -10,12 +10,42 @@ SCENARIO("Frustum", "[MATH][FRUSTUM]")
 
 		WHEN("We ask for intersection with objects outside the frustum")
 		{
+			GIVEN("Bounding volumes")
+			{
+				Nz::BoundingVolumef bv(Nz::Boxf(Nz::Vector3f::Zero(), Nz::Vector3f::Unit() * 10.f));
+				bv.Update(Nz::Matrix4f::Identity());
+
+				CHECK_FALSE(frustum.Contains(bv));
+				CHECK(frustum.Intersect(bv) == Nz::IntersectionSide::Intersecting);
+
+				bv.Update(Nz::Matrix4f::Translate(Nz::Vector3f::UnitX() * -50.f));
+
+				CHECK_FALSE(frustum.Contains(bv));
+				CHECK(frustum.Intersect(bv) == Nz::IntersectionSide::Outside);
+
+				bv.Update(Nz::Matrix4f::Translate(Nz::Vector3f::UnitX() * 50.f));
+
+				CHECK(frustum.Contains(bv));
+				CHECK(frustum.Intersect(bv) == Nz::IntersectionSide::Inside);
+			}
+
+			GIVEN("Boxes")
+			{
+				Nz::Boxf insideBox(Nz::Vector3f::UnitX() * 50.f, Nz::Vector3f::Unit() * 10.f);
+				Nz::Boxf intersectingBox(Nz::Vector3f::Zero(), Nz::Vector3f::Unit() * 10.f);
+				Nz::Boxf outsideBox(Nz::Vector3f::UnitX() * -50.f, Nz::Vector3f::Unit() * 10.f);
+
+				CHECK(frustum.Contains(insideBox));
+				CHECK_FALSE(frustum.Contains(intersectingBox));
+				CHECK_FALSE(frustum.Contains(outsideBox));
+
+				CHECK(frustum.Intersect(insideBox) == Nz::IntersectionSide::Inside);
+				CHECK(frustum.Intersect(intersectingBox) == Nz::IntersectionSide::Intersecting);
+				CHECK(frustum.Intersect(outsideBox) == Nz::IntersectionSide::Outside);
+			}
+
 			THEN("These results are expected")
 			{
-				Nz::BoundingVolumef bv(Nz::Boxf(Nz::Vector3f::Zero(), Nz::Vector3f::Unit()));
-				bv.Update(Nz::Matrix4f::Identity());
-				REQUIRE(Nz::IntersectionSide::Outside == frustum.Intersect(bv));
-				REQUIRE(Nz::IntersectionSide::Outside == frustum.Intersect(Nz::Boxf(Nz::Vector3f::Zero(), Nz::Vector3f::Unit() * 0.9f)));
 				Nz::OrientedBoxf obb(Nz::Boxf(Nz::Vector3f::Zero(), Nz::Vector3f::Unit() * 0.9f));
 				obb.Update(Nz::Matrix4f::Identity());
 				REQUIRE(Nz::IntersectionSide::Outside == frustum.Intersect(obb));
