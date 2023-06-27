@@ -20,7 +20,7 @@ namespace Nz
 		public:
 			inline StateMachine(std::shared_ptr<State> originalState);
 			StateMachine(const StateMachine&) = delete;
-			inline StateMachine(StateMachine&& fsm) = default;
+			StateMachine(StateMachine&&) = default;
 			inline ~StateMachine();
 
 			inline void ChangeState(std::shared_ptr<State> state);
@@ -35,7 +35,7 @@ namespace Nz
 
 			inline bool Update(Time elapsedTime);
 
-			inline StateMachine& operator=(StateMachine&& fsm) = default;
+			StateMachine& operator=(StateMachine&& fsm) = default;
 			StateMachine& operator=(const StateMachine&) = delete;
 
 		private:

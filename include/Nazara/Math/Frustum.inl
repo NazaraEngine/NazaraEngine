@@ -379,7 +379,6 @@ namespace Nz
 		for (const auto& plane : m_planes)
 		{
 			bool outside = true;
-			std::size_t insidePoint = 0;
 			for (std::size_t i = 0; i < pointCount; ++i)
 			{
 				// If at least one point is outside of the frustum, we're intersecting

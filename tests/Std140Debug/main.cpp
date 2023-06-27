@@ -151,7 +151,7 @@ int main()
 	GLint dataSize;
 	program.GetActiveUniformBlock(blockIndex, GL_UNIFORM_BLOCK_DATA_SIZE, &dataSize);
 
-	if (fieldOffsets.GetAlignedSize() != dataSize)
+	if (fieldOffsets.GetAlignedSize() != std::size_t(dataSize))
 		std::cout << "size mismatch (computed " << fieldOffsets.GetAlignedSize() << ", reference has " << dataSize << ")" << std::endl;;
 
 	if (computedOffsets.size() != uniformIndices.size())

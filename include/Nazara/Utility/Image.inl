@@ -37,9 +37,11 @@ namespace Nz
 			case ImageType::E1D:
 				NazaraAssert(baseLayer == 0, "out of bounds");
 				NazaraAssert(layerCount <= 1, "out of bounds");
+				[[fallthrough]];
 			case ImageType::E2D:
 				NazaraAssert(baseLayer == 0, "out of bounds");
 				NazaraAssert(layerCount <= 1, "out of bounds");
+				[[fallthrough]];
 			case ImageType::E3D:
 				region.z = 0;
 				region.depth = 1;

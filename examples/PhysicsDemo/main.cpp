@@ -51,7 +51,6 @@ int main()
 		return __LINE__;
 	}
 
-	const Nz::Boxf& spaceshipAABB = spaceshipMesh->GetAABB();
 	std::shared_ptr<Nz::GraphicalMesh> gfxMesh = Nz::GraphicalMesh::BuildFromMesh(*spaceshipMesh);
 
 	Nz::TextureSamplerInfo samplerInfo;

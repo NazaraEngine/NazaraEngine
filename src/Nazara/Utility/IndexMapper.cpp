@@ -12,13 +12,6 @@ namespace Nz
 {
 	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
-		UInt32 GetterSequential(const void* buffer, std::size_t i)
-		{
-			NazaraUnused(buffer);
-
-			return static_cast<UInt32>(i);
-		}
-
 		UInt32 Getter8(const void* buffer, std::size_t i)
 		{
 			const UInt8* ptr = static_cast<const UInt8*>(buffer);

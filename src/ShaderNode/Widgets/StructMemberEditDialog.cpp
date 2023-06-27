@@ -60,10 +60,12 @@ StructMemberInfo StructMemberEditDialog::GetMemberInfo() const
 	StructMemberInfo inputInfo;
 	inputInfo.name = m_memberName->text().toStdString();
 
-	if (m_typeList->currentIndex() < PrimitiveTypeCount)
-		inputInfo.type = static_cast<PrimitiveType>(m_typeList->currentIndex());
+	std::size_t index = Nz::SafeCast<std::size_t>(m_typeList->currentIndex());
+
+	if (index < PrimitiveTypeCount)
+		inputInfo.type = static_cast<PrimitiveType>(index);
 	else
-		inputInfo.type = static_cast<std::size_t>(m_typeList->currentIndex() - PrimitiveTypeCount);
+		inputInfo.type = Nz::SafeCast<std::size_t>(index - PrimitiveTypeCount);
 
 	return inputInfo;
 }

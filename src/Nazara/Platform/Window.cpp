@@ -41,6 +41,11 @@ namespace Nz
 
 	bool Window::Create(VideoMode mode, const std::string& title, WindowStyleFlags style)
 	{
+#ifdef NAZARA_COMPILER_MSVC
+#pragma warning(push)
+#pragma warning(disable:4701) //< uninitialized variable maybe used (position)
+#endif
+
 		// If the window is already open, we keep its position
 		bool opened = IsOpen();
 		Vector2i position;
@@ -77,8 +82,11 @@ namespace Nz
 
 		destroyOnFailure.Reset();
 
-		m_eventHandler.Dispatch({ WindowEventType::Created });
+		m_eventHandler.Dispatch({ { WindowEventType::Created } });
 
+#ifdef NAZARA_COMPILER_MSVC
+#pragma warning(pop)
+#endif
 		return true;
 	}
 
@@ -100,7 +108,7 @@ namespace Nz
 		m_closed = false;
 		m_ownsWindow = false;
 
-		m_eventHandler.Dispatch({ WindowEventType::Created });
+		m_eventHandler.Dispatch({ { WindowEventType::Created } });
 
 		return true;
 	}
@@ -109,7 +117,7 @@ namespace Nz
 	{
 		if (m_impl)
 		{
-			m_eventHandler.Dispatch({ WindowEventType::Destruction });
+			m_eventHandler.Dispatch({ { WindowEventType::Destruction } });
 
 			m_impl->Destroy();
 			m_impl.reset();

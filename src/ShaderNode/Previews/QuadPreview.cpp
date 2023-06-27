@@ -1,8 +1,10 @@
 #include <ShaderNode/Previews/QuadPreview.hpp>
 #include <cassert>
 
-PreviewValues QuadPreview::GetPreview(InputRole role, std::size_t roleIndex) const
+PreviewValues QuadPreview::GetPreview(InputRole role, [[maybe_unused]] std::size_t roleIndex) const
 {
+	assert(roleIndex == 0);
+
 	if (role != InputRole::TexCoord)
 	{
 		PreviewValues dummy(1, 1);

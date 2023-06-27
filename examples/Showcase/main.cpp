@@ -351,7 +351,7 @@ int main()
 		Nz::JoltRigidBody3D::StaticSettings floorSettings;
 		floorSettings.geom = translatedFloorCollider;
 
-		auto& planeBody = floorEntity.emplace<Nz::JoltRigidBody3DComponent>(physSytem.CreateRigidBody(floorSettings));
+		floorEntity.emplace<Nz::JoltRigidBody3DComponent>(physSytem.CreateRigidBody(floorSettings));
 
 		std::shared_ptr<Nz::GraphicalMesh> boxMeshGfx = Nz::GraphicalMesh::Build(Nz::Primitive::Box(Nz::Vector3f(0.5f, 0.5f, 0.5f)), meshPrimitiveParams);
 

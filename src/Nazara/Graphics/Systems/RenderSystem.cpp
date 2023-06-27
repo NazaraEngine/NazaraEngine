@@ -334,7 +334,7 @@ namespace Nz
 				if (!gfx->IsVisible())
 					return;
 
-				for (std::size_t renderableIndex = 0; renderableIndex < LightComponent::MaxLightCount; ++renderableIndex)
+				for (std::size_t renderableIndex = 0; renderableIndex < GraphicsComponent::MaxRenderableCount; ++renderableIndex)
 				{
 					const auto& renderableEntry = gfx->GetRenderableEntry(renderableIndex);
 					if (!renderableEntry.renderable)
@@ -515,7 +515,7 @@ namespace Nz
 				m_pipeline->UnregisterLight(lightEntity->lightIndices[lightIndex]);
 			}
 		}
-		m_newlyHiddenGfxEntities.clear();
+		m_newlyHiddenLightEntities.clear();
 
 		// Register lights for newly visible entities
 		for (LightEntity* lightEntity : m_newlyVisibleLightEntities)
@@ -531,7 +531,7 @@ namespace Nz
 				lightEntity->lightIndices[renderableIndex] = m_pipeline->RegisterLight(lightEntry.light.get(), lightEntry.renderMask);
 			}
 		}
-		m_newlyVisibleGfxEntities.clear();
+		m_newlyVisibleLightEntities.clear();
 
 		//FIXME: Handle light visibility
 	}
