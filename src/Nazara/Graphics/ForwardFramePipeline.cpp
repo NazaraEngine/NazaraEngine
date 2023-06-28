@@ -376,7 +376,7 @@ namespace Nz
 				const BoundingVolumef& boundingVolume = lightData.light->GetBoundingVolume();
 
 				// TODO: Use more precise tests for point lights (frustum/sphere is cheap)
-				if (renderMask & lightData.renderMask && frustum.Contains(boundingVolume))
+				if (renderMask & lightData.renderMask && frustum.Intersect(boundingVolume) != IntersectionSide::Outside)
 				{
 					m_visibleLights.push_back(lightIndex);
 
