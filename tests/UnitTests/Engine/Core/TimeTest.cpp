@@ -22,6 +22,7 @@ SCENARIO("Time", "[CORE][Time]")
 		CHECK(time.AsMicroseconds() == 1'000'000);
 		CHECK(time.AsMilliseconds() == 1'000);
 		CHECK(time.AsSeconds() == 1.f);
+		CHECK(time.AsSeconds<int>() == 1);
 		CHECK(time == Nz::Time::Second());
 		CHECK(time == Nz::Time::Seconds(1.f));
 		CHECK(time == Nz::Time::Milliseconds(1'000));

@@ -23,9 +23,16 @@ namespace Nz
 	template<typename T>
 	constexpr T Time::AsSeconds() const
 	{
-		static_assert(std::is_floating_point_v<T>);
-		// TODO: Improve precision
-		return AsMicroseconds() / T(1'000'000.0) + (m_nanoseconds % 1000) / T(1'000'000'000);
+		if constexpr (std::is_floating_point_v<T>)
+		{
+			// TODO: Improve precision
+			return AsMicroseconds() / T(1'000'000.0) + (m_nanoseconds % 1000) / T(1'000'000'000);
+		}
+		else
+		{
+			static_assert(std::is_integral_v<T>);
+			return SafeCast<T>(AsMicroseconds() / Int64(1'000'000));
+		}
 	}
 
 	constexpr Int64 Time::AsMicroseconds() const
