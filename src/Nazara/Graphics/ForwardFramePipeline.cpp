@@ -307,7 +307,7 @@ namespace Nz
 			renderFrame.PushForRelease(std::move(*m_viewerPool.RetrieveFromIndex(viewerIndex)));
 			m_viewerPool.Free(viewerIndex);
 		}
-		m_removedSkeletonInstances.Clear();
+		m_removedViewerInstances.Clear();
 
 		for (std::size_t worldInstanceIndex = m_removedWorldInstances.FindFirst(); worldInstanceIndex != m_removedWorldInstances.npos; worldInstanceIndex = m_removedWorldInstances.FindNext(worldInstanceIndex))
 		{
@@ -518,6 +518,7 @@ namespace Nz
 	{
 		// Defer world instance release
 		m_removedViewerInstances.UnboundedSet(viewerIndex);
+		m_rebuildFrameGraph = true;
 	}
 
 	void ForwardFramePipeline::UnregisterWorldInstance(std::size_t worldInstance)
