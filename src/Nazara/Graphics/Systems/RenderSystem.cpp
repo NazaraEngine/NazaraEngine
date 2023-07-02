@@ -58,7 +58,6 @@ namespace Nz
 	void RenderSystem::Update(Time /*elapsedTime*/)
 	{
 		UpdateObservers();
-		UpdateVisibility();
 		UpdateInstances();
 
 		for (auto& windowPtr : m_windowSwapchains)
@@ -109,8 +108,6 @@ namespace Nz
 
 		m_graphicsEntities.erase(entity);
 		m_invalidatedGfxWorldNode.erase(graphicsEntity);
-		m_newlyHiddenGfxEntities.erase(graphicsEntity);
-		m_newlyVisibleGfxEntities.erase(graphicsEntity);
 
 		GraphicsComponent& entityGfx = m_registry.get<GraphicsComponent>(entity);
 		if (entityGfx.IsVisible())
@@ -142,8 +139,6 @@ namespace Nz
 
 		m_lightEntities.erase(entity);
 		m_invalidatedLightWorldNode.erase(lightEntity);
-		m_newlyHiddenLightEntities.erase(lightEntity);
-		m_newlyVisibleLightEntities.erase(lightEntity);
 
 		LightComponent& entityLight = m_registry.get<LightComponent>(entity);
 		if (entityLight.IsVisible())
@@ -219,6 +214,58 @@ namespace Nz
 
 		m_pipeline->UnregisterSkeleton(graphicsEntity->skeletonInstanceIndex);
 		graphicsEntity->skeletonInstanceIndex = NoInstance;
+	}
+
+	void RenderSystem::UpdateGraphicsVisibility(GraphicsEntity* gfxData, GraphicsComponent& gfxComponent, bool isVisible)
+	{
+		if (isVisible)
+		{
+			for (std::size_t renderableIndex = 0; renderableIndex < GraphicsComponent::MaxRenderableCount; ++renderableIndex)
+			{
+				const auto& renderableEntry = gfxComponent.GetRenderableEntry(renderableIndex);
+				if (!renderableEntry.renderable)
+					continue;
+
+				gfxData->renderableIndices[renderableIndex] = m_pipeline->RegisterRenderable(gfxData->worldInstanceIndex, gfxData->skeletonInstanceIndex, renderableEntry.renderable.get(), renderableEntry.renderMask, gfxComponent.GetScissorBox());
+			}
+		}
+		else
+		{
+			for (std::size_t renderableIndex = 0; renderableIndex < GraphicsComponent::MaxRenderableCount; ++renderableIndex)
+			{
+				const auto& renderableEntry = gfxComponent.GetRenderableEntry(renderableIndex);
+				if (!renderableEntry.renderable)
+					continue;
+
+				m_pipeline->UnregisterRenderable(gfxData->renderableIndices[renderableIndex]);
+			}
+		}
+	}
+
+	void RenderSystem::UpdateLightVisibility(LightEntity* gfxData, LightComponent& lightComponent, bool isVisible)
+	{
+		if (isVisible)
+		{
+			for (std::size_t renderableIndex = 0; renderableIndex < LightComponent::MaxLightCount; ++renderableIndex)
+			{
+				const auto& lightEntry = lightComponent.GetLightEntry(renderableIndex);
+				if (!lightEntry.light)
+					continue;
+
+				gfxData->lightIndices[renderableIndex] = m_pipeline->RegisterLight(lightEntry.light.get(), lightEntry.renderMask);
+			}
+		}
+		else
+		{
+			for (std::size_t lightIndex = 0; lightIndex < LightComponent::MaxLightCount; ++lightIndex)
+			{
+				const auto& lightEntry = lightComponent.GetLightEntry(lightIndex);
+				if (!lightEntry.light)
+					continue;
+
+				m_pipeline->UnregisterLight(gfxData->lightIndices[lightIndex]);
+			}
+		}
 	}
 
 	void RenderSystem::UpdateInstances()
@@ -344,23 +391,14 @@ namespace Nz
 				}
 			});
 
-			graphicsEntity->onVisibilityUpdate.Connect(entityGfx.OnVisibilityUpdate, [this, graphicsEntity](GraphicsComponent* /*gfx*/, bool isVisible)
+			graphicsEntity->onVisibilityUpdate.Connect(entityGfx.OnVisibilityUpdate, [this, graphicsEntity](GraphicsComponent* gfx, bool isVisible)
 			{
-				if (isVisible)
-				{
-					m_newlyHiddenGfxEntities.erase(graphicsEntity);
-					m_newlyVisibleGfxEntities.insert(graphicsEntity);
-				}
-				else
-				{
-					m_newlyHiddenGfxEntities.insert(graphicsEntity);
-					m_newlyVisibleGfxEntities.erase(graphicsEntity);
-				}
+				UpdateGraphicsVisibility(graphicsEntity, *gfx, isVisible);
 			});
 			m_invalidatedGfxWorldNode.insert(graphicsEntity);
 
 			if (entityGfx.IsVisible())
-				m_newlyVisibleGfxEntities.insert(graphicsEntity);
+				UpdateGraphicsVisibility(graphicsEntity, m_registry.get<GraphicsComponent>(entity), true);
 
 			assert(m_graphicsEntities.find(entity) == m_graphicsEntities.end());
 			m_graphicsEntities.emplace(entity, graphicsEntity);
@@ -402,33 +440,15 @@ namespace Nz
 				m_pipeline->UnregisterLight(lightEntity->lightIndices[lightIndex]);
 			});
 
-			lightEntity->onVisibilityUpdate.Connect(entityLight.OnVisibilityUpdate, [this, lightEntity](LightComponent* /*light*/, bool isVisible)
+			lightEntity->onVisibilityUpdate.Connect(entityLight.OnVisibilityUpdate, [this, lightEntity](LightComponent* light, bool isVisible)
 			{
-				if (isVisible)
-				{
-					m_newlyHiddenLightEntities.erase(lightEntity);
-					m_newlyVisibleLightEntities.insert(lightEntity);
-				}
-				else
-				{
-					m_newlyHiddenLightEntities.insert(lightEntity);
-					m_newlyVisibleLightEntities.erase(lightEntity);
-				}
+				UpdateLightVisibility(lightEntity, *light, isVisible);
 			});
 
 			m_invalidatedLightWorldNode.insert(lightEntity);
 
 			if (entityLight.IsVisible())
-			{
-				for (std::size_t lightIndex = 0; lightIndex < LightComponent::MaxLightCount; ++lightIndex)
-				{
-					const auto& lightEntry = entityLight.GetLightEntry(lightIndex);
-					if (!lightEntry.light)
-						continue;
-
-					lightEntity->lightIndices[lightIndex] = m_pipeline->RegisterLight(lightEntry.light.get(), lightEntry.renderMask);
-				}
-			}
+				UpdateLightVisibility(lightEntity, m_registry.get<LightComponent>(entity), true);
 
 			assert(m_lightEntities.find(entity) == m_lightEntities.end());
 			m_lightEntities.emplace(entity, lightEntity);
@@ -465,74 +485,5 @@ namespace Nz
 
 			graphicsEntity->skeletonInstanceIndex = m_pipeline->RegisterSkeleton(std::make_shared<SkeletonInstance>(skeleton));
 		});
-	}
-
-	void RenderSystem::UpdateVisibility()
-	{
-		// Unregister drawable for hidden entities
-		for (GraphicsEntity* graphicsEntity : m_newlyHiddenGfxEntities)
-		{
-			GraphicsComponent& entityGfx = m_registry.get<GraphicsComponent>(graphicsEntity->entity);
-
-			for (std::size_t renderableIndex = 0; renderableIndex < GraphicsComponent::MaxRenderableCount; ++renderableIndex)
-			{
-				const auto& renderableEntry = entityGfx.GetRenderableEntry(renderableIndex);
-				if (!renderableEntry.renderable)
-					continue;
-
-				m_pipeline->UnregisterRenderable(graphicsEntity->renderableIndices[renderableIndex]);
-			}
-		}
-		m_newlyHiddenGfxEntities.clear();
-
-		// Register drawable for newly visible entities
-		for (GraphicsEntity* graphicsEntity : m_newlyVisibleGfxEntities)
-		{
-			GraphicsComponent& entityGfx = m_registry.get<GraphicsComponent>(graphicsEntity->entity);
-
-			for (std::size_t renderableIndex = 0; renderableIndex < GraphicsComponent::MaxRenderableCount; ++renderableIndex)
-			{
-				const auto& renderableEntry = entityGfx.GetRenderableEntry(renderableIndex);
-				if (!renderableEntry.renderable)
-					continue;
-
-				graphicsEntity->renderableIndices[renderableIndex] = m_pipeline->RegisterRenderable(graphicsEntity->worldInstanceIndex, graphicsEntity->skeletonInstanceIndex, renderableEntry.renderable.get(), renderableEntry.renderMask, entityGfx.GetScissorBox());
-			}
-		}
-		m_newlyVisibleGfxEntities.clear();
-
-		// Unregister lights for hidden entities
-		for (LightEntity* lightEntity : m_newlyHiddenLightEntities)
-		{
-			LightComponent& entityLights = m_registry.get<LightComponent>(lightEntity->entity);
-
-			for (std::size_t lightIndex = 0; lightIndex < LightComponent::MaxLightCount; ++lightIndex)
-			{
-				const auto& lightEntry = entityLights.GetLightEntry(lightIndex);
-				if (!lightEntry.light)
-					continue;
-
-				m_pipeline->UnregisterLight(lightEntity->lightIndices[lightIndex]);
-			}
-		}
-		m_newlyHiddenLightEntities.clear();
-
-		// Register lights for newly visible entities
-		for (LightEntity* lightEntity : m_newlyVisibleLightEntities)
-		{
-			LightComponent& entityLights = m_registry.get<LightComponent>(lightEntity->entity);
-
-			for (std::size_t renderableIndex = 0; renderableIndex < LightComponent::MaxLightCount; ++renderableIndex)
-			{
-				const auto& lightEntry = entityLights.GetLightEntry(renderableIndex);
-				if (!lightEntry.light)
-					continue;
-
-				lightEntity->lightIndices[renderableIndex] = m_pipeline->RegisterLight(lightEntry.light.get(), lightEntry.renderMask);
-			}
-		}
-		m_newlyVisibleLightEntities.clear();
-
-		//FIXME: Handle light visibility
 	}
 }

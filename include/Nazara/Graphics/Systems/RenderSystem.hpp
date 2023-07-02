@@ -52,6 +52,9 @@ namespace Nz
 			RenderSystem& operator=(RenderSystem&&) = delete;
 
 		private:
+			struct GraphicsEntity;
+			struct LightEntity;
+
 			void OnCameraDestroy(entt::registry& registry, entt::entity entity);
 			void OnDisabledConstructed(entt::registry& registry, entt::entity entity);
 			void OnGraphicsDestroy(entt::registry& registry, entt::entity entity);
@@ -59,9 +62,10 @@ namespace Nz
 			void OnNodeDestroy(entt::registry& registry, entt::entity entity);
 			void OnSharedSkeletonDestroy(entt::registry& registry, entt::entity entity);
 			void OnSkeletonDestroy(entt::registry& registry, entt::entity entity);
+			void UpdateGraphicsVisibility(GraphicsEntity* gfxData, GraphicsComponent& gfxComponent, bool isVisible);
+			void UpdateLightVisibility(LightEntity* gfxData, LightComponent& lightComponent, bool isVisible);
 			void UpdateInstances();
 			void UpdateObservers();
-			void UpdateVisibility();
 
 			static constexpr std::size_t NoInstance = std::numeric_limits<std::size_t>::max();
 
@@ -132,10 +136,6 @@ namespace Nz
 			std::unordered_map<entt::entity, GraphicsEntity*> m_graphicsEntities;
 			std::unordered_map<entt::entity, LightEntity*> m_lightEntities;
 			std::unordered_map<Skeleton*, SharedSkeleton> m_sharedSkeletonInstances;
-			std::unordered_set<GraphicsEntity*> m_newlyHiddenGfxEntities;
-			std::unordered_set<GraphicsEntity*> m_newlyVisibleGfxEntities;
-			std::unordered_set<LightEntity*> m_newlyHiddenLightEntities;
-			std::unordered_set<LightEntity*> m_newlyVisibleLightEntities;
 			std::vector<std::unique_ptr<WindowSwapchain>> m_windowSwapchains;
 			ElementRendererRegistry m_elementRegistry;
 			MemoryPool<CameraEntity> m_cameraEntityPool;
