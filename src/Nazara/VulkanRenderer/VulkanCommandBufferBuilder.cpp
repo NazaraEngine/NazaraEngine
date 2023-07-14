@@ -181,9 +181,54 @@ namespace Nz
 
 	void VulkanCommandBufferBuilder::BuildMipmaps(Texture& texture, UInt8 baseLevel, UInt8 maxLevel)
 	{
-		VulkanTexture& vkTexture = static_cast<VulkanTexture&>(texture);
+		NazaraAssert(maxLevel >= baseLevel, "maxLevel must be greater than baseLevel");
 
-		// TODO
+		VulkanTexture& vkTexture = static_cast<VulkanTexture&>(texture);
+		VkImage vkImage = vkTexture.GetImage();
+
+		const TextureInfo& textureInfo = vkTexture.GetTextureInfo();
+
+		Vector3i32 mipSize(SafeCast<Int32>(textureInfo.width), SafeCast<Int32>(textureInfo.height), SafeCast<Int32>(textureInfo.depth));
+		Vector3i32 prevMipSize = mipSize;
+
+		std::size_t levelCount = maxLevel - baseLevel + 1;
+
+		if (baseLevel != 0)
+		{
+			mipSize.x >>= baseLevel;
+			mipSize.y >>= baseLevel;
+			mipSize.z >>= baseLevel;
+			mipSize.Maximize({ 1, 1, 1 });
+		}
+
+		for (std::size_t i = 0; i < levelCount; ++i)
+		{
+			mipSize /= 2;
+			mipSize.Maximize({ 1, 1, 1 });
+
+			VkImageBlit blitRegion = {
+				vkTexture.BuildSubresourceLayers(i - 1),
+				{ //< srcOffsets
+					{ 0, 0, 0 },
+					{ prevMipSize.x, prevMipSize.y, prevMipSize.z }
+				},
+				vkTexture.BuildSubresourceLayers(i),
+				{ //< dstOffsets
+					{ 0, 0, 0 },
+					{ mipSize.x, mipSize.y, mipSize.z }
+				},
+			};
+
+			VkImageSubresourceRange prevMipmapRange = vkTexture.BuildSubresourceRange(i - 1, 1, 0, textureInfo.layerCount);
+
+			m_commandBuffer.SetImageLayout(vkImage, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, prevMipmapRange);
+
+			m_commandBuffer.BlitImage(vkImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, vkImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, blitRegion, VK_FILTER_LINEAR);
+
+			m_commandBuffer.SetImageLayout(vkImage, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, prevMipmapRange);
+
+			prevMipSize = mipSize;
+		}
 	}
 
 	void VulkanCommandBufferBuilder::CopyBuffer(const RenderBufferView& source, const RenderBufferView& target, UInt64 size, UInt64 sourceOffset, UInt64 targetOffset)
