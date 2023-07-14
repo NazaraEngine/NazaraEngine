@@ -681,10 +681,7 @@ namespace Nz
 	template<AngleUnit Unit, typename T>
 	constexpr Angle<Unit, T> Angle<Unit, T>::Zero()
 	{
-		Angle angle;
-		angle.MakeZero();
-
-		return angle;
+		return Angle(0);
 	}
 
 	/*!
