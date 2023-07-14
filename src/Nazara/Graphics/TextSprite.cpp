@@ -214,6 +214,8 @@ namespace Nz
 			indices->count++;
 		}
 
+		bounds.Scale(scale);
+
 		UpdateAABB(bounds);
 		OnElementInvalidated(this);
 
