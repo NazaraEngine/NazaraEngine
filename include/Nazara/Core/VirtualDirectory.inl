@@ -427,7 +427,7 @@ namespace Nz
 	}
 
 	template<typename F, typename... Args>
-	bool VirtualDirectory::CallbackReturn(F&& callback, Args&& ...args)
+	bool VirtualDirectory::CallbackReturn(F&& callback, Args&&... args)
 	{
 		using Ret = decltype(callback(std::forward<Args>(args)...));
 		if constexpr (std::is_void_v<Ret>)

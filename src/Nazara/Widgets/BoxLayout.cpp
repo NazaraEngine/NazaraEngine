@@ -32,8 +32,8 @@ namespace Nz
 	{
 		BaseWidget::Layout();
 
-		std::size_t axis;
-		bool reversed;
+		std::size_t axis = 0;
+		bool reversed = false;
 
 		switch (m_orientation)
 		{

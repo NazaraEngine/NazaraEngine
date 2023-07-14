@@ -81,7 +81,7 @@ namespace Nz
 			{
 				nzsl::Unserializer unserializer(source, sourceSize);
 				auto shader = nzsl::Ast::UnserializeShader(unserializer);
-				return Create(device, shaderStages, *shader, {});
+				return Create(device, shaderStages, *shader, states);
 			}
 
 			case ShaderLanguage::NazaraShader:
