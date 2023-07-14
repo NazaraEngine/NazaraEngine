@@ -34,6 +34,17 @@ namespace Nz
 		return static_cast<const typename T::Params*>(m_defaultParameters[resourceIndex].get());
 	}
 
+	VirtualDirectoryPtr AppFilesystemComponent::GetDirectory(std::string_view assetPath)
+	{
+		VirtualDirectoryPtr dir;
+		m_rootDirectory->GetDirectoryEntry(assetPath, [&](const Nz::VirtualDirectory::DirectoryEntry& dirEntry)
+		{
+			dir = dirEntry.directory;
+		});
+
+		return dir;
+	}
+
 	template<typename T, typename... ExtraArgs>
 	std::shared_ptr<T> AppFilesystemComponent::Load(std::string_view assetPath, ExtraArgs&&... args)
 	{

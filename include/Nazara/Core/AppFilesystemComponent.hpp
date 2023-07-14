@@ -36,6 +36,7 @@ namespace Nz
 			~AppFilesystemComponent() = default;
 
 			template<typename T> const typename T::Params* GetDefaultResourceParameters() const;
+			inline VirtualDirectoryPtr GetDirectory(std::string_view assetPath);
 
 			template<typename T, typename... ExtraArgs> std::shared_ptr<T> Load(std::string_view assetPath, ExtraArgs&&... args);
 			template<typename T, typename... ExtraArgs> std::shared_ptr<T> Load(std::string_view assetPath, typename T::Params params, ExtraArgs&&... args);
