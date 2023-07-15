@@ -88,9 +88,12 @@ namespace Nz
 
 		if (enable)
 		{
-			m_backgroundSprite = std::make_shared<Sprite>((m_backgroundColor.IsOpaque()) ? Widgets::Instance()->GetOpaqueMaterial() : Widgets::Instance()->GetTransparentMaterial());
-			m_backgroundSprite->SetColor(m_backgroundColor);
-			m_backgroundSprite->UpdateRenderLayer(m_baseRenderLayer);
+			if (!m_backgroundSprite)
+			{
+				m_backgroundSprite = std::make_shared<Sprite>((m_backgroundColor.IsOpaque()) ? Widgets::Instance()->GetOpaqueMaterial() : Widgets::Instance()->GetTransparentMaterial());
+				m_backgroundSprite->SetColor(m_backgroundColor);
+				m_backgroundSprite->UpdateRenderLayer(m_baseRenderLayer);
+			}
 
 			entt::entity backgroundEntity = CreateEntity();
 			m_registry->emplace<GraphicsComponent>(backgroundEntity).AttachRenderable(m_backgroundSprite, GetCanvas()->GetRenderMask());
@@ -105,7 +108,7 @@ namespace Nz
 			assert(m_backgroundEntity);
 
 			DestroyEntity(*m_backgroundEntity);
-			m_backgroundSprite.reset();
+			m_backgroundEntity.reset();
 		}
 
 		OnRenderLayerUpdated(GetBaseRenderLayer());
