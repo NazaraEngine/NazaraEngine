@@ -64,7 +64,7 @@ namespace Nz
 			MemoryStream m_memoryStream;
 			UInt16 m_netCode;
 
-			static std::mutex s_availableBuffersMutex;
+			static std::recursive_mutex s_availableBuffersMutex;
 			static std::vector<std::pair<std::size_t, std::unique_ptr<ByteArray>>> s_availableBuffers;
 	};
 }

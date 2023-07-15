@@ -112,7 +112,7 @@ namespace Nz
 
 		std::size_t size = m_buffer->GetSize();
 
-		std::lock_guard<std::mutex> lock(s_availableBuffersMutex);
+		std::lock_guard<std::recursive_mutex> lock(s_availableBuffersMutex);
 		s_availableBuffers.emplace_back(std::make_pair(size, std::move(m_buffer)));
 	}
 
@@ -131,7 +131,7 @@ namespace Nz
 		NazaraAssert(minCapacity >= cursorPos, "Cannot init stream with a smaller capacity than wanted cursor pos");
 
 		{
-			std::lock_guard<std::mutex> lock(s_availableBuffersMutex);
+			std::lock_guard<std::recursive_mutex> lock(s_availableBuffersMutex);
 
 			FreeStream(); //< In case it wasn't released yet
 
@@ -171,6 +171,6 @@ namespace Nz
 		s_availableBuffers.clear();
 	}
 
-	std::mutex NetPacket::s_availableBuffersMutex;
+	std::recursive_mutex NetPacket::s_availableBuffersMutex;
 	std::vector<std::pair<std::size_t, std::unique_ptr<ByteArray>>> NetPacket::s_availableBuffers;
 }
