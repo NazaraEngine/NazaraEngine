@@ -3,6 +3,8 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <NazaraUtils/Algorithm.hpp>
+#include <NazaraUtils/Hash.hpp>
+#include <Nazara/Core/Error.hpp>
 #include <cstring>
 #include <sstream>
 #include <stdexcept>

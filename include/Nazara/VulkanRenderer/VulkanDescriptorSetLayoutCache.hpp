@@ -8,7 +8,6 @@
 #define NAZARA_VULKANRENDERER_VULKANDESCRIPTORSETLAYOUTCACHE_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DescriptorSetLayout.hpp>
 #include <unordered_map>
 
