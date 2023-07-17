@@ -79,7 +79,6 @@
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
-#include <Nazara/Core/ResourceRegistry.hpp>
 #include <Nazara/Core/ResourceSaver.hpp>
 #include <Nazara/Core/SerializationContext.hpp>
 #include <Nazara/Core/SignalHandlerAppComponent.hpp>

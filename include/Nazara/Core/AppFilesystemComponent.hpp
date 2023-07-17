@@ -13,20 +13,10 @@
 #include <Nazara/Core/ResourceParameters.hpp>
 #include <Nazara/Core/VirtualDirectory.hpp>
 #include <memory>
-#include <vector>
+#include <unordered_map>
 
 namespace Nz
 {
-	class Font;
-	class Image;
-	class ImageStream;
-	class Material;
-	class MaterialInstance;
-	class Mesh;
-	class SoundBuffer;
-	class SoundStream;
-	class Texture;
-
 	class NAZARA_CORE_API AppFilesystemComponent : public ApplicationComponent
 	{
 		public:
@@ -54,13 +44,11 @@ namespace Nz
 			AppFilesystemComponent& operator=(const AppFilesystemComponent&) = delete;
 			AppFilesystemComponent& operator=(AppFilesystemComponent&&) = delete;
 
-			static inline void RegisterResourceTypes();
-
 		private:
 			template<typename T, typename... ExtraArgs> std::shared_ptr<T> LoadImpl(std::string_view assetPath, const typename T::Params& params, ExtraArgs&&... args);
 			template<typename T, typename... ExtraArgs> std::shared_ptr<T> OpenImpl(std::string_view assetPath, const typename T::Params& params, ExtraArgs&&... args);
 
-			std::vector<std::unique_ptr<ResourceParameters>> m_defaultParameters;
+			std::unordered_map<UInt64 /*typehash*/, std::unique_ptr<ResourceParameters>> m_defaultParameters;
 			VirtualDirectoryPtr m_rootDirectory;
 	};
 }

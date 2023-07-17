@@ -177,8 +177,6 @@ namespace Nz
 
 	void Graphics::RegisterComponent(AppFilesystemComponent& component)
 	{
-		AppFilesystemComponent::RegisterResourceTypes();
-
 		TextureParams defaultTexParams;
 		defaultTexParams.renderDevice = m_renderDevice;
 
