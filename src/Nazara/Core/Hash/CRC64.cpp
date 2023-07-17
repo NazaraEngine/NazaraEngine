@@ -78,7 +78,7 @@ namespace Nz
 		};
 	}
 
-	void CRC64Hash::Append(const UInt8* data, std::size_t len)
+	void CRC64Hasher::Append(const UInt8* data, std::size_t len)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
@@ -86,12 +86,12 @@ namespace Nz
 			m_crc = (m_crc << 8) ^ crc64_table[((m_crc >> 56) ^ *data++) & 0xFF];
 	}
 
-	void CRC64Hash::Begin()
+	void CRC64Hasher::Begin()
 	{
 		m_crc = 0;
 	}
 
-	ByteArray CRC64Hash::End()
+	ByteArray CRC64Hasher::End()
 	{
 		#ifdef NAZARA_LITTLE_ENDIAN
 		SwapBytes(&m_crc, sizeof(UInt64));
@@ -100,12 +100,12 @@ namespace Nz
 		return ByteArray(reinterpret_cast<UInt8*>(&m_crc), 8);
 	}
 
-	std::size_t CRC64Hash::GetDigestLength() const
+	std::size_t CRC64Hasher::GetDigestLength() const
 	{
 		return 8;
 	}
 
-	const char* CRC64Hash::GetHashName() const
+	const char* CRC64Hasher::GetHashName() const
 	{
 		return "CRC64";
 	}

@@ -208,7 +208,7 @@ TEST_CASE("VirtualDirectory", "[Core][VirtualDirectory]")
 
 				const auto& physFileEntry = std::get<Nz::VirtualDirectory::FileEntry>(entry);
 
-				Nz::SHA256Hash hash;
+				Nz::SHA256Hasher hash;
 				WHEN("We compute " << hash.GetHashName() << " of " << physFileEntry.stream->GetPath() << " file")
 				{
 					CHECK(Nz::ToUpper(Nz::ComputeHash(hash, *physFileEntry.stream).ToHex()) == expectedHash);
@@ -221,7 +221,7 @@ TEST_CASE("VirtualDirectory", "[Core][VirtualDirectory]")
 		{
 			return dir->GetFileContent(filepath, [&](const void* data, std::size_t size)
 			{
-				Nz::SHA256Hash hash;
+				Nz::SHA256Hasher hash;
 				WHEN("We compute " << hash.GetHashName() << " of " << filepath << " file")
 				{
 					hash.Begin();

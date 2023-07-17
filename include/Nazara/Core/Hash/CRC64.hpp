@@ -13,11 +13,11 @@
 
 namespace Nz
 {
-	class NAZARA_CORE_API CRC64Hash final : public AbstractHash
+	class NAZARA_CORE_API CRC64Hasher final : public AbstractHash
 	{
 		public:
-			CRC64Hash() = default;
-			~CRC64Hash() = default;
+			CRC64Hasher() = default;
+			~CRC64Hasher() = default;
 
 			void Append(const UInt8* data, std::size_t len) override;
 			void Begin() override;

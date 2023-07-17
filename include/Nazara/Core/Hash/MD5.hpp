@@ -13,11 +13,11 @@
 
 namespace Nz
 {
-	class NAZARA_CORE_API MD5Hash final : public AbstractHash
+	class NAZARA_CORE_API MD5Hasher final : public AbstractHash
 	{
 		public:
-			MD5Hash() = default;
-			~MD5Hash() = default;
+			MD5Hasher() = default;
+			~MD5Hasher() = default;
 
 			void Append(const UInt8* data, std::size_t len) override;
 			void Begin() override;

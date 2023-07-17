@@ -13,14 +13,14 @@
 #include <string>
 
 #if NAZARA_CORE_ENABLE_ASSERTS || defined(NAZARA_DEBUG)
-	#define NazaraAssert(a, err) if (!(a)) Nz::Error::Trigger(Nz::ErrorType::AssertFailed, err, __LINE__, __FILE__, NAZARA_FUNCTION)
+	#define NazaraAssert(a, err) if (!(a)) Nz::Error::Trigger(Nz::ErrorType::AssertFailed, err, __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION)
 #else
 	#define NazaraAssert(a, err) for (;;) break
 #endif
 
-#define NazaraError(err) Nz::Error::Trigger(Nz::ErrorType::Normal, err, __LINE__, __FILE__, NAZARA_FUNCTION)
-#define NazaraInternalError(err) Nz::Error::Trigger(Nz::ErrorType::Internal, err, __LINE__, __FILE__, NAZARA_FUNCTION)
-#define NazaraWarning(err) Nz::Error::Trigger(Nz::ErrorType::Warning, err, __LINE__, __FILE__, NAZARA_FUNCTION)
+#define NazaraError(err) Nz::Error::Trigger(Nz::ErrorType::Normal, err, __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION)
+#define NazaraInternalError(err) Nz::Error::Trigger(Nz::ErrorType::Internal, err, __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION)
+#define NazaraWarning(err) Nz::Error::Trigger(Nz::ErrorType::Warning, err, __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION)
 
 namespace Nz
 {

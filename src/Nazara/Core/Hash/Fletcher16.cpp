@@ -8,7 +8,7 @@
 
 namespace Nz
 {
-	void Fletcher16Hash::Append(const UInt8* data, std::size_t len)
+	void Fletcher16Hasher::Append(const UInt8* data, std::size_t len)
 	{
 		while (len > 0)
 		{
@@ -27,13 +27,13 @@ namespace Nz
 		}
 	}
 
-	void Fletcher16Hash::Begin()
+	void Fletcher16Hasher::Begin()
 	{
 		m_sum1 = 0xFF;
 		m_sum2 = 0xFF;
 	}
 
-	ByteArray Fletcher16Hash::End()
+	ByteArray Fletcher16Hasher::End()
 	{
 		m_sum1 = (m_sum1 & 0xFF) + (m_sum1 >> 8);
 		m_sum2 = (m_sum2 & 0xFF) + (m_sum2 >> 8);
@@ -47,12 +47,12 @@ namespace Nz
 		return ByteArray(reinterpret_cast<UInt8*>(&fletcher), 2);
 	}
 
-	std::size_t Fletcher16Hash::GetDigestLength() const
+	std::size_t Fletcher16Hasher::GetDigestLength() const
 	{
 		return 2;
 	}
 
-	const char* Fletcher16Hash::GetHashName() const
+	const char* Fletcher16Hasher::GetHashName() const
 	{
 		return "Fletcher16";
 	}

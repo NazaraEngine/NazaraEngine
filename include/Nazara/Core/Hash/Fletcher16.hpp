@@ -13,11 +13,11 @@
 
 namespace Nz
 {
-	class NAZARA_CORE_API Fletcher16Hash final : public AbstractHash
+	class NAZARA_CORE_API Fletcher16Hasher final : public AbstractHash
 	{
 		public:
-			Fletcher16Hash() = default;
-			~Fletcher16Hash() = default;
+			Fletcher16Hasher() = default;
+			~Fletcher16Hasher() = default;
 
 			void Append(const UInt8* data, std::size_t len) override;
 			void Begin() override;

@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Math module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Core/Algorithm.hpp>
+#include <NazaraUtils/Algorithm.hpp>
 #include <cstring>
 #include <sstream>
 #include <stdexcept>
@@ -808,17 +808,9 @@ namespace std
 		*/
 		std::size_t operator()(const Nz::Vector4<T>& v) const
 		{
-			std::size_t seed {};
-
-			Nz::HashCombine(seed, v.x);
-			Nz::HashCombine(seed, v.y);
-			Nz::HashCombine(seed, v.z);
-			Nz::HashCombine(seed, v.w);
-
-			return seed;
+			return Nz::HashCombine(v.x, v.y, v.z, v.w);
 		}
 	};
 }
 
 #include <Nazara/Core/DebugOff.hpp>
-#include "Vector4.hpp"

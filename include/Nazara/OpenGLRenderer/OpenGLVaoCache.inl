@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - OpenGL renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Core/Algorithm.hpp>
+#include <NazaraUtils/Hash.hpp>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
 namespace Nz::GL
@@ -50,9 +50,7 @@ namespace Nz::GL
 
 	inline std::size_t OpenGLVaoSetupHasher::operator()(const OpenGLVaoSetup& setup) const
 	{
-		std::size_t seed = 0;
-
-		HashCombine(seed, setup.indexBuffer);
+		std::size_t seed = std::hash<GLuint>{}(setup.indexBuffer);
 
 		std::size_t bindingIndex = 0;
 		for (const auto& attribOpt : setup.vertexAttribs)

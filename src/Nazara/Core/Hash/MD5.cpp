@@ -99,7 +99,7 @@
 
 namespace Nz
 {
-	void MD5Hash::Append(const UInt8* data, std::size_t len)
+	void MD5Hasher::Append(const UInt8* data, std::size_t len)
 	{
 		const UInt8 *p = data;
 		std::size_t left = len;
@@ -138,7 +138,7 @@ namespace Nz
 			std::memcpy(m_buf, p, left);
 	}
 
-	void MD5Hash::Begin()
+	void MD5Hasher::Begin()
 	{
 		m_count[0] = m_count[1] = 0;
 		m_abcd[0] = 0x67452301;
@@ -147,7 +147,7 @@ namespace Nz
 		m_abcd[3] = 0x10325476;
 	}
 
-	ByteArray MD5Hash::End()
+	ByteArray MD5Hasher::End()
 	{
 		static const unsigned char pad[64] = {
 			0x80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -174,17 +174,17 @@ namespace Nz
 		return ByteArray(&digest[0], 16);
 	}
 
-	std::size_t MD5Hash::GetDigestLength() const
+	std::size_t MD5Hasher::GetDigestLength() const
 	{
 		return 16;
 	}
 
-	const char* MD5Hash::GetHashName() const
+	const char* MD5Hasher::GetHashName() const
 	{
 		return "MD5";
 	}
 
-	void MD5Hash::md5_process(const UInt8* data)
+	void MD5Hasher::md5_process(const UInt8* data)
 	{
 		UInt32 a = m_abcd[0];
 		UInt32 b = m_abcd[1];

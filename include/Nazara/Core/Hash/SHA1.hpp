@@ -15,11 +15,11 @@ namespace Nz
 {
 	union SHA_CTX;
 
-	class NAZARA_CORE_API SHA1Hash final : public AbstractHash
+	class NAZARA_CORE_API SHA1Hasher final : public AbstractHash
 	{
 		public:
-			SHA1Hash();
-			~SHA1Hash();
+			SHA1Hasher();
+			~SHA1Hasher();
 
 			void Append(const UInt8* data, std::size_t len) override;
 			void Begin() override;

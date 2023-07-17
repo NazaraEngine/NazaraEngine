@@ -13,11 +13,11 @@
 
 namespace Nz
 {
-	class NAZARA_CORE_API CRC32Hash final : public AbstractHash
+	class NAZARA_CORE_API CRC32Hasher final : public AbstractHash
 	{
 		public:
-			CRC32Hash(UInt32 polynomial = DefaultPolynomial);
-			~CRC32Hash();
+			CRC32Hasher(UInt32 polynomial = DefaultPolynomial);
+			~CRC32Hasher();
 
 			void Append(const UInt8* data, std::size_t len) override;
 			void Begin() override;

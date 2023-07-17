@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Core/Algorithm.hpp>
+#include <NazaraUtils/Hash.hpp>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace Nz
@@ -50,18 +50,15 @@ struct std::hash<Nz::TextureSamplerInfo>
 {
 	std::size_t operator()(const Nz::TextureSamplerInfo& sampler) const
 	{
-		std::size_t seed = 0;
-		Nz::HashCombine(seed, sampler.anisotropyLevel);
-		Nz::HashCombine(seed, sampler.magFilter);
-		Nz::HashCombine(seed, sampler.minFilter);
-		Nz::HashCombine(seed, sampler.mipmapMode);
-		Nz::HashCombine(seed, sampler.wrapModeU);
-		Nz::HashCombine(seed, sampler.wrapModeV);
-		Nz::HashCombine(seed, sampler.wrapModeW);
-		Nz::HashCombine(seed, sampler.depthCompare);
-		Nz::HashCombine(seed, sampler.depthComparison);
-
-		return seed;
+		return Nz::HashCombine(sampler.anisotropyLevel,
+			sampler.magFilter,
+			sampler.minFilter,
+			sampler.mipmapMode,
+			sampler.wrapModeU,
+			sampler.wrapModeV,
+			sampler.wrapModeW,
+			sampler.depthCompare,
+			sampler.depthComparison);
 	}
 };
 

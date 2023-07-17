@@ -61,7 +61,7 @@ namespace Nz
 		};
 	}
 
-	CRC32Hash::CRC32Hash(UInt32 polynomial)
+	CRC32Hasher::CRC32Hasher(UInt32 polynomial)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
@@ -84,7 +84,7 @@ namespace Nz
 		}
 	}
 
-	CRC32Hash::~CRC32Hash()
+	CRC32Hasher::~CRC32Hasher()
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
@@ -92,18 +92,18 @@ namespace Nz
 			delete[] m_table;
 	}
 
-	void CRC32Hash::Append(const UInt8* data, std::size_t len)
+	void CRC32Hasher::Append(const UInt8* data, std::size_t len)
 	{
 		while (len--)
 			m_crc = m_table[(m_crc ^ *data++) & 0xFF] ^ (m_crc >> 8);
 	}
 
-	void CRC32Hash::Begin()
+	void CRC32Hasher::Begin()
 	{
 		m_crc = 0xFFFFFFFF;
 	}
 
-	ByteArray CRC32Hash::End()
+	ByteArray CRC32Hasher::End()
 	{
 		m_crc ^= 0xFFFFFFFF;
 
@@ -114,12 +114,12 @@ namespace Nz
 		return ByteArray(reinterpret_cast<UInt8*>(&m_crc), 4);
 	}
 
-	std::size_t CRC32Hash::GetDigestLength() const
+	std::size_t CRC32Hasher::GetDigestLength() const
 	{
 		return 4;
 	}
 
-	const char* CRC32Hash::GetHashName() const
+	const char* CRC32Hasher::GetHashName() const
 	{
 		return "CRC32";
 	}

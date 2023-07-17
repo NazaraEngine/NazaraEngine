@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Math module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Core/Algorithm.hpp>
+#include <NazaraUtils/Hash.hpp>
 #include <cstring>
 #include <limits>
 #include <stdexcept>
@@ -990,13 +990,7 @@ namespace std
 
 		std::size_t operator()(const Nz::Vector3<T>& v) const
 		{
-			std::size_t seed {};
-
-			Nz::HashCombine(seed, v.x);
-			Nz::HashCombine(seed, v.y);
-			Nz::HashCombine(seed, v.z);
-
-			return seed;
+			return Nz::HashCombine(v.x, v.y, v.z);
 		}
 	};
 }

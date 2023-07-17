@@ -13,11 +13,11 @@
 
 namespace Nz
 {
-	class NAZARA_CORE_API WhirlpoolHash final : public AbstractHash
+	class NAZARA_CORE_API WhirlpoolHasher final : public AbstractHash
 	{
 		public:
-			WhirlpoolHash() = default;
-			~WhirlpoolHash() = default;
+			WhirlpoolHasher() = default;
+			~WhirlpoolHasher() = default;
 
 			void Append(const UInt8* data, std::size_t len) override;
 			void Begin() override;

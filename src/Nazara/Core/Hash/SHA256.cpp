@@ -8,27 +8,27 @@
 
 namespace Nz
 {
-	SHA256Hash::SHA256Hash()
+	SHA256Hasher::SHA256Hasher()
 	{
 		m_state = new SHA_CTX;
 	}
 
-	SHA256Hash::~SHA256Hash()
+	SHA256Hasher::~SHA256Hasher()
 	{
 		delete m_state;
 	}
 
-	void SHA256Hash::Append(const UInt8* data, std::size_t len)
+	void SHA256Hasher::Append(const UInt8* data, std::size_t len)
 	{
 		SHA256_Update(m_state, data, len);
 	}
 
-	void SHA256Hash::Begin()
+	void SHA256Hasher::Begin()
 	{
 		SHA256_Init(m_state);
 	}
 
-	ByteArray SHA256Hash::End()
+	ByteArray SHA256Hasher::End()
 	{
 		UInt8 digest[SHA256_DIGEST_LENGTH];
 
@@ -37,12 +37,12 @@ namespace Nz
 		return ByteArray(digest, SHA256_DIGEST_LENGTH);
 	}
 
-	std::size_t SHA256Hash::GetDigestLength() const
+	std::size_t SHA256Hasher::GetDigestLength() const
 	{
 		return SHA256_DIGEST_LENGTH;
 	}
 
-	const char* SHA256Hash::GetHashName() const
+	const char* SHA256Hasher::GetHashName() const
 	{
 		return "SHA256";
 	}

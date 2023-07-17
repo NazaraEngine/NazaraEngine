@@ -626,7 +626,7 @@ namespace Nz
 		};
 	}
 
-	void WhirlpoolHash::Append(const UInt8* data, std::size_t len)
+	void WhirlpoolHasher::Append(const UInt8* data, std::size_t len)
 	{
 		len *= 8; // Whirlpool works with bits
 
@@ -713,7 +713,7 @@ namespace Nz
 		m_bufferPos = bufferPos;
 	}
 
-	void WhirlpoolHash::Begin()
+	void WhirlpoolHasher::Begin()
 	{
 		std::memset(m_bitLength, 0, 32);
 		m_bufferBits = m_bufferPos = 0;
@@ -722,7 +722,7 @@ namespace Nz
 			m_hash[i] = 0L; // initial value
 	}
 
-	ByteArray WhirlpoolHash::End()
+	ByteArray WhirlpoolHasher::End()
 	{
 		UInt8 result[64];
 
@@ -775,18 +775,18 @@ namespace Nz
 		return ByteArray(&result[0], 64);
 	}
 
-	std::size_t WhirlpoolHash::GetDigestLength() const
+	std::size_t WhirlpoolHasher::GetDigestLength() const
 	{
 		return 64;
 	}
 
-	const char* WhirlpoolHash::GetHashName() const
+	const char* WhirlpoolHasher::GetHashName() const
 	{
 		return "Whirlpool";
 	}
 
 	
-	void WhirlpoolHash::ProcessBuffer()
+	void WhirlpoolHasher::ProcessBuffer()
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
