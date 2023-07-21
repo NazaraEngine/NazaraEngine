@@ -32,7 +32,7 @@ namespace Nz
 				using DeviceObject::Create;
 				inline bool Create(Device& device, UInt32 queueFamilyIndex, VkCommandPoolCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
 
-				inline bool Reset(VkCommandPoolResetFlags flags);
+				inline bool Reset(VkCommandPoolResetFlags flags = 0);
 
 				CommandPool& operator=(const CommandPool&) = delete;
 				CommandPool& operator=(CommandPool&&) = delete;

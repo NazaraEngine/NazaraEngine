@@ -30,9 +30,10 @@ namespace Nz
 	{
 		FlushReleaseQueue();
 
-		m_graphicalCommandsBuffers.clear();
-		m_currentCommandBuffer = 0;
+		m_graphicalCommandBuffers.clear();
+		m_freeCommandBufferIndex = 0;
 		m_imageIndex = imageIndex;
+		m_commandPool.Reset();
 		m_uploadPool.Reset();
 	}
 }

@@ -22,6 +22,7 @@ namespace Nz::Vk
 
 		public:
 			inline CommandBuffer();
+			inline CommandBuffer(CommandPool& pool, VkCommandBuffer handle);
 			CommandBuffer(const CommandBuffer&) = delete;
 			inline CommandBuffer(CommandBuffer&& commandBuffer) noexcept;
 			~CommandBuffer() = default;
@@ -111,8 +112,6 @@ namespace Nz::Vk
 			inline operator VkCommandBuffer() const;
 
 		private:
-			inline CommandBuffer(CommandPool& pool, VkCommandBuffer handle);
-
 			CommandPool* m_pool;
 			VkCommandBuffer m_handle;
 			VkResult m_lastErrorCode;

@@ -6,56 +6,50 @@
 #include <Nazara/VulkanRenderer/VulkanCommandBuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanCommandBufferBuilder.hpp>
 #include <Nazara/VulkanRenderer/VulkanSwapchain.hpp>
+#include <cassert>
 #include <stdexcept>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
 {
 	VulkanRenderImage::VulkanRenderImage(VulkanSwapchain& owner) :
+	m_freeCommandBufferIndex(0),
 	m_owner(owner),
 	m_uploadPool(m_owner.GetDevice(), 2 * 1024 * 1024)
 	{
 		Vk::QueueHandle& graphicsQueue = m_owner.GetGraphicsQueue();
-		if (!m_commandPool.Create(m_owner.GetDevice(), graphicsQueue.GetQueueFamilyIndex(), VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT))
+		if (!m_commandPool.Create(m_owner.GetDevice(), graphicsQueue.GetQueueFamilyIndex(), VK_COMMAND_POOL_CREATE_TRANSIENT_BIT))
 			throw std::runtime_error("failed to create command pool: " + TranslateVulkanError(m_commandPool.GetLastErrorCode()));
 
 		if (!m_imageAvailableSemaphore.Create(m_owner.GetDevice()))
 			throw std::runtime_error("failed to create image available semaphore: " + TranslateVulkanError(m_imageAvailableSemaphore.GetLastErrorCode()));
 
 		if (!m_renderFinishedSemaphore.Create(m_owner.GetDevice()))
-			throw std::runtime_error("failed to create image finished semaphore: " + TranslateVulkanError(m_imageAvailableSemaphore.GetLastErrorCode()));
+			throw std::runtime_error("failed to create image finished semaphore: " + TranslateVulkanError(m_renderFinishedSemaphore.GetLastErrorCode()));
 
 		if (!m_inFlightFence.Create(m_owner.GetDevice(), VK_FENCE_CREATE_SIGNALED_BIT))
 			throw std::runtime_error("failed to create in-flight fence: " + TranslateVulkanError(m_inFlightFence.GetLastErrorCode()));
 	}
 
-	VulkanRenderImage::~VulkanRenderImage()
-	{
-		m_inFlightCommandBuffers.clear();
-	}
-
 	void VulkanRenderImage::Execute(const FunctionRef<void(CommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags)
 	{
-		Vk::CommandBuffer* commandBuffer;
-		if (m_currentCommandBuffer >= m_inFlightCommandBuffers.size())
+		if (m_freeCommandBufferIndex >= m_allocatedCommandBuffers.size())
 		{
-			Vk::AutoCommandBuffer& newlyAllocatedBuffer = m_inFlightCommandBuffers.emplace_back(m_commandPool.AllocateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY));
-			commandBuffer = &newlyAllocatedBuffer.Get();
-			m_currentCommandBuffer++;
+			assert(m_freeCommandBufferIndex == m_allocatedCommandBuffers.size());
+			m_allocatedCommandBuffers.push_back(m_commandPool.AllocateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY));
 		}
-		else
-			commandBuffer = &m_inFlightCommandBuffers[m_currentCommandBuffer++].Get();
 
-		if (!commandBuffer->Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT))
-			throw std::runtime_error("failed to begin command buffer: " + TranslateVulkanError(commandBuffer->GetLastErrorCode()));
+		Vk::CommandBuffer commandBuffer(m_commandPool, m_allocatedCommandBuffers[m_freeCommandBufferIndex++]);
+		if (!commandBuffer.Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT))
+			throw std::runtime_error("failed to begin command buffer: " + TranslateVulkanError(commandBuffer.GetLastErrorCode()));
 
-		VulkanCommandBufferBuilder builder(*commandBuffer);
+		VulkanCommandBufferBuilder builder(commandBuffer);
 		callback(builder);
 
-		if (!commandBuffer->End())
-			throw std::runtime_error("failed to build command buffer: " + TranslateVulkanError(commandBuffer->GetLastErrorCode()));
+		if (!commandBuffer.End())
+			throw std::runtime_error("failed to build command buffer: " + TranslateVulkanError(commandBuffer.GetLastErrorCode()));
 
-		SubmitCommandBuffer(*commandBuffer, queueTypeFlags);
+		SubmitCommandBuffer(commandBuffer, queueTypeFlags);
 	}
 
 	VulkanUploadPool& VulkanRenderImage::GetUploadPool()
@@ -66,7 +60,7 @@ namespace Nz
 	void VulkanRenderImage::Present()
 	{
 		Vk::QueueHandle& graphicsQueue = m_owner.GetGraphicsQueue();
-		if (!graphicsQueue.Submit(UInt32(m_graphicalCommandsBuffers.size()), m_graphicalCommandsBuffers.data(), m_imageAvailableSemaphore, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, m_renderFinishedSemaphore, m_inFlightFence))
+		if (!graphicsQueue.Submit(UInt32(m_graphicalCommandBuffers.size()), m_graphicalCommandBuffers.data(), m_imageAvailableSemaphore, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, m_renderFinishedSemaphore, m_inFlightFence))
 			throw std::runtime_error("Failed to submit command buffers: " + TranslateVulkanError(graphicsQueue.GetLastErrorCode()));
 
 		m_owner.Present(m_imageIndex, m_renderFinishedSemaphore);
@@ -82,7 +76,7 @@ namespace Nz
 	void VulkanRenderImage::SubmitCommandBuffer(VkCommandBuffer commandBuffer, QueueTypeFlags queueTypeFlags)
 	{
 		if (queueTypeFlags & QueueType::Graphics)
-			m_graphicalCommandsBuffers.push_back(commandBuffer);
+			m_graphicalCommandBuffers.push_back(commandBuffer);
 		else
 		{
 			Vk::QueueHandle& graphicsQueue = m_owner.GetGraphicsQueue();

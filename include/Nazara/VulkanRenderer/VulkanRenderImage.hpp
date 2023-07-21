@@ -14,7 +14,6 @@
 #include <Nazara/VulkanRenderer/Wrapper/CommandPool.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Fence.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Semaphore.hpp>
-#include <vector>
 
 namespace Nz
 {
@@ -26,7 +25,7 @@ namespace Nz
 			VulkanRenderImage(VulkanSwapchain& owner);
 			VulkanRenderImage(const VulkanRenderImage&) = delete;
 			VulkanRenderImage(VulkanRenderImage&&) = delete;
-			~VulkanRenderImage();
+			~VulkanRenderImage() = default;
 
 			void Execute(const FunctionRef<void(CommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags) override;
 
@@ -47,9 +46,9 @@ namespace Nz
 			VulkanRenderImage& operator=(VulkanRenderImage&&) = delete;
 
 		private:
-			std::size_t m_currentCommandBuffer;
-			std::vector<Vk::AutoCommandBuffer> m_inFlightCommandBuffers;
-			std::vector<VkCommandBuffer> m_graphicalCommandsBuffers;
+			std::size_t m_freeCommandBufferIndex;
+			std::vector<VkCommandBuffer> m_allocatedCommandBuffers;;
+			std::vector<VkCommandBuffer> m_graphicalCommandBuffers;
 			VulkanSwapchain& m_owner;
 			Vk::CommandPool m_commandPool;
 			Vk::Fence m_inFlightFence;
