@@ -12,7 +12,8 @@ namespace Nz::PlatformImpl
 #ifndef NAZARA_COMPILER_MINGW
 	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
-		// Windows 10, version 1607 added SetThreadDescription in order to name a thread
+		// Windows 10, version 1607 added GetThreadDescription and SetThreadDescription in order to name a thread
+		using GetThreadDescriptionFunc = HRESULT(WINAPI*)(HANDLE hThread, PWSTR* ppszThreadDescription);
 		using SetThreadDescriptionFunc = HRESULT(WINAPI*)(HANDLE hThread, PCWSTR lpThreadDescription);
 
 #ifdef NAZARA_COMPILER_MSVC
@@ -46,7 +47,12 @@ namespace Nz::PlatformImpl
 	std::string GetThreadName(ThreadHandle threadHandle)
 	{
 #ifndef NAZARA_COMPILER_MINGW
+		// Use GetThreadDescription if available
 		PWSTR namePtr;
+		static GetThreadDescriptionFunc GetThreadDescription = reinterpret_cast<GetThreadDescriptionFunc>(::GetProcAddress(::GetModuleHandleW(L"Kernel32.dll"), "GetThreadDescription"));
+		if (!GetThreadDescription)
+			return "<GetThreadDescription not supported>";
+
 		HRESULT hr = ::GetThreadDescription(threadHandle, &namePtr);
 		if (FAILED(hr))
 			return "<GetThreadDescription failed: " + std::to_string(HRESULT_CODE(hr)) + ">";
