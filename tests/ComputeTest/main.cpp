@@ -54,6 +54,7 @@ int main()
 	texParams.renderDevice = device;
 	texParams.loadFormat = Nz::PixelFormat::RGBA8;
 	texParams.usageFlags = Nz::TextureUsage::ShaderReadWrite | Nz::TextureUsage::ShaderSampling | Nz::TextureUsage::TransferDestination;
+	texParams.buildMipmaps = false;
 
 	std::shared_ptr<Nz::Texture> texture = Nz::Texture::LoadFromFile(resourceDir / "lynix.jpg", texParams);
 

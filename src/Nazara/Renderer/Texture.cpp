@@ -83,6 +83,9 @@ namespace Nz
 				break;
 		}
 
+		if (!params.buildMipmaps)
+			texParams.levelCount = image.GetLevelCount();
+
 		std::shared_ptr<Texture> texture = params.renderDevice->InstantiateTexture(texParams, image.GetConstPixels(), params.buildMipmaps);
 
 		texture->SetFilePath(image.GetFilePath());
