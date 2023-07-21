@@ -93,11 +93,11 @@ namespace Nz
 		m_commandBuffer.BlitTexture(sourceTexture, fromBox, targetTexture, toBox, filter);
 	}
 
-	void OpenGLCommandBufferBuilder::BuildMipmaps(Texture& texture, UInt8 baseLevel, UInt8 maxLevel)
+	void OpenGLCommandBufferBuilder::BuildMipmaps(Texture& texture, UInt8 baseLevel, UInt8 levelCount, PipelineStageFlags srcStageMask, PipelineStageFlags /*dstStageMask*/, MemoryAccessFlags /*srcAccessMask*/, MemoryAccessFlags /*dstAccessMask*/, TextureLayout /*oldLayout*/, TextureLayout /*newLayout*/)
 	{
 		OpenGLTexture& glTexture = static_cast<OpenGLTexture&>(texture);
 
-		glTexture.GenerateMipmaps(baseLevel, maxLevel);
+		m_commandBuffer.BuildMipmaps(glTexture, baseLevel, levelCount);
 	}
 
 	void OpenGLCommandBufferBuilder::CopyBuffer(const RenderBufferView& source, const RenderBufferView& target, UInt64 size, UInt64 sourceOffset, UInt64 targetOffset)

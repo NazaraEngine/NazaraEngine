@@ -10,7 +10,7 @@ namespace Nz
 {
 	inline void OpenGLTexture::GenerateMipmaps(UInt8 baseLevel, UInt8 levelCount)
 	{
-		NazaraAssert(baseLevel + levelCount < m_textureInfo.levelCount, "out of bounds");
+		NazaraAssert(baseLevel + levelCount <= m_textureInfo.levelCount, "out of bounds");
 
 		GL::Texture* targetTexture;
 		if (RequiresTextureViewEmulation())
@@ -26,7 +26,7 @@ namespace Nz
 			targetTexture->SetParameteri(GL_TEXTURE_BASE_LEVEL, baseLevel);
 
 		if (levelCount != m_textureInfo.levelCount)
-			targetTexture->SetParameteri(GL_TEXTURE_MAX_LEVEL, levelCount);
+			targetTexture->SetParameteri(GL_TEXTURE_MAX_LEVEL, levelCount - 1);
 
 		targetTexture->GenerateMipmap();
 
@@ -35,7 +35,7 @@ namespace Nz
 			targetTexture->SetParameteri(GL_TEXTURE_BASE_LEVEL, 0);
 
 		if (levelCount != m_textureInfo.levelCount)
-			targetTexture->SetParameteri(GL_TEXTURE_MAX_LEVEL, m_textureInfo.levelCount);
+			targetTexture->SetParameteri(GL_TEXTURE_MAX_LEVEL, m_textureInfo.levelCount - 1);
 	}
 
 	inline PixelFormat OpenGLTexture::GetFormat() const

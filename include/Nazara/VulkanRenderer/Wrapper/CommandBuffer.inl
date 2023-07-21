@@ -553,20 +553,7 @@ namespace Nz
 					break;
 			}
 
-			VkImageMemoryBarrier imageBarrier = {
-				VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER, // VkStructureType         sType
-				nullptr,                                // const void*             pNext
-				srcAccessMask,                          // VkAccessFlags           srcAccessMask
-				dstAccessMask,                          // VkAccessFlags           dstAccessMask
-				oldImageLayout,                         // VkImageLayout           oldLayout
-				newImageLayout,                         // VkImageLayout           newLayout
-				VK_QUEUE_FAMILY_IGNORED,                // uint32_t                srcQueueFamilyIndex
-				VK_QUEUE_FAMILY_IGNORED,                // uint32_t                dstQueueFamilyIndex
-				image,                                  // VkImage                 image
-				subresourceRange                        // VkImageSubresourceRange subresourceRange
-			};
-
-			return PipelineBarrier(srcStageMask, dstStageMask, 0, imageBarrier);
+			return ImageBarrier(srcStageMask, dstStageMask, 0, srcAccessMask, dstAccessMask, oldImageLayout, newImageLayout, image, subresourceRange);
 		}
 
 		inline void CommandBuffer::SetViewport(const Rectf& viewport, float minDepth, float maxDepth)

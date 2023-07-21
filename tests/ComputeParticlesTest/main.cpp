@@ -572,7 +572,7 @@ std::shared_ptr<Nz::Texture> GenerateSpriteTexture(Nz::RenderDevice& device, std
 		builder.BindComputeShaderBinding(0, *binding);
 		builder.Dispatch(texParams.width / 32, texParams.height / 32, 1);
 
-		builder.TextureBarrier(Nz::PipelineStage::ComputeShader, Nz::PipelineStage::FragmentShader, Nz::MemoryAccess::ShaderWrite, Nz::MemoryAccess::ShaderRead, Nz::TextureLayout::General, Nz::TextureLayout::ColorInput, *targetTexture);
+		builder.BuildMipmaps(*targetTexture, 0, targetTexture->GetLevelCount(), Nz::PipelineStage::ComputeShader, Nz::PipelineStage::FragmentShader, Nz::MemoryAccess::ShaderWrite, Nz::MemoryAccess::ShaderRead, Nz::TextureLayout::General, Nz::TextureLayout::ColorInput);
 
 	}, Nz::QueueType::Compute);
 
