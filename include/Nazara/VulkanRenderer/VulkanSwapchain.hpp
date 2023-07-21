@@ -59,6 +59,8 @@ namespace Nz
 
 			void Present(UInt32 imageIndex, VkSemaphore waitSemaphore = VK_NULL_HANDLE);
 
+			TransientResources& Transient() override;
+
 			VulkanSwapchain& operator=(const VulkanSwapchain&) = delete;
 			VulkanSwapchain& operator=(VulkanSwapchain&&) = delete;
 

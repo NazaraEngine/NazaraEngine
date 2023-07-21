@@ -332,6 +332,11 @@ namespace Nz
 		}
 	}
 
+	TransientResources& VulkanSwapchain::Transient()
+	{
+		return *m_concurrentImageData[m_currentFrame];
+	}
+
 	bool VulkanSwapchain::SetupDepthBuffer()
 	{
 		VkImageCreateInfo imageCreateInfo = {

@@ -41,6 +41,8 @@ namespace Nz
 
 			void Present();
 
+			TransientResources& Transient() override;
+
 		private:
 			std::optional<OpenGLRenderPass> m_renderPass;
 			std::size_t m_currentFrame;

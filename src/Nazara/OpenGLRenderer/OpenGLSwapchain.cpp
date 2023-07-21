@@ -116,4 +116,9 @@ namespace Nz
 		m_context->SwapBuffers();
 		m_currentFrame = (m_currentFrame + 1) % m_renderImage.size();
 	}
+
+	TransientResources& OpenGLSwapchain::Transient()
+	{
+		return *m_renderImage[m_currentFrame];
+	}
 }
