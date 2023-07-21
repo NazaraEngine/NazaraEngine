@@ -22,7 +22,7 @@ fn main(input: Input)
 
 	let outputColor = vec4[f32]
 	(
-		(pow(1.0 - length(uv), 10.0)).xxx,
+		(pow(1.0 - length(uv), 14.0)).xxx,
 		1.0
 	);
 

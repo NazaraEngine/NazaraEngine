@@ -6,6 +6,7 @@ struct Particle
 {
 	color: vec3[f32],
 	position: vec2[f32],
+	targetPosition: vec2[f32],
 	velocity: vec2[f32]
 }
 
@@ -20,7 +21,8 @@ struct ParticleData
 struct SceneData
 {
 	deltaTime: f32,
-	mousePos: vec2[f32]
+	mousePos: vec2[f32],
+	effectRadius: f32
 }
 
 external
@@ -42,12 +44,20 @@ fn main(input: Input)
 	if (index >= data.particle_count)
 		return;
 
-	let damping = pow(0.5, sceneData.deltaTime);
-
+	// Gets pushed by the cursor
 	let attract_pos = sceneData.mousePos;
 	let dist = length(attract_pos - data.particles[index].position);
-	data.particles[index].velocity += 10000.0 * (attract_pos - data.particles[index].position) * sceneData.deltaTime / (dist * dist);
+	data.particles[index].velocity -= 10000.0 * sceneData.effectRadius / min(dist, sceneData.effectRadius) * sceneData.deltaTime * (attract_pos - data.particles[index].position) / (dist * dist * dist * dist);
+
+	// But want to return to their original position
+	let dist = length(data.particles[index].targetPosition - data.particles[index].position);
+	let shouldUseDir = dist < 1.0;
+	data.particles[index].velocity += 100.0 * sceneData.deltaTime * select(shouldUseDir, normalize(data.particles[index].targetPosition - data.particles[index].position), vec2[f32](0.0, 0.0));
+
+	// Lose speed with time
+	let damping = pow(0.5, sceneData.deltaTime);
 	data.particles[index].velocity *= damping;
 
+	// Move particle
 	data.particles[index].position += data.particles[index].velocity * sceneData.deltaTime;
 }

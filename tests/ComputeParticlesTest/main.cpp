@@ -60,36 +60,77 @@ int main()
 	nzsl::FieldOffsets particleLayout(nzsl::StructLayout::Std140);
 	std::size_t particleColorOffset = particleLayout.AddField(nzsl::StructFieldType::Float3);
 	std::size_t particlePosOffset = particleLayout.AddField(nzsl::StructFieldType::Float2);
+	std::size_t particleTargetPosOffset = particleLayout.AddField(nzsl::StructFieldType::Float2);
 	std::size_t particleVelOffset = particleLayout.AddField(nzsl::StructFieldType::Float2);
 
 	std::size_t particleSize = particleLayout.GetAlignedSize();
 
-	constexpr std::size_t maxParticleCount = 10'000;
-	constexpr std::size_t initialParticleCount = maxParticleCount;
+	std::shared_ptr<Nz::Image> logo = Nz::Image::LoadFromFile(resourceDir / "Logo.png");
+	if (!logo)
+	{
+		std::cerr << "failed to load logo" << std::endl;
+		return EXIT_FAILURE;
+	}
+
+	std::vector<std::pair<Nz::Vector2ui, Nz::Color>> logoParticles;
+	for (unsigned int y = 0; y < logo->GetHeight(); ++y)
+	{
+		for (unsigned int x = 0; x < logo->GetWidth(); ++x)
+		{
+			Nz::Color color = logo->GetPixelColor(x, y);
+			if (color.a == 0)
+				continue;
+
+			logoParticles.push_back({
+				{ x, y },
+				color
+			});
+		}
+	}
+
+	std::size_t particleCount = logoParticles.size();
 
 	nzsl::FieldOffsets bufferLayout(nzsl::StructLayout::Std140);
 	std::size_t particleCountOffset = bufferLayout.AddField(nzsl::StructFieldType::UInt1);
-	std::size_t particlesOffset = bufferLayout.AddStructArray(particleLayout, maxParticleCount);
+	std::size_t particlesOffset = bufferLayout.AddStructArray(particleLayout, particleCount);
 
 	std::size_t bufferSize = bufferLayout.GetAlignedSize();
 
 	std::vector<Nz::UInt8> particleBufferInitialData(bufferSize);
-	Nz::AccessByOffset<Nz::UInt32&>(particleBufferInitialData.data(), particleCountOffset) = initialParticleCount;
+	Nz::AccessByOffset<Nz::UInt32&>(particleBufferInitialData.data(), particleCountOffset) = particleCount;
 
 	std::mt19937 rand(std::random_device{}());
 	std::uniform_real_distribution<float> colorDis(0.f, 1.f);
-	std::uniform_real_distribution<float> posXDis(0.f, float(windowSize.x));
-	std::uniform_real_distribution<float> posYDis(0.f, float(windowSize.y));
-	std::uniform_real_distribution<float> velDis(-20.f, 20.f);
+	std::uniform_real_distribution<float> posXDis(-float(windowSize.x), windowSize.x * 2.f);
+	std::uniform_real_distribution<float> posYDis(-float(windowSize.y), windowSize.y * 2.f);
+	std::uniform_real_distribution<float> velDis(-50.f, 50.f);
 
-	for (std::size_t i = 0; i < initialParticleCount; ++i)
+	Nz::Vector2f logoImageSize(Nz::Vector2ui(logo->GetSize()));
+	Nz::Vector2f logoSize = Nz::Vector2f(windowSize) * 0.8f;
+
+	// Center the logo in the canvas
+	Nz::Vector2f posScale = logoSize / logoImageSize;
+
+	Nz::Vector2f posOffset = (Nz::Vector2f(windowSize) - logoSize) * 0.5f;
+
+	// from image space to world space (topleft Y down to bottomleft Y up)
+	posScale.y *= -1.f;
+	posOffset.y += logoSize.y;
+
+	// Build particles
+	Nz::UInt8* particleBasePtr = particleBufferInitialData.data() + particlesOffset;
+	Nz::SparsePtr<Nz::Vector2f> particlePosPtr(particleBasePtr + particlePosOffset, particleSize);
+	Nz::SparsePtr<Nz::Vector2f> particleTargetPosPtr(particleBasePtr + particleTargetPosOffset, particleSize);
+	Nz::SparsePtr<Nz::Vector3f> particleColorPtr(particleBasePtr + particleColorOffset, particleSize);
+	Nz::SparsePtr<Nz::Vector2f> particleVelPtr(particleBasePtr + particleVelOffset, particleSize);
+	for (std::size_t i = 0; i < particleCount; ++i)
 	{
-		std::size_t baseOffset = particlesOffset + particleSize * i;
+		auto&& [pos, color] = logoParticles[i];
 
-		Nz::AccessByOffset<Nz::Vector3f&>(particleBufferInitialData.data(), baseOffset + particleColorOffset) = Nz::Vector3f(colorDis(rand), colorDis(rand), colorDis(rand));
-		//Nz::AccessByOffset<Nz::Vector3f&>(particleBufferInitialData.data(), baseOffset + particleColorOffset) = (i > 2500) ? Nz::Vector3f(0.f, 1.f, 0.f) : Nz::Vector3f(0.f, 0.f, 1.f);
-		Nz::AccessByOffset<Nz::Vector2f&>(particleBufferInitialData.data(), baseOffset + particlePosOffset) = Nz::Vector2f(posXDis(rand), posYDis(rand));
-		Nz::AccessByOffset<Nz::Vector2f&>(particleBufferInitialData.data(), baseOffset + particleVelOffset) = Nz::Vector2f(velDis(rand), velDis(rand));
+		particlePosPtr[i] = Nz::Vector2f(posXDis(rand), posYDis(rand));
+		particleTargetPosPtr[i] = posScale * Nz::Vector2f(pos) + posOffset;
+		particleColorPtr[i] = Nz::Vector3f(color.r, color.g, color.b) * color.a;
+		particleVelPtr[i] = Nz::Vector2f(velDis(rand), velDis(rand));
 	}
 
 	std::shared_ptr<Nz::RenderBuffer> particleBuffer = device->InstantiateBuffer(Nz::BufferType::Storage, bufferSize, Nz::BufferUsage::DeviceLocal, particleBufferInitialData.data());
@@ -97,6 +138,7 @@ int main()
 	nzsl::FieldOffsets sceneBufferLayout(nzsl::StructLayout::Std140);
 	std::size_t deltaTimeOffset = sceneBufferLayout.AddField(nzsl::StructFieldType::Float1);
 	std::size_t mousePosOffset = sceneBufferLayout.AddField(nzsl::StructFieldType::Float2);
+	std::size_t effectRadiusOffset = sceneBufferLayout.AddField(nzsl::StructFieldType::Float1);
 
 	std::size_t sceneBufferSize = sceneBufferLayout.GetAlignedSize();
 
@@ -157,17 +199,14 @@ int main()
 		hasNewPipeline = true;
 	});
 
-	std::string windowTitle = "Compute test";
+	std::string windowTitle = "Particle test (" + std::to_string(particleCount) + " particles)";
 	Nz::Window window;
-	if (!window.Create(Nz::VideoMode(1280, 720), windowTitle))
+	if (!window.Create(Nz::VideoMode(windowSize.x, windowSize.y), windowTitle))
 	{
 		std::cout << "Failed to create Window" << std::endl;
 		std::abort();
 	}
 	Nz::WindowSwapchain windowSwapchain(device, window);
-
-	constexpr float textureSize = 512.f;
-	float margin = (windowSize.y - textureSize) * 0.5f;
 
 	nzsl::FieldOffsets viewerLayout(nzsl::StructLayout::Std140);
 	std::size_t projectionMatrixOffset = viewerLayout.AddMatrix(nzsl::StructFieldType::Float1, 4, 4, true);
@@ -228,6 +267,7 @@ int main()
 				auto& allocation = uploadPool.Allocate(sceneBufferSize);
 				Nz::AccessByOffset<float&>(allocation.mappedPtr, deltaTimeOffset) = deltaTime;
 				Nz::AccessByOffset<Nz::Vector2f&>(allocation.mappedPtr, mousePosOffset) = Nz::Vector2f(mousePos.x, windowSize.y - mousePos.y);
+				Nz::AccessByOffset<float&>(allocation.mappedPtr, effectRadiusOffset) = (Nz::Mouse::IsButtonPressed(Nz::Mouse::Button::Left)) ? 10000.f : 100.f;
 
 				builder.PreTransferBarrier();
 				builder.CopyBuffer(allocation, sceneDataBuffer.get());
@@ -239,7 +279,7 @@ int main()
 			{
 				builder.BindComputePipeline(*computePipeline);
 				builder.BindComputeShaderBinding(0, *computeBinding);
-				builder.Dispatch(maxParticleCount / 64 + 1, 1, 1);
+				builder.Dispatch(particleCount / 64 + 1, 1, 1);
 			}
 			builder.EndDebugRegion();
 
@@ -261,7 +301,7 @@ int main()
 
 					builder.BindVertexBuffer(0, *spriteRenderData1.vertexBuffer);
 					builder.BindRenderShaderBinding(0, *spriteRenderData1.shaderBinding);
-					builder.Draw(4, initialParticleCount);
+					builder.Draw(4, particleCount);
 				}
 				builder.EndRenderPass();
 			}
@@ -325,6 +365,7 @@ struct Particle
 {
 	color: vec3[f32],
 	position: vec2[f32],
+	target_position: vec2[f32],
 	velocity: vec2[f32]
 }
 
