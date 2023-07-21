@@ -40,6 +40,8 @@ namespace Nz
 			inline Swapchain& GetSwapchain();
 			inline const Swapchain& GetSwapchain() const;
 
+			inline TransientResources& Transient();
+
 			WindowSwapchain& operator=(const WindowSwapchain&) = delete;
 			WindowSwapchain& operator=(WindowSwapchain&& windowSwapchain) = delete;
 

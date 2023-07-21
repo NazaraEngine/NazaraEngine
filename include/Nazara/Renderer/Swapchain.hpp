@@ -20,6 +20,7 @@ namespace Nz
 {
 	class CommandPool;
 	class RenderDevice;
+	class TransientResources;
 
 	class NAZARA_RENDERER_API Swapchain : public RenderTarget
 	{
@@ -32,6 +33,8 @@ namespace Nz
 			virtual std::shared_ptr<CommandPool> CreateCommandPool(QueueType queueType) = 0;
 
 			virtual void NotifyResize(const Vector2ui& newSize) = 0;
+
+			virtual TransientResources& Transient() = 0;
 
 		protected:
 			static void BuildRenderPass(PixelFormat colorFormat, PixelFormat depthFormat, std::vector<RenderPass::Attachment>& attachments, std::vector<RenderPass::SubpassDescription>& subpassDescriptions, std::vector<RenderPass::SubpassDependency>& subpassDependencies);

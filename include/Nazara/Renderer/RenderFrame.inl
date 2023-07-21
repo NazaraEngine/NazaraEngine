@@ -19,6 +19,14 @@ namespace Nz
 	{
 	}
 
+	inline void RenderFrame::Execute(const FunctionRef<void(CommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags)
+	{
+		if NAZARA_UNLIKELY(!m_image)
+			throw std::runtime_error("frame is either invalid or has already been presented");
+
+		return m_image->Execute(callback, queueTypeFlags);
+	}
+
 	inline std::size_t RenderFrame::GetFramebufferIndex() const
 	{
 		return m_framebufferIndex;
@@ -29,6 +37,14 @@ namespace Nz
 		return m_size;
 	}
 
+	inline UploadPool& RenderFrame::GetUploadPool()
+	{
+		if NAZARA_UNLIKELY(!m_image)
+			throw std::runtime_error("frame is either invalid or has already been presented");
+
+		return m_image->GetUploadPool();
+	}
+
 	inline bool RenderFrame::IsFramebufferInvalidated() const
 	{
 		return m_framebufferInvalidation;
@@ -37,17 +53,38 @@ namespace Nz
 	template<typename T>
 	void RenderFrame::PushForRelease(T&& value)
 	{
-		return PushReleaseCallback([v = std::forward<T>(value)] {});
+		if NAZARA_UNLIKELY(!m_image)
+			throw std::runtime_error("frame is either invalid or has already been presented");
+
+		m_image->PushForRelease(std::forward<T>(value));
 	}
 
 	template<typename F>
 	void RenderFrame::PushReleaseCallback(F&& releaseCallback)
 	{
-		if (!m_image)
+		if NAZARA_UNLIKELY(!m_image)
 			throw std::runtime_error("frame is either invalid or has already been presented");
 
 		m_image->PushReleaseCallback(std::forward<F>(releaseCallback));
 	}
+
+	inline void RenderFrame::Present()
+	{
+		if NAZARA_UNLIKELY(!m_image)
+			throw std::runtime_error("frame is either invalid or has already been presented");
+
+		m_image->Present();
+		m_image = nullptr;
+	}
+
+	inline void RenderFrame::SubmitCommandBuffer(CommandBuffer* commandBuffer, QueueTypeFlags queueTypeFlags)
+	{
+		if NAZARA_UNLIKELY(!m_image)
+			throw std::runtime_error("frame is either invalid or has already been presented");
+
+		m_image->SubmitCommandBuffer(commandBuffer, queueTypeFlags);
+	}
+
 
 	inline RenderFrame::operator bool()
 	{

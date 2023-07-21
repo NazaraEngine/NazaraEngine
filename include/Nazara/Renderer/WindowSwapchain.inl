@@ -40,6 +40,11 @@ namespace Nz
 		return *m_swapchain;
 	}
 
+	inline TransientResources& WindowSwapchain::Transient()
+	{
+		return m_swapchain->Transient();
+	}
+
 	void WindowSwapchain::DisconnectSignals()
 	{
 		m_onGainedFocus.Disconnect();

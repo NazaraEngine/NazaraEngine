@@ -60,9 +60,9 @@ namespace Nz
 		UpdateObservers();
 		UpdateInstances();
 
-		for (auto& windowPtr : m_windowSwapchains)
+		for (auto& swapchainPtr : m_windowSwapchains)
 		{
-			RenderFrame frame = windowPtr->AcquireFrame();
+			RenderFrame frame = swapchainPtr->AcquireFrame();
 			if (!frame)
 				continue;
 

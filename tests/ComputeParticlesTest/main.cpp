@@ -31,7 +31,7 @@ struct SpriteRenderPipeline
 std::shared_ptr<Nz::ComputePipeline> BuildComputePipeline(Nz::RenderDevice& device, std::shared_ptr<Nz::RenderPipelineLayout> pipelineLayout, std::shared_ptr<nzsl::ModuleResolver> moduleResolver);
 SpriteRenderPipeline BuildSpritePipeline(Nz::RenderDevice& device);
 SpriteRenderData BuildSpriteData(Nz::RenderDevice& device, const SpriteRenderPipeline& pipelineData, const Nz::Rectf& textureRect, const Nz::Vector2f& screenSize, const Nz::RenderBufferView& buffer, const Nz::RenderBufferView& particleBuffer, std::shared_ptr<Nz::Texture> texture, std::shared_ptr<Nz::TextureSampler> sampler);
-std::shared_ptr<Nz::Texture> GenerateSpriteTexture(Nz::RenderDevice& device, std::shared_ptr<nzsl::ModuleResolver> moduleResolver);
+std::shared_ptr<Nz::Texture> GenerateSpriteTexture(Nz::RenderDevice& device, std::shared_ptr<nzsl::ModuleResolver> moduleResolver, Nz::WindowSwapchain& swapchain);
 
 int main()
 {
@@ -179,7 +179,7 @@ int main()
 
 	std::shared_ptr<Nz::RenderBuffer> uniformBuffer = device->InstantiateBuffer(Nz::BufferType::Uniform, viewerBufferSize, Nz::BufferUsage::DeviceLocal, viewerBufferInitialData.data());
 
-	std::shared_ptr<Nz::Texture> texture = GenerateSpriteTexture(*device, moduleResolver);
+	std::shared_ptr<Nz::Texture> texture = GenerateSpriteTexture(*device, moduleResolver, windowSwapchain);
 	std::shared_ptr<Nz::TextureSampler> textureSampler = device->InstantiateTextureSampler({});
 
 	SpriteRenderPipeline spriteRenderPipeline = BuildSpritePipeline(*device);
@@ -503,7 +503,7 @@ SpriteRenderData BuildSpriteData(Nz::RenderDevice& device, const SpriteRenderPip
 	}
 }
 
-std::shared_ptr<Nz::Texture> GenerateSpriteTexture(Nz::RenderDevice& device, std::shared_ptr<nzsl::ModuleResolver> moduleResolver)
+std::shared_ptr<Nz::Texture> GenerateSpriteTexture(Nz::RenderDevice& device, std::shared_ptr<nzsl::ModuleResolver> moduleResolver, Nz::WindowSwapchain& swapchain)
 {
 	nzsl::Ast::ModulePtr shaderModule = moduleResolver->Resolve("Compute.ParticleTexture");
 	if (!shaderModule)
@@ -550,7 +550,7 @@ std::shared_ptr<Nz::Texture> GenerateSpriteTexture(Nz::RenderDevice& device, std
 	texParams.type = Nz::ImageType::E2D;
 	texParams.pixelFormat = Nz::PixelFormat::RGBA8;
 	texParams.width = texParams.height = 256;
-	texParams.usageFlags = Nz::TextureUsage::ShaderReadWrite | Nz::TextureUsage::ShaderSampling;
+	texParams.usageFlags = Nz::TextureUsage::ShaderReadWrite | Nz::TextureUsage::ShaderSampling | Nz::TextureUsage::TransferSource | Nz::TextureUsage::TransferDestination;
 
 	std::shared_ptr<Nz::Texture> targetTexture = device.InstantiateTexture(texParams);
 
@@ -564,7 +564,7 @@ std::shared_ptr<Nz::Texture> GenerateSpriteTexture(Nz::RenderDevice& device, std
 		}
 	});
 
-	device.Execute([&](Nz::CommandBufferBuilder& builder)
+	swapchain.Transient().Execute([&](Nz::CommandBufferBuilder& builder)
 	{
 		builder.TextureBarrier(Nz::PipelineStage::BottomOfPipe, Nz::PipelineStage::ComputeShader, {}, Nz::MemoryAccess::ShaderWrite, Nz::TextureLayout::Undefined, Nz::TextureLayout::General, *targetTexture);
 
@@ -575,6 +575,8 @@ std::shared_ptr<Nz::Texture> GenerateSpriteTexture(Nz::RenderDevice& device, std
 		builder.TextureBarrier(Nz::PipelineStage::ComputeShader, Nz::PipelineStage::FragmentShader, Nz::MemoryAccess::ShaderWrite, Nz::MemoryAccess::ShaderRead, Nz::TextureLayout::General, Nz::TextureLayout::ColorInput, *targetTexture);
 
 	}, Nz::QueueType::Compute);
+
+	device.WaitForIdle();
 
 	return targetTexture;
 }

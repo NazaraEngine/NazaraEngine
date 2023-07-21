@@ -22,7 +22,7 @@
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
-#include <Nazara/Utils/FunctionRef.hpp>
+#include <NazaraUtils/FunctionRef.hpp>
 #include <NZSL/ShaderWriter.hpp>
 #include <NZSL/Ast/Module.hpp>
 #include <memory>
@@ -39,8 +39,6 @@ namespace Nz
 		public:
 			RenderDevice() = default;
 			virtual ~RenderDevice();
-
-			virtual void Execute(const FunctionRef<void(CommandBufferBuilder& builder)>& callback, QueueType queueType) = 0;
 
 			virtual const RenderDeviceInfo& GetDeviceInfo() const = 0;
 			virtual const RenderDeviceFeatures& GetEnabledFeatures() const = 0;
