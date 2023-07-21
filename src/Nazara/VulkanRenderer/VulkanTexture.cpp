@@ -19,10 +19,10 @@ namespace Nz
 	m_device(device),
 	m_image(VK_NULL_HANDLE),
 	m_allocation(nullptr),
-	m_textureInfo(textureInfo),
-	m_textureViewInfo(textureInfo)
+	m_textureInfo(textureInfo)
 	{
 		m_textureInfo.levelCount = std::min(m_textureInfo.levelCount, Image::GetMaxLevel(m_textureInfo.type, m_textureInfo.width, m_textureInfo.height, m_textureInfo.depth));
+		m_textureViewInfo = m_textureInfo;
 
 		VkImageViewCreateInfo createInfoView = {};
 		createInfoView.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
