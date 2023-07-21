@@ -46,6 +46,8 @@ namespace Nz::PlatformImpl
 
 	std::string GetThreadName(ThreadHandle threadHandle)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 #ifndef NAZARA_COMPILER_MINGW
 		// Use GetThreadDescription if available
 		PWSTR namePtr;
@@ -53,7 +55,7 @@ namespace Nz::PlatformImpl
 		if (!GetThreadDescription)
 			return "<GetThreadDescription not supported>";
 
-		HRESULT hr = ::GetThreadDescription(threadHandle, &namePtr);
+		HRESULT hr = GetThreadDescription(threadHandle, &namePtr);
 		if (FAILED(hr))
 			return "<GetThreadDescription failed: " + std::to_string(HRESULT_CODE(hr)) + ">";
 
