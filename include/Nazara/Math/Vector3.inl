@@ -2,9 +2,9 @@
 // This file is part of the "Nazara Engine - Math module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Core/Error.hpp>
 #include <NazaraUtils/Algorithm.hpp>
 #include <NazaraUtils/Hash.hpp>
-#include <Nazara/Core/Error.hpp>
 #include <cstring>
 #include <limits>
 #include <stdexcept>
