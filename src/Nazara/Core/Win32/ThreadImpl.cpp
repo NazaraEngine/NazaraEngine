@@ -46,9 +46,9 @@ namespace Nz::PlatformImpl
 
 	std::string GetThreadName(ThreadHandle threadHandle)
 	{
+#ifndef NAZARA_COMPILER_MINGW
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
-#ifndef NAZARA_COMPILER_MINGW
 		// Use GetThreadDescription if available
 		PWSTR namePtr;
 		static GetThreadDescriptionFunc GetThreadDescription = reinterpret_cast<GetThreadDescriptionFunc>(::GetProcAddress(::GetModuleHandleW(L"Kernel32.dll"), "GetThreadDescription"));
