@@ -42,9 +42,12 @@ fn main(input: Input)
 	if (index >= data.particle_count)
 		return;
 
+	let damping = pow(0.5, sceneData.deltaTime);
+
 	let attract_pos = sceneData.mousePos;
 	let dist = length(attract_pos - data.particles[index].position);
-	data.particles[index].velocity += 10000.0 * (attract_pos - data.particles[index].position) * sceneData.deltaTime / (dist * dist);	
+	data.particles[index].velocity += 10000.0 * (attract_pos - data.particles[index].position) * sceneData.deltaTime / (dist * dist);
+	data.particles[index].velocity *= damping;
 
 	data.particles[index].position += data.particles[index].velocity * sceneData.deltaTime;
 }
