@@ -51,7 +51,7 @@ fn main(input: Input)
 
 	// But want to return to their original position
 	let dist = length(data.particles[index].targetPosition - data.particles[index].position);
-	let shouldUseDir = dist < 1.0;
+	let shouldUseDir = dist > 1.0;
 	data.particles[index].velocity += 100.0 * sceneData.deltaTime * select(shouldUseDir, normalize(data.particles[index].targetPosition - data.particles[index].position), vec2[f32](0.0, 0.0));
 
 	// Lose speed with time
