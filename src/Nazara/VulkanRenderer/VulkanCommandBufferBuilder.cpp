@@ -179,19 +179,17 @@ namespace Nz
 		m_commandBuffer.BlitImage(vkFromTexture.GetImage(), ToVulkan(fromLayout), vkToTexture.GetImage(), ToVulkan(toLayout), region, ToVulkan(filter));
 	}
 
-	void VulkanCommandBufferBuilder::BuildMipmaps(Texture& texture, UInt8 baseLevel, UInt8 maxLevel)
+	void VulkanCommandBufferBuilder::BuildMipmaps(Texture& texture, UInt8 baseLevel, UInt8 levelCount, PipelineStageFlags srcStageMask, PipelineStageFlags dstStageMask, MemoryAccessFlags srcAccessMask, MemoryAccessFlags dstAccessMask, TextureLayout oldLayout, TextureLayout newLayout)
 	{
-		NazaraAssert(maxLevel >= baseLevel, "maxLevel must be greater than baseLevel");
-
 		VulkanTexture& vkTexture = static_cast<VulkanTexture&>(texture);
 		VkImage vkImage = vkTexture.GetImage();
 
 		const TextureInfo& textureInfo = vkTexture.GetTextureInfo();
 
+		levelCount = std::min(levelCount, textureInfo.levelCount);
+
 		Vector3i32 mipSize(SafeCast<Int32>(textureInfo.width), SafeCast<Int32>(textureInfo.height), SafeCast<Int32>(textureInfo.depth));
 		Vector3i32 prevMipSize = mipSize;
-
-		std::size_t levelCount = maxLevel - baseLevel + 1;
 
 		if (baseLevel != 0)
 		{
@@ -201,34 +199,44 @@ namespace Nz
 			mipSize.Maximize({ 1, 1, 1 });
 		}
 
-		for (std::size_t i = 0; i < levelCount; ++i)
+		// Transition all mips to transfer dst, except for the base level
+		m_commandBuffer.ImageBarrier(ToVulkan(srcStageMask), VK_PIPELINE_STAGE_TRANSFER_BIT, 0, ToVulkan(srcAccessMask), VK_ACCESS_TRANSFER_READ_BIT, ToVulkan(oldLayout), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, vkImage, vkTexture.BuildSubresourceRange(baseLevel, 1));
+		m_commandBuffer.ImageBarrier(ToVulkan(srcStageMask), VK_PIPELINE_STAGE_TRANSFER_BIT, 0, ToVulkan(srcAccessMask), VK_ACCESS_TRANSFER_WRITE_BIT, ToVulkan(oldLayout), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, vkImage, vkTexture.BuildSubresourceRange(baseLevel + 1, levelCount - 1));
+
+		for (UInt8 i = 1; i < levelCount; ++i)
 		{
 			mipSize /= 2;
 			mipSize.Maximize({ 1, 1, 1 });
 
+			// Transition previous mip to transfer src, as it will serve as a source for the next blit (base mip is already in transfer src)
+			if (i != 1)
+			{
+				VkImageSubresourceRange prevMipmapRange = vkTexture.BuildSubresourceRange(baseLevel + i - 1, 1);
+				m_commandBuffer.ImageBarrier(VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_TRANSFER_READ_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, vkImage, prevMipmapRange);
+			}
+
+			// Blit previous mipmap to next mipmap
 			VkImageBlit blitRegion = {
-				vkTexture.BuildSubresourceLayers(i - 1),
+				vkTexture.BuildSubresourceLayers(baseLevel + i - 1),
 				{ //< srcOffsets
 					{ 0, 0, 0 },
 					{ prevMipSize.x, prevMipSize.y, prevMipSize.z }
 				},
-				vkTexture.BuildSubresourceLayers(i),
+				vkTexture.BuildSubresourceLayers(baseLevel + i),
 				{ //< dstOffsets
 					{ 0, 0, 0 },
 					{ mipSize.x, mipSize.y, mipSize.z }
 				},
 			};
 
-			VkImageSubresourceRange prevMipmapRange = vkTexture.BuildSubresourceRange(i - 1, 1, 0, textureInfo.layerCount);
-
-			m_commandBuffer.SetImageLayout(vkImage, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, prevMipmapRange);
-
 			m_commandBuffer.BlitImage(vkImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, vkImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, blitRegion, VK_FILTER_LINEAR);
-
-			m_commandBuffer.SetImageLayout(vkImage, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, prevMipmapRange);
 
 			prevMipSize = mipSize;
 		}
+
+		// Transition all mips (which are now in transfer src, except for the last one which is still in transfer dst) to the target layout
+		m_commandBuffer.ImageBarrier(VK_PIPELINE_STAGE_TRANSFER_BIT, ToVulkan(dstStageMask), 0, VK_ACCESS_TRANSFER_READ_BIT, ToVulkan(dstAccessMask), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, ToVulkan(newLayout), vkImage, vkTexture.BuildSubresourceRange(baseLevel, levelCount - 1));
+		m_commandBuffer.ImageBarrier(VK_PIPELINE_STAGE_TRANSFER_BIT, ToVulkan(dstStageMask), 0, VK_ACCESS_TRANSFER_WRITE_BIT, ToVulkan(dstAccessMask), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, ToVulkan(newLayout), vkImage, vkTexture.BuildSubresourceRange(levelCount - 1, 1));
 	}
 
 	void VulkanCommandBufferBuilder::CopyBuffer(const RenderBufferView& source, const RenderBufferView& target, UInt64 size, UInt64 sourceOffset, UInt64 targetOffset)
