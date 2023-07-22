@@ -32,13 +32,13 @@ namespace Nz
 
 	std::string GetCurrentThreadName()
 	{
-		NAZARA_USE_ANONYMOUS_NAMESPACE
-
 		return PlatformImpl::GetCurrentThreadName();
 	}
 
 	std::string GetThreadName(std::thread& thread)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		// std::thread::native_handle returns a void* with MSVC instead of a HANDLE
 		return PlatformImpl::GetThreadName(GetHandle(thread));
 	}
