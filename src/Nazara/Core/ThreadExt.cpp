@@ -16,15 +16,31 @@
 
 namespace Nz
 {
+	namespace NAZARA_ANONYMOUS_NAMESPACE
+	{
+		PlatformImpl::ThreadHandle GetHandle(std::thread& thread)
+		{
+#ifdef NAZARA_COMPILER_MINGW_THREADS_MCF
+			// MCF flavor (returns HANDLE by a void*)
+			return static_cast<PlatformImpl::ThreadHandle>(_MCF_thread_get_handle(thread.native_handle()));
+#else
+			// Cast because of MSVC standard library that returns a void* instead of a HANDLE
+			return static_cast<PlatformImpl::ThreadHandle>(thread.native_handle());
+#endif
+		}
+	}
+
 	std::string GetCurrentThreadName()
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		return PlatformImpl::GetCurrentThreadName();
 	}
 
 	std::string GetThreadName(std::thread& thread)
 	{
 		// std::thread::native_handle returns a void* with MSVC instead of a HANDLE
-		return PlatformImpl::GetThreadName(static_cast<PlatformImpl::ThreadHandle>(thread.native_handle()));
+		return PlatformImpl::GetThreadName(GetHandle(thread));
 	}
 
 	void SetCurrentThreadName(const char* name)
@@ -34,7 +50,9 @@ namespace Nz
 
 	void SetThreadName(std::thread& thread, const char* name)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		// std::thread::native_handle returns a void* with MSVC instead of a HANDLE
-		PlatformImpl::SetThreadName(static_cast<PlatformImpl::ThreadHandle>(thread.native_handle()), name);
+		PlatformImpl::SetThreadName(GetHandle(thread), name);
 	}
 }

@@ -10,7 +10,20 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <string>
 
+// Try to identify MinGW thread flavor
 #ifdef NAZARA_COMPILER_MINGW
+
+#if defined(__USING_MCFGTHREAD__)
+#define NAZARA_COMPILER_MINGW_THREADS_MCF
+#elif defined(_REENTRANT)
+#define NAZARA_COMPILER_MINGW_THREADS_POSIX
+#else
+#define NAZARA_COMPILER_MINGW_THREADS_WIN32
+#endif
+
+#endif
+
+#ifdef NAZARA_COMPILER_MINGW_THREADS_POSIX
 #include <pthread.h>
 #else
 #include <Windows.h>
@@ -18,7 +31,7 @@
 
 namespace Nz::PlatformImpl
 {
-#ifdef NAZARA_COMPILER_MINGW
+#ifdef NAZARA_COMPILER_MINGW_THREADS_POSIX
 	using ThreadHandle = pthread_t;
 #else
 	using ThreadHandle = HANDLE;

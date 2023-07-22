@@ -9,7 +9,7 @@
 
 namespace Nz::PlatformImpl
 {
-#ifndef NAZARA_COMPILER_MINGW
+#ifndef NAZARA_COMPILER_MINGW_THREADS_POSIX
 	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
 		// Windows 10, version 1607 added GetThreadDescription and SetThreadDescription in order to name a thread
@@ -32,7 +32,7 @@ namespace Nz::PlatformImpl
 
 	ThreadHandle GetCurrentThreadHandle()
 	{
-#ifndef NAZARA_COMPILER_MINGW
+#ifndef NAZARA_COMPILER_MINGW_THREADS_POSIX
 		return ::GetCurrentThread();
 #else
 		return ::pthread_self();
@@ -46,7 +46,7 @@ namespace Nz::PlatformImpl
 
 	std::string GetThreadName(ThreadHandle threadHandle)
 	{
-#ifndef NAZARA_COMPILER_MINGW
+#ifndef NAZARA_COMPILER_MINGW_THREADS_POSIX
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
 		// Use GetThreadDescription if available
@@ -70,7 +70,7 @@ namespace Nz::PlatformImpl
 #endif
 	}
 
-#ifndef NAZARA_COMPILER_MINGW
+#ifndef NAZARA_COMPILER_MINGW_THREADS_POSIX
 	void RaiseThreadNameException(DWORD threadId, const char* threadName)
 	{
 #ifdef NAZARA_COMPILER_MSVC
@@ -111,7 +111,7 @@ namespace Nz::PlatformImpl
 
 	void SetThreadName(ThreadHandle threadHandle, const char* threadName)
 	{
-#ifndef NAZARA_COMPILER_MINGW
+#ifndef NAZARA_COMPILER_MINGW_THREADS_POSIX
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
 		// Try to use SetThreadDescription if available
@@ -126,6 +126,6 @@ namespace Nz::PlatformImpl
 	}
 }
 
-#ifndef NAZARA_COMPILER_MINGW
+#ifndef NAZARA_COMPILER_MINGW_THREADS_POSIX
 #include <Nazara/Core/AntiWindows.hpp>
 #endif
