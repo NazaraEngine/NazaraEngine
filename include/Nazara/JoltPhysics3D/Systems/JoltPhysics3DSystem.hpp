@@ -32,9 +32,6 @@ namespace Nz
 			JoltPhysics3DSystem(JoltPhysics3DSystem&&) = delete;
 			~JoltPhysics3DSystem();
 
-			template<typename... Args> JoltCharacterComponent CreateCharacter(Args&&... args);
-			template<typename... Args> JoltRigidBody3DComponent CreateRigidBody(Args&&... args);
-
 			void Dump();
 
 			inline JoltPhysWorld3D& GetPhysWorld();
@@ -55,6 +52,7 @@ namespace Nz
 
 		private:
 			void OnBodyConstruct(entt::registry& registry, entt::entity entity);
+			void OnCharacterConstruct(entt::registry& registry, entt::entity entity);
 			void OnBodyDestruct(entt::registry& registry, entt::entity entity);
 
 			std::size_t m_stepCount;
@@ -62,8 +60,9 @@ namespace Nz
 			entt::registry& m_registry;
 			entt::observer m_characterConstructObserver;
 			entt::observer m_rigidBodyConstructObserver;
-			entt::scoped_connection m_constructConnection;
-			entt::scoped_connection m_destructConnection;
+			entt::scoped_connection m_bodyConstructConnection;
+			entt::scoped_connection m_characterConstructConnection;
+			entt::scoped_connection m_bodyDestructConnection;
 			JoltPhysWorld3D m_physWorld;
 			Time m_physicsTime;
 			Time m_updateTime;

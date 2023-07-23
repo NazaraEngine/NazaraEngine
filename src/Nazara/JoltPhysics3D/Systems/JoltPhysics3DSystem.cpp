@@ -15,8 +15,9 @@ namespace Nz
 	m_characterConstructObserver(m_registry, entt::collector.group<JoltCharacterComponent,   NodeComponent>(entt::exclude<DisabledComponent, JoltRigidBody3DComponent>)),
 	m_rigidBodyConstructObserver(m_registry, entt::collector.group<JoltRigidBody3DComponent, NodeComponent>(entt::exclude<DisabledComponent, JoltCharacterComponent>))
 	{
-		m_constructConnection = registry.on_construct<JoltRigidBody3DComponent>().connect<&JoltPhysics3DSystem::OnBodyConstruct>(this);
-		m_destructConnection = registry.on_destroy<JoltRigidBody3DComponent>().connect<&JoltPhysics3DSystem::OnBodyDestruct>(this);
+		m_bodyConstructConnection = registry.on_construct<JoltRigidBody3DComponent>().connect<&JoltPhysics3DSystem::OnBodyConstruct>(this);
+		m_characterConstructConnection = registry.on_construct<JoltCharacterComponent>().connect<&JoltPhysics3DSystem::OnCharacterConstruct>(this);
+		m_bodyDestructConnection = registry.on_destroy<JoltRigidBody3DComponent>().connect<&JoltPhysics3DSystem::OnBodyDestruct>(this);
 
 		m_stepCount = 0;
 		m_physicsTime = Time::Zero();
@@ -161,11 +162,19 @@ namespace Nz
 	{
 		// Register rigid body owning entity
 		JoltRigidBody3DComponent& rigidBody = registry.get<JoltRigidBody3DComponent>(entity);
+		rigidBody.Construct(m_physWorld);
+
 		std::size_t uniqueIndex = rigidBody.GetBodyIndex();
 		if (uniqueIndex >= m_physicsEntities.size())
 			m_physicsEntities.resize(uniqueIndex + 1);
 
 		m_physicsEntities[uniqueIndex] = entity;
+	}
+
+	void JoltPhysics3DSystem::OnCharacterConstruct(entt::registry& registry, entt::entity entity)
+	{
+		JoltCharacterComponent& character = registry.get<JoltCharacterComponent>(entity);
+		character.Construct(m_physWorld);
 	}
 
 	void JoltPhysics3DSystem::OnBodyDestruct(entt::registry& registry, entt::entity entity)

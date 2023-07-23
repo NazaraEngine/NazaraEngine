@@ -3,9 +3,29 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/JoltPhysics3D/Debug.hpp>
+#include <cassert>
 
 namespace Nz
 {
+	inline JoltRigidBody3DComponent::JoltRigidBody3DComponent(const JoltRigidBody3D::DynamicSettings& settings)
+	{
+		m_settings = std::make_unique<Setting>(settings);
+	}
+
+	inline JoltRigidBody3DComponent::JoltRigidBody3DComponent(const JoltRigidBody3D::StaticSettings& settings)
+	{
+		m_settings = std::make_unique<Setting>(settings);
+	}
+
+	inline void JoltRigidBody3DComponent::Construct(JoltPhysWorld3D& world)
+	{
+		assert(m_settings);
+		std::visit([&](auto&& arg)
+		{
+			Create(world, arg);
+		}, *m_settings);
+		m_settings.reset();
+	}
 }
 
 #include <Nazara/JoltPhysics3D/DebugOff.hpp>

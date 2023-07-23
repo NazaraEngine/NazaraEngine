@@ -66,7 +66,11 @@ int main()
 		//auto& playerBody = playerEntity.emplace<Nz::JoltRigidBody3DComponent>(physSytem.CreateRigidBody(playerCollider));
 		//playerBody.SetMass(42.f);
 
-		character.emplace(physSytem.GetPhysWorld(), playerCollider, Nz::Vector3f::Up() * 5.f);
+		Nz::JoltCharacter::Settings characterSettings;
+		characterSettings.collider = playerCollider;
+		characterSettings.position = Nz::Vector3f::Up() * 5.f;
+
+		character.emplace(physSytem.GetPhysWorld(), characterSettings);
 
 		app.AddUpdaterFunc([&]
 		{
@@ -351,7 +355,7 @@ int main()
 		Nz::JoltRigidBody3D::StaticSettings floorSettings;
 		floorSettings.geom = translatedFloorCollider;
 
-		floorEntity.emplace<Nz::JoltRigidBody3DComponent>(physSytem.CreateRigidBody(floorSettings));
+		floorEntity.emplace<Nz::JoltRigidBody3DComponent>(floorSettings);
 
 		std::shared_ptr<Nz::GraphicalMesh> boxMeshGfx = Nz::GraphicalMesh::Build(Nz::Primitive::Box(Nz::Vector3f(0.5f, 0.5f, 0.5f)), meshPrimitiveParams);
 

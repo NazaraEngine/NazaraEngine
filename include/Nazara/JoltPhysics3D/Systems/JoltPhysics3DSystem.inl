@@ -6,18 +6,6 @@
 
 namespace Nz
 {
-	template<typename... Args>
-	JoltCharacterComponent JoltPhysics3DSystem::CreateCharacter(Args&& ...args)
-	{
-		return JoltCharacterComponent(m_physWorld, std::forward<Args>(args)...);
-	}
-
-	template<typename... Args>
-	JoltRigidBody3DComponent JoltPhysics3DSystem::CreateRigidBody(Args&&... args)
-	{
-		return JoltRigidBody3DComponent(m_physWorld, std::forward<Args>(args)...);
-	}
-
 	inline JoltPhysWorld3D& JoltPhysics3DSystem::GetPhysWorld()
 	{
 		return m_physWorld;

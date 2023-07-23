@@ -6,6 +6,17 @@
 
 namespace Nz
 {
+	inline JoltCharacterComponent::JoltCharacterComponent(const JoltCharacter::Settings& settings)
+	{
+		m_settings = std::make_unique<JoltCharacter::Settings>(settings);
+	}
+
+	inline void JoltCharacterComponent::Construct(JoltPhysWorld3D& world)
+	{
+		assert(m_settings);
+		Create(world, *m_settings);
+		m_settings.reset();
+	}
 }
 
 #include <Nazara/JoltPhysics3D/DebugOff.hpp>

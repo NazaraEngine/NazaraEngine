@@ -17,16 +17,21 @@ namespace Nz
 		friend class JoltPhysics3DSystem;
 
 		public:
-			using JoltCharacter::JoltCharacter;
+			inline JoltCharacterComponent(const JoltCharacter::Settings& settings);
 			JoltCharacterComponent(const JoltCharacterComponent&) = default;
 			JoltCharacterComponent(JoltCharacterComponent&&) noexcept = default;
 			~JoltCharacterComponent() = default;
 
 			JoltCharacterComponent& operator=(const JoltCharacterComponent&) = default;
 			JoltCharacterComponent& operator=(JoltCharacterComponent&&) noexcept = default;
+
+		private:
+			inline void Construct(JoltPhysWorld3D& world);
+
+			std::unique_ptr<JoltCharacter::Settings> m_settings;
 	};
 }
 
-#include <Nazara/JoltPhysics3D/Components/JoltRigidBody3DComponent.inl>
+#include <Nazara/JoltPhysics3D/Components/JoltCharacterComponent.inl>
 
 #endif // NAZARA_JOLTPHYSICS3D_COMPONENTS_JOLTCHARACTERCOMPONENT_HPP

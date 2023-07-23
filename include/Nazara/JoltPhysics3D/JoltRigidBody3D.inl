@@ -6,6 +6,16 @@
 
 namespace Nz
 {
+	inline JoltRigidBody3D::JoltRigidBody3D(JoltPhysWorld3D& world, const DynamicSettings& settings)
+	{
+		Create(world, settings);
+	}
+
+	inline JoltRigidBody3D::JoltRigidBody3D(JoltPhysWorld3D& world, const StaticSettings& settings)
+	{
+		Create(world, settings);
+	}
+
 	inline void JoltRigidBody3D::DisableSimulation()
 	{
 		return EnableSimulation(false);

@@ -32,8 +32,8 @@ namespace Nz
 			struct DynamicSettings;
 			struct StaticSettings;
 
-			JoltRigidBody3D(JoltPhysWorld3D& world, const DynamicSettings& settings);
-			JoltRigidBody3D(JoltPhysWorld3D& world, const StaticSettings& settings);
+			inline JoltRigidBody3D(JoltPhysWorld3D& world, const DynamicSettings& settings);
+			inline JoltRigidBody3D(JoltPhysWorld3D& world, const StaticSettings& settings);
 			JoltRigidBody3D(const JoltRigidBody3D& object) = delete;
 			JoltRigidBody3D(JoltRigidBody3D&& object) noexcept;
 			~JoltRigidBody3D();
@@ -123,6 +123,9 @@ namespace Nz
 			};
 
 		protected:
+			JoltRigidBody3D() = default;
+			void Create(JoltPhysWorld3D& world, const DynamicSettings& settings);
+			void Create(JoltPhysWorld3D& world, const StaticSettings& settings);
 			void Destroy(bool worldDestruction = false);
 
 		private:

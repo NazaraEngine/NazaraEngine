@@ -9,6 +9,7 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/JoltPhysics3D/JoltRigidBody3D.hpp>
+#include <variant>
 
 namespace Nz
 {
@@ -17,13 +18,20 @@ namespace Nz
 		friend class JoltPhysics3DSystem;
 
 		public:
-			using JoltRigidBody3D::JoltRigidBody3D;
+			inline JoltRigidBody3DComponent(const JoltRigidBody3D::DynamicSettings& settings);
+			inline JoltRigidBody3DComponent(const JoltRigidBody3D::StaticSettings& settings);
 			JoltRigidBody3DComponent(const JoltRigidBody3DComponent&) = default;
 			JoltRigidBody3DComponent(JoltRigidBody3DComponent&&) noexcept = default;
 			~JoltRigidBody3DComponent() = default;
 
 			JoltRigidBody3DComponent& operator=(const JoltRigidBody3DComponent&) = default;
 			JoltRigidBody3DComponent& operator=(JoltRigidBody3DComponent&&) noexcept = default;
+
+		private:
+			inline void Construct(JoltPhysWorld3D& world);
+
+			using Setting = std::variant<JoltRigidBody3D::DynamicSettings, JoltRigidBody3D::StaticSettings>;
+			std::unique_ptr<Setting> m_settings;
 	};
 }
 

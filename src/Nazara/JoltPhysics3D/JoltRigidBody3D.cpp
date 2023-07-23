@@ -16,44 +16,6 @@
 
 namespace Nz
 {
-	JoltRigidBody3D::JoltRigidBody3D(JoltPhysWorld3D& world, const DynamicSettings& settings) :
-	m_geom(settings.geom),
-	m_world(&world),
-	m_isSimulationEnabled(false),
-	m_isTrigger(settings.isTrigger)
-	{
-		JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterface();
-
-		JPH::BodyCreationSettings creationSettings;
-		BuildSettings(settings, creationSettings);
-
-		m_body = bodyInterface.CreateBody(creationSettings);
-		JPH::BodyID bodyId = m_body->GetID();
-		m_bodyIndex = bodyId.GetIndex();
-
-		if (settings.isSimulationEnabled)
-			m_world->RegisterBody(bodyId, !settings.initiallySleeping, false);
-	}
-
-	JoltRigidBody3D::JoltRigidBody3D(JoltPhysWorld3D& world, const StaticSettings& settings) :
-	m_geom(settings.geom),
-	m_world(&world),
-	m_isSimulationEnabled(false),
-	m_isTrigger(settings.isTrigger)
-	{
-		JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterface();
-
-		JPH::BodyCreationSettings creationSettings;
-		BuildSettings(settings, creationSettings);
-
-		m_body = bodyInterface.CreateBody(creationSettings);
-		JPH::BodyID bodyId = m_body->GetID();
-		m_bodyIndex = bodyId.GetIndex();
-
-		if (settings.isSimulationEnabled)
-			m_world->RegisterBody(bodyId, false, false); //< static bodies cannot be activated
-	}
-
 	JoltRigidBody3D::JoltRigidBody3D(JoltRigidBody3D&& body) noexcept :
 	m_geom(std::move(body.m_geom)),
 	m_body(std::move(body.m_body)),
@@ -355,6 +317,47 @@ namespace Nz
 			m_body->SetUserData(SafeCast<UInt64>(reinterpret_cast<std::uintptr_t>(this)));
 
 		return *this;
+	}
+
+
+	void JoltRigidBody3D::Create(JoltPhysWorld3D& world, const DynamicSettings& settings)
+	{
+		m_geom = settings.geom;
+		m_isSimulationEnabled = settings.isSimulationEnabled;
+		m_isTrigger = settings.isTrigger;
+		m_world = &world;
+
+		JPH::BodyCreationSettings creationSettings;
+		BuildSettings(settings, creationSettings);
+
+		JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterface();
+		m_body = bodyInterface.CreateBody(creationSettings);
+
+		JPH::BodyID bodyId = m_body->GetID();
+		m_bodyIndex = bodyId.GetIndex();
+
+		if (settings.isSimulationEnabled)
+			m_world->RegisterBody(bodyId, !settings.initiallySleeping, false);
+	}
+
+	void JoltRigidBody3D::Create(JoltPhysWorld3D& world, const StaticSettings& settings)
+	{
+		m_geom = settings.geom;
+		m_isSimulationEnabled = settings.isSimulationEnabled;
+		m_isTrigger = settings.isTrigger;
+		m_world = &world;
+
+		JPH::BodyCreationSettings creationSettings;
+		BuildSettings(settings, creationSettings);
+
+		JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterface();
+		m_body = bodyInterface.CreateBody(creationSettings);
+
+		JPH::BodyID bodyId = m_body->GetID();
+		m_bodyIndex = bodyId.GetIndex();
+
+		if (settings.isSimulationEnabled)
+			m_world->RegisterBody(bodyId, false, false); //< static bodies cannot be activated
 	}
 
 	void JoltRigidBody3D::Destroy(bool worldDestruction)

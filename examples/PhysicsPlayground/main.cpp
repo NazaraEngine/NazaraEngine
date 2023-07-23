@@ -128,7 +128,7 @@ int main()
 		Nz::JoltRigidBody3D::StaticSettings settings;
 		settings.geom = boxCollider;
 
-		boxColliderEntity.emplace<Nz::JoltRigidBody3DComponent>(physSystem.CreateRigidBody(settings));
+		boxColliderEntity.emplace<Nz::JoltRigidBody3DComponent>(settings);
 #else
 		auto& boxBody = boxColliderEntity.emplace<Nz::BulletRigidBody3DComponent>(physSystem.CreateRigidBody(boxCollider));
 		boxBody.SetMass(0.f);
@@ -186,7 +186,7 @@ int main()
 		settings.geom = sphereCollider;
 		settings.mass = 4.f / 3.f * Nz::Pi<float> * Nz::IntegralPow(radius, 3);
 
-		ballEntity.emplace<Nz::JoltRigidBody3DComponent>(physSystem.CreateRigidBody(settings));
+		ballEntity.emplace<Nz::JoltRigidBody3DComponent>(settings);
 #else
 		ballEntity.emplace<Nz::BulletRigidBody3DComponent>(physSystem.CreateRigidBody(sphereCollider));
 #endif
@@ -231,7 +231,7 @@ int main()
 		settings.geom = boxCollider;
 		settings.mass = width * height * depth;
 
-		boxEntity.emplace<Nz::JoltRigidBody3DComponent>(physSystem.CreateRigidBody(settings));
+		boxEntity.emplace<Nz::JoltRigidBody3DComponent>(settings);
 #else
 		boxEntity.emplace<Nz::BulletRigidBody3DComponent>(physSystem.CreateRigidBody(boxCollider));
 #endif
@@ -309,7 +309,7 @@ int main()
 			settings.geom = shipCollider;
 			settings.mass = 100.f;
 
-			shipEntity.emplace<Nz::JoltRigidBody3DComponent>(physSystem.CreateRigidBody(settings));
+			shipEntity.emplace<Nz::JoltRigidBody3DComponent>(settings);
 #else
 			shipEntity.emplace<Nz::BulletRigidBody3DComponent>(physSystem.CreateRigidBody(shipCollider));
 #endif

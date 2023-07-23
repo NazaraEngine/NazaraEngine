@@ -14,25 +14,11 @@
 
 namespace Nz
 {
-	JoltCharacter::JoltCharacter(JoltPhysWorld3D& physWorld, std::shared_ptr<JoltCollider3D> collider, const Vector3f& position, const Quaternionf& rotation) :
-	m_impl(physWorld.GetDefaultCharacterImpl()),
-	m_collider(std::move(collider)),
-	m_world(&physWorld)
+	JoltCharacter::JoltCharacter() = default;
+
+	JoltCharacter::JoltCharacter(JoltPhysWorld3D& physWorld, const Settings& settings)
 	{
-		auto shapeResult = m_collider->GetShapeSettings()->Create();
-		if (!shapeResult.IsValid())
-			throw std::runtime_error("invalid shape");
-
-		JPH::CharacterSettings settings;
-		settings.mShape = shapeResult.Get();
-		settings.mLayer = 1;
-
-		m_character = std::make_unique<JPH::Character>(&settings, ToJolt(position), ToJolt(rotation), 0, m_world->GetPhysicsSystem());
-		m_character->AddToPhysicsSystem();
-
-		m_bodyIndex = m_character->GetBodyID().GetIndex();
-
-		m_world->RegisterStepListener(this);
+		Create(physWorld, settings);
 	}
 
 	JoltCharacter::JoltCharacter(JoltCharacter&& character) noexcept :
@@ -150,6 +136,28 @@ namespace Nz
 		character.m_bodyIndex = std::numeric_limits<UInt32>::max();
 
 		return *this;
+	}
+
+	void JoltCharacter::Create(JoltPhysWorld3D& physWorld, const Settings& settings)
+	{
+		m_collider = settings.collider;
+		m_impl = physWorld.GetDefaultCharacterImpl();
+		m_world = &physWorld;
+
+		auto shapeResult = m_collider->GetShapeSettings()->Create();
+		if (!shapeResult.IsValid())
+			throw std::runtime_error("invalid shape");
+
+		JPH::CharacterSettings characterSettings;
+		characterSettings.mShape = shapeResult.Get();
+		characterSettings.mLayer = 1;
+
+		m_character = std::make_unique<JPH::Character>(&characterSettings, ToJolt(settings.position), ToJolt(settings.rotation), 0, m_world->GetPhysicsSystem());
+		m_character->AddToPhysicsSystem();
+
+		m_bodyIndex = m_character->GetBodyID().GetIndex();
+
+		m_world->RegisterStepListener(this);
 	}
 
 	void JoltCharacter::Destroy()

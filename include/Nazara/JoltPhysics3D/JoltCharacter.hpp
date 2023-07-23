@@ -32,7 +32,9 @@ namespace Nz
 		friend JoltPhysWorld3D;
 
 		public:
-			JoltCharacter(JoltPhysWorld3D& physWorld, std::shared_ptr<JoltCollider3D> collider, const Vector3f& position = Vector3f::Zero(), const Quaternionf& rotation = Quaternionf::Identity());
+			struct Settings;
+
+			JoltCharacter(JoltPhysWorld3D& physWorld, const Settings& settings);
 			JoltCharacter(const JoltCharacter&) = delete;
 			JoltCharacter(JoltCharacter&& character) noexcept;
 			~JoltCharacter();
@@ -62,7 +64,17 @@ namespace Nz
 			JoltCharacter& operator=(const JoltCharacter&) = delete;
 			JoltCharacter& operator=(JoltCharacter&& character) noexcept;
 
+			struct Settings
+			{
+				std::shared_ptr<JoltCollider3D> collider;
+				Quaternionf rotation = Quaternionf::Identity();
+				Vector3f position = Vector3f::Zero();
+			};
+
 		protected:
+			JoltCharacter();
+
+			void Create(JoltPhysWorld3D& physWorld, const Settings& settings);
 			void Destroy();
 
 		private:
