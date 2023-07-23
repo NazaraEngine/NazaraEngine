@@ -10,6 +10,7 @@
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <Nazara/Math/Vector4.hpp>
 
 namespace Nz
 {

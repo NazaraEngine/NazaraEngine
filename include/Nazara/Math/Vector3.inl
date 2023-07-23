@@ -435,7 +435,7 @@ namespace Nz
 	* \param scale The scalar to multiply components with
 	*/
 	template<typename T>
-	constexpr 	Vector3<T> Vector3<T>::operator*(T scale) const
+	constexpr Vector3<T> Vector3<T>::operator*(T scale) const
 	{
 		return Vector3(x * scale, y * scale, z * scale);
 	}
