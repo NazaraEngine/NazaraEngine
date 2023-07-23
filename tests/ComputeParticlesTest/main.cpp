@@ -35,7 +35,7 @@ std::shared_ptr<Nz::Texture> GenerateSpriteTexture(Nz::RenderDevice& device, std
 
 int main()
 {
-	Nz::Vector2ui windowSize = { 1280, 720 };
+	Nz::Vector2ui windowSize = { 1920, 1080 };
 
 	std::filesystem::path resourceDir = "assets/examples";
 	if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory("../.." / resourceDir))
@@ -99,18 +99,13 @@ int main()
 	std::vector<Nz::UInt8> particleBufferInitialData(bufferSize);
 	Nz::AccessByOffset<Nz::UInt32&>(particleBufferInitialData.data(), particleCountOffset) = particleCount;
 
-	std::mt19937 rand(std::random_device{}());
-	std::uniform_real_distribution<float> colorDis(0.f, 1.f);
-	std::uniform_real_distribution<float> posXDis(-float(windowSize.x), windowSize.x * 2.f);
-	std::uniform_real_distribution<float> posYDis(-float(windowSize.y), windowSize.y * 2.f);
-	std::uniform_real_distribution<float> velDis(-50.f, 50.f);
-
 	Nz::Vector2f logoImageSize(Nz::Vector2ui(logo->GetSize()));
-	Nz::Vector2f logoSize = Nz::Vector2f(windowSize) * 0.8f;
+	float logoRatio = logoImageSize.x / logoImageSize.y;
+
+	Nz::Vector2f logoSize = Nz::Vector2f(windowSize.x * 0.8f, windowSize.x * 0.8f / logoRatio);
 
 	// Center the logo in the canvas
 	Nz::Vector2f posScale = logoSize / logoImageSize;
-
 	Nz::Vector2f posOffset = (Nz::Vector2f(windowSize) - logoSize) * 0.5f;
 
 	// from image space to world space (topleft Y down to bottomleft Y up)
@@ -118,6 +113,9 @@ int main()
 	posOffset.y += logoSize.y;
 
 	// Build particles
+	std::mt19937 rand(std::random_device{}());
+	std::uniform_real_distribution<float> velDis(-50.f, 50.f);
+
 	Nz::UInt8* particleBasePtr = particleBufferInitialData.data() + particlesOffset;
 	Nz::SparsePtr<Nz::Vector2f> particlePosPtr(particleBasePtr + particlePosOffset, particleSize);
 	Nz::SparsePtr<Nz::Vector2f> particleTargetPosPtr(particleBasePtr + particleTargetPosOffset, particleSize);
@@ -127,8 +125,8 @@ int main()
 	{
 		auto&& [pos, color] = logoParticles[i];
 
-		particlePosPtr[i] = Nz::Vector2f(posXDis(rand), posYDis(rand));
 		particleTargetPosPtr[i] = posScale * Nz::Vector2f(pos) + posOffset;
+		particlePosPtr[i] = particleTargetPosPtr[i];
 		particleColorPtr[i] = Nz::Vector3f(color.r, color.g, color.b) * color.a;
 		particleVelPtr[i] = Nz::Vector2f(velDis(rand), velDis(rand));
 	}
@@ -228,6 +226,18 @@ int main()
 	Nz::HighPrecisionClock updateClock;
 	unsigned int fps = 0;
 
+	// Smooth mouse position over time
+	Nz::Vector2f previousMousePos;
+	Nz::Vector2f newMousePos;
+	{
+		Nz::Vector2i mousePos = Nz::Mouse::GetPosition(window);
+		previousMousePos = Nz::Vector2f(mousePos.x, windowSize.y - mousePos.y);
+		newMousePos = previousMousePos;
+	}
+
+	Nz::Time mouseSampleTimer = Nz::Time::Zero();
+	constexpr Nz::Time mouseSampleRate = Nz::Time::TickDuration(60);
+
 	while (window.IsOpen())
 	{
 		window.ProcessEvents();
@@ -254,19 +264,31 @@ int main()
 			}
 		}
 
-		float deltaTime = updateClock.Restart().AsSeconds();
+		Nz::Time deltaTime = updateClock.Restart();
 
 		Nz::UploadPool& uploadPool = frame.GetUploadPool();
+
+		mouseSampleTimer += deltaTime;
+		if (mouseSampleTimer >= mouseSampleRate)
+		{
+			mouseSampleTimer %= mouseSampleRate;
+
+			previousMousePos = newMousePos;
+			Nz::Vector2i mousePos = Nz::Mouse::GetPosition(window);
+			newMousePos = Nz::Vector2f(mousePos.x, windowSize.y - mousePos.y);
+		}
 
 		frame.Execute([&](Nz::CommandBufferBuilder& builder)
 		{
 			builder.BeginDebugRegion("Upload scene data", Nz::Color::Yellow());
 			{
-				Nz::Vector2i mousePos = Nz::Mouse::GetPosition(window);
+				// Smooth mouse position over time (as this demo runs at a higher framerate than mouse polling)
+				float mouseInterp = mouseSampleTimer.AsSeconds() / mouseSampleRate.AsSeconds();
+				Nz::Vector2f mousePos = Nz::Vector2f::Lerp(previousMousePos, newMousePos, mouseInterp);
 
 				auto& allocation = uploadPool.Allocate(sceneBufferSize);
-				Nz::AccessByOffset<float&>(allocation.mappedPtr, deltaTimeOffset) = deltaTime;
-				Nz::AccessByOffset<Nz::Vector2f&>(allocation.mappedPtr, mousePosOffset) = Nz::Vector2f(mousePos.x, windowSize.y - mousePos.y);
+				Nz::AccessByOffset<float&>(allocation.mappedPtr, deltaTimeOffset) = deltaTime.AsSeconds();
+				Nz::AccessByOffset<Nz::Vector2f&>(allocation.mappedPtr, mousePosOffset) = mousePos;
 				Nz::AccessByOffset<float&>(allocation.mappedPtr, effectRadiusOffset) = (Nz::Mouse::IsButtonPressed(Nz::Mouse::Button::Left)) ? 10000.f : 100.f;
 
 				builder.PreTransferBarrier();

@@ -47,11 +47,11 @@ fn main(input: Input)
 	// Gets pushed by the cursor
 	let attract_pos = sceneData.mousePos;
 	let dist = length(attract_pos - data.particles[index].position);
-	data.particles[index].velocity -= 10000.0 * sceneData.effectRadius / min(dist, sceneData.effectRadius) * sceneData.deltaTime * (attract_pos - data.particles[index].position) / (dist * dist * dist * dist);
+	data.particles[index].velocity -= 100000.0 * sceneData.effectRadius / min(dist, sceneData.effectRadius) * sceneData.deltaTime * (attract_pos - data.particles[index].position) / (dist * dist * dist);
 
 	// But want to return to their original position
 	let dist = length(data.particles[index].targetPosition - data.particles[index].position);
-	let shouldUseDir = dist > 1.0;
+	let shouldUseDir = dist > 0.1;
 	data.particles[index].velocity += 100.0 * sceneData.deltaTime * select(shouldUseDir, normalize(data.particles[index].targetPosition - data.particles[index].position), vec2[f32](0.0, 0.0));
 
 	// Lose speed with time
