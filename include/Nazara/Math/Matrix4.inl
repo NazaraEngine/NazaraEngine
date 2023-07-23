@@ -1461,4 +1461,3 @@ namespace Nz
 
 
 #include <Nazara/Core/DebugOff.hpp>
-#include "Matrix4.hpp"

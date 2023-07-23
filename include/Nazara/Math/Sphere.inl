@@ -578,4 +578,3 @@ namespace Nz
 }
 
 #include <Nazara/Core/DebugOff.hpp>
-#include "Sphere.hpp"

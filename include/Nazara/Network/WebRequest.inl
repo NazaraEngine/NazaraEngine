@@ -70,4 +70,3 @@ namespace Nz
 }
 
 #include <Nazara/Network/DebugOff.hpp>
-#include "WebRequest.hpp"

@@ -675,4 +675,3 @@ namespace Nz
 }
 
 #include <Nazara/Core/DebugOff.hpp>
-#include "Rect.hpp"
