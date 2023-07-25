@@ -11,6 +11,7 @@
 #include <Nazara/Core/Export.hpp>
 #include <string>
 #include <thread>
+#include <string>
 
 namespace Nz
 {
