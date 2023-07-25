@@ -20,7 +20,6 @@ private:
     void BounceBallX();
     void AddKeyboard(Nz::Window& window);
     void UpdateScore();
-
 	
     entt::handle m_ball;
 	entt::handle m_leftPad;
@@ -35,9 +34,6 @@ private:
 
     int PlayerBScore = 0;
     int PlayerAScore = 0;
-
-    Nz::Vector2f HOZIRONTAL_BORD_SIZE = Nz::Vector2f(1280.f, 10.f);
-    Nz::Vector2f VERTICAL_BORD_SIZE = Nz::Vector2f(10.f, 720.f);
 
     const Nz::Vector2f m_windowSize;
 

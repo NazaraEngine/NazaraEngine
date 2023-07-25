@@ -10,10 +10,8 @@
 
 const Nz::Vector2f PAD_SIZE					= Nz::Vector2f(10.f, 40.f);
 const Nz::Vector2f BALL_SIZE				= Nz::Vector2f(10.f, 10.f);
-
-const int PAD_COLLISION_ID = 1;
-const int BALL_COLLISION_ID = 2;
-const int BORDER_COLLISION_ID = 3;
+const Nz::Vector2f HOZIRONTAL_BORD_SIZE = Nz::Vector2f(1280.f, 10.f);
+const Nz::Vector2f VERTICAL_BORD_SIZE = Nz::Vector2f(10.f, 720.f);
 
 GameState::GameState(Nz::EnttWorld& world, Nz::Window& window) : State(), m_windowSize(window.GetSize()), m_world(world){
 	m_ball = CreateEntity(world, m_windowSize / 2.f - BALL_SIZE / 2.f, "Ball");
