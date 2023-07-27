@@ -92,7 +92,7 @@ int main()
 
 	nzsl::FieldOffsets bufferLayout(nzsl::StructLayout::Std140);
 	std::size_t particleCountOffset = bufferLayout.AddField(nzsl::StructFieldType::UInt1);
-	std::size_t particlesOffset = bufferLayout.AddStructArray(particleLayout, particleCount);
+	std::size_t particlesArrayOffset = bufferLayout.AddStructArray(particleLayout, particleCount);
 
 	std::size_t bufferSize = bufferLayout.GetAlignedSize();
 
@@ -114,9 +114,9 @@ int main()
 
 	// Build particles
 	std::mt19937 rand(std::random_device{}());
-	std::uniform_real_distribution<float> velDis(-50.f, 50.f);
+	std::uniform_real_distribution<float> velDis(-500.f, 500.f);
 
-	Nz::UInt8* particleBasePtr = particleBufferInitialData.data() + particlesOffset;
+	Nz::UInt8* particleBasePtr = particleBufferInitialData.data() + particlesArrayOffset;
 	Nz::SparsePtr<Nz::Vector2f> particlePosPtr(particleBasePtr + particlePosOffset, particleSize);
 	Nz::SparsePtr<Nz::Vector2f> particleTargetPosPtr(particleBasePtr + particleTargetPosOffset, particleSize);
 	Nz::SparsePtr<Nz::Vector3f> particleColorPtr(particleBasePtr + particleColorOffset, particleSize);
@@ -131,7 +131,7 @@ int main()
 		particleVelPtr[i] = Nz::Vector2f(velDis(rand), velDis(rand));
 	}
 
-	std::shared_ptr<Nz::RenderBuffer> particleBuffer = device->InstantiateBuffer(Nz::BufferType::Storage, bufferSize, Nz::BufferUsage::DeviceLocal, particleBufferInitialData.data());
+	std::shared_ptr<Nz::RenderBuffer> particleBuffer = device->InstantiateBuffer(Nz::BufferType::Storage, bufferSize, Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::DirectMapping, particleBufferInitialData.data());
 
 	nzsl::FieldOffsets sceneBufferLayout(nzsl::StructLayout::Std140);
 	std::size_t deltaTimeOffset = sceneBufferLayout.AddField(nzsl::StructFieldType::Float1);
@@ -237,6 +237,35 @@ int main()
 
 	Nz::Time mouseSampleTimer = Nz::Time::Zero();
 	constexpr Nz::Time mouseSampleRate = Nz::Time::TickDuration(60);
+
+	auto& eventHandler = window.GetEventHandler();
+	eventHandler.OnKeyReleased.Connect([&](const Nz::WindowEventHandler*, const Nz::WindowEvent::KeyEvent& key)
+	{
+		if (key.virtualKey != Nz::Keyboard::VKey::Space)
+			return;
+
+		// The particle buffer is used concurrently by the GPU, force it to finish its work before updating
+		device->WaitForIdle();
+
+		void* ptr = particleBuffer->Map(0, particleBuffer->GetSize());
+		if (!ptr)
+		{
+			std::cerr << "failed to map particle buffer" << std::endl;
+			return;
+		}
+
+		Nz::UInt8* particleBasePtr = static_cast<Nz::UInt8*>(ptr) + particlesArrayOffset;
+		Nz::SparsePtr<Nz::Vector2f> particleVelPtr(particleBasePtr + particleVelOffset, particleSize);
+
+		for (std::size_t i = 0; i < particleCount; ++i)
+		{
+			auto&& [pos, color] = logoParticles[i];
+
+			particleVelPtr[i] = Nz::Vector2f(velDis(rand), velDis(rand));
+		}
+
+		particleBuffer->Unmap();
+	});
 
 	while (window.IsOpen())
 	{
