@@ -19,10 +19,10 @@ namespace Nz
 	*
 	* \param originalState State which is the entry point of the application, a nullptr will create an empty state machine
 	*/
-	inline StateMachine::StateMachine(std::shared_ptr<State> originalState)
+	inline StateMachine::StateMachine(std::shared_ptr<State> initialState)
 	{
-		if (originalState)
-			PushState(std::move(originalState));
+		if (initialState)
+			PushState(std::move(initialState));
 	}
 
 	/*!
@@ -33,8 +33,11 @@ namespace Nz
 	inline StateMachine::~StateMachine()
 	{
 		// Leave state from top to bottom (as if states were popped out)
-		for (auto it = m_states.rbegin(); it != m_states.rend(); ++it)
-			(*it)->Leave(*this);
+		for (auto rit = m_states.rbegin(); rit != m_states.rend(); ++rit)
+		{
+			if (rit->enabled)
+				rit->state->Leave(*this);
+		}
 	}
 
 	/*!
@@ -47,17 +50,62 @@ namespace Nz
 	*/
 	inline void StateMachine::ChangeState(std::shared_ptr<State> state)
 	{
+		// Change state is just a pop followed by a push
+		StateTransition& popTransition = m_transitions.emplace_back();
+		popTransition.type = TransitionType::Pop;
+
 		if (state)
 		{
-			// Change state is just a pop followed by a push
-			StateTransition transition;
-			transition.type = TransitionType::Pop;
-			m_transitions.emplace_back(std::move(transition));
-
-			transition.state = std::move(state);
-			transition.type = TransitionType::Push;
-			m_transitions.emplace_back(std::move(transition));
+			StateTransition& pushTransition = m_transitions.emplace_back();
+			pushTransition.state = std::move(state);
+			pushTransition.type = TransitionType::Push;
 		}
+	}
+
+	/*!
+	* \brief Disables a state, calling its Leave method and no longer Updating it
+	*
+	* \param state State to disable
+	*
+	* \remark Does nothing if the state is already disabled
+	* \remark Like all actions popping or pushing a state, this is not immediate and will only take effect when state machine is updated
+	*/
+	inline void StateMachine::Disable(std::shared_ptr<State> state)
+	{
+		StateTransition& disableTransition = m_transitions.emplace_back();
+		disableTransition.state = std::move(state);
+		disableTransition.type = TransitionType::Disable;
+	}
+
+	/*!
+	* \brief Enables a state, calling its Enter method and updating it
+	*
+	* \param state State to enable
+	*
+	* \remark Does nothing if the state is already enabled
+	* \remark Like all actions popping or pushing a state, this is not immediate and will only take effect when state machine is updated
+	*/
+	inline void StateMachine::Enable(std::shared_ptr<State> state)
+	{
+		StateTransition& disableTransition = m_transitions.emplace_back();
+		disableTransition.state = std::move(state);
+		disableTransition.type = TransitionType::Enable;
+	}
+
+	/*!
+	* \brief Checks whether the state is enabled on this state machine
+	* \return true If it is the case
+	*
+	* \param state State to compare the top with
+	* 
+	* \remark Because all actions popping or pushing a state don't take effect until next state machine update, this can return false on a just enabled state
+	*/
+	inline bool StateMachine::IsStateEnabled(const State* state) const
+	{
+		auto it = std::find_if(m_states.begin(), m_states.end(), [&](const StateInfo& stateInfo) { return stateInfo.state.get() == state; });
+		assert(it != m_states.end());
+
+		return it->enabled;
 	}
 
 	/*!
@@ -65,6 +113,7 @@ namespace Nz
 	* \return true If it is the case
 	*
 	* \param state State to compare the top with
+	* 
 	* \remark Because all actions popping or pushing a state don't take effect until next state machine update, this can return false on a just pushed state
 	*/
 	inline bool StateMachine::IsTopState(const State* state) const
@@ -72,7 +121,7 @@ namespace Nz
 		if (m_states.empty())
 			return false;
 
-		return m_states.back().get() == state;
+		return m_states.back().state.get() == state;
 	}
 
 	/*!
@@ -83,10 +132,8 @@ namespace Nz
 	*/
 	inline void StateMachine::PopState()
 	{
-		StateTransition transition;
+		StateTransition& transition = m_transitions.emplace_back();
 		transition.type = TransitionType::Pop;
-
-		m_transitions.emplace_back(std::move(transition));
 	}
 
 	/*!
@@ -101,11 +148,9 @@ namespace Nz
 	{
 		if (state)
 		{
-			StateTransition transition;
+			StateTransition& transition = m_transitions.emplace_back();
 			transition.state = std::move(state);
 			transition.type = TransitionType::PopUntil;
-
-			m_transitions.emplace_back(std::move(transition));
 		}
 	}
 
@@ -113,19 +158,18 @@ namespace Nz
 	* \brief Pushes a new state on the top of the machine
 	*
 	* \param state Next state to represent if it is nullptr, it performs no action
+	* \param enable If the state should be enabled right after pushing it
 	*
 	* \remark It is forbidden for a state machine to have (at any moment) the same state in its list multiple times
 	* \remark Like all actions popping or pushing a state, this is not immediate and will only take effect when state machine is updated
 	*/
-	inline void StateMachine::PushState(std::shared_ptr<State> state)
+	inline void StateMachine::PushState(std::shared_ptr<State> state, bool enabled)
 	{
 		if (state)
 		{
-			StateTransition transition;
+			StateTransition& transition = m_transitions.emplace_back();
 			transition.state = std::move(state);
-			transition.type = TransitionType::Push;
-
-			m_transitions.emplace_back(std::move(transition));
+			transition.type = (enabled) ? TransitionType::Push : TransitionType::PushDisabled;
 		}
 	}
 
@@ -139,15 +183,14 @@ namespace Nz
 	*/
 	inline void StateMachine::ResetState(std::shared_ptr<State> state)
 	{
-		StateTransition transition;
+		StateTransition& transition = m_transitions.emplace_back();
 		transition.type = TransitionType::PopUntil; //< Pop until nullptr, which basically clears the state machine
-		m_transitions.emplace_back(std::move(transition));
 
 		if (state)
 		{
-			transition.state = std::move(state);
-			transition.type = TransitionType::Push;
-			m_transitions.emplace_back(std::move(transition));
+			StateTransition& pushTransition = m_transitions.emplace_back();
+			pushTransition.state = std::move(state);
+			pushTransition.type = TransitionType::Push;
 		}
 	}
 
@@ -168,10 +211,39 @@ namespace Nz
 
 			switch (transition.type)
 			{
+				case TransitionType::Disable:
+				{
+					auto it = std::find_if(m_states.begin(), m_states.end(), [&](const StateInfo& stateInfo) { return stateInfo.state == transition.state; });
+					assert(it != m_states.end());
+
+					if (it->enabled)
+					{
+						it->state->Leave(*this);
+						it->enabled = false;
+					}
+
+					break;
+				}
+
+				case TransitionType::Enable:
+				{
+					auto it = std::find_if(m_states.begin(), m_states.end(), [&](const StateInfo& stateInfo) { return stateInfo.state == transition.state; });
+					assert(it != m_states.end());
+
+					if (!it->enabled)
+					{
+						it->enabled = true;
+						it->state->Enter(*this);
+					}
+
+					break;
+				}
+
 				case TransitionType::Pop:
 				{
-					std::shared_ptr<State>& topState = m_states.back();
-					topState->Leave(*this); //< Call leave before popping to ensure consistent IsTopState behavior
+					StateInfo& topState = m_states.back();
+					if (topState.enabled)
+						topState.state->Leave(*this); //< Call leave before popping to ensure consistent IsTopState behavior
 
 					m_states.pop_back();
 					break;
@@ -179,9 +251,12 @@ namespace Nz
 
 				case TransitionType::PopUntil:
 				{
-					while (!m_states.empty() && m_states.back() != transition.state)
+					while (!m_states.empty() && m_states.back().state != transition.state)
 					{
-						m_states.back()->Leave(*this);
+						StateInfo& topState = m_states.back();
+						if (topState.enabled)
+							topState.state->Leave(*this);
+
 						m_states.pop_back();
 					}
 					break;
@@ -189,17 +264,36 @@ namespace Nz
 
 				case TransitionType::Push:
 				{
-					m_states.emplace_back(std::move(transition.state));
-					m_states.back()->Enter(*this);
+					StateInfo& stateInfo = m_states.emplace_back();
+					stateInfo.enabled = true;
+					stateInfo.state = std::move(transition.state);
+					stateInfo.state->Enter(*this);
+
+					break;
+				}
+
+				case TransitionType::PushDisabled:
+				{
+					StateInfo& stateInfo = m_states.emplace_back();
+					stateInfo.enabled = false;
+					stateInfo.state = std::move(transition.state);
+
 					break;
 				}
 			}
 		}
 		m_transitions.clear();
 
-		return std::all_of(m_states.begin(), m_states.end(), [=](std::shared_ptr<State>& state) {
-			return state->Update(*this, elapsedTime);
-		});
+		for (StateInfo& stateInfo : m_states)
+		{
+			if (!stateInfo.enabled)
+				continue;
+
+			if (!stateInfo.state->Update(*this, elapsedTime))
+				return false;
+		}
+
+		return true;
 	}
 }
 

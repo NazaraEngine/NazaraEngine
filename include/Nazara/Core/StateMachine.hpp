@@ -18,18 +18,22 @@ namespace Nz
 	class StateMachine
 	{
 		public:
-			inline StateMachine(std::shared_ptr<State> originalState);
+			inline StateMachine(std::shared_ptr<State> initialState = {});
 			StateMachine(const StateMachine&) = delete;
 			StateMachine(StateMachine&&) = default;
 			inline ~StateMachine();
 
 			inline void ChangeState(std::shared_ptr<State> state);
 
+			inline void Disable(std::shared_ptr<State> state);
+			inline void Enable(std::shared_ptr<State> state);
+
+			inline bool IsStateEnabled(const State* state) const;
 			inline bool IsTopState(const State* state) const;
 
 			inline void PopState();
 			inline void PopStatesUntil(std::shared_ptr<State> state);
-			inline void PushState(std::shared_ptr<State> state);
+			inline void PushState(std::shared_ptr<State> state, bool enabled = true);
 
 			inline void ResetState(std::shared_ptr<State> state);
 
@@ -41,18 +45,27 @@ namespace Nz
 		private:
 			enum class TransitionType
 			{
+				Disable,
+				Enable,
 				Pop,
 				PopUntil,
 				Push,
+				PushDisabled,
+			};
+
+			struct StateInfo
+			{
+				std::shared_ptr<State> state;
+				bool enabled;
 			};
 
 			struct StateTransition
 			{
-				TransitionType type;
 				std::shared_ptr<State> state;
+				TransitionType type;
 			};
 
-			std::vector<std::shared_ptr<State>> m_states;
+			std::vector<StateInfo> m_states;
 			std::vector<StateTransition> m_transitions;
 	};
 }
