@@ -6,7 +6,6 @@
 #include <Nazara/Graphics.hpp>
 
 #include <iostream>
-#include <format>
 
 const Nz::Vector2f PAD_SIZE					= Nz::Vector2f(10.f, 40.f);
 const Nz::Vector2f BALL_SIZE				= Nz::Vector2f(10.f, 10.f);
@@ -70,7 +69,6 @@ entt::handle GameState::CreateEntity(Nz::EnttWorld& world, const Nz::Vector2f& p
 	graphicsComponent.AttachRenderable(sprite);
 
 	Nz::VelocityComponent& velocityComponent = entity.emplace<Nz::VelocityComponent>();
-	std::cout << std::format("current velocity : {}",velocityComponent.GetLinearVelocity().ToString()) << std::endl;
 	
 	return entity;
 }
@@ -159,7 +157,7 @@ void GameState::UpdateScore() {
 	m_score = m_world.CreateEntity();
 	
 	Nz::SimpleTextDrawer textDrawer;
-	textDrawer.SetText(std::format("{} - {}", PlayerAScore, PlayerBScore));
+	textDrawer.SetText(std::string(PlayerAScore + " - " + PlayerBScore));
 	textDrawer.SetCharacterSize(72);
 	textDrawer.SetOutlineThickness(4.f);
 
