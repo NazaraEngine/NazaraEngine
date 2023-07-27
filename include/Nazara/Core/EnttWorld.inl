@@ -38,6 +38,12 @@ namespace Nz
 		return m_systemGraph.GetSystem<T>();
 	}
 
+	template<typename T>
+	void EnttWorld::RemoveSystem()
+	{
+		return m_systemGraph.RemoveSystem<T>();
+	}
+
 	inline EnttWorld::operator entt::registry&()
 	{
 		return m_registry;

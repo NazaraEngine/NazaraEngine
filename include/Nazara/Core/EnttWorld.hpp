@@ -30,6 +30,8 @@ namespace Nz
 			const entt::registry& GetRegistry() const;
 			template<typename T> T& GetSystem() const;
 
+			template<typename T> void RemoveSystem();
+
 			void Update(Time elapsedTime) override;
 
 			operator entt::registry&();

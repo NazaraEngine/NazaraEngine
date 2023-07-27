@@ -71,6 +71,18 @@ namespace Nz
 		auto& node = static_cast<Node<T>&>(*m_nodes[it->second]);
 		return node.system;
 	}
+
+	template<typename T>
+	void EnttSystemGraph::RemoveSystem()
+	{
+		auto it = m_systemToNodes.find(entt::type_hash<T>());
+		if (it == m_systemToNodes.end())
+			return;
+
+		m_nodes.erase(m_nodes.begin() + it->second);
+		m_systemToNodes.erase(it);
+		m_systemOrderUpdated = false;
+	}
 }
 
 #include <Nazara/Core/DebugOff.hpp>

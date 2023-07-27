@@ -30,6 +30,8 @@ namespace Nz
 
 			template<typename T> T& GetSystem() const;
 
+			template<typename T> void RemoveSystem();
+
 			void Update();
 			void Update(Time elapsedTime);
 
