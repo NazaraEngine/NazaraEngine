@@ -522,7 +522,7 @@ int main()
 		fps++;
 		if (fpsClock.RestartIfOver(Nz::Time::Second()))
 		{
-			mainWindow.SetTitle("Physics playground - " + Nz::NumberToString(fps) + " FPS" + " - " + Nz::NumberToString(world.GetRegistry().alive()) + " entities");
+			mainWindow.SetTitle("Physics playground - " + Nz::NumberToString(fps) + " FPS" + " - " + Nz::NumberToString(world.GetAliveEntityCount()) + " entities");
 			physSystem.Dump();
 			fps = 0;
 		}

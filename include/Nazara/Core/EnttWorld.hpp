@@ -26,6 +26,7 @@ namespace Nz
 
 			entt::handle CreateEntity();
 
+			inline std::size_t GetAliveEntityCount() const;
 			entt::registry& GetRegistry();
 			const entt::registry& GetRegistry() const;
 			template<typename T> T& GetSystem() const;

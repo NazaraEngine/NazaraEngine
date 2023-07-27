@@ -122,7 +122,7 @@ int main()
 
 		if (secondClock.RestartIfOver(Nz::Time::Second()))
 		{
-			window.SetTitle(windowTitle + " - " + Nz::NumberToString(fps) + " FPS" + " - " + Nz::NumberToString(world.GetRegistry().alive()) + " entities");
+			window.SetTitle(windowTitle + " - " + Nz::NumberToString(fps) + " FPS" + " - " + Nz::NumberToString(world.GetAliveEntityCount()) + " entities");
 			fps = 0;
 		}
 	});

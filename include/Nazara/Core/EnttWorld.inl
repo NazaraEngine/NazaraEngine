@@ -22,6 +22,11 @@ namespace Nz
 		return entt::handle(m_registry, m_registry.create());
 	}
 
+	inline std::size_t EnttWorld::GetAliveEntityCount() const
+	{
+		return m_registry.storage<entt::entity>()->in_use();
+	}
+
 	inline entt::registry& EnttWorld::GetRegistry()
 	{
 		return m_registry;
