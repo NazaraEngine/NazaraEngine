@@ -17,7 +17,7 @@
 
 constexpr float BoxDims = 16.f;
 
-int main()
+int main(int argc, char* argv[])
 {
 	try {
 	// Mise en place de l'application, de la fenêtre et du monde
@@ -25,9 +25,9 @@ int main()
 	renderConfig.validationLevel = Nz::RenderAPIValidationLevel::None;
 
 #if USE_JOLT
-	Nz::Application<Nz::Graphics, Nz::JoltPhysics3D> app(renderConfig);
+	Nz::Application<Nz::Graphics, Nz::JoltPhysics3D> app(argc, argv, renderConfig);
 #else
-	Nz::Application<Nz::Graphics, Nz::BulletPhysics3D> app(renderConfig);
+	Nz::Application<Nz::Graphics, Nz::BulletPhysics3D> app(argc, argv, renderConfig);
 #endif
 
 	auto& windowing = app.AddComponent<Nz::AppWindowingComponent>();

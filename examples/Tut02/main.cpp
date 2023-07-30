@@ -7,9 +7,9 @@
 #include <Nazara/Utility.hpp>
 #include <iostream>
 
-int main()
+int main(int argc, char* argv[])
 {
-	Nz::Application<Nz::Graphics> app;
+	Nz::Application<Nz::Graphics> app(argc, argv);
 
 	// Création de la fenêtre
 	auto& windowing = app.AddComponent<Nz::AppWindowingComponent>();

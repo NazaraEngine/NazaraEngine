@@ -65,7 +65,7 @@ struct SpotLight
 	Nz::RadianAnglef outerAngle = Nz::DegreeAnglef(20.f);
 };
 
-int main()
+int main(int argc, char* argv[])
 {
 	std::filesystem::path resourceDir = "assets/examples";
 	if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory("../.." / resourceDir))
@@ -75,7 +75,7 @@ int main()
 	if (!std::filesystem::is_directory(shaderDir) && std::filesystem::is_directory("../.." / shaderDir))
 		shaderDir = "../.." / shaderDir;
 
-	Nz::Application<Nz::Graphics> app;
+	Nz::Application<Nz::Graphics> app(argc, argv);
 
 	nzsl::ShaderWriter::States states;
 	states.shaderModuleResolver = Nz::Graphics::Instance()->GetShaderModuleResolver();
@@ -342,9 +342,6 @@ int main()
 		light.direction = Nz::Vector3f(dirDis(randomEngine), dirYDis(randomEngine), dirDis(randomEngine)).GetNormal();
 		light.radius = radiusDis(randomEngine);
 	}
-
-	unsigned int offscreenWidth = windowSize.x;
-	unsigned int offscreenHeight = windowSize.y;
 
 	// Bloom data
 
@@ -1145,9 +1142,9 @@ int main()
 		if (lightAnimation)
 			elapsedTime += deltaTime;
 
-		if (std::optional<Nz::Time> deltaTime = updateClock.RestartIfOver(Nz::Time::TickDuration(60)))
+		if (std::optional<Nz::Time> movementDuration = updateClock.RestartIfOver(Nz::Time::TickDuration(60)))
 		{
-			float cameraSpeed = 2.f * deltaTime->AsSeconds();
+			float cameraSpeed = 2.f * movementDuration->AsSeconds();
 
 			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Up) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Z))
 				viewerPos += camQuat * Nz::Vector3f::Forward() * cameraSpeed;

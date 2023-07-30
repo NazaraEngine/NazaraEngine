@@ -2,9 +2,9 @@
 #include <Nazara/Network.hpp>
 #include <iostream>
 
-int main()
+int main(int argc, char* argv[])
 {
-	Nz::Application<Nz::Network> app;
+	Nz::Application<Nz::Network> app(argc, argv);
 
 	std::unique_ptr<Nz::WebService> webService = Nz::Network::Instance()->InstantiateWebService();
 

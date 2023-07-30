@@ -12,9 +12,9 @@
 
 NAZARA_REQUEST_DEDICATED_GPU()
 
-int main()
+int main(int argc, char* argv[])
 {
-	Nz::Application<Nz::Graphics, Nz::Widgets> app;
+	Nz::Application<Nz::Graphics, Nz::Widgets> app(argc, argv);
 
 	auto& windowing = app.AddComponent<Nz::AppWindowingComponent>();
 	Nz::Window& mainWindow = windowing.CreateWindow(Nz::VideoMode(1920, 1080), "Widget demo");

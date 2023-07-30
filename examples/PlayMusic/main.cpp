@@ -14,13 +14,13 @@
 #include <iostream>
 #include <thread>
 
-int main()
+int main(int argc, char* argv[])
 {
 	std::filesystem::path resourceDir = "assets/examples";
 	if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory("../.." / resourceDir))
 		resourceDir = "../.." / resourceDir;
 
-	Nz::Application<Nz::Audio> app;
+	Nz::Application<Nz::Audio> app(argc, argv);
 	app.AddComponent<Nz::SignalHandlerAppComponent>();
 
 	Nz::SoundStreamParams streamParams;

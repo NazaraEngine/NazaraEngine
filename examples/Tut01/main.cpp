@@ -7,10 +7,10 @@
 #include <Nazara/Utility.hpp>
 #include <iostream>
 
-int main()
+int main(int argc, char* argv[])
 {
 	// Mise en place de l'application, de la fenêtre et du monde
-	Nz::Application<Nz::Graphics> app;
+	Nz::Application<Nz::Graphics> app(argc, argv);
 
 	auto& windowing = app.AddComponent<Nz::AppWindowingComponent>();
 	Nz::Window& mainWindow = windowing.CreateWindow(Nz::VideoMode(1280, 720), "Tut01 - Hello world");

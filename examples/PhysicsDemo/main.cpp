@@ -14,13 +14,13 @@
 
 NAZARA_REQUEST_DEDICATED_GPU()
 
-int main()
+int main(int argc, char* argv[])
 {
 	std::filesystem::path resourceDir = "assets/examples";
 	if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory("../.." / resourceDir))
 		resourceDir = "../.." / resourceDir;
 
-	Nz::Application<Nz::Graphics, Nz::BulletPhysics3D> app;
+	Nz::Application<Nz::Graphics, Nz::BulletPhysics3D> app(argc, argv);
 
 	auto& windowing = app.AddComponent<Nz::AppWindowingComponent>();
 

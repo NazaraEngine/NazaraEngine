@@ -17,9 +17,9 @@
 
 NAZARA_REQUEST_DEDICATED_GPU()
 
-int main()
+int main(int argc, char* argv[])
 {
-	Nz::Application<Nz::Graphics, Nz::JoltPhysics3D> app;
+	Nz::Application<Nz::Graphics, Nz::JoltPhysics3D> app(argc, argv);
 
 	Nz::PluginLoader loader;
 	Nz::Plugin<Nz::AssimpPlugin> assimp = loader.Load<Nz::AssimpPlugin>();
@@ -223,7 +223,7 @@ int main()
 	entt::handle lightEntity3 = world.CreateEntity();
 
 	{
-		auto& bobNode = bobEntity.emplace<Nz::NodeComponent>();
+		[[maybe_unused]] auto& bobNode = bobEntity.emplace<Nz::NodeComponent>();
 		//bobNode.SetRotation(Nz::EulerAnglesf(-90.f, -90.f, 0.f));
 		//bobNode.SetScale(1.f / 40.f * 0.5f);
 		//bobNode.SetPosition(Nz::Vector3f(0.f, -1.f, 0.f));
