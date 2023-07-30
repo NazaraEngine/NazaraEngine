@@ -53,7 +53,7 @@ namespace Nz
 	m_modules(std::forward<ModuleConfig>(configs)...)
 	{
 	}
-	
+
 	template<typename... ModuleList>
 	template<typename... ModuleConfig>
 	Application<ModuleList...>::Application(int argc, const Pointer<const char>* argv, ModuleConfig&&... configs) :

@@ -9,6 +9,7 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Config.hpp>
+#include <string>
 #include <thread>
 
 namespace Nz

@@ -39,9 +39,9 @@ namespace Nz
 			template<typename T> T& GetComponent();
 			template<typename T> const T& GetComponent() const;
 
-			int Run();
-
 			inline void Quit();
+
+			int Run();
 
 			bool Update(Time elapsedTime);
 
