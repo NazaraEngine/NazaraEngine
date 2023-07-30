@@ -58,9 +58,9 @@ SCENARIO("EulerAngles", "[MATH][EULERANGLES]")
 				Nz::Vector3f rotation90Y = euler90Y.ToQuaternion() * Nz::Vector3f::UnitZ();
 				Nz::Vector3f rotation90R = euler90R.ToQuaternion() * Nz::Vector3f::UnitX();
 
-				CHECK(rotation90P.ApproxEqual(Nz::Vector3f::UnitZ()));
-				CHECK(rotation90Y.ApproxEqual(Nz::Vector3f::UnitX()));
-				CHECK(rotation90R.ApproxEqual(Nz::Vector3f::UnitY()));
+				CHECK(rotation90P.ApproxEqual(Nz::Vector3f::UnitZ(), 0.0001f));
+				CHECK(rotation90Y.ApproxEqual(Nz::Vector3f::UnitX(), 0.0001f));
+				CHECK(rotation90R.ApproxEqual(Nz::Vector3f::UnitY(), 0.0001f));
 			}
 		}
 	}

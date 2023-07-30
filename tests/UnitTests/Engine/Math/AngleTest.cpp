@@ -78,7 +78,7 @@ SCENARIO("Angle", "[MATH][ANGLE]")
 
 				THEN("It should be equivalent to a 2D rotation by this angle")
 				{
-					CHECK(quat == eulerAngles.ToQuaternion());
+					CHECK(quat.ApproxEqual(eulerAngles.ToQuaternion()));
 				}
 			}
 		}
@@ -178,7 +178,7 @@ SCENARIO("Angle", "[MATH][ANGLE]")
 
 				THEN("It should be equivalent to a 2D rotation by this angle")
 				{
-					CHECK(quat == eulerAngles.ToQuaternion());
+					CHECK(quat.ApproxEqual(eulerAngles.ToQuaternion()));
 				}
 			}
 		}

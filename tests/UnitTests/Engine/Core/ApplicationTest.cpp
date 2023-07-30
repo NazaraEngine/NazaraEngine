@@ -2,7 +2,7 @@
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 
-SCENARIO("Application", "[CORE][ABSTRACTHASH]")
+SCENARIO("Application", "[CORE][Application]")
 {
 	WHEN("Updating the application multiple times")
 	{

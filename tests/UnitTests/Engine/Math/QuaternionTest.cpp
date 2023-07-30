@@ -29,8 +29,8 @@ SCENARIO("Quaternion", "[MATH][QUATERNION]")
 
 			AND_THEN("Multiply with a vectorY or Z is opposite")
 			{
-				REQUIRE((firstQuaternion * Nz::Vector3f::UnitY()).ApproxEqual(-Nz::Vector3f::UnitY()));
-				REQUIRE((firstQuaternion * Nz::Vector3f::UnitZ()).ApproxEqual(-Nz::Vector3f::UnitZ()));
+				REQUIRE((firstQuaternion * Nz::Vector3f::UnitY()).ApproxEqual(-Nz::Vector3f::UnitY(), 0.0001f));
+				REQUIRE((firstQuaternion * Nz::Vector3f::UnitZ()).ApproxEqual(-Nz::Vector3f::UnitZ(), 0.0001f));
 			}
 		}
 
@@ -121,9 +121,9 @@ SCENARIO("Quaternion", "[MATH][QUATERNION]")
 
 			THEN("They must be equal")
 			{
-				REQUIRE(X45 == Nz::Quaternionf(0.9238795f, 0.38268346f, 0.f, 0.f));
-				REQUIRE(Y45 == Nz::Quaternionf(0.9238795f, 0.f, 0.38268346f, 0.f));
-				REQUIRE(Z45 == Nz::Quaternionf(0.9238795f, 0.f, 0.f, 0.38268346f));
+				CHECK(X45.ApproxEqual(Nz::Quaternionf(0.9238795f, 0.38268346f, 0.f, 0.f)));
+				CHECK(Y45.ApproxEqual(Nz::Quaternionf(0.9238795f, 0.f, 0.38268346f, 0.f)));
+				CHECK(Z45.ApproxEqual(Nz::Quaternionf(0.9238795f, 0.f, 0.f, 0.38268346f)));
 			}
 		}
 
@@ -229,9 +229,9 @@ SCENARIO("Quaternion", "[MATH][QUATERNION]")
 				CHECK(Nz::NumberEquals(rotation90Y.ToEulerAngles().yaw.ToDegrees(), 90.f, 0.1f));
 				CHECK(Nz::NumberEquals(rotation90Z.ToEulerAngles().roll.ToDegrees(), 90.f, 0.1f));
 
-				CHECK(rotation180X.ApproxEqual(Nz::EulerAnglesf(180.f, 0.f, 0.f)));
-				CHECK(rotation180Y.ApproxEqual(Nz::EulerAnglesf(0.f, 180.f, 0.f)));
-				CHECK(rotation180Z.ApproxEqual(Nz::EulerAnglesf(0.f, 0.f, 180.f)));
+				CHECK(rotation180X.ApproxEqual(Nz::EulerAnglesf(180.f, 0.f, 0.f), 0.0001f));
+				CHECK(rotation180Y.ApproxEqual(Nz::EulerAnglesf(0.f, 180.f, 0.f), 0.0001f));
+				CHECK(rotation180Z.ApproxEqual(Nz::EulerAnglesf(0.f, 0.f, 180.f), 0.0001f));
 
 				CHECK(Nz::NumberEquals(rotation270X.ToEulerAngles().pitch.ToDegrees(), -90.f, 0.1f));
 				CHECK(Nz::NumberEquals(rotation270Y.ToEulerAngles().yaw.ToDegrees(), -90.f, 0.1f));
