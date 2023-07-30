@@ -11,13 +11,15 @@
 
 namespace Nz
 {
+	class CommandLineParameters;
+
 	namespace Detail
 	{
 		template<typename Module, typename... Modules>
 		struct ModuleTuple : ModuleTuple<Module>, ModuleTuple<Modules...>
 		{
-			template<typename... ModuleConfig>
-			ModuleTuple(ModuleConfig&&... configs);
+			template<typename... ModuleConfig> ModuleTuple(ModuleConfig&&... configs);
+			template<typename... ModuleConfig> ModuleTuple(const CommandLineParameters& parameters, ModuleConfig&&... configs);
 
 			template<typename T> T& Get();
 		};
@@ -25,8 +27,8 @@ namespace Nz
 		template<typename Module>
 		struct ModuleTuple<Module>
 		{
-			template<typename... ModuleConfig>
-			ModuleTuple(ModuleConfig&&... configs);
+			template<typename... ModuleConfig> ModuleTuple(ModuleConfig&&... configs);
+			template<typename... ModuleConfig> ModuleTuple(const CommandLineParameters& parameters, ModuleConfig&&... configs);
 
 			template<typename T> T& Get();
 
@@ -42,8 +44,8 @@ namespace Nz
 	class Modules
 	{
 		public:
-			template<typename... ModuleConfig>
-			Modules(ModuleConfig&&... configs);
+			template<typename... ModuleConfig> Modules(ModuleConfig&&... configs);
+			template<typename... ModuleConfig> Modules(const CommandLineParameters& parameters, ModuleConfig&&... configs);
 			~Modules() = default;
 
 			template<typename T> T& Get();

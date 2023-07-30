@@ -13,6 +13,7 @@ namespace Nz
 {
 	ApplicationBase::ApplicationBase(int argc, const Pointer<const char>* argv) :
 	m_running(true),
+	m_commandLineParams(CommandLineParameters::Parse(argc, argv)),
 	m_currentTime(Time::Zero())
 	{
 		NazaraAssert(s_instance == nullptr, "only one instance of ApplicationBase can exist at a given time");

@@ -4,6 +4,7 @@
 
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Core/AppFilesystemComponent.hpp>
+#include <Nazara/Core/CommandLineParameters.hpp>
 #include <Nazara/Graphics/GuillotineTextureAtlas.hpp>
 #include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/MaterialPipeline.hpp>
@@ -451,4 +452,13 @@ namespace Nz
 	}
 
 	Graphics* Graphics::s_instance = nullptr;
+
+	void Graphics::Config::Override(const CommandLineParameters& parameters)
+	{
+		if (parameters.HasFlag("use-dedicated-gpu"))
+			useDedicatedRenderDevice = true;
+
+		if (parameters.HasFlag("use-integrated-gpu"))
+			useDedicatedRenderDevice = false;
+	}
 }

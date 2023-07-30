@@ -50,6 +50,11 @@ namespace Nz
 		m_components.clear();
 	}
 
+	inline const CommandLineParameters& ApplicationBase::GetCommandLineParameters() const
+	{
+		return m_commandLineParams;
+	}
+
 	template<typename T>
 	T& ApplicationBase::GetComponent()
 	{

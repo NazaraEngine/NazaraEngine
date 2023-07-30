@@ -176,6 +176,7 @@ local modules = {
 	Renderer = {
 		Option = "renderer",
 		Deps = {"NazaraPlatform"},
+		Packages = { "frozen" },
 		PublicPackages = { "nazarautils", "nzsl" },
 		Custom = function ()
 			if has_config("embed_rendererbackends") then

@@ -16,6 +16,8 @@
 
 namespace Nz
 {
+	class CommandLineParameters;
+
 	class NAZARA_AUDIO_API Audio : public ModuleBase<Audio>
 	{
 		friend ModuleBase;
@@ -45,8 +47,10 @@ namespace Nz
 			Audio& operator=(const Audio&) = delete;
 			Audio& operator=(Audio&&) = delete;
 
-			struct Config
+			struct NAZARA_AUDIO_API Config
 			{
+				void Override(const CommandLineParameters& parameters);
+
 				bool allowDummyDevice = true;
 				bool noAudio = false;
 			};

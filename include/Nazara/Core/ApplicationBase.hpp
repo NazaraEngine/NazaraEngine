@@ -11,7 +11,9 @@
 #include <Nazara/Core/ApplicationComponent.hpp>
 #include <Nazara/Core/ApplicationUpdater.hpp>
 #include <Nazara/Core/Clock.hpp>
+#include <Nazara/Core/CommandLineParameters.hpp>
 #include <atomic>
+#include <string>
 #include <vector>
 
 namespace Nz
@@ -36,6 +38,7 @@ namespace Nz
 
 			inline void ClearComponents();
 
+			inline const CommandLineParameters& GetCommandLineParameters() const;
 			template<typename T> T& GetComponent();
 			template<typename T> const T& GetComponent() const;
 
@@ -66,6 +69,7 @@ namespace Nz
 			std::atomic_bool m_running;
 			std::vector<std::unique_ptr<ApplicationComponent>> m_components;
 			std::vector<Updater> m_updaters;
+			CommandLineParameters m_commandLineParams;
 			HighPrecisionClock m_clock;
 			Time m_currentTime;
 

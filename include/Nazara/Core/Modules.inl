@@ -9,6 +9,21 @@ namespace Nz
 {
 	namespace Detail
 	{
+		template<typename, typename = void>
+		struct ModuleConfigHasOverride : std::false_type {};
+
+		template<typename T>
+		struct ModuleConfigHasOverride<T, std::void_t<decltype(std::declval<T>().Override(std::declval<const CommandLineParameters&>()))>> : std::true_type {};
+
+		template<typename T>
+		auto OverrideModuleConfig(T&& module, const CommandLineParameters& params)
+		{
+			if constexpr (!std::is_const_v<T> && ModuleConfigHasOverride<T>::value)
+				module.Override(params);
+
+			return std::forward<T>(module);
+		}
+
 		template<typename T>
 		struct Pick
 		{
@@ -24,9 +39,26 @@ namespace Nz
 				}
 			}
 
+			template<typename First, typename... Args>
+			static auto Get(const CommandLineParameters& parameters, First&& first, Args&&... args)
+			{
+				if constexpr (std::is_same_v<T, std::decay_t<First>>)
+					return OverrideModuleConfig<First>(first, parameters);
+				else
+				{
+					NazaraUnused(first);
+					return Get(parameters, std::forward<Args>(args)...);
+				}
+			}
+
 			static auto Get()
 			{
 				return T{};
+			}
+
+			static auto Get(const CommandLineParameters& parameters)
+			{
+				return OverrideModuleConfig(T{}, parameters);
 			}
 		};
 
@@ -35,6 +67,14 @@ namespace Nz
 		ModuleTuple<Module, Modules...>::ModuleTuple(ModuleConfig&&... configs) :
 		ModuleTuple<Module>(std::forward<ModuleConfig>(configs)...),
 		ModuleTuple<Modules...>(std::forward<ModuleConfig>(configs)...)
+		{
+		}
+		
+		template<typename Module, typename... Modules>
+		template<typename... ModuleConfig>
+		ModuleTuple<Module, Modules...>::ModuleTuple(const CommandLineParameters& parameters, ModuleConfig&&... configs) :
+		ModuleTuple<Module>(parameters, std::forward<ModuleConfig>(configs)...),
+		ModuleTuple<Modules...>(parameters, std::forward<ModuleConfig>(configs)...)
 		{
 		}
 
@@ -55,6 +95,13 @@ namespace Nz
 		m(Pick<typename Module::Config>::Get(std::forward<ModuleConfig>(configs)...))
 		{
 		}
+		
+		template<typename Module>
+		template<typename... ModuleConfig>
+		ModuleTuple<Module>::ModuleTuple(const CommandLineParameters& parameters, ModuleConfig&&... configs) :
+		m(Pick<typename Module::Config>::Get(parameters, std::forward<ModuleConfig>(configs)...))
+		{
+		}
 
 		template<typename Module>
 		template<typename T>
@@ -69,6 +116,13 @@ namespace Nz
 	template<typename... ModuleConfig>
 	Modules<ModuleList...>::Modules(ModuleConfig&&... configs) :
 	m_modules(std::forward<ModuleConfig>(configs)...)
+	{
+	}
+	
+	template<typename... ModuleList>
+	template<typename... ModuleConfig>
+	Modules<ModuleList...>::Modules(const CommandLineParameters& parameters, ModuleConfig&&... configs) :
+	m_modules(parameters, std::forward<ModuleConfig>(configs)...)
 	{
 	}
 

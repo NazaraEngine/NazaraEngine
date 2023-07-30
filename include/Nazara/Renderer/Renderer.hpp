@@ -18,6 +18,7 @@
 namespace Nz
 {
 	class Buffer;
+	class CommandLineParameters;
 	class RendererImpl;
 
 	class NAZARA_RENDERER_API Renderer : public ModuleBase<Renderer>
@@ -42,8 +43,10 @@ namespace Nz
 
 			const std::vector<RenderDeviceInfo>& QueryRenderDevices() const;
 
-			struct Config
+			struct NAZARA_RENDERER_API Config
 			{
+				void Override(const CommandLineParameters& parameters);
+
 				ParameterList customParameters;
 				RenderAPI preferredAPI = RenderAPI::Unknown;
 #ifdef NAZARA_DEBUG

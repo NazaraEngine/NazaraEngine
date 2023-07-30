@@ -14,6 +14,7 @@
 #include <Nazara/Audio/Formats/libflacLoader.hpp>
 #include <Nazara/Audio/Formats/libvorbisLoader.hpp>
 #include <Nazara/Audio/Formats/minimp3Loader.hpp>
+#include <Nazara/Core/CommandLineParameters.hpp>
 #include <Nazara/Core/Core.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
@@ -155,4 +156,10 @@ namespace Nz
 	}
 
 	Audio* Audio::s_instance = nullptr;
+
+	void Audio::Config::Override(const CommandLineParameters& parameters)
+	{
+		if (parameters.HasFlag("no-audio"))
+			noAudio = true;
+	}
 }

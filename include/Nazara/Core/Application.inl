@@ -25,16 +25,8 @@ namespace Nz
 				if constexpr (ModuleHasRegister<Module, C>::value)
 					modules.template Get<Module>().RegisterComponent(component);
 
-				ModuleRegisterer<TypeList<Rest...>>::Register(modules, component);
-			}
-		};
-
-		template<>
-		struct ModuleRegisterer<TypeList<>>
-		{
-			template<typename T, typename C>
-			static void Register(T& /*modules*/, C& /*component*/)
-			{
+				if constexpr (sizeof...(Rest) > 0)
+					ModuleRegisterer<TypeList<Rest...>>::Register(modules, component);
 			}
 		};
 	}
@@ -50,7 +42,7 @@ namespace Nz
 	template<typename... ModuleConfig>
 	Application<ModuleList...>::Application(int argc, char** argv, ModuleConfig&&... configs) :
 	ApplicationBase(argc, argv),
-	m_modules(std::forward<ModuleConfig>(configs)...)
+	m_modules(GetCommandLineParameters(), std::forward<ModuleConfig>(configs)...)
 	{
 	}
 
@@ -58,7 +50,7 @@ namespace Nz
 	template<typename... ModuleConfig>
 	Application<ModuleList...>::Application(int argc, const Pointer<const char>* argv, ModuleConfig&&... configs) :
 	ApplicationBase(argc, argv),
-	m_modules(std::forward<ModuleConfig>(configs)...)
+	m_modules(GetCommandLineParameters(), std::forward<ModuleConfig>(configs)...)
 	{
 	}
 

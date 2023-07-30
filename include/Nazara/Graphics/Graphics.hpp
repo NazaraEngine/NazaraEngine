@@ -23,6 +23,7 @@
 namespace Nz
 {
 	class AppFilesystemComponent;
+	class CommandLineParameters;
 	class RenderBuffer;
 
 	class NAZARA_GRAPHICS_API Graphics : public ModuleBase<Graphics>
@@ -59,8 +60,10 @@ namespace Nz
 
 			void RegisterComponent(AppFilesystemComponent& component);
 
-			struct Config
+			struct NAZARA_GRAPHICS_API Config
 			{
+				void Override(const CommandLineParameters& parameters);
+
 				RenderDeviceFeatures forceDisableFeatures;
 				bool useDedicatedRenderDevice = true;
 			};

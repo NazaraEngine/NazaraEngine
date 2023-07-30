@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Renderer/Renderer.hpp>
+#include <Nazara/Core/CommandLineParameters.hpp>
 #include <Nazara/Core/DynLib.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Core/StringExt.hpp>
@@ -14,6 +15,8 @@
 #include <Nazara/Utility/Utility.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
 #include <NazaraUtils/EnumArray.hpp>
+#include <frozen/string.h>
+#include <frozen/unordered_map.h>
 #include <filesystem>
 #include <stdexcept>
 
@@ -211,4 +214,44 @@ namespace Nz
 	}
 
 	Renderer* Renderer::s_instance = nullptr;
+
+
+	void Renderer::Config::Override(const CommandLineParameters& parameters)
+	{
+		std::string_view value;
+
+		if (parameters.GetParameter("render-api", &value))
+		{
+			constexpr auto renderAPIStr = frozen::make_unordered_map<frozen::string, RenderAPI>({
+				{ "auto",     RenderAPI::Unknown },
+				{ "direct3d", RenderAPI::Direct3D },
+				{ "mantle",   RenderAPI::Mantle },
+				{ "metal",    RenderAPI::Metal },
+				{ "opengl",   RenderAPI::OpenGL },
+				{ "opengles", RenderAPI::OpenGL_ES },
+				{ "vulkan",   RenderAPI::Vulkan }
+			});
+
+			if (auto it = renderAPIStr.find(value); it != renderAPIStr.end())
+				preferredAPI = it->second;
+			else
+				NazaraError("unknown render API \"" + std::string(value) + "\"");
+		}
+
+		if (parameters.GetParameter("render-api-validation", &value))
+		{
+			constexpr auto validationStr = frozen::make_unordered_map<frozen::string, RenderAPIValidationLevel>({
+				{ "debug",    RenderAPIValidationLevel::Debug },
+				{ "errors",   RenderAPIValidationLevel::Errors },
+				{ "none",     RenderAPIValidationLevel::None },
+				{ "verbose",  RenderAPIValidationLevel::Verbose },
+				{ "warnings", RenderAPIValidationLevel::Warnings }
+			});
+
+			if (auto it = validationStr.find(value); it != validationStr.end())
+				validationLevel = it->second;
+			else
+				NazaraError("unknown validation level \"" + std::string(value) + "\"");
+		}
+	}
 }
