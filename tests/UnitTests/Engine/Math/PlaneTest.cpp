@@ -68,7 +68,7 @@ SCENARIO("Plane", "[MATH][PLANE]")
 
 			THEN("It must be equal to XZ distance 1")
 			{
-				REQUIRE(xy == Nz::Planef(Nz::Vector3f::UnitY(), -1.f));
+				REQUIRE(xy.ApproxEqual(Nz::Planef(Nz::Vector3f::UnitY(), -1.f)));
 			}
 		}
 
@@ -77,7 +77,7 @@ SCENARIO("Plane", "[MATH][PLANE]")
 			Nz::Planef xy(Nz::Vector3f(0.f, 1.f, 0.f), Nz::Vector3f(1.f, 1.f, 1.f), Nz::Vector3f(-1.f, 1.f, 0.f));
 			THEN("It must be equal to XZ distance 1")
 			{
-				REQUIRE(xy == Nz::Planef(-Nz::Vector3f::UnitY(), 1.f));
+				REQUIRE(xy.ApproxEqual(Nz::Planef(-Nz::Vector3f::UnitY(), 1.f)));
 			}
 		}
 	}

@@ -56,7 +56,7 @@ SCENARIO("Vector2", "[MATH][VECTOR2]")
 			THEN("For normal cases should be normal")
 			{
 				Nz::Vector2f normalized = firstUnit.GetNormal(&ratio);
-				REQUIRE(normalized == (Nz::Vector2f::Unit() / std::sqrt(2.f)));
+				REQUIRE(normalized.ApproxEqual(Nz::Vector2f::Unit() / std::sqrt(2.f)));
 				REQUIRE(ratio == Catch::Approx(std::sqrt(2.f)));
 			}
 

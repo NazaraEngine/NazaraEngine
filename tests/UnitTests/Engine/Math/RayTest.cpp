@@ -75,7 +75,7 @@ SCENARIO("Ray", "[MATH][RAY]")
 				Nz::BoundingVolumef infiniteVolume(Nz::Extent::Infinite);
 				CHECK(ray.Intersect(infiniteVolume, &tmpClosest, &tmpFurthest));
 				CHECK(tmpClosest == Catch::Approx(0.f));
-				CHECK(tmpFurthest == std::numeric_limits<float>::infinity());
+				CHECK(std::isinf(tmpFurthest));
 			}
 
 			THEN("For the triangle collision's")

@@ -31,9 +31,9 @@ namespace Nz
 
 			constexpr bool ApproxEqual(const Sphere& sphere, T maxDifference = std::numeric_limits<T>::epsilon()) const;
 
-			constexpr bool Contains(T X, T Y, T Z) const;
-			constexpr bool Contains(const Box<T>& box) const;
-			constexpr bool Contains(const Vector3<T>& point) const;
+			constexpr bool Contains(T X, T Y, T Z, T epsilon = std::numeric_limits<T>::epsilon()) const;
+			constexpr bool Contains(const Box<T>& box, T epsilon = std::numeric_limits<T>::epsilon()) const;
+			constexpr bool Contains(const Vector3<T>& point, T epsilon = std::numeric_limits<T>::epsilon()) const;
 
 			T Distance(T X, T Y, T Z) const;
 			T Distance(const Vector3<T>& point) const;

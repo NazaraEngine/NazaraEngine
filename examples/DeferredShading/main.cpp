@@ -234,9 +234,6 @@ int main(int argc, char* argv[])
 	for (std::size_t i = 0; i < planeModel.GetSubMeshCount(); ++i)
 		planeModel.SetMaterial(i, planeMat);
 
-	Nz::PredefinedInstanceData instanceUboOffsets = Nz::PredefinedInstanceData::GetOffsets();
-	Nz::PredefinedViewerData viewerUboOffsets = Nz::PredefinedViewerData::GetOffsets();
-
 	Nz::Vector2ui windowSize = window.GetSize();
 
 	Nz::ViewerInstance viewerInstance;

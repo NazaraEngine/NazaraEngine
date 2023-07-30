@@ -95,9 +95,9 @@ namespace Nz
 	* \see Contains
 	*/
 	template<typename T>
-	constexpr bool Sphere<T>::Contains(T X, T Y, T Z) const
+	constexpr bool Sphere<T>::Contains(T X, T Y, T Z, T epsilon) const
 	{
-		return Contains(Vector3<T>(X, Y, Z));
+		return Contains(Vector3<T>(X, Y, Z), epsilon);
 	}
 
 	/*!
@@ -109,9 +109,9 @@ namespace Nz
 	* \see Contains
 	*/
 	template<typename T>
-	constexpr bool Sphere<T>::Contains(const Box<T>& box) const
+	constexpr bool Sphere<T>::Contains(const Box<T>& box, T epsilon) const
 	{
-		if (Contains(box.GetMinimum()) && Contains(box.GetMaximum()))
+		if (Contains(box.GetMinimum(), epsilon) && Contains(box.GetMaximum(), epsilon))
 			return true;
 
 		return false;
@@ -124,9 +124,9 @@ namespace Nz
 	* \param point Position of the point
 	*/
 	template<typename T>
-	constexpr bool Sphere<T>::Contains(const Vector3<T>& point) const
+	constexpr bool Sphere<T>::Contains(const Vector3<T>& point, T epsilon) const
 	{
-		return GetPosition().SquaredDistance(point) <= radius * radius;
+		return (GetPosition().SquaredDistance(point) - radius * radius) <= epsilon;
 	}
 
 	/*!

@@ -258,11 +258,7 @@ int main()
 		Nz::SparsePtr<Nz::Vector2f> particleVelPtr(particleBasePtr + particleVelOffset, particleSize);
 
 		for (std::size_t i = 0; i < particleCount; ++i)
-		{
-			auto&& [pos, color] = logoParticles[i];
-
 			particleVelPtr[i] = Nz::Vector2f(velDis(rand), velDis(rand));
-		}
 
 		particleBuffer->Unmap();
 	});

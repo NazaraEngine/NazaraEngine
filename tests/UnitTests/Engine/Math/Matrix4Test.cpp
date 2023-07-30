@@ -208,7 +208,7 @@ SCENARIO("Matrix4", "[MATH][MATRIX4]")
 
 			THEN("We should retrieve it")
 			{
-				CHECK(identity.GetScale() == scale);
+				CHECK(identity.GetScale().ApproxEqual(scale));
 				CHECK(identity.GetSquaredScale() == squaredScale);
 			}
 

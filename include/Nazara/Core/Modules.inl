@@ -16,7 +16,7 @@ namespace Nz
 		struct ModuleConfigHasOverride<T, std::void_t<decltype(std::declval<T>().Override(std::declval<const CommandLineParameters&>()))>> : std::true_type {};
 
 		template<typename T>
-		auto OverrideModuleConfig(T&& module, const CommandLineParameters& params)
+		decltype(auto) OverrideModuleConfig(T&& module, const CommandLineParameters& params)
 		{
 			if constexpr (!std::is_const_v<T> && ModuleConfigHasOverride<T>::value)
 				module.Override(params);
@@ -28,7 +28,7 @@ namespace Nz
 		struct Pick
 		{
 			template<typename First, typename... Args>
-			static auto Get(First&& first, Args&&... args)
+			static decltype(auto) Get(First&& first, Args&&... args)
 			{
 				if constexpr (std::is_same_v<T, std::decay_t<First>>)
 					return std::forward<First>(first);
@@ -40,7 +40,7 @@ namespace Nz
 			}
 
 			template<typename First, typename... Args>
-			static auto Get(const CommandLineParameters& parameters, First&& first, Args&&... args)
+			static decltype(auto) Get(const CommandLineParameters& parameters, First&& first, Args&&... args)
 			{
 				if constexpr (std::is_same_v<T, std::decay_t<First>>)
 					return OverrideModuleConfig<First>(first, parameters);
@@ -51,7 +51,7 @@ namespace Nz
 				}
 			}
 
-			static auto Get()
+			static T Get()
 			{
 				return T{};
 			}

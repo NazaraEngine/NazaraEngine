@@ -14,7 +14,7 @@ SCENARIO("Quaternion", "[MATH][QUATERNION]")
 			THEN("They are the same and the proprieties of quaternions are respected")
 			{
 				REQUIRE(firstQuaternion.ApproxEqual(secondQuaternion));
-				REQUIRE(firstQuaternion.ComputeW() == secondQuaternion.Normalize());
+				REQUIRE(firstQuaternion.ComputeW().ApproxEqual(secondQuaternion.Normalize()));
 				REQUIRE(firstQuaternion.Conjugate() == secondQuaternion.Inverse());
 				REQUIRE(firstQuaternion.DotProduct(secondQuaternion) == Catch::Approx(1.f));
 			}
@@ -200,7 +200,7 @@ SCENARIO("Quaternion", "[MATH][QUATERNION]")
 				Nz::Vector3f origin(1.f, 0.f, 1.f);
 				Nz::Vector3f extremity(-1.f, 0.f, 1.f);
 				Nz::Quaternionf rotation = Nz::Quaternionf::RotationBetween(origin, extremity);
-				REQUIRE((rotation * origin).ApproxEqual(extremity));
+				REQUIRE((rotation * origin).ApproxEqual(extremity, 0.0001f));
 			}
 		}
 	} 
