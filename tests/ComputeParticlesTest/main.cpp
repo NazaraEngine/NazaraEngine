@@ -259,7 +259,11 @@ int main()
 		Nz::SparsePtr<Nz::Vector2f> particlePosPtr(particleBasePtr + particlePosOffset, particleSize);
 		Nz::SparsePtr<Nz::Vector2f> particleVelPtr(particleBasePtr + particleVelOffset, particleSize);
 
+#ifndef NAZARA_PLATFORM_MACOS
 		std::for_each_n(std::execution::par_unseq, particleBasePtr, particleCount, [&](Nz::UInt8& hax)
+#else
+		std::for_each_n(particleBasePtr, particleCount, [&](Nz::UInt8& hax)
+#endif
 		{
 			static thread_local std::mt19937 rand_mt(std::random_device{}());
 
