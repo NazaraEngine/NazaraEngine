@@ -385,7 +385,6 @@ namespace Nz
 		creationSettings.mMaxLinearVelocity = settings.maxLinearVelocity;
 		creationSettings.mObjectLayer = 1;
 		creationSettings.mRestitution = settings.restitution;
-		creationSettings.mUserData = SafeCast<UInt64>(reinterpret_cast<std::uintptr_t>(this));
 
 		creationSettings.mMassPropertiesOverride = creationSettings.GetShape()->GetMassProperties();
 		creationSettings.mMassPropertiesOverride.ScaleToMass(settings.mass);
@@ -421,6 +420,7 @@ namespace Nz
 
 		creationSettings.mPosition = ToJolt(settings.position);
 		creationSettings.mRotation = ToJolt(settings.rotation);
+		creationSettings.mUserData = SafeCast<UInt64>(reinterpret_cast<std::uintptr_t>(this));
 	}
 
 	bool JoltRigidBody3D::ShouldActivate() const
