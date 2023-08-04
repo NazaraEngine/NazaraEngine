@@ -496,6 +496,13 @@ namespace Nz
 
 	void JoltPhysWorld3D::UnregisterBody(const JPH::BodyID& bodyID, bool destroy, bool removeFromActivationList)
 	{
+		// Remove from list first as bodyID may be invalidated by destruction
+		if (removeFromActivationList)
+		{
+			m_world->pendingAdditionActivate.erase(bodyID);
+			m_world->pendingAdditionNoActivate.erase(bodyID);
+		}
+
 		if (destroy)
 		{
 			auto& bodyInterface = m_world->physicsSystem.GetBodyInterface();
@@ -511,17 +518,10 @@ namespace Nz
 				bodyInterface.RemoveBody(bodyID);
 			}
 
-			bodyInterface.DestroyBody(bodyID);
-
+			bodyInterface.DestroyBody(bodyID); //< this invalidate the bodyID reference!
 		}
 		else
 			m_world->pendingDeactivations.insert(bodyID);
-
-		if (removeFromActivationList)
-		{
-			m_world->pendingAdditionActivate.erase(bodyID);
-			m_world->pendingAdditionNoActivate.erase(bodyID);
-		}
 	}
 
 	std::shared_ptr<JoltCharacterImpl> JoltPhysWorld3D::GetDefaultCharacterImpl()
