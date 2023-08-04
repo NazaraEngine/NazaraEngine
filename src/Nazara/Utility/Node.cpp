@@ -13,7 +13,7 @@ namespace Nz
 
 		for (Node* child : m_childs)
 		{
-			// child->SetParent(nullptr); serait problématique car elle nous appellerait
+			// child->SetParent(nullptr); would try to remove itself from the child list while we iterate on it
 			child->m_parent = nullptr;
 			child->InvalidateNode(Invalidation::InvalidateRecursively);
 			child->OnParenting(nullptr);
