@@ -9,6 +9,7 @@
 #include <Nazara/Utility.hpp>
 #include <array>
 #include <chrono>
+#include <execution>
 #include <iostream>
 #include <random>
 #include <thread>
@@ -255,10 +256,18 @@ int main()
 		}
 
 		Nz::UInt8* particleBasePtr = static_cast<Nz::UInt8*>(ptr) + particlesArrayOffset;
+		Nz::SparsePtr<Nz::Vector2f> particlePosPtr(particleBasePtr + particlePosOffset, particleSize);
 		Nz::SparsePtr<Nz::Vector2f> particleVelPtr(particleBasePtr + particleVelOffset, particleSize);
 
-		for (std::size_t i = 0; i < particleCount; ++i)
-			particleVelPtr[i] = Nz::Vector2f(velDis(rand), velDis(rand));
+		std::for_each_n(std::execution::par_unseq, particleBasePtr, particleCount, [&](Nz::UInt8& hax)
+		{
+			static thread_local std::mt19937 rand_mt(std::random_device{}());
+
+			std::size_t index = &hax - particleBasePtr; //< HAAX
+
+			particleVelPtr[index] += (particlePosPtr[index] - newMousePos).GetNormal() * 500.f;
+			particleVelPtr[index] += Nz::Vector2f(velDis(rand_mt), velDis(rand_mt));
+		});
 
 		particleBuffer->Unmap();
 	});
