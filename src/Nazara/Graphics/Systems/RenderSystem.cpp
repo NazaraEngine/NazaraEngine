@@ -202,7 +202,7 @@ namespace Nz
 		graphicsEntity->skeletonInstanceIndex = NoInstance;
 	}
 
-	void RenderSystem::OnSkeletonDestroy(entt::registry& registry, entt::entity entity)
+	void RenderSystem::OnSkeletonDestroy([[maybe_unused]] entt::registry& registry, entt::entity entity)
 	{
 		assert(&m_registry == &registry);
 
