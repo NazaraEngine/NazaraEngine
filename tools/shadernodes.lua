@@ -6,7 +6,6 @@ if has_config("shadernodes") then
 	target("NazaraShaderNodes", function ()
 		set_group("Tools")
 		set_kind("binary")
-		add_rules("qt.widgetapp")
 
 		add_deps("NazaraCore")
 		add_packages("nzsl")
