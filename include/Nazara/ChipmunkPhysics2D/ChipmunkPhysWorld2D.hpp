@@ -101,9 +101,9 @@ namespace Nz
 
 			struct DebugDrawOptions
 			{
-				Color constraintColor;
-				Color collisionPointColor;
-				Color shapeOutlineColor;
+				Color constraintColor = Color::Blue();
+				Color collisionPointColor = Color::Green();
+				Color shapeOutlineColor = Color::Red();
 
 				DebugDrawCircleCallback circleCallback;
 				DebugDrawGetColorCallback colorCallback;
@@ -112,7 +112,7 @@ namespace Nz
 				DebugDrawSegmentCallback segmentCallback;
 				DebugDrawTickSegmentCallback thickSegmentCallback;
 
-				void* userdata;
+				void* userdata = nullptr;
 			};
 
 			struct NearestQueryResult
