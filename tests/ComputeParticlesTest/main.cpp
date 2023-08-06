@@ -132,7 +132,7 @@ int main()
 		particleVelPtr[i] = Nz::Vector2f(velDis(rand), velDis(rand));
 	}
 
-	std::shared_ptr<Nz::RenderBuffer> particleBuffer = device->InstantiateBuffer(Nz::BufferType::Storage, bufferSize, Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::DirectMapping, particleBufferInitialData.data());
+	std::shared_ptr<Nz::RenderBuffer> particleBuffer = device->InstantiateBuffer(Nz::BufferType::Storage, bufferSize, Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::DirectMapping | Nz::BufferUsage::Read | Nz::BufferUsage::Write, particleBufferInitialData.data());
 
 	nzsl::FieldOffsets sceneBufferLayout(nzsl::StructLayout::Std140);
 	std::size_t deltaTimeOffset = sceneBufferLayout.AddField(nzsl::StructFieldType::Float1);
