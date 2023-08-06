@@ -71,6 +71,7 @@ namespace Nz
 			void UpdateLightRenderMask(std::size_t lightIndex, UInt32 renderMask) override;
 			void UpdateRenderableRenderMask(std::size_t renderableIndex, UInt32 renderMask) override;
 			void UpdateRenderableScissorBox(std::size_t renderableIndex, const Recti& scissorBox) override;
+			void UpdateRenderableSkeletonInstance(std::size_t renderableIndex, std::size_t skeletonIndex) override;
 			void UpdateViewerRenderMask(std::size_t viewerIndex, Int32 renderOrder) override;
 
 			ForwardFramePipeline& operator=(const ForwardFramePipeline&) = delete;

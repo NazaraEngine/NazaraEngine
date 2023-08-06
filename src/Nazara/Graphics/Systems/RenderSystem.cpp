@@ -351,7 +351,7 @@ namespace Nz
 			GraphicsEntity* graphicsEntity = m_graphicsEntityPool.Allocate(poolIndex);
 			graphicsEntity->entity = entity;
 			graphicsEntity->poolIndex = poolIndex;
-			graphicsEntity->renderableIndices.fill(std::numeric_limits<std::size_t>::max());
+			graphicsEntity->renderableIndices.fill(NoInstance);
 			graphicsEntity->skeletonInstanceIndex = NoInstance; //< will be set in skeleton observer
 			graphicsEntity->worldInstanceIndex = m_pipeline->RegisterWorldInstance(entityGfx.GetWorldInstance());
 			graphicsEntity->onNodeInvalidation.Connect(entityNode.OnNodeInvalidation, [this, graphicsEntity](const Node* /*node*/)
@@ -374,6 +374,7 @@ namespace Nz
 					return;
 
 				m_pipeline->UnregisterRenderable(graphicsEntity->renderableIndices[renderableIndex]);
+				graphicsEntity->renderableIndices[renderableIndex] = NoInstance;
 			});
 
 			graphicsEntity->onScissorBoxUpdate.Connect(entityGfx.OnScissorBoxUpdate, [this, graphicsEntity](GraphicsComponent* gfx, const Recti& scissorBox)
@@ -474,6 +475,12 @@ namespace Nz
 				it->second.useCount++;
 				graphicsEntity->skeletonInstanceIndex = it->second.skeletonInstanceIndex;
 			}
+
+			for (std::size_t renderableIndex : graphicsEntity->renderableIndices)
+			{
+				if (renderableIndex != NoInstance)
+					m_pipeline->UpdateRenderableSkeletonInstance(renderableIndex, graphicsEntity->skeletonInstanceIndex);
+			}
 		});
 
 		m_skeletonConstructObserver.each([&](entt::entity entity)
@@ -484,6 +491,12 @@ namespace Nz
 			const std::shared_ptr<Skeleton>& skeleton = skeletonComponent.GetSkeleton();
 
 			graphicsEntity->skeletonInstanceIndex = m_pipeline->RegisterSkeleton(std::make_shared<SkeletonInstance>(skeleton));
+
+			for (std::size_t renderableIndex : graphicsEntity->renderableIndices)
+			{
+				if (renderableIndex != NoInstance)
+					m_pipeline->UpdateRenderableSkeletonInstance(renderableIndex, graphicsEntity->skeletonInstanceIndex);
+			}
 		});
 	}
 }

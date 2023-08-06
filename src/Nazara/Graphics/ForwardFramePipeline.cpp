@@ -559,6 +559,26 @@ namespace Nz
 		}
 	}
 
+	void ForwardFramePipeline::UpdateRenderableSkeletonInstance(std::size_t renderableIndex, std::size_t skeletonIndex)
+	{
+		RenderableData* renderableData = m_renderablePool.RetrieveFromIndex(renderableIndex);
+		renderableData->skeletonInstanceIndex = skeletonIndex;
+
+		// TODO: Invalidate only relevant viewers and passes
+		for (auto& viewerData : m_viewerPool)
+		{
+			UInt32 viewerRenderMask = viewerData.viewer->GetRenderMask();
+
+			if (viewerRenderMask & renderableData->renderMask)
+			{
+				if (viewerData.depthPrepass)
+					viewerData.depthPrepass->InvalidateElements();
+
+				viewerData.forwardPass->InvalidateElements();
+			}
+		}
+	}
+
 	void ForwardFramePipeline::UpdateViewerRenderMask(std::size_t viewerIndex, Int32 renderOrder)
 	{
 		ViewerData* viewerData = m_viewerPool.RetrieveFromIndex(viewerIndex);

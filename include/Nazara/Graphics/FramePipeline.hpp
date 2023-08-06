@@ -63,6 +63,7 @@ namespace Nz
 			virtual void UpdateLightRenderMask(std::size_t lightIndex, UInt32 renderMask) = 0;
 			virtual void UpdateRenderableRenderMask(std::size_t renderableIndex, UInt32 renderMask) = 0;
 			virtual void UpdateRenderableScissorBox(std::size_t renderableIndex, const Recti& scissorBox) = 0;
+			virtual void UpdateRenderableSkeletonInstance(std::size_t renderableIndex, std::size_t skeletonIndex) = 0;
 			virtual void UpdateViewerRenderMask(std::size_t viewerIndex, Int32 renderOrder) = 0;
 
 			FramePipeline& operator=(const FramePipeline&) = delete;
