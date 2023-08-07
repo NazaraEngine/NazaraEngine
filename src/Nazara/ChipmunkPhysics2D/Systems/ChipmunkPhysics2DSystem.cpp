@@ -24,6 +24,7 @@ namespace Nz
 	m_registry(registry),
 	m_physicsConstructObserver(m_registry, entt::collector.group<ChipmunkRigidBody2DComponent, NodeComponent>())
 	{
+		m_bodyConstructConnection = registry.on_construct<ChipmunkRigidBody2DComponent>().connect<&ChipmunkPhysics2DSystem::OnBodyConstruct>(this);
 	}
 
 	ChipmunkPhysics2DSystem::~ChipmunkPhysics2DSystem()
@@ -58,5 +59,11 @@ namespace Nz
 
 			nodeComponent.SetTransform(rigidBodyComponent.GetPosition(), rigidBodyComponent.GetRotation());
 		}
+	}
+
+	void ChipmunkPhysics2DSystem::OnBodyConstruct(entt::registry& registry, entt::entity entity)
+	{
+		ChipmunkRigidBody2DComponent& rigidBody = registry.get<ChipmunkRigidBody2DComponent>(entity);
+		rigidBody.Construct(m_physWorld);
 	}
 }

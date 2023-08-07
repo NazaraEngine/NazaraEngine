@@ -13,6 +13,7 @@
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector2.hpp>
+#include <NazaraUtils/FunctionRef.hpp>
 #include <NazaraUtils/Signal.hpp>
 #include <NazaraUtils/SparsePtr.hpp>
 #include <vector>
@@ -38,7 +39,7 @@ namespace Nz
 			virtual Vector2f ComputeCenterOfMass() const = 0;
 			virtual float ComputeMomentOfInertia(float mass) const = 0;
 
-			virtual void ForEachPolygon(const std::function<void(const Vector2f* vertices, std::size_t vertexCount)>& callback) const;
+			virtual void ForEachPolygon(const FunctionRef<void(const Vector2f* vertices, std::size_t vertexCount)>& callback) const;
 
 			inline UInt32 GetCategoryMask() const;
 			inline UInt32 GetCollisionGroup() const;

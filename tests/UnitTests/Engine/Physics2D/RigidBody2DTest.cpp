@@ -18,9 +18,12 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 
 		Nz::Vector2f positionAABB(3.f, 4.f);
 		Nz::Rectf aabb(positionAABB.x, positionAABB.y, 1.f, 2.f);
-		std::shared_ptr<Nz::ChipmunkCollider2D> box = std::make_shared<Nz::ChipmunkBoxCollider2D>(aabb);
-		float mass = 1.f;
-		Nz::ChipmunkRigidBody2D body(&world, mass, box);
+
+		Nz::ChipmunkRigidBody2D::DynamicSettings dynamicSettings;
+		dynamicSettings.geom = std::make_shared<Nz::ChipmunkBoxCollider2D>(aabb);
+		dynamicSettings.mass = 1.f;
+
+		Nz::ChipmunkRigidBody2D body(world, dynamicSettings);
 		float angularVelocity = 0.2f;
 		body.SetAngularVelocity(angularVelocity);
 		Nz::Vector2f massCenter(5.f, 7.f);
@@ -35,6 +38,8 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 		body.SetUserdata(&userdata);
 
 		world.Step(Nz::Time::Second());
+
+		Nz::ChipmunkRigidBody2D::StaticSettings staticSettings;
 
 		WHEN("We copy construct the body")
 		{
@@ -54,7 +59,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 
 		WHEN("We copy assign the body")
 		{
-			Nz::ChipmunkRigidBody2D copiedBody(&world, 0.f);
+			Nz::ChipmunkRigidBody2D copiedBody(world, staticSettings);
 			copiedBody = body;
 			EQUALITY(copiedBody, body);
 		}
@@ -62,7 +67,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 		WHEN("We move assign the body")
 		{
 			Nz::ChipmunkRigidBody2D copiedBody(body);
-			Nz::ChipmunkRigidBody2D movedBody(&world, 0.f);
+			Nz::ChipmunkRigidBody2D movedBody(world, staticSettings);
 			movedBody = std::move(body);
 			EQUALITY(movedBody, copiedBody);
 		}
@@ -113,9 +118,13 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 
 		Nz::Vector2f positionAABB(3.f, 4.f);
 		Nz::Rectf aabb(positionAABB.x, positionAABB.y, 1.f, 2.f);
-		std::shared_ptr<Nz::ChipmunkCollider2D> box = std::make_shared<Nz::ChipmunkBoxCollider2D>(aabb);
-		float mass = 1.f;
-		Nz::ChipmunkRigidBody2D body(&world, mass);
+
+		Nz::ChipmunkRigidBody2D::DynamicSettings dynamicSettings;
+		dynamicSettings.mass = 1.f;
+
+		auto box = std::make_shared<Nz::ChipmunkBoxCollider2D>(aabb);
+
+		Nz::ChipmunkRigidBody2D body(world, dynamicSettings);
 		body.SetGeom(box, true, false);
 
 		bool userData = false;
@@ -134,7 +143,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 				CHECK(body.GetAngularVelocity() == 0.f);
 				CHECK(body.GetMassCenter(Nz::CoordSys::Global) == position);
 				CHECK(body.GetGeom() == box);
-				CHECK(body.GetMass() == Catch::Approx(mass));
+				CHECK(body.GetMass() == Catch::Approx(dynamicSettings.mass));
 				CHECK(body.GetPosition() == position);
 				CHECK(body.GetRotation().value == Catch::Approx(0.f));
 				CHECK(body.GetUserdata() == &userData);
@@ -216,9 +225,10 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 
 		Nz::Vector2f position(3.f, 4.f);
 		float radius = 5.f;
+
 		std::shared_ptr<Nz::ChipmunkCollider2D> circle = std::make_shared<Nz::ChipmunkCircleCollider2D>(radius, position);
-		float mass = 1.f;
-		Nz::ChipmunkRigidBody2D body(&world, mass);
+
+		Nz::ChipmunkRigidBody2D body(world, Nz::ChipmunkRigidBody2D::DynamicSettings({}, 1.f));
 		body.SetGeom(circle, true, false);
 
 		world.Step(Nz::Time::Second());
@@ -249,7 +259,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 		std::shared_ptr<Nz::ChipmunkCompoundCollider2D> compound = std::make_shared<Nz::ChipmunkCompoundCollider2D>(colliders);
 
 		float mass = 1.f;
-		Nz::ChipmunkRigidBody2D body(&world, mass);
+		Nz::ChipmunkRigidBody2D body(world, Nz::ChipmunkRigidBody2D::DynamicSettings({}, mass));
 		body.SetGeom(compound, true, false);
 
 		world.Step(Nz::Time::Second());
@@ -278,7 +288,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 		Nz::SparsePtr<const Nz::Vector2f> sparsePtr(vertices.data());
 		std::shared_ptr<Nz::ChipmunkConvexCollider2D> convex = std::make_shared<Nz::ChipmunkConvexCollider2D>(sparsePtr, vertices.size());
 		float mass = 1.f;
-		Nz::ChipmunkRigidBody2D body(&world, mass);
+		Nz::ChipmunkRigidBody2D body(world, Nz::ChipmunkRigidBody2D::DynamicSettings({}, mass));
 		body.SetGeom(convex, true, false);
 
 		world.Step(Nz::Time::Second());
@@ -302,7 +312,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 		Nz::Vector2f positionB(1.f, -4.f);
 		std::shared_ptr<Nz::ChipmunkCollider2D> segment = std::make_shared<Nz::ChipmunkSegmentCollider2D>(positionA, positionB, 0.f);
 		float mass = 1.f;
-		Nz::ChipmunkRigidBody2D body(&world, mass);
+		Nz::ChipmunkRigidBody2D body(world, Nz::ChipmunkRigidBody2D::DynamicSettings({}, mass));
 		body.SetGeom(segment, true, false);
 
 		world.Step(Nz::Time::Second());
@@ -325,7 +335,7 @@ Nz::ChipmunkRigidBody2D CreateBody(Nz::ChipmunkPhysWorld2D& world)
 	std::shared_ptr<Nz::ChipmunkCollider2D> box = std::make_shared<Nz::ChipmunkBoxCollider2D>(aabb);
 	float mass = 1.f;
 
-	Nz::ChipmunkRigidBody2D body(&world, mass, box);
+	Nz::ChipmunkRigidBody2D body(world, Nz::ChipmunkRigidBody2D::DynamicSettings(box, mass));
 	body.SetPosition(Nz::Vector2f::Zero());
 
 	return body;

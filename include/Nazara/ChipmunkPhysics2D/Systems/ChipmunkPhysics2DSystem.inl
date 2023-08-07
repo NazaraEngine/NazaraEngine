@@ -6,12 +6,6 @@
 
 namespace Nz
 {
-	template<typename... Args>
-	ChipmunkRigidBody2DComponent ChipmunkPhysics2DSystem::CreateRigidBody(Args&&... args)
-	{
-		return ChipmunkRigidBody2DComponent(&m_physWorld, std::forward<Args>(args)...);
-	}
-
 	inline ChipmunkPhysWorld2D& ChipmunkPhysics2DSystem::GetPhysWorld()
 	{
 		return m_physWorld;

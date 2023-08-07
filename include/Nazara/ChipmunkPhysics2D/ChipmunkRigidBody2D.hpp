@@ -27,17 +27,20 @@ namespace Nz
 	class NAZARA_CHIPMUNKPHYSICS2D_API ChipmunkRigidBody2D
 	{
 		public:
+			struct DynamicSettings;
+			struct StaticSettings;
+
 			using VelocityFunc = std::function<void(ChipmunkRigidBody2D& body2D, const Vector2f& gravity, float damping, float deltaTime)>;
 
-			ChipmunkRigidBody2D(ChipmunkPhysWorld2D* world, float mass);
-			ChipmunkRigidBody2D(ChipmunkPhysWorld2D* world, float mass, std::shared_ptr<ChipmunkCollider2D> geom);
+			inline ChipmunkRigidBody2D(ChipmunkPhysWorld2D& world, const DynamicSettings& settings);
+			inline ChipmunkRigidBody2D(ChipmunkPhysWorld2D& world, const StaticSettings& settings);
 			ChipmunkRigidBody2D(const ChipmunkRigidBody2D& object);
 			ChipmunkRigidBody2D(ChipmunkRigidBody2D&& object) noexcept;
-			~ChipmunkRigidBody2D();
+			inline ~ChipmunkRigidBody2D();
 
-			void AddForce(const Vector2f& force, CoordSys coordSys = CoordSys::Global);
+			inline void AddForce(const Vector2f& force, CoordSys coordSys = CoordSys::Global);
 			void AddForce(const Vector2f& force, const Vector2f& point, CoordSys coordSys = CoordSys::Global);
-			void AddImpulse(const Vector2f& impulse, CoordSys coordSys = CoordSys::Global);
+			inline void AddImpulse(const Vector2f& impulse, CoordSys coordSys = CoordSys::Global);
 			void AddImpulse(const Vector2f& impulse, const Vector2f& point, CoordSys coordSys = CoordSys::Global);
 			void AddTorque(const RadianAnglef& torque);
 
@@ -45,40 +48,36 @@ namespace Nz
 
 			void EnableSimulation(bool simulation);
 
-			void ForEachArbiter(std::function<void(ChipmunkArbiter2D& /*arbiter*/)> callback);
+			void ForEachArbiter(const FunctionRef<void(ChipmunkArbiter2D& /*arbiter*/)>& callback);
 			void ForceSleep();
 
 			Rectf GetAABB() const;
-			inline float GetAngularDamping() const;
 			RadianAnglef GetAngularVelocity() const;
-			NAZARA_DEPRECATED("Name error, please use GetMassCenter")
-			inline Vector2f GetCenterOfGravity(CoordSys coordSys = CoordSys::Local) const;
 			float GetElasticity(std::size_t shapeIndex = 0) const;
 			float GetFriction(std::size_t shapeIndex = 0) const;
-			const std::shared_ptr<ChipmunkCollider2D>& GetGeom() const;
-			cpBody* GetHandle() const;
-			float GetMass() const;
+			inline const std::shared_ptr<ChipmunkCollider2D>& GetGeom() const;
+			inline cpBody* GetHandle() const;
+			inline float GetMass() const;
 			Vector2f GetMassCenter(CoordSys coordSys = CoordSys::Local) const;
 			float GetMomentOfInertia() const;
 			Vector2f GetPosition() const;
 			inline const Vector2f& GetPositionOffset() const;
 			RadianAnglef GetRotation() const;
 			inline std::size_t GetShapeCount() const;
-			std::size_t GetShapeIndex(cpShape* shape) const;
+			inline std::size_t GetShapeIndex(cpShape* shape) const;
 			Vector2f GetSurfaceVelocity(std::size_t shapeIndex = 0) const;
-			void* GetUserdata() const;
+			inline void* GetUserdata() const;
 			Vector2f GetVelocity() const;
-			const VelocityFunc& GetVelocityFunction() const;
-			ChipmunkPhysWorld2D* GetWorld() const;
+			inline const VelocityFunc& GetVelocityFunction() const;
+			inline ChipmunkPhysWorld2D* GetWorld() const;
 
-			bool IsKinematic() const;
-			bool IsSimulationEnabled() const;
+			inline bool IsKinematic() const;
+			inline bool IsSimulationEnabled() const;
 			bool IsSleeping() const;
-			bool IsStatic() const;
+			inline bool IsStatic() const;
 
 			void ResetVelocityFunction();
 
-			inline void SetAngularDamping(float angularDamping);
 			void SetAngularVelocity(const RadianAnglef& angularVelocity);
 			void SetElasticity(float elasticity);
 			void SetElasticity(std::size_t shapeIndex, float elasticity);
@@ -94,7 +93,7 @@ namespace Nz
 			void SetSurfaceVelocity(const Vector2f& surfaceVelocity);
 			void SetSurfaceVelocity(std::size_t shapeIndex, const Vector2f& surfaceVelocity);
 			void SetStatic(bool setStaticBody = true);
-			void SetUserdata(void* ud);
+			inline void SetUserdata(void* ud);
 			void SetVelocity(const Vector2f& velocity);
 			void SetVelocityFunction(VelocityFunc velocityFunc);
 
@@ -112,24 +111,59 @@ namespace Nz
 
 			static constexpr std::size_t InvalidShapeIndex = std::numeric_limits<std::size_t>::max();
 
+			struct CommonSettings
+			{
+				std::shared_ptr<ChipmunkCollider2D> geom;
+				RadianAnglef rotation = RadianAnglef::Zero();
+				Vector2f position = Vector2f::Zero();
+				bool initiallySleeping = false;
+				bool isSimulationEnabled = true;
+			};
+
+			struct DynamicSettings : CommonSettings
+			{
+				DynamicSettings() = default;
+				DynamicSettings(std::shared_ptr<ChipmunkCollider2D> collider, float mass_) :
+				mass(mass_)
+				{
+					geom = std::move(collider);
+				}
+
+				RadianAnglef angularVelocity = RadianAnglef::Zero();
+				Vector2f linearVelocity = Vector2f::Zero();
+				float gravityFactor = 1.f;
+				float mass = 1.f;
+			};
+
+			struct StaticSettings : CommonSettings
+			{
+				StaticSettings() = default;
+				StaticSettings(std::shared_ptr<ChipmunkCollider2D> collider)
+				{
+					geom = std::move(collider);
+				}
+			};
+
 		protected:
+			ChipmunkRigidBody2D() = default;
+			void Create(ChipmunkPhysWorld2D& world, const DynamicSettings& settings);
+			void Create(ChipmunkPhysWorld2D& world, const StaticSettings& settings);
 			void Destroy();
 
 		private:
-			cpBody* Create(float mass = 1.f, float moment = 1.f);
 			void RegisterToSpace();
 			void UnregisterFromSpace();
 
 			static void CopyBodyData(cpBody* from, cpBody* to);
 			static void CopyShapeData(cpShape* from, cpShape* to);
 
-			Vector2f m_positionOffset;
-			VelocityFunc m_velocityFunc;
 			std::vector<cpShape*> m_shapes;
 			std::shared_ptr<ChipmunkCollider2D> m_geom;
-			cpBody* m_handle;
-			void* m_userData;
-			ChipmunkPhysWorld2D* m_world;
+			MovablePtr<cpBody> m_handle;
+			MovablePtr<ChipmunkPhysWorld2D> m_world;
+			MovablePtr<void> m_userData;
+			Vector2f m_positionOffset;
+			VelocityFunc m_velocityFunc;
 			bool m_isRegistered;
 			bool m_isSimulationEnabled;
 			bool m_isStatic;

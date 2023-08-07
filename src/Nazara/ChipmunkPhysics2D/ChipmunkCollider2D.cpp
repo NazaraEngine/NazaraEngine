@@ -27,7 +27,7 @@ namespace Nz
 
 	ChipmunkCollider2D::~ChipmunkCollider2D() = default;
 
-	void ChipmunkCollider2D::ForEachPolygon(const std::function<void(const Vector2f* vertices, std::size_t vertexCount)>& callback) const
+	void ChipmunkCollider2D::ForEachPolygon(const FunctionRef<void(const Vector2f* vertices, std::size_t vertexCount)>& callback) const
 	{
 		// Currently, the only way to get only the polygons of a shape is to create a temporary cpSpace containing only this shape
 		// A better way to do this would be to reimplement this function in every subclass type in the very same way chipmunk does

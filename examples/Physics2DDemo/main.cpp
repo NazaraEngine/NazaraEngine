@@ -59,20 +59,24 @@ int main(int argc, char* argv[])
 	std::shared_ptr<Nz::MaterialInstance> spriteMaterial = Nz::Graphics::Instance()->GetDefaultMaterials().phongMaterial->Instantiate();
 	spriteMaterial->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(resourceDir / "box.png", texParams));
 
+	Nz::ChipmunkRigidBody2DComponent::DynamicSettings boxSettings;
+	boxSettings.mass = 50.f;
+	boxSettings.geom = std::make_shared<Nz::ChipmunkBoxCollider2D>(Nz::Vector2f(32.f, 32.f));
+
+	std::shared_ptr<Nz::Sprite> boxSprite = std::make_shared<Nz::Sprite>(spriteMaterial);
+	boxSprite->SetSize({ 32.f, 32.f });
+	boxSprite->SetOrigin({ 0.5f, 0.5f });
+
 	for (std::size_t y = 0; y < 30; ++y)
 	{
 		for (std::size_t x = 0; x < 30; ++x)
 		{
 			entt::handle spriteEntity = world.CreateEntity();
 			{
-				std::shared_ptr<Nz::Sprite> sprite = std::make_shared<Nz::Sprite>(spriteMaterial);
-				sprite->SetSize({ 32.f, 32.f });
-				sprite->SetOrigin({ 0.5f, 0.5f });
+				spriteEntity.emplace<Nz::NodeComponent>(Nz::Vector2f(windowSize.x * 0.5f + x * 48.f - 15.f * 48.f, windowSize.y / 2 + y * 48.f));
+				spriteEntity.emplace<Nz::GraphicsComponent>(boxSprite, 1);
 
-				spriteEntity.emplace<Nz::NodeComponent>().SetPosition(windowSize.x * 0.5f + x * 48.f - 15.f * 48.f, windowSize.y / 2 + y * 48.f);
-
-				spriteEntity.emplace<Nz::GraphicsComponent>().AttachRenderable(sprite, 1);
-				auto& rigidBody = spriteEntity.emplace<Nz::ChipmunkRigidBody2DComponent>(physSytem.CreateRigidBody(50.f, std::make_shared<Nz::ChipmunkBoxCollider2D>(Nz::Vector2f(32.f, 32.f))));
+				auto& rigidBody = spriteEntity.emplace<Nz::ChipmunkRigidBody2DComponent>(boxSettings);
 				rigidBody.SetFriction(0.9f);
 				//rigidBody.SetElasticity(0.99f);
 			}
@@ -99,9 +103,12 @@ int main(int argc, char* argv[])
 			}
 		}
 
+		Nz::ChipmunkRigidBody2DComponent::StaticSettings groundSettings;
+		groundSettings.geom = std::make_shared<Nz::ChipmunkBoxCollider2D>(tilemap->GetSize());
+
 		groundEntity.emplace<Nz::NodeComponent>().SetPosition(windowSize.x * 0.5f, -windowSize.y * 0.2f);
 		groundEntity.emplace<Nz::GraphicsComponent>().AttachRenderable(tilemap, 1);
-		auto& rigidBody = groundEntity.emplace<Nz::ChipmunkRigidBody2DComponent>(physSytem.CreateRigidBody(0.f, std::make_shared<Nz::ChipmunkBoxCollider2D>(tilemap->GetSize())));
+		auto& rigidBody = groundEntity.emplace<Nz::ChipmunkRigidBody2DComponent>(groundSettings);
 		rigidBody.SetFriction(0.9f);
 	}
 

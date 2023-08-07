@@ -114,20 +114,20 @@ SCENARIO("PhysWorld2D", "[PHYSICS2D][PHYSWORLD2D]")
 		Nz::Rectf characterAABB(0.f, 0.f, 1.f, 1.f);
 		std::shared_ptr<Nz::ChipmunkCollider2D> characterBox = std::make_shared<Nz::ChipmunkBoxCollider2D>(characterAABB);
 		characterBox->SetCollisionId(CHARACTER_COLLISION_ID);
-		Nz::ChipmunkRigidBody2D character(&world, 1.f, characterBox);
+		Nz::ChipmunkRigidBody2D character(world, Nz::ChipmunkRigidBody2D::DynamicSettings(characterBox, 1.f));
 		character.SetPosition(Nz::Vector2f::Zero());
 
 		Nz::Rectf wallAABB(0.f, 0.f, 1.f, 2.f);
 		std::shared_ptr<Nz::ChipmunkCollider2D> wallBox = std::make_shared<Nz::ChipmunkBoxCollider2D>(wallAABB);
 		wallBox->SetCollisionId(WALL_COLLISION_ID);
-		Nz::ChipmunkRigidBody2D wall(&world, 0.f, wallBox);
+		Nz::ChipmunkRigidBody2D wall(world, Nz::ChipmunkRigidBody2D::StaticSettings(wallBox));
 		wall.SetPosition(Nz::Vector2f(5.f, 0.f));
 
 		Nz::Rectf triggerAABB(0.f, 0.f, 1.f, 1.f);
 		std::shared_ptr<Nz::ChipmunkCollider2D> triggerBox = std::make_shared<Nz::ChipmunkBoxCollider2D>(triggerAABB);
 		triggerBox->SetTrigger(true);
 		triggerBox->SetCollisionId(TRIGGER_COLLISION_ID);
-		Nz::ChipmunkRigidBody2D trigger(&world, 0.f, triggerBox);
+		Nz::ChipmunkRigidBody2D trigger(world, Nz::ChipmunkRigidBody2D::StaticSettings(triggerBox));
 		trigger.SetPosition(Nz::Vector2f(2.f, 0.f));
 
 		world.Step(Nz::Time::Zero());
@@ -199,8 +199,11 @@ Nz::ChipmunkRigidBody2D CreateBody(Nz::ChipmunkPhysWorld2D& world, const Nz::Vec
 	std::shared_ptr<Nz::ChipmunkCollider2D> box = std::make_shared<Nz::ChipmunkBoxCollider2D>(aabb);
 	box->SetCategoryMask(categoryMask);
 	box->SetCollisionMask(collisionMask);
-	float mass = isMoving ? 1.f : 0.f;
-	Nz::ChipmunkRigidBody2D rigidBody(&world, mass, box);
-	rigidBody.SetPosition(position);
-	return rigidBody;
+
+	Nz::ChipmunkRigidBody2D::DynamicSettings settings;
+	settings.geom = std::move(box);
+	settings.mass = isMoving ? 1.f : 0.f;
+	settings.position = position;
+
+	return Nz::ChipmunkRigidBody2D(world, settings);
 }

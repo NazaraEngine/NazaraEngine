@@ -6,6 +6,25 @@
 
 namespace Nz
 {
+	inline ChipmunkRigidBody2DComponent::ChipmunkRigidBody2DComponent(const ChipmunkRigidBody2D::DynamicSettings& settings)
+	{
+		m_settings = std::make_unique<Setting>(settings);
+	}
+
+	inline ChipmunkRigidBody2DComponent::ChipmunkRigidBody2DComponent(const ChipmunkRigidBody2D::StaticSettings& settings)
+	{
+		m_settings = std::make_unique<Setting>(settings);
+	}
+
+	inline void ChipmunkRigidBody2DComponent::Construct(ChipmunkPhysWorld2D& world)
+	{
+		assert(m_settings);
+		std::visit([&](auto&& arg)
+		{
+			Create(world, arg);
+		}, *m_settings);
+		m_settings.reset();
+	}
 }
 
 #include <Nazara/ChipmunkPhysics2D/DebugOff.hpp>

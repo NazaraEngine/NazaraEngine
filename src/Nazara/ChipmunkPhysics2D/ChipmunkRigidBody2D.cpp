@@ -13,33 +13,11 @@
 
 namespace Nz
 {
-	ChipmunkRigidBody2D::ChipmunkRigidBody2D(ChipmunkPhysWorld2D* world, float mass) :
-	ChipmunkRigidBody2D(world, mass, nullptr)
-	{
-	}
-
-	ChipmunkRigidBody2D::ChipmunkRigidBody2D(ChipmunkPhysWorld2D* world, float mass, std::shared_ptr<ChipmunkCollider2D> geom) :
-	m_positionOffset(Vector2f::Zero()),
-	m_geom(),
-	m_userData(nullptr),
-	m_world(world),
-	m_isRegistered(false),
-	m_isSimulationEnabled(true),
-	m_isStatic(false),
-	m_gravityFactor(1.f),
-	m_mass(mass)
-	{
-		NazaraAssert(m_world, "Invalid world");
-
-		m_handle = Create(mass);
-		SetGeom(std::move(geom));
-	}
-
 	ChipmunkRigidBody2D::ChipmunkRigidBody2D(const ChipmunkRigidBody2D& object) :
-	m_positionOffset(object.m_positionOffset),
 	m_geom(object.m_geom),
-	m_userData(object.m_userData),
 	m_world(object.m_world),
+	m_userData(object.m_userData),
+	m_positionOffset(object.m_positionOffset),
 	m_isRegistered(false),
 	m_isSimulationEnabled(true),
 	m_isStatic(object.m_isStatic),
@@ -49,8 +27,11 @@ namespace Nz
 		NazaraAssert(m_world, "Invalid world");
 		NazaraAssert(m_geom, "Invalid geometry");
 
-		m_handle = Create(m_mass, object.GetMomentOfInertia());
+		m_handle = cpBodyNew(m_mass, object.GetMomentOfInertia());
+		cpBodySetUserData(m_handle, this);
+
 		SetGeom(object.GetGeom(), false, false);
+		SetVelocityFunction(object.m_velocityFunc);
 
 		CopyBodyData(object.GetHandle(), m_handle);
 
@@ -64,12 +45,12 @@ namespace Nz
 	ChipmunkRigidBody2D::ChipmunkRigidBody2D(ChipmunkRigidBody2D&& object) noexcept :
 	OnRigidBody2DMove(std::move(object.OnRigidBody2DMove)),
 	OnRigidBody2DRelease(std::move(object.OnRigidBody2DRelease)),
-	m_positionOffset(std::move(object.m_positionOffset)),
 	m_shapes(std::move(object.m_shapes)),
 	m_geom(std::move(object.m_geom)),
 	m_handle(object.m_handle),
-	m_userData(object.m_userData),
 	m_world(object.m_world),
+	m_userData(object.m_userData),
+	m_positionOffset(std::move(object.m_positionOffset)),
 	m_isRegistered(object.m_isRegistered),
 	m_isSimulationEnabled(object.m_isSimulationEnabled),
 	m_isStatic(object.m_isStatic),
@@ -85,18 +66,6 @@ namespace Nz
 		OnRigidBody2DMove(&object, this);
 	}
 
-	ChipmunkRigidBody2D::~ChipmunkRigidBody2D()
-	{
-		OnRigidBody2DRelease(this);
-
-		Destroy();
-	}
-
-	void ChipmunkRigidBody2D::AddForce(const Vector2f& force, CoordSys coordSys)
-	{
-		return AddForce(force, GetMassCenter(coordSys), coordSys);
-	}
-
 	void ChipmunkRigidBody2D::AddForce(const Vector2f& force, const Vector2f& point, CoordSys coordSys)
 	{
 		switch (coordSys)
@@ -109,11 +78,6 @@ namespace Nz
 				cpBodyApplyForceAtLocalPoint(m_handle, cpv(force.x, force.y), cpv(point.x, point.y));
 				break;
 		}
-	}
-
-	void ChipmunkRigidBody2D::AddImpulse(const Vector2f& impulse, CoordSys coordSys)
-	{
-		return AddImpulse(impulse, GetMassCenter(coordSys), coordSys);
 	}
 
 	void ChipmunkRigidBody2D::AddImpulse(const Vector2f& impulse, const Vector2f& point, CoordSys coordSys)
@@ -179,19 +143,19 @@ namespace Nz
 		}
 	}
 
-	void ChipmunkRigidBody2D::ForEachArbiter(std::function<void(ChipmunkArbiter2D&)> callback)
+	void ChipmunkRigidBody2D::ForEachArbiter(const FunctionRef<void(ChipmunkArbiter2D&)>& callback)
 	{
-		using CallbackType = decltype(callback);
+		using CallbackType = std::remove_reference_t<decltype(callback)>;
 
-		auto RealCallback = [](cpBody* /*body*/, cpArbiter* arbiter, void* data)
+		auto Trampoline = [](cpBody* /*body*/, cpArbiter* arbiter, void* data)
 		{
 			CallbackType& cb = *static_cast<CallbackType*>(data);
 
-			ChipmunkArbiter2D nzArbiter(arbiter);
-			cb(nzArbiter);
+			ChipmunkArbiter2D wrappedArbiter(arbiter);
+			cb(wrappedArbiter);
 		};
 
-		cpBodyEachArbiter(m_handle, RealCallback, &callback);
+		cpBodyEachArbiter(m_handle, Trampoline, const_cast<void*>(static_cast<const void*>(&callback)));
 	}
 
 	void ChipmunkRigidBody2D::ForceSleep()
@@ -233,21 +197,6 @@ namespace Nz
 		return float(cpShapeGetFriction(m_shapes[shapeIndex]));
 	}
 
-	const std::shared_ptr<ChipmunkCollider2D>& ChipmunkRigidBody2D::GetGeom() const
-	{
-		return m_geom;
-	}
-
-	cpBody* ChipmunkRigidBody2D::GetHandle() const
-	{
-		return m_handle;
-	}
-
-	float ChipmunkRigidBody2D::GetMass() const
-	{
-		return m_mass;
-	}
-
 	Vector2f ChipmunkRigidBody2D::GetMassCenter(CoordSys coordSys) const
 	{
 		cpVect massCenter = cpBodyGetCenterOfGravity(m_handle);
@@ -281,25 +230,11 @@ namespace Nz
 		return float(cpBodyGetAngle(m_handle));
 	}
 
-	std::size_t ChipmunkRigidBody2D::GetShapeIndex(cpShape* shape) const
-	{
-		auto it = std::find(m_shapes.begin(), m_shapes.end(), shape);
-		if (it == m_shapes.end())
-			return InvalidShapeIndex;
-
-		return std::distance(m_shapes.begin(), it);
-	}
-
 	Vector2f ChipmunkRigidBody2D::GetSurfaceVelocity(std::size_t shapeIndex) const
 	{
 		assert(shapeIndex < m_shapes.size());
 		cpVect vel = cpShapeGetSurfaceVelocity(m_shapes[shapeIndex]);
 		return Vector2f(static_cast<float>(vel.x), static_cast<float>(vel.y));
-	}
-
-	void* ChipmunkRigidBody2D::GetUserdata() const
-	{
-		return m_userData;
 	}
 
 	Vector2f ChipmunkRigidBody2D::GetVelocity() const
@@ -308,34 +243,9 @@ namespace Nz
 		return Vector2f(static_cast<float>(vel.x), static_cast<float>(vel.y));
 	}
 
-	const ChipmunkRigidBody2D::VelocityFunc& ChipmunkRigidBody2D::GetVelocityFunction() const
-	{
-		return m_velocityFunc;
-	}
-
-	ChipmunkPhysWorld2D* ChipmunkRigidBody2D::GetWorld() const
-	{
-		return m_world;
-	}
-
-	bool ChipmunkRigidBody2D::IsKinematic() const
-	{
-		return m_mass <= 0.f;
-	}
-
-	bool ChipmunkRigidBody2D::IsSimulationEnabled() const
-	{
-		return m_isSimulationEnabled;
-	}
-
 	bool ChipmunkRigidBody2D::IsSleeping() const
 	{
 		return cpBodyIsSleeping(m_handle) != 0;
-	}
-
-	bool ChipmunkRigidBody2D::IsStatic() const
-	{
-		return m_isStatic;
 	}
 
 	void ChipmunkRigidBody2D::ResetVelocityFunction()
@@ -383,7 +293,8 @@ namespace Nz
 			cpFloat mass = cpBodyGetMass(m_handle);
 			cpFloat moment = cpBodyGetMoment(m_handle);
 
-			cpBody* newHandle = Create(static_cast<float>(mass), static_cast<float>(moment));
+			cpBody* newHandle = cpBodyNew(static_cast<float>(mass), static_cast<float>(moment));
+			cpBodySetUserData(newHandle, this);
 
 			CopyBodyData(m_handle, newHandle);
 
@@ -538,11 +449,6 @@ namespace Nz
 		});
 	}
 
-	void ChipmunkRigidBody2D::SetUserdata(void* ud)
-	{
-		m_userData = ud;
-	}
-
 	void ChipmunkRigidBody2D::SetVelocity(const Vector2f& velocity)
 	{
 		cpBodySetVelocity(m_handle, cpv(velocity.x, velocity.y));
@@ -637,6 +543,48 @@ namespace Nz
 		return *this;
 	}
 
+	void ChipmunkRigidBody2D::Create(ChipmunkPhysWorld2D& world, const DynamicSettings& settings)
+	{
+		m_isRegistered = false;
+		m_isSimulationEnabled = settings.isSimulationEnabled;
+		m_isStatic = false;
+		m_gravityFactor = settings.gravityFactor;
+		m_mass = settings.mass;
+		m_positionOffset = Vector2f::Zero();
+		m_userData = nullptr;
+		m_world = &world;
+
+		m_handle = cpBodyNew(m_mass, 0.f); // moment will be recomputed by SetGeom
+		cpBodySetUserData(m_handle, this);
+		if (m_mass <= 0.f)
+			cpBodySetType(m_handle, CP_BODY_TYPE_KINEMATIC);
+
+		SetGeom(settings.geom);
+		SetAngularVelocity(settings.angularVelocity);
+		SetPosition(settings.position);
+		SetRotation(settings.rotation);
+		SetVelocity(settings.linearVelocity);
+	}
+
+	void ChipmunkRigidBody2D::Create(ChipmunkPhysWorld2D& world, const StaticSettings& settings)
+	{
+		m_gravityFactor = 1.f;
+		m_isRegistered = false;
+		m_isSimulationEnabled = settings.isSimulationEnabled;
+		m_isStatic = true;
+		m_mass = 0.f;
+		m_positionOffset = Vector2f::Zero();
+		m_userData = nullptr;
+		m_world = &world;
+
+		m_handle = cpBodyNewStatic();
+		cpBodySetUserData(m_handle, this);
+
+		SetGeom(settings.geom);
+		SetPosition(settings.position);
+		SetRotation(settings.rotation);
+	}
+
 	void ChipmunkRigidBody2D::Destroy()
 	{
 		UnregisterFromSpace();
@@ -651,24 +599,6 @@ namespace Nz
 		}
 
 		m_shapes.clear();
-	}
-
-	cpBody* ChipmunkRigidBody2D::Create(float mass, float moment)
-	{
-		cpBody* handle;
-		if (IsKinematic())
-		{
-			if (IsStatic())
-				handle = cpBodyNewStatic();
-			else
-				handle = cpBodyNewKinematic();
-		}
-		else
-			handle = cpBodyNew(mass, moment);
-
-		cpBodySetUserData(handle, this);
-
-		return handle;
 	}
 
 	void ChipmunkRigidBody2D::RegisterToSpace()

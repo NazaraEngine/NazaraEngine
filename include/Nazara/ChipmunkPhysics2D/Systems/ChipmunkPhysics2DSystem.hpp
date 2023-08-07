@@ -27,8 +27,6 @@ namespace Nz
 			ChipmunkPhysics2DSystem(ChipmunkPhysics2DSystem&&) = delete;
 			~ChipmunkPhysics2DSystem();
 
-			template<typename... Args> ChipmunkRigidBody2DComponent CreateRigidBody(Args&&... args);
-
 			inline ChipmunkPhysWorld2D& GetPhysWorld();
 			inline const ChipmunkPhysWorld2D& GetPhysWorld() const;
 
@@ -38,9 +36,11 @@ namespace Nz
 			ChipmunkPhysics2DSystem& operator=(ChipmunkPhysics2DSystem&&) = delete;
 
 		private:
+			void OnBodyConstruct(entt::registry& registry, entt::entity entity);
+
 			entt::registry& m_registry;
 			entt::observer m_physicsConstructObserver;
-			entt::scoped_connection m_constructConnection;
+			entt::scoped_connection m_bodyConstructConnection;
 			ChipmunkPhysWorld2D m_physWorld;
 	};
 }
