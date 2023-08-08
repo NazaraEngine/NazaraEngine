@@ -345,6 +345,14 @@ namespace Nz
 		OnTransferRequired(this);
 	}
 
+	std::shared_ptr<MaterialInstance> MaterialInstance::GetDefault(MaterialType materialType, MaterialInstancePreset preset)
+	{
+		Graphics* graphics = Graphics::Instance();
+		NazaraAssert(graphics, "Utility module has not been initialized");
+
+		return graphics->GetDefaultMaterials().materials[materialType].presets[preset];
+	}
+
 	std::shared_ptr<MaterialInstance> MaterialInstance::LoadFromFile(const std::filesystem::path& filePath, const MaterialInstanceParams& params)
 	{
 		Graphics* graphics = Graphics::Instance();
@@ -367,5 +375,10 @@ namespace Nz
 		NazaraAssert(graphics, "Utility module has not been initialized");
 
 		return graphics->GetMaterialInstanceLoader().LoadFromStream(stream, params);
+	}
+
+	std::shared_ptr<MaterialInstance> MaterialInstance::Instantiate(MaterialType materialType, MaterialInstancePreset preset)
+	{
+		return GetDefault(materialType, preset)->Clone();
 	}
 }

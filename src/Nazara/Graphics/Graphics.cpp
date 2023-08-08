@@ -251,7 +251,7 @@ namespace Nz
 			shadowPass.states.faceCulling = FaceCulling::Front;
 			settings.AddPass(shadowPassIndex, shadowPass);
 
-			m_defaultMaterials.basicMaterial = std::make_shared<Material>(std::move(settings), "BasicMaterial");
+			m_defaultMaterials.materials[MaterialType::Basic].material = std::make_shared<Material>(std::move(settings), "BasicMaterial");
 		}
 
 		// PbrMaterial
@@ -273,7 +273,7 @@ namespace Nz
 			shadowPass.states.faceCulling = FaceCulling::Front;
 			settings.AddPass(shadowPassIndex, shadowPass);
 
-			m_defaultMaterials.pbrMaterial = std::make_shared<Material>(std::move(settings), "PhysicallyBasedMaterial");
+			m_defaultMaterials.materials[MaterialType::PhysicallyBased].material = std::make_shared<Material>(std::move(settings), "PhysicallyBasedMaterial");
 		}
 
 		// PhongMaterial
@@ -298,35 +298,38 @@ namespace Nz
 			shadowPass.states.depthBiasSlopeFactor = 0.05f;
 			settings.AddPass(shadowPassIndex, shadowPass);
 
-			m_defaultMaterials.phongMaterial = std::make_shared<Material>(std::move(settings), "PhongMaterial");
+			m_defaultMaterials.materials[MaterialType::Phong].material = std::make_shared<Material>(std::move(settings), "PhongMaterial");
 		}
 
-		m_defaultMaterials.basicDefault = m_defaultMaterials.basicMaterial->GetDefaultInstance();
-
-		m_defaultMaterials.basicNoDepth = m_defaultMaterials.basicMaterial->Instantiate();
-		m_defaultMaterials.basicNoDepth->DisablePass(depthPassIndex);
-		m_defaultMaterials.basicNoDepth->DisablePass(shadowPassIndex);
-		m_defaultMaterials.basicNoDepth->UpdatePassStates(forwardPassIndex, [](RenderStates& states)
+		for (auto&& [materialType, materialData] : m_defaultMaterials.materials.iter_kv())
 		{
-			states.depthBuffer = false;
-		});
+			materialData.presets[MaterialInstancePreset::Default] = materialData.material->GetDefaultInstance();
 
-		m_defaultMaterials.basicTransparent = m_defaultMaterials.basicMaterial->Instantiate();
-		m_defaultMaterials.basicTransparent->DisablePass(depthPassIndex);
-		m_defaultMaterials.basicTransparent->DisablePass(shadowPassIndex);
-		m_defaultMaterials.basicTransparent->UpdatePassFlags(forwardPassIndex, MaterialPassFlag::SortByDistance);
-		m_defaultMaterials.basicTransparent->UpdatePassStates(forwardPassIndex, [](RenderStates& renderStates)
-		{
-			renderStates.depthBuffer = true;
-			renderStates.depthWrite = false;
-			renderStates.blending = true;
-			renderStates.blend.modeColor = BlendEquation::Add;
-			renderStates.blend.modeAlpha = BlendEquation::Add;
-			renderStates.blend.srcColor = BlendFunc::SrcAlpha;
-			renderStates.blend.dstColor = BlendFunc::InvSrcAlpha;
-			renderStates.blend.srcAlpha = BlendFunc::One;
-			renderStates.blend.dstAlpha = BlendFunc::One;
-		});
+			materialData.presets[MaterialInstancePreset::NoDepth] = materialData.material->Instantiate();
+			materialData.presets[MaterialInstancePreset::NoDepth]->DisablePass(depthPassIndex);
+			materialData.presets[MaterialInstancePreset::NoDepth]->DisablePass(shadowPassIndex);
+			materialData.presets[MaterialInstancePreset::NoDepth]->UpdatePassStates(forwardPassIndex, [](RenderStates& states)
+			{
+				states.depthBuffer = false;
+			});
+
+			materialData.presets[MaterialInstancePreset::Transparent] = materialData.material->Instantiate();
+			materialData.presets[MaterialInstancePreset::Transparent]->DisablePass(depthPassIndex);
+			materialData.presets[MaterialInstancePreset::Transparent]->DisablePass(shadowPassIndex);
+			materialData.presets[MaterialInstancePreset::Transparent]->UpdatePassFlags(forwardPassIndex, MaterialPassFlag::SortByDistance);
+			materialData.presets[MaterialInstancePreset::Transparent]->UpdatePassStates(forwardPassIndex, [](RenderStates& renderStates)
+			{
+				renderStates.depthBuffer = true;
+				renderStates.depthWrite = false;
+				renderStates.blending = true;
+				renderStates.blend.modeColor = BlendEquation::Add;
+				renderStates.blend.modeAlpha = BlendEquation::Add;
+				renderStates.blend.srcColor = BlendFunc::SrcAlpha;
+				renderStates.blend.dstColor = BlendFunc::InvSrcAlpha;
+				renderStates.blend.srcAlpha = BlendFunc::One;
+				renderStates.blend.dstAlpha = BlendFunc::One;
+			});
+		}
 	}
 
 	void Graphics::BuildDefaultTextures()

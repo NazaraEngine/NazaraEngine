@@ -192,6 +192,14 @@ namespace Nz
 		return std::shared_ptr<Material>();
 	}
 
+	std::shared_ptr<Material> Material::Get(MaterialType lightingType)
+	{
+		Graphics* graphics = Graphics::Instance();
+		NazaraAssert(graphics, "Utility module has not been initialized");
+
+		return graphics->GetDefaultMaterials().materials[lightingType].material;
+	}
+
 	std::shared_ptr<Material> Material::LoadFromFile(const std::filesystem::path& filePath, const MaterialParams& params)
 	{
 		Graphics* graphics = Graphics::Instance();

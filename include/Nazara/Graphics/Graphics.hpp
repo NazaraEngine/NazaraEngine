@@ -70,13 +70,13 @@ namespace Nz
 
 			struct DefaultMaterials
 			{
-				std::shared_ptr<Material> basicMaterial;
-				std::shared_ptr<Material> phongMaterial;
-				std::shared_ptr<Material> pbrMaterial;
+				struct MaterialData
+				{
+					std::shared_ptr<Material> material;
+					EnumArray<MaterialInstancePreset, std::shared_ptr<MaterialInstance>> presets;
+				};
 
-				std::shared_ptr<MaterialInstance> basicDefault;
-				std::shared_ptr<MaterialInstance> basicNoDepth;
-				std::shared_ptr<MaterialInstance> basicTransparent;
+				EnumArray<MaterialType, MaterialData> materials;
 			};
 
 			struct DefaultTextures

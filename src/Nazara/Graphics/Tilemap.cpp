@@ -4,7 +4,6 @@
 
 #include <Nazara/Graphics/Tilemap.hpp>
 #include <Nazara/Graphics/ElementRendererRegistry.hpp>
-#include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/RenderSpriteChain.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
@@ -35,7 +34,7 @@ namespace Nz
 		NazaraAssert(m_tileSize.x > 0 && m_tileSize.y > 0, "Invalid tile size");
 		NazaraAssert(m_layers.size() != 0U, "Invalid material count");
 
-		std::shared_ptr<MaterialInstance> defaultMaterialInstance = Graphics::Instance()->GetDefaultMaterials().basicDefault;
+		std::shared_ptr<MaterialInstance> defaultMaterialInstance = MaterialInstance::GetDefault(MaterialType::Basic);
 		for (auto& layer : m_layers)
 			layer.material = defaultMaterialInstance;
 

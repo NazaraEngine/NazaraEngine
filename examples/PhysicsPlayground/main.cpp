@@ -60,7 +60,7 @@ int main(int argc, char* argv[])
 
 	Nz::Vector3f target = Nz::Vector3f::Zero();
 
-	std::shared_ptr<Nz::MaterialInstance> colliderMat = Nz::Graphics::Instance()->GetDefaultMaterials().basicMaterial->Instantiate();
+	std::shared_ptr<Nz::MaterialInstance> colliderMat = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Basic);
 	colliderMat->SetValueProperty("BaseColor", Nz::Color::Green());
 	colliderMat->UpdatePassesStates([](Nz::RenderStates& states)
 	{
@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
 		planeSampler.wrapModeU = Nz::SamplerWrap::Repeat;
 		planeSampler.wrapModeV = Nz::SamplerWrap::Repeat;
 
-		std::shared_ptr<Nz::MaterialInstance> boxMat = Nz::Graphics::Instance()->GetDefaultMaterials().phongMaterial->Instantiate();
+		std::shared_ptr<Nz::MaterialInstance> boxMat = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Phong);
 		boxMat->SetTextureProperty("BaseColorMap", fs.Load<Nz::Texture>("assets/dev_grey.png"), planeSampler);
 		boxMat->DisablePass("ShadowPass");
 		boxMat->UpdatePassesStates([&](Nz::RenderStates& states)
@@ -168,7 +168,7 @@ int main(int argc, char* argv[])
 
 		entt::handle ballEntity = world.CreateEntity();
 
-		std::shared_ptr<Nz::MaterialInstance> ballMaterial = Nz::Graphics::Instance()->GetDefaultMaterials().phongMaterial->Instantiate();
+		std::shared_ptr<Nz::MaterialInstance> ballMaterial = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Phong);
 		ballMaterial->SetValueProperty("BaseColor", Nz::Color::FromHSV(colorDis(rd), 1.f, 1.f));
 
 		std::shared_ptr<Nz::Model> sphereModel = std::make_shared<Nz::Model>(sphereMesh);
@@ -208,7 +208,7 @@ int main(int argc, char* argv[])
 
 		entt::handle boxEntity = world.CreateEntity();
 
-		std::shared_ptr<Nz::MaterialInstance> boxMaterial = Nz::Graphics::Instance()->GetDefaultMaterials().phongMaterial->Instantiate();
+		std::shared_ptr<Nz::MaterialInstance> boxMaterial = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Phong);
 		boxMaterial->SetValueProperty("BaseColor", Nz::Color::FromHSV(colorDis(rd), 1.f, 1.f));
 
 		std::shared_ptr<Nz::Model> sphereModel = std::make_shared<Nz::Model>(boxMesh);
@@ -264,7 +264,7 @@ int main(int argc, char* argv[])
 		Nz::TextureSamplerInfo samplerInfo;
 		samplerInfo.anisotropyLevel = 8;
 
-		std::shared_ptr<Nz::MaterialInstance> material = Nz::Graphics::Instance()->GetDefaultMaterials().phongMaterial->Instantiate();
+		std::shared_ptr<Nz::MaterialInstance> material = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Phong);
 
 		Nz::TextureParams texParams;
 		texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;

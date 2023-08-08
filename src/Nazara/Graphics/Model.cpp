@@ -5,7 +5,6 @@
 #include <Nazara/Graphics/Model.hpp>
 #include <Nazara/Graphics/ElementRendererRegistry.hpp>
 #include <Nazara/Graphics/GraphicalMesh.hpp>
-#include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/RenderSubmesh.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
@@ -17,13 +16,11 @@ namespace Nz
 	Model::Model(std::shared_ptr<GraphicalMesh> graphicalMesh) :
 	m_graphicalMesh(std::move(graphicalMesh))
 	{
-		Graphics* graphics = Graphics::Instance();
-
 		m_submeshes.reserve(m_graphicalMesh->GetSubMeshCount());
 		for (std::size_t i = 0; i < m_graphicalMesh->GetSubMeshCount(); ++i)
 		{
 			auto& subMeshData = m_submeshes.emplace_back();
-			subMeshData.material = graphics->GetDefaultMaterials().basicDefault;
+			subMeshData.material = MaterialInstance::GetDefault(MaterialType::Basic);
 			subMeshData.vertexBufferData = {
 				{
 					0,

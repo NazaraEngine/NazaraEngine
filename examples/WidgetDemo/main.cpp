@@ -52,12 +52,10 @@ int main(int argc, char* argv[])
 		labelWidget->UpdateText(Nz::SimpleTextDrawer::Draw("You clicked the button " + std::to_string(++clickCount) + " times", 72));
 	});
 
-	std::shared_ptr<Nz::Material> material = Nz::Graphics::Instance()->GetDefaultMaterials().basicMaterial;
-
 	Nz::TextureSamplerInfo samplerInfo;
 	samplerInfo.anisotropyLevel = 8;
 
-	std::shared_ptr<Nz::MaterialInstance> materialInstance = material->Instantiate();
+	std::shared_ptr<Nz::MaterialInstance> materialInstance = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Basic);
 	materialInstance->SetTextureProperty("BaseColorMap", fs.Load<Nz::Texture>("assets/lynix.jpg"));
 
 	Nz::ImageWidget* imageWidget = canvas2D.Add<Nz::ImageWidget>(materialInstance);

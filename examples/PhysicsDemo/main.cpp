@@ -60,7 +60,7 @@ int main(int argc, char* argv[])
 	texParams.renderDevice = device;
 	texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
 
-	std::shared_ptr<Nz::MaterialInstance> material = Nz::Graphics::Instance()->GetDefaultMaterials().phongMaterial->Instantiate();
+	std::shared_ptr<Nz::MaterialInstance> material = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Phong);
 	for (std::string_view passName : { "DepthPass", "ForwardPass" })
 	{
 		material->UpdatePassStates(passName, [](Nz::RenderStates& states)
@@ -77,7 +77,7 @@ int main(int argc, char* argv[])
 	for (std::size_t i = 0; i < model->GetSubMeshCount(); ++i)
 		model->SetMaterial(i, material);
 
-	std::shared_ptr<Nz::MaterialInstance> textMaterial = Nz::Graphics::Instance()->GetDefaultMaterials().basicTransparent->Clone();
+	std::shared_ptr<Nz::MaterialInstance> textMaterial = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Basic, Nz::MaterialInstancePreset::Transparent);
 	textMaterial->UpdatePassFlags("ForwardPass", Nz::MaterialPassFlag::SortByDistance);
 	textMaterial->UpdatePassStates("ForwardPass", [](Nz::RenderStates& states)
 	{
@@ -103,7 +103,7 @@ int main(int argc, char* argv[])
 
 	auto shipCollider = std::make_shared<Nz::BulletConvexCollider3D>(vertices, vertexMapper.GetVertexCount());
 
-	std::shared_ptr<Nz::MaterialInstance> colliderMat = Nz::Graphics::Instance()->GetDefaultMaterials().basicMaterial->Instantiate();
+	std::shared_ptr<Nz::MaterialInstance> colliderMat = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Basic);
 	colliderMat->SetValueProperty("BaseColor", Nz::Color::Green());
 	colliderMat->UpdatePassesStates([](Nz::RenderStates& states)
 	{

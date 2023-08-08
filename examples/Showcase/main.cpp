@@ -83,7 +83,7 @@ int main(int argc, char* argv[])
 		std::shared_ptr<Nz::Mesh> colliderMesh = Nz::Mesh::Build(playerCollider->GenerateDebugMesh());
 		std::shared_ptr<Nz::GraphicalMesh> colliderGraphicalMesh = Nz::GraphicalMesh::BuildFromMesh(*colliderMesh);
 
-		std::shared_ptr<Nz::MaterialInstance> colliderMat = Nz::Graphics::Instance()->GetDefaultMaterials().basicMaterial->Instantiate();
+		std::shared_ptr<Nz::MaterialInstance> colliderMat = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Basic);
 		colliderMat->SetValueProperty("BaseColor", Nz::Color::Green());
 		colliderMat->UpdatePassesStates([](Nz::RenderStates& states)
 		{
@@ -155,14 +155,14 @@ int main(int argc, char* argv[])
 		if (!matPath.empty())
 		{
 			Nz::MaterialInstanceParams params;
-			params.lightingType = Nz::MaterialLightingType::Phong;
+			params.materialType = Nz::MaterialType::Phong;
 			if (alphaMaterials.test(i))
 				params.custom.SetParameter("EnableAlphaBlending", true);
 
 			materials[i] = Nz::MaterialInstance::LoadFromFile(matPath, params);
 		}
 		else
-			materials[i] = Nz::Graphics::Instance()->GetDefaultMaterials().basicDefault;
+			materials[i] = Nz::MaterialInstance::GetDefault(Nz::MaterialType::Basic);
 	}
 
 	for (std::size_t i = 0; i < bobMesh->GetSubMeshCount(); ++i)
@@ -246,7 +246,7 @@ int main(int argc, char* argv[])
 			Nz::TextureParams srgbTexParams;
 			srgbTexParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
 
-			std::shared_ptr<Nz::MaterialInstance> sphereMat = Nz::Graphics::Instance()->GetDefaultMaterials().phongMaterial->Instantiate();
+			std::shared_ptr<Nz::MaterialInstance> sphereMat = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Phong);
 			sphereMat->SetTextureProperty("BaseColorMap", fs.Load<Nz::Texture>("assets/Rusty/rustediron2_basecolor.png", srgbTexParams));
 
 			std::shared_ptr<Nz::Model> sphereModel = std::make_shared<Nz::Model>(std::move(gfxMesh));
@@ -288,7 +288,7 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	std::shared_ptr<Nz::MaterialInstance> textMat = Nz::Graphics::Instance()->GetDefaultMaterials().phongMaterial->Instantiate();
+	std::shared_ptr<Nz::MaterialInstance> textMat = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Phong);
 	textMat->UpdatePassesStates([](Nz::RenderStates& renderStates)
 	{
 		renderStates.faceCulling = Nz::FaceCulling::None;
@@ -338,7 +338,7 @@ int main(int argc, char* argv[])
 		planeSampler.wrapModeU = Nz::SamplerWrap::Repeat;
 		planeSampler.wrapModeV = Nz::SamplerWrap::Repeat;
 
-		std::shared_ptr<Nz::MaterialInstance> planeMat = Nz::Graphics::Instance()->GetDefaultMaterials().phongMaterial->Instantiate();
+		std::shared_ptr<Nz::MaterialInstance> planeMat = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Phong);
 		planeMat->SetTextureProperty("BaseColorMap", fs.Load<Nz::Texture>("assets/dev_grey.png"), planeSampler);
 
 		std::shared_ptr<Nz::Model> planeModel = std::make_shared<Nz::Model>(std::move(planeMeshGfx));
@@ -369,7 +369,7 @@ int main(int argc, char* argv[])
 		
 		std::shared_ptr<Nz::Model> colliderModel;
 		{
-			std::shared_ptr<Nz::MaterialInstance> colliderMat = Nz::Graphics::Instance()->GetDefaultMaterials().basicMaterial->Instantiate();
+			std::shared_ptr<Nz::MaterialInstance> colliderMat = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Basic);
 			colliderMat->SetValueProperty("BaseColor", Nz::Color::Green());
 			colliderMat->UpdatePassesStates([](Nz::RenderStates& states)
 			{

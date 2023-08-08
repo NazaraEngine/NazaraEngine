@@ -132,7 +132,7 @@ namespace Nz
 
 		auto CreateMaterialFromTexture = [&](std::shared_ptr<Texture> texture)
 		{
-			std::shared_ptr<MaterialInstance> material = defaultBasicMaterial.basicMaterial->Instantiate();
+			std::shared_ptr<MaterialInstance> material = MaterialInstance::Instantiate(MaterialType::Basic);
 			material->DisablePass(depthPassIndex);
 			material->UpdatePassStates(forwardPassIndex, [](RenderStates& renderStates)
 			{

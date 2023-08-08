@@ -22,35 +22,18 @@ namespace Nz
 
 	void Widgets::CreateDefaultMaterials()
 	{
-		const auto& defaultMaterials = Graphics::Instance()->GetDefaultMaterials();
-
-		const MaterialPassRegistry& materialPassRegistry = Graphics::Instance()->GetMaterialPassRegistry();
-		std::size_t depthPassIndex = materialPassRegistry.GetPassIndex("DepthPass");
-		std::size_t forwardPassIndex = materialPassRegistry.GetPassIndex("ForwardPass");
-
-		m_opaqueMaterial = defaultMaterials.basicMaterial->Instantiate();
-		for (std::size_t passIndex : { depthPassIndex, forwardPassIndex })
+		m_opaqueMaterial = MaterialInstance::Instantiate(MaterialType::Basic);
+		m_opaqueMaterial->UpdatePassesStates([](RenderStates& renderStates)
 		{
-			m_opaqueMaterial->UpdatePassStates(passIndex, [](RenderStates& renderStates)
-			{
-				renderStates.scissorTest = true;
-			});
-		}
-
-		m_transparentMaterial = defaultMaterials.basicMaterial->Instantiate();
-		m_transparentMaterial->DisablePass(depthPassIndex);
-
-		m_transparentMaterial->UpdatePassStates(forwardPassIndex, [](RenderStates& renderStates)
-		{
-			renderStates.blending = true;
-			renderStates.blend.modeColor = BlendEquation::Add;
-			renderStates.blend.modeAlpha = BlendEquation::Add;
-			renderStates.blend.srcColor = BlendFunc::SrcAlpha;
-			renderStates.blend.dstColor = BlendFunc::InvSrcAlpha;
-			renderStates.blend.srcAlpha = BlendFunc::One;
-			renderStates.blend.dstAlpha = BlendFunc::One;
-			renderStates.depthWrite = false;
 			renderStates.scissorTest = true;
+			return true;
+		});
+
+		m_transparentMaterial = MaterialInstance::Instantiate(MaterialType::Basic, MaterialInstancePreset::Transparent);
+		m_transparentMaterial->UpdatePassesStates([](RenderStates& renderStates)
+		{
+			renderStates.scissorTest = true;
+			return true;
 		});
 	}
 

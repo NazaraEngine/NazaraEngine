@@ -62,11 +62,22 @@ namespace Nz
 		UInt4
 	};
 
-	enum class MaterialLightingType
+	enum class MaterialInstancePreset
 	{
-		None,
+		Default,
+		NoDepth,
+		Transparent,
+
+		Max = Transparent
+	};
+
+	enum class MaterialType
+	{
+		Basic,
 		Phong,
-		PhysicallyBased
+		PhysicallyBased,
+
+		Max = PhysicallyBased
 	};
 
 	enum class MaterialPassFlag

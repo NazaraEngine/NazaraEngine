@@ -4,7 +4,6 @@
 
 #include <Nazara/Graphics/TextSprite.hpp>
 #include <Nazara/Graphics/ElementRendererRegistry.hpp>
-#include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/RenderSpriteChain.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
@@ -19,7 +18,7 @@ namespace Nz
 	m_material(std::move(material))
 	{
 		if (!m_material)
-			m_material = Graphics::Instance()->GetDefaultMaterials().basicTransparent;
+			m_material = MaterialInstance::GetDefault(MaterialType::Basic, MaterialInstancePreset::Transparent);
 	}
 
 	void TextSprite::BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, std::vector<RenderElementOwner>& elements) const

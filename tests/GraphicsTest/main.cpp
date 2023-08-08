@@ -63,13 +63,11 @@ int main()
 
 	std::shared_ptr<Nz::Texture> diffuseTexture = Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams);
 
-	std::shared_ptr<Nz::Material> material = Nz::Graphics::Instance()->GetDefaultMaterials().basicMaterial;
-
-	std::shared_ptr<Nz::MaterialInstance> materialInstance = std::make_shared<Nz::MaterialInstance>(material);
+	std::shared_ptr<Nz::MaterialInstance> materialInstance = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Basic);
 	materialInstance->SetTextureProperty(0, diffuseTexture);
 	materialInstance->SetValueProperty(0, Nz::Color::White());
 
-	std::shared_ptr<Nz::MaterialInstance> materialInstance2 = std::make_shared<Nz::MaterialInstance>(material);
+	std::shared_ptr<Nz::MaterialInstance> materialInstance2 = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Basic);
 	materialInstance2->SetValueProperty(0, Nz::Color::Green());
 
 	Nz::Model model(std::move(gfxMesh));

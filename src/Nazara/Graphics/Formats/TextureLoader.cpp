@@ -47,23 +47,7 @@ namespace Nz
 				// Delete image to free memory
 				image.reset();
 
-				std::shared_ptr<MaterialInstance> materialInstance;
-				switch (parameters.lightingType)
-				{
-					case MaterialLightingType::Phong:
-						materialInstance = Graphics::Instance()->GetDefaultMaterials().phongMaterial->Instantiate();
-						break;
-
-					case MaterialLightingType::PhysicallyBased:
-						materialInstance = Graphics::Instance()->GetDefaultMaterials().pbrMaterial->Instantiate();
-						break;
-
-					case MaterialLightingType::None:
-						break;
-				}
-
-				if (!materialInstance)
-					materialInstance = Graphics::Instance()->GetDefaultMaterials().basicMaterial->Instantiate();
+				std::shared_ptr<MaterialInstance> materialInstance = MaterialInstance::Instantiate(parameters.materialType);
 
 				if (enableAlphaTest && hasAlpha)
 					materialInstance->SetValueProperty("AlphaTest", true);

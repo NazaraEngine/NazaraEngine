@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
 	texParams.renderDevice = device;
 	texParams.loadFormat = Nz::PixelFormat::RGBA8;
 
-	std::shared_ptr<Nz::MaterialInstance> spriteMaterial = Nz::Graphics::Instance()->GetDefaultMaterials().phongMaterial->Instantiate();
+	std::shared_ptr<Nz::MaterialInstance> spriteMaterial = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Phong);
 	spriteMaterial->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(resourceDir / "box.png", texParams));
 
 	Nz::ChipmunkRigidBody2DComponent::DynamicSettings boxSettings;
@@ -89,7 +89,7 @@ int main(int argc, char* argv[])
 		tilemap->SetOrigin({ 0.5f, 0.5f });
 		for (std::size_t i = 0; i < 18; ++i)
 		{
-			std::shared_ptr<Nz::MaterialInstance> tileMaterial = Nz::Graphics::Instance()->GetDefaultMaterials().basicTransparent->Clone();
+			std::shared_ptr<Nz::MaterialInstance> tileMaterial = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Basic, Nz::MaterialInstancePreset::Transparent);
 			tileMaterial->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(resourceDir / "tiles" / (std::to_string(i + 1) + ".png"), texParams));
 
 			tilemap->SetMaterial(i, tileMaterial);
