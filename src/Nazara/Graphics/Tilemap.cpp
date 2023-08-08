@@ -4,6 +4,8 @@
 
 #include <Nazara/Graphics/Tilemap.hpp>
 #include <Nazara/Graphics/ElementRendererRegistry.hpp>
+#include <Nazara/Graphics/Graphics.hpp>
+#include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/RenderSpriteChain.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 

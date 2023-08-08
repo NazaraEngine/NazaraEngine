@@ -124,29 +124,9 @@ namespace Nz
 		texParams.renderDevice = Graphics::Instance()->GetRenderDevice();
 		texParams.loadFormat = PixelFormat::RGBA8; //< TODO: Re-enable gamma correction
 
-		const auto& defaultBasicMaterial = Graphics::Instance()->GetDefaultMaterials();
-		const MaterialPassRegistry& materialPassRegistry = Graphics::Instance()->GetMaterialPassRegistry();
-
-		std::size_t depthPassIndex = materialPassRegistry.GetPassIndex("DepthPass");
-		std::size_t forwardPassIndex = materialPassRegistry.GetPassIndex("ForwardPass");
-
 		auto CreateMaterialFromTexture = [&](std::shared_ptr<Texture> texture)
 		{
-			std::shared_ptr<MaterialInstance> material = MaterialInstance::Instantiate(MaterialType::Basic);
-			material->DisablePass(depthPassIndex);
-			material->UpdatePassStates(forwardPassIndex, [](RenderStates& renderStates)
-			{
-				renderStates.depthWrite = false;
-				renderStates.scissorTest = true;
-				renderStates.blending = true;
-				renderStates.blend.modeColor = BlendEquation::Add;
-				renderStates.blend.modeAlpha = BlendEquation::Add;
-				renderStates.blend.srcColor = BlendFunc::SrcAlpha;
-				renderStates.blend.dstColor = BlendFunc::InvSrcAlpha;
-				renderStates.blend.srcAlpha = BlendFunc::One;
-				renderStates.blend.dstAlpha = BlendFunc::One;
-			});
-
+			std::shared_ptr<MaterialInstance> material = Widgets::Instance()->GetTransparentMaterial()->Clone();
 			material->SetTextureProperty("BaseColorMap", std::move(texture));
 
 			return material;
