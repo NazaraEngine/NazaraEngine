@@ -103,6 +103,13 @@ namespace Nz
 
 			struct DynamicSettings : CommonSettings
 			{
+				DynamicSettings() = default;
+				DynamicSettings(std::shared_ptr<JoltCollider3D> collider, float mass_) :
+				mass(mass_)
+				{
+					geom = std::move(collider);
+				}
+
 				// Default values from Jolt
 				JoltMotionQuality motionQuality = JoltMotionQuality::Discrete;
 				Vector3f angularVelocity = Vector3f::Zero();
@@ -120,6 +127,11 @@ namespace Nz
 
 			struct StaticSettings : CommonSettings
 			{
+				StaticSettings() = default;
+				StaticSettings(std::shared_ptr<JoltCollider3D> collider)
+				{
+					geom = std::move(collider);
+				}
 			};
 
 		protected:
