@@ -79,9 +79,9 @@ namespace Nz
 		UpdateDisplayText();
 	}
 
-	inline void TextAreaWidget::SetText(const std::string& text)
+	inline void TextAreaWidget::SetText(std::string text)
 	{
-		m_text = text;
+		m_text = std::move(text);
 		OnTextChanged(this, m_text);
 
 		UpdateDisplayText();
