@@ -83,7 +83,7 @@ namespace Nz
 
 	bool JoltCharacter::IsOnGround() const
 	{
-		return m_character->IsSupported();
+		return m_character->GetGroundState() == JPH::Character::EGroundState::OnGround;
 	}
 
 	void JoltCharacter::SetFriction(float friction)
