@@ -40,7 +40,7 @@ namespace Nz
 		for (std::size_t i = 0; i < m_renderables.size(); ++i)
 		{
 			auto& entry = m_renderables[i];
-			if (entry.renderable)
+			if (!entry.renderable)
 				continue;
 
 			OnRenderableDetach(this, i);
