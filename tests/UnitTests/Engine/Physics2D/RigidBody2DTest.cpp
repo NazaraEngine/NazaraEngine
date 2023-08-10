@@ -34,8 +34,6 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 		body.SetRotation(rotation);
 		Nz::Vector2f velocity(-4.f, -2.f);
 		body.SetVelocity(velocity);
-		bool userdata = false;
-		body.SetUserdata(&userdata);
 
 		world.Step(Nz::Time::Second());
 
@@ -127,9 +125,6 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 		Nz::ChipmunkRigidBody2D body(world, dynamicSettings);
 		body.SetGeom(box, true, false);
 
-		bool userData = false;
-		body.SetUserdata(&userData);
-
 		Nz::Vector2f position = Nz::Vector2f::Zero();
 		body.SetPosition(position);
 
@@ -146,7 +141,6 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 				CHECK(body.GetMass() == Catch::Approx(dynamicSettings.mass));
 				CHECK(body.GetPosition() == position);
 				CHECK(body.GetRotation().value == Catch::Approx(0.f));
-				CHECK(body.GetUserdata() == &userData);
 				CHECK(body.GetVelocity() == Nz::Vector2f::Zero());
 
 				CHECK(body.IsKinematic() == false);
@@ -351,7 +345,6 @@ void EQUALITY(const Nz::ChipmunkRigidBody2D& left, const Nz::ChipmunkRigidBody2D
 	CHECK(left.GetMass() == Catch::Approx(right.GetMass()));
 	CHECK(left.GetPosition() == right.GetPosition());
 	CHECK(left.GetRotation().value == Catch::Approx(right.GetRotation().value));
-	CHECK(left.GetUserdata() == right.GetUserdata());
 	CHECK(left.GetVelocity() == right.GetVelocity());
 }
 

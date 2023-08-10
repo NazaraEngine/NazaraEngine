@@ -53,6 +53,7 @@ namespace Nz
 
 			Rectf GetAABB() const;
 			RadianAnglef GetAngularVelocity() const;
+			inline UInt32 GetBodyIndex() const;
 			float GetElasticity(std::size_t shapeIndex = 0) const;
 			float GetFriction(std::size_t shapeIndex = 0) const;
 			inline const std::shared_ptr<ChipmunkCollider2D>& GetGeom() const;
@@ -66,7 +67,6 @@ namespace Nz
 			inline std::size_t GetShapeCount() const;
 			inline std::size_t GetShapeIndex(cpShape* shape) const;
 			Vector2f GetSurfaceVelocity(std::size_t shapeIndex = 0) const;
-			inline void* GetUserdata() const;
 			Vector2f GetVelocity() const;
 			inline const VelocityFunc& GetVelocityFunction() const;
 			inline ChipmunkPhysWorld2D* GetWorld() const;
@@ -93,7 +93,6 @@ namespace Nz
 			void SetSurfaceVelocity(const Vector2f& surfaceVelocity);
 			void SetSurfaceVelocity(std::size_t shapeIndex, const Vector2f& surfaceVelocity);
 			void SetStatic(bool setStaticBody = true);
-			inline void SetUserdata(void* ud);
 			void SetVelocity(const Vector2f& velocity);
 			void SetVelocityFunction(VelocityFunc velocityFunc);
 
@@ -104,11 +103,9 @@ namespace Nz
 			void Wakeup();
 
 			ChipmunkRigidBody2D& operator=(const ChipmunkRigidBody2D& object);
-			ChipmunkRigidBody2D& operator=(ChipmunkRigidBody2D&& object);
+			ChipmunkRigidBody2D& operator=(ChipmunkRigidBody2D&& object) noexcept;
 
-			NazaraSignal(OnRigidBody2DMove, ChipmunkRigidBody2D* /*oldPointer*/, ChipmunkRigidBody2D* /*newPointer*/);
-			NazaraSignal(OnRigidBody2DRelease, ChipmunkRigidBody2D* /*rigidBody*/);
-
+			static constexpr UInt32 InvalidBodyIndex = std::numeric_limits<UInt32>::max();
 			static constexpr std::size_t InvalidShapeIndex = std::numeric_limits<std::size_t>::max();
 
 			struct CommonSettings
@@ -151,6 +148,7 @@ namespace Nz
 			void Destroy();
 
 		private:
+			void DestroyBody();
 			void RegisterToSpace();
 			void UnregisterFromSpace();
 
@@ -161,7 +159,7 @@ namespace Nz
 			std::shared_ptr<ChipmunkCollider2D> m_geom;
 			MovablePtr<cpBody> m_handle;
 			MovablePtr<ChipmunkPhysWorld2D> m_world;
-			MovablePtr<void> m_userData;
+			UInt32 m_bodyIndex;
 			Vector2f m_positionOffset;
 			VelocityFunc m_velocityFunc;
 			bool m_isRegistered;

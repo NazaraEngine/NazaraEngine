@@ -14,11 +14,13 @@
 #include <Nazara/Core/Time.hpp>
 #include <Nazara/Math/Angle.hpp>
 #include <Nazara/Math/Vector2.hpp>
+#include <NazaraUtils/Bitset.hpp>
 #include <NazaraUtils/FunctionRef.hpp>
 #include <NazaraUtils/Signal.hpp>
 #include <functional>
 #include <memory>
 #include <unordered_map>
+#include <vector>
 
 struct cpCollisionHandler;
 struct cpSpace;
@@ -51,10 +53,10 @@ namespace Nz
 
 			ChipmunkPhysWorld2D();
 			ChipmunkPhysWorld2D(const ChipmunkPhysWorld2D&) = delete;
-			ChipmunkPhysWorld2D(ChipmunkPhysWorld2D&&) = delete; ///TODO
+			ChipmunkPhysWorld2D(ChipmunkPhysWorld2D&&) = delete;
 			~ChipmunkPhysWorld2D();
 
-			void DebugDraw(const DebugDrawOptions& options, bool drawShapes = true, bool drawConstraints = true, bool drawCollisions = true);
+			void DebugDraw(const DebugDrawOptions& options, bool drawShapes = true, bool drawConstraints = true, bool drawCollisions = true) const;
 
 			float GetDamping() const;
 			Vector2f GetGravity() const;
@@ -135,32 +137,27 @@ namespace Nz
 			NazaraSignal(OnPhysWorld2DPostStep, const ChipmunkPhysWorld2D* /*physWorld*/, float /*invStepCount*/);
 
 		private:
-			void InitCallbacks(cpCollisionHandler* handler, Callback callbacks);
-
 			using PostStep = std::function<void(ChipmunkRigidBody2D* body)>;
 
-			void OnRigidBodyMoved(ChipmunkRigidBody2D* oldPointer, ChipmunkRigidBody2D* newPointer);
-			void OnRigidBodyRelease(ChipmunkRigidBody2D* rigidBody);
+			static constexpr std::size_t FreeBodyIdGrowRate = 256;
 
-			void RegisterPostStep(ChipmunkRigidBody2D* rigidBody, PostStep&& func);
-
-			struct PostStepContainer
-			{
-				NazaraSlot(ChipmunkRigidBody2D, OnRigidBody2DMove, onMovedSlot);
-				NazaraSlot(ChipmunkRigidBody2D, OnRigidBody2DRelease, onReleaseSlot);
-
-				std::vector<PostStep> funcs;
-			};
-
-			static_assert(std::is_nothrow_move_constructible<PostStepContainer>::value, "PostStepContainer should be noexcept MoveConstructible");
+			void DeferBodyAction(ChipmunkRigidBody2D& rigidBody, PostStep&& func);
+			void InitCallbacks(cpCollisionHandler* handler, Callback callbacks);
+			inline UInt32 RegisterBody(ChipmunkRigidBody2D& rigidBody);
+			inline void UnregisterBody(UInt32 bodyIndex);
+			inline void UpdateBodyPointer(ChipmunkRigidBody2D& rigidBody);
 
 			std::size_t m_maxStepCount;
 			std::unordered_map<cpCollisionHandler*, std::unique_ptr<Callback>> m_callbacks;
-			std::unordered_map<ChipmunkRigidBody2D*, PostStepContainer> m_rigidPostSteps;
+			std::unordered_map<UInt32, std::vector<PostStep>> m_rigidBodyPostSteps;
+			std::vector<ChipmunkRigidBody2D*> m_bodies;
 			cpSpace* m_handle;
+			Bitset<UInt64> m_freeBodyIndices;
 			Time m_stepSize;
 			Time m_timestepAccumulator;
 	};
 }
+
+#include <Nazara/ChipmunkPhysics2D/ChipmunkPhysWorld2D.inl>
 
 #endif // NAZARA_CHIPMUNKPHYSICS2D_CHIPMUNKPHYSWORLD2D_HPP

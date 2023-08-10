@@ -18,8 +18,6 @@ namespace Nz
 
 	inline ChipmunkRigidBody2D::~ChipmunkRigidBody2D()
 	{
-		OnRigidBody2DRelease(this);
-
 		Destroy();
 	}
 
@@ -31,6 +29,11 @@ namespace Nz
 	inline void ChipmunkRigidBody2D::AddImpulse(const Vector2f& impulse, CoordSys coordSys)
 	{
 		return AddImpulse(impulse, GetMassCenter(coordSys), coordSys);
+	}
+
+	inline UInt32 ChipmunkRigidBody2D::GetBodyIndex() const
+	{
+		return m_bodyIndex;
 	}
 
 	inline const std::shared_ptr<ChipmunkCollider2D>& ChipmunkRigidBody2D::GetGeom() const
@@ -67,11 +70,6 @@ namespace Nz
 		return m_shapes.size();
 	}
 
-	inline void* ChipmunkRigidBody2D::GetUserdata() const
-	{
-		return m_userData;
-	}
-
 	inline const ChipmunkRigidBody2D::VelocityFunc& ChipmunkRigidBody2D::GetVelocityFunction() const
 	{
 		return m_velocityFunc;
@@ -95,11 +93,6 @@ namespace Nz
 	inline bool ChipmunkRigidBody2D::IsStatic() const
 	{
 		return m_isStatic;
-	}
-
-	inline void ChipmunkRigidBody2D::SetUserdata(void* ud)
-	{
-		m_userData = ud;
 	}
 }
 

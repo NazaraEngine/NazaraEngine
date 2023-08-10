@@ -41,13 +41,16 @@ namespace Nz
 			auto drawOptions = static_cast<ChipmunkPhysWorld2D::DebugDrawOptions*>(userdata);
 			if (drawOptions->polygonCallback)
 			{
-				//TODO: constexpr if to prevent copy/cast if sizeof(cpVect) == sizeof(Vector2f)
+				if constexpr (sizeof(cpVect) == sizeof(Vector2f))
+					drawOptions->polygonCallback(reinterpret_cast<const Vector2f*>(vertices), vertexCount, float(radius), CpDebugColorToColor(outlineColor), CpDebugColorToColor(fillColor), drawOptions->userdata);
+				else
+				{
+					StackArray<Vector2f> nVertices = NazaraStackArray(Vector2f, vertexCount);
+					for (int i = 0; i < vertexCount; ++i)
+						nVertices[i] = Vector2f(float(vertices[i].x), float(vertices[i].y));
 
-				StackArray<Vector2f> nVertices = NazaraStackArray(Vector2f, vertexCount);
-				for (int i = 0; i < vertexCount; ++i)
-					nVertices[i] = Vector2f(float(vertices[i].x), float(vertices[i].y));
-
-				drawOptions->polygonCallback(nVertices.data(), vertexCount, float(radius), CpDebugColorToColor(outlineColor), CpDebugColorToColor(fillColor), drawOptions->userdata);
+					drawOptions->polygonCallback(nVertices.data(), vertexCount, float(radius), CpDebugColorToColor(outlineColor), CpDebugColorToColor(fillColor), drawOptions->userdata);
+				}
 			}
 		}
 
@@ -92,7 +95,7 @@ namespace Nz
 		cpSpaceFree(m_handle);
 	}
 
-	void ChipmunkPhysWorld2D::DebugDraw(const DebugDrawOptions& options, bool drawShapes, bool drawConstraints, bool drawCollisions)
+	void ChipmunkPhysWorld2D::DebugDraw(const DebugDrawOptions& options, bool drawShapes, bool drawConstraints, bool drawCollisions) const
 	{
 		auto ColorToCpDebugColor = [](Color c) -> cpSpaceDebugColor
 		{
@@ -103,7 +106,7 @@ namespace Nz
 		drawOptions.collisionPointColor = ColorToCpDebugColor(options.collisionPointColor);
 		drawOptions.constraintColor = ColorToCpDebugColor(options.constraintColor);
 		drawOptions.shapeOutlineColor = ColorToCpDebugColor(options.shapeOutlineColor);
-		drawOptions.data = const_cast<DebugDrawOptions*>(&options); //< Yeah, I know, shame :bell: but it won't be used for writing anyway
+		drawOptions.data = const_cast<DebugDrawOptions*>(&options); //< won't be used to write
 
 		std::underlying_type_t<cpSpaceDebugDrawFlags> drawFlags = 0;
 		if (drawCollisions)
@@ -364,15 +367,18 @@ namespace Nz
 			cpSpaceStep(m_handle, dt);
 
 			OnPhysWorld2DPostStep(this, invStepCount);
-			if (!m_rigidPostSteps.empty())
+			if (!m_rigidBodyPostSteps.empty())
 			{
-				for (const auto& pair : m_rigidPostSteps)
+				for (auto&& [bodyIndex, callbackVec] : m_rigidBodyPostSteps)
 				{
-					for (const auto& step : pair.second.funcs)
-						step(pair.first);
+					ChipmunkRigidBody2D* rigidBody = m_bodies[bodyIndex];
+					assert(rigidBody);
+
+					for (const auto& step : callbackVec)
+						step(rigidBody);
 				}
 
-				m_rigidPostSteps.clear();
+				m_rigidBodyPostSteps.clear();
 			}
 
 			m_timestepAccumulator -= m_stepSize;
@@ -504,40 +510,16 @@ namespace Nz
 		}
 	}
 
-	void ChipmunkPhysWorld2D::OnRigidBodyMoved(ChipmunkRigidBody2D* oldPointer, ChipmunkRigidBody2D* newPointer)
-	{
-		auto it = m_rigidPostSteps.find(oldPointer);
-		if (it == m_rigidPostSteps.end())
-			return; //< Shouldn't happen
-
-		m_rigidPostSteps.emplace(std::make_pair(newPointer, std::move(it->second)));
-		m_rigidPostSteps.erase(oldPointer);
-	}
-
-	void ChipmunkPhysWorld2D::OnRigidBodyRelease(ChipmunkRigidBody2D* rigidBody)
-	{
-		m_rigidPostSteps.erase(rigidBody);
-	}
-
-	void ChipmunkPhysWorld2D::RegisterPostStep(ChipmunkRigidBody2D* rigidBody, PostStep&& func)
+	void ChipmunkPhysWorld2D::DeferBodyAction(ChipmunkRigidBody2D& rigidBody, PostStep&& func)
 	{
 		// If space isn't locked, no need to wait
 		if (!cpSpaceIsLocked(m_handle))
 		{
-			func(rigidBody);
+			func(&rigidBody);
 			return;
 		}
 
-		auto it = m_rigidPostSteps.find(rigidBody);
-		if (it == m_rigidPostSteps.end())
-		{
-			PostStepContainer postStep;
-			postStep.onMovedSlot.Connect(rigidBody->OnRigidBody2DMove, this, &ChipmunkPhysWorld2D::OnRigidBodyMoved);
-			postStep.onReleaseSlot.Connect(rigidBody->OnRigidBody2DRelease, this, &ChipmunkPhysWorld2D::OnRigidBodyRelease);
-
-			it = m_rigidPostSteps.insert(std::make_pair(rigidBody, std::move(postStep))).first;
-		}
-
-		it->second.funcs.emplace_back(std::move(func));
+		UInt32 bodyIndex = rigidBody.GetBodyIndex();
+		m_rigidBodyPostSteps[bodyIndex].emplace_back(std::move(func));
 	}
 }
