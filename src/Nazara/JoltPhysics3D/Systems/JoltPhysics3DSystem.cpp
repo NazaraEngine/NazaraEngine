@@ -18,8 +18,6 @@ namespace Nz
 		m_bodyConstructConnection = registry.on_construct<JoltRigidBody3DComponent>().connect<&JoltPhysics3DSystem::OnBodyConstruct>(this);
 		m_characterConstructConnection = registry.on_construct<JoltCharacterComponent>().connect<&JoltPhysics3DSystem::OnCharacterConstruct>(this);
 		m_bodyDestructConnection = registry.on_destroy<JoltRigidBody3DComponent>().connect<&JoltPhysics3DSystem::OnBodyDestruct>(this);
-
-		m_stepCount = 0;
 	}
 
 	JoltPhysics3DSystem::~JoltPhysics3DSystem()
@@ -92,14 +90,8 @@ namespace Nz
 			entityBody.TeleportTo(entityNode.GetPosition(), entityNode.GetRotation());
 		});
 
-
-		Time t1 = GetElapsedNanoseconds();
-
 		// Update the physics world
 		m_physWorld.Step(elapsedTime);
-		m_stepCount++;
-
-		Time t2 = GetElapsedNanoseconds();
 
 		// Replicate characters to their NodeComponent
 		{
@@ -132,11 +124,6 @@ namespace Nz
 				nodeComponent.SetTransform(position, rotation);
 			}
 		}
-
-		Time t3 = GetElapsedNanoseconds();
-
-		m_physicsTime += (t2 - t1);
-		m_updateTime += (t3 - t2);
 	}
 
 	void JoltPhysics3DSystem::OnBodyConstruct(entt::registry& registry, entt::entity entity)

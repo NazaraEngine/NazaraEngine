@@ -15,6 +15,11 @@ namespace Nz
 	{
 		return m_physWorld;
 	}
+
+	inline entt::handle JoltPhysics3DSystem::GetRigidBodyEntity(UInt32 bodyIndex) const
+	{
+		return entt::handle(m_registry, m_bodyIndicesToEntity[bodyIndex]);
+	}
 }
 
 #include <Nazara/JoltPhysics3D/DebugOff.hpp>

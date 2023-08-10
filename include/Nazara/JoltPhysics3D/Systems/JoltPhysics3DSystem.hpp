@@ -32,10 +32,9 @@ namespace Nz
 			JoltPhysics3DSystem(JoltPhysics3DSystem&&) = delete;
 			~JoltPhysics3DSystem();
 
-			void Dump();
-
 			inline JoltPhysWorld3D& GetPhysWorld();
 			inline const JoltPhysWorld3D& GetPhysWorld() const;
+			inline entt::handle GetRigidBodyEntity(UInt32 bodyIndex) const;
 
 			bool RaycastQuery(const Vector3f& from, const Vector3f& to, const FunctionRef<std::optional<float>(const RaycastHit& hitInfo)>& callback);
 			bool RaycastQueryFirst(const Vector3f& from, const Vector3f& to, const FunctionRef<void(const RaycastHit& hitInfo)>& callback);
@@ -56,7 +55,7 @@ namespace Nz
 			void OnBodyDestruct(entt::registry& registry, entt::entity entity);
 
 			std::size_t m_stepCount;
-			std::vector<entt::entity> m_physicsEntities;
+			std::vector<entt::entity> m_bodyIndicesToEntity;
 			entt::registry& m_registry;
 			entt::observer m_characterConstructObserver;
 			entt::observer m_rigidBodyConstructObserver;
@@ -64,8 +63,6 @@ namespace Nz
 			entt::scoped_connection m_characterConstructConnection;
 			entt::scoped_connection m_bodyDestructConnection;
 			JoltPhysWorld3D m_physWorld;
-			Time m_physicsTime;
-			Time m_updateTime;
 	};
 }
 
