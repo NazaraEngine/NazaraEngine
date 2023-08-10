@@ -13,7 +13,6 @@
 #include <Jolt/Core/JobSystemThreadPool.h>
 #include <Jolt/Physics/PhysicsSettings.h>
 #include <cstdarg>
-#include <iostream>
 #include <Nazara/JoltPhysics3D/Debug.hpp>
 
 // Callback for traces, connect this to your own trace function if you have one
@@ -27,7 +26,7 @@ static void TraceImpl(const char* inFMT, ...)
 	va_end(list);
 
 	// Print to the TTY
-	std::cout << buffer << std::endl;
+	NazaraError(buffer);
 }
 
 namespace Nz

@@ -20,8 +20,6 @@ namespace Nz
 		m_bodyDestructConnection = registry.on_destroy<JoltRigidBody3DComponent>().connect<&JoltPhysics3DSystem::OnBodyDestruct>(this);
 
 		m_stepCount = 0;
-		m_physicsTime = Time::Zero();
-		m_updateTime = Time::Zero();
 	}
 
 	JoltPhysics3DSystem::~JoltPhysics3DSystem()
@@ -39,23 +37,6 @@ namespace Nz
 			rigidBodyComponent.Destroy(true);
 	}
 
-	void JoltPhysics3DSystem::Dump()
-	{
-		if (m_stepCount == 0)
-			m_stepCount = 1;
-
-/*
-		NazaraDebug("Physics time: " << (m_physicsTime / Time::Nanoseconds(m_stepCount)));
-		NazaraDebug("Replication time: " << (m_updateTime / Time::Nanoseconds(m_stepCount)));
-		NazaraDebug("Active entity count: " << m_physWorld.GetActiveBodyCount()));
-		NazaraDebug("--");
-*/
-
-		m_stepCount = 0;
-		m_physicsTime = Time::Zero();
-		m_updateTime = Time::Zero();
-	}
-
 	bool JoltPhysics3DSystem::RaycastQuery(const Vector3f& from, const Vector3f& to, const FunctionRef<std::optional<float>(const RaycastHit& hitInfo)>& callback)
 	{
 		return m_physWorld.RaycastQuery(from, to, [&](const JoltPhysWorld3D::RaycastHit& hitInfo)
@@ -66,8 +47,8 @@ namespace Nz
 			if (extendedHitInfo.hitBody)
 			{
 				std::size_t bodyIndex = extendedHitInfo.hitBody->GetBodyIndex();
-				if (bodyIndex < m_physicsEntities.size())
-					extendedHitInfo.hitEntity = entt::handle(m_registry, m_physicsEntities[bodyIndex]);
+				if (bodyIndex < m_bodyIndicesToEntity.size())
+					extendedHitInfo.hitEntity = entt::handle(m_registry, m_bodyIndicesToEntity[bodyIndex]);
 			}
 
 			return callback(extendedHitInfo);
@@ -84,8 +65,8 @@ namespace Nz
 			if (extendedHitInfo.hitBody)
 			{
 				std::size_t bodyIndex = extendedHitInfo.hitBody->GetBodyIndex();
-				if (bodyIndex < m_physicsEntities.size())
-					extendedHitInfo.hitEntity = entt::handle(m_registry, m_physicsEntities[bodyIndex]);
+				if (bodyIndex < m_bodyIndicesToEntity.size())
+					extendedHitInfo.hitEntity = entt::handle(m_registry, m_bodyIndicesToEntity[bodyIndex]);
 			}
 
 			callback(extendedHitInfo);
@@ -164,11 +145,11 @@ namespace Nz
 		JoltRigidBody3DComponent& rigidBody = registry.get<JoltRigidBody3DComponent>(entity);
 		rigidBody.Construct(m_physWorld);
 
-		std::size_t uniqueIndex = rigidBody.GetBodyIndex();
-		if (uniqueIndex >= m_physicsEntities.size())
-			m_physicsEntities.resize(uniqueIndex + 1);
+		UInt32 uniqueIndex = rigidBody.GetBodyIndex();
+		if (uniqueIndex >= m_bodyIndicesToEntity.size())
+			m_bodyIndicesToEntity.resize(uniqueIndex + 1);
 
-		m_physicsEntities[uniqueIndex] = entity;
+		m_bodyIndicesToEntity[uniqueIndex] = entity;
 	}
 
 	void JoltPhysics3DSystem::OnCharacterConstruct(entt::registry& registry, entt::entity entity)
@@ -181,9 +162,9 @@ namespace Nz
 	{
 		// Unregister owning entity
 		JoltRigidBody3DComponent& rigidBody = registry.get<JoltRigidBody3DComponent>(entity);
-		std::size_t uniqueIndex = rigidBody.GetBodyIndex();
-		assert(uniqueIndex <= m_physicsEntities.size());
+		UInt32 uniqueIndex = rigidBody.GetBodyIndex();
+		assert(uniqueIndex <= m_bodyIndicesToEntity.size());
 
-		m_physicsEntities[uniqueIndex] = entt::null;
+		m_bodyIndicesToEntity[uniqueIndex] = entt::null;
 	}
 }
