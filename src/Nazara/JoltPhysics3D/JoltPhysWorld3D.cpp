@@ -10,7 +10,6 @@
 #include <NazaraUtils/MemoryPool.hpp>
 #include <NazaraUtils/StackVector.hpp>
 #include <Jolt/Jolt.h>
-#include <tsl/ordered_set.h>
 #include <Jolt/Core/TempAllocator.h>
 #include <Jolt/Physics/PhysicsSettings.h>
 #include <Jolt/Physics/PhysicsStepListener.h>
@@ -22,6 +21,7 @@
 #include <Jolt/Physics/Collision/RayCast.h>
 #include <Jolt/Physics/Collision/BroadPhase/BroadPhaseLayer.h>
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
+#include <tsl/ordered_set.h>
 #include <cassert>
 #include <Nazara/JoltPhysics3D/Debug.hpp>
 

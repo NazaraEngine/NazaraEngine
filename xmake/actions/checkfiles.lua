@@ -519,10 +519,18 @@ on_run(function ()
 
 				local function compareFunc(a, b)
 					if a.order == b.order then
-						local moduleA = a.path:match("^Nazara/(.-)/")
-						local moduleB = b.path:match("^Nazara/(.-)/")
-						if moduleA ~= moduleB then
-							return moduleA < moduleB
+						local folderA = a.path:match("^(.-)/")
+						local folderB = b.path:match("^(.-)/")
+						if folderA and folderB then
+							if folderA ~= folderB then
+								return folderA < folderB
+							end
+
+							local moduleA = a.path:match("^Nazara/(.-)/")
+							local moduleB = b.path:match("^Nazara/(.-)/")
+							if moduleA ~= moduleB then
+								return moduleA < moduleB
+							end
 						end
 
 						local _, folderCountA = a.path:gsub("/", "")
