@@ -132,7 +132,7 @@ SCENARIO("PhysWorld2D", "[PHYSICS2D][PHYSWORLD2D]")
 
 		world.Step(Nz::Time::Zero());
 
-		Nz::ChipmunkPhysWorld2D::Callback characterTriggerCallback;
+		Nz::ChipmunkPhysWorld2D::ContactCallbacks characterTriggerCallback;
 		characterTriggerCallback.startCallback = [&](Nz::ChipmunkPhysWorld2D&, Nz::ChipmunkArbiter2D&, Nz::ChipmunkRigidBody2D&, Nz::ChipmunkRigidBody2D&, void*) -> bool {
 			statusTriggerCollision = statusTriggerCollision | 1 << 0;
 			return true;
@@ -150,7 +150,7 @@ SCENARIO("PhysWorld2D", "[PHYSICS2D][PHYSWORLD2D]")
 		world.RegisterCallbacks(CHARACTER_COLLISION_ID, TRIGGER_COLLISION_ID, characterTriggerCallback);
 
 		int statusWallCollision = 0;
-		Nz::ChipmunkPhysWorld2D::Callback characterWallCallback;
+		Nz::ChipmunkPhysWorld2D::ContactCallbacks characterWallCallback;
 		characterWallCallback.startCallback = [&](Nz::ChipmunkPhysWorld2D&, Nz::ChipmunkArbiter2D&, Nz::ChipmunkRigidBody2D&, Nz::ChipmunkRigidBody2D&, void*) -> bool {
 			statusWallCollision = statusWallCollision | 1 << 0;
 			return true;

@@ -46,7 +46,7 @@ namespace Nz
 		using DebugDrawGetColorCallback = std::function<Color(ChipmunkRigidBody2D& body, std::size_t shapeIndex, void* userdata)>;
 
 		public:
-			struct Callback;
+			struct ContactCallbacks;
 			struct DebugDrawOptions;
 			struct NearestQueryResult;
 			struct RaycastHit;
@@ -75,8 +75,8 @@ namespace Nz
 			void RegionQuery(const Rectf& boundingBox, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, const FunctionRef<void(ChipmunkRigidBody2D*)>& callback);
 			void RegionQuery(const Rectf& boundingBox, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, std::vector<ChipmunkRigidBody2D*>* bodies);
 
-			void RegisterCallbacks(unsigned int collisionId, Callback callbacks);
-			void RegisterCallbacks(unsigned int collisionIdA, unsigned int collisionIdB, Callback callbacks);
+			void RegisterCallbacks(unsigned int collisionId, ContactCallbacks callbacks);
+			void RegisterCallbacks(unsigned int collisionIdA, unsigned int collisionIdB, ContactCallbacks callbacks);
 
 			void SetDamping(float dampingValue);
 			void SetGravity(const Vector2f& gravity);
@@ -90,13 +90,13 @@ namespace Nz
 			void UseSpatialHash(float cellSize, std::size_t entityCount);
 
 			ChipmunkPhysWorld2D& operator=(const ChipmunkPhysWorld2D&) = delete;
-			ChipmunkPhysWorld2D& operator=(ChipmunkPhysWorld2D&&) = delete; ///TODO
+			ChipmunkPhysWorld2D& operator=(ChipmunkPhysWorld2D&&) = delete;
 
-			struct Callback
+			struct ContactCallbacks
 			{
 				ContactEndCallback endCallback = nullptr;
-				ContactPreSolveCallback preSolveCallback = nullptr;
 				ContactPostSolveCallback postSolveCallback = nullptr;
+				ContactPreSolveCallback preSolveCallback = nullptr;
 				ContactStartCallback startCallback = nullptr;
 				void* userdata = nullptr;
 			};
@@ -142,13 +142,13 @@ namespace Nz
 			static constexpr std::size_t FreeBodyIdGrowRate = 256;
 
 			void DeferBodyAction(ChipmunkRigidBody2D& rigidBody, PostStep&& func);
-			void InitCallbacks(cpCollisionHandler* handler, Callback callbacks);
+			void InitCallbacks(cpCollisionHandler* handler, ContactCallbacks callbacks);
 			inline UInt32 RegisterBody(ChipmunkRigidBody2D& rigidBody);
 			inline void UnregisterBody(UInt32 bodyIndex);
 			inline void UpdateBodyPointer(ChipmunkRigidBody2D& rigidBody);
 
 			std::size_t m_maxStepCount;
-			std::unordered_map<cpCollisionHandler*, std::unique_ptr<Callback>> m_callbacks;
+			std::unordered_map<cpCollisionHandler*, std::unique_ptr<ContactCallbacks>> m_callbacks;
 			std::unordered_map<UInt32, std::vector<PostStep>> m_rigidBodyPostSteps;
 			std::vector<ChipmunkRigidBody2D*> m_bodies;
 			cpSpace* m_handle;

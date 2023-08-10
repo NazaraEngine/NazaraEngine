@@ -309,12 +309,12 @@ namespace Nz
 		cpSpaceBBQuery(m_handle, cpBBNew(boundingBox.x, boundingBox.y, boundingBox.x + boundingBox.width, boundingBox.y + boundingBox.height), filter, callback, bodies);
 	}
 
-	void ChipmunkPhysWorld2D::RegisterCallbacks(unsigned int collisionId, Callback callbacks)
+	void ChipmunkPhysWorld2D::RegisterCallbacks(unsigned int collisionId, ContactCallbacks callbacks)
 	{
 		InitCallbacks(cpSpaceAddWildcardHandler(m_handle, collisionId), std::move(callbacks));
 	}
 
-	void ChipmunkPhysWorld2D::RegisterCallbacks(unsigned int collisionIdA, unsigned int collisionIdB, Callback callbacks)
+	void ChipmunkPhysWorld2D::RegisterCallbacks(unsigned int collisionIdA, unsigned int collisionIdB, ContactCallbacks callbacks)
 	{
 		InitCallbacks(cpSpaceAddCollisionHandler(m_handle, collisionIdA, collisionIdB), std::move(callbacks));
 	}
@@ -390,15 +390,15 @@ namespace Nz
 		cpSpaceUseSpatialHash(m_handle, cpFloat(cellSize), int(entityCount));
 	}
 
-	void ChipmunkPhysWorld2D::InitCallbacks(cpCollisionHandler* handler, Callback callbacks)
+	void ChipmunkPhysWorld2D::InitCallbacks(cpCollisionHandler* handler, ContactCallbacks callbacks)
 	{
 		auto it = m_callbacks.find(handler);
 		if (it == m_callbacks.end())
-			it = m_callbacks.emplace(handler, std::make_unique<Callback>(std::move(callbacks))).first;
+			it = m_callbacks.emplace(handler, std::make_unique<ContactCallbacks>(std::move(callbacks))).first;
 		else
-			it->second = std::make_unique<Callback>(std::move(callbacks));
+			it->second = std::make_unique<ContactCallbacks>(std::move(callbacks));
 
-		Callback* callbackFunctions = it->second.get();
+		ContactCallbacks* callbackFunctions = it->second.get();
 		handler->userData = callbackFunctions;
 
 		if (callbackFunctions->startCallback)
@@ -415,7 +415,7 @@ namespace Nz
 
 				ChipmunkArbiter2D arbiter(arb);
 
-				const Callback* customCallbacks = static_cast<const Callback*>(data);
+				const ContactCallbacks* customCallbacks = static_cast<const ContactCallbacks*>(data);
 				if (customCallbacks->startCallback(*world, arbiter, *firstRigidBody, *secondRigidBody, customCallbacks->userdata))
 					return cpTrue;
 				else
@@ -444,7 +444,7 @@ namespace Nz
 
 				ChipmunkArbiter2D arbiter(arb);
 
-				const Callback* customCallbacks = static_cast<const Callback*>(data);
+				const ContactCallbacks* customCallbacks = static_cast<const ContactCallbacks*>(data);
 				customCallbacks->endCallback(*world, arbiter, *firstRigidBody, *secondRigidBody, customCallbacks->userdata);
 			};
 		}
@@ -469,7 +469,7 @@ namespace Nz
 
 				ChipmunkArbiter2D arbiter(arb);
 
-				const Callback* customCallbacks = static_cast<const Callback*>(data);
+				const ContactCallbacks* customCallbacks = static_cast<const ContactCallbacks*>(data);
 				if (customCallbacks->preSolveCallback(*world, arbiter, *firstRigidBody, *secondRigidBody, customCallbacks->userdata))
 					return cpTrue;
 				else
@@ -498,7 +498,7 @@ namespace Nz
 
 				ChipmunkArbiter2D arbiter(arb);
 
-				const Callback* customCallbacks = static_cast<const Callback*>(data);
+				const ContactCallbacks* customCallbacks = static_cast<const ContactCallbacks*>(data);
 				customCallbacks->postSolveCallback(*world, arbiter, *firstRigidBody, *secondRigidBody, customCallbacks->userdata);
 			};
 		}

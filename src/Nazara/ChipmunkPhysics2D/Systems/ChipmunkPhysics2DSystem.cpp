@@ -25,6 +25,7 @@ namespace Nz
 	m_physicsConstructObserver(m_registry, entt::collector.group<ChipmunkRigidBody2DComponent, NodeComponent>())
 	{
 		m_bodyConstructConnection = registry.on_construct<ChipmunkRigidBody2DComponent>().connect<&ChipmunkPhysics2DSystem::OnBodyConstruct>(this);
+		m_bodyDestructConnection = registry.on_destroy<ChipmunkRigidBody2DComponent>().connect<&ChipmunkPhysics2DSystem::OnBodyDestruct>(this);
 	}
 
 	ChipmunkPhysics2DSystem::~ChipmunkPhysics2DSystem()
@@ -61,9 +62,65 @@ namespace Nz
 		}
 	}
 
+	ChipmunkPhysWorld2D::ContactCallbacks ChipmunkPhysics2DSystem::SetupContactCallbacks(ContactCallbacks callbacks)
+	{
+		ChipmunkPhysWorld2D::ContactCallbacks trampolineCallbacks;
+		trampolineCallbacks.userdata = callbacks.userdata;
+
+		if (callbacks.endCallback)
+		{
+			trampolineCallbacks.endCallback = [this, cb = std::move(callbacks.endCallback)](ChipmunkPhysWorld2D& world, ChipmunkArbiter2D& arbiter, ChipmunkRigidBody2D& bodyA, ChipmunkRigidBody2D& bodyB, void* userdata)
+			{
+				return cb(world, arbiter, GetRigidBodyEntity(bodyA.GetBodyIndex()), GetRigidBodyEntity(bodyB.GetBodyIndex()), userdata);
+			};
+		}
+
+		if (callbacks.preSolveCallback)
+		{
+			trampolineCallbacks.preSolveCallback = [this, cb = std::move(callbacks.preSolveCallback)](ChipmunkPhysWorld2D& world, ChipmunkArbiter2D& arbiter, ChipmunkRigidBody2D& bodyA, ChipmunkRigidBody2D& bodyB, void* userdata)
+			{
+				return cb(world, arbiter, GetRigidBodyEntity(bodyA.GetBodyIndex()), GetRigidBodyEntity(bodyB.GetBodyIndex()), userdata);
+			};
+		}
+
+		if (callbacks.postSolveCallback)
+		{
+			trampolineCallbacks.postSolveCallback = [this, cb = std::move(callbacks.postSolveCallback)](ChipmunkPhysWorld2D& world, ChipmunkArbiter2D& arbiter, ChipmunkRigidBody2D& bodyA, ChipmunkRigidBody2D& bodyB, void* userdata)
+			{
+				return cb(world, arbiter, GetRigidBodyEntity(bodyA.GetBodyIndex()), GetRigidBodyEntity(bodyB.GetBodyIndex()), userdata);
+			};
+		}
+
+		if (callbacks.startCallback)
+		{
+			trampolineCallbacks.startCallback = [this, cb = std::move(callbacks.startCallback)](ChipmunkPhysWorld2D& world, ChipmunkArbiter2D& arbiter, ChipmunkRigidBody2D& bodyA, ChipmunkRigidBody2D& bodyB, void* userdata)
+			{
+				return cb(world, arbiter, GetRigidBodyEntity(bodyA.GetBodyIndex()), GetRigidBodyEntity(bodyB.GetBodyIndex()), userdata);
+			};
+		}
+
+		return trampolineCallbacks;
+	}
+
 	void ChipmunkPhysics2DSystem::OnBodyConstruct(entt::registry& registry, entt::entity entity)
 	{
 		ChipmunkRigidBody2DComponent& rigidBody = registry.get<ChipmunkRigidBody2DComponent>(entity);
 		rigidBody.Construct(m_physWorld);
+
+		UInt32 uniqueIndex = rigidBody.GetBodyIndex();
+		if (uniqueIndex >= m_bodyIndicesToEntity.size())
+			m_bodyIndicesToEntity.resize(uniqueIndex + 1);
+
+		m_bodyIndicesToEntity[uniqueIndex] = entity;
+	}
+
+	void ChipmunkPhysics2DSystem::OnBodyDestruct(entt::registry& registry, entt::entity entity)
+	{
+		// Unregister owning entity
+		ChipmunkRigidBody2DComponent& rigidBody = registry.get<ChipmunkRigidBody2DComponent>(entity);
+		UInt32 uniqueIndex = rigidBody.GetBodyIndex();
+		assert(uniqueIndex <= m_bodyIndicesToEntity.size());
+
+		m_bodyIndicesToEntity[uniqueIndex] = entt::null;
 	}
 }
