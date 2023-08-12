@@ -38,6 +38,7 @@ rule("nzsl.compile.shaders")
 
 		-- add deps
 		batchcmds:add_depfiles(shaderfile)
+		batchcmds:add_depvalues(nzsl:version())
 		batchcmds:set_depmtime(os.mtime(outputFile))
 		batchcmds:set_depcache(target:dependfile(outputFile))
 	end)
