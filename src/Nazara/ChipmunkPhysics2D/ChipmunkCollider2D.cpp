@@ -3,9 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/ChipmunkPhysics2D/ChipmunkCollider2D.hpp>
-#include <Nazara/ChipmunkPhysics2D/ChipmunkPhysWorld2D.hpp>
-#include <Nazara/ChipmunkPhysics2D/ChipmunkRigidBody2D.hpp>
-#include <Nazara/Math/Quaternion.hpp>
+#include <Nazara/ChipmunkPhysics2D/ChipmunkHelper.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
 #include <NazaraUtils/StackArray.hpp>
 #include <chipmunk/chipmunk.h>
@@ -18,11 +16,6 @@ namespace Nz
 	namespace
 	{
 		constexpr cpSpaceDebugColor s_chipmunkWhite = { 1.f, 1.f, 1.f, 1.f };
-
-		Vector2f FromChipmunk(const cpVect& v)
-		{
-			return Vector2f(float(v.x), float(v.y));
-		}
 	}
 
 	ChipmunkCollider2D::~ChipmunkCollider2D() = default;
