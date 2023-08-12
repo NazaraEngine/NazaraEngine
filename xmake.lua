@@ -454,7 +454,13 @@ function ModuleTargetConfig(name, module)
 
 	add_files("src/Nazara/" .. name .. "/**.cpp")
 	if has_config("embed_resources") then
+		local embedResourceRule = false
 		for _, filepath in pairs(os.files("src/Nazara/" .. name .. "/Resources/**|**.h|**.nzsl|**.nzslb")) do
+			if not embedResourceRule then
+				add_rules("embed.resources")
+				embedResourceRule = true
+			end
+
 			add_files(filepath, {rule = "embed.resources"})
 		end
 	end
