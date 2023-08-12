@@ -39,7 +39,7 @@ int main(int argc, char* argv[])
 
 	Nz::Vector2f windowSize = Nz::Vector2f(window.GetSize());
 
-	physSytem.GetPhysWorld().SetGravity({ 0.f, -98.1f });
+	physSytem.GetPhysWorld().SetGravity({ 0.f, -313.f });
 
 	entt::handle viewer = world.CreateEntity();
 	{
@@ -72,14 +72,13 @@ int main(int argc, char* argv[])
 		for (std::size_t x = 0; x < 30; ++x)
 		{
 			entt::handle spriteEntity = world.CreateEntity();
-			{
-				spriteEntity.emplace<Nz::NodeComponent>(Nz::Vector2f(windowSize.x * 0.5f + x * 48.f - 15.f * 48.f, windowSize.y / 2 + y * 48.f));
-				spriteEntity.emplace<Nz::GraphicsComponent>(boxSprite, 1);
 
-				auto& rigidBody = spriteEntity.emplace<Nz::ChipmunkRigidBody2DComponent>(boxSettings);
-				rigidBody.SetFriction(0.9f);
-				//rigidBody.SetElasticity(0.99f);
-			}
+			spriteEntity.emplace<Nz::NodeComponent>(Nz::Vector2f(windowSize.x * 0.5f + x * 32.f - 15.f * 32.f, windowSize.y / 2 + y * 48.f));
+			spriteEntity.emplace<Nz::GraphicsComponent>(boxSprite, 1);
+
+			auto& rigidBody = spriteEntity.emplace<Nz::ChipmunkRigidBody2DComponent>(boxSettings);
+			rigidBody.SetFriction(0.9f);
+			//rigidBody.SetElasticity(0.99f);
 		}
 	}
 
@@ -122,6 +121,48 @@ int main(int argc, char* argv[])
 
 	Nz::PidController<Nz::Vector3f> headingController(0.5f, 0.f, 0.05f);
 	Nz::PidController<Nz::Vector3f> upController(1.f, 0.f, 0.1f);
+	
+	std::optional<Nz::ChipmunkPivotConstraint2D> grabConstraint;
+	NazaraSlot(Nz::WindowEventHandler, OnMouseMoved, grabbedObjectMove);
+
+	Nz::WindowEventHandler& eventHandler = window.GetEventHandler();
+	eventHandler.OnMouseButtonPressed.Connect([&](const Nz::WindowEventHandler*, const Nz::WindowEvent::MouseButtonEvent& event)
+	{
+		if (event.button == Nz::Mouse::Left)
+		{
+			auto& viewerComponent = viewer.get<Nz::CameraComponent>();
+
+			Nz::Vector2f worldPos = Nz::Vector2f(viewerComponent.Unproject(Nz::Vector3f(event.x, event.y, 0.f)));
+
+			entt::handle nearestEntity;
+			if (physSytem.NearestBodyQuery(worldPos, 1.f, 0, 0xFFFFFFFF, 0xFFFFFFFF, &nearestEntity))
+			{
+				if (nearestEntity && nearestEntity != groundEntity)
+				{
+					grabConstraint.emplace(nearestEntity.get<Nz::ChipmunkRigidBody2DComponent>(), worldPos);
+
+					grabbedObjectMove.Connect(eventHandler.OnMouseMoved, [&, nearestEntity, viewer](const Nz::WindowEventHandler*, const Nz::WindowEvent::MouseMoveEvent& event)
+					{
+						auto& viewerComponent = viewer.get<Nz::CameraComponent>();
+						Nz::Vector2f worldPos = Nz::Vector2f(viewerComponent.Unproject(Nz::Vector3f(event.x, event.y, 0.f)));
+
+						auto& rigidBody = nearestEntity.get<Nz::ChipmunkRigidBody2DComponent>();
+
+						grabConstraint->SetFirstAnchor(worldPos);
+					});
+				}
+			}
+		}
+	});
+
+	eventHandler.OnMouseButtonReleased.Connect([&](const Nz::WindowEventHandler*, const Nz::WindowEvent::MouseButtonEvent& event)
+	{
+		if (event.button == Nz::Mouse::Left)
+		{
+			grabConstraint.reset();
+			grabbedObjectMove.Disconnect();
+		}
+	});
 
 	app.AddUpdaterFunc([&]
 	{
