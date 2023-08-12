@@ -15,7 +15,6 @@
 #include <Nazara/Core/ObjectHandle.hpp>
 #include <Nazara/Math/Angle.hpp>
 #include <NazaraUtils/MovablePtr.hpp>
-#include <vector>
 
 struct cpConstraint;
 
@@ -29,7 +28,7 @@ namespace Nz
 	{
 		public:
 			ChipmunkConstraint2D(const ChipmunkConstraint2D&) = delete;
-			ChipmunkConstraint2D(ChipmunkConstraint2D&& rhs);
+			ChipmunkConstraint2D(ChipmunkConstraint2D&& constraint) noexcept;
 			virtual ~ChipmunkConstraint2D();
 
 			void EnableBodyCollision(bool enable);
@@ -46,18 +45,22 @@ namespace Nz
 			const ChipmunkPhysWorld2D& GetWorld() const;
 
 			bool IsBodyCollisionEnabled() const;
+			bool IsSingleBody() const;
 
 			void SetErrorBias(float bias);
 			void SetMaxBias(float bias);
 			void SetMaxForce(float force);
 
 			ChipmunkConstraint2D& operator=(const ChipmunkConstraint2D&) = delete;
-			ChipmunkConstraint2D& operator=(ChipmunkConstraint2D&& rhs);
+			ChipmunkConstraint2D& operator=(ChipmunkConstraint2D&& constraint) noexcept;
 
 		protected:
 			ChipmunkConstraint2D(ChipmunkPhysWorld2D* world, cpConstraint* constraint);
 
 			MovablePtr<cpConstraint> m_constraint;
+
+		private:
+			void Destroy();
 	};
 
 	class ChipmunkDampedSpringConstraint2D;
@@ -140,6 +143,7 @@ namespace Nz
 	class NAZARA_CHIPMUNKPHYSICS2D_API ChipmunkPinConstraint2D : public ChipmunkConstraint2D
 	{
 		public:
+			ChipmunkPinConstraint2D(ChipmunkRigidBody2D& body, const Vector2f& anchor);
 			ChipmunkPinConstraint2D(ChipmunkRigidBody2D& first, ChipmunkRigidBody2D& second, const Vector2f& firstAnchor, const Vector2f& secondAnchor);
 			~ChipmunkPinConstraint2D() = default;
 
@@ -159,6 +163,7 @@ namespace Nz
 	class NAZARA_CHIPMUNKPHYSICS2D_API ChipmunkPivotConstraint2D : public ChipmunkConstraint2D
 	{
 		public:
+			ChipmunkPivotConstraint2D(ChipmunkRigidBody2D& body, const Vector2f& anchor);
 			ChipmunkPivotConstraint2D(ChipmunkRigidBody2D& first, ChipmunkRigidBody2D& second, const Vector2f& anchor);
 			ChipmunkPivotConstraint2D(ChipmunkRigidBody2D& first, ChipmunkRigidBody2D& second, const Vector2f& firstAnchor, const Vector2f& secondAnchor);
 			~ChipmunkPivotConstraint2D() = default;
