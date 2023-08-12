@@ -8,7 +8,6 @@
 #define NAZARA_UTILITY_ABSTRACTATLAS_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Core/Error.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>

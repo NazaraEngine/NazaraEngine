@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/JoltPhysics3D/Systems/JoltPhysics3DSystem.hpp>
-#include <Nazara/Core/Log.hpp>
 #include <Nazara/Core/Components/DisabledComponent.hpp>
 #include <Nazara/Utility/Components/NodeComponent.hpp>
 #include <Nazara/JoltPhysics3D/Debug.hpp>
