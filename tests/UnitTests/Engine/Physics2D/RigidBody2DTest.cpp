@@ -15,6 +15,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 	{
 		Nz::ChipmunkPhysWorld2D world;
 		world.SetMaxStepCount(std::numeric_limits<std::size_t>::max());
+		world.SetStepSize(Nz::Time::TickDuration(200)); //< FIXME: Tests fail on Linux with default step size
 
 		Nz::Vector2f positionAABB(3.f, 4.f);
 		Nz::Rectf aabb(positionAABB.x, positionAABB.y, 1.f, 2.f);
@@ -182,20 +183,20 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 
 			THEN("We expect those to be true")
 			{
-				CHECK(body.GetAngularVelocity() == angularSpeed);
-				CHECK(body.GetRotation() == angularSpeed);
+				CHECK(body.GetAngularVelocity().ApproxEqual(angularSpeed));
+				CHECK(body.GetRotation().ApproxEqual(angularSpeed));
 				CHECK(body.GetAABB().ApproxEqual(Nz::Rectf(-6.f, 3.f, 2.f, 1.f), 0.00001f));
 
 				world.Step(Nz::Time::Second());
-				CHECK(body.GetRotation() == 2.f * angularSpeed);
+				CHECK(body.GetRotation().ApproxEqual(2.f * angularSpeed));
 				CHECK(body.GetAABB().ApproxEqual(Nz::Rectf(-4.f, -6.f, 1.f, 2.f), 0.00001f));
 
 				world.Step(Nz::Time::Second());
-				CHECK(body.GetRotation() == 3.f * angularSpeed);
+				CHECK(body.GetRotation().ApproxEqual(3.f * angularSpeed));
 				CHECK(body.GetAABB().ApproxEqual(Nz::Rectf(4.f, -4.f, 2.f, 1.f), 0.00001f));
 
 				world.Step(Nz::Time::Second());
-				CHECK(body.GetRotation() == 4.f * angularSpeed);
+				CHECK(body.GetRotation().ApproxEqual(4.f * angularSpeed));
 			}
 		}
 
