@@ -70,6 +70,8 @@ namespace Nz
 			constexpr Vector3 operator*(T scale) const;
 			constexpr Vector3 operator/(const Vector3& vec) const;
 			constexpr Vector3 operator/(T scale) const;
+			constexpr Vector3 operator%(const Vector3& vec) const;
+			constexpr Vector3 operator%(T mod) const;
 
 			constexpr Vector3& operator=(const Vector3&) = default;
 			constexpr Vector3& operator=(Vector3&&) = default;
@@ -80,6 +82,8 @@ namespace Nz
 			constexpr Vector3& operator*=(T scale);
 			constexpr Vector3& operator/=(const Vector3& vec);
 			constexpr Vector3& operator/=(T scale);
+			constexpr Vector3& operator%=(const Vector3& vec);
+			constexpr Vector3& operator%=(T mod);
 
 			constexpr bool operator==(const Vector3& vec) const;
 			constexpr bool operator!=(const Vector3& vec) const;
@@ -129,6 +133,7 @@ namespace Nz
 
 	template<typename T> constexpr Vector3<T> operator*(T scale, const Vector3<T>& vec);
 	template<typename T> constexpr Vector3<T> operator/(T scale, const Vector3<T>& vec);
+	template<typename T> constexpr Vector3<T> operator%(T scale, const Vector3<T>& vec);
 }
 
 namespace std

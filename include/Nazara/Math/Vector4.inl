@@ -400,6 +400,18 @@ namespace Nz
 		return Vector4(x / scale, y / scale, z / scale, w / scale);
 	}
 
+	template<typename T>
+	constexpr Vector4<T> Vector4<T>::operator%(const Vector4& vec) const
+	{
+		return Vector4(Mod(x, vec.x), Mod(y, vec.y), Mod(z, vec.z), Mod(w, vec.w));
+	}
+
+	template<typename T>
+	constexpr Vector4<T> Vector4<T>::operator%(T mod) const
+	{
+		return Vector4(Mod(x, mod), Mod(y, mod), Mod(z, mod), Mod(z, mod));
+	}
+
 	/*!
 	* \brief Adds the components of other vector to this vector
 	* \return A reference to this vector where components are the sum of this vector and the other one
@@ -498,6 +510,28 @@ namespace Nz
 		y /= scale;
 		z /= scale;
 		w /= scale;
+
+		return *this;
+	}
+	
+	template<typename T>
+	constexpr Vector4<T>& Vector4<T>::operator%=(const Vector4& vec)
+	{
+		x = Mod(x, vec.x);
+		y = Mod(y, vec.y);
+		z = Mod(z, vec.z);
+		w = Mod(w, vec.w);
+
+		return *this;
+	}
+
+	template<typename T>
+	constexpr Vector4<T>& Vector4<T>::operator%=(T mod)
+	{
+		x = Mod(x, mod);
+		y = Mod(y, mod);
+		z = Mod(z, mod);
+		w = Mod(w, mod);
 
 		return *this;
 	}
@@ -781,7 +815,7 @@ namespace Nz
 	template<typename T>
 	constexpr Vector4<T> operator*(T scale, const Vector4<T>& vec)
 	{
-		return Nz::Vector4<T>(scale * vec.x, scale * vec.y, scale * vec.z, scale * vec.w);
+		return Vector4<T>(scale * vec.x, scale * vec.y, scale * vec.z, scale * vec.w);
 	}
 
 	/*!
@@ -793,7 +827,13 @@ namespace Nz
 	template<typename T>
 	constexpr Vector4<T> operator/(T scale, const Vector4<T>& vec)
 	{
-		return Nz::Vector4<T>(scale / vec.x, scale / vec.y, scale / vec.z, scale / vec.w);
+		return Vector4<T>(scale / vec.x, scale / vec.y, scale / vec.z, scale / vec.w);
+	}
+
+	template<typename T>
+	constexpr Vector4<T> operator%(T mod, const Vector4<T>& vec)
+	{
+		return Vector4<T>(Mod(mod, vec.x), Mod(mod, vec.y), Mod(mod, vec.z), Mod(mod, vec.w));
 	}
 }
 

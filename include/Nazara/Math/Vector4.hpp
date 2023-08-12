@@ -66,6 +66,8 @@ namespace Nz
 			constexpr Vector4 operator*(T scale) const;
 			constexpr Vector4 operator/(const Vector4& vec) const;
 			constexpr Vector4 operator/(T scale) const;
+			constexpr Vector4 operator%(const Vector4& vec) const;
+			constexpr Vector4 operator%(T mod) const;
 
 			constexpr Vector4& operator+=(const Vector4& vec);
 			constexpr Vector4& operator-=(const Vector4& vec);
@@ -73,6 +75,8 @@ namespace Nz
 			constexpr Vector4& operator*=(T scale);
 			constexpr Vector4& operator/=(const Vector4& vec);
 			constexpr Vector4& operator/=(T scale);
+			constexpr Vector4& operator%=(const Vector4& vec);
+			constexpr Vector4& operator%=(T mod);
 
 			constexpr bool operator==(const Vector4& vec) const;
 			constexpr bool operator!=(const Vector4& vec) const;
@@ -109,6 +113,7 @@ namespace Nz
 
 	template<typename T> constexpr Vector4<T> operator*(T scale, const Vector4<T>& vec);
 	template<typename T> constexpr Vector4<T> operator/(T scale, const Vector4<T>& vec);
+	template<typename T> constexpr Vector4<T> operator%(T mod, const Vector4<T>& vec);
 }
 
 namespace std

@@ -464,6 +464,18 @@ namespace Nz
 		return Vector3(x / scale, y / scale, z / scale);
 	}
 
+	template<typename T>
+	constexpr Vector3<T> Vector3<T>::operator%(const Vector3& vec) const
+	{
+		return Vector3(Mod(x, vec.x), Mod(y, vec.y), Mod(z, vec.z));
+	}
+
+	template<typename T>
+	constexpr Vector3<T> Vector3<T>::operator%(T mod) const
+	{
+		return Vector3(Mod(x, mod), Mod(y, mod), Mod(z, mod));
+	}
+
 	/*!
 	* \brief Adds the components of other vector to this vector
 	* \return A reference to this vector where components are the sum of this vector and the other one
@@ -556,6 +568,26 @@ namespace Nz
 		x /= scale;
 		y /= scale;
 		z /= scale;
+
+		return *this;
+	}
+
+	template<typename T>
+	constexpr Vector3<T>& Vector3<T>::operator%=(const Vector3& vec)
+	{
+		x = Mod(x, vec.x);
+		y = Mod(y, vec.y);
+		z = Mod(z, vec.z);
+
+		return *this;
+	}
+
+	template<typename T>
+	constexpr Vector3<T>& Vector3<T>::operator%=(T mod)
+	{
+		x = Mod(x, mod);
+		y = Mod(y, mod);
+		z = Mod(z, mod);
 
 		return *this;
 	}
@@ -976,6 +1008,12 @@ namespace Nz
 	{
 		return Vector3<T>(scale / vec.x, scale / vec.y, scale / vec.z);
 	}
+
+	template<typename T>
+	constexpr Vector3<T> operator%(T mod, const Vector3<T>& vec)
+	{
+		return Vector3<T>(Mod(mod, vec.x), Mod(mod, vec.y), Mod(mod, vec.z));
+	}
 }
 
 namespace std
@@ -989,7 +1027,6 @@ namespace std
 		*
 		* \param v Vector3 to hash
 		*/
-
 		std::size_t operator()(const Nz::Vector3<T>& v) const
 		{
 			return Nz::HashCombine(v.x, v.y, v.z);

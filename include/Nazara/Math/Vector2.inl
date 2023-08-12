@@ -396,6 +396,18 @@ namespace Nz
 		return Vector2(x / scale, y / scale);
 	}
 
+	template<typename T>
+	constexpr Vector2<T> Vector2<T>::operator%(const Vector2& vec) const
+	{
+		return Vector2(Mod(x, vec.x), Mod(y, vec.y));
+	}
+
+	template<typename T>
+	constexpr Vector2<T> Vector2<T>::operator%(T mod) const
+	{
+		return Vector2(Mod(x, mod), Mod(y, mod));
+	}
+
 	/*!
 	* \brief Adds the components of other vector to this vector
 	* \return A reference to this vector where components are the sum of this vector and the other one
@@ -482,6 +494,24 @@ namespace Nz
 	{
 		x /= scale;
 		y /= scale;
+
+		return *this;
+	}
+
+	template<typename T>
+	constexpr Vector2<T>& Vector2<T>::operator%=(const Vector2& vec)
+	{
+		x = Mod(x, vec.x);
+		y = Mod(y, vec.y);
+
+		return *this;
+	}
+
+	template<typename T>
+	constexpr Vector2<T>& Vector2<T>::operator%=(T value)
+	{
+		x = Mod(x, value);
+		y = Mod(y, value);
 
 		return *this;
 	}
@@ -724,6 +754,12 @@ namespace Nz
 		return Vector2<T>(scale / vec.x, scale / vec.y);
 	}
 
+	template<typename T>
+	constexpr Vector2<T> operator%(T mod, const Vector2<T>& vec)
+	{
+		return Vector2<T>(Mod(mod, vec.x), Mod(mod, vec.y));
+	}
+
 	/*!
 	* \brief Serializes a Vector2
 	* \return true if successfully serialized
@@ -782,3 +818,4 @@ namespace std
 }
 
 #include <Nazara/Core/DebugOff.hpp>
+#include "Vector2.hpp"

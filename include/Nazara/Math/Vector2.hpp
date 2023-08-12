@@ -66,6 +66,8 @@ namespace Nz
 			constexpr Vector2 operator*(T scale) const;
 			constexpr Vector2 operator/(const Vector2& vec) const;
 			constexpr Vector2 operator/(T scale) const;
+			constexpr Vector2 operator%(const Vector2& vec) const;
+			constexpr Vector2 operator%(T mod) const;
 
 			constexpr Vector2& operator=(const Vector2&) = default;
 			constexpr Vector2& operator=(Vector2&&) = default;
@@ -76,6 +78,8 @@ namespace Nz
 			constexpr Vector2& operator*=(T scale);
 			constexpr Vector2& operator/=(const Vector2& vec);
 			constexpr Vector2& operator/=(T scale);
+			constexpr Vector2& operator%=(const Vector2& vec);
+			constexpr Vector2& operator%=(T mod);
 
 			constexpr bool operator==(const Vector2& vec) const;
 			constexpr bool operator!=(const Vector2& vec) const;
@@ -111,8 +115,9 @@ namespace Nz
 
 	template<typename T> std::ostream& operator<<(std::ostream& out, const Vector2<T>& vec);
 
-	template<typename T> constexpr Vector2<T> operator*(T scale, const Nz::Vector2<T>& vec);
-	template<typename T> constexpr Vector2<T> operator/(T scale, const Nz::Vector2<T>& vec);
+	template<typename T> constexpr Vector2<T> operator*(T scale, const Vector2<T>& vec);
+	template<typename T> constexpr Vector2<T> operator/(T scale, const Vector2<T>& vec);
+	template<typename T> constexpr Vector2<T> operator%(T mod, const Vector2<T>& vec);
 }
 
 namespace std
