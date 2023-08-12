@@ -346,6 +346,7 @@ end
 add_rules("mode.asan", "mode.tsan", "mode.coverage", "mode.debug", "mode.releasedbg", "mode.release")
 add_rules("plugin.vsxmake.autoupdate")
 add_rules("build.rendererplugins")
+add_rules("natvis")
 
 if has_config("examples") then
 	add_rules("download.assets.examples")
