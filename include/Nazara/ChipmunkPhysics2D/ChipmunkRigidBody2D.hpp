@@ -98,6 +98,11 @@ namespace Nz
 
 			void TeleportTo(const Vector2f& position, const RadianAnglef& rotation);
 
+			RadianAnglef ToLocal(const RadianAnglef& worldRotation);
+			Vector2f ToLocal(const Vector2f& worldPosition);
+			RadianAnglef ToWorld(const RadianAnglef& localRotation);
+			Vector2f ToWorld(const Vector2f& localPosition);
+
 			void UpdateVelocity(const Vector2f& gravity, float damping, float deltaTime);
 
 			void Wakeup();

@@ -4,6 +4,7 @@
 
 #include <Nazara/ChipmunkPhysics2D/ChipmunkRigidBody2D.hpp>
 #include <Nazara/ChipmunkPhysics2D/ChipmunkArbiter2D.hpp>
+#include <Nazara/ChipmunkPhysics2D/ChipmunkHelper.hpp>
 #include <Nazara/ChipmunkPhysics2D/ChipmunkPhysWorld2D.hpp>
 #include <chipmunk/chipmunk.h>
 #include <chipmunk/chipmunk_private.h>
@@ -73,11 +74,11 @@ namespace Nz
 		switch (coordSys)
 		{
 			case CoordSys::Global:
-				cpBodyApplyForceAtWorldPoint(m_handle, cpv(force.x, force.y), cpv(point.x, point.y));
+				cpBodyApplyForceAtWorldPoint(m_handle, ToChipmunk(force), ToChipmunk(point));
 				break;
 
 			case CoordSys::Local:
-				cpBodyApplyForceAtLocalPoint(m_handle, cpv(force.x, force.y), cpv(point.x, point.y));
+				cpBodyApplyForceAtLocalPoint(m_handle, ToChipmunk(force), ToChipmunk(point));
 				break;
 		}
 	}
@@ -87,11 +88,11 @@ namespace Nz
 		switch (coordSys)
 		{
 			case CoordSys::Global:
-				cpBodyApplyImpulseAtWorldPoint(m_handle, cpv(impulse.x, impulse.y), cpv(point.x, point.y));
+				cpBodyApplyImpulseAtWorldPoint(m_handle, ToChipmunk(impulse), ToChipmunk(point));
 				break;
 
 			case CoordSys::Local:
-				cpBodyApplyImpulseAtLocalPoint(m_handle, cpv(impulse.x, impulse.y), cpv(point.x, point.y));
+				cpBodyApplyImpulseAtLocalPoint(m_handle, ToChipmunk(impulse), ToChipmunk(point));
 				break;
 		}
 	}
@@ -365,7 +366,7 @@ namespace Nz
 
 	void ChipmunkRigidBody2D::SetMassCenter(const Vector2f& center, CoordSys coordSys)
 	{
-		cpVect massCenter = cpv(center.x, center.y);
+		cpVect massCenter = ToChipmunk(center);
 
 		switch (coordSys)
 		{
@@ -392,7 +393,7 @@ namespace Nz
 	void ChipmunkRigidBody2D::SetPosition(const Vector2f& position)
 	{
 		// Use cpTransformVect to rotate/scale the position offset
-		cpBodySetPosition(m_handle, cpvadd(cpv(position.x, position.y), cpTransformVect(m_handle->transform, cpv(m_positionOffset.x, m_positionOffset.y))));
+		cpBodySetPosition(m_handle, cpvadd(ToChipmunk(position), cpTransformVect(m_handle->transform, ToChipmunk(m_positionOffset))));
 		if (m_isStatic)
 		{
 			m_world->DeferBodyAction(*this, [](ChipmunkRigidBody2D* body)
@@ -453,7 +454,7 @@ namespace Nz
 
 	void ChipmunkRigidBody2D::SetVelocity(const Vector2f& velocity)
 	{
-		cpBodySetVelocity(m_handle, cpv(velocity.x, velocity.y));
+		cpBodySetVelocity(m_handle, ToChipmunk(velocity));
 	}
 
 	void ChipmunkRigidBody2D::SetVelocityFunction(VelocityFunc velocityFunc)
@@ -478,7 +479,7 @@ namespace Nz
 	void ChipmunkRigidBody2D::TeleportTo(const Vector2f& position, const RadianAnglef& rotation)
 	{
 		// Use cpTransformVect to rotate/scale the position offset
-		cpBodySetPosition(m_handle, cpvadd(cpv(position.x, position.y), cpTransformVect(m_handle->transform, cpv(m_positionOffset.x, m_positionOffset.y))));
+		cpBodySetPosition(m_handle, cpvadd(ToChipmunk(position), cpTransformVect(m_handle->transform, ToChipmunk(m_positionOffset))));
 		cpBodySetAngle(m_handle, rotation.value);
 		if (m_isStatic)
 		{
@@ -489,9 +490,29 @@ namespace Nz
 		}
 	}
 
-	void ChipmunkRigidBody2D::UpdateVelocity(const Vector2f & gravity, float damping, float deltaTime)
+	RadianAnglef ChipmunkRigidBody2D::ToLocal(const RadianAnglef& worldRotation)
 	{
-		cpBodyUpdateVelocity(m_handle, cpv(gravity.x, gravity.y), damping, deltaTime);
+		return worldRotation - GetRotation();
+	}
+
+	Vector2f ChipmunkRigidBody2D::ToLocal(const Vector2f& worldPosition)
+	{
+		return FromChipmunk(cpBodyWorldToLocal(m_handle, ToChipmunk(worldPosition)));
+	}
+
+	RadianAnglef ChipmunkRigidBody2D::ToWorld(const RadianAnglef& localRotation)
+	{
+		return GetRotation() + localRotation;
+	}
+
+	Vector2f ChipmunkRigidBody2D::ToWorld(const Vector2f& localPosition)
+	{
+		return FromChipmunk(cpBodyLocalToWorld(m_handle, ToChipmunk(localPosition)));
+	}
+
+	void ChipmunkRigidBody2D::UpdateVelocity(const Vector2f& gravity, float damping, float deltaTime)
+	{
+		cpBodyUpdateVelocity(m_handle, ToChipmunk(gravity), damping, deltaTime);
 	}
 
 	void ChipmunkRigidBody2D::Wakeup()
