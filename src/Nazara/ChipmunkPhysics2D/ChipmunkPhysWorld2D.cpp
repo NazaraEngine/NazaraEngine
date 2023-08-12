@@ -83,7 +83,7 @@ namespace Nz
 
 	ChipmunkPhysWorld2D::ChipmunkPhysWorld2D() :
 	m_maxStepCount(50),
-	m_stepSize(Time::TickDuration(200)),
+	m_stepSize(Time::TickDuration(120)),
 	m_timestepAccumulator(Time::Zero())
 	{
 		m_handle = cpSpaceNew();
