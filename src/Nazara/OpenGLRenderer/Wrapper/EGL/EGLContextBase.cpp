@@ -87,9 +87,33 @@ namespace Nz::GL
 		}
 	}
 
-	void EGLContextBase::EnableVerticalSync(bool enabled)
+	PresentModeFlags EGLContextBase::GetSupportedPresentModes() const
 	{
-		// TODO
+		PresentModeFlags supportedModes;
+		if (m_maxSwapInterval >= 1)
+			supportedModes |= PresentMode::VerticalSync;
+
+		if (m_minSwapInterval <= 0)
+			supportedModes |= PresentMode::Immediate;
+
+		if (m_minSwapInterval <= -1)
+			supportedModes |= PresentMode::RelaxedVerticalSync;
+
+		return supportedModes;
+	}
+
+	void EGLContextBase::SetPresentMode(PresentMode presentMode)
+	{
+		int interval = 0;
+		switch (presentMode)
+		{
+			case PresentMode::Immediate:           interval = 0;  break;
+			case PresentMode::RelaxedVerticalSync: interval = -1; break;
+			case PresentMode::VerticalSync:        interval = 1;  break;
+			default: return; // TODO: Unreachable
+		}
+
+		m_loader.eglSwapInterval(m_display, interval);
 	}
 
 	void EGLContextBase::SwapBuffers()
@@ -246,6 +270,9 @@ namespace Nz::GL
 			NazaraError(std::string("failed to create EGL context: ") + EGLLoader::TranslateError(m_loader.eglGetError()));
 			return false;
 		}
+
+		m_loader.eglGetConfigAttrib(m_display, config, EGL_MAX_SWAP_INTERVAL, &m_maxSwapInterval);
+		m_loader.eglGetConfigAttrib(m_display, config, EGL_MIN_SWAP_INTERVAL, &m_minSwapInterval);
 
 		LoadEGLExt();
 

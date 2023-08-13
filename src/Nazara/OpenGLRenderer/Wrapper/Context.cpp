@@ -670,8 +670,6 @@ namespace Nz::GL
 		m_state.renderStates.scissorTest = false;
 		m_state.renderStates.stencilTest = false;
 
-		EnableVerticalSync(false);
-
 		return true;
 	}
 

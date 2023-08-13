@@ -109,6 +109,24 @@ namespace Nz
 
 	using PipelineStageFlags = Flags<PipelineStage>;
 
+	enum class PresentMode
+	{
+		Immediate,
+		Mailbox,
+		RelaxedVerticalSync,
+		VerticalSync,
+
+		Max = VerticalSync
+	};
+
+	template<>
+	struct EnumAsFlags<PresentMode>
+	{
+		static constexpr PresentMode max = PresentMode::Max;
+	};
+
+	using PresentModeFlags = Flags<PresentMode>;
+
 	enum class QueueType
 	{
 		Compute,

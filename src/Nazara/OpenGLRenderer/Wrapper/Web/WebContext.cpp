@@ -64,9 +64,15 @@ namespace Nz::GL
 		}
 	}
 
-	void WebContext::EnableVerticalSync(bool /*enabled*/)
+	PresentModeFlags WebContext::GetSupportedPresentModes() const
 	{
-		// TODO
+		// WebGL does not support disabling V-Sync
+		return PresentMode::VerticalSync;
+	}
+
+	void WebContext::SetPresentMode(PresentMode /*presentMode*/)
+	{
+		// Nothing to do
 	}
 
 	void WebContext::SwapBuffers()

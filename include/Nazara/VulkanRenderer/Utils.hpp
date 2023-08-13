@@ -18,6 +18,7 @@
 namespace Nz
 {
 	inline std::optional<PixelFormat> FromVulkan(VkFormat format);
+	inline std::optional<PresentMode> FromVulkan(VkPresentModeKHR presentMode);
 
 	inline VkAttachmentLoadOp ToVulkan(AttachmentLoadOp loadOp);
 	inline VkAttachmentStoreOp ToVulkan(AttachmentStoreOp storeOp);
@@ -33,6 +34,7 @@ namespace Nz
 	inline VkPipelineStageFlags ToVulkan(PipelineStageFlags pipelineStages);
 	inline VkFormat ToVulkan(PixelFormat pixelFormat);
 	inline VkImageAspectFlags ToVulkan(PixelFormatContent pixelFormatContent);
+	inline VkPresentModeKHR ToVulkan(PresentMode presentMode);
 	inline VkPrimitiveTopology ToVulkan(PrimitiveMode primitiveMode);
 	inline VkCompareOp ToVulkan(RendererComparison comparison);
 	inline VkFilter ToVulkan(SamplerFilter samplerFilter);

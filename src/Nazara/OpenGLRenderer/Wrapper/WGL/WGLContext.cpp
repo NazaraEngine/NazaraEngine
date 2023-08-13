@@ -73,15 +73,34 @@ namespace Nz::GL
 		}
 	}
 
-	void WGLContext::EnableVerticalSync(bool enabled)
+	PresentModeFlags WGLContext::GetSupportedPresentModes() const
 	{
+		PresentModeFlags supportedModes = PresentMode::Immediate;
 		if (wglSwapIntervalEXT)
 		{
-			if (!SetCurrentContext(this))
-				return;
-
-			wglSwapIntervalEXT(enabled);
+			supportedModes |= PresentMode::VerticalSync;
+			if (HasPlatformExtension("WGL_EXT_swap_control_tear"))
+				supportedModes |= PresentMode::RelaxedVerticalSync;
 		}
+
+		return supportedModes;
+	}
+
+	void WGLContext::SetPresentMode(PresentMode presentMode)
+	{
+		if (!SetCurrentContext(this))
+			return;
+
+		int interval = 0;
+		switch (presentMode)
+		{
+			case PresentMode::Immediate:           interval = 0;  break;
+			case PresentMode::RelaxedVerticalSync: interval = -1; break; //< WGL_EXT_swap_control_tear
+			case PresentMode::VerticalSync:        interval = 1;  break;
+			default: return; // TODO: Unreachable
+		}
+
+		wglSwapIntervalEXT(interval);
 	}
 
 	void WGLContext::SwapBuffers()

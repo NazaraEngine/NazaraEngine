@@ -6,7 +6,7 @@
 
 namespace Nz::GL
 {
-	inline GL::WGLContext::WGLContext(const OpenGLDevice* device, const WGLLoader& loader) :
+	inline WGLContext::WGLContext(const OpenGLDevice* device, const WGLLoader& loader) :
 	Context(device),
 	m_loader(loader),
 	m_handle(nullptr)

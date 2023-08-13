@@ -34,9 +34,11 @@ namespace Nz::GL
 			bool Create(const WGLContext* baseContext, const ContextParams& params, WindowHandle window, const WGLContext* shareContext = nullptr);
 			void Destroy();
 
-			void EnableVerticalSync(bool enabled) override;
+			PresentModeFlags GetSupportedPresentModes() const override;
 
 			inline bool HasPlatformExtension(const std::string& str) const;
+
+			void SetPresentMode(PresentMode presentMode) override;
 
 			void SwapBuffers() override;
 

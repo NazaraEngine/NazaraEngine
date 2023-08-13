@@ -32,7 +32,12 @@ namespace Nz
 
 			virtual std::shared_ptr<CommandPool> CreateCommandPool(QueueType queueType) = 0;
 
+			virtual PresentMode GetPresentMode() const = 0;
+			virtual PresentModeFlags GetSupportedPresentModes() const = 0;
+
 			virtual void NotifyResize(const Vector2ui& newSize) = 0;
+
+			virtual void SetPresentMode(PresentMode presentMode) = 0;
 
 			virtual TransientResources& Transient() = 0;
 

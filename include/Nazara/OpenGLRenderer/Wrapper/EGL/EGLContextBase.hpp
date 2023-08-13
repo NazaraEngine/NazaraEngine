@@ -35,9 +35,11 @@ namespace Nz::GL
 			virtual bool Create(const ContextParams& params, WindowHandle window, const EGLContextBase* shareContext = nullptr);
 			virtual void Destroy();
 
-			void EnableVerticalSync(bool enabled) override;
+			PresentModeFlags GetSupportedPresentModes() const override;
 
 			inline bool HasPlatformExtension(const std::string& str) const;
+
+			void SetPresentMode(PresentMode presentMode) override;
 
 			void SwapBuffers() override;
 
@@ -72,6 +74,8 @@ namespace Nz::GL
 
 			std::unordered_set<std::string> m_supportedPlatformExtensions;
 			EGLContext m_handle;
+			EGLint m_maxSwapInterval;
+			EGLint m_minSwapInterval;
 			bool m_ownsDisplay;
 	};
 }

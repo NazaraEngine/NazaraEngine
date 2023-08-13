@@ -151,6 +151,27 @@ namespace Nz
 				throw std::runtime_error("failed to find a support depth-stencil format");
 		}
 
+		std::vector<VkPresentModeKHR> presentModes;
+		if (!m_surface.GetPresentModes(physDeviceInfo.physDevice, &presentModes))
+			throw std::runtime_error("failed to query supported present modes");
+
+		m_supportedPresentModes.Clear();
+		for (VkPresentModeKHR vkPresentMode : presentModes)
+		{
+			if (auto presentModeOpt = FromVulkan(vkPresentMode))
+				m_supportedPresentModes |= *presentModeOpt;
+		}
+
+		m_presentMode = PresentMode::VerticalSync; //< guaranteed to be supported
+		for (PresentMode presentMode : parameters.presentMode)
+		{
+			if (m_supportedPresentModes & presentMode)
+			{
+				m_presentMode = presentMode;
+				break;
+			}
+		}
+
 		if (!SetupRenderPass())
 			throw std::runtime_error("failed to create renderpass");
 
@@ -292,6 +313,16 @@ namespace Nz
 		return m_swapchainSize;
 	}
 
+	PresentMode VulkanSwapchain::GetPresentMode() const
+	{
+		return m_presentMode;
+	}
+
+	PresentModeFlags VulkanSwapchain::GetSupportedPresentModes() const
+	{
+		return m_supportedPresentModes;
+	}
+
 	void VulkanSwapchain::NotifyResize(const Vector2ui& newSize)
 	{
 		OnRenderTargetSizeChange(this, newSize);
@@ -329,6 +360,17 @@ namespace Nz
 			case VK_ERROR_FULL_SCREEN_EXCLUSIVE_MODE_LOST_EXT:
 			default:
 				throw std::runtime_error("Failed to present image: " + TranslateVulkanError(m_swapchain.GetLastErrorCode()));
+		}
+	}
+
+	void VulkanSwapchain::SetPresentMode(PresentMode presentMode)
+	{
+		NazaraAssert(m_supportedPresentModes & presentMode, "unsupported present mode");
+
+		if (m_presentMode != presentMode)
+		{
+			m_presentMode = presentMode;
+			m_shouldRecreateSwapchain = true;
 		}
 	}
 
@@ -566,26 +608,6 @@ namespace Nz
 		else
 			extent = surfaceCapabilities.currentExtent;
 
-		std::vector<VkPresentModeKHR> presentModes;
-		if (!m_surface.GetPresentModes(deviceInfo.physDevice, &presentModes))
-		{
-			NazaraError("Failed to query supported present modes");
-			return false;
-		}
-
-		VkPresentModeKHR swapchainPresentMode = VK_PRESENT_MODE_FIFO_KHR;
-		for (VkPresentModeKHR presentMode : presentModes)
-		{
-			if (presentMode == VK_PRESENT_MODE_MAILBOX_KHR)
-			{
-				swapchainPresentMode = VK_PRESENT_MODE_MAILBOX_KHR;
-				break;
-			}
-
-			if (presentMode == VK_PRESENT_MODE_IMMEDIATE_KHR)
-				swapchainPresentMode = VK_PRESENT_MODE_IMMEDIATE_KHR;
-		}
-
 		VkCompositeAlphaFlagBitsKHR compositeAlpha;
 		if (surfaceCapabilities.supportedCompositeAlpha & VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR)
 			compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
@@ -610,7 +632,7 @@ namespace Nz
 			0, nullptr,
 			surfaceCapabilities.currentTransform,
 			compositeAlpha,
-			swapchainPresentMode,
+			ToVulkan(m_presentMode),
 			VK_TRUE,
 			m_swapchain
 		};

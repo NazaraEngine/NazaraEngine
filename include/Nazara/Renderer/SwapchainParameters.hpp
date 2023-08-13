@@ -8,6 +8,7 @@
 #define NAZARA_RENDERER_SWAPCHAINPARAMETERS_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
 #include <vector>
 
@@ -15,8 +16,8 @@ namespace Nz
 {
 	struct SwapchainParameters
 	{
-		std::vector<PixelFormat> depthFormats = {Nz::PixelFormat::Depth24Stencil8, Nz::PixelFormat::Depth32FStencil8, Nz::PixelFormat::Depth16Stencil8, Nz::PixelFormat::Depth32F, Nz::PixelFormat::Depth24}; //< By order of preference
-		bool verticalSync = false;
+		std::vector<PixelFormat> depthFormats = { Nz::PixelFormat::Depth24Stencil8, Nz::PixelFormat::Depth32FStencil8, Nz::PixelFormat::Depth16Stencil8, Nz::PixelFormat::Depth32F, Nz::PixelFormat::Depth24 }; //< By order of preference
+		std::vector<PresentMode> presentMode = { PresentMode::Mailbox, PresentMode::Immediate, PresentMode::RelaxedVerticalSync, PresentMode::VerticalSync }; //< By order of preference
 	};
 }
 

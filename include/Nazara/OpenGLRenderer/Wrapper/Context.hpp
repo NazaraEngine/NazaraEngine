@@ -148,8 +148,6 @@ namespace Nz::GL
 
 			inline bool DidLastCallSucceed() const;
 
-			virtual void EnableVerticalSync(bool enabled) = 0;
-
 			inline bool GetBoolean(GLenum name) const;
 			inline bool GetBoolean(GLenum name, GLuint index) const;
 			inline const OpenGLDevice* GetDevice() const;
@@ -159,6 +157,7 @@ namespace Nz::GL
 			template<typename T> T GetInteger(GLenum name) const;
 			template<typename T> T GetInteger(GLenum name, GLuint index) const;
 			inline const ContextParams& GetParams() const;
+			virtual PresentModeFlags GetSupportedPresentModes() const = 0;
 			inline const OpenGLVaoCache& GetVaoCache() const;
 
 			inline bool IsExtensionSupported(Extension extension) const;
@@ -183,6 +182,7 @@ namespace Nz::GL
 			inline void ResetStencilWriteMasks() const;
 
 			void SetCurrentTextureUnit(UInt32 textureUnit) const;
+			virtual void SetPresentMode(PresentMode presentMode) = 0;
 			void SetScissorBox(GLint x, GLint y, GLsizei width, GLsizei height) const;
 			void SetViewport(GLint x, GLint y, GLsizei width, GLsizei height) const;
 

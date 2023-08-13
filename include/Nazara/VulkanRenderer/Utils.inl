@@ -32,6 +32,20 @@ namespace Nz
 		return std::nullopt;
 	}
 
+	std::optional<PresentMode> FromVulkan(VkPresentModeKHR presentMode)
+	{
+		switch (presentMode)
+		{
+			case VK_PRESENT_MODE_IMMEDIATE_KHR:    return PresentMode::Immediate;
+			case VK_PRESENT_MODE_MAILBOX_KHR:      return PresentMode::Mailbox;
+			case VK_PRESENT_MODE_FIFO_KHR:         return PresentMode::VerticalSync;
+			case VK_PRESENT_MODE_FIFO_RELAXED_KHR: return PresentMode::RelaxedVerticalSync;
+			default: break;
+		}
+
+		return std::nullopt;
+	}
+
 	inline VkAttachmentLoadOp ToVulkan(AttachmentLoadOp loadOp)
 	{
 		switch (loadOp)
@@ -306,6 +320,20 @@ namespace Nz
 		return VK_IMAGE_ASPECT_COLOR_BIT;
 	}
 
+	VkPresentModeKHR ToVulkan(PresentMode presentMode)
+	{
+		switch (presentMode)
+		{
+			case PresentMode::Immediate:           return VK_PRESENT_MODE_IMMEDIATE_KHR;
+			case PresentMode::Mailbox:             return VK_PRESENT_MODE_MAILBOX_KHR;
+			case PresentMode::RelaxedVerticalSync: return VK_PRESENT_MODE_FIFO_RELAXED_KHR;
+			case PresentMode::VerticalSync:        return VK_PRESENT_MODE_FIFO_KHR;
+		}
+
+		NazaraError("Unhandled PresentMode 0x" + NumberToString(UnderlyingCast(presentMode), 16));
+		return VK_PRESENT_MODE_FIFO_KHR;
+	}
+
 	inline VkPrimitiveTopology ToVulkan(PrimitiveMode primitiveMode)
 	{
 		switch (primitiveMode)
@@ -318,7 +346,7 @@ namespace Nz
 			case PrimitiveMode::TriangleFan:   return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN;
 		}
 
-		NazaraError("Unhandled FaceFilling 0x" + NumberToString(UnderlyingCast(primitiveMode), 16));
+		NazaraError("Unhandled PrimitiveMode 0x" + NumberToString(UnderlyingCast(primitiveMode), 16));
 		return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 	}
 
@@ -502,3 +530,4 @@ namespace Nz
 }
 
 #include <Nazara/VulkanRenderer/DebugOff.hpp>
+#include "Utils.hpp"

@@ -53,11 +53,15 @@ namespace Nz
 			inline Vk::QueueHandle& GetGraphicsQueue();
 			const VulkanRenderPass& GetRenderPass() const override;
 			const Vector2ui& GetSize() const override;
+			PresentMode GetPresentMode() const override;
+			PresentModeFlags GetSupportedPresentModes() const override;
 			inline const Vk::Swapchain& GetSwapchain() const;
 
 			void NotifyResize(const Vector2ui& newSize) override;
 
 			void Present(UInt32 imageIndex, VkSemaphore waitSemaphore = VK_NULL_HANDLE);
+
+			void SetPresentMode(PresentMode presentMode) override;
 
 			TransientResources& Transient() override;
 
@@ -85,6 +89,8 @@ namespace Nz
 			Vk::QueueHandle m_transferQueue;
 			Vk::Surface m_surface;
 			Vk::Swapchain m_swapchain;
+			PresentMode m_presentMode;
+			PresentModeFlags m_supportedPresentModes;
 			Vector2ui m_swapchainSize;
 			VkFormat m_depthStencilFormat;
 			VkSurfaceFormatKHR m_surfaceFormat;

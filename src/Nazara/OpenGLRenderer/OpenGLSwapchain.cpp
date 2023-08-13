@@ -6,7 +6,6 @@
 #include <Nazara/OpenGLRenderer/OpenGLCommandPool.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderer.hpp>
 #include <Nazara/Renderer/CommandPool.hpp>
-#include <Nazara/Renderer/WindowSwapchain.hpp>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
 namespace Nz
@@ -54,6 +53,23 @@ namespace Nz
 		else
 			depthFormat = PixelFormat::Undefined;
 
+		m_supportedPresentModes = m_context->GetSupportedPresentModes();
+
+#ifdef NAZARA_PLATFORM_WEB
+		m_presentMode = PresentMode::Immediate; //< default present mode
+#else
+		m_presentMode = PresentMode::VerticalSync; //< default present mode
+#endif
+
+		for (PresentMode presentMode : parameters.presentMode)
+		{
+			if (m_supportedPresentModes & presentMode)
+			{
+				SetPresentMode(presentMode);
+				break;
+			}
+		}
+
 		std::vector<RenderPass::Attachment> attachments;
 		std::vector<RenderPass::SubpassDescription> subpassDescriptions;
 		std::vector<RenderPass::SubpassDependency> subpassDependencies;
@@ -78,7 +94,7 @@ namespace Nz
 
 	std::shared_ptr<CommandPool> OpenGLSwapchain::CreateCommandPool(QueueType /*queueType*/)
 	{
-		return std::make_unique<OpenGLCommandPool>();
+		return std::make_shared<OpenGLCommandPool>();
 	}
 
 	const OpenGLFramebuffer& OpenGLSwapchain::GetFramebuffer(std::size_t i) const
@@ -98,9 +114,19 @@ namespace Nz
 		return *m_renderPass;
 	}
 
+	PresentMode OpenGLSwapchain::GetPresentMode() const
+	{
+		return m_presentMode;
+	}
+
 	const Vector2ui& OpenGLSwapchain::GetSize() const
 	{
 		return m_size;
+	}
+
+	PresentModeFlags OpenGLSwapchain::GetSupportedPresentModes() const
+	{
+		return m_supportedPresentModes;
 	}
 
 	void OpenGLSwapchain::NotifyResize(const Vector2ui& newSize)
@@ -115,6 +141,17 @@ namespace Nz
 	{
 		m_context->SwapBuffers();
 		m_currentFrame = (m_currentFrame + 1) % m_renderImage.size();
+	}
+
+	void OpenGLSwapchain::SetPresentMode(PresentMode presentMode)
+	{
+		NazaraAssert(m_supportedPresentModes & presentMode, "unsupported present mode");
+
+		if (m_presentMode != presentMode)
+		{
+			m_context->SetPresentMode(presentMode);
+			m_presentMode = presentMode;
+		}
 	}
 
 	TransientResources& OpenGLSwapchain::Transient()

@@ -1,0 +1,5 @@
+target("PresentModeTest")
+	add_deps("NazaraGraphics")
+	add_packages("entt")
+	add_defines("NAZARA_ENTT")
+	add_files("main.cpp")
