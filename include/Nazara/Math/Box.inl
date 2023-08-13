@@ -309,6 +309,21 @@ namespace Nz
 		return Vector3<T>();
 	}
 
+	template<typename T>
+	constexpr EnumArray<BoxCorner, Vector3<T>> Box<T>::GetCorners() const
+	{
+		return {
+			GetCorner(Nz::BoxCorner::FarLeftBottom),
+			GetCorner(Nz::BoxCorner::FarLeftTop),
+			GetCorner(Nz::BoxCorner::FarRightBottom),
+			GetCorner(Nz::BoxCorner::FarRightTop),
+			GetCorner(Nz::BoxCorner::NearLeftBottom),
+			GetCorner(Nz::BoxCorner::NearLeftTop),
+			GetCorner(Nz::BoxCorner::NearRightBottom),
+			GetCorner(Nz::BoxCorner::NearRightTop)
+		};
+	}
+
 	/*!
 	* \brief Gets a Vector3 for the lengths
 	* \return The lengths of the box (width, height, depth)

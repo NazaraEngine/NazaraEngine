@@ -250,6 +250,17 @@ namespace Nz
 		return Vector2<T>();
 	}
 
+	template<typename T>
+	constexpr EnumArray<RectCorner, Vector2<T>> Rect<T>::GetCorners() const
+	{
+		return {
+			GetCorner(Nz::BoxCorner::LeftBottom),
+			GetCorner(Nz::BoxCorner::LeftTop),
+			GetCorner(Nz::BoxCorner::RightBottom),
+			GetCorner(Nz::BoxCorner::RightTop)
+		};
+	}
+
 	/*!
 	* \brief Gets a Vector2 for the lengths
 	* \return The lengths of the rectangle (width, height)

@@ -7,6 +7,7 @@
 #ifndef NAZARA_MATH_BOX_HPP
 #define NAZARA_MATH_BOX_HPP
 
+#include <NazaraUtils/EnumArray.hpp>
 #include <Nazara/Math/Enums.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Rect.hpp>
@@ -46,6 +47,7 @@ namespace Nz
 			constexpr Sphere<T> GetBoundingSphere() const;
 			constexpr Vector3<T> GetCenter() const;
 			constexpr Vector3<T> GetCorner(BoxCorner corner) const;
+			constexpr EnumArray<BoxCorner, Vector3<T>> GetCorners() const;
 			constexpr Vector3<T> GetLengths() const;
 			constexpr Vector3<T> GetMaximum() const;
 			constexpr Vector3<T> GetMinimum() const;

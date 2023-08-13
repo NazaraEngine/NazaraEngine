@@ -7,6 +7,7 @@
 #ifndef NAZARA_MATH_RECT_HPP
 #define NAZARA_MATH_RECT_HPP
 
+#include <NazaraUtils/EnumArray.hpp>
 #include <Nazara/Math/Enums.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <string>
@@ -41,6 +42,7 @@ namespace Nz
 
 			constexpr Vector2<T> GetCenter() const;
 			constexpr Vector2<T> GetCorner(RectCorner corner) const;
+			constexpr EnumArray<RectCorner, Vector2<T>> GetCorners() const;
 			constexpr Vector2<T> GetLengths() const;
 			constexpr Vector2<T> GetMaximum() const;
 			constexpr Vector2<T> GetMinimum() const;
