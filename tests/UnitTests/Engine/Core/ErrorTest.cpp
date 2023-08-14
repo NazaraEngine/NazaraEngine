@@ -16,7 +16,7 @@ SCENARIO("Error", "[CORE][ERROR]")
 				Nz::Error::Trigger(Nz::ErrorType::Internal, 2, "Error.cpp", "2nd place Internal", "ErrorType::{0}", "Internal");
 				REQUIRE("ErrorType::Internal" == Nz::Error::GetLastError());
 				Nz::Error::Trigger(Nz::ErrorType::Normal, "ErrorType::{1}{0}", "mal", "Nor");
-				Nz::Error::Trigger(Nz::ErrorType::Normal, 2, "Error.cpp", "2nd place Normal", "ErrorType::{1}{0}", "rmal", "Nor");
+				Nz::Error::Trigger(Nz::ErrorType::Normal, 2, "Error.cpp", "2nd place Normal", "ErrorType::{1}{0}", "mal", "Nor");
 				REQUIRE("ErrorType::Normal" == Nz::Error::GetLastError());
 				Nz::Error::Trigger(Nz::ErrorType::Warning, "ErrorType::Warning");
 				Nz::Error::Trigger(Nz::ErrorType::Warning, "ErrorType::Warning", 2, "Error.cpp", "2nd place Warning");

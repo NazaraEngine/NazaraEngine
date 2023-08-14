@@ -495,7 +495,6 @@ namespace Nz
 
 	bool VulkanSwapchain::SetupRenderPass()
 	{
-		NazaraError("Test");
 		std::optional<PixelFormat> colorFormat = FromVulkan(m_surfaceFormat.format);
 		if (!colorFormat)
 		{

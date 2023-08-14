@@ -10,7 +10,7 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Enums.hpp>
-#include <Nazara/Core/ToString.hpp>
+#include <Nazara/Core/Format.hpp>
 #include <string>
 
 #if NAZARA_CORE_ENABLE_ASSERTS || defined(NAZARA_DEBUG)
