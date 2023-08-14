@@ -15,12 +15,12 @@
 #include <string>
 
 #ifdef NAZARA_DEBUG
-	#define NazaraDebug(txt) NazaraNotice(txt)
+	#define NazaraDebug(...) NazaraNotice(__VA_ARGS__)
 #else
-	#define NazaraDebug(txt)
+	#define NazaraDebug(...)
 #endif
 
-#define NazaraNotice(txt) Nz::Log::Write(txt)
+#define NazaraNotice(...) Nz::Log::Write(__VA_ARGS__)
 
 namespace Nz
 {
@@ -39,7 +39,8 @@ namespace Nz
 
 			static void SetLogger(AbstractLogger* logger);
 
-			static void Write(std::string_view string);
+			static void Write(std::string_view str);
+			template<typename... Args> static void Write(std::string_view str, Args&&... args);
 			static void WriteError(ErrorType type, std::string_view error, unsigned int line = 0, const char* file = nullptr, const char* function = nullptr);
 
 			NazaraStaticSignal(OnLogWrite, const std::string_view& /*string*/);
@@ -53,5 +54,7 @@ namespace Nz
 			static bool s_enabled;
 	};
 }
+
+#include <Nazara/Core/Log.inl>
 
 #endif // NAZARA_CORE_LOG_HPP

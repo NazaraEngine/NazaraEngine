@@ -91,7 +91,7 @@ namespace Nz
 		m_handle = SDL_CreateWindow(title.c_str(), x, y, width, height, winStyle);
 		if (!m_handle)
 		{
-			NazaraError("Failed to create window: " + Error::GetLastSystemError());
+			NazaraError("failed to create window: {0}", Error::GetLastSystemError());
 			return false;
 		}
 
@@ -212,8 +212,8 @@ namespace Nz
 		if (SDL_GetWindowWMInfo(m_handle, &wmInfo) != SDL_TRUE)
 		{
 #ifndef NAZARA_PLATFORM_WEB
-			ErrorFlags flags(ErrorMode::ThrowException, true);
-			NazaraError(std::string("failed to retrieve window manager info: ") + SDL_GetError());
+			ErrorFlags flags(ErrorMode::ThrowException);
+			NazaraError("failed to retrieve window manager info: {0}", SDL_GetError());
 #endif
 		}
 
@@ -261,7 +261,7 @@ namespace Nz
 #if defined(NAZARA_PLATFORM_WEB)
 				handle.type = WindowBackend::Web;
 #else
-				ErrorFlags flags(ErrorMode::ThrowException, true);
+				ErrorFlags flags(ErrorMode::ThrowException);
 				NazaraError("unhandled window subsystem");
 #endif
 			}

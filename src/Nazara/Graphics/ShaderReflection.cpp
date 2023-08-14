@@ -66,14 +66,14 @@ namespace Nz
 				const auto& arrayType = std::get<nzsl::Ast::ArrayType>(*varType);
 				const auto& innerType = arrayType.containedType->type;
 				if (!IsSamplerType(innerType))
-					throw std::runtime_error("unexpected type " + ToString(innerType) + " in array " + ToString(arrayType));
+					throw std::runtime_error("unexpected type " + nzsl::Ast::ToString(innerType) + " in array " + nzsl::Ast::ToString(arrayType));
 
 				arraySize = arrayType.length;
 				bindingType = ShaderBindingType::Sampler;
 				varType = &innerType;
 			}
 			else
-				throw std::runtime_error("unexpected type " + ToString(varType));
+				throw std::runtime_error("unexpected type " + nzsl::Ast::ToString(varType));
 
 			// TODO: Get more precise shader stage type
 			m_pipelineLayoutInfo.bindings.push_back({

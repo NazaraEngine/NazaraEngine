@@ -65,13 +65,13 @@ namespace Nz
 
 			if (!mesh.IsValid())
 			{
-				NazaraError("Invalid mesh");
+				NazaraError("invalid mesh");
 				return false;
 			}
 
 			if (mesh.IsAnimable())
 			{
-				NazaraError("An animated mesh cannot be saved to " + format + " format");
+				NazaraError("an animated mesh cannot be saved to {0} format", format);
 				return false;
 			}
 

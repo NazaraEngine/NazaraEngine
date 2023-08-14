@@ -40,7 +40,7 @@ namespace Nz
 				typeMask <<= 1;
 			}
 
-			NazaraError("Failed to find a memory type suitable for typeBits: " + NumberToString(typeBits) + " and properties: 0x" + NumberToString(properties, 16));
+			NazaraError("failed to find a memory type suitable for typeBits: {0} and properties: 0x{1}", typeBits, NumberToString(properties, 16));
 			return false;
 		}
 
@@ -62,7 +62,7 @@ namespace Nz
 			m_lastErrorCode = m_device->vkFlushMappedMemoryRanges(*m_device, 1, &memoryRange);
 			if (m_lastErrorCode != VK_SUCCESS)
 			{
-				NazaraError("Failed to flush memory: " + TranslateVulkanError(m_lastErrorCode));
+				NazaraError("failed to flush memory: {0}", TranslateVulkanError(m_lastErrorCode));
 				return false;
 			}
 
@@ -85,7 +85,7 @@ namespace Nz
 			m_lastErrorCode = m_device->vkMapMemory(*m_device, m_handle, offset, size, flags, &mappedPtr);
 			if (m_lastErrorCode != VK_SUCCESS)
 			{
-				NazaraError("Failed to map device memory: " + TranslateVulkanError(m_lastErrorCode));
+				NazaraError("failed to map device memory: {0}", TranslateVulkanError(m_lastErrorCode));
 				return false;
 			}
 

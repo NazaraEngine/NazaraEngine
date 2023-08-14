@@ -127,7 +127,6 @@ local modules = {
 	Network = {
 		Option = "network",
 		Deps = {"NazaraCore"},
-		Packages = { "fmt" },
 		Custom = function ()
 			if not is_plat("wasm") then
 				if has_config("link_curl") then
@@ -518,6 +517,9 @@ for name, module in pairs(modules) do
 		if module.Deps then
 			add_deps(table.unpack(module.Deps))
 		end
+
+		-- fmt is a special package that is not public but required by all Nazara modules
+		add_packages("fmt")
 
 		if module.Packages then
 			add_packages(table.unpack(module.Packages))

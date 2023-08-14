@@ -14,7 +14,7 @@ namespace Nz
 {
 	VertexMapper::VertexMapper(SubMesh& subMesh)
 	{
-		ErrorFlags flags(ErrorMode::ThrowException, true);
+		ErrorFlags flags(ErrorMode::ThrowException);
 
 		std::shared_ptr<VertexBuffer> buffer = nullptr;
 		switch (subMesh.GetAnimationType())
@@ -36,7 +36,7 @@ namespace Nz
 
 		if (!buffer)
 		{
-			NazaraInternalError("Animation type not handled (0x" + NumberToString(UnderlyingCast(subMesh.GetAnimationType()), 16) + ')');
+			NazaraInternalError("Animation type not handled ({0:#x})", UnderlyingCast(subMesh.GetAnimationType()));
 		}
 
 		m_mapper.Map(*buffer, 0, buffer->GetVertexCount());
@@ -44,7 +44,7 @@ namespace Nz
 
 	VertexMapper::VertexMapper(VertexBuffer& vertexBuffer)
 	{
-		ErrorFlags flags(ErrorMode::ThrowException, true);
+		ErrorFlags flags(ErrorMode::ThrowException);
 		m_mapper.Map(vertexBuffer, 0, vertexBuffer.GetVertexCount());
 	}
 	

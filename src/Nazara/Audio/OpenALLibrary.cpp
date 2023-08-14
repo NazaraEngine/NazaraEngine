@@ -65,6 +65,8 @@ namespace Nz
 
 		for (const char* libname : libs)
 		{
+			ErrorFlags disableError(ErrorMode::Silent, ~ErrorMode::ThrowException);
+
 			if (!m_library.Load(libname))
 				continue;
 
@@ -84,6 +86,8 @@ namespace Nz
 			}
 			catch (const std::exception& e)
 			{
+				ErrorFlags disableSilent({}, ~ErrorMode::Silent);
+
 				NazaraWarning(std::string("failed to load ") + libname + ": " + e.what());
 				continue;
 			}

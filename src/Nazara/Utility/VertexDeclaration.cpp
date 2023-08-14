@@ -89,7 +89,7 @@ namespace Nz
 				return true;
 		}
 
-		NazaraError("Component type not handled (0x" + NumberToString(UnderlyingCast(type), 16) + ')');
+		NazaraError("Component type not handled ({0:#x})", UnderlyingCast(type));
 		return false;
 	}
 
@@ -337,7 +337,7 @@ namespace Nz
 		}
 		catch (const std::exception& e)
 		{
-			NazaraError("Failed to initialize vertex declaration: " + std::string(e.what()));
+			NazaraError("failed to initialize vertex declaration: {0}", std::string(e.what()));
 			return false;
 		}
 

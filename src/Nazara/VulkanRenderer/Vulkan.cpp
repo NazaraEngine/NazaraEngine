@@ -322,7 +322,7 @@ namespace Nz
 
 		if (!s_instance.Create(validationLevel, instanceInfo))
 		{
-			NazaraError("Failed to create instance: " + TranslateVulkanError(s_instance.GetLastErrorCode()));
+			NazaraError("failed to create instance: {0}", TranslateVulkanError(s_instance.GetLastErrorCode()));
 			return false;
 		}
 
@@ -606,7 +606,7 @@ namespace Nz
 		std::shared_ptr<VulkanDevice> device = std::make_shared<VulkanDevice>(s_instance, enabledFeatures, BuildRenderDeviceInfo(deviceInfo));
 		if (!device->Create(deviceInfo, createInfo))
 		{
-			NazaraError("Failed to create Vulkan Device: " + TranslateVulkanError(device->GetLastErrorCode()));
+			NazaraError("failed to create Vulkan Device: {0}", TranslateVulkanError(device->GetLastErrorCode()));
 			return {};
 		}
 

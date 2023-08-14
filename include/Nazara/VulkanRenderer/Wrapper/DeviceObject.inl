@@ -40,7 +40,7 @@ namespace Nz::Vk
 		m_lastErrorCode = C::CreateHelper(*m_device, &createInfo, allocator, &m_handle);
 		if (m_lastErrorCode != VkResult::VK_SUCCESS)
 		{
-			NazaraError("Failed to create Vulkan device object: " + TranslateVulkanError(m_lastErrorCode));
+			NazaraError("failed to create Vulkan device object: {0}", TranslateVulkanError(m_lastErrorCode));
 			return false;
 		}
 

@@ -83,7 +83,7 @@ namespace Nz
 
 					if (byteStream.Read(ptr, byteCount) != byteCount)
 					{
-						NazaraError("Failed to read level #" + NumberToString(i));
+						NazaraError("failed to read level #{0}", NumberToString(i));
 						return Nz::Err(ResourceLoadingError::DecodingError);
 					}
 
@@ -234,14 +234,14 @@ namespace Nz
 							buf[3] = (header.format.fourCC >> 24) & 255;
 							buf[4] = '\0';
 
-							NazaraError("Unhandled format \"" + std::string(buf) + "\"");
+							NazaraError("unhandled format \"{0}\"", buf);
 							return false;
 						}
 					}
 				}
 				else
 				{
-					NazaraError("Invalid DDS file");
+					NazaraError("invalid DDS file");
 					return false;
 				}
 

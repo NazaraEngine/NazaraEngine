@@ -101,7 +101,7 @@ namespace Nz
 				return std::make_shared<JoltSphereCollider3D>(primitive.sphere.size);
 		}
 
-		NazaraError("Primitive type not handled (0x" + NumberToString(UnderlyingCast(primitive.type), 16) + ')');
+		NazaraError("Primitive type not handled ({0:#x})", UnderlyingCast(primitive.type));
 		return std::shared_ptr<JoltCollider3D>();
 	}
 

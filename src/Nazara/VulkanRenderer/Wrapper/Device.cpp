@@ -57,7 +57,7 @@ namespace Nz
 			m_lastErrorCode = m_instance.vkCreateDevice(deviceInfo.physDevice, &createInfo, allocator, &m_device);
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
 			{
-				NazaraError("Failed to create Vulkan device: " + TranslateVulkanError(m_lastErrorCode));
+				NazaraError("failed to create Vulkan device: {0}", TranslateVulkanError(m_lastErrorCode));
 				return false;
 			}
 
@@ -81,7 +81,7 @@ namespace Nz
 			// Load all device-related functions
 			try
 			{
-				ErrorFlags flags(ErrorMode::ThrowException, true);
+				ErrorFlags flags(ErrorMode::ThrowException);
 
 				UInt32 deviceVersion = deviceInfo.properties.apiVersion;
 
@@ -103,7 +103,7 @@ namespace Nz
 			}
 			catch (const std::exception& e)
 			{
-				NazaraError(std::string("Failed to query device function: ") + e.what());
+				NazaraError("Failed to query device function: {0}", e.what());
 				return false;
 			}
 
@@ -173,7 +173,7 @@ namespace Nz
 				Vk::CommandPool& commandPool = m_internalData->commandPools[queueType];
 				if (!commandPool.Create(*this, m_defaultQueues[queueType], VK_COMMAND_POOL_CREATE_TRANSIENT_BIT))
 				{
-					NazaraError("Failed to create command pool: " + TranslateVulkanError(commandPool.GetLastErrorCode()));
+					NazaraError("failed to create command pool: {0}", TranslateVulkanError(commandPool.GetLastErrorCode()));
 					return false;
 				}
 			}
@@ -237,7 +237,7 @@ namespace Nz
 			m_lastErrorCode = vmaCreateAllocator(&allocatorInfo, &m_memAllocator);
 			if (m_lastErrorCode != VK_SUCCESS)
 			{
-				NazaraError("Failed to initialize Vulkan Memory Allocator (VMA): " + TranslateVulkanError(m_lastErrorCode));
+				NazaraError("failed to initialize Vulkan Memory Allocator (VMA): {0}", TranslateVulkanError(m_lastErrorCode));
 				return false;
 			}
 

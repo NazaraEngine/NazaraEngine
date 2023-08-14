@@ -51,7 +51,7 @@ namespace Nz
 		}
 		catch (const std::exception& e)
 		{
-			NazaraError(std::string("Failed to instantiate texture: ") + e.what());
+			NazaraError("failed to instantiate texture: {0}", e.what());
 			return nullptr;
 		}
 
@@ -62,7 +62,7 @@ namespace Nz
 
 			if (!newTexture->Copy(oldTexture, Boxui(0, 0, 0, oldSize.x, oldSize.y, oldSize.z)))
 			{
-				NazaraError("Failed to update texture");
+				NazaraError("failed to update texture");
 				return nullptr;
 			}
 		}

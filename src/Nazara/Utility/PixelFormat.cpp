@@ -1588,7 +1588,7 @@ namespace Nz
 		for (auto&& [pixelFormat, pixelFormatInfo] : s_pixelFormatInfos.iter_kv())
 		{
 			if (!pixelFormatInfo.Validate())
-				NazaraWarning("Pixel format 0x" + NumberToString(UnderlyingCast(pixelFormat), 16) + " (" + std::string(GetName(pixelFormat)) + ") failed validation tests");
+				NazaraWarning("Pixel format {0:#x} {1} failed validation tests", UnderlyingCast(pixelFormat), GetName(pixelFormat));
 		}
 
 		/***********************************A8************************************/

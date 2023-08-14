@@ -157,7 +157,7 @@ bool FindSkeletonRoot(SceneInfo& sceneInfo, const aiNode* node)
 			auto range = sceneInfo.nodeByName.equal_range(node->mName.C_Str());
 			if (std::distance(range.first, range.second) != 1)
 			{
-				NazaraError("failed to identify skeleton root node: " + std::to_string(std::distance(range.first, range.second)) + " node(s) matched");
+				NazaraError("failed to identify skeleton root node: {0} node(s) matched", std::distance(range.first, range.second));
 				return false;
 			}
 
@@ -265,7 +265,7 @@ Nz::Result<std::shared_ptr<Nz::Animation>, Nz::ResourceLoadingError> LoadAnimati
 
 	if (!scene)
 	{
-		NazaraError("Assimp failed to import file: " + std::string(aiGetErrorString()));
+		NazaraError("Assimp failed to import file: {0}", aiGetErrorString());
 		return Nz::Err(Nz::ResourceLoadingError::DecodingError);
 	}
 
@@ -308,7 +308,7 @@ Nz::Result<std::shared_ptr<Nz::Animation>, Nz::ResourceLoadingError> LoadAnimati
 		std::size_t jointIndex = parameters.skeleton->GetJointIndex(nodeAnim->mNodeName.C_Str());
 		if (jointIndex == Nz::Skeleton::InvalidJointIndex)
 		{
-			NazaraError("animation references joint " + std::string(nodeAnim->mNodeName.C_Str()) + " which is not part of the skeleton");
+			NazaraError("animation references joint {0} which is not part of the skeleton", nodeAnim->mNodeName.C_Str());
 			continue;
 		}
 
@@ -815,7 +815,7 @@ Nz::Result<std::shared_ptr<Nz::Mesh>, Nz::ResourceLoadingError> LoadMesh(Nz::Str
 
 	if (!scene)
 	{
-		NazaraError("Assimp failed to import file: " + std::string(aiGetErrorString()));
+		NazaraError("Assimp failed to import file: {0}", aiGetErrorString());
 		return Nz::Err(Nz::ResourceLoadingError::DecodingError);
 	}
 

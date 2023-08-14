@@ -320,7 +320,7 @@ namespace Nz
 					std::unique_ptr<File> file = std::make_unique<File>();
 					if (!file->Open(filePath, OpenMode::ReadOnly))
 					{
-						NazaraError("Failed to open stream from file: " + Error::GetLastError());
+						NazaraError("failed to open stream from file: {0}", Error::GetLastError());
 						return false;
 					}
 					m_ownedStream = std::move(file);

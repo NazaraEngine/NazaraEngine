@@ -94,7 +94,7 @@ namespace Nz
 
 		if (!PixelFormatInfo::IsConversionSupported(m_sharedImage->format, newFormat))
 		{
-			NazaraError("Conversion from " + std::string(PixelFormatInfo::GetName(m_sharedImage->format)) + " to " + std::string(PixelFormatInfo::GetName(newFormat)) + " is not supported");
+			NazaraError("Conversion from {0} to {1} is not supported", PixelFormatInfo::GetName(m_sharedImage->format), PixelFormatInfo::GetName(newFormat));
 			return false;
 		}
 		#endif
@@ -275,7 +275,7 @@ namespace Nz
 			}
 			catch (const std::exception& e)
 			{
-				NazaraError("Failed to allocate image's level " + NumberToString(i) + " (" + std::string(e.what()) + ')');
+				NazaraError("Failed to allocate image's level {0} ({1})", i, e.what());
 				return false;
 			}
 		}
@@ -313,7 +313,7 @@ namespace Nz
 		std::unique_ptr<UInt8[]> colorBuffer(new UInt8[bpp]);
 		if (!PixelFormatInfo::Convert(PixelFormat::RGBA8, m_sharedImage->format, &color.r, colorBuffer.get()))
 		{
-			NazaraError("Failed to convert RGBA8 to " + std::string(PixelFormatInfo::GetName(m_sharedImage->format)));
+			NazaraError("failed to convert RGBA8 to {0}", std::string(PixelFormatInfo::GetName(m_sharedImage->format)));
 			return false;
 		}
 
@@ -391,7 +391,7 @@ namespace Nz
 		std::unique_ptr<UInt8[]> colorBuffer(new UInt8[bpp]);
 		if (!PixelFormatInfo::Convert(PixelFormat::RGBA8, m_sharedImage->format, &color.r, colorBuffer.get()))
 		{
-			NazaraError("Failed to convert RGBA8 to " + std::string(PixelFormatInfo::GetName(m_sharedImage->format)));
+			NazaraError("failed to convert RGBA8 to {0}", std::string(PixelFormatInfo::GetName(m_sharedImage->format)));
 			return false;
 		}
 
@@ -452,7 +452,7 @@ namespace Nz
 		unsigned int depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : m_sharedImage->depth;
 		if (z >= depth)
 		{
-			NazaraError("Z value exceeds depth (" + NumberToString(z) + " >= " + NumberToString(depth) + ')');
+			NazaraError("Z value exceeds depth ({0} >= {1})", NumberToString(z), NumberToString(depth));
 			return false;
 		}
 		#endif
@@ -463,7 +463,7 @@ namespace Nz
 		std::unique_ptr<UInt8[]> colorBuffer(new UInt8[bpp]);
 		if (!PixelFormatInfo::Convert(PixelFormat::RGBA8, m_sharedImage->format, &color.r, colorBuffer.get()))
 		{
-			NazaraError("Failed to convert RGBA8 to " + std::string(PixelFormatInfo::GetName(m_sharedImage->format)));
+			NazaraError("failed to convert RGBA8 to {0}", std::string(PixelFormatInfo::GetName(m_sharedImage->format)));
 			return false;
 		}
 
@@ -578,7 +578,7 @@ namespace Nz
 
 		if (level >= m_sharedImage->levels.size())
 		{
-			NazaraError("Level out of bounds (" + NumberToString(level) + " >= " + NumberToString(m_sharedImage->levels.size()) + ')');
+			NazaraError("Level out of bounds ({0} >= {1})", NumberToString(level), NumberToString(m_sharedImage->levels.size()));
 			return nullptr;
 		}
 		#endif
@@ -587,7 +587,7 @@ namespace Nz
 		#if NAZARA_UTILITY_SAFE
 		if (x >= width)
 		{
-			NazaraError("X value exceeds width (" + NumberToString(x) + " >= " + NumberToString(width) + ')');
+			NazaraError("X value exceeds width ({0} >= {1})", NumberToString(x), NumberToString(width));
 			return nullptr;
 		}
 		#endif
@@ -596,14 +596,14 @@ namespace Nz
 		#if NAZARA_UTILITY_SAFE
 		if (y >= height)
 		{
-			NazaraError("Y value exceeds height (" + NumberToString(y) + " >= " + NumberToString(height) + ')');
+			NazaraError("Y value exceeds height ({0} >= {1})", NumberToString(y), NumberToString(height));
 			return nullptr;
 		}
 
 		unsigned int depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : GetImageLevelSize(m_sharedImage->depth, level);
 		if (z >= depth)
 		{
-			NazaraError("Z value exceeds depth (" + NumberToString(z) + " >= " + NumberToString(depth) + ')');
+			NazaraError("Z value exceeds depth ({0} >= {1})", NumberToString(z), NumberToString(depth));
 			return nullptr;
 		}
 		#endif
@@ -616,7 +616,7 @@ namespace Nz
 		#if NAZARA_UTILITY_SAFE
 		if (level >= m_sharedImage->levels.size())
 		{
-			NazaraError("Level out of bounds (" + NumberToString(level) + " >= " + NumberToString(m_sharedImage->levels.size()) + ')');
+			NazaraError("Level out of bounds ({0} >= {1})", NumberToString(level), NumberToString(m_sharedImage->levels.size()));
 			return 0;
 		}
 		#endif
@@ -634,7 +634,7 @@ namespace Nz
 		#if NAZARA_UTILITY_SAFE
 		if (level >= m_sharedImage->levels.size())
 		{
-			NazaraError("Level out of bounds (" + NumberToString(level) + " >= " + NumberToString(m_sharedImage->levels.size()) + ')');
+			NazaraError("Level out of bounds ({0} >= {1})", NumberToString(level), NumberToString(m_sharedImage->levels.size()));
 			return 0;
 		}
 		#endif
@@ -701,20 +701,20 @@ namespace Nz
 
 		if (x >= m_sharedImage->width)
 		{
-			NazaraError("X value exceeds width (" + NumberToString(x) + " >= " + NumberToString(m_sharedImage->width) + ')');
+			NazaraError("X value exceeds width ({0} >= {1})", NumberToString(x), NumberToString(m_sharedImage->width));
 			return Color();
 		}
 
 		if (y >= m_sharedImage->height)
 		{
-			NazaraError("Y value exceeds height (" + NumberToString(y) + " >= " + NumberToString(m_sharedImage->height) + ')');
+			NazaraError("Y value exceeds height ({0} >= {1})", NumberToString(y), NumberToString(m_sharedImage->height));
 			return Color();
 		}
 
 		unsigned int depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : m_sharedImage->depth;
 		if (z >= depth)
 		{
-			NazaraError("Z value exceeds depth (" + NumberToString(z) + " >= " + NumberToString(depth) + ')');
+			NazaraError("Z value exceeds depth ({0} >= {1})", NumberToString(z), NumberToString(depth));
 			return Color();
 		}
 		#endif
@@ -739,7 +739,7 @@ namespace Nz
 
 		if (level >= m_sharedImage->levels.size())
 		{
-			NazaraError("Level out of bounds (" + NumberToString(level) + " >= " + NumberToString(m_sharedImage->levels.size()) + ')');
+			NazaraError("Level out of bounds ({0} >= {1})", NumberToString(level), NumberToString(m_sharedImage->levels.size()));
 			return nullptr;
 		}
 		#endif
@@ -748,7 +748,7 @@ namespace Nz
 		#if NAZARA_UTILITY_SAFE
 		if (x >= width)
 		{
-			NazaraError("X value exceeds width (" + NumberToString(x) + " >= " + NumberToString(width) + ')');
+			NazaraError("X value exceeds width ({0} >= {1})", NumberToString(x), NumberToString(width));
 			return nullptr;
 		}
 		#endif
@@ -757,20 +757,20 @@ namespace Nz
 		#if NAZARA_UTILITY_SAFE
 		if (y >= height)
 		{
-			NazaraError("Y value exceeds height (" + NumberToString(y) + " >= " + NumberToString(height) + ')');
+			NazaraError("Y value exceeds height ({0} >= {1})", NumberToString(y), NumberToString(height));
 			return nullptr;
 		}
 
 		unsigned int depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : GetImageLevelSize(m_sharedImage->depth, level);
 		if (z >= depth)
 		{
-			NazaraError("Z value exceeds depth (" + NumberToString(z) + " >= " + NumberToString(depth) + ')');
+			NazaraError("Z value exceeds depth ({0} >= {1})", NumberToString(z), NumberToString(depth));
 			return nullptr;
 		}
 
 		if (level >= m_sharedImage->levels.size())
 		{
-			NazaraError("Level out of bounds (" + NumberToString(level) + " >= " + NumberToString(m_sharedImage->levels.size()) + ')');
+			NazaraError("Level out of bounds ({0} >= {1})", NumberToString(level), NumberToString(m_sharedImage->levels.size()));
 			return nullptr;
 		}
 		#endif
@@ -785,7 +785,7 @@ namespace Nz
 		#if NAZARA_UTILITY_SAFE
 		if (level >= m_sharedImage->levels.size())
 		{
-			NazaraError("Level out of bounds (" + NumberToString(level) + " >= " + NumberToString(m_sharedImage->levels.size()) + ')');
+			NazaraError("Level out of bounds ({0} >= {1})", NumberToString(level), NumberToString(m_sharedImage->levels.size()));
 			return Vector3ui::Zero();
 		}
 		#endif
@@ -803,7 +803,7 @@ namespace Nz
 		#if NAZARA_UTILITY_SAFE
 		if (level >= m_sharedImage->levels.size())
 		{
-			NazaraError("Level out of bounds (" + NumberToString(level) + " >= " + NumberToString(m_sharedImage->levels.size()) + ')');
+			NazaraError("Level out of bounds ({0} >= {1})", NumberToString(level), NumberToString(m_sharedImage->levels.size()));
 			return 0;
 		}
 		#endif
@@ -889,7 +889,7 @@ namespace Nz
 		#if NAZARA_UTILITY_SAFE
 		if (type != ImageType::E1D && type != ImageType::E2D)
 		{
-			NazaraError("Image type not handled (0x" + NumberToString(UnderlyingCast(type), 16) + ')');
+			NazaraError("Image type not handled ({0:#x})", UnderlyingCast(type));
 			return nullptr;
 		}
 		#endif
@@ -975,7 +975,7 @@ namespace Nz
 		ImageType type = image.GetType();
 		if (type != ImageType::E2D)
 		{
-			NazaraError("Image type not handled (0x" + NumberToString(UnderlyingCast(type), 16) + ')');
+			NazaraError("Image type not handled ({0:#x})", UnderlyingCast(type));
 			return nullptr;
 		}
 		#endif
@@ -1202,20 +1202,20 @@ namespace Nz
 
 		if (x >= m_sharedImage->width)
 		{
-			NazaraError("X value exceeds width (" + NumberToString(x) + " >= " + NumberToString(m_sharedImage->width) + ')');
+			NazaraError("X value exceeds width ({0} >= {1})", NumberToString(x), NumberToString(m_sharedImage->width));
 			return false;
 		}
 
 		if (y >= m_sharedImage->height)
 		{
-			NazaraError("Y value exceeds height (" + NumberToString(y) + " >= " + NumberToString(m_sharedImage->height) + ')');
+			NazaraError("Y value exceeds height ({0} >= {1})", NumberToString(y), NumberToString(m_sharedImage->height));
 			return false;
 		}
 
 		unsigned int depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : m_sharedImage->depth;
 		if (z >= depth)
 		{
-			NazaraError("Z value exceeds depth (" + NumberToString(z) + " >= " + NumberToString(depth) + ')');
+			NazaraError("Z value exceeds depth ({0} >= {1})", NumberToString(z), NumberToString(depth));
 			return false;
 		}
 		#endif
@@ -1248,7 +1248,7 @@ namespace Nz
 
 		if (level >= m_sharedImage->levels.size())
 		{
-			NazaraError("Level out of bounds (" + NumberToString(level) + " >= " + NumberToString(m_sharedImage->levels.size()) + ')');
+			NazaraError("Level out of bounds ({0} >= {1})", NumberToString(level), NumberToString(m_sharedImage->levels.size()));
 			return false;
 		}
 		#endif
@@ -1372,7 +1372,7 @@ namespace Nz
 				return GetMaxLevel(width, height, depth);
 		}
 
-		NazaraError("Image type not handled (0x" + NumberToString(UnderlyingCast(type), 16) + ')');
+		NazaraError("Image type not handled ({0:#x})", UnderlyingCast(type));
 		return 0;
 	}
 

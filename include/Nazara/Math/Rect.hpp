@@ -7,9 +7,9 @@
 #ifndef NAZARA_MATH_RECT_HPP
 #define NAZARA_MATH_RECT_HPP
 
-#include <NazaraUtils/EnumArray.hpp>
 #include <Nazara/Math/Enums.hpp>
 #include <Nazara/Math/Vector2.hpp>
+#include <NazaraUtils/EnumArray.hpp>
 #include <string>
 
 namespace Nz

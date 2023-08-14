@@ -25,7 +25,7 @@ namespace Nz
 			m_lastErrorCode = m_device->vkResetFences(*m_device, 1U, &m_handle);
 			if (m_lastErrorCode != VK_SUCCESS)
 			{
-				NazaraError("Failed to reset fence: " + TranslateVulkanError(m_lastErrorCode));
+				NazaraError("failed to reset fence: {0}", TranslateVulkanError(m_lastErrorCode));
 				return false;
 			}
 
@@ -42,7 +42,7 @@ namespace Nz
 			m_lastErrorCode = m_device->vkWaitForFences(*m_device, 1U, &m_handle, VK_TRUE, timeout);
 			if (m_lastErrorCode != VK_SUCCESS && m_lastErrorCode != VK_TIMEOUT)
 			{
-				NazaraError("Failed to wait for fence: " + TranslateVulkanError(m_lastErrorCode));
+				NazaraError("failed to wait for fence: {0}", TranslateVulkanError(m_lastErrorCode));
 				return false;
 			}
 

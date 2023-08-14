@@ -22,7 +22,7 @@ namespace Nz
 
 				default:
 				{
-					NazaraError("Failed to acquire next swapchain image: " + TranslateVulkanError(m_lastErrorCode));
+					NazaraError("failed to acquire next swapchain image: {0}", TranslateVulkanError(m_lastErrorCode));
 					return false;
 				}
 			}
@@ -37,7 +37,7 @@ namespace Nz
 			m_lastErrorCode = m_device->vkGetSwapchainImagesKHR(*m_device, m_handle, &imageCount, nullptr);
 			if (m_lastErrorCode != VkResult::VK_SUCCESS || imageCount == 0)
 			{
-				NazaraError("Failed to query swapchain image count: " + TranslateVulkanError(m_lastErrorCode));
+				NazaraError("failed to query swapchain image count: {0}", TranslateVulkanError(m_lastErrorCode));
 				return false;
 			}
 
@@ -45,7 +45,7 @@ namespace Nz
 			m_lastErrorCode = m_device->vkGetSwapchainImagesKHR(*m_device, m_handle, &imageCount, images.data());
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
 			{
-				NazaraError("Failed to query swapchain images: " + TranslateVulkanError(m_lastErrorCode));
+				NazaraError("failed to query swapchain images: {0}", TranslateVulkanError(m_lastErrorCode));
 				return false;
 			}
 
@@ -78,7 +78,7 @@ namespace Nz
 
 				if (!m_images[i].view.Create(*m_device, imageViewCreateInfo))
 				{
-					NazaraError("Failed to create image view for image #" + NumberToString(i));
+					NazaraError("failed to create image view for image #{0}", i);
 					return false;
 				}
 			}

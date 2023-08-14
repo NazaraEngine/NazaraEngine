@@ -478,22 +478,11 @@ namespace Nz
 	* \param to Target sphere
 	* \param interpolation Factor of interpolation
 	*
-	* \remark interpolation is meant to be between 0 and 1, other values are potentially undefined behavior
-	* \remark With NAZARA_DEBUG, a NazaraError is thrown and Zero() is returned
-	*
 	* \see Lerp
 	*/
 	template<typename T>
 	constexpr Sphere<T> Sphere<T>::Lerp(const Sphere& from, const Sphere& to, T interpolation)
 	{
-		#ifdef NAZARA_DEBUG
-		if (interpolation < T(0.0) || interpolation > T(1.0))
-		{
-			NazaraError("Interpolation must be in range [0..1] (Got " + NumberToString(interpolation) + ')');
-			return Zero();
-		}
-		#endif
-
 		Sphere sphere;
 		sphere.x = Nz::Lerp(from.x, to.x, interpolation);
 		sphere.y = Nz::Lerp(from.y, to.y, interpolation);

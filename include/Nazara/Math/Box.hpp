@@ -7,12 +7,12 @@
 #ifndef NAZARA_MATH_BOX_HPP
 #define NAZARA_MATH_BOX_HPP
 
-#include <NazaraUtils/EnumArray.hpp>
 #include <Nazara/Math/Enums.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Sphere.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <NazaraUtils/EnumArray.hpp>
 #include <string>
 
 namespace Nz
