@@ -61,7 +61,7 @@ namespace Nz
 
 		if (epoll_ctl(m_handle, EPOLL_CTL_ADD, socket, &entry) != 0)
 		{
-			NazaraError("Failed to add socket to epoll structure (errno " + NumberToString(errno) + ": " + Error::GetLastSystemError() + ')');
+			NazaraError("failed to add socket to epoll structure (errno {0}: {1})", errno, Error::GetLastSystemError());
 			return false;
 		}
 

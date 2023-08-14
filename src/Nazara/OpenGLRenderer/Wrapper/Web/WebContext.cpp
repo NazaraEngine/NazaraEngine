@@ -126,13 +126,13 @@ namespace Nz::GL
 		}
 		else
 		{
-			NazaraError(std::string("failed to create WebGL context: OpenGL is not supported"));
+			NazaraError("failed to create WebGL context: OpenGL is not supported");
 			return false;
 		}
 
 		if (m_handle <= 0)
 		{
-			NazaraError(std::string("failed to create Web context: ") + WebLoader::TranslateError(static_cast<EMSCRIPTEN_RESULT>(m_handle)));
+			NazaraError("failed to create Web context: {0}", WebLoader::TranslateError(static_cast<EMSCRIPTEN_RESULT>(m_handle)));
 			return false;
 		}
 

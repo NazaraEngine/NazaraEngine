@@ -339,7 +339,7 @@ namespace Nz
 								}
 								else if (!hasGlobalColorTable)
 								{
-									NazaraError("corrupt gif (no color table for image #" + std::to_string(m_frames.size() - 1) + ")");
+									NazaraError("corrupt gif (no color table for image #{0}", m_frames.size() - 1);
 									return Err(ResourceLoadingError::DecodingError);
 								}
 
@@ -347,7 +347,7 @@ namespace Nz
 								m_byteStream >> minimumCodeSize;
 								if (minimumCodeSize > 12)
 								{
-									NazaraError("unexpected LZW Minimum Code Size (" + std::to_string(minimumCodeSize) + ")");
+									NazaraError("unexpected LZW Minimum Code Size ({0})", minimumCodeSize);
 									return Err(ResourceLoadingError::DecodingError);
 								}
 
@@ -410,7 +410,7 @@ namespace Nz
 										break;
 
 									default:
-										NazaraWarning("unrecognized extension label (unknown tag 0x" + NumberToString(label, 16) + ")");
+										NazaraWarning("unrecognized extension label (unknown tag {0:#x})", label);
 										break;
 								}
 
@@ -419,7 +419,7 @@ namespace Nz
 							}
 
 							default:
-								NazaraError("corrupt gif (unknown tag 0x" + NumberToString(tag, 16) + ")");
+								NazaraError("corrupt gif (unknown tag {0:#x})", tag);
 								return Err(ResourceLoadingError::DecodingError);
 						}
 					}
@@ -450,7 +450,7 @@ namespace Nz
 					std::unique_ptr<File> file = std::make_unique<File>();
 					if (!file->Open(filePath, OpenMode::ReadOnly))
 					{
-						NazaraError("Failed to open stream from file: " + Error::GetLastError());
+						NazaraError("failed to open stream from file: {0}", Error::GetLastError());
 						return false;
 					}
 					m_ownedStream = std::move(file);

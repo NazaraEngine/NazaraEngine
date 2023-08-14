@@ -6,6 +6,7 @@
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
+#include <NazaraUtils/EnumArray.hpp>
 #include <cstdlib>
 #include <stdexcept>
 
@@ -20,6 +21,22 @@
 
 namespace Nz
 {
+	namespace NAZARA_ANONYMOUS_NAMESPACE
+	{
+		constexpr EnumArray<ErrorType, std::string_view> s_errorTypes = {
+			"Assert failed: ",  // ErrorType::AssertFailed
+			"Internal error: ", // ErrorType::Internal
+			"Error: ",          // ErrorType::Normal
+			"Warning: "         // ErrorType::Warning
+		};
+
+		thread_local ErrorModeFlags s_flags;
+		thread_local std::string s_lastError = "no error";
+		thread_local std::string_view s_lastErrorFunction;
+		thread_local std::string_view s_lastErrorFile;
+		thread_local unsigned int s_lastErrorLine = 0;
+	}
+
 	/*!
 	* \ingroup core
 	* \class Nz::Error
@@ -33,6 +50,8 @@ namespace Nz
 
 	ErrorModeFlags Error::GetFlags()
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		return s_flags;
 	}
 
@@ -45,8 +64,10 @@ namespace Nz
 	* \param function Optional argument to set last error function
 	*/
 
-	std::string Error::GetLastError(const char** file, unsigned int* line, const char** function)
+	std::string Error::GetLastError(std::string_view* file, unsigned int* line, std::string_view* function)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		if (file)
 			*file = s_lastErrorFile;
 
@@ -118,90 +139,39 @@ namespace Nz
 
 	void Error::SetFlags(ErrorModeFlags flags)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		s_flags = flags;
 	}
 
-	/*!
-	* \brief Checks if the error should trigger
-	*
-	* \param type ErrorType of the error
-	* \param error Message of the error
-	*
-	* \remark Produces a std::abort on AssertFailed with NAZARA_CORE_EXIT_ON_ASSERT_FAILURE defined
-	* \remark Produces a std::runtime_error on AssertFailed or throwing exception
-	*/
-
-	void Error::Trigger(ErrorType type, std::string error)
+	void Error::TriggerInternal(ErrorType type, std::string error, unsigned int line, std::string_view file, std::string_view function)
 	{
-		if (type == ErrorType::AssertFailed || (s_flags & ErrorMode::Silent) == 0 || (s_flags & ErrorMode::SilentDisabled) != 0)
-			Log::WriteError(type, error);
+		NAZARA_USE_ANONYMOUS_NAMESPACE
 
-		s_lastError = std::move(error);
-		s_lastErrorFile = "";
-		s_lastErrorFunction = "";
-		s_lastErrorLine = 0;
+		if (type == ErrorType::AssertFailed || (s_flags & ErrorMode::Silent) == 0)
+		{
+			if (line == 0 && file.empty())
+				Log::Write("{}{}", s_errorTypes[type], error);
+			else
+				Log::Write("{}{} ({}:{}: {})", s_errorTypes[type], error, file, line, function);
+		}
+
+		if (type != ErrorType::Warning)
+		{
+			s_lastError = std::move(error);
+			s_lastErrorFile = file;
+			s_lastErrorFunction = function;
+			s_lastErrorLine = line;
+		}
 
 		#if NAZARA_CORE_EXIT_ON_ASSERT_FAILURE
 		if (type == ErrorType::AssertFailed)
 			std::abort();
 		#endif
 
-		if (type == ErrorType::AssertFailed || (type != ErrorType::Warning &&
-			(s_flags & ErrorMode::ThrowException) != 0 && (s_flags & ErrorMode::ThrowExceptionDisabled) == 0))
+		if (type == ErrorType::AssertFailed || (type != ErrorType::Warning && s_flags.Test(ErrorMode::ThrowException)))
 			throw std::runtime_error(s_lastError);
 	}
-
-	/*!
-	* \brief Checks if the error should trigger
-	*
-	* \param type ErrorType of the error
-	* \param error Message of the error
-	* \param line Line of the error
-	* \param file File of the error
-	* \param function Function of the error
-	*
-	* \remark Produces a std::abort on AssertFailed with NAZARA_CORE_EXIT_ON_ASSERT_FAILURE defined
-	* \remark Produces a std::runtime_error on AssertFailed or throwing exception
-	*/
-
-	void Error::Trigger(ErrorType type, std::string error, unsigned int line, const char* file, const char* function)
-	{
-		file = GetCurrentFileRelativeToEngine(file);
-
-		if (type == ErrorType::AssertFailed || (s_flags & ErrorMode::Silent) == 0 || (s_flags & ErrorMode::SilentDisabled) != 0)
-			Log::WriteError(type, error, line, file, function);
-
-		s_lastError = std::move(error);
-		s_lastErrorFile = file;
-		s_lastErrorFunction = function;
-		s_lastErrorLine = line;
-
-		#if NAZARA_CORE_EXIT_ON_ASSERT_FAILURE
-		if (type == ErrorType::AssertFailed)
-			std::abort();
-		#endif
-
-		if (type == ErrorType::AssertFailed || (type != ErrorType::Warning &&
-			(s_flags & ErrorMode::ThrowException) != 0 && (s_flags & ErrorMode::ThrowExceptionDisabled) == 0))
-			throw std::runtime_error(s_lastError);
-	}
-
-	const char* Error::GetCurrentFileRelativeToEngine(const char* file)
-	{
-		if (const char* ptr = std::strstr(file, "NazaraEngine/"))
-			return ptr;
-
-		if (const char* ptr = std::strstr(file, "NazaraEngine\\"))
-			return ptr;
-
-		return file;
-	}
-
-	ErrorModeFlags Error::s_flags = ErrorMode::None;
-	std::string Error::s_lastError;
-	const char* Error::s_lastErrorFunction = "";
-	const char* Error::s_lastErrorFile = "";
-	unsigned int Error::s_lastErrorLine = 0;
 }
 
 #if defined(NAZARA_PLATFORM_WINDOWS)

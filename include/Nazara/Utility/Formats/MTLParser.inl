@@ -53,7 +53,7 @@ namespace Nz
 
 	inline void MTLParser::Error(const std::string& message)
 	{
-		NazaraError(message + " at line #" + std::to_string(m_lineCount));
+		NazaraError("{0} at line #{1}", message, m_lineCount);
 	}
 
 	inline void MTLParser::Flush() const
@@ -64,7 +64,7 @@ namespace Nz
 
 	inline void MTLParser::Warning(const std::string& message)
 	{
-		NazaraWarning(message + " at line #" + std::to_string(m_lineCount));
+		NazaraWarning("{0} at line #{1}", message, m_lineCount);
 	}
 
 	inline void MTLParser::UnrecognizedLine(bool error)

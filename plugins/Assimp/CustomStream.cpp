@@ -82,7 +82,7 @@ aiFile* StreamOpener(aiFileIO* fileIO, const char* filePath, const char* openMod
 	}
 	else
 	{
-		ErrorFlags errFlags(ErrorMode::ThrowExceptionDisabled, true);
+		ErrorFlags errFlags({}, ~ErrorMode::ThrowException);
 
 		///TODO: Move to File::DecodeOpenMode
 		OpenModeFlags openModeEnum = 0;
@@ -107,7 +107,7 @@ aiFile* StreamOpener(aiFileIO* fileIO, const char* filePath, const char* openMod
 		}
 		else
 		{
-			NazaraError(std::string("Unhandled/Invalid openmode: ") + openMode + std::string(" for file ") + filePath);
+			NazaraError("unhandled/invalid openmode: {0} for file {1}", openMode, filePath);
 			return nullptr;
 		}
 

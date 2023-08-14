@@ -14,14 +14,14 @@ namespace Nz
 	inline Window::Window(VideoMode mode, const std::string& title, WindowStyleFlags style) :
 	Window()
 	{
-		ErrorFlags flags(ErrorMode::ThrowException, true);
+		ErrorFlags flags(ErrorMode::ThrowException);
 		Create(mode, title, style);
 	}
 
 	inline Window::Window(WindowHandle handle) :
 	Window()
 	{
-		ErrorFlags flags(ErrorMode::ThrowException, true);
+		ErrorFlags flags(ErrorMode::ThrowException);
 		Create(handle);
 	}
 

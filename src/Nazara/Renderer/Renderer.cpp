@@ -235,7 +235,7 @@ namespace Nz
 			if (auto it = renderAPIStr.find(value); it != renderAPIStr.end())
 				preferredAPI = it->second;
 			else
-				NazaraError("unknown render API \"" + std::string(value) + "\"");
+				NazaraError("unknown render API \"{0}\"", value);
 		}
 
 		if (parameters.GetParameter("render-api-validation", &value))
@@ -251,7 +251,7 @@ namespace Nz
 			if (auto it = validationStr.find(value); it != validationStr.end())
 				validationLevel = it->second;
 			else
-				NazaraError("unknown validation level \"" + std::string(value) + "\"");
+				NazaraError("unknown validation level \"{0}\"", value);
 		}
 	}
 }

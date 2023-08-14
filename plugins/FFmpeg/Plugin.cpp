@@ -98,13 +98,13 @@ namespace
 
 				if (int errCode = avformat_open_input(&m_formatContext, "", nullptr, nullptr); errCode != 0)
 				{
-					NazaraError("failed to open input: " + ErrorToString(errCode));
+					NazaraError("failed to open input: {0}", ErrorToString(errCode));
 					return Nz::Err(Nz::ResourceLoadingError::Unrecognized);
 				}
 
 				if (int errCode = avformat_find_stream_info(m_formatContext, nullptr); errCode != 0)
 				{
-					NazaraError("failed to find stream info: " + ErrorToString(errCode));
+					NazaraError("failed to find stream info: {0}", ErrorToString(errCode));
 					return Nz::Err(Nz::ResourceLoadingError::Unrecognized);
 				}
 
@@ -150,7 +150,7 @@ namespace
 							return false;
 						}
 
-						NazaraError("failed to read frame: " + ErrorToString(errCode));
+						NazaraError("failed to read frame: {0}", ErrorToString(errCode));
 						return false;
 					}
 
@@ -159,7 +159,7 @@ namespace
 
 					if (int errCode = avcodec_send_packet(m_codecContext, &packet); errCode < 0)
 					{
-						NazaraError("failed to send packet: " + ErrorToString(errCode));
+						NazaraError("failed to send packet: {0}", ErrorToString(errCode));
 						return false;
 					}
 
@@ -168,7 +168,7 @@ namespace
 						if (errCode == AVERROR(EAGAIN))
 							continue;
 
-						NazaraError("failed to receive frame: " + ErrorToString(errCode));
+						NazaraError("failed to receive frame: {0}", ErrorToString(errCode));
 						return false;
 					}
 
@@ -236,13 +236,13 @@ namespace
 
 				if (int errCode = avcodec_parameters_to_context(m_codecContext, codecParameters); errCode < 0)
 				{
-					NazaraError("failed to copy codec params to codec context: " + ErrorToString(errCode));
+					NazaraError("failed to copy codec params to codec context: {0}", ErrorToString(errCode));
 					return Nz::Err(Nz::ResourceLoadingError::Internal);
 				}
 
 				if (int errCode = avcodec_open2(m_codecContext, m_codec, nullptr); errCode < 0)
 				{
-					NazaraError("could not open codec: " + ErrorToString(errCode));
+					NazaraError("could not open codec: {0}", ErrorToString(errCode));
 					return Nz::Err(Nz::ResourceLoadingError::Internal);
 				}
 
@@ -260,7 +260,7 @@ namespace
 
 				if (int errCode = av_frame_get_buffer(m_rgbaFrame, 0); errCode < 0)
 				{
-					NazaraError("failed to open input: " + ErrorToString(errCode));
+					NazaraError("failed to open input: {0}", ErrorToString(errCode));
 					return Nz::Err(Nz::ResourceLoadingError::Internal);
 				}
 
@@ -286,7 +286,7 @@ namespace
 				std::unique_ptr<Nz::File> file = std::make_unique<Nz::File>();
 				if (!file->Open(filePath, Nz::OpenMode::ReadOnly))
 				{
-					NazaraError("Failed to open stream from file: " + Nz::Error::GetLastError());
+					NazaraError("failed to open stream from file: {0}", Nz::Error::GetLastError());
 					return false;
 				}
 				m_ownedStream = std::move(file);

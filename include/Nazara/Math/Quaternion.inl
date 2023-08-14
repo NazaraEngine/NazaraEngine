@@ -603,14 +603,6 @@ namespace Nz
 	template<typename T>
 	constexpr Quaternion<T> Quaternion<T>::Lerp(const Quaternion& from, const Quaternion& to, T interpolation)
 	{
-		#ifdef NAZARA_DEBUG
-		if (interpolation < T(0.0) || interpolation > T(1.0))
-		{
-			NazaraError("Interpolation must be in range [0..1] (Got " + NumberToString(interpolation) + ')');
-			return Zero();
-		}
-		#endif
-
 		Quaternion interpolated;
 		interpolated.w = Nz::Lerp(from.w, to.w, interpolation);
 		interpolated.x = Nz::Lerp(from.x, to.x, interpolation);
@@ -717,22 +709,11 @@ namespace Nz
 	* \param to Target quaternion
 	* \param interpolation Factor of interpolation
 	*
-	* \remark interpolation is meant to be between 0 and 1, other values are potentially undefined behavior
-	* \remark With NAZARA_DEBUG, a NazaraError is thrown and Zero() is returned
-	*
 	* \see Lerp
 	*/
 	template<typename T>
 	Quaternion<T> Quaternion<T>::Slerp(const Quaternion& from, const Quaternion& to, T interpolation)
 	{
-		#ifdef NAZARA_DEBUG
-		if (interpolation < T(0.0) || interpolation > T(1.0))
-		{
-			NazaraError("Interpolation must be in range [0..1] (Got " + std::to_string(interpolation) + ')');
-			return Zero();
-		}
-		#endif
-
 		Quaternion q;
 
 		T cosOmega = from.DotProduct(to);

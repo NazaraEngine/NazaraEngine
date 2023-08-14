@@ -10,17 +10,18 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Enums.hpp>
+#include <Nazara/Core/ToString.hpp>
 #include <string>
 
 #if NAZARA_CORE_ENABLE_ASSERTS || defined(NAZARA_DEBUG)
-	#define NazaraAssert(a, err) if (!(a)) Nz::Error::Trigger(Nz::ErrorType::AssertFailed, err, __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION)
+	#define NazaraAssert(a, ...) if NAZARA_UNLIKELY(!(a)) Nz::Error::Trigger(Nz::ErrorType::AssertFailed, __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION, __VA_ARGS__)
 #else
-	#define NazaraAssert(a, err) for (;;) break
+	#define NazaraAssert(a, ...) for (;;) break
 #endif
 
-#define NazaraError(err) Nz::Error::Trigger(Nz::ErrorType::Normal, err, __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION)
-#define NazaraInternalError(err) Nz::Error::Trigger(Nz::ErrorType::Internal, err, __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION)
-#define NazaraWarning(err) Nz::Error::Trigger(Nz::ErrorType::Warning, err, __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION)
+#define NazaraError(...) Nz::Error::Trigger(Nz::ErrorType::Normal, __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION, __VA_ARGS__)
+#define NazaraInternalError(...) Nz::Error::Trigger(Nz::ErrorType::Internal, __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION, __VA_ARGS__)
+#define NazaraWarning(...) Nz::Error::Trigger(Nz::ErrorType::Warning, __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION, __VA_ARGS__)
 
 namespace Nz
 {
@@ -30,25 +31,22 @@ namespace Nz
 			Error() = delete;
 			~Error() = delete;
 
+			static constexpr std::string_view GetCurrentFileRelativeToEngine(std::string_view file);
 			static ErrorModeFlags GetFlags();
-			static std::string GetLastError(const char** file = nullptr, unsigned int* line = nullptr, const char** function = nullptr);
+			static std::string GetLastError(std::string_view* file = nullptr, unsigned int* line = nullptr, std::string_view* function = nullptr);
 			static unsigned int GetLastSystemErrorCode();
 			static std::string GetLastSystemError(unsigned int code = GetLastSystemErrorCode());
 
 			static void SetFlags(ErrorModeFlags flags);
 
-			static void Trigger(ErrorType type, std::string error);
-			static void Trigger(ErrorType type, std::string error, unsigned int line, const char* file, const char* function);
+			template<typename... Args> static void Trigger(ErrorType type, std::string_view error, Args&&... args);
+			template<typename... Args> static void Trigger(ErrorType type, unsigned int line, std::string_view file, std::string_view function, std::string_view error, Args&&... args);
 
 		private:
-			static const char* GetCurrentFileRelativeToEngine(const char* file);
-
-			static ErrorModeFlags s_flags;
-			static std::string s_lastError;
-			static const char* s_lastErrorFunction;
-			static const char* s_lastErrorFile;
-			static unsigned int s_lastErrorLine;
+			static void TriggerInternal(ErrorType type, std::string error, unsigned int line, std::string_view file, std::string_view function);
 	};
 }
+
+#include <Nazara/Core/Error.inl>
 
 #endif // NAZARA_CORE_ERROR_HPP

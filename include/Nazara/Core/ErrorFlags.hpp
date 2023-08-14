@@ -16,14 +16,14 @@ namespace Nz
 	class NAZARA_CORE_API ErrorFlags
 	{
 		public:
-			ErrorFlags(ErrorModeFlags flags, bool replace = false);
+			ErrorFlags(ErrorModeFlags orFlags, ErrorModeFlags andFlags = {});
 			ErrorFlags(const ErrorFlags&) = delete;
 			ErrorFlags(ErrorFlags&&) = delete;
 			~ErrorFlags();
 
 			ErrorModeFlags GetPreviousFlags() const;
 
-			void SetFlags(ErrorModeFlags flags, bool replace = false);
+			void SetFlags(ErrorModeFlags orFlags, ErrorModeFlags andFlags = {});
 
 			ErrorFlags& operator=(const ErrorFlags&) = delete;
 			ErrorFlags& operator=(ErrorFlags&&) = delete;

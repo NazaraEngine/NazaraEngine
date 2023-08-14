@@ -66,7 +66,7 @@ namespace Nz
 		std::string ext = ToLower(PathToString(filePath.extension()));
 		if (ext.empty())
 		{
-			NazaraError("Failed to get file extension from \"" + PathToString(filePath) + '"');
+			NazaraError("failed to get file extension from \"{0}\"", filePath);
 			return nullptr;
 		}
 
@@ -93,7 +93,7 @@ namespace Nz
 				{
 					if (!file.Open(OpenMode::ReadOnly))
 					{
-						NazaraError("failed to load resource: unable to open \"" + PathToString(filePath) + '"');
+						NazaraError("failed to load resource: unable to open \"{0}\"", filePath);
 						return nullptr;
 					}
 				}
@@ -121,9 +121,9 @@ namespace Nz
 		}
 
 		if (found)
-			NazaraError("failed to load resource from file \"" + PathToString(filePath) + "\": all loaders failed");
+			NazaraError("failed to load resource from file \"{0}}\": all loaders failed", filePath);
 		else
-			NazaraError("failed to load resource from file \"" + PathToString(filePath) + "\": no loader found for extension \"" + ext + '"');
+			NazaraError("failed to load resource from file \"{0}}\": no loader found for extension \"{1}\"", ext);
 
 		return nullptr;
 	}
@@ -139,9 +139,9 @@ namespace Nz
 	template<typename Type, typename Parameters>
 	std::shared_ptr<Type> ResourceLoader<Type, Parameters>::LoadFromMemory(const void* data, std::size_t size, const Parameters& parameters) const
 	{
-		NazaraAssert(data, "Invalid data pointer");
-		NazaraAssert(size, "No data to load");
-		NazaraAssert(parameters.IsValid(), "Invalid parameters");
+		NazaraAssert(data, "invalid data pointer");
+		NazaraAssert(size, "no data to load");
+		NazaraAssert(parameters.IsValid(), "invalid parameters");
 
 		MemoryView stream(data, size);
 

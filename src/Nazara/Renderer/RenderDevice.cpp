@@ -16,7 +16,7 @@ namespace Nz
 		File file(sourcePath);
 		if (!file.Open(OpenMode::ReadOnly | OpenMode::Text))
 		{
-			NazaraError("Failed to open \"" + sourcePath.generic_u8string() + '"');
+			NazaraError("Failed to open \"{0}\"", sourcePath);
 			return {};
 		}
 

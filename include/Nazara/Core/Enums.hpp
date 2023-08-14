@@ -30,14 +30,10 @@ namespace Nz
 
 	enum class ErrorMode
 	{
-		None,
-
 		Silent,
-		SilentDisabled,
 		ThrowException,
-		ThrowExceptionDisabled,
 
-		Max = ThrowExceptionDisabled
+		Max = ThrowException
 	};
 
 	template<>
@@ -47,6 +43,8 @@ namespace Nz
 	};
 
 	using ErrorModeFlags = Flags<ErrorMode>;
+
+	constexpr ErrorModeFlags ErrorMode_Default = {};
 
 	enum class ErrorType
 	{

@@ -177,7 +177,7 @@ namespace Nz::Vk
 		m_lastErrorCode = m_instance.vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, m_surface, surfaceCapabilities);
 		if (m_lastErrorCode != VkResult::VK_SUCCESS)
 		{
-			NazaraError("Failed to query surface capabilities: " + TranslateVulkanError(m_lastErrorCode));
+			NazaraError("failed to query surface capabilities: {0}", TranslateVulkanError(m_lastErrorCode));
 			return false;
 		}
 
@@ -191,7 +191,7 @@ namespace Nz::Vk
 		m_lastErrorCode = m_instance.vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, m_surface, &surfaceCount, nullptr);
 		if (m_lastErrorCode != VkResult::VK_SUCCESS || surfaceCount == 0)
 		{
-			NazaraError("Failed to query format count: " + TranslateVulkanError(m_lastErrorCode));
+			NazaraError("failed to query format count: {0}", TranslateVulkanError(m_lastErrorCode));
 			return false;
 		}
 
@@ -200,7 +200,7 @@ namespace Nz::Vk
 		m_lastErrorCode = m_instance.vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, m_surface, &surfaceCount, surfaceFormats->data());
 		if (m_lastErrorCode != VkResult::VK_SUCCESS)
 		{
-			NazaraError("Failed to query formats: " + TranslateVulkanError(m_lastErrorCode));
+			NazaraError("failed to query formats: {0}", TranslateVulkanError(m_lastErrorCode));
 			return false;
 		}
 
@@ -223,7 +223,7 @@ namespace Nz::Vk
 		m_lastErrorCode = m_instance.vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, m_surface, &presentModeCount, presentModes->data());
 		if (m_lastErrorCode != VkResult::VK_SUCCESS)
 		{
-			NazaraError("Failed to query present modes: " + TranslateVulkanError(m_lastErrorCode));
+			NazaraError("failed to query present modes: {0}", TranslateVulkanError(m_lastErrorCode));
 			return false;
 		}
 
@@ -236,7 +236,7 @@ namespace Nz::Vk
 		m_lastErrorCode = m_instance.vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice, queueFamilyIndex, m_surface, &presentationSupported);
 		if (m_lastErrorCode != VkResult::VK_SUCCESS)
 		{
-			NazaraError("Failed to query surface capabilities: " + TranslateVulkanError(m_lastErrorCode));
+			NazaraError("failed to query surface capabilities: {0}", TranslateVulkanError(m_lastErrorCode));
 			return false;
 		}
 
@@ -291,7 +291,7 @@ namespace Nz::Vk
 	{
 		if (m_lastErrorCode != VkResult::VK_SUCCESS)
 		{
-			NazaraError("Failed to create Vulkan surface: " + TranslateVulkanError(m_lastErrorCode));
+			NazaraError("failed to create Vulkan surface: {0}", TranslateVulkanError(m_lastErrorCode));
 			return false;
 		}
 

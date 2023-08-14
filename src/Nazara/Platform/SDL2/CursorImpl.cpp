@@ -55,7 +55,7 @@ namespace Nz
 		);
 
 		if (!m_surface)
-			NazaraError("failed to create SDL Surface for cursor: " + std::string(SDL_GetError()));
+			NazaraError("failed to create SDL Surface for cursor: {0}", std::string(SDL_GetError()));
 
 		m_cursor = SDL_CreateColorCursor(m_surface, hotSpot.x, hotSpot.y);
 		if (!m_cursor)
@@ -63,7 +63,7 @@ namespace Nz
 			if (m_surface) //< Just in case exceptions were disabled
 				SDL_FreeSurface(m_surface);
 
-			NazaraError("failed to create SDL cursor: " + std::string(SDL_GetError()));
+			NazaraError("failed to create SDL cursor: {0}", std::string(SDL_GetError()));
 		}
 	}
 
@@ -77,7 +77,7 @@ namespace Nz
 		{
 			m_cursor = SDL_CreateSystemCursor(s_systemCursorIds[cursor]);
 			if (!m_cursor)
-				NazaraError("failed to create SDL cursor: " + std::string(SDL_GetError()));
+				NazaraError("failed to create SDL cursor: {0}", std::string(SDL_GetError()));
 		}
 	}
 

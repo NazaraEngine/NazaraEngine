@@ -39,7 +39,7 @@ namespace Nz
 
 		if (!m_library.IsLoaded())
 		{
-			NazaraError("failed to load libcurl: " + m_library.GetLastError());
+			NazaraError("failed to load libcurl: {0}", m_library.GetLastError());
 			return false;
 		}
 

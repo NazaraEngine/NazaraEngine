@@ -35,7 +35,7 @@ namespace Nz
 			nzsl::Ast::ModulePtr newShaderModule = resolver->Resolve(name);
 			if (!newShaderModule)
 			{
-				NazaraError("failed to retrieve updated shader module " + name);
+				NazaraError("failed to retrieve updated shader module {0}", name);
 				return;
 			}
 
@@ -45,7 +45,7 @@ namespace Nz
 			}
 			catch (const std::exception& e)
 			{
-				NazaraError("failed to retrieve updated shader module " + name + ": " + e.what());
+				NazaraError("failed to retrieve updated shader module {0}: {1}", name, e.what());
 				return;
 			}
 

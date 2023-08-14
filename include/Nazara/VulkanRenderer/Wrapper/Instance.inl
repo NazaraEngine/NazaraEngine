@@ -50,7 +50,7 @@ namespace Nz::Vk
 	{
 		PFN_vkVoidFunction func = vkGetDeviceProcAddr(device, name);
 		if (!func)
-			NazaraError("Failed to get " + std::string(name) + " address");
+			NazaraError("failed to get {0} address", name);
 
 		return func;
 	}
@@ -69,7 +69,7 @@ namespace Nz::Vk
 	{
 		PFN_vkVoidFunction func = Loader::GetInstanceProcAddr(m_instance, name);
 		if (!func)
-			NazaraError("Failed to get " + std::string(name) + " address");
+			NazaraError("failed to get {0} address", name);
 
 		return func;
 	}
@@ -120,7 +120,7 @@ namespace Nz::Vk
 		m_lastErrorCode = vkGetPhysicalDeviceImageFormatProperties(physicalDevice, format, type, tiling, usage, flags, imageFormatProperties);
 		if (m_lastErrorCode != VkResult::VK_SUCCESS)
 		{
-			NazaraError("Failed to get physical device image format properties: " + TranslateVulkanError(m_lastErrorCode));
+			NazaraError("failed to get physical device image format properties: {0}", TranslateVulkanError(m_lastErrorCode));
 			return false;
 		}
 

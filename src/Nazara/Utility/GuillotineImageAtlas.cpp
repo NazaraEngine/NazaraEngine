@@ -63,7 +63,7 @@ namespace Nz
 		#if NAZARA_UTILITY_SAFE
 		if (layerIndex >= m_layers.size())
 		{
-			NazaraError("Layer index out of range (" + NumberToString(layerIndex) + " >= " + NumberToString(m_layers.size()) + ')');
+			NazaraError("layer index out of range ({0} >= {1})", layerIndex, m_layers.size());
 			return nullptr;
 		}
 		#endif

@@ -178,7 +178,7 @@ namespace Nz
 				}
 
 				default:
-					NazaraInternalError("Unhandled ip protocol (0x" + NumberToString(UnderlyingCast(ipAddress.GetProtocol()), 16) + ')');
+					NazaraInternalError("Unhandled ip protocol ({0:#x})", UnderlyingCast(ipAddress.GetProtocol()));
 					break;
 			}
 		}

@@ -46,7 +46,7 @@ namespace Nz
 	void FileImpl::Flush()
 	{
 		if (fsync(m_fileDescriptor) == -1)
-			NazaraError("Unable to flush file: " + Error::GetLastSystemError());
+			NazaraError("Unable to flush file: {0}", Error::GetLastSystemError());
 	}
 
 	UInt64 FileImpl::GetCursorPos() const
@@ -81,7 +81,7 @@ namespace Nz
 		int fileDescriptor = Open_def(filePath.generic_u8string().data(), flags, permissions);
 		if (fileDescriptor == -1)
 		{
-			NazaraError("Failed to open \"" + filePath.generic_u8string() + "\" : " + Error::GetLastSystemError());
+			NazaraError("Failed to open \"{0}\": {1}", filePath, Error::GetLastSystemError());
 			return false;
 		}
 
@@ -161,7 +161,7 @@ namespace Nz
 				break;
 
 			default:
-				NazaraInternalError("Cursor position not handled (0x" + NumberToString(UnderlyingCast(pos), 16) + ')');
+				NazaraInternalError("Cursor position not handled ({0:#x})", UnderlyingCast(pos));
 				return false;
 		}
 

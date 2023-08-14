@@ -113,13 +113,13 @@ namespace Nz
 			int componentCount = ConvertToIntegerFormat(tempImage);
 			if (componentCount == 0)
 			{
-				NazaraError("Failed to convert image to suitable format");
+				NazaraError("failed to convert image to suitable format");
 				return false;
 			}
 
 			if (!stbi_write_bmp_to_func(&WriteToStream, &stream, tempImage.GetWidth(), tempImage.GetHeight(), componentCount, tempImage.GetConstPixels()))
 			{
-				NazaraError("Failed to write BMP to stream");
+				NazaraError("failed to write BMP to stream");
 				return false;
 			}
 
@@ -133,20 +133,20 @@ namespace Nz
 			int componentCount = ConvertToIntegerFormat(tempImage);
 			if (componentCount == 0)
 			{
-				NazaraError("Failed to convert image to suitable format");
+				NazaraError("failed to convert image to suitable format");
 				return false;
 			}
 
 			long long imageQuality = parameters.custom.GetIntegerParameter("JPEGQuality").GetValueOr(100);
 			if (imageQuality <= 0 || imageQuality > 100)
 			{
-				NazaraError("NativeJPEGSaver_Quality value (" + Nz::NumberToString(imageQuality) + ") does not fit in bounds ]0, 100], clamping...");
+				NazaraError("NativeJPEGSaver_Quality value ({0}) does not fit in bounds ]0, 100], clamping...", imageQuality);
 				imageQuality = Nz::Clamp(imageQuality, 1LL, 100LL);
 			}
 
 			if (!stbi_write_jpg_to_func(&WriteToStream, &stream, tempImage.GetWidth(), tempImage.GetHeight(), componentCount, tempImage.GetConstPixels(), int(imageQuality)))
 			{
-				NazaraError("Failed to write JPEG to stream");
+				NazaraError("failed to write JPEG to stream");
 				return false;
 			}
 
@@ -248,7 +248,7 @@ namespace Nz
 			ImageType type = image.GetType();
 			if (type != ImageType::E1D && type != ImageType::E2D)
 			{
-				NazaraError("Image type 0x" + NumberToString(UnderlyingCast(type), 16) + " is not in a supported format");
+				NazaraError("Image type {0:#x}) is not in a supported format", UnderlyingCast(type));
 				return false;
 			}
 

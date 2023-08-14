@@ -68,7 +68,7 @@ namespace Nz
 			auto it = m_impl->sequenceMap.find(sequence.name);
 			if (it != m_impl->sequenceMap.end())
 			{
-				NazaraError("Sequence name \"" + sequence.name + "\" is already in use");
+				NazaraError("sequence name \"{0}\" is already in use", sequence.name);
 				return false;
 			}
 			#endif

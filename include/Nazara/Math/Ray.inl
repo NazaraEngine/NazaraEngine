@@ -200,7 +200,7 @@ namespace Nz
 				return false;
 		}
 
-		NazaraError("Invalid extent type (0x" + NumberToString(UnderlyingCast(volume.extent), 16) + ')');
+		NazaraError("Invalid extent type ({0:#x})", UnderlyingCast(volume.extent));
 		return false;
 	}
 

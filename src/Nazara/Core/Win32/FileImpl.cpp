@@ -43,7 +43,7 @@ namespace Nz
 	void FileImpl::Flush()
 	{
 		if (!FlushFileBuffers(m_handle))
-			NazaraError("Unable to flush file: " + Error::GetLastSystemError());
+			NazaraError("Unable to flush file: {0}", Error::GetLastSystemError());
 	}
 
 	UInt64 FileImpl::GetCursorPos() const
@@ -153,7 +153,7 @@ namespace Nz
 				break;
 
 			default:
-				NazaraInternalError("Cursor position not handled (0x" + NumberToString(UnderlyingCast(pos), 16) + ')');
+				NazaraInternalError("Cursor position not handled ({0:#x})", UnderlyingCast(pos));
 				return false;
 		}
 
@@ -177,13 +177,13 @@ namespace Nz
 
 		if (!SetCursorPos(CursorPosition::AtBegin, size))
 		{
-			NazaraError("Failed to set file size: failed to move cursor position: " + Error::GetLastSystemError());
+			NazaraError("failed to set file size: failed to move cursor position: {0}", Error::GetLastSystemError());
 			return false;
 		}
 
 		if (!SetEndOfFile(m_handle))
 		{
-			NazaraError("Failed to set file size: " + Error::GetLastSystemError());
+			NazaraError("failed to set file size: {0}", Error::GetLastSystemError());
 			return false;
 		}
 

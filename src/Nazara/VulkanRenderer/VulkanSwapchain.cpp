@@ -483,7 +483,7 @@ namespace Nz
 
 			if (!framebuffer.Create(*m_swapchain.GetDevice(), frameBufferCreate))
 			{
-				NazaraError("Failed to create framebuffer for image #" + NumberToString(i) + ": " + TranslateVulkanError(framebuffer.GetLastErrorCode()));
+				NazaraError("failed to create framebuffer for image #{0}: {1}", i, TranslateVulkanError(framebuffer.GetLastErrorCode()));
 				return false;
 			}
 
@@ -495,10 +495,11 @@ namespace Nz
 
 	bool VulkanSwapchain::SetupRenderPass()
 	{
+		NazaraError("Test");
 		std::optional<PixelFormat> colorFormat = FromVulkan(m_surfaceFormat.format);
 		if (!colorFormat)
 		{
-			NazaraError("unhandled vulkan pixel format (0x" + NumberToString(m_surfaceFormat.format, 16) + ")");
+			NazaraError("unhandled vulkan pixel format ({0:#x})", UnderlyingCast(m_surfaceFormat.format));
 			return false;
 		}
 
@@ -508,7 +509,7 @@ namespace Nz
 			depthStencilFormat = FromVulkan(m_depthStencilFormat);
 			if (!depthStencilFormat)
 			{
-				NazaraError("unhandled vulkan pixel format (0x" + NumberToString(m_depthStencilFormat, 16) + ")");
+				NazaraError("unhandled vulkan pixel format ({0:#x})", UnderlyingCast(m_depthStencilFormat));
 				return false;
 			}
 		}
@@ -579,7 +580,7 @@ namespace Nz
 
 		if (!success)
 		{
-			NazaraError("Failed to create Vulkan surface: " + TranslateVulkanError(m_surface.GetLastErrorCode()));
+			NazaraError("failed to create Vulkan surface: {0}", TranslateVulkanError(m_surface.GetLastErrorCode()));
 			return false;
 		}
 
@@ -640,7 +641,7 @@ namespace Nz
 		Vk::Swapchain newSwapchain;
 		if (!newSwapchain.Create(m_device, swapchainInfo))
 		{
-			NazaraError("failed to create swapchain: " + TranslateVulkanError(newSwapchain.GetLastErrorCode()));
+			NazaraError("failed to create swapchain: {0}", TranslateVulkanError(newSwapchain.GetLastErrorCode()));
 			return false;
 		}
 

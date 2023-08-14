@@ -208,26 +208,26 @@ namespace Nz
 		std::size_t frameCount = m_frames.size();
 		if (frameCount == 0)
 		{
-			NazaraError("Frame count is invalid or missing");
+			NazaraError("frame count is invalid or missing");
 			return false;
 		}
 
 		std::size_t jointCount = m_joints.size();
 		if (jointCount == 0)
 		{
-			NazaraError("Joint count is invalid or missing");
+			NazaraError("joint count is invalid or missing");
 			return false;
 		}
 
 		if (m_frameIndex != frameCount)
 		{
-			NazaraError("Missing frame infos: [" + NumberToString(m_frameIndex) + ',' + NumberToString(frameCount) + ']');
+			NazaraError("missing frame infos: [{0},{1}]", m_frameIndex, frameCount);
 			return false;
 		}
 
 		if (m_frameRate == 0)
 		{
-			NazaraWarning("Framerate is either invalid or missing, assuming a default value of 24");
+			NazaraWarning("framerate is either invalid or missing, assuming a default value of 24");
 			m_frameRate = 24;
 		}
 
@@ -264,7 +264,7 @@ namespace Nz
 
 	void MD5AnimParser::Error(const std::string& message)
 	{
-		NazaraError(message + " at line #" + NumberToString(m_lineCount));
+		NazaraError("{0} at line #{1}", message, m_lineCount);
 	}
 
 	bool MD5AnimParser::ParseBaseframe()

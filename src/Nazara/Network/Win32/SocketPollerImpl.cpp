@@ -91,7 +91,7 @@ namespace Nz
 			fd_set& targetSet = (i == 0) ? m_readSockets : m_writeSockets;
 			if (targetSet.fd_count > FD_SETSIZE)
 			{
-				NazaraError("Socket count exceeding hard-coded FD_SETSIZE (" + NumberToString(FD_SETSIZE) + ")");
+				NazaraError("Socket count exceeding hard-coded FD_SETSIZE ({0})", FD_SETSIZE);
 				return false;
 			}
 

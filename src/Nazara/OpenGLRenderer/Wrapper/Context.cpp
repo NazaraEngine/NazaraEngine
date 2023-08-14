@@ -369,13 +369,13 @@ namespace Nz::GL
 		// Validate framebuffer completeness
 		if (GLenum checkResult = m_blitFramebuffers->drawFBO.Check(); checkResult != GL_FRAMEBUFFER_COMPLETE)
 		{
-			NazaraError("Blit draw FBO is incomplete: " + TranslateOpenGLError(checkResult));
+			NazaraError("Blit draw FBO is incomplete: {0}", TranslateOpenGLError(checkResult));
 			return false;
 		}
 
 		if (GLenum checkResult = m_blitFramebuffers->readFBO.Check(); checkResult != GL_FRAMEBUFFER_COMPLETE)
 		{
-			NazaraError("Blit read FBO is incomplete: " + TranslateOpenGLError(checkResult));
+			NazaraError("Blit read FBO is incomplete: {0}", TranslateOpenGLError(checkResult));
 			return false;
 		}
 
@@ -707,7 +707,7 @@ namespace Nz::GL
 		{
 			hasAnyError = true;
 
-			NazaraError("OpenGL error: " + TranslateOpenGLError(lastError));
+			NazaraError("OpenGL error: {0}", TranslateOpenGLError(lastError));
 		}
 
 		m_didCollectErrors = true;

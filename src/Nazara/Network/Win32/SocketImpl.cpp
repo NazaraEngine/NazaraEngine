@@ -160,7 +160,7 @@ namespace Nz
 		int errorCode = WSAStartup(MAKEWORD(2, 2), &s_WSA);
 		if (errorCode != 0)
 		{
-			NazaraError("Failed to initialize Windows Socket 2.2: " + Error::GetLastSystemError(errorCode));
+			NazaraError("failed to initialize Windows Socket 2.2: {0}", Error::GetLastSystemError(errorCode));
 			return false;
 		}
 

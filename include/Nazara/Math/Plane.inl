@@ -221,22 +221,11 @@ namespace Nz
 	* \param to Target plane
 	* \param interpolation Factor of interpolation
 	*
-	* \remark interpolation is meant to be between 0 and 1, other values are potentially undefined behavior
-	* \remark With NAZARA_DEBUG, a NazaraError is thrown and Plane() is returned
-	*
 	* \see Lerp
 	*/
 	template<typename T>
 	constexpr Plane<T> Plane<T>::Lerp(const Plane& from, const Plane& to, T interpolation)
 	{
-		#ifdef NAZARA_DEBUG
-		if (interpolation < T(0.0) || interpolation > T(1.0))
-		{
-			NazaraError("Interpolation must be in range [0..1] (Got " + NumberToString(interpolation) + ')');
-			return Plane();
-		}
-		#endif
-
 		Plane plane;
 		plane.distance = Nz::Lerp(from.distance, to.distance, interpolation);
 		plane.normal = Vector3<T>::Lerp(from.normal, to.normal, interpolation);
