@@ -100,7 +100,12 @@ int main()
 	entt::handle spriteEntity = world.CreateEntity();
 	{
 		std::shared_ptr<Nz::Sprite> sprite = std::make_shared<Nz::Sprite>(Nz::MaterialInstance::GetDefault(Nz::MaterialType::Basic));
-		sprite->SetSize({ 128.f, 128.f });
+		sprite->SetCornerColor(Nz::RectCorner::LeftTop, Nz::Color::Red());
+		sprite->SetCornerColor(Nz::RectCorner::RightTop, Nz::Color::Red());
+		sprite->SetCornerColor(Nz::RectCorner::LeftBottom, Nz::Color::Green());
+		sprite->SetCornerColor(Nz::RectCorner::RightBottom, Nz::Color::Green());
+		sprite->SetOrigin({ 0.5f, 0.5f });
+		sprite->SetSize({ 128.f, float(windowSize.y) });
 
 		spriteEntity.emplace<Nz::NodeComponent>();
 		spriteEntity.emplace<Nz::GraphicsComponent>(sprite);
@@ -160,7 +165,7 @@ int main()
 
 		float delta = (accumulatorTime.AsSeconds() / timeToMove.AsSeconds());
 
-		spriteEntity.get<Nz::NodeComponent>().SetPosition(Nz::Lerp(0.f, windowSize.x - 128.f, delta * delta * (3.f - 2.f * delta)), windowSize.y / 2.f - 128.f / 2.f, 0.f);
+		spriteEntity.get<Nz::NodeComponent>().SetPosition(Nz::Lerp(128.f / 2.f, windowSize.x - 128.f / 2.f, delta * delta * (3.f - 2.f * delta)), windowSize.y / 2.f, 0.f);
 
 		// Limit FPS
 		if (limitFps)
