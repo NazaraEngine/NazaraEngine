@@ -8,22 +8,21 @@
 #define NAZARA_CORE_ERRORFLAGS_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Core/Config.hpp>
-#include <Nazara/Core/Enums.hpp>
+#include <Nazara/Core/Error.hpp>
 
 namespace Nz
 {
-	class NAZARA_CORE_API ErrorFlags
+	class ErrorFlags
 	{
 		public:
-			ErrorFlags(ErrorModeFlags orFlags, ErrorModeFlags andFlags = {});
+			inline ErrorFlags(ErrorModeFlags orFlags, ErrorModeFlags andFlags = {});
 			ErrorFlags(const ErrorFlags&) = delete;
 			ErrorFlags(ErrorFlags&&) = delete;
-			~ErrorFlags();
+			inline ~ErrorFlags();
 
-			ErrorModeFlags GetPreviousFlags() const;
+			inline ErrorModeFlags GetPreviousFlags() const;
 
-			void SetFlags(ErrorModeFlags orFlags, ErrorModeFlags andFlags = {});
+			inline void SetFlags(ErrorModeFlags orFlags, ErrorModeFlags andFlags = {});
 
 			ErrorFlags& operator=(const ErrorFlags&) = delete;
 			ErrorFlags& operator=(ErrorFlags&&) = delete;
@@ -32,5 +31,7 @@ namespace Nz
 			ErrorModeFlags m_previousFlags;
 	};
 }
+
+#include <Nazara/Core/ErrorFlags.inl>
 
 #endif // NAZARA_CORE_ERRORFLAGS_HPP

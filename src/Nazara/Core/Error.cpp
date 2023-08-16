@@ -42,12 +42,24 @@ namespace Nz
 	* \class Nz::Error
 	* \brief Core class that represents an error
 	*/
+	ErrorModeFlags Error::ApplyFlags(ErrorModeFlags orFlags, ErrorModeFlags andFlags)
+	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
+		ErrorModeFlags& flags = s_flags;
+
+		ErrorModeFlags previousFlags = flags;
+
+		flags |= orFlags;
+		flags &= andFlags;
+
+		return previousFlags;
+	}
 
 	/*!
 	* \brief Gets the flags of the error
 	* \return Flag
 	*/
-
 	ErrorModeFlags Error::GetFlags()
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
@@ -63,7 +75,6 @@ namespace Nz
 	* \param line Optional argument to set last error line
 	* \param function Optional argument to set last error function
 	*/
-
 	std::string Error::GetLastError(std::string_view* file, unsigned int* line, std::string_view* function)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
@@ -84,7 +95,6 @@ namespace Nz
 	* \brief Gets the last system error code
 	* \return "errno"
 	*/
-
 	unsigned int Error::GetLastSystemErrorCode()
 	{
 		#if defined(NAZARA_PLATFORM_WINDOWS)
@@ -137,18 +147,23 @@ namespace Nz
 	* \param flags Flags for the error
 	*/
 
-	void Error::SetFlags(ErrorModeFlags flags)
+	ErrorModeFlags Error::SetFlags(ErrorModeFlags flags)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
+		ErrorModeFlags previousFlags = s_flags;
 		s_flags = flags;
+
+		return previousFlags;
 	}
 
 	void Error::TriggerInternal(ErrorType type, std::string error, unsigned int line, std::string_view file, std::string_view function)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
-		if (type == ErrorType::AssertFailed || (s_flags & ErrorMode::Silent) == 0)
+		ErrorModeFlags& flags = s_flags;
+
+		if (type == ErrorType::AssertFailed || (flags & ErrorMode::Silent) == 0)
 		{
 			if (line == 0 && file.empty())
 				Log::Write("{}{}", s_errorTypes[type], error);
@@ -169,7 +184,7 @@ namespace Nz
 			std::abort();
 		#endif
 
-		if (type == ErrorType::AssertFailed || (type != ErrorType::Warning && s_flags.Test(ErrorMode::ThrowException)))
+		if (type == ErrorType::AssertFailed || (type != ErrorType::Warning && flags.Test(ErrorMode::ThrowException)))
 			throw std::runtime_error(s_lastError);
 	}
 }

@@ -31,13 +31,15 @@ namespace Nz
 			Error() = delete;
 			~Error() = delete;
 
+			static ErrorModeFlags ApplyFlags(ErrorModeFlags orFlags, ErrorModeFlags andFlags);
+
 			static constexpr std::string_view GetCurrentFileRelativeToEngine(std::string_view file);
 			static ErrorModeFlags GetFlags();
 			static std::string GetLastError(std::string_view* file = nullptr, unsigned int* line = nullptr, std::string_view* function = nullptr);
 			static unsigned int GetLastSystemErrorCode();
 			static std::string GetLastSystemError(unsigned int code = GetLastSystemErrorCode());
 
-			static void SetFlags(ErrorModeFlags flags);
+			static ErrorModeFlags SetFlags(ErrorModeFlags flags);
 
 			template<typename... Args> static void Trigger(ErrorType type, std::string_view error, Args&&... args);
 			template<typename... Args> static void Trigger(ErrorType type, unsigned int line, std::string_view file, std::string_view function, std::string_view error, Args&&... args);

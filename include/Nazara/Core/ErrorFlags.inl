@@ -2,8 +2,6 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Core/ErrorFlags.hpp>
-#include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -21,17 +19,15 @@ namespace Nz
 	* \param replace Replace the entirely the old flag if true, else do a "OR"
 	*/
 
-	ErrorFlags::ErrorFlags(ErrorModeFlags orFlags, ErrorModeFlags andFlags) :
-	m_previousFlags(Error::GetFlags())
+	inline ErrorFlags::ErrorFlags(ErrorModeFlags orFlags, ErrorModeFlags andFlags) :
+	m_previousFlags(Error::ApplyFlags(orFlags, andFlags))
 	{
-		SetFlags(orFlags, andFlags);
 	}
 
 	/*!
 	* \brief Destructs the object and sets the old flag
 	*/
-
-	ErrorFlags::~ErrorFlags()
+	inline ErrorFlags::~ErrorFlags()
 	{
 		Error::SetFlags(m_previousFlags);
 	}
@@ -40,7 +36,7 @@ namespace Nz
 	* \brief Gets the previous flag
 	* \return Previous flag
 	*/
-	ErrorModeFlags ErrorFlags::GetPreviousFlags() const
+	inline ErrorModeFlags ErrorFlags::GetPreviousFlags() const
 	{
 		return m_previousFlags;
 	}
@@ -51,7 +47,7 @@ namespace Nz
 	* \param flags Flags for the error
 	* \param replace Replace the entirely the old flag if true, else do a "OR"
 	*/
-	void ErrorFlags::SetFlags(ErrorModeFlags orFlags, ErrorModeFlags andFlags)
+	inline void ErrorFlags::SetFlags(ErrorModeFlags orFlags, ErrorModeFlags andFlags)
 	{
 		ErrorModeFlags newFlags = m_previousFlags;
 		newFlags |= orFlags;
@@ -60,3 +56,5 @@ namespace Nz
 		Error::SetFlags(newFlags);
 	}
 }
+
+#include <Nazara/Core/DebugOff.hpp>
