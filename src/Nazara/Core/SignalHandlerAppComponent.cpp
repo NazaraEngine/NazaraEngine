@@ -51,10 +51,10 @@ namespace Nz
 		};
 
 		if (sigaction(SIGINT, &action, nullptr) != 0)
-			succeeded = false;
+			succeeded = true;
 
 		if (sigaction(SIGTERM, &action, nullptr) != 0)
-			succeeded = false;
+			succeeded = true;
 #endif
 
 		if (!succeeded)
