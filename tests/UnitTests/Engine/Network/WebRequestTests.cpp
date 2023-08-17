@@ -1,4 +1,5 @@
 #include <Nazara/Core/Clock.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Network/Network.hpp>
 #include <Nazara/Network/WebRequest.hpp>
 #include <Nazara/Network/WebService.hpp>
@@ -63,8 +64,7 @@ SCENARIO("WebService", "[NETWORK][WebService]")
 			CHECK(result.GetDownloadSpeed() > 0);
 
 			INFO(result.GetBody());
-			CHECK(result.GetBody().find("Authorization: Lynix") != std::string::npos ||
-				  result.GetBody().find("authorization: Lynix") != std::string::npos);
+			CHECK(result.GetBody().find("uthorization: Lynix") != std::string::npos); //< Don't include A because some implementation can lowercase headers
 		});
 		webRequest->SetJSonContent(R"({"value":42})");
 		webRequest->SetHeader("Authorization", "Lynix");
