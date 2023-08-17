@@ -50,10 +50,10 @@ namespace Nz
 			HandleInterruptSignal(strsignal(sig));
 		};
 
-		if (sigaction(SIGINT, &action, nullptr) != 0)
+		if (sigaction(SIGINT, &action, nullptr) == 0)
 			succeeded = true;
 
-		if (sigaction(SIGTERM, &action, nullptr) != 0)
+		if (sigaction(SIGTERM, &action, nullptr) == 0)
 			succeeded = true;
 #endif
 
