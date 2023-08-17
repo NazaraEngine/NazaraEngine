@@ -63,7 +63,8 @@ SCENARIO("WebService", "[NETWORK][WebService]")
 			CHECK(result.GetDownloadSpeed() > 0);
 
 			INFO(result.GetBody());
-			CHECK(result.GetBody().find("Authorization: Lynix") != std::string::npos);
+			CHECK(result.GetBody().find("Authorization: Lynix") != std::string::npos ||
+				  result.GetBody().find("authorization: Lynix") != std::string::npos);
 		});
 		webRequest->SetJSonContent(R"({"value":42})");
 		webRequest->SetHeader("Authorization", "Lynix");
