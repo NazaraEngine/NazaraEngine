@@ -45,7 +45,7 @@ namespace Nz
 #endif
 	}
 
-	void WebService::Poll()
+	bool WebService::Poll()
 	{
 #ifndef NAZARA_PLATFORM_WEB
 		assert(m_curlMulti);
@@ -55,8 +55,10 @@ namespace Nz
 		if (err != CURLM_OK)
 		{
 			NazaraError(fmt::format("[WebService] curl_multi_perform failed with {0}: {1}", UnderlyingCast(err), m_curl.multi_strerror(err)));
-			return;
+			return false;
 		}
+
+		bool finishedRequest = false;
 
 		CURLMsg* m;
 		do
@@ -80,22 +82,27 @@ namespace Nz
 				m_curl.multi_remove_handle(m_curlMulti, handle);
 
 				m_activeRequests.erase(handle);
+
+				finishedRequest = true;
 			}
 		}
 		while (m);
-#else
-		if (!m_finishedRequests.empty())
-		{
-			for (auto&& [request, succeeded] : m_finishedRequests)
-			{
-				if (succeeded)
-					request->TriggerSuccessCallback();
-				else
-					request->TriggerErrorCallback(request->GetFetchHandle()->statusText);
-			}
 
-			m_finishedRequests.clear();
+		return finishedRequest; //< returns true if at least one request finished
+#else
+		if (m_finishedRequests.empty())
+			return false;
+
+		for (auto&& [request, succeeded] : m_finishedRequests)
+		{
+			if (succeeded)
+				request->TriggerSuccessCallback();
+			else
+				request->TriggerErrorCallback(request->GetFetchHandle()->statusText);
 		}
+
+		m_finishedRequests.clear();
+		return true;
 #endif
 	}
 

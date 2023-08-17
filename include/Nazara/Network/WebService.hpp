@@ -44,7 +44,7 @@ namespace Nz
 
 			inline const std::string& GetUserAgent() const;
 
-			void Poll();
+			bool Poll();
 
 			void QueueRequest(std::unique_ptr<WebRequest>&& request);
 
