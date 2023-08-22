@@ -6,7 +6,7 @@ target("Showcase")
 	set_group("Examples")
 	set_kind("binary")
 	add_deps("NazaraAudio", "NazaraGraphics", "NazaraChipmunkPhysics2D", "NazaraBulletPhysics3D", "NazaraJoltPhysics3D", "NazaraWidgets")
-	if has_config("embed_plugins") then
+	if has_config("embed_plugins", "static") then
 		add_deps("PluginAssimp")
 	else
 		add_deps("PluginAssimp", { links = {} })

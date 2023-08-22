@@ -3,7 +3,7 @@ local modules = NazaraRendererBackends
 -- Builds renderer plugins if linked to NazaraRenderer
 rule("build.rendererplugins")
 	on_load(function (target)
-		if has_config("embed_rendererbackends") then
+		if has_config("embed_rendererbackends", "static") then
 			return
 		end
 

@@ -85,7 +85,7 @@ local modules = {
 			-- NazaraMath is header-only, make it part of the core project
 			add_headerfiles("include/(Nazara/Math/**.hpp)", "include/(Nazara/Math/**.inl)")
 
-			if has_config("embed_plugins") then
+			if has_config("embed_plugins", "static") then
 				add_defines("NAZARA_PLUGINS_STATIC", { public = true })
 			end
 
@@ -178,7 +178,7 @@ local modules = {
 		Packages = { "frozen" },
 		PublicPackages = { "nazarautils", "nzsl" },
 		Custom = function ()
-			if has_config("embed_rendererbackends") then
+			if has_config("embed_rendererbackends", "static") then
 				-- Embed backends code inside our own modules
 				add_defines("NAZARA_RENDERER_EMBEDDEDBACKENDS")
 				for name, module in table.orderpairs(rendererBackends) do
@@ -206,7 +206,7 @@ if is_plat("wasm") then
 	rendererBackends.VulkanRenderer = nil
 end
 
-if not has_config("embed_rendererbackends") then
+if not has_config("embed_rendererbackends", "static") then
 	-- Register backends as separate modules
 	for name, module in pairs(rendererBackends) do
 		if (modules[name] ~= nil) then
@@ -232,6 +232,7 @@ option("embed_resources", { description = "Turn builtin resources into includabl
 option("embed_plugins", { description = "Embed enabled plugins code as static libraries", default = is_plat("wasm") or false })
 option("link_curl", { description = "Link libcurl in the executable instead of dynamically loading it", default = false })
 option("link_openal", { description = "Link OpenAL in the executable instead of dynamically loading it", default = is_plat("wasm") or false })
+option("static", { description = "Build the engine statically (implies embed_rendererbackends and embed_plugins)", default = is_plat("wasm") or false })
 option("override_runtime", { description = "Override vs runtime to MD in release and MDd in debug", default = true })
 option("usepch", { description = "Use precompiled headers to speedup compilation", default = false })
 option("unitybuild", { description = "Build the engine using unity build", default = false })
@@ -289,7 +290,7 @@ if has_config("platform") then
 end
 
 if has_config("renderer") then
-	add_requires("nzsl", { debug = is_mode("debug"), configs = { with_symbols = not is_mode("release"), shared = not is_plat("wasm", "android") } })
+	add_requires("nzsl", { debug = is_mode("debug"), configs = { with_symbols = not is_mode("release"), shared = not is_plat("wasm", "android") and not has_config("static") } })
 
 	local function is_cross_compiling()
 		if os.host() == "windows" then
@@ -504,12 +505,12 @@ for name, module in pairs(modules) do
 	target("Nazara" .. name, function ()
 		set_group("Modules")
 
-		-- for now only shared compilation is supported (except on platforms like wasm)
-		if not is_plat("wasm") then
-			set_kind("shared")
-		else
+		-- handle shared/static kind
+		if is_plat("wasm") or has_config("static") then
 			set_kind("static")
 			add_defines("NAZARA_STATIC", { public = true })
+		else
+			set_kind("shared")
 		end
 
 		add_rpathdirs("$ORIGIN")
