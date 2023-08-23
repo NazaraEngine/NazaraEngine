@@ -563,6 +563,9 @@ namespace Nz
 		std::size_t oldSpriteCount = m_cursors.size();
 		if (m_cursors.size() < selectionLineCount)
 		{
+			Recti scissorBox = GetScissorBox();
+			bool isVisible = IsVisible() && HasFocus();
+
 			m_cursors.resize(selectionLineCount);
 			for (std::size_t i = oldSpriteCount; i < m_cursors.size(); ++i)
 			{
@@ -570,8 +573,11 @@ namespace Nz
 				m_cursors[i].sprite->UpdateRenderLayer(GetBaseRenderLayer() + 1);
 
 				m_cursors[i].entity = CreateEntity();
-				registry.emplace<GraphicsComponent>(m_cursors[i].entity, IsVisible() && HasFocus()).AttachRenderable(m_cursors[i].sprite, GetCanvas()->GetRenderMask());
 				registry.emplace<NodeComponent>(m_cursors[i].entity).SetParent(textNode);
+
+				auto& cursorGfx = registry.emplace<GraphicsComponent>(m_cursors[i].entity, isVisible);
+				cursorGfx.AttachRenderable(m_cursors[i].sprite, GetCanvas()->GetRenderMask());
+				cursorGfx.UpdateScissorBox(scissorBox);
 			}
 		}
 		else if (m_cursors.size() > selectionLineCount)

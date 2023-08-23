@@ -253,6 +253,23 @@ namespace Nz
 		UpdatePositionAndSize();
 	}
 
+	Recti BaseWidget::GetScissorBox() const
+	{
+		Rectf scissorRect = GetScissorRect();
+
+		if (m_parentWidget)
+		{
+			Rectf parentScissorRect = m_parentWidget->GetScissorRect();
+
+			if (!scissorRect.Intersect(parentScissorRect, &scissorRect))
+				scissorRect = parentScissorRect;
+		}
+
+		scissorRect.y = GetCanvas()->GetSize().y - scissorRect.height - scissorRect.y; //< scissor rect is in screen coordinates
+
+		return Recti(scissorRect);
+	}
+
 	Rectf BaseWidget::GetScissorRect() const
 	{
 		Vector2f widgetPos = Vector2f(GetPosition(CoordSys::Global));
@@ -419,25 +436,13 @@ namespace Nz
 		if (IsRegisteredToCanvas())
 			m_canvas->NotifyWidgetBoxUpdate(m_canvasIndex);
 
-		Rectf scissorRect = GetScissorRect();
-
-		if (m_parentWidget)
-		{
-			Rectf parentScissorRect = m_parentWidget->GetScissorRect();
-
-			if (!scissorRect.Intersect(parentScissorRect, &scissorRect))
-				scissorRect = parentScissorRect;
-		}
-
-		scissorRect.y = GetCanvas()->GetSize().y - scissorRect.height - scissorRect.y; //< scissor rect is in screen coordinates
-
-		Recti fullBounds(scissorRect);
+		Recti scissorBox = GetScissorBox();
 
 		auto& registry = GetRegistry();
 		for (WidgetEntity& widgetEntity : m_entities)
 		{
 			if (GraphicsComponent* gfx = registry.try_get<GraphicsComponent>(widgetEntity.handle))
-				gfx->UpdateScissorBox(fullBounds);
+				gfx->UpdateScissorBox(scissorBox);
 		}
 	}
 }

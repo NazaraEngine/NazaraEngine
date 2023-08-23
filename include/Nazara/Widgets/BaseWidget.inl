@@ -113,6 +113,11 @@ namespace Nz
 		return m_canvas;
 	}
 
+	inline const Canvas* BaseWidget::GetCanvas() const
+	{
+		return m_canvas;
+	}
+
 	inline SystemCursor BaseWidget::GetCursor() const
 	{
 		return m_cursor;
@@ -359,4 +364,5 @@ namespace Nz
 }
 
 #include <Nazara/Widgets/DebugOff.hpp>
+#include "BaseWidget.hpp"
 

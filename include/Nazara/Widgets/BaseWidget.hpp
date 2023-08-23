@@ -55,6 +55,7 @@ namespace Nz
 
 			inline const Color& GetBackgroundColor() const;
 			inline Canvas* GetCanvas();
+			inline const Canvas* GetCanvas() const;
 			inline SystemCursor GetCursor() const;
 			inline float GetHeight() const;
 
@@ -123,6 +124,7 @@ namespace Nz
 
 			void InvalidateNode(Invalidation invalidation) override;
 
+			Recti GetScissorBox() const;
 			Rectf GetScissorRect() const;
 
 			virtual bool IsFocusable() const;
