@@ -84,10 +84,12 @@ namespace Nz
 	{
 		if (m_keyboardOwner != canvasIndex)
 		{
-			if (m_keyboardOwner != InvalidCanvasIndex)
-				m_widgetEntries[m_keyboardOwner].widget->OnFocusLost();
+			std::size_t previousOwner = m_keyboardOwner;
 
 			m_keyboardOwner = canvasIndex;
+
+			if (previousOwner != InvalidCanvasIndex)
+				m_widgetEntries[previousOwner].widget->OnFocusLost();
 
 			if (m_keyboardOwner != InvalidCanvasIndex)
 				m_widgetEntries[m_keyboardOwner].widget->OnFocusReceived();
