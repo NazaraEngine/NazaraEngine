@@ -86,10 +86,12 @@ namespace Nz
 			NazaraSignal(OnTextAreaSelection, const AbstractTextAreaWidget* /*textArea*/, Vector2ui* /*start*/, Vector2ui* /*end*/);
 
 		protected:
-			virtual AbstractTextDrawer& GetTextDrawer() = 0;
-			virtual const AbstractTextDrawer& GetTextDrawer() const = 0;
+			Color GetCursorColor() const;
 
 			virtual void CopySelectionToClipboard(const Vector2ui& selectionBegin, const Vector2ui& selectionEnd) = 0;
+
+			virtual AbstractTextDrawer& GetTextDrawer() = 0;
+			virtual const AbstractTextDrawer& GetTextDrawer() const = 0;
 
 			virtual void HandleIndentation(bool add) = 0;
 			virtual void HandleSelectionIndentation(bool add) = 0;
@@ -113,7 +115,8 @@ namespace Nz
 
 			virtual void PasteFromClipboard(const Vector2ui& targetPosition) = 0;
 
-			void RefreshCursor();
+			void RefreshCursorColor();
+			void RefreshCursorSize();
 
 			inline void SetCursorPositionInternal(std::size_t glyphIndex);
 			inline void SetCursorPositionInternal(Vector2ui cursorPosition);

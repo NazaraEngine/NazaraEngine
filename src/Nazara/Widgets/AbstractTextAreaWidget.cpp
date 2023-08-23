@@ -59,7 +59,8 @@ namespace Nz
 		m_cursorPositionBegin = Vector2ui::Zero();
 		m_cursorPositionEnd = Vector2ui::Zero();
 
-		RefreshCursor();
+		RefreshCursorColor();
+		RefreshCursorSize();
 	}
 
 	void AbstractTextAreaWidget::EnableLineWrap(bool enable)
@@ -120,6 +121,16 @@ namespace Nz
 		return Vector2ui::Zero();
 	}
 
+	Color AbstractTextAreaWidget::GetCursorColor() const
+	{
+		if (m_cursorPositionBegin == m_cursorPositionEnd)
+			return Color::Black();
+		else if (HasFocus())
+			return Color(0.f, 0.f, 0.f, 0.2f);
+		else
+			return Color(0.5f, 0.5f, 0.5f, 0.2f);
+	}
+
 	bool AbstractTextAreaWidget::IsFocusable() const
 	{
 		return !m_readOnly;
@@ -137,26 +148,17 @@ namespace Nz
 		}
 
 		UpdateTextSprite();
-		RefreshCursor();
+		RefreshCursorSize();
 	}
 
 	void AbstractTextAreaWidget::OnFocusLost()
 	{
-		// Hide cursors
-		auto& registry = GetRegistry();
-		for (auto& cursor : m_cursors)
-			registry.get<GraphicsComponent>(cursor.entity).Hide();
+		RefreshCursorColor();
 	}
 
 	void AbstractTextAreaWidget::OnFocusReceived()
 	{
-		if (!m_readOnly)
-		{
-			// Show cursors
-			auto& registry = GetRegistry();
-			for (auto& cursor : m_cursors)
-				registry.get<GraphicsComponent>(cursor.entity).Show();
-		}
+		RefreshCursorColor();
 	}
 
 	bool AbstractTextAreaWidget::OnKeyPressed(const WindowEvent::KeyEvent& key)
@@ -508,7 +510,40 @@ namespace Nz
 		return true;
 	}
 
-	void AbstractTextAreaWidget::RefreshCursor()
+	void AbstractTextAreaWidget::RefreshCursorColor()
+	{
+		Color cursorColor = GetCursorColor();
+
+		if (m_cursorPositionBegin == m_cursorPositionEnd)
+		{
+			auto& registry = GetRegistry();
+
+			// Show or hide cursor depending on state
+			if (HasFocus())
+			{
+				if (!m_readOnly)
+				{
+					for (auto& cursor : m_cursors)
+					{
+						cursor.sprite->SetColor(cursorColor);
+						registry.get<GraphicsComponent>(cursor.entity).Show();
+					}
+				}
+			}
+			else
+			{
+				for (auto& cursor : m_cursors)
+					registry.get<GraphicsComponent>(cursor.entity).Hide();
+			}
+		}
+		else
+		{
+			for (auto& cursor : m_cursors)
+				cursor.sprite->SetColor(cursorColor);
+		}
+	}
+
+	void AbstractTextAreaWidget::RefreshCursorSize()
 	{
 		if (m_readOnly)
 			return;
@@ -563,6 +598,7 @@ namespace Nz
 		std::size_t oldSpriteCount = m_cursors.size();
 		if (m_cursors.size() < selectionLineCount)
 		{
+			Color cursorColor = GetCursorColor();
 			Recti scissorBox = GetScissorBox();
 			bool isVisible = IsVisible() && HasFocus();
 
@@ -570,6 +606,7 @@ namespace Nz
 			for (std::size_t i = oldSpriteCount; i < m_cursors.size(); ++i)
 			{
 				m_cursors[i].sprite = std::make_shared<Sprite>(Widgets::Instance()->GetTransparentMaterial());
+				m_cursors[i].sprite->SetColor(cursorColor);
 				m_cursors[i].sprite->UpdateRenderLayer(GetBaseRenderLayer() + 1);
 
 				m_cursors[i].entity = CreateEntity();
@@ -618,7 +655,6 @@ namespace Nz
 				float endX = (i == m_cursorPositionEnd.y) ? GetGlyphPos({ m_cursorPositionEnd.x, i }) : lineInfo.bounds.width;
 				float spriteSize = std::max(endX - beginX, 1.f);
 
-				cursor.sprite->SetColor((m_cursorPositionBegin == m_cursorPositionEnd) ? Color::Black() : Color(0.f, 0.f, 0.f, 0.2f));
 				cursor.sprite->SetSize(Vector2f(spriteSize, lineInfo.bounds.height));
 
 				registry.get<NodeComponent>(cursor.entity).SetPosition(beginX, textHeight - lineInfo.bounds.y - lineInfo.bounds.height);
@@ -626,7 +662,6 @@ namespace Nz
 			else
 			{
 				// Full line selection
-				cursor.sprite->SetColor(Color(0.f, 0.f, 0.f, 0.2f));
 				cursor.sprite->SetSize(Vector2f(lineInfo.bounds.width, lineInfo.bounds.height));
 
 				registry.get<NodeComponent>(cursor.entity).SetPosition(0.f, textHeight - lineInfo.bounds.y - lineInfo.bounds.height);
