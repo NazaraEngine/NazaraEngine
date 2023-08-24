@@ -140,7 +140,7 @@ namespace Nz::GL
 		return true;
 	}
 
-	bool WebContext::ImplementFallback(const std::string_view& function)
+	bool WebContext::ImplementFallback(std::string_view function)
 	{
 		if (Context::ImplementFallback(function))
 			return true;

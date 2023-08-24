@@ -393,7 +393,7 @@ namespace
 			int m_videoStream;
 	};
 
-	bool CheckVideoExtension(const std::string_view& extension)
+	bool CheckVideoExtension(std::string_view extension)
 	{
 		const AVOutputFormat* format = av_guess_format(nullptr, extension.data(), nullptr);
 		if (!format)

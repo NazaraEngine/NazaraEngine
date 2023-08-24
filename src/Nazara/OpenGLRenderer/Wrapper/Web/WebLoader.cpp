@@ -113,7 +113,7 @@ namespace Nz::GL
 		}
 	}
 
-	bool WebLoader::ImplementFallback(const std::string_view& /*function*/)
+	bool WebLoader::ImplementFallback(std::string_view /*function*/)
 	{
 		return false;
 	}

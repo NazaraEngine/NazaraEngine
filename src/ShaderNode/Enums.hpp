@@ -64,7 +64,7 @@ enum class TextureType
 constexpr std::size_t TextureTypeCount = static_cast<std::size_t>(TextureType::Max) + 1;
 
 
-template<typename T> std::optional<T> DecodeEnum(const std::string_view& str);
+template<typename T> std::optional<T> DecodeEnum(std::string_view str);
 const char* EnumToString(BufferType bufferType);
 const char* EnumToString(InputRole role);
 const char* EnumToString(PrimitiveType input);
