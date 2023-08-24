@@ -182,7 +182,7 @@ namespace Nz
 			return false;
 	};
 
-	void SimpleTextDrawer::GenerateGlyphs(const std::string_view& text) const
+	void SimpleTextDrawer::GenerateGlyphs(std::string_view text) const
 	{
 		if (text.empty())
 			return;

@@ -1027,7 +1027,7 @@ namespace Nz::GL
 		m_vaoCache.Clear();
 	}
 
-	bool Context::ImplementFallback(const std::string_view& function)
+	bool Context::ImplementFallback(std::string_view function)
 	{
 		SymbolLoader loader(*this);
 

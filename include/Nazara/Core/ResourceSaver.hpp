@@ -29,7 +29,7 @@ namespace Nz
 
 		public:
 			struct Entry;
-			using FormatSupport = std::function<bool(const std::string_view& format)>;
+			using FormatSupport = std::function<bool(std::string_view format)>;
 			using FileSaver = std::function<bool(const Type& resource, const std::filesystem::path& filePath, const Parameters& parameters)>;
 			using StreamSaver = std::function<bool(const Type& resource, const std::string& format, Stream& stream, const Parameters& parameters)>;
 
@@ -40,7 +40,7 @@ namespace Nz
 
 			void Clear();
 
-			bool IsExtensionSupported(const std::string_view& extension) const;
+			bool IsExtensionSupported(std::string_view extension) const;
 
 			bool SaveToFile(const Type& resource, const std::filesystem::path& filePath, const Parameters& parameters = Parameters()) const;
 			bool SaveToStream(const Type& resource, Stream& stream, const std::string& format, const Parameters& parameters = Parameters()) const;

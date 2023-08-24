@@ -230,7 +230,7 @@ namespace Nz
 			{ ".tga",  &SaveTGA }
 		});
 		
-		bool FormatQuerier(const std::string_view& extension)
+		bool FormatQuerier(std::string_view extension)
 		{
 			return s_formatHandlers.find(extension) != s_formatHandlers.end();
 		}

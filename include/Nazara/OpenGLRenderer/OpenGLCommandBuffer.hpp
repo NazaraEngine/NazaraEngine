@@ -38,7 +38,7 @@ namespace Nz
 			OpenGLCommandBuffer(OpenGLCommandBuffer&&) = delete;
 			~OpenGLCommandBuffer() = default;
 
-			inline void BeginDebugRegion(const std::string_view& regionName, const Color& color);
+			inline void BeginDebugRegion(std::string_view regionName, const Color& color);
 
 			inline void BindComputePipeline(const OpenGLComputePipeline* pipeline);
 			inline void BindComputeShaderBinding(const OpenGLRenderPipelineLayout& pipelineLayout, UInt32 set, const OpenGLShaderBinding* binding);

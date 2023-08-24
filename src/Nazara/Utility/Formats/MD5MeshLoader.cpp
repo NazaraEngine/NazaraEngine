@@ -20,7 +20,7 @@ namespace Nz
 {
 	namespace
 	{
-		bool IsMD5MeshSupported(const std::string_view& extension)
+		bool IsMD5MeshSupported(std::string_view extension)
 		{
 			return (extension == ".md5mesh");
 		}

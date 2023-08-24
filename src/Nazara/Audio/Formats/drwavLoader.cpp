@@ -49,7 +49,7 @@ namespace Nz
 			}
 		}
 
-		bool IsWavSupported(const std::string_view& extension)
+		bool IsWavSupported(std::string_view extension)
 		{
 			return extension == ".riff" || extension == ".rf64" || extension == ".wav" || extension == ".w64";
 		}

@@ -22,7 +22,7 @@ namespace Nz
 {
 	namespace
 	{
-		bool IsOBJSupported(const std::string_view& extension)
+		bool IsOBJSupported(std::string_view extension)
 		{
 			return (extension == ".obj");
 		}

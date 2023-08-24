@@ -238,7 +238,7 @@ namespace Nz::GL
 		return true;
 	}
 
-	bool WGLContext::ImplementFallback(const std::string_view& function)
+	bool WGLContext::ImplementFallback(std::string_view function)
 	{
 		if (Context::ImplementFallback(function))
 			return true;

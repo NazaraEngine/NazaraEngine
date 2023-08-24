@@ -704,7 +704,7 @@ namespace Nz
 				bool m_requiresFrameHistory;
 		};
 
-		bool CheckGIFExtension(const std::string_view& extension)
+		bool CheckGIFExtension(std::string_view extension)
 		{
 			return extension == ".gif";
 		}

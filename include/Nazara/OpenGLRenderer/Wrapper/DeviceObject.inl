@@ -91,7 +91,7 @@ namespace Nz::GL
 	}
 
 	template<typename C, GLenum ObjectType, typename... CreateArgs>
-	void DeviceObject<C, ObjectType, CreateArgs...>::SetDebugName(const std::string_view& name)
+	void DeviceObject<C, ObjectType, CreateArgs...>::SetDebugName(std::string_view name)
 	{
 		const Context& context = EnsureDeviceContext();
 

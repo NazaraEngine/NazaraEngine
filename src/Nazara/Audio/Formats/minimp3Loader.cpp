@@ -51,7 +51,7 @@ namespace Nz
 			return (stream->SetCursorPos(position)) ? 0 : MP3D_E_IOERROR;
 		}
 
-		bool IsMP3Supported(const std::string_view& extension)
+		bool IsMP3Supported(std::string_view extension)
 		{
 			return extension == ".mp3";
 		}

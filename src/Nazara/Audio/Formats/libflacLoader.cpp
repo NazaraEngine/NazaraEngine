@@ -136,7 +136,7 @@ namespace Nz
 			return DecodeFlacFrameSamples(frame, buffer, samples, 0, frame->header.blocksize);
 		}
 
-		bool IsFlacSupported(const std::string_view& extension)
+		bool IsFlacSupported(std::string_view extension)
 		{
 			return extension == ".flac";
 		}

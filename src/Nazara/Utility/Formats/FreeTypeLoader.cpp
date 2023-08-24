@@ -378,7 +378,7 @@ namespace Nz
 				mutable unsigned int m_characterSize;
 		};
 
-		bool IsFreetypeSupported(const std::string_view& extension)
+		bool IsFreetypeSupported(std::string_view extension)
 		{
 			constexpr auto s_supportedExtensions = frozen::make_unordered_set<frozen::string>({ ".afm", ".bdf", ".cff", ".cid", ".dfont", ".fnt", ".fon", ".otf", ".pfa", ".pfb", ".pfm", ".pfr", ".sfnt", ".ttc", ".tte", ".ttf" });
 

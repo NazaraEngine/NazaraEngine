@@ -38,7 +38,7 @@ namespace Nz
 			CommandBufferBuilder(CommandBufferBuilder&&) = default;
 			virtual ~CommandBufferBuilder();
 
-			virtual void BeginDebugRegion(const std::string_view& regionName, const Color& color) = 0;
+			virtual void BeginDebugRegion(std::string_view regionName, const Color& color) = 0;
 			virtual void BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, const Recti& renderRect, const ClearValues* clearValues, std::size_t clearValueCount) = 0;
 			inline void BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, const Recti& renderRect);
 			inline void BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, const Recti& renderRect, std::initializer_list<ClearValues> clearValues);

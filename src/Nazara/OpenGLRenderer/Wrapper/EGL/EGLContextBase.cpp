@@ -296,7 +296,7 @@ namespace Nz::GL
 		return true;
 	}
 
-	bool EGLContextBase::ImplementFallback(const std::string_view& function)
+	bool EGLContextBase::ImplementFallback(std::string_view function)
 	{
 		if (Context::ImplementFallback(function))
 			return true;

@@ -57,7 +57,7 @@ namespace Nz
 		return hash.End();
 	}
 
-	inline bool HashAppend(AbstractHash& hash, const std::string_view& v)
+	inline bool HashAppend(AbstractHash& hash, std::string_view v)
 	{
 		hash.Append(reinterpret_cast<const UInt8*>(v.data()), v.size());
 		return true;

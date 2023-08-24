@@ -34,7 +34,7 @@ namespace Nz::GL
 			const Context* GetContext() const;
 			GLuint GetObjectId() const;
 
-			void SetDebugName(const std::string_view& name);
+			void SetDebugName(std::string_view name);
 
 			ContextObject& operator=(const ContextObject&) = delete;
 			ContextObject& operator=(ContextObject&& object) noexcept = default;

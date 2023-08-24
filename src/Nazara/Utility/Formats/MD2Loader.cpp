@@ -21,7 +21,7 @@ namespace Nz
 {
 	namespace
 	{
-		bool IsMD2Supported(const std::string_view& extension)
+		bool IsMD2Supported(std::string_view extension)
 		{
 			return (extension == ".md2");
 		}

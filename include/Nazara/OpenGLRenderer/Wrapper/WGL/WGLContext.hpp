@@ -47,7 +47,7 @@ namespace Nz::GL
 
 		private:
 			bool CreateInternal(const WGLContext* baseContext, const ContextParams& params, const WGLContext* shareContext = nullptr);
-			bool ImplementFallback(const std::string_view& function) override;
+			bool ImplementFallback(std::string_view function) override;
 
 			bool Activate() const override;
 			void Desactivate() const override;

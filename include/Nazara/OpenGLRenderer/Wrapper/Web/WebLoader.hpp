@@ -31,7 +31,7 @@ namespace Nz::GL
 			static const char* TranslateError(EMSCRIPTEN_RESULT errorId);
 
 		private:
-			bool ImplementFallback(const std::string_view& function);
+			bool ImplementFallback(std::string_view function);
 	};
 }
 

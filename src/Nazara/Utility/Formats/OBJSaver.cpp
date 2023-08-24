@@ -52,7 +52,7 @@ namespace Nz
 				T* m_buffer;
 		};
 
-		bool IsOBJSupportedSave(const std::string_view& extension)
+		bool IsOBJSupportedSave(std::string_view extension)
 		{
 			return (extension == ".obj");
 		}

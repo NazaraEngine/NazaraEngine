@@ -12,7 +12,7 @@ namespace Nz
 {
 	namespace
 	{
-		bool IsMD5AnimSupported(const std::string_view& extension)
+		bool IsMD5AnimSupported(std::string_view extension)
 		{
 			return extension == ".md5anim";
 		}

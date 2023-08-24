@@ -18,7 +18,7 @@ namespace Nz
 			DDSLoader() = delete;
 			~DDSLoader() = delete;
 
-			static bool IsSupported(const std::string_view& extension)
+			static bool IsSupported(std::string_view extension)
 			{
 				return (extension == ".dds");
 			}

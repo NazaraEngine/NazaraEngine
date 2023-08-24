@@ -42,7 +42,7 @@ namespace Nz
 		operator=(std::move(drawer));
 	}
 
-	inline void SimpleTextDrawer::AppendText(const std::string_view& str)
+	inline void SimpleTextDrawer::AppendText(std::string_view str)
 	{
 		m_text.append(str);
 		if (m_glyphUpdated)

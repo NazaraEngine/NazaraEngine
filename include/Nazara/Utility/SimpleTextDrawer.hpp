@@ -23,7 +23,7 @@ namespace Nz
 			inline SimpleTextDrawer(SimpleTextDrawer&& drawer) noexcept;
 			~SimpleTextDrawer() = default;
 
-			inline void AppendText(const std::string_view& str);
+			inline void AppendText(std::string_view str);
 
 			void Clear() override;
 
@@ -75,7 +75,7 @@ namespace Nz
 			inline void DisconnectFontSlots();
 
 			bool GenerateGlyph(Glyph& glyph, char32_t character, float outlineThickness, bool lineWrap, Color color, int renderOrder, int* advance) const;
-			void GenerateGlyphs(const std::string_view& text) const;
+			void GenerateGlyphs(std::string_view text) const;
 
 			inline float GetLineHeight(const Font::SizeInfo& sizeInfo) const;
 

@@ -40,7 +40,7 @@ namespace Nz
 
 		static_assert(sizeof(PCXHeader) == (6+48+54)*sizeof(UInt8) + 10*sizeof(UInt16), "pcx_header struct must be packed");
 
-		bool IsPCXSupported(const std::string_view& extension)
+		bool IsPCXSupported(std::string_view extension)
 		{
 			return (extension == ".pcx");
 		}

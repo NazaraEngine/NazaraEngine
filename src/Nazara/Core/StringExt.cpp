@@ -61,7 +61,7 @@ namespace Nz
 				return FromUtf16String(std::u16string_view(reinterpret_cast<const char16_t*>(wstr), size));
 			}
 
-			static std::wstring To(const std::string_view& str)
+			static std::wstring To(std::string_view str)
 			{
 				std::wstring result;
 				utf8::utf8to16(str.begin(), str.end(), std::back_inserter(result));
@@ -81,7 +81,7 @@ namespace Nz
 				return FromUtf32String(std::u32string_view(reinterpret_cast<const char32_t*>(wstr), size));
 			}
 
-			static std::wstring To(const std::string_view& str)
+			static std::wstring To(std::string_view str)
 			{
 				std::wstring result;
 				utf8::utf8to32(str.begin(), str.end(), std::back_inserter(result));
@@ -92,12 +92,12 @@ namespace Nz
 #endif
 	}
 
-	std::size_t ComputeCharacterCount(const std::string_view& str)
+	std::size_t ComputeCharacterCount(std::string_view str)
 	{
 		return utf8::distance(str.data(), str.data() + str.size());
 	}
 	
-	bool EndsWith(const std::string_view& lhs, const std::string_view& rhs, CaseIndependent)
+	bool EndsWith(std::string_view lhs, std::string_view rhs, CaseIndependent)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
@@ -110,7 +110,7 @@ namespace Nz
 		});
 	}
 
-	bool EndsWith(const std::string_view& lhs, const std::string_view& rhs, UnicodeAware)
+	bool EndsWith(std::string_view lhs, std::string_view rhs, UnicodeAware)
 	{
 		if (lhs.empty())
 			return lhs == rhs;
@@ -136,7 +136,7 @@ namespace Nz
 		return true;
 	}
 
-	bool EndsWith(const std::string_view& lhs, const std::string_view& rhs, CaseIndependent, UnicodeAware)
+	bool EndsWith(std::string_view lhs, std::string_view rhs, CaseIndependent, UnicodeAware)
 	{
 		if (lhs.empty())
 			return lhs == rhs;
@@ -162,7 +162,7 @@ namespace Nz
 		return true;
 	}
 
-	std::string FromUtf16String(const std::u16string_view& u16str)
+	std::string FromUtf16String(std::u16string_view u16str)
 	{
 		std::string result;
 		utf8::utf16to8(u16str.begin(), u16str.end(), std::back_inserter(result));
@@ -170,7 +170,7 @@ namespace Nz
 		return result;
 	}
 
-	std::string FromUtf32String(const std::u32string_view& u32str)
+	std::string FromUtf32String(std::u32string_view u32str)
 	{
 		std::string result;
 		utf8::utf32to8(u32str.begin(), u32str.end(), std::back_inserter(result));
@@ -178,14 +178,14 @@ namespace Nz
 		return result;
 	}
 
-	std::string FromWideString(const std::wstring_view& wstr)
+	std::string FromWideString(std::wstring_view wstr)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
 		return WideConverter<sizeof(wchar_t)>::From(wstr.data(), wstr.size());
 	}
 
-	std::size_t GetCharacterPosition(const std::string_view& str, std::size_t characterIndex)
+	std::size_t GetCharacterPosition(std::string_view str, std::size_t characterIndex)
 	{
 		const char* ptr = str.data();
 		const char* end = ptr + str.size();
@@ -212,7 +212,7 @@ namespace Nz
 		return std::string::npos;
 	}
 
-	std::string_view GetWord(const std::string_view& str, std::size_t wordIndex)
+	std::string_view GetWord(std::string_view str, std::size_t wordIndex)
 	{
 		std::size_t pos = 0;
 		std::size_t previousPos = 0;
@@ -228,7 +228,7 @@ namespace Nz
 		return {};
 	}
 
-	std::string_view GetWord(const std::string_view& str, std::size_t wordIndex, UnicodeAware)
+	std::string_view GetWord(std::string_view str, std::size_t wordIndex, UnicodeAware)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
@@ -259,7 +259,7 @@ namespace Nz
 		return {};
 	}
 
-	bool MatchPattern(const std::string_view& str, const std::string_view& pattern)
+	bool MatchPattern(std::string_view str, std::string_view pattern)
 	{
 		if (str.empty() || pattern.empty())
 			return false;
@@ -321,7 +321,7 @@ namespace Nz
 		return str;
 	}
 
-	bool StartsWith(const std::string_view& lhs, const std::string_view& rhs, CaseIndependent)
+	bool StartsWith(std::string_view lhs, std::string_view rhs, CaseIndependent)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
@@ -334,7 +334,7 @@ namespace Nz
 		});
 	}
 
-	bool StartsWith(const std::string_view& lhs, const std::string_view& rhs, UnicodeAware)
+	bool StartsWith(std::string_view lhs, std::string_view rhs, UnicodeAware)
 	{
 		if (lhs.empty())
 			return lhs == rhs;
@@ -358,7 +358,7 @@ namespace Nz
 		return true;
 	}
 
-	bool StartsWith(const std::string_view& lhs, const std::string_view& rhs, CaseIndependent, UnicodeAware)
+	bool StartsWith(std::string_view lhs, std::string_view rhs, CaseIndependent, UnicodeAware)
 	{
 		if (lhs.empty())
 			return lhs == rhs;
@@ -382,7 +382,7 @@ namespace Nz
 		return true;
 	}
 
-	bool StringEqual(const std::string_view& lhs, const std::string_view& rhs, UnicodeAware)
+	bool StringEqual(std::string_view lhs, std::string_view rhs, UnicodeAware)
 	{
 		if (lhs.empty() || rhs.empty())
 			return lhs == rhs;
@@ -399,7 +399,7 @@ namespace Nz
 		return true;
 	}
 
-	bool StringEqual(const std::string_view& lhs, const std::string_view& rhs, CaseIndependent, UnicodeAware)
+	bool StringEqual(std::string_view lhs, std::string_view rhs, CaseIndependent, UnicodeAware)
 	{
 		if (lhs.empty() || rhs.empty())
 			return lhs == rhs;
@@ -416,7 +416,7 @@ namespace Nz
 		return true;
 	}
 
-	std::string ToLower(const std::string_view& str)
+	std::string ToLower(std::string_view str)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
@@ -427,7 +427,7 @@ namespace Nz
 		return result;
 	}
 
-	std::string ToLower(const std::string_view& str, UnicodeAware)
+	std::string ToLower(std::string_view str, UnicodeAware)
 	{
 		if (str.empty())
 			return std::string();
@@ -443,7 +443,7 @@ namespace Nz
 		return result;
 	}
 
-	std::string ToUpper(const std::string_view& str)
+	std::string ToUpper(std::string_view str)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
@@ -454,7 +454,7 @@ namespace Nz
 		return result;
 	}
 
-	std::string ToUpper(const std::string_view& str, UnicodeAware)
+	std::string ToUpper(std::string_view str, UnicodeAware)
 	{
 		if (str.empty())
 			return std::string();
@@ -470,7 +470,7 @@ namespace Nz
 		return result;
 	}
 
-	std::u16string ToUtf16String(const std::string_view& str)
+	std::u16string ToUtf16String(std::string_view str)
 	{
 		std::u16string result;
 		utf8::utf8to16(str.begin(), str.end(), std::back_inserter(result));
@@ -478,7 +478,7 @@ namespace Nz
 		return result;
 	}
 
-	std::u32string ToUtf32String(const std::string_view& str)
+	std::u32string ToUtf32String(std::string_view str)
 	{
 		std::u32string result;
 		utf8::utf8to32(str.begin(), str.end(), std::back_inserter(result));
@@ -486,7 +486,7 @@ namespace Nz
 		return result;
 	}
 
-	std::wstring ToWideString(const std::string_view& str)
+	std::wstring ToWideString(std::string_view str)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 

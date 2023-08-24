@@ -208,7 +208,7 @@ namespace Nz::GL
 			virtual const Loader& GetLoader() = 0;
 			void OnContextRelease();
 
-			virtual bool ImplementFallback(const std::string_view& function);
+			virtual bool ImplementFallback(std::string_view function);
 
 			static void NotifyContextDestruction(Context* context);
 

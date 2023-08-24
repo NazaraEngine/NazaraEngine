@@ -43,7 +43,7 @@ namespace Nz
 
 			void Clear();
 
-			bool IsExtensionSupported(const std::string_view& extension) const;
+			bool IsExtensionSupported(std::string_view extension) const;
 
 			std::shared_ptr<Type> LoadFromFile(const std::filesystem::path& filePath, const Parameters& parameters = Parameters()) const;
 			std::shared_ptr<Type> LoadFromMemory(const void* data, std::size_t size, const Parameters& parameters = Parameters()) const;

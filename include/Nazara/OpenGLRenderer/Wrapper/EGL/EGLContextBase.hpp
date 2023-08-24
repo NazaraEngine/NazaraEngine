@@ -57,7 +57,7 @@ namespace Nz::GL
 			EGLSurface m_surface;
 
 		private:
-			bool ImplementFallback(const std::string_view& function) override;
+			bool ImplementFallback(std::string_view function) override;
 
 			bool Activate() const override;
 			void Desactivate() const override;

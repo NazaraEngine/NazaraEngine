@@ -85,7 +85,7 @@ namespace Nz::GL
 	}
 
 	template<typename C, GLenum ObjectType, typename... CreateArgs>
-	void ContextObject<C, ObjectType, CreateArgs...>::SetDebugName(const std::string_view& name)
+	void ContextObject<C, ObjectType, CreateArgs...>::SetDebugName(std::string_view name)
 	{
 		EnsureContext();
 

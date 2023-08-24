@@ -51,7 +51,7 @@ namespace Nz::GL
 			const WebLoader& m_loader;
 
 		private:
-			bool ImplementFallback(const std::string_view& function) override;
+			bool ImplementFallback(std::string_view function) override;
 
 			bool Activate() const override;
 			void Desactivate() const override;

@@ -19,7 +19,7 @@
 
 namespace Nz
 {
-	void VulkanCommandBufferBuilder::BeginDebugRegion(const std::string_view& regionName, const Color& color)
+	void VulkanCommandBufferBuilder::BeginDebugRegion(std::string_view regionName, const Color& color)
 	{
 		// Ensure \0 at the end of string
 		StackArray<char> regionNameEOS = NazaraStackArrayNoInit(char, regionName.size() + 1);

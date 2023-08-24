@@ -43,8 +43,8 @@ namespace Nz
 			template<typename... Args> static void Write(std::string_view str, Args&&... args);
 			static void WriteError(ErrorType type, std::string_view error, unsigned int line = 0, const char* file = nullptr, const char* function = nullptr);
 
-			NazaraStaticSignal(OnLogWrite, const std::string_view& /*string*/);
-			NazaraStaticSignal(OnLogWriteError, ErrorType /*type*/, const std::string_view& /*error*/, unsigned int /*line*/, const char* /*file*/, const char* /*function*/);
+			NazaraStaticSignal(OnLogWrite, std::string_view /*string*/);
+			NazaraStaticSignal(OnLogWriteError, ErrorType /*type*/, std::string_view /*error*/, unsigned int /*line*/, const char* /*file*/, const char* /*function*/);
 
 		private:
 			static bool Initialize();

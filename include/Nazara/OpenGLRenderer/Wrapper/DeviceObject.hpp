@@ -35,7 +35,7 @@ namespace Nz::GL
 			OpenGLDevice* GetDevice() const;
 			GLuint GetObjectId() const;
 
-			void SetDebugName(const std::string_view& name);
+			void SetDebugName(std::string_view name);
 
 			DeviceObject& operator=(const DeviceObject&) = delete;
 			DeviceObject& operator=(DeviceObject&& object) noexcept = default;

@@ -41,7 +41,7 @@ namespace Nz::GL
 			static const char* TranslateError(EGLint errorId);
 
 		private:
-			bool ImplementFallback(const std::string_view& function);
+			bool ImplementFallback(std::string_view function);
 
 			ContextType m_preferredContextType;
 			EGLDisplay m_defaultDisplay;

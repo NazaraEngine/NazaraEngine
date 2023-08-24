@@ -88,7 +88,7 @@ namespace Nz
 		env.glES = (contextParams.type == GL::ContextType::OpenGL_ES);
 		env.glMajorVersion = contextParams.glMajorVersion;
 		env.glMinorVersion = contextParams.glMinorVersion;
-		env.extCallback = [&](const std::string_view& ext)
+		env.extCallback = [&](std::string_view ext)
 		{
 			return context.IsExtensionSupported(std::string(ext));
 		};

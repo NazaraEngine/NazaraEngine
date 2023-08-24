@@ -80,7 +80,7 @@ namespace Nz::GL
 		m_device->GetReferenceContext().glShaderSource(m_objectId, 1U, &source, &length);
 	}
 
-	inline void Shader::SetSource(const std::string_view& source)
+	inline void Shader::SetSource(std::string_view source)
 	{
 		return SetSource(source.data(), GLint(source.size()));
 	}

@@ -10,7 +10,7 @@
 
 namespace Nz
 {
-	inline bool EndsWith(const std::string_view& str, const std::string_view& s)
+	inline bool EndsWith(std::string_view str, std::string_view s)
 	{
 #if NAZARA_CPP_VER >= NAZARA_CPP20
 		// C++20
@@ -77,7 +77,7 @@ namespace Nz
 		return str;
 	}
 
-	inline std::string& ReplaceStr(std::string& str, const std::string_view& from, const std::string_view& to)
+	inline std::string& ReplaceStr(std::string& str, std::string_view from, std::string_view to)
 	{
 		if (str.empty())
 			return str;
@@ -92,7 +92,7 @@ namespace Nz
 		return str;
 	}
 
-	inline bool StartsWith(const std::string_view& str, const std::string_view& s)
+	inline bool StartsWith(std::string_view str, std::string_view s)
 	{
 #if NAZARA_CPP_VER >= NAZARA_CPP20
 		// C++20
@@ -103,7 +103,7 @@ namespace Nz
 	}
 
 	template<typename F>
-	bool SplitString(const std::string_view& str, const std::string_view& token, F&& func)
+	bool SplitString(std::string_view str, std::string_view token, F&& func)
 	{
 		std::size_t pos = 0;
 		std::size_t previousPos = 0;
@@ -123,7 +123,7 @@ namespace Nz
 	}
 
 	template<typename F>
-	bool SplitStringAny(const std::string_view& str, const std::string_view& token, F&& func)
+	bool SplitStringAny(std::string_view str, std::string_view token, F&& func)
 	{
 		std::size_t pos = 0;
 		std::size_t previousPos = 0;
@@ -139,12 +139,12 @@ namespace Nz
 		return func(str.substr(previousPos));
 	}
 
-	inline bool StringEqual(const std::string_view& lhs, const std::string_view& rhs)
+	inline bool StringEqual(std::string_view lhs, std::string_view rhs)
 	{
 		return lhs == rhs;
 	}
 
-	inline bool StringEqual(const std::string_view& lhs, const std::string_view& rhs, CaseIndependent)
+	inline bool StringEqual(std::string_view lhs, std::string_view rhs, CaseIndependent)
 	{
 		if (lhs.size() != rhs.size())
 			return false;
@@ -170,7 +170,7 @@ namespace Nz
 	* \remark radix is meant to be between 2 and 36, other values are potentially undefined behavior
 	* \remark With NAZARA_MATH_SAFE, a NazaraError is produced and 0 is returned
 	*/
-	inline long long StringToNumber(const std::string_view& str, UInt8 radix, bool* ok)
+	inline long long StringToNumber(std::string_view str, UInt8 radix, bool* ok)
 	{
 		NazaraAssert(radix >= 2 && radix <= 36, "base must be between 2 and 36");
 

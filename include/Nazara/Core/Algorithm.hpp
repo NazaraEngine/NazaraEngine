@@ -26,7 +26,7 @@ namespace Nz
 	template<typename T> ByteArray ComputeHash(HashType hash, T&& v);
 	template<typename T> ByteArray ComputeHash(AbstractHash& hash, T&& v);
 
-	inline bool HashAppend(AbstractHash* hash, const std::string_view& v);
+	inline bool HashAppend(AbstractHash* hash, std::string_view v);
 
 	template<typename T>
 	bool Serialize(SerializationContext& context, T&& value);
