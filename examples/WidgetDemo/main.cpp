@@ -91,12 +91,15 @@ int main(int argc, char* argv[])
 	scrollBarWidget->SetPosition(1400.f, 800.f);
 	scrollBarWidget->Resize({ 512.f, 256.f });
 
-	/*Nz::TextAreaWidget* textAreaWidget2 = canvas2D.Add<Nz::TextAreaWidget>();
-	textAreaWidget2->SetPosition(800.f, 700.f);
-	textAreaWidget2->SetText("Je suis un autre TextAreaWidget !");
-	textAreaWidget2->Resize(Nz::Vector2f(500.f, textAreaWidget2->GetPreferredHeight()));
+	Nz::RichTextAreaWidget* textAreaWidget2 = canvas2D.Add<Nz::RichTextAreaWidget>();
+	textAreaWidget2->EnableMultiline(true);
+	textAreaWidget2->SetPosition(1000.f, 200.f);
 	textAreaWidget2->SetBackgroundColor(Nz::Color::White());
-	textAreaWidget2->SetTextColor(Nz::Color::Black());*/
+	textAreaWidget2->SetTextColor(Nz::Color::Black());
+
+	Nz::RichTextBuilder builder(textAreaWidget2);
+	builder << Nz::Color::Blue() << "Rich " << Nz::TextStyle::Bold << "text" << Nz::TextStyle_Regular << builder.CharacterSize(36) << Nz::Color::Black() << "\nAnd a even " << builder.CharacterSize(48) << Nz::Color::Red() << "bigger" << builder.CharacterSize(24) << Nz::Color::Black() << " text";
+	textAreaWidget2->Resize(Nz::Vector2f(500.f, textAreaWidget2->GetPreferredHeight()));
 
 	entt::handle viewer2D = world.CreateEntity();
 	{
