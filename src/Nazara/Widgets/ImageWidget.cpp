@@ -18,13 +18,10 @@ namespace Nz
 
 		auto& registry = GetRegistry();
 
-		m_entity = CreateEntity();
+		m_entity = CreateGraphicsEntity();
 
-		auto& gfxComponent = registry.emplace<GraphicsComponent>(m_entity, IsVisible());
+		auto& gfxComponent = registry.get<GraphicsComponent>(m_entity);
 		gfxComponent.AttachRenderable(m_sprite, GetCanvas()->GetRenderMask());
-
-		auto& nodeComponent = registry.emplace<NodeComponent>(m_entity);
-		nodeComponent.SetParent(this);
 	}
 
 	void ImageWidget::Layout()

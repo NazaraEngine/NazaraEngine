@@ -26,6 +26,11 @@ namespace Nz
 		return m_widgetOwner->CreateEntity();
 	}
 
+	inline entt::entity BaseWidgetStyle::CreateGraphicsEntity(Node* parent)
+	{
+		return m_widgetOwner->CreateGraphicsEntity(parent);
+	}
+
 	inline void BaseWidgetStyle::DestroyEntity(entt::entity entity)
 	{
 		m_widgetOwner->DestroyEntity(entity);

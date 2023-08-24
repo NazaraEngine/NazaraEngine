@@ -8,6 +8,7 @@
 #define NAZARA_WIDGETS_BASEWIDGET_HPP
 
 #include <Nazara/Graphics/Sprite.hpp>
+#include <Nazara/Graphics/Components/GraphicsComponent.hpp>
 #include <Nazara/Platform/Mouse.hpp>
 #include <Nazara/Platform/WindowEvent.hpp>
 #include <Nazara/Utility/Node.hpp>
@@ -116,6 +117,7 @@ namespace Nz
 			virtual void Layout();
 
 			entt::entity CreateEntity();
+			entt::entity CreateGraphicsEntity(Node* parent = nullptr);
 			void DestroyEntity(entt::entity entity);
 
 			inline int GetBaseRenderLayer() const;
@@ -173,6 +175,9 @@ namespace Nz
 			struct WidgetEntity
 			{
 				entt::entity handle;
+				bool wasVisible;
+
+				NazaraSlot(GraphicsComponent, OnVisibilityUpdate, onVisibilityUpdate);
 			};
 
 			static constexpr std::size_t InvalidCanvasIndex = std::numeric_limits<std::size_t>::max();
@@ -193,6 +198,7 @@ namespace Nz
 			Vector2f m_preferredSize;
 			Vector2f m_size;
 			BaseWidget* m_parentWidget;
+			bool m_disableVisibilitySignal;
 			bool m_visible;
 			int m_baseRenderLayer;
 			int m_renderLayerCount;

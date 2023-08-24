@@ -85,7 +85,7 @@ namespace Nz
 			virtual ~BaseWidgetStyle();
 
 			inline entt::entity CreateEntity();
-			entt::entity CreateGraphicsEntity();
+			inline entt::entity CreateGraphicsEntity(Node* parent = nullptr);
 			inline void DestroyEntity(entt::entity entity);
 
 			template<typename T> T* GetOwnerWidget() const;

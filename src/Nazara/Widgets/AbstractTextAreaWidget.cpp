@@ -36,13 +36,12 @@ namespace Nz
 
 		auto& registry = GetRegistry();
 
-		m_textEntity = CreateEntity();
+		m_textEntity = CreateGraphicsEntity();
 
-		auto& gfxComponent = registry.emplace<GraphicsComponent>(m_textEntity, IsVisible());
+		auto& gfxComponent = registry.get<GraphicsComponent>(m_textEntity);
 		gfxComponent.AttachRenderable(m_textSprite, GetCanvas()->GetRenderMask());
 
-		auto& textNode = GetRegistry().emplace<NodeComponent>(m_textEntity);
-		textNode.SetParent(this);
+		auto& textNode = registry.get<NodeComponent>(m_textEntity);
 		textNode.SetPosition(s_textAreaPaddingWidth, GetHeight() - s_textAreaPaddingHeight);
 
 		SetCursor(SystemCursor::Text);
@@ -59,8 +58,8 @@ namespace Nz
 		m_cursorPositionBegin = Vector2ui::Zero();
 		m_cursorPositionEnd = Vector2ui::Zero();
 
-		RefreshCursorColor();
 		RefreshCursorSize();
+		RefreshCursorColor();
 	}
 
 	void AbstractTextAreaWidget::EnableLineWrap(bool enable)
@@ -598,23 +597,16 @@ namespace Nz
 		std::size_t oldSpriteCount = m_cursors.size();
 		if (m_cursors.size() < selectionLineCount)
 		{
-			Color cursorColor = GetCursorColor();
-			Recti scissorBox = GetScissorBox();
-			bool isVisible = IsVisible() && HasFocus();
-
 			m_cursors.resize(selectionLineCount);
 			for (std::size_t i = oldSpriteCount; i < m_cursors.size(); ++i)
 			{
 				m_cursors[i].sprite = std::make_shared<Sprite>(Widgets::Instance()->GetTransparentMaterial());
-				m_cursors[i].sprite->SetColor(cursorColor);
 				m_cursors[i].sprite->UpdateRenderLayer(GetBaseRenderLayer() + 1);
 
-				m_cursors[i].entity = CreateEntity();
-				registry.emplace<NodeComponent>(m_cursors[i].entity).SetParent(textNode);
+				m_cursors[i].entity = CreateGraphicsEntity(&textNode);
 
-				auto& cursorGfx = registry.emplace<GraphicsComponent>(m_cursors[i].entity, isVisible);
+				auto& cursorGfx = registry.get<GraphicsComponent>(m_cursors[i].entity);
 				cursorGfx.AttachRenderable(m_cursors[i].sprite, GetCanvas()->GetRenderMask());
-				cursorGfx.UpdateScissorBox(scissorBox);
 			}
 		}
 		else if (m_cursors.size() > selectionLineCount)

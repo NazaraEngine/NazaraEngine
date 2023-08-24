@@ -226,8 +226,8 @@ namespace Nz
 			m_cursorPositionBegin = NormalizeCursorPosition(fromPosition);
 			m_cursorPositionEnd = NormalizeCursorPosition(toPosition);
 
-			RefreshCursorColor();
 			RefreshCursorSize();
+			RefreshCursorColor();
 		}
 	}
 
@@ -251,8 +251,8 @@ namespace Nz
 		m_cursorPositionBegin = cursorPosition;
 		m_cursorPositionEnd = m_cursorPositionBegin;
 
-		RefreshCursorColor();
 		RefreshCursorSize();
+		RefreshCursorColor();
 	}
 }
 

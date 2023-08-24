@@ -21,6 +21,7 @@ namespace Nz
 	m_preferredSize(-1),
 	m_size(50.f, 50.f),
 	m_parentWidget(nullptr),
+	m_disableVisibilitySignal(false),
 	m_visible(true),
 	m_baseRenderLayer(0),
 	m_renderLayerCount(1)

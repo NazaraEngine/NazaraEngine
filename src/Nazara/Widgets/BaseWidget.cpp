@@ -95,9 +95,8 @@ namespace Nz
 				m_backgroundSprite->UpdateRenderLayer(m_baseRenderLayer);
 			}
 
-			entt::entity backgroundEntity = CreateEntity();
-			m_registry->emplace<GraphicsComponent>(backgroundEntity).AttachRenderable(m_backgroundSprite, GetCanvas()->GetRenderMask());
-			m_registry->emplace<NodeComponent>(backgroundEntity).SetParent(this);
+			entt::entity backgroundEntity = CreateGraphicsEntity();
+			m_registry->get<GraphicsComponent>(backgroundEntity).AttachRenderable(m_backgroundSprite, GetCanvas()->GetRenderMask());
 
 			m_backgroundEntity = backgroundEntity;
 
@@ -204,12 +203,19 @@ namespace Nz
 			else
 				UnregisterFromCanvas();
 
+			m_disableVisibilitySignal = true;
+
 			auto& registry = GetRegistry();
-			for (WidgetEntity& entity : m_entities)
+			for (WidgetEntity& widgetEntity : m_entities)
 			{
-				if (GraphicsComponent* gfx = registry.try_get<GraphicsComponent>(entity.handle))
-					gfx->Show(show);
+				if (GraphicsComponent* gfx = registry.try_get<GraphicsComponent>(widgetEntity.handle))
+				{
+					if ((show && widgetEntity.wasVisible) || !show)
+						gfx->Show(show);
+				}
 			}
+
+			m_disableVisibilitySignal = false;
 
 			ShowChildren(show);
 
@@ -225,8 +231,36 @@ namespace Nz
 		m_entities.emplace_back();
 		WidgetEntity& newWidgetEntity = m_entities.back();
 		newWidgetEntity.handle = newEntity;
+		newWidgetEntity.wasVisible = true;
 
 		return newEntity;
+	}
+
+	entt::entity BaseWidget::CreateGraphicsEntity(Node* parent)
+	{
+		entt::entity entity = CreateEntity();
+
+		auto& gfxComponent = m_registry->emplace<GraphicsComponent>(entity, IsVisible());
+		gfxComponent.UpdateScissorBox(GetScissorBox());
+
+		m_registry->emplace<NodeComponent>(entity).SetParent((parent) ? parent : this);
+
+		WidgetEntity& newWidgetEntity = m_entities.back();
+		newWidgetEntity.onVisibilityUpdate.Connect(gfxComponent.OnVisibilityUpdate, [this, entity](GraphicsComponent* /*graphicsComponent*/, bool newVisibilityState)
+		{
+			if (m_disableVisibilitySignal)
+				return;
+
+			auto it = std::find_if(m_entities.begin(), m_entities.end(), [&](const WidgetEntity& widgetEntity)
+			{
+				return widgetEntity.handle == entity;
+			});
+			NazaraAssert(it != m_entities.end(), "Entity does not belong to this widget");
+
+			it->wasVisible = newVisibilityState;
+		});
+
+		return entity;
 	}
 
 	void BaseWidget::DestroyEntity(entt::entity entity)

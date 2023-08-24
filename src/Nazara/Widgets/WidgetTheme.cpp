@@ -3,8 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Widgets/WidgetTheme.hpp>
-#include <Nazara/Graphics/Components/GraphicsComponent.hpp>
-#include <Nazara/Utility/Components/NodeComponent.hpp>
 #include <Nazara/Widgets/Canvas.hpp>
 #include <Nazara/Widgets/Debug.hpp>
 
@@ -13,17 +11,6 @@ namespace Nz
 	WidgetTheme::~WidgetTheme() = default;
 
 	BaseWidgetStyle::~BaseWidgetStyle() = default;
-
-	entt::entity BaseWidgetStyle::CreateGraphicsEntity()
-	{
-		auto& registry = GetRegistry();
-
-		entt::entity entity = CreateEntity();
-		registry.emplace<GraphicsComponent>(entity, m_widgetOwner->IsVisible());
-		registry.emplace<NodeComponent>(entity).SetParent(m_widgetOwner);
-
-		return entity;
-	}
 
 	UInt32 BaseWidgetStyle::GetRenderMask() const
 	{
