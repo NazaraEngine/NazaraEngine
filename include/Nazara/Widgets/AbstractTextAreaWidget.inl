@@ -231,12 +231,12 @@ namespace Nz
 		}
 	}
 
-	inline void AbstractTextAreaWidget::Write(const std::string& text)
+	inline void AbstractTextAreaWidget::Write(std::string_view text)
 	{
 		Write(text, GetGlyphIndex(m_cursorPositionBegin));
 	}
 
-	inline void AbstractTextAreaWidget::Write(const std::string& text, const Vector2ui& glyphPosition)
+	inline void AbstractTextAreaWidget::Write(std::string_view text, const Vector2ui& glyphPosition)
 	{
 		Write(text, GetGlyphIndex(glyphPosition));
 	}

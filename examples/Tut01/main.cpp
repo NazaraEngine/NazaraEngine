@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
 	Nz::SimpleTextDrawer textDrawer;
 	textDrawer.SetText("Hello world !");
 	textDrawer.SetCharacterSize(72);
-	textDrawer.SetOutlineThickness(4.f);
+	textDrawer.SetTextOutlineThickness(4.f);
 
 	std::shared_ptr<Nz::TextSprite> textSprite = std::make_shared<Nz::TextSprite>();
 	textSprite->Update(textDrawer);

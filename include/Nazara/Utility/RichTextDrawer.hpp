@@ -23,10 +23,10 @@ namespace Nz
 
 			RichTextDrawer();
 			RichTextDrawer(const RichTextDrawer& drawer);
-			RichTextDrawer(RichTextDrawer&& drawer);
+			RichTextDrawer(RichTextDrawer&& drawer) noexcept;
 			~RichTextDrawer();
 
-			BlockRef AppendText(const std::string& str, bool forceNewBlock = false);
+			BlockRef AppendText(std::string_view str, bool forceNewBlock = false);
 
 			void Clear() override;
 
@@ -38,7 +38,6 @@ namespace Nz
 			inline std::size_t GetBlockCount() const;
 			inline std::size_t GetBlockFirstGlyphIndex(std::size_t index) const;
 			inline const std::shared_ptr<Font>& GetBlockFont(std::size_t index) const;
-			inline float GetBlockLineHeight(std::size_t index) const;
 			inline float GetBlockLineSpacingOffset(std::size_t index) const;
 			inline const Color& GetBlockOutlineColor(std::size_t index) const;
 			inline float GetBlockOutlineThickness(std::size_t index) const;
@@ -47,14 +46,9 @@ namespace Nz
 
 			inline BlockRef GetBlock(std::size_t index);
 			const Rectf& GetBounds() const override;
-			inline unsigned int GetDefaultCharacterSize() const;
-			inline float GetDefaultCharacterSpacingOffset() const;
-			inline const Color& GetDefaultColor() const;
-			inline const std::shared_ptr<Font>& GetDefaultFont() const;
-			inline float GetDefaultLineSpacingOffset() const;
-			inline const Color& GetDefaultOutlineColor() const;
-			inline float GetDefaultOutlineThickness() const;
-			inline TextStyleFlags GetDefaultStyle() const;
+			inline unsigned int GetCharacterSize() const;
+			inline float GetCharacterSpacingOffset() const;
+			inline float GetLineSpacingOffset() const;
 			const std::shared_ptr<Font>& GetFont(std::size_t index) const override;
 			std::size_t GetFontCount() const override;
 			const Glyph& GetGlyph(std::size_t index) const override;
@@ -62,6 +56,12 @@ namespace Nz
 			const Line& GetLine(std::size_t index) const override;
 			std::size_t GetLineCount() const override;
 			float GetMaxLineWidth() const override;
+
+			inline const Color& GetTextColor() const;
+			inline const std::shared_ptr<Font>& GetTextFont() const;
+			inline const Color& GetTextOutlineColor() const;
+			inline float GetTextOutlineThickness() const;
+			inline TextStyleFlags GetTextStyle() const;
 
 			inline bool HasBlocks() const;
 
@@ -79,22 +79,22 @@ namespace Nz
 			inline void SetBlockStyle(std::size_t index, TextStyleFlags style);
 			inline void SetBlockText(std::size_t index, std::string str);
 
-			inline void SetDefaultCharacterSize(unsigned int characterSize);
-			inline void SetDefaultCharacterSpacingOffset(float offset);
-			inline void SetDefaultColor(const Color& color);
-			inline void SetDefaultFont(const std::shared_ptr<Font>& font);
-			inline void SetDefaultLineSpacingOffset(float offset);
-			inline void SetDefaultOutlineColor(const Color& color);
-			inline void SetDefaultOutlineThickness(float thickness);
-			inline void SetDefaultStyle(TextStyleFlags style);
+			inline void SetCharacterSize(unsigned int characterSize);
+			inline void SetCharacterSpacingOffset(float offset);
+			inline void SetLineSpacingOffset(float offset);
+			inline void SetTextColor(const Color& color);
+			inline void SetTextFont(const std::shared_ptr<Font>& font);
+			inline void SetTextOutlineColor(const Color& color);
+			inline void SetTextOutlineThickness(float thickness);
+			inline void SetTextStyle(TextStyleFlags style);
 
 			void SetMaxLineWidth(float lineWidth) override;
 
 			RichTextDrawer& operator=(const RichTextDrawer& drawer);
-			RichTextDrawer& operator=(RichTextDrawer&& drawer);
+			RichTextDrawer& operator=(RichTextDrawer&& drawer) noexcept;
 
 			static constexpr std::size_t InvalidBlockIndex = std::numeric_limits<std::size_t>::max();
-
+			
 		private:
 			struct Block;
 
@@ -145,10 +145,10 @@ namespace Nz
 				NazaraSlot(Font, OnFontRelease, fontReleaseSlot);
 			};
 
-			Color m_defaultColor;
-			Color m_defaultOutlineColor;
-			TextStyleFlags m_defaultStyle;
-			std::shared_ptr<Font> m_defaultFont;
+			Color m_currentColor;
+			Color m_currentOutlineColor;
+			TextStyleFlags m_currentStyle;
+			std::shared_ptr<Font> m_currentFont;
 			mutable std::size_t m_lastSeparatorGlyph;
 			std::unordered_map<std::shared_ptr<Font>, std::size_t> m_fontIndexes;
 			std::vector<Block> m_blocks;
@@ -158,11 +158,11 @@ namespace Nz
 			mutable Rectf m_bounds;
 			mutable Vector2f m_drawPos;
 			mutable bool m_glyphUpdated;
-			float m_defaultCharacterSpacingOffset;
-			float m_defaultLineSpacingOffset;
-			float m_defaultOutlineThickness;
+			float m_currentCharacterSpacingOffset;
+			float m_currentLineSpacingOffset;
+			float m_currentOutlineThickness;
 			float m_maxLineWidth;
-			unsigned int m_defaultCharacterSize;
+			unsigned int m_currentCharacterSize;
 			mutable float m_lastSeparatorPosition;
 	};
 

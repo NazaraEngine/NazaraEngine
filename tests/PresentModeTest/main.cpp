@@ -53,9 +53,9 @@ int main()
 	auto UpdatePresentModeText = [&]
 	{
 		Nz::RichTextDrawer textDrawer;
-		textDrawer.SetDefaultStyle(Nz::TextStyle::Bold);
+		textDrawer.SetTextStyle(Nz::TextStyle::Bold);
 		textDrawer.AppendText("Supported present modes:\n");
-		textDrawer.SetDefaultStyle(Nz::TextStyle_Regular);
+		textDrawer.SetTextStyle(Nz::TextStyle_Regular);
 		textDrawer.AppendText("Use +/- to switch present mode (and * to limit FPS to 50)\n");
 
 		for (Nz::PresentMode presentMode : supportedPresentModes)
@@ -63,9 +63,9 @@ int main()
 			textDrawer.AppendText("- ");
 
 			if (presentMode == swapchain.GetPresentMode())
-				textDrawer.SetDefaultColor(Nz::Color::Yellow());
+				textDrawer.SetTextColor(Nz::Color::Yellow());
 			else
-				textDrawer.SetDefaultColor(Nz::Color::White());
+				textDrawer.SetTextColor(Nz::Color::White());
 
 			switch (presentMode)
 			{
@@ -76,11 +76,11 @@ int main()
 			}
 		}
 
-		textDrawer.SetDefaultColor(Nz::Color::White());
+		textDrawer.SetTextColor(Nz::Color::White());
 		textDrawer.AppendText("Use * to limit FPS to 50\n");
 		if (limitFps)
 		{
-			textDrawer.SetDefaultColor(Nz::Color::Red());
+			textDrawer.SetTextColor(Nz::Color::Red());
 			textDrawer.AppendText("FPS limited to 50\n");
 		}
 		else

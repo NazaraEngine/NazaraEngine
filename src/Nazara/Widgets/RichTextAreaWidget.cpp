@@ -13,7 +13,7 @@ namespace Nz
 		Layout();
 	}
 	
-	void RichTextAreaWidget::AppendText(const std::string& text)
+	void RichTextAreaWidget::AppendText(std::string_view text)
 	{
 		//m_text += text;
 		switch (m_echoMode)
@@ -132,7 +132,7 @@ namespace Nz
 		UpdateDisplayText();
 	}
 
-	void RichTextAreaWidget::Write(const std::string& text, std::size_t glyphPosition)
+	void RichTextAreaWidget::Write(std::string_view text, std::size_t glyphPosition)
 	{
 		if (m_drawer.HasBlocks())
 		{

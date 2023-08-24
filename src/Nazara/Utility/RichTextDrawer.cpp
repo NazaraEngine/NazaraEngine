@@ -10,31 +10,31 @@
 namespace Nz
 {
 	RichTextDrawer::RichTextDrawer() :
-	m_defaultColor(Color::White()),
-	m_defaultOutlineColor(Color::Black()),
-	m_defaultStyle(TextStyle_Regular),
+	m_currentColor(Color::White()),
+	m_currentOutlineColor(Color::Black()),
+	m_currentStyle(TextStyle_Regular),
 	m_glyphUpdated(false),
-	m_defaultCharacterSpacingOffset(0.f),
-	m_defaultLineSpacingOffset(0.f),
-	m_defaultOutlineThickness(0.f),
+	m_currentCharacterSpacingOffset(0.f),
+	m_currentLineSpacingOffset(0.f),
+	m_currentOutlineThickness(0.f),
 	m_maxLineWidth(std::numeric_limits<float>::infinity()),
-	m_defaultCharacterSize(24)
+	m_currentCharacterSize(24)
 	{
-		SetDefaultFont(Font::GetDefault());
+		SetTextFont(Font::GetDefault());
 	}
 
 	RichTextDrawer::RichTextDrawer(const RichTextDrawer& drawer) :
-	m_defaultColor(drawer.m_defaultColor),
-	m_defaultOutlineColor(drawer.m_defaultOutlineColor),
-	m_defaultStyle(drawer.m_defaultStyle),
+	m_currentColor(drawer.m_currentColor),
+	m_currentOutlineColor(drawer.m_currentOutlineColor),
+	m_currentStyle(drawer.m_currentStyle),
 	m_fontIndexes(drawer.m_fontIndexes),
 	m_blocks(drawer.m_blocks),
 	m_glyphUpdated(false),
-	m_defaultCharacterSpacingOffset(drawer.m_defaultCharacterSpacingOffset),
-	m_defaultLineSpacingOffset(drawer.m_defaultLineSpacingOffset),
-	m_defaultOutlineThickness(drawer.m_defaultOutlineThickness),
+	m_currentCharacterSpacingOffset(drawer.m_currentCharacterSpacingOffset),
+	m_currentLineSpacingOffset(drawer.m_currentLineSpacingOffset),
+	m_currentOutlineThickness(drawer.m_currentOutlineThickness),
 	m_maxLineWidth(drawer.m_maxLineWidth),
-	m_defaultCharacterSize(drawer.m_defaultCharacterSize)
+	m_currentCharacterSize(drawer.m_currentCharacterSize)
 	{
 		m_fonts.resize(drawer.m_fonts.size());
 		for (std::size_t i = 0; i < m_fonts.size(); ++i)
@@ -43,38 +43,38 @@ namespace Nz
 			m_fonts[i].useCount = drawer.m_fonts[i].useCount;
 		}
 
-		SetDefaultFont(drawer.m_defaultFont);
+		SetTextFont(drawer.m_currentFont);
 
 		ConnectFontSlots();
 	}
 
-	RichTextDrawer::RichTextDrawer(RichTextDrawer&& drawer)
+	RichTextDrawer::RichTextDrawer(RichTextDrawer&& drawer) noexcept
 	{
 		operator=(std::move(drawer));
 	}
 
 	RichTextDrawer::~RichTextDrawer() = default;
 
-	auto RichTextDrawer::AppendText(const std::string& str, bool forceNewBlock) -> BlockRef
+	auto RichTextDrawer::AppendText(std::string_view str, bool forceNewBlock) -> BlockRef
 	{
 		NazaraAssert(!str.empty(), "String cannot be empty");
 
-		std::size_t defaultFontIndex = HandleFontAddition(m_defaultFont);
+		std::size_t currentFontIndex = HandleFontAddition(m_currentFont);
 
-		auto HasDefaultProperties = [&](const Block& block)
+		auto DoPropertiesMatch = [&](const Block& block)
 		{
-			return block.characterSize          == m_defaultCharacterSize &&
-			       block.color                  == m_defaultColor &&
-			       block.fontIndex              == defaultFontIndex &&
-			       block.characterSpacingOffset == m_defaultCharacterSpacingOffset &&
-			       block.lineSpacingOffset      == m_defaultLineSpacingOffset &&
-			       block.outlineColor           == m_defaultOutlineColor &&
-			       block.outlineThickness       == m_defaultOutlineThickness &&
-			       block.style                  == m_defaultStyle;
+			return block.characterSize          == m_currentCharacterSize &&
+			       block.color                  == m_currentColor &&
+			       block.fontIndex              == currentFontIndex &&
+			       block.characterSpacingOffset == m_currentCharacterSpacingOffset &&
+			       block.lineSpacingOffset      == m_currentLineSpacingOffset &&
+			       block.outlineColor           == m_currentOutlineColor &&
+			       block.outlineThickness       == m_currentOutlineThickness &&
+			       block.style                  == m_currentStyle;
 		};
 
-		// Check if last block has the same property as default, else create a new block
-		if (forceNewBlock || m_blocks.empty() || !HasDefaultProperties(m_blocks.back()))
+		// Check if last block has the same properties as previous block, else create a new block
+		if (forceNewBlock || m_blocks.empty() || !DoPropertiesMatch(m_blocks.back()))
 		{
 			std::size_t glyphIndex;
 			if (!m_blocks.empty())
@@ -87,15 +87,15 @@ namespace Nz
 
 			m_blocks.emplace_back();
 			Block& newBlock = m_blocks.back();
-			newBlock.characterSize = m_defaultCharacterSize;
-			newBlock.characterSpacingOffset = m_defaultCharacterSpacingOffset;
-			newBlock.color = m_defaultColor;
-			newBlock.fontIndex = defaultFontIndex;
+			newBlock.characterSize = m_currentCharacterSize;
+			newBlock.characterSpacingOffset = m_currentCharacterSpacingOffset;
+			newBlock.color = m_currentColor;
+			newBlock.fontIndex = currentFontIndex;
 			newBlock.glyphIndex = glyphIndex;
-			newBlock.lineSpacingOffset = m_defaultLineSpacingOffset;
-			newBlock.outlineColor = m_defaultOutlineColor;
-			newBlock.outlineThickness = m_defaultOutlineThickness;
-			newBlock.style = m_defaultStyle;
+			newBlock.lineSpacingOffset = m_currentLineSpacingOffset;
+			newBlock.outlineColor = m_currentOutlineColor;
+			newBlock.outlineThickness = m_currentOutlineThickness;
+			newBlock.style = m_currentStyle;
 			newBlock.text = str;
 
 			assert(newBlock.fontIndex < m_fonts.size());
@@ -235,14 +235,14 @@ namespace Nz
 		DisconnectFontSlots();
 
 		m_blocks = drawer.m_blocks;
-		m_defaultCharacterSize = drawer.m_defaultCharacterSize;
-		m_defaultCharacterSpacingOffset = drawer.m_defaultCharacterSpacingOffset;
-		m_defaultColor = drawer.m_defaultColor;
-		m_defaultFont = drawer.m_defaultFont;
-		m_defaultLineSpacingOffset = drawer.m_defaultLineSpacingOffset;
-		m_defaultOutlineColor = drawer.m_defaultOutlineColor;
-		m_defaultOutlineThickness = drawer.m_defaultOutlineThickness;
-		m_defaultStyle = drawer.m_defaultStyle;
+		m_currentCharacterSize = drawer.m_currentCharacterSize;
+		m_currentCharacterSpacingOffset = drawer.m_currentCharacterSpacingOffset;
+		m_currentColor = drawer.m_currentColor;
+		m_currentFont = drawer.m_currentFont;
+		m_currentLineSpacingOffset = drawer.m_currentLineSpacingOffset;
+		m_currentOutlineColor = drawer.m_currentOutlineColor;
+		m_currentOutlineThickness = drawer.m_currentOutlineThickness;
+		m_currentStyle = drawer.m_currentStyle;
 		m_fontIndexes = drawer.m_fontIndexes;
 
 		m_fonts.resize(drawer.m_fonts.size());
@@ -258,20 +258,20 @@ namespace Nz
 		return *this;
 	}
 
-	RichTextDrawer& RichTextDrawer::operator=(RichTextDrawer&& drawer)
+	RichTextDrawer& RichTextDrawer::operator=(RichTextDrawer&& drawer) noexcept
 	{
 		DisconnectFontSlots();
 
 		m_blocks = std::move(drawer.m_blocks);
 		m_bounds = std::move(drawer.m_bounds);
-		m_defaultCharacterSize = std::move(drawer.m_defaultCharacterSize);
-		m_defaultCharacterSpacingOffset = std::move(drawer.m_defaultCharacterSpacingOffset);
-		m_defaultColor = std::move(drawer.m_defaultColor);
-		m_defaultFont = std::move(drawer.m_defaultFont);
-		m_defaultLineSpacingOffset = std::move(drawer.m_defaultLineSpacingOffset);
-		m_defaultOutlineColor = std::move(drawer.m_defaultOutlineColor);
-		m_defaultOutlineThickness = std::move(drawer.m_defaultOutlineThickness);
-		m_defaultStyle = std::move(drawer.m_defaultStyle);
+		m_currentCharacterSize = std::move(drawer.m_currentCharacterSize);
+		m_currentCharacterSpacingOffset = std::move(drawer.m_currentCharacterSpacingOffset);
+		m_currentColor = std::move(drawer.m_currentColor);
+		m_currentFont = std::move(drawer.m_currentFont);
+		m_currentLineSpacingOffset = std::move(drawer.m_currentLineSpacingOffset);
+		m_currentOutlineColor = std::move(drawer.m_currentOutlineColor);
+		m_currentOutlineThickness = std::move(drawer.m_currentOutlineThickness);
+		m_currentStyle = std::move(drawer.m_currentStyle);
 		m_drawPos = std::move(drawer.m_drawPos);
 		m_fontIndexes = std::move(drawer.m_fontIndexes);
 		m_fonts = std::move(drawer.m_fonts);
@@ -545,7 +545,7 @@ namespace Nz
 		}
 #endif
 
-		//SetFont(nullptr);
+		//SetTextFont(nullptr);
 	}
 
 	void RichTextDrawer::UpdateGlyphs() const

@@ -20,7 +20,7 @@ namespace Nz
 			TextAreaWidget(TextAreaWidget&&) = delete;
 			~TextAreaWidget() = default;
 
-			void AppendText(const std::string& text);
+			void AppendText(std::string_view text);
 
 			void Clear() override;
 
@@ -49,7 +49,7 @@ namespace Nz
 			inline void SetTextStyle(TextStyleFlags style);
 
 			using AbstractTextAreaWidget::Write;
-			void Write(const std::string& text, std::size_t glyphPosition) override;
+			void Write(std::string_view text, std::size_t glyphPosition) override;
 
 			TextAreaWidget& operator=(const TextAreaWidget&) = delete;
 			TextAreaWidget& operator=(TextAreaWidget&&) = delete;

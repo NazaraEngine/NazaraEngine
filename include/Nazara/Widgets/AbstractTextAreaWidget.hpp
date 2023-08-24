@@ -64,9 +64,9 @@ namespace Nz
 			inline void SetReadOnly(bool readOnly = true);
 			inline void SetSelection(Vector2ui fromPosition, Vector2ui toPosition);
 
-			inline void Write(const std::string& text);
-			inline void Write(const std::string& text, const Vector2ui& glyphPosition);
-			virtual void Write(const std::string& text, std::size_t glyphPosition) = 0;
+			inline void Write(std::string_view text);
+			inline void Write(std::string_view text, const Vector2ui& glyphPosition);
+			virtual void Write(std::string_view text, std::size_t glyphPosition) = 0;
 
 			AbstractTextAreaWidget& operator=(const AbstractTextAreaWidget&) = delete;
 			AbstractTextAreaWidget& operator=(AbstractTextAreaWidget&&) = delete;

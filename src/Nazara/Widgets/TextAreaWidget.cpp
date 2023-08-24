@@ -39,7 +39,7 @@ namespace Nz
 		Layout();
 	}
 	
-	void TextAreaWidget::AppendText(const std::string& text)
+	void TextAreaWidget::AppendText(std::string_view text)
 	{
 		m_text += text;
 
@@ -113,7 +113,7 @@ namespace Nz
 		SetText(newText);
 	}
 
-	void TextAreaWidget::Write(const std::string& text, std::size_t glyphPosition)
+	void TextAreaWidget::Write(std::string_view text, std::size_t glyphPosition)
 	{
 		if (glyphPosition >= m_drawer.GetGlyphCount())
 		{

@@ -33,27 +33,27 @@ namespace Nz
 
 	inline const Color& TextAreaWidget::GetTextColor() const
 	{
-		return m_drawer.GetColor();
+		return m_drawer.GetTextColor();
 	}
 
 	inline const std::shared_ptr<Font>& TextAreaWidget::GetTextFont() const
 	{
-		return m_drawer.GetFont();
+		return m_drawer.GetTextFont();
 	}
 
 	inline const Color& TextAreaWidget::GetTextOulineColor() const
 	{
-		return m_drawer.GetOutlineColor();
+		return m_drawer.GetTextOutlineColor();
 	}
 
 	inline float TextAreaWidget::GetTextOulineThickness() const
 	{
-		return m_drawer.GetOutlineThickness();
+		return m_drawer.GetTextOutlineThickness();
 	}
 
 	inline TextStyleFlags TextAreaWidget::GetTextStyle() const
 	{
-		return m_drawer.GetStyle();
+		return m_drawer.GetTextStyle();
 	}
 
 	inline void TextAreaWidget::SetCharacterSize(unsigned int characterSize)
@@ -89,35 +89,35 @@ namespace Nz
 
 	inline void TextAreaWidget::SetTextColor(const Color& text)
 	{
-		m_drawer.SetColor(text);
+		m_drawer.SetTextColor(text);
 
 		UpdateDisplayText();
 	}
 
 	inline void TextAreaWidget::SetTextFont(std::shared_ptr<Font> font)
 	{
-		m_drawer.SetFont(std::move(font));
+		m_drawer.SetTextFont(std::move(font));
 
 		UpdateDisplayText();
 	}
 
 	inline void TextAreaWidget::SetTextOutlineColor(const Color& color)
 	{
-		m_drawer.SetOutlineColor(color);
+		m_drawer.SetTextOutlineColor(color);
 
 		UpdateDisplayText();
 	}
 
 	inline void TextAreaWidget::SetTextOutlineThickness(float thickness)
 	{
-		m_drawer.SetOutlineThickness(thickness);
+		m_drawer.SetTextOutlineThickness(thickness);
 
 		UpdateDisplayText();
 	}
 
 	inline void TextAreaWidget::SetTextStyle(TextStyleFlags style)
 	{
-		m_drawer.SetStyle(style);
+		m_drawer.SetTextStyle(style);
 
 		UpdateDisplayText();
 	}

@@ -18,7 +18,7 @@ namespace Nz
 	m_outlineThickness(0.f),
 	m_characterSize(24)
 	{
-		SetFont(Font::GetDefault());
+		SetTextFont(Font::GetDefault());
 	}
 
 	inline SimpleTextDrawer::SimpleTextDrawer(const SimpleTextDrawer& drawer) :
@@ -34,7 +34,7 @@ namespace Nz
 	m_outlineThickness(drawer.m_outlineThickness),
 	m_characterSize(drawer.m_characterSize)
 	{
-		SetFont(drawer.m_font);
+		SetTextFont(drawer.m_font);
 	}
 
 	inline SimpleTextDrawer::SimpleTextDrawer(SimpleTextDrawer&& drawer) noexcept
@@ -59,16 +59,6 @@ namespace Nz
 		return m_characterSize;
 	}
 
-	inline const Color& SimpleTextDrawer::GetColor() const
-	{
-		return m_color;
-	}
-
-	inline const std::shared_ptr<Font>& SimpleTextDrawer::GetFont() const
-	{
-		return m_font;
-	}
-
 	inline float SimpleTextDrawer::GetLineHeight() const
 	{
 		NazaraAssert(m_font, "SimpleTextDrawer has no font");
@@ -80,24 +70,34 @@ namespace Nz
 		return m_lineSpacingOffset;
 	}
 
-	inline const Color& SimpleTextDrawer::GetOutlineColor() const
+	inline const std::string& SimpleTextDrawer::GetText() const
+	{
+		return m_text;
+	}
+
+	inline const Color& SimpleTextDrawer::GetTextColor() const
+	{
+		return m_color;
+	}
+
+	inline const std::shared_ptr<Font>& SimpleTextDrawer::GetTextFont() const
+	{
+		return m_font;
+	}
+
+	inline const Color& SimpleTextDrawer::GetTextOutlineColor() const
 	{
 		return m_outlineColor;
 	}
 
-	inline float SimpleTextDrawer::GetOutlineThickness() const
+	inline float SimpleTextDrawer::GetTextOutlineThickness() const
 	{
 		return m_outlineThickness;
 	}
 
-	inline TextStyleFlags SimpleTextDrawer::GetStyle() const
+	inline TextStyleFlags SimpleTextDrawer::GetTextStyle() const
 	{
 		return m_style;
-	}
-
-	inline const std::string& SimpleTextDrawer::GetText() const
-	{
-		return m_text;
 	}
 
 	inline void SimpleTextDrawer::SetCharacterSpacingOffset(float offset)
@@ -115,31 +115,6 @@ namespace Nz
 		if (m_characterSize != characterSize)
 		{
 			m_characterSize = characterSize;
-
-			InvalidateGlyphs();
-		}
-	}
-
-	inline void SimpleTextDrawer::SetColor(const Color& color)
-	{
-		if (m_color != color)
-		{
-			m_color = color;
-
-			InvalidateColor();
-		}
-	}
-
-	inline void SimpleTextDrawer::SetFont(std::shared_ptr<Font> font)
-	{
-		if (m_font != font)
-		{
-			m_font = std::move(font);
-
-			if (m_font)
-				ConnectFontSlots();
-			else
-				DisconnectFontSlots();
 
 			InvalidateGlyphs();
 		}
@@ -167,7 +142,42 @@ namespace Nz
 		}
 	}
 
-	inline void SimpleTextDrawer::SetOutlineColor(const Color& color)
+	inline void SimpleTextDrawer::SetText(std::string str)
+	{
+		if (m_text != str)
+		{
+			m_text = std::move(str);
+
+			InvalidateGlyphs();
+		}
+	}
+
+	inline void SimpleTextDrawer::SetTextColor(const Color& color)
+	{
+		if (m_color != color)
+		{
+			m_color = color;
+
+			InvalidateColor();
+		}
+	}
+
+	inline void SimpleTextDrawer::SetTextFont(std::shared_ptr<Font> font)
+	{
+		if (m_font != font)
+		{
+			m_font = std::move(font);
+
+			if (m_font)
+				ConnectFontSlots();
+			else
+				DisconnectFontSlots();
+
+			InvalidateGlyphs();
+		}
+	}
+
+	inline void SimpleTextDrawer::SetTextOutlineColor(const Color& color)
 	{
 		if (m_outlineColor != color)
 		{
@@ -177,7 +187,7 @@ namespace Nz
 		}
 	}
 
-	inline void SimpleTextDrawer::SetOutlineThickness(float thickness)
+	inline void SimpleTextDrawer::SetTextOutlineThickness(float thickness)
 	{
 		if (m_outlineThickness != thickness)
 		{
@@ -189,21 +199,11 @@ namespace Nz
 		}
 	}
 
-	inline void SimpleTextDrawer::SetStyle(TextStyleFlags style)
+	inline void SimpleTextDrawer::SetTextStyle(TextStyleFlags style)
 	{
 		if (m_style != style)
 		{
 			m_style = style;
-
-			InvalidateGlyphs();
-		}
-	}
-
-	inline void SimpleTextDrawer::SetText(std::string str)
-	{
-		if (m_text != str)
-		{
-			m_text = std::move(str);
 
 			InvalidateGlyphs();
 		}
@@ -221,7 +221,7 @@ namespace Nz
 		m_style = drawer.m_style;
 		m_text = drawer.m_text;
 
-		SetFont(drawer.m_font);
+		SetTextFont(drawer.m_font);
 		InvalidateGlyphs();
 
 		return *this;
@@ -256,52 +256,52 @@ namespace Nz
 		return *this;
 	}
 
-	inline SimpleTextDrawer SimpleTextDrawer::Draw(const std::string& str, unsigned int characterSize, TextStyleFlags style, const Color& color)
+	inline SimpleTextDrawer SimpleTextDrawer::Draw(std::string str, unsigned int characterSize, TextStyleFlags style, const Color& color)
 	{
 		SimpleTextDrawer drawer;
 		drawer.SetCharacterSize(characterSize);
-		drawer.SetColor(color);
-		drawer.SetStyle(style);
-		drawer.SetText(str);
+		drawer.SetTextColor(color);
+		drawer.SetTextStyle(style);
+		drawer.SetText(std::move(str));
 
 		return drawer;
 	}
 
-	inline SimpleTextDrawer SimpleTextDrawer::Draw(const std::string& str, unsigned int characterSize, TextStyleFlags style, const Color& color, float outlineThickness, const Color& outlineColor)
+	inline SimpleTextDrawer SimpleTextDrawer::Draw(std::string str, unsigned int characterSize, TextStyleFlags style, const Color& color, float outlineThickness, const Color& outlineColor)
 	{
 		SimpleTextDrawer drawer;
 		drawer.SetCharacterSize(characterSize);
-		drawer.SetColor(color);
-		drawer.SetOutlineColor(outlineColor);
-		drawer.SetOutlineThickness(outlineThickness);
-		drawer.SetStyle(style);
-		drawer.SetText(str);
+		drawer.SetTextColor(color);
+		drawer.SetTextOutlineColor(outlineColor);
+		drawer.SetTextOutlineThickness(outlineThickness);
+		drawer.SetTextStyle(style);
+		drawer.SetText(std::move(str));
 
 		return drawer;
 	}
 
-	inline SimpleTextDrawer SimpleTextDrawer::Draw(const std::shared_ptr<Font>& font, const std::string& str, unsigned int characterSize, TextStyleFlags style, const Color& color)
+	inline SimpleTextDrawer SimpleTextDrawer::Draw(const std::shared_ptr<Font>& font, std::string str, unsigned int characterSize, TextStyleFlags style, const Color& color)
 	{
 		SimpleTextDrawer drawer;
 		drawer.SetCharacterSize(characterSize);
-		drawer.SetColor(color);
-		drawer.SetFont(font);
-		drawer.SetStyle(style);
-		drawer.SetText(str);
+		drawer.SetTextColor(color);
+		drawer.SetTextFont(font);
+		drawer.SetTextStyle(style);
+		drawer.SetText(std::move(str));
 
 		return drawer;
 	}
 
-	inline SimpleTextDrawer SimpleTextDrawer::Draw(const std::shared_ptr<Font>& font, const std::string& str, unsigned int characterSize, TextStyleFlags style, const Color& color, float outlineThickness, const Color& outlineColor)
+	inline SimpleTextDrawer SimpleTextDrawer::Draw(const std::shared_ptr<Font>& font, std::string str, unsigned int characterSize, TextStyleFlags style, const Color& color, float outlineThickness, const Color& outlineColor)
 	{
 		SimpleTextDrawer drawer;
 		drawer.SetCharacterSize(characterSize);
-		drawer.SetColor(color);
-		drawer.SetFont(font);
-		drawer.SetOutlineColor(outlineColor);
-		drawer.SetOutlineThickness(outlineThickness);
-		drawer.SetStyle(style);
-		drawer.SetText(str);
+		drawer.SetTextColor(color);
+		drawer.SetTextFont(font);
+		drawer.SetTextOutlineColor(outlineColor);
+		drawer.SetTextOutlineThickness(outlineThickness);
+		drawer.SetTextStyle(style);
+		drawer.SetText(std::move(str));
 
 		return drawer;
 	}

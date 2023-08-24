@@ -23,12 +23,10 @@ namespace Nz
 		return m_bounds;
 	}
 
-	const std::shared_ptr<Font>& SimpleTextDrawer::GetFont(std::size_t index) const
+	const std::shared_ptr<Font>& SimpleTextDrawer::GetFont([[maybe_unused]] std::size_t index) const
 	{
-		NazaraAssert(index == 0, "Font index out of range");
-		NazaraUnused(index);
-
-		return GetFont();
+		NazaraAssert(index == 0, "font index out of range");
+		return GetTextFont();
 	}
 
 	std::size_t SimpleTextDrawer::GetFontCount() const
@@ -333,6 +331,6 @@ namespace Nz
 		}
 		#endif
 
-		SetFont(nullptr);
+		SetTextFont(nullptr);
 	}
 }

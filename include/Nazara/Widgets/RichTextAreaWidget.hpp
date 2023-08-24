@@ -20,7 +20,7 @@ namespace Nz
 			RichTextAreaWidget(RichTextAreaWidget&&) = delete;
 			~RichTextAreaWidget() = default;
 
-			void AppendText(const std::string& text);
+			void AppendText(std::string_view text);
 
 			void Clear() override;
 
@@ -44,7 +44,7 @@ namespace Nz
 			inline void SetTextOutlineThickness(float thickness);
 			inline void SetTextStyle(TextStyleFlags style);
 
-			void Write(const std::string& text, std::size_t glyphPosition) override;
+			void Write(std::string_view text, std::size_t glyphPosition) override;
 
 			RichTextAreaWidget& operator=(const RichTextAreaWidget&) = delete;
 			RichTextAreaWidget& operator=(RichTextAreaWidget&&) = delete;

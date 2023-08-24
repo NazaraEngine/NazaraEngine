@@ -30,8 +30,6 @@ namespace Nz
 			const Rectf& GetBounds() const override;
 			inline float GetCharacterSpacingOffset() const;
 			inline unsigned int GetCharacterSize() const;
-			inline const Color& GetColor() const;
-			inline const std::shared_ptr<Font>& GetFont() const;
 			const std::shared_ptr<Font>& GetFont(std::size_t index) const override;
 			std::size_t GetFontCount() const override;
 			const Glyph& GetGlyph(std::size_t index) const override;
@@ -41,29 +39,32 @@ namespace Nz
 			inline float GetLineHeight() const;
 			inline float GetLineSpacingOffset() const;
 			float GetMaxLineWidth() const override;
-			inline const Color& GetOutlineColor() const;
-			inline float GetOutlineThickness() const;
-			inline TextStyleFlags GetStyle() const;
+
 			inline const std::string& GetText() const;
+			inline const Color& GetTextColor() const;
+			inline const std::shared_ptr<Font>& GetTextFont() const;
+			inline const Color& GetTextOutlineColor() const;
+			inline float GetTextOutlineThickness() const;
+			inline TextStyleFlags GetTextStyle() const;
 
 			inline void SetCharacterSpacingOffset(float offset);
 			inline void SetCharacterSize(unsigned int characterSize);
-			inline void SetColor(const Color& color);
-			inline void SetFont(std::shared_ptr<Font> font);
 			inline void SetLineSpacingOffset(float offset);
 			inline void SetMaxLineWidth(float lineWidth) override;
-			inline void SetOutlineColor(const Color& color);
-			inline void SetOutlineThickness(float thickness);
-			inline void SetStyle(TextStyleFlags style);
 			inline void SetText(std::string str);
+			inline void SetTextColor(const Color& color);
+			inline void SetTextFont(std::shared_ptr<Font> font);
+			inline void SetTextOutlineColor(const Color& color);
+			inline void SetTextOutlineThickness(float thickness);
+			inline void SetTextStyle(TextStyleFlags style);
 
 			inline SimpleTextDrawer& operator=(const SimpleTextDrawer& drawer);
 			inline SimpleTextDrawer& operator=(SimpleTextDrawer&& drawer) noexcept;
 
-			static inline SimpleTextDrawer Draw(const std::string& str, unsigned int characterSize, TextStyleFlags style = TextStyle_Regular, const Color& color = Color::White());
-			static inline SimpleTextDrawer Draw(const std::string& str, unsigned int characterSize, TextStyleFlags style, const Color& color, float outlineThickness, const Color& outlineColor);
-			static inline SimpleTextDrawer Draw(const std::shared_ptr<Font>& font, const std::string& str, unsigned int characterSize, TextStyleFlags style = TextStyle_Regular, const Color& color = Color::White());
-			static inline SimpleTextDrawer Draw(const std::shared_ptr<Font>& font, const std::string& str, unsigned int characterSize, TextStyleFlags style, const Color& color, float outlineThickness, const Color& outlineColor);
+			static inline SimpleTextDrawer Draw(std::string str, unsigned int characterSize, TextStyleFlags style = TextStyle_Regular, const Color& color = Color::White());
+			static inline SimpleTextDrawer Draw(std::string str, unsigned int characterSize, TextStyleFlags style, const Color& color, float outlineThickness, const Color& outlineColor);
+			static inline SimpleTextDrawer Draw(const std::shared_ptr<Font>& font, std::string str, unsigned int characterSize, TextStyleFlags style = TextStyle_Regular, const Color& color = Color::White());
+			static inline SimpleTextDrawer Draw(const std::shared_ptr<Font>& font, std::string str, unsigned int characterSize, TextStyleFlags style, const Color& color, float outlineThickness, const Color& outlineColor);
 
 		private:
 			inline void AppendNewLine() const;

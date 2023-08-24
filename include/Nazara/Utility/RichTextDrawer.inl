@@ -87,12 +87,6 @@ namespace Nz
 		return m_fonts[fontIndex].font;
 	}
 
-	inline float RichTextDrawer::GetBlockLineHeight(std::size_t index) const
-	{
-		NazaraAssert(index < m_blocks.size(), "Invalid block index");
-		return m_blocks[index].lineSpacingOffset;
-	}
-
 	inline float RichTextDrawer::GetBlockLineSpacingOffset(std::size_t index) const
 	{
 		NazaraAssert(index < m_blocks.size(), "Invalid block index");
@@ -123,44 +117,19 @@ namespace Nz
 		return m_blocks[index].text;
 	}
 
-	inline unsigned int RichTextDrawer::GetDefaultCharacterSize() const
+	inline unsigned int RichTextDrawer::GetCharacterSize() const
 	{
-		return m_defaultCharacterSize;
+		return m_currentCharacterSize;
 	}
 
-	inline float RichTextDrawer::GetDefaultCharacterSpacingOffset() const
+	inline float RichTextDrawer::GetCharacterSpacingOffset() const
 	{
-		return m_defaultCharacterSpacingOffset;
+		return m_currentCharacterSpacingOffset;
 	}
 
-	inline const Color& RichTextDrawer::GetDefaultColor() const
+	inline float RichTextDrawer::GetLineSpacingOffset() const
 	{
-		return m_defaultColor;
-	}
-
-	inline const std::shared_ptr<Font>& RichTextDrawer::GetDefaultFont() const
-	{
-		return m_defaultFont;
-	}
-
-	inline float RichTextDrawer::GetDefaultLineSpacingOffset() const
-	{
-		return m_defaultLineSpacingOffset;
-	}
-
-	inline const Color& RichTextDrawer::GetDefaultOutlineColor() const
-	{
-		return m_defaultOutlineColor;
-	}
-
-	inline float RichTextDrawer::GetDefaultOutlineThickness() const
-	{
-		return m_defaultOutlineThickness;
-	}
-
-	inline TextStyleFlags RichTextDrawer::GetDefaultStyle() const
-	{
-		return m_defaultStyle;
+		return m_currentLineSpacingOffset;
 	}
 
 	inline void RichTextDrawer::AppendNewLine(const Font& font, unsigned int characterSize, float lineSpacingOffset) const
@@ -261,6 +230,31 @@ namespace Nz
 		return m_lines.back().bounds.GetMaximum().x + size > m_maxLineWidth;
 	}
 
+	inline const Color& RichTextDrawer::GetTextColor() const
+	{
+		return m_currentColor;
+	}
+
+	inline const std::shared_ptr<Font>& RichTextDrawer::GetTextFont() const
+	{
+		return m_currentFont;
+	}
+
+	inline const Color& RichTextDrawer::GetTextOutlineColor() const
+	{
+		return m_currentOutlineColor;
+	}
+
+	inline float RichTextDrawer::GetTextOutlineThickness() const
+	{
+		return m_currentOutlineThickness;
+	}
+
+	inline TextStyleFlags RichTextDrawer::GetTextStyle() const
+	{
+		return m_currentStyle;
+	}
+
 	inline bool RichTextDrawer::HasBlocks() const
 	{
 		return !m_blocks.empty();
@@ -358,44 +352,44 @@ namespace Nz
 		InvalidateGlyphs();
 	}
 
-	inline void RichTextDrawer::SetDefaultCharacterSize(unsigned int characterSize)
+	inline void RichTextDrawer::SetCharacterSize(unsigned int characterSize)
 	{
-		m_defaultCharacterSize = characterSize;
+		m_currentCharacterSize = characterSize;
 	}
 
-	inline void RichTextDrawer::SetDefaultCharacterSpacingOffset(float offset)
+	inline void RichTextDrawer::SetCharacterSpacingOffset(float offset)
 	{
-		m_defaultCharacterSpacingOffset = offset;
+		m_currentCharacterSpacingOffset = offset;
 	}
 
-	inline void RichTextDrawer::SetDefaultColor(const Color& color)
+	inline void RichTextDrawer::SetLineSpacingOffset(float offset)
 	{
-		m_defaultColor = color;
+		m_currentLineSpacingOffset = offset;
 	}
 
-	inline void RichTextDrawer::SetDefaultFont(const std::shared_ptr<Font>& font)
+	inline void RichTextDrawer::SetTextColor(const Color& color)
 	{
-		m_defaultFont = font;
+		m_currentColor = color;
 	}
 
-	inline void RichTextDrawer::SetDefaultLineSpacingOffset(float offset)
+	inline void RichTextDrawer::SetTextFont(const std::shared_ptr<Font>& font)
 	{
-		m_defaultLineSpacingOffset = offset;
+		m_currentFont = font;
 	}
 
-	inline void RichTextDrawer::SetDefaultOutlineColor(const Color& color)
+	inline void RichTextDrawer::SetTextOutlineColor(const Color& color)
 	{
-		m_defaultOutlineColor = color;
+		m_currentOutlineColor = color;
 	}
 
-	inline void RichTextDrawer::SetDefaultOutlineThickness(float thickness)
+	inline void RichTextDrawer::SetTextOutlineThickness(float thickness)
 	{
-		m_defaultOutlineThickness = thickness;
+		m_currentOutlineThickness = thickness;
 	}
 
-	inline void RichTextDrawer::SetDefaultStyle(TextStyleFlags style)
+	inline void RichTextDrawer::SetTextStyle(TextStyleFlags style)
 	{
-		m_defaultStyle = style;
+		m_currentStyle = style;
 	}
 
 	inline void RichTextDrawer::InvalidateGlyphs()
@@ -453,7 +447,7 @@ namespace Nz
 	* Returns the font used for the characters of the referenced block
 	* \return A reference on the referenced block font
 	*
-	* \see GetCharacterSize, GetColor, GetStyle, GetText, SetFont
+	* \see GetCharacterSize, GetTextColor, GetStyle, GetText, SetFont
 	*/
 	inline const std::shared_ptr<Font>& RichTextDrawer::BlockRef::GetFont() const
 	{
@@ -464,7 +458,7 @@ namespace Nz
 	* Returns the line spacing offset used for the characters of the referenced block
 	* \return The referenced block character size
 	*
-	* \see GetColor, GetFont, GetStyle, GetText, SetCharacterSize
+	* \see GetTextColor, GetTextFont, GetStyle, GetText, SetCharacterSize
 	*/
 	inline float RichTextDrawer::BlockRef::GetLineSpacingOffset() const
 	{
@@ -475,7 +469,7 @@ namespace Nz
 	* Returns the outline color used for the characters of the referenced block
 	* \return The referenced block outline color
 	*
-	* \see GetCharacterSize, GetColor, GetStyle, GetText, SetFont
+	* \see GetCharacterSize, GetTextColor, GetStyle, GetText, SetFont
 	*/
 	inline Color RichTextDrawer::BlockRef::GetOutlineColor() const
 	{
@@ -486,7 +480,7 @@ namespace Nz
 	* Returns the outline thickness used for the characters of the referenced block
 	* \return The referenced block outline thickness
 	*
-	* \see GetCharacterSize, GetColor, GetStyle, GetText, SetFont
+	* \see GetCharacterSize, GetTextColor, GetStyle, GetText, SetFont
 	*/
 	inline float RichTextDrawer::BlockRef::GetOutlineThickness() const
 	{
@@ -497,7 +491,7 @@ namespace Nz
 	* Returns the style flags used for the characters of the referenced block
 	* \return The referenced block style flags (see TextStyleFlags)
 	*
-	* \see GetCharacterSize, GetColor, GetFont, GetText, SetStyle
+	* \see GetCharacterSize, GetTextColor, GetTextFont, GetText, SetStyle
 	*/
 	inline TextStyleFlags RichTextDrawer::BlockRef::GetStyle() const
 	{
@@ -519,7 +513,7 @@ namespace Nz
 	* Returns the text of the referenced block
 	* \return The referenced block text
 	*
-	* \see GetCharacterSize, GetColor, GetFont, GetStyle, SetText
+	* \see GetCharacterSize, GetTextColor, GetTextFont, GetStyle, SetText
 	*/
 	inline const std::string& RichTextDrawer::BlockRef::GetText() const
 	{
@@ -552,7 +546,7 @@ namespace Nz
 	* Changes the color of the referenced block characters 
 	* \remark This is the only property that can be changed without forcing a glyph regeneration
 	*
-	* \see GetColor, SetCharacterSize, SetFont, SetStyle, SetText
+	* \see GetTextColor, SetCharacterSize, SetFont, SetStyle, SetText
 	*/
 	inline void RichTextDrawer::BlockRef::SetColor(Color color)
 	{
@@ -563,7 +557,7 @@ namespace Nz
 	* Changes the font of the referenced block characters
 	* \remark This invalidates the drawer and will force a (complete or partial, depending on the block index) glyph regeneration to occur.
 	*
-	* \see GetCharacterSize, SetCharacterSize, SetColor, SetStyle, SetText
+	* \see GetCharacterSize, SetCharacterSize, SetTextColor, SetStyle, SetText
 	*/
 	inline void RichTextDrawer::BlockRef::SetFont(std::shared_ptr<Font> font)
 	{
@@ -574,7 +568,7 @@ namespace Nz
 	* Changes the line spacing offset of the referenced block characters
 	* \remark This invalidates the drawer and will force a (complete or partial, depending on the block index) glyph regeneration to occur.
 	*
-	* \see GetLineSpacingOffset, SetColor, SetFont, SetStyle, SetText
+	* \see GetLineSpacingOffset, SetTextColor, SetTextFont, SetStyle, SetText
 	*/
 	inline void RichTextDrawer::BlockRef::SetLineSpacingOffset(float offset)
 	{
@@ -585,7 +579,7 @@ namespace Nz
 	* Changes the outline color of the referenced block characters
 	* \remark This invalidates the drawer and will force a (complete or partial, depending on the block index) glyph regeneration to occur.
 	*
-	* \see GetCharacterSize, SetCharacterSize, SetColor, SetStyle, SetText
+	* \see GetCharacterSize, SetCharacterSize, SetTextColor, SetStyle, SetText
 	*/
 	inline void RichTextDrawer::BlockRef::SetOutlineColor(Color color)
 	{
@@ -596,7 +590,7 @@ namespace Nz
 	* Changes the outline thickness of the referenced block characters
 	* \remark This invalidates the drawer and will force a (complete or partial, depending on the block index) glyph regeneration to occur.
 	*
-	* \see GetCharacterSize, SetCharacterSize, SetColor, SetStyle, SetText
+	* \see GetCharacterSize, SetCharacterSize, SetTextColor, SetStyle, SetText
 	*/
 	inline void RichTextDrawer::BlockRef::SetOutlineThickness(float thickness)
 	{
@@ -607,7 +601,7 @@ namespace Nz
 	* Changes the style flags of the referenced block characters
 	* \remark This invalidates the drawer and will force a (complete or partial, depending on the block index) glyph regeneration to occur.
 	*
-	* \see GetStyle, SetCharacterSize, SetColor, SetFont, SetText
+	* \see GetStyle, SetCharacterSize, SetTextColor, SetTextFont, SetText
 	*/
 	inline void RichTextDrawer::BlockRef::SetStyle(TextStyleFlags style)
 	{
@@ -618,7 +612,7 @@ namespace Nz
 	* Changes the text of the referenced block
 	* \remark This invalidates the drawer and will force a (complete or partial, depending on the block index) glyph regeneration to occur.
 	*
-	* \see GetText, SetCharacterSize, SetColor, SetFont, SetStyle
+	* \see GetText, SetCharacterSize, SetTextColor, SetTextFont, SetTextStyle
 	*/
 	inline void RichTextDrawer::BlockRef::SetText(std::string text)
 	{
@@ -627,3 +621,4 @@ namespace Nz
 }
 
 #include <Nazara/Utility/DebugOff.hpp>
+#include "RichTextDrawer.hpp"
