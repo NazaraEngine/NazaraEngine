@@ -10,6 +10,7 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Unicode.hpp>
 #include <NazaraUtils/Algorithm.hpp>
+#include <NazaraUtils/FunctionRef.hpp>
 #include <string>
 
 namespace Nz
@@ -34,6 +35,8 @@ namespace Nz
 	NAZARA_CORE_API std::string_view GetWord(std::string_view str, std::size_t wordIndex, UnicodeAware);
 
 	inline bool IsNumber(std::string_view str);
+
+	NAZARA_CORE_API void IterateOnCodepoints(std::string_view str, FunctionRef<bool(const char32_t* characters, std::size_t characterCount)> callback);
 
 	NAZARA_CORE_API bool MatchPattern(std::string_view str, std::string_view pattern);
 

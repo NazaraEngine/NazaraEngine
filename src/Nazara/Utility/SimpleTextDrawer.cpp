@@ -187,97 +187,96 @@ namespace Nz
 		if (text.empty())
 			return;
 
-		///TODO: Allow iteration on Unicode characters without allocating any buffer
-		std::u32string characters = ToUtf32String(text);
-		if (characters.empty())
-		{
-			NazaraError("Invalid character set");
-			return;
-		}
-
 		const Font::SizeInfo& sizeInfo = m_font->GetSizeInfo(m_characterSize);
 
-		m_glyphs.reserve(m_glyphs.size() + characters.size() * ((m_outlineThickness > 0.f) ? 2 : 1));
-		for (char32_t character : characters)
+
+		IterateOnCodepoints(text, [&](const char32_t* characters, std::size_t characterCount)
 		{
-			if (m_previousCharacter != 0)
-				m_drawPos.x += m_font->GetKerning(m_characterSize, m_previousCharacter, character);
-
-			m_previousCharacter = character;
-
-			bool whitespace = true;
-			float advance = m_characterSpacingOffset;
-			switch (character)
+			for (std::size_t i = 0; i < characterCount; ++i)
 			{
-				case ' ':
-				case '\n':
-					advance += float(sizeInfo.spaceAdvance);
-					break;
+				char32_t character = characters[i];
+				
+				if (m_previousCharacter != 0)
+					m_drawPos.x += m_font->GetKerning(m_characterSize, m_previousCharacter, character);
 
-				case '\t':
-					advance += float(sizeInfo.spaceAdvance) * 4.f;
-					break;
+				m_previousCharacter = character;
 
-				default:
-					whitespace = false;
-					break;
-			}
-
-			Glyph glyph;
-			if (!whitespace)
-			{
-				int glyphRenderOrder = (m_outlineThickness > 0.f) ? 1 : 0;
-
-				int iAdvance;
-				if (!GenerateGlyph(glyph, character, 0.f, true, m_color, glyphRenderOrder, &iAdvance))
-					continue; // Glyph failed to load, just skip it (can't do much)
-
-				advance += float(iAdvance);
-
-				if (m_outlineThickness > 0.f)
+				bool whitespace = true;
+				float advance = m_characterSpacingOffset;
+				switch (character)
 				{
-					Glyph outlineGlyph;
-					if (GenerateGlyph(outlineGlyph, character, m_outlineThickness, false, m_outlineColor, glyphRenderOrder - 1, nullptr))
-						m_glyphs.push_back(outlineGlyph);
-				}
-			}
-			else
-			{
-				if (ShouldLineWrap(advance))
-					AppendNewLine(m_lastSeparatorGlyph, m_lastSeparatorPosition);
+					case ' ':
+					case '\n':
+						advance += float(sizeInfo.spaceAdvance);
+						break;
 
-				glyph.atlas = nullptr;
-				glyph.bounds = Rectf(m_drawPos.x, m_lines.back().bounds.y, advance, GetLineHeight(sizeInfo));
+					case '\t':
+						advance += float(sizeInfo.spaceAdvance) * 4.f;
+						break;
 
-				glyph.corners[0] = glyph.bounds.GetCorner(RectCorner::LeftTop);
-				glyph.corners[1] = glyph.bounds.GetCorner(RectCorner::RightTop);
-				glyph.corners[2] = glyph.bounds.GetCorner(RectCorner::LeftBottom);
-				glyph.corners[3] = glyph.bounds.GetCorner(RectCorner::RightBottom);
-			}
-
-			m_lines.back().bounds.ExtendTo(glyph.bounds);
-
-			switch (character)
-			{
-				case '\n':
-				{
-					AppendNewLine();
-					break;
+					default:
+						whitespace = false;
+						break;
 				}
 
-				default:
-					m_drawPos.x += advance;
-					break;
+				Glyph glyph;
+				if (!whitespace)
+				{
+					int glyphRenderOrder = (m_outlineThickness > 0.f) ? 1 : 0;
+
+					int iAdvance;
+					if (!GenerateGlyph(glyph, character, 0.f, true, m_color, glyphRenderOrder, &iAdvance))
+						continue; // Glyph failed to load, just skip it (can't do much)
+
+					advance += float(iAdvance);
+
+					if (m_outlineThickness > 0.f)
+					{
+						Glyph outlineGlyph;
+						if (GenerateGlyph(outlineGlyph, character, m_outlineThickness, false, m_outlineColor, glyphRenderOrder - 1, nullptr))
+							m_glyphs.push_back(outlineGlyph);
+					}
+				}
+				else
+				{
+					if (ShouldLineWrap(advance))
+						AppendNewLine(m_lastSeparatorGlyph, m_lastSeparatorPosition);
+
+					glyph.atlas = nullptr;
+					glyph.bounds = Rectf(m_drawPos.x, m_lines.back().bounds.y, advance, GetLineHeight(sizeInfo));
+
+					glyph.corners[0] = glyph.bounds.GetCorner(RectCorner::LeftTop);
+					glyph.corners[1] = glyph.bounds.GetCorner(RectCorner::RightTop);
+					glyph.corners[2] = glyph.bounds.GetCorner(RectCorner::LeftBottom);
+					glyph.corners[3] = glyph.bounds.GetCorner(RectCorner::RightBottom);
+				}
+
+				m_lines.back().bounds.ExtendTo(glyph.bounds);
+
+				switch (character)
+				{
+					case '\n':
+					{
+						AppendNewLine();
+						break;
+					}
+
+					default:
+						m_drawPos.x += advance;
+						break;
+				}
+
+				if (whitespace)
+				{
+					m_lastSeparatorGlyph = m_glyphs.size();
+					m_lastSeparatorPosition = m_drawPos.x;
+				}
+
+				m_glyphs.push_back(glyph);
 			}
 
-			if (whitespace)
-			{
-				m_lastSeparatorGlyph = m_glyphs.size();
-				m_lastSeparatorPosition = m_drawPos.x;
-			}
-
-			m_glyphs.push_back(glyph);
-		}
+			return true; //< continue iteration
+		});
 
 		m_bounds.ExtendTo(m_lines.back().bounds);
 

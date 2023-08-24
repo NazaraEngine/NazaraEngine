@@ -256,20 +256,20 @@ namespace Nz
 		return PrecacheGlyph(m_glyphes[key], characterSize, style, outlineThickness, character).valid;
 	}
 
-	bool Font::Precache(unsigned int characterSize, TextStyleFlags style, float outlineThickness, const std::string& characterSet) const
+	bool Font::Precache(unsigned int characterSize, TextStyleFlags style, float outlineThickness, std::string_view characterSet) const
 	{
-		///TODO: Itération UTF-8 => UTF-32 sans allocation de buffer (Exposer utf8cpp ?)
-		std::u32string set = ToUtf32String(characterSet);
-		if (set.empty())
-		{
-			NazaraError("Invalid character set");
-			return false;
-		}
+		NazaraAssert(!characterSet.empty(), "empty character set");
 
 		UInt64 key = ComputeKey(characterSize, style, outlineThickness);
 		auto& glyphMap = m_glyphes[key];
-		for (char32_t character : set)
-			PrecacheGlyph(glyphMap, characterSize, style, outlineThickness, character);
+
+		IterateOnCodepoints(characterSet, [&](const char32_t* characters, std::size_t characterCount)
+		{
+			for (std::size_t i = 0; i < characterCount; ++i)
+				PrecacheGlyph(glyphMap, characterSize, style, outlineThickness, characters[i]);
+
+			return true;
+		});
 
 		return true;
 	}

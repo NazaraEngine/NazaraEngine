@@ -73,7 +73,7 @@ namespace Nz
 			bool IsValid() const;
 
 			bool Precache(unsigned int characterSize, TextStyleFlags style, float outlineThickness, char32_t character) const;
-			bool Precache(unsigned int characterSize, TextStyleFlags style, float outlineThickness, const std::string& characterSet) const;
+			bool Precache(unsigned int characterSize, TextStyleFlags style, float outlineThickness, std::string_view characterSet) const;
 
 			void SetAtlas(std::shared_ptr<AbstractAtlas> atlas);
 			void SetGlyphBorder(unsigned int borderSize);
