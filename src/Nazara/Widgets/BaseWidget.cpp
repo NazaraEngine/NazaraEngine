@@ -444,11 +444,8 @@ namespace Nz
 
 	void BaseWidget::SetParent(BaseWidget* widget)
 	{
-		Canvas* oldCanvas = m_canvas;
-		Canvas* newCanvas = widget->GetCanvas();
-
 		// Changing a widget canvas is a problem because of the canvas entities
-		NazaraAssert(oldCanvas == newCanvas, "Transferring a widget between canvas is not yet supported");
+		NazaraAssert(m_canvas == widget->GetCanvas(), "Transferring a widget between canvas is not yet supported");
 
 		Node::SetParent(widget);
 		m_parentWidget = widget;
