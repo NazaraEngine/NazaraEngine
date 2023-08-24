@@ -54,6 +54,7 @@
 #include <Nazara/Utility/MeshData.hpp>
 #include <Nazara/Utility/Node.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
+#include <Nazara/Utility/RichTextBuilder.hpp>
 #include <Nazara/Utility/RichTextDrawer.hpp>
 #include <Nazara/Utility/Sequence.hpp>
 #include <Nazara/Utility/SimpleTextDrawer.hpp>

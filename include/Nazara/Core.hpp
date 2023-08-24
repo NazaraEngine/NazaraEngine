@@ -43,6 +43,7 @@
 #include <Nazara/Core/ByteStream.hpp>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/Color.hpp>
+#include <Nazara/Core/CommandLineParameters.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Core.hpp>
 #include <Nazara/Core/DynLib.hpp>
@@ -53,6 +54,7 @@
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/FileLogger.hpp>
+#include <Nazara/Core/Format.hpp>
 #include <Nazara/Core/Functor.hpp>
 #include <Nazara/Core/GuillotineBinPack.hpp>
 #include <Nazara/Core/HandledObject.hpp>

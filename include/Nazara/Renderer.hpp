@@ -58,6 +58,7 @@
 #include <Nazara/Renderer/SwapchainParameters.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
+#include <Nazara/Renderer/TransientResources.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
 #include <Nazara/Renderer/WindowSwapchain.hpp>
 
