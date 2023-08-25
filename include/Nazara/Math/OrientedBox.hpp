@@ -32,7 +32,7 @@ namespace Nz
 			constexpr bool ApproxEqual(const OrientedBox& obb, T maxDifference = std::numeric_limits<T>::epsilon()) const;
 
 			constexpr const Vector3<T>& GetCorner(BoxCorner corner) const;
-			constexpr const Vector3<T>* GetCorners() const;
+			constexpr const EnumArray<BoxCorner, Vector3<T>>& GetCorners() const;
 
 			constexpr bool IsValid() const;
 

@@ -368,7 +368,7 @@ namespace Nz
 	template<typename T>
 	constexpr IntersectionSide Frustum<T>::Intersect(const OrientedBox<T>& orientedbox) const
 	{
-		return Intersect(orientedbox.GetCorners(), 8);
+		return Intersect(orientedbox.GetCorners().data(), 8);
 	}
 
 	/*!

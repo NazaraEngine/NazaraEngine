@@ -75,9 +75,9 @@ namespace Nz
 	}
 
 	template<typename T>
-	constexpr const Vector3<T>* OrientedBox<T>::GetCorners() const
+	constexpr const EnumArray<BoxCorner, Vector3<T>>& OrientedBox<T>::GetCorners() const
 	{
-		return &m_corners.front();
+		return m_corners;
 	}
 
 	/*!
