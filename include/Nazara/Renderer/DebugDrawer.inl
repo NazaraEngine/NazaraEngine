@@ -61,6 +61,11 @@ namespace Nz
 		endVertex.color = endColor;
 		endVertex.position = end;
 	}
+
+	inline void DebugDrawer::DrawPoint(const Vector3f& point, const Color& color, float boxSize)
+	{
+		return DrawBox(Boxf(point - Vector3f(boxSize * 0.5f), Vector3f(boxSize)), color);
+	}
 }
 
 #include <Nazara/Renderer/DebugOff.hpp>
