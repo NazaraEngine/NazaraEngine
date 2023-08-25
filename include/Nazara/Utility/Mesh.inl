@@ -24,7 +24,7 @@ namespace Nz
 		return mesh;
 	}
 
-	inline std::shared_ptr<Mesh> Build(const Primitive& primitive, const MeshParams& params)
+	inline std::shared_ptr<Mesh> Mesh::Build(const Primitive& primitive, const MeshParams& params)
 	{
 		std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
 		mesh->CreateStatic();
@@ -33,7 +33,7 @@ namespace Nz
 		return mesh;
 	}
 
-	inline std::shared_ptr<Mesh> Build(const PrimitiveList& primitiveList, const MeshParams& params)
+	inline std::shared_ptr<Mesh> Mesh::Build(const PrimitiveList& primitiveList, const MeshParams& params)
 	{
 		std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
 		mesh->CreateStatic();
