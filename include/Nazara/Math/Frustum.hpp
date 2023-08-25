@@ -37,6 +37,7 @@ namespace Nz
 			constexpr bool ApproxEqual(const Frustum& frustum, T maxDifference = std::numeric_limits<T>::epsilon()) const;
 
 			constexpr Vector3<T> ComputeCorner(BoxCorner corner) const;
+			constexpr EnumArray<BoxCorner, Vector3<T>> ComputeCorners() const;
 
 			constexpr bool Contains(const BoundingVolume<T>& volume) const;
 			constexpr bool Contains(const Box<T>& box) const;
@@ -45,6 +46,7 @@ namespace Nz
 			constexpr bool Contains(const Vector3<T>& point) const;
 			constexpr bool Contains(const Vector3<T>* points, std::size_t pointCount) const;
 
+			constexpr const Box<T>& GetAABB() const;
 			constexpr const Plane<T>& GetPlane(FrustumPlane plane) const;
 			constexpr const EnumArray<FrustumPlane, Plane<T>>& GetPlanes() const;
 

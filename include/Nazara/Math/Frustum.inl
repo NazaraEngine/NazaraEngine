@@ -85,6 +85,21 @@ namespace Nz
 		return Vector3<T>();
 	}
 
+	template<typename T>
+	constexpr EnumArray<BoxCorner, Vector3<T>> Frustum<T>::ComputeCorners() const
+	{
+		return {
+			ComputeCorner(BoxCorner::FarLeftBottom),
+			ComputeCorner(BoxCorner::FarLeftTop),
+			ComputeCorner(BoxCorner::FarRightBottom),
+			ComputeCorner(BoxCorner::FarRightTop),
+			ComputeCorner(BoxCorner::NearLeftBottom),
+			ComputeCorner(BoxCorner::NearLeftTop),
+			ComputeCorner(BoxCorner::NearRightBottom),
+			ComputeCorner(BoxCorner::NearRightTop)
+		};
+	}
+
 	/*!
 	* \brief Checks whether or not a bounding volume is contained in the frustum
 	* \return true if the bounding volume is entirely in the frustum
@@ -227,6 +242,22 @@ namespace Nz
 		}
 
 		return true;
+	}
+
+	template<typename T>
+	constexpr const Box<T>& Frustum<T>::GetAABB() const
+	{
+		EnumArray<BoxCorner, Vector3<T>> corners = ComputeCorners();
+
+		Vector3f max = corners.front();
+		Vector3f min = corners.front();
+		for (std::size_t i = 1; i < corners.size(); ++i)
+		{
+			max.Maximize(corners[static_cast<BoxCorner>(i)]);
+			min.Minimize(corners[static_cast<BoxCorner>(i)]);
+		}
+
+		return Box<T>::FromExtends(min, max);
 	}
 
 	/*!
