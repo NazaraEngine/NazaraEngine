@@ -313,14 +313,14 @@ namespace Nz
 	constexpr EnumArray<BoxCorner, Vector3<T>> Box<T>::GetCorners() const
 	{
 		return {
-			GetCorner(Nz::BoxCorner::FarLeftBottom),
-			GetCorner(Nz::BoxCorner::FarLeftTop),
-			GetCorner(Nz::BoxCorner::FarRightBottom),
-			GetCorner(Nz::BoxCorner::FarRightTop),
-			GetCorner(Nz::BoxCorner::NearLeftBottom),
-			GetCorner(Nz::BoxCorner::NearLeftTop),
-			GetCorner(Nz::BoxCorner::NearRightBottom),
-			GetCorner(Nz::BoxCorner::NearRightTop)
+			GetCorner(BoxCorner::FarLeftBottom),
+			GetCorner(BoxCorner::FarLeftTop),
+			GetCorner(BoxCorner::FarRightBottom),
+			GetCorner(BoxCorner::FarRightTop),
+			GetCorner(BoxCorner::NearLeftBottom),
+			GetCorner(BoxCorner::NearLeftTop),
+			GetCorner(BoxCorner::NearRightBottom),
+			GetCorner(BoxCorner::NearRightTop)
 		};
 	}
 
@@ -691,19 +691,6 @@ namespace Nz
 		return lhs.ApproxEqual(rhs, maxDifference);
 	}
 
-	/*!
-	* \brief Interpolates the box to other one with a factor of interpolation
-	* \return A new box which is the interpolation of two rectangles
-	*
-	* \param from Initial box
-	* \param to Target box
-	* \param interpolation Factor of interpolation
-	*
-	* \remark interpolation is meant to be between 0 and 1, other values are potentially undefined behavior
-	* \remark With NAZARA_DEBUG, a NazaraError is thrown and Zero() is returned
-	*
-	* \see Lerp
-	*/
 	template<typename T>
 	constexpr Box<T> Box<T>::FromExtends(const Vector3<T>& vec1, const Vector3<T>& vec2)
 	{

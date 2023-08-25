@@ -28,9 +28,7 @@ namespace Nz
 
 	inline void DebugDrawer::DrawFrustum(const Frustumf& frustum, const Color& color)
 	{
-		EnumArray<BoxCorner, Vector3f> corners;
-		for (auto&& [corner, pos] : corners.iter_kv())
-			pos = frustum.ComputeCorner(corner);
+		EnumArray<BoxCorner, Vector3f> corners = frustum.ComputeCorners();
 
 		DrawLine(corners[BoxCorner::NearLeftBottom],  corners[BoxCorner::NearRightBottom], color);
 		DrawLine(corners[BoxCorner::NearLeftBottom],  corners[BoxCorner::NearLeftTop],     color);

@@ -254,10 +254,10 @@ namespace Nz
 	constexpr EnumArray<RectCorner, Vector2<T>> Rect<T>::GetCorners() const
 	{
 		return {
-			GetCorner(Nz::RectCorner::LeftBottom),
-			GetCorner(Nz::RectCorner::LeftTop),
-			GetCorner(Nz::RectCorner::RightBottom),
-			GetCorner(Nz::RectCorner::RightTop)
+			GetCorner(RectCorner::LeftBottom),
+			GetCorner(RectCorner::LeftTop),
+			GetCorner(RectCorner::RightBottom),
+			GetCorner(RectCorner::RightTop)
 		};
 	}
 
