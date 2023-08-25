@@ -183,7 +183,7 @@ namespace Nz
 	template<typename T>
 	constexpr bool Frustum<T>::Contains(const OrientedBox<T>& orientedbox) const
 	{
-		return Contains(orientedbox.GetCorners(), 8);
+		return Contains(orientedbox.GetCorners().data(), 8);
 	}
 
 	/*!
