@@ -551,10 +551,10 @@ namespace Nz
 		planes[FrustumPlane::Top].normal.z = viewProjMatrix(3, 2) + viewProjMatrix(1, 2);
 		planes[FrustumPlane::Top].distance = viewProjMatrix(3, 3) + viewProjMatrix(1, 3);
 
-		planes[FrustumPlane::Far].normal.x = viewProjMatrix(3, 0) + viewProjMatrix(2, 0);
-		planes[FrustumPlane::Far].normal.y = viewProjMatrix(3, 1) + viewProjMatrix(2, 1);
-		planes[FrustumPlane::Far].normal.z = viewProjMatrix(3, 2) + viewProjMatrix(2, 2);
-		planes[FrustumPlane::Far].distance = viewProjMatrix(3, 3) + viewProjMatrix(2, 3);
+		planes[FrustumPlane::Far].normal.x = viewProjMatrix(2, 0);
+		planes[FrustumPlane::Far].normal.y = viewProjMatrix(2, 1);
+		planes[FrustumPlane::Far].normal.z = viewProjMatrix(2, 2);
+		planes[FrustumPlane::Far].distance = viewProjMatrix(2, 3);
 
 		planes[FrustumPlane::Near].normal.x = viewProjMatrix(3, 0) - viewProjMatrix(2, 0);
 		planes[FrustumPlane::Near].normal.y = viewProjMatrix(3, 1) - viewProjMatrix(2, 1);
