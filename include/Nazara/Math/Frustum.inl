@@ -245,7 +245,7 @@ namespace Nz
 	}
 
 	template<typename T>
-	constexpr const Box<T>& Frustum<T>::GetAABB() const
+	constexpr Box<T> Frustum<T>::GetAABB() const
 	{
 		EnumArray<BoxCorner, Vector3<T>> corners = ComputeCorners();
 

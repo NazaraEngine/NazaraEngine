@@ -46,7 +46,7 @@ namespace Nz
 			constexpr bool Contains(const Vector3<T>& point) const;
 			constexpr bool Contains(const Vector3<T>* points, std::size_t pointCount) const;
 
-			constexpr const Box<T>& GetAABB() const;
+			constexpr Box<T> GetAABB() const;
 			constexpr const Plane<T>& GetPlane(FrustumPlane plane) const;
 			constexpr const EnumArray<FrustumPlane, Plane<T>>& GetPlanes() const;
 
