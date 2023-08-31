@@ -621,4 +621,3 @@ namespace Nz
 }
 
 #include <Nazara/Utility/DebugOff.hpp>
-#include "RichTextDrawer.hpp"

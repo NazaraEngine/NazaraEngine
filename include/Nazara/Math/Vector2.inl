@@ -818,4 +818,3 @@ namespace std
 }
 
 #include <Nazara/Core/DebugOff.hpp>
-#include "Vector2.hpp"

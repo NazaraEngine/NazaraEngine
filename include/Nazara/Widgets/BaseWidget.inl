@@ -365,5 +365,4 @@ namespace Nz
 }
 
 #include <Nazara/Widgets/DebugOff.hpp>
-#include "BaseWidget.hpp"
 

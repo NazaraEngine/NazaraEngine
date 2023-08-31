@@ -530,4 +530,3 @@ namespace Nz
 }
 
 #include <Nazara/VulkanRenderer/DebugOff.hpp>
-#include "Utils.hpp"
