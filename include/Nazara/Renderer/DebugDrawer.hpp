@@ -44,7 +44,7 @@ namespace Nz
 			inline void DrawFrustum(const Frustumf& frustum, const Color& color);
 			inline void DrawLine(const Vector3f& start, const Vector3f& end, const Color& color);
 			inline void DrawLine(const Vector3f& start, const Vector3f& end, const Color& startColor, const Color& endColor);
-			inline void DrawPoint(const Vector3f& point, const Color& color, float boxSize = 0.1f);
+			inline void DrawPoint(const Vector3f& point, const Color& color, float boxSize = 0.01f);
 			void DrawSkeleton(const Skeleton& skeleton, const Color& color);
 
 			void Prepare(RenderFrame& renderFrame);

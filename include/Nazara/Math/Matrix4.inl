@@ -1226,10 +1226,10 @@ namespace Nz
 	{
 		// http://msdn.microsoft.com/en-us/library/windows/desktop/bb204942(v=vs.85).aspx
 		return Matrix4(
-			T(2.0) / (right - left), T(0.0), T(0.0), T(0.0),
-			T(0.0), T(2.0) / (top - bottom), T(0.0), T(0.0),
-			T(0.0), T(0.0), T(1.0) / (zNear - zFar), T(0.0),
-			(left + right) / (left - right), (top + bottom) / (bottom - top), zNear / (zNear - zFar), T(1.0)
+			T(2.0) / (right - left),         T(0.0),                          T(0.0),                  T(0.0),
+			T(0.0),                          T(2.0) / (top - bottom),         T(0.0),                  T(0.0),
+			T(0.0),                          T(0.0),                          T(1.0) / (zNear - zFar), T(0.0),
+			(left + right) / (left - right), (top + bottom) / (bottom - top), zNear / (zNear - zFar),  T(1.0)
 		);
 	}
 

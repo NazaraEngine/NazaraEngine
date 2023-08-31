@@ -21,8 +21,8 @@ namespace Nz
 			 Quaternionf::RotationBetween(Vector3f::Forward(), -Vector3f::UnitX()),
 			 Quaternionf::RotationBetween(Vector3f::Forward(),  Vector3f::UnitY()),
 			 Quaternionf::RotationBetween(Vector3f::Forward(), -Vector3f::UnitY()),
-			 Quaternionf::Identity(),
-			 Quaternionf(0.f, 0.f, 1.f, 0.f)
+			 Quaternionf::RotationBetween(Vector3f::Forward(), -Vector3f::UnitZ()), //< FIXME: Find out why Z is reversed
+			 Quaternionf::RotationBetween(Vector3f::Forward(),  Vector3f::UnitZ()),
 		};
 
 		constexpr std::array<std::string_view, 6> s_dirNames = {
@@ -30,8 +30,8 @@ namespace Nz
 			"Point-light shadow mapping -X",
 			"Point-light shadow mapping +Y",
 			"Point-light shadow mapping -Y",
-			"Point-light shadow mapping +Z",
-			"Point-light shadow mapping -Z"
+			"Point-light shadow mapping -Z",
+			"Point-light shadow mapping +Z"
 		};
 	}
 
@@ -63,6 +63,8 @@ namespace Nz
 
 		std::size_t shadowPassIndex = Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex("ShadowPass");
 
+		Matrix4f projectionMatrix = Matrix4f::Perspective(RadianAnglef(HalfPi<float>), 1.f, 0.01f, m_light.GetRadius());
+
 		UInt32 shadowMapSize = light.GetShadowMapSize();
 		for (std::size_t i = 0; i < m_directions.size(); ++i)
 		{
@@ -72,8 +74,8 @@ namespace Nz
 			viewer.UpdateViewport(Recti(0, 0, SafeCast<int>(shadowMapSize), SafeCast<int>(shadowMapSize)));
 
 			ViewerInstance& viewerInstance = viewer.GetViewerInstance();
-			viewerInstance.UpdateProjectionMatrix(Matrix4f::Perspective(RadianAnglef(HalfPi<float>), 1.f, 0.01f, m_light.GetRadius()));
 			viewerInstance.UpdateEyePosition(m_light.GetPosition());
+			viewerInstance.UpdateProjectionMatrix(projectionMatrix);
 			viewerInstance.UpdateViewMatrix(Matrix4f::TransformInverse(m_light.GetPosition(), s_dirRotations[i]));
 
 			m_pipeline.QueueTransfer(&viewerInstance);

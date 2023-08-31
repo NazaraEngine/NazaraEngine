@@ -207,7 +207,7 @@ if is_plat("wasm") then
 end
 
 if not has_config("embed_rendererbackends", "static") then
-	-- Register backends as separate modules
+	-- Register renderer backends as separate modules
 	for name, module in pairs(rendererBackends) do
 		if (modules[name] ~= nil) then
 			os.raise("overriding module " .. name)
@@ -218,6 +218,13 @@ if not has_config("embed_rendererbackends", "static") then
 end
 
 NazaraModules = modules
+
+-- add_extrafiles was added in xmake 2.8.2 but was broken for wildcard
+if xmake.version():lt("2.8.3") then
+	add_extrafiles = function (...) 
+		add_headerfiles(..., { install = false })
+	end
+end
 
 set_project("NazaraEngine")
 set_xmakever("2.7.3")
@@ -234,8 +241,8 @@ option("link_curl", { description = "Link libcurl in the executable instead of d
 option("link_openal", { description = "Link OpenAL in the executable instead of dynamically loading it", default = is_plat("wasm") or false })
 option("static", { description = "Build the engine statically (implies embed_rendererbackends and embed_plugins)", default = is_plat("wasm") or false })
 option("override_runtime", { description = "Override vs runtime to MD in release and MDd in debug", default = true })
-option("usepch", { description = "Use precompiled headers to speedup compilation", default = false })
 option("unitybuild", { description = "Build the engine using unity build", default = false })
+option("usepch", { description = "Use precompiled headers to speedup compilation", default = false })
 
 -- Allow to disable some modules
 for name, module in pairs(modules) do
@@ -443,16 +450,21 @@ function ModuleTargetConfig(name, module)
 	end
 
 	-- Add header and source files
-	local headerExts = {".h", ".hpp", ".inl", ".natvis"}
-	for _, ext in ipairs(headerExts) do
+	for _, ext in ipairs({".h", ".hpp", ".inl"}) do
 		add_headerfiles("include/(Nazara/" .. name .. "/**" .. ext .. ")")
 		add_headerfiles("src/Nazara/" .. name .. "/**" .. ext, { prefixdir = "private", install = false })
 		add_headerfiles("src/Nazara/" .. name .. "/Resources/**.nzsl", { prefixdir = "private", install = false })
 	end
-
 	remove_headerfiles("src/Nazara/" .. name .. "/Resources/**.h")
 
+	-- Add extra files for projects
+	for _, ext in ipairs({".natvis", ".nzsl"}) do
+		add_extrafiles("include/Nazara/" .. name .. "/**" .. ext)
+		add_extrafiles("src/Nazara/" .. name .. "/**" .. ext)
+	end
+
 	add_files("src/Nazara/" .. name .. "/**.cpp")
+
 	if has_config("embed_resources") then
 		local embedResourceRule = false
 		for _, filepath in pairs(os.files("src/Nazara/" .. name .. "/Resources/**|**.h|**.nzsl|**.nzslb")) do
@@ -512,15 +524,15 @@ for name, module in pairs(modules) do
 		else
 			set_kind("shared")
 		end
-
+		
+		add_defines("NAZARA_BUILD")
+		add_includedirs("src")
+		add_packages("fmt")	-- fmt is a special package that is not public but required by all Nazara modules
 		add_rpathdirs("$ORIGIN")
 
 		if module.Deps then
 			add_deps(table.unpack(module.Deps))
 		end
-
-		-- fmt is a special package that is not public but required by all Nazara modules
-		add_packages("fmt")
 
 		if module.Packages then
 			add_packages(table.unpack(module.Packages))
@@ -540,12 +552,9 @@ for name, module in pairs(modules) do
 			add_rules("c++.unity_build", {uniqueid = "NAZARA_UNITY_ID", batchsize = 12})
 		end
 
-		add_defines("NAZARA_BUILD")
 		if is_plat("windows", "mingw") then
 			add_defines("NAZARA_UTILS_WINDOWS_NT6=1")
 		end
-
-		add_includedirs("src")
 
 		ModuleTargetConfig(name, module)
 	end)
