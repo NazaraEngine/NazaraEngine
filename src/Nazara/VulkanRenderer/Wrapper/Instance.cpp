@@ -258,7 +258,7 @@ namespace Nz::Vk
 		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamiliesCount, nullptr);
 		if (queueFamiliesCount == 0)
 		{
-			NazaraError("Failed to query physical device count");
+			NazaraError("failed to query physical device count");
 			return false;
 		}
 

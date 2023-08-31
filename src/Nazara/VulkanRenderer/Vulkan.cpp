@@ -92,7 +92,7 @@ namespace Nz
 				break;
 
 			default:
-				NazaraWarning("Device " + deviceInfo.name + " has handled device type (0x" + NumberToString(physDevice.properties.deviceType, 16) + ')');
+				NazaraWarning("Device {0} has handled device type ({1:#x})", deviceInfo.name, UnderlyingCast(physDevice.properties.deviceType));
 				[[fallthrough]];
 			case VK_PHYSICAL_DEVICE_TYPE_OTHER:
 				deviceInfo.type = RenderDeviceType::Unknown;
@@ -121,7 +121,7 @@ namespace Nz
 		}
 
 		// This cannot happen if physDevice is valid, as we retrieved every physical device
-		NazaraInternalError("Invalid physical device: " + PointerToString(physDevice));
+		NazaraInternalError("Invalid physical device: {0}", static_cast<void*>(physDevice));
 
 		static Vk::PhysicalDevice dummy;
 		return dummy;
@@ -134,7 +134,7 @@ namespace Nz
 		// Initialize module here
 		if (!Vk::Loader::Initialize())
 		{
-			NazaraError("Failed to load Vulkan API, it may be not installed on your system");
+			NazaraError("failed to load Vulkan API, it may be not installed on your system");
 			return false;
 		}
 
@@ -206,7 +206,7 @@ namespace Nz
 					enabledLayers.push_back(additionalLayers.back().c_str());
 				}
 				else
-					NazaraWarning("Parameter " + parameterName + " expected");
+					NazaraWarning("missing parameter {0}", parameterName);
 			}
 		}
 
@@ -269,7 +269,7 @@ namespace Nz
 					enabledExtensions.push_back(additionalExtensions.back().c_str());
 				}
 				else
-					NazaraWarning("Parameter " + parameterName + " expected");
+					NazaraWarning("missing parameter {0}", parameterName);
 			}
 		}
 
@@ -330,7 +330,7 @@ namespace Nz
 		std::vector<VkPhysicalDevice> physDevices;
 		if (!s_instance.EnumeratePhysicalDevices(&physDevices))
 		{
-			NazaraError("Failed to enumerate physical devices");
+			NazaraError("failed to enumerate physical devices");
 			return false;
 		}
 
@@ -340,7 +340,7 @@ namespace Nz
 			Vk::PhysicalDevice deviceInfo;
 			if (!s_instance.GetPhysicalDeviceQueueFamilyProperties(physDevice, &deviceInfo.queueFamilies))
 			{
-				NazaraWarning("Failed to query physical device queue family properties for " + std::string(deviceInfo.properties.deviceName) + " (0x" + NumberToString(deviceInfo.properties.deviceID, 16) + ')');
+				NazaraWarning("failed to query physical device queue family properties for {0} ({1:#x})", deviceInfo.properties.deviceName, deviceInfo.properties.deviceID);
 				continue;
 			}
 
@@ -357,14 +357,14 @@ namespace Nz
 					deviceInfo.extensions.emplace(extProperty.extensionName);
 			}
 			else
-				NazaraWarning("Failed to query physical device extensions for " + std::string(deviceInfo.properties.deviceName) + " (0x" + NumberToString(deviceInfo.properties.deviceID, 16) + ')');
+				NazaraWarning("failed to query physical device extensions for {0} ({1:#x})", deviceInfo.properties.deviceName, deviceInfo.properties.deviceID);
 
 			s_physDevices.emplace_back(std::move(deviceInfo));
 		}
 
 		if (s_physDevices.empty())
 		{
-			NazaraError("No valid physical device found");
+			NazaraError("no valid physical device found");
 			return false;
 		}
 
@@ -430,7 +430,7 @@ namespace Nz
 		{
 			bool supportPresentation = false;
 			if (!surface.GetSupportPresentation(deviceInfo.physDevice, i, &supportPresentation))
-				NazaraWarning("Failed to get presentation support of queue family #" + NumberToString(i));
+				NazaraWarning("failed to get presentation support of queue family #{0}", i);
 
 			if (deviceInfo.queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
 			{
@@ -451,14 +451,14 @@ namespace Nz
 		if (graphicsQueueNodeIndex == UINT32_MAX)
 		{
 			// A Vulkan device without graphics support may technically exists but I've yet to see one
-			NazaraError("Device does not support graphics operations");
+			NazaraError("device does not support graphics operations");
 			return {};
 		}
 
 		if (presentQueueNodeIndex == UINT32_MAX)
 		{
 			// On multi-GPU systems, it's very possible to have surfaces unsupported by some
-			NazaraError("Device cannot present this surface");
+			NazaraError("device cannot present this surface");
 			return {};
 		}
 
@@ -540,7 +540,7 @@ namespace Nz
 					enabledLayers.push_back(additionalLayers.back().c_str());
 				}
 				else
-					NazaraWarning("Parameter " + parameterName + " expected");
+					NazaraWarning("missing parameter {0}", parameterName);
 			}
 		}
 
@@ -577,7 +577,7 @@ namespace Nz
 					enabledExtensions.push_back(additionalExtensions.back().c_str());
 				}
 				else
-					NazaraWarning("Parameter " + parameterName + " expected");
+					NazaraWarning("missing parameter {0}", parameterName);
 			}
 		}
 
