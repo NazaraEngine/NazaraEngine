@@ -9,6 +9,7 @@
 #include <Nazara/Utility/Utility.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/VulkanDevice.hpp>
+#include <NazaraUtils/Algorithm.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
 #include <array>
 #include <unordered_set>
@@ -69,8 +70,8 @@ namespace Nz
 		deviceInfo.limits.maxComputeWorkGroupInvocations = physDevice.properties.limits.maxComputeWorkGroupInvocations;
 		deviceInfo.limits.maxStorageBufferSize = physDevice.properties.limits.maxStorageBufferRange;
 		deviceInfo.limits.maxUniformBufferSize = physDevice.properties.limits.maxUniformBufferRange;
-		deviceInfo.limits.minStorageBufferOffsetAlignment = physDevice.properties.limits.minStorageBufferOffsetAlignment;
-		deviceInfo.limits.minUniformBufferOffsetAlignment = physDevice.properties.limits.minUniformBufferOffsetAlignment;
+		deviceInfo.limits.minStorageBufferOffsetAlignment = RoundToPow2(physDevice.properties.limits.minStorageBufferOffsetAlignment);
+		deviceInfo.limits.minUniformBufferOffsetAlignment = RoundToPow2(physDevice.properties.limits.minUniformBufferOffsetAlignment);
 
 		switch (physDevice.properties.deviceType)
 		{

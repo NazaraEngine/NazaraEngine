@@ -311,7 +311,7 @@ int main(int argc, char* argv[])
 	std::size_t innerAngleOffset = spotLightOffsets.AddField(nzsl::StructFieldType::Float1);
 	std::size_t outerAngleOffset = spotLightOffsets.AddField(nzsl::StructFieldType::Float1);
 
-	std::size_t alignedSpotLightSize = Nz::Align(spotLightOffsets.GetAlignedSize(), static_cast<std::size_t>(deviceInfo.limits.minUniformBufferOffsetAlignment));
+	std::size_t alignedSpotLightSize = Nz::AlignPow2(spotLightOffsets.GetAlignedSize(), static_cast<std::size_t>(deviceInfo.limits.minUniformBufferOffsetAlignment));
 
 	constexpr std::size_t MaxPointLight = 2000;
 

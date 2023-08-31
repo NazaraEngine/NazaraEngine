@@ -248,7 +248,7 @@ end
 
 add_repositories("nazara-engine-repo https://github.com/NazaraEngine/xmake-repo")
 
-add_requires("entt 3.12.2", "fmt", "frozen", "nazarautils >=2023.08.04")
+add_requires("entt 3.12.2", "fmt", "frozen", "nazarautils >=2023.08.31")
 
 -- Module dependencies
 if has_config("audio") then

@@ -17,6 +17,7 @@
 #include <Nazara/OpenGLRenderer/OpenGLTextureSampler.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Loader.hpp>
 #include <Nazara/Renderer/CommandPool.hpp>
+#include <NazaraUtils/Algorithm.hpp>
 #include <array>
 #include <stdexcept>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
@@ -91,12 +92,12 @@ namespace Nz
 
 		// Limits
 		m_deviceInfo.limits.maxUniformBufferSize = m_referenceContext->GetInteger<UInt64>(GL_MAX_UNIFORM_BLOCK_SIZE);
-		m_deviceInfo.limits.minUniformBufferOffsetAlignment = m_referenceContext->GetInteger<UInt64>(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT);
+		m_deviceInfo.limits.minUniformBufferOffsetAlignment = RoundToPow2(m_referenceContext->GetInteger<UInt64>(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT));
 
 		if (m_deviceInfo.features.storageBuffers)
 		{
 			m_deviceInfo.limits.maxStorageBufferSize = m_referenceContext->GetInteger<UInt64>(GL_MAX_SHADER_STORAGE_BLOCK_SIZE);
-			m_deviceInfo.limits.minStorageBufferOffsetAlignment = m_referenceContext->GetInteger<UInt64>(GL_SHADER_STORAGE_BUFFER_OFFSET_ALIGNMENT);
+			m_deviceInfo.limits.minStorageBufferOffsetAlignment = RoundToPow2(m_referenceContext->GetInteger<UInt64>(GL_SHADER_STORAGE_BUFFER_OFFSET_ALIGNMENT));
 		}
 
 		if (m_deviceInfo.features.computeShaders)

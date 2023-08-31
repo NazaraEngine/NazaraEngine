@@ -24,11 +24,11 @@ namespace Nz
 				break; // TODO
 
 			case BufferType::Storage:
-				m_bufferAlignedSize = Align(m_bufferAlignedSize, m_renderDevice->GetDeviceInfo().limits.minStorageBufferOffsetAlignment);
+				m_bufferAlignedSize = AlignPow2(m_bufferAlignedSize, m_renderDevice->GetDeviceInfo().limits.minStorageBufferOffsetAlignment);
 				break;
 
 			case BufferType::Uniform:
-				m_bufferAlignedSize = Align(m_bufferAlignedSize, m_renderDevice->GetDeviceInfo().limits.minUniformBufferOffsetAlignment);
+				m_bufferAlignedSize = AlignPow2(m_bufferAlignedSize, m_renderDevice->GetDeviceInfo().limits.minUniformBufferOffsetAlignment);
 				break;
 		}
 	}
