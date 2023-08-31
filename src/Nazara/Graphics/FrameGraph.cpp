@@ -258,6 +258,13 @@ namespace Nz
 						assert(std::find(m_pending.texture2DPool.begin(), m_pending.texture2DPool.end(), textureId) == m_pending.texture2DPool.end());
 						m_pending.texture2DPool.push_back(textureId);
 					}
+					else if (std::holds_alternative<AttachmentArray>(attachmentData))
+					{
+						std::size_t textureId = Retrieve(m_pending.attachmentToTextures, attachmentId);
+
+						assert(std::find(m_pending.textureCubePool.begin(), m_pending.textureCubePool.end(), textureId) == m_pending.textureCubePool.end());
+						m_pending.texture2DArrayPool.push_back(textureId);
+					}
 					else if (std::holds_alternative<AttachmentCube>(attachmentData))
 					{
 						std::size_t textureId = Retrieve(m_pending.attachmentToTextures, attachmentId);
@@ -1014,6 +1021,49 @@ namespace Nz
 				data.width = attachmentData.width;
 				data.height = attachmentData.height;
 				data.size = attachmentData.size;
+				data.layerCount = 1;
+
+				return textureId;
+			}
+			else if constexpr (std::is_same_v<T, AttachmentArray>)
+			{
+				const AttachmentArray& attachmentData = arg;
+
+				// Fetch from reuse pool if possible
+				for (auto it = m_pending.texture2DArrayPool.begin(); it != m_pending.texture2DArrayPool.end(); ++it)
+				{
+					std::size_t textureId = *it;
+
+					FrameGraphTextureData& data = m_pending.textures[textureId];
+					assert(data.type == ImageType::E2D_Array);
+
+					if (data.format != attachmentData.format ||
+						data.width != attachmentData.width ||
+						data.height != attachmentData.height ||
+						data.size != attachmentData.size ||
+						data.layerCount != attachmentData.layerCount)
+						continue;
+
+					m_pending.textureCubePool.erase(it);
+					m_pending.attachmentToTextures.emplace(attachmentIndex, textureId);
+
+					if (!attachmentData.name.empty() && data.name != attachmentData.name)
+						data.name += " / " + attachmentData.name;
+
+					return textureId;
+				}
+
+				std::size_t textureId = m_pending.textures.size();
+				m_pending.attachmentToTextures.emplace(attachmentIndex, textureId);
+
+				FrameGraphTextureData& data = m_pending.textures.emplace_back();
+				data.type = ImageType::E2D_Array;
+				data.name = attachmentData.name;
+				data.format = attachmentData.format;
+				data.width = attachmentData.width;
+				data.height = attachmentData.height;
+				data.size = attachmentData.size;
+				data.layerCount = attachmentData.layerCount;
 
 				return textureId;
 			}
@@ -1054,6 +1104,7 @@ namespace Nz
 				data.width = attachmentData.width;
 				data.height = attachmentData.height;
 				data.size = attachmentData.size;
+				data.layerCount = 1;
 
 				return textureId;
 			}

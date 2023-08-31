@@ -170,8 +170,9 @@ namespace Nz
 				textureCreationParams.pixelFormat = textureData.format;
 				textureCreationParams.levelCount = 1;
 
+				textureCreationParams.layerCount = textureData.layerCount;
 				if (textureCreationParams.type == ImageType::Cubemap)
-					textureCreationParams.layerCount = 6;
+					textureCreationParams.layerCount *= 6;
 
 				textureCreationParams.width = 1;
 				textureCreationParams.height = 1;

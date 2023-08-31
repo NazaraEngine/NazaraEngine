@@ -15,6 +15,33 @@ namespace Nz
 		return id;
 	}
 
+	inline std::size_t FrameGraph::AddAttachmentArray(FramePassAttachment attachment, std::size_t layerCount)
+	{
+		AttachmentArray attachmentArray{ std::move(attachment) };
+		attachmentArray.layerCount = layerCount;
+
+		std::size_t id = m_attachments.size();
+		m_attachments.emplace_back(std::move(attachmentArray));
+
+		return id;
+	}
+
+	inline std::size_t FrameGraph::AddAttachmentArrayLayer(std::size_t attachmentId, std::size_t layerIndex)
+	{
+		attachmentId = ResolveAttachmentIndex(attachmentId);
+
+		assert(std::holds_alternative<AttachmentArray>(m_attachments[attachmentId]));
+		assert(layerIndex < std::get<AttachmentArray>(m_attachments[attachmentId]).layerCount);
+
+		std::size_t id = m_attachments.size();
+		m_attachments.emplace_back(AttachmentLayer{
+			attachmentId,
+			layerIndex
+		});
+
+		return id;
+	}
+
 	inline std::size_t FrameGraph::AddAttachmentCube(FramePassAttachment attachment)
 	{
 		std::size_t id = m_attachments.size();

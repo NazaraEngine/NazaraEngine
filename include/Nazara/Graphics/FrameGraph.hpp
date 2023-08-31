@@ -33,6 +33,8 @@ namespace Nz
 			~FrameGraph() = default;
 
 			inline std::size_t AddAttachment(FramePassAttachment attachment);
+			inline std::size_t AddAttachmentArray(FramePassAttachment attachment, std::size_t layerCount);
+			inline std::size_t AddAttachmentArrayLayer(std::size_t attachmentId, std::size_t layerIndex);
 			inline std::size_t AddAttachmentCube(FramePassAttachment attachment);
 			inline std::size_t AddAttachmentCubeFace(std::size_t attachmentId, CubemapFace face);
 			inline std::size_t AddAttachmentProxy(std::string name, std::size_t attachmentId);
@@ -54,6 +56,11 @@ namespace Nz
 			using AttachmentIdToTextureId = std::unordered_map<std::size_t /*attachmentId*/, std::size_t /*textureId*/>;
 			using PassIdToPhysicalPassIndex = std::unordered_map<std::size_t /*passId*/, std::size_t /*physicalPassId*/>;
 			using TextureBarrier = BakedFrameGraph::TextureBarrier;
+
+			struct AttachmentArray : FramePassAttachment
+			{
+				std::size_t layerCount;
+			};
 
 			struct AttachmentCube : FramePassAttachment
 			{
@@ -103,6 +110,7 @@ namespace Nz
 				std::vector<PhysicalPassData> physicalPasses;
 				std::vector<FrameGraphTextureData> textures;
 				std::vector<std::size_t> texture2DPool;
+				std::vector<std::size_t> texture2DArrayPool;
 				std::vector<std::size_t> textureCubePool;
 				AttachmentIdToPassId attachmentLastUse;
 				AttachmentIdToPassMap attachmentReadList;
@@ -128,7 +136,7 @@ namespace Nz
 			void ReorderPasses();
 			void TraverseGraph(std::size_t passIndex);
 
-			using AttachmentType = std::variant<FramePassAttachment, AttachmentProxy, AttachmentCube, AttachmentLayer>;
+			using AttachmentType = std::variant<FramePassAttachment, AttachmentProxy, AttachmentArray, AttachmentCube, AttachmentLayer>;
 
 			std::vector<std::size_t> m_backbufferOutputs;
 			std::vector<FramePass> m_framePasses;

@@ -32,6 +32,7 @@ namespace Nz
 		TextureUsageFlags usage;
 		unsigned int width;
 		unsigned int height;
+		unsigned int layerCount;
 	};
 }
 
