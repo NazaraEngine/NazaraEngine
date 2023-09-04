@@ -34,7 +34,7 @@ jobs:
       run: echo "key=$(date +'%W')" >> $GITHUB_OUTPUT
 
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     # Force xmake to a specific folder (for cache)
     - name: Set xmake env
