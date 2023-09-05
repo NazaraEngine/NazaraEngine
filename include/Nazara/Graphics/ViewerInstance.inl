@@ -12,6 +12,11 @@ namespace Nz
 		return m_eyePosition;
 	}
 
+	inline float ViewerInstance::GetFarPlane() const
+	{
+		return m_farPlane;
+	}
+
 	inline const Matrix4f& ViewerInstance::GetInvProjectionMatrix() const
 	{
 		return m_invProjectionMatrix;
@@ -25,6 +30,11 @@ namespace Nz
 	inline const Matrix4f& ViewerInstance::GetInvViewProjMatrix() const
 	{
 		return m_invViewProjMatrix;
+	}
+
+	inline float ViewerInstance::GetNearPlane() const
+	{
+		return m_nearPlane;
 	}
 
 	inline const Matrix4f& ViewerInstance::GetProjectionMatrix() const
@@ -60,6 +70,14 @@ namespace Nz
 	inline void ViewerInstance::UpdateEyePosition(const Vector3f& eyePosition)
 	{
 		m_eyePosition = eyePosition;
+
+		InvalidateData();
+	}
+
+	inline void ViewerInstance::UpdateNearFarPlanes(float nearPlane, float farPlane)
+	{
+		m_farPlane = farPlane;
+		m_nearPlane = nearPlane;
 
 		InvalidateData();
 	}

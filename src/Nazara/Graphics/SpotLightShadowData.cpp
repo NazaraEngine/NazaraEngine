@@ -20,8 +20,11 @@ namespace Nz
 		m_viewer.UpdateRenderMask(0xFFFFFFFF);
 		m_viewer.UpdateViewport(Recti(0, 0, SafeCast<int>(shadowMapSize), SafeCast<int>(shadowMapSize)));
 
+		constexpr float zNear = 0.01f;
+
 		ViewerInstance& viewerInstance = m_viewer.GetViewerInstance();
-		viewerInstance.UpdateProjectionMatrix(Matrix4f::Perspective(m_light.GetOuterAngle() * 2.f, 1.f, 0.01f, m_light.GetRadius()));
+		viewerInstance.UpdateProjectionMatrix(Matrix4f::Perspective(m_light.GetOuterAngle() * 2.f, 1.f, zNear, m_light.GetRadius()));
+		viewerInstance.UpdateNearFarPlanes(zNear, m_light.GetRadius());
 
 		m_onLightShadowMapSettingChange.Connect(m_light.OnLightShadowMapSettingChange, [this](Light* /*light*/, PixelFormat /*newPixelFormat*/, UInt32 newSize)
 		{

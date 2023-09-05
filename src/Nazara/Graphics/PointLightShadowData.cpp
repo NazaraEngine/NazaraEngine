@@ -63,7 +63,9 @@ namespace Nz
 
 		std::size_t shadowPassIndex = Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex("ShadowPass");
 
-		Matrix4f projectionMatrix = Matrix4f::Perspective(RadianAnglef(HalfPi<float>), 1.f, 0.01f, m_light.GetRadius());
+		constexpr float zNear = 0.01f;
+
+		Matrix4f projectionMatrix = Matrix4f::Perspective(RadianAnglef(HalfPi<float>), 1.f, zNear, m_light.GetRadius());
 
 		UInt32 shadowMapSize = light.GetShadowMapSize();
 		for (std::size_t i = 0; i < m_directions.size(); ++i)
@@ -77,6 +79,7 @@ namespace Nz
 			viewerInstance.UpdateEyePosition(m_light.GetPosition());
 			viewerInstance.UpdateProjectionMatrix(projectionMatrix);
 			viewerInstance.UpdateViewMatrix(Matrix4f::TransformInverse(m_light.GetPosition(), s_dirRotations[i]));
+			viewerInstance.UpdateNearFarPlanes(zNear, m_light.GetRadius());
 
 			m_pipeline.QueueTransfer(&viewerInstance);
 
