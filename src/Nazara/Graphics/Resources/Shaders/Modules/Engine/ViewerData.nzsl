@@ -13,5 +13,7 @@ struct ViewerData
 	invViewProjMatrix: mat4[f32],
 	renderTargetSize: vec2[f32],
 	invRenderTargetSize: vec2[f32],
-	eyePosition: vec3[f32]
+	eyePosition: vec3[f32],
+	nearPlane: f32,
+	farPlane: f32
 }

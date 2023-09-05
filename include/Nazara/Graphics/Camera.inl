@@ -248,6 +248,8 @@ namespace Nz
 				m_viewerInstance.UpdateProjectionMatrix(Matrix4f::Perspective(m_fov, m_aspectRatio, m_zNear, m_zFar));
 				break;
 		}
+
+		m_viewerInstance.UpdateNearFarPlanes(m_zNear, m_zFar);
 	}
 
 	inline void Camera::UpdateViewport()

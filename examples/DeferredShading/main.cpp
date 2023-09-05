@@ -239,6 +239,7 @@ int main(int argc, char* argv[])
 	Nz::ViewerInstance viewerInstance;
 	viewerInstance.UpdateTargetSize(Nz::Vector2f(windowSize));
 	viewerInstance.UpdateProjViewMatrices(Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(windowSize.x) / windowSize.y, 0.1f, 1000.f), Nz::Matrix4f::Translate(Nz::Vector3f::Up() * 1));
+	viewerInstance.UpdateNearFarPlanes(0.1f, 1000.f);
 
 	Nz::WorldInstance modelInstance1;
 	modelInstance1.UpdateWorldMatrix(Nz::Matrix4f::Translate(Nz::Vector3f::Left() + Nz::Vector3f::Up()));

@@ -30,9 +30,11 @@ namespace Nz
 			~ViewerInstance() = default;
 
 			inline const Vector3f& GetEyePosition() const;
+			inline float GetFarPlane() const;
 			inline const Matrix4f& GetInvProjectionMatrix() const;
 			inline const Matrix4f& GetInvViewMatrix() const;
 			inline const Matrix4f& GetInvViewProjMatrix() const;
+			inline float GetNearPlane() const;
 			inline const Matrix4f& GetProjectionMatrix() const;
 			inline const Vector2f& GetTargetSize() const;
 			inline const Matrix4f& GetViewMatrix() const;
@@ -43,6 +45,7 @@ namespace Nz
 			void OnTransfer(RenderFrame& renderFrame, CommandBufferBuilder& builder) override;
 
 			inline void UpdateEyePosition(const Vector3f& eyePosition);
+			inline void UpdateNearFarPlanes(float nearPlane, float farPlane);
 			inline void UpdateProjectionMatrix(const Matrix4f& projectionMatrix);
 			inline void UpdateProjectionMatrix(const Matrix4f& projectionMatrix, const Matrix4f& invProjectionMatrix);
 			inline void UpdateProjViewMatrices(const Matrix4f& projectionMatrix, const Matrix4f& viewMatrix);
@@ -68,6 +71,8 @@ namespace Nz
 			Vector2f m_targetSize;
 			Vector3f m_eyePosition;
 			bool m_dataInvalidated;
+			float m_farPlane;
+			float m_nearPlane;
 	};
 }
 
