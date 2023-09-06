@@ -12,6 +12,7 @@
 
 namespace Nz
 {
+	class AbstractViewer;
 	class BakedFrameGraph;
 	class FrameGraph;
 	class FramePass;
@@ -22,25 +23,33 @@ namespace Nz
 	class NAZARA_GRAPHICS_API LightShadowData
 	{
 		public:
-			LightShadowData() = default;
+			inline LightShadowData();
 			LightShadowData(const LightShadowData&) = delete;
 			LightShadowData(LightShadowData&&) = delete;
 			virtual ~LightShadowData();
 
-			virtual void PrepareRendering(RenderFrame& renderFrame) = 0;
+			inline bool IsPerViewer() const;
+
+			virtual void PrepareRendering(RenderFrame& renderFrame, const AbstractViewer* viewer) = 0;
 
 			virtual void RegisterMaterialInstance(const MaterialInstance& matInstance) = 0;
-			virtual void RegisterPassInputs(FramePass& pass) = 0;
-			virtual void RegisterToFrameGraph(FrameGraph& frameGraph) = 0;
+			virtual void RegisterPassInputs(FramePass& pass, const AbstractViewer* viewer) = 0;
+			virtual void RegisterToFrameGraph(FrameGraph& frameGraph, const AbstractViewer* viewer) = 0;
+			virtual void RegisterViewer(const AbstractViewer* viewer);
 
-			virtual const Texture* RetrieveLightShadowmap(const BakedFrameGraph& bakedGraph) const = 0;
+			virtual const Texture* RetrieveLightShadowmap(const BakedFrameGraph& bakedGraph, const AbstractViewer* viewer) const = 0;
 
 			virtual void UnregisterMaterialInstance(const MaterialInstance& matInstance) = 0;
+			virtual void UnregisterViewer(const AbstractViewer* viewer);
 
 			LightShadowData& operator=(const LightShadowData&) = delete;
 			LightShadowData& operator=(LightShadowData&&) = delete;
 
+		protected:
+			inline void UpdatePerViewerStatus(bool isPerViewer);
+
 		private:
+			bool m_isPerViewer;
 	};
 }
 

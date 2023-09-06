@@ -170,7 +170,7 @@ fn main(input: VertToFrag) -> FragOut
 
 		let albedoFactor = albedo / Pi;
 
-		for i in u32(0) -> lightData.lightCount
+		/*for i in u32(0) -> lightData.lightCount
 		{
 			let light = lightData.lights[i];
 
@@ -224,7 +224,7 @@ fn main(input: VertToFrag) -> FragOut
 
 			let NdotL = max(dot(normal, lightToPosNorm), 0.0);
 			lightRadiance += (diffuse * albedoFactor + specular) * radiance * NdotL;
-		}
+		}*/
 
 		let ambient = (0.03).rrr * albedo;
 

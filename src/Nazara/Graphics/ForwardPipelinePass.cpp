@@ -4,13 +4,18 @@
 
 #include <Nazara/Graphics/ForwardPipelinePass.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
+#include <Nazara/Graphics/DirectionalLight.hpp>
 #include <Nazara/Graphics/ElementRendererRegistry.hpp>
 #include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Graphics/FramePipeline.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/PointLight.hpp>
+#include <Nazara/Graphics/SpotLight.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
+#include <Nazara/Graphics/DirectionalLightShadowData.hpp>
+#include <Nazara/Graphics/SpotLightShadowData.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/RenderFrame.hpp>
@@ -23,154 +28,40 @@ namespace Nz
 	m_viewer(viewer),
 	m_elementRegistry(elementRegistry),
 	m_pipeline(owner),
+	m_pendingLightUploadAllocation(nullptr),
 	m_rebuildCommandBuffer(false),
 	m_rebuildElements(false)
 	{
 		Graphics* graphics = Graphics::Instance();
 		m_forwardPassIndex = graphics->GetMaterialPassRegistry().GetPassIndex("ForwardPass");
-		m_lightUboPool = std::make_shared<LightUboPool>();
+
+		std::size_t lightUboAlignedSize = AlignPow2(PredefinedLightOffsets.totalSize, SafeCast<std::size_t>(graphics->GetRenderDevice()->GetDeviceInfo().limits.minUniformBufferOffsetAlignment));
+		m_lightDataBuffer = graphics->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform, lightUboAlignedSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write);
+		m_lightDataBuffer->UpdateDebugName("Lights buffer");
+
+		m_renderState.lightData = RenderBufferView(m_lightDataBuffer.get());
 	}
 
-	void ForwardPipelinePass::Prepare(RenderFrame& renderFrame, const Frustumf& frustum, const std::vector<FramePipelinePass::VisibleRenderable>& visibleRenderables, const std::vector<std::size_t>& visibleLights, std::size_t visibilityHash)
+	void ForwardPipelinePass::Prepare(RenderFrame& renderFrame, const Frustumf& frustum, const std::vector<FramePipelinePass::VisibleRenderable>& visibleRenderables, const Bitset<UInt64>& visibleLights, std::size_t visibilityHash)
 	{
 		if (m_lastVisibilityHash != visibilityHash || m_rebuildElements) //< FIXME
 		{
 			renderFrame.PushForRelease(std::move(m_renderElements));
 			m_renderElements.clear();
-			m_renderQueueRegistry.Clear();
-			m_renderQueue.Clear();
-			m_lightBufferPerLights.clear();
-			m_lightPerRenderElement.clear();
-
-			for (auto& lightDataUbo : m_lightDataBuffers)
-			{
-				renderFrame.PushReleaseCallback([pool = m_lightUboPool, lightUbo = std::move(lightDataUbo.renderBuffer)]() mutable
-				{
-					pool->lightUboBuffers.push_back(std::move(lightUbo));
-				});
-			}
-			m_lightDataBuffers.clear();
-
-			Graphics* graphics = Graphics::Instance();
-
-			PredefinedLightData lightOffsets = PredefinedLightData::GetOffsets();
-			std::size_t lightUboAlignedSize = AlignPow2(lightOffsets.totalSize, SafeCast<std::size_t>(graphics->GetRenderDevice()->GetDeviceInfo().limits.minUniformBufferOffsetAlignment));
-
-			UploadPool& uploadPool = renderFrame.GetUploadPool();
 
 			for (const auto& renderableData : visibleRenderables)
 			{
-				BoundingVolumef renderableBoundingVolume(renderableData.instancedRenderable->GetAABB());
-				renderableBoundingVolume.Update(renderableData.worldInstance->GetWorldMatrix());
-
-				// Select lights
-				m_renderableLights.clear();
-				for (std::size_t lightIndex : visibleLights)
-				{
-					const Light* light = m_pipeline.RetrieveLight(lightIndex);
-
-					const BoundingVolumef& boundingVolume = light->GetBoundingVolume();
-					if (boundingVolume.Intersect(renderableBoundingVolume.aabb))
-					{
-						float contributionScore = light->ComputeContributionScore(renderableBoundingVolume);
-						m_renderableLights.push_back({ light, lightIndex, contributionScore });
-					}
-				}
-
-				// Sort lights
-				std::sort(m_renderableLights.begin(), m_renderableLights.end(), [&](const RenderableLight& lhs, const RenderableLight& rhs)
-				{
-					return lhs.contributionScore < rhs.contributionScore;
-				});
-
-				std::size_t lightCount = std::min(m_renderableLights.size(), MaxLightCountPerDraw);
-
-				LightKey lightKey;
-				lightKey.fill(nullptr);
-				for (std::size_t i = 0; i < lightCount; ++i)
-					lightKey[i] = m_renderableLights[i].light;
-
-				RenderBufferView lightUboView;
-
-				auto it = m_lightBufferPerLights.find(lightKey);
-				if (it == m_lightBufferPerLights.end())
-				{
-					// Prepare light ubo upload
-
-					// Find light ubo
-					LightDataUbo* targetLightData = nullptr;
-					for (auto& lightUboData : m_lightDataBuffers)
-					{
-						if (lightUboData.offset + lightUboAlignedSize <= lightUboData.renderBuffer->GetSize())
-						{
-							targetLightData = &lightUboData;
-							break;
-						}
-					}
-
-					if (!targetLightData)
-					{
-						// Make a new light UBO
-						auto& lightUboData = m_lightDataBuffers.emplace_back();
-
-						// Reuse from pool if possible
-						if (!m_lightUboPool->lightUboBuffers.empty())
-						{
-							lightUboData.renderBuffer = m_lightUboPool->lightUboBuffers.back();
-							m_lightUboPool->lightUboBuffers.pop_back();
-						}
-						else
-							lightUboData.renderBuffer = graphics->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform, 256 * lightUboAlignedSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write);
-
-						targetLightData = &lightUboData;
-					}
-
-					assert(targetLightData);
-					if (!targetLightData->allocation)
-						targetLightData->allocation = &uploadPool.Allocate(targetLightData->renderBuffer->GetSize());
-
-					void* lightDataPtr = static_cast<UInt8*>(targetLightData->allocation->mappedPtr) + targetLightData->offset;
-					AccessByOffset<UInt32&>(lightDataPtr, lightOffsets.lightCountOffset) = SafeCast<UInt32>(lightCount);
-
-					UInt8* lightPtr = static_cast<UInt8*>(lightDataPtr) + lightOffsets.lightsOffset;
-					for (std::size_t i = 0; i < lightCount; ++i)
-					{
-						m_renderableLights[i].light->FillLightData(lightPtr);
-						lightPtr += lightOffsets.lightSize;
-					}
-
-					// Associate render element with light ubo
-					lightUboView = RenderBufferView(targetLightData->renderBuffer.get(), targetLightData->offset, lightUboAlignedSize);
-
-					targetLightData->offset += lightUboAlignedSize;
-
-					m_lightBufferPerLights.emplace(lightKey, lightUboView);
-				}
-				else
-					lightUboView = it->second;
-
 				InstancedRenderable::ElementData elementData{
 					&renderableData.scissorBox,
 					renderableData.skeletonInstance,
 					renderableData.worldInstance
 				};
 
-				std::size_t previousCount = m_renderElements.size();
 				renderableData.instancedRenderable->BuildElement(m_elementRegistry, elementData, m_forwardPassIndex, m_renderElements);
-				for (std::size_t i = previousCount; i < m_renderElements.size(); ++i)
-				{
-					const RenderElement* element = m_renderElements[i].GetElement();
-
-					LightPerElementData perElementData;
-					perElementData.lightCount = lightCount;
-					perElementData.lightUniformBuffer = lightUboView;
-
-					for (std::size_t j = 0; j < lightCount; ++j)
-						perElementData.shadowMaps[j] = m_pipeline.RetrieveLightShadowmap(m_renderableLights[j].lightIndex);
-
-					m_lightPerRenderElement.emplace(element, perElementData);
-				}
 			}
+
+			m_renderQueueRegistry.Clear();
+			m_renderQueue.Clear();
 
 			for (const auto& renderElement : m_renderElements)
 			{
@@ -180,25 +71,8 @@ namespace Nz
 
 			m_renderQueueRegistry.Finalize();
 
-			renderFrame.Execute([&](CommandBufferBuilder& builder)
-			{
-				builder.BeginDebugRegion("Light UBO Update", Color::Yellow());
-				{
-					for (auto& lightUboData : m_lightDataBuffers)
-					{
-						if (!lightUboData.allocation)
-							continue;
-
-						builder.CopyBuffer(*lightUboData.allocation, RenderBufferView(lightUboData.renderBuffer.get(), 0, lightUboData.offset));
-					}
-
-					builder.PostTransferBarrier();
-				}
-				builder.EndDebugRegion();
-			}, QueueType::Transfer);
-
 			m_lastVisibilityHash = visibilityHash;
-			m_rebuildElements = true;
+			InvalidateElements();
 		}
 
 		// TODO: Don't sort every frame if no material pass requires distance sorting
@@ -206,6 +80,8 @@ namespace Nz
 		{
 			return element->ComputeSortingScore(frustum, m_renderQueueRegistry);
 		});
+
+		PrepareLights(renderFrame, frustum, visibleLights);
 
 		if (m_rebuildElements)
 		{
@@ -222,41 +98,10 @@ namespace Nz
 
 			const auto& viewerInstance = m_viewer->GetViewerInstance();
 
-			auto& lightPerRenderElement = m_lightPerRenderElement;
 			m_elementRegistry.ProcessRenderQueue(m_renderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
 			{
 				ElementRenderer& elementRenderer = m_elementRegistry.GetElementRenderer(elementType);
-
-				m_renderStates.clear();
-
-				m_renderStates.reserve(elementCount);
-				for (std::size_t i = 0; i < elementCount; ++i)
-				{
-					auto it = lightPerRenderElement.find(elements[i]);
-					assert(it != lightPerRenderElement.end());
-
-					const LightPerElementData& lightData = it->second;
-
-					auto& renderStates = m_renderStates.emplace_back();
-					renderStates.lightData = lightData.lightUniformBuffer;
-
-					for (std::size_t j = 0; j < lightData.lightCount; ++j)
-					{
-						const Texture* texture = lightData.shadowMaps[j];
-						if (!texture)
-							continue;
-
-						if (texture->GetType() == ImageType::E2D)
-							renderStates.shadowMaps2D[j] = texture;
-						else
-						{
-							assert(texture->GetType() == ImageType::Cubemap);
-							renderStates.shadowMapsCube[j] = texture;
-						}
-					}
-				}
-
-				elementRenderer.Prepare(viewerInstance, *m_elementRendererData[elementType], renderFrame, elementCount, elements, m_renderStates.data());
+				elementRenderer.Prepare(viewerInstance, *m_elementRendererData[elementType], renderFrame, elementCount, elements, SparsePtr(&m_renderState, 0));
 			});
 
 			m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
@@ -341,5 +186,166 @@ namespace Nz
 			if (--it->second.usedCount == 0)
 				m_materialInstances.erase(it);
 		}
+	}
+
+	void ForwardPipelinePass::OnTransfer(RenderFrame& renderFrame, CommandBufferBuilder& builder)
+	{
+		assert(m_pendingLightUploadAllocation);
+		builder.CopyBuffer(*m_pendingLightUploadAllocation, RenderBufferView(m_lightDataBuffer.get()));
+		m_pendingLightUploadAllocation = nullptr;
+	}
+
+	void ForwardPipelinePass::PrepareDirectionalLights(void* lightMemory)
+	{
+		std::size_t lightCount = std::min(m_directionalLights.size(), PredefinedLightData::MaxLightCount);
+
+		AccessByOffset<UInt32&>(lightMemory, PredefinedLightOffsets.directionalLightCountOffset) = SafeCast<UInt32>(lightCount);
+		for (std::size_t i = 0; i < lightCount; ++i)
+		{
+			UInt8* basePtr = static_cast<UInt8*>(lightMemory) + PredefinedLightOffsets.directionalLightsOffset + PredefinedDirectionalLightOffsets.totalSize * i;
+
+			const DirectionalLight* light = m_directionalLights[i].light;
+
+			const Color& lightColor = light->GetColor();
+
+			AccessByOffset<Vector3f&>(basePtr, PredefinedDirectionalLightOffsets.colorOffset) = Vector3f(lightColor.r, lightColor.g, lightColor.b);
+			AccessByOffset<Vector3f&>(basePtr, PredefinedDirectionalLightOffsets.directionOffset) = light->GetDirection();
+			AccessByOffset<float&>(basePtr, PredefinedDirectionalLightOffsets.ambientFactorOffset) = light->GetAmbientFactor();
+			AccessByOffset<float&>(basePtr, PredefinedDirectionalLightOffsets.diffuseFactorOffset) = light->GetDiffuseFactor();
+			AccessByOffset<Vector2f&>(basePtr, PredefinedDirectionalLightOffsets.invShadowMapSizeOffset) = (light->IsShadowCaster()) ? Vector2f(1.f / light->GetShadowMapSize()) : Vector2f(-1.f, -1.f);
+
+			// Shadowmap handling
+			const Texture* shadowmap = m_pipeline.RetrieveLightShadowmap(m_directionalLights[i].lightIndex, m_viewer);
+			if (shadowmap)
+			{
+				const DirectionalLightShadowData* shadowData = SafeCast<const DirectionalLightShadowData*>(m_pipeline.RetrieveLightShadowData(m_directionalLights[i].lightIndex));
+
+				float* cascadeFarPlanes = AccessByOffset<float*>(basePtr, PredefinedDirectionalLightOffsets.cascadeFarPlanesOffset);
+				Matrix4f* cascadeViewProj = AccessByOffset<Matrix4f*>(basePtr, PredefinedDirectionalLightOffsets.cascadeViewProjMatricesOffset);
+
+				shadowData->GetCascadeData(m_viewer, SparsePtr<float>(cascadeFarPlanes, 4*sizeof(float)), SparsePtr(cascadeViewProj));
+
+				AccessByOffset<UInt32&>(basePtr, PredefinedDirectionalLightOffsets.cascadeCountOffset) = SafeCast<UInt32>(shadowData->GetCascadeCount());
+			}
+
+			if (m_renderState.shadowMapsDirectional[i] != shadowmap)
+			{
+				m_renderState.shadowMapsDirectional[i] = shadowmap;
+				InvalidateElements();
+			}
+		}
+	}
+
+	void ForwardPipelinePass::PreparePointLights(void* lightMemory)
+	{
+		std::size_t lightCount = std::min(m_pointLights.size(), PredefinedLightData::MaxLightCount);
+
+		AccessByOffset<UInt32&>(lightMemory, PredefinedLightOffsets.pointLightCountOffset) = SafeCast<UInt32>(lightCount);
+		for (std::size_t i = 0; i < lightCount; ++i)
+		{
+			UInt8* basePtr = static_cast<UInt8*>(lightMemory) + PredefinedLightOffsets.pointLightsOffset + PredefinedPointLightOffsets.totalSize * i;
+
+			const PointLight* light = m_pointLights[i].light;
+
+			const Color& lightColor = light->GetColor();
+
+			AccessByOffset<Vector3f&>(basePtr, PredefinedPointLightOffsets.colorOffset) = Vector3f(lightColor.r, lightColor.g, lightColor.b);
+			AccessByOffset<Vector3f&>(basePtr, PredefinedPointLightOffsets.positionOffset) = light->GetPosition();
+			AccessByOffset<Vector2f&>(basePtr, PredefinedPointLightOffsets.invShadowMapSizeOffset) = (light->IsShadowCaster()) ? Vector2f(1.f / light->GetShadowMapSize()) : Vector2f(-1.f, -1.f);
+			AccessByOffset<float&>(basePtr, PredefinedPointLightOffsets.ambientFactorOffset) = light->GetAmbientFactor();
+			AccessByOffset<float&>(basePtr, PredefinedPointLightOffsets.diffuseFactorOffset) = light->GetDiffuseFactor();
+			AccessByOffset<float&>(basePtr, PredefinedPointLightOffsets.radiusOffset) = light->GetRadius();
+			AccessByOffset<float&>(basePtr, PredefinedPointLightOffsets.invRadiusOffset) = light->GetInvRadius();
+
+			// Shadowmap handling
+			const Texture* shadowmap = m_pipeline.RetrieveLightShadowmap(m_pointLights[i].lightIndex, m_viewer);
+			if (m_renderState.shadowMapsPoint[i] != shadowmap)
+			{
+				m_renderState.shadowMapsPoint[i] = shadowmap;
+				InvalidateElements();
+			}
+		}
+	}
+
+	void ForwardPipelinePass::PrepareSpotLights(void* lightMemory)
+	{
+		std::size_t lightCount = std::min(m_spotLights.size(), PredefinedLightData::MaxLightCount);
+
+		AccessByOffset<UInt32&>(lightMemory, PredefinedLightOffsets.spotLightCountOffset) = SafeCast<UInt32>(lightCount);
+		for (std::size_t i = 0; i < lightCount; ++i)
+		{
+			UInt8* basePtr = static_cast<UInt8*>(lightMemory) + PredefinedLightOffsets.spotLightsOffset + PredefinedSpotLightOffsets.totalSize * i;
+
+			const SpotLight* light = m_spotLights[i].light;
+
+			const Color& lightColor = light->GetColor();
+
+			AccessByOffset<Vector3f&>(basePtr, PredefinedSpotLightOffsets.colorOffset) = Vector3f(lightColor.r, lightColor.g, lightColor.b);
+			AccessByOffset<Vector3f&>(basePtr, PredefinedSpotLightOffsets.directionOffset) = light->GetDirection();
+			AccessByOffset<Vector3f&>(basePtr, PredefinedSpotLightOffsets.positionOffset) = light->GetPosition();
+			AccessByOffset<Vector2f&>(basePtr, PredefinedSpotLightOffsets.invShadowMapSizeOffset) = (light->IsShadowCaster()) ? Vector2f(1.f / light->GetShadowMapSize()) : Vector2f(-1.f, -1.f);
+			AccessByOffset<float&>(basePtr, PredefinedSpotLightOffsets.ambientFactorOffset) = light->GetAmbientFactor();
+			AccessByOffset<float&>(basePtr, PredefinedSpotLightOffsets.diffuseFactorOffset) = light->GetDiffuseFactor();
+			AccessByOffset<float&>(basePtr, PredefinedSpotLightOffsets.innerAngleOffset) = light->GetInnerAngleCos();
+			AccessByOffset<float&>(basePtr, PredefinedSpotLightOffsets.outerAngleOffset) = light->GetOuterAngleCos();
+			AccessByOffset<float&>(basePtr, PredefinedSpotLightOffsets.invRadiusOffset) = light->GetInvRadius();
+			AccessByOffset<Matrix4f&>(basePtr, PredefinedSpotLightOffsets.viewProjMatrixOffset) = light->GetViewProjMatrix();
+
+			// Shadowmap handling
+			const Texture* shadowmap = m_pipeline.RetrieveLightShadowmap(m_spotLights[i].lightIndex, m_viewer);
+			if (m_renderState.shadowMapsSpot[i] != shadowmap)
+			{
+				m_renderState.shadowMapsSpot[i] = shadowmap;
+				InvalidateElements();
+			}
+		}
+	}
+
+	void ForwardPipelinePass::PrepareLights(RenderFrame& renderFrame, const Frustumf& frustum, const Bitset<UInt64>& visibleLights)
+	{
+		// Select lights
+		m_directionalLights.clear();
+		m_pointLights.clear();
+		m_spotLights.clear();
+		for (std::size_t lightIndex = visibleLights.FindFirst(); lightIndex != visibleLights.npos; lightIndex = visibleLights.FindNext(lightIndex))
+		{
+			const Light* light = m_pipeline.RetrieveLight(lightIndex);
+
+			switch (light->GetLightType())
+			{
+				case UnderlyingCast(BasicLightType::Directional):
+					m_directionalLights.push_back({ SafeCast<const DirectionalLight*>(light), lightIndex, 0.f });
+					break;
+
+				case UnderlyingCast(BasicLightType::Point):
+					m_pointLights.push_back({ SafeCast<const PointLight*>(light), lightIndex, light->ComputeContributionScore(frustum) });
+					break;
+
+				case UnderlyingCast(BasicLightType::Spot):
+					m_spotLights.push_back({ SafeCast<const SpotLight*>(light), lightIndex, light->ComputeContributionScore(frustum) });
+					break;
+			}
+		}
+
+		// Sort lights
+		std::sort(m_pointLights.begin(), m_pointLights.end(), [&](const RenderableLight<PointLight>& lhs, const RenderableLight<PointLight>& rhs)
+		{
+			return lhs.contributionScore < rhs.contributionScore;
+		});
+
+		std::sort(m_spotLights.begin(), m_spotLights.end(), [&](const RenderableLight<SpotLight>& lhs, const RenderableLight<SpotLight>& rhs)
+		{
+			return lhs.contributionScore < rhs.contributionScore;
+		});
+
+		UploadPool& uploadPool = renderFrame.GetUploadPool();
+
+		auto& lightAllocation = uploadPool.Allocate(m_lightDataBuffer->GetSize());
+		PrepareDirectionalLights(lightAllocation.mappedPtr);
+		PreparePointLights(lightAllocation.mappedPtr);
+		PrepareSpotLights(lightAllocation.mappedPtr);
+
+		m_pendingLightUploadAllocation = &lightAllocation;
+		m_pipeline.QueueTransfer(this);
 	}
 }

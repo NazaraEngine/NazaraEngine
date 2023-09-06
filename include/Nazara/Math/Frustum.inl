@@ -427,6 +427,38 @@ namespace Nz
 		return side;
 	}
 
+	template<typename T>
+	constexpr Frustum<T> Frustum<T>::Reduce(T nearFactor, T farFactor) const
+	{
+		EnumArray<FrustumPlane, Plane<T>> planes = m_planes;
+		planes[FrustumPlane::Near].distance = Lerp(m_planes[FrustumPlane::Near].distance, -m_planes[FrustumPlane::Far].distance, nearFactor);
+		planes[FrustumPlane::Far].distance = Lerp(-m_planes[FrustumPlane::Near].distance, m_planes[FrustumPlane::Far].distance, farFactor);
+
+		return Frustum<T>(planes);
+	}
+
+	template<typename T>
+	template<typename F>
+	constexpr void Frustum<T>::Split(std::initializer_list<T> splitFactors, F&& callback) const
+	{
+		return Split(splitFactors.begin(), splitFactors.size(), std::forward<F>(callback));
+	}
+
+	template<typename T>
+	template<typename F>
+	constexpr void Frustum<T>::Split(const T* splitFactors, std::size_t factorCount, F&& callback) const
+	{
+		T previousFar = T(0.0);
+		for (std::size_t i = 0; i < factorCount; ++i)
+		{
+			T farFactor = splitFactors[i];
+			callback(previousFar, farFactor);
+			previousFar = farFactor;
+		}
+
+		callback(previousFar, T(1.0));
+	}
+
 	/*!
 	* \brief Gives a string representation
 	* \return A string representation of the object: "Frustum(Plane ...)"

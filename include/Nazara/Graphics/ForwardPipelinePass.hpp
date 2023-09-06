@@ -11,9 +11,7 @@
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/ElementRenderer.hpp>
 #include <Nazara/Graphics/FramePipelinePass.hpp>
-#include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/MaterialInstance.hpp>
-#include <Nazara/Graphics/MaterialPass.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>
 #include <Nazara/Graphics/RenderElementOwner.hpp>
 #include <Nazara/Graphics/RenderQueue.hpp>
@@ -24,13 +22,16 @@
 namespace Nz
 {
 	class AbstractViewer;
+	class DirectionalLight;
 	class ElementRendererRegistry;
 	class FrameGraph;
 	class FramePass;
 	class FramePipeline;
 	class Light;
-
-	class NAZARA_GRAPHICS_API ForwardPipelinePass : public FramePipelinePass
+	class PointLight;
+	class SpotLight;
+	
+	class NAZARA_GRAPHICS_API ForwardPipelinePass : public FramePipelinePass, TransferInterface
 	{
 		public:
 			ForwardPipelinePass(FramePipeline& owner, ElementRendererRegistry& elementRegistry, AbstractViewer* viewer);
@@ -41,7 +42,7 @@ namespace Nz
 			inline void InvalidateCommandBuffers();
 			inline void InvalidateElements();
 
-			void Prepare(RenderFrame& renderFrame, const Frustumf& frustum, const std::vector<FramePipelinePass::VisibleRenderable>& visibleRenderables, const std::vector<std::size_t>& visibleLights, std::size_t visibilityHash);
+			void Prepare(RenderFrame& renderFrame, const Frustumf& frustum, const std::vector<FramePipelinePass::VisibleRenderable>& visibleRenderables, const Bitset<UInt64>& visibleLights, std::size_t visibilityHash);
 
 			void RegisterMaterialInstance(const MaterialInstance& material);
 			FramePass& RegisterToFrameGraph(FrameGraph& frameGraph, std::size_t colorBufferIndex, std::size_t depthBufferIndex, bool hasDepthPrepass);
@@ -51,9 +52,14 @@ namespace Nz
 			ForwardPipelinePass& operator=(const ForwardPipelinePass&) = delete;
 			ForwardPipelinePass& operator=(ForwardPipelinePass&&) = delete;
 
-			static constexpr std::size_t MaxLightCountPerDraw = 3;
-
 		private:
+			void OnTransfer(RenderFrame& renderFrame, CommandBufferBuilder& builder) override;
+
+			void PrepareDirectionalLights(void* lightMemory);
+			void PreparePointLights(void* lightMemory);
+			void PrepareSpotLights(void* lightMemory);
+			void PrepareLights(RenderFrame& renderFrame, const Frustumf& frustum, const Bitset<UInt64>& visibleLights);
+
 			struct MaterialPassEntry
 			{
 				std::size_t usedCount = 1;
@@ -62,55 +68,30 @@ namespace Nz
 				NazaraSlot(MaterialInstance, OnMaterialInstanceShaderBindingInvalidated, onMaterialInstanceShaderBindingInvalidated);
 			};
 
-			using LightKey = std::array<const Light*, MaxLightCountPerDraw>;
-
-			struct LightKeyHasher
-			{
-				inline std::size_t operator()(const LightKey& lightKey) const;
-			};
-
-			struct LightDataUbo
-			{
-				std::shared_ptr<RenderBuffer> renderBuffer;
-				std::size_t offset = 0;
-				UploadPool::Allocation* allocation = nullptr;
-			};
-
-			struct LightPerElementData
-			{
-				RenderBufferView lightUniformBuffer;
-				std::array<const Texture*, MaxLightCountPerDraw> shadowMaps;
-				std::size_t lightCount;
-			};
-
-			struct LightUboPool
-			{
-				std::vector<std::shared_ptr<RenderBuffer>> lightUboBuffers;
-			};
-
+			template<typename T>
 			struct RenderableLight
 			{
-				const Light* light;
+				const T* light;
 				std::size_t lightIndex;
 				float contributionScore;
 			};
 
 			std::size_t m_forwardPassIndex;
 			std::size_t m_lastVisibilityHash;
-			std::shared_ptr<LightUboPool> m_lightUboPool;
+			std::shared_ptr<RenderBuffer> m_lightDataBuffer;
 			std::vector<std::unique_ptr<ElementRendererData>> m_elementRendererData;
-			std::vector<ElementRenderer::RenderStates> m_renderStates;
 			std::vector<RenderElementOwner> m_renderElements;
 			std::unordered_map<const MaterialInstance*, MaterialPassEntry> m_materialInstances;
-			std::unordered_map<const RenderElement*, LightPerElementData> m_lightPerRenderElement;
-			std::unordered_map<LightKey, RenderBufferView, LightKeyHasher> m_lightBufferPerLights;
-			std::vector<LightDataUbo> m_lightDataBuffers;
-			std::vector<RenderableLight> m_renderableLights;
+			std::vector<RenderableLight<DirectionalLight>> m_directionalLights;
+			std::vector<RenderableLight<PointLight>> m_pointLights;
+			std::vector<RenderableLight<SpotLight>> m_spotLights;
+			ElementRenderer::RenderStates m_renderState;
 			RenderQueue<const RenderElement*> m_renderQueue;
 			RenderQueueRegistry m_renderQueueRegistry;
 			AbstractViewer* m_viewer;
 			ElementRendererRegistry& m_elementRegistry;
 			FramePipeline& m_pipeline;
+			UploadPool::Allocation* m_pendingLightUploadAllocation;
 			bool m_rebuildCommandBuffer;
 			bool m_rebuildElements;
 	};

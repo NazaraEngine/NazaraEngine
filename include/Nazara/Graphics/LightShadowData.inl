@@ -6,6 +6,20 @@
 
 namespace Nz
 {
+	inline LightShadowData::LightShadowData() :
+	m_isPerViewer(false)
+	{
+	}
+
+	inline void LightShadowData::UpdatePerViewerStatus(bool isPerViewer)
+	{
+		m_isPerViewer = isPerViewer;
+	}
+
+	inline bool LightShadowData::IsPerViewer() const
+	{
+		return m_isPerViewer;
+	}
 }
 
 #include <Nazara/Graphics/DebugOff.hpp>

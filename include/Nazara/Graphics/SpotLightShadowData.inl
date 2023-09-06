@@ -6,6 +6,10 @@
 
 namespace Nz
 {
+	inline const ViewerInstance& SpotLightShadowData::GetViewerInstance() const
+	{
+		return m_viewer.GetViewerInstance();
+	}
 }
 
 #include <Nazara/Graphics/DebugOff.hpp>

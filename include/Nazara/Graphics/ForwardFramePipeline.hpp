@@ -13,7 +13,6 @@
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/DebugDrawPipelinePass.hpp>
 #include <Nazara/Graphics/DepthPipelinePass.hpp>
-#include <Nazara/Graphics/ElementRenderer.hpp>
 #include <Nazara/Graphics/ForwardPipelinePass.hpp>
 #include <Nazara/Graphics/FramePipeline.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
@@ -35,6 +34,7 @@
 
 namespace Nz
 {
+	class LightShadowData;
 	class RenderFrame;
 	class RenderTarget;
 
@@ -59,7 +59,8 @@ namespace Nz
 			std::size_t RegisterWorldInstance(WorldInstancePtr worldInstance) override;
 
 			const Light* RetrieveLight(std::size_t lightIndex) const override;
-			const Texture* RetrieveLightShadowmap(std::size_t lightIndex) const override;
+			const LightShadowData* RetrieveLightShadowData(std::size_t lightIndex) const override;
+			const Texture* RetrieveLightShadowmap(std::size_t lightIndex, const AbstractViewer* viewer) const override;
 
 			void Render(RenderFrame& renderFrame) override;
 
@@ -132,6 +133,12 @@ namespace Nz
 
 			struct ViewerData
 			{
+				struct FrameData
+				{
+					Bitset<UInt64> visibleLights;
+					Frustumf frustum;
+				};
+
 				std::size_t finalColorAttachment;
 				std::size_t forwardColorAttachment;
 				std::size_t debugColorAttachment;
@@ -145,6 +152,8 @@ namespace Nz
 				RenderQueueRegistry forwardRegistry;
 				RenderQueue<RenderElement*> forwardRenderQueue;
 				ShaderBindingPtr blitShaderBinding;
+				FrameData frame;
+				bool pendingDestruction = false;
 
 				NazaraSlot(TransferInterface, OnTransferRequired, onTransferRequired);
 			};
@@ -158,17 +167,17 @@ namespace Nz
 
 			std::unordered_map<const RenderTarget*, RenderTargetData> m_renderTargets;
 			std::unordered_map<MaterialInstance*, MaterialInstanceData> m_materialInstances;
-			std::vector<ElementRenderer::RenderStates> m_renderStates;
 			mutable std::vector<FramePipelinePass::VisibleRenderable> m_visibleRenderables;
-			std::vector<std::size_t> m_visibleLights;
 			robin_hood::unordered_set<TransferInterface*> m_transferSet;
 			BakedFrameGraph m_bakedFrameGraph;
-			Bitset<UInt64> m_shadowCastingLights;
+			Bitset<UInt64> m_activeLights;
 			Bitset<UInt64> m_removedSkeletonInstances;
 			Bitset<UInt64> m_removedViewerInstances;
 			Bitset<UInt64> m_removedWorldInstances;
+			Bitset<UInt64> m_shadowCastingLights;
+			Bitset<UInt64> m_visibleShadowCastingLights;
 			ElementRendererRegistry& m_elementRegistry;
-			mutable MemoryPool<RenderableData> m_renderablePool; //< FIXME: has to be mutable because MemoryPool has no const_iterator
+			MemoryPool<RenderableData> m_renderablePool;
 			MemoryPool<LightData> m_lightPool;
 			MemoryPool<SkeletonInstanceData> m_skeletonInstances;
 			MemoryPool<ViewerData> m_viewerPool;

@@ -28,13 +28,13 @@ namespace Nz
 			PointLightShadowData(PointLightShadowData&&) = delete;
 			~PointLightShadowData() = default;
 
-			void PrepareRendering(RenderFrame& renderFrame) override;
+			void PrepareRendering(RenderFrame& renderFrame, const AbstractViewer* viewer) override;
 
 			void RegisterMaterialInstance(const MaterialInstance& matInstance) override;
-			void RegisterPassInputs(FramePass& pass) override;
-			void RegisterToFrameGraph(FrameGraph& frameGraph) override;
+			void RegisterPassInputs(FramePass& pass, const AbstractViewer* viewer) override;
+			void RegisterToFrameGraph(FrameGraph& frameGraph, const AbstractViewer* viewer) override;
 
-			const Texture* RetrieveLightShadowmap(const BakedFrameGraph& bakedGraph) const override;
+			const Texture* RetrieveLightShadowmap(const BakedFrameGraph& bakedGraph, const AbstractViewer* viewer) const override;
 
 			void UnregisterMaterialInstance(const MaterialInstance& matInstance) override;
 

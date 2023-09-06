@@ -61,7 +61,6 @@ namespace Nz
 			std::size_t m_lastVisibilityHash;
 			std::string m_passName;
 			std::vector<std::unique_ptr<ElementRendererData>> m_elementRendererData;
-			std::vector<ElementRenderer::RenderStates> m_renderStates;
 			std::vector<RenderElementOwner> m_renderElements;
 			std::unordered_map<const MaterialInstance*, MaterialPassEntry> m_materialInstances;
 			RenderQueue<const RenderElement*> m_renderQueue;

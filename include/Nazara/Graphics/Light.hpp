@@ -11,6 +11,7 @@
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/LightShadowData.hpp>
 #include <Nazara/Math/BoundingVolume.hpp>
+#include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
@@ -19,12 +20,8 @@
 
 namespace Nz
 {
-	class CommandBufferBuilder;
 	class ElementRendererRegistry;
 	class FramePipeline;
-	class RenderBuffer;
-	class RenderFrame;
-	class Texture;
 
 	class NAZARA_GRAPHICS_API Light
 	{
@@ -34,11 +31,11 @@ namespace Nz
 			Light(Light&&) noexcept = default;
 			virtual ~Light();
 
-			virtual float ComputeContributionScore(const BoundingVolumef& boundingVolume) const = 0;
+			virtual float ComputeContributionScore(const Frustumf& viewerFrustum) const = 0;
 
 			inline void EnableShadowCasting(bool castShadows);
 
-			virtual void FillLightData(void* data) const = 0;
+			virtual bool FrustumCull(const Frustumf& viewerFrustum) const = 0;
 
 			inline const BoundingVolumef& GetBoundingVolume() const;
 			inline UInt8 GetLightType() const;

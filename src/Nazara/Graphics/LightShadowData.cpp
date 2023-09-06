@@ -8,4 +8,12 @@
 namespace Nz
 {
 	LightShadowData::~LightShadowData() = default;
+
+	void LightShadowData::RegisterViewer(const AbstractViewer* /*viewer*/)
+	{
+	}
+
+	void LightShadowData::UnregisterViewer(const AbstractViewer* /*viewer*/)
+	{
+	}
 }

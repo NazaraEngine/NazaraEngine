@@ -125,8 +125,9 @@ namespace Nz
 		InstanceDataUbo,
 		LightDataUbo,
 		OverlayTexture,
-		Shadowmap2D,
-		ShadowmapCube,
+		ShadowmapDirectional,
+		ShadowmapPoint,
+		ShadowmapSpot,
 		SkeletalDataUbo,
 		ViewerDataUbo,
 

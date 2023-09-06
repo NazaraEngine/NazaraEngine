@@ -24,7 +24,7 @@ namespace Nz
 		return std::make_unique<SubmeshRendererData>();
 	}
 
-	void SubmeshRenderer::Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderFrame& /*currentFrame*/, std::size_t elementCount, const Pointer<const RenderElement>* elements, const RenderStates* renderStates)
+	void SubmeshRenderer::Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderFrame& /*currentFrame*/, std::size_t elementCount, const Pointer<const RenderElement>* elements, SparsePtr<const RenderStates> renderStates)
 	{
 		Graphics* graphics = Graphics::Instance();
 
@@ -55,6 +55,7 @@ namespace Nz
 		};
 
 		const auto& depthTexture2D = Graphics::Instance()->GetDefaultTextures().depthTextures[ImageType::E2D];
+		const auto& depthTexture2DArray = Graphics::Instance()->GetDefaultTextures().depthTextures[ImageType::E2D_Array];
 		const auto& depthTextureCube = Graphics::Instance()->GetDefaultTextures().depthTextures[ImageType::Cubemap];
 		const auto& whiteTexture2D = Graphics::Instance()->GetDefaultTextures().whiteTextures[ImageType::E2D];
 		const auto& defaultSampler = graphics->GetSamplerCache().Get({});
@@ -129,7 +130,7 @@ namespace Nz
 
 				m_bindingCache.clear();
 				m_textureBindingCache.clear();
-				m_textureBindingCache.reserve(renderState.shadowMaps2D.size() + renderState.shadowMapsCube.size());
+				m_textureBindingCache.reserve(renderState.shadowMapsSpot.size() + renderState.shadowMapsDirectional.size() + renderState.shadowMapsPoint.size());
 				currentMaterialInstance->FillShaderBinding(m_bindingCache);
 
 				const Material& material = *currentMaterialInstance->GetParentMaterial();
@@ -158,15 +159,15 @@ namespace Nz
 					};
 				}
 
-				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::Shadowmap2D); bindingIndex != Material::InvalidBindingIndex)
+				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::ShadowmapDirectional); bindingIndex != Material::InvalidBindingIndex)
 				{
 					std::size_t textureBindingBaseIndex = m_textureBindingCache.size();
 
-					for (std::size_t j = 0; j < renderState.shadowMaps2D.size(); ++j)
+					for (std::size_t j = 0; j < renderState.shadowMapsDirectional.size(); ++j)
 					{
-						const Texture* texture = renderState.shadowMaps2D[j];
+						const Texture* texture = renderState.shadowMapsDirectional[j];
 						if (!texture)
-							texture = depthTexture2D.get();
+							texture = depthTexture2DArray.get();
 
 						auto& textureEntry = m_textureBindingCache.emplace_back();
 						textureEntry.texture = texture;
@@ -176,17 +177,17 @@ namespace Nz
 					auto& bindingEntry = m_bindingCache.emplace_back();
 					bindingEntry.bindingIndex = bindingIndex;
 					bindingEntry.content = ShaderBinding::SampledTextureBindings {
-						SafeCast<UInt32>(renderState.shadowMaps2D.size()), &m_textureBindingCache[textureBindingBaseIndex]
+						SafeCast<UInt32>(renderState.shadowMapsDirectional.size()), &m_textureBindingCache[textureBindingBaseIndex]
 					};
 				}
 
-				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::ShadowmapCube); bindingIndex != Material::InvalidBindingIndex)
+				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::ShadowmapPoint); bindingIndex != Material::InvalidBindingIndex)
 				{
 					std::size_t textureBindingBaseIndex = m_textureBindingCache.size();
 					
-					for (std::size_t j = 0; j < renderState.shadowMapsCube.size(); ++j)
+					for (std::size_t j = 0; j < renderState.shadowMapsPoint.size(); ++j)
 					{
-						const Texture* texture = renderState.shadowMapsCube[j];
+						const Texture* texture = renderState.shadowMapsPoint[j];
 						if (!texture)
 							texture = depthTextureCube.get();
 
@@ -198,7 +199,29 @@ namespace Nz
 					auto& bindingEntry = m_bindingCache.emplace_back();
 					bindingEntry.bindingIndex = bindingIndex;
 					bindingEntry.content = ShaderBinding::SampledTextureBindings {
-						SafeCast<UInt32>(renderState.shadowMapsCube.size()), &m_textureBindingCache[textureBindingBaseIndex]
+						SafeCast<UInt32>(renderState.shadowMapsPoint.size()), &m_textureBindingCache[textureBindingBaseIndex]
+					};
+				}
+				
+				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::ShadowmapSpot); bindingIndex != Material::InvalidBindingIndex)
+				{
+					std::size_t textureBindingBaseIndex = m_textureBindingCache.size();
+
+					for (std::size_t j = 0; j < renderState.shadowMapsSpot.size(); ++j)
+					{
+						const Texture* texture = renderState.shadowMapsSpot[j];
+						if (!texture)
+							texture = depthTexture2D.get();
+
+						auto& textureEntry = m_textureBindingCache.emplace_back();
+						textureEntry.texture = texture;
+						textureEntry.sampler = shadowSampler.get();
+					}
+
+					auto& bindingEntry = m_bindingCache.emplace_back();
+					bindingEntry.bindingIndex = bindingIndex;
+					bindingEntry.content = ShaderBinding::SampledTextureBindings {
+						SafeCast<UInt32>(renderState.shadowMapsSpot.size()), &m_textureBindingCache[textureBindingBaseIndex]
 					};
 				}
 
