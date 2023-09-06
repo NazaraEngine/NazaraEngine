@@ -1057,7 +1057,7 @@ namespace Nz
 						data.layerCount != attachmentData.layerCount)
 						continue;
 
-					m_pending.textureCubePool.erase(it);
+					m_pending.texture2DArrayPool.erase(it);
 					m_pending.attachmentToTextures.emplace(attachmentIndex, textureId);
 
 					if (!attachmentData.name.empty() && data.name != attachmentData.name)

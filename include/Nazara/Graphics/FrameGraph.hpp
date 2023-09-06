@@ -59,7 +59,7 @@ namespace Nz
 
 			struct AttachmentArray : FramePassAttachment
 			{
-				std::size_t layerCount;
+				unsigned int layerCount;
 			};
 
 			struct AttachmentCube : FramePassAttachment
