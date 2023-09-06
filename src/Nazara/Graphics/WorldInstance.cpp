@@ -22,6 +22,7 @@ namespace Nz
 		PredefinedInstanceData instanceUboOffsets = PredefinedInstanceData::GetOffsets();
 
 		m_instanceDataBuffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform, instanceUboOffsets.totalSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write);
+		m_instanceDataBuffer->UpdateDebugName("Instance data");
 	}
 
 	void WorldInstance::OnTransfer(RenderFrame& renderFrame, CommandBufferBuilder& builder)

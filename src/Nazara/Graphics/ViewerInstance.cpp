@@ -28,6 +28,7 @@ namespace Nz
 		PredefinedViewerData viewerUboOffsets = PredefinedViewerData::GetOffsets();
 
 		m_viewerDataBuffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform, viewerUboOffsets.totalSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write);
+		m_viewerDataBuffer->UpdateDebugName("Viewer data");
 	}
 
 	void ViewerInstance::OnTransfer(RenderFrame& renderFrame, CommandBufferBuilder& builder)

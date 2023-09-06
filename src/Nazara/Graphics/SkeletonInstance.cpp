@@ -23,6 +23,7 @@ namespace Nz
 		PredefinedSkeletalData skeletalUboOffsets = PredefinedSkeletalData::GetOffsets();
 
 		m_skeletalDataBuffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform, skeletalUboOffsets.totalSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write);
+		m_skeletalDataBuffer->UpdateDebugName("Skeletal data");
 		m_onSkeletonJointsInvalidated.Connect(m_skeleton->OnSkeletonJointsInvalidated, [this](const Skeleton*)
 		{
 			m_dataInvalided = true;
