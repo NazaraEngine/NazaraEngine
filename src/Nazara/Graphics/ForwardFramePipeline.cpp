@@ -682,7 +682,7 @@ namespace Nz
 		}
 	}
 
-	void ForwardFramePipeline::UpdateViewerRenderMask(std::size_t viewerIndex, Int32 renderOrder)
+	void ForwardFramePipeline::UpdateViewerRenderOrder(std::size_t viewerIndex, Int32 renderOrder)
 	{
 		ViewerData* viewerData = m_viewerPool.RetrieveFromIndex(viewerIndex);
 		assert(!viewerData->pendingDestruction);

@@ -50,7 +50,8 @@ namespace Nz
 			virtual std::size_t RegisterWorldInstance(WorldInstancePtr worldInstance) = 0;
 
 			virtual const Light* RetrieveLight(std::size_t lightIndex) const = 0;
-			virtual const Texture* RetrieveLightShadowmap(std::size_t lightIndex) const = 0;
+			virtual const LightShadowData* RetrieveLightShadowData(std::size_t lightIndex) const = 0;
+			virtual const Texture* RetrieveLightShadowmap(std::size_t lightIndex, const AbstractViewer* viewer) const = 0;
 
 			virtual void Render(RenderFrame& renderFrame) = 0;
 
@@ -64,7 +65,7 @@ namespace Nz
 			virtual void UpdateRenderableRenderMask(std::size_t renderableIndex, UInt32 renderMask) = 0;
 			virtual void UpdateRenderableScissorBox(std::size_t renderableIndex, const Recti& scissorBox) = 0;
 			virtual void UpdateRenderableSkeletonInstance(std::size_t renderableIndex, std::size_t skeletonIndex) = 0;
-			virtual void UpdateViewerRenderMask(std::size_t viewerIndex, Int32 renderOrder) = 0;
+			virtual void UpdateViewerRenderOrder(std::size_t viewerIndex, Int32 renderOrder) = 0;
 
 			FramePipeline& operator=(const FramePipeline&) = delete;
 			FramePipeline& operator=(FramePipeline&&) = delete;
