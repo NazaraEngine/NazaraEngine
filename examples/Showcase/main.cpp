@@ -174,6 +174,8 @@ int main(int argc, char* argv[])
 			bobModel->SetMaterial(i, materials[matIndex]);
 	}
 
+	bool paused = false;
+
 	/*for (std::size_t y = 0; y < 10; ++y)
 	{
 		for (std::size_t x = 0; x < 10; ++x)
@@ -196,16 +198,15 @@ int main(int argc, char* argv[])
 	entt::handle lightEntity1 = world.CreateEntity();
 	{
 		auto& lightNode = lightEntity1.emplace<Nz::NodeComponent>();
-		lightNode.SetPosition(Nz::Vector3f::Up() * 3.f + Nz::Vector3f::Backward() * 1.f);
-		lightNode.SetRotation(Nz::EulerAnglesf(-70.f, 0.f, 0.f));
+		lightNode.SetPosition(Nz::Vector3f::Up() * 3.5f + Nz::Vector3f::Right() * 1.f);
+		lightNode.SetRotation(Nz::EulerAnglesf(-70.f, 90.f, 0.f));
 
 		auto& cameraLight = lightEntity1.emplace<Nz::LightComponent>();
 
 		auto& spotLight = cameraLight.AddLight<Nz::SpotLight>();
 		spotLight.UpdateColor(Nz::Color::Red());
-		spotLight.UpdateInnerAngle(Nz::DegreeAnglef(15.f));
-		spotLight.UpdateOuterAngle(Nz::DegreeAnglef(20.f));
 		spotLight.EnableShadowCasting(true);
+		spotLight.UpdateShadowMapSize(1024);
 	}
 
 	entt::handle lightEntity2 = world.CreateEntity();
@@ -274,17 +275,27 @@ int main(int argc, char* argv[])
 		smallBobEntity.emplace<Nz::SharedSkeletonComponent>(skeleton);
 
 		{
-			auto& lightNode = lightEntity3.emplace<Nz::NodeComponent>();
-			//lightNode.SetPosition(Nz::Vector3f::Up() * 4.f);
-			lightNode.SetPosition(Nz::Vector3f::Down() * 7.5f + Nz::Vector3f::Backward() * 2.5f);
-			//lightNode.SetRotation(Nz::EulerAnglesf(-45.f, 180.f, 0.f));
-			lightNode.SetParentJoint(bobEntity, "Spine2");
+			lightEntity3.emplace<Nz::NodeComponent>();
+			app.AddUpdaterFunc([&, lightEntity3, rotation = Nz::TurnAnglef::Zero()](Nz::Time deltaTime) mutable
+			{
+				if (paused)
+					return;
+
+				constexpr float radius = 3.5f;
+
+				rotation += deltaTime.AsSeconds() * 0.5f;
+
+				auto [sin, cos] = rotation.GetSinCos();
+
+				auto& lightNode = lightEntity3.get<Nz::NodeComponent>();
+				lightNode.SetPosition(sin * radius, 1.5f, cos * radius);
+			});
 
 			auto& cameraLight = lightEntity3.emplace<Nz::LightComponent>();
 
 			auto& pointLight = cameraLight.AddLight<Nz::PointLight>();
-			pointLight.UpdateColor(Nz::Color::Blue());
-			pointLight.UpdateRadius(3.f);
+			pointLight.UpdateColor(Nz::Color::White());
+			pointLight.UpdateRadius(15.f);
 			pointLight.EnableShadowCasting(true);
 			pointLight.UpdateShadowMapSize(2048);
 		}
@@ -367,11 +378,20 @@ int main(int argc, char* argv[])
 		std::shared_ptr<Nz::Model> boxModel = std::make_shared<Nz::Model>(std::move(boxMeshGfx));
 		boxModel->SetMaterial(0, planeMat);
 
-		entt::handle boxEntity = world.CreateEntity();
-		boxEntity.emplace<Nz::NodeComponent>();
-		boxEntity.emplace<Nz::GraphicsComponent>().AttachRenderable(boxModel);
+		std::array cubePos = {
+			Nz::Vector3f(0.904f, 0.25f, -0.4f),
+			Nz::Vector3f(-2.04f, 0.25f, -1.149f),
+			Nz::Vector3f(-0.05f, 0.25f, -0.922f),
+			Nz::Vector3f(-2.586f, 0.25f, 0.892f),
+		};
 
-		
+		for (const Nz::Vector3f& position : cubePos)
+		{
+			entt::handle boxEntity = world.CreateEntity();
+			boxEntity.emplace<Nz::NodeComponent>(position);
+			boxEntity.emplace<Nz::GraphicsComponent>(boxModel);
+		}
+
 		std::shared_ptr<Nz::Model> colliderModel;
 		{
 			std::shared_ptr<Nz::MaterialInstance> colliderMat = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Basic);
@@ -399,7 +419,6 @@ int main(int argc, char* argv[])
 	unsigned int nextFrame = 1;
 	Nz::EulerAnglesf camAngles = Nz::EulerAnglesf(-30.f, 0.f, 0.f);
 	Nz::UInt64 fps = 0;
-	bool paused = false;
 
 	Nz::WindowEventHandler& eventHandler = mainWindow.GetEventHandler();
 	eventHandler.OnKeyPressed.Connect([&](const Nz::WindowEventHandler*, const Nz::WindowEvent::KeyEvent& event)
@@ -490,7 +509,7 @@ int main(int argc, char* argv[])
 						nextFrame = 0;
 				}
 
-				std::cout << currentFrame << std::endl;
+				//std::cout << currentFrame << std::endl;
 
 				bobAnim->AnimateSkeleton(skeleton.get(), currentFrame, nextFrame, incr);
 			}
@@ -550,7 +569,7 @@ int main(int argc, char* argv[])
 		auto& lightNode = lightEntity3.get<Nz::NodeComponent>();
 		//debugDrawer.DrawLine(lightNode.GetPosition(Nz::CoordSys::Global), lightNode.GetForward() * 10.f, Nz::Color::Blue());
 		Nz::Vector3f pos = lightNode.GetPosition(Nz::CoordSys::Global);
-		debugDrawer.DrawBox(Nz::Boxf(pos.x - 0.05f, pos.y - 0.05f, pos.z - 0.05f, 0.1f, 0.1f, 0.1f), Nz::Color::Blue());
+		debugDrawer.DrawPoint(pos, Nz::Color::Blue());
 		/*debugDrawer.DrawBox(floorBox, Nz::Color::Red);
 		Nz::Boxf intersection;
 		if (floorBox.Intersect(test, &intersection))
