@@ -1,26 +1,61 @@
 [nzsl_version("1.0")]
 module Engine.LightData;
 
+option MaxLightCascadeCount: u32 = u32(4); //< FIXME: Fix integral value types
 option MaxLightCount: u32 = u32(3); //< FIXME: Fix integral value types
 
 [export]
 [layout(std140)]
-struct Light
+struct DirectionalLight
 {
-	type: i32,
-	color: vec4[f32],
-	factor: vec2[f32],
-	parameter1: vec4[f32],
-	parameter2: vec4[f32],
-	parameter3: vec4[f32],
-	invShadowMapSize: vec2[f32],
-	viewProjMatrix: mat4[f32]
+	color: vec3[f32],
+	direction: vec3[f32],
+	invShadowMapSize: vec2[f32],	
+	ambientFactor: f32,
+	diffuseFactor: f32,
+	cascadeCount: u32,
+	cascadeDistances: array[f32, MaxLightCascadeCount],
+	viewProjMatrices: array[mat4[f32], MaxLightCascadeCount],
+}
+
+[export]
+[layout(std140)]
+struct PointLight
+{
+	color: vec3[f32],
+	position: vec3[f32],
+	invShadowMapSize: vec2[f32],	
+	ambientFactor: f32,
+	diffuseFactor: f32,
+	radius: f32,
+	invRadius: f32,
+}
+
+[export]
+[layout(std140)]
+struct SpotLight
+{
+	color: vec3[f32],
+	direction: vec3[f32],
+	position: vec3[f32],
+	invShadowMapSize: vec2[f32],	
+	ambientFactor: f32,
+	diffuseFactor: f32,
+	innerAngle: f32,
+	outerAngle: f32,
+	invRadius: f32,
+	viewProjMatrix: mat4[f32],
 }
 
 [export]
 [layout(std140)]
 struct LightData
 {
-	lights: array[Light, MaxLightCount],
-	lightCount: u32,
+	directionalLights: array[DirectionalLight, MaxLightCount],
+	pointLights: array[PointLight, MaxLightCount],
+	spotLights: array[SpotLight, MaxLightCount],
+	
+	directionalLightCount: u32,
+	pointLightCount: u32,
+	spotLightCount: u32,
 }

@@ -112,6 +112,9 @@ namespace Nz
 			//TODO: Switch lights to storage buffers so they can all be part of GPU memory
 			for (auto& viewerData : m_viewerPool)
 			{
+				if (viewerData.pendingDestruction)
+					continue;
+
 				UInt32 viewerRenderMask = viewerData.viewer->GetRenderMask();
 
 				if (viewerRenderMask & renderMask)
@@ -125,6 +128,17 @@ namespace Nz
 			{
 				m_shadowCastingLights.UnboundedSet(lightIndex);
 				lightData->shadowData = light->InstanciateShadowData(*this, m_elementRegistry);
+				if (lightData->shadowData->IsPerViewer())
+				{
+					for (auto& viewerData : m_viewerPool)
+					{
+						if (viewerData.pendingDestruction)
+							continue;
+
+						if ((viewerData.viewer->GetRenderMask() & lightData->renderMask) != 0)
+							lightData->shadowData->RegisterViewer(viewerData.viewer);
+					}
+				}
 			}
 			else
 			{
@@ -139,6 +153,18 @@ namespace Nz
 		{
 			m_shadowCastingLights.UnboundedSet(lightIndex);
 			lightData->shadowData = light->InstanciateShadowData(*this, m_elementRegistry);
+			if (lightData->shadowData->IsPerViewer())
+			{
+				for (auto& viewerData : m_viewerPool)
+				{
+					if (viewerData.pendingDestruction)
+						continue;
+
+					if ((viewerData.viewer->GetRenderMask() & lightData->renderMask) != 0)
+						lightData->shadowData->RegisterViewer(viewerData.viewer);
+				}
+			}
+
 			m_rebuildFrameGraph = true;
 		}
 
@@ -161,6 +187,9 @@ namespace Nz
 			// TODO: Invalidate only relevant viewers and passes
 			for (auto& viewerData : m_viewerPool)
 			{
+				if (viewerData.pendingDestruction)
+					continue;
+
 				UInt32 viewerRenderMask = viewerData.viewer->GetRenderMask();
 
 				if (viewerRenderMask & renderMask)
@@ -181,6 +210,9 @@ namespace Nz
 
 				for (auto& viewerData : m_viewerPool)
 				{
+					if (viewerData.pendingDestruction)
+						continue;
+
 					if (viewerData.depthPrepass)
 						viewerData.depthPrepass->RegisterMaterialInstance(*newMaterial);
 
@@ -195,6 +227,9 @@ namespace Nz
 
 				for (auto& viewerData : m_viewerPool)
 				{
+					if (viewerData.pendingDestruction)
+						continue;
+
 					if (viewerData.depthPrepass)
 						viewerData.depthPrepass->UnregisterMaterialInstance(*prevMaterial);
 
@@ -212,6 +247,9 @@ namespace Nz
 
 				for (auto& viewerData : m_viewerPool)
 				{
+					if (viewerData.pendingDestruction)
+						continue;
+
 					if (viewerData.depthPrepass)
 						viewerData.depthPrepass->RegisterMaterialInstance(*mat);
 
@@ -262,6 +300,14 @@ namespace Nz
 
 		m_transferSet.insert(&viewerInstance->GetViewerInstance());
 
+		UInt32 renderMask = viewerInstance->GetRenderMask();
+		for (std::size_t i = m_shadowCastingLights.FindFirst(); i != m_shadowCastingLights.npos; i = m_shadowCastingLights.FindNext(i))
+		{
+			LightData* lightData = m_lightPool.RetrieveFromIndex(i);
+			if (lightData->shadowData->IsPerViewer() && (renderMask & lightData->renderMask) != 0)
+				lightData->shadowData->RegisterViewer(viewerInstance);
+		}
+
 		m_rebuildFrameGraph = true;
 
 		return viewerIndex;
@@ -287,12 +333,21 @@ namespace Nz
 		return m_lightPool.RetrieveFromIndex(lightIndex)->light;
 	}
 
-	const Texture* ForwardFramePipeline::RetrieveLightShadowmap(std::size_t lightIndex) const
+	const LightShadowData* ForwardFramePipeline::RetrieveLightShadowData(std::size_t lightIndex) const
 	{
 		if (!m_shadowCastingLights.UnboundedTest(lightIndex))
 			return nullptr;
 
-		return m_lightPool.RetrieveFromIndex(lightIndex)->shadowData->RetrieveLightShadowmap(m_bakedFrameGraph);
+		return m_lightPool.RetrieveFromIndex(lightIndex)->shadowData.get();
+	}
+
+	const Texture* ForwardFramePipeline::RetrieveLightShadowmap(std::size_t lightIndex, const AbstractViewer* viewer) const
+	{
+		const LightShadowData* lightShadowData = RetrieveLightShadowData(lightIndex);
+		if (!lightShadowData)
+			return nullptr;
+
+		return lightShadowData->RetrieveLightShadowmap(m_bakedFrameGraph, viewer);
 	}
 
 	void ForwardFramePipeline::Render(RenderFrame& renderFrame)
@@ -334,75 +389,67 @@ namespace Nz
 		else
 			frameGraphInvalidated = m_bakedFrameGraph.Resize(renderFrame);
 
-		// Update UBOs and materials
-		renderFrame.Execute([&](CommandBufferBuilder& builder)
-		{
-			builder.BeginDebugRegion("CPU to GPU transfers", Color::Yellow());
-			{
-				builder.PreTransferBarrier();
-
-				for (TransferInterface* transferInterface : m_transferSet)
-					transferInterface->OnTransfer(renderFrame, builder);
-				m_transferSet.clear();
-
-				OnTransfer(this, renderFrame, builder);
-
-				builder.PostTransferBarrier();
-			}
-			builder.EndDebugRegion();
-		}, QueueType::Transfer);
-
-		// Shadow map handling
-		for (std::size_t i = m_shadowCastingLights.FindFirst(); i != m_shadowCastingLights.npos; i = m_shadowCastingLights.FindNext(i))
-		{
-			LightData* lightData = m_lightPool.RetrieveFromIndex(i);
-			lightData->shadowData->PrepareRendering(renderFrame);
-		}
-
-		// Render queues handling
+		// Find active lights (i.e. visible in any frustum)
+		m_activeLights.Clear();
 		for (auto& viewerData : m_viewerPool)
 		{
+			if (viewerData.pendingDestruction)
+				continue;
+
 			UInt32 renderMask = viewerData.viewer->GetRenderMask();
 
-			// Frustum culling
+			// Extract frustum from viewproj matrix
 			const Matrix4f& viewProjMatrix = viewerData.viewer->GetViewerInstance().GetViewProjMatrix();
+			viewerData.frame.frustum = Frustumf::Extract(viewProjMatrix);
 
-			Frustumf frustum = Frustumf::Extract(viewProjMatrix);
-			std::size_t visibilityHash = 5;
-			const auto& visibleRenderables = FrustumCull(frustum, renderMask, visibilityHash);
-
-			// Lights update don't trigger a rebuild of the depth pre-pass
-			std::size_t depthVisibilityHash = visibilityHash;
-
-			m_visibleLights.clear();
+			viewerData.frame.visibleLights.Clear();
 			for (auto it = m_lightPool.begin(); it != m_lightPool.end(); ++it)
 			{
 				const LightData& lightData = *it;
 				std::size_t lightIndex = it.GetIndex();
 
-				const BoundingVolumef& boundingVolume = lightData.light->GetBoundingVolume();
+				if ((lightData.renderMask & renderMask) == 0)
+					continue;
 
-				// TODO: Use more precise tests for point lights (frustum/sphere is cheap)
-				if (renderMask & lightData.renderMask && frustum.Intersect(boundingVolume) != IntersectionSide::Outside)
-				{
-					m_visibleLights.push_back(lightIndex);
+				m_activeLights.UnboundedSet(lightIndex);
+				viewerData.frame.visibleLights.UnboundedSet(lightIndex);
+			}
+		}
 
-					auto CombineHash = [](std::size_t currentHash, std::size_t newHash)
-					{
-						return currentHash * 23 + newHash;
-					};
+		m_visibleShadowCastingLights.PerformsAND(m_activeLights, m_shadowCastingLights);
 
-					visibilityHash = CombineHash(visibilityHash, std::hash<const void*>()(lightData.light));
-				}
+		// Shadow map handling (for active lights)
+		for (std::size_t i = m_visibleShadowCastingLights.FindFirst(); i != m_visibleShadowCastingLights.npos; i = m_visibleShadowCastingLights.FindNext(i))
+		{
+			LightData* lightData = m_lightPool.RetrieveFromIndex(i);
+			if (!lightData->shadowData->IsPerViewer())
+				lightData->shadowData->PrepareRendering(renderFrame, nullptr);
+		}
+
+		// Viewer handling (second pass)
+		for (auto& viewerData : m_viewerPool)
+		{
+			if (viewerData.pendingDestruction)
+				continue;
+
+			UInt32 renderMask = viewerData.viewer->GetRenderMask();
+
+			// Per-viewer shadow map handling
+			for (std::size_t lightIndex = viewerData.frame.visibleLights.FindFirst(); lightIndex != viewerData.frame.visibleLights.npos; lightIndex = viewerData.frame.visibleLights.FindNext(lightIndex))
+			{
+				LightData* lightData = m_lightPool.RetrieveFromIndex(lightIndex);
+				if (lightData->shadowData && lightData->shadowData->IsPerViewer() && (renderMask & lightData->renderMask) != 0)
+					lightData->shadowData->PrepareRendering(renderFrame, viewerData.viewer);
 			}
 
-			if (viewerData.depthPrepass)
-				viewerData.depthPrepass->Prepare(renderFrame, frustum, visibleRenderables, depthVisibilityHash);
+			// Frustum culling
+			std::size_t visibilityHash = 5;
+			const auto& visibleRenderables = FrustumCull(viewerData.frame.frustum, renderMask, visibilityHash);
 
 			if (viewerData.gammaCorrectionPass)
 				viewerData.gammaCorrectionPass->Prepare(renderFrame);
 
-			viewerData.forwardPass->Prepare(renderFrame, frustum, visibleRenderables, m_visibleLights, visibilityHash);
+			viewerData.forwardPass->Prepare(renderFrame, viewerData.frame.frustum, visibleRenderables, viewerData.frame.visibleLights, visibilityHash);
 
 			if (viewerData.debugDrawPass)
 				viewerData.debugDrawPass->Prepare(renderFrame);
@@ -413,6 +460,9 @@ namespace Nz
 			const std::shared_ptr<TextureSampler>& sampler = graphics->GetSamplerCache().Get({});
 			for (auto& viewerData : m_viewerPool)
 			{
+				if (viewerData.pendingDestruction)
+					continue;
+
 				if (viewerData.blitShaderBinding)
 					renderFrame.PushForRelease(std::move(viewerData.blitShaderBinding));
 
@@ -445,6 +495,24 @@ namespace Nz
 				});
 			}
 		}
+
+		// Update UBOs and materials
+		renderFrame.Execute([&](CommandBufferBuilder& builder)
+		{
+			builder.BeginDebugRegion("CPU to GPU transfers", Color::Yellow());
+			{
+				builder.PreTransferBarrier();
+
+				for (TransferInterface* transferInterface : m_transferSet)
+					transferInterface->OnTransfer(renderFrame, builder);
+				m_transferSet.clear();
+
+				OnTransfer(this, renderFrame, builder);
+
+				builder.PostTransferBarrier();
+			}
+			builder.EndDebugRegion();
+		}, QueueType::Transfer);
 
 		m_bakedFrameGraph.Execute(renderFrame);
 		m_rebuildFrameGraph = false;
@@ -494,7 +562,11 @@ namespace Nz
 	void ForwardFramePipeline::UnregisterLight(std::size_t lightIndex)
 	{
 		m_lightPool.Free(lightIndex);
-		m_shadowCastingLights.UnboundedReset(lightIndex);
+		if (m_shadowCastingLights.UnboundedTest(lightIndex))
+		{
+			m_shadowCastingLights.Reset(lightIndex);
+			m_rebuildFrameGraph = true;
+		}
 	}
 
 	void ForwardFramePipeline::UnregisterRenderable(std::size_t renderableIndex)
@@ -509,6 +581,9 @@ namespace Nz
 
 			for (auto& viewerData : m_viewerPool)
 			{
+				if (viewerData.pendingDestruction)
+					continue;
+
 				if (viewerData.depthPrepass)
 					viewerData.depthPrepass->UnregisterMaterialInstance(*material);
 
@@ -521,20 +596,31 @@ namespace Nz
 
 	void ForwardFramePipeline::UnregisterSkeleton(std::size_t skeletonIndex)
 	{
-		// Defer world instance release
+		// Defer instance release
 		m_removedSkeletonInstances.UnboundedSet(skeletonIndex);
 	}
 
 	void ForwardFramePipeline::UnregisterViewer(std::size_t viewerIndex)
 	{
-		// Defer world instance release
+		auto& viewerData = *m_viewerPool.RetrieveFromIndex(viewerIndex);
+		viewerData.pendingDestruction = true;
+
+		UInt32 renderMask = viewerData.viewer->GetRenderMask();
+		for (std::size_t i = m_shadowCastingLights.FindFirst(); i != m_shadowCastingLights.npos; i = m_shadowCastingLights.FindNext(i))
+		{
+			LightData* lightData = m_lightPool.RetrieveFromIndex(i);
+			if (lightData->shadowData->IsPerViewer() && (renderMask & lightData->renderMask) != 0)
+				lightData->shadowData->UnregisterViewer(viewerData.viewer);
+		}
+
+		// Defer instance release
 		m_removedViewerInstances.UnboundedSet(viewerIndex);
 		m_rebuildFrameGraph = true;
 	}
 
 	void ForwardFramePipeline::UnregisterWorldInstance(std::size_t worldInstance)
 	{
-		// Defer world instance release
+		// Defer instance release
 		m_removedWorldInstances.UnboundedSet(worldInstance);
 	}
 
@@ -558,6 +644,9 @@ namespace Nz
 		// TODO: Invalidate only relevant viewers and passes
 		for (auto& viewerData : m_viewerPool)
 		{
+			if (viewerData.pendingDestruction)
+				continue;
+
 			UInt32 viewerRenderMask = viewerData.viewer->GetRenderMask();
 
 			if (viewerRenderMask & renderableData->renderMask)
@@ -578,6 +667,9 @@ namespace Nz
 		// TODO: Invalidate only relevant viewers and passes
 		for (auto& viewerData : m_viewerPool)
 		{
+			if (viewerData.pendingDestruction)
+				continue;
+
 			UInt32 viewerRenderMask = viewerData.viewer->GetRenderMask();
 
 			if (viewerRenderMask & renderableData->renderMask)
@@ -593,6 +685,7 @@ namespace Nz
 	void ForwardFramePipeline::UpdateViewerRenderMask(std::size_t viewerIndex, Int32 renderOrder)
 	{
 		ViewerData* viewerData = m_viewerPool.RetrieveFromIndex(viewerIndex);
+		assert(!viewerData->pendingDestruction);
 		if (viewerData->renderOrder != renderOrder)
 		{
 			viewerData->renderOrder = renderOrder;
@@ -607,11 +700,23 @@ namespace Nz
 		for (std::size_t i : m_shadowCastingLights.IterBits())
 		{
 			LightData* lightData = m_lightPool.RetrieveFromIndex(i);
-			lightData->shadowData->RegisterToFrameGraph(frameGraph);
+			if (!lightData->shadowData->IsPerViewer())
+				lightData->shadowData->RegisterToFrameGraph(frameGraph, nullptr);
 		}
 
 		for (auto& viewerData : m_viewerPool)
 		{
+			if (viewerData.pendingDestruction)
+				continue;
+
+			UInt32 renderMask = viewerData.viewer->GetRenderMask();
+			for (std::size_t i = m_shadowCastingLights.FindFirst(); i != m_shadowCastingLights.npos; i = m_shadowCastingLights.FindNext(i))
+			{
+				LightData* lightData = m_lightPool.RetrieveFromIndex(i);
+				if (lightData->shadowData->IsPerViewer() && (renderMask & lightData->renderMask) != 0)
+					lightData->shadowData->RegisterToFrameGraph(frameGraph, viewerData.viewer);
+			}
+
 			viewerData.forwardColorAttachment = frameGraph.AddAttachment({
 				"Forward output",
 				PixelFormat::RGBA8
@@ -629,7 +734,8 @@ namespace Nz
 			for (std::size_t i : m_shadowCastingLights.IterBits())
 			{
 				LightData* lightData = m_lightPool.RetrieveFromIndex(i);
-				lightData->shadowData->RegisterPassInputs(forwardPass);
+				if ((renderMask & lightData->renderMask) != 0)
+					lightData->shadowData->RegisterPassInputs(forwardPass, (lightData->shadowData->IsPerViewer()) ? viewerData.viewer : nullptr);
 			}
 
 			viewerData.finalColorAttachment = viewerData.forwardColorAttachment;
@@ -660,6 +766,9 @@ namespace Nz
 
 		for (auto& viewerData : m_viewerPool)
 		{
+			if (viewerData.pendingDestruction)
+				continue;
+
 			const RenderTarget& renderTarget = viewerData.viewer->GetRenderTarget();
 			*viewerIt++ = std::make_pair(&renderTarget, &viewerData);
 		}

@@ -31,6 +31,11 @@ namespace Nz
 		return m_color;
 	}
 
+	inline float SpotLight::GetDiffuseFactor() const
+	{
+		return m_diffuseFactor;
+	}
+
 	inline const Vector3f& SpotLight::GetDirection() const
 	{
 		return m_direction;
@@ -41,9 +46,29 @@ namespace Nz
 		return m_innerAngle;
 	}
 
+	inline float SpotLight::GetInnerAngleCos() const
+	{
+		return m_innerAngleCos;
+	}
+
+	inline float SpotLight::GetInvRadius() const
+	{
+		return m_invRadius;
+	}
+
 	inline RadianAnglef SpotLight::GetOuterAngle() const
 	{
 		return m_outerAngle;
+	}
+
+	inline float SpotLight::GetOuterAngleCos() const
+	{
+		return m_outerAngleCos;
+	}
+
+	inline float SpotLight::GetOuterAngleTan() const
+	{
+		return m_outerAngleTan;
 	}
 
 	inline const Vector3f& SpotLight::GetPosition() const
@@ -56,14 +81,14 @@ namespace Nz
 		return m_rotation;
 	}
 
-	inline float SpotLight::GetDiffuseFactor() const
-	{
-		return m_diffuseFactor;
-	}
-
 	inline float SpotLight::GetRadius() const
 	{
 		return m_radius;
+	}
+
+	inline const Matrix4f& SpotLight::GetViewProjMatrix() const
+	{
+		return m_viewProjMatrix;
 	}
 
 	inline void SpotLight::UpdateAmbientFactor(float factor)
@@ -164,10 +189,10 @@ namespace Nz
 
 	inline void SpotLight::UpdateViewProjMatrix()
 	{
-		Matrix4f biasMatrix(0.5f, 0.0f, 0.0f, 0.0f,
-		                    0.0f, 0.5f, 0.0f, 0.0f,
-		                    0.0f, 0.0f, 1.0f, 0.0f,
-		                    0.5f, 0.5f, 0.0f, 1.0f);
+		constexpr Matrix4f biasMatrix(0.5f, 0.0f, 0.0f, 0.0f,
+		                              0.0f, 0.5f, 0.0f, 0.0f,
+		                              0.0f, 0.0f, 1.0f, 0.0f,
+		                              0.5f, 0.5f, 0.0f, 1.0f);
 
 		Matrix4f projection = Matrix4f::Perspective(m_outerAngle * 2.f, 1.f, 0.01f, m_radius);
 		Matrix4f view = Matrix4f::TransformInverse(m_position, m_rotation);

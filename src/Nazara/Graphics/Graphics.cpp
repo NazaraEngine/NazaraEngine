@@ -240,6 +240,7 @@ namespace Nz
 	{
 		std::size_t depthPassIndex = m_materialPassRegistry.GetPassIndex("DepthPass");
 		std::size_t shadowPassIndex = m_materialPassRegistry.GetPassIndex("ShadowPass");
+		std::size_t distanceShadowPassIndex = m_materialPassRegistry.GetPassIndex("DistanceShadowPass");
 		std::size_t forwardPassIndex = m_materialPassRegistry.GetPassIndex("ForwardPass");
 
 		// BasicMaterial
@@ -257,8 +258,11 @@ namespace Nz
 			settings.AddPass(depthPassIndex, depthPass);
 
 			MaterialPass shadowPass = depthPass;
-			shadowPass.states.faceCulling = FaceCulling::Front;
 			settings.AddPass(shadowPassIndex, shadowPass);
+
+			MaterialPass distanceShadowPass = shadowPass;
+			distanceShadowPass.options[CRC32("DistanceDepth")] = true;
+			settings.AddPass(distanceShadowPassIndex, distanceShadowPass);
 
 			m_defaultMaterials.materials[MaterialType::Basic].material = std::make_shared<Material>(std::move(settings), "BasicMaterial");
 		}
@@ -279,8 +283,11 @@ namespace Nz
 			settings.AddPass(depthPassIndex, depthPass);
 
 			MaterialPass shadowPass = depthPass;
-			shadowPass.states.faceCulling = FaceCulling::Front;
 			settings.AddPass(shadowPassIndex, shadowPass);
+
+			MaterialPass distanceShadowPass = shadowPass;
+			distanceShadowPass.options[CRC32("DistanceDepth")] = true;
+			settings.AddPass(distanceShadowPassIndex, distanceShadowPass);
 
 			m_defaultMaterials.materials[MaterialType::PhysicallyBased].material = std::make_shared<Material>(std::move(settings), "PhysicallyBasedMaterial");
 		}
@@ -301,11 +308,11 @@ namespace Nz
 			settings.AddPass(depthPassIndex, depthPass);
 
 			MaterialPass shadowPass = depthPass;
-			shadowPass.states.faceCulling = FaceCulling::Front;
-			shadowPass.states.depthBias = true;
-			shadowPass.states.depthBiasConstantFactor = 0.005f;
-			shadowPass.states.depthBiasSlopeFactor = 0.05f;
 			settings.AddPass(shadowPassIndex, shadowPass);
+
+			MaterialPass distanceShadowPass = shadowPass;
+			distanceShadowPass.options[CRC32("DistanceDepth")] = true;
+			settings.AddPass(distanceShadowPassIndex, distanceShadowPass);
 
 			m_defaultMaterials.materials[MaterialType::Phong].material = std::make_shared<Material>(std::move(settings), "PhongMaterial");
 		}
@@ -399,6 +406,7 @@ namespace Nz
 		m_materialPassRegistry.RegisterPass("ForwardPass");
 		m_materialPassRegistry.RegisterPass("DepthPass");
 		m_materialPassRegistry.RegisterPass("ShadowPass");
+		m_materialPassRegistry.RegisterPass("DistanceShadowPass");
 	}
 
 	void Graphics::RegisterShaderModules()

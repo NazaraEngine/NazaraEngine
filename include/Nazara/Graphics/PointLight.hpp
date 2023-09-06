@@ -23,9 +23,9 @@ namespace Nz
 			PointLight(PointLight&&) noexcept = default;
 			~PointLight() = default;
 
-			float ComputeContributionScore(const BoundingVolumef& boundingVolume) const override;
+			float ComputeContributionScore(const Frustumf& viewerFrustum) const override;
 
-			void FillLightData(void* data) const override;
+			bool FrustumCull(const Frustumf& viewerFrustum) const override;
 
 			std::unique_ptr<LightShadowData> InstanciateShadowData(FramePipeline& pipeline, ElementRendererRegistry& elementRegistry) const override;
 
@@ -33,6 +33,7 @@ namespace Nz
 			inline float GetDiffuseFactor() const;
 			inline Color GetColor() const;
 			inline const Vector3f& GetPosition() const;
+			inline float GetInvRadius() const;
 			inline float GetRadius() const;
 
 			inline void UpdateAmbientFactor(float factor);

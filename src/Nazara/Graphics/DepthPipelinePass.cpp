@@ -83,14 +83,13 @@ namespace Nz
 
 			const auto& viewerInstance = m_viewer->GetViewerInstance();
 
+			ElementRenderer::RenderStates defaultRenderStates{};
+
 			m_elementRegistry.ProcessRenderQueue(m_renderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
 			{
 				ElementRenderer& elementRenderer = m_elementRegistry.GetElementRenderer(elementType);
 
-				m_renderStates.clear();
-				m_renderStates.resize(elementCount);
-
-				elementRenderer.Prepare(viewerInstance, *m_elementRendererData[elementType], renderFrame, elementCount, elements, m_renderStates.data());
+				elementRenderer.Prepare(viewerInstance, *m_elementRendererData[elementType], renderFrame, elementCount, elements, SparsePtr(&defaultRenderStates, 0));
 			});
 
 			m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)

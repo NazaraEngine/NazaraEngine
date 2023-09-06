@@ -37,6 +37,7 @@ namespace Nz
 		options.partialSanitization = true;
 		options.moduleResolver = graphics->GetShaderModuleResolver();
 		options.optionValues[CRC32("MaxLightCount")] = SafeCast<UInt32>(PredefinedLightData::MaxLightCount);
+		options.optionValues[CRC32("MaxLightCascadeCount")] = SafeCast<UInt32>(PredefinedDirectionalLightData::MaxLightCascadeCount);
 		options.optionValues[CRC32("MaxJointCount")] = SafeCast<UInt32>(PredefinedSkeletalData::MaxMatricesCount);
 
 		nzsl::Ast::ModulePtr sanitizedModule = nzsl::Ast::Sanitize(*referenceModule, options);
@@ -94,11 +95,14 @@ namespace Nz
 			if (auto it = block->uniformBlocks.find("ViewerData"); it != block->uniformBlocks.end())
 				m_engineShaderBindings[EngineShaderBinding::ViewerDataUbo] = it->second.bindingIndex;
 
-			if (auto it = block->samplers.find("ShadowMaps2D"); it != block->samplers.end())
-				m_engineShaderBindings[EngineShaderBinding::Shadowmap2D] = it->second.bindingIndex;
+			if (auto it = block->samplers.find("ShadowMapsDirectional"); it != block->samplers.end())
+				m_engineShaderBindings[EngineShaderBinding::ShadowmapDirectional] = it->second.bindingIndex;
 
-			if (auto it = block->samplers.find("ShadowMapsCube"); it != block->samplers.end())
-				m_engineShaderBindings[EngineShaderBinding::ShadowmapCube] = it->second.bindingIndex;
+			if (auto it = block->samplers.find("ShadowMapsPoint"); it != block->samplers.end())
+				m_engineShaderBindings[EngineShaderBinding::ShadowmapPoint] = it->second.bindingIndex;
+
+			if (auto it = block->samplers.find("ShadowMapsSpot"); it != block->samplers.end())
+				m_engineShaderBindings[EngineShaderBinding::ShadowmapSpot] = it->second.bindingIndex;
 
 			if (auto it = block->uniformBlocks.find("SkeletalData"); it != block->uniformBlocks.end())
 				m_engineShaderBindings[EngineShaderBinding::SkeletalDataUbo] = it->second.bindingIndex;

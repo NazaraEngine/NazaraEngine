@@ -28,14 +28,19 @@ namespace Nz
 		return m_color;
 	}
 
+	inline float PointLight::GetDiffuseFactor() const
+	{
+		return m_diffuseFactor;
+	}
+
 	inline const Vector3f& PointLight::GetPosition() const
 	{
 		return m_position;
 	}
 
-	inline float PointLight::GetDiffuseFactor() const
+	inline float PointLight::GetInvRadius() const
 	{
-		return m_diffuseFactor;
+		return m_invRadius;
 	}
 
 	inline float PointLight::GetRadius() const

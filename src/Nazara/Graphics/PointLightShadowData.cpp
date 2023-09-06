@@ -61,7 +61,7 @@ namespace Nz
 			}
 		});
 
-		std::size_t shadowPassIndex = Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex("ShadowPass");
+		std::size_t shadowPassIndex = Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex("DistanceShadowPass");
 
 		constexpr float zNear = 0.01f;
 
@@ -93,8 +93,10 @@ namespace Nz
 		});
 	}
 
-	void PointLightShadowData::PrepareRendering(RenderFrame& renderFrame)
+	void PointLightShadowData::PrepareRendering(RenderFrame& renderFrame, [[maybe_unused]] const AbstractViewer* viewer)
 	{
+		assert(viewer == nullptr);
+
 		for (DirectionData& direction : m_directions)
 		{
 			const Matrix4f& viewProjMatrix = direction.viewer.GetViewerInstance().GetViewProjMatrix();
@@ -114,8 +116,10 @@ namespace Nz
 			direction.depthPass->RegisterMaterialInstance(matInstance);
 	}
 
-	void PointLightShadowData::RegisterPassInputs(FramePass& pass)
+	void PointLightShadowData::RegisterPassInputs(FramePass& pass, [[maybe_unused]] const AbstractViewer* viewer)
 	{
+		assert(viewer == nullptr);
+
 		std::size_t cubeInputIndex = pass.AddInput(m_cubeAttachmentIndex);
 		pass.SetInputLayout(cubeInputIndex, TextureLayout::ColorInput);
 
@@ -123,8 +127,10 @@ namespace Nz
 			pass.AddInput(direction.attachmentIndex);
 	}
 
-	void PointLightShadowData::RegisterToFrameGraph(FrameGraph& frameGraph)
+	void PointLightShadowData::RegisterToFrameGraph(FrameGraph& frameGraph, [[maybe_unused]] const AbstractViewer* viewer)
 	{
+		assert(viewer == nullptr);
+
 		UInt32 shadowMapSize = m_light.GetShadowMapSize();
 
 		m_cubeAttachmentIndex = frameGraph.AddAttachmentCube({
@@ -142,7 +148,7 @@ namespace Nz
 		}
 	}
 
-	const Texture* PointLightShadowData::RetrieveLightShadowmap(const BakedFrameGraph& bakedGraph) const
+	const Texture* PointLightShadowData::RetrieveLightShadowmap(const BakedFrameGraph& bakedGraph, const AbstractViewer* /*viewer*/) const
 	{
 		return bakedGraph.GetAttachmentTexture(m_cubeAttachmentIndex).get();
 	}

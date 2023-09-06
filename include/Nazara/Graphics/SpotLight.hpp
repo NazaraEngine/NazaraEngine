@@ -24,19 +24,24 @@ namespace Nz
 			SpotLight(SpotLight&&) noexcept = default;
 			~SpotLight() = default;
 
-			float ComputeContributionScore(const BoundingVolumef& boundingVolume) const override;
+			float ComputeContributionScore(const Frustumf& viewerFrustum) const override;
 
-			void FillLightData(void* data) const override;
+			bool FrustumCull(const Frustumf& viewerFrustum) const override;
 
 			inline float GetAmbientFactor() const;
 			inline float GetDiffuseFactor() const;
 			inline Color GetColor() const;
 			inline const Vector3f& GetDirection() const;
 			inline RadianAnglef GetInnerAngle() const;
+			inline float GetInnerAngleCos() const;
+			inline float GetInvRadius() const;
 			inline RadianAnglef GetOuterAngle() const;
+			inline float GetOuterAngleCos() const;
+			inline float GetOuterAngleTan() const;
 			inline const Vector3f& GetPosition() const;
 			inline const Quaternionf& GetRotation() const;
 			inline float GetRadius() const;
+			inline const Matrix4f& GetViewProjMatrix() const;
 
 			std::unique_ptr<LightShadowData> InstanciateShadowData(FramePipeline& pipeline, ElementRendererRegistry& elementRegistry) const override;
 

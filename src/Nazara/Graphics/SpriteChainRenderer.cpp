@@ -56,7 +56,7 @@ namespace Nz
 		return std::make_unique<SpriteChainRendererData>();
 	}
 
-	void SpriteChainRenderer::Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderFrame& currentFrame, std::size_t elementCount, const Pointer<const RenderElement>* elements, const RenderStates* renderStates)
+	void SpriteChainRenderer::Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderFrame& currentFrame, std::size_t elementCount, const Pointer<const RenderElement>* elements, SparsePtr<const RenderStates> renderStates)
 	{
 		Graphics* graphics = Graphics::Instance();
 

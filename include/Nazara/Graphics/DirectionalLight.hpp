@@ -24,9 +24,9 @@ namespace Nz
 			DirectionalLight(DirectionalLight&&) noexcept = default;
 			~DirectionalLight() = default;
 
-			float ComputeContributionScore(const BoundingVolumef& boundingVolume) const override;
+			float ComputeContributionScore(const Frustumf& viewerFrustum) const override;
 
-			void FillLightData(void* data) const override;
+			bool FrustumCull(const Frustumf& viewerFrustum) const override;
 
 			std::unique_ptr<LightShadowData> InstanciateShadowData(FramePipeline& pipeline, ElementRendererRegistry& elementRegistry) const override;
 

@@ -8,6 +8,7 @@
 #include <Nazara/Graphics/FramePipeline.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/SpotLight.hpp>
+#include <cassert>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
@@ -54,8 +55,10 @@ namespace Nz
 		});
 	}
 
-	void SpotLightShadowData::PrepareRendering(RenderFrame& renderFrame)
-{
+	void SpotLightShadowData::PrepareRendering(RenderFrame& renderFrame, [[maybe_unused]] const AbstractViewer* viewer)
+	{
+		assert(viewer == nullptr);
+
 		const Matrix4f& viewProjMatrix = m_viewer.GetViewerInstance().GetViewProjMatrix();
 
 		Frustumf frustum = Frustumf::Extract(viewProjMatrix);
@@ -71,13 +74,17 @@ namespace Nz
 		m_depthPass->RegisterMaterialInstance(matInstance);
 	}
 
-	void SpotLightShadowData::RegisterPassInputs(FramePass& pass)
+	void SpotLightShadowData::RegisterPassInputs(FramePass& pass, [[maybe_unused]] const AbstractViewer* viewer)
 	{
+		assert(viewer == nullptr);
+
 		pass.AddInput(m_attachmentIndex);
 	}
 
-	void SpotLightShadowData::RegisterToFrameGraph(FrameGraph& frameGraph)
+	void SpotLightShadowData::RegisterToFrameGraph(FrameGraph& frameGraph, [[maybe_unused]] const AbstractViewer* viewer)
 	{
+		assert(viewer == nullptr);
+
 		UInt32 shadowMapSize = m_light.GetShadowMapSize();
 
 		m_attachmentIndex = frameGraph.AddAttachment({
@@ -90,7 +97,7 @@ namespace Nz
 		m_depthPass->RegisterToFrameGraph(frameGraph, m_attachmentIndex);
 	}
 
-	const Nz::Texture* SpotLightShadowData::RetrieveLightShadowmap(const BakedFrameGraph& bakedGraph) const
+	const Texture* SpotLightShadowData::RetrieveLightShadowmap(const BakedFrameGraph& bakedGraph, const AbstractViewer* /*viewer*/) const
 	{
 		return bakedGraph.GetAttachmentTexture(m_attachmentIndex).get();
 	}

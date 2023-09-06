@@ -3,35 +3,37 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/SpotLight.hpp>
-#include <Nazara/Graphics/Enums.hpp>
-#include <Nazara/Graphics/Graphics.hpp>
-#include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/SpotLightShadowData.hpp>
-#include <Nazara/Math/Vector2.hpp>
-#include <Nazara/Math/Vector3.hpp>
-#include <Nazara/Math/Vector4.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
 {
-	float SpotLight::ComputeContributionScore(const BoundingVolumef& boundingVolume) const
+	float SpotLight::ComputeContributionScore(const Frustumf& viewerFrustum) const
 	{
-		// TODO: take luminosity/radius/direction into account
-		return Vector3f::SquaredDistance(m_position, boundingVolume.aabb.GetCenter());
+		// TODO: take luminosity/radius into account
+		return viewerFrustum.GetPlane(FrustumPlane::Near).SignedDistance(m_position);
 	}
 
-	void SpotLight::FillLightData(void* data) const
+	bool SpotLight::FrustumCull(const Frustumf& viewerFrustum) const
 	{
-		auto lightOffset = PredefinedLightData::GetOffsets();
+		// We need the radius of the projected circle depending on the distance
+		// Tangent = Opposite/Adjacent <=> Opposite = Adjacent * Tangent
+		float opposite = m_radius * m_outerAngleTan;
 
-		AccessByOffset<UInt32&>(data, lightOffset.lightMemberOffsets.type) = UnderlyingCast(BasicLightType::Spot);
-		AccessByOffset<Vector4f&>(data, lightOffset.lightMemberOffsets.color) = Vector4f(m_color.r, m_color.g, m_color.b, m_color.a);
-		AccessByOffset<Vector2f&>(data, lightOffset.lightMemberOffsets.factor) = Vector2f(m_ambientFactor, m_diffuseFactor);
-		AccessByOffset<Vector4f&>(data, lightOffset.lightMemberOffsets.parameter1) = Vector4f(m_position.x, m_position.y, m_position.z, m_invRadius);
-		AccessByOffset<Vector4f&>(data, lightOffset.lightMemberOffsets.parameter2) = Vector4f(m_direction.x, m_direction.y, m_direction.z, 0.f);
-		AccessByOffset<Vector4f&>(data, lightOffset.lightMemberOffsets.parameter3) = Vector4f(m_innerAngleCos, m_outerAngleCos, 0.f, 0.f);
-		AccessByOffset<Vector2f&>(data, lightOffset.lightMemberOffsets.shadowMapSize) = (IsShadowCaster()) ? Vector2f(1.f / GetShadowMapSize()) : Vector2f(-1.f, -1.f);
-		AccessByOffset<Matrix4f&>(data, lightOffset.lightMemberOffsets.viewProjMatrix) = m_viewProjMatrix;
+		Vector3f base = Vector3f::Forward() * m_radius;
+		Vector3f lExtend = Vector3f::Left() * opposite;
+		Vector3f uExtend = Vector3f::Up() * opposite;
+
+		// Test five points against frustum
+		std::array<Vector3f, 5> points = {
+			m_position,
+			base + lExtend + uExtend,
+			base + lExtend - uExtend,
+			base - lExtend + uExtend,
+			base - lExtend - uExtend,
+		};
+
+		return viewerFrustum.Contains(points.data(), points.size());
 	}
 
 	std::unique_ptr<LightShadowData> SpotLight::InstanciateShadowData(FramePipeline& pipeline, ElementRendererRegistry& elementRegistry) const
