@@ -25,7 +25,15 @@ namespace Nz
 		m_shaderModule = moduleResolver.Resolve(moduleName);
 		NazaraAssert(m_shaderModule, "invalid shader module");
 
-		m_shaderModule = Validate(*m_shaderModule, &m_optionIndexByName);
+		try
+		{
+			m_shaderModule = Validate(*m_shaderModule, &m_optionIndexByName);
+		}
+		catch (const std::exception& e)
+		{
+			NazaraError("failed to compile ubershader {0}: {1}", moduleName, e.what());
+			throw;
+		}
 
 		m_onShaderModuleUpdated.Connect(moduleResolver.OnModuleUpdated, [this, name = std::move(moduleName)](nzsl::ModuleResolver* resolver, const std::string& updatedModuleName)
 		{
@@ -62,7 +70,15 @@ namespace Nz
 	{
 		NazaraAssert(m_shaderModule, "invalid shader module");
 
-		Validate(*m_shaderModule, &m_optionIndexByName);
+		try
+		{
+			m_shaderModule = Validate(*m_shaderModule, &m_optionIndexByName);
+		}
+		catch (const std::exception& e)
+		{
+			NazaraError("failed to compile ubershader: {0}", e.what());
+			throw;
+		}
 	}
 
 	const std::shared_ptr<ShaderModule>& UberShader::Get(const Config& config)
