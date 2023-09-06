@@ -20,10 +20,9 @@ namespace Nz
 	{
 		NazaraAssert(m_skeleton, "invalid skeleton");
 
-		PredefinedSkeletalData skeletalUboOffsets = PredefinedSkeletalData::GetOffsets();
-
-		m_skeletalDataBuffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform, skeletalUboOffsets.totalSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write);
+		m_skeletalDataBuffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform, PredefinedSkeletalOffsets.totalSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write);
 		m_skeletalDataBuffer->UpdateDebugName("Skeletal data");
+
 		m_onSkeletonJointsInvalidated.Connect(m_skeleton->OnSkeletonJointsInvalidated, [this](const Skeleton*)
 		{
 			m_dataInvalided = true;
@@ -48,10 +47,8 @@ namespace Nz
 		if (!m_dataInvalided)
 			return;
 
-		PredefinedSkeletalData skeletalUboOffsets = PredefinedSkeletalData::GetOffsets();
-
 		auto& allocation = renderFrame.GetUploadPool().Allocate(m_skeletalDataBuffer->GetSize());
-		Matrix4f* matrices = AccessByOffset<Matrix4f*>(allocation.mappedPtr, skeletalUboOffsets.jointMatricesOffset);
+		Matrix4f* matrices = AccessByOffset<Matrix4f*>(allocation.mappedPtr, PredefinedSkeletalOffsets.jointMatricesOffset);
 
 		for (std::size_t i = 0; i < m_skeleton->GetJointCount(); ++i)
 			matrices[i] = m_skeleton->GetJoint(i)->GetSkinningMatrix();

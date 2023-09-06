@@ -25,9 +25,7 @@ namespace Nz
 	m_eyePosition(Vector3f::Zero()),
 	m_dataInvalidated(true)
 	{
-		PredefinedViewerData viewerUboOffsets = PredefinedViewerData::GetOffsets();
-
-		m_viewerDataBuffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform, viewerUboOffsets.totalSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write);
+		m_viewerDataBuffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform, PredefinedViewerOffsets.totalSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write);
 		m_viewerDataBuffer->UpdateDebugName("Viewer data");
 	}
 
@@ -36,7 +34,7 @@ namespace Nz
 		if (!m_dataInvalidated)
 			return;
 
-		PredefinedViewerData viewerDataOffsets = PredefinedViewerData::GetOffsets();
+		constexpr auto& viewerDataOffsets = PredefinedViewerOffsets;
 
 		auto& allocation = renderFrame.GetUploadPool().Allocate(viewerDataOffsets.totalSize);
 		AccessByOffset<Vector3f&>(allocation.mappedPtr, viewerDataOffsets.eyePositionOffset) = m_eyePosition;
@@ -49,6 +47,9 @@ namespace Nz
 		AccessByOffset<Matrix4f&>(allocation.mappedPtr, viewerDataOffsets.projMatrixOffset) = m_projectionMatrix;
 		AccessByOffset<Matrix4f&>(allocation.mappedPtr, viewerDataOffsets.viewProjMatrixOffset) = m_viewProjMatrix;
 		AccessByOffset<Matrix4f&>(allocation.mappedPtr, viewerDataOffsets.viewMatrixOffset) = m_viewMatrix;
+
+		AccessByOffset<float&>(allocation.mappedPtr, viewerDataOffsets.nearPlaneOffset) = m_nearPlane;
+		AccessByOffset<float&>(allocation.mappedPtr, viewerDataOffsets.farPlaneOffset) = m_farPlane;
 
 		builder.CopyBuffer(allocation, m_viewerDataBuffer.get());
 

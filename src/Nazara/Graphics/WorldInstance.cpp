@@ -19,7 +19,7 @@ namespace Nz
 	m_worldMatrix(Matrix4f::Identity()),
 	m_dataInvalided(true)
 	{
-		PredefinedInstanceData instanceUboOffsets = PredefinedInstanceData::GetOffsets();
+		constexpr auto& instanceUboOffsets = PredefinedInstanceOffsets;
 
 		m_instanceDataBuffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform, instanceUboOffsets.totalSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write);
 		m_instanceDataBuffer->UpdateDebugName("Instance data");
@@ -30,7 +30,7 @@ namespace Nz
 		if (!m_dataInvalided)
 			return;
 
-		PredefinedInstanceData instanceUboOffsets = PredefinedInstanceData::GetOffsets();
+		constexpr auto& instanceUboOffsets = PredefinedInstanceOffsets;
 
 		auto& allocation = renderFrame.GetUploadPool().Allocate(m_instanceDataBuffer->GetSize());
 		AccessByOffset<Matrix4f&>(allocation.mappedPtr, instanceUboOffsets.worldMatrixOffset) = m_worldMatrix;
