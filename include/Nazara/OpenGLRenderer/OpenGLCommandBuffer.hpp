@@ -64,6 +64,8 @@ namespace Nz
 
 			void Execute();
 
+			inline void InsertDebugLabel(std::string_view label, const Color& color);
+
 			inline std::size_t GetBindingIndex() const;
 			inline std::size_t GetPoolIndex() const;
 			inline const OpenGLCommandPool& GetOwner() const;
@@ -94,6 +96,7 @@ namespace Nz
 	cb(DrawCommand) \
 	cb(DrawIndexedCommand) \
 	cb(EndDebugRegionCommand) \
+	cb(InsertDebugLabelCommand) \
 	cb(MemoryBarrier) \
 	lastCb(SetFrameBufferCommand) \
 
@@ -124,6 +127,7 @@ namespace Nz
 			inline void Execute(const GL::Context* context, const DrawCommand& command);
 			inline void Execute(const GL::Context* context, const DrawIndexedCommand& command);
 			inline void Execute(const GL::Context* context, const EndDebugRegionCommand& command);
+			inline void Execute(const GL::Context* context, const InsertDebugLabelCommand& command);
 			inline void Execute(const GL::Context* context, const MemoryBarrier& command);
 			inline void Execute(const GL::Context*& context, const SetFrameBufferCommand& command);
 
@@ -235,6 +239,12 @@ namespace Nz
 
 			struct EndDebugRegionCommand
 			{
+			};
+
+			struct InsertDebugLabelCommand
+			{
+				std::string label;
+				Color color;
 			};
 
 			struct MemoryBarrier

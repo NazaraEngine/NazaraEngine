@@ -315,6 +315,16 @@ namespace Nz
 		m_currentRenderPass = nullptr;
 	}
 
+	void VulkanCommandBufferBuilder::InsertDebugLabel(std::string_view label, const Color& color)
+	{
+		// Ensure \0 at the end of string
+		StackArray<char> labelEOS = NazaraStackArrayNoInit(char, label.size() + 1);
+		std::memcpy(labelEOS.data(), label.data(), label.size());
+		labelEOS[label.size()] = '\0';
+
+		m_commandBuffer.InsertDebugLabel(labelEOS.data(), color);
+	}
+
 	void VulkanCommandBufferBuilder::NextSubpass()
 	{
 		m_commandBuffer.NextSubpass();

@@ -70,6 +70,8 @@ namespace Nz
 			virtual void EndDebugRegion() = 0;
 			virtual void EndRenderPass() = 0;
 
+			virtual void InsertDebugLabel(std::string_view label, const Color& color) = 0;
+
 			virtual void NextSubpass() = 0;
 
 			virtual void PreTransferBarrier() = 0;

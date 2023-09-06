@@ -78,6 +78,7 @@ typedef void (GL_APIENTRYP PFNGLSPECIALIZESHADERPROC) (GLuint shader, const GLch
 	cb(glCreateProgram, PFNGLCREATEPROGRAMPROC) \
 	cb(glCreateShader, PFNGLCREATESHADERPROC) \
 	cb(glCullFace, PFNGLCULLFACEPROC) \
+	cb(glDebugMessageInsert, PFNGLDEBUGMESSAGEINSERTPROC) \
 	cb(glDeleteBuffers, PFNGLDELETEBUFFERSPROC) \
 	cb(glDeleteFramebuffers, PFNGLDELETEFRAMEBUFFERSPROC) \
 	cb(glDeleteProgram, PFNGLDELETEPROGRAMPROC) \

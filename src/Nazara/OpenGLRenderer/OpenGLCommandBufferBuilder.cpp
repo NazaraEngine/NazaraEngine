@@ -148,6 +148,11 @@ namespace Nz
 		/* nothing to do */
 	}
 
+	void OpenGLCommandBufferBuilder::InsertDebugLabel(std::string_view label, const Color& color)
+	{
+		m_commandBuffer.InsertDebugLabel(label, color);
+	}
+
 	void OpenGLCommandBufferBuilder::NextSubpass()
 	{
 		/* nothing to do */

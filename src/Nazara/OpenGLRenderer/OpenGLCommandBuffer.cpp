@@ -209,6 +209,12 @@ namespace Nz
 			context->glPopDebugGroup();
 	}
 
+	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const InsertDebugLabelCommand& command)
+	{
+		if (context->glDebugMessageInsert)
+			context->glDebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_MARKER, 0, GL_DEBUG_SEVERITY_NOTIFICATION, command.label.size(), command.label.data());
+	}
+
 	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const MemoryBarrier& command)
 	{
 		if (context->glMemoryBarrier)

@@ -188,6 +188,15 @@ namespace Nz
 		m_commands.emplace_back(EndDebugRegionCommand{});
 	}
 
+	inline void OpenGLCommandBuffer::InsertDebugLabel(std::string_view label, const Color& color)
+	{
+		InsertDebugLabelCommand debugLabelCommand;
+		debugLabelCommand.color = color;
+		debugLabelCommand.label = label;
+
+		m_commands.emplace_back(std::move(debugLabelCommand));
+	}
+
 	inline std::size_t OpenGLCommandBuffer::GetBindingIndex() const
 	{
 		return m_bindingIndex;

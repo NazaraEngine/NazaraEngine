@@ -603,12 +603,15 @@ namespace Nz::GL
 
 			if (glDebugMessageControl)
 			{
-				// Disable push/pop debug groups notifications
+				// Disable push/pop debug groups and markers notifications
 				if (glPushDebugGroup)
 					glDebugMessageControl(GL_DONT_CARE, GL_DEBUG_TYPE_PUSH_GROUP, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
 
 				if (glPopDebugGroup)
 					glDebugMessageControl(GL_DONT_CARE, GL_DEBUG_TYPE_POP_GROUP, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
+
+				if (glDebugMessageInsert)
+					glDebugMessageControl(GL_DONT_CARE, GL_DEBUG_TYPE_MARKER, GL_DEBUG_SEVERITY_NOTIFICATION, 0, nullptr, GL_FALSE);
 
 				// Handle verbosity level
 				if (m_params.validationLevel < RenderAPIValidationLevel::Debug)
