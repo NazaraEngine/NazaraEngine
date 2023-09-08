@@ -11,6 +11,7 @@
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Sphere.hpp>
 #include <NazaraUtils/Algorithm.hpp>
+#include <NazaraUtils/StackArray.hpp>
 #include <NazaraUtils/StackVector.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
@@ -44,23 +45,52 @@ namespace Nz
 		assert(viewer);
 		PerViewerData& viewerData = *Retrieve(m_viewerData, viewer);
 
-		// Extract frustum from main viewer
-		const Vector3f& eyePosition = viewer->GetViewerInstance().GetEyePosition();
-		const Matrix4f& viewProjMatrix = viewer->GetViewerInstance().GetViewProjMatrix();
+		const ViewerInstance& viewerInstance = viewer->GetViewerInstance();
 
-		//std::array planePct = { 0.1f, 0.3f, 0.6f }; // TODO: Generate the separations based on other settings
-		std::array planePct = { 0.03f, 0.1f, 0.2f, 0.5f }; // TODO: Generate the separations based on other settings
-		assert(m_cascadeCount <= planePct.size() + 1);
+		// Extract frustum from main viewer
+		const Vector3f& eyePosition = viewerInstance.GetEyePosition();
+		const Matrix4f& viewProjMatrix = viewerInstance.GetViewProjMatrix();
+
+		float nearPlane = viewerInstance.GetNearPlane();
+		float farPlane = viewerInstance.GetFarPlane();
+
+		// Calculate split depths based on view camera frustum
+		// Based on method presented in https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html
+		constexpr float lambda = 0.95f;
+
+		float ratio = farPlane / nearPlane;
+		float clipRange = farPlane - nearPlane;
+
+		StackArray<float> cascadeSplits = NazaraStackArrayNoInit(float, m_cascadeCount - 1);
+		for (uint32_t i = 0; i < m_cascadeCount - 1; i++)
+		{
+			float p = float(i + 1) / float(m_cascadeCount);
+			float log = nearPlane * std::pow(ratio, p);
+			float uniform = nearPlane + clipRange * p;
+			float d = lambda * (log - uniform) + uniform;
+			cascadeSplits[i] = (d - nearPlane) / clipRange;
+		}
 
 		StackVector<Frustumf> frustums = NazaraStackVector(Frustumf, m_cascadeCount);
 		StackVector<float> frustumDists = NazaraStackVector(float, m_cascadeCount);
 
 		Frustumf frustum = Frustumf::Extract(viewProjMatrix);
-		frustum.Split(planePct.data(), m_cascadeCount - 1, [&](float zNearPct, float zFarPct)
+		frustum.Split(cascadeSplits.data(), m_cascadeCount - 1, [&](float zNearPct, float zFarPct)
 		{
 			frustums.push_back(frustum.Reduce(zNearPct, zFarPct));
 			frustumDists.push_back(frustums.back().GetPlane(FrustumPlane::Far).SignedDistance(eyePosition));
 		});
+
+		constexpr std::array cascadeColors = {
+			Color::Green(),
+			Color::Yellow(),
+			Color::Red(),
+			Color::Blue(),
+			Color::Cyan(),
+			Color::Magenta(),
+			Color::Orange(),
+			Color::Gray()
+		};
 
 		for (std::size_t cascadeIndex = 0; cascadeIndex < m_cascadeCount; ++cascadeIndex)
 		{
@@ -75,13 +105,15 @@ namespace Nz
 			                              0.0f, 0.0f, 1.0f, 0.0f,
 			                              0.5f, 0.5f, 0.0f, 1.0f);
 
-			ViewerInstance& viewerInstance = cascade.viewer.GetViewerInstance();
-			cascade.viewProjMatrix = viewerInstance.GetViewProjMatrix() * biasMatrix;
+			ViewerInstance& cascadeViewerInstance = cascade.viewer.GetViewerInstance();
+			cascade.viewProjMatrix = cascadeViewerInstance.GetViewProjMatrix() * biasMatrix;
 
-			m_pipeline.QueueTransfer(&viewerInstance);
+			m_pipeline.QueueTransfer(&cascadeViewerInstance);
 
 			// Prepare depth pass
-			Frustumf lightFrustum = Frustumf::Extract(viewerInstance.GetViewProjMatrix());
+			Frustumf lightFrustum = Frustumf::Extract(cascadeViewerInstance.GetViewProjMatrix());
+
+			//m_pipeline.GetDebugDrawer().DrawFrustum(lightFrustum, cascadeColors[cascadeIndex]);
 
 			std::size_t visibilityHash = 5U;
 			const auto& visibleRenderables = m_pipeline.FrustumCull(lightFrustum, 0xFFFFFFFF, visibilityHash);
@@ -92,7 +124,7 @@ namespace Nz
 
 	void DirectionalLightShadowData::ComputeLightView(CascadeData& cascade, const Frustumf& cascadeFrustum, float cascadeDist)
 	{
-		ViewerInstance& viewerInstance = cascade.viewer.GetViewerInstance();
+		ViewerInstance& shadowViewer = cascade.viewer.GetViewerInstance();
 
 		EnumArray<BoxCorner, Vector3f> frustumCorners = cascadeFrustum.ComputeCorners();
 
@@ -113,7 +145,10 @@ namespace Nz
 		Matrix4f lightView = Matrix4f::TransformInverse(frustumCenter, m_light.GetRotation());
 
 		// Compute light projection matrix
-		Boxf aabb = Boxf::FromExtends(frustumCenter - Vector3f(radius), frustumCenter + Vector3f(radius));
+		Vector3f maxExtent = frustumCenter + Vector3f(radius);
+		Vector3f minExtent = frustumCenter - Vector3f(radius);
+
+		Boxf aabb = Boxf::FromExtents(minExtent, maxExtent);
 
 		float left = std::numeric_limits<float>::infinity();
 		float right = -std::numeric_limits<float>::infinity();
@@ -133,44 +168,31 @@ namespace Nz
 			zFar = std::max(zFar, viewCorner.z);
 		}
 
-		// Tune this parameter according to the scene
-		constexpr float zMult = 2.0f;
-		if (zNear < 0)
-			zNear *= zMult;
-		else
-			zNear /= zMult;
-
-		if (zFar < 0)
-			zFar /= zMult;
-		else
-			zFar *= zMult;
-
 		cascade.distance = cascadeDist;
 
 		Matrix4f lightProj = Matrix4f::Ortho(left, right, top, bottom, zNear, zFar);
 
-		viewerInstance.UpdateProjViewMatrices(lightProj, lightView);
-		viewerInstance.UpdateEyePosition(frustumCenter);
-		viewerInstance.UpdateNearFarPlanes(zNear, zFar);
+		shadowViewer.UpdateProjViewMatrices(lightProj, lightView);
+		shadowViewer.UpdateEyePosition(frustumCenter);
+		shadowViewer.UpdateNearFarPlanes(zNear, zFar);
 	}
 
 	void DirectionalLightShadowData::StabilizeShadows(CascadeData& cascade)
 	{
-		ViewerInstance& viewerInstance = cascade.viewer.GetViewerInstance();
+		ViewerInstance& shadowViewer = cascade.viewer.GetViewerInstance();
 
-		// Stabilize cascade shadows by keeping the center to a texel boundary of the previous frame
-		// https://www.junkship.net/News/2020/11/22/shadow-of-a-doubt-part-2
-		Vector4f shadowOrigin(0.0f, 0.0f, 0.0f, 1.0f);
-		shadowOrigin = viewerInstance.GetViewProjMatrix() * shadowOrigin;
-		shadowOrigin *= m_texelScale;
+		// Stabilize cascade shadows by keeping the center to a texel boundary
+		// see Michal Valient's article "Stable Cascaded Shadow Maps"
+		Vector4f shadowOrigin = shadowViewer.GetViewProjMatrix() * Vector4f(0.f, 0.f, 0.f, 1.f);
+		shadowOrigin *= m_invTexelScale;
 
 		Vector2f roundedOrigin = { std::round(shadowOrigin.x), std::round(shadowOrigin.y) };
 		Vector2f roundOffset = roundedOrigin - Vector2f(shadowOrigin);
-		roundOffset *= m_invTexelScale;
+		roundOffset *= m_texelScale;
 
-		Matrix4f lightProj = viewerInstance.GetProjectionMatrix();
+		Matrix4f lightProj = shadowViewer.GetProjectionMatrix();
 		lightProj.ApplyTranslation(Vector3f(roundOffset.x, roundOffset.y, 0.f));
-		viewerInstance.UpdateProjectionMatrix(lightProj);
+		shadowViewer.UpdateProjectionMatrix(lightProj);
 	}
 
 	void DirectionalLightShadowData::RegisterMaterialInstance(const MaterialInstance& matInstance)
