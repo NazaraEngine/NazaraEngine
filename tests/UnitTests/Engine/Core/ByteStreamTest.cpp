@@ -45,7 +45,7 @@ SCENARIO("ByteStream", "[CORE][BYTESTREAM]")
 		Nz::ByteArray byteArray(numberOfBytes);
 		Nz::ByteStream byteStream(&byteArray);
 
-		byteStream.SetDataEndianness(Nz::GetPlatformEndianness() == Nz::Endianness::BigEndian ? Nz::Endianness::LittleEndian : Nz::Endianness::BigEndian);
+		byteStream.SetDataEndianness(Nz::PlatformEndianness == Nz::Endianness::BigEndian ? Nz::Endianness::LittleEndian : Nz::Endianness::BigEndian);
 
 		WHEN("We write an integer")
 		{

@@ -91,7 +91,7 @@ namespace Nz
 
 		UInt64 ReadOgg(OggVorbis_File* file, void* buffer, UInt64 sampleCount)
 		{
-			constexpr int bigendian = (GetPlatformEndianness() == Endianness::LittleEndian) ? 0 : 1;
+			constexpr int bigendian = (PlatformEndianness == Endianness::LittleEndian) ? 0 : 1;
 
 			char* ptr = reinterpret_cast<char*>(buffer);
 			UInt64 remainingBytes = sampleCount * sizeof(Int16);
