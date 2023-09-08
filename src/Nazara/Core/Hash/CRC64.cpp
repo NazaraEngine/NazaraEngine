@@ -93,9 +93,8 @@ namespace Nz
 
 	ByteArray CRC64Hasher::End()
 	{
-#ifdef NAZARA_BIG_ENDIAN
-		m_crc = ByteSwap(m_crc);
-#endif
+		m_crc = BigEndianToHost(m_crc);
+
 		return ByteArray(reinterpret_cast<UInt8*>(&m_crc), 8);
 	}
 
