@@ -623,7 +623,7 @@ namespace Nz
 				lightData->shadowData->RegisterPassInputs(forwardPass);
 			}
 
-			viewerData.debugDrawPass->RegisterToFrameGraph(frameGraph, viewerData.forwardColorAttachment, viewerData.depthStencilAttachment, viewerData.debugColorAttachment);
+			viewerData.debugDrawPass->RegisterToFrameGraph(frameGraph, viewerData.forwardColorAttachment, viewerData.debugColorAttachment);
 		}
 
 		using ViewerPair = std::pair<const RenderTarget*, const ViewerData*>;
