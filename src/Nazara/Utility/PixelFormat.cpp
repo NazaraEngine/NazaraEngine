@@ -12,36 +12,6 @@ namespace Nz
 {
 	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
-		inline UInt8 c4to5(UInt8 c)
-		{
-			return static_cast<UInt8>(c * (31.f/15.f));
-		}
-
-		inline UInt8 c4to8(UInt8 c)
-		{
-			return c << 4;
-		}
-
-		inline UInt8 c5to4(UInt8 c)
-		{
-			return static_cast<UInt8>(c * (15.f/31.f));
-		}
-
-		inline UInt8 c5to8(UInt8 c)
-		{
-			return static_cast<UInt8>(c * (255.f/31.f));
-		}
-
-		inline UInt8 c8to4(UInt8 c)
-		{
-			return c >> 4;
-		}
-
-		inline UInt8 c8to5(UInt8 c)
-		{
-			return static_cast<UInt8>(c * (31.f/255.f));
-		}
-
 		template<PixelFormat from, PixelFormat to>
 		UInt8* ConvertPixels(const UInt8* start, const UInt8* end, UInt8* dst)
 		{
@@ -112,7 +82,7 @@ namespace Nz
 			UInt16* ptr = reinterpret_cast<UInt16*>(dst);
 			while (start < end)
 			{
-				*ptr = 0xFFF0 | c8to4(*start);
+				*ptr = 0xFFF0 | (*start >> 4);
 
 #ifdef NAZARA_BIG_ENDIAN
 				*ptr = ByteSwap(*ptr);
@@ -200,9 +170,9 @@ namespace Nz
 			UInt16* ptr = reinterpret_cast<UInt16*>(dst);
 			while (start < end)
 			{
-				*ptr = (static_cast<UInt16>(c8to5(start[2])) << 11) |
-					   (static_cast<UInt16>(c8to5(start[1])) << 6)  |
-					   (static_cast<UInt16>(c8to5(start[0])) << 1)  |
+				*ptr = (static_cast<UInt16>(start[2] >> 3) << 11) |
+					   (static_cast<UInt16>(start[1] >> 3) << 6)  |
+					   (static_cast<UInt16>(start[0] >> 3) << 1)  |
 					   0x1;
 
 #ifdef NAZARA_BIG_ENDIAN
@@ -237,9 +207,9 @@ namespace Nz
 			UInt16* ptr = reinterpret_cast<UInt16*>(dst);
 			while (start < end)
 			{
-				*ptr = (static_cast<UInt16>(c8to4(start[2])) << 12) |
-					   (static_cast<UInt16>(c8to4(start[1])) << 8)  |
-					   (static_cast<UInt16>(c8to4(start[0])) << 4)  |
+				*ptr = (static_cast<UInt16>(start[2] >> 4) << 12) |
+					   (static_cast<UInt16>(start[1] >> 4) << 8)  |
+					   (static_cast<UInt16>(start[0] >> 4) << 4)  |
 					   0x0F;
 
 #ifdef NAZARA_BIG_ENDIAN
@@ -357,10 +327,10 @@ namespace Nz
 			UInt16* ptr = reinterpret_cast<UInt16*>(dst);
 			while (start < end)
 			{
-				*ptr = (static_cast<UInt16>(c8to4(start[2])) << 12) |
-					   (static_cast<UInt16>(c8to4(start[1])) << 8)  |
-					   (static_cast<UInt16>(c8to4(start[0])) << 4)  |
-					   (static_cast<UInt16>(c8to4(start[3])) << 0);
+				*ptr = (static_cast<UInt16>(start[2] >> 4) << 12) |
+					   (static_cast<UInt16>(start[1] >> 4) << 8)  |
+					   (static_cast<UInt16>(start[0] >> 4) << 4)  |
+					   (static_cast<UInt16>(start[3] >> 4) << 0);
 
 #ifdef NAZARA_BIG_ENDIAN
 				*ptr = ByteSwap(*ptr);
@@ -379,9 +349,9 @@ namespace Nz
 			UInt16* ptr = reinterpret_cast<UInt16*>(dst);
 			while (start < end)
 			{
-				*ptr = (static_cast<UInt16>(c8to5(start[2])) << 11) |
-					   (static_cast<UInt16>(c8to5(start[1])) << 6)  |
-					   (static_cast<UInt16>(c8to5(start[0])) << 1)  |
+				*ptr = (static_cast<UInt16>(start[2] >> 3) << 11) |
+					   (static_cast<UInt16>(start[1] >> 3) << 6)  |
+					   (static_cast<UInt16>(start[0] >> 3) << 1)  |
 					   ((start[3] > 0xF) ? 1 : 0); // > 128
 
 #ifdef NAZARA_BIG_ENDIAN
@@ -495,7 +465,7 @@ namespace Nz
 			UInt16* ptr = reinterpret_cast<UInt16*>(dst);
 			while (start < end)
 			{
-				UInt16 l = static_cast<UInt16>(c8to5(start[0]));
+				UInt16 l = static_cast<UInt16>(start[0] >> 3);
 
 				*ptr = (l << 11) |
 					   (l << 6)  |
@@ -534,7 +504,7 @@ namespace Nz
 			UInt16* ptr = reinterpret_cast<UInt16*>(dst);
 			while (start < end)
 			{
-				UInt16 l = static_cast<UInt16>(c8to4(start[0]));
+				UInt16 l = static_cast<UInt16>(start[0] >> 4);
 
 				*ptr = (l << 12) |
 					   (l << 8)  |
@@ -649,7 +619,7 @@ namespace Nz
 			UInt16* ptr = reinterpret_cast<UInt16*>(dst);
 			while (start < end)
 			{
-				UInt16 l = static_cast<UInt16>(c8to5(start[0]));
+				UInt16 l = static_cast<UInt16>(start[0] >> 3);
 
 				*ptr = (l << 11) | (l << 6) | (l << 1) | ((start[1] > 0xF) ? 1 : 0);
 
@@ -685,9 +655,9 @@ namespace Nz
 			UInt16* ptr = reinterpret_cast<UInt16*>(dst);
 			while (start < end)
 			{
-				UInt16 l = static_cast<UInt16>(c8to4(start[0]));
+				UInt16 l = static_cast<UInt16>(start[0] >> 4);
 
-				*ptr = (l << 12) | (l << 8) | (l << 4) | c8to4(SafeCast<UInt8>(start[1]));
+				*ptr = (l << 12) | (l << 8) | (l << 4) | (SafeCast<UInt8>(start[1]) >> 4);
 
 #ifdef NAZARA_BIG_ENDIAN
 				*ptr = ByteSwap(*ptr);
@@ -745,7 +715,7 @@ namespace Nz
 				pixel = ByteSwap(pixel);
 #endif
 
-				*dst++ = c4to8(SafeCast<UInt8>(pixel & 0x000F));
+				*dst++ = SafeCast<UInt8>(pixel & 0x000F) << 4;
 
 				start += 2;
 			}
@@ -764,9 +734,9 @@ namespace Nz
 				pixel = ByteSwap(pixel);
 #endif
 
-				*dst++ = c4to8(SafeCast<UInt8>((pixel & 0x00F0) >> 4));
-				*dst++ = c4to8(SafeCast<UInt8>((pixel & 0x0F00) >> 8));
-				*dst++ = c4to8(SafeCast<UInt8>((pixel & 0xF000) >> 12));
+				*dst++ = SafeCast<UInt8>((pixel & 0x00F0) >> 4)  << 4;
+				*dst++ = SafeCast<UInt8>((pixel & 0x0F00) >> 8)  << 4;
+				*dst++ = SafeCast<UInt8>((pixel & 0xF000) >> 12) << 4;
 
 				start += 2;
 			}
@@ -785,10 +755,10 @@ namespace Nz
 				pixel = ByteSwap(pixel);
 #endif
 
-				*dst++ = c4to8(SafeCast<UInt8>((pixel & 0x00F0) >> 4));
-				*dst++ = c4to8(SafeCast<UInt8>((pixel & 0x0F00) >> 8));
-				*dst++ = c4to8(SafeCast<UInt8>((pixel & 0xF000) >> 12));
-				*dst++ = c4to8(SafeCast<UInt8>((pixel & 0x000F) >> 0));
+				*dst++ = SafeCast<UInt8>((pixel & 0x00F0) >> 4)  << 4;
+				*dst++ = SafeCast<UInt8>((pixel & 0x0F00) >> 8)  << 4;
+				*dst++ = SafeCast<UInt8>((pixel & 0xF000) >> 12) << 4;
+				*dst++ = SafeCast<UInt8>((pixel & 0x000F) >> 0)  << 4;
 
 				start += 2;
 			}
@@ -807,9 +777,9 @@ namespace Nz
 				pixel = ByteSwap(pixel);
 #endif
 
-				UInt16 r = c4to8(SafeCast<UInt8>((pixel & 0xF000) >> 12));
-				UInt16 g = c4to8(SafeCast<UInt8>((pixel & 0x0F00) >> 8));
-				UInt16 b = c4to8(SafeCast<UInt8>((pixel & 0x00F0) >> 4));
+				UInt16 r = SafeCast<UInt8>((pixel & 0xF000) >> 12) << 4;
+				UInt16 g = SafeCast<UInt8>((pixel & 0x0F00) >> 8) << 4;
+				UInt16 b = SafeCast<UInt8>((pixel & 0x00F0) >> 4) << 4;
 
 				*dst++ = static_cast<UInt8>(r * 0.3f + g * 0.59f + b * 0.11f);
 
@@ -830,12 +800,12 @@ namespace Nz
 				pixel = ByteSwap(pixel);
 #endif
 
-				UInt16 r = c4to8(SafeCast<UInt8>((pixel & 0xF000) >> 12));
-				UInt16 g = c4to8(SafeCast<UInt8>((pixel & 0x0F00) >> 8));
-				UInt16 b = c4to8(SafeCast<UInt8>((pixel & 0x00F0) >> 4));
+				UInt16 r = SafeCast<UInt8>((pixel & 0xF000) >> 12) << 4;
+				UInt16 g = SafeCast<UInt8>((pixel & 0x0F00) >> 8) << 4;
+				UInt16 b = SafeCast<UInt8>((pixel & 0x00F0) >> 4) << 4;
 
 				*dst++ = static_cast<UInt8>(r * 0.3f + g * 0.59f + b * 0.11f);
-				*dst++ = c4to8(pixel & 0x000F);
+				*dst++ = SafeCast<UInt8>((pixel & 0x000F) << 4);
 
 				start += 2;
 			}
@@ -855,10 +825,10 @@ namespace Nz
 				pixel = ByteSwap(pixel);
 #endif
 
-				UInt16 r = c4to5(SafeCast<UInt8>((pixel & 0xF000) >> 12));
-				UInt16 g = c4to5(SafeCast<UInt8>((pixel & 0x0F00) >> 8));
-				UInt16 b = c4to5(SafeCast<UInt8>((pixel & 0x00F0) >> 4));
-				UInt16 a = c4to5(SafeCast<UInt8>((pixel & 0x000F) >> 0));
+				UInt16 r = SafeCast<UInt8>((pixel & 0xF000) >> 12) << 1;
+				UInt16 g = SafeCast<UInt8>((pixel & 0x0F00) >> 8)  << 1;
+				UInt16 b = SafeCast<UInt8>((pixel & 0x00F0) >> 4)  << 1;
+				UInt16 a = SafeCast<UInt8>((pixel & 0x000F) >> 0)  << 1;
 
 				*ptr = (r << 11) | (g << 6) | (b << 1) | ((a > 0x3) ? 1 : 0);
 
@@ -884,9 +854,9 @@ namespace Nz
 				pixel = ByteSwap(pixel);
 #endif
 
-				*dst++ = c4to8(SafeCast<UInt8>((pixel & 0xF000) >> 12));
-				*dst++ = c4to8(SafeCast<UInt8>((pixel & 0x0F00) >> 8));
-				*dst++ = c4to8(SafeCast<UInt8>((pixel & 0x00F0) >> 4));
+				*dst++ = SafeCast<UInt8>((pixel & 0xF000) >> 12) << 4;
+				*dst++ = SafeCast<UInt8>((pixel & 0x0F00) >> 8)  << 4;
+				*dst++ = SafeCast<UInt8>((pixel & 0x00F0) >> 4)  << 4;
 
 				start += 2;
 			}
@@ -905,10 +875,10 @@ namespace Nz
 				pixel = ByteSwap(pixel);
 #endif
 
-				*dst++ = c4to8(SafeCast<UInt8>((pixel & 0xF000) >> 12));
-				*dst++ = c4to8(SafeCast<UInt8>((pixel & 0x0F00) >> 8));
-				*dst++ = c4to8(SafeCast<UInt8>((pixel & 0x00F0) >> 4));
-				*dst++ = c4to8(SafeCast<UInt8>((pixel & 0x000F) >> 0));
+				*dst++ = SafeCast<UInt8>((pixel & 0xF000) >> 12) << 4;
+				*dst++ = SafeCast<UInt8>((pixel & 0x0F00) >> 8)  << 4;
+				*dst++ = SafeCast<UInt8>((pixel & 0x00F0) >> 4)  << 4;
+				*dst++ = SafeCast<UInt8>((pixel & 0x000F) >> 0)  << 4;
 
 				start += 2;
 			}
@@ -947,9 +917,9 @@ namespace Nz
 				pixel = ByteSwap(pixel);
 #endif
 
-				*dst++ = c5to8(SafeCast<UInt8>((pixel & 0x003E) >> 1));
-				*dst++ = c5to8(SafeCast<UInt8>((pixel & 0x07C0) >> 6));
-				*dst++ = c5to8(SafeCast<UInt8>((pixel & 0xF800) >> 11));
+				*dst++ = SafeCast<UInt8>((pixel & 0x003E) >> 1)  << 3;
+				*dst++ = SafeCast<UInt8>((pixel & 0x07C0) >> 6)  << 3;
+				*dst++ = SafeCast<UInt8>((pixel & 0xF800) >> 11) << 3;
 
 				start += 2;
 			}
@@ -968,9 +938,9 @@ namespace Nz
 				pixel = ByteSwap(pixel);
 #endif
 
-				*dst++ = c5to8(SafeCast<UInt8>((pixel & 0x003E) >> 1));
-				*dst++ = c5to8(SafeCast<UInt8>((pixel & 0x07C0) >> 6));
-				*dst++ = c5to8(SafeCast<UInt8>((pixel & 0xF800) >> 11));
+				*dst++ = SafeCast<UInt8>((pixel & 0x003E) >> 1)  << 3;
+				*dst++ = SafeCast<UInt8>((pixel & 0x07C0) >> 6)  << 3;
+				*dst++ = SafeCast<UInt8>((pixel & 0xF800) >> 11) << 3;
 				*dst++ = static_cast<UInt8>((pixel & 0x1)*0xFF);
 
 				start += 2;
@@ -990,9 +960,9 @@ namespace Nz
 				pixel = ByteSwap(pixel);
 #endif
 
-				UInt8 r = c5to8(SafeCast<UInt8>((pixel & 0xF800) >> 11));
-				UInt8 g = c5to8(SafeCast<UInt8>((pixel & 0x07C0) >> 6));
-				UInt8 b = c5to8(SafeCast<UInt8>((pixel & 0x003E) >> 1));
+				UInt8 r = SafeCast<UInt8>((pixel & 0xF800) >> 11) << 3;
+				UInt8 g = SafeCast<UInt8>((pixel & 0x07C0) >> 6)  << 3;
+				UInt8 b = SafeCast<UInt8>((pixel & 0x003E) >> 1)  << 3;
 
 				*dst++ = static_cast<UInt8>(r * 0.3f + g * 0.59f + b * 0.11f);
 
@@ -1013,9 +983,9 @@ namespace Nz
 				pixel = ByteSwap(pixel);
 #endif
 
-				UInt8 r = c5to8(SafeCast<UInt8>((pixel & 0xF800) >> 11));
-				UInt8 g = c5to8(SafeCast<UInt8>((pixel & 0x07C0) >> 6));
-				UInt8 b = c5to8(SafeCast<UInt8>((pixel & 0x003E) >> 1));
+				UInt8 r = SafeCast<UInt8>((pixel & 0xF800) >> 11) << 3;
+				UInt8 g = SafeCast<UInt8>((pixel & 0x07C0) >> 6)  << 3;
+				UInt8 b = SafeCast<UInt8>((pixel & 0x003E) >> 1)  << 3;
 
 				*dst++ = static_cast<UInt8>(r * 0.3f + g * 0.59f + b * 0.11f);
 				*dst++ = static_cast<UInt8>((pixel & 0x1)*0xFF);
@@ -1037,9 +1007,9 @@ namespace Nz
 				pixel = ByteSwap(pixel);
 #endif
 
-				*dst++ = c5to8(SafeCast<UInt8>((pixel & 0xF800) >> 11));
-				*dst++ = c5to8(SafeCast<UInt8>((pixel & 0x07C0) >> 6));
-				*dst++ = c5to8(SafeCast<UInt8>((pixel & 0x003E) >> 1));
+				*dst++ = SafeCast<UInt8>((pixel & 0xF800) >> 11) << 3;
+				*dst++ = SafeCast<UInt8>((pixel & 0x07C0) >> 6)  << 3;
+				*dst++ = SafeCast<UInt8>((pixel & 0x003E) >> 1)  << 3;
 
 				start += 2;
 			}
@@ -1059,9 +1029,9 @@ namespace Nz
 				pixel = ByteSwap(pixel);
 #endif
 
-				UInt8 r = c5to4(SafeCast<UInt8>((pixel & 0xF800) >> 11));
-				UInt8 g = c5to4(SafeCast<UInt8>((pixel & 0x07C0) >> 6));
-				UInt8 b = c5to4(SafeCast<UInt8>((pixel & 0x003E) >> 1));
+				UInt8 r = SafeCast<UInt8>((pixel & 0xF800) >> 11) >> 1;
+				UInt8 g = SafeCast<UInt8>((pixel & 0x07C0) >> 6)  >> 1;
+				UInt8 b = SafeCast<UInt8>((pixel & 0x003E) >> 1)  >> 1;
 
 				*ptr = (r << 12) | (g << 8) | (b << 4) | ((pixel & 0x1)*0x0F);
 
@@ -1087,9 +1057,9 @@ namespace Nz
 				pixel = ByteSwap(pixel);
 #endif
 
-				*dst++ = c5to8(SafeCast<UInt8>((pixel & 0xF800) >> 11));
-				*dst++ = c5to8(SafeCast<UInt8>((pixel & 0x07C0) >> 6));
-				*dst++ = c5to8(SafeCast<UInt8>((pixel & 0x003E) >> 1));
+				*dst++ = SafeCast<UInt8>((pixel & 0xF800) >> 11) >> 1;
+				*dst++ = SafeCast<UInt8>((pixel & 0x07C0) >> 6)  >> 1;
+				*dst++ = SafeCast<UInt8>((pixel & 0x003E) >> 1)  >> 1;
 				*dst++ = SafeCast<UInt8>((pixel & 0x1) * 0xFF);
 
 				start += 2;
@@ -1163,9 +1133,9 @@ namespace Nz
 			UInt16* ptr = reinterpret_cast<UInt16*>(dst);
 			while (start < end)
 			{
-				*ptr = (static_cast<UInt16>(c8to5(start[0])) << 11) |
-					   (static_cast<UInt16>(c8to5(start[1])) << 6)  |
-					   (static_cast<UInt16>(c8to5(start[2])) << 1)  |
+				*ptr = (static_cast<UInt16>(start[0] >> 3) << 11) |
+					   (static_cast<UInt16>(start[1] >> 3) << 6)  |
+					   (static_cast<UInt16>(start[2] >> 3) << 1)  |
 					   0x1;
 
 #ifdef NAZARA_BIG_ENDIAN
@@ -1185,9 +1155,9 @@ namespace Nz
 			UInt16* ptr = reinterpret_cast<UInt16*>(dst);
 			while (start < end)
 			{
-				*ptr = (static_cast<UInt16>(c8to4(start[0])) << 12) |
-					   (static_cast<UInt16>(c8to4(start[1])) << 8)  |
-					   (static_cast<UInt16>(c8to4(start[2])) << 4)  |
+				*ptr = (static_cast<UInt16>(start[0] >> 4) << 12) |
+					   (static_cast<UInt16>(start[1] >> 4) << 8)  |
+					   (static_cast<UInt16>(start[2] >> 4) << 4)  |
 					   0x0F;
 
 #ifdef NAZARA_BIG_ENDIAN
@@ -1321,9 +1291,9 @@ namespace Nz
 			UInt16* ptr = reinterpret_cast<UInt16*>(dst);
 			while (start < end)
 			{
-				*ptr = (static_cast<UInt16>(c8to5(start[0])) << 11) |
-					   (static_cast<UInt16>(c8to5(start[1])) << 6)  |
-					   (static_cast<UInt16>(c8to5(start[2])) << 1)  |
+				*ptr = (static_cast<UInt16>(start[0] >> 3) << 11) |
+					   (static_cast<UInt16>(start[1] >> 3) << 6)  |
+					   (static_cast<UInt16>(start[2] >> 3) << 1)  |
 					   ((start[3] > 0xF) ? 1 : 0); // > 128
 
 #ifdef NAZARA_BIG_ENDIAN
@@ -1358,10 +1328,10 @@ namespace Nz
 			UInt16* ptr = reinterpret_cast<UInt16*>(dst);
 			while (start < end)
 			{
-				*ptr = (static_cast<UInt16>(c8to4(start[0])) << 12) |
-					   (static_cast<UInt16>(c8to4(start[1])) << 8)  |
-					   (static_cast<UInt16>(c8to4(start[2])) << 4)  |
-					   (static_cast<UInt16>(c8to4(start[3])) << 0);
+				*ptr = (static_cast<UInt16>(start[0] >> 4) << 12) |
+					   (static_cast<UInt16>(start[1] >> 4) << 8)  |
+					   (static_cast<UInt16>(start[2] >> 4) << 4)  |
+					   (static_cast<UInt16>(start[3] >> 4) << 0);
 
 #ifdef NAZARA_BIG_ENDIAN
 				*ptr = ByteSwap(*ptr);
