@@ -105,7 +105,7 @@ namespace Nz
 
 	ByteArray CRC32Hasher::End()
 	{
-		m_crc = HostToLittleEndian(m_crc ^ 0xFFFFFFFF);
+		m_crc = BigEndianToHost(m_crc ^ 0xFFFFFFFF);
 
 		return ByteArray(reinterpret_cast<UInt8*>(&m_crc), 4);
 	}

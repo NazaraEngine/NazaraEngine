@@ -38,7 +38,7 @@ namespace Nz
 		m_sum1 = (m_sum1 & 0xFF) + (m_sum1 >> 8);
 		m_sum2 = (m_sum2 & 0xFF) + (m_sum2 >> 8);
 
-		UInt16 fletcher = BigEndianToHost((m_sum2 << 8) | m_sum1);
+		UInt16 fletcher = BigEndianToHost(UInt16((m_sum2 << 8) | m_sum1));
 		return ByteArray(reinterpret_cast<UInt8*>(&fletcher), 2);
 	}
 
