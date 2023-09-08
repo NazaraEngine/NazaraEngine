@@ -33,7 +33,7 @@ namespace Nz
 			~FrameGraph() = default;
 
 			inline std::size_t AddAttachment(FramePassAttachment attachment);
-			inline std::size_t AddAttachmentArray(FramePassAttachment attachment, std::size_t layerCount);
+			inline std::size_t AddAttachmentArray(FramePassAttachment attachment, unsigned int layerCount);
 			inline std::size_t AddAttachmentArrayLayer(std::size_t attachmentId, std::size_t layerIndex);
 			inline std::size_t AddAttachmentCube(FramePassAttachment attachment);
 			inline std::size_t AddAttachmentCubeFace(std::size_t attachmentId, CubemapFace face);
