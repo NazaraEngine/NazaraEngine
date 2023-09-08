@@ -15,7 +15,7 @@ namespace Nz
 		return id;
 	}
 
-	inline std::size_t FrameGraph::AddAttachmentArray(FramePassAttachment attachment, std::size_t layerCount)
+	inline std::size_t FrameGraph::AddAttachmentArray(FramePassAttachment attachment, unsigned int layerCount)
 	{
 		AttachmentArray attachmentArray{ std::move(attachment) };
 		attachmentArray.layerCount = layerCount;
