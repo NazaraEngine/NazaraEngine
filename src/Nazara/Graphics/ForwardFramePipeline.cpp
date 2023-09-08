@@ -295,21 +295,21 @@ namespace Nz
 		Graphics* graphics = Graphics::Instance();
 
 		// Destroy instances at the end of the frame
-		for (std::size_t skeletonInstanceIndex = m_removedSkeletonInstances.FindFirst(); skeletonInstanceIndex != m_removedSkeletonInstances.npos; skeletonInstanceIndex = m_removedSkeletonInstances.FindNext(skeletonInstanceIndex))
+		for (std::size_t skeletonInstanceIndex : m_removedSkeletonInstances.IterBits())
 		{
 			renderFrame.PushForRelease(std::move(*m_skeletonInstances.RetrieveFromIndex(skeletonInstanceIndex)));
 			m_skeletonInstances.Free(skeletonInstanceIndex);
 		}
 		m_removedSkeletonInstances.Clear();
 
-		for (std::size_t viewerIndex = m_removedViewerInstances.FindFirst(); viewerIndex != m_removedViewerInstances.npos; viewerIndex = m_removedViewerInstances.FindNext(viewerIndex))
+		for (std::size_t viewerIndex : m_removedViewerInstances.IterBits())
 		{
 			renderFrame.PushForRelease(std::move(*m_viewerPool.RetrieveFromIndex(viewerIndex)));
 			m_viewerPool.Free(viewerIndex);
 		}
 		m_removedViewerInstances.Clear();
 
-		for (std::size_t worldInstanceIndex = m_removedWorldInstances.FindFirst(); worldInstanceIndex != m_removedWorldInstances.npos; worldInstanceIndex = m_removedWorldInstances.FindNext(worldInstanceIndex))
+		for (std::size_t worldInstanceIndex : m_removedWorldInstances.IterBits())
 		{
 			renderFrame.PushForRelease(std::move(*m_worldInstances.RetrieveFromIndex(worldInstanceIndex)));
 			m_worldInstances.Free(worldInstanceIndex);
@@ -593,7 +593,7 @@ namespace Nz
 	{
 		FrameGraph frameGraph;
 
-		for (std::size_t i = m_shadowCastingLights.FindFirst(); i != m_shadowCastingLights.npos; i = m_shadowCastingLights.FindNext(i))
+		for (std::size_t i : m_shadowCastingLights.IterBits())
 		{
 			LightData* lightData = m_lightPool.RetrieveFromIndex(i);
 			lightData->shadowData->RegisterToFrameGraph(frameGraph);
@@ -617,13 +617,13 @@ namespace Nz
 				viewerData.depthPrepass->RegisterToFrameGraph(frameGraph, viewerData.depthStencilAttachment);
 
 			FramePass& forwardPass = viewerData.forwardPass->RegisterToFrameGraph(frameGraph, viewerData.forwardColorAttachment, viewerData.depthStencilAttachment, viewerData.depthPrepass != nullptr);
-			for (std::size_t i = m_shadowCastingLights.FindFirst(); i != m_shadowCastingLights.npos; i = m_shadowCastingLights.FindNext(i))
+			for (std::size_t i : m_shadowCastingLights.IterBits())
 			{
 				LightData* lightData = m_lightPool.RetrieveFromIndex(i);
 				lightData->shadowData->RegisterPassInputs(forwardPass);
 			}
 
-			viewerData.debugDrawPass->RegisterToFrameGraph(frameGraph, viewerData.forwardColorAttachment, viewerData.debugColorAttachment);
+			viewerData.debugDrawPass->RegisterToFrameGraph(frameGraph, viewerData.forwardColorAttachment, viewerData.depthStencilAttachment, viewerData.debugColorAttachment);
 		}
 
 		using ViewerPair = std::pair<const RenderTarget*, const ViewerData*>;

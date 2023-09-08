@@ -31,35 +31,36 @@ namespace Nz
 			MD2_Header header;
 			if (stream.Read(&header, sizeof(MD2_Header)) != sizeof(MD2_Header))
 				return Err(ResourceLoadingError::Unrecognized);
-			
-			#ifdef NAZARA_BIG_ENDIAN
-			SwapBytes(&header.indent, sizeof(UInt32));
-			SwapBytes(&header.version, sizeof(UInt32));
-			#endif
+
+#ifdef NAZARA_BIG_ENDIAN
+			header.ident = ByteSwap(header.ident);
+			header.version = ByteSwap(header.version);
+#endif
 
 			if (header.ident != md2Ident)
 				return Err(ResourceLoadingError::Unrecognized);
 
+
 			if (header.version != 8)
 				return Err(ResourceLoadingError::Unsupported);
 
-			#ifdef NAZARA_BIG_ENDIAN
-			SwapBytes(&header.skinwidth, sizeof(UInt32));
-			SwapBytes(&header.skinheight, sizeof(UInt32));
-			SwapBytes(&header.framesize, sizeof(UInt32));
-			SwapBytes(&header.num_skins, sizeof(UInt32));
-			SwapBytes(&header.num_vertices, sizeof(UInt32));
-			SwapBytes(&header.num_st, sizeof(UInt32));
-			SwapBytes(&header.num_tris, sizeof(UInt32));
-			SwapBytes(&header.num_glcmds, sizeof(UInt32));
-			SwapBytes(&header.num_frames, sizeof(UInt32));
-			SwapBytes(&header.offset_skins, sizeof(UInt32));
-			SwapBytes(&header.offset_st, sizeof(UInt32));
-			SwapBytes(&header.offset_tris, sizeof(UInt32));
-			SwapBytes(&header.offset_frames, sizeof(UInt32));
-			SwapBytes(&header.offset_glcmds, sizeof(UInt32));
-			SwapBytes(&header.offset_end, sizeof(UInt32));
-			#endif
+#ifdef NAZARA_BIG_ENDIAN
+			header.skinwidth = ByteSwap(header.skinwidth);
+			header.skinheight = ByteSwap(header.skinheight);
+			header.framesize = ByteSwap(header.framesize);
+			header.num_skins = ByteSwap(header.num_skins);
+			header.num_vertices = ByteSwap(header.num_vertices);
+			header.num_st = ByteSwap(header.num_st);
+			header.num_tris = ByteSwap(header.num_tris);
+			header.num_glcmds = ByteSwap(header.num_glcmds);
+			header.num_frames = ByteSwap(header.num_frames);
+			header.offset_skins = ByteSwap(header.offset_skins);
+			header.offset_st = ByteSwap(header.offset_st);
+			header.offset_tris = ByteSwap(header.offset_tris);
+			header.offset_frames = ByteSwap(header.offset_frames);
+			header.offset_glcmds = ByteSwap(header.offset_glcmds);
+			header.offset_end = ByteSwap(header.offset_end);
+#endif
 
 			if (stream.GetSize() < header.offset_end)
 			{
@@ -109,16 +110,14 @@ namespace Nz
 
 			for (unsigned int i = 0; i < header.num_tris; ++i)
 			{
-				#ifdef NAZARA_BIG_ENDIAN
-				SwapBytes(&triangles[i].vertices[0], sizeof(UInt16));
-				SwapBytes(&triangles[i].texCoords[0], sizeof(UInt16));
-
-				SwapBytes(&triangles[i].vertices[1], sizeof(UInt16));
-				SwapBytes(&triangles[i].texCoords[1], sizeof(UInt16));
-
-				SwapBytes(&triangles[i].vertices[2], sizeof(UInt16));
-				SwapBytes(&triangles[i].texCoords[2], sizeof(UInt16));
-				#endif
+#ifdef NAZARA_BIG_ENDIAN
+				triangles[i].vertices[0] = ByteSwap(triangles[i].vertices[0]);
+				triangles[i].texCoords[0] = ByteSwap(triangles[i].texCoords[0]);
+				triangles[i].vertices[1] = ByteSwap(triangles[i].vertices[1]);
+				triangles[i].texCoords[1] = ByteSwap(triangles[i].texCoords[1]);
+				triangles[i].vertices[2] = ByteSwap(triangles[i].vertices[2]);
+				triangles[i].texCoords[2] = ByteSwap(triangles[i].texCoords[2]);
+#endif
 
 				// Reverse winding order
 				*index++ = triangles[i].vertices[0];
@@ -138,13 +137,13 @@ namespace Nz
 			stream.SetCursorPos(header.offset_st);
 			stream.Read(&texCoords[0], header.num_st*sizeof(MD2_TexCoord));
 
-			#ifdef NAZARA_BIG_ENDIAN
+#ifdef NAZARA_BIG_ENDIAN
 			for (unsigned int i = 0; i < header.num_st; ++i)
 			{
-				SwapBytes(&texCoords[i].u, sizeof(Int16));
-				SwapBytes(&texCoords[i].v, sizeof(Int16));
+				texCoords[i].u = ByteSwap(texCoords[i].u);
+				texCoords[i].v = ByteSwap(texCoords[i].v);
 			}
-			#endif
+#endif
 
 			std::shared_ptr<VertexBuffer> vertexBuffer = std::make_shared<VertexBuffer>(parameters.vertexDeclaration, header.num_vertices, parameters.vertexBufferFlags, parameters.bufferFactory);
 			std::shared_ptr<StaticMesh> subMesh = std::make_shared<StaticMesh>(vertexBuffer, indexBuffer);
@@ -159,15 +158,15 @@ namespace Nz
 			stream.Read(nullptr, 16*sizeof(char)); //< Frame name, unused
 			stream.Read(vertices.data(), header.num_vertices*sizeof(MD2_Vertex));
 
-			#ifdef NAZARA_BIG_ENDIAN
-			SwapBytes(&scale.x, sizeof(float));
-			SwapBytes(&scale.y, sizeof(float));
-			SwapBytes(&scale.z, sizeof(float));
+#ifdef NAZARA_BIG_ENDIAN
+			scale.x = ByteSwap(scale.x);
+			scale.y = ByteSwap(scale.y);
+			scale.z = ByteSwap(scale.z);
 
-			SwapBytes(&translate.x, sizeof(float));
-			SwapBytes(&translate.y, sizeof(float));
-			SwapBytes(&translate.z, sizeof(float));
-			#endif
+			translate.x = ByteSwap(translate.x);
+			translate.y = ByteSwap(translate.y);
+			translate.z = ByteSwap(translate.z);
+#endif
 
 			constexpr float ScaleAdjust = 1.f / 27.8f; // Make a 50 Quake 2 units character a 1.8 unit long
 

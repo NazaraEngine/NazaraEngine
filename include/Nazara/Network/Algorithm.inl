@@ -10,21 +10,13 @@ namespace Nz
 	template<typename T>
 	std::enable_if_t<std::is_arithmetic<T>::value, T> HostToNet(T value)
 	{
-#ifdef NAZARA_LITTLE_ENDIAN
-		return SwapBytes(value);
-#else
-		return value;
-#endif
+		return HostToBigEndian(value);
 	}
 
 	template<typename T>
 	std::enable_if_t<std::is_arithmetic<T>::value, T> NetToHost(T value)
 	{
-#ifdef NAZARA_LITTLE_ENDIAN
-		return SwapBytes(value);
-#else
-		return value;
-#endif
+		return BigEndianToHost(value);
 	}
 }
 

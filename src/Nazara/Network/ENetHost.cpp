@@ -360,7 +360,7 @@ namespace Nz
 
 	bool ENetHost::DispatchIncomingCommands(ENetEvent* event)
 	{
-		for (std::size_t bit = m_dispatchQueue.FindFirst(); bit != m_dispatchQueue.npos; bit = m_dispatchQueue.FindNext(bit))
+		for (std::size_t bit : m_dispatchQueue.IterBits())
 		{
 			m_dispatchQueue.Reset(bit);
 

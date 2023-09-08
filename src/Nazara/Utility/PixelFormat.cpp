@@ -95,9 +95,9 @@ namespace Nz
 					   (static_cast<UInt16>(0x1F) << 1)  |
 					   ((*start > 0xF) ? 1 : 0); // > 128
 
-				#ifdef NAZARA_BIG_ENDIAN
-				SwapBytes(ptr, sizeof(UInt16));
-				#endif
+#ifdef NAZARA_BIG_ENDIAN
+				*ptr = ByteSwap(*ptr);
+#endif
 
 				ptr++;
 				start += 1;
@@ -114,9 +114,9 @@ namespace Nz
 			{
 				*ptr = 0xFFF0 | c8to4(*start);
 
-				#ifdef NAZARA_BIG_ENDIAN
-				SwapBytes(ptr, sizeof(UInt16));
-				#endif
+#ifdef NAZARA_BIG_ENDIAN
+				*ptr = ByteSwap(*ptr);
+#endif
 
 				ptr++;
 				start += 1;
@@ -205,9 +205,9 @@ namespace Nz
 					   (static_cast<UInt16>(c8to5(start[0])) << 1)  |
 					   0x1;
 
-				#ifdef NAZARA_BIG_ENDIAN
-				SwapBytes(ptr, sizeof(UInt16));
-				#endif
+#ifdef NAZARA_BIG_ENDIAN
+				*ptr = ByteSwap(*ptr);
+#endif
 
 				ptr++;
 				start += 3;
@@ -242,9 +242,9 @@ namespace Nz
 					   (static_cast<UInt16>(c8to4(start[0])) << 4)  |
 					   0x0F;
 
-				#ifdef NAZARA_BIG_ENDIAN
-				SwapBytes(ptr, sizeof(UInt16));
-				#endif
+#ifdef NAZARA_BIG_ENDIAN
+				*ptr = ByteSwap(*ptr);
+#endif
 
 				ptr++;
 				start += 3;
@@ -362,9 +362,9 @@ namespace Nz
 					   (static_cast<UInt16>(c8to4(start[0])) << 4)  |
 					   (static_cast<UInt16>(c8to4(start[3])) << 0);
 
-				#ifdef NAZARA_BIG_ENDIAN
-				SwapBytes(ptr, sizeof(UInt16));
-				#endif
+#ifdef NAZARA_BIG_ENDIAN
+				*ptr = ByteSwap(*ptr);
+#endif
 
 				ptr++;
 				start += 4;
@@ -384,9 +384,9 @@ namespace Nz
 					   (static_cast<UInt16>(c8to5(start[0])) << 1)  |
 					   ((start[3] > 0xF) ? 1 : 0); // > 128
 
-				#ifdef NAZARA_BIG_ENDIAN
-				SwapBytes(ptr, sizeof(UInt16));
-				#endif
+#ifdef NAZARA_BIG_ENDIAN
+				*ptr = ByteSwap(*ptr);
+#endif
 
 				ptr++;
 				start += 4;
@@ -502,9 +502,9 @@ namespace Nz
 					   (l << 1)  |
 					   1;
 
-				#ifdef NAZARA_BIG_ENDIAN
-				SwapBytes(ptr, sizeof(UInt16));
-				#endif
+#ifdef NAZARA_BIG_ENDIAN
+				*ptr = ByteSwap(*ptr);
+#endif
 
 				ptr++;
 				start += 1;
@@ -541,9 +541,9 @@ namespace Nz
 					   (l << 4)  |
 					   0x0F;
 
-				#ifdef NAZARA_BIG_ENDIAN
-				SwapBytes(ptr, sizeof(UInt16));
-				#endif
+#ifdef NAZARA_BIG_ENDIAN
+				*ptr = ByteSwap(*ptr);
+#endif
 
 				ptr++;
 				start += 1;
@@ -653,9 +653,9 @@ namespace Nz
 
 				*ptr = (l << 11) | (l << 6) | (l << 1) | ((start[1] > 0xF) ? 1 : 0);
 
-				#ifdef NAZARA_BIG_ENDIAN
-				SwapBytes(ptr, sizeof(UInt16));
-				#endif
+#ifdef NAZARA_BIG_ENDIAN
+				*ptr = ByteSwap(*ptr);
+#endif
 
 				ptr++;
 				start += 2;
@@ -689,9 +689,9 @@ namespace Nz
 
 				*ptr = (l << 12) | (l << 8) | (l << 4) | c8to4(SafeCast<UInt8>(start[1]));
 
-				#ifdef NAZARA_BIG_ENDIAN
-				SwapBytes(ptr, sizeof(UInt16));
-				#endif
+#ifdef NAZARA_BIG_ENDIAN
+				*ptr = ByteSwap(*ptr);
+#endif
 
 				ptr++;
 				start += 2;
@@ -741,9 +741,9 @@ namespace Nz
 			{
 				UInt16 pixel = *reinterpret_cast<const UInt16*>(start);
 
-				#ifdef NAZARA_BIG_ENDIAN
-				SwapBytes(&pixel, sizeof(UInt16));
-				#endif
+#ifdef NAZARA_BIG_ENDIAN
+				pixel = ByteSwap(pixel);
+#endif
 
 				*dst++ = c4to8(SafeCast<UInt8>(pixel & 0x000F));
 
@@ -760,9 +760,9 @@ namespace Nz
 			{
 				UInt16 pixel = *reinterpret_cast<const UInt16*>(start);
 
-				#ifdef NAZARA_BIG_ENDIAN
-				SwapBytes(&pixel, sizeof(UInt16));
-				#endif
+#ifdef NAZARA_BIG_ENDIAN
+				pixel = ByteSwap(pixel);
+#endif
 
 				*dst++ = c4to8(SafeCast<UInt8>((pixel & 0x00F0) >> 4));
 				*dst++ = c4to8(SafeCast<UInt8>((pixel & 0x0F00) >> 8));
@@ -781,9 +781,9 @@ namespace Nz
 			{
 				UInt16 pixel = *reinterpret_cast<const UInt16*>(start);
 
-				#ifdef NAZARA_BIG_ENDIAN
-				SwapBytes(&pixel, sizeof(UInt16));
-				#endif
+#ifdef NAZARA_BIG_ENDIAN
+				pixel = ByteSwap(pixel);
+#endif
 
 				*dst++ = c4to8(SafeCast<UInt8>((pixel & 0x00F0) >> 4));
 				*dst++ = c4to8(SafeCast<UInt8>((pixel & 0x0F00) >> 8));
@@ -803,9 +803,9 @@ namespace Nz
 			{
 				UInt16 pixel = *reinterpret_cast<const UInt16*>(start);
 
-				#ifdef NAZARA_BIG_ENDIAN
-				SwapBytes(&pixel, sizeof(UInt16));
-				#endif
+#ifdef NAZARA_BIG_ENDIAN
+				pixel = ByteSwap(pixel);
+#endif
 
 				UInt16 r = c4to8(SafeCast<UInt8>((pixel & 0xF000) >> 12));
 				UInt16 g = c4to8(SafeCast<UInt8>((pixel & 0x0F00) >> 8));
@@ -826,9 +826,9 @@ namespace Nz
 			{
 				UInt16 pixel = *reinterpret_cast<const UInt16*>(start);
 
-				#ifdef NAZARA_BIG_ENDIAN
-				SwapBytes(&pixel, sizeof(UInt16));
-				#endif
+#ifdef NAZARA_BIG_ENDIAN
+				pixel = ByteSwap(pixel);
+#endif
 
 				UInt16 r = c4to8(SafeCast<UInt8>((pixel & 0xF000) >> 12));
 				UInt16 g = c4to8(SafeCast<UInt8>((pixel & 0x0F00) >> 8));
@@ -851,9 +851,9 @@ namespace Nz
 			{
 				UInt16 pixel = *reinterpret_cast<const UInt16*>(start);
 
-				#ifdef NAZARA_BIG_ENDIAN
-				SwapBytes(&pixel, sizeof(UInt16));
-				#endif
+#ifdef NAZARA_BIG_ENDIAN
+				pixel = ByteSwap(pixel);
+#endif
 
 				UInt16 r = c4to5(SafeCast<UInt8>((pixel & 0xF000) >> 12));
 				UInt16 g = c4to5(SafeCast<UInt8>((pixel & 0x0F00) >> 8));
@@ -862,9 +862,9 @@ namespace Nz
 
 				*ptr = (r << 11) | (g << 6) | (b << 1) | ((a > 0x3) ? 1 : 0);
 
-				#ifdef NAZARA_BIG_ENDIAN
-				SwapBytes(ptr, sizeof(UInt16));
-				#endif
+#ifdef NAZARA_BIG_ENDIAN
+				*ptr = ByteSwap(*ptr);
+#endif
 
 				ptr++;
 				start += 2;
@@ -880,9 +880,9 @@ namespace Nz
 			{
 				UInt16 pixel = *reinterpret_cast<const UInt16*>(start);
 
-				#ifdef NAZARA_BIG_ENDIAN
-				SwapBytes(&pixel, sizeof(UInt16));
-				#endif
+#ifdef NAZARA_BIG_ENDIAN
+				pixel = ByteSwap(pixel);
+#endif
 
 				*dst++ = c4to8(SafeCast<UInt8>((pixel & 0xF000) >> 12));
 				*dst++ = c4to8(SafeCast<UInt8>((pixel & 0x0F00) >> 8));
@@ -901,9 +901,9 @@ namespace Nz
 			{
 				UInt16 pixel = *reinterpret_cast<const UInt16*>(start);
 
-				#ifdef NAZARA_BIG_ENDIAN
-				SwapBytes(&pixel, sizeof(UInt16));
-				#endif
+#ifdef NAZARA_BIG_ENDIAN
+				pixel = ByteSwap(pixel);
+#endif
 
 				*dst++ = c4to8(SafeCast<UInt8>((pixel & 0xF000) >> 12));
 				*dst++ = c4to8(SafeCast<UInt8>((pixel & 0x0F00) >> 8));
@@ -924,9 +924,9 @@ namespace Nz
 			{
 				UInt16 pixel = *reinterpret_cast<const UInt16*>(start);
 
-				#ifdef NAZARA_BIG_ENDIAN
-				SwapBytes(&pixel, sizeof(UInt16));
-				#endif
+#ifdef NAZARA_BIG_ENDIAN
+				pixel = ByteSwap(pixel);
+#endif
 
 				*dst++ = SafeCast<UInt8>((pixel & 0x1) * 0xFF);
 
@@ -943,9 +943,9 @@ namespace Nz
 			{
 				UInt16 pixel = *reinterpret_cast<const UInt16*>(start);
 
-				#ifdef NAZARA_BIG_ENDIAN
-				SwapBytes(&pixel, sizeof(UInt16));
-				#endif
+#ifdef NAZARA_BIG_ENDIAN
+				pixel = ByteSwap(pixel);
+#endif
 
 				*dst++ = c5to8(SafeCast<UInt8>((pixel & 0x003E) >> 1));
 				*dst++ = c5to8(SafeCast<UInt8>((pixel & 0x07C0) >> 6));
@@ -964,9 +964,9 @@ namespace Nz
 			{
 				UInt16 pixel = *reinterpret_cast<const UInt16*>(start);
 
-				#ifdef NAZARA_BIG_ENDIAN
-				SwapBytes(&pixel, sizeof(UInt16));
-				#endif
+#ifdef NAZARA_BIG_ENDIAN
+				pixel = ByteSwap(pixel);
+#endif
 
 				*dst++ = c5to8(SafeCast<UInt8>((pixel & 0x003E) >> 1));
 				*dst++ = c5to8(SafeCast<UInt8>((pixel & 0x07C0) >> 6));
@@ -986,9 +986,9 @@ namespace Nz
 			{
 				UInt16 pixel = *reinterpret_cast<const UInt16*>(start);
 
-				#ifdef NAZARA_BIG_ENDIAN
-				SwapBytes(&pixel, sizeof(UInt16));
-				#endif
+#ifdef NAZARA_BIG_ENDIAN
+				pixel = ByteSwap(pixel);
+#endif
 
 				UInt8 r = c5to8(SafeCast<UInt8>((pixel & 0xF800) >> 11));
 				UInt8 g = c5to8(SafeCast<UInt8>((pixel & 0x07C0) >> 6));
@@ -1009,9 +1009,9 @@ namespace Nz
 			{
 				UInt16 pixel = *reinterpret_cast<const UInt16*>(start);
 
-				#ifdef NAZARA_BIG_ENDIAN
-				SwapBytes(&pixel, sizeof(UInt16));
-				#endif
+#ifdef NAZARA_BIG_ENDIAN
+				pixel = ByteSwap(pixel);
+#endif
 
 				UInt8 r = c5to8(SafeCast<UInt8>((pixel & 0xF800) >> 11));
 				UInt8 g = c5to8(SafeCast<UInt8>((pixel & 0x07C0) >> 6));
@@ -1033,9 +1033,9 @@ namespace Nz
 			{
 				UInt16 pixel = *reinterpret_cast<const UInt16*>(start);
 
-				#ifdef NAZARA_BIG_ENDIAN
-				SwapBytes(&pixel, sizeof(UInt16));
-				#endif
+#ifdef NAZARA_BIG_ENDIAN
+				pixel = ByteSwap(pixel);
+#endif
 
 				*dst++ = c5to8(SafeCast<UInt8>((pixel & 0xF800) >> 11));
 				*dst++ = c5to8(SafeCast<UInt8>((pixel & 0x07C0) >> 6));
@@ -1055,9 +1055,9 @@ namespace Nz
 			{
 				UInt16 pixel = *reinterpret_cast<const UInt16*>(start);
 
-				#ifdef NAZARA_BIG_ENDIAN
-				SwapBytes(&pixel, sizeof(UInt16));
-				#endif
+#ifdef NAZARA_BIG_ENDIAN
+				pixel = ByteSwap(pixel);
+#endif
 
 				UInt8 r = c5to4(SafeCast<UInt8>((pixel & 0xF800) >> 11));
 				UInt8 g = c5to4(SafeCast<UInt8>((pixel & 0x07C0) >> 6));
@@ -1065,9 +1065,9 @@ namespace Nz
 
 				*ptr = (r << 12) | (g << 8) | (b << 4) | ((pixel & 0x1)*0x0F);
 
-				#ifdef NAZARA_BIG_ENDIAN
-				SwapBytes(ptr, sizeof(UInt16));
-				#endif
+#ifdef NAZARA_BIG_ENDIAN
+				*ptr = ByteSwap(*ptr);
+#endif
 
 				ptr++;
 				start += 2;
@@ -1083,9 +1083,9 @@ namespace Nz
 			{
 				UInt16 pixel = *reinterpret_cast<const UInt16*>(start);
 
-				#ifdef NAZARA_BIG_ENDIAN
-				SwapBytes(&pixel, sizeof(UInt16));
-				#endif
+#ifdef NAZARA_BIG_ENDIAN
+				pixel = ByteSwap(pixel);
+#endif
 
 				*dst++ = c5to8(SafeCast<UInt8>((pixel & 0xF800) >> 11));
 				*dst++ = c5to8(SafeCast<UInt8>((pixel & 0x07C0) >> 6));
@@ -1168,9 +1168,9 @@ namespace Nz
 					   (static_cast<UInt16>(c8to5(start[2])) << 1)  |
 					   0x1;
 
-				#ifdef NAZARA_BIG_ENDIAN
-				SwapBytes(ptr, sizeof(UInt16));
-				#endif
+#ifdef NAZARA_BIG_ENDIAN
+				*ptr = ByteSwap(*ptr);
+#endif
 
 				ptr++;
 				start += 3;
@@ -1190,9 +1190,9 @@ namespace Nz
 					   (static_cast<UInt16>(c8to4(start[2])) << 4)  |
 					   0x0F;
 
-				#ifdef NAZARA_BIG_ENDIAN
-				SwapBytes(ptr, sizeof(UInt16));
-				#endif
+#ifdef NAZARA_BIG_ENDIAN
+				*ptr = ByteSwap(*ptr);
+#endif
 
 				ptr++;
 				start += 3;
@@ -1326,9 +1326,9 @@ namespace Nz
 					   (static_cast<UInt16>(c8to5(start[2])) << 1)  |
 					   ((start[3] > 0xF) ? 1 : 0); // > 128
 
-				#ifdef NAZARA_BIG_ENDIAN
-				SwapBytes(ptr, sizeof(UInt16));
-				#endif
+#ifdef NAZARA_BIG_ENDIAN
+				*ptr = ByteSwap(*ptr);
+#endif
 
 				ptr++;
 				start += 4;
@@ -1363,9 +1363,9 @@ namespace Nz
 					   (static_cast<UInt16>(c8to4(start[2])) << 4)  |
 					   (static_cast<UInt16>(c8to4(start[3])) << 0);
 
-				#ifdef NAZARA_BIG_ENDIAN
-				SwapBytes(ptr, sizeof(UInt16));
-				#endif
+#ifdef NAZARA_BIG_ENDIAN
+				*ptr = ByteSwap(*ptr);
+#endif
 
 				ptr++;
 				start += 4;

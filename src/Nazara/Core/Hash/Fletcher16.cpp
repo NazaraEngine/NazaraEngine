@@ -40,9 +40,9 @@ namespace Nz
 
 		UInt16 fletcher = (m_sum2 << 8) | m_sum1;
 
-		#ifdef NAZARA_LITTLE_ENDIAN
-		fletcher = SwapBytes(fletcher);
-		#endif
+#ifdef NAZARA_BIG_ENDIAN
+		fletcher = ByteSwap(fletcher);
+#endif
 
 		return ByteArray(reinterpret_cast<UInt8*>(&fletcher), 2);
 	}

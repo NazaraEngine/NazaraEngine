@@ -129,7 +129,7 @@ namespace Nz
 		context.FlushBits();
 
 		if (context.endianness != Endianness::Unknown && context.endianness != GetPlatformEndianness())
-			SwapBytes(&value, sizeof(T));
+			value = ByteSwap(value);
 
 		return context.stream->Write(&value, sizeof(T)) == sizeof(T);
 	}
@@ -208,7 +208,7 @@ namespace Nz
 		if (context.stream->Read(value, sizeof(T)) == sizeof(T))
 		{
 			if (context.endianness != Endianness::Unknown && context.endianness != GetPlatformEndianness())
-				SwapBytes(value, sizeof(T));
+				*value = ByteSwap(*value);
 
 			return true;
 		}

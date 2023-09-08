@@ -135,7 +135,7 @@ namespace Nz
 
 		for (const Layer& layer : m_layers)
 		{
-			for (std::size_t tileIndex = layer.enabledTiles.FindFirst(); tileIndex != layer.enabledTiles.npos; tileIndex = layer.enabledTiles.FindNext(tileIndex))
+			for (std::size_t tileIndex : layer.enabledTiles.IterBits())
 			{
 				const Tile& tile = m_tiles[tileIndex];
 

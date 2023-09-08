@@ -54,20 +54,20 @@ namespace Nz
 			if (header.manufacturer != 0x0a)
 				return Err(ResourceLoadingError::Unrecognized);
 
-			#ifdef NAZARA_BIG_ENDIAN
-			// Les fichiers PCX sont en little endian
-			SwapBytes(&header.xmin, sizeof(UInt16));
-			SwapBytes(&header.ymin, sizeof(UInt16));
-			SwapBytes(&header.xmax, sizeof(UInt16));
-			SwapBytes(&header.ymax, sizeof(UInt16));
-			SwapBytes(&header.horzRes, sizeof(UInt16));
-			SwapBytes(&header.vertRes, sizeof(UInt16));
+#ifdef NAZARA_BIG_ENDIAN
+			// PCX files are little-endian
+			header.xmin = ByteSwap(header.xmin);
+			header.ymin = ByteSwap(header.ymin);
+			header.xmax = ByteSwap(header.xmax);
+			header.ymax = ByteSwap(header.ymax);
+			header.horzRes = ByteSwap(header.horzRes);
+			header.vertRes = ByteSwap(header.vertRes);
 
-			SwapBytes(&header.bytesPerScanLine, sizeof(UInt16));
-			SwapBytes(&header.paletteType, sizeof(UInt16));
-			SwapBytes(&header.horzSize, sizeof(UInt16));
-			SwapBytes(&header.vertSize, sizeof(UInt16));
-			#endif
+			header.bytesPerScanLine = ByteSwap(header.bytesPerScanLine);
+			header.paletteType = ByteSwap(header.paletteType);
+			header.horzSize = ByteSwap(header.horzSize);
+			header.vertSize = ByteSwap(header.vertSize);
+#endif
 
 			unsigned int bitCount = header.bitsPerPixel * header.numColorPlanes;
 			unsigned int width = header.xmax - header.xmin+1;

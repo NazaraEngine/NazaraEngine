@@ -93,10 +93,9 @@ namespace Nz
 
 	ByteArray CRC64Hasher::End()
 	{
-		#ifdef NAZARA_LITTLE_ENDIAN
-		SwapBytes(&m_crc, sizeof(UInt64));
-		#endif
-
+#ifdef NAZARA_BIG_ENDIAN
+		m_crc = ByteSwap(m_crc);
+#endif
 		return ByteArray(reinterpret_cast<UInt8*>(&m_crc), 8);
 	}
 

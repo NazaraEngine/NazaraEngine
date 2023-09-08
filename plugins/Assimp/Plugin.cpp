@@ -369,7 +369,7 @@ Nz::Result<std::shared_ptr<Nz::Animation>, Nz::ResourceLoadingError> LoadAnimati
 		}
 	}
 
-	for (std::size_t jointIndex = identityJoints.FindFirst(); jointIndex != identityJoints.npos; jointIndex = identityJoints.FindNext(jointIndex))
+	for (std::size_t jointIndex : identityJoints.IterBits())
 	{
 		const Nz::Joint* joint = parameters.skeleton->GetJoint(jointIndex);
 
