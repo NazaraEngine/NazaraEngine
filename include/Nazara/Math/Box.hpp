@@ -84,7 +84,7 @@ namespace Nz
 			constexpr bool operator!=(const Box& box) const;
 
 			static constexpr Box ApproxEqual(const Box& lhs, const Box& rhs, T maxDifference = std::numeric_limits<T>::epsilon());
-			static constexpr Box FromExtends(const Vector3<T>& vec1, const Vector3<T>& vec2);
+			static constexpr Box FromExtents(const Vector3<T>& vec1, const Vector3<T>& vec2);
 			static constexpr Box Lerp(const Box& from, const Box& to, T interpolation);
 			static constexpr Box Invalid();
 			static constexpr Box Zero();

@@ -134,7 +134,7 @@ namespace Nz
 					if (aabb)
 					{
 						Vector3f halfSize = radius * m_matrix.GetScale() * 0.5f;
-						*aabb = Boxf::FromExtends(-halfSize, halfSize);
+						*aabb = Boxf::FromExtents(-halfSize, halfSize);
 					}
 				}
 
@@ -850,7 +850,7 @@ namespace Nz
 
 		if (aabb)
 		{
-			*aabb = Boxf::FromExtends(-halfLengths, halfLengths);
+			*aabb = Boxf::FromExtents(-halfLengths, halfLengths);
 			aabb->Transform(matrix, false);
 		}
 	}
@@ -915,7 +915,7 @@ namespace Nz
 		if (aabb)
 		{
 			Vector3f halfSize = size * matrix.GetScale() * 0.5f;
-			*aabb = Boxf::FromExtends(-halfSize, halfSize);
+			*aabb = Boxf::FromExtents(-halfSize, halfSize);
 		}
 
 		for (unsigned int i = 0; i < vertexCount; ++i)
@@ -995,7 +995,7 @@ namespace Nz
 		}
 
 		if (aabb)
-			*aabb = Boxf::FromExtends(matrix.Transform(Vector3f(-halfSizeX, 0.f, -halfSizeY), 0.f), matrix.Transform(Vector3f(halfSizeX, 0.f, halfSizeY), 0.f));
+			*aabb = Boxf::FromExtents(matrix.Transform(Vector3f(-halfSizeX, 0.f, -halfSizeY), 0.f), matrix.Transform(Vector3f(halfSizeX, 0.f, halfSizeY), 0.f));
 	}
 
 	void GenerateUvSphere(float radius, unsigned int sliceCount, unsigned int stackCount, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb, UInt32 indexOffset)
@@ -1048,7 +1048,7 @@ namespace Nz
 		if (aabb)
 		{
 			Vector3f halfSize = radius * matrix.GetScale();
-			*aabb = Boxf::FromExtends(-halfSize, halfSize);
+			*aabb = Boxf::FromExtents(-halfSize, halfSize);
 		}
 	}
 

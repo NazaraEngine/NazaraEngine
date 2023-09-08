@@ -257,7 +257,7 @@ namespace Nz
 			min.Minimize(corners[static_cast<BoxCorner>(i)]);
 		}
 
-		return Box<T>::FromExtends(min, max);
+		return Box<T>::FromExtents(min, max);
 	}
 
 	/*!

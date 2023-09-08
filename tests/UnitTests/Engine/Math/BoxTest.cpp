@@ -161,7 +161,7 @@ SCENARIO("Box", "[MATH][BOX]")
 					CHECK(secondWrongBox.Contains(0.f, 0.f, 0.f));
 
 					secondWrongBox = Nz::Boxf::Lerp(Nz::Boxf::Zero(), secondWrongBox, 0.f); // Zeroed
-					secondWrongBox.ExtendTo(Nz::Boxf::FromExtends(Nz::Vector3f(0.1f, 0.1f, 0.1f), Nz::Vector3f(0.9f, 0.9f, 0.9f)));
+					secondWrongBox.ExtendTo(Nz::Boxf::FromExtents(Nz::Vector3f(0.1f, 0.1f, 0.1f), Nz::Vector3f(0.9f, 0.9f, 0.9f)));
 					secondWrongBox.Translate(Nz::Vector3f(0.05f, 0.05f, 0.05f)); // Box 0.15 to 0.95
 					CHECK(firstWrongBox.Contains(secondWrongBox));
 

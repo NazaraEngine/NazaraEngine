@@ -610,7 +610,7 @@ namespace Nz
 		                    std::abs(matrix(0,1)) * halfSize.x + std::abs(matrix(1,1)) * halfSize.y + std::abs(matrix(2,1)) * halfSize.z,
 		                    std::abs(matrix(0,2)) * halfSize.x + std::abs(matrix(1,2)) * halfSize.y + std::abs(matrix(2,2)) * halfSize.z);
 
-		return operator=(Boxf::FromExtends(center - halfSize, center + halfSize));
+		return operator=(Boxf::FromExtents(center - halfSize, center + halfSize));
 	}
 
 	/*!
@@ -692,7 +692,7 @@ namespace Nz
 	}
 
 	template<typename T>
-	constexpr Box<T> Box<T>::FromExtends(const Vector3<T>& vec1, const Vector3<T>& vec2)
+	constexpr Box<T> Box<T>::FromExtents(const Vector3<T>& vec1, const Vector3<T>& vec2)
 	{
 		Box box;
 		box.x = std::min(vec1.x, vec2.x);

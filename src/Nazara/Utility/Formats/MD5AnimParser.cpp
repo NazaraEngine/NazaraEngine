@@ -328,7 +328,7 @@ namespace Nz
 				return false;
 			}
 
-			m_frames[i].bounds = Boxf::FromExtends(min, max);
+			m_frames[i].bounds = Boxf::FromExtents(min, max);
 		}
 
 		if (!Advance())

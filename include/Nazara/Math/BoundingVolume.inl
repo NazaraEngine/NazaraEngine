@@ -217,7 +217,7 @@ namespace Nz
 	{
 		obb.Update(transformMatrix);
 
-		aabb = Box<T>::FromExtends(obb(0), obb(1));
+		aabb = Box<T>::FromExtents(obb(0), obb(1));
 		for (unsigned int i = 2; i < 8; ++i)
 			aabb.ExtendTo(obb(i));
 	}
@@ -232,7 +232,7 @@ namespace Nz
 	{
 		obb.Update(translation);
 
-		aabb = Box<T>::FromExtends(obb(0), obb(1));
+		aabb = Box<T>::FromExtents(obb(0), obb(1));
 		for (unsigned int i = 2; i < 8; ++i)
 			aabb.ExtendTo(obb(i));
 	}
