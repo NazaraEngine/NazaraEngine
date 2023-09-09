@@ -243,6 +243,8 @@ namespace Nz
 		std::size_t distanceShadowPassIndex = m_materialPassRegistry.GetPassIndex("DistanceShadowPass");
 		std::size_t forwardPassIndex = m_materialPassRegistry.GetPassIndex("ForwardPass");
 
+		const auto& enabledFeatures = m_renderDevice->GetEnabledFeatures();
+
 		// BasicMaterial
 		{
 			MaterialSettings settings;
@@ -258,6 +260,7 @@ namespace Nz
 			settings.AddPass(depthPassIndex, depthPass);
 
 			MaterialPass shadowPass = depthPass;
+			shadowPass.states.depthClamp = enabledFeatures.depthClamping;
 			settings.AddPass(shadowPassIndex, shadowPass);
 
 			MaterialPass distanceShadowPass = shadowPass;
@@ -283,6 +286,7 @@ namespace Nz
 			settings.AddPass(depthPassIndex, depthPass);
 
 			MaterialPass shadowPass = depthPass;
+			shadowPass.states.depthClamp = enabledFeatures.depthClamping;
 			settings.AddPass(shadowPassIndex, shadowPass);
 
 			MaterialPass distanceShadowPass = shadowPass;
@@ -308,6 +312,7 @@ namespace Nz
 			settings.AddPass(depthPassIndex, depthPass);
 
 			MaterialPass shadowPass = depthPass;
+			shadowPass.states.depthClamp = enabledFeatures.depthClamping;
 			settings.AddPass(shadowPassIndex, shadowPass);
 
 			MaterialPass distanceShadowPass = shadowPass;
