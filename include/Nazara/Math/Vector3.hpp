@@ -92,6 +92,7 @@ namespace Nz
 			constexpr bool operator>(const Vector3& vec) const;
 			constexpr bool operator>=(const Vector3& vec) const;
 
+			static constexpr Vector3 Apply(T(*func)(T), const Vector3& vec);
 			static constexpr bool ApproxEqual(const Vector3& lhs, const Vector3& rhs, T maxDifference = std::numeric_limits<T>::epsilon());
 			static constexpr Vector3 Backward();
 			static constexpr Vector3 Clamp(const Vector3& vec, const Vector3& min, const Vector3& max);

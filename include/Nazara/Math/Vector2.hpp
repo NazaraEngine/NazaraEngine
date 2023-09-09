@@ -88,6 +88,7 @@ namespace Nz
 			constexpr bool operator>(const Vector2& vec) const;
 			constexpr bool operator>=(const Vector2& vec) const;
 
+			static constexpr Vector2 Apply(T(*func)(T), const Vector2& vec);
 			static constexpr bool ApproxEqual(const Vector2& lhs, const Vector2& rhs, T maxDifference = std::numeric_limits<T>::epsilon());
 			template<typename U = T> static U Distance(const Vector2& vec1, const Vector2& vec2);
 			static constexpr T DotProduct(const Vector2& vec1, const Vector2& vec2);

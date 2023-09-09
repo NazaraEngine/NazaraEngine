@@ -689,6 +689,12 @@ namespace Nz
 	}
 
 	template<typename T>
+	constexpr Vector3<T> Vector3<T>::Apply(T(*func)(T), const Vector3& vec)
+	{
+		return Vector3(func(vec.x), func(vec.y), func(vec.z));
+	}
+
+	template<typename T>
 	constexpr bool Vector3<T>::ApproxEqual(const Vector3& lhs, const Vector3& rhs, T maxDifference)
 	{
 		return lhs.ApproxEqual(rhs, maxDifference);
