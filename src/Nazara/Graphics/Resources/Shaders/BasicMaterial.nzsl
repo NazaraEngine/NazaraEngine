@@ -8,6 +8,7 @@ import SkinLinearPosition from Engine.SkinningLinear;
 
 // Pass-specific options
 option DepthPass: bool = false;
+option DistanceDepth: bool = false;
 
 // Material options
 option HasBaseColorTexture: bool = false;
@@ -62,20 +63,22 @@ external
 	[tag("SkeletalData")] skeletalData: uniform[SkeletalData]
 }
 
-// Fragment stage
-struct FragIn
+struct VertToFrag
 {
-	[location(0), cond(HasUV)] uv: vec2[f32],
-	[location(1), cond(HasColor)] color: vec4[f32]
+	[location(0)] worldPos: vec3[f32],
+	[location(1), cond(HasUV)] uv: vec2[f32],
+	[location(2), cond(HasColor)] color: vec4[f32],
+	[builtin(position)] position: vec4[f32]
 }
 
+// Fragment stage
 struct FragOut
 {
-	[location(0)] RenderTarget0: vec4[f32]
+	[location(0)] RenderTarget0: vec4[f32],
+	[builtin(frag_depth), cond(DistanceDepth)] fragdepth: f32
 }
 
-[entry(frag), cond(!DepthPass || AlphaTest)]
-fn main(input: FragIn) -> FragOut
+fn ComputeColor(input: VertToFrag) -> vec4[f32]
 {
 	let color = settings.BaseColor;
 
@@ -85,12 +88,19 @@ fn main(input: FragIn) -> FragOut
 	const if (HasColor)
 		color *= input.color;
 
-	const if (HasUV && HasBaseColorTexture)
+	const if (HasBaseColorTexture)
 		color *= MaterialBaseColorMap.Sample(input.uv);
 
-	const if (HasUV && HasAlphaTexture)
+	const if (HasAlphaTexture)
 		color.w *= MaterialAlphaMap.Sample(input.uv).x;
 
+	return color;
+}
+
+[entry(frag), cond(!DepthPass || AlphaTest)]
+fn main(input: VertToFrag) -> FragOut
+{
+	let color = ComputeColor(input);
 	const if (AlphaTest)
 	{
 		if (color.w < settings.AlphaThreshold)
@@ -102,9 +112,41 @@ fn main(input: FragIn) -> FragOut
 	return output;
 }
 
-// Dummy fragment shader (TODO: Add a way to delete stage?)
-[entry(frag), cond(DepthPass && !AlphaTest)]
-fn main() {}
+// Shadow passes entries
+[entry(frag), cond(DepthPass && DistanceDepth)]
+[depth_write(replace)]
+fn main(input: VertToFrag) -> FragOut
+{
+	let color = ComputeColor(input);
+	const if (AlphaTest)
+	{
+		if (color.w < settings.AlphaThreshold)
+			discard;
+	}
+
+	let output: FragOut;
+	output.RenderTarget0 = color;
+
+	let dist = distance(viewerData.eyePosition, input.worldPos);
+	output.fragdepth = dist / viewerData.farPlane;
+
+	return output;
+}
+
+[entry(frag), cond(DepthPass && AlphaTest && !DistanceDepth)]
+fn main(input: VertToFrag) -> FragOut
+{
+	let color = ComputeColor(input);
+	if (color.w < settings.AlphaThreshold)
+		discard;
+
+	let output: FragOut;
+	output.RenderTarget0 = color;
+	return output;
+}
+
+[entry(frag), cond(DepthPass && !AlphaTest && !DistanceDepth)]
+fn main() {} //< dummy
 
 // Vertex stage
 struct VertIn
@@ -134,15 +176,8 @@ struct VertIn
 	billboardColor: vec4[f32]
 }
 
-struct VertOut
-{
-	[location(0), cond(HasUV)] uv: vec2[f32],
-	[location(1), cond(HasColor)] color: vec4[f32],
-	[builtin(position)] position: vec4[f32]
-}
-
 [entry(vert), cond(Billboard)]
-fn billboardMain(input: VertIn) -> VertOut
+fn billboardMain(input: VertIn) -> VertToFrag
 {
 	let size = input.billboardSizeRot.xy;
 	let sinCos = input.billboardSizeRot.zw;
@@ -160,8 +195,11 @@ fn billboardMain(input: VertIn) -> VertOut
 	vertexPos += cameraRight * rotatedPosition.x;
 	vertexPos += cameraUp * rotatedPosition.y;
 
-	let output: VertOut;
-	output.position = viewerData.viewProjMatrix * instanceData.worldMatrix * vec4[f32](vertexPos, 1.0);
+	let worldPosition = instanceData.worldMatrix * vec4[f32](vertexPos, 1.0);
+
+	let output: VertToFrag;
+	output.worldPos = worldPosition.xyz;
+	output.position = viewerData.viewProjMatrix * worldPosition;
 	
 	const if (HasColor)
 		output.color = input.billboardColor;
@@ -173,7 +211,7 @@ fn billboardMain(input: VertIn) -> VertOut
 }
 
 [entry(vert), cond(!Billboard)]
-fn main(input: VertIn) -> VertOut
+fn main(input: VertIn) -> VertToFrag
 {
 	let pos: vec3[f32];
 
@@ -194,7 +232,8 @@ fn main(input: VertIn) -> VertOut
 
 	let worldPosition = instanceData.worldMatrix * vec4[f32](pos, 1.0);
 
-	let output: VertOut;
+	let output: VertToFrag;
+	output.worldPos = worldPosition.xyz;
 	output.position = viewerData.viewProjMatrix * worldPosition;
 
 	const if (HasColor)
