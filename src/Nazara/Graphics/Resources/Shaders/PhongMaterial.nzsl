@@ -212,13 +212,10 @@ fn main(input: VertToFrag) -> FragOut
 					let lightProjPos = light.viewProjMatrices[cascadeIndex] * vec4[f32](input.worldPos, 1.0);
 					let shadowCoords = lightProjPos.xyz / lightProjPos.w;
 
-
-
 					// calculate bias (based on depth map resolution and slope)
 					let bias = max(0.05 * (1.0 - lambert), 0.005);
 					bias *= 1.0 / (light.cascadeDistances[cascadeIndex] * 0.05);
 
-					//shadowFactor = shadowMapsDirectional[lightIndex].SampleDepthComp(vec3[f32](shadowCoords.xy, f32(cascadeIndex)), shadowCoords.z).r;
 					shadowFactor = 0.0;
 					[unroll]
 					for x in -1 -> 2
@@ -380,7 +377,7 @@ fn main(input: VertToFrag) -> FragOut
 	}
 
 	let output: FragOut;
-	output.RenderTarget0 = ComputeColor(input);
+	output.RenderTarget0 = color;
 
 	let dist = distance(viewerData.eyePosition, input.worldPos);
 	output.fragdepth = dist / viewerData.farPlane;
