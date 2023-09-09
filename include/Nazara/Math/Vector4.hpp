@@ -85,6 +85,7 @@ namespace Nz
 			constexpr bool operator>(const Vector4& vec) const;
 			constexpr bool operator>=(const Vector4& vec) const;
 
+			static constexpr Vector4 Apply(T(*func)(T), const Vector4& vec);
 			static constexpr bool ApproxEqual(const Vector4& lhs, const Vector4& rhs, T maxDifference = std::numeric_limits<T>::epsilon());
 			static constexpr T DotProduct(const Vector4& vec1, const Vector4& vec2);
 			static constexpr Vector4 Lerp(const Vector4& from, const Vector4& to, T interpolation);
