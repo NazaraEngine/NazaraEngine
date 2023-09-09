@@ -301,7 +301,7 @@ namespace Nz
 		m_transferSet.insert(&viewerInstance->GetViewerInstance());
 
 		UInt32 renderMask = viewerInstance->GetRenderMask();
-		for (std::size_t i = m_shadowCastingLights.FindFirst(); i != m_shadowCastingLights.npos; i = m_shadowCastingLights.FindNext(i))
+		for (std::size_t i : m_shadowCastingLights.IterBits())
 		{
 			LightData* lightData = m_lightPool.RetrieveFromIndex(i);
 			if (lightData->shadowData->IsPerViewer() && (renderMask & lightData->renderMask) != 0)
@@ -419,7 +419,7 @@ namespace Nz
 		m_visibleShadowCastingLights.PerformsAND(m_activeLights, m_shadowCastingLights);
 
 		// Shadow map handling (for active lights)
-		for (std::size_t i = m_visibleShadowCastingLights.FindFirst(); i != m_visibleShadowCastingLights.npos; i = m_visibleShadowCastingLights.FindNext(i))
+		for (std::size_t i : m_visibleShadowCastingLights.IterBits())
 		{
 			LightData* lightData = m_lightPool.RetrieveFromIndex(i);
 			if (!lightData->shadowData->IsPerViewer())
@@ -435,7 +435,7 @@ namespace Nz
 			UInt32 renderMask = viewerData.viewer->GetRenderMask();
 
 			// Per-viewer shadow map handling
-			for (std::size_t lightIndex = viewerData.frame.visibleLights.FindFirst(); lightIndex != viewerData.frame.visibleLights.npos; lightIndex = viewerData.frame.visibleLights.FindNext(lightIndex))
+			for (std::size_t lightIndex : viewerData.frame.visibleLights.IterBits())
 			{
 				LightData* lightData = m_lightPool.RetrieveFromIndex(lightIndex);
 				if (lightData->shadowData && lightData->shadowData->IsPerViewer() && (renderMask & lightData->renderMask) != 0)
@@ -606,7 +606,7 @@ namespace Nz
 		viewerData.pendingDestruction = true;
 
 		UInt32 renderMask = viewerData.viewer->GetRenderMask();
-		for (std::size_t i = m_shadowCastingLights.FindFirst(); i != m_shadowCastingLights.npos; i = m_shadowCastingLights.FindNext(i))
+		for (std::size_t i : m_shadowCastingLights.IterBits())
 		{
 			LightData* lightData = m_lightPool.RetrieveFromIndex(i);
 			if (lightData->shadowData->IsPerViewer() && (renderMask & lightData->renderMask) != 0)
@@ -710,7 +710,7 @@ namespace Nz
 				continue;
 
 			UInt32 renderMask = viewerData.viewer->GetRenderMask();
-			for (std::size_t i = m_shadowCastingLights.FindFirst(); i != m_shadowCastingLights.npos; i = m_shadowCastingLights.FindNext(i))
+			for (std::size_t i : m_shadowCastingLights.IterBits())
 			{
 				LightData* lightData = m_lightPool.RetrieveFromIndex(i);
 				if (lightData->shadowData->IsPerViewer() && (renderMask & lightData->renderMask) != 0)

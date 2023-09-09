@@ -307,7 +307,7 @@ namespace Nz
 		m_directionalLights.clear();
 		m_pointLights.clear();
 		m_spotLights.clear();
-		for (std::size_t lightIndex = visibleLights.FindFirst(); lightIndex != visibleLights.npos; lightIndex = visibleLights.FindNext(lightIndex))
+		for (std::size_t lightIndex : visibleLights.IterBits())
 		{
 			const Light* light = m_pipeline.RetrieveLight(lightIndex);
 
