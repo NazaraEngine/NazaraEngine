@@ -704,89 +704,95 @@ namespace Nz
 
 		std::vector<TextureLayout> textureLayouts(m_pending.textures.size(), TextureLayout::Undefined);
 
+		// Per-pass data (reuse memory)
+		std::optional<std::size_t> depthStencilAttachmentIndex;
+		std::size_t depthStencilAttachmentId;
+		std::unordered_map<std::size_t /*textureId*/, std::size_t /*attachmentIndex*/> usedTextureAttachments;
+		std::vector<RenderPass::Attachment> renderPassAttachments;
+		std::vector<RenderPass::SubpassDescription> subpassesDesc;
+		std::vector<RenderPass::SubpassDependency> subpassesDeps;
+
+		auto RegisterColorInputRead = [&](const FramePass::Input& input)
+		{
+			std::size_t textureId = Retrieve(m_pending.attachmentToTextures, input.attachmentId);
+
+			TextureLayout& textureLayout = textureLayouts[textureId];
+			if (!input.assumedLayout)
+			{
+				assert(textureLayouts[textureId] != TextureLayout::Undefined);
+				textureLayout = TextureLayout::ColorInput;
+			}
+			else
+				textureLayout = *input.assumedLayout;
+		};
+
+		auto RegisterColorOutput = [&](const FramePass::Output& output, bool shouldLoad)
+		{
+			std::size_t textureId = Retrieve(m_pending.attachmentToTextures, output.attachmentId);
+
+			TextureLayout initialLayout = textureLayouts[textureId];
+			textureLayouts[textureId] = TextureLayout::ColorOutput;
+
+			auto it = usedTextureAttachments.find(textureId);
+			if (it != usedTextureAttachments.end())
+				return it->second;
+
+			std::size_t attachmentIndex = renderPassAttachments.size();
+			auto& attachment = renderPassAttachments.emplace_back();
+			attachment.format = m_pending.textures[textureId].format;
+			attachment.initialLayout = initialLayout;
+			attachment.storeOp = AttachmentStoreOp::Store;
+			attachment.stencilLoadOp = AttachmentLoadOp::Discard;
+			attachment.stencilStoreOp = AttachmentStoreOp::Discard;
+
+			if (output.clearColor)
+				attachment.loadOp = AttachmentLoadOp::Clear;
+			else if (shouldLoad)
+				attachment.loadOp = AttachmentLoadOp::Load;
+			else
+				attachment.loadOp = AttachmentLoadOp::Discard;
+
+			usedTextureAttachments.emplace(textureId, attachmentIndex);
+			return attachmentIndex;
+		};
+
+		auto RegisterDepthStencil = [&](std::size_t attachmentId, TextureLayout textureLayout, bool* first) -> RenderPass::Attachment&
+		{
+			if (depthStencilAttachmentIndex)
+			{
+				assert(depthStencilAttachmentId == attachmentId);
+				*first = false;
+
+				return renderPassAttachments[depthStencilAttachmentIndex.value()];
+			}
+
+			*first = true;
+
+			std::size_t textureId = Retrieve(m_pending.attachmentToTextures, attachmentId);
+
+			TextureLayout initialLayout = textureLayouts[textureId];
+			textureLayouts[textureId] = textureLayout;
+
+			depthStencilAttachmentId = attachmentId;
+			depthStencilAttachmentIndex = renderPassAttachments.size();
+
+			usedTextureAttachments.emplace(textureId, *depthStencilAttachmentIndex);
+
+			auto& depthStencilAttachment = renderPassAttachments.emplace_back();
+			depthStencilAttachment.format = m_pending.textures[textureId].format;
+			depthStencilAttachment.initialLayout = initialLayout;
+
+			return depthStencilAttachment;
+		};
+
 		std::size_t physicalPassIndex = 0;
 		for (auto& physicalPass : m_pending.physicalPasses)
 		{
-			std::unordered_map<std::size_t /*textureId*/, std::size_t /*attachmentIndex*/> usedTextureAttachments;
-			std::size_t depthStencilAttachmentId;
-			std::optional<std::size_t> depthStencilAttachmentIndex;
-
-			std::vector<RenderPass::Attachment> renderPassAttachments;
-			std::vector<RenderPass::SubpassDescription> subpassesDesc;
-			std::vector<RenderPass::SubpassDependency> subpassesDeps;
-
-			auto RegisterColorInputRead = [&](const FramePass::Input& input)
-			{
-				std::size_t textureId = Retrieve(m_pending.attachmentToTextures, input.attachmentId);
-
-				TextureLayout& textureLayout = textureLayouts[textureId];
-				if (!input.assumedLayout)
-				{
-					assert(textureLayouts[textureId] != TextureLayout::Undefined);
-					textureLayout = TextureLayout::ColorInput;
-				}
-				else
-					textureLayout = *input.assumedLayout;
-			};
-
-			auto RegisterColorOutput = [&](const FramePass::Output& output, bool shouldLoad)
-			{
-				std::size_t textureId = Retrieve(m_pending.attachmentToTextures, output.attachmentId);
-
-				TextureLayout initialLayout = textureLayouts[textureId];
-				textureLayouts[textureId] = TextureLayout::ColorOutput;
-
-				auto it = usedTextureAttachments.find(textureId);
-				if (it != usedTextureAttachments.end())
-					return it->second;
-
-				std::size_t attachmentIndex = renderPassAttachments.size();
-				auto& attachment = renderPassAttachments.emplace_back();
-				attachment.format = m_pending.textures[textureId].format;
-				attachment.initialLayout = initialLayout;
-				attachment.storeOp = AttachmentStoreOp::Store;
-				attachment.stencilLoadOp = AttachmentLoadOp::Discard;
-				attachment.stencilStoreOp = AttachmentStoreOp::Discard;
-
-				if (output.clearColor)
-					attachment.loadOp = AttachmentLoadOp::Clear;
-				else if (shouldLoad)
-					attachment.loadOp = AttachmentLoadOp::Load;
-				else
-					attachment.loadOp = AttachmentLoadOp::Discard;
-
-				usedTextureAttachments.emplace(textureId, attachmentIndex);
-				return attachmentIndex;
-			};
-
-			auto RegisterDepthStencil = [&](std::size_t attachmentId, TextureLayout textureLayout, bool* first) -> RenderPass::Attachment&
-			{
-				if (depthStencilAttachmentIndex)
-				{
-					assert(depthStencilAttachmentId == attachmentId);
-					*first = false;
-
-					return renderPassAttachments[depthStencilAttachmentIndex.value()];
-				}
-
-				*first = true;
-
-				std::size_t textureId = Retrieve(m_pending.attachmentToTextures, attachmentId);
-
-				TextureLayout initialLayout = textureLayouts[textureId];
-				textureLayouts[textureId] = textureLayout;
-
-				depthStencilAttachmentId = attachmentId;
-				depthStencilAttachmentIndex = renderPassAttachments.size();
-
-				usedTextureAttachments.emplace(textureId, *depthStencilAttachmentIndex);
-
-				auto& depthStencilAttachment = renderPassAttachments.emplace_back();
-				depthStencilAttachment.format = m_pending.textures[textureId].format;
-				depthStencilAttachment.initialLayout = initialLayout;
-
-				return depthStencilAttachment;
-			};
+			depthStencilAttachmentIndex = std::nullopt;
+			usedTextureAttachments.clear();
+			renderPassAttachments.clear();
+			subpassesDesc.clear();
+			subpassesDeps.clear();
 
 			std::size_t subpassIndex = 0;
 
