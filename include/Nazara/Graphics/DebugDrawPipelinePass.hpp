@@ -9,13 +9,7 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
-#include <Nazara/Graphics/ElementRenderer.hpp>
 #include <Nazara/Graphics/FramePipelinePass.hpp>
-#include <Nazara/Graphics/MaterialPass.hpp>
-#include <Nazara/Graphics/RenderElement.hpp>
-#include <Nazara/Graphics/RenderQueue.hpp>
-#include <Nazara/Graphics/RenderQueueRegistry.hpp>
-#include <Nazara/Math/Frustum.hpp>
 
 namespace Nz
 {
@@ -23,7 +17,7 @@ namespace Nz
 	class FrameGraph;
 	class FramePass;
 	class FramePipeline;
-	class Material;
+	class RenderFrame;
 
 	class NAZARA_GRAPHICS_API DebugDrawPipelinePass : public FramePipelinePass
 	{
