@@ -45,8 +45,9 @@ namespace Nz
 	{
 		DebugDraw,
 		DepthPrepass,
+		GammaCorrection,
 
-		Max = DepthPrepass
+		Max = GammaCorrection
 	};
 
 	template<>
