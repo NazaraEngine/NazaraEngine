@@ -44,6 +44,14 @@ namespace Nz
 	{
 	}
 
+	constexpr bool Color::ApproxEqual(const Color& color, float maxDifference) const
+	{
+		return NumberEquals(r, color.r, maxDifference) &&
+		       NumberEquals(g, color.g, maxDifference) &&
+		       NumberEquals(b, color.b, maxDifference) &&
+		       NumberEquals(a, color.a, maxDifference);
+	}
+
 	/*!
 	* \brief Return true is the color has no degree of transparency
 	* \return true if the color has an alpha value of 255
@@ -123,10 +131,10 @@ namespace Nz
 	*/
 	constexpr bool Color::operator==(const Color& color) const
 	{
-		return NumberEquals(r, color.r) &&
-		       NumberEquals(g, color.g) &&
-		       NumberEquals(b, color.b) &&
-		       NumberEquals(a, color.a);
+		return r == color.r &&
+		       g == color.g &&
+		       b == color.b &&
+		       a == color.a;
 	}
 
 	/*!
@@ -141,6 +149,11 @@ namespace Nz
 	}
 
 	// Algorithm coming from http://www.easyrgb.com/index.php?X=MATH
+
+	constexpr bool Color::ApproxEqual(const Color& lhs, const Color& rhs, float maxDifference)
+	{
+		return lhs.ApproxEqual(rhs, maxDifference);
+	}
 
 	/*!
 	* \brief Converts CMY representation to RGB

@@ -6,10 +6,7 @@ void CompareColor(const Nz::Color& lhs, const Nz::Color& rhs)
 {
 	constexpr float epsilon = 0.1f;
 
-	REQUIRE(lhs.r == Catch::Approx(rhs.r).margin(epsilon));
-	REQUIRE(lhs.g == Catch::Approx(rhs.g).margin(epsilon));
-	REQUIRE(lhs.b == Catch::Approx(rhs.b).margin(epsilon));
-	REQUIRE(lhs.a == Catch::Approx(rhs.a).margin(epsilon));
+	CHECK(lhs.ApproxEqual(rhs, epsilon));
 }
 
 constexpr float epsilon = 1.f;

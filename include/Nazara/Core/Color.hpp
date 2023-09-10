@@ -9,6 +9,7 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <limits>
 #include <string>
 
 namespace Nz
@@ -24,6 +25,8 @@ namespace Nz
 			constexpr Color(const Color&) = default;
 			constexpr Color(Color&&) = default;
 			~Color() = default;
+
+			constexpr bool ApproxEqual(const Color& color, float maxDifference = std::numeric_limits<float>::epsilon()) const;
 
 			constexpr bool IsOpaque() const;
 
@@ -41,6 +44,7 @@ namespace Nz
 			constexpr bool operator==(const Color& color) const;
 			constexpr bool operator!=(const Color& color) const;
 
+			static constexpr bool ApproxEqual(const Color& lhs, const Color& rhs, float maxDifference = std::numeric_limits<float>::epsilon());
 			static constexpr Color FromCMY(float cyan, float magenta, float yellow);
 			static constexpr Color FromCMYK(float cyan, float magenta, float yellow, float black);
 			static constexpr Color FromHSL(float hue, float saturation, float lightness);
