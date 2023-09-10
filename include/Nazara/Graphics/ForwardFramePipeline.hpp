@@ -20,6 +20,7 @@
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/LightShadowData.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
+#include <Nazara/Graphics/PostProcessPipelinePass.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>
 #include <Nazara/Graphics/RenderQueue.hpp>
 #include <Nazara/Graphics/RenderQueueRegistry.hpp>
@@ -138,6 +139,7 @@ namespace Nz
 				std::unique_ptr<DepthPipelinePass> depthPrepass;
 				std::unique_ptr<ForwardPipelinePass> forwardPass;
 				std::unique_ptr<DebugDrawPipelinePass> debugDrawPass;
+				std::unique_ptr<PostProcessPipelinePass> gammaCorrectionPass;
 				AbstractViewer* viewer;
 				Int32 renderOrder = 0;
 				RenderQueueRegistry forwardRegistry;

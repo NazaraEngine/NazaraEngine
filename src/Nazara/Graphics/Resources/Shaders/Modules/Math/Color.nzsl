@@ -1,0 +1,36 @@
+[nzsl_version("1.0")]
+module Math.Color;
+
+// from https://en.wikipedia.org/wiki/SRGB
+
+option ApproximatesRGB: bool = false;
+
+[export]
+fn LinearTosRGB(color: vec3[f32]) -> vec3[f32]
+{
+	const if (!ApproximatesRGB)
+	{
+		return select(
+			color > (0.0031308).rrr,
+			1.055 * pow(color, (1.0 / 2.4).rrr) - (0.055).rrr,
+			12.92 * color
+		);
+	}
+	else
+		return pow(color, (1.0 / 2.2).rrr);
+}
+
+[export]
+fn sRGBToLinear(color: vec3[f32]) -> vec3[f32]
+{
+	const if (!ApproximatesRGB)
+	{
+		return select(
+			color > (0.04045).rrr,
+			pow((color + (0.055).rrr) / 1.055, (2.4).rrr),
+			color / 12.92
+		);
+	}
+	else
+		return pow(color, (2.2).rrr);
+}

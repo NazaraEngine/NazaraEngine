@@ -1,0 +1,26 @@
+[nzsl_version("1.0")]
+module PostProcess.GammaCorrection;
+
+import VertOut, VertexShader from Engine.FullscreenVertex;
+import LinearTosRGB from Math.Color;
+
+external
+{
+	[binding(0)] colorTexture: sampler2D[f32]
+}
+
+struct FragOut
+{
+	[location(0)] color: vec4[f32]
+}
+
+[entry(frag)]
+fn main(input: VertOut) -> FragOut
+{
+    let color = colorTexture.Sample(input.uv);
+    color.rgb = LinearTosRGB(color.rgb);
+
+	let output: FragOut;
+	output.color = color;
+	return output;
+}

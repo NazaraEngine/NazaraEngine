@@ -122,7 +122,7 @@ namespace Nz
 	{
 		TextureParams texParams;
 		texParams.renderDevice = Graphics::Instance()->GetRenderDevice();
-		texParams.loadFormat = PixelFormat::RGBA8; //< TODO: Re-enable gamma correction
+		texParams.loadFormat = PixelFormat::RGBA8_SRGB;
 
 		auto CreateMaterialFromTexture = [&](std::shared_ptr<Texture> texture)
 		{
