@@ -339,20 +339,9 @@ namespace Nz
 		float g = x * -0.9689f + y *  1.8758f + z *  0.0415f;
 		float b = x *  0.0557f + y * -0.2040f + z *  1.0570f;
 
-		if (r > 0.0031308f)
-			r = 1.055f * (std::pow(r, 1.f/2.4f)) - 0.055f;
-		else
-			r *= 12.92f;
-
-		if (g > 0.0031308f)
-			g = 1.055f * (std::pow(g, 1.f/2.4f)) - 0.055f;
-		else
-			g *= 12.92f;
-
-		if (b > 0.0031308f)
-			b = 1.055f * (std::pow(b, 1.f/2.4f)) - 0.055f;
-		else
-			b *= 12.92f;
+		r = LinearTosRGB(r);
+		g = LinearTosRGB(g);
+		b = LinearTosRGB(b);
 
 		return Color(r, g, b);
 	}
@@ -574,33 +563,34 @@ namespace Nz
 	*/
 	constexpr void Color::ToXYZ(const Color& color, float* x, float* y, float* z)
 	{
-		float r = color.r; //< R from 0 to 255
-		float g = color.g; //< G from 0 to 255
-		float b = color.b; //< B from 0 to 255
-
-		if (r > 0.04045f)
-			r = std::pow((r + 0.055f)/1.055f, 2.4f);
-		else
-			r /= 12.92f;
-
-		if (g > 0.04045f)
-			g = std::pow((g + 0.055f)/1.055f, 2.4f);
-		else
-			g /= 12.92f;
-
-		if (b > 0.04045f)
-			b = std::pow((b + 0.055f)/1.055f, 2.4f);
-		else
-			b /= 12.92f;
-
-		r *= 100.f;
-		g *= 100.f;
-		b *= 100.f;
+		float r = sRGBToLinear(color.r) * 100.f;
+		float g = sRGBToLinear(color.g) * 100.f;
+		float b = sRGBToLinear(color.b) * 100.f;
 
 		//Observer. = 2°, Illuminant = D65
 		*x = r*0.4124f + g*0.3576f + b*0.1805f;
 		*y = r*0.2126f + g*0.7152f + b*0.0722f;
 		*z = r*0.0193f + g*0.1192f + b*0.9505f;
+	}
+
+	constexpr float Color::LinearTosRGB(float component)
+	{
+		return (component > 0.0031308f) ? 1.055f * std::pow(component, 1.f / 2.4f) - 0.055f : 12.92f * component;
+	}
+
+	constexpr Color Color::LinearTosRGB(const Color& color)
+	{
+		return Color(LinearTosRGB(color.r), LinearTosRGB(color.g), LinearTosRGB(color.b), color.a);
+	}
+
+	constexpr float Color::sRGBToLinear(float component)
+	{
+		return (component > 0.04045f) ? std::pow((component + 0.055f) / 1.055f, 2.4f) : component / 12.92f;
+	}
+
+	constexpr Color Color::sRGBToLinear(const Color& color)
+	{
+		return Color(sRGBToLinear(color.r), sRGBToLinear(color.g), sRGBToLinear(color.b), color.a);
 	}
 
 	constexpr Color Color::Black()

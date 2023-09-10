@@ -62,6 +62,12 @@ namespace Nz
 			static constexpr void ToXYZ(const Color& color, Vector3f* vec);
 			static constexpr void ToXYZ(const Color& color, float* x, float* y, float* z);
 
+			// Color-space handling
+			static constexpr float LinearTosRGB(float component);
+			static constexpr Color LinearTosRGB(const Color& color);
+			static constexpr float sRGBToLinear(float component);
+			static constexpr Color sRGBToLinear(const Color& color);
+
 			static constexpr Color Black();
 			static constexpr Color Blue();
 			static constexpr Color Cyan();
