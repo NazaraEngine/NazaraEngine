@@ -242,62 +242,62 @@ namespace Nz
 
 			// the following formats are emulated using texture swizzling which isn't supported on WebGL
 			// https://registry.khronos.org/webgl/specs/latest/2.0/#5.19
-			case PixelFormat::A8:
-			case PixelFormat::BGR8:
-			case PixelFormat::BGR8_SRGB:
-			case PixelFormat::BGRA8:
-			case PixelFormat::BGRA8_SRGB:
-			case PixelFormat::L8:
-			case PixelFormat::LA8:
+			case PixelFormat::A8Unorm:
+			case PixelFormat::BGR8Unorm:
+			case PixelFormat::BGR8_sRGB:
+			case PixelFormat::BGRA8Unorm:
+			case PixelFormat::BGRA8_sRGB:
+			case PixelFormat::L8Unorm:
+			case PixelFormat::LA8Unorm:
 #ifdef NAZARA_PLATFORM_WEB
 				return false;
 #else
 				[[fallthrough]];
 #endif
 
-			case PixelFormat::R8:
-			case PixelFormat::R8I:
-			case PixelFormat::R8UI:
-			case PixelFormat::R16:
-			case PixelFormat::R16F:
-			case PixelFormat::R16I:
-			case PixelFormat::R16UI:
-			case PixelFormat::R32F:
-			case PixelFormat::R32I:
-			case PixelFormat::R32UI:
-			case PixelFormat::RG8:
-			case PixelFormat::RG8I:
-			case PixelFormat::RG8UI:
-			case PixelFormat::RG16:
-			case PixelFormat::RG16F:
-			case PixelFormat::RG16I:
-			case PixelFormat::RG16UI:
-			case PixelFormat::RG32F:
-			case PixelFormat::RG32I:
-			case PixelFormat::RG32UI:
-			case PixelFormat::RGB5A1:
-			case PixelFormat::RGB8:
-			case PixelFormat::RGB8_SRGB:
-			case PixelFormat::RGB16F:
-			case PixelFormat::RGB16I:
-			case PixelFormat::RGB16UI:
-			case PixelFormat::RGB32F:
-			case PixelFormat::RGB32I:
-			case PixelFormat::RGB32UI:
+			case PixelFormat::R8Unorm:
+			case PixelFormat::R8Sint:
+			case PixelFormat::R8Uint:
+			case PixelFormat::R16Unorm:
+			case PixelFormat::R16Float:
+			case PixelFormat::R16Sint:
+			case PixelFormat::R16Uint:
+			case PixelFormat::R32Float:
+			case PixelFormat::R32Sint:
+			case PixelFormat::R32Uint:
+			case PixelFormat::RG8Unorm:
+			case PixelFormat::RG8Sint:
+			case PixelFormat::RG8Uint:
+			case PixelFormat::RG16Unorm:
+			case PixelFormat::RG16Float:
+			case PixelFormat::RG16Sint:
+			case PixelFormat::RG16Uint:
+			case PixelFormat::RG32Float:
+			case PixelFormat::RG32Sint:
+			case PixelFormat::RG32Uint:
+			case PixelFormat::RGB5A1Unorm:
+			case PixelFormat::RGB8Unorm:
+			case PixelFormat::RGB8_sRGB:
+			case PixelFormat::RGB16Float:
+			case PixelFormat::RGB16Sint:
+			case PixelFormat::RGB16Uint:
+			case PixelFormat::RGB32Float:
+			case PixelFormat::RGB32Sint:
+			case PixelFormat::RGB32Uint:
 			case PixelFormat::RGBA4:
-			case PixelFormat::RGBA8:
-			case PixelFormat::RGBA8_SRGB:
-			case PixelFormat::RGBA16F:
-			case PixelFormat::RGBA16I:
-			case PixelFormat::RGBA16UI:
-			case PixelFormat::RGBA32F:
-			case PixelFormat::RGBA32I:
-			case PixelFormat::RGBA32UI:
+			case PixelFormat::RGBA8Unorm:
+			case PixelFormat::RGBA8_sRGB:
+			case PixelFormat::RGBA16Float:
+			case PixelFormat::RGBA16Sint:
+			case PixelFormat::RGBA16Uint:
+			case PixelFormat::RGBA32Float:
+			case PixelFormat::RGBA32Sint:
+			case PixelFormat::RGBA32Uint:
 				return usage == TextureUsage::ColorAttachment || usage == TextureUsage::InputAttachment || usage == TextureUsage::ShaderSampling || usage == TextureUsage::ShaderReadWrite || usage == TextureUsage::TransferDestination || usage == TextureUsage::TransferSource;
 
-			case PixelFormat::DXT1:
-			case PixelFormat::DXT3:
-			case PixelFormat::DXT5:
+			case PixelFormat::BC1:
+			case PixelFormat::BC2:
+			case PixelFormat::BC3:
 			{
 				if (!m_referenceContext->IsExtensionSupported(GL::Extension::TextureCompressionS3tc))
 					return false;

@@ -18,7 +18,7 @@ SCENARIO("Images", "[Core][Image]")
 			CHECK(logo->GetHeight() == 212);
 			CHECK(logo->GetLevelCount() == 1);
 			CHECK(logo->GetPixelColor(165, 139) == Nz::Color::FromRGB8(51, 58, 100));
-			CHECK(logo->GetFormat() == Nz::PixelFormat::RGBA8);
+			CHECK(logo->GetFormat() == Nz::PixelFormat::RGBA8Unorm);
 			CHECK(logo->HasAlpha());
 		}
 	}
@@ -34,7 +34,7 @@ SCENARIO("Images", "[Core][Image]")
 			CHECK(background->GetHeight() == 1200);
 			CHECK(background->GetLevelCount() == 1);
 			CHECK(background->GetPixelColor(1377, 372) == Nz::Color::FromRGB8(171, 152, 233));
-			CHECK(background->GetFormat() == Nz::PixelFormat::RGBA8);
+			CHECK(background->GetFormat() == Nz::PixelFormat::RGBA8Unorm);
 			CHECK(!background->HasAlpha());
 		}
 	}

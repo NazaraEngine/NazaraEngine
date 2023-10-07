@@ -73,7 +73,7 @@ namespace Nz
 			});
 
 			std::shared_ptr<Image> image = std::make_shared<Image>();
-			if (!image->Create(ImageType::E2D, PixelFormat::RGBA8, width, height, 1, (parameters.levelCount > 0) ? parameters.levelCount : 1))
+			if (!image->Create(ImageType::E2D, PixelFormat::RGBA8Unorm, width, height, 1, (parameters.levelCount > 0) ? parameters.levelCount : 1))
 			{
 				NazaraError("failed to create image");
 				return Err(ResourceLoadingError::Internal);

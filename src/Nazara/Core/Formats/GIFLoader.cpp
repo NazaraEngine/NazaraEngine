@@ -232,7 +232,7 @@ namespace Nz
 
 				PixelFormat GetPixelFormat() const override
 				{
-					return PixelFormat::RGBA8; //< TODO: Set SRGB
+					return PixelFormat::RGBA8Unorm; //< TODO: Set SRGB
 				}
 
 				Vector2ui GetSize() const override

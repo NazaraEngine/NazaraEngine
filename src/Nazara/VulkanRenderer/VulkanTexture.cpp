@@ -475,23 +475,23 @@ namespace Nz
 		switch (pixelFormat)
 		{
 			// Regular formats
-			case PixelFormat::BGR8:
-			case PixelFormat::BGR8_SRGB:
-			case PixelFormat::BGRA8:
-			case PixelFormat::BGRA8_SRGB:
+			case PixelFormat::BGR8Unorm:
+			case PixelFormat::BGR8_sRGB:
+			case PixelFormat::BGRA8Unorm:
+			case PixelFormat::BGRA8_sRGB:
 			case PixelFormat::Depth16:
 			case PixelFormat::Depth16Stencil8:
 			case PixelFormat::Depth24Stencil8:
 			case PixelFormat::Depth32F:
 			case PixelFormat::Depth32FStencil8:
-			case PixelFormat::R8:
-			case PixelFormat::RG8:
-			case PixelFormat::RGB8:
-			case PixelFormat::RGB8_SRGB:
-			case PixelFormat::RGBA8:
-			case PixelFormat::RGBA8_SRGB:
-			case PixelFormat::RGBA16F:
-			case PixelFormat::RGBA32F:
+			case PixelFormat::R8Unorm:
+			case PixelFormat::RG8Unorm:
+			case PixelFormat::RGB8Unorm:
+			case PixelFormat::RGB8_sRGB:
+			case PixelFormat::RGBA8Unorm:
+			case PixelFormat::RGBA8_sRGB:
+			case PixelFormat::RGBA16Float:
+			case PixelFormat::RGBA32Float:
 			{
 				createImageView.format = ToVulkan(pixelFormat);
 				createImageView.components = {
@@ -505,7 +505,7 @@ namespace Nz
 			}
 
 			// "emulated" formats
-			case PixelFormat::A8:
+			case PixelFormat::A8Unorm:
 			{
 				createImageView.format = VK_FORMAT_R8_UNORM;
 				createImageView.components = {
@@ -517,7 +517,7 @@ namespace Nz
 				break;
 			}
 
-			case PixelFormat::L8:
+			case PixelFormat::L8Unorm:
 			{
 				createImageView.format = VK_FORMAT_R8_UNORM;
 				createImageView.components = {
@@ -529,7 +529,7 @@ namespace Nz
 				break;
 			}
 
-			case PixelFormat::LA8:
+			case PixelFormat::LA8Unorm:
 			{
 				createImageView.format = VK_FORMAT_R8G8_UNORM;
 				createImageView.components = {

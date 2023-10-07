@@ -158,7 +158,7 @@ int main()
 	// Texture
 	Nz::TextureParams texParams;
 	texParams.renderDevice = device;
-	texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
+	texParams.loadFormat = Nz::PixelFormat::RGBA8_sRGB;
 
 	std::shared_ptr<Nz::Texture> texture = Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams);
 	std::shared_ptr<Nz::TextureSampler> textureSampler = device->InstantiateTextureSampler({});

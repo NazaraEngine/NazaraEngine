@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
 	texParams.renderDevice = device;
 
 	Nz::TextureParams srgbTexParams = texParams;
-	srgbTexParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
+	srgbTexParams.loadFormat = Nz::PixelFormat::RGBA8_sRGB;
 
 	std::shared_ptr<Nz::Texture> normalMap = Nz::Texture::LoadFromFile(resourceDir / "Rusty/rustediron2_normal.png", texParams);
 

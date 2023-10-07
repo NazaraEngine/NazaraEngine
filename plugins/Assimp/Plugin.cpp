@@ -648,7 +648,7 @@ std::shared_ptr<Nz::SubMesh> ProcessSubMesh(const std::filesystem::path& originP
 			else
 			{
 				// Uncompressed data (always ARGB8 it seems)
-				Nz::Image uncompressedData(Nz::ImageType::E2D, Nz::PixelFormat::RGBA8_SRGB, embeddedTexture->mWidth, embeddedTexture->mHeight);
+				Nz::Image uncompressedData(Nz::ImageType::E2D, Nz::PixelFormat::RGBA8_sRGB, embeddedTexture->mWidth, embeddedTexture->mHeight);
 				const aiTexel* sourceData = embeddedTexture->pcData;
 				Nz::UInt8* imageData = uncompressedData.GetPixels();
 				for (unsigned int y = 0; y < embeddedTexture->mHeight; ++y)

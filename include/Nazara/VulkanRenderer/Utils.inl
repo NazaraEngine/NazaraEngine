@@ -12,19 +12,19 @@ namespace Nz
 	{
 		switch (format)
 		{
-			case VK_FORMAT_B8G8R8A8_UNORM:     return PixelFormat::BGRA8;
-			case VK_FORMAT_B8G8R8A8_SRGB:      return PixelFormat::BGRA8_SRGB;
+			case VK_FORMAT_B8G8R8A8_UNORM:     return PixelFormat::BGRA8Unorm;
+			case VK_FORMAT_B8G8R8A8_SRGB:      return PixelFormat::BGRA8_sRGB;
 			case VK_FORMAT_D16_UNORM:          return PixelFormat::Depth16;
 			case VK_FORMAT_D16_UNORM_S8_UINT:  return PixelFormat::Depth16Stencil8;
 			case VK_FORMAT_D24_UNORM_S8_UINT:  return PixelFormat::Depth24Stencil8;
 			case VK_FORMAT_D32_SFLOAT:         return PixelFormat::Depth32F;
 			case VK_FORMAT_D32_SFLOAT_S8_UINT: return PixelFormat::Depth32FStencil8;
-			case VK_FORMAT_R8_UNORM:           return PixelFormat::R8;
-			case VK_FORMAT_R8G8_UNORM:         return PixelFormat::RG8;
-			case VK_FORMAT_R8G8B8_UNORM:       return PixelFormat::RGB8;
-			case VK_FORMAT_R8G8B8_SRGB:        return PixelFormat::RGB8_SRGB;
-			case VK_FORMAT_R8G8B8A8_UNORM:     return PixelFormat::RGBA8;
-			case VK_FORMAT_R8G8B8A8_SRGB:      return PixelFormat::RGBA8_SRGB;
+			case VK_FORMAT_R8_UNORM:           return PixelFormat::R8Unorm;
+			case VK_FORMAT_R8G8_UNORM:         return PixelFormat::RG8Unorm;
+			case VK_FORMAT_R8G8B8_UNORM:       return PixelFormat::RGB8Unorm;
+			case VK_FORMAT_R8G8B8_SRGB:        return PixelFormat::RGB8_sRGB;
+			case VK_FORMAT_R8G8B8A8_UNORM:     return PixelFormat::RGBA8Unorm;
+			case VK_FORMAT_R8G8B8A8_SRGB:      return PixelFormat::RGBA8_sRGB;
 			default: break;
 		}
 
@@ -273,28 +273,44 @@ namespace Nz
 		switch (pixelFormat)
 		{
 			// TODO: Fill this switch
-			case PixelFormat::BGR8:             return VK_FORMAT_B8G8R8_UNORM;
-			case PixelFormat::BGR8_SRGB:        return VK_FORMAT_B8G8R8_SRGB;
-			case PixelFormat::BGRA8:            return VK_FORMAT_B8G8R8A8_UNORM;
-			case PixelFormat::BGRA8_SRGB:       return VK_FORMAT_B8G8R8A8_SRGB;
-			case PixelFormat::Depth16:          return VK_FORMAT_D16_UNORM;
-			case PixelFormat::Depth16Stencil8:  return VK_FORMAT_D16_UNORM_S8_UINT;
-			case PixelFormat::Depth24:          return VK_FORMAT_UNDEFINED;
-			case PixelFormat::Depth24Stencil8:  return VK_FORMAT_D24_UNORM_S8_UINT;
-			case PixelFormat::Depth32F:         return VK_FORMAT_D32_SFLOAT;
-			case PixelFormat::Depth32FStencil8: return VK_FORMAT_D32_SFLOAT_S8_UINT;
-			case PixelFormat::R8:               return VK_FORMAT_R8_UNORM;
-			case PixelFormat::RG8:              return VK_FORMAT_R8G8_UNORM;
-			case PixelFormat::RGB8:             return VK_FORMAT_R8G8B8_UNORM;
-			case PixelFormat::RGB8_SRGB:        return VK_FORMAT_R8G8B8_SRGB;
-			case PixelFormat::RGBA8:            return VK_FORMAT_R8G8B8A8_UNORM;
-			case PixelFormat::RGBA8_SRGB:       return VK_FORMAT_R8G8B8A8_SRGB;
-			case PixelFormat::RGBA16F:          return VK_FORMAT_R16G16B16A16_SFLOAT;
-			case PixelFormat::RGBA32F:          return VK_FORMAT_R32G32B32A32_SFLOAT;
-			case PixelFormat::Stencil1:         return VK_FORMAT_UNDEFINED;
-			case PixelFormat::Stencil4:         return VK_FORMAT_UNDEFINED;
-			case PixelFormat::Stencil8:         return VK_FORMAT_S8_UINT;
-			case PixelFormat::Stencil16:        return VK_FORMAT_UNDEFINED;
+			case PixelFormat::BGR8Sint:              return VK_FORMAT_B8G8R8_SINT;
+			case PixelFormat::BGR8Snorm:             return VK_FORMAT_B8G8R8_SNORM;
+			case PixelFormat::BGR8Uint:              return VK_FORMAT_B8G8R8_UINT;
+			case PixelFormat::BGR8Unorm:             return VK_FORMAT_B8G8R8_UNORM;
+			case PixelFormat::BGR8Unorm_sRGB:        return VK_FORMAT_B8G8R8_SRGB;
+
+			case PixelFormat::BGRA8Sint:             return VK_FORMAT_B8G8R8A8_SINT;
+			case PixelFormat::BGRA8Snorm:            return VK_FORMAT_B8G8R8A8_SNORM;
+			case PixelFormat::BGRA8Uint:             return VK_FORMAT_B8G8R8A8_UINT;
+			case PixelFormat::BGRA8Unorm:            return VK_FORMAT_B8G8R8A8_UNORM;
+			case PixelFormat::BGRA8Unorm_sRGB:       return VK_FORMAT_B8G8R8A8_SRGB;
+
+			case PixelFormat::Depth16Unorm:          return VK_FORMAT_D16_UNORM;
+			case PixelFormat::Depth16Unorm_Stencil8: return VK_FORMAT_D16_UNORM_S8_UINT;
+			case PixelFormat::Depth24Unorm:          return VK_FORMAT_X8_D24_UNORM_PACK32;
+			case PixelFormat::Depth24Unorm_Stencil8: return VK_FORMAT_D24_UNORM_S8_UINT;
+			case PixelFormat::Depth32Float:          return VK_FORMAT_D32_SFLOAT;
+			case PixelFormat::Depth32Float_Stencil8: return VK_FORMAT_D32_SFLOAT_S8_UINT;
+
+			case PixelFormat::R8Unorm:               return VK_FORMAT_R8_UNORM;
+			case PixelFormat::RG8Unorm:              return VK_FORMAT_R8G8_UNORM;
+
+			case PixelFormat::RGB8Sint:              return VK_FORMAT_R8G8B8_SINT;
+			case PixelFormat::RGB8Snorm:             return VK_FORMAT_R8G8B8_SNORM;
+			case PixelFormat::RGB8Uint:              return VK_FORMAT_R8G8B8_UINT;
+			case PixelFormat::RGB8Unorm:             return VK_FORMAT_R8G8B8_UNORM;
+			case PixelFormat::RGB8Unorm_sRGB:        return VK_FORMAT_R8G8B8_SRGB;
+
+			case PixelFormat::RGBA8Sint:             return VK_FORMAT_R8G8B8A8_SINT;
+			case PixelFormat::RGBA8Snorm:            return VK_FORMAT_R8G8B8A8_SNORM;
+			case PixelFormat::RGBA8Uint:             return VK_FORMAT_R8G8B8A8_UINT;
+			case PixelFormat::RGBA8Unorm:            return VK_FORMAT_R8G8B8A8_UNORM;
+			case PixelFormat::RGBA8Unorm_sRGB:       return VK_FORMAT_R8G8B8A8_SRGB;
+
+			case PixelFormat::RGBA16Float:           return VK_FORMAT_R16G16B16A16_SFLOAT;
+			case PixelFormat::RGBA32Float:           return VK_FORMAT_R32G32B32A32_SFLOAT;
+
+			case PixelFormat::Stencil8:              return VK_FORMAT_S8_UINT;
 			default: break;
 		}
 

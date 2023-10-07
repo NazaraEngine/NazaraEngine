@@ -149,10 +149,10 @@ namespace Nz
 		{
 			switch (format)
 			{
-				case PixelFormat::DXT1:
-				case PixelFormat::DXT3:
-				case PixelFormat::DXT5:
-					return (((width + 3) / 4) * ((height + 3) / 4) * ((format == PixelFormat::DXT1) ? 8 : 16)) * depth;
+				case PixelFormat::BC1:
+				case PixelFormat::BC2:
+				case PixelFormat::BC3:
+					return (((width + 3) / 4) * ((height + 3) / 4) * ((format == PixelFormat::BC1) ? 8 : 16)) * depth;
 
 				default:
 					NazaraError("unsupported format");

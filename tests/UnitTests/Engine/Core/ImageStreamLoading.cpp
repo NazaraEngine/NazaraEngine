@@ -64,7 +64,7 @@ SCENARIO("Streamed images", "[Core][ImageStream]")
 			Nz::Vector2ui size = gif->GetSize();
 			CHECK(size == Nz::Vector2ui(100, 100));
 			CHECK(gif->GetFrameCount() == expectedFrames.size());
-			CHECK(gif->GetPixelFormat() == Nz::PixelFormat::RGBA8);
+			CHECK(gif->GetPixelFormat() == Nz::PixelFormat::RGBA8Unorm);
 
 			frameData.resize(Nz::PixelFormatInfo::ComputeSize(gif->GetPixelFormat(), size.x, size.y, 1));
 
@@ -130,7 +130,7 @@ SCENARIO("Streamed images", "[Core][ImageStream]")
 			Nz::Vector2ui size = gif->GetSize();
 			CHECK(size == Nz::Vector2ui(100, 100));
 			CHECK(gif->GetFrameCount() == expectedFrames.size());
-			CHECK(gif->GetPixelFormat() == Nz::PixelFormat::RGBA8);
+			CHECK(gif->GetPixelFormat() == Nz::PixelFormat::RGBA8Unorm);
 
 			frameData.resize(Nz::PixelFormatInfo::ComputeSize(gif->GetPixelFormat(), size.x, size.y, 1));
 

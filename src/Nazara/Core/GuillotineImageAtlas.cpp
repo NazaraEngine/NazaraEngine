@@ -157,7 +157,7 @@ namespace Nz
 
 	std::shared_ptr<AbstractImage> GuillotineImageAtlas::ResizeImage(const std::shared_ptr<AbstractImage>& oldImage, const Vector2ui& size) const
 	{
-		std::shared_ptr<Image> newImage = std::make_shared<Image>(ImageType::E2D, PixelFormat::A8, size.x, size.y);
+		std::shared_ptr<Image> newImage = std::make_shared<Image>(ImageType::E2D, PixelFormat::A8Unorm, size.x, size.y);
 		if (oldImage)
 			newImage->Copy(static_cast<Image&>(*oldImage), Boxui(Vector3ui::Zero(), oldImage->GetSize()), Vector2ui(0, 0)); // Copie des anciennes données
 

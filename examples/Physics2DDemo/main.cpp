@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
 
 	Nz::TextureParams texParams;
 	texParams.renderDevice = device;
-	texParams.loadFormat = Nz::PixelFormat::RGBA8;
+	texParams.loadFormat = Nz::PixelFormat::RGBA8Unorm;
 
 	std::shared_ptr<Nz::MaterialInstance> spriteMaterial = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Phong);
 	spriteMaterial->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(resourceDir / "box.png", texParams));

@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
 
 	Nz::TextureParams texParams;
 	texParams.renderDevice = device;
-	texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
+	texParams.loadFormat = Nz::PixelFormat::RGBA8_sRGB;
 
 	std::shared_ptr<Nz::MaterialInstance> material = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Phong);
 	for (std::string_view passName : { "DepthPass", "ForwardPass" })

@@ -30,13 +30,13 @@ namespace Nz
 		PixelFormat colorFormat;
 		switch (contextParams.bitsPerPixel)
 		{
-			case 8:  colorFormat = PixelFormat::R8; break;
-			case 16: colorFormat = PixelFormat::RG8; break;
-			case 24: colorFormat = PixelFormat::RGB8; break;
+			case 8:  colorFormat = PixelFormat::R8Unorm; break;
+			case 16: colorFormat = PixelFormat::RG8Unorm; break;
+			case 24: colorFormat = PixelFormat::RGB8Unorm; break;
 
 			case 32:
 			default:
-				colorFormat = PixelFormat::RGBA8;
+				colorFormat = PixelFormat::RGBA8Unorm;
 				break;
 		}
 

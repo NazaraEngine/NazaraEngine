@@ -174,15 +174,15 @@ namespace Nz
 					switch (header.format.fourCC)
 					{
 						case D3DFMT_DXT1:
-							*format = PixelFormat::DXT1;
+							*format = PixelFormat::BC1;
 							break;
 
 						case D3DFMT_DXT3:
-							*format = PixelFormat::DXT3;
+							*format = PixelFormat::BC2;
 							break;
 
 						case D3DFMT_DXT5:
-							*format = PixelFormat::DXT3;
+							*format = PixelFormat::BC2;
 							break;
 
 						case D3DFMT_DX10:
@@ -190,30 +190,30 @@ namespace Nz
 							switch (headerExt.dxgiFormat)
 							{
 								case DXGI_FORMAT_R32G32B32A32_FLOAT:
-									*format = PixelFormat::RGBA32F;
+									*format = PixelFormat::RGBA32Float;
 									break;
 								case DXGI_FORMAT_R32G32B32A32_UINT:
-									*format = PixelFormat::RGBA32UI;
+									*format = PixelFormat::RGBA32Uint;
 									break;
 								case DXGI_FORMAT_R32G32B32A32_SINT:
-									*format = PixelFormat::RGBA32I;
+									*format = PixelFormat::RGBA32Sint;
 									break;
 								case DXGI_FORMAT_R32G32B32_FLOAT:
-									*format = PixelFormat::RGB32F;
+									*format = PixelFormat::RGB32Float;
 									break;
 								case DXGI_FORMAT_R32G32B32_UINT:
 									//*format = PixelFormat::RGB32U;
 									return false;
 								case DXGI_FORMAT_R32G32B32_SINT:
-									*format = PixelFormat::RGB32I;
+									*format = PixelFormat::RGB32Sint;
 									break;
 								case DXGI_FORMAT_R16G16B16A16_SNORM:
 								case DXGI_FORMAT_R16G16B16A16_SINT:
 								case DXGI_FORMAT_R16G16B16A16_UINT:
-									*format = PixelFormat::RGBA16I;
+									*format = PixelFormat::RGBA16Sint;
 									break;
 								case DXGI_FORMAT_R16G16B16A16_UNORM:
-									*format = PixelFormat::RGBA16UI;
+									*format = PixelFormat::RGBA16Uint;
 									break;
 
 								default:

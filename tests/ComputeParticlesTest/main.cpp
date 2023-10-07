@@ -655,7 +655,7 @@ std::shared_ptr<Nz::Texture> GenerateSpriteTexture(Nz::RenderDevice& device, std
 	// Destination texture
 	Nz::TextureInfo texParams;
 	texParams.type = Nz::ImageType::E2D;
-	texParams.pixelFormat = Nz::PixelFormat::RGBA8;
+	texParams.pixelFormat = Nz::PixelFormat::RGBA8Unorm;
 	texParams.width = texParams.height = 256;
 	texParams.usageFlags = Nz::TextureUsage::ShaderReadWrite | Nz::TextureUsage::ShaderSampling | Nz::TextureUsage::TransferSource | Nz::TextureUsage::TransferDestination;
 

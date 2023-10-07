@@ -125,7 +125,7 @@ namespace Nz
 	{
 		TextureParams texParams;
 		texParams.renderDevice = Graphics::Instance()->GetRenderDevice();
-		texParams.loadFormat = PixelFormat::RGBA8_SRGB;
+		texParams.loadFormat = PixelFormat::RGBA8_sRGB;
 
 		auto CreateMaterialFromTexture = [&](std::shared_ptr<Texture> texture)
 		{

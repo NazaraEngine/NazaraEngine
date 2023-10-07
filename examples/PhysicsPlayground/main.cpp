@@ -215,7 +215,7 @@ int main(int argc, char* argv[])
 		std::shared_ptr<Nz::MaterialInstance> material = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Phong);
 
 		Nz::TextureParams texParams;
-		texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
+		texParams.loadFormat = Nz::PixelFormat::RGBA8_sRGB;
 
 		material->SetTextureProperty("BaseColorMap", fs.Load<Nz::Texture>("assets/Spaceship/Texture/diffuse.png", texParams));
 

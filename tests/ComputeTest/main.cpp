@@ -51,7 +51,7 @@ int main()
 	// Source texture
 	Nz::TextureParams texParams;
 	texParams.renderDevice = device;
-	texParams.loadFormat = Nz::PixelFormat::RGBA8;
+	texParams.loadFormat = Nz::PixelFormat::RGBA8Unorm;
 	texParams.usageFlags = Nz::TextureUsage::ShaderReadWrite | Nz::TextureUsage::ShaderSampling | Nz::TextureUsage::TransferDestination;
 	texParams.buildMipmaps = false;
 

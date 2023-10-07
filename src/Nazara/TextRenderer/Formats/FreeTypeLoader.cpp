@@ -195,7 +195,7 @@ namespace Nz
 
 					if (width > 0 && height > 0)
 					{
-						dst->image.Create(ImageType::E2D, PixelFormat::A8, width, height);
+						dst->image.Create(ImageType::E2D, PixelFormat::A8Unorm, width, height);
 						UInt8* pixels = dst->image.GetPixels();
 
 						const UInt8* data = bitmap.buffer;

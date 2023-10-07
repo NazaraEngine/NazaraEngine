@@ -245,7 +245,7 @@ int main(int argc, char* argv[])
 
 			// Textures
 			Nz::TextureParams srgbTexParams;
-			srgbTexParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
+			srgbTexParams.loadFormat = Nz::PixelFormat::RGBA8_sRGB;
 
 			std::shared_ptr<Nz::MaterialInstance> sphereMat = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Phong);
 			sphereMat->SetTextureProperty("BaseColorMap", fs.Load<Nz::Texture>("assets/Rusty/rustediron2_basecolor.png", srgbTexParams));
@@ -351,7 +351,7 @@ int main(int argc, char* argv[])
 		planeSampler.wrapModeV = Nz::SamplerWrap::Repeat;
 
 		Nz::TextureParams srgbTexParams;
-		srgbTexParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
+		srgbTexParams.loadFormat = Nz::PixelFormat::RGBA8_sRGB;
 
 		std::shared_ptr<Nz::MaterialInstance> planeMat = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Phong);
 		planeMat->SetTextureProperty("BaseColorMap", fs.Load<Nz::Texture>("assets/dev_grey.png", srgbTexParams), planeSampler);

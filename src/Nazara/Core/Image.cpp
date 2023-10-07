@@ -343,7 +343,7 @@ namespace Nz
 		UInt8 bpp = PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format);
 		StackArray<UInt8> colorBuffer = NazaraStackArrayNoInit(UInt8, bpp);
 
-		if (!PixelFormatInfo::Convert(PixelFormat::RGBA32F, m_sharedImage->format, &color.r, &colorBuffer[0]))
+		if (!PixelFormatInfo::Convert(PixelFormat::RGBA32Float, m_sharedImage->format, &color.r, &colorBuffer[0]))
 		{
 			NazaraErrorFmt("failed to convert RGBA32F to {0}", PixelFormatInfo::GetName(m_sharedImage->format));
 			return false;
@@ -525,8 +525,8 @@ namespace Nz
 		const UInt8* pixel = GetPixelPtr(m_sharedImage->levels[0].get(), PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format), x, y, z, m_sharedImage->width, m_sharedImage->height);
 
 		Color color;
-		if (!PixelFormatInfo::Convert(m_sharedImage->format, PixelFormat::RGBA32F, pixel, &color.r))
-			NazaraError("failed to convert image's format to RGBA8");
+		if (!PixelFormatInfo::Convert(m_sharedImage->format, PixelFormat::RGBA32Float, pixel, &color.r))
+			NazaraError("failed to convert image's format to RGBA32Float");
 
 		return color;
 	}
@@ -917,7 +917,7 @@ namespace Nz
 
 		UInt8* pixel = GetPixelPtr(m_sharedImage->levels[0].get(), PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format), x, y, z, m_sharedImage->width, m_sharedImage->height);
 
-		if (!PixelFormatInfo::Convert(PixelFormat::RGBA32F, m_sharedImage->format, &color.r, pixel))
+		if (!PixelFormatInfo::Convert(PixelFormat::RGBA32Float, m_sharedImage->format, &color.r, pixel))
 		{
 			NazaraError("failed to convert RGBA8 to image's format");
 			return false;

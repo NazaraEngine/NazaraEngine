@@ -73,7 +73,7 @@ namespace Nz
 			unsigned int height = header.ymax - header.ymin+1;
 
 			std::shared_ptr<Image> image = std::make_shared<Image>();
-			if (!image->Create(ImageType::E2D, PixelFormat::RGB8, width, height, 1, (parameters.levelCount > 0) ? parameters.levelCount : 1))
+			if (!image->Create(ImageType::E2D, PixelFormat::RGB8Unorm, width, height, 1, (parameters.levelCount > 0) ? parameters.levelCount : 1))
 			{
 				NazaraError("failed to create image");
 				return Err(ResourceLoadingError::Internal);

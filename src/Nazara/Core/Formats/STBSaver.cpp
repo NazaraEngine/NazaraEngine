@@ -22,30 +22,30 @@ namespace Nz
 		{
 			switch (image.GetFormat())
 			{
-				case PixelFormat::R32F:
+				case PixelFormat::R32Float:
 					return 1;
 
-				case PixelFormat::RG32F:
+				case PixelFormat::RG32Float:
 					return 2;
 
-				case PixelFormat::RGB32F:
+				case PixelFormat::RGB32Float:
 					return 3;
 
-				case PixelFormat::RGBA32F:
+				case PixelFormat::RGBA32Float:
 					return 4;
 
 				default:
 				{
 					if (PixelFormatInfo::HasAlpha(image.GetFormat()))
 					{
-						if (!image.Convert(PixelFormat::RGBA32F))
+						if (!image.Convert(PixelFormat::RGBA32Float))
 							break;
 
 						return 4;
 					}
 					else
 					{
-						if (!image.Convert(PixelFormat::RGB32F))
+						if (!image.Convert(PixelFormat::RGB32Float))
 							break;
 
 						return 3;
@@ -60,32 +60,32 @@ namespace Nz
 		{
 			switch (image.GetFormat())
 			{
-				case PixelFormat::L8:
-				case PixelFormat::R8:
+				case PixelFormat::L8Unorm:
+				case PixelFormat::R8Unorm:
 					return 1;
 
-				case PixelFormat::LA8:
-				case PixelFormat::RG8:
+				case PixelFormat::LA8Unorm:
+				case PixelFormat::RG8Unorm:
 					return 2;
 
-				case PixelFormat::RGB8:
+				case PixelFormat::RGB8Unorm:
 					return 3;
 
-				case PixelFormat::RGBA8:
+				case PixelFormat::RGBA8Unorm:
 					return 4;
 
 				default:
 				{
 					if (PixelFormatInfo::HasAlpha(image.GetFormat()))
 					{
-						if (!image.Convert(PixelFormat::RGBA8))
+						if (!image.Convert(PixelFormat::RGBA8Unorm))
 							break;
 
 						return 4;
 					}
 					else
 					{
-						if (!image.Convert(PixelFormat::RGB8))
+						if (!image.Convert(PixelFormat::RGB8Unorm))
 							break;
 
 						return 3;
