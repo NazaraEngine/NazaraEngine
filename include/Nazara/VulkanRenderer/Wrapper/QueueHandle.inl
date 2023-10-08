@@ -105,7 +105,7 @@ namespace Nz
 
 		inline bool QueueHandle::Submit(UInt32 commandBufferCount, const VkCommandBuffer* commandBuffers, VkSemaphore waitSemaphore, VkPipelineStageFlags waitStage, VkSemaphore signalSemaphore, VkFence signalFence) const
 		{
-			return Submit(commandBufferCount, commandBuffers, (waitSemaphore) ? 1U : 0U, &waitSemaphore, &waitStage, (signalSemaphore) ? 1U : 0U, &signalSemaphore, signalFence);
+			return Submit(commandBufferCount, commandBuffers, (waitSemaphore) ? 1U : 0U, (waitSemaphore) ? &waitSemaphore : nullptr, &waitStage, (signalSemaphore) ? 1U : 0U, (signalSemaphore) ? &signalSemaphore : nullptr, signalFence);
 		}
 
 		inline bool QueueHandle::Submit(UInt32 commandBufferCount, const VkCommandBuffer* commandBuffers, UInt32 waitSemaphoreCount, const VkSemaphore* waitSemaphores, const VkPipelineStageFlags* waitStages, UInt32 signalSemaphoreCount, const VkSemaphore* signalSemaphores, VkFence signalFence) const
