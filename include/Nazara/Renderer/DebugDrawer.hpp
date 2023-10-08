@@ -41,6 +41,7 @@ namespace Nz
 			void Draw(CommandBufferBuilder& builder);
 
 			inline void DrawBox(const Boxf& box, const Color& color);
+			inline void DrawBoxCorners(const EnumArray<BoxCorner, Vector3f>& boxCorners, const Color& color);
 			inline void DrawFrustum(const Frustumf& frustum, const Color& color);
 			inline void DrawLine(const Vector3f& start, const Vector3f& end, const Color& color);
 			inline void DrawLine(const Vector3f& start, const Vector3f& end, const Color& startColor, const Color& endColor);

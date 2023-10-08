@@ -26,10 +26,8 @@ namespace Nz
 		DrawLine({ max.x, min.y, min.z }, { max.x, min.y, max.z }, color);
 	}
 
-	inline void DebugDrawer::DrawFrustum(const Frustumf& frustum, const Color& color)
+	inline void DebugDrawer::DrawBoxCorners(const EnumArray<BoxCorner, Vector3f>& corners, const Color& color)
 	{
-		EnumArray<BoxCorner, Vector3f> corners = frustum.ComputeCorners();
-
 		DrawLine(corners[BoxCorner::NearLeftBottom],  corners[BoxCorner::NearRightBottom], color);
 		DrawLine(corners[BoxCorner::NearLeftBottom],  corners[BoxCorner::NearLeftTop],     color);
 		DrawLine(corners[BoxCorner::NearLeftBottom],  corners[BoxCorner::FarLeftBottom],   color);
@@ -42,6 +40,11 @@ namespace Nz
 		DrawLine(corners[BoxCorner::NearLeftTop],     corners[BoxCorner::FarLeftTop],      color);
 		DrawLine(corners[BoxCorner::NearRightBottom], corners[BoxCorner::NearRightTop],    color);
 		DrawLine(corners[BoxCorner::NearRightBottom], corners[BoxCorner::FarRightBottom],  color);
+	}
+
+	inline void DebugDrawer::DrawFrustum(const Frustumf& frustum, const Color& color)
+	{
+		DrawBoxCorners(frustum.ComputeCorners(), color);
 	}
 
 	inline void DebugDrawer::DrawLine(const Vector3f& start, const Vector3f& end, const Color& color)
