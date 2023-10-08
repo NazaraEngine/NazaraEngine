@@ -54,7 +54,7 @@ namespace Nz
 			std::size_t RegisterLight(const Light* light, UInt32 renderMask) override;
 			std::size_t RegisterRenderable(std::size_t worldInstanceIndex, std::size_t skeletonInstanceIndex, const InstancedRenderable* instancedRenderable, UInt32 renderMask, const Recti& scissorBox) override;
 			std::size_t RegisterSkeleton(SkeletonInstancePtr skeletonInstance) override;
-			std::size_t RegisterViewer(AbstractViewer* viewerInstance, Int32 renderOrder) override;
+			std::size_t RegisterViewer(AbstractViewer* viewerInstance, Int32 renderOrder, FramePipelineExtraPassFlags passFlags) override;
 			std::size_t RegisterWorldInstance(WorldInstancePtr worldInstance) override;
 
 			const Light* RetrieveLight(std::size_t lightIndex) const override;
@@ -131,6 +131,7 @@ namespace Nz
 
 			struct ViewerData
 			{
+				std::size_t finalColorAttachment;
 				std::size_t forwardColorAttachment;
 				std::size_t debugColorAttachment;
 				std::size_t depthStencilAttachment;

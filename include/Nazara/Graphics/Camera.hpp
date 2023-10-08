@@ -30,6 +30,8 @@ namespace Nz
 			inline float GetAspectRatio() const;
 			const Color& GetClearColor() const override;
 			inline DegreeAnglef GetFOV() const;
+			inline FramePipelineExtraPassFlags GetFramePipelineExtraPassFlags() const;
+			inline ProjectionType GetProjectionType() const;
 			UInt32 GetRenderMask() const override;
 			inline Int32 GetRenderOrder() const;
 			const RenderTarget& GetRenderTarget() const override;
@@ -43,6 +45,7 @@ namespace Nz
 
 			inline void UpdateClearColor(Color color);
 			inline void UpdateFOV(DegreeAnglef fov);
+			inline void UpdateFramePipelineExtraPassFlags(FramePipelineExtraPassFlags framePipelineExtraFlags);
 			inline void UpdateProjectionType(ProjectionType projectionType);
 			inline void UpdateRenderMask(UInt32 renderMask);
 			inline void UpdateRenderOrder(Int32 renderOrder);
@@ -67,6 +70,7 @@ namespace Nz
 			const RenderTarget* m_renderTarget;
 			Color m_clearColor;
 			DegreeAnglef m_fov;
+			FramePipelineExtraPassFlags m_framePipelineExtraPassFlags;
 			Int32 m_renderOrder;
 			ProjectionType m_projectionType;
 			Rectf m_targetRegion;

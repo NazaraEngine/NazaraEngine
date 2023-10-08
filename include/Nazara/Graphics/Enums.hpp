@@ -41,6 +41,24 @@ namespace Nz
 		Volume
 	};
 
+	enum class FramePipelineExtraPass
+	{
+		DebugDraw,
+		DepthPrepass,
+
+		Max = DepthPrepass
+	};
+
+	template<>
+	struct EnumAsFlags<FramePipelineExtraPass>
+	{
+		static constexpr FramePipelineExtraPass max = FramePipelineExtraPass::Max;
+	};
+
+	using FramePipelineExtraPassFlags = Flags<FramePipelineExtraPass>;
+
+	constexpr FramePipelineExtraPassFlags FramePipelineAllExtraPasses = FramePipelineExtraPass::DebugDraw | FramePipelineExtraPass::DepthPrepass;
+	
 	enum class MaterialPropertyType
 	{
 		Bool,

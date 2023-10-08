@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
 
 	Nz::ElementRendererRegistry elementRegistry;
 	Nz::ForwardFramePipeline framePipeline(elementRegistry);
-	[[maybe_unused]] std::size_t cameraIndex = framePipeline.RegisterViewer(&camera, 0);
+	[[maybe_unused]] std::size_t cameraIndex = framePipeline.RegisterViewer(&camera, 0, Nz::FramePipelineAllExtraPasses);
 	std::size_t worldInstanceIndex1 = framePipeline.RegisterWorldInstance(modelInstance);
 	framePipeline.RegisterRenderable(worldInstanceIndex1, Nz::FramePipeline::NoSkeletonInstance, &model, 0xFFFFFFFF, scissorBox);
 
