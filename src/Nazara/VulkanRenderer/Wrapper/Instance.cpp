@@ -20,21 +20,8 @@ namespace Nz::Vk
 			VkDebugUtilsMessageSeverityFlagBitsEXT      messageSeverity,
 			VkDebugUtilsMessageTypeFlagsEXT             messageTypes,
 			const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
-			void*                                       pUserData)
+			void*                                       /*pUserData*/)
 		{
-			Instance& instance = *static_cast<Instance*>(pUserData);
-			if (messageTypes & VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT)
-			{
-				RenderAPIValidationLevel validationLevel = instance.GetValidationLevel();
-				if ((messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) && validationLevel < RenderAPIValidationLevel::Debug)
-					return VK_FALSE;
-
-				if ((messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT) && validationLevel < RenderAPIValidationLevel::Verbose)
-					return VK_FALSE;
-
-				if ((messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) && validationLevel < RenderAPIValidationLevel::Warnings)
-					return VK_FALSE;
-			}
 
 			std::stringstream ss;
 			ss << "Vulkan log: ";
@@ -191,7 +178,7 @@ namespace Nz::Vk
 		}
 
 		m_internalData = std::make_unique<InternalData>();
-		InstallDebugMessageCallback();
+		InstallDebugMessageCallback(validationLevel);
 
 		return true;
 	}
@@ -269,7 +256,7 @@ namespace Nz::Vk
 		return true;
 	}
 
-	void Instance::InstallDebugMessageCallback()
+	void Instance::InstallDebugMessageCallback(RenderAPIValidationLevel validationLevel)
 	{
 		NazaraAssert(m_internalData, "Instance must be created before callbacks are installed");
 
@@ -277,7 +264,17 @@ namespace Nz::Vk
 		{
 			VkDebugUtilsMessengerCreateInfoEXT callbackCreateInfo = {};
 			callbackCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-			callbackCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT;
+
+			callbackCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+			if (validationLevel >= RenderAPIValidationLevel::Debug)
+				callbackCreateInfo.messageSeverity |= VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT;
+
+			if (validationLevel >= RenderAPIValidationLevel::Verbose)
+				callbackCreateInfo.messageSeverity |= VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT;
+
+			if (validationLevel >= RenderAPIValidationLevel::Warnings)
+				callbackCreateInfo.messageSeverity |= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT;
+
 			callbackCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
 			callbackCreateInfo.pfnUserCallback = &DebugMessengerCallback;
 			callbackCreateInfo.pUserData = this;

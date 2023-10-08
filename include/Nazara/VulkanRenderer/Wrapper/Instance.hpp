@@ -86,7 +86,7 @@ namespace Nz::Vk
 			inline PFN_vkVoidFunction GetProcAddr(const char* name) const;
 			inline RenderAPIValidationLevel GetValidationLevel() const;
 
-			void InstallDebugMessageCallback();
+			void InstallDebugMessageCallback(RenderAPIValidationLevel validationLevel);
 
 			inline bool IsExtensionLoaded(const std::string& extensionName) const;
 			inline bool IsLayerLoaded(const std::string& layerName) const;
