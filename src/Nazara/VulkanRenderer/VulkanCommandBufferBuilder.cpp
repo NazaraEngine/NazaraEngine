@@ -36,23 +36,28 @@ namespace Nz
 
 		std::size_t attachmentCount = vkRenderPass.GetAttachmentCount();
 
-		StackArray<VkClearValue> vkClearValues = NazaraStackArray(VkClearValue, attachmentCount);
-		for (std::size_t i = 0; i < attachmentCount; ++i)
-		{
-			const auto& values = (i < clearValueCount) ? clearValues[i] : CommandBufferBuilder::ClearValues{};
-			auto& vkValues = vkClearValues[i];
+		StackArray<VkClearValue> vkClearValues;
 
-			if (PixelFormatInfo::GetContent(vkRenderPass.GetAttachment(i).format) == PixelFormatContent::ColorRGBA)
+		if (clearValueCount > 0)
+		{
+			vkClearValues = NazaraStackArray(VkClearValue, attachmentCount);
+			for (std::size_t i = 0; i < attachmentCount; ++i)
 			{
-				vkValues.color.float32[0] = values.color.r;
-				vkValues.color.float32[1] = values.color.g;
-				vkValues.color.float32[2] = values.color.b;
-				vkValues.color.float32[3] = values.color.a;
-			}
-			else
-			{
-				vkValues.depthStencil.depth = values.depth;
-				vkValues.depthStencil.stencil = values.stencil;
+				const auto& values = (i < clearValueCount) ? clearValues[i] : CommandBufferBuilder::ClearValues{};
+				auto& vkValues = vkClearValues[i];
+
+				if (PixelFormatInfo::GetContent(vkRenderPass.GetAttachment(i).format) == PixelFormatContent::ColorRGBA)
+				{
+					vkValues.color.float32[0] = values.color.r;
+					vkValues.color.float32[1] = values.color.g;
+					vkValues.color.float32[2] = values.color.b;
+					vkValues.color.float32[3] = values.color.a;
+				}
+				else
+				{
+					vkValues.depthStencil.depth = values.depth;
+					vkValues.depthStencil.stencil = values.stencil;
+				}
 			}
 		}
 

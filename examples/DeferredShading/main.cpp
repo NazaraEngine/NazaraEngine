@@ -835,6 +835,7 @@ int main(int argc, char* argv[])
 
 		lightingPass.SetClearColor(lightingPass.AddOutput(lightOutput), Nz::Color::Black());
 		lightingPass.SetDepthStencilInput(depthBuffer1);
+		lightingPass.SetDepthStencilOutput(depthBuffer1);
 
 		Nz::FramePass& forwardPass = graph.AddPass("Forward pass");
 		forwardPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
@@ -1517,7 +1518,12 @@ int main(int argc, char* argv[])
 
 			builder.TextureBarrier(Nz::PipelineStage::ColorOutput, Nz::PipelineStage::FragmentShader, Nz::MemoryAccess::ColorWrite, Nz::MemoryAccess::ShaderRead, Nz::TextureLayout::ColorOutput, Nz::TextureLayout::ColorInput, *bakedGraph.GetAttachmentTexture(toneMappingOutput));
 
-			builder.BeginRenderPass(windowRT->GetFramebuffer(frame.GetFramebufferIndex()), windowRT->GetRenderPass(), windowRenderRect);
+			Nz::CommandBufferBuilder::ClearValues clearValues[2];
+			clearValues[0].color = Nz::Color::Black();
+			clearValues[1].depth = 1.f;
+			clearValues[1].stencil = 0;
+
+			builder.BeginRenderPass(windowRT->GetFramebuffer(frame.GetFramebufferIndex()), windowRT->GetRenderPass(), windowRenderRect, { clearValues[0], clearValues[1] });
 			{
 				builder.BeginDebugRegion("Main window rendering", Nz::Color::Green());
 				{

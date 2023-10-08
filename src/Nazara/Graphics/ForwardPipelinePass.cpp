@@ -301,8 +301,8 @@ namespace Nz
 		forwardPass.AddOutput(colorBufferIndex);
 		if (hasDepthPrepass)
 			forwardPass.SetDepthStencilInput(depthBufferIndex);
-		else
-			forwardPass.SetDepthStencilOutput(depthBufferIndex);
+
+		forwardPass.SetDepthStencilOutput(depthBufferIndex);
 
 		forwardPass.SetClearColor(0, m_viewer->GetClearColor());
 		forwardPass.SetDepthStencilClear(1.f, 0);

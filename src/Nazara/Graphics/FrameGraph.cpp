@@ -85,19 +85,26 @@ namespace Nz
 				auto& bakedSubpass = bakedPass.subpasses.emplace_back();
 				bakedSubpass.commandCallback = framePass.GetCommandCallback();
 
-				for (const auto& output : framePass.GetOutputs())
+				const auto& colorOutputs = framePass.GetOutputs();
+				for (std::size_t i = 0; i < colorOutputs.size(); ++i)
 				{
+					const auto& output = colorOutputs[i];
 					bakedPass.outputTextureIndices.push_back(Retrieve(m_pending.attachmentToTextures, output.attachmentId));
 
-					auto& clearValues = bakedPass.outputClearValues.emplace_back();
 					if (output.clearColor)
-						clearValues.color = *output.clearColor;
+					{
+						bakedPass.outputClearValues.resize(i + 1);
+						bakedPass.outputClearValues[i].color = *output.clearColor;
+					}
 				}
 
 				// Add depth-stencil clear values
-				auto& dsClearValues = bakedPass.outputClearValues.emplace_back();
 				if (const auto& depthStencilClear = framePass.GetDepthStencilClear())
 				{
+					std::size_t depthClearIndex = colorOutputs.size();
+					bakedPass.outputClearValues.resize(depthClearIndex + 1);
+
+					auto& dsClearValues = bakedPass.outputClearValues[depthClearIndex];
 					dsClearValues.depth = depthStencilClear->depth;
 					dsClearValues.stencil = depthStencilClear->stencil;
 				}
