@@ -106,6 +106,7 @@ int main(int argc, char* argv[])
 		//cameraNode.SetParent(playerRotNode);
 
 		auto& cameraComponent = playerCamera.emplace<Nz::CameraComponent>(&windowSwapchain);
+		cameraComponent.EnableFramePipelinePasses(Nz::FramePipelineExtraPass::GammaCorrection);
 		cameraComponent.UpdateZNear(0.2f);
 		cameraComponent.UpdateZFar(10000.f);
 		cameraComponent.UpdateRenderMask(1);
@@ -156,6 +157,7 @@ int main(int argc, char* argv[])
 		{
 			Nz::MaterialInstanceParams params;
 			params.materialType = Nz::MaterialType::Phong;
+			params.custom.SetParameter("sRGB", true);
 			if (alphaMaterials.test(i))
 				params.custom.SetParameter("EnableAlphaBlending", true);
 
