@@ -62,6 +62,7 @@ int main(int argc, char* argv[])
 	Nz::Vector2ui windowSize = window.GetSize();
 
 	Nz::Camera camera(&windowSwapchain);
+	camera.EnableFramePipelinePasses(Nz::FramePipelineExtraPass::GammaCorrection);
 	//camera.UpdateClearColor(Nz::Color::Gray);
 
 	Nz::ViewerInstance& viewerInstance = camera.GetViewerInstance();
