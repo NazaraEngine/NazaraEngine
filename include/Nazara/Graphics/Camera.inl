@@ -63,6 +63,16 @@ namespace Nz
 		UpdateTarget(camera.m_renderTarget);
 	}
 
+	inline void Camera::DisableFramePipelinePasses(FramePipelineExtraPassFlags framePipelineExtraPassFlags)
+	{
+		m_framePipelineExtraPassFlags &= ~framePipelineExtraPassFlags;
+	}
+
+	inline void Camera::EnableFramePipelinePasses(FramePipelineExtraPassFlags framePipelineExtraPassFlags)
+	{
+		m_framePipelineExtraPassFlags |= framePipelineExtraPassFlags;
+	}
+
 	inline float Camera::GetAspectRatio() const
 	{
 		return m_aspectRatio;
@@ -119,7 +129,7 @@ namespace Nz
 		UpdateProjectionMatrix();
 	}
 
-	inline void Camera::UpdateFramePipelineExtraPassFlags(FramePipelineExtraPassFlags framePipelineExtraFlags)
+	inline void Camera::UpdateFramePipelinePasses(FramePipelineExtraPassFlags framePipelineExtraFlags)
 	{
 		m_framePipelineExtraPassFlags = framePipelineExtraFlags;
 	}

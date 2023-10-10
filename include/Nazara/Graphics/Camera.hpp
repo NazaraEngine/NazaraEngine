@@ -27,6 +27,9 @@ namespace Nz
 			inline Camera(Camera&& camera) noexcept;
 			~Camera() = default;
 
+			inline void DisableFramePipelinePasses(FramePipelineExtraPassFlags framePipelineExtraPassFlags);
+			inline void EnableFramePipelinePasses(FramePipelineExtraPassFlags framePipelineExtraPassFlags);
+
 			inline float GetAspectRatio() const;
 			const Color& GetClearColor() const override;
 			inline DegreeAnglef GetFOV() const;
@@ -45,7 +48,7 @@ namespace Nz
 
 			inline void UpdateClearColor(Color color);
 			inline void UpdateFOV(DegreeAnglef fov);
-			inline void UpdateFramePipelineExtraPassFlags(FramePipelineExtraPassFlags framePipelineExtraFlags);
+			inline void UpdateFramePipelinePasses(FramePipelineExtraPassFlags framePipelineExtraFlags);
 			inline void UpdateProjectionType(ProjectionType projectionType);
 			inline void UpdateRenderMask(UInt32 renderMask);
 			inline void UpdateRenderOrder(Int32 renderOrder);
