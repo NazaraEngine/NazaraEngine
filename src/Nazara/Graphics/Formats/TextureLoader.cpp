@@ -25,7 +25,8 @@ namespace Nz
 			{
 				TextureParams texParams;
 				texParams.renderDevice = Graphics::Instance()->GetRenderDevice();
-				// TODO: Set format as sRGB
+				if (parameters.custom.GetBooleanParameter("sRGB").GetValueOr(false))
+					texParams.loadFormat = PixelFormat::RGBA8_SRGB;
 
 				std::shared_ptr<Image> image = Image::LoadFromStream(stream, texParams);
 				if (!image)
