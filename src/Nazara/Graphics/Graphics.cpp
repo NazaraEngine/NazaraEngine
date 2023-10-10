@@ -67,12 +67,21 @@ namespace Nz
 			#include <Nazara/Graphics/Resources/Shaders/Modules/Engine/ViewerData.nzslb.h>
 		};
 
+		const UInt8 r_mathColorModule[] = {
+			#include <Nazara/Graphics/Resources/Shaders/Modules/Math/Color.nzslb.h>
+		};
+
 		const UInt8 r_mathConstantsModule[] = {
 			#include <Nazara/Graphics/Resources/Shaders/Modules/Math/Constants.nzslb.h>
 		};
 
 		const UInt8 r_mathCookTorrancePBRModule[] = {
 			#include <Nazara/Graphics/Resources/Shaders/Modules/Math/CookTorrancePBR.nzslb.h>
+		};
+
+		// Passes
+		const UInt8 r_gammaCorrectionPass[] = {
+			#include <Nazara/Graphics/Resources/Shaders/Passes/GammaCorrection.nzslb.h>
 		};
 	}
 
@@ -397,8 +406,10 @@ namespace Nz
 		m_shaderModuleResolver = std::make_shared<nzsl::FilesystemModuleResolver>();
 		RegisterEmbedShaderModule(r_basicMaterialShader);
 		RegisterEmbedShaderModule(r_fullscreenVertexShader);
+		RegisterEmbedShaderModule(r_gammaCorrectionPass);
 		RegisterEmbedShaderModule(r_instanceDataModule);
 		RegisterEmbedShaderModule(r_lightDataModule);
+		RegisterEmbedShaderModule(r_mathColorModule);
 		RegisterEmbedShaderModule(r_mathConstantsModule);
 		RegisterEmbedShaderModule(r_mathCookTorrancePBRModule);
 		RegisterEmbedShaderModule(r_phongMaterialShader);
