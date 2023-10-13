@@ -6,10 +6,12 @@ import LightData from Engine.LightData;
 import SkeletalData from Engine.SkeletalData;
 import ViewerData from Engine.ViewerData;
 
+import * from Engine.LightShadow;
 import SkinLinearPosition, SkinLinearPositionNormal from Engine.SkinningLinear;
 
 // Pass-specific options
 option DepthPass: bool = false;
+option DistanceDepth: bool = false;
 
 // Basic material options
 option HasBaseColorTexture: bool = false;
@@ -39,6 +41,8 @@ option VertexUvLoc: i32 = -1;
 
 option VertexJointIndicesLoc: i32 = -1;
 option VertexJointWeightsLoc: i32 = -1;
+
+option MaxLightCount: u32 = u32(3); //< FIXME: Fix integral value types
 
 const HasNormal = (VertexNormalLoc >= 0);
 const HasVertexColor = (VertexColorLoc >= 0);
@@ -87,7 +91,10 @@ external
 	[tag("InstanceData")] instanceData: uniform[InstanceData],
 	[tag("ViewerData")] viewerData: uniform[ViewerData],
 	[tag("SkeletalData")] skeletalData: uniform[SkeletalData],
-	[tag("LightData")] lightData: uniform[LightData]
+	[tag("LightData")] lightData: uniform[LightData],
+	[tag("ShadowMapsDirectional")] shadowMapsDirectional: array[depth_sampler2D_array[f32], MaxLightCount],
+	[tag("ShadowMapsPoint")] shadowMapsPoint: array[sampler_cube[f32], MaxLightCount],
+	[tag("ShadowMapsSpot")] shadowMapsSpot: array[depth_sampler2D[f32], MaxLightCount],
 }
 
 struct VertToFrag
@@ -101,16 +108,16 @@ struct VertToFrag
 }
 
 // Fragment stage
-import DistributionGGX, GeometrySmith, FresnelSchlick from Math.CookTorrancePBR;
+import ComputeLightRadiance, DistributionGGX, GeometrySmith, FresnelSchlick from Math.CookTorrancePBR;
 import Pi from Math.Constants;
 
 struct FragOut
 {
-	[location(0)] RenderTarget0: vec4[f32]
+	[location(0)] RenderTarget0: vec4[f32],
+	[builtin(frag_depth), cond(DistanceDepth)] fragdepth: f32,
 }
 
-[entry(frag), cond(!DepthPass || AlphaTest)]
-fn main(input: VertToFrag) -> FragOut
+fn ComputeColor(input: VertToFrag) -> vec4[f32]
 {
 	let color = settings.BaseColor;
 
@@ -126,6 +133,13 @@ fn main(input: VertToFrag) -> FragOut
 	const if (HasAlphaTexture)
 		color.w *= MaterialAlphaMap.Sample(input.uv).x;
 
+	return color;
+}
+
+[entry(frag), cond(!DepthPass)]
+fn main(input: VertToFrag) -> FragOut
+{
+	let color = ComputeColor(input);
 	const if (AlphaTest)
 	{
 		if (color.w < settings.AlphaThreshold)
@@ -170,61 +184,55 @@ fn main(input: VertToFrag) -> FragOut
 
 		let albedoFactor = albedo / Pi;
 
-		/*for i in u32(0) -> lightData.lightCount
+		for lightIndex in u32(0) -> lightData.directionalLightCount
 		{
-			let light = lightData.lights[i];
+			let light = lightData.directionalLights[lightIndex];
 
-			let attenuation = 1.0;
+			let lambert = max(dot(normal, -light.direction), 0.0);
 
-			// TODO: Add switch instruction
-			let lightToPosNorm: vec3[f32];
-			if (light.type == DirectionalLight)
-				lightToPosNorm = -light.parameter1.xyz;
-			else
-			{
-				// PointLight | SpotLight
-				let lightPos = light.parameter1.xyz;
-				let lightInvRadius = light.parameter1.w;
+			let shadowFactor = ComputeDirectionalLightShadow(light, shadowMapsDirectional[lightIndex], input.worldPos, lambert, viewerData.viewMatrix);
+			let radiance = ComputeLightRadiance(light.color.rgb, -light.direction, 1.0, albedoFactor, eyeVec, F0, normal, metallic, roughness);
 
-				let lightToPos = input.worldPos - lightPos;
-				let dist = length(lightToPos);
+			lightRadiance += shadowFactor * radiance;
+		}
 
-				attenuation = max(1.0 - dist * lightInvRadius, 0.0);
-				lightToPosNorm = lightToPos / max(dist, 0.0001);
+		for lightIndex in u32(0) -> lightData.pointLightCount
+		{
+			let light = lightData.pointLights[lightIndex];
 
-				if (light.type == SpotLight)
-				{
-					let lightDir = light.parameter2.xyz;
-					let lightInnerAngle = light.parameter3.x;
-					let lightOuterAngle = light.parameter3.y;
+			let lightToPos = input.worldPos - light.position;
+			let dist = length(lightToPos);
 
-					let curAngle = dot(lightDir, lightToPosNorm);
-					let innerMinusOuterAngle = lightInnerAngle - lightOuterAngle;
-	
-					attenuation *= max((curAngle - lightOuterAngle) / innerMinusOuterAngle, 0.0);			
-				}
-			}
+			let attenuation = max(1.0 - dist * light.invRadius, 0.0);
+			let lightToPosNorm = lightToPos / max(dist, 0.0001);
 
-			let radiance = light.color.rgb * attenuation;
+			let shadowFactor = ComputePointLightShadow(light, shadowMapsPoint[lightIndex], dist, lightToPosNorm);
+			let radiance = ComputeLightRadiance(light.color.rgb, lightToPosNorm, attenuation, albedoFactor, eyeVec, F0, normal, metallic, roughness);
 
-			let halfDir = normalize(lightToPosNorm + eyeVec);
+			lightRadiance += shadowFactor * radiance;
+		}
 
-			// Cook-Torrance BRDF
-			let NDF = DistributionGGX(normal, halfDir, roughness);
-			let G = GeometrySmith(normal, eyeVec, lightToPosNorm, roughness);
-			let F = FresnelSchlick(max(dot(halfDir, eyeVec), 0.0), F0);
+		for lightIndex in u32(0) -> lightData.spotLightCount
+		{
+			let light = lightData.spotLights[lightIndex];
 
-			let kS = F;
-			let diffuse = vec3[f32](1.0, 1.0, 1.0) - kS;
-			diffuse *= 1.0 - metallic;
+			let lightToPos = input.worldPos - light.position;
+			let dist = length(lightToPos);
+			let lightToPosNorm = lightToPos / max(dist, 0.0001);
 
-			let numerator = NDF * G * F;
-			let denominator = 4.0 * max(dot(normal, eyeVec), 0.0) * max(dot(normal, lightToPosNorm), 0.0);
-			let specular = numerator / max(denominator, 0.0001);
+			let curAngle = dot(light.direction, lightToPosNorm);
+			let innerMinusOuterAngle = light.innerAngle - light.outerAngle;
 
-			let NdotL = max(dot(normal, lightToPosNorm), 0.0);
-			lightRadiance += (diffuse * albedoFactor + specular) * radiance * NdotL;
-		}*/
+			let attenuation = max(1.0 - dist * light.invRadius, 0.0);
+			attenuation *= max((curAngle - light.outerAngle) / innerMinusOuterAngle, 0.0);			
+
+			let lambert = clamp(dot(normal, -lightToPosNorm), 0.0, 1.0);
+
+			let shadowFactor = ComputeSpotLightShadow(light, shadowMapsSpot[lightIndex], input.worldPos, lambert);
+			let radiance = ComputeLightRadiance(light.color.rgb, lightToPosNorm, attenuation, albedoFactor, eyeVec, F0, normal, metallic, roughness);
+
+			lightRadiance += shadowFactor * radiance;
+		}
 
 		let ambient = (0.03).rrr * albedo;
 
@@ -244,9 +252,41 @@ fn main(input: VertToFrag) -> FragOut
 	}
 }
 
-// Dummy fragment shader (TODO: Add a way to delete stage?)
-[entry(frag), cond(DepthPass && !AlphaTest)]
-fn main() {}
+// Shadow passes entries
+[entry(frag), cond(DepthPass && DistanceDepth)]
+[depth_write(replace)]
+fn main(input: VertToFrag) -> FragOut
+{
+	let color = ComputeColor(input);
+	const if (AlphaTest)
+	{
+		if (color.w < settings.AlphaThreshold)
+			discard;
+	}
+
+	let output: FragOut;
+	output.RenderTarget0 = color;
+
+	let dist = distance(viewerData.eyePosition, input.worldPos);
+	output.fragdepth = dist / viewerData.farPlane;
+
+	return output;
+}
+
+[entry(frag), cond(DepthPass && AlphaTest && !DistanceDepth)]
+fn main(input: VertToFrag) -> FragOut
+{
+	let color = ComputeColor(input);
+	if (color.w < settings.AlphaThreshold)
+		discard;
+
+	let output: FragOut;
+	output.RenderTarget0 = color;
+	return output;
+}
+
+[entry(frag), cond(DepthPass && !AlphaTest && !DistanceDepth)]
+fn main() {} //< dummy
 
 // Vertex stage
 struct VertIn
