@@ -23,6 +23,7 @@ namespace Nz
 	class AbstractViewer;
 	class InstancedRenderable;
 	class Light;
+	class LightShadowData;
 	class MaterialInstance;
 	class RenderFrame;
 

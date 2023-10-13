@@ -16,6 +16,7 @@
 #include <Nazara/OpenGLRenderer/OpenGLTexture.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLTextureSampler.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Loader.hpp>
+#include <Nazara/Platform/WindowHandle.hpp>
 #include <Nazara/Renderer/CommandPool.hpp>
 #include <NazaraUtils/Algorithm.hpp>
 #include <array>
