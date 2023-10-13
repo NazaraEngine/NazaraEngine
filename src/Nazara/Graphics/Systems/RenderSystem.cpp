@@ -55,22 +55,36 @@ namespace Nz
 		return *m_windowSwapchains.emplace_back(std::make_unique<WindowSwapchain>(Graphics::Instance()->GetRenderDevice(), window, parameters));
 	}
 
+	void RenderSystem::DestroySwapchain(WindowSwapchain& swapchain)
+	{
+		auto it = std::find_if(m_windowSwapchains.begin(), m_windowSwapchains.end(), [&](const auto& ptr) { return ptr.get() == &swapchain; });
+		NazaraAssert(it != m_windowSwapchains.end(), "invalid swapchain");
+
+		m_windowSwapchains.erase(it);
+	}
+
 	void RenderSystem::Update(Time /*elapsedTime*/)
 	{
 		UpdateObservers();
 		UpdateInstances();
 
-		for (auto& swapchainPtr : m_windowSwapchains)
+		auto HandleSwapchain = [&](WindowSwapchain& swapchain)
 		{
-			RenderFrame frame = swapchainPtr->AcquireFrame();
+			RenderFrame frame = swapchain.AcquireFrame();
 			if (!frame)
-				continue;
+				return;
 
 			if (!m_cameraEntities.empty())
 				m_pipeline->Render(frame);
 
 			frame.Present();
-		}
+		};
+
+		for (auto& swapchainPtr : m_windowSwapchains)
+			HandleSwapchain(*swapchainPtr);
+
+		for (WindowSwapchain& swapchain : m_externalSwapchains)
+			HandleSwapchain(swapchain);
 	}
 
 	void RenderSystem::OnCameraDestroy([[maybe_unused]] entt::registry& registry, entt::entity entity)

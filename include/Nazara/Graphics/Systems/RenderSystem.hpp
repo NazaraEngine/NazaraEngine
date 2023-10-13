@@ -41,7 +41,12 @@ namespace Nz
 			RenderSystem(RenderSystem&&) = delete;
 			~RenderSystem();
 
+			inline void AttachExternalSwapchain(WindowSwapchain& swapchain);
+
 			WindowSwapchain& CreateSwapchain(Window& window, const SwapchainParameters& parameters = SwapchainParameters{});
+
+			void DestroySwapchain(WindowSwapchain& swapchain);
+			inline void DetachExternalSwapchain(WindowSwapchain& swapchain);
 
 			inline FramePipeline& GetFramePipeline();
 			inline const FramePipeline& GetFramePipeline() const;
@@ -136,6 +141,7 @@ namespace Nz
 			std::unordered_map<entt::entity, GraphicsEntity*> m_graphicsEntities;
 			std::unordered_map<entt::entity, LightEntity*> m_lightEntities;
 			std::unordered_map<Skeleton*, SharedSkeleton> m_sharedSkeletonInstances;
+			std::vector<std::reference_wrapper<WindowSwapchain>> m_externalSwapchains;
 			std::vector<std::unique_ptr<WindowSwapchain>> m_windowSwapchains;
 			ElementRendererRegistry m_elementRegistry;
 			MemoryPool<CameraEntity> m_cameraEntityPool;
