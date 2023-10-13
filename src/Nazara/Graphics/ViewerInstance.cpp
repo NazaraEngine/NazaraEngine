@@ -23,7 +23,9 @@ namespace Nz
 	m_viewMatrix(Matrix4f::Identity()),
 	m_targetSize(Vector2f::Zero()),
 	m_eyePosition(Vector3f::Zero()),
-	m_dataInvalidated(true)
+	m_dataInvalidated(true),
+	m_farPlane(-1.f),
+	m_nearPlane(-1.f)
 	{
 		m_viewerDataBuffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform, PredefinedViewerOffsets.totalSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write);
 		m_viewerDataBuffer->UpdateDebugName("Viewer data");
