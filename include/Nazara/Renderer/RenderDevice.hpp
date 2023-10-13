@@ -33,6 +33,7 @@ namespace Nz
 	class CommandBufferBuilder;
 	class CommandPool;
 	class ShaderModule;
+	struct WindowHandle;
 
 	class NAZARA_RENDERER_API RenderDevice
 	{

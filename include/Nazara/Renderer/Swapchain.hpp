@@ -9,7 +9,6 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Math/Vector2.hpp>
-#include <Nazara/Platform/WindowHandle.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/RenderFrame.hpp>
 #include <Nazara/Renderer/RenderPass.hpp>

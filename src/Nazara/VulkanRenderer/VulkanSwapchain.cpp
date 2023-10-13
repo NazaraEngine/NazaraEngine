@@ -6,6 +6,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Math/Vector2.hpp>
+#include <Nazara/Platform/WindowHandle.hpp>
 #include <Nazara/Renderer/WindowSwapchain.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
 #include <Nazara/VulkanRenderer/Vulkan.hpp>
