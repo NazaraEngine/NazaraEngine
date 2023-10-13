@@ -6,6 +6,7 @@ import LightData from Engine.LightData;
 import SkeletalData from Engine.SkeletalData;
 import ViewerData from Engine.ViewerData;
 
+import * from Engine.LightShadow;
 import SkinLinearPosition, SkinLinearPositionNormal from Engine.SkinningLinear;
 
 // Pass-specific options
@@ -18,7 +19,6 @@ option HasAlphaTexture: bool = false;
 option AlphaTest: bool = false;
 
 // Phong material options
-option EnableShadowMapping: bool = true;
 option HasEmissiveTexture: bool = false;
 option HasHeightTexture: bool = false;
 option HasNormalTexture: bool = false;
@@ -40,7 +40,6 @@ option VertexUvLoc: i32 = -1;
 option VertexJointIndicesLoc: i32 = -1;
 option VertexJointWeightsLoc: i32 = -1;
 
-option MaxLightCascadeCount: u32 = u32(4); //< FIXME: Fix integral value types
 option MaxLightCount: u32 = u32(3); //< FIXME: Fix integral value types
 
 const HasNormal = (VertexNormalLoc >= 0);
@@ -126,6 +125,15 @@ struct FragOut
 fn LinearizeDepth(depth: f32, zNear: f32, zFar: f32) -> f32
 {
     return zNear * zFar / (zFar + depth * (zNear - zFar));
+} 
+
+// http://the-witness.net/news/2013/09/shadow-mapping-summary-part-1/
+fn GetSlopeScaledBias(normal: vec3[f32], lightDir: vec3[f32]) -> f32
+{  
+	let cosAlpha = clamp(dot(normal, lightDir), 0.0, 1.0);  
+	let sinAlpha = sqrt(1.0 - cosAlpha * cosAlpha);     // sin(acos(L*N))  
+	let tanAlpha = sinAlpha / cosAlpha;            // tan(acos(L*N))  
+	return tanAlpha;  
 }
 
 fn ComputeColor(input: VertToFrag) -> vec4[f32]
@@ -188,48 +196,7 @@ fn main(input: VertToFrag) -> FragOut
 			let specFactor = max(dot(reflection, eyeVec), 0.0);
 			specFactor = pow(specFactor, settings.Shininess);
 
-			let shadowFactor = 1.0;
-			const if (EnableShadowMapping)
-			{
-				if (light.invShadowMapSize.x > 0.0)
-				{
-					let fragPosViewSpace = viewerData.viewMatrix * vec4[f32](input.worldPos, 1.0);
-					let depthValue = abs(fragPosViewSpace.z);
-
-					let cascadeIndex = MaxLightCascadeCount;
-					for index in u32(0) -> light.cascadeCount
-					{
-						if (depthValue < light.cascadeDistances[index])
-						{
-							cascadeIndex = index;
-							break;
-						}
-					}
-
-					if (cascadeIndex >= light.cascadeCount)
-						cascadeIndex = light.cascadeCount - u32(1);
-
-					let lightProjPos = light.viewProjMatrices[cascadeIndex] * vec4[f32](input.worldPos, 1.0);
-					let shadowCoords = lightProjPos.xyz / lightProjPos.w;
-
-					// calculate bias (based on depth map resolution and slope)
-					let bias = max(0.05 * (1.0 - lambert), 0.005);
-					bias *= 1.0 / (light.cascadeDistances[cascadeIndex] * 0.05);
-
-					shadowFactor = 0.0;
-					[unroll]
-					for x in -1 -> 2
-					{
-						[unroll]
-						for y in -1 -> 2
-						{
-							let coords = shadowCoords.xy + vec2[f32](f32(x), f32(y)) * light.invShadowMapSize;
-							shadowFactor += shadowMapsDirectional[lightIndex].SampleDepthComp(vec3[f32](coords, f32(cascadeIndex)), shadowCoords.z - bias).r;
-						}
-					}
-					shadowFactor /= 9.0;
-				}
-			}
+			let shadowFactor = ComputeDirectionalLightShadow(light, shadowMapsDirectional[lightIndex], input.worldPos, lambert, viewerData.viewMatrix);
 
 			lightAmbient += shadowFactor * light.color.rgb * light.ambientFactor * settings.AmbientColor.rgb;
 			lightDiffuse += shadowFactor * lambert * light.color.rgb * light.diffuseFactor;
@@ -251,46 +218,7 @@ fn main(input: VertToFrag) -> FragOut
 			let specFactor = max(dot(reflection, eyeVec), 0.0);
 			specFactor = pow(specFactor, settings.Shininess);
 
-			let shadowFactor = 1.0;
-			const if (EnableShadowMapping)
-			{
-				if (light.invShadowMapSize.x > 0.0)
-				{
-					shadowFactor = 0.0;
-
-					let sampleDir = vec3[f32](lightToPosNorm.x, lightToPosNorm.y, -lightToPosNorm.z);
-
-					const sampleCount = 4;
-					const offset = 0.005;
-
-					const invSampleCount = 1.0 / f32(sampleCount);
-					const start = vec3[f32](offset * 0.5, offset * 0.5, offset * 0.5);
-					const shadowContribution = 1.0 / f32(sampleCount * sampleCount * sampleCount);
-
-					let bias = 0.05;
-
-					[unroll]
-					for x in 0 -> sampleCount
-					{
-						[unroll]
-						for y in 0 -> sampleCount
-						{
-							[unroll]
-							for z in 0 -> sampleCount
-							{
-								let dirOffset = vec3[f32](f32(x), f32(y), f32(z)) * invSampleCount * offset - start;
-								let sampleDir = sampleDir + dirOffset;
-
-								let closestDepth = shadowMapsPoint[lightIndex].Sample(sampleDir).r;
-								closestDepth *= light.radius;
-			
-								if (closestDepth > dist - bias)
-									shadowFactor += shadowContribution;
-							}
-						}
-					}
-				}
-			}
+			let shadowFactor = ComputePointLightShadow(light, shadowMapsPoint[lightIndex], dist, lightToPosNorm);
 
 			lightAmbient += attenuationFactor * light.color.rgb * light.ambientFactor * settings.AmbientColor.rgb;
 			lightDiffuse += shadowFactor * attenuationFactor * lambert * light.color.rgb * light.diffuseFactor;
@@ -317,31 +245,7 @@ fn main(input: VertToFrag) -> FragOut
 			let specFactor = max(dot(reflection, eyeVec), 0.0);
 			specFactor = pow(specFactor, settings.Shininess);
 
-			let shadowFactor = 1.0;
-			const if (EnableShadowMapping)
-			{
-				if (light.invShadowMapSize.x > 0.0)
-				{
-					let bias = 0.0005 * tan(acos(lambert));
-					bias = clamp(bias, 0.0, 0.01);
-
-					let lightProjPos = light.viewProjMatrix * vec4[f32](input.worldPos, 1.0);
-					let shadowCoords = lightProjPos.xyz / lightProjPos.w;
-
-					shadowFactor = 0.0;
-					[unroll]
-					for x in -1 -> 2
-					{
-						[unroll]
-						for y in -1 -> 2
-						{
-							let coords = shadowCoords.xy + vec2[f32](f32(x), f32(y)) * light.invShadowMapSize;
-							shadowFactor += shadowMapsSpot[lightIndex].SampleDepthComp(coords, shadowCoords.z - bias).r;
-						}
-					}
-					shadowFactor /= 9.0;
-				}
-			}
+			let shadowFactor = ComputeSpotLightShadow(light, shadowMapsSpot[lightIndex], input.worldPos, lambert);
 
 			lightAmbient += attenuationFactor * light.color.rgb * light.ambientFactor * settings.AmbientColor.rgb;
 			lightDiffuse += shadowFactor * attenuationFactor * lambert * light.color.rgb * light.diffuseFactor;

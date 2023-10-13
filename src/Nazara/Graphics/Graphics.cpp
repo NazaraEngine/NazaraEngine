@@ -51,6 +51,10 @@ namespace Nz
 			#include <Nazara/Graphics/Resources/Shaders/Modules/Engine/LightData.nzslb.h>
 		};
 
+		const UInt8 r_lightShadowModule[] = {
+			#include <Nazara/Graphics/Resources/Shaders/Modules/Engine/LightShadow.nzslb.h>
+		};
+
 		const UInt8 r_skeletalDataModule[] = {
 			#include <Nazara/Graphics/Resources/Shaders/Modules/Engine/SkeletalData.nzslb.h>
 		};
@@ -422,6 +426,7 @@ namespace Nz
 		RegisterEmbedShaderModule(r_gammaCorrectionPass);
 		RegisterEmbedShaderModule(r_instanceDataModule);
 		RegisterEmbedShaderModule(r_lightDataModule);
+		RegisterEmbedShaderModule(r_lightShadowModule);
 		RegisterEmbedShaderModule(r_mathColorModule);
 		RegisterEmbedShaderModule(r_mathConstantsModule);
 		RegisterEmbedShaderModule(r_mathCookTorrancePBRModule);
