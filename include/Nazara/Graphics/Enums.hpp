@@ -58,7 +58,7 @@ namespace Nz
 
 	using FramePipelineExtraPassFlags = Flags<FramePipelineExtraPass>;
 
-	constexpr FramePipelineExtraPassFlags FramePipelineAllExtraPasses = FramePipelineExtraPass::DebugDraw | FramePipelineExtraPass::DepthPrepass;
+	constexpr FramePipelineExtraPassFlags FramePipelineAllExtraPasses = FramePipelineExtraPass::DebugDraw | FramePipelineExtraPass::DepthPrepass | FramePipelineExtraPass::GammaCorrection;
 	
 	enum class MaterialPropertyType
 	{
