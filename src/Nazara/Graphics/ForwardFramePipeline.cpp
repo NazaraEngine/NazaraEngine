@@ -446,10 +446,13 @@ namespace Nz
 			std::size_t visibilityHash = 5;
 			const auto& visibleRenderables = FrustumCull(viewerData.frame.frustum, renderMask, visibilityHash);
 
-			if (viewerData.gammaCorrectionPass)
-				viewerData.gammaCorrectionPass->Prepare(renderFrame);
+			if (viewerData.depthPrepass)
+				viewerData.depthPrepass->Prepare(renderFrame, viewerData.frame.frustum, visibleRenderables, visibilityHash);
 
 			viewerData.forwardPass->Prepare(renderFrame, viewerData.frame.frustum, visibleRenderables, viewerData.frame.visibleLights, visibilityHash);
+
+			if (viewerData.gammaCorrectionPass)
+				viewerData.gammaCorrectionPass->Prepare(renderFrame);
 
 			if (viewerData.debugDrawPass)
 				viewerData.debugDrawPass->Prepare(renderFrame);
