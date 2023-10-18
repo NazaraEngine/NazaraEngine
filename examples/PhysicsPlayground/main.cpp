@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
 	Nz::Vector3f target = Nz::Vector3f::Zero();
 
 	std::shared_ptr<Nz::MaterialInstance> colliderMat = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Basic);
-	colliderMat->SetValueProperty("BaseColor", Nz::Color::Green());
+	colliderMat->SetValueProperty("BaseColor", Nz::Color::sRGBToLinear(Nz::Color::Green()));
 	colliderMat->UpdatePassesStates([](Nz::RenderStates& states)
 	{
 		states.primitiveMode = Nz::PrimitiveMode::LineList;
@@ -72,13 +72,16 @@ int main(int argc, char* argv[])
 	{
 		std::shared_ptr<Nz::GraphicalMesh> boxMesh = Nz::GraphicalMesh::Build(Nz::Primitive::Box(Nz::Vector3f(BoxDims), Nz::Vector3ui::Zero(), Nz::Matrix4f::Scale(Nz::Vector3f(-1.f)), Nz::Rectf(0.f, 0.f, 2.f, 2.f)));
 
+		Nz::TextureParams textureParams = *fs.GetDefaultResourceParameters<Nz::Texture>();
+		textureParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
+
 		Nz::TextureSamplerInfo planeSampler;
 		planeSampler.anisotropyLevel = 16;
 		planeSampler.wrapModeU = Nz::SamplerWrap::Repeat;
 		planeSampler.wrapModeV = Nz::SamplerWrap::Repeat;
 
 		std::shared_ptr<Nz::MaterialInstance> boxMat = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Phong);
-		boxMat->SetTextureProperty("BaseColorMap", fs.Load<Nz::Texture>("assets/dev_grey.png"), planeSampler);
+		boxMat->SetTextureProperty("BaseColorMap", fs.Load<Nz::Texture>("assets/dev_grey.png", textureParams), planeSampler);
 		boxMat->DisablePass("ShadowPass");
 		boxMat->UpdatePassesStates([&](Nz::RenderStates& states)
 		{
@@ -169,7 +172,7 @@ int main(int argc, char* argv[])
 		entt::handle ballEntity = world.CreateEntity();
 
 		std::shared_ptr<Nz::MaterialInstance> ballMaterial = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Phong);
-		ballMaterial->SetValueProperty("BaseColor", Nz::Color::FromHSV(colorDis(rd), 1.f, 1.f));
+		ballMaterial->SetValueProperty("BaseColor", Nz::Color::sRGBToLinear(Nz::Color::FromHSV(colorDis(rd), 1.f, 1.f)));
 
 		std::shared_ptr<Nz::Model> sphereModel = std::make_shared<Nz::Model>(sphereMesh);
 		sphereModel->SetMaterial(0, std::move(ballMaterial));
@@ -209,7 +212,7 @@ int main(int argc, char* argv[])
 		entt::handle boxEntity = world.CreateEntity();
 
 		std::shared_ptr<Nz::MaterialInstance> boxMaterial = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Phong);
-		boxMaterial->SetValueProperty("BaseColor", Nz::Color::FromHSV(colorDis(rd), 1.f, 1.f));
+		boxMaterial->SetValueProperty("BaseColor", Nz::Color::sRGBToLinear(Nz::Color::FromHSV(colorDis(rd), 1.f, 1.f)));
 
 		std::shared_ptr<Nz::Model> sphereModel = std::make_shared<Nz::Model>(boxMesh);
 		sphereModel->SetMaterial(0, std::move(boxMaterial));
@@ -347,7 +350,8 @@ int main(int argc, char* argv[])
 
 		auto& cameraComponent = cameraEntity.emplace<Nz::CameraComponent>(&windowSwapchain, Nz::ProjectionType::Perspective);
 		cameraComponent.UpdateFOV(70.f);
-		cameraComponent.UpdateClearColor(Nz::Color(0.46f, 0.48f, 0.84f, 1.f));
+		cameraComponent.UpdateClearColor(Nz::Color::sRGBToLinear(Nz::Color(0.46f, 0.48f, 0.84f, 1.f)));
+		cameraComponent.EnableFramePipelinePasses(Nz::FramePipelineExtraPass::GammaCorrection);
 	}
 
 	auto UpdateCamera = [&]
