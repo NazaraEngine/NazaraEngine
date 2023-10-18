@@ -295,7 +295,7 @@ namespace Nz
 			}
 			else
 			{
-				m_sprite->SetColor(owner->GetColor() * Nz::Color::FromRGB8(120, 0, 0));
+				m_sprite->SetColor(owner->GetColor() * Nz::Color::FromRGB8(120, 120, 120));
 				m_sprite->SetMaterial(owner->GetMaterial());
 			}
 		}
