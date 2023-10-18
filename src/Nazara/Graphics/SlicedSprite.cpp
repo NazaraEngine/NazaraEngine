@@ -156,8 +156,9 @@ namespace Nz
 		if (vertexCount > 0)
 		{
 			// Reverse texcoords Y
+			float yOffset = m_textureCoords.height + 2.f * (1.f - m_textureCoords.height);
 			for (std::size_t i = 0; i < vertexCount; ++i)
-				m_vertices[i].uv.y = m_textureCoords.height - m_vertices[i].uv.y;
+				m_vertices[i].uv.y = yOffset - m_vertices[i].uv.y;
 
 			aabb = Boxf(m_vertices[0].position, Vector2f::Zero());
 			for (std::size_t i = 1; i < vertexCount; ++i)
