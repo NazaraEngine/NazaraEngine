@@ -780,7 +780,7 @@ namespace Nz::GL
 			if (!NumberEquals(m_state.renderStates.depthBiasConstantFactor, renderStates.depthBiasConstantFactor) ||
 			    !NumberEquals(m_state.renderStates.depthBiasSlopeFactor, renderStates.depthBiasSlopeFactor))
 			{
-				glPolygonOffset(renderStates.depthBiasConstantFactor, renderStates.depthBiasSlopeFactor);
+				glPolygonOffset(renderStates.depthBiasSlopeFactor, renderStates.depthBiasConstantFactor);
 				m_state.renderStates.depthBiasConstantFactor = renderStates.depthBiasConstantFactor;
 				m_state.renderStates.depthBiasSlopeFactor = renderStates.depthBiasSlopeFactor;
 			}
