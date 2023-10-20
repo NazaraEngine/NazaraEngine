@@ -24,7 +24,7 @@ XMake can also generate a project file for another tool:
 - Ninja: `xmake project -k ninja`
 - XCode: `xmake project -k xcode`
 
-You should now be able to the project file with the tool of your choice.
+You should now be able to open the project file with the tool of your choice.
 
 ## Test
 
