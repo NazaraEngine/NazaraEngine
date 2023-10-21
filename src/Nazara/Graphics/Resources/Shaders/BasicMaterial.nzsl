@@ -9,6 +9,7 @@ import SkinLinearPosition from Engine.SkinningLinear;
 // Pass-specific options
 option DepthPass: bool = false;
 option DistanceDepth: bool = false;
+option ShadowPass: bool = false;
 
 // Material options
 option HasBaseColorTexture: bool = false;
@@ -23,12 +24,14 @@ option BillboardSizeRotLocation: i32 = -1;
 
 // Vertex declaration related options
 option VertexColorLoc: i32 = -1;
+option VertexNormalLoc: i32 = -1;
 option VertexPositionLoc: i32;
 option VertexUvLoc: i32 = -1;
 
 option VertexJointIndicesLoc: i32 = -1;
 option VertexJointWeightsLoc: i32 = -1;
 
+const HasNormal = (VertexNormalLoc >= 0);
 const HasVertexColor = (VertexColorLoc >= 0);
 const HasColor = (HasVertexColor || Billboard);
 const HasUV = (VertexUvLoc >= 0);
@@ -39,6 +42,12 @@ struct MaterialSettings
 {
 	[tag("AlphaTestThreshold")]
 	AlphaThreshold: f32,
+
+	[tag("ShadowMapNormalOffset")]
+	ShadowMapNormalOffset: f32,
+
+	[tag("ShadowPosScale")]
+	ShadowPosScale: f32,
 
 	[tag("BaseColor")]
 	BaseColor: vec4[f32]
@@ -157,6 +166,9 @@ struct VertIn
 	[cond(HasVertexColor), location(VertexColorLoc)] 
 	color: vec4[f32],
 
+	[cond(HasNormal), location(VertexNormalLoc)]
+	normal: vec3[f32],
+
 	[cond(HasUV), location(VertexUvLoc)] 
 	uv: vec2[f32],
 
@@ -229,6 +241,13 @@ fn main(input: VertIn) -> VertToFrag
 	}
 	else
 		pos = input.pos;
+
+	const if (ShadowPass)
+	{
+		pos *= settings.ShadowPosScale;
+		const if (HasNormal)
+			pos -= input.normal * settings.ShadowMapNormalOffset;
+	}
 
 	let worldPosition = instanceData.worldMatrix * vec4[f32](pos, 1.0);
 

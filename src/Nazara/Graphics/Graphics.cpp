@@ -264,6 +264,8 @@ namespace Nz
 			settings.AddPass(depthPassIndex, depthPass);
 
 			MaterialPass shadowPass = depthPass;
+			shadowPass.options[CRC32("ShadowPass")] = true;
+			shadowPass.states.frontFace = FrontFace::Clockwise;
 			shadowPass.states.depthClamp = enabledFeatures.depthClamping;
 			settings.AddPass(shadowPassIndex, shadowPass);
 
@@ -290,6 +292,8 @@ namespace Nz
 			settings.AddPass(depthPassIndex, depthPass);
 
 			MaterialPass shadowPass = depthPass;
+			shadowPass.options[CRC32("ShadowPass")] = true;
+			shadowPass.states.frontFace = FrontFace::Clockwise;
 			shadowPass.states.depthClamp = enabledFeatures.depthClamping;
 			settings.AddPass(shadowPassIndex, shadowPass);
 
@@ -316,6 +320,8 @@ namespace Nz
 			settings.AddPass(depthPassIndex, depthPass);
 
 			MaterialPass shadowPass = depthPass;
+			shadowPass.options[CRC32("ShadowPass")] = true;
+			shadowPass.states.frontFace = FrontFace::Clockwise;
 			shadowPass.states.depthClamp = enabledFeatures.depthClamping;
 			settings.AddPass(shadowPassIndex, shadowPass);
 

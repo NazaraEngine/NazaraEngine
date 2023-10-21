@@ -33,10 +33,6 @@ fn ComputeDirectionalLightShadow(light: DirectionalLight, shadowmap: depth_sampl
 			let lightProjPos = light.viewProjMatrices[cascadeIndex] * vec4[f32](worldPos, 1.0);
 			let shadowCoords = lightProjPos.xyz / lightProjPos.w;
 
-			// calculate bias (based on depth map resolution and slope)
-			let bias = max(0.05 * (1.0 - lambert), 0.005);
-			bias *= 1.0 / (light.cascadeDistances[cascadeIndex] * 0.05);
-
 			shadowFactor = 0.0;
 			[unroll]
 			for x in -1 -> 2
@@ -45,7 +41,7 @@ fn ComputeDirectionalLightShadow(light: DirectionalLight, shadowmap: depth_sampl
 				for y in -1 -> 2
 				{
 					let coords = shadowCoords.xy + vec2[f32](f32(x), f32(y)) * light.invShadowMapSize;
-					shadowFactor += shadowmap.SampleDepthComp(vec3[f32](coords, f32(cascadeIndex)), shadowCoords.z - bias).r;
+					shadowFactor += shadowmap.SampleDepthComp(vec3[f32](coords, f32(cascadeIndex)), shadowCoords.z).r;
 				}
 			}
 			shadowFactor /= 9.0;
@@ -74,8 +70,6 @@ fn ComputePointLightShadow(light: PointLight, shadowmap: sampler_cube[f32], dist
 			const start = vec3[f32](offset * 0.5, offset * 0.5, offset * 0.5);
 			const shadowContribution = 1.0 / f32(sampleCount * sampleCount * sampleCount);
 
-			let bias = 0.05;
-
 			[unroll]
 			for x in 0 -> sampleCount
 			{
@@ -91,7 +85,7 @@ fn ComputePointLightShadow(light: PointLight, shadowmap: sampler_cube[f32], dist
 						let closestDepth = shadowmap.Sample(sampleDir).r;
 						closestDepth *= light.radius;
 	
-						if (closestDepth > dist - bias)
+						if (closestDepth > dist)
 							shadowFactor += shadowContribution;
 					}
 				}
@@ -110,9 +104,6 @@ fn ComputeSpotLightShadow(light: SpotLight, shadowmap: depth_sampler2D[f32], wor
 	{
 		if (light.invShadowMapSize.x > 0.0)
 		{
-			let bias = 0.0005 * tan(acos(lambert));
-			bias = clamp(bias, 0.0, 0.01);
-
 			let lightProjPos = light.viewProjMatrix * vec4[f32](worldPos, 1.0);
 			let shadowCoords = lightProjPos.xyz / lightProjPos.w;
 
@@ -124,7 +115,7 @@ fn ComputeSpotLightShadow(light: SpotLight, shadowmap: depth_sampler2D[f32], wor
 				for y in -1 -> 2
 				{
 					let coords = shadowCoords.xy + vec2[f32](f32(x), f32(y)) * light.invShadowMapSize;
-					shadowFactor += shadowmap.SampleDepthComp(coords, shadowCoords.z - bias).r;
+					shadowFactor += shadowmap.SampleDepthComp(coords, shadowCoords.z).r;
 				}
 			}
 			shadowFactor /= 9.0;

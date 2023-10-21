@@ -16,6 +16,8 @@ namespace Nz
 		settings.AddValueProperty<Color>("BaseColor", Color::White());
 		settings.AddValueProperty<bool>("AlphaTest", false);
 		settings.AddValueProperty<float>("AlphaTestThreshold", 0.2f);
+		settings.AddValueProperty<float>("ShadowMapNormalOffset", 0.f);
+		settings.AddValueProperty<float>("ShadowPosScale", 1.f - 0.0025f);
 		settings.AddTextureProperty("BaseColorMap", ImageType::E2D);
 		settings.AddTextureProperty("AlphaMap", ImageType::E2D);
 		settings.AddPropertyHandler(std::make_unique<OptionValuePropertyHandler>("AlphaTest", "AlphaTest"));
@@ -23,6 +25,8 @@ namespace Nz
 		settings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("AlphaMap", "HasAlphaTexture"));
 		settings.AddPropertyHandler(std::make_unique<UniformValuePropertyHandler>("BaseColor"));
 		settings.AddPropertyHandler(std::make_unique<UniformValuePropertyHandler>("AlphaTestThreshold"));
+		settings.AddPropertyHandler(std::make_unique<UniformValuePropertyHandler>("ShadowMapNormalOffset"));
+		settings.AddPropertyHandler(std::make_unique<UniformValuePropertyHandler>("ShadowPosScale"));
 	}
 
 	void PredefinedMaterials::AddPbrSettings(MaterialSettings& settings)

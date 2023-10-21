@@ -12,6 +12,7 @@ import SkinLinearPosition, SkinLinearPositionNormal from Engine.SkinningLinear;
 // Pass-specific options
 option DepthPass: bool = false;
 option DistanceDepth: bool = false;
+option ShadowPass: bool = false;
 
 // Basic material options
 option HasBaseColorTexture: bool = false;
@@ -57,6 +58,12 @@ struct MaterialSettings
 	// Basic settings
 	[tag("AlphaTestThreshold")]
 	AlphaThreshold: f32,
+
+	[tag("ShadowMapNormalOffset")]
+	ShadowMapNormalOffset: f32,
+
+	[tag("ShadowPosScale")]
+	ShadowPosScale: f32,
 
 	[tag("BaseColor")]
 	BaseColor: vec4[f32],
@@ -401,6 +408,13 @@ fn main(input: VertIn) -> VertToFrag
 		pos = input.pos;
 		const if (HasNormal)
 			normal = input.normal;
+	}
+
+	const if (ShadowPass)
+	{
+		pos *= settings.ShadowPosScale;
+		const if (HasNormal)
+			pos -= input.normal * settings.ShadowMapNormalOffset;
 	}
 
 	let worldPosition = instanceData.worldMatrix * vec4[f32](pos, 1.0);
