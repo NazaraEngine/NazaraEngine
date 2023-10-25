@@ -421,12 +421,12 @@ namespace Nz
 		Vector3<T> directionToPoint = origin - firstPoint;
 		T u = directionToPoint.DotProduct(P) / divisor;
 		if (u < T(0.0) || u > T(1.0))
-			return 0; // The intersection lies outside of the triangle
+			return false; // The intersection lies outside of the triangle
 
 		Vector3<T> Q = Vector3<T>::CrossProduct(directionToPoint, firstEdge);
 		T v = directionToPoint.DotProduct(Q) / divisor;
 		if (v < T(0.0) || u + v > T(1.0))
-			return 0; // The intersection lies outside of the triangle
+			return false; // The intersection lies outside of the triangle
 
 		T t = secondEdge.DotProduct(Q) / divisor;
 		if (t > T(0.0))
