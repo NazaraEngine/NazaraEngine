@@ -244,8 +244,23 @@ option("override_runtime", { description = "Override vs runtime to MD in release
 option("unitybuild", { description = "Build the engine using unity build", default = false })
 option("usepch", { description = "Use precompiled headers to speedup compilation", default = false })
 
+-- Sanitizers
+local sanitizers = {
+	asan = "address",
+	lsan = "leak",
+	tsan = "thread",
+}
+
+for opt, policy in table.orderpairs(sanitizers) do
+	option(opt, { description = "Enable " .. opt, default = false })
+
+	if has_config(opt) then
+		set_policy("build.sanitizer." .. policy, true)
+	end
+end
+
 -- Allow to disable some modules
-for name, module in pairs(modules) do
+for name, module in table.orderpairs(modules) do
 	if module.Option then
 		option(module.Option, { description = "Enables the " .. name .. " module", default = true, category = "Modules" })
 	end
@@ -340,7 +355,7 @@ if has_config("widgets") then
 end
 
 -- Platform-specific dependencies
-if is_plat("linux", "android") then 
+if is_plat("linux", "android") then
 	add_requires("libuuid")
 end
 
@@ -350,7 +365,7 @@ end
 
 ----------------------- Global config -----------------------
 
-add_rules("mode.asan", "mode.tsan", "mode.coverage", "mode.debug", "mode.releasedbg", "mode.release")
+add_rules("mode.coverage", "mode.debug", "mode.releasedbg", "mode.release")
 add_rules("plugin.vsxmake.autoupdate")
 add_rules("build.rendererplugins")
 add_rules("natvis")
@@ -364,7 +379,7 @@ if has_config("tests") then
 end
 
 set_allowedplats("windows", "mingw", "linux", "macosx", "wasm")
-set_allowedmodes("debug", "releasedbg", "release", "asan", "tsan", "coverage")
+set_allowedmodes("debug", "releasedbg", "release", "coverage")
 set_defaultmode("debug")
 
 add_includedirs("include")
@@ -378,8 +393,6 @@ set_warnings("allextra")
 if is_mode("debug") then
 	add_rules("debug.suffix")
 	add_defines("NAZARA_DEBUG")
-elseif is_mode("asan", "tsan") then
-	set_optimize("none") -- by default xmake will optimize asan/tsan builds
 elseif is_mode("coverage") then
 	if not is_plat("windows") then
 		add_links("gcov")
