@@ -442,10 +442,6 @@ elseif is_plat("mingw") then
 		add_cxflags("-Og")
 	end
 	add_cxflags("-Wa,-mbig-obj")
-	add_ldflags("-Wa,-mbig-obj")
-
-	-- Disable -Isystem for external packages as it seems to break Assimp
-	set_policy("package.include_external_headers", false)
 elseif is_plat("wasm") then
 	add_cxflags("-sNO_DISABLE_EXCEPTION_CATCHING")
 	add_ldflags("-sNO_DISABLE_EXCEPTION_CATCHING", "-sALLOW_MEMORY_GROWTH", "-sWASM_BIGINT")
