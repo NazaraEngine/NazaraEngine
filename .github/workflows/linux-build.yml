@@ -23,7 +23,6 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         arch: [x86_64]
-        mode: [debug, releasedbg]
         confs:
         - { mode: debug }
         - { mode: debug, config: --asan=y }
