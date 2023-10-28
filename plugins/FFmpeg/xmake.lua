@@ -1,7 +1,7 @@
 option("ffmpeg", { description = "Build FFmpeg plugin", default = false, category = "Plugins" })
 
 if has_config("ffmpeg") then
-	add_requires("ffmpeg", { configs = { shared = true } })
+	add_requires("ffmpeg", { configs = { asan = false, shared = true } })
 
 	target("PluginFFmpeg")
 		set_group("Plugins")

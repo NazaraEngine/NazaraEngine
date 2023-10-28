@@ -300,9 +300,9 @@ if has_config("network") then
 	-- emscripten fetch API is used for WebService on wasm
 	if not is_plat("wasm") then
 		if has_config("link_curl") then
-			add_requires("libcurl")
+			add_requires("libcurl", { configs = { asan = false } })
 		else
-			add_requires("libcurl", { configs = { shared = true }})
+			add_requires("libcurl", { configs = { asan = false, shared = true }})
 		end
 	end
 end
@@ -360,7 +360,7 @@ if is_plat("linux", "android") then
 end
 
 if is_plat("linux") then
-	add_requires("libxext", "wayland")
+	add_requires("libxext", "wayland", { configs = { asan = false } })
 end
 
 ----------------------- Global config -----------------------
