@@ -30,9 +30,9 @@ namespace Nz
 			virtual const ViewerInstance& GetViewerInstance() const = 0;
 			virtual const Recti& GetViewport() const = 0;
 
-			Vector3f Project(const Vector3f& worldPos);
+			Vector3f Project(const Vector3f& worldPos) const;
 
-			Vector3f Unproject(const Vector3f& screenPos);
+			Vector3f Unproject(const Vector3f& screenPos) const;
 	};
 }
 
