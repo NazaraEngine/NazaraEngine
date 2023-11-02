@@ -3,11 +3,25 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/Camera.hpp>
+#include <Nazara/Graphics/Graphics.hpp>
+#include <Nazara/Graphics/PipelinePassList.hpp>
+#include <cassert>
 #include <stdexcept>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
 {
+	Camera::Camera(const RenderTarget* renderTarget, ProjectionType projectionType) :
+	Camera(renderTarget, Graphics::Instance()->GetDefaultPipelinePasses(), projectionType)
+	{
+	}
+
+	std::vector<std::unique_ptr<FramePipelinePass>> Camera::BuildPasses(FramePipelinePass::PassData& passData) const
+	{
+		assert(m_framePipelinePasses);
+		return m_framePipelinePasses->BuildPasses(passData);
+	}
+
 	const Color& Camera::GetClearColor() const
 	{
 		return m_clearColor;
@@ -39,6 +53,12 @@ namespace Nz
 	const Recti& Camera::GetViewport() const
 	{
 		return m_viewport;
+	}
+
+	std::size_t Camera::RegisterPasses(const std::vector<std::unique_ptr<FramePipelinePass>>& passes, FrameGraph& frameGraph) const
+	{
+		assert(m_framePipelinePasses);
+		return m_framePipelinePasses->RegisterPasses(passes, frameGraph);
 	}
 
 	void Camera::UpdateTarget(const RenderTarget* renderTarget)

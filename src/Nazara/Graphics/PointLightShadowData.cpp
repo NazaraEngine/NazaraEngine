@@ -83,7 +83,13 @@ namespace Nz
 
 			m_pipeline.QueueTransfer(&viewerInstance);
 
-			m_directions[i].depthPass.emplace(m_pipeline, elementRegistry, &viewer, shadowPassIndex, std::string(s_dirNames[i]));
+			FramePipelinePass::PassData passData = {
+				&viewer,
+				elementRegistry,
+				m_pipeline
+			};
+
+			m_directions[i].depthPass.emplace(passData, std::string(s_dirNames[i]), shadowPassIndex);
 		}
 
 		m_pipeline.ForEachRegisteredMaterialInstance([this](const MaterialInstance& matInstance)
@@ -106,7 +112,15 @@ namespace Nz
 			std::size_t visibilityHash = 5U;
 			const auto& visibleRenderables = m_pipeline.FrustumCull(frustum, 0xFFFFFFFF, visibilityHash);
 
-			direction.depthPass->Prepare(renderFrame, frustum, visibleRenderables, visibilityHash);
+			FramePipelinePass::FrameData passData = {
+				nullptr,
+				frustum,
+				renderFrame,
+				visibleRenderables,
+				visibilityHash
+			};
+
+			direction.depthPass->Prepare(passData);
 		}
 	}
 
@@ -144,7 +158,11 @@ namespace Nz
 		{
 			DirectionData& direction = m_directions[i];
 			direction.attachmentIndex = frameGraph.AddAttachmentCubeFace(m_cubeAttachmentIndex, static_cast<CubemapFace>(i));
-			direction.depthPass->RegisterToFrameGraph(frameGraph, direction.attachmentIndex);
+
+			FramePipelinePass::PassInputOuputs passInputOuputs;
+			passInputOuputs.depthStencilOutput = direction.attachmentIndex;
+
+			direction.depthPass->RegisterToFrameGraph(frameGraph, passInputOuputs);
 		}
 	}
 

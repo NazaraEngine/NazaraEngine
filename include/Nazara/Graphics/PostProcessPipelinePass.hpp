@@ -17,6 +17,7 @@ namespace Nz
 	class FrameGraph;
 	class FramePass;
 	class FramePipeline;
+	class ParameterList;
 	class RenderFrame;
 	class RenderPipeline;
 	class ShaderBinding;
@@ -24,17 +25,20 @@ namespace Nz
 	class NAZARA_GRAPHICS_API PostProcessPipelinePass : public FramePipelinePass
 	{
 		public:
-			PostProcessPipelinePass(FramePipeline& owner, std::string passName, std::string shaderName);
+			PostProcessPipelinePass(PassData& passData, std::string passName, const ParameterList& parameters);
+			PostProcessPipelinePass(PassData& passData, std::string passName, std::string shaderName);
 			PostProcessPipelinePass(const PostProcessPipelinePass&) = delete;
 			PostProcessPipelinePass(PostProcessPipelinePass&&) = delete;
 			~PostProcessPipelinePass() = default;
 
-			void Prepare(RenderFrame& renderFrame);
+			void Prepare(FrameData& frameData) override;
 
-			FramePass& RegisterToFrameGraph(FrameGraph& frameGraph, std::size_t inputColorBufferIndex, std::size_t outputColorBufferIndex);
+			FramePass& RegisterToFrameGraph(FrameGraph& frameGraph, const PassInputOuputs& inputOuputs) override;
 
 			PostProcessPipelinePass& operator=(const PostProcessPipelinePass&) = delete;
 			PostProcessPipelinePass& operator=(PostProcessPipelinePass&&) = delete;
+
+			static std::string GetShaderName(const ParameterList& parameters);
 
 		private:
 			void BuildPipeline();

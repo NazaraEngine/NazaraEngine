@@ -20,11 +20,11 @@
 
 namespace Nz
 {
-	class AbstractViewer;
 	class InstancedRenderable;
 	class Light;
 	class LightShadowData;
 	class MaterialInstance;
+	class PipelineViewer;
 	class RenderFrame;
 
 	class NAZARA_GRAPHICS_API FramePipeline
@@ -47,7 +47,7 @@ namespace Nz
 			virtual std::size_t RegisterLight(const Light* light, UInt32 renderMask) = 0;
 			virtual std::size_t RegisterRenderable(std::size_t worldInstanceIndex, std::size_t skeletonInstanceIndex, const InstancedRenderable* instancedRenderable, UInt32 renderMask, const Recti& scissorBox) = 0;
 			virtual std::size_t RegisterSkeleton(SkeletonInstancePtr skeletonInstance) = 0;
-			virtual std::size_t RegisterViewer(AbstractViewer* viewerInstance, Int32 renderOrder, FramePipelineExtraPassFlags passFlags) = 0;
+			virtual std::size_t RegisterViewer(PipelineViewer* viewerInstance, Int32 renderOrder) = 0;
 			virtual std::size_t RegisterWorldInstance(WorldInstancePtr worldInstance) = 0;
 
 			virtual const Light* RetrieveLight(std::size_t lightIndex) const = 0;

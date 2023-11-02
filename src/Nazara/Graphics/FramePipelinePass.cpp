@@ -8,4 +8,16 @@
 namespace Nz
 {
 	FramePipelinePass::~FramePipelinePass() = default;
+
+	void FramePipelinePass::InvalidateElements()
+	{
+	}
+
+	void FramePipelinePass::RegisterMaterialInstance(const MaterialInstance& materialInstance)
+	{
+	}
+
+	void FramePipelinePass::UnregisterMaterialInstance(const MaterialInstance& materialInstance)
+	{
+	}
 }

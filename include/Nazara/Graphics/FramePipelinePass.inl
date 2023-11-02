@@ -6,6 +6,15 @@
 
 namespace Nz
 {
+	inline FramePipelinePass::FramePipelinePass(FramePipelineNotificationFlags notificationFlags) :
+	m_notificationFlags(notificationFlags)
+	{
+	}
+
+	inline bool FramePipelinePass::ShouldNotify(FramePipelineNotification notification) const
+	{
+		return m_notificationFlags.Test(notification);
+	}
 }
 
 #include <Nazara/Graphics/DebugOff.hpp>

@@ -344,7 +344,7 @@ namespace Nz
 			CameraEntity* cameraEntity = m_cameraEntityPool.Allocate(poolIndex);
 			cameraEntity->poolIndex = poolIndex;
 			cameraEntity->entity = entity;
-			cameraEntity->viewerIndex = m_pipeline->RegisterViewer(&entityCamera, entityCamera.GetRenderOrder(), entityCamera.GetFramePipelineExtraPassFlags());
+			cameraEntity->viewerIndex = m_pipeline->RegisterViewer(&entityCamera, entityCamera.GetRenderOrder());
 			cameraEntity->onNodeInvalidation.Connect(entityNode.OnNodeInvalidation, [this, cameraEntity](const Node* /*node*/)
 			{
 				m_invalidatedCameraNode.insert(cameraEntity);

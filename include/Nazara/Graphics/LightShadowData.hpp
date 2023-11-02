@@ -30,7 +30,7 @@ namespace Nz
 
 			inline bool IsPerViewer() const;
 
-			virtual void PrepareRendering(RenderFrame& renderFrame, const AbstractViewer* viewer) = 0;
+			virtual void PrepareRendering(RenderFrame& renderFrame, [[maybe_unused]] const AbstractViewer* viewer) = 0;
 
 			virtual void RegisterMaterialInstance(const MaterialInstance& matInstance) = 0;
 			virtual void RegisterPassInputs(FramePass& pass, const AbstractViewer* viewer) = 0;

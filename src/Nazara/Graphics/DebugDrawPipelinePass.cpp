@@ -8,31 +8,36 @@
 #include <Nazara/Graphics/FramePipeline.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Renderer/DebugDrawer.hpp>
-#include <Nazara/Renderer/RenderFrame.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
 {
-	DebugDrawPipelinePass::DebugDrawPipelinePass(FramePipeline& owner, AbstractViewer* viewer) :
-	m_viewer(viewer),
-	m_pipeline(owner)
-	{
-	}
-
-	void DebugDrawPipelinePass::Prepare(RenderFrame& renderFrame)
+	void DebugDrawPipelinePass::Prepare(FrameData& frameData)
 	{
 		DebugDrawer& debugDrawer = m_pipeline.GetDebugDrawer();
 		debugDrawer.SetViewerData(m_viewer->GetViewerInstance().GetViewProjMatrix());
-		debugDrawer.Prepare(renderFrame);
+		debugDrawer.Prepare(frameData.renderFrame);
 	}
 
-	FramePass& DebugDrawPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, std::size_t inputColorBufferIndex, std::size_t outputColorBufferIndex)
+	FramePass& DebugDrawPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, const PassInputOuputs& inputOuputs)
 	{
-		FramePass& debugDrawPass = frameGraph.AddPass("Debug draw pass");
-		debugDrawPass.AddInput(inputColorBufferIndex);
-		debugDrawPass.AddOutput(outputColorBufferIndex);
+		if (inputOuputs.inputCount != 1)
+			throw std::runtime_error("one input expected");
 
-		debugDrawPass.SetExecutionCallback([&]()
+		if (inputOuputs.outputCount != 1)
+			throw std::runtime_error("one output expected");
+
+		FramePass& debugDrawPass = frameGraph.AddPass("Debug draw pass");
+		debugDrawPass.AddInput(inputOuputs.inputAttachments[0]);
+		debugDrawPass.AddOutput(inputOuputs.outputAttachments[0]);
+		
+		if (inputOuputs.depthStencilInput != InvalidAttachmentIndex)
+			debugDrawPass.SetDepthStencilInput(inputOuputs.depthStencilInput);
+
+		if (inputOuputs.depthStencilOutput != InvalidAttachmentIndex)
+			debugDrawPass.SetDepthStencilOutput(inputOuputs.depthStencilInput);
+
+		debugDrawPass.SetExecutionCallback([&]
 		{
 			return FramePassExecution::UpdateAndExecute;
 		});

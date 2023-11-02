@@ -3,11 +3,11 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/ForwardFramePipeline.hpp>
-#include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/PipelineViewer.hpp>
 #include <Nazara/Graphics/PointLight.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>
@@ -110,16 +110,6 @@ namespace Nz
 		lightData->onLightInvalidated.Connect(lightData->light->OnLightDataInvalided, [=](Light*)
 		{
 			//TODO: Switch lights to storage buffers so they can all be part of GPU memory
-			for (auto& viewerData : m_viewerPool)
-			{
-				if (viewerData.pendingDestruction)
-					continue;
-
-				UInt32 viewerRenderMask = viewerData.viewer->GetRenderMask();
-
-				if (viewerRenderMask & renderMask)
-					viewerData.forwardPass->InvalidateElements();
-			}
 		});
 
 		lightData->onLightShadowCastingChanged.Connect(lightData->light->OnLightShadowCastingChanged, [=](Light* light, bool isCastingShadows)
@@ -194,10 +184,11 @@ namespace Nz
 
 				if (viewerRenderMask & renderMask)
 				{
-					if (viewerData.depthPrepass)
-						viewerData.depthPrepass->InvalidateElements();
-
-					viewerData.forwardPass->InvalidateElements();
+					for (auto& passPtr : viewerData.passes)
+					{
+						if (passPtr->ShouldNotify(FramePipelineNotification::ElementInvalidation))
+							passPtr->InvalidateElements();
+					}
 				}
 			}
 		});
@@ -213,10 +204,11 @@ namespace Nz
 					if (viewerData.pendingDestruction)
 						continue;
 
-					if (viewerData.depthPrepass)
-						viewerData.depthPrepass->RegisterMaterialInstance(*newMaterial);
-
-					viewerData.forwardPass->RegisterMaterialInstance(*newMaterial);
+					for (auto& passPtr : viewerData.passes)
+					{
+						if (passPtr->ShouldNotify(FramePipelineNotification::MaterialInstanceRegistration))
+							passPtr->RegisterMaterialInstance(*newMaterial);
+					}
 				}
 			}
 
@@ -230,10 +222,11 @@ namespace Nz
 					if (viewerData.pendingDestruction)
 						continue;
 
-					if (viewerData.depthPrepass)
-						viewerData.depthPrepass->UnregisterMaterialInstance(*prevMaterial);
-
-					viewerData.forwardPass->UnregisterMaterialInstance(*prevMaterial);
+					for (auto& passPtr : viewerData.passes)
+					{
+						if (passPtr->ShouldNotify(FramePipelineNotification::MaterialInstanceRegistration))
+							passPtr->UnregisterMaterialInstance(*prevMaterial);
+					}
 				}
 			}
 		});
@@ -250,10 +243,11 @@ namespace Nz
 					if (viewerData.pendingDestruction)
 						continue;
 
-					if (viewerData.depthPrepass)
-						viewerData.depthPrepass->RegisterMaterialInstance(*mat);
-
-					viewerData.forwardPass->RegisterMaterialInstance(*mat);
+					for (auto& passPtr : viewerData.passes)
+					{
+						if (passPtr->ShouldNotify(FramePipelineNotification::MaterialInstanceRegistration))
+							passPtr->RegisterMaterialInstance(*mat);
+					}
 				}
 			}
 		}
@@ -275,28 +269,24 @@ namespace Nz
 		return skeletonInstanceIndex;
 	}
 
-	std::size_t ForwardFramePipeline::RegisterViewer(AbstractViewer* viewerInstance, Int32 renderOrder, FramePipelineExtraPassFlags passFlags)
+	std::size_t ForwardFramePipeline::RegisterViewer(PipelineViewer* viewerInstance, Int32 renderOrder)
 	{
-		std::size_t depthPassIndex = Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex("DepthPass");
-
 		std::size_t viewerIndex;
 		auto& viewerData = *m_viewerPool.Allocate(viewerIndex);
 		viewerData.renderOrder = renderOrder;
-		viewerData.forwardPass = std::make_unique<ForwardPipelinePass>(*this, m_elementRegistry, viewerInstance);
 		viewerData.viewer = viewerInstance;
 		viewerData.onTransferRequired.Connect(viewerInstance->GetViewerInstance().OnTransferRequired, [this](TransferInterface* transferInterface)
 		{
 			m_transferSet.insert(transferInterface);
 		});
 
-		if (passFlags.Test(FramePipelineExtraPass::DebugDraw))
-			viewerData.debugDrawPass = std::make_unique<DebugDrawPipelinePass>(*this, viewerInstance);
+		FramePipelinePass::PassData passData = {
+			viewerInstance,
+			m_elementRegistry,
+			*this
+		};
 
-		if (passFlags.Test(FramePipelineExtraPass::DepthPrepass))
-			viewerData.depthPrepass = std::make_unique<DepthPipelinePass>(*this, m_elementRegistry, viewerInstance, depthPassIndex, "Depth pre-pass");
-
-		if (passFlags.Test(FramePipelineExtraPass::GammaCorrection))
-			viewerData.gammaCorrectionPass = std::make_unique<PostProcessPipelinePass>(*this, "Gamma correction", "PostProcess.GammaCorrection");
+		viewerData.passes = viewerInstance->BuildPasses(passData);
 
 		m_transferSet.insert(&viewerInstance->GetViewerInstance());
 
@@ -446,16 +436,16 @@ namespace Nz
 			std::size_t visibilityHash = 5;
 			const auto& visibleRenderables = FrustumCull(viewerData.frame.frustum, renderMask, visibilityHash);
 
-			if (viewerData.depthPrepass)
-				viewerData.depthPrepass->Prepare(renderFrame, viewerData.frame.frustum, visibleRenderables, visibilityHash);
+			FramePipelinePass::FrameData passData = {
+				&viewerData.frame.visibleLights,
+				viewerData.frame.frustum,
+				renderFrame,
+				visibleRenderables,
+				visibilityHash
+			};
 
-			viewerData.forwardPass->Prepare(renderFrame, viewerData.frame.frustum, visibleRenderables, viewerData.frame.visibleLights, visibilityHash);
-
-			if (viewerData.gammaCorrectionPass)
-				viewerData.gammaCorrectionPass->Prepare(renderFrame);
-
-			if (viewerData.debugDrawPass)
-				viewerData.debugDrawPass->Prepare(renderFrame);
+			for (auto& passPtr : viewerData.passes)
+				passPtr->Prepare(passData);
 		}
 
 		if (frameGraphInvalidated)
@@ -587,10 +577,11 @@ namespace Nz
 				if (viewerData.pendingDestruction)
 					continue;
 
-				if (viewerData.depthPrepass)
-					viewerData.depthPrepass->UnregisterMaterialInstance(*material);
-
-				viewerData.forwardPass->UnregisterMaterialInstance(*material);
+				for (auto& passPtr : viewerData.passes)
+				{
+					if (passPtr->ShouldNotify(FramePipelineNotification::MaterialInstanceRegistration))
+						passPtr->UnregisterMaterialInstance(*material);
+				}
 			}
 		}
 
@@ -654,10 +645,11 @@ namespace Nz
 
 			if (viewerRenderMask & renderableData->renderMask)
 			{
-				if (viewerData.depthPrepass)
-					viewerData.depthPrepass->InvalidateElements();
-
-				viewerData.forwardPass->InvalidateElements();
+				for (auto& passPtr : viewerData.passes)
+				{
+					if (passPtr->ShouldNotify(FramePipelineNotification::ElementInvalidation))
+						passPtr->InvalidateElements();
+				}
 			}
 		}
 	}
@@ -677,10 +669,11 @@ namespace Nz
 
 			if (viewerRenderMask & renderableData->renderMask)
 			{
-				if (viewerData.depthPrepass)
-					viewerData.depthPrepass->InvalidateElements();
-
-				viewerData.forwardPass->InvalidateElements();
+				for (auto& passPtr : viewerData.passes)
+				{
+					if (passPtr->ShouldNotify(FramePipelineNotification::ElementInvalidation))
+						passPtr->InvalidateElements();
+				}
 			}
 		}
 	}
@@ -720,46 +713,7 @@ namespace Nz
 					lightData->shadowData->RegisterToFrameGraph(frameGraph, viewerData.viewer);
 			}
 
-			viewerData.forwardColorAttachment = frameGraph.AddAttachment({
-				"Forward output",
-				PixelFormat::RGBA8
-			});
-			
-			viewerData.depthStencilAttachment = frameGraph.AddAttachment({
-				"Depth-stencil buffer",
-				Graphics::Instance()->GetPreferredDepthStencilFormat()
-			});
-
-			if (viewerData.depthPrepass)
-				viewerData.depthPrepass->RegisterToFrameGraph(frameGraph, viewerData.depthStencilAttachment);
-
-			FramePass& forwardPass = viewerData.forwardPass->RegisterToFrameGraph(frameGraph, viewerData.forwardColorAttachment, viewerData.depthStencilAttachment, viewerData.depthPrepass != nullptr);
-			for (std::size_t i : m_shadowCastingLights.IterBits())
-			{
-				LightData* lightData = m_lightPool.RetrieveFromIndex(i);
-				if ((renderMask & lightData->renderMask) != 0)
-					lightData->shadowData->RegisterPassInputs(forwardPass, (lightData->shadowData->IsPerViewer()) ? viewerData.viewer : nullptr);
-			}
-
-			viewerData.finalColorAttachment = viewerData.forwardColorAttachment;
-
-			if (viewerData.gammaCorrectionPass)
-			{
-				std::size_t postGammaColorAttachment = frameGraph.AddAttachment({
-					"Gamma-corrected output",
-					PixelFormat::RGBA8
-				});
-
-				viewerData.gammaCorrectionPass->RegisterToFrameGraph(frameGraph, viewerData.finalColorAttachment, postGammaColorAttachment);
-				viewerData.finalColorAttachment = postGammaColorAttachment;
-			}
-
-			if (viewerData.debugDrawPass)
-			{
-				viewerData.debugColorAttachment = frameGraph.AddAttachmentProxy("Debug draw output", viewerData.finalColorAttachment);
-				viewerData.debugDrawPass->RegisterToFrameGraph(frameGraph, viewerData.finalColorAttachment, viewerData.debugColorAttachment);
-				viewerData.finalColorAttachment = viewerData.debugColorAttachment;
-			}
+			viewerData.finalColorAttachment = viewerData.viewer->RegisterPasses(viewerData.passes, frameGraph);
 		}
 
 		using ViewerPair = std::pair<const RenderTarget*, const ViewerData*>;

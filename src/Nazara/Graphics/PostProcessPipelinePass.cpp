@@ -11,10 +11,11 @@
 
 namespace Nz
 {
-	PostProcessPipelinePass::PostProcessPipelinePass(FramePipeline& owner, std::string passName, std::string shaderName) :
+	PostProcessPipelinePass::PostProcessPipelinePass(PassData& passData, std::string passName, std::string shaderName) :
+	FramePipelinePass({}),
 	m_passName(std::move(passName)),
 	m_shader(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, std::move(shaderName)),
-	m_pipeline(owner)
+	m_pipeline(passData.pipeline)
 	{
 		RenderPipelineLayoutInfo layoutInfo;
 		layoutInfo.bindings.assign({
@@ -37,25 +38,39 @@ namespace Nz
 		BuildPipeline();
 	}
 
-	void PostProcessPipelinePass::Prepare(RenderFrame& renderFrame)
+	void PostProcessPipelinePass::Prepare(FrameData& frameData)
 	{
 		if (m_nextRenderPipeline)
 		{
 			if (m_renderPipeline)
-				renderFrame.PushForRelease(std::move(m_renderPipeline));
+				frameData.renderFrame.PushForRelease(std::move(m_renderPipeline));
 
 			m_renderPipeline = std::move(m_nextRenderPipeline);
 			m_rebuildFramePass = true;
 		}
 	}
 
-	FramePass& PostProcessPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, std::size_t inputColorBufferIndex, std::size_t outputColorBufferIndex)
+	FramePass& PostProcessPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, const PassInputOuputs& inputOuputs)
 	{
+		if (inputOuputs.inputCount != 1)
+			throw std::runtime_error("one input expected");
+
+		if (inputOuputs.outputCount != 1)
+			throw std::runtime_error("one output expected");
+
+		if (inputOuputs.depthStencilInput != InvalidAttachmentIndex)
+			throw std::runtime_error("unexpected depth-stencil output");
+
+		if (inputOuputs.depthStencilOutput != InvalidAttachmentIndex)
+			throw std::runtime_error("unexpected depth-stencil output");
+
+		std::size_t inputColorBufferIndex = inputOuputs.inputAttachments[0];
+
 		FramePass& postProcess = frameGraph.AddPass(m_passName);
 		postProcess.AddInput(inputColorBufferIndex);
-		postProcess.AddOutput(outputColorBufferIndex);
+		postProcess.AddOutput(inputOuputs.outputAttachments[0]);
 
-		postProcess.SetExecutionCallback([&]()
+		postProcess.SetExecutionCallback([&]
 		{
 			return (m_rebuildFramePass) ? FramePassExecution::UpdateAndExecute : FramePassExecution::Execute;
 		});
@@ -92,6 +107,16 @@ namespace Nz
 		});
 
 		return postProcess;
+	}
+
+	std::string PostProcessPipelinePass::GetShaderName(const ParameterList& parameters)
+	{
+		Result<std::string, ParameterList::Error> shaderResult = parameters.GetStringParameter("Shader");
+		if (shaderResult.IsOk())
+			return std::move(shaderResult).GetValue();
+		// TODO: Log error if key is present but not of the right
+
+		throw std::runtime_error("PostProcessPipelinePass expect a Shader parameter");
 	}
 
 	void PostProcessPipelinePass::BuildPipeline()
