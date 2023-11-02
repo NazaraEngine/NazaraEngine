@@ -5,7 +5,7 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-UnicodeCharacter unicodeCharacters[34888] = {
+UnicodeCharacter unicodeCharacters[34893] = {
 	{0, Unicode::Category_Other_Control, Unicode::Direction_Boundary_Neutral},
 	{1, Unicode::Category_Other_Control, Unicode::Direction_Boundary_Neutral},
 	{2, Unicode::Category_Other_Control, Unicode::Direction_Boundary_Neutral},
@@ -11239,6 +11239,10 @@ UnicodeCharacter unicodeCharacters[34888] = {
 	{12281, Unicode::Category_Symbol_Other, Unicode::Direction_Other_Neutral},
 	{12282, Unicode::Category_Symbol_Other, Unicode::Direction_Other_Neutral},
 	{12283, Unicode::Category_Symbol_Other, Unicode::Direction_Other_Neutral},
+	{12284, Unicode::Category_Symbol_Other, Unicode::Direction_Other_Neutral},
+	{12285, Unicode::Category_Symbol_Other, Unicode::Direction_Other_Neutral},
+	{12286, Unicode::Category_Symbol_Other, Unicode::Direction_Other_Neutral},
+	{12287, Unicode::Category_Symbol_Other, Unicode::Direction_Other_Neutral},
 	{12288, Unicode::Category_Separator_Space, Unicode::Direction_White_Space},
 	{12289, Unicode::Category_Punctuation_Other, Unicode::Direction_Other_Neutral},
 	{12290, Unicode::Category_Punctuation_Other, Unicode::Direction_Other_Neutral},
@@ -11713,6 +11717,7 @@ UnicodeCharacter unicodeCharacters[34888] = {
 	{12769, Unicode::Category_Symbol_Other, Unicode::Direction_Other_Neutral},
 	{12770, Unicode::Category_Symbol_Other, Unicode::Direction_Other_Neutral},
 	{12771, Unicode::Category_Symbol_Other, Unicode::Direction_Other_Neutral},
+	{12783, Unicode::Category_Symbol_Other, Unicode::Direction_Other_Neutral},
 	{12784, Unicode::Category_Letter_Other, Unicode::Direction_Left_To_Right},
 	{12785, Unicode::Category_Letter_Other, Unicode::Direction_Left_To_Right},
 	{12786, Unicode::Category_Letter_Other, Unicode::Direction_Left_To_Right},
@@ -34896,7 +34901,7 @@ UnicodeCharacter unicodeCharacters[34888] = {
 	{917999, Unicode::Category_Mark_NonSpacing, Unicode::Direction_Nonspacing_Mark},
 };
 
-UnicodeSet unicodeSets[18] = {
+UnicodeSet unicodeSets[19] = {
 	{13312, 19903, {13312, Unicode::Category_Letter_Other, Unicode::Direction_Left_To_Right}},
 	{19968, 40959, {19968, Unicode::Category_Letter_Other, Unicode::Direction_Left_To_Right}},
 	{44032, 55203, {44032, Unicode::Category_Letter_Other, Unicode::Direction_Left_To_Right}},
@@ -34911,6 +34916,7 @@ UnicodeSet unicodeSets[18] = {
 	{177984, 178205, {177984, Unicode::Category_Letter_Other, Unicode::Direction_Left_To_Right}},
 	{178208, 183969, {178208, Unicode::Category_Letter_Other, Unicode::Direction_Left_To_Right}},
 	{183984, 191456, {183984, Unicode::Category_Letter_Other, Unicode::Direction_Left_To_Right}},
+	{191472, 192093, {191472, Unicode::Category_Letter_Other, Unicode::Direction_Left_To_Right}},
 	{196608, 201546, {196608, Unicode::Category_Letter_Other, Unicode::Direction_Left_To_Right}},
 	{201552, 205743, {201552, Unicode::Category_Letter_Other, Unicode::Direction_Left_To_Right}},
 	{983040, 1048573, {983040, Unicode::Category_Other_PrivateUse, Unicode::Direction_Left_To_Right}},
