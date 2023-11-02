@@ -123,7 +123,7 @@ namespace Nz
 		if (found)
 			NazaraError("failed to load resource from file \"{0}}\": all loaders failed", filePath);
 		else
-			NazaraError("failed to load resource from file \"{0}}\": no loader found for extension \"{1}\"", ext);
+			NazaraError("failed to load resource from file \"{0}}\": no loader found for extension \"{1}\"", filePath, ext);
 
 		return nullptr;
 	}
