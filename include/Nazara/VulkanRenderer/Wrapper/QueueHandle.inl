@@ -135,7 +135,7 @@ namespace Nz
 			m_lastErrorCode = m_device->vkQueueSubmit(m_handle, submitCount, submits, signalFence);
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
 			{
-				NazaraError("failed to submit queue: {0}", TranslateVulkanError(m_lastErrorCode));
+				NazaraErrorFmt("failed to submit queue: {0}", TranslateVulkanError(m_lastErrorCode));
 				return false;
 			}
 
@@ -147,7 +147,7 @@ namespace Nz
 			m_lastErrorCode = m_device->vkQueueWaitIdle(m_handle);
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
 			{
-				NazaraError("failed to wait for queue: {0}", TranslateVulkanError(m_lastErrorCode));
+				NazaraErrorFmt("failed to wait for queue: {0}", TranslateVulkanError(m_lastErrorCode));
 				return false;
 			}
 

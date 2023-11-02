@@ -35,7 +35,7 @@ namespace Nz::GL
 		m_objectId = C::CreateHelper(*m_device, context, args...);
 		if (m_objectId == InvalidObject)
 		{
-			NazaraError("Failed to create OpenGL object"); //< TODO: Handle error message
+			NazaraError("failed to create OpenGL object"); //< TODO: Handle error message
 			return false;
 		}
 

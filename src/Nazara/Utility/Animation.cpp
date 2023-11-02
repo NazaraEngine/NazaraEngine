@@ -30,13 +30,13 @@ namespace Nz
 	{
 		if (startFrame > endFrame)
 		{
-			NazaraError("Start frame index must be smaller than end frame index");
+			NazaraError("start frame index must be smaller than end frame index");
 			return false;
 		}
 
 		if (!skeleton)
 		{
-			NazaraError("You must set a valid skeleton to load an animation");
+			NazaraError("you must set a valid skeleton to load an animation");
 			return false;
 		}
 
@@ -68,7 +68,7 @@ namespace Nz
 			auto it = m_impl->sequenceMap.find(sequence.name);
 			if (it != m_impl->sequenceMap.end())
 			{
-				NazaraError("sequence name \"{0}\" is already in use", sequence.name);
+				NazaraErrorFmt("sequence name \"{0}\" is already in use", sequence.name);
 				return false;
 			}
 			#endif
@@ -152,7 +152,7 @@ namespace Nz
 		auto it = m_impl->sequenceMap.find(sequenceName);
 		if (it == m_impl->sequenceMap.end())
 		{
-			NazaraError("Sequence not found");
+			NazaraError("sequence not found");
 			return nullptr;
 		}
 
@@ -174,7 +174,7 @@ namespace Nz
 		auto it = m_impl->sequenceMap.find(sequenceName);
 		if (it == m_impl->sequenceMap.end())
 		{
-			NazaraError("Sequence not found");
+			NazaraError("sequence not found");
 			return nullptr;
 		}
 
@@ -203,7 +203,7 @@ namespace Nz
 		auto it = m_impl->sequenceMap.find(sequenceName);
 		if (it == m_impl->sequenceMap.end())
 		{
-			NazaraError("Sequence not found");
+			NazaraError("sequence not found");
 			return 0xFFFFFFFF;
 		}
 
@@ -266,7 +266,7 @@ namespace Nz
 		auto it = m_impl->sequenceMap.find(identifier);
 		if (it == m_impl->sequenceMap.end())
 		{
-			NazaraError("Sequence not found");
+			NazaraError("sequence not found");
 			return;
 		}
 

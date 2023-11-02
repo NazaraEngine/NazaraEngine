@@ -693,7 +693,7 @@ namespace Nz
 		#ifdef NAZARA_DEBUG
 		if (!dest)
 		{
-			NazaraError("Destination matrix must be valid");
+			NazaraError("destination matrix must be valid");
 			return;
 		}
 		#endif

@@ -78,7 +78,7 @@ namespace Nz
 
 		if (ALenum lastError = m_library.alGetError(); lastError != AL_NO_ERROR)
 		{
-			NazaraError("failed to reset OpenAL buffer: {0}", std::to_string(lastError));
+			NazaraErrorFmt("failed to reset OpenAL buffer: {0}", std::to_string(lastError));
 			return false;
 		}
 

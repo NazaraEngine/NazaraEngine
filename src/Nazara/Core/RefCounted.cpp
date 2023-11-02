@@ -82,7 +82,7 @@ namespace Nz
 		#if NAZARA_CORE_SAFE
 		if (m_referenceCount == 0)
 		{
-			NazaraError("Impossible to remove reference (Ref. counter is already 0)");
+			NazaraError("impossible to remove reference (Ref. counter is already 0)");
 			return false;
 		}
 		#endif

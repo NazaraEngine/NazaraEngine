@@ -74,7 +74,7 @@ namespace Nz
 			m_lastErrorCode = result;
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
 			{
-				NazaraError("failed to create Vulkan pipeline: {0}", TranslateVulkanError(m_lastErrorCode));
+				NazaraErrorFmt("failed to create Vulkan pipeline: {0}", TranslateVulkanError(m_lastErrorCode));
 				return false;
 			}
 

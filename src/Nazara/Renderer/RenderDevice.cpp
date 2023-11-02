@@ -16,7 +16,7 @@ namespace Nz
 		File file(sourcePath);
 		if (!file.Open(OpenMode::ReadOnly | OpenMode::Text))
 		{
-			NazaraError("Failed to open \"{0}\"", sourcePath);
+			NazaraErrorFmt("failed to open \"{0}\"", sourcePath);
 			return {};
 		}
 
@@ -25,7 +25,7 @@ namespace Nz
 		std::vector<Nz::UInt8> source(length);
 		if (file.Read(&source[0], length) != length)
 		{
-			NazaraError("Failed to read program file");
+			NazaraError("failed to read program file");
 			return {};
 		}
 

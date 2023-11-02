@@ -63,7 +63,7 @@ namespace Nz
 		#if NAZARA_UTILITY_SAFE
 		if (layerIndex >= m_layers.size())
 		{
-			NazaraError("layer index out of range ({0} >= {1})", layerIndex, m_layers.size());
+			NazaraErrorFmt("layer index out of range ({0} >= {1})", layerIndex, m_layers.size());
 			return nullptr;
 		}
 		#endif
@@ -139,7 +139,7 @@ namespace Nz
 					if (!ResizeLayer(newLayer, newSize))
 					{
 						// Impossible d'allouer une nouvelle couche, nous manquons probablement de mémoire (ou le glyphe est trop grand)
-						NazaraError("Failed to allocate new layer, we are probably out of memory");
+						NazaraError("failed to allocate new layer, we are probably out of memory");
 						return false;
 					}
 

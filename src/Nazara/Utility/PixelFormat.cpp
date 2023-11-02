@@ -1391,7 +1391,7 @@ namespace Nz
 			#if NAZARA_UTILITY_SAFE
 			if (IsCompressed(format))
 			{
-				NazaraError("No function to flip compressed format");
+				NazaraError("no function to flip compressed format");
 				return false;
 			}
 			#endif
@@ -1558,7 +1558,7 @@ namespace Nz
 		for (auto&& [pixelFormat, pixelFormatInfo] : s_pixelFormatInfos.iter_kv())
 		{
 			if (!pixelFormatInfo.Validate())
-				NazaraWarning("Pixel format {0:#x} {1} failed validation tests", UnderlyingCast(pixelFormat), GetName(pixelFormat));
+				NazaraWarningFmt("Pixel format {0:#x} {1} failed validation tests", UnderlyingCast(pixelFormat), GetName(pixelFormat));
 		}
 
 		/***********************************A8************************************/

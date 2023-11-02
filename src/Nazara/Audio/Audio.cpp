@@ -72,7 +72,7 @@ namespace Nz
 				if (!config.allowDummyDevice)
 					throw;
 
-				NazaraError("failed to open default OpenAL device: {0}", e.what());
+				NazaraErrorFmt("failed to open default OpenAL device: {0}", e.what());
 			}
 		}
 

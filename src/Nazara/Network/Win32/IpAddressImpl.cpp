@@ -277,7 +277,7 @@ namespace Nz
 			}
 		}
 
-		NazaraError("Invalid ip address");
+		NazaraError("invalid ip address");
 		return 0;
 	}
 

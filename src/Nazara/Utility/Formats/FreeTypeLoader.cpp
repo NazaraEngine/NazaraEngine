@@ -75,7 +75,7 @@ namespace Nz
 				{
 					if (FT_Stroker_New(s_freetypeLibrary, &s_freetypeStroker) != 0)
 					{
-						NazaraWarning("Failed to load FreeType stroker, outline will not be possible");
+						NazaraWarning("failed to load FreeType stroker, outline will not be possible");
 						s_freetypeStroker = nullptr; //< Just in case
 					}
 				}
@@ -114,7 +114,7 @@ namespace Nz
 					#ifdef NAZARA_DEBUG
 					if (!dst)
 					{
-						NazaraError("Glyph destination cannot be null");
+						NazaraError("glyph destination cannot be null");
 						return false;
 					}
 					#endif
@@ -123,7 +123,7 @@ namespace Nz
 
 					if (FT_Load_Char(m_face, character, FT_LOAD_FORCE_AUTOHINT | FT_LOAD_TARGET_NORMAL) != 0)
 					{
-						NazaraError("Failed to load character");
+						NazaraError("failed to load character");
 						return false;
 					}
 
@@ -132,7 +132,7 @@ namespace Nz
 					FT_Glyph glyph;
 					if (FT_Get_Glyph(glyphSlot, &glyph) != 0)
 					{
-						NazaraError("Failed to extract glyph");
+						NazaraError("failed to extract glyph");
 						return false;
 					}
 					CallOnExit destroyGlyph([&]() { FT_Done_Glyph(glyph); });
@@ -152,7 +152,7 @@ namespace Nz
 							FT_OutlineGlyph outlineGlyph = reinterpret_cast<FT_OutlineGlyph>(glyph);
 							if (FT_Outline_Embolden(&outlineGlyph->outline, boldStrength) != 0)
 							{
-								NazaraError("Failed to embolden glyph");
+								NazaraError("failed to embolden glyph");
 								return false;
 							}
 						}
@@ -162,7 +162,7 @@ namespace Nz
 							FT_Stroker_Set(s_freetypeStroker, static_cast<FT_Fixed>(s_freetypeScaleFactor * outlineThickness), FT_STROKER_LINECAP_ROUND, FT_STROKER_LINEJOIN_ROUND, 0);
 							if (FT_Glyph_Stroke(&glyph, s_freetypeStroker, 1) != 0)
 							{
-								NazaraError("Failed to outline glyph");
+								NazaraError("failed to outline glyph");
 								return false;
 							}
 						}
@@ -170,7 +170,7 @@ namespace Nz
 
 					if (FT_Glyph_To_Bitmap(&glyph, FT_RENDER_MODE_NORMAL, nullptr, 1) != 0)
 					{
-						NazaraError("Failed to convert glyph to bitmap");
+						NazaraError("failed to convert glyph to bitmap");
 						return false;
 					}
 
@@ -320,7 +320,7 @@ namespace Nz
 					std::unique_ptr<File> file = std::make_unique<File>();
 					if (!file->Open(filePath, OpenMode::ReadOnly))
 					{
-						NazaraError("failed to open stream from file: {0}", Error::GetLastError());
+						NazaraErrorFmt("failed to open stream from file: {0}", Error::GetLastError());
 						return false;
 					}
 					m_ownedStream = std::move(file);
@@ -392,7 +392,7 @@ namespace Nz
 			std::unique_ptr<FreeTypeStream> face = std::make_unique<FreeTypeStream>();
 			if (!face->SetFile(filePath))
 			{
-				NazaraError("Failed to open file");
+				NazaraError("failed to open file");
 				return Err(ResourceLoadingError::FailedToOpenFile);
 			}
 

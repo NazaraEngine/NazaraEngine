@@ -60,7 +60,7 @@ namespace Nz
 		m_impl = std::make_unique<WindowImpl>(this);
 		if (!m_impl->Create(mode, title, style))
 		{
-			NazaraError("Failed to create window implementation");
+			NazaraError("failed to create window implementation");
 			return false;
 		}
 
@@ -97,7 +97,7 @@ namespace Nz
 		m_impl = std::make_unique<WindowImpl>(this);
 		if (!m_impl->Create(handle))
 		{
-			NazaraError("Unable to create window implementation");
+			NazaraError("unable to create window implementation");
 			m_impl.reset();
 			return false;
 		}
@@ -174,7 +174,7 @@ namespace Nz
 		#if NAZARA_PLATFORM_SAFE
 		if (!m_impl)
 		{
-			NazaraError("Window not created");
+			NazaraError("window not created");
 			return false;
 		}
 		#endif
@@ -187,7 +187,7 @@ namespace Nz
 		#if NAZARA_PLATFORM_SAFE
 		if (!m_impl)
 		{
-			NazaraError("Window not created");
+			NazaraError("window not created");
 			return false;
 		}
 		#endif
@@ -200,7 +200,7 @@ namespace Nz
 		#if NAZARA_PLATFORM_SAFE
 		if (!m_impl)
 		{
-			NazaraError("Window not created");
+			NazaraError("window not created");
 			return false;
 		}
 		#endif
@@ -222,7 +222,7 @@ namespace Nz
 		#if NAZARA_PLATFORM_SAFE
 		if (!m_impl)
 		{
-			NazaraError("Window not created");
+			NazaraError("window not created");
 			return;
 		}
 		#endif
@@ -244,7 +244,7 @@ namespace Nz
 		#if NAZARA_PLATFORM_SAFE
 		if (!m_impl)
 		{
-			NazaraError("Window not created");
+			NazaraError("window not created");
 			return;
 		}
 		#endif
@@ -257,7 +257,7 @@ namespace Nz
 		#if NAZARA_PLATFORM_SAFE
 		if (!m_impl)
 		{
-			NazaraError("Window not created");
+			NazaraError("window not created");
 			return;
 		}
 		#endif
@@ -270,7 +270,7 @@ namespace Nz
 		#if NAZARA_PLATFORM_SAFE
 		if (!m_impl)
 		{
-			NazaraError("Window not created");
+			NazaraError("window not created");
 			return;
 		}
 		#endif
@@ -283,7 +283,7 @@ namespace Nz
 		#if NAZARA_PLATFORM_SAFE
 		if (!m_impl)
 		{
-			NazaraError("Window not created");
+			NazaraError("window not created");
 			return;
 		}
 		#endif
@@ -296,7 +296,7 @@ namespace Nz
 		#if NAZARA_PLATFORM_SAFE
 		if (!m_impl)
 		{
-			NazaraError("Window not created");
+			NazaraError("window not created");
 			return;
 		}
 		#endif
@@ -309,7 +309,7 @@ namespace Nz
 		#if NAZARA_PLATFORM_SAFE
 		if (!m_impl)
 		{
-			NazaraError("Window not created");
+			NazaraError("window not created");
 			return;
 		}
 		#endif
@@ -322,7 +322,7 @@ namespace Nz
 		#if NAZARA_PLATFORM_SAFE
 		if (!m_impl)
 		{
-			NazaraError("Window not created");
+			NazaraError("window not created");
 			return;
 		}
 		#endif
@@ -335,7 +335,7 @@ namespace Nz
 		#if NAZARA_PLATFORM_SAFE
 		if (!m_impl)
 		{
-			NazaraError("Window not created");
+			NazaraError("window not created");
 			return;
 		}
 		#endif
@@ -348,7 +348,7 @@ namespace Nz
 		#if NAZARA_PLATFORM_SAFE
 		if (!m_impl)
 		{
-			NazaraError("Window not created");
+			NazaraError("window not created");
 			return;
 		}
 		#endif
@@ -361,7 +361,7 @@ namespace Nz
 		#if NAZARA_PLATFORM_SAFE
 		if (!m_impl)
 		{
-			NazaraError("Window not created");
+			NazaraError("window not created");
 			return;
 		}
 		#endif
@@ -374,7 +374,7 @@ namespace Nz
 		#if NAZARA_PLATFORM_SAFE
 		if (!m_impl)
 		{
-			NazaraError("Window not created");
+			NazaraError("window not created");
 			return;
 		}
 		#endif
@@ -429,7 +429,7 @@ namespace Nz
 		#if NAZARA_PLATFORM_SAFE
 		if (!m_impl)
 		{
-			NazaraError("Window not created");
+			NazaraError("window not created");
 			return;
 		}
 		#endif

@@ -131,7 +131,7 @@ namespace Nz
 						return false;
 				}
 
-				NazaraError("Invalid intersection side ({0:#x})", UnderlyingCast(side));
+				NazaraErrorFmt("invalid intersection side ({0:#x})", UnderlyingCast(side));
 				return false;
 			}
 
@@ -142,7 +142,7 @@ namespace Nz
 				return false;
 		}
 
-		NazaraError("Invalid extent type ({0:#x})", UnderlyingCast(volume.extent));
+		NazaraErrorFmt("invalid extent type ({0:#x})", UnderlyingCast(volume.extent));
 		return false;
 	}
 
@@ -312,7 +312,7 @@ namespace Nz
 						return IntersectionSide::Outside;
 				}
 
-				NazaraError("Invalid intersection side ({0:#x})", UnderlyingCast(side));
+				NazaraErrorFmt("invalid intersection side ({0:#x})", UnderlyingCast(side));
 				return IntersectionSide::Outside;
 			}
 
@@ -323,7 +323,7 @@ namespace Nz
 				return IntersectionSide::Outside;
 		}
 
-		NazaraError("Invalid extent type ({0:#x})", UnderlyingCast(volume.extent));
+		NazaraErrorFmt("invalid extent type ({0:#x})", UnderlyingCast(volume.extent));
 		return IntersectionSide::Outside;
 	}
 

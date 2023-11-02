@@ -46,7 +46,7 @@ namespace Nz
 	void FileImpl::Flush()
 	{
 		if (fsync(m_fileDescriptor) == -1)
-			NazaraError("Unable to flush file: {0}", Error::GetLastSystemError());
+			NazaraErrorFmt("unable to flush file: {0}", Error::GetLastSystemError());
 	}
 
 	UInt64 FileImpl::GetCursorPos() const
@@ -81,7 +81,7 @@ namespace Nz
 		int fileDescriptor = Open_def(filePath.generic_u8string().data(), flags, permissions);
 		if (fileDescriptor == -1)
 		{
-			NazaraError("Failed to open \"{0}\": {1}", filePath, Error::GetLastSystemError());
+			NazaraErrorFmt("failed to open \"{0}\": {1}", filePath, Error::GetLastSystemError());
 			return false;
 		}
 
@@ -101,14 +101,14 @@ namespace Nz
 		if (fcntl(fileDescriptor, F_GETLK, &lock) == -1)
 		{
 			close(fileDescriptor);
-			NazaraError("Unable to detect presence of lock on the file");
+			NazaraError("unable to detect presence of lock on the file");
 			return false;
 		}
 
 		if (lock.l_type != F_UNLCK)
 		{
 			close(fileDescriptor);
-			NazaraError("A lock is present on the file");
+			NazaraError("a lock is present on the file");
 			return false;
 		}
 
@@ -119,7 +119,7 @@ namespace Nz
 			if (fcntl(fileDescriptor, F_SETLK, &lock) == -1)
 			{
 				close(fileDescriptor);
-				NazaraError("Unable to place a lock on the file");
+				NazaraError("unable to place a lock on the file");
 				return false;
 			}
 		}
@@ -161,7 +161,7 @@ namespace Nz
 				break;
 
 			default:
-				NazaraInternalError("Cursor position not handled ({0:#x})", UnderlyingCast(pos));
+				NazaraInternalErrorFmt("cursor position not handled ({0:#x})", UnderlyingCast(pos));
 				return false;
 		}
 

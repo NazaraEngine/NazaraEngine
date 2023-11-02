@@ -275,7 +275,7 @@ namespace Nz
 		if (!ptr)
 		{
 			m_lastError = SocketError::Packet;
-			NazaraError("Failed to prepare packet");
+			NazaraError("failed to prepare packet");
 			return false;
 		}
 

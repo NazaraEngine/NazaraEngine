@@ -113,7 +113,7 @@ namespace Nz
 		{
 			if (parentNode == this)
 			{
-				NazaraError("A node cannot be it's own parent");
+				NazaraError("a node cannot be it's own parent");
 				return;
 			}
 

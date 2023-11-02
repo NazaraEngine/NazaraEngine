@@ -14,7 +14,7 @@ namespace Nz
 			m_lastErrorCode = m_device->vkBindImageMemory(*m_device, m_handle, memory, offset);
 			if (m_lastErrorCode != VK_SUCCESS)
 			{
-				NazaraError("failed to bind image memory: {0}", TranslateVulkanError(m_lastErrorCode));
+				NazaraErrorFmt("failed to bind image memory: {0}", TranslateVulkanError(m_lastErrorCode));
 				return false;
 			}
 

@@ -66,7 +66,7 @@ namespace Nz
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
 		if (!m_mapper.Map(indexBuffer, 0, m_indexCount))
-			NazaraError("Failed to map buffer"); ///TODO: Unexcepted
+			NazaraError("failed to map buffer"); ///TODO: Unexcepted
 
 		Getter rightGetter = nullptr;
 		Setter rightSetter = nullptr;

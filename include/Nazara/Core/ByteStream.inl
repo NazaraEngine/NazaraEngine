@@ -171,7 +171,7 @@ namespace Nz
 			OnEmptyStream();
 
 		if (!Unserialize(m_context, &value))
-			NazaraError("Failed to serialize value");
+			NazaraError("failed to serialize value");
 
 		return *this;
 	}
@@ -192,7 +192,7 @@ namespace Nz
 			OnEmptyStream();
 
 		if (!Serialize(m_context, value))
-			NazaraError("Failed to serialize value");
+			NazaraError("failed to serialize value");
 
 		return *this;
 	}

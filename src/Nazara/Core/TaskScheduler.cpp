@@ -62,7 +62,7 @@ namespace Nz
 	{
 		if (!Initialize())
 		{
-			NazaraError("Failed to initialize Task Scheduler");
+			NazaraError("failed to initialize Task Scheduler");
 			return;
 		}
 
@@ -86,7 +86,7 @@ namespace Nz
 		#ifdef NAZARA_CORE_SAFE
 		if (TaskSchedulerImpl::IsInitialized())
 		{
-			NazaraError("Worker count cannot be set while initialized");
+			NazaraError("worker count cannot be set while initialized");
 			return;
 		}
 		#endif
@@ -114,7 +114,7 @@ namespace Nz
 	{
 		if (!Initialize())
 		{
-			NazaraError("Failed to initialize Task Scheduler");
+			NazaraError("failed to initialize Task Scheduler");
 			return;
 		}
 
@@ -134,7 +134,7 @@ namespace Nz
 	{
 		if (!Initialize())
 		{
-			NazaraError("Failed to initialize Task Scheduler");
+			NazaraError("failed to initialize Task Scheduler");
 			return;
 		}
 

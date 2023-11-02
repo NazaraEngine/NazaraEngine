@@ -64,7 +64,7 @@ namespace Nz
 
 			if (stream.GetSize() < header.offset_end)
 			{
-				NazaraError("Incomplete MD2 file");
+				NazaraError("incomplete MD2 file");
 				return Err(ResourceLoadingError::DecodingError);
 			}
 

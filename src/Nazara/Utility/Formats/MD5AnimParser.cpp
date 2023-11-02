@@ -221,7 +221,7 @@ namespace Nz
 
 		if (m_frameIndex != frameCount)
 		{
-			NazaraError("missing frame infos: [{0},{1}]", m_frameIndex, frameCount);
+			NazaraErrorFmt("missing frame infos: [{0},{1}]", m_frameIndex, frameCount);
 			return false;
 		}
 
@@ -264,7 +264,7 @@ namespace Nz
 
 	void MD5AnimParser::Error(const std::string& message)
 	{
-		NazaraError("{0} at line #{1}", message, m_lineCount);
+		NazaraErrorFmt("{0} at line #{1}", message, m_lineCount);
 	}
 
 	bool MD5AnimParser::ParseBaseframe()

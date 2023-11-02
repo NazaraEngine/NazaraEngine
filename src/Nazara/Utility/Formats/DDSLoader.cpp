@@ -83,7 +83,7 @@ namespace Nz
 
 					if (byteStream.Read(ptr, byteCount) != byteCount)
 					{
-						NazaraError("failed to read level #{0}", NumberToString(i));
+						NazaraErrorFmt("failed to read level #{0}", i);
 						return Nz::Err(ResourceLoadingError::DecodingError);
 					}
 
@@ -111,7 +111,7 @@ namespace Nz
 				{
 					if (header.ddsCaps[1] & DDSCAPS2_CUBEMAP)
 					{
-						NazaraError("Cubemap arrays are not yet supported, sorry");
+						NazaraError("cubemap arrays are not yet supported, sorry");
 						return false;
 					}
 					else if (header.flags & DDSD_HEIGHT)
@@ -125,7 +125,7 @@ namespace Nz
 					{
 						if ((header.ddsCaps[1] & DDSCAPS2_CUBEMAP_ALLFACES) != DDSCAPS2_CUBEMAP_ALLFACES)
 						{
-							NazaraError("Partial cubemap are not yet supported, sorry");
+							NazaraError("partial cubemap are not yet supported, sorry");
 							return false;
 						}
 
@@ -133,7 +133,7 @@ namespace Nz
 					}
 					else if (headerExt.resourceDimension == D3D10_RESOURCE_DIMENSION_BUFFER)
 					{
-						NazaraError("Texture buffers are not yet supported, sorry");
+						NazaraError("texture buffers are not yet supported, sorry");
 						return false;
 					}
 					else if (headerExt.resourceDimension == D3D10_RESOURCE_DIMENSION_TEXTURE1D)
@@ -234,7 +234,7 @@ namespace Nz
 							buf[3] = (header.format.fourCC >> 24) & 255;
 							buf[4] = '\0';
 
-							NazaraError("unhandled format \"{0}\"", buf);
+							NazaraErrorFmt("unhandled format \"{0}\"", buf);
 							return false;
 						}
 					}

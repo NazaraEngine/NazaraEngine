@@ -14,7 +14,7 @@ namespace Nz::GL
 		HWNDHandle window(::CreateWindowA("STATIC", nullptr, WS_DISABLED | WS_POPUP, 0, 0, 1, 1, nullptr, nullptr, GetModuleHandle(nullptr), nullptr));
 		if (!window)
 		{
-			NazaraError("failed to create dummy window: {0}", Error::GetLastSystemError());
+			NazaraErrorFmt("failed to create dummy window: {0}", Error::GetLastSystemError());
 			return false;
 		}
 
@@ -47,7 +47,7 @@ namespace Nz::GL
 		/*HDC deviceContext = ::GetDC(windowHandle);
 		if (!deviceContext)
 		{
-			NazaraError("failed to retrieve window device context: {0}", Error::GetLastSystemError());
+			NazaraErrorFmt("failed to retrieve window device context: {0}", Error::GetLastSystemError());
 			return false;
 		}
 

@@ -13,7 +13,7 @@ namespace Nz
 			m_lastErrorCode = m_device->vkBindBufferMemory(*m_device, m_handle, memory, offset);
 			if (m_lastErrorCode != VK_SUCCESS)
 			{
-				NazaraError("Failed to bind buffer memory");
+				NazaraError("failed to bind buffer memory");
 				return false;
 			}
 

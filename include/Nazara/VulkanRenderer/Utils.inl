@@ -55,7 +55,7 @@ namespace Nz
 			case AttachmentLoadOp::Load:    return VK_ATTACHMENT_LOAD_OP_LOAD;
 		}
 
-		NazaraError("unhandled AttachmentLoadOp {0:#x})", UnderlyingCast(loadOp));
+		NazaraErrorFmt("unhandled AttachmentLoadOp {0:#x})", UnderlyingCast(loadOp));
 		return {};
 	}
 
@@ -67,7 +67,7 @@ namespace Nz
 			case AttachmentStoreOp::Store:   return VK_ATTACHMENT_STORE_OP_STORE;
 		}
 
-		NazaraError("unhandled AttachmentStoreOp {0:#x})", UnderlyingCast(storeOp));
+		NazaraErrorFmt("unhandled AttachmentStoreOp {0:#x})", UnderlyingCast(storeOp));
 		return {};
 	}
 
@@ -82,7 +82,7 @@ namespace Nz
 			case BlendEquation::Subtract:        return VK_BLEND_OP_SUBTRACT;
 		}
 
-		NazaraError("unhandled BlendEquation {0:#x})", UnderlyingCast(blendEquation));
+		NazaraErrorFmt("unhandled BlendEquation {0:#x})", UnderlyingCast(blendEquation));
 		return {};
 	}
 
@@ -106,7 +106,7 @@ namespace Nz
 			case BlendFunc::Zero:             return VK_BLEND_FACTOR_ZERO;
 		}
 
-		NazaraError("unhandled BlendFunc {0:#x})", UnderlyingCast(blendFunc));
+		NazaraErrorFmt("unhandled BlendFunc {0:#x})", UnderlyingCast(blendFunc));
 		return {};
 	}
 
@@ -121,7 +121,7 @@ namespace Nz
 			case BufferType::Upload:  return VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
 		}
 
-		NazaraError("unhandled BufferType {0:#x})", UnderlyingCast(bufferType));
+		NazaraErrorFmt("unhandled BufferType {0:#x})", UnderlyingCast(bufferType));
 		return 0;
 	}
 
@@ -144,7 +144,7 @@ namespace Nz
 			case ComponentType::Int4:       return VK_FORMAT_R32G32B32A32_SINT;
 		}
 
-		NazaraError("unhandled ComponentType {0:#x})", UnderlyingCast(componentType));
+		NazaraErrorFmt("unhandled ComponentType {0:#x})", UnderlyingCast(componentType));
 		return VK_FORMAT_UNDEFINED;
 	}
 
@@ -158,7 +158,7 @@ namespace Nz
 			case FaceCulling::FrontAndBack: return VK_CULL_MODE_FRONT_AND_BACK;
 		}
 
-		NazaraError("unhandled FaceSide {0:#x})", UnderlyingCast(faceSide));
+		NazaraErrorFmt("unhandled FaceSide {0:#x})", UnderlyingCast(faceSide));
 		return VK_CULL_MODE_BACK_BIT;
 	}
 
@@ -171,7 +171,7 @@ namespace Nz
 			case FaceFilling::Point: return VK_POLYGON_MODE_POINT;
 		}
 
-		NazaraError("unhandled FaceFilling {0:#x})", UnderlyingCast(faceFilling));
+		NazaraErrorFmt("unhandled FaceFilling {0:#x})", UnderlyingCast(faceFilling));
 		return VK_POLYGON_MODE_FILL;
 	}
 
@@ -183,7 +183,7 @@ namespace Nz
 			case FrontFace::CounterClockwise: return VK_FRONT_FACE_COUNTER_CLOCKWISE;
 		}
 
-		NazaraError("unhandled FrontFace {0:#x})", UnderlyingCast(frontFace));
+		NazaraErrorFmt("unhandled FrontFace {0:#x})", UnderlyingCast(frontFace));
 		return {};
 	}
 
@@ -196,7 +196,7 @@ namespace Nz
 			case IndexType::U32: return VK_INDEX_TYPE_UINT32;
 		}
 
-		NazaraError("unhandled IndexType {0:#x})", UnderlyingCast(indexType));
+		NazaraErrorFmt("unhandled IndexType {0:#x})", UnderlyingCast(indexType));
 		return {};
 	}
 
@@ -222,7 +222,7 @@ namespace Nz
 			case MemoryAccess::VertexBufferRead:    return VK_ACCESS_VERTEX_ATTRIBUTE_READ_BIT;
 		}
 
-		NazaraError("unhandled MemoryAccess {0:#x})", UnderlyingCast(memoryAccess));
+		NazaraErrorFmt("unhandled MemoryAccess {0:#x})", UnderlyingCast(memoryAccess));
 		return {};
 	}
 
@@ -256,7 +256,7 @@ namespace Nz
 			case PipelineStage::BottomOfPipe:                 return VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
 		}
 
-		NazaraError("unhandled PipelineStage {0:#x})", UnderlyingCast(pipelineStage));
+		NazaraErrorFmt("unhandled PipelineStage {0:#x})", UnderlyingCast(pipelineStage));
 		return {};
 	}
 
@@ -299,7 +299,7 @@ namespace Nz
 			default: break;
 		}
 
-		NazaraError("unhandled PixelFormat {0:#x})", UnderlyingCast(pixelFormat));
+		NazaraErrorFmt("unhandled PixelFormat {0:#x})", UnderlyingCast(pixelFormat));
 		return VK_FORMAT_UNDEFINED;
 	}
 
@@ -316,7 +316,7 @@ namespace Nz
 			case PixelFormatContent::Stencil:      return VK_IMAGE_ASPECT_STENCIL_BIT;
 		}
 
-		NazaraError("unhandled PixelFormatContent {0:#x})", UnderlyingCast(pixelFormatContent));
+		NazaraErrorFmt("unhandled PixelFormatContent {0:#x})", UnderlyingCast(pixelFormatContent));
 		return VK_IMAGE_ASPECT_COLOR_BIT;
 	}
 
@@ -330,7 +330,7 @@ namespace Nz
 			case PresentMode::VerticalSync:        return VK_PRESENT_MODE_FIFO_KHR;
 		}
 
-		NazaraError("unhandled PresentMode {0:#x})", UnderlyingCast(presentMode));
+		NazaraErrorFmt("unhandled PresentMode {0:#x})", UnderlyingCast(presentMode));
 		return VK_PRESENT_MODE_FIFO_KHR;
 	}
 
@@ -346,7 +346,7 @@ namespace Nz
 			case PrimitiveMode::TriangleFan:   return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN;
 		}
 
-		NazaraError("unhandled PrimitiveMode {0:#x})", UnderlyingCast(primitiveMode));
+		NazaraErrorFmt("unhandled PrimitiveMode {0:#x})", UnderlyingCast(primitiveMode));
 		return VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 	}
 
@@ -364,7 +364,7 @@ namespace Nz
 			case RendererComparison::Always:         return VK_COMPARE_OP_ALWAYS; 
 		}
 
-		NazaraError("unhandled RendererComparison {0:#x})", UnderlyingCast(comparison));
+		NazaraErrorFmt("unhandled RendererComparison {0:#x})", UnderlyingCast(comparison));
 		return VK_COMPARE_OP_NEVER;
 	}
 
@@ -376,7 +376,7 @@ namespace Nz
 			case SamplerFilter::Nearest: return VK_FILTER_NEAREST;
 		}
 
-		NazaraError("unhandled SamplerFilter {0:#x})", UnderlyingCast(samplerFilter));
+		NazaraErrorFmt("unhandled SamplerFilter {0:#x})", UnderlyingCast(samplerFilter));
 		return VK_FILTER_NEAREST;
 	}
 
@@ -388,7 +388,7 @@ namespace Nz
 			case SamplerMipmapMode::Nearest: return VK_SAMPLER_MIPMAP_MODE_NEAREST;
 		}
 
-		NazaraError("unhandled SamplerMipmapMode {0:#x})", UnderlyingCast(samplerMipmap));
+		NazaraErrorFmt("unhandled SamplerMipmapMode {0:#x})", UnderlyingCast(samplerMipmap));
 		return VK_SAMPLER_MIPMAP_MODE_NEAREST;
 	}
 
@@ -401,7 +401,7 @@ namespace Nz
 			case SamplerWrap::Repeat:         return VK_SAMPLER_ADDRESS_MODE_REPEAT;
 		}
 
-		NazaraError("unhandled SamplerWrap {0:#x})", UnderlyingCast(samplerWrap));
+		NazaraErrorFmt("unhandled SamplerWrap {0:#x})", UnderlyingCast(samplerWrap));
 		return VK_SAMPLER_ADDRESS_MODE_REPEAT;
 	}
 
@@ -415,7 +415,7 @@ namespace Nz
 			case ShaderBindingType::UniformBuffer: return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 		}
 
-		NazaraError("unhandled ShaderBindingType {0:#x})", UnderlyingCast(bindingType));
+		NazaraErrorFmt("unhandled ShaderBindingType {0:#x})", UnderlyingCast(bindingType));
 		return VK_DESCRIPTOR_TYPE_SAMPLER;
 	}
 
@@ -428,7 +428,7 @@ namespace Nz
 			case nzsl::ShaderStageType::Vertex:   return VK_SHADER_STAGE_VERTEX_BIT;
 		}
 
-		NazaraError("unhandled nzsl::ShaderStageType {0:#x})", UnderlyingCast(stageType));
+		NazaraErrorFmt("unhandled nzsl::ShaderStageType {0:#x})", UnderlyingCast(stageType));
 		return {};
 	}
 
@@ -455,7 +455,7 @@ namespace Nz
 			case StencilOperation::Zero:             return VK_STENCIL_OP_ZERO;
 		}
 
-		NazaraError("unhandled StencilOperation {0:#x})", UnderlyingCast(stencilOp));
+		NazaraErrorFmt("unhandled StencilOperation {0:#x})", UnderlyingCast(stencilOp));
 		return {};
 	}
 
@@ -474,7 +474,7 @@ namespace Nz
 			case TextureLayout::Undefined:             return VK_IMAGE_LAYOUT_UNDEFINED;
 		}
 
-		NazaraError("unhandled TextureLayout {0:#x})", UnderlyingCast(textureLayout));
+		NazaraErrorFmt("unhandled TextureLayout {0:#x})", UnderlyingCast(textureLayout));
 		return {};
 	}
 
@@ -491,7 +491,7 @@ namespace Nz
 			case TextureUsage::TransferDestination:    return VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 		}
 
-		NazaraError("unhandled TextureUsage {0:#x})", UnderlyingCast(textureLayout));
+		NazaraErrorFmt("unhandled TextureUsage {0:#x})", UnderlyingCast(textureLayout));
 		return {};
 	}
 
@@ -512,7 +512,7 @@ namespace Nz
 			case VertexInputRate::Vertex:   return VK_VERTEX_INPUT_RATE_VERTEX;
 		}
 
-		NazaraError("unhandled VertexInputRate {0:#x})", UnderlyingCast(inputRate));
+		NazaraErrorFmt("unhandled VertexInputRate {0:#x})", UnderlyingCast(inputRate));
 		return {};
 	}
 

@@ -27,13 +27,13 @@ namespace Nz
 	{
 		if (!vertexDeclaration)
 		{
-			NazaraError("The vertex declaration can't be null");
+			NazaraError("the vertex declaration can't be null");
 			return false;
 		}
 
 		if (!vertexDeclaration->HasComponent(VertexComponent::Position))
 		{
-			NazaraError("Vertex declaration must contains a vertex position");
+			NazaraError("vertex declaration must contains a vertex position");
 			return false;
 		}
 
@@ -263,7 +263,7 @@ namespace Nz
 		m_jointCount = jointCount;
 		if (!m_skeleton.Create(jointCount))
 		{
-			NazaraError("Failed to create skeleton");
+			NazaraError("failed to create skeleton");
 			return false;
 		}
 

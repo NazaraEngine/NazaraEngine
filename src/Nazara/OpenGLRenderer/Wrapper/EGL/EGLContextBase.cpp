@@ -53,7 +53,7 @@ namespace Nz::GL
 
 	bool EGLContextBase::Create(const ContextParams& /*params*/, WindowHandle /*window*/, const EGLContextBase* /*shareContext*/)
 	{
-		NazaraError("Unexpected context creation call");
+		NazaraError("unexpected context creation call");
 		return false;
 	}
 
@@ -166,7 +166,7 @@ namespace Nz::GL
 		EGLint numConfig = 0;
 		if (m_loader.eglChooseConfig(m_display, configAttributes, configs, EGLint(maxConfigCount), &numConfig) != GL_TRUE)
 		{
-			NazaraError("failed to retrieve compatible EGL configurations: {0}", EGLLoader::TranslateError(m_loader.eglGetError()));
+			NazaraErrorFmt("failed to retrieve compatible EGL configurations: {0}", EGLLoader::TranslateError(m_loader.eglGetError()));
 			return false;
 		}
 
@@ -267,7 +267,7 @@ namespace Nz::GL
 
 		if (!m_handle)
 		{
-			NazaraError("failed to create EGL context: {0}", EGLLoader::TranslateError(m_loader.eglGetError()));
+			NazaraErrorFmt("failed to create EGL context: {0}", EGLLoader::TranslateError(m_loader.eglGetError()));
 			return false;
 		}
 

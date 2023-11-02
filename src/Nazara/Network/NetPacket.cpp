@@ -46,7 +46,7 @@ namespace Nz
 		std::size_t size = m_buffer->GetSize();
 		if (!EncodeHeader(m_buffer->GetBuffer(), static_cast<UInt32>(size), m_netCode))
 		{
-			NazaraError("Failed to encode packet header");
+			NazaraError("failed to encode packet header");
 			return nullptr;
 		}
 

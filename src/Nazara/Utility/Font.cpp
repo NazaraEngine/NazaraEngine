@@ -109,7 +109,7 @@ namespace Nz
 		#if NAZARA_UTILITY_SAFE
 		if (!IsValid())
 		{
-			NazaraError("Invalid font");
+			NazaraError("invalid font");
 			return false;
 		}
 		#endif
@@ -146,8 +146,8 @@ namespace Nz
 		#if NAZARA_UTILITY_SAFE
 		if (!IsValid())
 		{
-			NazaraError("Invalid font");
-			return std::string("Invalid font");
+			NazaraError("invalid font");
+			return std::string("invalid font");
 		}
 		#endif
 
@@ -159,7 +159,7 @@ namespace Nz
 		#if NAZARA_UTILITY_SAFE
 		if (!IsValid())
 		{
-			NazaraError("Invalid font");
+			NazaraError("invalid font");
 			return 0;
 		}
 		#endif
@@ -202,7 +202,7 @@ namespace Nz
 		#if NAZARA_UTILITY_SAFE
 		if (!IsValid())
 		{
-			NazaraError("Invalid font");
+			NazaraError("invalid font");
 
 			static SizeInfo dummy;
 			return dummy;
@@ -237,8 +237,8 @@ namespace Nz
 		#if NAZARA_UTILITY_SAFE
 		if (!IsValid())
 		{
-			NazaraError("Invalid font");
-			return std::string("Invalid font");
+			NazaraError("invalid font");
+			return std::string("invalid font");
 		}
 		#endif
 
@@ -331,7 +331,7 @@ namespace Nz
 		{
 			s_defaultFont = Font::OpenFromMemory(r_sansationRegular, sizeof(r_sansationRegular));
 			if (!s_defaultFont)
-				NazaraError("Failed to open default font");
+				NazaraError("failed to open default font");
 		}
 
 		return s_defaultFont;
@@ -455,7 +455,7 @@ namespace Nz
 		#if NAZARA_UTILITY_SAFE
 		if (!m_atlas)
 		{
-			NazaraError("Font has no atlas");
+			NazaraError("font has no atlas");
 			return glyph;
 		}
 		#endif
@@ -511,7 +511,7 @@ namespace Nz
 
 					if (!m_atlas->Insert(fontGlyph.image, &glyph.atlasRect, &glyph.flipped, &glyph.layerIndex))
 					{
-						NazaraError("Failed to insert glyph into atlas");
+						NazaraError("failed to insert glyph into atlas");
 						return glyph;
 					}
 

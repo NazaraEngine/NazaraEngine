@@ -185,7 +185,7 @@ namespace Nz
 				return indexCount - 2;
 		}
 
-		NazaraError("Primitive mode not handled ({0:#x})", UnderlyingCast(m_primitiveMode));
+		NazaraErrorFmt("primitive mode not handled ({0:#x})", UnderlyingCast(m_primitiveMode));
 		return 0;
 	}
 

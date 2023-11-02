@@ -156,7 +156,7 @@ namespace Nz
 					return (((width + 3) / 4) * ((height + 3) / 4) * ((format == PixelFormat::DXT1) ? 8 : 16)) * depth;
 
 				default:
-					NazaraError("Unsupported format");
+					NazaraError("unsupported format");
 					return 0;
 			}
 		}
@@ -175,13 +175,13 @@ namespace Nz
 		#if NAZARA_UTILITY_SAFE
 		if (IsCompressed(srcFormat))
 		{
-			NazaraError("Cannot convert single pixel from compressed format");
+			NazaraError("cannot convert single pixel from compressed format");
 			return false;
 		}
 
 		if (IsCompressed(dstFormat))
 		{
-			NazaraError("Cannot convert single pixel to compressed format");
+			NazaraError("cannot convert single pixel to compressed format");
 			return false;
 		}
 		#endif
@@ -200,13 +200,13 @@ namespace Nz
 		ConvertFunction func = s_convertFunctions[srcFormat][dstFormat];
 		if (!func)
 		{
-			NazaraError("pixel format conversion from {0} to {1} is not supported", GetName(srcFormat), GetName(dstFormat));
+			NazaraErrorFmt("pixel format conversion from {0} to {1} is not supported", GetName(srcFormat), GetName(dstFormat));
 			return false;
 		}
 
 		if (!func(reinterpret_cast<const UInt8*>(start), reinterpret_cast<const UInt8*>(end), reinterpret_cast<UInt8*>(dst)))
 		{
-			NazaraError("pixel format conversion from {0} to {1} failed", GetName(srcFormat), GetName(dstFormat));
+			NazaraErrorFmt("pixel format conversion from {0} to {1} failed", GetName(srcFormat), GetName(dstFormat));
 			return false;
 		}
 

@@ -98,7 +98,7 @@ int main(int argc, char* argv[])
 	std::shared_ptr<Nz::Mesh> spaceship = Nz::Mesh::LoadFromFile(resourceDir / "Spaceship/spaceship.obj", meshParams);
 	if (!spaceship)
 	{
-		NazaraError("Failed to load model");
+		NazaraError("failed to load model");
 		return __LINE__;
 	}
 

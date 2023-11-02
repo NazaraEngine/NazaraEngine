@@ -305,7 +305,7 @@ namespace Nz
 				return Vector3<T>(x + width, y + height, z + depth);
 		}
 
-		NazaraError("Corner not handled ({0:#x})", UnderlyingCast(corner));
+		NazaraErrorFmt("Corner not handled ({0:#x})", UnderlyingCast(corner));
 		return Vector3<T>();
 	}
 

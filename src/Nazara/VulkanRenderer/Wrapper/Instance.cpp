@@ -131,7 +131,7 @@ namespace Nz::Vk
 		m_lastErrorCode = Loader::vkCreateInstance(&createInfo, allocator, &m_instance);
 		if (m_lastErrorCode != VkResult::VK_SUCCESS)
 		{
-			NazaraError("failed to create Vulkan instance: {0}", TranslateVulkanError(m_lastErrorCode));
+			NazaraErrorFmt("failed to create Vulkan instance: {0}", TranslateVulkanError(m_lastErrorCode));
 			return false;
 		}
 
@@ -173,7 +173,7 @@ namespace Nz::Vk
 		}
 		catch (const std::exception& e)
 		{
-			NazaraError("Failed to query instance function: {0}", e.what());
+			NazaraErrorFmt("Failed to query instance function: {0}", e.what());
 			return false;
 		}
 
@@ -192,7 +192,7 @@ namespace Nz::Vk
 		m_lastErrorCode = vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr);
 		if (m_lastErrorCode != VkResult::VK_SUCCESS || deviceCount == 0)
 		{
-			NazaraError("failed to query physical device count: {0}", TranslateVulkanError(m_lastErrorCode));
+			NazaraErrorFmt("failed to query physical device count: {0}", TranslateVulkanError(m_lastErrorCode));
 			return false;
 		}
 
@@ -201,7 +201,7 @@ namespace Nz::Vk
 		m_lastErrorCode = vkEnumeratePhysicalDevices(m_instance, &deviceCount, devices->data());
 		if (m_lastErrorCode != VkResult::VK_SUCCESS)
 		{
-			NazaraError("failed to query physical devices: {0}", TranslateVulkanError(m_lastErrorCode));
+			NazaraErrorFmt("failed to query physical devices: {0}", TranslateVulkanError(m_lastErrorCode));
 			return false;
 		}
 
@@ -217,7 +217,7 @@ namespace Nz::Vk
 		m_lastErrorCode = vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionPropertyCount, nullptr);
 		if (m_lastErrorCode != VkResult::VK_SUCCESS)
 		{
-			NazaraError("failed to query extension properties count: {0}", TranslateVulkanError(m_lastErrorCode));
+			NazaraErrorFmt("failed to query extension properties count: {0}", TranslateVulkanError(m_lastErrorCode));
 			return false;
 		}
 
@@ -229,7 +229,7 @@ namespace Nz::Vk
 		m_lastErrorCode = vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionPropertyCount, extensionProperties->data());
 		if (m_lastErrorCode != VkResult::VK_SUCCESS)
 		{
-			NazaraError("failed to query extension properties count: {0}", TranslateVulkanError(m_lastErrorCode));
+			NazaraErrorFmt("failed to query extension properties count: {0}", TranslateVulkanError(m_lastErrorCode));
 			return false;
 		}
 

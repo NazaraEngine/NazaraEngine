@@ -76,7 +76,7 @@ namespace Nz
 		auto impl = std::make_unique<DynLibImpl>();
 		if (!impl->Load(libraryPath, &m_lastError))
 		{
-			NazaraError("failed to load library: {0}", m_lastError);
+			NazaraErrorFmt("failed to load library: {0}", m_lastError);
 			return false;
 		}
 

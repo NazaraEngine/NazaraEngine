@@ -2,11 +2,6 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#ifdef NAZARA_BUILD
-#include <fmt/format.h>
-#include <fmt/std.h>
-#endif
-
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -23,8 +18,8 @@ namespace Nz
 		NAZARA_CORE_API std::string FormatFromStore(std::string_view str);
 	}
 
-	template<typename ...Args>
-	std::string Format(std::string_view str, Args&&... args)
+	template<typename... Args>
+	std::string Format(FormatString<Args...> str, Args&&... args)
 	{
 #ifdef NAZARA_BUILD
 		return fmt::format(str, std::forward<Args>(args)...);

@@ -153,7 +153,7 @@ namespace Nz
 
 	inline void OBJParser::Error(const std::string& message)
 	{
-		NazaraError("{0} at line #{1}", message, m_lineCount);
+		NazaraErrorFmt("{0} at line #{1}", message, m_lineCount);
 	}
 
 	inline void OBJParser::Flush() const
@@ -164,7 +164,7 @@ namespace Nz
 
 	inline void OBJParser::Warning(const std::string& message)
 	{
-		NazaraWarning("{0} at line #{1}", message, m_lineCount);
+		NazaraWarningFmt("{0} at line #{1}", message, m_lineCount);
 	}
 
 	inline bool OBJParser::UnrecognizedLine(bool error)
@@ -180,7 +180,7 @@ namespace Nz
 
 		if (m_errorCount > 10 && (m_errorCount * 100 / m_lineCount) > 50)
 		{
-			NazaraError("Aborting parsing because of error percentage");
+			NazaraError("aborting parsing because of error percentage");
 			return false; //< Abort parsing if error percentage is too high
 		}
 

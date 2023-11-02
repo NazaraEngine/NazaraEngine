@@ -198,7 +198,7 @@ namespace Nz
 		if (waitError != SocketError::NoError)
 		{
 			if (waitError != SocketError::Interrupted) //< Do not log interrupted error
-				NazaraError("SocketPoller encountered an error (code: {0:#x}): {1}", UnderlyingCast(waitError), ErrorToString(waitError));
+				NazaraErrorFmt("SocketPoller encountered an error (code: {0:#x}): {1}", UnderlyingCast(waitError), ErrorToString(waitError));
 
 			return 0;
 		}

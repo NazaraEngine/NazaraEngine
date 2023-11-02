@@ -16,7 +16,7 @@ namespace Nz
 
 		m_iconImage = icon;
 		if (!m_iconImage.Convert(PixelFormat::BGRA8))
-			NazaraError("Failed to convert icon to BGRA8");
+			NazaraError("failed to convert icon to BGRA8");
 
 		m_icon = SDL_CreateRGBSurfaceWithFormatFrom(
 			m_iconImage.GetPixels(),
@@ -28,7 +28,7 @@ namespace Nz
 		);
 
 		if (!m_icon)
-			NazaraError("failed to create SDL Surface for icon: {0}", std::string(SDL_GetError()));
+			NazaraErrorFmt("failed to create SDL Surface for icon: {0}", SDL_GetError());
 	}
 
 	IconImpl::~IconImpl()

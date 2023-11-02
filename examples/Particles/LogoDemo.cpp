@@ -128,7 +128,7 @@ ParticleDemo("Logo", sharedData)
 
 	m_logo = Nz::Image::LoadFromFile("E:/Twitch/avatar_interested.png", params);
 	if (!m_logo)
-		NazaraError("Failed to load logo!");
+		NazaraError("failed to load logo!");
 
 	unsigned int width = m_logo->GetWidth();
 	unsigned int height = m_logo->GetHeight();

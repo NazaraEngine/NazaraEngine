@@ -50,7 +50,7 @@ namespace Nz
 		std::unique_ptr<GL::Loader> loader = SelectLoader(config);
 		if (!loader)
 		{
-			NazaraError("Failed to initialize OpenGL loader");
+			NazaraError("failed to initialize OpenGL loader");
 			return false;
 		}
 

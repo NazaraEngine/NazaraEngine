@@ -73,7 +73,7 @@ namespace Nz
 			case nzsl::ImageType::Cubemap:   return ImageType::Cubemap;
 		}
 
-		NazaraError("invalid image type 0x{0}", NumberToString(UnderlyingCast(imageType), 16));
+		NazaraErrorFmt("invalid image type {0:#x}", UnderlyingCast(imageType));
 		return ImageType::E2D;
 	}
 }

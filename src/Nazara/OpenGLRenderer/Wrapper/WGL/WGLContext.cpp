@@ -25,7 +25,7 @@ namespace Nz::GL
 		HWNDHandle window(::CreateWindowA("STATIC", nullptr, WS_DISABLED | WS_POPUP, 0, 0, 1, 1, nullptr, nullptr, GetModuleHandle(nullptr), nullptr));
 		if (!window)
 		{
-			NazaraError("failed to create dummy window: {0}", Error::GetLastSystemError());
+			NazaraErrorFmt("failed to create dummy window: {0}", Error::GetLastSystemError());
 			return false;
 		}
 
@@ -34,7 +34,7 @@ namespace Nz::GL
 		m_deviceContext = ::GetDC(window.get());
 		if (!m_deviceContext)
 		{
-			NazaraError("failed to retrieve dummy window device context: {0}", Error::GetLastSystemError());
+			NazaraErrorFmt("failed to retrieve dummy window device context: {0}", Error::GetLastSystemError());
 			return false;
 		}
 
@@ -54,7 +54,7 @@ namespace Nz::GL
 		m_deviceContext = ::GetDC(static_cast<HWND>(window.windows.window));
 		if (!m_deviceContext)
 		{
-			NazaraError("failed to retrieve window device context: {0}", Error::GetLastSystemError());
+			NazaraErrorFmt("failed to retrieve window device context: {0}", Error::GetLastSystemError());
 			return false;
 		}
 
@@ -208,7 +208,7 @@ namespace Nz::GL
 
 			if (!m_handle)
 			{
-				NazaraError("failed to create WGL context: {0}", Error::GetLastSystemError());
+				NazaraErrorFmt("failed to create WGL context: {0}", Error::GetLastSystemError());
 				return false;
 			}
 		}
@@ -217,7 +217,7 @@ namespace Nz::GL
 			m_handle = m_loader.wglCreateContext(m_deviceContext);
 			if (!m_handle)
 			{
-				NazaraError("failed to create WGL context: {0}", Error::GetLastSystemError());
+				NazaraErrorFmt("failed to create WGL context: {0}", Error::GetLastSystemError());
 				return false;
 			}
 
@@ -225,7 +225,7 @@ namespace Nz::GL
 			{
 				if (!m_loader.wglShareLists(shareContext->m_handle, m_handle))
 				{
-					NazaraError("failed to share context objects: {0}", Error::GetLastSystemError());
+					NazaraErrorFmt("failed to share context objects: {0}", Error::GetLastSystemError());
 					return false;
 				}
 			}
@@ -268,7 +268,7 @@ namespace Nz::GL
 		bool succeeded = m_loader.wglMakeCurrent(m_deviceContext, m_handle);
 		if (!succeeded)
 		{
-			NazaraError("failed to activate context: {0}", Error::GetLastSystemError());
+			NazaraErrorFmt("failed to activate context: {0}", Error::GetLastSystemError());
 			return false;
 		}
 
@@ -389,14 +389,14 @@ namespace Nz::GL
 			pixelFormat = m_loader.ChoosePixelFormat(m_deviceContext, &descriptor);
 			if (pixelFormat == 0)
 			{
-				NazaraError("failed to choose pixel format: {0}", Error::GetLastSystemError());
+				NazaraErrorFmt("failed to choose pixel format: {0}", Error::GetLastSystemError());
 				return false;
 			}
 		}
 
 		if (!m_loader.SetPixelFormat(m_deviceContext, pixelFormat, &descriptor))
 		{
-			NazaraError("failed to choose pixel format: {0}", Error::GetLastSystemError());
+			NazaraErrorFmt("failed to choose pixel format: {0}", Error::GetLastSystemError());
 			return false;
 		}
 

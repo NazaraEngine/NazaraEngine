@@ -187,7 +187,7 @@ namespace Nz
 				break;
 		}
 
-		NazaraInternalError("Unexpected socket state ({0:#x})", UnderlyingCast(m_state));
+		NazaraInternalErrorFmt("unexpected socket state ({0:#x})", UnderlyingCast(m_state));
 		return m_state;
 	}
 
@@ -426,7 +426,7 @@ namespace Nz
 		if (!ptr)
 		{
 			m_lastError = SocketError::Packet;
-			NazaraError("Failed to prepare packet");
+			NazaraError("failed to prepare packet");
 			return false;
 		}
 
@@ -479,7 +479,7 @@ namespace Nz
 				break;
 		}
 
-		NazaraInternalError("Unhandled socket state ({0:#x})", UnderlyingCast(m_state));
+		NazaraInternalErrorFmt("unhandled socket state ({0:#x})", UnderlyingCast(m_state));
 		return m_state;
 	}
 
@@ -516,10 +516,10 @@ namespace Nz
 		SocketError errorCode;
 
 		if (!SocketImpl::SetNoDelay(m_handle, m_isLowDelayEnabled, &errorCode))
-			NazaraWarning("failed to set socket no delay mode ({0:#x})", UnderlyingCast(errorCode));
+			NazaraWarningFmt("failed to set socket no delay mode ({0:#x})", UnderlyingCast(errorCode));
 
 		if (!SocketImpl::SetKeepAlive(m_handle, m_isKeepAliveEnabled, m_keepAliveTime, m_keepAliveInterval, &errorCode))
-			NazaraWarning("failed to set socket keep alive mode ({0:#x})", UnderlyingCast(errorCode));
+			NazaraWarningFmt("failed to set socket keep alive mode ({0:#x})", UnderlyingCast(errorCode));
 
 		m_peerAddress = IpAddress::Invalid;
 		m_openMode = OpenMode_ReadWrite;

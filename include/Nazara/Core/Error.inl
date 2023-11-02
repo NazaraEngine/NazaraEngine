@@ -15,15 +15,13 @@ namespace Nz
 		return file;
 	}
 
-	template<typename... Args>
-	void Error::Trigger(ErrorType type, std::string_view error, Args&&... args)
+	inline void Error::Trigger(ErrorType type, std::string error)
 	{
-		return TriggerInternal(type, Format(error, std::forward<Args>(args)...), 0, {}, {});
+		return TriggerInternal(type, std::move(error), 0, {}, {});
 	}
 
-	template<typename... Args>
-	void Error::Trigger(ErrorType type, unsigned int line, std::string_view file, std::string_view function, std::string_view error, Args&&... args)
+	inline void Error::Trigger(ErrorType type, unsigned int line, std::string_view file, std::string_view function, std::string error)
 	{
-		return TriggerInternal(type, Format(error, std::forward<Args>(args)...), line, GetCurrentFileRelativeToEngine(file), function);
+		return TriggerInternal(type, std::move(error), line, GetCurrentFileRelativeToEngine(file), function);
 	}
 }

@@ -119,6 +119,6 @@ namespace Nz
 
 	void ByteStream::OnEmptyStream()
 	{
-		NazaraError("No stream");
+		NazaraError("no stream");
 	}
 }

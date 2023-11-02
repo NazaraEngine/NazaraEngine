@@ -274,13 +274,13 @@ namespace Nz
 	{
 		if (!SetupSwapchain(m_device.GetPhysicalDeviceInfo()))
 		{
-			NazaraError("Failed to create swapchain");
+			NazaraError("failed to create swapchain");
 			return false;
 		}
 
 		if (m_depthStencilFormat != VK_FORMAT_MAX_ENUM && !SetupDepthBuffer())
 		{
-			NazaraError("Failed to create depth buffer");
+			NazaraError("failed to create depth buffer");
 			return false;
 		}
 
@@ -402,20 +402,20 @@ namespace Nz
 
 		if (!m_depthBuffer.Create(m_device, imageCreateInfo))
 		{
-			NazaraError("Failed to create depth buffer");
+			NazaraError("failed to create depth buffer");
 			return false;
 		}
 
 		VkMemoryRequirements memoryReq = m_depthBuffer.GetMemoryRequirements();
 		if (!m_depthBufferMemory.Create(m_device, memoryReq.size, memoryReq.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT))
 		{
-			NazaraError("Failed to allocate depth buffer memory");
+			NazaraError("failed to allocate depth buffer memory");
 			return false;
 		}
 
 		if (!m_depthBuffer.BindImageMemory(m_depthBufferMemory))
 		{
-			NazaraError("Failed to bind depth buffer to buffer");
+			NazaraError("failed to bind depth buffer to buffer");
 			return false;
 		}
 
@@ -451,7 +451,7 @@ namespace Nz
 
 		if (!m_depthBufferView.Create(m_device, imageViewCreateInfo))
 		{
-			NazaraError("Failed to create depth buffer view");
+			NazaraError("failed to create depth buffer view");
 			return false;
 		}
 
@@ -484,7 +484,7 @@ namespace Nz
 
 			if (!framebuffer.Create(*m_swapchain.GetDevice(), frameBufferCreate))
 			{
-				NazaraError("failed to create framebuffer for image #{0}: {1}", i, TranslateVulkanError(framebuffer.GetLastErrorCode()));
+				NazaraErrorFmt("failed to create framebuffer for image #{0}: {1}", i, TranslateVulkanError(framebuffer.GetLastErrorCode()));
 				return false;
 			}
 
@@ -499,7 +499,7 @@ namespace Nz
 		std::optional<PixelFormat> colorFormat = FromVulkan(m_surfaceFormat.format);
 		if (!colorFormat)
 		{
-			NazaraError("unhandled vulkan pixel format ({0:#x})", UnderlyingCast(m_surfaceFormat.format));
+			NazaraErrorFmt("unhandled vulkan pixel format ({0:#x})", UnderlyingCast(m_surfaceFormat.format));
 			return false;
 		}
 
@@ -509,7 +509,7 @@ namespace Nz
 			depthStencilFormat = FromVulkan(m_depthStencilFormat);
 			if (!depthStencilFormat)
 			{
-				NazaraError("unhandled vulkan pixel format ({0:#x})", UnderlyingCast(m_depthStencilFormat));
+				NazaraErrorFmt("unhandled vulkan pixel format ({0:#x})", UnderlyingCast(m_depthStencilFormat));
 				return false;
 			}
 		}
@@ -580,7 +580,7 @@ namespace Nz
 
 		if (!success)
 		{
-			NazaraError("failed to create Vulkan surface: {0}", TranslateVulkanError(m_surface.GetLastErrorCode()));
+			NazaraErrorFmt("failed to create Vulkan surface: {0}", TranslateVulkanError(m_surface.GetLastErrorCode()));
 			return false;
 		}
 
@@ -592,7 +592,7 @@ namespace Nz
 		VkSurfaceCapabilitiesKHR surfaceCapabilities;
 		if (!m_surface.GetCapabilities(deviceInfo.physDevice, &surfaceCapabilities))
 		{
-			NazaraError("Failed to query surface capabilities");
+			NazaraError("failed to query surface capabilities");
 			return false;
 		}
 
@@ -641,7 +641,7 @@ namespace Nz
 		Vk::Swapchain newSwapchain;
 		if (!newSwapchain.Create(m_device, swapchainInfo))
 		{
-			NazaraError("failed to create swapchain: {0}", TranslateVulkanError(newSwapchain.GetLastErrorCode()));
+			NazaraErrorFmt("failed to create swapchain: {0}", TranslateVulkanError(newSwapchain.GetLastErrorCode()));
 			return false;
 		}
 

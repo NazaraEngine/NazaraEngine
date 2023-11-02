@@ -107,7 +107,7 @@ aiFile* StreamOpener(aiFileIO* fileIO, const char* filePath, const char* openMod
 		}
 		else
 		{
-			NazaraError("unhandled/invalid openmode: {0} for file {1}", openMode, filePath);
+			NazaraErrorFmt("unhandled/invalid openmode: {0} for file {1}", openMode, filePath);
 			return nullptr;
 		}
 

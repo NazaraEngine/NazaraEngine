@@ -92,7 +92,7 @@ namespace Nz
 				break;
 
 			default:
-				NazaraWarning("Device {0} has handled device type ({1:#x})", deviceInfo.name, UnderlyingCast(physDevice.properties.deviceType));
+				NazaraWarningFmt("Device {0} has handled device type ({1:#x})", deviceInfo.name, UnderlyingCast(physDevice.properties.deviceType));
 				[[fallthrough]];
 			case VK_PHYSICAL_DEVICE_TYPE_OTHER:
 				deviceInfo.type = RenderDeviceType::Unknown;
@@ -121,7 +121,7 @@ namespace Nz
 		}
 
 		// This cannot happen if physDevice is valid, as we retrieved every physical device
-		NazaraInternalError("Invalid physical device: {0}", static_cast<void*>(physDevice));
+		NazaraInternalErrorFmt("Invalid physical device: {0}", static_cast<void*>(physDevice));
 
 		static Vk::PhysicalDevice dummy;
 		return dummy;
@@ -206,7 +206,7 @@ namespace Nz
 					enabledLayers.push_back(additionalLayers.back().c_str());
 				}
 				else
-					NazaraWarning("missing parameter {0}", parameterName);
+					NazaraWarningFmt("missing parameter {0}", parameterName);
 			}
 		}
 
@@ -269,7 +269,7 @@ namespace Nz
 					enabledExtensions.push_back(additionalExtensions.back().c_str());
 				}
 				else
-					NazaraWarning("missing parameter {0}", parameterName);
+					NazaraWarningFmt("missing parameter {0}", parameterName);
 			}
 		}
 
@@ -323,7 +323,7 @@ namespace Nz
 
 		if (!s_instance.Create(validationLevel, instanceInfo))
 		{
-			NazaraError("failed to create instance: {0}", TranslateVulkanError(s_instance.GetLastErrorCode()));
+			NazaraErrorFmt("failed to create instance: {0}", TranslateVulkanError(s_instance.GetLastErrorCode()));
 			return false;
 		}
 
@@ -340,7 +340,7 @@ namespace Nz
 			Vk::PhysicalDevice deviceInfo;
 			if (!s_instance.GetPhysicalDeviceQueueFamilyProperties(physDevice, &deviceInfo.queueFamilies))
 			{
-				NazaraWarning("failed to query physical device queue family properties for {0} ({1:#x})", deviceInfo.properties.deviceName, deviceInfo.properties.deviceID);
+				NazaraWarningFmt("failed to query physical device queue family properties for {0} ({1:#x})", deviceInfo.properties.deviceName, deviceInfo.properties.deviceID);
 				continue;
 			}
 
@@ -357,7 +357,7 @@ namespace Nz
 					deviceInfo.extensions.emplace(extProperty.extensionName);
 			}
 			else
-				NazaraWarning("failed to query physical device extensions for {0} ({1:#x})", deviceInfo.properties.deviceName, deviceInfo.properties.deviceID);
+				NazaraWarningFmt("failed to query physical device extensions for {0} ({1:#x})", deviceInfo.properties.deviceName, deviceInfo.properties.deviceID);
 
 			s_physDevices.emplace_back(std::move(deviceInfo));
 		}
@@ -430,7 +430,7 @@ namespace Nz
 		{
 			bool supportPresentation = false;
 			if (!surface.GetSupportPresentation(deviceInfo.physDevice, i, &supportPresentation))
-				NazaraWarning("failed to get presentation support of queue family #{0}", i);
+				NazaraWarningFmt("failed to get presentation support of queue family #{0}", i);
 
 			if (deviceInfo.queueFamilies[i].queueFlags & VK_QUEUE_GRAPHICS_BIT)
 			{
@@ -540,7 +540,7 @@ namespace Nz
 					enabledLayers.push_back(additionalLayers.back().c_str());
 				}
 				else
-					NazaraWarning("missing parameter {0}", parameterName);
+					NazaraWarningFmt("missing parameter {0}", parameterName);
 			}
 		}
 
@@ -577,7 +577,7 @@ namespace Nz
 					enabledExtensions.push_back(additionalExtensions.back().c_str());
 				}
 				else
-					NazaraWarning("missing parameter {0}", parameterName);
+					NazaraWarningFmt("missing parameter {0}", parameterName);
 			}
 		}
 
@@ -607,7 +607,7 @@ namespace Nz
 		std::shared_ptr<VulkanDevice> device = std::make_shared<VulkanDevice>(s_instance, enabledFeatures, BuildRenderDeviceInfo(deviceInfo));
 		if (!device->Create(deviceInfo, createInfo))
 		{
-			NazaraError("failed to create Vulkan Device: {0}", TranslateVulkanError(device->GetLastErrorCode()));
+			NazaraErrorFmt("failed to create Vulkan Device: {0}", TranslateVulkanError(device->GetLastErrorCode()));
 			return {};
 		}
 

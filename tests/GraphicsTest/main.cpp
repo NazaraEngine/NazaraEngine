@@ -43,7 +43,7 @@ int main()
 	std::shared_ptr<Nz::Mesh> spaceshipMesh = Nz::Mesh::LoadFromFile(resourceDir / "Spaceship/spaceship.obj", meshParams);
 	if (!spaceshipMesh)
 	{
-		NazaraError("Failed to load model");
+		NazaraError("failed to load model");
 		return __LINE__;
 	}
 
@@ -53,7 +53,7 @@ int main()
 	std::shared_ptr<Nz::Image> diffuseImage = Nz::Image::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png");
 	if (!diffuseImage || !diffuseImage->Convert(Nz::PixelFormat::RGBA8_SRGB))
 	{
-		NazaraError("Failed to load image");
+		NazaraError("failed to load image");
 		return __LINE__;
 	}
 

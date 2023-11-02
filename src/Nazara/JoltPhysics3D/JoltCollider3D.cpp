@@ -101,7 +101,7 @@ namespace Nz
 				return std::make_shared<JoltSphereCollider3D>(primitive.sphere.size);
 		}
 
-		NazaraError("Primitive type not handled ({0:#x})", UnderlyingCast(primitive.type));
+		NazaraErrorFmt("Primitive type not handled ({0:#x})", UnderlyingCast(primitive.type));
 		return std::shared_ptr<JoltCollider3D>();
 	}
 
@@ -333,10 +333,10 @@ namespace Nz
 			unsigned int vertexCount = shape->GetFaceVertices(i, maxVerticesInFace, faceVertices.data());
 			if NAZARA_LIKELY(vertexCount >= 2)
 			{
-				for (unsigned int i = 1; i < vertexCount; ++i)
+				for (unsigned int j = 1; j < vertexCount; ++j)
 				{
-					indices.push_back(InsertVertex(faceVertices[i - 1]));
-					indices.push_back(InsertVertex(faceVertices[i]));
+					indices.push_back(InsertVertex(faceVertices[j - 1]));
+					indices.push_back(InsertVertex(faceVertices[j]));
 				}
 
 				if NAZARA_LIKELY(vertexCount > 2)

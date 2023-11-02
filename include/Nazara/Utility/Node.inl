@@ -159,7 +159,7 @@ namespace Nz
 				return m_position;
 		}
 
-		NazaraError("Coordinate system out of enum ({0:#x})", UnderlyingCast(coordSys));
+		NazaraErrorFmt("Coordinate system out of enum ({0:#x})", UnderlyingCast(coordSys));
 		return Vector3f();
 	}
 
@@ -181,7 +181,7 @@ namespace Nz
 				return m_rotation;
 		}
 
-		NazaraError("Coordinate system out of enum ({0:#x})", UnderlyingCast(coordSys));
+		NazaraErrorFmt("Coordinate system out of enum ({0:#x})", UnderlyingCast(coordSys));
 		return Quaternionf();
 	}
 
@@ -197,7 +197,7 @@ namespace Nz
 				return m_scale;
 		}
 
-		NazaraError("Coordinate system out of enum ({0:#x})", UnderlyingCast(coordSys));
+		NazaraErrorFmt("Coordinate system out of enum ({0:#x})", UnderlyingCast(coordSys));
 		return Vector3f();
 	}
 

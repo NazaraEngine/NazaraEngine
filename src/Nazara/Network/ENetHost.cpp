@@ -168,7 +168,7 @@ namespace Nz
 
 		if (peerCount > ENetConstants::ENetProtocol_MaximumPeerId)
 		{
-			NazaraError("peer count exceeds maximum peer count supported by protocol ({0})", UnderlyingCast(ENetConstants::ENetProtocol_MaximumPeerId));
+			NazaraErrorFmt("peer count exceeds maximum peer count supported by protocol ({0})", UnderlyingCast(ENetConstants::ENetProtocol_MaximumPeerId));
 			return false;
 		}
 
@@ -245,7 +245,7 @@ namespace Nz
 					return 1;
 
 				case -1:
-					NazaraError("Error sending outgoing packets");
+					NazaraError("error sending outgoing packets");
 					return -1;
 
 				default:
@@ -262,7 +262,7 @@ namespace Nz
 					return 1;
 
 				case -1:
-					//NazaraError("Error receiving incoming packets");
+					//NazaraError("error receiving incoming packets");
 					return -1;
 
 				default:
@@ -275,7 +275,7 @@ namespace Nz
 					return 1;
 
 				case -1:
-					NazaraError("Error sending outgoing packets");
+					NazaraError("error sending outgoing packets");
 
 					return -1;
 
@@ -338,7 +338,7 @@ namespace Nz
 		{
 			if (m_socket.Bind(address) != SocketState::Bound)
 			{
-				NazaraError("failed to bind address {0}", address.ToString());
+				NazaraErrorFmt("failed to bind address {0}", address.ToString());
 				return false;
 			}
 		}

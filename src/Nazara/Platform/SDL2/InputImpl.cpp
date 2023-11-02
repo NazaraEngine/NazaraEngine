@@ -122,7 +122,7 @@ namespace Nz
 		if (handle)
 			SDL_WarpMouseInWindow(handle, x, y);
 		else
-			NazaraError("Invalid window handle");
+			NazaraError("invalid window handle");
 	}
 
 	void InputImpl::StartTextInput()

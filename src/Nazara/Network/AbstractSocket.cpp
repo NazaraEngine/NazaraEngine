@@ -179,7 +179,7 @@ namespace Nz
 	{
 		SocketError errorCode;
 		if (!SocketImpl::SetBlocking(m_handle, m_isBlockingEnabled, &errorCode))
-			NazaraWarning("failed to set socket blocking mode ({0:#x})", UnderlyingCast(errorCode));
+			NazaraWarningFmt("failed to set socket blocking mode ({0:#x})", UnderlyingCast(errorCode));
 	}
 
 	/*!
@@ -201,7 +201,7 @@ namespace Nz
 				{
 					SocketImpl::Close(handle);
 
-					NazaraError("failed to open a dual-stack socket: {0}", std::string(ErrorToString(m_lastError)));
+					NazaraErrorFmt("failed to open a dual-stack socket: {0}", ErrorToString(m_lastError));
 					return false;
 				}
 

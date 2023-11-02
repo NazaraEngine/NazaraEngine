@@ -119,7 +119,7 @@ namespace Nz
 
 					if (!ParseMesh())
 					{
-						NazaraError("Failed to parse mesh");
+						NazaraError("failed to parse mesh");
 						return false;
 					}
 
@@ -211,7 +211,7 @@ namespace Nz
 
 	void MD5MeshParser::Error(const std::string& message)
 	{
-		NazaraError("{0} at line #1", message, m_lineCount);
+		NazaraErrorFmt("{0} at line #1", message, m_lineCount);
 	}
 
 	bool MD5MeshParser::ParseJoints()
@@ -237,7 +237,7 @@ namespace Nz
 
 			if (pos >= 64)
 			{
-				NazaraError("Joint name is too long (>= 64 characters)");
+				NazaraError("joint name is too long (>= 64 characters)");
 				return false;
 			}
 
@@ -420,19 +420,19 @@ namespace Nz
 
 		if (m_meshes[m_meshIndex].triangles.empty())
 		{
-			NazaraError("Mesh has no triangles");
+			NazaraError("mesh has no triangles");
 			return false;
 		}
 
 		if (m_meshes[m_meshIndex].vertices.empty())
 		{
-			NazaraError("Mesh has no vertices");
+			NazaraError("mesh has no vertices");
 			return false;
 		}
 
 		if (m_meshes[m_meshIndex].weights.empty())
 		{
-			NazaraError("Mesh has no weights");
+			NazaraError("mesh has no weights");
 			return false;
 		}
 

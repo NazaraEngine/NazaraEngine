@@ -278,7 +278,7 @@ namespace Nz
 
 	void* Stream::GetMemoryMappedPointer() const
 	{
-		NazaraError("Stream set the MemoryMapped option but did not implement GetMemoryMappedPointer");
+		NazaraError("stream set the MemoryMapped option but did not implement GetMemoryMappedPointer");
 		return nullptr;
 	}
 

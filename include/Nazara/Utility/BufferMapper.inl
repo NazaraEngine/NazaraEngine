@@ -20,7 +20,7 @@ namespace Nz
 	m_buffer(nullptr)
 	{
 		if (!Map(buffer, offset, length))
-			NazaraError("Failed to map buffer"); ///TODO: Unexpected
+			NazaraError("failed to map buffer"); ///TODO: Unexpected
 	}
 
 	template<typename T>
@@ -51,7 +51,7 @@ namespace Nz
 		m_ptr = buffer.Map(offset, length);
 		if (!m_ptr)
 		{
-			NazaraError("Failed to map buffer"); ///TODO: Unexpected
+			NazaraError("failed to map buffer"); ///TODO: Unexpected
 			return false;
 		}
 

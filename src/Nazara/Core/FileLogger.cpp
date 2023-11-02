@@ -113,7 +113,7 @@ namespace Nz
 			m_outputFile.open(m_outputPath, std::ios_base::trunc | std::ios_base::out);
 			if (!m_outputFile.is_open())
 			{
-				NazaraError("Failed to open output file");
+				NazaraError("failed to open output file");
 				return;
 			}
 		}

@@ -14,14 +14,18 @@
 #include <string>
 
 #if NAZARA_CORE_ENABLE_ASSERTS || defined(NAZARA_DEBUG)
-	#define NazaraAssert(a, ...) if NAZARA_UNLIKELY(!(a)) Nz::Error::Trigger(Nz::ErrorType::AssertFailed, __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION, __VA_ARGS__)
+	#define NazaraAssert(a, err) if NAZARA_UNLIKELY(!(a)) Nz::Error::Trigger(Nz::ErrorType::AssertFailed, __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION, err)
+	#define NazaraAssertFmt(a, fmt, ...) if NAZARA_UNLIKELY(!(a)) Nz::Error::Trigger(Nz::ErrorType::AssertFailed, __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION, Nz::Format(NAZARA_FORMAT(fmt), __VA_ARGS__))
 #else
-	#define NazaraAssert(a, ...) for (;;) break
+	#define NazaraAssertFmt(a, fmt, ...) for (;;) break
 #endif
 
-#define NazaraError(...) Nz::Error::Trigger(Nz::ErrorType::Normal, __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION, __VA_ARGS__)
-#define NazaraInternalError(...) Nz::Error::Trigger(Nz::ErrorType::Internal, __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION, __VA_ARGS__)
-#define NazaraWarning(...) Nz::Error::Trigger(Nz::ErrorType::Warning, __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION, __VA_ARGS__)
+#define NazaraError(err)                 Nz::Error::Trigger(Nz::ErrorType::Normal,   __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION, err)
+#define NazaraErrorFmt(fmt, ...)         Nz::Error::Trigger(Nz::ErrorType::Normal,   __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION, Nz::Format(NAZARA_FORMAT(fmt), __VA_ARGS__))
+#define NazaraInternalError(err)         Nz::Error::Trigger(Nz::ErrorType::Internal, __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION, err)
+#define NazaraInternalErrorFmt(fmt, ...) Nz::Error::Trigger(Nz::ErrorType::Internal, __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION, Nz::Format(NAZARA_FORMAT(fmt), __VA_ARGS__))
+#define NazaraWarning(err)               Nz::Error::Trigger(Nz::ErrorType::Warning,  __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION, err)
+#define NazaraWarningFmt(fmt, ...)       Nz::Error::Trigger(Nz::ErrorType::Warning,  __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION, Nz::Format(NAZARA_FORMAT(fmt), __VA_ARGS__))
 
 namespace Nz
 {
@@ -41,8 +45,8 @@ namespace Nz
 
 			static ErrorModeFlags SetFlags(ErrorModeFlags flags);
 
-			template<typename... Args> static void Trigger(ErrorType type, std::string_view error, Args&&... args);
-			template<typename... Args> static void Trigger(ErrorType type, unsigned int line, std::string_view file, std::string_view function, std::string_view error, Args&&... args);
+			static inline void Trigger(ErrorType type, std::string error);
+			static inline void Trigger(ErrorType type, unsigned int line, std::string_view file, std::string_view function, std::string error);
 
 		private:
 			static void TriggerInternal(ErrorType type, std::string error, unsigned int line, std::string_view file, std::string_view function);

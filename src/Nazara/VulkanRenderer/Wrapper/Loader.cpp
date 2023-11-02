@@ -21,7 +21,7 @@ namespace Nz
 			s_lastErrorCode = vkEnumerateInstanceExtensionProperties(layerName, &propertyCount, nullptr);
 			if (s_lastErrorCode != VkResult::VK_SUCCESS)
 			{
-				NazaraError("failed to get instance extension properties count: {0}", TranslateVulkanError(s_lastErrorCode));
+				NazaraErrorFmt("failed to get instance extension properties count: {0}", TranslateVulkanError(s_lastErrorCode));
 				return false;
 			}
 
@@ -30,7 +30,7 @@ namespace Nz
 			s_lastErrorCode = vkEnumerateInstanceExtensionProperties(layerName, &propertyCount, properties->data());
 			if (s_lastErrorCode != VkResult::VK_SUCCESS)
 			{
-				NazaraError("failed to enumerate instance extension properties: {0}", TranslateVulkanError(s_lastErrorCode));
+				NazaraErrorFmt("failed to enumerate instance extension properties: {0}", TranslateVulkanError(s_lastErrorCode));
 				return false;
 			}
 
@@ -46,7 +46,7 @@ namespace Nz
 			s_lastErrorCode = vkEnumerateInstanceLayerProperties(&propertyCount, nullptr);
 			if (s_lastErrorCode != VkResult::VK_SUCCESS)
 			{
-				NazaraError("failed to get instance layer properties count: {0}", TranslateVulkanError(s_lastErrorCode));
+				NazaraErrorFmt("failed to get instance layer properties count: {0}", TranslateVulkanError(s_lastErrorCode));
 				return false;
 			}
 
@@ -55,7 +55,7 @@ namespace Nz
 			s_lastErrorCode = vkEnumerateInstanceLayerProperties(&propertyCount, properties->data());
 			if (s_lastErrorCode != VkResult::VK_SUCCESS)
 			{
-				NazaraError("failed to enumerate instance layer properties: {0}", TranslateVulkanError(s_lastErrorCode));
+				NazaraErrorFmt("failed to enumerate instance layer properties: {0}", TranslateVulkanError(s_lastErrorCode));
 				return false;
 			}
 
@@ -97,7 +97,7 @@ namespace Nz
 				vkGetInstanceProcAddr = reinterpret_cast<PFN_vkGetInstanceProcAddr>(s_vulkanLib.GetSymbol("vkGetInstanceProcAddr"));
 				if (!vkGetInstanceProcAddr)
 				{
-					NazaraError("Failed to get symbol \"vkGetInstanceProcAddr\": {0}", s_vulkanLib.GetLastError());
+					NazaraErrorFmt("Failed to get symbol \"vkGetInstanceProcAddr\": {0}", s_vulkanLib.GetLastError());
 					continue;
 				}
 
@@ -105,7 +105,7 @@ namespace Nz
 				{
 					PFN_vkVoidFunction func = vkGetInstanceProcAddr(nullptr, name);
 					if (!func && !opt)
-						NazaraError("Failed to get {0} address", name);
+						NazaraErrorFmt("Failed to get {0} address", name);
 
 					return func;
 				};
@@ -123,7 +123,7 @@ namespace Nz
 				}
 				catch (const std::exception& e)
 				{
-					NazaraError("Failed to query device function: {0}", e.what());
+					NazaraErrorFmt("Failed to query device function: {0}", e.what());
 					return false;
 				}
 			}

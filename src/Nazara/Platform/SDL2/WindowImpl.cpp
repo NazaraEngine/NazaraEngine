@@ -91,7 +91,7 @@ namespace Nz
 		m_handle = SDL_CreateWindow(title.c_str(), x, y, width, height, winStyle);
 		if (!m_handle)
 		{
-			NazaraError("failed to create window: {0}", Error::GetLastSystemError());
+			NazaraErrorFmt("failed to create window: {0}", Error::GetLastSystemError());
 			return false;
 		}
 
@@ -133,7 +133,7 @@ namespace Nz
 		m_handle = SDL_CreateWindowFrom(systemHandle);
 		if (!m_handle)
 		{
-			NazaraError("Invalid handle");
+			NazaraError("invalid handle");
 			return false;
 		}
 
@@ -213,7 +213,7 @@ namespace Nz
 		{
 #ifndef NAZARA_PLATFORM_WEB
 			ErrorFlags flags(ErrorMode::ThrowException);
-			NazaraError("failed to retrieve window manager info: {0}", SDL_GetError());
+			NazaraErrorFmt("failed to retrieve window manager info: {0}", SDL_GetError());
 #endif
 		}
 
@@ -556,7 +556,7 @@ namespace Nz
 		}
 		catch (...) // Don't let any exceptions go through C calls
 		{
-			NazaraError("An unknown error happened");
+			NazaraError("an unknown error happened");
 		}
 
 		return 0;

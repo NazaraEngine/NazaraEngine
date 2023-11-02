@@ -19,7 +19,7 @@ namespace Nz
 		#if NAZARA_CORE_SAFE
 		if (workerCount == 0)
 		{
-			NazaraError("Invalid worker count ! (0)");
+			NazaraError("invalid worker count ! (0)");
 			return false;
 		}
 		#endif
@@ -90,7 +90,7 @@ namespace Nz
 		#ifdef NAZARA_CORE_SAFE
 		if (s_workerCount == 0)
 		{
-			NazaraError("Task scheduler is not initialized");
+			NazaraError("task scheduler is not initialized");
 			return;
 		}
 		#endif
@@ -137,7 +137,7 @@ namespace Nz
 		#ifdef NAZARA_CORE_SAFE
 		if (s_workerCount == 0)
 		{
-			NazaraError("Task scheduler is not initialized");
+			NazaraError("task scheduler is not initialized");
 			return;
 		}
 		#endif

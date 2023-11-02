@@ -61,12 +61,12 @@ namespace Nz
 	template<typename Type, typename Parameters>
 	std::shared_ptr<Type> ResourceLoader<Type, Parameters>::LoadFromFile(const std::filesystem::path& filePath, const Parameters& parameters) const
 	{
-		NazaraAssert(parameters.IsValid(), "Invalid parameters");
+		NazaraAssert(parameters.IsValid(), "invalid parameters");
 
 		std::string ext = ToLower(PathToString(filePath.extension()));
 		if (ext.empty())
 		{
-			NazaraError("failed to get file extension from \"{0}\"", filePath);
+			NazaraErrorFmt("failed to get file extension from \"{0}\"", filePath);
 			return nullptr;
 		}
 
@@ -93,7 +93,7 @@ namespace Nz
 				{
 					if (!file.Open(OpenMode::ReadOnly))
 					{
-						NazaraError("failed to load resource: unable to open \"{0}\"", filePath);
+						NazaraErrorFmt("failed to load resource: unable to open \"{0}\"", filePath);
 						return nullptr;
 					}
 				}
@@ -121,9 +121,9 @@ namespace Nz
 		}
 
 		if (found)
-			NazaraError("failed to load resource from file \"{0}}\": all loaders failed", filePath);
+			NazaraErrorFmt("failed to load resource from file \"{0}\": all loaders failed", filePath);
 		else
-			NazaraError("failed to load resource from file \"{0}}\": no loader found for extension \"{1}\"", filePath, ext);
+			NazaraErrorFmt("failed to load resource from file \"{0}\": no loader found for extension \"{1}\"", filePath, ext);
 
 		return nullptr;
 	}
@@ -196,8 +196,8 @@ namespace Nz
 	template<typename Type, typename Parameters>
 	std::shared_ptr<Type> ResourceLoader<Type, Parameters>::LoadFromStream(Stream& stream, const Parameters& parameters) const
 	{
-		NazaraAssert(stream.GetCursorPos() < stream.GetSize(), "No data to load");
-		NazaraAssert(parameters.IsValid(), "Invalid parameters");
+		NazaraAssert(stream.GetCursorPos() < stream.GetSize(), "no data to load");
+		NazaraAssert(parameters.IsValid(), "invalid parameters");
 
 		// Retrieve extension from stream (if any)
 		std::string ext = ToLower(PathToString(stream.GetPath().extension()));
@@ -236,7 +236,7 @@ namespace Nz
 		if (found)
 			NazaraError("failed to load resource from stream: all loaders failed");
 		else
-			NazaraError("Failed to load resource from from stream: no loader found");
+			NazaraError("failed to load resource from from stream: no loader found");
 
 		return nullptr;
 	}

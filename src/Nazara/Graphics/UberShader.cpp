@@ -31,7 +31,7 @@ namespace Nz
 		}
 		catch (const std::exception& e)
 		{
-			NazaraError("failed to compile ubershader {0}: {1}", moduleName, e.what());
+			NazaraErrorFmt("failed to compile ubershader {0}: {1}", moduleName, e.what());
 			throw;
 		}
 
@@ -43,7 +43,7 @@ namespace Nz
 			nzsl::Ast::ModulePtr newShaderModule = resolver->Resolve(name);
 			if (!newShaderModule)
 			{
-				NazaraError("failed to retrieve updated shader module {0}", name);
+				NazaraErrorFmt("failed to retrieve updated shader module {0}", name);
 				return;
 			}
 
@@ -53,7 +53,7 @@ namespace Nz
 			}
 			catch (const std::exception& e)
 			{
-				NazaraError("failed to retrieve updated shader module {0}: {1}", name, e.what());
+				NazaraErrorFmt("failed to retrieve updated shader module {0}: {1}", name, e.what());
 				return;
 			}
 
@@ -76,7 +76,7 @@ namespace Nz
 		}
 		catch (const std::exception& e)
 		{
-			NazaraError("failed to compile ubershader: {0}", e.what());
+			NazaraErrorFmt("failed to compile ubershader: {0}", e.what());
 			throw;
 		}
 	}
@@ -98,6 +98,7 @@ namespace Nz
 				}, optionValue);
 			}
 			states.shaderModuleResolver = Graphics::Instance()->GetShaderModuleResolver();
+			states.debugLevel = nzsl::DebugLevel::Regular;
 
 			std::shared_ptr<ShaderModule> stage = Graphics::Instance()->GetRenderDevice()->InstantiateShaderModule(m_shaderStages, *m_shaderModule, std::move(states));
 

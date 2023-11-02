@@ -478,7 +478,7 @@ namespace Nz
 
 		if (m_meshes.empty())
 		{
-			NazaraError("No meshes");
+			NazaraError("no meshes");
 			return false;
 		}
 

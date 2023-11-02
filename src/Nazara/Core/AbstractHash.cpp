@@ -76,7 +76,7 @@ namespace Nz
 				return std::make_unique<WhirlpoolHasher>();
 		}
 
-		NazaraInternalError("Hash type not handled ({0:#x})", UnderlyingCast(type));
+		NazaraInternalErrorFmt("Hash type not handled ({0:#x})", UnderlyingCast(type));
 		return nullptr;
 	}
 }

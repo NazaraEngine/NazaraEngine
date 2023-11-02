@@ -202,7 +202,7 @@ namespace Nz
 		}
 		catch (utf8::exception& e)
 		{
-			NazaraError("UTF-8 error: {0}", e.what());
+			NazaraErrorFmt("UTF-8 error: {0}", e.what());
 		}
 		catch (std::exception& e)
 		{

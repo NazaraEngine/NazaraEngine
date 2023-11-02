@@ -53,7 +53,7 @@ namespace Nz
 				for (const Component& component : m_components)
 				{
 					if (component.component == entry.component && component.componentIndex == entry.componentIndex)
-						NazaraError("Duplicate component type found");
+						NazaraError("duplicate component type found");
 				}
 			}
 
@@ -89,7 +89,7 @@ namespace Nz
 				return true;
 		}
 
-		NazaraError("Component type not handled ({0:#x})", UnderlyingCast(type));
+		NazaraErrorFmt("Component type not handled ({0:#x})", UnderlyingCast(type));
 		return false;
 	}
 
@@ -337,7 +337,7 @@ namespace Nz
 		}
 		catch (const std::exception& e)
 		{
-			NazaraError("failed to initialize vertex declaration: {0}", std::string(e.what()));
+			NazaraErrorFmt("failed to initialize vertex declaration: {0}", e.what());
 			return false;
 		}
 

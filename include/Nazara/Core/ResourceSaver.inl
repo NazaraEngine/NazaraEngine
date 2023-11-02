@@ -69,7 +69,7 @@ namespace Nz
 		std::string extension = ToLower(PathToString(filePath.extension()));
 		if (extension.empty())
 		{
-			NazaraError("failed to get file extension from \"{0}\"", filePath);
+			NazaraErrorFmt("failed to get file extension from \"{0}\"", filePath);
 			return false;
 		}
 
@@ -93,7 +93,7 @@ namespace Nz
 
 				if (!file.Open(OpenMode::WriteOnly | OpenMode::Truncate))
 				{
-					NazaraError("failed to save to file: unable to open \"{0}\" in write mode", filePath);
+					NazaraErrorFmt("failed to save to file: unable to open \"{0}\" in write mode", filePath);
 					return false;
 				}
 
@@ -107,7 +107,7 @@ namespace Nz
 		if (found)
 			NazaraError("failed to save resource: all savers failed");
 		else
-			NazaraError("failed to save resource: no saver found for extension \"extension\"", extension);
+			NazaraErrorFmt("failed to save resource: no saver found for extension \"extension\"", extension);
 
 		return false;
 	}
@@ -152,7 +152,7 @@ namespace Nz
 		if (found)
 			NazaraError("failed to save resource: all savers failed");
 		else
-			NazaraError("failed to save resource: no saver found for format \"{0}\"", format);
+			NazaraErrorFmt("failed to save resource: no saver found for format \"{0}\"", format);
 
 		return false;
 	}

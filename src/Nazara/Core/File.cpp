@@ -192,7 +192,7 @@ namespace Nz
 		if (!impl->Open(m_filePath, openMode))
 		{
 			ErrorFlags flags(ErrorMode::Silent); // Silent by default
-			NazaraError("failed to open \"{0}\": {1}", m_filePath, Error::GetLastSystemError());
+			NazaraErrorFmt("failed to open \"{0}\": {1}", m_filePath, Error::GetLastSystemError());
 			return false;
 		}
 
@@ -243,7 +243,7 @@ namespace Nz
 			std::unique_ptr<FileImpl> impl = std::make_unique<FileImpl>(this);
 			if (!impl->Open(filePath, m_openMode))
 			{
-				NazaraError("failed to open new file; {0}", Error::GetLastSystemError());
+				NazaraErrorFmt("failed to open new file; {0}", Error::GetLastSystemError());
 				return false;
 			}
 
@@ -268,8 +268,8 @@ namespace Nz
 		if (!CheckFileOpening())
 			return false;
 
-		NazaraAssert(IsOpen(), "File is not open");
-		NazaraAssert(IsWritable(), "File is not writable");
+		NazaraAssert(IsOpen(), "file is not open");
+		NazaraAssert(IsWritable(), "file is not writable");
 
 		return m_impl->SetSize(size);
 	}
@@ -281,7 +281,7 @@ namespace Nz
 		File file(path);
 		if (!file.Open(OpenMode::ReadOnly | OpenMode::Unbuffered)) //< unbuffered since we will read all the file at once
 		{
-			NazaraError("failed to open \"{0}\"", path);
+			NazaraErrorFmt("failed to open \"{0}\"", path);
 			return std::nullopt;
 		}
 
@@ -301,7 +301,7 @@ namespace Nz
 		File file(path);
 		if (!file.Open(OpenMode::WriteOnly | OpenMode::Unbuffered)) //< unbuffered since we will write all the file at once
 		{
-			NazaraError("failed to open \"{0}\"", path);
+			NazaraErrorFmt("failed to open \"{0}\"", path);
 			return false;
 		}
 
@@ -455,7 +455,7 @@ namespace Nz
 		File file(originalFile.GetPath());
 		if (!file.Open(OpenMode::ReadOnly))
 		{
-			NazaraError("Unable to open file");
+			NazaraError("unable to open file");
 			return false;
 		}
 
@@ -467,7 +467,7 @@ namespace Nz
 			std::size_t size = std::min<std::size_t>(static_cast<std::size_t>(remainingSize), NAZARA_CORE_FILE_BUFFERSIZE);
 			if (file.Read(&buffer[0], size) != size)
 			{
-				NazaraError("Unable to read file");
+				NazaraError("unable to read file");
 				return false;
 			}
 

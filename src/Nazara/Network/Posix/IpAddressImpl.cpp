@@ -178,12 +178,12 @@ namespace Nz
 				}
 
 				default:
-					NazaraInternalError("Unhandled ip protocol ({0:#x})", UnderlyingCast(ipAddress.GetProtocol()));
+					NazaraInternalErrorFmt("unhandled ip protocol ({0:#x})", UnderlyingCast(ipAddress.GetProtocol()));
 					break;
 			}
 		}
 
-		NazaraError("Invalid ip address");
+		NazaraError("invalid ip address");
 		return 0;
 	}
 

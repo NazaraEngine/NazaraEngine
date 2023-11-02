@@ -64,7 +64,7 @@ namespace Nz
 			UInt8* ptr = stbi_load_from_callbacks(&s_stbiCallbacks, &stream, &width, &height, &bpp, STBI_rgb_alpha);
 			if (!ptr)
 			{
-				NazaraError("failed to load image: {0}", std::string(stbi_failure_reason()));
+				NazaraErrorFmt("failed to load image: {0}", std::string(stbi_failure_reason()));
 				return Err(ResourceLoadingError::DecodingError);
 			}
 
@@ -76,7 +76,7 @@ namespace Nz
 			std::shared_ptr<Image> image = std::make_shared<Image>();
 			if (!image->Create(ImageType::E2D, PixelFormat::RGBA8, width, height, 1, (parameters.levelCount > 0) ? parameters.levelCount : 1))
 			{
-				NazaraError("Failed to create image");
+				NazaraError("failed to create image");
 				return Err(ResourceLoadingError::Internal);
 			}
 
@@ -88,7 +88,7 @@ namespace Nz
 			{
 				if (!image->Convert(parameters.loadFormat))
 				{
-					NazaraError("Failed to convert image to required format");
+					NazaraError("failed to convert image to required format");
 					return Err(ResourceLoadingError::Internal);
 				}
 			}
