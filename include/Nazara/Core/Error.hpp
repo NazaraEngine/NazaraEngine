@@ -17,6 +17,7 @@
 	#define NazaraAssert(a, err) if NAZARA_UNLIKELY(!(a)) Nz::Error::Trigger(Nz::ErrorType::AssertFailed, __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION, err)
 	#define NazaraAssertFmt(a, fmt, ...) if NAZARA_UNLIKELY(!(a)) Nz::Error::Trigger(Nz::ErrorType::AssertFailed, __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION, Nz::Format(NAZARA_FORMAT(fmt), __VA_ARGS__))
 #else
+	#define NazaraAssert(a, err) for (;;) break
 	#define NazaraAssertFmt(a, fmt, ...) for (;;) break
 #endif
 

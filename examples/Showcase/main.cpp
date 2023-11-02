@@ -121,7 +121,7 @@ int main(int argc, char* argv[])
 	std::shared_ptr<Nz::Mesh> bobMesh = fs.Load<Nz::Mesh>("assets/character/Gangnam Style.fbx", meshParams);
 	if (!bobMesh)
 	{
-		NazaraError("Failed to load bob mesh");
+		NazaraError("failed to load bob mesh");
 		return __LINE__;
 	}
 
@@ -134,7 +134,7 @@ int main(int argc, char* argv[])
 	std::shared_ptr<Nz::Animation> bobAnim = fs.Load<Nz::Animation>("assets/character/Gangnam Style.fbx", animParam);
 	if (!bobAnim)
 	{
-		NazaraError("Failed to load bob anim");
+		NazaraError("failed to load bob anim");
 		return __LINE__;
 	}
 
