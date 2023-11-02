@@ -28,7 +28,7 @@ namespace Nz
 
 			inline const ViewerInstance& GetViewerInstance() const;
 
-			void PrepareRendering(RenderFrame& renderFrame, const AbstractViewer* viewer) override;
+			void PrepareRendering(RenderFrame& renderFrame, [[maybe_unused]] const AbstractViewer* viewer) override;
 
 			void RegisterMaterialInstance(const MaterialInstance& matInstance) override;
 			void RegisterPassInputs(FramePass& pass, const AbstractViewer* viewer) override;

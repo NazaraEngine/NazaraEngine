@@ -55,7 +55,7 @@ namespace Nz
 			std::size_t RegisterLight(const Light* light, UInt32 renderMask) override;
 			std::size_t RegisterRenderable(std::size_t worldInstanceIndex, std::size_t skeletonInstanceIndex, const InstancedRenderable* instancedRenderable, UInt32 renderMask, const Recti& scissorBox) override;
 			std::size_t RegisterSkeleton(SkeletonInstancePtr skeletonInstance) override;
-			std::size_t RegisterViewer(AbstractViewer* viewerInstance, Int32 renderOrder, FramePipelineExtraPassFlags passFlags) override;
+			std::size_t RegisterViewer(PipelineViewer* viewerInstance, Int32 renderOrder) override;
 			std::size_t RegisterWorldInstance(WorldInstancePtr worldInstance) override;
 
 			const Light* RetrieveLight(std::size_t lightIndex) const override;
@@ -140,14 +140,8 @@ namespace Nz
 				};
 
 				std::size_t finalColorAttachment;
-				std::size_t forwardColorAttachment;
-				std::size_t debugColorAttachment;
-				std::size_t depthStencilAttachment;
-				std::unique_ptr<DepthPipelinePass> depthPrepass;
-				std::unique_ptr<ForwardPipelinePass> forwardPass;
-				std::unique_ptr<DebugDrawPipelinePass> debugDrawPass;
-				std::unique_ptr<PostProcessPipelinePass> gammaCorrectionPass;
-				AbstractViewer* viewer;
+				std::vector<std::unique_ptr<FramePipelinePass>> passes;
+				PipelineViewer* viewer;
 				Int32 renderOrder = 0;
 				RenderQueueRegistry forwardRegistry;
 				RenderQueue<RenderElement*> forwardRenderQueue;

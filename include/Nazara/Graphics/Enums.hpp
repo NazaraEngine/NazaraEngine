@@ -41,25 +41,22 @@ namespace Nz
 		Volume
 	};
 
-	enum class FramePipelineExtraPass
+	enum class FramePipelineNotification
 	{
-		DebugDraw,
-		DepthPrepass,
-		GammaCorrection,
+		ElementInvalidation,
+		MaterialInstanceRegistration,
 
-		Max = GammaCorrection
+		Max = MaterialInstanceRegistration
 	};
 
 	template<>
-	struct EnumAsFlags<FramePipelineExtraPass>
+	struct EnumAsFlags<FramePipelineNotification>
 	{
-		static constexpr FramePipelineExtraPass max = FramePipelineExtraPass::Max;
+		static constexpr FramePipelineNotification max = FramePipelineNotification::Max;
 	};
 
-	using FramePipelineExtraPassFlags = Flags<FramePipelineExtraPass>;
+	using FramePipelineNotificationFlags = Flags<FramePipelineNotification>;
 
-	constexpr FramePipelineExtraPassFlags FramePipelineAllExtraPasses = FramePipelineExtraPass::DebugDraw | FramePipelineExtraPass::DepthPrepass | FramePipelineExtraPass::GammaCorrection;
-	
 	enum class MaterialPropertyType
 	{
 		Bool,

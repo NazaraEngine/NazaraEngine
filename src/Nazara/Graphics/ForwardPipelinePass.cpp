@@ -5,6 +5,7 @@
 #include <Nazara/Graphics/ForwardPipelinePass.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/DirectionalLight.hpp>
+#include <Nazara/Graphics/DirectionalLightShadowData.hpp>
 #include <Nazara/Graphics/ElementRendererRegistry.hpp>
 #include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Graphics/FramePipeline.hpp>
@@ -12,9 +13,8 @@
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/PointLight.hpp>
-#include <Nazara/Graphics/SpotLight.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
-#include <Nazara/Graphics/DirectionalLightShadowData.hpp>
+#include <Nazara/Graphics/SpotLight.hpp>
 #include <Nazara/Graphics/SpotLightShadowData.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
@@ -23,11 +23,13 @@
 
 namespace Nz
 {
-	ForwardPipelinePass::ForwardPipelinePass(FramePipeline& owner, ElementRendererRegistry& elementRegistry, AbstractViewer* viewer) :
+	ForwardPipelinePass::ForwardPipelinePass(PassData& passData, std::string passName, const ParameterList& /*parameters*/) :
+	FramePipelinePass(FramePipelineNotification::ElementInvalidation | FramePipelineNotification::MaterialInstanceRegistration),
 	m_lastVisibilityHash(0),
-	m_viewer(viewer),
-	m_elementRegistry(elementRegistry),
-	m_pipeline(owner),
+	m_passName(std::move(passName)),
+	m_viewer(passData.viewer),
+	m_elementRegistry(passData.elementRegistry),
+	m_pipeline(passData.pipeline),
 	m_pendingLightUploadAllocation(nullptr),
 	m_rebuildCommandBuffer(false),
 	m_rebuildElements(false)
@@ -42,14 +44,16 @@ namespace Nz
 		m_renderState.lightData = RenderBufferView(m_lightDataBuffer.get());
 	}
 
-	void ForwardPipelinePass::Prepare(RenderFrame& renderFrame, const Frustumf& frustum, const std::vector<FramePipelinePass::VisibleRenderable>& visibleRenderables, const Bitset<UInt64>& visibleLights, std::size_t visibilityHash)
+	void ForwardPipelinePass::Prepare(FrameData& frameData)
 	{
-		if (m_lastVisibilityHash != visibilityHash || m_rebuildElements) //< FIXME
+		NazaraAssert(frameData.visibleLights, "visible lights must be valid");
+
+		if (m_lastVisibilityHash != frameData.visibilityHash || m_rebuildElements) //< FIXME
 		{
-			renderFrame.PushForRelease(std::move(m_renderElements));
+			frameData.renderFrame.PushForRelease(std::move(m_renderElements));
 			m_renderElements.clear();
 
-			for (const auto& renderableData : visibleRenderables)
+			for (const auto& renderableData : frameData.visibleRenderables)
 			{
 				InstancedRenderable::ElementData elementData{
 					&renderableData.scissorBox,
@@ -71,17 +75,17 @@ namespace Nz
 
 			m_renderQueueRegistry.Finalize();
 
-			m_lastVisibilityHash = visibilityHash;
+			m_lastVisibilityHash = frameData.visibilityHash;
 			InvalidateElements();
 		}
 
 		// TODO: Don't sort every frame if no material pass requires distance sorting
 		m_renderQueue.Sort([&](const RenderElement* element)
 		{
-			return element->ComputeSortingScore(frustum, m_renderQueueRegistry);
+			return element->ComputeSortingScore(frameData.frustum, m_renderQueueRegistry);
 		});
 
-		PrepareLights(renderFrame, frustum, visibleLights);
+		PrepareLights(frameData.renderFrame, frameData.frustum, *frameData.visibleLights);
 
 		if (m_rebuildElements)
 		{
@@ -93,7 +97,7 @@ namespace Nz
 				if (!m_elementRendererData[elementType])
 					m_elementRendererData[elementType] = elementRenderer.InstanciateData();
 
-				elementRenderer.Reset(*m_elementRendererData[elementType], renderFrame);
+				elementRenderer.Reset(*m_elementRendererData[elementType], frameData.renderFrame);
 			});
 
 			const auto& viewerInstance = m_viewer->GetViewerInstance();
@@ -101,12 +105,12 @@ namespace Nz
 			m_elementRegistry.ProcessRenderQueue(m_renderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
 			{
 				ElementRenderer& elementRenderer = m_elementRegistry.GetElementRenderer(elementType);
-				elementRenderer.Prepare(viewerInstance, *m_elementRendererData[elementType], renderFrame, elementCount, elements, SparsePtr(&m_renderState, 0));
+				elementRenderer.Prepare(viewerInstance, *m_elementRendererData[elementType], frameData.renderFrame, elementCount, elements, SparsePtr(&m_renderState, 0));
 			});
 
 			m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
 			{
-				elementRenderer.PrepareEnd(renderFrame, *m_elementRendererData[elementType]);
+				elementRenderer.PrepareEnd(frameData.renderFrame, *m_elementRendererData[elementType]);
 			});
 
 			m_rebuildCommandBuffer = true;
@@ -140,14 +144,23 @@ namespace Nz
 			it->second.usedCount++;
 	}
 
-	FramePass& ForwardPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, std::size_t colorBufferIndex, std::size_t depthBufferIndex, bool hasDepthPrepass)
+	FramePass& ForwardPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, const PassInputOuputs& inputOuputs)
 	{
-		FramePass& forwardPass = frameGraph.AddPass("Forward pass");
-		forwardPass.AddOutput(colorBufferIndex);
-		if (hasDepthPrepass)
-			forwardPass.SetDepthStencilInput(depthBufferIndex);
+		if (inputOuputs.inputCount > 0)
+			throw std::runtime_error("no input expected");
 
-		forwardPass.SetDepthStencilOutput(depthBufferIndex);
+		if (inputOuputs.outputCount != 1)
+			throw std::runtime_error("one output expected");
+
+		if (inputOuputs.depthStencilOutput == InvalidAttachmentIndex)
+			throw std::runtime_error("expected depth-stencil output");
+
+		FramePass& forwardPass = frameGraph.AddPass(m_passName);
+		forwardPass.AddOutput(inputOuputs.outputAttachments[0]);
+		if (inputOuputs.depthStencilInput != FramePipelinePass::InvalidAttachmentIndex)
+			forwardPass.SetDepthStencilInput(inputOuputs.depthStencilInput);
+
+		forwardPass.SetDepthStencilOutput(inputOuputs.depthStencilOutput);
 
 		forwardPass.SetClearColor(0, m_viewer->GetClearColor());
 		forwardPass.SetDepthStencilClear(1.f, 0);
@@ -188,7 +201,7 @@ namespace Nz
 		}
 	}
 
-	void ForwardPipelinePass::OnTransfer(RenderFrame& renderFrame, CommandBufferBuilder& builder)
+	void ForwardPipelinePass::OnTransfer(RenderFrame& /*renderFrame*/, CommandBufferBuilder& builder)
 	{
 		assert(m_pendingLightUploadAllocation);
 		builder.CopyBuffer(*m_pendingLightUploadAllocation, RenderBufferView(m_lightDataBuffer.get()));

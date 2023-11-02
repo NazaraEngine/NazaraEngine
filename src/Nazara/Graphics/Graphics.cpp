@@ -5,9 +5,13 @@
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Core/AppFilesystemComponent.hpp>
 #include <Nazara/Core/CommandLineParameters.hpp>
+#include <Nazara/Graphics/DepthPipelinePass.hpp>
+#include <Nazara/Graphics/ForwardPipelinePass.hpp>
 #include <Nazara/Graphics/GuillotineTextureAtlas.hpp>
 #include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/MaterialPipeline.hpp>
+#include <Nazara/Graphics/PipelinePassList.hpp>
+#include <Nazara/Graphics/PostProcessPipelinePass.hpp>
 #include <Nazara/Graphics/PredefinedMaterials.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/Formats/TextureLoader.hpp>
@@ -148,6 +152,8 @@ namespace Nz
 
 		MaterialPipeline::Initialize();
 		BuildDefaultMaterials();
+		RegisterPipelinePasses();
+		BuildDefaultPipelinePasses();
 
 		Font::SetDefaultAtlas(std::make_shared<GuillotineTextureAtlas>(*m_renderDevice));
 
@@ -364,6 +370,43 @@ namespace Nz
 		}
 	}
 
+	void Graphics::BuildDefaultPipelinePasses()
+	{
+		m_defaultPipelinePasses = std::make_shared<PipelinePassList>();
+
+		// Forward pass
+		std::size_t forwardColorOutput = m_defaultPipelinePasses->AddAttachment({
+			"Forward output",
+			PixelFormat::RGBA16F
+		});
+
+		std::size_t forwardDepthOutput = m_defaultPipelinePasses->AddAttachment({
+			"Depth-stencil buffer",
+			m_preferredDepthStencilFormat
+		});
+
+		std::size_t forwardPass = m_defaultPipelinePasses->AddPass("ForwardPass", m_pipelinePassRegistry.GetPassIndex("Forward"));
+
+		m_defaultPipelinePasses->SetPassOutput(forwardPass, 0, forwardColorOutput);
+		m_defaultPipelinePasses->SetPassDepthStencilOutput(forwardPass, forwardDepthOutput);
+
+		// Gamma correction
+		std::size_t gammaCorrectionOutput = m_defaultPipelinePasses->AddAttachment({
+			"Gamma-corrected output",
+			PixelFormat::RGBA8
+		});
+
+		ParameterList gammaCorrectionParameters;
+		gammaCorrectionParameters.SetParameter("Shader", "PostProcess.GammaCorrection");
+
+		std::size_t gammaCorrectionPass = m_defaultPipelinePasses->AddPass("Gamma correction", m_pipelinePassRegistry.GetPassIndex("PostProcess"), gammaCorrectionParameters);
+
+		m_defaultPipelinePasses->SetPassInput(gammaCorrectionPass, 0, forwardColorOutput);
+		m_defaultPipelinePasses->SetPassOutput(gammaCorrectionPass, 0, gammaCorrectionOutput);
+
+		m_defaultPipelinePasses->SetFinalOutput(gammaCorrectionOutput);
+	}
+
 	void Graphics::BuildDefaultTextures()
 	{
 		// Depth textures (white but with a depth format)
@@ -419,6 +462,12 @@ namespace Nz
 		m_materialPassRegistry.RegisterPass("DistanceShadowPass");
 	}
 
+	void Graphics::RegisterPipelinePasses()
+	{
+		m_pipelinePassRegistry.RegisterPass<DepthPipelinePass>("Depth");
+		m_pipelinePassRegistry.RegisterPass<ForwardPipelinePass>("Forward");
+		m_pipelinePassRegistry.RegisterPass<PostProcessPipelinePass>("PostProcess");
+	}
 	void Graphics::RegisterShaderModules()
 	{
 		m_shaderModuleResolver = std::make_shared<nzsl::FilesystemModuleResolver>();

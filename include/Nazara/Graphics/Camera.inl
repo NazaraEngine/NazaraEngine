@@ -7,11 +7,11 @@
 
 namespace Nz
 {
-	inline Camera::Camera(const RenderTarget* renderTarget, ProjectionType projectionType) :
+	inline Camera::Camera(const RenderTarget* renderTarget, std::shared_ptr<PipelinePassList> pipelinePasses, ProjectionType projectionType) :
+	m_framePipelinePasses(std::move(pipelinePasses)),
 	m_renderTarget(nullptr),
 	m_clearColor(Color::Black()),
 	m_fov(90.f),
-	m_framePipelineExtraPassFlags(FramePipelineExtraPass::DebugDraw),
 	m_renderOrder(0),
 	m_projectionType(projectionType),
 	m_targetRegion(0.f, 0.f, 1.f, 1.f),
@@ -21,17 +21,14 @@ namespace Nz
 	m_zFar((projectionType == ProjectionType::Perspective) ? 1000.f : 1.f),
 	m_zNear((projectionType == ProjectionType::Perspective) ? 1.f : -1.f)
 	{
-		if (projectionType == ProjectionType::Perspective)
-			m_framePipelineExtraPassFlags |= FramePipelineExtraPass::DepthPrepass;
-
 		UpdateTarget(renderTarget);
 	}
 
 	inline Camera::Camera(const Camera& camera) :
+	m_framePipelinePasses(camera.m_framePipelinePasses),
 	m_renderTarget(nullptr),
 	m_clearColor(camera.m_clearColor),
 	m_fov(camera.m_fov),
-	m_framePipelineExtraPassFlags(camera.m_framePipelineExtraPassFlags),
 	m_renderOrder(camera.m_renderOrder),
 	m_projectionType(camera.m_projectionType),
 	m_targetRegion(camera.m_targetRegion),
@@ -46,10 +43,10 @@ namespace Nz
 	}
 
 	inline Camera::Camera(Camera&& camera) noexcept :
+	m_framePipelinePasses(std::move(camera.m_framePipelinePasses)),
 	m_renderTarget(nullptr),
 	m_clearColor(camera.m_clearColor),
 	m_fov(camera.m_fov),
-	m_framePipelineExtraPassFlags(camera.m_framePipelineExtraPassFlags),
 	m_renderOrder(camera.m_renderOrder),
 	m_projectionType(camera.m_projectionType),
 	m_targetRegion(camera.m_targetRegion),
@@ -63,16 +60,6 @@ namespace Nz
 		UpdateTarget(camera.m_renderTarget);
 	}
 
-	inline void Camera::DisableFramePipelinePasses(FramePipelineExtraPassFlags framePipelineExtraPassFlags)
-	{
-		m_framePipelineExtraPassFlags &= ~framePipelineExtraPassFlags;
-	}
-
-	inline void Camera::EnableFramePipelinePasses(FramePipelineExtraPassFlags framePipelineExtraPassFlags)
-	{
-		m_framePipelineExtraPassFlags |= framePipelineExtraPassFlags;
-	}
-
 	inline float Camera::GetAspectRatio() const
 	{
 		return m_aspectRatio;
@@ -81,11 +68,6 @@ namespace Nz
 	inline DegreeAnglef Camera::GetFOV() const
 	{
 		return m_fov;
-	}
-
-	inline FramePipelineExtraPassFlags Camera::GetFramePipelineExtraPassFlags() const
-	{
-		return m_framePipelineExtraPassFlags;
 	}
 
 	inline ProjectionType Camera::GetProjectionType() const
@@ -129,11 +111,6 @@ namespace Nz
 		UpdateProjectionMatrix();
 	}
 
-	inline void Camera::UpdateFramePipelinePasses(FramePipelineExtraPassFlags framePipelineExtraFlags)
-	{
-		m_framePipelineExtraPassFlags = framePipelineExtraFlags;
-	}
-
 	inline void Camera::UpdateZFar(float zFar)
 	{
 		m_zFar = zFar;
@@ -150,7 +127,7 @@ namespace Nz
 
 	inline Camera& Camera::operator=(const Camera& camera)
 	{
-		m_framePipelineExtraPassFlags = camera.m_framePipelineExtraPassFlags;
+		m_framePipelinePasses = camera.m_framePipelinePasses;
 		m_fov = camera.m_fov;
 		m_projectionType = camera.m_projectionType;
 		m_targetRegion = camera.m_targetRegion;
@@ -167,7 +144,7 @@ namespace Nz
 
 	inline Camera& Camera::operator=(Camera&& camera) noexcept
 	{
-		m_framePipelineExtraPassFlags = camera.m_framePipelineExtraPassFlags;
+		m_framePipelinePasses = std::move(camera.m_framePipelinePasses);
 		m_fov = camera.m_fov;
 		m_projectionType = camera.m_projectionType;
 		m_targetRegion = camera.m_targetRegion;
@@ -281,4 +258,3 @@ namespace Nz
 }
 
 #include <Nazara/Graphics/DebugOff.hpp>
-#include "Camera.hpp"

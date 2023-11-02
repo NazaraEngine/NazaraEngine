@@ -48,7 +48,13 @@ namespace Nz
 
 		std::size_t shadowPassIndex = Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex("ShadowPass");
 
-		m_depthPass.emplace(m_pipeline, elementRegistry, &m_viewer, shadowPassIndex, "Spotlight shadow mapping");
+		FramePipelinePass::PassData passData = {
+			&m_viewer,
+			elementRegistry,
+			m_pipeline
+		};
+
+		m_depthPass.emplace(passData, "Spotlight shadow mapping", shadowPassIndex);
 		m_pipeline.ForEachRegisteredMaterialInstance([this](const MaterialInstance& matInstance)
 		{
 			m_depthPass->RegisterMaterialInstance(matInstance);
@@ -66,7 +72,15 @@ namespace Nz
 		std::size_t visibilityHash = 5U;
 		const auto& visibleRenderables = m_pipeline.FrustumCull(frustum, 0xFFFFFFFF, visibilityHash);
 
-		m_depthPass->Prepare(renderFrame, frustum, visibleRenderables, visibilityHash);
+		FramePipelinePass::FrameData passData = {
+			nullptr,
+			frustum,
+			renderFrame,
+			visibleRenderables,
+			visibilityHash
+		};
+
+		m_depthPass->Prepare(passData);
 	}
 
 	void SpotLightShadowData::RegisterMaterialInstance(const MaterialInstance& matInstance)
@@ -94,7 +108,10 @@ namespace Nz
 			shadowMapSize, shadowMapSize,
 		});
 
-		m_depthPass->RegisterToFrameGraph(frameGraph, m_attachmentIndex);
+		FramePipelinePass::PassInputOuputs passInputOuputs;
+		passInputOuputs.depthStencilOutput = m_attachmentIndex;
+
+		m_depthPass->RegisterToFrameGraph(frameGraph, passInputOuputs);
 	}
 
 	const Texture* SpotLightShadowData::RetrieveLightShadowmap(const BakedFrameGraph& bakedGraph, const AbstractViewer* /*viewer*/) const

@@ -21,9 +21,24 @@ namespace Nz
 		return m_defaultMaterials;
 	}
 
+	inline const std::shared_ptr<PipelinePassList>& Graphics::GetDefaultPipelinePasses() const
+	{
+		return m_defaultPipelinePasses;
+	}
+
 	inline auto Graphics::GetDefaultTextures() const -> const DefaultTextures&
 	{
 		return m_defaultTextures;
+	}
+
+	inline FramePipelinePassRegistry& Graphics::GetFramePipelinePassRegistry()
+	{
+		return m_pipelinePassRegistry;
+	}
+
+	inline const FramePipelinePassRegistry& Graphics::GetFramePipelinePassRegistry() const
+	{
+		return m_pipelinePassRegistry;
 	}
 
 	inline MaterialPassRegistry& Graphics::GetMaterialPassRegistry()

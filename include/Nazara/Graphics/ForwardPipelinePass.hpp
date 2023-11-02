@@ -34,20 +34,21 @@ namespace Nz
 	class NAZARA_GRAPHICS_API ForwardPipelinePass : public FramePipelinePass, TransferInterface
 	{
 		public:
-			ForwardPipelinePass(FramePipeline& owner, ElementRendererRegistry& elementRegistry, AbstractViewer* viewer);
+			ForwardPipelinePass(PassData& passData, std::string passName, const ParameterList& parameters = {});
 			ForwardPipelinePass(const ForwardPipelinePass&) = delete;
 			ForwardPipelinePass(ForwardPipelinePass&&) = delete;
 			~ForwardPipelinePass() = default;
 
 			inline void InvalidateCommandBuffers();
-			inline void InvalidateElements();
+			void InvalidateElements() override;
 
-			void Prepare(RenderFrame& renderFrame, const Frustumf& frustum, const std::vector<FramePipelinePass::VisibleRenderable>& visibleRenderables, const Bitset<UInt64>& visibleLights, std::size_t visibilityHash);
+			void Prepare(FrameData& frameData) override;
 
-			void RegisterMaterialInstance(const MaterialInstance& material);
-			FramePass& RegisterToFrameGraph(FrameGraph& frameGraph, std::size_t colorBufferIndex, std::size_t depthBufferIndex, bool hasDepthPrepass);
+			void RegisterMaterialInstance(const MaterialInstance& material) override;
 
-			void UnregisterMaterialInstance(const MaterialInstance& material);
+			FramePass& RegisterToFrameGraph(FrameGraph& frameGraph, const PassInputOuputs& inputOuputs) override;
+
+			void UnregisterMaterialInstance(const MaterialInstance& material) override;
 
 			ForwardPipelinePass& operator=(const ForwardPipelinePass&) = delete;
 			ForwardPipelinePass& operator=(ForwardPipelinePass&&) = delete;
@@ -79,6 +80,7 @@ namespace Nz
 			std::size_t m_forwardPassIndex;
 			std::size_t m_lastVisibilityHash;
 			std::shared_ptr<RenderBuffer> m_lightDataBuffer;
+			std::string m_passName;
 			std::vector<std::unique_ptr<ElementRendererData>> m_elementRendererData;
 			std::vector<RenderElementOwner> m_renderElements;
 			std::unordered_map<const MaterialInstance*, MaterialPassEntry> m_materialInstances;

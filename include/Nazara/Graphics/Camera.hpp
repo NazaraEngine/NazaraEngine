@@ -8,32 +8,31 @@
 #define NAZARA_GRAPHICS_CAMERA_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/Enums.hpp>
+#include <Nazara/Graphics/PipelineViewer.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
-#include <memory>
-#include <vector>
 
 namespace Nz
 {
-	class NAZARA_GRAPHICS_API Camera : public AbstractViewer
+	class PipelinePassList;
+
+	class NAZARA_GRAPHICS_API Camera : public PipelineViewer
 	{
 		public:
-			inline Camera(const RenderTarget* renderTarget, ProjectionType projectionType = ProjectionType::Perspective);
+			inline Camera(const RenderTarget* renderTarget, std::shared_ptr<PipelinePassList> pipelinePasses, ProjectionType projectionType = ProjectionType::Perspective);
+			Camera(const RenderTarget* renderTarget, ProjectionType projectionType = ProjectionType::Perspective);
 			inline Camera(const Camera& camera);
 			inline Camera(Camera&& camera) noexcept;
 			~Camera() = default;
 
-			inline void DisableFramePipelinePasses(FramePipelineExtraPassFlags framePipelineExtraPassFlags);
-			inline void EnableFramePipelinePasses(FramePipelineExtraPassFlags framePipelineExtraPassFlags);
+			std::vector<std::unique_ptr<FramePipelinePass>> BuildPasses(FramePipelinePass::PassData& passData) const override;
 
 			inline float GetAspectRatio() const;
 			const Color& GetClearColor() const override;
 			inline DegreeAnglef GetFOV() const;
-			inline FramePipelineExtraPassFlags GetFramePipelineExtraPassFlags() const;
 			inline ProjectionType GetProjectionType() const;
 			UInt32 GetRenderMask() const override;
 			inline Int32 GetRenderOrder() const;
@@ -46,9 +45,10 @@ namespace Nz
 			inline float GetZFar() const;
 			inline float GetZNear() const;
 
+			std::size_t RegisterPasses(const std::vector<std::unique_ptr<FramePipelinePass>>& passes, FrameGraph& frameGraph) const override;
+
 			inline void UpdateClearColor(Color color);
 			inline void UpdateFOV(DegreeAnglef fov);
-			inline void UpdateFramePipelinePasses(FramePipelineExtraPassFlags framePipelineExtraFlags);
 			inline void UpdateProjectionType(ProjectionType projectionType);
 			inline void UpdateRenderMask(UInt32 renderMask);
 			inline void UpdateRenderOrder(Int32 renderOrder);
@@ -70,10 +70,10 @@ namespace Nz
 			NazaraSlot(RenderTarget, OnRenderTargetRelease, m_onRenderTargetRelease);
 			NazaraSlot(RenderTarget, OnRenderTargetSizeChange, m_onRenderTargetSizeChange);
 
+			std::shared_ptr<PipelinePassList> m_framePipelinePasses;
 			const RenderTarget* m_renderTarget;
 			Color m_clearColor;
 			DegreeAnglef m_fov;
-			FramePipelineExtraPassFlags m_framePipelineExtraPassFlags;
 			Int32 m_renderOrder;
 			ProjectionType m_projectionType;
 			Rectf m_targetRegion;

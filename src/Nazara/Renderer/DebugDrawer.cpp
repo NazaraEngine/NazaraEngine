@@ -53,7 +53,7 @@ namespace Nz
 		pipelineInfo.pipelineLayout = m_renderPipelineLayout;
 		pipelineInfo.shaderModules.push_back(std::move(debugDrawShader));
 		pipelineInfo.depthBuffer = true;
-		pipelineInfo.depthWrite = false;
+		pipelineInfo.depthWrite = true;
 
 		pipelineInfo.blending = true;
 		pipelineInfo.blend.srcColor = BlendFunc::SrcAlpha;

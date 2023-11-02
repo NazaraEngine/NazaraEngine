@@ -8,6 +8,7 @@
 #include <Nazara/Graphics/ElementRendererRegistry.hpp>
 #include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Graphics/FramePipeline.hpp>
+#include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Renderer/RenderFrame.hpp>
@@ -15,26 +16,14 @@
 
 namespace Nz
 {
-	DepthPipelinePass::DepthPipelinePass(FramePipeline& owner, ElementRendererRegistry& elementRegistry, AbstractViewer* viewer, std::size_t passIndex, std::string passName) :
-	m_passIndex(passIndex),
-	m_lastVisibilityHash(0),
-	m_passName(std::move(passName)),
-	m_viewer(viewer),
-	m_elementRegistry(elementRegistry),
-	m_pipeline(owner),
-	m_rebuildCommandBuffer(false),
-	m_rebuildElements(false)
+	void DepthPipelinePass::Prepare(FrameData& frameData)
 	{
-	}
-
-	void DepthPipelinePass::Prepare(RenderFrame& renderFrame, const Frustumf& frustum, const std::vector<FramePipelinePass::VisibleRenderable>& visibleRenderables, std::size_t visibilityHash)
-	{
-		if (m_lastVisibilityHash != visibilityHash || m_rebuildElements) //< FIXME
+		if (m_lastVisibilityHash != frameData.visibilityHash || m_rebuildElements) //< FIXME
 		{
-			renderFrame.PushForRelease(std::move(m_renderElements));
+			frameData.renderFrame.PushForRelease(std::move(m_renderElements));
 			m_renderElements.clear();
 
-			for (const auto& renderableData : visibleRenderables)
+			for (const auto& renderableData : frameData.visibleRenderables)
 			{
 				InstancedRenderable::ElementData elementData{
 					&renderableData.scissorBox,
@@ -56,14 +45,14 @@ namespace Nz
 
 			m_renderQueueRegistry.Finalize();
 
-			m_lastVisibilityHash = visibilityHash;
+			m_lastVisibilityHash = frameData.visibilityHash;
 			m_rebuildElements = true;
 		}
 
 		// TODO: Don't sort every frame if no material pass requires distance sorting
 		m_renderQueue.Sort([&](const RenderElement* element)
 		{
-			return element->ComputeSortingScore(frustum, m_renderQueueRegistry);
+			return element->ComputeSortingScore(frameData.frustum, m_renderQueueRegistry);
 		});
 
 		if (m_rebuildElements)
@@ -78,7 +67,7 @@ namespace Nz
 					m_elementRendererData[elementType] = elementRenderer.InstanciateData();
 				}
 
-				elementRenderer.Reset(*m_elementRendererData[elementType], renderFrame);
+				elementRenderer.Reset(*m_elementRendererData[elementType], frameData.renderFrame);
 			});
 
 			const auto& viewerInstance = m_viewer->GetViewerInstance();
@@ -89,12 +78,12 @@ namespace Nz
 			{
 				ElementRenderer& elementRenderer = m_elementRegistry.GetElementRenderer(elementType);
 
-				elementRenderer.Prepare(viewerInstance, *m_elementRendererData[elementType], renderFrame, elementCount, elements, SparsePtr(&defaultRenderStates, 0));
+				elementRenderer.Prepare(viewerInstance, *m_elementRendererData[elementType], frameData.renderFrame, elementCount, elements, SparsePtr(&defaultRenderStates, 0));
 			});
 
 			m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
 			{
-				elementRenderer.PrepareEnd(renderFrame, *m_elementRendererData[elementType]);
+				elementRenderer.PrepareEnd(frameData.renderFrame, *m_elementRendererData[elementType]);
 			});
 
 			m_rebuildCommandBuffer = true;
@@ -128,13 +117,25 @@ namespace Nz
 			it->second.usedCount++;
 	}
 
-	FramePass& DepthPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, std::size_t outputAttachment)
+	FramePass& DepthPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, const PassInputOuputs& inputOuputs)
 	{
+		if (inputOuputs.inputCount > 0)
+			throw std::runtime_error("no input expected");
+
+		if (inputOuputs.outputCount > 0)
+			throw std::runtime_error("no output expected");
+
+		if (inputOuputs.depthStencilInput != InvalidAttachmentIndex)
+			throw std::runtime_error("no depth-stencil input expected");
+
+		if (inputOuputs.depthStencilOutput == InvalidAttachmentIndex)
+			throw std::runtime_error("expected depth-stencil output");
+
 		FramePass& depthPrepass = frameGraph.AddPass(m_passName);
-		depthPrepass.SetDepthStencilOutput(outputAttachment);
+		depthPrepass.SetDepthStencilOutput(inputOuputs.depthStencilOutput);
 		depthPrepass.SetDepthStencilClear(1.f, 0);
 
-		depthPrepass.SetExecutionCallback([&]()
+		depthPrepass.SetExecutionCallback([&]
 		{
 			return (m_rebuildCommandBuffer) ? FramePassExecution::UpdateAndExecute : FramePassExecution::Execute;
 		});
@@ -168,5 +169,25 @@ namespace Nz
 			if (--it->second.usedCount == 0)
 				m_materialInstances.erase(it);
 		}
+	}
+
+	std::size_t DepthPipelinePass::GetMaterialPassIndex(const ParameterList& parameters)
+	{
+		Result<long long, ParameterList::Error> passIndexResult = parameters.GetIntegerParameter("MatPassIndex");
+		if (passIndexResult.IsOk())
+			return passIndexResult.GetValue();
+		// TODO: Log error if key is present but not of the right
+
+		Result<std::string_view, ParameterList::Error> passResult = parameters.GetStringViewParameter("MatPass");
+		if (passIndexResult.IsOk())
+		{
+			auto& materialPassRegistry = Graphics::Instance()->GetMaterialPassRegistry();
+
+			std::string_view passName = passResult.GetValue();
+			return materialPassRegistry.GetPassIndex(passName);
+		}
+		// TODO: Log error if key is present but not of the right
+
+		throw std::runtime_error("DepthPipelinePass expect either MatPass or MatPassIndex parameter");
 	}
 }

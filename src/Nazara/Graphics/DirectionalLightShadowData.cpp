@@ -118,7 +118,15 @@ namespace Nz
 			std::size_t visibilityHash = 5U;
 			const auto& visibleRenderables = m_pipeline.FrustumCull(lightFrustum, 0xFFFFFFFF, visibilityHash);
 
-			cascade.depthPass->Prepare(renderFrame, lightFrustum, visibleRenderables, visibilityHash);
+			FramePipelinePass::FrameData passData = {
+				nullptr,
+				frustum,
+				renderFrame,
+				visibleRenderables,
+				visibilityHash
+			};
+
+			cascade.depthPass->Prepare(passData);
 		}
 	}
 
@@ -233,7 +241,11 @@ namespace Nz
 			CascadeData& cascade = viewerData.cascades[i];
 
 			cascade.attachmentIndex = frameGraph.AddAttachmentArrayLayer(viewerData.textureArrayAttachmentIndex, i);
-			cascade.depthPass->RegisterToFrameGraph(frameGraph, cascade.attachmentIndex);
+
+			FramePipelinePass::PassInputOuputs passInputOuputs;
+			passInputOuputs.depthStencilOutput = cascade.attachmentIndex;
+
+			cascade.depthPass->RegisterToFrameGraph(frameGraph, passInputOuputs);
 		}
 	}
 
@@ -254,7 +266,13 @@ namespace Nz
 			shadowViewer.UpdateRenderMask(0xFFFFFFFF);
 			shadowViewer.UpdateViewport(Recti(0, 0, SafeCast<int>(shadowMapSize), SafeCast<int>(shadowMapSize)));
 
-			cascade.depthPass.emplace(m_pipeline, m_elementRegistry, &shadowViewer, shadowPassIndex, Format("Cascade #{}", cascadeIndex++));
+			FramePipelinePass::PassData passData = {
+				&shadowViewer,
+				m_elementRegistry,
+				m_pipeline
+			};
+
+			cascade.depthPass.emplace(passData, Format("Cascade #{}", cascadeIndex++), shadowPassIndex);
 		}
 
 		m_pipeline.ForEachRegisteredMaterialInstance([&](const MaterialInstance& matInstance)

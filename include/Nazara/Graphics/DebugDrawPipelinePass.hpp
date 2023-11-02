@@ -10,6 +10,7 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/FramePipelinePass.hpp>
+#include <string>
 
 namespace Nz
 {
@@ -17,24 +18,26 @@ namespace Nz
 	class FrameGraph;
 	class FramePass;
 	class FramePipeline;
+	class ParameterList;
 	class RenderFrame;
 
 	class NAZARA_GRAPHICS_API DebugDrawPipelinePass : public FramePipelinePass
 	{
 		public:
-			DebugDrawPipelinePass(FramePipeline& owner, AbstractViewer* viewer);
+			DebugDrawPipelinePass(PassData& passData, std::string passName, const ParameterList& parameters = {});
 			DebugDrawPipelinePass(const DebugDrawPipelinePass&) = delete;
 			DebugDrawPipelinePass(DebugDrawPipelinePass&&) = delete;
 			~DebugDrawPipelinePass() = default;
 
-			void Prepare(RenderFrame& renderFrame);
+			void Prepare(FrameData& frameData) override;
 
-			FramePass& RegisterToFrameGraph(FrameGraph& frameGraph, std::size_t inputColorBufferIndex, std::size_t outputColorBufferIndex);
+			FramePass& RegisterToFrameGraph(FrameGraph& frameGraph, const PassInputOuputs& inputOuputs) override;
 
 			DebugDrawPipelinePass& operator=(const DebugDrawPipelinePass&) = delete;
 			DebugDrawPipelinePass& operator=(DebugDrawPipelinePass&&) = delete;
 
 		private:
+			std::string m_passName;
 			AbstractViewer* m_viewer;
 			FramePipeline& m_pipeline;
 	};

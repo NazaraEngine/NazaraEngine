@@ -30,23 +30,27 @@ namespace Nz
 	class NAZARA_GRAPHICS_API DepthPipelinePass : public FramePipelinePass
 	{
 		public:
-			DepthPipelinePass(FramePipeline& owner, ElementRendererRegistry& elementRegistry, AbstractViewer* viewer, std::size_t passIndex, std::string passName);
+			inline DepthPipelinePass(PassData& passData, std::string passName, const ParameterList& parameters);
+			inline DepthPipelinePass(PassData& passData, std::string passName, std::size_t materialPassIndex);
 			DepthPipelinePass(const DepthPipelinePass&) = delete;
 			DepthPipelinePass(DepthPipelinePass&&) = delete;
 			~DepthPipelinePass() = default;
 
 			inline void InvalidateCommandBuffers();
-			inline void InvalidateElements();
+			void InvalidateElements() override;
 
-			void Prepare(RenderFrame& renderFrame, const Frustumf& frustum, const std::vector<FramePipelinePass::VisibleRenderable>& visibleRenderables, std::size_t visibilityHash);
+			void Prepare(FrameData& frameData) override;
 
-			void RegisterMaterialInstance(const MaterialInstance& materialInstance);
-			FramePass& RegisterToFrameGraph(FrameGraph& frameGraph, std::size_t outputAttachment);
+			void RegisterMaterialInstance(const MaterialInstance& materialInstance) override;
 
-			void UnregisterMaterialInstance(const MaterialInstance& materialInstance);
+			FramePass& RegisterToFrameGraph(FrameGraph& frameGraph, const PassInputOuputs& inputOuputs) override;
+
+			void UnregisterMaterialInstance(const MaterialInstance& materialInstance) override;
 
 			DepthPipelinePass& operator=(const DepthPipelinePass&) = delete;
 			DepthPipelinePass& operator=(DepthPipelinePass&&) = delete;
+
+			static std::size_t GetMaterialPassIndex(const ParameterList& parameters);
 
 		private:
 			struct MaterialPassEntry
