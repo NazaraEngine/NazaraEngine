@@ -22,7 +22,7 @@ namespace Nz
 		return passes;
 	}
 
-	std::size_t PipelinePassList::RegisterPasses(const std::vector<std::unique_ptr<FramePipelinePass>>& passes, FrameGraph& frameGraph) const
+	std::size_t PipelinePassList::RegisterPasses(const std::vector<std::unique_ptr<FramePipelinePass>>& passes, FrameGraph& frameGraph, const FunctionRef<void(std::size_t passIndex, FramePass& framePass, FramePipelinePassFlags flags)>& passCallback) const
 	{
 		NazaraAssert(m_passes.size() == passes.size(), "pass vector size doesn't match passlist size");
 
@@ -39,17 +39,17 @@ namespace Nz
 			return attachmentIndices[attachmentIndex];
 		};
 
-		for (std::size_t i = 0; i < passes.size(); ++i)
+		for (std::size_t passIndex = 0; passIndex < passes.size(); ++passIndex)
 		{
-			const Pass& passData = m_passes[i];
+			const Pass& passData = m_passes[passIndex];
 
 			std::array<std::size_t, MaxPassAttachment> inputs;
-			for (std::size_t j = 0; j < passData.inputs.size(); ++j)
-				inputs[j] = GetAttachmentIndex(passData.inputs[j]);
+			for (std::size_t i = 0; i < passData.inputs.size(); ++i)
+				inputs[i] = GetAttachmentIndex(passData.inputs[i]);
 
 			std::array<std::size_t, MaxPassAttachment> outputs;
-			for (std::size_t j = 0; j < passData.outputs.size(); ++j)
-				outputs[j] = GetAttachmentIndex(passData.outputs[j]);
+			for (std::size_t i = 0; i < passData.outputs.size(); ++i)
+				outputs[i] = GetAttachmentIndex(passData.outputs[i]);
 
 			FramePipelinePass::PassInputOuputs passInputOuputs;
 			passInputOuputs.depthStencilInput = GetAttachmentIndex(passData.depthStencilInput);
@@ -59,7 +59,9 @@ namespace Nz
 			passInputOuputs.outputAttachments = outputs.data();
 			passInputOuputs.outputCount = passData.outputs.size();
 
-			passes[i]->RegisterToFrameGraph(frameGraph, passInputOuputs);
+			FramePass& framePass = passes[passIndex]->RegisterToFrameGraph(frameGraph, passInputOuputs);
+			if (passCallback)
+				passCallback(passIndex, framePass, passData.flags);
 		}
 
 		return GetAttachmentIndex(m_finalOutputAttachment);

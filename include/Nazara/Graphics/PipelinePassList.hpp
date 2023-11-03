@@ -10,9 +10,11 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/ParameterList.hpp>
 #include <Nazara/Graphics/Config.hpp>
+#include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/FramePassAttachment.hpp>
 #include <Nazara/Graphics/FramePipelinePass.hpp>
 #include <NazaraUtils/FixedVector.hpp>
+#include <NazaraUtils/FunctionRef.hpp>
 #include <array>
 #include <limits>
 #include <string>
@@ -34,13 +36,16 @@ namespace Nz
 
 			std::vector<std::unique_ptr<FramePipelinePass>> BuildPasses(FramePipelinePass::PassData& passData) const;
 
-			std::size_t RegisterPasses(const std::vector<std::unique_ptr<FramePipelinePass>>& passes, FrameGraph& frameGraph) const;
+			inline void EnablePassFlags(std::size_t passIndex, FramePipelinePassFlags flags);
+
+			std::size_t RegisterPasses(const std::vector<std::unique_ptr<FramePipelinePass>>& passes, FrameGraph& frameGraph, const FunctionRef<void(std::size_t passIndex, FramePass& framePass, FramePipelinePassFlags flags)>& passCallback = nullptr) const;
 
 			inline void SetFinalOutput(std::size_t attachmentIndex);
-			inline void SetPassInput(std::size_t passIndex, std::size_t inputIndex, std::size_t attachmentIndex);
-			inline void SetPassOutput(std::size_t passIndex, std::size_t outputIndex, std::size_t attachmentIndex);
+
 			inline void SetPassDepthStencilInput(std::size_t passIndex, std::size_t attachmentIndex);
 			inline void SetPassDepthStencilOutput(std::size_t passIndex, std::size_t attachmentIndex);
+			inline void SetPassInput(std::size_t passIndex, std::size_t inputIndex, std::size_t attachmentIndex);
+			inline void SetPassOutput(std::size_t passIndex, std::size_t outputIndex, std::size_t attachmentIndex);
 
 			PipelinePassList& operator=(const PipelinePassList&) = delete;
 			PipelinePassList& operator=(PipelinePassList&&) = delete;
@@ -52,12 +57,13 @@ namespace Nz
 
 			struct Pass
 			{
-				FixedVector<std::size_t /*attachmentIndex*/, MaxPassAttachment> inputs;
-				FixedVector<std::size_t /*attachmentIndex*/, MaxPassAttachment> outputs;
 				std::size_t depthStencilInput = NoAttachment;
 				std::size_t depthStencilOutput = NoAttachment;
 				std::size_t implIndex;
 				std::string name;
+				FixedVector<std::size_t /*attachmentIndex*/, MaxPassAttachment> inputs;
+				FixedVector<std::size_t /*attachmentIndex*/, MaxPassAttachment> outputs;
+				FramePipelinePassFlags flags;
 				ParameterList parameterList;
 			};
 

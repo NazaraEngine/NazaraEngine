@@ -9,11 +9,15 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
+#include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/FramePipelinePass.hpp>
+#include <NazaraUtils/FunctionRef.hpp>
 #include <vector>
 
 namespace Nz
 {
+	class FramePass;
+
 	class NAZARA_GRAPHICS_API PipelineViewer : public AbstractViewer
 	{
 		public:
@@ -24,7 +28,7 @@ namespace Nz
 
 			virtual std::vector<std::unique_ptr<FramePipelinePass>> BuildPasses(FramePipelinePass::PassData& passData) const = 0;
 
-			virtual std::size_t RegisterPasses(const std::vector<std::unique_ptr<FramePipelinePass>>& passes, FrameGraph& frameGraph) const = 0;
+			virtual std::size_t RegisterPasses(const std::vector<std::unique_ptr<FramePipelinePass>>& passes, FrameGraph& frameGraph, const FunctionRef<void(std::size_t passIndex, FramePass& framePass, FramePipelinePassFlags flags)>& passCallback = nullptr) const = 0;
 
 			PipelineViewer& operator=(const PipelineViewer&) = delete;
 			PipelineViewer& operator=(PipelineViewer&&) = delete;

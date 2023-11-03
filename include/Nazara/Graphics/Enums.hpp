@@ -41,6 +41,20 @@ namespace Nz
 		Volume
 	};
 
+	enum class EngineShaderBinding
+	{
+		InstanceDataUbo,
+		LightDataUbo,
+		OverlayTexture,
+		ShadowmapDirectional,
+		ShadowmapPoint,
+		ShadowmapSpot,
+		SkeletalDataUbo,
+		ViewerDataUbo,
+
+		Max = ViewerDataUbo
+	};
+
 	enum class FramePipelineNotification
 	{
 		ElementInvalidation,
@@ -56,6 +70,21 @@ namespace Nz
 	};
 
 	using FramePipelineNotificationFlags = Flags<FramePipelineNotification>;
+
+	enum class FramePipelinePassFlag
+	{
+		LightShadowing,
+
+		Max = LightShadowing
+	};
+
+	template<>
+	struct EnumAsFlags<FramePipelinePassFlag>
+	{
+		static constexpr FramePipelinePassFlag max = FramePipelinePassFlag::Max;
+	};
+
+	using FramePipelinePassFlags = Flags<FramePipelinePassFlag>;
 
 	enum class MaterialPropertyType
 	{
@@ -115,20 +144,6 @@ namespace Nz
 	{
 		Orthographic,
 		Perspective
-	};
-
-	enum class EngineShaderBinding
-	{
-		InstanceDataUbo,
-		LightDataUbo,
-		OverlayTexture,
-		ShadowmapDirectional,
-		ShadowmapPoint,
-		ShadowmapSpot,
-		SkeletalDataUbo,
-		ViewerDataUbo,
-
-		Max = ViewerDataUbo
 	};
 }
 
