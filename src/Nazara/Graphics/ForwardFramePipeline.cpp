@@ -713,7 +713,20 @@ namespace Nz
 					lightData->shadowData->RegisterToFrameGraph(frameGraph, viewerData.viewer);
 			}
 
-			viewerData.finalColorAttachment = viewerData.viewer->RegisterPasses(viewerData.passes, frameGraph);
+			auto framePassCallback = [this, &viewerData, renderMask](std::size_t /*passIndex*/, FramePass& framePass, FramePipelinePassFlags flags)
+			{
+				if (flags.Test(FramePipelinePassFlag::LightShadowing))
+				{
+					for (std::size_t i : m_shadowCastingLights.IterBits())
+					{
+						LightData* lightData = m_lightPool.RetrieveFromIndex(i);
+						if ((renderMask & lightData->renderMask) != 0)
+							lightData->shadowData->RegisterPassInputs(framePass, (lightData->shadowData->IsPerViewer()) ? viewerData.viewer : nullptr);
+					}
+				}
+			};
+
+			viewerData.finalColorAttachment = viewerData.viewer->RegisterPasses(viewerData.passes, frameGraph, framePassCallback);
 		}
 
 		using ViewerPair = std::pair<const RenderTarget*, const ViewerData*>;

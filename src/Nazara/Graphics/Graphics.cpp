@@ -390,6 +390,8 @@ namespace Nz
 		m_defaultPipelinePasses->SetPassOutput(forwardPass, 0, forwardColorOutput);
 		m_defaultPipelinePasses->SetPassDepthStencilOutput(forwardPass, forwardDepthOutput);
 
+		m_defaultPipelinePasses->EnablePassFlags(forwardPass, FramePipelinePassFlag::LightShadowing);
+
 		// Gamma correction
 		std::size_t gammaCorrectionOutput = m_defaultPipelinePasses->AddAttachment({
 			"Gamma-corrected output",

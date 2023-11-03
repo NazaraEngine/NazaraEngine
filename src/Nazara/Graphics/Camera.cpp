@@ -55,10 +55,10 @@ namespace Nz
 		return m_viewport;
 	}
 
-	std::size_t Camera::RegisterPasses(const std::vector<std::unique_ptr<FramePipelinePass>>& passes, FrameGraph& frameGraph) const
+	std::size_t Camera::RegisterPasses(const std::vector<std::unique_ptr<FramePipelinePass>>& passes, FrameGraph& frameGraph, const FunctionRef<void(std::size_t passIndex, FramePass& framePass, FramePipelinePassFlags flags)>& passCallback) const
 	{
 		assert(m_framePipelinePasses);
-		return m_framePipelinePasses->RegisterPasses(passes, frameGraph);
+		return m_framePipelinePasses->RegisterPasses(passes, frameGraph, passCallback);
 	}
 
 	void Camera::UpdateTarget(const RenderTarget* renderTarget)

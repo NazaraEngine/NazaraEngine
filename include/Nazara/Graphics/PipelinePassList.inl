@@ -26,6 +26,13 @@ namespace Nz
 		return index;
 	}
 
+	inline void PipelinePassList::EnablePassFlags(std::size_t passIndex, FramePipelinePassFlags flags)
+	{
+		assert(passIndex < m_passes.size());
+		auto& pass = m_passes[passIndex];
+		pass.flags = flags;
+	}
+
 	inline void PipelinePassList::SetFinalOutput(std::size_t attachmentIndex)
 	{
 		m_finalOutputAttachment = attachmentIndex;

@@ -8,6 +8,7 @@
 #define NAZARA_GRAPHICS_DEBUGDRAWPIPELINEPASS_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/ParameterList.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/FramePipelinePass.hpp>
 #include <string>
@@ -18,7 +19,6 @@ namespace Nz
 	class FrameGraph;
 	class FramePass;
 	class FramePipeline;
-	class ParameterList;
 	class RenderFrame;
 
 	class NAZARA_GRAPHICS_API DebugDrawPipelinePass : public FramePipelinePass

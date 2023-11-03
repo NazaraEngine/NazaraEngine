@@ -8,6 +8,7 @@
 #define NAZARA_GRAPHICS_POSTPROCESSPIPELINEPASS_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/ParameterList.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/FramePipelinePass.hpp>
 #include <Nazara/Graphics/UberShader.hpp>
@@ -17,7 +18,6 @@ namespace Nz
 	class FrameGraph;
 	class FramePass;
 	class FramePipeline;
-	class ParameterList;
 	class RenderFrame;
 	class RenderPipeline;
 	class ShaderBinding;

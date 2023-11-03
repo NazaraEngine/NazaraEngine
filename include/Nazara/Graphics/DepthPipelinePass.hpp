@@ -8,6 +8,7 @@
 #define NAZARA_GRAPHICS_DEPTHPIPELINEPASS_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/ParameterList.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/ElementRenderer.hpp>
 #include <Nazara/Graphics/FramePipelinePass.hpp>
