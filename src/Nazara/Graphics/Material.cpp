@@ -199,7 +199,7 @@ namespace Nz
 	std::shared_ptr<Material> Material::Get(MaterialType lightingType)
 	{
 		Graphics* graphics = Graphics::Instance();
-		NazaraAssert(graphics, "Utility module has not been initialized");
+		NazaraAssert(graphics, "Graphics module has not been initialized");
 
 		return graphics->GetDefaultMaterials().materials[lightingType].material;
 	}
@@ -207,7 +207,7 @@ namespace Nz
 	std::shared_ptr<Material> Material::LoadFromFile(const std::filesystem::path& filePath, const MaterialParams& params)
 	{
 		Graphics* graphics = Graphics::Instance();
-		NazaraAssert(graphics, "Utility module has not been initialized");
+		NazaraAssert(graphics, "Graphics module has not been initialized");
 
 		return graphics->GetMaterialLoader().LoadFromFile(filePath, params);
 	}
@@ -215,7 +215,7 @@ namespace Nz
 	std::shared_ptr<Material> Material::LoadFromMemory(const void* data, std::size_t size, const MaterialParams& params)
 	{
 		Graphics* graphics = Graphics::Instance();
-		NazaraAssert(graphics, "Utility module has not been initialized");
+		NazaraAssert(graphics, "Graphics module has not been initialized");
 
 		return graphics->GetMaterialLoader().LoadFromMemory(data, size, params);
 	}
@@ -223,7 +223,7 @@ namespace Nz
 	std::shared_ptr<Material> Material::LoadFromStream(Stream& stream, const MaterialParams& params)
 	{
 		Graphics* graphics = Graphics::Instance();
-		NazaraAssert(graphics, "Utility module has not been initialized");
+		NazaraAssert(graphics, "Graphics module has not been initialized");
 
 		return graphics->GetMaterialLoader().LoadFromStream(stream, params);
 	}
