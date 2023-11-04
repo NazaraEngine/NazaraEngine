@@ -98,7 +98,6 @@ namespace Nz
 				}, optionValue);
 			}
 			states.shaderModuleResolver = Graphics::Instance()->GetShaderModuleResolver();
-			states.debugLevel = nzsl::DebugLevel::Regular;
 
 			std::shared_ptr<ShaderModule> stage = Graphics::Instance()->GetRenderDevice()->InstantiateShaderModule(m_shaderStages, *m_shaderModule, std::move(states));
 
