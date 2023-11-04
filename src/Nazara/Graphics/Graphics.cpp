@@ -139,11 +139,12 @@ namespace Nz
 		m_renderPassCache.emplace(*m_renderDevice);
 		m_samplerCache.emplace(m_renderDevice);
 
+		SelectDepthStencilFormats();
+
 		BuildDefaultTextures();
 		RegisterShaderModules();
 		BuildBlitPipeline();
 		RegisterMaterialPasses();
-		SelectDepthStencilFormats();
 
 		MaterialPipeline::Initialize();
 		BuildDefaultMaterials();
@@ -367,22 +368,9 @@ namespace Nz
 	{
 		// Depth textures (white but with a depth format)
 		{
-			PixelFormat depthFormat = PixelFormat::Undefined;
-			for (PixelFormat depthStencilCandidate : { PixelFormat::Depth16, PixelFormat::Depth24, PixelFormat::Depth32F })
-			{
-				if (m_renderDevice->IsTextureFormatSupported(depthStencilCandidate, TextureUsage::ShaderSampling))
-				{
-					depthFormat = depthStencilCandidate;
-					break;
-				}
-			}
-
-			if (depthFormat == PixelFormat::Undefined)
-				throw std::runtime_error("couldn't find a sampling-compatible depth pixel format");
-
 			TextureInfo texInfo;
 			texInfo.width = texInfo.height = texInfo.depth = texInfo.levelCount = 1;
-			texInfo.pixelFormat = depthFormat;
+			texInfo.pixelFormat = m_preferredDepthFormat;
 
 			std::array<UInt8, 6> whitePixels = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 
@@ -414,6 +402,13 @@ namespace Nz
 				texture = m_renderDevice->InstantiateTexture(texInfo, whitePixels.data(), false);
 			}
 		}
+	}
+
+	template<std::size_t N>
+	void Graphics::RegisterEmbedShaderModule(const UInt8(&content)[N])
+	{
+		nzsl::Unserializer unserializer(content, N);
+		m_shaderModuleResolver->RegisterModule(nzsl::Ast::UnserializeShader(unserializer));
 	}
 
 	void Graphics::RegisterMaterialPasses()
@@ -453,13 +448,6 @@ namespace Nz
 		// Let application register their own shaders
 		if (std::filesystem::path shaderPath = "Shaders"; std::filesystem::is_directory(shaderPath))
 			m_shaderModuleResolver->RegisterModuleDirectory(shaderPath);
-	}
-
-	template<std::size_t N>
-	void Graphics::RegisterEmbedShaderModule(const UInt8(&content)[N])
-	{
-		nzsl::Unserializer unserializer(content, N);
-		m_shaderModuleResolver->RegisterModule(nzsl::Ast::UnserializeShader(unserializer));
 	}
 
 	void Graphics::SelectDepthStencilFormats()

@@ -89,9 +89,9 @@ namespace Nz
 			void BuildBlitPipeline();
 			void BuildDefaultMaterials();
 			void BuildDefaultTextures();
+			template<std::size_t N> void RegisterEmbedShaderModule(const UInt8(&content)[N]);
 			void RegisterMaterialPasses();
 			void RegisterShaderModules();
-			template<std::size_t N> void RegisterEmbedShaderModule(const UInt8(&content)[N]);
 			void SelectDepthStencilFormats();
 
 			std::optional<RenderPassCache> m_renderPassCache;
