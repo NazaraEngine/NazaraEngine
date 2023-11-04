@@ -37,7 +37,7 @@ namespace Nz
 
 		m_onShaderModuleUpdated.Connect(moduleResolver.OnModuleUpdated, [this, name = std::move(moduleName)](nzsl::ModuleResolver* resolver, const std::string& updatedModuleName)
 		{
-			if (updatedModuleName != name)
+			if (m_usedModules.find(updatedModuleName) == m_usedModules.end())
 				return;
 
 			nzsl::Ast::ModulePtr newShaderModule = resolver->Resolve(name);
@@ -120,6 +120,9 @@ namespace Nz
 		sanitizeOptions.moduleResolver = Graphics::Instance()->GetShaderModuleResolver();
 
 		nzsl::Ast::ModulePtr sanitizedModule = nzsl::Ast::Sanitize(module, sanitizeOptions);
+		m_usedModules.insert(sanitizedModule->metadata->moduleName);
+		for (auto&& importedModule : sanitizedModule->importedModules)
+			m_usedModules.insert(importedModule.module->metadata->moduleName);
 
 		nzsl::ShaderStageTypeFlags supportedStageType;
 

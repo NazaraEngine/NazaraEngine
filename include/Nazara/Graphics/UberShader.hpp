@@ -15,6 +15,7 @@
 #include <NZSL/ModuleResolver.hpp>
 #include <NZSL/Ast/Module.hpp>
 #include <unordered_map>
+#include <unordered_set>
 
 namespace Nz
 {
@@ -70,6 +71,7 @@ namespace Nz
 
 			std::unordered_map<Config, std::shared_ptr<ShaderModule>, ConfigHasher, ConfigEqual> m_combinations;
 			std::unordered_map<std::string, Option> m_optionIndexByName;
+			std::unordered_set<std::string> m_usedModules;
 			nzsl::Ast::ModulePtr m_shaderModule;
 			ConfigCallback m_configCallback;
 			nzsl::ShaderStageTypeFlags m_shaderStages;
