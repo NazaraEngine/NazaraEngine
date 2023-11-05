@@ -8,7 +8,10 @@
 #define NAZARA_GRAPHICS_PIPELINEPASSLIST_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ParameterList.hpp>
+#include <Nazara/Core/Resource.hpp>
+#include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/FramePassAttachment.hpp>
@@ -21,11 +24,22 @@
 
 namespace Nz
 {
-	class FrameGraph;
+	struct NAZARA_GRAPHICS_API PipelinePassListParams : ResourceParameters
+	{
+		bool IsValid() const;
+	};
 
-	class NAZARA_GRAPHICS_API PipelinePassList
+	class FrameGraph;
+	class PipelinePassList;
+
+	using PipelinePassListLibrary = ObjectLibrary<PipelinePassList>;
+	using PipelinePassListLoader = ResourceLoader<PipelinePassList, PipelinePassListParams>;
+
+	class NAZARA_GRAPHICS_API PipelinePassList : public Resource
 	{
 		public:
+			using Params = PipelinePassListParams;
+
 			PipelinePassList() = default;
 			PipelinePassList(const PipelinePassList&) = delete;
 			PipelinePassList(PipelinePassList&&) = delete;
@@ -49,6 +63,10 @@ namespace Nz
 
 			PipelinePassList& operator=(const PipelinePassList&) = delete;
 			PipelinePassList& operator=(PipelinePassList&&) = delete;
+
+			static std::shared_ptr<PipelinePassList> LoadFromFile(const std::filesystem::path& filePath, const PipelinePassListParams& params = PipelinePassListParams());
+			static std::shared_ptr<PipelinePassList> LoadFromMemory(const void* data, std::size_t size, const PipelinePassListParams& params = PipelinePassListParams());
+			static std::shared_ptr<PipelinePassList> LoadFromStream(Stream& stream, const PipelinePassListParams& params = PipelinePassListParams());
 
 			static constexpr std::size_t MaxPassAttachment = 8;
 

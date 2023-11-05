@@ -44,7 +44,8 @@ namespace Nz
 			inline StreamOptionFlags GetStreamOptions() const;
 
 			std::size_t Read(void* buffer, std::size_t size);
-			virtual std::string ReadLine(unsigned int lineSize = 0);
+			virtual void ReadLine(std::string& line, unsigned int lineSize = 0);
+			inline std::string ReadLine(unsigned int lineSize = 0);
 
 			inline bool IsBufferingEnabled() const;
 			inline bool IsMemoryMapped() const;

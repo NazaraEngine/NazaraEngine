@@ -1467,19 +1467,6 @@ namespace Nz
 		return true;
 	}
 
-	PixelFormat PixelFormatInfo::IdentifyFormat(const PixelFormatDescription& info)
-	{
-		for (auto&& [format, formatDesc] : s_pixelFormatInfos.iter_kv())
-		{
-			if (info.bitsPerPixel == formatDesc.bitsPerPixel && info.content == formatDesc.content &&
-			    info.redMask == formatDesc.redMask && info.greenMask == formatDesc.greenMask && info.blueMask == formatDesc.blueMask && info.alphaMask == formatDesc.alphaMask &&
-			    info.redType == formatDesc.redType && info.greenType == formatDesc.greenType && info.blueType == formatDesc.blueType && info.alphaType == formatDesc.alphaType)
-				return format;
-		}
-
-		return PixelFormat::Undefined;
-	}
-
 	bool PixelFormatInfo::Initialize()
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE

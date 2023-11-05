@@ -179,7 +179,7 @@ namespace Nz
 		// TODO: Log error if key is present but not of the right
 
 		Result<std::string_view, ParameterList::Error> passResult = parameters.GetStringViewParameter("MatPass");
-		if (passIndexResult.IsOk())
+		if (passResult.IsOk())
 		{
 			auto& materialPassRegistry = Graphics::Instance()->GetMaterialPassRegistry();
 
