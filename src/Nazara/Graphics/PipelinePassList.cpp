@@ -11,6 +11,11 @@
 
 namespace Nz
 {
+	bool PipelinePassListParams::IsValid() const
+	{
+		return true;
+	}
+
 	std::vector<std::unique_ptr<FramePipelinePass>> PipelinePassList::BuildPasses(FramePipelinePass::PassData& passData) const
 	{
 		auto& passRegistry = Graphics::Instance()->GetFramePipelinePassRegistry();
@@ -65,5 +70,29 @@ namespace Nz
 		}
 
 		return GetAttachmentIndex(m_finalOutputAttachment);
+	}
+
+	std::shared_ptr<PipelinePassList> PipelinePassList::LoadFromFile(const std::filesystem::path& filePath, const PipelinePassListParams& params)
+	{
+		Graphics* graphics = Graphics::Instance();
+		NazaraAssert(graphics, "Graphics module has not been initialized");
+
+		return graphics->GetPipelinePassListLoader().LoadFromFile(filePath, params);
+	}
+
+	std::shared_ptr<PipelinePassList> PipelinePassList::LoadFromMemory(const void* data, std::size_t size, const PipelinePassListParams& params)
+	{
+		Graphics* graphics = Graphics::Instance();
+		NazaraAssert(graphics, "Graphics module has not been initialized");
+
+		return graphics->GetPipelinePassListLoader().LoadFromMemory(data, size, params);
+	}
+
+	std::shared_ptr<PipelinePassList> PipelinePassList::LoadFromStream(Stream& stream, const PipelinePassListParams& params)
+	{
+		Graphics* graphics = Graphics::Instance();
+		NazaraAssert(graphics, "Graphics module has not been initialized");
+
+		return graphics->GetPipelinePassListLoader().LoadFromStream(stream, params);
 	}
 }

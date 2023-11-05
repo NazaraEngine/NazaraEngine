@@ -135,6 +135,7 @@ namespace Nz
 	*
 	* If lineSize does not equal zero, it represents the maximum character count to be read from the stream.
 	*
+	* \param line Line object to use to store characters
 	* \param lineSize Maximum number of characters to read, or zero for no limit
 	*
 	* \return Line read from file
@@ -142,9 +143,8 @@ namespace Nz
 	* \remark With the text stream option, "\r\n" is treated as "\n"
 	* \remark The line separator character is not returned as part of the string
 	*/
-	std::string Stream::ReadLine(unsigned int lineSize)
+	void Stream::ReadLine(std::string& line, unsigned int lineSize)
 	{
-		std::string line;
 		if (lineSize == 0) // Maximal size undefined
 		{
 			const unsigned int bufferSize = 64;
@@ -192,8 +192,9 @@ namespace Nz
 		}
 		else
 		{
-			line.resize(lineSize, '\0');
-			std::size_t readSize = Read(&line[0], lineSize);
+			std::size_t offset = line.size();
+			line.resize(offset + lineSize, '\0');
+			std::size_t readSize = Read(&line[offset], lineSize);
 			std::size_t pos = line.find('\n');
 			if (pos <= readSize) // False only if the character is not available (npos being the biggest integer)
 			{
@@ -206,10 +207,8 @@ namespace Nz
 					NazaraWarning("Failed to reset cursos pos");
 			}
 			else
-				line.resize(readSize);
+				line.resize(offset + readSize);
 		}
-
-		return line;
 	}
 
 	bool Stream::SetCursorPos(UInt64 offset)

@@ -14,6 +14,7 @@
 #include <Nazara/Graphics/PostProcessPipelinePass.hpp>
 #include <Nazara/Graphics/PredefinedMaterials.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
+#include <Nazara/Graphics/Formats/PipelinePassListLoader.hpp>
 #include <Nazara/Graphics/Formats/TextureLoader.hpp>
 #include <Nazara/Utility/Font.hpp>
 #include <NZSL/Ast/AstSerializer.hpp>
@@ -158,6 +159,7 @@ namespace Nz
 		Font::SetDefaultAtlas(std::make_shared<GuillotineTextureAtlas>(*m_renderDevice));
 
 		m_materialInstanceLoader.RegisterLoader(Loaders::GetMaterialInstanceLoader_Texture()); // texture to material loader
+		m_pipelinePassListLoader.RegisterLoader(Loaders::GetPipelinePassListLoader()); // texture to material loader
 	}
 
 	Graphics::~Graphics()
@@ -466,10 +468,11 @@ namespace Nz
 
 	void Graphics::RegisterPipelinePasses()
 	{
-		m_pipelinePassRegistry.RegisterPass<DepthPipelinePass>("Depth");
-		m_pipelinePassRegistry.RegisterPass<ForwardPipelinePass>("Forward");
-		m_pipelinePassRegistry.RegisterPass<PostProcessPipelinePass>("PostProcess");
+		m_pipelinePassRegistry.RegisterPass<DepthPipelinePass>("Depth", {}, {});
+		m_pipelinePassRegistry.RegisterPass<ForwardPipelinePass>("Forward", {}, { "Output" });
+		m_pipelinePassRegistry.RegisterPass<PostProcessPipelinePass>("PostProcess", { "Input" }, { "Output" });
 	}
+
 	void Graphics::RegisterShaderModules()
 	{
 		m_shaderModuleResolver = std::make_shared<nzsl::FilesystemModuleResolver>();

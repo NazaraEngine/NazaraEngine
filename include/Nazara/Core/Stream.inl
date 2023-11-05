@@ -106,6 +106,27 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Reads a line from the stream
+	*
+	* Reads the stream until a line separator or the end of the stream is found.
+	*
+	* If lineSize does not equal zero, it represents the maximum character count to be read from the stream.
+	*
+	* \param lineSize Maximum number of characters to read, or zero for no limit
+	*
+	* \return Line read from file
+	*
+	* \remark With the text stream option, "\r\n" is treated as "\n"
+	* \remark The line separator character is not returned as part of the string
+	*/
+	inline std::string Stream::ReadLine(unsigned int lineSize)
+	{
+		std::string line;
+		ReadLine(line, lineSize);
+		return line;
+	}
+
+	/*!
 	* \brief Checks whether the stream is readable
 	* \return true if it is the case
 	*/

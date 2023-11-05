@@ -76,7 +76,8 @@ namespace Nz
 
 			static inline bool HasAlpha(PixelFormat format);
 
-			static PixelFormat IdentifyFormat(const PixelFormatDescription& info);
+			static inline PixelFormat IdentifyFormat(const PixelFormatDescription& info);
+			static inline PixelFormat IdentifyFormat(std::string_view formatName);
 
 			static inline bool IsCompressed(PixelFormat format);
 			static inline bool IsConversionSupported(PixelFormat srcFormat, PixelFormat dstFormat);

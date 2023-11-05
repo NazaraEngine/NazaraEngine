@@ -71,6 +71,16 @@ namespace Nz
 		return m_materialLoader;
 	}
 
+	inline PipelinePassListLoader& Graphics::GetPipelinePassListLoader()
+	{
+		return m_pipelinePassListLoader;
+	}
+
+	inline const PipelinePassListLoader& Graphics::GetPipelinePassListLoader() const
+	{
+		return m_pipelinePassListLoader;
+	}
+
 	inline PixelFormat Graphics::GetPreferredDepthFormat() const
 	{
 		return m_preferredDepthFormat;
