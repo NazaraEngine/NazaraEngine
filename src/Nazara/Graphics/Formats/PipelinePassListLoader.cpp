@@ -21,154 +21,107 @@ namespace Nz::Loaders
 
 				Result<std::shared_ptr<PipelinePassList>, ResourceLoadingError> Parse()
 				{
-					auto result = ExpectKeyword("passlist");
-					if (!result)
-						return Err(std::move(result).GetError()); //< FIXME: why rvalue is needed
-
-					Result<std::string, ResourceLoadingError> passListName = GetString();
-					if (!passListName)
-						return Err(std::move(passListName).GetError()); //< FIXME: why rvalue is needed
-
-					m_current.emplace();
-					m_current->passList = std::make_shared<PipelinePassList>();
-					result = Block([this]() -> Result<void, ResourceLoadingError>
+					try
 					{
-						Result<std::string, ResourceLoadingError> kw = GetKeyword();
-						if (!kw)
-							return Err(std::move(kw).GetError()); //< FIXME: why rvalue is needed
+						ExpectKeyword("passlist");
 
-						if (kw.GetValue() == "attachment")
-						{
-							auto result = HandleAttachment();
-							if (!result)
-								return Err(std::move(result).GetError()); //< FIXME: why rvalue is needed
-						}
-						else if (kw.GetValue() == "pass")
-						{
-							auto result = HandlePass();
-							if (!result)
-								return Err(std::move(result).GetError()); //< FIXME: why rvalue is needed
-						}
-						else if (kw.GetValue() == "output")
-						{
-							Result<std::string, ResourceLoadingError> attachmentName = GetString();
-							if (!attachmentName)
-								return Err(std::move(attachmentName).GetError()); //< FIXME: why rvalue is needed
+						std::string passListName = ReadString();
 
-							auto it = m_current->attachmentsByName.find(attachmentName.GetValue());
-							if (it == m_current->attachmentsByName.end())
+						m_current.emplace();
+						m_current->passList = std::make_shared<PipelinePassList>();
+						Block([this]
+						{
+							std::string kw = ReadKeyword();
+							if (kw == "attachment")
+								HandleAttachment();
+							else if (kw == "pass")
+								HandlePass();
+							else if (kw == "output")
 							{
-								NazaraErrorFmt("unknown attachment {}", attachmentName.GetValue());
-								return Err(ResourceLoadingError::DecodingError);
+								std::string attachmentName = ReadString();
+
+								auto it = m_current->attachmentsByName.find(attachmentName);
+								if (it == m_current->attachmentsByName.end())
+								{
+									NazaraErrorFmt("unknown attachment {}", attachmentName);
+									throw ResourceLoadingError::DecodingError;
+								}
+
+								m_current->passList->SetFinalOutput(it->second);
 							}
+							else
+							{
+								NazaraErrorFmt("unexpected keyword {}", kw);
+								throw ResourceLoadingError::DecodingError;
+							}
+						});
 
-							m_current->passList->SetFinalOutput(it->second);
-						}
-						else
-						{
-							NazaraErrorFmt("unexpected keyword {}", kw.GetValue());
-							return Err(ResourceLoadingError::DecodingError);
-						}
-
-						return Ok();
-					});
-					if (!result)
-						return Err(std::move(result).GetError()); //< FIXME: why rvalue is needed
-
-					return Ok(std::move(m_current->passList));
+						return Ok(std::move(m_current->passList));
+					}
+					catch (ResourceLoadingError error)
+					{
+						return Err(error);
+					}
 				}
 
 			private:
-				Result<void, ResourceLoadingError> Block(const FunctionRef<Result<void, ResourceLoadingError>()>& callback)
+				void Block(const FunctionRef<void()>& callback)
 				{
-					auto beginBlock = GetKeyword();
-					if (!beginBlock)
-						return Err(std::move(beginBlock).GetError()); //< FIXME: why rvalue is needed
-
-					if (beginBlock.GetValue() != "{")
+					std::string beginToken = ReadKeyword();
+					if (beginToken != "{")
 					{
-						NazaraErrorFmt("expected \"{{\" token, got {}", beginBlock.GetValue());
-						return Err(ResourceLoadingError::DecodingError);
+						NazaraErrorFmt("expected \"{{\" token, got {}", beginToken);
+						throw ResourceLoadingError::DecodingError;
 					}
 
 					for (;;)
 					{
-						auto nextKw = GetKeyword(true);
-						if (!nextKw)
-							return Err(std::move(nextKw).GetError()); //< FIXME: why rvalue is needed
-
-						if (nextKw.GetValue() == "}")
+						std::string nextKeyword = ReadKeyword(true);
+						if (nextKeyword == "}")
 							break;
 
-						auto result = callback();
-						if (!result)
-							return Err(std::move(result).GetError()); //< FIXME: why rvalue is needed
+						callback();
 					}
 
-					auto endBlock = GetKeyword();
-					if (!endBlock)
-						return Err(std::move(endBlock).GetError()); //< FIXME: why rvalue is needed
-
-					if (endBlock.GetValue() != "}")
+					std::string endToken = ReadKeyword();
+					if (endToken != "}")
 					{
-						NazaraErrorFmt("expected \"}}\" token, got {}", endBlock.GetValue());
-						return Err(ResourceLoadingError::DecodingError);
+						NazaraErrorFmt("expected \"}}\" token, got {}", endToken);
+						throw ResourceLoadingError::DecodingError;
 					}
-
-					return Ok();
 				}
 
-				Result<void, ResourceLoadingError> ExpectKeyword(std::string_view expectedKeyword)
+				void ExpectKeyword(std::string_view expectedKeyword)
 				{
-					Result<std::string, ResourceLoadingError> passListKw = GetKeyword();
-					if (!passListKw)
-						return Err(std::move(passListKw).GetError()); //< FIXME: why rvalue is needed
-
-					if (passListKw.GetValue() != expectedKeyword)
+					std::string keyword = ReadKeyword();
+					if (keyword != expectedKeyword)
 					{
-						NazaraErrorFmt("expected \"{}\" keyword, got {}", expectedKeyword, passListKw.GetValue());
-						return Err(ResourceLoadingError::DecodingError);
+						NazaraErrorFmt("expected \"{}\" keyword, got {}", expectedKeyword, keyword);
+						throw ResourceLoadingError::DecodingError;
 					}
-
-					return Ok();
 				}
 
-				Result<void, ResourceLoadingError> HandleAttachment()
+				void HandleAttachment()
 				{
-					Result<std::string, ResourceLoadingError> attachmentName = GetString();
-					if (!attachmentName)
-						return Err(std::move(attachmentName).GetError()); //< FIXME: why rvalue is needed
+					std::string attachmentName = ReadString();
 
 					std::string format;
-					auto result = Block([&]() -> Result<void, ResourceLoadingError>
+					Block([&]
 					{
-						Result<std::string, ResourceLoadingError> kw = GetKeyword();
-						if (!kw)
-							return Err(std::move(kw).GetError()); //< FIXME: why rvalue is needed
-
-						if (kw.GetValue() == "format")
-						{
-							Result<std::string, ResourceLoadingError> formatStr = GetString();
-							if (!formatStr)
-								return Err(std::move(formatStr).GetError()); //< FIXME: why rvalue is needed
-
-							format = std::move(formatStr).GetValue();
-						}
+						std::string kw = ReadKeyword();
+						if (kw == "format")
+							format = ReadString();
 						else
 						{
-							NazaraErrorFmt("unexpected keyword {}", kw.GetValue());
-							return Err(ResourceLoadingError::DecodingError);
+							NazaraErrorFmt("unexpected keyword {}", kw);
+							throw ResourceLoadingError::DecodingError;
 						}
-
-						return Ok();
 					});
-					if (!result)
-						return Err(std::move(result).GetError()); //< FIXME: why rvalue is needed
 
 					if (format.empty())
 					{
-						NazaraErrorFmt("missing mandatory format in attachment {}", attachmentName.GetValue());
-						return Err(ResourceLoadingError::DecodingError);
+						NazaraErrorFmt("missing mandatory format in attachment {}", attachmentName);
+						throw ResourceLoadingError::DecodingError;
 					}
 
 					PixelFormat attachmentFormat = PixelFormat::Undefined;
@@ -182,30 +135,26 @@ namespace Nz::Loaders
 					if (attachmentFormat == PixelFormat::Undefined)
 					{
 						NazaraErrorFmt("unknown format {}", format);
-						return Err(ResourceLoadingError::DecodingError);
+						throw ResourceLoadingError::DecodingError;
 					}
 
-					if (m_current->attachmentsByName.find(attachmentName.GetValue()) != m_current->attachmentsByName.end())
+					if (m_current->attachmentsByName.find(attachmentName) != m_current->attachmentsByName.end())
 					{
-						NazaraErrorFmt("attachment {} already exists", attachmentName.GetValue());
-						return Err(ResourceLoadingError::DecodingError);
+						NazaraErrorFmt("attachment {} already exists", attachmentName);
+						throw ResourceLoadingError::DecodingError;
 					}
 
 					std::size_t attachmentId = m_current->passList->AddAttachment({
-						attachmentName.GetValue(),
+						attachmentName,
 						attachmentFormat
 					});
 
-					m_current->attachmentsByName.emplace(attachmentName.GetValue(), attachmentId);
-
-					return Ok();
+					m_current->attachmentsByName.emplace(attachmentName, attachmentId);
 				}
 				
-				Result<void, ResourceLoadingError> HandlePass()
+				void HandlePass()
 				{
-					Result<std::string, ResourceLoadingError> passName = GetString();
-					if (!passName)
-						return Err(std::move(passName).GetError()); //< FIXME: why rvalue is needed
+					std::string passName = ReadString();
 
 					struct InputOutput
 					{
@@ -221,105 +170,58 @@ namespace Nz::Loaders
 					std::vector<InputOutput> outputs;
 					std::vector<std::string> flags;
 
-					auto result = Block([&]() -> Result<void, ResourceLoadingError>
+					Block([&]
 					{
-						Result<std::string, ResourceLoadingError> kw = GetKeyword();
-						if (!kw)
-							return Err(std::move(kw).GetError()); //< FIXME: why rvalue is needed
+						std::string kw = ReadKeyword();
 
-						if (kw.GetValue() == "impl")
+						if (kw == "impl")
 						{
-							Result<std::string, ResourceLoadingError> implStr = GetString();
-							if (!implStr)
-								return Err(std::move(implStr).GetError()); //< FIXME: why rvalue is needed
+							impl = ReadString();
 
-							impl = std::move(implStr).GetValue();
-
-							auto nextKw = GetKeyword(true);
-							if (!nextKw)
-								return Err(std::move(nextKw).GetError()); //< FIXME: why rvalue is needed
-
-							if (nextKw.GetValue() == "{")
+							std::string nextKeyword = ReadKeyword(true);
+							if (nextKeyword == "{")
 							{
-								Block([&]() -> Result<void, ResourceLoadingError>
+								Block([&]
 								{
-									Result<std::string, ResourceLoadingError> key = GetKeyword();
-									if (!key)
-										return Err(std::move(key).GetError()); //< FIXME: why rvalue is needed
+									std::string key = ReadKeyword();
+									std::string value = ReadString();
 
-									Result<std::string, ResourceLoadingError> value = GetString();
-									if (!value)
-										return Err(std::move(value).GetError()); //< FIXME: why rvalue is needed
-
-									implConfig.SetParameter(key.GetValue(), value.GetValue());
-									return Ok();
+									implConfig.SetParameter(std::move(key), std::move(value));
 								});
 							}
 						}
-						else if (kw.GetValue() == "depthstencilinput")
+						else if (kw == "depthstencilinput")
+							depthstencilInput = ReadString();
+						else if (kw == "depthstenciloutput")
+							depthstencilOutput = ReadString();
+						else if (kw == "flag")
+							flags.push_back(ReadString());
+						else if (kw == "input")
 						{
-							Result<std::string, ResourceLoadingError> attachmentStr = GetString();
-							if (!attachmentStr)
-								return Err(std::move(attachmentStr).GetError()); //< FIXME: why rvalue is needed
-
-							depthstencilInput = std::move(attachmentStr).GetValue();
-						}
-						else if (kw.GetValue() == "depthstenciloutput")
-						{
-							Result<std::string, ResourceLoadingError> attachmentStr = GetString();
-							if (!attachmentStr)
-								return Err(std::move(attachmentStr).GetError()); //< FIXME: why rvalue is needed
-
-							depthstencilOutput = std::move(attachmentStr).GetValue();
-						}
-						else if (kw.GetValue() == "flag")
-						{
-							Result<std::string, ResourceLoadingError> str = GetString();
-							if (!str)
-								return Err(std::move(str).GetError()); //< FIXME: why rvalue is needed
-
-							flags.push_back(std::move(str).GetValue());
-						}
-						else if (kw.GetValue() == "input")
-						{
-							Result<std::string, ResourceLoadingError> name = GetString();
-							if (!name)
-								return Err(std::move(name).GetError()); //< FIXME: why rvalue is needed
-
-							Result<std::string, ResourceLoadingError> attachment = GetString();
-							if (!attachment)
-								return Err(std::move(attachment).GetError()); //< FIXME: why rvalue is needed
+							std::string name = ReadString();
+							std::string attachment = ReadString();
 
 							inputs.push_back({
-								std::move(name).GetValue(),
-								std::move(attachment).GetValue(),
+								std::move(name),
+								std::move(attachment),
 							});
 						}
-						else if (kw.GetValue() == "output")
+						else if (kw == "output")
 						{
-							Result<std::string, ResourceLoadingError> name = GetString();
-							if (!name)
-								return Err(std::move(name).GetError()); //< FIXME: why rvalue is needed
-
-							Result<std::string, ResourceLoadingError> attachment = GetString();
-							if (!attachment)
-								return Err(std::move(attachment).GetError()); //< FIXME: why rvalue is needed
+							std::string name = ReadString();
+							std::string attachment = ReadString();
 
 							outputs.push_back({
-								std::move(name).GetValue(),
-								std::move(attachment).GetValue(),
+								std::move(name),
+								std::move(attachment),
 							});
 						}
 						else
 						{
-							NazaraErrorFmt("unexpected keyword {}", kw.GetValue());
-							return Err(ResourceLoadingError::DecodingError);
+							NazaraErrorFmt("unexpected keyword {}", kw);
+							throw ResourceLoadingError::DecodingError;
 						}
-
-						return Ok();
 					});
-					if (!result)
-						return Err(std::move(result).GetError()); //< FIXME: why rvalue is needed
 
 					FramePipelinePassRegistry& passRegistry = Graphics::Instance()->GetFramePipelinePassRegistry();
 
@@ -327,10 +229,10 @@ namespace Nz::Loaders
 					if (implIndex == FramePipelinePassRegistry::InvalidIndex)
 					{
 						NazaraErrorFmt("unknown pass {}", impl);
-						return Err(ResourceLoadingError::DecodingError);
+						throw ResourceLoadingError::DecodingError;
 					}
 
-					std::size_t passId = m_current->passList->AddPass(passName.GetValue(), implIndex, std::move(implConfig));
+					std::size_t passId = m_current->passList->AddPass(passName, implIndex, std::move(implConfig));
 
 					for (auto&& [inputName, attachmentName] : inputs)
 					{
@@ -338,14 +240,14 @@ namespace Nz::Loaders
 						if (inputIndex == FramePipelinePassRegistry::InvalidIndex)
 						{
 							NazaraErrorFmt("pass {} has no input {}", impl, inputName);
-							return Err(ResourceLoadingError::DecodingError);
+							throw ResourceLoadingError::DecodingError;
 						}
 
 						auto it = m_current->attachmentsByName.find(attachmentName);
 						if (it == m_current->attachmentsByName.end())
 						{
 							NazaraErrorFmt("unknown attachment {}", attachmentName);
-							return Err(ResourceLoadingError::DecodingError);
+							throw ResourceLoadingError::DecodingError;
 						}
 
 						m_current->passList->SetPassInput(passId, inputIndex, it->second);
@@ -357,14 +259,14 @@ namespace Nz::Loaders
 						if (inputIndex == FramePipelinePassRegistry::InvalidIndex)
 						{
 							NazaraErrorFmt("pass {} has no output {}", impl, outputName);
-							return Err(ResourceLoadingError::DecodingError);
+							throw ResourceLoadingError::DecodingError;
 						}
 
 						auto it = m_current->attachmentsByName.find(attachmentName);
 						if (it == m_current->attachmentsByName.end())
 						{
 							NazaraErrorFmt("unknown attachment {}", attachmentName);
-							return Err(ResourceLoadingError::DecodingError);
+							throw ResourceLoadingError::DecodingError;
 						}
 
 						m_current->passList->SetPassOutput(passId, inputIndex, it->second);
@@ -376,7 +278,7 @@ namespace Nz::Loaders
 						if (it == m_current->attachmentsByName.end())
 						{
 							NazaraErrorFmt("unknown attachment {}", depthstencilInput);
-							return Err(ResourceLoadingError::DecodingError);
+							throw ResourceLoadingError::DecodingError;
 						}
 
 						m_current->passList->SetPassDepthStencilInput(passId, it->second);
@@ -388,7 +290,7 @@ namespace Nz::Loaders
 						if (it == m_current->attachmentsByName.end())
 						{
 							NazaraErrorFmt("unknown attachment {}", depthstencilOutput);
-							return Err(ResourceLoadingError::DecodingError);
+							throw ResourceLoadingError::DecodingError;
 						}
 
 						m_current->passList->SetPassDepthStencilOutput(passId, it->second);
@@ -401,22 +303,17 @@ namespace Nz::Loaders
 						else
 						{
 							NazaraErrorFmt("unknown pass flag {}", flagStr);
-							return Err(ResourceLoadingError::DecodingError);
+							throw ResourceLoadingError::DecodingError;
 						}
 					}
-
-					return Ok();
 				}
 
-				Result<std::string, ResourceLoadingError> GetKeyword(bool peek = false)
+				std::string ReadKeyword(bool peek = false)
 				{
 					std::size_t beginOffset;
 					do
 					{
-						auto result = EnsureLine();
-						if (result.IsErr())
-							return Err(std::move(result).GetError()); //< FIXME: why rvalue is needed
-
+						EnsureLine();
 						beginOffset = m_currentLine.find_first_not_of(" \r\t\n");
 					}
 					while (beginOffset == m_currentLine.npos);
@@ -424,7 +321,7 @@ namespace Nz::Loaders
 					if (m_currentLine[beginOffset] == '"')
 					{
 						NazaraError("expected a keyword, got a string");
-						return Err(ResourceLoadingError::DecodingError);
+						throw ResourceLoadingError::DecodingError;
 					}
 
 					std::size_t endOffset = m_currentLine.find_first_of(" \r\t\n", beginOffset + 1);
@@ -438,16 +335,12 @@ namespace Nz::Loaders
 					return currentToken;
 				}
 
-				
-				Result<std::string, ResourceLoadingError> GetString()
+				std::string ReadString()
 				{
 					std::size_t beginOffset;
 					do
 					{
-						auto result = EnsureLine();
-						if (result.IsErr())
-							return Err(std::move(result).GetError()); //< FIXME: why rvalue is needed
-
+						EnsureLine();
 						beginOffset = m_currentLine.find_first_not_of(" \r\t\n");
 					}
 					while (beginOffset == m_currentLine.npos);
@@ -455,7 +348,7 @@ namespace Nz::Loaders
 					if (m_currentLine[beginOffset] != '"')
 					{
 						NazaraError("expected a string, got a keyword");
-						return Err(ResourceLoadingError::DecodingError);
+						throw ResourceLoadingError::DecodingError;
 					}
 
 					std::string str;
@@ -467,7 +360,7 @@ namespace Nz::Loaders
 						case '\n':
 						case '\r':
 							NazaraError("unfinished string");
-							return Err(ResourceLoadingError::DecodingError);
+							throw ResourceLoadingError::DecodingError;
 
 						case '"':
 						{
@@ -489,7 +382,7 @@ namespace Nz::Loaders
 								case '\\': character = '\\'; break;
 								default:
 									NazaraErrorFmt("unrecognized character {}", character);
-									return Err(ResourceLoadingError::DecodingError);
+									throw ResourceLoadingError::DecodingError;
 							}
 
 							str.push_back(character);
@@ -502,20 +395,18 @@ namespace Nz::Loaders
 					}
 
 					NazaraError("unfinished string");
-					return Err(ResourceLoadingError::DecodingError);
+					throw ResourceLoadingError::DecodingError;
 				}
 
-				Result<void, ResourceLoadingError> EnsureLine()
+				void EnsureLine()
 				{
 					while (m_currentLine.find_first_not_of(" \r\t\n") == m_currentLine.npos)
 					{
 						m_currentLine.clear();
 						m_stream.ReadLine(m_currentLine);
 						if (m_currentLine.empty())
-							return Err(ResourceLoadingError::DecodingError);
+							throw ResourceLoadingError::DecodingError;
 					}
-
-					return Ok();
 				}
 
 				struct CurrentPassList
