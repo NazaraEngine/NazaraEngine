@@ -5,6 +5,7 @@
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Core/AppFilesystemComponent.hpp>
 #include <Nazara/Core/CommandLineParameters.hpp>
+#include <Nazara/Graphics/DebugDrawPipelinePass.hpp>
 #include <Nazara/Graphics/DepthPipelinePass.hpp>
 #include <Nazara/Graphics/ForwardPipelinePass.hpp>
 #include <Nazara/Graphics/GuillotineTextureAtlas.hpp>
@@ -469,6 +470,7 @@ namespace Nz
 	void Graphics::RegisterPipelinePasses()
 	{
 		m_pipelinePassRegistry.RegisterPass<DepthPipelinePass>("Depth", {}, {});
+		m_pipelinePassRegistry.RegisterPass<DebugDrawPipelinePass>("DebugDraw", { "Input" }, { "Output" });
 		m_pipelinePassRegistry.RegisterPass<ForwardPipelinePass>("Forward", {}, { "Output" });
 		m_pipelinePassRegistry.RegisterPass<PostProcessPipelinePass>("PostProcess", { "Input" }, { "Output" });
 	}
