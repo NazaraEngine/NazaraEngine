@@ -35,7 +35,7 @@ namespace Nz
 			debugDrawPass.SetDepthStencilInput(inputOuputs.depthStencilInput);
 
 		if (inputOuputs.depthStencilOutput != InvalidAttachmentIndex)
-			debugDrawPass.SetDepthStencilOutput(inputOuputs.depthStencilInput);
+			debugDrawPass.SetDepthStencilOutput(inputOuputs.depthStencilOutput);
 
 		debugDrawPass.SetExecutionCallback([&]
 		{
