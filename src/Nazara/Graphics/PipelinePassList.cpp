@@ -32,9 +32,6 @@ namespace Nz
 		NazaraAssert(m_passes.size() == passes.size(), "pass vector size doesn't match passlist size");
 
 		StackArray<std::size_t> attachmentIndices = NazaraStackArrayNoInit(std::size_t, m_attachments.size());
-		for (std::size_t i = 0; i < m_attachments.size(); ++i)
-			attachmentIndices[i] = frameGraph.AddAttachment(m_attachments[i]);
-
 		auto GetAttachmentIndex = [&](std::size_t attachmentIndex)
 		{
 			if (attachmentIndex == NoAttachment)
@@ -43,6 +40,21 @@ namespace Nz
 			assert(attachmentIndex < m_attachments.size());
 			return attachmentIndices[attachmentIndex];
 		};
+
+		for (std::size_t i = 0; i < m_attachments.size(); ++i)
+		{
+			attachmentIndices[i] = std::visit([&](auto&& arg)
+			{
+				using T = std::decay_t<decltype(arg)>;
+				if constexpr (std::is_same_v<T, FramePassAttachment>)
+					return frameGraph.AddAttachment(arg);
+				else if constexpr (std::is_same_v<T, AttachmentProxy>)
+					return frameGraph.AddAttachmentProxy(arg.name, GetAttachmentIndex(arg.attachmentIndex));
+				else
+					static_assert(AlwaysFalse<T>(), "unhandled case");
+
+			}, m_attachments[i]);
+		}
 
 		for (std::size_t passIndex = 0; passIndex < passes.size(); ++passIndex)
 		{

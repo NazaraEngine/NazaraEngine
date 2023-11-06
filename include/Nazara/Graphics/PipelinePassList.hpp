@@ -46,6 +46,7 @@ namespace Nz
 			~PipelinePassList() = default;
 
 			inline std::size_t AddAttachment(FramePassAttachment attachment);
+			inline std::size_t AddAttachmentProxy(std::string name, std::size_t attachmentIndex);
 			inline std::size_t AddPass(std::string name, std::size_t implIndex, ParameterList parameterList = {});
 
 			std::vector<std::unique_ptr<FramePipelinePass>> BuildPasses(FramePipelinePass::PassData& passData) const;
@@ -73,6 +74,12 @@ namespace Nz
 		private:
 			static constexpr std::size_t NoAttachment = std::numeric_limits<std::size_t>::max();
 
+			struct AttachmentProxy
+			{
+				std::string name;
+				std::size_t attachmentIndex;
+			};
+
 			struct Pass
 			{
 				std::size_t depthStencilInput = NoAttachment;
@@ -86,7 +93,7 @@ namespace Nz
 			};
 
 			std::size_t m_finalOutputAttachment;
-			std::vector<FramePassAttachment> m_attachments;
+			std::vector<std::variant<FramePassAttachment, AttachmentProxy>> m_attachments;
 			std::vector<Pass> m_passes;
 	};
 }

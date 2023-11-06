@@ -15,6 +15,14 @@ namespace Nz
 		return index;
 	}
 
+	inline std::size_t PipelinePassList::AddAttachmentProxy(std::string name, std::size_t attachmentIndex)
+	{
+		std::size_t index = m_attachments.size();
+		m_attachments.emplace_back(AttachmentProxy{ std::move(name), attachmentIndex });
+
+		return index;
+	}
+
 	inline std::size_t PipelinePassList::AddPass(std::string name, std::size_t implIndex, ParameterList parameterList)
 	{
 		std::size_t index = m_passes.size();
