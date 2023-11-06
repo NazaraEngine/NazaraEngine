@@ -34,6 +34,27 @@ namespace Nz::Loaders
 							std::string kw = ReadKeyword();
 							if (kw == "attachment")
 								HandleAttachment();
+							else if (kw == "attachmentproxy")
+							{
+								std::string proxyName = ReadString();
+								std::string targetName = ReadString();
+
+								auto it = m_current->attachmentsByName.find(targetName);
+								if (it == m_current->attachmentsByName.end())
+								{
+									NazaraErrorFmt("unknown attachment {}", targetName);
+									throw ResourceLoadingError::DecodingError;
+								}
+
+								if (m_current->attachmentsByName.find(proxyName) != m_current->attachmentsByName.end())
+								{
+									NazaraErrorFmt("attachment {} already exists", proxyName);
+									throw ResourceLoadingError::DecodingError;
+								}
+
+								std::size_t proxyId = m_current->passList->AddAttachmentProxy(proxyName, it->second);
+								m_current->attachmentsByName.emplace(std::move(proxyName), proxyId);
+							}
 							else if (kw == "pass")
 								HandlePass();
 							else if (kw == "output")
