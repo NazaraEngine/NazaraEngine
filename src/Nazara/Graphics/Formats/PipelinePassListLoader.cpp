@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/Formats/PipelinePassListLoader.hpp>
+#include <Nazara/Core/ParameterFile.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <optional>
 #include <Nazara/Graphics/Debug.hpp>
@@ -15,7 +16,7 @@ namespace Nz::Loaders
 		{
 			public:
 				PassListLoader(Stream& stream, const PipelinePassListParams& /*parameters*/) :
-				m_stream(stream)
+				m_paramFile(stream)
 				{
 				}
 
@@ -23,59 +24,45 @@ namespace Nz::Loaders
 				{
 					try
 					{
-						ExpectKeyword("passlist");
+						std::string finalOutputAttachment;
 
-						std::string passListName = ReadString();
+						m_paramFile.Handle(
+							"passlist", [&](std::string passListName)
+							{
+								m_current.emplace();
+								m_current->passList = std::make_shared<PipelinePassList>();
+								m_paramFile.Block(
+									"attachment", [this](std::string attachmentName)
+									{
+										HandleAttachment(std::move(attachmentName));
+									},
+									"attachmentproxy", [this](std::string proxyName, std::string targetName)
+									{
+										HandleAttachmentProxy(std::move(proxyName), std::move(targetName));
+									},
+									"pass", [this](std::string passName)
+									{
+										HandlePass(std::move(passName));
+									},
+									"output", &finalOutputAttachment
+								);
+							}
+						);
 
-						m_current.emplace();
-						m_current->passList = std::make_shared<PipelinePassList>();
-						Block([this]
+						if (finalOutputAttachment.empty())
 						{
-							std::string kw = ReadKeyword();
-							if (kw == "attachment")
-								HandleAttachment();
-							else if (kw == "attachmentproxy")
-							{
-								std::string proxyName = ReadString();
-								std::string targetName = ReadString();
+							NazaraError("missing passlist output attachment");
+							throw ResourceLoadingError::DecodingError;
+						}
 
-								auto it = m_current->attachmentsByName.find(targetName);
-								if (it == m_current->attachmentsByName.end())
-								{
-									NazaraErrorFmt("unknown attachment {}", targetName);
-									throw ResourceLoadingError::DecodingError;
-								}
+						auto it = m_current->attachmentsByName.find(finalOutputAttachment);
+						if (it == m_current->attachmentsByName.end())
+						{
+							NazaraErrorFmt("unknown attachment {}", finalOutputAttachment);
+							throw ResourceLoadingError::DecodingError;
+						}
 
-								if (m_current->attachmentsByName.find(proxyName) != m_current->attachmentsByName.end())
-								{
-									NazaraErrorFmt("attachment {} already exists", proxyName);
-									throw ResourceLoadingError::DecodingError;
-								}
-
-								std::size_t proxyId = m_current->passList->AddAttachmentProxy(proxyName, it->second);
-								m_current->attachmentsByName.emplace(std::move(proxyName), proxyId);
-							}
-							else if (kw == "pass")
-								HandlePass();
-							else if (kw == "output")
-							{
-								std::string attachmentName = ReadString();
-
-								auto it = m_current->attachmentsByName.find(attachmentName);
-								if (it == m_current->attachmentsByName.end())
-								{
-									NazaraErrorFmt("unknown attachment {}", attachmentName);
-									throw ResourceLoadingError::DecodingError;
-								}
-
-								m_current->passList->SetFinalOutput(it->second);
-							}
-							else
-							{
-								NazaraErrorFmt("unexpected keyword {}", kw);
-								throw ResourceLoadingError::DecodingError;
-							}
-						});
+						m_current->passList->SetFinalOutput(it->second);
 
 						return Ok(std::move(m_current->passList));
 					}
@@ -86,58 +73,13 @@ namespace Nz::Loaders
 				}
 
 			private:
-				void Block(const FunctionRef<void()>& callback)
+				void HandleAttachment(std::string attachmentName)
 				{
-					std::string beginToken = ReadKeyword();
-					if (beginToken != "{")
-					{
-						NazaraErrorFmt("expected \"{{\" token, got {}", beginToken);
-						throw ResourceLoadingError::DecodingError;
-					}
-
-					for (;;)
-					{
-						std::string nextKeyword = ReadKeyword(true);
-						if (nextKeyword == "}")
-							break;
-
-						callback();
-					}
-
-					std::string endToken = ReadKeyword();
-					if (endToken != "}")
-					{
-						NazaraErrorFmt("expected \"}}\" token, got {}", endToken);
-						throw ResourceLoadingError::DecodingError;
-					}
-				}
-
-				void ExpectKeyword(std::string_view expectedKeyword)
-				{
-					std::string keyword = ReadKeyword();
-					if (keyword != expectedKeyword)
-					{
-						NazaraErrorFmt("expected \"{}\" keyword, got {}", expectedKeyword, keyword);
-						throw ResourceLoadingError::DecodingError;
-					}
-				}
-
-				void HandleAttachment()
-				{
-					std::string attachmentName = ReadString();
-
 					std::string format;
-					Block([&]
-					{
-						std::string kw = ReadKeyword();
-						if (kw == "format")
-							format = ReadString();
-						else
-						{
-							NazaraErrorFmt("unexpected keyword {}", kw);
-							throw ResourceLoadingError::DecodingError;
-						}
-					});
+
+					m_paramFile.Block(
+						"format", &format
+					);
 
 					if (format.empty())
 					{
@@ -172,11 +114,28 @@ namespace Nz::Loaders
 
 					m_current->attachmentsByName.emplace(attachmentName, attachmentId);
 				}
-				
-				void HandlePass()
-				{
-					std::string passName = ReadString();
 
+				void HandleAttachmentProxy(std::string proxyName, std::string targetName)
+				{
+					auto it = m_current->attachmentsByName.find(targetName);
+					if (it == m_current->attachmentsByName.end())
+					{
+						NazaraErrorFmt("unknown attachment {}", targetName);
+						throw ResourceLoadingError::DecodingError;
+					}
+
+					if (m_current->attachmentsByName.find(proxyName) != m_current->attachmentsByName.end())
+					{
+						NazaraErrorFmt("attachment {} already exists", proxyName);
+						throw ResourceLoadingError::DecodingError;
+					}
+
+					std::size_t proxyId = m_current->passList->AddAttachmentProxy(proxyName, it->second);
+					m_current->attachmentsByName.emplace(std::move(proxyName), proxyId);
+				}
+				
+				void HandlePass(std::string passName)
+				{
 					struct InputOutput
 					{
 						std::string name;
@@ -191,58 +150,37 @@ namespace Nz::Loaders
 					std::vector<InputOutput> outputs;
 					std::vector<std::string> flags;
 
-					Block([&]
-					{
-						std::string kw = ReadKeyword();
-
-						if (kw == "impl")
+					m_paramFile.Block(
+						"depthstencilinput", &depthstencilInput,
+						"depthstenciloutput", &depthstencilOutput,
+						"impl", [&](std::string passImpl)
 						{
-							impl = ReadString();
-
-							std::string nextKeyword = ReadKeyword(true);
-							if (nextKeyword == "{")
+							impl = std::move(passImpl);
+							m_paramFile.Block(ParameterFile::OptionalBlock,
+							ParameterFile::Array, [&](ParameterFile::Keyword key, std::string value)
 							{
-								Block([&]
-								{
-									std::string key = ReadKeyword();
-									std::string value = ReadString();
-
-									implConfig.SetParameter(std::move(key), std::move(value));
-								});
-							}
-						}
-						else if (kw == "depthstencilinput")
-							depthstencilInput = ReadString();
-						else if (kw == "depthstenciloutput")
-							depthstencilOutput = ReadString();
-						else if (kw == "flag")
-							flags.push_back(ReadString());
-						else if (kw == "input")
+								implConfig.SetParameter(std::move(key.str), std::move(value));
+							});
+						},
+						"input", [&](std::string name, std::string attachment)
 						{
-							std::string name = ReadString();
-							std::string attachment = ReadString();
-
 							inputs.push_back({
 								std::move(name),
 								std::move(attachment),
 							});
-						}
-						else if (kw == "output")
+						},
+						"output", [&](std::string name, std::string attachment)
 						{
-							std::string name = ReadString();
-							std::string attachment = ReadString();
-
 							outputs.push_back({
 								std::move(name),
 								std::move(attachment),
 							});
-						}
-						else
+						},
+						"flag", [&](std::string flag)
 						{
-							NazaraErrorFmt("unexpected keyword {}", kw);
-							throw ResourceLoadingError::DecodingError;
+							flags.push_back(std::move(flag));
 						}
-					});
+					);
 
 					FramePipelinePassRegistry& passRegistry = Graphics::Instance()->GetFramePipelinePassRegistry();
 
@@ -329,107 +267,6 @@ namespace Nz::Loaders
 					}
 				}
 
-				std::string ReadKeyword(bool peek = false)
-				{
-					std::size_t beginOffset;
-					do
-					{
-						EnsureLine();
-						beginOffset = m_currentLine.find_first_not_of(" \r\t\n");
-					}
-					while (beginOffset == m_currentLine.npos);
-
-					if (m_currentLine[beginOffset] == '"')
-					{
-						NazaraError("expected a keyword, got a string");
-						throw ResourceLoadingError::DecodingError;
-					}
-
-					std::size_t endOffset = m_currentLine.find_first_of(" \r\t\n", beginOffset + 1);
-					if (endOffset == m_currentLine.npos)
-						endOffset = m_currentLine.size();
-
-					std::string currentToken = std::string(m_currentLine.substr(beginOffset, endOffset - beginOffset));
-					if (!peek)
-						m_currentLine.erase(m_currentLine.begin(), m_currentLine.begin() + endOffset);
-
-					return currentToken;
-				}
-
-				std::string ReadString()
-				{
-					std::size_t beginOffset;
-					do
-					{
-						EnsureLine();
-						beginOffset = m_currentLine.find_first_not_of(" \r\t\n");
-					}
-					while (beginOffset == m_currentLine.npos);
-
-					if (m_currentLine[beginOffset] != '"')
-					{
-						NazaraError("expected a string, got a keyword");
-						throw ResourceLoadingError::DecodingError;
-					}
-
-					std::string str;
-					for (std::size_t i = beginOffset + 1; i < m_currentLine.size(); ++i)
-					{
-						switch (m_currentLine[i])
-						{
-						case '\0':
-						case '\n':
-						case '\r':
-							NazaraError("unfinished string");
-							throw ResourceLoadingError::DecodingError;
-
-						case '"':
-						{
-							m_currentLine.erase(m_currentLine.begin(), m_currentLine.begin() + beginOffset + i);
-
-							return str;
-						}
-
-						case '\\':
-						{
-							i++;
-							char character;
-							switch (m_currentLine[i])
-							{
-								case 'n': character = '\n'; break;
-								case 'r': character = '\r'; break;
-								case 't': character = '\t'; break;
-								case '"': character = '"'; break;
-								case '\\': character = '\\'; break;
-								default:
-									NazaraErrorFmt("unrecognized character {}", character);
-									throw ResourceLoadingError::DecodingError;
-							}
-
-							str.push_back(character);
-							break;
-						}
-
-						default:
-							str.push_back(m_currentLine[i]);
-						}
-					}
-
-					NazaraError("unfinished string");
-					throw ResourceLoadingError::DecodingError;
-				}
-
-				void EnsureLine()
-				{
-					while (m_currentLine.find_first_not_of(" \r\t\n") == m_currentLine.npos)
-					{
-						m_currentLine.clear();
-						m_stream.ReadLine(m_currentLine);
-						if (m_currentLine.empty())
-							throw ResourceLoadingError::DecodingError;
-					}
-				}
-
 				struct CurrentPassList
 				{
 					std::shared_ptr<PipelinePassList> passList;
@@ -438,8 +275,7 @@ namespace Nz::Loaders
 
 				std::optional<CurrentPassList> m_current;
 				std::string m_currentLine;
-
-				Stream& m_stream;
+				ParameterFile m_paramFile;
 		};
 	}
 
