@@ -9,7 +9,7 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Config.hpp>
-#include <NazaraUtils/Algorithm.hpp>
+#include <NazaraUtils/TypeTraits.hpp>
 #include <string>
 
 #ifdef NAZARA_COMPILER_MSVC

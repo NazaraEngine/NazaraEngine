@@ -6,7 +6,7 @@
 
 namespace Nz
 {
-	template<typename ...Args>
+	template<typename... Args>
 	Window& AppWindowingComponent::CreateWindow(Args&&... args)
 	{
 		return *m_windows.emplace_back(std::make_unique<Window>(std::forward<Args>(args)...));

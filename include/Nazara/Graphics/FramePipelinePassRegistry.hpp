@@ -9,7 +9,6 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/FramePipelinePass.hpp>
-#include <NazaraUtils/Algorithm.hpp>
 #include <functional>
 #include <list>
 #include <string>

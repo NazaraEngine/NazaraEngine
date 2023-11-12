@@ -8,7 +8,6 @@
 #define NAZARA_GRAPHICS_MATERIALPASSREGISTRY_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <NazaraUtils/Algorithm.hpp>
 #include <list>
 #include <string>
 #include <unordered_map>

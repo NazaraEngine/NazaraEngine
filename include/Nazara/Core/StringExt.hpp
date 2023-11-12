@@ -9,7 +9,6 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Unicode.hpp>
-#include <NazaraUtils/Algorithm.hpp>
 #include <NazaraUtils/FunctionRef.hpp>
 #include <string>
 

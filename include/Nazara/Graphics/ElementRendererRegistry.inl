@@ -7,7 +7,7 @@
 
 namespace Nz
 {
-	template<typename T, typename ...Args>
+	template<typename T, typename... Args>
 	RenderElementOwner ElementRendererRegistry::AllocateElement(Args&&... args)
 	{
 		ElementRenderer& elementRenderer = GetElementRenderer(SafeCast<std::size_t>(T::ElementType));
