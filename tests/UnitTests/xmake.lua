@@ -1,6 +1,6 @@
 add_requires("catch2 >=3.x")
 
-if is_mode("asan") then
+if has_config("asan") then
     add_defines("CATCH_CONFIG_NO_WINDOWS_SEH")
     add_defines("CATCH_CONFIG_NO_POSIX_SIGNALS")
 end
