@@ -20,7 +20,7 @@ local rendererBackends = {
 			end
 
 			if is_plat("wasm") then
-				add_ldflags('-sFULL_ES2 -sFULL_ES3', { public = true })
+				add_ldflags("-sFULL_ES2", "-sFULL_ES3", { public = true })
 				remove_files("src/Nazara/OpenGLRenderer/Wrapper/EGL/**.cpp")
 			else
 				remove_files("src/Nazara/OpenGLRenderer/Wrapper/Web/**.cpp")
@@ -219,15 +219,8 @@ end
 
 NazaraModules = modules
 
--- add_extrafiles was added in xmake 2.8.2 but was broken for wildcard
-if xmake.version():lt("2.8.3") then
-	add_extrafiles = function (...) 
-		add_headerfiles(..., { install = false })
-	end
-end
-
 set_project("NazaraEngine")
-set_xmakever("2.7.3")
+set_xmakever("2.8.3")
 
 includes("xmake/**.lua")
 
@@ -386,6 +379,7 @@ add_includedirs("include")
 add_sysincludedirs("thirdparty/include")
 
 set_languages("c89", "cxx17")
+set_encodings("utf-8")
 set_rundir("./bin/$(plat)_$(arch)_$(mode)")
 set_targetdir("./bin/$(plat)_$(arch)_$(mode)")
 set_warnings("allextra")
