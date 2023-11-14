@@ -40,7 +40,7 @@ namespace Nz
 			static void SetLogger(AbstractLogger* logger);
 
 			static void Write(std::string_view str);
-			template<typename... Args> static void Write(std::string_view str, Args&&... args);
+			template<typename... Args> static void Write(FormatString<Args...> fmt, Args&&... args);
 			static void WriteError(ErrorType type, std::string_view error, unsigned int line = 0, const char* file = nullptr, const char* function = nullptr);
 
 			NazaraStaticSignal(OnLogWrite, std::string_view /*string*/);

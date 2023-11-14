@@ -401,7 +401,7 @@ int main()
 
 			/*
 			Note: En C++11 il est possible d'insérer de l'Unicode de façon standard, quel que soit l'encodage du fichier,
-			via quelque chose de similaire à u8"Cha\u00CEne de caract\u00E8res".
+			via quelque chose de similaire à "Cha\u00CEne de caract\u00E8res".
 			Cependant, si le code source est encodé en UTF-8 (Comme c'est le cas dans ce fichier),
 			cela fonctionnera aussi comme ceci : "Chaîne de caractères".
 			*/

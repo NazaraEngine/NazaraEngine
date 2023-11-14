@@ -174,13 +174,13 @@ namespace Nz
 			// The default police can make live one hardware atlas after the free of a module (which could be problematic)
 			// So, if the default police use a hardware atlas, we stole it.
 			// I don't like this solution, but I don't have any better
-			if (!defaultAtlas.unique())
+			if (defaultAtlas.use_count() > 1)
 			{
-				// Still at least one police use the atlas
+				// At least one police use the atlas
 				const std::shared_ptr<Font>& defaultFont = Font::GetDefault();
 				defaultFont->SetAtlas(nullptr);
 
-				if (!defaultAtlas.unique())
+				if (!defaultAtlas.use_count() > 1)
 				{
 					// Still not the only one to own it ? Then crap.
 					NazaraWarning("Default font atlas uses hardware storage and is still used");

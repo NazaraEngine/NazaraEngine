@@ -212,7 +212,7 @@ namespace Nz
 
 					// Material
 					ParameterList matData;
-					matData.SetParameter(MaterialData::BaseColorTexturePath, (baseDir / md5Mesh.shader).generic_u8string());
+					matData.SetParameter(MaterialData::BaseColorTexturePath, PathToString(baseDir / md5Mesh.shader));
 
 					mesh->SetMaterialData(i, std::move(matData));
 
@@ -338,7 +338,7 @@ namespace Nz
 
 					// Material
 					ParameterList matData;
-					matData.SetParameter(MaterialData::BaseColorTexturePath, (baseDir / md5Mesh.shader).generic_u8string());
+					matData.SetParameter(MaterialData::BaseColorTexturePath, PathToString(baseDir / md5Mesh.shader));
 
 					mesh->SetMaterialData(i, std::move(matData));
 				}

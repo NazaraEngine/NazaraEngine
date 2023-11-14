@@ -508,7 +508,7 @@ namespace Nz
 		if (!m_mtlLib.empty())
 		{
 			Emit("mtllib ");
-			EmitLine(m_mtlLib.generic_u8string());
+			EmitLine(PathToString(m_mtlLib));
 			EmitLine();
 		}
 

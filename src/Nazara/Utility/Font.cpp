@@ -22,7 +22,7 @@ namespace Nz
 
 	bool FontParams::IsValid() const
 	{
-		return true; // Rien à tester
+		return true; // Nothing to test
 	}
 
 	Font::Font() :
@@ -37,29 +37,25 @@ namespace Nz
 		OnFontRelease(this);
 
 		Destroy();
-		SetAtlas({}); // On libère l'atlas proprement
+		SetAtlas({}); // Reset our atlas
 	}
 
 	void Font::ClearGlyphCache()
 	{
 		if (m_atlas)
 		{
-			if (m_atlas.unique())
-				m_atlas->Clear(); // Appellera OnAtlasCleared
+			if (m_atlas.use_count() == 1)
+				m_atlas->Clear(); // Will call OnAtlasCleared
 			else
 			{
-				// Au moins une autre police utilise cet atlas, on vire nos glyphes un par un
-				for (auto mapIt = m_glyphes.begin(); mapIt != m_glyphes.end(); ++mapIt)
+				// At least one font is using this atlas, remove our glyphes
+				for (auto&& [_, glyphMap] : m_glyphes)
 				{
-					GlyphMap& glyphMap = mapIt->second;
-					for (auto glyphIt = glyphMap.begin(); glyphIt != glyphMap.end(); ++glyphIt)
-					{
-						Glyph& glyph = glyphIt->second;
+					for (auto&& [_, glyph] : glyphMap)
 						m_atlas->Free(&glyph.atlasRect, &glyph.layerIndex, 1);
-					}
 				}
 
-				// Destruction des glyphes mémorisés et notification
+				// Free all cached glyphes
 				m_glyphes.clear();
 
 				OnFontGlyphCacheCleared(this);

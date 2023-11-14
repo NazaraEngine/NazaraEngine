@@ -8,9 +8,9 @@
 namespace Nz
 {
 	template<typename... Args>
-	void Log::Write(std::string_view str, Args&&... args)
+	void Log::Write(FormatString<Args...> fmt, Args&&... args)
 	{
-		return Write(Format(str, std::forward<Args>(args)...));
+		return Write(Format(fmt, std::forward<Args>(args)...));
 	}
 }
 

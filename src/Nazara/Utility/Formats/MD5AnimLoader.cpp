@@ -50,7 +50,7 @@ namespace Nz
 			sequence.firstFrame = 0;
 			sequence.frameCount = frameCount;
 			sequence.frameRate = frameRate;
-			sequence.name = stream.GetPath().filename().generic_u8string();
+			sequence.name = PathToString(stream.GetPath().filename());
 
 			animation->AddSequence(sequence);
 

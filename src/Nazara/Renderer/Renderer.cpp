@@ -167,19 +167,17 @@ namespace Nz
 		for (auto&& rendererImpl : implementations)
 		{
 #ifndef NAZARA_RENDERER_EMBEDDEDBACKENDS
-			std::string fileNameStr = rendererImpl.fileName.generic_u8string();
-
 			DynLib implLib;
 			if (!implLib.Load(rendererImpl.fileName))
 			{
-				NazaraWarning("Failed to load " + fileNameStr + ": " + implLib.GetLastError());
+				NazaraWarningFmt("Failed to load {0}: {1}", rendererImpl.fileName, implLib.GetLastError());
 				continue;
 			}
 
 			CreateRendererImplFunc createRenderer = reinterpret_cast<CreateRendererImplFunc>(implLib.GetSymbol("NazaraRenderer_Instantiate"));
 			if (!createRenderer)
 			{
-				NazaraDebug("Skipped " + fileNameStr + " (symbol not found)");
+				NazaraDebug("Skipped {0} (NazaraRenderer_Instantiate symbol not found)", rendererImpl.fileName);
 				continue;
 			}
 
@@ -194,7 +192,7 @@ namespace Nz
 			}
 
 #ifndef NAZARA_RENDERER_EMBEDDEDBACKENDS
-			NazaraDebug("Loaded " + fileNameStr);
+			NazaraDebug("Loaded {0}", rendererImpl.fileName);
 			chosenLib = std::move(implLib);
 #endif
 

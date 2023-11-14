@@ -89,7 +89,7 @@ namespace Nz
 						stream.Read(skin, 68*sizeof(char));
 
 						ParameterList matData;
-						matData.SetParameter(MaterialData::BaseColorTexturePath, (baseDir / skin).generic_u8string());
+						matData.SetParameter(MaterialData::BaseColorTexturePath, PathToString(baseDir / skin));
 
 						mesh->SetMaterialData(i, std::move(matData));
 					}

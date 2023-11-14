@@ -89,7 +89,7 @@ namespace Nz
 			}
 			else
 			{
-				File file(filePath.generic_u8string());
+				File file(filePath);
 
 				if (!file.Open(OpenMode::WriteOnly | OpenMode::Truncate))
 				{
