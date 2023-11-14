@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Image.hpp>
+#include <NazaraUtils/StackArray.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/StringExt.hpp>
@@ -310,10 +311,11 @@ namespace Nz
 		#endif
 
 		UInt8 bpp = PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format);
-		std::unique_ptr<UInt8[]> colorBuffer(new UInt8[bpp]);
-		if (!PixelFormatInfo::Convert(PixelFormat::RGBA8, m_sharedImage->format, &color.r, colorBuffer.get()))
+		StackArray<UInt8> colorBuffer = NazaraStackArrayNoInit(UInt8, bpp);
+
+		if (!PixelFormatInfo::Convert(PixelFormat::RGBA32F, m_sharedImage->format, &color.r, &colorBuffer[0]))
 		{
-			NazaraErrorFmt("failed to convert RGBA8 to {0}", PixelFormatInfo::GetName(m_sharedImage->format));
+			NazaraErrorFmt("failed to convert RGBA32F to {0}", PixelFormatInfo::GetName(m_sharedImage->format));
 			return false;
 		}
 
@@ -335,7 +337,7 @@ namespace Nz
 
 			while (ptr < end)
 			{
-				std::memcpy(ptr, colorBuffer.get(), bpp);
+				std::memcpy(ptr, &colorBuffer[0], bpp);
 				ptr += bpp;
 			}
 
@@ -388,10 +390,11 @@ namespace Nz
 		EnsureOwnership();
 
 		UInt8 bpp = PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format);
-		std::unique_ptr<UInt8[]> colorBuffer(new UInt8[bpp]);
-		if (!PixelFormatInfo::Convert(PixelFormat::RGBA8, m_sharedImage->format, &color.r, colorBuffer.get()))
+		StackArray<UInt8> colorBuffer = NazaraStackArrayNoInit(UInt8, bpp);
+
+		if (!PixelFormatInfo::Convert(PixelFormat::RGBA32F, m_sharedImage->format, &color.r, &colorBuffer[0]))
 		{
-			NazaraErrorFmt("failed to convert RGBA8 to {0}", PixelFormatInfo::GetName(m_sharedImage->format));
+			NazaraErrorFmt("failed to convert RGBA32F to {0}", PixelFormatInfo::GetName(m_sharedImage->format));
 			return false;
 		}
 
@@ -409,7 +412,7 @@ namespace Nz
 				UInt8* end = facePixels + srcStride;
 				while (start < end)
 				{
-					std::memcpy(start, colorBuffer.get(), bpp);
+					std::memcpy(start, &colorBuffer[0], bpp);
 					start += bpp;
 				}
 
@@ -460,10 +463,11 @@ namespace Nz
 		EnsureOwnership();
 
 		UInt8 bpp = PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format);
-		std::unique_ptr<UInt8[]> colorBuffer(new UInt8[bpp]);
-		if (!PixelFormatInfo::Convert(PixelFormat::RGBA8, m_sharedImage->format, &color.r, colorBuffer.get()))
+		StackArray<UInt8> colorBuffer = NazaraStackArrayNoInit(UInt8, bpp);
+
+		if (!PixelFormatInfo::Convert(PixelFormat::RGBA32F, m_sharedImage->format, &color.r, &colorBuffer[0]))
 		{
-			NazaraErrorFmt("failed to convert RGBA8 to {0}", PixelFormatInfo::GetName(m_sharedImage->format));
+			NazaraErrorFmt("failed to convert RGBA32F to {0}", PixelFormatInfo::GetName(m_sharedImage->format));
 			return false;
 		}
 
@@ -477,7 +481,7 @@ namespace Nz
 			UInt8* end = dstPixels + srcStride;
 			while (start < end)
 			{
-				std::memcpy(start, colorBuffer.get(), bpp);
+				std::memcpy(start, &colorBuffer[0], bpp);
 				start += bpp;
 			}
 
@@ -1218,7 +1222,7 @@ namespace Nz
 
 		UInt8* pixel = GetPixelPtr(m_sharedImage->levels[0].get(), PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format), x, y, z, m_sharedImage->width, m_sharedImage->height);
 
-		if (!PixelFormatInfo::Convert(PixelFormat::RGBA8, m_sharedImage->format, &color.r, pixel))
+		if (!PixelFormatInfo::Convert(PixelFormat::RGBA32F, m_sharedImage->format, &color.r, pixel))
 		{
 			NazaraError("failed to convert RGBA8 to image's format");
 			return false;
