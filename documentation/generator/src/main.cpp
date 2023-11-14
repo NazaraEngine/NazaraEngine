@@ -124,7 +124,7 @@ int main()
 
 		for (auto&& headerFile : std::filesystem::recursive_directory_iterator(entry.path()))
 		{
-			if (!headerFile.is_regular_file() || headerFile.path().extension().generic_u8string() != ".hpp")
+			if (!headerFile.is_regular_file() || Nz::PathToString(headerFile.path().extension()) != ".hpp")
 				continue;
 
 			std::string filepath = Nz::PathToString(headerFile.path());

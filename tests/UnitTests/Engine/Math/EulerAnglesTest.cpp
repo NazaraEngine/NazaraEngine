@@ -38,8 +38,8 @@ SCENARIO("EulerAngles", "[MATH][EULERANGLES]")
 			THEN("They are the same")
 			{
 				CHECK(firstZero.ToQuaternion() == secondZero.ToQuaternion());
-				CHECK(firstZero.ToQuaternion() == Nz::EulerAnglesf(Nz::Quaternionf(1.f, 0.f, 0.f, 0.f)));
-				CHECK(secondZero.ToQuaternion() == Nz::EulerAnglesf(Nz::Quaternionf(1.f, 0.f, 0.f, 0.f)));
+				CHECK(firstZero.ToQuaternion() == Nz::Quaternionf(1.f, 0.f, 0.f, 0.f));
+				CHECK(secondZero.ToQuaternion() == Nz::Quaternionf(1.f, 0.f, 0.f, 0.f));
 			}
 		}
 	}

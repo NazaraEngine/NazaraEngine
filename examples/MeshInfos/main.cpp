@@ -33,7 +33,7 @@ int main()
 				continue;
 
 			const std::filesystem::path& filePath = p.path();
-			if (Nz::MeshLoader::IsExtensionSupported(filePath.extension().generic_u8string())) // L'extension est-elle supportée par le MeshLoader ?
+			if (Nz::MeshLoader::IsExtensionSupported(Nz::PathToString(filePath.extension()))) // L'extension est-elle supportée par le MeshLoader ?
 				models.push_back(filePath);
 		}
 

@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Posix/FileImpl.hpp>
+#include <NazaraUtils/Algorithm.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/StringExt.hpp>
@@ -78,7 +79,7 @@ namespace Nz
 		if (mode & OpenMode::Truncate)
 			flags |= O_TRUNC;
 
-		int fileDescriptor = Open_def(filePath.generic_u8string().data(), flags, permissions);
+		int fileDescriptor = Open_def(Nz::PathToString(filePath).data(), flags, permissions);
 		if (fileDescriptor == -1)
 		{
 			NazaraErrorFmt("failed to open \"{0}\": {1}", filePath, Error::GetLastSystemError());

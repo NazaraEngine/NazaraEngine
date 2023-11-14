@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Posix/DynLibImpl.hpp>
+#include <NazaraUtils/Algorithm.hpp>
 #include <dlfcn.h>
 #include <cstring>
 #include <Nazara/Core/Debug.hpp>
@@ -35,7 +36,7 @@ namespace Nz
 	bool DynLibImpl::Load(const std::filesystem::path& libraryPath, std::string* errorMessage)
 	{
 		dlerror(); // Clear error flag
-		m_handle = dlopen(libraryPath.generic_u8string().data(), RTLD_LAZY | RTLD_GLOBAL);
+		m_handle = dlopen(Nz::PathToString(libraryPath).data(), RTLD_LAZY | RTLD_GLOBAL);
 
 		if (!m_handle)
 		{
