@@ -263,7 +263,7 @@ end
 
 add_repositories("nazara-engine-repo https://github.com/NazaraEngine/xmake-repo")
 
-add_requires("entt 3.12.2", "fmt", "frozen", "nazarautils >=2023.08.31")
+add_requires("entt 3.12.2", "fmt", "frozen", "nazarautils >=2023.11.12")
 
 -- Module dependencies
 if has_config("audio") then
@@ -285,7 +285,7 @@ if has_config("chipmunkphysics") then
 end
 
 if has_config("joltphysics") then
-	add_requires("joltphysics >=3", { configs = { debug = is_mode("debug") }})
+	add_requires("joltphysics >=4", { configs = { debug = is_mode("debug") }})
 	add_requires("ordered_map")
 end
 
