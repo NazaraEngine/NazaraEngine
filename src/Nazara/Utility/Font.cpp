@@ -49,10 +49,14 @@ namespace Nz
 			else
 			{
 				// At least one font is using this atlas, remove our glyphes
-				for (auto&& [_, glyphMap] : m_glyphes)
+				for (auto&& [glyphKey, glyphMap] : m_glyphes)
 				{
-					for (auto&& [_, glyph] : glyphMap)
+					NazaraUnused(glyphKey);
+					for (auto&& [character, glyph] : glyphMap)
+					{
+						NazaraUnused(character);
 						m_atlas->Free(&glyph.atlasRect, &glyph.layerIndex, 1);
+					}
 				}
 
 				// Free all cached glyphes

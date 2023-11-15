@@ -180,7 +180,7 @@ namespace Nz
 				const std::shared_ptr<Font>& defaultFont = Font::GetDefault();
 				defaultFont->SetAtlas(nullptr);
 
-				if (!defaultAtlas.use_count() > 1)
+				if (defaultAtlas.use_count() >= 1)
 				{
 					// Still not the only one to own it ? Then crap.
 					NazaraWarning("Default font atlas uses hardware storage and is still used");
