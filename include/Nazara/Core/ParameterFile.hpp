@@ -43,8 +43,8 @@ namespace Nz
 			struct Array_t {};
 			struct OptionalBlock_t {};
 
-			static constexpr inline Array_t Array{};
-			static constexpr inline OptionalBlock_t OptionalBlock{};
+			static constexpr Array_t Array{};
+			static constexpr OptionalBlock_t OptionalBlock{};
 
 		private:
 			using ValueHandler = std::function<void(ParameterFile& file)>;

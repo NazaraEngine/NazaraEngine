@@ -107,4 +107,8 @@ namespace Nz
 
 		throw std::runtime_error("unfinished string");
 	}
+
+	// Required for MinGW (it tris to import those symbols, probably a bug)
+	constexpr ParameterFile::Array_t ParameterFile::Array;
+	constexpr ParameterFile::OptionalBlock_t ParameterFile::OptionalBlock;
 }
