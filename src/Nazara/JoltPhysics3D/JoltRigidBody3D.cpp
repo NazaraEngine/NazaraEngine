@@ -214,7 +214,7 @@ namespace Nz
 			{
 				JPH::MassProperties massProperties = m_body->GetShape()->GetMassProperties();
 				massProperties.ScaleToMass(mass);
-				m_body->GetMotionProperties()->SetMassProperties(massProperties);
+				m_body->GetMotionProperties()->SetMassProperties(JPH::EAllowedDOFs::All, massProperties);
 			}
 		}
 	}
@@ -244,7 +244,7 @@ namespace Nz
 			{
 				JPH::MassProperties massProperties = m_body->GetShape()->GetMassProperties();
 				massProperties.ScaleToMass(mass);
-				m_body->GetMotionProperties()->SetMassProperties(massProperties);
+				m_body->GetMotionProperties()->SetMassProperties(JPH::EAllowedDOFs::All, massProperties);
 			}
 		}
 		else

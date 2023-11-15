@@ -325,7 +325,7 @@ namespace Nz
 
 	UInt32 JoltPhysWorld3D::GetActiveBodyCount() const
 	{
-		return m_world->physicsSystem.GetNumActiveBodies();
+		return m_world->physicsSystem.GetNumActiveBodies(JPH::EBodyType::RigidBody);
 	}
 
 	Vector3f JoltPhysWorld3D::GetGravity() const
@@ -468,7 +468,7 @@ namespace Nz
 		std::size_t stepCount = 0;
 		while (m_timestepAccumulator >= m_stepSize && stepCount < m_maxStepCount)
 		{
-			m_world->physicsSystem.Update(stepSize, 1, 1, &m_world->tempAllocator, &jobSystem);
+			m_world->physicsSystem.Update(stepSize, 1, &m_world->tempAllocator, &jobSystem);
 
 			for (JoltPhysicsStepListener* stepListener : m_stepListeners)
 				stepListener->PostSimulate();

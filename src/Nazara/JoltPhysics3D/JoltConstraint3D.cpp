@@ -137,12 +137,12 @@ namespace Nz
 
 	float JoltDistanceConstraint3D::GetDamping() const
 	{
-		return GetConstraint<JPH::DistanceConstraint>()->GetDamping();
+		return GetConstraint<JPH::DistanceConstraint>()->GetLimitsSpringSettings().mDamping;
 	}
 
 	float JoltDistanceConstraint3D::GetFrequency() const
 	{
-		return GetConstraint<JPH::DistanceConstraint>()->GetFrequency();
+		return GetConstraint<JPH::DistanceConstraint>()->GetLimitsSpringSettings().mFrequency;
 	}
 
 	float JoltDistanceConstraint3D::GetMaxDistance() const
@@ -157,7 +157,7 @@ namespace Nz
 
 	void JoltDistanceConstraint3D::SetDamping(float damping)
 	{
-		GetConstraint<JPH::DistanceConstraint>()->SetDamping(damping);
+		GetConstraint<JPH::DistanceConstraint>()->GetLimitsSpringSettings().mDamping = damping;
 	}
 
 	void JoltDistanceConstraint3D::SetDistance(float minDist, float maxDist)
@@ -167,7 +167,7 @@ namespace Nz
 
 	void JoltDistanceConstraint3D::SetFrequency(float frequency)
 	{
-		GetConstraint<JPH::DistanceConstraint>()->SetFrequency(frequency);
+		GetConstraint<JPH::DistanceConstraint>()->GetLimitsSpringSettings().mFrequency = frequency;
 	}
 
 	void JoltDistanceConstraint3D::SetMaxDistance(float maxDist)
