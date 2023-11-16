@@ -1,0 +1,8 @@
+[nzsl_version("1.0")]
+module Math.Depth;
+
+[export]
+fn LinearizeDepth(depth: f32, zNear: f32, zFar: f32) -> f32
+{
+    return zNear * zFar / (zFar + depth * (zNear - zFar));
+} 

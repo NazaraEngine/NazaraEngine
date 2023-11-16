@@ -170,9 +170,11 @@ namespace Nz
 		m_states = states;
 		m_states.sanitized = true; //< Shader is always sanitized (because of keywords)
 
-#ifdef NAZARA_PLATFORM_WEB
-		m_states.optimize = true; //< Always remove unused code with emscripten (prevents errors on draw calls when no buffer is bound on a unused binding)
-#endif
+		/*
+		Always remove dead code with OpenGL (prevents errors on draw calls when no buffer is bound on a unused binding),
+		also prevents compilation failure because of functions using discard in a vertex shader
+		*/
+		m_states.optimize = true;
 
 		nzsl::Ast::SanitizeVisitor::Options options = nzsl::GlslWriter::GetSanitizeOptions();
 		options.optionValues = states.optionValues;

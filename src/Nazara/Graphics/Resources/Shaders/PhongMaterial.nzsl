@@ -111,7 +111,7 @@ external
 	[tag("ShadowMapsSpot")] shadowMapsSpot: array[depth_sampler2D[f32], MaxLightCount],
 }
 
-struct VertToFrag
+struct VertOut
 {
 	[location(0)] worldPos: vec3[f32],
 	[location(1), cond(HasUV)] uv: vec2[f32],
@@ -129,21 +129,7 @@ struct FragOut
 	[builtin(frag_depth), cond(DistanceDepth)] fragdepth: f32,
 }
 
-fn LinearizeDepth(depth: f32, zNear: f32, zFar: f32) -> f32
-{
-    return zNear * zFar / (zFar + depth * (zNear - zFar));
-} 
-
-// http://the-witness.net/news/2013/09/shadow-mapping-summary-part-1/
-fn GetSlopeScaledBias(normal: vec3[f32], lightDir: vec3[f32]) -> f32
-{  
-	let cosAlpha = clamp(dot(normal, lightDir), 0.0, 1.0);  
-	let sinAlpha = sqrt(1.0 - cosAlpha * cosAlpha);     // sin(acos(L*N))  
-	let tanAlpha = sinAlpha / cosAlpha;            // tan(acos(L*N))  
-	return tanAlpha;  
-}
-
-fn ComputeColor(input: VertToFrag) -> vec4[f32]
+fn ComputeColor(input: VertOut) -> vec4[f32]
 {
 	let color = settings.BaseColor;
 
@@ -159,115 +145,119 @@ fn ComputeColor(input: VertToFrag) -> vec4[f32]
 	const if (HasAlphaTexture)
 		color.w *= MaterialAlphaMap.Sample(input.uv).x;
 
-	return color;
-}
-
-[entry(frag), cond(!DepthPass)]
-fn main(input: VertToFrag) -> FragOut
-{
-	let color = ComputeColor(input);
 	const if (AlphaTest)
 	{
 		if (color.w < settings.AlphaThreshold)
 			discard;
 	}
 
-	const if (HasLighting)
+	return color;
+}
+
+[cond(HasLighting)]
+fn ComputeLighting(color: vec3[f32], input: VertOut) -> vec3[f32]
+{
+	let lightAmbient = vec3[f32](0.0, 0.0, 0.0);
+	let lightDiffuse = vec3[f32](0.0, 0.0, 0.0);
+	let lightSpecular = vec3[f32](0.0, 0.0, 0.0);
+
+	let eyeVec = normalize(viewerData.eyePosition - input.worldPos);
+
+	let normal: vec3[f32];
+	const if (HasNormalMapping)
 	{
-		let lightAmbient = vec3[f32](0.0, 0.0, 0.0);
-		let lightDiffuse = vec3[f32](0.0, 0.0, 0.0);
-		let lightSpecular = vec3[f32](0.0, 0.0, 0.0);
+		let N = normalize(input.normal);
+		let T = normalize(input.tangent);
+		let B = cross(N, T);
+		let tbnMatrix = mat3[f32](T, B, N);
 
-		let eyeVec = normalize(viewerData.eyePosition - input.worldPos);
-
-		let normal: vec3[f32];
-		const if (HasNormalMapping)
-		{
-			let N = normalize(input.normal);
-			let T = normalize(input.tangent);
-			let B = cross(N, T);
-			let tbnMatrix = mat3[f32](T, B, N);
-
-			normal = normalize(tbnMatrix * (MaterialNormalMap.Sample(input.uv).xyz * 2.0 - vec3[f32](1.0, 1.0, 1.0)));
-		}
-		else
-			normal = normalize(input.normal);
-
-		for lightIndex in u32(0) -> lightData.directionalLightCount
-		{
-			let light = lightData.directionalLights[lightIndex];
-
-			let lambert = max(dot(normal, -light.direction), 0.0);
-
-			let reflection = reflect(light.direction, normal);
-			let specFactor = max(dot(reflection, eyeVec), 0.0);
-			specFactor = pow(specFactor, settings.Shininess);
-
-			let shadowFactor = ComputeDirectionalLightShadow(light, shadowMapsDirectional[lightIndex], input.worldPos, lambert, viewerData.viewMatrix);
-
-			lightAmbient += shadowFactor * light.color.rgb * light.ambientFactor * settings.AmbientColor.rgb;
-			lightDiffuse += shadowFactor * lambert * light.color.rgb * light.diffuseFactor;
-			lightSpecular += shadowFactor * specFactor * light.color.rgb;
-		}
-
-		for lightIndex in u32(0) -> lightData.pointLightCount
-		{
-			let light = lightData.pointLights[lightIndex];
-
-			let lightToPos = input.worldPos - light.position;
-			let dist = length(lightToPos);
-			let lightToPosNorm = lightToPos / max(dist, 0.0001);
-
-			let attenuationFactor = max(1.0 - dist * light.invRadius, 0.0);
-			let lambert = clamp(dot(normal, -lightToPosNorm), 0.0, 1.0);
-
-			let reflection = reflect(lightToPosNorm, normal);
-			let specFactor = max(dot(reflection, eyeVec), 0.0);
-			specFactor = pow(specFactor, settings.Shininess);
-
-			let shadowFactor = ComputePointLightShadow(light, shadowMapsPoint[lightIndex], dist, lightToPosNorm);
-
-			lightAmbient += attenuationFactor * light.color.rgb * light.ambientFactor * settings.AmbientColor.rgb;
-			lightDiffuse += shadowFactor * attenuationFactor * lambert * light.color.rgb * light.diffuseFactor;
-			lightSpecular += shadowFactor * attenuationFactor * specFactor * light.color.rgb;
-		}
-
-		for lightIndex in u32(0) -> lightData.spotLightCount
-		{
-			let light = lightData.spotLights[lightIndex];
-
-			let lightToPos = input.worldPos - light.position;
-			let dist = length(lightToPos);
-			let lightToPosNorm = lightToPos / max(dist, 0.0001);
-
-			let curAngle = dot(light.direction, lightToPosNorm);
-			let innerMinusOuterAngle = light.innerAngle - light.outerAngle;
-
-			let attenuationFactor = max(1.0 - dist * light.invRadius, 0.0);
-			attenuationFactor *= max((curAngle - light.outerAngle) / innerMinusOuterAngle, 0.0);			
-
-			let lambert = clamp(dot(normal, -lightToPosNorm), 0.0, 1.0);
-
-			let reflection = reflect(lightToPosNorm, normal);
-			let specFactor = max(dot(reflection, eyeVec), 0.0);
-			specFactor = pow(specFactor, settings.Shininess);
-
-			let shadowFactor = ComputeSpotLightShadow(light, shadowMapsSpot[lightIndex], input.worldPos, lambert);
-
-			lightAmbient += attenuationFactor * light.color.rgb * light.ambientFactor * settings.AmbientColor.rgb;
-			lightDiffuse += shadowFactor * attenuationFactor * lambert * light.color.rgb * light.diffuseFactor;
-			lightSpecular += shadowFactor * attenuationFactor * specFactor * light.color.rgb;
-		}
-
-		lightSpecular *= settings.SpecularColor.rgb;
-
-		const if (HasSpecularTexture)
-			lightSpecular *= MaterialSpecularMap.Sample(input.uv).rgb;
-
-		let lightColor = lightAmbient + lightDiffuse + lightSpecular;
-
-		color.rgb *= lightColor;
+		normal = normalize(tbnMatrix * (MaterialNormalMap.Sample(input.uv).xyz * 2.0 - vec3[f32](1.0, 1.0, 1.0)));
 	}
+	else
+		normal = normalize(input.normal);
+
+	for lightIndex in u32(0) -> lightData.directionalLightCount
+	{
+		let light = lightData.directionalLights[lightIndex];
+
+		let lambert = max(dot(normal, -light.direction), 0.0);
+
+		let reflection = reflect(light.direction, normal);
+		let specFactor = max(dot(reflection, eyeVec), 0.0);
+		specFactor = pow(specFactor, settings.Shininess);
+
+		let shadowFactor = ComputeDirectionalLightShadow(light, shadowMapsDirectional[lightIndex], input.worldPos, lambert, viewerData.viewMatrix);
+
+		lightAmbient += shadowFactor * light.color.rgb * light.ambientFactor * settings.AmbientColor.rgb;
+		lightDiffuse += shadowFactor * lambert * light.color.rgb * light.diffuseFactor;
+		lightSpecular += shadowFactor * specFactor * light.color.rgb;
+	}
+
+	for lightIndex in u32(0) -> lightData.pointLightCount
+	{
+		let light = lightData.pointLights[lightIndex];
+
+		let lightToPos = input.worldPos - light.position;
+		let dist = length(lightToPos);
+		let lightToPosNorm = lightToPos / max(dist, 0.0001);
+
+		let attenuationFactor = max(1.0 - dist * light.invRadius, 0.0);
+		let lambert = clamp(dot(normal, -lightToPosNorm), 0.0, 1.0);
+
+		let reflection = reflect(lightToPosNorm, normal);
+		let specFactor = max(dot(reflection, eyeVec), 0.0);
+		specFactor = pow(specFactor, settings.Shininess);
+
+		let shadowFactor = ComputePointLightShadow(light, shadowMapsPoint[lightIndex], dist, lightToPosNorm);
+
+		lightAmbient += attenuationFactor * light.color.rgb * light.ambientFactor * settings.AmbientColor.rgb;
+		lightDiffuse += shadowFactor * attenuationFactor * lambert * light.color.rgb * light.diffuseFactor;
+		lightSpecular += shadowFactor * attenuationFactor * specFactor * light.color.rgb;
+	}
+
+	for lightIndex in u32(0) -> lightData.spotLightCount
+	{
+		let light = lightData.spotLights[lightIndex];
+
+		let lightToPos = input.worldPos - light.position;
+		let dist = length(lightToPos);
+		let lightToPosNorm = lightToPos / max(dist, 0.0001);
+
+		let curAngle = dot(light.direction, lightToPosNorm);
+		let innerMinusOuterAngle = light.innerAngle - light.outerAngle;
+
+		let attenuationFactor = max(1.0 - dist * light.invRadius, 0.0);
+		attenuationFactor *= max((curAngle - light.outerAngle) / innerMinusOuterAngle, 0.0);			
+
+		let lambert = clamp(dot(normal, -lightToPosNorm), 0.0, 1.0);
+
+		let reflection = reflect(lightToPosNorm, normal);
+		let specFactor = max(dot(reflection, eyeVec), 0.0);
+		specFactor = pow(specFactor, settings.Shininess);
+
+		let shadowFactor = ComputeSpotLightShadow(light, shadowMapsSpot[lightIndex], input.worldPos, lambert);
+
+		lightAmbient += attenuationFactor * light.color.rgb * light.ambientFactor * settings.AmbientColor.rgb;
+		lightDiffuse += shadowFactor * attenuationFactor * lambert * light.color.rgb * light.diffuseFactor;
+		lightSpecular += shadowFactor * attenuationFactor * specFactor * light.color.rgb;
+	}
+
+	lightSpecular *= settings.SpecularColor.rgb;
+
+	const if (HasSpecularTexture)
+		lightSpecular *= MaterialSpecularMap.Sample(input.uv).rgb;
+
+	let lightColor = lightAmbient + lightDiffuse + lightSpecular;
+	return color * lightColor;
+}
+
+[entry(frag), cond(!DepthPass)]
+fn FragMain(input: VertOut) -> FragOut
+{
+	let color = ComputeColor(input);
+
+	const if (HasLighting)
+		color.rgb = ComputeLighting(color.rgb, input);
 	
 	let output: FragOut;
 	output.RenderTarget0 = color;
@@ -278,14 +268,9 @@ fn main(input: VertToFrag) -> FragOut
 // Shadow passes entries
 [entry(frag), cond(DepthPass && DistanceDepth)]
 [depth_write(replace)]
-fn main(input: VertToFrag) -> FragOut
+fn FragDepthDist(input: VertOut) -> FragOut
 {
 	let color = ComputeColor(input);
-	const if (AlphaTest)
-	{
-		if (color.w < settings.AlphaThreshold)
-			discard;
-	}
 
 	let output: FragOut;
 	output.RenderTarget0 = color;
@@ -297,11 +282,9 @@ fn main(input: VertToFrag) -> FragOut
 }
 
 [entry(frag), cond(DepthPass && AlphaTest && !DistanceDepth)]
-fn main(input: VertToFrag) -> FragOut
+fn FragDepth(input: VertOut) -> FragOut
 {
 	let color = ComputeColor(input);
-	if (color.w < settings.AlphaThreshold)
-		discard;
 
 	let output: FragOut;
 	output.RenderTarget0 = color;
@@ -309,7 +292,7 @@ fn main(input: VertToFrag) -> FragOut
 }
 
 [entry(frag), cond(DepthPass && !AlphaTest && !DistanceDepth)]
-fn main() {} //< dummy
+fn FragDepthNoAlpha() {} //< dummy
 
 // Vertex stage
 struct VertIn
@@ -346,7 +329,7 @@ struct VertIn
 }
 
 [entry(vert), cond(Billboard)]
-fn billboardMain(input: VertIn) -> VertToFrag
+fn billboardMain(input: VertIn) -> VertOut
 {
 	let size = input.billboardSizeRot.xy;
 	let sinCos = input.billboardSizeRot.zw;
@@ -364,7 +347,7 @@ fn billboardMain(input: VertIn) -> VertToFrag
 	vertexPos += cameraRight * rotatedPosition.x;
 	vertexPos += cameraUp * rotatedPosition.y;
 
-	let output: VertToFrag;
+	let output: VertOut;
 	output.position = viewerData.viewProjMatrix * instanceData.worldMatrix * vec4[f32](vertexPos, 1.0);
 	
 	const if (HasColor)
@@ -377,7 +360,7 @@ fn billboardMain(input: VertIn) -> VertToFrag
 }
 
 [entry(vert), cond(!Billboard)]
-fn main(input: VertIn) -> VertToFrag
+fn main(input: VertIn) -> VertOut
 {
 	let pos: vec3[f32];
 	const if (HasNormal) let normal: vec3[f32];
@@ -419,7 +402,7 @@ fn main(input: VertIn) -> VertToFrag
 
 	let worldPosition = instanceData.worldMatrix * vec4[f32](pos, 1.0);
 
-	let output: VertToFrag;
+	let output: VertOut;
 	output.worldPos = worldPosition.xyz;
 	output.position = viewerData.viewProjMatrix * worldPosition;
 

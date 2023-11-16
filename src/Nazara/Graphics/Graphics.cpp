@@ -89,6 +89,10 @@ namespace Nz
 			#include <Nazara/Graphics/Resources/Shaders/Modules/Math/CookTorrancePBR.nzslb.h>
 		};
 
+		const UInt8 r_mathDepthModule[] = {
+			#include <Nazara/Graphics/Resources/Shaders/Modules/Math/Depth.nzslb.h>
+		};
+
 		// Passes
 		const UInt8 r_gammaCorrectionPass[] = {
 			#include <Nazara/Graphics/Resources/Shaders/Passes/GammaCorrection.nzslb.h>
@@ -487,6 +491,7 @@ namespace Nz
 		RegisterEmbedShaderModule(r_mathColorModule);
 		RegisterEmbedShaderModule(r_mathConstantsModule);
 		RegisterEmbedShaderModule(r_mathCookTorrancePBRModule);
+		RegisterEmbedShaderModule(r_mathDepthModule);
 		RegisterEmbedShaderModule(r_phongMaterialShader);
 		RegisterEmbedShaderModule(r_physicallyBasedMaterialShader);
 		RegisterEmbedShaderModule(r_skinningDataModule);

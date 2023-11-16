@@ -72,7 +72,7 @@ external
 	[tag("SkeletalData")] skeletalData: uniform[SkeletalData]
 }
 
-struct VertToFrag
+struct VertOut
 {
 	[location(0)] worldPos: vec3[f32],
 	[location(1), cond(HasUV)] uv: vec2[f32],
@@ -87,7 +87,7 @@ struct FragOut
 	[builtin(frag_depth), cond(DistanceDepth)] fragdepth: f32
 }
 
-fn ComputeColor(input: VertToFrag) -> vec4[f32]
+fn ComputeColor(input: VertOut) -> vec4[f32]
 {
 	let color = settings.BaseColor;
 
@@ -103,18 +103,19 @@ fn ComputeColor(input: VertToFrag) -> vec4[f32]
 	const if (HasAlphaTexture)
 		color.w *= MaterialAlphaMap.Sample(input.uv).x;
 
-	return color;
-}
-
-[entry(frag), cond(!DepthPass || AlphaTest)]
-fn main(input: VertToFrag) -> FragOut
-{
-	let color = ComputeColor(input);
 	const if (AlphaTest)
 	{
 		if (color.w < settings.AlphaThreshold)
 			discard;
 	}
+
+	return color;
+}
+
+[entry(frag), cond(!DepthPass || AlphaTest)]
+fn FragMain(input: VertOut) -> FragOut
+{
+	let color = ComputeColor(input);
 
 	let output: FragOut;
 	output.RenderTarget0 = color;
@@ -124,14 +125,9 @@ fn main(input: VertToFrag) -> FragOut
 // Shadow passes entries
 [entry(frag), cond(DepthPass && DistanceDepth)]
 [depth_write(replace)]
-fn main(input: VertToFrag) -> FragOut
+fn FragDepthDist(input: VertOut) -> FragOut
 {
 	let color = ComputeColor(input);
-	const if (AlphaTest)
-	{
-		if (color.w < settings.AlphaThreshold)
-			discard;
-	}
 
 	let output: FragOut;
 	output.RenderTarget0 = color;
@@ -143,11 +139,9 @@ fn main(input: VertToFrag) -> FragOut
 }
 
 [entry(frag), cond(DepthPass && AlphaTest && !DistanceDepth)]
-fn main(input: VertToFrag) -> FragOut
+fn FragDepth(input: VertOut) -> FragOut
 {
 	let color = ComputeColor(input);
-	if (color.w < settings.AlphaThreshold)
-		discard;
 
 	let output: FragOut;
 	output.RenderTarget0 = color;
@@ -155,7 +149,7 @@ fn main(input: VertToFrag) -> FragOut
 }
 
 [entry(frag), cond(DepthPass && !AlphaTest && !DistanceDepth)]
-fn main() {} //< dummy
+fn FragDepthNoAlpha() {} //< dummy
 
 // Vertex stage
 struct VertIn
@@ -189,7 +183,7 @@ struct VertIn
 }
 
 [entry(vert), cond(Billboard)]
-fn billboardMain(input: VertIn) -> VertToFrag
+fn VertBillboard(input: VertIn) -> VertOut
 {
 	let size = input.billboardSizeRot.xy;
 	let sinCos = input.billboardSizeRot.zw;
@@ -209,7 +203,7 @@ fn billboardMain(input: VertIn) -> VertToFrag
 
 	let worldPosition = instanceData.worldMatrix * vec4[f32](vertexPos, 1.0);
 
-	let output: VertToFrag;
+	let output: VertOut;
 	output.worldPos = worldPosition.xyz;
 	output.position = viewerData.viewProjMatrix * worldPosition;
 	
@@ -223,7 +217,7 @@ fn billboardMain(input: VertIn) -> VertToFrag
 }
 
 [entry(vert), cond(!Billboard)]
-fn main(input: VertIn) -> VertToFrag
+fn VertMain(input: VertIn) -> VertOut
 {
 	let pos: vec3[f32];
 
@@ -251,7 +245,7 @@ fn main(input: VertIn) -> VertToFrag
 
 	let worldPosition = instanceData.worldMatrix * vec4[f32](pos, 1.0);
 
-	let output: VertToFrag;
+	let output: VertOut;
 	output.worldPos = worldPosition.xyz;
 	output.position = viewerData.viewProjMatrix * worldPosition;
 
