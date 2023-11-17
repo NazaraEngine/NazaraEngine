@@ -9,7 +9,7 @@ namespace Nz
 {
 	inline void RenderSystem::AttachExternalSwapchain(WindowSwapchain& swapchain)
 	{
-		m_windowSwapchains.emplace_back(&swapchain);
+		m_externalSwapchains.emplace_back(swapchain);
 	}
 
 	inline void RenderSystem::DetachExternalSwapchain(WindowSwapchain& swapchain)

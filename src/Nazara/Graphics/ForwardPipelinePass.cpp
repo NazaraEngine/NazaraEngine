@@ -159,11 +159,12 @@ namespace Nz
 		forwardPass.AddOutput(inputOuputs.outputAttachments[0]);
 		if (inputOuputs.depthStencilInput != FramePipelinePass::InvalidAttachmentIndex)
 			forwardPass.SetDepthStencilInput(inputOuputs.depthStencilInput);
+		else
+			forwardPass.SetDepthStencilClear(1.f, 0);
 
 		forwardPass.SetDepthStencilOutput(inputOuputs.depthStencilOutput);
 
 		forwardPass.SetClearColor(0, m_viewer->GetClearColor());
-		forwardPass.SetDepthStencilClear(1.f, 0);
 
 		forwardPass.SetExecutionCallback([&]()
 		{

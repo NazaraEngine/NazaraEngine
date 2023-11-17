@@ -1135,7 +1135,7 @@ namespace Nz
 			return false;
 		}
 
-		return LoadFaceFromImage(face, *image);;
+		return LoadFaceFromImage(face, *image);
 	}
 
 	bool Image::SaveToFile(const std::filesystem::path& filePath, const ImageParams& params)

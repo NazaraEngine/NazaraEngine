@@ -47,7 +47,7 @@ namespace Nz
 
 		private:
 			std::size_t m_freeCommandBufferIndex;
-			std::vector<VkCommandBuffer> m_allocatedCommandBuffers;;
+			std::vector<VkCommandBuffer> m_allocatedCommandBuffers;
 			std::vector<VkCommandBuffer> m_graphicalCommandBuffers;
 			VulkanSwapchain& m_owner;
 			Vk::CommandPool m_commandPool;

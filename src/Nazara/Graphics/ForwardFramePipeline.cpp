@@ -372,7 +372,7 @@ namespace Nz
 		if (m_rebuildFrameGraph)
 		{
 			renderFrame.PushForRelease(std::move(m_bakedFrameGraph));
-			m_bakedFrameGraph = BuildFrameGraph();
+			m_bakedFrameGraph = BuildFrameGraph(renderFrame);
 			m_bakedFrameGraph.Resize(renderFrame);
 			frameGraphInvalidated = true;
 		}
@@ -689,7 +689,7 @@ namespace Nz
 		}
 	}
 
-	BakedFrameGraph ForwardFramePipeline::BuildFrameGraph()
+	BakedFrameGraph ForwardFramePipeline::BuildFrameGraph(RenderFrame& renderFrame)
 	{
 		FrameGraph frameGraph;
 
@@ -748,7 +748,13 @@ namespace Nz
 			return lhs.second->renderOrder < rhs.second->renderOrder;
 		});
 
+		for (auto&& [_, renderTargetData] : m_renderTargets)
+		{
+			if (renderTargetData.blitShaderBinding)
+				renderFrame.PushForRelease(std::move(renderTargetData.blitShaderBinding));
+		}
 		m_renderTargets.clear();
+
 		for (auto&& [renderTarget, viewerData] : viewers)
 		{
 			auto& renderTargetData = m_renderTargets[renderTarget];
