@@ -59,7 +59,7 @@ namespace Nz
 		return s_workerCount > 0;
 	}
 
-	void TaskSchedulerImpl::Run(Functor** tasks, std::size_t count)
+	void TaskSchedulerImpl::Run(AbstractFunctor** tasks, std::size_t count)
 	{
 		// On s'assure que des tâches ne sont pas déjà en cours
 		WaitForMultipleObjects(s_workerCount, &s_doneEvents[0], true, INFINITE);
@@ -104,7 +104,7 @@ namespace Nz
 
 			EnterCriticalSection(&worker.queueMutex);
 
-			std::queue<Functor*> emptyQueue;
+			std::queue<AbstractFunctor*> emptyQueue;
 			std::swap(worker.queue, emptyQueue); // Et on vide la queue (merci std::swap)
 
 			LeaveCriticalSection(&worker.queueMutex);
@@ -145,7 +145,7 @@ namespace Nz
 		WaitForMultipleObjects(s_workerCount, &s_doneEvents[0], true, INFINITE);
 	}
 
-	Functor* TaskSchedulerImpl::StealTask(std::size_t workerID)
+	AbstractFunctor* TaskSchedulerImpl::StealTask(std::size_t workerID)
 	{
 		bool shouldRetry;
 		do
@@ -162,7 +162,7 @@ namespace Nz
 				// Ce worker a-t-il encore des tâches dans sa file d'attente ?
 				if (worker.workCount > 0)
 				{
-					Functor* task = nullptr;
+					AbstractFunctor* task = nullptr;
 
 					// Est-ce qu'il utilise la queue maintenant ?
 					if (TryEnterCriticalSection(&worker.queueMutex))
@@ -203,7 +203,7 @@ namespace Nz
 
 		while (worker.running)
 		{
-			Functor* task = nullptr;
+			AbstractFunctor* task = nullptr;
 
 			if (worker.workCount > 0) // Permet d'éviter d'entrer inutilement dans une section critique
 			{

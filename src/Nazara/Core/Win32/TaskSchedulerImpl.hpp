@@ -24,18 +24,18 @@ namespace Nz
 
 			static bool Initialize(std::size_t workerCount);
 			static bool IsInitialized();
-			static void Run(Functor** tasks, std::size_t count);
+			static void Run(AbstractFunctor** tasks, std::size_t count);
 			static void Uninitialize();
 			static void WaitForTasks();
 
 		private:
-			static Functor* StealTask(std::size_t workerID);
+			static AbstractFunctor* StealTask(std::size_t workerID);
 			static unsigned int __stdcall WorkerProc(void* userdata);
 
 			struct Worker
 			{
 				std::atomic_size_t workCount;
-				std::queue<Functor*> queue;
+				std::queue<AbstractFunctor*> queue;
 				CRITICAL_SECTION queueMutex;
 				HANDLE wakeEvent;
 				volatile bool running;

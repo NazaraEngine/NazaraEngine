@@ -29,7 +29,7 @@ namespace Nz
 			static void WaitForTasks();
 
 		private:
-			static void AddTaskFunctor(Functor* taskFunctor);
+			static void AddTaskFunctor(AbstractFunctor* taskFunctor);
 	};
 }
 

@@ -26,7 +26,7 @@
 
 namespace Nz
 {
-	struct Functor;
+	struct AbstractFunctor;
 
 	class TaskSchedulerImpl
 	{
@@ -36,16 +36,16 @@ namespace Nz
 
 			static bool Initialize(unsigned int workerCount);
 			static bool IsInitialized();
-			static void Run(Functor** tasks, unsigned int count);
+			static void Run(AbstractFunctor** tasks, unsigned int count);
 			static void Uninitialize();
 			static void WaitForTasks();
 
 		private:
-			static Functor* PopQueue();
+			static AbstractFunctor* PopQueue();
 			static void Wait();
 			static void* WorkerProc(void* userdata);
 
-			static std::queue<Functor*> s_tasks;
+			static std::queue<AbstractFunctor*> s_tasks;
 			static std::unique_ptr<pthread_t[]> s_threads;
 			static std::atomic<bool> s_isDone;
 			static std::atomic<bool> s_isWaiting;

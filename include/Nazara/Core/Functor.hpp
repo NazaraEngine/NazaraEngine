@@ -13,15 +13,15 @@
 
 namespace Nz
 {
-	struct Functor
+	struct AbstractFunctor
 	{
-		virtual ~Functor() {}
+		virtual ~AbstractFunctor() {}
 
 		virtual void Run() = 0;
 	};
 
 	template<typename F>
-	struct FunctorWithoutArgs : Functor
+	struct FunctorWithoutArgs : AbstractFunctor
 	{
 		FunctorWithoutArgs(F func);
 
@@ -32,7 +32,7 @@ namespace Nz
 	};
 
 	template<typename F, typename... Args>
-	struct FunctorWithArgs : Functor
+	struct FunctorWithArgs : AbstractFunctor
 	{
 		FunctorWithArgs(F func, Args&&... args);
 
@@ -44,7 +44,7 @@ namespace Nz
 	};
 
 	template<typename C>
-	struct MemberWithoutArgs : Functor
+	struct MemberWithoutArgs : AbstractFunctor
 	{
 		MemberWithoutArgs(void (C::*func)(), C* object);
 

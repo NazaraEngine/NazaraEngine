@@ -20,7 +20,7 @@ namespace Nz
 {
 	namespace
 	{
-		std::vector<Functor*> s_pendingWorks;
+		std::vector<AbstractFunctor*> s_pendingWorks;
 		unsigned int s_workerCount = 0;
 	}
 
@@ -130,7 +130,7 @@ namespace Nz
 	* \remark A task containing a call on this class is undefined behaviour
 	*/
 
-	void TaskScheduler::AddTaskFunctor(Functor* taskFunctor)
+	void TaskScheduler::AddTaskFunctor(AbstractFunctor* taskFunctor)
 	{
 		if (!Initialize())
 		{

@@ -32,10 +32,10 @@ namespace Nz
 	template<typename F>
 	void TransientResources::PushReleaseCallback(F&& callback)
 	{
-		using Functor = ReleasableLambda<std::remove_cv_t<std::remove_reference_t<F>>>;
+		using ReleaseFunctor = ReleasableLambda<std::remove_cv_t<std::remove_reference_t<F>>>;
 
-		constexpr std::size_t functorSize = sizeof(Functor);
-		constexpr std::size_t functorAlignment = alignof(Functor);
+		constexpr std::size_t functorSize = sizeof(ReleaseFunctor);
+		constexpr std::size_t functorAlignment = alignof(ReleaseFunctor);
 
 		// Try to minimize lost space
 		struct
@@ -77,7 +77,7 @@ namespace Nz
 		Block& targetBlock = *bestBlock.block;
 		targetBlock.resize(bestBlock.alignedOffset + functorSize);
 
-		Functor* releasable = reinterpret_cast<Functor*>(&targetBlock[bestBlock.alignedOffset]);
+		ReleaseFunctor* releasable = reinterpret_cast<ReleaseFunctor*>(&targetBlock[bestBlock.alignedOffset]);
 		PlacementNew(releasable, std::forward<F>(callback));
 
 		m_releaseQueue.push_back(releasable);

@@ -54,7 +54,7 @@ namespace Nz
 		return s_workerCount > 0;
 	}
 
-	void TaskSchedulerImpl::Run(Functor** tasks, unsigned int count)
+	void TaskSchedulerImpl::Run(AbstractFunctor** tasks, unsigned int count)
 	{
 		// On s'assure que des tâches ne sont pas déjà en cours
 		Wait();
@@ -82,7 +82,7 @@ namespace Nz
 		// On réveille les threads pour qu'ils sortent de la boucle et terminent.
 		pthread_mutex_lock(&s_mutexQueue);
 		// On commence par vider la queue et demander qu'ils s'arrêtent.
-		std::queue<Functor*> emptyQueue;
+		std::queue<AbstractFunctor*> emptyQueue;
 		std::swap(s_tasks, emptyQueue);
 		s_shouldFinish = true;
 		pthread_cond_broadcast(&s_cvNotEmpty);
@@ -114,9 +114,9 @@ namespace Nz
 		Wait();
 	}
 
-	Functor* TaskSchedulerImpl::PopQueue()
+	AbstractFunctor* TaskSchedulerImpl::PopQueue()
 	{
-		Functor* task = nullptr;
+		AbstractFunctor* task = nullptr;
 
 		pthread_mutex_lock(&s_mutexQueue);
 
@@ -153,7 +153,7 @@ namespace Nz
 		// On quitte s'il doit terminer.
 		while (!s_shouldFinish)
 		{
-			Functor* task = PopQueue();
+			AbstractFunctor* task = PopQueue();
 
 			if (task)
 			{
@@ -184,7 +184,7 @@ namespace Nz
 		return nullptr;
 	}
 
-	std::queue<Functor*> TaskSchedulerImpl::s_tasks;
+	std::queue<AbstractFunctor*> TaskSchedulerImpl::s_tasks;
 	std::unique_ptr<pthread_t[]> TaskSchedulerImpl::s_threads;
 	std::atomic<bool> TaskSchedulerImpl::s_isDone;
 	std::atomic<bool> TaskSchedulerImpl::s_isWaiting;
