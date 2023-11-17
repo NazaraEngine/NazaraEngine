@@ -29,6 +29,8 @@ namespace Nz
 
 			virtual RenderFrame AcquireFrame() = 0;
 
+			void BlitTexture(RenderFrame& renderFrame, CommandBufferBuilder& builder, const Texture& texture) const override;
+
 			virtual std::shared_ptr<CommandPool> CreateCommandPool(QueueType queueType) = 0;
 
 			virtual PresentMode GetPresentMode() const = 0;

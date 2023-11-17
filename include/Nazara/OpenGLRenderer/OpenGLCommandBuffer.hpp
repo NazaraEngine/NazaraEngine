@@ -48,6 +48,7 @@ namespace Nz
 			inline void BindVertexBuffer(UInt32 binding, GLuint vertexBuffer, UInt64 offset = 0);
 
 			inline void BlitTexture(const OpenGLTexture& source, const Boxui& sourceBox, const OpenGLTexture& target, const Boxui& targetBox, SamplerFilter filter = SamplerFilter::Nearest);
+			inline void BlitTextureToWindow(const OpenGLTexture& source, const Boxui& sourceBox, const Boxui& targetBox, SamplerFilter filter = SamplerFilter::Nearest);
 
 			inline void BuildMipmaps(OpenGLTexture& texture, UInt8 baseLevel, UInt8 levelCount);
 
@@ -88,6 +89,7 @@ namespace Nz
 #define NAZARA_OPENGL_FOREACH_COMMANDS(cb, lastCb) \
 	cb(BeginDebugRegionCommand) \
 	cb(BlitTextureCommand) \
+	cb(BlitTextureToWindowCommand) \
 	cb(BuildTextureMipmapsCommand) \
 	cb(CopyBufferCommand) \
 	cb(CopyBufferFromMemoryCommand) \
@@ -119,6 +121,7 @@ namespace Nz
 
 			inline void Execute(const GL::Context* context, const BeginDebugRegionCommand& command);
 			inline void Execute(const GL::Context* context, const BlitTextureCommand& command);
+			inline void Execute(const GL::Context* context, const BlitTextureToWindowCommand& command);
 			inline void Execute(const GL::Context* context, const BuildTextureMipmapsCommand& command);
 			inline void Execute(const GL::Context* context, const CopyBufferCommand& command);
 			inline void Execute(const GL::Context* context, const CopyBufferFromMemoryCommand& command);
@@ -143,6 +146,14 @@ namespace Nz
 			{
 				const OpenGLTexture* source;
 				const OpenGLTexture* target;
+				Boxui sourceBox;
+				Boxui targetBox;
+				SamplerFilter filter;
+			};
+
+			struct BlitTextureToWindowCommand
+			{
+				const OpenGLTexture* source;
 				Boxui sourceBox;
 				Boxui targetBox;
 				SamplerFilter filter;

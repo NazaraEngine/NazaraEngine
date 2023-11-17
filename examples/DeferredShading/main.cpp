@@ -703,52 +703,52 @@ int main(int argc, char* argv[])
 		});
 
 		godRaysTexture = graph.AddAttachment({
-			"God rays texture",
-			Nz::PixelFormat::RGBA16F,
-			Nz::FramePassAttachmentSize::SwapchainFactor,
-			50'000,
-			50'000
+			.name   = "God rays texture",
+			.format = Nz::PixelFormat::RGBA16F,
+			.size   = Nz::FramePassAttachmentSize::SwapchainFactor,
+			.width  = 50'000,
+			.height = 50'000
 		});
 
 		bloomOutput = graph.AddAttachmentProxy("Bloom output", lightOutput);
 
 		unsigned int bloomSize = 50'000;
 		bloomBrightOutput = graph.AddAttachment({
-			"Bloom bright output",
-			Nz::PixelFormat::RGBA16F,
-			Nz::FramePassAttachmentSize::SwapchainFactor,
-			bloomSize,
-			bloomSize
+			.name   = "Bloom bright output",
+			.format = Nz::PixelFormat::RGBA16F,
+			.size   = Nz::FramePassAttachmentSize::SwapchainFactor,
+			.width  = bloomSize,
+			.height = bloomSize
 		});
 
 		for (std::size_t i = 0; i < BloomSubdivisionCount; ++i)
 		{
 			bloomTextures[i * 2 + 0] = graph.AddAttachment({
-				"Bloom texture #" + std::to_string(i),
-				Nz::PixelFormat::RGBA16F,
-				Nz::FramePassAttachmentSize::SwapchainFactor,
-				bloomSize,
-				bloomSize
+				.name   = "Bloom texture #" + std::to_string(i),
+				.format = Nz::PixelFormat::RGBA16F,
+				.size   = Nz::FramePassAttachmentSize::SwapchainFactor,
+				.width  = bloomSize,
+				.height = bloomSize
 			});
 
 
 			bloomTextures[i * 2 + 1] = graph.AddAttachment({
-				"Bloom texture #" + std::to_string(i),
-				Nz::PixelFormat::RGBA16F,
-				Nz::FramePassAttachmentSize::SwapchainFactor,
-				bloomSize,
-				bloomSize
+				.name   = "Bloom texture #" + std::to_string(i),
+				.format = Nz::PixelFormat::RGBA16F,
+				.size   = Nz::FramePassAttachmentSize::SwapchainFactor,
+				.width  = bloomSize,
+				.height = bloomSize
 			});
 
 			bloomSize /= 2;
 		}
 
 		toneMappingOutput = graph.AddAttachment({
-			"Tone mapping",
-			Nz::PixelFormat::RGBA8,
-			Nz::FramePassAttachmentSize::SwapchainFactor,
-			100'000,
-			100'000
+			.name   = "Tone mapping",
+			.format = Nz::PixelFormat::RGBA8,
+			.size   = Nz::FramePassAttachmentSize::SwapchainFactor,
+			.width  = 100'000,
+			.height = 100'000
 		});
 
 		Nz::FramePass& gbufferPass = graph.AddPass("GBuffer");

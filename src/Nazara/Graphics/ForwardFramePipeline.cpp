@@ -470,23 +470,6 @@ namespace Nz
 					}
 				});
 			}
-
-			for (auto&& [_, renderTargetData] : m_renderTargets)
-			{
-				if (renderTargetData.blitShaderBinding)
-					renderFrame.PushForRelease(std::move(renderTargetData.blitShaderBinding));
-
-				renderTargetData.blitShaderBinding = graphics->GetBlitPipelineLayout()->AllocateShaderBinding(0);
-				renderTargetData.blitShaderBinding->Update({
-					{
-						0,
-						ShaderBinding::SampledTextureBinding {
-							m_bakedFrameGraph.GetAttachmentTexture(renderTargetData.finalAttachment).get(),
-							sampler.get()
-						}
-					}
-				});
-			}
 		}
 
 		// Update UBOs and materials
@@ -511,39 +494,14 @@ namespace Nz
 		m_rebuildFrameGraph = false;
 
 		// Final blit (TODO: Make part of frame graph)
-		const Vector2ui& frameSize = renderFrame.GetSize();
 		for (auto&& [renderTargetPtr, renderTargetData] : m_renderTargets)
 		{
-			Recti renderRegion(0, 0, frameSize.x, frameSize.y);
-
 			const RenderTarget& renderTarget = *renderTargetPtr;
 			const auto& data = renderTargetData;
 			renderFrame.Execute([&](CommandBufferBuilder& builder)
 			{
 				const std::shared_ptr<Texture>& sourceTexture = m_bakedFrameGraph.GetAttachmentTexture(data.finalAttachment);
-
-				builder.TextureBarrier(PipelineStage::ColorOutput, PipelineStage::FragmentShader, MemoryAccess::ColorWrite, MemoryAccess::ShaderRead, TextureLayout::ColorOutput, TextureLayout::ColorInput, *sourceTexture);
-
-				std::array<CommandBufferBuilder::ClearValues, 2> clearValues;
-				clearValues[0].color = Color::Black();
-				clearValues[1].depth = 1.f;
-				clearValues[1].stencil = 0;
-
-				builder.BeginRenderPass(renderTarget.GetFramebuffer(renderFrame.GetFramebufferIndex()), renderTarget.GetRenderPass(), renderRegion, { clearValues[0], clearValues[1] });
-				{
-					builder.BeginDebugRegion("Main window rendering", Color::Green());
-					{
-						builder.SetScissor(renderRegion);
-						builder.SetViewport(renderRegion);
-						builder.BindRenderPipeline(*graphics->GetBlitPipeline(false));
-
-						builder.BindRenderShaderBinding(0, *data.blitShaderBinding);
-						builder.Draw(3);
-					}
-					builder.EndDebugRegion();
-				}
-				builder.EndRenderPass();
-
+				renderTarget.BlitTexture(renderFrame, builder, *sourceTexture);
 			}, QueueType::Graphics);
 		}
 
@@ -748,13 +706,7 @@ namespace Nz
 			return lhs.second->renderOrder < rhs.second->renderOrder;
 		});
 
-		for (auto&& [_, renderTargetData] : m_renderTargets)
-		{
-			if (renderTargetData.blitShaderBinding)
-				renderFrame.PushForRelease(std::move(renderTargetData.blitShaderBinding));
-		}
 		m_renderTargets.clear();
-
 		for (auto&& [renderTarget, viewerData] : viewers)
 		{
 			auto& renderTargetData = m_renderTargets[renderTarget];

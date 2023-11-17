@@ -146,6 +146,11 @@ namespace Nz
 		context->BlitTexture(*command.source, *command.target, command.sourceBox, command.targetBox, command.filter);
 	}
 
+	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const BlitTextureToWindowCommand& command)
+	{
+		context->BlitTextureToWindow(*command.source,  command.sourceBox, command.targetBox, command.filter);
+	}
+
 	inline void OpenGLCommandBuffer::Execute(const GL::Context* /*context*/, const BuildTextureMipmapsCommand& command)
 	{
 		command.texture->GenerateMipmaps(command.baseLevel, command.levelCount);

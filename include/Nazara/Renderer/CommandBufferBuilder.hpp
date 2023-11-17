@@ -26,6 +26,7 @@ namespace Nz
 	class RenderPipeline;
 	class RenderPipelineLayout;
 	class ShaderBinding;
+	class Swapchain;
 	class Texture;
 
 	class NAZARA_RENDERER_API CommandBufferBuilder
@@ -53,6 +54,7 @@ namespace Nz
 			virtual void BindVertexBuffer(UInt32 binding, const RenderBuffer& vertexBuffer, UInt64 offset = 0) = 0;
 
 			virtual void BlitTexture(const Texture& fromTexture, const Boxui& fromBox, TextureLayout fromLayout, const Texture& toTexture, const Boxui& toBox, TextureLayout toLayout, SamplerFilter filter) = 0;
+			virtual void BlitTextureToSwapchain(const Texture& fromTexture, const Boxui& fromBox, TextureLayout fromLayout, const Swapchain& swapchain, std::size_t imageIndex) = 0;
 
 			virtual void BuildMipmaps(Texture& texture, UInt8 baseLevel, UInt8 levelCount, PipelineStageFlags srcStageMask, PipelineStageFlags dstStageMask, MemoryAccessFlags srcAccessMask, MemoryAccessFlags dstAccessMask, TextureLayout oldLayout, TextureLayout newLayout) = 0;
 

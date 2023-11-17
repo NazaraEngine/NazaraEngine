@@ -1035,6 +1035,7 @@ namespace Nz
 				data.height = attachmentData.height;
 				data.size = attachmentData.size;
 				data.layerCount = 1;
+				data.usage = attachmentData.additionalUsage;
 
 				return textureId;
 			}
@@ -1077,6 +1078,7 @@ namespace Nz
 				data.height = attachmentData.height;
 				data.size = attachmentData.size;
 				data.layerCount = attachmentData.layerCount;
+				data.usage = attachmentData.additionalUsage;
 
 				return textureId;
 			}
@@ -1118,6 +1120,7 @@ namespace Nz
 				data.height = attachmentData.height;
 				data.size = attachmentData.size;
 				data.layerCount = 1;
+				data.usage = attachmentData.additionalUsage;
 
 				return textureId;
 			}

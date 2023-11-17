@@ -19,6 +19,7 @@ namespace Nz
 {
 	class CommandBuffer;
 	class CommandBufferBuilder;
+	class RenderDevice;
 	class UploadPool;
 
 	class NAZARA_RENDERER_API TransientResources
@@ -33,6 +34,7 @@ namespace Nz
 
 			inline void FlushReleaseQueue();
 
+			inline RenderDevice& GetRenderDevice();
 			virtual UploadPool& GetUploadPool() = 0;
 
 			template<typename T> void PushForRelease(const T& value) = delete;
@@ -42,7 +44,7 @@ namespace Nz
 			virtual void SubmitCommandBuffer(CommandBuffer* commandBuffer, QueueTypeFlags queueTypeFlags) = 0;
 
 		protected:
-			TransientResources() = default;
+			inline TransientResources(RenderDevice& renderDvice);
 			TransientResources(const TransientResources&) = delete;
 			TransientResources(TransientResources&&) = delete;
 
@@ -53,6 +55,7 @@ namespace Nz
 
 			std::vector<Releasable*> m_releaseQueue;
 			std::vector<Block> m_releaseMemoryPool;
+			RenderDevice& m_renderDevice;
 	};
 
 	class NAZARA_RENDERER_API TransientResources::Releasable

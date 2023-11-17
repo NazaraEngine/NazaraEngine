@@ -12,6 +12,7 @@ namespace Nz
 {
 	OpenGLSwapchain::OpenGLSwapchain(OpenGLDevice& device, WindowHandle windowHandle, const Vector2ui& windowSize, const SwapchainParameters& parameters) :
 	m_currentFrame(0),
+	m_device(device),
 	m_framebuffer(*this),
 	m_size(windowSize),
 	m_sizeInvalidated(false)
@@ -22,7 +23,7 @@ namespace Nz
 #endif
 		//TODO: Pass swapchain parameters to context
 
-		m_context = device.CreateContext(contextParams, windowHandle);
+		m_context = m_device.CreateContext(contextParams, windowHandle);
 		if (!m_context)
 			throw std::runtime_error("failed to create swapchain context");
 

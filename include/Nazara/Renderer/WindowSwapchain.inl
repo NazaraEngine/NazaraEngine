@@ -20,6 +20,11 @@ namespace Nz
 		return m_swapchain->AcquireFrame();
 	}
 
+	inline void WindowSwapchain::BlitTexture(RenderFrame& renderFrame, CommandBufferBuilder& builder, const Texture& texture) const
+	{
+		return m_swapchain->BlitTexture(renderFrame, builder, texture);
+	}
+
 	inline bool WindowSwapchain::DoesRenderOnlyIfFocused() const
 	{
 		return m_renderOnlyIfFocused;

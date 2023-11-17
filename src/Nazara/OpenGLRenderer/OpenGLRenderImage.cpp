@@ -12,6 +12,7 @@
 namespace Nz
 {
 	OpenGLRenderImage::OpenGLRenderImage(OpenGLSwapchain& owner) :
+	RenderImage(owner.GetDevice()),
 	m_owner(owner),
 	m_uploadPool(2 * 1024 * 1024)
 	{

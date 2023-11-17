@@ -37,6 +37,11 @@ namespace Nz
 		return m_size;
 	}
 
+	inline RenderDevice& RenderFrame::GetRenderDevice()
+	{
+		return m_image->GetRenderDevice();
+	}
+
 	inline UploadPool& RenderFrame::GetUploadPool()
 	{
 		if NAZARA_UNLIKELY(!m_image)

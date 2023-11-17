@@ -32,6 +32,7 @@ namespace Nz
 			std::shared_ptr<CommandPool> CreateCommandPool(QueueType queueType) override;
 
 			inline GL::Context& GetContext();
+			inline OpenGLDevice& GetDevice();
 			const OpenGLFramebuffer& GetFramebuffer(std::size_t i) const override;
 			std::size_t GetFramebufferCount() const override;
 			PresentMode GetPresentMode() const override;
@@ -50,8 +51,9 @@ namespace Nz
 		private:
 			std::optional<OpenGLRenderPass> m_renderPass;
 			std::size_t m_currentFrame;
-			std::vector<std::unique_ptr<OpenGLRenderImage>> m_renderImage;
 			std::shared_ptr<GL::Context> m_context;
+			std::vector<std::unique_ptr<OpenGLRenderImage>> m_renderImage;
+			OpenGLDevice& m_device;
 			OpenGLWindowFramebuffer m_framebuffer;
 			PresentMode m_presentMode;
 			PresentModeFlags m_supportedPresentModes;

@@ -15,6 +15,8 @@ namespace Nz
 	class NAZARA_RENDERER_API RenderImage : public TransientResources
 	{
 		public:
+			using TransientResources::TransientResources;
+
 			virtual void Present() = 0;
 	};
 }

@@ -29,6 +29,8 @@ namespace Nz
 
 			inline RenderFrame AcquireFrame();
 
+			inline void BlitTexture(RenderFrame& renderFrame, CommandBufferBuilder& builder, const Texture& texture) const override;
+
 			inline bool DoesRenderOnlyIfFocused() const;
 
 			inline void EnableRenderOnlyIfFocused(bool enable = true);

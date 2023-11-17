@@ -3,11 +3,27 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Renderer/Swapchain.hpp>
+#include <Nazara/Renderer/CommandBufferBuilder.hpp>
+#include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace Nz
 {
 	Swapchain::~Swapchain() = default;
+
+	void Swapchain::BlitTexture(RenderFrame& renderFrame, CommandBufferBuilder& builder, const Texture& texture) const
+	{
+		Vector2ui textureSize = Vector2ui(texture.GetSize());
+		Boxui blitRegion(0, 0, 0, textureSize.x, textureSize.y, 1);
+
+		builder.TextureBarrier(PipelineStage::ColorOutput, PipelineStage::Transfer, MemoryAccess::ColorWrite, MemoryAccess::TransferRead, TextureLayout::ColorOutput, TextureLayout::TransferSource, texture);
+
+		builder.BeginDebugRegion("Blit to swapchain", Color::Blue());
+		{
+			builder.BlitTextureToSwapchain(texture, blitRegion, TextureLayout::TransferSource, *this, renderFrame.GetFramebufferIndex());
+		}
+		builder.EndDebugRegion();
+	}
 
 	void Swapchain::BuildRenderPass(PixelFormat colorFormat, PixelFormat depthFormat, std::vector<RenderPass::Attachment>& attachments, std::vector<RenderPass::SubpassDescription>& subpassDescriptions, std::vector<RenderPass::SubpassDependency>& subpassDependencies)
 	{

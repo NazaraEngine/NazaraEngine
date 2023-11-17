@@ -121,7 +121,6 @@ namespace Nz
 			{
 				std::size_t finalAttachment;
 				std::vector<const ViewerData*> viewers;
-				ShaderBindingPtr blitShaderBinding;
 			};
 
 			struct SkeletonInstanceData

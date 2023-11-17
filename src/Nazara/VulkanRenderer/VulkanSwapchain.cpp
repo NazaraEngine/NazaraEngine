@@ -293,10 +293,10 @@ namespace Nz
 		return true;
 	}
 
-	const VulkanWindowFramebuffer& VulkanSwapchain::GetFramebuffer(std::size_t i) const
+	const VulkanWindowFramebuffer& VulkanSwapchain::GetFramebuffer(std::size_t imageIndex) const
 	{
-		assert(i < m_framebuffers.size());
-		return m_framebuffers[i];
+		assert(imageIndex < m_framebuffers.size());
+		return m_framebuffers[imageIndex];
 	}
 
 	std::size_t VulkanSwapchain::GetFramebufferCount() const
@@ -628,7 +628,7 @@ namespace Nz
 			m_surfaceFormat.colorSpace,
 			extent,
 			1,
-			VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+			VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT,
 			VK_SHARING_MODE_EXCLUSIVE,
 			0, nullptr,
 			surfaceCapabilities.currentTransform,

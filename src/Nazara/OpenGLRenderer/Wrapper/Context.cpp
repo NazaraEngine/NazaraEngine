@@ -310,7 +310,7 @@ namespace Nz::GL
 		}
 	}
 
-	bool Context::BlitTexture(const OpenGLTexture& texture, const OpenGLTexture& destination, const Boxui& srcBox, const Boxui& dstBox, SamplerFilter filter) const
+	bool Context::BlitTexture(const OpenGLTexture& source, const OpenGLTexture& destination, const Boxui& srcBox, const Boxui& dstBox, SamplerFilter filter) const
 	{
 		if (!m_blitFramebuffers && !InitializeBlitFramebuffers())
 			return false;
@@ -363,7 +363,7 @@ namespace Nz::GL
 		};
 
 		// Attach textures to color attachment
-		BindTexture(m_blitFramebuffers->readFBO, texture);
+		BindTexture(m_blitFramebuffers->readFBO, source);
 		BindTexture(m_blitFramebuffers->drawFBO, destination);
 
 		// Validate framebuffer completeness
@@ -380,6 +380,29 @@ namespace Nz::GL
 		}
 
 		glBlitFramebuffer(srcBox.x, srcBox.y, srcBox.x + srcBox.width, srcBox.y + srcBox.height, dstBox.x, dstBox.y, dstBox.x + dstBox.width, dstBox.y + srcBox.height, GL_COLOR_BUFFER_BIT, ToOpenGL(filter));
+		return true;
+	}
+
+	bool Context::BlitTextureToWindow(const OpenGLTexture& texture, const Boxui& srcBox, const Boxui& dstBox, SamplerFilter filter) const
+	{
+		if (!m_blitFramebuffers && !InitializeBlitFramebuffers())
+			return false;
+
+		// Bind framebuffers before configuring them (so they won't override each other)
+		BindFramebuffer(FramebufferTarget::Draw, 0);
+		BindFramebuffer(FramebufferTarget::Read, m_blitFramebuffers->readFBO.GetObjectId());
+
+		// Attach textures to color attachment
+		BindTextureToFramebuffer(m_blitFramebuffers->readFBO, texture);
+
+		// Validate framebuffer completeness
+		if (GLenum checkResult = m_blitFramebuffers->readFBO.Check(); checkResult != GL_FRAMEBUFFER_COMPLETE)
+		{
+			NazaraErrorFmt("blit read FBO is incomplete: {0}", TranslateOpenGLError(checkResult));
+			return false;
+		}
+
+		glBlitFramebuffer(srcBox.x, srcBox.y, srcBox.x + srcBox.width, srcBox.y + srcBox.height, dstBox.x, dstBox.y + srcBox.height, dstBox.x + dstBox.width, dstBox.y, GL_COLOR_BUFFER_BIT, ToOpenGL(filter));
 		return true;
 	}
 
@@ -1195,5 +1218,48 @@ namespace Nz::GL
 		}
 
 		return true;
+	}
+
+	void Context::BindTextureToFramebuffer(Framebuffer& framebuffer, const OpenGLTexture& texture)
+	{
+		if (texture.RequiresTextureViewEmulation())
+		{
+			const TextureViewInfo& texViewInfo = texture.GetTextureViewInfo();
+			if (texViewInfo.viewType != ImageType::E2D)
+				throw std::runtime_error("unrestricted texture views can only be used as 2D texture attachment");
+
+			const OpenGLTexture& parentTexture = *texture.GetParentTexture();
+
+			switch (parentTexture.GetType())
+			{
+				case ImageType::Cubemap:
+				{
+					constexpr std::array<GLenum, 6> faceTargets = { GL_TEXTURE_CUBE_MAP_POSITIVE_X, GL_TEXTURE_CUBE_MAP_NEGATIVE_X, GL_TEXTURE_CUBE_MAP_POSITIVE_Y, GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, GL_TEXTURE_CUBE_MAP_POSITIVE_Z, GL_TEXTURE_CUBE_MAP_NEGATIVE_Z };
+					assert(texViewInfo.baseArrayLayer < faceTargets.size());
+
+					GLenum texTarget = faceTargets[texViewInfo.baseArrayLayer];
+					framebuffer.Texture2D(GL_COLOR_ATTACHMENT0, texTarget, parentTexture.GetTexture().GetObjectId(), texViewInfo.baseMipLevel);
+					break;
+				}
+
+				case ImageType::E1D:
+				case ImageType::E2D:
+					framebuffer.Texture2D(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, parentTexture.GetTexture().GetObjectId(), texViewInfo.baseMipLevel);
+					break;
+
+				case ImageType::E1D_Array:
+				case ImageType::E2D_Array:
+				case ImageType::E3D:
+					framebuffer.TextureLayer(GL_COLOR_ATTACHMENT0, parentTexture.GetTexture().GetObjectId(), texViewInfo.baseArrayLayer, texViewInfo.baseMipLevel);
+					break;
+			}
+		}
+		else
+		{
+			if (texture.GetTexture().GetTarget() != TextureTarget::Target2D)
+				throw std::runtime_error("blit is not yet supported from/to other texture type than 2D textures");
+
+			framebuffer.Texture2D(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture.GetTexture().GetObjectId(), 0);
+		}
 	}
 }

@@ -11,48 +11,45 @@
 #include <Nazara/VulkanRenderer/Wrapper/DeviceObject.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/ImageView.hpp>
 
-namespace Nz 
+namespace Nz::Vk
 {
-	namespace Vk
+	class Swapchain : public DeviceObject<Swapchain, VkSwapchainKHR, VkSwapchainCreateInfoKHR, VK_OBJECT_TYPE_SWAPCHAIN_KHR>
 	{
-		class Swapchain : public DeviceObject<Swapchain, VkSwapchainKHR, VkSwapchainCreateInfoKHR, VK_OBJECT_TYPE_SWAPCHAIN_KHR>
-		{
-			friend DeviceObject;
+		friend DeviceObject;
 
-			public:
-				struct Image;
+		public:
+			struct Image;
 				
-				Swapchain() = default;
-				Swapchain(const Swapchain&) = delete;
-				Swapchain(Swapchain&&) = default;
-				~Swapchain() = default;
+			Swapchain() = default;
+			Swapchain(const Swapchain&) = delete;
+			Swapchain(Swapchain&&) = default;
+			~Swapchain() = default;
 
-				inline bool AcquireNextImage(Nz::UInt64 timeout, VkSemaphore semaphore, VkFence fence, UInt32* imageIndex) const;
+			inline bool AcquireNextImage(Nz::UInt64 timeout, VkSemaphore semaphore, VkFence fence, UInt32* imageIndex) const;
 
-				inline bool Create(Device& device, const VkSwapchainCreateInfoKHR& createInfo, const VkAllocationCallbacks* allocator = nullptr);
+			inline bool Create(Device& device, const VkSwapchainCreateInfoKHR& createInfo, const VkAllocationCallbacks* allocator = nullptr);
 
-				inline const Image& GetImage(UInt32 index) const;
-				inline const std::vector<Image>& GetImages() const;
-				inline UInt32 GetImageCount() const;
+			inline const Image& GetImage(UInt32 index) const;
+			inline const std::vector<Image>& GetImages() const;
+			inline UInt32 GetImageCount() const;
 
-				inline bool IsSupported() const;
+			inline bool IsSupported() const;
 
-				Swapchain& operator=(const Swapchain&) = delete;
-				Swapchain& operator=(Swapchain&&) = default;
+			Swapchain& operator=(const Swapchain&) = delete;
+			Swapchain& operator=(Swapchain&&) = default;
 
-				struct Image
-				{
-					VkImage image;
-					ImageView view;
-				};
+			struct Image
+			{
+				VkImage image;
+				ImageView view;
+			};
 
-			private:
-				static inline VkResult CreateHelper(Device& device, const VkSwapchainCreateInfoKHR* createInfo, const VkAllocationCallbacks* allocator, VkSwapchainKHR* handle);
-				static inline void DestroyHelper(Device& device, VkSwapchainKHR handle, const VkAllocationCallbacks* allocator);
+		private:
+			static inline VkResult CreateHelper(Device& device, const VkSwapchainCreateInfoKHR* createInfo, const VkAllocationCallbacks* allocator, VkSwapchainKHR* handle);
+			static inline void DestroyHelper(Device& device, VkSwapchainKHR handle, const VkAllocationCallbacks* allocator);
 
-				std::vector<Image> m_images;
-		};
-	}
+			std::vector<Image> m_images;
+	};
 }
 
 #include <Nazara/VulkanRenderer/Wrapper/Swapchain.inl>

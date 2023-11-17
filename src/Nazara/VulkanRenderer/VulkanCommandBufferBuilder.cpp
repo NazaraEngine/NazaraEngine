@@ -10,10 +10,12 @@
 #include <Nazara/VulkanRenderer/VulkanRenderPipeline.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPipelineLayout.hpp>
 #include <Nazara/VulkanRenderer/VulkanShaderBinding.hpp>
+#include <Nazara/VulkanRenderer/VulkanSwapchain.hpp>
 #include <Nazara/VulkanRenderer/VulkanTexture.hpp>
 #include <Nazara/VulkanRenderer/VulkanTextureFramebuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanUploadPool.hpp>
 #include <Nazara/VulkanRenderer/VulkanWindowFramebuffer.hpp>
+#include <NazaraUtils/Algorithm.hpp>
 #include <NazaraUtils/StackArray.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
@@ -31,8 +33,8 @@ namespace Nz
 
 	void VulkanCommandBufferBuilder::BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, const Recti& renderRect, const ClearValues* clearValues, std::size_t clearValueCount)
 	{
-		const VulkanRenderPass& vkRenderPass = static_cast<const VulkanRenderPass&>(renderPass);
-		const VulkanFramebuffer& vkFramebuffer = static_cast<const VulkanFramebuffer&>(framebuffer);
+		const VulkanRenderPass& vkRenderPass = SafeCast<const VulkanRenderPass&>(renderPass);
+		const VulkanFramebuffer& vkFramebuffer = SafeCast<const VulkanFramebuffer&>(framebuffer);
 
 		std::size_t attachmentCount = vkRenderPass.GetAttachmentCount();
 
@@ -80,14 +82,14 @@ namespace Nz
 
 	void VulkanCommandBufferBuilder::BindComputePipeline(const ComputePipeline& pipeline)
 	{
-		const VulkanComputePipeline& vkPipeline = static_cast<const VulkanComputePipeline&>(pipeline);
+		const VulkanComputePipeline& vkPipeline = SafeCast<const VulkanComputePipeline&>(pipeline);
 
 		m_commandBuffer.BindPipeline(VK_PIPELINE_BIND_POINT_COMPUTE, vkPipeline.GetPipeline());
 	}
 
 	void VulkanCommandBufferBuilder::BindComputeShaderBinding(UInt32 set, const ShaderBinding& binding)
 	{
-		const VulkanShaderBinding& vkBinding = static_cast<const VulkanShaderBinding&>(binding);
+		const VulkanShaderBinding& vkBinding = SafeCast<const VulkanShaderBinding&>(binding);
 		const VulkanRenderPipelineLayout& pipelineLayout = vkBinding.GetOwner();
 
 		m_commandBuffer.BindDescriptorSet(VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout.GetPipelineLayout(), set, vkBinding.GetDescriptorSet());
@@ -95,15 +97,15 @@ namespace Nz
 
 	void VulkanCommandBufferBuilder::BindComputeShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding)
 	{
-		const VulkanRenderPipelineLayout& vkPipelineLayout = static_cast<const VulkanRenderPipelineLayout&>(pipelineLayout);
-		const VulkanShaderBinding& vkBinding = static_cast<const VulkanShaderBinding&>(binding);
+		const VulkanRenderPipelineLayout& vkPipelineLayout = SafeCast<const VulkanRenderPipelineLayout&>(pipelineLayout);
+		const VulkanShaderBinding& vkBinding = SafeCast<const VulkanShaderBinding&>(binding);
 
 		m_commandBuffer.BindDescriptorSet(VK_PIPELINE_BIND_POINT_COMPUTE, vkPipelineLayout.GetPipelineLayout(), set, vkBinding.GetDescriptorSet());
 	}
 
 	void VulkanCommandBufferBuilder::BindIndexBuffer(const RenderBuffer& indexBuffer, IndexType indexType, UInt64 offset)
 	{
-		const VulkanBuffer& vkBuffer = static_cast<const VulkanBuffer&>(indexBuffer);
+		const VulkanBuffer& vkBuffer = SafeCast<const VulkanBuffer&>(indexBuffer);
 
 		m_commandBuffer.BindIndexBuffer(vkBuffer.GetBuffer(), offset, ToVulkan(indexType));
 	}
@@ -113,14 +115,14 @@ namespace Nz
 		if (!m_currentRenderPass)
 			throw std::runtime_error("BindPipeline must be called in a RenderPass");
 
-		const VulkanRenderPipeline& vkPipeline = static_cast<const VulkanRenderPipeline&>(pipeline);
+		const VulkanRenderPipeline& vkPipeline = SafeCast<const VulkanRenderPipeline&>(pipeline);
 
 		m_commandBuffer.BindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, vkPipeline.Get(*m_currentRenderPass, m_currentSubpassIndex));
 	}
 
 	void VulkanCommandBufferBuilder::BindRenderShaderBinding(UInt32 set, const ShaderBinding& binding)
 	{
-		const VulkanShaderBinding& vkBinding = static_cast<const VulkanShaderBinding&>(binding);
+		const VulkanShaderBinding& vkBinding = SafeCast<const VulkanShaderBinding&>(binding);
 		const VulkanRenderPipelineLayout& pipelineLayout = vkBinding.GetOwner();
 
 		m_commandBuffer.BindDescriptorSet(VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout.GetPipelineLayout(), set, vkBinding.GetDescriptorSet());
@@ -128,23 +130,23 @@ namespace Nz
 
 	void VulkanCommandBufferBuilder::BindRenderShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding)
 	{
-		const VulkanRenderPipelineLayout& vkPipelineLayout = static_cast<const VulkanRenderPipelineLayout&>(pipelineLayout);
-		const VulkanShaderBinding& vkBinding = static_cast<const VulkanShaderBinding&>(binding);
+		const VulkanRenderPipelineLayout& vkPipelineLayout = SafeCast<const VulkanRenderPipelineLayout&>(pipelineLayout);
+		const VulkanShaderBinding& vkBinding = SafeCast<const VulkanShaderBinding&>(binding);
 
 		m_commandBuffer.BindDescriptorSet(VK_PIPELINE_BIND_POINT_GRAPHICS, vkPipelineLayout.GetPipelineLayout(), set, vkBinding.GetDescriptorSet());
 	}
 
 	void VulkanCommandBufferBuilder::BindVertexBuffer(UInt32 binding, const RenderBuffer& vertexBuffer, UInt64 offset)
 	{
-		const VulkanBuffer& vkBuffer = static_cast<const VulkanBuffer&>(vertexBuffer);
+		const VulkanBuffer& vkBuffer = SafeCast<const VulkanBuffer&>(vertexBuffer);
 
 		m_commandBuffer.BindVertexBuffer(binding, vkBuffer.GetBuffer(), offset);
 	}
 
 	void VulkanCommandBufferBuilder::BlitTexture(const Texture& fromTexture, const Boxui& fromBox, TextureLayout fromLayout, const Texture& toTexture, const Boxui& toBox, TextureLayout toLayout, SamplerFilter filter)
 	{
-		const VulkanTexture& vkFromTexture = static_cast<const VulkanTexture&>(fromTexture);
-		const VulkanTexture& vkToTexture = static_cast<const VulkanTexture&>(toTexture);
+		const VulkanTexture& vkFromTexture = SafeCast<const VulkanTexture&>(fromTexture);
+		const VulkanTexture& vkToTexture = SafeCast<const VulkanTexture&>(toTexture);
 
 		unsigned int fromBaseLayer, fromLayerCount;
 		Image::RegionToArray(vkFromTexture.GetType(), fromBox, fromBaseLayer, fromLayerCount);
@@ -184,9 +186,52 @@ namespace Nz
 		m_commandBuffer.BlitImage(vkFromTexture.GetImage(), ToVulkan(fromLayout), vkToTexture.GetImage(), ToVulkan(toLayout), region, ToVulkan(filter));
 	}
 
+	void VulkanCommandBufferBuilder::BlitTextureToSwapchain(const Texture& fromTexture, const Boxui& fromBox, TextureLayout fromLayout, const Swapchain& swapchain, std::size_t imageIndex)
+	{
+		const VulkanTexture& vkFromTexture = SafeCast<const VulkanTexture&>(fromTexture);
+		const VulkanSwapchain& vkSwapchain = SafeCast<const VulkanSwapchain&>(swapchain);
+
+		VkImage swapchainImage = vkSwapchain.GetImage(imageIndex);
+
+		VkImageSubresourceRange swapchainImageRange = {
+			.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+			.baseMipLevel = 0,
+			.levelCount = 1,
+			.baseArrayLayer = 0,
+			.layerCount = 1,
+		};
+
+		Boxi fromBoxInt = Boxi(fromBox);
+		Vector2i swapchainSize = Vector2i(vkSwapchain.GetSize());
+
+		VkImageBlit swapchainBlit = {
+			.srcSubresource = vkFromTexture.BuildSubresourceLayers(0),
+			.srcOffsets = {
+				{ fromBoxInt.x, fromBoxInt.y, fromBoxInt.z },
+				{ fromBoxInt.x + fromBoxInt.width, fromBoxInt.y + fromBoxInt.height, fromBoxInt.z + fromBoxInt.depth }
+			},
+			.dstSubresource = {
+				.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+				.mipLevel = 0,
+				.baseArrayLayer = 0,
+				.layerCount = 1,
+			},
+			.dstOffsets = {
+				{ 0, 0, 0 },
+				{ swapchainSize.x, swapchainSize.y, 1 }
+			},
+		};
+
+		m_commandBuffer.SetImageLayout(swapchainImage, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, swapchainImageRange);
+
+		m_commandBuffer.BlitImage(vkFromTexture.GetImage(), ToVulkan(fromLayout), vkSwapchain.GetImage(imageIndex), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, swapchainBlit, VK_FILTER_LINEAR);
+
+		m_commandBuffer.SetImageLayout(swapchainImage, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, swapchainImageRange);
+	}
+
 	void VulkanCommandBufferBuilder::BuildMipmaps(Texture& texture, UInt8 baseLevel, UInt8 levelCount, PipelineStageFlags srcStageMask, PipelineStageFlags dstStageMask, MemoryAccessFlags srcAccessMask, MemoryAccessFlags dstAccessMask, TextureLayout oldLayout, TextureLayout newLayout)
 	{
-		VulkanTexture& vkTexture = static_cast<VulkanTexture&>(texture);
+		VulkanTexture& vkTexture = SafeCast<VulkanTexture&>(texture);
 		VkImage vkImage = vkTexture.GetImage();
 
 		const TextureInfo& textureInfo = vkTexture.GetTextureInfo();
@@ -246,24 +291,24 @@ namespace Nz
 
 	void VulkanCommandBufferBuilder::CopyBuffer(const RenderBufferView& source, const RenderBufferView& target, UInt64 size, UInt64 sourceOffset, UInt64 targetOffset)
 	{
-		VulkanBuffer& sourceBuffer = *static_cast<VulkanBuffer*>(source.GetBuffer());
-		VulkanBuffer& targetBuffer = *static_cast<VulkanBuffer*>(target.GetBuffer());
+		VulkanBuffer& sourceBuffer = *SafeCast<VulkanBuffer*>(source.GetBuffer());
+		VulkanBuffer& targetBuffer = *SafeCast<VulkanBuffer*>(target.GetBuffer());
 
 		m_commandBuffer.CopyBuffer(sourceBuffer.GetBuffer(), targetBuffer.GetBuffer(), size, sourceOffset + source.GetOffset(), targetOffset + target.GetOffset());
 	}
 
 	void VulkanCommandBufferBuilder::CopyBuffer(const UploadPool::Allocation& allocation, const RenderBufferView& target, UInt64 size, UInt64 sourceOffset, UInt64 targetOffset)
 	{
-		const auto& vkAllocation = static_cast<const VulkanUploadPool::VulkanAllocation&>(allocation);
-		VulkanBuffer& targetBuffer = *static_cast<VulkanBuffer*>(target.GetBuffer());
+		const auto& vkAllocation = SafeCast<const VulkanUploadPool::VulkanAllocation&>(allocation);
+		VulkanBuffer& targetBuffer = *SafeCast<VulkanBuffer*>(target.GetBuffer());
 
 		m_commandBuffer.CopyBuffer(vkAllocation.buffer, targetBuffer.GetBuffer(), size, vkAllocation.offset + sourceOffset, target.GetOffset() + targetOffset);
 	}
 
 	void VulkanCommandBufferBuilder::CopyTexture(const Texture& fromTexture, const Boxui& fromBox, TextureLayout fromLayout, const Texture& toTexture, const Vector3ui& toPos, TextureLayout toLayout)
 	{
-		const VulkanTexture& vkFromTexture = static_cast<const VulkanTexture&>(fromTexture);
-		const VulkanTexture& vkToTexture = static_cast<const VulkanTexture&>(toTexture);
+		const VulkanTexture& vkFromTexture = SafeCast<const VulkanTexture&>(fromTexture);
+		const VulkanTexture& vkToTexture = SafeCast<const VulkanTexture&>(toTexture);
 
 		unsigned int fromBaseLayer, fromLayerCount;
 		Image::RegionToArray(vkFromTexture.GetType(), fromBox, fromBaseLayer, fromLayerCount);
@@ -358,7 +403,7 @@ namespace Nz
 
 	void VulkanCommandBufferBuilder::TextureBarrier(PipelineStageFlags srcStageMask, PipelineStageFlags dstStageMask, MemoryAccessFlags srcAccessMask, MemoryAccessFlags dstAccessMask, TextureLayout oldLayout, TextureLayout newLayout, const Texture& texture)
 	{
-		const VulkanTexture& vkTexture = static_cast<const VulkanTexture&>(texture);
+		const VulkanTexture& vkTexture = SafeCast<const VulkanTexture&>(texture);
 
 		m_commandBuffer.ImageBarrier(ToVulkan(srcStageMask), ToVulkan(dstStageMask), VkDependencyFlags(0), ToVulkan(srcAccessMask), ToVulkan(dstAccessMask), ToVulkan(oldLayout), ToVulkan(newLayout), vkTexture.GetImage(), vkTexture.GetSubresourceRange());
 	}

@@ -230,11 +230,12 @@ namespace Nz
 		PerViewerData& viewerData = *Retrieve(m_viewerData, viewer);
 
 		viewerData.textureArrayAttachmentIndex = frameGraph.AddAttachmentArray({
-			"Directional-light cascade shadowmaps",
-			m_light.GetShadowMapFormat(),
-			FramePassAttachmentSize::Fixed,
-			shadowMapSize, shadowMapSize,
-		}, m_cascadeCount);
+			.name = "Directional-light cascade shadowmaps",
+			.format = m_light.GetShadowMapFormat(),
+			.size = FramePassAttachmentSize::Fixed,
+			.width = shadowMapSize,
+			.height = shadowMapSize,
+		}, SafeCast<unsigned int>(m_cascadeCount));
 
 		for (std::size_t i = 0; i < viewerData.cascades.size(); ++i)
 		{

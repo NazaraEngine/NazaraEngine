@@ -12,6 +12,11 @@ namespace Nz
 		assert(m_context);
 		return *m_context;
 	}
+
+	inline OpenGLDevice& OpenGLSwapchain::GetDevice()
+	{
+		return m_device;
+	}
 }
 
 #include <Nazara/OpenGLRenderer/DebugOff.hpp>

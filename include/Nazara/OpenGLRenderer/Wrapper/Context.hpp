@@ -29,6 +29,7 @@ namespace Nz
 
 namespace Nz::GL
 {
+	class Framebuffer;
 	class Texture;
 
 	enum class BufferTarget
@@ -141,6 +142,7 @@ namespace Nz::GL
 			void BindVertexArray(GLuint vertexArray, bool force = false) const;
 
 			bool BlitTexture(const OpenGLTexture& source, const OpenGLTexture& destination, const Boxui& srcBox, const Boxui& dstBox, SamplerFilter filter) const;
+			bool BlitTextureToWindow(const OpenGLTexture& texture, const Boxui& srcBox, const Boxui& dstBox, SamplerFilter filter) const;
 
 			bool ClearErrorStack() const;
 
@@ -217,6 +219,7 @@ namespace Nz::GL
 		private:
 			void HandleDebugMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message) const;
 			bool InitializeBlitFramebuffers() const;
+			static void BindTextureToFramebuffer(Framebuffer& framebuffer, const OpenGLTexture& texture);
 
 			enum class FunctionIndex
 			{

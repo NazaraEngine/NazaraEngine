@@ -14,14 +14,19 @@
 
 namespace Nz
 {
+	class CommandBufferBuilder;
 	class Framebuffer;
+	class RenderFrame;
 	class RenderPass;
+	class Texture;
 
 	class NAZARA_RENDERER_API RenderTarget
 	{
 		public:
 			RenderTarget() = default;
 			virtual ~RenderTarget();
+
+			virtual void BlitTexture(RenderFrame& renderFrame, CommandBufferBuilder& builder, const Texture& texture) const = 0;
 
 			virtual const Framebuffer& GetFramebuffer(std::size_t i) const = 0;
 			virtual std::size_t GetFramebufferCount() const = 0;

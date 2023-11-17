@@ -8,6 +8,11 @@
 
 namespace Nz
 {
+	inline TransientResources::TransientResources(RenderDevice& renderDevice) :
+	m_renderDevice(renderDevice)
+	{
+	}
+
 	inline void TransientResources::FlushReleaseQueue()
 	{
 		for (Releasable* releasable : m_releaseQueue)
@@ -19,6 +24,11 @@ namespace Nz
 
 		for (auto& memoryblock : m_releaseMemoryPool)
 			memoryblock.clear();
+	}
+
+	inline RenderDevice& TransientResources::GetRenderDevice()
+	{
+		return m_renderDevice;
 	}
 
 	template<typename T>
@@ -98,3 +108,4 @@ namespace Nz
 }
 
 #include <Nazara/Renderer/DebugOff.hpp>
+#include "TransientResources.hpp"

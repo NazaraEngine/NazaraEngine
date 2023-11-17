@@ -46,11 +46,12 @@ namespace Nz
 
 			std::shared_ptr<CommandPool> CreateCommandPool(QueueType queueType) override;
 
-			const VulkanWindowFramebuffer& GetFramebuffer(std::size_t i) const override;
+			const VulkanWindowFramebuffer& GetFramebuffer(std::size_t imageIndex) const override;
 			std::size_t GetFramebufferCount() const override;
 			inline VulkanDevice& GetDevice();
 			inline const VulkanDevice& GetDevice() const;
 			inline Vk::QueueHandle& GetGraphicsQueue();
+			inline VkImage GetImage(std::size_t imageIndex) const;
 			const VulkanRenderPass& GetRenderPass() const override;
 			const Vector2ui& GetSize() const override;
 			PresentMode GetPresentMode() const override;

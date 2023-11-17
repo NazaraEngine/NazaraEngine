@@ -19,6 +19,7 @@ namespace Nz
 {
 	class CommandBuffer;
 	class CommandBufferBuilder;
+	class RenderDevice;
 	class UploadPool;
 
 	class NAZARA_RENDERER_API RenderFrame
@@ -30,11 +31,12 @@ namespace Nz
 			RenderFrame(RenderFrame&&) = delete;
 			~RenderFrame() = default;
 
-			void Execute(const FunctionRef<void(CommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags);
+			inline void Execute(const FunctionRef<void(CommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags);
 
 			inline std::size_t GetFramebufferIndex() const;
 			const Vector2ui& GetSize() const;
-			UploadPool& GetUploadPool();
+			inline RenderDevice& GetRenderDevice();
+			inline UploadPool& GetUploadPool();
 
 			inline bool IsFramebufferInvalidated() const;
 

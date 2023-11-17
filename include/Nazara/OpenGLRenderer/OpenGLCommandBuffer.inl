@@ -88,6 +88,18 @@ namespace Nz
 		m_commands.emplace_back(std::move(blitTexture));
 	}
 
+	inline void OpenGLCommandBuffer::BlitTextureToWindow(const OpenGLTexture& source, const Boxui& sourceBox, const Boxui& targetBox, SamplerFilter filter)
+	{
+		BlitTextureToWindowCommand blitTexture = {
+			&source,
+			sourceBox,
+			targetBox,
+			filter
+		};
+
+		m_commands.emplace_back(std::move(blitTexture));
+	}
+
 	inline void OpenGLCommandBuffer::BuildMipmaps(OpenGLTexture& texture, UInt8 baseLevel, UInt8 levelCount)
 	{
 		BuildTextureMipmapsCommand buildMipmaps = {
@@ -258,3 +270,4 @@ namespace Nz
 }
 
 #include <Nazara/OpenGLRenderer/DebugOff.hpp>
+#include "OpenGLCommandBuffer.hpp"

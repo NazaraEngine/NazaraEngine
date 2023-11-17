@@ -13,6 +13,7 @@
 namespace Nz
 {
 	VulkanRenderImage::VulkanRenderImage(VulkanSwapchain& owner) :
+	RenderImage(owner.GetDevice()),
 	m_freeCommandBufferIndex(0),
 	m_owner(owner),
 	m_uploadPool(m_owner.GetDevice(), 2 * 1024 * 1024)

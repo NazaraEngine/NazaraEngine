@@ -148,10 +148,11 @@ namespace Nz
 		UInt32 shadowMapSize = m_light.GetShadowMapSize();
 
 		m_cubeAttachmentIndex = frameGraph.AddAttachmentCube({
-			"Point-light shadowmap",
-			m_light.GetShadowMapFormat(),
-			FramePassAttachmentSize::Fixed,
-			shadowMapSize, shadowMapSize,
+			.name = "Point-light shadowmap",
+			.format = m_light.GetShadowMapFormat(),
+			.size = FramePassAttachmentSize::Fixed,
+			.width = shadowMapSize,
+			.height = shadowMapSize,
 		});
 
 		for (std::size_t i = 0; i < m_directions.size(); ++i)

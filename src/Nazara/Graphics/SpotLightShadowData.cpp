@@ -102,10 +102,11 @@ namespace Nz
 		UInt32 shadowMapSize = m_light.GetShadowMapSize();
 
 		m_attachmentIndex = frameGraph.AddAttachment({
-			"Shadowmap",
-			m_light.GetShadowMapFormat(),
-			FramePassAttachmentSize::Fixed,
-			shadowMapSize, shadowMapSize,
+			.name = "Shadowmap",
+			.format = m_light.GetShadowMapFormat(),
+			.size = FramePassAttachmentSize::Fixed,
+			.width = shadowMapSize,
+			.height = shadowMapSize,
 		});
 
 		FramePipelinePass::PassInputOuputs passInputOuputs;

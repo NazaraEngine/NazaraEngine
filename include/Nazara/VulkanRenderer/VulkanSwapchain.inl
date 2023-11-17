@@ -21,6 +21,11 @@ namespace Nz
 		return m_graphicsQueue;
 	}
 
+	inline VkImage VulkanSwapchain::GetImage(std::size_t imageIndex) const
+	{
+		return m_swapchain.GetImage(imageIndex).image;
+	}
+
 	inline const Vk::Swapchain& VulkanSwapchain::GetSwapchain() const
 	{
 		return m_swapchain;
