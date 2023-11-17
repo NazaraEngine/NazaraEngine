@@ -717,47 +717,59 @@ namespace Nz
 		{
 			const auto& targetViewers = renderTargetData.viewers;
 
-			FramePass& mergePass = frameGraph.AddPass("Merge pass");
-
-			renderTargetData.finalAttachment = frameGraph.AddAttachment({
-				"Viewer output",
-				PixelFormat::RGBA8
-			});
-
-			for (const ViewerData* viewerData : targetViewers)
-				mergePass.AddInput(viewerData->finalColorAttachment);
-
-			mergePass.AddOutput(renderTargetData.finalAttachment);
-			mergePass.SetClearColor(0, Color::Black());
-
-			mergePass.SetCommandCallback([&targetViewers](CommandBufferBuilder& builder, const FramePassEnvironment& /*env*/)
+			if (targetViewers.size() > 1)
 			{
-				Graphics* graphics = Graphics::Instance();
-				builder.BindRenderPipeline(*graphics->GetBlitPipeline(false));
+				// Multiple viewers on the same targets, merge them
+				FramePass& mergePass = frameGraph.AddPass("Merge pass");
 
-				bool first = true;
+				renderTargetData.finalAttachment = frameGraph.AddAttachment({
+					"Viewer output",
+					PixelFormat::RGBA8
+				});
 
 				for (const ViewerData* viewerData : targetViewers)
+					mergePass.AddInput(viewerData->finalColorAttachment);
+
+				mergePass.AddOutput(renderTargetData.finalAttachment);
+				mergePass.SetClearColor(0, Color::Black());
+
+				mergePass.SetCommandCallback([&targetViewers](CommandBufferBuilder& builder, const FramePassEnvironment& /*env*/)
 				{
-					Recti renderRect = viewerData->viewer->GetViewport();
+					Graphics* graphics = Graphics::Instance();
+					builder.BindRenderPipeline(*graphics->GetBlitPipeline(false));
 
-					builder.SetScissor(renderRect);
-					builder.SetViewport(renderRect);
+					bool first = true;
 
-					const ShaderBindingPtr& blitShaderBinding = viewerData->blitShaderBinding;
-
-					builder.BindRenderShaderBinding(0, *blitShaderBinding);
-					builder.Draw(3);
-
-					if (first)
+					for (const ViewerData* viewerData : targetViewers)
 					{
-						builder.BindRenderPipeline(*graphics->GetBlitPipeline(true));
-						first = false;
-					}
-				}
-			});
+						Recti renderRect = viewerData->viewer->GetViewport();
 
-			frameGraph.AddBackbufferOutput(renderTargetData.finalAttachment);
+						builder.SetScissor(renderRect);
+						builder.SetViewport(renderRect);
+
+						const ShaderBindingPtr& blitShaderBinding = viewerData->blitShaderBinding;
+
+						builder.BindRenderShaderBinding(0, *blitShaderBinding);
+						builder.Draw(3);
+
+						if (first)
+						{
+							builder.BindRenderPipeline(*graphics->GetBlitPipeline(true));
+							first = false;
+						}
+					}
+				});
+
+				frameGraph.AddBackbufferOutput(renderTargetData.finalAttachment);
+			}
+			else if (targetViewers.size() == 1)
+			{
+				// Single viewer on that target
+				const auto& viewer = *targetViewers.front();
+
+				frameGraph.AddBackbufferOutput(viewer.finalColorAttachment);
+				renderTargetData.finalAttachment = viewer.finalColorAttachment;
+			}
 		}
 
 		return frameGraph.Bake();
