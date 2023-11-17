@@ -26,24 +26,15 @@ namespace Nz::Loaders
 					{
 						std::string finalOutputAttachment;
 
-						m_paramFile.Handle(
-							"passlist", [&](std::string passListName)
+						m_paramFile.Parse(
+							"passlist", [&](ParameterFileSection section, std::string passListName)
 							{
 								m_current.emplace();
 								m_current->passList = std::make_shared<PipelinePassList>();
-								m_paramFile.Block(
-									"attachment", [this](std::string attachmentName)
-									{
-										HandleAttachment(std::move(attachmentName));
-									},
-									"attachmentproxy", [this](std::string proxyName, std::string targetName)
-									{
-										HandleAttachmentProxy(std::move(proxyName), std::move(targetName));
-									},
-									"pass", [this](std::string passName)
-									{
-										HandlePass(std::move(passName));
-									},
+								section.Block(
+									"attachment", &PassListLoader::HandleAttachment, this,
+									"attachmentproxy", &PassListLoader::HandleAttachmentProxy, this,
+									"pass", &PassListLoader::HandlePass, this,
 									"output", &finalOutputAttachment
 								);
 							}
@@ -73,11 +64,11 @@ namespace Nz::Loaders
 				}
 
 			private:
-				void HandleAttachment(std::string attachmentName)
+				void HandleAttachment(ParameterFileSection section, std::string attachmentName)
 				{
 					std::string format;
 
-					m_paramFile.Block(
+					section.Block(
 						"format", &format
 					);
 
@@ -134,7 +125,7 @@ namespace Nz::Loaders
 					m_current->attachmentsByName.emplace(std::move(proxyName), proxyId);
 				}
 				
-				void HandlePass(std::string passName)
+				void HandlePass(ParameterFileSection section, std::string passName)
 				{
 					struct InputOutput
 					{
@@ -150,17 +141,18 @@ namespace Nz::Loaders
 					std::vector<InputOutput> outputs;
 					std::vector<std::string> flags;
 
-					m_paramFile.Block(
+					section.Block(
 						"depthstencilinput", &depthstencilInput,
 						"depthstenciloutput", &depthstencilOutput,
-						"impl", [&](std::string passImpl)
+						"impl", [&](ParameterFileSection implSection, std::string passImpl)
 						{
 							impl = std::move(passImpl);
-							m_paramFile.Block(ParameterFile::OptionalBlock,
-							ParameterFile::Array, [&](ParameterFile::Keyword key, std::string value)
-							{
-								implConfig.SetParameter(std::move(key.str), std::move(value));
-							});
+							implSection.Block(ParameterFile::OptionalBlock,
+								ParameterFile::List, [&](ParameterFile::Identifier key, std::string value)
+								{
+									implConfig.SetParameter(std::move(key.value), std::move(value));
+								}
+							);
 						},
 						"input", [&](std::string name, std::string attachment)
 						{

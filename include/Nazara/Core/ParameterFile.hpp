@@ -16,34 +16,41 @@
 #include <functional>
 #include <string>
 #include <type_traits>
+#include <variant>
 
 namespace Nz
 {
+	class ParameterFileSection;
 	class Stream;
+
+	// TOOD: Move to NazaraUtils
+	template<typename T>
+	concept Functor = IsFunctor_v<T>;
 
 	class NAZARA_CORE_API ParameterFile
 	{
+		friend ParameterFileSection;
+
 		public:
 			inline ParameterFile(Stream& stream);
 			ParameterFile(const ParameterFile&) = delete;
 			ParameterFile(ParameterFile&&) = delete;
 			~ParameterFile() = default;
 
-			template<typename... Args> void Block(Args&&... args);
-			template<typename... Args> void Handle(Args&&... args);
+			template<typename... Args> void Parse(Args&&... args);
 
 			ParameterFile& operator=(const ParameterFile&) = delete;
 			ParameterFile& operator=(ParameterFile&&) = delete;
 
-			struct Keyword
+			struct Identifier
 			{
-				std::string str;
+				std::string value;
 			};
 
-			struct Array_t {};
+			struct List_t {};
 			struct OptionalBlock_t {};
 
-			static constexpr Array_t Array{};
+			static constexpr List_t List{};
 			static constexpr OptionalBlock_t OptionalBlock{};
 
 		private:
@@ -55,28 +62,59 @@ namespace Nz
 				ValueHandler handler;
 			};
 
+			struct ClosingCurlyBracket {};
+			struct EndOfStream {};
+			struct OpenCurlyBracket {};
+
+			struct String
+			{
+				std::string value; //< has to be a string because of text parsing
+			};
+
+			using Token = std::variant<std::monostate, ClosingCurlyBracket, EndOfStream, Identifier, OpenCurlyBracket, String>;
+
+			Token Advance();
+			void ConsumeChar(std::size_t count = 1);
+			template<typename EndToken, typename... Args> void HandleInner(Args&&... args);
+			Token& PeekToken();
+			char PeekCharacter(std::size_t advance = 1);
+			template<typename T> T& Peek();
+			template<typename T> T Read();
+			template<typename T> T ReadValue();
+
+			// Handlers
+			template<std::size_t N, typename T, typename... Rest> ValueHandler BuildBlockHandler(FixedVector<KeyValue, N>* keyValues, T* value, Rest&&... rest);
+			template<std::size_t N, Functor T, typename... Rest> ValueHandler BuildBlockHandler(FixedVector<KeyValue, N>* keyValues, T&& handler, Rest&&... rest);
+			template<std::size_t N, typename O, typename... Args, typename... Rest> ValueHandler BuildBlockHandler(FixedVector<KeyValue, N>* keyValues, void(O::* method)(Args...), O* object, Rest&&... rest);
+			template<std::size_t N, typename... Args, typename... Rest> ValueHandler BuildBlockHandler(FixedVector<KeyValue, N>* keyValues, FunctionRef<void(Args...)> handler, Rest&&... rest);
+			template<std::size_t N, typename K, typename... Rest> void BuildKeyValues(FixedVector<KeyValue, N>* keyValues, K&& key, Rest&&... rest);
+			template<typename V, typename... Rest> ValueHandler GetSingleHandler(V&& value, Rest&&... rest);
+
 			template<typename T> static std::string_view BuildBlockKey(T&& key);
-			template<typename... Args> static ValueHandler BuildBlockHandler(ParameterFile& file, ValueHandler handler);
-			template<typename T> static ValueHandler BuildBlockHandler(ParameterFile& file, T* value);
-			template<typename T> static ValueHandler BuildBlockHandler(ParameterFile& file, T&& handler, std::enable_if_t<IsFunctor_v<T>>* = nullptr);
-			template<typename... Args> static ValueHandler BuildBlockHandler(ParameterFile& file, FunctionRef<void(Args...)> handler);
 
-			template<std::size_t N, typename K, typename V, typename... Rest> static void BuildKeyValues(ParameterFile& file, FixedVector<KeyValue, N>& keyValues, K&& key, V&& value, Rest&&... rest);
-			template<typename V, typename... Rest> static ValueHandler GetSingleHandler(ParameterFile& file, V&& value, Rest&&... rest);
+			template<typename T> static constexpr bool ShouldIgnoreImpl = std::is_same_v<T, List_t> || std::is_same_v<T, OptionalBlock_t>;
+			template<typename T> static constexpr bool ShouldIgnore = ShouldIgnoreImpl<std::decay_t<T>>;
 
-			template<typename... Args> void HandleInner(std::string_view listEnd, Args&&... args);
-
-			template<typename T> static T ReadValue(ParameterFile& file);
-
-			template<typename T> static constexpr bool ShouldIgnoreImpl = std::is_same_v<T, Array_t> || std::is_same_v<T, OptionalBlock_t>;
-			template<typename T> static constexpr bool ShouldIgnore = ShouldIgnoreImpl<std::decay_t<std::remove_const_t<T>>>;
-
-			bool EnsureLine(bool peek = false);
-			std::string ReadKeyword(bool peek = false);
-			std::string ReadString();
-
-			std::string m_currentLine;
+			std::size_t m_bufferOffset;
+			std::string m_buffer;
 			Stream& m_stream;
+			Token m_nextToken;
+			unsigned int m_currentLine;
+	};
+
+	class ParameterFileSection
+	{
+		friend ParameterFile;
+
+		public:
+			ParameterFileSection(const ParameterFileSection&) = default;
+
+			template<typename... Args> void Block(Args&&... args);
+
+		private:
+			inline ParameterFileSection(ParameterFile& file);
+
+			ParameterFile& m_file;
 	};
 }
 

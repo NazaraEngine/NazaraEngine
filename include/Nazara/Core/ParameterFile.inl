@@ -3,7 +3,9 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Log.hpp>
+#include <NazaraUtils/TypeName.hpp>
 #include <array>
+#include <cassert>
 #include <stdexcept>
 #include <tuple>
 #include <utility>
@@ -12,69 +14,170 @@
 namespace Nz
 {
 	inline ParameterFile::ParameterFile(Stream& stream) :
-	m_stream(stream)
+	m_bufferOffset(0),
+	m_stream(stream),
+	m_currentLine(1)
 	{
 	}
 
 	template<typename... Args>
-	void ParameterFile::Block(Args&&... args)
+	void ParameterFile::Parse(Args&&... args)
 	{
-		using Types = TypeListTransform<TypeListTransform<TypeList<Args...>, std::remove_const>, std::decay>;
+		HandleInner<EndOfStream>(std::forward<Args>(args)...);
+	}
+	
+	template<typename EndToken, typename... Args>
+	void ParameterFile::HandleInner(Args&&... args)
+	{
+		using Types = TypeListTransform<TypeList<Args...>, std::decay>;
+		constexpr bool IsArray = TypeListHas<Types, List_t>;
 
-		constexpr bool IsOptionalBlock = TypeListHas<Types, OptionalBlock_t>;
-		if constexpr (IsOptionalBlock)
+		if constexpr (IsArray)
 		{
-			std::string nextKeyword = ReadKeyword(true);
-			if (nextKeyword != "{")
-				return;
+			ValueHandler handler = GetSingleHandler(std::forward<Args>(args)...);
+
+			for (;;)
+			{
+				if (std::holds_alternative<EndToken>(PeekToken()))
+					break;
+
+				handler(*this);
+			}
 		}
-
-		std::string beginToken = ReadKeyword();
-		if (beginToken != "{")
-			throw std::runtime_error(Format("expected \"{{\" token, got {}", beginToken));
-
-		HandleInner("}", std::forward<Args>(args)...);
-
-		std::string endToken = ReadKeyword();
-		if (endToken != "}")
-			throw std::runtime_error(Format("expected \"}}\" token, got {}", endToken));
-	}
-
-	template<typename... Args>
-	void ParameterFile::Handle(Args&&... args)
-	{
-		HandleInner({}, std::forward<Args>(args)...);
-	}
-
-	template<std::size_t N, typename K, typename V, typename... Rest>
-	void ParameterFile::BuildKeyValues(ParameterFile& file, FixedVector<KeyValue, N>& keyValues, K&& key, V&& value, Rest&&... rest)
-	{
-		if constexpr (ShouldIgnore<K>)
-			return BuildKeyValues(file, keyValues, std::forward<V>(value), std::forward<Rest>(rest)...);
 		else
 		{
-			auto& keyValue = keyValues.emplace_back();
-			keyValue.key = BuildBlockKey(std::forward<K>(key));
-			keyValue.handler = BuildBlockHandler(file, std::forward<V>(value));
+			FixedVector<KeyValue, sizeof...(Args) / 2> keys;
+			BuildKeyValues(&keys, std::forward<Args>(args)...);
 
-			if constexpr (sizeof...(Rest) > 0)
-				BuildKeyValues(file, keyValues, std::forward<Rest>(rest)...);
+			for (;;)
+			{
+				if (std::holds_alternative<EndToken>(PeekToken()))
+					break;
+
+				Identifier nextIdentifier = Read<Identifier>();
+
+				auto it = std::find_if(keys.begin(), keys.end(), [&](const KeyValue& keyValue) { return keyValue.key == nextIdentifier.value; });
+				if (it == keys.end())
+					throw std::runtime_error(Format("unexpected keyword \"{}\"", nextIdentifier.value));
+
+				const ValueHandler& handler = it->handler;
+				handler(*this);
+			}
 		}
 	}
 
-	template<typename V, typename ...Rest>
-	auto ParameterFile::GetSingleHandler(ParameterFile& file, V&& value, Rest&&... rest) -> ValueHandler
+	template<typename T>
+	auto ParameterFile::Peek() -> T&
+	{
+		Token& token = PeekToken();
+		if (!std::holds_alternative<T>(token))
+			throw std::runtime_error(Format("expected {} on line {}", TypeName<T>(), m_currentLine));
+
+		return std::get<T>(token);
+	}
+
+	template<typename T>
+	auto ParameterFile::Read() -> T
+	{
+		Token token = std::move(m_nextToken);
+		if (!std::holds_alternative<T>(token))
+			throw std::runtime_error(Format("expected {} on line {}", TypeName<T>(), m_currentLine));
+
+		Advance();
+		return std::get<T>(token);
+	}
+
+	template<typename T>
+	T ParameterFile::ReadValue()
+	{
+		if constexpr (std::is_same_v<T, std::string>)
+			return Read<String>().value;
+		else if constexpr (std::is_same_v<T, Identifier>)
+			return Read<Identifier>();
+		else if constexpr (std::is_same_v<T, ParameterFileSection>)
+			return ParameterFileSection{ *this };
+		else
+			static_assert(AlwaysFalse<T>(), "unsupported type");
+	}
+
+	template<std::size_t N, typename K, typename... Rest>
+	void ParameterFile::BuildKeyValues(FixedVector<KeyValue, N>* keyValues, K&& key, Rest&&... rest)
+	{
+		if constexpr (ShouldIgnore<K>)
+			return BuildKeyValues(keyValues, std::forward<Rest>(rest)...);
+		else
+		{
+			assert(keyValues);
+			auto& keyValue = keyValues->emplace_back();
+			keyValue.key = BuildBlockKey(std::forward<K>(key));
+			keyValue.handler = BuildBlockHandler(keyValues, std::forward<Rest>(rest)...);
+		}
+	}
+	
+	template<typename V, typename... Rest>
+	auto ParameterFile::GetSingleHandler(V&& value, Rest&&... rest) -> ValueHandler
 	{
 		if constexpr (ShouldIgnore<V>)
 		{
 			static_assert(sizeof...(Rest) > 0, "expected a handler");
-			return GetSingleHandler(file, std::forward<Rest>(rest)...);
+			return GetSingleHandler(std::forward<Rest>(rest)...);
 		}
 		else
 		{
 			static_assert(sizeof...(Rest) == 0, "expected a single handler");
-			return BuildBlockHandler(file, std::forward<V>(value));
+			return BuildBlockHandler(static_cast<FixedVector<KeyValue, 0>*>(nullptr), std::forward<V>(value));
 		}
+	}
+
+	template<std::size_t N, typename T, typename... Rest>
+	auto ParameterFile::BuildBlockHandler(FixedVector<KeyValue, N>* keyValues, T* value, Rest&&... rest) -> ValueHandler
+	{
+		ValueHandler valueHandler = [value](ParameterFile& file)
+		{
+			*value = file.ReadValue<T>();
+		};
+
+		if constexpr (sizeof...(Rest) > 0)
+			BuildKeyValues(keyValues, std::forward<Rest>(rest)...);
+
+		return valueHandler;
+	}
+
+	template<std::size_t N, Functor T, typename... Rest>
+	auto ParameterFile::BuildBlockHandler(FixedVector<KeyValue, N>* keyValues, T&& handler, Rest&&... rest) -> ValueHandler
+	{
+		using FunctionType = typename FunctionTraits<T>::FuncType;
+		return BuildBlockHandler(keyValues, FunctionRef<FunctionType>(handler), std::forward<Rest>(rest)...);
+	}
+
+	template<std::size_t N, typename O, typename... Args, typename... Rest>
+	auto ParameterFile::BuildBlockHandler(FixedVector<KeyValue, N>* keyValues, void(O::* method)(Args...), O* object, Rest&&... rest) -> ValueHandler
+	{
+		ValueHandler valueHandler = [object, method](ParameterFile& file)
+		{
+			std::tuple<O*, Args...> args{ object, file.ReadValue<Args>()... };
+			std::apply(method, std::move(args));
+		};
+
+		if constexpr (sizeof...(Rest) > 0)
+			BuildKeyValues(keyValues, std::forward<Rest>(rest)...);
+
+		return valueHandler;
+	}
+
+	template<std::size_t N, typename... Args, typename... Rest>
+	auto ParameterFile::BuildBlockHandler(FixedVector<KeyValue, N>* keyValues, FunctionRef<void(Args...)> handler, Rest&&... rest) -> ValueHandler
+	{
+		ValueHandler valueHandler = [handler](ParameterFile& file)
+		{
+			std::tuple<Args...> args{ file.ReadValue<Args>()... };
+			std::apply(handler, std::move(args));
+		};
+
+		if constexpr (sizeof...(Rest) > 0)
+			BuildKeyValues(keyValues, std::forward<Rest>(rest)...);
+
+		return valueHandler;
 	}
 
 	template<typename T>
@@ -84,87 +187,35 @@ namespace Nz
 		return std::string_view(std::forward<T>(key));
 	}
 
-	template<typename... Args>
-	auto ParameterFile::BuildBlockHandler(ParameterFile& /*file*/, ValueHandler handler) -> ValueHandler
+
+	inline ParameterFileSection::ParameterFileSection(ParameterFile& file) :
+	m_file(file)
 	{
-		return handler;
 	}
 
-	template<typename T>
-	auto ParameterFile::BuildBlockHandler(ParameterFile& /*file*/, T* value) -> ValueHandler
+	template<typename ...Args>
+	void ParameterFileSection::Block(Args&&... args)
 	{
-		return [value](ParameterFile& file)
+		using Types = TypeListTransform<TypeList<Args...>, std::decay>;
+
+		constexpr bool IsOptionalBlock = TypeListHas<Types, ParameterFile::OptionalBlock_t>;
+		if constexpr (IsOptionalBlock)
 		{
-			*value = ReadValue<T>(file);
-		};
-	}
+			if (!std::holds_alternative<ParameterFile::OpenCurlyBracket>(m_file.PeekToken()))
+				return;
 
-	template<typename T>
-	auto ParameterFile::BuildBlockHandler(ParameterFile& file, T&& handler, std::enable_if_t<IsFunctor_v<T>>*) -> ValueHandler
-	{
-		using FunctionType = typename FunctionTraits<T>::FuncType;
-		return BuildBlockHandler(file, FunctionRef<FunctionType>(handler));
-	}
-
-	template<typename... Args>
-	auto ParameterFile::BuildBlockHandler(ParameterFile& /*file*/, FunctionRef<void(Args...)> handler) -> ValueHandler
-	{
-		return [handler](ParameterFile& file)
-		{
-			std::tuple<Args...> args{ ReadValue<Args>(file)... };
-			std::apply(handler, std::move(args));
-		};
-	}
-
-	template<typename... Args>
-	void ParameterFile::HandleInner(std::string_view listEnd, Args&&... args)
-	{
-		using Types = TypeListTransform<TypeListTransform<TypeList<Args...>, std::remove_const>, std::decay>;
-		constexpr bool IsArray = TypeListHas<Types, Array_t>;
-
-		if constexpr (IsArray)
-		{
-			ValueHandler handler = GetSingleHandler(*this, std::forward<Args>(args)...);
-
-			for (;;)
-			{
-				std::string nextKeyword = ReadKeyword(true);
-				if (nextKeyword == listEnd)
-					break;
-
-				handler(*this);
-			}
+			m_file.Advance();
 		}
 		else
 		{
-			FixedVector<KeyValue, sizeof...(Args) / 2> keys;
-			BuildKeyValues(*this, keys, std::forward<Args>(args)...);
-
-			for (;;)
-			{
-				std::string nextKeyword = ReadKeyword(true);
-				if (nextKeyword == listEnd)
-					break;
-
-				auto it = std::find_if(keys.begin(), keys.end(), [nextKeyword = ReadKeyword()](const KeyValue& keyValue) { return keyValue.key == nextKeyword; });
-				if (it == keys.end())
-					throw std::runtime_error(Format("unexpected keyword \"{}\"", nextKeyword));
-
-				const ValueHandler& handler = it->handler;
-				handler(*this);
-			}
+			if (!std::holds_alternative<ParameterFile::OpenCurlyBracket>(m_file.Advance()))
+				throw std::runtime_error(Format("expected OpenCurlyBracket on line {}", m_file.m_currentLine));
 		}
-	}
 
-	template<typename T>
-	T ParameterFile::ReadValue(ParameterFile& file)
-	{
-		if constexpr (std::is_same_v<T, std::string>)
-			return file.ReadString();
-		else if constexpr (std::is_same_v<T, Keyword>)
-			return Keyword{ file.ReadKeyword() };
-		else
-			static_assert(AlwaysFalse<T>(), "unsupported type");
+		m_file.HandleInner<ParameterFile::ClosingCurlyBracket>(std::forward<Args>(args)...);
+
+		if (!std::holds_alternative<ParameterFile::ClosingCurlyBracket>(m_file.Advance()))
+			throw std::runtime_error(Format("expected ClosingCurlyBracket on line {}", m_file.m_currentLine));
 	}
 }
 
