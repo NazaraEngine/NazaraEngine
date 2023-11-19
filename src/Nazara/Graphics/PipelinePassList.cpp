@@ -27,7 +27,7 @@ namespace Nz
 		return passes;
 	}
 
-	std::size_t PipelinePassList::RegisterPasses(const std::vector<std::unique_ptr<FramePipelinePass>>& passes, FrameGraph& frameGraph, const FunctionRef<void(std::size_t passIndex, FramePass& framePass, FramePipelinePassFlags flags)>& passCallback) const
+	std::size_t PipelinePassList::RegisterPasses(const std::vector<std::unique_ptr<FramePipelinePass>>& passes, FrameGraph& frameGraph, std::optional<unsigned int> viewerIndex, const FunctionRef<void(std::size_t passIndex, FramePass& framePass, FramePipelinePassFlags flags)>& passCallback) const
 	{
 		NazaraAssert(m_passes.size() == passes.size(), "pass vector size doesn't match passlist size");
 
@@ -47,7 +47,19 @@ namespace Nz
 			{
 				using T = std::decay_t<decltype(arg)>;
 				if constexpr (std::is_same_v<T, FramePassAttachment>)
-					return frameGraph.AddAttachment(arg);
+				{
+					if (arg.size == FramePassAttachmentSize::ViewerTargetFactor)
+					{
+						if (!viewerIndex)
+							throw std::runtime_error(Format("no viewer index but attachment {} depends on viewer target size", arg.name));
+
+						FramePassAttachment attachment = arg;
+						attachment.viewerIndex = *viewerIndex;
+						return frameGraph.AddAttachment(attachment);
+					}
+					else
+						return frameGraph.AddAttachment(arg);
+				}
 				else if constexpr (std::is_same_v<T, AttachmentProxy>)
 					return frameGraph.AddAttachmentProxy(arg.name, GetAttachmentIndex(arg.attachmentIndex));
 				else

@@ -1037,7 +1037,7 @@ int main(int argc, char* argv[])
 			builder.Draw(3);
 		});
 
-		graph.AddBackbufferOutput(toneMappingOutput);
+		graph.MarkAsFinalOutput(toneMappingOutput);
 
 		return graph.Bake();
 	}();
@@ -1180,7 +1180,9 @@ int main(int argc, char* argv[])
 
 		currentFrame = &frame;
 
-		if (bakedGraph.Resize(frame))
+		std::array<Nz::Vector2ui, 1> sizes = { currentFrame->GetSize() };
+
+		if (bakedGraph.Resize(frame, sizes))
 		{
 			frame.PushForRelease(std::move(gbufferShaderBinding));
 
@@ -1512,7 +1514,7 @@ int main(int argc, char* argv[])
 
 		bakedGraph.Execute(frame);
 
-		const Nz::RenderTarget* windowRT = &windowSwapchain;
+		const Nz::WindowSwapchain* windowRT = &windowSwapchain;
 		frame.Execute([&](Nz::CommandBufferBuilder& builder)
 		{
 			Nz::Recti windowRenderRect(0, 0, window.GetSize().x, window.GetSize().y);

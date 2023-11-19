@@ -355,7 +355,7 @@ int main()
 
 		debugDrawer.Prepare(frame);
 
-		const Nz::RenderTarget& windowRT = windowSwapchain.GetSwapchain();
+		const Nz::WindowSwapchain* windowRT = &windowSwapchain;
 		frame.Execute([&](Nz::CommandBufferBuilder& builder)
 		{
 			windowSize = window.GetSize();
@@ -368,7 +368,7 @@ int main()
 
 			builder.BeginDebugRegion("Main window rendering", Nz::Color::Green());
 			{
-				builder.BeginRenderPass(windowRT.GetFramebuffer(frame.GetFramebufferIndex()), windowRT.GetRenderPass(), renderRect, { clearValues[0], clearValues[1] });
+				builder.BeginRenderPass(windowRT->GetFramebuffer(frame.GetFramebufferIndex()), windowRT->GetRenderPass(), renderRect, { clearValues[0], clearValues[1] });
 				{
 					builder.BindIndexBuffer(*renderBufferIB, Nz::IndexType::U16);
 					builder.BindRenderPipeline(*pipeline);

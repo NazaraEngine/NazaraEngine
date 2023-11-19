@@ -28,9 +28,6 @@ namespace Nz
 
 			virtual void BlitTexture(RenderFrame& renderFrame, CommandBufferBuilder& builder, const Texture& texture) const = 0;
 
-			virtual const Framebuffer& GetFramebuffer(std::size_t i) const = 0;
-			virtual std::size_t GetFramebufferCount() const = 0;
-			virtual const RenderPass& GetRenderPass() const = 0;
 			virtual const Vector2ui& GetSize() const = 0;
 
 			NazaraSignal(OnRenderTargetRelease, const RenderTarget* /*renderTarget*/);

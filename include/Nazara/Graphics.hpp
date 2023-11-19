@@ -37,6 +37,7 @@
 #include <Nazara/Graphics/DebugDrawPipelinePass.hpp>
 #include <Nazara/Graphics/DepthPipelinePass.hpp>
 #include <Nazara/Graphics/DirectionalLight.hpp>
+#include <Nazara/Graphics/DirectionalLightShadowData.hpp>
 #include <Nazara/Graphics/ElementRenderer.hpp>
 #include <Nazara/Graphics/ElementRendererRegistry.hpp>
 #include <Nazara/Graphics/Enums.hpp>
@@ -48,6 +49,7 @@
 #include <Nazara/Graphics/FramePassAttachment.hpp>
 #include <Nazara/Graphics/FramePipeline.hpp>
 #include <Nazara/Graphics/FramePipelinePass.hpp>
+#include <Nazara/Graphics/FramePipelinePassRegistry.hpp>
 #include <Nazara/Graphics/GraphicalMesh.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/GuillotineTextureAtlas.hpp>
@@ -62,9 +64,13 @@
 #include <Nazara/Graphics/MaterialPipeline.hpp>
 #include <Nazara/Graphics/MaterialSettings.hpp>
 #include <Nazara/Graphics/Model.hpp>
+#include <Nazara/Graphics/PipelinePassList.hpp>
+#include <Nazara/Graphics/PipelineViewer.hpp>
 #include <Nazara/Graphics/PointLight.hpp>
 #include <Nazara/Graphics/PointLightShadowData.hpp>
+#include <Nazara/Graphics/PostProcessPipelinePass.hpp>
 #include <Nazara/Graphics/PredefinedMaterials.hpp>
+#include <Nazara/Graphics/PredefinedShaderStructBuilder.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/RenderBufferPool.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>

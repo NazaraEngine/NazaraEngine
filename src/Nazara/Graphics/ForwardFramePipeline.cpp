@@ -22,6 +22,7 @@
 #include <Nazara/Renderer/RenderTarget.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
 #include <NazaraUtils/StackArray.hpp>
+#include <NazaraUtils/StackVector.hpp>
 #include <array>
 #include <Nazara/Graphics/Debug.hpp>
 
@@ -368,16 +369,26 @@ namespace Nz
 		}
 		m_removedWorldInstances.Clear();
 
+		StackVector<Vector2ui> viewerSizes = NazaraStackVector(Vector2ui, m_viewerPool.size());
+		for (auto& viewerData : m_viewerPool)
+		{
+			if (viewerData.pendingDestruction)
+				continue;
+
+			Recti viewport = viewerData.viewer->GetViewport();
+			viewerSizes.emplace_back(Vector2i(viewport.width, viewport.height));
+		}
+
 		bool frameGraphInvalidated;
 		if (m_rebuildFrameGraph)
 		{
 			renderFrame.PushForRelease(std::move(m_bakedFrameGraph));
 			m_bakedFrameGraph = BuildFrameGraph(renderFrame);
-			m_bakedFrameGraph.Resize(renderFrame);
+			m_bakedFrameGraph.Resize(renderFrame, viewerSizes);
 			frameGraphInvalidated = true;
 		}
 		else
-			frameGraphInvalidated = m_bakedFrameGraph.Resize(renderFrame);
+			frameGraphInvalidated = m_bakedFrameGraph.Resize(renderFrame, viewerSizes);
 
 		// Find active lights (i.e. visible in any frustum)
 		m_activeLights.Clear();
@@ -658,6 +669,7 @@ namespace Nz
 				lightData->shadowData->RegisterToFrameGraph(frameGraph, nullptr);
 		}
 
+		unsigned int viewerIndex = 0;
 		for (auto& viewerData : m_viewerPool)
 		{
 			if (viewerData.pendingDestruction)
@@ -684,7 +696,7 @@ namespace Nz
 				}
 			};
 
-			viewerData.finalColorAttachment = viewerData.viewer->RegisterPasses(viewerData.passes, frameGraph, framePassCallback);
+			viewerData.finalColorAttachment = viewerData.viewer->RegisterPasses(viewerData.passes, frameGraph, viewerIndex++, framePassCallback);
 		}
 
 		using ViewerPair = std::pair<const RenderTarget*, const ViewerData*>;
@@ -760,14 +772,14 @@ namespace Nz
 					}
 				});
 
-				frameGraph.AddBackbufferOutput(renderTargetData.finalAttachment);
+				frameGraph.MarkAsFinalOutput(renderTargetData.finalAttachment);
 			}
 			else if (targetViewers.size() == 1)
 			{
 				// Single viewer on that target
 				const auto& viewer = *targetViewers.front();
 
-				frameGraph.AddBackbufferOutput(viewer.finalColorAttachment);
+				frameGraph.MarkAsFinalOutput(viewer.finalColorAttachment);
 				renderTargetData.finalAttachment = viewer.finalColorAttachment;
 			}
 		}

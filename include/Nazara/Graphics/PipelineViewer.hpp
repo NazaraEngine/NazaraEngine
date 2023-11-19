@@ -28,7 +28,7 @@ namespace Nz
 
 			virtual std::vector<std::unique_ptr<FramePipelinePass>> BuildPasses(FramePipelinePass::PassData& passData) const = 0;
 
-			virtual std::size_t RegisterPasses(const std::vector<std::unique_ptr<FramePipelinePass>>& passes, FrameGraph& frameGraph, const FunctionRef<void(std::size_t passIndex, FramePass& framePass, FramePipelinePassFlags flags)>& passCallback = nullptr) const = 0;
+			virtual std::size_t RegisterPasses(const std::vector<std::unique_ptr<FramePipelinePass>>& passes, FrameGraph& frameGraph, std::optional<unsigned int> viewerIndex, const FunctionRef<void(std::size_t passIndex, FramePass& framePass, FramePipelinePassFlags flags)>& passCallback = nullptr) const = 0;
 
 			PipelineViewer& operator=(const PipelineViewer&) = delete;
 			PipelineViewer& operator=(PipelineViewer&&) = delete;

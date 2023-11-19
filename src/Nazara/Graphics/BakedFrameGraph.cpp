@@ -153,6 +153,13 @@ namespace Nz
 					texDimensions.y *= textureData.height;
 					texDimensions /= 100'000;
 					break;
+
+				case FramePassAttachmentSize::ViewerTargetFactor:
+					texDimensions = viewerTargetSizes[textureData.viewerIndex];
+					texDimensions.x *= textureData.width;
+					texDimensions.y *= textureData.height;
+					texDimensions /= 100'000;
+					break;
 			}
 
 			return texDimensions;

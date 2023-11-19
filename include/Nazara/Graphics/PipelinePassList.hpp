@@ -53,7 +53,7 @@ namespace Nz
 
 			inline void EnablePassFlags(std::size_t passIndex, FramePipelinePassFlags flags);
 
-			std::size_t RegisterPasses(const std::vector<std::unique_ptr<FramePipelinePass>>& passes, FrameGraph& frameGraph, const FunctionRef<void(std::size_t passIndex, FramePass& framePass, FramePipelinePassFlags flags)>& passCallback = nullptr) const;
+			std::size_t RegisterPasses(const std::vector<std::unique_ptr<FramePipelinePass>>& passes, FrameGraph& frameGraph, std::optional<unsigned int> viewerIndex, const FunctionRef<void(std::size_t passIndex, FramePass& framePass, FramePipelinePassFlags flags)>& passCallback = nullptr) const;
 
 			inline void SetFinalOutput(std::size_t attachmentIndex);
 

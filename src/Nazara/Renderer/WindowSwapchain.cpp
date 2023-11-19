@@ -30,21 +30,6 @@ namespace Nz
 		ConnectSignals();
 	}
 
-	const Framebuffer& WindowSwapchain::GetFramebuffer(std::size_t i) const
-	{
-		return m_swapchain->GetFramebuffer(i);
-	}
-
-	std::size_t WindowSwapchain::GetFramebufferCount() const
-	{
-		return m_swapchain->GetFramebufferCount();
-	}
-
-	const RenderPass& WindowSwapchain::GetRenderPass() const
-	{
-		return m_swapchain->GetRenderPass();
-	}
-
 	const Vector2ui& WindowSwapchain::GetSize() const
 	{
 		return (m_swapchain) ? m_swapchain->GetSize() : m_window->GetSize();

@@ -18,17 +18,19 @@ namespace Nz
 	enum class FramePassAttachmentSize
 	{
 		Fixed,
-		SwapchainFactor
+		SwapchainFactor,
+		ViewerTargetFactor,
 	};
 
 	struct FramePassAttachment
 	{
 		std::string name;
 		PixelFormat format;
-		TextureUsage additionalUsage = TextureUsage::TransferSource;
-		FramePassAttachmentSize size = FramePassAttachmentSize::SwapchainFactor;
+		TextureUsageFlags additionalUsages;
+		FramePassAttachmentSize size = FramePassAttachmentSize::ViewerTargetFactor;
 		unsigned int width = 100'000;
 		unsigned int height = 100'000;
+		unsigned int viewerIndex = 0;
 	};
 }
 
