@@ -129,26 +129,65 @@ namespace Nz
 		return m_passes[physicalPassIndex].renderPass;
 	}
 
-	bool BakedFrameGraph::Resize(RenderFrame& renderFrame)
+	bool BakedFrameGraph::Resize(RenderFrame& renderFrame, std::span<Vector2ui> viewerTargetSizes)
 	{
-		auto [frameWidth, frameHeight] = renderFrame.GetSize();
-		if (m_width == frameWidth && m_height == frameHeight)
+		Vector2ui swapchainSize = renderFrame.GetSize();
+		if (m_width == swapchainSize.x && m_height == swapchainSize.y)
 			return false;
 
 		const std::shared_ptr<RenderDevice>& renderDevice = Graphics::Instance()->GetRenderDevice();
 
+		auto ComputeTextureSize = [&](TextureData& textureData) -> Vector2ui
+		{
+			Vector2ui texDimensions(1, 1);
+			switch (textureData.size)
+			{
+				case FramePassAttachmentSize::Fixed:
+					texDimensions.x = textureData.width;
+					texDimensions.y = textureData.height;
+					break;
+
+				case FramePassAttachmentSize::SwapchainFactor:
+					texDimensions = swapchainSize;
+					texDimensions.x *= textureData.width;
+					texDimensions.y *= textureData.height;
+					texDimensions /= 100'000;
+					break;
+			}
+
+			return texDimensions;
+		};
+
 		// Delete previous textures to make some room in VRAM
 		for (auto& passData : m_passes)
 		{
-			renderFrame.PushForRelease(std::move(passData.commandBuffer));
-			renderFrame.PushForRelease(std::move(passData.framebuffer));
+			if (passData.commandBuffer)
+				renderFrame.PushForRelease(std::move(passData.commandBuffer));
+
+			if (passData.framebuffer)
+				renderFrame.PushForRelease(std::move(passData.framebuffer));
 		}
 
 		for (auto& textureData : m_textures)
+		{
+			if (!textureData.texture)
+				continue;
+
+			// Check if texture dimension changed
+			Vector3ui curSize = textureData.texture->GetSize();
+			auto [newWidth, newHeight] = ComputeTextureSize(textureData);
+			if (newWidth == curSize.x && newHeight == curSize.y)
+				continue;
+
+			// Dimensions changed, recreated texture
 			renderFrame.PushForRelease(std::move(textureData.texture));
+		}
 
 		for (auto& textureData : m_textures)
 		{
+			if (textureData.texture)
+				continue;
+
 			if (textureData.viewData)
 			{
 				TextureData& parentTexture = m_textures[textureData.viewData->parentTextureId];
@@ -163,7 +202,6 @@ namespace Nz
 			}
 			else
 			{
-
 				TextureInfo textureCreationParams;
 				textureCreationParams.type = textureData.type;
 				textureCreationParams.usageFlags = textureData.usage;
@@ -174,20 +212,9 @@ namespace Nz
 				if (textureCreationParams.type == ImageType::Cubemap)
 					textureCreationParams.layerCount *= 6;
 
-				textureCreationParams.width = 1;
-				textureCreationParams.height = 1;
-				switch (textureData.size)
-				{
-					case FramePassAttachmentSize::Fixed:
-						textureCreationParams.width = textureData.width;
-						textureCreationParams.height = textureData.height;
-						break;
-
-					case FramePassAttachmentSize::SwapchainFactor:
-						textureCreationParams.width = frameWidth * textureData.width / 100'000;
-						textureCreationParams.height = frameHeight * textureData.height / 100'000;
-						break;
-				}
+				auto [width, height] = ComputeTextureSize(textureData);
+				textureCreationParams.width = width;
+				textureCreationParams.height = height;
 
 				textureData.texture = renderDevice->InstantiateTexture(textureCreationParams);
 				if (!textureData.name.empty())
@@ -207,20 +234,7 @@ namespace Nz
 				auto& textureData = m_textures[textureId];
 				textures.push_back(textureData.texture);
 
-				unsigned int width = 1;
-				unsigned int height = 1;
-				switch (textureData.size)
-				{
-					case FramePassAttachmentSize::Fixed:
-						width = textureData.width;
-						height = textureData.height;
-						break;
-
-					case FramePassAttachmentSize::SwapchainFactor:
-						width = frameWidth * textureData.width / 100'000;
-						height = frameHeight * textureData.height / 100'000;
-						break;
-				}
+				auto [width, height] = ComputeTextureSize(textureData);
 
 				framebufferWidth = std::min(framebufferWidth, width);
 				framebufferHeight = std::min(framebufferHeight, height);
@@ -235,8 +249,8 @@ namespace Nz
 			passData.forceCommandBufferRegeneration = true;
 		}
 
-		m_width = frameWidth;
-		m_height = frameHeight;
+		m_width = swapchainSize.x;
+		m_height = swapchainSize.y;
 
 		return true;
 	}
