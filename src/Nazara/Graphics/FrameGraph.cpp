@@ -101,7 +101,10 @@ namespace Nz
 				// Add depth-stencil clear values
 				if (const auto& depthStencilClear = framePass.GetDepthStencilClear())
 				{
-					auto& dsClearValues = bakedPass.outputClearDepthStencil.emplace();
+					std::size_t depthClearIndex = colorOutputs.size();
+					bakedPass.outputClearValues.resize(depthClearIndex + 1);
+
+					auto& dsClearValues = bakedPass.outputClearValues[depthClearIndex];
 					dsClearValues.depth = depthStencilClear->depth;
 					dsClearValues.stencil = depthStencilClear->stencil;
 				}
