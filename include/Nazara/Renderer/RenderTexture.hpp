@@ -20,7 +20,7 @@ namespace Nz
 	{
 		public:
 			inline RenderTexture(std::shared_ptr<Texture> targetTexture);
-			inline RenderTexture(std::shared_ptr<Texture> targetTexture, PipelineStage targetPipelineStage, MemoryAccessFlags targetMemoryFlags, TextureLayout targetLayout);
+			RenderTexture(std::shared_ptr<Texture> targetTexture, PipelineStage targetPipelineStage, MemoryAccessFlags targetMemoryFlags, TextureLayout targetLayout);
 			RenderTexture(const RenderTexture&) = delete;
 			RenderTexture(RenderTexture&&) = delete;
 			~RenderTexture() = default;
