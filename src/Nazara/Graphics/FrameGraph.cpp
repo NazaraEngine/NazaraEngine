@@ -28,7 +28,7 @@ namespace Nz
 
 	BakedFrameGraph FrameGraph::Bake()
 	{
-		if (m_backbufferOutputs.empty())
+		if (m_finalOutputs.empty())
 			throw std::runtime_error("no backbuffer output has been set");
 
 		m_pending.attachmentReadList.clear();
@@ -45,7 +45,7 @@ namespace Nz
 
 		BuildReadWriteList();
 
-		for (std::size_t output : m_backbufferOutputs)
+		for (std::size_t output : m_finalOutputs)
 		{
 			auto it = m_pending.attachmentWriteList.find(output);
 			if (it == m_pending.attachmentWriteList.end())
@@ -101,10 +101,7 @@ namespace Nz
 				// Add depth-stencil clear values
 				if (const auto& depthStencilClear = framePass.GetDepthStencilClear())
 				{
-					std::size_t depthClearIndex = colorOutputs.size();
-					bakedPass.outputClearValues.resize(depthClearIndex + 1);
-
-					auto& dsClearValues = bakedPass.outputClearValues[depthClearIndex];
+					auto& dsClearValues = bakedPass.outputClearDepthStencil.emplace();
 					dsClearValues.depth = depthStencilClear->depth;
 					dsClearValues.stencil = depthStencilClear->stencil;
 				}
@@ -261,36 +258,42 @@ namespace Nz
 					if (std::holds_alternative<FramePassAttachment>(attachmentData))
 					{
 						std::size_t textureId = Retrieve(m_pending.attachmentToTextures, attachmentId);
-
-						assert(std::find(m_pending.texture2DPool.begin(), m_pending.texture2DPool.end(), textureId) == m_pending.texture2DPool.end());
-						m_pending.texture2DPool.push_back(textureId);
+						if (m_pending.textures[textureId].canReuse)
+						{
+							assert(std::find(m_pending.texture2DPool.begin(), m_pending.texture2DPool.end(), textureId) == m_pending.texture2DPool.end());
+							m_pending.texture2DPool.push_back(textureId);
+						}
 					}
 					else if (std::holds_alternative<AttachmentArray>(attachmentData))
 					{
 						std::size_t textureId = Retrieve(m_pending.attachmentToTextures, attachmentId);
-
-						assert(std::find(m_pending.textureCubePool.begin(), m_pending.textureCubePool.end(), textureId) == m_pending.textureCubePool.end());
-						m_pending.texture2DArrayPool.push_back(textureId);
+						if (m_pending.textures[textureId].canReuse)
+						{
+							assert(std::find(m_pending.textureCubePool.begin(), m_pending.textureCubePool.end(), textureId) == m_pending.textureCubePool.end());
+							m_pending.texture2DArrayPool.push_back(textureId);
+						}
 					}
 					else if (std::holds_alternative<AttachmentCube>(attachmentData))
 					{
 						std::size_t textureId = Retrieve(m_pending.attachmentToTextures, attachmentId);
-
-						assert(std::find(m_pending.textureCubePool.begin(), m_pending.textureCubePool.end(), textureId) == m_pending.textureCubePool.end());
-						m_pending.textureCubePool.push_back(textureId);
+						if (m_pending.textures[textureId].canReuse)
+						{
+							assert(std::find(m_pending.textureCubePool.begin(), m_pending.textureCubePool.end(), textureId) == m_pending.textureCubePool.end());
+							m_pending.textureCubePool.push_back(textureId);
+						}
 					}
 				}
 			});
 		}
 
-		// Add TextureUsage::ShaderSampling to backbuffer output
-		for (std::size_t output : m_backbufferOutputs)
+		// Add TextureUsage::ShaderSampling and TextureUsage::TransferSource to final outputs
+		for (std::size_t output : m_finalOutputs)
 		{
 			auto it = m_pending.attachmentToTextures.find(output);
 			assert(it != m_pending.attachmentToTextures.end());
 
-			auto& backbufferTexture = m_pending.textures[it->second];
-			backbufferTexture.usage |= TextureUsage::ShaderSampling;
+			auto& finalTexture = m_pending.textures[it->second];
+			finalTexture.usage |= TextureUsage::ShaderSampling | TextureUsage::TransferSource;
 		}
 
 		// Apply texture view usage to their parents
@@ -1015,6 +1018,9 @@ namespace Nz
 						data.size   != attachmentData.size)
 						continue;
 
+					if (data.size == FramePassAttachmentSize::ViewerTargetFactor && data.viewerIndex != attachmentData.viewerIndex)
+						continue;
+
 					m_pending.texture2DPool.erase(it);
 					m_pending.attachmentToTextures.emplace(attachmentIndex, textureId);
 
@@ -1035,7 +1041,19 @@ namespace Nz
 				data.height = attachmentData.height;
 				data.size = attachmentData.size;
 				data.layerCount = 1;
-				data.usage = attachmentData.additionalUsage;
+				data.usage = attachmentData.additionalUsages;
+				data.viewerIndex = attachmentData.viewerIndex;
+				data.canReuse = true;
+
+				// Final outputs cannot be reused
+				for (std::size_t outputAttachmentIndex : m_finalOutputs)
+				{
+					if (attachmentIndex == outputAttachmentIndex)
+					{
+						data.canReuse = false;
+						break;
+					}
+				}
 
 				return textureId;
 			}
@@ -1058,6 +1076,9 @@ namespace Nz
 						data.layerCount != attachmentData.layerCount)
 						continue;
 
+					if (data.size == FramePassAttachmentSize::ViewerTargetFactor && data.viewerIndex != attachmentData.viewerIndex)
+						continue;
+
 					m_pending.texture2DArrayPool.erase(it);
 					m_pending.attachmentToTextures.emplace(attachmentIndex, textureId);
 
@@ -1078,7 +1099,19 @@ namespace Nz
 				data.height = attachmentData.height;
 				data.size = attachmentData.size;
 				data.layerCount = attachmentData.layerCount;
-				data.usage = attachmentData.additionalUsage;
+				data.usage = attachmentData.additionalUsages;
+				data.viewerIndex = attachmentData.viewerIndex;
+				data.canReuse = true;
+
+				// Final outputs cannot be reused
+				for (std::size_t outputAttachmentIndex : m_finalOutputs)
+				{
+					if (attachmentIndex == outputAttachmentIndex)
+					{
+						data.canReuse = false;
+						break;
+					}
+				}
 
 				return textureId;
 			}
@@ -1098,6 +1131,9 @@ namespace Nz
 						data.width  != attachmentData.width  ||
 						data.height != attachmentData.height ||
 						data.size   != attachmentData.size)
+						continue;
+
+					if (data.size == FramePassAttachmentSize::ViewerTargetFactor && data.viewerIndex != attachmentData.viewerIndex)
 						continue;
 
 					m_pending.textureCubePool.erase(it);
@@ -1120,7 +1156,19 @@ namespace Nz
 				data.height = attachmentData.height;
 				data.size = attachmentData.size;
 				data.layerCount = 1;
-				data.usage = attachmentData.additionalUsage;
+				data.usage = attachmentData.additionalUsages;
+				data.viewerIndex = attachmentData.viewerIndex;
+				data.canReuse = true;
+
+				// Final outputs cannot be reused
+				for (std::size_t outputAttachmentIndex : m_finalOutputs)
+				{
+					if (attachmentIndex == outputAttachmentIndex)
+					{
+						data.canReuse = false;
+						break;
+					}
+				}
 
 				return textureId;
 			}
@@ -1147,6 +1195,7 @@ namespace Nz
 					parentTextureId,
 					texLayer.layerIndex
 				};
+				data.viewerIndex = parentTexture.viewerIndex;
 
 				return textureId;
 			}

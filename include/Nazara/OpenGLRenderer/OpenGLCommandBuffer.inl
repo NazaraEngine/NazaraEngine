@@ -270,4 +270,3 @@ namespace Nz
 }
 
 #include <Nazara/OpenGLRenderer/DebugOff.hpp>
-#include "OpenGLCommandBuffer.hpp"

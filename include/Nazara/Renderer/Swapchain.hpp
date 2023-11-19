@@ -33,7 +33,10 @@ namespace Nz
 
 			virtual std::shared_ptr<CommandPool> CreateCommandPool(QueueType queueType) = 0;
 
+			virtual const Framebuffer& GetFramebuffer(std::size_t i) const = 0;
+			virtual std::size_t GetFramebufferCount() const = 0;
 			virtual PresentMode GetPresentMode() const = 0;
+			virtual const RenderPass& GetRenderPass() const = 0;
 			virtual PresentModeFlags GetSupportedPresentModes() const = 0;
 
 			virtual void NotifyResize(const Vector2ui& newSize) = 0;

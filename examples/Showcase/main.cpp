@@ -412,6 +412,81 @@ int main(int argc, char* argv[])
 		}
 	}
 
+	Nz::TextureInfo screenTextureInfo = {
+		.pixelFormat = Nz::PixelFormat::RGBA8,
+		.type = Nz::ImageType::E2D,
+		.levelCount = 1,
+		.height = 360,
+		.width = 480
+	};
+
+	std::shared_ptr<Nz::Texture> screenTexture = device->InstantiateTexture(screenTextureInfo);
+
+	Nz::RenderTexture renderTexture(screenTexture);
+
+	entt::handle tvCameraEntity = world.CreateEntity();
+	{
+		auto& cameraNode = tvCameraEntity.emplace<Nz::NodeComponent>();
+		cameraNode.SetParentJoint(bobEntity, "Head");
+		cameraNode.SetRotation(Nz::EulerAnglesf(-30.f, 180.f, 0.f));
+		//cameraNode.SetParent(playerCamera);
+
+		auto& cameraComponent = tvCameraEntity.emplace<Nz::CameraComponent>(&renderTexture);
+		cameraComponent.UpdateZNear(0.2f);
+		cameraComponent.UpdateZFar(1000.f);
+		cameraComponent.UpdateRenderMask(1);
+		cameraComponent.UpdateClearColor(Nz::Color(0.f, 0.f, 0.f));
+		cameraComponent.UpdateRenderOrder(-1);
+	}
+
+
+	entt::handle tvEntity = world.CreateEntity();
+	{
+		Nz::MeshParams tvMeshParams;
+		tvMeshParams.vertexScale = Nz::Vector3f(0.01f);
+
+		std::shared_ptr<Nz::Mesh> tvMesh = fs.Load<Nz::Mesh>("assets/retro_tv_lowpoly_4k_textures/scene.gltf", tvMeshParams);
+		if (!tvMesh)
+		{
+			NazaraError("failed to load tv mesh");
+			return __LINE__;
+		}
+
+		tvMesh->RemoveSubMesh(1); // looks like this submesh has issues loading
+
+		// Screen UVs are upside down (model made for OpenGL?)
+		{
+			// Reverse them
+			Nz::VertexMapper vertexMapper(*tvMesh->GetSubMesh(1));
+			Nz::SparsePtr<Nz::Vector2f> uv = vertexMapper.GetComponentPtr<Nz::Vector2f>(Nz::VertexComponent::TexCoord);
+			for (Nz::UInt32 i = 0; i < vertexMapper.GetVertexCount(); ++i)
+				uv[i].y = 1.f - uv[i].y;
+		}
+
+		std::shared_ptr<Nz::GraphicalMesh> tvGfxMesh = Nz::GraphicalMesh::BuildFromMesh(*tvMesh);
+		std::shared_ptr<Nz::Model> tvModel = std::make_shared<Nz::Model>(std::move(tvGfxMesh));
+
+		Nz::TextureParams srgbTexParams;
+		srgbTexParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
+
+		std::shared_ptr<Nz::MaterialInstance> tvMat = Nz::MaterialInstance::Instantiate(Nz::MaterialType::PhysicallyBased);
+		tvMat->SetTextureProperty("BaseColorMap", fs.Load<Nz::Texture>("assets/retro_tv_lowpoly_4k_textures/textures/old_tv_baseColor.jpeg", srgbTexParams));
+		tvMat->SetTextureProperty("NormalMap", fs.Load<Nz::Texture>("assets/retro_tv_lowpoly_4k_textures/textures/old_tv_normal.png"));
+
+		tvModel->SetMaterial(0, tvMat);
+
+		std::shared_ptr<Nz::MaterialInstance> screenMat = Nz::MaterialInstance::Instantiate(Nz::MaterialType::PhysicallyBased);
+		screenMat->SetTextureProperty("BaseColorMap", screenTexture);
+
+		tvModel->SetMaterial(1, screenMat);
+
+		auto& tvNode = tvEntity.emplace<Nz::NodeComponent>();
+		tvNode.SetPosition(Nz::Vector3f(-2.586f, 0.5f, 0.892f));
+
+		auto& tvGfx = tvEntity.emplace<Nz::GraphicsComponent>();
+		tvGfx.AttachRenderable(tvModel);
+	}
+
 	Nz::MillisecondClock fpsClock, updateClock;
 	float incr = 0.f;
 	unsigned int currentFrame = 0;

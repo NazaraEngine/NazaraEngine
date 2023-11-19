@@ -90,8 +90,8 @@ namespace Nz
 
 			struct Input
 			{
-				std::size_t attachmentId;
 				std::optional<TextureLayout> assumedLayout;
+				std::size_t attachmentId;
 				bool doesRead = true;
 			};
 

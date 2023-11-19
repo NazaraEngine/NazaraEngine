@@ -39,7 +39,7 @@ namespace Nz
 			const std::shared_ptr<Texture>& GetAttachmentTexture(std::size_t attachmentIndex) const;
 			const std::shared_ptr<RenderPass>& GetRenderPass(std::size_t passIndex) const;
 
-			bool Resize(RenderFrame& renderFrame);
+			bool Resize(RenderFrame& renderFrame, std::span<Vector2ui> viewerTargetSizes);
 
 			BakedFrameGraph& operator=(const BakedFrameGraph&) = delete;
 			BakedFrameGraph& operator=(BakedFrameGraph&&) noexcept = default;

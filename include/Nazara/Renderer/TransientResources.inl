@@ -108,4 +108,3 @@ namespace Nz
 }
 
 #include <Nazara/Renderer/DebugOff.hpp>
-#include "TransientResources.hpp"

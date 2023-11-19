@@ -38,10 +38,11 @@ namespace Nz
 			inline std::size_t AddAttachmentCube(FramePassAttachment attachment);
 			inline std::size_t AddAttachmentCubeFace(std::size_t attachmentId, CubemapFace face);
 			inline std::size_t AddAttachmentProxy(std::string name, std::size_t attachmentId);
-			inline void AddBackbufferOutput(std::size_t backbufferOutput);
 			inline FramePass& AddPass(std::string name);
 
 			BakedFrameGraph Bake();
+
+			inline void MarkAsFinalOutput(std::size_t attachmentIndex);
 
 			FrameGraph& operator=(const FrameGraph&) = delete;
 			FrameGraph& operator=(FrameGraph&&) noexcept = default;
@@ -138,7 +139,7 @@ namespace Nz
 
 			using AttachmentType = std::variant<FramePassAttachment, AttachmentProxy, AttachmentArray, AttachmentCube, AttachmentLayer>;
 
-			std::vector<std::size_t> m_backbufferOutputs;
+			std::vector<std::size_t> m_finalOutputs;
 			std::vector<FramePass> m_framePasses;
 			std::vector<AttachmentType> m_attachments;
 			WorkData m_pending;

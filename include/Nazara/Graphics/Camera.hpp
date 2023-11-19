@@ -45,7 +45,7 @@ namespace Nz
 			inline float GetZFar() const;
 			inline float GetZNear() const;
 
-			std::size_t RegisterPasses(const std::vector<std::unique_ptr<FramePipelinePass>>& passes, FrameGraph& frameGraph, const FunctionRef<void(std::size_t passIndex, FramePass& framePass, FramePipelinePassFlags flags)>& passCallback = nullptr) const override;
+			std::size_t RegisterPasses(const std::vector<std::unique_ptr<FramePipelinePass>>& passes, FrameGraph& frameGraph, std::optional<unsigned int> viewerIndex, const FunctionRef<void(std::size_t passIndex, FramePass& framePass, FramePipelinePassFlags flags)>& passCallback = nullptr) const override;
 
 			inline void UpdateClearColor(Color color);
 			inline void UpdateFOV(DegreeAnglef fov);

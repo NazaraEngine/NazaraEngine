@@ -35,6 +35,24 @@ namespace Nz
 		m_renderOnlyIfFocused = enable;
 	}
 
+	inline const Framebuffer& WindowSwapchain::GetFramebuffer(std::size_t i) const
+	{
+		assert(m_swapchain);
+		return m_swapchain->GetFramebuffer(i);
+	}
+
+	inline std::size_t WindowSwapchain::GetFramebufferCount() const
+	{
+		assert(m_swapchain);
+		return m_swapchain->GetFramebufferCount();
+	}
+
+	inline const RenderPass& WindowSwapchain::GetRenderPass() const
+	{
+		assert(m_swapchain);
+		return m_swapchain->GetRenderPass();
+	}
+
 	inline Swapchain& WindowSwapchain::GetSwapchain()
 	{
 		return *m_swapchain;

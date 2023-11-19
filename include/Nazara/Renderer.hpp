@@ -52,6 +52,7 @@
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
 #include <Nazara/Renderer/RenderTarget.hpp>
+#include <Nazara/Renderer/RenderTexture.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
 #include <Nazara/Renderer/ShaderModule.hpp>
 #include <Nazara/Renderer/Swapchain.hpp>

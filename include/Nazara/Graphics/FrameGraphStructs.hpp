@@ -30,9 +30,11 @@ namespace Nz
 		PixelFormat format;
 		FramePassAttachmentSize size;
 		TextureUsageFlags usage;
+		bool canReuse;
 		unsigned int width;
 		unsigned int height;
 		unsigned int layerCount;
+		unsigned int viewerIndex;
 	};
 }
 
