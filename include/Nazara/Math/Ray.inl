@@ -217,47 +217,34 @@ namespace Nz
 	template<typename T>
 	constexpr bool Ray<T>::Intersect(const Box<T>& box, T* closestHit, T* furthestHit) const
 	{
-		// http://www.gamedev.net/topic/429443-obb-ray-and-obb-plane-intersection/
-		T tfirst = T(0.0);
-		T tlast = std::numeric_limits<T>::infinity();
-
+		// https://tavianator.com/2015/ray_box_nan.html
 		Vector3<T> boxMin = box.GetMinimum();
 		Vector3<T> boxMax = box.GetMaximum();
 
-		for (unsigned int i = 0; i < 3; ++i)
+		T t1 = (boxMin[0] - origin[0]) / direction[0];
+		T t2 = (boxMax[0] - origin[0]) / direction[0];
+
+		T tmin = std::min(t1, t2);
+		T tmax = std::max(t1, t2);
+
+		for (unsigned int i = 1; i < 3; ++i)
 		{
-			T dir = direction[i];
-			T ori = origin[i];
-			T max = boxMax[i];
-			T min = boxMin[i];
+			t1 = (boxMin[i] - origin[i]) / direction[i];
+			t2 = (boxMax[i] - origin[i]) / direction[i];
 
-			if (NumberEquals(dir, T(0.0)))
-			{
-				if (ori < max && ori > min)
-					continue;
-
-				return false;
-			}
-
-			T tmin = (min - ori) / dir;
-			T tmax = (max - ori) / dir;
-			if (tmin > tmax)
-				std::swap(tmin, tmax);
-
-			if (tmax < tfirst || tmin > tlast)
-				return false;
-
-			tfirst = std::max(tfirst, tmin);
-			tlast = std::min(tlast, tmax);
+			tmin = std::max(tmin, std::min(t1, t2));
+			tmax = std::min(tmax, std::max(t1, t2));
 		}
 
+		tmin = std::max(tmin, T(0.0));
+
 		if (closestHit)
-			*closestHit = tfirst;
+			*closestHit = tmin;
 
 		if (furthestHit)
-			*furthestHit = tlast;
+			*furthestHit = tmax;
 
-		return true;
+		return tmax > tmin;
 	}
 
 	/*!
