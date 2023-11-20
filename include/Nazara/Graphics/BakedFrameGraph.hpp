@@ -17,6 +17,7 @@
 #include <Nazara/Renderer/Framebuffer.hpp>
 #include <Nazara/Renderer/RenderPass.hpp>
 #include <Nazara/Renderer/Texture.hpp>
+#include <span>
 #include <vector>
 
 namespace Nz
