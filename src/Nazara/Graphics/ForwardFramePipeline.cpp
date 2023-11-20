@@ -718,7 +718,7 @@ namespace Nz
 				prevIt = it2;
 			}
 
-			auto framePassCallback = [&, viewerData, renderMask](std::size_t /*passIndex*/, FramePass& framePass, FramePipelinePassFlags flags)
+			auto framePassCallback = [&, viewer = viewerData->viewer](std::size_t /*passIndex*/, FramePass& framePass, FramePipelinePassFlags flags)
 			{
 				// Inject previous final attachments as inputs for all passes, to force framegraph to order viewers passes relative to each other
 				// TODO: Allow the user to define which pass of viewer A uses viewer B rendering

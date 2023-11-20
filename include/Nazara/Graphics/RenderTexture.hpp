@@ -20,7 +20,6 @@ namespace Nz
 	{
 		public:
 			inline RenderTexture(std::shared_ptr<Texture> targetTexture);
-			RenderTexture(std::shared_ptr<Texture> targetTexture, PipelineStage targetPipelineStage, MemoryAccessFlags targetMemoryFlags, TextureLayout targetLayout);
 			RenderTexture(const RenderTexture&) = delete;
 			RenderTexture(RenderTexture&&) = delete;
 			~RenderTexture() = default;
@@ -35,9 +34,6 @@ namespace Nz
 
 		private:
 			std::shared_ptr<Texture> m_targetTexture;
-			MemoryAccessFlags m_targetMemoryFlags;
-			PipelineStage m_targetPipelineStage;
-			TextureLayout m_targetLayout;
 			Vector2ui m_textureSize;
 	};
 }
