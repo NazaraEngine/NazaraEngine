@@ -7,22 +7,12 @@
 
 namespace Nz
 {
-	inline WindowSwapchain::~WindowSwapchain()
-	{
-		OnRenderTargetRelease(this);
-	}
-
 	inline RenderFrame WindowSwapchain::AcquireFrame()
 	{
 		if (m_isMinimized || (!m_hasFocus && m_renderOnlyIfFocused))
 			return RenderFrame{};
 
 		return m_swapchain->AcquireFrame();
-	}
-
-	inline void WindowSwapchain::BlitTexture(RenderFrame& renderFrame, CommandBufferBuilder& builder, const Texture& texture) const
-	{
-		return m_swapchain->BlitTexture(renderFrame, builder, texture);
 	}
 
 	inline bool WindowSwapchain::DoesRenderOnlyIfFocused() const
@@ -53,14 +43,14 @@ namespace Nz
 		return m_swapchain->GetRenderPass();
 	}
 
-	inline Swapchain& WindowSwapchain::GetSwapchain()
+	inline Swapchain* WindowSwapchain::GetSwapchain()
 	{
-		return *m_swapchain;
+		return m_swapchain.get();
 	}
 
-	inline const Swapchain& WindowSwapchain::GetSwapchain() const
+	inline const Swapchain* WindowSwapchain::GetSwapchain() const
 	{
-		return *m_swapchain;
+		return m_swapchain.get();
 	}
 
 	inline TransientResources& WindowSwapchain::Transient()

@@ -348,7 +348,7 @@ int main(int argc, char* argv[])
 	{
 		cameraEntity.emplace<Nz::NodeComponent>();
 
-		auto& cameraComponent = cameraEntity.emplace<Nz::CameraComponent>(&windowSwapchain, Nz::ProjectionType::Perspective);
+		auto& cameraComponent = cameraEntity.emplace<Nz::CameraComponent>(std::make_shared<Nz::RenderWindow>(windowSwapchain), Nz::ProjectionType::Perspective);
 		cameraComponent.UpdateFOV(70.f);
 		cameraComponent.UpdateClearColor(Nz::Color::sRGBToLinear(Nz::Color(0.46f, 0.48f, 0.84f, 1.f)));
 	}

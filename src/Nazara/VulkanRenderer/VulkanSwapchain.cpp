@@ -326,7 +326,7 @@ namespace Nz
 
 	void VulkanSwapchain::NotifyResize(const Vector2ui& newSize)
 	{
-		OnRenderTargetSizeChange(this, newSize);
+		OnSwapchainResize(this, newSize);
 
 		m_swapchainSize = newSize;
 		m_shouldRecreateSwapchain = true;

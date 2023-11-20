@@ -42,11 +42,15 @@ namespace Nz
 		{
 			m_isMinimized = m_window->IsMinimized();
 			if (!m_isMinimized)
+			{
 				m_swapchain = m_renderDevice->InstantiateSwapchain(m_window->GetHandle(), m_window->GetSize(), m_parameters);
+				OnSwapchainCreated(this, *m_swapchain);
+			}
 		});
 
 		m_onDestruction.Connect(windowEvents.OnDestruction, [this](const WindowEventHandler* /*eventHandler*/)
 		{
+			OnSwapchainDestroy(this);
 			m_swapchain.reset();
 			m_isMinimized = true;
 		});
@@ -69,13 +73,15 @@ namespace Nz
 		m_onResized.Connect(windowEvents.OnResized, [this](const WindowEventHandler* /*eventHandler*/, const WindowEvent::SizeEvent& event)
 		{
 			m_swapchain->NotifyResize({ event.width, event.height });
-			OnRenderTargetSizeChange(this, m_swapchain->GetSize());
 		});
 
 		m_onRestored.Connect(windowEvents.OnRestored, [this](const WindowEventHandler* /*eventHandler*/)
 		{
 			if (!m_swapchain)
+			{
 				m_swapchain = m_renderDevice->InstantiateSwapchain(m_window->GetHandle(), m_window->GetSize(), m_parameters);
+				OnSwapchainCreated(this, *m_swapchain);
+			}
 
 			m_isMinimized = false;
 		});

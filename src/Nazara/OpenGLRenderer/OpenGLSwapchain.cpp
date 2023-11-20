@@ -132,7 +132,7 @@ namespace Nz
 
 	void OpenGLSwapchain::NotifyResize(const Vector2ui& newSize)
 	{
-		OnRenderTargetSizeChange(this, newSize);
+		OnSwapchainResize(this, newSize);
 
 		m_size = newSize;
 		m_sizeInvalidated = true;

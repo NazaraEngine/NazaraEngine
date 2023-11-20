@@ -9,27 +9,25 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Platform/WindowEventHandler.hpp>
-#include <Nazara/Renderer/RenderTarget.hpp>
 #include <Nazara/Renderer/Swapchain.hpp>
 #include <Nazara/Renderer/SwapchainParameters.hpp>
 #include <memory>
 
 namespace Nz
 {
+	class Framebuffer;
 	class RenderDevice;
 	class Window;
 
-	class NAZARA_RENDERER_API WindowSwapchain : public RenderTarget
+	class NAZARA_RENDERER_API WindowSwapchain
 	{
 		public:
 			WindowSwapchain(std::shared_ptr<RenderDevice> renderDevice, Window& window, SwapchainParameters parameters = SwapchainParameters());
 			WindowSwapchain(const WindowSwapchain&) = delete;
 			WindowSwapchain(WindowSwapchain&&) = delete;
-			inline ~WindowSwapchain();
+			~WindowSwapchain() = default;
 
 			inline RenderFrame AcquireFrame();
-
-			inline void BlitTexture(RenderFrame& renderFrame, CommandBufferBuilder& builder, const Texture& texture) const override;
 
 			inline bool DoesRenderOnlyIfFocused() const;
 
@@ -38,14 +36,17 @@ namespace Nz
 			inline const Framebuffer& GetFramebuffer(std::size_t i) const;
 			inline std::size_t GetFramebufferCount() const;
 			inline const RenderPass& GetRenderPass() const;
-			const Vector2ui& GetSize() const override;
-			inline Swapchain& GetSwapchain();
-			inline const Swapchain& GetSwapchain() const;
+			const Vector2ui& GetSize() const;
+			inline Swapchain* GetSwapchain();
+			inline const Swapchain* GetSwapchain() const;
 
 			inline TransientResources& Transient();
 
 			WindowSwapchain& operator=(const WindowSwapchain&) = delete;
 			WindowSwapchain& operator=(WindowSwapchain&& windowSwapchain) = delete;
+
+			NazaraSignal(OnSwapchainCreated, WindowSwapchain* /*swapchain*/, Swapchain& /*swapchain*/);
+			NazaraSignal(OnSwapchainDestroy, WindowSwapchain* /*swapchain*/);
 
 		private:
 			void ConnectSignals();

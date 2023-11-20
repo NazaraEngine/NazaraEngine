@@ -11,8 +11,8 @@
 
 namespace Nz
 {
-	Camera::Camera(const RenderTarget* renderTarget, ProjectionType projectionType) :
-	Camera(renderTarget, Graphics::Instance()->GetDefaultPipelinePasses(), projectionType)
+	Camera::Camera(std::shared_ptr<const RenderTarget> renderTarget, ProjectionType projectionType) :
+	Camera(std::move(renderTarget), Graphics::Instance()->GetDefaultPipelinePasses(), projectionType)
 	{
 	}
 
@@ -61,12 +61,12 @@ namespace Nz
 		return m_framePipelinePasses->RegisterPasses(passes, frameGraph, viewerIndex, passCallback);
 	}
 
-	void Camera::UpdateTarget(const RenderTarget* renderTarget)
+	void Camera::UpdateTarget(std::shared_ptr<const RenderTarget> renderTarget)
 	{
 		m_onRenderTargetRelease.Disconnect();
 		m_onRenderTargetSizeChange.Disconnect();
 
-		m_renderTarget = renderTarget;
+		m_renderTarget = std::move(renderTarget);
 		if (m_renderTarget)
 		{
 			m_onRenderTargetRelease.Connect(m_renderTarget->OnRenderTargetRelease, [this](const RenderTarget*)

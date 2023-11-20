@@ -7,9 +7,8 @@
 
 namespace Nz
 {
-	inline Camera::Camera(const RenderTarget* renderTarget, std::shared_ptr<PipelinePassList> pipelinePasses, ProjectionType projectionType) :
+	inline Camera::Camera(std::shared_ptr<const RenderTarget> renderTarget, std::shared_ptr<PipelinePassList> pipelinePasses, ProjectionType projectionType) :
 	m_framePipelinePasses(std::move(pipelinePasses)),
-	m_renderTarget(nullptr),
 	m_clearColor(Color::Black()),
 	m_fov(90.f),
 	m_renderOrder(0),
@@ -21,12 +20,11 @@ namespace Nz
 	m_zFar((projectionType == ProjectionType::Perspective) ? 1000.f : 1.f),
 	m_zNear((projectionType == ProjectionType::Perspective) ? 1.f : -1.f)
 	{
-		UpdateTarget(renderTarget);
+		UpdateTarget(std::move(renderTarget));
 	}
 
 	inline Camera::Camera(const Camera& camera) :
 	m_framePipelinePasses(camera.m_framePipelinePasses),
-	m_renderTarget(nullptr),
 	m_clearColor(camera.m_clearColor),
 	m_fov(camera.m_fov),
 	m_renderOrder(camera.m_renderOrder),
@@ -44,7 +42,6 @@ namespace Nz
 
 	inline Camera::Camera(Camera&& camera) noexcept :
 	m_framePipelinePasses(std::move(camera.m_framePipelinePasses)),
-	m_renderTarget(nullptr),
 	m_clearColor(camera.m_clearColor),
 	m_fov(camera.m_fov),
 	m_renderOrder(camera.m_renderOrder),
@@ -57,7 +54,7 @@ namespace Nz
 	m_zFar(camera.m_zFar),
 	m_zNear(camera.m_zNear)
 	{
-		UpdateTarget(camera.m_renderTarget);
+		UpdateTarget(std::move(camera.m_renderTarget));
 	}
 
 	inline float Camera::GetAspectRatio() const

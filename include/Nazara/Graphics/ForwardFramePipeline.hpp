@@ -80,7 +80,7 @@ namespace Nz
 			ForwardFramePipeline& operator=(ForwardFramePipeline&&) = delete;
 
 		private:
-			BakedFrameGraph BuildFrameGraph(RenderFrame& renderFrame);
+			BakedFrameGraph BuildFrameGraph();
 
 			void RegisterMaterialInstance(MaterialInstance* materialPass);
 			void UnregisterMaterialInstance(MaterialInstance* material);

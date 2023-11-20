@@ -28,7 +28,7 @@ namespace Nz
 
 	BakedFrameGraph FrameGraph::Bake()
 	{
-		if (m_finalOutputs.empty())
+		if (m_backbufferOutputs.empty())
 			throw std::runtime_error("no backbuffer output has been set");
 
 		m_pending.attachmentReadList.clear();
@@ -45,7 +45,7 @@ namespace Nz
 
 		BuildReadWriteList();
 
-		for (std::size_t output : m_finalOutputs)
+		for (std::size_t output : m_backbufferOutputs)
 		{
 			auto it = m_pending.attachmentWriteList.find(output);
 			if (it == m_pending.attachmentWriteList.end())
@@ -123,6 +123,7 @@ namespace Nz
 		{
 			auto& bakedTexture = bakedTextures.emplace_back();
 			static_cast<FrameGraphTextureData&>(bakedTexture) = std::move(texture);
+			bakedTexture.texture = bakedTexture.externalTexture;
 		}
 
 		return BakedFrameGraph(std::move(bakedPasses), std::move(bakedTextures), std::move(m_pending.attachmentToTextures), std::move(m_pending.passIdToPhysicalPassIndex));
@@ -290,7 +291,7 @@ namespace Nz
 		}
 
 		// Add TextureUsage::ShaderSampling and TextureUsage::TransferSource to final outputs
-		for (std::size_t output : m_finalOutputs)
+		for (std::size_t output : m_backbufferOutputs)
 		{
 			auto it = m_pending.attachmentToTextures.find(output);
 			assert(it != m_pending.attachmentToTextures.end());
@@ -1000,6 +1001,54 @@ namespace Nz
 		if (auto it = m_pending.attachmentToTextures.find(attachmentIndex); it != m_pending.attachmentToTextures.end())
 			return it->second;
 
+		auto InsertTexture = [this](ImageType imageType, std::size_t attachmentIndex, const FramePassAttachment& attachmentData, std::size_t& textureId) -> FrameGraphTextureData&
+		{
+			textureId = m_pending.textures.size();
+			m_pending.attachmentToTextures.emplace(attachmentIndex, textureId);
+
+			FrameGraphTextureData& data = m_pending.textures.emplace_back();
+			data.type = imageType;
+			data.name = attachmentData.name;
+			data.format = attachmentData.format;
+			data.width = attachmentData.width;
+			data.height = attachmentData.height;
+			data.size = attachmentData.size;
+			data.layerCount = 1;
+			data.usage = attachmentData.additionalUsages;
+			data.viewerIndex = attachmentData.viewerIndex;
+			data.canReuse = true;
+
+			return data;
+		};
+
+		auto CheckExternalTexture = [this](std::size_t attachmentIndex, FrameGraphTextureData& data)
+		{
+			// Check if texture 
+			if (auto externalIt = m_externalTextures.find(attachmentIndex); externalIt != m_externalTextures.end())
+			{
+				if (data.viewData)
+					throw std::runtime_error("texture views cannot be bound to external textures");
+
+				data.externalTexture = externalIt->second;
+				data.canReuse = false;
+				data.size = FramePassAttachmentSize::Fixed;
+
+				const TextureInfo& textureInfo = data.externalTexture->GetTextureInfo();
+				data.width = textureInfo.width;
+				data.height = textureInfo.height;
+
+				// Check that texture settings match
+				if (textureInfo.type != data.type)
+					throw std::runtime_error("external texture type doesn't match attachment type");
+
+				if (textureInfo.layerCount != data.layerCount)
+					throw std::runtime_error("external texture layer count doesn't match attachment type");
+
+				if (textureInfo.pixelFormat != data.format)
+					throw std::runtime_error("external texture format doesn't match attachment type");
+			}
+		};
+
 		return std::visit([&](auto&& arg) -> std::size_t
 		{
 			using T = std::decay_t<decltype(arg)>;
@@ -1033,23 +1082,14 @@ namespace Nz
 					return textureId;
 				}
 
-				std::size_t textureId = m_pending.textures.size();
-				m_pending.attachmentToTextures.emplace(attachmentIndex, textureId);
-
-				FrameGraphTextureData& data = m_pending.textures.emplace_back();
-				data.type = ImageType::E2D;
-				data.name = attachmentData.name;
-				data.format = attachmentData.format;
-				data.width = attachmentData.width;
-				data.height = attachmentData.height;
-				data.size = attachmentData.size;
+				std::size_t textureId;
+				FrameGraphTextureData& data = InsertTexture(ImageType::E2D, attachmentIndex, attachmentData, textureId);
 				data.layerCount = 1;
-				data.usage = attachmentData.additionalUsages;
-				data.viewerIndex = attachmentData.viewerIndex;
-				data.canReuse = true;
+
+				CheckExternalTexture(attachmentIndex, data);
 
 				// Final outputs cannot be reused
-				for (std::size_t outputAttachmentIndex : m_finalOutputs)
+				for (std::size_t outputAttachmentIndex : m_backbufferOutputs)
 				{
 					if (attachmentIndex == outputAttachmentIndex)
 					{
@@ -1091,23 +1131,14 @@ namespace Nz
 					return textureId;
 				}
 
-				std::size_t textureId = m_pending.textures.size();
-				m_pending.attachmentToTextures.emplace(attachmentIndex, textureId);
-
-				FrameGraphTextureData& data = m_pending.textures.emplace_back();
-				data.type = ImageType::E2D_Array;
-				data.name = attachmentData.name;
-				data.format = attachmentData.format;
-				data.width = attachmentData.width;
-				data.height = attachmentData.height;
-				data.size = attachmentData.size;
+				std::size_t textureId;
+				FrameGraphTextureData& data = InsertTexture(ImageType::E2D_Array, attachmentIndex, attachmentData, textureId);
 				data.layerCount = attachmentData.layerCount;
-				data.usage = attachmentData.additionalUsages;
-				data.viewerIndex = attachmentData.viewerIndex;
-				data.canReuse = true;
+
+				CheckExternalTexture(attachmentIndex, data);
 
 				// Final outputs cannot be reused
-				for (std::size_t outputAttachmentIndex : m_finalOutputs)
+				for (std::size_t outputAttachmentIndex : m_backbufferOutputs)
 				{
 					if (attachmentIndex == outputAttachmentIndex)
 					{
@@ -1148,23 +1179,14 @@ namespace Nz
 					return textureId;
 				}
 
-				std::size_t textureId = m_pending.textures.size();
-				m_pending.attachmentToTextures.emplace(attachmentIndex, textureId);
-
-				FrameGraphTextureData& data = m_pending.textures.emplace_back();
-				data.type = ImageType::Cubemap;
-				data.name = attachmentData.name;
-				data.format = attachmentData.format;
-				data.width = attachmentData.width;
-				data.height = attachmentData.height;
-				data.size = attachmentData.size;
+				std::size_t textureId;
+				FrameGraphTextureData& data = InsertTexture(ImageType::Cubemap, attachmentIndex, attachmentData, textureId);
 				data.layerCount = 1;
-				data.usage = attachmentData.additionalUsages;
-				data.viewerIndex = attachmentData.viewerIndex;
-				data.canReuse = true;
+
+				CheckExternalTexture(attachmentIndex, data);
 
 				// Final outputs cannot be reused
-				for (std::size_t outputAttachmentIndex : m_finalOutputs)
+				for (std::size_t outputAttachmentIndex : m_backbufferOutputs)
 				{
 					if (attachmentIndex == outputAttachmentIndex)
 					{
@@ -1200,6 +1222,8 @@ namespace Nz
 				};
 				data.viewerIndex = parentTexture.viewerIndex;
 
+				CheckExternalTexture(attachmentIndex, data);
+
 				return textureId;
 			}
 			else if constexpr (std::is_same_v<T, AttachmentProxy>)
@@ -1208,6 +1232,9 @@ namespace Nz
 
 				std::size_t textureId = RegisterTexture(proxy.attachmentId);
 				m_pending.attachmentToTextures.emplace(attachmentIndex, textureId);
+
+				if (m_externalTextures.contains(proxy.attachmentId))
+					throw std::runtime_error("proxy attachments cannot be bound to external textures");
 
 				return textureId;
 			}

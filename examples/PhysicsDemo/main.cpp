@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
 	entt::handle viewer = world.CreateEntity();
 	{
 		viewer.emplace<Nz::NodeComponent>();
-		auto& cameraComponent = viewer.emplace<Nz::CameraComponent>(&windowSwapchain);
+		auto& cameraComponent = viewer.emplace<Nz::CameraComponent>(std::make_shared<Nz::RenderWindow>(windowSwapchain));
 		cameraComponent.UpdateRenderMask(1);
 		cameraComponent.UpdateClearColor(Nz::Color(0.5f, 0.5f, 0.5f));
 	}

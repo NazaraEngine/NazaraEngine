@@ -84,9 +84,14 @@ namespace Nz
 		return m_framePasses.emplace_back(*this, id, std::move(name));
 	}
 
-	inline void FrameGraph::MarkAsFinalOutput(std::size_t attachmentIndex)
+	inline void FrameGraph::AddBackbufferOutput(std::size_t attachmentIndex)
 	{
-		m_finalOutputs.push_back(attachmentIndex);
+		m_backbufferOutputs.push_back(attachmentIndex);
+	}
+
+	inline void FrameGraph::BindAttachmentToExternalTexture(std::size_t attachmentIndex, std::shared_ptr<Texture> texture)
+	{
+		m_externalTextures[attachmentIndex] = std::move(texture);
 	}
 }
 

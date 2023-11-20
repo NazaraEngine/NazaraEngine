@@ -97,8 +97,8 @@ namespace Nz
 
 			struct Output
 			{
-				std::size_t attachmentId;
 				std::optional<Color> clearColor;
+				std::size_t attachmentId;
 			};
 
 		private:

@@ -16,6 +16,8 @@
 
 namespace Nz
 {
+	class Texture;
+
 	struct FrameGraphTextureData
 	{
 		struct ViewData
@@ -25,6 +27,7 @@ namespace Nz
 		};
 
 		std::optional<ViewData> viewData;
+		std::shared_ptr<Texture> externalTexture;
 		std::string name;
 		ImageType type;
 		PixelFormat format;

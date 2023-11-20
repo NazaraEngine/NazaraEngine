@@ -1,9 +1,9 @@
 // Copyright (C) 2023 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
-// This file is part of the "Nazara Engine - Renderer module"
+// This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Renderer/RenderTarget.hpp>
-#include <Nazara/Renderer/Debug.hpp>
+#include <Nazara/Graphics/RenderTarget.hpp>
+#include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
 {

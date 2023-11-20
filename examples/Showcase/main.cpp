@@ -105,7 +105,7 @@ int main(int argc, char* argv[])
 		cameraNode.SetPosition(Nz::Vector3f::Up() * 2.f + Nz::Vector3f::Backward());
 		//cameraNode.SetParent(playerRotNode);
 
-		auto& cameraComponent = playerCamera.emplace<Nz::CameraComponent>(&windowSwapchain);
+		auto& cameraComponent = playerCamera.emplace<Nz::CameraComponent>(std::make_shared<Nz::RenderWindow>(windowSwapchain));
 		cameraComponent.UpdateZNear(0.2f);
 		cameraComponent.UpdateZFar(10000.f);
 		cameraComponent.UpdateRenderMask(1);
@@ -412,26 +412,31 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	Nz::TextureInfo screenTextureInfo = {
-		.pixelFormat = Nz::PixelFormat::RGBA8,
-		.type = Nz::ImageType::E2D,
-		.levelCount = 1,
-		.height = 360,
-		.width = 480
-	};
+	std::shared_ptr<Nz::Texture> screenTexture;
+	{
+		Nz::TextureInfo screenTextureInfo = {
+			.pixelFormat = Nz::PixelFormat::RGBA8,
+			.type = Nz::ImageType::E2D,
+			.usageFlags = Nz::TextureUsage::ColorAttachment | Nz::TextureUsage::ShaderSampling | Nz::TextureUsage::TransferDestination,
+			.levelCount = 1,
+			.height = 360,
+			.width = 480
+		};
 
-	std::shared_ptr<Nz::Texture> screenTexture = device->InstantiateTexture(screenTextureInfo);
+		std::size_t size = Nz::PixelFormatInfo::ComputeSize(screenTextureInfo.pixelFormat, screenTextureInfo.width, screenTextureInfo.height, screenTextureInfo.depth);
 
-	Nz::RenderTexture renderTexture(screenTexture);
+		std::vector<std::uint8_t> defaultScreen(size, 0xFF);
+		screenTexture = device->InstantiateTexture(screenTextureInfo, defaultScreen.data(), false);
+	}
 
 	entt::handle tvCameraEntity = world.CreateEntity();
 	{
 		auto& cameraNode = tvCameraEntity.emplace<Nz::NodeComponent>();
-		cameraNode.SetParentJoint(bobEntity, "Head");
-		cameraNode.SetRotation(Nz::EulerAnglesf(-30.f, 180.f, 0.f));
-		//cameraNode.SetParent(playerCamera);
+		//cameraNode.SetParentJoint(bobEntity, "Head");
+		//cameraNode.SetRotation(Nz::EulerAnglesf(-30.f, 180.f, 0.f));
+		cameraNode.SetParent(playerCamera);
 
-		auto& cameraComponent = tvCameraEntity.emplace<Nz::CameraComponent>(&renderTexture);
+		auto& cameraComponent = tvCameraEntity.emplace<Nz::CameraComponent>(std::make_shared<Nz::RenderTexture>(screenTexture));
 		cameraComponent.UpdateZNear(0.2f);
 		cameraComponent.UpdateZFar(1000.f);
 		cameraComponent.UpdateRenderMask(1);

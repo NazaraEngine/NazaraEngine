@@ -30,22 +30,22 @@ int main()
 	std::string windowTitle = "Physics 2D";
 	Nz::Window& window = windowing.CreateWindow(Nz::VideoMode(1920, 1080, 32), windowTitle);
 	Nz::WindowSwapchain& windowSwapchain = renderSystem.CreateSwapchain(window);
-	Nz::Swapchain& swapchain = windowSwapchain.GetSwapchain();
+	Nz::Swapchain* swapchain = windowSwapchain.GetSwapchain();
 
 	Nz::Vector2ui windowSize = window.GetSize();
 
 	entt::handle viewer = world.CreateEntity();
 	{
 		viewer.emplace<Nz::NodeComponent>();
-		viewer.emplace<Nz::CameraComponent>(&windowSwapchain, Nz::ProjectionType::Orthographic);
+		viewer.emplace<Nz::CameraComponent>(std::make_shared<Nz::RenderWindow>(windowSwapchain), Nz::ProjectionType::Orthographic);
 	}
 
 	// Turn present mode flags into vector for easier processing
 	Nz::FixedVector<Nz::PresentMode, Nz::EnumValueCount_v<Nz::PresentMode>> supportedPresentModes;
-	for (Nz::PresentMode presentMode : swapchain.GetSupportedPresentModes())
+	for (Nz::PresentMode presentMode : swapchain->GetSupportedPresentModes())
 		supportedPresentModes.push_back(presentMode);
 
-	auto presentFlagIt = std::find(supportedPresentModes.begin(), supportedPresentModes.end(), swapchain.GetPresentMode());
+	auto presentFlagIt = std::find(supportedPresentModes.begin(), supportedPresentModes.end(), swapchain->GetPresentMode());
 
 	bool limitFps = false;
 
@@ -62,7 +62,7 @@ int main()
 		{
 			textDrawer.AppendText("- ");
 
-			if (presentMode == swapchain.GetPresentMode())
+			if (presentMode == swapchain->GetPresentMode())
 				textDrawer.SetTextColor(Nz::Color::Yellow());
 			else
 				textDrawer.SetTextColor(Nz::Color::White());
@@ -120,7 +120,7 @@ int main()
 			if (presentFlagIt == supportedPresentModes.end())
 				presentFlagIt = supportedPresentModes.begin();
 
-			swapchain.SetPresentMode(*presentFlagIt);
+			swapchain->SetPresentMode(*presentFlagIt);
 			UpdatePresentModeText();
 		}
 		else if (event.virtualKey == Nz::Keyboard::VKey::Subtract)
@@ -130,7 +130,7 @@ int main()
 
 			--presentFlagIt;
 
-			swapchain.SetPresentMode(*presentFlagIt);
+			swapchain->SetPresentMode(*presentFlagIt);
 			UpdatePresentModeText();
 		}
 		else if (event.virtualKey == Nz::Keyboard::VKey::Multiply)

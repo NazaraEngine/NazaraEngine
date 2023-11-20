@@ -11,6 +11,7 @@
 #include <Nazara/Graphics/PointLight.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>
+#include <Nazara/Graphics/RenderTarget.hpp>
 #include <Nazara/Graphics/SpotLight.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
@@ -19,7 +20,6 @@
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/Framebuffer.hpp>
 #include <Nazara/Renderer/RenderFrame.hpp>
-#include <Nazara/Renderer/RenderTarget.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
 #include <NazaraUtils/StackArray.hpp>
 #include <NazaraUtils/StackVector.hpp>
@@ -383,7 +383,7 @@ namespace Nz
 		if (m_rebuildFrameGraph)
 		{
 			renderFrame.PushForRelease(std::move(m_bakedFrameGraph));
-			m_bakedFrameGraph = BuildFrameGraph(renderFrame);
+			m_bakedFrameGraph = BuildFrameGraph();
 			m_bakedFrameGraph.Resize(renderFrame, viewerSizes);
 			frameGraphInvalidated = true;
 		}
@@ -509,10 +509,11 @@ namespace Nz
 		{
 			const RenderTarget& renderTarget = *renderTargetPtr;
 			const auto& data = renderTargetData;
+
+			renderTarget.OnRenderEnd(renderFrame, m_bakedFrameGraph, data.finalAttachment);
+
 			renderFrame.Execute([&](CommandBufferBuilder& builder)
 			{
-				const std::shared_ptr<Texture>& sourceTexture = m_bakedFrameGraph.GetAttachmentTexture(data.finalAttachment);
-				renderTarget.BlitTexture(renderFrame, builder, *sourceTexture);
 			}, QueueType::Graphics);
 		}
 
@@ -658,7 +659,7 @@ namespace Nz
 		}
 	}
 
-	BakedFrameGraph ForwardFramePipeline::BuildFrameGraph(RenderFrame& renderFrame)
+	BakedFrameGraph ForwardFramePipeline::BuildFrameGraph()
 	{
 		FrameGraph frameGraph;
 
@@ -669,37 +670,7 @@ namespace Nz
 				lightData->shadowData->RegisterToFrameGraph(frameGraph, nullptr);
 		}
 
-		unsigned int viewerIndex = 0;
-		for (auto& viewerData : m_viewerPool)
-		{
-			if (viewerData.pendingDestruction)
-				continue;
-
-			UInt32 renderMask = viewerData.viewer->GetRenderMask();
-			for (std::size_t i : m_shadowCastingLights.IterBits())
-			{
-				LightData* lightData = m_lightPool.RetrieveFromIndex(i);
-				if (lightData->shadowData->IsPerViewer() && (renderMask & lightData->renderMask) != 0)
-					lightData->shadowData->RegisterToFrameGraph(frameGraph, viewerData.viewer);
-			}
-
-			auto framePassCallback = [this, &viewerData, renderMask](std::size_t /*passIndex*/, FramePass& framePass, FramePipelinePassFlags flags)
-			{
-				if (flags.Test(FramePipelinePassFlag::LightShadowing))
-				{
-					for (std::size_t i : m_shadowCastingLights.IterBits())
-					{
-						LightData* lightData = m_lightPool.RetrieveFromIndex(i);
-						if ((renderMask & lightData->renderMask) != 0)
-							lightData->shadowData->RegisterPassInputs(framePass, (lightData->shadowData->IsPerViewer()) ? viewerData.viewer : nullptr);
-					}
-				}
-			};
-
-			viewerData.finalColorAttachment = viewerData.viewer->RegisterPasses(viewerData.passes, frameGraph, viewerIndex++, framePassCallback);
-		}
-
-		using ViewerPair = std::pair<const RenderTarget*, const ViewerData*>;
+		using ViewerPair = std::pair<const RenderTarget*, ViewerData*>;
 
 		StackArray<ViewerPair> viewers = NazaraStackArray(ViewerPair, m_viewerPool.size());
 		auto viewerIt = viewers.begin();
@@ -718,9 +689,62 @@ namespace Nz
 			return lhs.second->renderOrder < rhs.second->renderOrder;
 		});
 
+		StackVector<std::size_t> dependenciesColorAttachments = NazaraStackVector(std::size_t, viewers.size());
+
 		m_renderTargets.clear();
-		for (auto&& [renderTarget, viewerData] : viewers)
+		unsigned int viewerIndex = 0;
+		for (auto it = viewers.begin(), prevIt = it; it != viewers.end(); ++it)
 		{
+			auto&& [renderTarget, viewerData] = *it;
+
+			UInt32 renderMask = viewerData->viewer->GetRenderMask();
+			for (std::size_t i : m_shadowCastingLights.IterBits())
+			{
+				LightData* lightData = m_lightPool.RetrieveFromIndex(i);
+				if (lightData->shadowData->IsPerViewer() && (renderMask & lightData->renderMask) != 0)
+					lightData->shadowData->RegisterToFrameGraph(frameGraph, viewerData->viewer);
+			}
+
+			// Keep track of previous dependencies attachments (from viewers having a smaller render order)
+			Int32 renderOrder = viewerData->renderOrder;
+			for (auto it2 = prevIt; prevIt != it; ++prevIt)
+			{
+				ViewerData* prevViewerData = prevIt->second;
+				Int32 prevRenderOrder = prevViewerData->renderOrder;
+				if (prevRenderOrder >= renderOrder)
+					break;
+
+				dependenciesColorAttachments.push_back(prevViewerData->finalColorAttachment);
+				prevIt = it2;
+			}
+
+			auto framePassCallback = [&, viewerData, renderMask](std::size_t /*passIndex*/, FramePass& framePass, FramePipelinePassFlags flags)
+			{
+				// Inject previous final attachments as inputs for all passes, to force framegraph to order viewers passes relative to each other
+				// TODO: Allow the user to define which pass of viewer A uses viewer B rendering
+				for (std::size_t finalAttachment : dependenciesColorAttachments)
+				{
+					std::size_t inputIndex = framePass.AddInput(finalAttachment);
+
+					// Disable ReadInput to prevent the framegraph from transitionning the texture layout (for now it's handled externally)
+					// (however if we manage to get rid of the texture blit from RenderTexture by making the framegraph use the external texture directly, this would be necessary)
+					framePass.SetReadInput(inputIndex, false);
+				}
+
+				if (flags.Test(FramePipelinePassFlag::LightShadowing))
+				{
+					for (std::size_t i : m_shadowCastingLights.IterBits())
+					{
+						LightData* lightData = m_lightPool.RetrieveFromIndex(i);
+						if ((renderMask & lightData->renderMask) != 0)
+							lightData->shadowData->RegisterPassInputs(framePass, (lightData->shadowData->IsPerViewer()) ? viewerData->viewer : nullptr);
+					}
+				}
+			};
+
+			viewerData->finalColorAttachment = viewerData->viewer->RegisterPasses(viewerData->passes, frameGraph, viewerIndex++, framePassCallback);
+
+			// Group viewers by render targets
 			auto& renderTargetData = m_renderTargets[renderTarget];
 			renderTargetData.viewers.push_back(viewerData);
 		}
@@ -772,15 +796,15 @@ namespace Nz
 					}
 				});
 
-				frameGraph.MarkAsFinalOutput(renderTargetData.finalAttachment);
+				renderTarget->OnBuildGraph(frameGraph, renderTargetData.finalAttachment);
 			}
 			else if (targetViewers.size() == 1)
 			{
 				// Single viewer on that target
 				const auto& viewer = *targetViewers.front();
 
-				frameGraph.MarkAsFinalOutput(viewer.finalColorAttachment);
 				renderTargetData.finalAttachment = viewer.finalColorAttachment;
+				renderTarget->OnBuildGraph(frameGraph, renderTargetData.finalAttachment);
 			}
 		}
 

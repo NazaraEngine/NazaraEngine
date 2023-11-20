@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
 
 	Nz::Vector2ui windowSize = window.GetSize();
 
-	Nz::Camera camera(&windowSwapchain);
+	Nz::Camera camera(std::make_shared<Nz::RenderWindow>(windowSwapchain));
 	//camera.UpdateClearColor(Nz::Color::Gray);
 
 	Nz::ViewerInstance& viewerInstance = camera.GetViewerInstance();

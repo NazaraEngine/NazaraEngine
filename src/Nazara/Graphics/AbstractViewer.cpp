@@ -3,8 +3,8 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/AbstractViewer.hpp>
+#include <Nazara/Graphics/RenderTarget.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
-#include <Nazara/Renderer/RenderTarget.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz

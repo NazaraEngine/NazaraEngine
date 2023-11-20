@@ -10,10 +10,10 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/PipelineViewer.hpp>
+#include <Nazara/Graphics/RenderTarget.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector2.hpp>
-#include <Nazara/Renderer/RenderTarget.hpp>
 
 namespace Nz
 {
@@ -22,8 +22,8 @@ namespace Nz
 	class NAZARA_GRAPHICS_API Camera : public PipelineViewer
 	{
 		public:
-			inline Camera(const RenderTarget* renderTarget, std::shared_ptr<PipelinePassList> pipelinePasses, ProjectionType projectionType = ProjectionType::Perspective);
-			Camera(const RenderTarget* renderTarget, ProjectionType projectionType = ProjectionType::Perspective);
+			inline Camera(std::shared_ptr<const RenderTarget> renderTarget, std::shared_ptr<PipelinePassList> pipelinePasses, ProjectionType projectionType = ProjectionType::Perspective);
+			Camera(std::shared_ptr<const RenderTarget> renderTarget, ProjectionType projectionType = ProjectionType::Perspective);
 			inline Camera(const Camera& camera);
 			inline Camera(Camera&& camera) noexcept;
 			~Camera() = default;
@@ -53,7 +53,7 @@ namespace Nz
 			inline void UpdateRenderMask(UInt32 renderMask);
 			inline void UpdateRenderOrder(Int32 renderOrder);
 			inline void UpdateSize(const Vector2f& size);
-			void UpdateTarget(const RenderTarget* framebuffer);
+			void UpdateTarget(std::shared_ptr<const RenderTarget> renderTarget);
 			inline void UpdateTargetRegion(const Rectf& targetRegion);
 			inline void UpdateViewport(const Recti& viewport);
 			inline void UpdateZFar(float zFar);
@@ -71,7 +71,7 @@ namespace Nz
 			NazaraSlot(RenderTarget, OnRenderTargetSizeChange, m_onRenderTargetSizeChange);
 
 			std::shared_ptr<PipelinePassList> m_framePipelinePasses;
-			const RenderTarget* m_renderTarget;
+			std::shared_ptr<const RenderTarget> m_renderTarget;
 			Color m_clearColor;
 			DegreeAnglef m_fov;
 			Int32 m_renderOrder;
