@@ -10,7 +10,7 @@
 
 namespace Nz
 {
-	RenderTexture::RenderTexture(std::shared_ptr<Texture> texture, PipelineStage targetPipelineStage, MemoryAccessFlags targetMemoryFlags, TextureLayout targetLayout) :
+	RenderTexture::RenderTexture(std::shared_ptr<Texture> texture) :
 	m_targetTexture(std::move(texture)),
 	m_textureSize(Vector2ui(m_targetTexture->GetSize()))
 	{

@@ -6,10 +6,6 @@
 
 namespace Nz
 {
-	inline RenderTexture::RenderTexture(std::shared_ptr<Texture> targetTexture) :
-	RenderTexture(std::move(targetTexture), PipelineStage::FragmentShader, MemoryAccess::ColorRead, TextureLayout::ColorInput)
-	{
-	}
 }
 
 #include <Nazara/Graphics/DebugOff.hpp>
