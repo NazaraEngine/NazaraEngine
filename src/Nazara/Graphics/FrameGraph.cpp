@@ -1089,14 +1089,8 @@ namespace Nz
 				CheckExternalTexture(attachmentIndex, data);
 
 				// Final outputs cannot be reused
-				for (std::size_t outputAttachmentIndex : m_backbufferOutputs)
-				{
-					if (attachmentIndex == outputAttachmentIndex)
-					{
-						data.canReuse = false;
-						break;
-					}
-				}
+				if (std::find(m_backbufferOutputs.begin(), m_backbufferOutputs.end(), attachmentIndex) != m_backbufferOutputs.end())
+					data.canReuse = false;
 
 				return textureId;
 			}
@@ -1138,14 +1132,8 @@ namespace Nz
 				CheckExternalTexture(attachmentIndex, data);
 
 				// Final outputs cannot be reused
-				for (std::size_t outputAttachmentIndex : m_backbufferOutputs)
-				{
-					if (attachmentIndex == outputAttachmentIndex)
-					{
-						data.canReuse = false;
-						break;
-					}
-				}
+				if (std::find(m_backbufferOutputs.begin(), m_backbufferOutputs.end(), attachmentIndex) != m_backbufferOutputs.end())
+					data.canReuse = false;
 
 				return textureId;
 			}
@@ -1186,14 +1174,8 @@ namespace Nz
 				CheckExternalTexture(attachmentIndex, data);
 
 				// Final outputs cannot be reused
-				for (std::size_t outputAttachmentIndex : m_backbufferOutputs)
-				{
-					if (attachmentIndex == outputAttachmentIndex)
-					{
-						data.canReuse = false;
-						break;
-					}
-				}
+				if (std::find(m_backbufferOutputs.begin(), m_backbufferOutputs.end(), attachmentIndex) != m_backbufferOutputs.end())
+					data.canReuse = false;
 
 				return textureId;
 			}
@@ -1235,6 +1217,9 @@ namespace Nz
 
 				if (m_externalTextures.contains(proxy.attachmentId))
 					throw std::runtime_error("proxy attachments cannot be bound to external textures");
+
+				if (std::find(m_backbufferOutputs.begin(), m_backbufferOutputs.end(), attachmentIndex) != m_backbufferOutputs.end())
+					m_pending.textures[textureId].canReuse = false;
 
 				return textureId;
 			}
