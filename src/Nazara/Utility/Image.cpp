@@ -3,13 +3,13 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Utility/Image.hpp>
-#include <NazaraUtils/StackArray.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/PixelFormat.hpp>
 #include <Nazara/Utility/Utility.hpp>
+#include <NazaraUtils/StackArray.hpp>
 #include <memory>
 #include <Nazara/Utility/Debug.hpp>
 

@@ -4,7 +4,6 @@
 
 #include <Nazara/Graphics/RenderTexture.hpp>
 #include <Nazara/Graphics/FrameGraph.hpp>
-#include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 

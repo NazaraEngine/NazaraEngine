@@ -500,18 +500,9 @@ namespace Nz
 		m_bakedFrameGraph.Execute(renderFrame);
 		m_rebuildFrameGraph = false;
 
-		// Final blit (TODO: Make part of frame graph)
+		// Final blit (TODO: Make part of frame graph?)
 		for (auto&& [renderTargetPtr, renderTargetData] : m_renderTargets)
-		{
-			const RenderTarget& renderTarget = *renderTargetPtr;
-			const auto& data = renderTargetData;
-
-			renderTarget.OnRenderEnd(renderFrame, m_bakedFrameGraph, data.finalAttachment);
-
-			renderFrame.Execute([&](CommandBufferBuilder& builder)
-			{
-			}, QueueType::Graphics);
-		}
+			renderTargetPtr->OnRenderEnd(renderFrame, m_bakedFrameGraph, renderTargetData.finalAttachment);
 
 		// reset at the end instead of the beginning so debug draw can be used before calling this method
 		DebugDrawer& debugDrawer = GetDebugDrawer();
