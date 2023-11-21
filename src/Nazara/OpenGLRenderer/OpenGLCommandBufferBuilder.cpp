@@ -94,7 +94,7 @@ namespace Nz
 		m_commandBuffer.BlitTexture(sourceTexture, fromBox, targetTexture, toBox, filter);
 	}
 
-	void OpenGLCommandBufferBuilder::BlitTextureToSwapchain(const Texture& fromTexture, const Boxui& fromBox, TextureLayout fromLayout, const Swapchain& swapchain, std::size_t imageIndex)
+	void OpenGLCommandBufferBuilder::BlitTextureToSwapchain(const Texture& fromTexture, const Boxui& fromBox, TextureLayout /*fromLayout*/, const Swapchain& swapchain, std::size_t imageIndex)
 	{
 		const OpenGLTexture& glTexture = SafeCast<const OpenGLTexture&>(fromTexture);
 		const OpenGLSwapchain& glSwapchain = SafeCast<const OpenGLSwapchain&>(swapchain);

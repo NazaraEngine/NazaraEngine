@@ -19,7 +19,7 @@ namespace Nz
 	class NAZARA_GRAPHICS_API RenderTexture : public RenderTarget
 	{
 		public:
-			inline RenderTexture(std::shared_ptr<Texture> targetTexture);
+			RenderTexture(std::shared_ptr<Texture> targetTexture);
 			RenderTexture(const RenderTexture&) = delete;
 			RenderTexture(RenderTexture&&) = delete;
 			~RenderTexture() = default;
