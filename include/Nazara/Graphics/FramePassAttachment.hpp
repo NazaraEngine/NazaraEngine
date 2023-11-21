@@ -18,7 +18,6 @@ namespace Nz
 	enum class FramePassAttachmentSize
 	{
 		Fixed,
-		SwapchainFactor,
 		ViewerTargetFactor,
 	};
 

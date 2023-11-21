@@ -705,7 +705,7 @@ int main(int argc, char* argv[])
 		godRaysTexture = graph.AddAttachment({
 			.name   = "God rays texture",
 			.format = Nz::PixelFormat::RGBA16F,
-			.size   = Nz::FramePassAttachmentSize::SwapchainFactor,
+			.size   = Nz::FramePassAttachmentSize::ViewerTargetFactor,
 			.width  = 50'000,
 			.height = 50'000
 		});
@@ -716,7 +716,7 @@ int main(int argc, char* argv[])
 		bloomBrightOutput = graph.AddAttachment({
 			.name   = "Bloom bright output",
 			.format = Nz::PixelFormat::RGBA16F,
-			.size   = Nz::FramePassAttachmentSize::SwapchainFactor,
+			.size   = Nz::FramePassAttachmentSize::ViewerTargetFactor,
 			.width  = bloomSize,
 			.height = bloomSize
 		});
@@ -726,7 +726,7 @@ int main(int argc, char* argv[])
 			bloomTextures[i * 2 + 0] = graph.AddAttachment({
 				.name   = "Bloom texture #" + std::to_string(i),
 				.format = Nz::PixelFormat::RGBA16F,
-				.size   = Nz::FramePassAttachmentSize::SwapchainFactor,
+				.size   = Nz::FramePassAttachmentSize::ViewerTargetFactor,
 				.width  = bloomSize,
 				.height = bloomSize
 			});
@@ -735,7 +735,7 @@ int main(int argc, char* argv[])
 			bloomTextures[i * 2 + 1] = graph.AddAttachment({
 				.name   = "Bloom texture #" + std::to_string(i),
 				.format = Nz::PixelFormat::RGBA16F,
-				.size   = Nz::FramePassAttachmentSize::SwapchainFactor,
+				.size   = Nz::FramePassAttachmentSize::ViewerTargetFactor,
 				.width  = bloomSize,
 				.height = bloomSize
 			});
@@ -746,7 +746,7 @@ int main(int argc, char* argv[])
 		toneMappingOutput = graph.AddAttachment({
 			.name   = "Tone mapping",
 			.format = Nz::PixelFormat::RGBA8,
-			.size   = Nz::FramePassAttachmentSize::SwapchainFactor,
+			.size   = Nz::FramePassAttachmentSize::ViewerTargetFactor,
 			.width  = 100'000,
 			.height = 100'000
 		});
@@ -1526,7 +1526,7 @@ int main(int argc, char* argv[])
 			clearValues[1].depth = 1.f;
 			clearValues[1].stencil = 0;
 
-			builder.BeginRenderPass(windowRT->GetFramebuffer(frame.GetFramebufferIndex()), windowRT->GetRenderPass(), windowRenderRect, { clearValues[0], clearValues[1] });
+			builder.BeginRenderPass(windowRT->GetFramebuffer(frame.GetImageIndex()), windowRT->GetRenderPass(), windowRenderRect, { clearValues[0], clearValues[1] });
 			{
 				builder.BeginDebugRegion("Main window rendering", Nz::Color::Green());
 				{

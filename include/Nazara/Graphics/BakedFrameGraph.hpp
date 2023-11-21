@@ -91,6 +91,7 @@ namespace Nz
 			std::shared_ptr<CommandPool> m_commandPool;
 			std::vector<PassData> m_passes;
 			std::vector<TextureData> m_textures;
+			std::vector<Vector2ui> m_viewerSizes;
 			AttachmentIdToTextureId m_attachmentToTextureMapping;
 			PassIdToPhysicalPassIndex m_passIdToPhysicalPassMapping;
 			unsigned int m_height;

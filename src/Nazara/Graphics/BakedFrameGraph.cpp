@@ -14,9 +14,7 @@ namespace Nz
 	m_passes(std::move(passes)),
 	m_textures(std::move(textures)),
 	m_attachmentToTextureMapping(std::move(attachmentIdToTextureMapping)),
-	m_passIdToPhysicalPassMapping(std::move(passIdToPhysicalPassMapping)),
-	m_height(0),
-	m_width(0)
+	m_passIdToPhysicalPassMapping(std::move(passIdToPhysicalPassMapping))
 	{
 		const std::shared_ptr<RenderDevice>& renderDevice = Graphics::Instance()->GetRenderDevice();
 		m_commandPool = renderDevice->InstantiateCommandPool(QueueType::Graphics);
@@ -131,8 +129,7 @@ namespace Nz
 
 	bool BakedFrameGraph::Resize(RenderFrame& renderFrame, std::span<Vector2ui> viewerTargetSizes)
 	{
-		Vector2ui swapchainSize = renderFrame.GetSize();
-		if (m_width == swapchainSize.x && m_height == swapchainSize.y)
+		if (std::equal(m_viewerSizes.begin(), m_viewerSizes.end(), viewerTargetSizes.begin(), viewerTargetSizes.end()))
 			return false;
 
 		const std::shared_ptr<RenderDevice>& renderDevice = Graphics::Instance()->GetRenderDevice();
@@ -145,13 +142,6 @@ namespace Nz
 				case FramePassAttachmentSize::Fixed:
 					texDimensions.x = textureData.width;
 					texDimensions.y = textureData.height;
-					break;
-
-				case FramePassAttachmentSize::SwapchainFactor:
-					texDimensions = swapchainSize;
-					texDimensions.x *= textureData.width;
-					texDimensions.y *= textureData.height;
-					texDimensions /= 100'000;
 					break;
 
 				case FramePassAttachmentSize::ViewerTargetFactor:
@@ -256,9 +246,7 @@ namespace Nz
 			passData.forceCommandBufferRegeneration = true;
 		}
 
-		m_width = swapchainSize.x;
-		m_height = swapchainSize.y;
-
+		m_viewerSizes.assign(viewerTargetSizes.begin(), viewerTargetSizes.end());
 		return true;
 	}
 }
