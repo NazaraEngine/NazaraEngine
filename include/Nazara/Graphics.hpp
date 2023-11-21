@@ -82,6 +82,7 @@
 #include <Nazara/Graphics/RenderSubmesh.hpp>
 #include <Nazara/Graphics/RenderTarget.hpp>
 #include <Nazara/Graphics/RenderTexture.hpp>
+#include <Nazara/Graphics/RenderTextureBlit.hpp>
 #include <Nazara/Graphics/RenderWindow.hpp>
 #include <Nazara/Graphics/ShaderReflection.hpp>
 #include <Nazara/Graphics/ShadowViewer.hpp>
