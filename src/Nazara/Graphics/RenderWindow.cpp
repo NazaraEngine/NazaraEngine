@@ -31,6 +31,11 @@ namespace Nz
 		SetSwapchain(m_windowSwapchain->GetSwapchain());
 	}
 
+	void RenderWindow::OnBuildGraph(FrameGraph& graph, std::size_t attachmentIndex) const
+	{
+		graph.AddOutput(attachmentIndex);
+	}
+
 	void RenderWindow::OnRenderEnd(RenderFrame& renderFrame, const BakedFrameGraph& frameGraph, std::size_t finalAttachment) const
 	{
 		const std::shared_ptr<Texture>& texture = frameGraph.GetAttachmentTexture(finalAttachment);
@@ -47,11 +52,6 @@ namespace Nz
 			}
 			builder.EndDebugRegion();
 		}, QueueType::Graphics);
-	}
-
-	void RenderWindow::OnBuildGraph(FrameGraph& graph, std::size_t attachmentIndex) const
-	{
-		graph.AddBackbufferOutput(attachmentIndex);
 	}
 
 	const Vector2ui& RenderWindow::GetSize() const

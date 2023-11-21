@@ -39,7 +39,7 @@ namespace Nz
 			inline std::size_t AddAttachmentCubeFace(std::size_t attachmentId, CubemapFace face);
 			inline std::size_t AddAttachmentProxy(std::string name, std::size_t attachmentId);
 			inline FramePass& AddPass(std::string name);
-			inline void AddBackbufferOutput(std::size_t attachmentIndex);
+			inline void AddOutput(std::size_t attachmentIndex);
 
 			BakedFrameGraph Bake();
 
@@ -140,7 +140,7 @@ namespace Nz
 
 			using AttachmentType = std::variant<FramePassAttachment, AttachmentProxy, AttachmentArray, AttachmentCube, AttachmentLayer>;
 
-			std::vector<std::size_t> m_backbufferOutputs;
+			std::vector<std::size_t> m_graphOutputs;
 			std::vector<FramePass> m_framePasses;
 			std::vector<AttachmentType> m_attachments;
 			std::unordered_map<std::size_t, std::shared_ptr<Texture>> m_externalTextures;

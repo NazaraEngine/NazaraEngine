@@ -28,7 +28,7 @@ namespace Nz
 
 	BakedFrameGraph FrameGraph::Bake()
 	{
-		if (m_backbufferOutputs.empty())
+		if (m_graphOutputs.empty())
 			throw std::runtime_error("no backbuffer output has been set");
 
 		m_pending.attachmentReadList.clear();
@@ -45,7 +45,7 @@ namespace Nz
 
 		BuildReadWriteList();
 
-		for (std::size_t output : m_backbufferOutputs)
+		for (std::size_t output : m_graphOutputs)
 		{
 			auto it = m_pending.attachmentWriteList.find(output);
 			if (it == m_pending.attachmentWriteList.end())
@@ -291,7 +291,7 @@ namespace Nz
 		}
 
 		// Add TextureUsage::ShaderSampling and TextureUsage::TransferSource to final outputs
-		for (std::size_t output : m_backbufferOutputs)
+		for (std::size_t output : m_graphOutputs)
 		{
 			auto it = m_pending.attachmentToTextures.find(output);
 			assert(it != m_pending.attachmentToTextures.end());
@@ -1089,7 +1089,7 @@ namespace Nz
 				CheckExternalTexture(attachmentIndex, data);
 
 				// Final outputs cannot be reused
-				if (std::find(m_backbufferOutputs.begin(), m_backbufferOutputs.end(), attachmentIndex) != m_backbufferOutputs.end())
+				if (std::find(m_graphOutputs.begin(), m_graphOutputs.end(), attachmentIndex) != m_graphOutputs.end())
 					data.canReuse = false;
 
 				return textureId;
@@ -1132,7 +1132,7 @@ namespace Nz
 				CheckExternalTexture(attachmentIndex, data);
 
 				// Final outputs cannot be reused
-				if (std::find(m_backbufferOutputs.begin(), m_backbufferOutputs.end(), attachmentIndex) != m_backbufferOutputs.end())
+				if (std::find(m_graphOutputs.begin(), m_graphOutputs.end(), attachmentIndex) != m_graphOutputs.end())
 					data.canReuse = false;
 
 				return textureId;
@@ -1174,7 +1174,7 @@ namespace Nz
 				CheckExternalTexture(attachmentIndex, data);
 
 				// Final outputs cannot be reused
-				if (std::find(m_backbufferOutputs.begin(), m_backbufferOutputs.end(), attachmentIndex) != m_backbufferOutputs.end())
+				if (std::find(m_graphOutputs.begin(), m_graphOutputs.end(), attachmentIndex) != m_graphOutputs.end())
 					data.canReuse = false;
 
 				return textureId;
@@ -1218,7 +1218,7 @@ namespace Nz
 				if (m_externalTextures.contains(proxy.attachmentId))
 					throw std::runtime_error("proxy attachments cannot be bound to external textures");
 
-				if (std::find(m_backbufferOutputs.begin(), m_backbufferOutputs.end(), attachmentIndex) != m_backbufferOutputs.end())
+				if (std::find(m_graphOutputs.begin(), m_graphOutputs.end(), attachmentIndex) != m_graphOutputs.end())
 					m_pending.textures[textureId].canReuse = false;
 
 				return textureId;

@@ -1037,7 +1037,7 @@ int main(int argc, char* argv[])
 			builder.Draw(3);
 		});
 
-		graph.AddBackbufferOutput(toneMappingOutput);
+		graph.AddOutput(toneMappingOutput);
 
 		return graph.Bake();
 	}();
