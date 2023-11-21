@@ -15,11 +15,14 @@ namespace Nz
 
 	inline void RenderResources::FlushReleaseQueue()
 	{
+		for (ReleasableCallback* callback : m_callbackQueue)
+			callback->Release();
+
+		m_callbackQueue.clear();
+
 		for (Releasable* releasable : m_releaseQueue)
-		{
-			releasable->Release();
 			PlacementDestroy(releasable);
-		}
+
 		m_releaseQueue.clear();
 
 		for (auto& memoryblock : m_releaseMemoryPool)
@@ -36,7 +39,12 @@ namespace Nz
 	{
 		static_assert(std::is_rvalue_reference_v<decltype(value)>);
 
-		return PushReleaseCallback([v = std::move(value)] {});
+		using ReleaseData = ReleasableData<std::remove_cv_t<std::remove_reference_t<T>>>;
+
+		ReleaseData* releasable = Allocate<ReleaseData>();
+		PlacementNew(releasable, std::forward<T>(value));
+
+		m_releaseQueue.push_back(releasable);
 	}
 
 	template<typename F>
@@ -44,9 +52,21 @@ namespace Nz
 	{
 		using ReleaseFunctor = ReleasableLambda<std::remove_cv_t<std::remove_reference_t<F>>>;
 
-		constexpr std::size_t functorSize = sizeof(ReleaseFunctor);
-		constexpr std::size_t functorAlignment = alignof(ReleaseFunctor);
+		ReleaseFunctor* releasable = Allocate<ReleaseFunctor>();
+		PlacementNew(releasable, std::forward<F>(callback));
 
+		m_releaseQueue.push_back(releasable);
+		m_callbackQueue.push_back(releasable);
+	}
+
+	template<typename T>
+	T* RenderResources::Allocate()
+	{
+		return static_cast<T*>(Allocate(sizeof(T), alignof(T)));
+	}
+
+	void* RenderResources::Allocate(std::size_t size, std::size_t alignment)
+	{
 		// Try to minimize lost space
 		struct
 		{
@@ -59,8 +79,8 @@ namespace Nz
 		{
 			std::size_t freeOffset = block.size();
 
-			UInt64 alignedOffset = Align(freeOffset, functorAlignment);
-			if (alignedOffset + functorSize > block.capacity())
+			UInt64 alignedOffset = Align(freeOffset, alignment);
+			if (alignedOffset + size > block.capacity())
 				continue; //< Not enough space
 
 			UInt64 lostSpace = alignedOffset - freeOffset;
@@ -85,12 +105,16 @@ namespace Nz
 		}
 
 		Block& targetBlock = *bestBlock.block;
-		targetBlock.resize(bestBlock.alignedOffset + functorSize);
+		targetBlock.resize(bestBlock.alignedOffset + size);
 
-		ReleaseFunctor* releasable = reinterpret_cast<ReleaseFunctor*>(&targetBlock[bestBlock.alignedOffset]);
-		PlacementNew(releasable, std::forward<F>(callback));
+		return &targetBlock[bestBlock.alignedOffset];
+	}
 
-		m_releaseQueue.push_back(releasable);
+
+	template<typename T>
+	RenderResources::ReleasableData<T>::ReleasableData(T&& data) :
+	m_data(std::move(data))
+	{
 	}
 
 	template<typename T>
@@ -108,3 +132,4 @@ namespace Nz
 }
 
 #include <Nazara/Renderer/DebugOff.hpp>
+#include "RenderResources.hpp"

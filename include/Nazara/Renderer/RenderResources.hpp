@@ -26,6 +26,8 @@ namespace Nz
 	{
 		public:
 			class Releasable;
+			class ReleasableCallback;
+			template<typename T> class ReleasableData;
 			template<typename T> class ReleasableLambda;
 
 			virtual ~RenderResources();
@@ -50,10 +52,14 @@ namespace Nz
 			RenderResources(RenderResources&&) = delete;
 
 		private:
+			template<typename T> T* Allocate();
+			inline void* Allocate(std::size_t size, std::size_t alignment);
+
 			static constexpr std::size_t BlockSize = 4 * 1024 * 1024;
 
 			using Block = std::vector<UInt8>;
 
+			std::vector<ReleasableCallback*> m_callbackQueue;
 			std::vector<Releasable*> m_releaseQueue;
 			std::vector<Block> m_releaseMemoryPool;
 			RenderDevice& m_renderDevice;
@@ -63,12 +69,32 @@ namespace Nz
 	{
 		public:
 			virtual ~Releasable();
+	};
 
+	class RenderResources::ReleasableCallback : public Releasable
+	{
+		public:
 			virtual void Release() = 0;
 	};
 
 	template<typename T>
-	class RenderResources::ReleasableLambda : public Releasable
+	class RenderResources::ReleasableData : public Releasable
+	{
+		public:
+			ReleasableData(T&& data);
+			ReleasableData(const ReleasableData&) = delete;
+			ReleasableData(ReleasableData&&) = delete;
+			~ReleasableData() = default;
+
+			ReleasableData& operator=(const ReleasableData&) = delete;
+			ReleasableData& operator=(ReleasableData&&) = delete;
+
+		private:
+			T m_data;
+	};
+
+	template<typename T>
+	class RenderResources::ReleasableLambda final : public ReleasableCallback
 	{
 		public:
 			template<typename U> ReleasableLambda(U&& lambda);
