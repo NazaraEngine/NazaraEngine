@@ -22,7 +22,7 @@
 
 namespace Nz
 {
-	class RenderFrame;
+	class RenderResources;
 
 	class NAZARA_GRAPHICS_API BakedFrameGraph
 	{
@@ -34,12 +34,12 @@ namespace Nz
 			BakedFrameGraph(BakedFrameGraph&&) noexcept = default;
 			~BakedFrameGraph() = default;
 
-			void Execute(RenderFrame& renderFrame);
+			void Execute(RenderResources& renderResources);
 
 			const std::shared_ptr<Texture>& GetAttachmentTexture(std::size_t attachmentIndex) const;
 			const std::shared_ptr<RenderPass>& GetRenderPass(std::size_t passIndex) const;
 
-			bool Resize(RenderFrame& renderFrame, std::span<Vector2ui> viewerTargetSizes);
+			bool Resize(RenderResources& renderResources, std::span<Vector2ui> viewerTargetSizes);
 
 			BakedFrameGraph& operator=(const BakedFrameGraph&) = delete;
 			BakedFrameGraph& operator=(BakedFrameGraph&&) noexcept = default;

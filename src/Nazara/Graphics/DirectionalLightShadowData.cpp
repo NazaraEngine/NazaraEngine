@@ -40,7 +40,7 @@ namespace Nz
 		UpdatePerViewerStatus(true);
 	}
 
-	void DirectionalLightShadowData::PrepareRendering(RenderFrame& renderFrame, const AbstractViewer* viewer)
+	void DirectionalLightShadowData::PrepareRendering(RenderResources& renderResources, const AbstractViewer* viewer)
 	{
 		assert(viewer);
 		PerViewerData& viewerData = *Retrieve(m_viewerData, viewer);
@@ -121,7 +121,7 @@ namespace Nz
 			FramePipelinePass::FrameData passData = {
 				nullptr,
 				frustum,
-				renderFrame,
+				renderResources,
 				visibleRenderables,
 				visibilityHash
 			};

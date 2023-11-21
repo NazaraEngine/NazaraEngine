@@ -82,7 +82,7 @@ namespace Nz
 			bool HasPass(std::string_view passName) const;
 			inline bool HasPass(std::size_t passIndex) const;
 
-			void OnTransfer(RenderFrame& renderFrame, CommandBufferBuilder& builder) override;
+			void OnTransfer(RenderResources& renderResources, CommandBufferBuilder& builder) override;
 
 			inline void SetTextureProperty(std::string_view propertyName, std::shared_ptr<Texture> texture);
 			inline void SetTextureProperty(std::string_view propertyName, std::shared_ptr<Texture> texture, const TextureSamplerInfo& samplerInfo);

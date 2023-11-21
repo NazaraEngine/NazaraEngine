@@ -53,6 +53,11 @@ namespace Nz
 		SubmitCommandBuffer(commandBuffer, queueTypeFlags);
 	}
 
+	UInt32 VulkanRenderImage::GetImageIndex() const
+	{
+		return m_imageIndex;
+	}
+
 	VulkanUploadPool& VulkanRenderImage::GetUploadPool()
 	{
 		return m_uploadPool;

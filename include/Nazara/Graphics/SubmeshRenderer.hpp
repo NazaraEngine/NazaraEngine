@@ -27,9 +27,9 @@ namespace Nz
 			RenderElementPool<RenderSubmesh>& GetPool() override;
 
 			std::unique_ptr<ElementRendererData> InstanciateData() override;
-			void Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderFrame& currentFrame, std::size_t elementCount, const Pointer<const RenderElement>* elements, SparsePtr<const RenderStates> renderStates) override;
+			void Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderResources& renderResources, std::size_t elementCount, const Pointer<const RenderElement>* elements, SparsePtr<const RenderStates> renderStates) override;
 			void Render(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, CommandBufferBuilder& commandBuffer, std::size_t elementCount, const Pointer<const RenderElement>* elements) override;
-			void Reset(ElementRendererData& rendererData, RenderFrame& currentFrame) override;
+			void Reset(ElementRendererData& rendererData, RenderResources& renderResources) override;
 
 		private:
 			std::vector<ShaderBinding::Binding> m_bindingCache;

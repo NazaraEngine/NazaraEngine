@@ -6,6 +6,10 @@
 
 namespace Nz
 {
+	inline void OpenGLRenderImage::Reset(UInt32 imageIndex)
+	{
+		m_imageIndex = imageIndex;
+	}
 }
 
 #include <Nazara/OpenGLRenderer/DebugOff.hpp>

@@ -24,7 +24,7 @@ namespace Nz
 	class FramePipeline;
 	class InstancedRenderable;
 	class MaterialInstance;
-	class RenderFrame;
+	class RenderResources;
 	class SkeletonInstance;
 	class WorldInstance;
 
@@ -60,7 +60,7 @@ namespace Nz
 			{
 				const Bitset<UInt64>* visibleLights;
 				const Frustumf& frustum;
-				RenderFrame& renderFrame;
+				RenderResources& renderResources;
 				const std::vector<VisibleRenderable>& visibleRenderables;
 				std::size_t visibilityHash;
 			};

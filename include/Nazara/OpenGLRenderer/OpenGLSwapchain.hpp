@@ -33,7 +33,7 @@ namespace Nz
 
 			inline GL::Context& GetContext();
 			inline OpenGLDevice& GetDevice();
-			const OpenGLFramebuffer& GetFramebuffer(std::size_t i) const override;
+			const OpenGLFramebuffer& GetFramebuffer(std::size_t imageIndex) const override;
 			std::size_t GetFramebufferCount() const override;
 			PresentMode GetPresentMode() const override;
 			const OpenGLRenderPass& GetRenderPass() const override;
@@ -46,17 +46,17 @@ namespace Nz
 
 			void SetPresentMode(PresentMode presentMode) override;
 
-			TransientResources& Transient() override;
+			RenderResources& GetTransientResources() override;
 
 		private:
 			std::optional<OpenGLRenderPass> m_renderPass;
-			std::size_t m_currentFrame;
 			std::shared_ptr<GL::Context> m_context;
 			std::vector<std::unique_ptr<OpenGLRenderImage>> m_renderImage;
 			OpenGLDevice& m_device;
 			OpenGLWindowFramebuffer m_framebuffer;
 			PresentMode m_presentMode;
 			PresentModeFlags m_supportedPresentModes;
+			UInt32 m_currentImageIndex;
 			Vector2ui m_size;
 			bool m_sizeInvalidated;
 	};

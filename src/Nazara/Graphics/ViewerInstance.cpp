@@ -31,14 +31,14 @@ namespace Nz
 		m_viewerDataBuffer->UpdateDebugName("Viewer data");
 	}
 
-	void ViewerInstance::OnTransfer(RenderFrame& renderFrame, CommandBufferBuilder& builder)
+	void ViewerInstance::OnTransfer(RenderResources& renderResources, CommandBufferBuilder& builder)
 	{
 		if (!m_dataInvalidated)
 			return;
 
 		constexpr auto& viewerDataOffsets = PredefinedViewerOffsets;
 
-		auto& allocation = renderFrame.GetUploadPool().Allocate(viewerDataOffsets.totalSize);
+		auto& allocation = renderResources.GetUploadPool().Allocate(viewerDataOffsets.totalSize);
 		AccessByOffset<Vector3f&>(allocation.mappedPtr, viewerDataOffsets.eyePositionOffset) = m_eyePosition;
 		AccessByOffset<Vector2f&>(allocation.mappedPtr, viewerDataOffsets.invTargetSizeOffset) = 1.f / m_targetSize;
 		AccessByOffset<Vector2f&>(allocation.mappedPtr, viewerDataOffsets.targetSizeOffset) = m_targetSize;

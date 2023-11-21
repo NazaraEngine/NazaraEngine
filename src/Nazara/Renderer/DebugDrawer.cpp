@@ -104,9 +104,9 @@ namespace Nz
 		}
 	}
 
-	void DebugDrawer::Prepare(RenderFrame& renderFrame)
+	void DebugDrawer::Prepare(RenderResources& renderResources)
 	{
-		UploadPool& uploadPool = renderFrame.GetUploadPool();
+		UploadPool& uploadPool = renderResources.GetUploadPool();
 
 		if (!m_lineVertices.empty())
 		{
@@ -171,7 +171,7 @@ namespace Nz
 
 		if (m_viewerDataUpdated || !m_pendingUploads.empty())
 		{
-			renderFrame.Execute([&](CommandBufferBuilder& builder)
+			renderResources.Execute([&](CommandBufferBuilder& builder)
 			{
 				builder.BeginDebugRegion("Debug drawer upload", Color::Yellow());
 				{
@@ -196,12 +196,12 @@ namespace Nz
 		m_viewerDataUpdated = false;
 	}
 
-	void DebugDrawer::Reset(RenderFrame& renderFrame)
+	void DebugDrawer::Reset(RenderResources& renderResources)
 	{
 		if (m_currentViewerData.binding)
 		{
 			// keep pipeline layout alive as needs to stay alive until all shader bindings have been freed
-			renderFrame.PushReleaseCallback([pool = m_dataPool, data = std::move(m_currentViewerData), pipelineLayout = m_renderPipelineLayout]() mutable
+			renderResources.PushReleaseCallback([pool = m_dataPool, data = std::move(m_currentViewerData), pipelineLayout = m_renderPipelineLayout]() mutable
 			{
 				pool->viewerData.push_back(std::move(data));
 			});
@@ -210,7 +210,7 @@ namespace Nz
 
 		for (auto& drawCall : m_drawCalls)
 		{
-			renderFrame.PushReleaseCallback([pool = m_dataPool, buffer = std::move(drawCall.vertexBuffer)]() mutable
+			renderResources.PushReleaseCallback([pool = m_dataPool, buffer = std::move(drawCall.vertexBuffer)]() mutable
 			{
 				pool->vertexBuffers.push_back(std::move(buffer));
 			});

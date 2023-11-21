@@ -7,12 +7,11 @@
 namespace Nz
 {
 	inline RenderFrame::RenderFrame() :
-	RenderFrame(nullptr, false, Vector2ui::Zero(), 0)
+	RenderFrame(nullptr, false, Vector2ui::Zero())
 	{
 	}
 
-	inline RenderFrame::RenderFrame(RenderImage* renderImage, bool framebufferInvalidation, const Vector2ui& size, std::size_t framebufferIndex) :
-	m_framebufferIndex(framebufferIndex),
+	inline RenderFrame::RenderFrame(RenderImage* renderImage, bool framebufferInvalidation, const Vector2ui& size) :
 	m_image(renderImage),
 	m_size(size),
 	m_framebufferInvalidation(framebufferInvalidation)
@@ -27,9 +26,9 @@ namespace Nz
 		return m_image->Execute(callback, queueTypeFlags);
 	}
 
-	inline std::size_t RenderFrame::GetFramebufferIndex() const
+	inline std::size_t RenderFrame::GetImageIndex() const
 	{
-		return m_framebufferIndex;
+		return m_image->GetImageIndex();
 	}
 
 	inline const Vector2ui& RenderFrame::GetSize() const
@@ -40,6 +39,11 @@ namespace Nz
 	inline RenderDevice& RenderFrame::GetRenderDevice()
 	{
 		return m_image->GetRenderDevice();
+	}
+
+	inline RenderResources& RenderFrame::GetTransientResources()
+	{
+		return *m_image;
 	}
 
 	inline UploadPool& RenderFrame::GetUploadPool()
@@ -90,10 +94,14 @@ namespace Nz
 		m_image->SubmitCommandBuffer(commandBuffer, queueTypeFlags);
 	}
 
-
 	inline RenderFrame::operator bool()
 	{
 		return m_image != nullptr;
+	}
+
+	inline RenderFrame::operator RenderResources&()
+	{
+		return GetTransientResources();
 	}
 }
 

@@ -20,7 +20,7 @@ namespace Nz
 		m_commandPool = renderDevice->InstantiateCommandPool(QueueType::Graphics);
 	}
 
-	void BakedFrameGraph::Execute(RenderFrame& renderFrame)
+	void BakedFrameGraph::Execute(RenderResources& renderResources)
 	{
 		for (auto& passData : m_passes)
 		{
@@ -35,7 +35,7 @@ namespace Nz
 					case FramePassExecution::Skip:
 						if (passData.commandBuffer)
 						{
-							renderFrame.PushForRelease(std::move(passData.commandBuffer));
+							renderResources.PushForRelease(std::move(passData.commandBuffer));
 							passData.commandBuffer.reset();
 						}
 						continue; //< Skip the pass
@@ -50,7 +50,7 @@ namespace Nz
 				continue;
 
 			if (passData.commandBuffer)
-				renderFrame.PushForRelease(std::move(passData.commandBuffer));
+				renderResources.PushForRelease(std::move(passData.commandBuffer));
 
 			passData.commandBuffer = m_commandPool->BuildCommandBuffer([&](CommandBufferBuilder& builder)
 			{
@@ -66,9 +66,9 @@ namespace Nz
 					builder.BeginDebugRegion(passData.name, Color::Green());
 
 				FramePassEnvironment env{
-					*this,
-					passData.renderRect,
-					renderFrame
+					.frameGraph = *this,
+					.renderResources = renderResources,
+					.renderRect = passData.renderRect
 				};
 
 				bool first = true;
@@ -95,7 +95,7 @@ namespace Nz
 		for (auto& passData : m_passes)
 		{
 			if (passData.commandBuffer)
-				renderFrame.SubmitCommandBuffer(passData.commandBuffer.get(), QueueType::Graphics);
+				renderResources.SubmitCommandBuffer(passData.commandBuffer.get(), QueueType::Graphics);
 		}
 	}
 
@@ -127,7 +127,7 @@ namespace Nz
 		return m_passes[physicalPassIndex].renderPass;
 	}
 
-	bool BakedFrameGraph::Resize(RenderFrame& renderFrame, std::span<Vector2ui> viewerTargetSizes)
+	bool BakedFrameGraph::Resize(RenderResources& renderResources, std::span<Vector2ui> viewerTargetSizes)
 	{
 		if (std::equal(m_viewerSizes.begin(), m_viewerSizes.end(), viewerTargetSizes.begin(), viewerTargetSizes.end()))
 			return false;
@@ -159,10 +159,10 @@ namespace Nz
 		for (auto& passData : m_passes)
 		{
 			if (passData.commandBuffer)
-				renderFrame.PushForRelease(std::move(passData.commandBuffer));
+				renderResources.PushForRelease(std::move(passData.commandBuffer));
 
 			if (passData.framebuffer)
-				renderFrame.PushForRelease(std::move(passData.framebuffer));
+				renderResources.PushForRelease(std::move(passData.framebuffer));
 		}
 
 		for (auto& textureData : m_textures)
@@ -177,7 +177,7 @@ namespace Nz
 				continue;
 
 			// Dimensions changed, recreated texture
-			renderFrame.PushForRelease(std::move(textureData.texture));
+			renderResources.PushForRelease(std::move(textureData.texture));
 		}
 
 		for (auto& textureData : m_textures)

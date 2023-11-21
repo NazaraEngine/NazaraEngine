@@ -25,7 +25,7 @@ namespace Nz
 			~RenderTexture() = default;
 
 			void OnBuildGraph(FrameGraph& graph, std::size_t attachmentIndex) const override;
-			void OnRenderEnd(RenderFrame& renderFrame, const BakedFrameGraph& frameGraph, std::size_t finalAttachment) const override;
+			void OnRenderEnd(RenderResources& resources, const BakedFrameGraph& frameGraph, std::size_t finalAttachment) const override;
 
 			const Vector2ui& GetSize() const override;
 

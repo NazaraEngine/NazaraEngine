@@ -341,30 +341,28 @@ namespace Nz
 		return lightShadowData->RetrieveLightShadowmap(m_bakedFrameGraph, viewer);
 	}
 
-	void ForwardFramePipeline::Render(RenderFrame& renderFrame)
+	void ForwardFramePipeline::Render(RenderResources& renderResources)
 	{
-		m_currentRenderFrame = &renderFrame;
-
 		Graphics* graphics = Graphics::Instance();
 
 		// Destroy instances at the end of the frame
 		for (std::size_t skeletonInstanceIndex : m_removedSkeletonInstances.IterBits())
 		{
-			renderFrame.PushForRelease(std::move(*m_skeletonInstances.RetrieveFromIndex(skeletonInstanceIndex)));
+			renderResources.PushForRelease(std::move(*m_skeletonInstances.RetrieveFromIndex(skeletonInstanceIndex)));
 			m_skeletonInstances.Free(skeletonInstanceIndex);
 		}
 		m_removedSkeletonInstances.Clear();
 
 		for (std::size_t viewerIndex : m_removedViewerInstances.IterBits())
 		{
-			renderFrame.PushForRelease(std::move(*m_viewerPool.RetrieveFromIndex(viewerIndex)));
+			renderResources.PushForRelease(std::move(*m_viewerPool.RetrieveFromIndex(viewerIndex)));
 			m_viewerPool.Free(viewerIndex);
 		}
 		m_removedViewerInstances.Clear();
 
 		for (std::size_t worldInstanceIndex : m_removedWorldInstances.IterBits())
 		{
-			renderFrame.PushForRelease(std::move(*m_worldInstances.RetrieveFromIndex(worldInstanceIndex)));
+			renderResources.PushForRelease(std::move(*m_worldInstances.RetrieveFromIndex(worldInstanceIndex)));
 			m_worldInstances.Free(worldInstanceIndex);
 		}
 		m_removedWorldInstances.Clear();
@@ -372,7 +370,7 @@ namespace Nz
 		bool frameGraphInvalidated = false;
 		if (m_rebuildFrameGraph)
 		{
-			renderFrame.PushForRelease(std::move(m_bakedFrameGraph));
+			renderResources.PushForRelease(std::move(m_bakedFrameGraph));
 			m_bakedFrameGraph = BuildFrameGraph();
 			frameGraphInvalidated = true;
 		}
@@ -384,7 +382,7 @@ namespace Nz
 			viewerSizes.emplace_back(Vector2i(viewport.width, viewport.height));
 		}
 
-		frameGraphInvalidated |= m_bakedFrameGraph.Resize(renderFrame, viewerSizes);
+		frameGraphInvalidated |= m_bakedFrameGraph.Resize(renderResources, viewerSizes);
 
 		// Find active lights (i.e. visible in any frustum)
 		m_activeLights.Clear();
@@ -420,7 +418,7 @@ namespace Nz
 		{
 			LightData* lightData = m_lightPool.RetrieveFromIndex(i);
 			if (!lightData->shadowData->IsPerViewer())
-				lightData->shadowData->PrepareRendering(renderFrame, nullptr);
+				lightData->shadowData->PrepareRendering(renderResources, nullptr);
 		}
 
 		// Viewer handling (second pass)
@@ -436,7 +434,7 @@ namespace Nz
 			{
 				LightData* lightData = m_lightPool.RetrieveFromIndex(lightIndex);
 				if (lightData->shadowData && lightData->shadowData->IsPerViewer() && (renderMask & lightData->renderMask) != 0)
-					lightData->shadowData->PrepareRendering(renderFrame, viewerData.viewer);
+					lightData->shadowData->PrepareRendering(renderResources, viewerData.viewer);
 			}
 
 			// Frustum culling
@@ -446,7 +444,7 @@ namespace Nz
 			FramePipelinePass::FrameData passData = {
 				&viewerData.frame.visibleLights,
 				viewerData.frame.frustum,
-				renderFrame,
+				renderResources,
 				visibleRenderables,
 				visibilityHash
 			};
@@ -464,7 +462,7 @@ namespace Nz
 					continue;
 
 				if (viewerData.blitShaderBinding)
-					renderFrame.PushForRelease(std::move(viewerData.blitShaderBinding));
+					renderResources.PushForRelease(std::move(viewerData.blitShaderBinding));
 
 				viewerData.blitShaderBinding = graphics->GetBlitPipelineLayout()->AllocateShaderBinding(0);
 				viewerData.blitShaderBinding->Update({
@@ -480,33 +478,33 @@ namespace Nz
 		}
 
 		// Update UBOs and materials
-		renderFrame.Execute([&](CommandBufferBuilder& builder)
+		renderResources.Execute([&](CommandBufferBuilder& builder)
 		{
 			builder.BeginDebugRegion("CPU to GPU transfers", Color::Yellow());
 			{
 				builder.PreTransferBarrier();
 
 				for (TransferInterface* transferInterface : m_transferSet)
-					transferInterface->OnTransfer(renderFrame, builder);
+					transferInterface->OnTransfer(renderResources, builder);
 				m_transferSet.clear();
 
-				OnTransfer(this, renderFrame, builder);
+				OnTransfer(this, renderResources, builder);
 
 				builder.PostTransferBarrier();
 			}
 			builder.EndDebugRegion();
 		}, QueueType::Transfer);
 
-		m_bakedFrameGraph.Execute(renderFrame);
+		m_bakedFrameGraph.Execute(renderResources);
 		m_rebuildFrameGraph = false;
 
 		// Final blit (TODO: Make part of frame graph?)
 		for (auto&& [renderTargetPtr, renderTargetData] : m_renderTargets)
-			renderTargetPtr->OnRenderEnd(renderFrame, m_bakedFrameGraph, renderTargetData.finalAttachment);
+			renderTargetPtr->OnRenderEnd(renderResources, m_bakedFrameGraph, renderTargetData.finalAttachment);
 
 		// reset at the end instead of the beginning so debug draw can be used before calling this method
 		DebugDrawer& debugDrawer = GetDebugDrawer();
-		debugDrawer.Reset(renderFrame);
+		debugDrawer.Reset(renderResources);
 	}
 
 	void ForwardFramePipeline::UnregisterLight(std::size_t lightIndex)

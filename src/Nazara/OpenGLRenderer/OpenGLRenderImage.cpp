@@ -27,6 +27,11 @@ namespace Nz
 		commandBuffer.Execute();
 	}
 
+	UInt32 OpenGLRenderImage::GetImageIndex() const
+	{
+		return m_imageIndex;
+	}
+
 	OpenGLUploadPool& OpenGLRenderImage::GetUploadPool()
 	{
 		return m_uploadPool;

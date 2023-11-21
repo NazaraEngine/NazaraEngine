@@ -368,7 +368,7 @@ int main()
 
 			builder.BeginDebugRegion("Main window rendering", Nz::Color::Green());
 			{
-				builder.BeginRenderPass(windowRT->GetFramebuffer(frame.GetFramebufferIndex()), windowRT->GetRenderPass(), renderRect, { clearValues[0], clearValues[1] });
+				builder.BeginRenderPass(windowRT->GetFramebuffer(frame.GetImageIndex()), windowRT->GetRenderPass(), renderRect, { clearValues[0], clearValues[1] });
 				{
 					builder.BindIndexBuffer(*renderBufferIB, Nz::IndexType::U16);
 					builder.BindRenderPipeline(*pipeline);

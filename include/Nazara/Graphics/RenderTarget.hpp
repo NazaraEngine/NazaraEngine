@@ -18,9 +18,9 @@ namespace Nz
 	class CommandBufferBuilder;
 	class Framebuffer;
 	class FrameGraph;
-	class RenderFrame;
 	class RenderPass;
 	class Texture;
+	class RenderResources;
 
 	class NAZARA_GRAPHICS_API RenderTarget
 	{
@@ -29,7 +29,7 @@ namespace Nz
 			virtual ~RenderTarget();
 
 			virtual void OnBuildGraph(FrameGraph& frameGraph, std::size_t attachmentIndex) const = 0;
-			virtual void OnRenderEnd(RenderFrame& renderFrame, const BakedFrameGraph& frameGraph, std::size_t finalAttachment) const = 0;
+			virtual void OnRenderEnd(RenderResources& resources, const BakedFrameGraph& frameGraph, std::size_t finalAttachment) const = 0;
 
 			virtual const Vector2ui& GetSize() const = 0;
 

@@ -26,16 +26,17 @@ namespace Nz
 	{
 		public:
 			inline explicit RenderFrame();
-			inline explicit RenderFrame(RenderImage* renderImage, bool framebufferInvalidation, const Vector2ui& size, std::size_t framebufferIndex);
+			inline explicit RenderFrame(RenderImage* renderImage, bool framebufferInvalidation, const Vector2ui& size);
 			RenderFrame(const RenderFrame&) = delete;
 			RenderFrame(RenderFrame&&) = delete;
 			~RenderFrame() = default;
 
 			inline void Execute(const FunctionRef<void(CommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags);
 
-			inline std::size_t GetFramebufferIndex() const;
+			inline std::size_t GetImageIndex() const;
 			const Vector2ui& GetSize() const;
 			inline RenderDevice& GetRenderDevice();
+			inline RenderResources& GetTransientResources();
 			inline UploadPool& GetUploadPool();
 
 			inline bool IsFramebufferInvalidated() const;
@@ -48,12 +49,12 @@ namespace Nz
 			void SubmitCommandBuffer(CommandBuffer* commandBuffer, QueueTypeFlags queueTypeFlags) ;
 
 			inline explicit operator bool();
+			inline operator RenderResources&();
 
 			RenderFrame& operator=(const RenderFrame&) = delete;
 			RenderFrame& operator=(RenderFrame&&) = delete;
 
 		private:
-			std::size_t m_framebufferIndex;
 			RenderImage* m_image;
 			Vector2ui m_size;
 			bool m_framebufferInvalidation;

@@ -16,7 +16,7 @@ namespace Nz
 	{
 		DebugDrawer& debugDrawer = m_pipeline.GetDebugDrawer();
 		debugDrawer.SetViewerData(m_viewer->GetViewerInstance().GetViewProjMatrix());
-		debugDrawer.Prepare(frameData.renderFrame);
+		debugDrawer.Prepare(frameData.renderResources);
 	}
 
 	FramePass& DebugDrawPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, const PassInputOuputs& inputOuputs)

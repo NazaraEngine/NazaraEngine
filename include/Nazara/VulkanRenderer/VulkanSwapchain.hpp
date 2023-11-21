@@ -57,14 +57,13 @@ namespace Nz
 			PresentMode GetPresentMode() const override;
 			PresentModeFlags GetSupportedPresentModes() const override;
 			inline const Vk::Swapchain& GetSwapchain() const;
+			RenderResources& GetTransientResources() override;
 
 			void NotifyResize(const Vector2ui& newSize) override;
 
 			void Present(UInt32 imageIndex, VkSemaphore waitSemaphore = VK_NULL_HANDLE);
 
 			void SetPresentMode(PresentMode presentMode) override;
-
-			TransientResources& Transient() override;
 
 			VulkanSwapchain& operator=(const VulkanSwapchain&) = delete;
 			VulkanSwapchain& operator=(VulkanSwapchain&&) = delete;

@@ -26,7 +26,7 @@ namespace Nz
 			~RenderWindow() = default;
 
 			void OnBuildGraph(FrameGraph& graph, std::size_t attachmentIndex) const override;
-			void OnRenderEnd(RenderFrame& renderFrame, const BakedFrameGraph& frameGraph, std::size_t attachmentId) const override;
+			void OnRenderEnd(RenderResources& renderResources, const BakedFrameGraph& frameGraph, std::size_t attachmentId) const override;
 
 			const Vector2ui& GetSize() const override;
 

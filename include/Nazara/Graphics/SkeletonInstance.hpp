@@ -36,7 +36,7 @@ namespace Nz
 			inline const std::shared_ptr<RenderBuffer>& GetSkeletalBuffer() const;
 			inline const std::shared_ptr<const Skeleton>& GetSkeleton() const;
 
-			void OnTransfer(RenderFrame& renderFrame, CommandBufferBuilder& builder) override;
+			void OnTransfer(RenderResources& renderResources, CommandBufferBuilder& builder) override;
 
 			SkeletonInstance& operator=(const SkeletonInstance&) = delete;
 			SkeletonInstance& operator=(SkeletonInstance&& skeletonInstance) noexcept;

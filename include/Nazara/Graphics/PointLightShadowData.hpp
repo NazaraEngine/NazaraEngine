@@ -28,7 +28,7 @@ namespace Nz
 			PointLightShadowData(PointLightShadowData&&) = delete;
 			~PointLightShadowData() = default;
 
-			void PrepareRendering(RenderFrame& renderFrame, const AbstractViewer* viewer) override;
+			void PrepareRendering(RenderResources& renderResources, const AbstractViewer* viewer) override;
 
 			void RegisterMaterialInstance(const MaterialInstance& matInstance) override;
 			void RegisterPassInputs(FramePass& pass, const AbstractViewer* viewer) override;

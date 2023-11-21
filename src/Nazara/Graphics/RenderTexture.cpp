@@ -20,7 +20,7 @@ namespace Nz
 		graph.BindExternalTexture(attachmentIndex, m_targetTexture);
 	}
 
-	void RenderTexture::OnRenderEnd(RenderFrame& /*renderFrame*/, const BakedFrameGraph& /*frameGraph*/, std::size_t /*finalAttachment*/) const
+	void RenderTexture::OnRenderEnd(RenderResources& /*renderFrame*/, const BakedFrameGraph& /*frameGraph*/, std::size_t /*finalAttachment*/) const
 	{
 	}
 

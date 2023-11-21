@@ -24,15 +24,19 @@ namespace Nz
 
 			void Execute(const FunctionRef<void(CommandBufferBuilder& builder)>& callback, QueueTypeFlags queueTypeFlags) override;
 
+			UInt32 GetImageIndex() const override;
 			OpenGLUploadPool& GetUploadPool() override;
 
 			void Present() override;
+
+			inline void Reset(UInt32 imageIndex);
 
 			void SubmitCommandBuffer(CommandBuffer* commandBuffer, QueueTypeFlags queueTypeFlags) override;
 
 		private:
 			OpenGLSwapchain& m_owner;
 			OpenGLUploadPool m_uploadPool;
+			UInt32 m_imageIndex;
 	};
 }
 

@@ -24,7 +24,7 @@ namespace Nz
 		return std::make_unique<SubmeshRendererData>();
 	}
 
-	void SubmeshRenderer::Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderFrame& /*currentFrame*/, std::size_t elementCount, const Pointer<const RenderElement>* elements, SparsePtr<const RenderStates> renderStates)
+	void SubmeshRenderer::Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderResources& /*renderResources*/, std::size_t elementCount, const Pointer<const RenderElement>* elements, SparsePtr<const RenderStates> renderStates)
 	{
 		Graphics* graphics = Graphics::Instance();
 
@@ -346,12 +346,12 @@ namespace Nz
 		}
 	}
 
-	void SubmeshRenderer::Reset(ElementRendererData& rendererData, RenderFrame& currentFrame)
+	void SubmeshRenderer::Reset(ElementRendererData& rendererData, RenderResources& renderResources)
 	{
 		auto& data = static_cast<SubmeshRendererData&>(rendererData);
 
 		for (auto& shaderBinding : data.shaderBindings)
-			currentFrame.PushForRelease(std::move(shaderBinding));
+			renderResources.PushForRelease(std::move(shaderBinding));
 		data.shaderBindings.clear();
 
 		data.drawCalls.clear();

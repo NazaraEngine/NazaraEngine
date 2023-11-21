@@ -8,14 +8,14 @@
 #define NAZARA_RENDERER_RENDERIMAGE_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Renderer/TransientResources.hpp>
+#include <Nazara/Renderer/RenderResources.hpp>
 
 namespace Nz
 {
-	class NAZARA_RENDERER_API RenderImage : public TransientResources
+	class NAZARA_RENDERER_API RenderImage : public RenderResources
 	{
 		public:
-			using TransientResources::TransientResources;
+			using RenderResources::RenderResources;
 
 			virtual void Present() = 0;
 	};

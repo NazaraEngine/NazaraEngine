@@ -42,7 +42,7 @@ namespace Nz
 			inline std::shared_ptr<RenderBuffer>& GetViewerBuffer();
 			inline const std::shared_ptr<RenderBuffer>& GetViewerBuffer() const;
 
-			void OnTransfer(RenderFrame& renderFrame, CommandBufferBuilder& builder) override;
+			void OnTransfer(RenderResources& renderResources, CommandBufferBuilder& builder) override;
 
 			inline void UpdateEyePosition(const Vector3f& eyePosition);
 			inline void UpdateNearFarPlanes(float nearPlane, float farPlane);

@@ -61,7 +61,7 @@ namespace Nz
 		});
 	}
 
-	void SpotLightShadowData::PrepareRendering(RenderFrame& renderFrame, [[maybe_unused]] const AbstractViewer* viewer)
+	void SpotLightShadowData::PrepareRendering(RenderResources& renderResources, [[maybe_unused]] const AbstractViewer* viewer)
 	{
 		assert(viewer == nullptr);
 
@@ -75,7 +75,7 @@ namespace Nz
 		FramePipelinePass::FrameData passData = {
 			nullptr,
 			frustum,
-			renderFrame,
+			renderResources,
 			visibleRenderables,
 			visibilityHash
 		};

@@ -352,7 +352,7 @@ int main()
 				clearValues[1].depth = 1.f;
 				clearValues[1].stencil = 0;
 
-				builder.BeginRenderPass(windowSwapchain.GetFramebuffer(frame.GetFramebufferIndex()), windowSwapchain.GetRenderPass(), renderRect, { clearValues[0], clearValues[1] });
+				builder.BeginRenderPass(windowSwapchain.GetFramebuffer(frame.GetImageIndex()), windowSwapchain.GetRenderPass(), renderRect, { clearValues[0], clearValues[1] });
 				{
 					builder.SetScissor(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
 					builder.SetViewport(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
@@ -665,7 +665,7 @@ std::shared_ptr<Nz::Texture> GenerateSpriteTexture(Nz::RenderDevice& device, std
 		}
 	});
 
-	swapchain.Transient().Execute([&](Nz::CommandBufferBuilder& builder)
+	swapchain.GetTransientResources().Execute([&](Nz::CommandBufferBuilder& builder)
 	{
 		builder.TextureBarrier(Nz::PipelineStage::BottomOfPipe, Nz::PipelineStage::ComputeShader, {}, Nz::MemoryAccess::ShaderWrite, Nz::TextureLayout::Undefined, Nz::TextureLayout::General, *targetTexture);
 

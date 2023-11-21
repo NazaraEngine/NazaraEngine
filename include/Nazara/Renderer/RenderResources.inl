@@ -8,12 +8,12 @@
 
 namespace Nz
 {
-	inline TransientResources::TransientResources(RenderDevice& renderDevice) :
+	inline RenderResources::RenderResources(RenderDevice& renderDevice) :
 	m_renderDevice(renderDevice)
 	{
 	}
 
-	inline void TransientResources::FlushReleaseQueue()
+	inline void RenderResources::FlushReleaseQueue()
 	{
 		for (Releasable* releasable : m_releaseQueue)
 		{
@@ -26,13 +26,13 @@ namespace Nz
 			memoryblock.clear();
 	}
 
-	inline RenderDevice& TransientResources::GetRenderDevice()
+	inline RenderDevice& RenderResources::GetRenderDevice()
 	{
 		return m_renderDevice;
 	}
 
 	template<typename T>
-	void TransientResources::PushForRelease(T&& value)
+	void RenderResources::PushForRelease(T&& value)
 	{
 		static_assert(std::is_rvalue_reference_v<decltype(value)>);
 
@@ -40,7 +40,7 @@ namespace Nz
 	}
 
 	template<typename F>
-	void TransientResources::PushReleaseCallback(F&& callback)
+	void RenderResources::PushReleaseCallback(F&& callback)
 	{
 		using ReleaseFunctor = ReleasableLambda<std::remove_cv_t<std::remove_reference_t<F>>>;
 
@@ -95,13 +95,13 @@ namespace Nz
 
 	template<typename T>
 	template<typename U>
-	TransientResources::ReleasableLambda<T>::ReleasableLambda(U&& lambda) :
+	RenderResources::ReleasableLambda<T>::ReleasableLambda(U&& lambda) :
 	m_lambda(std::forward<U>(lambda))
 	{
 	}
 
 	template<typename T>
-	void TransientResources::ReleasableLambda<T>::Release()
+	void RenderResources::ReleasableLambda<T>::Release()
 	{
 		m_lambda();
 	}

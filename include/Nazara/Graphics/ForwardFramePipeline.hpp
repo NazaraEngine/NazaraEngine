@@ -62,7 +62,7 @@ namespace Nz
 			const LightShadowData* RetrieveLightShadowData(std::size_t lightIndex) const override;
 			const Texture* RetrieveLightShadowmap(std::size_t lightIndex, const AbstractViewer* viewer) const override;
 
-			void Render(RenderFrame& renderFrame) override;
+			void Render(RenderResources& renderResources) override;
 
 			void UnregisterLight(std::size_t lightIndex) override;
 			void UnregisterRenderable(std::size_t renderableIndex) override;
@@ -176,7 +176,6 @@ namespace Nz
 			MemoryPool<SkeletonInstanceData> m_skeletonInstances;
 			MemoryPool<ViewerData> m_viewerPool;
 			MemoryPool<WorldInstanceData> m_worldInstances;
-			RenderFrame* m_currentRenderFrame;
 			UInt8 m_generationCounter;
 			bool m_rebuildFrameGraph;
 	};

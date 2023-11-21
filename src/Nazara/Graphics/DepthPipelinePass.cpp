@@ -20,7 +20,7 @@ namespace Nz
 	{
 		if (m_lastVisibilityHash != frameData.visibilityHash || m_rebuildElements) //< FIXME
 		{
-			frameData.renderFrame.PushForRelease(std::move(m_renderElements));
+			frameData.renderResources.PushForRelease(std::move(m_renderElements));
 			m_renderElements.clear();
 
 			for (const auto& renderableData : frameData.visibleRenderables)
@@ -67,7 +67,7 @@ namespace Nz
 					m_elementRendererData[elementType] = elementRenderer.InstanciateData();
 				}
 
-				elementRenderer.Reset(*m_elementRendererData[elementType], frameData.renderFrame);
+				elementRenderer.Reset(*m_elementRendererData[elementType], frameData.renderResources);
 			});
 
 			const auto& viewerInstance = m_viewer->GetViewerInstance();
@@ -78,12 +78,12 @@ namespace Nz
 			{
 				ElementRenderer& elementRenderer = m_elementRegistry.GetElementRenderer(elementType);
 
-				elementRenderer.Prepare(viewerInstance, *m_elementRendererData[elementType], frameData.renderFrame, elementCount, elements, SparsePtr(&defaultRenderStates, 0));
+				elementRenderer.Prepare(viewerInstance, *m_elementRendererData[elementType], frameData.renderResources, elementCount, elements, SparsePtr(&defaultRenderStates, 0));
 			});
 
 			m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
 			{
-				elementRenderer.PrepareEnd(frameData.renderFrame, *m_elementRendererData[elementType]);
+				elementRenderer.PrepareEnd(frameData.renderResources, *m_elementRendererData[elementType]);
 			});
 
 			m_rebuildCommandBuffer = true;

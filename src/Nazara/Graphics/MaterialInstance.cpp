@@ -224,9 +224,9 @@ namespace Nz
 		return HasPass(passIndex);
 	}
 
-	void MaterialInstance::OnTransfer(RenderFrame& renderFrame, CommandBufferBuilder& builder)
+	void MaterialInstance::OnTransfer(RenderResources& renderResources, CommandBufferBuilder& builder)
 	{
-		UploadPool& uploadPool = renderFrame.GetUploadPool();
+		UploadPool& uploadPool = renderResources.GetUploadPool();
 		for (UniformBuffer& uniformBuffer : m_uniformBuffers)
 		{
 			if (!uniformBuffer.dataInvalidated)

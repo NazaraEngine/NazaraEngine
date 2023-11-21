@@ -25,7 +25,7 @@ namespace Nz
 	class LightShadowData;
 	class MaterialInstance;
 	class PipelineViewer;
-	class RenderFrame;
+	class RenderResources;
 
 	class NAZARA_GRAPHICS_API FramePipeline
 	{
@@ -54,7 +54,7 @@ namespace Nz
 			virtual const LightShadowData* RetrieveLightShadowData(std::size_t lightIndex) const = 0;
 			virtual const Texture* RetrieveLightShadowmap(std::size_t lightIndex, const AbstractViewer* viewer) const = 0;
 
-			virtual void Render(RenderFrame& renderFrame) = 0;
+			virtual void Render(RenderResources& renderResources) = 0;
 
 			virtual void UnregisterLight(std::size_t lightIndex) = 0;
 			virtual void UnregisterRenderable(std::size_t renderableIndex) = 0;
@@ -71,7 +71,7 @@ namespace Nz
 			FramePipeline& operator=(const FramePipeline&) = delete;
 			FramePipeline& operator=(FramePipeline&&) = delete;
 
-			NazaraSignal(OnTransfer, FramePipeline* /*pipeline*/, RenderFrame& /*renderFrame*/, CommandBufferBuilder& /*builder*/);
+			NazaraSignal(OnTransfer, FramePipeline* /*pipeline*/, RenderResources& /*renderResources*/, CommandBufferBuilder& /*builder*/);
 
 			static constexpr std::size_t NoSkeletonInstance = std::numeric_limits<std::size_t>::max();
 

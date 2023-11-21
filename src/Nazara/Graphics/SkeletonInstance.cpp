@@ -42,12 +42,12 @@ namespace Nz
 		});
 	}
 
-	void SkeletonInstance::OnTransfer(RenderFrame& renderFrame, CommandBufferBuilder& builder)
+	void SkeletonInstance::OnTransfer(RenderResources& renderResources, CommandBufferBuilder& builder)
 	{
 		if (!m_dataInvalided)
 			return;
 
-		auto& allocation = renderFrame.GetUploadPool().Allocate(m_skeletalDataBuffer->GetSize());
+		auto& allocation = renderResources.GetUploadPool().Allocate(m_skeletalDataBuffer->GetSize());
 		Matrix4f* matrices = AccessByOffset<Matrix4f*>(allocation.mappedPtr, PredefinedSkeletalOffsets.jointMatricesOffset);
 
 		for (std::size_t i = 0; i < m_skeleton->GetJointCount(); ++i)

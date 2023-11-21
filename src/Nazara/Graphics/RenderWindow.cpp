@@ -36,19 +36,19 @@ namespace Nz
 		graph.AddOutput(attachmentIndex);
 	}
 
-	void RenderWindow::OnRenderEnd(RenderFrame& renderFrame, const BakedFrameGraph& frameGraph, std::size_t finalAttachment) const
+	void RenderWindow::OnRenderEnd(RenderResources& renderResources, const BakedFrameGraph& frameGraph, std::size_t finalAttachment) const
 	{
 		const std::shared_ptr<Texture>& texture = frameGraph.GetAttachmentTexture(finalAttachment);
 
 		Vector2ui textureSize = Vector2ui(texture->GetSize());
 		Boxui blitRegion(0, 0, 0, textureSize.x, textureSize.y, 1);
 
-		renderFrame.Execute([&](CommandBufferBuilder& builder)
+		renderResources.Execute([&](CommandBufferBuilder& builder)
 		{
 			builder.BeginDebugRegion("Blit to swapchain", Color::Blue());
 			{
 				builder.TextureBarrier(PipelineStage::ColorOutput, PipelineStage::Transfer, MemoryAccess::ColorWrite, MemoryAccess::TransferRead, TextureLayout::ColorOutput, TextureLayout::TransferSource, *texture);
-				builder.BlitTextureToSwapchain(*texture, blitRegion, TextureLayout::TransferSource, *m_swapchain, renderFrame.GetFramebufferIndex());
+				builder.BlitTextureToSwapchain(*texture, blitRegion, TextureLayout::TransferSource, *m_swapchain, renderResources.GetImageIndex());
 			}
 			builder.EndDebugRegion();
 		}, QueueType::Graphics);

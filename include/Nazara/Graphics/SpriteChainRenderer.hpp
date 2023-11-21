@@ -59,10 +59,10 @@ namespace Nz
 			RenderElementPool<RenderSpriteChain>& GetPool() override;
 
 			std::unique_ptr<ElementRendererData> InstanciateData() override;
-			void Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderFrame& currentFrame, std::size_t elementCount, const Pointer<const RenderElement>* elements, SparsePtr<const RenderStates> renderStates) override;
-			void PrepareEnd(RenderFrame& currentFrame, ElementRendererData& rendererData) override;
+			void Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderResources& currentFrame, std::size_t elementCount, const Pointer<const RenderElement>* elements, SparsePtr<const RenderStates> renderStates) override;
+			void PrepareEnd(RenderResources& renderResources, ElementRendererData& rendererData) override;
 			void Render(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, CommandBufferBuilder& commandBuffer, std::size_t elementCount, const Pointer<const RenderElement>* elements) override;
-			void Reset(ElementRendererData& rendererData, RenderFrame& currentFrame) override;
+			void Reset(ElementRendererData& rendererData, RenderResources& currentFrame) override;
 
 		private:
 			void Flush();

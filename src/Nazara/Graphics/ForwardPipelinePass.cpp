@@ -50,7 +50,7 @@ namespace Nz
 
 		if (m_lastVisibilityHash != frameData.visibilityHash || m_rebuildElements) //< FIXME
 		{
-			frameData.renderFrame.PushForRelease(std::move(m_renderElements));
+			frameData.renderResources.PushForRelease(std::move(m_renderElements));
 			m_renderElements.clear();
 
 			for (const auto& renderableData : frameData.visibleRenderables)
@@ -85,7 +85,7 @@ namespace Nz
 			return element->ComputeSortingScore(frameData.frustum, m_renderQueueRegistry);
 		});
 
-		PrepareLights(frameData.renderFrame, frameData.frustum, *frameData.visibleLights);
+		PrepareLights(frameData.renderResources, frameData.frustum, *frameData.visibleLights);
 
 		if (m_rebuildElements)
 		{
@@ -97,7 +97,7 @@ namespace Nz
 				if (!m_elementRendererData[elementType])
 					m_elementRendererData[elementType] = elementRenderer.InstanciateData();
 
-				elementRenderer.Reset(*m_elementRendererData[elementType], frameData.renderFrame);
+				elementRenderer.Reset(*m_elementRendererData[elementType], frameData.renderResources);
 			});
 
 			const auto& viewerInstance = m_viewer->GetViewerInstance();
@@ -105,12 +105,12 @@ namespace Nz
 			m_elementRegistry.ProcessRenderQueue(m_renderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
 			{
 				ElementRenderer& elementRenderer = m_elementRegistry.GetElementRenderer(elementType);
-				elementRenderer.Prepare(viewerInstance, *m_elementRendererData[elementType], frameData.renderFrame, elementCount, elements, SparsePtr(&m_renderState, 0));
+				elementRenderer.Prepare(viewerInstance, *m_elementRendererData[elementType], frameData.renderResources, elementCount, elements, SparsePtr(&m_renderState, 0));
 			});
 
 			m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
 			{
-				elementRenderer.PrepareEnd(frameData.renderFrame, *m_elementRendererData[elementType]);
+				elementRenderer.PrepareEnd(frameData.renderResources, *m_elementRendererData[elementType]);
 			});
 
 			m_rebuildCommandBuffer = true;
@@ -202,7 +202,7 @@ namespace Nz
 		}
 	}
 
-	void ForwardPipelinePass::OnTransfer(RenderFrame& /*renderFrame*/, CommandBufferBuilder& builder)
+	void ForwardPipelinePass::OnTransfer(RenderResources& /*renderFrame*/, CommandBufferBuilder& builder)
 	{
 		assert(m_pendingLightUploadAllocation);
 		builder.CopyBuffer(*m_pendingLightUploadAllocation, RenderBufferView(m_lightDataBuffer.get()));
@@ -315,7 +315,7 @@ namespace Nz
 		}
 	}
 
-	void ForwardPipelinePass::PrepareLights(RenderFrame& renderFrame, const Frustumf& frustum, const Bitset<UInt64>& visibleLights)
+	void ForwardPipelinePass::PrepareLights(RenderResources& renderResources, const Frustumf& frustum, const Bitset<UInt64>& visibleLights)
 	{
 		// Select lights
 		m_directionalLights.clear();
@@ -352,7 +352,7 @@ namespace Nz
 			return lhs.contributionScore < rhs.contributionScore;
 		});
 
-		UploadPool& uploadPool = renderFrame.GetUploadPool();
+		UploadPool& uploadPool = renderResources.GetUploadPool();
 
 		auto& lightAllocation = uploadPool.Allocate(m_lightDataBuffer->GetSize());
 		PrepareDirectionalLights(lightAllocation.mappedPtr);

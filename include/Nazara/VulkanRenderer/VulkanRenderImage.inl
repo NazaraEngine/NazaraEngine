@@ -16,11 +16,6 @@ namespace Nz
 		return m_imageAvailableSemaphore;
 	}
 
-	inline UInt32 VulkanRenderImage::GetImageIndex()
-	{
-		return m_imageIndex;
-	}
-
 	inline Vk::Semaphore& VulkanRenderImage::GetRenderFinishedSemaphore()
 	{
 		return m_renderFinishedSemaphore;

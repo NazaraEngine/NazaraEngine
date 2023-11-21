@@ -53,9 +53,9 @@ namespace Nz
 		return m_swapchain.get();
 	}
 
-	inline TransientResources& WindowSwapchain::Transient()
+	inline RenderResources& WindowSwapchain::GetTransientResources()
 	{
-		return m_swapchain->Transient();
+		return m_swapchain->GetTransientResources();
 	}
 
 	void WindowSwapchain::DisconnectSignals()

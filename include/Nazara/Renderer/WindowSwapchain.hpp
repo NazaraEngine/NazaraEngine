@@ -39,8 +39,7 @@ namespace Nz
 			const Vector2ui& GetSize() const;
 			inline Swapchain* GetSwapchain();
 			inline const Swapchain* GetSwapchain() const;
-
-			inline TransientResources& Transient();
+			inline RenderResources& GetTransientResources();
 
 			WindowSwapchain& operator=(const WindowSwapchain&) = delete;
 			WindowSwapchain& operator=(WindowSwapchain&& windowSwapchain) = delete;

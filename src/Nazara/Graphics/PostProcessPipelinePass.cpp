@@ -43,7 +43,7 @@ namespace Nz
 		if (m_nextRenderPipeline)
 		{
 			if (m_renderPipeline)
-				frameData.renderFrame.PushForRelease(std::move(m_renderPipeline));
+				frameData.renderResources.PushForRelease(std::move(m_renderPipeline));
 
 			m_renderPipeline = std::move(m_nextRenderPipeline);
 			m_rebuildFramePass = true;
@@ -78,7 +78,7 @@ namespace Nz
 		postProcess.SetCommandCallback([this, inputColorBufferIndex](CommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
 			if (m_shaderBinding)
-				env.renderFrame.PushForRelease(std::move(m_shaderBinding));
+				env.renderResources.PushForRelease(std::move(m_shaderBinding));
 
 			auto& samplerCache = Graphics::Instance()->GetSamplerCache();
 

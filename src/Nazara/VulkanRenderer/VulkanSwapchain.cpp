@@ -246,7 +246,7 @@ namespace Nz
 
 		currentFrame.Reset(imageIndex);
 
-		return RenderFrame(&currentFrame, invalidateFramebuffer, m_swapchainSize, imageIndex);
+		return RenderFrame(&currentFrame, invalidateFramebuffer, m_swapchainSize);
 	}
 
 	std::shared_ptr<CommandPool> VulkanSwapchain::CreateCommandPool(QueueType queueType)
@@ -324,6 +324,11 @@ namespace Nz
 		return m_supportedPresentModes;
 	}
 
+	RenderResources& VulkanSwapchain::GetTransientResources()
+	{
+		return *m_concurrentImageData[m_currentFrame];
+	}
+
 	void VulkanSwapchain::NotifyResize(const Vector2ui& newSize)
 	{
 		OnSwapchainResize(this, newSize);
@@ -373,11 +378,6 @@ namespace Nz
 			m_presentMode = presentMode;
 			m_shouldRecreateSwapchain = true;
 		}
-	}
-
-	TransientResources& VulkanSwapchain::Transient()
-	{
-		return *m_concurrentImageData[m_currentFrame];
 	}
 
 	bool VulkanSwapchain::SetupDepthBuffer()

@@ -55,12 +55,12 @@ namespace Nz
 			ForwardPipelinePass& operator=(ForwardPipelinePass&&) = delete;
 
 		private:
-			void OnTransfer(RenderFrame& renderFrame, CommandBufferBuilder& builder) override;
+			void OnTransfer(RenderResources& renderResources, CommandBufferBuilder& builder) override;
 
 			void PrepareDirectionalLights(void* lightMemory);
 			void PreparePointLights(void* lightMemory);
 			void PrepareSpotLights(void* lightMemory);
-			void PrepareLights(RenderFrame& renderFrame, const Frustumf& frustum, const Bitset<UInt64>& visibleLights);
+			void PrepareLights(RenderResources& renderResources, const Frustumf& frustum, const Bitset<UInt64>& visibleLights);
 
 			struct MaterialPassEntry
 			{

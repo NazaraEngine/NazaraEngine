@@ -11,9 +11,9 @@
 namespace Nz
 {
 	OpenGLSwapchain::OpenGLSwapchain(OpenGLDevice& device, WindowHandle windowHandle, const Vector2ui& windowSize, const SwapchainParameters& parameters) :
-	m_currentFrame(0),
 	m_device(device),
 	m_framebuffer(*this),
+	m_currentImageIndex(0),
 	m_size(windowSize),
 	m_sizeInvalidated(false)
 	{
@@ -90,7 +90,10 @@ namespace Nz
 		bool sizeInvalidated = m_sizeInvalidated;
 		m_sizeInvalidated = false;
 
-		return RenderFrame(m_renderImage[m_currentFrame].get(), sizeInvalidated, m_size, 0);
+		OpenGLRenderImage& renderImage = *m_renderImage[m_currentImageIndex];
+		renderImage.Reset(m_currentImageIndex);
+
+		return RenderFrame(&renderImage, sizeInvalidated, m_size);
 	}
 
 	std::shared_ptr<CommandPool> OpenGLSwapchain::CreateCommandPool(QueueType /*queueType*/)
@@ -98,10 +101,8 @@ namespace Nz
 		return std::make_shared<OpenGLCommandPool>();
 	}
 
-	const OpenGLFramebuffer& OpenGLSwapchain::GetFramebuffer(std::size_t i) const
+	const OpenGLFramebuffer& OpenGLSwapchain::GetFramebuffer(std::size_t /*imageIndex*/) const
 	{
-		assert(i == 0);
-		NazaraUnused(i);
 		return m_framebuffer;
 	}
 
@@ -141,7 +142,7 @@ namespace Nz
 	void OpenGLSwapchain::Present()
 	{
 		m_context->SwapBuffers();
-		m_currentFrame = (m_currentFrame + 1) % m_renderImage.size();
+		m_currentImageIndex = (m_currentImageIndex + 1) % m_renderImage.size();
 	}
 
 	void OpenGLSwapchain::SetPresentMode(PresentMode presentMode)
@@ -155,8 +156,8 @@ namespace Nz
 		}
 	}
 
-	TransientResources& OpenGLSwapchain::Transient()
+	RenderResources& OpenGLSwapchain::GetTransientResources()
 	{
-		return *m_renderImage[m_currentFrame];
+		return *m_renderImage[m_currentImageIndex];
 	}
 }

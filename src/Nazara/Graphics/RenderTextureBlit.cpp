@@ -16,14 +16,14 @@ namespace Nz
 		graph.AddOutput(attachmentIndex);
 	}
 
-	void RenderTextureBlit::OnRenderEnd(RenderFrame& renderFrame, const BakedFrameGraph& frameGraph, std::size_t finalAttachment) const
+	void RenderTextureBlit::OnRenderEnd(RenderResources& resources, const BakedFrameGraph& frameGraph, std::size_t finalAttachment) const
 	{
 		const std::shared_ptr<Texture>& sourceTexture = frameGraph.GetAttachmentTexture(finalAttachment);
 
 		Vector2ui sourceTextureSize = Vector2ui(sourceTexture->GetSize());
 		Vector2ui targetTextureSize = Vector2ui(m_targetTexture->GetSize());
 
-		renderFrame.Execute([&](CommandBufferBuilder& builder)
+		resources.Execute([&](CommandBufferBuilder& builder)
 		{
 			builder.BeginDebugRegion("Blit to texture", Color::Blue());
 			{

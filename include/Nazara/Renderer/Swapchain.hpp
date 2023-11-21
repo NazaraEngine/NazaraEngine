@@ -20,7 +20,7 @@ namespace Nz
 	class CommandPool;
 	class Framebuffer;
 	class RenderDevice;
-	class TransientResources;
+	class RenderResources;
 
 	class NAZARA_RENDERER_API Swapchain
 	{
@@ -38,12 +38,11 @@ namespace Nz
 			virtual const RenderPass& GetRenderPass() const = 0;
 			virtual const Vector2ui& GetSize() const = 0;
 			virtual PresentModeFlags GetSupportedPresentModes() const = 0;
+			virtual RenderResources& GetTransientResources() = 0;
 
 			virtual void NotifyResize(const Vector2ui& newSize) = 0;
 
 			virtual void SetPresentMode(PresentMode presentMode) = 0;
-
-			virtual TransientResources& Transient() = 0;
 
 			NazaraSignal(OnSwapchainResize, Swapchain* /*swapchain*/, const Vector2ui& /*newSize*/);
 

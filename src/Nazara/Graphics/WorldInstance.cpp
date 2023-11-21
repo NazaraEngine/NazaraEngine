@@ -25,14 +25,14 @@ namespace Nz
 		m_instanceDataBuffer->UpdateDebugName("Instance data");
 	}
 
-	void WorldInstance::OnTransfer(RenderFrame& renderFrame, CommandBufferBuilder& builder)
+	void WorldInstance::OnTransfer(RenderResources& renderResources, CommandBufferBuilder& builder)
 	{
 		if (!m_dataInvalided)
 			return;
 
 		constexpr auto& instanceUboOffsets = PredefinedInstanceOffsets;
 
-		auto& allocation = renderFrame.GetUploadPool().Allocate(m_instanceDataBuffer->GetSize());
+		auto& allocation = renderResources.GetUploadPool().Allocate(m_instanceDataBuffer->GetSize());
 		AccessByOffset<Matrix4f&>(allocation.mappedPtr, instanceUboOffsets.worldMatrixOffset) = m_worldMatrix;
 		AccessByOffset<Matrix4f&>(allocation.mappedPtr, instanceUboOffsets.invWorldMatrixOffset) = m_invWorldMatrix;
 

@@ -56,7 +56,7 @@ namespace Nz
 		return std::make_unique<SpriteChainRendererData>();
 	}
 
-	void SpriteChainRenderer::Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderFrame& currentFrame, std::size_t elementCount, const Pointer<const RenderElement>* elements, SparsePtr<const RenderStates> renderStates)
+	void SpriteChainRenderer::Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderResources& renderResources, std::size_t elementCount, const Pointer<const RenderElement>* elements, SparsePtr<const RenderStates> renderStates)
 	{
 		Graphics* graphics = Graphics::Instance();
 
@@ -132,7 +132,7 @@ namespace Nz
 			{
 				if (!m_pendingData.currentAllocation)
 				{
-					m_pendingData.currentAllocation = &currentFrame.GetUploadPool().Allocate(m_maxVertexBufferSize);
+					m_pendingData.currentAllocation = &renderResources.GetUploadPool().Allocate(m_maxVertexBufferSize);
 					m_pendingData.currentAllocationMemPtr = static_cast<UInt8*>(m_pendingData.currentAllocation->mappedPtr);
 
 					std::shared_ptr<RenderBuffer> vertexBuffer;
@@ -258,13 +258,13 @@ namespace Nz
 		data.drawCallPerElement[firstSpriteChain] = SpriteChainRendererData::DrawCallIndices{ oldDrawCallCount, drawCallCount };
 	}
 
-	void SpriteChainRenderer::PrepareEnd(RenderFrame& currentFrame, ElementRendererData& /*rendererData*/)
+	void SpriteChainRenderer::PrepareEnd(RenderResources& renderResources, ElementRendererData& /*rendererData*/)
 	{
 		Flush();
 
 		if (!m_pendingCopies.empty())
 		{
-			currentFrame.Execute([&](CommandBufferBuilder& builder)
+			renderResources.Execute([&](CommandBufferBuilder& builder)
 			{
 				for (auto& copy : m_pendingCopies)
 					builder.CopyBuffer(*copy.allocation, copy.targetBuffer, copy.size);
@@ -331,13 +331,13 @@ namespace Nz
 		}
 	}
 
-	void SpriteChainRenderer::Reset(ElementRendererData& rendererData, RenderFrame& currentFrame)
+	void SpriteChainRenderer::Reset(ElementRendererData& rendererData, RenderResources& renderResources)
 	{
 		auto& data = static_cast<SpriteChainRendererData&>(rendererData);
 
 		for (auto& vertexBufferPtr : data.vertexBuffers)
 		{
-			currentFrame.PushReleaseCallback([pool = m_vertexBufferPool, vertexBuffer = std::move(vertexBufferPtr)]() mutable
+			renderResources.PushReleaseCallback([pool = m_vertexBufferPool, vertexBuffer = std::move(vertexBufferPtr)]() mutable
 			{
 				pool->vertexBuffers.push_back(std::move(vertexBuffer));
 			});
@@ -345,7 +345,7 @@ namespace Nz
 		data.vertexBuffers.clear();
 
 		for (auto& shaderBinding : data.shaderBindings)
-			currentFrame.PushForRelease(std::move(shaderBinding));
+			renderResources.PushForRelease(std::move(shaderBinding));
 		data.shaderBindings.clear();
 
 		data.drawCalls.clear();

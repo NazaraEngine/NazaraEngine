@@ -10,7 +10,6 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Graphics/Config.hpp>
-#include <Nazara/Graphics/FramePassAttachment.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <functional>
@@ -23,7 +22,7 @@ namespace Nz
 	class BakedFrameGraph;
 	class CommandBufferBuilder;
 	class FrameGraph;
-	class RenderFrame;
+	class RenderResources;
 
 	enum class FramePassExecution
 	{
@@ -35,8 +34,8 @@ namespace Nz
 	struct FramePassEnvironment
 	{
 		BakedFrameGraph& frameGraph;
+		RenderResources& renderResources;
 		Recti renderRect;
-		RenderFrame& renderFrame;
 	};
 
 	class NAZARA_GRAPHICS_API FramePass

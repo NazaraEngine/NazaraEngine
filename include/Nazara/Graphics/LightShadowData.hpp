@@ -17,7 +17,7 @@ namespace Nz
 	class FrameGraph;
 	class FramePass;
 	class MaterialInstance;
-	class RenderFrame;
+	class RenderResources;
 	class Texture;
 
 	class NAZARA_GRAPHICS_API LightShadowData
@@ -30,7 +30,7 @@ namespace Nz
 
 			inline bool IsPerViewer() const;
 
-			virtual void PrepareRendering(RenderFrame& renderFrame, [[maybe_unused]] const AbstractViewer* viewer) = 0;
+			virtual void PrepareRendering(RenderResources& renderResources, [[maybe_unused]] const AbstractViewer* viewer) = 0;
 
 			virtual void RegisterMaterialInstance(const MaterialInstance& matInstance) = 0;
 			virtual void RegisterPassInputs(FramePass& pass, const AbstractViewer* viewer) = 0;

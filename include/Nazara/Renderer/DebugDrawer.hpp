@@ -23,10 +23,10 @@ namespace Nz
 {
 	class CommandBufferBuilder;
 	class RenderBuffer;
-	class RenderFrame;
 	class RenderDevice;
 	class RenderPipeline;
 	class RenderPipelineLayout;
+	class RenderResources;
 	class ShaderBinding;
 	class Skeleton;
 
@@ -48,9 +48,9 @@ namespace Nz
 			inline void DrawPoint(const Vector3f& point, const Color& color, float boxSize = 0.01f);
 			void DrawSkeleton(const Skeleton& skeleton, const Color& color);
 
-			void Prepare(RenderFrame& renderFrame);
+			void Prepare(RenderResources& renderFrame);
 
-			void Reset(RenderFrame& renderFrame);
+			void Reset(RenderResources& renderFrame);
 
 			void SetViewerData(const Matrix4f& viewProjMatrix);
 

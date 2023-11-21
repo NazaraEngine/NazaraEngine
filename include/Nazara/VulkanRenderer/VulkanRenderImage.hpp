@@ -31,7 +31,7 @@ namespace Nz
 
 			inline Vk::Fence& GetInFlightFence();
 			inline Vk::Semaphore& GetImageAvailableSemaphore();
-			inline UInt32 GetImageIndex();
+			UInt32 GetImageIndex() const override;
 			inline Vk::Semaphore& GetRenderFinishedSemaphore();
 			VulkanUploadPool& GetUploadPool() override;
 
