@@ -89,7 +89,7 @@ namespace Nz
 		m_backbufferOutputs.push_back(attachmentIndex);
 	}
 
-	inline void FrameGraph::BindAttachmentToExternalTexture(std::size_t attachmentIndex, std::shared_ptr<Texture> texture)
+	inline void FrameGraph::BindExternalTexture(std::size_t attachmentIndex, std::shared_ptr<Texture> texture)
 	{
 		m_externalTextures[attachmentIndex] = std::move(texture);
 	}

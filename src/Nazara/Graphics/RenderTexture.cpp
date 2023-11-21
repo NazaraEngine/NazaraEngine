@@ -18,7 +18,7 @@ namespace Nz
 
 	void RenderTexture::OnBuildGraph(FrameGraph& graph, std::size_t attachmentIndex) const
 	{
-		graph.BindAttachmentToExternalTexture(attachmentIndex, m_targetTexture);
+		graph.BindExternalTexture(attachmentIndex, m_targetTexture);
 	}
 
 	void RenderTexture::OnRenderEnd(RenderFrame& /*renderFrame*/, const BakedFrameGraph& /*frameGraph*/, std::size_t /*finalAttachment*/) const

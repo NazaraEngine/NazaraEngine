@@ -43,7 +43,7 @@ namespace Nz
 
 			BakedFrameGraph Bake();
 
-			inline void BindAttachmentToExternalTexture(std::size_t attachmentIndex, std::shared_ptr<Texture> texture);
+			inline void BindExternalTexture(std::size_t attachmentIndex, std::shared_ptr<Texture> texture);
 
 			FrameGraph& operator=(const FrameGraph&) = delete;
 			FrameGraph& operator=(FrameGraph&&) noexcept = default;
