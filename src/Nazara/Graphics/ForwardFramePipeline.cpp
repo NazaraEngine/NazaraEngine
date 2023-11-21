@@ -369,26 +369,22 @@ namespace Nz
 		}
 		m_removedWorldInstances.Clear();
 
-		StackVector<Vector2ui> viewerSizes = NazaraStackVector(Vector2ui, m_viewerPool.size());
-		for (auto& viewerData : m_viewerPool)
-		{
-			if (viewerData.pendingDestruction)
-				continue;
-
-			Recti viewport = viewerData.viewer->GetViewport();
-			viewerSizes.emplace_back(Vector2i(viewport.width, viewport.height));
-		}
-
-		bool frameGraphInvalidated;
+		bool frameGraphInvalidated = false;
 		if (m_rebuildFrameGraph)
 		{
 			renderFrame.PushForRelease(std::move(m_bakedFrameGraph));
 			m_bakedFrameGraph = BuildFrameGraph();
-			m_bakedFrameGraph.Resize(renderFrame, viewerSizes);
 			frameGraphInvalidated = true;
 		}
-		else
-			frameGraphInvalidated = m_bakedFrameGraph.Resize(renderFrame, viewerSizes);
+
+		StackVector<Vector2ui> viewerSizes = NazaraStackVector(Vector2ui, m_orderedViewers.size());
+		for (ViewerData* viewerData : m_orderedViewers)
+		{
+			Recti viewport = viewerData->viewer->GetViewport();
+			viewerSizes.emplace_back(Vector2i(viewport.width, viewport.height));
+		}
+
+		frameGraphInvalidated |= m_bakedFrameGraph.Resize(renderFrame, viewerSizes);
 
 		// Find active lights (i.e. visible in any frustum)
 		m_activeLights.Clear();
@@ -691,6 +687,7 @@ namespace Nz
 
 		StackVector<std::size_t> dependenciesColorAttachments = NazaraStackVector(std::size_t, viewers.size());
 
+		m_orderedViewers.clear();
 		m_renderTargets.clear();
 		unsigned int viewerIndex = 0;
 		for (auto it = viewers.begin(), prevIt = it; it != viewers.end(); ++it)
@@ -747,6 +744,7 @@ namespace Nz
 			// Group viewers by render targets
 			auto& renderTargetData = m_renderTargets[renderTarget];
 			renderTargetData.viewers.push_back(viewerData);
+			m_orderedViewers.push_back(viewerData);
 		}
 
 		for (auto&& [renderTarget, renderTargetData] : m_renderTargets)
