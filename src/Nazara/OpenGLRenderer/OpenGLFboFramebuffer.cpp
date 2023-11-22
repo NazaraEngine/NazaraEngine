@@ -152,19 +152,19 @@ namespace Nz
 						assert(texViewInfo.baseArrayLayer < faceTargets.size());
 
 						GLenum texTarget = faceTargets[texViewInfo.baseArrayLayer];
-						framebuffer.Texture2D(GL_COLOR_ATTACHMENT0, texTarget, parentTexture.GetTexture().GetObjectId(), texViewInfo.baseMipLevel);
+						framebuffer.Texture2D(attachment, texTarget, parentTexture.GetTexture().GetObjectId(), texViewInfo.baseMipLevel);
 						break;
 					}
 
 					case ImageType::E1D:
 					case ImageType::E2D:
-						framebuffer.Texture2D(GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, parentTexture.GetTexture().GetObjectId(), texViewInfo.baseMipLevel);
+						framebuffer.Texture2D(attachment, GL_TEXTURE_2D, parentTexture.GetTexture().GetObjectId(), texViewInfo.baseMipLevel);
 						break;
 
 					case ImageType::E1D_Array:
 					case ImageType::E2D_Array:
 					case ImageType::E3D:
-						framebuffer.TextureLayer(GL_COLOR_ATTACHMENT0, parentTexture.GetTexture().GetObjectId(), texViewInfo.baseArrayLayer, texViewInfo.baseMipLevel);
+						framebuffer.TextureLayer(attachment, parentTexture.GetTexture().GetObjectId(), texViewInfo.baseArrayLayer, texViewInfo.baseMipLevel);
 						break;
 				}
 			}
