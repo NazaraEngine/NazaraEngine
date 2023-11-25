@@ -292,6 +292,43 @@ namespace Nz
 			});
 
 			NazaraAssert(s_declarations[VertexLayout::XYZ_Normal_UV_Tangent_Skinning]->GetStride() == sizeof(VertexStruct_XYZ_Normal_UV_Tangent_Skinning), "Invalid stride for declaration VertexLayout::XYZ_Normal_UV_Tangent_Skinning");
+			
+			// VertexLayout::XYZ_SizeRot : VertexStruct_XYZ_SizeRot
+			s_declarations[VertexLayout::UV_SizeSinCos] = NewDeclaration(VertexInputRate::Vertex, {
+				{
+					VertexComponent::TexCoord,
+					ComponentType::Float2,
+					0
+				},
+				{
+					VertexComponent::SizeSinCos,
+					ComponentType::Float4,
+					0
+				}
+			});
+
+			NazaraAssert(s_declarations[VertexLayout::UV_SizeSinCos]->GetStride() == sizeof(VertexStruct_UV_SizeSinCos), "Invalid stride for declaration VertexLayout::UV_SizeSinCos");
+
+			// VertexLayout::XYZ_SizeRot_Color : VertexStruct_XYZ_SizeRot_Color
+			s_declarations[VertexLayout::UV_SizeSinCos_Color] = NewDeclaration(VertexInputRate::Vertex, {
+				{
+					VertexComponent::TexCoord,
+					ComponentType::Float2,
+					0
+				},
+				{
+					VertexComponent::SizeSinCos,
+					ComponentType::Float4,
+					0
+				},
+				{
+					VertexComponent::Color,
+					ComponentType::Color,
+					0
+				}
+			});
+
+			NazaraAssert(s_declarations[VertexLayout::UV_SizeSinCos_Color]->GetStride() == sizeof(VertexStruct_UV_SizeSinCos_Color), "Invalid stride for declaration VertexLayout::UV_SizeSinCos_Color");
 
 			// VertexLayout::XYZ_UV : VertexStruct_XYZ_UV
 			s_declarations[VertexLayout::XYZ_UV] = NewDeclaration(VertexInputRate::Vertex, {

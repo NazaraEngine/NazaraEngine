@@ -68,6 +68,17 @@ namespace Nz
 		Vector3f tangent;
 	};
 
+	struct VertexStruct_UV_SizeSinCos
+	{
+		Vector2f uv;
+		Vector4f sizeSinCos; //< width, height, sin, cos
+	};
+
+	struct VertexStruct_UV_SizeSinCos_Color : VertexStruct_UV_SizeSinCos
+	{
+		Color color;
+	};
+
 	struct VertexStruct_XYZ_UV : VertexStruct_XYZ
 	{
 		Vector2f uv;

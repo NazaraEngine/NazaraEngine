@@ -27,14 +27,12 @@ option HasSpecularTexture: bool = false;
 
 // Billboard related options
 option Billboard: bool = false;
-option BillboardCenterLocation: i32 = -1;
-option BillboardColorLocation: i32 = -1;
-option BillboardSizeRotLocation: i32 = -1;
 
 // Vertex declaration related options
 option VertexColorLoc: i32 = -1;
 option VertexNormalLoc: i32 = -1;
-option VertexPositionLoc: i32;
+option VertexPositionLoc: i32 = -1;
+option VertexSizeRotLocation: i32 = -1;
 option VertexTangentLoc: i32 = -1;
 option VertexUvLoc: i32 = -1;
 
@@ -47,7 +45,8 @@ const HasNormal = (VertexNormalLoc >= 0);
 const HasVertexColor = (VertexColorLoc >= 0);
 const HasColor = (HasVertexColor || Billboard);
 const HasTangent = (VertexTangentLoc >= 0);
-const HasUV = (VertexUvLoc >= 0);
+const HasVertexUV = (VertexUvLoc >= 0);
+const HasUV = (HasVertexUV);
 const HasNormalMapping = HasNormalTexture && HasNormal && HasTangent && !DepthPass;
 const HasSkinning = (VertexJointIndicesLoc >= 0 && VertexJointWeightsLoc >= 0);
 const HasLighting = HasNormal && !DepthPass;
@@ -295,6 +294,7 @@ fn FragDepth(input: VertOut) -> FragOut
 fn FragDepthNoAlpha() {} //< dummy
 
 // Vertex stage
+[cond(!Billboard)]
 struct VertIn
 {
 	[location(VertexPositionLoc)] 
@@ -303,7 +303,7 @@ struct VertIn
 	[cond(HasVertexColor), location(VertexColorLoc)] 
 	color: vec4[f32],
 
-	[cond(HasUV), location(VertexUvLoc)] 
+	[cond(HasVertexUV), location(VertexUvLoc)] 
 	uv: vec2[f32],
 
 	[cond(HasNormal), location(VertexNormalLoc)]
@@ -316,45 +316,61 @@ struct VertIn
 	jointIndices: vec4[i32],
 
 	[cond(HasSkinning), location(VertexJointWeightsLoc)]
-	jointWeights: vec4[f32],
-
-	[cond(Billboard), location(BillboardCenterLocation)]
-	billboardCenter: vec3[f32],
-
-	[cond(Billboard), location(BillboardSizeRotLocation)]
-	billboardSizeRot: vec4[f32], //< width,height,sin,cos
-
-	[cond(Billboard), location(BillboardColorLocation)]
-	billboardColor: vec4[f32]
+	jointWeights: vec4[f32]
 }
 
-[entry(vert), cond(Billboard)]
-fn billboardMain(input: VertIn) -> VertOut
+[cond(Billboard)]
+struct BillboardVertIn
 {
-	let size = input.billboardSizeRot.xy;
-	let sinCos = input.billboardSizeRot.zw;
+	[builtin(vertex_index)] vertIndex: i32,
+
+	[location(VertexSizeRotLocation)]
+	sizeRot: vec4[f32], //< width,height,sin,cos
+
+	[cond(HasVertexUV), location(VertexUvLoc)] 
+	uv: vec2[f32],
+
+	[cond(HasVertexColor), location(VertexColorLoc)]
+	color: vec4[f32]
+}
+
+const billboardPos = array[vec2[f32]](
+	vec2[f32](-0.5, -0.5),
+	vec2[f32]( 0.5, -0.5),
+	vec2[f32](-0.5, 0.5),
+	vec2[f32]( 0.5, 0.5)
+);
+
+[entry(vert), cond(Billboard)]
+fn VertBillboard(input: BillboardVertIn) -> VertOut
+{
+	let position = billboardPos[input.vertIndex % 4];
+
+	let size = input.sizeRot.xy;
+	let sinCos = input.sizeRot.zw;
 
 	let rotatedPosition = vec2[f32](
-		input.pos.x * sinCos.y - input.pos.y * sinCos.x,
-		input.pos.y * sinCos.y + input.pos.x * sinCos.x
+		position.x * sinCos.y - position.y * sinCos.x,
+		position.y * sinCos.y + position.x * sinCos.x
 	);
 	rotatedPosition *= size;
 
 	let cameraRight = vec3[f32](viewerData.viewMatrix[0][0], viewerData.viewMatrix[1][0], viewerData.viewMatrix[2][0]);
 	let cameraUp = vec3[f32](viewerData.viewMatrix[0][1], viewerData.viewMatrix[1][1], viewerData.viewMatrix[2][1]);
 
-	let vertexPos = input.billboardCenter;
-	vertexPos += cameraRight * rotatedPosition.x;
-	vertexPos += cameraUp * rotatedPosition.y;
+	let worldPosition = vec3[f32](instanceData.worldMatrix[3].xyz);
+	worldPosition += cameraRight * rotatedPosition.x;
+	worldPosition += cameraUp * rotatedPosition.y;
 
 	let output: VertOut;
-	output.position = viewerData.viewProjMatrix * instanceData.worldMatrix * vec4[f32](vertexPos, 1.0);
-	
+	output.worldPos = worldPosition;
+	output.position = viewerData.viewProjMatrix * vec4[f32](worldPosition, 1.0);
+
+	const if (HasVertexUV)
+		output.uv = input.uv;
+
 	const if (HasColor)
-		output.color = input.billboardColor;
-	
-	const if (HasUV)
-		output.uv = input.pos.xy + vec2[f32](0.5, 0.5);
+		output.color = input.color;
 
 	return output;
 }
@@ -414,7 +430,7 @@ fn main(input: VertIn) -> VertOut
 	const if (HasNormal)
 		output.normal = rotationMatrix * normal;
 
-	const if (HasUV)
+	const if (HasVertexUV)
 		output.uv = input.uv;
 
 	const if (HasNormalMapping)

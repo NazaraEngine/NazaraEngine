@@ -32,6 +32,7 @@
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/Algorithm.hpp>
 #include <Nazara/Graphics/BakedFrameGraph.hpp>
+#include <Nazara/Graphics/Billboard.hpp>
 #include <Nazara/Graphics/Camera.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/DebugDrawPipelinePass.hpp>

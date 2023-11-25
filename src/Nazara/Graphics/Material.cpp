@@ -146,6 +146,10 @@ namespace Nz
 								config.optionValues[CRC32("VertexPositionLoc")] = locationIndex;
 								break;
 
+							case VertexComponent::SizeSinCos:
+								config.optionValues[CRC32("VertexSizeRotLocation")] = locationIndex;
+								break;
+
 							case VertexComponent::Tangent:
 								config.optionValues[CRC32("VertexTangentLoc")] = locationIndex;
 								break;

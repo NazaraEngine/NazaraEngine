@@ -390,6 +390,7 @@ namespace Nz
 		JointWeights,
 		Normal,
 		Position,
+		SizeSinCos,
 		Tangent,
 		TexCoord,
 		Userdata,
@@ -406,6 +407,7 @@ namespace Nz
 	enum class VertexLayout
 	{
 		// Predefined declarations for rendering
+		UV_SizeSinCos,
 		XY,
 		XY_Color,
 		XY_UV,
@@ -416,6 +418,7 @@ namespace Nz
 		XYZ_Normal_UV,
 		XYZ_Normal_UV_Tangent,
 		XYZ_Normal_UV_Tangent_Skinning,
+		UV_SizeSinCos_Color,
 		XYZ_UV,
 
 		// Predefined declarations for instancing
