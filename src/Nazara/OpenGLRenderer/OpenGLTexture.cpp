@@ -78,7 +78,10 @@ namespace Nz
 	{
 		NazaraAssert(initialData, "missing initial data");
 
-		Update(initialData, srcWidth, srcHeight, 0);
+		Boxui wholeRegion(0, 0, 0, m_textureInfo.width, m_textureInfo.height, m_textureInfo.depth);
+		Image::ArrayToRegion(m_textureInfo.type, 0, m_textureInfo.layerCount, wholeRegion);
+
+		Update(initialData, wholeRegion, srcWidth, srcHeight, 0);
 		if (buildMipmaps && m_textureInfo.levelCount > 1)
 			m_texture.GenerateMipmap();
 	}
@@ -162,19 +165,17 @@ namespace Nz
 		switch (m_textureInfo.type)
 		{
 			case ImageType::E1D:
-				break;
-
 			case ImageType::E1D_Array:
-				break;
-
 			case ImageType::E2D:
 				m_texture.TexSubImage2D(GL::TextureTarget::Target2D, level, box.x, box.y, box.width, box.height, format->format, format->type, ptr);
 				break;
 
 			case ImageType::E2D_Array:
+				m_texture.TexSubImage3D(GL::TextureTarget::Target2D_Array, level, box.x, box.y, box.z, box.width, box.height, box.depth, format->format, format->type, ptr);
 				break;
 
 			case ImageType::E3D:
+				m_texture.TexSubImage3D(GL::TextureTarget::Target3D, level, box.x, box.y, box.z, box.width, box.height, box.depth, format->format, format->type, ptr);
 				break;
 
 			case ImageType::Cubemap:
@@ -192,6 +193,12 @@ namespace Nz
 
 			default:
 				break;
+		}
+
+		if (!context.DidLastCallSucceed())
+		{
+			NazaraError("texture update failed");
+			return false;
 		}
 
 		return true;
