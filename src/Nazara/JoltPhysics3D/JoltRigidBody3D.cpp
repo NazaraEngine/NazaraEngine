@@ -386,10 +386,16 @@ namespace Nz
 		creationSettings.mObjectLayer = 1;
 		creationSettings.mRestitution = settings.restitution;
 
-		creationSettings.mMassPropertiesOverride = creationSettings.GetShape()->GetMassProperties();
-		creationSettings.mMassPropertiesOverride.ScaleToMass(settings.mass);
-
 		creationSettings.mMotionType = (settings.mass > 0.f) ? JPH::EMotionType::Dynamic : JPH::EMotionType::Kinematic;
+
+		float mass = settings.mass;
+		if (mass <= 0.f)
+			mass = 1.f;
+
+		creationSettings.mMassPropertiesOverride = creationSettings.GetShape()->GetMassProperties();
+		creationSettings.mMassPropertiesOverride.ScaleToMass(mass);
+		creationSettings.mOverrideMassProperties = JPH::EOverrideMassProperties::MassAndInertiaProvided;
+
 
 		switch (settings.motionQuality)
 		{
