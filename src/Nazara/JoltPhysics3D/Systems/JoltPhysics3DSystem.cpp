@@ -90,7 +90,8 @@ namespace Nz
 		});
 
 		// Update the physics world
-		m_physWorld.Step(elapsedTime);
+		if (!m_physWorld.Step(elapsedTime))
+			return; // No physics step took place
 
 		// Replicate characters to their NodeComponent
 		{

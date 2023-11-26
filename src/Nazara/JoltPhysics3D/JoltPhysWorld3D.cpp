@@ -456,14 +456,16 @@ namespace Nz
 		m_stepSize = stepSize;
 	}
 
-	void JoltPhysWorld3D::Step(Time timestep)
+	bool JoltPhysWorld3D::Step(Time timestep)
 	{
+		m_timestepAccumulator += timestep;
+		if (m_timestepAccumulator < m_stepSize)
+			return false;
+
 		RefreshBodies();
 
 		JPH::JobSystem& jobSystem = JoltPhysics3D::Instance()->GetThreadPool();
 		float stepSize = m_stepSize.AsSeconds<float>();
-
-		m_timestepAccumulator += timestep;
 
 		std::size_t stepCount = 0;
 		while (m_timestepAccumulator >= m_stepSize && stepCount < m_maxStepCount)
@@ -476,6 +478,8 @@ namespace Nz
 			m_timestepAccumulator -= m_stepSize;
 			stepCount++;
 		}
+
+		return true;
 	}
 
 	void JoltPhysWorld3D::RegisterBody(const JPH::BodyID& bodyID, bool activate, bool removeFromDeactivationList)

@@ -59,15 +59,15 @@ namespace Nz
 
 			void RefreshBodies();
 
-			inline void RegisterStepListener(JoltPhysicsStepListener* character);
+			inline void RegisterStepListener(JoltPhysicsStepListener* stepListener);
 
 			void SetGravity(const Vector3f& gravity);
 			void SetMaxStepCount(std::size_t maxStepCount);
 			void SetStepSize(Time stepSize);
 
-			void Step(Time timestep);
+			bool Step(Time timestep);
 
-			inline void UnregisterStepListener(JoltPhysicsStepListener* character);
+			inline void UnregisterStepListener(JoltPhysicsStepListener* stepListener);
 
 			JoltPhysWorld3D& operator=(const JoltPhysWorld3D&) = delete;
 			JoltPhysWorld3D& operator=(JoltPhysWorld3D&&) = delete;
