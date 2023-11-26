@@ -14,6 +14,21 @@ namespace Nz
 	* \brief Core class that represents a list of geometric primitives
 	*/
 
+	inline PrimitiveList::PrimitiveList(const Primitive& primitive)
+	{
+		Add(primitive);
+	}
+
+	inline PrimitiveList::PrimitiveList(std::initializer_list<Primitive> primitives)
+	{
+		m_primitives.assign(primitives);
+	}
+
+	inline void PrimitiveList::Add(const Primitive& primitive)
+	{
+		m_primitives.push_back(primitive);
+	}
+
 	/*!
 	* \brief Adds a box centered
 	*
@@ -21,8 +36,7 @@ namespace Nz
 	* \param subdivision Number of subdivision for the axis
 	* \param transformMatrix Matrix to apply
 	*/
-
-	void PrimitiveList::AddBox(const Vector3f& lengths, const Vector3ui& subdivision, const Matrix4f& transformMatrix)
+	inline void PrimitiveList::AddBox(const Vector3f& lengths, const Vector3ui& subdivision, const Matrix4f& transformMatrix)
 	{
 		m_primitives.push_back(Primitive::Box(lengths, subdivision, transformMatrix));
 	}
@@ -35,8 +49,7 @@ namespace Nz
 	* \param position Position of the box
 	* \param rotation Rotation of the box
 	*/
-
-	void PrimitiveList::AddBox(const Vector3f& lengths, const Vector3ui& subdivision, const Vector3f& position, const Quaternionf& rotation)
+	inline void PrimitiveList::AddBox(const Vector3f& lengths, const Vector3ui& subdivision, const Vector3f& position, const Quaternionf& rotation)
 	{
 		m_primitives.push_back(Primitive::Box(lengths, subdivision, position, rotation));
 	}
@@ -49,8 +62,7 @@ namespace Nz
 	* \param subdivision Number of sides for the circle
 	* \param transformMatrix Matrix to apply
 	*/
-
-	void PrimitiveList::AddCone(float length, float radius, unsigned int subdivision, const Matrix4f& transformMatrix)
+	inline void PrimitiveList::AddCone(float length, float radius, unsigned int subdivision, const Matrix4f& transformMatrix)
 	{
 		m_primitives.push_back(Primitive::Cone(length, radius, subdivision, transformMatrix));
 	}
@@ -64,8 +76,7 @@ namespace Nz
 	* \param position Position of the cone
 	* \param rotation Rotation of the cone
 	*/
-
-	void PrimitiveList::AddCone(float length, float radius, unsigned int subdivision, const Vector3f& position, const Quaternionf& rotation)
+	inline void PrimitiveList::AddCone(float length, float radius, unsigned int subdivision, const Vector3f& position, const Quaternionf& rotation)
 	{
 		m_primitives.push_back(Primitive::Cone(length, radius, subdivision, position, rotation));
 	}
@@ -77,8 +88,7 @@ namespace Nz
 	* \param subdivision Number of subdivision for the box
 	* \param transformMatrix Matrix to apply
 	*/
-
-	void PrimitiveList::AddCubicSphere(float size, unsigned int subdivision, const Matrix4f& transformMatrix)
+	inline void PrimitiveList::AddCubicSphere(float size, unsigned int subdivision, const Matrix4f& transformMatrix)
 	{
 		m_primitives.push_back(Primitive::CubicSphere(size, subdivision, transformMatrix));
 	}
@@ -91,8 +101,7 @@ namespace Nz
 	* \param position Position of the cubic sphere
 	* \param rotation Rotation of the cubic sphere
 	*/
-
-	void PrimitiveList::AddCubicSphere(float size, unsigned int subdivision, const Vector3f& position, const Quaternionf& rotation)
+	inline void PrimitiveList::AddCubicSphere(float size, unsigned int subdivision, const Vector3f& position, const Quaternionf& rotation)
 	{
 		m_primitives.push_back(Primitive::CubicSphere(size, subdivision, position, rotation));
 	}
@@ -104,8 +113,7 @@ namespace Nz
 	* \param recursionLevel Number of recursion for the icosphere
 	* \param transformMatrix Matrix to apply
 	*/
-
-	void PrimitiveList::AddIcoSphere(float size, unsigned int recursionLevel, const Matrix4f& transformMatrix)
+	inline void PrimitiveList::AddIcoSphere(float size, unsigned int recursionLevel, const Matrix4f& transformMatrix)
 	{
 		m_primitives.push_back(Primitive::IcoSphere(size, recursionLevel, transformMatrix));
 	}
@@ -118,8 +126,7 @@ namespace Nz
 	* \param position Position of the icosphere
 	* \param rotation Rotation of the icosphere
 	*/
-
-	void PrimitiveList::AddIcoSphere(float size, unsigned int recursionLevel, const Vector3f& position, const Quaternionf& rotation)
+	inline void PrimitiveList::AddIcoSphere(float size, unsigned int recursionLevel, const Vector3f& position, const Quaternionf& rotation)
 	{
 		m_primitives.push_back(Primitive::IcoSphere(size, recursionLevel, position, rotation));
 	}
@@ -131,8 +138,7 @@ namespace Nz
 	* \param subdivision Number of subdivision for the axis
 	* \param transformMatrix Matrix to apply
 	*/
-
-	void PrimitiveList::AddPlane(const Vector2f& size, const Vector2ui& subdivision, const Matrix4f& transformMatrix)
+	inline void PrimitiveList::AddPlane(const Vector2f& size, const Vector2ui& subdivision, const Matrix4f& transformMatrix)
 	{
 		m_primitives.push_back(Primitive::Plane(size, subdivision, transformMatrix));
 	}
@@ -144,8 +150,7 @@ namespace Nz
 	* \param subdivision Number of subdivision for the axis
 	* \param planeInfo Information for the plane
 	*/
-
-	void PrimitiveList::AddPlane(const Vector2f& size, const Vector2ui& subdivision, const Planef& planeInfo)
+	inline void PrimitiveList::AddPlane(const Vector2f& size, const Vector2ui& subdivision, const Planef& planeInfo)
 	{
 		m_primitives.push_back(Primitive::Plane(size, subdivision, planeInfo));
 	}
@@ -158,8 +163,7 @@ namespace Nz
 	* \param position Position of the plane
 	* \param rotation Rotation of the plane
 	*/
-
-	void PrimitiveList::AddPlane(const Vector2f& size, const Vector2ui& subdivision, const Vector3f& position, const Quaternionf& rotation)
+	inline void PrimitiveList::AddPlane(const Vector2f& size, const Vector2ui& subdivision, const Vector3f& position, const Quaternionf& rotation)
 	{
 		m_primitives.push_back(Primitive::Plane(size, subdivision, position, rotation));
 	}
@@ -172,8 +176,7 @@ namespace Nz
 	* \param stackCount Number of stacks
 	* \param transformMatrix Matrix to apply
 	*/
-
-	void PrimitiveList::AddUVSphere(float size, unsigned int sliceCount, unsigned int stackCount, const Matrix4f& transformMatrix)
+	inline void PrimitiveList::AddUVSphere(float size, unsigned int sliceCount, unsigned int stackCount, const Matrix4f& transformMatrix)
 	{
 		m_primitives.push_back(Primitive::UVSphere(size, sliceCount, stackCount, transformMatrix));
 	}
@@ -187,8 +190,7 @@ namespace Nz
 	* \param position Position of the box
 	* \param rotation Rotation of the box
 	*/
-
-	void PrimitiveList::AddUVSphere(float size, unsigned int sliceCount, unsigned int stackCount, const Vector3f& position, const Quaternionf& rotation)
+	inline void PrimitiveList::AddUVSphere(float size, unsigned int sliceCount, unsigned int stackCount, const Vector3f& position, const Quaternionf& rotation)
 	{
 		m_primitives.push_back(Primitive::UVSphere(size, sliceCount, stackCount, position, rotation));
 	}
@@ -201,8 +203,7 @@ namespace Nz
 	*
 	* \remark Produces a NazaraAssert if index is greather than the size
 	*/
-
-	Primitive& PrimitiveList::GetPrimitive(std::size_t i)
+	inline Primitive& PrimitiveList::GetPrimitive(std::size_t i)
 	{
 		NazaraAssert(i < m_primitives.size(), "Primitive index out of range");
 
@@ -217,8 +218,7 @@ namespace Nz
 	*
 	* \remark Produces a NazaraAssert if index is greather than the size
 	*/
-
-	const Primitive& PrimitiveList::GetPrimitive(std::size_t i) const
+	inline const Primitive& PrimitiveList::GetPrimitive(std::size_t i) const
 	{
 		NazaraAssert(i < m_primitives.size(), "Primitive index out of range");
 
@@ -229,8 +229,7 @@ namespace Nz
 	* \brief Gets the number of primitives
 	* \return Number of primitives
 	*/
-
-	std::size_t PrimitiveList::GetSize() const
+	inline std::size_t PrimitiveList::GetSize() const
 	{
 		return m_primitives.size();
 	}
@@ -243,8 +242,7 @@ namespace Nz
 	*
 	* \remark Produces a NazaraAssert if index is greather than the size
 	*/
-
-	Primitive& PrimitiveList::operator()(unsigned int i)
+	inline Primitive& PrimitiveList::operator[](std::size_t i)
 	{
 		return GetPrimitive(i);
 	}
@@ -257,8 +255,7 @@ namespace Nz
 	*
 	* \remark Produces a NazaraAssert if index is greather than the size
 	*/
-
-	const Primitive& PrimitiveList::operator()(unsigned int i) const
+	inline const Primitive& PrimitiveList::operator[](std::size_t i) const
 	{
 		return GetPrimitive(i);
 	}

@@ -13,42 +13,40 @@
 
 namespace Nz
 {
-	///TODO: Inline this
-	class NAZARA_CORE_API PrimitiveList
+	class PrimitiveList
 	{
 		public:
 			PrimitiveList() = default;
-			PrimitiveList(const PrimitiveList&) = default;
-			PrimitiveList(PrimitiveList&&) noexcept = default;
-			~PrimitiveList() = default;
+			inline PrimitiveList(const Primitive& primitive);
+			inline PrimitiveList(std::initializer_list<Primitive> primitives);
 
-			void AddBox(const Vector3f& lengths, const Vector3ui& subdivision = Vector3ui(0U), const Matrix4f& transformMatrix = Matrix4f::Identity());
-			void AddBox(const Vector3f& lengths, const Vector3ui& subdivision, const Vector3f& position, const Quaternionf& rotation = Quaternionf::Identity());
-			void AddCone(float length, float radius, unsigned int subdivision = 4, const Matrix4f& transformMatrix = Matrix4f::Identity());
-			void AddCone(float length, float radius, unsigned int subdivision, const Vector3f& position, const Quaternionf& rotation = Quaternionf::Identity());
-			void AddCubicSphere(float size, unsigned int subdivision = 4, const Matrix4f& transformMatrix = Matrix4f::Identity());
-			void AddCubicSphere(float size, unsigned int subdivision, const Vector3f& position, const Quaternionf& rotation = Quaternionf::Identity());
-			void AddIcoSphere(float size, unsigned int recursionLevel = 3, const Matrix4f& transformMatrix = Matrix4f::Identity());
-			void AddIcoSphere(float size, unsigned int recursionLevel, const Vector3f& position, const Quaternionf& rotation = Quaternionf::Identity());
-			void AddPlane(const Vector2f& size, const Vector2ui& subdivision, const Matrix4f& transformMatrix = Matrix4f::Identity());
-			void AddPlane(const Vector2f& size, const Vector2ui& subdivision, const Planef& planeInfo);
-			void AddPlane(const Vector2f& size, const Vector2ui& subdivision, const Vector3f& position, const Quaternionf& rotation = Quaternionf::Identity());
-			void AddUVSphere(float size, unsigned int sliceCount = 4, unsigned int stackCount = 4, const Matrix4f& transformMatrix = Matrix4f::Identity());
-			void AddUVSphere(float size, unsigned int sliceCount, unsigned int stackCount, const Vector3f& position, const Quaternionf& rotation = Quaternionf::Identity());
+			inline void Add(const Primitive& primitive);
+			inline void AddBox(const Vector3f& lengths, const Vector3ui& subdivision = Vector3ui(0U), const Matrix4f& transformMatrix = Matrix4f::Identity());
+			inline void AddBox(const Vector3f& lengths, const Vector3ui& subdivision, const Vector3f& position, const Quaternionf& rotation = Quaternionf::Identity());
+			inline void AddCone(float length, float radius, unsigned int subdivision = 4, const Matrix4f& transformMatrix = Matrix4f::Identity());
+			inline void AddCone(float length, float radius, unsigned int subdivision, const Vector3f& position, const Quaternionf& rotation = Quaternionf::Identity());
+			inline void AddCubicSphere(float size, unsigned int subdivision = 4, const Matrix4f& transformMatrix = Matrix4f::Identity());
+			inline void AddCubicSphere(float size, unsigned int subdivision, const Vector3f& position, const Quaternionf& rotation = Quaternionf::Identity());
+			inline void AddIcoSphere(float size, unsigned int recursionLevel = 3, const Matrix4f& transformMatrix = Matrix4f::Identity());
+			inline void AddIcoSphere(float size, unsigned int recursionLevel, const Vector3f& position, const Quaternionf& rotation = Quaternionf::Identity());
+			inline void AddPlane(const Vector2f& size, const Vector2ui& subdivision, const Matrix4f& transformMatrix = Matrix4f::Identity());
+			inline void AddPlane(const Vector2f& size, const Vector2ui& subdivision, const Planef& planeInfo);
+			inline void AddPlane(const Vector2f& size, const Vector2ui& subdivision, const Vector3f& position, const Quaternionf& rotation = Quaternionf::Identity());
+			inline void AddUVSphere(float size, unsigned int sliceCount = 4, unsigned int stackCount = 4, const Matrix4f& transformMatrix = Matrix4f::Identity());
+			inline void AddUVSphere(float size, unsigned int sliceCount, unsigned int stackCount, const Vector3f& position, const Quaternionf& rotation = Quaternionf::Identity());
 
-			Primitive& GetPrimitive(std::size_t i);
-			const Primitive& GetPrimitive(std::size_t i) const;
-			std::size_t GetSize() const;
+			inline Primitive& GetPrimitive(std::size_t i);
+			inline const Primitive& GetPrimitive(std::size_t i) const;
+			inline std::size_t GetSize() const;
 
-			PrimitiveList& operator=(const PrimitiveList&) = default;
-			PrimitiveList& operator=(PrimitiveList&&) noexcept = default;
-
-			Primitive& operator()(unsigned int i);
-			const Primitive& operator()(unsigned int i) const;
+			inline Primitive& operator[](std::size_t i);
+			inline const Primitive& operator[](std::size_t i) const;
 
 		private:
 			std::vector<Primitive> m_primitives;
 	};
 }
+
+#include <Nazara/Core/PrimitiveList.inl>
 
 #endif // NAZARA_CORE_PRIMITIVELIST_HPP

@@ -25,19 +25,19 @@ SCENARIO("PrimitiveList", "[CORE][PRIMITIVELIST]")
 
 			THEN("The first one is the cubic sphere")
 			{
-				REQUIRE(primitiveList(0).type == Nz::PrimitiveType::Sphere);
-				REQUIRE(primitiveList(0).sphere.type == Nz::SphereType::Cubic);
+				REQUIRE(primitiveList[0].type == Nz::PrimitiveType::Sphere);
+				REQUIRE(primitiveList[0].sphere.type == Nz::SphereType::Cubic);
 			}
 
 			THEN("The second one is the box")
 			{
-				REQUIRE(primitiveList(1).type == Nz::PrimitiveType::Box);
+				REQUIRE(primitiveList[1].type == Nz::PrimitiveType::Box);
 			}
 
 			THEN("The third one is the ico sphere")
 			{
-				REQUIRE(primitiveList(2).type == Nz::PrimitiveType::Sphere);
-				REQUIRE(primitiveList(2).sphere.type == Nz::SphereType::Ico);
+				REQUIRE(primitiveList[2].type == Nz::PrimitiveType::Sphere);
+				REQUIRE(primitiveList[2].sphere.type == Nz::SphereType::Ico);
 			}
 		}
 	}
