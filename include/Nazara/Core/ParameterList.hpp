@@ -47,15 +47,15 @@ namespace Nz
 
 			void RemoveParameter(const std::string& name);
 
-			void SetParameter(const std::string& name);
-			void SetParameter(const std::string& name, const Color& value);
-			void SetParameter(const std::string& name, const std::string& value);
-			void SetParameter(const std::string& name, const char* value);
-			void SetParameter(const std::string& name, bool value);
-			void SetParameter(const std::string& name, double value);
-			void SetParameter(const std::string& name, long long value);
-			void SetParameter(const std::string& name, void* value);
-			void SetParameter(const std::string& name, void* value, Destructor destructor);
+			void SetParameter(std::string name);
+			void SetParameter(std::string name, const Color& value);
+			void SetParameter(std::string name, std::string value);
+			void SetParameter(std::string name, const char* value);
+			void SetParameter(std::string name, bool value);
+			void SetParameter(std::string name, double value);
+			void SetParameter(std::string name, long long value);
+			void SetParameter(std::string name, void* value);
+			void SetParameter(std::string name, void* value, Destructor destructor);
 
 			std::string ToString() const;
 
@@ -108,7 +108,7 @@ namespace Nz
 				Value value;
 			};
 
-			Parameter& CreateValue(const std::string& name);
+			Parameter& CreateValue(std::string&& name);
 			void DestroyValue(Parameter& parameter);
 
 			using ParameterMap = std::unordered_map<std::string, Parameter>;

@@ -486,9 +486,9 @@ namespace Nz
 	*
 	* \param name Name of the parameter
 	*/
-	void ParameterList::SetParameter(const std::string& name)
+	void ParameterList::SetParameter(std::string name)
 	{
-		Parameter& parameter = CreateValue(name);
+		Parameter& parameter = CreateValue(std::move(name));
 		parameter.type = ParameterType::None;
 	}
 
@@ -500,9 +500,9 @@ namespace Nz
 	* \param name Name of the parameter
 	* \param value The color value
 	*/
-	void ParameterList::SetParameter(const std::string& name, const Color& value)
+	void ParameterList::SetParameter(std::string name, const Color& value)
 	{
-		Parameter& parameter = CreateValue(name);
+		Parameter& parameter = CreateValue(std::move(name));
 		parameter.type = ParameterType::Color;
 
 		PlacementNew(&parameter.value.colorVal, value);
@@ -516,12 +516,12 @@ namespace Nz
 	* \param name Name of the parameter
 	* \param value The string value
 	*/
-	void ParameterList::SetParameter(const std::string& name, const std::string& value)
+	void ParameterList::SetParameter(std::string name, std::string value)
 	{
-		Parameter& parameter = CreateValue(name);
+		Parameter& parameter = CreateValue(std::move(name));
 		parameter.type = ParameterType::String;
 
-		PlacementNew(&parameter.value.stringVal, value);
+		PlacementNew(&parameter.value.stringVal, std::move(value));
 	}
 
 	/*!
@@ -532,9 +532,9 @@ namespace Nz
 	* \param name Name of the parameter
 	* \param value The string value
 	*/
-	void ParameterList::SetParameter(const std::string& name, const char* value)
+	void ParameterList::SetParameter(std::string name, const char* value)
 	{
-		Parameter& parameter = CreateValue(name);
+		Parameter& parameter = CreateValue(std::move(name));
 		parameter.type = ParameterType::String;
 
 		PlacementNew(&parameter.value.stringVal, value);
@@ -548,9 +548,9 @@ namespace Nz
 	* \param name Name of the parameter
 	* \param value The boolean value
 	*/
-	void ParameterList::SetParameter(const std::string& name, bool value)
+	void ParameterList::SetParameter(std::string name, bool value)
 	{
-		Parameter& parameter = CreateValue(name);
+		Parameter& parameter = CreateValue(std::move(name));
 		parameter.type = ParameterType::Boolean;
 		parameter.value.boolVal = value;
 	}
@@ -563,9 +563,9 @@ namespace Nz
 	* \param name Name of the parameter
 	* \param value The double value
 	*/
-	void ParameterList::SetParameter(const std::string& name, double value)
+	void ParameterList::SetParameter(std::string name, double value)
 	{
-		Parameter& parameter = CreateValue(name);
+		Parameter& parameter = CreateValue(std::move(name));
 		parameter.type = ParameterType::Double;
 		parameter.value.doubleVal = value;
 	}
@@ -578,9 +578,9 @@ namespace Nz
 	* \param name Name of the parameter
 	* \param value The integer value
 	*/
-	void ParameterList::SetParameter(const std::string& name, long long value)
+	void ParameterList::SetParameter(std::string name, long long value)
 	{
-		Parameter& parameter = CreateValue(name);
+		Parameter& parameter = CreateValue(std::move(name));
 		parameter.type = ParameterType::Integer;
 		parameter.value.intVal = value;
 	}
@@ -596,9 +596,9 @@ namespace Nz
 	* \remark This sets a raw pointer, this class takes no responsibility toward it,
 	          if you wish to destroy the pointed variable along with the parameter list, you should set a userdata
 	*/
-	void ParameterList::SetParameter(const std::string& name, void* value)
+	void ParameterList::SetParameter(std::string name, void* value)
 	{
-		Parameter& parameter = CreateValue(name);
+		Parameter& parameter = CreateValue(std::move(name));
 		parameter.type = ParameterType::Pointer;
 		parameter.value.ptrVal = value;
 	}
@@ -666,9 +666,9 @@ namespace Nz
 	* \remark The destructor is called once when all copies of the userdata are destroyed, which means
 	          you can safely copy the parameter list around.
 	*/
-	void ParameterList::SetParameter(const std::string& name, void* value, Destructor destructor)
+	void ParameterList::SetParameter(std::string name, void* value, Destructor destructor)
 	{
-		Parameter& parameter = CreateValue(name);
+		Parameter& parameter = CreateValue(std::move(name));
 		parameter.type = ParameterType::Userdata;
 		parameter.value.userdataVal = new Parameter::UserdataValue(destructor, value);
 	}
@@ -725,12 +725,12 @@ namespace Nz
 	*
 	* \remark The previous value if any gets destroyed
 	*/
-	ParameterList::Parameter& ParameterList::CreateValue(const std::string& name)
+	ParameterList::Parameter& ParameterList::CreateValue(std::string&& name)
 	{
-		std::pair<ParameterMap::iterator, bool> pair = m_parameters.insert(std::make_pair(name, Parameter()));
-		Parameter& parameter = pair.first->second;
+		auto [it, newParam] = m_parameters.emplace(std::move(name), Parameter{});
+		Parameter& parameter = it->second;
 
-		if (!pair.second)
+		if (!newParam)
 			DestroyValue(parameter);
 
 		return parameter;
