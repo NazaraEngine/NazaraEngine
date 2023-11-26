@@ -98,7 +98,7 @@ int main()
 	std::size_t bufferSize = bufferLayout.GetAlignedSize();
 
 	std::vector<Nz::UInt8> particleBufferInitialData(bufferSize);
-	Nz::AccessByOffset<Nz::UInt32&>(particleBufferInitialData.data(), particleCountOffset) = particleCount;
+	Nz::AccessByOffset<Nz::UInt32&>(particleBufferInitialData.data(), particleCountOffset) = Nz::SafeCast<Nz::UInt32>(particleCount);
 
 	Nz::Vector2f logoImageSize(Nz::Vector2ui(logo->GetSize()));
 	float logoRatio = logoImageSize.x / logoImageSize.y;
@@ -213,7 +213,7 @@ int main()
 	std::size_t viewerBufferSize = viewerLayout.GetAlignedSize();
 
 	std::vector<Nz::UInt8> viewerBufferInitialData(viewerBufferSize);
-	Nz::AccessByOffset<Nz::Matrix4f&>(viewerBufferInitialData.data(), projectionMatrixOffset) = Nz::Matrix4f::Ortho(0.f, windowSize.x, 0.f, windowSize.y);
+	Nz::AccessByOffset<Nz::Matrix4f&>(viewerBufferInitialData.data(), projectionMatrixOffset) = Nz::Matrix4f::Ortho(0.f, float(windowSize.x), 0.f, float(windowSize.y));
 
 	std::shared_ptr<Nz::RenderBuffer> uniformBuffer = device->InstantiateBuffer(Nz::BufferType::Uniform, viewerBufferSize, Nz::BufferUsage::DeviceLocal, viewerBufferInitialData.data());
 

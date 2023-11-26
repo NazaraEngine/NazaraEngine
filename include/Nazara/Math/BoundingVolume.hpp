@@ -23,9 +23,9 @@ namespace Nz
 	{
 		public:
 			constexpr BoundingVolume();
-			constexpr BoundingVolume(Extent Extend);
-			constexpr BoundingVolume(const Box<T>& box);
-			constexpr BoundingVolume(const OrientedBox<T>& orientedBox);
+			constexpr explicit BoundingVolume(Extent Extend);
+			constexpr explicit BoundingVolume(const Box<T>& box);
+			constexpr explicit BoundingVolume(const OrientedBox<T>& orientedBox);
 			template<typename U> constexpr explicit BoundingVolume(const BoundingVolume<U>& volume);
 			constexpr BoundingVolume(const BoundingVolume&) = default;
 			constexpr BoundingVolume(BoundingVolume&&) = default;

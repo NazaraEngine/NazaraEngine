@@ -627,7 +627,7 @@ std::shared_ptr<Nz::SubMesh> ProcessSubMesh(const std::filesystem::path& originP
 				}
 			}
 
-			targetPath /= std::filesystem::u8path(filename);
+			targetPath /= Nz::Utf8Path(filename);
 
 			if (embeddedTexture->mHeight == 0)
 			{
@@ -638,7 +638,7 @@ std::shared_ptr<Nz::SubMesh> ProcessSubMesh(const std::filesystem::path& originP
 					return {};
 				}
 
-				targetPath.replace_extension(std::filesystem::u8path(embeddedTexture->achFormatHint));
+				targetPath.replace_extension(Nz::Utf8Path(embeddedTexture->achFormatHint));
 
 				if (!Nz::File::WriteWhole(targetPath, embeddedTexture->pcData, embeddedTexture->mWidth))
 					return {};
@@ -697,7 +697,7 @@ std::shared_ptr<Nz::SubMesh> ProcessSubMesh(const std::filesystem::path& originP
 					matData.SetParameter(textureKey, Nz::PathToString(embeddedTexturePath));
 				}
 				else
-					matData.SetParameter(textureKey, Nz::PathToString((originPath / std::filesystem::u8path(path.data, path.data + path.length))));
+					matData.SetParameter(textureKey, Nz::PathToString((originPath / Nz::Utf8Path(std::string_view(path.data, path.data + path.length)))));
 
 				if (wrapKey)
 				{

@@ -358,7 +358,7 @@ namespace Nz
 						Box<T> destBox = to.obb.localBox;
 						destBox.Scale(interpolation);
 
-						return { destBox };
+						return BoundingVolume{ destBox };
 					}
 				}
 
@@ -379,7 +379,7 @@ namespace Nz
 						Box<T> fromBox = from.obb.localBox;
 						fromBox.Scale(T(1.0) - interpolation);
 
-						return { fromBox };
+						return BoundingVolume{ fromBox };
 					}
 
 					case Extent::Infinite:

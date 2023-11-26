@@ -97,6 +97,7 @@ namespace Nz
 
 			struct Glyph
 			{
+				std::size_t layerIndex;
 				Recti aabb;
 				Rectui atlasRect;
 				bool requireFauxBold;
@@ -105,7 +106,6 @@ namespace Nz
 				bool valid;
 				float fauxOutlineThickness;
 				int advance;
-				unsigned int layerIndex;
 			};
 
 			struct SizeInfo

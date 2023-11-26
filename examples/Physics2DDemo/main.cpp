@@ -132,7 +132,7 @@ int main(int argc, char* argv[])
 		{
 			auto& viewerComponent = viewer.get<Nz::CameraComponent>();
 
-			Nz::Vector2f worldPos = Nz::Vector2f(viewerComponent.Unproject(Nz::Vector3f(event.x, event.y, 0.f)));
+			Nz::Vector2f worldPos = Nz::Vector2f(viewerComponent.Unproject(Nz::Vector3f(float(event.x), float(event.y), 0.f)));
 
 			entt::handle nearestEntity;
 			if (physSytem.NearestBodyQuery(worldPos, 1.f, 0, 0xFFFFFFFF, 0xFFFFFFFF, &nearestEntity))

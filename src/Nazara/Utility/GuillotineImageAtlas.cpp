@@ -26,17 +26,11 @@ namespace Nz
 		OnAtlasCleared(this);
 	}
 
-	void GuillotineImageAtlas::Free(SparsePtr<const Rectui> rects, SparsePtr<unsigned int> layers, unsigned int count)
+	void GuillotineImageAtlas::Free(SparsePtr<const Rectui> rects, SparsePtr<std::size_t> layers, std::size_t count)
 	{
-		for (unsigned int i = 0; i < count; ++i)
+		for (std::size_t i = 0; i < count; ++i)
 		{
-			#ifdef NAZARA_DEBUG
-			if (layers[i] >= m_layers.size())
-			{
-				NazaraWarning("Rectangle #" + NumberToString(i) + " belong to an out-of-bounds layer (" + NumberToString(i) + " >= " + NumberToString(m_layers.size()) + ")");
-				continue;
-			}
-			#endif
+			NazaraAssertFmt(layers[i] < m_layers.size(), "Rectangle #{0} belongs to an out-of-bounds layer ({1} >= {2})", i, layers[i], m_layers.size());
 
 			m_layers[layers[i]].binPack.FreeRectangle(rects[i]);
 			m_layers[layers[i]].freedRectangles++;
@@ -58,15 +52,9 @@ namespace Nz
 		return m_rectSplitHeuristic;
 	}
 
-	AbstractImage* GuillotineImageAtlas::GetLayer(unsigned int layerIndex) const
+	AbstractImage* GuillotineImageAtlas::GetLayer(std::size_t layerIndex) const
 	{
-		#if NAZARA_UTILITY_SAFE
-		if (layerIndex >= m_layers.size())
-		{
-			NazaraErrorFmt("layer index out of range ({0} >= {1})", layerIndex, m_layers.size());
-			return nullptr;
-		}
-		#endif
+		NazaraAssertFmt(layerIndex < m_layers.size(), "layer index out of range ({0} >= {1})", layerIndex, m_layers.size());
 
 		Layer& layer = m_layers[layerIndex];
 		ProcessGlyphQueue(layer);
@@ -84,75 +72,74 @@ namespace Nz
 		return DataStorage::Software;
 	}
 
-	bool GuillotineImageAtlas::Insert(const Image& image, Rectui* rect, bool* flipped, unsigned int* layerIndex)
+	bool GuillotineImageAtlas::Insert(const Image& image, Rectui* rect, bool* flipped, std::size_t* layerIndex)
 	{
+		// Ensure there's at least one layer before inserting
 		if (m_layers.empty())
-			// On créé une première couche s'il n'y en a pas
-			m_layers.resize(1);
+			m_layers.emplace_back();
 
-		// Cette fonction ne fait qu'insérer un rectangle de façon virtuelle, l'insertion des images se fait après
-		for (unsigned int i = 0; i < m_layers.size(); ++i)
+		// Reserve some space for that rectangle (pixel copy only happens in ProcessGlyphQueue)
+		for (std::size_t i = 0; i < m_layers.size(); ++i)
 		{
 			Layer& layer = m_layers[i];
 
-			// Une fois qu'un certain nombre de rectangles ont étés libérés d'une couche, on fusionne les rectangles libres
-			if (layer.freedRectangles > 10) // Valeur totalement arbitraire
+			// Try to reduce fragmentation by merging free rectangles if at least X rectangles were freed before inserting
+			if (layer.freedRectangles > 10)
 			{
-				while (layer.binPack.MergeFreeRectangles()); // Tant qu'une fusion est possible
-				layer.freedRectangles = 0; // Et on repart de zéro
+				while (layer.binPack.MergeFreeRectangles());
+				layer.freedRectangles = 0;
 			}
 
 			if (layer.binPack.Insert(rect, flipped, 1, false, m_rectChoiceHeuristic, m_rectSplitHeuristic))
 			{
-				// Insertion réussie dans l'une des couches, on place le glyphe en file d'attente
+				// Found some space, queue glyph copy
 				layer.queuedGlyphs.resize(layer.queuedGlyphs.size()+1);
 				QueuedGlyph& glyph = layer.queuedGlyphs.back();
 				glyph.flipped = *flipped;
-				glyph.image = image; // Merci le Copy-On-Write
+				glyph.image = image; // Copy-On-Write
 				glyph.rect = *rect;
 
 				*layerIndex = i;
 				return true;
 			}
-			else if (i == m_layers.size() - 1) // Dernière itération ?
+			else if (i == m_layers.size() - 1)
 			{
-				// Dernière couche, et le glyphe ne rentre pas, peut-on agrandir la taille de l'image ?
-				Vector2ui newSize = layer.binPack.GetSize()*2;
+				// Last layer and glyph can't be inserted, try to double the layer size
+				Vector2ui newSize = layer.binPack.GetSize() * 2;
 				if (newSize == Vector2ui::Zero())
 					newSize = s_guillotineAtlasStartSize;
 
 				// Limit image atlas size to prevent allocating too much contiguous memory blocks
 				if (newSize.x <= m_maxLayerSize && newSize.y <= m_maxLayerSize && ResizeLayer(layer, newSize))
 				{
-					// Yes we can!
-					layer.binPack.Expand(newSize); // On ajuste l'atlas virtuel
+					// Atlas has been enlarged successfully, re-run iteration
+					layer.binPack.Expand(newSize);
 
-					// Et on relance la boucle sur la nouvelle dernière couche
 					i--;
 				}
 				else
 				{
-					// On ne peut plus agrandir la dernière couche, il est temps d'en créer une nouvelle
+					// Atlas cannot be enlarged, make a new layer
 					newSize = s_guillotineAtlasStartSize;
 
 					Layer newLayer;
 					if (!ResizeLayer(newLayer, newSize))
 					{
-						// Impossible d'allouer une nouvelle couche, nous manquons probablement de mémoire (ou le glyphe est trop grand)
 						NazaraError("failed to allocate new layer, we are probably out of memory");
 						return false;
 					}
 
 					newLayer.binPack.Reset(newSize);
 
-					m_layers.emplace_back(std::move(newLayer)); // Insertion du layer
+					m_layers.emplace_back(std::move(newLayer));
 
-					// On laisse la boucle insérer toute seule le rectangle à la prochaine itération
+					// This new layer will be processed on next iteration
 				}
 			}
 		}
 
-		NazaraInternalError("Unknown error"); // Normalement on ne peut pas arriver ici
+		// It shouldn't be possible to get here (TODO: Add NAZARA_UNREACHEABLE)
+		NazaraInternalError("unknown error");
 		return false;
 	}
 
@@ -184,18 +171,15 @@ namespace Nz
 	{
 		std::shared_ptr<AbstractImage> newImage = ResizeImage(layer.image, size);
 		if (!newImage)
-			return false; // Nous n'avons pas pu allouer
+			return false; // Allocation failed
 
-		if (newImage == layer.image) // Le layer a été agrandi dans le même objet, pas de souci
-			return true;
+		if (newImage == layer.image)
+			return true; // The image object hasn't changed
 
-		// On indique à ceux que ça intéresse qu'on a changé de pointeur
-		// (chose très importante pour ceux qui le stockent)
+		// Image object did change, notify and store the new one
 		OnAtlasLayerChange(this, layer.image.get(), newImage.get());
 
-		// Et on ne met à jour le pointeur qu'après (car cette ligne libère également l'ancienne image)
 		layer.image = std::move(newImage);
-
 		return true;
 	}
 
@@ -208,41 +192,41 @@ namespace Nz
 			unsigned int glyphWidth = glyph.image.GetWidth();
 			unsigned int glyphHeight = glyph.image.GetHeight();
 
-			// Calcul de l'éventuel padding (pixels de contour)
+			// Compute padding
 			unsigned int paddingX;
 			unsigned int paddingY;
 			if (glyph.flipped)
 			{
-				paddingX = (glyph.rect.height - glyphWidth)/2;
-				paddingY = (glyph.rect.width - glyphHeight)/2;
+				paddingX = (glyph.rect.height - glyphWidth) / 2;
+				paddingY = (glyph.rect.width - glyphHeight) / 2;
 			}
 			else
 			{
-				paddingX = (glyph.rect.width - glyphWidth)/2;
-				paddingY = (glyph.rect.height - glyphHeight)/2;
+				paddingX = (glyph.rect.width - glyphWidth) / 2;
+				paddingY = (glyph.rect.height - glyphHeight) / 2;
 			}
 
 			if (paddingX > 0 || paddingY > 0)
 			{
-				// On remplit les contours
+				// Prefill the rectangle if we have some padding
 				pixelBuffer.resize(glyph.rect.width * glyph.rect.height);
-				std::memset(pixelBuffer.data(), 0, glyph.rect.width*glyph.rect.height*sizeof(UInt8));
+				std::memset(pixelBuffer.data(), 0, glyph.rect.width * glyph.rect.height * sizeof(UInt8));
 
 				layer.image->Update(pixelBuffer.data(), glyph.rect);
 			}
 
 			const UInt8* pixels;
-			// On copie le glyphe dans l'atlas
+			// Copy the glyph to the atlas
 			if (glyph.flipped)
 			{
 				pixelBuffer.resize(glyphHeight * glyphWidth);
 
-				// On tourne le glyphe pour qu'il rentre dans le rectangle
+				// Rotate the glyph
 				const UInt8* src = glyph.image.GetConstPixels();
 				UInt8* ptr = pixelBuffer.data();
 
-				unsigned int lineStride = glyphWidth*sizeof(UInt8); // BPP = 1
-				src += lineStride-1; // Départ en haut à droite
+				unsigned int lineStride = glyphWidth * sizeof(UInt8); // BPP = 1
+				src += lineStride-1; // Top-right
 				for (unsigned int x = 0; x < glyphWidth; ++x)
 				{
 					for (unsigned int y = 0; y < glyphHeight; ++y)
@@ -261,7 +245,7 @@ namespace Nz
 				pixels = glyph.image.GetConstPixels();
 
 			layer.image->Update(pixels, Rectui(glyph.rect.x + paddingX, glyph.rect.y + paddingY, glyphWidth, glyphHeight), 0, glyphWidth, glyphHeight);
-			glyph.image.Destroy(); // On libère l'image dès que possible (pour réduire la consommation)
+			glyph.image.Destroy(); // Free the image as soon as possible (to reduce memory usage)
 		}
 
 		layer.queuedGlyphs.clear();

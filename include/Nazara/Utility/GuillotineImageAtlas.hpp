@@ -27,16 +27,16 @@ namespace Nz
 
 			void Clear() override;
 
-			void Free(SparsePtr<const Rectui> rects, SparsePtr<unsigned int> layers, unsigned int count) override;
+			void Free(SparsePtr<const Rectui> rects, SparsePtr<std::size_t> layers, std::size_t count) override;
 
 			unsigned int GetMaxLayerSize() const;
 			GuillotineBinPack::FreeRectChoiceHeuristic GetRectChoiceHeuristic() const;
 			GuillotineBinPack::GuillotineSplitHeuristic GetRectSplitHeuristic() const;
-			AbstractImage* GetLayer(unsigned int layerIndex) const override;
+			AbstractImage* GetLayer(std::size_t layerIndex) const override;
 			std::size_t GetLayerCount() const override;
 			DataStoreFlags GetStorage() const override;
 
-			bool Insert(const Image& image, Rectui* rect, bool* flipped, unsigned int* layerIndex) override;
+			bool Insert(const Image& image, Rectui* rect, bool* flipped, std::size_t* layerIndex) override;
 
 			void SetMaxLayerSize(unsigned int maxLayerSize);
 			void SetRectChoiceHeuristic(GuillotineBinPack::FreeRectChoiceHeuristic heuristic);

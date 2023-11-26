@@ -13,11 +13,11 @@ namespace Nz
 	{
 	}
 
-	void FramePipelinePass::RegisterMaterialInstance(const MaterialInstance& materialInstance)
+	void FramePipelinePass::RegisterMaterialInstance(const MaterialInstance& /*materialInstance*/)
 	{
 	}
 
-	void FramePipelinePass::UnregisterMaterialInstance(const MaterialInstance& materialInstance)
+	void FramePipelinePass::UnregisterMaterialInstance(const MaterialInstance& /*materialInstance*/)
 	{
 	}
 }

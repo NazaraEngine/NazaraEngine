@@ -107,7 +107,7 @@ namespace Nz
 		m_commandBuffer.BlitTextureToWindow(glTexture, fromBox, Boxui(0, 0, 0, swapchainSize.x, swapchainSize.y, 1), SamplerFilter::Linear);
 	}
 
-	void OpenGLCommandBufferBuilder::BuildMipmaps(Texture& texture, UInt8 baseLevel, UInt8 levelCount, PipelineStageFlags srcStageMask, PipelineStageFlags /*dstStageMask*/, MemoryAccessFlags /*srcAccessMask*/, MemoryAccessFlags /*dstAccessMask*/, TextureLayout /*oldLayout*/, TextureLayout /*newLayout*/)
+	void OpenGLCommandBufferBuilder::BuildMipmaps(Texture& texture, UInt8 baseLevel, UInt8 levelCount, PipelineStageFlags /*srcStageMask*/, PipelineStageFlags /*dstStageMask*/, MemoryAccessFlags /*srcAccessMask*/, MemoryAccessFlags /*dstAccessMask*/, TextureLayout /*oldLayout*/, TextureLayout /*newLayout*/)
 	{
 		OpenGLTexture& glTexture = SafeCast<OpenGLTexture&>(texture);
 

@@ -180,7 +180,7 @@ namespace Nz
 			case Extent::Finite:
 			{
 				if (Intersect(volume.aabb))
-					return Intersect(volume.obb, closestHit, furthestHit);
+					return true; // TODO: Should test OBB but there's currently no way of doing so (OrientedBox don't store enough info?)
 
 				return false;
 			}

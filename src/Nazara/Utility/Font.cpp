@@ -506,8 +506,8 @@ namespace Nz
 				if (glyph.atlasRect.width > 0 && glyph.atlasRect.height > 0)
 				{
 					// Add a small border to prevent GPU to sample another glyph pixel
-					glyph.atlasRect.width += m_glyphBorder*2;
-					glyph.atlasRect.height += m_glyphBorder*2;
+					glyph.atlasRect.width += m_glyphBorder * 2;
+					glyph.atlasRect.height += m_glyphBorder * 2;
 
 					if (!m_atlas->Insert(fontGlyph.image, &glyph.atlasRect, &glyph.flipped, &glyph.layerIndex))
 					{
@@ -518,8 +518,8 @@ namespace Nz
 					// Recenter and remove glyph border
 					glyph.atlasRect.x += m_glyphBorder;
 					glyph.atlasRect.y += m_glyphBorder;
-					glyph.atlasRect.width -= m_glyphBorder*2;
-					glyph.atlasRect.height -= m_glyphBorder*2;
+					glyph.atlasRect.width -= m_glyphBorder * 2;
+					glyph.atlasRect.height -= m_glyphBorder * 2;
 				}
 
 				glyph.aabb = fontGlyph.aabb;
