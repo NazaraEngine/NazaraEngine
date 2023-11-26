@@ -9,7 +9,7 @@ namespace Nz
 	inline TextureInfo Texture::ApplyView(TextureInfo textureInfo, const TextureViewInfo& viewInfo)
 	{
 		textureInfo.type        = viewInfo.viewType;
-		textureInfo.pixelFormat = viewInfo.reinterpretFormat;
+		textureInfo.pixelFormat = (viewInfo.reinterpretFormat != PixelFormat::Undefined) ? viewInfo.reinterpretFormat : textureInfo.pixelFormat;
 		textureInfo.width       = GetLevelSize(textureInfo.width,  viewInfo.baseMipLevel);
 		textureInfo.height      = GetLevelSize(textureInfo.height, viewInfo.baseMipLevel);
 		textureInfo.depth       = GetLevelSize(textureInfo.depth,  viewInfo.baseMipLevel);

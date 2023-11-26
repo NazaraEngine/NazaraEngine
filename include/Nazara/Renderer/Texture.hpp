@@ -36,7 +36,7 @@ namespace Nz
 	struct TextureViewInfo
 	{
 		ImageType viewType;
-		PixelFormat reinterpretFormat;
+		PixelFormat reinterpretFormat = PixelFormat::Undefined;
 		UInt8 baseMipLevel = 0;
 		UInt8 levelCount = 1;
 		unsigned int baseArrayLayer = 0;

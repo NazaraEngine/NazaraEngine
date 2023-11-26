@@ -218,7 +218,7 @@ namespace Nz
 
 		m_viewInfo = viewInfo;
 		m_subresourceRange = {
-			ToVulkan(PixelFormatInfo::GetContent(viewInfo.reinterpretFormat)),
+			ToVulkan(PixelFormatInfo::GetContent(m_textureViewInfo.pixelFormat)),
 			viewInfo.baseMipLevel,
 			viewInfo.levelCount,
 			viewInfo.baseArrayLayer,
@@ -290,7 +290,7 @@ namespace Nz
 				break;
 		}
 
-		InitViewForFormat(viewInfo.reinterpretFormat, createInfoView);
+		InitViewForFormat(m_textureViewInfo.pixelFormat, createInfoView);
 
 		if (!m_imageView.Create(m_device, createInfoView))
 			throw std::runtime_error("Failed to create image view: " + TranslateVulkanError(m_imageView.GetLastErrorCode()));

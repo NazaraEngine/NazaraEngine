@@ -102,7 +102,7 @@ namespace Nz
 		{
 			if (m_texture.Create(*m_parentTexture->m_texture.GetDevice()))
 			{
-				auto format = DescribeTextureFormat(viewInfo.reinterpretFormat);
+				auto format = DescribeTextureFormat(m_textureInfo.pixelFormat);
 
 				context.ClearErrorStack();
 
