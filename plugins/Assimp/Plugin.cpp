@@ -697,7 +697,7 @@ std::shared_ptr<Nz::SubMesh> ProcessSubMesh(const std::filesystem::path& originP
 					matData.SetParameter(textureKey, Nz::PathToString(embeddedTexturePath));
 				}
 				else
-					matData.SetParameter(textureKey, Nz::PathToString((originPath / Nz::Utf8Path(std::string_view(path.data, path.data + path.length)))));
+					matData.SetParameter(textureKey, Nz::PathToString((originPath / Nz::Utf8Path(std::string_view(path.data, path.length)))));
 
 				if (wrapKey)
 				{
