@@ -15,13 +15,10 @@ namespace Nz
 	{
 	}
 
-	void RenderTexture::OnBuildGraph(FrameGraph& graph, std::size_t attachmentIndex) const
+	std::size_t RenderTexture::OnBuildGraph(FrameGraph& graph, std::size_t attachmentIndex) const
 	{
 		graph.BindExternalTexture(attachmentIndex, m_targetTexture);
-	}
-
-	void RenderTexture::OnRenderEnd(RenderResources& /*renderFrame*/, const BakedFrameGraph& /*frameGraph*/, std::size_t /*finalAttachment*/) const
-	{
+		return attachmentIndex;
 	}
 
 	const Vector2ui& RenderTexture::GetSize() const

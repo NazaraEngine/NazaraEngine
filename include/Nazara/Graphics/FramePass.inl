@@ -127,10 +127,24 @@ namespace Nz
 		m_executionCallback = std::move(callback);
 	}
 
-	inline void FramePass::SetInputLayout(std::size_t inputIndex, TextureLayout layout)
+	inline void FramePass::SetInputAccess(std::size_t inputIndex, TextureLayout layout, PipelineStageFlags stageFlags, MemoryAccessFlags accessFlags)
+	{
+		assert(inputIndex < m_inputs.size());
+		m_inputs[inputIndex].accessFlags = accessFlags;
+		m_inputs[inputIndex].layout = layout;
+		m_inputs[inputIndex].stageFlags = stageFlags;
+	}
+
+	inline void FramePass::SetInputAssumedLayout(std::size_t inputIndex, TextureLayout layout)
 	{
 		assert(inputIndex < m_inputs.size());
 		m_inputs[inputIndex].assumedLayout = layout;
+	}
+
+	inline void FramePass::SetInputUsage(std::size_t inputIndex, TextureUsageFlags usageFlags)
+	{
+		assert(inputIndex < m_inputs.size());
+		m_inputs[inputIndex].textureUsageFlags = usageFlags;
 	}
 
 	inline void FramePass::SetReadInput(std::size_t inputIndex, bool doesRead)

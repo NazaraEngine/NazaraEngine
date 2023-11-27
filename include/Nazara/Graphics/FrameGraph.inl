@@ -78,6 +78,14 @@ namespace Nz
 		return id;
 	}
 
+	inline std::size_t FrameGraph::AddDummyAttachment()
+	{
+		std::size_t id = m_attachments.size();
+		m_attachments.emplace_back(DummyAttachment{});
+
+		return id;
+	}
+
 	inline FramePass& FrameGraph::AddPass(std::string name)
 	{
 		std::size_t id = m_framePasses.size();

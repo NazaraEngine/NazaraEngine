@@ -29,7 +29,7 @@ namespace Nz
 	BakedFrameGraph FrameGraph::Bake()
 	{
 		if (m_graphOutputs.empty())
-			throw std::runtime_error("no backbuffer output has been set");
+			throw std::runtime_error("no graph output has been set");
 
 		m_pending.attachmentReadList.clear();
 		m_pending.attachmentToTextures.clear();
@@ -89,7 +89,8 @@ namespace Nz
 				for (std::size_t i = 0; i < colorOutputs.size(); ++i)
 				{
 					const auto& output = colorOutputs[i];
-					bakedPass.outputTextureIndices.push_back(Retrieve(m_pending.attachmentToTextures, output.attachmentId));
+					if (std::size_t textureIndex = Retrieve(m_pending.attachmentToTextures, output.attachmentId); textureIndex != InvalidTextureIndex)
+						bakedPass.outputTextureIndices.push_back(textureIndex);
 
 					if (output.clearColor)
 					{
@@ -111,9 +112,15 @@ namespace Nz
 
 				std::size_t attachmentId;
 				if (attachmentId = framePass.GetDepthStencilOutput(); attachmentId != FramePass::InvalidAttachmentId)
-					bakedPass.outputTextureIndices.push_back(Retrieve(m_pending.attachmentToTextures, attachmentId));
+				{
+					if (std::size_t textureIndex = Retrieve(m_pending.attachmentToTextures, attachmentId); textureIndex != InvalidTextureIndex)
+						bakedPass.outputTextureIndices.push_back(textureIndex);
+				}
 				else if (attachmentId = framePass.GetDepthStencilInput(); attachmentId != FramePass::InvalidAttachmentId)
-					bakedPass.outputTextureIndices.push_back(Retrieve(m_pending.attachmentToTextures, attachmentId)); //< FIXME?
+				{
+					if (std::size_t textureIndex = Retrieve(m_pending.attachmentToTextures, attachmentId); textureIndex != InvalidTextureIndex)
+						bakedPass.outputTextureIndices.push_back(textureIndex);
+				}
 			}
 		}
 
@@ -199,25 +206,31 @@ namespace Nz
 			for (const auto& input : framePass.GetInputs())
 			{
 				std::size_t textureId = RegisterTexture(input.attachmentId);
-
-				FrameGraphTextureData& attachmentData = m_pending.textures[textureId];
-				attachmentData.usage |= TextureUsage::ShaderSampling;
+				if (textureId != InvalidTextureIndex)
+				{
+					FrameGraphTextureData& attachmentData = m_pending.textures[textureId];
+					attachmentData.usage |= input.textureUsageFlags.value_or(TextureUsage::ShaderSampling);
+				}
 			}
 
 			for (const auto& output : framePass.GetOutputs())
 			{
 				std::size_t textureId = RegisterTexture(output.attachmentId);
-
-				FrameGraphTextureData& attachmentData = m_pending.textures[textureId];
-				attachmentData.usage |= TextureUsage::ColorAttachment;
+				if (textureId != InvalidTextureIndex)
+				{
+					FrameGraphTextureData& attachmentData = m_pending.textures[textureId];
+					attachmentData.usage |= TextureUsage::ColorAttachment;
+				}
 			}
 
 			if (std::size_t depthStencilInput = framePass.GetDepthStencilInput(); depthStencilInput != FramePass::InvalidAttachmentId)
 			{
 				std::size_t textureId = RegisterTexture(depthStencilInput);
-
-				FrameGraphTextureData& attachmentData = m_pending.textures[textureId];
-				attachmentData.usage |= TextureUsage::DepthStencilAttachment;
+				if (textureId != InvalidTextureIndex)
+				{
+					FrameGraphTextureData& attachmentData = m_pending.textures[textureId];
+					attachmentData.usage |= TextureUsage::DepthStencilAttachment;
+				}
 
 				if (std::size_t depthStencilOutput = framePass.GetDepthStencilOutput(); depthStencilOutput != FramePass::InvalidAttachmentId)
 				{
@@ -296,8 +309,11 @@ namespace Nz
 			auto it = m_pending.attachmentToTextures.find(output);
 			assert(it != m_pending.attachmentToTextures.end());
 
-			auto& finalTexture = m_pending.textures[it->second];
-			finalTexture.usage |= TextureUsage::ShaderSampling | TextureUsage::TransferSource;
+			if (std::size_t textureIndex = it->second; textureIndex != InvalidTextureIndex)
+			{
+				auto& finalTexture = m_pending.textures[textureIndex];
+				finalTexture.usage |= TextureUsage::ShaderSampling | TextureUsage::TransferSource;
+			}
 		}
 
 		// Apply texture view usage to their parents
@@ -316,13 +332,15 @@ namespace Nz
 		assert(m_pending.barrierList.empty());
 		m_pending.barrierList.reserve(m_pending.passList.size());
 
-		auto GetBarrier = [&](std::vector<Barrier>& barriers, std::size_t attachmentId) -> Barrier&
+		auto GetBarrier = [&](std::vector<Barrier>& barriers, std::size_t attachmentId) -> Barrier*
 		{
 			std::size_t textureId = Retrieve(m_pending.attachmentToTextures, ResolveAttachmentIndex(attachmentId));
+			if (textureId == InvalidTextureIndex)
+				return nullptr;
 
 			auto it = std::find_if(barriers.begin(), barriers.end(), [&](const Barrier& barrier) { return barrier.textureId == textureId; });
 			if (it != barriers.end())
-				return *it;
+				return &*it;
 			else
 			{
 				// Insert a new barrier
@@ -330,7 +348,7 @@ namespace Nz
 				barrier.textureId = textureId;
 				barrier.layout = TextureLayout::Undefined;
 
-				return barrier;
+				return &barrier;
 			}
 		};
 
@@ -340,29 +358,35 @@ namespace Nz
 
 			auto& barriers = m_pending.barrierList.emplace_back();
 
-			auto GetInvalidationBarrier = [&](std::size_t attachmentId) -> Barrier& { return GetBarrier(barriers.invalidationBarriers, attachmentId); };
-			auto GetFlushBarrier = [&](std::size_t attachmentId) -> Barrier& { return GetBarrier(barriers.flushBarriers, attachmentId); };
+			auto GetInvalidationBarrier = [&](std::size_t attachmentId) -> Barrier* { return GetBarrier(barriers.invalidationBarriers, attachmentId); };
+			auto GetFlushBarrier = [&](std::size_t attachmentId) -> Barrier* { return GetBarrier(barriers.flushBarriers, attachmentId); };
 
 			for (const auto& input : framePass.GetInputs())
 			{
-				auto& barrier = GetInvalidationBarrier(input.attachmentId);
-				if (barrier.layout != TextureLayout::Undefined)
+				Barrier* barrier = GetInvalidationBarrier(input.attachmentId);
+				if (!barrier)
+					continue;
+
+				if (barrier->layout != TextureLayout::Undefined)
 					throw std::runtime_error("layout mismatch");
 
-				barrier.access |= MemoryAccess::ShaderRead;
-				barrier.stages |= PipelineStage::FragmentShader;
-				barrier.layout = TextureLayout::ColorInput;
+				barrier->access |= input.accessFlags;
+				barrier->stages |= input.stageFlags;
+				barrier->layout = input.layout;
 			}
 
 			for (const auto& output : framePass.GetOutputs())
 			{
-				auto& barrier = GetFlushBarrier(output.attachmentId);
-				if (barrier.layout != TextureLayout::Undefined)
+				Barrier* barrier = GetFlushBarrier(output.attachmentId);
+				if (!barrier)
+					continue;
+
+				if (barrier->layout != TextureLayout::Undefined)
 					throw std::runtime_error("layout mismatch");
 
-				barrier.access |= MemoryAccess::ColorWrite;
-				barrier.stages |= PipelineStage::ColorOutput;
-				barrier.layout = TextureLayout::ColorOutput;
+				barrier->access |= MemoryAccess::ColorWrite;
+				barrier->stages |= PipelineStage::ColorOutput;
+				barrier->layout = TextureLayout::ColorOutput;
 			}
 
 			std::size_t dsInputAttachment = framePass.GetDepthStencilInput();
@@ -371,40 +395,48 @@ namespace Nz
 			if (dsInputAttachment != FramePass::InvalidAttachmentId && dsOutputAttachement != FramePass::InvalidAttachmentId)
 			{
 				// DS input/output
-				auto& invalidationBarrier = GetInvalidationBarrier(dsInputAttachment);
-				if (invalidationBarrier.layout != TextureLayout::Undefined)
-					throw std::runtime_error("layout mismatch");
+				if (Barrier* invalidationBarrier = GetInvalidationBarrier(dsInputAttachment))
+				{
+					if (invalidationBarrier->layout != TextureLayout::Undefined)
+						throw std::runtime_error("layout mismatch");
 
-				invalidationBarrier.layout = TextureLayout::DepthStencilReadWrite;
-				invalidationBarrier.access = MemoryAccess::DepthStencilRead | MemoryAccess::DepthStencilWrite;
-				invalidationBarrier.stages = PipelineStage::FragmentTestsEarly | PipelineStage::FragmentTestsLate;
+					invalidationBarrier->layout = TextureLayout::DepthStencilReadWrite;
+					invalidationBarrier->access = MemoryAccess::DepthStencilRead | MemoryAccess::DepthStencilWrite;
+					invalidationBarrier->stages = PipelineStage::FragmentTestsEarly | PipelineStage::FragmentTestsLate;
+				}
 
-				auto& flushBarrier = GetFlushBarrier(dsOutputAttachement);
-				flushBarrier.layout = TextureLayout::DepthStencilReadWrite;
-				flushBarrier.access = MemoryAccess::DepthStencilWrite;
-				flushBarrier.stages = PipelineStage::FragmentTestsLate;
+				if (Barrier* flushBarrier = GetFlushBarrier(dsOutputAttachement))
+				{
+					flushBarrier->layout = TextureLayout::DepthStencilReadWrite;
+					flushBarrier->access = MemoryAccess::DepthStencilWrite;
+					flushBarrier->stages = PipelineStage::FragmentTestsLate;
+				}
 			}
 			else if (dsInputAttachment != FramePass::InvalidAttachmentId)
 			{
 				// DS input-only
-				auto& invalidationBarrier = GetInvalidationBarrier(dsInputAttachment);
-				if (invalidationBarrier.layout != TextureLayout::Undefined)
-					throw std::runtime_error("layout mismatch");
+				if (Barrier* invalidationBarrier = GetInvalidationBarrier(dsInputAttachment))
+				{
+					if (invalidationBarrier->layout != TextureLayout::Undefined)
+						throw std::runtime_error("layout mismatch");
 
-				invalidationBarrier.layout = TextureLayout::DepthStencilReadWrite;
-				invalidationBarrier.access = MemoryAccess::DepthStencilRead;
-				invalidationBarrier.stages = PipelineStage::FragmentTestsEarly | PipelineStage::FragmentTestsLate;
+					invalidationBarrier->layout = TextureLayout::DepthStencilReadWrite;
+					invalidationBarrier->access = MemoryAccess::DepthStencilRead;
+					invalidationBarrier->stages = PipelineStage::FragmentTestsEarly | PipelineStage::FragmentTestsLate;
+				}
 			}
 			else if (dsOutputAttachement != FramePass::InvalidAttachmentId)
 			{
 				// DS output-only
-				auto& flushBarrier = GetFlushBarrier(dsOutputAttachement);
-				if (flushBarrier.layout != TextureLayout::Undefined)
-					throw std::runtime_error("layout mismatch");
+				if (Barrier* flushBarrier = GetFlushBarrier(dsOutputAttachement))
+				{
+					if (flushBarrier->layout != TextureLayout::Undefined)
+						throw std::runtime_error("layout mismatch");
 
-				flushBarrier.layout = TextureLayout::DepthStencilReadWrite;
-				flushBarrier.access = MemoryAccess::DepthStencilWrite;
-				flushBarrier.stages = PipelineStage::FragmentTestsLate;
+					flushBarrier->layout = TextureLayout::DepthStencilReadWrite;
+					flushBarrier->access = MemoryAccess::DepthStencilWrite;
+					flushBarrier->stages = PipelineStage::FragmentTestsLate;
+				}
 			}
 		}
 	}
@@ -729,12 +761,14 @@ namespace Nz
 		auto RegisterColorInputRead = [&](const FramePass::Input& input)
 		{
 			std::size_t textureId = Retrieve(m_pending.attachmentToTextures, input.attachmentId);
+			if (textureId == InvalidTextureIndex)
+				return;
 
 			TextureLayout& textureLayout = textureLayouts[textureId];
 			if (!input.assumedLayout)
 			{
 				assert(textureLayouts[textureId] != TextureLayout::Undefined);
-				textureLayout = TextureLayout::ColorInput;
+				textureLayout = input.layout;
 			}
 			else
 				textureLayout = *input.assumedLayout;
@@ -743,6 +777,8 @@ namespace Nz
 		auto RegisterColorOutput = [&](const FramePass::Output& output, bool shouldLoad)
 		{
 			std::size_t textureId = Retrieve(m_pending.attachmentToTextures, output.attachmentId);
+			if (textureId == InvalidTextureIndex)
+				return InvalidAttachmentIndex;
 
 			TextureLayout initialLayout = textureLayouts[textureId];
 			textureLayouts[textureId] = TextureLayout::ColorOutput;
@@ -770,19 +806,21 @@ namespace Nz
 			return attachmentIndex;
 		};
 
-		auto RegisterDepthStencil = [&](std::size_t attachmentId, TextureLayout textureLayout, bool* first) -> RenderPass::Attachment&
+		auto RegisterDepthStencil = [&](std::size_t attachmentId, TextureLayout textureLayout, bool* first) -> RenderPass::Attachment*
 		{
 			if (depthStencilAttachmentIndex)
 			{
 				assert(depthStencilAttachmentId == attachmentId);
 				*first = false;
 
-				return renderPassAttachments[depthStencilAttachmentIndex.value()];
+				return &renderPassAttachments[depthStencilAttachmentIndex.value()];
 			}
 
 			*first = true;
 
 			std::size_t textureId = Retrieve(m_pending.attachmentToTextures, attachmentId);
+			if (textureId == InvalidTextureIndex)
+				return nullptr;
 
 			TextureLayout initialLayout = textureLayouts[textureId];
 			textureLayouts[textureId] = textureLayout;
@@ -796,7 +834,7 @@ namespace Nz
 			depthStencilAttachment.format = m_pending.textures[textureId].format;
 			depthStencilAttachment.initialLayout = initialLayout;
 
-			return depthStencilAttachment;
+			return &depthStencilAttachment;
 		};
 
 		std::size_t physicalPassIndex = 0;
@@ -834,11 +872,13 @@ namespace Nz
 						shouldLoad = true;
 
 					std::size_t attachmentIndex = RegisterColorOutput(output, shouldLoad);
-
-					colorAttachments.push_back({
-						attachmentIndex,
-						TextureLayout::ColorOutput
-					});
+					if (attachmentIndex != InvalidAttachmentIndex)
+					{
+						colorAttachments.push_back({
+							attachmentIndex,
+							TextureLayout::ColorOutput
+						});
+					}
 				}
 			}
 
@@ -855,73 +895,79 @@ namespace Nz
 				{
 					// DS input/output
 					bool first;
-					auto& dsAttachment = RegisterDepthStencil(dsInputAttachment, TextureLayout::DepthStencilReadWrite, &first);
-
-					if (first)
+					RenderPass::Attachment* dsAttachment = RegisterDepthStencil(dsInputAttachment, TextureLayout::DepthStencilReadWrite, &first);
+					if (dsAttachment)
 					{
-						dsAttachment.loadOp = AttachmentLoadOp::Load;
-						dsAttachment.storeOp = AttachmentStoreOp::Store;
-					}
+						if (first)
+						{
+							dsAttachment->loadOp = AttachmentLoadOp::Load;
+							dsAttachment->storeOp = AttachmentStoreOp::Store;
+						}
 
-					depthStencilAttachment = RenderPass::AttachmentReference{
-						depthStencilAttachmentIndex.value(),
-						TextureLayout::DepthStencilReadWrite
-					};
+						depthStencilAttachment = RenderPass::AttachmentReference{
+							depthStencilAttachmentIndex.value(),
+							TextureLayout::DepthStencilReadWrite
+						};
+					}
 				}
 				else if (dsInputAttachment != FramePass::InvalidAttachmentId)
 				{
 					// DS input-only
 					bool first;
-					auto& dsAttachment = RegisterDepthStencil(dsInputAttachment, TextureLayout::DepthStencilReadOnly, &first);
-
-					if (first)
+					RenderPass::Attachment* dsAttachment = RegisterDepthStencil(dsInputAttachment, TextureLayout::DepthStencilReadOnly, &first);
+					if (dsAttachment)
 					{
-						bool canDiscard = true;
-
-						// Check if a future pass reads from the DS buffer or if we can discard it after this pass
-						if (auto readIt = m_pending.attachmentReadList.find(dsInputAttachment); readIt != m_pending.attachmentReadList.end())
+						if (first)
 						{
-							for (std::size_t passIndex : readIt->second)
-							{
-								auto it = m_pending.passIdToPhysicalPassIndex.find(passIndex);
-								if (it == m_pending.passIdToPhysicalPassIndex.end())
-									continue; //< pass may have been discarded
+							bool canDiscard = true;
 
-								std::size_t readPhysicalPassIndex = it->second;
-								if (readPhysicalPassIndex > physicalPassIndex) //< Read in a future pass?
+							// Check if a future pass reads from the DS buffer or if we can discard it after this pass
+							if (auto readIt = m_pending.attachmentReadList.find(dsInputAttachment); readIt != m_pending.attachmentReadList.end())
+							{
+								for (std::size_t passIndex : readIt->second)
 								{
-									// Yes, store it
-									canDiscard = false;
-									break;
+									auto it = m_pending.passIdToPhysicalPassIndex.find(passIndex);
+									if (it == m_pending.passIdToPhysicalPassIndex.end())
+										continue; //< pass may have been discarded
+
+									std::size_t readPhysicalPassIndex = it->second;
+									if (readPhysicalPassIndex > physicalPassIndex) //< Read in a future pass?
+									{
+										// Yes, store it
+										canDiscard = false;
+										break;
+									}
 								}
 							}
+
+							dsAttachment->storeOp = (canDiscard) ? AttachmentStoreOp::Discard : AttachmentStoreOp::Store;
 						}
 
-						dsAttachment.storeOp = (canDiscard) ? AttachmentStoreOp::Discard : AttachmentStoreOp::Store;
+						depthStencilAttachment = RenderPass::AttachmentReference{
+							depthStencilAttachmentIndex.value(),
+							TextureLayout::DepthStencilReadOnly
+						};
 					}
-
-					depthStencilAttachment = RenderPass::AttachmentReference{
-						depthStencilAttachmentIndex.value(),
-						TextureLayout::DepthStencilReadOnly
-					};
 				}
 				else if (dsOutputAttachement != FramePass::InvalidAttachmentId)
 				{
 					// DS output-only
 					bool first;
-					auto& dsAttachment = RegisterDepthStencil(dsOutputAttachement, TextureLayout::DepthStencilReadWrite, &first);
-
-					if (first)
+					RenderPass::Attachment* dsAttachment = RegisterDepthStencil(dsOutputAttachement, TextureLayout::DepthStencilReadWrite, &first);
+					if (dsAttachment)
 					{
-						dsAttachment.initialLayout = TextureLayout::Undefined; //< Don't care about initial layout
-						dsAttachment.loadOp = (framePass.GetDepthStencilClear()) ? AttachmentLoadOp::Clear : AttachmentLoadOp::Discard;
-						dsAttachment.storeOp = AttachmentStoreOp::Store;
-					}
+						if (first)
+						{
+							dsAttachment->initialLayout = TextureLayout::Undefined; //< Don't care about initial layout
+							dsAttachment->loadOp = (framePass.GetDepthStencilClear()) ? AttachmentLoadOp::Clear : AttachmentLoadOp::Discard;
+							dsAttachment->storeOp = AttachmentStoreOp::Store;
+						}
 
-					depthStencilAttachment = RenderPass::AttachmentReference{
-						depthStencilAttachmentIndex.value(),
-						TextureLayout::DepthStencilReadWrite
-					};
+						depthStencilAttachment = RenderPass::AttachmentReference{
+							depthStencilAttachmentIndex.value(),
+							TextureLayout::DepthStencilReadWrite
+						};
+					}
 				}
 
 				subpassesDesc.push_back({
@@ -943,7 +989,10 @@ namespace Nz
 
 			BuildPhysicalPassDependencies(colorAttachmentCount, depthStencilAttachmentIndex.has_value(), renderPassAttachments, subpassesDesc, subpassesDeps);
 
-			m_pending.renderPasses.push_back(renderPassCache.Get(renderPassAttachments, subpassesDesc, subpassesDeps));
+			if (!renderPassAttachments.empty())
+				m_pending.renderPasses.push_back(renderPassCache.Get(renderPassAttachments, subpassesDesc, subpassesDeps));
+			else
+				m_pending.renderPasses.push_back(nullptr);
 
 			physicalPassIndex++;
 		}
@@ -1222,6 +1271,11 @@ namespace Nz
 					m_pending.textures[textureId].canReuse = false;
 
 				return textureId;
+			}
+			else if constexpr (std::is_same_v<T, DummyAttachment>)
+			{
+				m_pending.attachmentToTextures.emplace(attachmentIndex, InvalidTextureIndex);
+				return InvalidTextureIndex;
 			}
 			else
 				static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");

@@ -15,6 +15,7 @@
 #include <Nazara/Graphics/FramePassAttachment.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/RenderPass.hpp>
+#include <limits>
 #include <optional>
 #include <string>
 #include <unordered_map>
@@ -26,6 +27,8 @@ namespace Nz
 {
 	class NAZARA_GRAPHICS_API FrameGraph
 	{
+		friend class BakedFrameGraph;
+
 		public:
 			FrameGraph() = default;
 			FrameGraph(const FrameGraph&) = delete;
@@ -38,6 +41,7 @@ namespace Nz
 			inline std::size_t AddAttachmentCube(FramePassAttachment attachment);
 			inline std::size_t AddAttachmentCubeFace(std::size_t attachmentId, CubemapFace face);
 			inline std::size_t AddAttachmentProxy(std::string name, std::size_t attachmentId);
+			inline std::size_t AddDummyAttachment();
 			inline FramePass& AddPass(std::string name);
 			inline void AddOutput(std::size_t attachmentIndex);
 
@@ -86,6 +90,10 @@ namespace Nz
 				MemoryAccessFlags access;
 				PipelineStageFlags stages;
 				TextureLayout layout;
+			};
+
+			struct DummyAttachment
+			{
 			};
 
 			struct PassBarriers
@@ -138,7 +146,10 @@ namespace Nz
 			void ReorderPasses();
 			void TraverseGraph(std::size_t passIndex);
 
-			using AttachmentType = std::variant<FramePassAttachment, AttachmentProxy, AttachmentArray, AttachmentCube, AttachmentLayer>;
+			using AttachmentType = std::variant<FramePassAttachment, AttachmentProxy, AttachmentArray, AttachmentCube, AttachmentLayer, DummyAttachment>;
+
+			static constexpr std::size_t InvalidAttachmentIndex = std::numeric_limits<std::size_t>::max();
+			static constexpr std::size_t InvalidTextureIndex = std::numeric_limits<std::size_t>::max();
 
 			std::vector<std::size_t> m_graphOutputs;
 			std::vector<FramePass> m_framePasses;

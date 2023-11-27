@@ -6,6 +6,21 @@
 
 namespace Nz
 {
+	inline RenderTarget::RenderTarget(Int32 renderOrder) :
+	m_renderOrder(renderOrder)
+	{
+	}
+
+	inline Int32 RenderTarget::GetRenderOrder() const
+	{
+		return m_renderOrder;
+	}
+
+	inline void RenderTarget::UpdateRenderOrder(Int32 renderOrder)
+	{
+		OnRenderTargetRenderOrderChange(this, renderOrder);
+		m_renderOrder = renderOrder;
+	}
 }
 
 #include <Nazara/Graphics/DebugOff.hpp>
