@@ -29,11 +29,13 @@ namespace Nz
 			SetSwapchain(nullptr);
 		});
 
+		SetFrameGraphOutput(true);
 		SetSwapchain(m_windowSwapchain->GetSwapchain());
 	}
 
 	std::size_t RenderWindow::OnBuildGraph(FrameGraph& graph, std::size_t attachmentIndex) const
 	{
+		// TODO: Replace the blit to swapchain by a graph.BindExternalSwapchain?
 		std::size_t linkAttachment = graph.AddDummyAttachment();
 		
 		FramePass& blitPass = graph.AddPass("Blit to swapchain");
@@ -60,7 +62,6 @@ namespace Nz
 			builder.BlitTextureToSwapchain(*sourceTexture, blitRegion, TextureLayout::TransferSource, *m_swapchain, env.renderResources.GetImageIndex());
 		});
 
-		graph.AddOutput(linkAttachment);
 		return linkAttachment;
 	}
 

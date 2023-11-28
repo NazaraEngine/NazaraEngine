@@ -7,13 +7,24 @@
 namespace Nz
 {
 	inline RenderTarget::RenderTarget(Int32 renderOrder) :
-	m_renderOrder(renderOrder)
+	m_renderOrder(renderOrder),
+	m_frameGraphOutput(false)
 	{
 	}
 
 	inline Int32 RenderTarget::GetRenderOrder() const
 	{
 		return m_renderOrder;
+	}
+
+	inline bool RenderTarget::IsFrameGraphOutput() const
+	{
+		return m_frameGraphOutput;
+	}
+
+	inline void RenderTarget::SetFrameGraphOutput(bool output)
+	{
+		m_frameGraphOutput = output;
 	}
 
 	inline void RenderTarget::UpdateRenderOrder(Int32 renderOrder)

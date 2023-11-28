@@ -714,8 +714,13 @@ namespace Nz
 				finalAttachment = renderTarget.OnBuildGraph(frameGraph, viewer.finalColorAttachment);
 			}
 
-			// Keep track of previous dependencies attachments
-			dependenciesColorAttachments.push_back(finalAttachment);
+			if (!renderTarget.IsFrameGraphOutput())
+			{
+				// Keep track of previous dependencies attachments
+				dependenciesColorAttachments.push_back(finalAttachment);
+			}
+			else
+				frameGraph.AddOutput(finalAttachment);
 		};
 
 		const RenderTarget* currentTarget = &m_orderedViewers.front()->viewer->GetRenderTarget();

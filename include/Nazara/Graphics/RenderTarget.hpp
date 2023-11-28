@@ -28,10 +28,14 @@ namespace Nz
 			inline RenderTarget(Int32 renderOrder = 0);
 			virtual ~RenderTarget();
 
-			virtual std::size_t OnBuildGraph(FrameGraph& frameGraph, std::size_t attachmentIndex) const = 0;
-
 			inline Int32 GetRenderOrder() const;
 			virtual const Vector2ui& GetSize() const = 0;
+
+			inline bool IsFrameGraphOutput() const;
+
+			virtual std::size_t OnBuildGraph(FrameGraph& frameGraph, std::size_t attachmentIndex) const = 0;
+
+			inline void SetFrameGraphOutput(bool output = true);
 
 			inline void UpdateRenderOrder(Int32 renderOrder);
 
@@ -41,6 +45,7 @@ namespace Nz
 
 		private:
 			Int32 m_renderOrder;
+			bool m_frameGraphOutput;
 	};
 }
 
