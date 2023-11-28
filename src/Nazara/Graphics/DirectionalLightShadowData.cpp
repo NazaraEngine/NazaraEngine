@@ -217,7 +217,7 @@ namespace Nz
 		PerViewerData& viewerData = *Retrieve(m_viewerData, viewer);
 
 		std::size_t arrayInputIndex = pass.AddInput(viewerData.textureArrayAttachmentIndex);
-		pass.SetInputLayout(arrayInputIndex, TextureLayout::ColorInput);
+		pass.SetInputAssumedLayout(arrayInputIndex, TextureLayout::ColorInput);
 
 		for (CascadeData& cascade : viewerData.cascades)
 			pass.AddInput(cascade.attachmentIndex);

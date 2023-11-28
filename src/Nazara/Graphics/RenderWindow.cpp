@@ -15,6 +15,7 @@
 namespace Nz
 {
 	RenderWindow::RenderWindow(WindowSwapchain& swapchain) :
+	RenderTarget(DefaultRenderOrder),
 	m_swapchain(nullptr),
 	m_windowSwapchain(&swapchain)
 	{
@@ -28,30 +29,40 @@ namespace Nz
 			SetSwapchain(nullptr);
 		});
 
+		SetFrameGraphOutput(true);
 		SetSwapchain(m_windowSwapchain->GetSwapchain());
 	}
 
-	void RenderWindow::OnBuildGraph(FrameGraph& graph, std::size_t attachmentIndex) const
+	std::size_t RenderWindow::OnBuildGraph(FrameGraph& graph, std::size_t attachmentIndex) const
 	{
-		graph.AddOutput(attachmentIndex);
-	}
+		// TODO: Replace the blit to swapchain by a graph.BindExternalSwapchain?
+		std::size_t linkAttachment = graph.AddDummyAttachment();
+		
+		FramePass& blitPass = graph.AddPass("Blit to swapchain");
+		blitPass.AddInput(attachmentIndex);
+		blitPass.SetInputAccess(0, TextureLayout::TransferSource, PipelineStage::Transfer, MemoryAccess::MemoryRead);
+		blitPass.SetInputUsage(0, TextureUsage::TransferSource);
 
-	void RenderWindow::OnRenderEnd(RenderResources& renderResources, const BakedFrameGraph& frameGraph, std::size_t finalAttachment) const
-	{
-		const std::shared_ptr<Texture>& texture = frameGraph.GetAttachmentTexture(finalAttachment);
+		blitPass.AddOutput(linkAttachment);
 
-		Vector2ui textureSize = Vector2ui(texture->GetSize());
-		Boxui blitRegion(0, 0, 0, textureSize.x, textureSize.y, 1);
-
-		renderResources.Execute([&](CommandBufferBuilder& builder)
+		// Force regeneration of RenderWindow execution callback (since image index changes every frame)
+		// TODO: Maybe handle this in a better way (temporary command buffer? multiple commands buffers selected by frame index?)
+		blitPass.SetExecutionCallback([]
 		{
-			builder.BeginDebugRegion("Blit to swapchain", Color::Blue());
-			{
-				builder.TextureBarrier(PipelineStage::ColorOutput, PipelineStage::Transfer, MemoryAccess::ColorWrite, MemoryAccess::TransferRead, TextureLayout::ColorOutput, TextureLayout::TransferSource, *texture);
-				builder.BlitTextureToSwapchain(*texture, blitRegion, TextureLayout::TransferSource, *m_swapchain, renderResources.GetImageIndex());
-			}
-			builder.EndDebugRegion();
-		}, QueueType::Graphics);
+			return FramePassExecution::UpdateAndExecute;
+		});
+
+		blitPass.SetCommandCallback([this, attachmentIndex](CommandBufferBuilder& builder, const FramePassEnvironment& env)
+		{
+			const std::shared_ptr<Texture>& sourceTexture = env.frameGraph.GetAttachmentTexture(attachmentIndex);
+
+			Vector2ui textureSize = Vector2ui(sourceTexture->GetSize());
+			Boxui blitRegion(0, 0, 0, textureSize.x, textureSize.y, 1);
+
+			builder.BlitTextureToSwapchain(*sourceTexture, blitRegion, TextureLayout::TransferSource, *m_swapchain, env.renderResources.GetImageIndex());
+		});
+
+		return linkAttachment;
 	}
 
 	const Vector2ui& RenderWindow::GetSize() const

@@ -3,9 +3,9 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/BakedFrameGraph.hpp>
+#include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
-#include <Nazara/Renderer/RenderFrame.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
@@ -60,7 +60,8 @@ namespace Nz
 					builder.TextureBarrier(textureTransition.srcStageMask, textureTransition.dstStageMask, textureTransition.srcAccessMask, textureTransition.dstAccessMask, textureTransition.oldLayout, textureTransition.newLayout, *texture);
 				}
 
-				builder.BeginRenderPass(*passData.framebuffer, *passData.renderPass, passData.renderRect, passData.outputClearValues.data(), passData.outputClearValues.size());
+				if (passData.framebuffer)
+					builder.BeginRenderPass(*passData.framebuffer, *passData.renderPass, passData.renderRect, passData.outputClearValues.data(), passData.outputClearValues.size());
 
 				if (!passData.name.empty())
 					builder.BeginDebugRegion(passData.name, Color::Green());
@@ -85,7 +86,8 @@ namespace Nz
 				if (!passData.name.empty())
 					builder.EndDebugRegion();
 
-				builder.EndRenderPass();
+				if (passData.framebuffer)
+					builder.EndRenderPass();
 			});
 
 			passData.forceCommandBufferRegeneration = false;
@@ -102,7 +104,7 @@ namespace Nz
 	const std::shared_ptr<Texture>& BakedFrameGraph::GetAttachmentTexture(std::size_t attachmentIndex) const
 	{
 		auto it = m_attachmentToTextureMapping.find(attachmentIndex);
-		if (it == m_attachmentToTextureMapping.end())
+		if (it == m_attachmentToTextureMapping.end() || it->second == FrameGraph::InvalidTextureIndex)
 		{
 			static std::shared_ptr<Texture> dummy;
 			return dummy;
@@ -116,7 +118,7 @@ namespace Nz
 	const std::shared_ptr<RenderPass>& BakedFrameGraph::GetRenderPass(std::size_t passIndex) const
 	{
 		auto it = m_attachmentToTextureMapping.find(passIndex);
-		if (it == m_attachmentToTextureMapping.end())
+		if (it == m_attachmentToTextureMapping.end() || it->second == FrameGraph::InvalidTextureIndex)
 		{
 			static std::shared_ptr<RenderPass> dummy;
 			return dummy;
@@ -224,24 +226,29 @@ namespace Nz
 		{
 			textures.clear();
 
-			unsigned int framebufferWidth = std::numeric_limits<unsigned int>::max();
-			unsigned int framebufferHeight = std::numeric_limits<unsigned int>::max();
-			for (std::size_t textureId : passData.outputTextureIndices)
+			if (!passData.outputTextureIndices.empty())
 			{
-				auto& textureData = m_textures[textureId];
-				textures.push_back(textureData.texture);
+				unsigned int framebufferWidth = std::numeric_limits<unsigned int>::max();
+				unsigned int framebufferHeight = std::numeric_limits<unsigned int>::max();
+				for (std::size_t textureId : passData.outputTextureIndices)
+				{
+					auto& textureData = m_textures[textureId];
+					textures.push_back(textureData.texture);
 
-				auto [width, height] = ComputeTextureSize(textureData);
+					auto [width, height] = ComputeTextureSize(textureData);
 
-				framebufferWidth = std::min(framebufferWidth, width);
-				framebufferHeight = std::min(framebufferHeight, height);
+					framebufferWidth = std::min(framebufferWidth, width);
+					framebufferHeight = std::min(framebufferHeight, height);
+				}
+
+				passData.renderRect = Recti(0, 0, int(framebufferWidth), int(framebufferHeight));
+
+				passData.framebuffer = renderDevice->InstantiateFramebuffer(framebufferWidth, framebufferHeight, passData.renderPass, textures);
+				if (!passData.name.empty())
+					passData.framebuffer->UpdateDebugName(passData.name);
 			}
-
-			passData.renderRect = Recti(0, 0, int(framebufferWidth), int(framebufferHeight));
-
-			passData.framebuffer = renderDevice->InstantiateFramebuffer(framebufferWidth, framebufferHeight, passData.renderPass, textures);
-			if (!passData.name.empty())
-				passData.framebuffer->UpdateDebugName(passData.name);
+			else
+				passData.renderRect = Recti(0, 0, -1, -1);
 
 			passData.forceCommandBufferRegeneration = true;
 		}

@@ -28,6 +28,7 @@
 #include <NazaraUtils/MemoryPool.hpp>
 #include <memory>
 #include <optional>
+#include <span>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -80,12 +81,14 @@ namespace Nz
 			ForwardFramePipeline& operator=(ForwardFramePipeline&&) = delete;
 
 		private:
+			struct ViewerData;
+
 			BakedFrameGraph BuildFrameGraph();
 
 			void RegisterMaterialInstance(MaterialInstance* materialPass);
 			void UnregisterMaterialInstance(MaterialInstance* material);
 
-			struct ViewerData;
+			static std::size_t BuildMergePass(FrameGraph& frameGraph, std::span<ViewerData*> targetViewers);
 
 			struct LightData
 			{
@@ -119,7 +122,6 @@ namespace Nz
 
 			struct RenderTargetData
 			{
-				std::size_t finalAttachment;
 				std::vector<const ViewerData*> viewers;
 			};
 

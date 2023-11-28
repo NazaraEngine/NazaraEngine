@@ -135,7 +135,7 @@ namespace Nz
 		assert(viewer == nullptr);
 
 		std::size_t cubeInputIndex = pass.AddInput(m_cubeAttachmentIndex);
-		pass.SetInputLayout(cubeInputIndex, TextureLayout::ColorInput);
+		pass.SetInputAssumedLayout(cubeInputIndex, TextureLayout::ColorInput);
 
 		for (DirectionData& direction : m_directions)
 			pass.AddInput(direction.attachmentIndex);

@@ -12,33 +12,33 @@
 
 namespace Nz
 {
-	void RenderTextureBlit::OnBuildGraph(FrameGraph& graph, std::size_t attachmentIndex) const
+	std::size_t RenderTextureBlit::OnBuildGraph(FrameGraph& graph, std::size_t attachmentIndex) const
 	{
-		graph.AddOutput(attachmentIndex);
-	}
+		std::size_t linkAttachment = graph.AddDummyAttachment();
 
-	void RenderTextureBlit::OnRenderEnd(RenderResources& resources, const BakedFrameGraph& frameGraph, std::size_t finalAttachment) const
-	{
-		const std::shared_ptr<Texture>& sourceTexture = frameGraph.GetAttachmentTexture(finalAttachment);
+		FramePass& blitPass = graph.AddPass("Blit to texture");
+		blitPass.AddInput(attachmentIndex);
+		blitPass.SetInputAccess(0, TextureLayout::TransferSource, PipelineStage::Transfer, MemoryAccess::MemoryRead);
+		blitPass.SetInputUsage(0, TextureUsage::TransferSource);
 
-		Vector2ui sourceTextureSize = Vector2ui(sourceTexture->GetSize());
-		Vector2ui targetTextureSize = Vector2ui(m_targetTexture->GetSize());
+		blitPass.AddOutput(linkAttachment);
 
-		resources.Execute([&](CommandBufferBuilder& builder)
+		blitPass.SetCommandCallback([this, attachmentIndex](CommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
-			builder.BeginDebugRegion("Blit to texture", Color::Blue());
-			{
-				builder.TextureBarrier(PipelineStage::ColorOutput, PipelineStage::Transfer, MemoryAccess::ColorWrite, MemoryAccess::TransferRead, TextureLayout::ColorOutput, TextureLayout::TransferSource, *sourceTexture);
-				builder.TextureBarrier(PipelineStage::TopOfPipe, PipelineStage::Transfer, {}, MemoryAccess::TransferWrite, TextureLayout::Undefined, TextureLayout::TransferDestination, *m_targetTexture);
+			const std::shared_ptr<Texture>& sourceTexture = env.frameGraph.GetAttachmentTexture(attachmentIndex);
 
-				Boxui fromBox(0, 0, 0, sourceTextureSize.x, sourceTextureSize.y, 1);
-				Boxui toBox(0, 0, 0, targetTextureSize.x, targetTextureSize.y, 1);
+			Vector2ui sourceTextureSize = Vector2ui(sourceTexture->GetSize());
+			Vector2ui targetTextureSize = Vector2ui(m_targetTexture->GetSize());
 
-				builder.BlitTexture(*sourceTexture, fromBox, TextureLayout::TransferSource, *m_targetTexture, toBox, TextureLayout::TransferDestination, m_samplerFilter);
-				builder.TextureBarrier(PipelineStage::Transfer, m_targetPipelineStage, MemoryAccess::TransferWrite, m_targetMemoryFlags, TextureLayout::TransferDestination, m_targetLayout, *m_targetTexture);
-			}
-			builder.EndDebugRegion();
-		}, QueueType::Graphics);
+			Boxui fromBox(0, 0, 0, sourceTextureSize.x, sourceTextureSize.y, 1);
+			Boxui toBox(0, 0, 0, targetTextureSize.x, targetTextureSize.y, 1);
+
+			builder.TextureBarrier(PipelineStage::TopOfPipe, PipelineStage::Transfer, {}, MemoryAccess::TransferWrite, TextureLayout::Undefined, TextureLayout::TransferDestination, *m_targetTexture);
+			builder.BlitTexture(*sourceTexture, fromBox, TextureLayout::TransferSource, *m_targetTexture, toBox, TextureLayout::TransferDestination, m_samplerFilter);
+			builder.TextureBarrier(PipelineStage::Transfer, m_targetPipelineStage, MemoryAccess::TransferWrite, m_targetMemoryFlags, TextureLayout::TransferDestination, m_targetLayout, *m_targetTexture);
+		});
+
+		return linkAttachment;
 	}
 
 	const Vector2ui& RenderTextureBlit::GetSize() const

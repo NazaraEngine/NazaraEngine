@@ -25,13 +25,14 @@ namespace Nz
 			RenderWindow(RenderWindow&&) = delete;
 			~RenderWindow() = default;
 
-			void OnBuildGraph(FrameGraph& graph, std::size_t attachmentIndex) const override;
-			void OnRenderEnd(RenderResources& renderResources, const BakedFrameGraph& frameGraph, std::size_t attachmentId) const override;
+			std::size_t OnBuildGraph(FrameGraph& graph, std::size_t attachmentIndex) const override;
 
 			const Vector2ui& GetSize() const override;
 
 			RenderWindow& operator=(const RenderWindow&) = delete;
 			RenderWindow& operator=(RenderWindow&&) = delete;
+
+			static constexpr Int32 DefaultRenderOrder = 1000;
 
 		private:
 			void SetSwapchain(Swapchain* swapchain);

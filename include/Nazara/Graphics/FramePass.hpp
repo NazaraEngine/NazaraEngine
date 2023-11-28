@@ -73,7 +73,9 @@ namespace Nz
 			inline void SetDepthStencilInput(std::size_t attachmentId);
 			inline void SetDepthStencilOutput(std::size_t attachmentId);
 			inline void SetExecutionCallback(ExecutionCallback callback);
-			inline void SetInputLayout(std::size_t inputIndex, TextureLayout layout);
+			inline void SetInputAccess(std::size_t inputIndex, TextureLayout layout, PipelineStageFlags stageFlags, MemoryAccessFlags accessFlags);
+			inline void SetInputAssumedLayout(std::size_t inputIndex, TextureLayout layout);
+			inline void SetInputUsage(std::size_t inputIndex, TextureUsageFlags usageFlags);
 			inline void SetReadInput(std::size_t inputIndex, bool doesRead);
 
 			FramePass& operator=(const FramePass&) = delete;
@@ -90,7 +92,11 @@ namespace Nz
 			struct Input
 			{
 				std::optional<TextureLayout> assumedLayout;
+				std::optional<TextureUsageFlags> textureUsageFlags;
 				std::size_t attachmentId;
+				MemoryAccessFlags accessFlags = MemoryAccess::ShaderRead;
+				PipelineStageFlags stageFlags = PipelineStage::FragmentShader;
+				TextureLayout layout = TextureLayout::ColorInput;
 				bool doesRead = true;
 			};
 

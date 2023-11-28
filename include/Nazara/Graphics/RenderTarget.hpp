@@ -19,22 +19,33 @@ namespace Nz
 	class Framebuffer;
 	class FrameGraph;
 	class RenderPass;
-	class Texture;
 	class RenderResources;
+	class Texture;
 
 	class NAZARA_GRAPHICS_API RenderTarget
 	{
 		public:
-			RenderTarget() = default;
+			inline RenderTarget(Int32 renderOrder = 0);
 			virtual ~RenderTarget();
 
-			virtual void OnBuildGraph(FrameGraph& frameGraph, std::size_t attachmentIndex) const = 0;
-			virtual void OnRenderEnd(RenderResources& resources, const BakedFrameGraph& frameGraph, std::size_t finalAttachment) const = 0;
-
+			inline Int32 GetRenderOrder() const;
 			virtual const Vector2ui& GetSize() const = 0;
 
+			inline bool IsFrameGraphOutput() const;
+
+			virtual std::size_t OnBuildGraph(FrameGraph& frameGraph, std::size_t attachmentIndex) const = 0;
+
+			inline void SetFrameGraphOutput(bool output = true);
+
+			inline void UpdateRenderOrder(Int32 renderOrder);
+
 			NazaraSignal(OnRenderTargetRelease, const RenderTarget* /*renderTarget*/);
+			NazaraSignal(OnRenderTargetRenderOrderChange, const RenderTarget* /*renderTarget*/, Int32 /*newOrder*/);
 			NazaraSignal(OnRenderTargetSizeChange, const RenderTarget* /*renderTarget*/, const Vector2ui& /*newSize*/);
+
+		private:
+			Int32 m_renderOrder;
+			bool m_frameGraphOutput;
 	};
 }
 

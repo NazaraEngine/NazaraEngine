@@ -7,6 +7,7 @@
 namespace Nz
 {
 	inline RenderWindow::RenderWindow(Swapchain& swapchain) :
+	RenderTarget(DefaultRenderOrder),
 	m_swapchain(&swapchain),
 	m_windowSwapchain(nullptr)
 	{

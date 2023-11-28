@@ -383,21 +383,26 @@ namespace Nz
 		}
 
 		frameGraphInvalidated |= m_bakedFrameGraph.Resize(renderResources, viewerSizes);
+		if (frameGraphInvalidated)
+		{
+			for (ViewerData& viewerData : m_viewerPool)
+			{
+				if (viewerData.blitShaderBinding)
+					renderResources.PushForRelease(std::move(viewerData.blitShaderBinding));
+			}
+		}
 
 		// Find active lights (i.e. visible in any frustum)
 		m_activeLights.Clear();
-		for (auto& viewerData : m_viewerPool)
+		for (ViewerData* viewerData : m_orderedViewers)
 		{
-			if (viewerData.pendingDestruction)
-				continue;
-
-			UInt32 renderMask = viewerData.viewer->GetRenderMask();
+			UInt32 renderMask = viewerData->viewer->GetRenderMask();
 
 			// Extract frustum from viewproj matrix
-			const Matrix4f& viewProjMatrix = viewerData.viewer->GetViewerInstance().GetViewProjMatrix();
-			viewerData.frame.frustum = Frustumf::Extract(viewProjMatrix);
+			const Matrix4f& viewProjMatrix = viewerData->viewer->GetViewerInstance().GetViewProjMatrix();
+			viewerData->frame.frustum = Frustumf::Extract(viewProjMatrix);
 
-			viewerData.frame.visibleLights.Clear();
+			viewerData->frame.visibleLights.Clear();
 			for (auto it = m_lightPool.begin(); it != m_lightPool.end(); ++it)
 			{
 				const LightData& lightData = *it;
@@ -407,7 +412,7 @@ namespace Nz
 					continue;
 
 				m_activeLights.UnboundedSet(lightIndex);
-				viewerData.frame.visibleLights.UnboundedSet(lightIndex);
+				viewerData->frame.visibleLights.UnboundedSet(lightIndex);
 			}
 		}
 
@@ -422,59 +427,32 @@ namespace Nz
 		}
 
 		// Viewer handling (second pass)
-		for (auto& viewerData : m_viewerPool)
+		for (ViewerData* viewerData : m_orderedViewers)
 		{
-			if (viewerData.pendingDestruction)
-				continue;
-
-			UInt32 renderMask = viewerData.viewer->GetRenderMask();
+			UInt32 renderMask = viewerData->viewer->GetRenderMask();
 
 			// Per-viewer shadow map handling
-			for (std::size_t lightIndex : viewerData.frame.visibleLights.IterBits())
+			for (std::size_t lightIndex : viewerData->frame.visibleLights.IterBits())
 			{
 				LightData* lightData = m_lightPool.RetrieveFromIndex(lightIndex);
 				if (lightData->shadowData && lightData->shadowData->IsPerViewer() && (renderMask & lightData->renderMask) != 0)
-					lightData->shadowData->PrepareRendering(renderResources, viewerData.viewer);
+					lightData->shadowData->PrepareRendering(renderResources, viewerData->viewer);
 			}
 
 			// Frustum culling
 			std::size_t visibilityHash = 5;
-			const auto& visibleRenderables = FrustumCull(viewerData.frame.frustum, renderMask, visibilityHash);
+			const auto& visibleRenderables = FrustumCull(viewerData->frame.frustum, renderMask, visibilityHash);
 
 			FramePipelinePass::FrameData passData = {
-				&viewerData.frame.visibleLights,
-				viewerData.frame.frustum,
+				&viewerData->frame.visibleLights,
+				viewerData->frame.frustum,
 				renderResources,
 				visibleRenderables,
 				visibilityHash
 			};
 
-			for (auto& passPtr : viewerData.passes)
+			for (auto& passPtr : viewerData->passes)
 				passPtr->Prepare(passData);
-		}
-
-		if (frameGraphInvalidated)
-		{
-			const std::shared_ptr<TextureSampler>& sampler = graphics->GetSamplerCache().Get({});
-			for (auto& viewerData : m_viewerPool)
-			{
-				if (viewerData.pendingDestruction)
-					continue;
-
-				if (viewerData.blitShaderBinding)
-					renderResources.PushForRelease(std::move(viewerData.blitShaderBinding));
-
-				viewerData.blitShaderBinding = graphics->GetBlitPipelineLayout()->AllocateShaderBinding(0);
-				viewerData.blitShaderBinding->Update({
-					{
-						0,
-						ShaderBinding::SampledTextureBinding {
-							m_bakedFrameGraph.GetAttachmentTexture(viewerData.finalColorAttachment).get(),
-							sampler.get()
-						}
-					}
-				});
-			}
 		}
 
 		// Update UBOs and materials
@@ -497,10 +475,6 @@ namespace Nz
 
 		m_bakedFrameGraph.Execute(renderResources);
 		m_rebuildFrameGraph = false;
-
-		// Final blit (TODO: Make part of frame graph?)
-		for (auto&& [renderTargetPtr, renderTargetData] : m_renderTargets)
-			renderTargetPtr->OnRenderEnd(renderResources, m_bakedFrameGraph, renderTargetData.finalAttachment);
 
 		// reset at the end instead of the beginning so debug draw can be used before calling this method
 		DebugDrawer& debugDrawer = GetDebugDrawer();
@@ -648,6 +622,7 @@ namespace Nz
 	{
 		FrameGraph frameGraph;
 
+		// Register viewer-independent passes
 		for (std::size_t i : m_shadowCastingLights.IterBits())
 		{
 			LightData* lightData = m_lightPool.RetrieveFromIndex(i);
@@ -655,147 +630,175 @@ namespace Nz
 				lightData->shadowData->RegisterToFrameGraph(frameGraph, nullptr);
 		}
 
-		using ViewerPair = std::pair<const RenderTarget*, ViewerData*>;
-
-		StackArray<ViewerPair> viewers = NazaraStackArray(ViewerPair, m_viewerPool.size());
-		auto viewerIt = viewers.begin();
-
+		// Group every viewer by their render order and RenderTarget
+		m_orderedViewers.clear();
 		for (auto& viewerData : m_viewerPool)
 		{
 			if (viewerData.pendingDestruction)
 				continue;
 
-			const RenderTarget& renderTarget = viewerData.viewer->GetRenderTarget();
-			*viewerIt++ = std::make_pair(&renderTarget, &viewerData);
+			m_orderedViewers.push_back(&viewerData);
 		}
 
-		std::sort(viewers.begin(), viewers.end(), [](const ViewerPair& lhs, const ViewerPair& rhs)
+		if (m_orderedViewers.empty())
+			return frameGraph.Bake();
+
+		std::sort(m_orderedViewers.begin(), m_orderedViewers.end(), [](ViewerData* lhs, ViewerData* rhs)
 		{
-			return lhs.second->renderOrder < rhs.second->renderOrder;
+			// Order by RenderTarget render order and then by viewer render order
+			Int32 leftTargetRenderOrder1 = lhs->viewer->GetRenderTarget().GetRenderOrder();
+			Int32 rightTargetRenderOrder1 = rhs->viewer->GetRenderTarget().GetRenderOrder();
+
+			if (leftTargetRenderOrder1 == rightTargetRenderOrder1)
+				return leftTargetRenderOrder1 < rightTargetRenderOrder1;
+			else
+				return lhs->renderOrder < rhs->renderOrder;
 		});
 
-		StackVector<std::size_t> dependenciesColorAttachments = NazaraStackVector(std::size_t, viewers.size());
+		StackVector<std::size_t> dependenciesColorAttachments = NazaraStackVector(std::size_t, m_orderedViewers.size());
+		std::size_t dependenciesColorAttachmentCount = 0;
+		Int32 lastRenderOrder = m_orderedViewers.front()->viewer->GetRenderTarget().GetRenderOrder();
 
-		m_orderedViewers.clear();
-		m_renderTargets.clear();
-		unsigned int viewerIndex = 0;
-		for (auto it = viewers.begin(), prevIt = it; it != viewers.end(); ++it)
+		std::size_t viewerIndex = 0;
+		auto HandleRenderTarget = [&](const RenderTarget& renderTarget, std::span<ViewerData*> viewers)
 		{
-			auto&& [renderTarget, viewerData] = *it;
-
-			UInt32 renderMask = viewerData->viewer->GetRenderMask();
-			for (std::size_t i : m_shadowCastingLights.IterBits())
+			if (renderTarget.GetRenderOrder() > lastRenderOrder)
 			{
-				LightData* lightData = m_lightPool.RetrieveFromIndex(i);
-				if (lightData->shadowData->IsPerViewer() && (renderMask & lightData->renderMask) != 0)
-					lightData->shadowData->RegisterToFrameGraph(frameGraph, viewerData->viewer);
+				dependenciesColorAttachmentCount = dependenciesColorAttachments.size();
+				lastRenderOrder = renderTarget.GetRenderOrder();
 			}
 
-			// Keep track of previous dependencies attachments (from viewers having a smaller render order)
-			Int32 renderOrder = viewerData->renderOrder;
-			for (auto it2 = prevIt; prevIt != it; ++prevIt)
-			{
-				ViewerData* prevViewerData = prevIt->second;
-				Int32 prevRenderOrder = prevViewerData->renderOrder;
-				if (prevRenderOrder >= renderOrder)
-					break;
+			assert(!viewers.empty());
 
-				dependenciesColorAttachments.push_back(prevViewerData->finalColorAttachment);
-				prevIt = it2;
-			}
-
-			auto framePassCallback = [&, viewerData = viewerData](std::size_t /*passIndex*/, FramePass& framePass, FramePipelinePassFlags flags)
+			for (ViewerData* viewerData : viewers)
 			{
-				// Inject previous final attachments as inputs for all passes, to force framegraph to order viewers passes relative to each other
-				// TODO: Allow the user to define which pass of viewer A uses viewer B rendering
-				for (std::size_t finalAttachment : dependenciesColorAttachments)
+				UInt32 renderMask = viewerData->viewer->GetRenderMask();
+				for (std::size_t i : m_shadowCastingLights.IterBits())
 				{
-					std::size_t inputIndex = framePass.AddInput(finalAttachment);
-
-					// Disable ReadInput to prevent the framegraph from transitionning the texture layout (for now it's handled externally)
-					// (however if we manage to get rid of the texture blit from RenderTexture by making the framegraph use the external texture directly, this would be necessary)
-					framePass.SetReadInput(inputIndex, false);
+					LightData* lightData = m_lightPool.RetrieveFromIndex(i);
+					if (lightData->shadowData->IsPerViewer() && (renderMask & lightData->renderMask) != 0)
+						lightData->shadowData->RegisterToFrameGraph(frameGraph, viewerData->viewer);
 				}
 
-				if (flags.Test(FramePipelinePassFlag::LightShadowing))
+				auto framePassCallback = [&, viewerData = viewerData](std::size_t /*passIndex*/, FramePass& framePass, FramePipelinePassFlags flags)
 				{
-					for (std::size_t i : m_shadowCastingLights.IterBits())
+					// Inject previous final attachments as inputs for all passes, to force framegraph to order viewers passes relative to each other
+					// TODO: Allow the user to define which pass of viewer A uses viewer B rendering
+					for (std::size_t i = 0; i < dependenciesColorAttachmentCount; ++i)
+						framePass.AddInput(dependenciesColorAttachments[i]);
+
+					if (flags.Test(FramePipelinePassFlag::LightShadowing))
 					{
-						LightData* lightData = m_lightPool.RetrieveFromIndex(i);
-						if ((renderMask & lightData->renderMask) != 0)
-							lightData->shadowData->RegisterPassInputs(framePass, (lightData->shadowData->IsPerViewer()) ? viewerData->viewer : nullptr);
-					}
-				}
-			};
-
-			viewerData->finalColorAttachment = viewerData->viewer->RegisterPasses(viewerData->passes, frameGraph, viewerIndex++, framePassCallback);
-
-			// Group viewers by render targets
-			auto& renderTargetData = m_renderTargets[renderTarget];
-			renderTargetData.viewers.push_back(viewerData);
-			m_orderedViewers.push_back(viewerData);
-		}
-
-		for (auto&& [renderTarget, renderTargetData] : m_renderTargets)
-		{
-			const auto& targetViewers = renderTargetData.viewers;
-
-			if (targetViewers.size() > 1)
-			{
-				// Multiple viewers on the same targets, merge them
-				FramePass& mergePass = frameGraph.AddPass("Merge pass");
-
-				renderTargetData.finalAttachment = frameGraph.AddAttachment({
-					"Viewer output",
-					PixelFormat::RGBA8
-				});
-
-				for (const ViewerData* viewerData : targetViewers)
-					mergePass.AddInput(viewerData->finalColorAttachment);
-
-				mergePass.AddOutput(renderTargetData.finalAttachment);
-				mergePass.SetClearColor(0, Color::Black());
-
-				mergePass.SetCommandCallback([&targetViewers](CommandBufferBuilder& builder, const FramePassEnvironment& /*env*/)
-				{
-					Graphics* graphics = Graphics::Instance();
-					builder.BindRenderPipeline(*graphics->GetBlitPipeline(false));
-
-					bool first = true;
-
-					for (const ViewerData* viewerData : targetViewers)
-					{
-						Recti renderRect = viewerData->viewer->GetViewport();
-
-						builder.SetScissor(renderRect);
-						builder.SetViewport(renderRect);
-
-						const ShaderBindingPtr& blitShaderBinding = viewerData->blitShaderBinding;
-
-						builder.BindRenderShaderBinding(0, *blitShaderBinding);
-						builder.Draw(3);
-
-						if (first)
+						for (std::size_t i : m_shadowCastingLights.IterBits())
 						{
-							builder.BindRenderPipeline(*graphics->GetBlitPipeline(true));
-							first = false;
+							LightData* lightData = m_lightPool.RetrieveFromIndex(i);
+							if ((renderMask & lightData->renderMask) != 0)
+								lightData->shadowData->RegisterPassInputs(framePass, (lightData->shadowData->IsPerViewer()) ? viewerData->viewer : nullptr);
 						}
 					}
-				});
+				};
 
-				renderTarget->OnBuildGraph(frameGraph, renderTargetData.finalAttachment);
+				viewerData->finalColorAttachment = viewerData->viewer->RegisterPasses(viewerData->passes, frameGraph, viewerIndex++, framePassCallback);
 			}
-			else if (targetViewers.size() == 1)
+
+			std::size_t finalAttachment;
+			if (viewers.size() > 1)
+			{
+				// Multiple viewers on the same targets, merge them
+				finalAttachment = renderTarget.OnBuildGraph(frameGraph, BuildMergePass(frameGraph, viewers));
+			}
+			else
 			{
 				// Single viewer on that target
-				const auto& viewer = *targetViewers.front();
+				const auto& viewer = *viewers.front();
+				finalAttachment = renderTarget.OnBuildGraph(frameGraph, viewer.finalColorAttachment);
+			}
 
-				renderTargetData.finalAttachment = viewer.finalColorAttachment;
-				renderTarget->OnBuildGraph(frameGraph, renderTargetData.finalAttachment);
+			if (!renderTarget.IsFrameGraphOutput())
+			{
+				// Keep track of previous dependencies attachments
+				dependenciesColorAttachments.push_back(finalAttachment);
+			}
+			else
+				frameGraph.AddOutput(finalAttachment);
+		};
+
+		const RenderTarget* currentTarget = &m_orderedViewers.front()->viewer->GetRenderTarget();
+		std::size_t currentTargetIndex = 0;
+		for (std::size_t i = 1; i < m_orderedViewers.size(); ++i)
+		{
+			const RenderTarget* target = &m_orderedViewers[i]->viewer->GetRenderTarget();
+			if (currentTarget != target)
+			{
+				HandleRenderTarget(*currentTarget, std::span(&m_orderedViewers[currentTargetIndex], &m_orderedViewers[i]));
+				currentTarget = target;
+				currentTargetIndex = i;
 			}
 		}
+		HandleRenderTarget(*currentTarget, std::span(m_orderedViewers.data() + currentTargetIndex, m_orderedViewers.data() + m_orderedViewers.size()));
 
 		return frameGraph.Bake();
+	}
+
+	std::size_t ForwardFramePipeline::BuildMergePass(FrameGraph& frameGraph, std::span<ViewerData*> targetViewers)
+	{
+		FramePass& mergePass = frameGraph.AddPass("Merge pass");
+
+		std::size_t mergedAttachment = frameGraph.AddAttachment({
+			"Merged output",
+			PixelFormat::RGBA8
+		});
+
+		for (const ViewerData* viewerData : targetViewers)
+			mergePass.AddInput(viewerData->finalColorAttachment);
+
+		mergePass.AddOutput(mergedAttachment);
+		mergePass.SetClearColor(0, Color::Black());
+
+		mergePass.SetCommandCallback([&targetViewers](CommandBufferBuilder& builder, const FramePassEnvironment& env)
+		{
+			Graphics* graphics = Graphics::Instance();
+			builder.BindRenderPipeline(*graphics->GetBlitPipeline(false));
+
+			bool first = true;
+
+			for (ViewerData* viewerData : targetViewers)
+			{
+				Recti renderRect = viewerData->viewer->GetViewport();
+
+				builder.SetScissor(renderRect);
+				builder.SetViewport(renderRect);
+
+				if (!viewerData->blitShaderBinding)
+				{
+					const std::shared_ptr<TextureSampler>& sampler = graphics->GetSamplerCache().Get({});
+
+					viewerData->blitShaderBinding = graphics->GetBlitPipelineLayout()->AllocateShaderBinding(0);
+					viewerData->blitShaderBinding->Update({
+						{
+							0,
+							ShaderBinding::SampledTextureBinding {
+								env.frameGraph.GetAttachmentTexture(viewerData->finalColorAttachment).get(),
+								sampler.get()
+							}
+						}
+					});
+				}
+
+				const ShaderBindingPtr& blitShaderBinding = viewerData->blitShaderBinding;
+
+				builder.BindRenderShaderBinding(0, *blitShaderBinding);
+				builder.Draw(3);
+
+				if (first)
+				{
+					builder.BindRenderPipeline(*graphics->GetBlitPipeline(true));
+					first = false;
+				}
+			}
+		});
+
+		return mergedAttachment;
 	}
 
 	void ForwardFramePipeline::RegisterMaterialInstance(MaterialInstance* materialInstance)
