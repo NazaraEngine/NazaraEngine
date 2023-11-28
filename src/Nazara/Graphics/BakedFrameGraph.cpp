@@ -248,7 +248,7 @@ namespace Nz
 					passData.framebuffer->UpdateDebugName(passData.name);
 			}
 			else
-				passData.renderRect = Recti(0, 0, int(-1), int(-1));
+				passData.renderRect = Recti(0, 0, -1, -1);
 
 			passData.forceCommandBufferRegeneration = true;
 		}
