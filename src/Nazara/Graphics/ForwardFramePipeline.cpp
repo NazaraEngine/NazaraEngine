@@ -730,7 +730,7 @@ namespace Nz
 				currentTargetIndex = i;
 			}
 		}
-		HandleRenderTarget(*currentTarget, std::span(m_orderedViewers.begin() + currentTargetIndex, m_orderedViewers.end()));
+		HandleRenderTarget(*currentTarget, std::span(m_orderedViewers.data() + currentTargetIndex, m_orderedViewers.data() + m_orderedViewers.size()));
 
 		return frameGraph.Bake();
 	}
