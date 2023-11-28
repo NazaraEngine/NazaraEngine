@@ -91,7 +91,7 @@ namespace Nz
 			if (shaderBinding)
 				shaderBinding->Apply(*pipelineLayout, setIndex, context);
 			else
-				NazaraWarning("no shader binding for set #" + std::to_string(setIndex));
+				NazaraWarningFmt("no shader binding for set #{0}", setIndex);
 
 			setIndex++;
 		}

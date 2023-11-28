@@ -61,6 +61,11 @@ namespace Nz
 			Music& operator=(Music&&) = delete;
 
 		private:
+			bool FillAndQueueBuffer(std::shared_ptr<AudioBuffer> buffer);
+			void MusicThread(std::condition_variable& cv, std::mutex& m, std::exception_ptr& err, bool startPaused);
+			void StartThread(bool startPaused);
+			void StopThread();
+
 			AudioFormat m_audioFormat;
 			std::atomic_bool m_streaming;
 			std::atomic<UInt64> m_processedSamples;
@@ -72,11 +77,7 @@ namespace Nz
 			UInt32 m_sampleRate;
 			UInt64 m_streamOffset;
 			bool m_looping;
-
-			bool FillAndQueueBuffer(std::shared_ptr<AudioBuffer> buffer);
-			void MusicThread(std::condition_variable& cv, std::mutex& m, std::exception_ptr& err, bool startPaused);
-			void StartThread(bool startPaused);
-			void StopThread();
+			bool m_musicStarted;
 	};
 }
 

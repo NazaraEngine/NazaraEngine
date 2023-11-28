@@ -211,7 +211,7 @@ namespace Nz
 
 	void MD5MeshParser::Error(const std::string& message)
 	{
-		NazaraErrorFmt("{0} at line #1", message, m_lineCount);
+		NazaraErrorFmt("{0} on line #{1}", message, m_lineCount);
 	}
 
 	bool MD5MeshParser::ParseJoints()
@@ -446,7 +446,7 @@ namespace Nz
 
 	void MD5MeshParser::Warning(const std::string& message)
 	{
-		NazaraWarning(message + " at line #" + std::to_string(m_lineCount));
+		NazaraWarningFmt("{0} on line #{1}", message, m_lineCount);
 	}
 
 	void MD5MeshParser::UnrecognizedLine(bool error)

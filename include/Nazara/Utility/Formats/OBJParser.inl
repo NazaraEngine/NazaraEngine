@@ -153,7 +153,7 @@ namespace Nz
 
 	inline void OBJParser::Error(const std::string& message)
 	{
-		NazaraErrorFmt("{0} at line #{1}", message, m_lineCount);
+		NazaraErrorFmt("{0} on line #{1}", message, m_lineCount);
 	}
 
 	inline void OBJParser::Flush() const
@@ -164,7 +164,7 @@ namespace Nz
 
 	inline void OBJParser::Warning(const std::string& message)
 	{
-		NazaraWarningFmt("{0} at line #{1}", message, m_lineCount);
+		NazaraWarningFmt("{0} on line #{1}", message, m_lineCount);
 	}
 
 	inline bool OBJParser::UnrecognizedLine(bool error)

@@ -472,6 +472,7 @@ namespace Nz
 		// Signal we're good
 		{
 			std::unique_lock<std::mutex> lock(m);
+			m_musicStarted = true;
 			cv.notify_all();
 		} // m & cv no longer exists from here
 
@@ -519,10 +520,11 @@ namespace Nz
 		std::exception_ptr exceptionPtr;
 
 		std::unique_lock<std::mutex> lock(mutex);
+		m_musicStarted = false;
 		m_thread = std::thread(&Music::MusicThread, this, std::ref(cv), std::ref(mutex), std::ref(exceptionPtr), startPaused);
 
 		// Wait until thread signal it has properly started (or an error occurred)
-		cv.wait(lock);
+		cv.wait(lock, [&] { return exceptionPtr || m_musicStarted; });
 
 		if (exceptionPtr)
 			std::rethrow_exception(exceptionPtr);

@@ -45,17 +45,17 @@ namespace Nz::GL
 
 					if constexpr (std::is_same_v<Ret, void>)
 					{
-						funcPtr(std::forward<Args>(args)...);
+						funcPtr(args...);
 
 						if (context->ProcessErrorStack())
-							context->PrintFunctionCall(FuncIndex, std::forward<Args>(args)...);
+							context->PrintFunctionCall(FuncIndex, args...);
 					}
 					else
 					{
-						Ret r = funcPtr(std::forward<Args>(args)...);
+						Ret r = funcPtr(args...);
 
 						if (context->ProcessErrorStack())
-							context->PrintFunctionCall(FuncIndex, std::forward<Args>(args)...);
+							context->PrintFunctionCall(FuncIndex, args...);
 
 						return r;
 					}

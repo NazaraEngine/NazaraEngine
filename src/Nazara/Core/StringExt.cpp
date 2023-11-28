@@ -298,7 +298,7 @@ namespace Nz
 
 		while (ptr < ptrEnd && *patternPtr != '*')
 		{
-			if (patternPtr < patternPtrEnd && *patternPtr != *ptr && *patternPtr != '?')
+			if (patternPtr >= patternPtrEnd || (*patternPtr != *ptr && *patternPtr != '?'))
 				return false;
 
 			patternPtr++;
@@ -307,7 +307,7 @@ namespace Nz
 
 		const char* cp = nullptr;
 		const char* mp = nullptr;
-		while (*ptr)
+		while (ptr < ptrEnd)
 		{
 			if (*patternPtr == '*')
 			{

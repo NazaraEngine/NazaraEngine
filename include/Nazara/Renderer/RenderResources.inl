@@ -47,10 +47,10 @@ namespace Nz
 		m_releaseQueue.push_back(releasable);
 	}
 
-	template<typename F>
+	template<std::invocable F>
 	void RenderResources::PushReleaseCallback(F&& callback)
 	{
-		using ReleaseFunctor = ReleasableLambda<std::remove_cv_t<std::remove_reference_t<F>>>;
+		using ReleaseFunctor = ReleasableFunctor<std::remove_cv_t<std::remove_reference_t<F>>>;
 
 		ReleaseFunctor* releasable = Allocate<ReleaseFunctor>();
 		PlacementNew(releasable, std::forward<F>(callback));
@@ -117,19 +117,19 @@ namespace Nz
 	{
 	}
 
-	template<typename T>
+	template<std::invocable T>
 	template<typename U>
-	RenderResources::ReleasableLambda<T>::ReleasableLambda(U&& lambda) :
+	requires(std::constructible_from<T, U&&>)
+	RenderResources::ReleasableFunctor<T>::ReleasableFunctor(U&& lambda) :
 	m_lambda(std::forward<U>(lambda))
 	{
 	}
 
-	template<typename T>
-	void RenderResources::ReleasableLambda<T>::Release()
+	template<std::invocable T>
+	void RenderResources::ReleasableFunctor<T>::Release()
 	{
 		m_lambda();
 	}
 }
 
 #include <Nazara/Renderer/DebugOff.hpp>
-#include "RenderResources.hpp"

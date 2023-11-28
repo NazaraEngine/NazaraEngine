@@ -34,7 +34,7 @@ namespace Nz
 		const auto& uniformBlockData = material.GetUniformBlockData(m_uniformBlockIndex);
 
 		const ShaderReflection::StructData* structData = reflection.GetStructByIndex(uniformBlockData.structIndex);
-		NazaraAssert(structData, "invalid struct index " + std::to_string(uniformBlockData.structIndex));
+		NazaraAssertFmt(structData, "invalid struct index {0}", uniformBlockData.structIndex);
 
 		auto it = structData->members.find(m_memberTag);
 		if (it == structData->members.end())

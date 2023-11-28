@@ -4,14 +4,11 @@
 
 #include <Nazara/Audio/OpenALLibrary.hpp>
 #include <Nazara/Audio/OpenALDevice.hpp>
-#include <Nazara/Core/Algorithm.hpp>
+#include <NazaraUtils/Algorithm.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
-#include <Nazara/Core/Log.hpp>
-#include <Nazara/Core/StringExt.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
 #include <array>
-#include <cstring>
 #include <sstream>
 #include <stdexcept>
 #include <Nazara/Audio/Debug.hpp>
@@ -30,7 +27,7 @@ namespace Nz
 #define NAZARA_AUDIO_AL_ALC_FUNCTION(name)
 #define NAZARA_AUDIO_AL_EXT_BEGIN(ext) if (alIsExtensionPresent(#ext)) {
 #define NAZARA_AUDIO_AL_EXT_END() }
-#define NAZARA_AUDIO_AL_FUNCTION_EXT(name) name = reinterpret_cast<decltype(&::name)>(alGetProcAddress(#name));
+#define NAZARA_AUDIO_AL_EXT_FUNCTION(name) name = reinterpret_cast<decltype(&::name)>(alGetProcAddress(#name));
 #include <Nazara/Audio/OpenALFunctions.hpp>
 
 			m_hasCaptureSupport = alcIsExtensionPresent(nullptr, "ALC_EXT_CAPTURE");
@@ -67,7 +64,7 @@ namespace Nz
 		{
 			ErrorFlags disableError(ErrorMode::Silent, ~ErrorMode::ThrowException);
 
-			if (!m_library.Load(libname))
+			if (!m_library.Load(Utf8Path(libname)))
 				continue;
 
 			auto LoadSymbol = [this](const char* name, bool optional)
@@ -82,13 +79,16 @@ namespace Nz
 			try
 			{
 #define NAZARA_AUDIO_AL_ALC_FUNCTION(name) name = reinterpret_cast<decltype(&::name)>(LoadSymbol(#name, false));
+#define NAZARA_AUDIO_AL_EXT_BEGIN(name)
+#define NAZARA_AUDIO_AL_EXT_END(name)
+#define NAZARA_AUDIO_AL_EXT_FUNCTION(name)
 #include <Nazara/Audio/OpenALFunctions.hpp>
 			}
 			catch (const std::exception& e)
 			{
 				ErrorFlags disableSilent({}, ~ErrorMode::Silent);
 
-				NazaraWarning(std::string("failed to load ") + libname + ": " + e.what());
+				NazaraWarningFmt("failed to load {0}: {1}", libname, e.what());
 				continue;
 			}
 
@@ -104,6 +104,8 @@ namespace Nz
 
 		// Load core
 #define NAZARA_AUDIO_AL_ALC_FUNCTION(name) name = &::name;
+#define NAZARA_AUDIO_AL_EXT_BEGIN(name)
+#define NAZARA_AUDIO_AL_EXT_END(name)
 #define NAZARA_AUDIO_AL_EXT_FUNCTION(name)
 #include <Nazara/Audio/OpenALFunctions.hpp>
 

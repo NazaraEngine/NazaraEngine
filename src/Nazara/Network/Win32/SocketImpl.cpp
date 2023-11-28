@@ -475,7 +475,7 @@ namespace Nz
 				return SocketState::Connected;
 			else
 			{
-				NazaraWarning("Socket " + std::to_string(handle) + " was returned by poll without POLLOUT nor error events (events: 0x" + NumberToString(descriptor.revents, 16) + ')');
+				NazaraWarningFmt("Socket {0} was returned by poll without POLLOUT nor error events (events: {1:#x})", handle, descriptor.revents);
 				return SocketState::NotConnected;
 			}
 		}

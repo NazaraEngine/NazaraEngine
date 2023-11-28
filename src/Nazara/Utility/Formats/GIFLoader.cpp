@@ -188,7 +188,7 @@ namespace Nz
 					m_byteStream >> minimumCodeSize;
 					if (minimumCodeSize > 12)
 					{
-						NazaraInternalError("unexpected LZW Minimum Code Size (" + std::to_string(minimumCodeSize) + ")");
+						NazaraInternalErrorFmt("unexpected LZW Minimum Code Size ({0})", minimumCodeSize);
 						return false;
 					}
 

@@ -11,7 +11,7 @@
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <NazaraUtils/FunctionRef.hpp>
-#include <functional>
+#include <concepts>
 #include <type_traits>
 #include <vector>
 
@@ -28,7 +28,7 @@ namespace Nz
 			class Releasable;
 			class ReleasableCallback;
 			template<typename T> class ReleasableData;
-			template<typename T> class ReleasableLambda;
+			template<std::invocable T> class ReleasableFunctor;
 
 			virtual ~RenderResources();
 
@@ -42,7 +42,7 @@ namespace Nz
 
 			template<typename T> void PushForRelease(const T& value) = delete;
 			template<typename T> void PushForRelease(T&& value);
-			template<typename F> void PushReleaseCallback(F&& callback);
+			template<std::invocable F> void PushReleaseCallback(F&& callback);
 
 			virtual void SubmitCommandBuffer(CommandBuffer* commandBuffer, QueueTypeFlags queueTypeFlags) = 0;
 
@@ -93,19 +93,19 @@ namespace Nz
 			T m_data;
 	};
 
-	template<typename T>
-	class RenderResources::ReleasableLambda final : public ReleasableCallback
+	template<std::invocable T>
+	class RenderResources::ReleasableFunctor final : public ReleasableCallback
 	{
 		public:
-			template<typename U> ReleasableLambda(U&& lambda);
-			ReleasableLambda(const ReleasableLambda&) = delete;
-			ReleasableLambda(ReleasableLambda&&) = delete;
-			~ReleasableLambda() = default;
+			template<typename U> requires(std::constructible_from<T, U&&>) ReleasableFunctor(U&& lambda);
+			ReleasableFunctor(const ReleasableFunctor&) = delete;
+			ReleasableFunctor(ReleasableFunctor&&) = delete;
+			~ReleasableFunctor() = default;
 
 			void Release() override;
 
-			ReleasableLambda& operator=(const ReleasableLambda&) = delete;
-			ReleasableLambda& operator=(ReleasableLambda&&) = delete;
+			ReleasableFunctor& operator=(const ReleasableFunctor&) = delete;
+			ReleasableFunctor& operator=(ReleasableFunctor&&) = delete;
 
 		private:
 			T m_lambda;
