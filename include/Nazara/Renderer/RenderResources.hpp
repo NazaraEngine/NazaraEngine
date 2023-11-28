@@ -42,7 +42,7 @@ namespace Nz
 
 			template<typename T> void PushForRelease(const T& value) = delete;
 			template<typename T> void PushForRelease(T&& value);
-			template<std::invocable F> void PushReleaseCallback(F&& callback);
+			template<typename F> void PushReleaseCallback(F&& callback);
 
 			virtual void SubmitCommandBuffer(CommandBuffer* commandBuffer, QueueTypeFlags queueTypeFlags) = 0;
 

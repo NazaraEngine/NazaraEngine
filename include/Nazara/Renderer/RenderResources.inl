@@ -39,7 +39,7 @@ namespace Nz
 	{
 		static_assert(std::is_rvalue_reference_v<decltype(value)>);
 
-		using ReleaseData = ReleasableData<std::remove_cv_t<std::remove_reference_t<T>>>;
+		using ReleaseData = ReleasableData<std::remove_cvref_t<T>>;
 
 		ReleaseData* releasable = Allocate<ReleaseData>();
 		PlacementNew(releasable, std::forward<T>(value));
@@ -47,10 +47,10 @@ namespace Nz
 		m_releaseQueue.push_back(releasable);
 	}
 
-	template<std::invocable F>
+	template<typename F>
 	void RenderResources::PushReleaseCallback(F&& callback)
 	{
-		using ReleaseFunctor = ReleasableFunctor<std::remove_cv_t<std::remove_reference_t<F>>>;
+		using ReleaseFunctor = ReleasableFunctor<std::remove_cvref_t<F>>;
 
 		ReleaseFunctor* releasable = Allocate<ReleaseFunctor>();
 		PlacementNew(releasable, std::forward<F>(callback));
@@ -125,7 +125,7 @@ namespace Nz
 	{
 	}
 
-	template<std::invocable T>
+	template<typename T>
 	void RenderResources::ReleasableFunctor<T>::Release()
 	{
 		m_lambda();
