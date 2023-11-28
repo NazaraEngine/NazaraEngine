@@ -125,7 +125,7 @@ namespace Nz
 	{
 	}
 
-	template<typename T>
+	template<std::invocable T>
 	void RenderResources::ReleasableFunctor<T>::Release()
 	{
 		m_lambda();
