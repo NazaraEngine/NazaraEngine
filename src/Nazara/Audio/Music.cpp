@@ -131,11 +131,11 @@ namespace Nz
 	{
 		NazaraAssert(m_stream, "Music not created");
 
-		if (!m_streaming)
-			return Time::Zero();
-
 		// Prevent music thread from enqueuing new buffers while we're getting the count
 		std::lock_guard<std::recursive_mutex> lock(m_sourceLock);
+
+		if (!m_streaming)
+			return Time::Zero();
 
 		Time playingOffset = m_source->GetPlayingOffset();
 		Time processedTime = Time::Microseconds(1'000'000ll * m_processedSamples / (GetChannelCount(m_stream->GetFormat()) * m_sampleRate));
