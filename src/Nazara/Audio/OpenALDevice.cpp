@@ -6,6 +6,7 @@
 #include <Nazara/Audio/OpenALBuffer.hpp>
 #include <Nazara/Audio/OpenALLibrary.hpp>
 #include <Nazara/Audio/OpenALSource.hpp>
+#include <Nazara/Audio/OpenALUtils.hpp>
 #include <cstring>
 #include <stdexcept>
 #include <Nazara/Audio/Debug.hpp>
@@ -69,11 +70,16 @@ namespace Nz
 	{
 		MakeContextCurrent();
 
+		m_library.alGetError(); // Clear error flags
+
 		ALuint bufferId = 0;
 		m_library.alGenBuffers(1, &bufferId);
 
-		if (bufferId == 0)
+		if (ALenum lastError = m_library.alGetError(); lastError != AL_NO_ERROR)
+		{
+			NazaraErrorFmt("failed to create OpenAL buffer: {0}", TranslateOpenALError(lastError));
 			return {};
+		}
 
 		return std::make_shared<OpenALBuffer>(shared_from_this(), m_library, bufferId);
 	}
@@ -82,11 +88,16 @@ namespace Nz
 	{
 		MakeContextCurrent();
 
+		m_library.alGetError(); // Clear error flags
+
 		ALuint sourceId = 0;
 		m_library.alGenSources(1, &sourceId);
 
-		if (sourceId == 0)
+		if (ALenum lastError = m_library.alGetError(); lastError != AL_NO_ERROR)
+		{
+			NazaraErrorFmt("failed to create OpenAL source: {0}", TranslateOpenALError(lastError));
 			return {};
+		}
 
 		return std::make_shared<OpenALSource>(shared_from_this(), m_library, sourceId);
 	}
