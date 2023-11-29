@@ -6,6 +6,7 @@
 #include <Nazara/Audio/AudioDevice.hpp>
 #include <Nazara/Audio/AudioSource.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Audio/Debug.hpp>
 
 namespace Nz
@@ -25,6 +26,11 @@ namespace Nz
 	SoundEmitter::SoundEmitter(AudioDevice& audioDevice) :
 	m_source(audioDevice.CreateSource())
 	{
+		if (!m_source)
+		{
+			ErrorFlags errFlags(ErrorMode::ThrowException);
+			NazaraError("failed to create audio source");
+		}
 	}
 
 	/*!
