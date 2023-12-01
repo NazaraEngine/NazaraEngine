@@ -5,6 +5,7 @@
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Core/AppFilesystemComponent.hpp>
 #include <Nazara/Core/CommandLineParameters.hpp>
+#include <Nazara/Core/EnvironmentVariables.hpp>
 #include <Nazara/Graphics/DebugDrawPipelinePass.hpp>
 #include <Nazara/Graphics/DepthPipelinePass.hpp>
 #include <Nazara/Graphics/ForwardPipelinePass.hpp>
@@ -14,7 +15,6 @@
 #include <Nazara/Graphics/PipelinePassList.hpp>
 #include <Nazara/Graphics/PostProcessPipelinePass.hpp>
 #include <Nazara/Graphics/PredefinedMaterials.hpp>
-#include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/Formats/PipelinePassListLoader.hpp>
 #include <Nazara/Graphics/Formats/TextureLoader.hpp>
 #include <Nazara/Utility/Font.hpp>
@@ -542,10 +542,10 @@ namespace Nz
 
 	void Graphics::Config::Override(const CommandLineParameters& parameters)
 	{
-		if (parameters.HasFlag("use-dedicated-gpu"))
+		if (parameters.HasFlag("use-dedicated-gpu") || TestEnvironmentVariable("NAZARA_USE_DEDICATED_GPU"))
 			useDedicatedRenderDevice = true;
 
-		if (parameters.HasFlag("use-integrated-gpu"))
+		if (parameters.HasFlag("use-integrated-gpu") || TestEnvironmentVariable("NAZARA_USE_INTEGRATED_GPU"))
 			useDedicatedRenderDevice = false;
 	}
 }

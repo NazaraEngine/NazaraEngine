@@ -3,11 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Audio/Audio.hpp>
-#include <Nazara/Audio/AudioBuffer.hpp>
-#include <Nazara/Audio/AudioSource.hpp>
-#include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/DummyAudioDevice.hpp>
-#include <Nazara/Audio/Enums.hpp>
 #include <Nazara/Audio/OpenALDevice.hpp>
 #include <Nazara/Audio/OpenALLibrary.hpp>
 #include <Nazara/Audio/Formats/drwavLoader.hpp>
@@ -15,10 +11,8 @@
 #include <Nazara/Audio/Formats/libvorbisLoader.hpp>
 #include <Nazara/Audio/Formats/minimp3Loader.hpp>
 #include <Nazara/Core/CommandLineParameters.hpp>
-#include <Nazara/Core/Core.hpp>
+#include <Nazara/Core/EnvironmentVariables.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/Log.hpp>
-#include <NazaraUtils/CallOnExit.hpp>
 #include <stdexcept>
 #include <Nazara/Audio/Debug.hpp>
 
@@ -159,7 +153,7 @@ namespace Nz
 
 	void Audio::Config::Override(const CommandLineParameters& parameters)
 	{
-		if (parameters.HasFlag("no-audio"))
+		if (parameters.HasFlag("no-audio") || TestEnvironmentVariable("NAZARA_NO_AUDIO"))
 			noAudio = true;
 	}
 }

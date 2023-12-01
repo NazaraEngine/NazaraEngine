@@ -5,15 +5,9 @@
 #include <Nazara/Renderer/Renderer.hpp>
 #include <Nazara/Core/CommandLineParameters.hpp>
 #include <Nazara/Core/DynLib.hpp>
+#include <Nazara/Core/EnvironmentVariables.hpp>
 #include <Nazara/Core/Log.hpp>
-#include <Nazara/Core/StringExt.hpp>
-#include <Nazara/Platform/Platform.hpp>
-#include <Nazara/Renderer/RenderBuffer.hpp>
 #include <Nazara/Renderer/RendererImpl.hpp>
-#include <Nazara/Utility/Buffer.hpp>
-#include <Nazara/Utility/Image.hpp>
-#include <Nazara/Utility/Utility.hpp>
-#include <NazaraUtils/CallOnExit.hpp>
 #include <NazaraUtils/EnumArray.hpp>
 #include <frozen/string.h>
 #include <frozen/unordered_map.h>
@@ -217,8 +211,21 @@ namespace Nz
 	void Renderer::Config::Override(const CommandLineParameters& parameters)
 	{
 		std::string_view value;
+		auto GetParameter = [&](const std::string& paramName, const char* envName, std::string_view* var)
+		{
+			if (parameters.GetParameter(paramName, var))
+				return true;
 
-		if (parameters.GetParameter("render-api", &value))
+			if (const char* envValue = GetEnvironmentVariable(envName); envValue && *envValue != '\0')
+			{
+				*var = envValue;
+				return true;
+			}
+
+			return false;
+		};
+
+		if (GetParameter("render-api", "NAZARA_RENDER_API", &value))
 		{
 			constexpr auto renderAPIStr = frozen::make_unordered_map<frozen::string, RenderAPI>({
 				{ "auto",     RenderAPI::Unknown },
@@ -236,7 +243,7 @@ namespace Nz
 				NazaraErrorFmt("unknown render API \"{0}\"", value);
 		}
 
-		if (parameters.GetParameter("render-api-validation", &value))
+		if (GetParameter("render-api-validation", "NAZARA_RENDER_API_VALDATION", &value))
 		{
 			constexpr auto validationStr = frozen::make_unordered_map<frozen::string, RenderAPIValidationLevel>({
 				{ "debug",    RenderAPIValidationLevel::Debug },
