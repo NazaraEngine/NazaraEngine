@@ -2,7 +2,6 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Core/PrimitiveList.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Debug.hpp>
 
@@ -260,3 +259,5 @@ namespace Nz
 		return GetPrimitive(i);
 	}
 }
+
+#include <Nazara/Core/DebugOff.hpp>

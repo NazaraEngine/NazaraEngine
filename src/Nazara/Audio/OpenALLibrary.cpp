@@ -4,9 +4,9 @@
 
 #include <Nazara/Audio/OpenALLibrary.hpp>
 #include <Nazara/Audio/OpenALDevice.hpp>
-#include <NazaraUtils/Algorithm.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
+#include <NazaraUtils/Algorithm.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
 #include <array>
 #include <sstream>

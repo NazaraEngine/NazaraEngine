@@ -2,8 +2,6 @@
 #include <catch2/catch_session.hpp>
 
 #include <Nazara/Audio/Audio.hpp>
-#include <Nazara/Core/Log.hpp>
-#include <Nazara/Core/AbstractLogger.hpp>
 #include <Nazara/Core/Modules.hpp>
 #include <Nazara/Network/Network.hpp>
 #include <Nazara/ChipmunkPhysics2D/ChipmunkPhysics2D.hpp>
