@@ -4,6 +4,7 @@
 
 #include <Nazara/Core/PluginLoader.hpp>
 #include <Nazara/Core/DynLib.hpp>
+#include <Nazara/Core/EnvironmentVariables.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <NazaraUtils/Algorithm.hpp>
 #include <stdexcept>
@@ -15,7 +16,7 @@ namespace Nz
 	{
 		AddSearchDirectory(".");
 		AddSearchDirectory("plugins");
-		if (const char* path = getenv("NAZARA_PLUGIN_DIR"))
+		if (const char* path = GetEnvironmentVariable("NAZARA_PLUGIN_DIR"))
 			AddSearchDirectory(Utf8Path(path));
 	}
 
