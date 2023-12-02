@@ -8,17 +8,15 @@
 #define NAZARA_CORE_MODULES_HPP
 
 #include <NazaraUtils/TypeList.hpp>
+#include <Nazara/Core/CommandLineParameters.hpp>
 
 namespace Nz
 {
-	class CommandLineParameters;
-
 	namespace Detail
 	{
 		template<typename Module, typename... Modules>
 		struct ModuleTuple : ModuleTuple<Module>, ModuleTuple<Modules...>
 		{
-			template<typename... ModuleConfig> ModuleTuple(ModuleConfig&&... configs);
 			template<typename... ModuleConfig> ModuleTuple(const CommandLineParameters& parameters, ModuleConfig&&... configs);
 
 			template<typename T> T& Get();
@@ -27,7 +25,6 @@ namespace Nz
 		template<typename Module>
 		struct ModuleTuple<Module>
 		{
-			template<typename... ModuleConfig> ModuleTuple(ModuleConfig&&... configs);
 			template<typename... ModuleConfig> ModuleTuple(const CommandLineParameters& parameters, ModuleConfig&&... configs);
 
 			template<typename T> T& Get();

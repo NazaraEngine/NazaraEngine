@@ -51,24 +51,11 @@ namespace Nz
 				}
 			}
 
-			static T Get()
-			{
-				return T{};
-			}
-
 			static auto Get(const CommandLineParameters& parameters)
 			{
 				return OverrideModuleConfig(T{}, parameters);
 			}
 		};
-
-		template<typename Module, typename... Modules>
-		template<typename... ModuleConfig>
-		ModuleTuple<Module, Modules...>::ModuleTuple(ModuleConfig&&... configs) :
-		ModuleTuple<Module>(std::forward<ModuleConfig>(configs)...),
-		ModuleTuple<Modules...>(std::forward<ModuleConfig>(configs)...)
-		{
-		}
 		
 		template<typename Module, typename... Modules>
 		template<typename... ModuleConfig>
@@ -88,14 +75,6 @@ namespace Nz
 				return ModuleTuple<Modules...>::template Get<T>();
 		}
 
-
-		template<typename Module>
-		template<typename... ModuleConfig>
-		ModuleTuple<Module>::ModuleTuple(ModuleConfig&&... configs) :
-		m(Pick<typename Module::Config>::Get(std::forward<ModuleConfig>(configs)...))
-		{
-		}
-		
 		template<typename Module>
 		template<typename... ModuleConfig>
 		ModuleTuple<Module>::ModuleTuple(const CommandLineParameters& parameters, ModuleConfig&&... configs) :
@@ -115,7 +94,7 @@ namespace Nz
 	template<typename... ModuleList>
 	template<typename... ModuleConfig>
 	Modules<ModuleList...>::Modules(ModuleConfig&&... configs) :
-	m_modules(std::forward<ModuleConfig>(configs)...)
+	m_modules(CommandLineParameters{}, std::forward<ModuleConfig>(configs)...)
 	{
 	}
 	
