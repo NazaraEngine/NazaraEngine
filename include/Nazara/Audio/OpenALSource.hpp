@@ -23,7 +23,7 @@ namespace Nz
 	class NAZARA_AUDIO_API OpenALSource final : public AudioSource
 	{
 		public:
-			inline OpenALSource(std::shared_ptr<AudioDevice> device, OpenALLibrary& library, ALuint sourceId);
+			inline OpenALSource(std::shared_ptr<AudioDevice> device, ALuint sourceId);
 			OpenALSource(const OpenALSource&) = delete;
 			OpenALSource(OpenALSource&&) = delete;
 			~OpenALSource();
@@ -76,7 +76,6 @@ namespace Nz
 			std::shared_ptr<OpenALBuffer> m_currentBuffer;
 			std::vector<std::shared_ptr<OpenALBuffer>> m_queuedBuffers;
 			ALuint m_sourceId;
-			OpenALLibrary& m_library;
 	};
 }
 

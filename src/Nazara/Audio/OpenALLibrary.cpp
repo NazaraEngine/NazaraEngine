@@ -23,13 +23,6 @@ namespace Nz
 
 		auto PostLoad = [&]
 		{
-			// Load ext
-#define NAZARA_AUDIO_AL_ALC_FUNCTION(name)
-#define NAZARA_AUDIO_AL_EXT_BEGIN(ext) if (alIsExtensionPresent(#ext)) {
-#define NAZARA_AUDIO_AL_EXT_END() }
-#define NAZARA_AUDIO_AL_EXT_FUNCTION(name) name = reinterpret_cast<decltype(&::name)>(alGetProcAddress(#name));
-#include <Nazara/Audio/OpenALFunctions.hpp>
-
 			m_hasCaptureSupport = alcIsExtensionPresent(nullptr, "ALC_EXT_CAPTURE");
 			m_isLoaded = true;
 
@@ -79,8 +72,6 @@ namespace Nz
 			try
 			{
 #define NAZARA_AUDIO_AL_ALC_FUNCTION(name) name = reinterpret_cast<decltype(&::name)>(LoadSymbol(#name, false));
-#define NAZARA_AUDIO_AL_EXT_BEGIN(name)
-#define NAZARA_AUDIO_AL_EXT_END(name)
 #define NAZARA_AUDIO_AL_EXT_FUNCTION(name)
 #include <Nazara/Audio/OpenALFunctions.hpp>
 			}
@@ -104,8 +95,6 @@ namespace Nz
 
 		// Load core
 #define NAZARA_AUDIO_AL_ALC_FUNCTION(name) name = &::name;
-#define NAZARA_AUDIO_AL_EXT_BEGIN(name)
-#define NAZARA_AUDIO_AL_EXT_END(name)
 #define NAZARA_AUDIO_AL_EXT_FUNCTION(name)
 #include <Nazara/Audio/OpenALFunctions.hpp>
 
@@ -142,6 +131,7 @@ namespace Nz
 			return;
 
 #define NAZARA_AUDIO_AL_ALC_FUNCTION(name) name = nullptr;
+#define NAZARA_AUDIO_AL_EXT_FUNCTION(name)
 #include <Nazara/Audio/OpenALFunctions.hpp>
 
 		m_library.Unload();

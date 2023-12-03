@@ -44,6 +44,7 @@ namespace Nz
 			OpenALLibrary& operator=(OpenALLibrary&&) = delete;
 
 #define NAZARA_AUDIO_AL_ALC_FUNCTION(name) decltype(&::name) name;
+#define NAZARA_AUDIO_AL_EXT_FUNCTION(name)
 #include <Nazara/Audio/OpenALFunctions.hpp>
 
 		private:

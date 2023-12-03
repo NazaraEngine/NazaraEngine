@@ -7,6 +7,30 @@
 
 namespace Nz
 {
+	inline bool OpenALDevice::DidLastCallSucceed() const
+	{
+		if (!m_didCollectErrors)
+			ProcessErrorFlag();
+
+		return !m_hadAnyError;
+	}
+
+	inline ALFunction OpenALDevice::GetFunctionByIndex(std::size_t funcIndex) const
+	{
+		assert(funcIndex < m_originalFunctionPointer.size());
+		return m_originalFunctionPointer[funcIndex];
+	}
+
+	inline OpenALLibrary& OpenALDevice::GetLibrary()
+	{
+		return m_library;
+	}
+
+	inline const OpenALLibrary& OpenALDevice::GetLibrary() const
+	{
+		return m_library;
+	}
+
 	inline bool OpenALDevice::IsExtensionSupported(OpenALExtension extension) const
 	{
 		return m_extensionStatus[extension];

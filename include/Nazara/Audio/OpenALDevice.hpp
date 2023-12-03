@@ -31,9 +31,13 @@ namespace Nz
 		Max = SourceLatency
 	};
 
+	using ALFunction = void(*)(void);
+
 	class NAZARA_AUDIO_API OpenALDevice : public AudioDevice
 	{
 		friend OpenALLibrary;
+		struct SymbolLoader;
+		friend SymbolLoader;
 
 		public:
 			OpenALDevice(OpenALLibrary& library, ALCdevice* device);
@@ -41,11 +45,18 @@ namespace Nz
 			OpenALDevice(OpenALDevice&&) = delete;
 			~OpenALDevice();
 
+			bool ClearErrorFlag() const;
+
 			std::shared_ptr<AudioBuffer> CreateBuffer() override;
 			std::shared_ptr<AudioSource> CreateSource() override;
 
+			inline bool DidLastCallSucceed() const;
+
 			float GetDopplerFactor() const override;
+			inline ALFunction GetFunctionByIndex(std::size_t funcIndex) const;
 			float GetGlobalVolume() const override;
+			inline OpenALLibrary& GetLibrary();
+			inline const OpenALLibrary& GetLibrary() const;
 			Vector3f GetListenerDirection(Vector3f* up = nullptr) const override;
 			Vector3f GetListenerPosition() const override;
 			Quaternionf GetListenerRotation() const override;
@@ -57,6 +68,9 @@ namespace Nz
 			bool IsFormatSupported(AudioFormat format) const override;
 
 			void MakeContextCurrent() const;
+
+			template<typename... Args> void PrintFunctionCall(std::size_t funcIndex, Args... args) const;
+			bool ProcessErrorFlag() const;
 
 			void SetDopplerFactor(float dopplerFactor) override;
 			void SetGlobalVolume(float volume) override;
@@ -70,14 +84,30 @@ namespace Nz
 			OpenALDevice& operator=(const OpenALDevice&) = delete;
 			OpenALDevice& operator=(OpenALDevice&&) = delete;
 
+			// We give each device its own set of function pointer, even though regular OpenAL extensions are always the same (for a set library).
+			// This makes it easier to wrap them (for error handling), and extension pointers are device-local anyway.
+#define NAZARA_AUDIO_AL_ALC_FUNCTION(name) decltype(&::name) name;
+#include <Nazara/Audio/OpenALFunctions.hpp>
+
 		private:
-			EnumArray<AudioFormat, ALenum> m_audioFormatValues;
-			EnumArray<OpenALExtension, ALenum> m_extensionStatus;
+			enum class FunctionIndex
+			{
+#define NAZARA_AUDIO_AL_ALC_FUNCTION(name) name,
+#include <Nazara/Audio/OpenALFunctions.hpp>
+
+				Count
+			};
+
+			std::array<ALFunction, UnderlyingCast(FunctionIndex::Count)> m_originalFunctionPointer;
 			std::string m_renderer;
 			std::string m_vendor;
+			EnumArray<AudioFormat, ALenum> m_audioFormatValues;
+			EnumArray<OpenALExtension, ALenum> m_extensionStatus;
 			OpenALLibrary& m_library;
 			MovablePtr<ALCcontext> m_context;
 			MovablePtr<ALCdevice> m_device;
+			mutable bool m_didCollectErrors;
+			mutable bool m_hadAnyError;
 	};
 }
 

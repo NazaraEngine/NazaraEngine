@@ -12,18 +12,20 @@ namespace Nz
 {
 	OpenALBuffer::~OpenALBuffer()
 	{
-		GetDevice().MakeContextCurrent();
+		OpenALDevice& device = GetDevice();
+		device.MakeContextCurrent();
 
-		m_library.alDeleteBuffers(1, &m_bufferId);
+		device.alDeleteBuffers(1, &m_bufferId);
 	}
 
 	UInt64 OpenALBuffer::GetSampleCount() const
 	{
-		GetDevice().MakeContextCurrent();
+		const OpenALDevice& device = GetDevice();
+		device.MakeContextCurrent();
 
 		ALint bits, size;
-		m_library.alGetBufferi(m_bufferId, AL_BITS, &bits);
-		m_library.alGetBufferi(m_bufferId, AL_SIZE, &size);
+		device.alGetBufferi(m_bufferId, AL_BITS, &bits);
+		device.alGetBufferi(m_bufferId, AL_SIZE, &size);
 
 		UInt64 sampleCount = 0;
 		if (bits != 0)
@@ -34,20 +36,22 @@ namespace Nz
 
 	UInt64 OpenALBuffer::GetSize() const
 	{
-		GetDevice().MakeContextCurrent();
+		const OpenALDevice& device = GetDevice();
+		device.MakeContextCurrent();
 
 		ALint size;
-		m_library.alGetBufferi(m_bufferId, AL_SIZE, &size);
+		device.alGetBufferi(m_bufferId, AL_SIZE, &size);
 
 		return SafeCast<UInt64>(size);
 	}
 
 	UInt32 OpenALBuffer::GetSampleRate() const
 	{
-		GetDevice().MakeContextCurrent();
+		const OpenALDevice& device = GetDevice();
+		device.MakeContextCurrent();
 
 		ALint sampleRate;
-		m_library.alGetBufferi(m_bufferId, AL_FREQUENCY, &sampleRate);
+		device.alGetBufferi(m_bufferId, AL_FREQUENCY, &sampleRate);
 
 		return SafeCast<UInt32>(sampleRate);
 	}
@@ -55,7 +59,7 @@ namespace Nz
 	bool OpenALBuffer::IsCompatibleWith(const AudioDevice& device) const
 	{
 		// OpenAL buffers are shared among contexts and thus devices
-		return device.GetSubSystemIdentifier() == &m_library;
+		return device.GetSubSystemIdentifier() == &GetDevice().GetLibrary();
 	}
 
 	bool OpenALBuffer::Reset(AudioFormat format, UInt64 sampleCount, UInt32 sampleRate, const void* samples)
@@ -72,11 +76,11 @@ namespace Nz
 		device.MakeContextCurrent();
 
 		// We empty the error stack
-		while (m_library.alGetError() != AL_NO_ERROR);
+		while (device.alGetError() != AL_NO_ERROR);
 
-		m_library.alBufferData(m_bufferId, alFormat, samples, SafeCast<ALsizei>(sampleCount * sizeof(Int16)), SafeCast<ALsizei>(sampleRate));
+		device.alBufferData(m_bufferId, alFormat, samples, SafeCast<ALsizei>(sampleCount * sizeof(Int16)), SafeCast<ALsizei>(sampleRate));
 
-		if (ALenum lastError = m_library.alGetError(); lastError != AL_NO_ERROR)
+		if (ALenum lastError = device.alGetError(); lastError != AL_NO_ERROR)
 		{
 			NazaraErrorFmt("failed to reset OpenAL buffer: {0}", std::to_string(lastError));
 			return false;

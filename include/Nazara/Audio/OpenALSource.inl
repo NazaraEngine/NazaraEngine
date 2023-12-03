@@ -6,10 +6,9 @@
 
 namespace Nz
 {
-	inline OpenALSource::OpenALSource(std::shared_ptr<AudioDevice> device, OpenALLibrary& library, ALuint sourceId) :
+	inline OpenALSource::OpenALSource(std::shared_ptr<AudioDevice> device, ALuint sourceId) :
 	AudioSource(std::move(device)),
-	m_sourceId(sourceId),
-	m_library(library)
+	m_sourceId(sourceId)
 	{
 	}
 }

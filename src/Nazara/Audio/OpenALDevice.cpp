@@ -7,29 +7,134 @@
 #include <Nazara/Audio/OpenALLibrary.hpp>
 #include <Nazara/Audio/OpenALSource.hpp>
 #include <Nazara/Audio/OpenALUtils.hpp>
+#include <Nazara/Core/Log.hpp>
+#include <NazaraUtils/Algorithm.hpp>
+#include <array>
 #include <cstring>
 #include <stdexcept>
 #include <Nazara/Audio/Debug.hpp>
 
 namespace Nz
 {
-	namespace
+	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
-		thread_local ALCcontext* s_currentContext;
+		constexpr std::array s_functionNames = {
+#define NAZARA_AUDIO_AL_ALC_FUNCTION(name) #name,
+#include <Nazara/Audio/OpenALFunctions.hpp>
+		};
+
+		thread_local const OpenALDevice* s_currentALDevice;
+
+		template<typename FuncType, std::size_t FuncIndex, typename>
+		struct ALWrapper;
+
+		template<typename FuncType, std::size_t FuncIndex, typename Ret, typename... Args>
+		struct ALWrapper<FuncType, FuncIndex, Ret(AL_APIENTRY*)(Args...)>
+		{
+			static auto WrapErrorHandling()
+			{
+				return [](Args... args) -> Ret
+				{
+					const OpenALDevice* device = s_currentALDevice; //< pay TLS cost once
+					assert(device);
+
+					FuncType funcPtr = reinterpret_cast<FuncType>(device->GetFunctionByIndex(FuncIndex));
+
+					if constexpr (std::is_same_v<Ret, void>)
+					{
+						funcPtr(args...);
+
+						if (device->ProcessErrorFlag())
+							device->PrintFunctionCall(FuncIndex, args...);
+					}
+					else
+					{
+						Ret r = funcPtr(args...);
+
+						if (device->ProcessErrorFlag())
+							device->PrintFunctionCall(FuncIndex, args...);
+
+						return r;
+					}
+				};
+			}
+		};
 	}
+
+	struct OpenALDevice::SymbolLoader
+	{
+		SymbolLoader(OpenALDevice& parent) :
+		device(parent)
+		{
+		}
+
+		template<typename FuncType, std::size_t FuncIndex, bool ContextFunction, typename Func>
+		bool Load(Func& func, const char* funcName, FuncType libraryPtr)
+		{
+			NAZARA_USE_ANONYMOUS_NAMESPACE
+
+			ALFunction originalFuncPtr;
+			if constexpr (ContextFunction)
+				originalFuncPtr = BitCast<ALFunction>(device.m_library.alcGetProcAddress(device.m_device, funcName));
+			else
+				originalFuncPtr = BitCast<ALFunction>(device.m_library.alGetProcAddress(funcName));
+
+			// Fallback in case of faulty OpenAL implementations not returning core functions through alGetProcAddress/alcGetProcAddress
+			if (!originalFuncPtr)
+				originalFuncPtr = reinterpret_cast<ALFunction>(libraryPtr);
+
+			func = reinterpret_cast<FuncType>(originalFuncPtr);
+
+			if (func && wrapErrorHandling)
+			{
+				if constexpr (
+					FuncIndex != UnderlyingCast(FunctionIndex::alGetError) &&      //< Prevent infinite recursion
+					FuncIndex != UnderlyingCast(FunctionIndex::alcCloseDevice) &&  //< alcDestroyContext is called with no context
+					FuncIndex != UnderlyingCast(FunctionIndex::alcDestroyContext)) //< alcDestroyContext is called with no context
+				{
+					using Wrapper = ALWrapper<FuncType, FuncIndex, FuncType>;
+					func = Wrapper::WrapErrorHandling();
+				}
+			}
+
+			device.m_originalFunctionPointer[FuncIndex] = originalFuncPtr;
+
+			return func != nullptr;
+		}
+
+		OpenALDevice& device;
+		bool wrapErrorHandling = false;
+	};
+
 
 	OpenALDevice::OpenALDevice(OpenALLibrary& library, ALCdevice* device) :
 	m_library(library),
 	m_device(device)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		m_context = m_library.alcCreateContext(device, nullptr);
 		if (!m_context)
 			throw std::runtime_error("failed to create OpenAL context");
 
-		MakeContextCurrent();
+		// Don't use MakeContextCurrent as device pointers are not loaded yet
+		if (m_library.alcMakeContextCurrent(m_context) != AL_TRUE)
+			throw std::runtime_error("failed to activate OpenAL context");
 
-		m_renderer = reinterpret_cast<const char*>(m_library.alGetString(AL_RENDERER));
-		m_vendor = reinterpret_cast<const char*>(m_library.alGetString(AL_VENDOR));
+		s_currentALDevice = this;
+
+		SymbolLoader loader(*this);
+#ifdef NAZARA_DEBUG
+		loader.wrapErrorHandling = true;
+#endif
+
+#define NAZARA_AUDIO_AL_FUNCTION(name) loader.Load<decltype(&::name), UnderlyingCast(FunctionIndex:: name), false>(name, #name, library.name);
+#define NAZARA_AUDIO_ALC_FUNCTION(name) loader.Load<decltype(&::name), UnderlyingCast(FunctionIndex:: name), true>(name, #name, library.name);
+#define NAZARA_AUDIO_AL_EXT_FUNCTION(name) loader.Load<decltype(&::name), UnderlyingCast(FunctionIndex:: name), false>(name, #name, nullptr);
+#include <Nazara/Audio/OpenALFunctions.hpp>
+
+		m_renderer = reinterpret_cast<const char*>(alGetString(AL_RENDERER));
+		m_vendor = reinterpret_cast<const char*>(alGetString(AL_VENDOR));
 
 		// We complete the formats table
 		m_audioFormatValues.fill(0);
@@ -40,13 +145,13 @@ namespace Nz
 		// "The presence of an enum value does not guarantee the applicability of an extension to the current context."
 		if (library.alIsExtensionPresent("AL_EXT_MCFORMATS"))
 		{
-			m_audioFormatValues[AudioFormat::I16_Quad] = m_library.alGetEnumValue("AL_FORMAT_QUAD16");
-			m_audioFormatValues[AudioFormat::I16_5_1] = m_library.alGetEnumValue("AL_FORMAT_51CHN16");
-			m_audioFormatValues[AudioFormat::I16_6_1] = m_library.alGetEnumValue("AL_FORMAT_61CHN16");
-			m_audioFormatValues[AudioFormat::I16_7_1] = m_library.alGetEnumValue("AL_FORMAT_71CHN16");
+			m_audioFormatValues[AudioFormat::I16_Quad] = alGetEnumValue("AL_FORMAT_QUAD16");
+			m_audioFormatValues[AudioFormat::I16_5_1] = alGetEnumValue("AL_FORMAT_51CHN16");
+			m_audioFormatValues[AudioFormat::I16_6_1] = alGetEnumValue("AL_FORMAT_61CHN16");
+			m_audioFormatValues[AudioFormat::I16_7_1] = alGetEnumValue("AL_FORMAT_71CHN16");
 		}
 		else if (library.alIsExtensionPresent("AL_LOKI_quadriphonic"))
-			m_audioFormatValues[AudioFormat::I16_Quad] = m_library.alGetEnumValue("AL_FORMAT_QUAD16_LOKI");
+			m_audioFormatValues[AudioFormat::I16_Quad] = alGetEnumValue("AL_FORMAT_QUAD16_LOKI");
 
 		m_extensionStatus.fill(false);
 		if (library.alIsExtensionPresent("AL_SOFT_source_latency"))
@@ -57,49 +162,65 @@ namespace Nz
 
 	OpenALDevice::~OpenALDevice()
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		MakeContextCurrent();
 
-		m_library.alcDestroyContext(m_context);
-		m_library.alcCloseDevice(m_device);
+		alcDestroyContext(m_context);
+		alcCloseDevice(m_device);
 
-		if (s_currentContext == m_context)
-			s_currentContext = nullptr;
+		if (s_currentALDevice == this)
+			s_currentALDevice = nullptr;
+	}
+
+	bool OpenALDevice::ClearErrorFlag() const
+	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
+		assert(s_currentALDevice == this);
+
+		alGetError();
+
+		m_didCollectErrors = false;
+		m_hadAnyError = false;
+
+		return true;
 	}
 
 	std::shared_ptr<AudioBuffer> OpenALDevice::CreateBuffer()
 	{
 		MakeContextCurrent();
 
-		m_library.alGetError(); // Clear error flags
+		ClearErrorFlag();
 
 		ALuint bufferId = 0;
-		m_library.alGenBuffers(1, &bufferId);
+		alGenBuffers(1, &bufferId);
 
-		if (ALenum lastError = m_library.alGetError(); lastError != AL_NO_ERROR)
+		if (!DidLastCallSucceed())
 		{
-			NazaraErrorFmt("failed to create OpenAL buffer: {0}", TranslateOpenALError(lastError));
+			NazaraError("failed to create OpenAL buffer");
 			return {};
 		}
 
-		return std::make_shared<OpenALBuffer>(shared_from_this(), m_library, bufferId);
+		return std::make_shared<OpenALBuffer>(shared_from_this(), bufferId);
 	}
 
 	std::shared_ptr<AudioSource> OpenALDevice::CreateSource()
 	{
 		MakeContextCurrent();
 
-		m_library.alGetError(); // Clear error flags
+		ClearErrorFlag();
 
 		ALuint sourceId = 0;
-		m_library.alGenSources(1, &sourceId);
+		alGenSources(1, &sourceId);
 
-		if (ALenum lastError = m_library.alGetError(); lastError != AL_NO_ERROR)
+		if (!DidLastCallSucceed())
 		{
-			NazaraErrorFmt("failed to create OpenAL source: {0}", TranslateOpenALError(lastError));
+			NazaraError("failed to create OpenAL buffer");
 			return {};
 		}
 
-		return std::make_shared<OpenALSource>(shared_from_this(), m_library, sourceId);
+		return std::make_shared<OpenALSource>(shared_from_this(), sourceId);
 	}
 
 	/*!
@@ -110,7 +231,7 @@ namespace Nz
 	{
 		MakeContextCurrent();
 
-		return m_library.alGetFloat(AL_DOPPLER_FACTOR);
+		return alGetFloat(AL_DOPPLER_FACTOR);
 	}
 
 	/*!
@@ -122,7 +243,7 @@ namespace Nz
 		MakeContextCurrent();
 
 		ALfloat gain = 0.f;
-		m_library.alGetListenerf(AL_GAIN, &gain);
+		alGetListenerf(AL_GAIN, &gain);
 
 		return gain;
 	}
@@ -140,7 +261,7 @@ namespace Nz
 		MakeContextCurrent();
 
 		ALfloat orientation[6];
-		m_library.alGetListenerfv(AL_ORIENTATION, orientation);
+		alGetListenerfv(AL_ORIENTATION, orientation);
 
 		if (up)
 			(*up) = Vector3f(orientation[3], orientation[4], orientation[5]);
@@ -159,7 +280,7 @@ namespace Nz
 		MakeContextCurrent();
 
 		Vector3f position;
-		m_library.alGetListenerfv(AL_POSITION, &position.x);
+		alGetListenerfv(AL_POSITION, &position.x);
 
 		return position;
 	}
@@ -177,7 +298,7 @@ namespace Nz
 		MakeContextCurrent();
 
 		ALfloat orientation[6];
-		m_library.alGetListenerfv(AL_ORIENTATION, orientation);
+		alGetListenerfv(AL_ORIENTATION, orientation);
 
 		Vector3f forward(orientation[0], orientation[1], orientation[2]);
 		Vector3f up(orientation[3], orientation[4], orientation[5]);
@@ -196,18 +317,66 @@ namespace Nz
 		MakeContextCurrent();
 
 		Vector3f velocity;
-		m_library.alGetListenerfv(AL_VELOCITY, &velocity.x);
+		alGetListenerfv(AL_VELOCITY, &velocity.x);
 
 		return velocity;
 	}
 
 	void OpenALDevice::MakeContextCurrent() const
 	{
-		if (s_currentContext != m_context)
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
+		if (s_currentALDevice != this)
 		{
 			m_library.alcMakeContextCurrent(m_context);
-			s_currentContext = m_context;
+			s_currentALDevice = this;
 		}
+	}
+
+	template<typename... Args>
+	void OpenALDevice::PrintFunctionCall(std::size_t funcIndex, Args... args) const
+	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
+		std::stringstream ss;
+		ss << s_functionNames[funcIndex] << "(";
+		if constexpr (sizeof...(args) > 0)
+		{
+			bool first = true;
+			auto PrintParam = [&](auto value)
+			{
+				if (!first)
+					ss << ", ";
+
+				ss << +value;
+				first = false;
+			};
+
+			(PrintParam(args), ...);
+		}
+		ss << ")";
+		NazaraDebug(ss.str());
+	}
+
+	bool OpenALDevice::ProcessErrorFlag() const
+	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
+		assert(s_currentALDevice == this);
+
+		bool hasAnyError = false;
+
+		if (ALuint lastError = alGetError(); lastError != AL_NO_ERROR)
+		{
+			hasAnyError = true;
+
+			NazaraErrorFmt("OpenAL error: {0}", TranslateOpenALError(lastError));
+		}
+
+		m_didCollectErrors = true;
+		m_hadAnyError = hasAnyError;
+
+		return hasAnyError;
 	}
 
 	/*!
@@ -218,7 +387,7 @@ namespace Nz
 	{
 		MakeContextCurrent();
 
-		return m_library.alGetFloat(AL_SPEED_OF_SOUND);
+		return alGetFloat(AL_SPEED_OF_SOUND);
 	}
 
 	const void* OpenALDevice::GetSubSystemIdentifier() const
@@ -249,7 +418,7 @@ namespace Nz
 	{
 		MakeContextCurrent();
 
-		m_library.alDopplerFactor(dopplerFactor);
+		alDopplerFactor(dopplerFactor);
 	}
 
 	/*!
@@ -261,7 +430,7 @@ namespace Nz
 	{
 		MakeContextCurrent();
 
-		m_library.alListenerf(AL_GAIN, volume);
+		alListenerf(AL_GAIN, volume);
 	}
 
 	/*!
@@ -282,7 +451,7 @@ namespace Nz
 			up.x, up.y, up.z
 		};
 
-		m_library.alListenerfv(AL_ORIENTATION, orientation);
+		alListenerfv(AL_ORIENTATION, orientation);
 	}
 
 	/*!
@@ -296,7 +465,7 @@ namespace Nz
 	{
 		MakeContextCurrent();
 
-		m_library.alListenerfv(AL_POSITION, &position.x);
+		alListenerfv(AL_POSITION, &position.x);
 	}
 
 	/*!
@@ -310,7 +479,7 @@ namespace Nz
 	{
 		MakeContextCurrent();
 
-		m_library.alListenerfv(AL_VELOCITY, &velocity.x);
+		alListenerfv(AL_VELOCITY, &velocity.x);
 	}
 
 	/*!
@@ -322,6 +491,6 @@ namespace Nz
 	{
 		MakeContextCurrent();
 
-		m_library.alSpeedOfSound(speed);
+		alSpeedOfSound(speed);
 	}
 }

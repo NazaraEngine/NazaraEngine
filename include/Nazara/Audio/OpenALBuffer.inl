@@ -6,10 +6,9 @@
 
 namespace Nz
 {
-	inline OpenALBuffer::OpenALBuffer(std::shared_ptr<AudioDevice> device, OpenALLibrary& library, ALuint bufferId) :
+	inline OpenALBuffer::OpenALBuffer(std::shared_ptr<AudioDevice> device, ALuint bufferId) :
 	AudioBuffer(std::move(device)),
-	m_bufferId(bufferId),
-	m_library(library)
+	m_bufferId(bufferId)
 	{
 	}
 

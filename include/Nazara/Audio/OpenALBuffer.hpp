@@ -22,7 +22,7 @@ namespace Nz
 	class NAZARA_AUDIO_API OpenALBuffer final : public AudioBuffer
 	{
 		public:
-			inline OpenALBuffer(std::shared_ptr<AudioDevice> device, OpenALLibrary& library, ALuint bufferId);
+			inline OpenALBuffer(std::shared_ptr<AudioDevice> device, ALuint bufferId);
 			OpenALBuffer(const OpenALBuffer&) = delete;
 			OpenALBuffer(OpenALBuffer&&) = delete;
 			~OpenALBuffer();
@@ -44,7 +44,6 @@ namespace Nz
 			const OpenALDevice& GetDevice() const;
 
 			ALuint m_bufferId;
-			OpenALLibrary& m_library;
 	};
 }
 
