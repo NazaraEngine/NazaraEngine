@@ -649,10 +649,10 @@ namespace Nz
 			Int32 leftTargetRenderOrder1 = lhs->viewer->GetRenderTarget().GetRenderOrder();
 			Int32 rightTargetRenderOrder1 = rhs->viewer->GetRenderTarget().GetRenderOrder();
 
-			if (leftTargetRenderOrder1 == rightTargetRenderOrder1)
+			if (leftTargetRenderOrder1 != rightTargetRenderOrder1)
 				return leftTargetRenderOrder1 < rightTargetRenderOrder1;
-			else
-				return lhs->renderOrder < rhs->renderOrder;
+
+			return lhs->renderOrder < rhs->renderOrder;
 		});
 
 		StackVector<std::size_t> dependenciesColorAttachments = NazaraStackVector(std::size_t, m_orderedViewers.size());
