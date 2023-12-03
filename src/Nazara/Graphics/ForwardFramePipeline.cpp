@@ -755,7 +755,7 @@ namespace Nz
 		mergePass.AddOutput(mergedAttachment);
 		mergePass.SetClearColor(0, Color::Black());
 
-		mergePass.SetCommandCallback([&targetViewers](CommandBufferBuilder& builder, const FramePassEnvironment& env)
+		mergePass.SetCommandCallback([targetViewers](CommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
 			Graphics* graphics = Graphics::Instance();
 			builder.BindRenderPipeline(*graphics->GetBlitPipeline(false));
