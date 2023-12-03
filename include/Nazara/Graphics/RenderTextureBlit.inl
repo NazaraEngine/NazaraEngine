@@ -7,7 +7,7 @@
 namespace Nz
 {
 	inline RenderTextureBlit::RenderTextureBlit(const Vector2ui& textureSize, std::shared_ptr<Texture> targetTexture, SamplerFilter filter) :
-	RenderTextureBlit(textureSize, std::move(targetTexture), filter, PipelineStage::FragmentShader, MemoryAccess::ColorRead, TextureLayout::ColorInput)
+	RenderTextureBlit(textureSize, std::move(targetTexture), filter, PipelineStage::FragmentShader, MemoryAccess::ShaderRead, TextureLayout::ColorInput)
 	{
 	}
 	
