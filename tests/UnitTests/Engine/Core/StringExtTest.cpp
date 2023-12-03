@@ -79,6 +79,7 @@ SCENARIO("String", "[CORE][STRING]")
 		CHECK(Nz::MatchPattern("Lynix", "?????"));
 		CHECK(Nz::MatchPattern("Lynix", "*Lynix"));
 		CHECK(Nz::MatchPattern("Lynox", "*Lyn?x"));
+		CHECK_FALSE(Nz::MatchPattern("Lynix", "Lynixx"));
 		CHECK_FALSE(Nz::MatchPattern("Lynix", "Ly"));
 		CHECK_FALSE(Nz::MatchPattern("", "?"));
 		CHECK_FALSE(Nz::MatchPattern("", "*"));

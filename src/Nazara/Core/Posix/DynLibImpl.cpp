@@ -5,6 +5,7 @@
 #include <Nazara/Core/Posix/DynLibImpl.hpp>
 #include <NazaraUtils/Algorithm.hpp>
 #include <dlfcn.h>
+#include <bit>
 #include <cstring>
 #include <Nazara/Core/Debug.hpp>
 
@@ -26,11 +27,7 @@ namespace Nz
 
 		static_assert(sizeof(DynLibFunc) == sizeof(void*));
 
-		// poor man's std::bit_cast
-		DynLibFunc funcPtr;
-		std::memcpy(&funcPtr, &ptr, sizeof(funcPtr));
-
-		return funcPtr;
+		return std::bit_cast<DynLibFunc>(ptr);
 	}
 
 	bool DynLibImpl::Load(const std::filesystem::path& libraryPath, std::string* errorMessage)

@@ -87,7 +87,7 @@ namespace Nz::GL
 
 			if (func && wrapErrorHandling)
 			{
-				if (std::strcmp(funcName, "glGetError") != 0) //< Prevent infinite recursion
+				if constexpr (FuncIndex != UnderlyingCast(FunctionIndex::glGetError)) //< Prevent infinite recursion
 				{
 					using Wrapper = GLWrapper<FuncType, FuncIndex, FuncType>;
 					func = Wrapper::WrapErrorHandling();
