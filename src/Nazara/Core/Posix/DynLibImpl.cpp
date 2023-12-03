@@ -5,7 +5,6 @@
 #include <Nazara/Core/Posix/DynLibImpl.hpp>
 #include <NazaraUtils/Algorithm.hpp>
 #include <dlfcn.h>
-#include <bit>
 #include <cstring>
 #include <Nazara/Core/Debug.hpp>
 
@@ -25,15 +24,13 @@ namespace Nz
 		if (!ptr)
 			*errorMessage = dlerror();
 
-		static_assert(sizeof(DynLibFunc) == sizeof(void*));
-
-		return std::bit_cast<DynLibFunc>(ptr);
+		return BitCast<DynLibFunc>(ptr);
 	}
 
 	bool DynLibImpl::Load(const std::filesystem::path& libraryPath, std::string* errorMessage)
 	{
 		dlerror(); // Clear error flag
-		m_handle = dlopen(Nz::PathToString(libraryPath).data(), RTLD_LAZY | RTLD_GLOBAL);
+		m_handle = dlopen(PathToString(libraryPath).data(), RTLD_LAZY | RTLD_GLOBAL);
 
 		if (!m_handle)
 		{
