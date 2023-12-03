@@ -166,7 +166,7 @@ namespace Nz
 
 	bool JoltRigidBody3D::IsSleeping() const
 	{
-		return m_body->IsActive();
+		return !m_body->IsActive();
 	}
 
 	bool JoltRigidBody3D::IsSleepingEnabled() const
