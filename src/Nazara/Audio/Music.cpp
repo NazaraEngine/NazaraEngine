@@ -218,13 +218,7 @@ namespace Nz
 
 		std::lock_guard<std::recursive_mutex> lock(m_sourceLock);
 
-		SoundStatus status = m_source->GetStatus();
-
-		// To compensate any delays (or the timelaps between Play() and the thread startup)
-		if (m_streaming && status == SoundStatus::Stopped)
-			status = SoundStatus::Playing;
-
-		return status;
+		return m_source->GetStatus();
 	}
 
 	/*!
