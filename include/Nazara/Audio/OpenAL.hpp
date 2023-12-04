@@ -18,6 +18,11 @@
 #include <AL/alext.h>
 #endif
 
+// AL_APIENTRY is not defined by emscripten OpenAL headers
+#ifndef AL_APIENTRY
+#define AL_APIENTRY
+#endif
+
 #endif // NAZARA_AUDIO_OPENAL
 
 #endif // NAZARA_AUDIO_OPENAL_HPP
