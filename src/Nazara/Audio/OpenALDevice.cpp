@@ -192,7 +192,7 @@ namespace Nz
 		ALuint bufferId = 0;
 		alGenBuffers(1, &bufferId);
 
-		if (!ProcessErrorFlag())
+		if (ProcessErrorFlag())
 		{
 			NazaraError("failed to create OpenAL buffer");
 			return {};
@@ -210,9 +210,9 @@ namespace Nz
 		ALuint sourceId = 0;
 		alGenSources(1, &sourceId);
 
-		if (!ProcessErrorFlag())
+		if (ProcessErrorFlag())
 		{
-			NazaraError("failed to create OpenAL buffer");
+			NazaraError("failed to create OpenAL source");
 			return {};
 		}
 
