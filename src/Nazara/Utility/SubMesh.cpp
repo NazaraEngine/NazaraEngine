@@ -61,6 +61,13 @@ namespace Nz
 		SparsePtr<Vector3f> positions = mapper.GetComponentPtr<Vector3f>(VertexComponent::Position);
 		SparsePtr<Vector3f> tangents = mapper.GetComponentPtr<Vector3f>(VertexComponent::Tangent);
 		SparsePtr<Vector2f> texCoords = mapper.GetComponentPtr<Vector2f>(VertexComponent::TexCoord);
+		if (!texCoords)
+		{
+			// 3D coords are often used for slice indexing, we can get a Vector2 by keeping the stride
+			SparsePtr<Vector3f> texCoords3D = mapper.GetComponentPtr<Vector3f>(VertexComponent::TexCoord);
+			texCoords = SparsePtr<Vector2f>(texCoords3D.GetPtr(), texCoords3D.GetStride());
+		}
+
 		if (!normals || !positions || !tangents || !texCoords)
 			return;
 
@@ -118,6 +125,13 @@ namespace Nz
 		SparsePtr<Vector3f> positions = mapper.GetComponentPtr<Vector3f>(VertexComponent::Position);
 		SparsePtr<Vector3f> tangents = mapper.GetComponentPtr<Vector3f>(VertexComponent::Tangent);
 		SparsePtr<Vector2f> texCoords = mapper.GetComponentPtr<Vector2f>(VertexComponent::TexCoord);
+		if (!texCoords)
+		{
+			// 3D coords are often used for slice indexing, we can get a Vector2 by keeping the stride
+			SparsePtr<Vector3f> texCoords3D = mapper.GetComponentPtr<Vector3f>(VertexComponent::TexCoord);
+			texCoords = SparsePtr<Vector2f>(texCoords3D.GetPtr(), texCoords3D.GetStride());
+		}
+
 		if (!normals || !positions || !tangents || !texCoords)
 			return;
 
