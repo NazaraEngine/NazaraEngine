@@ -4,12 +4,12 @@
 
 namespace Nz
 {
-	constexpr std::string_view Error::GetCurrentFileRelativeToEngine(std::string_view file)
+	constexpr std::string_view Error::TranslateFilepath(std::string_view file)
 	{
-		if (std::size_t offset = file.find("NazaraEngine/"); offset != file.npos)
+		if (std::size_t offset = file.rfind('/'); offset != file.npos)
 			return file.substr(offset);
 
-		if (std::size_t offset = file.find("NazaraEngine\\"); offset != file.npos)
+		if (std::size_t offset = file.rfind('\\'); offset != file.npos)
 			return file.substr(offset);
 
 		return file;
@@ -22,6 +22,6 @@ namespace Nz
 
 	inline void Error::Trigger(ErrorType type, unsigned int line, std::string_view file, std::string_view function, std::string error)
 	{
-		return TriggerInternal(type, std::move(error), line, GetCurrentFileRelativeToEngine(file), function);
+		return TriggerInternal(type, std::move(error), line, TranslateFilepath(file), function);
 	}
 }

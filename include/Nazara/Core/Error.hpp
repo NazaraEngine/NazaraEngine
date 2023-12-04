@@ -38,7 +38,7 @@ namespace Nz
 
 			static ErrorModeFlags ApplyFlags(ErrorModeFlags orFlags, ErrorModeFlags andFlags);
 
-			static constexpr std::string_view GetCurrentFileRelativeToEngine(std::string_view file);
+			static constexpr std::string_view TranslateFilepath(std::string_view file);
 			static ErrorModeFlags GetFlags();
 			static std::string GetLastError(std::string_view* file = nullptr, unsigned int* line = nullptr, std::string_view* function = nullptr);
 			static unsigned int GetLastSystemErrorCode();
