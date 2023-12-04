@@ -25,7 +25,10 @@ namespace Nz
 
 		// Regular OpenAL contexts are process-wide, but ALC_EXT_thread_local_context allows thread-local contexts
 		const OpenALDevice* s_currentGlobalALDevice;
+
+#ifdef ALC_EXT_thread_local_context
 		thread_local const OpenALDevice* s_currentThreadALDevice;
+#endif
 
 		template<typename FuncType, std::size_t FuncIndex, typename>
 		struct ALWrapper;
@@ -175,8 +178,10 @@ namespace Nz
 		alcDestroyContext(m_context);
 		alcCloseDevice(m_device);
 
+#ifdef ALC_EXT_thread_local_context
 		if (s_currentThreadALDevice)
 			s_currentThreadALDevice = nullptr;
+#endif
 
 		if (s_currentGlobalALDevice == this)
 			s_currentGlobalALDevice = nullptr;
@@ -331,6 +336,7 @@ namespace Nz
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
+#ifdef ALC_EXT_thread_local_context
 		if (alcSetThreadContext)
 		{
 			if (s_currentThreadALDevice != this)
@@ -340,17 +346,21 @@ namespace Nz
 			}
 		}
 		else
+#endif
 		{
 			if (s_currentGlobalALDevice != this)
 			{
+				alcMakeContextCurrent(m_context);
+				s_currentGlobalALDevice = this;
+
+#ifdef ALC_EXT_thread_local_context
 				/*
 				From EXT_thread_local_context:
 				alcMakeContextCurrent changes the current process-wide context and set the current thread-local context to NULL.
 				This has the side effect of changing the current thread-local context, so that the new current process-wide context will be used.
 				*/
-				alcMakeContextCurrent(m_context);
-				s_currentGlobalALDevice = this;
 				s_currentThreadALDevice = nullptr;
+#endif
 			}
 		}
 	}
@@ -514,9 +524,13 @@ namespace Nz
 
 	const OpenALDevice* OpenALDevice::GetCurrentDevice()
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
+#ifdef ALC_EXT_thread_local_context
 		const OpenALDevice* device = s_currentThreadALDevice;
 		if (device)
 			return device;
+#endif
 
 		return s_currentGlobalALDevice;
 	}
