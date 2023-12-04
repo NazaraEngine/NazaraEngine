@@ -65,6 +65,7 @@ namespace Nz
 		Nz::Vector2f layoutSize = GetSize();
 		float maxLayoutSize = layoutSize[axis];
 		float availableSpace = maxLayoutSize - m_spacing * (widgetChildCount - 1);
+		float optimalSize = availableSpace / widgetChildCount;
 
 		// Handle size
 		ForEachWidgetChild([&](BaseWidget* child)
@@ -93,6 +94,8 @@ namespace Nz
 			}
 			else
 				m_state->solver.addConstraint({ (sizeVar >= maxLayoutSize) | kiwi::strength::medium });
+
+			m_state->solver.addConstraint({ (sizeVar >= optimalSize) | kiwi::strength::medium });
 
 			sizeSum = sizeSum + sizeVar;
 		});
