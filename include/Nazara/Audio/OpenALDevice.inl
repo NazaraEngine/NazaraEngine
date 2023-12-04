@@ -7,14 +7,6 @@
 
 namespace Nz
 {
-	inline bool OpenALDevice::DidLastCallSucceed() const
-	{
-		if (!m_didCollectErrors)
-			ProcessErrorFlag();
-
-		return !m_hadAnyError;
-	}
-
 	inline ALFunction OpenALDevice::GetFunctionByIndex(std::size_t funcIndex) const
 	{
 		assert(funcIndex < m_originalFunctionPointer.size());

@@ -178,11 +178,7 @@ namespace Nz
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
 		assert(s_currentALDevice == this);
-
 		alGetError();
-
-		m_didCollectErrors = false;
-		m_hadAnyError = false;
 
 		return true;
 	}
@@ -196,7 +192,7 @@ namespace Nz
 		ALuint bufferId = 0;
 		alGenBuffers(1, &bufferId);
 
-		if (!DidLastCallSucceed())
+		if (!ProcessErrorFlag())
 		{
 			NazaraError("failed to create OpenAL buffer");
 			return {};
@@ -214,7 +210,7 @@ namespace Nz
 		ALuint sourceId = 0;
 		alGenSources(1, &sourceId);
 
-		if (!DidLastCallSucceed())
+		if (!ProcessErrorFlag())
 		{
 			NazaraError("failed to create OpenAL buffer");
 			return {};
@@ -365,16 +361,12 @@ namespace Nz
 		assert(s_currentALDevice == this);
 
 		bool hasAnyError = false;
-
 		if (ALuint lastError = alGetError(); lastError != AL_NO_ERROR)
 		{
 			hasAnyError = true;
 
 			NazaraErrorFmt("OpenAL error: {0}", TranslateOpenALError(lastError));
 		}
-
-		m_didCollectErrors = true;
-		m_hadAnyError = hasAnyError;
 
 		return hasAnyError;
 	}

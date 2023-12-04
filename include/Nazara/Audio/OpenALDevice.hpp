@@ -50,8 +50,6 @@ namespace Nz
 			std::shared_ptr<AudioBuffer> CreateBuffer() override;
 			std::shared_ptr<AudioSource> CreateSource() override;
 
-			inline bool DidLastCallSucceed() const;
-
 			float GetDopplerFactor() const override;
 			inline ALFunction GetFunctionByIndex(std::size_t funcIndex) const;
 			float GetGlobalVolume() const override;
@@ -106,8 +104,6 @@ namespace Nz
 			OpenALLibrary& m_library;
 			MovablePtr<ALCcontext> m_context;
 			MovablePtr<ALCdevice> m_device;
-			mutable bool m_didCollectErrors;
-			mutable bool m_hadAnyError;
 	};
 }
 
