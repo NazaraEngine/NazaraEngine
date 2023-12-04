@@ -27,6 +27,7 @@ namespace Nz
 	enum class OpenALExtension
 	{
 		SourceLatency,
+		ThreadLocalContext,
 
 		Max = SourceLatency
 	};
@@ -81,6 +82,8 @@ namespace Nz
 
 			OpenALDevice& operator=(const OpenALDevice&) = delete;
 			OpenALDevice& operator=(OpenALDevice&&) = delete;
+
+			static const OpenALDevice* GetCurrentDevice();
 
 			// We give each device its own set of function pointer, even though regular OpenAL extensions are always the same (for a set library).
 			// This makes it easier to wrap them (for error handling), and extension pointers are device-local anyway.

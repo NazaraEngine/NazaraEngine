@@ -23,7 +23,9 @@ namespace Nz
 #include <Nazara/Audio/OpenALFunctions.hpp>
 		};
 
-		thread_local const OpenALDevice* s_currentALDevice;
+		// Regular OpenAL contexts are process-wide, but ALC_EXT_thread_local_context allows thread-local contexts
+		const OpenALDevice* s_currentGlobalALDevice;
+		thread_local const OpenALDevice* s_currentThreadALDevice;
 
 		template<typename FuncType, std::size_t FuncIndex, typename>
 		struct ALWrapper;
@@ -35,7 +37,7 @@ namespace Nz
 			{
 				return [](Args... args) -> Ret
 				{
-					const OpenALDevice* device = s_currentALDevice; //< pay TLS cost once
+					const OpenALDevice* device = OpenALDevice::GetCurrentDevice();
 					assert(device);
 
 					FuncType funcPtr = reinterpret_cast<FuncType>(device->GetFunctionByIndex(FuncIndex));
@@ -121,7 +123,7 @@ namespace Nz
 		if (m_library.alcMakeContextCurrent(m_context) != AL_TRUE)
 			throw std::runtime_error("failed to activate OpenAL context");
 
-		s_currentALDevice = this;
+		s_currentGlobalALDevice = this;
 
 		SymbolLoader loader(*this);
 #ifdef NAZARA_DEBUG
@@ -131,6 +133,7 @@ namespace Nz
 #define NAZARA_AUDIO_AL_FUNCTION(name) loader.Load<decltype(&::name), UnderlyingCast(FunctionIndex:: name), false>(name, #name, library.name);
 #define NAZARA_AUDIO_ALC_FUNCTION(name) loader.Load<decltype(&::name), UnderlyingCast(FunctionIndex:: name), true>(name, #name, library.name);
 #define NAZARA_AUDIO_AL_EXT_FUNCTION(name) loader.Load<decltype(&::name), UnderlyingCast(FunctionIndex:: name), false>(name, #name, nullptr);
+#define NAZARA_AUDIO_ALC_EXT_FUNCTION(name) loader.Load<decltype(&::name), UnderlyingCast(FunctionIndex:: name), true>(name, #name, nullptr);
 #include <Nazara/Audio/OpenALFunctions.hpp>
 
 		m_renderer = reinterpret_cast<const char*>(alGetString(AL_RENDERER));
@@ -157,6 +160,9 @@ namespace Nz
 		if (library.alIsExtensionPresent("AL_SOFT_source_latency"))
 			m_extensionStatus[OpenALExtension::SourceLatency] = true;
 
+		if (library.alIsExtensionPresent("ALC_EXT_thread_local_context"))
+			m_extensionStatus[OpenALExtension::ThreadLocalContext] = true;
+
 		SetListenerDirection(Vector3f::Forward());
 	}
 
@@ -164,20 +170,23 @@ namespace Nz
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
-		MakeContextCurrent();
-
+		// alcMakeContextCurrent resets the thread context
+		alcMakeContextCurrent(m_context);
 		alcDestroyContext(m_context);
 		alcCloseDevice(m_device);
 
-		if (s_currentALDevice == this)
-			s_currentALDevice = nullptr;
+		if (s_currentThreadALDevice)
+			s_currentThreadALDevice = nullptr;
+
+		if (s_currentGlobalALDevice == this)
+			s_currentGlobalALDevice = nullptr;
 	}
 
 	bool OpenALDevice::ClearErrorFlag() const
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
-		assert(s_currentALDevice == this);
+		assert(GetCurrentDevice() == this);
 		alGetError();
 
 		return true;
@@ -322,10 +331,27 @@ namespace Nz
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
-		if (s_currentALDevice != this)
+		if (alcSetThreadContext)
 		{
-			m_library.alcMakeContextCurrent(m_context);
-			s_currentALDevice = this;
+			if (s_currentThreadALDevice != this)
+			{
+				alcSetThreadContext(m_context);
+				s_currentThreadALDevice = this;
+			}
+		}
+		else
+		{
+			if (s_currentGlobalALDevice != this)
+			{
+				/*
+				From EXT_thread_local_context:
+				alcMakeContextCurrent changes the current process-wide context and set the current thread-local context to NULL.
+				This has the side effect of changing the current thread-local context, so that the new current process-wide context will be used.
+				*/
+				alcMakeContextCurrent(m_context);
+				s_currentGlobalALDevice = this;
+				s_currentThreadALDevice = nullptr;
+			}
 		}
 	}
 
@@ -358,7 +384,7 @@ namespace Nz
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
-		assert(s_currentALDevice == this);
+		assert(GetCurrentDevice() == this);
 
 		bool hasAnyError = false;
 		if (ALuint lastError = alGetError(); lastError != AL_NO_ERROR)
@@ -484,5 +510,14 @@ namespace Nz
 		MakeContextCurrent();
 
 		alSpeedOfSound(speed);
+	}
+
+	const OpenALDevice* OpenALDevice::GetCurrentDevice()
+	{
+		const OpenALDevice* device = s_currentThreadALDevice;
+		if (device)
+			return device;
+
+		return s_currentGlobalALDevice;
 	}
 }
