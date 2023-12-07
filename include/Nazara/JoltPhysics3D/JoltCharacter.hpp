@@ -9,6 +9,7 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/JoltPhysics3D/Config.hpp>
+#include <Nazara/JoltPhysics3D/JoltAbstractBody.hpp>
 #include <Nazara/JoltPhysics3D/JoltPhysicsStepListener.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
@@ -27,7 +28,7 @@ namespace Nz
 	class JoltCollider3D;
 	class JoltPhysWorld3D;
 
-	class NAZARA_JOLTPHYSICS3D_API JoltCharacter : public JoltPhysicsStepListener
+	class NAZARA_JOLTPHYSICS3D_API JoltCharacter : public JoltAbstractBody, public JoltPhysicsStepListener
 	{
 		friend JoltPhysWorld3D;
 
@@ -42,11 +43,14 @@ namespace Nz
 			inline void DisableSleeping();
 			void EnableSleeping(bool enable);
 
-			inline UInt32 GetBodyIndex() const;
+			UInt32 GetBodyIndex() const override;
+			inline const std::shared_ptr<JoltCollider3D>& GetCollider() const;
 			Vector3f GetLinearVelocity() const;
-			Quaternionf GetRotation() const;
+			inline JoltPhysWorld3D& GetPhysWorld();
+			inline const JoltPhysWorld3D& GetPhysWorld() const;
 			Vector3f GetPosition() const;
 			std::pair<Vector3f, Quaternionf> GetPositionAndRotation() const;
+			Quaternionf GetRotation() const;
 			Vector3f GetUp() const;
 
 			bool IsOnGround() const;

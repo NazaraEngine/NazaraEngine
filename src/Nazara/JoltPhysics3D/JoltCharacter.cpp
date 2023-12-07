@@ -29,7 +29,13 @@ namespace Nz
 	m_bodyIndex(character.m_bodyIndex)
 	{
 		character.m_bodyIndex = std::numeric_limits<UInt32>::max();
-		
+
+		if (m_character)
+		{
+			JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterfaceNoLock();
+			bodyInterface.SetUserData(m_character->GetBodyID(), SafeCast<UInt64>(reinterpret_cast<std::uintptr_t>(this)));
+		}
+
 		if (m_world)
 		{
 			m_world->UnregisterStepListener(&character);
@@ -50,6 +56,11 @@ namespace Nz
 			return;
 
 		bodyLock.GetBody().SetAllowSleeping(enable);
+	}
+
+	UInt32 JoltCharacter::GetBodyIndex() const
+	{
+		return m_bodyIndex;
 	}
 
 	Vector3f JoltCharacter::GetLinearVelocity() const
@@ -135,6 +146,12 @@ namespace Nz
 
 		character.m_bodyIndex = std::numeric_limits<UInt32>::max();
 
+		if (m_character)
+		{
+			JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterfaceNoLock();
+			bodyInterface.SetUserData(m_character->GetBodyID(), SafeCast<UInt64>(reinterpret_cast<std::uintptr_t>(this)));
+		}
+
 		return *this;
 	}
 
@@ -156,6 +173,9 @@ namespace Nz
 		m_character->AddToPhysicsSystem();
 
 		m_bodyIndex = m_character->GetBodyID().GetIndex();
+
+		JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterfaceNoLock();
+		bodyInterface.SetUserData(m_character->GetBodyID(), SafeCast<UInt64>(reinterpret_cast<std::uintptr_t>(this)));
 
 		m_world->RegisterStepListener(this);
 	}

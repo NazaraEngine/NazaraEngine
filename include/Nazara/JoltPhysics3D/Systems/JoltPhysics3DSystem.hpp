@@ -51,8 +51,9 @@ namespace Nz
 
 		private:
 			void OnBodyConstruct(entt::registry& registry, entt::entity entity);
-			void OnCharacterConstruct(entt::registry& registry, entt::entity entity);
 			void OnBodyDestruct(entt::registry& registry, entt::entity entity);
+			void OnCharacterConstruct(entt::registry& registry, entt::entity entity);
+			void OnCharacterDestruct(entt::registry& registry, entt::entity entity);
 
 			std::size_t m_stepCount;
 			std::vector<entt::entity> m_bodyIndicesToEntity;
@@ -60,8 +61,9 @@ namespace Nz
 			entt::observer m_characterConstructObserver;
 			entt::observer m_rigidBodyConstructObserver;
 			entt::scoped_connection m_bodyConstructConnection;
-			entt::scoped_connection m_characterConstructConnection;
 			entt::scoped_connection m_bodyDestructConnection;
+			entt::scoped_connection m_characterConstructConnection;
+			entt::scoped_connection m_characterDestructConnection;
 			JoltPhysWorld3D m_physWorld;
 	};
 }

@@ -10,6 +10,7 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/JoltPhysics3D/Config.hpp>
+#include <Nazara/JoltPhysics3D/JoltAbstractBody.hpp>
 #include <Nazara/JoltPhysics3D/JoltCollider3D.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Quaternion.hpp>
@@ -26,7 +27,7 @@ namespace Nz
 {
 	class JoltPhysWorld3D;
 
-	class NAZARA_JOLTPHYSICS3D_API JoltRigidBody3D
+	class NAZARA_JOLTPHYSICS3D_API JoltRigidBody3D : public JoltAbstractBody
 	{
 		public:
 			struct DynamicSettings;
@@ -54,7 +55,7 @@ namespace Nz
 			Vector3f GetAngularVelocity() const;
 			inline JPH::Body* GetBody();
 			inline const JPH::Body* GetBody() const;
-			inline UInt32 GetBodyIndex() const;
+			UInt32 GetBodyIndex() const override;
 			inline const std::shared_ptr<JoltCollider3D>& GetGeom() const;
 			float GetLinearDamping() const;
 			Vector3f GetLinearVelocity() const;

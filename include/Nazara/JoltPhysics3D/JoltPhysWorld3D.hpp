@@ -27,8 +27,10 @@ namespace JPH
 
 namespace Nz
 {
+	class JoltAbstractBody;
 	class JoltCharacter;
 	class JoltCharacterImpl;
+	class JoltCollider3D;
 	class JoltPhysicsStepListener;
 	class JoltRigidBody3D;
 
@@ -75,7 +77,7 @@ namespace Nz
 			struct RaycastHit
 			{
 				float fraction;
-				JoltRigidBody3D* hitBody = nullptr;
+				JoltAbstractBody* hitBody = nullptr;
 				Vector3f hitNormal;
 				Vector3f hitPosition;
 			};

@@ -11,9 +11,19 @@ namespace Nz
 		return EnableSleeping(false);
 	}
 
-	inline UInt32 JoltCharacter::GetBodyIndex() const
+	inline const std::shared_ptr<JoltCollider3D>& JoltCharacter::GetCollider() const
 	{
-		return m_bodyIndex;
+		return m_collider;
+	}
+
+	inline JoltPhysWorld3D& JoltCharacter::GetPhysWorld()
+	{
+		return *m_world;
+	}
+
+	inline const JoltPhysWorld3D& JoltCharacter::GetPhysWorld() const
+	{
+		return *m_world;
 	}
 
 	inline void JoltCharacter::SetImpl(std::shared_ptr<JoltCharacterImpl> characterImpl)

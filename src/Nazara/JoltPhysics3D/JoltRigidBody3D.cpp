@@ -120,6 +120,11 @@ namespace Nz
 		return FromJolt(m_body->GetAngularVelocity());
 	}
 
+	UInt32 JoltRigidBody3D::GetBodyIndex() const
+	{
+		return m_bodyIndex;
+	}
+
 	float JoltRigidBody3D::GetLinearDamping() const
 	{
 		if NAZARA_UNLIKELY(IsStatic())
