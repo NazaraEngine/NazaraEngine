@@ -8,14 +8,13 @@
 #define NAZARA_MATH_QUATERNION_HPP
 
 #include <Nazara/Math/Angle.hpp>
+#include <Nazara/Math/EulerAngles.hpp>
+#include <Nazara/Math/Vector3.hpp>
 #include <string>
 
 namespace Nz
 {
 	struct SerializationContext;
-
-	template<typename T> class EulerAngles;
-	template<typename T> class Vector3;
 
 	template<typename T> class Quaternion
 	{
@@ -31,6 +30,7 @@ namespace Nz
 			constexpr Quaternion(Quaternion&&) = default;
 			~Quaternion() = default;
 
+			RadianAngle<T> AngleBetween(const Quaternion& vec) const;
 			constexpr bool ApproxEqual(const Quaternion& quat, T maxDifference = std::numeric_limits<T>::epsilon()) const;
 
 			Quaternion& ComputeW();
@@ -75,12 +75,14 @@ namespace Nz
 			constexpr bool operator>(const Quaternion& quat) const;
 			constexpr bool operator>=(const Quaternion& quat) const;
 
+			static RadianAngle<T> AngleBetween(const Quaternion& lhs, const Quaternion& rhs);
 			static constexpr bool ApproxEqual(const Quaternion& lhs, const Quaternion& rhs, T maxDifference = std::numeric_limits<T>::epsilon());
 			static constexpr Quaternion Identity();
 			static constexpr Quaternion Lerp(const Quaternion& from, const Quaternion& to, T interpolation);
 			static Quaternion LookAt(const Vector3<T>& forward, const Vector3<T>& up);
 			static Quaternion Normalize(const Quaternion& quat, T* length = nullptr);
 			static Quaternion RotationBetween(const Vector3<T>& from, const Vector3<T>& to);
+			static Quaternion RotateTowards(const Quaternion& from, const Quaternion& to, RadianAngle<T> maxRotation);
 			static Quaternion Mirror(Quaternion quat, const Vector3<T>& axis);
 			static Quaternion Slerp(const Quaternion& from, const Quaternion& to, T interpolation);
 			static constexpr Quaternion Zero();

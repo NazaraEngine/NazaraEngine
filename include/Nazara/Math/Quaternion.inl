@@ -4,8 +4,6 @@
 
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Math/Config.hpp>
-#include <Nazara/Math/EulerAngles.hpp>
-#include <Nazara/Math/Vector3.hpp>
 #include <cstring>
 #include <limits>
 #include <sstream>
@@ -114,6 +112,13 @@ namespace Nz
 	y(static_cast<T>(quat.y)),
 	z(static_cast<T>(quat.z))
 	{
+	}
+
+	template<typename T>
+	RadianAngle<T> Quaternion<T>::AngleBetween(const Quaternion& quat) const
+	{
+		T alpha = Vector3<T>::DotProduct(Vector3<T>(x, y, z), Vector3<T>(quat.x, quat.y, quat.z));
+		return std::acos(Nz::Clamp(alpha, T(-1.0), T(1.0)));
 	}
 
 	template<typename T>
@@ -572,6 +577,12 @@ namespace Nz
 	}
 
 	template<typename T>
+	RadianAngle<T> Quaternion<T>::AngleBetween(const Quaternion& lhs, const Quaternion& rhs)
+	{
+		return lhs.AngleBetween(rhs);
+	}
+
+	template<typename T>
 	constexpr bool Quaternion<T>::ApproxEqual(const Quaternion& lhs, const Quaternion& rhs, T maxDifference)
 	{
 		return lhs.ApproxEqual(rhs, maxDifference);
@@ -685,6 +696,16 @@ namespace Nz
 
 			return Quaternion(norm + dot, crossProduct.x, crossProduct.y, crossProduct.z).GetNormal();
 		}
+	}
+
+	template<typename T>
+	Quaternion<T> Quaternion<T>::RotateTowards(const Quaternion& from, const Quaternion& to, RadianAngle<T> maxRotation)
+	{
+		RadianAngle<T> rotationBetween = AngleBetween(from, to);
+		if (rotationBetween < maxRotation)
+			return to;
+
+		return Slerp(from, to, std::min(maxRotation.value / rotationBetween.value), 1.f);
 	}
 
 	template<typename T>

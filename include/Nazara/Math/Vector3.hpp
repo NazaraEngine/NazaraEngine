@@ -105,6 +105,7 @@ namespace Nz
 			static constexpr Vector3 Lerp(const Vector3& from, const Vector3& to, T interpolation);
 			static constexpr Vector3 Max(const Vector3& lhs, const Vector3& rhs);
 			static constexpr Vector3 Min(const Vector3& lhs, const Vector3& rhs);
+			static Vector3 RotateTowards(const Vector3& from, const Vector3& to, RadianAngle<T> maxAngle);
 			static Vector3 Normalize(const Vector3& vec);
 			static constexpr Vector3 Right();
 			static constexpr T SquaredDistance(const Vector3& vec1, const Vector3& vec2);

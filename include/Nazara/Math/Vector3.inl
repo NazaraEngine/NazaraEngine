@@ -123,7 +123,7 @@ namespace Nz
 	*
 	* \param vec The other vector to measure the angle with
 	*
-	* \remark The vectors do not need to be normalised
+	* \remark The vectors need to be normalised
 	* \remark Produce a NazaraError if one of the vec components is null with NAZARA_MATH_SAFE defined
 	* \throw std::domain_error if NAZARA_MATH_SAFE is defined and one of the vec components is null
 	*
@@ -132,20 +132,7 @@ namespace Nz
 	template<typename T>
 	RadianAngle<T> Vector3<T>::AngleBetween(const Vector3& vec) const
 	{
-		// sqrt(a) * sqrt(b) = sqrt(a*b)
-		T divisor = std::sqrt(GetSquaredLength() * vec.GetSquaredLength());
-
-		#if NAZARA_MATH_SAFE
-		if (NumberEquals(divisor, T(0.0)))
-		{
-			std::string error("Division by zero");
-
-			NazaraError(error);
-			throw std::domain_error(std::move(error));
-		}
-		#endif
-
-		T alpha = DotProduct(vec) / divisor;
+		T alpha = DotProduct(vec);
 		return std::acos(Nz::Clamp(alpha, T(-1.0), T(1.0)));
 	}
 
@@ -833,6 +820,20 @@ namespace Nz
 		min.Minimize(rhs);
 
 		return min;
+	}
+
+	template<typename T>
+	Vector3<T> Vector3<T>::RotateTowards(const Vector3& from, const Vector3& to, RadianAngle<T> maxAngle)
+	{
+		// https://gamedev.stackexchange.com/a/203036
+		RadianAngle<T> angleBetween = from.AngleBetween(to);
+		if (angleBetween < maxAngle)
+			return to;
+
+		Vector3 axis = CrossProduct(from, to);
+
+		Quaternion<T> rotationIncrement = Quaternion(maxAngle, axis);
+		return rotationIncrement * from;
 	}
 
 	/*!
