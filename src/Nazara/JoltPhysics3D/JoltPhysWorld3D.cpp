@@ -473,7 +473,7 @@ namespace Nz
 			m_world->physicsSystem.Update(stepSize, 1, &m_world->tempAllocator, &jobSystem);
 
 			for (JoltPhysicsStepListener* stepListener : m_stepListeners)
-				stepListener->PostSimulate();
+				stepListener->PostSimulate(stepSize);
 
 			m_timestepAccumulator -= m_stepSize;
 			stepCount++;

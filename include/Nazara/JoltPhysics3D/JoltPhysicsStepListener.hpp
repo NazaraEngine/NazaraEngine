@@ -20,7 +20,7 @@ namespace Nz
 			JoltPhysicsStepListener(JoltPhysicsStepListener&&) = delete;
 			virtual ~JoltPhysicsStepListener();
 
-			virtual void PostSimulate();
+			virtual void PostSimulate(float elapsedTime);
 			virtual void PreSimulate(float elapsedTime);
 
 			JoltPhysicsStepListener& operator=(const JoltPhysicsStepListener&) = delete;

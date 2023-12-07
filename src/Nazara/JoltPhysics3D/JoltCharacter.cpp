@@ -197,10 +197,10 @@ namespace Nz
 		m_collider.reset();
 	}
 
-	void JoltCharacter::PostSimulate()
+	void JoltCharacter::PostSimulate(float elapsedTime)
 	{
 		m_character->PostSimulation(0.05f);
-		m_impl->PostSimulate(*this);
+		m_impl->PostSimulate(*this, elapsedTime);
 	}
 
 	void JoltCharacter::PreSimulate(float elapsedTime)
@@ -211,7 +211,7 @@ namespace Nz
 
 	JoltCharacterImpl::~JoltCharacterImpl() = default;
 
-	void JoltCharacterImpl::PostSimulate(JoltCharacter& /*character*/)
+	void JoltCharacterImpl::PostSimulate(JoltCharacter& /*character*/, float /*elapsedTime*/)
 	{
 	}
 

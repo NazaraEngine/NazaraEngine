@@ -82,7 +82,7 @@ namespace Nz
 			void Destroy();
 
 		private:
-			void PostSimulate() override;
+			void PostSimulate(float elapsedTime) override;
 			void PreSimulate(float elapsedTime) override;
 
 			std::shared_ptr<JoltCharacterImpl> m_impl;
@@ -100,7 +100,7 @@ namespace Nz
 			JoltCharacterImpl(JoltCharacterImpl&&) = delete;
 			virtual ~JoltCharacterImpl();
 
-			virtual void PostSimulate(JoltCharacter& character);
+			virtual void PostSimulate(JoltCharacter& character, float elapsedTime);
 			virtual void PreSimulate(JoltCharacter& character, float elapsedTime);
 
 			JoltCharacterImpl& operator=(const JoltCharacterImpl&) = delete;

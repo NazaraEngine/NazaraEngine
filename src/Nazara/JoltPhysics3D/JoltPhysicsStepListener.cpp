@@ -9,7 +9,7 @@ namespace Nz
 {
 	JoltPhysicsStepListener::~JoltPhysicsStepListener() = default;
 
-	void JoltPhysicsStepListener::PostSimulate()
+	void JoltPhysicsStepListener::PostSimulate(float /*elapsedTime*/)
 	{
 	}
 
