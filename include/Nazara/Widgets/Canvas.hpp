@@ -32,6 +32,10 @@ namespace Nz
 			Canvas& operator=(const Canvas&) = delete;
 			Canvas& operator=(Canvas&&) = delete;
 
+			NazaraSignal(OnUnhandledMouseButtonPressed, const WindowEventHandler* /*eventHandler*/, const WindowEvent::MouseButtonEvent& /*event*/);
+			NazaraSignal(OnUnhandledMouseButtonReleased, const WindowEventHandler* /*eventHandler*/, const WindowEvent::MouseButtonEvent& /*event*/);
+			NazaraSignal(OnUnhandledMouseMoved, const WindowEventHandler* /*eventHandler*/, const WindowEvent::MouseMoveEvent& /*event*/);
+			NazaraSignal(OnUnhandledMouseWheelMoved, const WindowEventHandler* /*eventHandler*/, const WindowEvent::MouseWheelEvent& /*event*/);
 			NazaraSignal(OnUnhandledKeyPressed, const WindowEventHandler* /*eventHandler*/, const WindowEvent::KeyEvent& /*event*/);
 			NazaraSignal(OnUnhandledKeyReleased, const WindowEventHandler* /*eventHandler*/, const WindowEvent::KeyEvent& /*event*/);
 
@@ -55,7 +59,7 @@ namespace Nz
 			void UnregisterWidget(std::size_t index);
 
 		private:
-			template<typename F> void DispatchEvent(std::size_t widgetIndex, F&& functor);
+			template<typename F> bool DispatchEvent(std::size_t widgetIndex, F&& functor);
 			
 			void OnEventMouseButtonPressed(const WindowEventHandler* eventHandler, const WindowEvent::MouseButtonEvent& event);
 			void OnEventMouseButtonRelease(const WindowEventHandler* eventHandler, const WindowEvent::MouseButtonEvent& event);

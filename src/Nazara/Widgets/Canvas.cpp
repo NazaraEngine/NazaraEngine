@@ -91,28 +91,29 @@ namespace Nz
 	}
 
 	template<typename F>
-	void Canvas::DispatchEvent(std::size_t widgetIndex, F&& functor)
+	bool Canvas::DispatchEvent(std::size_t widgetIndex, F&& functor)
 	{
 		for (;;)
 		{
 			WidgetEntry& targetWidget = m_widgetEntries[widgetIndex];
 			if (functor(targetWidget))
-				return;
+				return true;
 
 			if (!targetWidget.widget->m_parentWidget)
-				return;
+				return false;
 
 			widgetIndex = targetWidget.widget->m_parentWidget->m_canvasIndex;
 		}
 	}
 
-	void Canvas::OnEventMouseButtonPressed(const WindowEventHandler* /*eventHandler*/, const WindowEvent::MouseButtonEvent& event)
+	void Canvas::OnEventMouseButtonPressed(const WindowEventHandler* eventHandler, const WindowEvent::MouseButtonEvent& event)
 	{
 		UpdateHoveredWidget(event.x, event.y);
 
+		bool handled = false;
 		if (std::size_t targetWidgetIndex = GetMouseEventTarget(); targetWidgetIndex != InvalidCanvasIndex)
 		{
-			DispatchEvent(targetWidgetIndex, [&](WidgetEntry& widgetEntry)
+			handled = DispatchEvent(targetWidgetIndex, [&](WidgetEntry& widgetEntry)
 			{
 				int x = static_cast<int>(std::round(event.x - widgetEntry.box.x));
 				int y = static_cast<int>(std::round(m_size.y - event.y - widgetEntry.box.y));
@@ -128,13 +129,17 @@ namespace Nz
 
 		SetMouseOwner(m_hoveredWidget);
 		m_mouseOwnerButtons[event.button] = true;
+
+		if (!handled)
+			OnUnhandledMouseButtonPressed(eventHandler, event);
 	}
 
-	void Canvas::OnEventMouseButtonRelease(const WindowEventHandler* /*eventHandler*/, const WindowEvent::MouseButtonEvent& event)
+	void Canvas::OnEventMouseButtonRelease(const WindowEventHandler* eventHandler, const WindowEvent::MouseButtonEvent& event)
 	{
+		bool handled = false;
 		if (std::size_t targetWidgetIndex = GetMouseEventTarget(); targetWidgetIndex != InvalidCanvasIndex)
 		{
-			DispatchEvent(targetWidgetIndex, [&](WidgetEntry& widgetEntry)
+			handled = DispatchEvent(targetWidgetIndex, [&](WidgetEntry& widgetEntry)
 			{
 				int x = static_cast<int>(std::round(event.x - widgetEntry.box.x));
 				int y = static_cast<int>(std::round(m_size.y - event.y - widgetEntry.box.y));
@@ -148,6 +153,9 @@ namespace Nz
 			SetMouseOwner(InvalidCanvasIndex);
 
 		UpdateHoveredWidget(event.x, event.y);
+
+		if (!handled)
+			OnUnhandledMouseButtonReleased(eventHandler, event);
 	}
 
 	void Canvas::OnEventMouseEntered(const WindowEventHandler* /*eventHandler*/)
@@ -185,7 +193,7 @@ namespace Nz
 		}
 	}
 
-	void Canvas::OnEventMouseMoved(const WindowEventHandler* /*eventHandler*/, const WindowEvent::MouseMoveEvent& event)
+	void Canvas::OnEventMouseMoved(const WindowEventHandler* eventHandler, const WindowEvent::MouseMoveEvent& event)
 	{
 		// Don't update hovered widget while the user doesn't release its mouse
 		UpdateHoveredWidget(event.x, event.y);
@@ -197,15 +205,19 @@ namespace Nz
 			int x = static_cast<int>(std::round(event.x - targetWidget.box.x));
 			int y = static_cast<int>(std::round(m_size.y - event.y - targetWidget.box.y));
 
-			targetWidget.widget->OnMouseMoved(x, y, event.deltaX, -event.deltaY);
+			if (targetWidget.widget->OnMouseMoved(x, y, event.deltaX, -event.deltaY))
+				return;
 		}
+
+		OnUnhandledMouseMoved(eventHandler, event);
 	}
 
-	void Canvas::OnEventMouseWheelMoved(const WindowEventHandler* /*eventHandler*/, const WindowEvent::MouseWheelEvent& event)
+	void Canvas::OnEventMouseWheelMoved(const WindowEventHandler* eventHandler, const WindowEvent::MouseWheelEvent& event)
 	{
+		bool handled = false;
 		if (std::size_t targetWidgetIndex = GetMouseEventTarget(); targetWidgetIndex != InvalidCanvasIndex)
 		{
-			DispatchEvent(targetWidgetIndex, [&](WidgetEntry& widgetEntry)
+			handled = DispatchEvent(targetWidgetIndex, [&](WidgetEntry& widgetEntry)
 			{
 				int x = static_cast<int>(std::round(event.x - widgetEntry.box.x));
 				int y = static_cast<int>(std::round(m_size.y - event.y - widgetEntry.box.y));
@@ -213,6 +225,9 @@ namespace Nz
 				return widgetEntry.widget->OnMouseWheelMoved(x, y, event.delta);
 			});
 		}
+
+		if (!handled)
+			OnUnhandledMouseWheelMoved(eventHandler, event);
 	}
 
 	void Canvas::OnEventKeyPressed(const WindowEventHandler* eventHandler, const WindowEvent::KeyEvent& event)
@@ -276,7 +291,10 @@ namespace Nz
 	void Canvas::OnEventKeyReleased(const WindowEventHandler* eventHandler, const WindowEvent::KeyEvent& event)
 	{
 		if (m_keyboardOwner != InvalidCanvasIndex)
-			m_widgetEntries[m_keyboardOwner].widget->OnKeyReleased(event);
+		{
+			if (m_widgetEntries[m_keyboardOwner].widget->OnKeyReleased(event))
+				return;
+		}
 
 		OnUnhandledKeyReleased(eventHandler, event);
 	}
