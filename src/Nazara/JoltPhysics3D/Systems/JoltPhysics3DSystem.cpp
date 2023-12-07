@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/JoltPhysics3D/Systems/JoltPhysics3DSystem.hpp>
+#include <Nazara/JoltPhysics3D/JoltAbstractBody.hpp>
 #include <Nazara/Core/Components/DisabledComponent.hpp>
 #include <Nazara/Utility/Components/NodeComponent.hpp>
 #include <Nazara/JoltPhysics3D/Debug.hpp>
@@ -15,8 +16,9 @@ namespace Nz
 	m_rigidBodyConstructObserver(m_registry, entt::collector.group<JoltRigidBody3DComponent, NodeComponent>(entt::exclude<DisabledComponent, JoltCharacterComponent>))
 	{
 		m_bodyConstructConnection = registry.on_construct<JoltRigidBody3DComponent>().connect<&JoltPhysics3DSystem::OnBodyConstruct>(this);
-		m_characterConstructConnection = registry.on_construct<JoltCharacterComponent>().connect<&JoltPhysics3DSystem::OnCharacterConstruct>(this);
 		m_bodyDestructConnection = registry.on_destroy<JoltRigidBody3DComponent>().connect<&JoltPhysics3DSystem::OnBodyDestruct>(this);
+		m_characterConstructConnection = registry.on_construct<JoltCharacterComponent>().connect<&JoltPhysics3DSystem::OnCharacterConstruct>(this);
+		m_characterDestructConnection = registry.on_destroy<JoltCharacterComponent>().connect<&JoltPhysics3DSystem::OnCharacterDestruct>(this);
 	}
 
 	JoltPhysics3DSystem::~JoltPhysics3DSystem()
@@ -32,6 +34,47 @@ namespace Nz
 		auto rigidBodyView = m_registry.view<JoltRigidBody3DComponent>();
 		for (auto [entity, rigidBodyComponent] : rigidBodyView.each())
 			rigidBodyComponent.Destroy(true);
+	}
+
+	bool JoltPhysics3DSystem::CollisionQuery(const Vector3f& point, const FunctionRef<std::optional<float>(const PointCollisionInfo& collisionInfo)>& callback)
+	{
+		return m_physWorld.CollisionQuery(point, [&](const JoltPhysWorld3D::PointCollisionInfo& hitInfo)
+		{
+			PointCollisionInfo extendedHitInfo;
+			static_cast<JoltPhysWorld3D::PointCollisionInfo&>(extendedHitInfo) = hitInfo;
+
+			if (extendedHitInfo.hitBody)
+			{
+				std::size_t bodyIndex = extendedHitInfo.hitBody->GetBodyIndex();
+				if (bodyIndex < m_bodyIndicesToEntity.size())
+					extendedHitInfo.hitEntity = entt::handle(m_registry, m_bodyIndicesToEntity[bodyIndex]);
+			}
+
+			return callback(extendedHitInfo);
+		});
+	}
+
+	bool JoltPhysics3DSystem::CollisionQuery(const JoltCollider3D& collider, const Matrix4f& shapeTransform, const FunctionRef<std::optional<float>(const ShapeCollisionInfo& hitInfo)>& callback)
+	{
+		return CollisionQuery(collider, shapeTransform, Vector3f::Unit(), callback);
+	}
+
+	bool JoltPhysics3DSystem::CollisionQuery(const JoltCollider3D& collider, const Matrix4f& colliderTransform, const Vector3f& colliderScale, const FunctionRef<std::optional<float>(const ShapeCollisionInfo& hitInfo)>& callback)
+	{
+		return m_physWorld.CollisionQuery(collider, colliderTransform, colliderScale, [&](const JoltPhysWorld3D::ShapeCollisionInfo& hitInfo)
+		{
+			ShapeCollisionInfo extendedHitInfo;
+			static_cast<JoltPhysWorld3D::ShapeCollisionInfo&>(extendedHitInfo) = hitInfo;
+
+			if (extendedHitInfo.hitBody)
+			{
+				std::size_t bodyIndex = extendedHitInfo.hitBody->GetBodyIndex();
+				if (bodyIndex < m_bodyIndicesToEntity.size())
+					extendedHitInfo.hitEntity = entt::handle(m_registry, m_bodyIndicesToEntity[bodyIndex]);
+			}
+
+			return callback(extendedHitInfo);
+		});
 	}
 
 	bool JoltPhysics3DSystem::RaycastQuery(const Vector3f& from, const Vector3f& to, const FunctionRef<std::optional<float>(const RaycastHit& hitInfo)>& callback)
@@ -139,17 +182,33 @@ namespace Nz
 		m_bodyIndicesToEntity[uniqueIndex] = entity;
 	}
 
-	void JoltPhysics3DSystem::OnCharacterConstruct(entt::registry& registry, entt::entity entity)
-	{
-		JoltCharacterComponent& character = registry.get<JoltCharacterComponent>(entity);
-		character.Construct(m_physWorld);
-	}
-
 	void JoltPhysics3DSystem::OnBodyDestruct(entt::registry& registry, entt::entity entity)
 	{
 		// Unregister owning entity
 		JoltRigidBody3DComponent& rigidBody = registry.get<JoltRigidBody3DComponent>(entity);
 		UInt32 uniqueIndex = rigidBody.GetBodyIndex();
+		assert(uniqueIndex <= m_bodyIndicesToEntity.size());
+
+		m_bodyIndicesToEntity[uniqueIndex] = entt::null;
+	}
+
+	void JoltPhysics3DSystem::OnCharacterConstruct(entt::registry& registry, entt::entity entity)
+	{
+		JoltCharacterComponent& character = registry.get<JoltCharacterComponent>(entity);
+		character.Construct(m_physWorld);
+
+		UInt32 uniqueIndex = character.GetBodyIndex();
+		if (uniqueIndex >= m_bodyIndicesToEntity.size())
+			m_bodyIndicesToEntity.resize(uniqueIndex + 1);
+
+		m_bodyIndicesToEntity[uniqueIndex] = entity;
+	}
+
+	void JoltPhysics3DSystem::OnCharacterDestruct(entt::registry& registry, entt::entity entity)
+	{
+		// Unregister owning entity
+		JoltCharacterComponent& character = registry.get<JoltCharacterComponent>(entity);
+		UInt32 uniqueIndex = character.GetBodyIndex();
 		assert(uniqueIndex <= m_bodyIndicesToEntity.size());
 
 		m_bodyIndicesToEntity[uniqueIndex] = entt::null;

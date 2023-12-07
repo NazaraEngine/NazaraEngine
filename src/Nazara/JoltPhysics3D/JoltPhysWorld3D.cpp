@@ -4,6 +4,7 @@
 
 #include <Nazara/JoltPhysics3D/JoltPhysWorld3D.hpp>
 #include <Nazara/JoltPhysics3D/JoltCharacter.hpp>
+#include <Nazara/JoltPhysics3D/JoltCollider3D.hpp>
 #include <Nazara/JoltPhysics3D/JoltHelper.hpp>
 #include <Nazara/JoltPhysics3D/JoltPhysics3D.hpp>
 #include <Nazara/JoltPhysics3D/JoltPhysicsStepListener.hpp>
@@ -16,6 +17,8 @@
 #include <Jolt/Physics/PhysicsSystem.h>
 #include <Jolt/Physics/Body/BodyActivationListener.h>
 #include <Jolt/Physics/Collision/CastResult.h>
+#include <Jolt/Physics/Collision/CollidePointResult.h>
+#include <Jolt/Physics/Collision/CollideShape.h>
 #include <Jolt/Physics/Collision/CollisionCollectorImpl.h>
 #include <Jolt/Physics/Collision/ObjectLayer.h>
 #include <Jolt/Physics/Collision/RayCast.h>
@@ -162,10 +165,106 @@ namespace Nz
 {
 	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
-		class CallbackHitResult : public JPH::CastRayCollector
+		class PointCallbackHitResult : public JPH::CollidePointCollector
 		{
 			public:
-				CallbackHitResult(const JPH::BodyLockInterface& bodyLockInterface, const Vector3f& from, const Vector3f& to, const FunctionRef<std::optional<float>(const JoltPhysWorld3D::RaycastHit& hitInfo)>& callback) :
+				PointCallbackHitResult(const JPH::BodyLockInterface& bodyLockInterface, const FunctionRef<std::optional<float>(const JoltPhysWorld3D::PointCollisionInfo& hitInfo)>& callback) :
+				m_bodyLockInterface(bodyLockInterface),
+				m_callback(callback),
+				m_didHit(false)
+				{
+				}
+
+				void AddHit(const JPH::CollidePointResult& result)
+				{
+					JoltPhysWorld3D::PointCollisionInfo hitInfo;
+
+					JPH::BodyLockWrite lock(m_bodyLockInterface, result.mBodyID);
+					if (!lock.Succeeded())
+						return; //< body was destroyed
+
+					JPH::Body& body = lock.GetBody();
+
+					hitInfo.hitBody = reinterpret_cast<JoltAbstractBody*>(static_cast<std::uintptr_t>(body.GetUserData()));
+
+					if (auto fractionOpt = m_callback(hitInfo))
+					{
+						float fraction = fractionOpt.value();
+						if (fraction > 0.f)
+						{
+							m_didHit = true;
+							UpdateEarlyOutFraction(fraction);
+						}
+						else
+							ForceEarlyOut();
+					}
+				}
+
+				bool DidHit() const
+				{
+					return m_didHit;
+				}
+
+			private:
+				const JPH::BodyLockInterface& m_bodyLockInterface;
+				const FunctionRef<std::optional<float>(const JoltPhysWorld3D::PointCollisionInfo& hitInfo)>& m_callback;
+				bool m_didHit;
+		};
+		
+		class ShapeCallbackHitResult : public JPH::CollideShapeCollector
+		{
+			public:
+				ShapeCallbackHitResult(const JPH::BodyLockInterface& bodyLockInterface, const FunctionRef<std::optional<float>(const JoltPhysWorld3D::ShapeCollisionInfo& hitInfo)>& callback) :
+				m_bodyLockInterface(bodyLockInterface),
+				m_callback(callback),
+				m_didHit(false)
+				{
+				}
+
+				void AddHit(const JPH::CollideShapeResult& result)
+				{
+					JoltPhysWorld3D::ShapeCollisionInfo hitInfo;
+					hitInfo.collisionPosition1 = FromJolt(result.mContactPointOn1);
+					hitInfo.collisionPosition2 = FromJolt(result.mContactPointOn2);
+					hitInfo.penetrationAxis = FromJolt(result.mPenetrationAxis);
+					hitInfo.penetrationDepth = result.mPenetrationDepth;
+
+					JPH::BodyLockWrite lock(m_bodyLockInterface, result.mBodyID2);
+					if (!lock.Succeeded())
+						return; //< body was destroyed
+
+					JPH::Body& body = lock.GetBody();
+
+					hitInfo.hitBody = reinterpret_cast<JoltAbstractBody*>(static_cast<std::uintptr_t>(body.GetUserData()));
+
+					if (auto fractionOpt = m_callback(hitInfo))
+					{
+						float fraction = fractionOpt.value();
+						if (fraction > 0.f)
+						{
+							m_didHit = true;
+							UpdateEarlyOutFraction(fraction);
+						}
+						else
+							ForceEarlyOut();
+					}
+				}
+
+				bool DidHit() const
+				{
+					return m_didHit;
+				}
+
+			private:
+				const JPH::BodyLockInterface& m_bodyLockInterface;
+				const FunctionRef<std::optional<float>(const JoltPhysWorld3D::ShapeCollisionInfo& hitInfo)>& m_callback;
+				bool m_didHit;
+		};
+
+		class RaycastCallbackHitResult : public JPH::CastRayCollector
+		{
+			public:
+				RaycastCallbackHitResult(const JPH::BodyLockInterface& bodyLockInterface, const Vector3f& from, const Vector3f& to, const FunctionRef<std::optional<float>(const JoltPhysWorld3D::RaycastHit& hitInfo)>& callback) :
 				m_bodyLockInterface(bodyLockInterface),
 				m_callback(callback),
 				m_from(from),
@@ -323,6 +422,35 @@ namespace Nz
 
 	JoltPhysWorld3D::~JoltPhysWorld3D() = default;
 
+	bool JoltPhysWorld3D::CollisionQuery(const Vector3f& point, const FunctionRef<std::optional<float>(const PointCollisionInfo& collisionInfo)>& callback)
+	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
+		PointCallbackHitResult collector(m_world->physicsSystem.GetBodyLockInterface(), callback);
+		m_world->physicsSystem.GetNarrowPhaseQuery().CollidePoint(ToJolt(point), collector);
+
+		return collector.DidHit();
+	}
+
+	bool JoltPhysWorld3D::CollisionQuery(const JoltCollider3D& collider, const Matrix4f& colliderTransform, const FunctionRef<std::optional<float>(const ShapeCollisionInfo& hitInfo)>& callback)
+	{
+		return CollisionQuery(collider, colliderTransform, Vector3f::Unit(), callback);
+	}
+
+	bool JoltPhysWorld3D::CollisionQuery(const JoltCollider3D& collider, const Matrix4f& colliderTransform, const Vector3f& colliderScale, const FunctionRef<std::optional<float>(const ShapeCollisionInfo& hitInfo)>& callback)
+	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
+		JPH::Shape* shape = collider.GetShapeSettings()->Create().Get();
+
+		JPH::CollideShapeSettings collideShapeSettings;
+
+		ShapeCallbackHitResult collector(m_world->physicsSystem.GetBodyLockInterface(), callback);
+		m_world->physicsSystem.GetNarrowPhaseQuery().CollideShape(shape, ToJolt(colliderScale), ToJolt(colliderTransform), collideShapeSettings, JPH::Vec3::sZero(), collector);
+
+		return collector.DidHit();
+	}
+
 	UInt32 JoltPhysWorld3D::GetActiveBodyCount() const
 	{
 		return m_world->physicsSystem.GetNumActiveBodies(JPH::EBodyType::RigidBody);
@@ -358,7 +486,7 @@ namespace Nz
 
 		JPH::RayCastSettings rayCastSettings;
 
-		CallbackHitResult collector(m_world->physicsSystem.GetBodyLockInterface(), from, to, callback);
+		RaycastCallbackHitResult collector(m_world->physicsSystem.GetBodyLockInterface(), from, to, callback);
 		m_world->physicsSystem.GetNarrowPhaseQuery().CastRay(rayCast, rayCastSettings, collector);
 
 		return collector.DidHit();

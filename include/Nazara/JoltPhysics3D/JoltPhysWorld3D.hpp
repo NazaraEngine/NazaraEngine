@@ -40,12 +40,18 @@ namespace Nz
 		friend JoltRigidBody3D;
 
 		public:
+			struct PointCollisionInfo;
 			struct RaycastHit;
+			struct ShapeCollisionInfo;
 
 			JoltPhysWorld3D();
 			JoltPhysWorld3D(const JoltPhysWorld3D&) = delete;
 			JoltPhysWorld3D(JoltPhysWorld3D&& ph) = delete;
 			~JoltPhysWorld3D();
+
+			bool CollisionQuery(const Vector3f& point, const FunctionRef<std::optional<float>(const PointCollisionInfo& collisionInfo)>& callback);
+			bool CollisionQuery(const JoltCollider3D& collider, const Matrix4f& colliderTransform, const FunctionRef<std::optional<float>(const ShapeCollisionInfo& hitInfo)>& callback);
+			bool CollisionQuery(const JoltCollider3D& collider, const Matrix4f& colliderTransform, const Vector3f& colliderScale, const FunctionRef<std::optional<float>(const ShapeCollisionInfo& hitInfo)>& callback);
 
 			UInt32 GetActiveBodyCount() const;
 			Vector3f GetGravity() const;
@@ -74,12 +80,26 @@ namespace Nz
 			JoltPhysWorld3D& operator=(const JoltPhysWorld3D&) = delete;
 			JoltPhysWorld3D& operator=(JoltPhysWorld3D&&) = delete;
 
+			struct PointCollisionInfo
+			{
+				JoltAbstractBody* hitBody = nullptr;
+			};
+
 			struct RaycastHit
 			{
 				float fraction;
 				JoltAbstractBody* hitBody = nullptr;
 				Vector3f hitNormal;
 				Vector3f hitPosition;
+			};
+
+			struct ShapeCollisionInfo
+			{
+				JoltAbstractBody* hitBody = nullptr;
+				Vector3f collisionPosition1;
+				Vector3f collisionPosition2;
+				Vector3f penetrationAxis;
+				float penetrationDepth;
 			};
 
 		private:

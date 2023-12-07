@@ -25,12 +25,18 @@ namespace Nz
 			static constexpr Int64 ExecutionOrder = 0;
 			using Components = TypeList<JoltCharacterComponent, JoltRigidBody3DComponent, class NodeComponent>;
 
+			struct PointCollisionInfo;
 			struct RaycastHit;
+			struct ShapeCollisionInfo;
 
 			JoltPhysics3DSystem(entt::registry& registry);
 			JoltPhysics3DSystem(const JoltPhysics3DSystem&) = delete;
 			JoltPhysics3DSystem(JoltPhysics3DSystem&&) = delete;
 			~JoltPhysics3DSystem();
+
+			bool CollisionQuery(const Vector3f& point, const FunctionRef<std::optional<float>(const PointCollisionInfo& collisionInfo)>& callback);
+			bool CollisionQuery(const JoltCollider3D& collider, const Matrix4f& colliderTransform, const FunctionRef<std::optional<float>(const ShapeCollisionInfo& hitInfo)>& callback);
+			bool CollisionQuery(const JoltCollider3D& collider, const Matrix4f& colliderTransform, const Vector3f& colliderScale, const FunctionRef<std::optional<float>(const ShapeCollisionInfo& hitInfo)>& callback);
 
 			inline JoltPhysWorld3D& GetPhysWorld();
 			inline const JoltPhysWorld3D& GetPhysWorld() const;
@@ -44,7 +50,17 @@ namespace Nz
 			JoltPhysics3DSystem& operator=(const JoltPhysics3DSystem&) = delete;
 			JoltPhysics3DSystem& operator=(JoltPhysics3DSystem&&) = delete;
 
+			struct PointCollisionInfo : JoltPhysWorld3D::PointCollisionInfo
+			{
+				entt::handle hitEntity;
+			};
+
 			struct RaycastHit : JoltPhysWorld3D::RaycastHit
+			{
+				entt::handle hitEntity;
+			};
+
+			struct ShapeCollisionInfo : JoltPhysWorld3D::ShapeCollisionInfo
 			{
 				entt::handle hitEntity;
 			};
