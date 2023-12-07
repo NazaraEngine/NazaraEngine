@@ -175,7 +175,7 @@ namespace Nz
 				{
 				}
 
-				void AddHit(const JPH::CollidePointResult& result)
+				void AddHit(const JPH::CollidePointResult& result) override
 				{
 					JoltPhysWorld3D::PointCollisionInfo hitInfo;
 
@@ -221,7 +221,7 @@ namespace Nz
 				{
 				}
 
-				void AddHit(const JPH::CollideShapeResult& result)
+				void AddHit(const JPH::CollideShapeResult& result) override
 				{
 					JoltPhysWorld3D::ShapeCollisionInfo hitInfo;
 					hitInfo.collisionPosition1 = FromJolt(result.mContactPointOn1);
