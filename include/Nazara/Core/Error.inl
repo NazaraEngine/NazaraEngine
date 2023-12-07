@@ -7,10 +7,10 @@ namespace Nz
 	constexpr std::string_view Error::TranslateFilepath(std::string_view file)
 	{
 		if (std::size_t offset = file.rfind('/'); offset != file.npos)
-			return file.substr(offset);
+			return file.substr(offset + 1);
 
 		if (std::size_t offset = file.rfind('\\'); offset != file.npos)
-			return file.substr(offset);
+			return file.substr(offset + 1);
 
 		return file;
 	}
