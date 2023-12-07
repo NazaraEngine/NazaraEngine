@@ -456,13 +456,13 @@ int main(int argc, char* argv[])
 				if (lastHitInfo.hitBody && lastHitInfo.hitEntity != boxColliderEntity)
 				{
 #if USE_JOLT
-					grabConstraint.emplace(*lastHitInfo.hitBody, lastHitInfo.hitPosition);
+					grabConstraint.emplace(static_cast<Nz::JoltRigidBody3D&>(*lastHitInfo.hitBody), lastHitInfo.hitPosition);
 #else
 					grabConstraint.emplace(*lastHitInfo.hitBody, lastHitInfo.hitPosition);
 					grabConstraint->SetImpulseClamp(30.f);
 #endif
 
-					grabbedObjectMove.Connect(eventHandler.OnMouseMoved, [&, body = lastHitInfo.hitBody, distance = Nz::Vector3f::Distance(from, lastHitInfo.hitPosition)](const Nz::WindowEventHandler*, const Nz::WindowEvent::MouseMoveEvent& event)
+					grabbedObjectMove.Connect(eventHandler.OnMouseMoved, [&, distance = Nz::Vector3f::Distance(from, lastHitInfo.hitPosition)](const Nz::WindowEventHandler*, const Nz::WindowEvent::MouseMoveEvent& event)
 					{
 						Nz::Vector3f from = cameraComponent.Unproject({ float(event.x), float(event.y), 0.f });
 						Nz::Vector3f to = cameraComponent.Unproject({ float(event.x), float(event.y), 1.f });
