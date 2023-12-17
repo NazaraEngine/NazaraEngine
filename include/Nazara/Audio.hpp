@@ -45,6 +45,7 @@
 #include <Nazara/Audio/OpenALDevice.hpp>
 #include <Nazara/Audio/OpenALLibrary.hpp>
 #include <Nazara/Audio/OpenALSource.hpp>
+#include <Nazara/Audio/OpenALUtils.hpp>
 #include <Nazara/Audio/Sound.hpp>
 #include <Nazara/Audio/SoundBuffer.hpp>
 #include <Nazara/Audio/SoundEmitter.hpp>

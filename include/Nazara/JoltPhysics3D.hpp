@@ -31,6 +31,7 @@
 
 #include <Nazara/JoltPhysics3D/Config.hpp>
 #include <Nazara/JoltPhysics3D/Enums.hpp>
+#include <Nazara/JoltPhysics3D/JoltAbstractBody.hpp>
 #include <Nazara/JoltPhysics3D/JoltCharacter.hpp>
 #include <Nazara/JoltPhysics3D/JoltCollider3D.hpp>
 #include <Nazara/JoltPhysics3D/JoltConstraint3D.hpp>

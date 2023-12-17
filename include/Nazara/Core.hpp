@@ -50,6 +50,7 @@
 #include <Nazara/Core/EmptyStream.hpp>
 #include <Nazara/Core/EntityWorld.hpp>
 #include <Nazara/Core/Enums.hpp>
+#include <Nazara/Core/EnvironmentVariables.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/File.hpp>
