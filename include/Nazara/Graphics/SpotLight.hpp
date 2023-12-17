@@ -46,6 +46,7 @@ namespace Nz
 			std::unique_ptr<LightShadowData> InstanciateShadowData(FramePipeline& pipeline, ElementRendererRegistry& elementRegistry) const override;
 
 			inline void UpdateAmbientFactor(float factor);
+			inline void UpdateAngles(RadianAnglef innerAngle, RadianAnglef outerAngle);
 			inline void UpdateColor(Color color);
 			inline void UpdateDiffuseFactor(float factor);
 			inline void UpdateDirection(const Vector3f& direction);

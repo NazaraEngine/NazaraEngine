@@ -15,8 +15,7 @@ namespace Nz
 	m_ambientFactor(0.2f),
 	m_diffuseFactor(1.f)
 	{
-		UpdateInnerAngle(DegreeAnglef(30.f));
-		UpdateOuterAngle(DegreeAnglef(45.f));
+		UpdateAngles(DegreeAnglef(30.f), DegreeAnglef(45.f));
 		UpdateRadius(5.f);
 		UpdateRotation(Quaternionf::Identity());
 	}
@@ -98,6 +97,19 @@ namespace Nz
 		OnLightDataInvalided(this);
 	}
 
+	inline void SpotLight::UpdateAngles(RadianAnglef innerAngle, RadianAnglef outerAngle)
+	{
+		m_innerAngle = innerAngle;
+		m_innerAngleCos = m_innerAngle.GetCos();
+		m_outerAngle = outerAngle;
+		m_outerAngleCos = m_outerAngle.GetCos();
+		m_outerAngleTan = m_outerAngle.GetTan();
+
+		UpdateBoundingVolume();
+		UpdateViewProjMatrix();
+		OnLightDataInvalided(this);
+	}
+
 	inline void SpotLight::UpdateColor(Color color)
 	{
 		m_color = color;
@@ -121,6 +133,8 @@ namespace Nz
 	{
 		m_innerAngle = innerAngle;
 		m_innerAngleCos = m_innerAngle.GetCos();
+
+		OnLightDataInvalided(this);
 	}
 
 	inline void SpotLight::UpdateOuterAngle(RadianAnglef outerAngle)
@@ -131,6 +145,7 @@ namespace Nz
 
 		UpdateBoundingVolume();
 		UpdateViewProjMatrix();
+		OnLightDataInvalided(this);
 	}
 
 	inline void SpotLight::UpdatePosition(const Vector3f& position)
