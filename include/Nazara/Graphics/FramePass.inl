@@ -115,6 +115,12 @@ namespace Nz
 		m_outputs[outputIndex].clearColor = color;
 	}
 
+	inline void FramePass::SetClearColorCallback(std::size_t outputIndex, std::function<Color()> colorCallback)
+	{
+		assert(outputIndex < m_outputs.size());
+		m_outputs[outputIndex].clearColorCallback = std::move(colorCallback);
+	}
+
 	inline void FramePass::SetDepthStencilClear(float depth, UInt32 stencil)
 	{
 		auto& dsClear = m_depthStencilClear.emplace();

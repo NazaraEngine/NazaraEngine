@@ -6,6 +6,7 @@
 #include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
+#include <NazaraUtils/StackArray.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
@@ -61,7 +62,27 @@ namespace Nz
 				}
 
 				if (passData.framebuffer)
-					builder.BeginRenderPass(*passData.framebuffer, *passData.renderPass, passData.renderRect, passData.outputClearValues.data(), passData.outputClearValues.size());
+				{
+					std::size_t clearValueCount = passData.outputClearColors.size() + (passData.outputClearDepthStencil ? 1 : 0);
+					StackArray<CommandBufferBuilder::ClearValues> clearValues = NazaraStackArrayNoInit(CommandBufferBuilder::ClearValues, clearValueCount);
+					for (std::size_t i = 0; i < passData.outputClearColors.size(); ++i)
+					{
+						const ClearColor& clearColor = passData.outputClearColors[i];
+						if (clearColor.clearColorCallback)
+							clearValues[i].color = clearColor.clearColorCallback();
+						else
+							clearValues[i].color = clearColor.clearColor;
+					}
+
+					if (passData.outputClearDepthStencil)
+					{
+						CommandBufferBuilder::ClearValues& clearDepthStencil = clearValues.back();
+						clearDepthStencil.depth = passData.outputClearDepthStencil->depth;
+						clearDepthStencil.stencil = passData.outputClearDepthStencil->stencil;
+					}
+
+					builder.BeginRenderPass(*passData.framebuffer, *passData.renderPass, passData.renderRect, clearValues.data(), clearValues.size());
+				}
 
 				if (!passData.name.empty())
 					builder.BeginDebugRegion(passData.name, Color::Green());

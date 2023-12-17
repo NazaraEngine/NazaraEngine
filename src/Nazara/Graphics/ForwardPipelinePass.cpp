@@ -164,7 +164,7 @@ namespace Nz
 
 		forwardPass.SetDepthStencilOutput(inputOuputs.depthStencilOutput);
 
-		forwardPass.SetClearColor(0, m_viewer->GetClearColor());
+		forwardPass.SetClearColorCallback(0, [viewer = m_viewer] { return viewer->GetClearColor(); });
 
 		forwardPass.SetExecutionCallback([&]()
 		{

@@ -92,20 +92,20 @@ namespace Nz
 					if (std::size_t textureIndex = Retrieve(m_pending.attachmentToTextures, output.attachmentId); textureIndex != InvalidTextureIndex)
 						bakedPass.outputTextureIndices.push_back(textureIndex);
 
-					if (output.clearColor)
+					if (output.clearColor || output.clearColorCallback)
 					{
-						bakedPass.outputClearValues.resize(i + 1);
-						bakedPass.outputClearValues[i].color = *output.clearColor;
+						bakedPass.outputClearColors.resize(i + 1);
+						if (output.clearColorCallback)
+							bakedPass.outputClearColors[i].clearColorCallback = output.clearColorCallback;
+						else
+							bakedPass.outputClearColors[i].clearColor = *output.clearColor;
 					}
 				}
 
 				// Add depth-stencil clear values
 				if (const auto& depthStencilClear = framePass.GetDepthStencilClear())
 				{
-					std::size_t depthClearIndex = colorOutputs.size();
-					bakedPass.outputClearValues.resize(depthClearIndex + 1);
-
-					auto& dsClearValues = bakedPass.outputClearValues[depthClearIndex];
+					auto& dsClearValues = bakedPass.outputClearDepthStencil.emplace();
 					dsClearValues.depth = depthStencilClear->depth;
 					dsClearValues.stencil = depthStencilClear->stencil;
 				}
@@ -795,7 +795,7 @@ namespace Nz
 			attachment.stencilLoadOp = AttachmentLoadOp::Discard;
 			attachment.stencilStoreOp = AttachmentStoreOp::Discard;
 
-			if (output.clearColor)
+			if (output.clearColor || output.clearColorCallback)
 				attachment.loadOp = AttachmentLoadOp::Clear;
 			else if (shouldLoad)
 				attachment.loadOp = AttachmentLoadOp::Load;

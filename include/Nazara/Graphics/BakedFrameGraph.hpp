@@ -68,14 +68,27 @@ namespace Nz
 				FramePass::CommandCallback commandCallback;
 			};
 
+			struct ClearColor
+			{
+				std::function<Color()> clearColorCallback;
+				Color clearColor;
+			};
+
+			struct ClearDepthStencil
+			{
+				float depth;
+				UInt32 stencil;
+			};
+
 			struct PassData
 			{
 				CommandBufferPtr commandBuffer;
+				std::optional<ClearDepthStencil> outputClearDepthStencil;
 				std::shared_ptr<Framebuffer> framebuffer;
 				std::shared_ptr<RenderPass> renderPass;
 				std::string name;
 				std::vector<std::size_t> outputTextureIndices;
-				std::vector<CommandBufferBuilder::ClearValues> outputClearValues;
+				std::vector<ClearColor> outputClearColors;
 				std::vector<SubpassData> subpasses;
 				std::vector<TextureBarrier> invalidationBarriers;
 				FramePass::ExecutionCallback executionCallback;

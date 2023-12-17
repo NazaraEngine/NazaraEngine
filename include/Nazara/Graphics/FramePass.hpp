@@ -69,6 +69,7 @@ namespace Nz
 
 			inline void SetCommandCallback(CommandCallback callback);
 			inline void SetClearColor(std::size_t outputIndex, const std::optional<Color>& color);
+			inline void SetClearColorCallback(std::size_t outputIndex, std::function<Color()> colorCallback);
 			inline void SetDepthStencilClear(float depth, UInt32 stencil);
 			inline void SetDepthStencilInput(std::size_t attachmentId);
 			inline void SetDepthStencilOutput(std::size_t attachmentId);
@@ -102,6 +103,7 @@ namespace Nz
 
 			struct Output
 			{
+				std::function<Color()> clearColorCallback;
 				std::optional<Color> clearColor;
 				std::size_t attachmentId;
 			};

@@ -61,6 +61,8 @@ int main(int argc, char* argv[])
 
 	Nz::Vector2ui windowSize = window.GetSize();
 
+	auto passlist = Nz::PipelinePassList::LoadFromFile(resourceDir / "../test.passlist");
+
 	Nz::Camera camera(std::make_shared<Nz::RenderWindow>(windowSwapchain));
 	//camera.UpdateClearColor(Nz::Color::Gray);
 
@@ -168,6 +170,9 @@ int main(int argc, char* argv[])
 			// Contrôle (Gauche ou droite) pour descendre dans l'espace global, etc...
 			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::LControl) || Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::RControl))
 				viewerPos += Nz::Vector3f::Down() * cameraSpeed;
+
+			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::F5))
+				camera.UpdateClearColor(Nz::Color(float(std::rand()) / RAND_MAX));
 
 			//light->UpdatePosition(viewerPos);
 		}
