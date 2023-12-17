@@ -38,6 +38,7 @@
 #include <Nazara/Utility/BufferMapper.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/CubemapParams.hpp>
+#include <Nazara/Utility/DebugDrawComponent.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <Nazara/Utility/Font.hpp>
 #include <Nazara/Utility/FontData.hpp>
