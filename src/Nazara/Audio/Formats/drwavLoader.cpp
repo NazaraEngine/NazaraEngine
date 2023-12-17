@@ -54,11 +54,11 @@ namespace Nz
 			return extension == ".riff" || extension == ".rf64" || extension == ".wav" || extension == ".w64";
 		}
 
-		Result<std::shared_ptr<SoundBuffer>, ResourceLoadingError> LoadWavSoundBuffer(Stream& stream, const SoundBufferParams& parameters)
+		Result<std::shared_ptr<SoundBuffer>, AssetLoadingError> LoadWavSoundBuffer(Stream& stream, const SoundBufferParams& parameters)
 		{
 			drwav wav;
 			if (!drwav_init(&wav, &ReadWavCallback, &SeekWavCallback, &stream, nullptr))
-				return Err(ResourceLoadingError::Unrecognized);
+				return Err(AssetLoadingError::Unrecognized);
 
 			CallOnExit uninitOnExit([&] { drwav_uninit(&wav); });
 
@@ -66,7 +66,7 @@ namespace Nz
 			if (!formatOpt)
 			{
 				NazaraErrorFmt("unexpected channel count: {0}", wav.channels);
-				return Err(ResourceLoadingError::Unsupported);
+				return Err(AssetLoadingError::Unsupported);
 			}
 
 			AudioFormat format = *formatOpt;
@@ -77,7 +77,7 @@ namespace Nz
 			if (drwav_read_pcm_frames_s16(&wav, wav.totalPCMFrameCount, samples.get()) != wav.totalPCMFrameCount)
 			{
 				NazaraError("failed to read stream content");
-				return Err(ResourceLoadingError::DecodingError);
+				return Err(AssetLoadingError::DecodingError);
 			}
 
 			if (parameters.forceMono && format != AudioFormat::I16_Mono)
@@ -133,29 +133,29 @@ namespace Nz
 					return m_sampleRate;
 				}
 
-				Result<void, ResourceLoadingError> Open(const std::filesystem::path& filePath, const SoundStreamParams& parameters)
+				Result<void, AssetLoadingError> Open(const std::filesystem::path& filePath, const SoundStreamParams& parameters)
 				{
 					std::unique_ptr<File> file = std::make_unique<File>();
 					if (!file->Open(filePath, OpenMode::ReadOnly))
 					{
 						NazaraErrorFmt("failed to open stream from file: {0}", Error::GetLastError());
-						return Err(ResourceLoadingError::FailedToOpenFile);
+						return Err(AssetLoadingError::FailedToOpenFile);
 					}
 
 					m_ownedStream = std::move(file);
 					return Open(*m_ownedStream, parameters);
 				}
 
-				Result<void, ResourceLoadingError> Open(const void* data, std::size_t size, const SoundStreamParams& parameters)
+				Result<void, AssetLoadingError> Open(const void* data, std::size_t size, const SoundStreamParams& parameters)
 				{
 					m_ownedStream = std::make_unique<MemoryView>(data, size);
 					return Open(*m_ownedStream, parameters);
 				}
 
-				Result<void, ResourceLoadingError> Open(Stream& stream, const SoundStreamParams& parameters)
+				Result<void, AssetLoadingError> Open(Stream& stream, const SoundStreamParams& parameters)
 				{
 					if (!drwav_init(&m_decoder, &ReadWavCallback, &SeekWavCallback, &stream, nullptr))
-						return Err(ResourceLoadingError::Unrecognized);
+						return Err(AssetLoadingError::Unrecognized);
 
 					CallOnExit resetOnError([this]
 					{
@@ -167,7 +167,7 @@ namespace Nz
 					if (!formatOpt)
 					{
 						NazaraErrorFmt("unexpected channel count: {0}", m_decoder.channels);
-						return Err(ResourceLoadingError::Unsupported);
+						return Err(AssetLoadingError::Unsupported);
 					}
 
 					m_format = *formatOpt;
@@ -237,26 +237,26 @@ namespace Nz
 				bool m_mixToMono;
 		};
 
-		Result<std::shared_ptr<SoundStream>, ResourceLoadingError> LoadWavSoundStreamFile(const std::filesystem::path& filePath, const SoundStreamParams& parameters)
+		Result<std::shared_ptr<SoundStream>, AssetLoadingError> LoadWavSoundStreamFile(const std::filesystem::path& filePath, const SoundStreamParams& parameters)
 		{
 			std::shared_ptr<drwavStream> soundStream = std::make_shared<drwavStream>();
-			Result<void, ResourceLoadingError> status = soundStream->Open(filePath, parameters);
+			Result<void, AssetLoadingError> status = soundStream->Open(filePath, parameters);
 
 			return status.Map([&] { return std::move(soundStream); });
 		}
 
-		Result<std::shared_ptr<SoundStream>, ResourceLoadingError> LoadWavSoundStreamMemory(const void* data, std::size_t size, const SoundStreamParams& parameters)
+		Result<std::shared_ptr<SoundStream>, AssetLoadingError> LoadWavSoundStreamMemory(const void* data, std::size_t size, const SoundStreamParams& parameters)
 		{
 			std::shared_ptr<drwavStream> soundStream = std::make_shared<drwavStream>();
-			Result<void, ResourceLoadingError> status = soundStream->Open(data, size, parameters);
+			Result<void, AssetLoadingError> status = soundStream->Open(data, size, parameters);
 
 			return status.Map([&] { return std::move(soundStream); });
 		}
 
-		Result<std::shared_ptr<SoundStream>, ResourceLoadingError> LoadWavSoundStreamStream(Stream& stream, const SoundStreamParams& parameters)
+		Result<std::shared_ptr<SoundStream>, AssetLoadingError> LoadWavSoundStreamStream(Stream& stream, const SoundStreamParams& parameters)
 		{
 			std::shared_ptr<drwavStream> soundStream = std::make_shared<drwavStream>();
-			Result<void, ResourceLoadingError> status = soundStream->Open(stream, parameters);
+			Result<void, AssetLoadingError> status = soundStream->Open(stream, parameters);
 
 			return status.Map([&] { return std::move(soundStream); });
 		}

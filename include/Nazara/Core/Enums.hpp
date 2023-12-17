@@ -11,6 +11,15 @@
 
 namespace Nz
 {
+	enum class AssetLoadingError
+	{
+		DecodingError,
+		FailedToOpenFile,
+		Internal,
+		Unsupported,
+		Unrecognized
+	};
+
 	enum class CoordSys
 	{
 		Global,
@@ -203,15 +212,6 @@ namespace Nz
 	};
 
 	constexpr std::size_t ProcessorVendorCount = static_cast<std::size_t>(ProcessorVendor::Max) + 1;
-
-	enum class ResourceLoadingError
-	{
-		DecodingError,
-		FailedToOpenFile,
-		Internal,
-		Unsupported,
-		Unrecognized
-	};
 
 	enum class SphereType
 	{

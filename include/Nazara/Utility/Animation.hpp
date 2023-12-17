@@ -8,11 +8,11 @@
 #define NAZARA_UTILITY_ANIMATION_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/Asset.hpp>
+#include <Nazara/Core/AssetLoader.hpp>
+#include <Nazara/Core/AssetManager.hpp>
+#include <Nazara/Core/AssetParameters.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Core/Resource.hpp>
-#include <Nazara/Core/ResourceLoader.hpp>
-#include <Nazara/Core/ResourceManager.hpp>
-#include <Nazara/Core/ResourceParameters.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Utility/Config.hpp>
@@ -25,7 +25,7 @@ namespace Nz
 {
 	class Skeleton;
 
-	struct NAZARA_UTILITY_API AnimationParams : ResourceParameters
+	struct NAZARA_UTILITY_API AnimationParams : AssetParameters
 	{
 		// La frame de fin à charger
 		std::size_t endFrame = 0xFFFFFFFF;
@@ -49,12 +49,12 @@ namespace Nz
 	struct SequenceJoint;
 
 	using AnimationLibrary = ObjectLibrary<Animation>;
-	using AnimationLoader = ResourceLoader<Animation, AnimationParams>;
-	using AnimationManager = ResourceManager<Animation, AnimationParams>;
+	using AnimationLoader = AssetLoader<Animation, AnimationParams>;
+	using AnimationManager = AssetManager<Animation, AnimationParams>;
 
 	struct AnimationImpl;
 
-	class NAZARA_UTILITY_API Animation : public Resource
+	class NAZARA_UTILITY_API Animation : public Asset
 	{
 		public:
 			using Params = AnimationParams;

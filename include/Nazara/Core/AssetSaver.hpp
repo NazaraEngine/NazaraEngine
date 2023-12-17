@@ -4,12 +4,12 @@
 
 #pragma once
 
-#ifndef NAZARA_CORE_RESOURCESAVER_HPP
-#define NAZARA_CORE_RESOURCESAVER_HPP
+#ifndef NAZARA_CORE_ASSETSAVER_HPP
+#define NAZARA_CORE_ASSETSAVER_HPP
 
+#include <Nazara/Core/Asset.hpp>
+#include <Nazara/Core/AssetParameters.hpp>
 #include <Nazara/Core/Enums.hpp>
-#include <Nazara/Core/Resource.hpp>
-#include <Nazara/Core/ResourceParameters.hpp>
 #include <filesystem>
 #include <list>
 #include <string>
@@ -21,9 +21,9 @@ namespace Nz
 	class Stream;
 
 	template<typename Type, typename Parameters>
-	class ResourceSaver
+	class AssetSaver
 	{
-		static_assert(std::is_base_of<ResourceParameters, Parameters>::value, "ResourceParameters must be a base of Parameters");
+		static_assert(std::is_base_of<AssetParameters, Parameters>::value, "AssetParameters must be a base of Parameters");
 
 		friend Type;
 
@@ -33,10 +33,10 @@ namespace Nz
 			using FileSaver = std::function<bool(const Type& resource, const std::filesystem::path& filePath, const Parameters& parameters)>;
 			using StreamSaver = std::function<bool(const Type& resource, const std::string& format, Stream& stream, const Parameters& parameters)>;
 
-			ResourceSaver() = default;
-			ResourceSaver(const ResourceSaver&) = delete;
-			ResourceSaver(ResourceSaver&&) noexcept = default;
-			~ResourceSaver() = default;
+			AssetSaver() = default;
+			AssetSaver(const AssetSaver&) = delete;
+			AssetSaver(AssetSaver&&) noexcept = default;
+			~AssetSaver() = default;
 
 			void Clear();
 
@@ -48,8 +48,8 @@ namespace Nz
 			const Entry* RegisterSaver(Entry saver);
 			void UnregisterSaver(const Entry* saver);
 
-			ResourceSaver& operator=(const ResourceSaver&) = delete;
-			ResourceSaver& operator=(ResourceSaver&&) noexcept = default;
+			AssetSaver& operator=(const AssetSaver&) = delete;
+			AssetSaver& operator=(AssetSaver&&) noexcept = default;
 
 			struct Entry
 			{
@@ -63,6 +63,6 @@ namespace Nz
 	};
 }
 
-#include <Nazara/Core/ResourceSaver.inl>
+#include <Nazara/Core/AssetSaver.inl>
 
-#endif // NAZARA_CORE_RESOURCESAVER_HPP
+#endif // NAZARA_CORE_ASSETSAVER_HPP

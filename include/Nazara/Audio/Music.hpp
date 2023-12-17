@@ -22,7 +22,7 @@ namespace Nz
 {
 	class AudioBuffer;
 
-	class NAZARA_AUDIO_API Music final : public Resource, public SoundEmitter
+	class NAZARA_AUDIO_API Music final : public Asset, public SoundEmitter
 	{
 		public:
 			Music();

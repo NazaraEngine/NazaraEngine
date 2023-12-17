@@ -9,8 +9,8 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/ApplicationComponent.hpp>
+#include <Nazara/Core/AssetParameters.hpp>
 #include <Nazara/Core/Config.hpp>
-#include <Nazara/Core/ResourceParameters.hpp>
 #include <Nazara/Core/VirtualDirectory.hpp>
 #include <memory>
 #include <unordered_map>
@@ -25,7 +25,7 @@ namespace Nz
 			AppFilesystemComponent(AppFilesystemComponent&&) = delete;
 			~AppFilesystemComponent() = default;
 
-			template<typename T> const typename T::Params* GetDefaultResourceParameters() const;
+			template<typename T> const typename T::Params* GetDefaultAssetParameters() const;
 			inline VirtualDirectoryPtr GetDirectory(std::string_view assetPath);
 
 			template<typename T, typename... ExtraArgs> std::shared_ptr<T> Load(std::string_view assetPath, ExtraArgs&&... args);
@@ -39,7 +39,7 @@ namespace Nz
 			template<typename T, typename... ExtraArgs> std::shared_ptr<T> Open(std::string_view assetPath, ExtraArgs&&... args);
 			template<typename T, typename... ExtraArgs> std::shared_ptr<T> Open(std::string_view assetPath, typename T::Params params, ExtraArgs&&... args);
 
-			template<typename T> void SetDefaultResourceParameters(typename T::Params params);
+			template<typename T> void SetDefaultAssetParameters(typename T::Params params);
 
 			AppFilesystemComponent& operator=(const AppFilesystemComponent&) = delete;
 			AppFilesystemComponent& operator=(AppFilesystemComponent&&) = delete;
@@ -48,7 +48,7 @@ namespace Nz
 			template<typename T, typename... ExtraArgs> std::shared_ptr<T> LoadImpl(std::string_view assetPath, const typename T::Params& params, ExtraArgs&&... args);
 			template<typename T, typename... ExtraArgs> std::shared_ptr<T> OpenImpl(std::string_view assetPath, const typename T::Params& params, ExtraArgs&&... args);
 
-			std::unordered_map<UInt64 /*typehash*/, std::unique_ptr<ResourceParameters>> m_defaultParameters;
+			std::unordered_map<UInt64 /*typehash*/, std::unique_ptr<AssetParameters>> m_defaultParameters;
 			VirtualDirectoryPtr m_rootDirectory;
 	};
 }

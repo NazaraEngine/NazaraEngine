@@ -11,18 +11,18 @@
 #include <Nazara/Audio/AudioDevice.hpp>
 #include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/Enums.hpp>
+#include <Nazara/Core/Asset.hpp>
+#include <Nazara/Core/AssetLoader.hpp>
+#include <Nazara/Core/AssetManager.hpp>
+#include <Nazara/Core/AssetParameters.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Core/Resource.hpp>
-#include <Nazara/Core/ResourceLoader.hpp>
-#include <Nazara/Core/ResourceManager.hpp>
-#include <Nazara/Core/ResourceParameters.hpp>
 #include <Nazara/Core/Time.hpp>
 #include <memory>
 #include <unordered_map>
 
 namespace Nz
 {
-	struct SoundBufferParams : ResourceParameters
+	struct SoundBufferParams : AssetParameters
 	{
 		bool forceMono = false;
 
@@ -35,12 +35,12 @@ namespace Nz
 	class SoundBuffer;
 
 	using SoundBufferLibrary = ObjectLibrary<SoundBuffer>;
-	using SoundBufferLoader = ResourceLoader<SoundBuffer, SoundBufferParams>;
-	using SoundBufferManager = ResourceManager<SoundBuffer, SoundBufferParams>;
+	using SoundBufferLoader = AssetLoader<SoundBuffer, SoundBufferParams>;
+	using SoundBufferManager = AssetManager<SoundBuffer, SoundBufferParams>;
 
 	struct SoundBufferImpl;
 
-	class NAZARA_AUDIO_API SoundBuffer : public Resource
+	class NAZARA_AUDIO_API SoundBuffer : public Asset
 	{
 		friend Sound;
 

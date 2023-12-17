@@ -61,7 +61,7 @@ namespace Nz
 
 	Image::Image(const Image& image) :
 	AbstractImage(image),
-	Resource(),
+	Asset(),
 	m_sharedImage(image.m_sharedImage)
 	{
 		if (m_sharedImage != &emptyImage)

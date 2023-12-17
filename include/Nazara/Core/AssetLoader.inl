@@ -22,7 +22,7 @@ namespace Nz
 	* \brief Unregister every loader registered
 	*/
 	template<typename Type, typename Parameters>
-	void ResourceLoader<Type, Parameters>::Clear()
+	void AssetLoader<Type, Parameters>::Clear()
 	{
 		m_loaders.clear();
 	}
@@ -34,7 +34,7 @@ namespace Nz
 	* \param extension Extension of the file (ex: ".png")
 	*/
 	template<typename Type, typename Parameters>
-	bool ResourceLoader<Type, Parameters>::IsExtensionSupported(std::string_view extension) const
+	bool AssetLoader<Type, Parameters>::IsExtensionSupported(std::string_view extension) const
 	{
 		NazaraAssert(extension.size() >= 2 || extension.front() != '.', "extension should start with a .");
 
@@ -59,7 +59,7 @@ namespace Nz
 	* \ret Loaded resources
 	*/
 	template<typename Type, typename Parameters>
-	std::shared_ptr<Type> ResourceLoader<Type, Parameters>::LoadFromFile(const std::filesystem::path& filePath, const Parameters& parameters) const
+	std::shared_ptr<Type> AssetLoader<Type, Parameters>::LoadFromFile(const std::filesystem::path& filePath, const Parameters& parameters) const
 	{
 		NazaraAssert(parameters.IsValid(), "invalid parameters");
 
@@ -83,7 +83,7 @@ namespace Nz
 			if (loader.parameterFilter && !loader.parameterFilter(parameters))
 				continue;
 
-			Result<std::shared_ptr<Type>, ResourceLoadingError> result = Nz::Err(ResourceLoadingError::Unrecognized);
+			Result<std::shared_ptr<Type>, AssetLoadingError> result = Nz::Err(AssetLoadingError::Unrecognized);
 
 			if (loader.fileLoader)
 				result = loader.fileLoader(filePath, parameters);
@@ -105,8 +105,8 @@ namespace Nz
 
 			if (!result)
 			{
-				ResourceLoadingError error = result.GetError();
-				if (error != ResourceLoadingError::Unrecognized)
+				AssetLoadingError error = result.GetError();
+				if (error != AssetLoadingError::Unrecognized)
 					NazaraError("failed to load resource: loader failed");
 				else
 					found = true;
@@ -137,7 +137,7 @@ namespace Nz
 	* \param parameters Parameters for the load
 	*/
 	template<typename Type, typename Parameters>
-	std::shared_ptr<Type> ResourceLoader<Type, Parameters>::LoadFromMemory(const void* data, std::size_t size, const Parameters& parameters) const
+	std::shared_ptr<Type> AssetLoader<Type, Parameters>::LoadFromMemory(const void* data, std::size_t size, const Parameters& parameters) const
 	{
 		NazaraAssert(data, "invalid data pointer");
 		NazaraAssert(size, "no data to load");
@@ -153,7 +153,7 @@ namespace Nz
 			if (loader.parameterFilter && !loader.parameterFilter(parameters))
 				continue;
 
-			Result<std::shared_ptr<Type>, ResourceLoadingError> result = Nz::Err(ResourceLoadingError::Unrecognized);
+			Result<std::shared_ptr<Type>, AssetLoadingError> result = Nz::Err(AssetLoadingError::Unrecognized);
 
 			if (loader.memoryLoader)
 				result = loader.memoryLoader(data, size, parameters);
@@ -166,8 +166,8 @@ namespace Nz
 
 			if (!result)
 			{
-				ResourceLoadingError error = result.GetError();
-				if (error != ResourceLoadingError::Unrecognized)
+				AssetLoadingError error = result.GetError();
+				if (error != AssetLoadingError::Unrecognized)
 					NazaraError("failed to load resource: loader failed");
 				else
 					found = true;
@@ -194,7 +194,7 @@ namespace Nz
 	* \param parameters Parameters for the load
 	*/
 	template<typename Type, typename Parameters>
-	std::shared_ptr<Type> ResourceLoader<Type, Parameters>::LoadFromStream(Stream& stream, const Parameters& parameters) const
+	std::shared_ptr<Type> AssetLoader<Type, Parameters>::LoadFromStream(Stream& stream, const Parameters& parameters) const
 	{
 		NazaraAssert(stream.GetCursorPos() < stream.GetSize(), "no data to load");
 		NazaraAssert(parameters.IsValid(), "invalid parameters");
@@ -217,11 +217,11 @@ namespace Nz
 			stream.SetCursorPos(streamPos);
 
 			// Load resource
-			Result<std::shared_ptr<Type>, ResourceLoadingError> result = loader.streamLoader(stream, parameters);
+			Result<std::shared_ptr<Type>, AssetLoadingError> result = loader.streamLoader(stream, parameters);
 			if (!result)
 			{
-				ResourceLoadingError error = result.GetError();
-				if (error != ResourceLoadingError::Unrecognized)
+				AssetLoadingError error = result.GetError();
+				if (error != AssetLoadingError::Unrecognized)
 				{
 					NazaraError("failed to load resource: loader failed");
 					found = true;
@@ -250,7 +250,7 @@ namespace Nz
 	* \see UnregisterLoader
 	*/
 	template<typename Type, typename Parameters>
-	auto ResourceLoader<Type, Parameters>::RegisterLoader(Entry loader) -> const Entry*
+	auto AssetLoader<Type, Parameters>::RegisterLoader(Entry loader) -> const Entry*
 	{
 		NazaraAssert(loader.fileLoader || loader.memoryLoader || loader.streamLoader, "A loader function is mandatory");
 
@@ -266,7 +266,7 @@ namespace Nz
 	* \see RegisterLoader
 	*/
 	template<typename Type, typename Parameters>
-	void ResourceLoader<Type, Parameters>::UnregisterLoader(const Entry* loader)
+	void AssetLoader<Type, Parameters>::UnregisterLoader(const Entry* loader)
 	{
 		auto it = std::find_if(m_loaders.begin(), m_loaders.end(), [&](const std::unique_ptr<Entry>& loaderPtr) { return loaderPtr.get() == loader; });
 		if (it != m_loaders.end())

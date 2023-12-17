@@ -8,10 +8,10 @@
 #define NAZARA_GRAPHICS_PIPELINEPASSLIST_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/Asset.hpp>
+#include <Nazara/Core/AssetLoader.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/ParameterList.hpp>
-#include <Nazara/Core/Resource.hpp>
-#include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/FramePassAttachment.hpp>
@@ -24,7 +24,7 @@
 
 namespace Nz
 {
-	struct NAZARA_GRAPHICS_API PipelinePassListParams : ResourceParameters
+	struct NAZARA_GRAPHICS_API PipelinePassListParams : AssetParameters
 	{
 		bool IsValid() const;
 	};
@@ -33,9 +33,9 @@ namespace Nz
 	class PipelinePassList;
 
 	using PipelinePassListLibrary = ObjectLibrary<PipelinePassList>;
-	using PipelinePassListLoader = ResourceLoader<PipelinePassList, PipelinePassListParams>;
+	using PipelinePassListLoader = AssetLoader<PipelinePassList, PipelinePassListParams>;
 
-	class NAZARA_GRAPHICS_API PipelinePassList : public Resource
+	class NAZARA_GRAPHICS_API PipelinePassList : public Asset
 	{
 		public:
 			using Params = PipelinePassListParams;

@@ -10,15 +10,15 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/Enums.hpp>
-#include <Nazara/Core/Resource.hpp>
-#include <Nazara/Core/ResourceLoader.hpp>
-#include <Nazara/Core/ResourceParameters.hpp>
+#include <Nazara/Core/Asset.hpp>
+#include <Nazara/Core/AssetLoader.hpp>
+#include <Nazara/Core/AssetParameters.hpp>
 #include <Nazara/Core/Time.hpp>
 #include <mutex>
 
 namespace Nz
 {
-	struct SoundStreamParams : ResourceParameters
+	struct SoundStreamParams : AssetParameters
 	{
 		bool forceMono = false;
 
@@ -28,9 +28,9 @@ namespace Nz
 	class Mutex;
 	class SoundStream;
 
-	using SoundStreamLoader = ResourceLoader<SoundStream, SoundStreamParams>;
+	using SoundStreamLoader = AssetLoader<SoundStream, SoundStreamParams>;
 
-	class NAZARA_AUDIO_API SoundStream : public Resource
+	class NAZARA_AUDIO_API SoundStream : public Asset
 	{
 		public:
 			using Params = SoundStreamParams;

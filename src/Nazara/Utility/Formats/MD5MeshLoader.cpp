@@ -25,21 +25,21 @@ namespace Nz
 			return (extension == ".md5mesh");
 		}
 
-		Result<std::shared_ptr<Mesh>, ResourceLoadingError> LoadMD5Mesh(Stream& stream, const MeshParams& parameters)
+		Result<std::shared_ptr<Mesh>, AssetLoadingError> LoadMD5Mesh(Stream& stream, const MeshParams& parameters)
 		{
 			MD5MeshParser parser(stream);
 
 			UInt64 streamPos = stream.GetCursorPos();
 
 			if (!parser.Check())
-				return Err(ResourceLoadingError::Unrecognized);
+				return Err(AssetLoadingError::Unrecognized);
 
 			stream.SetCursorPos(streamPos);
 
 			if (!parser.Parse())
 			{
 				NazaraError("MD5Mesh parser failed");
-				return Err(ResourceLoadingError::DecodingError);
+				return Err(AssetLoadingError::DecodingError);
 			}
 
 			UInt32 maxWeightCount = 4;
@@ -250,7 +250,7 @@ namespace Nz
 				if (!mesh->CreateStatic()) // Ne devrait jamais échouer
 				{
 					NazaraInternalError("Failed to create mesh");
-					return Err(ResourceLoadingError::Internal);
+					return Err(AssetLoadingError::Internal);
 				}
 
 				mesh->SetMaterialCount(meshCount);

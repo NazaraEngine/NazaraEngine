@@ -23,7 +23,7 @@ namespace Nz
 				return (extension == ".dds");
 			}
 
-			static Result<std::shared_ptr<Image>, ResourceLoadingError> Load(Stream& stream, const ImageParams& parameters)
+			static Result<std::shared_ptr<Image>, AssetLoadingError> Load(Stream& stream, const ImageParams& parameters)
 			{
 				ByteStream byteStream(&stream);
 				byteStream.SetDataEndianness(Endianness::LittleEndian);
@@ -31,7 +31,7 @@ namespace Nz
 				UInt32 magic;
 				byteStream >> magic;
 				if (magic != DDS_Magic)
-					return Nz::Err(ResourceLoadingError::Unrecognized);
+					return Nz::Err(AssetLoadingError::Unrecognized);
 
 				DDSHeader header;
 				byteStream >> header;
@@ -65,12 +65,12 @@ namespace Nz
 				// First, identify the type
 				ImageType type;
 				if (!IdentifyImageType(header, headerDX10, &type))
-					return Nz::Err(ResourceLoadingError::Unsupported);
+					return Nz::Err(AssetLoadingError::Unsupported);
 
 				// Then the format
 				PixelFormat format;
 				if (!IdentifyPixelFormat(header, headerDX10, &format))
-					return Nz::Err(ResourceLoadingError::Unsupported);
+					return Nz::Err(AssetLoadingError::Unsupported);
 
 				std::shared_ptr<Image> image = std::make_shared<Image>(type, format, width, height, depth, levelCount);
 
@@ -84,7 +84,7 @@ namespace Nz
 					if (byteStream.Read(ptr, byteCount) != byteCount)
 					{
 						NazaraErrorFmt("failed to read level #{0}", i);
-						return Nz::Err(ResourceLoadingError::DecodingError);
+						return Nz::Err(AssetLoadingError::DecodingError);
 					}
 
 					if (width > 1)

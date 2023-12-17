@@ -8,12 +8,12 @@
 #define NAZARA_UTILITY_MESH_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/Asset.hpp>
+#include <Nazara/Core/AssetLoader.hpp>
+#include <Nazara/Core/AssetManager.hpp>
+#include <Nazara/Core/AssetParameters.hpp>
+#include <Nazara/Core/AssetSaver.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Core/Resource.hpp>
-#include <Nazara/Core/ResourceLoader.hpp>
-#include <Nazara/Core/ResourceManager.hpp>
-#include <Nazara/Core/ResourceParameters.hpp>
-#include <Nazara/Core/ResourceSaver.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <Nazara/Utility/Enums.hpp>
@@ -27,7 +27,7 @@
 
 namespace Nz
 {
-	struct NAZARA_UTILITY_API MeshParams : ResourceParameters
+	struct NAZARA_UTILITY_API MeshParams : AssetParameters
 	{
 		// How buffer will be allocated (by default in RAM)
 		BufferFactory bufferFactory = &SoftwareBufferFactory;
@@ -84,13 +84,13 @@ namespace Nz
 	using SkeletalMeshVertex = VertexStruct_XYZ_Normal_UV_Tangent_Skinning;
 
 	using MeshLibrary = ObjectLibrary<Mesh>;
-	using MeshLoader = ResourceLoader<Mesh, MeshParams>;
-	using MeshManager = ResourceManager<Mesh, MeshParams>;
-	using MeshSaver = ResourceSaver<Mesh, MeshParams>;
+	using MeshLoader = AssetLoader<Mesh, MeshParams>;
+	using MeshManager = AssetManager<Mesh, MeshParams>;
+	using MeshSaver = AssetSaver<Mesh, MeshParams>;
 
 	struct MeshImpl;
 
-	class NAZARA_UTILITY_API Mesh : public Resource
+	class NAZARA_UTILITY_API Mesh : public Asset
 	{
 		public:
 			using Params = MeshParams;

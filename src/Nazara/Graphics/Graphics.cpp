@@ -208,7 +208,7 @@ namespace Nz
 		TextureParams defaultTexParams;
 		defaultTexParams.renderDevice = m_renderDevice;
 
-		component.SetDefaultResourceParameters<Texture>(defaultTexParams);
+		component.SetDefaultAssetParameters<Texture>(defaultTexParams);
 	}
 
 	void Graphics::BuildBlitPipeline()

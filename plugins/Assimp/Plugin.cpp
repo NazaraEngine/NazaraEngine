@@ -245,7 +245,7 @@ bool IsSupported(std::string_view extension)
 /*                           Material loading                           */
 /************************************************************************/
 
-Nz::Result<std::shared_ptr<Nz::Animation>, Nz::ResourceLoadingError> LoadAnimation(Nz::Stream& stream, const Nz::AnimationParams& parameters)
+Nz::Result<std::shared_ptr<Nz::Animation>, Nz::AssetLoadingError> LoadAnimation(Nz::Stream& stream, const Nz::AnimationParams& parameters)
 {
 	NazaraAssert(parameters.IsValid(), "invalid animation parameters");
 
@@ -266,13 +266,13 @@ Nz::Result<std::shared_ptr<Nz::Animation>, Nz::ResourceLoadingError> LoadAnimati
 	if (!scene)
 	{
 		NazaraErrorFmt("Assimp failed to import file: {0}", aiGetErrorString());
-		return Nz::Err(Nz::ResourceLoadingError::DecodingError);
+		return Nz::Err(Nz::AssetLoadingError::DecodingError);
 	}
 
 	if (!scene->HasAnimations())
 	{
 		NazaraError("File has no animation");
-		return Nz::Err(Nz::ResourceLoadingError::DecodingError);
+		return Nz::Err(Nz::AssetLoadingError::DecodingError);
 	}
 
 	SceneInfo sceneInfo;
@@ -763,7 +763,7 @@ std::shared_ptr<Nz::SubMesh> ProcessSubMesh(const std::filesystem::path& originP
 	return subMesh;
 }
 
-Nz::Result<std::shared_ptr<Nz::Mesh>, Nz::ResourceLoadingError> LoadMesh(Nz::Stream& stream, const Nz::MeshParams& parameters)
+Nz::Result<std::shared_ptr<Nz::Mesh>, Nz::AssetLoadingError> LoadMesh(Nz::Stream& stream, const Nz::MeshParams& parameters)
 {
 	std::string streamPath = Nz::PathToString(stream.GetPath());
 
@@ -816,7 +816,7 @@ Nz::Result<std::shared_ptr<Nz::Mesh>, Nz::ResourceLoadingError> LoadMesh(Nz::Str
 	if (!scene)
 	{
 		NazaraErrorFmt("Assimp failed to import file: {0}", aiGetErrorString());
-		return Nz::Err(Nz::ResourceLoadingError::DecodingError);
+		return Nz::Err(Nz::AssetLoadingError::DecodingError);
 	}
 
 	SceneInfo sceneInfo;
@@ -824,7 +824,7 @@ Nz::Result<std::shared_ptr<Nz::Mesh>, Nz::ResourceLoadingError> LoadMesh(Nz::Str
 
 	bool handleSkeletalMeshes = parameters.animated && !sceneInfo.skeletalMeshes.empty();
 	if (handleSkeletalMeshes && !FindSkeletonRoot(sceneInfo, scene->mRootNode))
-		return Nz::Err(Nz::ResourceLoadingError::DecodingError);
+		return Nz::Err(Nz::AssetLoadingError::DecodingError);
 
 	std::shared_ptr<Nz::Mesh> mesh = std::make_shared<Nz::Mesh>();
 

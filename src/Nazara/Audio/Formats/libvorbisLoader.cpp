@@ -124,12 +124,12 @@ namespace Nz
 			return s_supportedExtensions.find(extension) != s_supportedExtensions.end();
 		}
 
-		Result<std::shared_ptr<SoundBuffer>, ResourceLoadingError> LoadVorbisSoundBuffer(Stream& stream, const SoundBufferParams& parameters)
+		Result<std::shared_ptr<SoundBuffer>, AssetLoadingError> LoadVorbisSoundBuffer(Stream& stream, const SoundBufferParams& parameters)
 		{
 			OggVorbis_File file;
 			int err = ov_open_callbacks(&stream, &file, nullptr, 0, s_vorbisCallbacks);
 			if (err != 0)
-				return Err(ResourceLoadingError::Unrecognized);
+				return Err(AssetLoadingError::Unrecognized);
 
 			CallOnExit clearOnExit([&] { ov_clear(&file); });
 
@@ -140,7 +140,7 @@ namespace Nz
 			if (!formatOpt)
 			{
 				NazaraErrorFmt("unexpected channel count: {0}", info->channels);
-				return Err(ResourceLoadingError::Unsupported);
+				return Err(AssetLoadingError::Unsupported);
 			}
 
 			AudioFormat format = *formatOpt;
@@ -151,12 +151,12 @@ namespace Nz
 
 			UInt64 readSample = ReadOgg(&file, samples.get(), sampleCount);
 			if (readSample == 0)
-				return Err(ResourceLoadingError::DecodingError);
+				return Err(AssetLoadingError::DecodingError);
 
 			if (readSample != sampleCount)
 			{
 				NazaraError("failed to read the whole file");
-				return Err(ResourceLoadingError::DecodingError);
+				return Err(AssetLoadingError::DecodingError);
 			}
 
 			if (parameters.forceMono && format != AudioFormat::I16_Mono)
@@ -212,30 +212,30 @@ namespace Nz
 					return m_sampleRate;
 				}
 
-				Result<void, ResourceLoadingError> Open(const std::filesystem::path& filePath, const SoundStreamParams& parameters)
+				Result<void, AssetLoadingError> Open(const std::filesystem::path& filePath, const SoundStreamParams& parameters)
 				{
 					std::unique_ptr<File> file = std::make_unique<File>();
 					if (!file->Open(filePath, OpenMode::ReadOnly))
 					{
 						NazaraErrorFmt("failed to open stream from file: {0}", Error::GetLastError());
-						return Err(ResourceLoadingError::FailedToOpenFile);
+						return Err(AssetLoadingError::FailedToOpenFile);
 					}
 
 					m_ownedStream = std::move(file);
 					return Open(*m_ownedStream, parameters);
 				}
 
-				Result<void, ResourceLoadingError> Open(const void* data, std::size_t size, const SoundStreamParams& parameters)
+				Result<void, AssetLoadingError> Open(const void* data, std::size_t size, const SoundStreamParams& parameters)
 				{
 					m_ownedStream = std::make_unique<MemoryView>(data, size);
 					return Open(*m_ownedStream, parameters);
 				}
 
-				Result<void, ResourceLoadingError> Open(Stream& stream, const SoundStreamParams& parameters)
+				Result<void, AssetLoadingError> Open(Stream& stream, const SoundStreamParams& parameters)
 				{
 					int err = ov_open_callbacks(&stream, &m_decoder, nullptr, 0, s_vorbisCallbacks);
 					if (err != 0)
-						return Err(ResourceLoadingError::Unrecognized);
+						return Err(AssetLoadingError::Unrecognized);
 
 					CallOnExit clearOnError([&]
 					{
@@ -250,7 +250,7 @@ namespace Nz
 					if (!formatOpt)
 					{
 						NazaraErrorFmt("unexpected channel count: {0}", info->channels);
-						return Err(ResourceLoadingError::Unsupported);
+						return Err(AssetLoadingError::Unsupported);
 					}
 
 					m_format = *formatOpt;
@@ -326,26 +326,26 @@ namespace Nz
 				bool m_mixToMono;
 		};
 
-		Result<std::shared_ptr<SoundStream>, ResourceLoadingError> LoadVorbisSoundStreamFile(const std::filesystem::path& filePath, const SoundStreamParams& parameters)
+		Result<std::shared_ptr<SoundStream>, AssetLoadingError> LoadVorbisSoundStreamFile(const std::filesystem::path& filePath, const SoundStreamParams& parameters)
 		{
 			std::shared_ptr<libvorbisStream> soundStream = std::make_shared<libvorbisStream>();
-			Result<void, ResourceLoadingError> status = soundStream->Open(filePath, parameters);
+			Result<void, AssetLoadingError> status = soundStream->Open(filePath, parameters);
 
 			return status.Map([&] { return std::move(soundStream); });
 		}
 
-		Result<std::shared_ptr<SoundStream>, ResourceLoadingError> LoadVorbisSoundStreamMemory(const void* data, std::size_t size, const SoundStreamParams& parameters)
+		Result<std::shared_ptr<SoundStream>, AssetLoadingError> LoadVorbisSoundStreamMemory(const void* data, std::size_t size, const SoundStreamParams& parameters)
 		{
 			std::shared_ptr<libvorbisStream> soundStream = std::make_shared<libvorbisStream>();
-			Result<void, ResourceLoadingError> status = soundStream->Open(data, size, parameters);
+			Result<void, AssetLoadingError> status = soundStream->Open(data, size, parameters);
 
 			return status.Map([&] { return std::move(soundStream); });
 		}
 
-		Result<std::shared_ptr<SoundStream>, ResourceLoadingError> LoadVorbisSoundStreamStream(Stream& stream, const SoundStreamParams& parameters)
+		Result<std::shared_ptr<SoundStream>, AssetLoadingError> LoadVorbisSoundStreamStream(Stream& stream, const SoundStreamParams& parameters)
 		{
 			std::shared_ptr<libvorbisStream> soundStream = std::make_shared<libvorbisStream>();
-			Result<void, ResourceLoadingError> status = soundStream->Open(stream, parameters);
+			Result<void, AssetLoadingError> status = soundStream->Open(stream, parameters);
 
 			return status.Map([&] { return std::move(soundStream); });
 		}

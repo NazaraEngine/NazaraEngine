@@ -10,10 +10,10 @@
 #define NAZARA_UTILITY_FONT_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/Asset.hpp>
+#include <Nazara/Core/AssetLoader.hpp>
+#include <Nazara/Core/AssetParameters.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Core/Resource.hpp>
-#include <Nazara/Core/ResourceLoader.hpp>
-#include <Nazara/Core/ResourceParameters.hpp>
 #include <Nazara/Utility/AbstractAtlas.hpp>
 #include <Nazara/Utility/Enums.hpp>
 #include <memory>
@@ -21,7 +21,7 @@
 
 namespace Nz
 {
-	struct NAZARA_UTILITY_API FontParams : ResourceParameters
+	struct NAZARA_UTILITY_API FontParams : AssetParameters
 	{
 		bool IsValid() const;
 	};
@@ -32,9 +32,9 @@ namespace Nz
 	struct FontGlyph;
 
 	using FontLibrary = ObjectLibrary<Font>;
-	using FontLoader = ResourceLoader<Font, FontParams>;
+	using FontLoader = AssetLoader<Font, FontParams>;
 
-	class NAZARA_UTILITY_API Font : public Resource
+	class NAZARA_UTILITY_API Font : public Asset
 	{
 		friend FontLibrary;
 		friend FontLoader;

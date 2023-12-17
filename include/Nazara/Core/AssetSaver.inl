@@ -22,7 +22,7 @@ namespace Nz
 	* \brief Unregister every saver registered
 	*/
 	template<typename Type, typename Parameters>
-	void ResourceSaver<Type, Parameters>::Clear()
+	void AssetSaver<Type, Parameters>::Clear()
 	{
 		m_savers.clear();
 	}
@@ -34,7 +34,7 @@ namespace Nz
 	* \param extension Extension of the file
 	*/
 	template<typename Type, typename Parameters>
-	bool ResourceSaver<Type, Parameters>::IsExtensionSupported(std::string_view extension) const
+	bool AssetSaver<Type, Parameters>::IsExtensionSupported(std::string_view extension) const
 	{
 		NazaraAssert(extension.size() >= 2 || extension.front() != '.', "extension should start with a .");
 
@@ -62,7 +62,7 @@ namespace Nz
 	* \see SaveToStream
 	*/
 	template<typename Type, typename Parameters>
-	bool ResourceSaver<Type, Parameters>::SaveToFile(const Type& resource, const std::filesystem::path& filePath, const Parameters& parameters) const
+	bool AssetSaver<Type, Parameters>::SaveToFile(const Type& resource, const std::filesystem::path& filePath, const Parameters& parameters) const
 	{
 		NazaraAssert(parameters.IsValid(), "Invalid parameters");
 
@@ -124,7 +124,7 @@ namespace Nz
 	* \see SaveToFile
 	*/
 	template<typename Type, typename Parameters>
-	bool ResourceSaver<Type, Parameters>::SaveToStream(const Type& resource, Stream& stream, const std::string& format, const Parameters& parameters) const
+	bool AssetSaver<Type, Parameters>::SaveToStream(const Type& resource, Stream& stream, const std::string& format, const Parameters& parameters) const
 	{
 		NazaraAssert(stream.IsWritable(), "Stream is not writable");
 		NazaraAssert(parameters.IsValid(), "Invalid parameters");
@@ -166,7 +166,7 @@ namespace Nz
 	* \see UnregisterLoader
 	*/
 	template<typename Type, typename Parameters>
-	auto ResourceSaver<Type, Parameters>::RegisterSaver(Entry saver) -> const Entry*
+	auto AssetSaver<Type, Parameters>::RegisterSaver(Entry saver) -> const Entry*
 	{
 		NazaraAssert(saver.formatSupport, "A format support callback is mandatory");
 		NazaraAssert(saver.streamSaver || saver.fileSaver, "A saver function is mandatory");
@@ -183,7 +183,7 @@ namespace Nz
 	* \see RegisterSaver
 	*/
 	template<typename Type, typename Parameters>
-	void ResourceSaver<Type, Parameters>::UnregisterSaver(const Entry* saver)
+	void AssetSaver<Type, Parameters>::UnregisterSaver(const Entry* saver)
 	{
 		auto it = std::find_if(m_savers.begin(), m_savers.end(), [&](const std::unique_ptr<Entry>& saverPtr) { return saverPtr.get() == saver; });
 		if (it != m_savers.end())

@@ -20,7 +20,7 @@ namespace Nz
 	* \brief Clears the content of the manager
 	*/
 	template<typename Type, typename Parameters>
-	ResourceManager<Type, Parameters>::ResourceManager(Loader& loader) :
+	AssetManager<Type, Parameters>::AssetManager(Loader& loader) :
 	m_loader(loader)
 	{
 	}
@@ -29,7 +29,7 @@ namespace Nz
 	* \brief Clears the content of the manager
 	*/
 	template<typename Type, typename Parameters>
-	void ResourceManager<Type, Parameters>::Clear()
+	void AssetManager<Type, Parameters>::Clear()
 	{
 		m_resources.clear();
 	}
@@ -41,7 +41,7 @@ namespace Nz
 	* \param filePath Path to the asset that will be loaded
 	*/
 	template<typename Type, typename Parameters>
-	std::shared_ptr<Type> ResourceManager<Type, Parameters>::Get(const std::filesystem::path& filePath)
+	std::shared_ptr<Type> AssetManager<Type, Parameters>::Get(const std::filesystem::path& filePath)
 	{
 		std::filesystem::path absolutePath = std::filesystem::canonical(filePath);
 		auto it = m_resources.find(absolutePath);
@@ -67,7 +67,7 @@ namespace Nz
 	* \return Default parameters for loading from file
 	*/
 	template<typename Type, typename Parameters>
-	const Parameters& ResourceManager<Type, Parameters>::GetDefaultParameters()
+	const Parameters& AssetManager<Type, Parameters>::GetDefaultParameters()
 	{
 		return m_defaultParameters;
 	}
@@ -79,7 +79,7 @@ namespace Nz
 	* \param resource Object to associate with
 	*/
 	template<typename Type, typename Parameters>
-	void ResourceManager<Type, Parameters>::Register(const std::filesystem::path& filePath, std::shared_ptr<Type> resource)
+	void AssetManager<Type, Parameters>::Register(const std::filesystem::path& filePath, std::shared_ptr<Type> resource)
 	{
 		std::filesystem::path absolutePath = std::filesystem::canonical(filePath);
 
@@ -92,7 +92,7 @@ namespace Nz
 	* \param params Default parameters for loading from file
 	*/
 	template<typename Type, typename Parameters>
-	void ResourceManager<Type, Parameters>::SetDefaultParameters(Parameters params)
+	void AssetManager<Type, Parameters>::SetDefaultParameters(Parameters params)
 	{
 		m_defaultParameters = std::move(params);
 	}
@@ -103,7 +103,7 @@ namespace Nz
 	* \param filePath Path for the resource
 	*/
 	template<typename Type, typename Parameters>
-	void ResourceManager<Type, Parameters>::Unregister(const std::filesystem::path& filePath)
+	void AssetManager<Type, Parameters>::Unregister(const std::filesystem::path& filePath)
 	{
 		std::filesystem::path absolutePath = std::filesystem::canonical(filePath);
 

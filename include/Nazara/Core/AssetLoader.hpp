@@ -4,12 +4,12 @@
 
 #pragma once
 
-#ifndef NAZARA_CORE_RESOURCELOADER_HPP
-#define NAZARA_CORE_RESOURCELOADER_HPP
+#ifndef NAZARA_CORE_ASSETLOADER_HPP
+#define NAZARA_CORE_ASSETLOADER_HPP
 
+#include <Nazara/Core/Asset.hpp>
+#include <Nazara/Core/AssetParameters.hpp>
 #include <Nazara/Core/Enums.hpp>
-#include <Nazara/Core/Resource.hpp>
-#include <Nazara/Core/ResourceParameters.hpp>
 #include <NazaraUtils/Result.hpp>
 #include <filesystem>
 #include <functional>
@@ -22,24 +22,24 @@ namespace Nz
 	class Stream;
 
 	template<typename Type, typename Parameters>
-	class ResourceLoader
+	class AssetLoader
 	{
-		static_assert(std::is_base_of<ResourceParameters, Parameters>::value, "ResourceParameters must be a base of Parameters");
+		static_assert(std::is_base_of<AssetParameters, Parameters>::value, "AssetParameters must be a base of Parameters");
 
 		friend Type;
 
 		public:
 			struct Entry;
 			using ExtensionSupport = std::function<bool(std::string_view extension)>;
-			using FileLoader = std::function<Result<std::shared_ptr<Type>, ResourceLoadingError>(const std::filesystem::path& filePath, const Parameters& parameters)>;
-			using MemoryLoader = std::function<Result<std::shared_ptr<Type>, ResourceLoadingError>(const void* data, std::size_t size, const Parameters& parameters)>;
+			using FileLoader = std::function<Result<std::shared_ptr<Type>, AssetLoadingError>(const std::filesystem::path& filePath, const Parameters& parameters)>;
+			using MemoryLoader = std::function<Result<std::shared_ptr<Type>, AssetLoadingError>(const void* data, std::size_t size, const Parameters& parameters)>;
 			using ParameterFilter = std::function<bool(const Parameters& parameters)>;
-			using StreamLoader = std::function<Result<std::shared_ptr<Type>, ResourceLoadingError>(Stream& stream, const Parameters& parameters)>;
+			using StreamLoader = std::function<Result<std::shared_ptr<Type>, AssetLoadingError>(Stream& stream, const Parameters& parameters)>;
 
-			ResourceLoader() = default;
-			ResourceLoader(const ResourceLoader&) = delete;
-			ResourceLoader(ResourceLoader&&) noexcept = default;
-			~ResourceLoader() = default;
+			AssetLoader() = default;
+			AssetLoader(const AssetLoader&) = delete;
+			AssetLoader(AssetLoader&&) noexcept = default;
+			~AssetLoader() = default;
 
 			void Clear();
 
@@ -52,8 +52,8 @@ namespace Nz
 			const Entry* RegisterLoader(Entry loader);
 			void UnregisterLoader(const Entry* loader);
 
-			ResourceLoader& operator=(const ResourceLoader&) = delete;
-			ResourceLoader& operator=(ResourceLoader&&) noexcept = default;
+			AssetLoader& operator=(const AssetLoader&) = delete;
+			AssetLoader& operator=(AssetLoader&&) noexcept = default;
 
 			struct Entry
 			{
@@ -69,6 +69,6 @@ namespace Nz
 	};
 }
 
-#include <Nazara/Core/ResourceLoader.inl>
+#include <Nazara/Core/AssetLoader.inl>
 
-#endif // NAZARA_CORE_RESOURCELOADER_HPP
+#endif // NAZARA_CORE_ASSETLOADER_HPP

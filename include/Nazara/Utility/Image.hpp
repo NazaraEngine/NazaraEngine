@@ -8,13 +8,13 @@
 #define NAZARA_UTILITY_IMAGE_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/Asset.hpp>
+#include <Nazara/Core/AssetLoader.hpp>
+#include <Nazara/Core/AssetManager.hpp>
+#include <Nazara/Core/AssetParameters.hpp>
+#include <Nazara/Core/AssetSaver.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Core/Resource.hpp>
-#include <Nazara/Core/ResourceLoader.hpp>
-#include <Nazara/Core/ResourceManager.hpp>
-#include <Nazara/Core/ResourceParameters.hpp>
-#include <Nazara/Core/ResourceSaver.hpp>
 #include <Nazara/Utility/AbstractImage.hpp>
 #include <Nazara/Utility/CubemapParams.hpp>
 #include <NazaraUtils/MovablePtr.hpp>
@@ -25,7 +25,7 @@
 
 namespace Nz
 {
-	struct NAZARA_UTILITY_API ImageParams : ResourceParameters
+	struct NAZARA_UTILITY_API ImageParams : AssetParameters
 	{
 		// Le format dans lequel l'image doit être chargée (Undefined pour le format le plus proche de l'original)
 		PixelFormat loadFormat = PixelFormat::Undefined;
@@ -40,11 +40,11 @@ namespace Nz
 	class Image;
 
 	using ImageLibrary = ObjectLibrary<Image>;
-	using ImageLoader = ResourceLoader<Image, ImageParams>;
-	using ImageManager = ResourceManager<Image, ImageParams>;
-	using ImageSaver = ResourceSaver<Image, ImageParams>;
+	using ImageLoader = AssetLoader<Image, ImageParams>;
+	using ImageManager = AssetManager<Image, ImageParams>;
+	using ImageSaver = AssetSaver<Image, ImageParams>;
 
-	class NAZARA_UTILITY_API Image : public AbstractImage, public Resource
+	class NAZARA_UTILITY_API Image : public AbstractImage, public Asset
 	{
 		public:
 			using Params = ImageParams;

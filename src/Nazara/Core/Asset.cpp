@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Core/Resource.hpp>
+#include <Nazara/Core/Asset.hpp>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -13,14 +13,14 @@ namespace Nz
 	* \brief Core class that represents a resource
 	*/
 
-	Resource::~Resource() = default;
+	Asset::~Asset() = default;
 
 	/*!
 	* \brief Gets the file path associated with the resource
 	* \return A reference to the path
 	*/
 
-	const std::filesystem::path& Resource::GetFilePath() const
+	const std::filesystem::path& Asset::GetFilePath() const
 	{
 		return m_filePath;
 	}
@@ -31,7 +31,7 @@ namespace Nz
 	* \param filePath Path to the resource
 	*/
 
-	void Resource::SetFilePath(std::filesystem::path filePath)
+	void Asset::SetFilePath(std::filesystem::path filePath)
 	{
 		m_filePath = std::move(filePath);
 	}

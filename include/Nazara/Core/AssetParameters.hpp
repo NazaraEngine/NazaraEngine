@@ -4,19 +4,19 @@
 
 #pragma once
 
-#ifndef NAZARA_CORE_RESOURCEPARAMETERS_HPP
-#define NAZARA_CORE_RESOURCEPARAMETERS_HPP
+#ifndef NAZARA_CORE_ASSETPARAMETERS_HPP
+#define NAZARA_CORE_ASSETPARAMETERS_HPP
 
 #include <Nazara/Core/ParameterList.hpp>
 
 namespace Nz
 {
-	struct NAZARA_CORE_API ResourceParameters
+	struct NAZARA_CORE_API AssetParameters
 	{
-		virtual ~ResourceParameters();
+		virtual ~AssetParameters();
 
 		ParameterList custom;
 	};
 }
 
-#endif // NAZARA_CORE_RESOURCEPARAMETERS_HPP
+#endif // NAZARA_CORE_ASSETPARAMETERS_HPP

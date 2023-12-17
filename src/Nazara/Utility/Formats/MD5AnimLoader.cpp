@@ -17,7 +17,7 @@ namespace Nz
 			return extension == ".md5anim";
 		}
 
-		Result<std::shared_ptr<Animation>, ResourceLoadingError> LoadMD5Anim(Stream& stream, const AnimationParams& /*parameters*/)
+		Result<std::shared_ptr<Animation>, AssetLoadingError> LoadMD5Anim(Stream& stream, const AnimationParams& /*parameters*/)
 		{
 			// TODO: Use parameters
 
@@ -26,14 +26,14 @@ namespace Nz
 			UInt64 streamPos = stream.GetCursorPos();
 
 			if (!parser.Check())
-				return Err(ResourceLoadingError::Unrecognized);
+				return Err(AssetLoadingError::Unrecognized);
 
 			stream.SetCursorPos(streamPos);
 
 			if (!parser.Parse())
 			{
 				NazaraError("MD5Anim parser failed");
-				return Err(ResourceLoadingError::DecodingError);
+				return Err(AssetLoadingError::DecodingError);
 			}
 
 			const MD5AnimParser::Frame* frames = parser.GetFrames();

@@ -72,7 +72,7 @@ int main(int argc, char* argv[])
 	{
 		std::shared_ptr<Nz::GraphicalMesh> boxMesh = Nz::GraphicalMesh::Build(Nz::Primitive::Box(Nz::Vector3f(BoxDims), Nz::Vector3ui::Zero(), Nz::Matrix4f::Scale(Nz::Vector3f(-1.f)), Nz::Rectf(0.f, 0.f, 2.f, 2.f)));
 
-		Nz::TextureParams textureParams = *fs.GetDefaultResourceParameters<Nz::Texture>();
+		Nz::TextureParams textureParams = *fs.GetDefaultAssetParameters<Nz::Texture>();
 		textureParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
 
 		Nz::TextureSamplerInfo planeSampler;

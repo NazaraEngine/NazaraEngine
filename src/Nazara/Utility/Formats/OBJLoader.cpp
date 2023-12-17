@@ -142,7 +142,7 @@ namespace Nz
 			return true;
 		}
 
-		Result<std::shared_ptr<Mesh>, ResourceLoadingError> LoadOBJ(Stream& stream, const MeshParams& parameters)
+		Result<std::shared_ptr<Mesh>, AssetLoadingError> LoadOBJ(Stream& stream, const MeshParams& parameters)
 		{
 			long long reservedVertexCount = parameters.custom.GetIntegerParameter("ReserveVertexCount").GetValueOr(1'000);
 
@@ -151,14 +151,14 @@ namespace Nz
 			UInt64 streamPos = stream.GetCursorPos();
 
 			if (!parser.Check(stream))
-				return Err(ResourceLoadingError::Unrecognized);
+				return Err(AssetLoadingError::Unrecognized);
 
 			stream.SetCursorPos(streamPos);
 
 			if (!parser.Parse(stream, reservedVertexCount))
 			{
 				NazaraError("OBJ parser failed");
-				return Err(ResourceLoadingError::DecodingError);
+				return Err(AssetLoadingError::DecodingError);
 			}
 
 			std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();

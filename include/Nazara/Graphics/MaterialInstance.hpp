@@ -22,7 +22,7 @@
 
 namespace Nz
 {
-	struct NAZARA_GRAPHICS_API MaterialInstanceParams : ResourceParameters
+	struct NAZARA_GRAPHICS_API MaterialInstanceParams : AssetParameters
 	{
 		MaterialType materialType = MaterialType::Basic;
 
@@ -35,11 +35,11 @@ namespace Nz
 	class Texture;
 
 	using MaterialInstanceLibrary = ObjectLibrary<MaterialInstance>;
-	using MaterialInstanceLoader = ResourceLoader<MaterialInstance, MaterialInstanceParams>;
-	using MaterialInstanceManager = ResourceManager<MaterialInstance, MaterialInstanceParams>;
-	using MaterialInstanceSaver = ResourceSaver<MaterialInstance, MaterialInstanceParams>;
+	using MaterialInstanceLoader = AssetLoader<MaterialInstance, MaterialInstanceParams>;
+	using MaterialInstanceManager = AssetManager<MaterialInstance, MaterialInstanceParams>;
+	using MaterialInstanceSaver = AssetSaver<MaterialInstance, MaterialInstanceParams>;
 
-	class NAZARA_GRAPHICS_API MaterialInstance : public Resource, public TransferInterface
+	class NAZARA_GRAPHICS_API MaterialInstance : public Asset, public TransferInterface
 	{
 		struct CopyToken {};
 

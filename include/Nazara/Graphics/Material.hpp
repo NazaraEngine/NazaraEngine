@@ -8,10 +8,10 @@
 #define NAZARA_GRAPHICS_MATERIAL_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/AssetLoader.hpp>
+#include <Nazara/Core/AssetManager.hpp>
+#include <Nazara/Core/AssetSaver.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Core/ResourceLoader.hpp>
-#include <Nazara/Core/ResourceManager.hpp>
-#include <Nazara/Core/ResourceSaver.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/MaterialSettings.hpp>
@@ -24,7 +24,7 @@
 
 namespace Nz
 {
-	struct NAZARA_GRAPHICS_API MaterialParams : ResourceParameters
+	struct NAZARA_GRAPHICS_API MaterialParams : AssetParameters
 	{
 		bool IsValid() const;
 	};
@@ -34,11 +34,11 @@ namespace Nz
 	class RenderPipelineLayout;
 
 	using MaterialLibrary = ObjectLibrary<Material>;
-	using MaterialLoader = ResourceLoader<Material, MaterialParams>;
-	using MaterialManager = ResourceManager<Material, MaterialParams>;
-	using MaterialSaver = ResourceSaver<Material, MaterialParams>;
+	using MaterialLoader = AssetLoader<Material, MaterialParams>;
+	using MaterialManager = AssetManager<Material, MaterialParams>;
+	using MaterialSaver = AssetSaver<Material, MaterialParams>;
 
-	class NAZARA_GRAPHICS_API Material : public Resource, public std::enable_shared_from_this<Material>
+	class NAZARA_GRAPHICS_API Material : public Asset, public std::enable_shared_from_this<Material>
 	{
 		public:
 			struct TextureData;

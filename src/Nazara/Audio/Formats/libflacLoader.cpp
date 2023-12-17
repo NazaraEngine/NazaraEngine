@@ -141,7 +141,7 @@ namespace Nz
 			return extension == ".flac";
 		}
 
-		Result<std::shared_ptr<SoundBuffer>, ResourceLoadingError> LoadFlacSoundBuffer(Stream& stream, const SoundBufferParams& parameters)
+		Result<std::shared_ptr<SoundBuffer>, AssetLoadingError> LoadFlacSoundBuffer(Stream& stream, const SoundBufferParams& parameters)
 		{
 			FLAC__StreamDecoder* decoder = FLAC__stream_decoder_new();
 			CallOnExit freeDecoder([&] { FLAC__stream_decoder_delete(decoder); });
@@ -200,37 +200,37 @@ namespace Nz
 			if (status != FLAC__STREAM_DECODER_INIT_STATUS_OK)
 			{
 				NazaraWarning(FLAC__StreamDecoderInitStatusString[status]); //< an error shouldn't happen at this state
-				return Err(ResourceLoadingError::Internal);
+				return Err(AssetLoadingError::Internal);
 			}
 
 			CallOnExit finishDecoder([&] { FLAC__stream_decoder_finish(decoder); });
 
 			if (!FLAC__stream_decoder_process_until_end_of_metadata(decoder))
-				return Err(ResourceLoadingError::Unrecognized);
+				return Err(AssetLoadingError::Unrecognized);
 
 			if (!FLAC__stream_decoder_process_until_end_of_stream(decoder))
 			{
 				NazaraError("flac decoding failed");
-				return Err(ResourceLoadingError::DecodingError);
+				return Err(AssetLoadingError::DecodingError);
 			}
 
 			if (hasError)
 			{
 				NazaraError("an error occurred during decoding");
-				return Err(ResourceLoadingError::DecodingError);
+				return Err(AssetLoadingError::DecodingError);
 			}
 
 			if (channelCount == 0 || frameCount == 0 || sampleCount == 0 || sampleRate == 0)
 			{
 				NazaraError("invalid metadata");
-				return Err(ResourceLoadingError::DecodingError);
+				return Err(AssetLoadingError::DecodingError);
 			}
 
 			std::optional<AudioFormat> formatOpt = GuessAudioFormat(channelCount);
 			if (!formatOpt)
 			{
 				NazaraErrorFmt("unexpected channel count: {0}", channelCount);
-				return Err(ResourceLoadingError::Unsupported);
+				return Err(AssetLoadingError::Unsupported);
 			}
 
 			AudioFormat format = *formatOpt;
@@ -293,26 +293,26 @@ namespace Nz
 					return m_sampleRate;
 				}
 
-				Result<void, ResourceLoadingError> Open(const std::filesystem::path& filePath, const SoundStreamParams& parameters)
+				Result<void, AssetLoadingError> Open(const std::filesystem::path& filePath, const SoundStreamParams& parameters)
 				{
 					std::unique_ptr<File> file = std::make_unique<File>();
 					if (!file->Open(filePath, OpenMode::ReadOnly))
 					{
 						NazaraErrorFmt("failed to open stream from file: {0}", Error::GetLastError());
-						return Err(ResourceLoadingError::FailedToOpenFile);
+						return Err(AssetLoadingError::FailedToOpenFile);
 					}
 
 					m_ownedStream = std::move(file);
 					return Open(*m_ownedStream, parameters);
 				}
 
-				Result<void, ResourceLoadingError> Open(const void* data, std::size_t size, const SoundStreamParams& parameters)
+				Result<void, AssetLoadingError> Open(const void* data, std::size_t size, const SoundStreamParams& parameters)
 				{
 					m_ownedStream = std::make_unique<MemoryView>(data, size);
 					return Open(*m_ownedStream, parameters);
 				}
 
-				Result<void, ResourceLoadingError> Open(Stream& stream, const SoundStreamParams& parameters)
+				Result<void, AssetLoadingError> Open(Stream& stream, const SoundStreamParams& parameters)
 				{
 					m_userData.stream = &stream;
 					m_userData.errorCallback = [this](const FLAC__StreamDecoder* /*decoder*/, FLAC__StreamDecoderErrorStatus status)
@@ -340,19 +340,19 @@ namespace Nz
 					if (status != FLAC__STREAM_DECODER_INIT_STATUS_OK)
 					{
 						NazaraWarning(FLAC__StreamDecoderInitStatusString[status]); //< an error shouldn't happen at this state
-						return Err(ResourceLoadingError::Internal);
+						return Err(AssetLoadingError::Internal);
 					}
 
 					CallOnExit finishDecoder([&] { FLAC__stream_decoder_finish(decoder); });
 
 					if (!FLAC__stream_decoder_process_until_end_of_metadata(decoder))
-						return Err(ResourceLoadingError::Unrecognized);
+						return Err(AssetLoadingError::Unrecognized);
 
 					std::optional<AudioFormat> formatOpt = GuessAudioFormat(m_channelCount);
 					if (!formatOpt)
 					{
 						NazaraErrorFmt("unexpected channel count: {0}", m_channelCount);
-						return Err(ResourceLoadingError::Unrecognized);
+						return Err(AssetLoadingError::Unrecognized);
 					}
 
 					m_format = *formatOpt;
@@ -486,26 +486,26 @@ namespace Nz
 				bool m_mixToMono;
 		};
 
-		Result<std::shared_ptr<SoundStream>, ResourceLoadingError> LoadFlacSoundStreamFile(const std::filesystem::path& filePath, const SoundStreamParams& parameters)
+		Result<std::shared_ptr<SoundStream>, AssetLoadingError> LoadFlacSoundStreamFile(const std::filesystem::path& filePath, const SoundStreamParams& parameters)
 		{
 			std::shared_ptr<libflacStream> soundStream = std::make_shared<libflacStream>();
-			Result<void, ResourceLoadingError> status = soundStream->Open(filePath, parameters);
+			Result<void, AssetLoadingError> status = soundStream->Open(filePath, parameters);
 
 			return status.Map([&] { return std::move(soundStream); });
 		}
 
-		Result<std::shared_ptr<SoundStream>, ResourceLoadingError> LoadFlacSoundStreamMemory(const void* data, std::size_t size, const SoundStreamParams& parameters)
+		Result<std::shared_ptr<SoundStream>, AssetLoadingError> LoadFlacSoundStreamMemory(const void* data, std::size_t size, const SoundStreamParams& parameters)
 		{
 			std::shared_ptr<libflacStream> soundStream = std::make_shared<libflacStream>();
-			Result<void, ResourceLoadingError> status = soundStream->Open(data, size, parameters);
+			Result<void, AssetLoadingError> status = soundStream->Open(data, size, parameters);
 
 			return status.Map([&] { return std::move(soundStream); });
 		}
 
-		Result<std::shared_ptr<SoundStream>, ResourceLoadingError> LoadFlacSoundStreamStream(Stream& stream, const SoundStreamParams& parameters)
+		Result<std::shared_ptr<SoundStream>, AssetLoadingError> LoadFlacSoundStreamStream(Stream& stream, const SoundStreamParams& parameters)
 		{
 			std::shared_ptr<libflacStream> soundStream = std::make_shared<libflacStream>();
-			Result<void, ResourceLoadingError> status = soundStream->Open(stream, parameters);
+			Result<void, AssetLoadingError> status = soundStream->Open(stream, parameters);
 
 			return status.Map([&] { return std::move(soundStream); });
 		}

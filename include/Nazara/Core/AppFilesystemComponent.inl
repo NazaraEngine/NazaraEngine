@@ -25,7 +25,7 @@ namespace Nz
 	}
 
 	template<typename T>
-	const typename T::Params* AppFilesystemComponent::GetDefaultResourceParameters() const
+	const typename T::Params* AppFilesystemComponent::GetDefaultAssetParameters() const
 	{
 		constexpr UInt64 typeHash = FNV1a64(TypeName<T>());
 
@@ -58,7 +58,7 @@ namespace Nz
 	{
 		if constexpr (Detail::ResourceParameterHasMerge<typename T::Params>::value)
 		{
-			if (const auto* defaultParams = GetDefaultResourceParameters<T>())
+			if (const auto* defaultParams = GetDefaultAssetParameters<T>())
 				params.Merge(*defaultParams);
 		}
 
@@ -76,7 +76,7 @@ namespace Nz
 	{
 		if constexpr (Detail::ResourceParameterHasMerge<typename T::Params>::value)
 		{
-			if (const auto* defaultParams = GetDefaultResourceParameters<T>())
+			if (const auto* defaultParams = GetDefaultAssetParameters<T>())
 				params.Merge(*defaultParams);
 		}
 
@@ -84,7 +84,7 @@ namespace Nz
 	}
 
 	template<typename T>
-	void AppFilesystemComponent::SetDefaultResourceParameters(typename T::Params params)
+	void AppFilesystemComponent::SetDefaultAssetParameters(typename T::Params params)
 	{
 		constexpr UInt64 typeHash = FNV1a64(TypeName<T>());
 

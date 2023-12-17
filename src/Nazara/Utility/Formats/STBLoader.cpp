@@ -48,13 +48,13 @@ namespace Nz
 			return s_supportedExtensions.find(extension) != s_supportedExtensions.end();
 		}
 
-		Result<std::shared_ptr<Image>, ResourceLoadingError> LoadSTB(Stream& stream, const ImageParams& parameters)
+		Result<std::shared_ptr<Image>, AssetLoadingError> LoadSTB(Stream& stream, const ImageParams& parameters)
 		{
 			UInt64 streamPos = stream.GetCursorPos();
 
 			int width, height, bpp;
 			if (!stbi_info_from_callbacks(&s_stbiCallbacks, &stream, &width, &height, &bpp))
-				return Err(ResourceLoadingError::Unrecognized);
+				return Err(AssetLoadingError::Unrecognized);
 
 			stream.SetCursorPos(streamPos);
 
@@ -65,7 +65,7 @@ namespace Nz
 			if (!ptr)
 			{
 				NazaraErrorFmt("failed to load image: {0}", std::string(stbi_failure_reason()));
-				return Err(ResourceLoadingError::DecodingError);
+				return Err(AssetLoadingError::DecodingError);
 			}
 
 			CallOnExit freeStbiImage([ptr]()
@@ -77,7 +77,7 @@ namespace Nz
 			if (!image->Create(ImageType::E2D, PixelFormat::RGBA8, width, height, 1, (parameters.levelCount > 0) ? parameters.levelCount : 1))
 			{
 				NazaraError("failed to create image");
-				return Err(ResourceLoadingError::Internal);
+				return Err(AssetLoadingError::Internal);
 			}
 
 			image->Update(ptr);
@@ -89,7 +89,7 @@ namespace Nz
 				if (!image->Convert(parameters.loadFormat))
 				{
 					NazaraError("failed to convert image to required format");
-					return Err(ResourceLoadingError::Internal);
+					return Err(AssetLoadingError::Internal);
 				}
 			}
 

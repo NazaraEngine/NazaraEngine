@@ -8,9 +8,9 @@
 #define NAZARA_UTILITY_IMAGESTREAM_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Core/Resource.hpp>
-#include <Nazara/Core/ResourceLoader.hpp>
-#include <Nazara/Core/ResourceParameters.hpp>
+#include <Nazara/Core/Asset.hpp>
+#include <Nazara/Core/AssetLoader.hpp>
+#include <Nazara/Core/AssetParameters.hpp>
 #include <Nazara/Core/Time.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Utility/Config.hpp>
@@ -19,16 +19,16 @@
 
 namespace Nz
 {
-	struct ImageStreamParams : public ResourceParameters
+	struct ImageStreamParams : public AssetParameters
 	{
 		bool IsValid() const;
 	};
 
 	class ImageStream;
 
-	using ImageStreamLoader = ResourceLoader<ImageStream, ImageStreamParams>;
+	using ImageStreamLoader = AssetLoader<ImageStream, ImageStreamParams>;
 
-	class NAZARA_UTILITY_API ImageStream : public Resource
+	class NAZARA_UTILITY_API ImageStream : public Asset
 	{
 		public:
 			using Params = ImageStreamParams;

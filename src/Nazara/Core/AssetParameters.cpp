@@ -2,10 +2,10 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Core/ResourceParameters.hpp>
+#include <Nazara/Core/AssetParameters.hpp>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {
-	ResourceParameters::~ResourceParameters() = default;
+	AssetParameters::~AssetParameters() = default;
 }

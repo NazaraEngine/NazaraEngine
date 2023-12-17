@@ -26,11 +26,11 @@ namespace Nz
 			return (extension == ".md2");
 		}
 
-		Result<std::shared_ptr<Mesh>, ResourceLoadingError> LoadMD2(Stream& stream, const MeshParams& parameters)
+		Result<std::shared_ptr<Mesh>, AssetLoadingError> LoadMD2(Stream& stream, const MeshParams& parameters)
 		{
 			MD2_Header header;
 			if (stream.Read(&header, sizeof(MD2_Header)) != sizeof(MD2_Header))
-				return Err(ResourceLoadingError::Unrecognized);
+				return Err(AssetLoadingError::Unrecognized);
 
 #ifdef NAZARA_BIG_ENDIAN
 			header.ident = ByteSwap(header.ident);
@@ -38,11 +38,11 @@ namespace Nz
 #endif
 
 			if (header.ident != md2Ident)
-				return Err(ResourceLoadingError::Unrecognized);
+				return Err(AssetLoadingError::Unrecognized);
 
 
 			if (header.version != 8)
-				return Err(ResourceLoadingError::Unsupported);
+				return Err(AssetLoadingError::Unsupported);
 
 #ifdef NAZARA_BIG_ENDIAN
 			header.skinwidth = ByteSwap(header.skinwidth);
@@ -65,7 +65,7 @@ namespace Nz
 			if (stream.GetSize() < header.offset_end)
 			{
 				NazaraError("incomplete MD2 file");
-				return Err(ResourceLoadingError::DecodingError);
+				return Err(AssetLoadingError::DecodingError);
 			}
 
 			// Since the engine no longer supports keyframe animations, let's make a static mesh
@@ -73,7 +73,7 @@ namespace Nz
 			if (!mesh->CreateStatic())
 			{
 				NazaraInternalError("Failed to create mesh");
-				return Err(ResourceLoadingError::Internal);
+				return Err(AssetLoadingError::Internal);
 			}
 
 			// Extract skins (texture name)

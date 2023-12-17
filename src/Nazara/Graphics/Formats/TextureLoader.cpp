@@ -21,7 +21,7 @@ namespace Nz
 				return Utility::Instance()->GetImageLoader().IsExtensionSupported(extension);
 			};
 
-			loaderEntry.streamLoader = [](Stream& stream, const MaterialInstanceParams& parameters) -> Result<std::shared_ptr<MaterialInstance>, ResourceLoadingError>
+			loaderEntry.streamLoader = [](Stream& stream, const MaterialInstanceParams& parameters) -> Result<std::shared_ptr<MaterialInstance>, AssetLoadingError>
 			{
 				TextureParams texParams;
 				texParams.renderDevice = Graphics::Instance()->GetRenderDevice();
@@ -30,11 +30,11 @@ namespace Nz
 
 				std::shared_ptr<Image> image = Image::LoadFromStream(stream, texParams);
 				if (!image)
-					return Err(ResourceLoadingError::Unrecognized);
+					return Err(AssetLoadingError::Unrecognized);
 
 				std::shared_ptr<Texture> texture = Texture::CreateFromImage(*image, texParams);
 				if (!texture)
-					return Err(ResourceLoadingError::Internal);
+					return Err(AssetLoadingError::Internal);
 
 				bool enableAlphaTest = parameters.custom.GetBooleanParameter("EnableAlphaTest").GetValueOr(false);
 				bool enableAlphaBlending = parameters.custom.GetBooleanParameter("EnableAlphaBlending").GetValueOr(false);

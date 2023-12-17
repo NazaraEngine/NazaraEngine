@@ -385,7 +385,7 @@ namespace Nz
 			return s_supportedExtensions.find(extension) != s_supportedExtensions.end();
 		}
 
-		Result<std::shared_ptr<Font>, ResourceLoadingError> LoadFreetypeFile(const std::filesystem::path& filePath, const FontParams& parameters)
+		Result<std::shared_ptr<Font>, AssetLoadingError> LoadFreetypeFile(const std::filesystem::path& filePath, const FontParams& parameters)
 		{
 			NazaraUnused(parameters);
 
@@ -393,20 +393,20 @@ namespace Nz
 			if (!face->SetFile(filePath))
 			{
 				NazaraError("failed to open file");
-				return Err(ResourceLoadingError::FailedToOpenFile);
+				return Err(AssetLoadingError::FailedToOpenFile);
 			}
 
 			if (!face->Open())
-				return Err(ResourceLoadingError::Unrecognized);
+				return Err(AssetLoadingError::Unrecognized);
 
 			std::shared_ptr<Font> font = std::make_shared<Font>();
 			if (!font->Create(std::move(face)))
-				return Err(ResourceLoadingError::Internal);
+				return Err(AssetLoadingError::Internal);
 
 			return font;
 		}
 
-		Result<std::shared_ptr<Font>, ResourceLoadingError> LoadFreetypeMemory(const void* data, std::size_t size, const FontParams& parameters)
+		Result<std::shared_ptr<Font>, AssetLoadingError> LoadFreetypeMemory(const void* data, std::size_t size, const FontParams& parameters)
 		{
 			NazaraUnused(parameters);
 
@@ -414,16 +414,16 @@ namespace Nz
 			face->SetMemory(data, size);
 
 			if (!face->Open())
-				return Err(ResourceLoadingError::Unrecognized);
+				return Err(AssetLoadingError::Unrecognized);
 
 			std::shared_ptr<Font> font = std::make_shared<Font>();
 			if (!font->Create(std::move(face)))
-				return Err(ResourceLoadingError::Internal);
+				return Err(AssetLoadingError::Internal);
 
 			return font;
 		}
 
-		Result<std::shared_ptr<Font>, ResourceLoadingError> LoadFreetypeStream(Stream& stream, const FontParams& parameters)
+		Result<std::shared_ptr<Font>, AssetLoadingError> LoadFreetypeStream(Stream& stream, const FontParams& parameters)
 		{
 			NazaraUnused(parameters);
 
@@ -431,11 +431,11 @@ namespace Nz
 			face->SetStream(stream);
 
 			if (!face->Open())
-				return Err(ResourceLoadingError::Unrecognized);
+				return Err(AssetLoadingError::Unrecognized);
 
 			std::shared_ptr<Font> font = std::make_shared<Font>();
 			if (!font->Create(std::move(face)))
-				return Err(ResourceLoadingError::Internal);
+				return Err(AssetLoadingError::Internal);
 
 			return font;
 		}

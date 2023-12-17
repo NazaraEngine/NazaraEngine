@@ -45,14 +45,14 @@ namespace Nz
 			return (extension == ".pcx");
 		}
 
-		Result<std::shared_ptr<Image>, ResourceLoadingError> LoadPCX(Stream& stream, const ImageParams& parameters)
+		Result<std::shared_ptr<Image>, AssetLoadingError> LoadPCX(Stream& stream, const ImageParams& parameters)
 		{
 			PCXHeader header;
 			if (stream.Read(&header, sizeof(PCXHeader)) != sizeof(PCXHeader))
-				return Err(ResourceLoadingError::Unrecognized);
+				return Err(AssetLoadingError::Unrecognized);
 
 			if (header.manufacturer != 0x0a)
-				return Err(ResourceLoadingError::Unrecognized);
+				return Err(AssetLoadingError::Unrecognized);
 
 #ifdef NAZARA_BIG_ENDIAN
 			// PCX files are little-endian
@@ -77,7 +77,7 @@ namespace Nz
 			if (!image->Create(ImageType::E2D, PixelFormat::RGB8, width, height, 1, (parameters.levelCount > 0) ? parameters.levelCount : 1))
 			{
 				NazaraError("failed to create image");
-				return Err(ResourceLoadingError::Internal);
+				return Err(AssetLoadingError::Internal);
 			}
 
 			UInt8* pixels = image->GetPixels();
@@ -102,7 +102,7 @@ namespace Nz
 								if (!stream.Read(&rleValue, 1))
 								{
 									NazaraErrorFmt("failed to read stream (byte {0})", stream.GetCursorPos());
-									return Err(ResourceLoadingError::DecodingError);
+									return Err(AssetLoadingError::DecodingError);
 								}
 
 								if (rleValue < 0xc0)
@@ -113,7 +113,7 @@ namespace Nz
 									if (!stream.Read(&rleValue, 1))
 									{
 										NazaraErrorFmt("failed to read stream (byte {0})", stream.GetCursorPos());
-										return Err(ResourceLoadingError::DecodingError);
+										return Err(AssetLoadingError::DecodingError);
 									}
 								}
 							}
@@ -157,7 +157,7 @@ namespace Nz
 									if (!stream.Read(&rleValue, 1))
 									{
 										NazaraErrorFmt("failed to read stream (byte {0})", stream.GetCursorPos());
-										return Err(ResourceLoadingError::DecodingError);
+										return Err(AssetLoadingError::DecodingError);
 									}
 
 									if (rleValue < 0xc0)
@@ -168,7 +168,7 @@ namespace Nz
 										if (!stream.Read(&rleValue, 1))
 										{
 											NazaraErrorFmt("failed to read stream (byte {0})", stream.GetCursorPos());
-											return Err(ResourceLoadingError::DecodingError);
+											return Err(AssetLoadingError::DecodingError);
 										}
 									}
 								}
@@ -208,21 +208,21 @@ namespace Nz
 					if (!stream.Read(&magic, 1))
 					{
 						NazaraErrorFmt("failed to read stream (byte {0})", stream.GetCursorPos());
-						return Err(ResourceLoadingError::DecodingError);
+						return Err(AssetLoadingError::DecodingError);
 					}
 
 					/* first byte must be equal to 0x0c (12) */
 					if (magic != 0x0c)
 					{
 						NazaraErrorFmt("Colormap's first byte must be 0x0c ({0:#x})", magic);
-						return Err(ResourceLoadingError::DecodingError);
+						return Err(AssetLoadingError::DecodingError);
 					}
 
 					/* read palette */
 					if (stream.Read(palette, 768) != 768)
 					{
 						NazaraError("failed to read palette");
-						return Err(ResourceLoadingError::DecodingError);
+						return Err(AssetLoadingError::DecodingError);
 					}
 
 					stream.SetCursorPos(curPos);
@@ -241,7 +241,7 @@ namespace Nz
 								if (!stream.Read(&rleValue, 1))
 								{
 									NazaraErrorFmt("failed to read stream (byte {0})", stream.GetCursorPos());
-									return Err(ResourceLoadingError::DecodingError);
+									return Err(AssetLoadingError::DecodingError);
 								}
 
 								if (rleValue < 0xc0)
@@ -252,7 +252,7 @@ namespace Nz
 									if (!stream.Read(&rleValue, 1))
 									{
 										NazaraErrorFmt("failed to read stream (byte {0})", stream.GetCursorPos());
-										return Err(ResourceLoadingError::DecodingError);
+										return Err(AssetLoadingError::DecodingError);
 									}
 								}
 							}
@@ -285,7 +285,7 @@ namespace Nz
 									if (!stream.Read(&rleValue, 1))
 									{
 										NazaraErrorFmt("failed to read stream (byte {0})", stream.GetCursorPos());
-										return Err(ResourceLoadingError::DecodingError);
+										return Err(AssetLoadingError::DecodingError);
 									}
 
 									if (rleValue < 0xc0)
@@ -296,7 +296,7 @@ namespace Nz
 										if (!stream.Read(&rleValue, 1))
 										{
 											NazaraErrorFmt("failed to read stream (byte {0})", stream.GetCursorPos());
-											return Err(ResourceLoadingError::DecodingError);
+											return Err(AssetLoadingError::DecodingError);
 										}
 									}
 								}
@@ -312,7 +312,7 @@ namespace Nz
 
 				default:
 					NazaraErrorFmt("unsupported {0} bitcount for pcx files", bitCount);
-					return Err(ResourceLoadingError::DecodingError);
+					return Err(AssetLoadingError::DecodingError);
 			}
 
 			if (parameters.loadFormat != PixelFormat::Undefined)

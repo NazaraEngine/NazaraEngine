@@ -38,6 +38,11 @@
 #include <Nazara/Core/ApplicationComponent.hpp>
 #include <Nazara/Core/ApplicationComponentRegistry.hpp>
 #include <Nazara/Core/ApplicationUpdater.hpp>
+#include <Nazara/Core/Asset.hpp>
+#include <Nazara/Core/AssetLoader.hpp>
+#include <Nazara/Core/AssetManager.hpp>
+#include <Nazara/Core/AssetParameters.hpp>
+#include <Nazara/Core/AssetSaver.hpp>
 #include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/ByteArrayPool.hpp>
 #include <Nazara/Core/ByteStream.hpp>
@@ -79,11 +84,6 @@
 #include <Nazara/Core/Primitive.hpp>
 #include <Nazara/Core/PrimitiveList.hpp>
 #include <Nazara/Core/RefCounted.hpp>
-#include <Nazara/Core/Resource.hpp>
-#include <Nazara/Core/ResourceLoader.hpp>
-#include <Nazara/Core/ResourceManager.hpp>
-#include <Nazara/Core/ResourceParameters.hpp>
-#include <Nazara/Core/ResourceSaver.hpp>
 #include <Nazara/Core/SerializationContext.hpp>
 #include <Nazara/Core/SignalHandlerAppComponent.hpp>
 #include <Nazara/Core/State.hpp>

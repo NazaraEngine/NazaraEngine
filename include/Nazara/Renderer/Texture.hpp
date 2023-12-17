@@ -8,10 +8,10 @@
 #define NAZARA_RENDERER_TEXTURE_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/Asset.hpp>
+#include <Nazara/Core/AssetLoader.hpp>
+#include <Nazara/Core/AssetManager.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Core/Resource.hpp>
-#include <Nazara/Core/ResourceLoader.hpp>
-#include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
@@ -56,10 +56,10 @@ namespace Nz
 	class Texture;
 
 	using TextureLibrary = ObjectLibrary<Texture>;
-	using TextureLoader = ResourceLoader<Texture, TextureParams>;
-	using TextureManager = ResourceManager<Texture, TextureParams>;
+	using TextureLoader = AssetLoader<Texture, TextureParams>;
+	using TextureManager = AssetManager<Texture, TextureParams>;
 
-	class NAZARA_RENDERER_API Texture : public AbstractImage, public Resource, public std::enable_shared_from_this<Texture> //< FIXME
+	class NAZARA_RENDERER_API Texture : public AbstractImage, public Asset, public std::enable_shared_from_this<Texture> //< FIXME
 	{
 		public:
 			using Params = TextureParams;

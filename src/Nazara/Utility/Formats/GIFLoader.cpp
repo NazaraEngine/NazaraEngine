@@ -262,10 +262,10 @@ namespace Nz
 					return m_currentFrame;
 				}
 
-				Result<void, ResourceLoadingError> Open()
+				Result<void, AssetLoadingError> Open()
 				{
 					if (!Check())
-						return Err(ResourceLoadingError::Unrecognized);
+						return Err(AssetLoadingError::Unrecognized);
 
 					m_byteStream >> m_header.width >> m_header.height;
 					m_byteStream >> m_header.flags >> m_header.backgroundPaletteIndex >> m_header.ratio;
@@ -319,13 +319,13 @@ namespace Nz
 								if (left + width > m_header.width)
 								{
 									NazaraError("corrupt gif (out of range)");
-									return Err(ResourceLoadingError::DecodingError);
+									return Err(AssetLoadingError::DecodingError);
 								}
 
 								if (top + height > m_header.height)
 								{
 									NazaraError("corrupt gif (out of range)");
-									return Err(ResourceLoadingError::DecodingError);
+									return Err(AssetLoadingError::DecodingError);
 								}
 
 								if (left != 0 || top != 0 || width < m_header.width || height < m_header.height)
@@ -340,7 +340,7 @@ namespace Nz
 								else if (!hasGlobalColorTable)
 								{
 									NazaraErrorFmt("corrupt gif (no color table for image #{0}", m_frames.size() - 1);
-									return Err(ResourceLoadingError::DecodingError);
+									return Err(AssetLoadingError::DecodingError);
 								}
 
 								UInt8 minimumCodeSize;
@@ -348,7 +348,7 @@ namespace Nz
 								if (minimumCodeSize > 12)
 								{
 									NazaraErrorFmt("unexpected LZW Minimum Code Size ({0})", minimumCodeSize);
-									return Err(ResourceLoadingError::DecodingError);
+									return Err(AssetLoadingError::DecodingError);
 								}
 
 								SkipUntilTerminationBlock();
@@ -379,7 +379,7 @@ namespace Nz
 										if (blockSize != 4)
 										{
 											NazaraError("corrupt gif (invalid block size for graphic control extension)");
-											return Err(ResourceLoadingError::DecodingError);
+											return Err(AssetLoadingError::DecodingError);
 										}
 
 										nextFrame.disposalMethod = (flags & 0b0001'1100) >> 2;
@@ -420,7 +420,7 @@ namespace Nz
 
 							default:
 								NazaraErrorFmt("corrupt gif (unknown tag {0:#x})", tag);
-								return Err(ResourceLoadingError::DecodingError);
+								return Err(AssetLoadingError::DecodingError);
 						}
 					}
 
@@ -709,17 +709,17 @@ namespace Nz
 			return extension == ".gif";
 		}
 
-		Result<std::shared_ptr<ImageStream>, ResourceLoadingError> LoadGIFFile(const std::filesystem::path& filePath, const ImageStreamParams& /*parameters*/)
+		Result<std::shared_ptr<ImageStream>, AssetLoadingError> LoadGIFFile(const std::filesystem::path& filePath, const ImageStreamParams& /*parameters*/)
 		{
 			std::shared_ptr<GIFImageStream> gifStream = std::make_shared<GIFImageStream>();
 			if (!gifStream->SetFile(filePath))
-				return Err(ResourceLoadingError::FailedToOpenFile);
+				return Err(AssetLoadingError::FailedToOpenFile);
 
 			Result status = gifStream->Open();
 			return status.Map([&] { return std::move(gifStream); });
 		}
 
-		Result<std::shared_ptr<ImageStream>, ResourceLoadingError> LoadGIFMemory(const void* ptr, std::size_t size, const ImageStreamParams& /*parameters*/)
+		Result<std::shared_ptr<ImageStream>, AssetLoadingError> LoadGIFMemory(const void* ptr, std::size_t size, const ImageStreamParams& /*parameters*/)
 		{
 			std::shared_ptr<GIFImageStream> gifStream = std::make_shared<GIFImageStream>();
 			gifStream->SetMemory(ptr, size);
@@ -728,7 +728,7 @@ namespace Nz
 			return status.Map([&] { return std::move(gifStream); });
 		}
 
-		Result<std::shared_ptr<ImageStream>, ResourceLoadingError> LoadGIFStream(Stream& stream, const ImageStreamParams& /*parameters*/)
+		Result<std::shared_ptr<ImageStream>, AssetLoadingError> LoadGIFStream(Stream& stream, const ImageStreamParams& /*parameters*/)
 		{
 			std::shared_ptr<GIFImageStream> gifStream = std::make_shared<GIFImageStream>();
 			gifStream->SetStream(stream);
