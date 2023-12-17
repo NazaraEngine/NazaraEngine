@@ -19,6 +19,7 @@
 #include <Nazara/Utility/UniformBuffer.hpp>
 #include <NazaraUtils/Signal.hpp>
 #include <NZSL/Ast/ConstantValue.hpp>
+#include <NZSL/Ast/Option.hpp>
 #include <array>
 #include <memory>
 #include <string>
@@ -30,7 +31,7 @@ namespace Nz
 	{
 		MaterialPassFlags flags;
 		RenderStates states;
-		std::unordered_map<UInt32, nzsl::Ast::ConstantSingleValue> options;
+		std::unordered_map<nzsl::Ast::OptionHash, nzsl::Ast::ConstantSingleValue> options;
 		std::vector<std::shared_ptr<UberShader>> shaders;
 	};
 }

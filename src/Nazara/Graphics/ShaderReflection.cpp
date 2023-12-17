@@ -157,7 +157,7 @@ namespace Nz
 			throw std::runtime_error("option " + node.optName + " condition must be resolved");
 
 		OptionData& optionData = m_options[node.optName];
-		optionData.hash = CRC32(node.optName);
+		optionData.hash = nzsl::Ast::HashOption(node.optName);
 		optionData.type = node.optType.GetResultingValue();
 	}
 

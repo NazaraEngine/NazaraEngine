@@ -137,7 +137,7 @@ namespace Nz
 			//TODO: Check optionType
 
 			optionByName[option.optName] = Option{
-				CRC32(option.optName)
+				nzsl::Ast::HashOption(option.optName)
 			};
 		};
 

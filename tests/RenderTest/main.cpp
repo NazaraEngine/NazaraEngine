@@ -113,7 +113,7 @@ int main()
 	}
 
 	nzsl::ShaderWriter::States states;
-	states.optionValues[Nz::CRC32("red")] = false; //< Try enabling this!
+	states.optionValues[nzsl::Ast::HashOption("red")] = false; //< Try enabling this!
 	states.optimize = true;
 
 	auto fragVertShader = device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, *shaderModule, states);

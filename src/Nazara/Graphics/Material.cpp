@@ -26,6 +26,8 @@ namespace Nz
 	Material::Material(MaterialSettings settings, const nzsl::Ast::ModulePtr& referenceModule) :
 	m_settings(std::move(settings))
 	{
+		using namespace nzsl::Ast::Literals;
+
 		NazaraAssert(referenceModule, "invalid module");
 
 		Graphics* graphics = Graphics::Instance();
@@ -36,9 +38,9 @@ namespace Nz
 		options.forceAutoBindingResolve = true;
 		options.partialSanitization = true;
 		options.moduleResolver = graphics->GetShaderModuleResolver();
-		options.optionValues[CRC32("MaxLightCount")] = SafeCast<UInt32>(PredefinedLightData::MaxLightCount);
-		options.optionValues[CRC32("MaxLightCascadeCount")] = SafeCast<UInt32>(PredefinedDirectionalLightData::MaxLightCascadeCount);
-		options.optionValues[CRC32("MaxJointCount")] = SafeCast<UInt32>(PredefinedSkeletalData::MaxMatricesCount);
+		options.optionValues["MaxLightCount"_opt] = SafeCast<UInt32>(PredefinedLightData::MaxLightCount);
+		options.optionValues["MaxLightCascadeCount"_opt] = SafeCast<UInt32>(PredefinedDirectionalLightData::MaxLightCascadeCount);
+		options.optionValues["MaxJointCount"_opt] = SafeCast<UInt32>(PredefinedSkeletalData::MaxMatricesCount);
 
 		nzsl::Ast::ModulePtr sanitizedModule = nzsl::Ast::Sanitize(*referenceModule, options);
 
@@ -123,6 +125,8 @@ namespace Nz
 			{
 				uberShader->UpdateConfigCallback([=](UberShader::Config& config, const std::vector<RenderPipelineInfo::VertexBufferData>& vertexBuffers)
 				{
+					using namespace nzsl::Ast::Literals;
+
 					if (vertexBuffers.empty())
 						return;
 
@@ -135,35 +139,35 @@ namespace Nz
 						switch (component.component)
 						{
 							case VertexComponent::Color:
-								config.optionValues[CRC32("VertexColorLoc")] = locationIndex;
+								config.optionValues["VertexColorLoc"_opt] = locationIndex;
 								break;
 
 							case VertexComponent::Normal:
-								config.optionValues[CRC32("VertexNormalLoc")] = locationIndex;
+								config.optionValues["VertexNormalLoc"_opt] = locationIndex;
 								break;
 
 							case VertexComponent::Position:
-								config.optionValues[CRC32("VertexPositionLoc")] = locationIndex;
+								config.optionValues["VertexPositionLoc"_opt] = locationIndex;
 								break;
 
 							case VertexComponent::SizeSinCos:
-								config.optionValues[CRC32("VertexSizeRotLocation")] = locationIndex;
+								config.optionValues["VertexSizeRotLocation"_opt] = locationIndex;
 								break;
 
 							case VertexComponent::Tangent:
-								config.optionValues[CRC32("VertexTangentLoc")] = locationIndex;
+								config.optionValues["VertexTangentLoc"_opt] = locationIndex;
 								break;
 
 							case VertexComponent::TexCoord:
-								config.optionValues[CRC32("VertexUvLoc")] = locationIndex;
+								config.optionValues["VertexUvLoc"_opt] = locationIndex;
 								break;
 
 							case VertexComponent::JointIndices:
-								config.optionValues[CRC32("VertexJointIndicesLoc")] = locationIndex;
+								config.optionValues["VertexJointIndicesLoc"_opt] = locationIndex;
 								break;
 
 							case VertexComponent::JointWeights:
-								config.optionValues[CRC32("VertexJointWeightsLoc")] = locationIndex;
+								config.optionValues["VertexJointWeightsLoc"_opt] = locationIndex;
 								break;
 
 							case VertexComponent::Unused:

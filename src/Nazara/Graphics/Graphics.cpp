@@ -256,6 +256,8 @@ namespace Nz
 
 	void Graphics::BuildDefaultMaterials()
 	{
+		using namespace nzsl::Ast::Literals;
+
 		std::size_t depthPassIndex = m_materialPassRegistry.GetPassIndex("DepthPass");
 		std::size_t shadowPassIndex = m_materialPassRegistry.GetPassIndex("ShadowPass");
 		std::size_t distanceShadowPassIndex = m_materialPassRegistry.GetPassIndex("DistanceShadowPass");
@@ -274,17 +276,17 @@ namespace Nz
 			settings.AddPass(forwardPassIndex, forwardPass);
 
 			MaterialPass depthPass = forwardPass;
-			depthPass.options[CRC32("DepthPass")] = true;
+			depthPass.options["DepthPass"_opt] = true;
 			settings.AddPass(depthPassIndex, depthPass);
 
 			MaterialPass shadowPass = depthPass;
-			shadowPass.options[CRC32("ShadowPass")] = true;
+			shadowPass.options["ShadowPass"_opt] = true;
 			shadowPass.states.frontFace = FrontFace::Clockwise;
 			shadowPass.states.depthClamp = enabledFeatures.depthClamping;
 			settings.AddPass(shadowPassIndex, shadowPass);
 
 			MaterialPass distanceShadowPass = shadowPass;
-			distanceShadowPass.options[CRC32("DistanceDepth")] = true;
+			distanceShadowPass.options["DistanceDepth"_opt] = true;
 			settings.AddPass(distanceShadowPassIndex, distanceShadowPass);
 
 			m_defaultMaterials.materials[MaterialType::Basic].material = std::make_shared<Material>(std::move(settings), "BasicMaterial");
@@ -302,17 +304,17 @@ namespace Nz
 			settings.AddPass(forwardPassIndex, forwardPass);
 
 			MaterialPass depthPass = forwardPass;
-			depthPass.options[CRC32("DepthPass")] = true;
+			depthPass.options["DepthPass"_opt] = true;
 			settings.AddPass(depthPassIndex, depthPass);
 
 			MaterialPass shadowPass = depthPass;
-			shadowPass.options[CRC32("ShadowPass")] = true;
+			shadowPass.options["ShadowPass"_opt] = true;
 			shadowPass.states.frontFace = FrontFace::Clockwise;
 			shadowPass.states.depthClamp = enabledFeatures.depthClamping;
 			settings.AddPass(shadowPassIndex, shadowPass);
 
 			MaterialPass distanceShadowPass = shadowPass;
-			distanceShadowPass.options[CRC32("DistanceDepth")] = true;
+			distanceShadowPass.options["DistanceDepth"_opt] = true;
 			settings.AddPass(distanceShadowPassIndex, distanceShadowPass);
 
 			m_defaultMaterials.materials[MaterialType::PhysicallyBased].material = std::make_shared<Material>(std::move(settings), "PhysicallyBasedMaterial");
@@ -330,17 +332,17 @@ namespace Nz
 			settings.AddPass(forwardPassIndex, forwardPass);
 
 			MaterialPass depthPass = forwardPass;
-			depthPass.options[CRC32("DepthPass")] = true;
+			depthPass.options["DepthPass"_opt] = true;
 			settings.AddPass(depthPassIndex, depthPass);
 
 			MaterialPass shadowPass = depthPass;
-			shadowPass.options[CRC32("ShadowPass")] = true;
+			shadowPass.options["ShadowPass"_opt] = true;
 			shadowPass.states.frontFace = FrontFace::Clockwise;
 			shadowPass.states.depthClamp = enabledFeatures.depthClamping;
 			settings.AddPass(shadowPassIndex, shadowPass);
 
 			MaterialPass distanceShadowPass = shadowPass;
-			distanceShadowPass.options[CRC32("DistanceDepth")] = true;
+			distanceShadowPass.options["DistanceDepth"_opt] = true;
 			settings.AddPass(distanceShadowPassIndex, distanceShadowPass);
 
 			m_defaultMaterials.materials[MaterialType::Phong].material = std::make_shared<Material>(std::move(settings), "PhongMaterial");

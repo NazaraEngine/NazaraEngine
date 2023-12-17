@@ -12,6 +12,7 @@
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <NZSL/Ast/Module.hpp>
 #include <NZSL/Ast/RecursiveVisitor.hpp>
+#include <NZSL/Ast/Option.hpp>
 #include <NZSL/Math/FieldOffsets.hpp>
 #include <unordered_map>
 
@@ -82,7 +83,7 @@ namespace Nz
 			struct OptionData
 			{
 				nzsl::Ast::ExpressionType type;
-				UInt32 hash;
+				nzsl::Ast::OptionHash hash;
 			};
 
 			struct StructMemberData

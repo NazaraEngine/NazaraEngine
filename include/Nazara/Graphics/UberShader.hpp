@@ -14,6 +14,7 @@
 #include <NazaraUtils/Signal.hpp>
 #include <NZSL/ModuleResolver.hpp>
 #include <NZSL/Ast/Module.hpp>
+#include <NZSL/Ast/Option.hpp>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -59,7 +60,7 @@ namespace Nz
 
 			struct Option
 			{
-				UInt32 hash;
+				nzsl::Ast::OptionHash hash;
 			};
 
 			NazaraSignal(OnShaderUpdated, UberShader* /*uberShader*/);
