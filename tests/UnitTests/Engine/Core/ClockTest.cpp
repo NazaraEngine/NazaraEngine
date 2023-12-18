@@ -48,5 +48,20 @@ SCENARIO("Clock", "[CORE][CLOCK]")
 				CHECK(clock.GetElapsedTime() != initialTime);
 			}
 		}
+
+		WHEN("We restart if over")
+		{
+			clock.Restart(Nz::Time::Milliseconds(1'500), true);
+			CHECK(clock.RestartIfOver(Nz::Time::Microseconds(1'000)) == Nz::Time::Milliseconds(1'500));
+			CHECK(clock.GetElapsedTime() == Nz::Time::Zero());
+		}
+
+		WHEN("We tick it")
+		{
+			clock.Restart(Nz::Time::Milliseconds(1'500), true);
+			CHECK(clock.Tick(Nz::Time::Milliseconds(1'000)));
+			CHECK(clock.GetElapsedTime() == Nz::Time::Milliseconds(500));
+			CHECK_FALSE(clock.Tick(Nz::Time::Milliseconds(1'000)));
+		}
 	}
 }

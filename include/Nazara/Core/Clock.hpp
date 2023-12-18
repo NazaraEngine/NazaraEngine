@@ -32,6 +32,8 @@ namespace Nz
 			Time Restart(Time startingPoint = Time::Zero(), bool paused = false);
 			std::optional<Time> RestartIfOver(Time time);
 
+			bool Tick(Time time);
+
 			void Unpause();
 
 			Clock& operator=(const Clock& clock) = default;

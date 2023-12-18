@@ -97,8 +97,10 @@ namespace Nz
 	* \brief Restart the clock if more than time elapsed
 	* \return If more than time elapsed since creation or last restart call
 	*
-	* Restarts the clock, putting its time counter back to zero
+	* Restarts the clock if over a specified duration, putting its time counter back to zero
 	* This function allows to check the elapsed time of a clock and restart it if over some value in a single call, preventing some loss between GetElapsedTime and Restart
+	*
+	* \seealso Tick
 	*/
 	template<bool HighPrecision>
 	std::optional<Time> Clock<HighPrecision>::RestartIfOver(Time time)
@@ -116,6 +118,33 @@ namespace Nz
 		m_refTime = now;
 
 		return elapsedTime;
+	}
+
+	/*!
+	* \brief Restart the clock if more than time elapsed, but keeps the overflow
+	* \return True if more time has passed than time, false otherwise
+	*
+	* Restarts the clock if over a specified duration, but keeps the extra time (for example if elapsed time is 1.05s and this function is called with 1s, the clock will restart at 0.05s)
+	* This function allows to execute a code at periodic interval (tick) without losing time
+	*
+	* \seealso RestartIfOver
+	*/
+	template<bool HighPrecision>
+	bool Clock<HighPrecision>::Tick(Time time)
+	{
+		Time now = Now();
+
+		Time elapsedTime = m_elapsedTime;
+		if (!m_paused)
+			elapsedTime += now - m_refTime;
+
+		if (elapsedTime < time)
+			return false;
+
+		m_elapsedTime = elapsedTime - time;
+		m_refTime = now;
+
+		return true;
 	}
 
 
