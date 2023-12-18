@@ -90,7 +90,7 @@ jobs:
       run: xmake install -vo package
 
     # Upload artifacts
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: nazaraengine-${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.mode }}
         path: package
