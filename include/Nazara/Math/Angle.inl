@@ -142,7 +142,7 @@ namespace Nz
 
 #ifdef NAZARA_PLATFORM_LINUX
 		template<typename T>
-		void SinCos(std::enable_if_t<!std::is_same<T, float>::value && !std::is_same<T, long double>::value, double> x, T* sin, T* cos)
+		void SinCos(T x, T* sin, T* cos)
 		{
 			double s, c;
 			::sincos(x, &s, &c);
@@ -151,14 +151,14 @@ namespace Nz
 			*cos = static_cast<T>(c);
 		}
 
-		template<typename T>
-		void SinCos(std::enable_if_t<std::is_same<T, float>::value, float> x, float* s, float* c)
+		template<>
+		inline void SinCos(float x, float* s, float* c)
 		{
 			::sincosf(x, s, c);
 		}
 
-		template<typename T>
-		void SinCos(std::enable_if_t<std::is_same<T, long double>::value, long double> x, long double* s, long double* c)
+		template<>
+		inline void SinCos(long double x, long double* s, long double* c)
 		{
 			::sincosl(x, s, c);
 		}

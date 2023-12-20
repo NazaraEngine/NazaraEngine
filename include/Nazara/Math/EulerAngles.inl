@@ -115,13 +115,9 @@ namespace Nz
 	Quaternion<T> EulerAngles<T>::ToQuaternion() const
 	{
 		// XYZ
-		T c1 = (yaw / T(2.0)).GetCos();
-		T c2 = (roll / T(2.0)).GetCos();
-		T c3 = (pitch / T(2.0)).GetCos();
-
-		T s1 = (yaw / T(2.0)).GetSin();
-		T s2 = (roll / T(2.0)).GetSin();
-		T s3 = (pitch / T(2.0)).GetSin();
+		auto [s1, c1] = (yaw / T(2.0)).GetSinCos();
+		auto [s2, c2] = (roll / T(2.0)).GetSinCos();
+		auto [s3, c3] = (pitch / T(2.0)).GetSinCos();
 
 		return Quaternion<T>(c1 * c2 * c3 - s1 * s2 * s3,
 		                     s1 * s2 * c3 + c1 * c2 * s3,
