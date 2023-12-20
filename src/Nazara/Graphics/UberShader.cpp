@@ -23,7 +23,8 @@ namespace Nz
 	m_shaderStages(shaderStages)
 	{
 		m_shaderModule = moduleResolver.Resolve(moduleName);
-		NazaraAssert(m_shaderModule, "invalid shader module");
+		if (!m_shaderModule)
+			throw std::runtime_error(Format("failed to resolve shader module \"{0}\"", moduleName));
 
 		try
 		{
