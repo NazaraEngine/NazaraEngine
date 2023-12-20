@@ -20,6 +20,45 @@ namespace Nz
 		Max = Text
 	};
 
+	enum class MessageBoxButtonRole
+	{
+		Accept,
+		None,
+		Reject,
+
+		Max = Reject
+	};
+
+	enum class MessageBoxType
+	{
+		Info,
+		Error,
+		Warning,
+
+		Max = Warning
+	};
+
+	enum class MessageBoxStandardButton
+	{
+		Abort,
+		Apply,
+		Cancel,
+		Close,
+		Discard,
+		Ignore,
+		No,
+		NoToAll,
+		Ok,
+		Reset,
+		Retry,
+		Save,
+		SaveAll,
+		Yes,
+		YesToAll,
+
+		Max = YesToAll
+	};
+
 	enum class SystemCursor
 	{
 		Crosshair,
