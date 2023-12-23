@@ -22,7 +22,7 @@ namespace Nz
 			{
 				Undefined = -1,
 
-				// Lettres
+				// Letters
 				A,
 				B,
 				C,
@@ -171,7 +171,7 @@ namespace Nz
 			{
 				Undefined = -1,
 
-				// Lettres
+				// Letters
 				A,
 				B,
 				C,

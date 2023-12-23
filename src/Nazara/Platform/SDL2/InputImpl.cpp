@@ -43,7 +43,7 @@ namespace Nz
 		if (scancode != SDL_SCANCODE_UNKNOWN)
 			name = SDL_GetScancodeName(scancode);
 		else
-			name = "Unknown";
+			name = "unknown";
 
 		return name;
 	}
@@ -56,7 +56,7 @@ namespace Nz
 		if (vkey != SDLK_UNKNOWN)
 			name = SDL_GetKeyName(vkey);
 		else
-			name = "Unknown";
+			name = "unknown";
 
 		return name;
 	}

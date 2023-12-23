@@ -22,7 +22,8 @@ namespace Nz
 		template<AngleUnit Unit>
 		struct AngleConversion<Unit, Unit>
 		{
-			template<typename T> static constexpr T Convert(T angle)
+			template<typename T>
+			static constexpr T Convert(T angle)
 			{
 				return angle;
 			}
@@ -31,7 +32,8 @@ namespace Nz
 		template<>
 		struct AngleConversion<AngleUnit::Degree, AngleUnit::Radian>
 		{
-			template<typename T> static constexpr T Convert(T angle)
+			template<typename T>
+			static constexpr T Convert(T angle)
 			{
 				return DegreeToRadian(angle);
 			}
@@ -40,7 +42,8 @@ namespace Nz
 		template<>
 		struct AngleConversion<AngleUnit::Degree, AngleUnit::Turn>
 		{
-			template<typename T> static constexpr T Convert(T angle)
+			template<typename T>
+			static constexpr T Convert(T angle)
 			{
 				return angle / T(360);
 			}
@@ -49,7 +52,8 @@ namespace Nz
 		template<>
 		struct AngleConversion<AngleUnit::Radian, AngleUnit::Degree>
 		{
-			template<typename T> static constexpr T Convert(T angle)
+			template<typename T>
+			static constexpr T Convert(T angle)
 			{
 				return RadianToDegree(angle);
 			}
@@ -58,7 +62,8 @@ namespace Nz
 		template<>
 		struct AngleConversion<AngleUnit::Radian, AngleUnit::Turn>
 		{
-			template<typename T> static constexpr T Convert(T angle)
+			template<typename T>
+			static constexpr T Convert(T angle)
 			{
 				return angle / (T(2) * Pi<T>);
 			}
@@ -67,7 +72,8 @@ namespace Nz
 		template<>
 		struct AngleConversion<AngleUnit::Turn, AngleUnit::Degree>
 		{
-			template<typename T> static constexpr T Convert(T angle)
+			template<typename T>
+			static constexpr T Convert(T angle)
 			{
 				return angle * T(360);
 			}
@@ -76,7 +82,8 @@ namespace Nz
 		template<>
 		struct AngleConversion<AngleUnit::Turn, AngleUnit::Radian>
 		{
-			template<typename T> static constexpr T Convert(T angle)
+			template<typename T>
+			static constexpr T Convert(T angle)
 			{
 				return angle * T(2) * Pi<T>;
 			}
@@ -87,12 +94,14 @@ namespace Nz
 		template<>
 		struct AngleUtils<AngleUnit::Degree>
 		{
-			template<typename T> static constexpr T GetEpsilon()
+			template<typename T>
+			static constexpr T GetEpsilon()
 			{
 				return T(1e-4);
 			}
 
-			template<typename T> static constexpr T GetLimit()
+			template<typename T>
+			static constexpr T GetLimit()
 			{
 				return 360;
 			}
@@ -106,17 +115,20 @@ namespace Nz
 		template<>
 		struct AngleUtils<AngleUnit::Radian>
 		{
-			template<typename T> static constexpr T GetEpsilon()
+			template<typename T>
+			static constexpr T GetEpsilon()
 			{
 				return T(1e-5);
 			}
 
-			template<typename T> static constexpr T GetLimit()
+			template<typename T>
+			static constexpr T GetLimit()
 			{
 				return T(2) * Pi<T>;
 			}
 
-			template<typename T> static std::ostream& ToString(std::ostream& out, T value)
+			template<typename T>
+			static std::ostream& ToString(std::ostream& out, T value)
 			{
 				return out << "Angle(" << value << "rad)";
 			}
@@ -125,17 +137,20 @@ namespace Nz
 		template<>
 		struct AngleUtils<AngleUnit::Turn>
 		{
-			template<typename T> static constexpr T GetEpsilon()
+			template<typename T>
+			static constexpr T GetEpsilon()
 			{
 				return T(1e-5);
 			}
 
-			template<typename T> static constexpr T GetLimit()
+			template<typename T>
+			static constexpr T GetLimit()
 			{
 				return 1;
 			}
 
-			template<typename T> static std::ostream& ToString(std::ostream& out, T value)
+			template<typename T>
+			static std::ostream& ToString(std::ostream& out, T value)
 			{
 				return out << "Angle(" << value << "turn)";
 			}
