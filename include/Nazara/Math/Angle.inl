@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Engine - Math module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <NazaraUtils/Algorithm.hpp>
 #include <algorithm>
 #include <cstring>
 #include <sstream>
@@ -285,11 +286,13 @@ namespace Nz
 	constexpr Angle<Unit, T>& Angle<Unit, T>::Normalize()
 	{
 		constexpr T limit = Detail::AngleUtils<Unit>::template GetLimit<T>();
+		constexpr T halfLimit = limit / T(2);
 
-		value = std::fmod(value, limit);
+		value = Nz::Mod(value + halfLimit, limit);
 		if (value < T(0))
 			value += limit;
 
+		value -= halfLimit;
 		return *this;
 	}
 
