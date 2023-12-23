@@ -194,8 +194,9 @@ SCENARIO("Angle", "[MATH][ANGLE]")
 
 			THEN("It should be equal to a normalized version of itself")
 			{
-				Nz::RadianAnglef expectedResult(Nz::Pi<float>);
+				Nz::RadianAnglef expectedResult(-Nz::Pi<float>);
 
+				INFO(angle);
 				CHECK(angle.ApproxEqual(expectedResult));
 			}
 		}
@@ -213,6 +214,7 @@ SCENARIO("Angle", "[MATH][ANGLE]")
 			{
 				Nz::RadianAnglef expectedResult(0.f);
 
+				INFO(angle);
 				CHECK(angle.ApproxEqual(expectedResult));
 			}
 		}
@@ -228,8 +230,9 @@ SCENARIO("Angle", "[MATH][ANGLE]")
 
 			THEN("It should be equal to a normalized version of itself")
 			{
-				Nz::TurnAnglef expectedResult(0.5f);
+				Nz::TurnAnglef expectedResult(-0.5f);
 
+				INFO(angle);
 				CHECK(angle.ApproxEqual(expectedResult));
 			}
 		}
