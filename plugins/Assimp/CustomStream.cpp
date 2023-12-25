@@ -84,38 +84,16 @@ aiFile* StreamOpener(aiFileIO* fileIO, const char* filePath, const char* openMod
 	{
 		ErrorFlags errFlags({}, ~ErrorMode::ThrowException);
 
-		///TODO: Move to File::DecodeOpenMode
-		OpenModeFlags openModeEnum = 0;
+		Result<OpenModeFlags, std::string> openModes = File::DecodeOpenMode(openMode);
 
-		if (std::strchr(openMode, 'r'))
+		if (openModes.IsErr())
 		{
-			openModeEnum |= OpenMode::Read;
-			if (std::strchr(openMode, '+'))
-				openModeEnum |= OpenMode_ReadWrite | OpenMode::MustExist;
-		}
-		else if (std::strchr(openMode, 'w'))
-		{
-			openModeEnum |= OpenMode::Write | OpenMode::Truncate;
-			if (std::strchr(openMode, '+'))
-				openModeEnum |= OpenMode::Read;
-		}
-		else if (std::strchr(openMode, 'a'))
-		{
-			openModeEnum |= OpenMode::Write | OpenMode::Append;
-			if (std::strchr(openMode, '+'))
-				openModeEnum |= OpenMode::Read;
-		}
-		else
-		{
-			NazaraErrorFmt("unhandled/invalid openmode: {0} for file {1}", openMode, filePath);
+			NazaraErrorFmt("{0} for file {1}", openModes.GetError(), filePath);
 			return nullptr;
 		}
 
-		if (!std::strchr(openMode, 'b'))
-			openModeEnum |= OpenMode::Text;
-
 		std::unique_ptr<File> file = std::make_unique<File>();
-		if (!file->Open(filePath, openModeEnum))
+		if (!file->Open(filePath, openModes.GetValue()))
 			return nullptr;
 
 		stream = reinterpret_cast<char*>(file.release());

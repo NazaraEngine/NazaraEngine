@@ -11,7 +11,7 @@
 #include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/Stream.hpp>
 #include <NazaraUtils/Endianness.hpp>
-#include <NazaraUtils/MovablePtr.hpp>
+#include <NazaraUtils/Result.hpp>
 #include <ctime>
 #include <filesystem>
 #include <fstream>
@@ -56,6 +56,7 @@ namespace Nz
 
 			static inline ByteArray ComputeHash(HashType hash, const std::filesystem::path& filePath);
 			static inline ByteArray ComputeHash(AbstractHash& hash, const std::filesystem::path& filePath);
+			static /*constexpr*/ Result<OpenModeFlags, std::string> DecodeOpenMode(std::string_view openModeStr);
 			static std::optional<std::vector<UInt8>> ReadWhole(const std::filesystem::path& path);
 			static bool WriteWhole(const std::filesystem::path& path, const void* data, std::size_t size);
 
