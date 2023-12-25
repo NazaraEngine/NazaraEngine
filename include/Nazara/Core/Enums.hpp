@@ -98,13 +98,13 @@ namespace Nz
 		Defer,      //< Defers file opening until a read/write operation is performed on it
 		Lock,       //< Prevents file modification by other handles while it's open
 		MustExist,  //< Fails if the file doesn't exists, even if opened in write mode
-		ReadOnly,   //< Allows read operations
+		Read,       //< Allows read operations
 		Text,       //< Opens in text mode (converts system line endings from/to \n)
 		Truncate,   //< Creates the file if it doesn't exist and empties it otherwise
 		Unbuffered, //< Each read/write operations are performed directly using system calls (very slow)
-		WriteOnly,  //< Allows write operations, creates the file if it doesn't exist
+		Write,      //< Allows write operations, creates the file if it doesn't exist
 
-		Max = WriteOnly
+		Max = Write
 	};
 
 	template<>
@@ -115,7 +115,7 @@ namespace Nz
 
 	using OpenModeFlags = Flags<OpenMode>;
 
-	constexpr OpenModeFlags OpenMode_ReadWrite = OpenMode::ReadOnly | OpenMode::WriteOnly;
+	constexpr OpenModeFlags OpenMode_ReadWrite = OpenMode::Read | OpenMode::Write;
 
 	enum class ParameterType
 	{

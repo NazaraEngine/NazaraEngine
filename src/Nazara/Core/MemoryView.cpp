@@ -42,7 +42,7 @@ namespace Nz
 	*/
 
 	MemoryView::MemoryView(const void* ptr, UInt64 size) :
-	Stream(StreamOption::MemoryMapped, OpenMode::ReadOnly),
+	Stream(StreamOption::MemoryMapped, OpenMode::Read),
 	m_ptr(static_cast<UInt8*>(const_cast<void*>(ptr))), //< Okay, right, const_cast is bad, but this pointer is still read-only
 	m_pos(0),
 	m_size(size)

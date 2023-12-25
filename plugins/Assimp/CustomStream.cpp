@@ -89,21 +89,21 @@ aiFile* StreamOpener(aiFileIO* fileIO, const char* filePath, const char* openMod
 
 		if (std::strchr(openMode, 'r'))
 		{
-			openModeEnum |= OpenMode::ReadOnly;
+			openModeEnum |= OpenMode::Read;
 			if (std::strchr(openMode, '+'))
 				openModeEnum |= OpenMode_ReadWrite | OpenMode::MustExist;
 		}
 		else if (std::strchr(openMode, 'w'))
 		{
-			openModeEnum |= OpenMode::WriteOnly | OpenMode::Truncate;
+			openModeEnum |= OpenMode::Write | OpenMode::Truncate;
 			if (std::strchr(openMode, '+'))
-				openModeEnum |= OpenMode::ReadOnly;
+				openModeEnum |= OpenMode::Read;
 		}
 		else if (std::strchr(openMode, 'a'))
 		{
-			openModeEnum |= OpenMode::WriteOnly | OpenMode::Append;
+			openModeEnum |= OpenMode::Write | OpenMode::Append;
 			if (std::strchr(openMode, '+'))
-				openModeEnum |= OpenMode::ReadOnly;
+				openModeEnum |= OpenMode::Read;
 		}
 		else
 		{

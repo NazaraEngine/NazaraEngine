@@ -142,7 +142,7 @@ namespace Nz
 
 	inline bool Stream::IsReadable() const
 	{
-		return m_openMode.Test(OpenMode::ReadOnly);
+		return m_openMode.Test(OpenMode::Read);
 	}
 
 	/*!
@@ -169,7 +169,7 @@ namespace Nz
 	*/
 	inline bool Stream::IsWritable() const
 	{
-		return m_openMode.Test(OpenMode::WriteOnly);
+		return m_openMode.Test(OpenMode::Write);
 	}
 
 	/*!

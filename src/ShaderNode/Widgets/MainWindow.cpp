@@ -190,7 +190,7 @@ void MainWindow::OnCompile()
 		if (!fileName.endsWith("nzslb", Qt::CaseInsensitive))
 			fileName += ".nzslb";
 
-		Nz::File file(fileName.toStdString(), Nz::OpenMode::WriteOnly);
+		Nz::File file(fileName.toStdString(), Nz::OpenMode::Write);
 		nzsl::Serializer serializer;
 		nzsl::Ast::SerializeShader(serializer, *shaderModule);
 

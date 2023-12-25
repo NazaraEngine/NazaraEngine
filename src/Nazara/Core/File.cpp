@@ -279,7 +279,7 @@ namespace Nz
 	std::optional<std::vector<UInt8>> File::ReadWhole(const std::filesystem::path& path)
 	{
 		File file(path);
-		if (!file.Open(OpenMode::ReadOnly | OpenMode::Unbuffered)) //< unbuffered since we will read all the file at once
+		if (!file.Open(OpenMode::Read | OpenMode::Unbuffered)) //< unbuffered since we will read all the file at once
 		{
 			NazaraErrorFmt("failed to open \"{0}\"", path);
 			return std::nullopt;
@@ -299,7 +299,7 @@ namespace Nz
 	bool File::WriteWhole(const std::filesystem::path& path, const void* data, std::size_t size)
 	{
 		File file(path);
-		if (!file.Open(OpenMode::WriteOnly | OpenMode::Unbuffered)) //< unbuffered since we will write all the file at once
+		if (!file.Open(OpenMode::Write | OpenMode::Unbuffered)) //< unbuffered since we will write all the file at once
 		{
 			NazaraErrorFmt("failed to open \"{0}\"", path);
 			return false;
@@ -453,7 +453,7 @@ namespace Nz
 	NAZARA_CORE_API bool HashAppend(AbstractHash& hash, const File& originalFile)
 	{
 		File file(originalFile.GetPath());
-		if (!file.Open(OpenMode::ReadOnly))
+		if (!file.Open(OpenMode::Read))
 		{
 			NazaraError("unable to open file");
 			return false;

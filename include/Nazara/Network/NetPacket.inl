@@ -155,7 +155,7 @@ namespace Nz
 
 	inline void NetPacket::Reset(UInt16 netCode, const void* ptr, std::size_t size)
 	{
-		InitStream(HeaderSize + size, HeaderSize, OpenMode::ReadOnly);
+		InitStream(HeaderSize + size, HeaderSize, OpenMode::Read);
 		m_buffer->Resize(HeaderSize + size);
 
 		if (ptr)

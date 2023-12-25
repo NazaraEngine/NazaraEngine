@@ -14,7 +14,7 @@ namespace Nz
 	std::shared_ptr<ShaderModule> RenderDevice::InstantiateShaderModule(nzsl::ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const std::filesystem::path& sourcePath, const nzsl::ShaderWriter::States& states)
 	{
 		File file(sourcePath);
-		if (!file.Open(OpenMode::ReadOnly | OpenMode::Text))
+		if (!file.Open(OpenMode::Read | OpenMode::Text))
 		{
 			NazaraErrorFmt("failed to open \"{0}\"", sourcePath);
 			return {};

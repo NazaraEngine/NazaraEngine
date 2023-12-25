@@ -17,7 +17,7 @@ namespace Nz
 	class NAZARA_CORE_API VirtualDirectoryFilesystemResolver : public VirtualDirectoryResolver
 	{
 		public:
-			inline VirtualDirectoryFilesystemResolver(std::filesystem::path physicalPath, OpenModeFlags fileOpenMode = OpenMode::ReadOnly | OpenMode::Defer);
+			inline VirtualDirectoryFilesystemResolver(std::filesystem::path physicalPath, OpenModeFlags fileOpenMode = OpenMode::Read | OpenMode::Defer);
 			VirtualDirectoryFilesystemResolver(const VirtualDirectoryFilesystemResolver&) = delete;
 			VirtualDirectoryFilesystemResolver(VirtualDirectoryFilesystemResolver&&) = delete;
 			~VirtualDirectoryFilesystemResolver() = default;

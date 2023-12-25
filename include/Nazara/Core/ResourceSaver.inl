@@ -91,7 +91,7 @@ namespace Nz
 			{
 				File file(filePath);
 
-				if (!file.Open(OpenMode::WriteOnly | OpenMode::Truncate))
+				if (!file.Open(OpenMode::Write | OpenMode::Truncate))
 				{
 					NazaraErrorFmt("failed to save to file: unable to open \"{0}\" in write mode", filePath);
 					return false;

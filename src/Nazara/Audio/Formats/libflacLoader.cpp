@@ -296,7 +296,7 @@ namespace Nz
 				Result<void, ResourceLoadingError> Open(const std::filesystem::path& filePath, const SoundStreamParams& parameters)
 				{
 					std::unique_ptr<File> file = std::make_unique<File>();
-					if (!file->Open(filePath, OpenMode::ReadOnly))
+					if (!file->Open(filePath, OpenMode::Read))
 					{
 						NazaraErrorFmt("failed to open stream from file: {0}", Error::GetLastError());
 						return Err(ResourceLoadingError::FailedToOpenFile);

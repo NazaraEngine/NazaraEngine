@@ -448,7 +448,7 @@ namespace Nz
 				bool SetFile(const std::filesystem::path& filePath)
 				{
 					std::unique_ptr<File> file = std::make_unique<File>();
-					if (!file->Open(filePath, OpenMode::ReadOnly))
+					if (!file->Open(filePath, OpenMode::Read))
 					{
 						NazaraErrorFmt("failed to open stream from file: {0}", Error::GetLastError());
 						return false;

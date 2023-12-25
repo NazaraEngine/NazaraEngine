@@ -61,11 +61,11 @@ namespace Nz
 		int flags;
 		mode_t permissions = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;
 
-		if ((mode & OpenMode_ReadWrite) == OpenMode_ReadWrite)
+		if (mode.Test(OpenMode_ReadWrite))
 			flags = O_CREAT | O_RDWR;
-		else if ((mode & OpenMode::ReadOnly) == OpenMode::ReadOnly)
+		else if (mode.Test(OpenMode::Read))
 			flags = O_RDONLY;
-		else if ((mode & OpenMode::WriteOnly) == OpenMode::WriteOnly)
+		else if (mode.Test(OpenMode::Write))
 			flags = O_CREAT | O_WRONLY;
 		else
 			return false;

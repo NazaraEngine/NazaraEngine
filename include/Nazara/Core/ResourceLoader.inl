@@ -91,7 +91,7 @@ namespace Nz
 			{
 				if (!file.IsOpen())
 				{
-					if (!file.Open(OpenMode::ReadOnly))
+					if (!file.Open(OpenMode::Read))
 					{
 						NazaraErrorFmt("failed to load resource: unable to open \"{0}\"", filePath);
 						return nullptr;

@@ -63,30 +63,30 @@ namespace Nz
 		DWORD shareMode = FILE_SHARE_READ;
 		DWORD openMode = 0;
 
-		if (mode & OpenMode::ReadOnly)
+		if (mode.Test(OpenMode::Read))
 		{
 			access |= GENERIC_READ;
 
-			if (mode & OpenMode::MustExist || (mode & OpenMode::WriteOnly) == 0)
+			if (mode.Test(OpenMode::MustExist) || !mode.Test(OpenMode::Write))
 				openMode |= OPEN_EXISTING;
 		}
 
-		if (mode & OpenMode::WriteOnly)
+		if (mode.Test(OpenMode::Write))
 		{
-			if (mode & OpenMode::Append)
+			if (mode.Test(OpenMode::Append))
 				access |= FILE_APPEND_DATA;
 			else
 				access |= GENERIC_WRITE;
 
-			if (mode & OpenMode::Truncate)
+			if (mode.Test(OpenMode::Truncate))
 				openMode |= CREATE_ALWAYS;
-			else if (mode & OpenMode::MustExist)
+			else if (mode.Test(OpenMode::MustExist))
 				openMode |= OPEN_EXISTING;
 			else
 				openMode |= OPEN_ALWAYS;
 		}
 
-		if ((mode & OpenMode::Lock) == 0)
+		if (!mode.Test(OpenMode::Lock))
 			shareMode |= FILE_SHARE_WRITE;
 
 		if constexpr (std::is_same_v<std::filesystem::path::value_type, wchar_t>)

@@ -264,7 +264,7 @@ TEST_CASE("VirtualDirectory", "[Core][VirtualDirectory]")
 		}
 		AND_THEN("Overriding the physical file with another one")
 		{
-			resourceDir->StoreFile("Logo.png", std::make_shared<Nz::File>(GetAssetDir() / "Audio/ambience.ogg", Nz::OpenMode::ReadOnly));
+			resourceDir->StoreFile("Logo.png", std::make_shared<Nz::File>(GetAssetDir() / "Audio/ambience.ogg", Nz::OpenMode::Read));
 
 			CHECK(CheckFileHash(resourceDir, "Audio/ambience.ogg", "49C486F44E43F023D54C9F375D902C21375DDB2748D3FA1863C9581D30E17F94"));
 			CHECK(CheckFileHash(resourceDir, "Logo.png", "49C486F44E43F023D54C9F375D902C21375DDB2748D3FA1863C9581D30E17F94"));
