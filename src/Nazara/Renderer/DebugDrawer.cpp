@@ -5,9 +5,9 @@
 #include <Nazara/Renderer/DebugDrawer.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
-#include <Nazara/Renderer/RenderFrame.hpp>
 #include <Nazara/Renderer/RenderPipeline.hpp>
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
+#include <Nazara/Renderer/RenderResources.hpp>
 #include <Nazara/Utility/Joint.hpp>
 #include <Nazara/Utility/Skeleton.hpp>
 #include <NZSL/Serializer.hpp>

@@ -21,7 +21,7 @@ namespace Nz
 			 Quaternionf::RotationBetween(Vector3f::Forward(), -Vector3f::UnitX()),
 			 Quaternionf::RotationBetween(Vector3f::Forward(),  Vector3f::UnitY()),
 			 Quaternionf::RotationBetween(Vector3f::Forward(), -Vector3f::UnitY()),
-			 Quaternionf::RotationBetween(Vector3f::Forward(), -Vector3f::UnitZ()), //< FIXME: Find out why Z is reversed
+			 Quaternionf::RotationBetween(Vector3f::Forward(), -Vector3f::UnitZ()), //< Z is reversed as the cubemap convention is left-handed
 			 Quaternionf::RotationBetween(Vector3f::Forward(),  Vector3f::UnitZ()),
 		};
 

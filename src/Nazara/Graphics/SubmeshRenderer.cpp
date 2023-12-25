@@ -9,7 +9,7 @@
 #include <Nazara/Graphics/SkeletonInstance.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
-#include <Nazara/Renderer/RenderFrame.hpp>
+#include <Nazara/Renderer/RenderResources.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz

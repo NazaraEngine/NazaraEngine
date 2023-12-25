@@ -6,7 +6,6 @@
 #include <Nazara/Graphics/BakedFrameGraph.hpp>
 #include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
-#include <Nazara/Renderer/RenderFrame.hpp>
 #include <Nazara/Renderer/Swapchain.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <cassert>

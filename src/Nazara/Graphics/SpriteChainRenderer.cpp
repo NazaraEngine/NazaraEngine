@@ -8,7 +8,7 @@
 #include <Nazara/Graphics/RenderSpriteChain.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
-#include <Nazara/Renderer/RenderFrame.hpp>
+#include <Nazara/Renderer/RenderResources.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
 #include <iostream>
 #include <utility>

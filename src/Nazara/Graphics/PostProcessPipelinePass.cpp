@@ -3,10 +3,8 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/PostProcessPipelinePass.hpp>
-#include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
-#include <Nazara/Renderer/RenderFrame.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
@@ -89,7 +87,7 @@ namespace Nz
 			m_shaderBinding->Update({
 				{
 					0,
-					Nz::ShaderBinding::SampledTextureBinding {
+					ShaderBinding::SampledTextureBinding {
 						sourceTexture.get(), sampler.get()
 					}
 				}

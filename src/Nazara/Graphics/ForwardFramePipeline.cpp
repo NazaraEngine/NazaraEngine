@@ -6,24 +6,13 @@
 #include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
-#include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/PipelineViewer.hpp>
-#include <Nazara/Graphics/PointLight.hpp>
-#include <Nazara/Graphics/PredefinedShaderStructs.hpp>
-#include <Nazara/Graphics/RenderElement.hpp>
 #include <Nazara/Graphics/RenderTarget.hpp>
-#include <Nazara/Graphics/SpotLight.hpp>
-#include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
-#include <Nazara/Math/Angle.hpp>
 #include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
-#include <Nazara/Renderer/Framebuffer.hpp>
-#include <Nazara/Renderer/RenderFrame.hpp>
-#include <Nazara/Renderer/UploadPool.hpp>
-#include <NazaraUtils/StackArray.hpp>
 #include <NazaraUtils/StackVector.hpp>
-#include <array>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz

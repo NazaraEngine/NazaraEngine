@@ -11,14 +11,12 @@
 #include <Nazara/Graphics/FramePipeline.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
-#include <Nazara/Graphics/Material.hpp>
+#include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/PointLight.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/SpotLight.hpp>
 #include <Nazara/Graphics/SpotLightShadowData.hpp>
-#include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
-#include <Nazara/Renderer/RenderFrame.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
@@ -100,7 +98,7 @@ namespace Nz
 				elementRenderer.Reset(*m_elementRendererData[elementType], frameData.renderResources);
 			});
 
-			const auto& viewerInstance = m_viewer->GetViewerInstance();
+			const ViewerInstance& viewerInstance = m_viewer->GetViewerInstance();
 
 			m_elementRegistry.ProcessRenderQueue(m_renderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
 			{
