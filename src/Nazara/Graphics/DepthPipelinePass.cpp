@@ -119,10 +119,10 @@ namespace Nz
 
 	FramePass& DepthPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, const PassInputOuputs& inputOuputs)
 	{
-		if (inputOuputs.inputCount > 0)
+		if (inputOuputs.inputAttachments.size() > 0)
 			throw std::runtime_error("no input expected");
 
-		if (inputOuputs.outputCount > 0)
+		if (inputOuputs.outputAttachments.size() > 0)
 			throw std::runtime_error("no output expected");
 
 		if (inputOuputs.depthStencilInput != InvalidAttachmentIndex)

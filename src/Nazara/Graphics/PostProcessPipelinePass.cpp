@@ -52,10 +52,10 @@ namespace Nz
 
 	FramePass& PostProcessPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, const PassInputOuputs& inputOuputs)
 	{
-		if (inputOuputs.inputCount != 1)
+		if (inputOuputs.inputAttachments.size() != 1)
 			throw std::runtime_error("one input expected");
 
-		if (inputOuputs.outputCount != 1)
+		if (inputOuputs.outputAttachments.size() != 1)
 			throw std::runtime_error("one output expected");
 
 		if (inputOuputs.depthStencilInput != InvalidAttachmentIndex)

@@ -14,6 +14,7 @@
 #include <Nazara/Math/Rect.hpp>
 #include <NazaraUtils/Bitset.hpp>
 #include <limits>
+#include <span>
 
 namespace Nz
 {
@@ -74,13 +75,10 @@ namespace Nz
 
 			struct PassInputOuputs
 			{
-				// TODO: Add Nz::View / Nz::Span
-				const std::size_t* inputAttachments;
-				const std::size_t* outputAttachments;
+				std::span<const std::size_t> inputAttachments;
+				std::span<const std::size_t> outputAttachments;
 				std::size_t depthStencilInput = InvalidAttachmentIndex;
 				std::size_t depthStencilOutput = InvalidAttachmentIndex;
-				std::size_t inputCount = 0;
-				std::size_t outputCount = 0;
 			};
 
 			struct VisibleRenderable

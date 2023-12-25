@@ -83,10 +83,8 @@ namespace Nz
 			FramePipelinePass::PassInputOuputs passInputOuputs;
 			passInputOuputs.depthStencilInput = GetAttachmentIndex(passData.depthStencilInput);
 			passInputOuputs.depthStencilOutput = GetAttachmentIndex(passData.depthStencilOutput);
-			passInputOuputs.inputAttachments = inputs.data();
-			passInputOuputs.inputCount = passData.inputs.size();
-			passInputOuputs.outputAttachments = outputs.data();
-			passInputOuputs.outputCount = passData.outputs.size();
+			passInputOuputs.inputAttachments = inputs;
+			passInputOuputs.outputAttachments = outputs;
 
 			FramePass& framePass = passes[passIndex]->RegisterToFrameGraph(frameGraph, passInputOuputs);
 			if (passCallback)
