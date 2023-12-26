@@ -83,8 +83,8 @@ namespace Nz
 			FramePipelinePass::PassInputOuputs passInputOuputs;
 			passInputOuputs.depthStencilInput = GetAttachmentIndex(passData.depthStencilInput);
 			passInputOuputs.depthStencilOutput = GetAttachmentIndex(passData.depthStencilOutput);
-			passInputOuputs.inputAttachments = inputs;
-			passInputOuputs.outputAttachments = outputs;
+			passInputOuputs.inputAttachments = std::span(inputs.data(), passData.inputs.size());
+			passInputOuputs.outputAttachments = std::span(outputs.data(), passData.outputs.size());
 
 			FramePass& framePass = passes[passIndex]->RegisterToFrameGraph(frameGraph, passInputOuputs);
 			if (passCallback)
