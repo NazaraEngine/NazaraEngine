@@ -61,7 +61,7 @@ namespace Nz
 		return lightData;
 	}
 
-	// PredefinedSpotLightData
+	// PredefinedLightData
 	constexpr PredefinedLightData PredefinedLightData::Build()
 	{
 		constexpr PredefinedDirectionalLightData DirectionalLight = PredefinedDirectionalLightData::Build();
@@ -82,7 +82,7 @@ namespace Nz
 		return lightData;
 	}
 
-	// PredefinedSkeletalData
+	// PredefinedInstanceData
 	constexpr PredefinedInstanceData PredefinedInstanceData::Build()
 	{
 		PredefinedInstanceData instanceData = { nzsl::FieldOffsets(nzsl::StructLayout::Std140) };
