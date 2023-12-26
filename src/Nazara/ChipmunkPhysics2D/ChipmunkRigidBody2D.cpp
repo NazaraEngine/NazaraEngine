@@ -296,10 +296,16 @@ namespace Nz
 			cpFloat mass = cpBodyGetMass(m_handle);
 			cpFloat moment = cpBodyGetMoment(m_handle);
 
-			cpBody* newHandle = cpBodyNew(static_cast<float>(mass), static_cast<float>(moment));
+			cpBody* newHandle = cpBodyNew(1.f, 0.f);
 			cpBodySetUserData(newHandle, this);
 
 			CopyBodyData(m_handle, newHandle);
+
+			if (cpBodyGetType(m_handle) == CP_BODY_TYPE_DYNAMIC)
+			{
+				cpBodySetMass(m_handle, mass);
+				cpBodySetMoment(m_handle, moment);
+			}
 
 			DestroyBody();
 
@@ -575,10 +581,8 @@ namespace Nz
 
 		m_bodyIndex = m_world->RegisterBody(*this);
 
-		m_handle = cpBodyNew(m_mass, 0.f); // moment will be recomputed by SetGeom
+		m_handle = (m_mass > 0.f) ? cpBodyNew(m_mass, 0.f) : cpBodyNewKinematic(); // moment will be recomputed by SetGeom
 		cpBodySetUserData(m_handle, this);
-		if (m_mass <= 0.f)
-			cpBodySetType(m_handle, CP_BODY_TYPE_KINEMATIC);
 
 		SetGeom(settings.geom);
 		SetAngularVelocity(settings.angularVelocity);
