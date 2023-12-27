@@ -125,16 +125,24 @@ namespace Nz
 	inline Camera& Camera::operator=(const Camera& camera)
 	{
 		m_framePipelinePasses = camera.m_framePipelinePasses;
+		m_clearColor = camera.m_clearColor;
 		m_fov = camera.m_fov;
+		m_renderOrder = camera.m_renderOrder;
 		m_projectionType = camera.m_projectionType;
 		m_targetRegion = camera.m_targetRegion;
 		m_viewport = camera.m_viewport;
 		m_size = camera.m_size;
+		m_renderMask = camera.m_renderMask;
 		m_aspectRatio = camera.m_aspectRatio;
 		m_zFar = camera.m_zFar;
 		m_zNear = camera.m_zNear;
 
 		UpdateTarget(camera.m_renderTarget);
+
+		if (m_renderTarget)
+			UpdateViewport();
+		else
+			UpdateViewport(m_viewport);
 
 		return *this;
 	}
@@ -142,16 +150,25 @@ namespace Nz
 	inline Camera& Camera::operator=(Camera&& camera) noexcept
 	{
 		m_framePipelinePasses = std::move(camera.m_framePipelinePasses);
+		m_clearColor = camera.m_clearColor;
 		m_fov = camera.m_fov;
+		m_renderOrder = camera.m_renderOrder;
 		m_projectionType = camera.m_projectionType;
 		m_targetRegion = camera.m_targetRegion;
 		m_viewport = camera.m_viewport;
 		m_size = camera.m_size;
+		m_renderMask = camera.m_renderMask;
 		m_aspectRatio = camera.m_aspectRatio;
 		m_zFar = camera.m_zFar;
 		m_zNear = camera.m_zNear;
 
-		UpdateTarget(camera.m_renderTarget);
+		UpdateTarget(std::move(camera.m_renderTarget));
+		camera.UpdateTarget({});
+
+		if (m_renderTarget)
+			UpdateViewport();
+		else
+			UpdateViewport(m_viewport);
 
 		return *this;
 	}
