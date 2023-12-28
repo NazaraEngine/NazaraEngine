@@ -6,7 +6,7 @@
 
 namespace Nz
 {
-	inline std::size_t Material::FindTextureByTag(const std::string& tag) const
+	inline std::size_t Material::FindTextureByTag(std::string_view tag) const
 	{
 		auto it = m_textureByTag.find(tag);
 		if (it == m_textureByTag.end())
@@ -15,7 +15,7 @@ namespace Nz
 		return it->second;
 	}
 
-	inline std::size_t Material::FindUniformBlockByTag(const std::string& tag) const
+	inline std::size_t Material::FindUniformBlockByTag(std::string_view tag) const
 	{
 		auto it = m_uniformBlockByTag.find(tag);
 		if (it == m_uniformBlockByTag.end())

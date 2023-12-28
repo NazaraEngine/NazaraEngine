@@ -101,7 +101,7 @@ namespace Nz
 			~Mesh() = default;
 
 			void AddSubMesh(std::shared_ptr<SubMesh> subMesh);
-			void AddSubMesh(const std::string& identifier, std::shared_ptr<SubMesh> subMesh);
+			void AddSubMesh(std::string identifier, std::shared_ptr<SubMesh> subMesh);
 
 			std::shared_ptr<SubMesh> BuildSubMesh(const Primitive& primitive, const MeshParams& params = MeshParams());
 			void BuildSubMeshes(const PrimitiveList& primitiveList, const MeshParams& params = MeshParams());
@@ -123,14 +123,14 @@ namespace Nz
 			std::size_t GetMaterialCount() const;
 			Skeleton* GetSkeleton();
 			const Skeleton* GetSkeleton() const;
-			const std::shared_ptr<SubMesh>& GetSubMesh(const std::string& identifier) const;
+			const std::shared_ptr<SubMesh>& GetSubMesh(std::string_view identifier) const;
 			const std::shared_ptr<SubMesh>& GetSubMesh(std::size_t index) const;
 			std::size_t GetSubMeshCount() const;
-			std::size_t GetSubMeshIndex(const std::string& identifier) const;
+			std::size_t GetSubMeshIndex(std::string_view identifier) const;
 			UInt32 GetTriangleCount() const;
 			UInt32 GetVertexCount() const;
 
-			bool HasSubMesh(const std::string& identifier) const;
+			bool HasSubMesh(std::string_view identifier) const;
 			bool HasSubMesh(std::size_t index = 0) const;
 
 			void InvalidateAABB() const;
@@ -140,11 +140,11 @@ namespace Nz
 
 			void Recenter();
 
-			void RemoveSubMesh(const std::string& identifier);
+			void RemoveSubMesh(std::string_view identifier);
 			void RemoveSubMesh(std::size_t index);
 
 			bool SaveToFile(const std::filesystem::path& filePath, const MeshParams& params = MeshParams());
-			bool SaveToStream(Stream& stream, const std::string& format, const MeshParams& params = MeshParams());
+			bool SaveToStream(Stream& stream, std::string_view format, const MeshParams& params = MeshParams());
 
 			void SetAnimation(const std::filesystem::path& animationPath);
 			void SetMaterialCount(std::size_t matCount);
@@ -175,7 +175,7 @@ namespace Nz
 			};
 
 			std::size_t m_jointCount; // Only used by skeletal meshes
-			std::unordered_map<std::string, std::size_t> m_subMeshMap;
+			std::unordered_map<std::string, std::size_t, StringHash<>, std::equal_to<>> m_subMeshMap;
 			std::vector<ParameterList> m_materialData;
 			std::vector<SubMeshData> m_subMeshes;
 			AnimationType m_animationType;

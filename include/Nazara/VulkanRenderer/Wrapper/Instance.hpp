@@ -11,6 +11,7 @@
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Loader.hpp>
+#include <NazaraUtils/StringHash.hpp>
 #include <vulkan/vulkan_core.h>
 #include <string>
 #include <unordered_set>
@@ -88,8 +89,8 @@ namespace Nz::Vk
 
 			void InstallDebugMessageCallback(RenderAPIValidationLevel validationLevel);
 
-			inline bool IsExtensionLoaded(const std::string& extensionName) const;
-			inline bool IsLayerLoaded(const std::string& layerName) const;
+			inline bool IsExtensionLoaded(std::string_view extensionName) const;
+			inline bool IsLayerLoaded(std::string_view layerName) const;
 			inline bool IsValid() const;
 
 			Instance& operator=(const Instance&) = delete;
@@ -110,8 +111,8 @@ namespace Nz::Vk
 			struct InternalData;
 
 			std::unique_ptr<InternalData> m_internalData;
-			std::unordered_set<std::string> m_loadedExtensions;
-			std::unordered_set<std::string> m_loadedLayers;
+			std::unordered_set<std::string, StringHash<>, std::equal_to<>> m_loadedExtensions;
+			std::unordered_set<std::string, StringHash<>, std::equal_to<>> m_loadedLayers;
 			VkAllocationCallbacks m_allocator;
 			VkInstance m_instance;
 			mutable VkResult m_lastErrorCode;

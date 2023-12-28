@@ -66,10 +66,10 @@ namespace Nz
 
 		private:
 			bool Advance(bool required = true);
-			void Error(const std::string& message);
+			void Error(std::string_view message);
 			bool ParseJoints();
 			bool ParseMesh();
-			void Warning(const std::string& message);
+			void Warning(std::string_view message);
 			void UnrecognizedLine(bool error = false);
 
 			std::vector<Joint> m_joints;

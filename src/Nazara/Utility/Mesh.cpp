@@ -55,19 +55,18 @@ namespace Nz
 		InvalidateAABB();
 	}
 
-	void Mesh::AddSubMesh(const std::string& identifier, std::shared_ptr<SubMesh> subMesh)
+	void Mesh::AddSubMesh(std::string identifier, std::shared_ptr<SubMesh> subMesh)
 	{
 		NazaraAssert(m_isValid, "Mesh should be created first");
-		NazaraAssert(!identifier.empty(), "Identifier is empty");
-		NazaraAssert(m_subMeshMap.find(identifier) == m_subMeshMap.end(), "SubMesh identifier \"" + identifier + "\" is already in use");
-		NazaraAssert(subMesh, "Invalid submesh");
+		NazaraAssert(!identifier.empty(), "empty identifier");
+		NazaraAssertFmt(!m_subMeshMap.contains(identifier), "SubMesh identifier \"{0}\" is already in use", identifier);
+		NazaraAssert(subMesh, "invalid submesh");
 		NazaraAssert(subMesh->GetAnimationType() == m_animationType, "Submesh animation type doesn't match mesh animation type");
 
 		std::size_t index = m_subMeshes.size();
-
 		AddSubMesh(std::move(subMesh));
 
-		m_subMeshMap[identifier] = static_cast<std::size_t>(index);
+		m_subMeshMap.emplace(std::move(identifier), index);
 	}
 
 	std::shared_ptr<SubMesh> Mesh::BuildSubMesh(const Primitive& primitive, const MeshParams& params)
@@ -404,12 +403,12 @@ namespace Nz
 		return &m_skeleton;
 	}
 
-	const std::shared_ptr<SubMesh>& Mesh::GetSubMesh(const std::string& identifier) const
+	const std::shared_ptr<SubMesh>& Mesh::GetSubMesh(std::string_view identifier) const
 	{
 		NazaraAssert(m_isValid, "Mesh should be created first");
 
 		auto it = m_subMeshMap.find(identifier);
-		NazaraAssert(it != m_subMeshMap.end(), "SubMesh " + identifier + " not found");
+		NazaraAssertFmt(it != m_subMeshMap.end(), "SubMesh {0} not found", identifier);
 
 		return m_subMeshes[it->second].subMesh;
 	}
@@ -429,12 +428,12 @@ namespace Nz
 		return static_cast<std::size_t>(m_subMeshes.size());
 	}
 
-	std::size_t Mesh::GetSubMeshIndex(const std::string& identifier) const
+	std::size_t Mesh::GetSubMeshIndex(std::string_view identifier) const
 	{
 		NazaraAssert(m_isValid, "Mesh should be created first");
 
 		auto it = m_subMeshMap.find(identifier);
-		NazaraAssert(it != m_subMeshMap.end(), "SubMesh " + identifier + " not found");
+		NazaraAssertFmt(it != m_subMeshMap.end(), "SubMesh {0} not found", identifier);
 
 		return it->second;
 	}
@@ -470,17 +469,15 @@ namespace Nz
 		OnMeshInvalidateAABB(this);
 	}
 
-	bool Mesh::HasSubMesh(const std::string& identifier) const
+	bool Mesh::HasSubMesh(std::string_view identifier) const
 	{
 		NazaraAssert(m_isValid, "Mesh should be created first");
-
-		return m_subMeshMap.find(identifier) != m_subMeshMap.end();
+		return m_subMeshMap.contains(identifier);
 	}
 
 	bool Mesh::HasSubMesh(std::size_t index) const
 	{
 		NazaraAssert(m_isValid, "Mesh should be created first");
-
 		return index < m_subMeshes.size();
 	}
 
@@ -523,7 +520,7 @@ namespace Nz
 		}
 	}
 
-	void Mesh::RemoveSubMesh(const std::string& identifier)
+	void Mesh::RemoveSubMesh(std::string_view identifier)
 	{
 		std::size_t index = GetSubMeshIndex(identifier);
 		RemoveSubMesh(index);
@@ -554,7 +551,7 @@ namespace Nz
 		return utility->GetMeshSaver().SaveToFile(*this, filePath, params);
 	}
 
-	bool Mesh::SaveToStream(Stream& stream, const std::string& format, const MeshParams& params)
+	bool Mesh::SaveToStream(Stream& stream, std::string_view format, const MeshParams& params)
 	{
 		Utility* utility = Utility::Instance();
 		NazaraAssert(utility, "Utility module has not been initialized");
@@ -584,7 +581,7 @@ namespace Nz
 
 		m_materialData.resize(matCount);
 
-		#ifdef NAZARA_DEBUG
+#ifdef NAZARA_DEBUG
 		for (SubMeshData& data : m_subMeshes)
 		{
 			std::size_t matIndex = data.subMesh->GetMaterialIndex();
@@ -594,7 +591,7 @@ namespace Nz
 				NazaraWarning("SubMesh " + PointerToString(data.subMesh.get()) + " material index is over mesh new material count (" + NumberToString(matIndex) + " >= " + NumberToString(matCount) + "), setting it to first material");
 			}
 		}
-		#endif
+#endif
 	}
 
 	void Mesh::Transform(const Matrix4f& matrix)

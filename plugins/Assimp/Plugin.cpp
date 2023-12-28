@@ -25,6 +25,7 @@ SOFTWARE.
 #include <CustomStream.hpp>
 #include <NazaraUtils/Bitset.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
+#include <NazaraUtils/StringHash.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Utility/Animation.hpp>
 #include <Nazara/Utility/Mesh.hpp>
@@ -84,7 +85,7 @@ struct SceneInfo
 	{
 		const aiMesh* mesh;
 		std::size_t nodeIndex;
-		std::unordered_map<std::string, unsigned int> bones;
+		std::unordered_map<std::string, unsigned int, Nz::StringHash<>, std::equal_to<>> bones;
 	};
 
 	struct StaticMesh
@@ -95,7 +96,7 @@ struct SceneInfo
 
 	std::size_t skeletonRootIndex;
 	std::unordered_map<const aiBone*, unsigned int> assimpBoneToJointIndex;
-	std::unordered_multimap<std::string, std::size_t> nodeByName;
+	std::unordered_multimap<std::string, std::size_t, Nz::StringHash<>, std::equal_to<>> nodeByName;
 	std::vector<Node> nodes;
 	std::vector<SkeletalMesh> skeletalMeshes;
 	std::vector<StaticMesh> staticMeshes;

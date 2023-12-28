@@ -97,7 +97,7 @@ namespace Nz
 
 			// Save
 			bool SaveToFile(const std::filesystem::path& filePath, const ImageParams& params = ImageParams());
-			bool SaveToStream(Stream& stream, const std::string& format, const ImageParams& params = ImageParams());
+			bool SaveToStream(Stream& stream, std::string_view format, const ImageParams& params = ImageParams());
 
 			//TODO: SaveArray, SaveCubemap, SaveFace
 

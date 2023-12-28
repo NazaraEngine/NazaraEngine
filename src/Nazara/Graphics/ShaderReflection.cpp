@@ -35,7 +35,7 @@ namespace Nz
 		ExternalBlockData* externalBlock = nullptr;
 		if (!node.tag.empty())
 		{
-			if (m_externalBlocks.find(node.tag) != m_externalBlocks.end())
+			if (m_externalBlocks.contains(node.tag))
 				throw std::runtime_error("duplicate tag " + node.tag);
 
 			externalBlock = &m_externalBlocks[node.tag];
@@ -90,7 +90,7 @@ namespace Nz
 				{
 					case ShaderBindingType::Sampler:
 					{
-						if (externalBlock->samplers.find(externalVar.tag) != externalBlock->samplers.end())
+						if (externalBlock->samplers.contains(externalVar.tag))
 							throw std::runtime_error("duplicate sampler tag " + externalVar.tag + " in external block " + node.tag);
 
 						const auto& samplerType = std::get<nzsl::Ast::SamplerType>(*varType);
@@ -105,7 +105,7 @@ namespace Nz
 
 					case ShaderBindingType::StorageBuffer:
 					{
-						if (externalBlock->storageBlocks.find(externalVar.tag) != externalBlock->storageBlocks.end())
+						if (externalBlock->storageBlocks.contains(externalVar.tag))
 							throw std::runtime_error("duplicate storage buffer tag " + externalVar.tag + " in external block " + node.tag);
 
 						ExternalStorageBlock& storageBuffer = externalBlock->storageBlocks[externalVar.tag];
@@ -117,7 +117,7 @@ namespace Nz
 
 					case ShaderBindingType::Texture:
 					{
-						if (externalBlock->textures.find(externalVar.tag) != externalBlock->textures.end())
+						if (externalBlock->textures.contains(externalVar.tag))
 							throw std::runtime_error("duplicate textures tag " + externalVar.tag + " in external block " + node.tag);
 
 						const auto& textureType = std::get<nzsl::Ast::TextureType>(*varType);
@@ -134,7 +134,7 @@ namespace Nz
 
 					case ShaderBindingType::UniformBuffer:
 					{
-						if (externalBlock->uniformBlocks.find(externalVar.tag) != externalBlock->uniformBlocks.end())
+						if (externalBlock->uniformBlocks.contains(externalVar.tag))
 							throw std::runtime_error("duplicate storage buffer tag " + externalVar.tag + " in external block " + node.tag);
 
 						ExternalUniformBlock& uniformBuffer = externalBlock->uniformBlocks[externalVar.tag];

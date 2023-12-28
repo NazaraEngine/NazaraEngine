@@ -7,9 +7,9 @@
 
 namespace Nz
 {
-	inline MTLParser::Material* MTLParser::AddMaterial(const std::string& matName)
+	inline MTLParser::Material* MTLParser::AddMaterial(std::string matName)
 	{
-		return &m_materials[matName];
+		return &m_materials[std::move(matName)];
 	}
 
 	inline void MTLParser::Clear()
@@ -17,7 +17,7 @@ namespace Nz
 		m_materials.clear();
 	}
 
-	inline const MTLParser::Material* MTLParser::GetMaterial(const std::string& materialName) const
+	inline const MTLParser::Material* MTLParser::GetMaterial(std::string_view materialName) const
 	{
 		auto it = m_materials.find(materialName);
 		if (it != m_materials.end())
@@ -26,7 +26,7 @@ namespace Nz
 			return nullptr;
 	}
 
-	inline const std::unordered_map<std::string, MTLParser::Material>& MTLParser::GetMaterials() const
+	inline auto MTLParser::GetMaterials() const -> const std::unordered_map<std::string, Material, StringHash<>, std::equal_to<>>&
 	{
 		return m_materials;
 	}
@@ -51,7 +51,7 @@ namespace Nz
 		Emit('\n');
 	}
 
-	inline void MTLParser::Error(const std::string& message)
+	inline void MTLParser::Error(std::string_view message)
 	{
 		NazaraErrorFmt("{0} at line #{1}", message, m_lineCount);
 	}
@@ -62,7 +62,7 @@ namespace Nz
 		m_outputStream.str({});
 	}
 
-	inline void MTLParser::Warning(const std::string& message)
+	inline void MTLParser::Warning(std::string_view message)
 	{
 		NazaraWarningFmt("{0} at line #{1}", message, m_lineCount);
 	}

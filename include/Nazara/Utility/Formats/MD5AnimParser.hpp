@@ -57,12 +57,12 @@ namespace Nz
 
 		private:
 			bool Advance(bool required = true);
-			void Error(const std::string& message);
+			void Error(std::string_view message);
 			bool ParseBaseframe();
 			bool ParseBounds();
 			bool ParseFrame();
 			bool ParseHierarchy();
-			void Warning(const std::string& message);
+			void Warning(std::string_view message);
 			void UnrecognizedLine(bool error = false);
 
 			std::vector<float> m_animatedComponents;

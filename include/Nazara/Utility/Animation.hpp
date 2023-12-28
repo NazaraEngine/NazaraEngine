@@ -64,7 +64,7 @@ namespace Nz
 			Animation(Animation&&) noexcept;
 			~Animation();
 
-			bool AddSequence(const Sequence& sequence);
+			bool AddSequence(Sequence sequence);
 			void AnimateSkeleton(Skeleton* targetSkeleton, std::size_t frameA, std::size_t frameB, float interpolation) const;
 
 			bool CreateSkeletal(std::size_t frameCount, std::size_t jointCount);
@@ -74,23 +74,23 @@ namespace Nz
 
 			std::size_t GetFrameCount() const;
 			std::size_t GetJointCount() const;
-			Sequence* GetSequence(const std::string& sequenceName);
+			Sequence* GetSequence(std::string_view sequenceName);
 			Sequence* GetSequence(std::size_t index);
-			const Sequence* GetSequence(const std::string& sequenceName) const;
+			const Sequence* GetSequence(std::string_view sequenceName) const;
 			const Sequence* GetSequence(std::size_t index) const;
 			std::size_t GetSequenceCount() const;
-			std::size_t GetSequenceIndex(const std::string& sequenceName) const;
+			std::size_t GetSequenceIndex(std::string_view sequenceName) const;
 			SequenceJoint* GetSequenceJoints(std::size_t frameIndex = 0);
 			const SequenceJoint* GetSequenceJoints(std::size_t frameIndex = 0) const;
 			AnimationType GetType() const;
 
-			bool HasSequence(const std::string& sequenceName) const;
+			bool HasSequence(std::string_view sequenceName) const;
 			bool HasSequence(std::size_t index = 0) const;
 
 			bool IsLoopPointInterpolationEnabled() const;
 			bool IsValid() const;
 
-			void RemoveSequence(const std::string& sequenceName);
+			void RemoveSequence(std::string_view sequenceName);
 			void RemoveSequence(std::size_t index);
 
 			Animation& operator=(const Animation&) = delete;

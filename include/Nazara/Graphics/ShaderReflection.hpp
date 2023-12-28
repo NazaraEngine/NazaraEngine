@@ -10,6 +10,7 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
+#include <NazaraUtils/StringHash.hpp>
 #include <NZSL/Ast/Module.hpp>
 #include <NZSL/Ast/Option.hpp>
 #include <NZSL/Ast/RecursiveVisitor.hpp>
@@ -31,8 +32,8 @@ namespace Nz
 			~ShaderReflection() = default;
 
 			inline const RenderPipelineLayoutInfo& GetPipelineLayoutInfo() const;
-			inline const ExternalBlockData* GetExternalBlockByTag(const std::string& tag) const;
-			inline const OptionData* GetOptionByName(const std::string& optionName) const;
+			inline const ExternalBlockData* GetExternalBlockByTag(std::string_view tag) const;
+			inline const OptionData* GetOptionByName(std::string_view optionName) const;
 			inline const StructData* GetStructByIndex(std::size_t structIndex) const;
 
 			void Reflect(nzsl::Ast::Module& module);
@@ -74,10 +75,10 @@ namespace Nz
 
 			struct ExternalBlockData
 			{
-				std::unordered_map<std::string /*tag*/, ExternalSampler> samplers;
-				std::unordered_map<std::string /*tag*/, ExternalStorageBlock> storageBlocks;
-				std::unordered_map<std::string /*tag*/, ExternalTexture> textures;
-				std::unordered_map<std::string /*tag*/, ExternalUniformBlock> uniformBlocks;
+				std::unordered_map<std::string /*tag*/, ExternalSampler, StringHash<>, std::equal_to<>> samplers;
+				std::unordered_map<std::string /*tag*/, ExternalStorageBlock, StringHash<>, std::equal_to<>> storageBlocks;
+				std::unordered_map<std::string /*tag*/, ExternalTexture, StringHash<>, std::equal_to<>> textures;
+				std::unordered_map<std::string /*tag*/, ExternalUniformBlock, StringHash<>, std::equal_to<>> uniformBlocks;
 			};
 
 			struct OptionData
@@ -97,7 +98,7 @@ namespace Nz
 			{
 				StructData(nzsl::StructLayout layout) : fieldOffsets(layout) {}
 
-				std::unordered_map<std::string /*tag*/, StructMemberData> members;
+				std::unordered_map<std::string /*tag*/, StructMemberData, StringHash<>, std::equal_to<>> members;
 				nzsl::FieldOffsets fieldOffsets;
 			};
 
@@ -107,8 +108,8 @@ namespace Nz
 			void Visit(nzsl::Ast::DeclareOptionStatement& node) override;
 			void Visit(nzsl::Ast::DeclareStructStatement& node) override;
 
-			std::unordered_map<std::string /*tag*/, ExternalBlockData> m_externalBlocks;
-			std::unordered_map<std::string /*name*/, OptionData> m_options;
+			std::unordered_map<std::string /*tag*/, ExternalBlockData, StringHash<>, std::equal_to<>> m_externalBlocks;
+			std::unordered_map<std::string /*name*/, OptionData, StringHash<>, std::equal_to<>> m_options;
 			std::unordered_map<std::size_t /*structIndex*/, StructData> m_structs;
 			RenderPipelineLayoutInfo m_pipelineLayoutInfo;
 			bool m_isConditional;

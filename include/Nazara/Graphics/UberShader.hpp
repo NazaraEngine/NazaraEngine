@@ -12,6 +12,7 @@
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Renderer/RenderPipeline.hpp>
 #include <NazaraUtils/Signal.hpp>
+#include <NazaraUtils/StringHash.hpp>
 #include <NZSL/ModuleResolver.hpp>
 #include <NZSL/Ast/Module.hpp>
 #include <NZSL/Ast/Option.hpp>
@@ -38,7 +39,7 @@ namespace Nz
 
 			const std::shared_ptr<ShaderModule>& Get(const Config& config);
 
-			inline bool HasOption(const std::string& optionName, Pointer<const Option>* option = nullptr) const;
+			inline bool HasOption(std::string_view optionName, Pointer<const Option>* option = nullptr) const;
 
 			inline void UpdateConfig(Config& config, const std::vector<RenderPipelineInfo::VertexBufferData>& vertexBuffers);
 			inline void UpdateConfigCallback(ConfigCallback callback);
@@ -66,13 +67,13 @@ namespace Nz
 			NazaraSignal(OnShaderUpdated, UberShader* /*uberShader*/);
 
 		private:
-			nzsl::Ast::ModulePtr Validate(const nzsl::Ast::Module& module, std::unordered_map<std::string, Option>* options);
+			nzsl::Ast::ModulePtr Validate(const nzsl::Ast::Module& module, std::unordered_map<std::string, Option, StringHash<>, std::equal_to<>>* options);
 
 			NazaraSlot(nzsl::ModuleResolver, OnModuleUpdated, m_onShaderModuleUpdated);
 
 			std::unordered_map<Config, std::shared_ptr<ShaderModule>, ConfigHasher, ConfigEqual> m_combinations;
-			std::unordered_map<std::string, Option> m_optionIndexByName;
-			std::unordered_set<std::string> m_usedModules;
+			std::unordered_map<std::string, Option, StringHash<>, std::equal_to<>> m_optionIndexByName;
+			std::unordered_set<std::string, StringHash<>, std::equal_to<>> m_usedModules;
 			nzsl::Ast::ModulePtr m_shaderModule;
 			ConfigCallback m_configCallback;
 			nzsl::ShaderStageTypeFlags m_shaderStages;

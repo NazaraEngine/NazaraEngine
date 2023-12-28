@@ -17,6 +17,7 @@
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
 #include <NazaraUtils/EnumArray.hpp>
+#include <NazaraUtils/StringHash.hpp>
 #include <array>
 #include <string>
 #include <unordered_set>
@@ -163,7 +164,7 @@ namespace Nz::GL
 			inline const OpenGLVaoCache& GetVaoCache() const;
 
 			inline bool IsExtensionSupported(Extension extension) const;
-			inline bool IsExtensionSupported(const std::string& extension) const;
+			inline bool IsExtensionSupported(std::string_view extension) const;
 
 			inline bool HasZeroToOneDepth() const;
 
@@ -281,7 +282,7 @@ namespace Nz::GL
 			EnumArray<Extension, ExtensionStatus> m_extensionStatus;
 			std::array<GLFunction, UnderlyingCast(FunctionIndex::Count)> m_originalFunctionPointer;
 			mutable std::unique_ptr<BlitFramebuffers> m_blitFramebuffers;
-			std::unordered_set<std::string> m_supportedExtensions;
+			std::unordered_set<std::string, StringHash<>, std::equal_to<>> m_supportedExtensions;
 			OpenGLVaoCache m_vaoCache;
 			const OpenGLDevice* m_device;
 			mutable State m_state;

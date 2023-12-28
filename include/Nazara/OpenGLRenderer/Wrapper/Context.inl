@@ -107,9 +107,9 @@ namespace Nz::GL
 		return GetExtensionStatus(extension) != ExtensionStatus::NotSupported;
 	}
 
-	inline bool Context::IsExtensionSupported(const std::string& extension) const
+	inline bool Context::IsExtensionSupported(std::string_view extension) const
 	{
-		return m_supportedExtensions.find(extension) != m_supportedExtensions.end();
+		return m_supportedExtensions.contains(extension);
 	}
 
 	inline bool Context::HasZeroToOneDepth() const

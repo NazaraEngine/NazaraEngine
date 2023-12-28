@@ -57,7 +57,7 @@ namespace Nz
 			return (extension == ".obj");
 		}
 
-		bool SaveOBJToStream(const Mesh& mesh, const std::string& format, Stream& stream, const MeshParams& parameters)
+		bool SaveOBJToStream(const Mesh& mesh, std::string_view format, Stream& stream, const MeshParams& parameters)
 		{
 			NAZARA_USE_ANONYMOUS_NAMESPACE
 

@@ -9,6 +9,7 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/FramePipelinePass.hpp>
+#include <NazaraUtils/StringHash.hpp>
 #include <functional>
 #include <list>
 #include <string>
@@ -51,8 +52,7 @@ namespace Nz
 				std::vector<std::string> outputs;
 			};
 
-			std::list<std::string> m_passNames; //< in order to allow std::string_view as a key in C++17 (keep std::string stable as well because of SSO)
-			std::unordered_map<std::string_view, std::size_t> m_passIndex;
+			std::unordered_map<std::string, std::size_t, StringHash<>, std::equal_to<>> m_passIndex;
 			std::vector<Pass> m_passes;
 	};
 }

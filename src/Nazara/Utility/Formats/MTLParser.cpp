@@ -14,7 +14,7 @@ namespace Nz
 	namespace
 	{
 		template<std::size_t N>
-		bool TestKeyword(const std::string& currentLine, const char(&keyword)[N], std::size_t& offset)
+		bool TestKeyword(std::string_view currentLine, const char(&keyword)[N], std::size_t& offset)
 		{
 			if (currentLine.size() > N && StartsWith(currentLine, keyword, CaseIndependent{}) && std::isspace(currentLine[N - 1]))
 			{

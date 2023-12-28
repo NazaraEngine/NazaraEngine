@@ -6,7 +6,7 @@
 
 namespace Nz
 {
-	inline bool CommandLineParameters::GetParameter(const std::string& name, std::string_view* value) const
+	inline bool CommandLineParameters::GetParameter(std::string_view name, std::string_view* value) const
 	{
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
@@ -18,9 +18,9 @@ namespace Nz
 		return true;
 	}
 
-	inline bool CommandLineParameters::HasFlag(const std::string& flag) const
+	inline bool CommandLineParameters::HasFlag(std::string_view flag) const
 	{
-		return m_flags.find(flag) != m_flags.end();
+		return m_flags.contains(flag);
 	}
 
 	inline bool CommandLineParameters::operator==(const CommandLineParameters& params) const

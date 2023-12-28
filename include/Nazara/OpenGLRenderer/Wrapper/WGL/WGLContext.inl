@@ -13,7 +13,7 @@ namespace Nz::GL
 	{
 	}
 
-	inline bool WGLContext::HasPlatformExtension(const std::string& str) const
+	inline bool WGLContext::HasPlatformExtension(std::string_view str) const
 	{
 		return m_supportedPlatformExtensions.find(str) != m_supportedPlatformExtensions.end();
 	}

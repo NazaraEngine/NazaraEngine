@@ -12,6 +12,7 @@
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/Platform/WindowHandle.hpp>
+#include <NazaraUtils/StringHash.hpp>
 #include <EGL/egl.h>
 #include <EGL/eglext.h>
 #include <string>
@@ -37,7 +38,7 @@ namespace Nz::GL
 
 			PresentModeFlags GetSupportedPresentModes() const override;
 
-			inline bool HasPlatformExtension(const std::string& str) const;
+			inline bool HasPlatformExtension(std::string_view str) const;
 
 			void SetPresentMode(PresentMode presentMode) override;
 
@@ -72,7 +73,7 @@ namespace Nz::GL
 			};
 			Fallback fallbacks; //< m_ omitted
 
-			std::unordered_set<std::string> m_supportedPlatformExtensions;
+			std::unordered_set<std::string, StringHash<>, std::equal_to<>> m_supportedPlatformExtensions;
 			EGLContext m_handle;
 			EGLint m_maxSwapInterval;
 			EGLint m_minSwapInterval;

@@ -18,13 +18,11 @@ namespace Nz
 
 	inline std::size_t MaterialPassRegistry::RegisterPass(std::string passName)
 	{
-		if (m_passIndex.find(passName) != m_passIndex.end())
+		if (m_passIndex.contains(passName))
 			throw std::runtime_error("pass " + passName + " is already registered");
 
-		m_passNames.push_back(std::move(passName));
-
 		std::size_t passIndex = m_passIndex.size();
-		m_passIndex.emplace(m_passNames.back(), passIndex);
+		m_passIndex.emplace(std::move(passName), passIndex);
 
 		return passIndex;
 	}

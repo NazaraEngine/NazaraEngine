@@ -13,9 +13,9 @@ namespace Nz::GL
 	{
 	}
 
-	inline bool WebContext::HasPlatformExtension(const std::string& str) const
+	inline bool WebContext::HasPlatformExtension(std::string_view str) const
 	{
-		return m_supportedPlatformExtensions.find(str) != m_supportedPlatformExtensions.end();
+		return m_supportedPlatformExtensions.contains(str);
 	}
 }
 

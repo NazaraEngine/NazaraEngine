@@ -11,6 +11,7 @@
 #include <Nazara/VulkanRenderer/VulkanDevice.hpp>
 #include <NazaraUtils/Algorithm.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
+#include <NazaraUtils/StringHash.hpp>
 #include <array>
 #include <unordered_set>
 #include <Nazara/VulkanRenderer/Debug.hpp>
@@ -22,11 +23,11 @@ namespace Nz
 		struct AvailableVulkanLayer
 		{
 			VkLayerProperties layerProperties;
-			std::unordered_map<std::string, std::size_t> extensionByName;
+			std::unordered_map<std::string, std::size_t, StringHash<>, std::equal_to<>> extensionByName;
 			std::vector<VkExtensionProperties> extensionList;
 		};
 
-		void EnumerateVulkanLayers(std::vector<AvailableVulkanLayer>& availableLayers, std::unordered_map<std::string, std::size_t>& layerByName)
+		void EnumerateVulkanLayers(std::vector<AvailableVulkanLayer>& availableLayers, std::unordered_map<std::string, std::size_t, StringHash<>, std::equal_to<>>& layerByName)
 		{
 			std::vector<VkLayerProperties> layerList;
 			if (Vk::Loader::EnumerateInstanceLayerProperties(&layerList))
@@ -175,7 +176,7 @@ namespace Nz
 		std::vector<const char*> enabledLayers;
 
 		std::vector<AvailableVulkanLayer> availableLayers;
-		std::unordered_map<std::string, std::size_t> availableLayerByName;
+		std::unordered_map<std::string, std::size_t, StringHash<>, std::equal_to<>> availableLayerByName;
 		EnumerateVulkanLayers(availableLayers, availableLayerByName);
 
 		if (auto result = parameters.GetBooleanParameter("VkInstanceInfo_OverrideEnabledLayers"); !result.GetValueOr(false))
@@ -211,12 +212,12 @@ namespace Nz
 		}
 
 		// Get supported extension list
-		std::unordered_set<std::string> availableExtensions;
+		std::unordered_set<std::string, StringHash<>, std::equal_to<>> availableExtensions;
 		std::vector<VkExtensionProperties> extensionList;
 		if (Vk::Loader::EnumerateInstanceExtensionProperties(&extensionList))
 		{
 			for (VkExtensionProperties& extProperty : extensionList)
-				availableExtensions.insert(extProperty.extensionName);
+				availableExtensions.emplace(extProperty.extensionName);
 		}
 
 		if (auto result = parameters.GetBooleanParameter("VkInstanceInfo_OverrideEnabledExtensions"); !result.GetValueOr(false))

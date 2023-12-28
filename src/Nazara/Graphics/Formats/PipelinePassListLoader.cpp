@@ -5,6 +5,7 @@
 #include <Nazara/Graphics/Formats/PipelinePassListLoader.hpp>
 #include <Nazara/Core/ParameterFile.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
+#include <NazaraUtils/StringHash.hpp>
 #include <optional>
 #include <Nazara/Graphics/Debug.hpp>
 
@@ -183,7 +184,7 @@ namespace Nz::Loaders
 						throw ResourceLoadingError::DecodingError;
 					}
 
-					std::size_t passId = m_current->passList->AddPass(passName, implIndex, std::move(implConfig));
+					std::size_t passId = m_current->passList->AddPass(std::move(passName), implIndex, std::move(implConfig));
 
 					for (auto&& [inputName, attachmentName] : inputs)
 					{
@@ -262,7 +263,7 @@ namespace Nz::Loaders
 				struct CurrentPassList
 				{
 					std::shared_ptr<PipelinePassList> passList;
-					std::unordered_map<std::string /*attachmentName*/, std::size_t /*attachmentId*/> attachmentsByName;
+					std::unordered_map<std::string /*attachmentName*/, std::size_t /*attachmentId*/, StringHash<>, std::equal_to<>> attachmentsByName;
 				};
 
 				std::optional<CurrentPassList> m_current;

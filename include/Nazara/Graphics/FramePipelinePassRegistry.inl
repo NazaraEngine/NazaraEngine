@@ -58,10 +58,8 @@ namespace Nz
 		if (m_passIndex.find(passName) != m_passIndex.end())
 			throw std::runtime_error("pass " + passName + " is already registered");
 
-		m_passNames.push_back(std::move(passName));
-
 		std::size_t passIndex = m_passIndex.size();
-		m_passIndex.emplace(m_passNames.back(), passIndex);
+		m_passIndex.emplace(std::move(passName), passIndex);
 		auto& passData = m_passes.emplace_back();
 		passData.factory = std::move(factory);
 		passData.inputs = std::move(inputs);

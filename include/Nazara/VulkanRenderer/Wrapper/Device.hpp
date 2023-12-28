@@ -14,6 +14,7 @@
 #include <Nazara/VulkanRenderer/Wrapper/Loader.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/PhysicalDevice.hpp>
 #include <NazaraUtils/EnumArray.hpp>
+#include <NazaraUtils/StringHash.hpp>
 #include <vulkan/vulkan_core.h>
 #include <array>
 #include <memory>
@@ -62,8 +63,8 @@ namespace Nz
 				inline PFN_vkVoidFunction GetProcAddr(const char* name, bool allowInstanceFallback);
 				QueueHandle GetQueue(UInt32 queueFamilyIndex, UInt32 queueIndex);
 
-				inline bool IsExtensionLoaded(const std::string& extensionName);
-				inline bool IsLayerLoaded(const std::string& layerName);
+				inline bool IsExtensionLoaded(std::string_view extensionName);
+				inline bool IsLayerLoaded(std::string_view layerName);
 
 				inline void SetDebugName(VkObjectType objectType, UInt64 objectHandle, const char* name);
 				inline void SetDebugName(VkObjectType objectType, UInt64 objectHandle, std::string_view name);
@@ -107,8 +108,8 @@ namespace Nz
 				struct InternalData;
 
 				std::unique_ptr<InternalData> m_internalData;
-				std::unordered_set<std::string> m_loadedExtensions;
-				std::unordered_set<std::string> m_loadedLayers;
+				std::unordered_set<std::string, StringHash<>, std::equal_to<>> m_loadedExtensions;
+				std::unordered_set<std::string, StringHash<>, std::equal_to<>> m_loadedLayers;
 				std::vector<QueueFamilyInfo> m_enabledQueuesInfos;
 				std::vector<const QueueList*> m_queuesByFamily;
 				Instance& m_instance;
