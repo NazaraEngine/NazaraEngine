@@ -263,7 +263,7 @@ end
 
 add_repositories("nazara-engine-repo https://github.com/NazaraEngine/xmake-repo")
 
-add_requires("entt 3.12.2", "fmt", "frozen", "nazarautils >=2023.11.12")
+add_requires("entt 3.12.2", "fmt", "frozen", "nazarautils >=2023.12.28")
 
 -- Module dependencies
 if has_config("audio") then
@@ -555,7 +555,7 @@ for name, module in pairs(modules) do
 		end
 
 		if is_plat("windows", "mingw") then
-			add_defines("NAZARA_UTILS_WINDOWS_NT6=1")
+			add_defines("NAZARAUTILS_WINDOWS_NT6=1")
 		end
 
 		ModuleTargetConfig(name, module)

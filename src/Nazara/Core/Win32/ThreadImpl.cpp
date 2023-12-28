@@ -118,7 +118,7 @@ namespace Nz::PlatformImpl
 		static SetThreadDescriptionFunc SetThreadDescription = reinterpret_cast<SetThreadDescriptionFunc>(::GetProcAddress(::GetModuleHandleW(L"Kernel32.dll"), "SetThreadDescription"));
 		if (SetThreadDescription)
 			SetThreadDescription(threadHandle, ToWideString(threadName).data());
-#if NAZARA_UTILS_WINDOWS_NT6
+#if NAZARAUTILS_WINDOWS_NT6
 		else
 			RaiseThreadNameException(::GetThreadId(threadHandle), threadName);
 #else

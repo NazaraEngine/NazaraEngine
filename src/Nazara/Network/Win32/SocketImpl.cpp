@@ -449,7 +449,7 @@ namespace Nz
 	SocketState SocketImpl::PollConnection(SocketHandle handle, const IpAddress& /*address*/, UInt64 msTimeout, SocketError* error)
 	{
 		// Wait until socket is available for writing or an error occurs (ie when connection succeeds or fails)
-#if NAZARA_UTILS_WINDOWS_NT6
+#if NAZARAUTILS_WINDOWS_NT6
 		WSAPOLLFD descriptor;
 		descriptor.events = POLLWRNORM;
 		descriptor.fd = handle;
@@ -480,7 +480,7 @@ namespace Nz
 		}
 		else if (ret > 0)
 		{
-#if NAZARA_UTILS_WINDOWS_NT6
+#if NAZARAUTILS_WINDOWS_NT6
 			if (descriptor.revents & (POLLERR | POLLHUP))
 #else
 			if (FD_ISSET(handle, &errSet))
@@ -491,7 +491,7 @@ namespace Nz
 
 				return SocketState::NotConnected;
 			}
-#if NAZARA_UTILS_WINDOWS_NT6
+#if NAZARAUTILS_WINDOWS_NT6
 			else if (descriptor.revents & POLLWRNORM)
 #else
 			else if (FD_ISSET(handle, &writeSet))
@@ -499,7 +499,7 @@ namespace Nz
 				return SocketState::Connected;
 			else
 			{
-#if NAZARA_UTILS_WINDOWS_NT6
+#if NAZARAUTILS_WINDOWS_NT6
 				NazaraWarningFmt("Socket {0} was returned by poll without POLLOUT nor error events (events: {1:#x})", handle, descriptor.revents);
 #else
 				NazaraWarningFmt("Socket {0} was returned by select but is not part of the write nor exception set", handle);
@@ -851,7 +851,7 @@ namespace Nz
 
 	bool SocketImpl::SetIPv6Only(SocketHandle handle, bool ipv6Only, SocketError* error)
 	{
-#if NAZARA_UTILS_WINDOWS_NT6
+#if NAZARAUTILS_WINDOWS_NT6
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
 		DWORD option = ipv6Only;
