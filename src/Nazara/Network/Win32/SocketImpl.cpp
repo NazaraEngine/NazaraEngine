@@ -449,12 +449,28 @@ namespace Nz
 	SocketState SocketImpl::PollConnection(SocketHandle handle, const IpAddress& /*address*/, UInt64 msTimeout, SocketError* error)
 	{
 		// Wait until socket is available for writing or an error occurs (ie when connection succeeds or fails)
+#if NAZARA_UTILS_WINDOWS_NT6
 		WSAPOLLFD descriptor;
 		descriptor.events = POLLWRNORM;
 		descriptor.fd = handle;
 		descriptor.revents = 0;
 
 		int ret = WSAPoll(&descriptor, 1, (msTimeout != std::numeric_limits<UInt64>::max()) ? INT(msTimeout) : INT(-1));
+#else
+		fd_set writeSet;
+		FD_ZERO(&writeSet);
+		FD_SET(handle, &writeSet);
+
+		fd_set errSet;
+		FD_ZERO(&errSet);
+		FD_SET(handle, &errSet);
+
+		timeval tv;
+		tv.tv_sec = static_cast<long>(msTimeout / 1000ULL);
+		tv.tv_usec = static_cast<long>((msTimeout % 1000ULL) * 1000ULL);
+
+		int ret = ::select(0xDEADBEEF, nullptr, &writeSet, &errSet, (msTimeout >= 0) ? &tv : nullptr); //< The first argument is ignored on Windows
+#endif
 		if (ret == SOCKET_ERROR)
 		{
 			if (error)
@@ -464,18 +480,30 @@ namespace Nz
 		}
 		else if (ret > 0)
 		{
+#if NAZARA_UTILS_WINDOWS_NT6
 			if (descriptor.revents & (POLLERR | POLLHUP))
+#else
+			if (FD_ISSET(handle, &errSet))
+#endif
 			{
 				if (error)
 					*error = GetLastError(handle);
 
 				return SocketState::NotConnected;
 			}
+#if NAZARA_UTILS_WINDOWS_NT6
 			else if (descriptor.revents & POLLWRNORM)
+#else
+			else if (FD_ISSET(handle, &writeSet))
+#endif
 				return SocketState::Connected;
 			else
 			{
+#if NAZARA_UTILS_WINDOWS_NT6
 				NazaraWarningFmt("Socket {0} was returned by poll without POLLOUT nor error events (events: {1:#x})", handle, descriptor.revents);
+#else
+				NazaraWarningFmt("Socket {0} was returned by select but is not part of the write nor exception set", handle);
+#endif
 				return SocketState::NotConnected;
 			}
 		}

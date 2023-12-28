@@ -51,11 +51,11 @@ namespace Nz
 
 	Time GetElapsedMillisecondsImpl()
 	{
-		#ifdef NAZARA_UTILS_WINDOWS_NT6
+#if NAZARA_UTILS_WINDOWS_NT6
 		return Time::Milliseconds(GetTickCount64());
-		#else
+#else
 		return Time::Milliseconds(GetTickCount());
-		#endif
+#endif
 	}
 }
 
