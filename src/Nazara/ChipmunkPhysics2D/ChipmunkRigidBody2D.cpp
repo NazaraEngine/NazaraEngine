@@ -303,8 +303,8 @@ namespace Nz
 
 			if (cpBodyGetType(m_handle) == CP_BODY_TYPE_DYNAMIC)
 			{
-				cpBodySetMass(m_handle, mass);
-				cpBodySetMoment(m_handle, moment);
+				cpBodySetMass(newHandle, mass);
+				cpBodySetMoment(newHandle, moment);
 			}
 
 			DestroyBody();
@@ -670,6 +670,8 @@ namespace Nz
 
 	void ChipmunkRigidBody2D::CopyBodyData(cpBody* from, cpBody* to)
 	{
+		cpBodySetType(to, cpBodyGetType(from));
+
 		cpBodySetCenterOfGravity(to, cpBodyGetCenterOfGravity(from));
 
 		cpBodySetAngle(to, cpBodyGetAngle(from));
@@ -678,8 +680,6 @@ namespace Nz
 		cpBodySetPosition(to, cpBodyGetPosition(from));
 		cpBodySetTorque(to, cpBodyGetTorque(from));
 		cpBodySetVelocity(to, cpBodyGetVelocity(from));
-
-		cpBodySetType(to, cpBodyGetType(from));
 
 		to->velocity_func = from->velocity_func;
 	}
