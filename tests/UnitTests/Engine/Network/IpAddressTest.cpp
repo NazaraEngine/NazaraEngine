@@ -134,7 +134,7 @@ SCENARIO("IpAddress", "[NETWORK][IPADDRESS]")
 	{
 		WHEN("We get the IP of Nazara")
 		{
-			std::vector<Nz::HostnameInfo> hostnameInfos = Nz::IpAddress::ResolveHostname(Nz::NetProtocol::Any, "nazara.digitalpulsesoftware.net");
+			std::vector<Nz::HostnameInfo> hostnameInfos = Nz::IpAddress::ResolveHostname(Nz::NetProtocol::Any, "nazara.digitalpulse.software");
 
 			THEN("Result is not null")
 			{
@@ -142,13 +142,14 @@ SCENARIO("IpAddress", "[NETWORK][IPADDRESS]")
 			}
 		}
 
-		WHEN("We convert IP to hostname")
+		WHEN("We resolve IP to hostname")
 		{
 			Nz::IpAddress google(8, 8, 8, 8);
 			THEN("Google (DNS) is 8.8.8.8")
 			{
 				std::string dnsAddress = Nz::IpAddress::ResolveAddress(google);
 				bool dnsCheck = dnsAddress == "google-public-dns-a.google.com" || dnsAddress == "dns.google";
+				INFO(dnsAddress);
 				CHECK(dnsCheck);
 			}
 		}
