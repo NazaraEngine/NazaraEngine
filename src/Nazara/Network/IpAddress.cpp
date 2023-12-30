@@ -104,8 +104,7 @@ namespace Nz
 	*
 	* \remark Produces a NazaraAssert if internal protocol is invalid (should never happen)
 	*/
-
-	std::string IpAddress::ToString() const
+	std::string IpAddress::ToString(bool includesPort) const
 	{
 		std::ostringstream stream;
 
@@ -155,7 +154,7 @@ namespace Nz
 					}
 
 					// We need brackets around our IPv6 address if we have a port
-					if (m_port != 0)
+					if (m_port != 0 && includesPort)
 						stream << '[';
 
 					// IPv4-mapped IPv6?
@@ -195,12 +194,12 @@ namespace Nz
 					}
 
 
-					if (m_port != 0)
+					if (m_port != 0 && includesPort)
 						stream << ']';
 					break;
 			}
 
-			if (m_port != 0)
+			if (m_port != 0 && includesPort)
 				stream << ':' << m_port;
 		}
 

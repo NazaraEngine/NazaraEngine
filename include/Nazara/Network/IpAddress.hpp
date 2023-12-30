@@ -49,7 +49,7 @@ namespace Nz
 
 			inline IPv4 ToIPv4() const;
 			inline IPv6 ToIPv6() const;
-			std::string ToString() const;
+			std::string ToString(bool includesPort = true) const;
 			inline UInt32 ToUInt32() const;
 
 			inline explicit operator bool() const;
