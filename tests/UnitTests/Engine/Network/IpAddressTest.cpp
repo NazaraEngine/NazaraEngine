@@ -132,16 +132,16 @@ SCENARIO("IpAddress", "[NETWORK][IPADDRESS]")
 		CHECK_FALSE(Nz::IpAddress("::ffff:0:255.255.255.255").IsValid());
 	}
 
-	WHEN("We resolve dns.google")
+	WHEN("We resolve Cloudflare DNS")
 	{
-		std::vector<Nz::HostnameInfo> hostnameInfos = Nz::IpAddress::ResolveHostname(Nz::NetProtocol::Any, "dns.google");
+		std::vector<Nz::HostnameInfo> hostnameInfos = Nz::IpAddress::ResolveHostname(Nz::NetProtocol::Any, "one.one.one.one");
 		CHECK(!hostnameInfos.empty());
 
 		frozen::unordered_set expectedAddresses = frozen::make_unordered_set<frozen::string>({
-			"8.8.8.8",
-			"8.8.4.4",
-			"2001:4860:4860::8888",
-			"2001:4860:4860::8844"
+			"1.1.1.1",
+			"1.0.0.1",
+			"2606:4700:4700::1111",
+			"2606:4700:4700::1001"
 		});
 
 		for (const Nz::HostnameInfo& hostnameInfo : hostnameInfos)
@@ -153,8 +153,8 @@ SCENARIO("IpAddress", "[NETWORK][IPADDRESS]")
 
 		AND_WHEN("We resolve back the IP addresses to the hostname")
 		{
-			CHECK(Nz::IpAddress::ResolveAddress(Nz::IpAddress("8.8.8.8")) == "dns.google");
-			CHECK(Nz::IpAddress::ResolveAddress(Nz::IpAddress("2001:4860:4860::8888")) == "dns.google");
+			CHECK(Nz::IpAddress::ResolveAddress(Nz::IpAddress("1.1.1.1")) == "one.one.one.one");
+			CHECK(Nz::IpAddress::ResolveAddress(Nz::IpAddress("2606:4700:4700::1111")) == "one.one.one.one");
 		}
 	}
 }
