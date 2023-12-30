@@ -14,6 +14,7 @@
 #include <Nazara/OpenGLRenderer/Wrapper/WGL/WGLFunctions.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Win32/Win32Helper.hpp>
 #include <Nazara/Platform/WindowHandle.hpp>
+#include <NazaraUtils/StringHash.hpp>
 #include <string>
 #include <type_traits>
 #include <unordered_set>
@@ -36,7 +37,7 @@ namespace Nz::GL
 
 			PresentModeFlags GetSupportedPresentModes() const override;
 
-			inline bool HasPlatformExtension(const std::string& str) const;
+			inline bool HasPlatformExtension(std::string_view str) const;
 
 			void SetPresentMode(PresentMode presentMode) override;
 
@@ -73,7 +74,7 @@ namespace Nz::GL
 			};
 			Fallback fallbacks; //< m_ omitted
 
-			std::unordered_set<std::string> m_supportedPlatformExtensions;
+			std::unordered_set<std::string, StringHash<>, std::equal_to<>> m_supportedPlatformExtensions;
 			const WGLLoader& m_loader;
 			HDC m_deviceContext;
 			HGLRC m_handle;

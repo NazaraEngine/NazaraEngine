@@ -16,9 +16,9 @@ namespace Nz::GL
 	{
 	}
 
-	inline bool EGLContextBase::HasPlatformExtension(const std::string& str) const
+	inline bool EGLContextBase::HasPlatformExtension(std::string_view str) const
 	{
-		return m_supportedPlatformExtensions.find(str) != m_supportedPlatformExtensions.end();
+		return m_supportedPlatformExtensions.contains(str);
 	}
 }
 

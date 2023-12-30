@@ -79,12 +79,12 @@ namespace Nz::Vk
 		return m_validationLevel;
 	}
 
-	inline bool Instance::IsExtensionLoaded(const std::string& extensionName) const
+	inline bool Instance::IsExtensionLoaded(std::string_view extensionName) const
 	{
 		return m_loadedExtensions.count(extensionName) > 0;
 	}
 
-	inline bool Instance::IsLayerLoaded(const std::string& layerName) const
+	inline bool Instance::IsLayerLoaded(std::string_view layerName) const
 	{
 		return m_loadedLayers.count(layerName) > 0;
 	}

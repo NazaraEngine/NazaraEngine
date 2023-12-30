@@ -11,7 +11,7 @@ namespace Nz
 		return m_pipelineLayoutInfo;
 	}
 
-	inline auto ShaderReflection::GetExternalBlockByTag(const std::string& tag) const -> const ExternalBlockData*
+	inline auto ShaderReflection::GetExternalBlockByTag(std::string_view tag) const -> const ExternalBlockData*
 	{
 		auto it = m_externalBlocks.find(tag);
 		if (it == m_externalBlocks.end())
@@ -20,7 +20,7 @@ namespace Nz
 		return &it->second;
 	}
 
-	inline auto ShaderReflection::GetOptionByName(const std::string& optionName) const -> const OptionData*
+	inline auto ShaderReflection::GetOptionByName(std::string_view optionName) const -> const OptionData*
 	{
 		auto it = m_options.find(optionName);
 		if (it == m_options.end())

@@ -124,7 +124,7 @@ namespace Nz
 	* \see SaveToFile
 	*/
 	template<typename Type, typename Parameters>
-	bool ResourceSaver<Type, Parameters>::SaveToStream(const Type& resource, Stream& stream, const std::string& format, const Parameters& parameters) const
+	bool ResourceSaver<Type, Parameters>::SaveToStream(const Type& resource, Stream& stream, std::string_view format, const Parameters& parameters) const
 	{
 		NazaraAssert(stream.IsWritable(), "Stream is not writable");
 		NazaraAssert(parameters.IsValid(), "Invalid parameters");

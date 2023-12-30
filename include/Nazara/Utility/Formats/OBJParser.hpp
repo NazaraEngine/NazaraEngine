@@ -81,9 +81,9 @@ namespace Nz
 			template<typename T> void Emit(const T& text) const;
 			inline void EmitLine() const;
 			template<typename T> void EmitLine(const T& line) const;
-			inline void Error(const std::string& message);
+			inline void Error(std::string_view message);
 			inline void Flush() const;
-			inline void Warning(const std::string& message);
+			inline void Warning(std::string_view message);
 			inline bool UnrecognizedLine(bool error = false);
 
 			std::vector<Mesh> m_meshes;

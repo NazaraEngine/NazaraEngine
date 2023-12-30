@@ -38,7 +38,7 @@ namespace Nz
 
 		m_onShaderModuleUpdated.Connect(moduleResolver.OnModuleUpdated, [this, name = std::move(moduleName)](nzsl::ModuleResolver* resolver, const std::string& updatedModuleName)
 		{
-			if (m_usedModules.find(updatedModuleName) == m_usedModules.end())
+			if (!m_usedModules.contains(updatedModuleName))
 				return;
 
 			nzsl::Ast::ModulePtr newShaderModule = resolver->Resolve(name);
@@ -108,7 +108,7 @@ namespace Nz
 		return it->second;
 	}
 
-	nzsl::Ast::ModulePtr UberShader::Validate(const nzsl::Ast::Module& module, std::unordered_map<std::string, Option>* options)
+	nzsl::Ast::ModulePtr UberShader::Validate(const nzsl::Ast::Module& module, std::unordered_map<std::string, Option, StringHash<>, std::equal_to<>>* options)
 	{
 		NazaraAssert(m_shaderStages != 0, "there must be at least one shader stage");
 		assert(options);
@@ -132,7 +132,7 @@ namespace Nz
 			supportedStageType |= stageType;
 		};
 
-		std::unordered_map<std::string, Option> optionByName;
+		std::unordered_map<std::string, Option, StringHash<>, std::equal_to<>> optionByName;
 		callbacks.onOptionDeclaration = [&](const nzsl::Ast::DeclareOptionStatement& option)
 		{
 			//TODO: Check optionType

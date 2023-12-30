@@ -1146,7 +1146,7 @@ namespace Nz
 		return utility->GetImageSaver().SaveToFile(*this, filePath, params);
 	}
 
-	bool Image::SaveToStream(Stream& stream, const std::string& format, const ImageParams& params)
+	bool Image::SaveToStream(Stream& stream, std::string_view format, const ImageParams& params)
 	{
 		Utility* utility = Utility::Instance();
 		NazaraAssert(utility, "Utility module has not been initialized");

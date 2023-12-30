@@ -11,7 +11,7 @@ namespace Nz
 		return m_shaderStages;
 	}
 
-	inline bool UberShader::HasOption(const std::string& optionName, Pointer<const Option>* option) const
+	inline bool UberShader::HasOption(std::string_view optionName, Pointer<const Option>* option) const
 	{
 		auto it = m_optionIndexByName.find(optionName);
 		if (it == m_optionIndexByName.end())

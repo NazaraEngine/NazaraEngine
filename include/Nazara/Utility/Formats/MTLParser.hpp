@@ -10,6 +10,7 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Utility/Config.hpp>
+#include <NazaraUtils/StringHash.hpp>
 #include <unordered_map>
 
 namespace Nz
@@ -22,12 +23,12 @@ namespace Nz
 			MTLParser() = default;
 			~MTLParser() = default;
 
-			inline Material* AddMaterial(const std::string& matName);
+			inline Material* AddMaterial(std::string matName);
 
 			inline void Clear();
 
-			inline const Material* GetMaterial(const std::string& materialName) const;
-			inline const std::unordered_map<std::string, Material>& GetMaterials() const;
+			inline const Material* GetMaterial(std::string_view materialName) const;
+			inline const std::unordered_map<std::string, Material, StringHash<>, std::equal_to<>>& GetMaterials() const;
 
 			bool Parse(Stream& stream);
 
@@ -60,12 +61,12 @@ namespace Nz
 			template<typename T> void Emit(const T& text) const;
 			inline void EmitLine() const;
 			template<typename T> void EmitLine(const T& line) const;
-			inline void Error(const std::string& message);
+			inline void Error(std::string_view message);
 			inline void Flush() const;
-			inline void Warning(const std::string& message);
+			inline void Warning(std::string_view message);
 			inline void UnrecognizedLine(bool error = false);
 
-			std::unordered_map<std::string, Material> m_materials;
+			std::unordered_map<std::string, Material, StringHash<>, std::equal_to<>> m_materials;
 			mutable Stream* m_currentStream;
 			std::string m_currentLine;
 			mutable std::ostringstream m_outputStream;

@@ -31,7 +31,7 @@ namespace Nz
 	* \remark Produces a NazaraError if object not found
 	*/
 	template<typename Type>
-	std::shared_ptr<Type> ObjectLibrary<Type>::Get(const std::string& name)
+	std::shared_ptr<Type> ObjectLibrary<Type>::Get(std::string_view name)
 	{
 		std::shared_ptr<Type> ref = Query(name);
 		if (!ref)
@@ -45,9 +45,9 @@ namespace Nz
 	* \return true if it the case
 	*/
 	template<typename Type>
-	bool ObjectLibrary<Type>::Has(const std::string& name)
+	bool ObjectLibrary<Type>::Has(std::string_view name)
 	{
-		return m_library.find(name) != m_library.end();
+		return m_library.contains(name);
 	}
 
 	/*!
@@ -57,9 +57,9 @@ namespace Nz
 	* \param object Object to stock
 	*/
 	template<typename Type>
-	void ObjectLibrary<Type>::Register(const std::string& name, std::shared_ptr<Type> object)
+	void ObjectLibrary<Type>::Register(std::string name, std::shared_ptr<Type> object)
 	{
-		m_library.emplace(name, object);
+		m_library.emplace(std::move(name), object);
 	}
 
 	/*!
@@ -69,7 +69,7 @@ namespace Nz
 	* \param name Name of the object
 	*/
 	template<typename Type>
-	std::shared_ptr<Type> ObjectLibrary<Type>::Query(const std::string& name)
+	std::shared_ptr<Type> ObjectLibrary<Type>::Query(std::string_view name)
 	{
 		auto it = m_library.find(name);
 		if (it != m_library.end())
@@ -84,7 +84,7 @@ namespace Nz
 	* \param name Name of the object
 	*/
 	template<typename Type>
-	void ObjectLibrary<Type>::Unregister(const std::string& name)
+	void ObjectLibrary<Type>::Unregister(std::string_view name)
 	{
 		m_library.erase(name);
 	}

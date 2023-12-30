@@ -151,7 +151,7 @@ namespace Nz
 		Emit('\n');
 	}
 
-	inline void OBJParser::Error(const std::string& message)
+	inline void OBJParser::Error(std::string_view message)
 	{
 		NazaraErrorFmt("{0} on line #{1}", message, m_lineCount);
 	}
@@ -162,7 +162,7 @@ namespace Nz
 		m_outputStream.str({});
 	}
 
-	inline void OBJParser::Warning(const std::string& message)
+	inline void OBJParser::Warning(std::string_view message)
 	{
 		NazaraWarningFmt("{0} on line #{1}", message, m_lineCount);
 	}

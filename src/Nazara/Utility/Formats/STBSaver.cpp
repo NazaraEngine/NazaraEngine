@@ -235,7 +235,7 @@ namespace Nz
 			return s_formatHandlers.find(extension) != s_formatHandlers.end();
 		}
 
-		bool SaveToStream(const Image& image, const std::string& format, Stream& stream, const ImageParams& parameters)
+		bool SaveToStream(const Image& image, std::string_view format, Stream& stream, const ImageParams& parameters)
 		{
 			NazaraUnused(parameters);
 
@@ -252,7 +252,7 @@ namespace Nz
 				return false;
 			}
 
-			auto it = s_formatHandlers.find(std::string_view(format));
+			auto it = s_formatHandlers.find(format);
 			NazaraAssert(it != s_formatHandlers.end(), "Invalid handler");
 
 			const FormatHandler& handler = it->second;

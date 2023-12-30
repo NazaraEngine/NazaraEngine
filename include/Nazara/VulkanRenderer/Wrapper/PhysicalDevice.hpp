@@ -7,6 +7,7 @@
 #ifndef NAZARA_VULKANRENDERER_WRAPPER_PHYSICALDEVICE_HPP
 #define NAZARA_VULKANRENDERER_WRAPPER_PHYSICALDEVICE_HPP
 
+#include <NazaraUtils/StringHash.hpp>
 #include <vulkan/vulkan_core.h>
 #include <string>
 #include <unordered_set>
@@ -20,7 +21,7 @@ namespace Nz::Vk
 		VkPhysicalDeviceFeatures features;
 		VkPhysicalDeviceMemoryProperties memoryProperties;
 		VkPhysicalDeviceProperties properties;
-		std::unordered_set<std::string> extensions;
+		std::unordered_set<std::string, StringHash<>, std::equal_to<>> extensions;
 		std::vector<VkQueueFamilyProperties> queueFamilies;
 	};
 }

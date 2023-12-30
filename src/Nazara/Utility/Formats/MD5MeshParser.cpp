@@ -209,7 +209,7 @@ namespace Nz
 		return true;
 	}
 
-	void MD5MeshParser::Error(const std::string& message)
+	void MD5MeshParser::Error(std::string_view message)
 	{
 		NazaraErrorFmt("{0} on line #{1}", message, m_lineCount);
 	}
@@ -444,14 +444,14 @@ namespace Nz
 		return true;
 	}
 
-	void MD5MeshParser::Warning(const std::string& message)
+	void MD5MeshParser::Warning(std::string_view message)
 	{
 		NazaraWarningFmt("{0} on line #{1}", message, m_lineCount);
 	}
 
 	void MD5MeshParser::UnrecognizedLine(bool error)
 	{
-		std::string message = "Unrecognized \"" + m_currentLine + '"';
+		std::string message = "unrecognized \"" + m_currentLine + '"';
 
 		if (error)
 			Error(message);

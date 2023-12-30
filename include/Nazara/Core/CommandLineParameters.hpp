@@ -8,9 +8,8 @@
 #define NAZARA_CORE_COMMANDLINEPARAMETERS_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <NazaraUtils/Algorithm.hpp>
-#include <string>
-#include <string_view>
+#include <NazaraUtils/StringHash.hpp>
+#include <NazaraUtils/TypeTraits.hpp>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -19,9 +18,9 @@ namespace Nz
 	class CommandLineParameters
 	{
 		public:
-			inline bool GetParameter(const std::string& name, std::string_view* value) const;
+			inline bool GetParameter(std::string_view name, std::string_view* value) const;
 
-			inline bool HasFlag(const std::string& flag) const;
+			inline bool HasFlag(std::string_view flag) const;
 
 			inline bool operator==(const CommandLineParameters& params) const;
 			inline bool operator!=(const CommandLineParameters& params) const;
@@ -30,8 +29,8 @@ namespace Nz
 			static inline CommandLineParameters Parse(int argc, const Pointer<const char>* argv);
 
 		private:
-			std::unordered_map<std::string, std::string> m_parameters;
-			std::unordered_set<std::string> m_flags;
+			std::unordered_map<std::string, std::string, StringHash<>, std::equal_to<>> m_parameters;
+			std::unordered_set<std::string, StringHash<>, std::equal_to<>> m_flags;
 	};
 }
 

@@ -17,6 +17,7 @@
 #include <Nazara/Graphics/MaterialSettings.hpp>
 #include <Nazara/Graphics/RenderBufferPool.hpp>
 #include <Nazara/Graphics/ShaderReflection.hpp>
+#include <NazaraUtils/StringHash.hpp>
 #include <NZSL/Ast/Module.hpp>
 #include <array>
 #include <memory>
@@ -51,8 +52,8 @@ namespace Nz
 
 			std::shared_ptr<MaterialInstance> GetDefaultInstance() const;
 
-			inline std::size_t FindTextureByTag(const std::string& tag) const;
-			inline std::size_t FindUniformBlockByTag(const std::string& tag) const;
+			inline std::size_t FindTextureByTag(std::string_view tag) const;
+			inline std::size_t FindUniformBlockByTag(std::string_view tag) const;
 
 			inline UInt32 GetEngineBindingIndex(EngineShaderBinding shaderBinding) const;
 			inline const std::shared_ptr<RenderPipelineLayout>& GetRenderPipelineLayout() const;
@@ -93,8 +94,8 @@ namespace Nz
 		private:
 			std::shared_ptr<RenderPipelineLayout> m_renderPipelineLayout;
 			std::unordered_map<UInt32, nzsl::Ast::ConstantSingleValue> m_optionValues;
-			std::unordered_map<std::string /*tag*/, std::size_t> m_textureByTag;
-			std::unordered_map<std::string /*tag*/, std::size_t> m_uniformBlockByTag;
+			std::unordered_map<std::string /*tag*/, std::size_t, StringHash<>, std::equal_to<>> m_textureByTag;
+			std::unordered_map<std::string /*tag*/, std::size_t, StringHash<>, std::equal_to<>> m_uniformBlockByTag;
 			std::vector<TextureData> m_textures;
 			std::vector<UniformBlockData> m_uniformBlocks;
 			mutable std::weak_ptr<MaterialInstance> m_defaultInstance;

@@ -55,7 +55,7 @@ namespace Nz
 	          Integer: 0 is interpreted as false, any other value is interpreted as true
 	          std::string:  Conversion obeys the rule as described by std::string::ToBool
 	*/
-	auto ParameterList::GetBooleanParameter(const std::string& name, bool strict) const -> Result<bool, Error>
+	auto ParameterList::GetBooleanParameter(std::string_view name, bool strict) const -> Result<bool, Error>
 	{
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
@@ -105,7 +105,7 @@ namespace Nz
 	*
 	* \remark If the parameter is not a color, the function fails
 	*/
-	auto ParameterList::GetColorParameter(const std::string& name, bool /*strict*/) const -> Result<Color, Error>
+	auto ParameterList::GetColorParameter(std::string_view name, bool /*strict*/) const -> Result<Color, Error>
 	{
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
@@ -140,7 +140,7 @@ namespace Nz
 	          Integer: The integer value is converted to its double representation
 	          std::string:  Conversion obeys the rule as described by std::string::ToDouble
 	*/
-	auto ParameterList::GetDoubleParameter(const std::string& name, bool strict) const -> Result<double, Error>
+	auto ParameterList::GetDoubleParameter(std::string_view name, bool strict) const -> Result<double, Error>
 	{
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
@@ -199,7 +199,7 @@ namespace Nz
 	          Double:  The floating-point value is truncated and converted to a integer
 	          std::string:  Conversion obeys the rule as described by std::string::ToInteger
 	*/
-	auto ParameterList::GetIntegerParameter(const std::string& name, bool strict) const -> Result<long long, Error>
+	auto ParameterList::GetIntegerParameter(std::string_view name, bool strict) const -> Result<long long, Error>
 	{
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
@@ -259,7 +259,7 @@ namespace Nz
 	*
 	* \remark type must be a valid pointer to a ParameterType variable
 	*/
-	auto ParameterList::GetParameterType(const std::string& name) const -> Result<ParameterType, Error>
+	auto ParameterList::GetParameterType(std::string_view name) const -> Result<ParameterType, Error>
 	{
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
@@ -278,7 +278,7 @@ namespace Nz
 	* \remark If the parameter is not a pointer, a conversion may be performed if strict parameter is set to false, compatibles types are:
 	          Userdata: The pointer part of the userdata is returned
 	*/
-	auto ParameterList::GetPointerParameter(const std::string& name, bool strict) const -> Result<void*, Error>
+	auto ParameterList::GetPointerParameter(std::string_view name, bool strict) const -> Result<void*, Error>
 	{
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
@@ -323,7 +323,7 @@ namespace Nz
 	          Pointer:  Conversion obeys the rules of PointerToString
 	          Userdata: Conversion obeys the rules of PointerToString
 	*/
-	auto ParameterList::GetStringParameter(const std::string& name, bool strict) const -> Result<std::string, Error>
+	auto ParameterList::GetStringParameter(std::string_view name, bool strict) const -> Result<std::string, Error>
 	{
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
@@ -391,7 +391,7 @@ namespace Nz
 			  Boolean:  A string view containing true or false
 			  None:     An empty string view is returned
 	*/
-	auto ParameterList::GetStringViewParameter(const std::string& name, bool strict) const -> Result<std::string_view, Error>
+	auto ParameterList::GetStringViewParameter(std::string_view name, bool strict) const -> Result<std::string_view, Error>
 	{
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
@@ -436,7 +436,7 @@ namespace Nz
 	*
 	* \see GetPointerParameter
 	*/
-	auto ParameterList::GetUserdataParameter(const std::string& name, bool /*strict*/) const -> Result<void*, Error>
+	auto ParameterList::GetUserdataParameter(std::string_view name, bool /*strict*/) const -> Result<void*, Error>
 	{
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
@@ -456,7 +456,7 @@ namespace Nz
 	*
 	* \param name Name of the parameter
 	*/
-	bool ParameterList::HasParameter(const std::string& name) const
+	bool ParameterList::HasParameter(std::string_view name) const
 	{
 		return m_parameters.find(name) != m_parameters.end();
 	}
@@ -469,7 +469,7 @@ namespace Nz
 	*
 	* \param name Name of the parameter
 	*/
-	void ParameterList::RemoveParameter(const std::string& name)
+	void ParameterList::RemoveParameter(std::string_view name)
 	{
 		auto it = m_parameters.find(name);
 		if (it != m_parameters.end())

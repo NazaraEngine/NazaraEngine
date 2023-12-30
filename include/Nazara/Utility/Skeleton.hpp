@@ -37,14 +37,14 @@ namespace Nz
 			void Destroy();
 
 			const Boxf& GetAABB() const;
-			Joint* GetJoint(const std::string& jointName);
+			Joint* GetJoint(std::string_view jointName);
 			Joint* GetJoint(std::size_t index);
-			const Joint* GetJoint(const std::string& jointName) const;
+			const Joint* GetJoint(std::string_view jointName) const;
 			const Joint* GetJoint(std::size_t index) const;
 			Joint* GetJoints();
 			const Joint* GetJoints() const;
 			std::size_t GetJointCount() const;
-			std::size_t GetJointIndex(const std::string& jointName) const;
+			std::size_t GetJointIndex(std::string_view jointName) const;
 			Joint* GetRootJoint();
 			const Joint* GetRootJoint() const;
 

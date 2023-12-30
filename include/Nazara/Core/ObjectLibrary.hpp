@@ -7,6 +7,8 @@
 #ifndef NAZARA_CORE_OBJECTLIBRARY_HPP
 #define NAZARA_CORE_OBJECTLIBRARY_HPP
 
+#include <NazaraUtils/StringHash.hpp>
+#include <functional>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -24,15 +26,15 @@ namespace Nz
 
 			void Clear();
 
-			std::shared_ptr<Type> Get(const std::string& name);
-			bool Has(const std::string& name);
+			std::shared_ptr<Type> Get(std::string_view name);
+			bool Has(std::string_view name);
 
-			void Register(const std::string& name, std::shared_ptr<Type> object);
-			std::shared_ptr<Type> Query(const std::string& name);
-			void Unregister(const std::string& name);
+			void Register(std::string name, std::shared_ptr<Type> object);
+			std::shared_ptr<Type> Query(std::string_view name);
+			void Unregister(std::string_view name);
 
 		private:
-			std::unordered_map<std::string, std::shared_ptr<Type>> m_library;
+			std::unordered_map<std::string, std::shared_ptr<Type>, StringHash<>, std::equal_to<>> m_library;
 	};
 }
 

@@ -11,6 +11,7 @@
 #include <Nazara/Core/Color.hpp>
 #include <NazaraUtils/MovablePtr.hpp>
 #include <NazaraUtils/Result.hpp>
+#include <NazaraUtils/StringHash.hpp>
 #include <atomic>
 #include <string>
 #include <unordered_map>
@@ -33,19 +34,19 @@ namespace Nz
 			inline void ForEach(const std::function<bool(const ParameterList& list, const std::string& name)>& callback);
 			inline void ForEach(const std::function<void(const ParameterList& list, const std::string& name)>& callback) const;
 
-			Result<bool, Error> GetBooleanParameter(const std::string& name, bool strict = true) const;
-			Result<Color, Error> GetColorParameter(const std::string& name, bool strict = true) const;
-			Result<double, Error> GetDoubleParameter(const std::string& name, bool strict = true) const;
-			Result<long long, Error> GetIntegerParameter(const std::string& name, bool strict = true) const;
-			Result<ParameterType, Error> GetParameterType(const std::string& name) const;
-			Result<void*, Error> GetPointerParameter(const std::string& name, bool strict = true) const;
-			Result<std::string, Error> GetStringParameter(const std::string& name, bool strict = true) const;
-			Result<std::string_view, Error> GetStringViewParameter(const std::string& name, bool strict = true) const;
-			Result<void*, Error> GetUserdataParameter(const std::string& name, bool strict = true) const;
+			Result<bool, Error> GetBooleanParameter(std::string_view name, bool strict = true) const;
+			Result<Color, Error> GetColorParameter(std::string_view name, bool strict = true) const;
+			Result<double, Error> GetDoubleParameter(std::string_view name, bool strict = true) const;
+			Result<long long, Error> GetIntegerParameter(std::string_view name, bool strict = true) const;
+			Result<ParameterType, Error> GetParameterType(std::string_view name) const;
+			Result<void*, Error> GetPointerParameter(std::string_view name, bool strict = true) const;
+			Result<std::string, Error> GetStringParameter(std::string_view name, bool strict = true) const;
+			Result<std::string_view, Error> GetStringViewParameter(std::string_view name, bool strict = true) const;
+			Result<void*, Error> GetUserdataParameter(std::string_view name, bool strict = true) const;
 
-			bool HasParameter(const std::string& name) const;
+			bool HasParameter(std::string_view name) const;
 
-			void RemoveParameter(const std::string& name);
+			void RemoveParameter(std::string_view name);
 
 			void SetParameter(std::string name);
 			void SetParameter(std::string name, const Color& value);
@@ -111,7 +112,7 @@ namespace Nz
 			Parameter& CreateValue(std::string&& name);
 			void DestroyValue(Parameter& parameter);
 
-			using ParameterMap = std::unordered_map<std::string, Parameter>;
+			using ParameterMap = std::unordered_map<std::string, Parameter, StringHash<>, std::equal_to<>>;
 			ParameterMap m_parameters;
 	};
 

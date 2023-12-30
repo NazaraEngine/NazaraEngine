@@ -77,12 +77,12 @@ namespace Nz::Vk
 		return func;
 	}
 
-	inline bool Device::IsExtensionLoaded(const std::string& extensionName)
+	inline bool Device::IsExtensionLoaded(std::string_view extensionName)
 	{
 		return m_loadedExtensions.count(extensionName) > 0;
 	}
 
-	inline bool Device::IsLayerLoaded(const std::string& layerName)
+	inline bool Device::IsLayerLoaded(std::string_view layerName)
 	{
 		return m_loadedLayers.count(layerName) > 0;
 	}

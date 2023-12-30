@@ -4,6 +4,7 @@
 
 #include <Nazara/Utility/Skeleton.hpp>
 #include <Nazara/Utility/Joint.hpp>
+#include <NazaraUtils/StringHash.hpp>
 #include <unordered_map>
 #include <Nazara/Utility/Debug.hpp>
 
@@ -11,7 +12,7 @@ namespace Nz
 {
 	struct SkeletonImpl
 	{
-		std::unordered_map<std::string, std::size_t> jointMap;
+		std::unordered_map<std::string, std::size_t, StringHash<>, std::equal_to<>> jointMap;
 		std::vector<Joint> joints;
 		Boxf aabb;
 		bool aabbUpdated = false;
@@ -68,7 +69,7 @@ namespace Nz
 		return m_impl->aabb;
 	}
 
-	Joint* Skeleton::GetJoint(const std::string& jointName)
+	Joint* Skeleton::GetJoint(std::string_view jointName)
 	{
 		NazaraAssert(m_impl, "skeleton must have been created");
 
@@ -91,7 +92,7 @@ namespace Nz
 		return &m_impl->joints[index];
 	}
 
-	const Joint* Skeleton::GetJoint(const std::string& jointName) const
+	const Joint* Skeleton::GetJoint(std::string_view jointName) const
 	{
 		NazaraAssert(m_impl, "skeleton must have been created");
 
@@ -132,7 +133,7 @@ namespace Nz
 		return static_cast<std::size_t>(m_impl->joints.size());
 	}
 
-	std::size_t Skeleton::GetJointIndex(const std::string& jointName) const
+	std::size_t Skeleton::GetJointIndex(std::string_view jointName) const
 	{
 		NazaraAssert(m_impl, "skeleton must have been created");
 
@@ -259,9 +260,8 @@ namespace Nz
 			const std::string& name = m_impl->joints[i].GetName();
 			if (!name.empty())
 			{
-				NazaraAssert(m_impl->jointMap.find(name) == m_impl->jointMap.end(), "Joint name \"" + name + "\" is already present in joint map");
-
-				m_impl->jointMap[name] = static_cast<std::size_t>(i);
+				NazaraAssertFmt(!m_impl->jointMap.contains(name), "Joint name \{0}\" is already present in joint map", name);
+				m_impl->jointMap.emplace(name, i);
 			}
 		}
 

@@ -17,7 +17,7 @@ namespace Nz
 {
 	struct AnimationImpl
 	{
-		std::unordered_map<std::string, std::size_t> sequenceMap;
+		std::unordered_map<std::string, std::size_t, StringHash<>, std::equal_to<>> sequenceMap;
 		std::vector<Sequence> sequences;
 		std::vector<SequenceJoint> sequenceJoints; // Uniquement pour les animations squelettiques
 		AnimationType type;
@@ -47,7 +47,7 @@ namespace Nz
 	Animation::Animation(Animation&&) noexcept = default;
 	Animation::~Animation() = default;
 
-	bool Animation::AddSequence(const Sequence& sequence)
+	bool Animation::AddSequence(Sequence sequence)
 	{
 		NazaraAssert(m_impl, "Animation not created");
 		NazaraAssert(sequence.frameCount > 0, "Sequence frame count must be over zero");
@@ -76,7 +76,7 @@ namespace Nz
 			m_impl->sequenceMap[sequence.name] = static_cast<std::size_t>(m_impl->sequences.size());
 		}
 
-		m_impl->sequences.push_back(sequence);
+		m_impl->sequences.emplace_back(std::move(sequence));
 
 		return true;
 	}
@@ -145,7 +145,7 @@ namespace Nz
 		return m_impl->jointCount;
 	}
 
-	Sequence* Animation::GetSequence(const std::string& sequenceName)
+	Sequence* Animation::GetSequence(std::string_view sequenceName)
 	{
 		NazaraAssert(m_impl, "Animation not created");
 
@@ -167,7 +167,7 @@ namespace Nz
 		return &m_impl->sequences[index];
 	}
 
-	const Sequence* Animation::GetSequence(const std::string& sequenceName) const
+	const Sequence* Animation::GetSequence(std::string_view sequenceName) const
 	{
 		NazaraAssert(m_impl, "Animation not created");
 
@@ -196,7 +196,7 @@ namespace Nz
 		return static_cast<std::size_t>(m_impl->sequences.size());
 	}
 
-	std::size_t Animation::GetSequenceIndex(const std::string& sequenceName) const
+	std::size_t Animation::GetSequenceIndex(std::string_view sequenceName) const
 	{
 		NazaraAssert(m_impl, "Animation not created");
 
@@ -233,7 +233,7 @@ namespace Nz
 		return m_impl->type;
 	}
 
-	bool Animation::HasSequence(const std::string& sequenceName) const
+	bool Animation::HasSequence(std::string_view sequenceName) const
 	{
 		NazaraAssert(m_impl, "Animation not created");
 
@@ -259,7 +259,7 @@ namespace Nz
 		return m_impl != nullptr;
 	}
 
-	void Animation::RemoveSequence(const std::string& identifier)
+	void Animation::RemoveSequence(std::string_view identifier)
 	{
 		NazaraAssert(m_impl, "Animation not created");
 
