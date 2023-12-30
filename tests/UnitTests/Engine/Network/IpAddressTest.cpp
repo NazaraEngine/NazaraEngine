@@ -144,14 +144,8 @@ SCENARIO("IpAddress", "[NETWORK][IPADDRESS]")
 
 		WHEN("We resolve IP to hostname")
 		{
-			Nz::IpAddress google(8, 8, 8, 8);
-			THEN("Google (DNS) is 8.8.8.8")
-			{
-				std::string dnsAddress = Nz::IpAddress::ResolveAddress(google);
-				bool dnsCheck = dnsAddress == "google-public-dns-a.google.com" || dnsAddress == "dns.google";
-				INFO(dnsAddress);
-				CHECK(dnsCheck);
-			}
+			CHECK(Nz::IpAddress::ResolveAddress(loopbackIpV4) == "localhost");
+			CHECK(Nz::IpAddress::ResolveAddress(loopbackIpV6) == "localhost");
 		}
 	}
 }
