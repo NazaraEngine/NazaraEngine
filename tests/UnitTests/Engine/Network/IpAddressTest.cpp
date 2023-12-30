@@ -2,6 +2,8 @@
 #include <Nazara/Network/IpAddress.hpp>
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
+#include <frozen/string.h>
+#include <frozen/unordered_set.h>
 
 SCENARIO("IpAddress", "[NETWORK][IPADDRESS]")
 {
@@ -128,21 +130,31 @@ SCENARIO("IpAddress", "[NETWORK][IPADDRESS]")
 		CHECK_FALSE(Nz::IpAddress("::ffff:123.412.210.230").IsValid());
 		CHECK_FALSE(Nz::IpAddress("::ffff:127.0.0.0.1").IsValid());
 		CHECK_FALSE(Nz::IpAddress("::ffff:0:255.255.255.255").IsValid());
-	
-		WHEN("We get the IP of Nazara")
-		{
-			std::vector<Nz::HostnameInfo> hostnameInfos = Nz::IpAddress::ResolveHostname(Nz::NetProtocol::Any, "nazara.digitalpulse.software");
+	}
 
-			THEN("Result is not null")
-			{
-				CHECK_FALSE(hostnameInfos.empty());
-			}
+	WHEN("We resolve dns.google")
+	{
+		std::vector<Nz::HostnameInfo> hostnameInfos = Nz::IpAddress::ResolveHostname(Nz::NetProtocol::Any, "dns.google");
+		CHECK(!hostnameInfos.empty());
+
+		frozen::unordered_set expectedAddresses = frozen::make_unordered_set<frozen::string>({
+			"8.8.8.8",
+			"8.8.4.4",
+			"2001:4860:4860::8888",
+			"2001:4860:4860::8844"
+		});
+
+		for (const Nz::HostnameInfo& hostnameInfo : hostnameInfos)
+		{
+			const std::string& addressStr = hostnameInfo.address.ToString(false);
+			INFO(addressStr);
+			CHECK(expectedAddresses.count(frozen::string(addressStr)) > 0);
 		}
 
-		WHEN("We resolve IP to hostname")
+		AND_WHEN("We resolve back the IP addresses to the hostname")
 		{
-			CHECK(Nz::IpAddress::ResolveAddress(loopbackIpV4) == "localhost");
-			CHECK(Nz::IpAddress::ResolveAddress(loopbackIpV6) == "localhost");
+			CHECK(Nz::IpAddress::ResolveAddress(Nz::IpAddress("8.8.8.8")) == "dns.google");
+			CHECK(Nz::IpAddress::ResolveAddress(Nz::IpAddress("2001:4860:4860::8888")) == "dns.google");
 		}
 	}
 }

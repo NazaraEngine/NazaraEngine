@@ -6,7 +6,7 @@ if has_config("asan") then
 end
 
 add_deps("NazaraAudio", "NazaraCore", "NazaraNetwork", "NazaraChipmunkPhysics2D")
-add_packages("catch2", "entt")
+add_packages("catch2", "entt", "frozen")
 add_headerfiles("Engine/**.hpp", { prefixdir = "private", install = false })
 add_files("resources.cpp")
 add_files("Engine/**.cpp")
