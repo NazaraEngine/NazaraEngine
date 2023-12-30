@@ -128,10 +128,7 @@ SCENARIO("IpAddress", "[NETWORK][IPADDRESS]")
 		CHECK_FALSE(Nz::IpAddress("::ffff:123.412.210.230").IsValid());
 		CHECK_FALSE(Nz::IpAddress("::ffff:127.0.0.0.1").IsValid());
 		CHECK_FALSE(Nz::IpAddress("::ffff:0:255.255.255.255").IsValid());
-	}
-
-	GIVEN("No IpAddress")
-	{
+	
 		WHEN("We get the IP of Nazara")
 		{
 			std::vector<Nz::HostnameInfo> hostnameInfos = Nz::IpAddress::ResolveHostname(Nz::NetProtocol::Any, "nazara.digitalpulse.software");
