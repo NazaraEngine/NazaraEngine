@@ -305,7 +305,7 @@ if has_config("platform") then
 end
 
 if has_config("renderer") then
-	add_requires("nzsl >=2023.12.17+1", { debug = is_mode("debug"), configs = { with_symbols = not is_mode("release"), shared = not is_plat("wasm", "android") and not has_config("static") } })
+	add_requires("nzsl >=2023.12.31", { debug = is_mode("debug"), configs = { symbols = not is_mode("release"), shared = not is_plat("wasm", "android") and not has_config("static") } })
 
 	local function is_cross_compiling()
 		if os.host() == "windows" then
