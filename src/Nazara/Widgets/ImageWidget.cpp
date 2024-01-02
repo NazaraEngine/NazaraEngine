@@ -1,4 +1,4 @@
-// Copyright (C) 2023 Samy Bensaid
+// Copyright (C) 2024 Samy Bensaid
 // This file is part of the "Nazara Engine - Widgets module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 

@@ -51,7 +51,7 @@ on_run(function ()
 	local replacements = {
 		CLASS_NAME = className,
 		CLASS_PATH = classPath,
-		COPYRIGHT = os.date("%Y") .. [[ Jérôme "Lynix" Leclercq (lynix680@gmail.com)]],
+		COPYRIGHT = os.date("%Y") .. [[ Jérôme "SirLynix" Leclercq (lynix680@gmail.com)]],
 		HEADER_GUARD = "NAZARA_" .. moduleName:upper() .. "_" .. classPath:gsub("[/\\]", "_"):upper() .. "_HPP",
 		MODULE_API = "NAZARA_" .. moduleName:upper() .. "_API",
 		MODULE_NAME = moduleName,
