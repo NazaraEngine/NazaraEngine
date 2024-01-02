@@ -7,6 +7,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <NazaraUtils/Algorithm.hpp>
+#include <NazaraUtils/PathUtils.hpp>
 #include <cstdio>
 #include <fcntl.h>
 #include <unistd.h>

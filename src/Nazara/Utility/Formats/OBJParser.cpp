@@ -6,6 +6,7 @@
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Utility/Config.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
+#include <NazaraUtils/PathUtils.hpp>
 #include <tsl/ordered_map.h>
 #include <cctype>
 #include <memory>

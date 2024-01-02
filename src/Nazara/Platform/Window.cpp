@@ -41,10 +41,8 @@ namespace Nz
 
 	bool Window::Create(VideoMode mode, const std::string& title, WindowStyleFlags style)
 	{
-#ifdef NAZARA_COMPILER_MSVC
-#pragma warning(push)
-#pragma warning(disable:4701) //< uninitialized variable maybe used (position)
-#endif
+NAZARA_WARNING_PUSH()
+NAZARA_WARNING_MSVC_DISABLE(4701) //< uninitialized variable maybe used (position)
 
 		// If the window is already open, we keep its position
 		bool opened = IsOpen();
@@ -84,9 +82,8 @@ namespace Nz
 
 		m_eventHandler.Dispatch({ { WindowEventType::Created } });
 
-#ifdef NAZARA_COMPILER_MSVC
-#pragma warning(pop)
-#endif
+NAZARA_WARNING_POP()
+
 		return true;
 	}
 

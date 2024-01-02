@@ -89,8 +89,8 @@ namespace Nz::PlatformImpl
 		info.dwThreadID = threadId;
 		info.dwFlags = 0;
 
-#pragma warning(push)
-#pragma warning(disable: 6320 6322)
+NAZARA_WARNING_PUSH()
+NAZARA_WARNING_MSVC_DISABLE(6320 6322)
 		__try
 		{
 			RaiseException(MS_VC_EXCEPTION, 0, sizeof(info) / sizeof(ULONG_PTR), reinterpret_cast<ULONG_PTR*>(&info));
@@ -98,13 +98,14 @@ namespace Nz::PlatformImpl
 		__except (EXCEPTION_EXECUTE_HANDLER)
 		{
 		}
-#pragma warning(pop)
+NAZARA_WARNING_POP()
+
 #else
 		NazaraWarning("ThreadName exception is only supported with MSVC");
 #endif
 	}
 #endif
-
+ 
 	void SetCurrentThreadName(const char* threadName)
 	{
 		SetThreadName(GetCurrentThreadHandle(), threadName);

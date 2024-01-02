@@ -4,6 +4,7 @@
 
 #include <Nazara/Core/Posix/DynLibImpl.hpp>
 #include <NazaraUtils/Algorithm.hpp>
+#include <NazaraUtils/PathUtils.hpp>
 #include <dlfcn.h>
 #include <cstring>
 #include <Nazara/Core/Debug.hpp>
