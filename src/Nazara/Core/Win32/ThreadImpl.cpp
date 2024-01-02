@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Win32/ThreadImpl.hpp>
+#include <Nazara/Core/Format.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
 #include <Nazara/Core/Debug.hpp>
@@ -57,7 +58,7 @@ namespace Nz::PlatformImpl
 
 		HRESULT hr = GetThreadDescription(threadHandle, &namePtr);
 		if (FAILED(hr))
-			return "<GetThreadDescription failed: " + std::to_string(HRESULT_CODE(hr)) + ">";
+			return Format("<GetThreadDescription failed: {}>", HRESULT_CODE(hr));
 
 		CallOnExit freeName([&] { LocalFree(namePtr); });
 
@@ -121,9 +122,6 @@ namespace Nz::PlatformImpl
 #if NAZARAUTILS_WINDOWS_NT6
 		else
 			RaiseThreadNameException(::GetThreadId(threadHandle), threadName);
-#else
-		NazaraUnused(threadHandle);
-		NazaraUnused(threadName);
 #endif
 
 #else
