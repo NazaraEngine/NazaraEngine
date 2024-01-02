@@ -7,6 +7,7 @@
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Core/Win32/Utils.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
+#include <NazaraUtils/PathUtils.hpp>
 #include <memory>
 #include <Nazara/Core/Debug.hpp>
 
