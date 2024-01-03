@@ -20,10 +20,11 @@ jobs:
   build:
     strategy:
       matrix:
-        msystem: [mingw64]
         os: [windows-latest]
-        arch: [x86_64]
         mode: [debug, releasedbg]
+        plat:
+        - { msystem: mingw32, arch: i686 }
+        - { msystem: mingw64, arch: x86_64 }
 
     runs-on: ${{ matrix.os }}
     if: "!contains(github.event.head_commit.message, 'ci skip')"
@@ -44,8 +45,8 @@ jobs:
     # Setup MSYS2
     - uses: msys2/setup-msys2@v2
       with:
-        msystem: ${{ matrix.msystem }}
-        install: base-devel git unzip p7zip mingw-w64-${{ matrix.arch }}-toolchain mingw-w64-${{ matrix.arch }}-xmake
+        msystem: ${{ matrix.plat.msystem }}
+        install: base-devel git unzip p7zip mingw-w64-${{ matrix.plat.arch }}-toolchain mingw-w64-${{ matrix.plat.arch }}-xmake
         update: true
 
     # Force xmake to a specific folder (for cache)
@@ -66,11 +67,11 @@ jobs:
       uses: actions/cache@v3
       with:
         path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
-        key: MinGW-${{ matrix.arch }}-${{ matrix.mode }}-${{ steps.dep_hash.outputs.hash }}-W${{ steps.cache_key.outputs.key }}
+        key: MinGW-${{ matrix.plat.arch }}-${{ matrix.mode }}-${{ steps.dep_hash.outputs.hash }}-W${{ steps.cache_key.outputs.key }}
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
-      run: xmake config --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --ccache=n --ffmpeg=y --shadernodes=y --tests=y --unitybuild=y --yes
+      run: xmake config --arch=${{ matrix.plat.arch }} --mode=${{ matrix.mode }} --ccache=n --ffmpeg=y --shadernodes=y --tests=y --unitybuild=y --yes
 
     # Build the engine
     - name: Build Nazara
@@ -83,7 +84,7 @@ jobs:
 
     # Setup installation configuration
     - name: Configure xmake for installation
-      run: xmake config --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --ccache=n --ffmpeg=n --shadernodes=y --tests=y --yes
+      run: xmake config --arch=${{ matrix.plat.arch }} --mode=${{ matrix.mode }} --ccache=n --ffmpeg=n --shadernodes=y --tests=y --yes
 
     # Install the result files
     - name: Install Nazara
@@ -92,5 +93,5 @@ jobs:
     # Upload artifacts
     - uses: actions/upload-artifact@v3
       with:
-        name: nazaraengine-${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.mode }}
+        name: nazaraengine-${{ matrix.os }}-${{ matrix.plat.arch }}-${{ matrix.mode }}
         path: package
