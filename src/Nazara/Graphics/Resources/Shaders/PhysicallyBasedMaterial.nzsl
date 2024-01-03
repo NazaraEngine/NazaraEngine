@@ -212,7 +212,7 @@ fn ComputeLighting(color: vec3[f32], input: VertOut) -> vec3[f32]
 		let lightToPosNorm = lightToPos / max(dist, 0.0001);
 
 		let shadowFactor = ComputePointLightShadow(light, shadowMapsPoint[lightIndex], dist, lightToPosNorm);
-		let radiance = ComputeLightRadiance(light.color.rgb, lightToPosNorm, attenuation, albedoFactor, eyeVec, F0, normal, metallic, roughness);
+		let radiance = ComputeLightRadiance(light.color.rgb, -lightToPosNorm, attenuation, albedoFactor, eyeVec, F0, normal, metallic, roughness);
 
 		lightRadiance += shadowFactor * radiance;
 	}
@@ -234,7 +234,7 @@ fn ComputeLighting(color: vec3[f32], input: VertOut) -> vec3[f32]
 		let lambert = clamp(dot(normal, -lightToPosNorm), 0.0, 1.0);
 
 		let shadowFactor = ComputeSpotLightShadow(light, shadowMapsSpot[lightIndex], input.worldPos, lambert);
-		let radiance = ComputeLightRadiance(light.color.rgb, lightToPosNorm, attenuation, albedoFactor, eyeVec, F0, normal, metallic, roughness);
+		let radiance = ComputeLightRadiance(light.color.rgb, -lightToPosNorm, attenuation, albedoFactor, eyeVec, F0, normal, metallic, roughness);
 
 		lightRadiance += shadowFactor * radiance;
 	}
