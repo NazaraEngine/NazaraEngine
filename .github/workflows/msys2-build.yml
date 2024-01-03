@@ -24,7 +24,7 @@ jobs:
         os: [windows-latest]
         mode: [debug, releasedbg]
         confs:
-        - { msystem: mingw32, arch: i686,   config_build: --shadernodes=y,            config_install: --shadernodes=y } # FFMpeg package doesn't support 32bits
+        - { msystem: mingw32, arch: i686,   config_build: "",                         config_install: "" } # Qt and FFMpeg package doesn't support 32bits
         - { msystem: mingw64, arch: x86_64, config_build: --shadernodes=y --ffmpeg=y, config_install: --shadernodes=y }
 
     runs-on: ${{ matrix.os }}
