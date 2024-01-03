@@ -648,7 +648,7 @@ namespace Nz
 		std::size_t dependenciesColorAttachmentCount = 0;
 		Int32 lastRenderOrder = m_orderedViewers.front()->viewer->GetRenderTarget().GetRenderOrder();
 
-		std::size_t viewerIndex = 0;
+		unsigned int viewerIndex = 0;
 		auto HandleRenderTarget = [&](const RenderTarget& renderTarget, std::span<ViewerData*> viewers)
 		{
 			if (renderTarget.GetRenderOrder() > lastRenderOrder)
