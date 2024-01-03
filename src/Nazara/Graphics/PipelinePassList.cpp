@@ -16,6 +16,16 @@ namespace Nz
 		return true;
 	}
 
+	std::size_t PipelinePassList::AddPass(std::string name, std::string_view impl, ParameterList parameterList)
+	{
+		auto& passRegistry = Graphics::Instance()->GetFramePipelinePassRegistry();
+
+		std::size_t passIndex = passRegistry.GetPassIndex(impl);
+		NazaraAssertFmt(passIndex != passRegistry.InvalidIndex, "invalid pass name {0}", impl);
+
+		return AddPass(std::move(name), passIndex, std::move(parameterList));
+	}
+
 	std::vector<std::unique_ptr<FramePipelinePass>> PipelinePassList::BuildPasses(FramePipelinePass::PassData& passData) const
 	{
 		auto& passRegistry = Graphics::Instance()->GetFramePipelinePassRegistry();

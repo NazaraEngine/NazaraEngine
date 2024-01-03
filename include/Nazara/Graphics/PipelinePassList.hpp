@@ -48,6 +48,7 @@ namespace Nz
 			inline std::size_t AddAttachment(FramePassAttachment attachment);
 			inline std::size_t AddAttachmentProxy(std::string name, std::size_t attachmentIndex);
 			inline std::size_t AddPass(std::string name, std::size_t implIndex, ParameterList parameterList = {});
+			std::size_t AddPass(std::string name, std::string_view impl, ParameterList parameterList = {});
 
 			std::vector<std::unique_ptr<FramePipelinePass>> BuildPasses(FramePipelinePass::PassData& passData) const;
 
