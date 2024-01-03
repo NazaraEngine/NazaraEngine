@@ -530,7 +530,7 @@ namespace Nz
 		{
 			NazaraAssert(windowHandle.type == WindowBackend::Windows, "expected Windows window");
 
-			HWND winHandle = reinterpret_cast<HWND>(windowHandle.windows.window);
+			HWND winHandle = static_cast<HWND>(windowHandle.windows.window);
 			HINSTANCE instance = reinterpret_cast<HINSTANCE>(GetWindowLongPtrW(winHandle, GWLP_HINSTANCE));
 
 			success = m_surface.Create(instance, winHandle);

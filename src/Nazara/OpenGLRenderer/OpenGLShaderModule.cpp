@@ -34,7 +34,7 @@ namespace Nz
 					NazaraAssert(shaderStages == shaderStage, "when supplying GLSL, only one shader stage type can be specified");
 
 					auto& entry = m_shaders.emplace_back();
-					entry.shader = GlslShader{ std::string(reinterpret_cast<const char*>(source), std::size_t(sourceSize)) };
+					entry.shader = GlslShader{ std::string(static_cast<const char*>(source), sourceSize) };
 					entry.stage = shaderStage;
 					break;
 				}

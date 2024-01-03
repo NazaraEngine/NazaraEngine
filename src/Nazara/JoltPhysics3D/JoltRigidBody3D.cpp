@@ -27,7 +27,7 @@ namespace Nz
 		body.m_bodyIndex = std::numeric_limits<UInt32>::max();
 
 		if (m_body)
-			m_body->SetUserData(SafeCast<UInt64>(reinterpret_cast<std::uintptr_t>(this)));
+			m_body->SetUserData(SafeCast<UInt64>(BitCast<std::uintptr_t>(this)));
 	}
 
 	JoltRigidBody3D::~JoltRigidBody3D()
@@ -319,7 +319,7 @@ namespace Nz
 		body.m_bodyIndex = std::numeric_limits<UInt32>::max();
 
 		if (m_body)
-			m_body->SetUserData(SafeCast<UInt64>(reinterpret_cast<std::uintptr_t>(this)));
+			m_body->SetUserData(SafeCast<UInt64>(BitCast<std::uintptr_t>(this)));
 
 		return *this;
 	}
@@ -431,7 +431,7 @@ namespace Nz
 
 		creationSettings.mPosition = ToJolt(settings.position);
 		creationSettings.mRotation = ToJolt(settings.rotation);
-		creationSettings.mUserData = SafeCast<UInt64>(reinterpret_cast<std::uintptr_t>(this));
+		creationSettings.mUserData = SafeCast<UInt64>(BitCast<std::uintptr_t>(this));
 	}
 
 	bool JoltRigidBody3D::ShouldActivate() const

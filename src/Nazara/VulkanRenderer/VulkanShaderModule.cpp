@@ -95,8 +95,10 @@ namespace Nz
 
 			case ShaderLanguage::SpirV:
 			{
+				NazaraAssertFmt(sourceSize % sizeof(UInt32) == 0, "sourceSize must be a multiple of sizeof(UInt32), got {0}", sourceSize);
+
 				SpirvEntryPointExtractor extractor;
-				extractor.Decode(reinterpret_cast<const UInt32*>(source), sourceSize / sizeof(UInt32));
+				extractor.Decode(static_cast<const UInt32*>(source), sourceSize / sizeof(UInt32));
 
 				nzsl::ShaderStageTypeFlags remainingStages = shaderStages;
 				for (auto& entryPoint : extractor.entryPoints)

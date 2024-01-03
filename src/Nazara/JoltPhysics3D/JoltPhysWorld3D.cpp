@@ -185,7 +185,7 @@ namespace Nz
 
 					JPH::Body& body = lock.GetBody();
 
-					hitInfo.hitBody = reinterpret_cast<JoltAbstractBody*>(static_cast<std::uintptr_t>(body.GetUserData()));
+					hitInfo.hitBody = BitCast<JoltAbstractBody*>(static_cast<std::uintptr_t>(body.GetUserData()));
 
 					if (auto fractionOpt = m_callback(hitInfo))
 					{
@@ -235,7 +235,7 @@ namespace Nz
 
 					JPH::Body& body = lock.GetBody();
 
-					hitInfo.hitBody = reinterpret_cast<JoltAbstractBody*>(static_cast<std::uintptr_t>(body.GetUserData()));
+					hitInfo.hitBody = BitCast<JoltAbstractBody*>(static_cast<std::uintptr_t>(body.GetUserData()));
 
 					if (auto fractionOpt = m_callback(hitInfo))
 					{
@@ -285,7 +285,7 @@ namespace Nz
 
 					JPH::Body& body = lock.GetBody();
 
-					hitInfo.hitBody = reinterpret_cast<JoltAbstractBody*>(static_cast<std::uintptr_t>(body.GetUserData()));
+					hitInfo.hitBody = BitCast<JoltAbstractBody*>(static_cast<std::uintptr_t>(body.GetUserData()));
 					hitInfo.hitNormal = FromJolt(body.GetWorldSpaceSurfaceNormal(result.mSubShapeID2, ToJolt(hitInfo.hitPosition)));
 
 					if (auto fractionOpt = m_callback(hitInfo))
@@ -515,7 +515,7 @@ namespace Nz
 		RaycastHit hitInfo;
 		hitInfo.fraction = collector.mHit.GetEarlyOutFraction();
 		hitInfo.hitPosition = Lerp(from, to, hitInfo.fraction);
-		hitInfo.hitBody = reinterpret_cast<JoltAbstractBody*>(static_cast<std::uintptr_t>(body.GetUserData()));
+		hitInfo.hitBody = BitCast<JoltAbstractBody*>(static_cast<std::uintptr_t>(body.GetUserData()));
 		hitInfo.hitNormal = FromJolt(body.GetWorldSpaceSurfaceNormal(collector.mHit.mSubShapeID2, rayCast.GetPointOnRay(collector.mHit.GetEarlyOutFraction())));
 
 		callback(hitInfo);

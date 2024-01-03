@@ -100,7 +100,7 @@ SCENARIO("String", "[CORE][STRING]")
 	{
 		CHECK(Nz::TrimRight(Nz::PointerToString(nullptr), '0') == "0x");
 
-		const void* ptr = reinterpret_cast<const void*>(static_cast<std::uintptr_t>(0xDEADBEEF));
+		const void* ptr = Nz::BitCast<const void*>(static_cast<std::uintptr_t>(0xDEADBEEF));
 		CHECK(Nz::MatchPattern(Nz::PointerToString(ptr), "0x*DEADBEEF"));
 	}
 

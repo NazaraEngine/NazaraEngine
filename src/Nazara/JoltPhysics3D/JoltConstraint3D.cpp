@@ -19,7 +19,7 @@ namespace Nz
 	m_constraint(std::move(constraint.m_constraint))
 	{
 		if (m_constraint)
-			m_constraint->SetUserData(SafeCast<UInt64>(reinterpret_cast<std::uintptr_t>(this)));
+			m_constraint->SetUserData(SafeCast<UInt64>(BitCast<std::uintptr_t>(this)));
 	}
 
 	JoltConstraint3D::~JoltConstraint3D()
@@ -29,24 +29,24 @@ namespace Nz
 
 	JoltRigidBody3D& JoltConstraint3D::GetBodyA()
 	{
-		return *reinterpret_cast<JoltRigidBody3D*>(static_cast<std::uintptr_t>(m_constraint->GetBody1()->GetUserData()));
+		return *BitCast<JoltRigidBody3D*>(static_cast<std::uintptr_t>(m_constraint->GetBody1()->GetUserData()));
 	}
 
 	const JoltRigidBody3D& JoltConstraint3D::GetBodyA() const
 	{
-		return *reinterpret_cast<JoltRigidBody3D*>(static_cast<std::uintptr_t>(m_constraint->GetBody1()->GetUserData()));
+		return *BitCast<JoltRigidBody3D*>(static_cast<std::uintptr_t>(m_constraint->GetBody1()->GetUserData()));
 	}
 
 	JoltRigidBody3D& JoltConstraint3D::GetBodyB()
 	{
 		NazaraAssert(!IsSingleBody(), "constraint is not attached to a second body");
-		return *reinterpret_cast<JoltRigidBody3D*>(static_cast<std::uintptr_t>(m_constraint->GetBody2()->GetUserData()));
+		return *BitCast<JoltRigidBody3D*>(static_cast<std::uintptr_t>(m_constraint->GetBody2()->GetUserData()));
 	}
 
 	const JoltRigidBody3D& JoltConstraint3D::GetBodyB() const
 	{
 		NazaraAssert(!IsSingleBody(), "constraint is not attached to a second body");
-		return *reinterpret_cast<JoltRigidBody3D*>(static_cast<std::uintptr_t>(m_constraint->GetBody2()->GetUserData()));
+		return *BitCast<JoltRigidBody3D*>(static_cast<std::uintptr_t>(m_constraint->GetBody2()->GetUserData()));
 	}
 
 	JoltPhysWorld3D& JoltConstraint3D::GetWorld()
@@ -71,7 +71,7 @@ namespace Nz
 		m_constraint = std::move(constraint.m_constraint);
 
 		if (m_constraint)
-			m_constraint->SetUserData(SafeCast<UInt64>(reinterpret_cast<std::uintptr_t>(this)));
+			m_constraint->SetUserData(SafeCast<UInt64>(BitCast<std::uintptr_t>(this)));
 
 		return *this;
 	}
@@ -92,7 +92,7 @@ namespace Nz
 		assert(!m_constraint);
 		m_constraint = std::move(constraint);
 		m_constraint->SetEmbedded();
-		m_constraint->SetUserData(SafeCast<UInt64>(reinterpret_cast<std::uintptr_t>(this)));
+		m_constraint->SetUserData(SafeCast<UInt64>(BitCast<std::uintptr_t>(this)));
 
 		JPH::PhysicsSystem* physicsSystem = GetWorld().GetPhysicsSystem();
 		physicsSystem->AddConstraint(m_constraint.get());

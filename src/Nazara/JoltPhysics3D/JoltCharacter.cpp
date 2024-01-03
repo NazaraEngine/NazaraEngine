@@ -33,7 +33,7 @@ namespace Nz
 		if (m_character)
 		{
 			JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterfaceNoLock();
-			bodyInterface.SetUserData(m_character->GetBodyID(), SafeCast<UInt64>(reinterpret_cast<std::uintptr_t>(this)));
+			bodyInterface.SetUserData(m_character->GetBodyID(), SafeCast<UInt64>(BitCast<std::uintptr_t>(this)));
 		}
 
 		if (m_world)
@@ -149,7 +149,7 @@ namespace Nz
 		if (m_character)
 		{
 			JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterfaceNoLock();
-			bodyInterface.SetUserData(m_character->GetBodyID(), SafeCast<UInt64>(reinterpret_cast<std::uintptr_t>(this)));
+			bodyInterface.SetUserData(m_character->GetBodyID(), SafeCast<UInt64>(BitCast<std::uintptr_t>(this)));
 		}
 
 		return *this;
@@ -175,7 +175,7 @@ namespace Nz
 		m_bodyIndex = m_character->GetBodyID().GetIndex();
 
 		JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterfaceNoLock();
-		bodyInterface.SetUserData(m_character->GetBodyID(), SafeCast<UInt64>(reinterpret_cast<std::uintptr_t>(this)));
+		bodyInterface.SetUserData(m_character->GetBodyID(), SafeCast<UInt64>(BitCast<std::uintptr_t>(this)));
 
 		m_world->RegisterStepListener(this);
 	}

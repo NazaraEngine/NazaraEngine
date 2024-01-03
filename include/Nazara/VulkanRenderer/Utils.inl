@@ -520,7 +520,7 @@ namespace Nz
 	UInt64 VulkanHandleToInteger(T handle)
 	{
 		if constexpr (std::is_pointer_v<T>)
-			return static_cast<UInt64>(reinterpret_cast<std::uintptr_t>(handle));
+			return static_cast<UInt64>(BitCast<std::uintptr_t>(handle));
 		else
 		{
 			static_assert(std::is_integral_v<T>);
