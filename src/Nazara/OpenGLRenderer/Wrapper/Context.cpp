@@ -618,11 +618,14 @@ namespace Nz::GL
 #endif
 				glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
 
-			glDebugMessageCallback(static_cast<GLDEBUGPROC>([](GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
-			{ //                      ^ Explicit casting is required for MinGW 32bits to add calling convention
+			// Explicit casting is required for MinGW 32bits to add calling convention
+			GLDEBUGPROC callback = [](GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
+			{
 				const Context* context = static_cast<const Context*>(userParam);
 				context->HandleDebugMessage(source, type, id, severity, length, message);
-			}), this);
+			};
+
+			glDebugMessageCallback(callback, this);
 
 			if (glDebugMessageControl)
 			{
