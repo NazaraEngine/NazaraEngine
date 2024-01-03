@@ -24,8 +24,8 @@ jobs:
         os: [windows-latest]
         mode: [debug, releasedbg]
         confs:
-        - { msystem: mingw32, arch: i686 } # FFMpeg package doesn't support 32bits
-        - { msystem: mingw64, arch: x86_64, config_build: --ffmpeg=y }
+        - { msystem: mingw32, arch: i686,   config_build: --shadernodes=y,            config_install: --shadernodes=y } # FFMpeg package doesn't support 32bits
+        - { msystem: mingw64, arch: x86_64, config_build: --shadernodes=y --ffmpeg=y, config_install: --shadernodes=y }
 
     runs-on: ${{ matrix.os }}
     if: "!contains(github.event.head_commit.message, 'ci skip')"
@@ -85,7 +85,7 @@ jobs:
 
     # Setup installation configuration
     - name: Configure xmake for installation
-      run: xmake config --arch=${{ matrix.confs.arch }} --mode=${{ matrix.mode }} --ccache=n --ffmpeg=n --shadernodes=y --tests=y --yes
+      run: xmake config --arch=${{ matrix.confs.arch }} --mode=${{ matrix.mode }} --ccache=n --ffmpeg=n --shadernodes=y --tests=y --yes ${{ matrix.confs.config_install }}
 
     # Install the result files
     - name: Install Nazara
