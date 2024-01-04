@@ -65,7 +65,8 @@ jobs:
   
     # Cache xmake dependencies
     - name: Retrieve cached xmake dependencies
-      uses: actions/cache@v3
+      id: restore-depcache
+      uses: actions/cache/restore@v3
       with:
         path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
         key: MinGW-${{ matrix.confs.arch }}-${{ matrix.mode }}-${{ steps.dep_hash.outputs.hash }}-W${{ steps.cache_key.outputs.key }}
@@ -73,6 +74,13 @@ jobs:
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
       run: xmake config --arch=${{ matrix.confs.arch }} --mode=${{ matrix.mode }} --ccache=n --tests=y --unitybuild=y --yes ${{ matrix.confs.config_build }}
+
+    - name: Save cached xmake dependencies
+      if: !steps.restore-depcache.outputs.cache-hit
+      uses: actions/cache/save@v3
+      with:
+        path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
+        key: ${{ steps.restore-depcache.outputs.cache-primary-key }}
 
     # Build the engine
     - name: Build Nazara
