@@ -24,6 +24,9 @@ namespace Nz
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 		succeeded = ::SetConsoleCtrlHandler([](DWORD ctrlType) -> BOOL
+#ifdef NAZARA_COMPILER_MINGW
+			WINAPI
+#endif
 		{
 			switch (ctrlType)
 			{
