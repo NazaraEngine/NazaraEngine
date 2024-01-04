@@ -28,7 +28,7 @@ jobs:
         - { msystem: mingw64, arch: x86_64, config_build: --shadernodes=y --ffmpeg=y, config_install: --shadernodes=y }
 
     runs-on: ${{ matrix.os }}
-    if: "!contains(github.event.head_commit.message, 'ci skip')"
+    if: ${{ !contains(github.event.head_commit.message, 'ci skip') }}
 
     defaults:
       run:
@@ -76,7 +76,7 @@ jobs:
       run: xmake config --arch=${{ matrix.confs.arch }} --mode=${{ matrix.mode }} --ccache=n --tests=y --unitybuild=y --yes ${{ matrix.confs.config_build }}
 
     - name: Save cached xmake dependencies
-      if: !steps.restore-depcache.outputs.cache-hit
+      if: ${{ !steps.restore-depcache.outputs.cache-hit }}
       uses: actions/cache/save@v3
       with:
         path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
