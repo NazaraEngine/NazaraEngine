@@ -199,11 +199,6 @@ namespace Nz
 		return std::make_shared<MaterialInstance>(shared_from_this());
 	}
 
-	std::shared_ptr<Material> Material::Build(const ParameterList& materialData)
-	{
-		return std::shared_ptr<Material>();
-	}
-
 	std::shared_ptr<Material> Material::Get(MaterialType lightingType)
 	{
 		Graphics* graphics = Graphics::Instance();

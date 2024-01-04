@@ -10,6 +10,7 @@
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/RenderResources.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
+#include <Nazara/Utility/MaterialData.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
@@ -343,6 +344,105 @@ namespace Nz
 		std::memcpy(&uniformBlock.values[offset], data, size);
 
 		OnTransferRequired(this);
+	}
+
+	std::shared_ptr<MaterialInstance> MaterialInstance::Build(const ParameterList& materialData)
+	{
+		MaterialType matType = MaterialType::Basic;
+		if (auto value = materialData.GetStringViewParameter(MaterialData::Type))
+		{
+			std::string_view valueStr = value.GetValue();
+			if (valueStr == "Basic")
+				matType = MaterialType::Basic;
+			else if (valueStr == "Phong")
+				matType = MaterialType::Phong;
+			else if (valueStr == "PhysicallyBased")
+				matType = MaterialType::PhysicallyBased;
+			else
+				NazaraWarningFmt("unknown material type: {}", valueStr);
+		}
+
+		std::shared_ptr<MaterialInstance> matInstance = Instantiate(matType, MaterialInstancePreset::Default);
+
+		auto ConvertBool = [&](const char* paramKey, std::string_view matKey)
+		{
+			if (auto value = materialData.GetBooleanParameter(paramKey))
+				matInstance->SetValueProperty(matKey, value.GetValue());
+		};
+
+		auto ConvertColor = [&](const char* paramKey, std::string_view matKey)
+		{
+			if (auto value = materialData.GetColorParameter(paramKey))
+				matInstance->SetValueProperty(matKey, value.GetValue());
+		};
+
+		auto ConvertFloat = [&](const char* paramKey, std::string_view matKey)
+		{
+			if (auto value = materialData.GetDoubleParameter(paramKey))
+				matInstance->SetValueProperty(matKey, SafeCast<float>(value.GetValue()));
+		};
+
+		auto ConvertTexture = [&](const char* paramKey, std::string_view matKey, const char* paramFilterKey, const char* paramWrapKey)
+		{
+			if (auto value = materialData.GetStringViewParameter(paramKey))
+			{
+				matInstance->SetTextureProperty(matKey, Texture::LoadFromFile(Utf8Path(value.GetValue())));
+			}
+
+			Nz::TextureSamplerInfo samplerInfo;
+			if (auto value = materialData.GetIntegerParameter(paramFilterKey))
+			{
+				long long filterInt = value.GetValue();
+				if (filterInt >= 0 || filterInt <= SafeCast<long long>(SamplerFilter::Max))
+					samplerInfo.magFilter = samplerInfo.minFilter = static_cast<SamplerFilter>(filterInt);
+				else
+					NazaraErrorFmt("invalid value for {0} sampler filter: {1}", paramFilterKey, filterInt);
+			}
+
+			if (auto value = materialData.GetIntegerParameter(paramWrapKey))
+			{
+				long long wrapInt = value.GetValue();
+				if (wrapInt >= 0 || wrapInt <= SafeCast<long long>(SamplerWrap::Max))
+					samplerInfo.wrapModeU = samplerInfo.wrapModeV = samplerInfo.wrapModeW = static_cast<SamplerWrap>(wrapInt);
+				else
+					NazaraErrorFmt("invalid value for {0} sampler wrap: {1}", paramWrapKey, wrapInt);
+			}
+
+			matInstance->SetTextureSamplerProperty(matKey, samplerInfo);
+		};
+
+		ConvertColor(MaterialData::BaseColor, "BaseColor");
+		ConvertBool(MaterialData::AlphaTest, "AlphaTest");
+		ConvertFloat(MaterialData::AlphaThreshold, "AlphaTestThreshold");
+		ConvertTexture(MaterialData::BaseColorTexturePath, "BaseColorMap", MaterialData::BaseColorTextureFilter, MaterialData::BaseColorTextureWrap);
+		ConvertTexture(MaterialData::AlphaTexturePath, "AlphaMap", MaterialData::AlphaTextureFilter, MaterialData::AlphaTextureWrap);
+
+		switch (matType)
+		{
+			case MaterialType::Basic:
+				break;
+
+			case MaterialType::Phong:
+				ConvertColor(MaterialData::AmbientColor, "AmbientColor");
+				ConvertColor(MaterialData::SpecularColor, "SpecularColor");
+				ConvertFloat(MaterialData::Shininess, "Shininess");
+				ConvertTexture(MaterialData::EmissiveTexturePath, "EmissiveMap", MaterialData::EmissiveTextureFilter, MaterialData::EmissiveTextureWrap);
+				ConvertTexture(MaterialData::HeightTexturePath, "HeightMap", MaterialData::HeightTextureFilter, MaterialData::HeightTextureWrap);
+				ConvertTexture(MaterialData::NormalTexturePath, "NormalMap", MaterialData::NormalTextureFilter, MaterialData::NormalTextureWrap);
+				ConvertTexture(MaterialData::SpecularTexturePath, "SpecularMap", MaterialData::SpecularTextureFilter, MaterialData::SpecularTextureWrap);
+				break;
+
+			case MaterialType::PhysicallyBased:
+				ConvertTexture(MaterialData::EmissiveTexturePath, "EmissiveMap", MaterialData::EmissiveTextureFilter, MaterialData::EmissiveTextureWrap);
+				ConvertTexture(MaterialData::HeightTexturePath, "HeightMap", MaterialData::HeightTextureFilter, MaterialData::HeightTextureWrap);
+				ConvertTexture(MaterialData::MetallicTexturePath, "MetallicMap", MaterialData::MetallicTextureFilter, MaterialData::MetallicTextureWrap);
+				ConvertTexture(MaterialData::NormalTexturePath, "NormalMap", MaterialData::NormalTextureFilter, MaterialData::NormalTextureWrap);
+				ConvertTexture(MaterialData::RoughnessTexturePath, "RoughnessMap", MaterialData::RoughnessTextureFilter, MaterialData::RoughnessTextureWrap);
+				ConvertTexture(MaterialData::SpecularTexturePath, "SpecularMap", MaterialData::SpecularTextureFilter, MaterialData::SpecularTextureWrap);
+				break;
+		}
+
+		return matInstance;
 	}
 
 	std::shared_ptr<MaterialInstance> MaterialInstance::GetDefault(MaterialType materialType, MaterialInstancePreset preset)

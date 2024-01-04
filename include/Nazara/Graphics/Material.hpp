@@ -65,7 +65,6 @@ namespace Nz
 
 			std::shared_ptr<MaterialInstance> Instantiate() const;
 
-			static std::shared_ptr<Material> Build(const ParameterList& materialData);
 			static std::shared_ptr<Material> Get(MaterialType lightingType);
 			static std::shared_ptr<Material> LoadFromFile(const std::filesystem::path& filePath, const MaterialParams& params = MaterialParams());
 			static std::shared_ptr<Material> LoadFromMemory(const void* data, std::size_t size, const MaterialParams& params = MaterialParams());
