@@ -192,7 +192,7 @@ namespace Nz::GL
 		if (m_params.type == ContextType::OpenGL_ES)
 		{
 			// Create OpenGL ES context
-			std::array<Version, 3> supportedGL_ESVersions = {
+			constexpr std::array<Version, 3> supportedGL_ESVersions = {
 				{
 					{ 3, 2 },
 					{ 3, 1 },
@@ -226,7 +226,7 @@ namespace Nz::GL
 		else
 		{
 			// Create OpenGL ES context
-			std::array<Version, 8> supportedGLVersions = {
+			constexpr std::array<Version, 8> supportedGLVersions = {
 				{
 					{ 4, 6 },
 					{ 4, 5 },

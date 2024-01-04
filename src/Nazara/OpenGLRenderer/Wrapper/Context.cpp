@@ -1101,105 +1101,72 @@ namespace Nz::GL
 
 	void Context::HandleDebugMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message) const
 	{
-		std::stringstream ss;
-		ss << "OpenGL debug message (ID: 0x" << id << "):\n";
-		ss << "Sent by context: " << this;
-		ss << "\n-Source: ";
-		switch (source)
+		auto SourceStr = [](GLenum source)
 		{
-			case GL_DEBUG_SOURCE_API:
-				ss << "OpenGL API";
-				break;
+			using namespace std::literals;
 
-			case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
-				ss << "Operating system";
-				break;
+			switch (source)
+			{
+				case GL_DEBUG_SOURCE_API:             return "OpenGL API"sv;
+				case GL_DEBUG_SOURCE_WINDOW_SYSTEM:   return "Operating system"sv;
+				case GL_DEBUG_SOURCE_SHADER_COMPILER: return "Shader compiler"sv;
+				case GL_DEBUG_SOURCE_THIRD_PARTY:     return "Third party"sv;
+				case GL_DEBUG_SOURCE_APPLICATION:     return "Application"sv;
+				case GL_DEBUG_SOURCE_OTHER:           return "Other"sv;
+				default:
+					// Extension type
+					break;
+			}
 
-			case GL_DEBUG_SOURCE_SHADER_COMPILER:
-				ss << "Shader compiler";
-				break;
+			return "Unknown"sv;
+		};
 
-			case GL_DEBUG_SOURCE_THIRD_PARTY:
-				ss << "Third party";
-				break;
-
-			case GL_DEBUG_SOURCE_APPLICATION:
-				ss << "Application";
-				break;
-
-			case GL_DEBUG_SOURCE_OTHER:
-				ss << "Other";
-				break;
-
-			default:
-				// Extension source
-				ss << "Unknown";
-				break;
-		}
-		ss << '\n';
-
-		ss << "-Type: ";
-		switch (type)
+		auto TypeStr = [](GLenum type)
 		{
-			case GL_DEBUG_TYPE_ERROR:
-				ss << "Error";
-				break;
+			using namespace std::literals;
 
-			case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
-				ss << "Deprecated behavior";
-				break;
+			switch (type)
+			{
+				case GL_DEBUG_TYPE_ERROR:               return "Error"sv;
+				case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: return "Deprecated behavior"sv;
+				case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:  return "Undefined behavior"sv;
+				case GL_DEBUG_TYPE_PORTABILITY:         return "Portability"sv;
+				case GL_DEBUG_TYPE_PERFORMANCE:         return "Performance"sv;
+				case GL_DEBUG_TYPE_OTHER:               return "Other"sv;
+				default:
+					// Extension type
+					break;
+			}
 
-			case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
-				ss << "Undefined behavior";
-				break;
+			return "Unknown"sv;
+		};
 
-			case GL_DEBUG_TYPE_PORTABILITY:
-				ss << "Portability";
-				break;
-
-			case GL_DEBUG_TYPE_PERFORMANCE:
-				ss << "Performance";
-				break;
-
-			case GL_DEBUG_TYPE_OTHER:
-				ss << "Other";
-				break;
-
-			default:
-				// Extension type
-				ss << "Unknown";
-				break;
-		}
-		ss << '\n';
-
-		ss << "-Severity: ";
-		switch (severity)
+		auto SeverityStr = [](GLenum severity)
 		{
-			case GL_DEBUG_SEVERITY_HIGH:
-				ss << "High";
-				break;
+			using namespace std::literals;
 
-			case GL_DEBUG_SEVERITY_MEDIUM:
-				ss << "Medium";
-				break;
+			switch (severity)
+			{
+				case GL_DEBUG_SEVERITY_HIGH:         return "High"sv;
+				case GL_DEBUG_SEVERITY_MEDIUM:       return "Medium"sv;
+				case GL_DEBUG_SEVERITY_LOW:          return "Low"sv;
+				case GL_DEBUG_SEVERITY_NOTIFICATION: return "Notification"sv;
+				default:
+					// Extension severity
+					break;
+			}
 
-			case GL_DEBUG_SEVERITY_LOW:
-				ss << "Low";
-				break;
+			return "Unknown"sv;
+		};
 
-			case GL_DEBUG_SEVERITY_NOTIFICATION:
-				ss << "Notification";
-				break;
-
-			default:
-				ss << "Unknown";
-				break;
-		}
-		ss << '\n';
-
-		ss << "Message: " << std::string_view(message, length) << '\n';
-
-		NazaraNotice(ss.str());
+		NazaraNotice(
+R"(OpenGL debug message (ID: {0:#x})
+- Context: {1}
+- Source: {2}
+- Type: {3}
+- Severity: {4}
+- Message: {5}
+)", id, fmt::ptr(this), SourceStr(source), TypeStr(type), SeverityStr(severity), std::string_view(message, length));
 	}
 
 	bool Context::InitializeBlitFramebuffers() const
