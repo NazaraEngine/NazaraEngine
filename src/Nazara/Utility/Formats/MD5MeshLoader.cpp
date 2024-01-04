@@ -213,6 +213,7 @@ namespace Nz
 					// Material
 					ParameterList matData;
 					matData.SetParameter(MaterialData::BaseColorTexturePath, PathToString(baseDir / md5Mesh.shader));
+					matData.SetParameter(MaterialData::Type, "Phong");
 
 					mesh->SetMaterialData(i, std::move(matData));
 

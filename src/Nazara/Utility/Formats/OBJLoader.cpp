@@ -69,6 +69,7 @@ namespace Nz
 					baseColor.a = alphaValue;
 					specularColor.a = alphaValue;
 
+					data.SetParameter(MaterialData::Type, "Phong");
 					data.SetParameter(MaterialData::AmbientColor, ambientColor);
 					data.SetParameter(MaterialData::BaseColor, baseColor);
 					data.SetParameter(MaterialData::Shininess, mtlMat->shininess);

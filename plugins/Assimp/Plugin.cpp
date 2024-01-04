@@ -739,24 +739,47 @@ std::shared_ptr<Nz::SubMesh> ProcessSubMesh(const std::filesystem::path& originP
 
 		ConvertColor(AI_MATKEY_COLOR_SPECULAR, Nz::MaterialData::SpecularColor);
 
-		if (!ConvertTexture(aiTextureType_BASE_COLOR, Nz::MaterialData::BaseColorTexturePath, Nz::MaterialData::BaseColorWrap))
-			ConvertTexture(aiTextureType_DIFFUSE, Nz::MaterialData::BaseColorTexturePath, Nz::MaterialData::BaseColorWrap);
+		if (!ConvertTexture(aiTextureType_BASE_COLOR, Nz::MaterialData::BaseColorTexturePath, Nz::MaterialData::BaseColorTextureWrap))
+			ConvertTexture(aiTextureType_DIFFUSE, Nz::MaterialData::BaseColorTexturePath, Nz::MaterialData::BaseColorTextureWrap);
 
-		ConvertTexture(aiTextureType_DIFFUSE_ROUGHNESS, Nz::MaterialData::RoughnessTexturePath, Nz::MaterialData::RoughnessWrap);
-		ConvertTexture(aiTextureType_EMISSIVE,          Nz::MaterialData::EmissiveTexturePath,  Nz::MaterialData::EmissiveWrap);
-		ConvertTexture(aiTextureType_HEIGHT,            Nz::MaterialData::HeightTexturePath,    Nz::MaterialData::HeightWrap);
-		ConvertTexture(aiTextureType_METALNESS,         Nz::MaterialData::MetallicTexturePath,  Nz::MaterialData::MetallicWrap);
-		ConvertTexture(aiTextureType_NORMALS,           Nz::MaterialData::NormalTexturePath,    Nz::MaterialData::NormalWrap);
-		ConvertTexture(aiTextureType_OPACITY,           Nz::MaterialData::AlphaTexturePath,     Nz::MaterialData::AlphaWrap);
-		ConvertTexture(aiTextureType_SPECULAR,          Nz::MaterialData::SpecularTexturePath,  Nz::MaterialData::SpecularWrap);
+		ConvertTexture(aiTextureType_DIFFUSE_ROUGHNESS, Nz::MaterialData::RoughnessTexturePath, Nz::MaterialData::RoughnessTextureWrap);
+		ConvertTexture(aiTextureType_EMISSIVE,          Nz::MaterialData::EmissiveTexturePath,  Nz::MaterialData::EmissiveTextureWrap);
+		ConvertTexture(aiTextureType_HEIGHT,            Nz::MaterialData::HeightTexturePath,    Nz::MaterialData::HeightTextureWrap);
+		ConvertTexture(aiTextureType_METALNESS,         Nz::MaterialData::MetallicTexturePath,  Nz::MaterialData::MetallicTextureWrap);
+		ConvertTexture(aiTextureType_NORMALS,           Nz::MaterialData::NormalTexturePath,    Nz::MaterialData::NormalTextureWrap);
+		ConvertTexture(aiTextureType_OPACITY,           Nz::MaterialData::AlphaTexturePath,     Nz::MaterialData::AlphaTextureWrap);
+		ConvertTexture(aiTextureType_SPECULAR,          Nz::MaterialData::SpecularTexturePath,  Nz::MaterialData::SpecularTextureWrap);
 
-		aiString name;
-		if (aiGetMaterialString(aiMat, AI_MATKEY_NAME, &name) == aiReturn_SUCCESS)
+		if (aiString name; aiGetMaterialString(aiMat, AI_MATKEY_NAME, &name) == aiReturn_SUCCESS)
 			matData.SetParameter(Nz::MaterialData::Name, std::string(name.data, name.length));
 
-		int iValue;
-		if (aiGetMaterialInteger(aiMat, AI_MATKEY_TWOSIDED, &iValue) == aiReturn_SUCCESS)
+		if (int iValue; aiGetMaterialInteger(aiMat, AI_MATKEY_TWOSIDED, &iValue) == aiReturn_SUCCESS)
 			matData.SetParameter(Nz::MaterialData::FaceCulling, !iValue);
+
+		if (int shadingMode; aiGetMaterialInteger(aiMat, AI_MATKEY_SHADING_MODEL, &shadingMode) == aiReturn_SUCCESS)
+		{
+			switch (shadingMode)
+			{
+				case aiShadingMode_Flat:
+				case aiShadingMode_Gouraud:
+				case aiShadingMode_Phong:
+				case aiShadingMode_Blinn:
+					matData.SetParameter(Nz::MaterialData::Type, "Phong");
+					break;
+
+				case aiShadingMode_CookTorrance:
+				case aiShadingMode_PBR_BRDF:
+					matData.SetParameter(Nz::MaterialData::Type, "PhysicallyBased");
+					break;
+
+				case aiShadingMode_NoShading:
+				default:
+					matData.SetParameter(Nz::MaterialData::Type, "Basic");
+					break;
+			}
+		}
+		else
+			matData.SetParameter(Nz::MaterialData::Type, "Phong");
 
 		matIt = materialData.insert(std::make_pair(meshData->mMaterialIndex, std::make_pair(Nz::UInt32(materialData.size()), std::move(matData)))).first;
 	}

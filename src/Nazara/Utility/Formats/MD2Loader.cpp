@@ -90,6 +90,7 @@ namespace Nz
 
 						ParameterList matData;
 						matData.SetParameter(MaterialData::BaseColorTexturePath, PathToString(baseDir / skin));
+						matData.SetParameter(MaterialData::Type, "Phong");
 
 						mesh->SetMaterialData(i, std::move(matData));
 					}

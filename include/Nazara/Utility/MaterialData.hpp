@@ -12,8 +12,9 @@ namespace Nz
 	struct MaterialData
 	{
 		static constexpr const char* AlphaTest                = "MatAlphaTest";
+		static constexpr const char* AlphaTextureFilter       = "MatAlphaTextureFilter";
 		static constexpr const char* AlphaTexturePath         = "MatAlphaTexturePath";
-		static constexpr const char* AlphaWrap                = "MatAlphaWrap";
+		static constexpr const char* AlphaTextureWrap         = "MatAlphaWTexturerap";
 		static constexpr const char* AlphaThreshold           = "MatAlphaThreshold";
 		static constexpr const char* AmbientColor             = "MatAmbientColor";
 		static constexpr const char* BackFaceStencilCompare   = "MatBackFaceStencilCompare";
@@ -23,8 +24,9 @@ namespace Nz
 		static constexpr const char* BackFaceStencilReference = "MatBackFaceStencilReference";
 		static constexpr const char* BackFaceStencilZFail     = "MatBackFaceStencilZFail";
 		static constexpr const char* BaseColor                = "MatBaseColor";
+		static constexpr const char* BaseColorTextureFilter   = "MatBaseColorTextureFilter";
 		static constexpr const char* BaseColorTexturePath     = "MatBaseColorTexturePath";
-		static constexpr const char* BaseColorWrap            = "MatBaseColorWrap";
+		static constexpr const char* BaseColorTextureWrap     = "MatBaseColorTextureWrap";
 		static constexpr const char* Blending                 = "MatBlending";
 		static constexpr const char* BlendModeAlpha           = "MatBlendModeAlpha";
 		static constexpr const char* BlendModeColor           = "MatBlendModeColor";
@@ -38,32 +40,34 @@ namespace Nz
 		static constexpr const char* DepthFunc                = "MatDepthfunc";
 		static constexpr const char* DepthSorting             = "MatDepthSorting";
 		static constexpr const char* DepthWrite               = "MatDepthWrite";
-		static constexpr const char* DiffuseAnisotropyLevel   = "MatDiffuseAnisotropyLevel";
-		static constexpr const char* DiffuseFilter            = "MatDiffuseFilter";
+		static constexpr const char* EmissiveTextureFilter    = "MatEmissiveTextureFilter";
 		static constexpr const char* EmissiveTexturePath      = "MatEmissiveTexturePath";
-		static constexpr const char* EmissiveWrap             = "MatEmissiveWrap";
+		static constexpr const char* EmissiveTextureWrap      = "MatEmissiveTextureWrap";
 		static constexpr const char* FaceCulling              = "MatFaceCulling";
 		static constexpr const char* FaceFilling              = "MatFaceFilling";
 		static constexpr const char* FilePath                 = "MatFilePath";
+		static constexpr const char* HeightTextureFilter      = "MatHeightTextureFilter";
 		static constexpr const char* HeightTexturePath        = "MatHeightTexturePath";
-		static constexpr const char* HeightWrap               = "MatHeightWrap";
-		static constexpr const char* Lighting                 = "MatLighting";
+		static constexpr const char* HeightTextureWrap        = "MatHeightTextureWrap";
 		static constexpr const char* LineWidth                = "MatLineWidth";
+		static constexpr const char* MetallicTextureFilter    = "MatMetallicTextureFilter";
 		static constexpr const char* MetallicTexturePath      = "MatMetallicTexturePath";
-		static constexpr const char* MetallicWrap             = "MatMetallicWrap";
+		static constexpr const char* MetallicTextureWrap      = "MatMetallicTextureWrap";
 		static constexpr const char* Name                     = "MatName";
+		static constexpr const char* NormalTextureFilter      = "MatNormalTextureFilter";
 		static constexpr const char* NormalTexturePath        = "MatNormalTexturePath";
-		static constexpr const char* NormalWrap               = "MatNormalTextureWrap";
+		static constexpr const char* NormalTextureWrap        = "MatNormalTextureWrap";
 		static constexpr const char* PointSize                = "MatPointSize";
+		static constexpr const char* RoughnessTextureFilter   = "MatRoughnessTextureFilter";
 		static constexpr const char* RoughnessTexturePath     = "MatRoughnessTexturePath";
-		static constexpr const char* RoughnessWrap            = "MatRoughnessWrap";
+		static constexpr const char* RoughnessTextureWrap     = "MatRoughnessTextureWrap";
 		static constexpr const char* ScissorTest              = "MatScissorTest";
 		static constexpr const char* Shininess                = "MatShininess";
 		static constexpr const char* SpecularAnisotropyLevel  = "MatSpecularAnisotropyLevel";
 		static constexpr const char* SpecularColor            = "MatSpecularColor";
-		static constexpr const char* SpecularFilter           = "MatSpecularFilter";
+		static constexpr const char* SpecularTextureFilter    = "MatSpecularTextureFilter";
 		static constexpr const char* SpecularTexturePath      = "MatSpecularTexturePath";
-		static constexpr const char* SpecularWrap             = "MatSpecularWrap";
+		static constexpr const char* SpecularTextureWrap      = "MatSpecularTextureWrap";
 		static constexpr const char* StencilCompare           = "MatStencilCompare";
 		static constexpr const char* StencilFail              = "MatStencilFail";
 		static constexpr const char* StencilMask              = "MatStencilMask";
@@ -72,6 +76,7 @@ namespace Nz
 		static constexpr const char* StencilTest              = "MatStencilTest";
 		static constexpr const char* StencilZFail             = "MatStencilZFail";
 		static constexpr const char* Transform                = "MatTransform";
+		static constexpr const char* Type                     = "MatType";
 		static constexpr const char* VertexColor              = "MatVertexColor";
 	};
 }
