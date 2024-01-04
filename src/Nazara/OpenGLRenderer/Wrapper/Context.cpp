@@ -36,7 +36,7 @@ namespace Nz::GL
 		{
 			static auto WrapErrorHandling()
 			{
-				return [](Args... args) -> Ret
+				return [](Args... args) -> Ret NAZARA_GL_CALLCONVENTION
 				{
 					const Context* context = s_currentGLContext; //< pay TLS cost once
 					assert(context);
