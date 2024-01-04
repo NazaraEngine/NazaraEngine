@@ -22,7 +22,7 @@ namespace Nz
 			~NodeComponent() = default;
 
 			void SetParent(entt::handle entity, bool keepDerived = false);
-			void SetParentJoint(entt::handle entity, const std::string& jointName, bool keepDerived = false);
+			void SetParentJoint(entt::handle entity, std::string_view jointName, bool keepDerived = false);
 			void SetParentJoint(entt::handle entity, std::size_t jointIndex, bool keepDerived = false);
 			using Node::SetParent;
 

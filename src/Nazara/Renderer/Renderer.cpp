@@ -211,7 +211,7 @@ namespace Nz
 	void Renderer::Config::Override(const CommandLineParameters& parameters)
 	{
 		std::string_view value;
-		auto GetParameter = [&](const std::string& paramName, const char* envName, std::string_view* var)
+		auto GetParameter = [&](std::string_view paramName, const char* envName, std::string_view* var)
 		{
 			if (parameters.GetParameter(paramName, var))
 				return true;

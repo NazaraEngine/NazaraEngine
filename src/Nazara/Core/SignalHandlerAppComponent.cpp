@@ -6,6 +6,7 @@
 #include <Nazara/Core/ApplicationBase.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
+#include <string>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 #include <Windows.h>
@@ -27,16 +28,14 @@ namespace Nz
 		{
 			switch (ctrlType)
 			{
-				case CTRL_C_EVENT: HandleInterruptSignal("CTRL_C"); break;
-				case CTRL_BREAK_EVENT: HandleInterruptSignal("CTRL_BREAK"); break;
-				case CTRL_CLOSE_EVENT: HandleInterruptSignal("CTRL_CLOSE"); break;
-				case CTRL_LOGOFF_EVENT: HandleInterruptSignal("CTRL_LOGOFF"); break;
+				case CTRL_C_EVENT:        HandleInterruptSignal("CTRL_C"); break;
+				case CTRL_BREAK_EVENT:    HandleInterruptSignal("CTRL_BREAK"); break;
+				case CTRL_CLOSE_EVENT:    HandleInterruptSignal("CTRL_CLOSE"); break;
+				case CTRL_LOGOFF_EVENT:   HandleInterruptSignal("CTRL_LOGOFF"); break;
 				case CTRL_SHUTDOWN_EVENT: HandleInterruptSignal("CTRL_SHUTDOWN"); break;
 				default:
-				{
-					std::string signalName = "<unknown CTRL signal " + std::to_string(ctrlType) + ">";
-					HandleInterruptSignal(signalName.c_str());
-				}
+					HandleInterruptSignal(Format("<unknown CTRL signal {0}>", ctrlType));
+					break;
 			}
 
 			return TRUE;
@@ -61,10 +60,10 @@ namespace Nz
 			NazaraError("failed to install interruption signal handlers");
 	}
 
-	void SignalHandlerAppComponent::HandleInterruptSignal(const char* signalName)
+	void SignalHandlerAppComponent::HandleInterruptSignal(std::string_view signalName)
 	{
 		assert(ApplicationBase::Instance());
-		NazaraNotice("received interruption signal " + std::string(signalName) + ", exiting...");
+		NazaraNotice("received interruption signal {0}, exiting...", signalName);
 
 		ApplicationBase::Instance()->Quit();
 	}

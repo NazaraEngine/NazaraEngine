@@ -18,7 +18,7 @@ namespace Nz
 		Node::SetParent(nodeComponent, keepDerived);
 	}
 
-	void NodeComponent::SetParentJoint(entt::handle entity, const std::string& jointName, bool keepDerived)
+	void NodeComponent::SetParentJoint(entt::handle entity, std::string_view jointName, bool keepDerived)
 	{
 		SkeletonComponentBase* skeletonComponent = entity.try_get<SkeletonComponent>();
 		if (!skeletonComponent)

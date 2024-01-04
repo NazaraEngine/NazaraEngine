@@ -9,6 +9,7 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/ApplicationComponent.hpp>
+#include <string_view>
 
 namespace Nz
 {
@@ -26,7 +27,7 @@ namespace Nz
 		private:
 			void InstallSignalHandler();
 
-			static void HandleInterruptSignal(const char* signalName);
+			static void HandleInterruptSignal(std::string_view signalName);
 	};
 }
 

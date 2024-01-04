@@ -20,7 +20,7 @@ namespace Nz
 			SkeletonComponentBase(SkeletonComponentBase&&) noexcept = default;
 			~SkeletonComponentBase() = default;
 
-			inline std::size_t FindJointByName(const std::string& jointName) const;
+			inline std::size_t FindJointByName(std::string_view jointName) const;
 
 			inline const Joint& GetAttachedJoint(std::size_t jointIndex) const;
 			inline const std::shared_ptr<Skeleton>& GetSkeleton() const;

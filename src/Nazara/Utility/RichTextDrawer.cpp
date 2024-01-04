@@ -376,7 +376,7 @@ namespace Nz
 			return false;
 	};
 
-	void RichTextDrawer::GenerateGlyphs(const Font& font, const Color& color, TextStyleFlags style, unsigned int characterSize, const Color& outlineColor, float characterSpacingOffset, float lineSpacingOffset, float outlineThickness, const std::string& text) const
+	void RichTextDrawer::GenerateGlyphs(const Font& font, const Color& color, TextStyleFlags style, unsigned int characterSize, const Color& outlineColor, float characterSpacingOffset, float lineSpacingOffset, float outlineThickness, std::string_view text) const
 	{
 		if (text.empty())
 			return;

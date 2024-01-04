@@ -11,7 +11,7 @@ namespace Nz
 	{
 	}
 
-	inline std::size_t SkeletonComponentBase::FindJointByName(const std::string& jointName) const
+	inline std::size_t SkeletonComponentBase::FindJointByName(std::string_view jointName) const
 	{
 		return m_referenceSkeleton->GetJointIndex(jointName);
 	}

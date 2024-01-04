@@ -104,7 +104,7 @@ namespace Nz
 			inline void ConnectFontSlots();
 			inline void DisconnectFontSlots();
 			bool GenerateGlyph(Glyph& glyph, char32_t character, float outlineThickness, bool lineWrap, const Font& font, const Color& color, TextStyleFlags style, float lineSpacingOffset, unsigned int characterSize, int renderOrder, int* advance) const;
-			void GenerateGlyphs(const Font& font, const Color& color, TextStyleFlags style, unsigned int characterSize, const Color& outlineColor, float characterSpacingOffset, float lineSpacingOffset, float outlineThickness, const std::string& text) const;
+			void GenerateGlyphs(const Font& font, const Color& color, TextStyleFlags style, unsigned int characterSize, const Color& outlineColor, float characterSpacingOffset, float lineSpacingOffset, float outlineThickness, std::string_view text) const;
 			inline float GetLineHeight(const Block& block) const;
 			inline float GetLineHeight(float lineSpacingOffset, const Font::SizeInfo& sizeInfo) const;
 			inline std::size_t HandleFontAddition(const std::shared_ptr<Font>& font);
