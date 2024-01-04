@@ -9,9 +9,17 @@
 
 // no include reordering
 
+#include <NazaraUtils/Prerequisites.hpp>
+
 #define GL_GLES_PROTOTYPES 0
 #include <GLES3/gl32.h>
 #include <GLES2/gl2ext.h>
+
+#ifdef NAZARA_COMPILER_MINGW
+	#define NAZARA_GL_CALLCONVENTION GL_APIENTRY // required on MinGW 32bits
+#else
+	#define NAZARA_GL_CALLCONVENTION
+#endif
 
 // Define some OpenGL (not ES) defines/function types
 #define GL_POINT                           0x1B00

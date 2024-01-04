@@ -310,7 +310,7 @@ namespace Nz::GL
 			if (!fallbacks.glClearDepth)
 				return false;
 
-			glClearDepthf = [](GLfloat depth)
+			glClearDepthf = [](GLfloat depth) NAZARA_GL_CALLCONVENTION
 			{
 				const EGLContextBase* context = static_cast<const EGLContextBase*>(GetCurrentContext());
 				assert(context);
