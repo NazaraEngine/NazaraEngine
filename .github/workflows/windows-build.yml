@@ -25,7 +25,7 @@ jobs:
         mode: [debug, releasedbg]
 
     runs-on: ${{ matrix.os }}
-    if: "!contains(github.event.head_commit.message, 'ci skip')"
+    if: ${{ !contains(github.event.head_commit.message, 'ci skip') }}
 
     steps:
     - name: Get current date as package key
@@ -57,8 +57,9 @@ jobs:
       run: echo "hash=$(xmake l utils.ci.packageskey)" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
 
     # Cache xmake dependencies
-    - name: Retrieve cached xmake dependencies
-      uses: actions/cache@v3
+    - name: Restore cached xmake dependencies
+      id: restore-depcache
+      uses: actions/cache/restore@v3
       with:
         path: ${{ env.XMAKE_GLOBALDIR }}\.xmake\packages
         key: MSVC-${{ matrix.arch }}-${{ matrix.mode }}-${{ steps.dep_hash.outputs.hash }}-W${{ steps.cache_key.outputs.key }}
@@ -66,6 +67,14 @@ jobs:
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
       run: xmake config --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --ccache=n --ffmpeg=y --shadernodes=y --tests=y --unitybuild=y --yes
+
+    # Save dependencies
+    - name: Save cached xmake dependencies
+      if: ${{ !steps.restore-depcache.outputs.cache-hit }}
+      uses: actions/cache/save@v3
+      with:
+        path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
+        key: ${{ steps.restore-depcache.outputs.cache-primary-key }}
 
     # Build the engine
     - name: Build Nazara
