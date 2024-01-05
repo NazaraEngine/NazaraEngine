@@ -13,6 +13,11 @@
 
 namespace Nz
 {
+	bool ModelParams::IsValid() const
+	{
+		return mesh.IsValid();
+	}
+
 	Model::Model(std::shared_ptr<GraphicalMesh> graphicalMesh) :
 	m_graphicalMesh(std::move(graphicalMesh))
 	{
@@ -93,5 +98,29 @@ namespace Nz
 	const std::shared_ptr<RenderBuffer>& Model::GetVertexBuffer(std::size_t subMeshIndex) const
 	{
 		return m_graphicalMesh->GetVertexBuffer(subMeshIndex);
+	}
+
+	std::shared_ptr<Model> Model::LoadFromFile(const std::filesystem::path& filePath, const ModelParams& params)
+	{
+		Graphics* graphics = Graphics::Instance();
+		NazaraAssert(graphics, "Graphics module has not been initialized");
+
+		return graphics->GetModelLoader().LoadFromFile(filePath, params);
+	}
+
+	std::shared_ptr<Model> Model::LoadFromMemory(const void* data, std::size_t size, const ModelParams& params)
+	{
+		Graphics* graphics = Graphics::Instance();
+		NazaraAssert(graphics, "Graphics module has not been initialized");
+
+		return graphics->GetModelLoader().LoadFromMemory(data, size, params);
+	}
+
+	std::shared_ptr<Model> Model::LoadFromStream(Stream& stream, const ModelParams& params)
+	{
+		Graphics* graphics = Graphics::Instance();
+		NazaraAssert(graphics, "Graphics module has not been initialized");
+
+		return graphics->GetModelLoader().LoadFromStream(stream, params);
 	}
 }

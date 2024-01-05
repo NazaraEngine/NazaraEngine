@@ -71,6 +71,16 @@ namespace Nz
 		return m_materialLoader;
 	}
 
+	inline ModelLoader& Graphics::GetModelLoader()
+	{
+		return m_modelLoader;
+	}
+
+	inline const ModelLoader& Graphics::GetModelLoader() const
+	{
+		return m_modelLoader;
+	}
+
 	inline PipelinePassListLoader& Graphics::GetPipelinePassListLoader()
 	{
 		return m_pipelinePassListLoader;

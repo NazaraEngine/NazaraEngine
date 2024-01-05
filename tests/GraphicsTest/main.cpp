@@ -28,51 +28,28 @@ int main()
 	Nz::Application<Nz::Graphics> app(rendererConfig);
 	auto& windowingApp = app.AddComponent<Nz::AppWindowingComponent>();
 
-	Nz::MeshParams meshParams;
-	meshParams.center = true;
-	meshParams.vertexRotation = Nz::EulerAnglesf(0.f, -90.f, 0.f);
-	meshParams.vertexScale = Nz::Vector3f(0.002f);
-	meshParams.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_Normal_UV);
-
 	std::shared_ptr<Nz::RenderDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
 
 	std::string windowTitle = "Graphics Test";
 	Nz::Window& window = windowingApp.CreateWindow(Nz::VideoMode(1280, 720), windowTitle);
 	Nz::WindowSwapchain windowSwapchain(device, window);
 
-	std::shared_ptr<Nz::Mesh> spaceshipMesh = Nz::Mesh::LoadFromFile(resourceDir / "Spaceship/spaceship.obj", meshParams);
-	if (!spaceshipMesh)
+	Nz::ModelParams modelParams;
+	modelParams.mesh.center = true;
+	modelParams.mesh.vertexRotation = Nz::EulerAnglesf(0.f, -90.f, 0.f);
+	modelParams.mesh.vertexScale = Nz::Vector3f(0.002f);
+	modelParams.mesh.vertexDeclaration = Nz::VertexDeclaration::Get(Nz::VertexLayout::XYZ_Normal_UV);
+
+	std::shared_ptr<Nz::Model> spaceshipModel = Nz::Model::LoadFromFile(resourceDir / "Spaceship/spaceship.obj", modelParams);
+	if (!spaceshipModel)
 	{
 		NazaraError("failed to load model");
 		return __LINE__;
 	}
 
-	std::shared_ptr<Nz::GraphicalMesh> gfxMesh = Nz::GraphicalMesh::BuildFromMesh(*spaceshipMesh);
-
-	// Texture
-	std::shared_ptr<Nz::Image> diffuseImage = Nz::Image::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png");
-	if (!diffuseImage || !diffuseImage->Convert(Nz::PixelFormat::RGBA8_SRGB))
-	{
-		NazaraError("failed to load image");
-		return __LINE__;
-	}
-
-	Nz::TextureParams texParams;
-	texParams.renderDevice = device;
-	texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
-
-	std::shared_ptr<Nz::Texture> diffuseTexture = Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams);
-
-	std::shared_ptr<Nz::MaterialInstance> materialInstance = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Basic);
-	materialInstance->SetTextureProperty(0, diffuseTexture);
-	materialInstance->SetValueProperty(0, Nz::Color::White());
-
+	std::shared_ptr<Nz::MaterialInstance> materialInstance = spaceshipModel->GetMaterial(0);
 	std::shared_ptr<Nz::MaterialInstance> materialInstance2 = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Basic);
 	materialInstance2->SetValueProperty(0, Nz::Color::Green());
-
-	Nz::Model model(std::move(gfxMesh));
-	for (std::size_t i = 0; i < model.GetSubMeshCount(); ++i)
-		model.SetMaterial(i, materialInstance);
 
 	Nz::Vector2ui windowSize = window.GetSize();
 
@@ -97,8 +74,8 @@ int main()
 	[[maybe_unused]] std::size_t cameraIndex = framePipeline.RegisterViewer(&camera, 0);
 	std::size_t worldInstanceIndex1 = framePipeline.RegisterWorldInstance(modelInstance);
 	std::size_t worldInstanceIndex2 = framePipeline.RegisterWorldInstance(modelInstance2);
-	framePipeline.RegisterRenderable(worldInstanceIndex1, Nz::FramePipeline::NoSkeletonInstance, &model, 0xFFFFFFFF, scissorBox);
-	framePipeline.RegisterRenderable(worldInstanceIndex2, Nz::FramePipeline::NoSkeletonInstance, &model, 0xFFFFFFFF, scissorBox);
+	framePipeline.RegisterRenderable(worldInstanceIndex1, Nz::FramePipeline::NoSkeletonInstance, spaceshipModel.get(), 0xFFFFFFFF, scissorBox);
+	framePipeline.RegisterRenderable(worldInstanceIndex2, Nz::FramePipeline::NoSkeletonInstance, spaceshipModel.get(), 0xFFFFFFFF, scissorBox);
 
 	std::unique_ptr<Nz::SpotLight> light = std::make_unique<Nz::SpotLight>();
 	light->UpdateInnerAngle(Nz::DegreeAnglef(15.f));
@@ -128,13 +105,13 @@ int main()
 			case Nz::WindowEventType::KeyPressed:
 				if (event.key.virtualKey == Nz::Keyboard::VKey::A)
 				{
-					for (std::size_t i = 0; i < model.GetSubMeshCount(); ++i)
-						model.SetMaterial(i, materialInstance);
+					for (std::size_t i = 0; i < spaceshipModel->GetSubMeshCount(); ++i)
+						spaceshipModel->SetMaterial(i, materialInstance);
 				}
 				else if (event.key.virtualKey == Nz::Keyboard::VKey::B)
 				{
-					for (std::size_t i = 0; i < model.GetSubMeshCount(); ++i)
-						model.SetMaterial(i, materialInstance2);
+					for (std::size_t i = 0; i < spaceshipModel->GetSubMeshCount(); ++i)
+						spaceshipModel->SetMaterial(i, materialInstance2);
 				}
 				else if (event.key.virtualKey == Nz::Keyboard::VKey::Space)
 				{
@@ -216,7 +193,7 @@ int main()
 
 		for (const Nz::WorldInstancePtr& worldInstance : { modelInstance, modelInstance2 })
 		{
-			Nz::Boxf aabb = model.GetAABB();
+			Nz::Boxf aabb = spaceshipModel->GetAABB();
 			aabb.Transform(worldInstance->GetWorldMatrix());
 
 			framePipeline.GetDebugDrawer().DrawBox(aabb, Nz::Color::Green());

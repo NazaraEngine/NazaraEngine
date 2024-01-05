@@ -15,6 +15,7 @@
 #include <Nazara/Graphics/PipelinePassList.hpp>
 #include <Nazara/Graphics/PostProcessPipelinePass.hpp>
 #include <Nazara/Graphics/PredefinedMaterials.hpp>
+#include <Nazara/Graphics/Formats/ModelMeshLoader.hpp>
 #include <Nazara/Graphics/Formats/PipelinePassListLoader.hpp>
 #include <Nazara/Graphics/Formats/TextureLoader.hpp>
 #include <Nazara/Utility/Font.hpp>
@@ -164,6 +165,7 @@ namespace Nz
 		Font::SetDefaultAtlas(std::make_shared<GuillotineTextureAtlas>(*m_renderDevice));
 
 		m_materialInstanceLoader.RegisterLoader(Loaders::GetMaterialInstanceLoader_Texture()); // texture to material loader
+		m_modelLoader.RegisterLoader(Loaders::GetModelLoader_Mesh());
 		m_pipelinePassListLoader.RegisterLoader(Loaders::GetPipelinePassListLoader()); // texture to material loader
 	}
 

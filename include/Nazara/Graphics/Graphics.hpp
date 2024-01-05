@@ -13,6 +13,7 @@
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/MaterialPassRegistry.hpp>
+#include <Nazara/Graphics/Model.hpp>
 #include <Nazara/Graphics/PipelinePassList.hpp>
 #include <Nazara/Graphics/TextureSamplerCache.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
@@ -55,6 +56,8 @@ namespace Nz
 			inline const MaterialInstanceLoader& GetMaterialInstanceLoader() const;
 			inline MaterialLoader& GetMaterialLoader();
 			inline const MaterialLoader& GetMaterialLoader() const;
+			inline ModelLoader& GetModelLoader();
+			inline const ModelLoader& GetModelLoader() const;
 			inline PipelinePassListLoader& GetPipelinePassListLoader();
 			inline const PipelinePassListLoader& GetPipelinePassListLoader() const;
 			inline PixelFormat GetPreferredDepthFormat() const;
@@ -117,6 +120,7 @@ namespace Nz
 			MaterialInstanceLoader m_materialInstanceLoader;
 			MaterialLoader m_materialLoader;
 			MaterialPassRegistry m_materialPassRegistry;
+			ModelLoader m_modelLoader;
 			PipelinePassListLoader m_pipelinePassListLoader;
 			PixelFormat m_preferredDepthFormat;
 			PixelFormat m_preferredDepthStencilFormat;

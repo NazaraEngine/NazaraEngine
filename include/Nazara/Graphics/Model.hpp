@@ -8,6 +8,12 @@
 #define NAZARA_GRAPHICS_MODEL_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/ObjectLibrary.hpp>
+#include <Nazara/Core/Resource.hpp>
+#include <Nazara/Core/ResourceLoader.hpp>
+#include <Nazara/Core/ResourceManager.hpp>
+#include <Nazara/Core/ResourceParameters.hpp>
+#include <Nazara/Core/ResourceSaver.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/GraphicalMesh.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
@@ -18,11 +24,26 @@
 
 namespace Nz
 {
-	class Material;
+	struct NAZARA_GRAPHICS_API ModelParams : ResourceParameters
+	{
+		bool loadMaterials = true;
+		MeshParams mesh;
 
-	class NAZARA_GRAPHICS_API Model : public InstancedRenderable
+		bool IsValid() const;
+	};
+
+	class Model;
+
+	using ModelLibrary = ObjectLibrary<Model>;
+	using ModelLoader = ResourceLoader<Model, ModelParams>;
+	using ModelManager = ResourceManager<Model, ModelParams>;
+	using ModelSaver = ResourceSaver<Model, ModelParams>;
+
+	class NAZARA_GRAPHICS_API Model : public InstancedRenderable, public Resource
 	{
 		public:
+			using Params = ModelParams;
+
 			Model(std::shared_ptr<GraphicalMesh> graphicalMesh);
 			Model(const Model&) = delete;
 			Model(Model&&) noexcept = default;
@@ -42,6 +63,10 @@ namespace Nz
 
 			Model& operator=(const Model&) = delete;
 			Model& operator=(Model&&) noexcept = default;
+
+			static std::shared_ptr<Model> LoadFromFile(const std::filesystem::path& filePath, const ModelParams& params = ModelParams());
+			static std::shared_ptr<Model> LoadFromMemory(const void* data, std::size_t size, const ModelParams& params = ModelParams());
+			static std::shared_ptr<Model> LoadFromStream(Stream& stream, const ModelParams& params = ModelParams());
 
 		private:
 			struct SubMeshData
