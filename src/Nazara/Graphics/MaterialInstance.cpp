@@ -386,7 +386,10 @@ namespace Nz
 		{
 			if (auto value = materialData.GetStringViewParameter(paramKey))
 			{
-				matInstance->SetTextureProperty(matKey, Texture::LoadFromFile(Utf8Path(value.GetValue())));
+				TextureParams texParams;
+				texParams.renderDevice = Graphics::Instance()->GetRenderDevice();
+
+				matInstance->SetTextureProperty(matKey, Texture::LoadFromFile(Utf8Path(value.GetValue()), texParams));
 			}
 
 			Nz::TextureSamplerInfo samplerInfo;
