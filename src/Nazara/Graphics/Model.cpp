@@ -5,6 +5,7 @@
 #include <Nazara/Graphics/Model.hpp>
 #include <Nazara/Graphics/ElementRendererRegistry.hpp>
 #include <Nazara/Graphics/GraphicalMesh.hpp>
+#include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/RenderSubmesh.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
