@@ -220,6 +220,7 @@ package("ffmpeg")
             os.vrun("make install")
         else
             if package:is_cross() then
+                table.insert(configs, "--enable-cross-compile")
                 table.insert(configs, "--arch=" .. package:targetarch())
                 configs.host = "" -- prevents xmake to add a --host=xx parameter
             end
