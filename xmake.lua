@@ -221,7 +221,7 @@ package("ffmpeg")
         else
             if package:is_cross() then
                 table.insert(configs, "--arch=" .. package:targetarch())
-                table.insert(configs, "--target-os=" .. package:targetos())
+                configs.host = "" -- prevents xmake to add a --host=xx parameter
             end
             import("package.tools.autoconf").install(package, configs)
         end
