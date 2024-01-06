@@ -21,18 +21,18 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        kind: [shared, static]
+        os: [macOS-latest]
         confs:
-        - { runner: macOS-latest, arch: x86_64, mode: debug, archive: yes }
-        - { runner: macOS-latest, arch: x86_64, mode: debug, config: --asan=y, archive: false, cache_key: -asan }
-        - { runner: macOS-latest, arch: x86_64, mode: debug, config: --lsan=y, archive: false }
-        - { runner: macOS-latest, arch: x86_64, mode: debug, config: --tsan=y, archive: false }
-        - { runner: macOS-latest, arch: x86_64, mode: releasedbg, archive: yes }
-        - { runner: macOS-14,     arch: arm64,  mode: debug, archive: yes }
-        - { runner: macOS-14,     arch: arm64,  mode: debug, config: --asan=y, archive: false, cache_key: -asan }
-        - { runner: macOS-14,     arch: arm64,  mode: debug, config: --lsan=y, archive: false }
-        - { runner: macOS-14,     arch: arm64,  mode: debug, config: --tsan=y, archive: false }
-        - { runner: macOS-14,     arch: arm64,  mode: releasedbg, archive: yes }
+        - { runner: macOS-latest, arch: x86_64, mode: debug,      config: --shadernodes=y }
+        - { runner: macOS-latest, arch: x86_64, mode: debug,      config: --shadernodes=y --asan=y }
+        - { runner: macOS-latest, arch: x86_64, mode: debug,      config: --shadernodes=y --lsan=y }
+        - { runner: macOS-latest, arch: x86_64, mode: debug,      config: --shadernodes=y --tsan=y }
+        - { runner: macOS-latest, arch: x86_64, mode: releasedbg, config: --shadernodes=y  }
+        - { runner: macOS-14,     arch: arm64,  mode: debug,      config: "" }
+        - { runner: macOS-14,     arch: arm64,  mode: debug,      config: --asan=y }
+        - { runner: macOS-14,     arch: arm64,  mode: debug,      config: --lsan=y }
+        - { runner: macOS-14,     arch: arm64,  mode: debug,      config: --tsan=y }
+        - { runner: macOS-14,     arch: arm64,  mode: releasedbg, config: "" }
 
     runs-on: ${{ matrix.confs.runner }}
     if: ${{ !contains(github.event.head_commit.message, 'ci skip') }}
