@@ -123,6 +123,7 @@ namespace Nz
 				return false;
 			}
 
+			case WindowBackend::Android: systemHandle = handle.android.window;     break;
 			case WindowBackend::Cocoa:   systemHandle = handle.cocoa.window;       break;
 			case WindowBackend::X11:     systemHandle = BitCast<void*>(std::uintptr_t(handle.x11.window)); break;
 			case WindowBackend::Windows: systemHandle = handle.windows.window;     break;
@@ -221,6 +222,14 @@ namespace Nz
 
 		switch (wmInfo.subsystem)
 		{
+#if defined(SDL_VIDEO_DRIVER_ANDROID)
+			case SDL_SYSWM_ANDROID:
+			{
+				handle.type = WindowBackend::Android;
+				handle.android.window = wmInfo.info.android.window;
+				break;
+			}
+#endif
 #if defined(SDL_VIDEO_DRIVER_COCOA)
 			case SDL_SYSWM_COCOA:
 			{

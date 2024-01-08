@@ -7,6 +7,10 @@
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/EGL/EGLContextBase.hpp>
 
+#ifdef NAZARA_PLATFORM_ANDROID
+#include <Nazara/OpenGLRenderer/Wrapper/Android/EGLContextAndroid.hpp>
+#endif
+
 #ifdef NAZARA_PLATFORM_LINUX
 #include <Nazara/OpenGLRenderer/Wrapper/Linux/EGLContextX11.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Linux/EGLContextWayland.hpp>
@@ -165,7 +169,13 @@ namespace Nz::GL
 		{
 			case WindowBackend::Invalid:
 			case WindowBackend::Cocoa: //< TODO?
-			case WindowBackend::Web: //< TODO?
+			case WindowBackend::Web: //< Handled separately
+				break;
+
+			case WindowBackend::Android:
+#ifdef NAZARA_PLATFORM_ANDROID
+				context = std::make_shared<EGLContextAndroid>(device, *this);
+#endif
 				break;
 
 			case WindowBackend::X11:

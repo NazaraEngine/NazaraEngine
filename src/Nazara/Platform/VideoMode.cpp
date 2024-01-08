@@ -3,9 +3,15 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Platform/VideoMode.hpp>
-#include <Nazara/Platform/SDL2/VideoModeImpl.hpp>
 #include <algorithm>
 #include <functional>
+
+#ifdef NAZARA_PLATFORM_ANDROID
+#include <Nazara/Platform/Android/VideoModeImpl.hpp>
+#else
+#include <Nazara/Platform/SDL2/VideoModeImpl.hpp>
+#endif
+
 #include <Nazara/Platform/Debug.hpp>
 
 namespace Nz

@@ -3,7 +3,13 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Platform/Icon.hpp>
+
+#ifdef NAZARA_PLATFORM_ANDROID
+#include <Nazara/Platform/Android/IconImpl.hpp>
+#else
 #include <Nazara/Platform/SDL2/IconImpl.hpp>
+#endif
+
 #include <Nazara/Platform/Debug.hpp>
 
 namespace Nz

@@ -14,11 +14,11 @@
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 	#define NAZARA_DYNLIB_EXTENSION ".dll"
-#elif defined(NAZARA_PLATFORM_LINUX)
+#elif defined(NAZARA_PLATFORM_LINUX) || defined(NAZARA_PLATFORM_ANDROID)
 	#define NAZARA_DYNLIB_EXTENSION ".so"
 #elif defined(NAZARA_PLATFORM_WEB)
 	#define NAZARA_DYNLIB_EXTENSION ".wasm"
-#elif defined(NAZARA_PLATFORM_MACOS)
+#elif defined(NAZARA_PLATFORM_MACOS) || (NAZARA_PLATFORM_IOS)
 	#define NAZARA_DYNLIB_EXTENSION ".dylib"
 #else
 	#error OS not handled

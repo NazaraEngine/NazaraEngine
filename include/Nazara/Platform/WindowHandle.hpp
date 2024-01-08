@@ -16,6 +16,7 @@ namespace Nz
 	{
 		Invalid,
 
+		Android,
 		Cocoa,
 		X11,
 		Wayland,
@@ -31,13 +32,18 @@ namespace Nz
 		{
 			struct
 			{
+				void* window; //< ANativeWindow*
+			} android;
+
+			struct
+			{
 				void* window; //< NSWindow*
 			} cocoa;
 
 			struct
 			{
-				void* display; //< Display*
-				unsigned long window;  //< Window
+				void* display;        //< Display*
+				unsigned long window; //< Window
 			} x11;
 
 			struct

@@ -6,8 +6,14 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Platform/Cursor.hpp>
 #include <Nazara/Platform/Icon.hpp>
-#include <Nazara/Platform/SDL2/WindowImpl.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
+
+#ifdef NAZARA_PLATFORM_ANDROID
+#include <Nazara/Platform/Android/WindowImpl.hpp>
+#else
+#include <Nazara/Platform/SDL2/WindowImpl.hpp>
+#endif
+
 #include <Nazara/Platform/Debug.hpp>
 
 namespace Nz

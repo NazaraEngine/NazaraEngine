@@ -5,14 +5,24 @@
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Core/AbstractLogger.hpp>
 #include <Nazara/Core/FileLogger.hpp>
+
+#ifdef NAZARA_PLATFORM_ANDROID
+#include <Nazara/Core/Android/AndroidLogger.hpp>
+#else
 #include <Nazara/Core/StdLogger.hpp>
+#endif
+
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {
 	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
-		StdLogger s_stdLogger;
+#ifdef NAZARA_PLATFORM_ANDROID
+		AndroidLogger s_baseLogger;
+#else
+		StdLogger s_baseLogger;
+#endif
 	}
 
 	/*!
@@ -62,12 +72,12 @@ namespace Nz
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
-		if (s_logger != &s_stdLogger)
+		if (s_logger != &s_baseLogger)
 			delete s_logger;
 
 		s_logger = logger;
 		if (!s_logger)
-			s_logger = &s_stdLogger;
+			s_logger = &s_baseLogger;
 	}
 
 	/*!
@@ -115,8 +125,10 @@ namespace Nz
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
-		if (s_logger == &s_stdLogger)
+#ifndef NAZARA_PLATFORM_ANDROID
+		if (s_logger == &s_baseLogger)
 			SetLogger(new FileLogger());
+#endif
 
 		return true;
 	}
@@ -133,6 +145,6 @@ namespace Nz
 	NazaraStaticSignalImpl(Log, OnLogWrite);
 	NazaraStaticSignalImpl(Log, OnLogWriteError);
 
-	AbstractLogger* Log::s_logger = &NAZARA_ANONYMOUS_NAMESPACE_PREFIX(s_stdLogger);
+	AbstractLogger* Log::s_logger = &NAZARA_ANONYMOUS_NAMESPACE_PREFIX(s_baseLogger);
 	bool Log::s_enabled = true;
 }

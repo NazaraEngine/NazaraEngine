@@ -37,13 +37,13 @@ namespace Nz
 			"openal32.dll",
 			"wrap_oal.dll"
 		};
-#elif defined(NAZARA_PLATFORM_LINUX)
+#elif defined(NAZARA_PLATFORM_LINUX) || defined(NAZARA_PLATFORM_ANDROID)
 		std::array libs {
 			"libopenal.so.1",
 			"libopenal.so.0",
 			"libopenal.so"
 		};
-#elif defined(NAZARA_PLATFORM_MACOS)
+#elif defined(NAZARA_PLATFORM_MACOS) || defined(NAZARA_PLATFORM_IOS)
 		std::array libs {
 			"libopenal.dylib",
 			"libopenal.1.dylib",

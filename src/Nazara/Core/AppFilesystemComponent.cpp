@@ -4,6 +4,12 @@
 
 #include <Nazara/Core/AppFilesystemComponent.hpp>
 #include <Nazara/Core/VirtualDirectoryFilesystemResolver.hpp>
+
+#ifdef NAZARA_PLATFORM_ANDROID
+#include <Nazara/Core/Android/AndroidActivity.hpp>
+#include <Nazara/Core/Android/AndroidAssetDirResolver.hpp>
+#endif
+
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -29,6 +35,10 @@ namespace Nz
 
 	void AppFilesystemComponent::MountDefaultDirectories()
 	{
-		m_rootDirectory = std::make_shared<VirtualDirectory>(std::make_shared<VirtualDirectoryFilesystemResolver>(std::filesystem::current_path()));
+#ifdef NAZARA_PLATFORM_ANDROID
+		Mount("", std::make_shared<VirtualDirectory>(std::make_shared<AndroidAssetDirResolver>("")));
+#else
+		Mount("", std::make_shared<VirtualDirectory>(std::make_shared<VirtualDirectoryFilesystemResolver>(std::filesystem::current_path())));
+#endif
 	}
 }

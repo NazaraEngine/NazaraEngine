@@ -4,7 +4,13 @@
 
 #include <Nazara/Platform/Cursor.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
+
+#ifdef NAZARA_PLATFORM_ANDROID
+#include <Nazara/Platform/Android/CursorImpl.hpp>
+#else
 #include <Nazara/Platform/SDL2/CursorImpl.hpp>
+#endif
+
 #include <Nazara/Platform/Debug.hpp>
 
 namespace Nz

@@ -23,7 +23,7 @@
 	#define Lseek lseek
 	#define Open_def open
 	#define Ftruncate ftruncate
-#elif defined(NAZARA_PLATFORM_LINUX) || defined(NAZARA_PLATFORM_WEB)
+#elif defined(NAZARA_PLATFORM_LINUX) || defined(NAZARA_PLATFORM_WEB) || defined(NAZARA_PLATFORM_ANDROID)
 	#define Stat stat64
 	#define Fstat fstat64
 	#define Off_t off64_t
