@@ -6,7 +6,7 @@ local rendererBackends = {
 		Deps = {"NazaraRenderer"},
 		Custom = function()
 			if is_plat("windows", "mingw") then
-				add_syslinks("gdi32", "user32")
+				add_syslinks("User32")
 			else
 				remove_files("src/Nazara/OpenGLRenderer/Wrapper/Win32/**.cpp")
 				remove_files("src/Nazara/OpenGLRenderer/Wrapper/WGL/**.cpp")
@@ -34,7 +34,7 @@ local rendererBackends = {
 			add_defines("VK_NO_PROTOTYPES")
 			if is_plat("windows", "mingw") then
 				add_defines("VK_USE_PLATFORM_WIN32_KHR")
-				add_syslinks("user32")
+				add_syslinks("User32")
 			elseif is_plat("linux") then
 				add_defines("VK_USE_PLATFORM_XLIB_KHR")
 				add_defines("VK_USE_PLATFORM_WAYLAND_KHR")
@@ -90,7 +90,7 @@ local modules = {
 			end
 
 			if is_plat("windows", "mingw") then
-				add_syslinks("ole32")
+				add_syslinks("Ole32")
 			elseif is_plat("linux") then
 				add_packages("libuuid")
 				add_syslinks("dl", "pthread")
@@ -142,7 +142,7 @@ local modules = {
 			end
 
 			if is_plat("windows", "mingw") then
-				add_syslinks("ws2_32")
+				add_syslinks("WS2_32")
 			end
 
 			if is_plat("linux") then
@@ -155,7 +155,7 @@ local modules = {
 		Option = "platform",
 		Deps = {"NazaraUtility"},
 		Custom = function()
-			add_packages("libsdl", { components = {"lib"}})
+			add_packages("libsdl", { components = {"lib"} })
 			if is_plat("windows", "mingw") then
 				add_defines("SDL_VIDEO_DRIVER_WINDOWS=1")
 			elseif is_plat("linux") then
