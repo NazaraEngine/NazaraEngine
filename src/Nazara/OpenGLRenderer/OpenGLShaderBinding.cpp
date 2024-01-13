@@ -102,7 +102,7 @@ namespace Nz
 					storageDescriptor.offset = arg.offset;
 					storageDescriptor.size = arg.range;
 
-					if (OpenGLBuffer* glBuffer = static_cast<OpenGLBuffer*>(arg.buffer))
+					if (OpenGLBuffer* glBuffer = SafeCast<OpenGLBuffer*>(arg.buffer))
 					{
 						if (glBuffer->GetType() != BufferType::Storage)
 							throw std::runtime_error("expected storage buffer");
@@ -115,7 +115,7 @@ namespace Nz
 				else if constexpr (std::is_same_v<T, TextureBinding>)
 				{
 					auto& textureDescriptor = m_owner.GetTextureDescriptor(m_poolIndex, m_bindingIndex, binding.bindingIndex);
-					if (const OpenGLTexture* glTexture = static_cast<const OpenGLTexture*>(arg.texture))
+					if (const OpenGLTexture* glTexture = SafeCast<const OpenGLTexture*>(arg.texture))
 					{
 						std::optional<GLTextureFormat> format = DescribeTextureFormat(glTexture->GetFormat());
 						if (!format)
@@ -151,7 +151,7 @@ namespace Nz
 					uboDescriptor.offset = arg.offset;
 					uboDescriptor.size = arg.range;
 
-					if (OpenGLBuffer* glBuffer = static_cast<OpenGLBuffer*>(arg.buffer))
+					if (OpenGLBuffer* glBuffer = SafeCast<OpenGLBuffer*>(arg.buffer))
 					{
 						if (glBuffer->GetType() != BufferType::Uniform)
 							throw std::runtime_error("expected uniform buffer");
@@ -177,13 +177,13 @@ namespace Nz
 	{
 		auto& textureDescriptor = m_owner.GetSampledTextureDescriptor(m_poolIndex, m_bindingIndex, bindingIndex);
 
-		if (const OpenGLTexture* glTexture = static_cast<const OpenGLTexture*>(textureBinding.texture))
+		if (const OpenGLTexture* glTexture = SafeCast<const OpenGLTexture*>(textureBinding.texture))
 		{
 			// TODO: Add texture view emulation
 
 			textureDescriptor.texture = glTexture->GetTexture().GetObjectId();
 
-			if (const OpenGLTextureSampler* glSampler = static_cast<const OpenGLTextureSampler*>(textureBinding.sampler))
+			if (const OpenGLTextureSampler* glSampler = SafeCast<const OpenGLTextureSampler*>(textureBinding.sampler))
 				textureDescriptor.sampler = glSampler->GetSampler(glTexture->GetLevelCount() > 1).GetObjectId();
 			else
 				textureDescriptor.sampler = 0;

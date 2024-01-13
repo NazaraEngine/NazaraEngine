@@ -10,7 +10,7 @@
 
 namespace Nz
 {
-	CommandBufferPtr OpenGLCommandPool::BuildCommandBuffer(const std::function<void(CommandBufferBuilder& builder)>& callback)
+	CommandBufferPtr OpenGLCommandPool::BuildCommandBuffer(const FunctionRef<void(CommandBufferBuilder& builder)>& callback)
 	{
 		CommandBufferPtr commandBuffer;
 		for (std::size_t i = 0; i < m_commandPools.size(); ++i)
@@ -30,7 +30,7 @@ namespace Nz
 			assert(commandBuffer);
 		}
 
-		OpenGLCommandBufferBuilder builder(static_cast<OpenGLCommandBuffer&>(*commandBuffer.get()));
+		OpenGLCommandBufferBuilder builder(SafeCast<OpenGLCommandBuffer&>(*commandBuffer.get()));
 		callback(builder);
 
 		return commandBuffer;
@@ -68,7 +68,7 @@ namespace Nz
 
 	void OpenGLCommandPool::Release(CommandBuffer& binding)
 	{
-		OpenGLCommandBuffer& openglBinding = static_cast<OpenGLCommandBuffer&>(binding);
+		OpenGLCommandBuffer& openglBinding = SafeCast<OpenGLCommandBuffer&>(binding);
 
 		std::size_t poolIndex = openglBinding.GetPoolIndex();
 		std::size_t bindingIndex = openglBinding.GetBindingIndex();

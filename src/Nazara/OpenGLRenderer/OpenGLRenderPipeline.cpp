@@ -22,7 +22,7 @@ namespace Nz
 	{
 		ValidatePipelineInfo(device, m_pipelineInfo);
 
-		OpenGLRenderPipelineLayout& pipelineLayout = static_cast<OpenGLRenderPipelineLayout&>(*m_pipelineInfo.pipelineLayout);
+		OpenGLRenderPipelineLayout& pipelineLayout = SafeCast<OpenGLRenderPipelineLayout&>(*m_pipelineInfo.pipelineLayout);
 
 		if (!m_program.Create(device))
 			throw std::runtime_error("failed to create program");
@@ -38,7 +38,7 @@ namespace Nz
 
 		for (const auto& shaderModulePtr : m_pipelineInfo.shaderModules)
 		{
-			OpenGLShaderModule& shaderModule = static_cast<OpenGLShaderModule&>(*shaderModulePtr);
+			OpenGLShaderModule& shaderModule = SafeCast<OpenGLShaderModule&>(*shaderModulePtr);
 			stageFlags |= shaderModule.Attach(m_program, pipelineLayout.GetBindingMapping(), &explicitBindings);
 		}
 

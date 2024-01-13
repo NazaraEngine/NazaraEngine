@@ -11,7 +11,7 @@
 
 namespace Nz
 {
-	CommandBufferPtr VulkanCommandPool::BuildCommandBuffer(const std::function<void(CommandBufferBuilder& builder)>& callback)
+	CommandBufferPtr VulkanCommandPool::BuildCommandBuffer(const FunctionRef<void(CommandBufferBuilder& builder)>& callback)
 	{
 		Vk::AutoCommandBuffer commandBuffer = m_commandPool.AllocateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
 
@@ -57,7 +57,7 @@ namespace Nz
 
 	void VulkanCommandPool::Release(CommandBuffer& binding)
 	{
-		VulkanCommandBuffer& vulkanBinding = static_cast<VulkanCommandBuffer&>(binding);
+		VulkanCommandBuffer& vulkanBinding = SafeCast<VulkanCommandBuffer&>(binding);
 
 		std::size_t poolIndex = vulkanBinding.GetPoolIndex();
 		std::size_t bindingIndex = vulkanBinding.GetBindingIndex();

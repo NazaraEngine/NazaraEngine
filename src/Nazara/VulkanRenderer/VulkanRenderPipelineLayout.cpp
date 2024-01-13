@@ -20,7 +20,7 @@ namespace Nz
 		for (auto& pool : m_descriptorPools)
 		{
 			if (!pool.freeBindings.TestAll())
-				NazaraWarning("Not all ShaderBinding have been released!");
+				NazaraWarning("not all ShaderBinding have been released!");
 		}
 	}
 
@@ -43,7 +43,7 @@ namespace Nz
 
 		ShaderBindingPtr bindingPtr = AllocateFromPool(newPoolIndex, setIndex);
 		if (!bindingPtr)
-			throw std::runtime_error("Failed to allocate shader binding");
+			throw std::runtime_error("failed to allocate shader binding");
 
 		return bindingPtr;
 	}
@@ -81,7 +81,7 @@ namespace Nz
 			setLayouts[i] = *m_descriptorSetLayouts[i];
 		}
 
-		if (!m_pipelineLayout.Create(*m_device, UInt32(setLayouts.size()), setLayouts.data()))
+		if (!m_pipelineLayout.Create(*m_device, SafeCaster(setLayouts.size()), setLayouts.data()))
 			return false;
 
 		return true;
@@ -108,7 +108,7 @@ namespace Nz
 		DescriptorPool pool;
 		pool.descriptorPool = std::make_unique<Vk::DescriptorPool>();
 
-		if (!pool.descriptorPool->Create(*m_device, MaxSet, UInt32(poolSizes.size()), poolSizes.data(), VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT))
+		if (!pool.descriptorPool->Create(*m_device, MaxSet, SafeCaster(poolSizes.size()), poolSizes.data(), VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT))
 			throw std::runtime_error("failed to allocate new descriptor pool: " + TranslateVulkanError(pool.descriptorPool->GetLastErrorCode()));
 
 		pool.freeBindings.Resize(MaxSet, true);
@@ -128,7 +128,7 @@ namespace Nz
 		Vk::DescriptorSet descriptorSet = pool.descriptorPool->AllocateDescriptorSet(*m_descriptorSetLayouts[setIndex]);
 		if (!descriptorSet)
 		{
-			NazaraWarning("Failed to allocate descriptor set: " + TranslateVulkanError(pool.descriptorPool->GetLastErrorCode()));
+			NazaraWarningFmt("failed to allocate descriptor set: {}", TranslateVulkanError(pool.descriptorPool->GetLastErrorCode()));
 			return {};
 		}
 
@@ -140,7 +140,7 @@ namespace Nz
 
 	void VulkanRenderPipelineLayout::Release(ShaderBinding& binding)
 	{
-		VulkanShaderBinding& vulkanBinding = static_cast<VulkanShaderBinding&>(binding);
+		VulkanShaderBinding& vulkanBinding = SafeCast<VulkanShaderBinding&>(binding);
 
 		std::size_t poolIndex = vulkanBinding.GetPoolIndex();
 		std::size_t bindingIndex = vulkanBinding.GetBindingIndex();

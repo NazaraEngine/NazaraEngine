@@ -91,7 +91,7 @@ namespace Nz
 		for (std::size_t i = 0; i < m_attachments.size(); ++i)
 		{
 			assert(m_attachments[i]);
-			const OpenGLTexture& glTexture = static_cast<const OpenGLTexture&>(*m_attachments[i]);
+			const OpenGLTexture& glTexture = SafeCast<const OpenGLTexture&>(*m_attachments[i]);
 
 			PixelFormat textureFormat = glTexture.GetFormat();
 
@@ -187,7 +187,7 @@ namespace Nz
 			for (std::size_t i = 0; i < m_colorAttachmentCount; ++i)
 				fboDrawBuffers[i] = GLenum(GL_COLOR_ATTACHMENT0 + i);
 
-			framebuffer.DrawBuffers(SafeCast<GLsizei>(m_colorAttachmentCount), fboDrawBuffers.data());
+			framebuffer.DrawBuffers(SafeCaster(m_colorAttachmentCount), fboDrawBuffers.data());
 		}
 		else
 		{

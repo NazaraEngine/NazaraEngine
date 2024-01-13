@@ -205,7 +205,7 @@ namespace Nz
 		{
 			assert(stagePtr);
 
-			VulkanShaderModule& vulkanModule = static_cast<VulkanShaderModule&>(*stagePtr);
+			VulkanShaderModule& vulkanModule = SafeCast<VulkanShaderModule&>(*stagePtr);
 			for (auto& stage : vulkanModule.GetStages())
 			{
 				VkPipelineShaderStageCreateInfo& createInfo = shaderStageCreateInfos.emplace_back();
@@ -227,7 +227,7 @@ namespace Nz
 
 		for (const auto& bufferData : pipelineInfo.vertexBuffers)
 		{
-			std::uint32_t binding = std::uint32_t(bufferData.binding);
+			std::uint32_t binding = SafeCaster(bufferData.binding);
 
 			for (const auto& componentInfo : bufferData.declaration->GetComponents())
 			{
@@ -237,7 +237,7 @@ namespace Nz
 				auto& bufferAttribute = vertexAttributes.emplace_back();
 				bufferAttribute.binding = binding;
 				bufferAttribute.location = locationIndex++;
-				bufferAttribute.offset = std::uint32_t(componentInfo.offset);
+				bufferAttribute.offset = SafeCaster(componentInfo.offset);
 				bufferAttribute.format = ToVulkan(componentInfo.type);
 			}
 		}
@@ -252,8 +252,8 @@ namespace Nz
 		for (const auto& bufferData : pipelineInfo.vertexBuffers)
 		{
 			auto& bufferBinding = vertexBindings.emplace_back();
-			bufferBinding.binding = std::uint32_t(bufferData.binding);
-			bufferBinding.stride = std::uint32_t(bufferData.declaration->GetStride());
+			bufferBinding.binding = SafeCaster(bufferData.binding);
+			bufferBinding.stride = SafeCaster(bufferData.declaration->GetStride());
 			bufferBinding.inputRate = ToVulkan(bufferData.declaration->GetInputRate());
 		}
 
@@ -265,10 +265,10 @@ namespace Nz
 		VkPipelineVertexInputStateCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 
-		createInfo.vertexAttributeDescriptionCount = std::uint32_t(vertexAttributes.size());
+		createInfo.vertexAttributeDescriptionCount = SafeCaster(vertexAttributes.size());
 		createInfo.pVertexAttributeDescriptions = vertexAttributes.data();
 
-		createInfo.vertexBindingDescriptionCount = std::uint32_t(bindingDescriptions.size());
+		createInfo.vertexBindingDescriptionCount = SafeCaster(bindingDescriptions.size());
 		createInfo.pVertexBindingDescriptions = bindingDescriptions.data();
 
 		return createInfo;
@@ -295,7 +295,7 @@ namespace Nz
 		createInfo.stateData->vertexInputState = BuildVertexInputInfo(pipelineInfo, createInfo.vertexAttributesDescription, createInfo.vertexBindingDescription);
 
 		createInfo.pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-		createInfo.pipelineInfo.stageCount = std::uint32_t(createInfo.shaderStages.size());
+		createInfo.pipelineInfo.stageCount = SafeCaster(createInfo.shaderStages.size());
 		createInfo.pipelineInfo.pStages = createInfo.shaderStages.data();
 		createInfo.pipelineInfo.pColorBlendState    = &createInfo.stateData->colorBlendState;
 		createInfo.pipelineInfo.pDepthStencilState  = &createInfo.stateData->depthStencilState;
@@ -306,7 +306,7 @@ namespace Nz
 		createInfo.pipelineInfo.pVertexInputState   = &createInfo.stateData->vertexInputState;
 		createInfo.pipelineInfo.pViewportState      = &createInfo.stateData->viewportState;
 
-		VulkanRenderPipelineLayout& pipelineLayout = *static_cast<VulkanRenderPipelineLayout*>(pipelineInfo.pipelineLayout.get());
+		VulkanRenderPipelineLayout& pipelineLayout = *SafeCast<VulkanRenderPipelineLayout*>(pipelineInfo.pipelineLayout.get());
 		createInfo.pipelineInfo.layout = pipelineLayout.GetPipelineLayout();
 
 		return createInfo;

@@ -74,7 +74,7 @@ namespace Nz
 
 	void VulkanRenderImage::SubmitCommandBuffer(CommandBuffer* commandBuffer, QueueTypeFlags queueTypeFlags)
 	{
-		VulkanCommandBuffer& vkCommandBuffer = *static_cast<VulkanCommandBuffer*>(commandBuffer);
+		VulkanCommandBuffer& vkCommandBuffer = *SafeCast<VulkanCommandBuffer*>(commandBuffer);
 
 		return SubmitCommandBuffer(vkCommandBuffer.GetCommandBuffer(), queueTypeFlags);
 	}

@@ -88,7 +88,7 @@ namespace Nz
 		for (auto& drawCall : m_drawCalls)
 		{
 			builder.BindVertexBuffer(0, *drawCall.vertexBuffer);
-			builder.Draw(SafeCast<UInt32>(drawCall.vertexCount));
+			builder.Draw(SafeCaster(drawCall.vertexCount));
 		}
 	}
 

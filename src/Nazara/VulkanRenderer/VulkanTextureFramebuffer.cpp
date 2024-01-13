@@ -15,27 +15,27 @@ namespace Nz
 	VulkanFramebuffer(FramebufferType::Texture)
 	{
 		assert(renderPass);
-		const VulkanRenderPass& vkRenderPass = static_cast<const VulkanRenderPass&>(*renderPass);
+		const VulkanRenderPass& vkRenderPass = SafeCast<const VulkanRenderPass&>(*renderPass);
 
 		StackArray<VkImageView> imageViews = NazaraStackArrayNoInit(VkImageView, attachments.size());
 		for (std::size_t i = 0; i < attachments.size(); ++i)
 		{
 			assert(attachments[i]);
 
-			const VulkanTexture& vkTexture = static_cast<const VulkanTexture&>(*attachments[i]);
+			const VulkanTexture& vkTexture = SafeCast<const VulkanTexture&>(*attachments[i]);
 			imageViews[i] = vkTexture.GetImageView();
 		}
 
 		VkFramebufferCreateInfo createInfo = {
-			VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
-			nullptr,
-			0,
-			vkRenderPass.GetRenderPass(),
-			UInt32(imageViews.size()),
-			imageViews.data(),
-			UInt32(width),
-			UInt32(height),
-			1
+			.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO,
+			.pNext = nullptr,
+			.flags = 0,
+			.renderPass = vkRenderPass.GetRenderPass(),
+			.attachmentCount = UInt32(imageViews.size()),
+			.pAttachments = imageViews.data(),
+			.width = UInt32(width),
+			.height = UInt32(height),
+			.layers = 1
 		};
 
 		if (!m_framebuffer.Create(device, createInfo))

@@ -138,7 +138,7 @@ namespace Nz
 
 	void OpenGLRenderPipelineLayout::Release(ShaderBinding& binding)
 	{
-		OpenGLShaderBinding& vulkanBinding = static_cast<OpenGLShaderBinding&>(binding);
+		OpenGLShaderBinding& vulkanBinding = SafeCast<OpenGLShaderBinding&>(binding);
 
 		std::size_t poolIndex = vulkanBinding.GetPoolIndex();
 		std::size_t bindingIndex = vulkanBinding.GetBindingIndex();

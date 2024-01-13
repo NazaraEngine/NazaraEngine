@@ -117,7 +117,7 @@ namespace Nz
 				}
 				else if constexpr (std::is_same_v<T, UniformBufferBinding>)
 				{
-					VulkanBuffer* vkBuffer = static_cast<VulkanBuffer*>(arg.buffer);
+					VulkanBuffer* vkBuffer = SafeCast<VulkanBuffer*>(arg.buffer);
 
 					VkDescriptorBufferInfo& bufferInfo = bufferBinding.emplace_back();
 					bufferInfo.buffer = (vkBuffer) ? vkBuffer->GetBuffer() : VK_NULL_HANDLE;

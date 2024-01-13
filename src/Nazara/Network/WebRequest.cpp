@@ -97,7 +97,7 @@ namespace Nz
 	{
 		auto& libcurl = m_webService.GetCurlLibrary();
 
-		curl_off_t maxSize = SafeCast<curl_off_t>(maxFileSize);
+		curl_off_t maxSize = SafeCaster(maxFileSize);
 		libcurl.easy_setopt(m_curlHandle, CURLOPT_MAXFILESIZE_LARGE, maxSize);
 	}
 #else

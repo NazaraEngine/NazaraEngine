@@ -25,7 +25,7 @@ namespace Nz
 			OpenGLCommandPool(OpenGLCommandPool&&) noexcept = default;
 			~OpenGLCommandPool() = default;
 
-			CommandBufferPtr BuildCommandBuffer(const std::function<void(CommandBufferBuilder& builder)>& callback) override;
+			CommandBufferPtr BuildCommandBuffer(const FunctionRef<void(CommandBufferBuilder& builder)>& callback) override;
 
 			void UpdateDebugName(std::string_view name) override;
 

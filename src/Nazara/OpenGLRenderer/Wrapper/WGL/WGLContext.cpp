@@ -254,7 +254,7 @@ namespace Nz::GL
 
 			glClearDepthf = [](GLfloat depth)
 			{
-				const WGLContext* context = static_cast<const WGLContext*>(GetCurrentContext());
+				const WGLContext* context = SafeCast<const WGLContext*>(GetCurrentContext());
 				assert(context);
 				context->fallbacks.glClearDepth(depth);
 			};
@@ -328,7 +328,7 @@ namespace Nz::GL
 		int pixelFormat = 0;
 		if (m_params.sampleCount > 1)
 		{
-			const WGLContext* currentContext = static_cast<const WGLContext*>(GetCurrentContext()); //< Pay TLS cost only once
+			const WGLContext* currentContext = SafeCast<const WGLContext*>(GetCurrentContext()); //< Pay TLS cost only once
 			if (currentContext)
 			{
 				// WGL_ARB_pixel_format and WGL_EXT_pixel_format are the same, except for the symbol

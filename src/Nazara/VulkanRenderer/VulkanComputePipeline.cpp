@@ -19,7 +19,7 @@ namespace Nz
 		if (!device.GetEnabledFeatures().computeShaders)
 			throw std::runtime_error("compute shaders are not enabled on the device");
 
-		VulkanShaderModule& vulkanModule = static_cast<VulkanShaderModule&>(*m_pipelineInfo.shaderModule);
+		VulkanShaderModule& vulkanModule = SafeCast<VulkanShaderModule&>(*m_pipelineInfo.shaderModule);
 		const VulkanShaderModule::Stage* computeStage = nullptr;
 		for (const auto& stage : vulkanModule.GetStages())
 		{
@@ -42,7 +42,7 @@ namespace Nz
 		createInfo.stage.pName = computeStage->name.data();
 		createInfo.stage.stage = ToVulkan(computeStage->stage);
 
-		VulkanRenderPipelineLayout& pipelineLayout = *static_cast<VulkanRenderPipelineLayout*>(m_pipelineInfo.pipelineLayout.get());
+		VulkanRenderPipelineLayout& pipelineLayout = *SafeCast<VulkanRenderPipelineLayout*>(m_pipelineInfo.pipelineLayout.get());
 		createInfo.layout = pipelineLayout.GetPipelineLayout();
 
 		if (!m_pipeline.CreateCompute(device, createInfo))

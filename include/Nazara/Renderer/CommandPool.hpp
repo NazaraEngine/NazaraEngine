@@ -10,7 +10,7 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Renderer/CommandBuffer.hpp>
 #include <Nazara/Renderer/Config.hpp>
-#include <functional>
+#include <NazaraUtils/FunctionRef.hpp>
 
 namespace Nz
 {
@@ -24,7 +24,7 @@ namespace Nz
 			CommandPool(CommandPool&&) = default;
 			virtual ~CommandPool();
 
-			virtual CommandBufferPtr BuildCommandBuffer(const std::function<void(CommandBufferBuilder& builder)>& callback) = 0;
+			virtual CommandBufferPtr BuildCommandBuffer(const FunctionRef<void(CommandBufferBuilder& builder)>& callback) = 0;
 
 			virtual void UpdateDebugName(std::string_view name) = 0;
 

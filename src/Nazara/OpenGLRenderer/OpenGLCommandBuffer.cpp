@@ -217,7 +217,7 @@ namespace Nz
 	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const InsertDebugLabelCommand& command)
 	{
 		if (context->glDebugMessageInsert)
-			context->glDebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_MARKER, 0, GL_DEBUG_SEVERITY_NOTIFICATION, SafeCast<GLsizei>(command.label.size()), command.label.data());
+			context->glDebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_MARKER, 0, GL_DEBUG_SEVERITY_NOTIFICATION, SafeCaster(command.label.size()), command.label.data());
 	}
 
 	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const MemoryBarrier& command)
@@ -277,7 +277,7 @@ namespace Nz
 
 		if (command.framebuffer->GetType() == FramebufferType::Texture)
 		{
-			const OpenGLFboFramebuffer& fboFramebuffer = static_cast<const OpenGLFboFramebuffer&>(*command.framebuffer);
+			const OpenGLFboFramebuffer& fboFramebuffer = SafeCast<const OpenGLFboFramebuffer&>(*command.framebuffer);
 
 			invalidateAttachments = NazaraStackVector(GLenum, colorBufferCount + 1);
 
