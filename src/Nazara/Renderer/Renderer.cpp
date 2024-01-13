@@ -9,6 +9,7 @@
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Renderer/RendererImpl.hpp>
 #include <NazaraUtils/EnumArray.hpp>
+#include <NazaraUtils/TypeTraits.hpp>
 #include <frozen/string.h>
 #include <frozen/unordered_map.h>
 #include <filesystem>
@@ -80,10 +81,12 @@ namespace Nz
 
 	void Renderer::LoadBackend(const Config& config)
 	{
+		using FactoryFunc = FunctionPtr<std::unique_ptr<RendererImpl>()>;
+
 		struct RendererImplementations
 		{
 #ifdef NAZARA_RENDERER_EMBEDDEDBACKENDS
-			std::function<std::unique_ptr<RendererImpl>()> factory;
+			FactoryFunc factory;
 #else
 			std::filesystem::path fileName;
 #endif
@@ -97,20 +100,20 @@ namespace Nz
 			preferredAPI = RenderAPI::OpenGL;
 
 #ifdef NAZARA_RENDERER_EMBEDDEDBACKENDS
-		auto RegisterImpl = [&](RenderAPI api, auto ComputeScore, std::function<std::unique_ptr<RendererImpl>()> factory)
+		auto RegisterImpl = [&]<typename T>(RenderAPI api, auto ComputeScore, TypeTag<T> RendererTag)
 		{
 			int score = ComputeScore();
 			if (score >= 0)
 			{
 				auto& impl = implementations.emplace_back();
-				impl.factory = std::move(factory);
+				impl.factory = []() -> std::unique_ptr<RendererImpl> { return std::make_unique<T>(); };
 				impl.score = (preferredAPI == api) ? std::numeric_limits<int>::max() : score;
 			}
 		};
 
-		RegisterImpl(RenderAPI::OpenGL, [] { return 50; }, [] { return std::make_unique<OpenGLRenderer>(); });
+		RegisterImpl(RenderAPI::OpenGL, [] { return 50; }, TypeTag<OpenGLRenderer>{});
 #ifndef NAZARA_PLATFORM_WEB
-		RegisterImpl(RenderAPI::Vulkan, [] { return 100; }, [] { return std::make_unique<VulkanRenderer>(); });
+		RegisterImpl(RenderAPI::Vulkan, [] { return 100; }, TypeTag<VulkanRenderer>{});
 #endif
 
 #else
@@ -202,7 +205,7 @@ namespace Nz
 		m_rendererLib = std::move(chosenLib);
 #endif
 
-		NazaraDebug("Using " + m_rendererImpl->QueryAPIString() + " as renderer");
+		NazaraDebug("Using {0} as renderer", m_rendererImpl->QueryAPIString());
 	}
 
 	Renderer* Renderer::s_instance = nullptr;

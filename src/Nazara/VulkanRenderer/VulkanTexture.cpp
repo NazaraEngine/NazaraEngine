@@ -304,42 +304,32 @@ namespace Nz
 
 	bool VulkanTexture::Copy(const Texture& source, const Boxui& srcBox, const Vector3ui& dstPos)
 	{
-		const VulkanTexture& sourceTexture = static_cast<const VulkanTexture&>(source);
+		const VulkanTexture& sourceTexture = SafeCast<const VulkanTexture&>(source);
 
 		Vk::AutoCommandBuffer copyCommandBuffer = m_device.AllocateCommandBuffer(QueueType::Graphics);
 		if (!copyCommandBuffer->Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT))
 			return false;
 
-		VkImageSubresourceLayers subresourceLayers = { //< FIXME
-			VK_IMAGE_ASPECT_COLOR_BIT,
-			0, //< mipLevel
-			0, //< baseArrayLayer
-			1  //< layerCount
-		};
-
-		VkImageSubresourceRange subresourceRange = { //< FIXME
-			VK_IMAGE_ASPECT_COLOR_BIT,
-			0, //< baseMipLevel
-			1, //< levelCount
-			subresourceLayers.baseArrayLayer, //< baseArrayLayer
-			subresourceLayers.layerCount      //< layerCount
-		};
+		VkImageSubresourceLayers srcSubresourceLayers = sourceTexture.BuildSubresourceLayers(0);
+		VkImageSubresourceRange srcSubresourceRange = sourceTexture.BuildSubresourceRange(0, 1);
+		VkImageSubresourceLayers dstSubresourceLayers = BuildSubresourceLayers(0);
+		VkImageSubresourceRange dstSubresourceRange = BuildSubresourceRange(0, 1);
 
 		VkImageCopy region = {
-			subresourceLayers,
-			VkOffset3D { static_cast<Int32>(srcBox.x), static_cast<Int32>(srcBox.y), static_cast<Int32>(srcBox.z) },
-			subresourceLayers,
-			VkOffset3D { static_cast<Int32>(dstPos.x), static_cast<Int32>(dstPos.y), static_cast<Int32>(dstPos.z) },
-			VkExtent3D { static_cast<UInt32>(srcBox.width), static_cast<UInt32>(srcBox.height), static_cast<UInt32>(srcBox.depth) }
+			.srcSubresource = srcSubresourceLayers,
+			.srcOffset = VkOffset3D { SafeCast<Int32>(srcBox.x), SafeCast<Int32>(srcBox.y), SafeCast<Int32>(srcBox.z) },
+			.dstSubresource = dstSubresourceLayers,
+			.dstOffset = VkOffset3D { SafeCast<Int32>(dstPos.x), SafeCast<Int32>(dstPos.y), SafeCast<Int32>(dstPos.z) },
+			.extent = VkExtent3D { SafeCast<UInt32>(srcBox.width), SafeCast<UInt32>(srcBox.height), SafeCast<UInt32>(srcBox.depth) }
 		};
 
-		copyCommandBuffer->SetImageLayout(sourceTexture.GetImage(), VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, subresourceRange);
-		copyCommandBuffer->SetImageLayout(m_image, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, subresourceRange);
+		copyCommandBuffer->SetImageLayout(sourceTexture.GetImage(), VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, srcSubresourceRange);
+		copyCommandBuffer->SetImageLayout(m_image, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, dstSubresourceRange);
 
 		copyCommandBuffer->CopyImage(sourceTexture.GetImage(), VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, m_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, region);
 
-		copyCommandBuffer->SetImageLayout(sourceTexture.GetImage(), VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, subresourceRange);
-		copyCommandBuffer->SetImageLayout(m_image, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, subresourceRange);
+		copyCommandBuffer->SetImageLayout(sourceTexture.GetImage(), VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, srcSubresourceRange);
+		copyCommandBuffer->SetImageLayout(m_image, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, dstSubresourceRange);
 
 		if (!copyCommandBuffer->End())
 			return false;
@@ -455,14 +445,14 @@ namespace Nz
 		VkImageSubresourceLayers subresourceLayers = BuildSubresourceLayers(level, baseLayer, layerCount);
 
 		VkBufferImageCopy region = {
-			0,
-			0,
-			0,
-			subresourceLayers,
-			{ // imageOffset
+			.bufferOffset = 0,
+			.bufferRowLength = 0,
+			.bufferImageHeight = 0,
+			.imageSubresource = subresourceLayers,
+			.imageOffset = {
 				SafeCast<Int32>(copyBox.x), SafeCast<Int32>(copyBox.y), SafeCast<Int32>(copyBox.z)
 			},
-			{ // imageExtent
+			.imageExtent = {
 				copyBox.width, copyBox.height, copyBox.depth
 			}
 		};

@@ -312,7 +312,7 @@ namespace Nz::GL
 
 			glClearDepthf = [](GLfloat depth)
 			{
-				const EGLContextBase* context = static_cast<const EGLContextBase*>(GetCurrentContext());
+				const EGLContextBase* context = SafeCast<const EGLContextBase*>(GetCurrentContext());
 				assert(context);
 				context->fallbacks.glClearDepth(depth);
 			};

@@ -22,14 +22,14 @@ namespace Nz
 		if (!device.GetEnabledFeatures().computeShaders)
 			throw std::runtime_error("compute shaders are not enabled on the device");
 
-		OpenGLRenderPipelineLayout& pipelineLayout = static_cast<OpenGLRenderPipelineLayout&>(*m_pipelineInfo.pipelineLayout);
+		OpenGLRenderPipelineLayout& pipelineLayout = SafeCast<OpenGLRenderPipelineLayout&>(*m_pipelineInfo.pipelineLayout);
 
 		if (!m_program.Create(device))
 			throw std::runtime_error("failed to create program");
 
 		NazaraAssert(m_pipelineInfo.shaderModule, "invalid shader module");
 
-		OpenGLShaderModule& shaderModule = static_cast<OpenGLShaderModule&>(*m_pipelineInfo.shaderModule);
+		OpenGLShaderModule& shaderModule = SafeCast<OpenGLShaderModule&>(*m_pipelineInfo.shaderModule);
 
 		std::vector<OpenGLShaderModule::ExplicitBinding> explicitBindings;
 		nzsl::ShaderStageTypeFlags stageFlags = shaderModule.Attach(m_program, pipelineLayout.GetBindingMapping(), &explicitBindings);

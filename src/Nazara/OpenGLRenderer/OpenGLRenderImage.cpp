@@ -46,7 +46,7 @@ namespace Nz
 
 	void OpenGLRenderImage::SubmitCommandBuffer(CommandBuffer* commandBuffer, QueueTypeFlags /*queueTypeFlags*/)
 	{
-		OpenGLCommandBuffer* oglCommandBuffer = static_cast<OpenGLCommandBuffer*>(commandBuffer);
+		OpenGLCommandBuffer* oglCommandBuffer = SafeCast<OpenGLCommandBuffer*>(commandBuffer);
 		oglCommandBuffer->Execute();
 	}
 }

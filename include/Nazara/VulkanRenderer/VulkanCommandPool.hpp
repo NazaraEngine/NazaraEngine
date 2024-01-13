@@ -28,7 +28,7 @@ namespace Nz
 			VulkanCommandPool(VulkanCommandPool&&) noexcept = default;
 			~VulkanCommandPool() = default;
 
-			CommandBufferPtr BuildCommandBuffer(const std::function<void(CommandBufferBuilder& builder)>& callback) override;
+			CommandBufferPtr BuildCommandBuffer(const FunctionRef<void(CommandBufferBuilder& builder)>& callback) override;
 
 			void UpdateDebugName(std::string_view name) override;
 

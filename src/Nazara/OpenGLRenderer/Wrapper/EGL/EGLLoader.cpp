@@ -143,7 +143,7 @@ namespace Nz::GL
 		context = std::make_shared<EGLContextBase>(device, *this);
 #endif
 
-		if (!context->Create(params, static_cast<EGLContextBase*>(shareContext)))
+		if (!context->Create(params, SafeCast<EGLContextBase*>(shareContext)))
 		{
 			NazaraError("failed to create context");
 			return {};
@@ -193,7 +193,7 @@ namespace Nz::GL
 			return {};
 		}
 
-		if (!context->Create(params, handle, static_cast<EGLContextBase*>(shareContext)))
+		if (!context->Create(params, handle, SafeCast<EGLContextBase*>(shareContext)))
 		{
 			NazaraError("failed to create context");
 			return {};

@@ -118,7 +118,7 @@ namespace Nz
 
 	bool OpenGLTexture::Copy(const Texture& source, const Boxui& srcBox, const Vector3ui& dstPos)
 	{
-		const OpenGLTexture& glTexture = static_cast<const OpenGLTexture&>(source);
+		const OpenGLTexture& glTexture = SafeCast<const OpenGLTexture&>(source);
 
 		const GL::Context& context = m_texture.EnsureDeviceContext();
 		return context.CopyTexture(glTexture, *this, srcBox, dstPos);

@@ -51,7 +51,7 @@ namespace Nz::GL
 
 		if (activeUniformCount > 0)
 		{
-			uniformIndices.resize(static_cast<std::size_t>(activeUniformCount));
+			uniformIndices.resize(SafeCaster(activeUniformCount));
 			context.glGetActiveUniformBlockiv(m_objectId, uniformBlockIndex, GL_UNIFORM_BLOCK_ACTIVE_UNIFORM_INDICES, uniformIndices.data());
 		}
 
