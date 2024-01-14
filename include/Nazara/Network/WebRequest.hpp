@@ -46,6 +46,7 @@ namespace Nz
 			inline void SetHeader(std::string header, std::string value);
 			void SetJSonContent(std::string encodedJSon);
 			void SetMaximumFileSize(UInt64 maxFileSize);
+			inline void SetOptions(WebRequestOptionFlags options);
 			inline void SetResultCallback(ResultCallback callback);
 			void SetServiceName(std::string serviceName);
 			void SetURL(const std::string& url);
@@ -87,6 +88,7 @@ namespace Nz
 			MovablePtr<emscripten_fetch_t> m_fetchHandle;
 #endif
 			ResultCallback m_resultCallback;
+			WebRequestOptionFlags m_options;
 			bool m_isUserAgentSet;
 	};
 }

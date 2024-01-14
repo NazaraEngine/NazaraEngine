@@ -119,6 +119,22 @@ namespace Nz
 	};
 
 	constexpr std::size_t SocketTypeCount = static_cast<std::size_t>(SocketType::Max) + 1;
+
+	enum class WebRequestOption
+	{
+		FailOnError,
+		FollowRedirects,
+
+		Max = FollowRedirects
+	};
+
+	template<>
+	struct EnumAsFlags<WebRequestOption>
+	{
+		static constexpr WebRequestOption max = WebRequestOption::Max;
+	};
+
+	using WebRequestOptionFlags = Flags<WebRequestOption>;
 }
 
 #endif // NAZARA_NETWORK_ENUMS_HPP

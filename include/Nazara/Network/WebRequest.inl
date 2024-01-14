@@ -11,6 +11,11 @@ namespace Nz
 		m_dataCallback = std::move(callback);
 	}
 
+	inline void WebRequest::SetOptions(WebRequestOptionFlags options)
+	{
+		m_options = options;
+	}
+
 	inline void WebRequest::SetResultCallback(ResultCallback callback)
 	{
 		m_resultCallback = std::move(callback);

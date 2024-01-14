@@ -57,15 +57,15 @@ namespace Nz
 		switch (protocol)
 		{
 			case Nz::NetProtocol::Any:
-				libcurl.easy_setopt(m_curlHandle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_WHATEVER);
+				libcurl.easy_setopt(m_curlHandle, CURLOPT_IPRESOLVE, long(CURL_IPRESOLVE_WHATEVER));
 				break;
 
 			case Nz::NetProtocol::IPv4:
-				libcurl.easy_setopt(m_curlHandle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
+				libcurl.easy_setopt(m_curlHandle, CURLOPT_IPRESOLVE, long(CURL_IPRESOLVE_V4));
 				break;
 
 			case Nz::NetProtocol::IPv6:
-				libcurl.easy_setopt(m_curlHandle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V6);
+				libcurl.easy_setopt(m_curlHandle, CURLOPT_IPRESOLVE, long(CURL_IPRESOLVE_V6));
 				break;
 
 			case Nz::NetProtocol::Unknown:
