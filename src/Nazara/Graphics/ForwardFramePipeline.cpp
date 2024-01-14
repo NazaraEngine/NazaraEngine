@@ -115,7 +115,7 @@ namespace Nz
 						if (viewerData.pendingDestruction)
 							continue;
 
-						if ((viewerData.viewer->GetRenderMask() & lightData->renderMask) != 0)
+						if ((viewerData.renderMask & lightData->renderMask) != 0)
 							lightData->shadowData->RegisterViewer(viewerData.viewer);
 					}
 				}
@@ -140,7 +140,7 @@ namespace Nz
 					if (viewerData.pendingDestruction)
 						continue;
 
-					if ((viewerData.viewer->GetRenderMask() & lightData->renderMask) != 0)
+					if ((viewerData.renderMask & lightData->renderMask) != 0)
 						lightData->shadowData->RegisterViewer(viewerData.viewer);
 				}
 			}
@@ -170,9 +170,7 @@ namespace Nz
 				if (viewerData.pendingDestruction)
 					continue;
 
-				UInt32 viewerRenderMask = viewerData.viewer->GetRenderMask();
-
-				if (viewerRenderMask & renderMask)
+				if (viewerData.renderMask & renderMask)
 				{
 					for (auto& passPtr : viewerData.passes)
 					{
@@ -280,11 +278,11 @@ namespace Nz
 
 		m_transferSet.insert(&viewerInstance->GetViewerInstance());
 
-		UInt32 renderMask = viewerInstance->GetRenderMask();
+		viewerData.renderMask = viewerInstance->GetRenderMask();
 		for (std::size_t i : m_shadowCastingLights.IterBits())
 		{
 			LightData* lightData = m_lightPool.RetrieveFromIndex(i);
-			if (lightData->shadowData->IsPerViewer() && (renderMask & lightData->renderMask) != 0)
+			if (lightData->shadowData->IsPerViewer() && (viewerData.renderMask & lightData->renderMask) != 0)
 				lightData->shadowData->RegisterViewer(viewerInstance);
 		}
 
@@ -332,9 +330,15 @@ namespace Nz
 
 	void ForwardFramePipeline::Render(RenderResources& renderResources)
 	{
-		Graphics* graphics = Graphics::Instance();
-
 		// Destroy instances at the end of the frame
+
+		for (std::size_t lightIndex : m_removedLightInstances.IterBits())
+		{
+			renderResources.PushForRelease(std::move(*m_lightPool.RetrieveFromIndex(lightIndex)));
+			m_lightPool.Free(lightIndex);
+		}
+		m_removedLightInstances.Clear();
+
 		for (std::size_t skeletonInstanceIndex : m_removedSkeletonInstances.IterBits())
 		{
 			renderResources.PushForRelease(std::move(*m_skeletonInstances.RetrieveFromIndex(skeletonInstanceIndex)));
@@ -344,7 +348,8 @@ namespace Nz
 
 		for (std::size_t viewerIndex : m_removedViewerInstances.IterBits())
 		{
-			renderResources.PushForRelease(std::move(*m_viewerPool.RetrieveFromIndex(viewerIndex)));
+			auto& viewerData = *m_viewerPool.RetrieveFromIndex(viewerIndex);
+			renderResources.PushForRelease(std::move(viewerData));
 			m_viewerPool.Free(viewerIndex);
 		}
 		m_removedViewerInstances.Clear();
@@ -385,8 +390,6 @@ namespace Nz
 		m_activeLights.Clear();
 		for (ViewerData* viewerData : m_orderedViewers)
 		{
-			UInt32 renderMask = viewerData->viewer->GetRenderMask();
-
 			// Extract frustum from viewproj matrix
 			const Matrix4f& viewProjMatrix = viewerData->viewer->GetViewerInstance().GetViewProjMatrix();
 			viewerData->frame.frustum = Frustumf::Extract(viewProjMatrix);
@@ -397,7 +400,7 @@ namespace Nz
 				const LightData& lightData = *it;
 				std::size_t lightIndex = it.GetIndex();
 
-				if ((lightData.renderMask & renderMask) == 0)
+				if ((lightData.renderMask & viewerData->renderMask) == 0)
 					continue;
 
 				m_activeLights.UnboundedSet(lightIndex);
@@ -418,19 +421,17 @@ namespace Nz
 		// Viewer handling (second pass)
 		for (ViewerData* viewerData : m_orderedViewers)
 		{
-			UInt32 renderMask = viewerData->viewer->GetRenderMask();
-
 			// Per-viewer shadow map handling
 			for (std::size_t lightIndex : viewerData->frame.visibleLights.IterBits())
 			{
 				LightData* lightData = m_lightPool.RetrieveFromIndex(lightIndex);
-				if (lightData->shadowData && lightData->shadowData->IsPerViewer() && (renderMask & lightData->renderMask) != 0)
+				if (lightData->shadowData && lightData->shadowData->IsPerViewer() && (viewerData->renderMask & lightData->renderMask) != 0)
 					lightData->shadowData->PrepareRendering(renderResources, viewerData->viewer);
 			}
 
 			// Frustum culling
 			std::size_t visibilityHash = 5;
-			const auto& visibleRenderables = FrustumCull(viewerData->frame.frustum, renderMask, visibilityHash);
+			const auto& visibleRenderables = FrustumCull(viewerData->frame.frustum, viewerData->renderMask, visibilityHash);
 
 			FramePipelinePass::FrameData passData = {
 				&viewerData->frame.visibleLights,
@@ -472,7 +473,8 @@ namespace Nz
 
 	void ForwardFramePipeline::UnregisterLight(std::size_t lightIndex)
 	{
-		m_lightPool.Free(lightIndex);
+		m_removedLightInstances.UnboundedSet(lightIndex);
+
 		if (m_shadowCastingLights.UnboundedTest(lightIndex))
 		{
 			m_shadowCastingLights.Reset(lightIndex);
@@ -517,11 +519,10 @@ namespace Nz
 		auto& viewerData = *m_viewerPool.RetrieveFromIndex(viewerIndex);
 		viewerData.pendingDestruction = true;
 
-		UInt32 renderMask = viewerData.viewer->GetRenderMask();
 		for (std::size_t i : m_shadowCastingLights.IterBits())
 		{
 			LightData* lightData = m_lightPool.RetrieveFromIndex(i);
-			if (lightData->shadowData->IsPerViewer() && (renderMask & lightData->renderMask) != 0)
+			if (lightData->shadowData->IsPerViewer() && (viewerData.renderMask & lightData->renderMask) != 0)
 				lightData->shadowData->UnregisterViewer(viewerData.viewer);
 		}
 
@@ -559,9 +560,7 @@ namespace Nz
 			if (viewerData.pendingDestruction)
 				continue;
 
-			UInt32 viewerRenderMask = viewerData.viewer->GetRenderMask();
-
-			if (viewerRenderMask & renderableData->renderMask)
+			if (viewerData.renderMask & renderableData->renderMask)
 			{
 				for (auto& passPtr : viewerData.passes)
 				{
@@ -583,9 +582,7 @@ namespace Nz
 			if (viewerData.pendingDestruction)
 				continue;
 
-			UInt32 viewerRenderMask = viewerData.viewer->GetRenderMask();
-
-			if (viewerRenderMask & renderableData->renderMask)
+			if (viewerData.renderMask & renderableData->renderMask)
 			{
 				for (auto& passPtr : viewerData.passes)
 				{
@@ -661,11 +658,10 @@ namespace Nz
 
 			for (ViewerData* viewerData : viewers)
 			{
-				UInt32 renderMask = viewerData->viewer->GetRenderMask();
 				for (std::size_t i : m_shadowCastingLights.IterBits())
 				{
 					LightData* lightData = m_lightPool.RetrieveFromIndex(i);
-					if (lightData->shadowData->IsPerViewer() && (renderMask & lightData->renderMask) != 0)
+					if (lightData->shadowData->IsPerViewer() && (viewerData->renderMask & lightData->renderMask) != 0)
 						lightData->shadowData->RegisterToFrameGraph(frameGraph, viewerData->viewer);
 				}
 
@@ -681,7 +677,7 @@ namespace Nz
 						for (std::size_t i : m_shadowCastingLights.IterBits())
 						{
 							LightData* lightData = m_lightPool.RetrieveFromIndex(i);
-							if ((renderMask & lightData->renderMask) != 0)
+							if ((viewerData->renderMask & lightData->renderMask) != 0)
 								lightData->shadowData->RegisterPassInputs(framePass, (lightData->shadowData->IsPerViewer()) ? viewerData->viewer : nullptr);
 						}
 					}

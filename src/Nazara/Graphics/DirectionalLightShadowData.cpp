@@ -42,6 +42,11 @@ namespace Nz
 
 	void DirectionalLightShadowData::PrepareRendering(RenderResources& renderResources, const AbstractViewer* viewer)
 	{
+		// Push unregistered viewers data for release
+		for (auto& perViewerData : m_destructionQueue)
+			renderResources.PushForRelease(std::move(perViewerData));
+		m_destructionQueue.clear();
+
 		assert(viewer);
 		PerViewerData& viewerData = *Retrieve(m_viewerData, viewer);
 
@@ -304,7 +309,11 @@ namespace Nz
 
 	void DirectionalLightShadowData::UnregisterViewer(const AbstractViewer* viewer)
 	{
-		m_viewerData.erase(viewer);
+		auto it = m_viewerData.find(viewer);
+		assert(it != m_viewerData.end());
+
+		m_destructionQueue.push_back(std::move(it->second));
+		m_viewerData.erase(it);
 	}
 
 	template<typename F>

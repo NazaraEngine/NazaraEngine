@@ -16,6 +16,7 @@
 #include <NazaraUtils/FixedVector.hpp>
 #include <NazaraUtils/SparsePtr.hpp>
 #include <unordered_map>
+#include <vector>
 
 namespace Nz
 {
@@ -79,6 +80,7 @@ namespace Nz
 			};
 
 			std::size_t m_cascadeCount;
+			std::vector<std::unique_ptr<PerViewerData>> m_destructionQueue;
 			std::unordered_map<const AbstractViewer*, std::unique_ptr<PerViewerData>> m_viewerData;
 			ElementRendererRegistry& m_elementRegistry;
 			FramePipeline& m_pipeline;

@@ -142,12 +142,13 @@ namespace Nz
 
 				std::size_t finalColorAttachment;
 				std::vector<std::unique_ptr<FramePipelinePass>> passes;
+				FrameData frame;
 				PipelineViewer* viewer;
 				Int32 renderOrder = 0;
 				RenderQueueRegistry forwardRegistry;
 				RenderQueue<RenderElement*> forwardRenderQueue;
 				ShaderBindingPtr blitShaderBinding;
-				FrameData frame;
+				UInt32 renderMask;
 				bool pendingDestruction = false;
 
 				NazaraSlot(TransferInterface, OnTransferRequired, onTransferRequired);
@@ -167,6 +168,7 @@ namespace Nz
 			robin_hood::unordered_set<TransferInterface*> m_transferSet;
 			BakedFrameGraph m_bakedFrameGraph;
 			Bitset<UInt64> m_activeLights;
+			Bitset<UInt64> m_removedLightInstances;
 			Bitset<UInt64> m_removedSkeletonInstances;
 			Bitset<UInt64> m_removedViewerInstances;
 			Bitset<UInt64> m_removedWorldInstances;
