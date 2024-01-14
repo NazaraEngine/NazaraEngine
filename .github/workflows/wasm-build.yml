@@ -22,7 +22,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        arch: [x86_64]
+        arch: [wasm32, wasm64]
         mode: [debug, release]
 
     runs-on: ${{ matrix.os }}
