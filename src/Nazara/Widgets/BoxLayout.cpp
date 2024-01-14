@@ -33,6 +33,7 @@ namespace Nz
 		BaseWidget::Layout();
 
 		std::size_t axis = 0;
+		std::size_t otherAxis = 1;
 		bool reversed = false;
 
 		switch (m_orientation)
@@ -40,12 +41,14 @@ namespace Nz
 			case BoxLayoutOrientation::LeftToRight:
 			case BoxLayoutOrientation::RightToLeft:
 				axis = 0; //< x
+				otherAxis = 1; //< y
 				reversed = (m_orientation == BoxLayoutOrientation::RightToLeft);
 				break;
 
 			case BoxLayoutOrientation::BottomToTop:
 			case BoxLayoutOrientation::TopToBottom:
 				axis = 1; //< y
+				otherAxis = 0; //< x
 				reversed = (m_orientation == BoxLayoutOrientation::TopToBottom);
 				break;
 		}
@@ -130,18 +133,20 @@ namespace Nz
 		float cursor = (reversed) ? layoutSize[axis] : 0.f;
 		ForEachWidgetChild([&](BaseWidget* child)
 		{
+			Vector2f childSize = child->GetSize();
 			if (reversed)
-				cursor -= child->GetSize()[axis];
+				cursor -= childSize[axis];
 
 			Nz::Vector2f position(0.f, 0.f);
-			position[axis] = cursor ;
+			position[axis] = cursor;
+			position[otherAxis] = layoutSize[otherAxis] / 2.f - childSize[otherAxis] / 2.f;
 
 			child->SetPosition(position);
 
 			if (reversed)
 				cursor -= spacing;
 			else
-				cursor += child->GetSize()[axis] + spacing;
+				cursor += childSize[axis] + spacing;
 		});
 	}
 
