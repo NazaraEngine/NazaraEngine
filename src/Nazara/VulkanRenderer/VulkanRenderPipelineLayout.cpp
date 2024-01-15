@@ -101,7 +101,7 @@ namespace Nz
 		for (const auto& bindingInfo : m_layoutInfo.bindings)
 		{
 			VkDescriptorPoolSize& poolSize = poolSizes.emplace_back();
-			poolSize.descriptorCount = MaxSet;
+			poolSize.descriptorCount = MaxSet * bindingInfo.arraySize;
 			poolSize.type = ToVulkan(bindingInfo.type);
 		}
 
