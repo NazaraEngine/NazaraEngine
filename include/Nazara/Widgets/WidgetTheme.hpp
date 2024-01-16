@@ -24,6 +24,8 @@ namespace Nz
 	class ImageButtonWidgetStyle;
 	class LabelWidget;
 	class LabelWidgetStyle;
+	class ProgressBarWidget;
+	class ProgressBarWidgetStyle;
 	class ScrollAreaWidget;
 	class ScrollAreaWidgetStyle;
 	class ScrollbarWidget;
@@ -45,6 +47,7 @@ namespace Nz
 			virtual std::unique_ptr<CheckboxWidgetStyle> CreateStyle(CheckboxWidget* checkboxWidget) const = 0;
 			virtual std::unique_ptr<ImageButtonWidgetStyle> CreateStyle(ImageButtonWidget* imageButtonWidget) const = 0;
 			virtual std::unique_ptr<LabelWidgetStyle> CreateStyle(LabelWidget* labelWidget) const = 0;
+			virtual std::unique_ptr<ProgressBarWidgetStyle> CreateStyle(ProgressBarWidget* labelWidget) const = 0;
 			virtual std::unique_ptr<ScrollAreaWidgetStyle> CreateStyle(ScrollAreaWidget* scrollareaWidget) const = 0;
 			virtual std::unique_ptr<ScrollbarWidgetStyle> CreateStyle(ScrollbarWidget* scrollbarWidget) const = 0;
 			virtual std::unique_ptr<ScrollbarButtonWidgetStyle> CreateStyle(ScrollbarButtonWidget* scrollbarButtonWidget) const = 0;
@@ -182,6 +185,20 @@ namespace Nz
 
 			LabelWidgetStyle& operator=(const LabelWidgetStyle&) = delete;
 			LabelWidgetStyle& operator=(LabelWidgetStyle&&) = default;
+	};
+	
+	class NAZARA_WIDGETS_API ProgressBarWidgetStyle : public BaseWidgetStyle
+	{
+		public:
+			using BaseWidgetStyle::BaseWidgetStyle;
+			ProgressBarWidgetStyle(const ProgressBarWidgetStyle&) = delete;
+			ProgressBarWidgetStyle(ProgressBarWidgetStyle&&) = default;
+			~ProgressBarWidgetStyle() = default;
+
+			virtual void Layout(const Vector2f& size) = 0;
+
+			ProgressBarWidgetStyle& operator=(const ProgressBarWidgetStyle&) = delete;
+			ProgressBarWidgetStyle& operator=(ProgressBarWidgetStyle&&) = default;
 	};
 
 	class NAZARA_WIDGETS_API ScrollAreaWidgetStyle : public BaseWidgetStyle

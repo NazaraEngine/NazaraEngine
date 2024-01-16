@@ -26,6 +26,7 @@ namespace Nz
 			std::unique_ptr<CheckboxWidgetStyle> CreateStyle(CheckboxWidget* checkboxWidget) const override;
 			std::unique_ptr<ImageButtonWidgetStyle> CreateStyle(ImageButtonWidget* imageButtonWidget) const override;
 			std::unique_ptr<LabelWidgetStyle> CreateStyle(LabelWidget* labelWidget) const override;
+			std::unique_ptr<ProgressBarWidgetStyle> CreateStyle(ProgressBarWidget* progressBarWidget) const override;
 			std::unique_ptr<ScrollAreaWidgetStyle> CreateStyle(ScrollAreaWidget* scrollAreaWidget) const override;
 			std::unique_ptr<ScrollbarWidgetStyle> CreateStyle(ScrollbarWidget* scrollbarWidget) const override;
 			std::unique_ptr<ScrollbarButtonWidgetStyle> CreateStyle(ScrollbarButtonWidget* scrollbarButtonWidget) const override;
@@ -43,6 +44,7 @@ namespace Nz
 			std::shared_ptr<MaterialInstance> m_checkboxCheckMaterial;
 			std::shared_ptr<MaterialInstance> m_checkboxTristateMaterial;
 			std::shared_ptr<MaterialInstance> m_hoveredMaterial;
+			std::shared_ptr<MaterialInstance> m_progressBarMaterial;
 			std::shared_ptr<MaterialInstance> m_scrollbarBackgroundHorizontalMaterial;
 			std::shared_ptr<MaterialInstance> m_scrollbarBackgroundVerticalMaterial;
 			std::shared_ptr<MaterialInstance> m_scrollbarButtonMaterial;

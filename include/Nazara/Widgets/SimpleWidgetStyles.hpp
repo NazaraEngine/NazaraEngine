@@ -179,6 +179,44 @@ namespace Nz
 			std::shared_ptr<TextSprite> m_textSprite;
 			entt::entity m_entity;
 	};
+	
+	class NAZARA_WIDGETS_API SimpleProgressBarWidgetStyle : public ProgressBarWidgetStyle
+	{
+		public:
+			struct StyleConfig;
+
+			SimpleProgressBarWidgetStyle(ProgressBarWidget* progressBarWidget, StyleConfig styleConfig);
+			SimpleProgressBarWidgetStyle(const SimpleProgressBarWidgetStyle&) = delete;
+			SimpleProgressBarWidgetStyle(SimpleProgressBarWidgetStyle&&) = default;
+			~SimpleProgressBarWidgetStyle() = default;
+
+			void Layout(const Vector2f& size) override;
+
+			void UpdateRenderLayer(int baseRenderLayer) override;
+
+			SimpleProgressBarWidgetStyle& operator=(const SimpleProgressBarWidgetStyle&) = delete;
+			SimpleProgressBarWidgetStyle& operator=(SimpleProgressBarWidgetStyle&&) = default;
+
+			struct StyleConfig
+			{
+				std::shared_ptr<MaterialInstance> backgroundMaterial;
+				Color progressBarBeginColor;
+				Color progressBarEndColor;
+				float backgroundCornerSize;
+				float backgroundCornerTexCoords;
+				float barOffset;
+			};
+
+		private:
+			std::shared_ptr<MaterialInstance> m_backgroundMaterial;
+			std::shared_ptr<SlicedSprite> m_backgroundSprite;
+			std::shared_ptr<Sprite> m_progressBarSprite;
+			entt::entity m_backgroundEntity;
+			entt::entity m_barEntity;
+			Color m_progressBarBeginColor;
+			Color m_progressBarEndColor;
+			float m_barOffset;
+	};
 
 	class NAZARA_WIDGETS_API SimpleScrollAreaWidgetStyle : public ScrollAreaWidgetStyle
 	{

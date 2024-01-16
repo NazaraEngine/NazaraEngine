@@ -14,7 +14,7 @@ namespace Nz
 	namespace
 	{
 		const UInt8 s_defaultThemeButtonImage[] = {
-			#include <Nazara/Widgets/Resources/DefaultTheme/Button.png.h>
+			#include <Nazara/Widgets/Resources/DefaultTheme/Button_SMALL2.png.h>
 		};
 
 		const UInt8 s_defaultThemeButtonHoveredImage[] = {
@@ -47,6 +47,10 @@ namespace Nz
 
 		const UInt8 s_defaultThemeHoveredImage[] = {
 			#include <Nazara/Widgets/Resources/DefaultTheme/Hovered.png.h>
+		};
+
+		const UInt8 s_defaultThemeProgressBarBackgroundImage[] = {
+			#include <Nazara/Widgets/Resources/DefaultTheme/ProgressBarBackground.png.h>
 		};
 
 		const UInt8 s_defaultThemeScrollbarHorizontalBackgroundImage[] = {
@@ -146,6 +150,9 @@ namespace Nz
 		m_checkboxCheckMaterial = CreateMaterialFromTexture(Texture::LoadFromMemory(s_defaultThemeCheckboxCheckImage, sizeof(s_defaultThemeCheckboxCheckImage), texParams));
 		m_checkboxTristateMaterial = CreateMaterialFromTexture(Texture::LoadFromMemory(s_defaultThemeCheckboxTristateImage, sizeof(s_defaultThemeCheckboxTristateImage), texParams));
 
+		// ProgressBar materials
+		m_progressBarMaterial = CreateMaterialFromTexture(Texture::LoadFromMemory(s_defaultThemeProgressBarBackgroundImage, sizeof(s_defaultThemeProgressBarBackgroundImage), texParams));
+
 		// Scrollbar materials
 		m_scrollbarBackgroundHorizontalMaterial = CreateMaterialFromTexture(Texture::LoadFromMemory(s_defaultThemeScrollbarHorizontalBackgroundImage, sizeof(s_defaultThemeScrollbarHorizontalBackgroundImage), texParams));
 		m_scrollbarBackgroundVerticalMaterial = CreateMaterialFromTexture(Texture::LoadFromMemory(s_defaultThemeScrollbarVerticalBackgroundImage, sizeof(s_defaultThemeScrollbarVerticalBackgroundImage), texParams));
@@ -179,7 +186,7 @@ namespace Nz
 	{
 		SimpleButtonWidgetStyle::StyleConfig styleConfig;
 		styleConfig.cornerSize = 20.f;
-		styleConfig.cornerTexCoords = 20.f / 128.f;
+		styleConfig.cornerTexCoords = 20.f / 42.f;
 		styleConfig.hoveredMaterial = m_buttonHoveredMaterial;
 		styleConfig.material = m_buttonMaterial;
 		styleConfig.pressedHoveredMaterial = m_buttonPressedHoveredMaterial;
@@ -214,6 +221,19 @@ namespace Nz
 	std::unique_ptr<LabelWidgetStyle> DefaultWidgetTheme::CreateStyle(LabelWidget* labelWidget) const
 	{
 		return std::make_unique<SimpleLabelWidgetStyle>(labelWidget, Widgets::Instance()->GetTransparentMaterial());
+	}
+
+	std::unique_ptr<ProgressBarWidgetStyle> DefaultWidgetTheme::CreateStyle(ProgressBarWidget* progressBarWidget) const
+	{
+		SimpleProgressBarWidgetStyle::StyleConfig styleConfig;
+		styleConfig.backgroundCornerSize = 16.f;
+		styleConfig.backgroundCornerTexCoords = 16.f / 64.f;
+		styleConfig.backgroundMaterial = m_progressBarMaterial;
+		styleConfig.barOffset = 12.f;
+		styleConfig.progressBarBeginColor = Nz::Color::DarkGreen();
+		styleConfig.progressBarEndColor = Nz::Color::Green();
+
+		return std::make_unique<SimpleProgressBarWidgetStyle>(progressBarWidget, styleConfig);
 	}
 
 	std::unique_ptr<ScrollAreaWidgetStyle> DefaultWidgetTheme::CreateStyle(ScrollAreaWidget* scrollAreaWidget) const

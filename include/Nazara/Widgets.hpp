@@ -41,6 +41,7 @@
 #include <Nazara/Widgets/ImageButtonWidget.hpp>
 #include <Nazara/Widgets/ImageWidget.hpp>
 #include <Nazara/Widgets/LabelWidget.hpp>
+#include <Nazara/Widgets/ProgressBarWidget.hpp>
 #include <Nazara/Widgets/RichTextAreaWidget.hpp>
 #include <Nazara/Widgets/ScrollAreaWidget.hpp>
 #include <Nazara/Widgets/ScrollbarButtonWidget.hpp>

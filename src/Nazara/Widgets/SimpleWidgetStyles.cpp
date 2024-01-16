@@ -10,6 +10,7 @@
 #include <Nazara/Widgets/CheckboxWidget.hpp>
 #include <Nazara/Widgets/ImageButtonWidget.hpp>
 #include <Nazara/Widgets/LabelWidget.hpp>
+#include <Nazara/Widgets/ProgressBarWidget.hpp>
 #include <Nazara/Widgets/ScrollAreaWidget.hpp>
 #include <Nazara/Widgets/ScrollbarButtonWidget.hpp>
 #include <Nazara/Widgets/ScrollbarWidget.hpp>
@@ -105,6 +106,7 @@ namespace Nz
 			m_sprite->SetMaterial(m_material);
 	}
 
+	/************************************************************************/
 
 	SimpleCheckboxWidgetStyle::SimpleCheckboxWidgetStyle(CheckboxWidget* buttonWidget, StyleConfig config) :
 	CheckboxWidgetStyle(buttonWidget, 2),
@@ -197,6 +199,7 @@ namespace Nz
 			m_backgroundSprite->SetMaterial(m_material);
 	}
 
+	/************************************************************************/
 
 	SimpleImageButtonWidgetStyle::SimpleImageButtonWidgetStyle(ImageButtonWidget* imageButtonWidget, StyleConfig config) :
 	ImageButtonWidgetStyle(imageButtonWidget, 1),
@@ -337,6 +340,7 @@ namespace Nz
 		}
 	}
 
+	/************************************************************************/
 
 	SimpleLabelWidgetStyle::SimpleLabelWidgetStyle(LabelWidget* labelWidget, std::shared_ptr<MaterialInstance> material, std::shared_ptr<MaterialInstance> hoveredMaterial) :
 	LabelWidgetStyle(labelWidget, 1),
@@ -389,7 +393,62 @@ namespace Nz
 	{
 		m_textSprite->Update(drawer);
 	}
+	
+	/************************************************************************/
 
+	SimpleProgressBarWidgetStyle::SimpleProgressBarWidgetStyle(ProgressBarWidget* progressBarWidget, StyleConfig config) :
+	ProgressBarWidgetStyle(progressBarWidget, 2),
+	m_backgroundMaterial(std::move(config.backgroundMaterial)),
+	m_progressBarBeginColor(config.progressBarBeginColor),
+	m_progressBarEndColor(config.progressBarEndColor),
+	m_barOffset(config.barOffset)
+	{
+		assert(m_backgroundMaterial);
+
+		auto& registry = GetRegistry();
+		UInt32 renderMask = GetRenderMask();
+
+		SlicedSprite::Corner backgroundCorner;
+		backgroundCorner.size = Vector2f(config.backgroundCornerSize, config.backgroundCornerSize);
+		backgroundCorner.textureCoords = Vector2f(config.backgroundCornerTexCoords, config.backgroundCornerTexCoords);
+
+		m_backgroundSprite = std::make_shared<SlicedSprite>(m_backgroundMaterial);
+		m_backgroundSprite->SetCorners(backgroundCorner, backgroundCorner);
+
+		m_backgroundEntity = CreateGraphicsEntity();
+		registry.get<GraphicsComponent>(m_backgroundEntity).AttachRenderable(m_backgroundSprite, renderMask);
+
+		m_progressBarSprite = std::make_shared<Sprite>(Widgets::Instance()->GetTransparentMaterial());
+		m_progressBarSprite->SetCornerColor(RectCorner::LeftBottom, m_progressBarBeginColor);
+		m_progressBarSprite->SetCornerColor(RectCorner::LeftTop, m_progressBarBeginColor);
+		m_progressBarSprite->SetCornerColor(RectCorner::RightBottom, m_progressBarEndColor);
+		m_progressBarSprite->SetCornerColor(RectCorner::RightTop, m_progressBarEndColor);
+
+		m_barEntity = CreateGraphicsEntity();
+		registry.get<GraphicsComponent>(m_barEntity).AttachRenderable(m_progressBarSprite, renderMask);
+		registry.get<NodeComponent>(m_barEntity).SetPosition(m_barOffset, m_barOffset);
+	}
+
+	void SimpleProgressBarWidgetStyle::Layout(const Vector2f& size)
+	{
+		float fraction = GetOwnerWidget<ProgressBarWidget>()->GetFraction();
+		float width = std::max(fraction * (size.x - m_barOffset * 2.f), 0.f);
+
+		Color endColor = Lerp(m_progressBarBeginColor, m_progressBarEndColor, fraction);
+		m_progressBarSprite->SetCornerColor(RectCorner::RightBottom, endColor);
+		m_progressBarSprite->SetCornerColor(RectCorner::RightTop, endColor);
+
+		m_backgroundSprite->SetSize(size);
+		m_progressBarSprite->SetSize({ width, size.y - m_barOffset * 2.f });
+	}
+
+	void SimpleProgressBarWidgetStyle::UpdateRenderLayer(int baseRenderLayer)
+	{
+		m_backgroundSprite->UpdateRenderLayer(baseRenderLayer);
+		m_progressBarSprite->UpdateRenderLayer(baseRenderLayer + 1);
+	}
+
+	/************************************************************************/
 
 	SimpleScrollAreaWidgetStyle::SimpleScrollAreaWidgetStyle(ScrollAreaWidget* scrollAreaWidget) :
 	ScrollAreaWidgetStyle(scrollAreaWidget, 0)
@@ -431,6 +490,7 @@ namespace Nz
 		m_backgroundScrollbarSprite->UpdateRenderLayer(baseRenderLayer);
 	}
 
+	/************************************************************************/
 
 	SimpleScrollbarButtonWidgetStyle::SimpleScrollbarButtonWidgetStyle(ScrollbarButtonWidget* scrollbarButtonWidget, StyleConfig config) :
 	ScrollbarButtonWidgetStyle(scrollbarButtonWidget, 1),

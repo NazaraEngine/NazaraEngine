@@ -47,10 +47,6 @@ int main(int argc, char* argv[])
 	buttonWidget->SetPosition(200.f, 400.f);
 	buttonWidget->UpdateText(Nz::SimpleTextDrawer::Draw("Press me senpai", 72));
 	buttonWidget->Resize(buttonWidget->GetPreferredSize());
-	buttonWidget->OnButtonTrigger.Connect([&](const Nz::ButtonWidget*)
-	{
-		labelWidget->UpdateText(Nz::SimpleTextDrawer::Draw("You clicked the button " + std::to_string(++clickCount) + " times", 72));
-	});
 
 	Nz::TextureSamplerInfo samplerInfo;
 	samplerInfo.anisotropyLevel = 8;
@@ -100,6 +96,19 @@ int main(int argc, char* argv[])
 	Nz::RichTextBuilder builder(textAreaWidget2);
 	builder << Nz::Color::Blue() << "Rich " << Nz::TextStyle::Bold << "text" << Nz::TextStyle_Regular << builder.CharacterSize(36) << Nz::Color::Black() << "\nAnd a even " << builder.CharacterSize(48) << Nz::Color::Red() << "bigger" << builder.CharacterSize(24) << Nz::Color::Black() << " text";
 	textAreaWidget2->Resize(Nz::Vector2f(500.f, textAreaWidget2->GetPreferredHeight()));
+
+	Nz::ProgressBarWidget* progressBarWidget = canvas2D.Add<Nz::ProgressBarWidget>();
+	progressBarWidget->SetPosition(200.f, 600.f);
+	progressBarWidget->Resize({ 512.f, 64.f });
+
+	buttonWidget->OnButtonTrigger.Connect([&](const Nz::ButtonWidget*)
+	{
+		labelWidget->UpdateText(Nz::SimpleTextDrawer::Draw("You clicked the button " + std::to_string(++clickCount) + " times", 72));
+		if (progressBarWidget->GetFraction() >= 1.f)
+			progressBarWidget->SetFraction(0.f);
+		else
+			progressBarWidget->SetFraction(progressBarWidget->GetFraction() + 0.1001f); //< ensures ten clicks go over 1
+	});
 
 	entt::handle viewer2D = world.CreateEntity();
 	{
