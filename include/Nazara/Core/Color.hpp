@@ -73,6 +73,9 @@ namespace Nz
 			static constexpr Color Black();
 			static constexpr Color Blue();
 			static constexpr Color Cyan();
+			static constexpr Color DarkBlue();
+			static constexpr Color DarkGreen();
+			static constexpr Color DarkRed();
 			static constexpr Color Gray();
 			static constexpr Color Green();
 			static constexpr Color Magenta();

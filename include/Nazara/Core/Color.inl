@@ -625,6 +625,21 @@ namespace Nz
 		return Color(0.f, 1.f, 1.f);
 	}
 
+	constexpr Color Color::DarkBlue()
+	{
+		return Color(0.f, 0.f, 139.f / 255.f);
+	}
+
+	constexpr Color Color::DarkGreen()
+	{
+		return Color(0.f, 100.f / 255.f, 0.f);
+	}
+
+	constexpr Color Color::DarkRed()
+	{
+		return Color(139.f / 255.f, 0.f, 0.f);
+	}
+
 	constexpr Color Color::Gray()
 	{
 		return Color(80.f / 255.f, 80.f / 255.f, 80.f / 255.f);
