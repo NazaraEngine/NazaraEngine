@@ -14,7 +14,7 @@ namespace Nz
 	namespace
 	{
 		const UInt8 s_defaultThemeButtonImage[] = {
-			#include <Nazara/Widgets/Resources/DefaultTheme/Button_SMALL2.png.h>
+			#include <Nazara/Widgets/Resources/DefaultTheme/Button.png.h>
 		};
 
 		const UInt8 s_defaultThemeButtonHoveredImage[] = {
@@ -186,7 +186,7 @@ namespace Nz
 	{
 		SimpleButtonWidgetStyle::StyleConfig styleConfig;
 		styleConfig.cornerSize = 20.f;
-		styleConfig.cornerTexCoords = 20.f / 42.f;
+		styleConfig.cornerTexCoords = 20.f / 128.f;
 		styleConfig.hoveredMaterial = m_buttonHoveredMaterial;
 		styleConfig.material = m_buttonMaterial;
 		styleConfig.pressedHoveredMaterial = m_buttonPressedHoveredMaterial;
