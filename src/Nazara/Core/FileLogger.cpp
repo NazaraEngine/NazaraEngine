@@ -118,7 +118,6 @@ namespace Nz
 		}
 
 		// Apply some processing before writing
-		std::ostringstream stream;
 		if (m_timeLoggingEnabled)
 		{
 			std::array<char, 24> buffer;
@@ -126,12 +125,10 @@ namespace Nz
 			time_t currentTime = std::time(nullptr);
 			std::strftime(buffer.data(), 24, "%d/%m/%Y - %H:%M:%S: ", std::localtime(&currentTime));
 
-			stream << buffer.data();
+			m_outputFile << buffer.data();
 		}
 
-		stream << string << '\n';
-
-		m_outputFile << stream.str();
+		m_outputFile << string << '\n';
 	}
 
 	/*!
