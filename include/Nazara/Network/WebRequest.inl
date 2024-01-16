@@ -16,6 +16,11 @@ namespace Nz
 		m_options = options;
 	}
 
+	inline void WebRequest::SetProgressCallback(ProgressCallback callback)
+	{
+		m_progressCallback = std::move(callback);
+	}
+
 	inline void WebRequest::SetResultCallback(ResultCallback callback)
 	{
 		m_resultCallback = std::move(callback);

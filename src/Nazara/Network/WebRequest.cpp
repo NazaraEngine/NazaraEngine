@@ -177,6 +177,22 @@ namespace Nz
 		if (!m_isUserAgentSet)
 			SetHeader("User-Agent", m_webService.GetUserAgent());
 
+		if (m_progressCallback)
+		{
+			curl_xferinfo_callback progressCallback = [](void* userdata, curl_off_t dltotal, curl_off_t dlnow, curl_off_t ultotal, curl_off_t ulnow) -> int
+			{
+				WebRequest* request = static_cast<WebRequest*>(userdata);
+				if (!request->m_progressCallback(SafeCast<UInt64>(dlnow), SafeCast<UInt64>(dltotal)))
+					return -1;
+
+				return 0; //< don't return CURL_PROGRESSFUNC_CONTINUE as it would output progress on stdout
+			};
+
+			libcurl.easy_setopt(m_curlHandle, CURLOPT_NOPROGRESS, long(0));
+			libcurl.easy_setopt(m_curlHandle, CURLOPT_XFERINFODATA, this);
+			libcurl.easy_setopt(m_curlHandle, CURLOPT_XFERINFOFUNCTION, progressCallback);
+		}
+
 		return m_curlHandle;
 	}
 #else

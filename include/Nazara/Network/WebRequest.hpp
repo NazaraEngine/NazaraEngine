@@ -33,6 +33,7 @@ namespace Nz
 
 		public:
 			using DataCallback = std::function<bool(const void* data, std::size_t length)>;
+			using ProgressCallback = std::function<bool(UInt64 downloaded, UInt64 totalSize)>;
 			using ResultCallback = std::function<void(WebRequestResult&& result)>;
 
 			WebRequest(WebService& owner);
@@ -47,6 +48,7 @@ namespace Nz
 			void SetJSonContent(std::string encodedJSon);
 			void SetMaximumFileSize(UInt64 maxFileSize);
 			inline void SetOptions(WebRequestOptionFlags options);
+			inline void SetProgressCallback(ProgressCallback callback);
 			inline void SetResultCallback(ResultCallback callback);
 			void SetServiceName(std::string serviceName);
 			void SetURL(const std::string& url);
@@ -87,6 +89,7 @@ namespace Nz
 			HighPrecisionClock m_clock;
 			MovablePtr<emscripten_fetch_t> m_fetchHandle;
 #endif
+			ProgressCallback m_progressCallback;
 			ResultCallback m_resultCallback;
 			WebRequestOptionFlags m_options;
 			bool m_isUserAgentSet;
