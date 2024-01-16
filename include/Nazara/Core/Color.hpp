@@ -33,6 +33,8 @@ namespace Nz
 			inline std::string ToString() const;
 
 			constexpr Color operator+(const Color& color) const;
+			constexpr Color operator-(const Color& color) const;
+			constexpr Color operator*(float scale) const;
 			constexpr Color operator*(const Color& color) const;
 
 			constexpr Color& operator=(const Color&) = default;
@@ -88,7 +90,9 @@ namespace Nz
 	inline bool Serialize(SerializationContext& context, const Color& color, TypeTag<Color>);
 	inline bool Unserialize(SerializationContext& context, Color* color, TypeTag<Color>);
 
-	std::ostream& operator<<(std::ostream& out, const Color& color);
+	inline std::ostream& operator<<(std::ostream& out, const Color& color);
+
+	constexpr Color operator*(float scale, const Color& color);
 }
 
 #include <Nazara/Core/Color.inl>

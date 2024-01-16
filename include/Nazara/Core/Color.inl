@@ -86,6 +86,28 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Subtracts two colors together
+	* \return Color which is the subtraction
+	*
+	* \param color Other color
+	*/
+	constexpr Color Color::operator-(const Color& color) const
+	{
+		return Color(r - color.r, g - color.g, b - color.b, a - color.a);
+	}
+
+	/*!
+	* \brief Scales a color
+	* \return Color which is the product
+	*
+	* \param color Other color
+	*/
+	constexpr Color Color::operator*(float scale) const
+	{
+		return Color(r * scale, g * scale, b * scale, a * scale);
+	}
+
+	/*!
 	* \brief Multiplies two colors together
 	* \return Color which is the product
 	*
@@ -724,6 +746,11 @@ namespace Nz
 	inline std::ostream& operator<<(std::ostream& out, const Color& color)
 	{
 		return out << color.ToString();
+	}
+
+	constexpr Color operator*(float scale, const Color& color)
+	{
+		return color * scale;
 	}
 }
 
