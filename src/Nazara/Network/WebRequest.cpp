@@ -193,6 +193,12 @@ namespace Nz
 			libcurl.easy_setopt(m_curlHandle, CURLOPT_XFERINFOFUNCTION, progressCallback);
 		}
 
+		if (m_options.Test(WebRequestOption::FailOnError))
+			libcurl.easy_setopt(m_curlHandle, CURLOPT_FAILONERROR, long(1));
+
+		if (m_options.Test(WebRequestOption::FollowRedirects))
+			libcurl.easy_setopt(m_curlHandle, CURLOPT_FOLLOWLOCATION, long(1));
+
 		return m_curlHandle;
 	}
 #else
