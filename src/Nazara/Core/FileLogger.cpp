@@ -8,7 +8,6 @@
 #include <array>
 #include <ctime>
 #include <filesystem>
-#include <sstream>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz

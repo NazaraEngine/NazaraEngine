@@ -2,9 +2,9 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Core/Format.hpp>
 #include <algorithm>
 #include <cmath>
-#include <sstream>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -68,15 +68,10 @@ namespace Nz
 
 	inline std::string Color::ToString() const
 	{
-		std::ostringstream ss;
-		ss << "Color(" << r << ", " << g << ", " << b;
-
 		if (!IsOpaque())
-			ss << ", " << a;
-
-		ss << ')';
-
-		return ss.str();
+			return Format("Color({0}, {1}, {2}, {3})", r, g, b, a);
+		else
+			return Format("Color({0}, {1}, {2})", r, g, b);
 	}
 
 	/*!
