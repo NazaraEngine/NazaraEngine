@@ -345,7 +345,7 @@ if has_config("utility") then
 	add_requires("ordered_map", "stb")
 end
 
-if has_config("vulkan") then
+if has_config("vulkan") and not is_plat("wasm") then
 	add_requires("vulkan-headers", "vulkan-memory-allocator")
 end
 
