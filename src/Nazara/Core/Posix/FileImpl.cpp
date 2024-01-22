@@ -14,7 +14,7 @@
 #include <sys/stat.h>
 #include <Nazara/Core/Debug.hpp>
 
-namespace Nz
+namespace Nz::PlatformImpl
 {
 	FileImpl::FileImpl(const File* parent) :
 	m_fileDescriptor(-1),

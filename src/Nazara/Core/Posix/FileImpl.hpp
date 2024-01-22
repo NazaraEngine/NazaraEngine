@@ -37,8 +37,10 @@
 namespace Nz
 {
 	class File;
-	class String;
+}
 
+namespace Nz::PlatformImpl
+{
 	class FileImpl
 	{
 		public:

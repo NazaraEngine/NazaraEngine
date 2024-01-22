@@ -12,11 +12,8 @@
 #include <ctime>
 #include <Windows.h>
 
-namespace Nz
+namespace Nz::PlatformImpl
 {
-	class File;
-	class String;
-
 	class FileImpl
 	{
 		public:

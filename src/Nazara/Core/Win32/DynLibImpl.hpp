@@ -13,7 +13,7 @@
 #include <filesystem>
 #include <Windows.h>
 
-namespace Nz
+namespace Nz::PlatformImpl
 {
 	class DynLibImpl
 	{

@@ -28,7 +28,10 @@ namespace Nz
 {
 	using DynLibFunc = void (*)(void); // "Generic" type of pointer to function
 
-	class DynLibImpl;
+	namespace PlatformImpl
+	{
+		class DynLibImpl;
+	}
 
 	class NAZARA_CORE_API DynLib
 	{
@@ -51,7 +54,7 @@ namespace Nz
 
 		private:
 			mutable std::string m_lastError;
-			std::unique_ptr<DynLibImpl> m_impl;
+			std::unique_ptr<PlatformImpl::DynLibImpl> m_impl;
 	};
 }
 

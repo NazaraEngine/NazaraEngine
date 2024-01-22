@@ -117,31 +117,31 @@ namespace Nz
 
 	void HardwareInfo::Cpuid(UInt32 functionId, UInt32 subFunctionId, UInt32 result[4])
 	{
-		return HardwareInfoImpl::Cpuid(functionId, subFunctionId, result);
+		return PlatformImpl::HardwareInfoImpl::Cpuid(functionId, subFunctionId, result);
 	}
 
 	bool HardwareInfo::IsCpuidSupported()
 	{
-		return HardwareInfoImpl::IsCpuidSupported();
+		return PlatformImpl::HardwareInfoImpl::IsCpuidSupported();
 	}
 
 	void HardwareInfo::FetchCPUInfo()
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
-		m_cpuThreadCount = std::max(HardwareInfoImpl::GetProcessorCount(), 1U);
+		m_cpuThreadCount = std::max(PlatformImpl::HardwareInfoImpl::GetProcessorCount(), 1U);
 
 		m_cpuCapabilities.fill(false);
 		m_cpuVendor = ProcessorVendor::Unknown;
 
 		std::strcpy(m_cpuBrandString.data(), "CPU from unknown vendor - cpuid not supported");
 
-		if (!HardwareInfoImpl::IsCpuidSupported())
+		if (!PlatformImpl::HardwareInfoImpl::IsCpuidSupported())
 			return;
 
 		// To begin, we get the id of the constructor and the id of maximal functions supported by the CPUID
 		std::array<UInt32, 4> registers;
-		HardwareInfoImpl::Cpuid(0, 0, registers.data());
+		PlatformImpl::HardwareInfoImpl::Cpuid(0, 0, registers.data());
 
 		UInt32& eax = registers[0];
 		UInt32& ebx = registers[1];
@@ -159,7 +159,7 @@ namespace Nz
 		if (eax >= 1)
 		{
 			// Retrieval of certain capacities of the processor (ECX and EDX, function 1)
-			HardwareInfoImpl::Cpuid(1, 0, registers.data());
+			PlatformImpl::HardwareInfoImpl::Cpuid(1, 0, registers.data());
 
 			m_cpuCapabilities[ProcessorCap::AES]    = (ecx & (1U << 25)) != 0;
 			m_cpuCapabilities[ProcessorCap::AVX]    = (ecx & (1U << 28)) != 0;
@@ -176,13 +176,13 @@ namespace Nz
 		}
 
 		// Retrieval of biggest extended function handled (EAX, function 0x80000000)
-		HardwareInfoImpl::Cpuid(0x80000000, 0, registers.data());
+		PlatformImpl::HardwareInfoImpl::Cpuid(0x80000000, 0, registers.data());
 
 		UInt32 maxSupportedExtendedFunction = eax;
 		if (maxSupportedExtendedFunction >= 0x80000001)
 		{
 			// Retrieval of extended capabilities of the processor (ECX and EDX, function 0x80000001)
-			HardwareInfoImpl::Cpuid(0x80000001, 0, registers.data());
+			PlatformImpl::HardwareInfoImpl::Cpuid(0x80000001, 0, registers.data());
 
 			m_cpuCapabilities[ProcessorCap::x64]   = (edx & (1U << 29)) != 0; // Support of 64bits, doesn't mean executable is 64bits
 			m_cpuCapabilities[ProcessorCap::FMA4]  = (ecx & (1U << 16)) != 0;
@@ -195,7 +195,7 @@ namespace Nz
 				char* ptr = &m_cpuBrandString[0];
 				for (UInt32 code = 0x80000002; code <= 0x80000004; ++code)
 				{
-					HardwareInfoImpl::Cpuid(code, 0, registers.data());
+					PlatformImpl::HardwareInfoImpl::Cpuid(code, 0, registers.data());
 					std::memcpy(ptr, &registers[0], 4*sizeof(UInt32)); // We add the 16 bytes to the string
 
 					ptr += 4 * sizeof(UInt32);
@@ -208,6 +208,6 @@ namespace Nz
 
 	void HardwareInfo::FetchMemoryInfo()
 	{
-		m_systemTotalMemory = HardwareInfoImpl::GetTotalMemory();
+		m_systemTotalMemory = PlatformImpl::HardwareInfoImpl::GetTotalMemory();
 	}
 }

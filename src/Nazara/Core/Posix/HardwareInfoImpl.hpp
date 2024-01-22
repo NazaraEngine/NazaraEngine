@@ -9,7 +9,7 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 
-namespace Nz
+namespace Nz::PlatformImpl
 {
 	class HardwareInfoImpl
 	{

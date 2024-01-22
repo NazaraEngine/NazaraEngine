@@ -7,7 +7,7 @@
 #include <unistd.h>
 #include <Nazara/Core/Debug.hpp>
 
-namespace Nz
+namespace Nz::PlatformImpl
 {
 	void HardwareInfoImpl::Cpuid(UInt32 functionId, UInt32 subFunctionId, UInt32 registers[4])
 	{

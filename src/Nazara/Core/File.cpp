@@ -188,7 +188,7 @@ namespace Nz
 			return true;
 		}
 
-		std::unique_ptr<FileImpl> impl = std::make_unique<FileImpl>(this);
+		std::unique_ptr<PlatformImpl::FileImpl> impl = std::make_unique<PlatformImpl::FileImpl>(this);
 		if (!impl->Open(m_filePath, openMode))
 		{
 			ErrorFlags flags(ErrorMode::Silent); // Silent by default
@@ -240,7 +240,7 @@ namespace Nz
 			if (filePath.empty())
 				return false;
 
-			std::unique_ptr<FileImpl> impl = std::make_unique<FileImpl>(this);
+			std::unique_ptr<PlatformImpl::FileImpl> impl = std::make_unique<PlatformImpl::FileImpl>(this);
 			if (!impl->Open(filePath, m_openMode))
 			{
 				NazaraErrorFmt("failed to open new file; {0}", Error::GetLastSystemError());

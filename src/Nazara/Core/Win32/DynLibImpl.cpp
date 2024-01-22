@@ -9,7 +9,7 @@
 #include <memory>
 #include <Nazara/Core/Debug.hpp>
 
-namespace Nz
+namespace Nz::PlatformImpl
 {
 	DynLibImpl::~DynLibImpl()
 	{

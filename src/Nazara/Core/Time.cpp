@@ -22,15 +22,15 @@ namespace Nz
 	{
 		Time GetElapsedNanosecondsFirstRun()
 		{
-			if (InitializeHighPrecisionTimer())
-				GetElapsedNanoseconds = GetElapsedNanosecondsImpl;
+			if (PlatformImpl::InitializeHighPrecisionTimer())
+				GetElapsedNanoseconds = PlatformImpl::GetElapsedNanosecondsImpl;
 			else
-				GetElapsedNanoseconds = GetElapsedMillisecondsImpl;
+				GetElapsedNanoseconds = PlatformImpl::GetElapsedMillisecondsImpl;
 
 			return GetElapsedNanoseconds();
 		}
 	}
 
-	GetElapsedTimeFunction GetElapsedMilliseconds = GetElapsedMillisecondsImpl;
+	GetElapsedTimeFunction GetElapsedMilliseconds = PlatformImpl::GetElapsedMillisecondsImpl;
 	GetElapsedTimeFunction GetElapsedNanoseconds = NAZARA_ANONYMOUS_NAMESPACE_PREFIX(GetElapsedNanosecondsFirstRun);
 }

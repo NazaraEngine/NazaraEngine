@@ -19,7 +19,10 @@
 
 namespace Nz
 {
-	class FileImpl;
+	namespace PlatformImpl
+	{
+		class FileImpl;
+	}
 
 	class NAZARA_CORE_API File : public Stream
 	{
@@ -70,7 +73,7 @@ namespace Nz
 			std::size_t WriteBlock(const void* buffer, std::size_t size) override;
 
 			std::filesystem::path m_filePath;
-			std::unique_ptr<FileImpl> m_impl;
+			std::unique_ptr<PlatformImpl::FileImpl> m_impl;
 	};
 
 	NAZARA_CORE_API bool HashAppend(AbstractHash& hash, const File& originalFile);

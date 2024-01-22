@@ -12,10 +12,8 @@
 #include <filesystem>
 #include <string>
 
-namespace Nz
+namespace Nz::PlatformImpl
 {
-	class String;
-
 	class DynLibImpl
 	{
 		public:
