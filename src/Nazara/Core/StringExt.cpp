@@ -56,7 +56,14 @@ namespace Nz
 		template<>
 		struct WideConverter<2>
 		{
+			static constexpr std::size_t MaxCharacterPerCodepoint = 2;
+
 			// UTF-16 (Windows)
+			static std::size_t Append(char32_t codepoint, wchar_t* output)
+			{
+				return utf8::append16(codepoint, output) - output;
+			}
+
 			static std::string From(const wchar_t* wstr, std::size_t size)
 			{
 				return FromUtf16String(std::u16string_view(reinterpret_cast<const char16_t*>(wstr), size));
@@ -76,7 +83,15 @@ namespace Nz
 		template<>
 		struct WideConverter<4>
 		{
+			static constexpr std::size_t MaxCharacterPerCodepoint = 1;
+
 			// UTF-32 (POSIX)
+			static std::size_t Append(char32_t codepoint, wchar_t* output)
+			{
+				*output = codepoint;
+				return 1;
+			}
+
 			static std::string From(const wchar_t* wstr, std::size_t size)
 			{
 				return FromUtf32String(std::u32string_view(reinterpret_cast<const char32_t*>(wstr), size));
@@ -91,6 +106,8 @@ namespace Nz
 			}
 		};
 #endif
+
+		using NativeWideConverter = WideConverter<sizeof(wchar_t)>;
 	}
 
 	std::size_t ComputeCharacterCount(std::string_view str)
@@ -183,7 +200,7 @@ namespace Nz
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
-		return WideConverter<sizeof(wchar_t)>::From(wstr.data(), wstr.size());
+		return NativeWideConverter::From(wstr.data(), wstr.size());
 	}
 
 	std::size_t GetCharacterPosition(std::string_view str, std::size_t characterIndex)
@@ -281,6 +298,31 @@ namespace Nz
 
 		if (charCount != 0)
 			callback(std::u32string_view(&buffer[0], charCount));
+	}
+
+	void IterateOnWideChars(std::string_view str, FunctionRef<bool(std::wstring_view characters)> callback)
+	{
+		std::array<wchar_t, 128> buffer;
+		std::size_t charCount = 0;
+
+		utf8::unchecked::iterator<const char*> it(str.data());
+		utf8::unchecked::iterator<const char*> end(str.data() + str.size());
+		for (; it != end; ++it)
+		{
+			charCount += NativeWideConverter::Append(*it, &buffer[charCount]);
+
+			// Leave enough space for a full character (using up to MaxCharacterPerCodepoint)
+			if (buffer.size() - charCount < NativeWideConverter::MaxCharacterPerCodepoint)
+			{
+				if (!callback(std::wstring_view(&buffer[0], charCount)))
+					return;
+
+				charCount = 0;
+			}
+		}
+
+		if (charCount != 0)
+			callback(std::wstring_view(&buffer[0], charCount));
 	}
 
 	bool MatchPattern(std::string_view str, std::string_view pattern)
@@ -514,7 +556,7 @@ namespace Nz
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
-		return WideConverter<sizeof(wchar_t)>::To(str);
+		return NativeWideConverter::To(str);
 	}
 
 	std::string_view TrimLeft(std::string_view str)
