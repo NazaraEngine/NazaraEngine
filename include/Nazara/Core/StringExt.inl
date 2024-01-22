@@ -77,11 +77,28 @@ namespace Nz
 		return str;
 	}
 
-	inline std::string& ReplaceStr(std::string& str, std::string_view from, std::string_view to)
+	template<typename T>
+	std::basic_string<T>& ReplaceStr(std::basic_string<T>& str, T from, T to)
 	{
-		if (str.empty())
-			return str;
+		std::size_t startPos = 0;
+		while ((startPos = str.find(from, startPos)) != std::string::npos)
+		{
+			str[startPos] = to;
+			startPos++;
+		}
 
+		return str;
+	}
+
+	template<typename T>
+	std::basic_string<T>& ReplaceStr(std::basic_string<T>& str, const T* from, const T* to)
+	{
+		return ReplaceStr(str, std::basic_string_view<T>(from), std::basic_string_view<T>(to));
+	}
+
+	template<typename T>
+	std::basic_string<T>& ReplaceStr(std::basic_string<T>& str, std::basic_string_view<T> from, std::basic_string_view<T> to)
+	{
 		std::size_t startPos = 0;
 		while ((startPos = str.find(from, startPos)) != std::string::npos)
 		{

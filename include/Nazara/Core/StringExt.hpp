@@ -36,6 +36,7 @@ namespace Nz
 	inline bool IsNumber(std::string_view str);
 
 	NAZARA_CORE_API void IterateOnCodepoints(std::string_view str, FunctionRef<bool(std::u32string_view characters)> callback);
+	NAZARA_CORE_API void IterateOnWideChars(std::string_view str, FunctionRef<bool(std::wstring_view characters)> callback);
 
 	NAZARA_CORE_API bool MatchPattern(std::string_view str, std::string_view pattern);
 
@@ -43,7 +44,9 @@ namespace Nz
 
 	NAZARA_CORE_API std::string PointerToString(const void* ptr);
 
-	inline std::string& ReplaceStr(std::string& str, std::string_view from, std::string_view to);
+	template<typename T> std::basic_string<T>& ReplaceStr(std::basic_string<T>& str, T from, T to);
+	template<typename T> std::basic_string<T>& ReplaceStr(std::basic_string<T>& str, const T* from, const T* to);
+	template<typename T> std::basic_string<T>& ReplaceStr(std::basic_string<T>& str, std::basic_string_view<T> from, std::basic_string_view<T> to);
 
 	inline bool StartsWith(std::string_view str, std::string_view s);
 	NAZARA_CORE_API bool StartsWith(std::string_view lhs, std::string_view rhs, CaseIndependent);
