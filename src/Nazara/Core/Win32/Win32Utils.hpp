@@ -9,11 +9,19 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <ctime>
+#include <filesystem>
 #include <Windows.h>
 
-namespace Nz
+namespace Nz::PlatformImpl
 {
+	constexpr bool ArePathWide = std::is_same_v< std::filesystem::path::value_type, wchar_t>;
+
+	using WidePathHolder = std::conditional_t<ArePathWide, /*null-terminated*/ std::wstring_view, std::wstring>;
+
+	inline WidePathHolder PathToWideTemp(const std::filesystem::path& path);
 	time_t FileTimeToTime(FILETIME* time);
 }
+
+#include <Nazara/Core/Win32/Win32Utils.inl>
 
 #endif // NAZARA_CORE_WIN32_UTILS_HPP

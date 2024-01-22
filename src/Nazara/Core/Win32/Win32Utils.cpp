@@ -2,10 +2,12 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Core/Win32/Utils.hpp>
+#include <Nazara/Core/Win32/Win32Utils.hpp>
+#include <Nazara/Core/StringExt.hpp>
+#include <NazaraUtils/PathUtils.hpp>
 #include <Nazara/Core/Debug.hpp>
 
-namespace Nz
+namespace Nz::PlatformImpl
 {
 	time_t FileTimeToTime(FILETIME* time)
 	{

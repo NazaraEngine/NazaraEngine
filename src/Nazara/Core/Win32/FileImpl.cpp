@@ -5,7 +5,7 @@
 #include <Nazara/Core/Win32/FileImpl.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/StringExt.hpp>
-#include <Nazara/Core/Win32/Utils.hpp>
+#include <Nazara/Core/Win32/Win32Utils.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
 #include <NazaraUtils/PathUtils.hpp>
 #include <memory>
@@ -90,10 +90,7 @@ namespace Nz::PlatformImpl
 		if (!mode.Test(OpenMode::Lock))
 			shareMode |= FILE_SHARE_WRITE;
 
-		if constexpr (std::is_same_v<std::filesystem::path::value_type, wchar_t>)
-			m_handle = CreateFileW(filePath.c_str(), access, shareMode, nullptr, openMode, 0, nullptr);
-		else
-			m_handle = CreateFileW(ToWideString(PathToString(filePath)).data(), access, shareMode, nullptr, openMode, 0, nullptr);
+		m_handle = CreateFileW(PathToWideTemp(filePath).data(), access, shareMode, nullptr, openMode, 0, nullptr);
 
 		return m_handle != INVALID_HANDLE_VALUE;
 	}
