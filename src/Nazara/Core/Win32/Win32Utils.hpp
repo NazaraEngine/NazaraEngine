@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_CORE_WIN32_UTILS_HPP
-#define NAZARA_CORE_WIN32_UTILS_HPP
+#ifndef NAZARA_CORE_WIN32_WIN32UTILS_HPP
+#define NAZARA_CORE_WIN32_WIN32UTILS_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <ctime>
@@ -24,4 +24,4 @@ namespace Nz::PlatformImpl
 
 #include <Nazara/Core/Win32/Win32Utils.inl>
 
-#endif // NAZARA_CORE_WIN32_UTILS_HPP
+#endif // NAZARA_CORE_WIN32_WIN32UTILS_HPP

@@ -3,9 +3,9 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Win32/DynLibImpl.hpp>
-#include <Nazara/Core/Win32/Win32Utils.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/StringExt.hpp>
+#include <Nazara/Core/Win32/Win32Utils.hpp>
 #include <NazaraUtils/PathUtils.hpp>
 #include <memory>
 #include <Nazara/Core/Debug.hpp>
