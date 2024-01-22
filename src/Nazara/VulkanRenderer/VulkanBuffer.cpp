@@ -7,7 +7,7 @@
 #include <Nazara/VulkanRenderer/Wrapper/CommandBuffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/QueueHandle.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
-#include <vma/vk_mem_alloc.h>
+#include <vk_mem_alloc.h>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz

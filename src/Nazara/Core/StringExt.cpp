@@ -6,7 +6,7 @@
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <NazaraUtils/FunctionTraits.hpp>
-#include <Utfcpp/utf8.h>
+#include <utf8cpp/utf8.h>
 #include <cinttypes>
 #include <Nazara/Core/Debug.hpp>
 

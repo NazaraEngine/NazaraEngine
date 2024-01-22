@@ -30,6 +30,7 @@ local rendererBackends = {
 	VulkanRenderer = {
 		Option = "vulkan",
 		Deps = {"NazaraRenderer"},
+		Packages = {"vulkan-headers", "vulkan-memory-allocator"},
 		Custom = function()
 			add_defines("VK_NO_PROTOTYPES")
 			if is_plat("windows", "mingw") then
@@ -111,7 +112,7 @@ local modules = {
 				remove_files("src/Nazara/Core/Posix/TimeImpl.cpp")
 			end
 		end,
-		Packages = { "entt", "frozen" },
+		Packages = { "entt", "frozen", "utfcpp" },
 		PublicPackages = { "nazarautils" }
 	},
 	Graphics = {
@@ -154,6 +155,7 @@ local modules = {
 	Platform = {
 		Option = "platform",
 		Deps = {"NazaraUtility"},
+		Packages = {"utfcpp"},
 		Custom = function()
 			add_packages("libsdl", { components = {"lib"} })
 			if is_plat("windows", "mingw") then
@@ -263,7 +265,7 @@ end
 
 add_repositories("nazara-engine-repo https://github.com/NazaraEngine/xmake-repo")
 
-add_requires("entt 3.12.2", "fmt", "frozen", "nazarautils >=2024.01.13")
+add_requires("entt 3.12.2", "fmt", "frozen", "nazarautils >=2024.01.13", "utfcpp")
 
 -- Module dependencies
 if has_config("audio") then
@@ -341,6 +343,10 @@ end
 if has_config("utility") then
 	add_requires("freetype", { configs = { bzip2 = true, png = true, woff2 = true, zlib = true, debug = is_mode("debug") } })
 	add_requires("ordered_map", "stb")
+end
+
+if has_config("vulkan") then
+	add_requires("vulkan-headers", "vulkan-memory-allocator")
 end
 
 if has_config("widgets") then

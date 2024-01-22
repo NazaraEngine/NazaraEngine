@@ -21,7 +21,7 @@
 #endif
 
 #include <SDL_syswm.h>
-#include <Utfcpp/utf8.h>
+#include <utf8cpp/utf8.h>
 #include <cstdio>
 #include <memory>
 #include <Nazara/Platform/Debug.hpp>
