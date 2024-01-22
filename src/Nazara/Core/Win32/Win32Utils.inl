@@ -9,6 +9,6 @@ namespace Nz::PlatformImpl
 		if constexpr (ArePathWide)
 			return path.native();
 		else
-			return path.generic_wstring();
+			return path.wstring();
 	}
 }
