@@ -187,13 +187,10 @@ namespace Nz
 
 		const Font::SizeInfo& sizeInfo = m_font->GetSizeInfo(m_characterSize);
 
-
-		IterateOnCodepoints(text, [&](const char32_t* characters, std::size_t characterCount)
+		IterateOnCodepoints(text, [&](std::u32string_view characters)
 		{
-			for (std::size_t i = 0; i < characterCount; ++i)
+			for (char32_t character : characters)
 			{
-				char32_t character = characters[i];
-				
 				if (m_previousCharacter != 0)
 					m_drawPos.x += m_font->GetKerning(m_characterSize, m_previousCharacter, character);
 

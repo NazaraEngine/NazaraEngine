@@ -35,7 +35,7 @@ namespace Nz
 
 	inline bool IsNumber(std::string_view str);
 
-	NAZARA_CORE_API void IterateOnCodepoints(std::string_view str, FunctionRef<bool(const char32_t* characters, std::size_t characterCount)> callback);
+	NAZARA_CORE_API void IterateOnCodepoints(std::string_view str, FunctionRef<bool(std::u32string_view characters)> callback);
 
 	NAZARA_CORE_API bool MatchPattern(std::string_view str, std::string_view pattern);
 

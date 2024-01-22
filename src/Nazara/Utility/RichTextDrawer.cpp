@@ -402,12 +402,10 @@ namespace Nz
 			m_lines.back().bounds.height += heightDifference;
 		}
 
-		IterateOnCodepoints(text, [&](const char32_t* characters, std::size_t characterCount)
+		IterateOnCodepoints(text, [&](std::u32string_view characters)
 		{
-			for (std::size_t i = 0; i < characterCount; ++i)
+			for (char32_t character : characters)
 			{
-				char32_t character = characters[i];
-
 				if (previousCharacter != 0)
 					m_drawPos.x += font.GetKerning(characterSize, previousCharacter, character);
 

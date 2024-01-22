@@ -260,9 +260,9 @@ namespace Nz
 		return {};
 	}
 
-	void IterateOnCodepoints(std::string_view str, FunctionRef<bool(const char32_t* characters, std::size_t characterCount)> callback)
+	void IterateOnCodepoints(std::string_view str, FunctionRef<bool(std::u32string_view characters)> callback)
 	{
-		std::array<char32_t, 32> buffer;
+		std::array<char32_t, 128> buffer;
 		std::size_t charCount = 0;
 
 		utf8::unchecked::iterator<const char*> it(str.data());
@@ -272,7 +272,7 @@ namespace Nz
 			buffer[charCount++] = *it;
 			if (charCount == buffer.size())
 			{
-				if (!callback(&buffer[0], charCount))
+				if (!callback(std::u32string_view(&buffer[0], charCount)))
 					return;
 
 				charCount = 0;
@@ -280,7 +280,7 @@ namespace Nz
 		}
 
 		if (charCount != 0)
-			callback(&buffer[0], charCount);
+			callback(std::u32string_view(&buffer[0], charCount));
 	}
 
 	bool MatchPattern(std::string_view str, std::string_view pattern)

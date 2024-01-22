@@ -263,10 +263,10 @@ namespace Nz
 		UInt64 key = ComputeKey(characterSize, style, outlineThickness);
 		auto& glyphMap = m_glyphes[key];
 
-		IterateOnCodepoints(characterSet, [&](const char32_t* characters, std::size_t characterCount)
+		IterateOnCodepoints(characterSet, [&](std::u32string_view characters)
 		{
-			for (std::size_t i = 0; i < characterCount; ++i)
-				PrecacheGlyph(glyphMap, characterSize, style, outlineThickness, characters[i]);
+			for (char32_t character : characters)
+				PrecacheGlyph(glyphMap, characterSize, style, outlineThickness, character);
 
 			return true;
 		});
