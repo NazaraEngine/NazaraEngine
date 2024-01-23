@@ -38,6 +38,20 @@ namespace Nz::PlatformImpl
 			// Child process
 			::setsid();
 
+			if (!workingDirectory.empty())
+			{
+				if (::chdir(workingDirectory.c_str()) != 0)
+				{
+					PidOrErr err;
+					err.pid = grandChildPid;
+
+					pipe.Write(&err, sizeof(err));
+
+					// Early exit
+					std::exit(1);
+				}
+			}
+
 			pid_t grandChildPid = ::vfork();
 			if (grandChildPid == 0)
 			{
@@ -53,17 +67,18 @@ namespace Nz::PlatformImpl
 
 				char* envs[] = { nullptr };
 
-				if (!workingDirectory.empty())
-					::chdir(workingDirectory.c_str());
+				::execve(program.c_str(), argv.data(), envs);
 
-				if (::execve(program.c_str(), argv.data(), envs) == -1)
-				{
-					PidOrErr err;
-					err.pid = -1;
-					err.err = errno;
+				// If we get here, execve failed
+				// Remember we share the memory of our parent (vfork) so we need to exit using _exit() to avoid calling the parent exit handler
 
-					pipe.Write(&err, sizeof(err));
-				}
+				PidOrErr err;
+				err.pid = -1;
+				err.err = errno;
+
+				pipe.Write(&err, sizeof(err));
+
+				_exit(1);
 			}
 			else if (grandChildPid != -1)
 			{
@@ -71,6 +86,9 @@ namespace Nz::PlatformImpl
 				err.pid = grandChildPid;
 
 				pipe.Write(&err, sizeof(err));
+
+				// Exits the child process, at this point the grand-child should have started
+				std::exit(0);
 			}
 			else
 			{
@@ -79,28 +97,31 @@ namespace Nz::PlatformImpl
 				err.err = errno;
 
 				pipe.Write(&err, sizeof(err));
+
+				std::exit(1);
 			}
 
-			// Exits the child process, at this point the grand-child should have started
-			std::exit(0);
+			__builtin_unreachable(); // TODO: NAZARA_UNREACHABLE()
 		}
-
-		// Parent process
-
-		// Wait for and reap the child
-		int childStatus;
-		::waitpid(childPid, &childStatus, 0);
-
-		PidOrErr pidOrErr;
-		if (pipe.Read(&pidOrErr, sizeof(pidOrErr) != sizeof(pidOrErr)))
+		else
 		{
-			// this should never happen
-			return Err("failed to create child: couldn't retrieve status from pipe");
+			// Parent process
+
+			// Wait for and reap the child
+			int childStatus;
+			::waitpid(childPid, &childStatus, 0);
+
+			PidOrErr pidOrErr;
+			if (pipe.Read(&pidOrErr, sizeof(pidOrErr) != sizeof(pidOrErr)))
+			{
+				// this should never happen
+				return Err("failed to create child: couldn't retrieve status from pipe");
+			}
+
+			if (pidOrErr.pid < 0)
+				return Err(Error::GetLastSystemError(pidOrErr.err));
+
+			return SafeCast<Pid>(pidOrErr.pid);
 		}
-
-		if (pidOrErr.pid < 0)
-			return Err(Error::GetLastSystemError(pidOrErr.err));
-
-		return SafeCast<Pid>(pidOrErr.pid);
 	}
 }
