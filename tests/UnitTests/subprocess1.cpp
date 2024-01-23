@@ -39,5 +39,5 @@ int main(int argc, char* argv[])
 	}
 
 	// Wait for our child process to start and check for our existence
-	std::this_thread::sleep_for(std::chrono::milliseconds(200));
+	std::this_thread::sleep_for(std::chrono::milliseconds(500));
 }
