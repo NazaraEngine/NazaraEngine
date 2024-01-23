@@ -33,6 +33,7 @@ namespace Nz::PlatformImpl
 		// Use a lambda to keep WidePathHolder alive
 		AddProgramName(PathToWideTemp(program));
 
+		// https://learn.microsoft.com/en-us/archive/blogs/twistylittlepassagesallalike/everyone-quotes-command-line-arguments-the-wrong-way
 		for (std::string_view arg : arguments)
 		{
 			commandLine += L' ';
