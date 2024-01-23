@@ -59,8 +59,25 @@ namespace Nz::PlatformImpl
 	m_writeFd(-1)
 	{
 		int fds[2];
+#if defined(NAZARA_PLATFORM_LINUX) || defined(NAZARA_PLATFORM_ANDROID)
 		if (::pipe2(fds, flags & O_CLOEXEC) != 0)
 			return;
+#else
+		if (::pipe(fds) != 0)
+			return;
+
+		auto SetCloseOnExec = [](int fd)
+		{
+			int flags = ::fcntl(fd, F_GETFD, 0);
+			if (flags < 0)
+				return flags; // error
+
+			return ::fcntl(fd, F_SETFD, flags | FD_CLOEXEC);
+		};
+
+		SetCloseOnExec(fds[0]);
+		SetCloseOnExec(fds[1]);
+#endif
 
 		m_readFd = fds[0];
 		m_writeFd = fds[1];
