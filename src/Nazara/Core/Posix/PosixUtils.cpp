@@ -24,7 +24,7 @@ namespace Nz::PlatformImpl
 		{
 			ret = ::close(fd);
 		}
-		while (ret != -1 || errno == EINTR);
+		while (ret == -1 && errno == EINTR);
 
 		return ret;
 #endif
@@ -37,7 +37,7 @@ namespace Nz::PlatformImpl
 		{
 			ret = ::read(fd, buf, count);
 		}
-		while (ret != -1 || errno == EINTR);
+		while (ret == -1 && errno == EINTR);
 
 		return ret;
 	}
@@ -49,7 +49,7 @@ namespace Nz::PlatformImpl
 		{
 			ret = ::write(fd, buf, count);
 		}
-		while (ret != -1 || errno == EINTR);
+		while (ret == -1 && errno == EINTR);
 
 		return ret;
 	}
