@@ -60,7 +60,7 @@ namespace Nz::PlatformImpl
 	{
 		int fds[2];
 #if defined(NAZARA_PLATFORM_LINUX) || defined(NAZARA_PLATFORM_ANDROID)
-		if (::pipe2(fds, flags & O_CLOEXEC) != 0)
+		if (::pipe2(fds, flags | O_CLOEXEC) != 0)
 			return;
 #else
 		if (::pipe(fds) != 0)
