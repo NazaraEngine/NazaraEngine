@@ -12,6 +12,7 @@
 
 namespace Nz::PlatformImpl
 {
+	Result<bool, std::string> CheckProcessExistence(Pid pid);
 	Pid GetCurrentProcessId();
 	Result<Pid, std::string> SpawnDetachedProcess(const std::filesystem::path& program, std::span<const std::string> arguments = {}, const std::filesystem::path& workingDirectory = {});
 }

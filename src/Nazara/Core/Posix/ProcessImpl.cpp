@@ -15,6 +15,17 @@
 
 namespace Nz::PlatformImpl
 {
+	Result<bool, std::string> CheckProcessExistence(Pid pid)
+	{
+		if (::kill(pid, 0) == 0)
+			return Ok(true);
+
+		if (errno == ESRCH)
+			return OK(false);
+
+		return Err(Error::GetLastSystemError());
+	}
+
 	Pid GetCurrentProcessId()
 	{
 		return ::getpid();
@@ -34,6 +45,8 @@ namespace Nz::PlatformImpl
 
 		// Double fork (see https://0xjet.github.io/3OHA/2022/04/11/post.html)
 		// We will create a child and a grand-child process, using a pipe to retrieve the grand-child pid
+		// TODO: Maybe use vfork for the child process too?
+		// TODO: Use posix_spawn if possible instead
 		pid_t childPid = ::fork();
 		if (childPid == -1)
 			return Err("failed to create child: " + Error::GetLastSystemError());
@@ -76,7 +89,7 @@ namespace Nz::PlatformImpl
 				::execve(program.c_str(), argv.data(), envs);
 
 				// If we get here, execve failed
-				// Remember we share the memory of our parent (vfork) so we need to exit using _exit() to avoid calling the parent exit handler
+				// Remember we share the memory of our parent (vfork) so we need to exit using _exit() to avoid calling the parent exit handlers
 
 				PidOrErr err;
 				err.pid = -1;

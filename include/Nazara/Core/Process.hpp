@@ -29,6 +29,7 @@ namespace Nz
 			Process& operator=(const Process&) = delete;
 			Process& operator=(Process&&) = delete;
 
+			static Result<bool, std::string> Exists(Pid pid);
 			static Pid GetCurrentPid();
 			static Result<Pid, std::string> SpawnDetached(const std::filesystem::path& program, std::span<const std::string> arguments = {}, const std::filesystem::path& workingDirectory = {});
 	};
