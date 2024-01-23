@@ -302,6 +302,8 @@ namespace Nz
 
 	void IterateOnWideChars(std::string_view str, FunctionRef<bool(std::wstring_view characters)> callback)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		std::array<wchar_t, 128> buffer;
 		std::size_t charCount = 0;
 
