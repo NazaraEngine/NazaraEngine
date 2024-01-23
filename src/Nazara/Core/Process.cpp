@@ -16,6 +16,11 @@
 
 namespace Nz
 {
+	Pid Process::GetCurrentPid()
+	{
+		return PlatformImpl::GetCurrentProcessId();
+	}
+
 	Result<Pid, std::string> Process::SpawnDetached(const std::filesystem::path& program, std::span<const std::string> arguments, const std::filesystem::path& workingDirectory)
 	{
 		return PlatformImpl::SpawnDetachedProcess(program, arguments, workingDirectory);

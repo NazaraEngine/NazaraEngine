@@ -12,7 +12,8 @@
 
 namespace Nz::PlatformImpl
 {
-	NAZARA_CORE_API Result<Pid, std::string> SpawnDetachedProcess(const std::filesystem::path& program, std::span<const std::string> arguments = {}, const std::filesystem::path& workingDirectory = {});
+	Pid GetCurrentProcessId();
+	Result<Pid, std::string> SpawnDetachedProcess(const std::filesystem::path& program, std::span<const std::string> arguments = {}, const std::filesystem::path& workingDirectory = {});
 }
 
 #endif // NAZARA_CORE_POSIX_PROCESSIMPL_HPP

@@ -15,6 +15,11 @@
 
 namespace Nz::PlatformImpl
 {
+	Pid GetCurrentProcessId()
+	{
+		return ::getpid();
+	}
+
 	Result<Pid, std::string> SpawnDetachedProcess(const std::filesystem::path& program, std::span<const std::string> arguments, const std::filesystem::path& workingDirectory)
 	{
 		struct PidOrErr
@@ -43,7 +48,8 @@ namespace Nz::PlatformImpl
 				if (::chdir(workingDirectory.c_str()) != 0)
 				{
 					PidOrErr err;
-					err.pid = grandChildPid;
+					err.pid = -1;
+					err.err = errno;
 
 					pipe.Write(&err, sizeof(err));
 
