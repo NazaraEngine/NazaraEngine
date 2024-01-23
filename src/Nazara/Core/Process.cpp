@@ -16,6 +16,11 @@
 
 namespace Nz
 {
+	Result<bool, std::string> Process::Exists(Pid pid)
+	{
+		return PlatformImpl::CheckProcessExistence(pid);
+	}
+
 	Pid Process::GetCurrentPid()
 	{
 		return PlatformImpl::GetCurrentProcessId();

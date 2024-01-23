@@ -6,6 +6,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Core/Win32/Win32Utils.hpp>
+#include <NazaraUtils/CallOnExit.hpp>
 #include <Windows.h>
 #include <Nazara/Core/Debug.hpp>
 
@@ -83,6 +84,27 @@ namespace Nz::PlatformImpl
 		}
 
 		return commandLine;
+	}
+
+	Result<bool, std::string> CheckProcessExistence(Pid pid)
+	{
+		HANDLE processHandle = ::OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pid);
+		if (!processHandle)
+		{
+			DWORD lastErr = ::GetLastError();
+			if (lastErr == ERROR_INVALID_PARAMETER)
+				return Ok(false);
+
+			return Err("failed to open process handle: " + Error::GetLastSystemError());
+		}
+		CallOnExit releaseHandle([processHandle] { ::CloseHandle(processHandle); });
+
+		// Opening a handle doesn't mean the process hasn't exited (zombie processes), check if it has an exit code
+		DWORD exitCode;
+		if (!::GetExitCodeProcess(processHandle, &exitCode))
+			return Err("failed to get exit code: " + Error::GetLastSystemError());
+
+		return Ok(exitCode == STILL_ACTIVE);
 	}
 
 	Pid GetCurrentProcessId()
