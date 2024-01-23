@@ -10,7 +10,7 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Time.hpp>
 
-namespace Nz
+namespace Nz::PlatformImpl
 {
 	bool InitializeHighPrecisionTimer();
 	Time GetElapsedNanosecondsImpl();
