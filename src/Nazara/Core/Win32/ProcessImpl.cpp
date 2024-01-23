@@ -85,6 +85,11 @@ namespace Nz::PlatformImpl
 		return commandLine;
 	}
 
+	Pid GetCurrentProcessId()
+	{
+		return ::GetCurrentProcessId();
+	}
+
 	Result<Pid, std::string> SpawnDetachedProcess(const std::filesystem::path& program, std::span<const std::string> arguments, const std::filesystem::path& workingDirectory)
 	{
 		DWORD creationFlags = CREATE_UNICODE_ENVIRONMENT | CREATE_NEW_PROCESS_GROUP | DETACHED_PROCESS;
@@ -100,7 +105,7 @@ namespace Nz::PlatformImpl
 		};
 
 		PROCESS_INFORMATION processInfo;
-		BOOL success = CreateProcessW(
+		BOOL success = ::CreateProcessW(
 			nullptr,            // Application name
 			commandLine.data(), // Command line
 			nullptr,            // Process attributes

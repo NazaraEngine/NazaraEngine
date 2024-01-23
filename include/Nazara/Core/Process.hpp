@@ -29,7 +29,9 @@ namespace Nz
 			Process& operator=(const Process&) = delete;
 			Process& operator=(Process&&) = delete;
 
-			static Result<Pid, std::string> SpawnDetached(const std::filesystem::path& program, std::span<const std::string> arguments = {}, const std::filesystem::path& workingDirectory = {});	};
+			static Pid GetCurrentPid();
+			static Result<Pid, std::string> SpawnDetached(const std::filesystem::path& program, std::span<const std::string> arguments = {}, const std::filesystem::path& workingDirectory = {});
+	};
 }
 
 #include <Nazara/Core/Process.inl>
