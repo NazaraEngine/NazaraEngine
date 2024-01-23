@@ -9,6 +9,7 @@
 #include <NazaraUtils/StackArray.hpp>
 #include <cerrno>
 #include <cstdlib>
+#include <signal.h>
 #include <spawn.h>
 #include <unistd.h>
 #include <sys/wait.h>
