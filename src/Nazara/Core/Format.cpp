@@ -33,6 +33,7 @@ namespace Nz
 		NAZARA_FORMAT_IMPLEM(std::filesystem::path);
 		NAZARA_FORMAT_IMPLEM(std::string);
 		NAZARA_FORMAT_IMPLEM(std::string_view);
+		NAZARA_FORMAT_IMPLEM(char*);
 		NAZARA_FORMAT_IMPLEM(const char*);
 		NAZARA_FORMAT_IMPLEM(short);
 		NAZARA_FORMAT_IMPLEM(int);
