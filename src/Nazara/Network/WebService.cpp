@@ -106,6 +106,15 @@ namespace Nz
 #endif
 	}
 
+	void WebService::QueueRequest(const FunctionRef<bool(WebRequest& request)>& builder)
+	{
+		std::unique_ptr<WebRequest> request = AllocateRequest();
+		if (!builder(*request))
+			return;
+
+		QueueRequest(std::move(request));
+	}
+
 	void WebService::QueueRequest(std::unique_ptr<WebRequest>&& request)
 	{
 		assert(request);

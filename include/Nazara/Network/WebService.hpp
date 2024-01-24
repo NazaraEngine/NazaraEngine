@@ -9,6 +9,7 @@
 
 #include <Nazara/Network/Config.hpp>
 #include <Nazara/Network/WebRequest.hpp>
+#include <NazaraUtils/FunctionRef.hpp>
 #include <NazaraUtils/MovablePtr.hpp>
 #include <unordered_map>
 #include <vector>
@@ -46,6 +47,7 @@ namespace Nz
 
 			bool Poll();
 
+			void QueueRequest(const FunctionRef<bool(WebRequest& request)>& builder);
 			void QueueRequest(std::unique_ptr<WebRequest>&& request);
 
 			WebService& operator=(const WebService&) = delete;
