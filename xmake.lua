@@ -4,6 +4,7 @@ local rendererBackends = {
 	OpenGLRenderer = {
 		Option = "opengl",
 		Deps = {"NazaraRenderer"},
+		Packages = {"opengl-headers"},
 		Custom = function()
 			if is_plat("windows", "mingw") then
 				add_syslinks("User32")
@@ -300,6 +301,10 @@ if has_config("network") then
 			add_requires("libcurl", { configs = { asan = false, shared = true }})
 		end
 	end
+end
+
+if has_config("opengl") then
+	add_requires("opengl-headers")
 end
 
 if has_config("platform") then
