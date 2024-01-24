@@ -87,9 +87,24 @@ jobs:
         path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
         key: ${{ steps.restore-depcache.outputs.cache-primary-key }}
 
+    # Cache assets downloading
+    - name: Restore cached assets
+      id: restore-assets
+      uses: actions/cache/restore@v3
+      with:
+        path: assets
+        key: assets-${{ hashFiles('assets/examples_version.txt', 'assets/unittests_version.txt') }}
+
     # Build the engine
     - name: Build Nazara
       run: xmake --yes
+
+    - name: Save downloaded assets
+      if: ${{ !steps.restore-assets.outputs.cache-hit }}
+      uses: actions/cache/save@v3
+      with:
+        path: assets
+        key: ${{ steps.restore-assets.outputs.cache-primary-key }}
 
     # Run unit tests
     - name: Run unit tests
