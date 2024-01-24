@@ -88,10 +88,29 @@ jobs:
 
     # Install the result files
     - name: Install Nazara
+      if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' }}
       run: xmake install -vo package
 
-    # Upload artifacts
-    - uses: actions/upload-artifact@v3
+    - name: "Set PACKAGE_NAME variable"
+      if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' }}
+      run: echo "PACKAGE_NAME=Web_${{ matrix.arch }}_${{ matrix.mode }}.tar.gz" >> $GITHUB_ENV
+      shell: bash
+
+    - name: Archive result
+      uses: ihiroky/archive-action@v1
+      if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' }}
       with:
-        name: nazaraengine-${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.mode }}
-        path: package
+        root_dir: package
+        file_path: ${{ env.PACKAGE_NAME }}
+        verbose: true
+  
+    # Nightly tags (for commits to main branch)
+    - name: Upload binaries to release (main)
+      uses: svenstaro/upload-release-action@v2
+      if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' }}
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: ${{ env.PACKAGE_NAME }}
+        asset_name: ${{ env.PACKAGE_NAME }}
+        tag: "0.0.0-nightly"
+        overwrite: true

@@ -24,11 +24,11 @@ jobs:
         os: [macOS-latest]
         arch: [x86_64]
         confs:
-        - { mode: debug }
-        - { mode: debug, config: --asan=y }
-        - { mode: debug, config: --lsan=y }
-        - { mode: debug, config: --tsan=y }
-        - { mode: releasedbg }
+        - { mode: debug, archive: yes }
+        - { mode: debug, config: --asan=y, archive: false }
+        - { mode: debug, config: --lsan=y, archive: false }
+        - { mode: debug, config: --tsan=y, archive: false }
+        - { mode: releasedbg, archive: yes }
 
     runs-on: ${{ matrix.os }}
     if: ${{ !contains(github.event.head_commit.message, 'ci skip') }}
@@ -92,14 +92,34 @@ jobs:
 
     # Setup installation configuration
     - name: Configure xmake for installation
+      if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' && matrix.confs.archive }}
       run: xmake config --arch=${{ matrix.arch }} --mode=${{ matrix.confs.mode }} ${{ matrix.confs.config }} --ccache=n --ffmpeg=n --shadernodes=y --tests=y --yes
 
     # Install the result files
     - name: Install Nazara
+      if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' && matrix.confs.archive }}
       run: xmake install -vo package
 
-    # Upload artifacts
-    - uses: actions/upload-artifact@v3
+    - name: "Set PACKAGE_NAME variable"
+      if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' && matrix.confs.archive }}
+      run: echo "PACKAGE_NAME=macOS_${{ matrix.arch }}_${{ matrix.confs.mode }}.tar.gz" >> $GITHUB_ENV
+      shell: bash
+
+    - name: Archive result
+      uses: ihiroky/archive-action@v1
+      if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' && matrix.confs.archive }}
       with:
-        name: nazaraengine-${{ matrix.os }}-${{ matrix.arch }}-${{ matrix.confs.mode }}
-        path: package
+        root_dir: package
+        file_path: ${{ env.PACKAGE_NAME }}
+        verbose: true
+  
+    # Nightly tags (for commits to main branch)
+    - name: Upload binaries to release (main)
+      uses: svenstaro/upload-release-action@v2
+      if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' && matrix.confs.archive }}
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: ${{ env.PACKAGE_NAME }}
+        asset_name: ${{ env.PACKAGE_NAME }}
+        tag: "0.0.0-nightly"
+        overwrite: true
