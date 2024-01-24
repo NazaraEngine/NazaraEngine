@@ -47,7 +47,8 @@ local systemHeaders = {
 	["spawn.h"] = true,
 	["unistd.h"] = true,
 	["windows.h"] = true,
-	["winsock2"] = true,
+	["winsock2.h"] = true,
+	["ws2tcpip.h"] = true,
 }
 
 local function IsSystemHeader(header)

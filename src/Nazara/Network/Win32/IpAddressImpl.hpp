@@ -8,9 +8,9 @@
 #define NAZARA_NETWORK_WIN32_IPADDRESSIMPL_HPP
 
 #include <Nazara/Network/IpAddress.hpp>
+#include <string>
 #include <WS2tcpip.h>
 #include <WinSock2.h>
-#include <string>
 
 namespace Nz
 {

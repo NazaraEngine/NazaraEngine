@@ -10,10 +10,10 @@
 #include <Nazara/Network/IpAddress.hpp>
 #include <Nazara/Network/SocketHandle.hpp>
 #include <Nazara/Network/Win32/SocketImpl.hpp>
-#include <WinSock2.h>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+#include <WinSock2.h>
 
 namespace Nz
 {
