@@ -42,9 +42,14 @@ namespace Nz
 			template<typename T> T& GetComponent();
 			template<typename T> const T& GetComponent() const;
 
+			template<typename T> bool HasComponent() const;
+
 			inline void Quit();
 
 			int Run();
+
+			template<typename T> T* TryGetComponent();
+			template<typename T> const T* TryGetComponent() const;
 
 			bool Update(Time elapsedTime);
 

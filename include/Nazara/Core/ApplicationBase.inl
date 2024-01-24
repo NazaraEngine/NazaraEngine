@@ -75,9 +75,39 @@ namespace Nz
 		return static_cast<const T&>(*m_components[componentIndex]);
 	}
 
+	template<typename T>
+	bool ApplicationBase::HasComponent() const
+	{
+		std::size_t componentIndex = ApplicationComponentRegistry<T>::GetComponentId();
+		if (componentIndex >= m_components.size())
+			return false;
+
+		return m_components[componentIndex] != nullptr;
+	}
+
 	inline void ApplicationBase::Quit()
 	{
 		m_running = false;
+	}
+
+	template<typename T>
+	T* ApplicationBase::TryGetComponent()
+	{
+		std::size_t componentIndex = ApplicationComponentRegistry<T>::GetComponentId();
+		if (componentIndex >= m_components.size())
+			return nullptr;
+
+		return static_cast<T*>(m_components[componentIndex].get());
+	}
+
+	template<typename T>
+	const T* ApplicationBase::TryGetComponent() const
+	{
+		std::size_t componentIndex = ApplicationComponentRegistry<T>::GetComponentId();
+		if (componentIndex >= m_components.size())
+			return nullptr;
+
+		return static_cast<const T*>(m_components[componentIndex].get());
 	}
 
 	inline ApplicationBase* ApplicationBase::Instance()
@@ -116,3 +146,4 @@ namespace Nz
 }
 
 #include <Nazara/Core/DebugOff.hpp>
+#include "ApplicationBase.hpp"
