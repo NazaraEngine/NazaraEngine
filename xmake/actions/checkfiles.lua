@@ -43,6 +43,7 @@ local systemHeaders = {
 	["poll.h"] = true,
 	["process.h"] = true,
 	["pthread.h"] = true,
+	["signal.h"] = true,
 	["spawn.h"] = true,
 	["unistd.h"] = true,
 	["windows.h"] = true,
