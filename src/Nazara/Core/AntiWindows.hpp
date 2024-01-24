@@ -8,5 +8,6 @@
 #error This header should only be included after including windows.h directly or indirectly in a .cpp
 #endif
 
+#undef CreateWindow
 #undef MemoryBarrier
 #undef RemoveDirectory
