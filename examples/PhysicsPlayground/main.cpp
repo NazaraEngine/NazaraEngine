@@ -4,7 +4,7 @@
 
 #include <Nazara/Core.hpp>
 #include <Nazara/Graphics.hpp>
-#include <Nazara/Platform/AppWindowingComponent.hpp>
+#include <Nazara/Platform/WindowingAppComponent.hpp>
 #if USE_JOLT
 #include <Nazara/JoltPhysics3D.hpp>
 #else
@@ -30,10 +30,10 @@ int main(int argc, char* argv[])
 	Nz::Application<Nz::Graphics, Nz::BulletPhysics3D> app(argc, argv, renderConfig);
 #endif
 
-	auto& windowing = app.AddComponent<Nz::AppWindowingComponent>();
+	auto& windowing = app.AddComponent<Nz::WindowingAppComponent>();
 	Nz::Window& mainWindow = windowing.CreateWindow(Nz::VideoMode(1280, 720), "Physics playground");
 
-	auto& fs = app.AddComponent<Nz::AppFilesystemComponent>();
+	auto& fs = app.AddComponent<Nz::FilesystemAppComponent>();
 	{
 		std::filesystem::path resourceDir = "assets/examples";
 		if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory("../.." / resourceDir))
@@ -42,7 +42,7 @@ int main(int argc, char* argv[])
 		fs.Mount("assets", resourceDir);
 	}
 
-	auto& ecs = app.AddComponent<Nz::AppEntitySystemComponent>();
+	auto& ecs = app.AddComponent<Nz::EntitySystemAppComponent>();
 	auto& world = ecs.AddWorld<Nz::EnttWorld>();
 
 #if USE_JOLT

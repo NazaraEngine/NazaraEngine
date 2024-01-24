@@ -26,7 +26,7 @@ int main(int argc, char* argv[])
 
 	std::shared_ptr<Nz::RenderDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
 
-	auto& ecs = app.AddComponent<Nz::AppEntitySystemComponent>();
+	auto& ecs = app.AddComponent<Nz::EntitySystemAppComponent>();
 
 	auto& world = ecs.AddWorld<Nz::EnttWorld>();
 	world.AddSystem<Nz::SkeletonSystem>();
@@ -35,13 +35,13 @@ int main(int argc, char* argv[])
 	physSytem.GetPhysWorld().SetGravity(Nz::Vector3f::Zero());
 	Nz::RenderSystem& renderSystem = world.AddSystem<Nz::RenderSystem>();
 
-	auto& windowing = app.AddComponent<Nz::AppWindowingComponent>();
+	auto& windowing = app.AddComponent<Nz::WindowingAppComponent>();
 
 	std::string windowTitle = "Skinning test";
 	Nz::Window& mainWindow = windowing.CreateWindow(Nz::VideoMode(1280, 720), windowTitle);
 	auto& windowSwapchain = renderSystem.CreateSwapchain(mainWindow);
 
-	auto& fs = app.AddComponent<Nz::AppFilesystemComponent>();
+	auto& fs = app.AddComponent<Nz::FilesystemAppComponent>();
 	{
 		std::filesystem::path resourceDir = "assets/examples";
 		if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory("../.." / resourceDir))

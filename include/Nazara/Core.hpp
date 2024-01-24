@@ -32,7 +32,6 @@
 #include <Nazara/Core/AbstractHash.hpp>
 #include <Nazara/Core/AbstractLogger.hpp>
 #include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Core/AppFilesystemComponent.hpp>
 #include <Nazara/Core/Application.hpp>
 #include <Nazara/Core/ApplicationBase.hpp>
 #include <Nazara/Core/ApplicationComponent.hpp>
@@ -48,6 +47,7 @@
 #include <Nazara/Core/Core.hpp>
 #include <Nazara/Core/DynLib.hpp>
 #include <Nazara/Core/EmptyStream.hpp>
+#include <Nazara/Core/EntitySystemAppComponent.hpp>
 #include <Nazara/Core/EntityWorld.hpp>
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/EnvironmentVariables.hpp>
@@ -55,6 +55,7 @@
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/FileLogger.hpp>
+#include <Nazara/Core/FilesystemAppComponent.hpp>
 #include <Nazara/Core/Format.hpp>
 #include <Nazara/Core/Functor.hpp>
 #include <Nazara/Core/GuillotineBinPack.hpp>
@@ -103,7 +104,6 @@
 
 #ifdef NAZARA_ENTT
 
-#include <Nazara/Core/AppEntitySystemComponent.hpp>
 #include <Nazara/Core/Components.hpp>
 #include <Nazara/Core/EnttSystemGraph.hpp>
 #include <Nazara/Core/EnttWorld.hpp>

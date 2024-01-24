@@ -19,13 +19,13 @@ namespace Nz
 		struct ResourceParameterHasMerge<T, std::void_t<decltype(std::declval<T>().Merge(std::declval<T>()))>> : std::true_type {};
 	}
 
-	inline AppFilesystemComponent::AppFilesystemComponent(ApplicationBase& app) :
+	inline FilesystemAppComponent::FilesystemAppComponent(ApplicationBase& app) :
 	ApplicationComponent(app)
 	{
 	}
 
 	template<typename T>
-	const typename T::Params* AppFilesystemComponent::GetDefaultResourceParameters() const
+	const typename T::Params* FilesystemAppComponent::GetDefaultResourceParameters() const
 	{
 		constexpr UInt64 typeHash = FNV1a64(TypeName<T>());
 
@@ -36,7 +36,7 @@ namespace Nz
 		return static_cast<const typename T::Params*>(it->second.get());
 	}
 
-	VirtualDirectoryPtr AppFilesystemComponent::GetDirectory(std::string_view assetPath)
+	VirtualDirectoryPtr FilesystemAppComponent::GetDirectory(std::string_view assetPath)
 	{
 		VirtualDirectoryPtr dir;
 		m_rootDirectory->GetDirectoryEntry(assetPath, [&](const Nz::VirtualDirectory::DirectoryEntry& dirEntry)
@@ -48,13 +48,13 @@ namespace Nz
 	}
 
 	template<typename T, typename... ExtraArgs>
-	std::shared_ptr<T> AppFilesystemComponent::Load(std::string_view assetPath, ExtraArgs&&... args)
+	std::shared_ptr<T> FilesystemAppComponent::Load(std::string_view assetPath, ExtraArgs&&... args)
 	{
 		return Load<T>(assetPath, typename T::Params{}, std::forward<ExtraArgs>(args)...);
 	}
 
 	template<typename T, typename... ExtraArgs>
-	std::shared_ptr<T> AppFilesystemComponent::Load(std::string_view assetPath, typename T::Params params, ExtraArgs&&... args)
+	std::shared_ptr<T> FilesystemAppComponent::Load(std::string_view assetPath, typename T::Params params, ExtraArgs&&... args)
 	{
 		if constexpr (Detail::ResourceParameterHasMerge<typename T::Params>::value)
 		{
@@ -66,13 +66,13 @@ namespace Nz
 	}
 
 	template<typename T, typename... ExtraArgs>
-	std::shared_ptr<T> AppFilesystemComponent::Open(std::string_view assetPath, ExtraArgs&&... args)
+	std::shared_ptr<T> FilesystemAppComponent::Open(std::string_view assetPath, ExtraArgs&&... args)
 	{
 		return Open<T>(assetPath, typename T::Params{}, std::forward<ExtraArgs>(args)...);
 	}
 
 	template<typename T, typename... ExtraArgs>
-	std::shared_ptr<T> AppFilesystemComponent::Open(std::string_view assetPath, typename T::Params params, ExtraArgs&&... args)
+	std::shared_ptr<T> FilesystemAppComponent::Open(std::string_view assetPath, typename T::Params params, ExtraArgs&&... args)
 	{
 		if constexpr (Detail::ResourceParameterHasMerge<typename T::Params>::value)
 		{
@@ -84,7 +84,7 @@ namespace Nz
 	}
 
 	template<typename T>
-	void AppFilesystemComponent::SetDefaultResourceParameters(typename T::Params params)
+	void FilesystemAppComponent::SetDefaultResourceParameters(typename T::Params params)
 	{
 		constexpr UInt64 typeHash = FNV1a64(TypeName<T>());
 
@@ -92,7 +92,7 @@ namespace Nz
 	}
 
 	template<typename T, typename... ExtraArgs>
-	std::shared_ptr<T> AppFilesystemComponent::LoadImpl(std::string_view assetPath, const typename T::Params& params, ExtraArgs&&... args)
+	std::shared_ptr<T> FilesystemAppComponent::LoadImpl(std::string_view assetPath, const typename T::Params& params, ExtraArgs&&... args)
 	{
 		std::shared_ptr<T> resource;
 		if (!m_rootDirectory)
@@ -123,7 +123,7 @@ namespace Nz
 	}
 
 	template<typename T, typename... ExtraArgs>
-	std::shared_ptr<T> AppFilesystemComponent::OpenImpl(std::string_view assetPath, const typename T::Params& params, ExtraArgs&&... args)
+	std::shared_ptr<T> FilesystemAppComponent::OpenImpl(std::string_view assetPath, const typename T::Params& params, ExtraArgs&&... args)
 	{
 		std::shared_ptr<T> resource;
 		if (!m_rootDirectory)

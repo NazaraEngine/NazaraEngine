@@ -23,9 +23,9 @@ int main(int argc, char* argv[])
 
 	Nz::Application<Nz::Graphics, Nz::ChipmunkPhysics2D> app(argc, argv);
 
-	auto& windowing = app.AddComponent<Nz::AppWindowingComponent>();
+	auto& windowing = app.AddComponent<Nz::WindowingAppComponent>();
 
-	auto& ecs = app.AddComponent<Nz::AppEntitySystemComponent>();
+	auto& ecs = app.AddComponent<Nz::EntitySystemAppComponent>();
 
 	auto& world = ecs.AddWorld<Nz::EnttWorld>();
 	Nz::ChipmunkPhysics2DSystem& physSytem = world.AddSystem<Nz::ChipmunkPhysics2DSystem>();

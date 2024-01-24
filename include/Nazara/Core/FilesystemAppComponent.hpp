@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_CORE_APPFILESYSTEMCOMPONENT_HPP
-#define NAZARA_CORE_APPFILESYSTEMCOMPONENT_HPP
+#ifndef NAZARA_CORE_FILESYSTEMAPPCOMPONENT_HPP
+#define NAZARA_CORE_FILESYSTEMAPPCOMPONENT_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/ApplicationComponent.hpp>
@@ -17,13 +17,13 @@
 
 namespace Nz
 {
-	class NAZARA_CORE_API AppFilesystemComponent : public ApplicationComponent
+	class NAZARA_CORE_API FilesystemAppComponent : public ApplicationComponent
 	{
 		public:
-			inline AppFilesystemComponent(ApplicationBase& app);
-			AppFilesystemComponent(const AppFilesystemComponent&) = delete;
-			AppFilesystemComponent(AppFilesystemComponent&&) = delete;
-			~AppFilesystemComponent() = default;
+			inline FilesystemAppComponent(ApplicationBase& app);
+			FilesystemAppComponent(const FilesystemAppComponent&) = delete;
+			FilesystemAppComponent(FilesystemAppComponent&&) = delete;
+			~FilesystemAppComponent() = default;
 
 			template<typename T> const typename T::Params* GetDefaultResourceParameters() const;
 			inline VirtualDirectoryPtr GetDirectory(std::string_view assetPath);
@@ -41,8 +41,8 @@ namespace Nz
 
 			template<typename T> void SetDefaultResourceParameters(typename T::Params params);
 
-			AppFilesystemComponent& operator=(const AppFilesystemComponent&) = delete;
-			AppFilesystemComponent& operator=(AppFilesystemComponent&&) = delete;
+			FilesystemAppComponent& operator=(const FilesystemAppComponent&) = delete;
+			FilesystemAppComponent& operator=(FilesystemAppComponent&&) = delete;
 
 		private:
 			template<typename T, typename... ExtraArgs> std::shared_ptr<T> LoadImpl(std::string_view assetPath, const typename T::Params& params, ExtraArgs&&... args);
@@ -53,6 +53,6 @@ namespace Nz
 	};
 }
 
-#include <Nazara/Core/AppFilesystemComponent.inl>
+#include <Nazara/Core/FilesystemAppComponent.inl>
 
-#endif // NAZARA_CORE_APPFILESYSTEMCOMPONENT_HPP
+#endif // NAZARA_CORE_FILESYSTEMAPPCOMPONENT_HPP

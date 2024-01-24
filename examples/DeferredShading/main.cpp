@@ -89,7 +89,7 @@ int main(int argc, char* argv[])
 	std::shared_ptr<Nz::RenderDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
 	const Nz::RenderDeviceInfo& deviceInfo = device->GetDeviceInfo();
 
-	auto& windowing = app.AddComponent<Nz::AppWindowingComponent>();
+	auto& windowing = app.AddComponent<Nz::WindowingAppComponent>();
 
 	std::string windowTitle = "Graphics Test";
 	Nz::Window& window = windowing.CreateWindow(Nz::VideoMode(1920, 1080), windowTitle);

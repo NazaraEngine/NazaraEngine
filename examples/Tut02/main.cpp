@@ -2,7 +2,7 @@
 
 #include <Nazara/Core.hpp>
 #include <Nazara/Graphics.hpp>
-#include <Nazara/Platform/AppWindowingComponent.hpp>
+#include <Nazara/Platform/WindowingAppComponent.hpp>
 #include <Nazara/Renderer.hpp>
 #include <Nazara/Utility.hpp>
 #include <iostream>
@@ -12,11 +12,11 @@ int main(int argc, char* argv[])
 	Nz::Application<Nz::Graphics> app(argc, argv);
 
 	// Création de la fenêtre
-	auto& windowing = app.AddComponent<Nz::AppWindowingComponent>();
+	auto& windowing = app.AddComponent<Nz::WindowingAppComponent>();
 	Nz::Window& mainWindow = windowing.CreateWindow(Nz::VideoMode(1280, 720), "Tut02 - Events");
 
 	// Ajout d'un monde
-	auto& ecs = app.AddComponent<Nz::AppEntitySystemComponent>();
+	auto& ecs = app.AddComponent<Nz::EntitySystemAppComponent>();
 	auto& world = ecs.AddWorld<Nz::EnttWorld>();
 
 	Nz::RenderSystem& renderSystem = world.AddSystem<Nz::RenderSystem>();

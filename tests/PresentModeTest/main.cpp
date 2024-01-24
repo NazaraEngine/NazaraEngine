@@ -20,9 +20,9 @@ int main()
 
 	Nz::Application<Nz::Graphics> app(rendererConfig);
 
-	auto& windowing = app.AddComponent<Nz::AppWindowingComponent>();
+	auto& windowing = app.AddComponent<Nz::WindowingAppComponent>();
 
-	auto& ecs = app.AddComponent<Nz::AppEntitySystemComponent>();
+	auto& ecs = app.AddComponent<Nz::EntitySystemAppComponent>();
 
 	auto& world = ecs.AddWorld<Nz::EnttWorld>();
 	Nz::RenderSystem& renderSystem = world.AddSystem<Nz::RenderSystem>();

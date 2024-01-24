@@ -97,7 +97,7 @@ int main()
 #endif
 
 	Nz::Application<Nz::Renderer> app(rendererConfig);
-	auto& windowingApp = app.AddComponent<Nz::AppWindowingComponent>();
+	auto& windowingApp = app.AddComponent<Nz::WindowingAppComponent>();
 
 	std::shared_ptr<Nz::RenderDevice> device = Nz::Renderer::Instance()->InstanciateRenderDevice(0);
 

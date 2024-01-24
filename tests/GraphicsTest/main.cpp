@@ -26,7 +26,7 @@ int main()
 #endif
 
 	Nz::Application<Nz::Graphics> app(rendererConfig);
-	auto& windowingApp = app.AddComponent<Nz::AppWindowingComponent>();
+	auto& windowingApp = app.AddComponent<Nz::WindowingAppComponent>();
 
 	std::shared_ptr<Nz::RenderDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
 

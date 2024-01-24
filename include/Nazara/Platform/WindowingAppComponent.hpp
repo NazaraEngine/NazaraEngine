@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_PLATFORM_APPWINDOWINGCOMPONENT_HPP
-#define NAZARA_PLATFORM_APPWINDOWINGCOMPONENT_HPP
+#ifndef NAZARA_PLATFORM_WINDOWINGAPPCOMPONENT_HPP
+#define NAZARA_PLATFORM_WINDOWINGAPPCOMPONENT_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/ApplicationComponent.hpp>
@@ -14,13 +14,13 @@
 
 namespace Nz
 {
-	class NAZARA_PLATFORM_API AppWindowingComponent : public ApplicationComponent
+	class NAZARA_PLATFORM_API WindowingAppComponent : public ApplicationComponent
 	{
 		public:
-			inline AppWindowingComponent(ApplicationBase& app);
-			AppWindowingComponent(const AppWindowingComponent&) = delete;
-			AppWindowingComponent(AppWindowingComponent&&) = delete;
-			~AppWindowingComponent() = default;
+			inline WindowingAppComponent(ApplicationBase& app);
+			WindowingAppComponent(const WindowingAppComponent&) = delete;
+			WindowingAppComponent(WindowingAppComponent&&) = delete;
+			~WindowingAppComponent() = default;
 
 			template<typename... Args> Window& CreateWindow(Args&&... args);
 
@@ -31,8 +31,8 @@ namespace Nz
 
 			void Update(Time elapsedTime) override;
 
-			AppWindowingComponent& operator=(const AppWindowingComponent&) = delete;
-			AppWindowingComponent& operator=(AppWindowingComponent&&) = delete;
+			WindowingAppComponent& operator=(const WindowingAppComponent&) = delete;
+			WindowingAppComponent& operator=(WindowingAppComponent&&) = delete;
 
 		private:
 			std::vector<std::unique_ptr<Window>> m_windows;
@@ -40,6 +40,6 @@ namespace Nz
 	};
 }
 
-#include <Nazara/Platform/AppWindowingComponent.inl>
+#include <Nazara/Platform/WindowingAppComponent.inl>
 
-#endif // NAZARA_PLATFORM_APPWINDOWINGCOMPONENT_HPP
+#endif // NAZARA_PLATFORM_WINDOWINGAPPCOMPONENT_HPP

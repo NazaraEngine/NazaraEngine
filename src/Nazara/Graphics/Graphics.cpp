@@ -3,9 +3,9 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/Graphics.hpp>
-#include <Nazara/Core/AppFilesystemComponent.hpp>
 #include <Nazara/Core/CommandLineParameters.hpp>
 #include <Nazara/Core/EnvironmentVariables.hpp>
+#include <Nazara/Core/FilesystemAppComponent.hpp>
 #include <Nazara/Graphics/DebugDrawPipelinePass.hpp>
 #include <Nazara/Graphics/DepthPipelinePass.hpp>
 #include <Nazara/Graphics/ForwardPipelinePass.hpp>
@@ -205,7 +205,7 @@ namespace Nz
 		m_defaultTextures = DefaultTextures{};
 	}
 
-	void Graphics::RegisterComponent(AppFilesystemComponent& component)
+	void Graphics::RegisterComponent(FilesystemAppComponent& component)
 	{
 		TextureParams defaultTexParams;
 		defaultTexParams.renderDevice = m_renderDevice;

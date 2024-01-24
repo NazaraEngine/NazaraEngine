@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_CORE_APPENTITYSYSTEMCOMPONENT_HPP
-#define NAZARA_CORE_APPENTITYSYSTEMCOMPONENT_HPP
+#ifndef NAZARA_CORE_ENTITYSYSTEMAPPCOMPONENT_HPP
+#define NAZARA_CORE_ENTITYSYSTEMAPPCOMPONENT_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/ApplicationComponent.hpp>
@@ -14,26 +14,26 @@
 
 namespace Nz
 {
-	class NAZARA_CORE_API AppEntitySystemComponent : public ApplicationComponent
+	class NAZARA_CORE_API EntitySystemAppComponent : public ApplicationComponent
 	{
 		public:
 			using ApplicationComponent::ApplicationComponent;
-			AppEntitySystemComponent(const AppEntitySystemComponent&) = delete;
-			AppEntitySystemComponent(AppEntitySystemComponent&&) = delete;
-			~AppEntitySystemComponent() = default;
+			EntitySystemAppComponent(const EntitySystemAppComponent&) = delete;
+			EntitySystemAppComponent(EntitySystemAppComponent&&) = delete;
+			~EntitySystemAppComponent() = default;
 
 			template<typename T, typename... Args> T& AddWorld(Args&&... args);
 
 			void Update(Time elapsedTime) override;
 
-			AppEntitySystemComponent& operator=(const AppEntitySystemComponent&) = delete;
-			AppEntitySystemComponent& operator=(AppEntitySystemComponent&&) = delete;
+			EntitySystemAppComponent& operator=(const EntitySystemAppComponent&) = delete;
+			EntitySystemAppComponent& operator=(EntitySystemAppComponent&&) = delete;
 
 		private:
 			std::vector<std::unique_ptr<EntityWorld>> m_worlds;
 	};
 }
 
-#include <Nazara/Core/AppEntitySystemComponent.inl>
+#include <Nazara/Core/EntitySystemAppComponent.inl>
 
-#endif // NAZARA_CORE_APPENTITYSYSTEMCOMPONENT_HPP
+#endif // NAZARA_CORE_ENTITYSYSTEMAPPCOMPONENT_HPP

@@ -2,13 +2,13 @@
 // This file is part of the "Nazara Engine - Platform module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Platform/AppWindowingComponent.hpp>
+#include <Nazara/Platform/WindowingAppComponent.hpp>
 #include <Nazara/Core/ApplicationBase.hpp>
 #include <Nazara/Platform/Debug.hpp>
 
 namespace Nz
 {
-	void AppWindowingComponent::Update(Time /*elapsedTime*/)
+	void WindowingAppComponent::Update(Time /*elapsedTime*/)
 	{
 		Window::ProcessEvents();
 

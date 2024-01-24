@@ -7,28 +7,28 @@
 namespace Nz
 {
 	template<typename... Args>
-	Window& AppWindowingComponent::CreateWindow(Args&&... args)
+	Window& WindowingAppComponent::CreateWindow(Args&&... args)
 	{
 		return *m_windows.emplace_back(std::make_unique<Window>(std::forward<Args>(args)...));
 	}
 
-	inline AppWindowingComponent::AppWindowingComponent(ApplicationBase& app) :
+	inline WindowingAppComponent::WindowingAppComponent(ApplicationBase& app) :
 	ApplicationComponent(app),
 	m_quitOnLastWindowClosed(true)
 	{
 	}
 
-	inline void AppWindowingComponent::DisableQuitOnLastWindowClosed()
+	inline void WindowingAppComponent::DisableQuitOnLastWindowClosed()
 	{
 		return EnableQuitOnLastWindowClosed(false);
 	}
 
-	inline void AppWindowingComponent::EnableQuitOnLastWindowClosed(bool enable)
+	inline void WindowingAppComponent::EnableQuitOnLastWindowClosed(bool enable)
 	{
 		m_quitOnLastWindowClosed = enable;
 	}
 
-	inline bool AppWindowingComponent::IsQuitOnLastWindowClosedEnabled() const
+	inline bool WindowingAppComponent::IsQuitOnLastWindowClosedEnabled() const
 	{
 		return m_quitOnLastWindowClosed;
 	}

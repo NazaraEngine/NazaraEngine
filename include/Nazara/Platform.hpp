@@ -29,7 +29,6 @@
 #ifndef NAZARA_GLOBAL_PLATFORM_HPP
 #define NAZARA_GLOBAL_PLATFORM_HPP
 
-#include <Nazara/Platform/AppWindowingComponent.hpp>
 #include <Nazara/Platform/Clipboard.hpp>
 #include <Nazara/Platform/Config.hpp>
 #include <Nazara/Platform/Cursor.hpp>
@@ -45,5 +44,6 @@
 #include <Nazara/Platform/WindowEvent.hpp>
 #include <Nazara/Platform/WindowEventHandler.hpp>
 #include <Nazara/Platform/WindowHandle.hpp>
+#include <Nazara/Platform/WindowingAppComponent.hpp>
 
 #endif // NAZARA_GLOBAL_PLATFORM_HPP

@@ -22,9 +22,9 @@ int main(int argc, char* argv[])
 
 	Nz::Application<Nz::Graphics, Nz::BulletPhysics3D> app(argc, argv);
 
-	auto& windowing = app.AddComponent<Nz::AppWindowingComponent>();
+	auto& windowing = app.AddComponent<Nz::WindowingAppComponent>();
 
-	auto& ecs = app.AddComponent<Nz::AppEntitySystemComponent>();
+	auto& ecs = app.AddComponent<Nz::EntitySystemAppComponent>();
 
 	auto& world = ecs.AddWorld<Nz::EnttWorld>();
 	Nz::BulletPhysics3DSystem& physSytem = world.AddSystem<Nz::BulletPhysics3DSystem>();

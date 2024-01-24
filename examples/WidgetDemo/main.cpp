@@ -16,13 +16,13 @@ int main(int argc, char* argv[])
 {
 	Nz::Application<Nz::Graphics, Nz::Widgets> app(argc, argv);
 
-	auto& windowing = app.AddComponent<Nz::AppWindowingComponent>();
+	auto& windowing = app.AddComponent<Nz::WindowingAppComponent>();
 	Nz::Window& mainWindow = windowing.CreateWindow(Nz::VideoMode(1920, 1080), "Widget demo");
 
-	auto& ecs = app.AddComponent<Nz::AppEntitySystemComponent>();
+	auto& ecs = app.AddComponent<Nz::EntitySystemAppComponent>();
 	auto& world = ecs.AddWorld<Nz::EnttWorld>();
 
-	auto& fs = app.AddComponent<Nz::AppFilesystemComponent>();
+	auto& fs = app.AddComponent<Nz::FilesystemAppComponent>();
 	{
 		std::filesystem::path resourceDir = "assets/examples";
 		if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory("../.." / resourceDir))
