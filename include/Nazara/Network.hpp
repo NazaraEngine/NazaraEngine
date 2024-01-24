@@ -50,5 +50,6 @@
 #include <Nazara/Network/WebRequest.hpp>
 #include <Nazara/Network/WebRequestResult.hpp>
 #include <Nazara/Network/WebService.hpp>
+#include <Nazara/Network/WebServiceAppComponent.hpp>
 
 #endif // NAZARA_GLOBAL_NETWORK_HPP
