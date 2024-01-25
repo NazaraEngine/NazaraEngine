@@ -26,7 +26,7 @@ namespace Nz
 	/*!
 	* \brief Constructs a Frustum by specifying its planes
 	*
-	* \param corners Corners 
+	* \param corners Corners
 	* \param planes Frustum of type U to convert to type T
 	*/
 	template<typename T>

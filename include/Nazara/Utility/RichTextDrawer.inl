@@ -400,7 +400,7 @@ namespace Nz
 	/*!
 	* \class Nz::RichTextDrawer::BlockRef
 	* \brief Helper class representing a block inside a RichTextDrawer, allowing easier access.
-	* 
+	*
 	* \warning This class is meant for temporary use, moving or destroying the RichTextDrawer or one of its blocks invalidates all BlockRef
 	*/
 
@@ -543,7 +543,7 @@ namespace Nz
 	}
 
 	/*!
-	* Changes the color of the referenced block characters 
+	* Changes the color of the referenced block characters
 	* \remark This is the only property that can be changed without forcing a glyph regeneration
 	*
 	* \see GetTextColor, SetCharacterSize, SetFont, SetStyle, SetText

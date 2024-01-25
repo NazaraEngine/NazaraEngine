@@ -297,13 +297,13 @@ fn FragDepthNoAlpha() {} //< dummy
 [cond(!Billboard)]
 struct VertIn
 {
-	[location(VertexPositionLoc)] 
+	[location(VertexPositionLoc)]
 	pos: vec3[f32],
 
-	[cond(HasVertexColor), location(VertexColorLoc)] 
+	[cond(HasVertexColor), location(VertexColorLoc)]
 	color: vec4[f32],
 
-	[cond(HasVertexUV), location(VertexUvLoc)] 
+	[cond(HasVertexUV), location(VertexUvLoc)]
 	uv: vec2[f32],
 
 	[cond(HasNormal), location(VertexNormalLoc)]
@@ -327,7 +327,7 @@ struct BillboardVertIn
 	[location(VertexSizeRotLocation)]
 	sizeRot: vec4[f32], //< width,height,sin,cos
 
-	[cond(HasVertexUV), location(VertexUvLoc)] 
+	[cond(HasVertexUV), location(VertexUvLoc)]
 	uv: vec2[f32],
 
 	[cond(HasVertexColor), location(VertexColorLoc)]

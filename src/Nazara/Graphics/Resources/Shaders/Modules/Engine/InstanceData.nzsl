@@ -1,6 +1,6 @@
 [nzsl_version("1.0")]
 module Engine.InstanceData;
- 
+
 [export]
 [layout(std140)]
 struct InstanceData

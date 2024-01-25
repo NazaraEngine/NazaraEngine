@@ -11,7 +11,7 @@
 #include <Nazara/VulkanRenderer/Wrapper/DeviceObject.hpp>
 #include <NazaraUtils/MovablePtr.hpp>
 
-namespace Nz 
+namespace Nz
 {
 	namespace Vk
 	{

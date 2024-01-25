@@ -118,7 +118,7 @@ jobs:
         root_dir: package
         file_path: ${{ env.PACKAGE_NAME }}
         verbose: true
-  
+
     # Nightly tags (for commits to main branch)
     - name: Upload binaries to release (main)
       uses: svenstaro/upload-release-action@v2

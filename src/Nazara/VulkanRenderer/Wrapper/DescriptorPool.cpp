@@ -29,7 +29,7 @@ namespace Nz
 		std::vector<DescriptorSet> DescriptorPool::AllocateDescriptorSets(UInt32 descriptorSetCount, const VkDescriptorSetLayout* setLayouts)
 		{
 			VkDescriptorSetAllocateInfo createInfo = {
-				VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO, 
+				VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO,
 				nullptr,
 				m_handle,
 				descriptorSetCount,

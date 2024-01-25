@@ -773,7 +773,7 @@ namespace Nz
 	* \param context Serialization context
 	* \param vector Input Vector2
 	*/
-	template<typename T> 
+	template<typename T>
 	bool Serialize(SerializationContext& context, const Vector2<T>& vector, TypeTag<Vector2<T>>)
 	{
 		if (!Serialize(context, vector.x))

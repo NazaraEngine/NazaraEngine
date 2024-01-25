@@ -30,7 +30,7 @@ namespace Nz
 		return GetVertexBuffer()->GetVertexCount();
 	}
 
-	template<typename T> 
+	template<typename T>
 	bool VertexMapper::HasComponentOfType(VertexComponent component) const
 	{
 		return m_mapper.GetBuffer()->GetVertexDeclaration()->HasComponentOfType<T>(component);

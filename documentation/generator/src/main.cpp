@@ -285,7 +285,7 @@ nlohmann::ordered_json buildClass(const std::string& scope, const cppast::cpp_cl
 				if (!isPublic)
 					break;
 
-				const auto& memberFunc = static_cast<const cppast::cpp_member_function&>(e); 
+				const auto& memberFunc = static_cast<const cppast::cpp_member_function&>(e);
 
 				auto& constructorDoc = classDoc["constructors"].emplace_back();
 				constructorDoc["name"] = memberFunc.name();

@@ -60,7 +60,7 @@ jobs:
     - name: Retrieve dependencies hash
       id: dep_hash
       run: echo "hash=$(xmake l utils.ci.packageskey)" >> $GITHUB_OUTPUT
-  
+
     # Cache xmake dependencies
     - name: Restore cached xmake dependencies
       id: restore-depcache
@@ -127,7 +127,7 @@ jobs:
         root_dir: package
         file_path: ${{ env.PACKAGE_NAME }}
         verbose: true
-  
+
     # Nightly tags (for commits to main branch)
     - name: Upload binaries to release (main)
       uses: svenstaro/upload-release-action@v2

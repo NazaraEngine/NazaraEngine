@@ -6,7 +6,7 @@ local function downloadAssetsRule(name)
 		before_build(function (opt)
 			import("net.http")
 			import("utils.archive")
-		
+
 			local referenceVersion = tonumber(io.readfile("assets/" .. name .. "_version.txt"))
 			local currentVersion = os.exists("assets/" .. name .. "/version.txt") and tonumber(io.readfile("assets/" .. name .. "/version.txt"))
 			if referenceVersion == currentVersion then
@@ -28,7 +28,7 @@ local function downloadAssetsRule(name)
 				utils.vprintf("aborting " .. name .. " assets downloading\n")
 				return
 			end
-		
+
 			os.rm("assets/" .. name)
 			http.download(baseDownloadURL .. "/assets_" .. name .. ".zip", "assets_" .. name .. ".zip")
 			archive.extract("assets_" .. name .. ".zip", "assets")

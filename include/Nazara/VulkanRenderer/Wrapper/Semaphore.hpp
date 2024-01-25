@@ -10,7 +10,7 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DeviceObject.hpp>
 
-namespace Nz 
+namespace Nz
 {
 	namespace Vk
 	{

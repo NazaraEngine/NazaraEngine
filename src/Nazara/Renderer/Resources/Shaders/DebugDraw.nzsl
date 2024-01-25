@@ -35,10 +35,10 @@ fn main(input: FragIn) -> FragOut
 // Vertex stage
 struct VertIn
 {
-	[location(0)] 
+	[location(0)]
 	pos: vec3[f32],
 
-	[location(1)] 
+	[location(1)]
 	color: vec4[f32]
 }
 

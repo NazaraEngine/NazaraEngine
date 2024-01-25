@@ -11,7 +11,7 @@ namespace Nz::Vk
 {
 	inline bool Instance::Create(RenderAPIValidationLevel validationLevel, const std::string& appName, UInt32 appVersion, const std::string& engineName, UInt32 engineVersion, UInt32 apiVersion, const std::vector<const char*>& layers, const std::vector<const char*>& extensions, const VkAllocationCallbacks* allocator)
 	{
-		VkApplicationInfo appInfo = 
+		VkApplicationInfo appInfo =
 		{
 			VK_STRUCTURE_TYPE_APPLICATION_INFO,
 			nullptr,
@@ -22,7 +22,7 @@ namespace Nz::Vk
 			apiVersion
 		};
 
-		VkInstanceCreateInfo instanceInfo = 
+		VkInstanceCreateInfo instanceInfo =
 		{
 			VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO,
 			nullptr,

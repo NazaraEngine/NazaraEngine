@@ -97,7 +97,7 @@ namespace Nz
 	* \return true If it is the case
 	*
 	* \param state State to compare the top with
-	* 
+	*
 	* \remark Because all actions popping or pushing a state don't take effect until next state machine update, this can return false on a just enabled state
 	*/
 	inline bool StateMachine::IsStateEnabled(const State* state) const
@@ -113,7 +113,7 @@ namespace Nz
 	* \return true If it is the case
 	*
 	* \param state State to compare the top with
-	* 
+	*
 	* \remark Because all actions popping or pushing a state don't take effect until next state machine update, this can return false on a just pushed state
 	*/
 	inline bool StateMachine::IsTopState(const State* state) const

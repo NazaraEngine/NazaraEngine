@@ -13,7 +13,7 @@ PreviewValues QuadPreview::GetPreview(InputRole role, [[maybe_unused]] std::size
 		return dummy;
 	}
 
-	PreviewValues uv(128, 128); 
+	PreviewValues uv(128, 128);
 
 	float invWidth = 1.f / uv.GetWidth();
 	float invHeight = 1.f / uv.GetHeight();

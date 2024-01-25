@@ -82,8 +82,8 @@ namespace Nz
 
 	template<typename T>
 	constexpr ComponentType GetComponentTypeOf()
-	{ 
-		return ComponentTypeId<std::decay_t<T>>(); 
+	{
+		return ComponentTypeId<std::decay_t<T>>();
 	}
 }
 

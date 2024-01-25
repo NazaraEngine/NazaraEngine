@@ -263,7 +263,7 @@ int main()
 	application.EnableFPSCounter(true);
 
 
-	//Gestion des Evenements 
+	//Gestion des Evenements
 	Nz::EventHandler& eventHandler = window.GetEventHandler();
 
 	Nz::Mouse::SetRelativeMouseMode(true);

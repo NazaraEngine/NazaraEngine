@@ -203,7 +203,7 @@ SCENARIO("Quaternion", "[MATH][QUATERNION]")
 				REQUIRE((rotation * origin).ApproxEqual(extremity, 0.0001f));
 			}
 		}
-	} 
+	}
 
 	GIVEN("Different angles")
 	{

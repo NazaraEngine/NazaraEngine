@@ -393,7 +393,7 @@ namespace Nz
 
 			directory = std::move(newDirectory);
 			return true;
-		}, 
+		},
 		[&](std::string_view name)
 		{
 			if (name.empty())

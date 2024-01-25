@@ -105,7 +105,7 @@ NAZARA_WARNING_POP()
 #endif
 	}
 #endif
- 
+
 	void SetCurrentThreadName(const char* threadName)
 	{
 		SetThreadName(GetCurrentThreadHandle(), threadName);

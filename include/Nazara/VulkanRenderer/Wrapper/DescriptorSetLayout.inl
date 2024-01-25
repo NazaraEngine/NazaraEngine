@@ -15,7 +15,7 @@ namespace Nz
 
 		inline bool DescriptorSetLayout::Create(Device& device, UInt32 bindingCount, const VkDescriptorSetLayoutBinding* binding, VkDescriptorSetLayoutCreateFlags flags, const VkAllocationCallbacks* allocator)
 		{
-			VkDescriptorSetLayoutCreateInfo createInfo = 
+			VkDescriptorSetLayoutCreateInfo createInfo =
 			{
 				VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO, // VkStructureType                        sType;
 				nullptr,                                             // const void*                            pNext;

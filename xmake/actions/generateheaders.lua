@@ -91,7 +91,7 @@ on_run(function ()
 		Header = paths["OpenGLRenderer"].Header,
 		HeaderGuard = "NAZARA_OPENGLRENDERER_WRAPPER_HPP",
 		Name = "OpenGL wrapper",
-		SearchDir = "include/Nazara/OpenGLRenderer/Wrapper", 
+		SearchDir = "include/Nazara/OpenGLRenderer/Wrapper",
 		Target = "include/Nazara/OpenGLRenderer/Wrapper.hpp"
 	}
 
@@ -105,7 +105,7 @@ on_run(function ()
 		Header = paths["VulkanRenderer"].Header,
 		HeaderGuard = "NAZARA_VULKANRENDERER_WRAPPER_HPP",
 		Name = "Vulkan wrapper",
-		SearchDir = "include/Nazara/VulkanRenderer/Wrapper", 
+		SearchDir = "include/Nazara/VulkanRenderer/Wrapper",
 		Target = "include/Nazara/VulkanRenderer/Wrapper.hpp"
 	}
 

@@ -37,7 +37,7 @@ namespace Nz::Vk
 
 	inline bool Surface::Create(ANativeWindow* window, VkAndroidSurfaceCreateFlagsKHR flags, const VkAllocationCallbacks* allocator)
 	{
-		VkAndroidSurfaceCreateInfoKHR createInfo = 
+		VkAndroidSurfaceCreateInfoKHR createInfo =
 		{
 			VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR,
 			nullptr,

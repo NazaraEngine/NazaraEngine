@@ -13,7 +13,7 @@ namespace Nz
 	* \returns The number of channels occupied by an audio format (mono returns 1, stereo returns 2, etc.)
 	*
 	* \param format A valid audio format
-	* 
+	*
 	* \remark format cannot be AudioFormat::Unknown
 	*
 	* \see GuessAudioFormat

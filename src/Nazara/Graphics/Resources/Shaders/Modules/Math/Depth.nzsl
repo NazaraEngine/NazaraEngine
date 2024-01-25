@@ -5,4 +5,4 @@ module Math.Depth;
 fn LinearizeDepth(depth: f32, zNear: f32, zFar: f32) -> f32
 {
     return zNear * zFar / (zFar + depth * (zNear - zFar));
-} 
+}

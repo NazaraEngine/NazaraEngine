@@ -50,7 +50,7 @@ namespace Nz
 
 	/*!
 	* \brief Gets the attenuation
-	* \return Amount that your sound will drop off as by the inverse square law 
+	* \return Amount that your sound will drop off as by the inverse square law
 	*/
 	float SoundEmitter::GetAttenuation() const
 	{
@@ -125,7 +125,7 @@ namespace Nz
 	/*!
 	* \brief Sets the attenuation
 	*
-	* \param attenuation Amount that your sound will drop off as by the inverse square law 
+	* \param attenuation Amount that your sound will drop off as by the inverse square law
 	*/
 	void SoundEmitter::SetAttenuation(float attenuation)
 	{

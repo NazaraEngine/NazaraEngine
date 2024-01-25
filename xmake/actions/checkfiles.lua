@@ -541,7 +541,7 @@ on_run(function ()
 						if folderCountA == folderCountB then
 							return a.path < b.path
 						else
-							return folderCountA < folderCountB 
+							return folderCountA < folderCountB
 						end
 					else
 						return a.order < b.order

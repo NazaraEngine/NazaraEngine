@@ -13,7 +13,7 @@
 #include <vulkan/vulkan_core.h>
 #include <string>
 
-namespace Nz 
+namespace Nz
 {
 	namespace Vk
 	{

@@ -26,7 +26,7 @@ namespace Nz
 
 	MemoryView::MemoryView(void* ptr, UInt64 size) :
 	Stream(StreamOption::None, OpenMode_ReadWrite),
-	m_ptr(static_cast<UInt8*>(ptr)), 
+	m_ptr(static_cast<UInt8*>(ptr)),
 	m_pos(0),
 	m_size(size)
 	{

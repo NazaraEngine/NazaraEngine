@@ -58,7 +58,7 @@ namespace Nz
 		return m_allSockets.count(socket) != 0;
 		#else
 		// FD_ISSET is not const-correct
-		return FD_ISSET(socket, const_cast<fd_set*>(&m_readSockets)) != 0 || 
+		return FD_ISSET(socket, const_cast<fd_set*>(&m_readSockets)) != 0 ||
 		       FD_ISSET(socket, const_cast<fd_set*>(&m_writeSockets)) != 0;
 		#endif
 	}

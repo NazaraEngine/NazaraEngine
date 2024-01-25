@@ -1072,7 +1072,7 @@ namespace Nz
 
 		auto CheckExternalTexture = [this](std::size_t attachmentIndex, FrameGraphTextureData& data)
 		{
-			// Check if texture 
+			// Check if texture
 			if (auto externalIt = m_externalTextures.find(attachmentIndex); externalIt != m_externalTextures.end())
 			{
 				if (data.viewData)

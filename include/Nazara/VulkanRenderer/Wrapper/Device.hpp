@@ -23,7 +23,7 @@
 VK_DEFINE_HANDLE(VmaAllocator)
 VK_DEFINE_HANDLE(VmaAllocation)
 
-namespace Nz 
+namespace Nz
 {
 	class VulkanDescriptorSetLayoutCache;
 

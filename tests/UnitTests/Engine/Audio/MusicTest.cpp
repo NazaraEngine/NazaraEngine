@@ -44,7 +44,7 @@ SCENARIO("Music", "[AUDIO][MUSIC]")
 
 				music.Play();
 				CHECK(music.GetStatus() == Nz::SoundStatus::Playing);
-				std::this_thread::sleep_for(std::chrono::seconds(1)); 
+				std::this_thread::sleep_for(std::chrono::seconds(1));
 				Nz::Time t = music.GetPlayingOffset();
 				CHECK(music.GetPlayingOffset() >= 950_ms);
 				std::this_thread::sleep_for(std::chrono::milliseconds(200));

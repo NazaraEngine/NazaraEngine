@@ -302,7 +302,7 @@ namespace Nz
 	void JoltRigidBody3D::WakeUp()
 	{
 		JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterface();
-		bodyInterface.ActivateBody(m_body->GetID()); 
+		bodyInterface.ActivateBody(m_body->GetID());
 	}
 
 	JoltRigidBody3D& JoltRigidBody3D::operator=(JoltRigidBody3D&& body) noexcept

@@ -354,14 +354,14 @@ namespace Nz
 	{
 		switch (comparison)
 		{
-			case RendererComparison::Never:          return VK_COMPARE_OP_NEVER; 
-			case RendererComparison::Less:           return VK_COMPARE_OP_LESS; 
-			case RendererComparison::Equal:          return VK_COMPARE_OP_EQUAL; 
-			case RendererComparison::LessOrEqual:    return VK_COMPARE_OP_LESS_OR_EQUAL; 
-			case RendererComparison::Greater:        return VK_COMPARE_OP_GREATER; 
-			case RendererComparison::NotEqual:       return VK_COMPARE_OP_NOT_EQUAL; 
-			case RendererComparison::GreaterOrEqual: return VK_COMPARE_OP_GREATER_OR_EQUAL; 
-			case RendererComparison::Always:         return VK_COMPARE_OP_ALWAYS; 
+			case RendererComparison::Never:          return VK_COMPARE_OP_NEVER;
+			case RendererComparison::Less:           return VK_COMPARE_OP_LESS;
+			case RendererComparison::Equal:          return VK_COMPARE_OP_EQUAL;
+			case RendererComparison::LessOrEqual:    return VK_COMPARE_OP_LESS_OR_EQUAL;
+			case RendererComparison::Greater:        return VK_COMPARE_OP_GREATER;
+			case RendererComparison::NotEqual:       return VK_COMPARE_OP_NOT_EQUAL;
+			case RendererComparison::GreaterOrEqual: return VK_COMPARE_OP_GREATER_OR_EQUAL;
+			case RendererComparison::Always:         return VK_COMPARE_OP_ALWAYS;
 		}
 
 		NazaraErrorFmt("unhandled RendererComparison {0:#x})", UnderlyingCast(comparison));

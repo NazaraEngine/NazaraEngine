@@ -13,7 +13,7 @@
 #include <Nazara/VulkanRenderer/Wrapper/DescriptorPool.hpp>
 #include <vulkan/vulkan_core.h>
 
-namespace Nz 
+namespace Nz
 {
 	namespace Vk
 	{

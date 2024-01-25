@@ -11,7 +11,7 @@
 #include <Nazara/VulkanRenderer/Wrapper/DeviceObject.hpp>
 #include <string_view>
 
-namespace Nz 
+namespace Nz
 {
 	namespace Vk
 	{

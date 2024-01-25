@@ -1,4 +1,4 @@
-if is_plat("wasm") then 
+if is_plat("wasm") then
 	return -- Compute shaders are not supported with WebGL (but are with WebGPU)
 end
 
