@@ -186,7 +186,7 @@ namespace Nz
 	{
 		SimpleButtonWidgetStyle::StyleConfig styleConfig;
 		styleConfig.cornerSize = 20.f;
-		styleConfig.cornerTexCoords = 20.f / 128.f;
+		styleConfig.cornerTexCoords = 20.f / 44.f;
 		styleConfig.hoveredMaterial = m_buttonHoveredMaterial;
 		styleConfig.material = m_buttonMaterial;
 		styleConfig.pressedHoveredMaterial = m_buttonPressedHoveredMaterial;
