@@ -390,6 +390,7 @@ add_includedirs("include")
 add_sysincludedirs("thirdparty/include")
 
 set_encodings("utf-8")
+set_exceptions("cxx")
 set_languages("c89", "c++20")
 set_rundir("./bin/$(plat)_$(arch)_$(mode)")
 set_targetdir("./bin/$(plat)_$(arch)_$(mode)")
