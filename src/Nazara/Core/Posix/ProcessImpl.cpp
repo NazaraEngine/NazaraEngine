@@ -107,7 +107,7 @@ namespace Nz::PlatformImpl
 				std::exit(1);
 			}
 
-			__builtin_unreachable(); // TODO: NAZARA_UNREACHABLE()
+			NAZARA_UNREACHABLE();
 		}
 		else
 		{

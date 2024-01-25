@@ -138,9 +138,7 @@ namespace Nz
 			}
 		}
 
-		// It shouldn't be possible to get here (TODO: Add NAZARA_UNREACHEABLE)
-		NazaraInternalError("unknown error");
-		return false;
+		NAZARA_UNREACHABLE();
 	}
 
 	void GuillotineImageAtlas::SetMaxLayerSize(unsigned int maxLayerSize)
