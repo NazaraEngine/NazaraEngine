@@ -24,7 +24,7 @@ namespace Nz
 
 	inline std::size_t EnttWorld::GetAliveEntityCount() const
 	{
-		return m_registry.storage<entt::entity>()->in_use();
+		return m_registry.storage<entt::entity>()->free_list();
 	}
 
 	inline entt::registry& EnttWorld::GetRegistry()
