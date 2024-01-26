@@ -112,6 +112,15 @@ SCENARIO("String", "[CORE][STRING]")
 		REQUIRE(Nz::ReplaceStr(str, "Unreal Reality", "Ungine") == "Ungine");
 	}
 
+	WHEN("Getting substring of unicode strings")
+	{
+		std::string_view str = "\u00E0\u00E9\u00E7\u0153\u00C2\u5B98";
+		CHECK(Nz::Substring(str, 0, 150, Nz::UnicodeAware{}) == "\u00E0\u00E9\u00E7\u0153\u00C2\u5B98");
+		CHECK(Nz::Substring(str, 1, Nz::UnicodeAware{}) == "\u00E9\u00E7\u0153\u00C2\u5B98");
+		CHECK(Nz::Substring(str, 1, 2, Nz::UnicodeAware{}) == "\u00E9\u00E7");
+		CHECK(Nz::Substring(str, 1, 10, Nz::UnicodeAware{}) == "\u00E9\u00E7\u0153\u00C2\u5B98");
+	}
+
 	WHEN("Checking if string starts with")
 	{
 		CHECK(Nz::StartsWith("Nazara Engine", ""));

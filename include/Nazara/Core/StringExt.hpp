@@ -48,6 +48,9 @@ namespace Nz
 	template<typename T> std::basic_string<T>& ReplaceStr(std::basic_string<T>& str, const T* from, const T* to);
 	template<typename T> std::basic_string<T>& ReplaceStr(std::basic_string<T>& str, std::basic_string_view<T> from, std::basic_string_view<T> to);
 
+	inline std::string_view Substring(std::string_view str, std::size_t index, UnicodeAware);
+	NAZARA_CORE_API std::string_view Substring(std::string_view str, std::size_t index, std::size_t count, UnicodeAware);
+
 	inline bool StartsWith(std::string_view str, std::string_view s);
 	NAZARA_CORE_API bool StartsWith(std::string_view lhs, std::string_view rhs, CaseIndependent);
 	NAZARA_CORE_API bool StartsWith(std::string_view lhs, std::string_view rhs, UnicodeAware);

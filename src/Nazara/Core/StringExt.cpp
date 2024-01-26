@@ -389,6 +389,35 @@ namespace Nz
 		return str;
 	}
 
+	std::string_view Substring(std::string_view str, std::size_t index, std::size_t count, UnicodeAware)
+	{
+		const char* start = str.data();
+		const char* end = start + str.size();
+		try
+		{
+			utf8::advance(start, index, end);
+		}
+		catch (const utf8::not_enough_room&)
+		{
+			return {};
+		}
+
+		if (count == std::numeric_limits<std::size_t>::max())
+			return str.substr(start - str.data());
+
+		const char* to = start;
+		try
+		{
+			utf8::advance(to, count, end);
+		}
+		catch (const utf8::not_enough_room&)
+		{
+			return str.substr(start - str.data());
+		}
+
+		return std::string_view(start, to - start);
+	}
+
 	bool StartsWith(std::string_view lhs, std::string_view rhs, CaseIndependent)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE

@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cctype>
 #include <cstring>
+#include <limits>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -107,6 +108,11 @@ namespace Nz
 		}
 
 		return str;
+	}
+
+	std::string_view Substring(std::string_view str, std::size_t index, UnicodeAware)
+	{
+		return Substring(str, index, std::numeric_limits<std::size_t>::max(), UnicodeAware{});
 	}
 
 	inline bool StartsWith(std::string_view str, std::string_view s)
