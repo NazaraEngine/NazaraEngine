@@ -3,9 +3,9 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 /*
- * FILE:	sha2.c
- * AUTHOR:	Aaron D. Gifford
- *		http://www.aarongifford.com/computers/sha.html
+ * FILE:    sha2.c
+ * AUTHOR:  Aaron D. Gifford
+ *      http://www.aarongifford.com/computers/sha.html
  *
  * Copyright (c) 2000-2003, Aaron D. Gifford
  * All rights reserved.
@@ -48,13 +48,13 @@ namespace Nz
 	/*** ENDIAN REVERSAL MACROS *******************************************/
 	#ifdef NAZARA_LITTLE_ENDIAN
 
-	#define REVERSE32(w,x)	{ \
+	#define REVERSE32(w,x)  { \
 		UInt32 tmp = (w); \
 		tmp = (tmp >> 16) | (tmp << 16); \
 		(x) = ((tmp & 0xff00ff00UL) >> 8) | ((tmp & 0x00ff00ffUL) << 8); \
 	}
 
-	#define REVERSE64(w,x)	{ \
+	#define REVERSE64(w,x)  { \
 		UInt64 tmp = (w); \
 		tmp = (tmp >> 32) | (tmp << 32); \
 		tmp = ((tmp & 0xff00ff00ff00ff00ULL) >> 8) | \
@@ -69,7 +69,7 @@ namespace Nz
 	 * unsigned 128-bit integer (represented using a two-element array of
 	 * 64-bit words):
 	 */
-	#define ADDINC128(w,n)	{ \
+	#define ADDINC128(w,n)  { \
 		(w)[0] += static_cast<UInt64>(n); \
 		if ((w)[0] < (n)) { \
 			(w)[1]++; \
@@ -97,32 +97,32 @@ namespace Nz
 	 *   unexpected side-effects if used without taking this into account.
 	 */
 	/* Shift-right (used in SHA-256, SHA-384, and SHA-512): */
-	#define SHR(b,x) 		((x) >> (b))
+	#define SHR(b,x)        ((x) >> (b))
 	/* 32-bit Rotate-right (used in SHA-256): */
-	#define ROTR32(b,x)	(((x) >> (b)) | ((x) << (32 - (b))))
+	#define ROTR32(b,x) (((x) >> (b)) | ((x) << (32 - (b))))
 	/* 64-bit Rotate-right (used in SHA-384 and SHA-512): */
-	#define ROTR64(b,x)	(((x) >> (b)) | ((x) << (64 - (b))))
+	#define ROTR64(b,x) (((x) >> (b)) | ((x) << (64 - (b))))
 	/* 32-bit Rotate-left (used in SHA-1): */
-	#define ROTL32(b,x)	(((x) << (b)) | ((x) >> (32 - (b))))
+	#define ROTL32(b,x) (((x) << (b)) | ((x) >> (32 - (b))))
 
 	/* Two logical functions used in SHA-1, SHA-254, SHA-256, SHA-384, and SHA-512: */
-	#define Ch(x,y,z)	(((x) & (y)) ^ ((~(x)) & (z)))
-	#define Maj(x,y,z)	(((x) & (y)) ^ ((x) & (z)) ^ ((y) & (z)))
+	#define Ch(x,y,z)   (((x) & (y)) ^ ((~(x)) & (z)))
+	#define Maj(x,y,z)  (((x) & (y)) ^ ((x) & (z)) ^ ((y) & (z)))
 
 	/* Function used in SHA-1: */
-	#define Parity(x,y,z)	((x) ^ (y) ^ (z))
+	#define Parity(x,y,z)   ((x) ^ (y) ^ (z))
 
 	/* Four logical functions used in SHA-256: */
-	#define Sigma0_256(x)	(ROTR32(2,  (x)) ^ ROTR32(13, (x)) ^ ROTR32(22, (x)))
-	#define Sigma1_256(x)	(ROTR32(6,  (x)) ^ ROTR32(11, (x)) ^ ROTR32(25, (x)))
-	#define sigma0_256(x)	(ROTR32(7,  (x)) ^ ROTR32(18, (x)) ^ SHR(   3 , (x)))
-	#define sigma1_256(x)	(ROTR32(17, (x)) ^ ROTR32(19, (x)) ^ SHR(   10, (x)))
+	#define Sigma0_256(x)   (ROTR32(2,  (x)) ^ ROTR32(13, (x)) ^ ROTR32(22, (x)))
+	#define Sigma1_256(x)   (ROTR32(6,  (x)) ^ ROTR32(11, (x)) ^ ROTR32(25, (x)))
+	#define sigma0_256(x)   (ROTR32(7,  (x)) ^ ROTR32(18, (x)) ^ SHR(   3 , (x)))
+	#define sigma1_256(x)   (ROTR32(17, (x)) ^ ROTR32(19, (x)) ^ SHR(   10, (x)))
 
 	/* Four of six logical functions used in SHA-384 and SHA-512: */
-	#define Sigma0_512(x)	(ROTR64(28, (x)) ^ ROTR64(34, (x)) ^ ROTR64(39, (x)))
-	#define Sigma1_512(x)	(ROTR64(14, (x)) ^ ROTR64(18, (x)) ^ ROTR64(41, (x)))
-	#define sigma0_512(x)	(ROTR64( 1, (x)) ^ ROTR64( 8, (x)) ^ SHR(    7, (x)))
-	#define sigma1_512(x)	(ROTR64(19, (x)) ^ ROTR64(61, (x)) ^ SHR(    6, (x)))
+	#define Sigma0_512(x)   (ROTR64(28, (x)) ^ ROTR64(34, (x)) ^ ROTR64(39, (x)))
+	#define Sigma1_512(x)   (ROTR64(14, (x)) ^ ROTR64(18, (x)) ^ ROTR64(41, (x)))
+	#define sigma0_512(x)   (ROTR64( 1, (x)) ^ ROTR64( 8, (x)) ^ SHR(    7, (x)))
+	#define sigma1_512(x)   (ROTR64(19, (x)) ^ ROTR64(61, (x)) ^ SHR(    6, (x)))
 
 	/*** INTERNAL FUNCTION PROTOTYPES *************************************/
 
@@ -140,10 +140,10 @@ namespace Nz
 	/*** SHA2 INITIAL HASH VALUES AND CONSTANTS ***************************/
 
 	/* Hash constant words K for SHA-1: */
-	#define K1_0_TO_19	0x5a827999UL
-	#define K1_20_TO_39	0x6ed9eba1UL
-	#define K1_40_TO_59	0x8f1bbcdcUL
-	#define K1_60_TO_79	0xca62c1d6UL
+	#define K1_0_TO_19  0x5a827999UL
+	#define K1_20_TO_39 0x6ed9eba1UL
+	#define K1_40_TO_59 0x8f1bbcdcUL
+	#define K1_60_TO_79 0xca62c1d6UL
 
 	/* Initial hash value H for SHA-1: */
 	const static UInt32 sha1_initial_hash_value[5] = {
@@ -278,45 +278,45 @@ namespace Nz
 
 	#ifdef NAZARA_LITTLE_ENDIAN
 
-	#define ROUND1_0_TO_15(a,b,c,d,e)				\
-		REVERSE32(*data++, W1[j]);				\
+	#define ROUND1_0_TO_15(a,b,c,d,e)               \
+		REVERSE32(*data++, W1[j]);              \
 		(e) = ROTL32(5, (a)) + Ch((b), (c), (d)) + (e) +	\
-			 K1_0_TO_19 + W1[j];	\
-		(b) = ROTL32(30, (b));		\
+			 K1_0_TO_19 + W1[j];    \
+		(b) = ROTL32(30, (b));      \
 		j++;
 
 	#else // NAZARA_LITTLE_ENDIAN
 
-	#define ROUND1_0_TO_15(a,b,c,d,e)				\
+	#define ROUND1_0_TO_15(a,b,c,d,e)               \
 		(e) = ROTL32(5, (a)) + Ch((b), (c), (d)) + (e) +	\
-			 K1_0_TO_19 + ( W1[j] = *data++ );		\
-		(b) = ROTL32(30, (b));	\
+			 K1_0_TO_19 + ( W1[j] = *data++ );      \
+		(b) = ROTL32(30, (b));  \
 		j++;
 
 	#endif // NAZARA_LITTLE_ENDIAN
 
-	#define ROUND1_16_TO_19(a,b,c,d,e)	\
-		T1 = W1[(j+13)&0x0f] ^ W1[(j+8)&0x0f] ^ W1[(j+2)&0x0f] ^ W1[j&0x0f];	\
-		(e) = ROTL32(5, a) + Ch(b,c,d) + e + K1_0_TO_19 + ( W1[j&0x0f] = ROTL32(1, T1) );	\
-		(b) = ROTL32(30, b);	\
+	#define ROUND1_16_TO_19(a,b,c,d,e)  \
+		T1 = W1[(j+13)&0x0f] ^ W1[(j+8)&0x0f] ^ W1[(j+2)&0x0f] ^ W1[j&0x0f];    \
+		(e) = ROTL32(5, a) + Ch(b,c,d) + e + K1_0_TO_19 + ( W1[j&0x0f] = ROTL32(1, T1) );   \
+		(b) = ROTL32(30, b);    \
 		j++;
 
-	#define ROUND1_20_TO_39(a,b,c,d,e)	\
-		T1 = W1[(j+13)&0x0f] ^ W1[(j+8)&0x0f] ^ W1[(j+2)&0x0f] ^ W1[j&0x0f];	\
-		(e) = ROTL32(5, a) + Parity(b,c,d) + e + K1_20_TO_39 + ( W1[j&0x0f] = ROTL32(1, T1) );	\
-		(b) = ROTL32(30, b);	\
+	#define ROUND1_20_TO_39(a,b,c,d,e)  \
+		T1 = W1[(j+13)&0x0f] ^ W1[(j+8)&0x0f] ^ W1[(j+2)&0x0f] ^ W1[j&0x0f];    \
+		(e) = ROTL32(5, a) + Parity(b,c,d) + e + K1_20_TO_39 + ( W1[j&0x0f] = ROTL32(1, T1) );  \
+		(b) = ROTL32(30, b);    \
 		j++;
 
-	#define ROUND1_40_TO_59(a,b,c,d,e)	\
-		T1 = W1[(j+13)&0x0f] ^ W1[(j+8)&0x0f] ^ W1[(j+2)&0x0f] ^ W1[j&0x0f];	\
-		(e) = ROTL32(5, a) + Maj(b,c,d) + e + K1_40_TO_59 + ( W1[j&0x0f] = ROTL32(1, T1) );	\
-		(b) = ROTL32(30, b);	\
+	#define ROUND1_40_TO_59(a,b,c,d,e)  \
+		T1 = W1[(j+13)&0x0f] ^ W1[(j+8)&0x0f] ^ W1[(j+2)&0x0f] ^ W1[j&0x0f];    \
+		(e) = ROTL32(5, a) + Maj(b,c,d) + e + K1_40_TO_59 + ( W1[j&0x0f] = ROTL32(1, T1) ); \
+		(b) = ROTL32(30, b);    \
 		j++;
 
-	#define ROUND1_60_TO_79(a,b,c,d,e)	\
-		T1 = W1[(j+13)&0x0f] ^ W1[(j+8)&0x0f] ^ W1[(j+2)&0x0f] ^ W1[j&0x0f];	\
-		(e) = ROTL32(5, a) + Parity(b,c,d) + e + K1_60_TO_79 + ( W1[j&0x0f] = ROTL32(1, T1) );	\
-		(b) = ROTL32(30, b);	\
+	#define ROUND1_60_TO_79(a,b,c,d,e)  \
+		T1 = W1[(j+13)&0x0f] ^ W1[(j+8)&0x0f] ^ W1[(j+2)&0x0f] ^ W1[j&0x0f];    \
+		(e) = ROTL32(5, a) + Parity(b,c,d) + e + K1_60_TO_79 + ( W1[j&0x0f] = ROTL32(1, T1) );  \
+		(b) = ROTL32(30, b);    \
 		j++;
 
 	namespace
@@ -325,7 +325,7 @@ namespace Nz
 		{
 			UInt32 a, b, c, d, e;
 			UInt32 T1, *W1;
-			int	j;
+			int j;
 
 			W1 = reinterpret_cast<UInt32*>(context->s1.buffer);
 
@@ -559,7 +559,7 @@ namespace Nz
 
 	#ifdef NAZARA_LITTLE_ENDIAN
 
-	#define ROUND256_0_TO_15(a,b,c,d,e,f,g,h)	\
+	#define ROUND256_0_TO_15(a,b,c,d,e,f,g,h)   \
 		REVERSE32(*data++, W256[j]); \
 		T1 = (h) + Sigma1_256(e) + Ch((e), (f), (g)) + \
 				 K256[j] + W256[j]; \
@@ -569,7 +569,7 @@ namespace Nz
 
 	#else // NAZARA_LITTLE_ENDIAN
 
-	#define ROUND256_0_TO_15(a,b,c,d,e,f,g,h)	\
+	#define ROUND256_0_TO_15(a,b,c,d,e,f,g,h)   \
 		T1 = (h) + Sigma1_256(e) + Ch((e), (f), (g)) + \
 			 K256[j] + (W256[j] = *data++); \
 		(d) += T1; \
@@ -578,7 +578,7 @@ namespace Nz
 
 	#endif // NAZARA_LITTLE_ENDIAN
 
-	#define ROUND256(a,b,c,d,e,f,g,h)	\
+	#define ROUND256(a,b,c,d,e,f,g,h)   \
 		s0 = W256[(j+1)&0x0f]; \
 		s0 = sigma0_256(s0); \
 		s1 = W256[(j+14)&0x0f]; \
@@ -593,7 +593,7 @@ namespace Nz
 	{
 		UInt32 a, b, c, d, e, f, g, h;
 		UInt32 T1, *W256;
-		int	j;
+		int j;
 
 		W256 = reinterpret_cast<UInt32*>(context->s256.buffer);
 
@@ -819,7 +819,7 @@ namespace Nz
 	/* Unrolled SHA-512 round macros: */
 	#ifdef NAZARA_LITTLE_ENDIAN
 
-	#define ROUND512_0_TO_15(a,b,c,d,e,f,g,h)	\
+	#define ROUND512_0_TO_15(a,b,c,d,e,f,g,h)   \
 		REVERSE64(*data++, W512[j]); \
 		T1 = (h) + Sigma1_512(e) + Ch((e), (f), (g)) + \
 				 K512[j] + W512[j]; \
@@ -830,7 +830,7 @@ namespace Nz
 
 	#else // NAZARA_LITTLE_ENDIAN
 
-	#define ROUND512_0_TO_15(a,b,c,d,e,f,g,h)	\
+	#define ROUND512_0_TO_15(a,b,c,d,e,f,g,h)   \
 		T1 = (h) + Sigma1_512(e) + Ch((e), (f), (g)) + \
 				 K512[j] + (W512[j] = *data++); \
 		(d) += T1; \
@@ -839,7 +839,7 @@ namespace Nz
 
 	#endif // NAZARA_LITTLE_ENDIAN
 
-	#define ROUND512(a,b,c,d,e,f,g,h)	\
+	#define ROUND512(a,b,c,d,e,f,g,h)   \
 		s0 = W512[(j+1)&0x0f]; \
 		s0 = sigma0_512(s0); \
 		s1 = W512[(j+14)&0x0f]; \
@@ -854,7 +854,7 @@ namespace Nz
 	{
 		UInt64 a, b, c, d, e, f, g, h, s0, s1;
 		UInt64 T1, *W512 = reinterpret_cast<UInt64*>(context->s512.buffer);
-		int	j;
+		int j;
 
 		/* Initialize registers with the prev. intermediate value */
 		a = context->s512.state[0];

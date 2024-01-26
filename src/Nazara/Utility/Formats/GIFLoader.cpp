@@ -653,7 +653,7 @@ namespace Nz
 					std::size_t transparentIndex = std::numeric_limits<std::size_t>::max();
 					Time time;
 					UInt64 streamOffset;
- 					UInt8 disposalMethod = 0;
+					UInt8 disposalMethod = 0;
 				};
 
 				struct ImageDecodingData

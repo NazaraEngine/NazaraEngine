@@ -236,7 +236,7 @@ namespace Nz
 		// OK, there should be no correctly formed strings which are miscategorized,
 		// and now any format errors will be found out as we continue parsing
 		// according to plan.
-		if (!detectedIPv6)	//try to parse as IPv4
+		if (!detectedIPv6)  //try to parse as IPv4
 		{
 			// 4 dotted quad decimal; optional port if there is a colon
 			// since there are just 4, and because the last one can be terminated
@@ -271,7 +271,7 @@ namespace Nz
 			// A further form allows an ipv4 dotted quad instead of the last two
 			// 16-bit quantities, but only if in the ipv4 space ::ffff:x:x .
 
-			if (openBracketPtr)	// start past the open bracket, if it exists
+			if (openBracketPtr) // start past the open bracket, if it exists
 				addressPtr = openBracketPtr + 1;
 
 			resultPtr = result;
@@ -282,7 +282,7 @@ namespace Nz
 			for (i = 0; i < 8; ++i) // we've got up to 8 of these, so we will use a loop
 			{
 				const char* savedPtr = addressPtr;
-				unsigned int value;		// get value; these are hex
+				unsigned int value;     // get value; these are hex
 				if (!Detail::ParseHexadecimal(addressPtr, &value, &addressPtr)) // if empty, we are zero compressing; note the loc
 				{
 					if (zeroLoc) //there can be only one!

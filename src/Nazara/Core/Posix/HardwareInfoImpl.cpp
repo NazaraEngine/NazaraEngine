@@ -53,7 +53,7 @@ namespace Nz::PlatformImpl
 		return true; // cpuid is always supported on x86_64 arch
 #elif defined(NAZARA_ARCH_x86) && (defined(NAZARA_COMPILER_CLANG) || defined(NAZARA_COMPILER_GCC) || defined(NAZARA_COMPILER_INTEL))
 		int supported;
-		asm volatile ("	pushfl\n"
+		asm volatile (" pushfl\n"
 					  " pop %%eax\n"
 					  " mov %%eax, %%ecx\n"
 					  " xor $0x200000, %%eax\n"

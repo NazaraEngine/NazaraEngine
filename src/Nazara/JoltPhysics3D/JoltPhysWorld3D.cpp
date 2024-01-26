@@ -47,7 +47,7 @@ namespace DitchMeAsap
 	class ObjectLayerPairFilterImpl : public ObjectLayerPairFilter
 	{
 	public:
-		virtual bool					ShouldCollide(ObjectLayer inObject1, ObjectLayer inObject2) const override
+		virtual bool ShouldCollide(ObjectLayer inObject1, ObjectLayer inObject2) const override
 		{
 			switch (inObject1)
 			{
@@ -86,12 +86,12 @@ namespace DitchMeAsap
 			mObjectToBroadPhase[Layers::MOVING] = BroadPhaseLayers::MOVING;
 		}
 
-		virtual uint					GetNumBroadPhaseLayers() const override
+		virtual uint GetNumBroadPhaseLayers() const override
 		{
 			return BroadPhaseLayers::NUM_LAYERS;
 		}
 
-		virtual BroadPhaseLayer			GetBroadPhaseLayer(ObjectLayer inLayer) const override
+		virtual BroadPhaseLayer GetBroadPhaseLayer(ObjectLayer inLayer) const override
 		{
 			JPH_ASSERT(inLayer < Layers::NUM_LAYERS);
 			return mObjectToBroadPhase[inLayer];
@@ -102,21 +102,21 @@ namespace DitchMeAsap
 		{
 			switch ((BroadPhaseLayer::Type)inLayer)
 			{
-			case (BroadPhaseLayer::Type)BroadPhaseLayers::NON_MOVING:	return "NON_MOVING";
-			case (BroadPhaseLayer::Type)BroadPhaseLayers::MOVING:		return "MOVING";
-			default:													JPH_ASSERT(false); return "INVALID";
+			case (BroadPhaseLayer::Type)BroadPhaseLayers::NON_MOVING:   return "NON_MOVING";
+			case (BroadPhaseLayer::Type)BroadPhaseLayers::MOVING:       return "MOVING";
+			default:                                                    JPH_ASSERT(false); return "INVALID";
 			}
 		}
 #endif // JPH_EXTERNAL_PROFILE || JPH_PROFILE_ENABLED
 
 	private:
-		BroadPhaseLayer					mObjectToBroadPhase[Layers::NUM_LAYERS];
+		BroadPhaseLayer mObjectToBroadPhase[Layers::NUM_LAYERS];
 	};
 	/// Class that determines if an object layer can collide with a broadphase layer
 	class ObjectVsBroadPhaseLayerFilterImpl : public ObjectVsBroadPhaseLayerFilter
 	{
 	public:
-		virtual bool				ShouldCollide(ObjectLayer inLayer1, BroadPhaseLayer inLayer2) const override
+		virtual bool ShouldCollide(ObjectLayer inLayer1, BroadPhaseLayer inLayer2) const override
 		{
 			switch (inLayer1)
 			{
@@ -136,7 +136,7 @@ namespace DitchMeAsap
 	{
 	public:
 		// See: ContactListener
-		virtual ValidateResult	OnContactValidate(const Body& inBody1, const Body& inBody2, RVec3Arg inBaseOffset, const CollideShapeResult& inCollisionResult) override
+		virtual ValidateResult  OnContactValidate(const Body& inBody1, const Body& inBody2, RVec3Arg inBaseOffset, const CollideShapeResult& inCollisionResult) override
 		{
 			cout << "Contact validate callback" << endl;
 
@@ -144,17 +144,17 @@ namespace DitchMeAsap
 			return ValidateResult::AcceptAllContactsForThisBodyPair;
 		}
 
-		virtual void			OnContactAdded(const Body& inBody1, const Body& inBody2, const ContactManifold& inManifold, ContactSettings& ioSettings) override
+		virtual void OnContactAdded(const Body& inBody1, const Body& inBody2, const ContactManifold& inManifold, ContactSettings& ioSettings) override
 		{
 			cout << "A contact was added" << endl;
 		}
 
-		virtual void			OnContactPersisted(const Body& inBody1, const Body& inBody2, const ContactManifold& inManifold, ContactSettings& ioSettings) override
+		virtual void OnContactPersisted(const Body& inBody1, const Body& inBody2, const ContactManifold& inManifold, ContactSettings& ioSettings) override
 		{
 			cout << "A contact was persisted" << endl;
 		}
 
-		virtual void			OnContactRemoved(const SubShapeIDPair& inSubShapePair) override
+		virtual void OnContactRemoved(const SubShapeIDPair& inSubShapePair) override
 		{
 			cout << "A contact was removed" << endl;
 		}

@@ -14,10 +14,10 @@
  * <a href="mailto:vincent.rijmen@cryptomathic.com">Vincent Rijmen</a>.
  *
  * See
- *	  P.S.L.M. Barreto, V. Rijmen,
- *	  ``The Whirlpool hashing function,''
- *	  NESSIE submission, 2000 (tweaked version, 2001),
- *	  <https://www.cosic.esat.kuleuven.ac.be/nessie/workshop/submissions/whirlpool.zip>
+ *    P.S.L.M. Barreto, V. Rijmen,
+ *    ``The Whirlpool hashing function,''
+ *    NESSIE submission, 2000 (tweaked version, 2001),
+ *    <https://www.cosic.esat.kuleuven.ac.be/nessie/workshop/submissions/whirlpool.zip>
  *
  * @author  Paulo S.L.M. Barreto
  * @author  Vincent Rijmen.
@@ -36,8 +36,8 @@
  *
  * - Generation of ISO/IEC 10118-3 test vectors.
  * - Bug fix: nonzero carry was ignored when tallying the data length
- *	  (this bug apparently only manifested itself when feeding data
- *	  in pieces rather than in a single chunk at once).
+ *    (this bug apparently only manifested itself when feeding data
+ *    in pieces rather than in a single chunk at once).
  * - Support for MS Visual C++ 64-bit integer arithmetic.
  *
  * Differences from version 1.0:
@@ -765,7 +765,7 @@ namespace Nz
 			digest[4] = static_cast<UInt8>(m_hash[i] >> 24);
 			digest[5] = static_cast<UInt8>(m_hash[i] >> 16);
 			digest[6] = static_cast<UInt8>(m_hash[i] >>  8);
-			digest[7] = static_cast<UInt8>(m_hash[i]	   );
+			digest[7] = static_cast<UInt8>(m_hash[i]      );
 			digest += 8;
 		}
 
@@ -791,7 +791,7 @@ namespace Nz
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
 		int i, r;
-		UInt64 K[8];	 // the round key
+		UInt64 K[8];     // the round key
 		UInt64 block[8]; // mu(buffer)
 		UInt64 state[8]; // the cipher state
 		UInt64 L[8];
@@ -801,14 +801,14 @@ namespace Nz
 		for (i = 0; i < 8; i++, buffer += 8)
 		{
 			block[i] =
-				((static_cast<UInt64>(buffer[0])		) << 56) ^
+				((static_cast<UInt64>(buffer[0])        ) << 56) ^
 				((static_cast<UInt64>(buffer[1]) & 0xFFL) << 48) ^
 				((static_cast<UInt64>(buffer[2]) & 0xFFL) << 40) ^
 				((static_cast<UInt64>(buffer[3]) & 0xFFL) << 32) ^
 				((static_cast<UInt64>(buffer[4]) & 0xFFL) << 24) ^
 				((static_cast<UInt64>(buffer[5]) & 0xFFL) << 16) ^
 				((static_cast<UInt64>(buffer[6]) & 0xFFL) <<  8) ^
-				((static_cast<UInt64>(buffer[7]) & 0xFFL)	  );
+				((static_cast<UInt64>(buffer[7]) & 0xFFL)     );
 		}
 
 		// compute and apply K^0 to the cipher state
@@ -826,84 +826,84 @@ namespace Nz
 		{
 			// compute K^r from K^{r-1}
 			L[0] =
-				C0[static_cast<int>(K[0] >> 56)	   ] ^
+				C0[static_cast<int>(K[0] >> 56)    ] ^
 				C1[static_cast<int>(K[7] >> 48) & 0xFF] ^
 				C2[static_cast<int>(K[6] >> 40) & 0xFF] ^
 				C3[static_cast<int>(K[5] >> 32) & 0xFF] ^
 				C4[static_cast<int>(K[4] >> 24) & 0xFF] ^
 				C5[static_cast<int>(K[3] >> 16) & 0xFF] ^
 				C6[static_cast<int>(K[2] >>  8) & 0xFF] ^
-				C7[static_cast<int>(K[1]	  ) & 0xFF] ^
+				C7[static_cast<int>(K[1]      ) & 0xFF] ^
 				rc[r];
 
 			L[1] =
-				C0[static_cast<int>(K[1] >> 56)	   ] ^
+				C0[static_cast<int>(K[1] >> 56)    ] ^
 				C1[static_cast<int>(K[0] >> 48) & 0xFF] ^
 				C2[static_cast<int>(K[7] >> 40) & 0xFF] ^
 				C3[static_cast<int>(K[6] >> 32) & 0xFF] ^
 				C4[static_cast<int>(K[5] >> 24) & 0xFF] ^
 				C5[static_cast<int>(K[4] >> 16) & 0xFF] ^
 				C6[static_cast<int>(K[3] >>  8) & 0xFF] ^
-				C7[static_cast<int>(K[2]	  ) & 0xFF];
+				C7[static_cast<int>(K[2]      ) & 0xFF];
 
 			L[2] =
-				C0[static_cast<int>(K[2] >> 56)	   ] ^
+				C0[static_cast<int>(K[2] >> 56)    ] ^
 				C1[static_cast<int>(K[1] >> 48) & 0xFF] ^
 				C2[static_cast<int>(K[0] >> 40) & 0xFF] ^
 				C3[static_cast<int>(K[7] >> 32) & 0xFF] ^
 				C4[static_cast<int>(K[6] >> 24) & 0xFF] ^
 				C5[static_cast<int>(K[5] >> 16) & 0xFF] ^
 				C6[static_cast<int>(K[4] >>  8) & 0xFF] ^
-				C7[static_cast<int>(K[3]	  ) & 0xFF];
+				C7[static_cast<int>(K[3]      ) & 0xFF];
 
 			L[3] =
-				C0[static_cast<int>(K[3] >> 56)	   ] ^
+				C0[static_cast<int>(K[3] >> 56)    ] ^
 				C1[static_cast<int>(K[2] >> 48) & 0xFF] ^
 				C2[static_cast<int>(K[1] >> 40) & 0xFF] ^
 				C3[static_cast<int>(K[0] >> 32) & 0xFF] ^
 				C4[static_cast<int>(K[7] >> 24) & 0xFF] ^
 				C5[static_cast<int>(K[6] >> 16) & 0xFF] ^
 				C6[static_cast<int>(K[5] >>  8) & 0xFF] ^
-				C7[static_cast<int>(K[4]	  ) & 0xFF];
+				C7[static_cast<int>(K[4]      ) & 0xFF];
 
 			L[4] =
-				C0[static_cast<int>(K[4] >> 56)	   ] ^
+				C0[static_cast<int>(K[4] >> 56)    ] ^
 				C1[static_cast<int>(K[3] >> 48) & 0xFF] ^
 				C2[static_cast<int>(K[2] >> 40) & 0xFF] ^
 				C3[static_cast<int>(K[1] >> 32) & 0xFF] ^
 				C4[static_cast<int>(K[0] >> 24) & 0xFF] ^
 				C5[static_cast<int>(K[7] >> 16) & 0xFF] ^
 				C6[static_cast<int>(K[6] >>  8) & 0xFF] ^
-				C7[static_cast<int>(K[5]	  ) & 0xFF];
+				C7[static_cast<int>(K[5]      ) & 0xFF];
 
 			L[5] =
-				C0[static_cast<int>(K[5] >> 56)	   ] ^
+				C0[static_cast<int>(K[5] >> 56)    ] ^
 				C1[static_cast<int>(K[4] >> 48) & 0xFF] ^
 				C2[static_cast<int>(K[3] >> 40) & 0xFF] ^
 				C3[static_cast<int>(K[2] >> 32) & 0xFF] ^
 				C4[static_cast<int>(K[1] >> 24) & 0xFF] ^
 				C5[static_cast<int>(K[0] >> 16) & 0xFF] ^
 				C6[static_cast<int>(K[7] >>  8) & 0xFF] ^
-				C7[static_cast<int>(K[6]	  ) & 0xFF];
+				C7[static_cast<int>(K[6]      ) & 0xFF];
 			L[6] =
-				C0[static_cast<int>(K[6] >> 56)	   ] ^
+				C0[static_cast<int>(K[6] >> 56)    ] ^
 				C1[static_cast<int>(K[5] >> 48) & 0xFF] ^
 				C2[static_cast<int>(K[4] >> 40) & 0xFF] ^
 				C3[static_cast<int>(K[3] >> 32) & 0xFF] ^
 				C4[static_cast<int>(K[2] >> 24) & 0xFF] ^
 				C5[static_cast<int>(K[1] >> 16) & 0xFF] ^
 				C6[static_cast<int>(K[0] >>  8) & 0xFF] ^
-				C7[static_cast<int>(K[7]	  ) & 0xFF];
+				C7[static_cast<int>(K[7]      ) & 0xFF];
 
 			L[7] =
-				C0[static_cast<int>(K[7] >> 56)	   ] ^
+				C0[static_cast<int>(K[7] >> 56)    ] ^
 				C1[static_cast<int>(K[6] >> 48) & 0xFF] ^
 				C2[static_cast<int>(K[5] >> 40) & 0xFF] ^
 				C3[static_cast<int>(K[4] >> 32) & 0xFF] ^
 				C4[static_cast<int>(K[3] >> 24) & 0xFF] ^
 				C5[static_cast<int>(K[2] >> 16) & 0xFF] ^
 				C6[static_cast<int>(K[1] >>  8) & 0xFF] ^
-				C7[static_cast<int>(K[0]	  ) & 0xFF];
+				C7[static_cast<int>(K[0]      ) & 0xFF];
 
 			K[0] = L[0];
 			K[1] = L[1];
@@ -916,89 +916,89 @@ namespace Nz
 
 			// apply the r-th round transformation
 			L[0] =
-				C0[static_cast<int>(state[0] >> 56)	   ] ^
+				C0[static_cast<int>(state[0] >> 56)    ] ^
 				C1[static_cast<int>(state[7] >> 48) & 0xFF] ^
 				C2[static_cast<int>(state[6] >> 40) & 0xFF] ^
 				C3[static_cast<int>(state[5] >> 32) & 0xFF] ^
 				C4[static_cast<int>(state[4] >> 24) & 0xFF] ^
 				C5[static_cast<int>(state[3] >> 16) & 0xFF] ^
 				C6[static_cast<int>(state[2] >>  8) & 0xFF] ^
-				C7[static_cast<int>(state[1]	  ) & 0xFF] ^
+				C7[static_cast<int>(state[1]      ) & 0xFF] ^
 				K[0];
 
 			L[1] =
-				C0[static_cast<int>(state[1] >> 56)	   ] ^
+				C0[static_cast<int>(state[1] >> 56)    ] ^
 				C1[static_cast<int>(state[0] >> 48) & 0xFF] ^
 				C2[static_cast<int>(state[7] >> 40) & 0xFF] ^
 				C3[static_cast<int>(state[6] >> 32) & 0xFF] ^
 				C4[static_cast<int>(state[5] >> 24) & 0xFF] ^
 				C5[static_cast<int>(state[4] >> 16) & 0xFF] ^
 				C6[static_cast<int>(state[3] >>  8) & 0xFF] ^
-				C7[static_cast<int>(state[2]	  ) & 0xFF] ^
+				C7[static_cast<int>(state[2]      ) & 0xFF] ^
 				K[1];
 			L[2] =
-				C0[static_cast<int>(state[2] >> 56)	   ] ^
+				C0[static_cast<int>(state[2] >> 56)    ] ^
 				C1[static_cast<int>(state[1] >> 48) & 0xFF] ^
 				C2[static_cast<int>(state[0] >> 40) & 0xFF] ^
 				C3[static_cast<int>(state[7] >> 32) & 0xFF] ^
 				C4[static_cast<int>(state[6] >> 24) & 0xFF] ^
 				C5[static_cast<int>(state[5] >> 16) & 0xFF] ^
 				C6[static_cast<int>(state[4] >>  8) & 0xFF] ^
-				C7[static_cast<int>(state[3]	  ) & 0xFF] ^
+				C7[static_cast<int>(state[3]      ) & 0xFF] ^
 
 				K[2];
 			L[3] =
-				C0[static_cast<int>(state[3] >> 56)	   ] ^
+				C0[static_cast<int>(state[3] >> 56)    ] ^
 				C1[static_cast<int>(state[2] >> 48) & 0xFF] ^
 				C2[static_cast<int>(state[1] >> 40) & 0xFF] ^
 				C3[static_cast<int>(state[0] >> 32) & 0xFF] ^
 				C4[static_cast<int>(state[7] >> 24) & 0xFF] ^
 				C5[static_cast<int>(state[6] >> 16) & 0xFF] ^
 				C6[static_cast<int>(state[5] >>  8) & 0xFF] ^
-				C7[static_cast<int>(state[4]	  ) & 0xFF] ^
+				C7[static_cast<int>(state[4]      ) & 0xFF] ^
 				K[3];
 			L[4] =
-				C0[static_cast<int>(state[4] >> 56)	   ] ^
+				C0[static_cast<int>(state[4] >> 56)    ] ^
 				C1[static_cast<int>(state[3] >> 48) & 0xFF] ^
 				C2[static_cast<int>(state[2] >> 40) & 0xFF] ^
 				C3[static_cast<int>(state[1] >> 32) & 0xFF] ^
 				C4[static_cast<int>(state[0] >> 24) & 0xFF] ^
 				C5[static_cast<int>(state[7] >> 16) & 0xFF] ^
 				C6[static_cast<int>(state[6] >>  8) & 0xFF] ^
-				C7[static_cast<int>(state[5]	  ) & 0xFF] ^
+				C7[static_cast<int>(state[5]      ) & 0xFF] ^
 				K[4];
 
 			L[5] =
-				C0[static_cast<int>(state[5] >> 56)	   ] ^
+				C0[static_cast<int>(state[5] >> 56)    ] ^
 				C1[static_cast<int>(state[4] >> 48) & 0xFF] ^
 				C2[static_cast<int>(state[3] >> 40) & 0xFF] ^
 				C3[static_cast<int>(state[2] >> 32) & 0xFF] ^
 				C4[static_cast<int>(state[1] >> 24) & 0xFF] ^
 				C5[static_cast<int>(state[0] >> 16) & 0xFF] ^
 				C6[static_cast<int>(state[7] >>  8) & 0xFF] ^
-				C7[static_cast<int>(state[6]	  ) & 0xFF] ^
+				C7[static_cast<int>(state[6]      ) & 0xFF] ^
 				K[5];
 
 			L[6] =
-				C0[static_cast<int>(state[6] >> 56)	   ] ^
+				C0[static_cast<int>(state[6] >> 56)    ] ^
 				C1[static_cast<int>(state[5] >> 48) & 0xFF] ^
 				C2[static_cast<int>(state[4] >> 40) & 0xFF] ^
 				C3[static_cast<int>(state[3] >> 32) & 0xFF] ^
 				C4[static_cast<int>(state[2] >> 24) & 0xFF] ^
 				C5[static_cast<int>(state[1] >> 16) & 0xFF] ^
 				C6[static_cast<int>(state[0] >>  8) & 0xFF] ^
-				C7[static_cast<int>(state[7]	  ) & 0xFF] ^
+				C7[static_cast<int>(state[7]      ) & 0xFF] ^
 				K[6];
 
 			L[7] =
-				C0[static_cast<int>(state[7] >> 56)	   ] ^
+				C0[static_cast<int>(state[7] >> 56)    ] ^
 				C1[static_cast<int>(state[6] >> 48) & 0xFF] ^
 				C2[static_cast<int>(state[5] >> 40) & 0xFF] ^
 				C3[static_cast<int>(state[4] >> 32) & 0xFF] ^
 				C4[static_cast<int>(state[3] >> 24) & 0xFF] ^
 				C5[static_cast<int>(state[2] >> 16) & 0xFF] ^
 				C6[static_cast<int>(state[1] >>  8) & 0xFF] ^
-				C7[static_cast<int>(state[0]	  ) & 0xFF] ^
+				C7[static_cast<int>(state[0]      ) & 0xFF] ^
 				K[7];
 
 			state[0] = L[0];
