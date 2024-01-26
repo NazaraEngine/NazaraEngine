@@ -554,45 +554,43 @@ namespace Nz
 
 		const AbstractTextDrawer& textDrawer = GetTextDrawer();
 
-		auto GetGlyph = [&](const Vector2ui& glyphPosition, std::size_t* glyphIndex) -> const AbstractTextDrawer::Glyph*
+		auto GetGlyph = [&](const Vector2ui& glyphPosition) -> std::pair<const AbstractTextDrawer::Glyph*, bool>
 		{
 			if (glyphPosition.y >= textDrawer.GetLineCount())
-				return nullptr;
+				return { nullptr, true };
 
 			const auto& lineInfo = textDrawer.GetLine(glyphPosition.y);
 
 			std::size_t cursorGlyph = GetGlyphIndex({ glyphPosition.x, glyphPosition.y });
-			if (glyphIndex)
-				*glyphIndex = cursorGlyph;
 
 			std::size_t glyphCount = textDrawer.GetGlyphCount();
 			if (glyphCount > 0 && lineInfo.glyphIndex < cursorGlyph)
 			{
 				const auto& glyph = textDrawer.GetGlyph(std::min(cursorGlyph, glyphCount - 1));
-				return &glyph;
+				return { &glyph, cursorGlyph >= glyphCount };
 			}
 			else
-				return nullptr;
+				return { nullptr, true };
 		};
 
 		auto& registry = GetRegistry();
 
 		// Move text so that cursor always lies in drawer bounds
-		const auto* lastGlyph = GetGlyph(m_cursorPositionEnd, nullptr);
+		auto [lastGlyph, overshooting] = GetGlyph(m_cursorPositionEnd);
 		float glyphPos = (lastGlyph) ? lastGlyph->bounds.x : 0.f;
 		float glyphWidth = (lastGlyph) ? lastGlyph->bounds.width : 0.f;
 
 		auto& textNode = registry.get<NodeComponent>(m_textEntity);
 		float textPosition = textNode.GetPosition(CoordSys::Local).x - s_textAreaPaddingWidth;
-		float cursorPosition = glyphPos + textPosition;
+		float cursorPosition = glyphPos + textPosition + ((overshooting) ? glyphWidth : 0.f);
 		float width = GetWidth();
 
 		if (width <= textDrawer.GetBounds().width)
 		{
 			if (cursorPosition + glyphWidth > width)
-				textNode.Move(width - cursorPosition - glyphWidth, 0.f);
+				textNode.Move(width - cursorPosition - glyphWidth - s_textAreaPaddingWidth, 0.f);
 			else if (cursorPosition - glyphWidth < 0.f)
-				textNode.Move(-cursorPosition + glyphWidth, 0.f);
+				textNode.Move(-cursorPosition + glyphWidth - s_textAreaPaddingWidth, 0.f);
 		}
 		else
 			textNode.Move(-textPosition, 0.f); //< Reset text position if we have enough room to show everything
@@ -634,12 +632,11 @@ namespace Nz
 				// Partial selection (or no selection)
 				auto GetGlyphPos = [&](const Vector2ui& glyphPosition)
 				{
-					std::size_t glyphIndex;
-					const auto* glyph = GetGlyph(glyphPosition, &glyphIndex);
+					auto [glyph, overshooting] = GetGlyph(glyphPosition);
 					if (glyph)
 					{
 						float position = glyph->bounds.x;
-						if (glyphIndex >= textDrawer.GetGlyphCount())
+						if (overshooting)
 							position += glyph->bounds.width;
 
 						return position;
