@@ -87,6 +87,11 @@ namespace Nz
 		return glyphIndex;
 	}
 
+	inline std::size_t AbstractTextAreaWidget::GetMaximumTextLength() const
+	{
+		return m_maximumTextLength;
+	}
+
 	inline bool AbstractTextAreaWidget::HasSelection() const
 	{
 		return m_cursorPositionBegin != m_cursorPositionEnd;
@@ -257,3 +262,4 @@ namespace Nz
 }
 
 #include <Nazara/Widgets/DebugOff.hpp>
+#include "AbstractTextAreaWidget.hpp"

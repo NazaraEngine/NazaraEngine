@@ -42,6 +42,7 @@ namespace Nz
 			inline EchoMode GetEchoMode() const;
 			inline std::size_t GetGlyphIndex() const;
 			inline std::size_t GetGlyphIndex(const Vector2ui& cursorPosition) const;
+			inline std::size_t GetMaximumTextLength() const;
 
 			Vector2ui GetHoveredGlyph(float x, float y) const;
 
@@ -61,6 +62,7 @@ namespace Nz
 			inline void SetCursorPosition(std::size_t glyphIndex);
 			inline void SetCursorPosition(Vector2ui cursorPosition);
 			inline void SetEchoMode(EchoMode echoMode);
+			virtual void SetMaximumTextLength(std::size_t maximumLength) = 0;
 			inline void SetReadOnly(bool readOnly = true);
 			inline void SetSelection(Vector2ui fromPosition, Vector2ui toPosition);
 
@@ -131,6 +133,7 @@ namespace Nz
 			};
 
 			std::shared_ptr<TextSprite> m_textSprite;
+			std::size_t m_maximumTextLength;
 			std::vector<Cursor> m_cursors;
 			CharacterFilter m_characterFilter;
 			EchoMode m_echoMode;

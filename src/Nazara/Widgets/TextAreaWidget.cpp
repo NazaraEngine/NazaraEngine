@@ -41,6 +41,15 @@ namespace Nz
 
 	void TextAreaWidget::AppendText(std::string_view text)
 	{
+		if (m_maximumTextLength > 0)
+		{
+			std::size_t currentLength = ComputeCharacterCount(m_text);
+			if (m_maximumTextLength <= currentLength)
+				return;
+
+			text = Substring(text, 0, m_maximumTextLength - currentLength, UnicodeAware{});
+		}
+
 		m_text += text;
 
 		switch (m_echoMode)
@@ -113,6 +122,14 @@ namespace Nz
 		SetText(newText);
 	}
 
+	void TextAreaWidget::SetMaximumTextLength(std::size_t maximumLength)
+	{
+		AbstractTextAreaWidget::SetMaximumTextLength(maximumLength);
+
+		if (m_maximumTextLength > 0 && ComputeCharacterCount(m_text) > m_maximumTextLength)
+			SetText(std::string(Substring(m_text, 0, m_maximumTextLength, UnicodeAware{})));
+	}
+
 	void TextAreaWidget::Write(std::string_view text, std::size_t glyphPosition)
 	{
 		if (glyphPosition >= m_drawer.GetGlyphCount())
@@ -123,6 +140,15 @@ namespace Nz
 		}
 		else
 		{
+			if (m_maximumTextLength > 0)
+			{
+				std::size_t currentLength = ComputeCharacterCount(m_text);
+				if (m_maximumTextLength <= currentLength)
+					return;
+
+				text = Substring(text, 0, m_maximumTextLength - currentLength, UnicodeAware{});
+			}
+
 			m_text.insert(GetCharacterPosition(m_text, glyphPosition), text);
 			SetText(m_text);
 
@@ -284,10 +310,7 @@ namespace Nz
 		if (clipboardString.empty())
 			return;
 
-		m_text.insert(targetIndex, clipboardString);
-		UpdateDisplayText();
-
-		SetCursorPosition(targetIndex + ComputeCharacterCount(clipboardString));
+		Write(clipboardString, targetIndex);
 	}
 
 	void TextAreaWidget::UpdateDisplayText()

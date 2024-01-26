@@ -22,7 +22,7 @@ namespace Nz
 
 	AbstractTextAreaWidget::AbstractTextAreaWidget(BaseWidget* parent) :
 	BaseWidget(parent),
-	m_characterFilter(),
+	m_maximumTextLength(0),
 	m_echoMode(EchoMode::Normal),
 	m_cursorPositionBegin(0U, 0U),
 	m_cursorPositionEnd(0U, 0U),
@@ -118,6 +118,11 @@ namespace Nz
 		}
 
 		return Vector2ui::Zero();
+	}
+
+	void AbstractTextAreaWidget::SetMaximumTextLength(std::size_t maximumLength)
+	{
+		m_maximumTextLength = maximumLength;
 	}
 
 	Color AbstractTextAreaWidget::GetCursorColor() const

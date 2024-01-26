@@ -41,6 +41,7 @@ namespace Nz
 			inline void SetCharacterSize(unsigned int characterSize);
 			inline void SetCharacterSpacingOffset(float offset);
 			inline void SetLineSpacingOffset(float offset);
+			void SetMaximumTextLength(std::size_t maximumLength) override;
 			inline void SetText(std::string text);
 			inline void SetTextColor(const Color& text);
 			inline void SetTextFont(std::shared_ptr<Font> font);

@@ -132,22 +132,66 @@ namespace Nz
 		UpdateDisplayText();
 	}
 
+	void RichTextAreaWidget::SetMaximumTextLength(std::size_t maximumLength)
+	{
+		AbstractTextAreaWidget::SetMaximumTextLength(maximumLength);
+
+		if (m_maximumTextLength > 0 && m_drawer.HasBlocks())
+		{
+			std::size_t blockIndex = m_drawer.FindBlock(m_maximumTextLength);
+
+			auto blockRef = m_drawer.GetBlock(blockIndex);
+			const std::string& blockText = blockRef.GetText();
+
+			assert(m_maximumTextLength >= blockRef.GetFirstGlyphIndex());
+			std::size_t maxBlockSize = m_maximumTextLength - blockRef.GetFirstGlyphIndex();
+			std::size_t textLength = ComputeCharacterCount(blockText);
+			if (textLength > maxBlockSize)
+			{
+				blockRef.SetText(std::string(TrimRightCount(blockText, textLength - maxBlockSize, Nz::UnicodeAware{})));
+
+				// And then remove all blocks after the limit (in reverse order because of index shifting)
+				std::size_t lastBlockIndex = m_drawer.GetBlockCount();
+				assert(lastBlockIndex > 0);
+				for (std::size_t i = lastBlockIndex - 1; i > blockIndex; --i)
+					m_drawer.RemoveBlock(i);
+
+				UpdateDisplayText();
+			}
+		}
+	}
+
 	void RichTextAreaWidget::Write(std::string_view text, std::size_t glyphPosition)
 	{
 		if (m_drawer.HasBlocks())
 		{
-			auto block = m_drawer.GetBlock(m_drawer.FindBlock((glyphPosition > 0) ? glyphPosition - 1 : glyphPosition));
-			std::size_t firstGlyph = block.GetFirstGlyphIndex();
+			if (m_maximumTextLength > 0)
+			{
+				auto lastBlockRef = m_drawer.GetBlock(m_drawer.GetBlockCount() - 1);
+				std::size_t currentLength = lastBlockRef.GetFirstGlyphIndex() + ComputeCharacterCount(lastBlockRef.GetText());
+				if (m_maximumTextLength <= currentLength)
+					return;
+
+				text = Substring(text, 0, m_maximumTextLength - currentLength, UnicodeAware{});
+			}
+
+			auto blockRef = m_drawer.GetBlock(m_drawer.FindBlock((glyphPosition > 0) ? glyphPosition - 1 : glyphPosition));
+			std::size_t firstGlyph = blockRef.GetFirstGlyphIndex();
 			assert(glyphPosition >= firstGlyph);
 
-			std::string blockText = block.GetText();
+			std::string blockText = blockRef.GetText();
 			std::size_t characterPosition = GetCharacterPosition(blockText, glyphPosition - firstGlyph);
 			blockText.insert(characterPosition, text);
 
-			block.SetText(blockText);
+			blockRef.SetText(blockText);
 		}
 		else
+		{
+			if (m_maximumTextLength > 0)
+				text = Substring(text, 0, m_maximumTextLength, UnicodeAware{});
+
 			m_drawer.AppendText(text);
+		}
 
 		SetCursorPosition(glyphPosition + ComputeCharacterCount(text));
 
