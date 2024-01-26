@@ -49,7 +49,6 @@ namespace Nz::PlatformImpl
 
 		// Double fork (see https://0xjet.github.io/3OHA/2022/04/11/post.html)
 		// We will create a child and a grand-child process, using a pipe to retrieve the grand-child pid
-		// TODO: Use posix_spawn if possible instead
 		pid_t childPid = ::fork();
 		if (childPid == -1)
 			return Err("failed to create child: " + Error::GetLastSystemError());
@@ -70,7 +69,7 @@ namespace Nz::PlatformImpl
 					pipe.Write(&err, sizeof(err));
 
 					// Early exit
-					std::exit(1);
+					_exit(EXIT_FAILURE);
 				}
 			}
 
@@ -94,7 +93,7 @@ namespace Nz::PlatformImpl
 				pipe.Write(&pid, sizeof(pid));
 
 				// Exits the child process, at this point the grand-child should have started
-				std::exit(0);
+				_exit(EXIT_SUCCESS);
 			}
 			else
 			{
@@ -104,7 +103,7 @@ namespace Nz::PlatformImpl
 
 				pipe.Write(&err, sizeof(err));
 
-				std::exit(1);
+				_exit(EXIT_FAILURE);
 			}
 
 			NAZARA_UNREACHABLE();
