@@ -27,7 +27,7 @@ namespace Nz
 		VkImageViewCreateInfo createInfoView = {};
 		createInfoView.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 		InitViewForFormat(m_textureInfo.pixelFormat, createInfoView);
-		
+
 		VkImageCreateInfo createInfo = {};
 		createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 		createInfo.format = createInfoView.format;
@@ -229,7 +229,7 @@ namespace Nz
 		createInfoView.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
 		createInfoView.image = m_image;
 		createInfoView.subresourceRange = m_subresourceRange;
-		
+
 		switch (m_textureViewInfo.type)
 		{
 			case ImageType::E1D:

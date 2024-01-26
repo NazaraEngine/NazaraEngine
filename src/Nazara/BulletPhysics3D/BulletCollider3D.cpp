@@ -89,7 +89,7 @@ namespace Nz
 		else
 			return std::make_shared<BulletNullCollider3D>();
 	}
-	
+
 	std::shared_ptr<BulletCollider3D> BulletCollider3D::CreateGeomFromPrimitive(const Primitive& primitive)
 	{
 		switch (primitive.type)

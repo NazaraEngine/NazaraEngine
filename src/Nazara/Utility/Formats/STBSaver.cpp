@@ -109,7 +109,7 @@ namespace Nz
 			NazaraUnused(parameters);
 
 			Image tempImage(image); //< We're using COW here to prevent Image copy unless required
-			
+
 			int componentCount = ConvertToIntegerFormat(tempImage);
 			if (componentCount == 0)
 			{
@@ -229,7 +229,7 @@ namespace Nz
 			{ ".png",  &SavePNG },
 			{ ".tga",  &SaveTGA }
 		});
-		
+
 		bool FormatQuerier(std::string_view extension)
 		{
 			return s_formatHandlers.find(extension) != s_formatHandlers.end();

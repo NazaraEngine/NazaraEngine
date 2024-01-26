@@ -190,7 +190,7 @@ namespace Nz
 		cpDampedSpringSetStiffness(m_constraint, newStiffness);
 	}
 
-	
+
 	ChipmunkDampedRotarySpringConstraint2D::ChipmunkDampedRotarySpringConstraint2D(ChipmunkRigidBody2D& first, ChipmunkRigidBody2D& second, const RadianAnglef& restAngle, float stiffness, float damping) :
 	ChipmunkConstraint2D(first.GetWorld(), cpDampedRotarySpringNew(first.GetHandle(), second.GetHandle(), restAngle.value, stiffness, damping))
 	{

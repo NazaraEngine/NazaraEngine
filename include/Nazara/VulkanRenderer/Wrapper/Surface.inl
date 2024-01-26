@@ -166,7 +166,7 @@ namespace Nz::Vk
 			m_surface = VK_NULL_HANDLE;
 		}
 	}
-		
+
 	inline VkResult Surface::GetLastErrorCode() const
 	{
 		return m_lastErrorCode;

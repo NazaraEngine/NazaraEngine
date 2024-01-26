@@ -56,7 +56,7 @@ namespace Nz
 				return OverrideModuleConfig(T{}, parameters);
 			}
 		};
-		
+
 		template<typename Module, typename... Modules>
 		template<typename... ModuleConfig>
 		ModuleTuple<Module, Modules...>::ModuleTuple(const CommandLineParameters& parameters, ModuleConfig&&... configs) :
@@ -97,7 +97,7 @@ namespace Nz
 	m_modules(CommandLineParameters{}, std::forward<ModuleConfig>(configs)...)
 	{
 	}
-	
+
 	template<typename... ModuleList>
 	template<typename... ModuleConfig>
 	Modules<ModuleList...>::Modules(const CommandLineParameters& parameters, ModuleConfig&&... configs) :

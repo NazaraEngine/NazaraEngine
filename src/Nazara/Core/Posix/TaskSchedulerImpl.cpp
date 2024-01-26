@@ -195,7 +195,7 @@ namespace Nz
 	pthread_cond_t TaskSchedulerImpl::s_cvEmpty;
 	pthread_cond_t TaskSchedulerImpl::s_cvNotEmpty;
 	pthread_barrier_t TaskSchedulerImpl::s_barrier;
-	
+
 #if defined(NAZARA_PLATFORM_MACOS)
     //Code from https://blog.albertarmea.com/post/47089939939/using-pthreadbarrier-on-mac-os-x
 	int TaskSchedulerImpl::pthread_barrier_init(pthread_barrier_t *barrier, const pthread_barrierattr_t *attr, unsigned int count)

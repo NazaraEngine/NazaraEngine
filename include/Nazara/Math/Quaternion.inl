@@ -527,7 +527,7 @@ namespace Nz
 		if (z != quat.z)
 			return z < quat.z;
 	}
-	
+
 	template<typename T>
 	constexpr bool Quaternion<T>::operator<=(const Quaternion& quat) const
 	{
@@ -543,7 +543,7 @@ namespace Nz
 		if (z != quat.z)
 			return z <= quat.z;
 	}
-	
+
 	template<typename T>
 	constexpr bool Quaternion<T>::operator>(const Quaternion& quat) const
 	{

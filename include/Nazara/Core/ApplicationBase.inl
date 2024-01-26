@@ -64,7 +64,7 @@ namespace Nz
 
 		return static_cast<T&>(*m_components[componentIndex]);
 	}
-	
+
 	template<typename T>
 	const T& ApplicationBase::GetComponent() const
 	{

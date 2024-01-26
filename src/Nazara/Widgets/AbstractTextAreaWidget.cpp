@@ -48,7 +48,7 @@ namespace Nz
 
 		EnableBackground(true);
 	}
-	
+
 	void AbstractTextAreaWidget::Clear()
 	{
 		AbstractTextDrawer& textDrawer = GetTextDrawer();

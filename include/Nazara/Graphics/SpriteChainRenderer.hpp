@@ -25,7 +25,7 @@ namespace Nz
 	class Texture;
 	class VertexDeclaration;
 	class WorldInstance;
-	
+
 	struct SpriteChainRendererData : public ElementRendererData
 	{
 		struct DrawCall

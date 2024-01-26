@@ -36,7 +36,7 @@ namespace Nz
 	{
 		// TODO: Replace the blit to swapchain by a graph.BindExternalSwapchain?
 		std::size_t linkAttachment = graph.AddDummyAttachment();
-		
+
 		FramePass& blitPass = graph.AddPass("Blit to swapchain");
 		blitPass.AddInput(attachmentIndex);
 		blitPass.SetInputAccess(0, TextureLayout::TransferSource, PipelineStage::Transfer, MemoryAccess::MemoryRead);

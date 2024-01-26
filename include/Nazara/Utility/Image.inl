@@ -18,7 +18,7 @@ namespace Nz
 
 		return *this;
 	}
-	
+
 	inline void Image::ArrayToRegion(ImageType type, unsigned int baseLayer, unsigned int layerCount, Boxui& region)
 	{
 		switch (type)

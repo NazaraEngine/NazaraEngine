@@ -18,7 +18,7 @@ namespace Nz
 
 	/*!
 	 * Write bits to the stream (if any) and reset the current bit cursor
-	
+
 	* \see ResetWriteBitPosition
 	*/
 	void SerializationContext::FlushBits()

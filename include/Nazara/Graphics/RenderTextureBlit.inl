@@ -10,7 +10,7 @@ namespace Nz
 	RenderTextureBlit(textureSize, std::move(targetTexture), filter, PipelineStage::FragmentShader, MemoryAccess::ShaderRead, TextureLayout::ColorInput)
 	{
 	}
-	
+
 	RenderTextureBlit::RenderTextureBlit(const Vector2ui& textureSize, std::shared_ptr<Texture> texture, SamplerFilter filter, PipelineStage targetPipelineStage, MemoryAccessFlags targetMemoryFlags, TextureLayout targetLayout) :
 	m_targetTexture(std::move(texture)),
 	m_targetMemoryFlags(targetMemoryFlags),

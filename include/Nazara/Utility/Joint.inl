@@ -21,7 +21,7 @@ namespace Nz
 	m_skinningMatrixUpdated(false)
 	{
 	}
-	
+
 	inline Joint::Joint(Joint&& joint) noexcept :
 	Node(std::move(joint)),
 	m_inverseBindMatrix(joint.m_inverseBindMatrix),

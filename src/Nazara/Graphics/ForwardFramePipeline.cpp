@@ -150,7 +150,7 @@ namespace Nz
 
 		return lightIndex;
 	}
-	
+
 	std::size_t ForwardFramePipeline::RegisterRenderable(std::size_t worldInstanceIndex, std::size_t skeletonInstanceIndex, const InstancedRenderable* instancedRenderable, UInt32 renderMask, const Recti& scissorBox)
 	{
 		std::size_t renderableIndex;

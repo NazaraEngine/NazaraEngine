@@ -31,7 +31,7 @@ namespace Nz
 	class Light;
 	class PointLight;
 	class SpotLight;
-	
+
 	class NAZARA_GRAPHICS_API ForwardPipelinePass : public FramePipelinePass, TransferInterface
 	{
 		public:

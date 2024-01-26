@@ -22,7 +22,7 @@ namespace Nz
 			public:
 				Loader() = delete;
 				~Loader() = delete;
-				
+
 				static bool EnumerateInstanceExtensionProperties(std::vector<VkExtensionProperties>* properties, const char* layerName = nullptr);
 				static bool EnumerateInstanceLayerProperties(std::vector<VkLayerProperties>* properties);
 

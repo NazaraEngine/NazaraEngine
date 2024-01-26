@@ -210,7 +210,7 @@ namespace Nz
 				const FunctionRef<std::optional<float>(const JoltPhysWorld3D::PointCollisionInfo& hitInfo)>& m_callback;
 				bool m_didHit;
 		};
-		
+
 		class ShapeCallbackHitResult : public JPH::CollideShapeCollector
 		{
 			public:

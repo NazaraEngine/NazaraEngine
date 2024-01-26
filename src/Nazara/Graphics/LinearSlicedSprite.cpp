@@ -109,7 +109,7 @@ namespace Nz
 				size = Vector2f(m_size, section.size);
 				texCoords = Vector2f(m_textureCoords.width, section.textureCoord);
 			}
-			
+
 			vertices->color = m_color;
 			vertices->position = topLeftCorner;
 			vertices->uv = topLeftUV;

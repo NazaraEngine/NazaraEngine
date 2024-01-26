@@ -60,7 +60,7 @@ namespace Nz
 
 		private:
 			template<typename F> bool DispatchEvent(std::size_t widgetIndex, F&& functor);
-			
+
 			void OnEventMouseButtonPressed(const WindowEventHandler* eventHandler, const WindowEvent::MouseButtonEvent& event);
 			void OnEventMouseButtonRelease(const WindowEventHandler* eventHandler, const WindowEvent::MouseButtonEvent& event);
 			void OnEventMouseEntered(const WindowEventHandler* eventHandler);

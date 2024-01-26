@@ -312,7 +312,7 @@ namespace Nz
 	{
 		return Color(r / 255.f, g / 255.f, b / 255.f);
 	}
-	
+
 	/*!
 	* \brief Converts RGBA8 representation to Color (RGBA32F)
 	* \return Color resulting

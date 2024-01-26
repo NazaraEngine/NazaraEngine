@@ -94,7 +94,7 @@ namespace Nz
 			RichTextDrawer& operator=(RichTextDrawer&& drawer) noexcept;
 
 			static constexpr std::size_t InvalidBlockIndex = std::numeric_limits<std::size_t>::max();
-			
+
 		private:
 			struct Block;
 

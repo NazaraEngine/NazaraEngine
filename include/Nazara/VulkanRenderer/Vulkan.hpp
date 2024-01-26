@@ -57,7 +57,7 @@ namespace Nz
 			static std::vector<Vk::PhysicalDevice> s_physDevices;
 			static Vk::Instance s_instance;
 			static ParameterList s_initializationParameters;
-	};	
+	};
 }
 
 #endif // NAZARA_VULKANRENDERER_VULKAN_HPP

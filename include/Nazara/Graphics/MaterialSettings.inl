@@ -34,7 +34,7 @@ namespace Nz
 	template<> struct TypeToMaterialPropertyType<Vector2<Int32>>  { static constexpr MaterialPropertyType PropertyType = MaterialPropertyType::Int2; };
 	template<> struct TypeToMaterialPropertyType<Vector3<Int32>>  { static constexpr MaterialPropertyType PropertyType = MaterialPropertyType::Int3; };
 	template<> struct TypeToMaterialPropertyType<Vector4<Int32>>  { static constexpr MaterialPropertyType PropertyType = MaterialPropertyType::Int4; };
-	
+
 	template<> struct TypeToMaterialPropertyType<UInt32>          { static constexpr MaterialPropertyType PropertyType = MaterialPropertyType::UInt; };
 	template<> struct TypeToMaterialPropertyType<Vector2<UInt32>> { static constexpr MaterialPropertyType PropertyType = MaterialPropertyType::UInt2; };
 	template<> struct TypeToMaterialPropertyType<Vector3<UInt32>> { static constexpr MaterialPropertyType PropertyType = MaterialPropertyType::UInt3; };

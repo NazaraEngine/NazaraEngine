@@ -125,7 +125,7 @@ namespace Nz::Loaders
 					std::size_t proxyId = m_current->passList->AddAttachmentProxy(proxyName, it->second);
 					m_current->attachmentsByName.emplace(std::move(proxyName), proxyId);
 				}
-				
+
 				void HandlePass(ParameterFileSection section, std::string passName)
 				{
 					struct InputOutput

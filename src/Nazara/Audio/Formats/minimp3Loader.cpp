@@ -112,7 +112,7 @@ namespace Nz
 				format = AudioFormat::I16_Mono;
 				sampleCount = frameCount;
 			}
-			
+
 			return std::make_shared<SoundBuffer>(format, sampleCount, info.hz, info.buffer);
 		}
 

@@ -785,7 +785,7 @@ namespace Nz
 		return "Whirlpool";
 	}
 
-	
+
 	void WhirlpoolHasher::ProcessBuffer()
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE

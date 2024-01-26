@@ -186,7 +186,7 @@ namespace Nz
 		for (unsigned int slice = 0; slice < sliceCount; ++slice)
 		{
 			Quaternionf rot(RadianAnglef(2.f * Pi<float> * slice / sliceCount), Nz::Vector3f::Down());
-			
+
 			Vector3f top(0.f, halfHeight, 0.f);
 			for (unsigned int i = 0; i < cornerStepCount; ++i)
 			{
@@ -354,7 +354,7 @@ namespace Nz
 	}
 
 	/******************************** JoltMeshCollider3D *********************************/
-	
+
 	JoltMeshCollider3D::JoltMeshCollider3D(SparsePtr<const Vector3f> vertices, std::size_t vertexCount, SparsePtr<const UInt16> indices, std::size_t indexCount)
 	{
 		std::unique_ptr<JPH::MeshShapeSettings> settings = std::make_unique<JPH::MeshShapeSettings>();

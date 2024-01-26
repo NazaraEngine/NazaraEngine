@@ -33,7 +33,7 @@ namespace Nz
 
 			entitySkeleton.SetSkeletonParent(&entityNode);
 		});
-		
+
 		m_skeletonConstructObserver.each([&](entt::entity entity)
 		{
 			NodeComponent& entityNode = m_registry.get<NodeComponent>(entity);

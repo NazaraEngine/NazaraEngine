@@ -27,7 +27,7 @@ namespace Nz
 			template<typename T> SparsePtr<T> GetComponentPtr(VertexComponent component, std::size_t componentIndex = 0);
 			inline const VertexBuffer* GetVertexBuffer() const;
 			inline UInt32 GetVertexCount() const;
-			
+
 			template<typename T> bool HasComponentOfType(VertexComponent component) const;
 
 			void Unmap();

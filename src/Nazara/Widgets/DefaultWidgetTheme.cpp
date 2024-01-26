@@ -112,7 +112,7 @@ namespace Nz
 		const UInt8 s_defaultThemeScrollbarCenterImage[] = {
 			#include <Nazara/Widgets/Resources/DefaultTheme/ScrollbarCenter.png.h>
 		};
-		
+
 		const UInt8 s_defaultThemeScrollbarGrabbedImage[] = {
 			#include <Nazara/Widgets/Resources/DefaultTheme/ScrollbarCenterGrabbed.png.h>
 		};

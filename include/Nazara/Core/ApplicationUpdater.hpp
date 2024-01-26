@@ -26,7 +26,7 @@ namespace Nz
 			ApplicationUpdater& operator=(const ApplicationUpdater&) = delete;
 			ApplicationUpdater& operator=(ApplicationUpdater&&) = delete;
 	};
-	
+
 	template<typename F>
 	class ApplicationUpdaterFunctor : public ApplicationUpdater
 	{

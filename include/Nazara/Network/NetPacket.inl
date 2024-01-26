@@ -206,7 +206,7 @@ namespace Nz
 		m_buffer = std::move(packet.m_buffer);
 		m_memoryStream = std::move(packet.m_memoryStream);
 		m_netCode = packet.m_netCode;
-		
+
 		///< Redirect memory stream to the moved buffer
 		if (m_buffer)
 		{

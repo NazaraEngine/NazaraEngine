@@ -612,7 +612,7 @@ namespace Nz
 	{
 		return value <= other.value;
 	}
-	
+
 	template<AngleUnit Unit, typename T>
 	constexpr bool Angle<Unit, T>::operator>(Angle other) const
 	{

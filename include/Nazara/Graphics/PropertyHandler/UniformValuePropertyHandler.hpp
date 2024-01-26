@@ -30,7 +30,7 @@ namespace Nz
 
 			UniformValuePropertyHandler& operator=(const UniformValuePropertyHandler&) = delete;
 			UniformValuePropertyHandler& operator=(UniformValuePropertyHandler&&) = delete;
-			
+
 		private:
 			std::size_t m_propertyIndex;
 			std::size_t m_offset;

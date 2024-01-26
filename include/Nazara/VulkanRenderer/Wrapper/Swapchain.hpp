@@ -19,7 +19,7 @@ namespace Nz::Vk
 
 		public:
 			struct Image;
-				
+
 			Swapchain() = default;
 			Swapchain(const Swapchain&) = delete;
 			Swapchain(Swapchain&&) = default;

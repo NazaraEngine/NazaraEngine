@@ -26,7 +26,7 @@ namespace Nz::PlatformImpl
 			}
 			else
 				commandLine += program;
-			
+
 			ReplaceStr(commandLine, L'/', L'\\');
 			commandLine += L' ';
 		};

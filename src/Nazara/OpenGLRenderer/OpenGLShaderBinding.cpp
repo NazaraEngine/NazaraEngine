@@ -84,11 +84,11 @@ namespace Nz
 		for (std::size_t i = 0; i < bindingCount; ++i)
 		{
 			const Binding& binding = bindings[i];
-			
+
 			std::visit([&](auto&& arg)
 			{
 				using T = std::decay_t<decltype(arg)>;
-				
+
 				if constexpr (std::is_same_v<T, SampledTextureBinding>)
 					HandleTextureBinding(binding.bindingIndex, arg);
 				else if constexpr (std::is_same_v<T, SampledTextureBindings>)

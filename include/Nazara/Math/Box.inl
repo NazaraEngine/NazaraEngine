@@ -539,7 +539,7 @@ namespace Nz
 
 		return *this;
 	}
-	
+
 	/*!
 	* \brief Multiplies the lengths of this box with the scalar (the box center doesn't move)
 	* \return A reference to this box where lengths are the product of these lengths and the scalar

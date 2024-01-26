@@ -38,7 +38,7 @@ namespace Nz
 
 		Layout();
 	}
-	
+
 	void TextAreaWidget::AppendText(std::string_view text)
 	{
 		m_text += text;
@@ -83,7 +83,7 @@ namespace Nz
 		m_text.clear();
 		OnTextChanged(this, m_text);
 	}
-	
+
 	void TextAreaWidget::Erase(std::size_t firstGlyph, std::size_t lastGlyph)
 	{
 		if (firstGlyph > lastGlyph)

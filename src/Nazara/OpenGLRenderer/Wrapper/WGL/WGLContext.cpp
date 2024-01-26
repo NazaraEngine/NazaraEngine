@@ -333,7 +333,7 @@ namespace Nz::GL
 			{
 				// WGL_ARB_pixel_format and WGL_EXT_pixel_format are the same, except for the symbol
 				auto wglChoosePixelFormat = (currentContext->wglChoosePixelFormatARB) ? currentContext->wglChoosePixelFormatARB : currentContext->wglChoosePixelFormatEXT;
-				
+
 				if (wglChoosePixelFormat)
 				{
 					std::array<int, 10 * 2 + 1> attributes = {

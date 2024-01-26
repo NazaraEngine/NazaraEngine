@@ -393,7 +393,7 @@ namespace Nz
 	{
 		m_textSprite->Update(drawer);
 	}
-	
+
 	/************************************************************************/
 
 	SimpleProgressBarWidgetStyle::SimpleProgressBarWidgetStyle(ProgressBarWidget* progressBarWidget, StyleConfig config) :

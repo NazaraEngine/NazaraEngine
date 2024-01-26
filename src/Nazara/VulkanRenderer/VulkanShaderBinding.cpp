@@ -48,7 +48,7 @@ namespace Nz
 		for (std::size_t i = 0; i < bindingCount; ++i)
 		{
 			const Binding& binding = bindings[i];
-			
+
 			VkWriteDescriptorSet& writeOp = writeOps.emplace_back();
 			writeOp.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 			writeOp.dstSet = m_descriptorSet;

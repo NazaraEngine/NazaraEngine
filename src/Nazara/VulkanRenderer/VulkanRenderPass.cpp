@@ -53,7 +53,7 @@ namespace Nz
 					ToVulkan(attachmentRef.attachmentLayout)
 				});
 			}
-			
+
 			std::size_t inputAttachmentIndex = vkAttachmentReferences.size();
 			for (const AttachmentReference& attachmentRef : subpassInfo.inputAttachments)
 			{

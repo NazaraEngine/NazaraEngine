@@ -56,7 +56,7 @@ namespace Nz
 			void InsertDebugLabel(std::string_view label, const Color& color) override;
 
 			inline Vk::CommandBuffer& GetCommandBuffer();
-			
+
 			void NextSubpass() override;
 
 			void PreTransferBarrier() override;

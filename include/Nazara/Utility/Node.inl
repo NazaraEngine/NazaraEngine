@@ -406,7 +406,7 @@ namespace Nz
 		EnsureDerivedUpdate();
 		return globalScale / m_derivedScale;
 	}
-	
+
 	inline Node& Node::operator=(const Node& node)
 	{
 		SetParent(node.m_parent, false, Invalidation::DontInvalidate);

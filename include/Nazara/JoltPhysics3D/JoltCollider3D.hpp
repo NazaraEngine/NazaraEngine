@@ -111,7 +111,7 @@ namespace Nz
 		private:
 			std::vector<ChildCollider> m_childs;
 	};
-	
+
 	class NAZARA_JOLTPHYSICS3D_API JoltConvexHullCollider3D final : public JoltCollider3D
 	{
 		public:
@@ -122,7 +122,7 @@ namespace Nz
 
 			JoltColliderType3D GetType() const override;
 	};
-	
+
 	class NAZARA_JOLTPHYSICS3D_API JoltMeshCollider3D final : public JoltCollider3D
 	{
 		public:
@@ -148,7 +148,7 @@ namespace Nz
 	};
 
 	/*********************************** Decorated ******************************************/
-	
+
 	class NAZARA_JOLTPHYSICS3D_API JoltTranslatedRotatedCollider3D final : public JoltCollider3D
 	{
 		public:
@@ -164,7 +164,7 @@ namespace Nz
 		private:
 			std::shared_ptr<JoltCollider3D> m_collider;
 	};
-	
+
 }
 
 #include <Nazara/JoltPhysics3D/JoltCollider3D.inl>

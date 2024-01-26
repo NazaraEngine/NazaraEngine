@@ -30,7 +30,7 @@ namespace Nz
 		FramePass& debugDrawPass = frameGraph.AddPass("Debug draw pass");
 		debugDrawPass.AddInput(inputOuputs.inputAttachments[0]);
 		debugDrawPass.AddOutput(inputOuputs.outputAttachments[0]);
-		
+
 		if (inputOuputs.depthStencilInput != InvalidAttachmentIndex)
 			debugDrawPass.SetDepthStencilInput(inputOuputs.depthStencilInput);
 

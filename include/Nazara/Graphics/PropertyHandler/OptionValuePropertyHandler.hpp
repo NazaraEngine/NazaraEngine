@@ -29,7 +29,7 @@ namespace Nz
 
 			OptionValuePropertyHandler& operator=(const OptionValuePropertyHandler&) = delete;
 			OptionValuePropertyHandler& operator=(OptionValuePropertyHandler&&) = delete;
-			
+
 		private:
 			std::size_t m_propertyIndex;
 			std::string m_propertyName;

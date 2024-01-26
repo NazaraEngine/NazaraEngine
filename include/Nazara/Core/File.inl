@@ -37,7 +37,7 @@ namespace Nz
 	inline /*constexpr*/ Result<OpenModeFlags, std::string> File::DecodeOpenMode(std::string_view openModeStr)
 	{
 		OpenModeFlags openModes = 0;
-		
+
 		if (openModeStr.find('r') != std::string_view::npos)
 		{
 			openModes |= OpenMode::Read;

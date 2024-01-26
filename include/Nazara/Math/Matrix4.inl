@@ -237,17 +237,17 @@ namespace Nz
 			m11*matrix.m12 + m12*matrix.m22 + m13*matrix.m32,
 			m11*matrix.m13 + m12*matrix.m23 + m13*matrix.m33,
 			T(0.0),
-			
+
 			m21*matrix.m11 + m22*matrix.m21 + m23*matrix.m31,
 			m21*matrix.m12 + m22*matrix.m22 + m23*matrix.m32,
 			m21*matrix.m13 + m22*matrix.m23 + m23*matrix.m33,
 			T(0.0),
-			
+
 			m31*matrix.m11 + m32*matrix.m21 + m33*matrix.m31,
 			m31*matrix.m12 + m32*matrix.m22 + m33*matrix.m32,
 			m31*matrix.m13 + m32*matrix.m23 + m33*matrix.m33,
 			T(0.0),
-			
+
 			m41*matrix.m11 + m42*matrix.m21 + m43*matrix.m31 + matrix.m41,
 			m41*matrix.m12 + m42*matrix.m22 + m43*matrix.m32 + matrix.m42,
 			m41*matrix.m13 + m42*matrix.m23 + m43*matrix.m33 + matrix.m43,
@@ -502,7 +502,7 @@ namespace Nz
 		if (det == T(0.0))
 			return false;
 
-		
+
 		// http://stackoverflow.com/questions/1148309/inverting-a-4x4-matrix
 		T inv[16];
 		inv[0] = m22 * m33 -

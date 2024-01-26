@@ -621,7 +621,7 @@ namespace Nz
 
 		DestroyBody();
 	}
-	
+
 	void ChipmunkRigidBody2D::DestroyBody()
 	{
 		UnregisterFromSpace();

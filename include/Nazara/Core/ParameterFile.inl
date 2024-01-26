@@ -25,7 +25,7 @@ namespace Nz
 	{
 		HandleInner<EndOfStream>(std::forward<Args>(args)...);
 	}
-	
+
 	template<typename EndToken, typename... Args>
 	void ParameterFile::HandleInner(Args&&... args)
 	{
@@ -113,7 +113,7 @@ namespace Nz
 			keyValue.handler = BuildBlockHandler(keyValues, std::forward<Rest>(rest)...);
 		}
 	}
-	
+
 	template<typename V, typename... Rest>
 	auto ParameterFile::GetSingleHandler(V&& value, Rest&&... rest) -> ValueHandler
 	{

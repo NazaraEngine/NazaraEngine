@@ -26,7 +26,7 @@ namespace Nz
 		const WidgetTheme::Config& themeConfig = GetTheme()->GetConfig();
 
 		m_scrollCenterButton = Add<ScrollbarButtonWidget>();
-		
+
 		m_scrollCenterButton->OnButtonReleased.Connect([this](const ScrollbarButtonWidget*)
 		{
 			m_style->OnButtonRelease();
@@ -40,7 +40,7 @@ namespace Nz
 				m_grabbedValue = GetValue();
 				m_style->OnButtonGrab();
 			});
-		
+
 			m_scrollCenterButton->OnButtonMoved.Connect([this](const ScrollbarButtonWidget*, int x, int /*y*/)
 			{
 				int deltaX = x - m_grabbedPosition;
@@ -65,7 +65,7 @@ namespace Nz
 				m_grabbedValue = GetValue();
 				m_style->OnButtonGrab();
 			});
-		
+
 			m_scrollCenterButton->OnButtonMoved.Connect([this](const ScrollbarButtonWidget* button, int /*x*/, int y)
 			{
 				int deltaY = SafeCast<int>(m_grabbedPosition - (button->GetPosition().y + y));
@@ -87,7 +87,7 @@ namespace Nz
 		{
 			SetValue(GetValue() - 0.1f * (GetMaximumValue() - GetMinimumValue()));
 		});
-		
+
 		m_scrollNextButton->OnButtonTrigger.Connect([this](const ImageButtonWidget*)
 		{
 			SetValue(GetValue() + 0.1f * (GetMaximumValue() - GetMinimumValue()));
@@ -139,7 +139,7 @@ namespace Nz
 	{
 		m_style->OnHoverBegin();
 	}
-	
+
 	void ScrollbarWidget::OnMouseExit()
 	{
 		m_style->OnHoverEnd();

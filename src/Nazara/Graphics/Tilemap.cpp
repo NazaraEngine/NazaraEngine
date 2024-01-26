@@ -78,7 +78,7 @@ namespace Nz
 			vertices += 4 * spriteCount;
 		}
 	}
-	
+
 	const std::shared_ptr<MaterialInstance>& Tilemap::GetMaterial(std::size_t i) const
 	{
 		assert(i < m_layers.size());

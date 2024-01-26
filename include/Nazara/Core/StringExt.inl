@@ -180,7 +180,7 @@ namespace Nz
 
 		return true;
 	}
-	
+
 	/*!
 	* \ingroup math
 	* \brief Converts the string to number

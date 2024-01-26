@@ -192,7 +192,7 @@ namespace Nz
 			});
 
 			std::size_t size = structData.fieldOffsets.GetSize() - offset;
-			
+
 			if (member.tag.empty())
 				continue;
 

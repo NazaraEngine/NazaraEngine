@@ -30,7 +30,7 @@ namespace Nz
 	{
 		m_headers.insert_or_assign(std::move(header), std::move(value));
 	}
-	
+
 	inline bool WebRequest::OnBodyResponse(const char* data, std::size_t length)
 	{
 		if (!m_dataCallback)

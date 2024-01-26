@@ -12,7 +12,7 @@ namespace Nz
 	{
 		Layout();
 	}
-	
+
 	void RichTextAreaWidget::AppendText(std::string_view text)
 	{
 		//m_text += text;

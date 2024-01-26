@@ -127,7 +127,7 @@ namespace Nz
 			ButtonWidgetStyle& operator=(const ButtonWidgetStyle&) = delete;
 			ButtonWidgetStyle& operator=(ButtonWidgetStyle&&) = default;
 	};
-	
+
 	class NAZARA_WIDGETS_API CheckboxWidgetStyle : public BaseWidgetStyle
 	{
 		public:
@@ -147,7 +147,7 @@ namespace Nz
 			CheckboxWidgetStyle& operator=(const CheckboxWidgetStyle&) = delete;
 			CheckboxWidgetStyle& operator=(CheckboxWidgetStyle&&) = default;
 	};
-	
+
 	class NAZARA_WIDGETS_API ImageButtonWidgetStyle : public BaseWidgetStyle
 	{
 		public:
@@ -186,7 +186,7 @@ namespace Nz
 			LabelWidgetStyle& operator=(const LabelWidgetStyle&) = delete;
 			LabelWidgetStyle& operator=(LabelWidgetStyle&&) = default;
 	};
-	
+
 	class NAZARA_WIDGETS_API ProgressBarWidgetStyle : public BaseWidgetStyle
 	{
 		public:
@@ -233,7 +233,7 @@ namespace Nz
 			ScrollbarWidgetStyle& operator=(const ScrollbarWidgetStyle&) = delete;
 			ScrollbarWidgetStyle& operator=(ScrollbarWidgetStyle&&) = default;
 	};
-	
+
 	class NAZARA_WIDGETS_API ScrollbarButtonWidgetStyle : public BaseWidgetStyle
 	{
 		public:

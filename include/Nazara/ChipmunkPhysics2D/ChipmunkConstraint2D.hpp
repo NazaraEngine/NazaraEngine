@@ -125,7 +125,7 @@ namespace Nz
 	class ChipmunkMotorConstraint2D;
 
 	using ChipmunkMotorConstraint2DHandle = ObjectHandle<ChipmunkMotorConstraint2D>;
-	
+
 	class NAZARA_CHIPMUNKPHYSICS2D_API ChipmunkMotorConstraint2D : public ChipmunkConstraint2D
 	{
 		public:
@@ -159,7 +159,7 @@ namespace Nz
 	class ChipmunkPivotConstraint2D;
 
 	using ChipmunkPivotConstraint2DHandle = ObjectHandle<ChipmunkPivotConstraint2D>;
-	
+
 	class NAZARA_CHIPMUNKPHYSICS2D_API ChipmunkPivotConstraint2D : public ChipmunkConstraint2D
 	{
 		public:
@@ -178,7 +178,7 @@ namespace Nz
 	class ChipmunkRatchetConstraint2D;
 
 	using ChipmunkRatchetConstraint2DHandle = ObjectHandle<ChipmunkRatchetConstraint2D>;
-	
+
 	class NAZARA_CHIPMUNKPHYSICS2D_API ChipmunkRatchetConstraint2D : public ChipmunkConstraint2D
 	{
 		public:

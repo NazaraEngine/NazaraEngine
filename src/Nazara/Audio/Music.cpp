@@ -30,7 +30,7 @@ namespace Nz
 	Music(*Audio::Instance()->GetDefaultDevice())
 	{
 	}
-	
+
 	Music::Music(AudioDevice& device) :
 	SoundEmitter(device),
 	m_streaming(false),

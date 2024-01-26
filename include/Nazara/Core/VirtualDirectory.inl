@@ -75,7 +75,7 @@ namespace Nz
 			});
 		}
 	}
-	
+
 	template<typename F>
 	bool VirtualDirectory::GetDirectoryEntry(std::string_view path, F&& callback)
 	{
@@ -260,7 +260,7 @@ namespace Nz
 	{
 		return m_isUprootAllowed;
 	}
-	
+
 	inline auto VirtualDirectory::StoreDirectory(std::string_view path, std::shared_ptr<VirtualDirectoryResolver> resolver) -> DirectoryEntry&
 	{
 		assert(!path.empty());
@@ -318,7 +318,7 @@ namespace Nz
 	{
 		return StoreFile(path, std::make_shared<MemoryView>(data, size));
 	}
-	
+
 	template<typename F> bool VirtualDirectory::GetEntryInternal(std::string_view name, bool allowResolve, F&& callback)
 	{
 		if (name == ".")

@@ -127,7 +127,7 @@ namespace Nz
 	{
 		m_character->Activate(false);
 	}
-	
+
 	JoltCharacter& JoltCharacter::operator=(JoltCharacter&& character) noexcept
 	{
 		Destroy();

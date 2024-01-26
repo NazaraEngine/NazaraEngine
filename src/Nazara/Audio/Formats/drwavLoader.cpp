@@ -87,7 +87,7 @@ namespace Nz
 				format = AudioFormat::I16_Mono;
 				sampleCount = wav.totalPCMFrameCount;
 			}
-			
+
 			return std::make_shared<SoundBuffer>(format, sampleCount, wav.sampleRate, samples.get());
 		}
 

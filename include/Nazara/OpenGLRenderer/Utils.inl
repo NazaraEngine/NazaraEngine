@@ -84,7 +84,7 @@ namespace Nz
 		NazaraErrorFmt("unhandled BlendFunc {0:#x})", UnderlyingCast(blendFunc));
 		return {};
 	}
-	
+
 	inline GLenum ToOpenGL(FaceFilling side)
 	{
 		switch (side)

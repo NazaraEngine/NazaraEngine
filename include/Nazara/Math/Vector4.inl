@@ -513,7 +513,7 @@ namespace Nz
 
 		return *this;
 	}
-	
+
 	template<typename T>
 	constexpr Vector4<T>& Vector4<T>::operator%=(const Vector4& vec)
 	{

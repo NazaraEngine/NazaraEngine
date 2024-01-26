@@ -52,7 +52,7 @@ namespace Nz
 			for (std::size_t i = 0; i < m_directions.size(); ++i)
 			{
 				DirectionData& direction = m_directions[i];
-				
+
 				ViewerInstance& viewerInstance = direction.viewer.GetViewerInstance();
 				viewerInstance.UpdateEyePosition(m_light.GetPosition());
 				viewerInstance.UpdateViewMatrix(Matrix4f::TransformInverse(m_light.GetPosition(), s_dirRotations[i]));

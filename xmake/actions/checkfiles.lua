@@ -845,6 +845,50 @@ on_run(function ()
 		end
 	})
 
+	-- No space should lies before a linefeed
+	table.insert(checks, {
+		Name = "end of line spaces",
+		Check = function (moduleName)
+			local files = table.join(
+				os.files("include/Nazara/" .. moduleName .. "/**.hpp"),
+				os.files("include/Nazara/" .. moduleName .. "/**.inl"),
+				os.files("src/Nazara/" .. moduleName .. "/**.hpp"),
+				os.files("src/Nazara/" .. moduleName .. "/**.inl"),
+				os.files("src/Nazara/" .. moduleName .. "/**.cpp")
+			)
+
+			local fixes = {}
+
+			for _, filePath in pairs(files) do
+				local lines = GetFile(filePath)
+
+				local fileFixes = {}
+				for i = 1, #lines do
+					local content = lines[i]:match("^(%s*[^%s]*)%s+$")
+					if content then
+						table.insert(fileFixes, { line = i, newContent = content })
+					end
+				end
+
+				if #fileFixes > 0 then
+					print(filePath .. " has line ending with spaces")
+					table.insert(fixes, {
+						File = filePath,
+						Func = function (lines)
+							for _, fix in ipairs(fileFixes) do
+								lines[fix.line] = fix.newContent
+							end
+
+							UpdateFile(filePath, lines)
+						end
+					})
+				end
+			end
+
+			return fixes
+		end
+	})
+
 	local shouldFix = option.get("fix") or false
 
 	for _, check in pairs(checks) do

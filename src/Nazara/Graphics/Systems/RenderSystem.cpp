@@ -292,7 +292,7 @@ namespace Nz
 			CameraComponent& entityCamera = m_registry.get<CameraComponent>(entity);
 
 			Vector3f cameraPosition = entityNode.GetPosition(CoordSys::Global);
-			
+
 			ViewerInstance& viewerInstance = entityCamera.GetViewerInstance();
 			viewerInstance.UpdateEyePosition(cameraPosition);
 			viewerInstance.UpdateViewMatrix(Nz::Matrix4f::TransformInverse(cameraPosition, entityNode.GetRotation(CoordSys::Global)));
@@ -355,7 +355,7 @@ namespace Nz
 			assert(m_cameraEntities.find(entity) == m_cameraEntities.end());
 			m_cameraEntities.emplace(entity, cameraEntity);
 		});
-		
+
 		m_graphicsConstructObserver.each([&](entt::entity entity)
 		{
 			GraphicsComponent& entityGfx = m_registry.get<GraphicsComponent>(entity);

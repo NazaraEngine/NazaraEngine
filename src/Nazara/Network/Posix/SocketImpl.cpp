@@ -710,7 +710,7 @@ namespace Nz
 #else
 		int byteSent = sendmsg(handle, &msgHdr, 0);
 #endif
-		
+
 		if (byteSent == -1)
 		{
 			int errorCode = errno;
@@ -892,7 +892,7 @@ namespace Nz
 
 		if (error)
 			*error = SocketError::NoError;
-			
+
 #if not defined(MSG_NOSIGNAL) // -> https://github.com/intel/parameter-framework/pull/133/files
         //There is no MSG_NOSIGNAL on macos
         const int set = 1;
@@ -1017,7 +1017,7 @@ namespace Nz
 	int SocketImpl::TranslateNetProtocolToAF(NetProtocol protocol)
 	{
 		NazaraAssert(protocol <= NetProtocol::Max, "Protocol has value out of enum");
-		
+
 		constexpr EnumArray<NetProtocol, int> addressFamily {
 			AF_UNSPEC, //< NetProtocol::Any
 			AF_INET,   //< NetProtocol::IPv4
@@ -1031,7 +1031,7 @@ namespace Nz
 	int SocketImpl::TranslateSocketTypeToSock(SocketType type)
 	{
 		NazaraAssert(type <= SocketType::Max, "Socket type has value out of enum");
-		
+
 		constexpr EnumArray<SocketType, int> socketType {
 			SOCK_RAW,     //< SocketType::Raw
 			SOCK_STREAM,  //< SocketType::TCP

@@ -129,7 +129,7 @@ namespace Nz
 			});
 
 			NazaraAssert(s_declarations[VertexLayout::XY_Color]->GetStride() == sizeof(VertexStruct_XY_Color), "Invalid stride for declaration VertexLayout::XY_Color");
-			
+
 			// VertexLayout::XY_UV : VertexStruct_XY_UV
 			s_declarations[VertexLayout::XY_UV] = NewDeclaration(VertexInputRate::Vertex, {
 				{
@@ -292,7 +292,7 @@ namespace Nz
 			});
 
 			NazaraAssert(s_declarations[VertexLayout::XYZ_Normal_UV_Tangent_Skinning]->GetStride() == sizeof(VertexStruct_XYZ_Normal_UV_Tangent_Skinning), "Invalid stride for declaration VertexLayout::XYZ_Normal_UV_Tangent_Skinning");
-			
+
 			// VertexLayout::XYZ_SizeRot : VertexStruct_XYZ_SizeRot
 			s_declarations[VertexLayout::UV_SizeSinCos] = NewDeclaration(VertexInputRate::Vertex, {
 				{

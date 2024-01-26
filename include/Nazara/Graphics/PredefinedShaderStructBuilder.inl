@@ -23,7 +23,7 @@ namespace Nz
 
 		return lightData;
 	}
-	
+
 	// PredefinedPointLightData
 	constexpr PredefinedPointLightData PredefinedPointLightData::Build()
 	{

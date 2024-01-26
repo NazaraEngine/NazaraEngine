@@ -184,7 +184,7 @@ namespace Nz
 				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::ShadowmapPoint); bindingIndex != Material::InvalidBindingIndex)
 				{
 					std::size_t textureBindingBaseIndex = m_textureBindingCache.size();
-					
+
 					for (std::size_t j = 0; j < renderState.shadowMapsPoint.size(); ++j)
 					{
 						const Texture* texture = renderState.shadowMapsPoint[j];
@@ -202,7 +202,7 @@ namespace Nz
 						SafeCast<UInt32>(renderState.shadowMapsPoint.size()), &m_textureBindingCache[textureBindingBaseIndex]
 					};
 				}
-				
+
 				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::ShadowmapSpot); bindingIndex != Material::InvalidBindingIndex)
 				{
 					std::size_t textureBindingBaseIndex = m_textureBindingCache.size();

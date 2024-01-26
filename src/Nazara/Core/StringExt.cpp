@@ -114,7 +114,7 @@ namespace Nz
 	{
 		return utf8::distance(str.data(), str.data() + str.size());
 	}
-	
+
 	bool EndsWith(std::string_view lhs, std::string_view rhs, CaseIndependent)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE

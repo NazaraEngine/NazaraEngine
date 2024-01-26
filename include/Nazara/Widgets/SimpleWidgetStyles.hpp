@@ -63,7 +63,7 @@ namespace Nz
 			bool m_isHovered;
 			bool m_isPressed;
 	};
-	
+
 	class NAZARA_WIDGETS_API SimpleCheckboxWidgetStyle : public CheckboxWidgetStyle
 	{
 		public:
@@ -109,7 +109,7 @@ namespace Nz
 			entt::entity m_checkEntity;
 			bool m_isHovered;
 	};
-	
+
 	class NAZARA_WIDGETS_API SimpleImageButtonWidgetStyle : public ImageButtonWidgetStyle
 	{
 		public:
@@ -150,7 +150,7 @@ namespace Nz
 			bool m_isHovered;
 			bool m_isPressed;
 	};
-	
+
 	class NAZARA_WIDGETS_API SimpleLabelWidgetStyle : public LabelWidgetStyle
 	{
 		public:
@@ -179,7 +179,7 @@ namespace Nz
 			std::shared_ptr<TextSprite> m_textSprite;
 			entt::entity m_entity;
 	};
-	
+
 	class NAZARA_WIDGETS_API SimpleProgressBarWidgetStyle : public ProgressBarWidgetStyle
 	{
 		public:

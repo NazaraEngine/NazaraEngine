@@ -445,7 +445,7 @@ namespace Nz
 		return 0;
 		#endif
 	}
-	
+
 	SocketState SocketImpl::PollConnection(SocketHandle handle, const IpAddress& /*address*/, UInt64 msTimeout, SocketError* error)
 	{
 		// Wait until socket is available for writing or an error occurs (ie when connection succeeds or fails)
@@ -1041,7 +1041,7 @@ namespace Nz
 	int SocketImpl::TranslateSocketTypeToSock(SocketType type)
 	{
 		NazaraAssert(type <= SocketType::Max, "Socket type has value out of enum");
-		
+
 		constexpr EnumArray<SocketType, int> socketType {
 			SOCK_RAW,     //< SocketType::Raw
 			SOCK_STREAM,  //< SocketType::TCP

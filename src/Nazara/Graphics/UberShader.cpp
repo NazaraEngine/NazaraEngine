@@ -92,7 +92,7 @@ namespace Nz
 			for (const auto& [optionHash, optionValue] : config.optionValues)
 			{
 				std::uint32_t hash = optionHash;
-				
+
 				std::visit([&](auto&& arg)
 				{
 					states.optionValues[hash] = arg;

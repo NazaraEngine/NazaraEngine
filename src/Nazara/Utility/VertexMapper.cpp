@@ -47,7 +47,7 @@ namespace Nz
 		ErrorFlags flags(ErrorMode::ThrowException);
 		m_mapper.Map(vertexBuffer, 0, vertexBuffer.GetVertexCount());
 	}
-	
+
 	VertexMapper::~VertexMapper() = default;
 
 	void VertexMapper::Unmap()

@@ -35,7 +35,7 @@ namespace Nz
 		auto debugDrawShader = m_renderDevice.InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, *shaderModule, {});
 		if (!debugDrawShader)
 			throw std::runtime_error("failed to instantiate debug draw shader");
-		
+
 		RenderPipelineLayoutInfo layoutInfo;
 		layoutInfo.bindings.assign({
 			{

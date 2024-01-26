@@ -25,7 +25,7 @@ namespace Nz
 
 		return inputIndex;
 	}
-	
+
 	inline std::size_t FramePass::AddOutput(std::size_t attachmentId)
 	{
 		assert(attachmentId != InvalidAttachmentId);
