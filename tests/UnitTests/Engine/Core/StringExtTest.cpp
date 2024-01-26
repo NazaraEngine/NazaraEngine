@@ -123,6 +123,42 @@ SCENARIO("String", "[CORE][STRING]")
 		CHECK(Nz::Substring(str, 1, 10, Nz::UnicodeAware{}) == "\u00E9\u00E7\u0153\u00C2\u5B98");
 	}
 
+	WHEN("Trimming N characters by the left")
+	{
+		std::string_view str = "Nazara Engine";
+		CHECK(Nz::TrimLeftCount(str, 0) == str);
+		CHECK(Nz::TrimLeftCount(str, 1) == "azara Engine");
+		CHECK(Nz::TrimLeftCount(str, 7) == "Engine");
+		CHECK(Nz::TrimLeftCount(str, 20) == "");
+	}
+
+	WHEN("Trimming N characters by the left - UTF-8 version")
+	{
+		std::string_view str = "\u00E0\u00E9\u00E7\u0153\u00C2\u5B98";
+		CHECK(Nz::TrimLeftCount(str, 0, Nz::UnicodeAware{}) == str);
+		CHECK(Nz::TrimLeftCount(str, 1, Nz::UnicodeAware{}) == "\u00E9\u00E7\u0153\u00C2\u5B98");
+		CHECK(Nz::TrimLeftCount(str, 5, Nz::UnicodeAware{}) == "\u5B98");
+		CHECK(Nz::TrimLeftCount(str, 20, Nz::UnicodeAware{}) == "");
+	}
+
+	WHEN("Trimming N characters by the right")
+	{
+		std::string_view str = "Nazara Engine";
+		CHECK(Nz::TrimRightCount(str, 0) == str);
+		CHECK(Nz::TrimRightCount(str, 1) == "Nazara Engin");
+		CHECK(Nz::TrimRightCount(str, 7) == "Nazara");
+		CHECK(Nz::TrimRightCount(str, 20) == "");
+	}
+
+	WHEN("Trimming N characters by the right - UTF-8 version")
+	{
+		std::string_view str = "\u00E0\u00E9\u00E7\u0153\u00C2\u5B98";
+		CHECK(Nz::TrimRightCount(str, 0, Nz::UnicodeAware{}) == str);
+		CHECK(Nz::TrimRightCount(str, 1, Nz::UnicodeAware{}) == "\u00E0\u00E9\u00E7\u0153\u00C2");
+		CHECK(Nz::TrimRightCount(str, 5, Nz::UnicodeAware{}) == "\u00E0");
+		CHECK(Nz::TrimRightCount(str, 20, Nz::UnicodeAware{}) == "");
+	}
+
 	WHEN("Checking if string starts with")
 	{
 		CHECK(Nz::StartsWith("Nazara Engine", ""));

@@ -94,6 +94,9 @@ namespace Nz
 	NAZARA_CORE_API std::string_view TrimLeft(std::string_view str, char32_t c, CaseIndependent, UnicodeAware);
 	NAZARA_CORE_API std::string_view TrimLeft(std::string_view str, Unicode::Category category, UnicodeAware);
 
+	inline std::string_view TrimLeftCount(std::string_view str, std::size_t n);
+	NAZARA_CORE_API std::string_view TrimLeftCount(std::string_view str, std::size_t n, UnicodeAware);
+
 	NAZARA_CORE_API std::string_view TrimRight(std::string_view str);
 	inline std::string_view TrimRight(std::string_view str, char c);
 	inline std::string_view TrimRight(std::string_view str, char c, CaseIndependent);
@@ -102,6 +105,10 @@ namespace Nz
 	NAZARA_CORE_API std::string_view TrimRight(std::string_view str, char32_t c, UnicodeAware);
 	NAZARA_CORE_API std::string_view TrimRight(std::string_view str, char32_t c, CaseIndependent, UnicodeAware);
 	NAZARA_CORE_API std::string_view TrimRight(std::string_view str, Unicode::Category category, UnicodeAware);
+
+	inline std::string_view TrimRightCount(std::string_view str, std::size_t n);
+	NAZARA_CORE_API std::string_view TrimRightCount(std::string_view str, std::size_t n, UnicodeAware);
+
 }
 
 #include <Nazara/Core/StringExt.inl>

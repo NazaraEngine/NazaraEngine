@@ -645,6 +645,20 @@ namespace Nz
 		return std::string_view(it.base(), end.base() - it.base());
 	}
 
+	std::string_view TrimLeftCount(std::string_view str, std::size_t n, UnicodeAware)
+	{
+		utf8::unchecked::iterator<const char*> it(str.data());
+		utf8::unchecked::iterator<const char*> end(str.data() + str.size());
+
+		while (it != end && n > 0)
+		{
+			++it;
+			--n;
+		}
+
+		return std::string_view(it.base(), end.base() - it.base());
+	}
+
 	std::string_view TrimRight(std::string_view str)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
@@ -741,5 +755,23 @@ namespace Nz
 		++it;
 
 		return std::string_view(start.base(), it.base() - start.base());
+	}
+
+	std::string_view TrimRightCount(std::string_view str, std::size_t n, UnicodeAware)
+	{
+		if (str.empty())
+			return str;
+
+		const char* begin = str.data();
+		const char* ptr = begin + str.size();
+		for (std::size_t i = 0; i < n; ++i)
+		{
+			if (ptr == begin)
+				return {};
+
+			utf8::prior(ptr, begin);
+		}
+
+		return std::string_view(begin, ptr - begin);
 	}
 }

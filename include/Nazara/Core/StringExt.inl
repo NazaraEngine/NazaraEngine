@@ -301,6 +301,11 @@ namespace Nz
 		return str;
 	}
 
+	inline std::string_view TrimLeftCount(std::string_view str, std::size_t n)
+	{
+		return str.substr(std::min(n, str.size()));
+	}
+
 	inline std::string_view TrimRight(std::string_view str, char c)
 	{
 		while (!str.empty() && str.back() == c)
@@ -325,6 +330,11 @@ namespace Nz
 			str.remove_suffix(1);
 
 		return str;
+	}
+
+	inline std::string_view TrimRightCount(std::string_view str, std::size_t n)
+	{
+		return str.substr(0, (str.size() > n) ? str.size() - n : 0);
 	}
 }
 
