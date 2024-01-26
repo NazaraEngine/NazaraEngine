@@ -106,7 +106,7 @@ namespace Nz
 	*/
 	bool Serialize(SerializationContext& context, const std::string& value, TypeTag<std::string>)
 	{
-		if (!Serialize(context, UInt32(value.size()), TypeTag<UInt32>()))
+		if (!Serialize(context, SafeCast<UInt32>(value.size()), TypeTag<UInt32>()))
 			return false;
 
 		return context.stream->Write(value.data(), value.size()) == value.size();
