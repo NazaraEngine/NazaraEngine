@@ -69,6 +69,8 @@ SCENARIO("String", "[CORE][STRING]")
 	{
 		CHECK(Nz::IsNumber("123456"));
 		CHECK(Nz::IsNumber("-123456"));
+		CHECK_FALSE(Nz::IsNumber(""));
+		CHECK_FALSE(Nz::IsNumber("-"));
 		CHECK_FALSE(Nz::IsNumber("123 "));
 		CHECK_FALSE(Nz::IsNumber("Nazara Engine"));
 		CHECK_FALSE(Nz::IsNumber("12345Nazara Engine"));

@@ -26,11 +26,11 @@ namespace Nz
 
 	inline bool IsNumber(std::string_view str)
 	{
+		if (!str.empty() && str.front() == '-')
+			str.remove_prefix(1);
+
 		if (str.empty())
 			return false;
-
-		if (str.front() == '-')
-			str.remove_prefix(1);
 
 		return std::find_if(str.begin(), str.end(), [](unsigned char c) { return !std::isdigit(c); }) == str.end();
 	}
