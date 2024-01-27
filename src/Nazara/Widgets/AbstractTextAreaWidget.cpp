@@ -216,6 +216,38 @@ namespace Nz
 				return true;
 			}
 
+			case Keyboard::VKey::Insert:
+			{
+				if (key.control)
+				{
+					if (key.shift)
+						break;
+
+					// Copy (Ctrl + Insert)
+					bool ignoreDefaultAction = (m_echoMode != EchoMode::Normal);
+					OnTextAreaKeyCopy(this, &ignoreDefaultAction);
+
+					if (ignoreDefaultAction || !HasSelection())
+						return true;
+
+					CopySelectionToClipboard(m_cursorPositionBegin, m_cursorPositionEnd);
+					return true;
+				}
+				else if (key.shift)
+				{
+					// Paste (Shift + Insert)
+					bool ignoreDefaultAction = false;
+					OnTextAreaKeyPaste(this, &ignoreDefaultAction);
+
+					if (ignoreDefaultAction)
+						return true;
+
+					if (HasSelection())
+						EraseSelection();
+				}
+				return true;
+			}
+
 			// Cut (Ctrl+X)
 			case Keyboard::VKey::X:
 			{
@@ -259,7 +291,21 @@ namespace Nz
 			case Keyboard::VKey::Delete:
 			{
 				if (HasSelection())
+				{
+					// Cut (Shift + Delete)
+					if (key.shift)
+					{
+						bool ignoreDefaultAction = (m_echoMode != EchoMode::Normal);
+						OnTextAreaKeyCut(this, &ignoreDefaultAction);
+
+						if (ignoreDefaultAction || !HasSelection())
+							return true;
+
+						CopySelectionToClipboard(m_cursorPositionBegin, m_cursorPositionEnd);
+					}
+
 					EraseSelection();
+				}
 				else
 					Erase(GetGlyphIndex(m_cursorPositionBegin));
 
