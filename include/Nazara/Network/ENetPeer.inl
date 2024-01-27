@@ -89,7 +89,7 @@ namespace Nz
 
 	inline bool ENetPeer::HasPendingCommands()
 	{
-		return m_outgoingReliableCommands.empty() && m_outgoingUnreliableCommands.empty() && m_sentReliableCommands.empty() && m_sentUnreliableCommands.empty();
+		return !m_outgoingReliableCommands.empty() || !m_outgoingUnreliableCommands.empty() || !m_sentReliableCommands.empty();
 	}
 
 	inline bool ENetPeer::IsConnected() const
