@@ -32,7 +32,16 @@ namespace Nz
 
 	const Vector2ui& WindowSwapchain::GetSize() const
 	{
-		return (m_swapchain) ? m_swapchain->GetSize() : m_window->GetSize();
+		if (m_swapchain)
+			return m_swapchain->GetSize();
+		else if (m_window)
+			return m_window->GetSize();
+		else
+		{
+			// Window has been destroyed, return a dummy size
+			static constexpr Vector2ui dummySize(1, 1);
+			return dummySize;
+		}
 	}
 
 	void WindowSwapchain::ConnectSignals()
@@ -53,6 +62,7 @@ namespace Nz
 			OnSwapchainDestroy(this);
 			m_swapchain.reset();
 			m_isMinimized = true;
+			m_window = nullptr;
 		});
 
 		m_onGainedFocus.Connect(windowEvents.OnGainedFocus, [this](const WindowEventHandler* /*eventHandler*/)
