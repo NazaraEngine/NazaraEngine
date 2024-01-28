@@ -82,7 +82,7 @@ aiFile* StreamOpener(aiFileIO* fileIO, const char* filePath, const char* openMod
 	}
 	else
 	{
-		ErrorFlags errFlags({}, ~ErrorMode::ThrowException);
+		ErrorFlags errFlags({}, ErrorMode::ThrowException);
 
 		Result<OpenModeFlags, std::string> openModes = File::DecodeOpenMode(openMode);
 

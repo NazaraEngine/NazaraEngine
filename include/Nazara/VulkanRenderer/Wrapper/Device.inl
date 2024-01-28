@@ -62,7 +62,7 @@ namespace Nz::Vk
 	{
 		PFN_vkVoidFunction func;
 		{
-			ErrorFlags errFlags({}, ~ErrorMode::ThrowException);
+			ErrorFlags errFlags({}, ErrorMode::ThrowException);
 			func = m_instance.GetDeviceProcAddr(m_device, name);
 		}
 

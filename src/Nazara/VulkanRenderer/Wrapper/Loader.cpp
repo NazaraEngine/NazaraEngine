@@ -86,12 +86,12 @@ namespace Nz
 
 			for (const char* libname : libs)
 			{
-				ErrorFlags errorFlags(ErrorMode::Silent, ~ErrorMode::ThrowException);
+				ErrorFlags errorFlags(ErrorMode::Silent, ErrorMode::ThrowException);
 
 				if (!s_vulkanLib.Load(libname))
 					continue;
 
-				Error::ApplyFlags({}, ~ErrorMode::Silent);
+				Error::ApplyFlags({}, ErrorMode::Silent);
 
 				// vkGetInstanceProcAddr is the only function that's guarantee to be exported
 				vkGetInstanceProcAddr = reinterpret_cast<PFN_vkGetInstanceProcAddr>(s_vulkanLib.GetSymbol("vkGetInstanceProcAddr"));
