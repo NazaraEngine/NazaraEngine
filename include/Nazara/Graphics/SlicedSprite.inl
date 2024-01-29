@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <cassert>
+#include <Nazara/Core/Error.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
@@ -70,7 +70,7 @@ namespace Nz
 
 	inline void SlicedSprite::SetMaterial(std::shared_ptr<MaterialInstance> material)
 	{
-		assert(material);
+		NazaraAssert(material, "invalid material");
 
 		if (m_material != material)
 		{

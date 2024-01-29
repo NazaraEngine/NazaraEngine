@@ -79,7 +79,7 @@ namespace Nz
 
 	const std::shared_ptr<MaterialInstance>& Model::GetMaterial(std::size_t subMeshIndex) const
 	{
-		assert(subMeshIndex < m_submeshes.size());
+		NazaraAssertFmt(subMeshIndex < m_submeshes.size(), "material index out of range ({0} >= {1})", subMeshIndex, m_submeshes.size());
 		const auto& subMeshData = m_submeshes[subMeshIndex];
 		return subMeshData.material;
 	}
@@ -91,7 +91,7 @@ namespace Nz
 
 	const std::vector<RenderPipelineInfo::VertexBufferData>& Model::GetVertexBufferData(std::size_t subMeshIndex) const
 	{
-		assert(subMeshIndex < m_submeshes.size());
+		NazaraAssertFmt(subMeshIndex < m_submeshes.size(), "submesh index out of range ({0} >= {1})", subMeshIndex, m_submeshes.size());
 		const auto& subMeshData = m_submeshes[subMeshIndex];
 		return subMeshData.vertexBufferData;
 	}

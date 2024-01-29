@@ -36,7 +36,7 @@ namespace Nz
 			virtual void BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, std::vector<RenderElementOwner>& elements) const = 0;
 
 			inline const Boxf& GetAABB() const;
-			virtual const std::shared_ptr<MaterialInstance>& GetMaterial(std::size_t i) const = 0;
+			virtual const std::shared_ptr<MaterialInstance>& GetMaterial(std::size_t materialIndex) const = 0;
 			virtual std::size_t GetMaterialCount() const = 0;
 			inline int GetRenderLayer() const;
 

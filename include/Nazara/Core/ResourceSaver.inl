@@ -37,7 +37,7 @@ namespace Nz
 	template<typename Type, typename Parameters>
 	bool ResourceSaver<Type, Parameters>::IsExtensionSupported(std::string_view extension) const
 	{
-		NazaraAssert(extension.size() >= 2 || extension.front() != '.', "extension should start with a .");
+		NazaraAssertFmt(extension.size() >= 2 || extension.front() != '.', "extension should start with a . (got {})", extension);
 
 		for (const auto& saverPtr : m_savers)
 		{

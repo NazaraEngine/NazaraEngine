@@ -25,14 +25,14 @@ namespace Nz
 	*/
 	Tilemap::Tilemap(const Vector2ui& mapSize, const Vector2f& tileSize, std::size_t materialCount) :
 	m_layers(materialCount),
-	m_tiles(mapSize.x* mapSize.y),
+	m_tiles(mapSize.x * mapSize.y),
 	m_origin(0.f, 0.f),
 	m_tileSize(tileSize),
 	m_mapSize(mapSize),
 	m_isometricModeEnabled(false),
 	m_shouldRebuildVertices(false)
 	{
-		NazaraAssert(m_tiles.size() != 0U, "Invalid map size");
+		NazaraAssert(m_tiles.size() != 0U, "invalid map size");
 		NazaraAssert(m_tileSize.x > 0 && m_tileSize.y > 0, "Invalid tile size");
 		NazaraAssert(m_layers.size() != 0U, "Invalid material count");
 

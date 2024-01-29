@@ -47,11 +47,9 @@ namespace Nz
 		elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer(), m_material, passFlags, renderPipeline, *elementData.worldInstance, vertexDeclaration, whiteTexture, m_spriteCount, m_vertices.data(), *elementData.scissorBox));
 	}
 
-	const std::shared_ptr<MaterialInstance>& LinearSlicedSprite::GetMaterial(std::size_t i) const
+	const std::shared_ptr<MaterialInstance>& LinearSlicedSprite::GetMaterial(std::size_t materialIndex) const
 	{
-		assert(i == 0);
-		NazaraUnused(i);
-
+		NazaraAssertFmt(materialIndex == 0, "material index out of range ({0} >= 1)", materialIndex);
 		return m_material;
 	}
 

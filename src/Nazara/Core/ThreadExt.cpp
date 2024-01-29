@@ -39,7 +39,6 @@ namespace Nz
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
-		// std::thread::native_handle returns a void* with MSVC instead of a HANDLE
 		return PlatformImpl::GetThreadName(GetHandle(thread));
 	}
 
@@ -52,7 +51,6 @@ namespace Nz
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
-		// std::thread::native_handle returns a void* with MSVC instead of a HANDLE
 		PlatformImpl::SetThreadName(GetHandle(thread), name);
 	}
 }

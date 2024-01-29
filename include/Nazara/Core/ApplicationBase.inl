@@ -146,4 +146,3 @@ namespace Nz
 }
 
 #include <Nazara/Core/DebugOff.hpp>
-#include "ApplicationBase.hpp"

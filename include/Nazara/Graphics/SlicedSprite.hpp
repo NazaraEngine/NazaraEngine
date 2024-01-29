@@ -31,7 +31,7 @@ namespace Nz
 
 			inline const Color& GetColor() const;
 			inline const Corner& GetBottomRightCorner() const;
-			const std::shared_ptr<MaterialInstance>& GetMaterial(std::size_t i = 0) const override;
+			const std::shared_ptr<MaterialInstance>& GetMaterial(std::size_t materialIndex = 0) const override;
 			std::size_t GetMaterialCount() const override;
 			inline const Vector2f& GetOrigin() const;
 			inline const Vector2f& GetSize() const;

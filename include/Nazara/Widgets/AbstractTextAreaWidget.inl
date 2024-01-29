@@ -262,4 +262,3 @@ namespace Nz
 }
 
 #include <Nazara/Widgets/DebugOff.hpp>
-#include "AbstractTextAreaWidget.hpp"

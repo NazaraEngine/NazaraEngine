@@ -35,7 +35,7 @@ namespace Nz
 			inline void Clear();
 
 			inline const Color& GetColor() const;
-			const std::shared_ptr<MaterialInstance>& GetMaterial(std::size_t i = 0) const override;
+			const std::shared_ptr<MaterialInstance>& GetMaterial(std::size_t materialIndex = 0) const override;
 			std::size_t GetMaterialCount() const override;
 			inline Orientation GetOrientation() const;
 			inline const Vector2f& GetOrigin() const;

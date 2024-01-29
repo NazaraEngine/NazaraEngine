@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <cassert>
+#include <Nazara/Core/Error.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
@@ -14,8 +14,8 @@ namespace Nz
 
 	inline void Model::SetMaterial(std::size_t subMeshIndex, std::shared_ptr<MaterialInstance> material)
 	{
-		assert(subMeshIndex < m_submeshes.size());
-		assert(material);
+		NazaraAssertFmt(subMeshIndex < m_submeshes.size(), "submesh index out of range ({0} >= {1})", subMeshIndex, m_submeshes.size());
+		NazaraAssert(material, "invalid material");
 
 		if (m_submeshes[subMeshIndex].material != material)
 		{

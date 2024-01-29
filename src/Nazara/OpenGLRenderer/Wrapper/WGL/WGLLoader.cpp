@@ -12,7 +12,7 @@ namespace Nz::GL
 	WGLLoader::WGLLoader(const Renderer::Config& config) :
 	m_baseContext(nullptr, *this)
 	{
-		if (!m_opengl32Lib.Load("opengl32" NAZARA_DYNLIB_EXTENSION))
+		if (!m_opengl32Lib.Load("opengl32.dll"))
 			throw std::runtime_error("Failed to load opengl32 library, is OpenGL installed on your system?");
 
 		if (!m_gdi32Lib.Load("gdi32.dll"))
