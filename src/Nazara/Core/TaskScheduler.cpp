@@ -18,7 +18,14 @@ namespace Nz
 	NAZARA_WARNING_PUSH()
 	NAZARA_WARNING_MSVC_DISABLE(4324)
 
-	class alignas(std::hardware_destructive_interference_size) TaskScheduler::Worker
+#ifdef __cpp_lib_hardware_interference_size
+	using std::hardware_destructive_interference_size;
+#else
+	constexpr std::size_t hardware_destructive_interference_size = 64;
+#endif
+
+
+	class alignas(hardware_destructive_interference_size) TaskScheduler::Worker
 	{
 		public:
 			Worker(TaskScheduler& owner, unsigned int workerIndex) :
