@@ -8,8 +8,8 @@
 #include <NazaraUtils/StackArray.hpp>
 #include <condition_variable>
 #include <mutex>
+#include <new>
 #include <random>
-#include <stop_token>
 #include <thread>
 #include <Nazara/Core/Debug.hpp>
 
@@ -22,13 +22,14 @@ namespace Nz
 	{
 		public:
 			Worker(TaskScheduler& owner, unsigned int workerIndex) :
+			m_running(true),
 			m_owner(owner),
 			m_workerIndex(workerIndex)
 			{
-				m_thread = std::jthread([this](std::stop_token stopToken)
+				m_thread = std::thread([this]
 				{
 					SetCurrentThreadName(fmt::format("NzWorker #{0}", m_workerIndex).c_str());
-					Run(stopToken);
+					Run();
 				});
 			}
 
@@ -38,6 +39,14 @@ namespace Nz
 			m_owner(worker.m_owner)
 			{
 				NAZARA_UNREACHABLE();
+			}
+
+			~Worker()
+			{
+				m_running = false;
+				m_conditionVariable.notify_one();
+
+				m_thread.join();
 			}
 
 			bool AddTask(Task&& task)
@@ -53,7 +62,7 @@ namespace Nz
 				return true;
 			}
 
-			void Run(std::stop_token& stopToken)
+			void Run()
 			{
 				StackArray<unsigned int> randomWorkerIndices = NazaraStackArrayNoInit(unsigned int, m_owner.GetWorkerCount() - 1);
 				{
@@ -82,10 +91,10 @@ namespace Nz
 							idle = true;
 						}
 
-						m_conditionVariable.wait(m_mutex, stopToken, [this] { return !m_tasks.empty(); });
+						m_conditionVariable.wait(lock, [this] { return !m_running || !m_tasks.empty(); });
 					}
 
-					if (stopToken.stop_requested())
+					if (!m_running)
 						break;
 
 					auto ExecuteTask = [&](TaskScheduler::Task& task)
@@ -150,9 +159,10 @@ namespace Nz
 			}
 
 		private:
-			std::condition_variable_any m_conditionVariable;
+			std::atomic_bool m_running;
+			std::condition_variable m_conditionVariable;
 			std::mutex m_mutex;
-			std::jthread m_thread;
+			std::thread m_thread;
 			std::vector<TaskScheduler::Task> m_tasks;
 			TaskScheduler& m_owner;
 			unsigned int m_workerIndex;

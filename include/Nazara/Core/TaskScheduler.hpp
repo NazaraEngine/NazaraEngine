@@ -23,7 +23,7 @@ namespace Nz
 
 			TaskScheduler(unsigned int workerCount = 0);
 			TaskScheduler(const TaskScheduler&) = delete;
-			TaskScheduler(TaskScheduler&&) = default;
+			TaskScheduler(TaskScheduler&&) = delete;
 			~TaskScheduler();
 
 			void AddTask(Task&& task);
@@ -33,7 +33,7 @@ namespace Nz
 			void WaitForTasks();
 
 			TaskScheduler& operator=(const TaskScheduler&) = delete;
-			TaskScheduler& operator=(TaskScheduler&&) = default;
+			TaskScheduler& operator=(TaskScheduler&&) = delete;
 
 		private:
 			class Worker;
