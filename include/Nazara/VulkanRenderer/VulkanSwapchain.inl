@@ -23,7 +23,7 @@ namespace Nz
 
 	inline VkImage VulkanSwapchain::GetImage(std::size_t imageIndex) const
 	{
-		return m_swapchain.GetImage(imageIndex).image;
+		return m_swapchain.GetImage(SafeCast<UInt32>(imageIndex)).image;
 	}
 
 	inline const Vk::Swapchain& VulkanSwapchain::GetSwapchain() const
