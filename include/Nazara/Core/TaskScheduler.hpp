@@ -8,28 +8,45 @@
 #define NAZARA_CORE_TASKSCHEDULER_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Core/Functor.hpp>
+#include <Nazara/Core/Config.hpp>
+#include <atomic>
+#include <functional>
+#include <memory>
+#include <random>
 
 namespace Nz
 {
 	class NAZARA_CORE_API TaskScheduler
 	{
 		public:
-			TaskScheduler() = delete;
-			~TaskScheduler() = delete;
+			using Task = std::function<void()>;
 
-			template<typename F> static void AddTask(F function);
-			template<typename F, typename... Args> static void AddTask(F function, Args&&... args);
-			template<typename C> static void AddTask(void (C::*function)(), C* object);
-			static unsigned int GetWorkerCount();
-			static bool Initialize();
-			static void Run();
-			static void SetWorkerCount(unsigned int workerCount);
-			static void Uninitialize();
-			static void WaitForTasks();
+			TaskScheduler(unsigned int workerCount = 0);
+			TaskScheduler(const TaskScheduler&) = delete;
+			TaskScheduler(TaskScheduler&&) = default;
+			~TaskScheduler();
+
+			void AddTask(Task&& task);
+
+			unsigned int GetWorkerCount() const;
+
+			void WaitForTasks();
+
+			TaskScheduler& operator=(const TaskScheduler&) = delete;
+			TaskScheduler& operator=(TaskScheduler&&) = default;
 
 		private:
-			static void AddTaskFunctor(AbstractFunctor* taskFunctor);
+			class Worker;
+			friend Worker;
+
+			Worker& GetWorker(unsigned int workerIndex);
+			void NotifyWorkerActive();
+			void NotifyWorkerIdle();
+
+			std::atomic_bool m_idle;
+			std::atomic_uint m_idleWorkerCount;
+			std::minstd_rand m_randomGenerator;
+			std::vector<Worker> m_workers;
 	};
 }
 

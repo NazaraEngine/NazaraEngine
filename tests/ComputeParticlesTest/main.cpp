@@ -9,7 +9,6 @@
 #include <Nazara/Utility.hpp>
 #include <array>
 #include <chrono>
-#include <execution>
 #include <iostream>
 #include <random>
 #include <thread>
@@ -239,6 +238,8 @@ int main()
 	Nz::Time mouseSampleTimer = Nz::Time::Zero();
 	constexpr Nz::Time mouseSampleRate = Nz::Time::TickDuration(60);
 
+	Nz::TaskScheduler taskScheduler;
+
 	auto& eventHandler = window.GetEventHandler();
 	eventHandler.OnKeyReleased.Connect([&](const Nz::WindowEventHandler*, const Nz::WindowEvent::KeyEvent& key)
 	{
@@ -259,19 +260,25 @@ int main()
 		Nz::SparsePtr<Nz::Vector2f> particlePosPtr(particleBasePtr + particlePosOffset, particleSize);
 		Nz::SparsePtr<Nz::Vector2f> particleVelPtr(particleBasePtr + particleVelOffset, particleSize);
 
-#ifndef NAZARA_PLATFORM_MACOS
-		std::for_each_n(std::execution::par_unseq, particleBasePtr, particleCount, [&](Nz::UInt8& hax)
-#else
-		std::for_each_n(particleBasePtr, particleCount, [&](Nz::UInt8& hax)
-#endif
+		unsigned int workerCount = taskScheduler.GetWorkerCount();
+		std::size_t particlePerWorker = particleCount / workerCount;
+		std::size_t leftover = particleCount - particlePerWorker * workerCount;
+
+		for (unsigned int i = 0; i < workerCount; ++i)
 		{
-			static thread_local std::mt19937 rand_mt(std::random_device{}());
+			taskScheduler.AddTask([&, offset = i * particlePerWorker, count = (i != workerCount - 1) ? particlePerWorker : particlePerWorker + leftover]
+			{
+				static thread_local std::mt19937 rand_mt(std::random_device{}());
 
-			std::size_t index = &hax - particleBasePtr; //< HAAX
-
-			particleVelPtr[index] += (particlePosPtr[index] - newMousePos).GetNormal() * 500.f;
-			particleVelPtr[index] += Nz::Vector2f(velDis(rand_mt), velDis(rand_mt));
-		});
+				for (std::size_t i = 0; i < count; ++i)
+				{
+					std::size_t index = offset + i;
+					particleVelPtr[index] += (particlePosPtr[index] - newMousePos).GetNormal() * 500.f;
+					particleVelPtr[index] += Nz::Vector2f(velDis(rand_mt), velDis(rand_mt));
+				}
+			});
+		}
+		taskScheduler.WaitForTasks();
 
 		particleBuffer->Unmap();
 	});

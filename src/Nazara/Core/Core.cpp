@@ -33,7 +33,6 @@ namespace Nz
 	{
 		m_hardwareInfo.reset();
 
-		TaskScheduler::Uninitialize();
 		LogUninit();
 		Log::Uninitialize();
 	}

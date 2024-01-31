@@ -4,140 +4,220 @@
 
 #include <Nazara/Core/TaskScheduler.hpp>
 #include <Nazara/Core/Core.hpp>
-#include <Nazara/Core/Error.hpp>
-
-#if defined(NAZARA_PLATFORM_WINDOWS)
-	#include <Nazara/Core/Win32/TaskSchedulerImpl.hpp>
-#elif defined(NAZARA_PLATFORM_POSIX)
-	#include <Nazara/Core/Posix/TaskSchedulerImpl.hpp>
-#else
-	#error Lack of implementation: Task Scheduler
-#endif
-
+#include <Nazara/Core/ThreadExt.hpp>
+#include <NazaraUtils/StackArray.hpp>
+#include <condition_variable>
+#include <mutex>
+#include <random>
+#include <stop_token>
+#include <thread>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {
-	namespace
+	NAZARA_WARNING_PUSH()
+	NAZARA_WARNING_MSVC_DISABLE(4324)
+
+	class alignas(std::hardware_destructive_interference_size) TaskScheduler::Worker
 	{
-		std::vector<AbstractFunctor*> s_pendingWorks;
-		unsigned int s_workerCount = 0;
+		public:
+			Worker(TaskScheduler& owner, unsigned int workerIndex) :
+			m_owner(owner),
+			m_workerIndex(workerIndex)
+			{
+				m_thread = std::jthread([this](std::stop_token stopToken)
+				{
+					SetCurrentThreadName(fmt::format("NzWorker #{0}", m_workerIndex).c_str());
+					Run(stopToken);
+				});
+			}
+
+			Worker(const Worker&) = delete;
+
+			Worker(Worker&& worker) :
+			m_owner(worker.m_owner)
+			{
+				NAZARA_UNREACHABLE();
+			}
+
+			bool AddTask(Task&& task)
+			{
+				std::unique_lock lock(m_mutex, std::defer_lock);
+				if (!lock.try_lock())
+					return false;
+
+				m_tasks.push_back(std::move(task));
+				lock.unlock();
+
+				m_conditionVariable.notify_one();
+				return true;
+			}
+
+			void Run(std::stop_token& stopToken)
+			{
+				StackArray<unsigned int> randomWorkerIndices = NazaraStackArrayNoInit(unsigned int, m_owner.GetWorkerCount() - 1);
+				{
+					unsigned int* indexPtr = randomWorkerIndices.data();
+					for (unsigned int i = 0; i < randomWorkerIndices.size(); ++i)
+					{
+						if (i != m_workerIndex)
+							*indexPtr++ = i;
+					}
+
+					std::minstd_rand gen(std::random_device{}());
+					std::shuffle(randomWorkerIndices.begin(), randomWorkerIndices.end(), gen);
+				}
+
+				bool idle = true;
+				for (;;)
+				{
+					std::unique_lock lock(m_mutex);
+
+					// Wait for tasks if we don't have any right now
+					if (m_tasks.empty())
+					{
+						if (!idle)
+						{
+							m_owner.NotifyWorkerIdle();
+							idle = true;
+						}
+
+						m_conditionVariable.wait(m_mutex, stopToken, [this] { return !m_tasks.empty(); });
+					}
+
+					if (stopToken.stop_requested())
+						break;
+
+					auto ExecuteTask = [&](TaskScheduler::Task& task)
+					{
+						if (idle)
+						{
+							m_owner.NotifyWorkerActive();
+							idle = false;
+						}
+
+						task();
+					};
+
+					if (!m_tasks.empty())
+					{
+						TaskScheduler::Task task = std::move(m_tasks.front());
+						m_tasks.erase(m_tasks.begin());
+
+						lock.unlock();
+
+						ExecuteTask(task);
+					}
+					else
+					{
+						lock.unlock();
+
+						// Try to steal a task from another worker in a random order to avoid lock contention
+						TaskScheduler::Task task;
+						for (unsigned int workerIndex : randomWorkerIndices)
+						{
+							if (m_owner.GetWorker(workerIndex).StealTask(&task))
+							{
+								ExecuteTask(task);
+								break;
+							}
+						}
+					}
+
+					// Note: it's possible for a thread to reach this point without executing a task (for example if another worker stole its only remaining task)
+				}
+			}
+
+			bool StealTask(TaskScheduler::Task* task)
+			{
+				std::unique_lock lock(m_mutex, std::defer_lock);
+				if (!lock.try_lock())
+					return false;
+
+				if (m_tasks.empty())
+					return false;
+
+				*task = std::move(m_tasks.front());
+				m_tasks.erase(m_tasks.begin());
+				return true;
+			}
+
+			Worker& operator=(const Worker& worker) = delete;
+
+			Worker& operator=(Worker&&)
+			{
+				NAZARA_UNREACHABLE();
+			}
+
+		private:
+			std::condition_variable_any m_conditionVariable;
+			std::mutex m_mutex;
+			std::jthread m_thread;
+			std::vector<TaskScheduler::Task> m_tasks;
+			TaskScheduler& m_owner;
+			unsigned int m_workerIndex;
+	};
+
+	NAZARA_WARNING_POP()
+
+	TaskScheduler::TaskScheduler(unsigned int workerCount) :
+	m_idle(true),
+	m_randomGenerator(std::random_device{}())
+	{
+		if (workerCount == 0)
+			workerCount = std::max(Core::Instance()->GetHardwareInfo().GetCpuThreadCount(), 1u);
+
+		m_idleWorkerCount = workerCount;
+
+		m_workers.reserve(workerCount);
+		for (unsigned int i = 0; i < workerCount; ++i)
+			m_workers.emplace_back(*this, i);
 	}
 
-	/*!
-	* \ingroup core
-	* \class Nz::TaskScheduler
-	* \brief Core class that represents a pool of threads
-	*
-	* \remark Initialized should be called first
-	*/
-
-	/*!
-	* \brief Gets the number of threads
-	* \return Number of threads, if none, the number of logical threads on the processor is returned
-	*/
-
-	unsigned int TaskScheduler::GetWorkerCount()
+	TaskScheduler::~TaskScheduler()
 	{
-		return (s_workerCount > 0) ? s_workerCount : Core::Instance()->GetHardwareInfo().GetCpuThreadCount();
+		m_workers.clear();
 	}
 
-	/*!
-	* \brief Initializes the TaskScheduler class
-	* \return true if everything is ok
-	*/
-
-	bool TaskScheduler::Initialize()
+	void TaskScheduler::AddTask(Task&& task)
 	{
-		return TaskSchedulerImpl::Initialize(GetWorkerCount());
-	}
+		m_idle = false;
 
-	/*!
-	* \brief Runs the pending works
-	*
-	* \remark Produce a NazaraError if the class is not initialized
-	*/
-
-	void TaskScheduler::Run()
-	{
-		if (!Initialize())
+		std::uniform_int_distribution<unsigned int> workerDis(0, static_cast<unsigned int>(m_workers.size() - 1));
+		for (;;)
 		{
-			NazaraError("failed to initialize Task Scheduler");
-			return;
-		}
-
-		if (!s_pendingWorks.empty())
-		{
-			TaskSchedulerImpl::Run(&s_pendingWorks[0], s_pendingWorks.size());
-			s_pendingWorks.clear();
+			Worker& randomWorker = m_workers[workerDis(m_randomGenerator)];
+			if (randomWorker.AddTask(std::move(task)))
+				break;
 		}
 	}
 
-	/*!
-	* \brief Sets the number of workers
-	*
-	* \param workerCount Number of simulatnous threads handling the tasks
-	*
-	* \remark Produce a NazaraError if the class is not initialized and NAZARA_CORE_SAFE is defined
-	*/
-
-	void TaskScheduler::SetWorkerCount(unsigned int workerCount)
+	unsigned int TaskScheduler::GetWorkerCount() const
 	{
-		#ifdef NAZARA_CORE_SAFE
-		if (TaskSchedulerImpl::IsInitialized())
-		{
-			NazaraError("worker count cannot be set while initialized");
-			return;
-		}
-		#endif
-
-		s_workerCount = workerCount;
+		return static_cast<unsigned int>(m_workers.size());
 	}
-
-	/*!
-	* \brief Uninitializes the TaskScheduler class
-	*/
-
-	void TaskScheduler::Uninitialize()
-	{
-		if (TaskSchedulerImpl::IsInitialized())
-			TaskSchedulerImpl::Uninitialize();
-	}
-
-	/*!
-	* \brief Waits for tasks to be done
-	*
-	* \remark Produce a NazaraError if the class is not initialized
-	*/
 
 	void TaskScheduler::WaitForTasks()
 	{
-		if (!Initialize())
-		{
-			NazaraError("failed to initialize Task Scheduler");
-			return;
-		}
-
-		TaskSchedulerImpl::WaitForTasks();
+		m_idle.wait(false);
 	}
 
-	/*!
-	* \brief Adds a task on the pending list
-	*
-	* \param taskFunctor Functor represeting a task to be done
-	*
-	* \remark Produce a NazaraError if the class is not initialized
-	* \remark A task containing a call on this class is undefined behaviour
-	*/
-
-	void TaskScheduler::AddTaskFunctor(AbstractFunctor* taskFunctor)
+	auto TaskScheduler::GetWorker(unsigned int workerIndex) -> Worker&
 	{
-		if (!Initialize())
-		{
-			NazaraError("failed to initialize Task Scheduler");
-			return;
-		}
+		return m_workers[workerIndex];
+	}
 
-		s_pendingWorks.push_back(taskFunctor);
+	void TaskScheduler::NotifyWorkerActive()
+	{
+		m_idleWorkerCount--;
+	}
+
+	void TaskScheduler::NotifyWorkerIdle()
+	{
+		if (++m_idleWorkerCount == m_workers.size())
+		{
+			m_idle = true;
+			m_idle.notify_one();
+		}
 	}
 }
