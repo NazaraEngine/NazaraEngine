@@ -18,14 +18,16 @@ namespace Nz
 	NAZARA_WARNING_PUSH()
 	NAZARA_WARNING_MSVC_DISABLE(4324)
 
+	namespace NAZARA_ANONYMOUS_NAMESPACE
+	{
 #ifdef __cpp_lib_hardware_interference_size
-	using std::hardware_destructive_interference_size;
+		using std::hardware_destructive_interference_size;
 #else
-	constexpr std::size_t hardware_destructive_interference_size = 64;
+		constexpr std::size_t hardware_destructive_interference_size = 64;
 #endif
+	}
 
-
-	class alignas(hardware_destructive_interference_size) TaskScheduler::Worker
+	class alignas(NAZARA_ANONYMOUS_NAMESPACE_PREFIX(hardware_destructive_interference_size)) TaskScheduler::Worker
 	{
 		public:
 			Worker(TaskScheduler& owner, unsigned int workerIndex) :
@@ -179,7 +181,7 @@ namespace Nz
 
 	TaskScheduler::TaskScheduler(unsigned int workerCount) :
 	m_idle(true),
-	m_randomGenerator(std::random_device{}())
+	m_nextWorkerIndex(0)
 	{
 		if (workerCount == 0)
 			workerCount = std::max(Core::Instance()->GetHardwareInfo().GetCpuThreadCount(), 1u);
@@ -200,12 +202,14 @@ namespace Nz
 	{
 		m_idle = false;
 
-		std::uniform_int_distribution<unsigned int> workerDis(0, static_cast<unsigned int>(m_workers.size() - 1));
 		for (;;)
 		{
-			Worker& randomWorker = m_workers[workerDis(m_randomGenerator)];
+			Worker& randomWorker = m_workers[m_nextWorkerIndex];
 			if (randomWorker.AddTask(std::move(task)))
 				break;
+
+			if (++m_nextWorkerIndex >= m_workers.size())
+				m_nextWorkerIndex = 0;
 		}
 	}
 

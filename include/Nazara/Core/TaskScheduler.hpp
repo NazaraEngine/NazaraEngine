@@ -12,7 +12,6 @@
 #include <atomic>
 #include <functional>
 #include <memory>
-#include <random>
 
 namespace Nz
 {
@@ -45,7 +44,7 @@ namespace Nz
 
 			std::atomic_bool m_idle;
 			std::atomic_uint m_idleWorkerCount;
-			std::minstd_rand m_randomGenerator;
+			std::size_t m_nextWorkerIndex;
 			std::vector<Worker> m_workers;
 	};
 }
