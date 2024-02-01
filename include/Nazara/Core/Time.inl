@@ -212,22 +212,6 @@ namespace Nz
 		return lhs.m_nanoseconds >= rhs.m_nanoseconds;
 	}
 
-	inline std::ostream& operator<<(std::ostream& out, Time time)
-	{
-		if (time > Time::Second())
-			return out << time.AsSeconds<double>() << "s";
-		else
-		{
-			Int64 ns = time.AsNanoseconds();
-			if (time > Time::Millisecond())
-				return out << ns / 1'000'000.0 << "ms";
-			else if (time > Time::Microsecond())
-				return out << ns / 1'000.0 << "us";
-			else
-				return out << ns << "ns";
-		}
-	}
-
 	inline bool Serialize(SerializationContext& context, Time time, TypeTag<Time>)
 	{
 		if (!Serialize(context, time.m_nanoseconds))

@@ -11,7 +11,7 @@
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <chrono>
-#include <ostream>
+#include <iosfwd>
 #include <type_traits>
 
 namespace Nz
@@ -73,7 +73,7 @@ namespace Nz
 			friend constexpr bool operator>(Time lhs, Time rhs);
 			friend constexpr bool operator>=(Time lhs, Time rhs);
 
-			friend inline std::ostream& operator<<(std::ostream& out, Time time);
+			friend NAZARA_CORE_API std::ostream& operator<<(std::ostream& out, Time time);
 
 			friend inline bool Serialize(SerializationContext& context, Time time, TypeTag<Time>);
 			friend inline bool Unserialize(SerializationContext& context, Time* time, TypeTag<Time>);

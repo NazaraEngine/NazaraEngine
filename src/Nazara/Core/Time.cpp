@@ -3,6 +3,8 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Time.hpp>
+#include <cstdlib>
+#include <ostream>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 	#include <Nazara/Core/Win32/TimeImpl.hpp>
@@ -29,6 +31,21 @@ namespace Nz
 
 			return GetElapsedNanoseconds();
 		}
+	}
+
+	std::ostream& operator<<(std::ostream& out, Time time)
+	{
+		Int64 ns = time.AsNanoseconds();
+		Int64 nsAbs = std::llabs(ns);
+
+		if (nsAbs > 1'000'000'000)
+			return out << time.AsSeconds<double>() << "s";
+		else if (nsAbs > 1'000'000)
+			return out << ns / 1'000'000.0 << "ms";
+		else if (nsAbs > 1'000)
+			return out << ns / 1'000.0 << "us";
+		else
+			return out << ns << "ns";
 	}
 
 	GetElapsedTimeFunction GetElapsedMilliseconds = PlatformImpl::GetElapsedMillisecondsImpl;
