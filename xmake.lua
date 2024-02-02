@@ -251,6 +251,7 @@ for opt, policy in table.orderpairs(sanitizers) do
 	option(opt, { description = "Enable " .. opt, default = false })
 
 	if has_config(opt) then
+		add_defines("NAZARA_WITH_" .. opt:upper())
 		set_policy("build.sanitizer." .. policy, true)
 	end
 end

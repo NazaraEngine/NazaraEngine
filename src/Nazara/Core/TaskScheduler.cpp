@@ -11,6 +11,11 @@
 #include <random>
 #include <semaphore>
 #include <thread>
+
+#ifdef NAZARA_WITH_TSAN
+#include <sanitizer/tsan_interface.h>
+#endif
+
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -89,12 +94,13 @@ namespace Nz
 				{
 					// FIXME: We can't use pop() because push() and pop() are not thread-safe (and push is called on another thread), but steal() is
 					// is it an issue?
-					std::optional<TaskScheduler::Task*> task = m_tasks.steal();
+					TaskScheduler::Task* task = m_tasks.steal();
 					if (!task)
 					{
 						for (unsigned int workerIndex : randomWorkerIndices)
 						{
-							if (task = m_owner.GetWorker(workerIndex).StealTask())
+							task = m_owner.GetWorker(workerIndex).StealTask();
+							if (task)
 								break;
 						}
 					}
@@ -107,8 +113,12 @@ namespace Nz
 							idle = false;
 						}
 
-						NAZARA_ASSUME(*task != nullptr);
-						(**task)();
+#ifdef NAZARA_WITH_TSAN
+						// Workaround for TSan false-positive
+						__tsan_acquire(taskPtr);
+#endif
+
+						(*task)();
 					}
 					else
 					{
@@ -126,7 +136,7 @@ namespace Nz
 				while (m_running.load(std::memory_order_relaxed));
 			}
 
-			std::optional<TaskScheduler::Task*> StealTask()
+			TaskScheduler::Task* StealTask()
 			{
 				return m_tasks.steal();
 			}
@@ -149,7 +159,7 @@ namespace Nz
 			std::atomic_bool m_running;
 			std::atomic_flag m_notifier;
 			std::thread m_thread; //< std::jthread is not yet widely implemented
-			WorkStealingQueue<TaskScheduler::Task*> m_tasks;
+			WorkStealingQueue<TaskScheduler::Task*, TaskScheduler::Task*> m_tasks;
 			TaskScheduler& m_owner;
 			unsigned int m_workerIndex;
 	};
@@ -188,6 +198,11 @@ namespace Nz
 
 		std::size_t taskIndex; //< not used
 		Task* taskPtr = m_tasks.Allocate(taskIndex, std::move(task));
+
+#ifdef NAZARA_WITH_TSAN
+		// Workaround for TSan false-positive
+		__tsan_release(taskPtr);
+#endif
 
 		Worker& worker = m_workers[m_nextWorkerIndex++];
 		worker.AddTask(taskPtr);
