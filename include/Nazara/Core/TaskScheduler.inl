@@ -6,6 +6,10 @@
 
 namespace Nz
 {
+	inline unsigned int TaskScheduler::GetWorkerCount() const
+	{
+		return m_workerCount;
+	}
 }
 
 #include <Nazara/Core/DebugOff.hpp>

@@ -8,6 +8,7 @@
 #define NAZARA_CORE_TASKSCHEDULER_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <NazaraUtils/MemoryPool.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <atomic>
 #include <functional>
@@ -27,7 +28,7 @@ namespace Nz
 
 			void AddTask(Task&& task);
 
-			unsigned int GetWorkerCount() const;
+			inline unsigned int GetWorkerCount() const;
 
 			void WaitForTasks();
 
@@ -46,6 +47,8 @@ namespace Nz
 			std::atomic_uint m_idleWorkerCount;
 			std::size_t m_nextWorkerIndex;
 			std::vector<Worker> m_workers;
+			MemoryPool<Task> m_tasks;
+			unsigned int m_workerCount;
 	};
 }
 
