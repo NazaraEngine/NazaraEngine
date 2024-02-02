@@ -47,7 +47,10 @@ SCENARIO("Time", "[CORE][Time]")
 		CHECK(time <= Nz::Time::Seconds(2));
 
 		CHECK(ToString(time) == "1.23457s");
+		CHECK(ToString(-time) == "-1.23457s");
 		CHECK(ToString(time - Nz::Time::Second()) == "234.567ms");
+		CHECK(ToString(Nz::Time::Second() - time) == "-234.567ms");
 		CHECK(ToString(time - Nz::Time::Seconds(1.234f)) == "567us");
+		CHECK(ToString(Nz::Time::Seconds(1.234f) - time) == "-567us");
 	}
 }
