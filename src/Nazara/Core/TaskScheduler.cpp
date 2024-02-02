@@ -62,14 +62,13 @@ namespace Nz
 			void AddTask(TaskScheduler::Task* task)
 			{
 				m_tasks.push(task);
-				if (!m_notifier.test_and_set())
-					m_notifier.notify_one();
+				WakeUp();
 			}
 
 			void Run()
 			{
-				bool idle = true;
-				m_notifier.wait(false); // wait until task scheduler finishes initializing
+				// Wait until task scheduler started
+				m_notifier.wait(false);
 
 				StackArray<unsigned int> randomWorkerIndices = NazaraStackArrayNoInit(unsigned int, m_owner.GetWorkerCount() - 1);
 				{
@@ -84,9 +83,23 @@ namespace Nz
 					std::shuffle(randomWorkerIndices.begin(), randomWorkerIndices.end(), gen);
 				}
 
+				bool idle = false;
 				do
 				{
-					auto ExecuteTask = [&](TaskScheduler::Task* task)
+					// Wait for tasks if we don't have any right now
+					// FIXME: We can't use pop() because push() and pop() are not thread-safe (and push is called on another thread), but steal() is
+					// is it an issue?
+					std::optional<TaskScheduler::Task*> task = m_tasks.steal();
+					if (!task)
+					{
+						for (unsigned int workerIndex : randomWorkerIndices)
+						{
+							if (task = m_owner.GetWorker(workerIndex).StealTask())
+								break;
+						}
+					}
+
+					if (task)
 					{
 						if (idle)
 						{
@@ -94,44 +107,33 @@ namespace Nz
 							idle = false;
 						}
 
-						(*task)();
-					};
-
-					// Wait for tasks if we don't have any right now
-					std::optional<TaskScheduler::Task*> task = m_tasks.pop();
-					if (task)
-						ExecuteTask(*task);
+						NAZARA_ASSUME(*task != nullptr);
+						(**task)();
+					}
 					else
 					{
-						// Try to steal a task from another worker in a random order to avoid contention
-						for (unsigned int workerIndex : randomWorkerIndices)
+						if (!idle)
 						{
-							if (task = m_owner.GetWorker(workerIndex).StealTask())
-							{
-								ExecuteTask(*task);
-								break;
-							}
+							m_owner.NotifyWorkerIdle();
+							idle = true;
 						}
 
-						if (!task)
-						{
-							if (!idle)
-							{
-								m_owner.NotifyWorkerIdle();
-								idle = true;
-							}
-
-							m_notifier.wait(false);
-							m_notifier.clear();
-						}
+						m_notifier.wait(false);
+						m_notifier.clear();
 					}
 				}
-				while (m_running);
+				while (m_running.load(std::memory_order_relaxed));
 			}
 
 			std::optional<TaskScheduler::Task*> StealTask()
 			{
 				return m_tasks.steal();
+			}
+
+			void WakeUp()
+			{
+				if (!m_notifier.test_and_set())
+					m_notifier.notify_one();
 			}
 
 			Worker& operator=(const Worker& worker) = delete;
@@ -153,7 +155,7 @@ namespace Nz
 	NAZARA_WARNING_POP()
 
 	TaskScheduler::TaskScheduler(unsigned int workerCount) :
-	m_idle(true),
+	m_idle(false),
 	m_nextWorkerIndex(0),
 	m_tasks(256 * sizeof(Task)),
 	m_workerCount(workerCount)
@@ -161,11 +163,17 @@ namespace Nz
 		if (m_workerCount == 0)
 			m_workerCount = std::max(Core::Instance()->GetHardwareInfo().GetCpuThreadCount(), 1u);
 
-		m_idleWorkerCount = m_workerCount;
+		m_idleWorkerCount = 0;
 
 		m_workers.reserve(m_workerCount);
 		for (unsigned int i = 0; i < m_workerCount; ++i)
 			m_workers.emplace_back(*this, i);
+
+		for (unsigned int i = 0; i < m_workerCount; ++i)
+			m_workers[i].WakeUp();
+
+		// Wait until all worked started
+		WaitForTasks();
 	}
 
 	TaskScheduler::~TaskScheduler()
