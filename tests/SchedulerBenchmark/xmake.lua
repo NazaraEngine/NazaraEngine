@@ -1,0 +1,5 @@
+target("SchedulerBenchmark")
+	add_deps("NazaraCore", "NazaraUtility")
+	add_files("main.cpp")
+	add_headerfiles("task.hpp")
+	add_files("task.cpp")
