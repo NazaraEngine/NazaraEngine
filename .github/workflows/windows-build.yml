@@ -23,6 +23,7 @@ jobs:
         os: [windows-latest]
         arch: [x64]
         mode: [debug, releasedbg]
+        kind: [shared, static]
 
     runs-on: ${{ matrix.os }}
     if: ${{ !contains(github.event.head_commit.message, 'ci skip') }}
@@ -66,7 +67,7 @@ jobs:
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
-      run: xmake config --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --ccache=n --ffmpeg=y --shadernodes=y --tests=y --unitybuild=y --yes
+      run: xmake config --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --static=${{ matrix.kind == 'static' && 'yes' || 'no' }} --ccache=n --ffmpeg=y --shadernodes=y --tests=y --unitybuild=y --yes
 
     # Save dependencies
     - name: Save cached xmake dependencies
@@ -102,7 +103,7 @@ jobs:
 
     # Setup installation configuration
     - name: Configure xmake for installation
-      run: xmake config --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --ccache=n --ffmpeg=n --shadernodes=y --tests=y --yes
+      run: xmake config --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --static=${{ matrix.kind == 'static' && 'yes' || 'no' }} --ccache=n --ffmpeg=n --shadernodes=y --tests=y --yes
 
     # Install the result files
     - name: Install Nazara
@@ -111,7 +112,7 @@ jobs:
 
     - name: "Set PACKAGE_NAME variable"
       if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' }}
-      run: echo "PACKAGE_NAME=Windows_${{ matrix.arch }}_${{ matrix.mode }}.zip" >> $GITHUB_ENV
+      run: echo "PACKAGE_NAME=windows_${{ matrix.arch }}_${{ matrix.mode }}_${{ matrix.kind }}.zip" >> $GITHUB_ENV
       shell: bash
 
     - name: Archive result

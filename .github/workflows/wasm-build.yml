@@ -108,7 +108,7 @@ jobs:
 
     - name: "Set PACKAGE_NAME variable"
       if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' }}
-      run: echo "PACKAGE_NAME=Web_${{ matrix.arch }}_${{ matrix.mode }}.tar.gz" >> $GITHUB_ENV
+      run: echo "PACKAGE_NAME=emscripten_${{ matrix.arch }}_${{ matrix.mode }}_static.tar.gz" >> $GITHUB_ENV
       shell: bash
 
     - name: Archive result

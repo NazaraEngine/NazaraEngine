@@ -23,6 +23,7 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         arch: [x86_64]
+        kind: [shared, static]
         confs:
         - { mode: debug, archive: yes }
         - { mode: debug, config: --asan=y, archive: false }
@@ -77,7 +78,7 @@ jobs:
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
-      run: xmake config --arch=${{ matrix.arch }} --mode=${{ matrix.confs.mode }} ${{ matrix.confs.config }} --ccache=n --ffmpeg=y --shadernodes=y --tests=y --unitybuild=y --yes
+      run: xmake config --arch=${{ matrix.arch }} --mode=${{ matrix.confs.mode }} --static=${{ matrix.kind == 'static' && 'yes' || 'no' }} ${{ matrix.confs.config }} --ccache=n --ffmpeg=y --shadernodes=y --tests=y --unitybuild=y --yes
 
     # Save dependencies
     - name: Save cached xmake dependencies
@@ -114,7 +115,7 @@ jobs:
     # Setup installation configuration
     - name: Configure xmake for installation
       if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' && matrix.confs.archive }}
-      run: xmake config --arch=${{ matrix.arch }} --mode=${{ matrix.confs.mode }} ${{ matrix.confs.config }} --ccache=n --ffmpeg=n --shadernodes=y --tests=y --yes
+      run: xmake config --arch=${{ matrix.arch }} --mode=${{ matrix.confs.mode }} --static=${{ matrix.kind == 'static' && 'yes' || 'no' }} ${{ matrix.confs.config }} --ccache=n --ffmpeg=n --shadernodes=y --tests=y --yes
 
     # Install the result files
     - name: Install Nazara
@@ -123,7 +124,7 @@ jobs:
 
     - name: "Set PACKAGE_NAME variable"
       if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' && matrix.confs.archive }}
-      run: echo "PACKAGE_NAME=Linux_${{ matrix.arch }}_${{ matrix.confs.mode }}.tar.gz" >> $GITHUB_ENV
+      run: echo "PACKAGE_NAME=linux_${{ matrix.arch }}_${{ matrix.confs.mode }}_${{ matrix.kind }}.tar.gz" >> $GITHUB_ENV
       shell: bash
 
     - name: Archive result
