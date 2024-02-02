@@ -70,7 +70,7 @@ namespace Nz
 		};
 	}
 
-	class alignas(NAZARA_ANONYMOUS_NAMESPACE_PREFIX(hardware_destructive_interference_size)) TaskScheduler::Worker
+	class alignas(NAZARA_ANONYMOUS_NAMESPACE_PREFIX(hardware_destructive_interference_size * 2)) TaskScheduler::Worker
 	{
 		public:
 			Worker(TaskScheduler& owner, unsigned int workerIndex) :
