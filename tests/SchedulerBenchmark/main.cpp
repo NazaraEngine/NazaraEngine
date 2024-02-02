@@ -82,7 +82,7 @@ int main()
 
 	for (auto&& [offset, dims] : boxes)
 	{
-		taskScheduler.AddTask([&, offset, dims]
+		taskScheduler.AddTask([&, offset = offset, dims = dims]
 		{
 			thread_local std::size_t threadId = ++threadCounter;
 

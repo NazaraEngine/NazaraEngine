@@ -44,6 +44,7 @@ namespace Nz
 
 			Worker(const Worker&) = delete;
 
+			// "Implement" movement to make the compiler happy
 			Worker(Worker&& worker) :
 			m_owner(worker.m_owner)
 			{
@@ -86,7 +87,6 @@ namespace Nz
 				bool idle = false;
 				do
 				{
-					// Wait for tasks if we don't have any right now
 					// FIXME: We can't use pop() because push() and pop() are not thread-safe (and push is called on another thread), but steal() is
 					// is it an issue?
 					std::optional<TaskScheduler::Task*> task = m_tasks.steal();
@@ -112,6 +112,7 @@ namespace Nz
 					}
 					else
 					{
+						// Wait for tasks if we don't have any right now
 						if (!idle)
 						{
 							m_owner.NotifyWorkerIdle();
@@ -138,6 +139,7 @@ namespace Nz
 
 			Worker& operator=(const Worker& worker) = delete;
 
+			// "Implement" movement to make the compiler happy
 			Worker& operator=(Worker&&)
 			{
 				NAZARA_UNREACHABLE();
@@ -146,7 +148,7 @@ namespace Nz
 		private:
 			std::atomic_bool m_running;
 			std::atomic_flag m_notifier;
-			std::thread m_thread;
+			std::thread m_thread; //< std::jthread is not yet widely implemented
 			WorkStealingQueue<TaskScheduler::Task*> m_tasks;
 			TaskScheduler& m_owner;
 			unsigned int m_workerIndex;
@@ -156,14 +158,13 @@ namespace Nz
 
 	TaskScheduler::TaskScheduler(unsigned int workerCount) :
 	m_idle(false),
+	m_idleWorkerCount(0),
 	m_nextWorkerIndex(0),
 	m_tasks(256 * sizeof(Task)),
 	m_workerCount(workerCount)
 	{
 		if (m_workerCount == 0)
 			m_workerCount = std::max(Core::Instance()->GetHardwareInfo().GetCpuThreadCount(), 1u);
-
-		m_idleWorkerCount = 0;
 
 		m_workers.reserve(m_workerCount);
 		for (unsigned int i = 0; i < m_workerCount; ++i)
@@ -173,7 +174,7 @@ namespace Nz
 			m_workers[i].WakeUp();
 
 		// Wait until all worked started
-		WaitForTasks();
+		m_idle.wait(false);
 	}
 
 	TaskScheduler::~TaskScheduler()
@@ -186,9 +187,10 @@ namespace Nz
 		m_idle = false;
 
 		std::size_t taskIndex; //< not used
+		Task* taskPtr = m_tasks.Allocate(taskIndex, std::move(task));
 
 		Worker& worker = m_workers[m_nextWorkerIndex++];
-		worker.AddTask(m_tasks.Allocate(taskIndex, std::move(task)));
+		worker.AddTask(taskPtr);
 
 		if (m_nextWorkerIndex >= m_workers.size())
 			m_nextWorkerIndex = 0;

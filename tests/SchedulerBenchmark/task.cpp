@@ -37,8 +37,8 @@ Nz::Color RayColor(const SceneData& sceneData, const Nz::Rayd& r)
 	else
 	{
 		Nz::Vector3d unitDirection = Nz::Vector3d::Normalize(r.direction);
-		double a = 0.5 * (unitDirection.y + 1.0);
-		return (1.0 - a) * Nz::Color(1.0, 1.0, 1.0) + a * Nz::Color(0.5, 0.7, 1.0);
+		float a = static_cast<float>(0.5 * (unitDirection.y + 1.0));
+		return (1.f - a) * Nz::Color(1.0, 1.0, 1.0) + a * Nz::Color(0.5, 0.7, 1.0);
 	}
 }
 
