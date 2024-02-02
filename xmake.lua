@@ -186,6 +186,14 @@ local modules = {
 				add_defines("NAZARA_RENDERER_EMBEDDEDBACKENDS")
 				for name, module in table.orderpairs(rendererBackends) do
 					if not module.Option or has_config(module.Option) then
+						if module.Deps then
+							module = table.clone(module, 1) -- shallow clone
+							module.Deps = table.remove_if(table.clone(module.Deps), function (idx, dep) return dep == "NazaraRenderer" end)
+							if #module.Deps == 0 then 
+								module.Deps = nil 
+							end
+						end
+
 						ModuleTargetConfig(name, module)
 					end
 				end
@@ -519,6 +527,20 @@ function ModuleTargetConfig(name, module)
 		remove_files("src/Nazara/" .. name .. "/Posix/**")
 	end
 
+	if module.Deps then
+		add_deps(table.unpack(module.Deps))
+	end
+
+	if module.Packages then
+		add_packages(table.unpack(module.Packages))
+	end
+
+	if module.PublicPackages then
+		for _, pkg in ipairs(module.PublicPackages) do
+			add_packages(pkg, { public = true })
+		end
+	end
+
 	if module.Custom then
 		module.Custom()
 	end
@@ -544,20 +566,6 @@ for name, module in pairs(modules) do
 		add_includedirs("src")
 		add_packages("fmt")	-- fmt is a special package that is not public but required by all Nazara modules
 		add_rpathdirs("$ORIGIN")
-
-		if module.Deps then
-			add_deps(table.unpack(module.Deps))
-		end
-
-		if module.Packages then
-			add_packages(table.unpack(module.Packages))
-		end
-
-		if module.PublicPackages then
-			for _, pkg in ipairs(module.PublicPackages) do
-				add_packages(pkg, { public = true })
-			end
-		end
 
 		if has_config("usepch") then
 			set_pcxxheader("include/Nazara/" .. name .. ".hpp")
