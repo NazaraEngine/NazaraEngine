@@ -7,6 +7,7 @@
 #include <Nazara/Core/ThreadExt.hpp>
 #include <NazaraUtils/StackArray.hpp>
 #include <wsq.hpp>
+#include <mutex>
 #include <new>
 #include <random>
 #include <semaphore>
@@ -30,6 +31,43 @@ namespace Nz
 #else
 		constexpr std::size_t hardware_destructive_interference_size = 64;
 #endif
+
+		class Spinlock
+		{
+			public:
+				Spinlock() = default;
+				Spinlock(const Spinlock&) = delete;
+				Spinlock(Spinlock&&) = delete;
+				~Spinlock() = default;
+
+				void lock()
+				{
+					while (m_flag.test_and_set());
+				}
+
+				bool try_lock(unsigned int maxLockCount = 1)
+				{
+					unsigned int lockCount = 0;
+					while (m_flag.test_and_set())
+					{
+						if (++lockCount >= maxLockCount)
+							return false;
+					}
+
+					return true;
+				}
+
+				void unlock()
+				{
+					m_flag.clear();
+				}
+
+				Spinlock& operator=(const Spinlock&) = delete;
+				Spinlock& operator=(Spinlock&&) = delete;
+
+			private:
+				std::atomic_flag m_flag;
+		};
 	}
 
 	class alignas(NAZARA_ANONYMOUS_NAMESPACE_PREFIX(hardware_destructive_interference_size)) TaskScheduler::Worker
@@ -67,7 +105,10 @@ namespace Nz
 
 			void AddTask(TaskScheduler::Task* task)
 			{
-				m_tasks.push(task);
+				std::unique_lock lock(m_queueSpinlock);
+				{
+					m_tasks.push(task);
+				}
 				WakeUp();
 			}
 
@@ -92,9 +133,13 @@ namespace Nz
 				bool idle = false;
 				do
 				{
-					// FIXME: We can't use pop() because push() and pop() are not thread-safe (and push is called on another thread), but steal() is
-					// is it an issue?
-					TaskScheduler::Task* task = m_tasks.steal();
+					// Get a task
+					TaskScheduler::Task* task;
+					{
+						std::unique_lock lock(m_queueSpinlock);
+						task = m_tasks.pop();
+					}
+
 					if (!task)
 					{
 						for (unsigned int workerIndex : randomWorkerIndices)
@@ -115,10 +160,15 @@ namespace Nz
 
 #ifdef NAZARA_WITH_TSAN
 						// Workaround for TSan false-positive
-						__tsan_acquire(taskPtr);
+						__tsan_acquire(task);
 #endif
 
 						(*task)();
+
+#ifdef NAZARA_WITH_TSAN
+						// Workaround for TSan false-positive
+						__tsan_release(task);
+#endif
 					}
 					else
 					{
@@ -159,6 +209,7 @@ namespace Nz
 			std::atomic_bool m_running;
 			std::atomic_flag m_notifier;
 			std::thread m_thread; //< std::jthread is not yet widely implemented
+			NAZARA_ANONYMOUS_NAMESPACE_PREFIX(Spinlock) m_queueSpinlock;
 			WorkStealingQueue<TaskScheduler::Task*, TaskScheduler::Task*> m_tasks;
 			TaskScheduler& m_owner;
 			unsigned int m_workerIndex;
@@ -214,6 +265,13 @@ namespace Nz
 	void TaskScheduler::WaitForTasks()
 	{
 		m_idle.wait(false);
+
+#ifdef NAZARA_WITH_TSAN
+		// Workaround for TSan false-positive
+		for (Task& task : m_tasks)
+			__tsan_acquire(&task);
+#endif
+
 		m_tasks.Clear();
 	}
 

@@ -35,7 +35,8 @@ SCENARIO("TaskScheduler", "[CORE][TaskScheduler]")
 				}
 				scheduler.WaitForTasks();
 
-				CHECK(count == taskCount);
+				unsigned int c = count.load(); //< load it once before checking to avoid race condition when testing and printing
+				CHECK(c == taskCount);
 
 				for (std::size_t i = 0; i < taskCount; ++i)
 				{
