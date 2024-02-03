@@ -40,11 +40,10 @@ namespace Nz
 			friend Worker;
 
 			Worker& GetWorker(unsigned int workerIndex);
-			void NotifyWorkerActive();
-			void NotifyWorkerIdle();
+			void NotifyTaskCompletion();
 
 			std::atomic_bool m_idle;
-			std::atomic_uint m_idleWorkerCount;
+			std::atomic_uint m_remainingTasks;
 			std::size_t m_nextWorkerIndex;
 			std::vector<Worker> m_workers;
 			MemoryPool<Task> m_tasks;

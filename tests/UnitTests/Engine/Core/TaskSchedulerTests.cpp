@@ -1,14 +1,17 @@
+#include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/TaskScheduler.hpp>
 #include <catch2/catch_test_macros.hpp>
 #include <atomic>
+#include <chrono>
+#include <thread>
 
 SCENARIO("TaskScheduler", "[CORE][TaskScheduler]")
 {
-	for (std::size_t workerCount : { 0, 1, 2, 4 })
+	for (std::size_t workerCount : { 0, 1, 2, 4, 8 })
 	{
 		GIVEN("A task scheduler with " << workerCount << " workers")
 		{
-			Nz::TaskScheduler scheduler(4);
+			Nz::TaskScheduler scheduler(workerCount);
 
 			WHEN("We add a single task and wait for it")
 			{
@@ -17,6 +20,26 @@ SCENARIO("TaskScheduler", "[CORE][TaskScheduler]")
 				scheduler.WaitForTasks();
 
 				CHECK(executed);
+			}
+
+			WHEN("We add time-consuming tasks, they are split between workers")
+			{
+				std::atomic_uint count = 0;
+
+				Nz::HighPrecisionClock clock;
+				for (unsigned int i = 0; i < scheduler.GetWorkerCount(); ++i)
+				{
+					scheduler.AddTask([&]
+					{
+						std::this_thread::sleep_for(std::chrono::milliseconds(100));
+						count++;
+					});
+				}
+				scheduler.WaitForTasks();
+				Nz::Time elapsedTime = clock.GetElapsedTime();
+
+				CHECK(count == scheduler.GetWorkerCount());
+				CHECK(elapsedTime < Nz::Time::Milliseconds(120));
 			}
 
 			WHEN("We add a lot of tasks and wait for all of them")

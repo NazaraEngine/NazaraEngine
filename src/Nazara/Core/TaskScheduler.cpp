@@ -116,6 +116,7 @@ namespace Nz
 			{
 				// Wait until task scheduler started
 				m_notifier.wait(false);
+				m_notifier.clear();
 
 				StackArray<unsigned int> randomWorkerIndices = NazaraStackArrayNoInit(unsigned int, m_owner.GetWorkerCount() - 1);
 				{
@@ -158,20 +159,13 @@ namespace Nz
 
 						(*task)();
 
-#ifdef NAZARA_WITH_TSAN
-						// Workaround for TSan false-positive
-						__tsan_release(task);
-#endif
+						m_owner.NotifyTaskCompletion();
 					}
 					else
 					{
 						// Wait for tasks if we don't have any right now
-						m_owner.NotifyWorkerIdle();
-
 						m_notifier.wait(false);
 						m_notifier.clear();
-
-						m_owner.NotifyWorkerActive();
 					}
 				}
 				while (m_running.load(std::memory_order_relaxed));
@@ -210,7 +204,7 @@ namespace Nz
 
 	TaskScheduler::TaskScheduler(unsigned int workerCount) :
 	m_idle(false),
-	m_idleWorkerCount(0),
+	m_remainingTasks(0),
 	m_nextWorkerIndex(0),
 	m_tasks(256 * sizeof(Task)),
 	m_workerCount(workerCount)
@@ -224,9 +218,6 @@ namespace Nz
 
 		for (unsigned int i = 0; i < m_workerCount; ++i)
 			m_workers[i].WakeUp();
-
-		// Wait until all worked started
-		m_idle.wait(false);
 	}
 
 	TaskScheduler::~TaskScheduler()
@@ -246,6 +237,8 @@ namespace Nz
 		__tsan_release(taskPtr);
 #endif
 
+		m_remainingTasks++;
+
 		Worker& worker = m_workers[m_nextWorkerIndex++];
 		worker.AddTask(taskPtr);
 
@@ -256,13 +249,6 @@ namespace Nz
 	void TaskScheduler::WaitForTasks()
 	{
 		m_idle.wait(false);
-
-#ifdef NAZARA_WITH_TSAN
-		// Workaround for TSan false-positive
-		for (Task& task : m_tasks)
-			__tsan_acquire(&task);
-#endif
-
 		m_tasks.Clear();
 	}
 
@@ -271,14 +257,9 @@ namespace Nz
 		return m_workers[workerIndex];
 	}
 
-	void TaskScheduler::NotifyWorkerActive()
+	void TaskScheduler::NotifyTaskCompletion()
 	{
-		m_idleWorkerCount--;
-	}
-
-	void TaskScheduler::NotifyWorkerIdle()
-	{
-		if (++m_idleWorkerCount == m_workers.size())
+		if (--m_remainingTasks == 0)
 		{
 			m_idle = true;
 			m_idle.notify_one();
