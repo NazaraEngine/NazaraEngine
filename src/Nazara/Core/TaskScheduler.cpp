@@ -130,7 +130,6 @@ namespace Nz
 					std::shuffle(randomWorkerIndices.begin(), randomWorkerIndices.end(), gen);
 				}
 
-				bool idle = false;
 				do
 				{
 					// Get a task
@@ -152,12 +151,6 @@ namespace Nz
 
 					if (task)
 					{
-						if (idle)
-						{
-							m_owner.NotifyWorkerActive();
-							idle = false;
-						}
-
 #ifdef NAZARA_WITH_TSAN
 						// Workaround for TSan false-positive
 						__tsan_acquire(task);
@@ -173,14 +166,12 @@ namespace Nz
 					else
 					{
 						// Wait for tasks if we don't have any right now
-						if (!idle)
-						{
-							m_owner.NotifyWorkerIdle();
-							idle = true;
-						}
+						m_owner.NotifyWorkerIdle();
 
 						m_notifier.wait(false);
 						m_notifier.clear();
+
+						m_owner.NotifyWorkerActive();
 					}
 				}
 				while (m_running.load(std::memory_order_relaxed));
