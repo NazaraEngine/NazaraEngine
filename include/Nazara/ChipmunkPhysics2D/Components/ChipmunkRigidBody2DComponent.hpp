@@ -20,11 +20,11 @@ namespace Nz
 		public:
 			inline ChipmunkRigidBody2DComponent(const ChipmunkRigidBody2D::DynamicSettings& settings);
 			inline ChipmunkRigidBody2DComponent(const ChipmunkRigidBody2D::StaticSettings& settings);
-			ChipmunkRigidBody2DComponent(const ChipmunkRigidBody2DComponent&) = default;
+			ChipmunkRigidBody2DComponent(const ChipmunkRigidBody2DComponent&) = delete;
 			ChipmunkRigidBody2DComponent(ChipmunkRigidBody2DComponent&&) noexcept = default;
 			~ChipmunkRigidBody2DComponent() = default;
 
-			ChipmunkRigidBody2DComponent& operator=(const ChipmunkRigidBody2DComponent&) = default;
+			ChipmunkRigidBody2DComponent& operator=(const ChipmunkRigidBody2DComponent&) = delete;
 			ChipmunkRigidBody2DComponent& operator=(ChipmunkRigidBody2DComponent&&) noexcept = default;
 
 		private:

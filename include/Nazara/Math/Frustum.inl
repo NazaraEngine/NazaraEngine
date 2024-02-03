@@ -53,7 +53,7 @@ namespace Nz
 	{
 		for (auto&& [planeEnum, plane] : m_planes.iter_kv())
 		{
-			if (!plane.ApproxEqual(frustum.GetPlane(planeEnum)))
+			if (!plane.ApproxEqual(frustum.GetPlane(planeEnum), maxDifference))
 				return false;
 		}
 

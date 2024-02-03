@@ -57,7 +57,7 @@ namespace Nz
 			void SetupPost();
 
 			WebRequest& operator=(const WebRequest&) = delete;
-			WebRequest& operator=(WebRequest&&) = default;
+			WebRequest& operator=(WebRequest&&) = delete;
 
 		private:
 			inline bool OnBodyResponse(const char* data, std::size_t length);

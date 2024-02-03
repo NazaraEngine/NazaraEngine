@@ -6,6 +6,9 @@
 
 namespace Nz
 {
+NAZARA_WARNING_PUSH()
+NAZARA_WARNING_CLANG_GCC_DISABLE("-Wmissing-field-initializers")
+
 	// PredefinedDirectionalLightData
 	constexpr PredefinedDirectionalLightData PredefinedDirectionalLightData::Build()
 	{
@@ -125,6 +128,8 @@ namespace Nz
 
 		return viewerData;
 	}
+
+NAZARA_WARNING_POP()
 }
 
 #include <Nazara/Graphics/DebugOff.hpp>
