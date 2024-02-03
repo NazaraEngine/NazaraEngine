@@ -118,7 +118,7 @@ jobs:
 
     - name: "Set PACKAGE_NAME variable"
       if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' }}
-      run: echo "PACKAGE_NAME=${{ matrix.msystem }}_${{ matrix.arch }}_${{ matrix.kind }}_${{ matrix.mode }}.zip" >> $GITHUB_ENV
+      run: echo "PACKAGE_NAME=${{ matrix.msystem }}_${{ matrix.arch }}_${{ matrix.mode }}_${{ matrix.kind }}.zip" >> $GITHUB_ENV
       shell: bash
 
     - name: Archive result
