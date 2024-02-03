@@ -1391,7 +1391,6 @@ namespace Nz
 	{
 		std::random_device device;
 		s_randomGenerator.seed(device());
-		s_randomGenerator64.seed(device());
 
 		return true;
 	}
@@ -1401,5 +1400,4 @@ namespace Nz
 	}
 
 	std::mt19937 ENetHost::s_randomGenerator;
-	std::mt19937_64 ENetHost::s_randomGenerator64;
 }

@@ -169,7 +169,6 @@ namespace Nz
 			bool m_recalculateBandwidthLimits;
 
 			static std::mt19937 s_randomGenerator;
-			static std::mt19937_64 s_randomGenerator64;
 	};
 }
 
