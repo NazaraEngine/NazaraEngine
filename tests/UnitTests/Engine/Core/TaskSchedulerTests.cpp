@@ -39,7 +39,7 @@ SCENARIO("TaskScheduler", "[CORE][TaskScheduler]")
 				Nz::Time elapsedTime = clock.GetElapsedTime();
 
 				CHECK(count == scheduler.GetWorkerCount());
-				CHECK(elapsedTime < Nz::Time::Milliseconds(scheduler.GetWorkerCount() * 100));
+				CHECK(elapsedTime < Nz::Time::Milliseconds(std::max(scheduler.GetWorkerCount(), 2u) * 100));
 			}
 
 			WHEN("We add a lot of tasks and wait for all of them")

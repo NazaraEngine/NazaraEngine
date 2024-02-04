@@ -203,7 +203,6 @@ namespace Nz
 	NAZARA_WARNING_POP()
 
 	TaskScheduler::TaskScheduler(unsigned int workerCount) :
-	m_idle(false),
 	m_remainingTasks(0),
 	m_nextWorkerIndex(0),
 	m_tasks(256 * sizeof(Task)),
@@ -227,8 +226,6 @@ namespace Nz
 
 	void TaskScheduler::AddTask(Task&& task)
 	{
-		m_idle = false;
-
 		std::size_t taskIndex; //< not used
 		Task* taskPtr = m_tasks.Allocate(taskIndex, std::move(task));
 
@@ -248,7 +245,19 @@ namespace Nz
 
 	void TaskScheduler::WaitForTasks()
 	{
-		m_idle.wait(false);
+		// Wait until remaining task counter reaches 0
+		for (;;) 
+		{
+			// Load and test current value
+			unsigned int remainingTasks = m_remainingTasks.load();
+			if (remainingTasks == 0)
+				break;
+
+			// If task count isn't 0, wait until it's signaled
+			// (we need to retest remainingTasks because a worker can signal m_remainingTasks while we're still adding tasks)
+			m_remainingTasks.wait(remainingTasks);
+		}
+
 		m_tasks.Clear();
 	}
 
@@ -260,9 +269,6 @@ namespace Nz
 	void TaskScheduler::NotifyTaskCompletion()
 	{
 		if (--m_remainingTasks == 0)
-		{
-			m_idle = true;
-			m_idle.notify_one();
-		}
+			m_remainingTasks.notify_one();
 	}
 }

@@ -42,7 +42,6 @@ namespace Nz
 			Worker& GetWorker(unsigned int workerIndex);
 			void NotifyTaskCompletion();
 
-			std::atomic_bool m_idle;
 			std::atomic_uint m_remainingTasks;
 			std::size_t m_nextWorkerIndex;
 			std::vector<Worker> m_workers;
