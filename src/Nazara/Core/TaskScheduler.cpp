@@ -96,10 +96,6 @@ namespace Nz
 
 			~Worker()
 			{
-				m_running = false;
-				if (!m_notifier.test_and_set())
-					m_notifier.notify_one();
-
 				m_thread.join();
 			}
 
@@ -170,6 +166,13 @@ namespace Nz
 				}
 			}
 
+			void Shutdown()
+			{
+				m_running = false;
+				if (!m_notifier.test_and_set())
+					m_notifier.notify_one();
+			}
+
 			TaskScheduler::Task* StealTask()
 			{
 				return m_tasks.steal();
@@ -214,12 +217,17 @@ namespace Nz
 		for (unsigned int i = 0; i < m_workerCount; ++i)
 			m_workers.emplace_back(*this, i);
 
-		for (unsigned int i = 0; i < m_workerCount; ++i)
-			m_workers[i].WakeUp();
+		for (Worker& worker : m_workers)
+			worker.WakeUp();
 	}
 
 	TaskScheduler::~TaskScheduler()
 	{
+		// Wake up workers and tell them to exit
+		for (Worker& worker : m_workers)
+			worker.Shutdown();
+
+		// wait for them to have exited
 		m_workers.clear();
 	}
 
