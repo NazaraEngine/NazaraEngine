@@ -131,7 +131,7 @@ namespace Nz
 					std::shuffle(randomWorkerIndices.begin(), randomWorkerIndices.end(), gen);
 				}
 
-				do
+				while (m_running.load(std::memory_order_relaxed))
 				{
 					// Get a task
 					TaskScheduler::Task* task;
@@ -168,7 +168,6 @@ namespace Nz
 						m_notifier.clear();
 					}
 				}
-				while (m_running.load(std::memory_order_relaxed));
 			}
 
 			TaskScheduler::Task* StealTask()
