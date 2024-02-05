@@ -26,7 +26,7 @@ jobs:
         kind: [shared, static]
         confs:
         - { mode: debug, archive: yes }
-        - { mode: debug, config: --asan=y, archive: false }
+        - { mode: debug, config: --asan=y, archive: false, cache_key: -asan }
         - { mode: debug, config: --lsan=y, archive: false }
         - { mode: debug, config: --tsan=y, archive: false }
         - { mode: releasedbg, archive: yes }
@@ -74,7 +74,7 @@ jobs:
       uses: actions/cache/restore@v4
       with:
         path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
-        key: Linux-${{ matrix.arch }}-${{ matrix.confs.mode }}-${{ steps.dep_hash.outputs.hash }}-W${{ steps.cache_key.outputs.key }}
+        key: Linux-${{ matrix.arch }}-${{ matrix.confs.mode }}${{ matrix.confs.cache_key }}-${{ steps.dep_hash.outputs.hash }}-W${{ steps.cache_key.outputs.key }}
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
