@@ -12,11 +12,6 @@
 #include <random>
 #include <semaphore>
 #include <thread>
-
-#ifdef NAZARA_WITH_TSAN
-#include <sanitizer/tsan_interface.h>
-#endif
-
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz
@@ -117,11 +112,6 @@ namespace Nz
 
 					if (task)
 					{
-#ifdef NAZARA_WITH_TSAN
-						// Workaround for TSan false-positive
-						__tsan_acquire(task);
-#endif
-
 						task();
 
 						NotifyTaskCompletion();
