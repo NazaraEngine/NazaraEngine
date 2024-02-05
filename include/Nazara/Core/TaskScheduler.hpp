@@ -8,9 +8,7 @@
 #define NAZARA_CORE_TASKSCHEDULER_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <NazaraUtils/MemoryPool.hpp>
 #include <Nazara/Core/Config.hpp>
-#include <atomic>
 #include <functional>
 #include <memory>
 
@@ -28,7 +26,7 @@ namespace Nz
 
 			void AddTask(Task&& task);
 
-			inline unsigned int GetWorkerCount() const;
+			unsigned int GetWorkerCount() const;
 
 			void WaitForTasks();
 
@@ -36,17 +34,9 @@ namespace Nz
 			TaskScheduler& operator=(TaskScheduler&&) = delete;
 
 		private:
+			struct Data;
 			class Worker;
-			friend Worker;
-
-			Worker& GetWorker(unsigned int workerIndex);
-			void NotifyTaskCompletion();
-
-			std::atomic_uint m_remainingTasks;
-			std::size_t m_nextWorkerIndex;
-			std::vector<Worker> m_workers;
-			MemoryPool<Task> m_tasks;
-			unsigned int m_workerCount;
+			std::unique_ptr<Data> m_data;
 	};
 }
 

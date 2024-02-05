@@ -33,12 +33,20 @@ namespace Nz
 #endif
 	}
 
+	struct TaskScheduler::Data
+	{
+		std::atomic_uint remainingTasks = 0;
+		std::size_t nextWorkerIndex = 0;
+		std::vector<Worker> workers;
+		unsigned int workerCount;
+	};
+
 	class alignas(NAZARA_ANONYMOUS_NAMESPACE_PREFIX(hardware_destructive_interference_size * 2)) TaskScheduler::Worker
 	{
 		public:
-			Worker(TaskScheduler& owner, unsigned int workerIndex) :
+			Worker(TaskScheduler::Data& data, unsigned int workerIndex) :
 			m_running(true),
-			m_owner(owner),
+			m_data(data),
 			m_workerIndex(workerIndex)
 			{
 				m_thread = std::thread([this]
@@ -52,7 +60,7 @@ namespace Nz
 
 			// "Implement" movement to make the compiler happy
 			Worker(Worker&& worker) :
-			m_owner(worker.m_owner)
+			m_data(worker.m_data)
 			{
 				NAZARA_UNREACHABLE();
 			}
@@ -62,10 +70,16 @@ namespace Nz
 				m_thread.join();
 			}
 
-			void AddTask(TaskScheduler::Task* task)
+			void AddTask(TaskScheduler::Task&& task)
 			{
-				m_tasks.enqueue(task);
+				m_tasks.enqueue(std::move(task));
 				WakeUp();
+			}
+
+			void NotifyTaskCompletion()
+			{
+				if (--m_data.remainingTasks == 0)
+					m_data.remainingTasks.notify_one();
 			}
 
 			void Run()
@@ -74,10 +88,10 @@ namespace Nz
 				m_notifier.wait(false);
 				m_notifier.clear();
 
-				StackArray<unsigned int> randomWorkerIndices = NazaraStackArrayNoInit(unsigned int, m_owner.GetWorkerCount() - 1);
+				StackArray<unsigned int> randomWorkerIndices = NazaraStackArrayNoInit(unsigned int, m_data.workerCount - 1);
 				{
 					unsigned int* indexPtr = randomWorkerIndices.data();
-					for (unsigned int i = 0; i < m_owner.GetWorkerCount(); ++i)
+					for (unsigned int i = 0; i < m_data.workerCount; ++i)
 					{
 						if (i != m_workerIndex)
 							*indexPtr++ = i;
@@ -90,12 +104,12 @@ namespace Nz
 				while (m_running.load(std::memory_order_relaxed))
 				{
 					// Get a task
-					TaskScheduler::Task* task = nullptr;
+					TaskScheduler::Task task;
 					if (!m_tasks.try_dequeue(task))
 					{
 						for (unsigned int workerIndex : randomWorkerIndices)
 						{
-							task = m_owner.GetWorker(workerIndex).StealTask();
+							task = m_data.workers[workerIndex].StealTask();
 							if (task)
 								break;
 						}
@@ -108,9 +122,9 @@ namespace Nz
 						__tsan_acquire(task);
 #endif
 
-						(*task)();
+						task();
 
-						m_owner.NotifyTaskCompletion();
+						NotifyTaskCompletion();
 					}
 					else
 					{
@@ -128,9 +142,9 @@ namespace Nz
 					m_notifier.notify_one();
 			}
 
-			TaskScheduler::Task* StealTask()
+			TaskScheduler::Task StealTask()
 			{
-				TaskScheduler::Task* task = nullptr;
+				TaskScheduler::Task task;
 				m_tasks.try_dequeue(task);
 				return task;
 			}
@@ -153,57 +167,53 @@ namespace Nz
 			std::atomic_bool m_running;
 			std::atomic_flag m_notifier;
 			std::thread m_thread; //< std::jthread is not yet widely implemented
-			moodycamel::ConcurrentQueue<TaskScheduler::Task*> m_tasks;
-			TaskScheduler& m_owner;
+			moodycamel::ConcurrentQueue<TaskScheduler::Task> m_tasks;
+			TaskScheduler::Data& m_data;
 			unsigned int m_workerIndex;
 	};
 
 	NAZARA_WARNING_POP()
 
-	TaskScheduler::TaskScheduler(unsigned int workerCount) :
-	m_remainingTasks(0),
-	m_nextWorkerIndex(0),
-	m_tasks(256 * sizeof(Task)),
-	m_workerCount(workerCount)
+	TaskScheduler::TaskScheduler(unsigned int workerCount)
 	{
-		if (m_workerCount == 0)
-			m_workerCount = std::max(Core::Instance()->GetHardwareInfo().GetCpuThreadCount(), 1u);
+		if (workerCount == 0)
+			workerCount = std::max(Core::Instance()->GetHardwareInfo().GetCpuThreadCount(), 1u);
 
-		m_workers.reserve(m_workerCount);
-		for (unsigned int i = 0; i < m_workerCount; ++i)
-			m_workers.emplace_back(*this, i);
+		m_data = std::make_unique<Data>();
+		m_data->workerCount = workerCount;
 
-		for (Worker& worker : m_workers)
+		m_data->workers.reserve(workerCount);
+		for (unsigned int i = 0; i < workerCount; ++i)
+			m_data->workers.emplace_back(*m_data, i);
+
+		for (Worker& worker : m_data->workers)
 			worker.WakeUp();
 	}
 
 	TaskScheduler::~TaskScheduler()
 	{
 		// Wake up workers and tell them to exit
-		for (Worker& worker : m_workers)
+		for (Worker& worker : m_data->workers)
 			worker.Shutdown();
 
 		// wait for them to have exited
-		m_workers.clear();
+		m_data->workers.clear();
 	}
 
 	void TaskScheduler::AddTask(Task&& task)
 	{
-		std::size_t taskIndex; //< not used
-		Task* taskPtr = m_tasks.Allocate(taskIndex, std::move(task));
+		m_data->remainingTasks++;
 
-#ifdef NAZARA_WITH_TSAN
-		// Workaround for TSan false-positive
-		__tsan_release(taskPtr);
-#endif
+		Worker& worker = m_data->workers[m_data->nextWorkerIndex++];
+		worker.AddTask(std::move(task));
 
-		m_remainingTasks++;
+		if (m_data->nextWorkerIndex >= m_data->workers.size())
+			m_data->nextWorkerIndex = 0;
+	}
 
-		Worker& worker = m_workers[m_nextWorkerIndex++];
-		worker.AddTask(taskPtr);
-
-		if (m_nextWorkerIndex >= m_workers.size())
-			m_nextWorkerIndex = 0;
+	unsigned int TaskScheduler::GetWorkerCount() const
+	{
+		return m_data->workerCount;
 	}
 
 	void TaskScheduler::WaitForTasks()
@@ -212,26 +222,13 @@ namespace Nz
 		for (;;) 
 		{
 			// Load and test current value
-			unsigned int remainingTasks = m_remainingTasks.load();
+			unsigned int remainingTasks = m_data->remainingTasks.load();
 			if (remainingTasks == 0)
 				break;
 
 			// If task count isn't 0, wait until it's signaled
 			// (we need to retest remainingTasks because a worker can signal m_remainingTasks while we're still adding tasks)
-			m_remainingTasks.wait(remainingTasks);
+			m_data->remainingTasks.wait(remainingTasks);
 		}
-
-		m_tasks.Clear();
-	}
-
-	auto TaskScheduler::GetWorker(unsigned int workerIndex) -> Worker&
-	{
-		return m_workers[workerIndex];
-	}
-
-	void TaskScheduler::NotifyTaskCompletion()
-	{
-		if (--m_remainingTasks == 0)
-			m_remainingTasks.notify_one();
 	}
 }
