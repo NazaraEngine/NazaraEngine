@@ -113,7 +113,7 @@ local modules = {
 				remove_files("src/Nazara/Core/Posix/TimeImpl.cpp")
 			end
 		end,
-		Packages = { "entt", "frozen", "utfcpp" },
+		Packages = { "concurrentqueue", "entt", "frozen", "utfcpp" },
 		PublicPackages = { "nazarautils" }
 	},
 	Graphics = {
@@ -275,7 +275,14 @@ end
 
 add_repositories("nazara-engine-repo https://github.com/NazaraEngine/xmake-repo")
 
-add_requires("entt 3.13.0", "fmt", "frozen", "nazarautils >=2024.01.25", "utfcpp")
+add_requires(
+	"concurrentqueue",
+	"entt 3.13.0",
+	"fmt",
+	"frozen",
+	"nazarautils >=2024.01.25",
+	"utfcpp"
+)
 
 -- Module dependencies
 if has_config("audio") then

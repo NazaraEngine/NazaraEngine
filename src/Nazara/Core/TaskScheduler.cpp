@@ -6,7 +6,7 @@
 #include <Nazara/Core/Core.hpp>
 #include <Nazara/Core/ThreadExt.hpp>
 #include <NazaraUtils/StackArray.hpp>
-#include <wsq.hpp>
+#include <concurrentqueue.h>
 #include <mutex>
 #include <new>
 #include <random>
@@ -31,43 +31,6 @@ namespace Nz
 #else
 		constexpr std::size_t hardware_destructive_interference_size = 64;
 #endif
-
-		class Spinlock
-		{
-			public:
-				Spinlock() = default;
-				Spinlock(const Spinlock&) = delete;
-				Spinlock(Spinlock&&) = delete;
-				~Spinlock() = default;
-
-				void lock()
-				{
-					while (m_flag.test_and_set());
-				}
-
-				bool try_lock(unsigned int maxLockCount = 1)
-				{
-					unsigned int lockCount = 0;
-					while (m_flag.test_and_set())
-					{
-						if (++lockCount >= maxLockCount)
-							return false;
-					}
-
-					return true;
-				}
-
-				void unlock()
-				{
-					m_flag.clear();
-				}
-
-				Spinlock& operator=(const Spinlock&) = delete;
-				Spinlock& operator=(Spinlock&&) = delete;
-
-			private:
-				std::atomic_flag m_flag;
-		};
 	}
 
 	class alignas(NAZARA_ANONYMOUS_NAMESPACE_PREFIX(hardware_destructive_interference_size * 2)) TaskScheduler::Worker
@@ -101,10 +64,7 @@ namespace Nz
 
 			void AddTask(TaskScheduler::Task* task)
 			{
-				std::unique_lock lock(m_queueSpinlock);
-				{
-					m_tasks.push(task);
-				}
+				m_tasks.enqueue(task);
 				WakeUp();
 			}
 
@@ -130,13 +90,8 @@ namespace Nz
 				while (m_running.load(std::memory_order_relaxed))
 				{
 					// Get a task
-					TaskScheduler::Task* task;
-					{
-						std::unique_lock lock(m_queueSpinlock);
-						task = m_tasks.pop();
-					}
-
-					if (!task)
+					TaskScheduler::Task* task = nullptr;
+					if (!m_tasks.try_dequeue(task))
 					{
 						for (unsigned int workerIndex : randomWorkerIndices)
 						{
@@ -175,7 +130,9 @@ namespace Nz
 
 			TaskScheduler::Task* StealTask()
 			{
-				return m_tasks.steal();
+				TaskScheduler::Task* task = nullptr;
+				m_tasks.try_dequeue(task);
+				return task;
 			}
 
 			void WakeUp()
@@ -196,8 +153,7 @@ namespace Nz
 			std::atomic_bool m_running;
 			std::atomic_flag m_notifier;
 			std::thread m_thread; //< std::jthread is not yet widely implemented
-			NAZARA_ANONYMOUS_NAMESPACE_PREFIX(Spinlock) m_queueSpinlock;
-			WorkStealingQueue<TaskScheduler::Task*, TaskScheduler::Task*> m_tasks;
+			moodycamel::ConcurrentQueue<TaskScheduler::Task*> m_tasks;
 			TaskScheduler& m_owner;
 			unsigned int m_workerIndex;
 	};
