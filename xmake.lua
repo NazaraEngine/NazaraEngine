@@ -277,7 +277,7 @@ add_repositories("nazara-engine-repo https://github.com/NazaraEngine/xmake-repo"
 
 add_requires(
 	"concurrentqueue",
-	"entt 3.13.0",
+	"entt 3.13.1",
 	"fmt",
 	"frozen",
 	"nazarautils >=2024.01.25",
