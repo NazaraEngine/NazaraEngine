@@ -29,9 +29,6 @@ Nazara also uses the following libraries at its core and for external tools, we 
 - [minimp3](https://github.com/lieff/minimp3): Minimalistic MP3 decoder single header library
 - [OpenAL Soft](https://openal-soft.org): OpenAL Soft is a software implementation of the OpenAL 3D audio API
 
-**Nazara Bullet physics module**:
-- [Bullet Physics](http://bulletphysics.org): Bullet Physics SDK
-
 **Nazara Chipmunk physics module**:
 - [Chipmunk Physics](https://chipmunk-physics.net/): A fast and lightweight 2D game physics library
 

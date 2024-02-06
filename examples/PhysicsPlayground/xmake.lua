@@ -1,5 +1,5 @@
 target("PhysicsPlayground")
-	add_deps("NazaraGraphics", "NazaraBulletPhysics3D", "NazaraJoltPhysics3D")
+	add_deps("NazaraGraphics", "NazaraJoltPhysics3D")
 	add_packages("entt")
 	add_files("main.cpp")
 	add_defines("NAZARA_ENTT")

@@ -71,11 +71,6 @@ local modules = {
 			end
 		end
 	},
-	BulletPhysics3D = {
-		Option = "bulletphysics",
-		Deps = {"NazaraUtility"},
-		Packages = { "bullet3", "entt" }
-	},
 	ChipmunkPhysics2D = {
 		Option = "chipmunkphysics",
 		Deps = {"NazaraUtility"},
@@ -298,10 +293,6 @@ if has_config("audio") then
 		-- OpenAL is supported as a system library on wasm
 		add_requires("openal-soft", { configs = { shared = true }})
 	end
-end
-
-if has_config("bulletphysics") then
-	add_requires("bullet3", { configs = { debug = is_mode("debug") }})
 end
 
 if has_config("chipmunkphysics") then

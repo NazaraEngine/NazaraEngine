@@ -3,5 +3,4 @@
 #include <Nazara/Math.hpp>
 #include <Nazara/Network.hpp>
 #include <Nazara/ChipmunkPhysics2D.hpp>
-#include <Nazara/BulletPhysics3D.hpp>
 #include <Nazara/Utility.hpp>

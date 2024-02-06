@@ -2,7 +2,6 @@
 #include <Nazara/Platform.hpp>
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Math/PidController.hpp>
-#include <Nazara/BulletPhysics3D.hpp>
 #include <Nazara/JoltPhysics3D.hpp>
 #include <Nazara/Renderer.hpp>
 #include <Nazara/Utility.hpp>
@@ -597,7 +596,7 @@ int main(int argc, char* argv[])
 
 			//renderBuffer->Fill(skeletalBufferMem.data(), 0, skeletalBufferMem.size());
 
-			/*auto spaceshipView = registry.view<Nz::NodeComponent, Nz::RigidBody3DComponent>();
+			/*auto spaceshipView = registry.view<Nz::NodeComponent, Nz::JoltRigidBody3DComponent>();
 			for (auto&& [entity, node, _] : spaceshipView.each())
 			{
 				if (entity == playerEntity)
@@ -608,7 +607,7 @@ int main(int argc, char* argv[])
 					registry.destroy(entity);
 			}
 
-			Nz::RigidBody3DComponent& playerShipBody = registry.get<Nz::RigidBody3DComponent>(playerEntity);
+			Nz::JoltRigidBody3DComponent& playerShipBody = registry.get<Nz::JoltRigidBody3DComponent>(playerEntity);
 			Nz::Quaternionf currentRotation = playerShipBody.GetRotation();
 
 			Nz::Vector3f desiredHeading = registry.get<Nz::NodeComponent>(headingEntity).GetForward();
