@@ -6,6 +6,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/VulkanRenderer/Utils.hpp>
+#include <NazaraUtils/PathUtils.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
@@ -88,7 +89,7 @@ namespace Nz
 			{
 				ErrorFlags errorFlags(ErrorMode::Silent, ErrorMode::ThrowException);
 
-				if (!s_vulkanLib.Load(libname))
+				if (!s_vulkanLib.Load(Utf8Path(libname)))
 					continue;
 
 				Error::ApplyFlags({}, ErrorMode::Silent);
