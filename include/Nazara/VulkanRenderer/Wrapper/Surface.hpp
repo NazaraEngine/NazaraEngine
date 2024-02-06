@@ -42,7 +42,7 @@ namespace Nz::Vk
 			#ifdef VK_USE_PLATFORM_XLIB_KHR
 			// VK_KHR_xlib_surface
 			inline bool Create(const VkXlibSurfaceCreateInfoKHR& createInfo, const VkAllocationCallbacks* allocator = nullptr);
-			inline bool Create(Display* display, Window window, VkXlibSurfaceCreateFlagsKHR flags = 0, const VkAllocationCallbacks* allocator = nullptr);
+			inline bool Create(Display* display, ::Window window, VkXlibSurfaceCreateFlagsKHR flags = 0, const VkAllocationCallbacks* allocator = nullptr);
 			#endif
 
 			#ifdef VK_USE_PLATFORM_WAYLAND_KHR

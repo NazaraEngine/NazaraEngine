@@ -78,7 +78,7 @@ namespace Nz::Vk
 		return Create(allocator);
 	}
 
-	inline bool Surface::Create(Display* display, Window window, VkXlibSurfaceCreateFlagsKHR flags, const VkAllocationCallbacks* allocator)
+	inline bool Surface::Create(Display* display, ::Window window, VkXlibSurfaceCreateFlagsKHR flags, const VkAllocationCallbacks* allocator)
 	{
 		VkXlibSurfaceCreateInfoKHR createInfo =
 		{
