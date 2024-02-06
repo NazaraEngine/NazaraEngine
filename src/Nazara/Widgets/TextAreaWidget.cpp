@@ -304,7 +304,7 @@ namespace Nz
 	void TextAreaWidget::PasteFromClipboard(const Vector2ui& targetPosition)
 	{
 		std::size_t glyphCount = ComputeCharacterCount(m_text);
-		std::size_t targetIndex = GetCharacterPosition(m_text, std::min(GetGlyphIndex(targetPosition), glyphCount));
+		std::size_t targetIndex = std::min(GetGlyphIndex(targetPosition), glyphCount);
 
 		std::string clipboardString = Clipboard::GetString();
 		if (clipboardString.empty())
