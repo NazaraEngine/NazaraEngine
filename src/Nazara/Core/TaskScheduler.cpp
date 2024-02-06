@@ -60,10 +60,7 @@ namespace Nz
 				NAZARA_UNREACHABLE();
 			}
 
-			~Worker()
-			{
-				m_thread.join();
-			}
+			~Worker() = default; // WaitForExit has to be called before destroying worker
 
 			void AddTask(TaskScheduler::Task&& task)
 			{
@@ -125,7 +122,7 @@ namespace Nz
 				}
 			}
 
-			void Shutdown()
+			void RequestShutdown()
 			{
 				m_running = false;
 				if (!m_notifier.test_and_set())
@@ -137,6 +134,11 @@ namespace Nz
 				TaskScheduler::Task task;
 				m_tasks.try_dequeue(task);
 				return task;
+			}
+
+			void WaitForExit()
+			{
+				m_thread.join();
 			}
 
 			void WakeUp()
@@ -184,10 +186,11 @@ namespace Nz
 	{
 		// Wake up workers and tell them to exit
 		for (Worker& worker : m_data->workers)
-			worker.Shutdown();
+			worker.RequestShutdown();
 
-		// wait for them to have exited
-		m_data->workers.clear();
+		// Wait until all threads exited before deleting workers (to avoid data-race where a worker could be freed while another tries to steal their task)
+		for (Worker& worker : m_data->workers)
+			worker.WaitForExit();
 	}
 
 	void TaskScheduler::AddTask(Task&& task)
