@@ -2,7 +2,6 @@
 #include <Nazara/Core.hpp>
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Network.hpp>
-#include <Nazara/BulletPhysics3D.hpp>
 #include <Nazara/Renderer.hpp>
 #include <Nazara/Utility.hpp>
 #include <NazaraSDK/Application.hpp>

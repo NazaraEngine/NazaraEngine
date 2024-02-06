@@ -1,15 +1,7 @@
-// Sources pour https://github.com/NazaraEngine/NazaraEngine/wiki/(FR)-Tutoriel:-%5B01%5D-Hello-World
-
-#define USE_JOLT 1
-
 #include <Nazara/Core.hpp>
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Platform/WindowingAppComponent.hpp>
-#if USE_JOLT
 #include <Nazara/JoltPhysics3D.hpp>
-#else
-#include <Nazara/BulletPhysics3D.hpp>
-#endif
 #include <Nazara/Renderer.hpp>
 #include <Nazara/Utility.hpp>
 #include <iostream>
@@ -24,11 +16,7 @@ int main(int argc, char* argv[])
 	Nz::Renderer::Config renderConfig;
 	renderConfig.validationLevel = Nz::RenderAPIValidationLevel::None;
 
-#if USE_JOLT
 	Nz::Application<Nz::Graphics, Nz::JoltPhysics3D> app(argc, argv, renderConfig);
-#else
-	Nz::Application<Nz::Graphics, Nz::BulletPhysics3D> app(argc, argv, renderConfig);
-#endif
 
 	auto& windowing = app.AddComponent<Nz::WindowingAppComponent>();
 	Nz::Window& mainWindow = windowing.CreateWindow(Nz::VideoMode(1280, 720), "Physics playground");
@@ -45,11 +33,7 @@ int main(int argc, char* argv[])
 	auto& ecs = app.AddComponent<Nz::EntitySystemAppComponent>();
 	auto& world = ecs.AddWorld<Nz::EnttWorld>();
 
-#if USE_JOLT
 	auto& physSystem = world.AddSystem<Nz::JoltPhysics3DSystem>();
-#else
-	auto& physSystem = world.AddSystem<Nz::BulletPhysics3DSystem>();
-#endif
 	physSystem.GetPhysWorld().SetMaxStepCount(1);
 	physSystem.GetPhysWorld().SetStepSize(Nz::Time::TickDuration(30));
 	physSystem.GetPhysWorld().SetGravity(Nz::Vector3f::Down() * 9.81f);
@@ -96,46 +80,24 @@ int main(int argc, char* argv[])
 
 		boxColliderEntity.emplace<Nz::NodeComponent>();
 
-#if USE_JOLT
 		float thickness = 1.f;
 		std::shared_ptr<Nz::JoltBoxCollider3D> wallCollider = std::make_shared<Nz::JoltBoxCollider3D>(Nz::Vector3f(BoxDims + thickness * 2.f, BoxDims + thickness * 2.f, thickness));
-#else
-		std::shared_ptr<Nz::BulletBoxCollider3D> wallCollider = std::make_shared<Nz::BulletBoxCollider3D>(Nz::Vector3f(BoxDims, BoxDims, 1.f));
-#endif
 
-#if USE_JOLT
 		std::vector<Nz::JoltCompoundCollider3D::ChildCollider> colliders;
-#else
-		std::vector<Nz::BulletCompoundCollider3D::ChildCollider> colliders;
-#endif
-
 		for (Nz::Vector3f normal : { Nz::Vector3f::Forward(), Nz::Vector3f::Backward(), Nz::Vector3f::Left(), Nz::Vector3f::Right(), Nz::Vector3f::Up(), Nz::Vector3f::Down() })
 		{
 			auto& colliderEntry = colliders.emplace_back();
 			colliderEntry.collider = wallCollider;
-#if USE_JOLT
 			colliderEntry.rotation = Nz::Quaternionf::RotationBetween(Nz::Vector3f::Forward(), normal);
 			colliderEntry.offset = normal * BoxDims * 0.5f + normal * 0.5f;
-#else
-			colliderEntry.offsetMatrix = Nz::Matrix4f::Transform(normal * BoxDims * 0.5f + normal * 0.5f, Nz::Quaternionf::RotationBetween(Nz::Vector3f::Forward(), normal));
-#endif
 		}
 
-#if USE_JOLT
 		std::shared_ptr<Nz::JoltCompoundCollider3D> boxCollider = std::make_shared<Nz::JoltCompoundCollider3D>(std::move(colliders));
-#else
-		std::shared_ptr<Nz::BulletCompoundCollider3D> boxCollider = std::make_shared<Nz::BulletCompoundCollider3D>(std::move(colliders));
-#endif
 
-#if USE_JOLT
 		Nz::JoltRigidBody3D::StaticSettings settings;
 		settings.geom = boxCollider;
 
 		boxColliderEntity.emplace<Nz::JoltRigidBody3DComponent>(settings);
-#else
-		auto& boxBody = boxColliderEntity.emplace<Nz::BulletRigidBody3DComponent>(physSystem.CreateRigidBody(boxCollider));
-		boxBody.SetMass(0.f);
-#endif
 
 		std::shared_ptr<Nz::Model> colliderModel;
 		{
@@ -163,11 +125,7 @@ int main(int argc, char* argv[])
 		float radius = radiusDis(rd);
 		std::uniform_real_distribution<float> positionRandom(-BoxDims * 0.5f + radius, BoxDims * 0.5f - radius);
 
-#if USE_JOLT
 		std::shared_ptr<Nz::JoltSphereCollider3D> sphereCollider = std::make_shared<Nz::JoltSphereCollider3D>(radius);
-#else
-		std::shared_ptr<Nz::BulletSphereCollider3D> sphereCollider = std::make_shared<Nz::BulletSphereCollider3D>(radius);
-#endif
 
 		entt::handle ballEntity = world.CreateEntity();
 
@@ -184,15 +142,11 @@ int main(int argc, char* argv[])
 		ballNode.SetPosition(positionRandom(rd), positionRandom(rd), positionRandom(rd));
 		ballNode.SetScale(radius);
 
-#if USE_JOLT
 		Nz::JoltRigidBody3D::DynamicSettings settings;
 		settings.geom = sphereCollider;
 		settings.mass = 4.f / 3.f * Nz::Pi<float> * Nz::IntegralPow(radius, 3);
 
 		ballEntity.emplace<Nz::JoltRigidBody3DComponent>(settings);
-#else
-		ballEntity.emplace<Nz::BulletRigidBody3DComponent>(physSystem.CreateRigidBody(sphereCollider));
-#endif
 	}
 
 	std::uniform_real_distribution<float> lengthDis(0.2f, 1.5f);
@@ -223,21 +177,13 @@ int main(int argc, char* argv[])
 		ballNode.SetPosition(xRandom(rd), yRandom(rd), zRandom(rd));
 		ballNode.SetScale(width, height, depth);
 
-#if USE_JOLT
 		std::shared_ptr<Nz::JoltBoxCollider3D> boxCollider = std::make_shared<Nz::JoltBoxCollider3D>(Nz::Vector3f(width, height, depth));
-#else
-		std::shared_ptr<Nz::BulletBoxCollider3D> boxCollider = std::make_shared<Nz::BulletBoxCollider3D>(Nz::Vector3f(width, height, depth));
-#endif
 
-#if USE_JOLT
 		Nz::JoltRigidBody3D::DynamicSettings settings;
 		settings.geom = boxCollider;
 		settings.mass = width * height * depth;
 
 		boxEntity.emplace<Nz::JoltRigidBody3DComponent>(settings);
-#else
-		boxEntity.emplace<Nz::BulletRigidBody3DComponent>(physSystem.CreateRigidBody(boxCollider));
-#endif
 	}
 
 	// Spaceships
@@ -281,11 +227,7 @@ int main(int argc, char* argv[])
 		Nz::VertexMapper vertexMapper(*spaceshipMesh->GetSubMesh(0));
 		Nz::SparsePtr<Nz::Vector3f> vertices = vertexMapper.GetComponentPtr<Nz::Vector3f>(Nz::VertexComponent::Position);
 
-#if USE_JOLT
 		auto shipCollider = std::make_shared<Nz::JoltConvexHullCollider3D>(vertices, vertexMapper.GetVertexCount(), 0.1f);
-#else
-		auto shipCollider = std::make_shared<Nz::BulletConvexCollider3D>(vertices, vertexMapper.GetVertexCount());
-#endif
 
 		std::shared_ptr<Nz::Model> colliderModel;
 		{
@@ -307,15 +249,11 @@ int main(int argc, char* argv[])
 			auto& shipNode = shipEntity.emplace<Nz::NodeComponent>();
 			shipNode.SetPosition(xRandom(rd), yRandom(rd), zRandom(rd));
 
-#if USE_JOLT
 			Nz::JoltRigidBody3D::DynamicSettings settings;
 			settings.geom = shipCollider;
 			settings.mass = 100.f;
 
 			shipEntity.emplace<Nz::JoltRigidBody3DComponent>(settings);
-#else
-			shipEntity.emplace<Nz::BulletRigidBody3DComponent>(physSystem.CreateRigidBody(shipCollider));
-#endif
 
 			//shipEntity.get<Nz::GraphicsComponent>().AttachRenderable(colliderModel);
 		}
@@ -363,7 +301,7 @@ int main(int argc, char* argv[])
 
 	NazaraSlot(Nz::WindowEventHandler, OnMouseMoved, cameraMove);
 	NazaraSlot(Nz::WindowEventHandler, OnMouseMoved, grabbedObjectMove);
-#if USE_JOLT
+
 	struct GrabConstraint
 	{
 		GrabConstraint(Nz::JoltRigidBody3D& body, const Nz::Vector3f& grabPos) :
@@ -401,9 +339,6 @@ int main(int argc, char* argv[])
 	};
 
 	std::optional<GrabConstraint> grabConstraint;
-#else
-	std::optional<Nz::BulletPivotConstraint3D> grabConstraint;
-#endif
 
 	auto mouseMoveCallback = [&](const Nz::WindowEventHandler*, const Nz::WindowEvent::MouseMoveEvent& event)
 	{
@@ -430,11 +365,7 @@ int main(int argc, char* argv[])
 			Nz::Vector3f from = cameraComponent.Unproject({ float(event.x), float(event.y), 0.f });
 			Nz::Vector3f to = cameraComponent.Unproject({ float(event.x), float(event.y), 1.f });
 
-#if USE_JOLT
 			Nz::JoltPhysics3DSystem::RaycastHit lastHitInfo;
-#else
-			Nz::BulletPhysics3DSystem::RaycastHit lastHitInfo;
-#endif
 			auto callback = [&](const decltype(lastHitInfo)& hitInfo) -> std::optional<float>
 			{
 				if (hitInfo.hitEntity == boxColliderEntity)
@@ -455,12 +386,7 @@ int main(int argc, char* argv[])
 			{
 				if (lastHitInfo.hitBody && lastHitInfo.hitEntity != boxColliderEntity)
 				{
-#if USE_JOLT
 					grabConstraint.emplace(static_cast<Nz::JoltRigidBody3D&>(*lastHitInfo.hitBody), lastHitInfo.hitPosition);
-#else
-					grabConstraint.emplace(*lastHitInfo.hitBody, lastHitInfo.hitPosition);
-					grabConstraint->SetImpulseClamp(30.f);
-#endif
 
 					grabbedObjectMove.Connect(eventHandler.OnMouseMoved, [&, distance = Nz::Vector3f::Distance(from, lastHitInfo.hitPosition)](const Nz::WindowEventHandler*, const Nz::WindowEvent::MouseMoveEvent& event)
 					{
@@ -468,11 +394,7 @@ int main(int argc, char* argv[])
 						Nz::Vector3f to = cameraComponent.Unproject({ float(event.x), float(event.y), 1.f });
 
 						Nz::Vector3f newPosition = from + (to - from).Normalize() * distance;
-#if USE_JOLT
 						grabConstraint->SetPosition(newPosition);
-#else
-						grabConstraint->SetSecondAnchor(newPosition);
-#endif
 					});
 				}
 				else
