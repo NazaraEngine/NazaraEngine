@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
 	successFile5.Flush();
 
 	// Wait until parent dies
-	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+	std::this_thread::sleep_for(std::chrono::seconds(1));
 
 	result = Nz::Process::Exists(pid);
 	if (!result)
@@ -83,5 +83,5 @@ int main(int argc, char* argv[])
 	successFile6.Flush();
 
 	// Wait for the unit tests process to check our existence
-	std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+	std::this_thread::sleep_for(std::chrono::seconds(3));
 }
