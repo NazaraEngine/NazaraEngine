@@ -42,15 +42,20 @@ namespace Nz
 		m_propertyIndex = propertyIndex;
 
 		m_optionHash = 0;
-		if (const ShaderReflection::OptionData* optionData = reflection.GetOptionByName(m_optionName))
+		if (!m_optionName.empty())
 		{
-			if (IsPrimitiveType(optionData->type) && std::get<nzsl::Ast::PrimitiveType>(optionData->type) == nzsl::Ast::PrimitiveType::Boolean)
+			if (const ShaderReflection::OptionData* optionData = reflection.GetOptionByName(m_optionName))
 			{
-				NazaraAssert(optionData->hash != 0, "unexpected option hash");
-				m_optionHash = optionData->hash;
+				if (IsPrimitiveType(optionData->type) && std::get<nzsl::Ast::PrimitiveType>(optionData->type) == nzsl::Ast::PrimitiveType::Boolean)
+				{
+					NazaraAssert(optionData->hash != 0, "unexpected option hash");
+					m_optionHash = optionData->hash;
+				}
+				else
+					NazaraErrorFmt("option {0} is not a boolean option (got {1})", m_optionName, nzsl::Ast::ToString(optionData->type));
 			}
 			else
-				NazaraErrorFmt("option {0} is not a boolean option (got {1})", m_optionName, nzsl::Ast::ToString(optionData->type));
+				NazaraWarningFmt("option {0} not found in shader for property {1}", m_optionName, m_propertyName);
 		}
 	}
 

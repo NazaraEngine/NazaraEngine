@@ -34,6 +34,8 @@ namespace Nz
 			m_optionHash = optionData->hash;
 			m_propertyIndex = propertyIndex;
 		}
+		else
+			NazaraWarningFmt("option {0} not found in shader for property {1}", m_optionName, m_propertyName);
 	}
 
 	void OptionValuePropertyHandler::Update(MaterialInstance& materialInstance) const
