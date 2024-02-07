@@ -154,7 +154,7 @@ namespace Nz
 	class NAZARA_WIDGETS_API SimpleLabelWidgetStyle : public LabelWidgetStyle
 	{
 		public:
-			SimpleLabelWidgetStyle(LabelWidget* labelWidget, std::shared_ptr<MaterialInstance> material, std::shared_ptr<MaterialInstance> hoveredMaterial = {});
+			SimpleLabelWidgetStyle(AbstractLabelWidget* labelWidget, std::shared_ptr<MaterialInstance> material, std::shared_ptr<MaterialInstance> hoveredMaterial = {});
 			SimpleLabelWidgetStyle(const SimpleLabelWidgetStyle&) = delete;
 			SimpleLabelWidgetStyle(SimpleLabelWidgetStyle&&) = default;
 			~SimpleLabelWidgetStyle() = default;

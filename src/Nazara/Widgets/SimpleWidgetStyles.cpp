@@ -5,11 +5,11 @@
 #include <Nazara/Widgets/SimpleWidgetStyles.hpp>
 #include <Nazara/Graphics/Components/GraphicsComponent.hpp>
 #include <Nazara/Utility/Components/NodeComponent.hpp>
+#include <Nazara/Widgets/AbstractLabelWidget.hpp>
 #include <Nazara/Widgets/ButtonWidget.hpp>
 #include <Nazara/Widgets/Canvas.hpp>
 #include <Nazara/Widgets/CheckboxWidget.hpp>
 #include <Nazara/Widgets/ImageButtonWidget.hpp>
-#include <Nazara/Widgets/LabelWidget.hpp>
 #include <Nazara/Widgets/ProgressBarWidget.hpp>
 #include <Nazara/Widgets/ScrollAreaWidget.hpp>
 #include <Nazara/Widgets/ScrollbarButtonWidget.hpp>
@@ -342,7 +342,7 @@ namespace Nz
 
 	/************************************************************************/
 
-	SimpleLabelWidgetStyle::SimpleLabelWidgetStyle(LabelWidget* labelWidget, std::shared_ptr<MaterialInstance> material, std::shared_ptr<MaterialInstance> hoveredMaterial) :
+	SimpleLabelWidgetStyle::SimpleLabelWidgetStyle(AbstractLabelWidget* labelWidget, std::shared_ptr<MaterialInstance> material, std::shared_ptr<MaterialInstance> hoveredMaterial) :
 	LabelWidgetStyle(labelWidget, 1),
 	m_hoveredMaterial(std::move(hoveredMaterial)),
 	m_material(std::move(material))

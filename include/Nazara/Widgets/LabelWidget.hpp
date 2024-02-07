@@ -7,19 +7,16 @@
 #ifndef NAZARA_WIDGETS_LABELWIDGET_HPP
 #define NAZARA_WIDGETS_LABELWIDGET_HPP
 
-#include <Nazara/Graphics/TextSprite.hpp>
-#include <Nazara/Widgets/BaseWidget.hpp>
-#include <Nazara/Widgets/WidgetTheme.hpp>
+#include <Nazara/Widgets/AbstractLabelWidget.hpp>
 
 namespace Nz
 {
 	class AbstractTextDrawer;
-	class TextSprite;
 
-	class NAZARA_WIDGETS_API LabelWidget : public BaseWidget
+	class NAZARA_WIDGETS_API LabelWidget final : public AbstractLabelWidget
 	{
 		public:
-			LabelWidget(BaseWidget* parent);
+			using AbstractLabelWidget::AbstractLabelWidget;
 			LabelWidget(const LabelWidget&) = delete;
 			LabelWidget(LabelWidget&&) = delete;
 			~LabelWidget() = default;
@@ -28,14 +25,6 @@ namespace Nz
 
 			LabelWidget& operator=(const LabelWidget&) = delete;
 			LabelWidget& operator=(LabelWidget&&) = delete;
-
-		private:
-			void OnMouseEnter() override;
-			void OnMouseExit() override;
-
-			void OnRenderLayerUpdated(int baseRenderLayer) override;
-
-			std::unique_ptr<LabelWidgetStyle> m_style;
 	};
 }
 

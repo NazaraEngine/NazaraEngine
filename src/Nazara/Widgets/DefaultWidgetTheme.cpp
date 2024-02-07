@@ -218,7 +218,7 @@ namespace Nz
 		return std::make_unique<SimpleImageButtonWidgetStyle>(imageButtonWidget, styleConfig);
 	}
 
-	std::unique_ptr<LabelWidgetStyle> DefaultWidgetTheme::CreateStyle(LabelWidget* labelWidget) const
+	std::unique_ptr<LabelWidgetStyle> DefaultWidgetTheme::CreateStyle(AbstractLabelWidget* labelWidget) const
 	{
 		return std::make_unique<SimpleLabelWidgetStyle>(labelWidget, Widgets::Instance()->GetTransparentMaterial());
 	}

@@ -15,6 +15,7 @@
 
 namespace Nz
 {
+	class AbstractLabelWidget;
 	class AbstractTextDrawer;
 	class ButtonWidget;
 	class ButtonWidgetStyle;
@@ -22,7 +23,6 @@ namespace Nz
 	class CheckboxWidgetStyle;
 	class ImageButtonWidget;
 	class ImageButtonWidgetStyle;
-	class LabelWidget;
 	class LabelWidgetStyle;
 	class ProgressBarWidget;
 	class ProgressBarWidgetStyle;
@@ -46,7 +46,7 @@ namespace Nz
 			virtual std::unique_ptr<ButtonWidgetStyle> CreateStyle(ButtonWidget* buttonWidget) const = 0;
 			virtual std::unique_ptr<CheckboxWidgetStyle> CreateStyle(CheckboxWidget* checkboxWidget) const = 0;
 			virtual std::unique_ptr<ImageButtonWidgetStyle> CreateStyle(ImageButtonWidget* imageButtonWidget) const = 0;
-			virtual std::unique_ptr<LabelWidgetStyle> CreateStyle(LabelWidget* labelWidget) const = 0;
+			virtual std::unique_ptr<LabelWidgetStyle> CreateStyle(AbstractLabelWidget* labelWidget) const = 0;
 			virtual std::unique_ptr<ProgressBarWidgetStyle> CreateStyle(ProgressBarWidget* labelWidget) const = 0;
 			virtual std::unique_ptr<ScrollAreaWidgetStyle> CreateStyle(ScrollAreaWidget* scrollareaWidget) const = 0;
 			virtual std::unique_ptr<ScrollbarWidgetStyle> CreateStyle(ScrollbarWidget* scrollbarWidget) const = 0;

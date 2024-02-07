@@ -25,7 +25,7 @@ namespace Nz
 			std::unique_ptr<ButtonWidgetStyle> CreateStyle(ButtonWidget* buttonWidget) const override;
 			std::unique_ptr<CheckboxWidgetStyle> CreateStyle(CheckboxWidget* checkboxWidget) const override;
 			std::unique_ptr<ImageButtonWidgetStyle> CreateStyle(ImageButtonWidget* imageButtonWidget) const override;
-			std::unique_ptr<LabelWidgetStyle> CreateStyle(LabelWidget* labelWidget) const override;
+			std::unique_ptr<LabelWidgetStyle> CreateStyle(AbstractLabelWidget* labelWidget) const override;
 			std::unique_ptr<ProgressBarWidgetStyle> CreateStyle(ProgressBarWidget* progressBarWidget) const override;
 			std::unique_ptr<ScrollAreaWidgetStyle> CreateStyle(ScrollAreaWidget* scrollAreaWidget) const override;
 			std::unique_ptr<ScrollbarWidgetStyle> CreateStyle(ScrollbarWidget* scrollbarWidget) const override;
