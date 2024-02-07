@@ -64,9 +64,9 @@ namespace Nz
 		settings.AddTextureProperty("SpecularMap", ImageType::E2D);
 		settings.AddPropertyHandler(std::make_unique<OptionValuePropertyHandler>("ShadowMapping", "EnableShadowMapping"));
 		settings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("EmissiveMap", "HasEmissiveTexture"));
-		settings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("HeightMap", "HasHeightMap"));
-		settings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("NormalMap", "HasNormalMap"));
-		settings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("SpecularMap", "HasSpecularMap"));
+		settings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("HeightMap", "HasHeightTexture"));
+		settings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("NormalMap", "HasNormalTexture"));
+		settings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("SpecularMap", "HasSpecularTexture"));
 		settings.AddPropertyHandler(std::make_unique<UniformValuePropertyHandler>("AmbientColor"));
 		settings.AddPropertyHandler(std::make_unique<UniformValuePropertyHandler>("SpecularColor"));
 		settings.AddPropertyHandler(std::make_unique<UniformValuePropertyHandler>("Shininess"));
