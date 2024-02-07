@@ -20,6 +20,8 @@
 #include <Nazara/Renderer/RenderPipeline.hpp>
 #include <Nazara/Utility/Mesh.hpp>
 #include <Nazara/Utility/VertexDeclaration.hpp>
+#include <NazaraUtils/FunctionRef.hpp>
+#include <NazaraUtils/Result.hpp>
 #include <memory>
 
 namespace Nz
@@ -27,6 +29,7 @@ namespace Nz
 	struct NAZARA_GRAPHICS_API ModelParams : ResourceParameters
 	{
 		bool loadMaterials = true;
+		FunctionRef<Result<void, ResourceLoadingError>(const std::shared_ptr<Mesh>& mesh)> meshCallback = nullptr;
 		MeshParams mesh;
 
 		bool IsValid() const;

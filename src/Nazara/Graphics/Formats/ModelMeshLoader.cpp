@@ -26,6 +26,13 @@ namespace Nz::Loaders
 			if (!mesh)
 				return Err(ResourceLoadingError::Unrecognized);
 
+			if (parameters.meshCallback)
+			{
+				Result res = parameters.meshCallback(mesh);
+				if (!res)
+					return Err(res.GetError());
+			}
+
 			std::shared_ptr<GraphicalMesh> gfxMesh = GraphicalMesh::BuildFromMesh(*mesh);
 			if (!gfxMesh)
 				return Err(ResourceLoadingError::Internal);
