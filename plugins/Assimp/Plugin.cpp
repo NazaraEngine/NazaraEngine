@@ -862,7 +862,7 @@ Nz::Result<std::shared_ptr<Nz::Mesh>, Nz::ResourceLoadingError> LoadMesh(Nz::Str
 		unsigned int jointIndex = 0;
 		std::unordered_set<const aiNode*> seenNodes;
 
-		Nz::Matrix4f transformMatrix = Nz::Matrix4f::Transform({}, Nz::Quaternionf::Identity(), parameters.vertexScale);
+		Nz::Matrix4f transformMatrix = Nz::Matrix4f::Scale(parameters.vertexScale);
 		Nz::Matrix4f invTransformMatrix = Nz::Matrix4f::TransformInverse(parameters.vertexOffset, parameters.vertexRotation, parameters.vertexScale);
 
 		mesh->CreateSkeletal(Nz::SafeCast<Nz::UInt32>(skeletalRoot.totalChildrenCount + 1));
