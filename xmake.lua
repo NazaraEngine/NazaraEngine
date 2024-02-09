@@ -71,11 +71,6 @@ local modules = {
 			end
 		end
 	},
-	ChipmunkPhysics2D = {
-		Option = "chipmunkphysics",
-		Deps = {"NazaraUtility"},
-		Packages = { "chipmunk2d", "entt" }
-	},
 	Core = {
 		Custom = function ()
 			add_headerfiles("include/(Nazara/*.hpp)")
@@ -116,8 +111,13 @@ local modules = {
 		Deps = {"NazaraRenderer"},
 		Packages = {"entt"}
 	},
-	JoltPhysics3D = {
-		Option = "joltphysics",
+	Physics2D = {
+		Option = "physics2d",
+		Deps = {"NazaraUtility"},
+		Packages = { "chipmunk2d", "entt" }
+	},
+	Physics3D = {
+		Option = "physics3d",
 		Deps = {"NazaraUtility"},
 		Packages = { "joltphysics", "entt", "ordered_map" }
 	},
@@ -295,11 +295,11 @@ if has_config("audio") then
 	end
 end
 
-if has_config("chipmunkphysics") then
+if has_config("physics2d") then
 	add_requires("chipmunk2d")
 end
 
-if has_config("joltphysics") then
+if has_config("physics3d") then
 	add_requires("joltphysics >=4", { configs = { debug = is_mode("debug") }})
 	add_requires("ordered_map")
 end

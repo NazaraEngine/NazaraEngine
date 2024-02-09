@@ -2,7 +2,7 @@
 #include <Nazara/Platform.hpp>
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Math/PidController.hpp>
-#include <Nazara/JoltPhysics3D.hpp>
+#include <Nazara/Physics3D.hpp>
 #include <Nazara/Renderer.hpp>
 #include <Nazara/Utility.hpp>
 #include <Nazara/Utility/Plugins/AssimpPlugin.hpp>
@@ -18,7 +18,7 @@ NAZARA_REQUEST_DEDICATED_GPU()
 
 int main(int argc, char* argv[])
 {
-	Nz::Application<Nz::Graphics, Nz::JoltPhysics3D> app(argc, argv);
+	Nz::Application<Nz::Graphics, Nz::Physics3D> app(argc, argv);
 
 	Nz::PluginLoader loader;
 	Nz::Plugin<Nz::AssimpPlugin> assimp = loader.Load<Nz::AssimpPlugin>();
@@ -30,7 +30,7 @@ int main(int argc, char* argv[])
 	auto& world = ecs.AddWorld<Nz::EnttWorld>();
 	world.AddSystem<Nz::SkeletonSystem>();
 
-	Nz::JoltPhysics3DSystem& physSytem = world.AddSystem<Nz::JoltPhysics3DSystem>();
+	Nz::Physics3DSystem& physSytem = world.AddSystem<Nz::Physics3DSystem>();
 	physSytem.GetPhysWorld().SetGravity(Nz::Vector3f::Zero());
 	Nz::RenderSystem& renderSystem = world.AddSystem<Nz::RenderSystem>();
 
@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
 
 	physSytem.GetPhysWorld().SetGravity({ 0.f, -9.81f, 0.f });
 
-	std::optional<Nz::JoltCharacter> character;
+	std::optional<Nz::PhysCharacter3D> character;
 
 	entt::handle playerEntity = world.CreateEntity();
 	entt::handle playerRotation = world.CreateEntity();
@@ -60,12 +60,12 @@ int main(int argc, char* argv[])
 		auto& playerNode = playerEntity.emplace<Nz::NodeComponent>();
 		playerNode.SetPosition(0.f, 1.8f, 1.f);
 
-		auto playerCollider = std::make_shared<Nz::JoltBoxCollider3D>(Nz::Vector3f(0.2f, 1.8f, 0.2f));
+		auto playerCollider = std::make_shared<Nz::BoxCollider3D>(Nz::Vector3f(0.2f, 1.8f, 0.2f));
 
-		//auto& playerBody = playerEntity.emplace<Nz::JoltRigidBody3DComponent>(physSytem.CreateRigidBody(playerCollider));
+		//auto& playerBody = playerEntity.emplace<Nz::RigidBody3DComponent>(physSytem.CreateRigidBody(playerCollider));
 		//playerBody.SetMass(42.f);
 
-		Nz::JoltCharacter::Settings characterSettings;
+		Nz::PhysCharacter3D::Settings characterSettings;
 		characterSettings.collider = playerCollider;
 		characterSettings.position = Nz::Vector3f::Up() * 5.f;
 
@@ -363,13 +363,13 @@ int main(int argc, char* argv[])
 
 		floorEntity.emplace<Nz::NodeComponent>();
 
-		auto floorCollider = std::make_shared<Nz::JoltBoxCollider3D>(Nz::Vector3f(planeSize.x, 1.f, planeSize.y));
-		auto translatedFloorCollider = std::make_shared<Nz::JoltTranslatedRotatedCollider3D>(std::move(floorCollider), Nz::Vector3f::Down() * 0.5f);
+		auto floorCollider = std::make_shared<Nz::BoxCollider3D>(Nz::Vector3f(planeSize.x, 1.f, planeSize.y));
+		auto translatedFloorCollider = std::make_shared<Nz::TranslatedRotatedCollider3D>(std::move(floorCollider), Nz::Vector3f::Down() * 0.5f);
 
-		Nz::JoltRigidBody3D::StaticSettings floorSettings;
+		Nz::RigidBody3D::StaticSettings floorSettings;
 		floorSettings.geom = translatedFloorCollider;
 
-		floorEntity.emplace<Nz::JoltRigidBody3DComponent>(floorSettings);
+		floorEntity.emplace<Nz::RigidBody3DComponent>(floorSettings);
 
 		std::shared_ptr<Nz::GraphicalMesh> boxMeshGfx = Nz::GraphicalMesh::Build(Nz::Primitive::Box(Nz::Vector3f(0.5f, 0.5f, 0.5f)), meshPrimitiveParams);
 
@@ -529,7 +529,7 @@ int main(int argc, char* argv[])
 		{
 			float updateTime = deltaTime->AsSeconds();
 
-			//auto& playerBody = playerEntity.get<Nz::JoltRigidBody3DComponent>();
+			//auto& playerBody = playerEntity.get<Nz::RigidBody3DComponent>();
 			//playerBody.SetAngularDamping(std::numeric_limits<float>::max());
 
 			Nz::Vector3f velocity = character->GetLinearVelocity();
@@ -596,7 +596,7 @@ int main(int argc, char* argv[])
 
 			//renderBuffer->Fill(skeletalBufferMem.data(), 0, skeletalBufferMem.size());
 
-			/*auto spaceshipView = registry.view<Nz::NodeComponent, Nz::JoltRigidBody3DComponent>();
+			/*auto spaceshipView = registry.view<Nz::NodeComponent, Nz::RigidBody3DComponent>();
 			for (auto&& [entity, node, _] : spaceshipView.each())
 			{
 				if (entity == playerEntity)
@@ -607,7 +607,7 @@ int main(int argc, char* argv[])
 					registry.destroy(entity);
 			}
 
-			Nz::JoltRigidBody3DComponent& playerShipBody = registry.get<Nz::JoltRigidBody3DComponent>(playerEntity);
+			Nz::RigidBody3DComponent& playerShipBody = registry.get<Nz::RigidBody3DComponent>(playerEntity);
 			Nz::Quaternionf currentRotation = playerShipBody.GetRotation();
 
 			Nz::Vector3f desiredHeading = registry.get<Nz::NodeComponent>(headingEntity).GetForward();

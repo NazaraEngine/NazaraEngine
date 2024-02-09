@@ -2,7 +2,7 @@
 #include <Nazara/Platform.hpp>
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Math/PidController.hpp>
-#include <Nazara/ChipmunkPhysics2D.hpp>
+#include <Nazara/Physics2D.hpp>
 #include <Nazara/Renderer.hpp>
 #include <Nazara/Utility.hpp>
 #include <Nazara/Widgets.hpp>
@@ -21,14 +21,14 @@ int main(int argc, char* argv[])
 	if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory("../.." / resourceDir))
 		resourceDir = "../.." / resourceDir;
 
-	Nz::Application<Nz::Graphics, Nz::ChipmunkPhysics2D> app(argc, argv);
+	Nz::Application<Nz::Graphics, Nz::Physics2D> app(argc, argv);
 
 	auto& windowing = app.AddComponent<Nz::WindowingAppComponent>();
 
 	auto& ecs = app.AddComponent<Nz::EntitySystemAppComponent>();
 
 	auto& world = ecs.AddWorld<Nz::EnttWorld>();
-	Nz::ChipmunkPhysics2DSystem& physSytem = world.AddSystem<Nz::ChipmunkPhysics2DSystem>();
+	Nz::Physics2DSystem& physSytem = world.AddSystem<Nz::Physics2DSystem>();
 	Nz::RenderSystem& renderSystem = world.AddSystem<Nz::RenderSystem>();
 
 	std::string windowTitle = "Physics 2D";
@@ -59,9 +59,9 @@ int main(int argc, char* argv[])
 	std::shared_ptr<Nz::MaterialInstance> spriteMaterial = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Phong);
 	spriteMaterial->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(resourceDir / "box.png", texParams));
 
-	Nz::ChipmunkRigidBody2DComponent::DynamicSettings boxSettings;
+	Nz::RigidBody2DComponent::DynamicSettings boxSettings;
 	boxSettings.mass = 50.f;
-	boxSettings.geom = std::make_shared<Nz::ChipmunkBoxCollider2D>(Nz::Vector2f(32.f, 32.f));
+	boxSettings.geom = std::make_shared<Nz::BoxCollider2D>(Nz::Vector2f(32.f, 32.f));
 
 	std::shared_ptr<Nz::Sprite> boxSprite = std::make_shared<Nz::Sprite>(spriteMaterial);
 	boxSprite->SetSize({ 32.f, 32.f });
@@ -76,7 +76,7 @@ int main(int argc, char* argv[])
 			spriteEntity.emplace<Nz::NodeComponent>(Nz::Vector2f(windowSize.x * 0.5f + x * 32.f - 15.f * 32.f, windowSize.y / 2 + y * 48.f));
 			spriteEntity.emplace<Nz::GraphicsComponent>(boxSprite, 1);
 
-			auto& rigidBody = spriteEntity.emplace<Nz::ChipmunkRigidBody2DComponent>(boxSettings);
+			auto& rigidBody = spriteEntity.emplace<Nz::RigidBody2DComponent>(boxSettings);
 			rigidBody.SetFriction(0.9f);
 			//rigidBody.SetElasticity(0.99f);
 		}
@@ -102,12 +102,12 @@ int main(int argc, char* argv[])
 			}
 		}
 
-		Nz::ChipmunkRigidBody2DComponent::StaticSettings groundSettings;
-		groundSettings.geom = std::make_shared<Nz::ChipmunkBoxCollider2D>(tilemap->GetSize());
+		Nz::RigidBody2DComponent::StaticSettings groundSettings;
+		groundSettings.geom = std::make_shared<Nz::BoxCollider2D>(tilemap->GetSize());
 
 		groundEntity.emplace<Nz::NodeComponent>().SetPosition(windowSize.x * 0.5f, -windowSize.y * 0.2f);
 		groundEntity.emplace<Nz::GraphicsComponent>().AttachRenderable(tilemap, 1);
-		auto& rigidBody = groundEntity.emplace<Nz::ChipmunkRigidBody2DComponent>(groundSettings);
+		auto& rigidBody = groundEntity.emplace<Nz::RigidBody2DComponent>(groundSettings);
 		rigidBody.SetFriction(0.9f);
 	}
 
@@ -122,7 +122,7 @@ int main(int argc, char* argv[])
 	Nz::PidController<Nz::Vector3f> headingController(0.5f, 0.f, 0.05f);
 	Nz::PidController<Nz::Vector3f> upController(1.f, 0.f, 0.1f);
 	
-	std::optional<Nz::ChipmunkPivotConstraint2D> grabConstraint;
+	std::optional<Nz::PhysPivotConstraint2D> grabConstraint;
 	NazaraSlot(Nz::WindowEventHandler, OnMouseMoved, grabbedObjectMove);
 
 	Nz::WindowEventHandler& eventHandler = window.GetEventHandler();
@@ -139,14 +139,14 @@ int main(int argc, char* argv[])
 			{
 				if (nearestEntity && nearestEntity != groundEntity)
 				{
-					grabConstraint.emplace(nearestEntity.get<Nz::ChipmunkRigidBody2DComponent>(), worldPos);
+					grabConstraint.emplace(nearestEntity.get<Nz::RigidBody2DComponent>(), worldPos);
 
 					grabbedObjectMove.Connect(eventHandler.OnMouseMoved, [&, nearestEntity, viewer](const Nz::WindowEventHandler*, const Nz::WindowEvent::MouseMoveEvent& event)
 					{
 						auto& viewerComponent = viewer.get<Nz::CameraComponent>();
 						Nz::Vector2f worldPos = Nz::Vector2f(viewerComponent.Unproject(Nz::Vector3f(event.x, event.y, 0.f)));
 
-						auto& rigidBody = nearestEntity.get<Nz::ChipmunkRigidBody2DComponent>();
+						auto& rigidBody = nearestEntity.get<Nz::RigidBody2DComponent>();
 
 						grabConstraint->SetFirstAnchor(worldPos);
 					});
