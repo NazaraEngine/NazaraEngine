@@ -2,7 +2,7 @@
 #include <Nazara/Platform.hpp>
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Math/PidController.hpp>
-#include <Nazara/JoltPhysics3D.hpp>
+#include <Nazara/Physics3D.hpp>
 #include <Nazara/Renderer.hpp>
 #include <Nazara/Utility.hpp>
 #include <entt/entt.hpp>
@@ -20,14 +20,14 @@ int main(int argc, char* argv[])
 	if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory("../.." / resourceDir))
 		resourceDir = "../.." / resourceDir;
 
-	Nz::Application<Nz::Graphics, Nz::JoltPhysics3D> app(argc, argv);
+	Nz::Application<Nz::Graphics, Nz::Physics3D> app(argc, argv);
 
 	auto& windowing = app.AddComponent<Nz::WindowingAppComponent>();
 
 	auto& ecs = app.AddComponent<Nz::EntitySystemAppComponent>();
 
 	auto& world = ecs.AddWorld<Nz::EnttWorld>();
-	Nz::JoltPhysics3DSystem& physSytem = world.AddSystem<Nz::JoltPhysics3DSystem>();
+	Nz::Physics3DSystem& physSytem = world.AddSystem<Nz::Physics3DSystem>();
 	physSytem.GetPhysWorld().SetGravity(Nz::Vector3f::Zero());
 
 	Nz::RenderSystem& renderSystem = world.AddSystem<Nz::RenderSystem>();
@@ -101,7 +101,7 @@ int main(int argc, char* argv[])
 		cameraComponent.UpdateClearColor(Nz::Color(0.5f, 0.5f, 0.5f));
 	}
 
-	auto shipCollider = std::make_shared<Nz::JoltConvexHullCollider3D>(vertices, vertexMapper.GetVertexCount());
+	auto shipCollider = std::make_shared<Nz::ConvexHullCollider3D>(vertices, vertexMapper.GetVertexCount());
 
 	std::shared_ptr<Nz::MaterialInstance> colliderMat = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Basic);
 	colliderMat->SetValueProperty("BaseColor", Nz::Color::Green());
@@ -139,11 +139,11 @@ int main(int argc, char* argv[])
 		auto& entityNode = playerEntity.emplace<Nz::NodeComponent>();
 		entityNode.SetPosition(Nz::Vector3f(12.5f, 0.f, 25.f));
 
-		Nz::JoltRigidBody3D::DynamicSettings settings;
+		Nz::RigidBody3D::DynamicSettings settings;
 		settings.geom = shipCollider;
 		settings.mass = 100.f;
 
-		auto& entityPhys = playerEntity.emplace<Nz::JoltRigidBody3DComponent>(settings);
+		auto& entityPhys = playerEntity.emplace<Nz::RigidBody3DComponent>(settings);
 		entityPhys.SetMass(50.f);
 		entityPhys.SetAngularDamping(0.1f);
 		entityPhys.SetLinearDamping(0.5f);
@@ -182,11 +182,11 @@ int main(int argc, char* argv[])
 				entityNode.SetPosition(Nz::Vector3f(x * 2.f, y * 1.5f, z * 2.f));
 				entityNode.SetRotation(Nz::EulerAnglesf(0.f, Nz::TurnAnglef(0.5f), 0.f));
 
-				Nz::JoltRigidBody3D::DynamicSettings settings;
+				Nz::RigidBody3D::DynamicSettings settings;
 				settings.geom = shipCollider;
 				settings.mass = 100.f;
 
-				auto& entityPhys = entity.emplace<Nz::JoltRigidBody3DComponent>(settings);
+				auto& entityPhys = entity.emplace<Nz::RigidBody3DComponent>(settings);
 				entityPhys.SetMass(1.f);
 				entityPhys.SetAngularDamping(0.f);
 				entityPhys.SetLinearDamping(0.f);
@@ -221,13 +221,13 @@ int main(int argc, char* argv[])
 			showColliders = !showColliders;
 			if (showColliders)
 			{
-				auto view = world.GetRegistry().view<Nz::GraphicsComponent, Nz::JoltRigidBody3DComponent>();
+				auto view = world.GetRegistry().view<Nz::GraphicsComponent, Nz::RigidBody3DComponent>();
 				for (auto [entity, gfxComponent, _] : view.each())
 					gfxComponent.AttachRenderable(colliderModel, 1);
 			}
 			else
 			{
-				auto view = world.GetRegistry().view<Nz::GraphicsComponent, Nz::JoltRigidBody3DComponent>();
+				auto view = world.GetRegistry().view<Nz::GraphicsComponent, Nz::RigidBody3DComponent>();
 				for (auto [entity, gfxComponent, _] : view.each())
 					gfxComponent.DetachRenderable(colliderModel);
 			}
@@ -242,11 +242,11 @@ int main(int argc, char* argv[])
 
 			entity.emplace<Nz::NodeComponent>();
 
-			Nz::JoltRigidBody3D::DynamicSettings settings;
+			Nz::RigidBody3D::DynamicSettings settings;
 			settings.geom = shipCollider;
 			settings.mass = 100.f;
 
-			auto& entityPhys = entity.emplace<Nz::JoltRigidBody3DComponent>(settings);
+			auto& entityPhys = entity.emplace<Nz::RigidBody3DComponent>(settings);
 			entityPhys.SetMass(1.f);
 			entityPhys.SetAngularDamping(0.f);
 			entityPhys.SetLinearDamping(0.f);
@@ -273,7 +273,7 @@ int main(int argc, char* argv[])
 		{
 			float elapsedTime = deltaTime->AsSeconds();
 
-			auto spaceshipView = world.GetRegistry().view<Nz::NodeComponent, Nz::JoltRigidBody3DComponent>();
+			auto spaceshipView = world.GetRegistry().view<Nz::NodeComponent, Nz::RigidBody3DComponent>();
 			for (auto&& [entity, node, _] : spaceshipView.each())
 			{
 				if (entity == playerEntity)
@@ -284,7 +284,7 @@ int main(int argc, char* argv[])
 					world.GetRegistry().destroy(entity);
 			}
 
-			Nz::JoltRigidBody3DComponent& playerShipBody = playerEntity.get<Nz::JoltRigidBody3DComponent>();
+			Nz::RigidBody3DComponent& playerShipBody = playerEntity.get<Nz::RigidBody3DComponent>();
 			Nz::Quaternionf currentRotation = playerShipBody.GetRotation();
 
 			Nz::Vector3f desiredHeading = headingEntity.get<Nz::NodeComponent>().GetForward();

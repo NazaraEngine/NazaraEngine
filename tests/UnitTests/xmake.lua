@@ -18,7 +18,7 @@ target("UnitTests", function ()
         add_defines("CATCH_CONFIG_NO_POSIX_SIGNALS")
     end
 
-    add_deps("NazaraAudio", "NazaraCore", "NazaraNetwork", "NazaraChipmunkPhysics2D")
+    add_deps("NazaraAudio", "NazaraCore", "NazaraNetwork", "NazaraPhysics2D")
     add_deps("UnitTests_sub1", "UnitTests_sub2", { links = {} })
     add_packages("catch2", "entt", "frozen")
     add_headerfiles("Engine/**.hpp", { prefixdir = "private", install = false })

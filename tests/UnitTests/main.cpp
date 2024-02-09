@@ -4,12 +4,12 @@
 #include <Nazara/Audio/Audio.hpp>
 #include <Nazara/Core/Modules.hpp>
 #include <Nazara/Network/Network.hpp>
-#include <Nazara/ChipmunkPhysics2D/ChipmunkPhysics2D.hpp>
+#include <Nazara/Physics2D/Physics2D.hpp>
 #include <Nazara/Utility/Utility.hpp>
 
 int main(int argc, char* argv[])
 {
-	Nz::Modules<Nz::Audio, Nz::Network, Nz::ChipmunkPhysics2D, Nz::Utility> nazaza;
+	Nz::Modules<Nz::Audio, Nz::Network, Nz::Physics2D, Nz::Utility> nazaza;
 
 	return Catch::Session().run(argc, argv);
 }
