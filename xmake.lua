@@ -286,7 +286,7 @@ add_requires(
 
 -- Don't link with system-installed libs on CI
 if os.getenv("CI") then
-	add_requireconfs("**", "*.**", { system = false })
+	add_requireconfs("*", { system = false })
 end
 
 -- Module dependencies
