@@ -284,6 +284,11 @@ add_requires(
 	"utfcpp"
 )
 
+-- Don't link with system-installed libs on CI
+if os.getenv("CI") then
+	add_requireconfs("**", "*.**", { system = false })
+end
+
 -- Module dependencies
 if has_config("audio") then
 	add_requires("dr_wav", "libflac", "minimp3")
