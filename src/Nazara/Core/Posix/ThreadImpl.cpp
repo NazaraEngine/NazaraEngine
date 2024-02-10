@@ -29,7 +29,7 @@ namespace Nz::PlatformImpl
 
 		return std::string(&name[0]);
 #else
-		NazaraUnused(threadHandle)
+		NazaraUnused(threadHandle);
 		return "<unsupported>";
 #endif
 	}
@@ -41,7 +41,7 @@ namespace Nz::PlatformImpl
 #elif defined(__APPLE__)
 		::pthread_setname_np(threadName);
 #else
-		NazaraUnused(threadName)
+		NazaraUnused(threadName);
 		NazaraWarning("setting current thread name is not supported on this platform");
 #endif
 	}
@@ -51,12 +51,12 @@ namespace Nz::PlatformImpl
 #if defined(__linux__) || defined(__FreeBSD__)
 		::pthread_setname_np(threadHandle, threadName);
 #elif defined(__APPLE__)
-		NazaraUnused(threadHandle)
-		NazaraUnused(threadName)
+		NazaraUnused(threadHandle);
+		NazaraUnused(threadName);
 		NazaraWarning("only current thread name can be set on MacOS X");
 #else
-		NazaraUnused(threadHandle)
-		NazaraUnused(threadName)
+		NazaraUnused(threadHandle);
+		NazaraUnused(threadName);
 		NazaraWarning("setting a thread name is not supported on this platform");
 #endif
 	}

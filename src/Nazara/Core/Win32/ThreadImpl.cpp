@@ -101,8 +101,8 @@ NAZARA_WARNING_MSVC_DISABLE(6320 6322)
 NAZARA_WARNING_POP()
 
 #else
-		NazaraUnused(threadId)
-		NazaraUnused(threadName)
+		NazaraUnused(threadId);
+		NazaraUnused(threadName);
 		NazaraWarning("ThreadName exception is only supported with MSVC");
 #endif
 	}
