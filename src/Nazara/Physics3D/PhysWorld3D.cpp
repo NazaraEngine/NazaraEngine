@@ -6,8 +6,8 @@
 #include <Nazara/Physics3D/Collider3D.hpp>
 #include <Nazara/Physics3D/JoltHelper.hpp>
 #include <Nazara/Physics3D/PhysCharacter3D.hpp>
+#include <Nazara/Physics3D/PhysWorld3DStepListener.hpp>
 #include <Nazara/Physics3D/Physics3D.hpp>
-#include <Nazara/Physics3D/Physiscs3DStepListener.hpp>
 #include <NazaraUtils/MemoryPool.hpp>
 #include <NazaraUtils/StackVector.hpp>
 #include <Jolt/Jolt.h>
@@ -600,7 +600,7 @@ namespace Nz
 		{
 			m_world->physicsSystem.Update(stepSize, 1, &m_world->tempAllocator, &jobSystem);
 
-			for (Physiscs3DStepListener* stepListener : m_stepListeners)
+			for (PhysWorld3DStepListener* stepListener : m_stepListeners)
 				stepListener->PostSimulate(stepSize);
 
 			m_timestepAccumulator -= m_stepSize;
@@ -677,7 +677,7 @@ namespace Nz
 
 	void PhysWorld3D::OnPreStep(float deltatime)
 	{
-		for (Physiscs3DStepListener* stepListener : m_stepListeners)
+		for (PhysWorld3DStepListener* stepListener : m_stepListeners)
 			stepListener->PreSimulate(deltatime);
 	}
 }

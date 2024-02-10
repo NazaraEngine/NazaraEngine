@@ -31,7 +31,7 @@ namespace Nz
 	class PhysCharacter3D;
 	class PhysCharacter3DImpl;
 	class Collider3D;
-	class Physiscs3DStepListener;
+	class PhysWorld3DStepListener;
 	class RigidBody3D;
 
 	class NAZARA_PHYSICS3D_API PhysWorld3D
@@ -67,7 +67,7 @@ namespace Nz
 
 			void RefreshBodies();
 
-			inline void RegisterStepListener(Physiscs3DStepListener* stepListener);
+			inline void RegisterStepListener(PhysWorld3DStepListener* stepListener);
 
 			void SetGravity(const Vector3f& gravity);
 			void SetMaxStepCount(std::size_t maxStepCount);
@@ -75,7 +75,7 @@ namespace Nz
 
 			bool Step(Time timestep);
 
-			inline void UnregisterStepListener(Physiscs3DStepListener* stepListener);
+			inline void UnregisterStepListener(PhysWorld3DStepListener* stepListener);
 
 			PhysWorld3D& operator=(const PhysWorld3D&) = delete;
 			PhysWorld3D& operator=(PhysWorld3D&&) = delete;
@@ -125,7 +125,7 @@ namespace Nz
 			std::unique_ptr<std::atomic_uint64_t[]> m_activeBodies;
 			std::unique_ptr<std::uint64_t[]> m_registeredBodies;
 			std::unique_ptr<JoltWorld> m_world;
-			std::vector<Physiscs3DStepListener*> m_stepListeners;
+			std::vector<PhysWorld3DStepListener*> m_stepListeners;
 			Vector3f m_gravity;
 			Time m_stepSize;
 			Time m_timestepAccumulator;

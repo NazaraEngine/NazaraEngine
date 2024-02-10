@@ -22,13 +22,13 @@ namespace Nz
 		return m_registeredBodies[blockIndex] & (UInt64(1u) << localIndex);
 	}
 
-	inline void PhysWorld3D::RegisterStepListener(Physiscs3DStepListener* stepListener)
+	inline void PhysWorld3D::RegisterStepListener(PhysWorld3DStepListener* stepListener)
 	{
 		auto it = std::lower_bound(m_stepListeners.begin(), m_stepListeners.end(), stepListener);
 		m_stepListeners.insert(it, stepListener);
 	}
 
-	inline void PhysWorld3D::UnregisterStepListener(Physiscs3DStepListener* stepListener)
+	inline void PhysWorld3D::UnregisterStepListener(PhysWorld3DStepListener* stepListener)
 	{
 		auto it = std::lower_bound(m_stepListeners.begin(), m_stepListeners.end(), stepListener);
 		assert(*it == stepListener);
