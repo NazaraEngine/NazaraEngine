@@ -8,12 +8,12 @@
 #define NAZARA_RENDERER_RENDERERIMPL_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/ParameterList.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/RenderDeviceInfo.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
-#include <Nazara/Utility/Enums.hpp>
 #include <string>
 #include <vector>
 

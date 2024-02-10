@@ -10,7 +10,7 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Enums.hpp>
-#include <Nazara/Core/SerializationContext.hpp>
+#include <Nazara/Core/Serialization.hpp>
 #include <memory>
 
 namespace Nz

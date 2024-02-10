@@ -8,10 +8,10 @@
 #define NAZARA_GRAPHICS_GRAPHICALMESH_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/Mesh.hpp>
+#include <Nazara/Core/VertexDeclaration.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Renderer/RenderBuffer.hpp>
-#include <Nazara/Utility/Mesh.hpp>
-#include <Nazara/Utility/VertexDeclaration.hpp>
 #include <NazaraUtils/Signal.hpp>
 #include <memory>
 

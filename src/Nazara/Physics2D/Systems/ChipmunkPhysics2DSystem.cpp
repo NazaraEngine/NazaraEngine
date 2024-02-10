@@ -3,8 +3,8 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Components/DisabledComponent.hpp>
+#include <Nazara/Core/Components/NodeComponent.hpp>
 #include <Nazara/Physics2D/Systems/Physics2DSystem.hpp>
-#include <Nazara/Utility/Components/NodeComponent.hpp>
 #include <Nazara/Physics2D/Debug.hpp>
 
 namespace Nz

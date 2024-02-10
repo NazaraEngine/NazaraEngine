@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/MaterialInstance.hpp>
+#include <Nazara/Core/MaterialData.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
@@ -10,7 +11,6 @@
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/RenderResources.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
-#include <Nazara/Utility/MaterialData.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
@@ -451,7 +451,7 @@ namespace Nz
 	std::shared_ptr<MaterialInstance> MaterialInstance::GetDefault(MaterialType materialType, MaterialInstancePreset preset)
 	{
 		Graphics* graphics = Graphics::Instance();
-		NazaraAssert(graphics, "Utility module has not been initialized");
+		NazaraAssert(graphics, "Core module has not been initialized");
 
 		return graphics->GetDefaultMaterials().materials[materialType].presets[preset];
 	}
@@ -459,7 +459,7 @@ namespace Nz
 	std::shared_ptr<MaterialInstance> MaterialInstance::LoadFromFile(const std::filesystem::path& filePath, const MaterialInstanceParams& params)
 	{
 		Graphics* graphics = Graphics::Instance();
-		NazaraAssert(graphics, "Utility module has not been initialized");
+		NazaraAssert(graphics, "Core module has not been initialized");
 
 		return graphics->GetMaterialInstanceLoader().LoadFromFile(filePath, params);
 	}
@@ -467,7 +467,7 @@ namespace Nz
 	std::shared_ptr<MaterialInstance> MaterialInstance::LoadFromMemory(const void* data, std::size_t size, const MaterialInstanceParams& params)
 	{
 		Graphics* graphics = Graphics::Instance();
-		NazaraAssert(graphics, "Utility module has not been initialized");
+		NazaraAssert(graphics, "Core module has not been initialized");
 
 		return graphics->GetMaterialInstanceLoader().LoadFromMemory(data, size, params);
 	}
@@ -475,7 +475,7 @@ namespace Nz
 	std::shared_ptr<MaterialInstance> MaterialInstance::LoadFromStream(Stream& stream, const MaterialInstanceParams& params)
 	{
 		Graphics* graphics = Graphics::Instance();
-		NazaraAssert(graphics, "Utility module has not been initialized");
+		NazaraAssert(graphics, "Core module has not been initialized");
 
 		return graphics->GetMaterialInstanceLoader().LoadFromStream(stream, params);
 	}

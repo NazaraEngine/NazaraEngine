@@ -3,13 +3,13 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Physics3D/Collider3D.hpp>
+#include <Nazara/Core/Algorithm.hpp>
+#include <Nazara/Core/IndexBuffer.hpp>
 #include <Nazara/Core/PrimitiveList.hpp>
+#include <Nazara/Core/SoftwareBuffer.hpp>
+#include <Nazara/Core/StaticMesh.hpp>
+#include <Nazara/Core/VertexBuffer.hpp>
 #include <Nazara/Physics3D/JoltHelper.hpp>
-#include <Nazara/Utility/Algorithm.hpp>
-#include <Nazara/Utility/IndexBuffer.hpp>
-#include <Nazara/Utility/SoftwareBuffer.hpp>
-#include <Nazara/Utility/StaticMesh.hpp>
-#include <Nazara/Utility/VertexBuffer.hpp>
 #include <NazaraUtils/StackArray.hpp>
 #include <Jolt/Core/Core.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>

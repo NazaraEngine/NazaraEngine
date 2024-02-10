@@ -8,9 +8,9 @@
 #define NAZARA_RENDERER_RENDERPASS_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/PixelFormat.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
-#include <Nazara/Utility/PixelFormat.hpp>
 #include <limits>
 #include <optional>
 #include <vector>

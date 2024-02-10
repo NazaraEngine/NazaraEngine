@@ -6,8 +6,8 @@
 // https://themaister.net/blog/2017/08/15/render-graphs-and-vulkan-a-deep-dive/
 
 #include <Nazara/Graphics/FrameGraph.hpp>
-#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
+#include <NazaraUtils/Algorithm.hpp>
 #include <NazaraUtils/Bitset.hpp>
 #include <NazaraUtils/StackArray.hpp>
 #include <stdexcept>

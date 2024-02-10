@@ -18,7 +18,7 @@
 #include <Nazara/Graphics/Formats/ModelMeshLoader.hpp>
 #include <Nazara/Graphics/Formats/PipelinePassListLoader.hpp>
 #include <Nazara/Graphics/Formats/TextureLoader.hpp>
-#include <Nazara/Utility/Font.hpp>
+#include <Nazara/TextRenderer/Font.hpp>
 #include <NZSL/Ast/AstSerializer.hpp>
 #include <NZSL/Ast/Module.hpp>
 #include <array>

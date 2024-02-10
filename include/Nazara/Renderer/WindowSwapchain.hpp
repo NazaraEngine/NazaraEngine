@@ -11,6 +11,7 @@
 #include <Nazara/Platform/WindowEventHandler.hpp>
 #include <Nazara/Renderer/Swapchain.hpp>
 #include <Nazara/Renderer/SwapchainParameters.hpp>
+#include <NazaraUtils/MovablePtr.hpp>
 #include <memory>
 
 namespace Nz

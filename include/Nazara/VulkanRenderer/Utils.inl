@@ -2,9 +2,9 @@
 // This file is part of the "Nazara Engine - Vulkan renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/StringExt.hpp>
+#include <NazaraUtils/Algorithm.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz

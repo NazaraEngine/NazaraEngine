@@ -27,21 +27,21 @@ SOFTWARE.
 #include <NazaraUtils/CallOnExit.hpp>
 #include <NazaraUtils/StringHash.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Utility/Animation.hpp>
-#include <Nazara/Utility/Mesh.hpp>
-#include <Nazara/Utility/Image.hpp>
-#include <Nazara/Utility/IndexIterator.hpp>
-#include <Nazara/Utility/IndexMapper.hpp>
-#include <Nazara/Utility/Joint.hpp>
-#include <Nazara/Utility/MaterialData.hpp>
-#include <Nazara/Utility/PixelFormat.hpp>
-#include <Nazara/Utility/Sequence.hpp>
-#include <Nazara/Utility/SkeletalMesh.hpp>
-#include <Nazara/Utility/Skeleton.hpp>
-#include <Nazara/Utility/StaticMesh.hpp>
-#include <Nazara/Utility/VertexMapper.hpp>
-#include <Nazara/Utility/Utility.hpp>
-#include <Nazara/Utility/Plugins/AssimpPlugin.hpp>
+#include <Nazara/Core/Animation.hpp>
+#include <Nazara/Core/Mesh.hpp>
+#include <Nazara/Core/Image.hpp>
+#include <Nazara/Core/IndexIterator.hpp>
+#include <Nazara/Core/IndexMapper.hpp>
+#include <Nazara/Core/Joint.hpp>
+#include <Nazara/Core/MaterialData.hpp>
+#include <Nazara/Core/PixelFormat.hpp>
+#include <Nazara/Core/Sequence.hpp>
+#include <Nazara/Core/SkeletalMesh.hpp>
+#include <Nazara/Core/Skeleton.hpp>
+#include <Nazara/Core/StaticMesh.hpp>
+#include <Nazara/Core/VertexMapper.hpp>
+#include <Nazara/Core/Core.hpp>
+#include <Nazara/Core/Plugins/AssimpPlugin.hpp>
 #include <assimp/cfileio.h>
 #include <assimp/cimport.h>
 #include <assimp/config.h>
@@ -896,8 +896,8 @@ namespace
 		public:
 			bool Activate() override
 			{
-				Nz::Utility* utility = Nz::Utility::Instance();
-				NazaraAssert(utility, "utility module is not instancied");
+				Nz::Core* core = Nz::Core::Instance();
+				NazaraAssert(core, "core module is not instancied");
 
 				Nz::AnimationLoader::Entry animationLoaderEntry;
 				animationLoaderEntry.extensionSupport = IsSupported;
@@ -910,7 +910,7 @@ namespace
 					return true;
 				};
 
-				Nz::AnimationLoader& animationLoader = utility->GetAnimationLoader();
+				Nz::AnimationLoader& animationLoader = core->GetAnimationLoader();
 				m_animationLoaderEntry = animationLoader.RegisterLoader(std::move(animationLoaderEntry));
 				
 				Nz::MeshLoader::Entry meshLoaderEntry;
@@ -924,7 +924,7 @@ namespace
 					return true;
 				};
 
-				Nz::MeshLoader& meshLoader = utility->GetMeshLoader();
+				Nz::MeshLoader& meshLoader = core->GetMeshLoader();
 				m_meshLoaderEntry = meshLoader.RegisterLoader(std::move(meshLoaderEntry));
 
 				return true;
@@ -932,13 +932,13 @@ namespace
 
 			void Deactivate() override
 			{
-				Nz::Utility* utility = Nz::Utility::Instance();
-				NazaraAssert(utility, "utility module is not instanced");
+				Nz::Core* core = Nz::Core::Instance();
+				NazaraAssert(core, "core module is not instanced");
 
-				Nz::AnimationLoader& animationLoader = utility->GetAnimationLoader();
+				Nz::AnimationLoader& animationLoader = core->GetAnimationLoader();
 				animationLoader.UnregisterLoader(m_animationLoaderEntry);
 
-				Nz::MeshLoader& meshLoader = utility->GetMeshLoader();
+				Nz::MeshLoader& meshLoader = core->GetMeshLoader();
 				meshLoader.UnregisterLoader(m_meshLoaderEntry);
 			}
 
@@ -976,10 +976,10 @@ extern "C"
 {
 	NAZARA_EXPORT Nz::PluginInterface* PluginLoad()
 	{
-		Nz::Utility* utility = Nz::Utility::Instance();
-		if (!utility)
+		Nz::Core* core = Nz::Core::Instance();
+		if (!core)
 		{
-			NazaraError("Utility module must be initialized");
+			NazaraError("Core module must be initialized");
 			return nullptr;
 		}
 

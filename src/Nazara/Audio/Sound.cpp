@@ -6,8 +6,8 @@
 #include <Nazara/Audio/Audio.hpp>
 #include <Nazara/Audio/AudioSource.hpp>
 #include <Nazara/Audio/Config.hpp>
-#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <NazaraUtils/Algorithm.hpp>
 #include <Nazara/Audio/Debug.hpp>
 
 namespace Nz

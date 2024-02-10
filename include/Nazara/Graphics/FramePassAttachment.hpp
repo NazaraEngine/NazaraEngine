@@ -8,9 +8,9 @@
 #define NAZARA_GRAPHICS_FRAMEPASSATTACHMENT_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/PixelFormat.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
-#include <Nazara/Utility/PixelFormat.hpp>
 #include <string>
 
 namespace Nz

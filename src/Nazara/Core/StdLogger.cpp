@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/StdLogger.hpp>
-#include <Nazara/Core/Algorithm.hpp>
 #include <NazaraUtils/EnumArray.hpp>
 #include <cstdio>
 #include <Nazara/Core/Debug.hpp>

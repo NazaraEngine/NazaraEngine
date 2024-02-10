@@ -3,11 +3,11 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/VulkanRenderer/VulkanShaderBinding.hpp>
-#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/VulkanRenderer/VulkanBuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPipelineLayout.hpp>
 #include <Nazara/VulkanRenderer/VulkanTexture.hpp>
 #include <Nazara/VulkanRenderer/VulkanTextureSampler.hpp>
+#include <NazaraUtils/Algorithm.hpp>
 #include <NazaraUtils/StackVector.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 

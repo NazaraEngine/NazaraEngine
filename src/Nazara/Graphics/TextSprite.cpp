@@ -7,7 +7,8 @@
 #include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/RenderSpriteChain.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
-#include <Nazara/Utility/AbstractTextDrawer.hpp>
+#include <Nazara/TextRenderer/AbstractTextDrawer.hpp>
+#include <Nazara/TextRenderer/Font.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 

@@ -34,9 +34,6 @@
 
 /// Each modification of a parameter needs a recompilation of the module
 
-// Precision of reals when transformed into string (Max. numbers after the coma)
-#define NAZARA_CORE_DECIMAL_DIGITS 6
-
 // Duplicate the log output on the standard output flux (cout)
 #define NAZARA_CORE_DUPLICATE_LOG_TO_COUT 0
 
@@ -54,6 +51,12 @@
 
 // Activate the security tests based on the code (Advised for development)
 #define NAZARA_CORE_SAFE 1
+
+// When a resource is being parsed, it triggers a warning if a non-critical error is found in the resource (Slower)
+#define NAZARA_CORE_STRICT_RESOURCE_PARSING 1
+
+// The maximal number of weights acting on a vertex (In case of overflow, the surnumerous weights would be ignored and the others renormalized)
+#define NAZARA_CORE_SKINNING_MAX_WEIGHTS 4
 
 /// Checking the values and types of certain constants
 #include <Nazara/Core/ConfigCheck.hpp>

@@ -8,14 +8,14 @@
 #define NAZARA_GRAPHICS_SYSTEMS_RENDERSYSTEM_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/Node.hpp>
+#include <Nazara/Core/Skeleton.hpp>
 #include <Nazara/Core/Time.hpp>
 #include <Nazara/Graphics/ElementRendererRegistry.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/Components/GraphicsComponent.hpp>
 #include <Nazara/Graphics/Components/LightComponent.hpp>
 #include <Nazara/Renderer/WindowSwapchain.hpp>
-#include <Nazara/Utility/Node.hpp>
-#include <Nazara/Utility/Skeleton.hpp>
 #include <NazaraUtils/MemoryPool.hpp>
 #include <entt/entt.hpp>
 #include <array>

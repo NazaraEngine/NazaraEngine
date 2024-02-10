@@ -3,7 +3,6 @@
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Network.hpp>
 #include <Nazara/Renderer.hpp>
-#include <Nazara/Utility.hpp>
 #include <NazaraSDK/Application.hpp>
 #include <NazaraSDK/Components.hpp>
 #include <NazaraSDK/Systems.hpp>

@@ -5,7 +5,6 @@
 #include <NZSL/FilesystemModuleResolver.hpp>
 #include <NZSL/LangWriter.hpp>
 #include <NZSL/Parser.hpp>
-#include <Nazara/Utility.hpp>
 #include <iostream>
 #include <thread>
 

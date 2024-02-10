@@ -5,9 +5,9 @@
 #include <Nazara/Widgets/AbstractTextAreaWidget.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Core/Unicode.hpp>
+#include <Nazara/Core/Components/NodeComponent.hpp>
 #include <Nazara/Graphics/Components/GraphicsComponent.hpp>
-#include <Nazara/Utility/Font.hpp>
-#include <Nazara/Utility/Components/NodeComponent.hpp>
+#include <Nazara/TextRenderer/Font.hpp>
 #include <Nazara/Widgets/Canvas.hpp>
 #include <Nazara/Widgets/Widgets.hpp>
 #include <Nazara/Widgets/Debug.hpp>

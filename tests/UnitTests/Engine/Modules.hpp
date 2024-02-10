@@ -4,4 +4,3 @@
 #include <Nazara/Network.hpp>
 #include <Nazara/Physics2D.hpp>
 #include <Nazara/Physics3D.hpp>
-#include <Nazara/Utility.hpp>

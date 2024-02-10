@@ -8,8 +8,8 @@
 #define NAZARA_CORE_COMPONENTS_LIFETIMECOMPONENT_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Time.hpp>
-#include <Nazara/Utility/Config.hpp>
 
 namespace Nz
 {

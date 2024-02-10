@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/OpenGLRenderer/OpenGLTexture.hpp>
-#include <Nazara/Utility/PixelFormat.hpp>
+#include <Nazara/Core/PixelFormat.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
 #include <stdexcept>
 #include <Nazara/OpenGLRenderer/Debug.hpp>

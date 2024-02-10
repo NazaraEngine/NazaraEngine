@@ -7,7 +7,8 @@
 #ifndef NAZARA_CORE_FUNCTOR_HPP
 #define NAZARA_CORE_FUNCTOR_HPP
 
-#include <Nazara/Core/Algorithm.hpp>
+#include <tuple>
+#include <utility>
 
 // Inspired from the of code of the SFML by Laurent Gomila
 

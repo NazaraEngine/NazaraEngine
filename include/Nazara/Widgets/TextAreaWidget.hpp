@@ -7,7 +7,7 @@
 #ifndef NAZARA_WIDGETS_TEXTAREAWIDGET_HPP
 #define NAZARA_WIDGETS_TEXTAREAWIDGET_HPP
 
-#include <Nazara/Utility/SimpleTextDrawer.hpp>
+#include <Nazara/TextRenderer/SimpleTextDrawer.hpp>
 #include <Nazara/Widgets/AbstractTextAreaWidget.hpp>
 
 namespace Nz

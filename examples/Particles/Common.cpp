@@ -1,6 +1,6 @@
 #include "Common.hpp"
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Utility/SimpleTextDrawer.hpp>
+#include <Nazara/TextRenderer/SimpleTextDrawer.hpp>
 #include <NazaraSDK/Components/ParticleGroupComponent.hpp>
 #include <NazaraSDK/Systems/RenderSystem.hpp>
 

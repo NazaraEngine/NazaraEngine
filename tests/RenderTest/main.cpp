@@ -6,7 +6,6 @@
 #include <NZSL/LangWriter.hpp>
 #include <NZSL/Parser.hpp>
 #include <NZSL/Ast/SanitizeVisitor.hpp>
-#include <Nazara/Utility.hpp>
 #include <iostream>
 #include <thread>
 

@@ -9,5 +9,6 @@
 #endif
 
 #undef CreateWindow
+#undef GetEnvironmentVariable
 #undef MemoryBarrier
 #undef RemoveDirectory

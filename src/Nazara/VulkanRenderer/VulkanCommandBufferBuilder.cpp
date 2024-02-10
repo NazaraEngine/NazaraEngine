@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/VulkanRenderer/VulkanCommandBufferBuilder.hpp>
-#include <Nazara/Utility/PixelFormat.hpp>
+#include <Nazara/Core/PixelFormat.hpp>
 #include <Nazara/VulkanRenderer/VulkanBuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanComputePipeline.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPass.hpp>

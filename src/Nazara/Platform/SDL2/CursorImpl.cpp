@@ -4,7 +4,7 @@
 
 #include <Nazara/Platform/SDL2/CursorImpl.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
-#include <Nazara/Utility/PixelFormat.hpp>
+#include <Nazara/Core/PixelFormat.hpp>
 #include <array>
 #include <Nazara/Platform/Debug.hpp>
 

@@ -6,7 +6,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/File.hpp>
-#include <Nazara/Utility/Mesh.hpp>
+#include <Nazara/Core/Mesh.hpp>
 #include <assimp/cfileio.h>
 #include <assimp/cimport.h>
 #include <cstring>

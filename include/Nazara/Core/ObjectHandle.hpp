@@ -7,8 +7,8 @@
 #ifndef NAZARA_CORE_OBJECTHANDLE_HPP
 #define NAZARA_CORE_OBJECTHANDLE_HPP
 
-#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/HandledObject.hpp>
+#include <NazaraUtils/TypeTraits.hpp>
 #include <memory>
 #include <ostream>
 #include <string>

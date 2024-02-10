@@ -7,7 +7,7 @@
 #ifndef NAZARA_MATH_ENUMS_HPP
 #define NAZARA_MATH_ENUMS_HPP
 
-#include <Nazara/Core/Algorithm.hpp>
+#include <NazaraUtils/Algorithm.hpp>
 
 namespace Nz
 {

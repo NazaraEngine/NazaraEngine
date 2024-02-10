@@ -2,7 +2,6 @@
 #include <Nazara/Platform.hpp>
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Renderer.hpp>
-#include <Nazara/Utility.hpp>
 #include <chrono>
 #include <iostream>
 #include <thread>

@@ -8,11 +8,11 @@
 #define NAZARA_GRAPHICS_RENDERSUBMESH_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/Enums.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>
 #include <Nazara/Graphics/RenderQueueRegistry.hpp>
 #include <Nazara/Graphics/SkeletonInstance.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
-#include <Nazara/Utility/Enums.hpp>
 #include <memory>
 #include <vector>
 

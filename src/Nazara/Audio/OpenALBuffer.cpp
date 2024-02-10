@@ -5,7 +5,7 @@
 #include <Nazara/Audio/OpenALBuffer.hpp>
 #include <Nazara/Audio/OpenALDevice.hpp>
 #include <Nazara/Audio/OpenALLibrary.hpp>
-#include <Nazara/Core/Algorithm.hpp>
+#include <NazaraUtils/Algorithm.hpp>
 #include <Nazara/Audio/Debug.hpp>
 
 namespace Nz

@@ -1,4 +1,3 @@
-#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Core/VirtualDirectory.hpp>
@@ -260,7 +259,7 @@ TEST_CASE("VirtualDirectory", "[Core][VirtualDirectory]")
 			CHECK(resourceDir->GetEntry("./..", CheckOurselves));
 			CHECK(resourceDir->GetEntry("./..", CheckOurselves));
 			CHECK(resourceDir->GetEntry("Audio/../..", CheckOurselves));
-			CHECK(resourceDir->GetEntry("Core/../Audio/../../..", CheckOurselves));
+			CHECK(resourceDir->GetEntry("Utility/../Audio/../../..", CheckOurselves));
 		}
 		AND_THEN("Overriding the physical file with another one")
 		{

@@ -1,6 +1,6 @@
 #include <ShaderNode/Widgets/StructEditDialog.hpp>
 #include <ShaderNode/Widgets/StructMemberEditDialog.hpp>
-#include <Nazara/Core/Algorithm.hpp>
+#include <NazaraUtils/Algorithm.hpp>
 #include <ShaderNode/ShaderGraph.hpp>
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QDialogButtonBox>

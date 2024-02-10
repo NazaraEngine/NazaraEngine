@@ -3,9 +3,9 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/GraphicalMesh.hpp>
+#include <Nazara/Core/SoftwareBuffer.hpp>
+#include <Nazara/Core/StaticMesh.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
-#include <Nazara/Utility/SoftwareBuffer.hpp>
-#include <Nazara/Utility/StaticMesh.hpp>
 #include <cassert>
 #include <Nazara/Graphics/Debug.hpp>
 

@@ -7,11 +7,11 @@
 #ifndef NAZARA_WIDGETS_BASEWIDGET_HPP
 #define NAZARA_WIDGETS_BASEWIDGET_HPP
 
+#include <Nazara/Core/Node.hpp>
 #include <Nazara/Graphics/Sprite.hpp>
 #include <Nazara/Graphics/Components/GraphicsComponent.hpp>
 #include <Nazara/Platform/Mouse.hpp>
 #include <Nazara/Platform/WindowEvent.hpp>
-#include <Nazara/Utility/Node.hpp>
 #include <Nazara/Widgets/Config.hpp>
 #include <entt/entity/entity.hpp>
 #include <entt/entity/registry.hpp>

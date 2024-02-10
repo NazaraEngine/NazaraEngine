@@ -8,7 +8,6 @@
 #define NAZARA_VULKANRENDERER_VULKANCOMPUTEPIPELINE_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Renderer/ComputePipeline.hpp>
 #include <Nazara/VulkanRenderer/Config.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Device.hpp>

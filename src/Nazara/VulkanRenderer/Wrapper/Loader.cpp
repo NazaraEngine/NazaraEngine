@@ -7,6 +7,7 @@
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/VulkanRenderer/Utils.hpp>
 #include <NazaraUtils/PathUtils.hpp>
+#include <array>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz

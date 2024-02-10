@@ -8,9 +8,9 @@
 #define NAZARA_PLATFORM_SDL2_CURSORIMPL_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/Image.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Platform/Enums.hpp>
-#include <Nazara/Utility/Image.hpp>
 #include <NazaraUtils/MovablePtr.hpp>
 #include <SDL_mouse.h>
 

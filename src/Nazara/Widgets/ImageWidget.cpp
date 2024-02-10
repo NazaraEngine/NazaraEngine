@@ -3,8 +3,8 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Widgets/ImageWidget.hpp>
+#include <Nazara/Core/Components/NodeComponent.hpp>
 #include <Nazara/Graphics/Components/GraphicsComponent.hpp>
-#include <Nazara/Utility/Components/NodeComponent.hpp>
 #include <Nazara/Widgets/Canvas.hpp>
 #include <Nazara/Widgets/Widgets.hpp>
 #include <Nazara/Widgets/Debug.hpp>

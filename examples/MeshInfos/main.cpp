@@ -1,13 +1,13 @@
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/Modules.hpp>
 #include <Nazara/Math/Box.hpp>
-#include <Nazara/Utility/Animation.hpp>
-#include <Nazara/Utility/Joint.hpp>
-#include <Nazara/Utility/MaterialData.hpp>
-#include <Nazara/Utility/Mesh.hpp>
-#include <Nazara/Utility/Sequence.hpp>
-#include <Nazara/Utility/Skeleton.hpp>
-#include <Nazara/Utility/Utility.hpp>
+#include <Nazara/Core/Animation.hpp>
+#include <Nazara/Core/Joint.hpp>
+#include <Nazara/Core/MaterialData.hpp>
+#include <Nazara/Core/Mesh.hpp>
+#include <Nazara/Core/Sequence.hpp>
+#include <Nazara/Core/Skeleton.hpp>
+#include <Nazara/Core/Core.hpp>
 #include <cctype>
 #include <iostream>
 #include <limits>
@@ -15,14 +15,7 @@
 int main()
 {
 	// Pour charger des ressources, il est impératif d'initialiser le module utilitaire
-	Nz::Modules<Nz::Utility> nazara;
-	/*if (!utility)
-	{
-		// Ça n'a pas fonctionné, le pourquoi se trouve dans le fichier NazaraLog.log
-		std::cout << "Failed to initialize Nazara, see NazaraLog.log for further informations" << std::endl;
-		std::getchar(); // On laise le temps de voir l'erreur
-		return EXIT_FAILURE;
-	}*/
+	Nz::Modules<Nz::Core> nazara;
 
 	for (;;)
 	{

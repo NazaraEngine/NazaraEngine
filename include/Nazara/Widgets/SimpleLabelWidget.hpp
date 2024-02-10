@@ -7,7 +7,7 @@
 #ifndef NAZARA_WIDGETS_SIMPLELABELWIDGET_HPP
 #define NAZARA_WIDGETS_SIMPLELABELWIDGET_HPP
 
-#include <Nazara/Utility/SimpleTextDrawer.hpp>
+#include <Nazara/TextRenderer/SimpleTextDrawer.hpp>
 #include <Nazara/Widgets/AbstractLabelWidget.hpp>
 #include <NazaraUtils/FunctionRef.hpp>
 

@@ -8,7 +8,12 @@
 #define NAZARA_CORE_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/Animation.hpp>
+#include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/HardwareInfo.hpp>
+#include <Nazara/Core/Image.hpp>
+#include <Nazara/Core/ImageStream.hpp>
+#include <Nazara/Core/Mesh.hpp>
 #include <Nazara/Core/ModuleBase.hpp>
 #include <Nazara/Core/Modules.hpp>
 #include <NazaraUtils/TypeList.hpp>
@@ -28,10 +33,28 @@ namespace Nz
 			Core(Config /*config*/);
 			~Core();
 
+			AnimationLoader& GetAnimationLoader();
+			const AnimationLoader& GetAnimationLoader() const;
 			inline const HardwareInfo& GetHardwareInfo() const;
+			ImageLoader& GetImageLoader();
+			const ImageLoader& GetImageLoader() const;
+			ImageSaver& GetImageSaver();
+			const ImageSaver& GetImageSaver() const;
+			ImageStreamLoader& GetImageStreamLoader();
+			const ImageStreamLoader& GetImageStreamLoader() const;
+			MeshLoader& GetMeshLoader();
+			const MeshLoader& GetMeshLoader() const;
+			MeshSaver& GetMeshSaver();
+			const MeshSaver& GetMeshSaver() const;
 
 		private:
 			std::optional<HardwareInfo> m_hardwareInfo;
+			AnimationLoader m_animationLoader;
+			ImageLoader m_imageLoader;
+			ImageSaver m_imageSaver;
+			ImageStreamLoader m_imageStreamLoader;
+			MeshLoader m_meshLoader;
+			MeshSaver m_meshSaver;
 
 			static Core* s_instance;
 	};

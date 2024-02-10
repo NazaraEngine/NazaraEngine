@@ -1,4 +1,4 @@
-#include <Nazara/Core/SerializationContext.hpp>
+#include <Nazara/Core/Serialization.hpp>
 
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/MemoryView.hpp>

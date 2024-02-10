@@ -1,11 +1,11 @@
 #include <Nazara/Core.hpp>
+#include <Nazara/Core/Plugins/AssimpPlugin.hpp>
 #include <Nazara/Platform.hpp>
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Math/PidController.hpp>
 #include <Nazara/Physics3D.hpp>
 #include <Nazara/Renderer.hpp>
-#include <Nazara/Utility.hpp>
-#include <Nazara/Utility/Plugins/AssimpPlugin.hpp>
+#include <Nazara/TextRenderer/SimpleTextDrawer.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
 #include <NZSL/Math/FieldOffsets.hpp>
 #include <entt/entt.hpp>

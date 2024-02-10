@@ -3,13 +3,13 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Renderer/DebugDrawer.hpp>
+#include <Nazara/Core/Joint.hpp>
+#include <Nazara/Core/Skeleton.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
 #include <Nazara/Renderer/RenderPipeline.hpp>
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/Renderer/RenderResources.hpp>
-#include <Nazara/Utility/Joint.hpp>
-#include <Nazara/Utility/Skeleton.hpp>
 #include <NZSL/Serializer.hpp>
 #include <NZSL/Ast/AstSerializer.hpp>
 #include <NZSL/Math/FieldOffsets.hpp>

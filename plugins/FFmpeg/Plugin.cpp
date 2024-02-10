@@ -10,11 +10,11 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 You should have received a copy of the GNU General Public License along with this program. If not, see <https://www.gnu.org/licenses/>
 */
 
-#include <Nazara/Core/Algorithm.hpp>
+#include <NazaraUtils/Algorithm.hpp>
 #include <Nazara/Core/ByteStream.hpp>
-#include <Nazara/Utility/ImageStream.hpp>
-#include <Nazara/Utility/Utility.hpp>
-#include <Nazara/Utility/Plugins/FFmpegPlugin.hpp>
+#include <Nazara/Core/ImageStream.hpp>
+#include <Nazara/Core/Core.hpp>
+#include <Nazara/Core/Plugins/FFmpegPlugin.hpp>
 
 extern "C"
 {
@@ -434,8 +434,8 @@ namespace
 		public:
 			bool Activate() override
 			{
-				Nz::Utility* utility = Nz::Utility::Instance();
-				NazaraAssert(utility, "utility module is not instancied");
+				Nz::Core* core = Nz::Core::Instance();
+				NazaraAssert(core, "core module is not instancied");
 
 				Nz::ImageStreamLoader::Entry loaderEntry;
 				loaderEntry.extensionSupport = CheckVideoExtension;
@@ -450,7 +450,7 @@ namespace
 					return true;
 				};
 
-				Nz::ImageStreamLoader& imageStreamLoader = utility->GetImageStreamLoader();
+				Nz::ImageStreamLoader& imageStreamLoader = core->GetImageStreamLoader();
 				m_ffmpegLoaderEntry = imageStreamLoader.RegisterLoader(loaderEntry);
 
 				return true;
@@ -458,10 +458,10 @@ namespace
 
 			void Deactivate() override
 			{
-				Nz::Utility* utility = Nz::Utility::Instance();
-				NazaraAssert(utility, "utility module is not instanced");
+				Nz::Core* core = Nz::Core::Instance();
+				NazaraAssert(core, "core module is not instanced");
 
-				Nz::ImageStreamLoader& imageStreamLoader = utility->GetImageStreamLoader();
+				Nz::ImageStreamLoader& imageStreamLoader = core->GetImageStreamLoader();
 				imageStreamLoader.UnregisterLoader(m_ffmpegLoaderEntry);
 
 				m_ffmpegLoaderEntry = nullptr;
@@ -491,10 +491,10 @@ extern "C"
 {
 	NAZARA_EXPORT Nz::PluginInterface* PluginLoad()
 	{
-		Nz::Utility* utility = Nz::Utility::Instance();
-		if (!utility)
+		Nz::Core* core = Nz::Core::Instance();
+		if (!core)
 		{
-			NazaraError("Utility module must be initialized");
+			NazaraError("Core module must be initialized");
 			return nullptr;
 		}
 

@@ -1,5 +1,5 @@
 #include <ShaderNode/ShaderGraph.hpp>
-#include <Nazara/Core/Algorithm.hpp>
+#include <NazaraUtils/Algorithm.hpp>
 #include <NazaraUtils/StackArray.hpp>
 #include <NZSL/Ast/Cloner.hpp>
 #include <NZSL/Ast/Utils.hpp>

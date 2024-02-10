@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Widgets/LabelWidget.hpp>
-#include <Nazara/Utility/AbstractTextDrawer.hpp>
+#include <Nazara/TextRenderer/AbstractTextDrawer.hpp>
 #include <Nazara/Widgets/Debug.hpp>
 
 namespace Nz

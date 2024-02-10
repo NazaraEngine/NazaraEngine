@@ -6,8 +6,8 @@
 // http://www.crownandcutlass.com/features/technicaldetails/frustum.html
 // http://www.lighthouse3d.com/tutorials/view-frustum-culling/
 
-#include <Nazara/Core/Algorithm.hpp>
 #include <NazaraUtils/EnumArray.hpp>
+#include <NazaraUtils/MathUtils.hpp>
 #include <cstring>
 #include <sstream>
 #include <Nazara/Core/Debug.hpp>

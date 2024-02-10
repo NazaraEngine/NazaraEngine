@@ -8,8 +8,8 @@
 #define NAZARA_PLATFORM_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/Core.hpp>
 #include <Nazara/Platform/Config.hpp>
-#include <Nazara/Utility/Utility.hpp>
 
 namespace Nz
 {
@@ -18,7 +18,7 @@ namespace Nz
 		friend ModuleBase;
 
 		public:
-			using Dependencies = TypeList<Utility>;
+			using Dependencies = TypeList<Core>;
 
 			struct Config {};
 

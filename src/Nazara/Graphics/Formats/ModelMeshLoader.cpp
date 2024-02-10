@@ -3,11 +3,11 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/Formats/ModelMeshLoader.hpp>
+#include <Nazara/Core/Core.hpp>
+#include <Nazara/Core/Mesh.hpp>
 #include <Nazara/Graphics/GraphicalMesh.hpp>
 #include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/Model.hpp>
-#include <Nazara/Utility/Mesh.hpp>
-#include <Nazara/Utility/Utility.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz::Loaders
@@ -17,7 +17,7 @@ namespace Nz::Loaders
 		ModelLoader::Entry loaderEntry;
 		loaderEntry.extensionSupport = [](std::string_view extension)
 		{
-			return Utility::Instance()->GetMeshLoader().IsExtensionSupported(extension);
+			return Core::Instance()->GetMeshLoader().IsExtensionSupported(extension);
 		};
 
 		loaderEntry.streamLoader = [](Stream& stream, const ModelParams& parameters) -> Result<std::shared_ptr<Model>, ResourceLoadingError>

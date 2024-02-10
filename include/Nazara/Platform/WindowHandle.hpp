@@ -8,7 +8,7 @@
 #define NAZARA_PLATFORM_WINDOWHANDLE_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Utility/Config.hpp>
+#include <Nazara/Core/Config.hpp>
 
 namespace Nz
 {

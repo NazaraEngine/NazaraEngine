@@ -8,11 +8,11 @@
 #define NAZARA_GRAPHICS_SPRITE_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/VertexDeclaration.hpp>
+#include <Nazara/Core/VertexStruct.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Renderer/RenderPipeline.hpp>
-#include <Nazara/Utility/VertexDeclaration.hpp>
-#include <Nazara/Utility/VertexStruct.hpp>
 #include <array>
 
 namespace Nz

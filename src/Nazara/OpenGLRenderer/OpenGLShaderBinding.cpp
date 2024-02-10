@@ -3,11 +3,11 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/OpenGLRenderer/OpenGLShaderBinding.hpp>
-#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLBuffer.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderPipelineLayout.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLTexture.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLTextureSampler.hpp>
+#include <NazaraUtils/Algorithm.hpp>
 #include <NazaraUtils/StackVector.hpp>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
@@ -15,7 +15,7 @@ namespace Nz
 {
 	void OpenGLShaderBinding::Apply(const OpenGLRenderPipelineLayout& pipelineLayout, UInt32 setIndex, const GL::Context& context) const
 	{
-		//TODO: Check layout compaitiblity
+		//TODO: Check layout compatibility
 		const auto& bindingMapping = pipelineLayout.GetBindingMapping();
 		const auto& layoutInfo = pipelineLayout.GetLayoutInfo();
 

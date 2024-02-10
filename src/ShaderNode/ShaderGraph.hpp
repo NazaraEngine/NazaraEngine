@@ -4,7 +4,7 @@
 #define NAZARA_SHADERNODES_SHADERGRAPH_HPP
 
 #include <NazaraUtils/Signal.hpp>
-#include <Nazara/Utility/Enums.hpp>
+#include <Nazara/Core/Enums.hpp>
 #include <NZSL/Ast/Module.hpp>
 #include <nodes/FlowScene>
 #include <ShaderNode/Enums.hpp>

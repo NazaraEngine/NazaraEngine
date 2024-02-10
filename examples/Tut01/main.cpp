@@ -4,7 +4,7 @@
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Platform/WindowingAppComponent.hpp>
 #include <Nazara/Renderer.hpp>
-#include <Nazara/Utility.hpp>
+#include <Nazara/TextRenderer/SimpleTextDrawer.hpp>
 #include <iostream>
 
 int main(int argc, char* argv[])

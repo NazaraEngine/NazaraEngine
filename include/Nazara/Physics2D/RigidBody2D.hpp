@@ -13,6 +13,7 @@
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Physics2D/Collider2D.hpp>
 #include <Nazara/Physics2D/Config.hpp>
+#include <NazaraUtils/MovablePtr.hpp>
 #include <NazaraUtils/Signal.hpp>
 #include <functional>
 #include <limits>
