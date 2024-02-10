@@ -27,7 +27,7 @@ namespace JPH
 
 namespace Nz
 {
-	class Physics3DBody;
+	class PhysBody3D;
 	class PhysCharacter3D;
 	class PhysCharacter3DImpl;
 	class Collider3D;
@@ -82,20 +82,20 @@ namespace Nz
 
 			struct PointCollisionInfo
 			{
-				Physics3DBody* hitBody = nullptr;
+				PhysBody3D* hitBody = nullptr;
 			};
 
 			struct RaycastHit
 			{
 				float fraction;
-				Physics3DBody* hitBody = nullptr;
+				PhysBody3D* hitBody = nullptr;
 				Vector3f hitNormal;
 				Vector3f hitPosition;
 			};
 
 			struct ShapeCollisionInfo
 			{
-				Physics3DBody* hitBody = nullptr;
+				PhysBody3D* hitBody = nullptr;
 				Vector3f collisionPosition1;
 				Vector3f collisionPosition2;
 				Vector3f penetrationAxis;

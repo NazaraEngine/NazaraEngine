@@ -14,7 +14,7 @@
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Physics3D/Collider3D.hpp>
 #include <Nazara/Physics3D/Config.hpp>
-#include <Nazara/Physics3D/Physics3DBody.hpp>
+#include <Nazara/Physics3D/PhysBody3D.hpp>
 #include <NazaraUtils/MovablePtr.hpp>
 
 namespace JPH
@@ -27,7 +27,7 @@ namespace Nz
 {
 	class PhysWorld3D;
 
-	class NAZARA_PHYSICS3D_API RigidBody3D : public Physics3DBody
+	class NAZARA_PHYSICS3D_API RigidBody3D : public PhysBody3D
 	{
 		public:
 			struct DynamicSettings;

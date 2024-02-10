@@ -4,7 +4,7 @@
 
 #include <Nazara/Physics3D/Systems/Physics3DSystem.hpp>
 #include <Nazara/Core/Components/DisabledComponent.hpp>
-#include <Nazara/Physics3D/Physics3DBody.hpp>
+#include <Nazara/Physics3D/PhysBody3D.hpp>
 #include <Nazara/Utility/Components/NodeComponent.hpp>
 #include <Nazara/Physics3D/Debug.hpp>
 

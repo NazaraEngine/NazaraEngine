@@ -32,10 +32,10 @@
 #include <Nazara/Physics3D/Collider3D.hpp>
 #include <Nazara/Physics3D/Config.hpp>
 #include <Nazara/Physics3D/Enums.hpp>
+#include <Nazara/Physics3D/PhysBody3D.hpp>
 #include <Nazara/Physics3D/PhysCharacter3D.hpp>
 #include <Nazara/Physics3D/PhysConstraint3D.hpp>
 #include <Nazara/Physics3D/Physics3D.hpp>
-#include <Nazara/Physics3D/Physics3DBody.hpp>
 #include <Nazara/Physics3D/Physiscs3DStepListener.hpp>
 #include <Nazara/Physics3D/PhysWorld3D.hpp>
 #include <Nazara/Physics3D/RigidBody3D.hpp>

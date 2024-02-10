@@ -11,7 +11,7 @@
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Physics3D/Config.hpp>
-#include <Nazara/Physics3D/Physics3DBody.hpp>
+#include <Nazara/Physics3D/PhysBody3D.hpp>
 #include <Nazara/Physics3D/Physiscs3DStepListener.hpp>
 #include <NazaraUtils/MovablePtr.hpp>
 #include <memory>
@@ -28,7 +28,7 @@ namespace Nz
 	class Collider3D;
 	class PhysWorld3D;
 
-	class NAZARA_PHYSICS3D_API PhysCharacter3D : public Physics3DBody, public Physiscs3DStepListener
+	class NAZARA_PHYSICS3D_API PhysCharacter3D : public PhysBody3D, public Physiscs3DStepListener
 	{
 		friend PhysWorld3D;
 
