@@ -21,11 +21,11 @@ namespace Nz
 			public:
 				Framebuffer() = default;
 				Framebuffer(const Framebuffer&) = delete;
-				Framebuffer(Framebuffer&&) = default;
+				Framebuffer(Framebuffer&&) noexcept = default;
 				~Framebuffer() = default;
 
 				Framebuffer& operator=(const Framebuffer&) = delete;
-				Framebuffer& operator=(Framebuffer&&) = delete;
+				Framebuffer& operator=(Framebuffer&&) noexcept = default;
 
 			private:
 				static inline VkResult CreateHelper(Device& device, const VkFramebufferCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkFramebuffer* handle);

@@ -18,7 +18,7 @@
 
 namespace Nz::GL
 {
-	thread_local const Context* s_currentGLContext = nullptr;
+	thread_local constinit const Context* s_currentGLContext = nullptr;
 
 	namespace
 	{

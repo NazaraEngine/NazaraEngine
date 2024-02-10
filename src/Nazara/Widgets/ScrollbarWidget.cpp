@@ -12,7 +12,6 @@ namespace Nz
 	ScrollbarWidget::ScrollbarWidget(BaseWidget* parent, ScrollbarOrientation orientation) :
 	BaseWidget(parent),
 	m_orientation(orientation),
-	m_isGrabbed(false),
 	m_maximumValue(1.f),
 	m_minimumValue(0.f),
 	m_step(0.5f),

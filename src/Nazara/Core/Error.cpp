@@ -32,9 +32,9 @@ namespace Nz
 
 		thread_local ErrorModeFlags s_flags;
 		thread_local std::string s_lastError = "no error";
-		thread_local std::string_view s_lastErrorFunction;
-		thread_local std::string_view s_lastErrorFile;
-		thread_local unsigned int s_lastErrorLine = 0;
+		thread_local std::string_view s_lastErrorFunction = {};
+		thread_local std::string_view s_lastErrorFile = {};
+		thread_local constinit unsigned int s_lastErrorLine = 0;
 	}
 
 	/*!

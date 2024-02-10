@@ -363,7 +363,7 @@ Nz::Result<std::shared_ptr<Nz::Animation>, Nz::ResourceLoadingError> LoadAnimati
 			}
 			else
 			{
-				sequenceJoints[jointIndex].position = Nz::TransformPositionTRS({}, Nz::Quaternionf::Identity(), parameters.jointScale, interpolatedPosition);
+				sequenceJoints[jointIndex].position = parameters.jointScale * interpolatedPosition;
 				sequenceJoints[jointIndex].rotation = interpolatedRotation;
 				sequenceJoints[jointIndex].scale = interpolatedScale;
 			}

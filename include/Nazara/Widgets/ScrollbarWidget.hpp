@@ -47,7 +47,6 @@ namespace Nz
 			ImageButtonWidget* m_scrollNextButton;
 			ScrollbarButtonWidget* m_scrollCenterButton;
 			ScrollbarOrientation m_orientation;
-			bool m_isGrabbed;
 			float m_maximumValue;
 			float m_minimumValue;
 			float m_step;
