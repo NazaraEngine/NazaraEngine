@@ -8,6 +8,7 @@
 #define NAZARA_CORE_COLOR_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/Serialization.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <limits>
 #include <string>

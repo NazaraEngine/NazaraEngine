@@ -63,157 +63,83 @@ namespace Nz
 		return true;
 	}
 
-	template<typename T>
-	bool Serialize(SerializationContext& context, T&& value)
+	inline Vector3f TransformPositionTRS(const Vector3f& transformTranslation, const Quaternionf& transformRotation, const Vector3f& transformScale, const Vector3f& position)
 	{
-		return Serialize(context, std::forward<T>(value), TypeTag<std::decay_t<T>>());
+		return transformRotation * (transformScale * position) + transformTranslation;
 	}
 
-	/*!
-	* \ingroup core
-	* \brief Serializes a boolean
-	* \return true if serialization succeeded
-	*
-	* \param context Context for the serialization
-	* \param value Boolean to serialize
-	*
-	* \see Serialize, Unserialize
-	*/
-	inline bool Serialize(SerializationContext& context, bool value, TypeTag<bool>)
+	Vector3f TransformNormalTRS(const Quaternionf& transformRotation, const Vector3f& transformScale, const Vector3f& normal)
 	{
-		if (context.writeBitPos == 8)
+		return Quaternionf::Mirror(transformRotation, transformScale) * normal;
+	}
+
+	inline Quaternionf TransformRotationTRS(const Quaternionf& transformRotation, const Vector3f& transformScale, const Quaternionf& rotation)
+	{
+		return Quaternionf::Mirror(transformRotation, transformScale) * rotation;
+	}
+
+	inline Vector3f TransformScaleTRS(const Vector3f& transformScale, const Vector3f& scale)
+	{
+		return transformScale * scale;
+	}
+
+	inline void TransformTRS(const Vector3f& transformTranslation, const Quaternionf& transformRotation, const Vector3f& transformScale, Vector3f& position, Quaternionf& rotation, Vector3f& scale)
+	{
+		position = TransformPositionTRS(transformTranslation, transformRotation, transformScale, position);
+		rotation = TransformRotationTRS(transformRotation, transformScale, rotation);
+		scale    = TransformScaleTRS(transformScale, scale);
+	}
+
+	inline void TransformVertices(VertexPointers vertexPointers, UInt32 vertexCount, const Matrix4f& matrix)
+	{
+		if (vertexPointers.positionPtr)
 		{
-			context.writeBitPos = 0;
-			context.writeByte = 0;
+			for (UInt32 i = 0; i < vertexCount; ++i)
+				*vertexPointers.positionPtr++ = matrix.Transform(*vertexPointers.positionPtr);
 		}
 
-		if (value)
-			context.writeByte |= 1 << context.writeBitPos;
-
-		if (++context.writeBitPos >= 8)
-			return Serialize(context, context.writeByte, TypeTag<UInt8>());
-		else
-			return true;
-	}
-
-	/*!
-	* \ingroup core
-	* \brief Serializes a std::string
-	* \return true if successful
-	*
-	* \param context Context for the serialization
-	* \param value String to serialize
-	*/
-	bool Serialize(SerializationContext& context, const std::string& value, TypeTag<std::string>)
-	{
-		if (!Serialize(context, SafeCast<UInt32>(value.size()), TypeTag<UInt32>()))
-			return false;
-
-		return context.stream->Write(value.data(), value.size()) == value.size();
-	}
-
-	/*!
-	* \ingroup core
-	* \brief Serializes an arithmetic type
-	* \return true if serialization succeeded
-	*
-	* \param context Context for the serialization
-	* \param value Arithmetic type to serialize
-	*
-	* \see Serialize, Unserialize
-	*/
-	template<typename T>
-	std::enable_if_t<std::is_arithmetic<T>::value, bool> Serialize(SerializationContext& context, T value, TypeTag<T>)
-	{
-		// Flush bits in case a writing is in progress
-		context.FlushBits();
-
-		if (context.endianness != Endianness::Unknown && context.endianness != PlatformEndianness)
-			value = ByteSwap(value);
-
-		return context.stream->Write(&value, sizeof(T)) == sizeof(T);
-	}
-
-
-	template<typename T>
-	bool Unserialize(SerializationContext& context, T* value)
-	{
-		return Unserialize(context, value, TypeTag<T>());
-	}
-
-	/*!
-	* \ingroup core
-	* \brief Unserializes a boolean
-	* \return true if unserialization succedeed
-	*
-	* \param context Context for the unserialization
-	* \param value Pointer to boolean to unserialize
-	*
-	* \see Serialize, Unserialize
-	*/
-	inline bool Unserialize(SerializationContext& context, bool* value, TypeTag<bool>)
-	{
-		if (context.readBitPos == 8)
+		if (vertexPointers.normalPtr || vertexPointers.tangentPtr)
 		{
-			if (!Unserialize(context, &context.readByte, TypeTag<UInt8>()))
-				return false;
+			Vector3f scale = matrix.GetScale();
 
-			context.readBitPos = 0;
+			if (vertexPointers.normalPtr)
+			{
+				for (UInt64 i = 0; i < vertexCount; ++i)
+					*vertexPointers.normalPtr++ = matrix.Transform(*vertexPointers.normalPtr, 0.f) / scale;
+			}
+
+			if (vertexPointers.tangentPtr)
+			{
+				for (UInt64 i = 0; i < vertexCount; ++i)
+					*vertexPointers.tangentPtr++ = matrix.Transform(*vertexPointers.tangentPtr, 0.f) / scale;
+			}
 		}
-
-		if (value)
-			*value = (context.readByte & (1 << context.readBitPos)) != 0;
-
-		context.readBitPos++;
-
-		return true;
 	}
 
-	/*!
-	* \brief Unserializes a string
-	* \return true if successful
-	*
-	* \param context Context of unserialization
-	* \param string std::string to unserialize
-	*/
-	bool Unserialize(SerializationContext& context, std::string* string, TypeTag<std::string>)
+	template<typename T> constexpr ComponentType ComponentTypeId()
 	{
-		UInt32 size;
-		if (!Unserialize(context, &size, TypeTag<UInt32>()))
-			return false;
-
-		string->resize(size);
-		return context.stream->Read(&(*string)[0], size) == size;
+		static_assert(AlwaysFalse<T>::value, "This type cannot be used as a component.");
+		return ComponentType{};
 	}
 
-	/*!
-	* \ingroup core
-	* \brief Unserializes an arithmetic type
-	* \return true if unserialization succedeed
-	*
-	* \param context Context for the unserialization
-	* \param value Pointer to arithmetic type to serialize
-	*
-	* \remark Produce a NazaraAssert if pointer to value is invalid
-	*
-	* \see Serialize, Unserialize
-	*/
+	template<> constexpr ComponentType ComponentTypeId<Color>()       { return ComponentType::Color; }
+	template<> constexpr ComponentType ComponentTypeId<double>()      { return ComponentType::Double1; }
+	template<> constexpr ComponentType ComponentTypeId<Vector2d>()    { return ComponentType::Double2; }
+	template<> constexpr ComponentType ComponentTypeId<Vector3d>()    { return ComponentType::Double3; }
+	template<> constexpr ComponentType ComponentTypeId<Vector4d>()    { return ComponentType::Double4; }
+	template<> constexpr ComponentType ComponentTypeId<float>()       { return ComponentType::Float1; }
+	template<> constexpr ComponentType ComponentTypeId<Vector2f>()    { return ComponentType::Float2; }
+	template<> constexpr ComponentType ComponentTypeId<Vector3f>()    { return ComponentType::Float3; }
+	template<> constexpr ComponentType ComponentTypeId<Vector4f>()    { return ComponentType::Float4; }
+	template<> constexpr ComponentType ComponentTypeId<int>()         { return ComponentType::Int1; }
+	template<> constexpr ComponentType ComponentTypeId<Vector2i>()    { return ComponentType::Int2; }
+	template<> constexpr ComponentType ComponentTypeId<Vector3i>()    { return ComponentType::Int3; }
+	template<> constexpr ComponentType ComponentTypeId<Vector4i>()    { return ComponentType::Int4; }
+
 	template<typename T>
-	std::enable_if_t<std::is_arithmetic<T>::value, bool> Unserialize(SerializationContext& context, T* value, TypeTag<T>)
+	constexpr ComponentType GetComponentTypeOf()
 	{
-		NazaraAssert(value, "Invalid data pointer");
-
-		context.ResetReadBitPosition();
-
-		if (context.stream->Read(value, sizeof(T)) == sizeof(T))
-		{
-			if (context.endianness != Endianness::Unknown && context.endianness != PlatformEndianness)
-				*value = ByteSwap(*value);
-
-			return true;
-		}
-		else
-			return false;
+		return ComponentTypeId<std::decay_t<T>>();
 	}
 }
 

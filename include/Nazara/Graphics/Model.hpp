@@ -8,18 +8,18 @@
 #define NAZARA_GRAPHICS_MODEL_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/Mesh.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
 #include <Nazara/Core/ResourceSaver.hpp>
+#include <Nazara/Core/VertexDeclaration.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/GraphicalMesh.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Renderer/RenderPipeline.hpp>
-#include <Nazara/Utility/Mesh.hpp>
-#include <Nazara/Utility/VertexDeclaration.hpp>
 #include <NazaraUtils/FunctionRef.hpp>
 #include <NazaraUtils/Result.hpp>
 #include <memory>

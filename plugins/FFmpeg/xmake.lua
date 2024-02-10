@@ -7,7 +7,7 @@ if has_config("ffmpeg") then
 		set_group("Plugins")
 		add_rpathdirs("$ORIGIN")
 
-		add_deps("NazaraUtility")
+		add_deps("NazaraCore")
 		add_packages("ffmpeg")
 
 		add_headerfiles("**.hpp", "**.inl", { prefixdir = "private", install = false })

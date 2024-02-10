@@ -8,7 +8,6 @@
 #define NAZARA_GRAPHICS_UBERSHADER_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Renderer/RenderPipeline.hpp>
 #include <NazaraUtils/Signal.hpp>

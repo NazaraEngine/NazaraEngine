@@ -29,6 +29,7 @@
 #ifndef NAZARA_GLOBAL_WIDGETS_HPP
 #define NAZARA_GLOBAL_WIDGETS_HPP
 
+#include <Nazara/Widgets/AbstractLabelWidget.hpp>
 #include <Nazara/Widgets/AbstractTextAreaWidget.hpp>
 #include <Nazara/Widgets/BaseWidget.hpp>
 #include <Nazara/Widgets/BoxLayout.hpp>
@@ -46,6 +47,7 @@
 #include <Nazara/Widgets/ScrollAreaWidget.hpp>
 #include <Nazara/Widgets/ScrollbarButtonWidget.hpp>
 #include <Nazara/Widgets/ScrollbarWidget.hpp>
+#include <Nazara/Widgets/SimpleLabelWidget.hpp>
 #include <Nazara/Widgets/SimpleWidgetStyles.hpp>
 #include <Nazara/Widgets/TextAreaWidget.hpp>
 #include <Nazara/Widgets/Widgets.hpp>

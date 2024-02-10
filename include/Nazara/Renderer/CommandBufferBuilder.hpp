@@ -9,13 +9,13 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
+#include <Nazara/Core/Enums.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/RenderBufferView.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
-#include <Nazara/Utility/Enums.hpp>
 #include <string_view>
 
 namespace Nz

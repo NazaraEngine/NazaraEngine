@@ -9,13 +9,13 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
+#include <Nazara/Core/VertexStruct.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
-#include <Nazara/Utility/VertexStruct.hpp>
 #include <memory>
 #include <vector>
 

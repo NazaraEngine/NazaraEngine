@@ -4,6 +4,9 @@
 
 #include <Nazara/Graphics/Systems/RenderSystem.hpp>
 #include <Nazara/Core/Components/DisabledComponent.hpp>
+#include <Nazara/Core/Components/NodeComponent.hpp>
+#include <Nazara/Core/Components/SharedSkeletonComponent.hpp>
+#include <Nazara/Core/Components/SkeletonComponent.hpp>
 #include <Nazara/Graphics/ForwardFramePipeline.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
@@ -13,9 +16,6 @@
 #include <Nazara/Renderer/RenderResources.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
 #include <Nazara/Renderer/WindowSwapchain.hpp>
-#include <Nazara/Utility/Components/NodeComponent.hpp>
-#include <Nazara/Utility/Components/SharedSkeletonComponent.hpp>
-#include <Nazara/Utility/Components/SkeletonComponent.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz

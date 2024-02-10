@@ -4,7 +4,6 @@
 #include <Nazara/Graphics/PropertyHandler/TexturePropertyHandler.hpp>
 #include <Nazara/Graphics/PropertyHandler/UniformValuePropertyHandler.hpp>
 #include <Nazara/Renderer.hpp>
-#include <Nazara/Utility.hpp>
 #include <array>
 #include <chrono>
 #include <iostream>

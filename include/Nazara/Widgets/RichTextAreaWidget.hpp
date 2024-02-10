@@ -7,7 +7,7 @@
 #ifndef NAZARA_WIDGETS_RICHTEXTAREAWIDGET_HPP
 #define NAZARA_WIDGETS_RICHTEXTAREAWIDGET_HPP
 
-#include <Nazara/Utility/RichTextDrawer.hpp>
+#include <Nazara/TextRenderer/RichTextDrawer.hpp>
 #include <Nazara/Widgets/AbstractTextAreaWidget.hpp>
 
 namespace Nz

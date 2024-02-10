@@ -8,7 +8,6 @@
 #define NAZARA_GRAPHICS_ELEMENTRENDERER_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>

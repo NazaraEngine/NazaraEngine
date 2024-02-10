@@ -30,5 +30,7 @@
 #define NAZARA_CORE_SYSTEMS_HPP
 
 #include <Nazara/Core/Systems/LifetimeSystem.hpp>
+#include <Nazara/Core/Systems/SkeletonSystem.hpp>
+#include <Nazara/Core/Systems/VelocitySystem.hpp>
 
 #endif // NAZARA_CORE_SYSTEMS_HPP

@@ -8,6 +8,7 @@
 #define NAZARA_RENDERER_TEXTURE_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/Image.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
@@ -15,7 +16,6 @@
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
-#include <Nazara/Utility/Image.hpp>
 
 namespace Nz
 {

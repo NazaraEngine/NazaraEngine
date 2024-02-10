@@ -8,9 +8,9 @@
 #define NAZARA_OPENGLRENDERER_UTILS_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/Enums.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/Renderer/Enums.hpp>
-#include <Nazara/Utility/Enums.hpp>
 #include <NZSL/Enums.hpp>
 #include <optional>
 #include <string>

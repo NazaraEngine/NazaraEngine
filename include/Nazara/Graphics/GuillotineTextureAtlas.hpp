@@ -8,8 +8,8 @@
 #define NAZARA_GRAPHICS_GUILLOTINETEXTUREATLAS_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/GuillotineImageAtlas.hpp>
 #include <Nazara/Graphics/Config.hpp>
-#include <Nazara/Utility/GuillotineImageAtlas.hpp>
 
 namespace Nz
 {

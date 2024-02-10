@@ -103,22 +103,22 @@ local modules = {
 				remove_files("src/Nazara/Core/Posix/TimeImpl.cpp")
 			end
 		end,
-		Packages = { "concurrentqueue", "entt", "frozen", "utfcpp" },
+		Packages = { "concurrentqueue", "entt", "frozen", "ordered_map", "stb", "utfcpp" },
 		PublicPackages = { "nazarautils" }
 	},
 	Graphics = {
 		Option = "graphics",
-		Deps = {"NazaraRenderer"},
+		Deps = {"NazaraRenderer", "NazaraTextRenderer"},
 		Packages = {"entt"}
 	},
 	Physics2D = {
 		Option = "physics2d",
-		Deps = {"NazaraUtility"},
+		Deps = {"NazaraCore"},
 		Packages = { "chipmunk2d", "entt" }
 	},
 	Physics3D = {
 		Option = "physics3d",
-		Deps = {"NazaraUtility"},
+		Deps = {"NazaraCore"},
 		Packages = { "joltphysics", "entt", "ordered_map" }
 	},
 	Network = {
@@ -150,7 +150,7 @@ local modules = {
 	},
 	Platform = {
 		Option = "platform",
-		Deps = {"NazaraUtility"},
+		Deps = {"NazaraCore"},
 		Packages = {"utfcpp"},
 		Custom = function()
 			add_packages("libsdl", { components = {"lib"} })
@@ -195,10 +195,10 @@ local modules = {
 			end
 		end
 	},
-	Utility = {
-		Option = "utility",
+	TextRenderer = {
+		Option = "textrenderer",
 		Deps = {"NazaraCore"},
-		Packages = {"entt", "freetype", "frozen", "ordered_map", "stb"}
+		Packages = {"freetype", "frozen"}
 	},
 	Widgets = {
 		Option = "widgets",
@@ -275,7 +275,9 @@ add_requires(
 	"entt 3.13.1",
 	"fmt",
 	"frozen",
+	"ordered_map",
 	"nazarautils >=2024.01.25",
+	"stb",
 	"utfcpp"
 )
 
@@ -358,9 +360,8 @@ if has_config("renderer") then
 	end
 end
 
-if has_config("utility") then
+if has_config("textrenderer") then
 	add_requires("freetype", { configs = { bzip2 = true, png = true, woff2 = true, zlib = true, debug = is_mode("debug") } })
-	add_requires("ordered_map", "stb")
 end
 
 if has_config("vulkan") and not is_plat("wasm") then

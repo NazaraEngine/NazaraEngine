@@ -8,11 +8,11 @@
 #define NAZARA_GRAPHICS_SKELETONINSTANCE_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/Skeleton.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/TransferInterface.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
-#include <Nazara/Utility/Skeleton.hpp>
 #include <memory>
 
 namespace Nz

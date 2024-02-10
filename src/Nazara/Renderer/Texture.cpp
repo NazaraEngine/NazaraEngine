@@ -4,8 +4,8 @@
 
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/Image.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
-#include <Nazara/Utility/Image.hpp>
 #include <Nazara/Renderer/Debug.hpp>
 
 namespace Nz

@@ -3,10 +3,10 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Graphics/Formats/TextureLoader.hpp>
+#include <Nazara/Core/Core.hpp>
+#include <Nazara/Core/Image.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Renderer/Texture.hpp>
-#include <Nazara/Utility/Image.hpp>
-#include <Nazara/Utility/Utility.hpp>
 #include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
@@ -18,7 +18,7 @@ namespace Nz
 			MaterialInstanceLoader::Entry loaderEntry;
 			loaderEntry.extensionSupport = [](std::string_view extension)
 			{
-				return Utility::Instance()->GetImageLoader().IsExtensionSupported(extension);
+				return Core::Instance()->GetImageLoader().IsExtensionSupported(extension);
 			};
 
 			loaderEntry.streamLoader = [](Stream& stream, const MaterialInstanceParams& parameters) -> Result<std::shared_ptr<MaterialInstance>, ResourceLoadingError>

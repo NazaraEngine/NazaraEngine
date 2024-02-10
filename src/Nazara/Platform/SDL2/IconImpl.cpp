@@ -4,8 +4,8 @@
 
 #include <Nazara/Platform/SDL2/IconImpl.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
-#include <Nazara/Utility/Image.hpp>
-#include <Nazara/Utility/PixelFormat.hpp>
+#include <Nazara/Core/Image.hpp>
+#include <Nazara/Core/PixelFormat.hpp>
 #include <Nazara/Platform/Debug.hpp>
 
 namespace Nz

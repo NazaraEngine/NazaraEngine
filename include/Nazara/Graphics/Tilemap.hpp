@@ -9,9 +9,9 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
+#include <Nazara/Core/VertexStruct.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
-#include <Nazara/Utility/VertexStruct.hpp>
 #include <NazaraUtils/Bitset.hpp>
 #include <memory>
 

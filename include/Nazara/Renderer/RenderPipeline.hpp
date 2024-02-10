@@ -7,9 +7,9 @@
 #ifndef NAZARA_RENDERER_RENDERPIPELINE_HPP
 #define NAZARA_RENDERER_RENDERPIPELINE_HPP
 
+#include <Nazara/Core/Enums.hpp>
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
-#include <Nazara/Utility/Enums.hpp>
 
 namespace Nz
 {

@@ -8,10 +8,10 @@
 #define NAZARA_GRAPHICS_RENDERTEXTUREBLIT_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/Enums.hpp>
 #include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/RenderTarget.hpp>
 #include <Nazara/Renderer/Enums.hpp>
-#include <Nazara/Utility/Enums.hpp>
 
 namespace Nz
 {

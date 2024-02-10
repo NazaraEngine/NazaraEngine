@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/AbstractHash.hpp>
-#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Core/Hash/CRC32.hpp>
@@ -16,6 +15,7 @@
 #include <Nazara/Core/Hash/SHA384.hpp>
 #include <Nazara/Core/Hash/SHA512.hpp>
 #include <Nazara/Core/Hash/Whirlpool.hpp>
+#include <NazaraUtils/Algorithm.hpp>
 #include <Nazara/Core/Debug.hpp>
 
 namespace Nz

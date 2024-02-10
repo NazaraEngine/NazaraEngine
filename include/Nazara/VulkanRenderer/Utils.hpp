@@ -8,8 +8,8 @@
 #define NAZARA_VULKANRENDERER_UTILS_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/Enums.hpp>
 #include <Nazara/Renderer/Enums.hpp>
-#include <Nazara/Utility/Enums.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Loader.hpp>
 #include <NZSL/Enums.hpp>
 #include <optional>

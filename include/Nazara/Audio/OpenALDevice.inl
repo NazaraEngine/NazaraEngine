@@ -2,7 +2,6 @@
 // This file is part of the "Nazara Engine - Audio module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Audio/Debug.hpp>
 
 namespace Nz

@@ -8,9 +8,8 @@
 #define NAZARA_CORE_OBJECTREF_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/RefCounted.hpp>
-#include <type_traits>
+#include <NazaraUtils/TypeTraits.hpp>
 
 namespace Nz
 {

@@ -5,13 +5,13 @@
 #include <Nazara/Platform/SDL2/WindowImpl.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
+#include <Nazara/Core/Image.hpp>
 #include <Nazara/Platform/Config.hpp>
 #include <Nazara/Platform/Cursor.hpp>
 #include <Nazara/Platform/Icon.hpp>
 #include <Nazara/Platform/SDL2/CursorImpl.hpp>
 #include <Nazara/Platform/SDL2/IconImpl.hpp>
 #include <Nazara/Platform/SDL2/SDLHelper.hpp>
-#include <Nazara/Utility/Image.hpp>
 #include <SDL.h>
 
 #ifdef NAZARA_PLATFORM_MACOS

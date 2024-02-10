@@ -2,8 +2,8 @@
 // This file is part of the "Nazara Engine - Math module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Math/Config.hpp>
+#include <NazaraUtils/MathUtils.hpp>
 #include <cstring>
 #include <limits>
 #include <sstream>

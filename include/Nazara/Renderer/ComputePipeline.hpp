@@ -7,9 +7,9 @@
 #ifndef NAZARA_RENDERER_COMPUTEPIPELINE_HPP
 #define NAZARA_RENDERER_COMPUTEPIPELINE_HPP
 
+#include <Nazara/Core/Enums.hpp>
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/Renderer/ShaderModule.hpp>
-#include <Nazara/Utility/Enums.hpp>
 
 namespace Nz
 {

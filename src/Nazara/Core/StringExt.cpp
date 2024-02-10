@@ -3,10 +3,10 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/StringExt.hpp>
-#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <NazaraUtils/FunctionTraits.hpp>
 #include <utf8cpp/utf8.h>
+#include <array>
 #include <cinttypes>
 #include <Nazara/Core/Debug.hpp>
 

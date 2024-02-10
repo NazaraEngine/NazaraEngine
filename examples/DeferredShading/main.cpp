@@ -3,7 +3,6 @@
 #include <Nazara/Math/Angle.hpp>
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Renderer.hpp>
-#include <Nazara/Utility.hpp>
 #include <NZSL/Math/FieldOffsets.hpp>
 #include <NZSL/Parser.hpp>
 #include <array>

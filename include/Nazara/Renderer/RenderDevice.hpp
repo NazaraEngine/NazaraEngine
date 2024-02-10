@@ -8,6 +8,7 @@
 #define NAZARA_RENDERER_RENDERDEVICE_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/PixelFormat.hpp>
 #include <Nazara/Renderer/ComputePipeline.hpp>
 #include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
@@ -21,7 +22,6 @@
 #include <Nazara/Renderer/SwapchainParameters.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
-#include <Nazara/Utility/PixelFormat.hpp>
 #include <NazaraUtils/FunctionRef.hpp>
 #include <NZSL/ShaderWriter.hpp>
 #include <NZSL/Ast/Module.hpp>

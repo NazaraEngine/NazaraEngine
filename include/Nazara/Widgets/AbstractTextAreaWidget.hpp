@@ -8,7 +8,7 @@
 #define NAZARA_WIDGETS_ABSTRACTTEXTAREAWIDGET_HPP
 
 #include <Nazara/Graphics/TextSprite.hpp>
-#include <Nazara/Utility/AbstractTextDrawer.hpp>
+#include <Nazara/TextRenderer/AbstractTextDrawer.hpp>
 #include <Nazara/Widgets/BaseWidget.hpp>
 #include <Nazara/Widgets/Enums.hpp>
 #include <functional>

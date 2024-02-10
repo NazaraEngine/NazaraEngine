@@ -3,7 +3,7 @@
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Math/PidController.hpp>
 #include <Nazara/Renderer.hpp>
-#include <Nazara/Utility.hpp>
+#include <Nazara/TextRenderer.hpp>
 #include <Nazara/Widgets.hpp>
 #include <entt/entt.hpp>
 #include <array>

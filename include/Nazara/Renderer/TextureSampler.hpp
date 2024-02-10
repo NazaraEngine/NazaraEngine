@@ -8,8 +8,8 @@
 #define NAZARA_RENDERER_TEXTURESAMPLER_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/Enums.hpp>
 #include <Nazara/Renderer/Config.hpp>
-#include <Nazara/Utility/Enums.hpp>
 #include <functional>
 #include <string_view>
 

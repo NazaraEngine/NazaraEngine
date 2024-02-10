@@ -3,11 +3,11 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Network/Win32/SocketImpl.hpp>
-#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Network/Win32/IpAddressImpl.hpp>
+#include <NazaraUtils/Algorithm.hpp>
 #include <NazaraUtils/EnumArray.hpp>
 #include <NazaraUtils/StackArray.hpp>
 
@@ -975,7 +975,7 @@ namespace Nz
 			case WSAEALREADY:
 			case WSAEISCONN:
 			case WSAEWOULDBLOCK:
-				NazaraWarning("Internal error occurred: " + Error::GetLastSystemError(error) + " (" + NumberToString(error) + ')');
+				NazaraWarningFmt("Internal error occurred: {0} ({1:#x})", Error::GetLastSystemError(error), error);
 				return SocketError::Internal;
 
 			case WSAEADDRNOTAVAIL:
@@ -1020,7 +1020,7 @@ namespace Nz
 				return SocketError::TimedOut;
 		}
 
-		NazaraWarning("Unhandled WinSock error: " + Error::GetLastSystemError(error) + " (" + NumberToString(error) + ')');
+		NazaraWarningFmt("Unhandled WinSock error: {0} ({1:#x})", Error::GetLastSystemError(error), error);
 		return SocketError::Unknown;
 	}
 

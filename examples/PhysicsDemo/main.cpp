@@ -4,7 +4,7 @@
 #include <Nazara/Math/PidController.hpp>
 #include <Nazara/Physics3D.hpp>
 #include <Nazara/Renderer.hpp>
-#include <Nazara/Utility.hpp>
+#include <Nazara/TextRenderer/SimpleTextDrawer.hpp>
 #include <entt/entt.hpp>
 #include <array>
 #include <chrono>

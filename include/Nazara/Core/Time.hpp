@@ -8,16 +8,14 @@
 #define NAZARA_CORE_TIME_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Config.hpp>
+#include <Nazara/Core/Serialization.hpp>
 #include <chrono>
 #include <iosfwd>
 #include <type_traits>
 
 namespace Nz
 {
-	struct SerializationContext;
-
 	class Time
 	{
 		public:

@@ -5,7 +5,7 @@
 #include <Nazara/Audio/DummyAudioBuffer.hpp>
 #include <Nazara/Audio/Algorithm.hpp>
 #include <Nazara/Audio/AudioDevice.hpp>
-#include <Nazara/Core/Algorithm.hpp>
+#include <NazaraUtils/Algorithm.hpp>
 #include <Nazara/Audio/Debug.hpp>
 
 namespace Nz

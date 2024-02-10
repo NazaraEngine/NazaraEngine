@@ -1,8 +1,7 @@
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/Core.hpp>
 #include <Nazara/Core/TaskScheduler.hpp>
-#include <Nazara/Utility/Image.hpp>
-#include <Nazara/Utility/Utility.hpp>
+#include <Nazara/Core/Image.hpp>
 #include "task.hpp"
 #include <iostream>
 #include <mutex>
@@ -10,7 +9,7 @@
 
 int main()
 {
-	Nz::Modules<Nz::Utility> core;
+	Nz::Modules<Nz::Core> core;
 
 	constexpr unsigned int imageDimensions = 4096; // Will produce imageDimensions² rays
 	constexpr unsigned int tileSize = 128;

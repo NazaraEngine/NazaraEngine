@@ -8,9 +8,9 @@
 #define NAZARA_GRAPHICS_FRAMEGRAPHSTRUCTS_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/Enums.hpp>
 #include <Nazara/Graphics/FramePassAttachment.hpp>
 #include <Nazara/Renderer/Enums.hpp>
-#include <Nazara/Utility/Enums.hpp>
 #include <optional>
 #include <string>
 

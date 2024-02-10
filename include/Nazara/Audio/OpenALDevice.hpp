@@ -14,7 +14,7 @@
 #include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/Enums.hpp>
 #include <Nazara/Audio/OpenAL.hpp>
-#include <Nazara/Core/Algorithm.hpp>
+#include <NazaraUtils/Algorithm.hpp>
 #include <NazaraUtils/EnumArray.hpp>
 #include <NazaraUtils/MovablePtr.hpp>
 #include <array>

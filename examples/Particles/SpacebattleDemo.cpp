@@ -3,7 +3,7 @@
 #include <Nazara/Core/OffsetOf.hpp>
 #include <Nazara/Graphics.hpp>
 #include <Nazara/Platform.hpp>
-#include <Nazara/Utility.hpp>
+#include <Nazara/Core.hpp>
 #include <NazaraSDK/Components.hpp>
 #include <NazaraSDK/Systems.hpp>
 

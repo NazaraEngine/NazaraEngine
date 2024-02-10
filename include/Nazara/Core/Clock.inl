@@ -9,7 +9,7 @@ namespace Nz
 	/*!
 	* \ingroup core
 	* \class Nz::Clock
-	* \brief Utility class that measure the elapsed time
+	* \brief Core class that measure the elapsed time
 	*/
 
 	/*!

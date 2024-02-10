@@ -3,7 +3,6 @@
 #include <Nazara/Platform/WindowingAppComponent.hpp>
 #include <Nazara/Physics3D.hpp>
 #include <Nazara/Renderer.hpp>
-#include <Nazara/Utility.hpp>
 #include <iostream>
 #include <random>
 

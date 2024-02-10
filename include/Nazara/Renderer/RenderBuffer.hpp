@@ -8,8 +8,8 @@
 #define NAZARA_RENDERER_RENDERBUFFER_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/Buffer.hpp>
 #include <Nazara/Renderer/Config.hpp>
-#include <Nazara/Utility/Buffer.hpp>
 #include <memory>
 #include <string_view>
 

@@ -370,7 +370,7 @@ Nazara Engine:
 - Added support for debug draw
 - Added support for damping
 - ⚠️ RigidBody2D created without mass are now kinematic by default instead of statics
-- https://github.com/NazaraEngine/NazaraEngine/pull/128 ⚠️ **Platform-specific classes were moved to a new module: Platform** (this means Utility module no longer needs to be linked to X11/xcb or gdi32).
+- https://github.com/NazaraEngine/NazaraEngine/pull/128 ⚠️ **Platform-specific classes were moved to a new module: Platform** (this means Core module no longer needs to be linked to X11/xcb or gdi32).
 - https://github.com/NazaraEngine/NazaraEngine/pull/135 ⚠️ Improved vertex declarations (they now checks template type with real type)
 - Mesh index buffer optimization is now disabled by default in debug mode
 - It is now possible to set the vertex declaration wanted when building/loading a mesh

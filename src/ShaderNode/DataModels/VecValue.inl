@@ -1,5 +1,5 @@
 #include <ShaderNode/DataModels/VecValue.hpp>
-#include <Nazara/Core/Algorithm.hpp>
+#include <NazaraUtils/Algorithm.hpp>
 #include <NZSL/ShaderBuilder.hpp>
 #include <ShaderNode/DataTypes/VecData.hpp>
 #include <QtCore/QJsonArray>

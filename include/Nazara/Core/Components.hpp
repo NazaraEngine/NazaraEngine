@@ -31,5 +31,10 @@
 
 #include <Nazara/Core/Components/DisabledComponent.hpp>
 #include <Nazara/Core/Components/LifetimeComponent.hpp>
+#include <Nazara/Core/Components/NodeComponent.hpp>
+#include <Nazara/Core/Components/SharedSkeletonComponent.hpp>
+#include <Nazara/Core/Components/SkeletonComponent.hpp>
+#include <Nazara/Core/Components/SkeletonComponentBase.hpp>
+#include <Nazara/Core/Components/VelocityComponent.hpp>
 
 #endif // NAZARA_CORE_COMPONENTS_HPP

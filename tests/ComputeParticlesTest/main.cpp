@@ -6,7 +6,6 @@
 #include <NZSL/LangWriter.hpp>
 #include <NZSL/Parser.hpp>
 #include <NZSL/Math/FieldOffsets.hpp>
-#include <Nazara/Utility.hpp>
 #include <array>
 #include <chrono>
 #include <iostream>

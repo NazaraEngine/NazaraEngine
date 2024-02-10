@@ -5,7 +5,6 @@
 #include <Nazara/Audio/DummyAudioSource.hpp>
 #include <Nazara/Audio/Algorithm.hpp>
 #include <Nazara/Audio/DummyAudioBuffer.hpp>
-#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <NazaraUtils/StackArray.hpp>

@@ -6,8 +6,8 @@
 #include <Nazara/Audio/OpenALBuffer.hpp>
 #include <Nazara/Audio/OpenALDevice.hpp>
 #include <Nazara/Audio/OpenALLibrary.hpp>
-#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <NazaraUtils/Algorithm.hpp>
 #include <NazaraUtils/StackArray.hpp>
 #include <Nazara/Audio/Debug.hpp>
 

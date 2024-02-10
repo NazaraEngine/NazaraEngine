@@ -1,7 +1,7 @@
 #include "LogoDemo.hpp"
 #include <Nazara/Core/OffsetOf.hpp>
 #include <Nazara/Graphics.hpp>
-#include <Nazara/Utility.hpp>
+#include <Nazara/Core.hpp>
 #include <NazaraSDK/Components.hpp>
 #include <NazaraSDK/Systems.hpp>
 #include <iostream>

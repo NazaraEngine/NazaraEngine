@@ -4,10 +4,10 @@
 
 #include <Nazara/Widgets/TextAreaWidget.hpp>
 #include <Nazara/Core/Unicode.hpp>
+#include <Nazara/Core/Components/NodeComponent.hpp>
 #include <Nazara/Graphics/Components/GraphicsComponent.hpp>
 #include <Nazara/Platform/Clipboard.hpp>
-#include <Nazara/Utility/Font.hpp>
-#include <Nazara/Utility/Components/NodeComponent.hpp>
+#include <Nazara/TextRenderer/Font.hpp>
 #include <Nazara/Widgets/Debug.hpp>
 
 namespace Nz

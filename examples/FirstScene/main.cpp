@@ -16,7 +16,7 @@
 #include <Nazara/Graphics.hpp> // Module graphique
 #include <Nazara/Renderer.hpp> // Module de rendu
 #include <Nazara/Network.hpp> // Module utilitaire
-#include <Nazara/Utility.hpp> // Module utilitaire
+#include <Nazara/Core.hpp> // Module utilitaire
 #include <NazaraSDK/Application.hpp>
 #include <NazaraSDK/Components.hpp>
 #include <NazaraSDK/Console.hpp>

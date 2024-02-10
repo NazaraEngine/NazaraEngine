@@ -8,7 +8,6 @@
 #define NAZARA_OPENGLRENDERER_WRAPPER_CONTEXT_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/DynLib.hpp>
 #include <Nazara/OpenGLRenderer/Config.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLVaoCache.hpp>
@@ -16,6 +15,7 @@
 #include <Nazara/OpenGLRenderer/Wrapper/Loader.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
+#include <NazaraUtils/Algorithm.hpp>
 #include <NazaraUtils/EnumArray.hpp>
 #include <NazaraUtils/StringHash.hpp>
 #include <array>

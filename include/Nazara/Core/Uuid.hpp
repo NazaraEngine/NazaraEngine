@@ -8,8 +8,8 @@
 #define NAZARA_CORE_UUID_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Config.hpp>
+#include <Nazara/Core/Serialization.hpp>
 #include <array>
 #include <functional>
 #include <iosfwd>

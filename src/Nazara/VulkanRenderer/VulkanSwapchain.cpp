@@ -5,10 +5,10 @@
 #include <Nazara/VulkanRenderer/VulkanSwapchain.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
+#include <Nazara/Core/PixelFormat.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Platform/WindowHandle.hpp>
 #include <Nazara/Renderer/WindowSwapchain.hpp>
-#include <Nazara/Utility/PixelFormat.hpp>
 #include <Nazara/VulkanRenderer/Vulkan.hpp>
 #include <Nazara/VulkanRenderer/VulkanCommandPool.hpp>
 #include <Nazara/VulkanRenderer/VulkanDevice.hpp>
