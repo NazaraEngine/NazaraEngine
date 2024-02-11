@@ -19,7 +19,8 @@ namespace Nz
 			child->OnParenting(nullptr);
 		}
 
-		SetParent(nullptr);
+		if (m_parent)
+			m_parent->RemoveChild(this);
 	}
 
 	Node& Node::Interpolate(const Node& nodeA, const Node& nodeB, float interpolation, CoordSys coordSys, Invalidation invalidation)
