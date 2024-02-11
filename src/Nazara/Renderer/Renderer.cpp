@@ -95,12 +95,12 @@ namespace Nz
 		std::vector<RendererImplementations> implementations;
 
 		RenderAPI preferredAPI = config.preferredAPI;
-		// OpenGL and OpenGL ES are handled by the same implementation (OpenGLES will be handled in OpenGLRenderer code)
+		// OpenGL and OpenGL ES are handled by the same renderer (OpenGL ES is handled in OpenGLRenderer code)
 		if (preferredAPI == RenderAPI::OpenGL_ES)
 			preferredAPI = RenderAPI::OpenGL;
 
 #ifdef NAZARA_RENDERER_EMBEDDEDBACKENDS
-		auto RegisterImpl = [&]<typename T>(RenderAPI api, auto ComputeScore, TypeTag<T> RendererTag)
+		auto RegisterImpl = [&]<typename T>(RenderAPI api, auto ComputeScore, TypeTag<T>)
 		{
 			int score = ComputeScore();
 			if (score >= 0)
