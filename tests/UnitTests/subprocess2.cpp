@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
 	successFile5.Flush();
 
 	// Wait until parent dies
-	std::this_thread::sleep_for(std::chrono::seconds(1));
+	std::this_thread::sleep_for(std::chrono::seconds(2));
 
 	result = Nz::Process::Exists(pid);
 	if (!result)
