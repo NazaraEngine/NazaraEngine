@@ -2,9 +2,9 @@
 // This file is part of the "Nazara Engine - Physics2D module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
+#include <Nazara/Physics2D/Systems/Physics2DSystem.hpp>
 #include <Nazara/Core/Components/DisabledComponent.hpp>
 #include <Nazara/Core/Components/NodeComponent.hpp>
-#include <Nazara/Physics2D/Systems/Physics2DSystem.hpp>
 #include <Nazara/Physics2D/Debug.hpp>
 
 namespace Nz
