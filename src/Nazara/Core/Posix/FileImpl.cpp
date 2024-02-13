@@ -3,6 +3,8 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Posix/FileImpl.hpp>
+#include <Nazara/Core/Posix/PosixUtils.hpp>
+#include <NazaraUtils/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <NazaraUtils/Algorithm.hpp>
@@ -13,14 +15,22 @@
 #include <sys/stat.h>
 #include <Nazara/Core/Debug.hpp>
 
+#ifdef NAZARA_PLATFORM_BSD
+	#define fstat64 fstat
+	#define ftruncate64 ftruncate
+	#define off64_t off_t
+	#define open64 open
+	#define lseek64 lseek
+	#define stat64 stat
+#endif
+
 namespace Nz::PlatformImpl
 {
-	FileImpl::FileImpl(const File* parent) :
+	FileImpl::FileImpl(const File* /*parent*/) :
 	m_fileDescriptor(-1),
 	m_endOfFile(false),
 	m_endOfFileUpdated(true)
 	{
-		NazaraUnused(parent);
 	}
 
 	FileImpl::~FileImpl()
@@ -33,8 +43,8 @@ namespace Nz::PlatformImpl
 	{
 		if (!m_endOfFileUpdated)
 		{
-			struct Stat fileSize;
-			if (Fstat(m_fileDescriptor, &fileSize) == -1)
+			struct stat64 fileSize;
+			if (fstat64(m_fileDescriptor, &fileSize) == -1)
 				fileSize.st_size = 0;
 
 			m_endOfFile = (GetCursorPos() >= static_cast<UInt64>(fileSize.st_size));
@@ -52,7 +62,7 @@ namespace Nz::PlatformImpl
 
 	UInt64 FileImpl::GetCursorPos() const
 	{
-		Off_t position = Lseek(m_fileDescriptor, 0, SEEK_CUR);
+		off64_t position = lseek64(m_fileDescriptor, 0, SEEK_CUR);
 		return static_cast<UInt64>(position);
 	}
 
@@ -79,69 +89,59 @@ namespace Nz::PlatformImpl
 		if (mode & OpenMode::Truncate)
 			flags |= O_TRUNC;
 
-		int fileDescriptor = Open_def(Nz::PathToString(filePath).data(), flags, permissions);
+		int fileDescriptor = open64(Nz::PathToString(filePath).data(), flags, permissions);
 		if (fileDescriptor == -1)
-		{
-			NazaraErrorFmt("failed to open \"{0}\": {1}", filePath, Error::GetLastSystemError());
 			return false;
-		}
-
-		static struct flock lock;
-
-		auto initialize_flock = [](struct flock& fileLock)
-		{
-			fileLock.l_type = F_WRLCK;
-			fileLock.l_start = 0;
-			fileLock.l_whence = SEEK_SET;
-			fileLock.l_len = 0;
-			fileLock.l_pid = getpid();
-		};
-
-		initialize_flock(lock);
-
-		if (fcntl(fileDescriptor, F_GETLK, &lock) == -1)
-		{
-			close(fileDescriptor);
-			NazaraError("unable to detect presence of lock on the file");
-			return false;
-		}
-
-		if (lock.l_type != F_UNLCK)
-		{
-			close(fileDescriptor);
-			NazaraError("a lock is present on the file");
-			return false;
-		}
 
 		if (mode & OpenMode::Lock)
 		{
-			initialize_flock(lock);
+			CallOnExit closeOnError([&] { close(fileDescriptor); });
+
+			struct flock lock;
+			lock.l_type = F_WRLCK;
+			lock.l_start = 0;
+			lock.l_whence = SEEK_SET;
+			lock.l_len = 0;
+			lock.l_pid = getpid();
+
+			if (fcntl(fileDescriptor, F_GETLK, &lock) == -1)
+			{
+				NazaraError("unable to detect presence of lock on the file");
+				return false;
+			}
+
+			if (lock.l_type != F_UNLCK)
+			{
+				NazaraError("a lock is present on the file");
+				return false;
+			}
 
 			if (fcntl(fileDescriptor, F_SETLK, &lock) == -1)
 			{
-				close(fileDescriptor);
 				NazaraError("unable to place a lock on the file");
 				return false;
 			}
+
+			closeOnError.Reset();
 		}
 
 		m_fileDescriptor = fileDescriptor;
-
 		return true;
 	}
 
 	std::size_t FileImpl::Read(void* buffer, std::size_t size)
 	{
-		ssize_t bytes;
-		if ((bytes = read(m_fileDescriptor, buffer, size)) != -1)
+		ssize_t read = SafeRead(m_fileDescriptor, buffer, size);
+		if (read < 0)
 		{
-			m_endOfFile = (static_cast<std::size_t>(bytes) != size);
-			m_endOfFileUpdated = true;
-
-			return static_cast<std::size_t>(bytes);
-		}
-		else
+			NazaraErrorFmt("failed to read from file: {0}", Error::GetLastSystemError());
 			return 0;
+		}
+		
+		m_endOfFile = (static_cast<std::size_t>(read) != size);
+		m_endOfFileUpdated = true;
+
+		return static_cast<std::size_t>(read);
 	}
 
 	bool FileImpl::SetCursorPos(CursorPosition pos, Int64 offset)
@@ -168,19 +168,25 @@ namespace Nz::PlatformImpl
 
 		m_endOfFileUpdated = false;
 
-		return Lseek(m_fileDescriptor, offset, moveMethod) != -1;
+		return lseek64(m_fileDescriptor, offset, moveMethod) != -1;
 	}
 
 	bool FileImpl::SetSize(UInt64 size)
 	{
-		return Ftruncate(m_fileDescriptor, size) != 0;
+		return ftruncate64(m_fileDescriptor, size) != 0;
 	}
 
 	std::size_t FileImpl::Write(const void* buffer, std::size_t size)
 	{
-		ssize_t written = write(m_fileDescriptor, buffer, size);
+		ssize_t written = SafeWrite(m_fileDescriptor, buffer, size);
+		if (written < 0)
+		{
+			NazaraErrorFmt("failed to write to file: {0}", Error::GetLastSystemError());
+			return 0;
+		}
+
 		m_endOfFileUpdated = false;
 
-		return written;
+		return static_cast<std::size_t>(written);
 	}
 }

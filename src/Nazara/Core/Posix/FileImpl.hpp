@@ -16,24 +16,6 @@
 #include <ctime>
 #include <filesystem>
 
-#if defined(NAZARA_PLATFORM_MACOS)
-	#define Stat stat
-	#define Fstat fstat
-	#define Off_t off_t
-	#define Lseek lseek
-	#define Open_def open
-	#define Ftruncate ftruncate
-#elif defined(NAZARA_PLATFORM_LINUX) || defined(NAZARA_PLATFORM_WEB)
-	#define Stat stat64
-	#define Fstat fstat64
-	#define Off_t off64_t
-	#define Lseek lseek64
-	#define Open_def open64
-	#define Ftruncate ftruncate64
-#else
-    #error This operating system is not fully supported by the Nazara Engine
-#endif
-
 namespace Nz
 {
 	class File;
