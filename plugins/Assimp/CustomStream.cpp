@@ -44,7 +44,7 @@ aiReturn StreamSeek(aiFile* file, size_t offset, aiOrigin origin)
 			break;
 	}
 
-	NazaraWarning("Unhandled aiOrigin enum (value: 0x" + std::string(origin, 16) + ')');
+	NazaraWarningFmt("Unhandled aiOrigin enum (value: {0:#x})", Nz::UnderlyingCast(origin));
 	return aiReturn_FAILURE;
 }
 

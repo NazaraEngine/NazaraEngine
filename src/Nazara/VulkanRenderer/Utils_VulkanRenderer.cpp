@@ -2,8 +2,10 @@
 // This file is part of the "Nazara Engine - Vulkan renderer"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/Core/StringExt.hpp>
 #include <Nazara/VulkanRenderer/Utils.hpp>
+#include <Nazara/Core/Format.hpp>
+#include <NazaraUtils/Algorithm.hpp>
+#include <Nazara/Core/StringExt.hpp>
 #include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
@@ -98,6 +100,6 @@ namespace Nz
 				break;
 		}
 
-		return "Unknown Vulkan error (0x" + NumberToString(code, 16) + ')';
+		return Format("unknown Vulkan error ({0:#x})", UnderlyingCast(code));
 	}
 }

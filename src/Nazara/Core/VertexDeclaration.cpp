@@ -44,8 +44,8 @@ namespace Nz
 		m_components.reserve(components.size());
 		for (const ComponentEntry& entry : components)
 		{
-			NazaraAssert(IsTypeSupported(entry.type), "Component type 0x" + NumberToString(UnderlyingCast(entry.type), 16) + " is not supported by vertex declarations");
-			NazaraAssert(entry.componentIndex == 0 || entry.component == VertexComponent::Userdata, "Only userdata components can have non-zero component indexes");
+			NazaraAssertFmt(IsTypeSupported(entry.type), "Component type {0:#x} is not supported by vertex declarations", UnderlyingCast(entry.type));
+			NazaraAssert(entry.componentIndex == 0 || entry.component == VertexComponent::Userdata, "only userdata components can have non-zero component indexes");
 
 			if (entry.component != VertexComponent::Unused)
 			{

@@ -3,6 +3,8 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/OpenGLRenderer/Utils.hpp>
+#include <NazaraUtils/Algorithm.hpp>
+#include <Nazara/Core/Format.hpp>
 #include <Nazara/OpenGLRenderer/Debug.hpp>
 
 namespace Nz
@@ -31,6 +33,6 @@ namespace Nz
 			case GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS:      return "GL_FRAMEBUFFER_INCOMPLETE_LAYER_TARGETS: a framebuffer attachment is layered and a populated attachment is not (or color attachements are not from textures of the same target)";
 		}
 
-		return "Unknown OpenGL error (0x" + NumberToString(code, 16) + ')';
+		return Format("unknown OpenGL error ({0:#x})", code);
 	}
 }

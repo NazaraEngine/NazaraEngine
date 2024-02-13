@@ -272,7 +272,7 @@ namespace Nz
 				}
 
 				default:
-					NazaraInternalError("Unhandled ip protocol (0x" + NumberToString(UnderlyingCast(ipAddress.GetProtocol())) + ')');
+					NazaraInternalErrorFmt("unhandled ip protocol ({0:#x})", UnderlyingCast(ipAddress.GetProtocol()));
 					break;
 			}
 		}
@@ -347,7 +347,7 @@ namespace Nz
 				return ResolveError::TemporaryFailure;
 		}
 
-		NazaraWarning("Unhandled WinSock error: " + Error::GetLastSystemError(error) + " (" + NumberToString(error) + ')');
+		NazaraWarningFmt("unhandled WinSock error: {0} ({1})", Error::GetLastSystemError(error), error);
 		return ResolveError::Unknown;
 	}
 }

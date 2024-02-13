@@ -79,7 +79,7 @@ namespace Nz
 		m_sockets.erase(socket);
 
 		if (epoll_ctl(m_handle, EPOLL_CTL_DEL, socket, nullptr) != 0)
-			NazaraWarning("An error occured while removing socket from epoll structure (errno " + NumberToString(errno) + ": " + Error::GetLastSystemError() + ')');
+			NazaraWarningFmt("an error occured while removing socket from epoll structure (errno {0}: {1})", errno, Error::GetLastSystemError());
 	}
 
 	unsigned int SocketPollerImpl::Wait(int msTimeout, SocketError* error)
@@ -116,7 +116,8 @@ namespace Nz
 				}
 				else
 				{
-					NazaraWarning("Descriptor " + NumberToString(m_events[i].data.fd) + " was returned by epoll without EPOLLIN nor EPOLLOUT flags (events: 0x" + NumberToString(m_events[i].events, 16) + ')');
+					// static_cast is required because the field are packed and cannot be taken by reference
+					NazaraWarningFmt("Descriptor {0} was returned by epoll without EPOLLIN nor EPOLLOUT flags (events: {1:#x}", static_cast<int>(m_events[i].data.fd), static_cast<unsigned int>(m_events[i].events));
 					activeSockets--;
 				}
 			}

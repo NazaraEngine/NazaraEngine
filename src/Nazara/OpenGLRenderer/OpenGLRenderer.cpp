@@ -71,7 +71,7 @@ namespace Nz
 		}
 		catch (const std::exception& e)
 		{
-			NazaraWarning(std::string("Failed to load WGL: ") + e.what());
+			NazaraWarningFmt("failed to load WGL: {0}", e.what());
 		}
 #endif
 
@@ -82,7 +82,7 @@ namespace Nz
 		}
 		catch (const std::exception& e)
 		{
-			NazaraWarning(std::string("Failed to load EGL: ") + e.what());
+			NazaraWarningFmt("failed to load EGL: {0}", e.what());
 		}
 #endif
 
@@ -93,7 +93,7 @@ namespace Nz
 		}
 		catch (const std::exception& e)
 		{
-			NazaraWarning(std::string("Failed to load WebGL: ") + e.what());
+			NazaraWarningFmt("failed to load WebGL: {0}", e.what());
 		}
 #endif
 

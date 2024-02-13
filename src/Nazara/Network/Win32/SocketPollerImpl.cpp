@@ -159,7 +159,7 @@ namespace Nz
 				}
 				else
 				{
-					NazaraWarning("Socket " + NumberToString(entry.fd) + " was returned by WSAPoll without POLLRDNORM nor POLLWRNORM events (events: 0x" + NumberToString(entry.revents, 16) + ')');
+					NazaraWarningFmt("Socket {0} was returned by WSAPoll without POLLRDNORM nor POLLWRNORM events (events: {1:#x})", entry.fd, entry.revents);
 					activeSockets--;
 				}
 

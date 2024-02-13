@@ -40,7 +40,7 @@ namespace Nz
 				typeMask <<= 1;
 			}
 
-			NazaraErrorFmt("failed to find a memory type suitable for typeBits: {0} and properties: 0x{1}", typeBits, NumberToString(properties, 16));
+			NazaraErrorFmt("failed to find a memory type suitable for typeBits: {0} and properties: {1:#x}", typeBits, properties);
 			return false;
 		}
 

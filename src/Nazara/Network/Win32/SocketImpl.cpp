@@ -102,7 +102,10 @@ namespace Nz
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
 		if (closesocket(handle) == SOCKET_ERROR)
-			NazaraWarning("Failed to close socket: " + Error::GetLastSystemError(WSAGetLastError()));
+		{
+			int lastError = WSAGetLastError();
+			NazaraWarningFmt("failed to close socket: {0} ({1})", Error::GetLastSystemError(lastError), lastError);
+		}
 	}
 
 	void SocketImpl::ClearErrorCode(SocketHandle handle)
@@ -110,7 +113,10 @@ namespace Nz
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
 		if (GetLastError(handle, nullptr) == SocketError::Internal)
-			NazaraWarning("Failed to clear socket error code: " + Error::GetLastSystemError(WSAGetLastError()));
+		{
+			int lastError = WSAGetLastError();
+			NazaraWarningFmt("failed to clear socket error code: {0} ({1})", Error::GetLastSystemError(lastError), lastError);
+		}
 	}
 
 	SocketState SocketImpl::Connect(SocketHandle handle, const IpAddress& address, SocketError* error)
@@ -164,7 +170,7 @@ namespace Nz
 			return false;
 		}
 
-		NazaraDebug("Initialized Windows Socket " + NumberToString(LOBYTE(s_WSA.wVersion)) + '.' + NumberToString(HIBYTE(s_WSA.wVersion)) + " (" + std::string(s_WSA.szDescription) + ')');
+		NazaraDebug("Initialized Windows Socket {0}.{1} ({2})", LOBYTE(s_WSA.wVersion), HIBYTE(s_WSA.wVersion), s_WSA.szDescription);
 		return true;
 	}
 

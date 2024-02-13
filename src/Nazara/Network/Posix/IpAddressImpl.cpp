@@ -254,7 +254,7 @@ namespace Nz
 				return ResolveError::TemporaryFailure;
 		}
 
-		NazaraWarning("Unhandled EAI error: " + Error::GetLastSystemError(error) + " (" + NumberToString(error) + ") as " + gai_strerror(error));
+		NazaraWarningFmt("unhandled EAI error: {0} ({1}) as {2}", Error::GetLastSystemError(error), error, gai_strerror(error));
 		return ResolveError::Unknown;
 	}
 }

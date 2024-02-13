@@ -719,7 +719,7 @@ std::shared_ptr<Nz::SubMesh> ProcessSubMesh(const std::filesystem::path& originP
 							break;
 
 						default:
-							NazaraWarning("Assimp texture map mode 0x" + Nz::NumberToString(mapMode[0], 16) + " not handled");
+							NazaraWarningFmt("Assimp texture map mode {0:#x} not handled", Nz::UnderlyingCast(mapMode[0]));
 							break;
 					}
 

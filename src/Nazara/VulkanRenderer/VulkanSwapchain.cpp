@@ -135,7 +135,7 @@ namespace Nz
 			{
 				PixelFormatContent formatContent = PixelFormatInfo::GetContent(format);
 				if (formatContent != PixelFormatContent::DepthStencil && formatContent != PixelFormatContent::Stencil)
-					NazaraWarning("Invalid format " + std::string(PixelFormatInfo::GetName(format)) + " for depth-stencil attachment");
+					NazaraWarningFmt("invalid format {0} for depth-stencil attachment", PixelFormatInfo::GetName(format));
 
 				m_depthStencilFormat = ToVulkan(format);
 				if (m_depthStencilFormat == VK_FORMAT_UNDEFINED)

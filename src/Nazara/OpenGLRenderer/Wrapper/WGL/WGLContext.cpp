@@ -365,7 +365,7 @@ namespace Nz::GL
 					while (sampleCount > 1);
 
 					if (int(m_params.sampleCount) != sampleCount)
-						NazaraWarning("couldn't find a pixel format matching " + std::to_string(m_params.sampleCount) + " sample count, using " + std::to_string(sampleCount) + " sample(s) instead");
+						NazaraWarningFmt("couldn't find a pixel format matching {0} sample count, using {1} sample(s) instead", m_params.sampleCount, sampleCount);
 
 					m_params.sampleCount = sampleCount;
 				}

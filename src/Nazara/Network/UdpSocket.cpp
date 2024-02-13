@@ -187,14 +187,14 @@ namespace Nz
 		if (!NetPacket::DecodeHeader(packet->GetConstData(), &packetSize, &netCode))
 		{
 			m_lastError = SocketError::Packet;
-			NazaraWarning("Invalid header data");
+			NazaraWarning("invalid header data");
 			return false;
 		}
 
 		if (packetSize != received)
 		{
 			m_lastError = SocketError::Packet;
-			NazaraWarning("Invalid packet size (packet size is " + NumberToString(packetSize) + " bytes, received " + NumberToString(received) + " bytes)");
+			NazaraWarningFmt("Invalid packet size (packet size is {0} bytes, received {1} bytes)", packetSize, received);
 			return false;
 		}
 

@@ -588,7 +588,7 @@ namespace Nz
 			if (matIndex >= matCount)
 			{
 				data.subMesh->SetMaterialIndex(0); // To prevent a crash
-				NazaraWarning("SubMesh " + PointerToString(data.subMesh.get()) + " material index is over mesh new material count (" + NumberToString(matIndex) + " >= " + NumberToString(matCount) + "), setting it to first material");
+				NazaraWarningFmt("SubMesh {0} material index is over mesh new material count ({1} >= {2}), setting it to first material", fmt::ptr(data.subMesh.get()), matIndex, matCount);
 			}
 		}
 #endif
