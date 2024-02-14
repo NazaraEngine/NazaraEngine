@@ -20,6 +20,7 @@
 #include <Nazara/Renderer/RenderPassCache.hpp>
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/Renderer/Renderer.hpp>
+#include <Nazara/TextRenderer/TextRenderer.hpp>
 #include <NZSL/FilesystemModuleResolver.hpp>
 #include <optional>
 
@@ -34,7 +35,7 @@ namespace Nz
 		friend ModuleBase;
 
 		public:
-			using Dependencies = TypeList<Renderer>;
+			using Dependencies = TypeList<Renderer, TextRenderer>;
 
 			struct Config;
 			struct DefaultMaterials;
