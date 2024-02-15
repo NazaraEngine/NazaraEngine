@@ -3,11 +3,11 @@
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/Core/Posix/FileImpl.hpp>
-#include <Nazara/Core/Posix/PosixUtils.hpp>
-#include <NazaraUtils/CallOnExit.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/StringExt.hpp>
+#include <Nazara/Core/Posix/PosixUtils.hpp>
 #include <NazaraUtils/Algorithm.hpp>
+#include <NazaraUtils/CallOnExit.hpp>
 #include <NazaraUtils/PathUtils.hpp>
 #include <cstdio>
 #include <fcntl.h>
@@ -137,7 +137,7 @@ namespace Nz::PlatformImpl
 			NazaraErrorFmt("failed to read from file: {0}", Error::GetLastSystemError());
 			return 0;
 		}
-		
+	
 		m_endOfFile = (static_cast<std::size_t>(read) != size);
 		m_endOfFileUpdated = true;
 

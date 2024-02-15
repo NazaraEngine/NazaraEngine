@@ -620,7 +620,7 @@ on_run(function ()
 			)
 
 			local currentYear = os.date("%Y")
-			local engineAuthor = "Jérôme \"Lynix\" Leclercq (lynix680@gmail.com)"
+			local engineAuthor = "Jérôme \"SirLynix\" Leclercq (lynix680@gmail.com)"
 			local prevAuthor = "Jérôme Leclercq"
 			local fixes = {}
 
