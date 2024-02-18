@@ -65,7 +65,7 @@ namespace Nz
 	{
 		WidgetEntry& entry = m_widgetEntries[index];
 
-		Nz::Vector3f pos = entry.widget->GetPosition(Nz::CoordSys::Global);
+		Nz::Vector3f pos = entry.widget->GetGlobalPosition();
 		Nz::Vector2f size = entry.widget->GetSize();
 
 		entry.box = Boxf(pos.x, pos.y, pos.z, size.x, size.y, 1.f);

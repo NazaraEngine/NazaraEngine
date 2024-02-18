@@ -56,7 +56,7 @@ namespace Nz
 		entt::registry& registry = GetRegistry();
 
 		Boxf textBox = m_textSprite->GetAABB();
-		registry.get<NodeComponent>(m_textEntity).SetPosition(size.x / 2.f - textBox.width / 2.f, size.y / 2.f - textBox.height / 2.f);
+		registry.get<NodeComponent>(m_textEntity).SetPosition({ size.x / 2.f - textBox.width / 2.f, size.y / 2.f - textBox.height / 2.f });
 	}
 
 	void SimpleButtonWidgetStyle::OnHoverBegin()
@@ -150,7 +150,7 @@ namespace Nz
 		Vector2f checkSize = size * 0.66f;
 		m_checkSprite->SetSize(checkSize);
 
-		GetRegistry().get<NodeComponent>(m_checkEntity).SetPosition(size.x / 2.f - checkSize.x / 2.f, size.y / 2.f - checkSize.y / 2.f);
+		GetRegistry().get<NodeComponent>(m_checkEntity).SetPosition({ size.x / 2.f - checkSize.x / 2.f, size.y / 2.f - checkSize.y / 2.f });
 	}
 
 	void SimpleCheckboxWidgetStyle::OnHoverBegin()
@@ -363,7 +363,7 @@ namespace Nz
 		entt::registry& registry = GetRegistry();
 
 		Boxf textBox = m_textSprite->GetAABB();
-		registry.get<NodeComponent>(m_entity).SetPosition(size.x / 2.f - textBox.width / 2.f, size.y / 2.f - textBox.height / 2.f);
+		registry.get<NodeComponent>(m_entity).SetPosition({ size.x / 2.f - textBox.width / 2.f, size.y / 2.f - textBox.height / 2.f });
 	}
 
 	void SimpleLabelWidgetStyle::OnHoverBegin()
@@ -426,7 +426,7 @@ namespace Nz
 
 		m_barEntity = CreateGraphicsEntity();
 		registry.get<GraphicsComponent>(m_barEntity).AttachRenderable(m_progressBarSprite, renderMask);
-		registry.get<NodeComponent>(m_barEntity).SetPosition(m_barOffset, m_barOffset);
+		registry.get<NodeComponent>(m_barEntity).SetPosition({ m_barOffset, m_barOffset });
 	}
 
 	void SimpleProgressBarWidgetStyle::Layout(const Vector2f& size)

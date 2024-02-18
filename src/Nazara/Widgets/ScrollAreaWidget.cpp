@@ -25,7 +25,7 @@ namespace Nz
 		{
 			float contentPosition = (GetHeight() - m_content->GetHeight()) * (1.f - newValue);
 
-			m_content->SetPosition(0.f, contentPosition);
+			m_content->SetPosition({ 0.f, contentPosition });
 			m_content->SetRenderingRect(Nz::Rectf(-std::numeric_limits<float>::infinity(), -contentPosition, std::numeric_limits<float>::infinity(), GetHeight()));
 		});
 
@@ -78,7 +78,7 @@ namespace Nz
 			if (m_isScrollbarEnabled)
 				m_horizontalScrollbar->Show();
 
-			m_horizontalScrollbar->SetPosition(contentSize.x, 0.f);
+			m_horizontalScrollbar->SetPosition({ contentSize.x, 0.f, 0.f });
 			m_horizontalScrollbar->Resize({ scrollBarWidth, GetHeight() });
 
 			ScrollToRatio(m_horizontalScrollbar->GetValue());

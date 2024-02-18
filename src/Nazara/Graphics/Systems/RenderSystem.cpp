@@ -291,11 +291,11 @@ namespace Nz
 			const NodeComponent& entityNode = m_registry.get<const NodeComponent>(entity);
 			CameraComponent& entityCamera = m_registry.get<CameraComponent>(entity);
 
-			Vector3f cameraPosition = entityNode.GetPosition(CoordSys::Global);
+			Vector3f cameraPosition = entityNode.GetGlobalPosition();
 
 			ViewerInstance& viewerInstance = entityCamera.GetViewerInstance();
 			viewerInstance.UpdateEyePosition(cameraPosition);
-			viewerInstance.UpdateViewMatrix(Nz::Matrix4f::TransformInverse(cameraPosition, entityNode.GetRotation(CoordSys::Global)));
+			viewerInstance.UpdateViewMatrix(Nz::Matrix4f::TransformInverse(cameraPosition, entityNode.GetGlobalRotation()));
 		}
 		m_invalidatedCameraNode.clear();
 
@@ -318,9 +318,9 @@ namespace Nz
 			const NodeComponent& entityNode = m_registry.get<const NodeComponent>(entity);
 			LightComponent& entityLight = m_registry.get<LightComponent>(entity);
 
-			const Vector3f& position = entityNode.GetPosition(CoordSys::Global);
-			const Quaternionf& rotation = entityNode.GetRotation(CoordSys::Global);
-			const Vector3f& scale = entityNode.GetScale(CoordSys::Global);
+			const Vector3f& position = entityNode.GetGlobalPosition();
+			const Quaternionf& rotation = entityNode.GetGlobalRotation();
+			const Vector3f& scale = entityNode.GetGlobalScale();
 
 			for (const auto& lightEntry : entityLight.GetLights())
 			{

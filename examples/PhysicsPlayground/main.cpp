@@ -138,7 +138,7 @@ int main(int argc, char* argv[])
 		ballGfx.AttachRenderable(std::move(sphereModel));
 
 		auto& ballNode = ballEntity.emplace<Nz::NodeComponent>();
-		ballNode.SetPosition(positionRandom(rd), positionRandom(rd), positionRandom(rd));
+		ballNode.SetPosition({ positionRandom(rd), positionRandom(rd), positionRandom(rd) });
 		ballNode.SetScale(radius);
 
 		Nz::RigidBody3D::DynamicSettings settings;
@@ -173,8 +173,8 @@ int main(int argc, char* argv[])
 		boxEntity.emplace<Nz::GraphicsComponent>(std::move(sphereModel));
 
 		auto& ballNode = boxEntity.emplace<Nz::NodeComponent>();
-		ballNode.SetPosition(xRandom(rd), yRandom(rd), zRandom(rd));
-		ballNode.SetScale(width, height, depth);
+		ballNode.SetPosition({ xRandom(rd), yRandom(rd), zRandom(rd) });
+		ballNode.SetScale({ width, height, depth });
 
 		std::shared_ptr<Nz::BoxCollider3D> boxCollider = std::make_shared<Nz::BoxCollider3D>(Nz::Vector3f(width, height, depth));
 
@@ -246,7 +246,7 @@ int main(int argc, char* argv[])
 			shipEntity.emplace<Nz::GraphicsComponent>(model);
 
 			auto& shipNode = shipEntity.emplace<Nz::NodeComponent>();
-			shipNode.SetPosition(xRandom(rd), yRandom(rd), zRandom(rd));
+			shipNode.SetPosition({ xRandom(rd), yRandom(rd), zRandom(rd) });
 
 			Nz::RigidBody3D::DynamicSettings settings;
 			settings.geom = shipCollider;

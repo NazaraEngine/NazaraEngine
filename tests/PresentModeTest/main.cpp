@@ -165,7 +165,7 @@ int main()
 
 		float delta = (accumulatorTime.AsSeconds() / timeToMove.AsSeconds());
 
-		spriteEntity.get<Nz::NodeComponent>().SetPosition(Nz::Lerp(128.f / 2.f, windowSize.x - 128.f / 2.f, delta * delta * (3.f - 2.f * delta)), windowSize.y / 2.f, 0.f);
+		spriteEntity.get<Nz::NodeComponent>().SetPosition({ Nz::Lerp(128.f / 2.f, windowSize.x - 128.f / 2.f, delta * delta * (3.f - 2.f * delta)), windowSize.y / 2.f });
 
 		// Limit FPS
 		if (limitFps)

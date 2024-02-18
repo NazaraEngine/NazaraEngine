@@ -29,25 +29,29 @@ namespace Nz
 			inline Node(Node&& node) noexcept;
 			virtual ~Node();
 
-			inline void EnsureDerivedUpdate() const;
+			inline bool DoesInheritPosition() const;
+			inline bool DoesInheritRotation() const;
+			inline bool DoesInheritScale() const;
+
+			inline void EnsureGlobalsUpdate() const;
 			inline void EnsureTransformMatrixUpdate() const;
 
 			inline Vector3f GetBackward() const;
 			inline const std::vector<Node*>& GetChilds() const;
 			inline Vector3f GetDown() const;
 			inline Vector3f GetForward() const;
-			inline bool GetInheritPosition() const;
-			inline bool GetInheritRotation() const;
-			inline bool GetInheritScale() const;
-			inline Vector3f GetInitialPosition() const;
-			inline Quaternionf GetInitialRotation() const;
-			inline Vector3f GetInitialScale() const;
+			inline const Vector3f& GetGlobalPosition() const;
+			inline const Quaternionf& GetGlobalRotation() const;
+			inline const Vector3f& GetGlobalScale() const;
+			inline const Vector3f& GetInitialPosition() const;
+			inline const Quaternionf& GetInitialRotation() const;
+			inline const Vector3f& GetInitialScale() const;
 			inline Vector3f GetLeft() const;
 			inline const Node* GetParent() const;
-			inline Vector3f GetPosition(CoordSys coordSys = CoordSys::Local) const;
+			inline const Vector3f& GetPosition() const;
 			inline Vector3f GetRight() const;
-			inline Quaternionf GetRotation(CoordSys coordSys = CoordSys::Local) const;
-			inline Vector3f GetScale(CoordSys coordSys = CoordSys::Local) const;
+			inline const Quaternionf& GetRotation() const;
+			inline const Vector3f& GetScale() const;
 			inline const Matrix4f& GetTransformMatrix() const;
 			inline Vector3f GetUp() const;
 
@@ -55,17 +59,29 @@ namespace Nz
 
 			inline void Invalidate(Invalidation invalidation = Invalidation::InvalidateRecursively);
 
-			Node& Interpolate(const Node& nodeA, const Node& nodeB, float interpolation, CoordSys coordSys = CoordSys::Global, Invalidation invalidation = Invalidation::InvalidateRecursively);
+			inline Node& Interpolate(const Node& nodeA, const Node& nodeB, float interpolation, Invalidation invalidation = Invalidation::InvalidateRecursively);
+			inline Node& InterpolateGlobal(const Node& nodeA, const Node& nodeB, float interpolation, Invalidation invalidation = Invalidation::InvalidateRecursively);
 
-			Node& Move(const Vector3f& movement, CoordSys coordSys = CoordSys::Local, Invalidation invalidation = Invalidation::InvalidateRecursively);
-			inline Node& Move(float movementX, float movementY, float movementZ = 0.f, CoordSys coordSys = CoordSys::Local, Invalidation invalidation = Invalidation::InvalidateRecursively);
+			inline Node& Move(const Vector2f& movement, Invalidation invalidation = Invalidation::InvalidateRecursively);
+			inline Node& Move(const Vector3f& movement, Invalidation invalidation = Invalidation::InvalidateRecursively);
+			inline Node& MoveGlobal(const Vector2f& movement, Invalidation invalidation = Invalidation::InvalidateRecursively);
+			inline Node& MoveGlobal(const Vector3f& movement, Invalidation invalidation = Invalidation::InvalidateRecursively);
 
-			Node& Rotate(const Quaternionf& rotation, CoordSys coordSys = CoordSys::Local, Invalidation invalidation = Invalidation::InvalidateRecursively);
+			inline Node& Rotate(const Quaternionf& rotation, Invalidation invalidation = Invalidation::InvalidateRecursively);
+			inline Node& RotateGlobal(const Quaternionf& rotation, Invalidation invalidation = Invalidation::InvalidateRecursively);
 
-			inline Node& Scale(const Vector3f& scale, Invalidation invalidation = Invalidation::InvalidateRecursively);
 			inline Node& Scale(float scale, Invalidation invalidation = Invalidation::InvalidateRecursively);
-			inline Node& Scale(float scaleX, float scaleY, float scaleZ = 1.f, Invalidation invalidation = Invalidation::InvalidateRecursively);
+			inline Node& Scale(const Vector2f& scale, Invalidation invalidation = Invalidation::InvalidateRecursively);
+			inline Node& Scale(const Vector3f& scale, Invalidation invalidation = Invalidation::InvalidateRecursively);
 
+			inline void SetGlobalPosition(const Vector2f& position, Invalidation invalidation = Invalidation::InvalidateRecursively);
+			inline void SetGlobalPosition(const Vector3f& position, Invalidation invalidation = Invalidation::InvalidateRecursively);
+			inline void SetGlobalRotation(const Quaternionf& rotation, Invalidation invalidation = Invalidation::InvalidateRecursively);
+			inline void SetGlobalScale(const Vector2f& scale, Invalidation invalidation = Invalidation::InvalidateRecursively);
+			inline void SetGlobalScale(const Vector3f& scale, Invalidation invalidation = Invalidation::InvalidateRecursively);
+			inline void SetGlobalTransform(const Vector3f& position, const Quaternionf& rotation, Invalidation invalidation = Invalidation::InvalidateRecursively);
+			inline void SetGlobalTransform(const Vector3f& position, const Quaternionf& rotation, const Vector2f& scale, Invalidation invalidation = Invalidation::InvalidateRecursively);
+			inline void SetGlobalTransform(const Vector3f& position, const Quaternionf& rotation, const Vector3f& scale, Invalidation invalidation = Invalidation::InvalidateRecursively);
 			inline void SetInheritPosition(bool inheritPosition, Invalidation invalidation = Invalidation::InvalidateRecursively);
 			inline void SetInheritRotation(bool inheritRotation, Invalidation invalidation = Invalidation::InvalidateRecursively);
 			inline void SetInheritScale(bool inheritScale, Invalidation invalidation = Invalidation::InvalidateRecursively);
@@ -77,15 +93,15 @@ namespace Nz
 			inline void SetInitialScale(float scaleX, float scaleY, float scaleZ = 1.f, Invalidation invalidation = Invalidation::InvalidateRecursively);
 			void SetParent(const Node* node = nullptr, bool keepDerived = false, Invalidation invalidation = Invalidation::InvalidateRecursively);
 			void SetParent(const Node& node, bool keepDerived = false, Invalidation invalidation = Invalidation::InvalidateRecursively);
-			void SetPosition(const Vector3f& translation, CoordSys coordSys = CoordSys::Local, Invalidation invalidation = Invalidation::InvalidateRecursively);
-			inline void SetPosition(float translationX, float translationY, float translationZ = 0.f, CoordSys coordSys = CoordSys::Local, Invalidation invalidation = Invalidation::InvalidateRecursively);
-			void SetRotation(const Quaternionf& rotation, CoordSys coordSys = CoordSys::Local, Invalidation invalidation = Invalidation::InvalidateRecursively);
-			inline void SetScale(const Vector2f& scale, CoordSys coordSys = CoordSys::Local, Invalidation invalidation = Invalidation::InvalidateRecursively);
-			void SetScale(const Vector3f& scale, CoordSys coordSys = CoordSys::Local, Invalidation invalidation = Invalidation::InvalidateRecursively);
-			inline void SetScale(float scale, CoordSys coordSys = CoordSys::Local, Invalidation invalidation = Invalidation::InvalidateRecursively);
-			inline void SetScale(float scaleX, float scaleY, float scaleZ = 1.f, CoordSys coordSys = CoordSys::Local, Invalidation invalidation = Invalidation::InvalidateRecursively);
-			void SetTransform(const Vector3f& position, const Quaternionf& rotation, CoordSys coordSys = CoordSys::Local, Invalidation invalidation = Invalidation::InvalidateRecursively);
-			void SetTransform(const Vector3f& position, const Quaternionf& rotation, const Vector3f& scale, CoordSys coordSys = CoordSys::Local, Invalidation invalidation = Invalidation::InvalidateRecursively);
+			inline void SetPosition(const Vector2f& position, Invalidation invalidation = Invalidation::InvalidateRecursively);
+			inline void SetPosition(const Vector3f& position, Invalidation invalidation = Invalidation::InvalidateRecursively);
+			inline void SetRotation(const Quaternionf& rotation, Invalidation invalidation = Invalidation::InvalidateRecursively);
+			inline void SetScale(float scale, Invalidation invalidation = Invalidation::InvalidateRecursively);
+			inline void SetScale(const Vector2f& scale, Invalidation invalidation = Invalidation::InvalidateRecursively);
+			inline void SetScale(const Vector3f& scale, Invalidation invalidation = Invalidation::InvalidateRecursively);
+			inline void SetTransform(const Vector3f& position, const Quaternionf& rotation, Invalidation invalidation = Invalidation::InvalidateRecursively);
+			inline void SetTransform(const Vector3f& position, const Quaternionf& rotation, const Vector2f& scale, Invalidation invalidation = Invalidation::InvalidateRecursively);
+			inline void SetTransform(const Vector3f& position, const Quaternionf& rotation, const Vector3f& scale, Invalidation invalidation = Invalidation::InvalidateRecursively);
 			inline void SetTransformMatrix(const Matrix4f& matrix, Invalidation invalidation = Invalidation::InvalidateRecursively);
 
 			// Local -> global
@@ -123,20 +139,20 @@ namespace Nz
 
 			mutable std::vector<Node*> m_childs;
 			mutable Matrix4f m_transformMatrix;
-			mutable Quaternionf m_derivedRotation;
+			mutable Quaternionf m_globalRotation;
 			Quaternionf m_initialRotation;
 			Quaternionf m_rotation;
-			mutable Vector3f m_derivedPosition;
-			mutable Vector3f m_derivedScale;
+			mutable Vector3f m_globalPosition;
+			mutable Vector3f m_globalScale;
 			Vector3f m_initialPosition;
 			Vector3f m_initialScale;
 			Vector3f m_position;
 			Vector3f m_scale;
 			const Node* m_parent;
 			mutable bool m_derivedUpdated;
-			bool m_inheritPosition;
-			bool m_inheritRotation;
-			bool m_inheritScale;
+			bool m_doesInheritPosition;
+			bool m_doesInheritRotation;
+			bool m_doesInheritScale;
 			mutable bool m_transformMatrixUpdated;
 	};
 }

@@ -100,7 +100,7 @@ namespace Nz
 			const Joint* joint = skeleton.GetJoint(i);
 			const Node* parent = joint->GetParent();
 			if (parent)
-				DrawLine(joint->GetPosition(CoordSys::Global), parent->GetPosition(CoordSys::Global), color);
+				DrawLine(joint->GetGlobalPosition(), parent->GetGlobalPosition(), color);
 		}
 	}
 

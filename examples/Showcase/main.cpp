@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
 	entt::handle playerCamera = world.CreateEntity();
 	{
 		auto& playerNode = playerEntity.emplace<Nz::NodeComponent>();
-		playerNode.SetPosition(0.f, 1.8f, 1.f);
+		playerNode.SetPosition({ 0.f, 1.8f, 1.f });
 
 		auto playerCollider = std::make_shared<Nz::BoxCollider3D>(Nz::Vector3f(0.2f, 1.8f, 0.2f));
 
@@ -286,7 +286,7 @@ int main(int argc, char* argv[])
 				auto [sin, cos] = rotation.GetSinCos();
 
 				auto& lightNode = lightEntity3.get<Nz::NodeComponent>();
-				lightNode.SetPosition(sin * radius, 1.5f, cos * radius);
+				lightNode.SetPosition({ sin * radius, 1.5f, cos * radius });
 			});
 
 			auto& cameraLight = lightEntity3.emplace<Nz::LightComponent>();
@@ -560,19 +560,19 @@ int main(int argc, char* argv[])
 
 			auto& cameraNode = playerCamera.get<Nz::NodeComponent>();
 			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Space))
-				cameraNode.Move(Nz::Vector3f::Up() * cameraSpeed * updateTime, Nz::CoordSys::Global);
+				cameraNode.MoveGlobal(Nz::Vector3f::Up() * cameraSpeed * updateTime);
 
 			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Z))
-				cameraNode.Move(Nz::Vector3f::Forward() * cameraSpeed * updateTime, Nz::CoordSys::Local);
+				cameraNode.Move(Nz::Vector3f::Forward() * cameraSpeed * updateTime);
 
 			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::S))
-				cameraNode.Move(Nz::Vector3f::Backward() * cameraSpeed * updateTime, Nz::CoordSys::Local);
+				cameraNode.Move(Nz::Vector3f::Backward() * cameraSpeed * updateTime);
 
 			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::Q))
-				cameraNode.Move(Nz::Vector3f::Left() * cameraSpeed * updateTime, Nz::CoordSys::Local);
+				cameraNode.Move(Nz::Vector3f::Left() * cameraSpeed * updateTime);
 
 			if (Nz::Keyboard::IsKeyPressed(Nz::Keyboard::VKey::D))
-				cameraNode.Move(Nz::Vector3f::Right() * cameraSpeed * updateTime, Nz::CoordSys::Local);
+				cameraNode.Move(Nz::Vector3f::Right() * cameraSpeed * updateTime);
 
 			if (!paused)
 			{
@@ -602,7 +602,7 @@ int main(int argc, char* argv[])
 				if (entity == playerEntity)
 					continue;
 
-				Nz::Vector3f spaceshipPos = node.GetPosition(Nz::CoordSys::Global);
+				Nz::Vector3f spaceshipPos = node.GetGlobalPosition();
 				if (spaceshipPos.GetSquaredLength() > Nz::IntegralPow(20.f, 2))
 					registry.destroy(entity);
 			}
@@ -645,8 +645,8 @@ int main(int argc, char* argv[])
 
 		Nz::DebugDrawer& debugDrawer = renderSystem.GetFramePipeline().GetDebugDrawer();
 		auto& lightNode = lightEntity3.get<Nz::NodeComponent>();
-		//debugDrawer.DrawLine(lightNode.GetPosition(Nz::CoordSys::Global), lightNode.GetForward() * 10.f, Nz::Color::Blue());
-		Nz::Vector3f pos = lightNode.GetPosition(Nz::CoordSys::Global);
+		//debugDrawer.DrawLine(lightNode.GetGlobalPosition(), lightNode.GetForward() * 10.f, Nz::Color::Blue());
+		Nz::Vector3f pos = lightNode.GetGlobalPosition();
 		debugDrawer.DrawPoint(pos, Nz::Color::Blue());
 		/*debugDrawer.DrawBox(floorBox, Nz::Color::Red);
 		Nz::Boxf intersection;

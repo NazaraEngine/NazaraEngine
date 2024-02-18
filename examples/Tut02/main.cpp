@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
 
 		Nz::Boxf textBox = textSprite->GetAABB();
 		Nz::Vector2ui windowSize = mainWindow.GetSize();
-		nodeComponent.SetPosition(windowSize.x / 2 - textBox.width / 2, windowSize.y / 2 - textBox.height / 2);
+		nodeComponent.SetPosition({ windowSize.x / 2 - textBox.width / 2, windowSize.y / 2 - textBox.height / 2 });
 	}
 
 	eventHandler.OnKeyPressed.Connect([&](const Nz::WindowEventHandler*, const Nz::WindowEvent::KeyEvent& e)
@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
 		Nz::Vector2ui windowSize = mainWindow.GetSize();
 
 		auto& nodeComponent = textEntity.get<Nz::NodeComponent>();
-		nodeComponent.SetPosition(windowSize.x / 2 - textBox.width / 2, windowSize.y / 2 - textBox.height / 2);
+		nodeComponent.SetPosition({ windowSize.x / 2 - textBox.width / 2, windowSize.y / 2 - textBox.height / 2 });
 
 		// Profitons-en aussi pour nous donner un moyen de quitter le programme
 		if (e.virtualKey == Nz::Keyboard::VKey::Escape)

@@ -38,13 +38,13 @@ int main(int argc, char* argv[])
 	canvas2D.Resize(Nz::Vector2f(mainWindow.GetSize()));
 
 	Nz::LabelWidget* labelWidget = canvas2D.Add<Nz::LabelWidget>();
-	labelWidget->SetPosition(0.f, 200.f, 0.f);
+	labelWidget->SetPosition({ 0.f, 200.f });
 	labelWidget->UpdateText(Nz::SimpleTextDrawer::Draw("Je suis un LabelWidget !", 72));
 
 	unsigned int clickCount = 0;
 
 	Nz::ButtonWidget* buttonWidget = canvas2D.Add<Nz::ButtonWidget>();
-	buttonWidget->SetPosition(200.f, 400.f);
+	buttonWidget->SetPosition({ 200.f, 400.f });
 	buttonWidget->UpdateText(Nz::SimpleTextDrawer::Draw("Press me senpai", 72));
 	buttonWidget->Resize(buttonWidget->GetPreferredSize());
 
@@ -55,15 +55,15 @@ int main(int argc, char* argv[])
 	materialInstance->SetTextureProperty("BaseColorMap", fs.Load<Nz::Texture>("assets/lynix.jpg"));
 
 	Nz::ImageWidget* imageWidget = canvas2D.Add<Nz::ImageWidget>(materialInstance);
-	imageWidget->SetPosition(1200.f, 200.f);
+	imageWidget->SetPosition({ 1200.f, 200.f });
 	imageWidget->Resize(imageWidget->GetPreferredSize() / 4.f);
 
 	Nz::ImageButtonWidget* imageButtonWidget = canvas2D.Add<Nz::ImageButtonWidget>(materialInstance);
-	imageButtonWidget->SetPosition(1400, 500.f);
+	imageButtonWidget->SetPosition({ 1400, 500.f });
 	imageButtonWidget->Resize(imageButtonWidget->GetPreferredSize() / 4.f);
 
 	Nz::TextAreaWidget* textAreaWidget = canvas2D.Add<Nz::TextAreaWidget>();
-	textAreaWidget->SetPosition(800.f, 500.f);
+	textAreaWidget->SetPosition({ 800.f, 500.f });
 	textAreaWidget->SetText("Je suis un TextAreaWidget !");
 	textAreaWidget->Resize(Nz::Vector2f(400.f, textAreaWidget->GetPreferredHeight() * 5.f));
 	textAreaWidget->SetBackgroundColor(Nz::Color::White());
@@ -72,7 +72,7 @@ int main(int argc, char* argv[])
 
 	Nz::CheckboxWidget* checkboxWidget = canvas2D.Add<Nz::CheckboxWidget>();
 	//checkboxWidget->EnableTristate(true);
-	checkboxWidget->SetPosition(800.f, 800.f);
+	checkboxWidget->SetPosition({ 800.f, 800.f });
 	checkboxWidget->Resize({ 256.f, 256 });
 	checkboxWidget->SetState(true);
 
@@ -84,12 +84,12 @@ int main(int argc, char* argv[])
 	longTextArea->SetText("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum");
 
 	Nz::ScrollAreaWidget* scrollBarWidget = canvas2D.Add<Nz::ScrollAreaWidget>(longTextArea);
-	scrollBarWidget->SetPosition(1400.f, 800.f);
+	scrollBarWidget->SetPosition({ 1400.f, 800.f });
 	scrollBarWidget->Resize({ 512.f, 256.f });
 
 	Nz::RichTextAreaWidget* textAreaWidget2 = canvas2D.Add<Nz::RichTextAreaWidget>();
 	textAreaWidget2->EnableMultiline(true);
-	textAreaWidget2->SetPosition(1000.f, 200.f);
+	textAreaWidget2->SetPosition({ 1000.f, 200.f });
 	textAreaWidget2->SetBackgroundColor(Nz::Color::White());
 	textAreaWidget2->SetTextColor(Nz::Color::Black());
 
@@ -98,7 +98,7 @@ int main(int argc, char* argv[])
 	textAreaWidget2->Resize(Nz::Vector2f(500.f, textAreaWidget2->GetPreferredHeight()));
 
 	Nz::ProgressBarWidget* progressBarWidget = canvas2D.Add<Nz::ProgressBarWidget>();
-	progressBarWidget->SetPosition(200.f, 600.f);
+	progressBarWidget->SetPosition({ 200.f, 600.f });
 	progressBarWidget->Resize({ 512.f, 64.f });
 
 	buttonWidget->OnButtonTrigger.Connect([&](const Nz::ButtonWidget*)

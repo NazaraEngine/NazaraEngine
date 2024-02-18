@@ -42,7 +42,7 @@ namespace Nz
 		gfxComponent.AttachRenderable(m_textSprite, GetCanvas()->GetRenderMask());
 
 		auto& textNode = registry.get<NodeComponent>(m_textEntity);
-		textNode.SetPosition(s_textAreaPaddingWidth, GetHeight() - s_textAreaPaddingHeight);
+		textNode.SetPosition({ s_textAreaPaddingWidth, GetHeight() - s_textAreaPaddingHeight });
 
 		SetCursor(SystemCursor::Text);
 
@@ -84,7 +84,7 @@ namespace Nz
 		const AbstractTextDrawer& textDrawer = GetTextDrawer();
 
 		auto& textNode = GetRegistry().get<NodeComponent>(m_textEntity);
-		Vector2f textPosition = Vector2f(textNode.GetPosition(CoordSys::Local));
+		Vector2f textPosition = Vector2f(textNode.GetPosition());
 		x -= textPosition.x;
 		y -= textPosition.y;
 
@@ -627,19 +627,19 @@ namespace Nz
 		float glyphWidth = (lastGlyph) ? lastGlyph->bounds.width : 0.f;
 
 		auto& textNode = registry.get<NodeComponent>(m_textEntity);
-		float textPosition = textNode.GetPosition(CoordSys::Local).x - s_textAreaPaddingWidth;
+		float textPosition = textNode.GetPosition().x - s_textAreaPaddingWidth;
 		float cursorPosition = glyphPos + textPosition + ((overshooting) ? glyphWidth : 0.f);
 		float width = GetWidth();
 
 		if (width <= textDrawer.GetBounds().width)
 		{
 			if (cursorPosition + glyphWidth > width)
-				textNode.Move(width - cursorPosition - glyphWidth - s_textAreaPaddingWidth, 0.f);
+				textNode.Move({ width - cursorPosition - glyphWidth - s_textAreaPaddingWidth, 0.f });
 			else if (cursorPosition - glyphWidth < 0.f)
-				textNode.Move(-cursorPosition + glyphWidth - s_textAreaPaddingWidth, 0.f);
+				textNode.Move({ -cursorPosition + glyphWidth - s_textAreaPaddingWidth, 0.f });
 		}
 		else
-			textNode.Move(-textPosition, 0.f); //< Reset text position if we have enough room to show everything
+			textNode.Move({ -textPosition, 0.f }); //< Reset text position if we have enough room to show everything
 
 		// Create/destroy cursor entities and sprites
 		std::size_t selectionLineCount = m_cursorPositionEnd.y - m_cursorPositionBegin.y + 1;
@@ -697,14 +697,14 @@ namespace Nz
 
 				cursor.sprite->SetSize(Vector2f(spriteSize, lineInfo.bounds.height));
 
-				registry.get<NodeComponent>(cursor.entity).SetPosition(beginX, textHeight - lineInfo.bounds.y - lineInfo.bounds.height);
+				registry.get<NodeComponent>(cursor.entity).SetPosition({ beginX, textHeight - lineInfo.bounds.y - lineInfo.bounds.height });
 			}
 			else
 			{
 				// Full line selection
 				cursor.sprite->SetSize(Vector2f(lineInfo.bounds.width, lineInfo.bounds.height));
 
-				registry.get<NodeComponent>(cursor.entity).SetPosition(0.f, textHeight - lineInfo.bounds.y - lineInfo.bounds.height);
+				registry.get<NodeComponent>(cursor.entity).SetPosition({ 0.f, textHeight - lineInfo.bounds.y - lineInfo.bounds.height });
 			}
 		}
 	}
@@ -724,6 +724,6 @@ namespace Nz
 		Vector2f textSize = Vector2f(m_textSprite->GetAABB().GetLengths());
 
 		auto& textNode = GetRegistry().get<NodeComponent>(m_textEntity);
-		textNode.SetPosition(s_textAreaPaddingWidth, GetHeight() - s_textAreaPaddingHeight - textSize.y);
+		textNode.SetPosition({ s_textAreaPaddingWidth, GetHeight() - s_textAreaPaddingHeight - textSize.y });
 	}
 }
