@@ -26,7 +26,7 @@ namespace Nz
 	void Node::SetParent(const Node* node, bool keepDerived, Invalidation invalidation)
 	{
 		#if NAZARA_CORE_SAFE
-		// On vérifie que le node n'est pas son propre parent
+		// Check the node isn't its own parent
 		const Node* parentNode = node;
 		while (parentNode)
 		{
@@ -101,13 +101,13 @@ namespace Nz
 			m_parent->EnsureGlobalsUpdate();
 
 			if (m_doesInheritPosition)
-				m_globalPosition = m_parent->m_globalRotation*(m_parent->m_globalScale * (m_initialPosition + m_position)) + m_parent->m_globalPosition;
+				m_globalPosition = m_parent->m_globalRotation*(m_parent->m_globalScale * m_position) + m_parent->m_globalPosition;
 			else
-				m_globalPosition = m_initialPosition + m_position;
+				m_globalPosition = m_position;
 
 			if (m_doesInheritRotation)
 			{
-				Quaternionf rotation = m_initialRotation * m_rotation;
+				Quaternionf rotation = m_rotation;
 				if (m_doesInheritScale)
 					rotation = Quaternionf::Mirror(rotation, m_parent->m_globalScale);
 
@@ -115,17 +115,17 @@ namespace Nz
 				m_globalRotation.Normalize();
 			}
 			else
-				m_globalRotation = m_initialRotation * m_rotation;
+				m_globalRotation = m_rotation;
 
-			m_globalScale = m_initialScale * m_scale;
+			m_globalScale = m_scale;
 			if (m_doesInheritScale)
 				m_globalScale *= m_parent->m_globalScale;
 		}
 		else
 		{
-			m_globalPosition = m_initialPosition + m_position;
-			m_globalRotation = m_initialRotation * m_rotation;
-			m_globalScale = m_initialScale * m_scale;
+			m_globalPosition = m_position;
+			m_globalRotation = m_rotation;
+			m_globalScale = m_scale;
 		}
 
 		m_derivedUpdated = true;
