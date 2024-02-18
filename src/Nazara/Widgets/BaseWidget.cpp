@@ -306,7 +306,7 @@ namespace Nz
 
 	Rectf BaseWidget::GetScissorRect() const
 	{
-		Vector2f widgetPos = Vector2f(GetPosition(CoordSys::Global));
+		Vector2f widgetPos = Vector2f(GetGlobalPosition());
 		Vector2f widgetSize = GetSize();
 
 		Rectf widgetRect(widgetPos.x, widgetPos.y, widgetSize.x, widgetSize.y);

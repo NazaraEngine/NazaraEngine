@@ -127,7 +127,7 @@ int main(int argc, char* argv[])
 		entityGfx.AttachRenderable(sprite, 1);
 
 		auto& entityNode = textEntity.emplace<Nz::NodeComponent>();
-		entityNode.SetPosition(0.f, 5.f, 0.f);
+		entityNode.SetPosition({ 0.f, 5.f, 0.f });
 	}
 	entt::handle playerEntity = world.CreateEntity();
 
@@ -279,7 +279,7 @@ int main(int argc, char* argv[])
 				if (entity == playerEntity)
 					continue;
 
-				Nz::Vector3f spaceshipPos = node.GetPosition(Nz::CoordSys::Global);
+				Nz::Vector3f spaceshipPos = node.GetGlobalPosition();
 				if (spaceshipPos.GetSquaredLength() > Nz::IntegralPow(20.f, 2))
 					world.GetRegistry().destroy(entity);
 			}

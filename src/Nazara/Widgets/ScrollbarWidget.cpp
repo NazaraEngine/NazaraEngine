@@ -108,19 +108,19 @@ namespace Nz
 		{
 			m_scrollBackButton->Resize({ size.y, size.y });
 			m_scrollNextButton->Resize({ size.y, size.y });
-			m_scrollNextButton->SetPosition({ GetWidth() - m_scrollNextButton->GetWidth(), 0.f, 0.f });
+			m_scrollNextButton->SetPosition({ GetWidth() - m_scrollNextButton->GetWidth(), 0.f });
 
 			float start = m_scrollBackButton->GetWidth();
 			float remaining = size.x - start - m_scrollNextButton->GetWidth();
 			float centerPosition = start + invValuePct * (remaining - remaining * stepPct);
 
 			m_scrollCenterButton->Resize({ remaining * stepPct, size.y });
-			m_scrollCenterButton->SetPosition(start + centerPosition, 0.f);
+			m_scrollCenterButton->SetPosition({ start + centerPosition, 0.f });
 		}
 		else
 		{
 			m_scrollBackButton->Resize({ size.x, size.x });
-			m_scrollBackButton->SetPosition({ 0.f, GetHeight() - m_scrollBackButton->GetHeight(), 0.f });
+			m_scrollBackButton->SetPosition({ 0.f, GetHeight() - m_scrollBackButton->GetHeight() });
 			m_scrollNextButton->Resize({ size.x, size.x });
 
 			float start = m_scrollBackButton->GetHeight();
@@ -128,7 +128,7 @@ namespace Nz
 			float centerPosition = start + invValuePct * (remaining - remaining * stepPct);
 
 			m_scrollCenterButton->Resize({ size.x, remaining * stepPct });
-			m_scrollCenterButton->SetPosition(0.f, centerPosition);
+			m_scrollCenterButton->SetPosition({ 0.f, centerPosition });
 		}
 
 		m_style->Layout(size);

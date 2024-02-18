@@ -54,7 +54,7 @@ namespace Nz
 
 		Vector2f parentSize = m_parentWidget->GetSize();
 		Vector2f mySize = GetSize();
-		SetPosition((parentSize.x - mySize.x) / 2.f, (parentSize.y - mySize.y) / 2.f);
+		SetPosition({ (parentSize.x - mySize.x) / 2.f, (parentSize.y - mySize.y) / 2.f });
 	}
 
 	inline void BaseWidget::CenterHorizontal()
@@ -63,7 +63,7 @@ namespace Nz
 
 		Vector2f parentSize = m_parentWidget->GetSize();
 		Vector2f mySize = GetSize();
-		SetPosition((parentSize.x - mySize.x) / 2.f, GetPosition(CoordSys::Local).y);
+		SetPosition({ (parentSize.x - mySize.x) / 2.f, GetPosition().y });
 	}
 
 	inline void BaseWidget::CenterVertical()
@@ -72,7 +72,7 @@ namespace Nz
 
 		Vector2f parentSize = m_parentWidget->GetSize();
 		Vector2f mySize = GetSize();
-		SetPosition(GetPosition(CoordSys::Local).x, (parentSize.y - mySize.y) / 2.f);
+		SetPosition({ GetPosition().x, (parentSize.y - mySize.y) / 2.f });
 	}
 
 	inline void BaseWidget::ClearRenderingRect()

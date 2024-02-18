@@ -86,7 +86,7 @@ namespace Nz
 		Joint* attachedJoints = m_attachedSkeleton.GetJoints();
 
 		for (std::size_t i = 0; i < jointCount; ++i)
-			attachedJoints[i].SetTransform(referenceJoints[i].GetPosition(), referenceJoints[i].GetRotation(), referenceJoints[i].GetScale(), CoordSys::Local, Node::Invalidation::DontInvalidate);
+			attachedJoints[i].SetTransform(referenceJoints[i].GetPosition(), referenceJoints[i].GetRotation(), referenceJoints[i].GetScale(), Node::Invalidation::DontInvalidate);
 
 		m_attachedSkeleton.GetRootJoint()->Invalidate();
 

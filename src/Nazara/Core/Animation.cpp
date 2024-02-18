@@ -97,9 +97,9 @@ namespace Nz
 			const SequenceJoint& sequenceJointB = m_impl->sequenceJoints[frameB*m_impl->jointCount + i];
 
 			Joint& joint = joints[i];
-			joint.SetPosition(Vector3f::Lerp(sequenceJointA.position, sequenceJointB.position, interpolation), CoordSys::Local, Node::Invalidation::DontInvalidate);
-			joint.SetRotation(Quaternionf::Slerp(sequenceJointA.rotation, sequenceJointB.rotation, interpolation), CoordSys::Local, Node::Invalidation::DontInvalidate);
-			joint.SetScale(Vector3f::Lerp(sequenceJointA.scale, sequenceJointB.scale, interpolation), CoordSys::Local, Node::Invalidation::DontInvalidate);
+			joint.SetPosition(Vector3f::Lerp(sequenceJointA.position, sequenceJointB.position, interpolation), Node::Invalidation::DontInvalidate);
+			joint.SetRotation(Quaternionf::Slerp(sequenceJointA.rotation, sequenceJointB.rotation, interpolation), Node::Invalidation::DontInvalidate);
+			joint.SetScale(Vector3f::Lerp(sequenceJointA.scale, sequenceJointB.scale, interpolation), Node::Invalidation::DontInvalidate);
 		}
 
 		targetSkeleton->GetRootJoint()->Invalidate();
