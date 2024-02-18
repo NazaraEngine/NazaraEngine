@@ -90,17 +90,19 @@ namespace Nz
 		NazaraAssert(frameA < m_impl->frameCount, "FrameA is out of range");
 		NazaraAssert(frameB < m_impl->frameCount, "FrameB is out of range");
 
+		Joint* joints = targetSkeleton->GetJoints();
 		for (std::size_t i = 0; i < m_impl->jointCount; ++i)
 		{
-			Joint* joint = targetSkeleton->GetJoint(i);
-
 			const SequenceJoint& sequenceJointA = m_impl->sequenceJoints[frameA*m_impl->jointCount + i];
 			const SequenceJoint& sequenceJointB = m_impl->sequenceJoints[frameB*m_impl->jointCount + i];
 
-			joint->SetPosition(Vector3f::Lerp(sequenceJointA.position, sequenceJointB.position, interpolation));
-			joint->SetRotation(Quaternionf::Slerp(sequenceJointA.rotation, sequenceJointB.rotation, interpolation));
-			joint->SetScale(Vector3f::Lerp(sequenceJointA.scale, sequenceJointB.scale, interpolation));
+			Joint& joint = joints[i];
+			joint.SetPosition(Vector3f::Lerp(sequenceJointA.position, sequenceJointB.position, interpolation), CoordSys::Local, Node::Invalidation::DontInvalidate);
+			joint.SetRotation(Quaternionf::Slerp(sequenceJointA.rotation, sequenceJointB.rotation, interpolation), CoordSys::Local, Node::Invalidation::DontInvalidate);
+			joint.SetScale(Vector3f::Lerp(sequenceJointA.scale, sequenceJointB.scale, interpolation), CoordSys::Local, Node::Invalidation::DontInvalidate);
 		}
+
+		targetSkeleton->GetRootJoint()->Invalidate();
 	}
 
 	bool Animation::CreateSkeletal(std::size_t frameCount, std::size_t jointCount)
