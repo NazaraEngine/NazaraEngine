@@ -140,12 +140,9 @@ namespace Nz
 			mutable std::vector<Node*> m_childs;
 			mutable Matrix4f m_transformMatrix;
 			mutable Quaternionf m_globalRotation;
-			Quaternionf m_initialRotation;
 			Quaternionf m_rotation;
 			mutable Vector3f m_globalPosition;
 			mutable Vector3f m_globalScale;
-			Vector3f m_initialPosition;
-			Vector3f m_initialScale;
 			Vector3f m_position;
 			Vector3f m_scale;
 			const Node* m_parent;

@@ -9,10 +9,7 @@
 namespace Nz
 {
 	inline Node::Node(const Vector3f& translation, const Quaternionf& rotation, const Vector3f& scale) :
-	m_initialRotation(Quaternionf::Identity()),
 	m_rotation(rotation),
-	m_initialPosition(Vector3f::Zero()),
-	m_initialScale(Vector3f(1.f, 1.f, 1.f)),
 	m_position(translation),
 	m_scale(scale),
 	m_parent(nullptr),
@@ -25,10 +22,7 @@ namespace Nz
 	}
 
 	inline Node::Node(const Node& node) :
-	m_initialRotation(node.m_initialRotation),
 	m_rotation(node.m_rotation),
-	m_initialPosition(node.m_initialPosition),
-	m_initialScale(node.m_initialScale),
 	m_position(node.m_position),
 	m_scale(node.m_scale),
 	m_parent(nullptr),
@@ -46,10 +40,7 @@ namespace Nz
 	OnNodeNewParent(std::move(node.OnNodeNewParent)),
 	OnNodeRelease(std::move(node.OnNodeRelease)),
 	m_childs(std::move(node.m_childs)),
-	m_initialRotation(node.m_initialRotation),
 	m_rotation(node.m_rotation),
-	m_initialPosition(node.m_initialPosition),
-	m_initialScale(node.m_initialScale),
 	m_position(node.m_position),
 	m_scale(node.m_scale),
 	m_parent(node.m_parent),
@@ -136,21 +127,6 @@ namespace Nz
 	{
 		EnsureGlobalsUpdate();
 		return m_globalScale;
-	}
-
-	inline const Vector3f& Node::GetInitialPosition() const
-	{
-		return m_initialPosition;
-	}
-
-	inline const Quaternionf& Node::GetInitialRotation() const
-	{
-		return m_initialRotation;
-	}
-
-	inline const Vector3f& Node::GetInitialScale() const
-	{
-		return m_initialScale;
 	}
 
 	inline Vector3f Node::GetLeft() const
@@ -316,10 +292,10 @@ namespace Nz
 		{
 			m_parent->EnsureGlobalsUpdate();
 
-			m_position = (m_parent->m_globalRotation.GetConjugate() * (position - m_parent->m_globalPosition)) / m_parent->m_globalScale - m_initialPosition;
+			m_position = (m_parent->m_globalRotation.GetConjugate() * (position - m_parent->m_globalPosition)) / m_parent->m_globalScale;
 		}
 		else
-			m_position = position - m_initialPosition;
+			m_position = position;
 
 		Invalidate(invalidation);
 	}
@@ -327,11 +303,7 @@ namespace Nz
 	inline void Node::SetGlobalRotation(const Quaternionf& rotation, Invalidation invalidation)
 	{
 		if (m_parent && m_doesInheritRotation)
-		{
-			Quaternionf rot(m_parent->GetRotation() * m_initialRotation);
-
-			m_rotation = rot.GetConjugate() * rotation;
-		}
+			m_rotation = m_parent->GetGlobalRotation().GetConjugate() * rotation;
 		else
 			m_rotation = rotation;
 
@@ -346,9 +318,9 @@ namespace Nz
 	inline void Node::SetGlobalScale(const Vector3f& scale, Invalidation invalidation)
 	{
 		if (m_parent && m_doesInheritScale)
-			m_scale = scale / (m_initialScale * m_parent->m_globalScale);
+			m_scale = scale / m_parent->m_globalScale;
 		else
-			m_scale = scale / m_initialScale;
+			m_scale = scale;
 
 		Invalidate(invalidation);
 	}
@@ -360,18 +332,14 @@ namespace Nz
 		{
 			m_parent->EnsureGlobalsUpdate();
 
-			m_position = (m_parent->m_globalRotation.GetConjugate() * (position - m_parent->m_globalPosition)) / m_parent->m_globalScale - m_initialPosition;
+			m_position = (m_parent->m_globalRotation.GetConjugate() * (position - m_parent->m_globalPosition)) / m_parent->m_globalScale;
 		}
 		else
-			m_position = position - m_initialPosition;
+			m_position = position;
 
 		// Rotation
 		if (m_parent && m_doesInheritRotation)
-		{
-			Quaternionf rot(m_parent->GetRotation() * m_initialRotation);
-
-			m_rotation = rot.GetConjugate() * rotation;
-		}
+			m_rotation = m_parent->GetGlobalRotation().GetConjugate() * rotation;
 		else
 			m_rotation = rotation;
 
@@ -390,26 +358,22 @@ namespace Nz
 		{
 			m_parent->EnsureGlobalsUpdate();
 
-			m_position = (m_parent->m_globalRotation.GetConjugate() * (position - m_parent->m_globalPosition)) / m_parent->m_globalScale - m_initialPosition;
+			m_position = (m_parent->m_globalRotation.GetConjugate() * (position - m_parent->m_globalPosition)) / m_parent->m_globalScale;
 		}
 		else
-			m_position = position - m_initialPosition;
+			m_position = position;
 
 		// Rotation
 		if (m_parent && m_doesInheritRotation)
-		{
-			Quaternionf rot(m_parent->GetRotation() * m_initialRotation);
-
-			m_rotation = rot.GetConjugate() * rotation;
-		}
+			m_rotation = m_parent->GetGlobalRotation().GetConjugate() * rotation;
 		else
 			m_rotation = rotation;
 
 		// Scale
 		if (m_parent && m_doesInheritScale)
-			m_scale = scale / (m_initialScale * m_parent->GetScale());
+			m_scale = scale / m_parent->GetScale();
 		else
-			m_scale = scale / m_initialScale;
+			m_scale = scale;
 
 		Invalidate(invalidation);
 	}
@@ -445,48 +409,6 @@ namespace Nz
 
 			Invalidate(invalidation);
 		}
-	}
-
-	inline void Node::SetInitialPosition(const Vector3f& position, Invalidation invalidation)
-	{
-		m_initialPosition = position;
-
-		Invalidate(invalidation);
-	}
-
-	inline void Node::SetInitialPosition(float positionX, float positionY, float positionZ, Invalidation invalidation)
-	{
-		m_initialPosition = Vector3f(positionX, positionY, positionZ);
-
-		Invalidate(invalidation);
-	}
-
-	inline void Node::SetInitialRotation(const Quaternionf& rotation, Invalidation invalidation)
-	{
-		m_initialRotation = rotation;
-
-		Invalidate(invalidation);
-	}
-
-	inline void Node::SetInitialScale(const Vector3f& scale, Invalidation invalidation)
-	{
-		m_initialScale = scale;
-
-		Invalidate(invalidation);
-	}
-
-	inline void Node::SetInitialScale(float scale, Invalidation invalidation)
-	{
-		m_initialScale = Vector3f(scale);
-
-		Invalidate(invalidation);
-	}
-
-	inline void Node::SetInitialScale(float scaleX, float scaleY, float scaleZ, Invalidation invalidation)
-	{
-		m_initialScale = Vector3f(scaleX, scaleY, scaleZ);
-
-		Invalidate(invalidation);
 	}
 
 	inline void Node::SetParent(const Node& node, bool keepDerived, Invalidation invalidation)
@@ -605,9 +527,6 @@ namespace Nz
 		m_doesInheritPosition = node.m_doesInheritPosition;
 		m_doesInheritRotation = node.m_doesInheritRotation;
 		m_doesInheritScale = node.m_doesInheritScale;
-		m_initialPosition = node.m_initialPosition;
-		m_initialRotation = node.m_initialRotation;
-		m_initialScale = node.m_initialScale;
 		m_position = node.m_position;
 		m_rotation = node.m_rotation;
 		m_scale = node.m_scale;
@@ -625,9 +544,6 @@ namespace Nz
 		m_doesInheritPosition = node.m_doesInheritPosition;
 		m_doesInheritRotation = node.m_doesInheritRotation;
 		m_doesInheritScale = node.m_doesInheritScale;
-		m_initialPosition = node.m_initialPosition;
-		m_initialRotation = node.m_initialRotation;
-		m_initialScale = node.m_initialScale;
 		m_position = node.m_position;
 		m_rotation = node.m_rotation;
 		m_scale = node.m_scale;
