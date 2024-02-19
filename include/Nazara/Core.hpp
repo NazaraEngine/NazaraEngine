@@ -48,7 +48,6 @@
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/CommandLineParameters.hpp>
-#include <Nazara/Core/Export.hpp>
 #include <Nazara/Core/Core.hpp>
 #include <Nazara/Core/CubemapParams.hpp>
 #include <Nazara/Core/DynLib.hpp>
@@ -59,6 +58,7 @@
 #include <Nazara/Core/EnvironmentVariables.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
+#include <Nazara/Core/Export.hpp>
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/FileLogger.hpp>
 #include <Nazara/Core/FilesystemAppComponent.hpp>

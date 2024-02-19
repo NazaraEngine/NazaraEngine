@@ -35,6 +35,7 @@
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Enums.hpp>
 #include <Nazara/Math/EulerAngles.hpp>
+#include <Nazara/Math/Export.hpp>
 #include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/OrientedBox.hpp>

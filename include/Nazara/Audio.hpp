@@ -34,11 +34,11 @@
 #include <Nazara/Audio/AudioBuffer.hpp>
 #include <Nazara/Audio/AudioDevice.hpp>
 #include <Nazara/Audio/AudioSource.hpp>
-#include <Nazara/Audio/Export.hpp>
 #include <Nazara/Audio/DummyAudioBuffer.hpp>
 #include <Nazara/Audio/DummyAudioDevice.hpp>
 #include <Nazara/Audio/DummyAudioSource.hpp>
 #include <Nazara/Audio/Enums.hpp>
+#include <Nazara/Audio/Export.hpp>
 #include <Nazara/Audio/Music.hpp>
 #include <Nazara/Audio/OpenAL.hpp>
 #include <Nazara/Audio/OpenALBuffer.hpp>

@@ -30,8 +30,8 @@
 #define NAZARA_GLOBAL_PHYSICS3D_HPP
 
 #include <Nazara/Physics3D/Collider3D.hpp>
-#include <Nazara/Physics3D/Export.hpp>
 #include <Nazara/Physics3D/Enums.hpp>
+#include <Nazara/Physics3D/Export.hpp>
 #include <Nazara/Physics3D/PhysBody3D.hpp>
 #include <Nazara/Physics3D/PhysCharacter3D.hpp>
 #include <Nazara/Physics3D/PhysConstraint3D.hpp>

@@ -22,10 +22,10 @@ on_run(function ()
 	for _, modulePath in pairs(modules) do
 		local moduleName = modulePath:match(".*[\\/](.*)")
 
-		local config, err = io.open(modulePath .. "/Config.hpp", "r")
+		local config, err = io.open(modulePath .. "/Export.hpp", "r")
 		local head = ""
 		if (not config) then
-			error("Failed to read config file: " .. err)
+			error("Failed to read export file: " .. err)
 		end
 
 		for line in config:lines() do

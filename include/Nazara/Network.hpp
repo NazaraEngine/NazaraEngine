@@ -31,13 +31,13 @@
 
 #include <Nazara/Network/AbstractSocket.hpp>
 #include <Nazara/Network/Algorithm.hpp>
-#include <Nazara/Network/Export.hpp>
 #include <Nazara/Network/ENetCompressor.hpp>
 #include <Nazara/Network/ENetHost.hpp>
 #include <Nazara/Network/ENetPacket.hpp>
 #include <Nazara/Network/ENetPeer.hpp>
 #include <Nazara/Network/ENetProtocol.hpp>
 #include <Nazara/Network/Enums.hpp>
+#include <Nazara/Network/Export.hpp>
 #include <Nazara/Network/IpAddress.hpp>
 #include <Nazara/Network/NetBuffer.hpp>
 #include <Nazara/Network/NetPacket.hpp>
