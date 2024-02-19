@@ -46,7 +46,7 @@ SCENARIO("TCP", "[NETWORK][TCP]")
 			packet << vector123;
 			REQUIRE(client.SendPacket(packet));
 
-			std::this_thread::yield();
+			std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
 			THEN("We should get it on the server")
 			{
