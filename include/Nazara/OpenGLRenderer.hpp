@@ -29,7 +29,7 @@
 #ifndef NAZARA_GLOBAL_OPENGLRENDERER_HPP
 #define NAZARA_GLOBAL_OPENGLRENDERER_HPP
 
-#include <Nazara/OpenGLRenderer/Config.hpp>
+#include <Nazara/OpenGLRenderer/Export.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLBuffer.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLCommandBuffer.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLCommandBufferBuilder.hpp>

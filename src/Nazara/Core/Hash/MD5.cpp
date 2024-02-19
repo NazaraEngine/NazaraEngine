@@ -1,6 +1,6 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Core module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 /*
   Copyright (C) 1999, 2000, 2002 Aladdin Enterprises.  All rights reserved.
@@ -29,7 +29,6 @@
 #include <Nazara/Core/Hash/MD5.hpp>
 #include <NazaraUtils/Endianness.hpp>
 #include <cstring>
-#include <Nazara/Core/Debug.hpp>
 
 #define T_MASK (static_cast<UInt32>(~0))
 #define T1 /* 0xd76aa478 */ (T_MASK ^ 0x28955b87)

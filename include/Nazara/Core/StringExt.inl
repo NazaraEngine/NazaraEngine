@@ -1,13 +1,12 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Core module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Core/Error.hpp>
 #include <algorithm>
 #include <cctype>
 #include <cstring>
 #include <limits>
-#include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {
@@ -45,7 +44,6 @@ namespace Nz
 	* \param radix Base of the number
 	*
 	* \remark radix is meant to be between 2 and 36, other values are potentially undefined behavior
-	* \remark With NAZARA_MATH_SAFE, a NazaraError is produced and String() is returned
 	*/
 	inline std::string NumberToString(long long number, UInt8 radix)
 	{
@@ -191,7 +189,6 @@ namespace Nz
 	* \param ok Optional argument to know if convertion is correct
 	*
 	* \remark radix is meant to be between 2 and 36, other values are potentially undefined behavior
-	* \remark With NAZARA_MATH_SAFE, a NazaraError is produced and 0 is returned
 	*/
 	inline long long StringToNumber(std::string_view str, UInt8 radix, bool* ok)
 	{
@@ -338,4 +335,3 @@ namespace Nz
 	}
 }
 
-#include <Nazara/Core/DebugOff.hpp>

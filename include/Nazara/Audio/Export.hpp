@@ -1,5 +1,5 @@
 /*
-	Nazara Engine - Physics2D module
+	Nazara Engine - Audio module
 
 	Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 
@@ -24,25 +24,22 @@
 
 #pragma once
 
-#ifndef NAZARA_PHYSICS2D_CONFIG_HPP
-#define NAZARA_PHYSICS2D_CONFIG_HPP
+#ifndef NAZARA_AUDIO_EXPORT_HPP
+#define NAZARA_AUDIO_EXPORT_HPP
 
-/// Chaque modification d'un paramètre du module nécessite une recompilation de celui-ci
+/*!
+* \defgroup audio (NazaraAudio) Audio module
+*  Audio/System module including classes to handle music, sound, etc...
+*/
 
-// Active les tests de sécurité basés sur le code (Conseillé pour le développement)
-#define NAZARA_PHYSICS2D_SAFE 1
-
-/// Vérification des valeurs et types de certaines constantes
-#include <Nazara/Physics2D/ConfigCheck.hpp>
-
-#if defined(NAZARA_STATIC)
-	#define NAZARA_PHYSICS2D_API
-#else
-	#ifdef NAZARA_PHYSICS2D_BUILD
-		#define NAZARA_PHYSICS2D_API NAZARA_EXPORT
+#if !defined(NAZARA_STATIC)
+	#ifdef NAZARA_AUDIO_BUILD
+		#define NAZARA_AUDIO_API NAZARA_EXPORT
 	#else
-		#define NAZARA_PHYSICS2D_API NAZARA_IMPORT
+		#define NAZARA_AUDIO_API NAZARA_IMPORT
 	#endif
+#else
+	#define NAZARA_AUDIO_API
 #endif
 
-#endif // NAZARA_PHYSICS2D_CONFIG_HPP
+#endif // NAZARA_AUDIO_EXPORT_HPP

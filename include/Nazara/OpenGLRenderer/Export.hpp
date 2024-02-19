@@ -1,5 +1,5 @@
 /*
-	Nazara Engine - Physics3D module
+	Nazara Engine - OpenGL renderer
 
 	Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 
@@ -24,25 +24,17 @@
 
 #pragma once
 
-#ifndef NAZARA_PHYSICS3D_CONFIG_HPP
-#define NAZARA_PHYSICS3D_CONFIG_HPP
+#ifndef NAZARA_OPENGLRENDERER_EXPORT_HPP
+#define NAZARA_OPENGLRENDERER_EXPORT_HPP
 
-/// Chaque modification d'un paramètre du module nécessite une recompilation de celui-ci
-
-// Active les tests de sécurité basés sur le code (Conseillé pour le développement)
-#define NAZARA_PHYSICS3D_SAFE 1
-
-/// Vérification des valeurs et types de certaines constantes
-#include <Nazara/Physics3D/ConfigCheck.hpp>
-
-#if defined(NAZARA_STATIC)
-	#define NAZARA_PHYSICS3D_API
-#else
-	#ifdef NAZARA_PHYSICS3D_BUILD
-		#define NAZARA_PHYSICS3D_API NAZARA_EXPORT
+#if !defined(NAZARA_STATIC)
+	#ifdef NAZARA_OPENGLRENDERER_BUILD
+		#define NAZARA_OPENGLRENDERER_API NAZARA_EXPORT
 	#else
-		#define NAZARA_PHYSICS3D_API NAZARA_IMPORT
+		#define NAZARA_OPENGLRENDERER_API NAZARA_IMPORT
 	#endif
+#else
+	#define NAZARA_OPENGLRENDERER_API
 #endif
 
-#endif // NAZARA_PHYSICS3D_CONFIG_HPP
+#endif // NAZARA_OPENGLRENDERER_EXPORT_HPP

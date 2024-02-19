@@ -48,7 +48,7 @@
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Core/CommandLineParameters.hpp>
-#include <Nazara/Core/Config.hpp>
+#include <Nazara/Core/Export.hpp>
 #include <Nazara/Core/Core.hpp>
 #include <Nazara/Core/CubemapParams.hpp>
 #include <Nazara/Core/DynLib.hpp>

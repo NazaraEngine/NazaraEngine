@@ -1,5 +1,5 @@
 /*
-	Nazara Engine - Widgets module
+	Nazara Engine - Network module
 
 	Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 
@@ -24,27 +24,22 @@
 
 #pragma once
 
-#ifndef NAZARA_WIDGETS_CONFIG_HPP
-#define NAZARA_WIDGETS_CONFIG_HPP
+#ifndef NAZARA_NETWORK_EXPORT_HPP
+#define NAZARA_NETWORK_EXPORT_HPP
 
 /*!
-* \defgroup widgets (NazaraWidgets) Widgets module
-*  Widgets module including classes to handle widgets...
+* \defgroup network (NazaraNetwork) Network module
+*  Network/System module including classes to handle networking elements...
 */
 
-/// Each modification of a parameter needs a recompilation of the module
-
-/// Checking the values and types of certain constants
-#include <Nazara/Widgets/ConfigCheck.hpp>
-
-#if !defined(NAZARA_STATIC)
-	#ifdef NAZARA_WIDGETS_BUILD
-		#define NAZARA_WIDGETS_API NAZARA_EXPORT
-	#else
-		#define NAZARA_WIDGETS_API NAZARA_IMPORT
-	#endif
+#if defined(NAZARA_STATIC)
+	#define NAZARA_NETWORK_API
 #else
-	#define NAZARA_WIDGETS_API
+	#ifdef NAZARA_NETWORK_BUILD
+		#define NAZARA_NETWORK_API NAZARA_EXPORT
+	#else
+		#define NAZARA_NETWORK_API NAZARA_IMPORT
+	#endif
 #endif
 
-#endif // NAZARA_WIDGETS_CONFIG_HPP
+#endif // NAZARA_NETWORK_EXPORT_HPP

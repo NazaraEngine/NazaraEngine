@@ -1,11 +1,10 @@
 // Copyright (C) 2024 Alexandre Janniaux
 // This file is part of the "Nazara Engine - Core module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Core/Posix/HardwareInfoImpl.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <unistd.h>
-#include <Nazara/Core/Debug.hpp>
 
 namespace Nz::PlatformImpl
 {

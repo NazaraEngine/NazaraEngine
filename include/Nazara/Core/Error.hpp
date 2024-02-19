@@ -1,6 +1,6 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Core module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #pragma once
 
@@ -8,12 +8,12 @@
 #define NAZARA_CORE_ERROR_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Enums.hpp>
+#include <Nazara/Core/Export.hpp>
 #include <Nazara/Core/Format.hpp>
 #include <string>
 
-#if NAZARA_CORE_ENABLE_ASSERTS || defined(NAZARA_DEBUG)
+#ifndef NAZARA_CORE_DISABLE_ASSERTS
 	#define NazaraAssert(a, err) if NAZARA_UNLIKELY(!(a)) Nz::Error::Trigger(Nz::ErrorType::AssertFailed, __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION, err)
 	#define NazaraAssertFmt(a, fmt, ...) if NAZARA_UNLIKELY(!(a)) Nz::Error::Trigger(Nz::ErrorType::AssertFailed, __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION, Nz::Format(NAZARA_FORMAT(fmt), __VA_ARGS__))
 #else

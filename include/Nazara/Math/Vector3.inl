@@ -1,6 +1,6 @@
 // Copyright (C) 2024 Rémi Bèges - Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Math module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Core/Error.hpp>
 #include <NazaraUtils/Algorithm.hpp>
@@ -8,7 +8,6 @@
 #include <cstring>
 #include <limits>
 #include <stdexcept>
-#include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {
@@ -124,8 +123,6 @@ namespace Nz
 	* \param vec The other vector to measure the angle with
 	*
 	* \remark The vectors need to be normalised
-	* \remark Produce a NazaraError if one of the vec components is null with NAZARA_MATH_SAFE defined
-	* \throw std::domain_error if NAZARA_MATH_SAFE is defined and one of the vec components is null
 	*
 	* \see NormalizeAngle
 	*/
@@ -1041,4 +1038,3 @@ namespace std
 	};
 }
 
-#include <Nazara/Core/DebugOff.hpp>

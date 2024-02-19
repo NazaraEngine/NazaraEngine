@@ -1,13 +1,14 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Core module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Core/Formats/MTLParser.hpp>
-#include <Nazara/Core/Config.hpp>
+#include <Nazara/Core/Export.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
 #include <cstdio>
-#include <Nazara/Core/Debug.hpp>
+
+#define NAZARA_CORE_STRICT_RESOURCE_PARSING 1
 
 namespace Nz
 {
@@ -658,3 +659,5 @@ namespace Nz
 		return true;
 	}
 }
+
+#undef NAZARA_CORE_STRICT_RESOURCE_PARSING

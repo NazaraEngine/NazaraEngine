@@ -1,13 +1,12 @@
 // Copyright (C) 2024 Samy Bensaid
 // This file is part of the "Nazara Engine - Widgets module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Widgets/ImageWidget.hpp>
 #include <Nazara/Core/Components/NodeComponent.hpp>
 #include <Nazara/Graphics/Components/GraphicsComponent.hpp>
 #include <Nazara/Widgets/Canvas.hpp>
 #include <Nazara/Widgets/Widgets.hpp>
-#include <Nazara/Widgets/Debug.hpp>
 
 namespace Nz
 {

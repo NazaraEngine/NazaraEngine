@@ -1,15 +1,16 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Core module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Core/Formats/MD5MeshParser.hpp>
-#include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/Export.hpp>
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <cstdio>
 #include <memory>
-#include <Nazara/Core/Debug.hpp>
+
+#define NAZARA_CORE_STRICT_RESOURCE_PARSING 1
 
 namespace Nz
 {
@@ -460,3 +461,5 @@ namespace Nz
 			Warning(message);
 }
 }
+
+#undef NAZARA_CORE_STRICT_RESOURCE_PARSING

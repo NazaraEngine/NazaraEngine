@@ -1,6 +1,6 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Physics3D module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Physics3D/PhysWorld3D.hpp>
 #include <Nazara/Physics3D/Collider3D.hpp>
@@ -26,7 +26,6 @@
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
 #include <tsl/ordered_set.h>
 #include <cassert>
-#include <Nazara/Physics3D/Debug.hpp>
 
 namespace DitchMeAsap
 {

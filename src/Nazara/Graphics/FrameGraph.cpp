@@ -1,6 +1,6 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Graphics module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 // This class was written with a lot of help from themaister articles and Granite source code, check them out!
 // https://themaister.net/blog/2017/08/15/render-graphs-and-vulkan-a-deep-dive/
@@ -12,7 +12,6 @@
 #include <NazaraUtils/StackArray.hpp>
 #include <stdexcept>
 #include <unordered_set>
-#include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
 {

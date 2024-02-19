@@ -1,6 +1,6 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Core module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Core/Win32/ProcessImpl.hpp>
 #include <Nazara/Core/Error.hpp>
@@ -8,7 +8,6 @@
 #include <Nazara/Core/Win32/Win32Utils.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
 #include <Windows.h>
-#include <Nazara/Core/Debug.hpp>
 
 namespace Nz::PlatformImpl
 {

@@ -1,5 +1,5 @@
 /*
-	Nazara Engine - Graphics module
+	Nazara Engine - Widgets module
 
 	Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 
@@ -24,30 +24,22 @@
 
 #pragma once
 
-#ifndef NAZARA_GRAPHICS_CONFIG_HPP
-#define NAZARA_GRAPHICS_CONFIG_HPP
+#ifndef NAZARA_WIDGETS_EXPORT_HPP
+#define NAZARA_WIDGETS_EXPORT_HPP
 
 /*!
-* \defgroup graphics (NazaraGraphics) Graphics module
-*  Graphics/System module including classes to handle graphical elements...
+* \defgroup widgets (NazaraWidgets) Widgets module
+*  Widgets module including classes to handle widgets...
 */
 
-/// Each modification of a parameter needs a recompilation of the module
-
-// Activate the security tests based on the code (Advised for development)
-#define NAZARA_GRAPHICS_SAFE 1
-
-/// Checking the values and types of certain constants
-#include <Nazara/Graphics/ConfigCheck.hpp>
-
 #if !defined(NAZARA_STATIC)
-	#ifdef NAZARA_GRAPHICS_BUILD
-		#define NAZARA_GRAPHICS_API NAZARA_EXPORT
+	#ifdef NAZARA_WIDGETS_BUILD
+		#define NAZARA_WIDGETS_API NAZARA_EXPORT
 	#else
-		#define NAZARA_GRAPHICS_API NAZARA_IMPORT
+		#define NAZARA_WIDGETS_API NAZARA_IMPORT
 	#endif
 #else
-	#define NAZARA_GRAPHICS_API
+	#define NAZARA_WIDGETS_API
 #endif
 
-#endif // NAZARA_GRAPHICS_CONFIG_HPP
+#endif // NAZARA_WIDGETS_EXPORT_HPP

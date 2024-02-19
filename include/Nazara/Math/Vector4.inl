@@ -1,6 +1,6 @@
 // Copyright (C) 2024 Rémi Bèges - Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Math module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Core/Error.hpp>
 #include <NazaraUtils/Algorithm.hpp>
@@ -8,7 +8,6 @@
 #include <cstring>
 #include <sstream>
 #include <stdexcept>
-#include <Nazara/Core/Debug.hpp>
 
 ///FIXME: Les calculs effectués ici sont probablements tous faux, la composante W étant spéciale dans le monde de la 3D
 
@@ -861,4 +860,3 @@ namespace std
 	};
 }
 
-#include <Nazara/Core/DebugOff.hpp>

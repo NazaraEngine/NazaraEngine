@@ -1,15 +1,14 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Core module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
-#include <array>
 #include <cstring>
-#include <Nazara/Core/Debug.hpp>
+#include <memory>
 
 namespace Nz
 {
@@ -295,7 +294,9 @@ namespace Nz
 			}
 		}
 
-		std::array<UInt8, NAZARA_CORE_FILE_BUFFERSIZE> content;
+		constexpr std::size_t BufferSize = Stream::DefaultBufferSize;
+
+		std::unique_ptr<UInt8[]> buffer = std::make_unique<UInt8[]>(BufferSize);
 
 		// Save and restore cursor position after the call
 		std::size_t cursorPos = stream.GetCursorPos();
@@ -305,11 +306,11 @@ namespace Nz
 
 		while (!stream.EndOfStream())
 		{
-			std::size_t readSize = stream.Read(&content[0], content.size());
+			std::size_t readSize = stream.Read(&buffer[0], BufferSize);
 			if (readSize > 0)
-				hash.Append(&content[0], readSize);
+				hash.Append(&buffer[0], readSize);
 
-			if (readSize != content.size())
+			if (readSize != BufferSize)
 			{
 				if (!stream.EndOfStream())
 				{

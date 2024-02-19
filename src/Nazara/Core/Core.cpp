@@ -1,12 +1,12 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Core module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Core/Core.hpp>
 #include <Nazara/Core/Animation.hpp>
 #include <Nazara/Core/Buffer.hpp>
-#include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/Export.hpp>
 #include <Nazara/Core/HardwareInfo.hpp>
 #include <Nazara/Core/Image.hpp>
 #include <Nazara/Core/Log.hpp>
@@ -26,7 +26,6 @@
 #include <Nazara/Core/Formats/PCXLoader.hpp>
 #include <Nazara/Core/Formats/STBLoader.hpp>
 #include <Nazara/Core/Formats/STBSaver.hpp>
-#include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {

@@ -30,7 +30,7 @@
 #define NAZARA_GLOBAL_TEXTRENDERER_HPP
 
 #include <Nazara/TextRenderer/AbstractTextDrawer.hpp>
-#include <Nazara/TextRenderer/Config.hpp>
+#include <Nazara/TextRenderer/Export.hpp>
 #include <Nazara/TextRenderer/Font.hpp>
 #include <Nazara/TextRenderer/FontData.hpp>
 #include <Nazara/TextRenderer/FontGlyph.hpp>

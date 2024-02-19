@@ -1,6 +1,6 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Platform module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Platform/Window.hpp>
 #include <Nazara/Core/Error.hpp>
@@ -8,7 +8,6 @@
 #include <Nazara/Platform/Icon.hpp>
 #include <Nazara/Platform/SDL2/WindowImpl.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
-#include <Nazara/Platform/Debug.hpp>
 
 namespace Nz
 {
@@ -168,46 +167,25 @@ NAZARA_WARNING_POP()
 
 	bool Window::HasFocus() const
 	{
-		#if NAZARA_PLATFORM_SAFE
-		if (!m_impl)
-		{
-			NazaraError("window not created");
-			return false;
-		}
-		#endif
-
+		NazaraAssert(m_impl, "window not created");
 		return m_impl->HasFocus();
 	}
 
 	bool Window::IsMinimized() const
 	{
-		#if NAZARA_PLATFORM_SAFE
-		if (!m_impl)
-		{
-			NazaraError("window not created");
-			return false;
-		}
-		#endif
-
+		NazaraAssert(m_impl, "window not created");
 		return m_impl->IsMinimized();
 	}
 
 	bool Window::IsVisible() const
 	{
-		#if NAZARA_PLATFORM_SAFE
-		if (!m_impl)
-		{
-			NazaraError("window not created");
-			return false;
-		}
-		#endif
-
+		NazaraAssert(m_impl, "window not created");
 		return m_impl->IsVisible();
 	}
 
 	void Window::SetCursor(std::shared_ptr<Cursor> cursor)
 	{
-		NazaraAssert(m_impl, "Window not created");
+		NazaraAssert(m_impl, "window not created");
 		NazaraAssert(cursor && cursor->IsValid(), "Invalid cursor");
 
 		m_cursor = std::move(cursor);
@@ -216,13 +194,7 @@ NAZARA_WARNING_POP()
 
 	void Window::SetFocus()
 	{
-		#if NAZARA_PLATFORM_SAFE
-		if (!m_impl)
-		{
-			NazaraError("window not created");
-			return;
-		}
-		#endif
+		NazaraAssert(m_impl, "window not created");
 
 		m_impl->RaiseFocus();
 	}
@@ -238,143 +210,49 @@ NAZARA_WARNING_POP()
 
 	void Window::SetMaximumSize(const Vector2i& maxSize)
 	{
-		#if NAZARA_PLATFORM_SAFE
-		if (!m_impl)
-		{
-			NazaraError("window not created");
-			return;
-		}
-		#endif
+		NazaraAssert(m_impl, "window not created");
 
 		m_impl->UpdateMaximumSize(maxSize.x, maxSize.y);
 	}
 
-	void Window::SetMaximumSize(int width, int height)
-	{
-		#if NAZARA_PLATFORM_SAFE
-		if (!m_impl)
-		{
-			NazaraError("window not created");
-			return;
-		}
-		#endif
-
-		m_impl->UpdateMaximumSize(width, height);
-	}
-
 	void Window::SetMinimumSize(const Vector2i& minSize)
 	{
-		#if NAZARA_PLATFORM_SAFE
-		if (!m_impl)
-		{
-			NazaraError("window not created");
-			return;
-		}
-		#endif
+		NazaraAssert(m_impl, "window not created");
 
 		m_impl->UpdateMinimumSize(minSize.x, minSize.y);
 	}
 
-	void Window::SetMinimumSize(int width, int height)
-	{
-		#if NAZARA_PLATFORM_SAFE
-		if (!m_impl)
-		{
-			NazaraError("window not created");
-			return;
-		}
-		#endif
-
-		m_impl->UpdateMinimumSize(width, height);
-	}
-
 	void Window::SetPosition(const Vector2i& position)
 	{
-		#if NAZARA_PLATFORM_SAFE
-		if (!m_impl)
-		{
-			NazaraError("window not created");
-			return;
-		}
-		#endif
+		NazaraAssert(m_impl, "window not created");
 
 		m_impl->UpdatePosition(position.x, position.y);
 	}
 
-	void Window::SetPosition(int x, int y)
-	{
-		#if NAZARA_PLATFORM_SAFE
-		if (!m_impl)
-		{
-			NazaraError("window not created");
-			return;
-		}
-		#endif
-
-		m_impl->UpdatePosition(x, y);
-	}
-
 	void Window::SetSize(const Vector2i& size)
 	{
-		#if NAZARA_PLATFORM_SAFE
-		if (!m_impl)
-		{
-			NazaraError("window not created");
-			return;
-		}
-		#endif
+		NazaraAssert(m_impl, "window not created");
 
 		m_impl->UpdateSize(size.x, size.y);
 	}
 
-	void Window::SetSize(unsigned int width, unsigned int height)
-	{
-		#if NAZARA_PLATFORM_SAFE
-		if (!m_impl)
-		{
-			NazaraError("window not created");
-			return;
-		}
-		#endif
-
-		m_impl->UpdateSize(width, height);
-	}
-
 	void Window::SetStayOnTop(bool stayOnTop)
 	{
-		#if NAZARA_PLATFORM_SAFE
-		if (!m_impl)
-		{
-			NazaraError("window not created");
-			return;
-		}
-		#endif
+		NazaraAssert(m_impl, "window not created");
 
 		m_impl->UpdateStayOnTop(stayOnTop);
 	}
 
 	void Window::SetTitle(const std::string& title)
 	{
-		#if NAZARA_PLATFORM_SAFE
-		if (!m_impl)
-		{
-			NazaraError("window not created");
-			return;
-		}
-		#endif
+		NazaraAssert(m_impl, "window not created");
 
 		m_impl->UpdateTitle(title);
 	}
 
 	void Window::SetVisible(bool visible)
 	{
-		#if NAZARA_PLATFORM_SAFE
-		if (!m_impl)
-		{
-			NazaraError("window not created");
-			return;
-		}
-		#endif
+		NazaraAssert(m_impl, "window not created");
 
 		m_impl->Show(visible);
 	}
@@ -423,13 +301,7 @@ NAZARA_WARNING_POP()
 
 	void Window::IgnoreNextMouseEvent(int mouseX, int mouseY) const
 	{
-		#if NAZARA_PLATFORM_SAFE
-		if (!m_impl)
-		{
-			NazaraError("window not created");
-			return;
-		}
-		#endif
+		NazaraAssert(m_impl, "window not created");
 
 		m_impl->IgnoreNextMouseEvent(mouseX, mouseY);
 	}

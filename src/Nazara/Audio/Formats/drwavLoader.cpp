@@ -1,11 +1,11 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Audio module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Audio/Formats/drwavLoader.hpp>
 #include <Nazara/Audio/Algorithm.hpp>
 #include <Nazara/Audio/Audio.hpp>
-#include <Nazara/Audio/Config.hpp>
+#include <Nazara/Audio/Export.hpp>
 #include <Nazara/Audio/SoundBuffer.hpp>
 #include <Nazara/Audio/SoundStream.hpp>
 #include <Nazara/Core/Error.hpp>
@@ -20,7 +20,6 @@
 #define DR_WAV_NO_STDIO
 #include <dr_wav.h>
 
-#include <Nazara/Audio/Debug.hpp>
 
 namespace Nz
 {

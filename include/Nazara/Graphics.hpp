@@ -34,7 +34,7 @@
 #include <Nazara/Graphics/BakedFrameGraph.hpp>
 #include <Nazara/Graphics/Billboard.hpp>
 #include <Nazara/Graphics/Camera.hpp>
-#include <Nazara/Graphics/Config.hpp>
+#include <Nazara/Graphics/Export.hpp>
 #include <Nazara/Graphics/DebugDrawPipelinePass.hpp>
 #include <Nazara/Graphics/DepthPipelinePass.hpp>
 #include <Nazara/Graphics/DirectionalLight.hpp>

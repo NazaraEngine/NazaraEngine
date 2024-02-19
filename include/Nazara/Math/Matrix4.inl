@@ -1,10 +1,9 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Math module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
-#include <Nazara/Math/Config.hpp>
 #include <Nazara/Math/EulerAngles.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector2.hpp>
@@ -15,7 +14,6 @@
 #include <limits>
 #include <sstream>
 #include <stdexcept>
-#include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {
@@ -167,21 +165,13 @@ namespace Nz
 	*
 	* \param matrix Matrix to multiply with
 	*
-	* \remark if NAZARA_MATH_MATRIX4_CHECK_TRANSFORM is defined, will print a message if both matrices are transform matrices (and will call ConcatenateTransform)
+	* \remark if NAZARA_DEBUG is defined, will print a message if both matrices are transform matrices (and will call ConcatenateTransform)
 	*
 	* \see ConcatenateTransform
 	*/
 	template<typename T>
 	constexpr Matrix4<T>& Matrix4<T>::Concatenate(const Matrix4& matrix)
 	{
-		#if NAZARA_MATH_MATRIX4_CHECK_TRANSFORM
-		if (IsTransformMatrix() && matrix.IsTransformMatrix())
-		{
-			NazaraDebug("Matrix4::Concatenate was called on transform matrices, use Matrix4::ConcatenateTransform");
-			return ConcatenateTransform(matrix);
-		}
-		#endif
-
 		return operator=(Matrix4(
 			m11 * matrix.m11 + m12 * matrix.m21 + m13 * matrix.m31 + m14 * matrix.m41,
 			m11 * matrix.m12 + m12 * matrix.m22 + m13 * matrix.m32 + m14 * matrix.m42,
@@ -211,14 +201,14 @@ namespace Nz
 	*
 	* \param matrix Matrix to multiply with
 	*
-	* \remark if NAZARA_MATH_MATRIX4_CHECK_TRANSFORM is defined and matrices are not transform matrices, a NazaraWarning is produced and Concatenate is called
+	* \remark if NAZARA_DEBUG is defined and matrices are not transform matrices, a NazaraWarning is produced and Concatenate is called
 	*
 	* \see Concatenate
 	*/
 	template<typename T>
 	constexpr Matrix4<T>& Matrix4<T>::ConcatenateTransform(const Matrix4& matrix)
 	{
-		#if NAZARA_MATH_MATRIX4_CHECK_TRANSFORM
+		#ifdef NAZARA_DEBUG
 		if (!IsTransformMatrix())
 		{
 			NazaraDebug("Matrix4::ConcatenateTransform first matrix is not a transform matrix");
@@ -273,21 +263,11 @@ namespace Nz
 	* \brief Computes the determinant of this matrix
 	* \return The value of the determinant
 	*
-	* \remark if NAZARA_MATH_MATRIX4_CHECK_AFFINE is defined, GetDeterminantTransform is called
-	*
 	* \see GetDeterminantTransform
 	*/
 	template<typename T>
 	constexpr T Matrix4<T>::GetDeterminant() const
 	{
-		#if NAZARA_MATH_MATRIX4_CHECK_TRANSFORM
-		if (IsTransformMatrix())
-		{
-			NazaraDebug("Matrix4::GetDeterminant was called on a transform matrix, use Matrix4::GetDeterminantTransform");
-			return GetDeterminantTransform();
-		}
-		#endif
-
 		T A = m22*(m33*m44 - m43*m34) - m32*(m23*m44 - m43*m24) + m42*(m23*m34 - m33*m24);
 		T B = m12*(m33*m44 - m43*m34) - m32*(m13*m44 - m43*m14) + m42*(m13*m34 - m33*m14);
 		T C = m12*(m23*m44 - m43*m24) - m22*(m13*m44 - m43*m14) + m42*(m13*m24 - m23*m14);
@@ -300,14 +280,12 @@ namespace Nz
 	* \brief Computes the determinant of this matrix
 	* \return The value of the determinant
 	*
-	* \remark if NAZARA_DEBUG is defined and matrix is not affine, a NazaraWarning is produced and GetDeterminant is called
-	*
 	* \see GetDeterminant
 	*/
 	template<typename T>
 	constexpr T Matrix4<T>::GetDeterminantTransform() const
 	{
-		#if NAZARA_MATH_MATRIX4_CHECK_TRANSFORM
+		#ifdef NAZARA_DEBUG
 		if (!IsTransformMatrix())
 		{
 			NazaraDebug("matrix is not a transform matrix");
@@ -329,7 +307,7 @@ namespace Nz
 	* \param dest Matrix to put the result
 	*
 	* \remark You can call this method on the same object
-	* \remark if NAZARA_MATH_MATRIX4_CHECK_AFFINE is defined, GetInverseAffine is called
+	* \remark if NAZARADEBUG is defined, GetInverseAffine is called
 	* \remark if NAZARA_DEBUG is defined, a NazaraError is produced if dest is null and false is returned
 	*
 	* \see GetInverseAffine
@@ -338,14 +316,6 @@ namespace Nz
 	constexpr bool Matrix4<T>::GetInverse(Matrix4* dest) const
 	{
 		NazaraAssert(dest, "destination matrix must be valid");
-
-		#if NAZARA_MATH_MATRIX4_CHECK_TRANSFORM
-		if (IsTransformMatrix())
-		{
-			NazaraDebug("Matrix4::GetInverse was called on a transform matrix, use Matrix4::GetInverseTransform");
-			return GetInverseTransform(dest);
-		}
-		#endif
 
 		T det = GetDeterminant();
 		if (det == T(0.0))
@@ -490,7 +460,7 @@ namespace Nz
 	{
 		NazaraAssert(dest, "destination matrix must be valid");
 
-		#if NAZARA_MATH_MATRIX4_CHECK_TRANSFORM
+		#ifdef NAZARA_DEBUG
 		if (!IsTransformMatrix())
 		{
 			NazaraDebug("matrix is not a transform matrix");
@@ -627,9 +597,6 @@ namespace Nz
 	* \return Vector4 which is the ith row of the matrix
 	*
 	* \param row Index of the row you want
-	*
-	* \remark Produce a NazaraError if you try to access index greater than 3 with NAZARA_MATH_SAFE defined
-	* \throw std::out_of_range if NAZARA_MATH_SAFE is defined and if you try to access index greater than 3
 	*/
 	template<typename T>
 	constexpr Vector4<T> Matrix4<T>::GetRow(std::size_t row) const
@@ -1460,4 +1427,3 @@ namespace Nz
 }
 
 
-#include <Nazara/Core/DebugOff.hpp>

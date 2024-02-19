@@ -1,6 +1,6 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Network module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Network/AbstractSocket.hpp>
 #include <Nazara/Core/Error.hpp>
@@ -15,7 +15,6 @@
 #error Missing implementation: Socket
 #endif
 
-#include <Nazara/Network/Debug.hpp>
 
 namespace Nz
 {

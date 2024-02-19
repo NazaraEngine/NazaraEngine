@@ -1,6 +1,6 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Platform module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 // Interface inspired by the SFML of Laurent Gomila (and its team)
 
@@ -10,7 +10,7 @@
 #define NAZARA_PLATFORM_KEYBOARD_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Platform/Config.hpp>
+#include <Nazara/Platform/Export.hpp>
 #include <string>
 
 namespace Nz

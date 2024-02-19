@@ -1,6 +1,6 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Core module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 /**
  * The Whirlpool hashing function.
@@ -62,7 +62,6 @@
 
 #include <Nazara/Core/Hash/Whirlpool.hpp>
 #include <cstring>
-#include <Nazara/Core/Debug.hpp>
 
 #define ONE64 0xFFffffffffffffffULL
 

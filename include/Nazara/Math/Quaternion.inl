@@ -1,13 +1,11 @@
 // Copyright (C) 2024 Rémi Bèges - Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Math module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
-#include <Nazara/Math/Config.hpp>
 #include <NazaraUtils/MathUtils.hpp>
 #include <cstring>
 #include <limits>
 #include <sstream>
-#include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {
@@ -711,9 +709,9 @@ namespace Nz
 	template<typename T>
 	Quaternion<T> Quaternion<T>::Mirror(Quaternion quat, const Vector3<T>& axis)
 	{
-		float x = std::copysign(T(1.0), axis.x);
-		float y = std::copysign(T(1.0), axis.y);
-		float z = std::copysign(T(1.0), axis.z);
+		T x = std::copysign(T(1.0), axis.x);
+		T y = std::copysign(T(1.0), axis.y);
+		T z = std::copysign(T(1.0), axis.z);
 
 		quat.x = y * z * quat.x;
 		quat.y = x * z * quat.y;
@@ -844,4 +842,3 @@ namespace Nz
 	}
 }
 
-#include <Nazara/Core/DebugOff.hpp>

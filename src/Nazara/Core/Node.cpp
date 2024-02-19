@@ -1,9 +1,8 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Core module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Core/Node.hpp>
-#include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {
@@ -25,7 +24,7 @@ namespace Nz
 
 	void Node::SetParent(const Node* node, bool keepDerived, Invalidation invalidation)
 	{
-		#if NAZARA_CORE_SAFE
+		#ifdef NAZARA_DEBUG
 		// Check the node isn't its own parent
 		const Node* parentNode = node;
 		while (parentNode)
@@ -101,7 +100,7 @@ namespace Nz
 			m_parent->EnsureGlobalsUpdate();
 
 			if (m_doesInheritPosition)
-				m_globalPosition = m_parent->m_globalRotation*(m_parent->m_globalScale * m_position) + m_parent->m_globalPosition;
+				m_globalPosition = m_parent->m_globalRotation * (m_parent->m_globalScale * m_position) + m_parent->m_globalPosition;
 			else
 				m_globalPosition = m_position;
 

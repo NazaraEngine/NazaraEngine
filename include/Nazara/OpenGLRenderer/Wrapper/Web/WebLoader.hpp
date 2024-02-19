@@ -1,6 +1,6 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - OpenGL renderer"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #pragma once
 
@@ -8,7 +8,7 @@
 #define NAZARA_OPENGLRENDERER_WRAPPER_WEB_WEBLOADER_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/OpenGLRenderer/Config.hpp>
+#include <Nazara/OpenGLRenderer/Export.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Loader.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Web/WebContext.hpp>
 #include <string>

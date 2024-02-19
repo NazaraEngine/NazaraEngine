@@ -1,5 +1,5 @@
 /*
-	Nazara Engine - Platform module
+	Nazara Engine - Physics3D module
 
 	Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 
@@ -24,28 +24,17 @@
 
 #pragma once
 
-#ifndef NAZARA_PLATFORM_CONFIG_HPP
-#define NAZARA_PLATFORM_CONFIG_HPP
-
-/// Each modification of a parameter needs a recompilation of the module
-
-// Activate the security tests based on the code (Advised for development)
-#define NAZARA_PLATFORM_SAFE 1
-
-// Protect the classes against data race
-//#define NAZARA_PLATFORM_THREADSAFE 1
-
-// On Windows, ALT and F10 keys do not activate the window menu
-#define NAZARA_PLATFORM_WINDOWS_DISABLE_MENU_KEYS 1
+#ifndef NAZARA_PHYSICS3D_EXPORT_HPP
+#define NAZARA_PHYSICS3D_EXPORT_HPP
 
 #if defined(NAZARA_STATIC)
-	#define NAZARA_PLATFORM_API
+	#define NAZARA_PHYSICS3D_API
 #else
-	#ifdef NAZARA_PLATFORM_BUILD
-		#define NAZARA_PLATFORM_API NAZARA_EXPORT
+	#ifdef NAZARA_PHYSICS3D_BUILD
+		#define NAZARA_PHYSICS3D_API NAZARA_EXPORT
 	#else
-		#define NAZARA_PLATFORM_API NAZARA_IMPORT
+		#define NAZARA_PHYSICS3D_API NAZARA_IMPORT
 	#endif
 #endif
 
-#endif // NAZARA_PLATFORM_CONFIG_HPP
+#endif // NAZARA_PHYSICS3D_EXPORT_HPP

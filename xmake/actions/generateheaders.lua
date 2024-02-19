@@ -13,8 +13,6 @@ on_run(function ()
 	local excludedFiles = {
 		["Components.hpp"] = { Define = "NAZARA_ENTT" },
 		["ConfigCheck.hpp"] = true,
-		["Debug.hpp"] = true,
-		["DebugOff.hpp"] = true,
 		["Systems.hpp"] = { Define = "NAZARA_ENTT" },
 		["ThreadSafety.hpp"] = true,
 		["ThreadSafetyOff.hpp"] = true

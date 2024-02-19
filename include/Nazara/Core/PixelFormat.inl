@@ -1,12 +1,11 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Core module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Core/Error.hpp>
 #include <NazaraUtils/Algorithm.hpp>
 #include <array>
 #include <cstring>
-#include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {
@@ -172,19 +171,8 @@ namespace Nz
 			return true;
 		}
 
-		#if NAZARA_CORE_SAFE
-		if (IsCompressed(srcFormat))
-		{
-			NazaraError("cannot convert single pixel from compressed format");
-			return false;
-		}
-
-		if (IsCompressed(dstFormat))
-		{
-			NazaraError("cannot convert single pixel to compressed format");
-			return false;
-		}
-		#endif
+		NazaraAssert(!IsCompressed(srcFormat), "cannot convert single pixel from compressed format");
+		NazaraAssert(!IsCompressed(dstFormat), "cannot convert single pixel to compressed format");
 
 		return Convert(srcFormat, dstFormat, src, static_cast<const UInt8*>(src) + GetBytesPerPixel(srcFormat), dst);
 	}
@@ -296,4 +284,3 @@ namespace Nz
 	}
 }
 
-#include <Nazara/Core/DebugOff.hpp>

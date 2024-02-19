@@ -1,13 +1,12 @@
 // Copyright (C) 2024 Alexandre Janniaux
 // This file is part of the "Nazara Engine - Core module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Core/Posix/DynLibImpl.hpp>
 #include <NazaraUtils/Algorithm.hpp>
 #include <NazaraUtils/PathUtils.hpp>
 #include <dlfcn.h>
 #include <cstring>
-#include <Nazara/Core/Debug.hpp>
 
 namespace Nz::PlatformImpl
 {

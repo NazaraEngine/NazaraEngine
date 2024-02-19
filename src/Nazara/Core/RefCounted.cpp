@@ -1,11 +1,10 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Core module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Core/RefCounted.hpp>
-#include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/Debug.hpp>
+#include <Nazara/Core/Export.hpp>
 
 namespace Nz
 {
@@ -29,13 +28,11 @@ namespace Nz
 
 	/*!
 	* \brief Destructs the object
-	*
-	* \remark Produces a NazaraWarning if still referenced with NAZARA_CORE_SAFE defined
 	*/
 
 	RefCounted::~RefCounted()
 	{
-		#if NAZARA_CORE_SAFE
+		#ifdef NAZARA_DEBUG
 		if (m_referenceCount > 0)
 			NazaraWarningFmt("Resource destroyed while still referenced {0} time(s)", m_referenceCount);
 		#endif
@@ -73,19 +70,11 @@ namespace Nz
 	/*!
 	* \brief Removes a reference to the object
 	* \return true if object is deleted because no more referenced
-	*
-	* \remark Produces a NazaraError if counter is already 0 with NAZARA_CORE_SAFE defined
 	*/
 
 	bool RefCounted::RemoveReference() const
 	{
-		#if NAZARA_CORE_SAFE
-		if (m_referenceCount == 0)
-		{
-			NazaraError("impossible to remove reference (Ref. counter is already 0)");
-			return false;
-		}
-		#endif
+		NazaraAssert(m_referenceCount > 0, "impossible to remove reference (Ref. counter is already 0)");
 
 		if (--m_referenceCount == 0 && !m_persistent)
 		{

@@ -1,6 +1,6 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Widgets module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Widgets/TextAreaWidget.hpp>
 #include <Nazara/Core/Unicode.hpp>
@@ -8,7 +8,6 @@
 #include <Nazara/Graphics/Components/GraphicsComponent.hpp>
 #include <Nazara/Platform/Clipboard.hpp>
 #include <Nazara/TextRenderer/Font.hpp>
-#include <Nazara/Widgets/Debug.hpp>
 
 namespace Nz
 {

@@ -1,11 +1,10 @@
 // Copyright (C) 2024 Gawaboumga (https://github.com/Gawaboumga) - Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Math module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <NazaraUtils/MathUtils.hpp>
 #include <limits>
 #include <sstream>
-#include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {
@@ -65,9 +64,6 @@ namespace Nz
 	*
 	* \param planeOne First plane
 	* \param planeTwo Second secant plane
-	*
-	* \remark Produce a NazaraError if planes are parallel with NAZARA_MATH_SAFE defined
-	* \throw std::domain_error if NAZARA_MATH_SAFE is defined and planes are parallel
 	*/
 	template<typename T>
 	Ray<T>::Ray(const Plane<T>& planeOne, const Plane<T>& planeTwo)
@@ -77,7 +73,7 @@ namespace Nz
 		T termFour = planeTwo.normal.GetLength();
 		T det = termOne * termFour - termTwo * termTwo;
 
-		#if NAZARA_MATH_SAFE
+		#ifdef NAZARA_DEBUG
 		if (NumberEquals(det, T(0.0)))
 		{
 			std::string error("Planes are parallel");
@@ -622,4 +618,3 @@ namespace Nz
 	}
 }
 
-#include <Nazara/Core/DebugOff.hpp>

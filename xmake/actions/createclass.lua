@@ -82,7 +82,7 @@ headerTemplate = [[
 #define %HEADER_GUARD%
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/%MODULE_NAME%/Config.hpp>
+#include <Nazara/%MODULE_NAME%/Export.hpp>
 
 namespace Nz
 {
@@ -111,13 +111,11 @@ inlineTemplate = [[
 // This file is part of the "Nazara Engine - %MODULE_NAME% module"
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
-#include <Nazara/%MODULE_NAME%/Debug.hpp>
 
 namespace Nz
 {
 }
 
-#include <Nazara/%MODULE_NAME%/DebugOff.hpp>
 ]]
 
 sourceTemplate = [[
@@ -126,7 +124,6 @@ sourceTemplate = [[
 // For conditions of distribution and use, see copyright notice in Config.hpp
 
 #include <Nazara/%MODULE_NAME%/%CLASS_PATH%.hpp>
-#include <Nazara/%MODULE_NAME%/Debug.hpp>
 
 namespace Nz
 {

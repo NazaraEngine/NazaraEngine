@@ -1,6 +1,6 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Vulkan renderer"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/VulkanRenderer/VulkanDevice.hpp>
 #include <Nazara/Platform/WindowHandle.hpp>
@@ -16,7 +16,6 @@
 #include <Nazara/VulkanRenderer/VulkanTextureFramebuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanTextureSampler.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/QueueHandle.hpp>
-#include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
 {
