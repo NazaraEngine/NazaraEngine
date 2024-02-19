@@ -35,7 +35,6 @@ SOFTWARE.
 #include <Nazara/Core/Joint.hpp>
 #include <Nazara/Core/MaterialData.hpp>
 #include <Nazara/Core/PixelFormat.hpp>
-#include <Nazara/Core/Sequence.hpp>
 #include <Nazara/Core/SkeletalMesh.hpp>
 #include <Nazara/Core/Skeleton.hpp>
 #include <Nazara/Core/StaticMesh.hpp>
@@ -293,7 +292,7 @@ Nz::Result<std::shared_ptr<Nz::Animation>, Nz::ResourceLoadingError> LoadAnimati
 
 	anim->CreateSkeletal(maxFrameCount, parameters.skeleton->GetJointCount());
 
-	Nz::Sequence sequence;
+	Nz::Animation::Sequence sequence;
 	sequence.firstFrame = 0;
 	sequence.frameCount = maxFrameCount;
 	sequence.frameRate = static_cast<Nz::UInt32>((animation->mTicksPerSecond != 0.0) ? animation->mTicksPerSecond : 24.0);
@@ -322,7 +321,7 @@ Nz::Result<std::shared_ptr<Nz::Animation>, Nz::ResourceLoadingError> LoadAnimati
 
 		for (unsigned int frameIndex = 0; frameIndex < maxFrameCount; ++frameIndex)
 		{
-			Nz::SequenceJoint* sequenceJoints = anim->GetSequenceJoints(frameIndex);
+			Nz::Animation::SequenceJoint* sequenceJoints = anim->GetSequenceJoints(frameIndex);
 
 			double frameTime = frameIndex * animation->mDuration / maxFrameCount;
 
@@ -376,7 +375,7 @@ Nz::Result<std::shared_ptr<Nz::Animation>, Nz::ResourceLoadingError> LoadAnimati
 
 		for (unsigned int frameIndex = 0; frameIndex < maxFrameCount; ++frameIndex)
 		{
-			Nz::SequenceJoint* sequenceJoints = anim->GetSequenceJoints(frameIndex);
+			Nz::Animation::SequenceJoint* sequenceJoints = anim->GetSequenceJoints(frameIndex);
 			sequenceJoints[jointIndex].position = joint->GetPosition();
 			sequenceJoints[jointIndex].rotation = joint->GetRotation();
 			sequenceJoints[jointIndex].scale    = joint->GetScale();

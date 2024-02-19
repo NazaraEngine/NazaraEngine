@@ -58,6 +58,8 @@ namespace Nz
 	{
 		public:
 			using Params = AnimationParams;
+			struct Sequence;
+			struct SequenceJoint;
 
 			Animation();
 			Animation(const Animation&) = delete;
@@ -96,6 +98,21 @@ namespace Nz
 			static std::shared_ptr<Animation> LoadFromFile(const std::filesystem::path& filePath, const AnimationParams& params = AnimationParams());
 			static std::shared_ptr<Animation> LoadFromMemory(const void* data, std::size_t size, const AnimationParams& params = AnimationParams());
 			static std::shared_ptr<Animation> LoadFromStream(Stream& stream, const AnimationParams& params = AnimationParams());
+
+			struct Sequence
+			{
+				std::string name;
+				UInt32 firstFrame;
+				UInt32 frameCount;
+				UInt32 frameRate;
+			};
+
+			struct SequenceJoint
+			{
+				Quaternionf rotation = Quaternionf::Identity();
+				Vector3f position = Vector3f::Zero();
+				Vector3f scale = Vector3f::Unit();
+			};
 
 		private:
 			std::unique_ptr<AnimationImpl> m_impl;

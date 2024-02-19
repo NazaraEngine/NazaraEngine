@@ -104,7 +104,6 @@
 #include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
 #include <Nazara/Core/ResourceSaver.hpp>
-#include <Nazara/Core/Sequence.hpp>
 #include <Nazara/Core/Serialization.hpp>
 #include <Nazara/Core/SignalHandlerAppComponent.hpp>
 #include <Nazara/Core/SkeletalMesh.hpp>

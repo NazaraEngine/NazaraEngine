@@ -7,7 +7,6 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Export.hpp>
 #include <Nazara/Core/Joint.hpp>
-#include <Nazara/Core/Sequence.hpp>
 #include <Nazara/Core/Skeleton.hpp>
 #include <unordered_map>
 #include <vector>
@@ -17,11 +16,11 @@ namespace Nz
 	struct AnimationImpl
 	{
 		std::unordered_map<std::string, std::size_t, StringHash<>, std::equal_to<>> sequenceMap;
-		std::vector<Sequence> sequences;
-		std::vector<SequenceJoint> sequenceJoints; // Uniquement pour les animations squelettiques
-		AnimationType type;
+		std::vector<Animation::Sequence> sequences;
+		std::vector<Animation::SequenceJoint> sequenceJoints; // Uniquement pour les animations squelettiques
 		std::size_t frameCount;
 		std::size_t jointCount;  // Uniquement pour les animations squelettiques
+		AnimationType type;
 	};
 
 	bool AnimationParams::IsValid() const
@@ -130,7 +129,7 @@ namespace Nz
 		return m_impl->jointCount;
 	}
 
-	Sequence* Animation::GetSequence(std::string_view sequenceName)
+	auto Animation::GetSequence(std::string_view sequenceName) -> Sequence*
 	{
 		NazaraAssert(m_impl, "Animation not created");
 
@@ -144,7 +143,7 @@ namespace Nz
 		return &m_impl->sequences[it->second];
 	}
 
-	Sequence* Animation::GetSequence(std::size_t index)
+	auto Animation::GetSequence(std::size_t index) -> Sequence*
 	{
 		NazaraAssert(m_impl, "Animation not created");
 		NazaraAssert(index < m_impl->sequences.size(), "Sequence index out of range");
@@ -152,7 +151,7 @@ namespace Nz
 		return &m_impl->sequences[index];
 	}
 
-	const Sequence* Animation::GetSequence(std::string_view sequenceName) const
+	auto Animation::GetSequence(std::string_view sequenceName) const -> const Sequence*
 	{
 		NazaraAssert(m_impl, "Animation not created");
 
@@ -166,7 +165,7 @@ namespace Nz
 		return &m_impl->sequences[it->second];
 	}
 
-	const Sequence* Animation::GetSequence(std::size_t index) const
+	auto Animation::GetSequence(std::size_t index) const -> const Sequence*
 	{
 		NazaraAssert(m_impl, "Animation not created");
 		NazaraAssert(index < m_impl->sequences.size(), "Sequence index out of range");
@@ -195,20 +194,20 @@ namespace Nz
 		return it->second;
 	}
 
-	SequenceJoint* Animation::GetSequenceJoints(std::size_t frameIndex)
+	auto Animation::GetSequenceJoints(std::size_t frameIndex) -> SequenceJoint*
 	{
 		NazaraAssert(m_impl, "Animation not created");
 		NazaraAssert(m_impl->type == AnimationType::Skeletal, "Animation is not skeletal");
 
-		return &m_impl->sequenceJoints[frameIndex*m_impl->jointCount];
+		return &m_impl->sequenceJoints[frameIndex * m_impl->jointCount];
 	}
 
-	const SequenceJoint* Animation::GetSequenceJoints(std::size_t frameIndex) const
+	auto Animation::GetSequenceJoints(std::size_t frameIndex) const -> const SequenceJoint*
 	{
 		NazaraAssert(m_impl, "Animation not created");
 		NazaraAssert(m_impl->type == AnimationType::Skeletal, "Animation is not skeletal");
 
-		return &m_impl->sequenceJoints[frameIndex*m_impl->jointCount];
+		return &m_impl->sequenceJoints[frameIndex * m_impl->jointCount];
 	}
 
 	AnimationType Animation::GetType() const

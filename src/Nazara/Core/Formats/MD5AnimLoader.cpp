@@ -4,7 +4,6 @@
 
 #include <Nazara/Core/Formats/MD5AnimLoader.hpp>
 #include <Nazara/Core/Animation.hpp>
-#include <Nazara/Core/Sequence.hpp>
 #include <Nazara/Core/Formats/MD5AnimParser.hpp>
 
 namespace Nz
@@ -45,7 +44,7 @@ namespace Nz
 			std::shared_ptr<Animation> animation = std::make_shared<Animation>();
 			animation->CreateSkeletal(frameCount, jointCount);
 
-			Sequence sequence;
+			Animation::Sequence sequence;
 			sequence.firstFrame = 0;
 			sequence.frameCount = frameCount;
 			sequence.frameRate = frameRate;
@@ -53,7 +52,7 @@ namespace Nz
 
 			animation->AddSequence(sequence);
 
-			SequenceJoint* sequenceJoints = animation->GetSequenceJoints();
+			Animation::SequenceJoint* sequenceJoints = animation->GetSequenceJoints();
 
 			// Pour que le squelette soit correctement aligné, il faut appliquer un quaternion "de correction" aux joints à la base du squelette
 			Quaternionf rotationQuat = Quaternionf::RotationBetween(Vector3f::UnitX(), Vector3f::Forward()) *
@@ -68,7 +67,7 @@ namespace Nz
 			{
 				for (UInt32 jointIndex = 0; jointIndex < jointCount; ++jointIndex)
 				{
-					SequenceJoint& sequenceJoint = sequenceJoints[frameIndex * jointCount + jointIndex];
+					Animation::SequenceJoint& sequenceJoint = sequenceJoints[frameIndex * jointCount + jointIndex];
 
 					Int32 parentId = joints[jointIndex].parent;
 					if (parentId >= 0)
