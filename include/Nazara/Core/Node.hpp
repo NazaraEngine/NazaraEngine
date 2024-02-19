@@ -43,9 +43,6 @@ namespace Nz
 			inline const Vector3f& GetGlobalPosition() const;
 			inline const Quaternionf& GetGlobalRotation() const;
 			inline const Vector3f& GetGlobalScale() const;
-			inline const Vector3f& GetInitialPosition() const;
-			inline const Quaternionf& GetInitialRotation() const;
-			inline const Vector3f& GetInitialScale() const;
 			inline Vector3f GetLeft() const;
 			inline const Node* GetParent() const;
 			inline const Vector3f& GetPosition() const;
@@ -85,12 +82,6 @@ namespace Nz
 			inline void SetInheritPosition(bool inheritPosition, Invalidation invalidation = Invalidation::InvalidateRecursively);
 			inline void SetInheritRotation(bool inheritRotation, Invalidation invalidation = Invalidation::InvalidateRecursively);
 			inline void SetInheritScale(bool inheritScale, Invalidation invalidation = Invalidation::InvalidateRecursively);
-			inline void SetInitialPosition(const Vector3f& translation, Invalidation invalidation = Invalidation::InvalidateRecursively);
-			inline void SetInitialPosition(float translationX, float translationXY, float translationZ = 0.f, Invalidation invalidation = Invalidation::InvalidateRecursively);
-			inline void SetInitialRotation(const Quaternionf& quat, Invalidation invalidation = Invalidation::InvalidateRecursively);
-			inline void SetInitialScale(const Vector3f& scale, Invalidation invalidation = Invalidation::InvalidateRecursively);
-			inline void SetInitialScale(float scale, Invalidation invalidation = Invalidation::InvalidateRecursively);
-			inline void SetInitialScale(float scaleX, float scaleY, float scaleZ = 1.f, Invalidation invalidation = Invalidation::InvalidateRecursively);
 			void SetParent(const Node* node = nullptr, bool keepDerived = false, Invalidation invalidation = Invalidation::InvalidateRecursively);
 			void SetParent(const Node& node, bool keepDerived = false, Invalidation invalidation = Invalidation::InvalidateRecursively);
 			inline void SetPosition(const Vector2f& position, Invalidation invalidation = Invalidation::InvalidateRecursively);
