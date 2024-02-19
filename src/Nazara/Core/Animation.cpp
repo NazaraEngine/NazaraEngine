@@ -272,10 +272,8 @@ namespace Nz
 			return;
 		}
 
-		auto sequenceIt = m_impl->sequences.begin();
-		std::advance(sequenceIt, it->second);
-
-		m_impl->sequences.erase(sequenceIt);
+		RemoveSequence(it->second);
+		m_impl->sequenceMap.erase(it);
 	}
 
 	void Animation::RemoveSequence(std::size_t index)
@@ -283,10 +281,14 @@ namespace Nz
 		NazaraAssert(m_impl, "Animation not created");
 		NazaraAssert(index < m_impl->sequences.size(), "Sequence index out of range");
 
-		auto it = m_impl->sequences.begin();
-		std::advance(it, index);
+		m_impl->sequences.erase(m_impl->sequences.begin() + index);
 
-		m_impl->sequences.erase(it);
+		// Shift indices
+		for (auto& it : m_impl->sequenceMap)
+		{
+			if (it.second > index)
+				it.second--;
+		}
 	}
 
 	Animation& Animation::operator=(Animation&&) noexcept = default;

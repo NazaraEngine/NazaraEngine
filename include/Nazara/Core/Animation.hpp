@@ -27,9 +27,9 @@ namespace Nz
 
 	struct NAZARA_CORE_API AnimationParams : ResourceParameters
 	{
-		// La frame de fin à charger
+		// Last frame to load (maximum)
 		std::size_t endFrame = 0xFFFFFFFF;
-		// La frame de début à charger
+		// First frame to load
 		std::size_t startFrame = 0;
 		// Reference skeleton
 		const Skeleton* skeleton = nullptr;
