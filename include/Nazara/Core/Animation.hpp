@@ -70,8 +70,6 @@ namespace Nz
 			bool CreateSkeletal(std::size_t frameCount, std::size_t jointCount);
 			void Destroy();
 
-			void EnableLoopPointInterpolation(bool loopPointInterpolation);
-
 			std::size_t GetFrameCount() const;
 			std::size_t GetJointCount() const;
 			Sequence* GetSequence(std::string_view sequenceName);
@@ -87,7 +85,6 @@ namespace Nz
 			bool HasSequence(std::string_view sequenceName) const;
 			bool HasSequence(std::size_t index = 0) const;
 
-			bool IsLoopPointInterpolationEnabled() const;
 			bool IsValid() const;
 
 			void RemoveSequence(std::string_view sequenceName);

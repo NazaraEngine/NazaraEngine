@@ -21,7 +21,6 @@ namespace Nz
 		std::vector<Sequence> sequences;
 		std::vector<SequenceJoint> sequenceJoints; // Uniquement pour les animations squelettiques
 		AnimationType type;
-		bool loopPointInterpolation = false;
 		std::size_t frameCount;
 		std::size_t jointCount;  // Uniquement pour les animations squelettiques
 	};
@@ -124,13 +123,6 @@ namespace Nz
 	void Animation::Destroy()
 	{
 		m_impl.reset();
-	}
-
-	void Animation::EnableLoopPointInterpolation(bool loopPointInterpolation)
-	{
-		NazaraAssert(m_impl, "Animation not created");
-
-		m_impl->loopPointInterpolation = loopPointInterpolation;
 	}
 
 	std::size_t Animation::GetFrameCount() const
@@ -247,13 +239,6 @@ namespace Nz
 		NazaraAssert(m_impl, "Animation not created");
 
 		return index >= m_impl->sequences.size();
-	}
-
-	bool Animation::IsLoopPointInterpolationEnabled() const
-	{
-		NazaraAssert(m_impl, "Animation not created");
-
-		return m_impl->loopPointInterpolation;
 	}
 
 	bool Animation::IsValid() const
