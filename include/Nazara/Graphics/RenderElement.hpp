@@ -1,6 +1,6 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Graphics module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #pragma once
 
@@ -8,8 +8,8 @@
 #define NAZARA_GRAPHICS_RENDERELEMENT_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Graphics/Config.hpp>
 #include <Nazara/Graphics/Enums.hpp>
+#include <Nazara/Graphics/Export.hpp>
 #include <Nazara/Math/Frustum.hpp>
 #include <memory>
 #include <vector>

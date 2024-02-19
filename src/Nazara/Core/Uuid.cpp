@@ -1,6 +1,6 @@
 // Copyright (C) 2024 Full Cycle Games
 // This file is part of the "Nazara Engine - Core module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Core/Uuid.hpp>
 #include <ostream>
@@ -11,7 +11,6 @@
 #include <uuid/uuid.h>
 #endif
 
-#include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {

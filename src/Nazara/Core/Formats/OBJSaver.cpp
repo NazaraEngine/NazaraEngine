@@ -1,6 +1,6 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Core module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Core/Formats/OBJSaver.hpp>
 #include <Nazara/Core/MaterialData.hpp>
@@ -12,7 +12,6 @@
 #include <Nazara/Core/Formats/OBJParser.hpp>
 #include <map>
 #include <unordered_set>
-#include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {

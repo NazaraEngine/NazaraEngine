@@ -1,6 +1,6 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Text renderer"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #pragma once
 
@@ -11,7 +11,7 @@
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector2.hpp>
-#include <Nazara/TextRenderer/Config.hpp>
+#include <Nazara/TextRenderer/Export.hpp>
 #include <memory>
 
 namespace Nz

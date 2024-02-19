@@ -1,6 +1,6 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Math module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #pragma once
 
@@ -10,7 +10,6 @@
 ///FIXME: Matrices column-major, difficile de bosser avec (Tout passer en row-major et transposer dans les shaders ?)
 
 #include <Nazara/Math/Angle.hpp>
-#include <Nazara/Math/Config.hpp>
 #include <NazaraUtils/TypeTag.hpp>
 #include <cstddef>
 #include <string>

@@ -1,5 +1,5 @@
 /*
-	Nazara Engine - Vulkan renderer
+	Nazara Engine - Renderer module
 
 	Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 
@@ -24,27 +24,17 @@
 
 #pragma once
 
-#ifndef NAZARA_VULKANRENDERER_CONFIG_HPP
-#define NAZARA_VULKANRENDERER_CONFIG_HPP
+#ifndef NAZARA_RENDERER_EXPORT_HPP
+#define NAZARA_RENDERER_EXPORT_HPP
 
-/// Chaque modification d'un paramètre du module nécessite une recompilation de celui-ci
-
-// Active les tests de sécurité basés sur le code (Conseillé pour le développement)
-#define NAZARA_VULKANRENDERER_SAFE 1
-
-/// Chaque modification d'un paramètre ci-dessous implique une modification (souvent mineure) du code
-
-/// Vérification des valeurs et types de certaines constantes
-#include <Nazara/VulkanRenderer/ConfigCheck.hpp>
-
-#if !defined(NAZARA_STATIC)
-	#ifdef NAZARA_VULKANRENDERER_BUILD
-		#define NAZARA_VULKANRENDERER_API NAZARA_EXPORT
-	#else
-		#define NAZARA_VULKANRENDERER_API NAZARA_IMPORT
-	#endif
+#if defined(NAZARA_STATIC)
+	#define NAZARA_RENDERER_API
 #else
-	#define NAZARA_VULKANRENDERER_API
+	#ifdef NAZARA_RENDERER_BUILD
+		#define NAZARA_RENDERER_API NAZARA_EXPORT
+	#else
+		#define NAZARA_RENDERER_API NAZARA_IMPORT
+	#endif
 #endif
 
-#endif // NAZARA_VULKANRENDERER_CONFIG_HPP
+#endif // NAZARA_RENDERER_EXPORT_HPP

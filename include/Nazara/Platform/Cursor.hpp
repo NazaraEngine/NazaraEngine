@@ -1,6 +1,6 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Platform module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #pragma once
 
@@ -10,8 +10,8 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Image.hpp>
 #include <Nazara/Math/Vector2.hpp>
-#include <Nazara/Platform/Config.hpp>
 #include <Nazara/Platform/Enums.hpp>
+#include <Nazara/Platform/Export.hpp>
 #include <NazaraUtils/EnumArray.hpp>
 #include <array>
 

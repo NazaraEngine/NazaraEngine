@@ -1,6 +1,6 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Audio module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #pragma once
 
@@ -10,8 +10,8 @@
 #if defined(NAZARA_AUDIO_OPENAL) || defined(NAZARA_AUDIO_BUILD)
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/Enums.hpp>
+#include <Nazara/Audio/Export.hpp>
 #include <Nazara/Audio/OpenAL.hpp>
 #include <Nazara/Core/DynLib.hpp>
 #include <string>

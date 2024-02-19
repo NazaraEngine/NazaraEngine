@@ -1,6 +1,6 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Audio module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #pragma once
 
@@ -9,8 +9,8 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Audio/AudioBuffer.hpp>
-#include <Nazara/Audio/Config.hpp>
 #include <Nazara/Audio/Enums.hpp>
+#include <Nazara/Audio/Export.hpp>
 #include <Nazara/Core/Time.hpp>
 
 namespace Nz

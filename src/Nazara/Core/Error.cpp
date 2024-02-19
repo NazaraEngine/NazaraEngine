@@ -1,6 +1,6 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Core module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
@@ -17,7 +17,6 @@
 	#include <errno.h>
 #endif
 
-#include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {
@@ -178,11 +177,6 @@ namespace Nz
 			s_lastErrorFunction = function;
 			s_lastErrorLine = line;
 		}
-
-		#if NAZARA_CORE_EXIT_ON_ASSERT_FAILURE
-		if (type == ErrorType::AssertFailed)
-			std::abort();
-		#endif
 
 		if (type == ErrorType::AssertFailed || (type != ErrorType::Warning && flags.Test(ErrorMode::ThrowException)))
 			throw std::runtime_error(s_lastError);

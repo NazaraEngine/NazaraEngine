@@ -1,6 +1,6 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - OpenGL renderer"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/OpenGLRenderer/Wrapper/WGL/WGLContext.hpp>
 #include <Nazara/Core/StringExt.hpp>
@@ -8,7 +8,6 @@
 #include <NazaraUtils/CallOnExit.hpp>
 #include <array>
 #include <cassert>
-#include <Nazara/OpenGLRenderer/Debug.hpp>
 
 namespace Nz::GL
 {

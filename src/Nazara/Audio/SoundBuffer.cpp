@@ -1,17 +1,16 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Audio module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Audio/SoundBuffer.hpp>
 #include <Nazara/Audio/Algorithm.hpp>
 #include <Nazara/Audio/Audio.hpp>
 #include <Nazara/Audio/AudioBuffer.hpp>
-#include <Nazara/Audio/Config.hpp>
+#include <Nazara/Audio/Export.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <cstring>
 #include <memory>
 #include <stdexcept>
-#include <Nazara/Audio/Debug.hpp>
 
 namespace Nz
 {

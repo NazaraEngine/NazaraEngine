@@ -1,15 +1,14 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Text renderer"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/TextRenderer/Font.hpp>
-#include <Nazara/Core/Config.hpp>
+#include <Nazara/Core/Export.hpp>
 #include <Nazara/Core/GuillotineImageAtlas.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/TextRenderer/FontData.hpp>
 #include <Nazara/TextRenderer/FontGlyph.hpp>
 #include <Nazara/TextRenderer/TextRenderer.hpp>
-#include <Nazara/TextRenderer/Debug.hpp>
 
 namespace Nz
 {
@@ -106,14 +105,7 @@ namespace Nz
 
 	bool Font::ExtractGlyph(unsigned int characterSize, char32_t character, TextStyleFlags style, float outlineThickness, FontGlyph* glyph) const
 	{
-		#if NAZARA_CORE_SAFE
-		if (!IsValid())
-		{
-			NazaraError("invalid font");
-			return false;
-		}
-		#endif
-
+		NazaraAssert(IsValid(), "invalid font");
 		return m_data->ExtractGlyph(characterSize, character, style, outlineThickness, glyph);
 	}
 
@@ -143,26 +135,13 @@ namespace Nz
 
 	std::string Font::GetFamilyName() const
 	{
-		#if NAZARA_CORE_SAFE
-		if (!IsValid())
-		{
-			NazaraError("invalid font");
-			return std::string("invalid font");
-		}
-		#endif
-
+		NazaraAssert(IsValid(), "invalid font");
 		return m_data->GetFamilyName();
 	}
 
 	int Font::GetKerning(unsigned int characterSize, char32_t first, char32_t second) const
 	{
-		#if NAZARA_CORE_SAFE
-		if (!IsValid())
-		{
-			NazaraError("invalid font");
-			return 0;
-		}
-		#endif
+		NazaraAssert(IsValid(), "invalid font");
 
 		// Use a cache as QueryKerning may be costly (may induce an internal size change)
 		auto& map = m_kerningCache[characterSize];
@@ -199,15 +178,7 @@ namespace Nz
 
 	const Font::SizeInfo& Font::GetSizeInfo(unsigned int characterSize) const
 	{
-		#if NAZARA_CORE_SAFE
-		if (!IsValid())
-		{
-			NazaraError("invalid font");
-
-			static SizeInfo dummy;
-			return dummy;
-		}
-		#endif
+		NazaraAssert(IsValid(), "invalid font");
 
 		auto it = m_sizeInfoCache.find(characterSize);
 		if (it == m_sizeInfoCache.end())
@@ -234,14 +205,7 @@ namespace Nz
 
 	std::string Font::GetStyleName() const
 	{
-		#if NAZARA_CORE_SAFE
-		if (!IsValid())
-		{
-			NazaraError("invalid font");
-			return std::string("invalid font");
-		}
-		#endif
-
+		NazaraAssert(IsValid(), "invalid font");
 		return m_data->GetStyleName();
 	}
 
@@ -452,13 +416,7 @@ namespace Nz
 		Glyph& glyph = glyphMap[character]; //< Insert a new glyph
 		glyph.valid = false;
 
-		#if NAZARA_CORE_SAFE
-		if (!m_atlas)
-		{
-			NazaraError("font has no atlas");
-			return glyph;
-		}
-		#endif
+		NazaraAssert(m_atlas, "font has no atlas");
 
 		// Check if requested style is supported by our font (otherwise it will need to be simulated)
 		glyph.fauxOutlineThickness = 0.f;

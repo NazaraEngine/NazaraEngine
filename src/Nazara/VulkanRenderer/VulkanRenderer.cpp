@@ -1,6 +1,6 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Vulkan renderer"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/VulkanRenderer/VulkanRenderer.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
@@ -10,7 +10,6 @@
 #include <Nazara/VulkanRenderer/Wrapper/Loader.hpp>
 #include <cassert>
 #include <sstream>
-#include <Nazara/VulkanRenderer/Debug.hpp>
 
 namespace Nz
 {

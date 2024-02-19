@@ -33,7 +33,7 @@
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/CommandPool.hpp>
 #include <Nazara/Renderer/ComputePipeline.hpp>
-#include <Nazara/Renderer/Config.hpp>
+#include <Nazara/Renderer/Export.hpp>
 #include <Nazara/Renderer/DebugDrawer.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/Framebuffer.hpp>

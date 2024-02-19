@@ -1,6 +1,6 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Core module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Core/Formats/GIFLoader.hpp>
 #include <Nazara/Core/ByteStream.hpp>
@@ -11,7 +11,6 @@
 #include <NazaraUtils/Bitset.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
 #include <NazaraUtils/Endianness.hpp>
-#include <Nazara/Core/Debug.hpp>
 
 // based on https://www.w3.org/Graphics/GIF/spec-gif89a.txt, with help from the following public domain libraries source code:
 // - https://github.com/lecram/gifdec

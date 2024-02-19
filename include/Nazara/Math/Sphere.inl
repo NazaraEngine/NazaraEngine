@@ -1,13 +1,12 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Math module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Math/Box.hpp>
 #include <NazaraUtils/MathUtils.hpp>
 #include <algorithm>
 #include <cstring>
 #include <sstream>
-#include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {
@@ -319,8 +318,6 @@ namespace Nz
 	* \return A reference to the ith element of the sphere
 	*
 	* \remark Access to index greater than 4 is undefined behavior
-	* \remark Produce a NazaraError if you try to access to index greater than 4 with NAZARA_MATH_SAFE defined
-	* \throw std::domain_error if NAZARA_MATH_SAFE is defined and one of you try to acces to index greather than 4
 	*/
 	template<typename T>
 	constexpr T& Sphere<T>::operator[](std::size_t i)
@@ -335,8 +332,6 @@ namespace Nz
 	* \return A value to the ith element of the sphere
 	*
 	* \remark Access to index greater than 4 is undefined behavior
-	* \remark Produce a NazaraError if you try to access to index greater than 4 with NAZARA_MATH_SAFE defined
-	* \throw std::domain_error if NAZARA_MATH_SAFE is defined and one of you try to acces to index greather than 4
 	*/
 	template<typename T>
 	constexpr T Sphere<T>::operator[](std::size_t i) const
@@ -566,4 +561,3 @@ namespace Nz
 	}
 }
 
-#include <Nazara/Core/DebugOff.hpp>

@@ -1,14 +1,14 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Core module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Core/Mesh.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Buffer.hpp>
-#include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Core.hpp>
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/Export.hpp>
 #include <Nazara/Core/IndexMapper.hpp>
 #include <Nazara/Core/PrimitiveList.hpp>
 #include <Nazara/Core/Skeleton.hpp>
@@ -19,7 +19,6 @@
 #include <limits>
 #include <memory>
 #include <unordered_map>
-#include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {

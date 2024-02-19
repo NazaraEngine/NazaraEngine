@@ -1,13 +1,12 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Platform module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Platform/SDL2/VideoModeImpl.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Platform/VideoMode.hpp>
 #include <SDL_video.h>
 #include <algorithm>
-#include <Nazara/Platform/Debug.hpp>
 
 namespace Nz
 {

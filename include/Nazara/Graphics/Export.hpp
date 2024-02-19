@@ -1,5 +1,5 @@
 /*
-	Nazara Engine - Platform module
+	Nazara Engine - Graphics module
 
 	Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 
@@ -24,22 +24,22 @@
 
 #pragma once
 
-#ifndef NAZARA_TEXTRENDERER_CONFIG_HPP
-#define NAZARA_TEXTRENDERER_CONFIG_HPP
+#ifndef NAZARA_GRAPHICS_EXPORT_HPP
+#define NAZARA_GRAPHICS_EXPORT_HPP
 
-/// Each modification of a parameter needs a recompilation of the module
+/*!
+* \defgroup graphics (NazaraGraphics) Graphics module
+*  Graphics/System module including classes to handle graphical elements...
+*/
 
-// Activate the security tests based on the code (Advised for development)
-#define NAZARA_TEXTRENDERER_SAFE 1
-
-#if defined(NAZARA_STATIC)
-	#define NAZARA_TEXTRENDERER_API
-#else
-	#ifdef NAZARA_TEXTRENDERER_BUILD
-		#define NAZARA_TEXTRENDERER_API NAZARA_EXPORT
+#if !defined(NAZARA_STATIC)
+	#ifdef NAZARA_GRAPHICS_BUILD
+		#define NAZARA_GRAPHICS_API NAZARA_EXPORT
 	#else
-		#define NAZARA_TEXTRENDERER_API NAZARA_IMPORT
+		#define NAZARA_GRAPHICS_API NAZARA_IMPORT
 	#endif
+#else
+	#define NAZARA_GRAPHICS_API
 #endif
 
-#endif // NAZARA_TEXTRENDERER_CONFIG_HPP
+#endif // NAZARA_GRAPHICS_EXPORT_HPP

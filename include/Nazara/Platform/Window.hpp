@@ -1,6 +1,6 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Platform module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 // Interface inspirée de la SFML par Laurent Gomila
 
@@ -11,10 +11,10 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Math/Vector2.hpp>
-#include <Nazara/Platform/Config.hpp>
 #include <Nazara/Platform/Cursor.hpp>
 #include <Nazara/Platform/CursorController.hpp>
 #include <Nazara/Platform/Enums.hpp>
+#include <Nazara/Platform/Export.hpp>
 #include <Nazara/Platform/Icon.hpp>
 #include <Nazara/Platform/VideoMode.hpp>
 #include <Nazara/Platform/WindowEventHandler.hpp>
@@ -77,13 +77,9 @@ namespace Nz
 			void SetFocus();
 			void SetIcon(std::shared_ptr<Icon> icon);
 			void SetMaximumSize(const Vector2i& maxSize);
-			void SetMaximumSize(int width, int height);
 			void SetMinimumSize(const Vector2i& minSize);
-			void SetMinimumSize(int width, int height);
 			void SetPosition(const Vector2i& position);
-			void SetPosition(int x, int y);
 			void SetSize(const Vector2i& size);
-			void SetSize(unsigned int width, unsigned int height);
 			void SetStayOnTop(bool stayOnTop);
 			void SetTitle(const std::string& title);
 			void SetVisible(bool visible);

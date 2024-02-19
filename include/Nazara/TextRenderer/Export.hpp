@@ -1,5 +1,5 @@
 /*
-	Nazara Engine - Network module
+	Nazara Engine - Platform module
 
 	Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 
@@ -24,32 +24,17 @@
 
 #pragma once
 
-#ifndef NAZARA_NETWORK_CONFIG_HPP
-#define NAZARA_NETWORK_CONFIG_HPP
-
-/*!
-* \defgroup network (NazaraNetwork) Network module
-*  Network/System module including classes to handle networking elements...
-*/
-
-/// Each modification of a paramater of the module needs a recompilation of the unit
-
-// Activate the security tests based on the code (Advised for development)
-#define NAZARA_NETWORK_SAFE 1
-
-/// Each modification of a parameter following implies a modification (often minor) of the code
-
-/// Checking the values and types of certain constants
-#include <Nazara/Network/ConfigCheck.hpp>
+#ifndef NAZARA_TEXTRENDERER_EXPORT_HPP
+#define NAZARA_TEXTRENDERER_EXPORT_HPP
 
 #if defined(NAZARA_STATIC)
-	#define NAZARA_NETWORK_API
+	#define NAZARA_TEXTRENDERER_API
 #else
-	#ifdef NAZARA_NETWORK_BUILD
-		#define NAZARA_NETWORK_API NAZARA_EXPORT
+	#ifdef NAZARA_TEXTRENDERER_BUILD
+		#define NAZARA_TEXTRENDERER_API NAZARA_EXPORT
 	#else
-		#define NAZARA_NETWORK_API NAZARA_IMPORT
+		#define NAZARA_TEXTRENDERER_API NAZARA_IMPORT
 	#endif
 #endif
 
-#endif // NAZARA_NETWORK_CONFIG_HPP
+#endif // NAZARA_TEXTRENDERER_EXPORT_HPP

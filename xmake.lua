@@ -81,6 +81,10 @@ local modules = {
 				add_defines("NAZARA_PLUGINS_STATIC", { public = true })
 			end
 
+			if has_config("embed_unicodetable") then
+				add_defines("NAZARA_CORE_EMBED_UNICODEDATA")
+			end
+
 			if is_plat("windows", "mingw") then
 				add_syslinks("Ole32")
 			elseif is_plat("linux") then
@@ -236,6 +240,7 @@ option("compile_shaders", { description = "Compile nzsl shaders into an includab
 option("embed_rendererbackends", { description = "Embed renderer backend code into NazaraRenderer instead of loading them dynamically", default = is_plat("wasm") or false })
 option("embed_resources", { description = "Turn builtin resources into includable headers", default = true })
 option("embed_plugins", { description = "Embed enabled plugins code as static libraries", default = is_plat("wasm") or false })
+option("embed_unicodetable", { description = "Embed Unicode characters table", default = true })
 option("link_curl", { description = "Link libcurl in the executable instead of dynamically loading it", default = false })
 option("link_openal", { description = "Link OpenAL in the executable instead of dynamically loading it", default = is_plat("wasm") or false })
 option("static", { description = "Build the engine statically (implies embed_rendererbackends and embed_plugins)", default = is_plat("wasm") or false })

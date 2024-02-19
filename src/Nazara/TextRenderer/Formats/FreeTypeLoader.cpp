@@ -1,6 +1,6 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com) - 2009 Cruden BV
 // This file is part of the "Nazara Engine - Text renderer"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/TextRenderer/Formats/FreeTypeLoader.hpp>
 #include <Nazara/Core/Error.hpp>
@@ -19,7 +19,6 @@
 #include <frozen/unordered_set.h>
 #include <memory>
 #include <string>
-#include <Nazara/TextRenderer/Debug.hpp>
 
 namespace Nz
 {

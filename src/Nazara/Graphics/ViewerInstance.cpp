@@ -1,6 +1,6 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Graphics module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
@@ -10,7 +10,6 @@
 #include <Nazara/Renderer/RenderResources.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
 #include <NazaraUtils/StackVector.hpp>
-#include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
 {

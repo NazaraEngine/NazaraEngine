@@ -1,13 +1,12 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Text renderer"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/TextRenderer/TextRenderer.hpp>
 #include <Nazara/TextRenderer/Font.hpp>
 #include <Nazara/TextRenderer/Formats/FreeTypeLoader.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
 #include <stdexcept>
-#include <Nazara/TextRenderer/Debug.hpp>
 
 namespace Nz
 {

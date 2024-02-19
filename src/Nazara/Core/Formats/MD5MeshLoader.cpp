@@ -1,6 +1,6 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Core module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Core/Formats/MD5MeshLoader.hpp>
 #include <Nazara/Core/IndexIterator.hpp>
@@ -14,7 +14,6 @@
 #include <Nazara/Core/VertexMapper.hpp>
 #include <Nazara/Core/Formats/MD5MeshParser.hpp>
 #include <memory>
-#include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {

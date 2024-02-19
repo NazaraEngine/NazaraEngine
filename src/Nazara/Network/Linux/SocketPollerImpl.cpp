@@ -1,6 +1,6 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Network module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Network/Linux/SocketPollerImpl.hpp>
 #include <Nazara/Core/Error.hpp>
@@ -8,7 +8,6 @@
 #include <Nazara/Network/Posix/SocketImpl.hpp>
 #include <cstring>
 #include <unistd.h>
-#include <Nazara/Network/Debug.hpp>
 
 namespace Nz
 {

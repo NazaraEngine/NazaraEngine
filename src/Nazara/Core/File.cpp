@@ -1,12 +1,12 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Core module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/AbstractHash.hpp>
-#include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
+#include <Nazara/Core/Export.hpp>
 #include <memory>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
@@ -17,7 +17,6 @@
 	#error OS not handled
 #endif
 
-#include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {
@@ -461,10 +460,11 @@ namespace Nz
 
 		UInt64 remainingSize = file.GetSize();
 
-		char buffer[NAZARA_CORE_FILE_BUFFERSIZE];
+		constexpr std::size_t BufferSize = Stream::DefaultBufferSize;
+		std::unique_ptr<UInt8[]> buffer = std::make_unique<UInt8[]>(BufferSize);
 		while (remainingSize > 0)
 		{
-			std::size_t size = std::min<std::size_t>(static_cast<std::size_t>(remainingSize), NAZARA_CORE_FILE_BUFFERSIZE);
+			std::size_t size = static_cast<std::size_t>(std::min<UInt64>(remainingSize, BufferSize));
 			if (file.Read(&buffer[0], size) != size)
 			{
 				NazaraError("unable to read file");

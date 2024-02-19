@@ -1,5 +1,5 @@
 /*
-	Nazara Engine - Renderer module
+	Nazara Engine - Core module
 
 	Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 
@@ -24,31 +24,22 @@
 
 #pragma once
 
-#ifndef NAZARA_RENDERER_CONFIG_HPP
-#define NAZARA_RENDERER_CONFIG_HPP
+#ifndef NAZARA_CORE_EXPORT_HPP
+#define NAZARA_CORE_EXPORT_HPP
 
-/// Chaque modification d'un paramètre du module nécessite une recompilation de celui-ci
-
-// La taille du buffer d'Instancing (définit le nombre maximum d'instances en un rendu)
-#define NAZARA_RENDERER_INSTANCE_BUFFER_SIZE 1 * 1024 * 1024
-
-// Active le paramère debug des paramètres des contextes par défaut (Perte de performances mais capable de recevoir des messages d'OpenGL)
-#define NAZARA_RENDERER_OPENGL_DEBUG 0
-
-// Active les tests de sécurité basés sur le code (Conseillé pour le développement)
-#define NAZARA_RENDERER_SAFE 1
-
-/// Vérification des valeurs et types de certaines constantes
-#include <Nazara/Renderer/ConfigCheck.hpp>
+/*!
+* \defgroup core (NazaraCore) Core module
+*  Core/System module including classes to handle threading, time, hardware info, memory management, etc...
+*/
 
 #if defined(NAZARA_STATIC)
-	#define NAZARA_RENDERER_API
+	#define NAZARA_CORE_API
 #else
-	#ifdef NAZARA_RENDERER_BUILD
-		#define NAZARA_RENDERER_API NAZARA_EXPORT
+	#ifdef NAZARA_CORE_BUILD
+		#define NAZARA_CORE_API NAZARA_EXPORT
 	#else
-		#define NAZARA_RENDERER_API NAZARA_IMPORT
+		#define NAZARA_CORE_API NAZARA_IMPORT
 	#endif
 #endif
 
-#endif // NAZARA_RENDERER_CONFIG_HPP
+#endif // NAZARA_CORE_EXPORT_HPP

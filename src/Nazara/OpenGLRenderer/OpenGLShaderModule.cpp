@@ -1,6 +1,6 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - OpenGL renderer"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/OpenGLRenderer/OpenGLShaderModule.hpp>
 #include <Nazara/Core/MemoryView.hpp>
@@ -9,7 +9,6 @@
 #include <NZSL/Parser.hpp>
 #include <NZSL/Ast/AstSerializer.hpp>
 #include <stdexcept>
-#include <Nazara/OpenGLRenderer/Debug.hpp>
 
 namespace Nz
 {

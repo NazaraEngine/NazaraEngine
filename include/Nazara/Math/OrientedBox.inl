@@ -1,11 +1,10 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Math module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <NazaraUtils/MathUtils.hpp>
 #include <cstring>
 #include <sstream>
-#include <Nazara/Core/Debug.hpp>
 
 ///DOC: Pour que les coins soient valides, la méthode Update doit être appelée
 
@@ -130,9 +129,6 @@ namespace Nz
 	/*!
 	* \brief Gets the ith corner of the oriented box
 	* \return A reference to this corner
-	*
-	* \remark Produce a NazaraError if you try to access to index greather than BoxCorner::Max with NAZARA_MATH_SAFE defined. If not, it is undefined behaviour
-	* \throw std::out_of_range if NAZARA_MATH_SAFE is defined and you try to acces to index greather than BoxCorner::Max
 	*/
 	template<typename T>
 	constexpr Vector3<T>& OrientedBox<T>::operator()(unsigned int i)
@@ -144,9 +140,6 @@ namespace Nz
 	/*!
 	* \brief Gets the ith corner of the oriented box
 	* \return A reference to this corner
-	*
-	* \remark Produce a NazaraError if you try to access to index greather than BoxCorner::Max with NAZARA_MATH_SAFE defined. If not, it is undefined behaviour
-	* \throw std::out_of_range if NAZARA_MATH_SAFE is defined and you try to acces to index greather than BoxCorner::Max
 	*/
 	template<typename T>
 	constexpr const Vector3<T>& OrientedBox<T>::operator()(unsigned int i) const
@@ -279,4 +272,3 @@ namespace Nz
 	}
 }
 
-#include <Nazara/Core/DebugOff.hpp>

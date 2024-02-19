@@ -29,7 +29,7 @@
 #ifndef NAZARA_GLOBAL_VULKANRENDERER_HPP
 #define NAZARA_GLOBAL_VULKANRENDERER_HPP
 
-#include <Nazara/VulkanRenderer/Config.hpp>
+#include <Nazara/VulkanRenderer/Export.hpp>
 #include <Nazara/VulkanRenderer/Utils.hpp>
 #include <Nazara/VulkanRenderer/Vulkan.hpp>
 #include <Nazara/VulkanRenderer/VulkanBuffer.hpp>

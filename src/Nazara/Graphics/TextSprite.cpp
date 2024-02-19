@@ -1,6 +1,6 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Graphics module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Graphics/TextSprite.hpp>
 #include <Nazara/Graphics/ElementRendererRegistry.hpp>
@@ -10,7 +10,6 @@
 #include <Nazara/TextRenderer/AbstractTextDrawer.hpp>
 #include <Nazara/TextRenderer/Font.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
-#include <Nazara/Graphics/Debug.hpp>
 
 namespace Nz
 {

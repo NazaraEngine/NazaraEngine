@@ -1,12 +1,11 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Core module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Core/PixelFormat.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <NazaraUtils/Endianness.hpp>
-#include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {
@@ -1411,15 +1410,8 @@ namespace Nz
 			flipFunction(width, height, depth, reinterpret_cast<const UInt8*>(src), reinterpret_cast<UInt8*>(dst));
 		else
 		{
-			// Flipping générique
-
-			#if NAZARA_CORE_SAFE
-			if (IsCompressed(format))
-			{
-				NazaraError("no function to flip compressed format");
-				return false;
-			}
-			#endif
+			// Generic flipping
+			NazaraAssert(!IsCompressed(format), "not able to flip compressed formats");
 
 			UInt8 bpp = GetBytesPerPixel(format);
 			unsigned int lineStride = width*bpp;

@@ -1,6 +1,6 @@
 // Copyright (C) 2024 Alexandre Janniaux
 // This file is part of the "Nazara Engine - Core module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Core/Posix/FileImpl.hpp>
 #include <Nazara/Core/Error.hpp>
@@ -13,7 +13,6 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>
-#include <Nazara/Core/Debug.hpp>
 
 #ifdef NAZARA_PLATFORM_BSD
 	#define fstat64 fstat
@@ -137,7 +136,7 @@ namespace Nz::PlatformImpl
 			NazaraErrorFmt("failed to read from file: {0}", Error::GetLastSystemError());
 			return 0;
 		}
-	
+
 		m_endOfFile = (static_cast<std::size_t>(read) != size);
 		m_endOfFileUpdated = true;
 

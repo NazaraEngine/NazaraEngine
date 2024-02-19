@@ -1,8 +1,7 @@
 /*
-	Nazara Engine - Math module
+	Nazara Engine - Physics2D module
 
-	Copyright (C) 2024 Jérôme "SirLynix" Leclercq (Lynix680@gmail.com)
-	                   Rémi "overdrivr" Bèges (remi.beges@laposte.net)
+	Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy of
 	this software and associated documentation files (the "Software"), to deal in
@@ -25,21 +24,17 @@
 
 #pragma once
 
-#ifndef NAZARA_MATH_CONFIG_HPP
-#define NAZARA_MATH_CONFIG_HPP
+#ifndef NAZARA_PHYSICS2D_EXPORT_HPP
+#define NAZARA_PHYSICS2D_EXPORT_HPP
 
-/*!
-* \defgroup math (NazaraMath) Mathematics module
-*  2D/3D mathematics module including matrix, vector, box, sphere, quaternion, ...
-*/
+#if defined(NAZARA_STATIC)
+	#define NAZARA_PHYSICS2D_API
+#else
+	#ifdef NAZARA_PHYSICS2D_BUILD
+		#define NAZARA_PHYSICS2D_API NAZARA_EXPORT
+	#else
+		#define NAZARA_PHYSICS2D_API NAZARA_IMPORT
+	#endif
+#endif
 
-/// Each modification of a parameter of the module needs a recompilation of the unit
-
-// Checks for transform matrix on common operations (Concatenate, Inverse, ...) and warns if the operation could be optimized
-// also checks if transform calls are called on transform matrices
-#define NAZARA_MATH_MATRIX4_CHECK_TRANSFORM 0
-
-// Enable tests of security based on the code (Advised for the development)
-#define NAZARA_MATH_SAFE 1
-
-#endif // NAZARA_MATH_CONFIG_HPP
+#endif // NAZARA_PHYSICS2D_EXPORT_HPP

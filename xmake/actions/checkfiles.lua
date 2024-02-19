@@ -354,37 +354,6 @@ on_run(function ()
 							end
 						end
 
-						-- Check debug headers
-						local debugIncludeModule = moduleName ~= "Math" and moduleName or "Core"
-
-						local debugInclude
-						local debugIncludeOff
-						for i = 1, #inclusions do
-							local module, off = inclusions[i].path:match("^Nazara/(.+)/Debug(O?f?f?).hpp$")
-							if module then
-								if off == "Off" then
-									debugIncludeOff = i
-								elseif off == "" then
-									debugInclude = i
-								else
-									print(filePath .. ": unrecognized debug include at line " .. inclusions[i].line)
-								end
-
-								if module ~= debugIncludeModule then
-									print(filePath .. ": has wrong Debug" .. off .. " include")
-
-									local currentInclusion = inclusions[i]
-									table.insert(fixes, {
-										File = filePath,
-										Func = function (lines)
-											lines[currentInclusion.line] = "#include <Nazara/" .. debugIncludeModule .. "/Debug" .. off .. ".hpp>"
-											return lines
-										end
-									})
-								end
-							end
-						end
-
 						-- Add header inclusion if it's missing
 						local isInl = path.extension(filePath) == ".inl"
 						if not headerInclude and not isInl then
@@ -409,18 +378,6 @@ on_run(function ()
 								Func = function (lines)
 									table.remove(lines, inclusions[headerInclude].line)
 									increment = increment - 1
-									return lines
-								end
-							})
-						end
-
-						if not debugInclude then
-							print(filePath .. ": has missing Debug include")
-							local lastIncludeLine = inclusions[debugIncludeOff and #inclusions - 1 or #inclusions].line
-							table.insert(fixes, {
-								File = filePath,
-								Func = function (lines)
-									table.insert(lines, lastIncludeLine + increment + 1, "#include <Nazara/" .. debugIncludeModule .. "/Debug.hpp>")
 									return lines
 								end
 							})
@@ -498,8 +455,6 @@ on_run(function ()
 					if inclusions[i].path == headerPath then
 						order = 0 -- own include comes first
 					elseif inclusions[i].path == "NazaraUtils/Prerequisites.hpp" then
-						order = 1 -- top engine includes
-					elseif inclusions[i].path == "Nazara/" .. debugIncludeModule .. "/Debug.hpp" then
 						order = 6 -- debug include
 					elseif inclusions[i].path:match("^NazaraUtils/") then
 						order = 2.1 -- NazaraUtils
@@ -612,7 +567,7 @@ on_run(function ()
 		Name = "copyright",
 		Check = function (moduleName)
 			local files = table.join(
-				os.files("include/Nazara/" .. moduleName .. "/**.hpp|Config.hpp"),
+				os.files("include/Nazara/" .. moduleName .. "/**.hpp|Export.hpp"),
 				os.files("include/Nazara/" .. moduleName .. "/**.inl"),
 				os.files("src/Nazara/" .. moduleName .. "/**.hpp"),
 				os.files("src/Nazara/" .. moduleName .. "/**.inl"),
@@ -631,10 +586,10 @@ on_run(function ()
 				moduleDesc = moduleName .. " module"
 			end
 
-			-- Config
+			-- Export
 			do
-				local configFilePath = path.translate("include/Nazara/" .. moduleName .. "/Config.hpp")
-				local lines = GetFile(configFilePath)
+				local exportFilePath = path.translate("include/Nazara/" .. moduleName .. "/Export.hpp")
+				local lines = GetFile(exportFilePath)
 				local pragmaLine
 				for i = 1, #lines do
 					if lines[i] == "#pragma once" then
@@ -647,7 +602,7 @@ on_run(function ()
 
 				repeat
 					if not pragmaLine then
-						print(configFilePath .. ": pragma once not found")
+						print(exportFilePath .. ": pragma once not found")
 						canFix = false
 						break
 					end
@@ -680,13 +635,13 @@ on_run(function ()
 
 					-- Try to retrieve year and authors
 					if lines[1] ~= "/*" then
-						print(configFilePath .. ": file doesn't begin with block comment")
+						print(exportFilePath .. ": file doesn't begin with block comment")
 						break
 					end
 
 
 					if lines[2]:match("\tNazara Engine - " .. moduleDesc) then
-						print(configFilePath .. ": module description doesn't match")
+						print(exportFilePath .. ": module description doesn't match")
 						shouldFix = true
 					end
 
@@ -695,19 +650,19 @@ on_run(function ()
 						if lines[3]:match("^%s*$") then
 							shouldFix = true
 						else
-							print(configFilePath .. ": expected space after project name")
+							print(exportFilePath .. ": expected space after project name")
 							break
 						end
 					end
 
 					local year, moduleAuthor = lines[4]:match("^\tCopyright %(C%) (Y?E?A?R?%d*) (.+)$")
 					if not year then
-						print(configFilePath .. ": couldn't parse copyright date and author")
+						print(exportFilePath .. ": couldn't parse copyright date and author")
 						break
 					end
 
 					if year ~= currentYear then
-						print(configFilePath .. ": incorrect copyright year")
+						print(exportFilePath .. ": incorrect copyright year")
 						shouldFix = true
 					end
 
@@ -723,7 +678,7 @@ on_run(function ()
 						end
 
 						if lines[i]:match("%s*Permission is hereby granted") then
-							print(configFilePath .. ": missing empty line before licence text")
+							print(exportFilePath .. ": missing empty line before licence text")
 							shouldFix = true
 							break
 						end
@@ -733,7 +688,7 @@ on_run(function ()
 
 					if shouldFix then
 						table.insert(fixes, {
-							File = configFilePath,
+							File = exportFilePath,
 							Func = function (lines)
 								local newLines = {
 									"/*",
@@ -763,7 +718,7 @@ on_run(function ()
 				until true
 
 				if not canFix then
-					print(configFilePath .. ": header couldn't be parsed, no automated fix will be done")
+					print(exportFilePath .. ": header couldn't be parsed, no automated fix will be done")
 				end
 			end
 
@@ -803,7 +758,7 @@ on_run(function ()
 						shouldFix = true
 					end
 
-					if lines[3] ~= "// For conditions of distribution and use, see copyright notice in Config.hpp" then
+					if lines[3] ~= "// For conditions of distribution and use, see copyright notice in Export.hpp" then
 						print(filePath .. ": copyright file reference error")
 						shouldFix = true
 					end
@@ -819,7 +774,7 @@ on_run(function ()
 							local copyrightLines = {
 								"// Copyright (C) " .. currentYear .. " " .. (authors or engineAuthor),
 								"// This file is part of the \"Nazara Engine - " .. moduleDesc .. "\"",
-								"// For conditions of distribution and use, see copyright notice in Config.hpp"
+								"// For conditions of distribution and use, see copyright notice in Export.hpp"
 							}
 
 							if hasCopyright then

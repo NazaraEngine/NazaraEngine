@@ -1,17 +1,16 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Core module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Core/Image.hpp>
-#include <Nazara/Core/Config.hpp>
 #include <Nazara/Core/Core.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
+#include <Nazara/Core/Export.hpp>
 #include <Nazara/Core/PixelFormat.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <NazaraUtils/StackArray.hpp>
 #include <memory>
-#include <Nazara/Core/Debug.hpp>
 
 ///TODO: Rajouter des warnings (Formats compressés avec les méthodes Copy/Update, tests taille dans Copy)
 ///TODO: Rendre les méthodes exception-safe (faire usage du RAII)
@@ -80,28 +79,13 @@ namespace Nz
 
 	bool Image::Convert(PixelFormat newFormat)
 	{
-		#if NAZARA_CORE_SAFE
-		if (m_sharedImage == &emptyImage)
-		{
-			NazaraError("image must be valid");
-			return false;
-		}
-
-		if (!PixelFormatInfo::IsValid(newFormat))
-		{
-			NazaraError("invalid pixel format");
-			return false;
-		}
-
-		if (!PixelFormatInfo::IsConversionSupported(m_sharedImage->format, newFormat))
-		{
-			NazaraErrorFmt("conversion from {0} to {1} is not supported", PixelFormatInfo::GetName(m_sharedImage->format), PixelFormatInfo::GetName(newFormat));
-			return false;
-		}
-		#endif
+		NazaraAssert(IsValid(), "invalid image");
+		NazaraAssert(PixelFormatInfo::IsValid(newFormat), "invalid pixel format");
 
 		if (m_sharedImage->format == newFormat)
 			return true;
+
+		NazaraAssertFmt(PixelFormatInfo::IsConversionSupported(m_sharedImage->format, newFormat), "conversion from {0} to {1} is not supported", PixelFormatInfo::GetName(m_sharedImage->format), PixelFormatInfo::GetName(newFormat));
 
 		SharedImage::PixelContainer levels(m_sharedImage->levels.size());
 
@@ -158,13 +142,7 @@ namespace Nz
 		NazaraAssert(source.GetFormat() == m_sharedImage->format, "image formats don't match");
 
 		const UInt8* srcPtr = source.GetConstPixels(srcBox.x, srcBox.y, srcBox.z);
-		#if NAZARA_CORE_SAFE
-		if (!srcPtr)
-		{
-			NazaraError("failed to access pixels");
-			return;
-		}
-		#endif
+		NazaraAssert(srcPtr, "failed to access pixels");
 
 		UInt8 bpp = PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format);
 		UInt8* dstPtr = GetPixelPtr(m_sharedImage->levels[0].get(), bpp, dstPos.x, dstPos.y, dstPos.z, m_sharedImage->width, m_sharedImage->height);
@@ -176,54 +154,25 @@ namespace Nz
 	{
 		Destroy();
 
-		#if NAZARA_CORE_SAFE
-		if (!PixelFormatInfo::IsValid(format))
-		{
-			NazaraError("invalid pixel format");
-			return false;
-		}
-
-		if (width == 0)
-		{
-			NazaraError("width must be at least 1 (0)");
-			return false;
-		}
-
-		if (height == 0)
-		{
-			NazaraError("height must be at least 1 (0)");
-			return false;
-		}
-
-		if (depth == 0)
-		{
-			NazaraError("depth must be at least 1 (0)");
-			return false;
-		}
+		NazaraAssert(PixelFormatInfo::IsValid(format), "invalid pixel format");
+		NazaraAssert(width > 0, "width must be greater than zero");
+		NazaraAssert(height > 0, "height must be greater than zero");
+		NazaraAssert(depth > 0, "depth must be greater than zero");
 
 		switch (type)
 		{
 			case ImageType::E1D:
-				if (height > 1)
-				{
-					NazaraError("1D textures must be 1 tall");
-					return false;
-				}
-
-				if (depth > 1)
-				{
-					NazaraError("1D textures must be 1 deep");
-					return false;
-				}
+				NazaraAssertFmt(height == 1, "1D textures height must be 1 (got {0})", height);
+				NazaraAssertFmt(depth == 1, "1D textures height must be 1 (got {0})", depth);
 				break;
 
 			case ImageType::E1D_Array:
+				NazaraAssertFmt(height == 1, "2D texture arrays height must be 1 (got {0})", height);
+				NazaraAssertFmt(depth == 1, "2D texture arrays depth must be 1 (got {0})", depth);
+				break;
+
 			case ImageType::E2D:
-				if (depth > 1)
-				{
-					NazaraError("2D textures must be 1 deep");
-					return false;
-				}
+				NazaraAssertFmt(depth == 1, "2D textures depth must be 1 (got {0})", depth);
 				break;
 
 			case ImageType::E2D_Array:
@@ -231,24 +180,10 @@ namespace Nz
 				break;
 
 			case ImageType::Cubemap:
-				if (depth > 1)
-				{
-					NazaraError("cubemaps must be 1 deep");
-					return false;
-				}
-
-				if (width != height)
-				{
-					NazaraError("cubemaps must have square dimensions");
-					return false;
-				}
+				NazaraAssertFmt(depth == 1, "cubemaps depth must be 1 (got {0})", depth);
+				NazaraAssertFmt(width == height, "cubemap depth must be greater than 1 ({0})", depth);
 				break;
-
-			default:
-				NazaraInternalError("Image type not handled");
-				return false;
 		}
-		#endif
 
 		levelCount = std::min(levelCount, GetMaxLevel(type, width, height, depth));
 
@@ -295,20 +230,8 @@ namespace Nz
 	bool Image::Fill(const Color& color)
 	{
 		///FIXME: Pourquoi cette méthode alloue une nouvelle image plutôt que de remplir l'existante ?
-
-		#if NAZARA_CORE_SAFE
-		if (m_sharedImage == &emptyImage)
-		{
-			NazaraError("image must be valid");
-			return false;
-		}
-
-		if (PixelFormatInfo::IsCompressed(m_sharedImage->format))
-		{
-			NazaraError("cannot access pixels from compressed image");
-			return false;
-		}
-		#endif
+		NazaraAssert(IsValid(), "invalid image");
+		NazaraAssert(!PixelFormatInfo::IsCompressed(m_sharedImage->format), "cannot access pixels from compressed image");
 
 		UInt8 bpp = PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format);
 		StackArray<UInt8> colorBuffer = NazaraStackArrayNoInit(UInt8, bpp);
@@ -361,31 +284,12 @@ namespace Nz
 
 	bool Image::Fill(const Color& color, const Boxui& box)
 	{
-		#if NAZARA_CORE_SAFE
-		if (m_sharedImage == &emptyImage)
-		{
-			NazaraError("image must be valid");
-			return false;
-		}
-
-		if (PixelFormatInfo::IsCompressed(m_sharedImage->format))
-		{
-			NazaraError("cannot access pixels from compressed image");
-			return false;
-		}
-
-		if (!box.IsValid())
-		{
-			NazaraError("invalid rectangle");
-			return false;
-		}
-
-		if (box.x+box.width > m_sharedImage->width || box.y+box.height > m_sharedImage->height || box.z+box.depth > m_sharedImage->depth)
-		{
-			NazaraError("box dimensions are out of bounds");
-			return false;
-		}
-		#endif
+		NazaraAssert(IsValid(), "invalid image");
+		NazaraAssert(!PixelFormatInfo::IsCompressed(m_sharedImage->format), "cannot access pixels from compressed image");
+		NazaraAssert(box.IsValid(), "invalid box");
+		NazaraAssertFmt(box.x + box.width <= m_sharedImage->width, "box dimensions are out of bounds (x range: [{0};{1}[ exceeds image width {2})", box.x, box.x + box.width, m_sharedImage->width);
+		NazaraAssertFmt(box.y + box.height <= m_sharedImage->height, "box dimensions are out of bounds (y range: [{0};{1}[ exceeds image height {2})", box.y, box.y + box.height, m_sharedImage->height);
+		NazaraAssertFmt(box.z + box.depth <= m_sharedImage->depth, "box dimensions are out of bounds (z range: [{0};{1}[ exceeds image depth {2})", box.z, box.z + box.depth, m_sharedImage->depth);
 
 		EnsureOwnership();
 
@@ -427,38 +331,12 @@ namespace Nz
 
 	bool Image::Fill(const Color& color, const Rectui& rect, unsigned int z)
 	{
-		#if NAZARA_CORE_SAFE
-		if (m_sharedImage == &emptyImage)
-		{
-			NazaraError("image must be valid");
-			return false;
-		}
-
-		if (PixelFormatInfo::IsCompressed(m_sharedImage->format))
-		{
-			NazaraError("cannot access pixels from compressed image");
-			return false;
-		}
-
-		if (!rect.IsValid())
-		{
-			NazaraError("invalid rectangle");
-			return false;
-		}
-
-		if (rect.x + rect.width > m_sharedImage->width || rect.y + rect.height > m_sharedImage->height)
-		{
-			NazaraError("rectangle dimensions are out of bounds");
-			return false;
-		}
-
-		unsigned int depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : m_sharedImage->depth;
-		if (z >= depth)
-		{
-			NazaraErrorFmt("z value exceeds depth ({0} >= {1})", z, depth);
-			return false;
-		}
-		#endif
+		NazaraAssert(IsValid(), "invalid image");
+		NazaraAssert(!PixelFormatInfo::IsCompressed(m_sharedImage->format), "cannot access pixels from compressed image");
+		NazaraAssert(rect.IsValid(), "invalid rect");
+		NazaraAssertFmt(rect.x + rect.width <= m_sharedImage->width, "rect dimensions are out of bounds (x range: [{0};{1}[ exceeds image width {2})", rect.x, rect.x + rect.width, m_sharedImage->width);
+		NazaraAssertFmt(rect.y + rect.height <= m_sharedImage->height, "rect dimensions are out of bounds (y range: [{0};{1}[ exceeds image height {2})", rect.y, rect.y + rect.height, m_sharedImage->height);
+		NazaraAssertFmt(z < ((m_sharedImage->type == ImageType::Cubemap) ? 6 : m_sharedImage->depth), "z is out of range ({0} >= {1})", z, (m_sharedImage->type == ImageType::Cubemap) ? 6 : m_sharedImage->depth);
 
 		EnsureOwnership();
 
@@ -493,13 +371,7 @@ namespace Nz
 
 	bool Image::FlipHorizontally()
 	{
-		#if NAZARA_CORE_SAFE
-		if (m_sharedImage == &emptyImage)
-		{
-			NazaraError("image must be valid");
-			return false;
-		}
-		#endif
+		NazaraAssert(IsValid(), "invalid image");
 
 		EnsureOwnership();
 
@@ -530,19 +402,8 @@ namespace Nz
 
 	bool Image::FlipVertically()
 	{
-		#if NAZARA_CORE_SAFE
-		if (m_sharedImage == &emptyImage)
-		{
-			NazaraError("image must be valid");
-			return false;
-		}
-
-		if (PixelFormatInfo::IsCompressed(m_sharedImage->format))
-		{
-			NazaraError("cannot flip compressed image");
-			return false;
-		}
-		#endif
+		NazaraAssert(IsValid(), "invalid image");
+		NazaraAssert(!PixelFormatInfo::IsCompressed(m_sharedImage->format), "cannot access pixels from compressed image");
 
 		EnsureOwnership();
 
@@ -573,57 +434,25 @@ namespace Nz
 
 	const UInt8* Image::GetConstPixels(unsigned int x, unsigned int y, unsigned int z, UInt8 level) const
 	{
-		#if NAZARA_CORE_SAFE
-		if (m_sharedImage == &emptyImage)
-		{
-			NazaraError("image must be valid");
-			return nullptr;
-		}
-
-		if (level >= m_sharedImage->levels.size())
-		{
-			NazaraErrorFmt("level out of bounds ({0} >= {1})", level, m_sharedImage->levels.size());
-			return nullptr;
-		}
-		#endif
+		NazaraAssert(IsValid(), "invalid image");
+		NazaraAssertFmt(level < m_sharedImage->levels.size(), "level out of bounds ({0} >= {1})", level, m_sharedImage->levels.size());
 
 		unsigned int width = GetImageLevelSize(m_sharedImage->width, level);
-		#if NAZARA_CORE_SAFE
-		if (x >= width)
-		{
-			NazaraErrorFmt("x value exceeds width ({0} >= {1})", x, width);
-			return nullptr;
-		}
-		#endif
+		NazaraAssertFmt(x < width, "x value exceeds width ({0} >= {1})", x, width);
 
 		unsigned int height = GetImageLevelSize(m_sharedImage->height, level);
-		#if NAZARA_CORE_SAFE
-		if (y >= height)
-		{
-			NazaraErrorFmt("y value exceeds height ({0} >= {1})", y, height);
-			return nullptr;
-		}
+		NazaraAssertFmt(y < height, "y value exceeds height ({0} >= {1})", y, height);
 
 		unsigned int depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : GetImageLevelSize(m_sharedImage->depth, level);
-		if (z >= depth)
-		{
-			NazaraErrorFmt("z value exceeds depth ({0} >= {1})", z, depth);
-			return nullptr;
-		}
-		#endif
+		NazaraUnused(depth);
+		NazaraAssertFmt(z < depth, "z value exceeds depth ({0} >= {1})", z, depth);
 
 		return GetPixelPtr(m_sharedImage->levels[level].get(), PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format), x, y, z, width, height);
 	}
 
 	unsigned int Image::GetDepth(UInt8 level) const
 	{
-		#if NAZARA_CORE_SAFE
-		if (level >= m_sharedImage->levels.size())
-		{
-			NazaraErrorFmt("level out of bounds ({0} >= {1})", level, m_sharedImage->levels.size());
-			return 0;
-		}
-		#endif
+		NazaraAssertFmt(level < m_sharedImage->levels.size(), "level out of bounds ({0} >= {1})", level, m_sharedImage->levels.size());
 
 		return GetImageLevelSize(m_sharedImage->depth, level);
 	}
@@ -635,13 +464,7 @@ namespace Nz
 
 	unsigned int Image::GetHeight(UInt8 level) const
 	{
-		#if NAZARA_CORE_SAFE
-		if (level >= m_sharedImage->levels.size())
-		{
-			NazaraErrorFmt("level out of bounds ({0} >= {1})", level, m_sharedImage->levels.size());
-			return 0;
-		}
-		#endif
+		NazaraAssertFmt(level < m_sharedImage->levels.size(), "level out of bounds ({0} >= {1})", level, m_sharedImage->levels.size());
 
 		return GetImageLevelSize(m_sharedImage->height, level);
 	}
@@ -690,38 +513,14 @@ namespace Nz
 
 	Color Image::GetPixelColor(unsigned int x, unsigned int y, unsigned int z) const
 	{
-		#if NAZARA_CORE_SAFE
-		if (m_sharedImage == &emptyImage)
-		{
-			NazaraError("image must be valid");
-			return Color();
-		}
-
-		if (PixelFormatInfo::IsCompressed(m_sharedImage->format))
-		{
-			NazaraError("cannot access pixels from compressed image");
-			return Color();
-		}
-
-		if (x >= m_sharedImage->width)
-		{
-			NazaraErrorFmt("x value exceeds width ({0} >= {1})", x, m_sharedImage->width);
-			return Color();
-		}
-
-		if (y >= m_sharedImage->height)
-		{
-			NazaraErrorFmt("y value exceeds height ({0} >= {1})", y, m_sharedImage->height);
-			return Color();
-		}
+		NazaraAssert(IsValid(), "invalid image");
+		NazaraAssert(!PixelFormatInfo::IsCompressed(m_sharedImage->format), "cannot access pixels from compressed image");
+		NazaraAssertFmt(x < m_sharedImage->width, "x value exceeds width ({0} >= {1})", x, m_sharedImage->width);
+		NazaraAssertFmt(y < m_sharedImage->height, "y value exceeds height ({0} >= {1})", y, m_sharedImage->height);
 
 		unsigned int depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : m_sharedImage->depth;
-		if (z >= depth)
-		{
-			NazaraErrorFmt("z value exceeds depth ({0} >= {1})", z, depth);
-			return Color();
-		}
-		#endif
+		NazaraUnused(depth);
+		NazaraAssertFmt(z < depth, "z value exceeds depth ({0} >= {1})", z, depth);
 
 		const UInt8* pixel = GetPixelPtr(m_sharedImage->levels[0].get(), PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format), x, y, z, m_sharedImage->width, m_sharedImage->height);
 
@@ -734,50 +533,20 @@ namespace Nz
 
 	UInt8* Image::GetPixels(unsigned int x, unsigned int y, unsigned int z, UInt8 level)
 	{
-		#if NAZARA_CORE_SAFE
-		if (m_sharedImage == &emptyImage)
-		{
-			NazaraError("image must be valid");
-			return nullptr;
-		}
-
-		if (level >= m_sharedImage->levels.size())
-		{
-			NazaraErrorFmt("level out of bounds ({0} >= {1})", level, m_sharedImage->levels.size());
-			return nullptr;
-		}
-		#endif
+		NazaraAssert(IsValid(), "invalid image");
+		NazaraAssertFmt(level < m_sharedImage->levels.size(), "level out of bounds ({0} >= {1})", level, m_sharedImage->levels.size());
 
 		unsigned int width = GetImageLevelSize(m_sharedImage->width, level);
-		#if NAZARA_CORE_SAFE
-		if (x >= width)
-		{
-			NazaraErrorFmt("x value exceeds width ({0} >= {1})", x, width);
-			return nullptr;
-		}
-		#endif
+		NazaraAssertFmt(x < width, "x value exceeds width ({0} >= {1})", x, width);
 
 		unsigned int height = GetImageLevelSize(m_sharedImage->height, level);
-		#if NAZARA_CORE_SAFE
-		if (y >= height)
-		{
-			NazaraErrorFmt("y value exceeds height ({0} >= {1})", y, height);
-			return nullptr;
-		}
+		NazaraAssertFmt(y < height, "y value exceeds height ({0} >= {1})", y, height);
 
 		unsigned int depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : GetImageLevelSize(m_sharedImage->depth, level);
-		if (z >= depth)
-		{
-			NazaraErrorFmt("z value exceeds depth ({0} >= {1})", z, depth);
-			return nullptr;
-		}
+		NazaraUnused(depth);
+		NazaraAssertFmt(z < depth, "z value exceeds depth ({0} >= {1})", z, depth);
 
-		if (level >= m_sharedImage->levels.size())
-		{
-			NazaraErrorFmt("level out of bounds ({0} >= {1})", level, m_sharedImage->levels.size());
-			return nullptr;
-		}
-		#endif
+		NazaraAssertFmt(level < m_sharedImage->levels.size(), "level out of bounds ({0} >= {1})", level, m_sharedImage->levels.size());
 
 		EnsureOwnership();
 
@@ -786,13 +555,7 @@ namespace Nz
 
 	Vector3ui Image::GetSize(UInt8 level) const
 	{
-		#if NAZARA_CORE_SAFE
-		if (level >= m_sharedImage->levels.size())
-		{
-			NazaraErrorFmt("level out of bounds ({0} >= {1})", level, m_sharedImage->levels.size());
-			return Vector3ui::Zero();
-		}
-		#endif
+		NazaraAssertFmt(level < m_sharedImage->levels.size(), "level out of bounds ({0} >= {1})", level, m_sharedImage->levels.size());
 
 		return Vector3ui(GetImageLevelSize(m_sharedImage->width, level), GetImageLevelSize(m_sharedImage->height, level), GetImageLevelSize(m_sharedImage->depth, level));
 	}
@@ -804,13 +567,7 @@ namespace Nz
 
 	unsigned int Image::GetWidth(UInt8 level) const
 	{
-		#if NAZARA_CORE_SAFE
-		if (level >= m_sharedImage->levels.size())
-		{
-			NazaraErrorFmt("level out of bounds ({0} >= {1})", level, m_sharedImage->levels.size());
-			return 0;
-		}
-		#endif
+		NazaraAssertFmt(level < m_sharedImage->levels.size(), "level out of bounds ({0} >= {1})", level, m_sharedImage->levels.size());
 
 		return GetImageLevelSize(m_sharedImage->width, level);
 	}
@@ -873,30 +630,12 @@ namespace Nz
 	std::shared_ptr<Image> Image::LoadFromImage(const Image& image, const Vector2ui& atlasSize)
 	{
 		NazaraAssert(image.IsValid(), "invalid image");
-
-		#if NAZARA_CORE_SAFE
-		if (atlasSize.x == 0)
-		{
-			NazaraError("atlas width must be over zero");
-			return nullptr;
-		}
-
-		if (atlasSize.y == 0)
-		{
-			NazaraError("atlas height must be over zero");
-			return nullptr;
-		}
-		#endif
+		NazaraAssert(atlasSize.x > 0, "atlas width must be over zero");
+		NazaraAssert(atlasSize.x > 0, "atlas height must be over zero");
 
 		ImageType type = image.GetType();
 
-		#if NAZARA_CORE_SAFE
-		if (type != ImageType::E1D && type != ImageType::E2D)
-		{
-			NazaraErrorFmt("image type not handled ({0:#x})", UnderlyingCast(type));
-			return nullptr;
-		}
-		#endif
+		NazaraAssertFmt(type == ImageType::E1D || type == ImageType::E2D, "image type not handled ({0:#x})", UnderlyingCast(type));
 
 		Vector2ui imageSize(image.GetWidth(), image.GetHeight());
 
@@ -970,15 +709,7 @@ namespace Nz
 	std::shared_ptr<Image> Image::LoadFromImage(const Image& image, const CubemapParams& params)
 	{
 		NazaraAssert(image.IsValid(), "invalid image");
-
-		#if NAZARA_CORE_SAFE
-		ImageType type = image.GetType();
-		if (type != ImageType::E2D)
-		{
-			NazaraErrorFmt("image type not handled ({0:#x})", UnderlyingCast(type));
-			return nullptr;
-		}
-		#endif
+		NazaraAssertFmt(image.GetType() == ImageType::E2D, "image type not handled ({0:#x})", UnderlyingCast(image.GetType()));
 
 		unsigned int width = image.GetWidth();
 		unsigned int height = image.GetHeight();
@@ -1156,19 +887,8 @@ namespace Nz
 
 	void Image::SetLevelCount(UInt8 levelCount)
 	{
-		#if NAZARA_CORE_SAFE
-		if (m_sharedImage == &emptyImage)
-		{
-			NazaraError("Image must be valid");
-			return;
-		}
-
-		if (levelCount == 0)
-		{
-			NazaraError("Level count must be positive");
-			return;
-		}
-		#endif
+		NazaraAssert(IsValid(), "invalid image");
+		NazaraAssertFmt(levelCount > 0, "level count must be over zero ({0})", levelCount);
 
 		levelCount = std::min(levelCount, GetMaxLevel());
 
@@ -1187,38 +907,13 @@ namespace Nz
 
 	bool Image::SetPixelColor(const Color& color, unsigned int x, unsigned int y, unsigned int z)
 	{
-		#if NAZARA_CORE_SAFE
-		if (m_sharedImage == &emptyImage)
-		{
-			NazaraError("image must be valid");
-			return false;
-		}
-
-		if (PixelFormatInfo::IsCompressed(m_sharedImage->format))
-		{
-			NazaraError("cannot access pixels from compressed image");
-			return false;
-		}
-
-		if (x >= m_sharedImage->width)
-		{
-			NazaraErrorFmt("x value exceeds width ({0} >= {1})", x, m_sharedImage->width);
-			return false;
-		}
-
-		if (y >= m_sharedImage->height)
-		{
-			NazaraErrorFmt("y value exceeds height ({0} >= {1})", y, m_sharedImage->height);
-			return false;
-		}
-
+		NazaraAssert(IsValid(), "invalid image");
+		NazaraAssert(!PixelFormatInfo::IsCompressed(m_sharedImage->format), "cannot access pixels from compressed image");
+		NazaraAssertFmt(x < m_sharedImage->width, "x value exceeds width ({0} >= {1})", x, m_sharedImage->width);
+		NazaraAssertFmt(y < m_sharedImage->height, "y value exceeds height ({0} >= {1})", y, m_sharedImage->height);
 		unsigned int depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : m_sharedImage->depth;
-		if (z >= depth)
-		{
-			NazaraErrorFmt("z value exceeds depth ({0} >= {1})", z, depth);
-			return false;
-		}
-		#endif
+		NazaraUnused(depth);
+		NazaraAssertFmt(z < depth, "z value exceeds depth ({0} >= {1})", z, depth);
 
 		UInt8* pixel = GetPixelPtr(m_sharedImage->levels[0].get(), PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format), x, y, z, m_sharedImage->width, m_sharedImage->height);
 
@@ -1233,44 +928,18 @@ namespace Nz
 
 	bool Image::Update(const void* pixels, const Boxui& box, unsigned int srcWidth, unsigned int srcHeight, UInt8 level)
 	{
-		#if NAZARA_CORE_SAFE
-		if (m_sharedImage == &emptyImage)
-		{
-			NazaraError("image must be valid");
-			return false;
-		}
-
-		if (!pixels)
-		{
-			NazaraError("invalid pixel source");
-			return false;
-		}
-
-		if (level >= m_sharedImage->levels.size())
-		{
-			NazaraErrorFmt("level out of bounds ({0} >= {1})", level, m_sharedImage->levels.size());
-			return false;
-		}
-		#endif
+		NazaraAssert(IsValid(), "invalid image");
+		NazaraAssert(pixels, "invalid pixel source");
+		NazaraAssertFmt(level < m_sharedImage->levels.size(), "level out of bounds ({0} >= {1})", level, m_sharedImage->levels.size());
 
 		unsigned int width = GetImageLevelSize(m_sharedImage->width, level);
 		unsigned int height = GetImageLevelSize(m_sharedImage->height, level);
-
-		#if NAZARA_CORE_SAFE
-		if (!box.IsValid())
-		{
-			NazaraError("invalid box");
-			return false;
-		}
-
+		NazaraAssert(box.IsValid(), "invalid box");
+		NazaraAssertFmt(box.x + box.width <= width, "box dimensions are out of bounds (x range: [{0};{1}[ exceeds image width {2})", box.x, box.x + box.width, width);
+		NazaraAssertFmt(box.y + box.height <= height, "box dimensions are out of bounds (y range: [{0};{1}[ exceeds image height {2})", box.y, box.y + box.height, height);
 		unsigned int depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : GetImageLevelSize(m_sharedImage->depth, level);
-		if (box.x+box.width > width || box.y+box.height > height || box.z+box.depth > depth ||
-		    (m_sharedImage->type == ImageType::Cubemap && box.depth > 1)) // We don't allow to update more than one face of the cubemap at once
-		{
-			NazaraError("box dimensions are out of bounds");
-			return false;
-		}
-		#endif
+		NazaraUnused(depth);
+		NazaraAssertFmt(box.z + box.depth <= depth, "box dimensions are out of bounds (z range: [{0};{1}[ exceeds image depth {2})", box.z, box.z + box.depth, depth);
 
 		EnsureOwnership();
 
@@ -1298,14 +967,9 @@ namespace Nz
 
 	void Image::Copy(UInt8* destination, const UInt8* source, PixelFormat format, unsigned int width, unsigned int height, unsigned int depth, unsigned int dstWidth, unsigned int dstHeight, unsigned int srcWidth, unsigned int srcHeight)
 	{
-		#if NAZARA_CORE_SAFE
-		if (width == 0)
-			NazaraError("width must be greater than zero");
-		if (height == 0)
-			NazaraError("height must be greater than zero");
-		if (depth == 0)
-			NazaraError("depth must be greater than zero");
-		#endif
+		NazaraAssert(width > 0, "width must be greater than zero");
+		NazaraAssert(height > 0, "height must be greater than zero");
+		NazaraAssert(depth > 0, "depth must be greater than zero");
 
 		if (dstWidth == 0)
 			dstWidth = width;

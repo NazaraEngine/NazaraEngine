@@ -30,7 +30,7 @@
 #define NAZARA_GLOBAL_PHYSICS2D_HPP
 
 #include <Nazara/Physics2D/Collider2D.hpp>
-#include <Nazara/Physics2D/Config.hpp>
+#include <Nazara/Physics2D/Export.hpp>
 #include <Nazara/Physics2D/Enums.hpp>
 #include <Nazara/Physics2D/PhysArbiter2D.hpp>
 #include <Nazara/Physics2D/PhysConstraint2D.hpp>

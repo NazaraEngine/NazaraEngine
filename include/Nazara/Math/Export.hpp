@@ -1,7 +1,8 @@
 /*
-	Nazara Engine - Audio module
+	Nazara Engine - Math module
 
-	Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
+	Copyright (C) 2024 Jérôme "SirLynix" Leclercq (Lynix680@gmail.com)
+	                   Rémi "overdrivr" Bèges (remi.beges@laposte.net)
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy of
 	this software and associated documentation files (the "Software"), to deal in
@@ -24,30 +25,22 @@
 
 #pragma once
 
-#ifndef NAZARA_AUDIO_CONFIG_HPP
-#define NAZARA_AUDIO_CONFIG_HPP
+#ifndef NAZARA_MATH_EXPORT_HPP
+#define NAZARA_MATH_EXPORT_HPP
 
 /*!
-* \defgroup audio (NazaraAudio) Audio module
-*  Audio/System module including classes to handle music, sound, etc...
+* \defgroup math (NazaraMath) Mathematics module
+*  2D/3D mathematics module including matrix, vector, box, sphere, quaternion, ...
 */
 
-/// Each modification of a parameter needs a recompilation of the module
-
-// Activate the security tests based on the code (Advised for development)
-#define NAZARA_AUDIO_SAFE 1
-
-/// Checking the values and types of certain constants
-#include <Nazara/Audio/ConfigCheck.hpp>
-
 #if !defined(NAZARA_STATIC)
-	#ifdef NAZARA_AUDIO_BUILD
-		#define NAZARA_AUDIO_API NAZARA_EXPORT
+	#ifdef NAZARA_CORE_BUILD // Math is compiled as part of Core
+		#define NAZARA_MATH_API NAZARA_EXPORT
 	#else
-		#define NAZARA_AUDIO_API NAZARA_IMPORT
+		#define NAZARA_MATH_API NAZARA_IMPORT
 	#endif
 #else
-	#define NAZARA_AUDIO_API
+	#define NAZARA_MATH_API
 #endif
 
-#endif // NAZARA_AUDIO_CONFIG_HPP
+#endif // NAZARA_MATH_EXPORT_HPP

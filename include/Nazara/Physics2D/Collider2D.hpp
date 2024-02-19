@@ -1,6 +1,6 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Physics2D module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #pragma once
 
@@ -11,8 +11,8 @@
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector2.hpp>
-#include <Nazara/Physics2D/Config.hpp>
 #include <Nazara/Physics2D/Enums.hpp>
+#include <Nazara/Physics2D/Export.hpp>
 #include <NazaraUtils/FunctionRef.hpp>
 #include <NazaraUtils/Signal.hpp>
 #include <NazaraUtils/SparsePtr.hpp>

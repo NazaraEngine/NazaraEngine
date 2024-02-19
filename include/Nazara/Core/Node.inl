@@ -1,10 +1,9 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Core module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Core/Algorithm.hpp>
 #include <memory>
-#include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {
@@ -193,7 +192,7 @@ namespace Nz
 		Invalidate(invalidation);
 		return *this;
 	}
-	
+
 	Node& Node::InterpolateGlobal(const Node& nodeA, const Node& nodeB, float interpolation, Invalidation invalidation)
 	{
 		nodeA.EnsureGlobalsUpdate();
@@ -239,7 +238,7 @@ namespace Nz
 		Invalidate(invalidation);
 		return *this;
 	}
-	
+
 	inline Node& Node::Rotate(const Quaternionf& rotation, Invalidation invalidation)
 	{
 		m_rotation = rotation * m_rotation;
@@ -324,7 +323,7 @@ namespace Nz
 
 		Invalidate(invalidation);
 	}
-	
+
 	inline void Node::SetGlobalTransform(const Vector3f& position, const Quaternionf& rotation, Invalidation invalidation)
 	{
 		// Position
@@ -421,7 +420,7 @@ namespace Nz
 		m_position = Vector3f(position);
 		Invalidate(invalidation);
 	}
-	
+
 	inline void Node::SetPosition(const Vector3f& position, Invalidation invalidation)
 	{
 		m_position = position;
@@ -449,7 +448,7 @@ namespace Nz
 		m_scale = scale;
 		Invalidate(invalidation);
 	}
-	
+
 	inline void Node::SetTransform(const Vector3f& position, const Quaternionf& rotation, Invalidation invalidation)
 	{
 		m_position = position;
@@ -592,4 +591,3 @@ namespace Nz
 	}
 }
 
-#include <Nazara/Core/DebugOff.hpp>

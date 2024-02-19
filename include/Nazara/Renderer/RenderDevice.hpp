@@ -1,6 +1,6 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Renderer module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #pragma once
 
@@ -10,8 +10,8 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/PixelFormat.hpp>
 #include <Nazara/Renderer/ComputePipeline.hpp>
-#include <Nazara/Renderer/Config.hpp>
 #include <Nazara/Renderer/Enums.hpp>
+#include <Nazara/Renderer/Export.hpp>
 #include <Nazara/Renderer/Framebuffer.hpp>
 #include <Nazara/Renderer/RenderBuffer.hpp>
 #include <Nazara/Renderer/RenderDeviceInfo.hpp>

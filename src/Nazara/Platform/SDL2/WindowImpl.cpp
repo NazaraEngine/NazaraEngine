@@ -1,13 +1,13 @@
 // Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Platform module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Platform/SDL2/WindowImpl.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/Image.hpp>
-#include <Nazara/Platform/Config.hpp>
 #include <Nazara/Platform/Cursor.hpp>
+#include <Nazara/Platform/Export.hpp>
 #include <Nazara/Platform/Icon.hpp>
 #include <Nazara/Platform/SDL2/CursorImpl.hpp>
 #include <Nazara/Platform/SDL2/IconImpl.hpp>
@@ -24,7 +24,6 @@
 #include <utf8cpp/utf8.h>
 #include <cstdio>
 #include <memory>
-#include <Nazara/Platform/Debug.hpp>
 
 namespace Nz
 {
