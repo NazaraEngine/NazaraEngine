@@ -8,6 +8,7 @@
 #include <cstring>
 #include <limits>
 #include <stdexcept>
+#include "Vector3.hpp"
 
 namespace Nz
 {
@@ -280,6 +281,13 @@ namespace Nz
 			z = vec.z;
 
 		return *this;
+	}
+
+	template<typename T>
+	constexpr Vector3<T> Vector3<T>::Project(const Vector3& normal) const
+	{
+		float dot = DotProduct(normal);
+		return normal * dot;
 	}
 
 	/*!

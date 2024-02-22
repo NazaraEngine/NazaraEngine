@@ -52,6 +52,8 @@ namespace Nz
 			constexpr Vector3& Maximize(const Vector3& vec);
 			constexpr Vector3& Minimize(const Vector3& vec);
 
+			constexpr Vector3 Project(const Vector3& normal) const;
+
 			Vector3& Normalize(T* length = nullptr);
 
 			constexpr T SquaredDistance(const Vector3& vec) const;
