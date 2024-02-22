@@ -22,15 +22,16 @@
 #include <Nazara/Renderer/RenderPipeline.hpp>
 #include <NazaraUtils/FunctionRef.hpp>
 #include <NazaraUtils/Result.hpp>
+#include <functional>
 #include <memory>
 
 namespace Nz
 {
 	struct NAZARA_GRAPHICS_API ModelParams : ResourceParameters
 	{
-		bool loadMaterials = true;
-		FunctionRef<Result<void, ResourceLoadingError>(const std::shared_ptr<Mesh>& mesh)> meshCallback = nullptr;
+		std::function<Result<void, ResourceLoadingError>(const std::shared_ptr<Mesh>& mesh)> meshCallback = {};
 		MeshParams mesh;
+		bool loadMaterials = true;
 
 		bool IsValid() const;
 	};
