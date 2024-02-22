@@ -290,6 +290,13 @@ namespace Nz
 		return normal * dot;
 	}
 
+	template<typename T>
+	constexpr Vector3<T> Vector3<T>::ProjectOnPlane(const Vector3& normal) const
+	{
+		float dot = DotProduct(normal);
+		return *this - normal * dot;
+	}
+
 	/*!
 	* \brief Normalizes the current vector
 	* \return A reference to this vector

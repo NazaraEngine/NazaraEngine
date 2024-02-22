@@ -53,6 +53,7 @@ namespace Nz
 			constexpr Vector3& Minimize(const Vector3& vec);
 
 			constexpr Vector3 Project(const Vector3& normal) const;
+			constexpr Vector3 ProjectOnPlane(const Vector3& normal) const;
 
 			Vector3& Normalize(T* length = nullptr);
 
