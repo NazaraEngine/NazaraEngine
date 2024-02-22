@@ -120,7 +120,7 @@ namespace Nz
 			void ResetQueues();
 
 			bool QueueAcknowledgement(ENetProtocol* command, UInt16 sentTime);
-			IncomingCommmand* QueueIncomingCommand(const ENetProtocol& command, const void* data, std::size_t dataLength, UInt32 flags, UInt32 fragmentCount);
+			IncomingCommmand* QueueIncomingCommand(const ENetProtocol& command, const void* data, std::size_t dataLength, ENetPacketFlags flags, UInt32 fragmentCount);
 			inline void QueueOutgoingCommand(ENetProtocol& command);
 			void QueueOutgoingCommand(ENetProtocol& command, ENetPacketRef packet, UInt32 offset, UInt16 length);
 

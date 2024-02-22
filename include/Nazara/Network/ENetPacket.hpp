@@ -14,17 +14,17 @@
 
 namespace Nz
 {
-	enum ENetPacketFlag
+	enum class ENetPacketFlag
 	{
-		ENetPacketFlag_Reliable,
-		ENetPacketFlag_Unsequenced,
-		ENetPacketFlag_UnreliableFragment
+		Reliable,
+		Unsequenced,
+		UnreliableFragment
 	};
 
 	template<>
 	struct EnumAsFlags<ENetPacketFlag>
 	{
-		static constexpr ENetPacketFlag max = ENetPacketFlag_UnreliableFragment;
+		static constexpr ENetPacketFlag max = ENetPacketFlag::UnreliableFragment;
 	};
 
 	using ENetPacketFlags = Flags<ENetPacketFlag>;

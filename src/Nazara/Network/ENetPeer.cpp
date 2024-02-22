@@ -212,7 +212,7 @@ namespace Nz
 
 			UInt8 commandNumber;
 			UInt16 startSequenceNumber;
-			if ((packetRef->flags & (ENetPacketFlag_Reliable | ENetPacketFlag_UnreliableFragment)) == ENetPacketFlag_UnreliableFragment &&
+			if ((packetRef->flags & (ENetPacketFlag::Reliable | ENetPacketFlag::UnreliableFragment)) == ENetPacketFlag::UnreliableFragment &&
 				channel.outgoingUnreliableSequenceNumber < 0xFFFF)
 			{
 				commandNumber = ENetProtocolCommand_SendUnreliableFragment;
@@ -251,12 +251,12 @@ namespace Nz
 		ENetProtocol command;
 		command.header.channelID = channelId;
 
-		if ((packetRef->flags & (ENetPacketFlag_Reliable | ENetPacketFlag_Unsequenced)) == ENetPacketFlag_Unsequenced)
+		if ((packetRef->flags & (ENetPacketFlag::Reliable | ENetPacketFlag::Unsequenced)) == ENetPacketFlag::Unsequenced)
 		{
 			command.header.command = ENetProtocolCommand_SendUnsequenced | ENetProtocolFlag_Unsequenced;
 			command.sendUnsequenced.dataLength = HostToNet(UInt16(packetRef->data.GetDataSize()));
 		}
-		else if (packetRef->flags & ENetPacketFlag_Reliable || channel.outgoingUnreliableSequenceNumber >= 0xFFFF)
+		else if (packetRef->flags & ENetPacketFlag::Reliable || channel.outgoingUnreliableSequenceNumber >= 0xFFFF)
 		{
 			command.header.command = ENetProtocolCommand_SendReliable | ENetProtocolFlag_Acknowledge;
 			command.sendReliable.dataLength = HostToNet(UInt16(packetRef->data.GetDataSize()));
@@ -658,7 +658,7 @@ namespace Nz
 			ENetProtocol hostCommand = *command;
 			hostCommand.header.reliableSequenceNumber = static_cast<UInt16>(startSequenceNumber);
 
-			startCommand = QueueIncomingCommand(hostCommand, nullptr, totalLength, ENetPacketFlag_Reliable, fragmentCount);
+			startCommand = QueueIncomingCommand(hostCommand, nullptr, totalLength, ENetPacketFlag::Reliable, fragmentCount);
 			if (!startCommand)
 				return false;
 		}
@@ -691,7 +691,7 @@ namespace Nz
 		if (dataLength >= m_host->m_maximumPacketSize || *data < m_host->m_receivedData || *data > &m_host->m_receivedData[m_host->m_receivedDataLength])
 			return false;
 
-		if (!QueueIncomingCommand(*command, reinterpret_cast<const UInt8*>(command) + sizeof(ENetProtocolSendReliable), dataLength, ENetPacketFlag_Reliable, 0))
+		if (!QueueIncomingCommand(*command, reinterpret_cast<const UInt8*>(command) + sizeof(ENetProtocolSendReliable), dataLength, ENetPacketFlag::Reliable, 0))
 			return false;
 
 		return true;
@@ -783,7 +783,7 @@ namespace Nz
 
 		if (!startCommand)
 		{
-			startCommand = QueueIncomingCommand(*command, nullptr, totalLength, ENetPacketFlag_UnreliableFragment, fragmentCount);
+			startCommand = QueueIncomingCommand(*command, nullptr, totalLength, ENetPacketFlag::UnreliableFragment, fragmentCount);
 			if (!startCommand)
 				return false;
 		}
@@ -836,7 +836,7 @@ namespace Nz
 		else if (m_unsequencedWindow[index / 32] & (1 << (index % 32)))
 			return true;
 
-		if (!QueueIncomingCommand(*command, reinterpret_cast<const UInt8*>(command) + sizeof(ENetProtocolSendUnsequenced), dataLength, ENetPacketFlag_Unsequenced, 0))
+		if (!QueueIncomingCommand(*command, reinterpret_cast<const UInt8*>(command) + sizeof(ENetProtocolSendUnsequenced), dataLength, ENetPacketFlag::Unsequenced, 0))
 			return false;
 
 		m_unsequencedWindow[index / 32] |= 1 << (index % 32);
@@ -1095,7 +1095,7 @@ namespace Nz
 		return true;
 	}
 
-	ENetPeer::IncomingCommmand* ENetPeer::QueueIncomingCommand(const ENetProtocol& command, const void* data, std::size_t dataLength, UInt32 flags, UInt32 fragmentCount)
+	ENetPeer::IncomingCommmand* ENetPeer::QueueIncomingCommand(const ENetProtocol& command, const void* data, std::size_t dataLength, ENetPacketFlags flags, UInt32 fragmentCount)
 	{
 		static IncomingCommmand dummyCommand;
 
