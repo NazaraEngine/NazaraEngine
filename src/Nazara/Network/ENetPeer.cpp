@@ -224,6 +224,8 @@ namespace Nz
 				startSequenceNumber = HostToNet<UInt16>(channel.outgoingReliableSequenceNumber + 1);
 			}
 
+			packetRef->remainingFragments = fragmentCount;
+
 			for (UInt32 fragmentNumber = 0, fragmentOffset = 0; fragmentOffset < packetSize; ++fragmentNumber, fragmentOffset += fragmentLength)
 			{
 				if (packetSize - fragmentOffset < fragmentLength)
@@ -247,29 +249,33 @@ namespace Nz
 
 			return true;
 		}
-
-		ENetProtocol command;
-		command.header.channelID = channelId;
-
-		if ((packetRef->flags & (ENetPacketFlag::Reliable | ENetPacketFlag::Unsequenced)) == ENetPacketFlag::Unsequenced)
-		{
-			command.header.command = ENetProtocolCommand_SendUnsequenced | ENetProtocolFlag_Unsequenced;
-			command.sendUnsequenced.dataLength = HostToNet(UInt16(packetRef->data.GetDataSize()));
-		}
-		else if (packetRef->flags & ENetPacketFlag::Reliable || channel.outgoingUnreliableSequenceNumber >= 0xFFFF)
-		{
-			command.header.command = ENetProtocolCommand_SendReliable | ENetProtocolFlag_Acknowledge;
-			command.sendReliable.dataLength = HostToNet(UInt16(packetRef->data.GetDataSize()));
-		}
 		else
 		{
-			command.header.command = ENetProtocolCommand_SendUnreliable;
-			command.sendUnreliable.dataLength = HostToNet(UInt16(packetRef->data.GetDataSize()));
+			packetRef->remainingFragments = 1;
+
+			ENetProtocol command;
+			command.header.channelID = channelId;
+
+			if ((packetRef->flags & (ENetPacketFlag::Reliable | ENetPacketFlag::Unsequenced)) == ENetPacketFlag::Unsequenced)
+			{
+				command.header.command = ENetProtocolCommand_SendUnsequenced | ENetProtocolFlag_Unsequenced;
+				command.sendUnsequenced.dataLength = HostToNet(UInt16(packetRef->data.GetDataSize()));
+			}
+			else if (packetRef->flags & ENetPacketFlag::Reliable || channel.outgoingUnreliableSequenceNumber >= 0xFFFF)
+			{
+				command.header.command = ENetProtocolCommand_SendReliable | ENetProtocolFlag_Acknowledge;
+				command.sendReliable.dataLength = HostToNet(UInt16(packetRef->data.GetDataSize()));
+			}
+			else
+			{
+				command.header.command = ENetProtocolCommand_SendUnreliable;
+				command.sendUnreliable.dataLength = HostToNet(UInt16(packetRef->data.GetDataSize()));
+			}
+
+			QueueOutgoingCommand(command, packetRef, 0, UInt16(packetSize));
+
+			return true;
 		}
-
-		QueueOutgoingCommand(command, packetRef, 0, UInt16(packetSize));
-
-		return true;
 	}
 
 	void ENetPeer::ThrottleConfigure(UInt32 interval, UInt32 acceleration, UInt32 deceleration)
@@ -1031,7 +1037,10 @@ namespace Nz
 		if (currentCommand->packet && wasSent)
 		{
 			m_reliableDataInTransit -= currentCommand->fragmentLength;
-			currentCommand->packet->OnAcknowledged();
+
+			assert(currentCommand->packet->remainingFragments > 0);
+			if (--currentCommand->packet->remainingFragments == 0)
+				currentCommand->packet->OnAcknowledged();
 		}
 
 		commandList->erase(currentCommand);

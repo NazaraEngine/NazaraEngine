@@ -38,6 +38,7 @@ namespace Nz
 		NetPacket data;
 		std::size_t poolIndex;
 		std::size_t referenceCount = 0;
+		UInt32 remainingFragments; // for ack
 
 		NazaraSignal(OnAcknowledged);
 	};
