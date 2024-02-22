@@ -1029,7 +1029,10 @@ namespace Nz
 		ENetProtocolCommand commandNumber = static_cast<ENetProtocolCommand>(currentCommand->command.header.command & ENetProtocolCommand_Mask);
 
 		if (currentCommand->packet && wasSent)
+		{
 			m_reliableDataInTransit -= currentCommand->fragmentLength;
+			currentCommand->packet->OnAcknowledged();
+		}
 
 		commandList->erase(currentCommand);
 

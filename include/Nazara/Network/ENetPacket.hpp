@@ -11,6 +11,7 @@
 #include <Nazara/Network/NetPacket.hpp>
 #include <NazaraUtils/MemoryPool.hpp>
 #include <NazaraUtils/MovablePtr.hpp>
+#include <NazaraUtils/Signal.hpp>
 
 namespace Nz
 {
@@ -37,6 +38,8 @@ namespace Nz
 		NetPacket data;
 		std::size_t poolIndex;
 		std::size_t referenceCount = 0;
+
+		NazaraSignal(OnAcknowledged);
 	};
 
 	struct NAZARA_NETWORK_API ENetPacketRef
