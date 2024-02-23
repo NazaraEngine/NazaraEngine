@@ -61,7 +61,7 @@ namespace Nz
 		constexpr UInt64 typeHash = FNV1a64(TypeName<T>());
 
 		auto it = m_components.find(typeHash);
-		if (it != m_components.end())
+		if (it == m_components.end())
 			throw std::runtime_error("component not found");
 
 		return static_cast<T&>(*it->second);
@@ -73,7 +73,7 @@ namespace Nz
 		constexpr UInt64 typeHash = FNV1a64(TypeName<T>());
 
 		auto it = m_components.find(typeHash);
-		if (it != m_components.end())
+		if (it == m_components.end())
 			throw std::runtime_error("component not found");
 
 		return static_cast<const T&>(*it->second);
@@ -83,12 +83,7 @@ namespace Nz
 	bool ApplicationBase::HasComponent() const
 	{
 		constexpr UInt64 typeHash = FNV1a64(TypeName<T>());
-
-		auto it = m_components.find(typeHash);
-		if (it != m_components.end())
-			return false;
-
-		return it->second != nullptr;
+		return m_components.contains(typeHash);
 	}
 
 	inline void ApplicationBase::Quit()
