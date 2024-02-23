@@ -366,7 +366,7 @@ namespace Nz
 		if (style & TextStyle::Italic)
 			sizeStylePart |= 1 << 1;
 
-		return (sizeStylePart << 32) | reinterpret_cast<Nz::UInt32&>(outlineThickness);
+		return (sizeStylePart << 32) | Nz::BitCast<Nz::UInt32>(outlineThickness);
 	}
 
 	void Font::OnAtlasCleared(const AbstractAtlas* atlas)
