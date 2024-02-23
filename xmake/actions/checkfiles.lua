@@ -382,21 +382,6 @@ on_run(function ()
 								end
 							})
 						end
-
-						if isInl then
-							if not debugIncludeOff then
-								print(filePath .. ": has missing DebugOff include")
-								table.insert(fixes, {
-									File = filePath,
-									Func = function (lines)
-										table.insert(lines, "")
-										table.insert(lines, "#include <Nazara/" .. debugIncludeModule .. "/DebugOff.hpp>")
-										table.insert(lines, "")
-										return lines
-									end
-								})
-							end
-						end
 					end
 				end
 			end
@@ -455,7 +440,7 @@ on_run(function ()
 					if inclusions[i].path == headerPath then
 						order = 0 -- own include comes first
 					elseif inclusions[i].path == "NazaraUtils/Prerequisites.hpp" then
-						order = 6 -- debug include
+						order = 1 -- top engine includes
 					elseif inclusions[i].path:match("^NazaraUtils/") then
 						order = 2.1 -- NazaraUtils
 					elseif inclusions[i].path:match("^Nazara/") then

@@ -8,7 +8,6 @@
 #include <cstring>
 #include <limits>
 #include <stdexcept>
-#include "Vector3.hpp"
 
 namespace Nz
 {
@@ -1052,4 +1051,3 @@ namespace std
 		}
 	};
 }
-
