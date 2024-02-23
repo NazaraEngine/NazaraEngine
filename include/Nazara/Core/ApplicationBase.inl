@@ -2,7 +2,6 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-#include <Nazara/Core/ApplicationComponentRegistry.hpp>
 #include <stdexcept>
 
 namespace Nz
@@ -57,31 +56,37 @@ namespace Nz
 	template<typename T>
 	T& ApplicationBase::GetComponent()
 	{
-		std::size_t componentIndex = ApplicationComponentRegistry<T>::GetComponentId();
-		if (componentIndex >= m_components.size() || !m_components[componentIndex])
+		constexpr UInt64 typeHash = FNV1a64(TypeName<T>());
+
+		auto it = m_components.find(typeHash);
+		if (it != m_components.end())
 			throw std::runtime_error("component not found");
 
-		return static_cast<T&>(*m_components[componentIndex]);
+		return static_cast<T&>(*it->second);
 	}
 
 	template<typename T>
 	const T& ApplicationBase::GetComponent() const
 	{
-		std::size_t componentIndex = ApplicationComponentRegistry<T>::GetComponentId();
-		if (componentIndex >= m_components.size() || !m_components[componentIndex])
+		constexpr UInt64 typeHash = FNV1a64(TypeName<T>());
+
+		auto it = m_components.find(typeHash);
+		if (it != m_components.end())
 			throw std::runtime_error("component not found");
 
-		return static_cast<const T&>(*m_components[componentIndex]);
+		return static_cast<const T&>(*it->second);
 	}
 
 	template<typename T>
 	bool ApplicationBase::HasComponent() const
 	{
-		std::size_t componentIndex = ApplicationComponentRegistry<T>::GetComponentId();
-		if (componentIndex >= m_components.size())
+		constexpr UInt64 typeHash = FNV1a64(TypeName<T>());
+
+		auto it = m_components.find(typeHash);
+		if (it != m_components.end())
 			return false;
 
-		return m_components[componentIndex] != nullptr;
+		return it->second != nullptr;
 	}
 
 	inline void ApplicationBase::Quit()
@@ -92,21 +97,25 @@ namespace Nz
 	template<typename T>
 	T* ApplicationBase::TryGetComponent()
 	{
-		std::size_t componentIndex = ApplicationComponentRegistry<T>::GetComponentId();
-		if (componentIndex >= m_components.size())
+		constexpr UInt64 typeHash = FNV1a64(TypeName<T>());
+
+		auto it = m_components.find(typeHash);
+		if (it != m_components.end())
 			return nullptr;
 
-		return static_cast<T*>(m_components[componentIndex].get());
+		return static_cast<T*>(it->second.get());
 	}
 
 	template<typename T>
 	const T* ApplicationBase::TryGetComponent() const
 	{
-		std::size_t componentIndex = ApplicationComponentRegistry<T>::GetComponentId();
-		if (componentIndex >= m_components.size())
+		constexpr UInt64 typeHash = FNV1a64(TypeName<T>());
+
+		auto it = m_components.find(typeHash);
+		if (it != m_components.end())
 			return nullptr;
 
-		return static_cast<const T*>(m_components[componentIndex].get());
+		return static_cast<const T*>(it->second.get());
 	}
 
 	inline ApplicationBase* ApplicationBase::Instance()
@@ -117,17 +126,15 @@ namespace Nz
 	template<typename T, typename... Args>
 	T& ApplicationBase::AddComponent(Args&&... args)
 	{
-		std::size_t componentIndex = ApplicationComponentRegistry<T>::GetComponentId();
+		constexpr UInt64 typeHash = FNV1a64(TypeName<T>());
 
 		std::unique_ptr<T> component = std::make_unique<T>(*this, std::forward<Args>(args)...);
 		T& componentRef = *component;
 
-		if (componentIndex >= m_components.size())
-			m_components.resize(componentIndex + 1);
-		else if (m_components[componentIndex] != nullptr)
+		if (m_components.contains(typeHash))
 			throw std::runtime_error("component was added multiple times");
 
-		m_components[componentIndex] = std::move(component);
+		m_components[typeHash] = std::move(component);
 
 		return componentRef;
 	}

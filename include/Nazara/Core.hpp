@@ -38,7 +38,6 @@
 #include <Nazara/Core/Application.hpp>
 #include <Nazara/Core/ApplicationBase.hpp>
 #include <Nazara/Core/ApplicationComponent.hpp>
-#include <Nazara/Core/ApplicationComponentRegistry.hpp>
 #include <Nazara/Core/ApplicationUpdater.hpp>
 #include <Nazara/Core/Buffer.hpp>
 #include <Nazara/Core/BufferMapper.hpp>

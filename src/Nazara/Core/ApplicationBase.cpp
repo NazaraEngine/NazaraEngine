@@ -90,8 +90,10 @@ namespace Nz
 			updaterEntry.nextUpdate = std::max(updaterEntry.nextUpdate, m_currentTime);
 		}
 
-		for (auto& componentPtr : m_components)
+		for (auto&& [typeHash, componentPtr] : m_components)
 		{
+			NazaraUnused(typeHash);
+
 			if (componentPtr)
 				componentPtr->Update(elapsedTime);
 		}

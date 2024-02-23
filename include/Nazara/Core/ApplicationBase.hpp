@@ -14,7 +14,7 @@
 #include <Nazara/Core/CommandLineParameters.hpp>
 #include <atomic>
 #include <string>
-#include <vector>
+#include <unordered_map>
 
 namespace Nz
 {
@@ -72,7 +72,7 @@ namespace Nz
 			};
 
 			std::atomic_bool m_running;
-			std::vector<std::unique_ptr<ApplicationComponent>> m_components;
+			std::unordered_map<UInt64 /*typehash*/, std::unique_ptr<ApplicationComponent>> m_components;
 			std::vector<Updater> m_updaters;
 			CommandLineParameters m_commandLineParams;
 			HighPrecisionClock m_clock;
