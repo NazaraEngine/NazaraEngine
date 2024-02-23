@@ -2,6 +2,7 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
+#include <NazaraUtils/TypeName.hpp>
 #include <stdexcept>
 
 namespace Nz
