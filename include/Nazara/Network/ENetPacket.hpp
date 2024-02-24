@@ -8,7 +8,8 @@
 #define NAZARA_NETWORK_ENETPACKET_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Network/NetPacket.hpp>
+#include <Nazara/Core/ByteArray.hpp>
+#include <Nazara/Network/Export.hpp>
 #include <NazaraUtils/MemoryPool.hpp>
 #include <NazaraUtils/MovablePtr.hpp>
 #include <NazaraUtils/Signal.hpp>
@@ -34,8 +35,8 @@ namespace Nz
 
 	struct ENetPacket
 	{
+		ByteArray data;
 		ENetPacketFlags flags;
-		NetPacket data;
 		std::size_t poolIndex;
 		std::size_t referenceCount = 0;
 		UInt32 remainingFragments; // for ack

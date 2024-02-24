@@ -17,7 +17,6 @@
 namespace Nz
 {
 	struct NetBuffer;
-	class NetPacket;
 
 	class NAZARA_NETWORK_API TcpClient : public AbstractSocket, public Stream
 	{
@@ -46,11 +45,9 @@ namespace Nz
 			SocketState PollForConnected(UInt64 waitDuration = 0);
 
 			bool Receive(void* buffer, std::size_t size, std::size_t* received);
-			bool ReceivePacket(NetPacket* packet);
 
 			bool Send(const void* buffer, std::size_t size, std::size_t* sent);
 			bool SendMultiple(const NetBuffer* buffers, std::size_t bufferCount, std::size_t* sent);
-			bool SendPacket(const NetPacket& packet);
 
 			SocketState WaitForConnected(UInt64 msTimeout = 3000);
 

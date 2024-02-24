@@ -18,13 +18,13 @@
 #define NAZARA_NETWORK_ENETHOST_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/ByteArray.hpp>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Network/ENetCompressor.hpp>
 #include <Nazara/Network/ENetPeer.hpp>
 #include <Nazara/Network/ENetProtocol.hpp>
 #include <Nazara/Network/IpAddress.hpp>
 #include <Nazara/Network/NetBuffer.hpp>
-#include <Nazara/Network/NetPacket.hpp>
 #include <Nazara/Network/SocketPoller.hpp>
 #include <Nazara/Network/UdpSocket.hpp>
 #include <NazaraUtils/Flags.hpp>
@@ -45,11 +45,11 @@ namespace Nz
 			inline ~ENetHost();
 
 			ENetPacketRef AllocatePacket(ENetPacketFlags flags);
-			inline ENetPacketRef AllocatePacket(ENetPacketFlags flags, NetPacket&& data);
+			inline ENetPacketRef AllocatePacket(ENetPacketFlags flags, ByteArray&& payload);
 
 			inline void AllowsIncomingConnections(bool allow = true);
 
-			void Broadcast(UInt8 channelId, ENetPacketFlags flags, NetPacket&& packet);
+			void Broadcast(UInt8 channelId, ENetPacketFlags flags, ByteArray&& packet);
 
 			bool CheckEvents(ENetEvent* event);
 
@@ -112,15 +112,15 @@ namespace Nz
 
 			struct PendingIncomingPacket
 			{
+				ByteArray data;
 				IpAddress from;
-				NetPacket data;
 				UInt32 deliveryTime;
 			};
 
 			struct PendingOutgoingPacket
 			{
+				ByteArray data;
 				IpAddress to;
-				NetPacket data;
 				UInt32 deliveryTime;
 			};
 

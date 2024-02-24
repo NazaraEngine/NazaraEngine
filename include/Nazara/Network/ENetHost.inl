@@ -18,10 +18,10 @@ namespace Nz
 		Destroy();
 	}
 
-	inline ENetPacketRef ENetHost::AllocatePacket(ENetPacketFlags flags, NetPacket&& data)
+	inline ENetPacketRef ENetHost::AllocatePacket(ENetPacketFlags flags, ByteArray&& payload)
 	{
 		ENetPacketRef ref = AllocatePacket(flags);
-		ref->data = std::move(data);
+		ref->data = std::move(payload);
 
 		return ref;
 	}
@@ -110,7 +110,7 @@ namespace Nz
 	inline void ENetHost::UpdateServiceTime()
 	{
 		// Use high precision clock for extra precision
-		m_serviceTime = static_cast<UInt32>(GetElapsedNanoseconds().AsMilliseconds());
+		m_serviceTime = static_cast<UInt32>(GetElapsedNanoseconds().AsMilliseconds()); // overflow is permitted
 	}
 }
 

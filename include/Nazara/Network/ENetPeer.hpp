@@ -73,7 +73,7 @@ namespace Nz
 			void Reset();
 
 			bool Send(UInt8 channelId, ENetPacketRef packetRef);
-			bool Send(UInt8 channelId, ENetPacketFlags flags, NetPacket&& packet);
+			bool Send(UInt8 channelId, ENetPacketFlags flags, ByteArray&& payload);
 
 			void SimulateNetwork(double packetLossProbability, UInt16 minDelay, UInt16 maxDelay);
 

@@ -16,7 +16,6 @@
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Network/Algorithm.hpp>
 #include <Nazara/Network/ENetPeer.hpp>
-#include <Nazara/Network/NetPacket.hpp>
 #include <NazaraUtils/OffsetOf.hpp>
 
 namespace Nz
@@ -56,7 +55,7 @@ namespace Nz
 		return enetPacket;
 	}
 
-	void ENetHost::Broadcast(UInt8 channelId, ENetPacketFlags flags, NetPacket&& packet)
+	void ENetHost::Broadcast(UInt8 channelId, ENetPacketFlags flags, ByteArray&& packet)
 	{
 		ENetPacketRef enetPacket = AllocatePacket(flags, std::move(packet));
 
@@ -545,8 +544,8 @@ namespace Nz
 		if (peer)
 		{
 			peer->m_address = m_receivedAddress;
-			peer->m_incomingDataTotal += UInt32(m_receivedDataLength);
-			peer->m_totalByteReceived += UInt32(m_receivedDataLength);
+			peer->m_incomingDataTotal += SafeCast<UInt32>(m_receivedDataLength);
+			peer->m_totalByteReceived += SafeCast<UInt32>(m_receivedDataLength);
 		}
 
 		auto commandError = [&]() -> bool
@@ -715,8 +714,8 @@ namespace Nz
 						shouldReceive = false;
 
 						m_receivedAddress = it->from;
-						receivedLength = it->data.GetDataSize();
-						std::memcpy(m_packetData[0].data(), it->data.GetConstData() + NetPacket::HeaderSize, receivedLength);
+						receivedLength = it->data.GetSize();
+						std::memcpy(m_packetData[0].data(), it->data.GetConstBuffer(), receivedLength);
 
 						m_pendingIncomingPackets.erase(it);
 						break;
@@ -743,7 +742,7 @@ namespace Nz
 						PendingIncomingPacket pendingPacket;
 						pendingPacket.deliveryTime = m_serviceTime + delay;
 						pendingPacket.from = m_receivedAddress;
-						pendingPacket.data.Reset(0, m_packetData[0].data(), receivedLength);
+						pendingPacket.data = ByteArray(m_packetData[0].data(), receivedLength);
 
 						auto it = std::upper_bound(m_pendingIncomingPackets.begin(), m_pendingIncomingPackets.end(), pendingPacket, [] (const PendingIncomingPacket& first, const PendingIncomingPacket& second)
 						{
@@ -948,7 +947,7 @@ namespace Nz
 				++m_bufferCount;
 
 				NetBuffer& packetBuffer = m_buffers[m_bufferCount];
-				packetBuffer.data = outgoingCommand->packet->data.GetData() + NetPacket::HeaderSize + outgoingCommand->fragmentOffset;
+				packetBuffer.data = outgoingCommand->packet->data.GetBuffer() + outgoingCommand->fragmentOffset;
 				packetBuffer.dataLength = outgoingCommand->fragmentLength;
 
 				m_packetSize += packetBuffer.dataLength;
@@ -1093,10 +1092,10 @@ namespace Nz
 							for (std::size_t i = 0; i < m_bufferCount; ++i)
 							{
 								NetBuffer& buffer = m_buffers[i];
-								outgoingPacket.data.Write(buffer.data, buffer.dataLength);
+								outgoingPacket.data.Append(buffer.data, buffer.dataLength);
 							}
 
-							m_totalSentData += outgoingPacket.data.GetDataSize();
+							m_totalSentData += outgoingPacket.data.GetSize();
 
 							// Add it to the right place
 							auto it = std::upper_bound(m_pendingOutgoingPackets.begin(), m_pendingOutgoingPackets.end(), outgoingPacket, [](const PendingOutgoingPacket& first, const PendingOutgoingPacket& second)
@@ -1151,7 +1150,7 @@ namespace Nz
 				if (m_serviceTime < it->deliveryTime)
 					break;
 
-				if (!m_socket.Send(it->to, it->data.GetConstData() + NetPacket::HeaderSize, it->data.GetDataSize(), nullptr))
+				if (!m_socket.Send(it->to, it->data.GetConstBuffer(), it->data.GetSize(), nullptr))
 					return -1;
 			}
 
@@ -1223,7 +1222,7 @@ namespace Nz
 				++m_bufferCount;
 
 				NetBuffer& packetBuffer = m_buffers[m_bufferCount];
-				packetBuffer.data = outgoingCommand->packet->data.GetData() + NetPacket::HeaderSize + outgoingCommand->fragmentOffset;
+				packetBuffer.data = outgoingCommand->packet->data.GetBuffer() + outgoingCommand->fragmentOffset;
 				packetBuffer.dataLength = outgoingCommand->fragmentLength;
 
 				m_packetSize += packetBuffer.dataLength;

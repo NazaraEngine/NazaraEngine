@@ -15,7 +15,6 @@
 #include <Nazara/Network/ENetPeer.hpp>
 #include <Nazara/Network/Algorithm.hpp>
 #include <Nazara/Network/ENetHost.hpp>
-#include <Nazara/Network/NetPacket.hpp>
 
 namespace Nz
 {
@@ -101,7 +100,7 @@ namespace Nz
 
 		IncomingCommmand& incomingCommand = m_dispatchedCommands.front();
 
-		m_totalWaitingData -= incomingCommand.packet->data.GetDataSize();
+		m_totalWaitingData -= incomingCommand.packet->data.GetSize();
 
 		if (packet)
 			*packet = std::move(incomingCommand.packet);
@@ -175,9 +174,9 @@ namespace Nz
 		ResetQueues();
 	}
 
-	bool ENetPeer::Send(UInt8 channelId, ENetPacketFlags flags, NetPacket&& packet)
+	bool ENetPeer::Send(UInt8 channelId, ENetPacketFlags flags, ByteArray&& payload)
 	{
-		return Send(channelId, m_host->AllocatePacket(flags, std::move(packet)));
+		return Send(channelId, m_host->AllocatePacket(flags, std::move(payload)));
 	}
 
 	void ENetPeer::SimulateNetwork(double packetLossProbability, UInt16 minDelay, UInt16 maxDelay)
@@ -196,14 +195,14 @@ namespace Nz
 
 	bool ENetPeer::Send(UInt8 channelId, ENetPacketRef packetRef)
 	{
-		if (m_state != ENetPeerState::Connected || channelId >= m_channels.size() || packetRef->data.GetDataSize() > m_host->m_maximumPacketSize)
+		if (m_state != ENetPeerState::Connected || channelId >= m_channels.size() || packetRef->data.GetSize() > m_host->m_maximumPacketSize)
 			return false;
 
 		Channel& channel = m_channels[channelId];
 
 		UInt16 fragmentLength = static_cast<UInt16>(m_mtu - sizeof(ENetProtocolHeader) - sizeof(ENetProtocolSendFragment));
 
-		UInt32 packetSize = static_cast<UInt32>(packetRef->data.GetDataSize());
+		UInt32 packetSize = SafeCast<UInt32>(packetRef->data.GetSize());
 		if (packetSize > fragmentLength)
 		{
 			UInt32 fragmentCount = (packetSize + fragmentLength - 1) / fragmentLength;
@@ -259,21 +258,20 @@ namespace Nz
 			if ((packetRef->flags & (ENetPacketFlag::Reliable | ENetPacketFlag::Unsequenced)) == ENetPacketFlag::Unsequenced)
 			{
 				command.header.command = ENetProtocolCommand_SendUnsequenced | ENetProtocolFlag_Unsequenced;
-				command.sendUnsequenced.dataLength = HostToNet(UInt16(packetRef->data.GetDataSize()));
+				command.sendUnsequenced.dataLength = HostToNet(SafeCast<UInt16>(packetRef->data.GetSize()));
 			}
 			else if (packetRef->flags & ENetPacketFlag::Reliable || channel.outgoingUnreliableSequenceNumber >= 0xFFFF)
 			{
 				command.header.command = ENetProtocolCommand_SendReliable | ENetProtocolFlag_Acknowledge;
-				command.sendReliable.dataLength = HostToNet(UInt16(packetRef->data.GetDataSize()));
+				command.sendReliable.dataLength = HostToNet(SafeCast<UInt16>(packetRef->data.GetSize()));
 			}
 			else
 			{
 				command.header.command = ENetProtocolCommand_SendUnreliable;
-				command.sendUnreliable.dataLength = HostToNet(UInt16(packetRef->data.GetDataSize()));
+				command.sendUnreliable.dataLength = HostToNet(SafeCast<UInt16>(packetRef->data.GetSize()));
 			}
 
-			QueueOutgoingCommand(command, packetRef, 0, UInt16(packetSize));
-
+			QueueOutgoingCommand(command, packetRef, 0, SafeCast<UInt16>(packetSize));
 			return true;
 		}
 	}
@@ -651,7 +649,7 @@ namespace Nz
 					break;
 
 				if ((incomingCommand.command.header.command & ENetProtocolCommand_Mask) != ENetProtocolCommand_SendFragment ||
-				    totalLength != incomingCommand.packet->data.GetDataSize() || fragmentCount != incomingCommand.fragments.GetSize())
+				    totalLength != incomingCommand.packet->data.GetSize() || fragmentCount != incomingCommand.fragments.GetSize())
 					return false;
 
 				startCommand = &incomingCommand;
@@ -675,10 +673,10 @@ namespace Nz
 
 			startCommand->fragments.Set(fragmentNumber, true);
 
-			if (fragmentOffset + fragmentLength > startCommand->packet->data.GetDataSize())
-				fragmentLength = static_cast<UInt16>(startCommand->packet->data.GetDataSize() - fragmentOffset);
+			if (fragmentOffset + fragmentLength > startCommand->packet->data.GetSize())
+				fragmentLength = static_cast<UInt16>(startCommand->packet->data.GetSize() - fragmentOffset);
 
-			std::memcpy(startCommand->packet->data.GetData() + NetPacket::HeaderSize + fragmentOffset, reinterpret_cast<const UInt8*>(command) + sizeof(ENetProtocolSendFragment), fragmentLength);
+			std::memcpy(startCommand->packet->data.GetBuffer() + fragmentOffset, reinterpret_cast<const UInt8*>(command) + sizeof(ENetProtocolSendFragment), fragmentLength);
 
 			if (startCommand->fragmentsRemaining <= 0)
 				DispatchIncomingReliableCommands(channel);
@@ -779,7 +777,7 @@ namespace Nz
 					break;
 
 				if ((incomingCommand.command.header.command & ENetProtocolCommand_Mask) != ENetProtocolCommand_SendUnreliableFragment ||
-				    totalLength != incomingCommand.packet->data.GetDataSize() || fragmentCount != incomingCommand.fragments.GetSize())
+				    totalLength != incomingCommand.packet->data.GetSize() || fragmentCount != incomingCommand.fragments.GetSize())
 					return false;
 
 				startCommand = &incomingCommand;
@@ -800,10 +798,10 @@ namespace Nz
 
 			startCommand->fragments.Set(fragmentNumber, true);
 
-			if (fragmentOffset + fragmentLength > startCommand->packet->data.GetDataSize())
-				fragmentLength = static_cast<UInt16>(startCommand->packet->data.GetDataSize() - fragmentOffset);
+			if (fragmentOffset + fragmentLength > startCommand->packet->data.GetSize())
+				fragmentLength = static_cast<UInt16>(startCommand->packet->data.GetSize() - fragmentOffset);
 
-			std::memcpy(startCommand->packet->data.GetData() + NetPacket::HeaderSize + fragmentOffset, reinterpret_cast<const UInt8*>(command) + sizeof(ENetProtocolSendFragment), fragmentLength);
+			std::memcpy(startCommand->packet->data.GetBuffer() + fragmentOffset, reinterpret_cast<const UInt8*>(command) + sizeof(ENetProtocolSendFragment), fragmentLength);
 
 			if (startCommand->fragmentsRemaining <= 0)
 				DispatchIncomingUnreliableCommands(channel);
@@ -1238,7 +1236,7 @@ namespace Nz
 			return nullptr;
 
 		ENetPacketRef packet = m_host->AllocatePacket(ENetPacketFlags(flags));
-		packet->data.Reset(0, data, dataLength);
+		packet->data = ByteArray(data, dataLength);
 
 		IncomingCommmand incomingCommand;
 		incomingCommand.reliableSequenceNumber = command.header.reliableSequenceNumber;
@@ -1249,7 +1247,7 @@ namespace Nz
 		incomingCommand.fragmentsRemaining = fragmentCount;
 
 		if (packet)
-			m_totalWaitingData += packet->data.GetDataSize();
+			m_totalWaitingData += packet->data.GetSize();
 
 		auto it = commandList->insert(currentCommand.base(), incomingCommand);
 

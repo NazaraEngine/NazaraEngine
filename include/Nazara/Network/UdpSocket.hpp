@@ -14,7 +14,6 @@
 namespace Nz
 {
 	struct NetBuffer;
-	class NetPacket;
 
 	class NAZARA_NETWORK_API UdpSocket : public AbstractSocket
 	{
@@ -40,11 +39,9 @@ namespace Nz
 
 			bool Receive(void* buffer, std::size_t size, IpAddress* from, std::size_t* received);
 			bool ReceiveMultiple(NetBuffer* buffers, std::size_t bufferCount, IpAddress* from, std::size_t* received);
-			bool ReceivePacket(NetPacket* packet, IpAddress* from);
 
 			bool Send(const IpAddress& to, const void* buffer, std::size_t size, std::size_t* sent);
 			bool SendMultiple(const IpAddress& to, const NetBuffer* buffers, std::size_t bufferCount, std::size_t* sent);
-			bool SendPacket(const IpAddress& to, const NetPacket& packet);
 
 			UdpSocket& operator=(const UdpSocket& udpSocket) = delete;
 			UdpSocket& operator=(UdpSocket && udpSocket) noexcept = default;

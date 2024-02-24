@@ -7,10 +7,8 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/Network/Export.hpp>
-#include <Nazara/Network/NetPacket.hpp>
 #include <Nazara/Network/WebService.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
-
 
 #ifndef NAZARA_PLATFORM_WEB
 #include <Nazara/Network/CurlLibrary.hpp>
@@ -42,9 +40,6 @@ namespace Nz
 		if (!SocketImpl::Initialize())
 			throw std::runtime_error("failed to initialize socket implementation");
 
-		if (!NetPacket::Initialize())
-			throw std::runtime_error("failed to initialize packets");
-
 #ifndef NAZARA_PLATFORM_WEB
 		if (config.webServices)
 		{
@@ -61,7 +56,6 @@ namespace Nz
 		m_curlLibrary.reset();
 #endif
 
-		NetPacket::Uninitialize();
 		SocketImpl::Uninitialize();
 	}
 

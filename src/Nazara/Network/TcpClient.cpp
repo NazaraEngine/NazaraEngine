@@ -5,8 +5,7 @@
 #include <Nazara/Network/TcpClient.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/StringExt.hpp>
-#include <Nazara/Network/NetPacket.hpp>
-#include <NazaraUtils/CallOnExit.hpp>
+ #include <NazaraUtils/CallOnExit.hpp>
 #include <limits>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
@@ -22,7 +21,7 @@ namespace Nz
 {
 	/*!
 	* \ingroup network
-	* \class Nz::TcpClient
+	* \class Nz::TcpClient,l 
 	* \brief Network class that represents a client in a TCP connection
 	*/
 
@@ -232,90 +231,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Receives the packet available
-	* \return true If packet received
-	*
-	* \param packet Packet to receive
-	*
-	* \remark Produces a NazaraAssert if packet is invalid
-	* \remark Produces a NazaraAssert if packet size is inferior to the header size
-	* \remark Produces a NazaraWarning if packet's header is invalid
-	*/
-
-	bool TcpClient::ReceivePacket(NetPacket* packet)
-	{
-		//TODO: Every packet requires at least two Receive call, using an internal buffer of a fixed size would prevent this
-		NazaraAssert(packet, "Invalid packet");
-
-		if (!m_pendingPacket.headerReceived)
-		{
-			m_pendingPacket.data.Resize(NetPacket::HeaderSize);
-
-			std::size_t received;
-			if (!Receive(&m_pendingPacket.data[m_pendingPacket.received], NetPacket::HeaderSize - m_pendingPacket.received, &received))
-				return false;
-
-			m_pendingPacket.received += received;
-
-			//TODO: Should never happen in production !
-			NazaraAssert(m_pendingPacket.received <= NetPacket::HeaderSize, "Received more data than header size");
-			if (m_pendingPacket.received >= NetPacket::HeaderSize)
-			{
-				UInt32 size;
-				if (!NetPacket::DecodeHeader(m_pendingPacket.data.GetConstBuffer(), &size, &m_pendingPacket.netcode))
-				{
-					m_lastError = SocketError::Packet;
-					NazaraWarning("Invalid header data");
-					return false;
-				}
-
-				m_pendingPacket.data.Resize(size - NetPacket::HeaderSize);
-				m_pendingPacket.headerReceived = true;
-				m_pendingPacket.received = 0;
-			}
-		}
-
-		// We may have just received the header now
-		if (m_pendingPacket.headerReceived)
-		{
-			UInt32 packetSize = static_cast<UInt32>(m_pendingPacket.data.GetSize()); //< Total packet size
-			if (packetSize == 0)
-			{
-				// Special case: our packet carry no data
-				packet->Reset(m_pendingPacket.netcode);
-
-				// And reset every state
-				m_pendingPacket.data.Clear();
-				m_pendingPacket.headerReceived = false;
-				m_pendingPacket.received = 0;
-				return true;
-			}
-
-			std::size_t received;
-			if (!Receive(&m_pendingPacket.data[m_pendingPacket.received], packetSize - m_pendingPacket.received, &received))
-				return false;
-
-			m_pendingPacket.received += received;
-
-			//TODO: Should never happen in production !
-			NazaraAssert(m_pendingPacket.received <= packetSize, "Received more data than packet size");
-			if (m_pendingPacket.received >= packetSize)
-			{
-				// Okay we received the whole packet, copy it
-				packet->Reset(m_pendingPacket.netcode, m_pendingPacket.data.GetConstBuffer(), m_pendingPacket.data.GetSize());
-
-				// And reset every state
-				m_pendingPacket.data.Clear();
-				m_pendingPacket.headerReceived = false;
-				m_pendingPacket.received = 0;
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	/*!
 	* \brief Sends the data available
 	* \return true If data sended
 	*
@@ -327,7 +242,6 @@ namespace Nz
 	* \remark Produces a NazaraAssert if socket is invalid
 	* \remark Produces a NazaraAssert if buffer and its size is invalid
 	*/
-
 	bool TcpClient::Send(const void* buffer, std::size_t size, std::size_t* sent)
 	{
 		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
@@ -407,29 +321,6 @@ namespace Nz
 
 		UpdateState(SocketState::Connected);
 		return true;
-	}
-
-	/*!
-	* \brief Sends the packet available
-	* \return true If packet sent
-	*
-	* \param packet Packet to send
-	*
-	* \remark Produces a NazaraError if packet could not be prepared for sending
-	*/
-
-	bool TcpClient::SendPacket(const NetPacket& packet)
-	{
-		std::size_t size = 0;
-		const UInt8* ptr = static_cast<const UInt8*>(packet.OnSend(&size));
-		if (!ptr)
-		{
-			m_lastError = SocketError::Packet;
-			NazaraError("failed to prepare packet");
-			return false;
-		}
-
-		return Send(ptr, size, nullptr);
 	}
 
 	/*!

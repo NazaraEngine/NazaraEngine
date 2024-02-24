@@ -5,7 +5,6 @@
 #include <Nazara/Network/UdpSocket.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/StringExt.hpp>
-#include <Nazara/Network/NetPacket.hpp>
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 #include <Nazara/Network/Win32/SocketImpl.hpp>
@@ -156,53 +155,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Receives the packet available
-	* \return true If packet received
-	*
-	* \param packet Packet to receive
-	* \param from IpAddress of the peer
-	*
-	* \remark Produces a NazaraAssert if packet is invalid
-	* \remark Produces a NazaraWarning if packet's header is invalid
-	*/
-	bool UdpSocket::ReceivePacket(NetPacket* packet, IpAddress* from)
-	{
-		NazaraAssert(packet, "Invalid packet");
-
-		// I'm not sure what's the best between having a 65k bytes buffer ready for any datagram size
-		// or querying the next datagram size every time, for now I'll leave it as is
-		packet->Reset(0, std::numeric_limits<UInt16>::max());
-		packet->Resize(std::numeric_limits<UInt16>::max());
-
-		std::size_t received;
-		if (!Receive(packet->GetData(), static_cast<std::size_t>(packet->GetSize()), from, &received))
-			return false;
-
-		if (received == 0)
-			return false; //< No datagram received
-
-		Nz::UInt16 netCode;
-		Nz::UInt32 packetSize;
-		if (!NetPacket::DecodeHeader(packet->GetConstData(), &packetSize, &netCode))
-		{
-			m_lastError = SocketError::Packet;
-			NazaraWarning("invalid header data");
-			return false;
-		}
-
-		if (packetSize != received)
-		{
-			m_lastError = SocketError::Packet;
-			NazaraWarningFmt("Invalid packet size (packet size is {0} bytes, received {1} bytes)", packetSize, received);
-			return false;
-		}
-
-		packet->Resize(received);
-		packet->SetNetCode(netCode);
-		return true;
-	}
-
-	/*!
 	* \brief Sends the data available
 	* \return true If data sended
 	*
@@ -255,30 +207,6 @@ namespace Nz
 			*sent = byteSent;
 
 		return true;
-	}
-
-	/*!
-	* \brief Sends the packet available
-	* \return true If packet sent
-	*
-	* \param to IpAddress of the peer
-	* \param packet Packet to send
-	*
-	* \remark Produces a NazaraError if packet could not be prepared for sending
-	*/
-
-	bool UdpSocket::SendPacket(const IpAddress& to, const NetPacket& packet)
-	{
-		std::size_t size = 0;
-		const UInt8* ptr = static_cast<const UInt8*>(packet.OnSend(&size));
-		if (!ptr)
-		{
-			m_lastError = SocketError::Packet;
-			NazaraError("failed to prepare packet");
-			return false;
-		}
-
-		return Send(to, ptr, size, nullptr);
 	}
 
 	/*!
