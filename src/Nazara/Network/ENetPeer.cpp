@@ -1236,7 +1236,10 @@ namespace Nz
 			return nullptr;
 
 		ENetPacketRef packet = m_host->AllocatePacket(ENetPacketFlags(flags));
-		packet->data = ByteArray(data, dataLength);
+		if (data)
+			packet->data = ByteArray(data, dataLength);
+		else
+			packet->data = ByteArray(dataLength);
 
 		IncomingCommmand incomingCommand;
 		incomingCommand.reliableSequenceNumber = command.header.reliableSequenceNumber;
