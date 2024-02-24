@@ -6,9 +6,10 @@
 
 SCENARIO("ByteArray", "[CORE][BYTEARRAY]")
 {
-	GIVEN("Allocate and raw constructor")
+	GIVEN("Reserve memory")
 	{
-		Nz::ByteArray byteArray(3);
+		Nz::ByteArray byteArray;
+		byteArray.Reserve(3);
 
 		THEN("Capacity is 3 and size is 0")
 		{
@@ -144,7 +145,8 @@ SCENARIO("ByteArray", "[CORE][BYTEARRAY]")
 
 	GIVEN("One byte array of capacity 10")
 	{
-		Nz::ByteArray capacityArray(10);
+		Nz::ByteArray capacityArray;
+		capacityArray.Reserve(10);
 
 		WHEN("We reserve for 100")
 		{

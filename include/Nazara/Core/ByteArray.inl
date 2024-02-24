@@ -15,7 +15,7 @@ namespace Nz
 	inline ByteArray::ByteArray(size_type n) :
 	m_array()
 	{
-		m_array.reserve(n);
+		m_array.resize(n);
 	}
 
 	/*!
