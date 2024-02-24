@@ -1,6 +1,7 @@
+#include <Nazara/Core/ByteArray.hpp>
+#include <Nazara/Core/ByteStream.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Network/UdpSocket.hpp>
-#include <Nazara/Network/NetPacket.hpp>
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 
@@ -22,19 +23,21 @@ SCENARIO("UdpSocket", "[NETWORK][UDPSOCKET]")
 
 		WHEN("We send data from client")
 		{
-			Nz::NetPacket packet(1);
+			Nz::ByteArray byteArray;
+			Nz::ByteStream packet(&byteArray);
 			Nz::Vector3f vector123(1.f, 2.f, 3.f);
 			packet << vector123;
-			REQUIRE(client.SendPacket(serverIP, packet));
+			REQUIRE(client.Send(serverIP, byteArray.GetConstBuffer(), byteArray.GetSize(), nullptr));
 
 			THEN("We should get it on the server")
 			{
-				Nz::NetPacket resultPacket;
+				Nz::ByteArray resultPacket(byteArray.GetSize());
 				Nz::IpAddress fromIp;
-				REQUIRE(server.ReceivePacket(&resultPacket, &fromIp));
+				REQUIRE(server.Receive(resultPacket.GetBuffer(), resultPacket.GetSize(), &fromIp, nullptr));
 
+				Nz::ByteStream packetOut(&resultPacket);
 				Nz::Vector3f result;
-				resultPacket >> result;
+				packetOut >> result;
 				REQUIRE(result == vector123);
 			}
 		}

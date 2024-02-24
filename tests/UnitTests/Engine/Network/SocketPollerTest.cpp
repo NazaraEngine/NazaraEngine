@@ -1,5 +1,4 @@
 #include <Nazara/Math/Vector3.hpp>
-#include <Nazara/Network/NetPacket.hpp>
 #include <Nazara/Network/SocketPoller.hpp>
 #include <Nazara/Network/TcpClient.hpp>
 #include <Nazara/Network/TcpServer.hpp>
