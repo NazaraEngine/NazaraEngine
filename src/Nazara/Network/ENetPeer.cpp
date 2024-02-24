@@ -28,7 +28,7 @@ namespace Nz
 
 		ResetQueues();
 
-		ENetProtocol command(ENetProtocolCommand_Disconnect, 0xFF);
+		ENetProtocol command(UInt8(ENetProtocolCommand::Disconnect), 0xFF);
 		command.disconnect.data = HostToNet(data);
 
 		if (IsConnected())
@@ -72,7 +72,7 @@ namespace Nz
 		{
 			ResetQueues();
 
-			ENetProtocol command(ENetProtocolCommand_Disconnect | ENetProtocolFlag_Unsequenced, 0xFF);
+			ENetProtocol command(UInt8(ENetProtocolCommand::Disconnect) | UInt8(ENetProtocolFlag_Unsequenced), 0xFF);
 			command.disconnect.data = HostToNet(data);
 			QueueOutgoingCommand(command);
 
@@ -88,7 +88,7 @@ namespace Nz
 			return;
 
 		ENetProtocol command;
-		command.header.command = ENetProtocolCommand_Ping | ENetProtocolFlag_Acknowledge;
+		command.header.command = UInt8(ENetProtocolCommand::Ping) | UInt8(ENetProtocolFlag_Acknowledge);
 		command.header.channelID = 0xFF;
 		QueueOutgoingCommand(command);
 	}
@@ -214,12 +214,12 @@ namespace Nz
 			if ((packetRef->flags & (ENetPacketFlag::Reliable | ENetPacketFlag::UnreliableFragment)) == ENetPacketFlag::UnreliableFragment &&
 				channel.outgoingUnreliableSequenceNumber < 0xFFFF)
 			{
-				commandNumber = ENetProtocolCommand_SendUnreliableFragment;
+				commandNumber = UInt8(ENetProtocolCommand::SendUnreliableFragment);
 				startSequenceNumber = HostToNet<UInt16>(channel.outgoingUnreliableSequenceNumber + 1);
 			}
 			else
 			{
-				commandNumber = ENetProtocolCommand_SendFragment | ENetProtocolFlag_Acknowledge;
+				commandNumber = UInt8(ENetProtocolCommand::SendFragment) | UInt8(ENetProtocolFlag_Acknowledge);
 				startSequenceNumber = HostToNet<UInt16>(channel.outgoingReliableSequenceNumber + 1);
 			}
 
@@ -257,17 +257,17 @@ namespace Nz
 
 			if ((packetRef->flags & (ENetPacketFlag::Reliable | ENetPacketFlag::Unsequenced)) == ENetPacketFlag::Unsequenced)
 			{
-				command.header.command = ENetProtocolCommand_SendUnsequenced | ENetProtocolFlag_Unsequenced;
+				command.header.command = UInt8(ENetProtocolCommand::SendUnsequenced) | UInt8(ENetProtocolFlag_Unsequenced);
 				command.sendUnsequenced.dataLength = HostToNet(SafeCast<UInt16>(packetRef->data.GetSize()));
 			}
 			else if (packetRef->flags & ENetPacketFlag::Reliable || channel.outgoingUnreliableSequenceNumber >= 0xFFFF)
 			{
-				command.header.command = ENetProtocolCommand_SendReliable | ENetProtocolFlag_Acknowledge;
+				command.header.command = UInt8(ENetProtocolCommand::SendReliable) | UInt8(ENetProtocolFlag_Acknowledge);
 				command.sendReliable.dataLength = HostToNet(SafeCast<UInt16>(packetRef->data.GetSize()));
 			}
 			else
 			{
-				command.header.command = ENetProtocolCommand_SendUnreliable;
+				command.header.command = UInt8(ENetProtocolCommand::SendUnreliable);
 				command.sendUnreliable.dataLength = HostToNet(SafeCast<UInt16>(packetRef->data.GetSize()));
 			}
 
@@ -282,7 +282,7 @@ namespace Nz
 		m_packetThrottleAcceleration = acceleration;
 		m_packetThrottleDeceleration = deceleration;
 
-		ENetProtocol command(ENetProtocolCommand_ThrottleConfigure | ENetProtocolFlag_Acknowledge, 0xFF);
+		ENetProtocol command(UInt8(ENetProtocolCommand::ThrottleConfigure) | UInt8(ENetProtocolFlag_Acknowledge), 0xFF);
 		command.throttleConfigure.packetThrottleInterval = HostToNet(interval);
 		command.throttleConfigure.packetThrottleAcceleration = HostToNet(acceleration);
 		command.throttleConfigure.packetThrottleDeceleration = HostToNet(deceleration);
@@ -387,7 +387,7 @@ namespace Nz
 		{
 			IncomingCommmand& incomingCommand = *currentCommand;
 
-			if ((incomingCommand.command.header.command & ENetProtocolCommand_Mask) == ENetProtocolCommand_SendUnsequenced)
+			if ((incomingCommand.command.header.command & UInt8(ENetProtocolCommand::Mask)) == UInt8(ENetProtocolCommand::SendUnsequenced))
 				continue;
 
 			if (incomingCommand.reliableSequenceNumber == channel.incomingReliableSequenceNumber)
@@ -504,14 +504,14 @@ namespace Nz
 		switch (m_state)
 		{
 			case ENetPeerState::AcknowledgingConnect:
-				if (commandNumber != ENetProtocolCommand_VerifyConnect)
+				if (commandNumber != ENetProtocolCommand::VerifyConnect)
 					return false;
 
 				m_host->NotifyConnect(this, event, true);
 				break;
 
 			case ENetPeerState::Disconnecting:
-				if (commandNumber != ENetProtocolCommand_Disconnect)
+				if (commandNumber != ENetProtocolCommand::Disconnect)
 					return false;
 
 				m_host->NotifyDisconnect(this, event, false);
@@ -648,7 +648,7 @@ namespace Nz
 				if (incomingCommand.reliableSequenceNumber < startSequenceNumber)
 					break;
 
-				if ((incomingCommand.command.header.command & ENetProtocolCommand_Mask) != ENetProtocolCommand_SendFragment ||
+				if ((incomingCommand.command.header.command & UInt8(ENetProtocolCommand::Mask)) != UInt8(ENetProtocolCommand::SendFragment) ||
 				    totalLength != incomingCommand.packet->data.GetSize() || fragmentCount != incomingCommand.fragments.GetSize())
 					return false;
 
@@ -776,7 +776,7 @@ namespace Nz
 				if (incomingCommand.unreliableSequenceNumber < startSequenceNumber)
 					break;
 
-				if ((incomingCommand.command.header.command & ENetProtocolCommand_Mask) != ENetProtocolCommand_SendUnreliableFragment ||
+				if ((incomingCommand.command.header.command & UInt8(ENetProtocolCommand::Mask)) != UInt8(ENetProtocolCommand::SendUnreliableFragment) ||
 				    totalLength != incomingCommand.packet->data.GetSize() || fragmentCount != incomingCommand.fragments.GetSize())
 					return false;
 
@@ -1001,7 +1001,7 @@ namespace Nz
 				found = true;
 
 				if (currentCommand->sendAttempts < 1)
-					return ENetProtocolCommand_None;
+					return ENetProtocolCommand::None;
 
 				if (currentCommand->reliableSequenceNumber == reliableSequenceNumber &&
 					currentCommand->command.header.channelID == channelId)
@@ -1009,13 +1009,13 @@ namespace Nz
 			}
 
 			if (currentCommand == m_outgoingReliableCommands.end())
-				return ENetProtocolCommand_None;
+				return ENetProtocolCommand::None;
 
 			wasSent = false;
 		}
 
 		if (!found) //< Really useful?
-			return ENetProtocolCommand_None;
+			return ENetProtocolCommand::None;
 
 		if (channelId < m_channels.size())
 		{
@@ -1030,7 +1030,7 @@ namespace Nz
 			}
 		}
 
-		ENetProtocolCommand commandNumber = static_cast<ENetProtocolCommand>(currentCommand->command.header.command & ENetProtocolCommand_Mask);
+		ENetProtocolCommand commandNumber = static_cast<ENetProtocolCommand>(currentCommand->command.header.command & UInt8(ENetProtocolCommand::Mask));
 
 		if (currentCommand->packet && wasSent)
 		{
@@ -1127,7 +1127,7 @@ namespace Nz
 
 		Channel& channel = m_channels[command.header.channelID];
 
-		if ((command.header.command & ENetProtocolCommand_Mask) != ENetProtocolCommand_SendUnsequenced)
+		if ((command.header.command & UInt8(ENetProtocolCommand::Mask)) != UInt8(ENetProtocolCommand::SendUnsequenced))
 		{
 			reliableSequenceNumber = command.header.reliableSequenceNumber;
 			reliableWindow = static_cast<UInt16>(reliableSequenceNumber / ENetConstants::ENetPeer_ReliableWindowSize);
@@ -1143,10 +1143,10 @@ namespace Nz
 		std::list<IncomingCommmand>* commandList = nullptr;
 		std::list<IncomingCommmand>::reverse_iterator currentCommand;
 
-		switch (command.header.command & ENetProtocolCommand_Mask)
+		switch (static_cast<ENetProtocolCommand>(command.header.command & UInt8(ENetProtocolCommand::Mask)))
 		{
-			case ENetProtocolCommand_SendFragment:
-			case ENetProtocolCommand_SendReliable:
+			case ENetProtocolCommand::SendFragment:
+			case ENetProtocolCommand::SendReliable:
 			{
 				if (reliableSequenceNumber == channel.incomingReliableSequenceNumber)
 					return discardCommand();
@@ -1177,8 +1177,8 @@ namespace Nz
 				break;
 			}
 
-			case ENetProtocolCommand_SendUnreliable:
-			case ENetProtocolCommand_SendUnreliableFragment:
+			case ENetProtocolCommand::SendUnreliable:
+			case ENetProtocolCommand::SendUnreliableFragment:
 			{
 				unreliableSequenceNumber = NetToHost(command.sendUnreliable.unreliableSequenceNumber);
 
@@ -1191,7 +1191,7 @@ namespace Nz
 				{
 					IncomingCommmand& incomingCommand = *currentCommand;
 
-					if ((command.header.command & ENetProtocolCommand_Mask) == ENetProtocolCommand_SendUnsequenced) //< wtf
+					if ((command.header.command & UInt8(ENetProtocolCommand::Mask)) == UInt8(ENetProtocolCommand::SendUnsequenced)) //< wtf
 						continue;
 
 					if (reliableSequenceNumber >= channel.incomingReliableSequenceNumber)
@@ -1220,7 +1220,7 @@ namespace Nz
 				break;
 			}
 
-			case ENetProtocolCommand_SendUnsequenced:
+			case ENetProtocolCommand::SendUnsequenced:
 			{
 				commandList = &channel.incomingUnreliableCommands;
 
@@ -1251,10 +1251,10 @@ namespace Nz
 
 		auto it = commandList->insert(currentCommand.base(), incomingCommand);
 
-		switch (command.header.command & ENetProtocolCommand_Mask)
+		switch (static_cast<ENetProtocolCommand>(command.header.command & UInt8(ENetProtocolCommand::Mask)))
 		{
-			case ENetProtocolCommand_SendFragment:
-			case ENetProtocolCommand_SendReliable:
+			case ENetProtocolCommand::SendFragment:
+			case ENetProtocolCommand::SendReliable:
 				DispatchIncomingReliableCommands(channel);
 				break;
 
@@ -1325,13 +1325,13 @@ namespace Nz
 		outgoingCommand.roundTripTimeoutLimit = 0;
 		outgoingCommand.command.header.reliableSequenceNumber = HostToNet(outgoingCommand.reliableSequenceNumber);
 
-		switch (outgoingCommand.command.header.command & ENetProtocolCommand_Mask)
+		switch (static_cast<ENetProtocolCommand>(outgoingCommand.command.header.command & UInt8(ENetProtocolCommand::Mask)))
 		{
-			case ENetProtocolCommand_SendUnreliable:
+			case ENetProtocolCommand::SendUnreliable:
 				outgoingCommand.command.sendUnreliable.unreliableSequenceNumber = HostToNet(outgoingCommand.unreliableSequenceNumber);
 				break;
 
-			case ENetProtocolCommand_SendUnsequenced:
+			case ENetProtocolCommand::SendUnsequenced:
 				outgoingCommand.command.sendUnsequenced.unsequencedGroup = HostToNet(m_outgoingUnsequencedGroup);
 				break;
 

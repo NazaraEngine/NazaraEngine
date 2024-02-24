@@ -12,7 +12,6 @@
 #include <emscripten/fetch.h>
 #endif
 
-
 namespace Nz
 {
 #ifndef NAZARA_PLATFORM_WEB
@@ -178,7 +177,7 @@ namespace Nz
 
 		if (m_progressCallback)
 		{
-			curl_xferinfo_callback progressCallback = [](void* userdata, curl_off_t dltotal, curl_off_t dlnow, curl_off_t ultotal, curl_off_t ulnow) -> int
+			curl_xferinfo_callback progressCallback = [](void* userdata, curl_off_t dltotal, curl_off_t dlnow, curl_off_t /*ultotal*/, curl_off_t /*ulnow*/) -> int
 			{
 				WebRequest* request = static_cast<WebRequest*>(userdata);
 				if (!request->m_progressCallback(SafeCast<UInt64>(dlnow), SafeCast<UInt64>(dltotal)))

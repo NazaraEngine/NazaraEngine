@@ -79,25 +79,25 @@ namespace Nz
 		Zombie                  = 9
 	};
 
-	enum ENetProtocolCommand
+	enum class ENetProtocolCommand
 	{
 		// Keeping the values is important for compatibility with the native ENet protocol
-		ENetProtocolCommand_Acknowledge = 1,
-		ENetProtocolCommand_BandwidthLimit = 10,
-		ENetProtocolCommand_Connect = 2,
-		ENetProtocolCommand_Disconnect = 4,
-		ENetProtocolCommand_None = 0,
-		ENetProtocolCommand_Ping = 5,
-		ENetProtocolCommand_SendFragment = 8,
-		ENetProtocolCommand_SendReliable = 6,
-		ENetProtocolCommand_SendUnreliable = 7,
-		ENetProtocolCommand_SendUnreliableFragment = 12,
-		ENetProtocolCommand_SendUnsequenced = 9,
-		ENetProtocolCommand_ThrottleConfigure = 11,
-		ENetProtocolCommand_VerifyConnect = 3,
-		ENetProtocolCommand_Count = 13,
+		Acknowledge = 1,
+		BandwidthLimit = 10,
+		Connect = 2,
+		Disconnect = 4,
+		None = 0,
+		Ping = 5,
+		SendFragment = 8,
+		SendReliable = 6,
+		SendUnreliable = 7,
+		SendUnreliableFragment = 12,
+		SendUnsequenced = 9,
+		ThrottleConfigure = 11,
+		VerifyConnect = 3,
+		Count = 13,
 
-		ENetProtocolCommand_Mask = 0x0F
+		Mask = 0x0F
 	};
 
 	enum ENetProtocolFlag

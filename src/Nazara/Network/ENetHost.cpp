@@ -16,13 +16,14 @@
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Network/Algorithm.hpp>
 #include <Nazara/Network/ENetPeer.hpp>
+#include <NazaraUtils/EnumArray.hpp>
 #include <NazaraUtils/OffsetOf.hpp>
 
 namespace Nz
 {
 	namespace
 	{
-		constexpr std::size_t s_enetCommandSizes[ENetProtocolCommand_Count] =
+		constexpr EnumArray<ENetProtocolCommand, std::size_t> s_enetCommandSizes =
 		{
 			0,
 			sizeof(ENetProtocolAcknowledge),
@@ -109,7 +110,7 @@ namespace Nz
 		ENetPeer& peer = m_peers[peerId];
 		peer.InitOutgoing(channelCount, remoteAddress, ++m_randomSeed, windowSize);
 
-		ENetProtocol command(ENetProtocolCommand_Connect | ENetProtocolFlag_Acknowledge, 0xFF);
+		ENetProtocol command(UInt8(ENetProtocolCommand::Connect) | UInt8(ENetProtocolFlag_Acknowledge), 0xFF);
 		command.connect.channelCount = HostToNet(static_cast<UInt32>(channelCount));
 		command.connect.connectID = peer.m_connectID;
 		command.connect.data = HostToNet(data);
@@ -468,7 +469,7 @@ namespace Nz
 		windowSize = std::max(windowSize, NetToHost(command->connect.windowSize));
 		windowSize = Clamp<UInt32>(windowSize, ENetConstants::ENetProtocol_MinimumWindowSize, ENetConstants::ENetProtocol_MaximumWindowSize);
 
-		ENetProtocol verifyCommand(ENetProtocolCommand_VerifyConnect | ENetProtocolFlag_Acknowledge, 0xFF);
+		ENetProtocol verifyCommand(UInt8(ENetProtocolCommand::VerifyConnect) | UInt8(ENetProtocolFlag_Acknowledge), 0xFF);
 		verifyCommand.verifyConnect.connectID                  = peer->m_connectID;
 		verifyCommand.verifyConnect.incomingSessionID          = peer->m_outgoingSessionID;
 		verifyCommand.verifyConnect.outgoingSessionID          = peer->m_incomingSessionID;
@@ -565,30 +566,30 @@ namespace Nz
 			if (currentData + sizeof(ENetProtocolCommandHeader) > &m_receivedData[m_receivedDataLength])
 				break;
 
-			UInt8 commandNumber = command->header.command & ENetProtocolCommand_Mask;
-			if (commandNumber >= ENetProtocolCommand_Count)
+			ENetProtocolCommand commandType = static_cast<ENetProtocolCommand>(command->header.command & UInt8(ENetProtocolCommand::Mask));
+			if (commandType >= ENetProtocolCommand::Count)
 				break;
 
-			std::size_t commandSize = s_enetCommandSizes[commandNumber];
+			std::size_t commandSize = s_enetCommandSizes[commandType];
 			if (commandSize == 0 || currentData + commandSize > &m_receivedData[m_receivedDataLength])
 				break;
 
 			currentData += commandSize;
 
-			if (!peer && commandNumber != ENetProtocolCommand_Connect)
+			if (!peer && commandType != ENetProtocolCommand::Connect)
 				break;
 
 			command->header.reliableSequenceNumber = NetToHost(command->header.reliableSequenceNumber);
 
-			switch (commandNumber)
+			switch (commandType)
 			{
-				case ENetProtocolCommand_Acknowledge:
+				case ENetProtocolCommand::Acknowledge:
 					if (!peer->HandleAcknowledge(command, event))
 						return commandError();
 
 					break;
 
-				case ENetProtocolCommand_Connect:
+				case ENetProtocolCommand::Connect:
 					if (peer)
 						return commandError();
 
@@ -598,61 +599,61 @@ namespace Nz
 
 					break;
 
-				case ENetProtocolCommand_VerifyConnect:
+				case ENetProtocolCommand::VerifyConnect:
 					if (!peer->HandleVerifyConnect(command, event))
 						return commandError();
 
 					break;
 
-				case ENetProtocolCommand_Disconnect:
+				case ENetProtocolCommand::Disconnect:
 					if (!peer->HandleDisconnect(command))
 						return commandError();
 
 					break;
 
-				case ENetProtocolCommand_Ping:
+				case ENetProtocolCommand::Ping:
 					if (!peer->HandlePing(command))
 						return commandError();
 
 					break;
 
-				case ENetProtocolCommand_SendReliable:
+				case ENetProtocolCommand::SendReliable:
 					if (!peer->HandleSendReliable(command, &currentData))
 						return commandError();
 
 					break;
 
-				case ENetProtocolCommand_SendUnreliable:
+				case ENetProtocolCommand::SendUnreliable:
 					if (!peer->HandleSendUnreliable(command, &currentData))
 						return commandError();
 
 					break;
 
-				case ENetProtocolCommand_SendUnsequenced:
+				case ENetProtocolCommand::SendUnsequenced:
 					if (!peer->HandleSendUnsequenced(command, &currentData))
 						return commandError();
 
 					break;
 
-				case ENetProtocolCommand_SendFragment:
+				case ENetProtocolCommand::SendFragment:
 					if (!peer->HandleSendFragment(command, &currentData))
 						return commandError();
 
 					break;
 
-				case ENetProtocolCommand_BandwidthLimit:
+				case ENetProtocolCommand::BandwidthLimit:
 					if (!peer->HandleBandwidthLimit(command))
 						return commandError();
 
 					break;
 
-				case ENetProtocolCommand_ThrottleConfigure:
+				case ENetProtocolCommand::ThrottleConfigure:
 					if (!peer->HandleThrottleConfigure(command))
 						return commandError();
 
 					break;
 
-				case ENetProtocolCommand_SendUnreliableFragment:
+				case ENetProtocolCommand::SendUnreliableFragment:
 					if (!peer->HandleSendUnreliableFragment(command, &currentData))
 						return commandError();
 
@@ -684,7 +685,7 @@ namespace Nz
 						break;
 
 					case ENetPeerState::AcknowledgingDisconnect:
-						if ((command->header.command & ENetProtocolCommand_Mask) == ENetProtocolCommand_Disconnect)
+						if (commandType == ENetProtocolCommand::Disconnect)
 							peer->QueueAcknowledgement(command, sentTime);
 						break;
 
@@ -832,13 +833,13 @@ namespace Nz
 
 			UInt16 reliableSequenceNumber = HostToNet(acknowledgement.command.header.reliableSequenceNumber);
 
-			command.header.command = ENetProtocolCommand_Acknowledge;
+			command.header.command = UInt8(ENetProtocolCommand::Acknowledge);
 			command.header.channelID = acknowledgement.command.header.channelID;
 			command.header.reliableSequenceNumber = reliableSequenceNumber;
 			command.acknowledge.receivedReliableSequenceNumber = reliableSequenceNumber;
 			command.acknowledge.receivedSentTime = HostToNet(UInt16(acknowledgement.sentTime));
 
-			if ((acknowledgement.command.header.command & ENetProtocolCommand_Mask) == ENetProtocolCommand_Disconnect)
+			if (static_cast<ENetProtocolCommand>(acknowledgement.command.header.command & UInt8(ENetProtocolCommand::Mask)) == ENetProtocolCommand::Disconnect)
 				peer->DispatchState(ENetPeerState::Zombie);
 
 			++m_bufferCount;
@@ -895,8 +896,7 @@ namespace Nz
 
 			canPing = false;
 
-			assert((outgoingCommand->command.header.command & ENetProtocolCommand_Mask) < ENetProtocolCommand_Count);
-			std::size_t commandSize = s_enetCommandSizes[outgoingCommand->command.header.command & ENetProtocolCommand_Mask];
+			std::size_t commandSize = GetCommandSize(outgoingCommand->command.header.command);
 			if (m_commandCount >= m_commands.size() || m_bufferCount + 1 >= m_buffers.size() || peer->GetMtu() - m_packetSize < commandSize ||
 			    (outgoingCommand->packet && UInt16(peer->GetMtu() - m_packetSize) < UInt16(commandSize + outgoingCommand->fragmentLength)))
 			{
@@ -1167,8 +1167,7 @@ namespace Nz
 		{
 			auto outgoingCommand = currentCommand;
 
-			assert((outgoingCommand->command.header.command & ENetProtocolCommand_Mask) < ENetProtocolCommand_Count);
-			std::size_t commandSize = s_enetCommandSizes[outgoingCommand->command.header.command & ENetProtocolCommand_Mask];
+			std::size_t commandSize = GetCommandSize(outgoingCommand->command.header.command);
 
 			if (m_commandCount >= m_commands.size() || m_bufferCount + 1 >= m_buffers.size() || peer->m_mtu - m_packetSize < commandSize ||
 			    (outgoingCommand->packet && peer->m_mtu - m_packetSize < commandSize + outgoingCommand->fragmentLength))
@@ -1366,7 +1365,7 @@ namespace Nz
 				if (!peer.IsConnected())
 					continue;
 
-				ENetProtocol command(ENetProtocolCommand_BandwidthLimit | ENetProtocolFlag_Acknowledge, 0xFF);
+				ENetProtocol command(UInt8(ENetProtocolCommand::BandwidthLimit) | UInt8(ENetProtocolFlag_Acknowledge), 0xFF);
 				command.bandwidthLimit.outgoingBandwidth = HostToNet(m_outgoingBandwidth);
 
 				if (peer.m_incomingBandwidthThrottleEpoch == currentTime)
@@ -1381,8 +1380,8 @@ namespace Nz
 
 	std::size_t ENetHost::GetCommandSize(UInt8 commandNumber)
 	{
-		assert((commandNumber & ENetProtocolCommand_Mask) < ENetProtocolCommand_Count);
-		return s_enetCommandSizes[commandNumber & ENetProtocolCommand_Mask];
+		assert((commandNumber & UInt8(ENetProtocolCommand::Mask)) < UInt8(ENetProtocolCommand::Count));
+		return s_enetCommandSizes[static_cast<ENetProtocolCommand>(commandNumber & UInt8(ENetProtocolCommand::Mask))];
 	}
 
 	bool ENetHost::Initialize()
