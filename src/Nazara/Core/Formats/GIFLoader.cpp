@@ -244,6 +244,9 @@ namespace Nz
 				{
 					assert(frameIndex <= m_frames.size());
 
+					if (m_currentFrame == frameIndex)
+						return;
+
 					if (m_requiresFrameHistory)
 					{
 						if (m_currentFrame > frameIndex)
