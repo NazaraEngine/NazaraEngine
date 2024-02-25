@@ -106,11 +106,6 @@ jobs:
       if: matrix.mode != 'releasedbg'
       run: xmake run UnitTests
 
-    # Setup installation configuration
-    - name: Configure xmake for installation
-      if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' }}
-      run: xmake config --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --static=${{ matrix.kind == 'static' && 'yes' || 'no' }} --ccache=n --ffmpeg=n --shadernodes=y --tests=y --yes
-
     # Install the result files
     - name: Install Nazara
       if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' }}

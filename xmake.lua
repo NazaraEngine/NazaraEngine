@@ -231,6 +231,7 @@ NazaraModules = modules
 
 set_project("NazaraEngine")
 set_xmakever("2.8.3")
+set_license("MIT")
 
 includes("xmake/**.lua")
 
