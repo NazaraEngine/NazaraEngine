@@ -205,7 +205,10 @@ namespace Nz
 			const JPH::Shape* shape;
 			m_geom = std::move(geom);
 			if (m_geom)
+			{
+				m_body->SetIsSensor(false);
 				shape = m_geom->GetShapeSettings()->Create().Get();
+			}
 			else
 			{
 				m_body->SetIsSensor(true);
