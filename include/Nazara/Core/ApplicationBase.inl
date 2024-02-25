@@ -97,7 +97,7 @@ namespace Nz
 		constexpr UInt64 typeHash = FNV1a64(TypeName<T>());
 
 		auto it = m_components.find(typeHash);
-		if (it != m_components.end())
+		if (it == m_components.end())
 			return nullptr;
 
 		return static_cast<T*>(it->second.get());
@@ -109,7 +109,7 @@ namespace Nz
 		constexpr UInt64 typeHash = FNV1a64(TypeName<T>());
 
 		auto it = m_components.find(typeHash);
-		if (it != m_components.end())
+		if (it == m_components.end())
 			return nullptr;
 
 		return static_cast<const T*>(it->second.get());
