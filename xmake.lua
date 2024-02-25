@@ -310,7 +310,6 @@ end
 
 if has_config("physics3d") then
 	add_requires("joltphysics >=4", { configs = { debug = is_mode("debug") }})
-	add_requires("ordered_map")
 end
 
 if has_config("network") then
@@ -330,6 +329,9 @@ end
 
 if has_config("platform") then
 	add_requires("libsdl >=2.26.0")
+	if is_plat("linux") then
+		add_requires("libxext", "wayland", { configs = { asan = false } })
+	end
 end
 
 if has_config("renderer") then
@@ -381,10 +383,6 @@ end
 -- Platform-specific dependencies
 if is_plat("linux", "android") then
 	add_requires("libuuid")
-end
-
-if is_plat("linux") then
-	add_requires("libxext", "wayland", { configs = { asan = false } })
 end
 
 ----------------------- Global config -----------------------
