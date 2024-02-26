@@ -11,6 +11,7 @@
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Graphics/Export.hpp>
 #include <Nazara/Math/Rect.hpp>
+#include <NazaraUtils/Signal.hpp>
 
 namespace Nz
 {
@@ -33,6 +34,8 @@ namespace Nz
 			Vector3f Project(const Vector3f& worldPos) const;
 
 			Vector3f Unproject(const Vector3f& screenPos) const;
+
+			NazaraSignal(OnRenderMaskUpdated, AbstractViewer* /*viewer*/, UInt32 /*newRenderMask*/);
 	};
 }
 

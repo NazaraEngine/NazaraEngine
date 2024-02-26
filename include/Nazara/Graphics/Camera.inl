@@ -182,7 +182,7 @@ namespace Nz
 	{
 		m_renderMask = renderMask;
 
-		// TODO: Signal RenderTechnique to regenerate commandbuffers
+		OnRenderMaskUpdated(this, renderMask);
 	}
 
 	inline void Camera::UpdateRenderOrder(Int32 renderOrder)

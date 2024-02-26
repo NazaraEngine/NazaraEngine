@@ -151,6 +151,7 @@ namespace Nz
 				UInt32 renderMask;
 				bool pendingDestruction = false;
 
+				NazaraSlot(AbstractViewer, OnRenderMaskUpdated, onRenderMaskUpdated);
 				NazaraSlot(TransferInterface, OnTransferRequired, onTransferRequired);
 			};
 

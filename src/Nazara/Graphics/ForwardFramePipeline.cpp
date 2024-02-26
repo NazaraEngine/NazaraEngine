@@ -267,6 +267,29 @@ namespace Nz
 			m_transferSet.insert(transferInterface);
 		});
 
+		viewerData.onRenderMaskUpdated.Connect(viewerInstance->OnRenderMaskUpdated, [this, &viewerData](AbstractViewer* viewer, UInt32 newRenderMask)
+		{
+			for (std::size_t i : m_shadowCastingLights.IterBits())
+			{
+				LightData* lightData = m_lightPool.RetrieveFromIndex(i);
+				if (lightData->shadowData->IsPerViewer())
+				{
+					if ((viewerData.renderMask & lightData->renderMask) != 0 && (newRenderMask & lightData->renderMask) == 0)
+					{
+						// Went from visible to not visible
+						lightData->shadowData->UnregisterViewer(viewer);
+					}
+					else if ((newRenderMask & lightData->renderMask) != 0 && (viewerData.renderMask & lightData->renderMask) == 0)
+					{
+						// Went from not visible to visible
+						lightData->shadowData->RegisterViewer(viewer);
+					}
+				}
+			}
+
+			viewerData.renderMask = newRenderMask;
+		});
+
 		FramePipelinePass::PassData passData = {
 			viewerInstance,
 			m_elementRegistry,
