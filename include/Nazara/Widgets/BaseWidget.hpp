@@ -112,6 +112,7 @@ namespace Nz
 			BaseWidget& operator=(BaseWidget&&) = delete;
 
 			NazaraSignal(OnWidgetResized, const BaseWidget* /*widget*/, const Vector2f& /*size*/);
+			NazaraSignal(OnWidgetVisibilityUpdated, const BaseWidget* /*widget*/, bool /*isVisible*/);
 
 		protected:
 			virtual void Layout();

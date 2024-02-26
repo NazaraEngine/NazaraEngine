@@ -220,6 +220,8 @@ namespace Nz
 
 			if (m_parentWidget)
 				m_parentWidget->OnChildVisibilityUpdated(this);
+
+			OnWidgetVisibilityUpdated(this, m_visible);
 		}
 	}
 
