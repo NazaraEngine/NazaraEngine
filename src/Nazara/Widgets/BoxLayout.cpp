@@ -121,7 +121,7 @@ namespace Nz
 			newSize[axis] = static_cast<float>(m_state->sizeVar[varIndex].value());
 
 			child->Resize(newSize);
-			remainingSize -= newSize[axis];
+			remainingSize -= child->GetSize()[axis]; // query size again to handle maximum constraints
 
 			varIndex++;
 		});
