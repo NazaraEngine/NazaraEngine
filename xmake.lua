@@ -282,7 +282,7 @@ add_requires(
 	"fmt",
 	"frozen",
 	"ordered_map",
-	"nazarautils >=2024.01.25",
+	"nazarautils >=2024.02.27",
 	"stb",
 	"utfcpp"
 )
@@ -431,28 +431,7 @@ if not is_mode("release") then
 end
 
 -- Compiler-specific options
-
-if is_plat("windows") then
-	-- MSVC
-	add_cxxflags("/bigobj", "/permissive-", "/Zc:__cplusplus", "/Zc:externConstexpr", "/Zc:inline", "/Zc:lambda", "/Zc:preprocessor", "/Zc:referenceBinding", "/Zc:strictStrings", "/Zc:throwingNew", {tools = "cl"})
-	add_defines("_CRT_SECURE_NO_WARNINGS", "_ENABLE_EXTENDED_ALIGNED_STORAGE")
-
-	-- Enable the following additional warnings:
-	add_cxflags("/we4062", {tools = "cl"}) -- Switch case not handled (warning as error)
-	add_cxflags("/we4426", {tools = "cl"}) -- Optimization flags changed after including header, may be due to #pragma optimize() (warning as error)
-	add_cxflags("/we5038", {tools = "cl"}) -- Data member will be initialized after data member (warning as error)
-
-	-- Disable the following warnings:
-	add_cxflags("/wd4251", {tools = "cl"}) -- class needs to have dll-interface to be used by clients of class blah blah blah
-	add_cxflags("/wd4275", {tools = "cl"}) -- DLL-interface class 'class_1' used as base for DLL-interface blah
-else
-	-- GCC-compatible (GCC, Clang, ...)
-	add_cxflags("-Wtrampolines", {tools = "gcc"})
-	add_cxflags("-Werror=inconsistent-missing-override", {tools = "clang"})
-	add_cxflags("-Werror=reorder")
-	add_cxflags("-Werror=suggest-override", {tools = "gcc"})
-	add_cxflags("-Werror=switch")
-end
+add_rules("@nazarautils/compiler_setup")
 
 -- Platform-specific options
 
