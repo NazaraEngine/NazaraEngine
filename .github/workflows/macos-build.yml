@@ -22,6 +22,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [macOS-latest]
+        kind: [shared, static]
         confs:
         - { runner: macOS-latest, arch: x86_64, mode: debug,      config: --shadernodes=y,          archive: true                    }
         - { runner: macOS-latest, arch: x86_64, mode: debug,      config: --shadernodes=y --asan=y, archive: false, cache_key: -asan }
