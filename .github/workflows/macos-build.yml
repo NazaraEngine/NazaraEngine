@@ -23,11 +23,11 @@ jobs:
       matrix:
         os: [macOS-latest]
         confs:
-        - { runner: macOS-latest, arch: x86_64, mode: debug,      config: --ffmpeg=y --shadernodes=y }
-        - { runner: macOS-latest, arch: x86_64, mode: debug,      config: --ffmpeg=y --shadernodes=y --asan=y }
-        - { runner: macOS-latest, arch: x86_64, mode: debug,      config: --ffmpeg=y --shadernodes=y --lsan=y }
-        - { runner: macOS-latest, arch: x86_64, mode: debug,      config: --ffmpeg=y --shadernodes=y --tsan=y }
-        - { runner: macOS-latest, arch: x86_64, mode: releasedbg, config: --ffmpeg=y --shadernodes=y  }
+        - { runner: macOS-latest, arch: x86_64, mode: debug,      config: --shadernodes=y }
+        - { runner: macOS-latest, arch: x86_64, mode: debug,      config: --shadernodes=y --asan=y }
+        - { runner: macOS-latest, arch: x86_64, mode: debug,      config: --shadernodes=y --lsan=y }
+        - { runner: macOS-latest, arch: x86_64, mode: debug,      config: --shadernodes=y --tsan=y }
+        - { runner: macOS-latest, arch: x86_64, mode: releasedbg, config: --shadernodes=y  }
         - { runner: macOS-14,     arch: arm64,  mode: debug,      config: "-vD" }
         - { runner: macOS-14,     arch: arm64,  mode: debug,      config: -vD --asan=y }
         - { runner: macOS-14,     arch: arm64,  mode: debug,      config: -vD --lsan=y }
@@ -75,7 +75,7 @@ jobs:
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
-      run: xmake config --arch=${{ matrix.confs.arch }} --mode=${{ matrix.confs.mode }} --static=${{ matrix.kind == 'static' && 'yes' || 'no' }} ${{ matrix.confs.config }} --ccache=n --tests=y --unitybuild=y --yes
+      run: xmake config --arch=${{ matrix.confs.arch }} --mode=${{ matrix.confs.mode }} --static=${{ matrix.kind == 'static' && 'yes' || 'no' }} ${{ matrix.confs.config }} --ccache=n --ffmpeg=y --tests=y --unitybuild=y --yes
 
     # Save dependencies
     - name: Save cached xmake dependencies
