@@ -35,6 +35,7 @@
 #include <Nazara/Core/AbstractLogger.hpp>
 #include <Nazara/Core/Algorithm.hpp>
 #include <Nazara/Core/Animation.hpp>
+#include <Nazara/Core/AnimationBlender.hpp>
 #include <Nazara/Core/Application.hpp>
 #include <Nazara/Core/ApplicationBase.hpp>
 #include <Nazara/Core/ApplicationComponent.hpp>
@@ -116,6 +117,7 @@
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Core/SubMesh.hpp>
 #include <Nazara/Core/TaskScheduler.hpp>
+#include <Nazara/Core/TaskSchedulerAppComponent.hpp>
 #include <Nazara/Core/ThreadExt.hpp>
 #include <Nazara/Core/Time.hpp>
 #include <Nazara/Core/TriangleIterator.hpp>
