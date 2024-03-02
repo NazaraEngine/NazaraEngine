@@ -28,6 +28,21 @@ namespace Nz
 	Skeleton::Skeleton(Skeleton&&) noexcept = default;
 	Skeleton::~Skeleton() = default;
 
+	void Skeleton::CopyPose(const Skeleton& skeleton)
+	{
+		NazaraAssert(m_impl, "skeleton must have been created");
+		NazaraAssert(skeleton.IsValid(), "skeleton is invalid");
+		NazaraAssert(m_impl->joints.size() == skeleton.GetJointCount(), "both skeletons must have the same number of joints");
+
+		Joint* dstJoints = &m_impl->joints[0];
+		const Joint* srcJoints = &skeleton.m_impl->joints[0];
+		for (std::size_t i = 0; i < m_impl->joints.size(); ++i)
+			dstJoints[i].CopyLocalTransform(srcJoints[i], Node::Invalidation::DontInvalidate);
+
+		GetRootJoint()->Invalidate();
+		InvalidateJoints();
+	}
+
 	bool Skeleton::Create(std::size_t jointCount)
 	{
 		NazaraAssert(jointCount > 0, "joint count must be over zero");

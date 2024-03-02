@@ -33,6 +33,8 @@ namespace Nz
 			Skeleton(Skeleton&&) noexcept;
 			~Skeleton();
 
+			void CopyPose(const Skeleton& skeleton);
+
 			bool Create(std::size_t jointCount);
 			void Destroy();
 
