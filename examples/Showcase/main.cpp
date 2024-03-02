@@ -146,7 +146,7 @@ int main(int argc, char* argv[])
 
 	std::vector<std::shared_ptr<Nz::MaterialInstance>> materials(bobMesh->GetMaterialCount());
 
-	std::bitset<5> alphaMaterials("01010");
+	std::bitset<4> alphaMaterials("0100");
 	for (std::size_t i = 0; i < bobMesh->GetMaterialCount(); ++i)
 	{
 		const Nz::ParameterList& materialData = bobMesh->GetMaterialData(i);
@@ -257,7 +257,7 @@ int main(int argc, char* argv[])
 			auto& sphereNode = sphereEntity.emplace<Nz::NodeComponent>();
 			sphereNode.SetScale(0.1f);
 			sphereNode.SetInheritScale(false);
-			sphereNode.SetParentJoint(bobEntity, "RightHand");
+			sphereNode.SetParentJoint(bobEntity, "mixamorig:RightHand");
 
 			auto& sphereGfx = sphereEntity.emplace<Nz::GraphicsComponent>();
 			sphereGfx.AttachRenderable(sphereModel);
@@ -265,7 +265,8 @@ int main(int argc, char* argv[])
 
 		entt::handle smallBobEntity = world.CreateEntity();
 		auto& smallBobNode = smallBobEntity.emplace<Nz::NodeComponent>();
-		smallBobNode.SetParentJoint(bobEntity, "LeftHand");
+		smallBobNode.SetRotation(Nz::EulerAnglesf(-90.f, 0.f, 0.f));
+		smallBobNode.SetParentJoint(bobEntity, "mixamorig:LeftHand");
 
 		auto& smallBobGfx = smallBobEntity.emplace<Nz::GraphicsComponent>();
 		smallBobGfx.AttachRenderable(bobModel);
