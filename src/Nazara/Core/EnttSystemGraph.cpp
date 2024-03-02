@@ -20,7 +20,10 @@ namespace Nz
 			m_orderedNodes.clear();
 			m_orderedNodes.reserve(m_nodes.size());
 			for (auto& nodePtr : m_nodes)
-				m_orderedNodes.emplace_back(nodePtr.get());
+			{
+				if (nodePtr->HasUpdate())
+					m_orderedNodes.emplace_back(nodePtr.get());
+			}
 
 			std::sort(m_orderedNodes.begin(), m_orderedNodes.end(), [](const NodeBase* a, const NodeBase* b)
 			{

@@ -43,16 +43,18 @@ namespace Nz
 			{
 				virtual ~NodeBase();
 
+				virtual bool HasUpdate() const = 0;
 				virtual void Update(Time elapsedTime) = 0;
 
 				Int64 executionOrder;
 			};
 
-			template<typename T>
+			template<typename T, bool CanUpdate>
 			struct Node : NodeBase
 			{
 				template<typename... Args> Node(Args&&... args);
 
+				bool HasUpdate() const override;
 				void Update(Time elapsedTime) override;
 
 				T system;

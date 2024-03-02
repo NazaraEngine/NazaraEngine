@@ -10,7 +10,7 @@ namespace Nz
 	namespace Detail
 	{
 		template<typename, typename = void>
-		struct EnttSystemGraphAllowConcurrent : std::bool_constant<true> {};
+		struct EnttSystemGraphAllowConcurrent : std::true_type {};
 
 		template<typename T>
 		struct EnttSystemGraphAllowConcurrent<T, std::void_t<decltype(T::AllowConcurrent)>> : std::bool_constant<T::AllowConcurrent> {};
@@ -20,19 +20,32 @@ namespace Nz
 
 		template<typename T>
 		struct EnttSystemGraphExecutionOrder<T, std::void_t<decltype(T::ExecutionOrder)>> : std::integral_constant<Int64, T::ExecutionOrder> {};
+
+		template<typename, typename = void>
+		struct EnttSystemGraphHasUpdate : std::false_type {};
+
+		template<typename T>
+		struct EnttSystemGraphHasUpdate<T, std::void_t<decltype(std::declval<T>().Update(std::declval<Time>()))>> : std::true_type {};
 	}
 
-	template<typename T>
+	template<typename T, bool CanUpdate>
 	template<typename... Args>
-	EnttSystemGraph::Node<T>::Node(Args&&... args) :
+	EnttSystemGraph::Node<T, CanUpdate>::Node(Args&&... args) :
 	system(std::forward<Args>(args)...)
 	{
 	}
 
-	template<typename T>
-	void EnttSystemGraph::Node<T>::Update(Time elapsedTime)
+	template<typename T, bool CanUpdate>
+	bool EnttSystemGraph::Node<T, CanUpdate>::HasUpdate() const
 	{
-		system.Update(elapsedTime);
+		return CanUpdate;
+	}
+
+	template<typename T, bool CanUpdate>
+	void EnttSystemGraph::Node<T, CanUpdate>::Update(Time elapsedTime)
+	{
+		if constexpr (CanUpdate)
+			system.Update(elapsedTime);
 	}
 
 	inline EnttSystemGraph::EnttSystemGraph(entt::registry& registry) :
@@ -46,7 +59,9 @@ namespace Nz
 	{
 		NazaraAssert(m_systemToNodes.find(entt::type_hash<T>()) == m_systemToNodes.end(), "this system already exists");
 
-		auto nodePtr = std::make_unique<Node<T>>(m_registry, std::forward<Args>(args)...);
+		constexpr bool CanUpdate = Detail::EnttSystemGraphHasUpdate<T>();
+
+		auto nodePtr = std::make_unique<Node<T, CanUpdate>>(m_registry, std::forward<Args>(args)...);
 		nodePtr->executionOrder = Detail::EnttSystemGraphExecutionOrder<T>();
 
 		T& system = nodePtr->system;
@@ -63,11 +78,13 @@ namespace Nz
 	template<typename T>
 	T& EnttSystemGraph::GetSystem() const
 	{
+		constexpr bool CanUpdate = Detail::EnttSystemGraphHasUpdate<T>();
+
 		auto it = m_systemToNodes.find(entt::type_hash<T>());
 		if (it == m_systemToNodes.end())
 			throw std::runtime_error("this system is not part of the graph");
 
-		auto& node = static_cast<Node<T>&>(*m_nodes[it->second]);
+		auto& node = static_cast<Node<T, CanUpdate>&>(*m_nodes[it->second]);
 		return node.system;
 	}
 
