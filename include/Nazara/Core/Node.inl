@@ -60,6 +60,26 @@ namespace Nz
 			child->m_parent = this;
 	}
 
+	inline void Node::CopyLocalTransform(const Node& reference, Invalidation invalidation)
+	{
+		SetPosition(reference.m_position, Invalidation::DontInvalidate);
+		SetRotation(reference.m_rotation, Invalidation::DontInvalidate);
+		SetScale(reference.m_scale, Invalidation::DontInvalidate);
+
+		Invalidate(invalidation);
+	}
+
+	inline void Node::CopyTransform(const Node& reference, Invalidation invalidation)
+	{
+		reference.EnsureGlobalsUpdate();
+
+		SetGlobalPosition(reference.m_globalPosition, Invalidation::DontInvalidate);
+		SetGlobalRotation(reference.m_globalRotation, Invalidation::DontInvalidate);
+		SetGlobalScale(reference.m_globalScale, Invalidation::DontInvalidate);
+
+		Invalidate(invalidation);
+	}
+
 	inline bool Node::DoesInheritPosition() const
 	{
 		return m_doesInheritPosition;

@@ -29,6 +29,9 @@ namespace Nz
 			inline Node(Node&& node) noexcept;
 			virtual ~Node();
 
+			inline void CopyLocalTransform(const Node& reference, Invalidation invalidation = Invalidation::InvalidateRecursively);
+			inline void CopyTransform(const Node& reference, Invalidation invalidation = Invalidation::InvalidateRecursively);
+
 			inline bool DoesInheritPosition() const;
 			inline bool DoesInheritRotation() const;
 			inline bool DoesInheritScale() const;
