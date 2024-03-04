@@ -80,7 +80,9 @@ namespace Nz
 
 	void Renderer::LoadBackend(const Config& config)
 	{
+#ifdef NAZARA_RENDERER_EMBEDDEDBACKENDS
 		using FactoryFunc = FunctionPtr<std::unique_ptr<RendererImpl>()>;
+#endif
 
 		struct RendererImplementations
 		{
