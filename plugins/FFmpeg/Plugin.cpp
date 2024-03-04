@@ -68,9 +68,8 @@ namespace
 				if (m_ioContext)
 					avio_context_free(&m_ioContext);
 
-				// m_ioBuffer is freed by avio_close
 				if (m_ioBuffer)
-					av_free(&m_ioBuffer);
+					av_free(m_ioBuffer);
 			}
 
 			Nz::Result<void, Nz::ResourceLoadingError> Check()
