@@ -14,7 +14,7 @@
 
 namespace Nz
 {
-	class NAZARA_CORE_API EntitySystemAppComponent : public ApplicationComponent
+	class NAZARA_CORE_API EntitySystemAppComponent final : public ApplicationComponent
 	{
 		public:
 			using ApplicationComponent::ApplicationComponent;
@@ -24,12 +24,12 @@ namespace Nz
 
 			template<typename T, typename... Args> T& AddWorld(Args&&... args);
 
-			void Update(Time elapsedTime) override;
-
 			EntitySystemAppComponent& operator=(const EntitySystemAppComponent&) = delete;
 			EntitySystemAppComponent& operator=(EntitySystemAppComponent&&) = delete;
 
 		private:
+			void Update(Time elapsedTime) override;
+
 			std::vector<std::unique_ptr<EntityWorld>> m_worlds;
 	};
 }

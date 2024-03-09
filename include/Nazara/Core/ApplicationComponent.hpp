@@ -17,6 +17,8 @@ namespace Nz
 
 	class NAZARA_CORE_API ApplicationComponent
 	{
+		friend ApplicationBase;
+
 		public:
 			inline ApplicationComponent(ApplicationBase& app);
 			ApplicationComponent(const ApplicationComponent&) = delete;
@@ -26,12 +28,12 @@ namespace Nz
 			inline ApplicationBase& GetApp();
 			inline const ApplicationBase& GetApp() const;
 
-			virtual void Update(Time elapsedTime);
-
 			ApplicationComponent& operator=(const ApplicationComponent&) = delete;
 			ApplicationComponent& operator=(ApplicationComponent&&) = delete;
 
 		private:
+			virtual void Update(Time elapsedTime);
+
 			ApplicationBase& m_app;
 	};
 }

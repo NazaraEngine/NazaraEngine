@@ -17,7 +17,7 @@ namespace Nz
 {
 	class WebService;
 
-	class NAZARA_NETWORK_API WebServiceAppComponent : public ApplicationComponent
+	class NAZARA_NETWORK_API WebServiceAppComponent final : public ApplicationComponent
 	{
 		public:
 			WebServiceAppComponent(ApplicationBase& app);
@@ -30,12 +30,12 @@ namespace Nz
 			void QueueRequest(const FunctionRef<bool(WebRequest& request)>& builder);
 			void QueueRequest(std::unique_ptr<WebRequest>&& request);
 
-			void Update(Time elapsedTime) override;
-
 			WebServiceAppComponent& operator=(const WebServiceAppComponent&) = delete;
 			WebServiceAppComponent& operator=(WebServiceAppComponent&&) = delete;
 
 		private:
+			void Update(Time elapsedTime) override;
+
 			std::shared_ptr<WebService> m_webService;
 	};
 }

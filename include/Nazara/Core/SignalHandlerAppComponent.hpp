@@ -13,7 +13,7 @@
 
 namespace Nz
 {
-	class NAZARA_CORE_API SignalHandlerAppComponent : public ApplicationComponent
+	class NAZARA_CORE_API SignalHandlerAppComponent final : public ApplicationComponent
 	{
 		public:
 			inline SignalHandlerAppComponent(ApplicationBase& app);

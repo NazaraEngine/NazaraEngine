@@ -17,7 +17,7 @@
 
 namespace Nz
 {
-	class NAZARA_CORE_API FilesystemAppComponent : public ApplicationComponent
+	class NAZARA_CORE_API FilesystemAppComponent final : public ApplicationComponent
 	{
 		public:
 			inline FilesystemAppComponent(ApplicationBase& app);

@@ -13,7 +13,7 @@
 
 namespace Nz
 {
-	class TaskSchedulerAppComponent : public ApplicationComponent
+	class TaskSchedulerAppComponent final : public ApplicationComponent
 	{
 		public:
 			inline TaskSchedulerAppComponent(ApplicationBase& app, unsigned int workerCount = 0);

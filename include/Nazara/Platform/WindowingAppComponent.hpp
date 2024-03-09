@@ -14,7 +14,7 @@
 
 namespace Nz
 {
-	class NAZARA_PLATFORM_API WindowingAppComponent : public ApplicationComponent
+	class NAZARA_PLATFORM_API WindowingAppComponent final : public ApplicationComponent
 	{
 		public:
 			inline WindowingAppComponent(ApplicationBase& app);
@@ -29,12 +29,12 @@ namespace Nz
 
 			inline bool IsQuitOnLastWindowClosedEnabled() const;
 
-			void Update(Time elapsedTime) override;
-
 			WindowingAppComponent& operator=(const WindowingAppComponent&) = delete;
 			WindowingAppComponent& operator=(WindowingAppComponent&&) = delete;
 
 		private:
+			void Update(Time elapsedTime) override;
+
 			std::vector<std::unique_ptr<Window>> m_windows;
 			bool m_quitOnLastWindowClosed;
 	};
