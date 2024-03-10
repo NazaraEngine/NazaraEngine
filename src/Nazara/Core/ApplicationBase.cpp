@@ -23,6 +23,8 @@ namespace Nz
 	{
 		assert(s_instance == this);
 		s_instance = nullptr;
+
+		ClearComponents();
 	}
 
 	int ApplicationBase::Run()
@@ -90,13 +92,8 @@ namespace Nz
 			updaterEntry.nextUpdate = std::max(updaterEntry.nextUpdate, m_currentTime);
 		}
 
-		for (auto&& [typeHash, componentPtr] : m_components)
-		{
-			NazaraUnused(typeHash);
-
-			if (componentPtr)
-				componentPtr->Update(elapsedTime);
-		}
+		for (auto& componentPtr : m_components)
+			componentPtr->Update(elapsedTime);
 
 		return m_running;
 	}

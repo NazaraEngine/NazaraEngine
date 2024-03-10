@@ -31,12 +31,7 @@ namespace Nz
 	*/
 	inline StateMachine::~StateMachine()
 	{
-		// Leave state from top to bottom (as if states were popped out)
-		for (auto rit = m_states.rbegin(); rit != m_states.rend(); ++rit)
-		{
-			if (rit->enabled)
-				rit->state->Leave(*this);
-		}
+		Clear();
 	}
 
 	/*!
@@ -59,6 +54,25 @@ namespace Nz
 			pushTransition.state = std::move(state);
 			pushTransition.type = TransitionType::Push;
 		}
+	}
+
+	/*!
+	* \brief Resets the StateMachine
+	*
+	* \remark Calls "Leave" on all the states from top to bottom
+	*/
+	inline void StateMachine::Clear()
+	{
+		// Leave state from top to bottom (as if states were popped out)
+		for (auto rit = m_states.rbegin(); rit != m_states.rend(); ++rit)
+		{
+			if (rit->enabled)
+				rit->state->Leave(*this);
+
+			rit->state.reset();
+		}
+
+		m_states.clear();
 	}
 
 	/*!

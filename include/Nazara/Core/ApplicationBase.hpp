@@ -72,7 +72,8 @@ namespace Nz
 			};
 
 			std::atomic_bool m_running;
-			std::unordered_map<UInt64 /*typehash*/, std::unique_ptr<ApplicationComponent>> m_components;
+			std::unordered_map<UInt64 /*typehash*/, ApplicationComponent*> m_componentByType;
+			std::vector<std::unique_ptr<ApplicationComponent>> m_components;
 			std::vector<Updater> m_updaters;
 			CommandLineParameters m_commandLineParams;
 			HighPrecisionClock m_clock;

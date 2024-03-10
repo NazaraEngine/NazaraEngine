@@ -54,6 +54,10 @@ namespace Nz
 	{
 	}
 
+	inline EnttSystemGraph::~EnttSystemGraph()
+	{
+	}
+
 	template<typename T, typename... Args>
 	T& EnttSystemGraph::AddSystem(Args&&... args)
 	{
@@ -73,6 +77,17 @@ namespace Nz
 		m_systemOrderUpdated = false;
 
 		return system;
+	}
+
+	inline void EnttSystemGraph::Clear()
+	{
+		// std::vector does not guarantee order of destruction, do it ourselves
+		for (auto rit = m_nodes.rbegin(); rit != m_nodes.rend(); ++rit)
+			rit->reset();
+
+		m_orderedNodes.clear();
+		m_systemToNodes.clear();
+		m_systemOrderUpdated = true;
 	}
 
 	template<typename T>

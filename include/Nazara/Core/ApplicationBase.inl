@@ -47,6 +47,11 @@ namespace Nz
 
 	inline void ApplicationBase::ClearComponents()
 	{
+		// std::vector does not guarantee order of destruction, do it ourselves
+		for (auto rit = m_components.rbegin(); rit != m_components.rend(); ++rit)
+			rit->reset();
+
+		m_componentByType.clear();
 		m_components.clear();
 	}
 
@@ -60,8 +65,8 @@ namespace Nz
 	{
 		constexpr UInt64 typeHash = FNV1a64(TypeName<T>());
 
-		auto it = m_components.find(typeHash);
-		if (it == m_components.end())
+		auto it = m_componentByType.find(typeHash);
+		if (it == m_componentByType.end())
 			throw std::runtime_error("component not found");
 
 		return static_cast<T&>(*it->second);
@@ -72,8 +77,8 @@ namespace Nz
 	{
 		constexpr UInt64 typeHash = FNV1a64(TypeName<T>());
 
-		auto it = m_components.find(typeHash);
-		if (it == m_components.end())
+		auto it = m_componentByType.find(typeHash);
+		if (it == m_componentByType.end())
 			throw std::runtime_error("component not found");
 
 		return static_cast<const T&>(*it->second);
@@ -83,7 +88,7 @@ namespace Nz
 	bool ApplicationBase::HasComponent() const
 	{
 		constexpr UInt64 typeHash = FNV1a64(TypeName<T>());
-		return m_components.contains(typeHash);
+		return m_componentByType.contains(typeHash);
 	}
 
 	inline void ApplicationBase::Quit()
@@ -96,11 +101,11 @@ namespace Nz
 	{
 		constexpr UInt64 typeHash = FNV1a64(TypeName<T>());
 
-		auto it = m_components.find(typeHash);
-		if (it == m_components.end())
+		auto it = m_componentByType.find(typeHash);
+		if (it == m_componentByType.end())
 			return nullptr;
 
-		return static_cast<T*>(it->second.get());
+		return static_cast<T*>(it->second);
 	}
 
 	template<typename T>
@@ -108,11 +113,11 @@ namespace Nz
 	{
 		constexpr UInt64 typeHash = FNV1a64(TypeName<T>());
 
-		auto it = m_components.find(typeHash);
-		if (it == m_components.end())
+		auto it = m_componentByType.find(typeHash);
+		if (it == m_componentByType.end())
 			return nullptr;
 
-		return static_cast<const T*>(it->second.get());
+		return static_cast<const T*>(it->second);
 	}
 
 	inline ApplicationBase* ApplicationBase::Instance()
@@ -128,10 +133,11 @@ namespace Nz
 		std::unique_ptr<T> component = std::make_unique<T>(*this, std::forward<Args>(args)...);
 		T& componentRef = *component;
 
-		if (m_components.contains(typeHash))
+		if (m_componentByType.contains(typeHash))
 			throw std::runtime_error("component was added multiple times");
 
-		m_components[typeHash] = std::move(component);
+		m_componentByType[typeHash] = component.get();
+		m_components.push_back(std::move(component));
 
 		return componentRef;
 	}

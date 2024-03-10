@@ -25,6 +25,8 @@ namespace Nz
 
 			inline void ChangeState(std::shared_ptr<State> state);
 
+			inline void Clear();
+
 			inline void Disable(std::shared_ptr<State> state);
 			inline void Enable(std::shared_ptr<State> state);
 

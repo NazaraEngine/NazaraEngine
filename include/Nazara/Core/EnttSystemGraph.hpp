@@ -24,9 +24,11 @@ namespace Nz
 			inline EnttSystemGraph(entt::registry& registry);
 			EnttSystemGraph(const EnttSystemGraph&) = delete;
 			EnttSystemGraph(EnttSystemGraph&&) = delete;
-			~EnttSystemGraph() = default;
+			inline ~EnttSystemGraph();
 
 			template<typename T, typename... Args> T& AddSystem(Args&&... args);
+
+			inline void Clear();
 
 			template<typename T> T& GetSystem() const;
 
