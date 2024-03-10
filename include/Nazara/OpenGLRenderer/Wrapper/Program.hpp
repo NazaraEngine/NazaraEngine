@@ -11,6 +11,7 @@
 #include <Nazara/OpenGLRenderer/OpenGLDevice.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/DeviceObject.hpp>
 #include <NazaraUtils/MovableValue.hpp>
+#include <string>
 
 namespace Nz::GL
 {
@@ -30,12 +31,20 @@ namespace Nz::GL
 			inline void GetActiveUniform(GLuint index, GLsizei bufSize, GLsizei* length, GLint* size, GLenum* type, GLchar* name) const;
 			inline void GetActiveUniformBlock(GLuint uniformBlockIndex, GLenum pname, GLint* params) const;
 			inline std::vector<GLint> GetActiveUniformBlockUniformIndices(GLuint uniformBlockIndex) const;
+			inline std::vector<GLint> GetActiveVariableIndices(GLenum programInterface, GLuint index) const;
 			inline void GetActiveUniformBlockName(GLuint uniformBlockIndex, GLsizei bufSize, GLsizei* length, GLchar* uniformBlockName) const;
 			inline std::string GetActiveUniformBlockName(GLuint uniformBlockIndex) const;
 			inline std::string GetActiveUniformName(GLuint index) const;
 			inline std::vector<GLint> GetActiveUniforms(GLsizei uniformCount, const GLuint* uniformIndices, GLenum pname) const;
 			inline void GetActiveUniforms(GLsizei uniformCount, const GLuint* uniformIndices, GLenum pname, GLint* params) const;
 			inline bool GetLinkStatus(std::string* error = nullptr) const;
+			inline GLint GetInterface(GLenum programInterface, GLenum name) const;
+			inline void GetResource(GLenum programInterface, GLuint index, GLenum property, GLsizei bufSize, GLsizei* length, GLint* params) const;
+			inline void GetResource(GLenum programInterface, GLuint index, GLsizei propCount, const GLenum* props, GLsizei bufSize, GLsizei* length, GLint* params) const;
+			inline GLuint GetResourceIndex(GLenum programInterface, const char* name) const;
+			inline GLint GetResourceLocation(GLenum programInterface, const char* name) const;
+			inline std::string GetResourceName(GLenum programInterface, GLuint index) const;
+			inline void GetResourceName(GLenum programInterface, GLuint index, GLsizei bufSize, GLsizei* length, char* name) const;
 			inline GLuint GetUniformBlockIndex(const char* uniformBlockName) const;
 			inline GLuint GetUniformBlockIndex(const std::string& uniformBlockName) const;
 			inline GLint GetUniformLocation(const char* uniformName) const;

@@ -206,6 +206,11 @@ typedef void (GL_APIENTRYP PFNGLSPECIALIZESHADERPROC) (GLuint shader, const GLch
 	extCb(glMemoryBarrierByRegion, PFNGLMEMORYBARRIERBYREGIONPROC) \
 	/* OpenGL 4.3 - OpenGL ES 3.1 */\
 	extCb(glDispatchCompute, PFNGLDISPATCHCOMPUTEPROC) \
+	extCb(glGetProgramInterfaceiv, PFNGLGETPROGRAMINTERFACEIVPROC) \
+	extCb(glGetProgramResourceiv, PFNGLGETPROGRAMRESOURCEIVPROC) \
+	extCb(glGetProgramResourceIndex, PFNGLGETPROGRAMRESOURCEINDEXPROC) \
+	extCb(glGetProgramResourceLocation, PFNGLGETPROGRAMRESOURCELOCATIONPROC) \
+	extCb(glGetProgramResourceName, PFNGLGETPROGRAMRESOURCENAMEPROC) \
 	/* OpenGL 4.3 - OpenGL ES 3.2 */\
 	extCb(glCopyImageSubData, PFNGLCOPYIMAGESUBDATAPROC) \
 	extCb(glDebugMessageCallback, PFNGLDEBUGMESSAGECALLBACKPROC) \

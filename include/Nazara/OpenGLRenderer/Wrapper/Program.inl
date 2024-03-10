@@ -57,6 +57,25 @@ namespace Nz::GL
 		return uniformIndices;
 	}
 
+	inline std::vector<GLint> Program::GetActiveVariableIndices(GLenum programInterface, GLuint index) const
+	{
+		assert(m_objectId);
+		const Context& context = EnsureDeviceContext();
+
+		std::vector<GLint> varIndices;
+
+		GLint activeVariableCount = 0;
+		GetResource(programInterface, index, GL_NUM_ACTIVE_VARIABLES, 1, nullptr, &activeVariableCount);
+
+		if (activeVariableCount > 0)
+		{
+			varIndices.resize(SafeCaster(activeVariableCount));
+			GetResource(programInterface, index, GL_ACTIVE_VARIABLES, activeVariableCount, nullptr, varIndices.data());
+		}
+
+		return varIndices;
+	}
+
 	inline void Program::GetActiveUniformBlockName(GLuint uniformBlockIndex, GLsizei bufSize, GLsizei* length, GLchar* uniformBlockName) const
 	{
 		assert(m_objectId);
@@ -156,6 +175,77 @@ namespace Nz::GL
 		}
 
 		return true;
+	}
+
+	inline GLint Program::GetInterface(GLenum programInterface, GLenum name) const
+	{
+		assert(m_objectId);
+		const Context& context = EnsureDeviceContext();
+		assert(context.glGetProgramInterfaceiv);
+
+		GLint value;
+		context.glGetProgramInterfaceiv(m_objectId, programInterface, name, &value);
+
+		return value;
+	}
+
+	inline void Program::GetResource(GLenum programInterface, GLuint index, GLenum property, GLsizei bufSize, GLsizei* length, GLint* params) const
+	{
+		GLenum properties[] = { property };
+		return GetResource(programInterface, index, 1, properties, bufSize, length, params);
+	}
+
+	inline void Program::GetResource(GLenum programInterface, GLuint index, GLsizei propCount, const GLenum* props, GLsizei bufSize, GLsizei* length, GLint* params) const
+	{
+		assert(m_objectId);
+		const Context& context = EnsureDeviceContext();
+		assert(context.glGetProgramResourceiv);
+
+		GLint value;
+		context.glGetProgramResourceiv(m_objectId, programInterface, index, propCount, props, bufSize, length, params);
+	}
+
+	inline GLuint Program::GetResourceIndex(GLenum programInterface, const char* name) const
+	{
+		assert(m_objectId);
+		const Context& context = EnsureDeviceContext();
+		assert(context.glGetProgramResourceIndex);
+
+		return context.glGetProgramResourceIndex(m_objectId, programInterface, name);
+	}
+
+	inline GLint Program::GetResourceLocation(GLenum programInterface, const char* name) const
+	{
+		assert(m_objectId);
+		const Context& context = EnsureDeviceContext();
+		assert(context.glGetProgramResourceiv);
+
+		return context.glGetProgramResourceLocation(m_objectId, programInterface, name);
+	}
+
+	inline std::string Program::GetResourceName(GLenum programInterface, GLuint index) const
+	{
+		GLint nameLength = 0;
+		GetResource(programInterface, index, GL_NAME_LENGTH, 1, nullptr, &nameLength);
+
+		std::string name;
+		if (nameLength > 0)
+		{
+			name.resize(nameLength);
+			GetResourceName(programInterface, index, nameLength + 1, nullptr, name.data());
+		}
+
+		return name;
+	}
+
+	inline void Program::GetResourceName(GLenum programInterface, GLuint index, GLsizei bufSize, GLsizei* length, char* name) const
+	{
+		assert(m_objectId);
+		const Context& context = EnsureDeviceContext();
+		assert(context.glGetProgramResourceName);
+
+		GLint value;
+		context.glGetProgramResourceName(m_objectId, programInterface, index, bufSize, length, name);
 	}
 
 	inline GLuint Program::GetUniformBlockIndex(const char* uniformBlockName) const
