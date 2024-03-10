@@ -23,6 +23,8 @@ namespace Nz
 
 			inline void AppendText(std::string_view str);
 
+			inline void Clear();
+
 			inline unsigned int GetCharacterSize() const;
 			inline const SimpleTextDrawer& GetDrawer() const;
 			inline const std::string& GetText() const;

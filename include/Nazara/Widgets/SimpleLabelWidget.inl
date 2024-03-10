@@ -11,6 +11,12 @@ namespace Nz
 		UpdateTextAndSize();
 	}
 
+	inline void SimpleLabelWidget::Clear()
+	{
+		m_drawer.Clear();
+		UpdateTextAndSize();
+	}
+
 	inline unsigned int SimpleLabelWidget::GetCharacterSize() const
 	{
 		return m_drawer.GetCharacterSize();
