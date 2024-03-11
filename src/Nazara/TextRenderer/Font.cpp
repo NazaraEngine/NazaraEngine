@@ -86,6 +86,8 @@ namespace Nz
 
 		Destroy();
 		m_data = std::move(data);
+		m_fontHasKerning = m_data->HasKerning();
+
 		return true;
 	}
 
@@ -142,6 +144,8 @@ namespace Nz
 	int Font::GetKerning(unsigned int characterSize, char32_t first, char32_t second) const
 	{
 		NazaraAssert(IsValid(), "invalid font");
+		if (!m_fontHasKerning)
+			return 0;
 
 		// Use a cache as QueryKerning may be costly (may induce an internal size change)
 		auto& map = m_kerningCache[characterSize];

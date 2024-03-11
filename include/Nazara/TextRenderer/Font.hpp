@@ -147,6 +147,7 @@ namespace Nz
 			mutable std::unordered_map<UInt64, SizeInfo> m_sizeInfoCache;
 			unsigned int m_glyphBorder;
 			unsigned int m_minimumStepSize;
+			bool m_fontHasKerning;
 
 			static std::shared_ptr<AbstractAtlas> s_defaultAtlas;
 			static std::shared_ptr<Font> s_defaultFont;
