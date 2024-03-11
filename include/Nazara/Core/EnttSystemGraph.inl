@@ -56,6 +56,7 @@ namespace Nz
 
 	inline EnttSystemGraph::~EnttSystemGraph()
 	{
+		Clear();
 	}
 
 	template<typename T, typename... Args>
