@@ -26,13 +26,17 @@ namespace Nz
 			~FilesystemAppComponent() = default;
 
 			template<typename T> const typename T::Params* GetDefaultResourceParameters() const;
-			inline VirtualDirectoryPtr GetDirectory(std::string_view assetPath);
+			inline VirtualDirectoryPtr GetDirectory(std::string_view dirPath);
+			inline std::shared_ptr<Stream> GetFile(std::string_view filepath);
+			template<typename F> bool GetFileContent(std::string_view filepath, F&& callback);
+
+			template<typename F> void IterateOnDirectory(std::string_view dirPath, F&& callback);
 
 			template<typename T, typename... ExtraArgs> std::shared_ptr<T> Load(std::string_view assetPath, ExtraArgs&&... args);
 			template<typename T, typename... ExtraArgs> std::shared_ptr<T> Load(std::string_view assetPath, typename T::Params params, ExtraArgs&&... args);
 
-			const VirtualDirectoryPtr& Mount(std::string_view name, std::filesystem::path filepath);
-			const VirtualDirectoryPtr& Mount(std::string_view name, VirtualDirectoryPtr directory);
+			const VirtualDirectoryPtr& Mount(std::string_view dirPath, std::filesystem::path filepath);
+			const VirtualDirectoryPtr& Mount(std::string_view dirPath, VirtualDirectoryPtr directory);
 
 			void MountDefaultDirectories();
 

@@ -7,14 +7,14 @@
 
 namespace Nz
 {
-	const VirtualDirectoryPtr& FilesystemAppComponent::Mount(std::string_view name, std::filesystem::path filepath)
+	const VirtualDirectoryPtr& FilesystemAppComponent::Mount(std::string_view dirPath, std::filesystem::path filepath)
 	{
-		return Mount(name, std::make_shared<VirtualDirectory>(std::make_shared<VirtualDirectoryFilesystemResolver>(std::move(filepath))));
+		return Mount(dirPath, std::make_shared<VirtualDirectory>(std::make_shared<VirtualDirectoryFilesystemResolver>(std::move(filepath))));
 	}
 
-	const VirtualDirectoryPtr& FilesystemAppComponent::Mount(std::string_view name, VirtualDirectoryPtr directory)
+	const VirtualDirectoryPtr& FilesystemAppComponent::Mount(std::string_view dirPath, VirtualDirectoryPtr directory)
 	{
-		if (name.empty())
+		if (dirPath.empty())
 		{
 			m_rootDirectory = std::move(directory);
 			return m_rootDirectory;
@@ -23,7 +23,7 @@ namespace Nz
 		if (!m_rootDirectory)
 			m_rootDirectory = std::make_shared<VirtualDirectory>();
 
-		return m_rootDirectory->StoreDirectory(name, std::move(directory)).directory;
+		return m_rootDirectory->StoreDirectory(dirPath, std::move(directory)).directory;
 	}
 
 	void FilesystemAppComponent::MountDefaultDirectories()

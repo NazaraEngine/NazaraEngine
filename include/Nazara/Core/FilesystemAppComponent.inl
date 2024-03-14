@@ -35,15 +35,38 @@ namespace Nz
 		return static_cast<const typename T::Params*>(it->second.get());
 	}
 
-	VirtualDirectoryPtr FilesystemAppComponent::GetDirectory(std::string_view assetPath)
+	inline VirtualDirectoryPtr FilesystemAppComponent::GetDirectory(std::string_view dirPath)
 	{
 		VirtualDirectoryPtr dir;
-		m_rootDirectory->GetDirectoryEntry(assetPath, [&](const Nz::VirtualDirectory::DirectoryEntry& dirEntry)
+		m_rootDirectory->GetDirectoryEntry(dirPath, [&](const Nz::VirtualDirectory::DirectoryEntry& dirEntry)
 		{
 			dir = dirEntry.directory;
 		});
 
 		return dir;
+	}
+
+	inline std::shared_ptr<Stream> FilesystemAppComponent::GetFile(std::string_view filepath)
+	{
+		std::shared_ptr<Stream> fileStream;
+		m_rootDirectory->GetFileEntry(filepath, [&](const Nz::VirtualDirectory::FileEntry& fileEntry)
+		{
+			fileStream = fileEntry.stream;
+		});
+
+		return fileStream;
+	}
+
+	template<typename F>
+	bool FilesystemAppComponent::GetFileContent(std::string_view filepath, F&& callback)
+	{
+		return m_rootDirectory->GetFileContent(filepath, callback);
+	}
+
+	template<typename F>
+	void FilesystemAppComponent::IterateOnDirectory(std::string_view dirPath, F&& callback)
+	{
+		m_rootDirectory->Foreach(callback);
 	}
 
 	template<typename T, typename... ExtraArgs>
