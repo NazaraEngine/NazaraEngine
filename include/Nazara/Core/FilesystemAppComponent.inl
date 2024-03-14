@@ -64,9 +64,12 @@ namespace Nz
 	}
 
 	template<typename F>
-	void FilesystemAppComponent::IterateOnDirectory(std::string_view dirPath, F&& callback)
+	bool FilesystemAppComponent::IterateOnDirectory(std::string_view dirPath, F&& callback)
 	{
-		m_rootDirectory->Foreach(callback);
+		return m_rootDirectory->GetDirectoryEntry(dirPath, [&](const Nz::VirtualDirectory::DirectoryEntry& dirEntry)
+		{
+			dirEntry.directory->Foreach(callback);
+		});
 	}
 
 	template<typename T, typename... ExtraArgs>

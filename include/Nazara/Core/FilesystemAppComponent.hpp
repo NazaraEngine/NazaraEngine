@@ -30,7 +30,7 @@ namespace Nz
 			inline std::shared_ptr<Stream> GetFile(std::string_view filepath);
 			template<typename F> bool GetFileContent(std::string_view filepath, F&& callback);
 
-			template<typename F> void IterateOnDirectory(std::string_view dirPath, F&& callback);
+			template<typename F> bool IterateOnDirectory(std::string_view dirPath, F&& callback);
 
 			template<typename T, typename... ExtraArgs> std::shared_ptr<T> Load(std::string_view assetPath, ExtraArgs&&... args);
 			template<typename T, typename... ExtraArgs> std::shared_ptr<T> Load(std::string_view assetPath, typename T::Params params, ExtraArgs&&... args);
