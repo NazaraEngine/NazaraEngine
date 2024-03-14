@@ -85,9 +85,7 @@ namespace Nz
 				using T = std::decay_t<decltype(entry)>;
 
 				if constexpr (std::is_same_v<T, DirectoryEntry>)
-				{
-					return CallbackReturn(callback, static_cast<const DirectoryEntry&>(entry));
-				}
+					return CallbackReturn(callback, std::as_const(entry));
 				else if constexpr (std::is_same_v<T, FileEntry>)
 				{
 					NazaraError("entry is a file");
@@ -244,6 +242,28 @@ namespace Nz
 					NazaraError("entry is a directory");
 					return false;
 				}
+				else
+					static_assert(AlwaysFalse<T>(), "incomplete visitor");
+			}, entry);
+		});
+	}
+
+	template<typename F>
+	bool VirtualDirectory::GetFileEntry(std::string_view path, F&& callback)
+	{
+		return GetEntry(path, [&](const Entry& entry)
+		{
+			return std::visit([&](auto&& entry)
+			{
+				using T = std::decay_t<decltype(entry)>;
+
+				if constexpr (std::is_same_v<T, DirectoryEntry>)
+				{
+					NazaraError("entry is a directory");
+					return false;
+				}
+				else if constexpr (std::is_same_v<T, FileEntry>)
+					return CallbackReturn(callback, std::as_const(entry));
 				else
 					static_assert(AlwaysFalse<T>(), "incomplete visitor");
 			}, entry);

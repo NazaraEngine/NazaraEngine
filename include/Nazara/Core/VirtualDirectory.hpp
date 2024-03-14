@@ -46,6 +46,7 @@ namespace Nz
 			template<typename F> bool GetDirectoryEntry(std::string_view path, F&& callback);
 			template<typename F> bool GetEntry(std::string_view path, F&& callback);
 			template<typename F> bool GetFileContent(std::string_view path, F&& callback);
+			template<typename F> bool GetFileEntry(std::string_view path, F&& callback);
 			inline const std::shared_ptr<VirtualDirectoryResolver>& GetResolver() const;
 
 			inline bool IsUprootAllowed() const;
