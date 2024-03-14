@@ -134,6 +134,17 @@ namespace Nz
 	}
 
 	template<typename T>
+	template<typename F>
+	constexpr Vector3<T>& Vector3<T>::Apply(F&& func)
+	{
+		x = func(x);
+		y = func(y);
+		z = func(z);
+
+		return *this;
+	}
+
+	template<typename T>
 	constexpr bool Vector3<T>::ApproxEqual(const Vector3& vec, T maxDifference) const
 	{
 		return NumberEquals(x, vec.x, maxDifference) && NumberEquals(y, vec.y, maxDifference) && NumberEquals(z, vec.z, maxDifference);
@@ -687,9 +698,12 @@ namespace Nz
 	}
 
 	template<typename T>
-	constexpr Vector3<T> Vector3<T>::Apply(T(*func)(T), const Vector3& vec)
+	template<typename F>
+	constexpr auto Vector3<T>::Apply(const Vector3& vec, F&& func)
 	{
-		return Vector3(func(vec.x), func(vec.y), func(vec.z));
+		using U = std::remove_cvref_t<decltype(func(std::declval<const T&>()))>;
+
+		return Vector3<U>(func(vec.x), func(vec.y), func(vec.z));
 	}
 
 	template<typename T>

@@ -50,5 +50,17 @@ SCENARIO("Vector4", "[MATH][VECTOR4]")
 				REQUIRE(Nz::Vector4f::Lerp(zero, unitX, 0.5f) == Nz::Vector4f(Nz::Vector3f::UnitX() * 0.5f, 1.f));
 			}
 		}
+
+		WHEN("We use apply")
+		{
+			secondUnit.Apply([](float v) { return v - 1.f; });
+			CHECK(secondUnit.ApproxEqual(Nz::Vector4f(0.f)));
+		}
+
+		WHEN("We use apply with conversion")
+		{
+			Nz::Vector4 vec = Nz::Vector4f::Apply(firstUnit, [](float v) -> int { return static_cast<int>(std::round(v + 1.f)); });
+			CHECK(vec == Nz::Vector4i{ 2, 2, 2, 2 });
+		}
 	}
 }

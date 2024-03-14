@@ -1,8 +1,8 @@
-#include <catch2/catch_approx.hpp>
-#include <catch2/catch_test_macros.hpp>
-
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Math/Vector4.hpp>
+#include <catch2/catch_approx.hpp>
+#include <catch2/catch_test_macros.hpp>
+#include <cmath>
 
 SCENARIO("Vector2", "[MATH][VECTOR2]")
 {
@@ -93,5 +93,16 @@ SCENARIO("Vector2", "[MATH][VECTOR2]")
 			}
 		}
 
+		WHEN("We use apply")
+		{
+			secondUnit.Apply([](float v) { return v - 1.f; });
+			CHECK(secondUnit.ApproxEqual(Nz::Vector2f::Zero()));
+		}
+
+		WHEN("We use apply with conversion")
+		{
+			Nz::Vector2 vec = Nz::Vector2f::Apply(firstUnit, [](float v) -> int { return static_cast<int>(std::round(v + 1.f)); });
+			CHECK(vec == Nz::Vector2i { 2, 2 });
+		}
 	}
 }

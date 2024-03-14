@@ -36,6 +36,7 @@ namespace Nz
 
 			T AbsDotProduct(const Vector2& vec) const;
 			RadianAngle<T> AngleBetween(const Vector2& vec) const;
+			template<typename F> constexpr Vector2& Apply(F&& func);
 			constexpr bool ApproxEqual(const Vector2& vec, T maxDifference = std::numeric_limits<T>::epsilon()) const;
 
 			template<typename U = T> U Distance(const Vector2& vec) const;
@@ -88,7 +89,7 @@ namespace Nz
 			constexpr bool operator>(const Vector2& vec) const;
 			constexpr bool operator>=(const Vector2& vec) const;
 
-			static constexpr Vector2 Apply(T(*func)(T), const Vector2& vec);
+			template<typename F> static constexpr auto Apply(const Vector2& vec, F&& func);
 			static constexpr bool ApproxEqual(const Vector2& lhs, const Vector2& rhs, T maxDifference = std::numeric_limits<T>::epsilon());
 			template<typename U = T> static U Distance(const Vector2& vec1, const Vector2& vec2);
 			static constexpr T DotProduct(const Vector2& vec1, const Vector2& vec2);

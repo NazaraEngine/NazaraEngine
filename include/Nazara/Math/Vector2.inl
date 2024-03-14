@@ -111,6 +111,16 @@ namespace Nz
 	}
 
 	template<typename T>
+	template<typename F>
+	constexpr Vector2<T>& Vector2<T>::Apply(F&& func)
+	{
+		x = func(x);
+		y = func(y);
+
+		return *this;
+	}
+
+	template<typename T>
 	constexpr bool Vector2<T>::ApproxEqual(const Vector2& vec, T maxDifference) const
 	{
 		return NumberEquals(x, vec.x, maxDifference) && NumberEquals(y, vec.y, maxDifference);
@@ -600,9 +610,12 @@ namespace Nz
 	}
 
 	template<typename T>
-	constexpr Vector2<T> Vector2<T>::Apply(T(*func)(T), const Vector2& vec)
+	template<typename F>
+	constexpr auto Vector2<T>::Apply(const Vector2& vec, F&& func)
 	{
-		return Vector2(func(vec.x), func(vec.y));
+		using U = std::remove_cvref_t<decltype(func(std::declval<const T&>()))>;
+
+		return Vector2<U>(func(vec.x), func(vec.y));
 	}
 
 	template<typename T>
