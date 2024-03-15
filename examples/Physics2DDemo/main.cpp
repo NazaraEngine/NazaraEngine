@@ -145,8 +145,6 @@ int main(int argc, char* argv[])
 						auto& viewerComponent = viewer.get<Nz::CameraComponent>();
 						Nz::Vector2f worldPos = Nz::Vector2f(viewerComponent.Unproject(Nz::Vector3f(event.x, event.y, 0.f)));
 
-						auto& rigidBody = nearestEntity.get<Nz::RigidBody2DComponent>();
-
 						grabConstraint->SetFirstAnchor(worldPos);
 					});
 				}

@@ -59,9 +59,6 @@ namespace Nz::GL
 
 	inline std::vector<GLint> Program::GetActiveVariableIndices(GLenum programInterface, GLuint index) const
 	{
-		assert(m_objectId);
-		const Context& context = EnsureDeviceContext();
-
 		std::vector<GLint> varIndices;
 
 		GLint activeVariableCount = 0;
@@ -201,7 +198,6 @@ namespace Nz::GL
 		const Context& context = EnsureDeviceContext();
 		assert(context.glGetProgramResourceiv);
 
-		GLint value;
 		context.glGetProgramResourceiv(m_objectId, programInterface, index, propCount, props, bufSize, length, params);
 	}
 
@@ -244,7 +240,6 @@ namespace Nz::GL
 		const Context& context = EnsureDeviceContext();
 		assert(context.glGetProgramResourceName);
 
-		GLint value;
 		context.glGetProgramResourceName(m_objectId, programInterface, index, bufSize, length, name);
 	}
 

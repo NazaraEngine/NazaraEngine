@@ -96,12 +96,12 @@ namespace Nz
 		LightData* lightData = m_lightPool.Allocate(lightIndex);
 		lightData->light = light;
 		lightData->renderMask = renderMask;
-		lightData->onLightInvalidated.Connect(lightData->light->OnLightDataInvalided, [=](Light*)
+		lightData->onLightInvalidated.Connect(lightData->light->OnLightDataInvalided, [](Light*)
 		{
 			//TODO: Switch lights to storage buffers so they can all be part of GPU memory
 		});
 
-		lightData->onLightShadowCastingChanged.Connect(lightData->light->OnLightShadowCastingChanged, [=](Light* light, bool isCastingShadows)
+		lightData->onLightShadowCastingChanged.Connect(lightData->light->OnLightShadowCastingChanged, [this, lightData, lightIndex](Light* light, bool isCastingShadows)
 		{
 			if (isCastingShadows)
 			{

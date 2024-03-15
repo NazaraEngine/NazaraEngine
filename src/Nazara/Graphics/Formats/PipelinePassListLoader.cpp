@@ -27,7 +27,7 @@ namespace Nz::Loaders
 						std::string finalOutputAttachment;
 
 						m_paramFile.Parse(
-							"passlist", [&](ParameterFileSection section, std::string passListName)
+							"passlist", [&](ParameterFileSection section, std::string /*passListName*/)
 							{
 								m_current.emplace();
 								m_current->passList = std::make_shared<PipelinePassList>();
@@ -103,7 +103,7 @@ namespace Nz::Loaders
 						attachmentFormat
 					});
 
-					m_current->attachmentsByName.emplace(attachmentName, attachmentId);
+					m_current->attachmentsByName.emplace(std::move(attachmentName), attachmentId);
 				}
 
 				void HandleAttachmentProxy(std::string proxyName, std::string targetName)

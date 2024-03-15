@@ -124,7 +124,7 @@ namespace Nz
 		if (it == m_materialInstances.end())
 		{
 			auto& matPassEntry = m_materialInstances[&materialInstance];
-			matPassEntry.onMaterialInstancePipelineInvalidated.Connect(materialInstance.OnMaterialInstancePipelineInvalidated, [=](const MaterialInstance*, std::size_t passIndex)
+			matPassEntry.onMaterialInstancePipelineInvalidated.Connect(materialInstance.OnMaterialInstancePipelineInvalidated, [this](const MaterialInstance*, std::size_t passIndex)
 			{
 				if (passIndex != m_forwardPassIndex)
 					return;
@@ -132,7 +132,7 @@ namespace Nz
 				m_rebuildElements = true;
 			});
 
-			matPassEntry.onMaterialInstanceShaderBindingInvalidated.Connect(materialInstance.OnMaterialInstanceShaderBindingInvalidated, [=](const MaterialInstance*)
+			matPassEntry.onMaterialInstanceShaderBindingInvalidated.Connect(materialInstance.OnMaterialInstanceShaderBindingInvalidated, [this](const MaterialInstance*)
 			{
 				m_rebuildCommandBuffer = true;
 			});
