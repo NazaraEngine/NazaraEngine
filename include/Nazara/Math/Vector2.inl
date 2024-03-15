@@ -9,6 +9,7 @@
 #include <limits>
 #include <sstream>
 #include <stdexcept>
+#include <type_traits>
 
 namespace Nz
 {
@@ -613,9 +614,9 @@ namespace Nz
 	template<typename F>
 	constexpr auto Vector2<T>::Apply(const Vector2& vec, F&& func)
 	{
-		using U = std::remove_cvref_t<decltype(func(std::declval<const T&>()))>;
+		using U = std::remove_cvref_t<std::invoke_result_t<F, const T&>>;
 
-		return Vector2<U>(func(vec.x), func(vec.y));
+		return Vector2<U>(std::invoke(func, vec.x), std::invoke(func, vec.y));
 	}
 
 	template<typename T>

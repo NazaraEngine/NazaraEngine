@@ -8,6 +8,7 @@
 #include <cstring>
 #include <sstream>
 #include <stdexcept>
+#include <type_traits>
 
 ///FIXME: Les calculs effectués ici sont probablements tous faux, la composante W étant spéciale dans le monde de la 3D
 
@@ -659,9 +660,9 @@ namespace Nz
 	template<typename F>
 	constexpr auto Vector4<T>::Apply(const Vector4& vec, F&& func)
 	{
-		using U = std::remove_cvref_t<decltype(func(std::declval<const T&>()))>;
+		using U = std::remove_cvref_t<std::invoke_result_t<F, const T&>>;
 
-		return Vector4<U>(func(vec.x), func(vec.y), func(vec.z), func(vec.w));
+		return Vector4<U>(std::invoke(func, vec.x), std::invoke(func, vec.y), std::invoke(func, vec.z), std::invoke(func, vec.w));
 	}
 
 	template<typename T>
