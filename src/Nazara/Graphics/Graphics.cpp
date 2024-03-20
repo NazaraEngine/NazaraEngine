@@ -416,7 +416,17 @@ namespace Nz
 		m_defaultPipelinePasses->SetPassInput(gammaCorrectionPass, 0, forwardColorOutput);
 		m_defaultPipelinePasses->SetPassOutput(gammaCorrectionPass, 0, gammaCorrectionOutput);
 
-		m_defaultPipelinePasses->SetFinalOutput(gammaCorrectionOutput);
+		// Debug draw
+		std::size_t debugDrawOutput = m_defaultPipelinePasses->AddAttachmentProxy("Debug draw output", gammaCorrectionOutput);
+		std::size_t debugDrawDepth = m_defaultPipelinePasses->AddAttachmentProxy("Debug draw depth output", forwardDepthOutput);
+
+		std::size_t debugDraw = m_defaultPipelinePasses->AddPass("Debug draw", m_pipelinePassRegistry.GetPassIndex("DebugDraw"));
+		m_defaultPipelinePasses->SetPassInput(debugDraw, 0, gammaCorrectionOutput);
+		m_defaultPipelinePasses->SetPassOutput(debugDraw, 0, debugDrawOutput);
+		m_defaultPipelinePasses->SetPassDepthStencilInput(debugDraw, forwardDepthOutput);
+		m_defaultPipelinePasses->SetPassDepthStencilOutput(debugDraw, debugDrawDepth);
+
+		m_defaultPipelinePasses->SetFinalOutput(debugDrawOutput);
 	}
 
 	void Graphics::BuildDefaultTextures()
