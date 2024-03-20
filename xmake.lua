@@ -432,7 +432,7 @@ end
 
 -- Compiler-specific options
 add_rules("@nazarautils/compiler_setup")
-add_cxflags("-Wno-missing-field-initializers", { tools = "clang", "gcc" })
+add_cxflags("-Wno-missing-field-initializers", { tools = { "clang", "gcc" } })
 
 -- Platform-specific options
 
