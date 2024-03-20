@@ -204,13 +204,13 @@ void ProcessJoints(const Nz::MeshParams& parameters, const Nz::Matrix4f& transfo
 		if (currentJointIndex == 0)
 		{
 			// Root joint gets transformations
-			joint->SetPosition(Nz::TransformPositionTRS(parameters.vertexOffset, parameters.vertexRotation, parameters.vertexScale, FromAssimp(position)));
-			joint->SetRotation(Nz::TransformRotationTRS(parameters.vertexRotation, parameters.vertexScale, FromAssimp(rotation)));
-			joint->SetScale(Nz::TransformScaleTRS(parameters.vertexScale, FromAssimp(scaling)));
+			joint->SetPosition(Nz::TransformPositionSRT(parameters.vertexOffset, parameters.vertexRotation, parameters.vertexScale, FromAssimp(position)));
+			joint->SetRotation(Nz::TransformRotationSRT(parameters.vertexRotation, parameters.vertexScale, FromAssimp(rotation)));
+			joint->SetScale(Nz::TransformScaleSRT(parameters.vertexScale, FromAssimp(scaling)));
 		}
 		else
 		{
-			joint->SetPosition(Nz::TransformPositionTRS({}, Nz::Quaternionf::Identity(), parameters.vertexScale, FromAssimp(position)));
+			joint->SetPosition(Nz::TransformPositionSRT({}, Nz::Quaternionf::Identity(), parameters.vertexScale, FromAssimp(position)));
 			joint->SetRotation(FromAssimp(rotation));
 			joint->SetScale(FromAssimp(scaling));
 		}
@@ -356,9 +356,9 @@ Nz::Result<std::shared_ptr<Nz::Animation>, Nz::ResourceLoadingError> LoadAnimati
 
 			if (jointIndex == 0)
 			{
-				sequenceJoints[jointIndex].position = Nz::TransformPositionTRS(parameters.jointOffset, parameters.jointRotation, parameters.jointScale, interpolatedPosition);
-				sequenceJoints[jointIndex].rotation = Nz::TransformRotationTRS(parameters.jointRotation, parameters.jointScale, interpolatedRotation);
-				sequenceJoints[jointIndex].scale = Nz::TransformScaleTRS(parameters.jointScale, interpolatedScale);
+				sequenceJoints[jointIndex].position = Nz::TransformPositionSRT(parameters.jointOffset, parameters.jointRotation, parameters.jointScale, interpolatedPosition);
+				sequenceJoints[jointIndex].rotation = Nz::TransformRotationSRT(parameters.jointRotation, parameters.jointScale, interpolatedRotation);
+				sequenceJoints[jointIndex].scale = Nz::TransformScaleSRT(parameters.jointScale, interpolatedScale);
 			}
 			else
 			{
@@ -427,7 +427,7 @@ std::shared_ptr<Nz::SubMesh> ProcessSubMesh(const std::filesystem::path& originP
 	if (auto posPtr = vertexMapper.GetComponentPtr<Nz::Vector3f>(Nz::VertexComponent::Position))
 	{
 		for (unsigned int vertexIndex = 0; vertexIndex < vertexCount; ++vertexIndex)
-			posPtr[vertexIndex] = Nz::TransformPositionTRS(parameters.vertexOffset, parameters.vertexRotation, parameters.vertexScale, FromAssimp(meshData->mVertices[vertexIndex]));
+			posPtr[vertexIndex] = Nz::TransformPositionSRT(parameters.vertexOffset, parameters.vertexRotation, parameters.vertexScale, FromAssimp(meshData->mVertices[vertexIndex]));
 
 		aabb = Nz::ComputeAABB(posPtr, vertexCount);
 	}
@@ -436,7 +436,7 @@ std::shared_ptr<Nz::SubMesh> ProcessSubMesh(const std::filesystem::path& originP
 	if (auto normalPtr = vertexMapper.GetComponentPtr<Nz::Vector3f>(Nz::VertexComponent::Normal))
 	{
 		for (unsigned int vertexIndex = 0; vertexIndex < vertexCount; ++vertexIndex)
-			*normalPtr++ = Nz::TransformNormalTRS(parameters.vertexRotation, parameters.vertexScale, FromAssimp(meshData->mNormals[vertexIndex]));
+			*normalPtr++ = Nz::TransformNormalSRT(parameters.vertexRotation, parameters.vertexScale, FromAssimp(meshData->mNormals[vertexIndex]));
 	}
 
 	// Vertex tangents
@@ -446,7 +446,7 @@ std::shared_ptr<Nz::SubMesh> ProcessSubMesh(const std::filesystem::path& originP
 		if (meshData->HasTangentsAndBitangents())
 		{
 			for (unsigned int vertexIndex = 0; vertexIndex < vertexCount; ++vertexIndex)
-				*tangentPtr++ = Nz::TransformNormalTRS(parameters.vertexRotation, parameters.vertexScale, FromAssimp(meshData->mTangents[vertexIndex]));
+				*tangentPtr++ = Nz::TransformNormalSRT(parameters.vertexRotation, parameters.vertexScale, FromAssimp(meshData->mTangents[vertexIndex]));
 		}
 		else
 			generateTangents = true;

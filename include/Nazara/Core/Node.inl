@@ -506,19 +506,19 @@ namespace Nz
 	inline Vector3f Node::ToGlobalPosition(const Vector3f& localPosition) const
 	{
 		EnsureGlobalsUpdate();
-		return TransformPositionTRS(m_globalPosition, m_globalRotation, m_globalScale, localPosition);
+		return TransformPositionSRT(m_globalPosition, m_globalRotation, m_globalScale, localPosition);
 	}
 
 	inline Quaternionf Node::ToGlobalRotation(const Quaternionf& localRotation) const
 	{
 		EnsureGlobalsUpdate();
-		return TransformRotationTRS(m_globalRotation, m_globalScale, localRotation);
+		return TransformRotationSRT(m_globalRotation, m_globalScale, localRotation);
 	}
 
 	inline Vector3f Node::ToGlobalScale(const Vector3f& localScale) const
 	{
 		EnsureGlobalsUpdate();
-		return TransformScaleTRS(m_globalScale, localScale);
+		return TransformScaleSRT(m_globalScale, localScale);
 	}
 
 	inline Vector3f Node::ToLocalPosition(const Vector3f& globalPosition) const

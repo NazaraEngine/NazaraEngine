@@ -208,7 +208,7 @@ namespace Nz
 				{
 					const MD2_Vertex& vert = vertices[v];
 
-					*normalPtr++ = TransformNormalTRS(rotation, scale, md2Normals[vert.n]);
+					*normalPtr++ = TransformNormalSRT(rotation, scale, md2Normals[vert.n]);
 				}
 			}
 
@@ -219,7 +219,7 @@ namespace Nz
 				{
 					const MD2_Vertex& vert = vertices[v];
 
-					*posPtr++ = TransformPositionTRS(translate, rotation, scale, Vector3f(vert.x, vert.y, vert.z));
+					*posPtr++ = TransformPositionSRT(translate, rotation, scale, Vector3f(vert.x, vert.y, vert.z));
 				}
 			}
 

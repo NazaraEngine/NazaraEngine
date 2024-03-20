@@ -92,11 +92,11 @@ namespace Nz
 
 	NAZARA_CORE_API void SkinLinearBlend(const SkinningData& data, UInt32 startVertex, UInt32 vertexCount);
 
-	inline Vector3f TransformPositionTRS(const Vector3f& transformTranslation, const Quaternionf& transformRotation, const Vector3f& transformScale, const Vector3f& position);
-	inline Vector3f TransformNormalTRS(const Quaternionf& transformRotation, const Vector3f& transformScale, const Vector3f& normal);
-	inline Quaternionf TransformRotationTRS(const Quaternionf& transformRotation, const Vector3f& transformScale, const Quaternionf& rotation);
-	inline Vector3f TransformScaleTRS(const Vector3f& transformScale, const Vector3f& scale);
-	inline void TransformTRS(const Vector3f& transformTranslation, const Quaternionf& transformRotation, const Vector3f& transformScale, Vector3f& position, Quaternionf& rotation, Vector3f& scale);
+	inline Vector3f TransformPositionSRT(const Vector3f& transformTranslation, const Quaternionf& transformRotation, const Vector3f& transformScale, const Vector3f& position);
+	inline Vector3f TransformNormalSRT(const Quaternionf& transformRotation, const Vector3f& transformScale, const Vector3f& normal);
+	inline Quaternionf TransformRotationSRT(const Quaternionf& transformRotation, const Vector3f& transformScale, const Quaternionf& rotation);
+	inline Vector3f TransformScaleSRT(const Vector3f& transformScale, const Vector3f& scale);
+	inline void TransformSRT(const Vector3f& transformTranslation, const Quaternionf& transformRotation, const Vector3f& transformScale, Vector3f& position, Quaternionf& rotation, Vector3f& scale);
 	inline void TransformVertices(VertexPointers vertexPointers, UInt32 vertexCount, const Matrix4f& matrix);
 
 	template<typename T> constexpr ComponentType ComponentTypeId();

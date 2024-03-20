@@ -62,31 +62,31 @@ namespace Nz
 		return true;
 	}
 
-	inline Vector3f TransformPositionTRS(const Vector3f& transformTranslation, const Quaternionf& transformRotation, const Vector3f& transformScale, const Vector3f& position)
+	inline Vector3f TransformPositionSRT(const Vector3f& transformTranslation, const Quaternionf& transformRotation, const Vector3f& transformScale, const Vector3f& position)
 	{
 		return transformRotation * (transformScale * position) + transformTranslation;
 	}
 
-	Vector3f TransformNormalTRS(const Quaternionf& transformRotation, const Vector3f& transformScale, const Vector3f& normal)
+	Vector3f TransformNormalSRT(const Quaternionf& transformRotation, const Vector3f& transformScale, const Vector3f& normal)
 	{
 		return Quaternionf::Mirror(transformRotation, transformScale) * normal;
 	}
 
-	inline Quaternionf TransformRotationTRS(const Quaternionf& transformRotation, const Vector3f& transformScale, const Quaternionf& rotation)
+	inline Quaternionf TransformRotationSRT(const Quaternionf& transformRotation, const Vector3f& transformScale, const Quaternionf& rotation)
 	{
 		return Quaternionf::Mirror(transformRotation, transformScale) * rotation;
 	}
 
-	inline Vector3f TransformScaleTRS(const Vector3f& transformScale, const Vector3f& scale)
+	inline Vector3f TransformScaleSRT(const Vector3f& transformScale, const Vector3f& scale)
 	{
 		return transformScale * scale;
 	}
 
-	inline void TransformTRS(const Vector3f& transformTranslation, const Quaternionf& transformRotation, const Vector3f& transformScale, Vector3f& position, Quaternionf& rotation, Vector3f& scale)
+	inline void TransformSRT(const Vector3f& transformTranslation, const Quaternionf& transformRotation, const Vector3f& transformScale, Vector3f& position, Quaternionf& rotation, Vector3f& scale)
 	{
-		position = TransformPositionTRS(transformTranslation, transformRotation, transformScale, position);
-		rotation = TransformRotationTRS(transformRotation, transformScale, rotation);
-		scale    = TransformScaleTRS(transformScale, scale);
+		position = TransformPositionSRT(transformTranslation, transformRotation, transformScale, position);
+		rotation = TransformRotationSRT(transformRotation, transformScale, rotation);
+		scale    = TransformScaleSRT(transformScale, scale);
 	}
 
 	inline void TransformVertices(VertexPointers vertexPointers, UInt32 vertexCount, const Matrix4f& matrix)

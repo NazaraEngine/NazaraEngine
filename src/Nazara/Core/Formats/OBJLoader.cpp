@@ -284,13 +284,13 @@ namespace Nz
 					if (posPtr)
 					{
 						const Vector4f& vec = positions[vertexIndices.position - 1];
-						posPtr[index] = TransformPositionTRS(parameters.vertexOffset, parameters.vertexRotation, parameters.vertexScale, Vector3f(vec));
+						posPtr[index] = TransformPositionSRT(parameters.vertexOffset, parameters.vertexRotation, parameters.vertexScale, Vector3f(vec));
 					}
 
 					if (hasNormals)
 					{
 						if (vertexIndices.normal > 0)
-							normalPtr[index] = TransformNormalTRS(parameters.vertexRotation, parameters.vertexScale, normals[vertexIndices.normal - 1]);
+							normalPtr[index] = TransformNormalSRT(parameters.vertexRotation, parameters.vertexScale, normals[vertexIndices.normal - 1]);
 						else
 							hasNormals = false;
 					}
