@@ -192,7 +192,7 @@ namespace Nz
 						if (fraction > 0.f)
 						{
 							m_didHit = true;
-							UpdateEarlyOutFraction(fraction);
+							ResetEarlyOutFraction(fraction);
 						}
 						else
 							ForceEarlyOut();
@@ -242,7 +242,7 @@ namespace Nz
 						if (fraction > 0.f)
 						{
 							m_didHit = true;
-							UpdateEarlyOutFraction(fraction);
+							ResetEarlyOutFraction(fraction);
 						}
 						else
 							ForceEarlyOut();
@@ -293,7 +293,7 @@ namespace Nz
 						if (fraction > 0.f)
 						{
 							m_didHit = true;
-							UpdateEarlyOutFraction(fraction);
+							ResetEarlyOutFraction(fraction);
 						}
 						else
 							ForceEarlyOut();
