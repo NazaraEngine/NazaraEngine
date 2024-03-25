@@ -40,7 +40,6 @@ namespace
 			m_rgbaFrame(nullptr),
 			m_ioContext(nullptr),
 			m_conversionContext(nullptr),
-			m_ioBuffer(nullptr),
 			m_videoStream(-1)
 			{
 			}
@@ -66,21 +65,24 @@ namespace
 					avformat_close_input(&m_formatContext);
 
 				if (m_ioContext)
+				{
+					// libavformat is allowed to realloc the buffer passed to avio_alloc_context, but it's still our responsibility to free it
+					av_freep(&m_ioContext->buffer);
 					avio_context_free(&m_ioContext);
-
-				if (m_ioBuffer)
-					av_free(m_ioBuffer);
+				}
 			}
 
 			Nz::Result<void, Nz::ResourceLoadingError> Check()
 			{
 				constexpr std::size_t BufferSize = 32768;
 
-				m_ioBuffer = av_malloc(BufferSize + AV_INPUT_BUFFER_PADDING_SIZE);
-				m_ioContext = avio_alloc_context(static_cast<unsigned char*>(m_ioBuffer), BufferSize, 0, &m_byteStream, &FFmpegStream::Read, nullptr, &FFmpegStream::Seek);
+				void* buffer = av_malloc(BufferSize + AV_INPUT_BUFFER_PADDING_SIZE);
+				m_ioContext = avio_alloc_context(static_cast<unsigned char*>(buffer), BufferSize, 0, &m_byteStream, &FFmpegStream::Read, nullptr, &FFmpegStream::Seek);
 				if (!m_ioContext)
 				{
 					NazaraError("failed to create io context");
+
+					av_free(buffer);
 					return Nz::Err(Nz::ResourceLoadingError::Internal);
 				}
 
@@ -386,7 +388,6 @@ namespace
 			AVFrame* m_rgbaFrame;
 			AVIOContext* m_ioContext;
 			SwsContext* m_conversionContext;
-			void* m_ioBuffer;
 			std::unique_ptr<Nz::Stream> m_ownedStream;
 			Nz::ByteStream m_byteStream;
 			int m_videoStream;
