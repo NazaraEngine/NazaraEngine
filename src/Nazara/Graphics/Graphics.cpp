@@ -21,6 +21,7 @@
 #include <Nazara/TextRenderer/Font.hpp>
 #include <NZSL/Ast/AstSerializer.hpp>
 #include <NZSL/Ast/Module.hpp>
+#include <NazaraUtils/StackArray.hpp>
 #include <array>
 #include <stdexcept>
 
@@ -437,7 +438,16 @@ namespace Nz
 			texInfo.width = texInfo.height = texInfo.depth = texInfo.levelCount = 1;
 			texInfo.pixelFormat = m_preferredDepthFormat;
 
-			std::array<UInt8, 6> whitePixels = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+			std::size_t bpp = PixelFormatInfo::GetBytesPerPixel(m_preferredDepthFormat);
+			StackArray<UInt8> whitePixels = NazaraStackArrayNoInit(UInt8, bpp * 6);
+			if (m_preferredDepthFormat == PixelFormat::Depth32F)
+			{
+				float value = 1.0f;
+				for (std::size_t i = 0; i < 6; ++i)
+					std::memcpy(&whitePixels[i * bpp], &value, sizeof(value));
+			}
+			else
+				std::memset(whitePixels.data(), 0xFF, whitePixels.size());
 
 			for (auto&& [imageType, texture] : m_defaultTextures.depthTextures.iter_kv())
 			{
@@ -457,7 +467,8 @@ namespace Nz
 			texInfo.width = texInfo.height = texInfo.depth = texInfo.levelCount = 1;
 			texInfo.pixelFormat = PixelFormat::L8;
 
-			std::array<UInt8, 6> whitePixels = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
+			std::array<UInt8, 6> whitePixels;
+			whitePixels.fill(0xFF);
 
 			for (auto&& [imageType, texture] : m_defaultTextures.whiteTextures.iter_kv())
 			{
