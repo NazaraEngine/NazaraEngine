@@ -8,8 +8,7 @@
 #define NAZARA_GRAPHICS_RENDERQUEUEREGISTRY_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Graphics/Thirdparty/robin_hood/robin_hood.h>
-#include <set>
+#include <Nazara/Graphics/Thirdparty/ankerl/unordered_dense.h>
 
 namespace Nz
 {
@@ -44,13 +43,13 @@ namespace Nz
 			inline void RegisterVertexDeclaration(const VertexDeclaration* vertexDeclaration);
 
 		private:
-			std::set<int> m_renderLayers;
-			robin_hood::unordered_map<int, std::size_t> m_renderLayerRegistry;
-			robin_hood::unordered_map<const MaterialInstance*, std::size_t> m_materialPassRegistry;
-			robin_hood::unordered_map<const RenderPipeline*, std::size_t> m_pipelineRegistry;
-			robin_hood::unordered_map<const RenderBuffer*, std::size_t> m_vertexBufferRegistry;
-			robin_hood::unordered_map<const Skeleton*, std::size_t> m_skeletonRegistry;
-			robin_hood::unordered_map<const VertexDeclaration*, std::size_t> m_vertexDeclarationRegistry;
+			ankerl::unordered_dense::set<int> m_renderLayers;
+			ankerl::unordered_dense::map<int, std::size_t> m_renderLayerRegistry;
+			ankerl::unordered_dense::map<const MaterialInstance*, std::size_t> m_materialPassRegistry;
+			ankerl::unordered_dense::map<const RenderPipeline*, std::size_t> m_pipelineRegistry;
+			ankerl::unordered_dense::map<const RenderBuffer*, std::size_t> m_vertexBufferRegistry;
+			ankerl::unordered_dense::map<const Skeleton*, std::size_t> m_skeletonRegistry;
+			ankerl::unordered_dense::map<const VertexDeclaration*, std::size_t> m_vertexDeclarationRegistry;
 	};
 }
 

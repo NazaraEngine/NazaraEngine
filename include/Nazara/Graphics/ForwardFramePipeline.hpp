@@ -166,7 +166,7 @@ namespace Nz
 			std::unordered_map<MaterialInstance*, MaterialInstanceData> m_materialInstances;
 			mutable std::vector<FramePipelinePass::VisibleRenderable> m_visibleRenderables;
 			std::vector<ViewerData*> m_orderedViewers;
-			robin_hood::unordered_set<TransferInterface*> m_transferSet;
+			ankerl::unordered_dense::set<TransferInterface*> m_transferSet;
 			BakedFrameGraph m_bakedFrameGraph;
 			Bitset<UInt64> m_activeLights;
 			Bitset<UInt64> m_removedLightInstances;
