@@ -1,12 +1,11 @@
-// Copyright (C) 2023 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// Copyright (C) 2025 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Platform module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Platform/Android/VideoModeImpl.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Platform/VideoMode.hpp>
 #include <algorithm>
-#include <Nazara/Platform/Debug.hpp>
 
 namespace Nz
 {

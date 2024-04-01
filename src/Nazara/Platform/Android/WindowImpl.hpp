@@ -1,17 +1,17 @@
-// Copyright (C) 2023 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// Copyright (C) 2025 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Platform module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #pragma once
 
 #ifndef NAZARA_PLATFORM_ANDROID_WINDOWIMPL_HPP
 #define NAZARA_PLATFORM_ANDROID_WINDOWIMPL_HPP
 
-#include <Nazara/Prerequisites.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Android/AndroidActivity.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector2.hpp>
-#include <Nazara/Platform/Config.hpp>
+#include <Nazara/Platform/Export.hpp>
 #include <Nazara/Platform/Keyboard.hpp>
 #include <Nazara/Platform/Mouse.hpp>
 #include <Nazara/Platform/VideoMode.hpp>
@@ -59,6 +59,7 @@ namespace Nz
 			void UpdateMaximumSize(int width, int height);
 			void UpdateMinimumSize(int width, int height);
 			void UpdatePosition(int x, int y);
+			void UpdateRelativeMouseMode(bool relativeMouseMode);
 			void UpdateSize(unsigned int width, unsigned int height);
 			void UpdateStayOnTop(bool stayOnTop);
 			void UpdateTitle(const std::string& title);

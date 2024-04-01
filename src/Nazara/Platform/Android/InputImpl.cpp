@@ -1,12 +1,11 @@
-// Copyright (C) 2023 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// Copyright (C) 2025 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Platform module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Platform/Android/InputImpl.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Platform/Window.hpp>
-#include <Nazara/Utils/CallOnExit.hpp>
-#include <Nazara/Platform/Debug.hpp>
+#include <NazaraUtils/CallOnExit.hpp>
 
 namespace Nz
 {
@@ -57,11 +56,6 @@ namespace Nz
 
 	void InputImpl::SetClipboardString(const std::string& str)
 	{
-	}
-
-	bool InputImpl::SetRelativeMouseMode(bool relativeMouseMode)
-	{
-		return false;
 	}
 
 	void InputImpl::SetMousePosition(int x, int y)

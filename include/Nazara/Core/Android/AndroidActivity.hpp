@@ -1,16 +1,16 @@
-// Copyright (C) 2023 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// Copyright (C) 2025 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Core module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #pragma once
 
 #ifndef NAZARA_CORE_ANDROID_ANDROIDACTIVITY_HPP
 #define NAZARA_CORE_ANDROID_ANDROIDACTIVITY_HPP
 
-#include <Nazara/Prerequisites.hpp>
-#include <Nazara/Core/Config.hpp>
-#include <Nazara/Utils/FunctionRef.hpp>
-#include <Nazara/Utils/Signal.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/Export.hpp>
+#include <NazaraUtils/FunctionRef.hpp>
+#include <NazaraUtils/Signal.hpp>
 #include <android/configuration.h>
 #include <android/native_activity.h>
 #include <android/window.h>
@@ -34,7 +34,7 @@ namespace Nz
 
 			inline ANativeActivity* GetNativeActivity();
 			inline const ANativeActivity* GetNativeActivity() const;
-			
+
 			inline ANativeWindow* GetNativeWindow();
 			inline const ANativeWindow* GetNativeWindow() const;
 

@@ -1,10 +1,9 @@
-// Copyright (C) 2023 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// Copyright (C) 2025 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - OpenGL renderer"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/OpenGLRenderer/Wrapper/Android/EGLContextAndroid.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/EGL/EGLLoader.hpp>
-#include <Nazara/OpenGLRenderer/Debug.hpp>
 
 namespace Nz::GL
 {

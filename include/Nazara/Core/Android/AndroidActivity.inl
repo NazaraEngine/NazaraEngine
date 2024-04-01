@@ -1,10 +1,8 @@
-// Copyright (C) 2023 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// Copyright (C) 2025 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Core module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
-#include <Nazara/Core/Android/AndroidActivity.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {
@@ -37,7 +35,7 @@ namespace Nz
 	{
 		return m_activity;
 	}
-	
+
 	inline ANativeWindow* AndroidActivity::GetNativeWindow()
 	{
 		return m_window;
@@ -65,5 +63,3 @@ namespace Nz
 		return s_instance;
 	}
 }
-
-#include <Nazara/Core/DebugOff.hpp>

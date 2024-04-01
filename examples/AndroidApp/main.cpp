@@ -1,8 +1,7 @@
 #include <Nazara/Core.hpp>
 #include <Nazara/Graphics.hpp>
-#include <Nazara/Platform/AppWindowingComponent.hpp>
+#include <Nazara/Platform/WindowingAppComponent.hpp>
 #include <Nazara/Renderer.hpp>
-#include <Nazara/Utility.hpp>
 #include <android/native_activity.h>
 #include <android/log.h>
 #include <iostream>
@@ -17,7 +16,7 @@ int main()
 	// Mise en place de l'application, de la fenêtre et du monde
 	Nz::Application<Nz::Graphics> app(rendererConfig);
 
-	auto& windowing = app.AddComponent<Nz::AppWindowingComponent>();
+	auto& windowing = app.AddComponent<Nz::WindowingAppComponent>();
 	Nz::Window& mainWindow = windowing.CreateWindow(Nz::VideoMode(1920, 1080), "Hello Android");
 
 	auto& ecs = app.AddComponent<Nz::AppEntitySystemComponent>();
@@ -144,7 +143,7 @@ int main()
 	// Mise en place de l'application, de la fenêtre et du monde
 	Nz::Application<Nz::Graphics> app(rendererConfig);
 
-	auto& windowing = app.AddComponent<Nz::AppWindowingComponent>();
+	auto& windowing = app.AddComponent<Nz::WindowingAppComponent>();
 
 	std::shared_ptr<Nz::RenderDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
 
@@ -152,7 +151,7 @@ int main()
 	Nz::Window& mainWindow = windowing.CreateWindow(Nz::VideoMode(1920, 1080), windowTitle);
 	Nz::WindowSwapchain windowSwapchain(device, mainWindow);
 
-	auto& fs = app.AddComponent<Nz::AppFilesystemComponent>();
+	auto& fs = app.AddComponent<Nz::FilesystemAppComponent>();
 	{
 #ifdef NAZARA_PLATFORM_ANDROID
 		fs.Mount("assets", std::make_shared<Nz::VirtualDirectory>(std::make_shared<Nz::AndroidAssetDirResolver>("examples")));
@@ -186,27 +185,26 @@ int main()
 
 	std::shared_ptr<Nz::Texture> diffuseTexture = fs.Load<Nz::Texture>("assets/Spaceship/Texture/diffuse.png", texParams);
 
-	std::shared_ptr<Nz::Material> material = Nz::Graphics::Instance()->GetDefaultMaterials().basicMaterial;
-
-	std::shared_ptr<Nz::MaterialInstance> materialInstance = std::make_shared<Nz::MaterialInstance>(material);
+	std::shared_ptr<Nz::MaterialInstance> materialInstance = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Basic);
 	materialInstance->SetTextureProperty(0, diffuseTexture);
 	materialInstance->SetValueProperty(0, Nz::Color::White());
 
-	std::shared_ptr<Nz::MaterialInstance> materialInstance2 = std::make_shared<Nz::MaterialInstance>(material);
+	std::shared_ptr<Nz::MaterialInstance> materialInstance2 = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Basic);
 	materialInstance2->SetValueProperty(0, Nz::Color::Green());
 
-	Nz::Model model(std::move(gfxMesh), spaceshipMesh->GetAABB());
+	Nz::Model model(std::move(gfxMesh));
 	for (std::size_t i = 0; i < model.GetSubMeshCount(); ++i)
 		model.SetMaterial(i, materialInstance);
 
 	Nz::Vector2ui windowSize = mainWindow.GetSize();
 
-	Nz::Camera camera(&windowSwapchain);
+	Nz::Camera camera(std::make_shared<Nz::RenderWindow>(windowSwapchain));
 	camera.UpdateClearColor(Nz::Color::Gray());
 
 	Nz::ViewerInstance& viewerInstance = camera.GetViewerInstance();
 	viewerInstance.UpdateTargetSize(Nz::Vector2f(mainWindow.GetSize()));
 	viewerInstance.UpdateProjViewMatrices(Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(windowSize.x) / windowSize.y, 0.1f, 1000.f), Nz::Matrix4f::Translate(Nz::Vector3f::Backward() * 1));
+	viewerInstance.UpdateNearFarPlanes(0.1f, 1000.f);
 
 	Nz::WorldInstancePtr modelInstance = std::make_shared<Nz::WorldInstance>();
 	modelInstance->UpdateWorldMatrix(Nz::Matrix4f::Translate(Nz::Vector3f::Forward() * 2 + Nz::Vector3f::Left()));
@@ -262,7 +260,7 @@ int main()
 		}
 	});
 
-	app.AddUpdater([&](Nz::Time /*elapsedTime*/)
+	app.AddUpdaterFunc([&]
 	{
 		Nz::RenderFrame frame = windowSwapchain.AcquireFrame();
 		if (!frame)

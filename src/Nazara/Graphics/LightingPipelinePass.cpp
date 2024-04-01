@@ -133,7 +133,7 @@ namespace Nz
 					for (auto& lightBlock : *lightBlockContainer)
 						builder.CopyBuffer(*lightBlock.uploadAllocation, RenderBufferView(lightBlock.memory.lightUbo.get(), 0, lightBlock.lightCount * m_directionalLightSize));
 				}
-				
+
 				for (auto& lightBlockContainer : { &m_shadowDirectionalLights, &m_shadowPointLights, &m_shadowSpotLights })
 				{
 					for (auto& lightBlock : *lightBlockContainer)

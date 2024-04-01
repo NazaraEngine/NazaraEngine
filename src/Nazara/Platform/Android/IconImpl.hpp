@@ -1,15 +1,15 @@
-// Copyright (C) 2023 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// Copyright (C) 2025 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Platform module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #pragma once
 
 #ifndef NAZARA_PLATFORM_ANDROID_ICONIMPL_HPP
 #define NAZARA_PLATFORM_ANDROID_ICONIMPL_HPP
 
-#include <Nazara/Prerequisites.hpp>
-#include <Nazara/Utility/Image.hpp>
-#include <Nazara/Utils/MovablePtr.hpp>
+#include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/Image.hpp>
+#include <NazaraUtils/MovablePtr.hpp>
 
 namespace Nz
 {

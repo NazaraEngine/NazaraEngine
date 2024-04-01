@@ -108,7 +108,7 @@ local modules = {
 					-- https://stackoverflow.com/questions/66338153/undefined-reference-to-folderid-c
 					add_syslinks("uuid")
 				end
-			elseif is_plat("linux") then
+			elseif is_plat("linux", "android") then
 				add_packages("libuuid")
 				add_syslinks("dl", "pthread")
 			elseif is_plat("bsd") then
@@ -183,9 +183,11 @@ local modules = {
 		Deps = {"NazaraCore"},
 		Packages = {"utfcpp"},
 		Custom = function()
-			if not is_plat("android") then
-				-- Android has a custom platform backend
-				add_packages("libsdl3")
+			if is_plat("android") then
+				add_syslinks("android")
+			else
+				-- Android has a custom backend
+				add_packages("libsdl3", { components = {"lib"} })
 			end
 			if is_plat("windows", "mingw") then
 				add_defines("SDL_VIDEO_DRIVER_WINDOWS=1")

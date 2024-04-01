@@ -1,12 +1,11 @@
-// Copyright (C) 2023 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// Copyright (C) 2025 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Core module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Core/Android/AndroidAssetDirResolver.hpp>
+#include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Android/AndroidActivity.hpp>
 #include <Nazara/Core/Android/AndroidAssetStream.hpp>
-#include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {
@@ -42,7 +41,7 @@ namespace Nz
 			}
 		}
 	}
-	
+
 	std::optional<VirtualDirectory::Entry> AndroidAssetDirResolver::Resolve(std::weak_ptr<VirtualDirectory> parent, const std::string_view* parts, std::size_t partCount) const
 	{
 		std::string fullPath = m_basePath;

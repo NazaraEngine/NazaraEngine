@@ -1,12 +1,11 @@
-// Copyright (C) 2023 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// Copyright (C) 2025 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Core module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Core/Android/AndroidLogger.hpp>
 #include <Nazara/Core/Algorithm.hpp>
-#include <Nazara/Utils/StackArray.hpp>
+#include <NazaraUtils/StackArray.hpp>
 #include <android/log.h>
-#include <Nazara/Core/Debug.hpp>
 
 namespace Nz
 {
@@ -22,10 +21,10 @@ namespace Nz
 		static_assert(sizeof(s_logPriority) / sizeof(android_LogPriority) == ErrorTypeCount, "Log priority array is incomplete");
 
 		const char* s_errorType[] = {
-			"Assert failed",	// ErrorType::AssertFailed
-			"Internal error",	// ErrorType::Internal
-			"Error",		    // ErrorType::Normal
-			"Warning"		    // ErrorType::Warning
+			"Assert failed",    // ErrorType::AssertFailed
+			"Internal error",   // ErrorType::Internal
+			"Error",            // ErrorType::Normal
+			"Warning"           // ErrorType::Warning
 		};
 
 		static_assert(sizeof(s_errorType) / sizeof(const char*) == ErrorTypeCount, "Error type array is incomplete");

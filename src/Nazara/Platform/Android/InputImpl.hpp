@@ -1,6 +1,6 @@
-// Copyright (C) 2023 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// Copyright (C) 2025 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Platform module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #pragma once
 
@@ -28,7 +28,6 @@ namespace Nz
 			static bool IsKeyPressed(Keyboard::VKey key);
 			static bool IsMouseButtonPressed(Mouse::Button button);
 			static void SetClipboardString(const std::string& str);
-			static bool SetRelativeMouseMode(bool relativeMouseMode);
 			static void SetMousePosition(int x, int y);
 			static void SetMousePosition(int x, int y, const Window& relativeTo);
 			static void StartTextInput();
