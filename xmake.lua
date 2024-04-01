@@ -93,7 +93,7 @@ local modules = {
 
 			if is_plat("windows", "mingw") then
 				add_syslinks("Ole32")
-			elseif is_plat("linux") then
+			elseif is_plat("linux", "android") then
 				add_packages("libuuid")
 				add_syslinks("dl")
 				if is_plat("linux") then
@@ -168,7 +168,9 @@ local modules = {
 		Deps = {"NazaraCore"},
 		Packages = {"utfcpp"},
 		Custom = function()
-			if not is_plat("android") then
+			if is_plat("android") then
+				add_syslinks("android")
+			else
 				-- Android has a custom backend
 				add_packages("libsdl", { components = {"lib"} })
 			end

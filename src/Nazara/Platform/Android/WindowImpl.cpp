@@ -1,14 +1,13 @@
-// Copyright (C) 2023 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// Copyright (C) 2024 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Platform module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Platform/Android/WindowImpl.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Android/AndroidActivity.hpp>
-#include <Nazara/Utils/CallOnExit.hpp>
+#include <NazaraUtils/CallOnExit.hpp>
 #include <android/input.h>
 #include <android/keycodes.h>
-#include <Nazara/Platform/Debug.hpp>
 
 namespace Nz
 {
@@ -298,8 +297,8 @@ namespace Nz
 					NazaraWarning("unexpected event type " + std::to_string(eventType));
 			}
 
-			
-		} 
+
+		}
 	}
 
 	bool WindowImpl::Initialize()

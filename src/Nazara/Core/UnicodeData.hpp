@@ -3,7 +3,7 @@
 
 // Copyright (C) 2023 Jérôme Leclercq
 // This file is part of the "Nazara Engine - Core module"
-// For conditions of distribution and use, see copyright notice in Config.hpp
+// For conditions of distribution and use, see copyright notice in LICENSE
 
 UnicodeCharacter unicodeCharacters[34893] = {
 	{0, Unicode::Category_Other_Control, Unicode::Direction_Boundary_Neutral},

@@ -21,6 +21,8 @@ namespace Nz
 
 	class NAZARA_PLATFORM_API MessageBox
 	{
+		friend class MessageBoxImpl;
+
 		public:
 			struct ColorScheme;
 

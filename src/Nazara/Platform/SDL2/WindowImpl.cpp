@@ -110,6 +110,12 @@ namespace Nz
 				return false;
 			}
 
+			case WindowBackend::Android:
+			{
+				NazaraError("unsupported creation from a Android handle");
+				return false;
+			}
+
 			case WindowBackend::Wayland:
 			{
 				NazaraError("unsupported creation from a Wayland handle");
