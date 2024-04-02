@@ -1,15 +1,15 @@
-name: Windows build
+name: Android build
 
 on:
   pull_request:
   push:
     paths-ignore:
-      - '.github/workflows/android-build.yml'
       - '.github/workflows/coverage.yml'
       - '.github/workflows/linux-build.yml'
       - '.github/workflows/macos-build.yml'
       - '.github/workflows/msys2-build.yml'
       - '.github/workflows/wasm-build.yml'
+      - '.github/workflows/windows-build.yml'
       - '.gitignore'
       - 'LICENSE'
       - 'CHANGELOG.md'
@@ -20,11 +20,15 @@ on:
 jobs:
   build:
     strategy:
+      fail-fast: false
       matrix:
-        os: [windows-latest]
-        arch: [x64]
-        mode: [debug, releasedbg]
-        kind: [shared, static]
+        os: [ubuntu-latest]
+        arch: [x86_64, armeabi-v7a, arm64-v8a]
+        ndk: ["r26c"]
+        ndk_sdkver: ["28"]
+        confs:
+        - { mode: debug, archive: yes }
+        - { mode: releasedbg, archive: yes }
 
     runs-on: ${{ matrix.os }}
     if: ${{ !contains(github.event.head_commit.message, 'ci skip') }}
@@ -33,14 +37,13 @@ jobs:
     - name: Get current date as package key
       id: cache_key
       run: echo "key=$(date +'%W')" >> $GITHUB_OUTPUT
-      shell: bash
 
     - name: Checkout repository
       uses: actions/checkout@v4
 
     # Force xmake to a specific folder (for cache)
     - name: Set xmake env
-      run: echo "XMAKE_GLOBALDIR=${{ runner.workspace }}/xmake-global" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+      run: echo "XMAKE_GLOBALDIR=${{ runner.workspace }}/xmake-global" >> $GITHUB_ENV
 
     # Install xmake
     - name: Setup xmake
@@ -56,19 +59,19 @@ jobs:
     # Fetch xmake dephash
     - name: Retrieve dependencies hash
       id: dep_hash
-      run: echo "hash=$(xmake l utils.ci.packageskey)" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+      run: echo "hash=$(xmake l utils.ci.packageskey)" >> $GITHUB_OUTPUT
 
     # Cache xmake dependencies
     - name: Restore cached xmake dependencies
       id: restore-depcache
       uses: actions/cache/restore@v4
       with:
-        path: ${{ env.XMAKE_GLOBALDIR }}\.xmake\packages
-        key: MSVC-${{ matrix.arch }}-${{ matrix.mode }}-${{ steps.dep_hash.outputs.hash }}-W${{ steps.cache_key.outputs.key }}
+        path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
+        key: Android-${{ matrix.arch }}-${{ matrix.confs.mode }}${{ matrix.confs.cache_key }}-${{ steps.dep_hash.outputs.hash }}-W${{ steps.cache_key.outputs.key }}
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
-      run: xmake config --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --static=${{ matrix.kind == 'static' && 'yes' || 'no' }} --ccache=n --ffmpeg=y --tests=y --unitybuild=y --yes
+      run: xmake config --plat=android --arch=${{ matrix.arch }} --mode=${{ matrix.confs.mode }} ${{ matrix.confs.config }} --ccache=n --ffmpeg=y --static=y --tests=y --unitybuild=y --yes
 
     # Save dependencies
     - name: Save cached xmake dependencies
@@ -97,24 +100,19 @@ jobs:
         path: assets
         key: ${{ steps.restore-assets.outputs.cache-primary-key }}
 
-    # Run unit tests
-    - name: Run unit tests
-      if: matrix.mode != 'releasedbg'
-      run: xmake test -v
-
     # Install the result files
     - name: Install Nazara
-      if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' }}
+      if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' && matrix.confs.archive }}
       run: xmake install -vo package
 
     - name: "Set PACKAGE_NAME variable"
-      if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' }}
-      run: echo "PACKAGE_NAME=windows_${{ matrix.arch }}_${{ matrix.mode }}_${{ matrix.kind }}.zip" >> $GITHUB_ENV
+      if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' && matrix.confs.archive }}
+      run: echo "PACKAGE_NAME=android_${{ matrix.arch }}_${{ matrix.confs.mode }}.tar.gz" >> $GITHUB_ENV
       shell: bash
 
     - name: Archive result
       uses: ihiroky/archive-action@v1
-      if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' }}
+      if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' && matrix.confs.archive }}
       with:
         root_dir: package
         file_path: ${{ env.PACKAGE_NAME }}
@@ -123,7 +121,7 @@ jobs:
     # Nightly tags (for commits to main branch)
     - name: Upload binaries to release (main)
       uses: svenstaro/upload-release-action@v2
-      if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' }}
+      if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' && matrix.confs.archive }}
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: ${{ env.PACKAGE_NAME }}
