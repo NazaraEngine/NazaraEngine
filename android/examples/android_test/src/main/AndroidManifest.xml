@@ -3,7 +3,9 @@
     <application
         android:label="Nazara Demo"
         android:icon="@drawable/icon"
-        android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
+        android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+        android:usesCleartextTraffic="false"
+        android:allowBackup="false">
         <activity android:name="com.sirlynix.nazaraExample.NazaraActivity"
             android:screenOrientation="landscape"
             android:configChanges="orientation|keyboardHidden"
@@ -18,5 +20,4 @@
 
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
     <uses-feature android:name="android.hardware.gamepad" android:required="false" />
-
 </manifest>
