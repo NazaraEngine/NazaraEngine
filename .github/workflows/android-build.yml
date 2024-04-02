@@ -52,6 +52,12 @@ jobs:
         xmake-version: branch@dev
         actions-cache-folder: .xmake-cache-W${{ steps.cache_key.outputs.key }}
 
+    # Setup NDK
+    - name: Download NDK
+      run: |
+        wget -q https://dl.google.com/android/repository/android-ndk-${{ matrix.ndk }}-linux.zip
+        unzip -q -o ./android-ndk-${{ matrix.ndk }}-linux.zip
+
     # Update xmake repository (in order to have the file that will be cached)
     - name: Update xmake repository
       run: xmake repo --update
@@ -71,7 +77,7 @@ jobs:
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
-      run: xmake config --plat=android --arch=${{ matrix.arch }} --mode=${{ matrix.confs.mode }} ${{ matrix.confs.config }} --ccache=n --ffmpeg=y --static=y --tests=y --unitybuild=y --yes
+      run: xmake config --plat=android --ndk=`pwd`/android-ndk-${{ matrix.ndk }} --ndk_sdkver=${{ matrix.ndk_sdkver }} --arch=${{ matrix.arch }} --mode=${{ matrix.confs.mode }} ${{ matrix.confs.config }} --ccache=n --ffmpeg=y --static=y --tests=n --unitybuild=y --yes
 
     # Save dependencies
     - name: Save cached xmake dependencies
@@ -107,7 +113,7 @@ jobs:
 
     - name: "Set PACKAGE_NAME variable"
       if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' && matrix.confs.archive }}
-      run: echo "PACKAGE_NAME=android_${{ matrix.arch }}_${{ matrix.confs.mode }}.tar.gz" >> $GITHUB_ENV
+      run: echo "PACKAGE_NAME=android-${{ matrix.ndk_sdkver }}_${{ matrix.arch }}_${{ matrix.confs.mode }}.tar.gz" >> $GITHUB_ENV
       shell: bash
 
     - name: Archive result
