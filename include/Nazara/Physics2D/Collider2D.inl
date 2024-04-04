@@ -141,7 +141,7 @@ namespace Nz
 	}
 
 
-	inline const std::vector<Vector2d>& ConvexCollider2D::GetVertices() const
+	inline const std::vector<Vector2f>& ConvexCollider2D::GetVertices() const
 	{
 		return m_vertices;
 	}

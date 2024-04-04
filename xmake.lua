@@ -325,7 +325,7 @@ if has_config("audio") then
 end
 
 if has_config("physics2d") then
-	add_requires("chipmunk2d")
+	add_requires("chipmunk2d", { configs = { precision = "single" }})
 end
 
 if has_config("physics3d") then
