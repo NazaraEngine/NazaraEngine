@@ -19,9 +19,9 @@
 #include <Nazara/Graphics/Formats/PipelinePassListLoader.hpp>
 #include <Nazara/Graphics/Formats/TextureLoader.hpp>
 #include <Nazara/TextRenderer/Font.hpp>
+#include <NazaraUtils/StackArray.hpp>
 #include <NZSL/Ast/AstSerializer.hpp>
 #include <NZSL/Ast/Module.hpp>
-#include <NazaraUtils/StackArray.hpp>
 #include <array>
 #include <stdexcept>
 
