@@ -9,6 +9,7 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Thirdparty/ankerl/unordered_dense.h>
+#include <set>
 
 namespace Nz
 {
@@ -43,7 +44,7 @@ namespace Nz
 			inline void RegisterVertexDeclaration(const VertexDeclaration* vertexDeclaration);
 
 		private:
-			ankerl::unordered_dense::set<int> m_renderLayers;
+			std::set<int> m_renderLayers;
 			ankerl::unordered_dense::map<int, std::size_t> m_renderLayerRegistry;
 			ankerl::unordered_dense::map<const MaterialInstance*, std::size_t> m_materialPassRegistry;
 			ankerl::unordered_dense::map<const RenderPipeline*, std::size_t> m_pipelineRegistry;
