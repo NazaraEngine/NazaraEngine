@@ -6,32 +6,7 @@ namespace Nz
 {
 	inline TaskSchedulerAppComponent::TaskSchedulerAppComponent(ApplicationBase& app, unsigned int workerCount) :
 	ApplicationComponent(app),
-	m_scheduler(workerCount)
+	TaskScheduler(workerCount)
 	{
-	}
-
-	inline void TaskSchedulerAppComponent::AddTask(TaskScheduler::Task&& task)
-	{
-		return m_scheduler.AddTask(std::move(task));
-	}
-
-	inline TaskScheduler& TaskSchedulerAppComponent::GetScheduler()
-	{
-		return m_scheduler;
-	}
-
-	inline const TaskScheduler& TaskSchedulerAppComponent::GetScheduler() const
-	{
-		return m_scheduler;
-	}
-
-	inline unsigned int TaskSchedulerAppComponent::GetWorkerCount() const
-	{
-		return m_scheduler.GetWorkerCount();
-	}
-
-	inline void TaskSchedulerAppComponent::WaitForTasks()
-	{
-		return m_scheduler.WaitForTasks();
 	}
 }
