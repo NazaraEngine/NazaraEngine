@@ -965,7 +965,7 @@ namespace
 #ifdef NAZARA_PLUGINS_STATIC
 namespace Nz
 {
-	std::unique_ptr<AssimpPlugin> PluginProvider<AssimpPlugin>::Instantiate()
+	std::unique_ptr<AssimpPlugin> StaticPluginProvider<AssimpPlugin>::Instantiate()
 	{
 		return std::make_unique<AssimpPluginImpl>();
 	}

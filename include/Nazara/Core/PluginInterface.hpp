@@ -39,13 +39,8 @@ namespace Nz
 			PluginInterface& operator=(PluginInterface&&) = delete;
 	};
 
-#ifdef NAZARA_PLUGINS_STATIC
 	template<typename T>
-	struct PluginProvider
-	{
-		static_assert(AlwaysFalse<T>(), "unknown plugin");
-	};
-#endif
+	struct StaticPluginProvider;
 }
 
 #include <Nazara/Core/PluginInterface.inl>

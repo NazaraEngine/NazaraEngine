@@ -34,7 +34,7 @@ namespace Nz
 
 #ifdef NAZARA_PLUGINS_STATIC
 	template<>
-	struct PluginProvider<AssimpPlugin>
+	struct StaticPluginProvider<AssimpPlugin>
 	{
 		static std::unique_ptr<AssimpPlugin> Instantiate();
 	};
