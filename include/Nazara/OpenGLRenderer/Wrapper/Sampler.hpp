@@ -10,7 +10,6 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLDevice.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/DeviceObject.hpp>
-#include <NazaraUtils/MovableValue.hpp>
 
 namespace Nz::GL
 {

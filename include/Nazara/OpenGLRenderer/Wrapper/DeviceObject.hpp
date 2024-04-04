@@ -43,8 +43,8 @@ namespace Nz::GL
 			static constexpr GLuint InvalidObject = 0;
 
 		protected:
+			MovableLiteral<GLuint, InvalidObject> m_objectId;
 			MovablePtr<OpenGLDevice> m_device;
-			MovableValue<GLuint> m_objectId;
 	};
 }
 
