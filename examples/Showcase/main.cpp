@@ -20,8 +20,8 @@ int main(int argc, char* argv[])
 {
 	Nz::Application<Nz::Graphics, Nz::Physics3D> app(argc, argv);
 
-	Nz::PluginLoader loader;
-	Nz::Plugin<Nz::AssimpPlugin> assimp = loader.Load<Nz::AssimpPlugin>();
+	Nz::PluginManagerAppComponent& pluginManager = app.AddComponent<Nz::PluginManagerAppComponent>();
+	Nz::AssimpPlugin& assimp = pluginManager.Load<Nz::AssimpPlugin>();
 
 	std::shared_ptr<Nz::RenderDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
 

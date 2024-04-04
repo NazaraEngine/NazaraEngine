@@ -94,6 +94,8 @@
 #include <Nazara/Core/Plugin.hpp>
 #include <Nazara/Core/PluginInterface.hpp>
 #include <Nazara/Core/PluginLoader.hpp>
+#include <Nazara/Core/PluginManagerAppComponent.hpp>
+#include <Nazara/Core/PluginStore.hpp>
 #include <Nazara/Core/PoolByteStream.hpp>
 #include <Nazara/Core/Primitive.hpp>
 #include <Nazara/Core/PrimitiveList.hpp>
