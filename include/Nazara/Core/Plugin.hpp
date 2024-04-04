@@ -34,6 +34,8 @@ namespace Nz
 			void Deactivate();
 
 			const DynLib& GetDynamicLibrary() const;
+			T& GetInterface();
+			const T& GetInterface() const;
 
 			T* operator->();
 			const T* operator->() const;

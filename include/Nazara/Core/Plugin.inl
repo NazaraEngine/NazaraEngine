@@ -65,15 +65,27 @@ namespace Nz
 	}
 
 	template<typename T>
+	T& Plugin<T>::GetInterface()
+	{
+		return *m_interface;
+	}
+
+	template<typename T>
+	const T& Plugin<T>::GetInterface() const
+	{
+		return *m_interface;
+	}
+
+	template<typename T>
 	T* Plugin<T>::operator->()
 	{
-		return m_interface;
+		return m_interface.get();
 	}
 
 	template<typename T>
 	const T* Plugin<T>::operator->() const
 	{
-		return m_interface;
+		return m_interface.get();
 	}
 }
 

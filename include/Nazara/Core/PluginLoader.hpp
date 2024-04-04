@@ -30,7 +30,7 @@ namespace Nz
 			void AddSearchDirectory(const std::filesystem::path& directoryPath);
 
 			template<typename T> [[nodiscard]] Plugin<T> Load(bool activate = true);
-			GenericPlugin Load(const std::filesystem::path& pluginPath, bool activate = true);
+			[[nodiscard]] GenericPlugin Load(const std::filesystem::path& pluginPath, bool activate = true);
 
 			void RemoveSearchDirectory(const std::filesystem::path& directoryPath);
 
