@@ -22,7 +22,7 @@ namespace Nz
 			if (activate && !pluginInterface->Activate())
 				throw std::runtime_error("failed to activate plugin");
 
-			return Plugin<T>({}, std::move(pluginInterface), activate);
+			return Plugin<T>({}, std::move(pluginInterface));
 		}
 		else
 		{
