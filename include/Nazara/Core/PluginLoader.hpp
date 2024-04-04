@@ -21,11 +21,12 @@ namespace Nz
 	class NAZARA_CORE_API PluginLoader
 	{
 		public:
-			PluginLoader();
+			inline PluginLoader(bool addDefaultDirectories = true);
 			PluginLoader(const PluginLoader&) = delete;
 			PluginLoader(PluginLoader&&) = delete;
 			~PluginLoader() = default;
 
+			void AddDefaultSearchDirectories();
 			void AddSearchDirectory(const std::filesystem::path& directoryPath);
 
 			template<typename T> [[nodiscard]] Plugin<T> Load(bool activate = true);

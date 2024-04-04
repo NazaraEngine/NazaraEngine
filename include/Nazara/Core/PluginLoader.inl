@@ -6,6 +6,12 @@
 
 namespace Nz
 {
+	inline PluginLoader::PluginLoader(bool addDefaultDirectories)
+	{
+		if (addDefaultDirectories)
+			AddDefaultSearchDirectories();
+	}
+
 	template<typename T>
 	Plugin<T> PluginLoader::Load(bool activate)
 	{

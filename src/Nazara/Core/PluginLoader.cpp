@@ -11,7 +11,7 @@
 
 namespace Nz
 {
-	PluginLoader::PluginLoader()
+	void PluginLoader::AddDefaultSearchDirectories()
 	{
 		AddSearchDirectory(".");
 		AddSearchDirectory("plugins");
@@ -21,7 +21,9 @@ namespace Nz
 
 	void PluginLoader::AddSearchDirectory(const std::filesystem::path& directoryPath)
 	{
-		m_directories.push_back(std::filesystem::absolute(directoryPath));
+		std::filesystem::path absoluteDirPath = std::filesystem::absolute(directoryPath);
+		if (std::find(m_directories.begin(), m_directories.end(), absoluteDirPath) != m_directories.end())
+			m_directories.push_back(std::filesystem::absolute(directoryPath));
 	}
 
 #ifndef NAZARA_PLUGINS_STATIC
