@@ -60,7 +60,7 @@ namespace Nz
 		if (activate && !pluginInterface->Activate())
 			throw std::runtime_error("failed to activate plugin");
 
-		return GenericPlugin(std::move(library), std::move(pluginInterface), activate);
+		return GenericPlugin(std::move(library), std::move(pluginInterface));
 	}
 
 	void PluginLoader::RemoveSearchDirectory(const std::filesystem::path& directoryPath)

@@ -7,10 +7,9 @@
 namespace Nz
 {
 	template<typename T>
-	Plugin<T>::Plugin(DynLib dynLib, std::unique_ptr<T> pluginInterface, bool isActive) :
+	Plugin<T>::Plugin(DynLib dynLib, std::unique_ptr<T> pluginInterface) :
 	m_interface(std::move(pluginInterface)),
-	m_lib(std::move(dynLib)),
-	m_isActive(isActive)
+	m_lib(std::move(dynLib))
 	{
 	}
 
@@ -31,13 +30,9 @@ namespace Nz
 	template<typename T>
 	bool Plugin<T>::Activate()
 	{
-		if (m_isActive)
-			return true;
-
 		if (!m_interface->Activate())
 			return false;
 
-		m_isActive = true;
 		return true;
 	}
 
@@ -45,17 +40,13 @@ namespace Nz
 	template<typename U>
 	Plugin<U> Plugin<T>::Cast() &&
 	{
-		return Plugin<U>(std::move(m_lib), std::unique_ptr<U>(static_cast<U*>(m_interface.release())), m_isActive);
+		return Plugin<U>(std::move(m_lib), std::unique_ptr<U>(SafeCast<U*>(m_interface.release())));
 	}
 
 	template<typename T>
 	void Plugin<T>::Deactivate()
 	{
-		if (m_isActive)
-		{
-			m_interface->Deactivate();
-			m_isActive = false;
-		}
+		m_interface->Deactivate();
 	}
 
 	template<typename T>
@@ -87,5 +78,10 @@ namespace Nz
 	{
 		return m_interface.get();
 	}
-}
 
+	template<typename T>
+	Plugin<T>::operator Plugin<PluginInterface>() &&
+	{
+		return std::move(*this).template Cast<PluginInterface>();
+	}
+}

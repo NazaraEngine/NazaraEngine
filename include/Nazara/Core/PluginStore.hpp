@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_CORE_PLUGINLOADERAPPCOMPONENT_HPP
-#define NAZARA_CORE_PLUGINLOADERAPPCOMPONENT_HPP
+#ifndef NAZARA_CORE_PLUGINSTORE_HPP
+#define NAZARA_CORE_PLUGINSTORE_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/PluginLoader.hpp>
@@ -36,4 +36,4 @@ namespace Nz
 
 #include <Nazara/Core/PluginStore.inl>
 
-#endif // NAZARA_CORE_PLUGINLOADERAPPCOMPONENT_HPP
+#endif // NAZARA_CORE_PLUGINSTORE_HPP

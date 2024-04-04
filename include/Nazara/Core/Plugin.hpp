@@ -22,9 +22,9 @@ namespace Nz
 		static_assert(std::is_base_of_v<PluginInterface, T>);
 
 		public:
-			Plugin(DynLib dynLib, std::unique_ptr<T> pluginInterface, bool isActive = false);
+			Plugin(DynLib dynLib, std::unique_ptr<T> pluginInterface);
 			Plugin(const Plugin&) = delete;
-			Plugin(Plugin&&) = delete;
+			Plugin(Plugin&&) noexcept = default;
 			~Plugin();
 
 			bool Activate();
@@ -40,13 +40,14 @@ namespace Nz
 			T* operator->();
 			const T* operator->() const;
 
+			operator Plugin<PluginInterface>() &&;
+
 			Plugin& operator=(const Plugin&) = delete;
-			Plugin& operator=(Plugin&&) = delete;
+			Plugin& operator=(Plugin&&) noexcept = default;
 
 		private:
 			std::unique_ptr<T> m_interface;
 			DynLib m_lib;
-			bool m_isActive;
 	};
 
 	using GenericPlugin = Plugin<PluginInterface>;

@@ -432,7 +432,7 @@ namespace
 	class FFmpegPluginImpl final : public Nz::FFmpegPlugin
 	{
 		public:
-			bool Activate() override
+			bool ActivateImpl() override
 			{
 				Nz::Core* core = Nz::Core::Instance();
 				NazaraAssert(core, "core module is not instancied");
@@ -456,7 +456,7 @@ namespace
 				return true;
 			}
 
-			void Deactivate() override
+			void DeactivateImpl() override
 			{
 				Nz::Core* core = Nz::Core::Instance();
 				NazaraAssert(core, "core module is not instanced");

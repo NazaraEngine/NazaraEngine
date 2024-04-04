@@ -23,13 +23,15 @@ namespace Nz
 	class NAZARA_CORE_API PluginInterface
 	{
 		public:
-			PluginInterface() = default;
+			inline PluginInterface();
 			PluginInterface(const PluginInterface&) = delete;
 			PluginInterface(PluginInterface&&) = delete;
 			virtual ~PluginInterface();
 
-			virtual bool Activate() = 0;
-			virtual void Deactivate() = 0;
+			inline bool Activate();
+			inline void Deactivate();
+
+			inline bool IsActive() const;
 
 			virtual std::string_view GetDescription() const = 0;
 			virtual std::string_view GetName() const = 0;
@@ -37,6 +39,12 @@ namespace Nz
 
 			PluginInterface& operator=(const PluginInterface&) = delete;
 			PluginInterface& operator=(PluginInterface&&) = delete;
+
+		private:
+			virtual bool ActivateImpl() = 0;
+			virtual void DeactivateImpl() = 0;
+
+			bool m_isActive;
 	};
 
 	template<typename T>

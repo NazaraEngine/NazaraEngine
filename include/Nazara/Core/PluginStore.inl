@@ -4,18 +4,18 @@
 
 namespace Nz
 {
-	template<typename T>
-	T& PluginStore::Load(PluginLoader& loader, bool activate)
-	{
-		GenericPlugin& plugin = m_loadedPlugins.emplace_back(loader.Load<T>(activate));
-		return static_cast<T&>(plugin.GetInterface());
-	}
-
 	inline PluginStore::~PluginStore()
 	{
 		// std::vector does not guarantee order of destruction, do it ourselves
 		while (!m_loadedPlugins.empty())
 			m_loadedPlugins.pop_back();
+	}
+
+	template<typename T>
+	T& PluginStore::Load(PluginLoader& loader, bool activate)
+	{
+		GenericPlugin& plugin = m_loadedPlugins.emplace_back(loader.Load<T>(activate));
+		return static_cast<T&>(plugin.GetInterface());
 	}
 
 	inline PluginInterface& PluginStore::Load(PluginLoader& loader, const std::filesystem::path& pluginPath, bool activate)
