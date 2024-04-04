@@ -161,7 +161,7 @@ namespace Nz
 		renderableData->skeletonInstanceIndex = skeletonInstanceIndex;
 		renderableData->worldInstanceIndex = worldInstanceIndex;
 
-		renderableData->onElementInvalidated.Connect(instancedRenderable->OnElementInvalidated, [this, =](InstancedRenderable* /*instancedRenderable*/)
+		renderableData->onElementInvalidated.Connect(instancedRenderable->OnElementInvalidated, [this, renderMask](InstancedRenderable* /*instancedRenderable*/)
 		{
 			// TODO: Invalidate only relevant viewers and passes
 			for (auto& viewerData : m_viewerPool)
