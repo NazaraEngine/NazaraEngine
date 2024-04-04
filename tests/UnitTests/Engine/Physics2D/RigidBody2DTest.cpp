@@ -135,14 +135,14 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 		{
 			THEN("We expect those to be true")
 			{
-				CHECK(body.GetAABB() == aabb);
-				CHECK(body.GetAngularVelocity() == 0.f);
-				CHECK(body.GetMassCenter(Nz::CoordSys::Global) == position);
+				CHECK(body.GetAABB().ApproxEqual(aabb));
+				CHECK(body.GetAngularVelocity().ApproxEqual((0.f)));
 				CHECK(body.GetCollider() == box);
+				CHECK(body.GetMassCenter(Nz::CoordSys::Global).ApproxEqual(position));
 				CHECK(body.GetMass() == Catch::Approx(dynamicSettings.mass));
-				CHECK(body.GetPosition() == position);
+				CHECK(body.GetPosition().ApproxEqual(position));
 				CHECK(body.GetRotation().value == Catch::Approx(0.f));
-				CHECK(body.GetVelocity() == Nz::Vector2f::Zero());
+				CHECK(body.GetVelocity().ApproxEqual(Nz::Vector2f::Zero()));
 
 				CHECK(body.IsKinematic() == false);
 				CHECK(body.IsSleeping() == false);
@@ -159,10 +159,10 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 			THEN("We expect those to be true")
 			{
 				aabb.Translate(velocity);
-				CHECK(body.GetAABB() == aabb);
-				CHECK(body.GetMassCenter(Nz::CoordSys::Global) == position);
-				CHECK(body.GetPosition() == position);
-				CHECK(body.GetVelocity() == velocity);
+				CHECK(body.GetAABB().ApproxEqual(aabb, 0.0001f));
+				CHECK(body.GetMassCenter(Nz::CoordSys::Global).ApproxEqual(position, 0.0001f));
+				CHECK(body.GetPosition().ApproxEqual(position, 0.0001f));
+				CHECK(body.GetVelocity().ApproxEqual(velocity, 0.0001f));
 			}
 
 			AND_THEN("We apply an impulse in the opposite direction")
@@ -183,20 +183,20 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 
 			THEN("We expect those to be true")
 			{
-				CHECK(body.GetAngularVelocity().ApproxEqual(angularSpeed));
+				CHECK(body.GetAngularVelocity().ApproxEqual(angularSpeed, 0.001f));
 				CHECK(body.GetRotation().ApproxEqual(angularSpeed));
-				CHECK(body.GetAABB().ApproxEqual(Nz::Rectf(-6.f, 3.f, 2.f, 1.f), 0.00001f));
+				CHECK(body.GetAABB().ApproxEqual(Nz::Rectf(-6.f, 3.f, 2.f, 1.f), 0.0001f));
 
 				world.Step(Nz::Time::Second());
-				CHECK(body.GetRotation().ApproxEqual(2.f * angularSpeed));
-				CHECK(body.GetAABB().ApproxEqual(Nz::Rectf(-4.f, -6.f, 1.f, 2.f), 0.00001f));
+				CHECK(body.GetRotation().ApproxEqual(2.f * angularSpeed, 0.001f));
+				CHECK(body.GetAABB().ApproxEqual(Nz::Rectf(-4.f, -6.f, 1.f, 2.f), 0.0001f));
 
 				world.Step(Nz::Time::Second());
-				CHECK(body.GetRotation().ApproxEqual(3.f * angularSpeed));
-				CHECK(body.GetAABB().ApproxEqual(Nz::Rectf(4.f, -4.f, 2.f, 1.f), 0.00001f));
+				CHECK(body.GetRotation().ApproxEqual(3.f * angularSpeed, 0.001f));
+				CHECK(body.GetAABB().ApproxEqual(Nz::Rectf(4.f, -4.f, 2.f, 1.f), 0.0001f));
 
 				world.Step(Nz::Time::Second());
-				CHECK(body.GetRotation().ApproxEqual(4.f * angularSpeed));
+				CHECK(body.GetRotation().ApproxEqual(4.f * angularSpeed, 0.001f));
 			}
 		}
 

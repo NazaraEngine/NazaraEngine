@@ -156,12 +156,12 @@ namespace Nz
 			float ComputeMomentOfInertia(float mass) const override;
 
 			ColliderType2D GetType() const override;
-			inline const std::vector<Vector2d>& GetVertices() const;
+			inline const std::vector<Vector2f>& GetVertices() const;
 
 		private:
 			std::size_t CreateShapes(cpBody* body, std::vector<cpShape*>* shapes) const override;
 
-			std::vector<Vector2d> m_vertices;
+			std::vector<Vector2f> m_vertices;
 			float m_radius;
 	};
 
