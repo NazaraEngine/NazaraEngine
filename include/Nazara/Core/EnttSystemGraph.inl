@@ -86,6 +86,7 @@ namespace Nz
 		for (auto rit = m_nodes.rbegin(); rit != m_nodes.rend(); ++rit)
 			rit->reset();
 
+		m_nodes.clear();
 		m_orderedNodes.clear();
 		m_systemToNodes.clear();
 		m_systemOrderUpdated = true;
