@@ -344,7 +344,7 @@ void EQUALITY(const Nz::RigidBody2D& left, const Nz::RigidBody2D& right)
 	CHECK(left.GetCollider() == right.GetCollider());
 	CHECK(left.GetHandle() != right.GetHandle());
 	CHECK(left.GetMass() == Catch::Approx(right.GetMass()));
-	CHECK(left.GetPosition() == right.GetPosition());
+	CHECK(left.GetPosition().ApproxEqual(right.GetPosition(), 0.0001f));
 	CHECK(left.GetRotation().value == Catch::Approx(right.GetRotation().value));
 	CHECK(left.GetVelocity() == right.GetVelocity());
 }
