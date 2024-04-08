@@ -455,6 +455,15 @@ namespace Nz
 		return m_world->physicsSystem.GetNumActiveBodies(JPH::EBodyType::RigidBody);
 	}
 
+	Boxf PhysWorld3D::GetBoundingBox() const
+	{
+		JPH::AABox bounds = m_world->physicsSystem.GetBounds();
+		JPH::Vec3 pos = bounds.mMin;
+		JPH::Vec3 size = bounds.GetSize();
+
+		return Boxf(FromJolt(pos), FromJolt(size));
+	}
+
 	Vector3f PhysWorld3D::GetGravity() const
 	{
 		return FromJolt(m_world->physicsSystem.GetGravity());

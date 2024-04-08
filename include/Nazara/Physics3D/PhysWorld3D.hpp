@@ -54,6 +54,7 @@ namespace Nz
 			bool CollisionQuery(const Collider3D& collider, const Matrix4f& colliderTransform, const Vector3f& colliderScale, const FunctionRef<std::optional<float>(const ShapeCollisionInfo& hitInfo)>& callback);
 
 			UInt32 GetActiveBodyCount() const;
+			Boxf GetBoundingBox() const;
 			Vector3f GetGravity() const;
 			std::size_t GetMaxStepCount() const;
 			JPH::PhysicsSystem* GetPhysicsSystem();
