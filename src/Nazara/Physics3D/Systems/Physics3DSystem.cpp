@@ -120,7 +120,7 @@ namespace Nz
 			PhysCharacter3DComponent& entityCharacter = m_registry.get<PhysCharacter3DComponent>(entity);
 			NodeComponent& entityNode = m_registry.get<NodeComponent>(entity);
 
-			entityCharacter.TeleportTo(entityNode.GetPosition(), entityNode.GetRotation());
+			entityCharacter.TeleportTo(entityNode.GetGlobalPosition(), entityNode.GetGlobalRotation());
 		});
 
 		m_rigidBodyConstructObserver.each([this](entt::entity entity)
@@ -128,7 +128,7 @@ namespace Nz
 			RigidBody3DComponent& entityBody = m_registry.get<RigidBody3DComponent>(entity);
 			NodeComponent& entityNode = m_registry.get<NodeComponent>(entity);
 
-			entityBody.TeleportTo(entityNode.GetPosition(), entityNode.GetRotation());
+			entityBody.TeleportTo(entityNode.GetGlobalPosition(), entityNode.GetGlobalRotation());
 		});
 
 		// Update the physics world
