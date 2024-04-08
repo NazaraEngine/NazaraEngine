@@ -8,6 +8,7 @@ namespace Nz
 	inline EnttWorld::EnttWorld() :
 	m_systemGraph(m_registry)
 	{
+		m_registry.ctx().emplace<EnttWorld*>(this);
 	}
 
 	template<typename T, typename... Args>
