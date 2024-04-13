@@ -19,7 +19,10 @@
 
 namespace Nz
 {
-	VulkanDevice::~VulkanDevice() = default;
+	VulkanDevice::~VulkanDevice()
+	{
+		OnRenderDeviceRelease(this);
+	}
 
 	const RenderDeviceInfo& VulkanDevice::GetDeviceInfo() const
 	{

@@ -42,6 +42,8 @@ namespace Nz
 			bool Copy(const Texture& source, const Boxui& srcBox, const Vector3ui& dstPos) override;
 			std::shared_ptr<Texture> CreateView(const TextureViewInfo& viewInfo) override;
 
+			RenderDevice* GetDevice() override;
+			const RenderDevice* GetDevice() const override;
 			inline PixelFormat GetFormat() const override;
 			inline VkImage GetImage() const;
 			inline VkImageView GetImageView() const;
