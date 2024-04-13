@@ -362,6 +362,16 @@ namespace Nz
 		return std::make_shared<VulkanTexture>(std::static_pointer_cast<VulkanTexture>(shared_from_this()), viewInfo);
 	}
 
+	RenderDevice* VulkanTexture::GetDevice()
+	{
+		return &m_device;
+	}
+
+	const RenderDevice* VulkanTexture::GetDevice() const
+	{
+		return &m_device;
+	}
+
 	bool VulkanTexture::Update(const void* ptr, const Boxui& box, unsigned int srcWidth, unsigned int srcHeight, UInt8 level)
 	{
 		Vk::AutoCommandBuffer copyCommandBuffer = m_device.AllocateCommandBuffer(QueueType::Graphics);

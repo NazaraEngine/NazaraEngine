@@ -23,6 +23,7 @@
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Renderer/TextureSampler.hpp>
 #include <NazaraUtils/FunctionRef.hpp>
+#include <NazaraUtils/Signal.hpp>
 #include <NZSL/ShaderWriter.hpp>
 #include <NZSL/Ast/Module.hpp>
 #include <memory>
@@ -64,6 +65,8 @@ namespace Nz
 			virtual void WaitForIdle() = 0;
 
 			static void ValidateFeatures(const RenderDeviceFeatures& supportedFeatures, RenderDeviceFeatures& enabledFeatures);
+
+			NazaraSignal(OnRenderDeviceRelease, RenderDevice* /*device*/);
 	};
 }
 

@@ -31,6 +31,8 @@ namespace Nz
 
 			inline void GenerateMipmaps(UInt8 baseLevel, UInt8 levelCount);
 
+			inline RenderDevice* GetDevice() override;
+			inline const RenderDevice* GetDevice() const override;
 			inline PixelFormat GetFormat() const override;
 			inline UInt8 GetLevelCount() const override;
 			inline OpenGLTexture* GetParentTexture() const override;

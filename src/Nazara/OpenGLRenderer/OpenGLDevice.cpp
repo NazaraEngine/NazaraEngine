@@ -123,6 +123,8 @@ namespace Nz
 
 	OpenGLDevice::~OpenGLDevice()
 	{
+		OnRenderDeviceRelease(this);
+
 		// Free reference context first as it will unregister itself from m_contexts
 		m_referenceContext.reset();
 	}

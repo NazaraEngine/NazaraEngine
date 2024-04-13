@@ -72,6 +72,8 @@ namespace Nz
 			virtual bool Copy(const Texture& source, const Boxui& srcBox, const Vector3ui& dstPos = Vector3ui::Zero()) = 0;
 			virtual std::shared_ptr<Texture> CreateView(const TextureViewInfo& viewInfo) = 0;
 
+			virtual RenderDevice* GetDevice() = 0;
+			virtual const RenderDevice* GetDevice() const = 0;
 			virtual Texture* GetParentTexture() const = 0;
 			virtual const TextureInfo& GetTextureInfo() const = 0;
 
