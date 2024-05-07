@@ -18,7 +18,7 @@ TEST_CASE("VirtualDirectory", "[Core][VirtualDirectory]")
 		{
 			bool dot = false;
 			bool dotDot = false;
-			virtualDir->Foreach([&](std::string_view name, const Nz::VirtualDirectory::Entry& /*entry*/)
+			virtualDir->ForEach([&](std::string_view name, const Nz::VirtualDirectory::Entry& /*entry*/)
 			{
 				if (name == ".")
 				{
@@ -39,7 +39,7 @@ TEST_CASE("VirtualDirectory", "[Core][VirtualDirectory]")
 		}
 		AND_WHEN("Iterating it without dots, directory it empty")
 		{
-			virtualDir->Foreach([&](std::string_view name, const Nz::VirtualDirectory::Entry& /*entry*/)
+			virtualDir->ForEach([&](std::string_view name, const Nz::VirtualDirectory::Entry& /*entry*/)
 			{
 				FAIL("There should be nothing here, got " << name);
 			});
@@ -186,7 +186,7 @@ TEST_CASE("VirtualDirectory", "[Core][VirtualDirectory]")
 		WHEN("Iterating, it's not empty")
 		{
 			bool empty = true;
-			resourceDir->Foreach([&](std::string_view name, const Nz::VirtualDirectory::Entry& entry)
+			resourceDir->ForEach([&](std::string_view name, const Nz::VirtualDirectory::Entry& entry)
 			{
 				CHECK_FALSE(name == ".");
 				CHECK_FALSE(name == "..");
@@ -276,7 +276,7 @@ TEST_CASE("VirtualDirectory", "[Core][VirtualDirectory]")
 			CHECK(resourceDir->GetDirectoryEntry("Utility", [&](const Nz::VirtualDirectory::DirectoryEntry& directoryEntry)
 			{
 				bool found = false;
-				directoryEntry.directory->Foreach([&](std::string_view entryName, const Nz::VirtualDirectory::Entry& entry)
+				directoryEntry.directory->ForEach([&](std::string_view entryName, const Nz::VirtualDirectory::Entry& entry)
 				{
 					if (entryName == "GIF")
 					{

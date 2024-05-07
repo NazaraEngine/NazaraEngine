@@ -41,7 +41,7 @@ namespace Nz
 
 			inline bool Exists(std::string_view path);
 
-			template<typename F> void Foreach(F&& callback, bool includeDots = false);
+			template<typename F> void ForEach(F&& callback, bool includeDots = false);
 
 			template<typename F> bool GetDirectoryEntry(std::string_view path, F&& callback);
 			template<typename F> bool GetEntry(std::string_view path, F&& callback);

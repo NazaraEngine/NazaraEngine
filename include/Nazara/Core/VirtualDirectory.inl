@@ -36,7 +36,7 @@ namespace Nz
 	}
 
 	template<typename F>
-	void VirtualDirectory::Foreach(F&& callback, bool includeDots)
+	void VirtualDirectory::ForEach(F&& callback, bool includeDots)
 	{
 		if (includeDots)
 		{

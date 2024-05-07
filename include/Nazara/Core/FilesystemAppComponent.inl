@@ -68,7 +68,7 @@ namespace Nz
 	{
 		return m_rootDirectory->GetDirectoryEntry(dirPath, [&](const Nz::VirtualDirectory::DirectoryEntry& dirEntry)
 		{
-			dirEntry.directory->Foreach(callback);
+			dirEntry.directory->ForEach(callback);
 		});
 	}
 
