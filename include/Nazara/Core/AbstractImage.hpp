@@ -29,15 +29,15 @@ namespace Nz
 			UInt8 GetBytesPerPixel() const;
 			virtual PixelFormat GetFormat() const = 0;
 			virtual UInt8 GetLevelCount() const = 0;
-			virtual Vector3ui GetSize(UInt8 level = 0) const = 0;
+			virtual Vector3ui32 GetSize(UInt8 level = 0) const = 0;
 			virtual ImageType GetType() const = 0;
 
 			bool IsCompressed() const;
 			bool IsCubemap() const;
 
-			inline bool Update(const void* pixels, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0);
-			virtual bool Update(const void* pixels, const Boxui& box, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0) = 0;
-			inline bool Update(const void* pixels, const Rectui& rect, unsigned int z = 0, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0);
+			inline bool Update(const void* pixels, UInt32 srcWidth = 0, UInt32 srcHeight = 0, UInt8 level = 0);
+			virtual bool Update(const void* pixels, const Boxui& box, UInt32 srcWidth = 0, UInt32 srcHeight = 0, UInt8 level = 0) = 0;
+			inline bool Update(const void* pixels, const Rectui& rect, UInt32 z = 0, UInt32 srcWidth = 0, UInt32 srcHeight = 0, UInt8 level = 0);
 
 			AbstractImage& operator=(const AbstractImage&) = default;
 			AbstractImage& operator=(AbstractImage&&) noexcept = default;

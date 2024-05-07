@@ -148,10 +148,10 @@ namespace Nz
 		const VulkanTexture& vkToTexture = SafeCast<const VulkanTexture&>(toTexture);
 
 		unsigned int fromBaseLayer, fromLayerCount;
-		Image::RegionToArray(vkFromTexture.GetType(), fromBox, fromBaseLayer, fromLayerCount);
+		ImageUtils::RegionToArray(vkFromTexture.GetType(), fromBox, fromBaseLayer, fromLayerCount);
 
 		unsigned int toBaseLayer, toLayerCount;
-		Image::RegionToArray(vkToTexture.GetType(), toBox, toBaseLayer, toLayerCount);
+		ImageUtils::RegionToArray(vkToTexture.GetType(), toBox, toBaseLayer, toLayerCount);
 
 		VkImageBlit region = {
 			vkFromTexture.BuildSubresourceLayers(0, fromBaseLayer, fromLayerCount),
@@ -310,10 +310,10 @@ namespace Nz
 		const VulkanTexture& vkToTexture = SafeCast<const VulkanTexture&>(toTexture);
 
 		unsigned int fromBaseLayer, fromLayerCount;
-		Image::RegionToArray(vkFromTexture.GetType(), fromBox, fromBaseLayer, fromLayerCount);
+		ImageUtils::RegionToArray(vkFromTexture.GetType(), fromBox, fromBaseLayer, fromLayerCount);
 
 		unsigned int toBaseLayer, toLayerCount;
-		Image::RegionToArray(vkToTexture.GetType(), Boxui(toPos.x, toPos.y, toPos.z, fromBox.width, fromBox.height, fromBox.depth), toBaseLayer, toLayerCount);
+		ImageUtils::RegionToArray(vkToTexture.GetType(), Boxui(toPos.x, toPos.y, toPos.z, fromBox.width, fromBox.height, fromBox.depth), toBaseLayer, toLayerCount);
 
 		VkImageCopy region = {
 			vkFromTexture.BuildSubresourceLayers(0, fromBaseLayer, fromLayerCount),

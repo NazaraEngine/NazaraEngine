@@ -135,9 +135,9 @@ namespace Nz
 
 		const std::shared_ptr<RenderDevice>& renderDevice = Graphics::Instance()->GetRenderDevice();
 
-		auto ComputeTextureSize = [&](TextureData& textureData) -> Vector2ui
+		auto ComputeTextureSize = [&](TextureData& textureData) -> Vector2ui32
 		{
-			Vector2ui texDimensions(1, 1);
+			Vector2ui32 texDimensions(1, 1);
 			switch (textureData.size)
 			{
 				case FramePassAttachmentSize::Fixed:
@@ -172,7 +172,7 @@ namespace Nz
 				continue;
 
 			// Check if texture dimension changed
-			Vector3ui curSize = textureData.texture->GetSize();
+			Vector3ui32 curSize = textureData.texture->GetSize();
 			auto [newWidth, newHeight] = ComputeTextureSize(textureData);
 			if (newWidth == curSize.x && newHeight == curSize.y)
 				continue;

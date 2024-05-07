@@ -27,10 +27,10 @@ namespace Nz
 		ImageType type;
 		TextureUsageFlags usageFlags = TextureUsage::ShaderSampling | TextureUsage::TransferDestination | TextureUsage::TransferSource;
 		UInt8 levelCount = 0xFF;
-		unsigned int layerCount = 1;
-		unsigned int depth = 1;
-		unsigned int height;
-		unsigned int width;
+		UInt32 layerCount = 1;
+		UInt32 depth = 1;
+		UInt32 height;
+		UInt32 width;
 	};
 
 	struct TextureViewInfo
@@ -39,8 +39,8 @@ namespace Nz
 		PixelFormat reinterpretFormat = PixelFormat::Undefined;
 		UInt8 baseMipLevel = 0;
 		UInt8 levelCount = 1;
-		unsigned int baseArrayLayer = 0;
-		unsigned int layerCount = 1;
+		UInt32 baseArrayLayer = 0;
+		UInt32 layerCount = 1;
 	};
 
 	struct NAZARA_RENDERER_API TextureParams : ImageParams
@@ -69,7 +69,7 @@ namespace Nz
 			Texture(Texture&&) = delete;
 			virtual ~Texture();
 
-			virtual bool Copy(const Texture& source, const Boxui& srcBox, const Vector3ui& dstPos = Vector3ui::Zero()) = 0;
+			virtual bool Copy(const Texture& source, const Boxui32& srcBox, const Vector3ui32& dstPos = Vector3ui32::Zero()) = 0;
 			virtual std::shared_ptr<Texture> CreateView(const TextureViewInfo& viewInfo) = 0;
 
 			virtual RenderDevice* GetDevice() = 0;
@@ -83,7 +83,7 @@ namespace Nz
 			Texture& operator=(Texture&&) = delete;
 
 			static inline TextureInfo ApplyView(TextureInfo textureInfo, const TextureViewInfo& viewInfo);
-			static inline unsigned int GetLevelSize(unsigned int size, unsigned int level);
+			static inline TextureInfo BuildTextureInfo(const Image& image);
 
 			static std::shared_ptr<Texture> CreateFromImage(const Image& image, const TextureParams& params);
 
@@ -93,9 +93,9 @@ namespace Nz
 			static std::shared_ptr<Texture> LoadFromStream(Stream& stream, const TextureParams& params);
 
 			// LoadArray
-			static std::shared_ptr<Texture> LoadFromFile(const std::filesystem::path& filePath, const TextureParams& textureParams, const Vector2ui& atlasSize);
-			static std::shared_ptr<Texture> LoadFromMemory(const void* data, std::size_t size, const TextureParams& textureParams, const Vector2ui& atlasSize);
-			static std::shared_ptr<Texture> LoadFromStream(Stream& stream, const TextureParams& textureParams, const Vector2ui& atlasSize);
+			static std::shared_ptr<Texture> LoadFromFile(const std::filesystem::path& filePath, const TextureParams& textureParams, const Vector2ui32& atlasSize);
+			static std::shared_ptr<Texture> LoadFromMemory(const void* data, std::size_t size, const TextureParams& textureParams, const Vector2ui32& atlasSize);
+			static std::shared_ptr<Texture> LoadFromStream(Stream& stream, const TextureParams& textureParams, const Vector2ui32& atlasSize);
 
 			// LoadCubemap
 			static std::shared_ptr<Texture> LoadFromFile(const std::filesystem::path& filePath, const TextureParams& textureParams, const CubemapParams& cubemapParams);

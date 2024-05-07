@@ -9,21 +9,54 @@ namespace Nz
 	{
 		textureInfo.type        = viewInfo.viewType;
 		textureInfo.pixelFormat = (viewInfo.reinterpretFormat != PixelFormat::Undefined) ? viewInfo.reinterpretFormat : textureInfo.pixelFormat;
-		textureInfo.width       = GetLevelSize(textureInfo.width,  viewInfo.baseMipLevel);
-		textureInfo.height      = GetLevelSize(textureInfo.height, viewInfo.baseMipLevel);
-		textureInfo.depth       = GetLevelSize(textureInfo.depth,  viewInfo.baseMipLevel);
+		textureInfo.width       = ImageUtils::GetLevelSize(textureInfo.width,  viewInfo.baseMipLevel);
+		textureInfo.height      = ImageUtils::GetLevelSize(textureInfo.height, viewInfo.baseMipLevel);
+		textureInfo.depth       = ImageUtils::GetLevelSize(textureInfo.depth,  viewInfo.baseMipLevel);
 		textureInfo.levelCount  = viewInfo.levelCount;
 		textureInfo.layerCount  = viewInfo.layerCount;
 
 		return textureInfo;
 	}
 
-	inline unsigned int Texture::GetLevelSize(unsigned int size, unsigned int level)
+	inline TextureInfo Texture::BuildTextureInfo(const Image& image)
 	{
-		if (size == 0) // Possible dans le cas d'une image invalide
-			return 0;
+		TextureInfo texParams;
+		texParams.pixelFormat = image.GetFormat();
+		texParams.type = image.GetType();
+		texParams.width = image.GetWidth();
 
-		return std::max(size >> level, 1U);
+		switch (image.GetType())
+		{
+			case ImageType::E1D:
+				texParams.height = 1;
+				break;
+
+			case ImageType::E2D:
+				texParams.height = image.GetHeight();
+				break;
+
+			case ImageType::E3D:
+				texParams.height = image.GetHeight();
+				texParams.depth = image.GetDepth();
+				break;
+
+			case ImageType::E1D_Array:
+				texParams.height = 1;
+				texParams.layerCount = image.GetHeight();
+				break;
+
+			case ImageType::E2D_Array:
+				texParams.height = image.GetHeight();
+				texParams.layerCount = image.GetDepth();
+				break;
+
+			case ImageType::Cubemap:
+				texParams.height = image.GetHeight();
+				texParams.layerCount = 6;
+				break;
+		}
+
+		return texParams;
 	}
 }
 

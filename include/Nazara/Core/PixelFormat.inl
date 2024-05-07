@@ -107,7 +107,7 @@ namespace Nz
 		std::array<const Nz::Bitset<>*, 4> masks = { {&redMask, &greenMask, &blueMask, &alphaMask} };
 		std::array<PixelFormatSubType, 4> types = { {redType, greenType, blueType, alphaType} };
 
-		for (unsigned int i = 0; i < 4; ++i)
+		for (UInt32 i = 0; i < 4; ++i)
 		{
 			UInt8 usedBits = SafeCast<UInt8>(masks[i]->Count());
 			if (usedBits == 0)
@@ -143,7 +143,7 @@ namespace Nz
 
 
 
-	inline std::size_t PixelFormatInfo::ComputeSize(PixelFormat format, unsigned int width, unsigned int height, unsigned int depth)
+	inline std::size_t PixelFormatInfo::ComputeSize(PixelFormat format, UInt32 width, UInt32 height, UInt32 depth)
 	{
 		if (IsCompressed(format))
 		{

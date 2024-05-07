@@ -59,14 +59,14 @@ namespace Nz
 
 		public:
 			using ConvertFunction = std::function<UInt8*(const UInt8* start, const UInt8* end, UInt8* dst)>;
-			using FlipFunction = std::function<void(unsigned int width, unsigned int height, unsigned int depth, const UInt8* src, UInt8* dst)>;
+			using FlipFunction = std::function<void(UInt32 width, UInt32 height, UInt32 depth, const UInt8* src, UInt8* dst)>;
 
-			static inline std::size_t ComputeSize(PixelFormat format, unsigned int width, unsigned int height, unsigned int depth);
+			static inline std::size_t ComputeSize(PixelFormat format, UInt32 width, UInt32 height, UInt32 depth);
 
 			static inline bool Convert(PixelFormat srcFormat, PixelFormat dstFormat, const void* src, void* dst);
 			static inline bool Convert(PixelFormat srcFormat, PixelFormat dstFormat, const void* start, const void* end, void* dst);
 
-			static bool Flip(PixelFlipping flipping, PixelFormat format, unsigned int width, unsigned int height, unsigned int depth, const void* src, void* dst);
+			static bool Flip(PixelFlipping flipping, PixelFormat format, UInt32 width, UInt32 height, UInt32 depth, const void* src, void* dst);
 
 			static inline UInt8 GetBitsPerPixel(PixelFormat format);
 			static inline PixelFormatContent GetContent(PixelFormat format);

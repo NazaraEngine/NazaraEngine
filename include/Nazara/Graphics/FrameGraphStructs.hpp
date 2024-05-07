@@ -33,10 +33,10 @@ namespace Nz
 		PixelFormat format;
 		FramePassAttachmentSize size;
 		TextureUsageFlags usage;
+		UInt32 width;
+		UInt32 height;
+		UInt32 layerCount;
 		bool canReuse;
-		unsigned int width;
-		unsigned int height;
-		unsigned int layerCount;
 		unsigned int viewerIndex;
 	};
 }

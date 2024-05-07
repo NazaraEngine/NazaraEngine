@@ -220,6 +220,7 @@ namespace Nz
 
 				// Rotate the glyph
 				const UInt8* src = glyph.image.GetConstPixels();
+				NazaraAssert(src, "glyph image has no pixels");
 				UInt8* ptr = pixelBuffer.data();
 
 				unsigned int lineStride = glyphWidth * sizeof(UInt8); // BPP = 1
@@ -239,7 +240,10 @@ namespace Nz
 				std::swap(glyphWidth, glyphHeight);
 			}
 			else
+			{
 				pixels = glyph.image.GetConstPixels();
+				NazaraAssert(pixels, "glyph image has no pixels");
+			}
 
 			layer.image->Update(pixels, Rectui(glyph.rect.x + paddingX, glyph.rect.y + paddingY, glyphWidth, glyphHeight), 0, glyphWidth, glyphHeight);
 			glyph.image.Destroy(); // Free the image as soon as possible (to reduce memory usage)

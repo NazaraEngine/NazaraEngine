@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/OpenGLRenderer/OpenGLTexture.hpp>
+#include <Nazara/Core/ImageUtils.hpp>
 #include <Nazara/Core/PixelFormat.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
 #include <stdexcept>
@@ -12,7 +13,7 @@ namespace Nz
 	OpenGLTexture::OpenGLTexture(OpenGLDevice& device, const TextureInfo& textureInfo) :
 	m_textureInfo(textureInfo)
 	{
-		m_textureInfo.levelCount = std::min(m_textureInfo.levelCount, Image::GetMaxLevel(m_textureInfo.type, m_textureInfo.width, m_textureInfo.height, m_textureInfo.depth));
+		m_textureInfo.levelCount = std::min(m_textureInfo.levelCount, ImageUtils::GetMaxLevel(m_textureInfo.type, m_textureInfo.width, m_textureInfo.height, m_textureInfo.depth));
 
 		if (!m_texture.Create(device))
 			throw std::runtime_error("failed to create texture object");
@@ -78,7 +79,7 @@ namespace Nz
 		NazaraAssert(initialData, "missing initial data");
 
 		Boxui wholeRegion(0, 0, 0, m_textureInfo.width, m_textureInfo.height, m_textureInfo.depth);
-		Image::ArrayToRegion(m_textureInfo.type, 0, m_textureInfo.layerCount, wholeRegion);
+		ImageUtils::ArrayToRegion(m_textureInfo.type, 0, m_textureInfo.layerCount, wholeRegion);
 
 		Update(initialData, wholeRegion, srcWidth, srcHeight, 0);
 		if (buildMipmaps && m_textureInfo.levelCount > 1)

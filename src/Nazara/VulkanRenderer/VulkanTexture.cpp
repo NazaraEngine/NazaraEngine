@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/VulkanRenderer/VulkanTexture.hpp>
+#include <Nazara/Core/ImageUtils.hpp>
 #include <Nazara/Core/PixelFormat.hpp>
 #include <Nazara/VulkanRenderer/VulkanBuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanDevice.hpp>
@@ -20,7 +21,7 @@ namespace Nz
 	m_allocation(nullptr),
 	m_textureInfo(textureInfo)
 	{
-		m_textureInfo.levelCount = std::min(m_textureInfo.levelCount, Image::GetMaxLevel(m_textureInfo.type, m_textureInfo.width, m_textureInfo.height, m_textureInfo.depth));
+		m_textureInfo.levelCount = std::min(m_textureInfo.levelCount, ImageUtils::GetMaxLevel(m_textureInfo.type, m_textureInfo.width, m_textureInfo.height, m_textureInfo.depth));
 		m_textureViewInfo = m_textureInfo;
 
 		VkImageViewCreateInfo createInfoView = {};
@@ -146,7 +147,7 @@ namespace Nz
 		std::unique_ptr<VulkanBuffer> uploadBuffer;
 
 		Boxui wholeRegion(0, 0, 0, m_textureInfo.width, m_textureInfo.height, m_textureInfo.depth);
-		Image::ArrayToRegion(m_textureInfo.type, 0, m_textureInfo.layerCount, wholeRegion);
+		ImageUtils::ArrayToRegion(m_textureInfo.type, 0, m_textureInfo.layerCount, wholeRegion);
 
 		Update(initCommandBuffer, uploadBuffer, initialData, wholeRegion, srcWidth, srcHeight, 0);
 
@@ -379,7 +380,7 @@ namespace Nz
 			return false;
 
 		unsigned int baseLayer, layerCount;
-		Image::RegionToArray(m_textureViewInfo.type, box, baseLayer, layerCount);
+		ImageUtils::RegionToArray(m_textureViewInfo.type, box, baseLayer, layerCount);
 
 		VkImageSubresourceRange subresourceRange = BuildSubresourceRange(level, 1, baseLayer, layerCount);
 
@@ -451,7 +452,7 @@ namespace Nz
 		uploadBuffer->Unmap();
 
 		unsigned int baseLayer, layerCount;
-		Boxui copyBox = Image::RegionToArray(m_textureViewInfo.type, box, baseLayer, layerCount);
+		Boxui copyBox = ImageUtils::RegionToArray(m_textureViewInfo.type, box, baseLayer, layerCount);
 
 		VkImageSubresourceLayers subresourceLayers = BuildSubresourceLayers(level, baseLayer, layerCount);
 
