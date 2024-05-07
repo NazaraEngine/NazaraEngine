@@ -16,10 +16,12 @@ Features:
 - Its own renderer-agnostic shader language (NZSL - Nazara Shading Language), a single modern language working with all renderer backends
 - Easy to customize graphics module providing basis for advanced techniques (such as deferred shading, HDR, PBR rendering and more).
 - A powerful and extensible frame graph system allowing you to easily define how your rendering works.
+- Builtin retained widgets (but ImGUI support is available through [NazaraImgui](https://github.com/SweetId/NazaraImgui).
 - Audio playback and streaming based on [OpenAL-Soft](https://www.openal-soft.org).
-- 2D and 3D Physics integration (with [Chipmunk](https://chipmunk-physics.net) and [Jolt Physics]([https://github.com/MADEAPPS/newton-dynamics](https://github.com/jrouwe/JoltPhysics))).
+- 2D and 3D Physics integration (with [Chipmunk](https://chipmunk-physics.net) and [Jolt Physics](https://github.com/jrouwe/JoltPhysics)).
 - Optional ECS (Entity-Component-System) classes for helping with entity handling (based on the excellent [entt](https://github.com/skypjack/entt)).
-- A [ENet](https://github.com/lsalzman/enet)-based reliable UDP networking protocol.
+- A [ENet](https://github.com/lsalzman/enet)-based reliable UDP networking protocol, supporting IPv6 and encryption (check out [ENet6](https://github.com/SirLynix/enet6))
+- Support for plugins (with provided Assimp and FFMpeg plugins)
 
 You can use it in any kind of commercial and non-commercial applications without any restriction ([MIT license](http://opensource.org/licenses/MIT)).
 
@@ -27,13 +29,10 @@ You can use it in any kind of commercial and non-commercial applications without
 
 Jérôme "SirLynix" Leclercq - main developper (<lynix680@gmail.com>)   
 
-## Build and install
-
-See [INSTALL.md](INSTALL.md) for build instructions.
-
 ## How to use
 
-You can find tutorials on installation, compilation and use on the [official wiki](https://github.com/NazaraEngine/NazaraEngine/wiki)
+You can find tutorials on installation, compilation and use on the [official wiki](https://github.com/NazaraEngine/NazaraEngine/wiki).  
+See [INSTALL.md](INSTALL.md) for build instructions.
 
 ## Contribute
 
@@ -48,7 +47,7 @@ You can find tutorials on installation, compilation and use on the [official wik
 ## Links
 
 [Discord](https://discord.sirlynix.be/)  
-[X (Twitter)](https://twitter.com/SirLynix)
+[X (Twitter)](https://twitter.com/SirLynix)  
 [Wiki](https://github.com/NazaraEngine/NazaraEngine/wiki)  
 
 ## Thanks to:
