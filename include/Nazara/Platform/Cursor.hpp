@@ -8,7 +8,6 @@
 #define NAZARA_PLATFORM_CURSOR_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Core/Image.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Platform/Enums.hpp>
 #include <Nazara/Platform/Export.hpp>
@@ -18,6 +17,7 @@
 namespace Nz
 {
 	class CursorImpl;
+	class Image;
 
 	class NAZARA_PLATFORM_API Cursor
 	{

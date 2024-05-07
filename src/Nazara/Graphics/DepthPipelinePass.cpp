@@ -105,7 +105,7 @@ namespace Nz
 				m_rebuildElements = true;
 			});
 
-			matPassEntry.onMaterialInstanceShaderBindingInvalidated.Connect(materialInstance.OnMaterialInstanceShaderBindingInvalidated, [=](const MaterialInstance*)
+			matPassEntry.onMaterialInstanceShaderBindingInvalidated.Connect(materialInstance.OnMaterialInstanceShaderBindingInvalidated, [this](const MaterialInstance*)
 			{
 				m_rebuildCommandBuffer = true;
 			});
@@ -173,7 +173,7 @@ namespace Nz
 		Result<long long, ParameterList::Error> passIndexResult = parameters.GetIntegerParameter("MatPassIndex");
 		if (passIndexResult.IsOk())
 			return passIndexResult.GetValue();
-		// TODO: Log error if key is present but not of the right
+		// TODO: Log error if key is present but not of the right type
 
 		Result<std::string_view, ParameterList::Error> passResult = parameters.GetStringViewParameter("MatPass");
 		if (passResult.IsOk())
@@ -183,7 +183,7 @@ namespace Nz
 			std::string_view passName = passResult.GetValue();
 			return materialPassRegistry.GetPassIndex(passName);
 		}
-		// TODO: Log error if key is present but not of the right
+		// TODO: Log error if key is present but not of the right type
 
 		throw std::runtime_error("DepthPipelinePass expect either MatPass or MatPassIndex parameter");
 	}
