@@ -18,7 +18,7 @@ namespace Nz
 	class NAZARA_VULKANRENDERER_API VulkanTextureFramebuffer final : public VulkanFramebuffer
 	{
 		public:
-			VulkanTextureFramebuffer(Vk::Device& device, unsigned int width, unsigned int height, const std::shared_ptr<RenderPass>& renderPass, const std::vector<std::shared_ptr<Texture>>& attachments);
+			VulkanTextureFramebuffer(Vk::Device& device, UInt32 width, UInt32 height, const std::shared_ptr<RenderPass>& renderPass, const std::vector<std::shared_ptr<Texture>>& attachments);
 			VulkanTextureFramebuffer(const VulkanTextureFramebuffer&) = delete;
 			VulkanTextureFramebuffer(VulkanTextureFramebuffer&&) = delete;
 			~VulkanTextureFramebuffer() = default;

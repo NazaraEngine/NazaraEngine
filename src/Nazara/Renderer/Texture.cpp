@@ -121,7 +121,7 @@ namespace Nz
 		return CreateFromImage(*image, params);
 	}
 
-	std::shared_ptr<Texture> Texture::LoadFromFile(const std::filesystem::path& filePath, const TextureParams& textureParams, const Vector2ui& atlasSize)
+	std::shared_ptr<Texture> Texture::LoadFromFile(const std::filesystem::path& filePath, const TextureParams& textureParams, const Vector2ui32& atlasSize)
 	{
 		std::shared_ptr<Image> image = Image::LoadFromFile(filePath, textureParams, atlasSize);
 		if (!image)
@@ -130,7 +130,7 @@ namespace Nz
 		return CreateFromImage(*image, textureParams);
 	}
 
-	std::shared_ptr<Texture> Texture::LoadFromMemory(const void* data, std::size_t size, const TextureParams& textureParams, const Vector2ui& atlasSize)
+	std::shared_ptr<Texture> Texture::LoadFromMemory(const void* data, std::size_t size, const TextureParams& textureParams, const Vector2ui32& atlasSize)
 	{
 		std::shared_ptr<Image> image = Image::LoadFromMemory(data, size, textureParams, atlasSize);
 		if (!image)
@@ -139,7 +139,7 @@ namespace Nz
 		return CreateFromImage(*image, textureParams);
 	}
 
-	std::shared_ptr<Texture> Texture::LoadFromStream(Stream& stream, const TextureParams& textureParams, const Vector2ui& atlasSize)
+	std::shared_ptr<Texture> Texture::LoadFromStream(Stream& stream, const TextureParams& textureParams, const Vector2ui32& atlasSize)
 	{
 		std::shared_ptr<Image> image = Image::LoadFromStream(stream, textureParams, atlasSize);
 		if (!image)

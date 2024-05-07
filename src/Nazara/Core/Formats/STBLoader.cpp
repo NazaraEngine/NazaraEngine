@@ -15,7 +15,6 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb_image.h>
 
-
 namespace Nz
 {
 	namespace NAZARA_ANONYMOUS_NAMESPACE
@@ -79,7 +78,8 @@ namespace Nz
 				return Err(ResourceLoadingError::Internal);
 			}
 
-			image->Update(ptr);
+			if (parameters.levels.test(0))
+				image->Update(ptr);
 
 			freeStbiImage.CallAndReset();
 

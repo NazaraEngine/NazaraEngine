@@ -49,7 +49,7 @@ namespace Nz
 		return std::make_shared<VulkanComputePipeline>(*this, std::move(pipelineInfo));
 	}
 
-	std::shared_ptr<Framebuffer> VulkanDevice::InstantiateFramebuffer(unsigned int width, unsigned int height, const std::shared_ptr<RenderPass>& renderPass, const std::vector<std::shared_ptr<Texture>>& attachments)
+	std::shared_ptr<Framebuffer> VulkanDevice::InstantiateFramebuffer(UInt32 width, UInt32 height, const std::shared_ptr<RenderPass>& renderPass, const std::vector<std::shared_ptr<Texture>>& attachments)
 	{
 		return std::make_shared<VulkanTextureFramebuffer>(*this, width, height, renderPass, attachments);
 	}

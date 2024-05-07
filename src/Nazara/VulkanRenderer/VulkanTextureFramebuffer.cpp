@@ -10,7 +10,7 @@
 
 namespace Nz
 {
-	VulkanTextureFramebuffer::VulkanTextureFramebuffer(Vk::Device& device, unsigned int width, unsigned int height, const std::shared_ptr<RenderPass>& renderPass, const std::vector<std::shared_ptr<Texture>>& attachments) :
+	VulkanTextureFramebuffer::VulkanTextureFramebuffer(Vk::Device& device, UInt32 width, UInt32 height, const std::shared_ptr<RenderPass>& renderPass, const std::vector<std::shared_ptr<Texture>>& attachments) :
 	VulkanFramebuffer(FramebufferType::Texture)
 	{
 		assert(renderPass);

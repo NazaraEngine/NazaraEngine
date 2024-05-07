@@ -72,7 +72,7 @@ namespace Nz
 
 	inline Vector3ui VulkanTexture::GetSize(UInt8 level) const
 	{
-		return Vector3ui(GetLevelSize(m_textureViewInfo.width, level), GetLevelSize(m_textureViewInfo.height, level), GetLevelSize(m_textureViewInfo.depth, level));
+		return Vector3ui(ImageUtils::GetLevelSize(m_textureViewInfo.width, level), ImageUtils::GetLevelSize(m_textureViewInfo.height, level), ImageUtils::GetLevelSize(m_textureViewInfo.depth, level));
 	}
 
 	inline const VkImageSubresourceRange& VulkanTexture::GetSubresourceRange() const

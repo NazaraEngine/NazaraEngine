@@ -7,6 +7,7 @@
 #include <Nazara/Core/Image.hpp>
 #include <Nazara/Core/Stream.hpp>
 #include <NazaraUtils/Endianness.hpp>
+#include <NazaraUtils/StackArray.hpp>
 #include <memory>
 
 // Auteur du loader original : David Henry
@@ -69,8 +70,8 @@ namespace Nz
 #endif
 
 			unsigned int bitCount = header.bitsPerPixel * header.numColorPlanes;
-			unsigned int width = header.xmax - header.xmin+1;
-			unsigned int height = header.ymax - header.ymin+1;
+			UInt32 width = header.xmax - header.xmin+1;
+			UInt32 height = header.ymax - header.ymin+1;
 
 			std::shared_ptr<Image> image = std::make_shared<Image>();
 			if (!image->Create(ImageType::E2D, PixelFormat::RGB8, width, height, 1, (parameters.levelCount > 0) ? parameters.levelCount : 1))
@@ -79,199 +80,18 @@ namespace Nz
 				return Err(ResourceLoadingError::Internal);
 			}
 
-			UInt8* pixels = image->GetPixels();
-
-			UInt8 rleValue = 0;
-			UInt8 rleCount = 0;
-
-			switch (bitCount)
+			if (parameters.levels.test(0))
 			{
-				case 1:
+				UInt8* pixels = image->GetPixels();
+
+				UInt8 rleValue = 0;
+				UInt8 rleCount = 0;
+
+				switch (bitCount)
 				{
-					for (unsigned int y = 0; y < height; ++y)
+					case 1:
 					{
-						UInt8* ptr = &pixels[y * width * 3];
-						int bytes = header.bytesPerScanLine;
-
-						/* decode line number y */
-						while (bytes--)
-						{
-							if (rleCount == 0)
-							{
-								if (!stream.Read(&rleValue, 1))
-								{
-									NazaraErrorFmt("failed to read stream (byte {0})", stream.GetCursorPos());
-									return Err(ResourceLoadingError::DecodingError);
-								}
-
-								if (rleValue < 0xc0)
-									rleCount = 1;
-								else
-								{
-									rleCount = rleValue - 0xc0;
-									if (!stream.Read(&rleValue, 1))
-									{
-										NazaraErrorFmt("failed to read stream (byte {0})", stream.GetCursorPos());
-										return Err(ResourceLoadingError::DecodingError);
-									}
-								}
-							}
-
-							rleCount--;
-
-							for (int i = 7; i >= 0; --i)
-							{
-								int colorIndex = ((rleValue & (1 << i)) > 0);
-
-								*ptr++ = header.palette[colorIndex * 3 + 0];
-								*ptr++ = header.palette[colorIndex * 3 + 1];
-								*ptr++ = header.palette[colorIndex * 3 + 2];
-							}
-						}
-					}
-					break;
-				}
-
-				case 4:
-				{
-					std::unique_ptr<UInt8[]> colorIndex(new UInt8[width]);
-					std::unique_ptr<UInt8[]> line(new UInt8[header.bytesPerScanLine]);
-
-					for (unsigned int y = 0; y < height; ++y)
-					{
-						UInt8* ptr = &pixels[y * width * 3];
-
-						std::memset(colorIndex.get(), 0, width);
-
-						for (unsigned int c = 0; c < 4; ++c)
-						{
-							UInt8* pLine = line.get();
-							int bytes = header.bytesPerScanLine;
-
-							/* decode line number y */
-							while (bytes--)
-							{
-								if (rleCount == 0)
-								{
-									if (!stream.Read(&rleValue, 1))
-									{
-										NazaraErrorFmt("failed to read stream (byte {0})", stream.GetCursorPos());
-										return Err(ResourceLoadingError::DecodingError);
-									}
-
-									if (rleValue < 0xc0)
-										rleCount = 1;
-									else
-									{
-										rleCount = rleValue - 0xc0;
-										if (!stream.Read(&rleValue, 1))
-										{
-											NazaraErrorFmt("failed to read stream (byte {0})", stream.GetCursorPos());
-											return Err(ResourceLoadingError::DecodingError);
-										}
-									}
-								}
-
-								rleCount--;
-								*(pLine++) = rleValue;
-							}
-
-							/* compute line's color indexes */
-							for (unsigned int x = 0; x < width; ++x)
-							{
-								if (line[x / 8] & (128 >> (x % 8)))
-									colorIndex[x] += (1 << c);
-							}
-						}
-
-						/* decode scan line.  color index => rgb  */
-						for (unsigned int x = 0; x < width; ++x)
-						{
-							*ptr++ = header.palette[colorIndex[x] * 3 + 0];
-							*ptr++ = header.palette[colorIndex[x] * 3 + 1];
-							*ptr++ = header.palette[colorIndex[x] * 3 + 2];
-						}
-					}
-
-					break;
-				}
-
-				case 8:
-				{
-					UInt8 palette[768];
-
-					/* the palette is contained in the last 769 bytes of the file */
-					UInt64 curPos = stream.GetCursorPos();
-					stream.SetCursorPos(stream.GetSize()-769);
-					UInt8 magic;
-					if (!stream.Read(&magic, 1))
-					{
-						NazaraErrorFmt("failed to read stream (byte {0})", stream.GetCursorPos());
-						return Err(ResourceLoadingError::DecodingError);
-					}
-
-					/* first byte must be equal to 0x0c (12) */
-					if (magic != 0x0c)
-					{
-						NazaraErrorFmt("Colormap's first byte must be 0x0c ({0:#x})", magic);
-						return Err(ResourceLoadingError::DecodingError);
-					}
-
-					/* read palette */
-					if (stream.Read(palette, 768) != 768)
-					{
-						NazaraError("failed to read palette");
-						return Err(ResourceLoadingError::DecodingError);
-					}
-
-					stream.SetCursorPos(curPos);
-
-					/* read pixel data */
-					for (unsigned int y = 0; y < height; ++y)
-					{
-						UInt8* ptr = &pixels[y * width * 3];
-						int bytes = header.bytesPerScanLine;
-
-						/* decode line number y */
-						while (bytes--)
-						{
-							if (rleCount == 0)
-							{
-								if (!stream.Read(&rleValue, 1))
-								{
-									NazaraErrorFmt("failed to read stream (byte {0})", stream.GetCursorPos());
-									return Err(ResourceLoadingError::DecodingError);
-								}
-
-								if (rleValue < 0xc0)
-									rleCount = 1;
-								else
-								{
-									rleCount = rleValue - 0xc0;
-									if (!stream.Read(&rleValue, 1))
-									{
-										NazaraErrorFmt("failed to read stream (byte {0})", stream.GetCursorPos());
-										return Err(ResourceLoadingError::DecodingError);
-									}
-								}
-							}
-
-							rleCount--;
-
-							*ptr++ = palette[rleValue * 3 + 0];
-							*ptr++ = palette[rleValue * 3 + 1];
-							*ptr++ = palette[rleValue * 3 + 2];
-						}
-					}
-					break;
-				}
-
-				case 24:
-				{
-					for (unsigned int y = 0; y < height; ++y)
-					{
-						/* for each color plane */
-						for (int c = 0; c < 3; ++c)
+						for (unsigned int y = 0; y < height; ++y)
 						{
 							UInt8* ptr = &pixels[y * width * 3];
 							int bytes = header.bytesPerScanLine;
@@ -301,17 +121,201 @@ namespace Nz
 								}
 
 								rleCount--;
-								ptr[c] = static_cast<UInt8>(rleValue);
-								ptr += 3;
+
+								for (int i = 7; i >= 0; --i)
+								{
+									int colorIndex = ((rleValue & (1 << i)) > 0);
+
+									*ptr++ = header.palette[colorIndex * 3 + 0];
+									*ptr++ = header.palette[colorIndex * 3 + 1];
+									*ptr++ = header.palette[colorIndex * 3 + 2];
+								}
 							}
 						}
+						break;
 					}
-					break;
-				}
 
-				default:
-					NazaraErrorFmt("unsupported {0} bitcount for pcx files", bitCount);
-					return Err(ResourceLoadingError::DecodingError);
+					case 4:
+					{
+						StackArray<UInt8> colorIndex = NazaraStackArrayNoInit(UInt8, width);
+						StackArray<UInt8> line = NazaraStackArrayNoInit(UInt8, header.bytesPerScanLine);
+
+						for (unsigned int y = 0; y < height; ++y)
+						{
+							UInt8* ptr = &pixels[y * width * 3];
+
+							std::memset(colorIndex.data(), 0, width);
+
+							for (unsigned int c = 0; c < 4; ++c)
+							{
+								UInt8* pLine = line.data();
+								int bytes = header.bytesPerScanLine;
+
+								/* decode line number y */
+								while (bytes--)
+								{
+									if (rleCount == 0)
+									{
+										if (!stream.Read(&rleValue, 1))
+										{
+											NazaraErrorFmt("failed to read stream (byte {0})", stream.GetCursorPos());
+											return Err(ResourceLoadingError::DecodingError);
+										}
+
+										if (rleValue < 0xc0)
+											rleCount = 1;
+										else
+										{
+											rleCount = rleValue - 0xc0;
+											if (!stream.Read(&rleValue, 1))
+											{
+												NazaraErrorFmt("failed to read stream (byte {0})", stream.GetCursorPos());
+												return Err(ResourceLoadingError::DecodingError);
+											}
+										}
+									}
+
+									rleCount--;
+									*(pLine++) = rleValue;
+								}
+
+								/* compute line's color indexes */
+								for (unsigned int x = 0; x < width; ++x)
+								{
+									if (line[x / 8] & (128 >> (x % 8)))
+										colorIndex[x] += (1 << c);
+								}
+							}
+
+							/* decode scan line.  color index => rgb  */
+							for (unsigned int x = 0; x < width; ++x)
+							{
+								*ptr++ = header.palette[colorIndex[x] * 3 + 0];
+								*ptr++ = header.palette[colorIndex[x] * 3 + 1];
+								*ptr++ = header.palette[colorIndex[x] * 3 + 2];
+							}
+						}
+
+						break;
+					}
+
+					case 8:
+					{
+						UInt8 palette[768];
+
+						/* the palette is contained in the last 769 bytes of the file */
+						UInt64 curPos = stream.GetCursorPos();
+						stream.SetCursorPos(stream.GetSize()-769);
+						UInt8 magic;
+						if (!stream.Read(&magic, 1))
+						{
+							NazaraErrorFmt("failed to read stream (byte {0})", stream.GetCursorPos());
+							return Err(ResourceLoadingError::DecodingError);
+						}
+
+						/* first byte must be equal to 0x0c (12) */
+						if (magic != 0x0c)
+						{
+							NazaraErrorFmt("Colormap's first byte must be 0x0c ({0:#x})", magic);
+							return Err(ResourceLoadingError::DecodingError);
+						}
+
+						/* read palette */
+						if (stream.Read(palette, 768) != 768)
+						{
+							NazaraError("failed to read palette");
+							return Err(ResourceLoadingError::DecodingError);
+						}
+
+						stream.SetCursorPos(curPos);
+
+						/* read pixel data */
+						for (unsigned int y = 0; y < height; ++y)
+						{
+							UInt8* ptr = &pixels[y * width * 3];
+							int bytes = header.bytesPerScanLine;
+
+							/* decode line number y */
+							while (bytes--)
+							{
+								if (rleCount == 0)
+								{
+									if (!stream.Read(&rleValue, 1))
+									{
+										NazaraErrorFmt("failed to read stream (byte {0})", stream.GetCursorPos());
+										return Err(ResourceLoadingError::DecodingError);
+									}
+
+									if (rleValue < 0xc0)
+										rleCount = 1;
+									else
+									{
+										rleCount = rleValue - 0xc0;
+										if (!stream.Read(&rleValue, 1))
+										{
+											NazaraErrorFmt("failed to read stream (byte {0})", stream.GetCursorPos());
+											return Err(ResourceLoadingError::DecodingError);
+										}
+									}
+								}
+
+								rleCount--;
+
+								*ptr++ = palette[rleValue * 3 + 0];
+								*ptr++ = palette[rleValue * 3 + 1];
+								*ptr++ = palette[rleValue * 3 + 2];
+							}
+						}
+						break;
+					}
+
+					case 24:
+					{
+						for (unsigned int y = 0; y < height; ++y)
+						{
+							/* for each color plane */
+							for (int c = 0; c < 3; ++c)
+							{
+								UInt8* ptr = &pixels[y * width * 3];
+								int bytes = header.bytesPerScanLine;
+
+								/* decode line number y */
+								while (bytes--)
+								{
+									if (rleCount == 0)
+									{
+										if (!stream.Read(&rleValue, 1))
+										{
+											NazaraErrorFmt("failed to read stream (byte {0})", stream.GetCursorPos());
+											return Err(ResourceLoadingError::DecodingError);
+										}
+
+										if (rleValue < 0xc0)
+											rleCount = 1;
+										else
+										{
+											rleCount = rleValue - 0xc0;
+											if (!stream.Read(&rleValue, 1))
+											{
+												NazaraErrorFmt("failed to read stream (byte {0})", stream.GetCursorPos());
+												return Err(ResourceLoadingError::DecodingError);
+											}
+										}
+									}
+
+									rleCount--;
+									ptr[c] = static_cast<UInt8>(rleValue);
+									ptr += 3;
+								}
+							}
+						}
+						break;
+					}
+
+					default:
+						NazaraErrorFmt("unsupported {0} bitcount for pcx files", bitCount);
+						return Err(ResourceLoadingError::DecodingError);
+				}
 			}
 
 			if (parameters.loadFormat != PixelFormat::Undefined)

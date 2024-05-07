@@ -64,7 +64,7 @@ namespace Nz
 
 	inline Vector3ui OpenGLTexture::GetSize(UInt8 level) const
 	{
-		return Vector3ui(GetLevelSize(m_textureInfo.width, level), GetLevelSize(m_textureInfo.height, level), GetLevelSize(m_textureInfo.depth, level));
+		return Vector3ui(ImageUtils::GetLevelSize(m_textureInfo.width, level), ImageUtils::GetLevelSize(m_textureInfo.height, level), ImageUtils::GetLevelSize(m_textureInfo.depth, level));
 	}
 
 	inline const GL::Texture& OpenGLTexture::GetTexture() const
