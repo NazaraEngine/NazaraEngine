@@ -8,6 +8,7 @@
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
 #include <Nazara/Graphics/MaterialPipeline.hpp>
+#include <Nazara/Graphics/TextureAsset.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/RenderResources.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
@@ -139,19 +140,30 @@ namespace Nz
 	{
 		// Textures
 		const auto& defaultTextures = Graphics::Instance()->GetDefaultTextures();
+		const auto& renderDevice = Graphics::Instance()->GetRenderDevice();
+		auto& samplerCache = Graphics::Instance()->GetSamplerCache();
 
 		for (std::size_t i = 0; i < m_textureBinding.size(); ++i)
 		{
 			const auto& textureSlot = m_parent->GetTextureData(i);
 			const auto& textureBinding = m_textureBinding[i];
 
-			const std::shared_ptr<Texture>& texture = (textureBinding.texture) ? textureBinding.texture : defaultTextures.whiteTextures[textureSlot.imageType];
-			const std::shared_ptr<TextureSampler>& sampler = (textureBinding.sampler) ? textureBinding.sampler : Graphics::Instance()->GetSamplerCache().Get({});
+			const Texture* texture = nullptr;
+			if (textureBinding.texture)
+			{
+				if (const auto& textureObject = textureBinding.texture->GetOrCreateTexture(*renderDevice))
+					texture = textureObject.get();
+			}
+
+			if (!texture)
+				texture = defaultTextures.whiteTextures[textureSlot.imageType]->GetOrCreateTexture(*renderDevice).get();
+
+			const std::shared_ptr<TextureSampler>& sampler = (textureBinding.sampler) ? textureBinding.sampler : samplerCache.Get({});
 
 			bindings.push_back({
 				textureSlot.bindingIndex,
 				ShaderBinding::SampledTextureBinding {
-					texture.get(), sampler.get()
+					texture, sampler.get()
 				}
 			});
 		}
@@ -260,7 +272,7 @@ namespace Nz
 			UpdatePassStates(materialPassRegistry.GetPassIndex(passName), stateUpdater);
 	}
 
-	void MaterialInstance::SetTextureProperty(std::size_t textureIndex, std::shared_ptr<Texture> texture)
+	void MaterialInstance::SetTextureProperty(std::size_t textureIndex, std::shared_ptr<TextureAsset> texture)
 	{
 		assert(textureIndex < m_textureOverride.size());
 		m_textureOverride[textureIndex].texture = std::move(texture);
@@ -272,7 +284,7 @@ namespace Nz
 		}
 	}
 
-	void MaterialInstance::SetTextureProperty(std::size_t textureIndex, std::shared_ptr<Texture> texture, const TextureSamplerInfo& samplerInfo)
+	void MaterialInstance::SetTextureProperty(std::size_t textureIndex, std::shared_ptr<TextureAsset> texture, const TextureSamplerInfo& samplerInfo)
 	{
 		assert(textureIndex < m_textureOverride.size());
 		m_textureOverride[textureIndex].samplerInfo = samplerInfo;
@@ -323,7 +335,7 @@ namespace Nz
 			InvalidatePassPipeline(i);
 	}
 
-	void MaterialInstance::UpdateTextureBinding(std::size_t textureBinding, std::shared_ptr<Texture> texture, std::shared_ptr<TextureSampler> textureSampler)
+	void MaterialInstance::UpdateTextureBinding(std::size_t textureBinding, std::shared_ptr<TextureAsset> texture, std::shared_ptr<TextureSampler> textureSampler)
 	{
 		assert(textureBinding < m_textureBinding.size());
 		auto& binding = m_textureBinding[textureBinding];
@@ -384,14 +396,9 @@ namespace Nz
 		auto ConvertTexture = [&](const char* paramKey, std::string_view matKey, const char* paramFilterKey, const char* paramWrapKey)
 		{
 			if (auto value = materialData.GetStringViewParameter(paramKey))
-			{
-				TextureParams texParams;
-				texParams.renderDevice = Graphics::Instance()->GetRenderDevice();
+				matInstance->SetTextureProperty(matKey, TextureAsset::OpenFromFile(Utf8Path(value.GetValue())));
 
-				matInstance->SetTextureProperty(matKey, Texture::LoadFromFile(Utf8Path(value.GetValue()), texParams));
-			}
-
-			Nz::TextureSamplerInfo samplerInfo;
+			TextureSamplerInfo samplerInfo;
 			if (auto value = materialData.GetIntegerParameter(paramFilterKey))
 			{
 				long long filterInt = value.GetValue();

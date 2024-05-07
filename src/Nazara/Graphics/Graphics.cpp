@@ -15,6 +15,7 @@
 #include <Nazara/Graphics/PipelinePassList.hpp>
 #include <Nazara/Graphics/PostProcessPipelinePass.hpp>
 #include <Nazara/Graphics/PredefinedMaterials.hpp>
+#include <Nazara/Graphics/TextureAsset.hpp>
 #include <Nazara/Graphics/Formats/ModelMeshLoader.hpp>
 #include <Nazara/Graphics/Formats/PipelinePassListLoader.hpp>
 #include <Nazara/Graphics/Formats/TextureLoader.hpp>
@@ -434,10 +435,6 @@ namespace Nz
 	{
 		// Depth textures (white but with a depth format)
 		{
-			TextureInfo texInfo;
-			texInfo.width = texInfo.height = texInfo.depth = texInfo.levelCount = 1;
-			texInfo.pixelFormat = m_preferredDepthFormat;
-
 			std::size_t bpp = PixelFormatInfo::GetBytesPerPixel(m_preferredDepthFormat);
 			StackArray<UInt8> whitePixels = NazaraStackArrayNoInit(UInt8, bpp * 6);
 			if (m_preferredDepthFormat == PixelFormat::Depth32F)
@@ -454,28 +451,24 @@ namespace Nz
 				if (imageType == ImageType::E3D)
 					continue;
 
-				texInfo.type = imageType;
-				texInfo.layerCount = (imageType == ImageType::Cubemap) ? 6 : 1;
+				Image image(imageType, m_preferredDepthFormat, 1, 1, 1, 1);
+				image.Update(whitePixels.data());
 
-				texture = m_renderDevice->InstantiateTexture(texInfo, whitePixels.data(), false);
+				texture = TextureAsset::CreateFromImage(std::move(image));
 			}
 		}
 
 		// White texture 2D
 		{
-			TextureInfo texInfo;
-			texInfo.width = texInfo.height = texInfo.depth = texInfo.levelCount = 1;
-			texInfo.pixelFormat = PixelFormat::L8;
-
 			std::array<UInt8, 6> whitePixels;
 			whitePixels.fill(0xFF);
 
 			for (auto&& [imageType, texture] : m_defaultTextures.whiteTextures.iter_kv())
 			{
-				texInfo.type = imageType;
-				texInfo.layerCount = (imageType == ImageType::Cubemap) ? 6 : 1;
+				Image image(imageType, PixelFormat::L8, 1, 1, 1, 1);
+				image.Update(whitePixels.data());
 
-				texture = m_renderDevice->InstantiateTexture(texInfo, whitePixels.data(), false);
+				texture = TextureAsset::CreateFromImage(std::move(image));
 			}
 		}
 	}

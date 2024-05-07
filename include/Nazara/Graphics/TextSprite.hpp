@@ -20,6 +20,8 @@
 namespace Nz
 {
 	class AbstractTextDrawer;
+	class Texture;
+	class TextureAsset;
 
 	class NAZARA_GRAPHICS_API TextSprite : public InstancedRenderable
 	{
@@ -81,6 +83,7 @@ namespace Nz
 
 			struct RenderIndices
 			{
+				std::shared_ptr<TextureAsset> textureAsset;
 				unsigned int first;
 				unsigned int count;
 			};

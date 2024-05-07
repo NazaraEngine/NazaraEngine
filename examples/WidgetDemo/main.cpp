@@ -52,7 +52,7 @@ int main(int argc, char* argv[])
 	samplerInfo.anisotropyLevel = 8;
 
 	std::shared_ptr<Nz::MaterialInstance> materialInstance = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Basic);
-	materialInstance->SetTextureProperty("BaseColorMap", fs.Load<Nz::Texture>("assets/lynix.jpg"));
+	materialInstance->SetTextureProperty("BaseColorMap", fs.Open<Nz::TextureAsset>("assets/lynix.jpg"));
 
 	Nz::ImageWidget* imageWidget = canvas2D.Add<Nz::ImageWidget>(materialInstance);
 	imageWidget->SetPosition({ 1200.f, 200.f });

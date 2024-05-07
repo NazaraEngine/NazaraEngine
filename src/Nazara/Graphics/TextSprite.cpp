@@ -6,6 +6,7 @@
 #include <Nazara/Graphics/ElementRendererRegistry.hpp>
 #include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/RenderSpriteChain.hpp>
+#include <Nazara/Graphics/TextureAsset.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
 #include <Nazara/TextRenderer/AbstractTextDrawer.hpp>
 #include <Nazara/TextRenderer/Font.hpp>
@@ -43,7 +44,7 @@ namespace Nz
 			RenderIndices& indices = pair.second;
 
 			if (indices.count > 0)
-				elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer() + key.renderOrder, m_material, passFlags, renderPipeline, *elementData.worldInstance, vertexDeclaration, key.texture->shared_from_this(), indices.count, &m_vertices[indices.first * 4], *elementData.scissorBox));
+				elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer() + key.renderOrder, m_material, passFlags, renderPipeline, *elementData.worldInstance, vertexDeclaration, indices.textureAsset, indices.count, &m_vertices[indices.first * 4], *elementData.scissorBox));
 		}
 	}
 
@@ -127,7 +128,10 @@ namespace Nz
 			{
 				auto it = m_renderInfos.find(renderKey);
 				if (it == m_renderInfos.end())
+				{
 					it = m_renderInfos.insert(std::make_pair(renderKey, RenderIndices{ 0U, 0U })).first;
+					it->second.textureAsset = TextureAsset::CreateFromTexture(texture->shared_from_this());
+				}
 
 				count = &it->second.count;
 				lastRenderKey = renderKey;

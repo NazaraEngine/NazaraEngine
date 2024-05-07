@@ -7,6 +7,7 @@
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/RenderSpriteChain.hpp>
+#include <Nazara/Graphics/TextureAsset.hpp>
 
 namespace Nz
 {
@@ -62,10 +63,10 @@ namespace Nz
 		assert(m_material);
 
 		// TODO: Move this in a separate function
-		if (const std::shared_ptr<Texture>* textureOpt = m_material->GetTextureProperty("BaseColorMap"))
+		if (const std::shared_ptr<TextureAsset>* textureOpt = m_material->GetTextureProperty("BaseColorMap"))
 		{
 			// Material should always have textures but we're better safe than sorry
-			if (const std::shared_ptr<Texture>& texture = *textureOpt)
+			if (const std::shared_ptr<TextureAsset>& texture = *textureOpt)
 				return texture->GetSize();
 		}
 

@@ -7,7 +7,7 @@
 
 namespace Nz
 {
-	inline RenderSpriteChain::RenderSpriteChain(int renderLayer, std::shared_ptr<MaterialInstance> materialInstance, MaterialPassFlags materialFlags, std::shared_ptr<RenderPipeline> renderPipeline, const WorldInstance& worldInstance, std::shared_ptr<VertexDeclaration> vertexDeclaration, std::shared_ptr<Texture> textureOverlay, std::size_t spriteCount, const void* spriteData, const Recti& scissorBox) :
+	inline RenderSpriteChain::RenderSpriteChain(int renderLayer, std::shared_ptr<MaterialInstance> materialInstance, MaterialPassFlags materialFlags, std::shared_ptr<RenderPipeline> renderPipeline, const WorldInstance& worldInstance, std::shared_ptr<VertexDeclaration> vertexDeclaration, std::shared_ptr<TextureAsset> textureOverlay, std::size_t spriteCount, const void* spriteData, const Recti& scissorBox) :
 	RenderElement(BasicRenderElement::SpriteChain),
 	m_materialInstance(std::move(materialInstance)),
 	m_renderPipeline(std::move(renderPipeline)),
@@ -96,7 +96,7 @@ namespace Nz
 		return m_spriteData;
 	}
 
-	inline const Texture* RenderSpriteChain::GetTextureOverlay() const
+	inline const TextureAsset* RenderSpriteChain::GetTextureOverlay() const
 	{
 		return m_textureOverlay.get();
 	}

@@ -32,7 +32,7 @@ namespace Nz
 	class Material;
 	class MaterialInstance;
 	class MaterialPipeline;
-	class Texture;
+	class TextureAsset;
 
 	using MaterialInstanceLibrary = ObjectLibrary<MaterialInstance>;
 	using MaterialInstanceLoader = ResourceLoader<MaterialInstance, MaterialInstanceParams>;
@@ -68,9 +68,9 @@ namespace Nz
 			inline MaterialPassFlags GetPassFlags(std::size_t passIndex) const;
 			const std::shared_ptr<MaterialPipeline>& GetPipeline(std::size_t passIndex) const;
 
-			inline const std::shared_ptr<Texture>* GetTextureProperty(std::string_view propertyName) const;
-			inline const std::shared_ptr<Texture>& GetTextureProperty(std::size_t textureIndex) const;
-			inline const std::shared_ptr<Texture>& GetTexturePropertyOverride(std::size_t textureIndex) const;
+			inline const std::shared_ptr<TextureAsset>* GetTextureProperty(std::string_view propertyName) const;
+			inline const std::shared_ptr<TextureAsset>& GetTextureProperty(std::size_t textureIndex) const;
+			inline const std::shared_ptr<TextureAsset>& GetTexturePropertyOverride(std::size_t textureIndex) const;
 
 			inline const TextureSamplerInfo* GetTextureSamplerProperty(std::string_view propertyName) const;
 			inline const TextureSamplerInfo& GetTextureSamplerProperty(std::size_t textureIndex) const;
@@ -84,10 +84,10 @@ namespace Nz
 
 			void OnTransfer(RenderResources& renderResources, CommandBufferBuilder& builder) override;
 
-			inline void SetTextureProperty(std::string_view propertyName, std::shared_ptr<Texture> texture);
-			inline void SetTextureProperty(std::string_view propertyName, std::shared_ptr<Texture> texture, const TextureSamplerInfo& samplerInfo);
-			void SetTextureProperty(std::size_t textureIndex, std::shared_ptr<Texture> texture);
-			void SetTextureProperty(std::size_t textureIndex, std::shared_ptr<Texture> texture, const TextureSamplerInfo& samplerInfo);
+			inline void SetTextureProperty(std::string_view propertyName, std::shared_ptr<TextureAsset> texture);
+			inline void SetTextureProperty(std::string_view propertyName, std::shared_ptr<TextureAsset> texture, const TextureSamplerInfo& samplerInfo);
+			void SetTextureProperty(std::size_t textureIndex, std::shared_ptr<TextureAsset> texture);
+			void SetTextureProperty(std::size_t textureIndex, std::shared_ptr<TextureAsset> texture, const TextureSamplerInfo& samplerInfo);
 
 			inline void SetTextureSamplerProperty(std::string_view propertyName, const TextureSamplerInfo& samplerInfo);
 			void SetTextureSamplerProperty(std::size_t textureIndex, const TextureSamplerInfo& samplerInfo);
@@ -107,7 +107,7 @@ namespace Nz
 			template<typename F> void UpdatePassesStates(std::initializer_list<std::size_t> passesIndex, F&& stateUpdater);
 			template<typename F> void UpdatePassesStates(F&& stateUpdater, bool ignoreDisabled = true);
 
-			void UpdateTextureBinding(std::size_t textureBinding, std::shared_ptr<Texture> texture, std::shared_ptr<TextureSampler> textureSampler);
+			void UpdateTextureBinding(std::size_t textureBinding, std::shared_ptr<TextureAsset> texture, std::shared_ptr<TextureSampler> textureSampler);
 			void UpdateUniformBufferData(std::size_t uniformBufferIndex, std::size_t offset, std::size_t size, const void* data);
 
 			MaterialInstance& operator=(const MaterialInstance&) = delete;
@@ -147,13 +147,13 @@ namespace Nz
 
 			struct TextureBinding
 			{
-				std::shared_ptr<Texture> texture;
+				std::shared_ptr<TextureAsset> texture;
 				std::shared_ptr<TextureSampler> sampler;
 			};
 
 			struct TextureProperty
 			{
-				std::shared_ptr<Texture> texture;
+				std::shared_ptr<TextureAsset> texture;
 				TextureSamplerInfo samplerInfo;
 			};
 

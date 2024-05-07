@@ -244,11 +244,8 @@ int main(int argc, char* argv[])
 			std::shared_ptr<Nz::GraphicalMesh> gfxMesh = Nz::GraphicalMesh::BuildFromMesh(*sphereMesh);
 
 			// Textures
-			Nz::TextureParams srgbTexParams;
-			srgbTexParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
-
 			std::shared_ptr<Nz::MaterialInstance> sphereMat = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Phong);
-			sphereMat->SetTextureProperty("BaseColorMap", fs.Load<Nz::Texture>("assets/Rusty/rustediron2_basecolor.png", srgbTexParams));
+			sphereMat->SetTextureProperty("BaseColorMap", fs.Open<Nz::TextureAsset>("assets/Rusty/rustediron2_basecolor.png"));
 
 			std::shared_ptr<Nz::Model> sphereModel = std::make_shared<Nz::Model>(std::move(gfxMesh));
 			for (std::size_t i = 0; i < sphereModel->GetSubMeshCount(); ++i)
@@ -350,11 +347,8 @@ int main(int argc, char* argv[])
 		planeSampler.wrapModeU = Nz::SamplerWrap::Repeat;
 		planeSampler.wrapModeV = Nz::SamplerWrap::Repeat;
 
-		Nz::TextureParams srgbTexParams;
-		srgbTexParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
-
 		std::shared_ptr<Nz::MaterialInstance> planeMat = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Phong);
-		planeMat->SetTextureProperty("BaseColorMap", fs.Load<Nz::Texture>("assets/dev_grey.png", srgbTexParams), planeSampler);
+		planeMat->SetTextureProperty("BaseColorMap", fs.Open<Nz::TextureAsset>("assets/dev_grey.png"), planeSampler);
 
 		std::shared_ptr<Nz::Model> planeModel = std::make_shared<Nz::Model>(std::move(planeMeshGfx));
 		planeModel->SetMaterial(0, planeMat);
@@ -471,17 +465,14 @@ int main(int argc, char* argv[])
 		std::shared_ptr<Nz::GraphicalMesh> tvGfxMesh = Nz::GraphicalMesh::BuildFromMesh(*tvMesh);
 		std::shared_ptr<Nz::Model> tvModel = std::make_shared<Nz::Model>(std::move(tvGfxMesh));
 
-		Nz::TextureParams srgbTexParams;
-		srgbTexParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
-
 		std::shared_ptr<Nz::MaterialInstance> tvMat = Nz::MaterialInstance::Instantiate(Nz::MaterialType::PhysicallyBased);
-		tvMat->SetTextureProperty("BaseColorMap", fs.Load<Nz::Texture>("assets/retro_tv_lowpoly_4k_textures/textures/old_tv_baseColor.jpeg", srgbTexParams));
-		tvMat->SetTextureProperty("NormalMap", fs.Load<Nz::Texture>("assets/retro_tv_lowpoly_4k_textures/textures/old_tv_normal.png"));
+		tvMat->SetTextureProperty("BaseColorMap", fs.Open<Nz::TextureAsset>("assets/retro_tv_lowpoly_4k_textures/textures/old_tv_baseColor.jpeg"));
+		tvMat->SetTextureProperty("NormalMap", fs.Open<Nz::TextureAsset>("assets/retro_tv_lowpoly_4k_textures/textures/old_tv_normal.png"));
 
 		tvModel->SetMaterial(0, tvMat);
 
 		std::shared_ptr<Nz::MaterialInstance> screenMat = Nz::MaterialInstance::Instantiate(Nz::MaterialType::PhysicallyBased);
-		screenMat->SetTextureProperty("BaseColorMap", screenTexture);
+		screenMat->SetTextureProperty("BaseColorMap", Nz::TextureAsset::CreateFromTexture(screenTexture));
 
 		tvModel->SetMaterial(1, screenMat);
 

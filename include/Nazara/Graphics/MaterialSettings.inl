@@ -200,29 +200,6 @@ namespace Nz
 		textureProperty.type = propertyType;
 	}
 
-	inline void MaterialSettings::AddTextureProperty(std::string propertyName, ImageType propertyType, std::shared_ptr<Texture> defaultTexture)
-	{
-		if (defaultTexture && defaultTexture->GetType() != propertyType)
-			throw std::runtime_error("default texture type doesn't match property image type");
-
-		auto& textureProperty = m_textureProperties.emplace_back();
-		textureProperty.name = std::move(propertyName);
-		textureProperty.type = propertyType;
-		textureProperty.defaultTexture = std::move(defaultTexture);
-	}
-
-	inline void MaterialSettings::AddTextureProperty(std::string propertyName, ImageType propertyType, std::shared_ptr<Texture> defaultTexture, const TextureSamplerInfo& defaultSamplerInfo)
-	{
-		if (defaultTexture && defaultTexture->GetType() != propertyType)
-			throw std::runtime_error("default texture type doesn't match property image type");
-
-		auto& textureProperty = m_textureProperties.emplace_back();
-		textureProperty.name = std::move(propertyName);
-		textureProperty.type = propertyType;
-		textureProperty.defaultTexture = std::move(defaultTexture);
-		textureProperty.defaultSamplerInfo = defaultSamplerInfo;
-	}
-
 	inline void MaterialSettings::AddValueProperty(std::string propertyName, MaterialPropertyType propertyType, Value defaultValue)
 	{
 		std::visit([&](auto&& arg)

@@ -29,6 +29,7 @@ namespace Nz
 	class CommandLineParameters;
 	class FilesystemAppComponent;
 	class RenderBuffer;
+	class TextureAsset;
 
 	class NAZARA_GRAPHICS_API Graphics : public ModuleBase<Graphics>
 	{
@@ -92,8 +93,8 @@ namespace Nz
 
 			struct DefaultTextures
 			{
-				EnumArray<ImageType, std::shared_ptr<Texture>> depthTextures;
-				EnumArray<ImageType, std::shared_ptr<Texture>> whiteTextures;
+				EnumArray<ImageType, std::shared_ptr<TextureAsset>> depthTextures;
+				EnumArray<ImageType, std::shared_ptr<TextureAsset>> whiteTextures;
 			};
 
 		private:

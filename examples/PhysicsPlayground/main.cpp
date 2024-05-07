@@ -55,16 +55,13 @@ int main(int argc, char* argv[])
 	{
 		std::shared_ptr<Nz::GraphicalMesh> boxMesh = Nz::GraphicalMesh::Build(Nz::Primitive::Box(Nz::Vector3f(BoxDims), Nz::Vector3ui::Zero(), Nz::Matrix4f::Scale(Nz::Vector3f(-1.f)), Nz::Rectf(0.f, 0.f, 2.f, 2.f)));
 
-		Nz::TextureParams textureParams = *fs.GetDefaultResourceParameters<Nz::Texture>();
-		textureParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
-
 		Nz::TextureSamplerInfo planeSampler;
 		planeSampler.anisotropyLevel = 16;
 		planeSampler.wrapModeU = Nz::SamplerWrap::Repeat;
 		planeSampler.wrapModeV = Nz::SamplerWrap::Repeat;
 
 		std::shared_ptr<Nz::MaterialInstance> boxMat = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Phong);
-		boxMat->SetTextureProperty("BaseColorMap", fs.Load<Nz::Texture>("assets/dev_grey.png", textureParams), planeSampler);
+		boxMat->SetTextureProperty("BaseColorMap", fs.Open<Nz::TextureAsset>("assets/dev_grey.png"), planeSampler);
 		boxMat->DisablePass("ShadowPass");
 		boxMat->UpdatePassesStates([&](Nz::RenderStates& states)
 		{
@@ -214,10 +211,7 @@ int main(int argc, char* argv[])
 
 		std::shared_ptr<Nz::MaterialInstance> material = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Phong);
 
-		Nz::TextureParams texParams;
-		texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
-
-		material->SetTextureProperty("BaseColorMap", fs.Load<Nz::Texture>("assets/Spaceship/Texture/diffuse.png", texParams));
+		material->SetTextureProperty("BaseColorMap", fs.Open<Nz::TextureAsset>("assets/Spaceship/Texture/diffuse.png"));
 
 		std::shared_ptr<Nz::Model> model = std::make_shared<Nz::Model>(std::move(gfxMesh));
 		for (std::size_t i = 0; i < model->GetSubMeshCount(); ++i)
