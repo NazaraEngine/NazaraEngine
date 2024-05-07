@@ -23,6 +23,7 @@ namespace Nz
 	class RenderPipeline;
 	class ShaderBinding;
 	class Texture;
+	class TextureAsset;
 	class VertexDeclaration;
 	class WorldInstance;
 
@@ -88,6 +89,7 @@ namespace Nz
 				const RenderPipeline* currentPipeline = nullptr;
 				const ShaderBinding* currentShaderBinding = nullptr;
 				const Texture* currentTextureOverlay = nullptr;
+				const TextureAsset* currentTextureAssetOverlay = nullptr;
 				const WorldInstance* currentWorldInstance = nullptr;
 				RenderBufferView currentLightData;
 				Recti currentScissorBox = Recti(-1, -1, -1, -1);

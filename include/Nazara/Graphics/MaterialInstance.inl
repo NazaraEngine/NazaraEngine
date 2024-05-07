@@ -47,7 +47,7 @@ namespace Nz
 		return m_passes[passIndex].flags;
 	}
 
-	inline const std::shared_ptr<Texture>* MaterialInstance::GetTextureProperty(std::string_view propertyName) const
+	inline const std::shared_ptr<TextureAsset>* MaterialInstance::GetTextureProperty(std::string_view propertyName) const
 	{
 		std::size_t propertyIndex = FindTextureProperty(propertyName);
 		if (propertyIndex == MaterialSettings::InvalidPropertyIndex)
@@ -59,15 +59,15 @@ namespace Nz
 		return &GetTextureProperty(propertyIndex);
 	}
 
-	inline const std::shared_ptr<Texture>& MaterialInstance::GetTextureProperty(std::size_t textureIndex) const
+	inline const std::shared_ptr<TextureAsset>& MaterialInstance::GetTextureProperty(std::size_t textureIndex) const
 	{
-		if (const std::shared_ptr<Texture>& textureOverride = GetTexturePropertyOverride(textureIndex))
+		if (const std::shared_ptr<TextureAsset>& textureOverride = GetTexturePropertyOverride(textureIndex))
 			return textureOverride;
 		else
 			return m_materialSettings.GetTextureProperty(textureIndex).defaultTexture;
 	}
 
-	inline const std::shared_ptr<Texture>& MaterialInstance::GetTexturePropertyOverride(std::size_t textureIndex) const
+	inline const std::shared_ptr<TextureAsset>& MaterialInstance::GetTexturePropertyOverride(std::size_t textureIndex) const
 	{
 		assert(textureIndex < m_textureOverride.size());
 		return m_textureOverride[textureIndex].texture;
@@ -122,7 +122,7 @@ namespace Nz
 		return passIndex < m_passes.size() && m_passes[passIndex].enabled;
 	}
 
-	inline void MaterialInstance::SetTextureProperty(std::string_view propertyName, std::shared_ptr<Texture> texture)
+	inline void MaterialInstance::SetTextureProperty(std::string_view propertyName, std::shared_ptr<TextureAsset> texture)
 	{
 		std::size_t propertyIndex = FindTextureProperty(propertyName);
 		if (propertyIndex == MaterialSettings::InvalidPropertyIndex)
@@ -134,7 +134,7 @@ namespace Nz
 		return SetTextureProperty(propertyIndex, std::move(texture));
 	}
 
-	inline void MaterialInstance::SetTextureProperty(std::string_view propertyName, std::shared_ptr<Texture> texture, const TextureSamplerInfo& samplerInfo)
+	inline void MaterialInstance::SetTextureProperty(std::string_view propertyName, std::shared_ptr<TextureAsset> texture, const TextureSamplerInfo& samplerInfo)
 	{
 		std::size_t propertyIndex = FindTextureProperty(propertyName);
 		if (propertyIndex == MaterialSettings::InvalidPropertyIndex)

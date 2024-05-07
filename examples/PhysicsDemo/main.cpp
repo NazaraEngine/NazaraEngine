@@ -56,10 +56,6 @@ int main(int argc, char* argv[])
 	Nz::TextureSamplerInfo samplerInfo;
 	samplerInfo.anisotropyLevel = 8;
 
-	Nz::TextureParams texParams;
-	texParams.renderDevice = device;
-	texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
-
 	std::shared_ptr<Nz::MaterialInstance> material = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Phong);
 	for (std::string_view passName : { "DepthPass", "ForwardPass" })
 	{
@@ -70,8 +66,8 @@ int main(int argc, char* argv[])
 		});
 	}
 
-	material->SetTextureProperty("AlphaMap", Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
-	material->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(resourceDir / "Spaceship/Texture/diffuse.png", texParams));
+	material->SetTextureProperty("AlphaMap", Nz::TextureAsset::OpenFromFile(resourceDir / "alphatile.png"));
+	material->SetTextureProperty("BaseColorMap", Nz::TextureAsset::OpenFromFile(resourceDir / "Spaceship/Texture/diffuse.png"));
 
 	std::shared_ptr<Nz::Model> model = std::make_shared<Nz::Model>(std::move(gfxMesh));
 	for (std::size_t i = 0; i < model->GetSubMeshCount(); ++i)

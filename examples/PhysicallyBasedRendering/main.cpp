@@ -37,19 +37,13 @@ int main(int argc, char* argv[])
 	std::shared_ptr<Nz::GraphicalMesh> gfxMesh = Nz::GraphicalMesh::BuildFromMesh(*sphereMesh);
 
 	// Textures
-	Nz::TextureParams texParams;
-	texParams.renderDevice = device;
-
-	Nz::TextureParams srgbTexParams = texParams;
-	srgbTexParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
-
-	std::shared_ptr<Nz::Texture> normalMap = Nz::Texture::LoadFromFile(resourceDir / "Rusty/rustediron2_normal.png", texParams);
+	std::shared_ptr<Nz::TextureAsset> normalMap = Nz::TextureAsset::OpenFromFile(resourceDir / "Rusty/rustediron2_normal.png");
 
 	std::shared_ptr<Nz::MaterialInstance> materialInstance = Nz::MaterialInstance::Instantiate(Nz::MaterialType::PhysicallyBased);
-	materialInstance->SetTextureProperty("AlphaMap", Nz::Texture::LoadFromFile(resourceDir / "alphatile.png", texParams));
-	materialInstance->SetTextureProperty("BaseColorMap", Nz::Texture::LoadFromFile(resourceDir / "Rusty/rustediron2_basecolor.png", srgbTexParams));
-	materialInstance->SetTextureProperty("MetallicMap", Nz::Texture::LoadFromFile(resourceDir / "Rusty/rustediron2_metallic.png", texParams));
-	materialInstance->SetTextureProperty("RoughnessMap", Nz::Texture::LoadFromFile(resourceDir / "Rusty/rustediron2_roughness.png", texParams));
+	materialInstance->SetTextureProperty("AlphaMap", Nz::TextureAsset::OpenFromFile(resourceDir / "alphatile.png"));
+	materialInstance->SetTextureProperty("BaseColorMap", Nz::TextureAsset::OpenFromFile(resourceDir / "Rusty/rustediron2_basecolor.png"));
+	materialInstance->SetTextureProperty("MetallicMap", Nz::TextureAsset::OpenFromFile(resourceDir / "Rusty/rustediron2_metallic.png"));
+	materialInstance->SetTextureProperty("RoughnessMap", Nz::TextureAsset::OpenFromFile(resourceDir / "Rusty/rustediron2_roughness.png"));
 
 	std::size_t normalMapProperty = materialInstance->FindTextureProperty("NormalMap");
 	materialInstance->SetTextureProperty(normalMapProperty, normalMap);

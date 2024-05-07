@@ -7,6 +7,7 @@
 #include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/RenderSubmesh.hpp>
 #include <Nazara/Graphics/SkeletonInstance.hpp>
+#include <Nazara/Graphics/TextureAsset.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/RenderResources.hpp>
@@ -26,6 +27,7 @@ namespace Nz
 	void SubmeshRenderer::Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderResources& /*renderResources*/, std::size_t elementCount, const Pointer<const RenderElement>* elements, SparsePtr<const RenderStates> renderStates)
 	{
 		Graphics* graphics = Graphics::Instance();
+		auto& renderDevice = *graphics->GetRenderDevice();
 
 		auto& data = static_cast<SubmeshRendererData&>(rendererData);
 
@@ -166,7 +168,7 @@ namespace Nz
 					{
 						const Texture* texture = renderState.shadowMapsDirectional[j];
 						if (!texture)
-							texture = depthTexture2DArray.get();
+							texture = depthTexture2DArray->GetOrCreateTexture(renderDevice).get();
 
 						auto& textureEntry = m_textureBindingCache.emplace_back();
 						textureEntry.texture = texture;
@@ -188,7 +190,7 @@ namespace Nz
 					{
 						const Texture* texture = renderState.shadowMapsPoint[j];
 						if (!texture)
-							texture = depthTextureCube.get();
+							texture = depthTextureCube->GetOrCreateTexture(renderDevice).get();
 
 						auto& textureEntry = m_textureBindingCache.emplace_back();
 						textureEntry.texture = texture;
@@ -210,7 +212,7 @@ namespace Nz
 					{
 						const Texture* texture = renderState.shadowMapsSpot[j];
 						if (!texture)
-							texture = depthTexture2D.get();
+							texture = depthTexture2D->GetOrCreateTexture(renderDevice).get();
 
 						auto& textureEntry = m_textureBindingCache.emplace_back();
 						textureEntry.texture = texture;
@@ -253,7 +255,7 @@ namespace Nz
 					auto& bindingEntry = m_bindingCache.emplace_back();
 					bindingEntry.bindingIndex = bindingIndex;
 					bindingEntry.content = ShaderBinding::SampledTextureBinding{
-						whiteTexture2D.get(), defaultSampler.get()
+						whiteTexture2D->GetOrCreateTexture(renderDevice).get(), defaultSampler.get()
 					};
 				}
 

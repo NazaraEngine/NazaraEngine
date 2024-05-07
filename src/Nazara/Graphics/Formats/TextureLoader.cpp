@@ -6,7 +6,7 @@
 #include <Nazara/Core/Core.hpp>
 #include <Nazara/Core/Image.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
-#include <Nazara/Renderer/Texture.hpp>
+#include <Nazara/Graphics/TextureAsset.hpp>
 
 namespace Nz
 {
@@ -22,16 +22,15 @@ namespace Nz
 
 			loaderEntry.streamLoader = [](Stream& stream, const MaterialInstanceParams& parameters) -> Result<std::shared_ptr<MaterialInstance>, ResourceLoadingError>
 			{
-				TextureParams texParams;
-				texParams.renderDevice = Graphics::Instance()->GetRenderDevice();
+				ImageParams imageParams;
 				if (parameters.custom.GetBooleanParameter("sRGB").GetValueOr(false))
-					texParams.loadFormat = PixelFormat::RGBA8_SRGB;
+					imageParams.loadFormat = PixelFormat::RGBA8_SRGB;
 
-				std::shared_ptr<Image> image = Image::LoadFromStream(stream, texParams);
+				std::shared_ptr<Image> image = Image::LoadFromStream(stream, imageParams);
 				if (!image)
 					return Err(ResourceLoadingError::Unrecognized);
 
-				std::shared_ptr<Texture> texture = Texture::CreateFromImage(*image, texParams);
+				std::shared_ptr<TextureAsset> texture = TextureAsset::CreateFromImage(*image/*, texParams*/);
 				if (!texture)
 					return Err(ResourceLoadingError::Internal);
 

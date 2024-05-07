@@ -63,7 +63,7 @@ namespace Nz
 		if (m_propertyIndex == MaterialSettings::InvalidPropertyIndex)
 			return;
 
-		const std::shared_ptr<Texture>& texture = materialInstance.GetTextureProperty(m_propertyIndex);
+		const std::shared_ptr<TextureAsset>& texture = materialInstance.GetTextureProperty(m_propertyIndex);
 		const std::shared_ptr<TextureSampler>& sampler = Graphics::Instance()->GetSamplerCache().Get(materialInstance.GetTextureSamplerProperty(m_propertyIndex));
 
 		materialInstance.UpdateTextureBinding(m_textureIndex, texture, sampler);

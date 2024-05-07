@@ -6,6 +6,7 @@
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/RenderSpriteChain.hpp>
+#include <Nazara/Graphics/TextureAsset.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/RenderResources.hpp>
@@ -104,10 +105,11 @@ namespace Nz
 				m_pendingData.currentWorldInstance = worldInstance;
 			}
 
-			if (const Texture* textureOverlay = spriteChain.GetTextureOverlay(); m_pendingData.currentTextureOverlay != textureOverlay)
+			if (const TextureAsset* textureOverlay = spriteChain.GetTextureOverlay(); m_pendingData.currentTextureAssetOverlay != textureOverlay)
 			{
 				FlushDrawData();
-				m_pendingData.currentTextureOverlay = textureOverlay;
+				m_pendingData.currentTextureAssetOverlay = textureOverlay;
+				m_pendingData.currentTextureOverlay = textureOverlay->GetOrCreateTexture(m_device).get();
 			}
 
 			if (m_pendingData.currentLightData != renderState.lightData)

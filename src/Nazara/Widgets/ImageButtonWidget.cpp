@@ -4,6 +4,7 @@
 
 #include <Nazara/Widgets/ImageButtonWidget.hpp>
 #include <Nazara/Graphics/MaterialInstance.hpp>
+#include <Nazara/Graphics/TextureAsset.hpp>
 
 namespace Nz
 {
@@ -78,10 +79,10 @@ namespace Nz
 		const Rectf& textureCoords = GetTextureCoords();
 
 		// TODO: Move this in a separate function
-		if (const std::shared_ptr<Texture>* textureOpt = m_material->GetTextureProperty("BaseColorMap"))
+		if (const std::shared_ptr<TextureAsset>* textureOpt = m_material->GetTextureProperty("BaseColorMap"))
 		{
 			// Material should always have textures but we're better safe than sorry
-			if (const std::shared_ptr<Texture>& texture = *textureOpt)
+			if (const std::shared_ptr<TextureAsset>& texture = *textureOpt)
 			{
 				Vector2f textureSize = Vector2f(Vector2ui(texture->GetSize()));
 				textureSize.x *= textureCoords.width;
