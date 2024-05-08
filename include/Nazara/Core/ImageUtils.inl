@@ -88,10 +88,16 @@ namespace Nz::ImageUtils
 	template<typename F>
 	auto ForEachLevel(ImageType type, UInt32 width, UInt32 height, UInt32 depth, F&& callback)
 	{
+		UInt8 levelCount = GetMaxLevel(type, width, height, depth);
+		return ForEachLevel(levelCount, type, width, height, depth, std::forward<F>(callback));
+	}
+
+	template<typename F>
+	auto ForEachLevel(std::size_t levelCount, ImageType type, UInt32 width, UInt32 height, UInt32 depth, F&& callback)
+	{
 		using Ret = std::invoke_result_t<F, UInt8, UInt32, UInt32, UInt32>;
 
-		UInt8 levelCount = GetMaxLevel(type, width, height, depth);
-		for (UInt8 i = 0; i < levelCount; ++i)
+		for (std::size_t i = 0; i < levelCount; ++i)
 		{
 			if constexpr (std::is_same_v<Ret, bool>)
 			{

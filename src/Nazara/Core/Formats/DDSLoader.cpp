@@ -74,7 +74,7 @@ namespace Nz
 				std::shared_ptr<Image> image = std::make_shared<Image>(type, format, width, height, depth, levelCount);
 
 				// Read all mipmap levels
-				bool succeeded = ImageUtils::ForEachLevel(type, width, height, depth, [&](UInt8 level, UInt32 width, UInt32 height, UInt32 depth)
+				bool succeeded = ImageUtils::ForEachLevel(levelCount, type, width, height, depth, [&](UInt8 level, UInt32 width, UInt32 height, UInt32 depth)
 				{
 					std::size_t byteCount = PixelFormatInfo::ComputeSize(format, width, height, depth);
 
