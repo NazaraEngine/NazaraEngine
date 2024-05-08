@@ -86,7 +86,7 @@ namespace Nz
 		UInt32 height = m_sharedImage->height;
 		UInt32 depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : m_sharedImage->depth;
 
-		bool succeeded = ImageUtils::ForEachLevel(m_sharedImage->type, width, height, depth, [&](UInt8 level, UInt32 width, UInt32 height, UInt32 depth)
+		bool succeeded = ImageUtils::ForEachLevel(levels.size(), m_sharedImage->type, width, height, depth, [&](UInt8 level, UInt32 width, UInt32 height, UInt32 depth)
 		{
 			UInt8* src = m_sharedImage->levels[level].get();
 			if (!src)
@@ -212,7 +212,7 @@ namespace Nz
 		UInt32 height = m_sharedImage->height;
 		UInt32 depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : m_sharedImage->depth;
 
-		ImageUtils::ForEachLevel(m_sharedImage->type, width, height, depth, [&](UInt8 level, UInt32 width, UInt32 height, UInt32 depth)
+		ImageUtils::ForEachLevel(levels.size(), m_sharedImage->type, width, height, depth, [&](UInt8 level, UInt32 width, UInt32 height, UInt32 depth)
 		{
 			UInt8* ptr = levels[level].get();
 			if (!ptr)
@@ -329,7 +329,7 @@ namespace Nz
 		UInt32 height = m_sharedImage->height;
 		UInt32 depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : m_sharedImage->depth;
 
-		return ImageUtils::ForEachLevel(m_sharedImage->type, width, height, depth, [&](UInt8 level, UInt32 width, UInt32 height, UInt32 depth)
+		return ImageUtils::ForEachLevel(m_sharedImage->levels.size(), m_sharedImage->type, width, height, depth, [&](UInt8 level, UInt32 width, UInt32 height, UInt32 depth)
 		{
 			UInt8* ptr = m_sharedImage->levels[level].get();
 			if (!ptr)
@@ -356,7 +356,7 @@ namespace Nz
 		UInt32 height = m_sharedImage->height;
 		UInt32 depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : m_sharedImage->depth;
 
-		return ImageUtils::ForEachLevel(m_sharedImage->type, width, height, depth, [&](UInt8 level, UInt32 width, UInt32 height, UInt32 depth)
+		return ImageUtils::ForEachLevel(m_sharedImage->levels.size(), m_sharedImage->type, width, height, depth, [&](UInt8 level, UInt32 width, UInt32 height, UInt32 depth)
 		{
 			UInt8* ptr = m_sharedImage->levels[level].get();
 			if (!ptr)
@@ -442,7 +442,7 @@ namespace Nz
 		UInt32 depth = m_sharedImage->depth;
 
 		std::size_t size = 0;
-		ImageUtils::ForEachLevel(m_sharedImage->type, width, height, depth, [&](UInt8 /*level*/, UInt32 width, UInt32 height, UInt32 depth)
+		ImageUtils::ForEachLevel(m_sharedImage->levels.size(), m_sharedImage->type, width, height, depth, [&](UInt8 /*level*/, UInt32 width, UInt32 height, UInt32 depth)
 		{
 			size += static_cast<std::size_t>(width) * static_cast<std::size_t>(height) * static_cast<std::size_t>(depth);
 		});
