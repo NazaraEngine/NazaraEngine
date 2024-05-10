@@ -95,6 +95,7 @@ namespace Nz
 
 			bool HasAlpha() const;
 
+			bool IsLevelAllocated(UInt8 level) const;
 			bool IsValid() const;
 
 			// LoadFace
