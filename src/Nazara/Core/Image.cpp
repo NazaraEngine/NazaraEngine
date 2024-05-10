@@ -561,6 +561,14 @@ namespace Nz
 		}
 	}
 
+	bool Image::IsLevelAllocated(UInt8 level) const
+	{
+		NazaraAssert(IsValid(), "invalid image");
+		NazaraAssertFmt(level < m_sharedImage->levels.size(), "level out of bounds ({0} >= {1})", level, m_sharedImage->levels.size());
+
+		return m_sharedImage->levels[level] != nullptr;
+	}
+
 	bool Image::IsValid() const
 	{
 		return m_sharedImage != &emptyImage;
