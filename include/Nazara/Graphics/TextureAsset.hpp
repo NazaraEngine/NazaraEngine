@@ -20,6 +20,7 @@
 #include <Nazara/Renderer/Texture.hpp>
 #include <NazaraUtils/FixedVector.hpp>
 #include <NazaraUtils/MovablePtr.hpp>
+#include <variant>
 
 namespace Nz
 {
@@ -51,6 +52,7 @@ namespace Nz
 			bool Create(std::unique_ptr<Stream> imageStream);
 			bool Create(Stream& imageStream);
 			bool Create(std::shared_ptr<Texture> texture);
+			bool Create(std::shared_ptr<TextureAsset> textureAsset, const TextureViewInfo& viewInfo);
 			void Destroy();
 
 			inline PixelFormat GetFormat() const;
@@ -65,6 +67,7 @@ namespace Nz
 
 			static std::shared_ptr<TextureAsset> CreateFromImage(Image referenceImage, const TextureAssetParams& params = TextureAssetParams{});
 			static std::shared_ptr<TextureAsset> CreateFromTexture(std::shared_ptr<Texture> texture);
+			static std::shared_ptr<TextureAsset> CreateView(std::shared_ptr<TextureAsset> textureAsset, const TextureViewInfo& viewInfo);
 
 			static std::shared_ptr<TextureAsset> OpenFromFile(const std::filesystem::path& filePath, const TextureAssetParams& params = TextureAssetParams{});
 			static std::shared_ptr<TextureAsset> OpenFromMemory(const void* data, std::size_t size, const TextureAssetParams& params = TextureAssetParams{});
@@ -77,6 +80,26 @@ namespace Nz
 			inline TextureEntry* GetEntry(RenderDevice& device) const;
 			TextureEntry* GetOrCreateEntry(RenderDevice& device) const;
 
+			struct NoSource {};
+
+			struct ImageSource
+			{
+				Image image;
+			};
+
+			struct StreamSource
+			{
+				std::unique_ptr<Stream> ownedStream;
+				MovablePtr<Stream> stream;
+				UInt64 originalStreamPos;
+			};
+
+			struct TextureViewSource
+			{
+				std::shared_ptr<TextureAsset> texture;
+				TextureViewInfo viewInfo;
+			};
+
 			struct TextureEntry
 			{
 				std::shared_ptr<Texture> texture;
@@ -85,12 +108,9 @@ namespace Nz
 				NazaraSlot(RenderDevice, OnRenderDeviceRelease, onDeviceRelease);
 			};
 
-			std::unique_ptr<Stream> m_ownedStream;
+			std::variant<NoSource, ImageSource, StreamSource, TextureViewSource> m_source;
 			mutable FixedVector<TextureEntry, 4> m_entries; //< handling at most 4 GPUs seems pretty reasonable
-			Image m_image;
-			MovablePtr<Stream> m_stream;
 			TextureInfo m_textureInfo;
-			UInt64 m_originalStreamPos;
 	};
 }
 

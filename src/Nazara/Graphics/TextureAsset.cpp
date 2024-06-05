@@ -26,8 +26,9 @@ namespace Nz
 
 		Destroy();
 
-		m_image = std::move(referenceImage);
-		m_textureInfo = Texture::BuildTextureInfo(m_image);
+		auto& imageSource = m_source.emplace<ImageSource>();
+		imageSource.image = std::move(referenceImage);
+		m_textureInfo = Texture::BuildTextureInfo(imageSource.image);
 
 		return true;
 	}
@@ -38,7 +39,8 @@ namespace Nz
 
 		Destroy();
 
-		m_originalStreamPos = imageStream->GetCursorPos();
+		auto& streamSource = m_source.emplace<StreamSource>();
+		streamSource.originalStreamPos = imageStream->GetCursorPos();
 
 		ImageParams imageParams;
 		imageParams.levels.reset(); // don't load any mipmap
@@ -46,16 +48,16 @@ namespace Nz
 		std::shared_ptr<Image> image = Image::LoadFromStream(*imageStream, imageParams);
 		if (!image)
 		{
-			if (!m_stream->GetPath().empty())
-				NazaraErrorFmt("failed to load image from file {}", PathToString(m_stream->GetPath()));
+			if (!imageStream->GetPath().empty())
+				NazaraErrorFmt("failed to load image from file {}", PathToString(imageStream->GetPath()));
 			else
 				NazaraError("failed to load image from stream");
 
 			return false;
 		}
 
-		m_ownedStream = std::move(imageStream);
-		m_stream = m_ownedStream.get();
+		streamSource.ownedStream = std::move(imageStream);
+		streamSource.stream = streamSource.ownedStream.get();
 		m_textureInfo = Texture::BuildTextureInfo(*image);
 
 		return true;
@@ -65,7 +67,8 @@ namespace Nz
 	{
 		Destroy();
 
-		m_originalStreamPos = imageStream.GetCursorPos();
+		auto& streamSource = m_source.emplace<StreamSource>();
+		streamSource.originalStreamPos = imageStream.GetCursorPos();
 
 		ImageParams imageParams;
 		imageParams.levels.reset(); // don't load any mipmap
@@ -73,15 +76,15 @@ namespace Nz
 		std::shared_ptr<Image> image = Image::LoadFromStream(imageStream, imageParams);
 		if (!image)
 		{
-			if (!m_stream->GetPath().empty())
-				NazaraErrorFmt("failed to load image from file {}", PathToString(m_stream->GetPath()));
+			if (!imageStream.GetPath().empty())
+				NazaraErrorFmt("failed to load image from file {}", PathToString(imageStream.GetPath()));
 			else
 				NazaraError("failed to load image from stream");
 
 			return false;
 		}
 
-		m_stream = &imageStream;
+		streamSource.stream = streamSource.ownedStream.get();
 		m_textureInfo = Texture::BuildTextureInfo(*image);
 
 		return true;
@@ -103,12 +106,25 @@ namespace Nz
 		return true;
 	}
 
+	bool TextureAsset::Create(std::shared_ptr<TextureAsset> textureAsset, const TextureViewInfo& viewInfo)
+	{
+		NazaraAssert(textureAsset, "invalid texture asset");
+
+		Destroy();
+
+		auto& viewSource = m_source.emplace<TextureViewSource>();
+		viewSource.texture = std::move(textureAsset);
+		viewSource.viewInfo = viewInfo;
+
+		m_textureInfo = Texture::ApplyView(viewSource.texture->GetTextureInfo(), viewSource.viewInfo);
+
+		return true;
+	}
+
 	void TextureAsset::Destroy()
 	{
 		m_entries.clear();
-		m_image.Destroy();
-		m_ownedStream.reset();
-		m_stream = nullptr;
+		m_source = NoSource{};
 	}
 
 	const std::shared_ptr<Texture>& TextureAsset::GetOrCreateTexture(RenderDevice& renderDevice) const
@@ -122,24 +138,35 @@ namespace Nz
 
 		if (!entry->texture)
 		{
-			if (m_image.IsValid())
-			{
-				entry->texture = renderDevice.InstantiateTexture(m_textureInfo, m_image.GetConstPixels(), true);
-				entry->texture->SetFilePath(m_image.GetFilePath());
-			}
-			else
-			{
-				m_stream->SetCursorPos(m_originalStreamPos);
-
-				std::shared_ptr<Image> image = Image::LoadFromStream(*m_stream);
-				if (image)
+			std::visit(Overloaded{
+				[](NoSource)
 				{
-					entry->texture = renderDevice.InstantiateTexture(m_textureInfo, image->GetConstPixels(), true);
-					entry->texture->SetFilePath(m_stream->GetPath());
+					NazaraError("can't create texture as no source has been defined");
+				},
+				[&](const ImageSource& imageSource)
+				{
+					entry->texture = renderDevice.InstantiateTexture(m_textureInfo, imageSource.image.GetConstPixels(), true);
+					entry->texture->SetFilePath(imageSource.image.GetFilePath());
+				},
+				[&](const StreamSource& streamSource)
+				{
+					streamSource.stream->SetCursorPos(streamSource.originalStreamPos);
+
+					std::shared_ptr<Image> image = Image::LoadFromStream(*streamSource.stream);
+					if (image)
+					{
+						entry->texture = renderDevice.InstantiateTexture(m_textureInfo, image->GetConstPixels(), true);
+						entry->texture->SetFilePath(streamSource.stream->GetPath());
+					}
+					else
+						NazaraErrorFmt("failed to load image from stream {}", streamSource.stream->GetPath());
+				},
+				[&](const TextureViewSource& viewSource)
+				{
+					const std::shared_ptr<Texture>& texture = viewSource.texture->GetOrCreateTexture(renderDevice);
+					entry->texture = texture->CreateView(viewSource.viewInfo);
 				}
-				else
-					NazaraErrorFmt("failed to load image from stream {}", m_stream->GetPath());
-			}
+			}, m_source);
 		}
 
 		return entry->texture;
@@ -158,6 +185,15 @@ namespace Nz
 	{
 		std::shared_ptr<TextureAsset> texAsset = std::make_shared<TextureAsset>();
 		if (!texAsset->Create(std::move(texture)))
+			return {};
+
+		return texAsset;
+	}
+
+	std::shared_ptr<TextureAsset> TextureAsset::CreateView(std::shared_ptr<TextureAsset> textureAsset, const TextureViewInfo& viewInfo)
+	{
+		std::shared_ptr<TextureAsset> texAsset = std::make_shared<TextureAsset>();
+		if (!texAsset->Create(std::move(textureAsset), viewInfo))
 			return {};
 
 		return texAsset;
@@ -196,8 +232,8 @@ namespace Nz
 		TextureEntry* entry = GetEntry(device);
 		if (!entry)
 		{
-			// We can't create this texture on another device if we don't have a stream or image
-			if (!m_entries.empty() && !m_image.IsValid() && !m_stream)
+			// We can't create this texture on another device if we don't have a source
+			if (!m_entries.empty() && std::holds_alternative<NoSource>(m_source))
 				return nullptr;
 
 			entry = &m_entries.emplace_back();
