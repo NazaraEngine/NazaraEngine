@@ -20,6 +20,13 @@ local rendererBackends = {
 				remove_files("src/Nazara/OpenGLRenderer/Wrapper/Linux/**.cpp")
 			end
 
+			if is_plat("bsd") then
+                                add_defines("EGL_NO_X11")
+                                add_packages("wayland", { links = {} }) -- we only need wayland headers
+                        else
+                                remove_files("src/Nazara/OpenGLRenderer/Wrapper/Linux/**.cpp")
+                        end
+
 			if is_plat("wasm") then
 				add_ldflags("-sFULL_ES2", "-sFULL_ES3", { public = true })
 				remove_files("src/Nazara/OpenGLRenderer/Wrapper/EGL/**.cpp")
@@ -41,6 +48,10 @@ local rendererBackends = {
 				add_defines("VK_USE_PLATFORM_XLIB_KHR")
 				add_defines("VK_USE_PLATFORM_WAYLAND_KHR")
 				add_packages("libxext", "wayland", { links = {} }) -- we only need X11 and waylands headers
+			elseif is_plat("bsd") then
+                                add_defines("VK_USE_PLATFORM_XLIB_KHR")
+                                add_defines("VK_USE_PLATFORM_WAYLAND_KHR")
+                                add_packages("libxext", "wayland", { links = {} }) -- we only need X11 and waylands headers
 			elseif is_plat("macosx") then
 				add_defines("VK_USE_PLATFORM_METAL_EXT")
 				add_files("src/Nazara/VulkanRenderer/**.mm")
@@ -90,6 +101,8 @@ local modules = {
 			elseif is_plat("linux") then
 				add_packages("libuuid")
 				add_syslinks("dl", "pthread")
+		         elseif is_plat("bsd") then
+                                add_syslinks("pthread")
 			elseif is_plat("wasm") then
 				--[[
 				Have to fix issues with libsdl first
@@ -164,6 +177,10 @@ local modules = {
 				add_defines("SDL_VIDEO_DRIVER_X11=1")
 				add_defines("SDL_VIDEO_DRIVER_WAYLAND=1")
 				add_packages("libxext", "wayland", { links = {} }) -- we only need X11 headers
+		        elseif is_plat("bsd") then
+                                add_defines("SDL_VIDEO_DRIVER_X11=1")
+                                add_defines("SDL_VIDEO_DRIVER_WAYLAND=1")
+                                add_packages("libxext", "wayland", { links = {} }) -- we only need X11 headers
 			elseif is_plat("macosx") then
 				add_defines("SDL_VIDEO_DRIVER_COCOA=1")
 				add_packages("libx11", { links = {} }) -- we only need X11 headers
@@ -332,6 +349,9 @@ if has_config("platform") then
 	if is_plat("linux") then
 		add_requires("libxext", "wayland", { configs = { asan = false } })
 	end
+	if is_plat("bsd") then
+                add_requires("libxext", "wayland", { configs = { asan = false } })
+        end
 end
 
 if has_config("renderer") then
@@ -400,7 +420,7 @@ if has_config("tests") then
 	add_rules("download.assets.unittests")
 end
 
-set_allowedplats("windows", "mingw", "linux", "macosx", "wasm")
+set_allowedplats("bsd", "windows", "mingw", "linux", "macosx", "wasm")
 set_allowedmodes("debug", "releasedbg", "release", "coverage")
 set_defaultmode("debug")
 
