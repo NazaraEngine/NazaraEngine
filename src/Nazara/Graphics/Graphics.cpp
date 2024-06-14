@@ -206,14 +206,6 @@ namespace Nz
 		m_defaultTextures = DefaultTextures{};
 	}
 
-	void Graphics::RegisterComponent(FilesystemAppComponent& component)
-	{
-		TextureParams defaultTexParams;
-		defaultTexParams.renderDevice = m_renderDevice;
-
-		component.SetDefaultResourceParameters<Texture>(defaultTexParams);
-	}
-
 	void Graphics::BuildBlitPipeline()
 	{
 		RenderPipelineLayoutInfo layoutInfo;

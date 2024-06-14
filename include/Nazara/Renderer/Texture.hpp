@@ -9,10 +9,6 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Image.hpp>
-#include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Core/Resource.hpp>
-#include <Nazara/Core/ResourceLoader.hpp>
-#include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/Export.hpp>
@@ -53,17 +49,9 @@ namespace Nz
 		void Merge(const TextureParams& params);
 	};
 
-	class Texture;
-
-	using TextureLibrary = ObjectLibrary<Texture>;
-	using TextureLoader = ResourceLoader<Texture, TextureParams>;
-	using TextureManager = ResourceManager<Texture, TextureParams>;
-
-	class NAZARA_RENDERER_API Texture : public AbstractImage, public Resource, public std::enable_shared_from_this<Texture> //< FIXME
+	class NAZARA_RENDERER_API Texture : public AbstractImage, public std::enable_shared_from_this<Texture> //< FIXME
 	{
 		public:
-			using Params = TextureParams;
-
 			Texture() = default;
 			Texture(const Texture&) = delete;
 			Texture(Texture&&) = delete;
