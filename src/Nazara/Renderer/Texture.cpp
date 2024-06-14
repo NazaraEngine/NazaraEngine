@@ -52,8 +52,7 @@ namespace Nz
 
 		std::shared_ptr<Texture> texture = params.renderDevice->InstantiateTexture(texParams, image.GetConstPixels(), params.buildMipmaps);
 
-		texture->SetFilePath(image.GetFilePath());
-		if (std::string debugName = PathToString(texture->GetFilePath()); !debugName.empty())
+		if (std::string debugName = PathToString(image.GetFilePath()); !debugName.empty())
 			texture->UpdateDebugName(debugName);
 
 		return texture;

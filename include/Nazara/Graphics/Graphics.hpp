@@ -70,8 +70,6 @@ namespace Nz
 			inline std::shared_ptr<nzsl::FilesystemModuleResolver>& GetShaderModuleResolver();
 			inline const std::shared_ptr<nzsl::FilesystemModuleResolver>& GetShaderModuleResolver() const;
 
-			void RegisterComponent(FilesystemAppComponent& component);
-
 			struct NAZARA_GRAPHICS_API Config
 			{
 				void Override(const CommandLineParameters& parameters);
