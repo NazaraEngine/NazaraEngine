@@ -135,6 +135,8 @@ namespace Nz
 	VulkanTexture::VulkanTexture(VulkanDevice& device, const TextureInfo& textureInfo, const void* initialData, bool buildMipmaps, unsigned int srcWidth, unsigned int srcHeight) :
 	VulkanTexture(device, textureInfo)
 	{
+		NazaraAssert(initialData, "missing initial data");
+
 		Vk::AutoCommandBuffer initCommandBuffer = m_device.AllocateCommandBuffer(QueueType::Graphics);
 		if (!initCommandBuffer->Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT))
 			throw std::runtime_error("failed to allocate command buffer");

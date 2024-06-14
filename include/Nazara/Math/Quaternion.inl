@@ -686,7 +686,7 @@ namespace Nz
 			return Quaternion(Pi<T>, crossProduct);
 		}
 		else if (dot > T(0.999999))
-			return Quaternion(1, 0, 0, 0);
+			return Quaternion::Identity();
 		else
 		{
 			T norm = std::sqrt(from.GetSquaredLength() * to.GetSquaredLength());
