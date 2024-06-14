@@ -148,13 +148,16 @@ int main(int argc, char* argv[])
 
 	entt::handle lightEntity = world.CreateEntity();
 	{
-		lightEntity.emplace<Nz::NodeComponent>(Nz::Vector3f::Up() * 3.5f + Nz::Vector3f::Right() * 1.f, Nz::EulerAnglesf(-70.f, 90.f, 0.f));
+		lightEntity.emplace<Nz::NodeComponent>(Nz::Vector3f::Up() * 2.5f + Nz::Vector3f::Right() * 2.f + Nz::Vector3f::Backward() * 2.f, Nz::EulerAnglesf(-30.f, 45.f, 0.f));
 
 		auto& lightData = lightEntity.emplace<Nz::LightComponent>();
 
 		auto& spotLight = lightData.AddLight<Nz::SpotLight>();
 		spotLight.EnableShadowCasting(true);
 		spotLight.UpdateShadowMapSize(1024);
+		spotLight.UpdateInnerAngle(Nz::DegreeAnglef(10.f));
+		spotLight.UpdateOuterAngle(Nz::DegreeAnglef(15.f));
+		spotLight.UpdateRadius(10.f);
 	}
 
 	entt::handle characterEntity = world.CreateEntity();
