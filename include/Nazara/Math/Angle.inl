@@ -157,7 +157,7 @@ namespace Nz
 			}
 		};
 
-#ifdef NAZARA_PLATFORM_LINUX
+#if defined(NAZARA_PLATFORM_LINUX) || defined(NAZARA_PLATFORM_ANDROID)
 		template<typename T>
 		void SinCos(T x, T* sin, T* cos)
 		{

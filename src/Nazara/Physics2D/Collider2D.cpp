@@ -274,12 +274,12 @@ namespace Nz
 	{
 		m_vertices.resize(vertexCount);
 		for (std::size_t i = 0; i < vertexCount; ++i)
-			m_vertices[i] = Vector2<cpFloat>(*vertices++);
+			m_vertices[i] = *vertices++;
 	}
 
 	Vector2f ConvexCollider2D::ComputeCenterOfMass() const
 	{
-		static_assert(sizeof(cpVect) == sizeof(Vector2d), "Chipmunk vector is not equivalent to Vector2d");
+		static_assert(sizeof(cpVect) == sizeof(Vector2f), "Chipmunk vector is not equivalent to Vector2f");
 
 		cpVect center = cpCentroidForPoly(int(m_vertices.size()), reinterpret_cast<const cpVect*>(m_vertices.data()));
 
@@ -288,7 +288,7 @@ namespace Nz
 
 	float ConvexCollider2D::ComputeMomentOfInertia(float mass) const
 	{
-		static_assert(sizeof(cpVect) == sizeof(Vector2d), "Chipmunk vector is not equivalent to Vector2d");
+		static_assert(sizeof(cpVect) == sizeof(Vector2f), "Chipmunk vector is not equivalent to Vector2f");
 
 		return SafeCast<float>(cpMomentForPoly(mass, int(m_vertices.size()), reinterpret_cast<const cpVect*>(m_vertices.data()), cpv(0.0, 0.0), m_radius));
 	}
