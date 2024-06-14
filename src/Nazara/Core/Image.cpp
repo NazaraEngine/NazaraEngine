@@ -735,12 +735,15 @@ namespace Nz
 			return nullptr;
 		}
 
-		cubemap->Copy(image, Boxui32(backPos.x, backPos.y, 0, faceSize, faceSize, 1), Vector3ui32(0, 0, UnderlyingCast(CubemapFace::NegativeZ)));
-		cubemap->Copy(image, Boxui32(downPos.x, downPos.y, 0, faceSize, faceSize, 1), Vector3ui32(0, 0, UnderlyingCast(CubemapFace::NegativeY)));
-		cubemap->Copy(image, Boxui32(forwardPos.x, forwardPos.y, 0, faceSize, faceSize, 1), Vector3ui32(0, 0, UnderlyingCast(CubemapFace::PositiveZ)));
-		cubemap->Copy(image, Boxui32(leftPos.x, leftPos.y, 0, faceSize, faceSize, 1), Vector3ui32(0, 0, UnderlyingCast(CubemapFace::NegativeX)));
-		cubemap->Copy(image, Boxui32(rightPos.x, rightPos.y, 0, faceSize, faceSize, 1), Vector3ui32(0, 0, UnderlyingCast(CubemapFace::PositiveX)));
-		cubemap->Copy(image, Boxui32(upPos.x, upPos.y, 0, faceSize, faceSize, 1), Vector3ui32(0, 0, UnderlyingCast(CubemapFace::PositiveY)));
+		if (image.IsLevelAllocated(0))
+		{
+			cubemap->Copy(image, Boxui32(backPos.x, backPos.y, 0, faceSize, faceSize, 1), Vector3ui32(0, 0, UnderlyingCast(CubemapFace::NegativeZ)));
+			cubemap->Copy(image, Boxui32(downPos.x, downPos.y, 0, faceSize, faceSize, 1), Vector3ui32(0, 0, UnderlyingCast(CubemapFace::NegativeY)));
+			cubemap->Copy(image, Boxui32(forwardPos.x, forwardPos.y, 0, faceSize, faceSize, 1), Vector3ui32(0, 0, UnderlyingCast(CubemapFace::PositiveZ)));
+			cubemap->Copy(image, Boxui32(leftPos.x, leftPos.y, 0, faceSize, faceSize, 1), Vector3ui32(0, 0, UnderlyingCast(CubemapFace::NegativeX)));
+			cubemap->Copy(image, Boxui32(rightPos.x, rightPos.y, 0, faceSize, faceSize, 1), Vector3ui32(0, 0, UnderlyingCast(CubemapFace::PositiveX)));
+			cubemap->Copy(image, Boxui32(upPos.x, upPos.y, 0, faceSize, faceSize, 1), Vector3ui32(0, 0, UnderlyingCast(CubemapFace::PositiveY)));
+		}
 
 		return cubemap;
 	}
