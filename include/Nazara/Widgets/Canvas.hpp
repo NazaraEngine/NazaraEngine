@@ -40,8 +40,8 @@ namespace Nz
 			NazaraSignal(OnUnhandledKeyReleased, const WindowEventHandler* /*eventHandler*/, const WindowEvent::KeyEvent& /*event*/);
 
 		protected:
-			inline void ClearKeyboardOwner(std::size_t canvasIndex);
-			inline void ClearMouseOwner(std::size_t canvasIndex);
+			inline bool ClearKeyboardOwner(std::size_t canvasIndex);
+			inline bool ClearMouseOwner(std::size_t canvasIndex);
 
 			inline bool IsKeyboardOwner(std::size_t canvasIndex) const;
 			inline bool IsMouseOwner(std::size_t canvasIndex) const;

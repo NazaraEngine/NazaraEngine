@@ -30,16 +30,22 @@ namespace Nz
 		return m_renderMask;
 	}
 
-	inline void Canvas::ClearKeyboardOwner(std::size_t canvasIndex)
+	inline bool Canvas::ClearKeyboardOwner(std::size_t canvasIndex)
 	{
-		if (m_keyboardOwner == canvasIndex)
-			SetKeyboardOwner(InvalidCanvasIndex);
+		if (m_keyboardOwner != canvasIndex)
+			return false;
+
+		SetKeyboardOwner(InvalidCanvasIndex);
+		return true;
 	}
 
-	inline void Canvas::ClearMouseOwner(std::size_t canvasIndex)
+	inline bool Canvas::ClearMouseOwner(std::size_t canvasIndex)
 	{
-		if (m_mouseOwner == canvasIndex)
-			SetMouseOwner(InvalidCanvasIndex);
+		if (m_mouseOwner != canvasIndex)
+			return false;
+
+		SetMouseOwner(InvalidCanvasIndex);
+		return true;
 	}
 
 	inline bool Canvas::IsKeyboardOwner(std::size_t canvasIndex) const

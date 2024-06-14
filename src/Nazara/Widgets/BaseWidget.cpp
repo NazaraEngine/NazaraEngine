@@ -225,6 +225,20 @@ namespace Nz
 		}
 	}
 
+	void BaseWidget::ClearMouseFocus()
+	{
+		if (IsRegisteredToCanvas())
+		{
+			if (GetCanvas()->ClearMouseOwner(m_canvasIndex))
+				return;
+
+			ForEachWidgetChild([](BaseWidget* child)
+			{
+				child->ClearMouseFocus();
+			});
+		}
+	}
+
 	entt::entity BaseWidget::CreateEntity()
 	{
 		entt::entity newEntity = m_registry->create();

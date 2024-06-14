@@ -21,6 +21,7 @@ namespace Nz
 	m_size(50.f, 50.f),
 	m_parentWidget(nullptr),
 	m_disableVisibilitySignal(false),
+	m_isMouseInputEnabled(true),
 	m_visible(true),
 	m_baseRenderLayer(0),
 	m_renderLayerCount(1)
@@ -77,6 +78,17 @@ namespace Nz
 	inline void BaseWidget::ClearRenderingRect()
 	{
 		SetRenderingRect(Rectf(-std::numeric_limits<float>::infinity(), -std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity()));
+	}
+
+	inline void BaseWidget::EnableMouseInput(bool enable)
+	{
+		if (m_isMouseInputEnabled == enable)
+			return;
+
+		m_isMouseInputEnabled = enable;
+
+		if (!enable)
+			ClearMouseFocus();
 	}
 
 	template<typename F>
@@ -216,6 +228,14 @@ namespace Nz
 	{
 		Rectf rect(0.f, 0.f, m_size.x, m_size.y);
 		return rect.Contains(x, y);
+	}
+
+	inline bool BaseWidget::IsMouseInputEnabled() const
+	{
+		if (m_parentWidget && !m_parentWidget->IsMouseInputEnabled())
+			return false;
+
+		return m_isMouseInputEnabled;
 	}
 
 	inline bool BaseWidget::IsVisible() const

@@ -319,11 +319,16 @@ namespace Nz
 		Vector3f mousePos(float(x), m_size.y - float(y), 0.f);
 		for (std::size_t i = 0; i < m_widgetEntries.size(); ++i)
 		{
+			BaseWidget* widget = m_widgetEntries[i].widget;
 			const Boxf& box = m_widgetEntries[i].box;
-			int layer = m_widgetEntries[i].widget->GetBaseRenderLayer();
+
+			if (!widget->IsVisible() || !widget->IsMouseInputEnabled())
+				continue;
 
 			if (box.Contains(mousePos))
 			{
+				int layer = widget->GetBaseRenderLayer();
+
 				float area = box.width * box.height;
 				if (area < bestEntryArea && layer >= bestEntryLayer)
 				{

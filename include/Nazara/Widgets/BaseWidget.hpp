@@ -48,6 +48,7 @@ namespace Nz
 			void Destroy();
 
 			void EnableBackground(bool enable);
+			inline void EnableMouseInput(bool enable);
 
 			template<typename F> void ForEachWidgetChild(F&& iterator, bool onlyVisible = true);
 			template<typename F> void ForEachWidgetChild(F&& iterator, bool onlyVisible = true) const;
@@ -83,6 +84,8 @@ namespace Nz
 			bool HasFocus() const;
 
 			inline void Hide();
+
+			inline bool IsMouseInputEnabled() const;
 			inline bool IsVisible() const;
 
 			std::unique_ptr<BaseWidget> ReleaseFromParent();
@@ -117,6 +120,8 @@ namespace Nz
 		protected:
 			virtual void Layout();
 
+			void ClearMouseFocus();
+
 			entt::entity CreateEntity();
 			entt::entity CreateGraphicsEntity(Node* parent = nullptr);
 			void DestroyEntity(entt::entity entity);
@@ -125,10 +130,10 @@ namespace Nz
 			inline entt::registry& GetRegistry();
 			inline const entt::registry& GetRegistry() const;
 
-			void InvalidateNode(Invalidation invalidation) override;
-
 			Recti GetScissorBox() const;
 			Rectf GetScissorRect() const;
+
+			void InvalidateNode(Invalidation invalidation) override;
 
 			virtual bool IsFocusable() const;
 			inline bool IsInside(float x, float y) const;
@@ -200,6 +205,7 @@ namespace Nz
 			Vector2f m_size;
 			BaseWidget* m_parentWidget;
 			bool m_disableVisibilitySignal;
+			bool m_isMouseInputEnabled;
 			bool m_visible;
 			int m_baseRenderLayer;
 			int m_renderLayerCount;
