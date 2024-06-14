@@ -20,15 +20,33 @@ namespace Nz
 	{
 	}
 
-	bool TextureAsset::Create(Image referenceImage)
+	bool TextureAsset::Create(std::shared_ptr<Texture> texture)
 	{
-		NazaraAssert(referenceImage.IsValid(), "invalid image");
+		NazaraAssert(texture, "invalid texture");
 
 		Destroy();
 
-		auto& imageSource = m_source.emplace<ImageSource>();
-		imageSource.image = std::move(referenceImage);
-		m_textureInfo = Texture::BuildTextureInfo(imageSource.image);
+		m_textureInfo = texture->GetTextureInfo();
+
+		auto* entry = GetOrCreateEntry(*texture->GetDevice());
+		assert(entry);
+
+		entry->texture = std::move(texture);
+
+		return true;
+	}
+
+	bool TextureAsset::Create(std::shared_ptr<TextureAsset> textureAsset, const TextureViewInfo& viewInfo)
+	{
+		NazaraAssert(textureAsset, "invalid texture asset");
+
+		Destroy();
+
+		auto& viewSource = m_source.emplace<TextureViewSource>();
+		viewSource.texture = std::move(textureAsset);
+		viewSource.viewInfo = viewInfo;
+
+		m_textureInfo = Texture::ApplyView(viewSource.texture->GetTextureInfo(), viewSource.viewInfo);
 
 		return true;
 	}
@@ -63,6 +81,81 @@ namespace Nz
 		return true;
 	}
 
+	bool TextureAsset::Create(std::unique_ptr<Stream> imageStream, const Vector2ui32& atlasSize)
+	{
+		NazaraAssert(imageStream, "invalid image stream");
+
+		Destroy();
+
+		auto& streamSource = m_source.emplace<StreamSource>();
+		streamSource.originalStreamPos = imageStream->GetCursorPos();
+
+		ImageParams imageParams;
+		imageParams.levels.reset(); // don't load any mipmap
+
+		std::shared_ptr<Image> image = Image::LoadFromStream(*imageStream, imageParams, atlasSize);
+		if (!image)
+		{
+			if (!imageStream->GetPath().empty())
+				NazaraErrorFmt("failed to load image from file {}", PathToString(imageStream->GetPath()));
+			else
+				NazaraError("failed to load image from stream");
+
+			return false;
+		}
+
+		streamSource.additionalParam = atlasSize;
+		streamSource.ownedStream = std::move(imageStream);
+		streamSource.stream = streamSource.ownedStream.get();
+		m_textureInfo = Texture::BuildTextureInfo(*image);
+
+		return true;
+	}
+
+	bool TextureAsset::Create(std::unique_ptr<Stream> imageStream, const CubemapParams& cubemapParams)
+	{
+		NazaraAssert(imageStream, "invalid image stream");
+
+		Destroy();
+
+		auto& streamSource = m_source.emplace<StreamSource>();
+		streamSource.originalStreamPos = imageStream->GetCursorPos();
+
+		ImageParams imageParams;
+		imageParams.levels.reset(); // don't load any mipmap
+
+		std::shared_ptr<Image> image = Image::LoadFromStream(*imageStream, imageParams, cubemapParams);
+		if (!image)
+		{
+			if (!imageStream->GetPath().empty())
+				NazaraErrorFmt("failed to load image from file {}", PathToString(imageStream->GetPath()));
+			else
+				NazaraError("failed to load image from stream");
+
+			return false;
+		}
+
+		streamSource.additionalParam = cubemapParams;
+		streamSource.ownedStream = std::move(imageStream);
+		streamSource.stream = streamSource.ownedStream.get();
+		m_textureInfo = Texture::BuildTextureInfo(*image);
+
+		return true;
+	}
+
+	bool TextureAsset::Create(Image referenceImage)
+	{
+		NazaraAssert(referenceImage.IsValid(), "invalid image");
+
+		Destroy();
+
+		auto& imageSource = m_source.emplace<ImageSource>();
+		imageSource.image = std::move(referenceImage);
+		m_textureInfo = Texture::BuildTextureInfo(imageSource.image);
+
+		return true;
+	}
+
 	bool TextureAsset::Create(Stream& imageStream)
 	{
 		Destroy();
@@ -90,33 +183,82 @@ namespace Nz
 		return true;
 	}
 
-	bool TextureAsset::Create(std::shared_ptr<Texture> texture)
+	bool TextureAsset::Create(Stream& imageStream, const Vector2ui32& atlasSize)
 	{
-		NazaraAssert(texture, "invalid texture");
-
 		Destroy();
 
-		m_textureInfo = texture->GetTextureInfo();
+		auto& streamSource = m_source.emplace<StreamSource>();
+		streamSource.originalStreamPos = imageStream.GetCursorPos();
 
-		auto* entry = GetOrCreateEntry(*texture->GetDevice());
-		assert(entry);
+		ImageParams imageParams;
+		imageParams.levels.reset(); // don't load any mipmap
 
-		entry->texture = std::move(texture);
+		std::shared_ptr<Image> image = Image::LoadFromStream(imageStream, imageParams, atlasSize);
+		if (!image)
+		{
+			if (!imageStream.GetPath().empty())
+				NazaraErrorFmt("failed to load image from file {}", PathToString(imageStream.GetPath()));
+			else
+				NazaraError("failed to load image from stream");
+
+			return false;
+		}
+
+		streamSource.additionalParam = atlasSize;
+		streamSource.stream = streamSource.ownedStream.get();
+		m_textureInfo = Texture::BuildTextureInfo(*image);
 
 		return true;
 	}
 
-	bool TextureAsset::Create(std::shared_ptr<TextureAsset> textureAsset, const TextureViewInfo& viewInfo)
+	bool TextureAsset::Create(Stream& imageStream, const CubemapParams& cubemapParams)
 	{
-		NazaraAssert(textureAsset, "invalid texture asset");
+		Destroy();
+
+		auto& streamSource = m_source.emplace<StreamSource>();
+		streamSource.originalStreamPos = imageStream.GetCursorPos();
+
+		ImageParams imageParams;
+		imageParams.levels.reset(); // don't load any mipmap
+
+		std::shared_ptr<Image> image = Image::LoadFromStream(imageStream, imageParams, cubemapParams);
+		if (!image)
+		{
+			if (!imageStream.GetPath().empty())
+				NazaraErrorFmt("failed to load image from file {}", PathToString(imageStream.GetPath()));
+			else
+				NazaraError("failed to load image from stream");
+
+			return false;
+		}
+
+		streamSource.additionalParam = cubemapParams;
+		streamSource.stream = streamSource.ownedStream.get();
+		m_textureInfo = Texture::BuildTextureInfo(*image);
+
+		return true;
+	}
+
+	bool TextureAsset::Create(const TextureInfo& textureInfo, ImageBuilder imageBuilder)
+	{
+		NazaraAssert(imageBuilder, "invalid builder");
 
 		Destroy();
 
-		auto& viewSource = m_source.emplace<TextureViewSource>();
-		viewSource.texture = std::move(textureAsset);
-		viewSource.viewInfo = viewInfo;
+		m_source = std::move(imageBuilder);
+		m_textureInfo = textureInfo;
 
-		m_textureInfo = Texture::ApplyView(viewSource.texture->GetTextureInfo(), viewSource.viewInfo);
+		return true;
+	}
+
+	bool TextureAsset::Create(const TextureInfo& textureInfo, TextureBuilder textureBuilder)
+	{
+		NazaraAssert(textureBuilder, "invalid builder");
+
+		Destroy();
+
+		m_source = std::move(textureBuilder);
+		m_textureInfo = textureInfo;
 
 		return true;
 	}
@@ -138,28 +280,47 @@ namespace Nz
 
 		if (!entry->texture)
 		{
-			std::visit(Overloaded{
+			std::visit(Overloaded {
 				[](NoSource)
 				{
 					NazaraError("can't create texture as no source has been defined");
 				},
+				[&](const ImageBuilder& imageBuilder)
+				{
+					Image image = imageBuilder(renderDevice);
+
+					entry->texture = renderDevice.InstantiateTexture(m_textureInfo, image.GetConstPixels(), true);
+				},
 				[&](const ImageSource& imageSource)
 				{
 					entry->texture = renderDevice.InstantiateTexture(m_textureInfo, imageSource.image.GetConstPixels(), true);
-					entry->texture->SetFilePath(imageSource.image.GetFilePath());
 				},
 				[&](const StreamSource& streamSource)
 				{
 					streamSource.stream->SetCursorPos(streamSource.originalStreamPos);
 
-					std::shared_ptr<Image> image = Image::LoadFromStream(*streamSource.stream);
-					if (image)
+					std::shared_ptr<Image> image;
+					std::visit([&](const auto& arg)
 					{
+						using T = std::decay_t<decltype(arg)>;
+
+						if constexpr (std::is_same_v<T, NoParams>)
+							image = Image::LoadFromStream(*streamSource.stream);
+						else
+						{
+							ImageParams defaultParams;
+							image = Image::LoadFromStream(*streamSource.stream, defaultParams, arg);
+						}
+					}, streamSource.additionalParam);
+
+					if (image)
 						entry->texture = renderDevice.InstantiateTexture(m_textureInfo, image->GetConstPixels(), true);
-						entry->texture->SetFilePath(streamSource.stream->GetPath());
-					}
 					else
 						NazaraErrorFmt("failed to load image from stream {}", streamSource.stream->GetPath());
+				},
+				[&](const TextureBuilder& textureBuilder)
+				{
+					entry->texture = textureBuilder(renderDevice);
 				},
 				[&](const TextureViewSource& viewSource)
 				{
@@ -199,6 +360,24 @@ namespace Nz
 		return texAsset;
 	}
 
+	std::shared_ptr<TextureAsset> TextureAsset::CreateWithBuilder(const TextureInfo& textureInfo, ImageBuilder builder, const TextureAssetParams& params)
+	{
+		std::shared_ptr<TextureAsset> texAsset = std::make_shared<TextureAsset>();
+		if (!texAsset->Create(textureInfo, std::move(builder)))
+			return {};
+
+		return texAsset;
+	}
+
+	std::shared_ptr<TextureAsset> TextureAsset::CreateWithBuilder(const TextureInfo& textureInfo, TextureBuilder builder, const TextureAssetParams& params)
+	{
+		std::shared_ptr<TextureAsset> texAsset = std::make_shared<TextureAsset>();
+		if (!texAsset->Create(textureInfo, std::move(builder)))
+			return {};
+
+		return texAsset;
+	}
+
 	std::shared_ptr<TextureAsset> TextureAsset::OpenFromFile(const std::filesystem::path& filePath, const TextureAssetParams& params)
 	{
 		return OpenFromStream(std::make_unique<Nz::File>(filePath, Nz::OpenMode::Read), params);
@@ -222,6 +401,62 @@ namespace Nz
 	{
 		std::shared_ptr<TextureAsset> texAsset = std::make_shared<TextureAsset>();
 		if (!texAsset->Create(stream))
+			return {};
+
+		return texAsset;
+	}
+
+	std::shared_ptr<TextureAsset> TextureAsset::OpenFromFile(const std::filesystem::path& filePath, const TextureAssetParams& params, const Vector2ui32& atlasSize)
+	{
+		return OpenFromStream(std::make_unique<Nz::File>(filePath, Nz::OpenMode::Read), params, atlasSize);
+	}
+
+	std::shared_ptr<TextureAsset> TextureAsset::OpenFromMemory(const void* data, std::size_t size, const TextureAssetParams& params, const Vector2ui32& atlasSize)
+	{
+		return OpenFromStream(std::make_unique<Nz::MemoryView>(data, size), params, atlasSize);
+	}
+
+	std::shared_ptr<TextureAsset> TextureAsset::OpenFromStream(std::unique_ptr<Stream> stream, const TextureAssetParams& params, const Vector2ui32& atlasSize)
+	{
+		std::shared_ptr<TextureAsset> texAsset = std::make_shared<TextureAsset>();
+		if (!texAsset->Create(std::move(stream), atlasSize))
+			return {};
+
+		return texAsset;
+	}
+
+	std::shared_ptr<TextureAsset> TextureAsset::OpenFromStream(Stream& stream, const TextureAssetParams& params, const Vector2ui32& atlasSize)
+	{
+		std::shared_ptr<TextureAsset> texAsset = std::make_shared<TextureAsset>();
+		if (!texAsset->Create(stream, atlasSize))
+			return {};
+
+		return texAsset;
+	}
+
+	std::shared_ptr<TextureAsset> TextureAsset::OpenFromFile(const std::filesystem::path& filePath, const TextureAssetParams& params, const CubemapParams& cubemapParams)
+	{
+		return OpenFromStream(std::make_unique<Nz::File>(filePath, Nz::OpenMode::Read), params, cubemapParams);
+	}
+
+	std::shared_ptr<TextureAsset> TextureAsset::OpenFromMemory(const void* data, std::size_t size, const TextureAssetParams& params, const CubemapParams& cubemapParams)
+	{
+		return OpenFromStream(std::make_unique<Nz::MemoryView>(data, size), params, cubemapParams);
+	}
+
+	std::shared_ptr<TextureAsset> TextureAsset::OpenFromStream(std::unique_ptr<Stream> stream, const TextureAssetParams& params, const CubemapParams& cubemapParams)
+	{
+		std::shared_ptr<TextureAsset> texAsset = std::make_shared<TextureAsset>();
+		if (!texAsset->Create(std::move(stream), cubemapParams))
+			return {};
+
+		return texAsset;
+	}
+
+	std::shared_ptr<TextureAsset> TextureAsset::OpenFromStream(Stream& stream, const TextureAssetParams& params, const CubemapParams& cubemapParams)
+	{
+		std::shared_ptr<TextureAsset> texAsset = std::make_shared<TextureAsset>();
+		if (!texAsset->Create(stream, cubemapParams))
 			return {};
 
 		return texAsset;
