@@ -85,7 +85,7 @@ namespace Nz
 		return true;
 	}
 
-	bool TextureAsset::Create(std::unique_ptr<Stream> imageStream, const Vector2ui32& atlasSize, const TextureAssetParams& params)
+	bool TextureAsset::Create(std::unique_ptr<Stream> imageStream, const TextureAssetParams& params, const Vector2ui32& atlasSize)
 	{
 		NazaraAssert(imageStream, "invalid image stream");
 
@@ -116,7 +116,7 @@ namespace Nz
 		return true;
 	}
 
-	bool TextureAsset::Create(std::unique_ptr<Stream> imageStream, const CubemapParams& cubemapParams, const TextureAssetParams& params)
+	bool TextureAsset::Create(std::unique_ptr<Stream> imageStream, const TextureAssetParams& params, const CubemapParams& cubemapParams)
 	{
 		NazaraAssert(imageStream, "invalid image stream");
 
@@ -187,7 +187,7 @@ namespace Nz
 		return true;
 	}
 
-	bool TextureAsset::Create(Stream& imageStream, const Vector2ui32& atlasSize, const TextureAssetParams& params)
+	bool TextureAsset::Create(Stream& imageStream, const TextureAssetParams& params, const Vector2ui32& atlasSize)
 	{
 		Destroy();
 
@@ -215,7 +215,7 @@ namespace Nz
 		return true;
 	}
 
-	bool TextureAsset::Create(Stream& imageStream, const CubemapParams& cubemapParams, const TextureAssetParams& params)
+	bool TextureAsset::Create(Stream& imageStream, const TextureAssetParams& params, const CubemapParams& cubemapParams)
 	{
 		Destroy();
 
@@ -410,57 +410,57 @@ namespace Nz
 		return texAsset;
 	}
 
-	std::shared_ptr<TextureAsset> TextureAsset::OpenFromFile(const std::filesystem::path& filePath, const Vector2ui32& atlasSize, const TextureAssetParams& params)
+	std::shared_ptr<TextureAsset> TextureAsset::OpenFromFile(const std::filesystem::path& filePath, const TextureAssetParams& params, const Vector2ui32& atlasSize)
 	{
-		return OpenFromStream(std::make_unique<Nz::File>(filePath, Nz::OpenMode::Read), atlasSize, params);
+		return OpenFromStream(std::make_unique<Nz::File>(filePath, Nz::OpenMode::Read), params, atlasSize);
 	}
 
-	std::shared_ptr<TextureAsset> TextureAsset::OpenFromMemory(const void* data, std::size_t size, const Vector2ui32& atlasSize, const TextureAssetParams& params)
+	std::shared_ptr<TextureAsset> TextureAsset::OpenFromMemory(const void* data, std::size_t size, const TextureAssetParams& params, const Vector2ui32& atlasSize)
 	{
-		return OpenFromStream(std::make_unique<Nz::MemoryView>(data, size), atlasSize, params);
+		return OpenFromStream(std::make_unique<Nz::MemoryView>(data, size), params, atlasSize);
 	}
 
-	std::shared_ptr<TextureAsset> TextureAsset::OpenFromStream(std::unique_ptr<Stream> stream, const Vector2ui32& atlasSize, const TextureAssetParams& params)
+	std::shared_ptr<TextureAsset> TextureAsset::OpenFromStream(std::unique_ptr<Stream> stream, const TextureAssetParams& params, const Vector2ui32& atlasSize)
 	{
 		std::shared_ptr<TextureAsset> texAsset = std::make_shared<TextureAsset>();
-		if (!texAsset->Create(std::move(stream), atlasSize))
+		if (!texAsset->Create(std::move(stream), params, atlasSize))
 			return {};
 
 		return texAsset;
 	}
 
-	std::shared_ptr<TextureAsset> TextureAsset::OpenFromStream(Stream& stream, const Vector2ui32& atlasSize, const TextureAssetParams& params)
+	std::shared_ptr<TextureAsset> TextureAsset::OpenFromStream(Stream& stream, const TextureAssetParams& params, const Vector2ui32& atlasSize)
 	{
 		std::shared_ptr<TextureAsset> texAsset = std::make_shared<TextureAsset>();
-		if (!texAsset->Create(stream, atlasSize))
+		if (!texAsset->Create(stream, params, atlasSize))
 			return {};
 
 		return texAsset;
 	}
 
-	std::shared_ptr<TextureAsset> TextureAsset::OpenFromFile(const std::filesystem::path& filePath, const CubemapParams& cubemapParams, const TextureAssetParams& params)
+	std::shared_ptr<TextureAsset> TextureAsset::OpenFromFile(const std::filesystem::path& filePath, const TextureAssetParams& params, const CubemapParams& cubemapParams)
 	{
-		return OpenFromStream(std::make_unique<Nz::File>(filePath, Nz::OpenMode::Read), cubemapParams, params);
+		return OpenFromStream(std::make_unique<Nz::File>(filePath, Nz::OpenMode::Read), params, cubemapParams);
 	}
 
-	std::shared_ptr<TextureAsset> TextureAsset::OpenFromMemory(const void* data, std::size_t size, const CubemapParams& cubemapParams, const TextureAssetParams& params)
+	std::shared_ptr<TextureAsset> TextureAsset::OpenFromMemory(const void* data, std::size_t size, const TextureAssetParams& params, const CubemapParams& cubemapParams)
 	{
-		return OpenFromStream(std::make_unique<Nz::MemoryView>(data, size), cubemapParams, params);
+		return OpenFromStream(std::make_unique<Nz::MemoryView>(data, size), params, cubemapParams);
 	}
 
-	std::shared_ptr<TextureAsset> TextureAsset::OpenFromStream(std::unique_ptr<Stream> stream, const CubemapParams& cubemapParams, const TextureAssetParams& params)
+	std::shared_ptr<TextureAsset> TextureAsset::OpenFromStream(std::unique_ptr<Stream> stream, const TextureAssetParams& params, const CubemapParams& cubemapParams)
 	{
 		std::shared_ptr<TextureAsset> texAsset = std::make_shared<TextureAsset>();
-		if (!texAsset->Create(std::move(stream), cubemapParams, params))
+		if (!texAsset->Create(std::move(stream), params, cubemapParams))
 			return {};
 
 		return texAsset;
 	}
 
-	std::shared_ptr<TextureAsset> TextureAsset::OpenFromStream(Stream& stream, const CubemapParams& cubemapParams, const TextureAssetParams& params)
+	std::shared_ptr<TextureAsset> TextureAsset::OpenFromStream(Stream& stream, const TextureAssetParams& params, const CubemapParams& cubemapParams)
 	{
 		std::shared_ptr<TextureAsset> texAsset = std::make_shared<TextureAsset>();
-		if (!texAsset->Create(stream, cubemapParams, params))
+		if (!texAsset->Create(stream, params, cubemapParams))
 			return {};
 
 		return texAsset;
