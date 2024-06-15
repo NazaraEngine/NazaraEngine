@@ -282,5 +282,17 @@ namespace Nz
 	{
 		s_flipFunctions[format][flipping] = func;
 	}
+
+	inline std::optional<PixelFormat> PixelFormatInfo::ToSRGB(PixelFormat format)
+	{
+		switch (format)
+		{
+			case PixelFormat::BGR8:  return PixelFormat::BGR8_SRGB;
+			case PixelFormat::BGRA8: return PixelFormat::BGRA8_SRGB;
+			case PixelFormat::RGB8:  return PixelFormat::RGB8_SRGB;
+			case PixelFormat::RGBA8: return PixelFormat::RGBA8_SRGB;
+			default:                 return {};
+		}
+	}
 }
 

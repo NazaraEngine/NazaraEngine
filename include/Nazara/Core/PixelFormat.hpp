@@ -15,6 +15,7 @@
 #include <NazaraUtils/EnumArray.hpp>
 #include <array>
 #include <functional>
+#include <optional>
 
 ///TODO: Permettre la conversion automatique entre les formats via des renseignements de bits et de type pour chaque format.
 ///      Ce serait plus lent que la conversion spécialisée (qui ne disparaîtra donc pas) mais ça permettrait au moteur de faire la conversion
@@ -85,6 +86,8 @@ namespace Nz
 
 			static inline void SetConvertFunction(PixelFormat srcFormat, PixelFormat dstFormat, ConvertFunction func);
 			static inline void SetFlipFunction(PixelFlipping flipping, PixelFormat format, FlipFunction func);
+
+			static inline std::optional<PixelFormat> ToSRGB(PixelFormat format);
 
 		private:
 			static bool Initialize();
