@@ -197,7 +197,7 @@ int main(int argc, char* argv[])
 
 	std::shared_ptr<Nz::MaterialInstance> spaceshipMat = deferredMaterial->Instantiate();
 	spaceshipMat->SetTextureProperty("AlphaMap", Nz::TextureAsset::OpenFromFile(resourceDir / "alphatile.png"));
-	spaceshipMat->SetTextureProperty("BaseColorMap", Nz::TextureAsset::OpenFromFile(resourceDir / "Spaceship/Texture/diffuse.png"));
+	spaceshipMat->SetTextureProperty("BaseColorMap", Nz::TextureAsset::OpenFromFile(resourceDir / "Spaceship/Texture/diffuse.png", { .sRGB = true }));
 
 	std::shared_ptr<Nz::MaterialInstance> flareMaterial = deferredMaterial->Instantiate();
 	flareMaterial->UpdatePassStates("ForwardPass", [](Nz::RenderStates& renderStates)
@@ -215,7 +215,7 @@ int main(int argc, char* argv[])
 		return true;
 	});
 	flareMaterial->UpdatePassFlags("ForwardPass", Nz::MaterialPassFlag::SortByDistance);
-	flareMaterial->SetTextureProperty("BaseColorMap", Nz::TextureAsset::OpenFromFile(resourceDir / "flare1.png"));
+	flareMaterial->SetTextureProperty("BaseColorMap", Nz::TextureAsset::OpenFromFile(resourceDir / "flare1.png", { .sRGB = true }));
 
 	Nz::TextureSamplerInfo planeSampler;
 	planeSampler.anisotropyLevel = 16;
@@ -223,7 +223,7 @@ int main(int argc, char* argv[])
 	planeSampler.wrapModeV = Nz::SamplerWrap::Repeat;
 
 	std::shared_ptr<Nz::MaterialInstance> planeMat = deferredMaterial->Instantiate();
-	planeMat->SetTextureProperty("BaseColorMap", Nz::TextureAsset::OpenFromFile(resourceDir / "dev_grey.png"), planeSampler);
+	planeMat->SetTextureProperty("BaseColorMap", Nz::TextureAsset::OpenFromFile(resourceDir / "dev_grey.png", { .sRGB = true }), planeSampler);
 
 	Nz::Model spaceshipModel(std::move(gfxMesh));
 	for (std::size_t i = 0; i < spaceshipModel.GetSubMeshCount(); ++i)

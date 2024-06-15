@@ -245,7 +245,7 @@ int main(int argc, char* argv[])
 
 			// Textures
 			std::shared_ptr<Nz::MaterialInstance> sphereMat = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Phong);
-			sphereMat->SetTextureProperty("BaseColorMap", fs.Open<Nz::TextureAsset>("assets/Rusty/rustediron2_basecolor.png"));
+			sphereMat->SetTextureProperty("BaseColorMap", fs.Open<Nz::TextureAsset>("assets/Rusty/rustediron2_basecolor.png", { .sRGB = true }));
 
 			std::shared_ptr<Nz::Model> sphereModel = std::make_shared<Nz::Model>(std::move(gfxMesh));
 			for (std::size_t i = 0; i < sphereModel->GetSubMeshCount(); ++i)
@@ -348,7 +348,7 @@ int main(int argc, char* argv[])
 		planeSampler.wrapModeV = Nz::SamplerWrap::Repeat;
 
 		std::shared_ptr<Nz::MaterialInstance> planeMat = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Phong);
-		planeMat->SetTextureProperty("BaseColorMap", fs.Open<Nz::TextureAsset>("assets/dev_grey.png"), planeSampler);
+		planeMat->SetTextureProperty("BaseColorMap", fs.Open<Nz::TextureAsset>("assets/dev_grey.png", { .sRGB = true }), planeSampler);
 
 		std::shared_ptr<Nz::Model> planeModel = std::make_shared<Nz::Model>(std::move(planeMeshGfx));
 		planeModel->SetMaterial(0, planeMat);
@@ -466,7 +466,7 @@ int main(int argc, char* argv[])
 		std::shared_ptr<Nz::Model> tvModel = std::make_shared<Nz::Model>(std::move(tvGfxMesh));
 
 		std::shared_ptr<Nz::MaterialInstance> tvMat = Nz::MaterialInstance::Instantiate(Nz::MaterialType::PhysicallyBased);
-		tvMat->SetTextureProperty("BaseColorMap", fs.Open<Nz::TextureAsset>("assets/retro_tv_lowpoly_4k_textures/textures/old_tv_baseColor.jpeg"));
+		tvMat->SetTextureProperty("BaseColorMap", fs.Open<Nz::TextureAsset>("assets/retro_tv_lowpoly_4k_textures/textures/old_tv_baseColor.jpeg", { .sRGB = true }));
 		tvMat->SetTextureProperty("NormalMap", fs.Open<Nz::TextureAsset>("assets/retro_tv_lowpoly_4k_textures/textures/old_tv_normal.png"));
 
 		tvModel->SetMaterial(0, tvMat);

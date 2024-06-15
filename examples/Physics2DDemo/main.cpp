@@ -52,7 +52,7 @@ int main(int argc, char* argv[])
 	samplerInfo.anisotropyLevel = 8;
 
 	std::shared_ptr<Nz::MaterialInstance> spriteMaterial = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Phong);
-	spriteMaterial->SetTextureProperty("BaseColorMap", Nz::TextureAsset::OpenFromFile(resourceDir / "box.png"));
+	spriteMaterial->SetTextureProperty("BaseColorMap", Nz::TextureAsset::OpenFromFile(resourceDir / "box.png", { .sRGB = true }));
 
 	Nz::RigidBody2DComponent::DynamicSettings boxSettings;
 	boxSettings.mass = 50.f;
@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
 		for (std::size_t i = 0; i < 18; ++i)
 		{
 			std::shared_ptr<Nz::MaterialInstance> tileMaterial = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Basic, Nz::MaterialInstancePreset::Transparent);
-			tileMaterial->SetTextureProperty("BaseColorMap", Nz::TextureAsset::OpenFromFile(resourceDir / "tiles" / (std::to_string(i + 1) + ".png")));
+			tileMaterial->SetTextureProperty("BaseColorMap", Nz::TextureAsset::OpenFromFile(resourceDir / "tiles" / (std::to_string(i + 1) + ".png"), { .sRGB = true }));
 
 			tilemap->SetMaterial(i, tileMaterial);
 		}
