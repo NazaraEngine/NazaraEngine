@@ -13,8 +13,6 @@ namespace Nz
 {
 	struct NAZARA_CORE_API ResourceParameters
 	{
-		virtual ~ResourceParameters();
-
 		ParameterList custom;
 	};
 }
