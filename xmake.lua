@@ -244,6 +244,9 @@ if not has_config("embed_rendererbackends", "static") then
 	end
 end
 
+
+add_requires("wayland", "wayland-protocols")
+
 NazaraModules = modules
 
 set_project("NazaraEngine")
