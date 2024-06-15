@@ -195,7 +195,7 @@ int main(int argc, char* argv[])
 		planeSampler.wrapModeV = Nz::SamplerWrap::Repeat;
 
 		std::shared_ptr<Nz::MaterialInstance> planeMat = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Phong);
-		planeMat->SetTextureProperty("BaseColorMap", fs.Open<Nz::TextureAsset>("assets/dev_grey.png"), planeSampler);
+		planeMat->SetTextureProperty("BaseColorMap", fs.Open<Nz::TextureAsset>("assets/dev_grey.png", { .sRGB = true }), planeSampler);
 
 		std::shared_ptr<Nz::Model> planeModel = std::make_shared<Nz::Model>(std::move(planeMeshGfx));
 		planeModel->SetMaterial(0, planeMat);

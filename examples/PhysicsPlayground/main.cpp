@@ -61,7 +61,7 @@ int main(int argc, char* argv[])
 		planeSampler.wrapModeV = Nz::SamplerWrap::Repeat;
 
 		std::shared_ptr<Nz::MaterialInstance> boxMat = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Phong);
-		boxMat->SetTextureProperty("BaseColorMap", fs.Open<Nz::TextureAsset>("assets/dev_grey.png"), planeSampler);
+		boxMat->SetTextureProperty("BaseColorMap", fs.Open<Nz::TextureAsset>("assets/dev_grey.png", { .sRGB = true }), planeSampler);
 		boxMat->DisablePass("ShadowPass");
 		boxMat->UpdatePassesStates([&](Nz::RenderStates& states)
 		{
@@ -211,7 +211,7 @@ int main(int argc, char* argv[])
 
 		std::shared_ptr<Nz::MaterialInstance> material = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Phong);
 
-		material->SetTextureProperty("BaseColorMap", fs.Open<Nz::TextureAsset>("assets/Spaceship/Texture/diffuse.png"));
+		material->SetTextureProperty("BaseColorMap", fs.Open<Nz::TextureAsset>("assets/Spaceship/Texture/diffuse.png", { .sRGB = true }));
 
 		std::shared_ptr<Nz::Model> model = std::make_shared<Nz::Model>(std::move(gfxMesh));
 		for (std::size_t i = 0; i < model->GetSubMeshCount(); ++i)

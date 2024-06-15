@@ -41,7 +41,7 @@ int main(int argc, char* argv[])
 
 	std::shared_ptr<Nz::MaterialInstance> materialInstance = Nz::MaterialInstance::Instantiate(Nz::MaterialType::PhysicallyBased);
 	materialInstance->SetTextureProperty("AlphaMap", Nz::TextureAsset::OpenFromFile(resourceDir / "alphatile.png"));
-	materialInstance->SetTextureProperty("BaseColorMap", Nz::TextureAsset::OpenFromFile(resourceDir / "Rusty/rustediron2_basecolor.png"));
+	materialInstance->SetTextureProperty("BaseColorMap", Nz::TextureAsset::OpenFromFile(resourceDir / "Rusty/rustediron2_basecolor.png", { .sRGB = true }));
 	materialInstance->SetTextureProperty("MetallicMap", Nz::TextureAsset::OpenFromFile(resourceDir / "Rusty/rustediron2_metallic.png"));
 	materialInstance->SetTextureProperty("RoughnessMap", Nz::TextureAsset::OpenFromFile(resourceDir / "Rusty/rustediron2_roughness.png"));
 

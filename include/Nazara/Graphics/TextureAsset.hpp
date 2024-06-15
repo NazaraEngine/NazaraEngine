@@ -31,6 +31,7 @@ namespace Nz
 		void Merge(const TextureAssetParams& params);
 
 		TextureUsageFlags usageFlags = TextureUsage::ShaderSampling | TextureUsage::TransferDestination | TextureUsage::TransferSource;
+		bool sRGB = false;
 	};
 
 	class TextureAsset;
@@ -42,8 +43,8 @@ namespace Nz
 	class NAZARA_GRAPHICS_API TextureAsset : public Resource
 	{
 		public:
-			using ImageBuilder = std::function<Image(RenderDevice& renderDevice)>;
-			using TextureBuilder = std::function<std::shared_ptr<Texture>(RenderDevice& renderDevice)>;
+			using ImageBuilder = std::function<Image(RenderDevice& renderDevice, const TextureAssetParams& params)>;
+			using TextureBuilder = std::function<std::shared_ptr<Texture>(RenderDevice& renderDevice, const TextureAssetParams& params)>;
 
 			using Params = TextureAssetParams;
 
@@ -53,16 +54,16 @@ namespace Nz
 			inline ~TextureAsset();
 
 			bool Create(std::shared_ptr<Texture> texture);
-			bool Create(std::shared_ptr<TextureAsset> textureAsset, const TextureViewInfo& viewInfo);
-			bool Create(std::unique_ptr<Stream> imageStream);
-			bool Create(std::unique_ptr<Stream> imageStream, const Vector2ui32& atlasSize);
-			bool Create(std::unique_ptr<Stream> imageStream, const CubemapParams& cubemapParams);
-			bool Create(Image referenceImage);
-			bool Create(Stream& imageStream);
-			bool Create(Stream& imageStream, const Vector2ui32& atlasSize);
-			bool Create(Stream& imageStream, const CubemapParams& cubemapParams);
-			bool Create(const TextureInfo& textureInfo, ImageBuilder imageBuilder);
-			bool Create(const TextureInfo& textureInfo, TextureBuilder textureBuilder);
+			bool Create(std::shared_ptr<TextureAsset> textureAsset, const TextureViewInfo& viewInfo, const TextureAssetParams& params = TextureAssetParams{});
+			bool Create(std::unique_ptr<Stream> imageStream, const TextureAssetParams& params = TextureAssetParams{});
+			bool Create(std::unique_ptr<Stream> imageStream, const Vector2ui32& atlasSize, const TextureAssetParams& params = TextureAssetParams{});
+			bool Create(std::unique_ptr<Stream> imageStream, const CubemapParams& cubemapParams, const TextureAssetParams& params = TextureAssetParams{});
+			bool Create(Image referenceImage, const TextureAssetParams& params = TextureAssetParams{});
+			bool Create(Stream& imageStream, const TextureAssetParams& params = TextureAssetParams{});
+			bool Create(Stream& imageStream, const Vector2ui32& atlasSize, const TextureAssetParams& params = TextureAssetParams{});
+			bool Create(Stream& imageStream, const CubemapParams& cubemapParams, const TextureAssetParams& params = TextureAssetParams{});
+			bool Create(const TextureInfo& textureInfo, ImageBuilder imageBuilder, const TextureAssetParams& params = TextureAssetParams{});
+			bool Create(const TextureInfo& textureInfo, TextureBuilder textureBuilder, const TextureAssetParams& params = TextureAssetParams{});
 			void Destroy();
 
 			inline PixelFormat GetFormat() const;
@@ -77,7 +78,7 @@ namespace Nz
 
 			static std::shared_ptr<TextureAsset> CreateFromImage(Image referenceImage, const TextureAssetParams& params = TextureAssetParams{});
 			static std::shared_ptr<TextureAsset> CreateFromTexture(std::shared_ptr<Texture> texture);
-			static std::shared_ptr<TextureAsset> CreateView(std::shared_ptr<TextureAsset> textureAsset, const TextureViewInfo& viewInfo);
+			static std::shared_ptr<TextureAsset> CreateView(std::shared_ptr<TextureAsset> textureAsset, const TextureViewInfo& viewInfo, const TextureAssetParams& params);
 			static std::shared_ptr<TextureAsset> CreateWithBuilder(const TextureInfo& textureInfo, ImageBuilder builder, const TextureAssetParams& params = TextureAssetParams{});
 			static std::shared_ptr<TextureAsset> CreateWithBuilder(const TextureInfo& textureInfo, TextureBuilder builder, const TextureAssetParams& params = TextureAssetParams{});
 
@@ -87,22 +88,24 @@ namespace Nz
 			static std::shared_ptr<TextureAsset> OpenFromStream(Stream& stream, const TextureAssetParams& params = TextureAssetParams{});
 
 			// OpenArray
-			static std::shared_ptr<TextureAsset> OpenFromFile(const std::filesystem::path& filePath, const TextureAssetParams& params, const Vector2ui32& atlasSize);
-			static std::shared_ptr<TextureAsset> OpenFromMemory(const void* data, std::size_t size, const TextureAssetParams& params, const Vector2ui32& atlasSize);
-			static std::shared_ptr<TextureAsset> OpenFromStream(std::unique_ptr<Stream> stream, const TextureAssetParams& params, const Vector2ui32& atlasSize);
-			static std::shared_ptr<TextureAsset> OpenFromStream(Stream& stream, const TextureAssetParams& params, const Vector2ui32& atlasSize);
+			static std::shared_ptr<TextureAsset> OpenFromFile(const std::filesystem::path& filePath, const Vector2ui32& atlasSize, const TextureAssetParams& params = TextureAssetParams{});
+			static std::shared_ptr<TextureAsset> OpenFromMemory(const void* data, std::size_t size, const Vector2ui32& atlasSize, const TextureAssetParams& params = TextureAssetParams{});
+			static std::shared_ptr<TextureAsset> OpenFromStream(std::unique_ptr<Stream> stream, const Vector2ui32& atlasSize, const TextureAssetParams& params = TextureAssetParams{});
+			static std::shared_ptr<TextureAsset> OpenFromStream(Stream& stream, const Vector2ui32& atlasSize, const TextureAssetParams& params = TextureAssetParams{});
 
 			// OpenCubemap
-			static std::shared_ptr<TextureAsset> OpenFromFile(const std::filesystem::path& filePath, const TextureAssetParams& params, const CubemapParams& cubemapParams);
-			static std::shared_ptr<TextureAsset> OpenFromMemory(const void* data, std::size_t size, const TextureAssetParams& params, const CubemapParams& cubemapParams);
-			static std::shared_ptr<TextureAsset> OpenFromStream(std::unique_ptr<Stream> stream, const TextureAssetParams& params, const CubemapParams& cubemapParams);
-			static std::shared_ptr<TextureAsset> OpenFromStream(Stream& stream, const TextureAssetParams& params, const CubemapParams& cubemapParams);
+			static std::shared_ptr<TextureAsset> OpenFromFile(const std::filesystem::path& filePath, const CubemapParams& cubemapParams, const TextureAssetParams& params = TextureAssetParams{});
+			static std::shared_ptr<TextureAsset> OpenFromMemory(const void* data, std::size_t size, const CubemapParams& cubemapParams, const TextureAssetParams& params = TextureAssetParams{});
+			static std::shared_ptr<TextureAsset> OpenFromStream(std::unique_ptr<Stream> stream, const CubemapParams& cubemapParams, const TextureAssetParams& params = TextureAssetParams{});
+			static std::shared_ptr<TextureAsset> OpenFromStream(Stream& stream, const CubemapParams& cubemapParams, const TextureAssetParams& params = TextureAssetParams{});
 
 		private:
 			struct TextureEntry;
 
 			inline TextureEntry* GetEntry(RenderDevice& device) const;
 			TextureEntry* GetOrCreateEntry(RenderDevice& device) const;
+
+			void StoreTextureInfoAndParams(const TextureInfo& textureInfo, const TextureAssetParams& params);
 
 			struct NoParams {};
 			struct NoSource {};
@@ -137,6 +140,7 @@ namespace Nz
 			std::variant<NoSource, ImageBuilder, ImageSource, StreamSource, TextureBuilder, TextureViewSource> m_source;
 			mutable FixedVector<TextureEntry, 4> m_entries; //< handling at most 4 GPUs seems pretty reasonable
 			TextureInfo m_textureInfo;
+			TextureAssetParams m_params;
 	};
 }
 

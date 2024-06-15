@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
 	}
 
 	material->SetTextureProperty("AlphaMap", Nz::TextureAsset::OpenFromFile(resourceDir / "alphatile.png"));
-	material->SetTextureProperty("BaseColorMap", Nz::TextureAsset::OpenFromFile(resourceDir / "Spaceship/Texture/diffuse.png"));
+	material->SetTextureProperty("BaseColorMap", Nz::TextureAsset::OpenFromFile(resourceDir / "Spaceship/Texture/diffuse.png", { .sRGB = true }));
 
 	std::shared_ptr<Nz::Model> model = std::make_shared<Nz::Model>(std::move(gfxMesh));
 	for (std::size_t i = 0; i < model->GetSubMeshCount(); ++i)
