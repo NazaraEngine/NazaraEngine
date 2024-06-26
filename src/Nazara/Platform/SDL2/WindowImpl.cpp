@@ -67,7 +67,6 @@ namespace Nz
 		unsigned int height = mode.height;
 		if (fullscreen)
 			winStyle |= SDL_WINDOW_FULLSCREEN;
-			winStyle |= SDL_WINDOW_OPENGL;
 
 		if (fullscreen)
 		{
