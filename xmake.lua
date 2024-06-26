@@ -103,6 +103,7 @@ local modules = {
 				add_syslinks("dl", "pthread")
 		         elseif is_plat("bsd") then
                                 add_syslinks("pthread")
+                                add_packages("libuuid")
 			elseif is_plat("wasm") then
 				--[[
 				Have to fix issues with libsdl first
@@ -404,7 +405,7 @@ if has_config("widgets") then
 end
 
 -- Platform-specific dependencies
-if is_plat("linux", "android") then
+if is_plat("linux", "android", "bsd") then
 	add_requires("libuuid")
 end
 
@@ -535,7 +536,7 @@ function ModuleTargetConfig(name, module)
 		remove_files("src/Nazara/" .. name .. "/Darwin/**")
 	end
 
-	if not is_plat("linux", "macosx", "iphoneos", "android", "wasm", "cross") then
+	if not is_plat("linux", "macosx", "iphoneos", "android", "wasm", "cross", "bsd") then
 		remove_headerfiles("src/Nazara/" .. name .. "/Posix/**")
 		remove_files("src/Nazara/" .. name .. "/Posix/**")
 	end

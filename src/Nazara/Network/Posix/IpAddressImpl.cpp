@@ -9,6 +9,9 @@
 #include <NazaraUtils/Algorithm.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
 #include <cstring>
+#if defined __FreeBSD__
+#include <sys/socket.h>
+#endif
 
 namespace Nz
 {

@@ -7,7 +7,7 @@
 
 #ifdef NAZARA_PLATFORM_WINDOWS
 #include <objbase.h>
-#elif defined(NAZARA_PLATFORM_LINUX) || defined(NAZARA_PLATFORM_MACOS) || defined(NAZARA_PLATFORM_WEB)
+#elif defined(NAZARA_PLATFORM_LINUX) || defined(NAZARA_PLATFORM_MACOS) || defined(NAZARA_PLATFORM_WEB) || defined (NAZARA_PLATFORM_BSD)
 #include <uuid/uuid.h>
 #endif
 
@@ -43,7 +43,7 @@ namespace Nz
 
 		for (unsigned int i = 0; i < 8; ++i)
 			uuid[8 + i] = static_cast<UInt8>(id.Data4[i]);
-#elif defined(NAZARA_PLATFORM_LINUX) || defined(NAZARA_PLATFORM_MACOS) || defined(NAZARA_PLATFORM_WEB)
+#elif defined(NAZARA_PLATFORM_LINUX) || defined(NAZARA_PLATFORM_MACOS) || defined(NAZARA_PLATFORM_WEB) || defined (NAZARA_PLATFORM_BSD)
 		uuid_t id;
 		uuid_generate(id);
 
