@@ -9,7 +9,8 @@
 #include <NazaraUtils/Algorithm.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
 #include <cstring>
-#if defined __FreeBSD__
+
+#ifdef NAZARA_PLATFORM_BSD
 #include <sys/socket.h>
 #endif
 
