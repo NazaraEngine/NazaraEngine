@@ -47,7 +47,7 @@ namespace Nz
 			"libopenal.dylib",
 			"libopenal.1.dylib",
 		};
-#elif defined(NAZARA_PLATFORM_BSD)
+#elif defined(NAZARA_PLATFORM_FREEBSD)
 		std::array libs {
 			"libopenal.so.1",
 			"libopenal.so"
