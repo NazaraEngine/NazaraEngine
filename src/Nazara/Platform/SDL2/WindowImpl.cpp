@@ -14,7 +14,7 @@
 #include <Nazara/Platform/SDL2/SDLHelper.hpp>
 #include <SDL.h>
 
-#if defined(NAZARA_PLATFORM_MACOS) || defined(NAZARA_PLATFORM_BSD)
+#if defined(NAZARA_PLATFORM_MACOS)
 // I'm not sure why, but SDL_VIDEO_DRIVER_X11 is automatically defined here by SDL_config.h
 // This is problematic as it requires X11/X.h which is not present (adding libxext/libx11/xorgproto packages didn't help)
 #undef SDL_VIDEO_DRIVER_X11
@@ -654,6 +654,6 @@ namespace Nz
 
 #if defined(NAZARA_PLATFORM_WINDOWS)
 #include <Nazara/Core/AntiWindows.hpp>
-#elif defined(NAZARA_PLATFORM_LINUX) || defined(NAZARA_PLATFORM_BSD)
+#elif defined(NAZARA_PLATFORM_LINUX) || defined(NAZARA_PLATFORM_FREEBSD)
 #include <Nazara/Core/AntiX11.hpp>
 #endif
