@@ -16,8 +16,8 @@
 #include <unistd.h>
 #include <netinet/tcp.h>
 #include <sys/ioctl.h>
-#include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/types.h>
 #include <sys/uio.h>
 
 #if !defined(TCP_KEEPIDLE) && defined(TCP_KEEPALIVE)
@@ -42,7 +42,6 @@ namespace Nz
 				*address = IpAddressImpl::FromSockAddr(reinterpret_cast<const sockaddr*>(&nameBuffer));
 
 			if (error)
-
 				*error = SocketError::NoError;
 		}
 		else
