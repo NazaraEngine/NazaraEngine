@@ -7,7 +7,7 @@
 
 #ifdef NAZARA_PLATFORM_WINDOWS
 #include <objbase.h>
-#elif defined(NAZARA_PLATFORM_LINUX) || defined(NAZARA_PLATFORM_MACOS) || defined(NAZARA_PLATFORM_WEB) || defined (NAZARA_PLATFORM_BSD)
+#elif defined(NAZARA_PLATFORM_LINUX) || defined(NAZARA_PLATFORM_MACOS) || defined(NAZARA_PLATFORM_WEB) || defined(NAZARA_PLATFORM_BSD)
 #include <uuid/uuid.h>
 #endif
 
