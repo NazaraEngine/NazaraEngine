@@ -534,7 +534,7 @@ namespace Nz
 
 			success = m_surface.Create(instance, winHandle);
 		}
-#elif defined(NAZARA_PLATFORM_LINUX) || defined(NAZARA_PLATFORM_BSD)
+#elif defined(NAZARA_PLATFORM_LINUX) || defined(NAZARA_PLATFORM_FREEBSD)
 		{
 			switch (windowHandle.type)
 			{
