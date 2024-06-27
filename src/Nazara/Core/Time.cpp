@@ -10,7 +10,7 @@
 	#include <Nazara/Core/Win32/TimeImpl.hpp>
 #elif defined(NAZARA_PLATFORM_MACOS) || defined(NAZARA_PLATFORM_IOS)
 	#include <Nazara/Core/Darwin/TimeImpl.hpp>
-#elif defined(NAZARA_PLATFORM_POSIX) || defined(NAZARA_PLATFORM_BSD)
+#elif defined(NAZARA_PLATFORM_POSIX)
 	#include <Nazara/Core/Posix/TimeImpl.hpp>
 #else
 	#error OS not handled
