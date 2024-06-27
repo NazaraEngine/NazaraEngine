@@ -235,7 +235,6 @@ if not has_config("embed_rendererbackends", "static") then
 	end
 end
 
-
 NazaraModules = modules
 
 set_project("NazaraEngine")
@@ -338,12 +337,9 @@ end
 
 if has_config("platform") then
 	add_requires("libsdl >=2.26.0")
-	if is_plat("linux") then
+	if is_plat("linux", "bsd") then
 		add_requires("libxext", "wayland", { configs = { asan = false } })
 	end
-	if is_plat("bsd") then
-                add_requires("libxext", "wayland", { configs = { asan = false } })
-        end
 end
 
 if has_config("renderer") then
