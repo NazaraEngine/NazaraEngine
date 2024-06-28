@@ -20,6 +20,11 @@ local rendererBackends = {
 				remove_files("src/Nazara/OpenGLRenderer/Wrapper/Linux/**.cpp")
 			end
 
+			if is_plat("bsd") then
+				add_defines("EGL_NO_X11")
+				add_packages("wayland", { links = {} }) -- we only need wayland headers
+            end
+
 			if is_plat("wasm") then
 				add_ldflags("-sFULL_ES2", "-sFULL_ES3", { public = true })
 				remove_files("src/Nazara/OpenGLRenderer/Wrapper/EGL/**.cpp")
@@ -37,7 +42,7 @@ local rendererBackends = {
 			if is_plat("windows", "mingw") then
 				add_defines("VK_USE_PLATFORM_WIN32_KHR")
 				add_syslinks("User32")
-			elseif is_plat("linux") then
+			elseif is_plat("linux", "bsd") then
 				add_defines("VK_USE_PLATFORM_XLIB_KHR")
 				add_defines("VK_USE_PLATFORM_WAYLAND_KHR")
 				add_packages("libxext", "wayland", { links = {} }) -- we only need X11 and waylands headers
@@ -90,6 +95,9 @@ local modules = {
 			elseif is_plat("linux") then
 				add_packages("libuuid")
 				add_syslinks("dl", "pthread")
+			elseif is_plat("bsd") then
+				add_packages("libuuid")
+				add_syslinks("pthread")
 			elseif is_plat("wasm") then
 				--[[
 				Have to fix issues with libsdl first
@@ -160,7 +168,7 @@ local modules = {
 			add_packages("libsdl", { components = {"lib"} })
 			if is_plat("windows", "mingw") then
 				add_defines("SDL_VIDEO_DRIVER_WINDOWS=1")
-			elseif is_plat("linux") then
+			elseif is_plat("linux", "bsd") then
 				add_defines("SDL_VIDEO_DRIVER_X11=1")
 				add_defines("SDL_VIDEO_DRIVER_WAYLAND=1")
 				add_packages("libxext", "wayland", { links = {} }) -- we only need X11 headers
@@ -329,7 +337,7 @@ end
 
 if has_config("platform") then
 	add_requires("libsdl >=2.26.0")
-	if is_plat("linux") then
+	if is_plat("linux", "bsd") then
 		add_requires("libxext", "wayland", { configs = { asan = false } })
 	end
 end
@@ -381,7 +389,7 @@ if has_config("widgets") then
 end
 
 -- Platform-specific dependencies
-if is_plat("linux", "android") then
+if is_plat("linux", "android", "bsd") then
 	add_requires("libuuid")
 end
 
@@ -400,7 +408,7 @@ if has_config("tests") then
 	add_rules("download.assets.unittests")
 end
 
-set_allowedplats("windows", "mingw", "linux", "macosx", "wasm")
+set_allowedplats("windows", "mingw", "linux", "macosx", "bsd", "wasm")
 set_allowedmodes("debug", "releasedbg", "release", "coverage")
 set_defaultmode("debug")
 
@@ -512,7 +520,7 @@ function ModuleTargetConfig(name, module)
 		remove_files("src/Nazara/" .. name .. "/Darwin/**")
 	end
 
-	if not is_plat("linux", "macosx", "iphoneos", "android", "wasm", "cross") then
+	if not is_plat("linux", "macosx", "iphoneos", "android", "wasm", "cross", "bsd") then
 		remove_headerfiles("src/Nazara/" .. name .. "/Posix/**")
 		remove_files("src/Nazara/" .. name .. "/Posix/**")
 	end

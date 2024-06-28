@@ -10,7 +10,7 @@
 #include <cassert>
 #include <sstream>
 
-#if defined(NAZARA_PLATFORM_WINDOWS) || defined(NAZARA_PLATFORM_LINUX)
+#if defined(NAZARA_PLATFORM_WINDOWS) || defined(NAZARA_PLATFORM_LINUX) || defined(NAZARA_PLATFORM_BSD)
 #include <Nazara/OpenGLRenderer/Wrapper/EGL/EGLLoader.hpp>
 #endif
 
@@ -74,7 +74,7 @@ namespace Nz
 		}
 #endif
 
-#if defined(NAZARA_PLATFORM_WINDOWS) || defined(NAZARA_PLATFORM_LINUX)
+#if defined(NAZARA_PLATFORM_WINDOWS) || defined(NAZARA_PLATFORM_LINUX) || defined(NAZARA_PLATFORM_BSD)
 		try
 		{
 			return std::make_unique<GL::EGLLoader>(config);

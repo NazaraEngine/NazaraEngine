@@ -10,6 +10,10 @@
 #include <NazaraUtils/CallOnExit.hpp>
 #include <cstring>
 
+#ifdef NAZARA_PLATFORM_BSD
+#include <sys/socket.h>
+#endif
+
 namespace Nz
 {
 	IpAddress IpAddressImpl::FromAddrinfo(const addrinfo* info)

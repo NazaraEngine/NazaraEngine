@@ -69,7 +69,7 @@ namespace Nz
 			std::array libs{
 				"vulkan-1.dll"
 			};
-#elif defined(NAZARA_PLATFORM_LINUX) || defined(NAZARA_PLATFORM_ANDROID)
+#elif defined(NAZARA_PLATFORM_LINUX) || defined(NAZARA_PLATFORM_ANDROID) || defined(NAZARA_PLATFORM_FREEBSD)
 			std::array libs{
 				"libvulkan.so.1",
 				"libvulkan.so"
