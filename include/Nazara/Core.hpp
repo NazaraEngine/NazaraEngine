@@ -70,6 +70,7 @@
 #include <Nazara/Core/HardwareInfo.hpp>
 #include <Nazara/Core/Image.hpp>
 #include <Nazara/Core/ImageStream.hpp>
+#include <Nazara/Core/ImageUtils.hpp>
 #include <Nazara/Core/IndexBuffer.hpp>
 #include <Nazara/Core/IndexIterator.hpp>
 #include <Nazara/Core/IndexMapper.hpp>
