@@ -156,7 +156,7 @@ namespace Nz
 							}
 						}
 
-						if (outlineThickness > 0.f)
+						if (outlineThickness != 0.f)
 						{
 							FT_Stroker_Set(s_freetypeStroker, static_cast<FT_Fixed>(s_freetypeScaleFactor * outlineThickness), FT_STROKER_LINECAP_ROUND, FT_STROKER_LINEJOIN_ROUND, 0);
 							if (FT_Glyph_Stroke(&glyph, s_freetypeStroker, 1) != 0)

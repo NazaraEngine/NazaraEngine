@@ -441,7 +441,7 @@ namespace Nz
 		}
 
 		float supportedOutlineThickness = outlineThickness;
-		if (outlineThickness > 0.f && !m_data->SupportsOutline(outlineThickness))
+		if (outlineThickness != 0.f && !m_data->SupportsOutline(outlineThickness))
 		{
 			glyph.fauxOutlineThickness = supportedOutlineThickness;
 			supportedOutlineThickness = 0.f;

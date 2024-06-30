@@ -190,8 +190,6 @@ namespace Nz
 	{
 		if (m_outlineThickness != thickness)
 		{
-			NazaraAssert(thickness >= 0.f, "Thickness must be zero or positive");
-
 			m_outlineThickness = thickness;
 
 			InvalidateGlyphs();
