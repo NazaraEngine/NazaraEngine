@@ -89,13 +89,14 @@ int main(int argc, char* argv[])
 
 	Nz::RichTextAreaWidget* textAreaWidget2 = canvas2D.Add<Nz::RichTextAreaWidget>();
 	textAreaWidget2->EnableMultiline(true);
-	textAreaWidget2->SetPosition({ 1000.f, 200.f });
+	textAreaWidget2->SetPosition({ 1000.f, 100.f });
 	textAreaWidget2->SetBackgroundColor(Nz::Color::White());
 	textAreaWidget2->SetTextColor(Nz::Color::Black());
 
 	Nz::RichTextBuilder builder(textAreaWidget2);
-	builder << Nz::Color::Blue() << "Rich " << Nz::TextStyle::Bold << "text" << Nz::TextStyle_Regular << builder.CharacterSize(36) << Nz::Color::Black() << "\nAnd a even " << builder.CharacterSize(48) << Nz::Color::Red() << "bigger" << builder.CharacterSize(24) << Nz::Color::Black() << " text";
-	textAreaWidget2->Resize(Nz::Vector2f(500.f, textAreaWidget2->GetPreferredHeight()));
+	builder << Nz::Color::Blue() << "Rich " << Nz::TextStyle::Bold << "text" << Nz::TextStyle_Regular << builder.CharacterSize(36) << Nz::Color::Black() << "\nAnd a even " << builder.CharacterSize(48) << Nz::Color::Red() << "bigger" << builder.CharacterSize(24) << Nz::Color::Black() << " text\n";
+	builder << "supporting " << builder.OutlineThickness(1.f) << builder.OutlineColor(Nz::Color::Blue()) << "outline" << builder.OutlineThickness(0.f) << " and even " << builder.CharacterSize(36) << builder.OutlineThickness(1.f) << Nz::TextStyle::OutlineOnly << "outline only";
+	textAreaWidget2->Resize(Nz::Vector2f(550.f, textAreaWidget2->GetPreferredHeight()));
 
 	Nz::ProgressBarWidget* progressBarWidget = canvas2D.Add<Nz::ProgressBarWidget>();
 	progressBarWidget->SetPosition({ 200.f, 600.f });

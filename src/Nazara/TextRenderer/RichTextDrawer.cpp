@@ -414,20 +414,20 @@ namespace Nz
 						break;
 				}
 
-				int glyphRenderOrder = (outlineThickness > 0.f) ? 1 : 0;
+				int glyphRenderOrder = (outlineThickness > 0.f && !style.Test(TextStyle::OutlineOnly)) ? 1 : 0;
 
 				Glyph glyph;
 				if (!whitespace)
 				{
 					Sprite sprite;
 					int iAdvance;
-					if (!GenerateSprite(glyph.bounds, sprite, character, 0.f, true, font, color, style, lineSpacingOffset, characterSize, glyphRenderOrder, &iAdvance))
+					if (!GenerateSprite(glyph.bounds, sprite, character, (style.Test(TextStyle::OutlineOnly)) ? outlineThickness : 0.f, true, font, (style.Test(TextStyle::OutlineOnly)) ? outlineColor : color, style, lineSpacingOffset, characterSize, glyphRenderOrder, &iAdvance))
 						continue; // Glyph failed to load, just skip it (can't do much)
 
 					glyph.spriteIndex = m_sprites.size();
 					m_sprites.push_back(sprite);
 
-					if (outlineThickness > 0.f)
+					if (outlineThickness > 0.f && !style.Test(TextStyle::OutlineOnly))
 					{
 						Sprite outlineSprite;
 						if (GenerateSprite(glyph.bounds, outlineSprite, character, outlineThickness, false, font, outlineColor, style, lineSpacingOffset, characterSize, glyphRenderOrder - 1, nullptr))

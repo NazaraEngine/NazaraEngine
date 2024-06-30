@@ -587,6 +587,7 @@ namespace Nz
 	{
 		Bold,
 		Italic,
+		OutlineOnly,
 		StrikeThrough,
 		Underlined,
 
