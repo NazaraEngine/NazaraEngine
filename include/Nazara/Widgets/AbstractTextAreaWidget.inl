@@ -38,9 +38,10 @@ namespace Nz
 		return m_cursorPositionBegin;
 	}
 
-	Vector2ui AbstractTextAreaWidget::GetCursorPosition(std::size_t glyphIndex) const
+	inline Vector2ui AbstractTextAreaWidget::GetCursorPosition(std::size_t glyphIndex) const
 	{
 		const AbstractTextDrawer& textDrawer = GetTextDrawer();
+		const AbstractTextDrawer::Line* lines = textDrawer.GetLines();
 
 		glyphIndex = std::min(glyphIndex, textDrawer.GetGlyphCount());
 
@@ -48,13 +49,13 @@ namespace Nz
 		std::size_t line = 0U;
 		for (std::size_t i = line + 1; i < lineCount; ++i)
 		{
-			if (textDrawer.GetLine(i).glyphIndex > glyphIndex)
+			if (lines[i].glyphIndex > glyphIndex)
 				break;
 
 			line = i;
 		}
 
-		const auto& lineInfo = textDrawer.GetLine(line);
+		const auto& lineInfo = lines[line];
 
 		Vector2ui cursorPos;
 		cursorPos.y = static_cast<unsigned int>(line);
@@ -76,10 +77,11 @@ namespace Nz
 	inline std::size_t AbstractTextAreaWidget::GetGlyphIndex(const Vector2ui& cursorPosition) const
 	{
 		const AbstractTextDrawer& textDrawer = GetTextDrawer();
+		const AbstractTextDrawer::Line* lines = textDrawer.GetLines();
 
-		std::size_t glyphIndex = textDrawer.GetLine(cursorPosition.y).glyphIndex + cursorPosition.x;
+		std::size_t glyphIndex = lines[cursorPosition.y].glyphIndex + cursorPosition.x;
 		if (textDrawer.GetLineCount() > cursorPosition.y + 1)
-			glyphIndex = std::min(glyphIndex, textDrawer.GetLine(cursorPosition.y + 1).glyphIndex - 1);
+			glyphIndex = std::min(glyphIndex, lines[cursorPosition.y + 1].glyphIndex - 1);
 		else
 			glyphIndex = std::min(glyphIndex, textDrawer.GetGlyphCount());
 
@@ -157,15 +159,16 @@ namespace Nz
 	inline Vector2ui AbstractTextAreaWidget::NormalizeCursorPosition(Vector2ui cursorPosition) const
 	{
 		const AbstractTextDrawer& textDrawer = GetTextDrawer();
+		const AbstractTextDrawer::Line* lines = textDrawer.GetLines();
 
 		std::size_t lineCount = textDrawer.GetLineCount();
 		if (cursorPosition.y >= lineCount)
 			cursorPosition.y = static_cast<unsigned int>(lineCount - 1);
 
-		const auto& lineInfo = textDrawer.GetLine(cursorPosition.y);
+		const auto& lineInfo = lines[cursorPosition.y];
 		if (cursorPosition.y + 1 < lineCount)
 		{
-			const auto& nextLineInfo = textDrawer.GetLine(cursorPosition.y + 1);
+			const auto& nextLineInfo = lines[cursorPosition.y + 1];
 			cursorPosition.x = std::min(cursorPosition.x, static_cast<unsigned int>(nextLineInfo.glyphIndex - lineInfo.glyphIndex - 1));
 		}
 

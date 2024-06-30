@@ -349,34 +349,25 @@ namespace Nz
 		return m_lines.back().bounds.GetMaximum().x + size > m_maxLineWidth;
 	}
 
-	inline void SimpleTextDrawer::UpdateGlyphColor() const
-	{
-		if (m_outlineThickness > 0.f)
-		{
-			for (std::size_t glyphIndex = 0; glyphIndex < m_glyphs.size(); ++glyphIndex)
-			{
-				Glyph& glyph = m_glyphs[glyphIndex];
-				if (glyphIndex % 2 == 0)
-					glyph.color = m_outlineColor;
-				else
-					glyph.color = m_color;
-			}
-		}
-		else
-		{
-			for (Glyph& glyph : m_glyphs)
-				glyph.color = m_color;
-		}
-
-		m_colorUpdated = true;
-	}
-
 	inline void SimpleTextDrawer::UpdateGlyphs() const
 	{
 		NazaraAssert(m_font && m_font->IsValid(), "Invalid font");
 
 		ClearGlyphs();
 		GenerateGlyphs(m_text);
+	}
+
+	inline void SimpleTextDrawer::UpdateSpriteColor() const
+	{
+		for (Sprite& sprite : m_sprites)
+		{
+			if (sprite.renderOrder >= 0)
+				sprite.color = m_color;
+			else
+				sprite.color = m_outlineColor;
+		}
+
+		m_colorUpdated = true;
 	}
 }
 

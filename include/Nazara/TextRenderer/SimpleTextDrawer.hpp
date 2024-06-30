@@ -32,13 +32,15 @@ namespace Nz
 			inline unsigned int GetCharacterSize() const;
 			const std::shared_ptr<Font>& GetFont(std::size_t index) const override;
 			std::size_t GetFontCount() const override;
-			const Glyph& GetGlyph(std::size_t index) const override;
+			const Glyph* GetGlyphs() const override;
 			std::size_t GetGlyphCount() const override;
-			const Line& GetLine(std::size_t index) const override;
+			const Line* GetLines() const override;
 			std::size_t GetLineCount() const override;
 			inline float GetLineHeight() const;
 			inline float GetLineSpacingOffset() const;
 			float GetMaxLineWidth() const override;
+			const Sprite* GetSprites() const override;
+			std::size_t GetSpriteCount() const override;
 
 			inline const std::string& GetText() const;
 			inline const Color& GetTextColor() const;
@@ -75,8 +77,8 @@ namespace Nz
 			inline void ConnectFontSlots();
 			inline void DisconnectFontSlots();
 
-			bool GenerateGlyph(Glyph& glyph, char32_t character, float outlineThickness, bool lineWrap, Color color, int renderOrder, int* advance) const;
 			void GenerateGlyphs(std::string_view text) const;
+			bool GenerateSprite(Rectf& bounds, Sprite& sprite, char32_t character, float outlineThickness, bool lineWrap, Color color, int renderOrder, int* advance) const;
 
 			inline float GetLineHeight(const Font::SizeInfo& sizeInfo) const;
 
@@ -89,8 +91,8 @@ namespace Nz
 
 			inline bool ShouldLineWrap(float size) const;
 
-			inline void UpdateGlyphColor() const;
 			inline void UpdateGlyphs() const;
+			inline void UpdateSpriteColor() const;
 
 			static constexpr std::size_t InvalidGlyph = std::numeric_limits<std::size_t>::max();
 
@@ -101,6 +103,7 @@ namespace Nz
 
 			mutable std::size_t m_lastSeparatorGlyph;
 			mutable std::vector<Glyph> m_glyphs;
+			mutable std::vector<Sprite> m_sprites;
 			mutable std::vector<Line> m_lines;
 			std::string m_text;
 			Color m_color;

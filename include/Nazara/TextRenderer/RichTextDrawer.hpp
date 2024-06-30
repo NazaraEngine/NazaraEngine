@@ -51,11 +51,13 @@ namespace Nz
 			inline float GetLineSpacingOffset() const;
 			const std::shared_ptr<Font>& GetFont(std::size_t index) const override;
 			std::size_t GetFontCount() const override;
-			const Glyph& GetGlyph(std::size_t index) const override;
+			const Glyph* GetGlyphs() const override;
 			std::size_t GetGlyphCount() const override;
-			const Line& GetLine(std::size_t index) const override;
+			const Line* GetLines() const override;
 			std::size_t GetLineCount() const override;
 			float GetMaxLineWidth() const override;
+			const Sprite* GetSprites() const override;
+			std::size_t GetSpriteCount() const override;
 
 			inline const Color& GetTextColor() const;
 			inline const std::shared_ptr<Font>& GetTextFont() const;
@@ -103,8 +105,8 @@ namespace Nz
 			inline void ClearGlyphs() const;
 			inline void ConnectFontSlots();
 			inline void DisconnectFontSlots();
-			bool GenerateGlyph(Glyph& glyph, char32_t character, float outlineThickness, bool lineWrap, const Font& font, const Color& color, TextStyleFlags style, float lineSpacingOffset, unsigned int characterSize, int renderOrder, int* advance) const;
-			void GenerateGlyphs(const Font& font, const Color& color, TextStyleFlags style, unsigned int characterSize, const Color& outlineColor, float characterSpacingOffset, float lineSpacingOffset, float outlineThickness, std::string_view text) const;
+			void GenerateGlyphs(const Font& font, const Color& color, TextStyleFlags style, unsigned int characterSize, const Color& outlineColor, float outlineThickness, float characterSpacingOffset, float lineSpacingOffset, std::string_view text) const;
+			bool GenerateSprite(Rectf& bounds, Sprite& sprite, char32_t character, float outlineThickness, bool lineWrap, const Font& font, const Color& color, TextStyleFlags style, float lineSpacingOffset, unsigned int characterSize, int renderOrder, int* advance) const;
 			inline float GetLineHeight(const Block& block) const;
 			inline float GetLineHeight(float lineSpacingOffset, const Font::SizeInfo& sizeInfo) const;
 			inline std::size_t HandleFontAddition(const std::shared_ptr<Font>& font);
@@ -155,6 +157,7 @@ namespace Nz
 			std::vector<FontData> m_fonts;
 			mutable std::vector<Glyph> m_glyphs;
 			mutable std::vector<Line> m_lines;
+			mutable std::vector<Sprite> m_sprites;
 			mutable Rectf m_bounds;
 			mutable Vector2f m_drawPos;
 			mutable bool m_glyphUpdated;

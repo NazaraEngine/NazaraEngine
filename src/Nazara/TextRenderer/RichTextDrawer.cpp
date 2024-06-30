@@ -113,7 +113,6 @@ namespace Nz
 		m_fontIndexes.clear();
 		m_blocks.clear();
 		m_fonts.clear();
-		m_glyphs.clear();
 		ClearGlyphs();
 	}
 
@@ -137,12 +136,12 @@ namespace Nz
 		return m_fonts.size();
 	}
 
-	const AbstractTextDrawer::Glyph& RichTextDrawer::GetGlyph(std::size_t index) const
+	const AbstractTextDrawer::Glyph* RichTextDrawer::GetGlyphs() const
 	{
 		if (!m_glyphUpdated)
 			UpdateGlyphs();
 
-		return m_glyphs[index];
+		return m_glyphs.data();
 	}
 
 	std::size_t RichTextDrawer::GetGlyphCount() const
@@ -153,13 +152,12 @@ namespace Nz
 		return m_glyphs.size();
 	}
 
-	const AbstractTextDrawer::Line& RichTextDrawer::GetLine(std::size_t index) const
+	const AbstractTextDrawer::Line* RichTextDrawer::GetLines() const
 	{
 		if (!m_glyphUpdated)
 			UpdateGlyphs();
 
-		NazaraAssert(index < m_lines.size(), "Line index out of range");
-		return m_lines[index];
+		return m_lines.data();
 	}
 
 	std::size_t RichTextDrawer::GetLineCount() const
@@ -173,6 +171,22 @@ namespace Nz
 	float RichTextDrawer::GetMaxLineWidth() const
 	{
 		return m_maxLineWidth;
+	}
+
+	const AbstractTextDrawer::Sprite* RichTextDrawer::GetSprites() const
+	{
+		if (!m_glyphUpdated)
+			UpdateGlyphs();
+
+		return m_sprites.data();
+	}
+
+	std::size_t RichTextDrawer::GetSpriteCount() const
+	{
+		if (!m_glyphUpdated)
+			UpdateGlyphs();
+
+		return m_sprites.size();
 	}
 
 	void RichTextDrawer::MergeBlocks()
@@ -301,7 +315,7 @@ namespace Nz
 		m_lastSeparatorGlyph = InvalidGlyph;
 
 		m_bounds.ExtendTo(lastLine.bounds);
-		m_lines.emplace_back(Line{ Rectf(0.f, lineHeight * m_lines.size(), 0.f, lineHeight), m_glyphs.size() + 1 });
+		m_lines.emplace_back(Line{ m_glyphs.size() + 1, Rectf(0.f, lineHeight * m_lines.size(), 0.f, lineHeight), true });
 
 		if (glyphIndex != InvalidGlyph && glyphIndex > lastLine.glyphIndex)
 		{
@@ -314,10 +328,16 @@ namespace Nz
 				glyph.bounds.x -= glyphPosition;
 				glyph.bounds.y += lineHeight;
 
-				for (auto& corner : glyph.corners)
+				for (std::size_t spriteIndex : { glyph.spriteIndex, glyph.outlineSpriteIndex })
 				{
-					corner.x -= glyphPosition;
-					corner.y += lineHeight;
+					if (spriteIndex == InvalidIndex)
+						continue;
+
+					for (auto& corner : m_sprites[spriteIndex].corners)
+					{
+						corner.x -= glyphPosition;
+						corner.y += lineHeight;
+					}
 				}
 
 				newLine.bounds.ExtendTo(glyph.bounds);
@@ -335,47 +355,7 @@ namespace Nz
 		}
 	}
 
-	bool RichTextDrawer::GenerateGlyph(Glyph& glyph, char32_t character, float outlineThickness, bool lineWrap, const Font& font, const Color& color, TextStyleFlags style, float lineSpacingOffset, unsigned int characterSize, int renderOrder, int* advance) const
-	{
-		const Font::Glyph& fontGlyph = font.GetGlyph(characterSize, style, outlineThickness, character);
-		if (fontGlyph.valid && fontGlyph.fauxOutlineThickness <= 0.f)
-		{
-			glyph.atlas = font.GetAtlas()->GetLayer(fontGlyph.layerIndex);
-			glyph.atlasRect = fontGlyph.atlasRect;
-			glyph.color = color;
-			glyph.flipped = fontGlyph.flipped;
-			glyph.renderOrder = renderOrder;
-
-			glyph.bounds = Rectf(fontGlyph.aabb);
-
-			if (lineWrap && ShouldLineWrap(glyph.bounds.width))
-				AppendNewLine(font, characterSize, lineSpacingOffset, m_lastSeparatorGlyph, m_lastSeparatorPosition);
-
-			glyph.bounds.x += m_drawPos.x;
-			glyph.bounds.y += m_drawPos.y;
-
-			// Faux bold and faux outline thickness are not supported
-
-			// We "lean" the glyph to simulate italics style
-			float italic = (fontGlyph.requireFauxItalic) ? 0.208f : 0.f;
-			float italicTop = italic * glyph.bounds.y;
-			float italicBottom = italic * glyph.bounds.GetMaximum().y;
-
-			glyph.corners[0] = Vector2f(glyph.bounds.x - italicTop - outlineThickness, glyph.bounds.y - outlineThickness);
-			glyph.corners[1] = Vector2f(glyph.bounds.x + glyph.bounds.width - italicTop - outlineThickness, glyph.bounds.y - outlineThickness);
-			glyph.corners[2] = Vector2f(glyph.bounds.x - italicBottom - outlineThickness, glyph.bounds.y + glyph.bounds.height - outlineThickness);
-			glyph.corners[3] = Vector2f(glyph.bounds.x + glyph.bounds.width - italicBottom - outlineThickness, glyph.bounds.y + glyph.bounds.height - outlineThickness);
-
-			if (advance)
-				*advance = fontGlyph.advance;
-
-			return true;
-		}
-		else
-			return false;
-	};
-
-	void RichTextDrawer::GenerateGlyphs(const Font& font, const Color& color, TextStyleFlags style, unsigned int characterSize, const Color& outlineColor, float characterSpacingOffset, float lineSpacingOffset, float outlineThickness, std::string_view text) const
+	void RichTextDrawer::GenerateGlyphs(const Font& font, const Color& color, TextStyleFlags style, unsigned int characterSize, const Color& outlineColor, float outlineThickness, float characterSpacingOffset, float lineSpacingOffset, std::string_view text) const
 	{
 		if (text.empty())
 			return;
@@ -393,8 +373,14 @@ namespace Nz
 				Glyph& glyph = m_glyphs[glyphIndex];
 				glyph.bounds.y += heightDifference;
 
-				for (auto& corner : glyph.corners)
-					corner.y += heightDifference;
+				for (std::size_t spriteIndex : { glyph.spriteIndex, glyph.outlineSpriteIndex })
+				{
+					if (spriteIndex == InvalidIndex)
+						continue;
+
+					for (auto& corner : m_sprites[spriteIndex].corners)
+						corner.y += heightDifference;
+				}
 			}
 
 			m_drawPos.y += heightDifference;
@@ -428,50 +414,48 @@ namespace Nz
 						break;
 				}
 
+				int glyphRenderOrder = (outlineThickness > 0.f) ? 1 : 0;
+
 				Glyph glyph;
 				if (!whitespace)
 				{
+					Sprite sprite;
 					int iAdvance;
-					if (!GenerateGlyph(glyph, character, 0.f, true, font, color, style, lineSpacingOffset, characterSize, 0, &iAdvance))
+					if (!GenerateSprite(glyph.bounds, sprite, character, 0.f, true, font, color, style, lineSpacingOffset, characterSize, glyphRenderOrder, &iAdvance))
 						continue; // Glyph failed to load, just skip it (can't do much)
 
-					advance += float(iAdvance);
+					glyph.spriteIndex = m_sprites.size();
+					m_sprites.push_back(sprite);
 
 					if (outlineThickness > 0.f)
 					{
-						Glyph outlineGlyph;
-						if (GenerateGlyph(outlineGlyph, character, outlineThickness, false, font, outlineColor, style, lineSpacingOffset, characterSize, -1, nullptr))
-							m_glyphs.push_back(outlineGlyph);
+						Sprite outlineSprite;
+						if (GenerateSprite(glyph.bounds, outlineSprite, character, outlineThickness, false, font, outlineColor, style, lineSpacingOffset, characterSize, glyphRenderOrder - 1, nullptr))
+						{
+							glyph.outlineSpriteIndex = m_sprites.size();
+							m_sprites.push_back(outlineSprite);
+						}
 					}
+
+					advance += float(iAdvance);
 				}
 				else
 				{
-					if (ShouldLineWrap(advance))
+					if (ShouldLineWrap(advance) && character != '\n')
 						AppendNewLine(font, characterSize, lineSpacingOffset, m_lastSeparatorGlyph, m_lastSeparatorPosition);
 
-					glyph.atlas = nullptr;
 					glyph.bounds = Rectf(m_drawPos.x, m_lines.back().bounds.y, advance, lineHeight);
-
-					glyph.corners[0] = glyph.bounds.GetCorner(RectCorner::LeftTop);
-					glyph.corners[1] = glyph.bounds.GetCorner(RectCorner::RightTop);
-					glyph.corners[2] = glyph.bounds.GetCorner(RectCorner::LeftBottom);
-					glyph.corners[3] = glyph.bounds.GetCorner(RectCorner::RightBottom);
 				}
 
 				m_lines.back().bounds.ExtendTo(glyph.bounds);
 
-				switch (character)
+				if (character == '\n')
 				{
-					case '\n':
-					{
-						AppendNewLine(font, characterSize, lineSpacingOffset);
-						break;
-					}
-
-					default:
-						m_drawPos.x += advance;
-						break;
+					m_lines.back().allowsOvershoot = false;
+					AppendNewLine(font, characterSize, lineSpacingOffset);
 				}
+				else
+					m_drawPos.x += advance;
 
 				if (whitespace)
 				{
@@ -489,6 +473,46 @@ namespace Nz
 
 		m_glyphUpdated = true;
 	}
+	
+	bool RichTextDrawer::GenerateSprite(Rectf& bounds, Sprite& sprite, char32_t character, float outlineThickness, bool lineWrap, const Font& font, const Color& color, TextStyleFlags style, float lineSpacingOffset, unsigned int characterSize, int renderOrder, int* advance) const
+	{
+		const Font::Glyph& fontGlyph = font.GetGlyph(characterSize, style, outlineThickness, character);
+		if (fontGlyph.valid && fontGlyph.fauxOutlineThickness <= 0.f)
+		{
+			sprite.atlas = font.GetAtlas()->GetLayer(fontGlyph.layerIndex);
+			sprite.atlasRect = fontGlyph.atlasRect;
+			sprite.color = color;
+			sprite.flipped = fontGlyph.flipped;
+			sprite.renderOrder = renderOrder;
+
+			bounds = Rectf(fontGlyph.aabb);
+
+			if (lineWrap && ShouldLineWrap(bounds.width))
+				AppendNewLine(font, characterSize, lineSpacingOffset, m_lastSeparatorGlyph, m_lastSeparatorPosition);
+
+			bounds.x += m_drawPos.x;
+			bounds.y += m_drawPos.y;
+
+			// Faux bold and faux outline thickness are not supported
+
+			// We "lean" the glyph to simulate italics style
+			float italic = (fontGlyph.requireFauxItalic) ? 0.208f : 0.f;
+			float italicTop = italic * bounds.y;
+			float italicBottom = italic * bounds.GetMaximum().y;
+
+			sprite.corners[0] = Vector2f(bounds.x - italicTop - outlineThickness, bounds.y - outlineThickness);
+			sprite.corners[1] = Vector2f(bounds.x + bounds.width - italicTop - outlineThickness, bounds.y - outlineThickness);
+			sprite.corners[2] = Vector2f(bounds.x - italicBottom - outlineThickness, bounds.y + bounds.height - outlineThickness);
+			sprite.corners[3] = Vector2f(bounds.x + bounds.width - italicBottom - outlineThickness, bounds.y + bounds.height - outlineThickness);
+
+			if (advance)
+				*advance = fontGlyph.advance;
+
+			return true;
+		}
+		else
+			return false;
+	};
 
 	void RichTextDrawer::OnFontAtlasLayerChanged(const Font* font, AbstractImage* oldLayer, AbstractImage* newLayer)
 	{
@@ -504,11 +528,11 @@ namespace Nz
 #endif
 
 		// Update atlas layer pointer
-		// Note: This can happen while updating
-		for (Glyph& glyph : m_glyphs)
+		// Note: This can happen while updating sprites
+		for (Sprite& sprite : m_sprites)
 		{
-			if (glyph.atlas == oldLayer)
-				glyph.atlas = newLayer;
+			if (sprite.atlas == oldLayer)
+				sprite.atlas = newLayer;
 		}
 	}
 
@@ -557,9 +581,9 @@ namespace Nz
 			const auto& firstFont = m_fonts[firstBlock.fontIndex];
 
 			if (firstFont.font)
-				m_lines.emplace_back(Line{ Rectf(0.f, 0.f, 0.f, GetLineHeight(firstBlock)), 0 });
+				m_lines.emplace_back(Line{ 0, Rectf(0.f, 0.f, 0.f, GetLineHeight(firstBlock)) });
 			else
-				m_lines.emplace_back(Line{ Rectf::Zero(), 0 });
+				m_lines.emplace_back(Line{ 0, Rectf::Zero(), true });
 
 			m_drawPos = Vector2f(0.f, SafeCast<float>(firstBlock.characterSize));
 
@@ -568,10 +592,10 @@ namespace Nz
 				assert(block.fontIndex < m_fonts.size());
 				const auto& fontData = m_fonts[block.fontIndex];
 
-				GenerateGlyphs(*fontData.font, block.color, block.style, block.characterSize, block.outlineColor, block.outlineThickness, block.characterSpacingOffset, block.lineSpacingOffset, block.text);
+				GenerateGlyphs(*fontData.font, block.color, block.style, block.characterSize, block.outlineColor, block.outlineThickness, block.lineSpacingOffset, block.characterSpacingOffset, block.text);
 			}
 		}
 		else
-			m_lines.emplace_back(Line{ Rectf::Zero(), 0 }); //< Ensure there's always a line
+			m_lines.emplace_back(Line{ 0, Rectf::Zero(), true }); //< Ensure there's always a line
 	}
 }

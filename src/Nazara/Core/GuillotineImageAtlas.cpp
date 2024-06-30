@@ -177,10 +177,11 @@ namespace Nz
 		if (newImage == layer.image)
 			return true; // The image object hasn't changed
 
-		// Image object did change, notify and store the new one
-		OnAtlasLayerChange(this, layer.image.get(), newImage.get());
-
+		// Image object did change, notify and store the new one before signaling
+		std::shared_ptr<AbstractImage> previousImage = std::move(layer.image);
 		layer.image = std::move(newImage);
+
+		OnAtlasLayerChange(this, previousImage.get(), layer.image.get());
 		return true;
 	}
 

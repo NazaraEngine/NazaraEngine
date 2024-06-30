@@ -9,6 +9,7 @@ namespace Nz
 	inline void TextSprite::Clear()
 	{
 		m_atlases.clear();
+		m_renderInfos.clear();
 		m_vertices.clear();
 		OnElementInvalidated(this);
 	}

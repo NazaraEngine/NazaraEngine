@@ -91,24 +91,26 @@ namespace Nz
 		y = textHeight - y;
 
 		std::size_t glyphCount = textDrawer.GetGlyphCount();
+		const AbstractTextDrawer::Glyph* glyphs = textDrawer.GetGlyphs();
 		if (glyphCount > 0)
 		{
 			std::size_t lineCount = textDrawer.GetLineCount();
+			const AbstractTextDrawer::Line* lines = textDrawer.GetLines();
 			std::size_t line = 0U;
 			for (; line < lineCount - 1; ++line)
 			{
-				Rectf lineBounds = textDrawer.GetLine(line).bounds;
+				Rectf lineBounds = lines[line].bounds;
 				if (lineBounds.GetMaximum().y > y)
 					break;
 			}
 
-			std::size_t upperLimit = (line != lineCount - 1) ? textDrawer.GetLine(line + 1).glyphIndex : glyphCount + 1;
+			std::size_t upperLimit = (line < lineCount - 1) ? lines[line + 1].glyphIndex : glyphCount + 1;
 
-			std::size_t firstLineGlyph = textDrawer.GetLine(line).glyphIndex;
+			std::size_t firstLineGlyph = lines[line].glyphIndex;
 			std::size_t i = firstLineGlyph;
 			for (; i < upperLimit - 1; ++i)
 			{
-				Rectf bounds = textDrawer.GetGlyph(i).bounds;
+				Rectf bounds = glyphs[i].bounds;
 				if (x < bounds.x + bounds.width * 0.75f)
 					break;
 			}
@@ -599,20 +601,27 @@ namespace Nz
 
 		const AbstractTextDrawer& textDrawer = GetTextDrawer();
 
+		const AbstractTextDrawer::Glyph* glyphs = textDrawer.GetGlyphs();
+		const AbstractTextDrawer::Line* lines = textDrawer.GetLines();
+		std::size_t lineCount = textDrawer.GetLineCount();
+
 		auto GetGlyph = [&](const Vector2ui& glyphPosition) -> std::pair<const AbstractTextDrawer::Glyph*, bool>
 		{
-			if (glyphPosition.y >= textDrawer.GetLineCount())
+			if (glyphPosition.y >= lineCount)
 				return { nullptr, true };
 
-			const auto& lineInfo = textDrawer.GetLine(glyphPosition.y);
+			const auto& lineInfo = lines[glyphPosition.y];
 
 			std::size_t cursorGlyph = GetGlyphIndex({ glyphPosition.x, glyphPosition.y });
 
 			std::size_t glyphCount = textDrawer.GetGlyphCount();
 			if (glyphCount > 0 && lineInfo.glyphIndex < cursorGlyph)
 			{
-				const auto& glyph = textDrawer.GetGlyph(std::min(cursorGlyph, glyphCount - 1));
-				return { &glyph, cursorGlyph >= glyphCount };
+				const auto& glyph = glyphs[std::min(cursorGlyph, glyphCount - 1)];
+				// We are overshooting if we are past the glyph count on our line
+				std::size_t lineGlyphLimit = (glyphPosition.y < lineCount - 1) ? lines[glyphPosition.y + 1].glyphIndex - 1 : glyphCount;
+				bool overshooting = (cursorGlyph >= lineGlyphLimit) && lines[glyphPosition.y].allowsOvershoot;
+				return { &glyph, overshooting };
 			}
 			else
 				return { nullptr, true };
@@ -669,7 +678,7 @@ namespace Nz
 		float textHeight = m_textSprite->GetAABB().height;
 		for (unsigned int i = m_cursorPositionBegin.y; i <= m_cursorPositionEnd.y; ++i)
 		{
-			const auto& lineInfo = textDrawer.GetLine(i);
+			const auto& lineInfo = lines[i];
 
 			auto& cursor = m_cursors[i - m_cursorPositionBegin.y];
 			if (i == m_cursorPositionBegin.y || i == m_cursorPositionEnd.y)
@@ -713,10 +722,12 @@ namespace Nz
 		const AbstractTextDrawer& textDrawer = GetTextDrawer();
 		m_textSprite->Update(textDrawer);
 
+		const AbstractTextDrawer::Line* lines = textDrawer.GetLines();
+
 		float preferredHeight = 0.f;
 		std::size_t lineCount = textDrawer.GetLineCount();
 		for (std::size_t i = 0; i < lineCount; ++i)
-			preferredHeight += textDrawer.GetLine(i).bounds.height;
+			preferredHeight += lines[i].bounds.height;
 
 		SetPreferredSize({ -1.f, preferredHeight + s_textAreaPaddingHeight * 2.f });
 

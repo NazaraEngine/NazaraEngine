@@ -104,7 +104,8 @@ namespace Nz
 				++atlasIt;
 		}
 
-		std::size_t glyphCount = drawer.GetGlyphCount();
+		std::size_t spriteCount = drawer.GetSpriteCount();
+		const AbstractTextDrawer::Sprite* sprites = drawer.GetSprites();
 
 		// Reset glyph count for every texture to zero
 		for (auto& pair : m_renderInfos)
@@ -116,14 +117,12 @@ namespace Nz
 
 		// Iterate over visible (non-space) glyphs
 		std::size_t visibleGlyphCount = 0;
-		for (std::size_t i = 0; i < glyphCount; ++i)
+		for (std::size_t i = 0; i < spriteCount; ++i)
 		{
-			const AbstractTextDrawer::Glyph& glyph = drawer.GetGlyph(i);
-			if (!glyph.atlas)
-				continue;
+			const AbstractTextDrawer::Sprite& sprite = sprites[i];
 
-			Texture* texture = static_cast<Texture*>(glyph.atlas);
-			RenderKey renderKey{ texture, glyph.renderOrder };
+			Texture* texture = static_cast<Texture*>(sprite.atlas);
+			RenderKey renderKey{ texture, sprite.renderOrder };
 			if (lastRenderKey != renderKey)
 			{
 				auto it = m_renderInfos.find(renderKey);
@@ -168,14 +167,12 @@ namespace Nz
 
 		lastRenderKey = { nullptr, 0 };
 		RenderIndices* indices = nullptr;
-		for (unsigned int i = 0; i < glyphCount; ++i)
+		for (unsigned int i = 0; i < spriteCount; ++i)
 		{
-			const AbstractTextDrawer::Glyph& glyph = drawer.GetGlyph(i);
-			if (!glyph.atlas)
-				continue;
+			const AbstractTextDrawer::Sprite& sprite = sprites[i];
 
-			Texture* texture = static_cast<Texture*>(glyph.atlas);
-			RenderKey renderKey{ texture, glyph.renderOrder };
+			Texture* texture = static_cast<Texture*>(sprite.atlas);
+			RenderKey renderKey{ texture, sprite.renderOrder };
 			if (lastRenderKey != renderKey)
 			{
 				indices = &m_renderInfos[renderKey]; //< We changed texture, adjust the pointer
@@ -187,7 +184,7 @@ namespace Nz
 			float invWidth = 1.f / size.x;
 			float invHeight = 1.f / size.y;
 
-			Rectf uvRect(glyph.atlasRect);
+			Rectf uvRect(sprite.atlasRect);
 			uvRect.x *= invWidth;
 			uvRect.y *= invHeight;
 			uvRect.width *= invWidth;
@@ -205,11 +202,11 @@ namespace Nz
 			{
 				// Set the position, color and UV of our vertices
 				// Remember that indices->count is a counter here, not a count value
-				m_vertices[offset].color = glyph.color;
-				m_vertices[offset].position = glyph.corners[cornerIndex];
+				m_vertices[offset].color = sprite.color;
+				m_vertices[offset].position = sprite.corners[cornerIndex];
 				m_vertices[offset].position.y = bounds.height - m_vertices[offset].position.y;
 				m_vertices[offset].position *= scale;
-				m_vertices[offset].uv = uvRect.GetCorner((glyph.flipped) ? flippedCorners[cornerIndex] : normalCorners[cornerIndex]);
+				m_vertices[offset].uv = uvRect.GetCorner((sprite.flipped) ? flippedCorners[cornerIndex] : normalCorners[cornerIndex]);
 				offset++;
 			}
 
@@ -282,6 +279,7 @@ namespace Nz
 					m_vertices[i * 4 + j].uv *= scale;
 			}
 
+			indices.textureAsset = TextureAsset::CreateFromTexture(newTexture->shared_from_this());
 			newRenderInfos.emplace(RenderKey{ newTexture, renderKey.renderOrder }, indices);
 		}
 

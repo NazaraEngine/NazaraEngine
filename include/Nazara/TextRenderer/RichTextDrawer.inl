@@ -142,6 +142,8 @@ namespace Nz
 		m_lastSeparatorGlyph = InvalidGlyph;
 		m_lines.clear();
 		m_glyphs.clear();
+		m_sprites.clear();
+
 		m_glyphUpdated = true;
 	}
 
