@@ -8,8 +8,8 @@
 #define NAZARA_TEXTRENDERER_RICHTEXTDRAWER_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Core/Enums.hpp>
 #include <Nazara/TextRenderer/AbstractTextDrawer.hpp>
+#include <Nazara/TextRenderer/Enums.hpp>
 #include <Nazara/TextRenderer/Font.hpp>
 #include <string>
 #include <vector>

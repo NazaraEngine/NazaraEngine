@@ -574,36 +574,6 @@ namespace Nz
 
 	using StreamOptionFlags = Flags<StreamOption>;
 
-	enum class TextAlign
-	{
-		Left,
-		Middle,
-		Right,
-
-		Max = Right
-	};
-
-	enum class TextStyle
-	{
-		Bold,
-		Italic,
-		OutlineOnly,
-		StrikeThrough,
-		Underlined,
-
-		Max = Underlined
-	};
-
-	template<>
-	struct EnumAsFlags<TextStyle>
-	{
-		static constexpr TextStyle max = TextStyle::Max;
-	};
-
-	using TextStyleFlags = Flags<TextStyle>;
-
-	constexpr TextStyleFlags TextStyle_Regular = TextStyleFlags{};
-
 	enum class VertexComponent
 	{
 		Unused = -1,

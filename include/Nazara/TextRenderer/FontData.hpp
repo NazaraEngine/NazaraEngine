@@ -8,7 +8,7 @@
 #define NAZARA_TEXTRENDERER_FONTDATA_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Core/Enums.hpp>
+#include <Nazara/TextRenderer/Enums.hpp>
 #include <Nazara/TextRenderer/Export.hpp>
 #include <string>
 

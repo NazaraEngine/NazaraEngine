@@ -11,11 +11,11 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/AbstractAtlas.hpp>
-#include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceParameters.hpp>
+#include <Nazara/TextRenderer/Enums.hpp>
 #include <Nazara/TextRenderer/Export.hpp>
 #include <memory>
 #include <unordered_map>
