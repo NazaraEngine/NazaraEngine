@@ -78,8 +78,9 @@ namespace Nz
 			struct WidgetEntry
 			{
 				BaseWidget* widget;
-				Boxf box;
+				Rectf rect;
 				SystemCursor cursor;
+				Vector2f pos;
 			};
 
 			NazaraSlot(WindowEventHandler, OnKeyPressed, m_keyPressedSlot);

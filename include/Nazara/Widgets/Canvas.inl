@@ -69,11 +69,8 @@ namespace Nz
 	inline void Canvas::NotifyWidgetBoxUpdate(std::size_t index)
 	{
 		WidgetEntry& entry = m_widgetEntries[index];
-
-		Nz::Vector3f pos = entry.widget->GetGlobalPosition();
-		Nz::Vector2f size = entry.widget->GetSize();
-
-		entry.box = Boxf(pos.x, pos.y, pos.z, size.x, size.y, 1.f);
+		entry.pos = Vector2f(entry.widget->GetGlobalPosition());
+		entry.rect = entry.widget->GetScissorRect();
 	}
 
 	inline void Canvas::NotifyWidgetCursorUpdate(std::size_t index)

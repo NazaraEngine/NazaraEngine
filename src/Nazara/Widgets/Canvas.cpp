@@ -114,8 +114,8 @@ namespace Nz
 		{
 			handled = DispatchEvent(targetWidgetIndex, [&](WidgetEntry& widgetEntry)
 			{
-				int x = static_cast<int>(std::round(event.x - widgetEntry.box.x));
-				int y = static_cast<int>(std::round(m_size.y - event.y - widgetEntry.box.y));
+				int x = static_cast<int>(std::round(event.x - widgetEntry.pos.x));
+				int y = static_cast<int>(std::round(m_size.y - event.y - widgetEntry.pos.y));
 
 				if (event.clickCount == 2)
 					return widgetEntry.widget->OnMouseButtonDoublePress(x, y, event.button);
@@ -140,8 +140,8 @@ namespace Nz
 		{
 			handled = DispatchEvent(targetWidgetIndex, [&](WidgetEntry& widgetEntry)
 			{
-				int x = static_cast<int>(std::round(event.x - widgetEntry.box.x));
-				int y = static_cast<int>(std::round(m_size.y - event.y - widgetEntry.box.y));
+				int x = static_cast<int>(std::round(event.x - widgetEntry.rect.x));
+				int y = static_cast<int>(std::round(m_size.y - event.y - widgetEntry.rect.y));
 
 				return widgetEntry.widget->OnMouseButtonRelease(x, y, event.button);
 			});
@@ -201,8 +201,8 @@ namespace Nz
 		{
 			WidgetEntry& targetWidget = m_widgetEntries[targetWidgetIndex];
 
-			int x = static_cast<int>(std::round(event.x - targetWidget.box.x));
-			int y = static_cast<int>(std::round(m_size.y - event.y - targetWidget.box.y));
+			int x = static_cast<int>(std::round(event.x - targetWidget.pos.x));
+			int y = static_cast<int>(std::round(m_size.y - event.y - targetWidget.pos.y));
 
 			if (targetWidget.widget->OnMouseMoved(x, y, event.deltaX, -event.deltaY))
 				return;
@@ -218,8 +218,8 @@ namespace Nz
 		{
 			handled = DispatchEvent(targetWidgetIndex, [&](WidgetEntry& widgetEntry)
 			{
-				int x = static_cast<int>(std::round(event.x - widgetEntry.box.x));
-				int y = static_cast<int>(std::round(m_size.y - event.y - widgetEntry.box.y));
+				int x = static_cast<int>(std::round(event.x - widgetEntry.pos.x));
+				int y = static_cast<int>(std::round(m_size.y - event.y - widgetEntry.pos.y));
 
 				return widgetEntry.widget->OnMouseWheelMoved(x, y, event.delta);
 			});
@@ -316,20 +316,19 @@ namespace Nz
 		float bestEntryArea = std::numeric_limits<float>::infinity();
 		int bestEntryLayer = std::numeric_limits<int>::min();
 
-		Vector3f mousePos(float(x), m_size.y - float(y), 0.f);
+		Vector2f mousePos(float(x), m_size.y - float(y));
 		for (std::size_t i = 0; i < m_widgetEntries.size(); ++i)
 		{
 			BaseWidget* widget = m_widgetEntries[i].widget;
-			const Boxf& box = m_widgetEntries[i].box;
-
 			if (!widget->IsVisible() || !widget->IsMouseInputEnabled())
 				continue;
 
-			if (box.Contains(mousePos))
+			const Rectf& rect = m_widgetEntries[i].rect;
+			if (rect.Contains(mousePos))
 			{
 				int layer = widget->GetBaseRenderLayer();
 
-				float area = box.width * box.height;
+				float area = rect.width * rect.height;
 				if (area < bestEntryArea && layer >= bestEntryLayer)
 				{
 					bestEntry = i;
