@@ -14,12 +14,12 @@
 
 namespace Nz
 {
-	CheckboxWidget::CheckboxWidget(BaseWidget* parent) :
+	CheckboxWidget::CheckboxWidget(BaseWidget* parent, const StyleFactory& styleFactory) :
 	BaseWidget(parent),
 	m_state(CheckboxState::Unchecked),
 	m_isTristateEnabled(false)
 	{
-		m_style = GetTheme()->CreateStyle(this);
+		m_style = (styleFactory) ? styleFactory(this) : GetTheme()->CreateStyle(this);
 		SetRenderLayerCount(m_style->GetRenderLayerCount());
 
 		Layout();

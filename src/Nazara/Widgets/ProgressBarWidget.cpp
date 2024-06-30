@@ -6,11 +6,11 @@
 
 namespace Nz
 {
-	ProgressBarWidget::ProgressBarWidget(BaseWidget* parent) :
+	ProgressBarWidget::ProgressBarWidget(BaseWidget* parent, const StyleFactory& styleFactory) :
 	BaseWidget(parent),
 	m_fraction(0.f)
 	{
-		m_style = GetTheme()->CreateStyle(this);
+		m_style = (styleFactory) ? styleFactory(this) : GetTheme()->CreateStyle(this);
 		SetRenderLayerCount(m_style->GetRenderLayerCount());
 
 		Layout();

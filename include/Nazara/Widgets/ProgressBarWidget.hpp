@@ -9,6 +9,7 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Widgets/BaseWidget.hpp>
+#include <Nazara/Widgets/WidgetStyleFactory.hpp>
 #include <Nazara/Widgets/WidgetTheme.hpp>
 
 namespace Nz
@@ -16,7 +17,9 @@ namespace Nz
 	class NAZARA_WIDGETS_API ProgressBarWidget : public BaseWidget
 	{
 		public:
-			ProgressBarWidget(BaseWidget* parent);
+			using StyleFactory = WidgetStyleFactory<ProgressBarWidget, ProgressBarWidgetStyle>;
+
+			ProgressBarWidget(BaseWidget* parent, const StyleFactory& styleFactory = nullptr);
 			ProgressBarWidget(const ProgressBarWidget&) = delete;
 			ProgressBarWidget(ProgressBarWidget&&) = delete;
 			~ProgressBarWidget() = default;
@@ -33,7 +36,8 @@ namespace Nz
 			ProgressBarWidget& operator=(ProgressBarWidget&&) = delete;
 
 		private:
-			std::unique_ptr<ProgressBarWidgetStyle> m_style;
+			std::unique_ptr<ProgressBarWidgetStyle>
+			m_style;
 			float m_fraction;
 	};
 }

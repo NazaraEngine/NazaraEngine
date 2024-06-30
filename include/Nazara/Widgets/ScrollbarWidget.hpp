@@ -9,6 +9,7 @@
 
 #include <Nazara/Graphics/TextSprite.hpp>
 #include <Nazara/Widgets/BaseWidget.hpp>
+#include <Nazara/Widgets/WidgetStyleFactory.hpp>
 #include <Nazara/Widgets/WidgetTheme.hpp>
 
 namespace Nz
@@ -16,7 +17,9 @@ namespace Nz
 	class NAZARA_WIDGETS_API ScrollbarWidget : public BaseWidget
 	{
 		public:
-			ScrollbarWidget(BaseWidget* parent, ScrollbarOrientation orientation);
+			using StyleFactory = WidgetStyleFactory<ScrollbarWidget, ScrollbarWidgetStyle>;
+
+			ScrollbarWidget(BaseWidget* parent, ScrollbarOrientation orientation, const StyleFactory& styleFactory = nullptr);
 			ScrollbarWidget(const ScrollbarWidget&) = delete;
 			ScrollbarWidget(ScrollbarWidget&&) = delete;
 			~ScrollbarWidget() = default;

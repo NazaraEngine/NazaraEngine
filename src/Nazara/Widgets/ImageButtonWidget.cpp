@@ -8,7 +8,7 @@
 
 namespace Nz
 {
-	ImageButtonWidget::ImageButtonWidget(BaseWidget* parent, std::shared_ptr<MaterialInstance> material, std::shared_ptr<MaterialInstance> hoveredMaterial, std::shared_ptr<MaterialInstance> pressedMaterial, float cornerSize, float cornerTexCoords) :
+	ImageButtonWidget::ImageButtonWidget(BaseWidget* parent, std::shared_ptr<MaterialInstance> material, std::shared_ptr<MaterialInstance> hoveredMaterial, std::shared_ptr<MaterialInstance> pressedMaterial, float cornerSize, float cornerTexCoords, const StyleFactory& styleFactory) :
 	BaseWidget(parent),
 	m_hoveredMaterial(std::move(hoveredMaterial)),
 	m_material(std::move(material)),
@@ -18,7 +18,7 @@ namespace Nz
 	m_cornerSize(cornerSize),
 	m_cornerTexCoords(cornerTexCoords)
 	{
-		m_style = GetTheme()->CreateStyle(this);
+		m_style = (styleFactory) ? styleFactory(this) : GetTheme()->CreateStyle(this);
 		SetRenderLayerCount(m_style->GetRenderLayerCount());
 
 		UpdatePreferredSize();

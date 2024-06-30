@@ -5,13 +5,13 @@
 
 namespace Nz
 {
-	inline ImageButtonWidget::ImageButtonWidget(BaseWidget* parent, std::shared_ptr<MaterialInstance> material) :
-	ImageButtonWidget(parent, std::move(material), {}, {}, 0.f, 0.f)
+	inline ImageButtonWidget::ImageButtonWidget(BaseWidget* parent, std::shared_ptr<MaterialInstance> material, const StyleFactory& styleFactory) :
+	ImageButtonWidget(parent, std::move(material), {}, {}, 0.f, 0.f, styleFactory)
 	{
 	}
 
-	inline ImageButtonWidget::ImageButtonWidget(BaseWidget* parent, std::shared_ptr<MaterialInstance> material, float cornerSize, float cornerTexCoords) :
-	ImageButtonWidget(parent, std::move(material), {}, {}, cornerSize, cornerTexCoords)
+	inline ImageButtonWidget::ImageButtonWidget(BaseWidget* parent, std::shared_ptr<MaterialInstance> material, float cornerSize, float cornerTexCoords, const StyleFactory& styleFactory) :
+	ImageButtonWidget(parent, std::move(material), {}, {}, cornerSize, cornerTexCoords, styleFactory)
 	{
 	}
 

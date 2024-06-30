@@ -11,6 +11,7 @@
 #include <Nazara/Graphics/SlicedSprite.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
 #include <Nazara/Widgets/BaseWidget.hpp>
+#include <Nazara/Widgets/WidgetStyleFactory.hpp>
 #include <Nazara/Widgets/WidgetTheme.hpp>
 
 namespace Nz
@@ -20,7 +21,9 @@ namespace Nz
 	class NAZARA_WIDGETS_API ButtonWidget : public BaseWidget
 	{
 		public:
-			ButtonWidget(BaseWidget* parent);
+			using StyleFactory = WidgetStyleFactory<ButtonWidget, ButtonWidgetStyle>;
+
+			ButtonWidget(BaseWidget* parent, const StyleFactory& styleFactory = nullptr);
 			ButtonWidget(const ButtonWidget&) = delete;
 			ButtonWidget(ButtonWidget&&) = delete;
 			~ButtonWidget() = default;

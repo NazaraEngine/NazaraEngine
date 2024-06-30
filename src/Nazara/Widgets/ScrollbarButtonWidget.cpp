@@ -6,11 +6,11 @@
 
 namespace Nz
 {
-	ScrollbarButtonWidget::ScrollbarButtonWidget(BaseWidget* parent) :
+	ScrollbarButtonWidget::ScrollbarButtonWidget(BaseWidget* parent, const StyleFactory& styleFactory) :
 	BaseWidget(parent),
 	m_isGrabbed(false)
 	{
-		m_style = GetTheme()->CreateStyle(this);
+		m_style = (styleFactory) ? styleFactory(this) : GetTheme()->CreateStyle(this);
 		SetRenderLayerCount(m_style->GetRenderLayerCount());
 
 		Layout();

@@ -12,6 +12,7 @@
 #include <Nazara/Graphics/TextSprite.hpp>
 #include <Nazara/Widgets/BaseWidget.hpp>
 #include <Nazara/Widgets/Enums.hpp>
+#include <Nazara/Widgets/WidgetStyleFactory.hpp>
 #include <Nazara/Widgets/WidgetTheme.hpp>
 
 namespace Nz
@@ -19,7 +20,9 @@ namespace Nz
 	class NAZARA_WIDGETS_API CheckboxWidget : public BaseWidget
 	{
 		public:
-			CheckboxWidget(BaseWidget* parent);
+			using StyleFactory = WidgetStyleFactory<CheckboxWidget, CheckboxWidgetStyle>;
+
+			CheckboxWidget(BaseWidget* parent, const StyleFactory& styleFactory = nullptr);
 			CheckboxWidget(const CheckboxWidget&) = delete;
 			CheckboxWidget(CheckboxWidget&&) = delete;
 			~CheckboxWidget() = default;

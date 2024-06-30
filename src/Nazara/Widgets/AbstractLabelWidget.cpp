@@ -7,10 +7,10 @@
 
 namespace Nz
 {
-	AbstractLabelWidget::AbstractLabelWidget(BaseWidget* parent) :
+	AbstractLabelWidget::AbstractLabelWidget(BaseWidget* parent, const StyleFactory& styleFactory) :
 	BaseWidget(parent)
 	{
-		m_style = GetTheme()->CreateStyle(this);
+		m_style = (styleFactory) ? styleFactory(this) : GetTheme()->CreateStyle(this);
 		SetRenderLayerCount(m_style->GetRenderLayerCount());
 
 		Layout();

@@ -7,7 +7,7 @@
 
 namespace Nz
 {
-	ScrollAreaWidget::ScrollAreaWidget(BaseWidget* parent, BaseWidget* content) :
+	ScrollAreaWidget::ScrollAreaWidget(BaseWidget* parent, BaseWidget* content, const StyleFactory& styleFactory) :
 	BaseWidget(parent),
 	m_content(content),
 	m_isScrollbarEnabled(true),
@@ -16,7 +16,7 @@ namespace Nz
 		AddChild(m_content->ReleaseFromParent());
 		m_content->SetPosition(Nz::Vector3f::Zero());
 
-		//m_style = GetTheme()->CreateStyle(this);
+		//m_style = (styleFactory) ? styleFactory(this) : GetTheme()->CreateStyle(this);
 		//SetRenderLayerCount(m_style->GetRenderLayerCount());
 
 		m_horizontalScrollbar = Add<ScrollbarWidget>(ScrollbarOrientation::Vertical);

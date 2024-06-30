@@ -8,6 +8,7 @@
 #define NAZARA_WIDGETS_ABSTRACTLABELWIDGET_HPP
 
 #include <Nazara/Widgets/BaseWidget.hpp>
+#include <Nazara/Widgets/WidgetStyleFactory.hpp>
 #include <Nazara/Widgets/WidgetTheme.hpp>
 
 namespace Nz
@@ -17,7 +18,9 @@ namespace Nz
 	class NAZARA_WIDGETS_API AbstractLabelWidget : public BaseWidget
 	{
 		public:
-			AbstractLabelWidget(BaseWidget* parent);
+			using StyleFactory = WidgetStyleFactory<AbstractLabelWidget, LabelWidgetStyle>;
+
+			AbstractLabelWidget(BaseWidget* parent, const StyleFactory& styleFactory = nullptr);
 			AbstractLabelWidget(const AbstractLabelWidget&) = delete;
 			AbstractLabelWidget(AbstractLabelWidget&&) = delete;
 			~AbstractLabelWidget() = default;

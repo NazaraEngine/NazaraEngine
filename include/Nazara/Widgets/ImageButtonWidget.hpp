@@ -11,6 +11,7 @@
 #include <Nazara/Graphics/SlicedSprite.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
 #include <Nazara/Widgets/BaseWidget.hpp>
+#include <Nazara/Widgets/WidgetStyleFactory.hpp>
 #include <Nazara/Widgets/WidgetTheme.hpp>
 
 namespace Nz
@@ -20,9 +21,11 @@ namespace Nz
 	class NAZARA_WIDGETS_API ImageButtonWidget : public BaseWidget
 	{
 		public:
-			inline ImageButtonWidget(BaseWidget* parent, std::shared_ptr<MaterialInstance> material);
-			inline ImageButtonWidget(BaseWidget* parent, std::shared_ptr<MaterialInstance> material, float cornerSize, float cornerTexCoords);
-			ImageButtonWidget(BaseWidget* parent, std::shared_ptr<MaterialInstance> material, std::shared_ptr<MaterialInstance> hoveredMaterial, std::shared_ptr<MaterialInstance> pressedMaterial, float cornerSize, float cornerTexCoords);
+			using StyleFactory = WidgetStyleFactory<ImageButtonWidget, ImageButtonWidgetStyle>;
+
+			inline ImageButtonWidget(BaseWidget* parent, std::shared_ptr<MaterialInstance> material, const StyleFactory& styleFactory = nullptr);
+			inline ImageButtonWidget(BaseWidget* parent, std::shared_ptr<MaterialInstance> material, float cornerSize, float cornerTexCoords, const StyleFactory& styleFactory = nullptr);
+			ImageButtonWidget(BaseWidget* parent, std::shared_ptr<MaterialInstance> material, std::shared_ptr<MaterialInstance> hoveredMaterial, std::shared_ptr<MaterialInstance> pressedMaterial, float cornerSize, float cornerTexCoords, const StyleFactory& styleFactory = nullptr);
 			ImageButtonWidget(const ImageButtonWidget&) = delete;
 			ImageButtonWidget(ImageButtonWidget&&) = delete;
 			~ImageButtonWidget() = default;

@@ -11,6 +11,7 @@
 #include <Nazara/Graphics/SlicedSprite.hpp>
 #include <Nazara/Graphics/TextSprite.hpp>
 #include <Nazara/Widgets/BaseWidget.hpp>
+#include <Nazara/Widgets/WidgetStyleFactory.hpp>
 #include <Nazara/Widgets/WidgetTheme.hpp>
 
 namespace Nz
@@ -20,7 +21,9 @@ namespace Nz
 	class NAZARA_WIDGETS_API ScrollbarButtonWidget : public BaseWidget
 	{
 		public:
-			ScrollbarButtonWidget(BaseWidget* parent);
+			using StyleFactory = WidgetStyleFactory<ScrollbarButtonWidget, ScrollbarButtonWidgetStyle>;
+
+			ScrollbarButtonWidget(BaseWidget* parent, const StyleFactory& styleFactory = nullptr);
 			ScrollbarButtonWidget(const ScrollbarButtonWidget&) = delete;
 			ScrollbarButtonWidget(ScrollbarButtonWidget&&) = delete;
 			~ScrollbarButtonWidget() = default;

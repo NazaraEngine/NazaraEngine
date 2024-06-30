@@ -51,6 +51,7 @@
 #include <Nazara/Widgets/SimpleWidgetStyles.hpp>
 #include <Nazara/Widgets/TextAreaWidget.hpp>
 #include <Nazara/Widgets/Widgets.hpp>
+#include <Nazara/Widgets/WidgetStyleFactory.hpp>
 #include <Nazara/Widgets/WidgetTheme.hpp>
 
 #endif // NAZARA_GLOBAL_WIDGETS_HPP

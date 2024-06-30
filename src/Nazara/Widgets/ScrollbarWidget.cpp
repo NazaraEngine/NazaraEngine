@@ -8,7 +8,7 @@
 
 namespace Nz
 {
-	ScrollbarWidget::ScrollbarWidget(BaseWidget* parent, ScrollbarOrientation orientation) :
+	ScrollbarWidget::ScrollbarWidget(BaseWidget* parent, ScrollbarOrientation orientation, const StyleFactory& styleFactory) :
 	BaseWidget(parent),
 	m_orientation(orientation),
 	m_maximumValue(1.f),
@@ -16,7 +16,7 @@ namespace Nz
 	m_step(0.5f),
 	m_value(0.f)
 	{
-		m_style = GetTheme()->CreateStyle(this);
+		m_style = (styleFactory) ? styleFactory(this) : GetTheme()->CreateStyle(this);
 		SetRenderLayerCount(m_style->GetRenderLayerCount());
 
 		SetPreferredSize({ 32.f, 32.f });
