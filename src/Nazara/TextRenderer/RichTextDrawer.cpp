@@ -315,7 +315,7 @@ namespace Nz
 		m_lastSeparatorGlyph = InvalidGlyph;
 
 		m_bounds.ExtendTo(lastLine.bounds);
-		m_lines.emplace_back(Line{ m_glyphs.size() + 1, Rectf(0.f, lineHeight * m_lines.size(), 0.f, lineHeight), true });
+		m_lines.emplace_back(Line{ m_glyphs.size() + 1, Rectf(0.f, lastLine.bounds.y + lastLine.bounds.height, 0.f, lineHeight), true });
 
 		if (glyphIndex != InvalidGlyph && glyphIndex > lastLine.glyphIndex)
 		{
@@ -473,7 +473,7 @@ namespace Nz
 
 		m_glyphUpdated = true;
 	}
-	
+
 	bool RichTextDrawer::GenerateSprite(Rectf& bounds, Sprite& sprite, char32_t character, float outlineThickness, bool lineWrap, const Font& font, const Color& color, TextStyleFlags style, float lineSpacingOffset, unsigned int characterSize, int renderOrder, int* advance) const
 	{
 		const Font::Glyph& fontGlyph = font.GetGlyph(characterSize, style, outlineThickness, character);

@@ -103,7 +103,7 @@ namespace Nz
 		m_lastSeparatorGlyph = InvalidGlyph;
 
 		m_bounds.ExtendTo(lastLine.bounds);
-		m_lines.emplace_back(Line{ m_glyphs.size() + 1, Rectf(0.f, lineHeight * m_lines.size(), 0.f, lineHeight), true });
+		m_lines.emplace_back(Line{ m_glyphs.size() + 1, Rectf(0.f, lastLine.bounds.y + lastLine.bounds.height, 0.f, lineHeight), true });
 
 		// Move characters since last whitespace to the new line 
 		if (glyphIndex != InvalidGlyph && glyphIndex > lastLine.glyphIndex)
