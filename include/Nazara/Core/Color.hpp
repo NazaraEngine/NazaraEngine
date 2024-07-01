@@ -54,6 +54,7 @@ namespace Nz
 			static constexpr Color FromHSV(float hue, float saturation, float value);
 			static constexpr Color FromRGB8(UInt8 r, UInt8 g, UInt8 b);
 			static constexpr Color FromRGBA8(UInt8 r, UInt8 g, UInt8 b, UInt8 a);
+			static constexpr Color FromTemperature(float temperature);
 			static constexpr Color FromXYZ(const Vector3f& vec);
 			static constexpr Color FromXYZ(float x, float y, float z);
 			static constexpr void ToCMY(const Color& color, float* cyan, float* magenta, float* yellow);

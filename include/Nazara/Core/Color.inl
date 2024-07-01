@@ -327,6 +327,29 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Converts a temperature to a sRGB color
+	* \return resulting Color
+	*
+	* \param temperature Temperature in Kelvins.
+	*/
+	constexpr Color Color::FromTemperature(float temperature)
+	{
+		// https://google.github.io/filament/Filament.md.html#lighting/directlighting/lightsparameterization
+		float T2 = temperature * temperature;
+		float u = (0.860117757f + 1.54118254e-4f * temperature + 1.28641212e-7f * T2) / (1.0f + 8.42420235e-4f * temperature + 7.08145163e-7f * T2);
+		float v = (0.317398726f + 4.22806245e-5f * temperature + 4.20481691e-8f * T2) / (1.0f - 2.89741816e-5f * temperature + 1.61456053e-7f * T2);
+
+		// Convert to xyY space.
+		float d = 1.0f / (2.0f * u - 8.0f * v + 4.0f);
+		float x = 3.0f * u * d;
+		float y = 2.0f * v * d;
+
+		// Convert to CIE XYZ space
+		float div = 1.0 / std::max(y, 1e-5f);
+		return FromXYZ(x * div, 1.0, (1.0f - x - y) * div);
+	}
+
+	/*!
 	* \brief Converts XYZ representation to RGB
 	* \return Color resulting
 	*
@@ -351,15 +374,11 @@ namespace Nz
 		y /= 100.f; // Y from 0 to 100.000
 		z /= 100.f; // Z from 0 to 108.883
 
-		float r = x *  3.2406f + y * -1.5372f + z * -0.4986f;
-		float g = x * -0.9689f + y *  1.8758f + z *  0.0415f;
-		float b = x *  0.0557f + y * -0.2040f + z *  1.0570f;
+		float r = x *  3.2404542f  + y * -1.5371385f + z * -0.4985314f;
+		float g = x * -0.9692660f  + y *  1.8760108f + z *  0.0415560f;
+		float b = x *  0.0556434f  + y * -0.2040259f + z *  1.0572252f;
 
-		r = LinearTosRGB(r);
-		g = LinearTosRGB(g);
-		b = LinearTosRGB(b);
-
-		return Color(r, g, b);
+		return LinearTosRGB(Color(r, g, b));
 	}
 
 	/*!
