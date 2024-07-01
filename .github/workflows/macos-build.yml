@@ -22,16 +22,20 @@ jobs:
       fail-fast: false
       matrix:
         os: [macOS-latest]
-        arch: [x86_64]
         kind: [shared, static]
         confs:
-        - { mode: debug, archive: yes }
-        - { mode: debug, config: --asan=y, archive: false, cache_key: -asan }
-        - { mode: debug, config: --lsan=y, archive: false }
-        - { mode: debug, config: --tsan=y, archive: false }
-        - { mode: releasedbg, archive: yes }
+        - { runner: macOS-latest, arch: x86_64, mode: debug,      config: --shadernodes=y,          archive: true                    }
+        - { runner: macOS-latest, arch: x86_64, mode: debug,      config: --shadernodes=y --asan=y, archive: false, cache_key: -asan }
+        - { runner: macOS-latest, arch: x86_64, mode: debug,      config: --shadernodes=y --lsan=y, archive: false                   }
+        - { runner: macOS-latest, arch: x86_64, mode: debug,      config: --shadernodes=y --tsan=y, archive: false                   }
+        - { runner: macOS-latest, arch: x86_64, mode: releasedbg, config: --shadernodes=y,          archive: true                    }
+        - { runner: macOS-14,     arch: arm64,  mode: debug,      config: "",                       archive: true                    }
+        - { runner: macOS-14,     arch: arm64,  mode: debug,      config: --asan=y,                 archive: false, cache_key: -asan }
+        - { runner: macOS-14,     arch: arm64,  mode: debug,      config: --lsan=y,                 archive: false                   }
+        - { runner: macOS-14,     arch: arm64,  mode: debug,      config: --tsan=y,                 archive: false                   }
+        - { runner: macOS-14,     arch: arm64,  mode: releasedbg, config: "",                       archive: true                    }
 
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.confs.runner }}
     if: ${{ !contains(github.event.head_commit.message, 'ci skip') }}
 
     steps:
@@ -50,8 +54,8 @@ jobs:
     - name: Setup xmake
       uses: xmake-io/github-action-setup-xmake@v1
       with:
-        actions-cache-folder: .xmake-cache-W${{ steps.cache_key.outputs.key }}
         xmake-version: branch@dev
+        actions-cache-folder: .xmake-cache-W${{ steps.cache_key.outputs.key }}
 
     - run: xmake update -s github:SirLynix/xmake#test-macos
 
@@ -66,4 +70,4 @@ jobs:
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
-      run: xmake config --arch=${{ matrix.arch }} --mode=${{ matrix.confs.mode }} --static=${{ matrix.kind == 'static' && 'yes' || 'no' }} ${{ matrix.confs.config }} --ccache=n --ffmpeg=y --shadernodes=y --tests=y --unitybuild=y --yes -D
+      run: xmake config --arch=${{ matrix.confs.arch }} --mode=${{ matrix.confs.mode }} --static=${{ matrix.kind == 'static' && 'yes' || 'no' }} ${{ matrix.confs.config }} --ccache=n --ffmpeg=y --tests=y --unitybuild=y --yes -D
