@@ -1,13 +1,13 @@
 -- Turns resources into includables headers
 rule("embed.resources")
-	before_build(function (target, opt)
+	on_config(function (target, opt)
 		import("core.base.option")
 		import("utils.progress")
 
 		local function GenerateEmbedHeader(filepath, targetpath)
 			local bufferSize = 1024 * 1024
 
-			progress.show(opt.progress, "${color.build.object}embedding %s", filepath)
+			cprint("${color.build.object}embedding %s", filepath)
 
 			local resource = assert(io.open(filepath, "rb"))
 			local targetFile = assert(io.open(targetpath, "w+"))
