@@ -12,7 +12,8 @@ namespace Nz
 	m_shadowMapFormat(Graphics::Instance()->GetPreferredDepthFormat()),
 	m_lightType(lightType),
 	m_shadowMapSize(512),
-	m_isShadowCaster(false)
+	m_isShadowCaster(false),
+	m_energy(1.f)
 	{
 	}
 

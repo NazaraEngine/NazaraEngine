@@ -38,6 +38,7 @@ namespace Nz
 			virtual bool FrustumCull(const Frustumf& viewerFrustum) const = 0;
 
 			inline const BoundingVolumef& GetBoundingVolume() const;
+			inline float GetEnergy() const;
 			inline UInt8 GetLightType() const;
 			inline PixelFormat GetShadowMapFormat() const;
 			inline UInt32 GetShadowMapSize() const;
@@ -46,6 +47,7 @@ namespace Nz
 
 			inline bool IsShadowCaster() const;
 
+			inline void UpdateEnergy(float energy);
 			inline void UpdateShadowMapFormat(PixelFormat format);
 			inline void UpdateShadowMapSettings(UInt32 size, PixelFormat format);
 			inline void UpdateShadowMapSize(UInt32 size);
@@ -69,6 +71,7 @@ namespace Nz
 			UInt8 m_lightType;
 			UInt32 m_shadowMapSize;
 			bool m_isShadowCaster;
+			float m_energy;
 	};
 }
 

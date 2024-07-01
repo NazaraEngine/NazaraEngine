@@ -20,6 +20,11 @@ namespace Nz
 		return m_boundingVolume;
 	}
 
+	inline float Light::GetEnergy() const
+	{
+		return m_energy;
+	}
+
 	inline UInt8 Light::GetLightType() const
 	{
 		return m_lightType;
@@ -38,6 +43,15 @@ namespace Nz
 	inline bool Light::IsShadowCaster() const
 	{
 		return m_isShadowCaster;
+	}
+
+	inline void Light::UpdateEnergy(float energy)
+	{
+		if (m_energy != energy)
+		{
+			m_energy = energy;
+			OnLightDataInvalided(this);
+		}
 	}
 
 	inline void Light::UpdateShadowMapFormat(PixelFormat format)
