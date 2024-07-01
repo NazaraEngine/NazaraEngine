@@ -235,11 +235,10 @@ fn ComputeLighting(color: vec3[f32], input: VertOut) -> vec3[f32]
 		lightRadiance += shadowFactor * radiance;
 	}
 
-	let ambient = (0.0001).rrr * albedo;
+	let ambient = (0.03).rrr * albedo;
 
-	let finalColor = ambient + lightRadiance * color;
+	let finalColor = ambient + lightRadiance;
 	finalColor = finalColor / (finalColor + vec3[f32](1.0, 1.0, 1.0));
-	finalColor = pow(finalColor, (1.0 / 2.2).xxx); //< WTF?
 
 	return finalColor;
 }
