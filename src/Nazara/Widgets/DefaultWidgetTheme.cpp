@@ -8,6 +8,7 @@
 #include <Nazara/Graphics/TextureAsset.hpp>
 #include <Nazara/Widgets/SimpleWidgetStyles.hpp>
 #include <Nazara/Widgets/Widgets.hpp>
+#include <span>
 
 namespace Nz
 {
@@ -124,62 +125,58 @@ namespace Nz
 
 	DefaultWidgetTheme::DefaultWidgetTheme()
 	{
-		/*TextureParams texParams;
-		texParams.renderDevice = Graphics::Instance()->GetRenderDevice();
-		texParams.loadFormat = PixelFormat::RGBA8_SRGB;*/
-
-		auto CreateMaterialFromTexture = [&](std::shared_ptr<TextureAsset> texture)
+		auto CreateMaterialFromTexture = [&](std::span<const UInt8> textureMemory)
 		{
 			std::shared_ptr<MaterialInstance> material = Widgets::Instance()->GetTransparentMaterial()->Clone();
-			material->SetTextureProperty("BaseColorMap", std::move(texture));
+			material->SetTextureProperty("BaseColorMap", TextureAsset::OpenFromMemory(textureMemory.data(), textureMemory.size(), {.sRGB = true}));
 
 			return material;
 		};
 
-		m_hoveredMaterial = CreateMaterialFromTexture(TextureAsset::OpenFromMemory(s_defaultThemeHoveredImage, sizeof(s_defaultThemeHoveredImage)));
+		m_hoveredMaterial = CreateMaterialFromTexture(s_defaultThemeHoveredImage);
 
 		// Button materials
-		m_buttonMaterial = CreateMaterialFromTexture(TextureAsset::OpenFromMemory(s_defaultThemeButtonImage, sizeof(s_defaultThemeButtonImage)));
-		m_buttonHoveredMaterial = CreateMaterialFromTexture(TextureAsset::OpenFromMemory(s_defaultThemeButtonHoveredImage, sizeof(s_defaultThemeButtonHoveredImage)));
-		m_buttonPressedMaterial = CreateMaterialFromTexture(TextureAsset::OpenFromMemory(s_defaultThemeButtonPressedImage, sizeof(s_defaultThemeButtonPressedImage)));
-		m_buttonPressedHoveredMaterial = CreateMaterialFromTexture(TextureAsset::OpenFromMemory(s_defaultThemeButtonPressedHoveredImage, sizeof(s_defaultThemeButtonPressedHoveredImage)));
+		m_buttonMaterial = CreateMaterialFromTexture(s_defaultThemeButtonImage);
+		m_buttonHoveredMaterial = CreateMaterialFromTexture(s_defaultThemeButtonHoveredImage);
+		m_buttonPressedMaterial = CreateMaterialFromTexture(s_defaultThemeButtonPressedImage);
+		m_buttonPressedHoveredMaterial = CreateMaterialFromTexture(s_defaultThemeButtonPressedHoveredImage);
 
 		// Checkbox materials
-		m_checkboxBackgroundMaterial = CreateMaterialFromTexture(TextureAsset::OpenFromMemory(s_defaultThemeCheckboxBackgroundImage, sizeof(s_defaultThemeCheckboxBackgroundImage)));
-		m_checkboxBackgroundHoveredMaterial = CreateMaterialFromTexture(TextureAsset::OpenFromMemory(s_defaultThemeCheckboxBackgroundHoveredImage, sizeof(s_defaultThemeCheckboxBackgroundHoveredImage)));
-		m_checkboxCheckMaterial = CreateMaterialFromTexture(TextureAsset::OpenFromMemory(s_defaultThemeCheckboxCheckImage, sizeof(s_defaultThemeCheckboxCheckImage)));
-		m_checkboxTristateMaterial = CreateMaterialFromTexture(TextureAsset::OpenFromMemory(s_defaultThemeCheckboxTristateImage, sizeof(s_defaultThemeCheckboxTristateImage)));
+		m_checkboxBackgroundMaterial = CreateMaterialFromTexture(s_defaultThemeCheckboxBackgroundImage);
+		m_checkboxBackgroundHoveredMaterial = CreateMaterialFromTexture(s_defaultThemeCheckboxBackgroundHoveredImage);
+		m_checkboxCheckMaterial = CreateMaterialFromTexture(s_defaultThemeCheckboxCheckImage);
+		m_checkboxTristateMaterial = CreateMaterialFromTexture(s_defaultThemeCheckboxTristateImage);
 
 		// ProgressBar materials
-		m_progressBarMaterial = CreateMaterialFromTexture(TextureAsset::OpenFromMemory(s_defaultThemeProgressBarBackgroundImage, sizeof(s_defaultThemeProgressBarBackgroundImage)));
+		m_progressBarMaterial = CreateMaterialFromTexture(s_defaultThemeProgressBarBackgroundImage);
 
 		// Scrollbar materials
-		m_scrollbarBackgroundHorizontalMaterial = CreateMaterialFromTexture(TextureAsset::OpenFromMemory(s_defaultThemeScrollbarHorizontalBackgroundImage, sizeof(s_defaultThemeScrollbarHorizontalBackgroundImage)));
-		m_scrollbarBackgroundVerticalMaterial = CreateMaterialFromTexture(TextureAsset::OpenFromMemory(s_defaultThemeScrollbarVerticalBackgroundImage, sizeof(s_defaultThemeScrollbarVerticalBackgroundImage)));
+		m_scrollbarBackgroundHorizontalMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarHorizontalBackgroundImage);
+		m_scrollbarBackgroundVerticalMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarVerticalBackgroundImage);
 
 		// Config
 		m_config.scrollbarButtonCornerSize = 0.f;
 		m_config.scrollbarButtonCornerTexcoords = 0.f;
 
-		m_scrollbarButtonMaterial = CreateMaterialFromTexture(TextureAsset::OpenFromMemory(s_defaultThemeScrollbarCenterImage, sizeof(s_defaultThemeScrollbarCenterImage)));
-		m_scrollbarButtonGrabbedMaterial = CreateMaterialFromTexture(TextureAsset::OpenFromMemory(s_defaultThemeScrollbarGrabbedImage, sizeof(s_defaultThemeScrollbarGrabbedImage)));
-		m_scrollbarButtonHoveredMaterial = CreateMaterialFromTexture(TextureAsset::OpenFromMemory(s_defaultThemeScrollbarHoveredImage, sizeof(s_defaultThemeScrollbarHoveredImage)));
+		m_scrollbarButtonMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarCenterImage);
+		m_scrollbarButtonGrabbedMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarGrabbedImage);
+		m_scrollbarButtonHoveredMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarHoveredImage);
 
-		m_config.scrollbarButtonDownMaterial = CreateMaterialFromTexture(TextureAsset::OpenFromMemory(s_defaultThemeScrollbarArrowDownImage, sizeof(s_defaultThemeScrollbarArrowDownImage)));
-		m_config.scrollbarButtonDownHoveredMaterial = CreateMaterialFromTexture(TextureAsset::OpenFromMemory(s_defaultThemeScrollbarArrowDownHoveredImage, sizeof(s_defaultThemeScrollbarArrowDownHoveredImage)));
-		m_config.scrollbarButtonDownPressedMaterial = CreateMaterialFromTexture(TextureAsset::OpenFromMemory(s_defaultThemeScrollbarArrowDownPressedImage, sizeof(s_defaultThemeScrollbarArrowDownPressedImage)));
+		m_config.scrollbarButtonDownMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowDownImage);
+		m_config.scrollbarButtonDownHoveredMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowDownHoveredImage);
+		m_config.scrollbarButtonDownPressedMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowDownPressedImage);
 
-		m_config.scrollbarButtonLeftMaterial = CreateMaterialFromTexture(TextureAsset::OpenFromMemory(s_defaultThemeScrollbarArrowLeftImage, sizeof(s_defaultThemeScrollbarArrowLeftImage)));
-		m_config.scrollbarButtonLeftHoveredMaterial = CreateMaterialFromTexture(TextureAsset::OpenFromMemory(s_defaultThemeScrollbarArrowLeftHoveredImage, sizeof(s_defaultThemeScrollbarArrowLeftHoveredImage)));
-		m_config.scrollbarButtonLeftPressedMaterial = CreateMaterialFromTexture(TextureAsset::OpenFromMemory(s_defaultThemeScrollbarArrowLeftPressedImage, sizeof(s_defaultThemeScrollbarArrowLeftPressedImage)));
+		m_config.scrollbarButtonLeftMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowLeftImage);
+		m_config.scrollbarButtonLeftHoveredMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowLeftHoveredImage);
+		m_config.scrollbarButtonLeftPressedMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowLeftPressedImage);
 
-		m_config.scrollbarButtonRightMaterial = CreateMaterialFromTexture(TextureAsset::OpenFromMemory(s_defaultThemeScrollbarArrowRightImage, sizeof(s_defaultThemeScrollbarArrowRightImage)));
-		m_config.scrollbarButtonRightHoveredMaterial = CreateMaterialFromTexture(TextureAsset::OpenFromMemory(s_defaultThemeScrollbarArrowRightHoveredImage, sizeof(s_defaultThemeScrollbarArrowRightHoveredImage)));
-		m_config.scrollbarButtonRightPressedMaterial = CreateMaterialFromTexture(TextureAsset::OpenFromMemory(s_defaultThemeScrollbarArrowRightPressedImage, sizeof(s_defaultThemeScrollbarArrowRightPressedImage)));
+		m_config.scrollbarButtonRightMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowRightImage);
+		m_config.scrollbarButtonRightHoveredMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowRightHoveredImage);
+		m_config.scrollbarButtonRightPressedMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowRightPressedImage);
 
-		m_config.scrollbarButtonUpMaterial = CreateMaterialFromTexture(TextureAsset::OpenFromMemory(s_defaultThemeScrollbarArrowUpImage, sizeof(s_defaultThemeScrollbarArrowUpImage)));
-		m_config.scrollbarButtonUpHoveredMaterial = CreateMaterialFromTexture(TextureAsset::OpenFromMemory(s_defaultThemeScrollbarArrowUpHoveredImage, sizeof(s_defaultThemeScrollbarArrowUpHoveredImage)));
-		m_config.scrollbarButtonUpPressedMaterial = CreateMaterialFromTexture(TextureAsset::OpenFromMemory(s_defaultThemeScrollbarArrowUpPressedImage, sizeof(s_defaultThemeScrollbarArrowUpPressedImage)));
+		m_config.scrollbarButtonUpMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowUpImage);
+		m_config.scrollbarButtonUpHoveredMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowUpHoveredImage);
+		m_config.scrollbarButtonUpPressedMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowUpPressedImage);
 	}
 
 	std::unique_ptr<ButtonWidgetStyle> DefaultWidgetTheme::CreateStyle(ButtonWidget* buttonWidget) const
