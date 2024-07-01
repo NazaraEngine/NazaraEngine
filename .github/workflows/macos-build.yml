@@ -50,8 +50,10 @@ jobs:
     - name: Setup xmake
       uses: xmake-io/github-action-setup-xmake@v1
       with:
-        xmake-version: branch@dev
         actions-cache-folder: .xmake-cache-W${{ steps.cache_key.outputs.key }}
+        xmake-version: branch@dev
+
+    - run: xmake update -s github:SirLynix/xmake#test-macos
 
     # Update xmake repository (in order to have the file that will be cached)
     - name: Update xmake repository
@@ -62,75 +64,6 @@ jobs:
       id: dep_hash
       run: echo "hash=$(xmake l utils.ci.packageskey)" >> $GITHUB_OUTPUT
 
-    # Cache xmake dependencies
-    - name: Restore cached xmake dependencies
-      id: restore-depcache
-      uses: actions/cache/restore@v4
-      with:
-        path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
-        key: macOS-${{ matrix.arch }}-${{ matrix.confs.mode }}${{ matrix.confs.cache_key }}-${{ steps.dep_hash.outputs.hash }}-W${{ steps.cache_key.outputs.key }}
-
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
       run: xmake config --arch=${{ matrix.arch }} --mode=${{ matrix.confs.mode }} --static=${{ matrix.kind == 'static' && 'yes' || 'no' }} ${{ matrix.confs.config }} --ccache=n --ffmpeg=y --shadernodes=y --tests=y --unitybuild=y --yes
-
-    # Save dependencies
-    - name: Save cached xmake dependencies
-      if: ${{ !steps.restore-depcache.outputs.cache-hit }}
-      uses: actions/cache/save@v4
-      with:
-        path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
-        key: ${{ steps.restore-depcache.outputs.cache-primary-key }}
-
-    # Cache assets downloading
-    - name: Restore cached assets
-      id: restore-assets
-      uses: actions/cache/restore@v4
-      with:
-        path: assets
-        key: assets-${{ hashFiles('assets/examples_version.txt', 'assets/unittests_version.txt') }}
-
-    # Build the engine
-    - name: Build Nazara
-      run: xmake --yes
-
-    - name: Save downloaded assets
-      if: ${{ !steps.restore-assets.outputs.cache-hit }}
-      uses: actions/cache/save@v4
-      with:
-        path: assets
-        key: ${{ steps.restore-assets.outputs.cache-primary-key }}
-
-    # Run unit tests
-    - name: Run unit tests
-      if: matrix.confs.mode != 'releasedbg'
-      run: xmake run UnitTests
-
-    # Install the result files
-    - name: Install Nazara
-      if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' && matrix.confs.archive }}
-      run: xmake install -vo package
-
-    - name: "Set PACKAGE_NAME variable"
-      if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' && matrix.confs.archive }}
-      run: echo "PACKAGE_NAME=macOS_${{ matrix.arch }}_${{ matrix.confs.mode }}_${{ matrix.kind }}.tar.gz" >> $GITHUB_ENV
-      shell: bash
-
-    - name: Archive result
-      uses: ihiroky/archive-action@v1
-      if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' && matrix.confs.archive }}
-      with:
-        root_dir: package
-        file_path: ${{ env.PACKAGE_NAME }}
-        verbose: true
-
-    # Nightly tags (for commits to main branch)
-    - name: Upload binaries to release (main)
-      uses: svenstaro/upload-release-action@v2
-      if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' && matrix.confs.archive }}
-      with:
-        repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: ${{ env.PACKAGE_NAME }}
-        asset_name: ${{ env.PACKAGE_NAME }}
-        tag: "0.0.0-nightly"
-        overwrite: true
