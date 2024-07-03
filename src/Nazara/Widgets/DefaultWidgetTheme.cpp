@@ -18,6 +18,10 @@ namespace Nz
 			#include <Nazara/Widgets/Resources/DefaultTheme/Button.png.h>
 		};
 
+		constexpr UInt8 s_defaultThemeButtonDisabledImage[] = {
+			#include <Nazara/Widgets/Resources/DefaultTheme/ButtonDisabled.png.h>
+		};
+
 		constexpr UInt8 s_defaultThemeButtonHoveredImage[] = {
 			#include <Nazara/Widgets/Resources/DefaultTheme/ButtonHovered.png.h>
 		};
@@ -137,6 +141,7 @@ namespace Nz
 
 		// Button materials
 		m_buttonMaterial = CreateMaterialFromTexture(s_defaultThemeButtonImage);
+		m_buttonDisabledMaterial = CreateMaterialFromTexture(s_defaultThemeButtonDisabledImage);
 		m_buttonHoveredMaterial = CreateMaterialFromTexture(s_defaultThemeButtonHoveredImage);
 		m_buttonPressedMaterial = CreateMaterialFromTexture(s_defaultThemeButtonPressedImage);
 		m_buttonPressedHoveredMaterial = CreateMaterialFromTexture(s_defaultThemeButtonPressedHoveredImage);
@@ -184,6 +189,7 @@ namespace Nz
 		SimpleButtonWidgetStyle::StyleConfig styleConfig;
 		styleConfig.cornerSize = 20.f;
 		styleConfig.cornerTexCoords = 20.f / 44.f;
+		styleConfig.disabledMaterial = m_buttonDisabledMaterial;
 		styleConfig.hoveredMaterial = m_buttonHoveredMaterial;
 		styleConfig.material = m_buttonMaterial;
 		styleConfig.pressedHoveredMaterial = m_buttonPressedHoveredMaterial;

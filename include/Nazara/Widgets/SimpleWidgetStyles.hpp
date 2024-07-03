@@ -27,6 +27,8 @@ namespace Nz
 
 			void Layout(const Vector2f& size) override;
 
+			void OnDisabled() override;
+			void OnEnabled() override;
 			void OnHoverBegin() override;
 			void OnHoverEnd() override;
 			void OnPress() override;
@@ -40,6 +42,7 @@ namespace Nz
 
 			struct StyleConfig
 			{
+				std::shared_ptr<MaterialInstance> disabledMaterial;
 				std::shared_ptr<MaterialInstance> hoveredMaterial;
 				std::shared_ptr<MaterialInstance> material;
 				std::shared_ptr<MaterialInstance> pressedMaterial;
@@ -49,9 +52,10 @@ namespace Nz
 			};
 
 		protected:
-			virtual void UpdateMaterial(bool hovered, bool pressed);
+			virtual void UpdateMaterial(bool hovered, bool pressed, bool disabled);
 
 		private:
+			std::shared_ptr<MaterialInstance> m_disabledMaterial;
 			std::shared_ptr<MaterialInstance> m_hoveredMaterial;
 			std::shared_ptr<MaterialInstance> m_material;
 			std::shared_ptr<MaterialInstance> m_pressedMaterial;
@@ -60,6 +64,7 @@ namespace Nz
 			std::shared_ptr<TextSprite> m_textSprite;
 			entt::entity m_spriteEntity;
 			entt::entity m_textEntity;
+			bool m_isDisabled;
 			bool m_isHovered;
 			bool m_isPressed;
 	};

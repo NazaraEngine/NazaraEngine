@@ -28,6 +28,11 @@ namespace Nz
 			ButtonWidget(ButtonWidget&&) = delete;
 			~ButtonWidget() = default;
 
+			inline void Disable();
+			void Enable(bool enable = true);
+
+			inline bool IsEnabled() const;
+
 			void UpdateText(const AbstractTextDrawer& drawer);
 
 			ButtonWidget& operator=(const ButtonWidget&) = delete;
@@ -46,6 +51,7 @@ namespace Nz
 			void OnRenderLayerUpdated(int baseRenderLayer) override;
 
 			std::unique_ptr<ButtonWidgetStyle> m_style;
+			bool m_isEnabled;
 	};
 }
 

@@ -17,6 +17,14 @@ namespace Nz
 	}
 
 
+	void ButtonWidgetStyle::OnDisabled()
+	{
+	}
+
+	void ButtonWidgetStyle::OnEnabled()
+	{
+	}
+
 	void ButtonWidgetStyle::OnHoverBegin()
 	{
 	}

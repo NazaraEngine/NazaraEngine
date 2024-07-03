@@ -117,6 +117,8 @@ namespace Nz
 
 			virtual void Layout(const Vector2f& size) = 0;
 
+			virtual void OnDisabled();
+			virtual void OnEnabled();
 			virtual void OnHoverBegin();
 			virtual void OnHoverEnd();
 			virtual void OnPress();

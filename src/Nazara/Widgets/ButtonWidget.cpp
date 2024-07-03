@@ -8,12 +8,32 @@
 namespace Nz
 {
 	ButtonWidget::ButtonWidget(BaseWidget* parent, const StyleFactory& styleFactory) :
-	BaseWidget(parent)
+	BaseWidget(parent),
+	m_isEnabled(true)
 	{
 		m_style = (styleFactory) ? styleFactory(this) : GetTheme()->CreateStyle(this);
 		SetRenderLayerCount(m_style->GetRenderLayerCount());
 
 		Layout();
+	}
+
+	void ButtonWidget::Enable(bool enable)
+	{
+		if (m_isEnabled != enable)
+		{
+			if (enable)
+			{
+				m_style->OnEnabled();
+				EnableMouseInput(true);
+			}
+			else
+			{
+				m_style->OnDisabled();
+				EnableMouseInput(false);
+			}
+
+			m_isEnabled = enable;
+		}
 	}
 
 	void ButtonWidget::UpdateText(const AbstractTextDrawer& drawer)
@@ -52,7 +72,7 @@ namespace Nz
 
 			// If user clicks inside button and holds it outside, a release mouse button event will be triggered outside of the widget
 			// we don't want this to trigger the button, so double-check
-			if (IsInside(float(x), float(y)))
+			if (m_isEnabled && IsInside(float(x), float(y)))
 				OnButtonTrigger(this);
 
 			return true;

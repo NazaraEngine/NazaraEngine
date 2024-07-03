@@ -20,10 +20,12 @@ namespace Nz
 {
 	SimpleButtonWidgetStyle::SimpleButtonWidgetStyle(ButtonWidget* buttonWidget, StyleConfig config) :
 	ButtonWidgetStyle(buttonWidget, 2),
+	m_disabledMaterial(std::move(config.disabledMaterial)),
 	m_hoveredMaterial(std::move(config.hoveredMaterial)),
 	m_material(std::move(config.material)),
 	m_pressedMaterial(std::move(config.pressedMaterial)),
 	m_pressedHoveredMaterial(std::move(config.pressedHoveredMaterial)),
+	m_isDisabled(false),
 	m_isHovered(false),
 	m_isPressed(false)
 	{
@@ -58,27 +60,39 @@ namespace Nz
 		registry.get<NodeComponent>(m_textEntity).SetPosition({ size.x / 2.f - textBox.width / 2.f, size.y / 2.f - textBox.height / 2.f });
 	}
 
+	void SimpleButtonWidgetStyle::OnDisabled()
+	{
+		UpdateMaterial(m_isHovered, m_isPressed, true);
+		m_isDisabled = true;
+	}
+
+	void SimpleButtonWidgetStyle::OnEnabled()
+	{
+		UpdateMaterial(m_isHovered, m_isPressed, false);
+		m_isDisabled = false;
+	}
+
 	void SimpleButtonWidgetStyle::OnHoverBegin()
 	{
-		UpdateMaterial(true, m_isPressed);
+		UpdateMaterial(true, m_isPressed, m_isDisabled);
 		m_isHovered = true;
 	}
 
 	void SimpleButtonWidgetStyle::OnHoverEnd()
 	{
-		UpdateMaterial(false, m_isPressed);
+		UpdateMaterial(false, m_isPressed, m_isDisabled);
 		m_isHovered = false;
 	}
 
 	void SimpleButtonWidgetStyle::OnPress()
 	{
-		UpdateMaterial(m_isHovered, true);
+		UpdateMaterial(m_isHovered, true, m_isDisabled);
 		m_isPressed = true;
 	}
 
 	void SimpleButtonWidgetStyle::OnRelease()
 	{
-		UpdateMaterial(m_isHovered, false);
+		UpdateMaterial(m_isHovered, false, m_isDisabled);
 		m_isPressed = false;
 	}
 
@@ -93,9 +107,11 @@ namespace Nz
 		m_textSprite->Update(drawer);
 	}
 
-	void SimpleButtonWidgetStyle::UpdateMaterial(bool hovered, bool pressed)
+	void SimpleButtonWidgetStyle::UpdateMaterial(bool hovered, bool pressed, bool disabled)
 	{
-		if (pressed && hovered && m_pressedHoveredMaterial)
+		if (disabled)
+			m_sprite->SetMaterial(m_disabledMaterial);
+		else if (pressed && hovered && m_pressedHoveredMaterial)
 			m_sprite->SetMaterial(m_pressedHoveredMaterial);
 		else if (pressed && m_pressedMaterial)
 			m_sprite->SetMaterial(m_pressedMaterial);
