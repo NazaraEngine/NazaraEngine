@@ -57,7 +57,7 @@ jobs:
         xmake-version: branch@dev
         actions-cache-folder: .xmake-cache-W${{ steps.cache_key.outputs.key }}
 
-    - run: xmake update -s github:SirLynix/xmake#test-macos
+    #- run: xmake update -s github:SirLynix/xmake#test-macos
 
     # Update xmake repository (in order to have the file that will be cached)
     - name: Update xmake repository
