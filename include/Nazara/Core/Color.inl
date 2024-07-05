@@ -345,8 +345,8 @@ namespace Nz
 		float y = 2.0f * v * d;
 
 		// Convert to CIE XYZ space
-		float div = 1.0 / std::max(y, 1e-5f);
-		return FromXYZ(x * div, 1.0, (1.0f - x - y) * div);
+		float div = 1.0f / std::max(y, 1e-5f);
+		return FromXYZ(x * div, 1.0f, (1.0f - x - y) * div);
 	}
 
 	/*!
