@@ -52,8 +52,8 @@ namespace Nz
 				SetValue(m_grabbedValue + deltaX * valueRange / remainingWidth);
 			});
 
-			m_scrollBackButton = Add<ImageButtonWidget>(themeConfig.scrollbarButtonLeftMaterial, themeConfig.scrollbarButtonLeftHoveredMaterial, themeConfig.scrollbarButtonLeftPressedMaterial, themeConfig.scrollbarButtonCornerSize, themeConfig.scrollbarButtonCornerTexcoords);
-			m_scrollNextButton = Add<ImageButtonWidget>(themeConfig.scrollbarButtonRightMaterial, themeConfig.scrollbarButtonRightHoveredMaterial, themeConfig.scrollbarButtonRightPressedMaterial, themeConfig.scrollbarButtonCornerSize, themeConfig.scrollbarButtonCornerTexcoords);
+			m_scrollBackButton = Add<ImageButtonWidget>(themeConfig.scrollbar.buttonLeftMaterial, themeConfig.scrollbar.buttonLeftHoveredMaterial, themeConfig.scrollbar.buttonLeftPressedMaterial, themeConfig.scrollbar.buttonCornerSize, themeConfig.scrollbar.buttonCornerTexcoords);
+			m_scrollNextButton = Add<ImageButtonWidget>(themeConfig.scrollbar.buttonRightMaterial, themeConfig.scrollbar.buttonRightHoveredMaterial, themeConfig.scrollbar.buttonRightPressedMaterial, themeConfig.scrollbar.buttonCornerSize, themeConfig.scrollbar.buttonCornerTexcoords);
 		}
 		else
 		{
@@ -77,8 +77,8 @@ namespace Nz
 				SetValue(m_grabbedValue + deltaY * valueRange / remainingHeight);
 			});
 
-			m_scrollBackButton = Add<ImageButtonWidget>(themeConfig.scrollbarButtonUpMaterial, themeConfig.scrollbarButtonUpHoveredMaterial, themeConfig.scrollbarButtonUpPressedMaterial, themeConfig.scrollbarButtonCornerSize, themeConfig.scrollbarButtonCornerTexcoords);
-			m_scrollNextButton = Add<ImageButtonWidget>(themeConfig.scrollbarButtonDownMaterial, themeConfig.scrollbarButtonDownHoveredMaterial, themeConfig.scrollbarButtonDownPressedMaterial, themeConfig.scrollbarButtonCornerSize, themeConfig.scrollbarButtonCornerTexcoords);
+			m_scrollBackButton = Add<ImageButtonWidget>(themeConfig.scrollbar.buttonUpMaterial, themeConfig.scrollbar.buttonUpHoveredMaterial, themeConfig.scrollbar.buttonUpPressedMaterial, themeConfig.scrollbar.buttonCornerSize, themeConfig.scrollbar.buttonCornerTexcoords);
+			m_scrollNextButton = Add<ImageButtonWidget>(themeConfig.scrollbar.buttonDownMaterial, themeConfig.scrollbar.buttonDownHoveredMaterial, themeConfig.scrollbar.buttonDownPressedMaterial, themeConfig.scrollbar.buttonCornerSize, themeConfig.scrollbar.buttonCornerTexcoords);
 		}
 
 		m_scrollBackButton->OnButtonTrigger.Connect([this](const ImageButtonWidget*)

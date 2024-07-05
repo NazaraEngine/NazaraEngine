@@ -11,23 +11,32 @@
 #include <Nazara/TextRenderer/AbstractTextDrawer.hpp>
 #include <Nazara/Widgets/BaseWidget.hpp>
 #include <Nazara/Widgets/Enums.hpp>
+#include <Nazara/Widgets/WidgetStyleFactory.hpp>
+#include <Nazara/Widgets/WidgetTheme.hpp>
 #include <functional>
 #include <vector>
 
 namespace Nz
 {
+	class TextAreaWidgetStyle;
+
 	class NAZARA_WIDGETS_API AbstractTextAreaWidget : public BaseWidget
 	{
 		public:
 			using CharacterFilter = std::function<bool(char32_t)>;
+			using StyleFactory = WidgetStyleFactory<AbstractTextAreaWidget, TextAreaWidgetStyle>;
 
-			AbstractTextAreaWidget(BaseWidget* parent);
+			AbstractTextAreaWidget(BaseWidget* parent, const StyleFactory& styleFactory = nullptr);
 			AbstractTextAreaWidget(const AbstractTextAreaWidget&) = delete;
 			AbstractTextAreaWidget(AbstractTextAreaWidget&&) = delete;
 			~AbstractTextAreaWidget() = default;
 
+			inline void Disable();
+			void Enable(bool enable = true);
+
 			virtual void Clear();
 
+			void EnableBackground(bool enable) override;
 			void EnableLineWrap(bool enable = true);
 			inline void EnableMultiline(bool enable = true);
 			inline void EnableTabWriting(bool enable = true);
@@ -43,11 +52,13 @@ namespace Nz
 			inline std::size_t GetGlyphIndex() const;
 			inline std::size_t GetGlyphIndex(const Vector2ui& cursorPosition) const;
 			inline std::size_t GetMaximumTextLength() const;
+			inline std::pair<Vector2ui, Vector2ui> GetSelection() const;
 
 			Vector2ui GetHoveredGlyph(float x, float y) const;
 
 			inline bool HasSelection() const;
 
+			inline bool IsEnabled() const;
 			inline bool IsLineWrapEnabled() const;
 			inline bool IsMultilineEnabled() const;
 			inline bool IsReadOnly() const;
@@ -58,6 +69,7 @@ namespace Nz
 
 			inline Vector2ui NormalizeCursorPosition(Vector2ui cursorPosition) const;
 
+			void SetBackgroundColor(const Color& color) override;
 			inline void SetCharacterFilter(CharacterFilter filter);
 			inline void SetCursorPosition(std::size_t glyphIndex);
 			inline void SetCursorPosition(Vector2ui cursorPosition);
@@ -88,8 +100,6 @@ namespace Nz
 			NazaraSignal(OnTextAreaSelection, const AbstractTextAreaWidget* /*textArea*/, Vector2ui* /*start*/, Vector2ui* /*end*/);
 
 		protected:
-			Color GetCursorColor() const;
-
 			virtual void CopySelectionToClipboard(const Vector2ui& selectionBegin, const Vector2ui& selectionEnd) = 0;
 
 			virtual AbstractTextDrawer& GetTextDrawer() = 0;
@@ -117,35 +127,30 @@ namespace Nz
 
 			virtual void PasteFromClipboard(const Vector2ui& targetPosition) = 0;
 
-			void RefreshCursorColor();
 			void RefreshCursorSize();
 
 			inline void SetCursorPositionInternal(std::size_t glyphIndex);
 			inline void SetCursorPositionInternal(Vector2ui cursorPosition);
 
 			virtual void UpdateDisplayText() = 0;
+			void UpdateTextOffset(float offset);
 			void UpdateTextSprite();
 
-			struct Cursor
-			{
-				std::shared_ptr<Sprite> sprite;
-				entt::entity entity;
-			};
-
-			std::shared_ptr<TextSprite> m_textSprite;
 			std::size_t m_maximumTextLength;
-			std::vector<Cursor> m_cursors;
+			std::unique_ptr<TextAreaWidgetStyle> m_style;
+			std::vector<Rectf> m_cursorRects;
 			CharacterFilter m_characterFilter;
 			EchoMode m_echoMode;
-			entt::entity m_textEntity;
 			Vector2ui m_cursorPositionBegin;
 			Vector2ui m_cursorPositionEnd;
 			Vector2ui m_selectionCursor;
+			bool m_isEnabled;
 			bool m_isLineWrapEnabled;
 			bool m_isMouseButtonDown;
 			bool m_multiLineEnabled;
 			bool m_readOnly;
 			bool m_tabEnabled; // writes (Shift+)Tab character if set to true
+			float m_textOffset;
 	};
 }
 

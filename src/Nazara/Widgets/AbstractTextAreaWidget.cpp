@@ -13,39 +13,23 @@
 
 namespace Nz
 {
-	namespace
-	{
-		constexpr float s_textAreaPaddingWidth = 5.f;
-		constexpr float s_textAreaPaddingHeight = 3.f;
-	}
-
-	AbstractTextAreaWidget::AbstractTextAreaWidget(BaseWidget* parent) :
+	AbstractTextAreaWidget::AbstractTextAreaWidget(BaseWidget* parent, const StyleFactory& styleFactory) :
 	BaseWidget(parent),
 	m_maximumTextLength(0),
 	m_echoMode(EchoMode::Normal),
 	m_cursorPositionBegin(0U, 0U),
 	m_cursorPositionEnd(0U, 0U),
+	m_isEnabled(true),
 	m_isLineWrapEnabled(false),
 	m_isMouseButtonDown(false),
 	m_multiLineEnabled(false),
 	m_readOnly(false),
 	m_tabEnabled(false)
 	{
-		m_textSprite = std::make_shared<TextSprite>(Widgets::Instance()->GetTransparentMaterial());
-
-		auto& registry = GetRegistry();
-
-		m_textEntity = CreateGraphicsEntity();
-
-		auto& gfxComponent = registry.get<GraphicsComponent>(m_textEntity);
-		gfxComponent.AttachRenderable(m_textSprite, GetCanvas()->GetRenderMask());
-
-		auto& textNode = registry.get<NodeComponent>(m_textEntity);
-		textNode.SetPosition({ s_textAreaPaddingWidth, GetHeight() - s_textAreaPaddingHeight });
+		m_style = (styleFactory) ? styleFactory(this) : GetTheme()->CreateStyle(this);
+		SetRenderLayerCount(m_style->GetRenderLayerCount());
 
 		SetCursor(SystemCursor::Text);
-
-		EnableBackground(true);
 	}
 
 	void AbstractTextAreaWidget::Clear()
@@ -58,7 +42,24 @@ namespace Nz
 		m_cursorPositionEnd = Vector2ui::Zero();
 
 		RefreshCursorSize();
-		RefreshCursorColor();
+	}
+
+	void AbstractTextAreaWidget::Enable(bool enable)
+	{
+		if (m_isEnabled == enable)
+			return;
+
+		if (enable)
+			m_style->OnEnabled();
+		else
+			m_style->OnDisabled();
+
+		m_isEnabled = enable;
+	}
+
+	void AbstractTextAreaWidget::EnableBackground(bool enable)
+	{
+		m_style->EnableBackground(enable);
 	}
 
 	void AbstractTextAreaWidget::EnableLineWrap(bool enable)
@@ -81,12 +82,9 @@ namespace Nz
 	Vector2ui AbstractTextAreaWidget::GetHoveredGlyph(float x, float y) const
 	{
 		const AbstractTextDrawer& textDrawer = GetTextDrawer();
+		const Vector2f& textPadding = m_style->GetTextPadding();
 
-		auto& textNode = GetRegistry().get<NodeComponent>(m_textEntity);
-		Vector2f textPosition = Vector2f(textNode.GetPosition());
-		x -= textPosition.x;
-		y -= textPosition.y;
-
+		x -= m_textOffset + textPadding.x;
 		float textHeight = textDrawer.GetBounds().height;
 		y = textHeight - y;
 
@@ -121,24 +119,19 @@ namespace Nz
 		return Vector2ui::Zero();
 	}
 
+	void AbstractTextAreaWidget::SetBackgroundColor(const Color& color)
+	{
+		m_style->UpdateBackgroundColor(color);
+	}
+
 	void AbstractTextAreaWidget::SetMaximumTextLength(std::size_t maximumLength)
 	{
 		m_maximumTextLength = maximumLength;
 	}
 
-	Color AbstractTextAreaWidget::GetCursorColor() const
-	{
-		if (m_cursorPositionBegin == m_cursorPositionEnd)
-			return Color::Black();
-		else if (HasFocus())
-			return Color(0.f, 0.f, 0.f, 0.2f);
-		else
-			return Color(0.5f, 0.5f, 0.5f, 0.2f);
-	}
-
 	bool AbstractTextAreaWidget::IsFocusable() const
 	{
-		return !m_readOnly;
+		return !m_readOnly && m_isEnabled;
 	}
 
 	void AbstractTextAreaWidget::Layout()
@@ -154,16 +147,18 @@ namespace Nz
 
 		UpdateTextSprite();
 		RefreshCursorSize();
+
+		m_style->Layout(GetSize());
 	}
 
 	void AbstractTextAreaWidget::OnFocusLost()
 	{
-		RefreshCursorColor();
+		m_style->OnFocusLost();
 	}
 
 	void AbstractTextAreaWidget::OnFocusReceived()
 	{
-		RefreshCursorColor();
+		m_style->OnFocusReceived();
 	}
 
 	bool AbstractTextAreaWidget::OnKeyPressed(const WindowEvent::KeyEvent& key)
@@ -541,14 +536,12 @@ namespace Nz
 
 	void AbstractTextAreaWidget::OnRenderLayerUpdated(int baseRenderLayer)
 	{
-		m_textSprite->UpdateRenderLayer(baseRenderLayer);
-		for (Cursor& cursor : m_cursors)
-			cursor.sprite->UpdateRenderLayer(baseRenderLayer + 1);
+		m_style->UpdateRenderLayer(baseRenderLayer);
 	}
 
 	bool AbstractTextAreaWidget::OnTextEntered(char32_t character, bool /*repeated*/)
 	{
-		if (m_readOnly)
+		if (!m_isEnabled || m_readOnly)
 			return false;
 
 		if (Unicode::GetCategory(character) == Unicode::Category_Other_Control || (m_characterFilter && !m_characterFilter(character)))
@@ -561,42 +554,9 @@ namespace Nz
 		return true;
 	}
 
-	void AbstractTextAreaWidget::RefreshCursorColor()
-	{
-		Color cursorColor = GetCursorColor();
-
-		if (m_cursorPositionBegin == m_cursorPositionEnd)
-		{
-			auto& registry = GetRegistry();
-
-			// Show or hide cursor depending on state
-			if (HasFocus())
-			{
-				if (!m_readOnly)
-				{
-					for (auto& cursor : m_cursors)
-					{
-						cursor.sprite->SetColor(cursorColor);
-						registry.get<GraphicsComponent>(cursor.entity).Show();
-					}
-				}
-			}
-			else
-			{
-				for (auto& cursor : m_cursors)
-					registry.get<GraphicsComponent>(cursor.entity).Hide();
-			}
-		}
-		else
-		{
-			for (auto& cursor : m_cursors)
-				cursor.sprite->SetColor(cursorColor);
-		}
-	}
-
 	void AbstractTextAreaWidget::RefreshCursorSize()
 	{
-		if (m_readOnly)
+		if (!m_isEnabled || m_readOnly)
 			return;
 
 		const AbstractTextDrawer& textDrawer = GetTextDrawer();
@@ -627,60 +587,39 @@ namespace Nz
 				return { nullptr, true };
 		};
 
-		auto& registry = GetRegistry();
-
 		// Move text so that cursor always lies in drawer bounds
+		const Vector2f& textPadding = m_style->GetTextPadding();
+
 		auto [lastGlyph, overshooting] = GetGlyph(m_cursorPositionEnd);
 		float glyphPos = (lastGlyph) ? lastGlyph->bounds.x : 0.f;
 		float glyphWidth = (lastGlyph) ? lastGlyph->bounds.width : 0.f;
+		float textPosition = m_textOffset;
+		float width = GetWidth() - textPadding.x;
 
-		auto& textNode = registry.get<NodeComponent>(m_textEntity);
-		float textPosition = textNode.GetPosition().x - s_textAreaPaddingWidth;
 		float cursorPosition = glyphPos + textPosition + ((overshooting) ? glyphWidth : 0.f);
-		float width = GetWidth();
 
 		if (width <= textDrawer.GetBounds().width)
 		{
 			if (cursorPosition + glyphWidth > width)
-				textNode.Move({ width - cursorPosition - glyphWidth - s_textAreaPaddingWidth, 0.f });
+				UpdateTextOffset(m_textOffset + width - cursorPosition - glyphWidth);
 			else if (cursorPosition - glyphWidth < 0.f)
-				textNode.Move({ -cursorPosition + glyphWidth - s_textAreaPaddingWidth, 0.f });
+				UpdateTextOffset(m_textOffset - cursorPosition + glyphWidth);
 		}
 		else
-			textNode.Move({ -textPosition, 0.f }); //< Reset text position if we have enough room to show everything
+			UpdateTextOffset(0.f); //< Reset text position if we have enough room to show everything
 
 		// Create/destroy cursor entities and sprites
+
 		std::size_t selectionLineCount = m_cursorPositionEnd.y - m_cursorPositionBegin.y + 1;
-		std::size_t oldSpriteCount = m_cursors.size();
-		if (m_cursors.size() < selectionLineCount)
-		{
-			m_cursors.resize(selectionLineCount);
-			for (std::size_t i = oldSpriteCount; i < m_cursors.size(); ++i)
-			{
-				m_cursors[i].sprite = std::make_shared<Sprite>(Widgets::Instance()->GetTransparentMaterial());
-				m_cursors[i].sprite->UpdateRenderLayer(GetBaseRenderLayer() + 1);
-
-				m_cursors[i].entity = CreateGraphicsEntity(&textNode);
-
-				auto& cursorGfx = registry.get<GraphicsComponent>(m_cursors[i].entity);
-				cursorGfx.AttachRenderable(m_cursors[i].sprite, GetCanvas()->GetRenderMask());
-			}
-		}
-		else if (m_cursors.size() > selectionLineCount)
-		{
-			for (std::size_t i = selectionLineCount; i < m_cursors.size(); ++i)
-				DestroyEntity(m_cursors[i].entity);
-
-			m_cursors.resize(selectionLineCount);
-		}
+		m_cursorRects.clear();
+		m_cursorRects.reserve(selectionLineCount);
 
 		// Resize every cursor sprite
-		float textHeight = m_textSprite->GetAABB().height;
+		float textHeight = GetTextDrawer().GetBounds().height;
 		for (unsigned int i = m_cursorPositionBegin.y; i <= m_cursorPositionEnd.y; ++i)
 		{
 			const auto& lineInfo = lines[i];
 
-			auto& cursor = m_cursors[i - m_cursorPositionBegin.y];
 			if (i == m_cursorPositionBegin.y || i == m_cursorPositionEnd.y)
 			{
 				// Partial selection (or no selection)
@@ -703,37 +642,46 @@ namespace Nz
 				float endX = (i == m_cursorPositionEnd.y) ? GetGlyphPos({ m_cursorPositionEnd.x, i }) : lineInfo.bounds.width;
 				float spriteSize = std::max(endX - beginX, 1.f);
 
-				cursor.sprite->SetSize(Vector2f(spriteSize, lineInfo.bounds.height));
-
-				registry.get<NodeComponent>(cursor.entity).SetPosition({ beginX, textHeight - lineInfo.bounds.y - lineInfo.bounds.height });
+				auto& cursorSize = m_cursorRects.emplace_back();
+				cursorSize.x = beginX;
+				cursorSize.y = textHeight - lineInfo.bounds.y - lineInfo.bounds.height;
+				cursorSize.width = spriteSize;
+				cursorSize.height = lineInfo.bounds.height;
 			}
 			else
 			{
 				// Full line selection
-				cursor.sprite->SetSize(Vector2f(lineInfo.bounds.width, lineInfo.bounds.height));
-
-				registry.get<NodeComponent>(cursor.entity).SetPosition({ 0.f, textHeight - lineInfo.bounds.y - lineInfo.bounds.height });
+				auto& cursorSize = m_cursorRects.emplace_back();
+				cursorSize.x = 0.f;
+				cursorSize.y = textHeight - lineInfo.bounds.y - lineInfo.bounds.height;
+				cursorSize.width = lineInfo.bounds.width;
+				cursorSize.height = lineInfo.bounds.height;
 			}
 		}
+
+		m_style->UpdateCursors(m_cursorRects);
+	}
+
+	void AbstractTextAreaWidget::UpdateTextOffset(float offset)
+	{
+		m_style->UpdateTextOffset(offset);
+		m_textOffset = offset;
 	}
 
 	void AbstractTextAreaWidget::UpdateTextSprite()
 	{
 		const AbstractTextDrawer& textDrawer = GetTextDrawer();
-		m_textSprite->Update(textDrawer);
+		m_style->UpdateText(textDrawer);
 
 		const AbstractTextDrawer::Line* lines = textDrawer.GetLines();
+
+		const Vector2f& textPadding = m_style->GetTextPadding();
 
 		float preferredHeight = 0.f;
 		std::size_t lineCount = textDrawer.GetLineCount();
 		for (std::size_t i = 0; i < lineCount; ++i)
 			preferredHeight += lines[i].bounds.height;
 
-		SetPreferredSize({ -1.f, preferredHeight + s_textAreaPaddingHeight * 2.f });
-
-		Vector2f textSize = Vector2f(m_textSprite->GetAABB().GetLengths());
-
-		auto& textNode = GetRegistry().get<NodeComponent>(m_textEntity);
-		textNode.SetPosition({ s_textAreaPaddingWidth, GetHeight() - s_textAreaPaddingHeight - textSize.y });
+		SetPreferredSize({ -1.f, preferredHeight + textPadding.y * 2.f });
 	}
 }

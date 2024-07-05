@@ -6,6 +6,7 @@
 #include <Nazara/Core/Components/NodeComponent.hpp>
 #include <Nazara/Graphics/Components/GraphicsComponent.hpp>
 #include <Nazara/Widgets/AbstractLabelWidget.hpp>
+#include <Nazara/Widgets/AbstractTextAreaWidget.hpp>
 #include <Nazara/Widgets/ButtonWidget.hpp>
 #include <Nazara/Widgets/Canvas.hpp>
 #include <Nazara/Widgets/CheckboxWidget.hpp>
@@ -576,5 +577,216 @@ namespace Nz
 			m_sprite->SetMaterial(m_hoveredMaterial);
 		else
 			m_sprite->SetMaterial(m_material);
+	}
+
+
+	SimpleTextAreaWidgetStyle::SimpleTextAreaWidgetStyle(AbstractTextAreaWidget* textAreaWidget, StyleConfig config) :
+	TextAreaWidgetStyle(textAreaWidget, 2),
+	m_config(std::move(config)),
+	m_backgroundEntity(entt::null),
+	m_backgroundColor(Color::White()),
+	m_hasFocus(false),
+	m_isDisabled(false)
+	{
+		auto& registry = GetRegistry();
+		UInt32 renderMask = GetRenderMask();
+
+		m_textEntity = CreateGraphicsEntity();
+		m_textSprite = std::make_shared<TextSprite>(Widgets::Instance()->GetTransparentMaterial());
+
+		auto& textGfx = registry.get<GraphicsComponent>(m_textEntity);
+		textGfx.AttachRenderable(m_textSprite, renderMask);
+
+		m_textPadding = m_config.padding;
+	}
+
+	void SimpleTextAreaWidgetStyle::EnableBackground(bool enable)
+	{
+		if ((m_backgroundEntity != entt::null) == enable)
+			return;
+
+		if (enable)
+		{
+			auto& registry = GetRegistry();
+			UInt32 renderMask = GetRenderMask();
+
+			if (!m_backgroundSprite)
+			{
+				AbstractTextAreaWidget* textAreaWidget = GetOwnerWidget<AbstractTextAreaWidget>();
+
+				SlicedSprite::Corner backgroundCorner;
+				backgroundCorner.size = Vector2f(m_config.backgroundCornerSize);
+				backgroundCorner.textureCoords = Vector2f(m_config.backgroundCornerTexCoords);
+
+				m_backgroundSprite = std::make_shared<SlicedSprite>((textAreaWidget->IsEnabled()) ? m_config.backgroundMaterial : m_config.backgroundDisabledMaterial);
+				m_backgroundSprite->SetColor(m_backgroundColor);
+				m_backgroundSprite->SetCorners(backgroundCorner, backgroundCorner);
+				m_backgroundSprite->SetSize(textAreaWidget->GetSize());
+				m_backgroundSprite->UpdateRenderLayer(m_baseRenderLayer);
+			}
+
+			m_backgroundEntity = CreateGraphicsEntity();
+
+			auto& backgroundGfx = registry.get<GraphicsComponent>(m_backgroundEntity);
+			backgroundGfx.AttachRenderable(m_backgroundSprite, renderMask);
+		}
+		else
+		{
+			m_backgroundSprite.reset();
+
+			DestroyEntity(m_backgroundEntity);
+			m_backgroundEntity = entt::null;
+		}
+	}
+
+	void SimpleTextAreaWidgetStyle::Layout(const Vector2f& size)
+	{
+		if (m_backgroundSprite)
+			m_backgroundSprite->SetSize(size);
+	}
+
+	void SimpleTextAreaWidgetStyle::OnDisabled()
+	{
+		if (m_backgroundSprite && m_config.backgroundDisabledMaterial)
+			m_backgroundSprite->SetMaterial(m_config.backgroundDisabledMaterial);
+	}
+
+	void SimpleTextAreaWidgetStyle::OnEnabled()
+	{
+		if (m_backgroundSprite)
+			m_backgroundSprite->SetMaterial(m_config.backgroundMaterial);
+	}
+
+	void SimpleTextAreaWidgetStyle::OnFocusLost()
+	{
+		UpdateCursorColor(false);
+		m_hasFocus = false;
+	}
+
+	void SimpleTextAreaWidgetStyle::OnFocusReceived()
+	{
+		UpdateCursorColor(true);
+		m_hasFocus = true;
+	}
+
+	void SimpleTextAreaWidgetStyle::UpdateBackgroundColor(const Color& color)
+	{
+		m_backgroundColor = color;
+
+		if (m_backgroundSprite)
+			m_backgroundSprite->SetColor(color);
+	}
+
+	void SimpleTextAreaWidgetStyle::UpdateCursors(std::span<const Rectf> cursorRects)
+	{
+		auto& registry = GetRegistry();
+		UInt32 renderMask = GetRenderMask();
+
+		// Create/destroy cursor entities and sprites
+		auto& textNode = registry.get<NodeComponent>(m_textEntity);
+
+		std::size_t selectionLineCount = cursorRects.size();
+		std::size_t oldSpriteCount = m_cursors.size();
+		if (m_cursors.size() < selectionLineCount)
+		{
+			m_cursors.resize(selectionLineCount);
+			for (std::size_t i = oldSpriteCount; i < m_cursors.size(); ++i)
+			{
+				m_cursors[i].sprite = std::make_shared<Sprite>(Widgets::Instance()->GetTransparentMaterial());
+				m_cursors[i].sprite->UpdateRenderLayer(m_baseRenderLayer + 1);
+
+				m_cursors[i].entity = CreateGraphicsEntity(&textNode);
+
+				auto& cursorGfx = registry.get<GraphicsComponent>(m_cursors[i].entity);
+				cursorGfx.AttachRenderable(m_cursors[i].sprite, renderMask);
+			}
+		}
+		else if (m_cursors.size() > selectionLineCount)
+		{
+			for (std::size_t i = selectionLineCount; i < m_cursors.size(); ++i)
+				DestroyEntity(m_cursors[i].entity);
+
+			m_cursors.resize(selectionLineCount);
+		}
+
+		// Resize every cursor sprite
+		for (std::size_t i = 0; i < cursorRects.size(); ++i)
+		{
+			const Rectf& cursorRect = cursorRects[i];
+
+			auto& cursor = m_cursors[i];
+			cursor.sprite->SetSize(Vector2f(cursorRect.width, cursorRect.height));
+			registry.get<NodeComponent>(cursor.entity).SetPosition({ cursorRect.x, cursorRect.y });
+		}
+
+		UpdateCursorColor(m_hasFocus);
+	}
+
+	void SimpleTextAreaWidgetStyle::UpdateRenderLayer(int baseRenderLayer)
+	{
+		m_baseRenderLayer = baseRenderLayer;
+		m_textSprite->UpdateRenderLayer(baseRenderLayer + 1);
+
+		if (m_backgroundSprite)
+			m_backgroundSprite->UpdateRenderLayer(baseRenderLayer);
+
+		for (Cursor& cursor : m_cursors)
+			cursor.sprite->UpdateRenderLayer(baseRenderLayer + 2);
+	}
+
+	void SimpleTextAreaWidgetStyle::UpdateText(const AbstractTextDrawer& drawer)
+	{
+		AbstractTextAreaWidget* textAreaWidget = GetOwnerWidget<AbstractTextAreaWidget>();
+
+		m_textSprite->Update(drawer);
+
+		Vector2f textSize = Vector2f(m_textSprite->GetAABB().GetLengths());
+
+		auto& textNode = GetRegistry().get<NodeComponent>(m_textEntity);
+		textNode.SetPosition({ m_textPadding.x, textAreaWidget->GetHeight() - m_textPadding.y - textSize.y });
+
+		UpdateCursorColor(textAreaWidget->HasFocus());
+	}
+
+	void SimpleTextAreaWidgetStyle::UpdateTextOffset(float offset)
+	{
+		auto& textNode = GetRegistry().get<NodeComponent>(m_textEntity);
+		textNode.SetPosition({ m_textPadding.x + offset, textNode.GetPosition().y });
+	}
+
+	void SimpleTextAreaWidgetStyle::UpdateCursorColor(bool hasFocus)
+	{
+		AbstractTextAreaWidget* textAreaWidget = GetOwnerWidget<AbstractTextAreaWidget>();
+
+		auto [cursorBegin, cursorEnd] = textAreaWidget->GetSelection();
+
+		if (cursorBegin == cursorEnd)
+		{
+			auto& registry = GetRegistry();
+
+			// Show or hide cursor depending on state
+			if (hasFocus)
+			{
+				if (!textAreaWidget->IsReadOnly())
+				{
+					for (auto& cursor : m_cursors)
+					{
+						cursor.sprite->SetColor(m_config.insertionCursorColor);
+						registry.get<GraphicsComponent>(cursor.entity).Show();
+					}
+				}
+			}
+			else
+			{
+				for (auto& cursor : m_cursors)
+					registry.get<GraphicsComponent>(cursor.entity).Hide();
+			}
+		}
+		else
+		{
+			const Color& color = (hasFocus) ? m_config.selectionCursorColor : m_config.selectionCursorColorNoFocus;
+			for (auto& cursor : m_cursors)
+				cursor.sprite->SetColor(color);
+		}
 	}
 }

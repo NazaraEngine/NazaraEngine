@@ -12,6 +12,8 @@
 #include <Nazara/Graphics/TextSprite.hpp>
 #include <Nazara/Widgets/WidgetTheme.hpp>
 #include <entt/entt.hpp>
+#include <memory>
+#include <vector>
 
 namespace Nz
 {
@@ -321,6 +323,67 @@ namespace Nz
 			entt::entity m_entity;
 			bool m_isHovered;
 			bool m_isPressed;
+	};
+
+	class NAZARA_WIDGETS_API SimpleTextAreaWidgetStyle : public TextAreaWidgetStyle
+	{
+		public:
+			struct StyleConfig;
+
+			SimpleTextAreaWidgetStyle(AbstractTextAreaWidget* textAreaWidget, StyleConfig config);
+			SimpleTextAreaWidgetStyle(const SimpleTextAreaWidgetStyle&) = delete;
+			SimpleTextAreaWidgetStyle(SimpleTextAreaWidgetStyle&&) = default;
+			~SimpleTextAreaWidgetStyle() = default;
+
+			void EnableBackground(bool enable) override;
+
+			void Layout(const Vector2f& size) override;
+
+			void OnDisabled() override;
+			void OnEnabled() override;
+			void OnFocusLost() override;
+			void OnFocusReceived() override;
+
+			void UpdateBackgroundColor(const Color& color) override;
+			void UpdateCursors(std::span<const Rectf> cursorRects) override;
+			void UpdateRenderLayer(int baseRenderLayer) override;
+			void UpdateText(const AbstractTextDrawer& drawer) override;
+			void UpdateTextOffset(float offset) override;
+
+			SimpleTextAreaWidgetStyle& operator=(const SimpleTextAreaWidgetStyle&) = delete;
+			SimpleTextAreaWidgetStyle& operator=(SimpleTextAreaWidgetStyle&&) = default;
+
+			struct StyleConfig
+			{
+				std::shared_ptr<MaterialInstance> backgroundMaterial;
+				std::shared_ptr<MaterialInstance> backgroundDisabledMaterial;
+				Color insertionCursorColor;
+				Color selectionCursorColor;
+				Color selectionCursorColorNoFocus;
+				Vector2f padding;
+				float backgroundCornerSize;
+				float backgroundCornerTexCoords;
+			};
+
+		private:
+			void UpdateCursorColor(bool hasFocus);
+
+			struct Cursor
+			{
+				std::shared_ptr<Sprite> sprite;
+				entt::entity entity;
+			};
+
+			StyleConfig m_config;
+			std::shared_ptr<SlicedSprite> m_backgroundSprite;
+			std::shared_ptr<TextSprite> m_textSprite;
+			std::vector<Cursor> m_cursors;
+			entt::entity m_backgroundEntity;
+			entt::entity m_textEntity;
+			Color m_backgroundColor;
+			bool m_hasFocus;
+			bool m_isDisabled;
+			int m_baseRenderLayer;
 	};
 }
 

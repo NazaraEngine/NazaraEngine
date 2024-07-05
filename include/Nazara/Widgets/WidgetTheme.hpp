@@ -8,14 +8,17 @@
 #define NAZARA_WIDGETS_WIDGETTHEME_HPP
 
 #include <Nazara/Graphics/Sprite.hpp>
+#include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <Nazara/Widgets/BaseWidget.hpp>
 #include <Nazara/Widgets/Enums.hpp>
+#include <span>
 
 namespace Nz
 {
 	class AbstractLabelWidget;
+	class AbstractTextAreaWidget;
 	class AbstractTextDrawer;
 	class ButtonWidget;
 	class ButtonWidgetStyle;
@@ -32,6 +35,7 @@ namespace Nz
 	class ScrollbarWidgetStyle;
 	class ScrollbarButtonWidget;
 	class ScrollbarButtonWidgetStyle;
+	class TextAreaWidgetStyle;
 
 	class NAZARA_WIDGETS_API WidgetTheme
 	{
@@ -51,6 +55,7 @@ namespace Nz
 			virtual std::unique_ptr<ScrollAreaWidgetStyle> CreateStyle(ScrollAreaWidget* scrollareaWidget) const = 0;
 			virtual std::unique_ptr<ScrollbarWidgetStyle> CreateStyle(ScrollbarWidget* scrollbarWidget) const = 0;
 			virtual std::unique_ptr<ScrollbarButtonWidgetStyle> CreateStyle(ScrollbarButtonWidget* scrollbarButtonWidget) const = 0;
+			virtual std::unique_ptr<TextAreaWidgetStyle> CreateStyle(AbstractTextAreaWidget* textAreaWidget) const = 0;
 
 			inline const Config& GetConfig() const;
 
@@ -59,20 +64,23 @@ namespace Nz
 
 			struct Config
 			{
-				std::shared_ptr<MaterialInstance> scrollbarButtonDownMaterial;
-				std::shared_ptr<MaterialInstance> scrollbarButtonDownHoveredMaterial;
-				std::shared_ptr<MaterialInstance> scrollbarButtonDownPressedMaterial;
-				std::shared_ptr<MaterialInstance> scrollbarButtonLeftMaterial;
-				std::shared_ptr<MaterialInstance> scrollbarButtonLeftHoveredMaterial;
-				std::shared_ptr<MaterialInstance> scrollbarButtonLeftPressedMaterial;
-				std::shared_ptr<MaterialInstance> scrollbarButtonRightMaterial;
-				std::shared_ptr<MaterialInstance> scrollbarButtonRightHoveredMaterial;
-				std::shared_ptr<MaterialInstance> scrollbarButtonRightPressedMaterial;
-				std::shared_ptr<MaterialInstance> scrollbarButtonUpMaterial;
-				std::shared_ptr<MaterialInstance> scrollbarButtonUpHoveredMaterial;
-				std::shared_ptr<MaterialInstance> scrollbarButtonUpPressedMaterial;
-				float scrollbarButtonCornerSize;
-				float scrollbarButtonCornerTexcoords;
+				struct
+				{
+					std::shared_ptr<MaterialInstance> buttonDownMaterial;
+					std::shared_ptr<MaterialInstance> buttonDownHoveredMaterial;
+					std::shared_ptr<MaterialInstance> buttonDownPressedMaterial;
+					std::shared_ptr<MaterialInstance> buttonLeftMaterial;
+					std::shared_ptr<MaterialInstance> buttonLeftHoveredMaterial;
+					std::shared_ptr<MaterialInstance> buttonLeftPressedMaterial;
+					std::shared_ptr<MaterialInstance> buttonRightMaterial;
+					std::shared_ptr<MaterialInstance> buttonRightHoveredMaterial;
+					std::shared_ptr<MaterialInstance> buttonRightPressedMaterial;
+					std::shared_ptr<MaterialInstance> buttonUpMaterial;
+					std::shared_ptr<MaterialInstance> buttonUpHoveredMaterial;
+					std::shared_ptr<MaterialInstance> buttonUpPressedMaterial;
+					float buttonCornerSize;
+					float buttonCornerTexcoords;
+				} scrollbar;
 			};
 
 		protected:
@@ -254,6 +262,40 @@ namespace Nz
 			ScrollbarButtonWidgetStyle& operator=(const ScrollbarButtonWidgetStyle&) = delete;
 			ScrollbarButtonWidgetStyle& operator=(ScrollbarButtonWidgetStyle&&) = default;
 	};
+	
+	class NAZARA_WIDGETS_API TextAreaWidgetStyle : public BaseWidgetStyle
+	{
+		public:
+			using BaseWidgetStyle::BaseWidgetStyle;
+			TextAreaWidgetStyle(const TextAreaWidgetStyle&) = delete;
+			TextAreaWidgetStyle(TextAreaWidgetStyle&&) = default;
+			~TextAreaWidgetStyle() = default;
+
+			virtual void EnableBackground(bool enable) = 0;
+
+			inline const Vector2f& GetTextPadding() const;
+
+			virtual void Layout(const Vector2f& size) = 0;
+
+			virtual void OnDisabled();
+			virtual void OnEnabled();
+			virtual void OnFocusLost();
+			virtual void OnFocusReceived();
+			virtual void OnHoverBegin();
+			virtual void OnHoverEnd();
+
+			virtual void UpdateBackgroundColor(const Color& color) = 0;
+			virtual void UpdateCursors(std::span<const Rectf> cursorRects) = 0;
+			virtual void UpdateText(const AbstractTextDrawer& drawer) = 0;
+			virtual void UpdateTextOffset(float offset) = 0;
+
+			TextAreaWidgetStyle& operator=(const TextAreaWidgetStyle&) = delete;
+			TextAreaWidgetStyle& operator=(TextAreaWidgetStyle&&) = default;
+
+		protected:
+			Vector2f m_textPadding;
+	};
+
 }
 
 #include <Nazara/Widgets/WidgetTheme.inl>

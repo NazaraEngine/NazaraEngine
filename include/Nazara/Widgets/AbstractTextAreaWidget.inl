@@ -2,9 +2,13 @@
 // This file is part of the "Nazara Engine - Widgets module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-
 namespace Nz
 {
+	inline void AbstractTextAreaWidget::Disable()
+	{
+		return Enable(false);
+	}
+
 	inline void AbstractTextAreaWidget::EnableMultiline(bool enable)
 	{
 		m_multiLineEnabled = enable;
@@ -93,9 +97,19 @@ namespace Nz
 		return m_maximumTextLength;
 	}
 
+	inline std::pair<Vector2ui, Vector2ui> AbstractTextAreaWidget::GetSelection() const
+	{
+		return { m_cursorPositionBegin, m_cursorPositionEnd };
+	}
+
 	inline bool AbstractTextAreaWidget::HasSelection() const
 	{
 		return m_cursorPositionBegin != m_cursorPositionEnd;
+	}
+
+	inline bool AbstractTextAreaWidget::IsEnabled() const
+	{
+		return m_isEnabled;
 	}
 
 	inline bool AbstractTextAreaWidget::IsLineWrapEnabled() const
@@ -210,7 +224,6 @@ namespace Nz
 	inline void AbstractTextAreaWidget::SetReadOnly(bool readOnly)
 	{
 		m_readOnly = readOnly;
-		//m_cursorEntity->Enable(!m_readOnly && HasFocus());
 	}
 
 	inline void AbstractTextAreaWidget::SetSelection(Vector2ui fromPosition, Vector2ui toPosition)
@@ -234,7 +247,6 @@ namespace Nz
 			m_cursorPositionEnd = NormalizeCursorPosition(toPosition);
 
 			RefreshCursorSize();
-			RefreshCursorColor();
 		}
 	}
 
@@ -259,7 +271,6 @@ namespace Nz
 		m_cursorPositionEnd = m_cursorPositionBegin;
 
 		RefreshCursorSize();
-		RefreshCursorColor();
 	}
 }
 

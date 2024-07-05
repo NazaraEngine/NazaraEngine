@@ -24,7 +24,8 @@ namespace Nz
 	m_isMouseInputEnabled(true),
 	m_visible(true),
 	m_baseRenderLayer(0),
-	m_renderLayerCount(1)
+	m_renderLayerCount(1),
+	m_renderLayoutOffset(0)
 	{
 	}
 
@@ -313,9 +314,18 @@ namespace Nz
 		SetMinimumSize(minimumSize);
 	}
 
+	inline void BaseWidget::SetRenderLayerOffset(int renderLayerOffset)
+	{
+		if (m_renderLayoutOffset == renderLayerOffset)
+			return;
+
+		m_renderLayoutOffset = renderLayerOffset;
+		UpdateRenderLayers();
+	}
+
 	inline int BaseWidget::GetBaseRenderLayer() const
 	{
-		return m_baseRenderLayer + ((m_backgroundEntity.has_value()) ? 1 : 0);
+		return m_baseRenderLayer + ((m_backgroundEntity.has_value()) ? 1 : 0) + m_renderLayoutOffset;
 	}
 
 	inline entt::registry& BaseWidget::GetRegistry()
@@ -335,13 +345,7 @@ namespace Nz
 		if (m_baseRenderLayer != baseRenderLayer)
 		{
 			m_baseRenderLayer = baseRenderLayer;
-			if (m_backgroundSprite)
-				m_backgroundSprite->UpdateRenderLayer(m_baseRenderLayer);
-
-			OnRenderLayerUpdated(GetBaseRenderLayer());
-
-			for (const auto& widgetPtr : m_widgetChilds)
-				widgetPtr->SetBaseRenderLayer(m_baseRenderLayer + m_renderLayerCount);
+			UpdateRenderLayers();
 		}
 	}
 

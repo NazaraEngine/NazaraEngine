@@ -109,10 +109,7 @@ namespace Nz
 			m_backgroundEntity.reset();
 		}
 
-		OnRenderLayerUpdated(GetBaseRenderLayer());
-
-		for (const auto& widgetPtr : m_widgetChilds)
-			widgetPtr->SetBaseRenderLayer(m_baseRenderLayer + m_renderLayerCount);
+		UpdateRenderLayers();
 	}
 
 	/*!
@@ -490,5 +487,17 @@ namespace Nz
 			if (GraphicsComponent* gfx = registry.try_get<GraphicsComponent>(widgetEntity.handle))
 				gfx->UpdateScissorBox(scissorBox);
 		}
+	}
+
+	void BaseWidget::UpdateRenderLayers()
+	{
+		int baseRenderLayer = GetBaseRenderLayer();
+		if (m_backgroundSprite)
+			m_backgroundSprite->UpdateRenderLayer(baseRenderLayer - 1);
+
+		OnRenderLayerUpdated(baseRenderLayer);
+
+		for (const auto& widgetPtr : m_widgetChilds)
+			widgetPtr->SetBaseRenderLayer(m_baseRenderLayer + m_renderLayerCount);
 	}
 }

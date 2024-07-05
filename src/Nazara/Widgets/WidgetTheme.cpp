@@ -121,4 +121,29 @@ namespace Nz
 	void ScrollbarButtonWidgetStyle::OnRelease()
 	{
 	}
+
+
+	void TextAreaWidgetStyle::OnDisabled()
+	{
+	}
+
+	void TextAreaWidgetStyle::OnEnabled()
+	{
+	}
+
+	void TextAreaWidgetStyle::OnFocusLost()
+	{
+	}
+
+	void TextAreaWidgetStyle::OnFocusReceived()
+	{
+	}
+
+	void TextAreaWidgetStyle::OnHoverBegin()
+	{
+	}
+
+	void TextAreaWidgetStyle::OnHoverEnd()
+	{
+	}
 }

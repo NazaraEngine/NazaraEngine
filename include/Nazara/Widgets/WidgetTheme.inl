@@ -55,5 +55,11 @@ namespace Nz
 	{
 		return m_renderLayerCount;
 	}
+
+
+	inline const Vector2f& TextAreaWidgetStyle::GetTextPadding() const
+	{
+		return m_textPadding;
+	}
 }
 

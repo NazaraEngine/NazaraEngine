@@ -65,8 +65,8 @@ int main(int argc, char* argv[])
 	Nz::TextAreaWidget* textAreaWidget = canvas2D.Add<Nz::TextAreaWidget>();
 	textAreaWidget->SetPosition({ 800.f, 500.f });
 	textAreaWidget->SetText("Je suis un TextAreaWidget !");
+	textAreaWidget->EnableBackground(true);
 	textAreaWidget->Resize(Nz::Vector2f(400.f, textAreaWidget->GetPreferredHeight() * 5.f));
-	textAreaWidget->SetBackgroundColor(Nz::Color::White());
 	textAreaWidget->SetTextColor(Nz::Color::Black());
 	textAreaWidget->EnableMultiline(true);
 
@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
 	Nz::TextAreaWidget* longTextArea = canvas2D.Add<Nz::TextAreaWidget>();
 	longTextArea->EnableLineWrap(true);
 	longTextArea->EnableMultiline(true);
-	longTextArea->SetBackgroundColor(Nz::Color::White());
+	longTextArea->EnableBackground(true);
 	longTextArea->SetTextColor(Nz::Color::Black());
 	longTextArea->SetText("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum");
 
@@ -88,9 +88,10 @@ int main(int argc, char* argv[])
 	scrollBarWidget->Resize({ 512.f, 256.f });
 
 	Nz::RichTextAreaWidget* textAreaWidget2 = canvas2D.Add<Nz::RichTextAreaWidget>();
+	textAreaWidget2->SetBackgroundColor(Nz::Color::Yellow());
 	textAreaWidget2->EnableMultiline(true);
+	textAreaWidget2->EnableBackground(true);
 	textAreaWidget2->SetPosition({ 1200.f, 100.f });
-	textAreaWidget2->SetBackgroundColor(Nz::Color::White());
 	textAreaWidget2->SetTextColor(Nz::Color::Black());
 
 	Nz::RichTextBuilder builder(textAreaWidget2);

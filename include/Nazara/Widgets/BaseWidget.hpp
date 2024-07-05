@@ -47,7 +47,7 @@ namespace Nz
 
 			void Destroy();
 
-			void EnableBackground(bool enable);
+			virtual void EnableBackground(bool enable);
 			inline void EnableMouseInput(bool enable);
 
 			template<typename F> void ForEachWidgetChild(F&& iterator, bool onlyVisible = true);
@@ -91,7 +91,7 @@ namespace Nz
 			std::unique_ptr<BaseWidget> ReleaseFromParent();
 			void Resize(const Vector2f& size);
 
-			void SetBackgroundColor(const Color& color);
+			virtual void SetBackgroundColor(const Color& color);
 			void SetCursor(SystemCursor systemCursor);
 			void SetFocus();
 
@@ -108,6 +108,7 @@ namespace Nz
 			inline void SetMinimumWidth(float minimumWidth);
 
 			virtual void SetRenderingRect(const Rectf& renderingRect);
+			inline void SetRenderLayerOffset(int renderLayerOffset);
 
 			void Show(bool show = true);
 
@@ -177,6 +178,7 @@ namespace Nz
 			inline void UpdateCanvasIndex(std::size_t index);
 			void UnregisterFromCanvas();
 			void UpdatePositionAndSize();
+			void UpdateRenderLayers();
 
 			struct WidgetEntity
 			{
@@ -209,6 +211,7 @@ namespace Nz
 			bool m_visible;
 			int m_baseRenderLayer;
 			int m_renderLayerCount;
+			int m_renderLayoutOffset;
 	};
 }
 

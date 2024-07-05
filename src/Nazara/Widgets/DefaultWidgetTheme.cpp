@@ -125,6 +125,14 @@ namespace Nz
 		constexpr UInt8 s_defaultThemeScrollbarHoveredImage[] = {
 			#include <Nazara/Widgets/Resources/DefaultTheme/ScrollbarCenterHovered.png.h>
 		};
+
+		constexpr UInt8 s_defaultThemeTextAreaBackgroundImage[] = {
+			#include <Nazara/Widgets/Resources/DefaultTheme/TextArea.png.h>
+		};
+
+		constexpr UInt8 s_defaultThemeTextAreaDisabledBackgroundImage[] = {
+			#include <Nazara/Widgets/Resources/DefaultTheme/TextAreaDisabled.png.h>
+		};
 	}
 
 	DefaultWidgetTheme::DefaultWidgetTheme()
@@ -159,29 +167,33 @@ namespace Nz
 		m_scrollbarBackgroundHorizontalMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarHorizontalBackgroundImage);
 		m_scrollbarBackgroundVerticalMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarVerticalBackgroundImage);
 
+		// TextArea
+		m_textBoxMaterial = CreateMaterialFromTexture(s_defaultThemeTextAreaBackgroundImage);
+		m_textBoxDisabledMaterial = CreateMaterialFromTexture(s_defaultThemeTextAreaDisabledBackgroundImage);
+
 		// Config
-		m_config.scrollbarButtonCornerSize = 0.f;
-		m_config.scrollbarButtonCornerTexcoords = 0.f;
+		m_config.scrollbar.buttonCornerSize = 0.f;
+		m_config.scrollbar.buttonCornerTexcoords = 0.f;
 
 		m_scrollbarButtonMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarCenterImage);
 		m_scrollbarButtonGrabbedMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarGrabbedImage);
 		m_scrollbarButtonHoveredMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarHoveredImage);
 
-		m_config.scrollbarButtonDownMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowDownImage);
-		m_config.scrollbarButtonDownHoveredMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowDownHoveredImage);
-		m_config.scrollbarButtonDownPressedMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowDownPressedImage);
+		m_config.scrollbar.buttonDownMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowDownImage);
+		m_config.scrollbar.buttonDownHoveredMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowDownHoveredImage);
+		m_config.scrollbar.buttonDownPressedMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowDownPressedImage);
 
-		m_config.scrollbarButtonLeftMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowLeftImage);
-		m_config.scrollbarButtonLeftHoveredMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowLeftHoveredImage);
-		m_config.scrollbarButtonLeftPressedMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowLeftPressedImage);
+		m_config.scrollbar.buttonLeftMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowLeftImage);
+		m_config.scrollbar.buttonLeftHoveredMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowLeftHoveredImage);
+		m_config.scrollbar.buttonLeftPressedMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowLeftPressedImage);
 
-		m_config.scrollbarButtonRightMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowRightImage);
-		m_config.scrollbarButtonRightHoveredMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowRightHoveredImage);
-		m_config.scrollbarButtonRightPressedMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowRightPressedImage);
+		m_config.scrollbar.buttonRightMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowRightImage);
+		m_config.scrollbar.buttonRightHoveredMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowRightHoveredImage);
+		m_config.scrollbar.buttonRightPressedMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowRightPressedImage);
 
-		m_config.scrollbarButtonUpMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowUpImage);
-		m_config.scrollbarButtonUpHoveredMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowUpHoveredImage);
-		m_config.scrollbarButtonUpPressedMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowUpPressedImage);
+		m_config.scrollbar.buttonUpMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowUpImage);
+		m_config.scrollbar.buttonUpHoveredMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowUpHoveredImage);
+		m_config.scrollbar.buttonUpPressedMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowUpPressedImage);
 	}
 
 	std::unique_ptr<ButtonWidgetStyle> DefaultWidgetTheme::CreateStyle(ButtonWidget* buttonWidget) const
@@ -195,7 +207,7 @@ namespace Nz
 		styleConfig.pressedHoveredMaterial = m_buttonPressedHoveredMaterial;
 		styleConfig.pressedMaterial = m_buttonPressedMaterial;
 
-		return std::make_unique<SimpleButtonWidgetStyle>(buttonWidget, styleConfig);
+		return std::make_unique<SimpleButtonWidgetStyle>(buttonWidget, std::move(styleConfig));
 	}
 
 	std::unique_ptr<CheckboxWidgetStyle> DefaultWidgetTheme::CreateStyle(CheckboxWidget* checkboxWidget) const
@@ -208,7 +220,7 @@ namespace Nz
 		styleConfig.checkMaterial = m_checkboxCheckMaterial;
 		styleConfig.tristateMaterial = m_checkboxTristateMaterial;
 
-		return std::make_unique<SimpleCheckboxWidgetStyle>(checkboxWidget, styleConfig);
+		return std::make_unique<SimpleCheckboxWidgetStyle>(checkboxWidget, std::move(styleConfig));
 	}
 
 	std::unique_ptr<ImageButtonWidgetStyle> DefaultWidgetTheme::CreateStyle(ImageButtonWidget* imageButtonWidget) const
@@ -218,7 +230,7 @@ namespace Nz
 		styleConfig.hoveredCornerTexCoords = 8.f / 64.f;
 		styleConfig.hoveredMaterial = m_hoveredMaterial;
 
-		return std::make_unique<SimpleImageButtonWidgetStyle>(imageButtonWidget, styleConfig);
+		return std::make_unique<SimpleImageButtonWidgetStyle>(imageButtonWidget, std::move(styleConfig));
 	}
 
 	std::unique_ptr<LabelWidgetStyle> DefaultWidgetTheme::CreateStyle(AbstractLabelWidget* labelWidget) const
@@ -236,7 +248,7 @@ namespace Nz
 		styleConfig.progressBarBeginColor = Nz::Color::DarkGreen();
 		styleConfig.progressBarEndColor = Nz::Color::Green();
 
-		return std::make_unique<SimpleProgressBarWidgetStyle>(progressBarWidget, styleConfig);
+		return std::make_unique<SimpleProgressBarWidgetStyle>(progressBarWidget, std::move(styleConfig));
 	}
 
 	std::unique_ptr<ScrollAreaWidgetStyle> DefaultWidgetTheme::CreateStyle(ScrollAreaWidget* scrollAreaWidget) const
@@ -250,7 +262,7 @@ namespace Nz
 		styleConfig.backgroundHorizontalMaterial = m_scrollbarBackgroundHorizontalMaterial;
 		styleConfig.backgroundVerticalMaterial = m_scrollbarBackgroundVerticalMaterial;
 
-		return std::make_unique<SimpleScrollbarWidgetStyle>(scrollBarWidget, styleConfig);
+		return std::make_unique<SimpleScrollbarWidgetStyle>(scrollBarWidget, std::move(styleConfig));
 	}
 
 	std::unique_ptr<ScrollbarButtonWidgetStyle> DefaultWidgetTheme::CreateStyle(ScrollbarButtonWidget* scrollbarButtonWidget) const
@@ -262,7 +274,21 @@ namespace Nz
 		styleConfig.hoveredMaterial = m_scrollbarButtonHoveredMaterial;
 		styleConfig.material = m_scrollbarButtonMaterial;
 
-		return std::make_unique<SimpleScrollbarButtonWidgetStyle>(scrollbarButtonWidget, styleConfig);
+		return std::make_unique<SimpleScrollbarButtonWidgetStyle>(scrollbarButtonWidget, std::move(styleConfig));
 	}
 
+	std::unique_ptr<TextAreaWidgetStyle> DefaultWidgetTheme::CreateStyle(AbstractTextAreaWidget* textAreaWidget) const
+	{
+		SimpleTextAreaWidgetStyle::StyleConfig styleConfig;
+		styleConfig.backgroundCornerSize = 20.f;
+		styleConfig.backgroundCornerTexCoords = 20.f / 64.f;
+		styleConfig.backgroundMaterial = m_textBoxMaterial;
+		styleConfig.backgroundDisabledMaterial = m_textBoxDisabledMaterial;
+		styleConfig.insertionCursorColor = Color::Black();
+		styleConfig.padding = { 10.f, 10.f };
+		styleConfig.selectionCursorColor = Color(0.f, 0.f, 0.f, 0.2f);
+		styleConfig.selectionCursorColorNoFocus = Color(0.5f, 0.5f, 0.5f, 0.2f);
+
+		return std::make_unique<SimpleTextAreaWidgetStyle>(textAreaWidget, std::move(styleConfig));
+	}
 }
