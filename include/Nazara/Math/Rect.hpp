@@ -93,7 +93,7 @@ namespace Nz
 	using Rectui64 = Rect<UInt64>;
 
 	template<typename T> bool Serialize(SerializationContext& context, const Rect<T>& rect, TypeTag<Rect<T>>);
-	template<typename T> bool Unserialize(SerializationContext& context, Rect<T>* rect, TypeTag<Rect<T>>);
+	template<typename T> bool Deserialize(SerializationContext& context, Rect<T>* rect, TypeTag<Rect<T>>);
 
 	template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Rect<T>& rect);
 }

@@ -55,7 +55,7 @@ namespace Nz
 			static constexpr OrientedBox Zero();
 
 			template<typename U> friend bool Serialize(SerializationContext& context, const OrientedBox<U>& obb, TypeTag<OrientedBox<U>>);
-			template<typename U> friend bool Unserialize(SerializationContext& context, OrientedBox<U>* obb, TypeTag<OrientedBox<U>>);
+			template<typename U> friend bool Deserialize(SerializationContext& context, OrientedBox<U>* obb, TypeTag<OrientedBox<U>>);
 
 			Box<T> localBox;
 

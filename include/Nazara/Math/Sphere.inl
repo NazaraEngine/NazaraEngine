@@ -523,25 +523,25 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Unserializes a Sphere
-	* \return true if successfully unserialized
+	* \brief Deserializes a Sphere
+	* \return true if successfully deserialized
 	*
 	* \param context Serialization context
 	* \param sphere Output Sphere
 	*/
 	template<typename T>
-	bool Unserialize(SerializationContext& context, Sphere<T>* sphere, TypeTag<Sphere<T>>)
+	bool Deserialize(SerializationContext& context, Sphere<T>* sphere, TypeTag<Sphere<T>>)
 	{
-		if (!Unserialize(context, &sphere->x))
+		if (!Deserialize(context, &sphere->x))
 			return false;
 
-		if (!Unserialize(context, &sphere->y))
+		if (!Deserialize(context, &sphere->y))
 			return false;
 
-		if (!Unserialize(context, &sphere->z))
+		if (!Deserialize(context, &sphere->z))
 			return false;
 
-		if (!Unserialize(context, &sphere->radius))
+		if (!Deserialize(context, &sphere->radius))
 			return false;
 
 		return true;

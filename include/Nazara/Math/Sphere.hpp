@@ -81,7 +81,7 @@ namespace Nz
 	using Spheref = Sphere<float>;
 
 	template<typename T> bool Serialize(SerializationContext& context, const Sphere<T>& sphere, TypeTag<Sphere<T>>);
-	template<typename T> bool Unserialize(SerializationContext& context, Sphere<T>* sphere, TypeTag<Sphere<T>>);
+	template<typename T> bool Deserialize(SerializationContext& context, Sphere<T>* sphere, TypeTag<Sphere<T>>);
 
 	template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Sphere<T>& sphere);
 }

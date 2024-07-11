@@ -618,18 +618,18 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Unserializes a Frustum
-	* \return true if successfully unserialized
+	* \brief Deserializes a Frustum
+	* \return true if successfully deserialized
 	*
 	* \param context Serialization context
 	* \param matrix Output frustum
 	*/
 	template<typename T>
-	bool Unserialize(SerializationContext& context, Frustum<T>* frustum, TypeTag<Frustum<T>>)
+	bool Deserialize(SerializationContext& context, Frustum<T>* frustum, TypeTag<Frustum<T>>)
 	{
 		for (auto& plane : frustum->m_planes)
 		{
-			if (!Unserialize(context, &plane))
+			if (!Deserialize(context, &plane))
 				return false;
 		}
 

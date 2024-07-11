@@ -6,83 +6,83 @@
 
 namespace Nz
 {
-	bool Unserialize(SerializationContext& context, DDSHeader* header)
+	bool Deserialize(SerializationContext& context, DDSHeader* header)
 	{
-		if (!Unserialize(context, &header->size))
+		if (!Deserialize(context, &header->size))
 			return false;
-		if (!Unserialize(context, &header->flags))
+		if (!Deserialize(context, &header->flags))
 			return false;
-		if (!Unserialize(context, &header->height))
+		if (!Deserialize(context, &header->height))
 			return false;
-		if (!Unserialize(context, &header->width))
+		if (!Deserialize(context, &header->width))
 			return false;
-		if (!Unserialize(context, &header->pitch))
+		if (!Deserialize(context, &header->pitch))
 			return false;
-		if (!Unserialize(context, &header->depth))
+		if (!Deserialize(context, &header->depth))
 			return false;
-		if (!Unserialize(context, &header->levelCount))
+		if (!Deserialize(context, &header->levelCount))
 			return false;
 
 		for (unsigned int i = 0; i < CountOf(header->reserved1); ++i)
 		{
-			if (!Unserialize(context, &header->reserved1[i]))
+			if (!Deserialize(context, &header->reserved1[i]))
 				return false;
 		}
 
-		if (!Unserialize(context, &header->format))
+		if (!Deserialize(context, &header->format))
 			return false;
 
 		for (unsigned int i = 0; i < CountOf(header->ddsCaps); ++i)
 		{
-			if (!Unserialize(context, &header->ddsCaps[i]))
+			if (!Deserialize(context, &header->ddsCaps[i]))
 				return false;
 		}
 
-		if (!Unserialize(context, &header->reserved2))
+		if (!Deserialize(context, &header->reserved2))
 			return false;
 
 		return true;
 	}
 
-	bool Unserialize(SerializationContext& context, DDSHeaderDX10Ext* header)
+	bool Deserialize(SerializationContext& context, DDSHeaderDX10Ext* header)
 	{
 		UInt32 enumValue;
 
-		if (!Unserialize(context, &enumValue))
+		if (!Deserialize(context, &enumValue))
 			return false;
 		header->dxgiFormat = static_cast<DXGI_FORMAT>(enumValue);
 
-		if (!Unserialize(context, &enumValue))
+		if (!Deserialize(context, &enumValue))
 			return false;
 		header->resourceDimension = static_cast<D3D10_RESOURCE_DIMENSION>(enumValue);
 
-		if (!Unserialize(context, &header->miscFlag))
+		if (!Deserialize(context, &header->miscFlag))
 			return false;
-		if (!Unserialize(context, &header->arraySize))
+		if (!Deserialize(context, &header->arraySize))
 			return false;
-		if (!Unserialize(context, &header->reserved))
+		if (!Deserialize(context, &header->reserved))
 			return false;
 
 		return true;
 	}
 
-	bool Unserialize(SerializationContext& context, DDSPixelFormat* pixelFormat)
+	bool Deserialize(SerializationContext& context, DDSPixelFormat* pixelFormat)
 	{
-		if (!Unserialize(context, &pixelFormat->size))
+		if (!Deserialize(context, &pixelFormat->size))
 			return false;
-		if (!Unserialize(context, &pixelFormat->flags))
+		if (!Deserialize(context, &pixelFormat->flags))
 			return false;
-		if (!Unserialize(context, &pixelFormat->fourCC))
+		if (!Deserialize(context, &pixelFormat->fourCC))
 			return false;
-		if (!Unserialize(context, &pixelFormat->bpp))
+		if (!Deserialize(context, &pixelFormat->bpp))
 			return false;
-		if (!Unserialize(context, &pixelFormat->redMask))
+		if (!Deserialize(context, &pixelFormat->redMask))
 			return false;
-		if (!Unserialize(context, &pixelFormat->greenMask))
+		if (!Deserialize(context, &pixelFormat->greenMask))
 			return false;
-		if (!Unserialize(context, &pixelFormat->blueMask))
+		if (!Deserialize(context, &pixelFormat->blueMask))
 			return false;
-		if (!Unserialize(context, &pixelFormat->alphaMask))
+		if (!Deserialize(context, &pixelFormat->alphaMask))
 			return false;
 
 		return true;

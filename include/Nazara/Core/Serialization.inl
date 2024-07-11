@@ -40,7 +40,7 @@ namespace Nz
 	* \param context Context for the serialization
 	* \param value Boolean to serialize
 	*
-	* \see Serialize, Unserialize
+	* \see Serialize, Deserialize
 	*/
 	inline bool Serialize(SerializationContext& context, bool value, TypeTag<bool>)
 	{
@@ -83,7 +83,7 @@ namespace Nz
 	* \param context Context for the serialization
 	* \param value Arithmetic type to serialize
 	*
-	* \see Serialize, Unserialize
+	* \see Serialize, Deserialize
 	*/
 	template<typename T>
 	std::enable_if_t<std::is_arithmetic<T>::value, bool> Serialize(SerializationContext& context, T value, TypeTag<T>)
@@ -99,26 +99,26 @@ namespace Nz
 
 
 	template<typename T>
-	bool Unserialize(SerializationContext& context, T* value)
+	bool Deserialize(SerializationContext& context, T* value)
 	{
-		return Unserialize(context, value, TypeTag<T>());
+		return Deserialize(context, value, TypeTag<T>());
 	}
 
 	/*!
 	* \ingroup core
-	* \brief Unserializes a boolean
+	* \brief Deserializes a boolean
 	* \return true if unserialization succedeed
 	*
 	* \param context Context for the unserialization
-	* \param value Pointer to boolean to unserialize
+	* \param value Pointer to boolean to deserialize
 	*
-	* \see Serialize, Unserialize
+	* \see Serialize, Deserialize
 	*/
-	inline bool Unserialize(SerializationContext& context, bool* value, TypeTag<bool>)
+	inline bool Deserialize(SerializationContext& context, bool* value, TypeTag<bool>)
 	{
 		if (context.readBitPos == 8)
 		{
-			if (!Unserialize(context, &context.readByte, TypeTag<UInt8>()))
+			if (!Deserialize(context, &context.readByte, TypeTag<UInt8>()))
 				return false;
 
 			context.readBitPos = 0;
@@ -133,16 +133,16 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Unserializes a string
+	* \brief Deserializes a string
 	* \return true if successful
 	*
 	* \param context Context of unserialization
-	* \param string std::string to unserialize
+	* \param string std::string to deserialize
 	*/
-	bool Unserialize(SerializationContext& context, std::string* string, TypeTag<std::string>)
+	bool Deserialize(SerializationContext& context, std::string* string, TypeTag<std::string>)
 	{
 		UInt32 size;
-		if (!Unserialize(context, &size, TypeTag<UInt32>()))
+		if (!Deserialize(context, &size, TypeTag<UInt32>()))
 			return false;
 
 		string->resize(size);
@@ -151,7 +151,7 @@ namespace Nz
 
 	/*!
 	* \ingroup core
-	* \brief Unserializes an arithmetic type
+	* \brief Deserializes an arithmetic type
 	* \return true if unserialization succedeed
 	*
 	* \param context Context for the unserialization
@@ -159,10 +159,10 @@ namespace Nz
 	*
 	* \remark Produce a NazaraAssert if pointer to value is invalid
 	*
-	* \see Serialize, Unserialize
+	* \see Serialize, Deserialize
 	*/
 	template<typename T>
-	std::enable_if_t<std::is_arithmetic<T>::value, bool> Unserialize(SerializationContext& context, T* value, TypeTag<T>)
+	std::enable_if_t<std::is_arithmetic<T>::value, bool> Deserialize(SerializationContext& context, T* value, TypeTag<T>)
 	{
 		NazaraAssert(value, "Invalid data pointer");
 

@@ -307,22 +307,22 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Unserializes a EulerAngles
-	* \return true if successfully unserialized
+	* \brief Deserializes a EulerAngles
+	* \return true if successfully deserialized
 	*
 	* \param context Serialization context
 	* \param angles Output euler angles
 	*/
 	template<typename T>
-	bool Unserialize(SerializationContext& context, EulerAngles<T>* angles, TypeTag<EulerAngles<T>>)
+	bool Deserialize(SerializationContext& context, EulerAngles<T>* angles, TypeTag<EulerAngles<T>>)
 	{
-		if (!Unserialize(context, &angles->pitch))
+		if (!Deserialize(context, &angles->pitch))
 			return false;
 
-		if (!Unserialize(context, &angles->yaw))
+		if (!Deserialize(context, &angles->yaw))
 			return false;
 
-		if (!Unserialize(context, &angles->roll))
+		if (!Deserialize(context, &angles->roll))
 			return false;
 
 		return true;

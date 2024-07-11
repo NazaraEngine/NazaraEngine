@@ -100,7 +100,7 @@ namespace Nz
 	using Boxui32 = Box<UInt32>;
 
 	template<typename T> bool Serialize(SerializationContext& context, const Box<T>& box, TypeTag<Box<T>>);
-	template<typename T> bool Unserialize(SerializationContext& context, Box<T>* box, TypeTag<Box<T>>);
+	template<typename T> bool Deserialize(SerializationContext& context, Box<T>* box, TypeTag<Box<T>>);
 
 	template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Box<T>& box);
 }

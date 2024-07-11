@@ -774,16 +774,16 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Unserializes an Angle
-	* \return true if successfully unserialized
+	* \brief Deserializes an Angle
+	* \return true if successfully deserialized
 	*
 	* \param context Serialization context
 	* \param angle Output Angle
 	*/
 	template<AngleUnit Unit, typename T>
-	bool Unserialize(SerializationContext& context, Angle<Unit, T>* angle, TypeTag<Angle<Unit, T>>)
+	bool Deserialize(SerializationContext& context, Angle<Unit, T>* angle, TypeTag<Angle<Unit, T>>)
 	{
-		if (!Unserialize(context, &angle->value))
+		if (!Deserialize(context, &angle->value))
 			return false;
 
 		return true;

@@ -74,7 +74,7 @@ namespace Nz
 			static Frustum Extract(const Matrix4<T>& viewProjMatrix);
 
 			template<typename U> friend bool Serialize(SerializationContext& context, const Frustum<U>& frustum, TypeTag<Frustum<U>>);
-			template<typename U> friend bool Unserialize(SerializationContext& context, Frustum<U>* frustum, TypeTag<Frustum<U>>);
+			template<typename U> friend bool Deserialize(SerializationContext& context, Frustum<U>* frustum, TypeTag<Frustum<U>>);
 
 		private:
 			EnumArray<FrustumPlane, Plane<T>> m_planes;

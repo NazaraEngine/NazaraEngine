@@ -230,21 +230,21 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Unserializes a Matrix4
-	* \return true if successfully unserialized
+	* \brief Deserializes a Matrix4
+	* \return true if successfully deserialized
 	*
 	* \param context Serialization context
 	* \param obb Output oriented box
 	*/
 	template<typename T>
-	bool Unserialize(SerializationContext& context, OrientedBox<T>* obb, TypeTag<OrientedBox<T>>)
+	bool Deserialize(SerializationContext& context, OrientedBox<T>* obb, TypeTag<OrientedBox<T>>)
 	{
-		if (!Unserialize(context, &obb->localBox))
+		if (!Deserialize(context, &obb->localBox))
 			return false;
 
 		for (auto&& corner : obb->m_corners)
 		{
-			if (!Unserialize(context, &corner))
+			if (!Deserialize(context, &corner))
 				return false;
 		}
 

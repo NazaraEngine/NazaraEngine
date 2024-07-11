@@ -641,25 +641,25 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Unserializes a Rect
-	* \return true if successfully unserialized
+	* \brief Deserializes a Rect
+	* \return true if successfully deserialized
 	*
 	* \param context Serialization context
 	* \param rect Output Rect
 	*/
 	template<typename T>
-	bool Unserialize(SerializationContext& context, Rect<T>* rect, TypeTag<Rect<T>>)
+	bool Deserialize(SerializationContext& context, Rect<T>* rect, TypeTag<Rect<T>>)
 	{
-		if (!Unserialize(context, &rect->x))
+		if (!Deserialize(context, &rect->x))
 			return false;
 
-		if (!Unserialize(context, &rect->y))
+		if (!Deserialize(context, &rect->y))
 			return false;
 
-		if (!Unserialize(context, &rect->width))
+		if (!Deserialize(context, &rect->width))
 			return false;
 
-		if (!Unserialize(context, &rect->height))
+		if (!Deserialize(context, &rect->height))
 			return false;
 
 		return true;

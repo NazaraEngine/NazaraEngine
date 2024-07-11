@@ -219,9 +219,9 @@ namespace Nz
 		return true;
 	}
 
-	inline bool Unserialize(SerializationContext& context, Time* time, TypeTag<Time>)
+	inline bool Deserialize(SerializationContext& context, Time* time, TypeTag<Time>)
 	{
-		if (!Unserialize(context, &time->m_nanoseconds))
+		if (!Deserialize(context, &time->m_nanoseconds))
 			return false;
 
 		return true;

@@ -369,9 +369,9 @@ namespace Nz
 		UInt32 reserved;
 	};
 
-	NAZARA_CORE_API bool Unserialize(SerializationContext& context, DDSHeader* header);
-	NAZARA_CORE_API bool Unserialize(SerializationContext& context, DDSHeaderDX10Ext* header);
-	NAZARA_CORE_API bool Unserialize(SerializationContext& context, DDSPixelFormat* pixelFormat);
+	NAZARA_CORE_API bool Deserialize(SerializationContext& context, DDSHeader* header);
+	NAZARA_CORE_API bool Deserialize(SerializationContext& context, DDSHeaderDX10Ext* header);
+	NAZARA_CORE_API bool Deserialize(SerializationContext& context, DDSPixelFormat* pixelFormat);
 }
 
 #endif // NAZARA_CORE_FORMATS_DDSCONSTANTS_HPP

@@ -292,19 +292,19 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Unserializes a Plane
-	* \return true if successfully unserialized
+	* \brief Deserializes a Plane
+	* \return true if successfully deserialized
 	*
 	* \param context Serialization context
 	* \param plane Output Plane
 	*/
 	template<typename T>
-	bool Unserialize(SerializationContext& context, Plane<T>* plane, TypeTag<Plane<T>>)
+	bool Deserialize(SerializationContext& context, Plane<T>* plane, TypeTag<Plane<T>>)
 	{
-		if (!Unserialize(context, &plane->normal))
+		if (!Deserialize(context, &plane->normal))
 			return false;
 
-		if (!Unserialize(context, &plane->distance))
+		if (!Deserialize(context, &plane->distance))
 			return false;
 
 		return true;

@@ -746,24 +746,24 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Unserializes a Color
-	* \return true if successfully unserialized
+	* \brief Deserializes a Color
+	* \return true if successfully deserialized
 	*
 	* \param context Serialization context
 	* \param color Output color
 	*/
-	inline bool Unserialize(SerializationContext& context, Color* color, TypeTag<Color>)
+	inline bool Deserialize(SerializationContext& context, Color* color, TypeTag<Color>)
 	{
-		if (!Unserialize(context, &color->r))
+		if (!Deserialize(context, &color->r))
 			return false;
 
-		if (!Unserialize(context, &color->g))
+		if (!Deserialize(context, &color->g))
 			return false;
 
-		if (!Unserialize(context, &color->b))
+		if (!Deserialize(context, &color->b))
 			return false;
 
-		if (!Unserialize(context, &color->a))
+		if (!Deserialize(context, &color->a))
 			return false;
 
 		return true;

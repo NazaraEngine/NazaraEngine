@@ -74,7 +74,7 @@ namespace Nz
 			friend NAZARA_CORE_API std::ostream& operator<<(std::ostream& out, Time time);
 
 			friend inline bool Serialize(SerializationContext& context, Time time, TypeTag<Time>);
-			friend inline bool Unserialize(SerializationContext& context, Time* time, TypeTag<Time>);
+			friend inline bool Deserialize(SerializationContext& context, Time* time, TypeTag<Time>);
 
 		private:
 			constexpr explicit Time(Int64 nanoseconds);

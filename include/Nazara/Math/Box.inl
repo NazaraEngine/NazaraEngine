@@ -776,31 +776,31 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Unserializes a Box
-	* \return true if successfully unserialized
+	* \brief Deserializes a Box
+	* \return true if successfully deserialized
 	*
 	* \param context Serialization context
 	* \param box Output Box
 	*/
 	template<typename T>
-	bool Unserialize(SerializationContext& context, Box<T>* box, TypeTag<Box<T>>)
+	bool Deserialize(SerializationContext& context, Box<T>* box, TypeTag<Box<T>>)
 	{
-		if (!Unserialize(context, &box->x))
+		if (!Deserialize(context, &box->x))
 			return false;
 
-		if (!Unserialize(context, &box->y))
+		if (!Deserialize(context, &box->y))
 			return false;
 
-		if (!Unserialize(context, &box->z))
+		if (!Deserialize(context, &box->z))
 			return false;
 
-		if (!Unserialize(context, &box->width))
+		if (!Deserialize(context, &box->width))
 			return false;
 
-		if (!Unserialize(context, &box->height))
+		if (!Deserialize(context, &box->height))
 			return false;
 
-		if (!Unserialize(context, &box->depth))
+		if (!Deserialize(context, &box->depth))
 			return false;
 
 		return true;

@@ -39,7 +39,7 @@ namespace Nz
 	inline bool HashAppend(AbstractHash* hash, std::string_view v);
 
 	template<typename T>
-	std::enable_if_t<std::is_arithmetic<T>::value, bool> Unserialize(SerializationContext& context, T* value, TypeTag<T>);
+	std::enable_if_t<std::is_arithmetic<T>::value, bool> Deserialize(SerializationContext& context, T* value, TypeTag<T>);
 
 	// Vertex processing
 	class Joint;

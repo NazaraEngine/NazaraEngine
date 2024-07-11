@@ -984,22 +984,22 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Unserializes a Vector3
-	* \return true if successfully unserialized
+	* \brief Deserializes a Vector3
+	* \return true if successfully deserialized
 	*
 	* \param context Serialization context
 	* \param vector Output Vector3
 	*/
 	template<typename T>
-	bool Unserialize(SerializationContext& context, Vector3<T>* vector, TypeTag<Vector3<T>>)
+	bool Deserialize(SerializationContext& context, Vector3<T>* vector, TypeTag<Vector3<T>>)
 	{
-		if (!Unserialize(context, &vector->x))
+		if (!Deserialize(context, &vector->x))
 			return false;
 
-		if (!Unserialize(context, &vector->y))
+		if (!Deserialize(context, &vector->y))
 			return false;
 
-		if (!Unserialize(context, &vector->z))
+		if (!Deserialize(context, &vector->z))
 			return false;
 
 		return true;

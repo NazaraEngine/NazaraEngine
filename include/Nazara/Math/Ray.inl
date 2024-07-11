@@ -585,19 +585,19 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Unserializes a Ray
-	* \return true if successfully unserialized
+	* \brief Deserializes a Ray
+	* \return true if successfully deserialized
 	*
 	* \param context Serialization context
 	* \param ray Output Ray
 	*/
 	template<typename T>
-	bool Unserialize(SerializationContext& context, Ray<T>* ray, TypeTag<Ray<T>>)
+	bool Deserialize(SerializationContext& context, Ray<T>* ray, TypeTag<Ray<T>>)
 	{
-		if (!Unserialize(context, &ray->origin))
+		if (!Deserialize(context, &ray->origin))
 			return false;
 
-		if (!Unserialize(context, &ray->direction))
+		if (!Deserialize(context, &ray->direction))
 			return false;
 
 		return true;

@@ -115,7 +115,7 @@ namespace Nz
 	template<AngleUnit Unit, typename T> std::ostream& operator<<(std::ostream& out, Angle<Unit, T> angle);
 
 	template<AngleUnit Unit, typename T> bool Serialize(SerializationContext& context, Angle<Unit, T> angle, TypeTag<Angle<Unit, T>>);
-	template<AngleUnit Unit, typename T> bool Unserialize(SerializationContext& context, Angle<Unit, T>* angle, TypeTag<Angle<Unit, T>>);
+	template<AngleUnit Unit, typename T> bool Deserialize(SerializationContext& context, Angle<Unit, T>* angle, TypeTag<Angle<Unit, T>>);
 }
 
 #include <Nazara/Math/Angle.inl>

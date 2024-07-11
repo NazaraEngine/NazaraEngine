@@ -69,7 +69,7 @@ namespace Nz
 	using BoundingVolumef = BoundingVolume<float>;
 
 	template<typename T> bool Serialize(SerializationContext& context, const BoundingVolume<T>& boundingVolume, TypeTag<BoundingVolume<T>>);
-	template<typename T> bool Unserialize(SerializationContext& context, BoundingVolume<T>* boundingVolume, TypeTag<BoundingVolume<T>>);
+	template<typename T> bool Deserialize(SerializationContext& context, BoundingVolume<T>* boundingVolume, TypeTag<BoundingVolume<T>>);
 
 	template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::BoundingVolume<T>& volume);
 }

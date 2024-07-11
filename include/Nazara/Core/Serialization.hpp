@@ -41,13 +41,13 @@ namespace Nz
 	std::enable_if_t<std::is_arithmetic<T>::value, bool> Serialize(SerializationContext& context, T value, TypeTag<T>);
 
 	template<typename T>
-	bool Unserialize(SerializationContext& context, T* value);
+	bool Deserialize(SerializationContext& context, T* value);
 
-	inline bool Unserialize(SerializationContext& context, bool* value, TypeTag<bool>);
-	inline bool Unserialize(SerializationContext& context, std::string* value, TypeTag<std::string>);
+	inline bool Deserialize(SerializationContext& context, bool* value, TypeTag<bool>);
+	inline bool Deserialize(SerializationContext& context, std::string* value, TypeTag<std::string>);
 
 	template<typename T>
-	std::enable_if_t<std::is_arithmetic<T>::value, bool> Unserialize(SerializationContext& context, T* value, TypeTag<T>);
+	std::enable_if_t<std::is_arithmetic<T>::value, bool> Deserialize(SerializationContext& context, T* value, TypeTag<T>);
 }
 
 #include <Nazara/Core/Serialization.inl>

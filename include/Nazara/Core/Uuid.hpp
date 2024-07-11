@@ -50,7 +50,7 @@ namespace Nz
 	constexpr bool operator>=(const Uuid& lhs, const Uuid& rhs);
 
 	inline bool Serialize(SerializationContext& context, const Uuid& value, TypeTag<Uuid>);
-	inline bool Unserialize(SerializationContext& context, Uuid* value, TypeTag<Uuid>);
+	inline bool Deserialize(SerializationContext& context, Uuid* value, TypeTag<Uuid>);
 }
 
 namespace std

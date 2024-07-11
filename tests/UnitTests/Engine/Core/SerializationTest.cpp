@@ -28,7 +28,7 @@ SCENARIO("Serialization", "[CORE][SERIALIZATION]")
 				REQUIRE(Serialize(context, 3));
 				int value = 0;
 				context.stream->SetCursorPos(0);
-				REQUIRE(Unserialize(context, &value));
+				REQUIRE(Deserialize(context, &value));
 				REQUIRE(value == 3);
 			}
 
@@ -39,7 +39,7 @@ SCENARIO("Serialization", "[CORE][SERIALIZATION]")
 				context.FlushBits(); //< Don't forget to flush bits (it is NOT done by the stream)
 				context.stream->SetCursorPos(0);
 				bool value = false;
-				REQUIRE(Unserialize(context, &value));
+				REQUIRE(Deserialize(context, &value));
 				REQUIRE(value == true);
 			}
 		}
@@ -55,7 +55,7 @@ SCENARIO("Serialization", "[CORE][SERIALIZATION]")
 				nullVolume = Nz::BoundingVolumef::Infinite();
 				REQUIRE(nullVolume != copy);
 				context.stream->SetCursorPos(0);
-				REQUIRE(Unserialize(context, &nullVolume));
+				REQUIRE(Deserialize(context, &nullVolume));
 				REQUIRE(nullVolume == copy);
 			}
 
@@ -68,7 +68,7 @@ SCENARIO("Serialization", "[CORE][SERIALIZATION]")
 				zeroBox = Nz::Boxf(1, 1, 1, 1, 1, 1);
 				REQUIRE(zeroBox != copy);
 				context.stream->SetCursorPos(0);
-				REQUIRE(Unserialize(context, &zeroBox));
+				REQUIRE(Deserialize(context, &zeroBox));
 				REQUIRE(zeroBox == copy);
 			}
 
@@ -81,7 +81,7 @@ SCENARIO("Serialization", "[CORE][SERIALIZATION]")
 				zeroEuler = Nz::EulerAnglesf(10, 24, 6); // Random values
 				REQUIRE(zeroEuler != copy);
 				context.stream->SetCursorPos(0);
-				REQUIRE(Unserialize(context, &zeroEuler));
+				REQUIRE(Deserialize(context, &zeroEuler));
 				REQUIRE(zeroEuler == copy);
 			}
 
@@ -95,7 +95,7 @@ SCENARIO("Serialization", "[CORE][SERIALIZATION]")
 				for (std::size_t i = 0; i < Nz::FrustumPlaneCount; ++i)
 					REQUIRE(frustum.GetPlane(static_cast<Nz::FrustumPlane>(i)) != copy.GetPlane(static_cast<Nz::FrustumPlane>(i)));
 				context.stream->SetCursorPos(0);
-				REQUIRE(Unserialize(context, &frustum));
+				REQUIRE(Deserialize(context, &frustum));
 				for (std::size_t i = 0; i < Nz::FrustumPlaneCount; ++i)
 					REQUIRE(frustum.GetPlane(static_cast<Nz::FrustumPlane>(i)) == copy.GetPlane(static_cast<Nz::FrustumPlane>(i)));
 			}
@@ -109,7 +109,7 @@ SCENARIO("Serialization", "[CORE][SERIALIZATION]")
 				zeroMatrix = Nz::Matrix4f::Identity(); // Random values
 				REQUIRE(zeroMatrix != copy);
 				context.stream->SetCursorPos(0);
-				REQUIRE(Unserialize(context, &zeroMatrix));
+				REQUIRE(Deserialize(context, &zeroMatrix));
 				REQUIRE(zeroMatrix == copy);
 			}
 
@@ -126,7 +126,7 @@ SCENARIO("Serialization", "[CORE][SERIALIZATION]")
 
 				REQUIRE(zeroOBB != copy);
 				context.stream->SetCursorPos(0);
-				REQUIRE(Unserialize(context, &zeroOBB));
+				REQUIRE(Deserialize(context, &zeroOBB));
 				REQUIRE(zeroOBB == copy);
 			}
 
@@ -139,7 +139,7 @@ SCENARIO("Serialization", "[CORE][SERIALIZATION]")
 				planeXY = Nz::Planef::YZ();
 				REQUIRE(planeXY != copy);
 				context.stream->SetCursorPos(0);
-				REQUIRE(Unserialize(context, &planeXY));
+				REQUIRE(Deserialize(context, &planeXY));
 				REQUIRE(planeXY == copy);
 			}
 
@@ -152,7 +152,7 @@ SCENARIO("Serialization", "[CORE][SERIALIZATION]")
 				quaternionIdentity = Nz::Quaternionf::Zero();
 				REQUIRE(quaternionIdentity != copy);
 				context.stream->SetCursorPos(0);
-				REQUIRE(Unserialize(context, &quaternionIdentity));
+				REQUIRE(Deserialize(context, &quaternionIdentity));
 				REQUIRE(quaternionIdentity == copy);
 			}
 
@@ -165,7 +165,7 @@ SCENARIO("Serialization", "[CORE][SERIALIZATION]")
 				axisX = Nz::Rayf::AxisY();
 				REQUIRE(axisX != copy);
 				context.stream->SetCursorPos(0);
-				REQUIRE(Unserialize(context, &axisX));
+				REQUIRE(Deserialize(context, &axisX));
 				REQUIRE(axisX == copy);
 			}
 
@@ -178,7 +178,7 @@ SCENARIO("Serialization", "[CORE][SERIALIZATION]")
 				zeroRect = Nz::Rectf(1, 1, 1, 1); // Random values
 				REQUIRE(zeroRect != copy);
 				context.stream->SetCursorPos(0);
-				REQUIRE(Unserialize(context, &zeroRect));
+				REQUIRE(Deserialize(context, &zeroRect));
 				REQUIRE(zeroRect == copy);
 			}
 
@@ -191,7 +191,7 @@ SCENARIO("Serialization", "[CORE][SERIALIZATION]")
 				zeroSphere = Nz::Spheref::Unit();
 				REQUIRE(zeroSphere != copy);
 				context.stream->SetCursorPos(0);
-				REQUIRE(Unserialize(context, &zeroSphere));
+				REQUIRE(Deserialize(context, &zeroSphere));
 				REQUIRE(zeroSphere == copy);
 			}
 
@@ -204,7 +204,7 @@ SCENARIO("Serialization", "[CORE][SERIALIZATION]")
 				unitX = Nz::Vector2f::UnitY();
 				REQUIRE(unitX != copy);
 				context.stream->SetCursorPos(0);
-				REQUIRE(Unserialize(context, &unitX));
+				REQUIRE(Deserialize(context, &unitX));
 				REQUIRE(unitX == copy);
 			}
 
@@ -217,7 +217,7 @@ SCENARIO("Serialization", "[CORE][SERIALIZATION]")
 				unitX = Nz::Vector3f::UnitY();
 				REQUIRE(unitX != copy);
 				context.stream->SetCursorPos(0);
-				REQUIRE(Unserialize(context, &unitX));
+				REQUIRE(Deserialize(context, &unitX));
 				REQUIRE(unitX == copy);
 			}
 
@@ -230,7 +230,7 @@ SCENARIO("Serialization", "[CORE][SERIALIZATION]")
 				unitX = Nz::Vector4f::UnitY();
 				REQUIRE(unitX != copy);
 				context.stream->SetCursorPos(0);
-				REQUIRE(Unserialize(context, &unitX));
+				REQUIRE(Deserialize(context, &unitX));
 				REQUIRE(unitX == copy);
 			}
 		}
@@ -246,7 +246,7 @@ SCENARIO("Serialization", "[CORE][SERIALIZATION]")
 				red = Nz::Color::Black();
 				REQUIRE(red != copy);
 				context.stream->SetCursorPos(0);
-				REQUIRE(Unserialize(context, &red));
+				REQUIRE(Deserialize(context, &red));
 				REQUIRE(red == copy);
 			}
 
@@ -259,7 +259,7 @@ SCENARIO("Serialization", "[CORE][SERIALIZATION]")
 				string = "another";
 				REQUIRE(string != copy);
 				context.stream->SetCursorPos(0);
-				REQUIRE(Unserialize(context, &string));
+				REQUIRE(Deserialize(context, &string));
 				REQUIRE(string == copy);
 			}
 		}

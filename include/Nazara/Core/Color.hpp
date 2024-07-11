@@ -93,7 +93,7 @@ namespace Nz
 	};
 
 	inline bool Serialize(SerializationContext& context, const Color& color, TypeTag<Color>);
-	inline bool Unserialize(SerializationContext& context, Color* color, TypeTag<Color>);
+	inline bool Deserialize(SerializationContext& context, Color* color, TypeTag<Color>);
 
 	inline std::ostream& operator<<(std::ostream& out, const Color& color);
 

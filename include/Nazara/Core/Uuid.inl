@@ -138,7 +138,7 @@ namespace Nz
 		return true;
 	}
 
-	bool Unserialize(SerializationContext& context, Uuid* value, TypeTag<Uuid>)
+	bool Deserialize(SerializationContext& context, Uuid* value, TypeTag<Uuid>)
 	{
 		std::array<Nz::UInt8, 16> array;
 		if (context.stream->Read(array.data(), array.size()) != array.size())

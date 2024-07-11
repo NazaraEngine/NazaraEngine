@@ -133,7 +133,7 @@ namespace Nz
 	using Vector3ui64 = Vector3<UInt64>;
 
 	template<typename T> bool Serialize(SerializationContext& context, const Vector3<T>& vector, TypeTag<Vector3<T>>);
-	template<typename T> bool Unserialize(SerializationContext& context, Vector3<T>* vector, TypeTag<Vector3<T>>);
+	template<typename T> bool Deserialize(SerializationContext& context, Vector3<T>* vector, TypeTag<Vector3<T>>);
 
 	template<typename T> std::ostream& operator<<(std::ostream& out, const Vector3<T>& vec);
 

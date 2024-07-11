@@ -804,25 +804,25 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Unserializes a Quaternion
-	* \return true if successfully unserialized
+	* \brief Deserializes a Quaternion
+	* \return true if successfully deserialized
 	*
 	* \param context Serialization context
 	* \param quat Output Quaternion
 	*/
 	template<typename T>
-	bool Unserialize(SerializationContext& context, Quaternion<T>* quat, TypeTag<Quaternion<T>>)
+	bool Deserialize(SerializationContext& context, Quaternion<T>* quat, TypeTag<Quaternion<T>>)
 	{
-		if (!Unserialize(context, &quat->x))
+		if (!Deserialize(context, &quat->x))
 			return false;
 
-		if (!Unserialize(context, &quat->y))
+		if (!Deserialize(context, &quat->y))
 			return false;
 
-		if (!Unserialize(context, &quat->z))
+		if (!Deserialize(context, &quat->z))
 			return false;
 
-		if (!Unserialize(context, &quat->w))
+		if (!Deserialize(context, &quat->w))
 			return false;
 
 		return true;

@@ -75,7 +75,7 @@ namespace Nz
 	using Rayf = Ray<float>;
 
 	template<typename T> bool Serialize(SerializationContext& context, const Ray<T>& ray, TypeTag<Ray<T>>);
-	template<typename T> bool Unserialize(SerializationContext& context, Ray<T>* ray, TypeTag<Ray<T>>);
+	template<typename T> bool Deserialize(SerializationContext& context, Ray<T>* ray, TypeTag<Ray<T>>);
 
 	template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Ray<T>& vec);
 }

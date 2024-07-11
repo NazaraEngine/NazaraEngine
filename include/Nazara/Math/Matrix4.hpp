@@ -128,7 +128,7 @@ namespace Nz
 	using Matrix4f = Matrix4<float>;
 
 	template<typename T> bool Serialize(SerializationContext& context, const Matrix4<T>& matrix, TypeTag<Matrix4<T>>);
-	template<typename T> bool Unserialize(SerializationContext& context, Matrix4<T>* matrix, TypeTag<Matrix4<T>>);
+	template<typename T> bool Deserialize(SerializationContext& context, Matrix4<T>* matrix, TypeTag<Matrix4<T>>);
 
 	template<typename T> std::ostream& operator<<(std::ostream& out, const Matrix4<T>& matrix);
 

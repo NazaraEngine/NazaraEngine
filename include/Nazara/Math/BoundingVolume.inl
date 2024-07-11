@@ -434,8 +434,8 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Unserializes a BoundingVolume
-	* \return true if successfully unserialized
+	* \brief Deserializes a BoundingVolume
+	* \return true if successfully deserialized
 	*
 	* \param context Serialization context
 	* \param boundingVolume Output bounding volume
@@ -443,10 +443,10 @@ namespace Nz
 	* \remark The resulting oriented box corners will *not* be updated, a call to Update is required
 	*/
 	template<typename T>
-	bool Unserialize(SerializationContext& context, BoundingVolume<T>* boundingVolume, TypeTag<BoundingVolume<T>>)
+	bool Deserialize(SerializationContext& context, BoundingVolume<T>* boundingVolume, TypeTag<BoundingVolume<T>>)
 	{
 		UInt8 extend;
-		if (!Unserialize(context, &extend))
+		if (!Deserialize(context, &extend))
 			return false;
 
 		if (extend > UnderlyingCast(Extent::Max))
@@ -454,10 +454,10 @@ namespace Nz
 
 		boundingVolume->extent = static_cast<Extent>(extend);
 
-		if (!Unserialize(context, &boundingVolume->aabb))
+		if (!Deserialize(context, &boundingVolume->aabb))
 			return false;
 
-		if (!Unserialize(context, &boundingVolume->obb))
+		if (!Deserialize(context, &boundingVolume->obb))
 			return false;
 
 		return true;

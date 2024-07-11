@@ -157,7 +157,7 @@ namespace Nz
 	* \brief Outputs a data from the stream
 	* \return A reference to this
 	*
-	* \param value Value to unserialize
+	* \param value Value to deserialize
 	*
 	* \remark Produces a NazaraError if unserialization failed
 	*/
@@ -167,7 +167,7 @@ namespace Nz
 		if (!m_context.stream)
 			OnEmptyStream();
 
-		if (!Unserialize(m_context, &value))
+		if (!Deserialize(m_context, &value))
 			NazaraError("failed to serialize value");
 
 		return *this;

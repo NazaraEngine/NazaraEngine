@@ -1376,19 +1376,19 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Unserializes a Matrix4
-	* \return true if successfully unserialized
+	* \brief Deserializes a Matrix4
+	* \return true if successfully deserialized
 	*
 	* \param context Serialization context
 	* \param matrix Output matrix
 	*/
 	template<typename T>
-	bool Unserialize(SerializationContext& context, Matrix4<T>* matrix, TypeTag<Matrix4<T>>)
+	bool Deserialize(SerializationContext& context, Matrix4<T>* matrix, TypeTag<Matrix4<T>>)
 	{
 		T* head = &matrix->m11;
 		for (unsigned int i = 0; i < 16; ++i)
 		{
-			if (!Unserialize(context, head + i))
+			if (!Deserialize(context, head + i))
 				return false;
 		}
 

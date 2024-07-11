@@ -59,7 +59,7 @@ namespace Nz
 	using Planef = Plane<float>;
 
 	template<typename T> bool Serialize(SerializationContext& context, const Plane<T>& plane, TypeTag<Plane<T>>);
-	template<typename T> bool Unserialize(SerializationContext& context, Plane<T>* plane, TypeTag<Plane<T>>);
+	template<typename T> bool Deserialize(SerializationContext& context, Plane<T>* plane, TypeTag<Plane<T>>);
 
 	template<typename T> std::ostream& operator<<(std::ostream& out, const Nz::Plane<T>& plane);
 }
