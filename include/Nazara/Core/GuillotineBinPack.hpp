@@ -22,34 +22,32 @@ namespace Nz
 			enum FreeRectChoiceHeuristic : int;
 			enum GuillotineSplitHeuristic : int;
 
-			GuillotineBinPack();
-			GuillotineBinPack(unsigned int width, unsigned int height);
-			GuillotineBinPack(const Vector2ui& size);
+			inline GuillotineBinPack();
+			inline GuillotineBinPack(const Vector2ui32& size);
 			GuillotineBinPack(const GuillotineBinPack&) = default;
 			GuillotineBinPack(GuillotineBinPack&&) noexcept = default;
 			~GuillotineBinPack() = default;
 
-			void Clear();
+			inline void Clear();
 
-			void Expand(unsigned int newWidth, unsigned newHeight);
-			void Expand(const Vector2ui& newSize);
+			void Expand(const Vector2ui32& newSize);
 
-			void FreeRectangle(const Rectui& rect);
+			inline void FreeRectangle(const Rectui32& rect);
 
-			unsigned int GetHeight() const;
-			float GetOccupancy() const;
-			Vector2ui GetSize() const;
-			unsigned int GetWidth() const;
+			inline UInt32 GetHeight() const;
+			inline float GetOccupancy() const;
+			inline Vector2ui32 GetSize() const;
+			inline UInt32 GetUsedArea() const;
+			inline UInt32 GetWidth() const;
 
-			bool Insert(Rectui* rects, unsigned int count, bool merge, FreeRectChoiceHeuristic rectChoice, GuillotineSplitHeuristic splitMethod);
-			bool Insert(Rectui* rects, bool* flipped, unsigned int count, bool merge, FreeRectChoiceHeuristic rectChoice, GuillotineSplitHeuristic splitMethod);
-			bool Insert(Rectui* rects, bool* flipped, bool* inserted, unsigned int count, bool merge, FreeRectChoiceHeuristic rectChoice, GuillotineSplitHeuristic splitMethod);
+			inline bool Insert(Rectui32* rects, UInt32 count, bool merge, FreeRectChoiceHeuristic rectChoice, GuillotineSplitHeuristic splitMethod);
+			inline bool Insert(Rectui32* rects, bool* flipped, UInt32 count, bool merge, FreeRectChoiceHeuristic rectChoice, GuillotineSplitHeuristic splitMethod);
+			bool Insert(Rectui32* rects, bool* flipped, bool* inserted, UInt32 count, bool merge, FreeRectChoiceHeuristic rectChoice, GuillotineSplitHeuristic splitMethod);
 
 			bool MergeFreeRectangles();
 
-			void Reset();
-			void Reset(unsigned int width, unsigned int height);
-			void Reset(const Vector2ui& size);
+			inline void Reset();
+			inline void Reset(const Vector2ui32& size);
 
 			GuillotineBinPack& operator=(const GuillotineBinPack&) = default;
 			GuillotineBinPack& operator=(GuillotineBinPack&&) noexcept = default;
@@ -75,16 +73,18 @@ namespace Nz
 			};
 
 		private:
-			void SplitFreeRectAlongAxis(const Rectui& freeRect, const Rectui& placedRect, bool splitHorizontal);
-			void SplitFreeRectByHeuristic(const Rectui& freeRect, const Rectui& placedRect, GuillotineSplitHeuristic method);
+			void SplitFreeRectAlongAxis(const Rectui32& freeRect, const Rectui32& placedRect, bool splitHorizontal);
+			void SplitFreeRectByHeuristic(const Rectui32& freeRect, const Rectui32& placedRect, GuillotineSplitHeuristic method);
 
-			static int ScoreByHeuristic(int width, int height, const Rectui& freeRect, FreeRectChoiceHeuristic rectChoice);
+			static Int32 ScoreByHeuristic(Int32 width, Int32 height, const Rectui32& freeRect, FreeRectChoiceHeuristic rectChoice);
 
-			std::vector<Rectui> m_freeRectangles;
-			unsigned int m_height;
-			unsigned int m_usedArea;
-			unsigned int m_width;
+			std::vector<Rectui32> m_freeRectangles;
+			UInt32 m_height;
+			UInt32 m_usedArea;
+			UInt32 m_width;
 	};
 }
+
+#include <Nazara/Core/GuillotineBinPack.inl>
 
 #endif // NAZARA_CORE_GUILLOTINEBINPACK_HPP

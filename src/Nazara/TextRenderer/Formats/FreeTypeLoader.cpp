@@ -190,8 +190,8 @@ namespace Nz
 					dst->aabb.width = (glyphSlot->metrics.width >> 6) + outlineThicknessInt;
 					dst->aabb.height = (glyphSlot->metrics.height >> 6) + outlineThicknessInt;
 
-					unsigned int width = bitmap.width;
-					unsigned int height = bitmap.rows;
+					UInt32 width = bitmap.width;
+					UInt32 height = bitmap.rows;
 
 					if (width > 0 && height > 0)
 					{
@@ -341,7 +341,7 @@ namespace Nz
 					m_stream.descriptor.pointer = &stream;
 					m_stream.read = FT_StreamRead;
 					m_stream.pos = 0;
-					m_stream.size = static_cast<unsigned long>(stream.GetSize());
+					m_stream.size = SafeCaster(stream.GetSize());
 
 					m_args.driver = nullptr;
 					m_args.flags = FT_OPEN_STREAM;

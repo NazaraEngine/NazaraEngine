@@ -30,8 +30,7 @@ namespace Nz
 		* \param height Height
 		* \param freeRectSize Free area
 		*/
-
-		int ScoreBestAreaFit(int width, int height, const Rectui& freeRectSize)
+		Int32 ScoreBestAreaFit(Int32 width, Int32 height, const Rectui32& freeRectSize)
 		{
 			return freeRectSize.width * freeRectSize.height - width * height;
 		}
@@ -44,14 +43,11 @@ namespace Nz
 		* \param height Height
 		* \param freeRectSize Free area
 		*/
-
-		int ScoreBestLongSideFit(int width, int height, const Rectui& freeRectSize)
+		Int32 ScoreBestLongSideFit(Int32 width, Int32 height, const Rectui32& freeRectSize)
 		{
-			int leftoverHoriz = std::abs(static_cast<int>(freeRectSize.width - width));
-			int leftoverVert = std::abs(static_cast<int>(freeRectSize.height - height));
-			int leftover = std::max(leftoverHoriz, leftoverVert);
-
-			return leftover;
+			Int32 leftoverHoriz = std::abs(static_cast<Int32>(freeRectSize.width) - width);
+			Int32 leftoverVert = std::abs(static_cast<Int32>(freeRectSize.height) - height);
+			return std::max(leftoverHoriz, leftoverVert);
 		}
 
 		/*!
@@ -62,14 +58,11 @@ namespace Nz
 		* \param height Height
 		* \param freeRectSize Free area
 		*/
-
-		int ScoreBestShortSideFit(int width, int height, const Rectui& freeRectSize)
+		int ScoreBestShortSideFit(Int32 width, Int32 height, const Rectui32& freeRectSize)
 		{
-			int leftoverHoriz = std::abs(static_cast<int>(freeRectSize.width - width));
-			int leftoverVert = std::abs(static_cast<int>(freeRectSize.height - height));
-			int leftover = std::min(leftoverHoriz, leftoverVert);
-
-			return leftover;
+			Int32 leftoverHoriz = std::abs(static_cast<Int32>(freeRectSize.width) - width);
+			Int32 leftoverVert = std::abs(static_cast<Int32>(freeRectSize.height) - height);
+			return std::min(leftoverHoriz, leftoverVert);
 		}
 
 		/*!
@@ -80,8 +73,7 @@ namespace Nz
 		* \param height Height
 		* \param freeRectSize Free area
 		*/
-
-		int ScoreWorstAreaFit(int width, int height, const Rectui& freeRectSize)
+		Int32 ScoreWorstAreaFit(Int32 width, Int32 height, const Rectui32& freeRectSize)
 		{
 			return -ScoreBestAreaFit(width, height, freeRectSize);
 		}
@@ -94,8 +86,7 @@ namespace Nz
 		* \param height Height
 		* \param freeRectSize Free area
 		*/
-
-		int ScoreWorstLongSideFit(int width, int height, const Rectui& freeRectSize)
+		Int32 ScoreWorstLongSideFit(Int32 width, Int32 height, const Rectui32& freeRectSize)
 		{
 			return -ScoreBestLongSideFit(width, height, freeRectSize);
 		}
@@ -108,82 +99,10 @@ namespace Nz
 		* \param height Height
 		* \param freeRectSize Free area
 		*/
-
-		int ScoreWorstShortSideFit(int width, int height, const Rectui& freeRectSize)
+		Int32 ScoreWorstShortSideFit(Int32 width, Int32 height, const Rectui32& freeRectSize)
 		{
 			return -ScoreBestShortSideFit(width, height, freeRectSize);
 		}
-	}
-
-	/*!
-	* \brief Constructs a GuillotineBinPack object by default
-	*/
-
-	GuillotineBinPack::GuillotineBinPack()
-	{
-		Reset();
-	}
-
-	/*!
-	* \brief Constructs a GuillotineBinPack object with width and height
-	*
-	* \param width Width
-	* \param height Height
-	*/
-
-	GuillotineBinPack::GuillotineBinPack(unsigned int width, unsigned int height)
-	{
-		Reset(width, height);
-	}
-
-	/*!
-	* \brief Constructs a GuillotineBinPack object with area
-	*
-	* \param size Vector2 representing the area (width, height)
-	*/
-
-	GuillotineBinPack::GuillotineBinPack(const Vector2ui& size)
-	{
-		Reset(size);
-	}
-
-	/*!
-	* \brief Clears the content
-	*/
-
-	void GuillotineBinPack::Clear()
-	{
-		m_freeRectangles.clear();
-		m_freeRectangles.push_back(Rectui(0, 0, m_width, m_height));
-
-		m_usedArea = 0;
-	}
-
-	/*!
-	* \brief Expands the content
-	*
-	* \param newWidth New width for the expansion
-	* \param newHeight New height for the expansion
-	*
-	* \see Expand
-	*/
-
-	void GuillotineBinPack::Expand(unsigned int newWidth, unsigned newHeight)
-	{
-		unsigned int oldWidth = m_width;
-		unsigned int oldHeight = m_height;
-
-		m_width = std::max(newWidth, m_width);
-		m_height = std::max(newHeight, m_height);
-
-		if (m_width > oldWidth)
-			m_freeRectangles.push_back(Rectui(oldWidth, 0, m_width - oldWidth, oldHeight));
-
-		if (m_height > oldHeight)
-			m_freeRectangles.push_back(Rectui(0, oldHeight, m_width, m_height - oldHeight));
-
-		// On va ensuite fusionner les rectangles tant que possible
-		while (MergeFreeRectangles());
 	}
 
 	/*!
@@ -193,98 +112,22 @@ namespace Nz
 	*
 	* \see Expand
 	*/
-
-	void GuillotineBinPack::Expand(const Vector2ui& newSize)
+	void GuillotineBinPack::Expand(const Vector2ui32& newSize)
 	{
-		Expand(newSize.x, newSize.y);
-	}
+		UInt32 oldWidth = m_width;
+		UInt32 oldHeight = m_height;
 
-	/*!
-	* \brief Frees the rectangle
-	*
-	* \param rect Area to free
-	*
-	* \remark This method should only be called with computed rectangles by the method Insert and can produce fragmentation
-	*/
+		m_width = std::max(newSize.x, m_width);
+		m_height = std::max(newSize.y, m_height);
 
-	void GuillotineBinPack::FreeRectangle(const Rectui& rect)
-	{
-		m_freeRectangles.push_back(rect);
+		if (m_width > oldWidth)
+			m_freeRectangles.push_back(Rectui32(oldWidth, 0, m_width - oldWidth, oldHeight));
 
-		m_usedArea -= rect.width * rect.height;
-	}
+		if (m_height > oldHeight)
+			m_freeRectangles.push_back(Rectui32(0, oldHeight, m_width, m_height - oldHeight));
 
-	/*!
-	* \brief Gets the height
-	* \return Height of the area
-	*/
-
-	unsigned int GuillotineBinPack::GetHeight() const
-	{
-		return m_height;
-	}
-
-	/*!
-	* \brief Gets percentage of occupation
-	* \return Percentage of the already occupied area
-	*/
-
-	float GuillotineBinPack::GetOccupancy() const
-	{
-		return static_cast<float>(m_usedArea)/(m_width*m_height);
-	}
-
-	/*!
-	* \brief Gets the size of the area
-	* \return Size of the area
-	*/
-
-	Vector2ui GuillotineBinPack::GetSize() const
-	{
-		return Vector2ui(m_width, m_height);
-	}
-
-	/*!
-	* \brief Gets the width
-	* \return Width of the area
-	*/
-
-	unsigned int GuillotineBinPack::GetWidth() const
-	{
-		return m_width;
-	}
-
-	/*!
-	* \brief Inserts rectangles in the area
-	* \return true if each rectangle could be inserted
-	*
-	* \param rects List of rectangles
-	* \param count Count of rectangles
-	* \param merge Merge possible
-	* \param rectChoice Heuristic to use to free
-	* \param splitMethod Heuristic to use to split
-	*/
-
-	bool GuillotineBinPack::Insert(Rectui* rects, unsigned int count, bool merge, FreeRectChoiceHeuristic rectChoice, GuillotineSplitHeuristic splitMethod)
-	{
-		return Insert(rects, nullptr, nullptr, count, merge, rectChoice, splitMethod);
-	}
-
-	/*!
-	* \brief Inserts rectangles in the area
-	* \return true if each rectangle could be inserted
-	*
-	* \param rects List of rectangles
-	* \param flipped List of flipped rectangles
-	* \param count Count of rectangles
-	* \param merge Merge possible
-	* \param rectChoice Heuristic to use to free
-	* \param splitMethod Heuristic to use to split
-	*/
-
-	bool GuillotineBinPack::Insert(Rectui* rects, bool* flipped, unsigned int count, bool merge, FreeRectChoiceHeuristic rectChoice, GuillotineSplitHeuristic splitMethod)
-	{
-		return Insert(rects, flipped, nullptr, count, merge, rectChoice, splitMethod);
+		// Merge rectangles if possible
+		while (MergeFreeRectangles());
 	}
 
 	/*!
@@ -299,12 +142,11 @@ namespace Nz
 	* \param rectChoice Heuristic to use to free
 	* \param splitMethod Heuristic to use to split
 	*/
-
-	bool GuillotineBinPack::Insert(Rectui* rects, bool* flipped, bool* inserted, unsigned int count, bool merge, FreeRectChoiceHeuristic rectChoice, GuillotineSplitHeuristic splitMethod)
+	bool GuillotineBinPack::Insert(Rectui32* rects, bool* flipped, bool* inserted, UInt32 count, bool merge, FreeRectChoiceHeuristic rectChoice, GuillotineSplitHeuristic splitMethod)
 	{
-		Nz::StackVector<Rectui*> remainingRects = NazaraStackVector(Rectui*, count); // Position of the rectangle
+		StackVector<Rectui32*> remainingRects = NazaraStackVector(Rectui32*, count); // Position of the rectangle
 		remainingRects.resize(count);
-		for (unsigned int i = 0; i < count; ++i)
+		for (UInt32 i = 0; i < count; ++i)
 			remainingRects[i] = &rects[i];
 
 		// Pack rectangles one at a time until we have cleared the rects array of all rectangles.
@@ -314,15 +156,15 @@ namespace Nz
 			bool bestFlipped = false;
 			std::size_t bestFreeRect = m_freeRectangles.size();
 			std::size_t bestRect = std::numeric_limits<int>::min();
-			int bestScore = std::numeric_limits<int>::max();
+			Int32 bestScore = std::numeric_limits<Int32>::max();
 
 			for (std::size_t i = 0; i < m_freeRectangles.size(); ++i)
 			{
-				Rectui& freeRect = m_freeRectangles[i];
+				Rectui32& freeRect = m_freeRectangles[i];
 
 				for (std::size_t j = 0; j < remainingRects.size(); ++j)
 				{
-					Rectui& rect = *remainingRects[j];
+					Rectui32& rect = *remainingRects[j];
 
 					// If this rectangle is a perfect match, we pick it instantly.
 					if (rect.width == freeRect.width && rect.height == freeRect.height)
@@ -330,24 +172,24 @@ namespace Nz
 						bestFreeRect = i;
 						bestRect = j;
 						bestFlipped = false;
-						bestScore = std::numeric_limits<int>::min();
+						bestScore = std::numeric_limits<Int32>::min();
 						i = m_freeRectangles.size(); // Force a jump out of the outer loop as well - we got an instant fit.
 						break;
 					}
 					// If flipping this rectangle is a perfect match, pick that then.
-					else if (rect.height == freeRect.width && rect.width == freeRect.height)
+					else if (flipped && rect.height == freeRect.width && rect.width == freeRect.height)
 					{
 						bestFreeRect = i;
 						bestRect = j;
 						bestFlipped = true;
-						bestScore = std::numeric_limits<int>::min();
+						bestScore = std::numeric_limits<Int32>::min();
 						i = m_freeRectangles.size(); // Force a jump out of the outer loop as well - we got an instant fit.
 						break;
 					}
 					// Try if we can fit the rectangle upright.
 					else if (rect.width <= freeRect.width && rect.height <= freeRect.height)
 					{
-						int score = ScoreByHeuristic(rect.width, rect.height, freeRect, rectChoice);
+						Int32 score = ScoreByHeuristic(static_cast<Int32>(rect.width), static_cast<Int32>(rect.height), freeRect, rectChoice);
 						if (score < bestScore)
 						{
 							bestFreeRect = i;
@@ -357,9 +199,9 @@ namespace Nz
 						}
 					}
 					// If not, then perhaps flipping sideways will make it fit?
-					else if (rect.height <= freeRect.width && rect.width <= freeRect.height)
+					else if (flipped && rect.height <= freeRect.width && rect.width <= freeRect.height)
 					{
-						int score = ScoreByHeuristic(rect.height, rect.width, freeRect, rectChoice);
+						Int32 score = ScoreByHeuristic(static_cast<Int32>(rect.height), static_cast<Int32>(rect.width), freeRect, rectChoice);
 						if (score < bestScore)
 						{
 							bestFreeRect = i;
@@ -372,12 +214,12 @@ namespace Nz
 			}
 
 			// If we didn't manage to find any rectangle to pack, abort.
-			if (bestScore == std::numeric_limits<int>::max())
+			if (bestScore == std::numeric_limits<Int32>::max())
 			{
 				// If we can do it, we mark the rectangle could be inserted
 				if (inserted)
 				{
-					for (Rectui* rect : remainingRects)
+					for (Rectui32* rect : remainingRects)
 					{
 						std::ptrdiff_t position = rect - rects;
 						inserted[position] = false;
@@ -389,7 +231,7 @@ namespace Nz
 
 			// Otherwise, we're good to go and do the actual packing.
 			std::ptrdiff_t position = remainingRects[bestRect] - rects;
-			Rectui& rect = *remainingRects[bestRect];
+			Rectui32& rect = *remainingRects[bestRect];
 			rect.x = m_freeRectangles[bestFreeRect].x;
 			rect.y = m_freeRectangles[bestFreeRect].y;
 
@@ -423,7 +265,6 @@ namespace Nz
 	* \brief Merges free rectangles together
 	* \return true if there was a merge (and thus if a merge is still possible)
 	*/
-
 	bool GuillotineBinPack::MergeFreeRectangles()
 	{
 		std::size_t oriSize = m_freeRectangles.size();
@@ -432,11 +273,11 @@ namespace Nz
 		// Note that we miss any opportunities to merge three rectangles into one. (should call this function again to detect that)
 		for (std::size_t i = 0; i < m_freeRectangles.size(); ++i)
 		{
-			Rectui& firstRect = m_freeRectangles[i];
+			Rectui32& firstRect = m_freeRectangles[i];
 
 			for (std::size_t j = i+1; j < m_freeRectangles.size(); ++j)
 			{
-				Rectui& secondRect = m_freeRectangles[j];
+				Rectui32& secondRect = m_freeRectangles[j];
 
 				if (firstRect.width == secondRect.width && firstRect.x == secondRect.x)
 				{
@@ -477,60 +318,21 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Resets the area
-	*/
-
-	void GuillotineBinPack::Reset()
-	{
-		m_height = 0;
-		m_width = 0;
-
-		Clear();
-	}
-
-	/*!
-	* \brief Resets the area
-	*
-	* \param width Width
-	* \param height Height
-	*/
-
-	void GuillotineBinPack::Reset(unsigned int width, unsigned int height)
-	{
-		m_height = height;
-		m_width = width;
-
-		Clear();
-	}
-
-	/*!
-	* \brief Resets the area
-	*
-	* \param size Size of the area
-	*/
-
-	void GuillotineBinPack::Reset(const Vector2ui& size)
-	{
-		Reset(size.x, size.y);
-	}
-
-	/*!
 	* \brief Splits the free rectangle along axis
 	*
 	* \param freeRect Free rectangle to split
 	* \param placedRect Already placed rectangle
 	* \param splitHorizontal Split horizontally (or vertically)
 	*/
-
-	void GuillotineBinPack::SplitFreeRectAlongAxis(const Rectui& freeRect, const Rectui& placedRect, bool splitHorizontal)
+	void GuillotineBinPack::SplitFreeRectAlongAxis(const Rectui32& freeRect, const Rectui32& placedRect, bool splitHorizontal)
 	{
 		// Form the two new rectangles.
-		Rectui bottom;
+		Rectui32 bottom;
 		bottom.x = freeRect.x;
 		bottom.y = freeRect.y + placedRect.height;
 		bottom.height = freeRect.height - placedRect.height;
 
-		Rectui right;
+		Rectui32 right;
 		right.x = freeRect.x + placedRect.width;
 		right.y = freeRect.y;
 		right.width = freeRect.width - placedRect.width;
@@ -563,8 +365,7 @@ namespace Nz
 	*
 	* \remark Produces a NazaraError if enumeration GuillotineSplitHeuristic is invalid
 	*/
-
-	void GuillotineBinPack::SplitFreeRectByHeuristic(const Rectui& freeRect, const Rectui& placedRect, GuillotineSplitHeuristic method)
+	void GuillotineBinPack::SplitFreeRectByHeuristic(const Rectui32& freeRect, const Rectui32& placedRect, GuillotineSplitHeuristic method)
 	{
 		// Compute the lengths of the leftover area
 		const int w = freeRect.width - placedRect.width;
@@ -631,8 +432,7 @@ namespace Nz
 	*
 	* \remark Produces a NazaraError if enumeration FreeRectChoiceHeuristic is invalid
 	*/
-
-	int GuillotineBinPack::ScoreByHeuristic(int width, int height, const Rectui& freeRect, FreeRectChoiceHeuristic rectChoice)
+	Int32 GuillotineBinPack::ScoreByHeuristic(Int32 width, Int32 height, const Rectui32& freeRect, FreeRectChoiceHeuristic rectChoice)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
@@ -658,6 +458,6 @@ namespace Nz
 		}
 
 		NazaraErrorFmt("Rect choice heuristic out of enum ({0:#x})", UnderlyingCast(rectChoice));
-		return std::numeric_limits<int>::max();
+		return std::numeric_limits<Int32>::max();
 	}
 }
