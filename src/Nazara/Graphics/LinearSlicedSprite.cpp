@@ -139,8 +139,10 @@ namespace Nz
 		if (vertexCount > 0)
 		{
 			// Reverse texcoords Y
+			float yMin = m_textureCoords.GetMinimum().y;
+			float yMax = m_textureCoords.GetMaximum().y;
 			for (std::size_t i = 0; i < vertexCount; ++i)
-				m_vertices[i].uv.y = m_textureCoords.height - m_vertices[i].uv.y;
+				m_vertices[i].uv.y = yMin + yMax - m_vertices[i].uv.y;
 
 			aabb = Boxf(m_vertices[0].position, Vector3f::Zero());
 			for (std::size_t i = 1; i < vertexCount; ++i)

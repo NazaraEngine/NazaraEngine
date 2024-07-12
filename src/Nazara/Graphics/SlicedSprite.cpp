@@ -87,13 +87,13 @@ namespace Nz
 
 		std::array<float, 3> texCoordsX = {
 			m_topLeftCorner.textureCoords.x * m_textureCoords.width,
-			m_textureCoords.width - m_topLeftCorner.textureCoords.x * m_textureCoords.width - m_bottomRightCorner.textureCoords.x * m_textureCoords.width,
+			m_textureCoords.width - (m_topLeftCorner.textureCoords.x + m_bottomRightCorner.textureCoords.x) * m_textureCoords.width,
 			m_bottomRightCorner.textureCoords.x * m_textureCoords.width
 		};
 
 		std::array<float, 3> texCoordsY = {
 			m_topLeftCorner.textureCoords.y * m_textureCoords.height,
-			m_textureCoords.height - m_topLeftCorner.textureCoords.y * m_textureCoords.height - m_bottomRightCorner.textureCoords.y * m_textureCoords.height,
+			m_textureCoords.height - (m_topLeftCorner.textureCoords.y + m_bottomRightCorner.textureCoords.y) * m_textureCoords.height,
 			m_bottomRightCorner.textureCoords.y * m_textureCoords.height
 		};
 
@@ -154,9 +154,10 @@ namespace Nz
 		if (vertexCount > 0)
 		{
 			// Reverse texcoords Y
-			float yOffset = m_textureCoords.height + 2.f * (1.f - m_textureCoords.height);
+			float yMin = m_textureCoords.GetMinimum().y;
+			float yMax = m_textureCoords.GetMaximum().y;
 			for (std::size_t i = 0; i < vertexCount; ++i)
-				m_vertices[i].uv.y = yOffset - m_vertices[i].uv.y;
+				m_vertices[i].uv.y = yMin + yMax - m_vertices[i].uv.y;
 
 			aabb = Boxf(m_vertices[0].position, Vector2f::Zero());
 			for (std::size_t i = 1; i < vertexCount; ++i)
