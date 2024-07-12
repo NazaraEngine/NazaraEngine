@@ -257,6 +257,9 @@ namespace Nz
 			SimpleScrollbarWidgetStyle(SimpleScrollbarWidgetStyle&&) = default;
 			~SimpleScrollbarWidgetStyle() = default;
 
+			std::unique_ptr<ImageButtonWidget> CreateBackButton(ScrollbarWidget* widget, ScrollbarOrientation orientation) override;
+			std::unique_ptr<ImageButtonWidget> CreateForwardButton(ScrollbarWidget* widget, ScrollbarOrientation orientation) override;
+
 			void Layout(const Vector2f& size) override;
 
 			void UpdateRenderLayer(int baseRenderLayer) override;
@@ -268,6 +271,20 @@ namespace Nz
 			{
 				std::shared_ptr<MaterialInstance> backgroundHorizontalMaterial;
 				std::shared_ptr<MaterialInstance> backgroundVerticalMaterial;
+				std::shared_ptr<MaterialInstance> buttonDownMaterial;
+				std::shared_ptr<MaterialInstance> buttonDownHoveredMaterial;
+				std::shared_ptr<MaterialInstance> buttonDownPressedMaterial;
+				std::shared_ptr<MaterialInstance> buttonLeftMaterial;
+				std::shared_ptr<MaterialInstance> buttonLeftHoveredMaterial;
+				std::shared_ptr<MaterialInstance> buttonLeftPressedMaterial;
+				std::shared_ptr<MaterialInstance> buttonRightMaterial;
+				std::shared_ptr<MaterialInstance> buttonRightHoveredMaterial;
+				std::shared_ptr<MaterialInstance> buttonRightPressedMaterial;
+				std::shared_ptr<MaterialInstance> buttonUpMaterial;
+				std::shared_ptr<MaterialInstance> buttonUpHoveredMaterial;
+				std::shared_ptr<MaterialInstance> buttonUpPressedMaterial;
+				float buttonCornerSize;
+				float buttonCornerTexcoords;
 			};
 
 		private:

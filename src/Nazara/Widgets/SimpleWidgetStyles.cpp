@@ -506,6 +506,22 @@ namespace Nz
 		registry.get<GraphicsComponent>(m_scrollbarSpriteEntity).AttachRenderable(m_scrollbarSprite, renderMask);
 	}
 
+	std::unique_ptr<ImageButtonWidget> SimpleScrollbarWidgetStyle::CreateBackButton(ScrollbarWidget* widget, ScrollbarOrientation orientation)
+	{
+		if (orientation == ScrollbarOrientation::Horizontal)
+			return std::make_unique<ImageButtonWidget>(widget, m_config.buttonLeftMaterial, m_config.buttonLeftHoveredMaterial, m_config.buttonLeftPressedMaterial, m_config.buttonCornerSize, m_config.buttonCornerTexcoords);
+		else
+			return std::make_unique<ImageButtonWidget>(widget, m_config.buttonUpMaterial, m_config.buttonUpHoveredMaterial, m_config.buttonUpPressedMaterial, m_config.buttonCornerSize, m_config.buttonCornerTexcoords);
+	}
+
+	std::unique_ptr<ImageButtonWidget> SimpleScrollbarWidgetStyle::CreateForwardButton(ScrollbarWidget* widget, ScrollbarOrientation orientation)
+	{
+		if (orientation == ScrollbarOrientation::Horizontal)
+			return std::make_unique<ImageButtonWidget>(widget, m_config.buttonRightMaterial, m_config.buttonRightHoveredMaterial, m_config.buttonRightPressedMaterial, m_config.buttonCornerSize, m_config.buttonCornerTexcoords);
+		else
+			return std::make_unique<ImageButtonWidget>(widget, m_config.buttonDownMaterial, m_config.buttonDownHoveredMaterial, m_config.buttonDownPressedMaterial, m_config.buttonCornerSize, m_config.buttonCornerTexcoords);
+	}
+
 	void SimpleScrollbarWidgetStyle::Layout(const Vector2f& size)
 	{
 		m_backgroundScrollbarSprite->SetSize(size);

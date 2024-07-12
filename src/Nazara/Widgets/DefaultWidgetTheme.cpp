@@ -162,28 +162,25 @@ namespace Nz
 		m_textBoxMaterial = CreateMaterialFromTexture(s_defaultThemeTextAreaBackgroundImage);
 
 		// Config
-		m_config.scrollbar.buttonCornerSize = 0.f;
-		m_config.scrollbar.buttonCornerTexcoords = 0.f;
-
 		m_scrollbarButtonMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarCenterImage);
 		m_scrollbarButtonGrabbedMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarGrabbedImage);
 		m_scrollbarButtonHoveredMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarHoveredImage);
 
-		m_config.scrollbar.buttonDownMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowDownImage);
-		m_config.scrollbar.buttonDownHoveredMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowDownHoveredImage);
-		m_config.scrollbar.buttonDownPressedMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowDownPressedImage);
+		m_scrollbarButtonDownMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowDownImage);
+		m_scrollbarButtonDownHoveredMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowDownHoveredImage);
+		m_scrollbarButtonDownPressedMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowDownPressedImage);
 
-		m_config.scrollbar.buttonLeftMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowLeftImage);
-		m_config.scrollbar.buttonLeftHoveredMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowLeftHoveredImage);
-		m_config.scrollbar.buttonLeftPressedMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowLeftPressedImage);
+		m_scrollbarButtonLeftMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowLeftImage);
+		m_scrollbarButtonLeftHoveredMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowLeftHoveredImage);
+		m_scrollbarButtonLeftPressedMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowLeftPressedImage);
 
-		m_config.scrollbar.buttonRightMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowRightImage);
-		m_config.scrollbar.buttonRightHoveredMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowRightHoveredImage);
-		m_config.scrollbar.buttonRightPressedMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowRightPressedImage);
+		m_scrollbarButtonRightMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowRightImage);
+		m_scrollbarButtonRightHoveredMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowRightHoveredImage);
+		m_scrollbarButtonRightPressedMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowRightPressedImage);
 
-		m_config.scrollbar.buttonUpMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowUpImage);
-		m_config.scrollbar.buttonUpHoveredMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowUpHoveredImage);
-		m_config.scrollbar.buttonUpPressedMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowUpPressedImage);
+		m_scrollbarButtonUpMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowUpImage);
+		m_scrollbarButtonUpHoveredMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowUpHoveredImage);
+		m_scrollbarButtonUpPressedMaterial = CreateMaterialFromTexture(s_defaultThemeScrollbarArrowUpPressedImage);
 	}
 
 	std::unique_ptr<ButtonWidgetStyle> DefaultWidgetTheme::CreateStyle(ButtonWidget* buttonWidget) const
@@ -250,6 +247,20 @@ namespace Nz
 		SimpleScrollbarWidgetStyle::StyleConfig styleConfig;
 		styleConfig.backgroundHorizontalMaterial = m_scrollbarBackgroundHorizontalMaterial;
 		styleConfig.backgroundVerticalMaterial = m_scrollbarBackgroundVerticalMaterial;
+		styleConfig.buttonCornerSize = 0.f;
+		styleConfig.buttonCornerTexcoords = 0.f;
+		styleConfig.buttonDownHoveredMaterial = m_scrollbarButtonDownHoveredMaterial;
+		styleConfig.buttonDownPressedMaterial = m_scrollbarButtonDownPressedMaterial;
+		styleConfig.buttonDownMaterial = m_scrollbarButtonDownMaterial;
+		styleConfig.buttonLeftHoveredMaterial = m_scrollbarButtonLeftHoveredMaterial;
+		styleConfig.buttonLeftPressedMaterial = m_scrollbarButtonLeftPressedMaterial;
+		styleConfig.buttonLeftMaterial = m_scrollbarButtonLeftMaterial;
+		styleConfig.buttonRightHoveredMaterial = m_scrollbarButtonRightHoveredMaterial;
+		styleConfig.buttonRightPressedMaterial = m_scrollbarButtonRightPressedMaterial;
+		styleConfig.buttonRightMaterial = m_scrollbarButtonRightMaterial;
+		styleConfig.buttonUpHoveredMaterial = m_scrollbarButtonUpHoveredMaterial;
+		styleConfig.buttonUpPressedMaterial = m_scrollbarButtonUpPressedMaterial;
+		styleConfig.buttonUpMaterial = m_scrollbarButtonUpMaterial;
 
 		return std::make_unique<SimpleScrollbarWidgetStyle>(scrollBarWidget, std::move(styleConfig));
 	}

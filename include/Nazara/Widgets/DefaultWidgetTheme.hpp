@@ -41,7 +41,6 @@ namespace Nz
 			std::shared_ptr<MaterialInstance> m_buttonPressedHoveredMaterial;
 			std::shared_ptr<MaterialInstance> m_buttonPressedMaterial;
 			std::shared_ptr<MaterialInstance> m_checkboxBackgroundMaterial;
-			std::shared_ptr<MaterialInstance> m_checkboxBackgroundDisabledMaterial;
 			std::shared_ptr<MaterialInstance> m_checkboxBackgroundHoveredMaterial;
 			std::shared_ptr<MaterialInstance> m_checkboxCheckMaterial;
 			std::shared_ptr<MaterialInstance> m_checkboxTristateMaterial;
@@ -50,9 +49,20 @@ namespace Nz
 			std::shared_ptr<MaterialInstance> m_scrollbarBackgroundHorizontalMaterial;
 			std::shared_ptr<MaterialInstance> m_scrollbarBackgroundVerticalMaterial;
 			std::shared_ptr<MaterialInstance> m_scrollbarButtonMaterial;
-			std::shared_ptr<MaterialInstance> m_scrollbarButtonDisabledMaterial;
 			std::shared_ptr<MaterialInstance> m_scrollbarButtonHoveredMaterial;
 			std::shared_ptr<MaterialInstance> m_scrollbarButtonGrabbedMaterial;
+			std::shared_ptr<MaterialInstance> m_scrollbarButtonDownMaterial;
+			std::shared_ptr<MaterialInstance> m_scrollbarButtonDownHoveredMaterial;
+			std::shared_ptr<MaterialInstance> m_scrollbarButtonDownPressedMaterial;
+			std::shared_ptr<MaterialInstance> m_scrollbarButtonLeftMaterial;
+			std::shared_ptr<MaterialInstance> m_scrollbarButtonLeftHoveredMaterial;
+			std::shared_ptr<MaterialInstance> m_scrollbarButtonLeftPressedMaterial;
+			std::shared_ptr<MaterialInstance> m_scrollbarButtonRightMaterial;
+			std::shared_ptr<MaterialInstance> m_scrollbarButtonRightHoveredMaterial;
+			std::shared_ptr<MaterialInstance> m_scrollbarButtonRightPressedMaterial;
+			std::shared_ptr<MaterialInstance> m_scrollbarButtonUpMaterial;
+			std::shared_ptr<MaterialInstance> m_scrollbarButtonUpHoveredMaterial;
+			std::shared_ptr<MaterialInstance> m_scrollbarButtonUpPressedMaterial;
 			std::shared_ptr<MaterialInstance> m_textBoxMaterial;
 	};
 }

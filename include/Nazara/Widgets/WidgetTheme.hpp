@@ -40,8 +40,6 @@ namespace Nz
 	class NAZARA_WIDGETS_API WidgetTheme
 	{
 		public:
-			struct Config;
-
 			WidgetTheme() = default;
 			WidgetTheme(const WidgetTheme&) = delete;
 			WidgetTheme(WidgetTheme&&) = default;
@@ -57,34 +55,8 @@ namespace Nz
 			virtual std::unique_ptr<ScrollbarButtonWidgetStyle> CreateStyle(ScrollbarButtonWidget* scrollbarButtonWidget) const = 0;
 			virtual std::unique_ptr<TextAreaWidgetStyle> CreateStyle(AbstractTextAreaWidget* textAreaWidget) const = 0;
 
-			inline const Config& GetConfig() const;
-
 			WidgetTheme& operator=(const WidgetTheme&) = delete;
 			WidgetTheme& operator=(WidgetTheme&&) = default;
-
-			struct Config
-			{
-				struct
-				{
-					std::shared_ptr<MaterialInstance> buttonDownMaterial;
-					std::shared_ptr<MaterialInstance> buttonDownHoveredMaterial;
-					std::shared_ptr<MaterialInstance> buttonDownPressedMaterial;
-					std::shared_ptr<MaterialInstance> buttonLeftMaterial;
-					std::shared_ptr<MaterialInstance> buttonLeftHoveredMaterial;
-					std::shared_ptr<MaterialInstance> buttonLeftPressedMaterial;
-					std::shared_ptr<MaterialInstance> buttonRightMaterial;
-					std::shared_ptr<MaterialInstance> buttonRightHoveredMaterial;
-					std::shared_ptr<MaterialInstance> buttonRightPressedMaterial;
-					std::shared_ptr<MaterialInstance> buttonUpMaterial;
-					std::shared_ptr<MaterialInstance> buttonUpHoveredMaterial;
-					std::shared_ptr<MaterialInstance> buttonUpPressedMaterial;
-					float buttonCornerSize;
-					float buttonCornerTexcoords;
-				} scrollbar;
-			};
-
-		protected:
-			Config m_config;
 	};
 
 	class NAZARA_WIDGETS_API BaseWidgetStyle
@@ -232,6 +204,9 @@ namespace Nz
 			ScrollbarWidgetStyle(const ScrollbarWidgetStyle&) = delete;
 			ScrollbarWidgetStyle(ScrollbarWidgetStyle&&) = default;
 			~ScrollbarWidgetStyle() = default;
+
+			virtual std::unique_ptr<ImageButtonWidget> CreateBackButton(ScrollbarWidget* widget, ScrollbarOrientation orientation) = 0;
+			virtual std::unique_ptr<ImageButtonWidget> CreateForwardButton(ScrollbarWidget* widget, ScrollbarOrientation orientation) = 0;
 
 			virtual void Layout(const Vector2f& size) = 0;
 

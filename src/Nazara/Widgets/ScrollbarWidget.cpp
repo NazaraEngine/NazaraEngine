@@ -21,8 +21,6 @@ namespace Nz
 
 		SetPreferredSize({ 32.f, 32.f });
 
-		const WidgetTheme::Config& themeConfig = GetTheme()->GetConfig();
-
 		m_scrollCenterButton = Add<ScrollbarButtonWidget>();
 
 		m_scrollCenterButton->OnButtonReleased.Connect([this](const ScrollbarButtonWidget*)
@@ -51,9 +49,6 @@ namespace Nz
 
 				SetValue(m_grabbedValue + deltaX * valueRange / remainingWidth);
 			});
-
-			m_scrollBackButton = Add<ImageButtonWidget>(themeConfig.scrollbar.buttonLeftMaterial, themeConfig.scrollbar.buttonLeftHoveredMaterial, themeConfig.scrollbar.buttonLeftPressedMaterial, themeConfig.scrollbar.buttonCornerSize, themeConfig.scrollbar.buttonCornerTexcoords);
-			m_scrollNextButton = Add<ImageButtonWidget>(themeConfig.scrollbar.buttonRightMaterial, themeConfig.scrollbar.buttonRightHoveredMaterial, themeConfig.scrollbar.buttonRightPressedMaterial, themeConfig.scrollbar.buttonCornerSize, themeConfig.scrollbar.buttonCornerTexcoords);
 		}
 		else
 		{
@@ -76,17 +71,16 @@ namespace Nz
 
 				SetValue(m_grabbedValue + deltaY * valueRange / remainingHeight);
 			});
-
-			m_scrollBackButton = Add<ImageButtonWidget>(themeConfig.scrollbar.buttonUpMaterial, themeConfig.scrollbar.buttonUpHoveredMaterial, themeConfig.scrollbar.buttonUpPressedMaterial, themeConfig.scrollbar.buttonCornerSize, themeConfig.scrollbar.buttonCornerTexcoords);
-			m_scrollNextButton = Add<ImageButtonWidget>(themeConfig.scrollbar.buttonDownMaterial, themeConfig.scrollbar.buttonDownHoveredMaterial, themeConfig.scrollbar.buttonDownPressedMaterial, themeConfig.scrollbar.buttonCornerSize, themeConfig.scrollbar.buttonCornerTexcoords);
 		}
 
+		m_scrollBackButton = AddChild(m_style->CreateBackButton(this, m_orientation));
 		m_scrollBackButton->OnButtonTrigger.Connect([this](const ImageButtonWidget*)
 		{
 			SetValue(GetValue() - 0.1f * (GetMaximumValue() - GetMinimumValue()));
 		});
 
-		m_scrollNextButton->OnButtonTrigger.Connect([this](const ImageButtonWidget*)
+		m_scrollForwardButton = AddChild(m_style->CreateForwardButton(this, m_orientation));
+		m_scrollForwardButton->OnButtonTrigger.Connect([this](const ImageButtonWidget*)
 		{
 			SetValue(GetValue() + 0.1f * (GetMaximumValue() - GetMinimumValue()));
 		});
@@ -106,11 +100,11 @@ namespace Nz
 		if (m_orientation == ScrollbarOrientation::Horizontal)
 		{
 			m_scrollBackButton->Resize({ size.y, size.y });
-			m_scrollNextButton->Resize({ size.y, size.y });
-			m_scrollNextButton->SetPosition({ GetWidth() - m_scrollNextButton->GetWidth(), 0.f });
+			m_scrollForwardButton->Resize({ size.y, size.y });
+			m_scrollForwardButton->SetPosition({ GetWidth() - m_scrollForwardButton->GetWidth(), 0.f });
 
 			float start = m_scrollBackButton->GetWidth();
-			float remaining = size.x - start - m_scrollNextButton->GetWidth();
+			float remaining = size.x - start - m_scrollForwardButton->GetWidth();
 			float centerPosition = start + invValuePct * (remaining - remaining * stepPct);
 
 			m_scrollCenterButton->Resize({ remaining * stepPct, size.y });
@@ -120,10 +114,10 @@ namespace Nz
 		{
 			m_scrollBackButton->Resize({ size.x, size.x });
 			m_scrollBackButton->SetPosition({ 0.f, GetHeight() - m_scrollBackButton->GetHeight() });
-			m_scrollNextButton->Resize({ size.x, size.x });
+			m_scrollForwardButton->Resize({ size.x, size.x });
 
 			float start = m_scrollBackButton->GetHeight();
-			float remaining = size.y - start - m_scrollNextButton->GetHeight();
+			float remaining = size.y - start - m_scrollForwardButton->GetHeight();
 			float centerPosition = start + invValuePct * (remaining - remaining * stepPct);
 
 			m_scrollCenterButton->Resize({ size.x, remaining * stepPct });

@@ -47,7 +47,7 @@ namespace Nz
 
 			std::unique_ptr<ScrollbarWidgetStyle> m_style;
 			ImageButtonWidget* m_scrollBackButton;
-			ImageButtonWidget* m_scrollNextButton;
+			ImageButtonWidget* m_scrollForwardButton;
 			ScrollbarButtonWidget* m_scrollCenterButton;
 			ScrollbarOrientation m_orientation;
 			float m_maximumValue;

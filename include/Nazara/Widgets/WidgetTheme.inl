@@ -7,12 +7,6 @@
 
 namespace Nz
 {
-	inline auto WidgetTheme::GetConfig() const -> const Config&
-	{
-		return m_config;
-	}
-
-
 	inline BaseWidgetStyle::BaseWidgetStyle(BaseWidget* widget, int renderLayerCount) :
 	m_widgetOwner(widget),
 	m_renderLayerCount(renderLayerCount)
