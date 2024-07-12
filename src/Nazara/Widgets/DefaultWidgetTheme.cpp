@@ -281,7 +281,7 @@ namespace Nz
 	{
 		SimpleTextAreaWidgetStyle::StyleConfig styleConfig;
 		styleConfig.backgroundCornerSize = 20.f;
-		styleConfig.backgroundCornerTexCoords = 20.f / 64.f;
+		styleConfig.backgroundCornerTexCoords = 20.f / 44.f;
 		styleConfig.backgroundMaterial = m_textBoxMaterial;
 		styleConfig.backgroundDisabledMaterial = m_textBoxDisabledMaterial;
 		styleConfig.insertionCursorColor = Color::Black();
