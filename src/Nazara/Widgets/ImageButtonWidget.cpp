@@ -18,6 +18,28 @@ namespace Nz
 	m_cornerSize(cornerSize),
 	m_cornerTexCoords(cornerTexCoords)
 	{
+		m_hoveredTextureCoords = m_textureCoords;
+		m_pressedTextureCoords = m_textureCoords;
+
+		m_style = (styleFactory) ? styleFactory(this) : GetTheme()->CreateStyle(this);
+		SetRenderLayerCount(m_style->GetRenderLayerCount());
+
+		UpdatePreferredSize();
+		Layout();
+	}
+
+	ImageButtonWidget::ImageButtonWidget(BaseWidget* parent, std::shared_ptr<MaterialInstance> material, const Rectf& coords, const Rectf& hoveredCoords, const Rectf& pressedCoords, float cornerSize, float cornerTexCoords, const StyleFactory& styleFactory) :
+	BaseWidget(parent),
+	m_hoveredMaterial(material),
+	m_material(material),
+	m_pressedMaterial(std::move(material)),
+	m_color(Color::White()),
+	m_hoveredTextureCoords(hoveredCoords),
+	m_pressedTextureCoords(pressedCoords),
+	m_textureCoords(coords),
+	m_cornerSize(cornerSize),
+	m_cornerTexCoords(cornerTexCoords)
+	{
 		m_style = (styleFactory) ? styleFactory(this) : GetTheme()->CreateStyle(this);
 		SetRenderLayerCount(m_style->GetRenderLayerCount());
 

@@ -35,6 +35,11 @@ namespace Nz
 		return m_hoveredMaterial;
 	}
 
+	inline const Rectf& ImageButtonWidget::GetHoveredTextureCoords() const
+	{
+		return m_hoveredTextureCoords;
+	}
+
 	inline const std::shared_ptr<MaterialInstance>& ImageButtonWidget::GetMaterial() const
 	{
 		return m_material;
@@ -43,6 +48,11 @@ namespace Nz
 	inline const std::shared_ptr<MaterialInstance>& ImageButtonWidget::GetPressedMaterial() const
 	{
 		return m_pressedMaterial;
+	}
+
+	inline const Rectf& ImageButtonWidget::GetPressedTextureCoords() const
+	{
+		return m_pressedTextureCoords;
 	}
 
 	inline const Rectf& ImageButtonWidget::GetTextureCoords() const
@@ -72,6 +82,13 @@ namespace Nz
 		m_style->OnUpdate();
 	}
 
+	inline void ImageButtonWidget::SetHoveredTextureCoords(const Rectf& coords)
+	{
+		m_hoveredTextureCoords = coords;
+
+		m_style->OnUpdate();
+	}
+
 	inline void ImageButtonWidget::SetMaterial(std::shared_ptr<MaterialInstance> material)
 	{
 		m_material = std::move(material);
@@ -83,6 +100,13 @@ namespace Nz
 	inline void ImageButtonWidget::SetPressedMaterial(std::shared_ptr<MaterialInstance> material)
 	{
 		m_pressedMaterial = std::move(material);
+
+		m_style->OnUpdate();
+	}
+
+	inline void ImageButtonWidget::SetPressedTextureCoords(const Rectf& coords)
+	{
+		m_pressedTextureCoords = coords;
 
 		m_style->OnUpdate();
 	}

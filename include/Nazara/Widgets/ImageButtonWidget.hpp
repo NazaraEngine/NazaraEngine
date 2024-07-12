@@ -26,6 +26,7 @@ namespace Nz
 			inline ImageButtonWidget(BaseWidget* parent, std::shared_ptr<MaterialInstance> material, const StyleFactory& styleFactory = nullptr);
 			inline ImageButtonWidget(BaseWidget* parent, std::shared_ptr<MaterialInstance> material, float cornerSize, float cornerTexCoords, const StyleFactory& styleFactory = nullptr);
 			ImageButtonWidget(BaseWidget* parent, std::shared_ptr<MaterialInstance> material, std::shared_ptr<MaterialInstance> hoveredMaterial, std::shared_ptr<MaterialInstance> pressedMaterial, float cornerSize, float cornerTexCoords, const StyleFactory& styleFactory = nullptr);
+			ImageButtonWidget(BaseWidget* parent, std::shared_ptr<MaterialInstance> material, const Rectf& coords, const Rectf& hoveredCoords, const Rectf& pressedCoords, float cornerSize, float cornerTexCoords, const StyleFactory& styleFactory = nullptr);
 			ImageButtonWidget(const ImageButtonWidget&) = delete;
 			ImageButtonWidget(ImageButtonWidget&&) = delete;
 			~ImageButtonWidget() = default;
@@ -34,15 +35,19 @@ namespace Nz
 			inline float GetCornerSize() const;
 			inline float GetCornerTexCoords() const;
 			inline const std::shared_ptr<MaterialInstance>& GetHoveredMaterial() const;
+			inline const Rectf& GetHoveredTextureCoords() const;
 			inline const std::shared_ptr<MaterialInstance>& GetMaterial() const;
 			inline const std::shared_ptr<MaterialInstance>& GetPressedMaterial() const;
+			inline const Rectf& GetPressedTextureCoords() const;
 			inline const Rectf& GetTextureCoords() const;
 
 			inline void SetColor(const Color& color);
 			inline void SetCorner(float size, float texcoords);
 			inline void SetHoveredMaterial(std::shared_ptr<MaterialInstance> material);
+			inline void SetHoveredTextureCoords(const Rectf& coords);
 			inline void SetMaterial(std::shared_ptr<MaterialInstance> material);
 			inline void SetPressedMaterial(std::shared_ptr<MaterialInstance> material);
+			inline void SetPressedTextureCoords(const Rectf& coords);
 			inline void SetTextureCoords(const Rectf& coords);
 
 			ImageButtonWidget& operator=(const ImageButtonWidget&) = delete;
@@ -57,7 +62,6 @@ namespace Nz
 			bool OnMouseButtonPress(int x, int y, Mouse::Button button) override;
 			bool OnMouseButtonRelease(int x, int y, Mouse::Button button) override;
 			void OnMouseExit() override;
-
 			void OnRenderLayerUpdated(int baseRenderLayer) override;
 
 			void UpdatePreferredSize();
@@ -67,6 +71,8 @@ namespace Nz
 			std::shared_ptr<MaterialInstance> m_material;
 			std::shared_ptr<MaterialInstance> m_pressedMaterial;
 			Color m_color;
+			Rectf m_hoveredTextureCoords;
+			Rectf m_pressedTextureCoords;
 			Rectf m_textureCoords;
 			float m_cornerSize;
 			float m_cornerTexCoords;
