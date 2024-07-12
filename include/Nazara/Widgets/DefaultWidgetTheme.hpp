@@ -37,7 +37,6 @@ namespace Nz
 
 		private:
 			std::shared_ptr<MaterialInstance> m_buttonMaterial;
-			std::shared_ptr<MaterialInstance> m_buttonDisabledMaterial;
 			std::shared_ptr<MaterialInstance> m_buttonHoveredMaterial;
 			std::shared_ptr<MaterialInstance> m_buttonPressedHoveredMaterial;
 			std::shared_ptr<MaterialInstance> m_buttonPressedMaterial;
@@ -55,7 +54,6 @@ namespace Nz
 			std::shared_ptr<MaterialInstance> m_scrollbarButtonHoveredMaterial;
 			std::shared_ptr<MaterialInstance> m_scrollbarButtonGrabbedMaterial;
 			std::shared_ptr<MaterialInstance> m_textBoxMaterial;
-			std::shared_ptr<MaterialInstance> m_textBoxDisabledMaterial;
 	};
 }
 

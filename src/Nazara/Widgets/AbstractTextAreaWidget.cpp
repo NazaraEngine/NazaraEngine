@@ -50,9 +50,17 @@ namespace Nz
 			return;
 
 		if (enable)
+		{
+			EnableMouseInput(true);
+			SetCursor(SystemCursor::Text);
 			m_style->OnEnabled();
+		}
 		else
+		{
+			EnableMouseInput(false);
+			SetCursor(SystemCursor::Default);
 			m_style->OnDisabled();
+		}
 
 		m_isEnabled = enable;
 	}

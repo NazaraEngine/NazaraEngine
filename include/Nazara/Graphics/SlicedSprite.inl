@@ -38,9 +38,12 @@ namespace Nz
 
 	inline void SlicedSprite::SetColor(const Color& color)
 	{
-		m_color = color;
+		if (m_color != color)
+		{
+			m_color = color;
 
-		UpdateVertices();
+			UpdateVertices();
+		}
 	}
 
 	inline void SlicedSprite::SetCorners(const Corner& topLeftCorner, const Corner& bottomRightCorner)

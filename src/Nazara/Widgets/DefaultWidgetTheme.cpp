@@ -18,10 +18,6 @@ namespace Nz
 			#include <Nazara/Widgets/Resources/DefaultTheme/Button.png.h>
 		};
 
-		constexpr UInt8 s_defaultThemeButtonDisabledImage[] = {
-			#include <Nazara/Widgets/Resources/DefaultTheme/ButtonDisabled.png.h>
-		};
-
 		constexpr UInt8 s_defaultThemeButtonHoveredImage[] = {
 			#include <Nazara/Widgets/Resources/DefaultTheme/ButtonHovered.png.h>
 		};
@@ -129,10 +125,6 @@ namespace Nz
 		constexpr UInt8 s_defaultThemeTextAreaBackgroundImage[] = {
 			#include <Nazara/Widgets/Resources/DefaultTheme/TextArea.png.h>
 		};
-
-		constexpr UInt8 s_defaultThemeTextAreaDisabledBackgroundImage[] = {
-			#include <Nazara/Widgets/Resources/DefaultTheme/TextAreaDisabled.png.h>
-		};
 	}
 
 	DefaultWidgetTheme::DefaultWidgetTheme()
@@ -149,7 +141,6 @@ namespace Nz
 
 		// Button materials
 		m_buttonMaterial = CreateMaterialFromTexture(s_defaultThemeButtonImage);
-		m_buttonDisabledMaterial = CreateMaterialFromTexture(s_defaultThemeButtonDisabledImage);
 		m_buttonHoveredMaterial = CreateMaterialFromTexture(s_defaultThemeButtonHoveredImage);
 		m_buttonPressedMaterial = CreateMaterialFromTexture(s_defaultThemeButtonPressedImage);
 		m_buttonPressedHoveredMaterial = CreateMaterialFromTexture(s_defaultThemeButtonPressedHoveredImage);
@@ -169,7 +160,6 @@ namespace Nz
 
 		// TextArea
 		m_textBoxMaterial = CreateMaterialFromTexture(s_defaultThemeTextAreaBackgroundImage);
-		m_textBoxDisabledMaterial = CreateMaterialFromTexture(s_defaultThemeTextAreaDisabledBackgroundImage);
 
 		// Config
 		m_config.scrollbar.buttonCornerSize = 0.f;
@@ -201,7 +191,6 @@ namespace Nz
 		SimpleButtonWidgetStyle::StyleConfig styleConfig;
 		styleConfig.cornerSize = 20.f;
 		styleConfig.cornerTexCoords = 20.f / 44.f;
-		styleConfig.disabledMaterial = m_buttonDisabledMaterial;
 		styleConfig.hoveredMaterial = m_buttonHoveredMaterial;
 		styleConfig.material = m_buttonMaterial;
 		styleConfig.pressedHoveredMaterial = m_buttonPressedHoveredMaterial;
@@ -283,7 +272,6 @@ namespace Nz
 		styleConfig.backgroundCornerSize = 20.f;
 		styleConfig.backgroundCornerTexCoords = 20.f / 44.f;
 		styleConfig.backgroundMaterial = m_textBoxMaterial;
-		styleConfig.backgroundDisabledMaterial = m_textBoxDisabledMaterial;
 		styleConfig.insertionCursorColor = Color::Black();
 		styleConfig.padding = { 10.f, 10.f };
 		styleConfig.selectionCursorColor = Color(0.f, 0.f, 0.f, 0.2f);

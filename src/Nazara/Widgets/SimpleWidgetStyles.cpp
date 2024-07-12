@@ -111,15 +111,25 @@ namespace Nz
 	void SimpleButtonWidgetStyle::UpdateMaterial(bool hovered, bool pressed, bool disabled)
 	{
 		if (disabled)
-			m_sprite->SetMaterial(m_disabledMaterial);
-		else if (pressed && hovered && m_pressedHoveredMaterial)
-			m_sprite->SetMaterial(m_pressedHoveredMaterial);
-		else if (pressed && m_pressedMaterial)
-			m_sprite->SetMaterial(m_pressedMaterial);
-		else if (hovered && m_hoveredMaterial)
-			m_sprite->SetMaterial(m_hoveredMaterial);
+		{
+			if (m_disabledMaterial)
+				m_sprite->SetMaterial(m_disabledMaterial);
+			else
+				m_sprite->SetColor(Color(0.5f));
+		}
 		else
-			m_sprite->SetMaterial(m_material);
+		{
+			m_sprite->SetColor(Color::White());
+
+			if (pressed && hovered && m_pressedHoveredMaterial)
+				m_sprite->SetMaterial(m_pressedHoveredMaterial);
+			else if (pressed && m_pressedMaterial)
+				m_sprite->SetMaterial(m_pressedMaterial);
+			else if (hovered && m_hoveredMaterial)
+				m_sprite->SetMaterial(m_hoveredMaterial);
+			else
+				m_sprite->SetMaterial(m_material);
+		}
 	}
 
 	/************************************************************************/
@@ -314,7 +324,7 @@ namespace Nz
 			}
 			else
 			{
-				m_sprite->SetColor(owner->GetColor() * Nz::Color::FromRGB8(120, 120, 120));
+				m_sprite->SetColor(owner->GetColor() * Color::FromRGB8(120, 120, 120));
 				m_sprite->SetMaterial(owner->GetMaterial());
 			}
 		}
@@ -618,11 +628,15 @@ namespace Nz
 				backgroundCorner.size = Vector2f(m_config.backgroundCornerSize);
 				backgroundCorner.textureCoords = Vector2f(m_config.backgroundCornerTexCoords);
 
-				m_backgroundSprite = std::make_shared<SlicedSprite>((textAreaWidget->IsEnabled()) ? m_config.backgroundMaterial : m_config.backgroundDisabledMaterial);
+				const std::shared_ptr<MaterialInstance>& disabledMaterial = (m_config.backgroundDisabledMaterial) ? m_config.backgroundDisabledMaterial : m_config.backgroundMaterial;
+
+				m_backgroundSprite = std::make_shared<SlicedSprite>((textAreaWidget->IsEnabled()) ? m_config.backgroundMaterial : disabledMaterial);
 				m_backgroundSprite->SetColor(m_backgroundColor);
 				m_backgroundSprite->SetCorners(backgroundCorner, backgroundCorner);
 				m_backgroundSprite->SetSize(textAreaWidget->GetSize());
 				m_backgroundSprite->UpdateRenderLayer(m_baseRenderLayer);
+				if (!textAreaWidget->IsEnabled() && disabledMaterial == m_config.backgroundMaterial)
+					m_backgroundSprite->SetColor(Color(0.5f));
 			}
 
 			m_backgroundEntity = CreateGraphicsEntity();
@@ -647,14 +661,22 @@ namespace Nz
 
 	void SimpleTextAreaWidgetStyle::OnDisabled()
 	{
-		if (m_backgroundSprite && m_config.backgroundDisabledMaterial)
-			m_backgroundSprite->SetMaterial(m_config.backgroundDisabledMaterial);
+		if (m_backgroundSprite)
+		{
+			if (m_config.backgroundDisabledMaterial)
+				m_backgroundSprite->SetMaterial(m_config.backgroundDisabledMaterial);
+			else
+				m_backgroundSprite->SetColor(Color(0.5f));
+		}
 	}
 
 	void SimpleTextAreaWidgetStyle::OnEnabled()
 	{
 		if (m_backgroundSprite)
+		{
+			m_backgroundSprite->SetColor(Color::White());
 			m_backgroundSprite->SetMaterial(m_config.backgroundMaterial);
+		}
 	}
 
 	void SimpleTextAreaWidgetStyle::OnFocusLost()
