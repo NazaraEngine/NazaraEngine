@@ -14,7 +14,7 @@ SCENARIO("Fonts", "[TextRenderer][Font]")
 	{
 		std::shared_ptr<Nz::Font> font = Nz::Font::GetDefault();
 
-		std::shared_ptr<Nz::GuillotineImageAtlas> imageAtlas = std::make_shared<Nz::GuillotineImageAtlas>();
+		std::shared_ptr<Nz::GuillotineImageAtlas> imageAtlas = std::make_shared<Nz::GuillotineImageAtlas>(Nz::PixelFormat::A8);
 		imageAtlas->SetMaxLayerSize(1024);
 
 		font->SetAtlas(imageAtlas);

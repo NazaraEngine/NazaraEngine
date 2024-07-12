@@ -10,6 +10,7 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/AbstractAtlas.hpp>
 #include <Nazara/Core/AbstractImage.hpp>
+#include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/GuillotineBinPack.hpp>
 #include <Nazara/Core/Image.hpp>
 #include <memory>
@@ -20,7 +21,7 @@ namespace Nz
 	class NAZARA_CORE_API GuillotineImageAtlas : public AbstractAtlas
 	{
 		public:
-			GuillotineImageAtlas();
+			inline GuillotineImageAtlas(PixelFormat pixelFormat, UInt32 initialLayerSize = 512);
 			GuillotineImageAtlas(const GuillotineImageAtlas&) = delete;
 			GuillotineImageAtlas(GuillotineImageAtlas&&) noexcept = default;
 			~GuillotineImageAtlas() = default;
@@ -29,18 +30,19 @@ namespace Nz
 
 			void Free(SparsePtr<const Rectui> rects, SparsePtr<std::size_t> layers, std::size_t count) override;
 
-			unsigned int GetMaxLayerSize() const;
-			GuillotineBinPack::FreeRectChoiceHeuristic GetRectChoiceHeuristic() const;
-			GuillotineBinPack::GuillotineSplitHeuristic GetRectSplitHeuristic() const;
+			inline UInt32 GetMaxLayerSize() const;
+			inline GuillotineBinPack::FreeRectChoiceHeuristic GetRectChoiceHeuristic() const;
+			inline GuillotineBinPack::GuillotineSplitHeuristic GetRectSplitHeuristic() const;
 			AbstractImage* GetLayer(std::size_t layerIndex) const override;
 			std::size_t GetLayerCount() const override;
+			inline PixelFormat GetPixelFormat() const;
 			DataStoreFlags GetStorage() const override;
 
 			bool Insert(const Image& image, Rectui* rect, bool* flipped, std::size_t* layerIndex) override;
 
-			void SetMaxLayerSize(unsigned int maxLayerSize);
-			void SetRectChoiceHeuristic(GuillotineBinPack::FreeRectChoiceHeuristic heuristic);
-			void SetRectSplitHeuristic(GuillotineBinPack::GuillotineSplitHeuristic heuristic);
+			inline void SetMaxLayerSize(UInt32 maxLayerSize);
+			inline void SetRectChoiceHeuristic(GuillotineBinPack::FreeRectChoiceHeuristic heuristic);
+			inline void SetRectSplitHeuristic(GuillotineBinPack::GuillotineSplitHeuristic heuristic);
 
 			GuillotineImageAtlas& operator=(const GuillotineImageAtlas&) = delete;
 			GuillotineImageAtlas& operator=(GuillotineImageAtlas&&) noexcept = default;
@@ -72,8 +74,12 @@ namespace Nz
 			mutable std::vector<Layer> m_layers;
 			GuillotineBinPack::FreeRectChoiceHeuristic m_rectChoiceHeuristic;
 			GuillotineBinPack::GuillotineSplitHeuristic m_rectSplitHeuristic;
-			unsigned int m_maxLayerSize;
+			PixelFormat m_pixelFormat;
+			UInt32 m_initialLayerSize;
+			UInt32 m_maxLayerSize;
 	};
 }
+
+#include <Nazara/Core/GuillotineImageAtlas.inl>
 
 #endif // NAZARA_CORE_GUILLOTINEIMAGEATLAS_HPP

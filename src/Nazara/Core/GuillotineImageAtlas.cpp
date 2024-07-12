@@ -3,22 +3,10 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Core/GuillotineImageAtlas.hpp>
-#include <Nazara/Core/Export.hpp>
+#include <Nazara/Core/PixelFormat.hpp>
 
 namespace Nz
 {
-	namespace
-	{
-		constexpr Vector2ui s_guillotineAtlasStartSize(512);
-	}
-
-	GuillotineImageAtlas::GuillotineImageAtlas() :
-	m_rectChoiceHeuristic(GuillotineBinPack::RectBestAreaFit),
-	m_rectSplitHeuristic(GuillotineBinPack::SplitMinimizeArea),
-	m_maxLayerSize(16384)
-	{
-	}
-
 	void GuillotineImageAtlas::Clear()
 	{
 		m_layers.clear();
@@ -34,21 +22,6 @@ namespace Nz
 			m_layers[layers[i]].binPack.FreeRectangle(rects[i]);
 			m_layers[layers[i]].freedRectangles++;
 		}
-	}
-
-	unsigned int GuillotineImageAtlas::GetMaxLayerSize() const
-	{
-		return m_maxLayerSize;
-	}
-
-	GuillotineBinPack::FreeRectChoiceHeuristic GuillotineImageAtlas::GetRectChoiceHeuristic() const
-	{
-		return m_rectChoiceHeuristic;
-	}
-
-	GuillotineBinPack::GuillotineSplitHeuristic GuillotineImageAtlas::GetRectSplitHeuristic() const
-	{
-		return m_rectSplitHeuristic;
 	}
 
 	AbstractImage* GuillotineImageAtlas::GetLayer(std::size_t layerIndex) const
@@ -73,9 +46,23 @@ namespace Nz
 
 	bool GuillotineImageAtlas::Insert(const Image& image, Rectui* rect, bool* flipped, std::size_t* layerIndex)
 	{
+		NazaraAssert(layerIndex || m_layers.size() <= 1, "invalid layerIndex on a multi-layer atlas");
+
 		// Ensure there's at least one layer before inserting
 		if (m_layers.empty())
-			m_layers.emplace_back();
+		{
+			Vector2ui32 layerSize(m_initialLayerSize);
+
+			Layer layer;
+			if (!ResizeLayer(layer, layerSize))
+			{
+				NazaraError("failed to allocate initial layer");
+				return false;
+			}
+
+			layer.binPack.Expand(layerSize);
+			m_layers.emplace_back(std::move(layer));
+		}
 
 		// Reserve some space for that rectangle (pixel copy only happens in ProcessGlyphQueue)
 		for (std::size_t i = 0; i < m_layers.size(); ++i)
@@ -94,19 +81,29 @@ namespace Nz
 				// Found some space, queue glyph copy
 				layer.queuedGlyphs.resize(layer.queuedGlyphs.size()+1);
 				QueuedGlyph& glyph = layer.queuedGlyphs.back();
-				glyph.flipped = *flipped;
-				glyph.image = image; // Copy-On-Write
+				glyph.flipped = (flipped) ? *flipped : false; //< if flipped is nullptr, flipping is forbidden
 				glyph.rect = *rect;
 
-				*layerIndex = i;
+				// Image implements Copy-On-Write, so if no conversion is required this will not copy
+				glyph.image = image;
+				if (!glyph.image.Convert(m_pixelFormat))
+				{
+					layer.binPack.FreeRectangle(glyph.rect);
+					layer.freedRectangles++;
+
+					NazaraErrorFmt("failed to convert image to {0}", PixelFormatInfo::GetName(m_pixelFormat));
+					return false;
+				}
+
+				if (layerIndex)
+					*layerIndex = i;
+
 				return true;
 			}
 			else if (i == m_layers.size() - 1)
 			{
 				// Last layer and glyph can't be inserted, try to double the layer size
 				Vector2ui newSize = layer.binPack.GetSize() * 2;
-				if (newSize == Vector2ui::Zero())
-					newSize = s_guillotineAtlasStartSize;
 
 				// Limit image atlas size to prevent allocating too much contiguous memory blocks
 				if (newSize.x <= m_maxLayerSize && newSize.y <= m_maxLayerSize && ResizeLayer(layer, newSize))
@@ -118,8 +115,14 @@ namespace Nz
 				}
 				else
 				{
+					if (!layerIndex)
+					{
+						NazaraError("atlas cannot allocate a new layer since layerIndex output pointer is null");
+						return false;
+					}
+
 					// Atlas cannot be enlarged, make a new layer
-					newSize = s_guillotineAtlasStartSize;
+					newSize = { m_initialLayerSize, m_initialLayerSize };
 
 					Layer newLayer;
 					if (!ResizeLayer(newLayer, newSize))
@@ -140,24 +143,9 @@ namespace Nz
 		NAZARA_UNREACHABLE();
 	}
 
-	void GuillotineImageAtlas::SetMaxLayerSize(unsigned int maxLayerSize)
-	{
-		m_maxLayerSize = maxLayerSize;
-	}
-
-	void GuillotineImageAtlas::SetRectChoiceHeuristic(GuillotineBinPack::FreeRectChoiceHeuristic heuristic)
-	{
-		m_rectChoiceHeuristic = heuristic;
-	}
-
-	void GuillotineImageAtlas::SetRectSplitHeuristic(GuillotineBinPack::GuillotineSplitHeuristic heuristic)
-	{
-		m_rectSplitHeuristic = heuristic;
-	}
-
 	std::shared_ptr<AbstractImage> GuillotineImageAtlas::ResizeImage(const std::shared_ptr<AbstractImage>& oldImage, const Vector2ui& size) const
 	{
-		std::shared_ptr<Image> newImage = std::make_shared<Image>(ImageType::E2D, PixelFormat::A8, size.x, size.y);
+		std::shared_ptr<Image> newImage = std::make_shared<Image>(ImageType::E2D, m_pixelFormat, size.x, size.y);
 		if (oldImage)
 		{
 			const Image& srcImage = SafeCast<const Image&>(*oldImage);
@@ -211,8 +199,8 @@ namespace Nz
 			if (paddingX > 0 || paddingY > 0)
 			{
 				// Prefill the rectangle if we have some padding
-				pixelBuffer.resize(glyph.rect.width * glyph.rect.height);
-				std::memset(pixelBuffer.data(), 0, glyph.rect.width * glyph.rect.height * sizeof(UInt8));
+				pixelBuffer.clear();
+				pixelBuffer.resize(PixelFormatInfo::ComputeSize(m_pixelFormat, glyph.rect.width, glyph.rect.height, 1));
 
 				layer.image->Update(pixelBuffer.data(), glyph.rect);
 			}
@@ -228,8 +216,8 @@ namespace Nz
 				NazaraAssert(src, "glyph image has no pixels");
 				UInt8* ptr = pixelBuffer.data();
 
-				unsigned int lineStride = glyphWidth * sizeof(UInt8); // BPP = 1
-				src += lineStride-1; // Top-right
+				unsigned int lineStride = glyphWidth * PixelFormatInfo::GetBytesPerPixel(m_pixelFormat);
+				src += lineStride - 1; // Top-right
 				for (unsigned int x = 0; x < glyphWidth; ++x)
 				{
 					for (unsigned int y = 0; y < glyphHeight; ++y)
@@ -238,7 +226,7 @@ namespace Nz
 						src += lineStride;
 					}
 
-					src -= glyphHeight*lineStride + 1;
+					src -= glyphHeight * lineStride + 1;
 				}
 
 				pixels = pixelBuffer.data();

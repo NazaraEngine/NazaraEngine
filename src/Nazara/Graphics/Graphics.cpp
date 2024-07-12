@@ -163,7 +163,7 @@ namespace Nz
 		RegisterPipelinePasses();
 		BuildDefaultPipelinePasses();
 
-		Font::SetDefaultAtlas(std::make_shared<GuillotineTextureAtlas>(*m_renderDevice));
+		Font::SetDefaultAtlas(std::make_shared<GuillotineTextureAtlas>(*m_renderDevice, PixelFormat::R8, PixelFormat::A8));
 
 		m_materialInstanceLoader.RegisterLoader(Loaders::GetMaterialInstanceLoader_Texture()); // texture to material loader
 		m_modelLoader.RegisterLoader(Loaders::GetModelLoader_Mesh());

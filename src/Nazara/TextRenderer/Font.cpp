@@ -512,7 +512,7 @@ namespace Nz
 
 	bool Font::Initialize()
 	{
-		s_defaultAtlas = std::make_shared<GuillotineImageAtlas>();
+		s_defaultAtlas = std::make_shared<GuillotineImageAtlas>(PixelFormat::A8);
 		s_defaultGlyphBorder = 1;
 		s_defaultMinimumStepSize = 1;
 

@@ -8,6 +8,7 @@
 #define NAZARA_GRAPHICS_GUILLOTINETEXTUREATLAS_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/GuillotineImageAtlas.hpp>
 #include <Nazara/Graphics/Export.hpp>
 
@@ -18,7 +19,8 @@ namespace Nz
 	class NAZARA_GRAPHICS_API GuillotineTextureAtlas : public GuillotineImageAtlas
 	{
 		public:
-			inline GuillotineTextureAtlas(RenderDevice& renderDevice);
+			inline GuillotineTextureAtlas(RenderDevice& renderDevice, PixelFormat pixelFormat, UInt32 initialLayerSize = 512);
+			inline GuillotineTextureAtlas(RenderDevice& renderDevice, PixelFormat texturePixelFormat, PixelFormat imagePixelFormat, UInt32 initialLayerSize = 512);
 			~GuillotineTextureAtlas() = default;
 
 			DataStoreFlags GetStorage() const override;
@@ -27,6 +29,7 @@ namespace Nz
 			std::shared_ptr<AbstractImage> ResizeImage(const std::shared_ptr<AbstractImage>& oldImage, const Vector2ui& size) const override;
 
 			RenderDevice& m_renderDevice;
+			PixelFormat m_texturePixelFormat;
 	};
 }
 
