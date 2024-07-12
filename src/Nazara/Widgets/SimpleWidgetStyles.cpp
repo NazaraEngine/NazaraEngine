@@ -21,16 +21,12 @@ namespace Nz
 {
 	SimpleButtonWidgetStyle::SimpleButtonWidgetStyle(ButtonWidget* buttonWidget, StyleConfig config) :
 	ButtonWidgetStyle(buttonWidget, 2),
-	m_disabledMaterial(std::move(config.disabledMaterial)),
-	m_hoveredMaterial(std::move(config.hoveredMaterial)),
-	m_material(std::move(config.material)),
-	m_pressedMaterial(std::move(config.pressedMaterial)),
-	m_pressedHoveredMaterial(std::move(config.pressedHoveredMaterial)),
+	m_styleConfig(std::move(config)),
 	m_isDisabled(false),
 	m_isHovered(false),
 	m_isPressed(false)
 	{
-		assert(m_material);
+		assert(m_styleConfig.material);
 
 		auto& registry = GetRegistry();
 		UInt32 renderMask = GetRenderMask();
@@ -39,8 +35,9 @@ namespace Nz
 		corner.size = Vector2f(config.cornerSize);
 		corner.textureCoords = Vector2f(config.cornerTexCoords);
 
-		m_sprite = std::make_shared<SlicedSprite>(m_material);
+		m_sprite = std::make_shared<SlicedSprite>(m_styleConfig.material);
 		m_sprite->SetCorners(corner, corner);
+		m_sprite->SetTextureCoords(m_styleConfig.coords);
 
 		m_textSprite = std::make_shared<TextSprite>(Widgets::Instance()->GetTransparentMaterial());
 
@@ -112,8 +109,8 @@ namespace Nz
 	{
 		if (disabled)
 		{
-			if (m_disabledMaterial)
-				m_sprite->SetMaterial(m_disabledMaterial);
+			if (m_styleConfig.disabledCoords)
+				m_sprite->SetTextureCoords(*m_styleConfig.disabledCoords);
 			else
 				m_sprite->SetColor(Color(0.5f));
 		}
@@ -121,14 +118,14 @@ namespace Nz
 		{
 			m_sprite->SetColor(Color::White());
 
-			if (pressed && hovered && m_pressedHoveredMaterial)
-				m_sprite->SetMaterial(m_pressedHoveredMaterial);
-			else if (pressed && m_pressedMaterial)
-				m_sprite->SetMaterial(m_pressedMaterial);
-			else if (hovered && m_hoveredMaterial)
-				m_sprite->SetMaterial(m_hoveredMaterial);
+			if (pressed && hovered && m_styleConfig.pressedHoveredCoords)
+				m_sprite->SetTextureCoords(*m_styleConfig.pressedHoveredCoords);
+			else if (pressed && m_styleConfig.pressedCoords)
+				m_sprite->SetTextureCoords(*m_styleConfig.pressedCoords);
+			else if (hovered && m_styleConfig.hoveredCoords)
+				m_sprite->SetTextureCoords(*m_styleConfig.hoveredCoords);
 			else
-				m_sprite->SetMaterial(m_material);
+				m_sprite->SetTextureCoords(m_styleConfig.coords);
 		}
 	}
 
@@ -136,15 +133,10 @@ namespace Nz
 
 	SimpleCheckboxWidgetStyle::SimpleCheckboxWidgetStyle(CheckboxWidget* buttonWidget, StyleConfig config) :
 	CheckboxWidgetStyle(buttonWidget, 2),
-	m_checkMaterial(std::move(config.checkMaterial)),
-	m_hoveredMaterial(std::move(config.backgroundHoveredMaterial)),
-	m_material(std::move(config.backgroundMaterial)),
-	m_tristateMaterial(std::move(config.tristateMaterial)),
+	m_styleConfig(std::move(config)),
 	m_isHovered(false)
 	{
-		assert(m_material);
-		assert(m_checkMaterial);
-		assert(m_tristateMaterial);
+		assert(m_styleConfig.material);
 
 		auto& registry = GetRegistry();
 		UInt32 renderMask = GetRenderMask();
@@ -153,10 +145,12 @@ namespace Nz
 		corner.size = Vector2f(config.backgroundCornerSize);
 		corner.textureCoords = Vector2f(config.backgroundCornerTexCoords);
 
-		m_backgroundSprite = std::make_shared<SlicedSprite>(m_material);
+		m_backgroundSprite = std::make_shared<SlicedSprite>(m_styleConfig.material);
+		m_backgroundSprite->SetTextureCoords(m_styleConfig.backgroundCoords);
 		m_backgroundSprite->SetCorners(corner, corner);
 
-		m_checkSprite = std::make_shared<Sprite>(m_checkMaterial);
+		m_checkSprite = std::make_shared<Sprite>(m_styleConfig.material);
+		m_checkSprite->SetTextureCoords(m_styleConfig.checkCoords);
 
 		m_backgroundEntity = CreateGraphicsEntity();
 		registry.get<GraphicsComponent>(m_backgroundEntity).AttachRenderable(m_backgroundSprite, renderMask);
@@ -204,7 +198,7 @@ namespace Nz
 			case CheckboxState::Tristate:
 			case CheckboxState::Checked:
 			{
-				m_checkSprite->SetMaterial((newState == CheckboxState::Checked) ? m_checkMaterial : m_tristateMaterial);
+				m_checkSprite->SetTextureCoords((newState == CheckboxState::Checked) ? m_styleConfig.checkCoords : m_styleConfig.tristateCoords);
 				GetRegistry().get<GraphicsComponent>(m_checkEntity).Show();
 				break;
 			}
@@ -219,10 +213,10 @@ namespace Nz
 
 	void SimpleCheckboxWidgetStyle::UpdateMaterial(bool hovered)
 	{
-		if (hovered && m_hoveredMaterial)
-			m_backgroundSprite->SetMaterial(m_hoveredMaterial);
+		if (hovered && m_styleConfig.backgroundHoveredCoords)
+			m_backgroundSprite->SetTextureCoords(*m_styleConfig.backgroundHoveredCoords);
 		else
-			m_backgroundSprite->SetMaterial(m_material);
+			m_backgroundSprite->SetTextureCoords(m_styleConfig.backgroundCoords);
 	}
 
 	/************************************************************************/
@@ -239,8 +233,12 @@ namespace Nz
 		hoveredCorner.size = Vector2f(config.hoveredCornerSize, config.hoveredCornerSize);
 		hoveredCorner.textureCoords = Vector2f(config.hoveredCornerTexCoords, config.hoveredCornerTexCoords);
 
-		m_hoveredSprite = std::make_shared<SlicedSprite>(config.hoveredMaterial);
-		m_hoveredSprite->SetCorners(hoveredCorner, hoveredCorner);
+		if (config.hoveredCoords)
+		{
+			m_hoveredSprite = std::make_shared<SlicedSprite>(config.material);
+			m_hoveredSprite->SetCorners(hoveredCorner, hoveredCorner);
+			m_hoveredSprite->SetTextureCoords(*config.hoveredCoords);
+		}
 
 		float imageCornerSize = imageButtonWidget->GetCornerSize();
 		float imageCornerTexCoords = imageButtonWidget->GetCornerTexCoords();
@@ -261,8 +259,9 @@ namespace Nz
 
 	void SimpleImageButtonWidgetStyle::Layout(const Vector2f& size)
 	{
-		m_hoveredSprite->SetSize(size);
 		m_sprite->SetSize(size);
+		if (m_hoveredSprite)
+			m_hoveredSprite->SetSize(size);
 	}
 
 	void SimpleImageButtonWidgetStyle::OnHoverBegin()
@@ -294,7 +293,7 @@ namespace Nz
 		ImageButtonWidget* owner = GetOwnerWidget<ImageButtonWidget>();
 
 		// If a hovering material was added while we're being hovered, we need to detach the hovering sprite
-		if (owner->GetHoveredMaterial())
+		if (owner->GetHoveredMaterial() && m_hoveredSprite)
 		{
 			GraphicsComponent& gfxComponent = GetRegistry().get<GraphicsComponent>(m_entity);
 			gfxComponent.DetachRenderable(m_hoveredSprite);
@@ -308,7 +307,8 @@ namespace Nz
 	void SimpleImageButtonWidgetStyle::UpdateRenderLayer(int baseRenderLayer)
 	{
 		m_sprite->UpdateRenderLayer(baseRenderLayer);
-		m_hoveredSprite->UpdateRenderLayer(baseRenderLayer + 1);
+		if (m_hoveredSprite)
+			m_hoveredSprite->UpdateRenderLayer(baseRenderLayer + 1);
 	}
 
 	void SimpleImageButtonWidgetStyle::Update(bool hovered, bool pressed)
@@ -327,11 +327,14 @@ namespace Nz
 				m_sprite->SetColor(owner->GetColor() * Color::FromRGB8(120, 120, 120));
 				m_sprite->SetMaterial(owner->GetMaterial());
 			}
+
+			m_sprite->SetTextureCoords(owner->GetPressedTextureCoords());
 		}
 		else
 		{
 			m_sprite->SetColor(owner->GetColor());
 			m_sprite->SetMaterial(owner->GetMaterial());
+			m_sprite->SetTextureCoords(owner->GetTextureCoords());
 		}
 
 		if (hovered)
@@ -339,14 +342,20 @@ namespace Nz
 			if (const auto& hoveredMaterial = owner->GetHoveredMaterial())
 			{
 				if (!pressed)
+				{
 					m_sprite->SetMaterial(hoveredMaterial);
+					m_sprite->SetTextureCoords(owner->GetHoveredTextureCoords());
+				}
 			}
 			else
 			{
 				if (!pressed)
+				{
 					m_sprite->SetMaterial(owner->GetMaterial());
+					m_sprite->SetTextureCoords(owner->GetTextureCoords());
+				}
 
-				if (!m_isHovered)
+				if (!m_isHovered && m_hoveredSprite)
 				{
 					GraphicsComponent& gfxComponent = GetRegistry().get<GraphicsComponent>(m_entity);
 					gfxComponent.AttachRenderable(m_hoveredSprite, GetRenderMask());
@@ -356,9 +365,12 @@ namespace Nz
 		else
 		{
 			if (!pressed)
+			{
 				m_sprite->SetMaterial(owner->GetMaterial());
+				m_sprite->SetTextureCoords(owner->GetTextureCoords());
+			}
 
-			if (m_isHovered)
+			if (m_isHovered && m_hoveredSprite)
 			{
 				GraphicsComponent& gfxComponent = GetRegistry().get<GraphicsComponent>(m_entity);
 				gfxComponent.DetachRenderable(m_hoveredSprite);
@@ -368,17 +380,16 @@ namespace Nz
 
 	/************************************************************************/
 
-	SimpleLabelWidgetStyle::SimpleLabelWidgetStyle(AbstractLabelWidget* labelWidget, std::shared_ptr<MaterialInstance> material, std::shared_ptr<MaterialInstance> hoveredMaterial) :
+	SimpleLabelWidgetStyle::SimpleLabelWidgetStyle(AbstractLabelWidget* labelWidget, StyleConfig styleConfig) :
 	LabelWidgetStyle(labelWidget, 1),
-	m_hoveredMaterial(std::move(hoveredMaterial)),
-	m_material(std::move(material))
+	m_styleConfig(std::move(styleConfig))
 	{
-		assert(m_material);
+		assert(m_styleConfig.material);
 
 		auto& registry = GetRegistry();
 		UInt32 renderMask = GetRenderMask();
 
-		m_textSprite = std::make_shared<TextSprite>(m_material);
+		m_textSprite = std::make_shared<TextSprite>(m_styleConfig.material);
 
 		m_entity = CreateGraphicsEntity();
 		registry.get<GraphicsComponent>(m_entity).AttachRenderable(m_textSprite, renderMask);
@@ -404,10 +415,10 @@ namespace Nz
 
 	void SimpleLabelWidgetStyle::UpdateMaterial(bool hovered)
 	{
-		if (hovered && m_hoveredMaterial)
-			m_textSprite->SetMaterial(m_hoveredMaterial);
+		if (hovered && m_styleConfig.hoveredMaterial)
+			m_textSprite->SetMaterial(m_styleConfig.hoveredMaterial);
 		else
-			m_textSprite->SetMaterial(m_material);
+			m_textSprite->SetMaterial(m_styleConfig.material);
 	}
 
 	void SimpleLabelWidgetStyle::UpdateRenderLayer(int baseRenderLayer)
@@ -424,12 +435,9 @@ namespace Nz
 
 	SimpleProgressBarWidgetStyle::SimpleProgressBarWidgetStyle(ProgressBarWidget* progressBarWidget, StyleConfig config) :
 	ProgressBarWidgetStyle(progressBarWidget, 2),
-	m_backgroundMaterial(std::move(config.backgroundMaterial)),
-	m_progressBarBeginColor(config.progressBarBeginColor),
-	m_progressBarEndColor(config.progressBarEndColor),
-	m_barOffset(config.barOffset)
+	m_styleConfig(std::move(config))
 	{
-		assert(m_backgroundMaterial);
+		assert(m_styleConfig.material);
 
 		auto& registry = GetRegistry();
 		UInt32 renderMask = GetRenderMask();
@@ -438,34 +446,35 @@ namespace Nz
 		backgroundCorner.size = Vector2f(config.backgroundCornerSize, config.backgroundCornerSize);
 		backgroundCorner.textureCoords = Vector2f(config.backgroundCornerTexCoords, config.backgroundCornerTexCoords);
 
-		m_backgroundSprite = std::make_shared<SlicedSprite>(m_backgroundMaterial);
+		m_backgroundSprite = std::make_shared<SlicedSprite>(m_styleConfig.material);
 		m_backgroundSprite->SetCorners(backgroundCorner, backgroundCorner);
+		m_backgroundSprite->SetTextureCoords(m_styleConfig.backgroundCoords);
 
 		m_backgroundEntity = CreateGraphicsEntity();
 		registry.get<GraphicsComponent>(m_backgroundEntity).AttachRenderable(m_backgroundSprite, renderMask);
 
 		m_progressBarSprite = std::make_shared<Sprite>(Widgets::Instance()->GetTransparentMaterial());
-		m_progressBarSprite->SetCornerColor(RectCorner::LeftBottom, m_progressBarBeginColor);
-		m_progressBarSprite->SetCornerColor(RectCorner::LeftTop, m_progressBarBeginColor);
-		m_progressBarSprite->SetCornerColor(RectCorner::RightBottom, m_progressBarEndColor);
-		m_progressBarSprite->SetCornerColor(RectCorner::RightTop, m_progressBarEndColor);
+		m_progressBarSprite->SetCornerColor(RectCorner::LeftBottom, m_styleConfig.progressBarBeginColor);
+		m_progressBarSprite->SetCornerColor(RectCorner::LeftTop, m_styleConfig.progressBarBeginColor);
+		m_progressBarSprite->SetCornerColor(RectCorner::RightBottom, m_styleConfig.progressBarEndColor);
+		m_progressBarSprite->SetCornerColor(RectCorner::RightTop, m_styleConfig.progressBarEndColor);
 
 		m_barEntity = CreateGraphicsEntity();
 		registry.get<GraphicsComponent>(m_barEntity).AttachRenderable(m_progressBarSprite, renderMask);
-		registry.get<NodeComponent>(m_barEntity).SetPosition({ m_barOffset, m_barOffset });
+		registry.get<NodeComponent>(m_barEntity).SetPosition({ m_styleConfig.barOffset, m_styleConfig.barOffset });
 	}
 
 	void SimpleProgressBarWidgetStyle::Layout(const Vector2f& size)
 	{
 		float fraction = GetOwnerWidget<ProgressBarWidget>()->GetFraction();
-		float width = std::max(fraction * (size.x - m_barOffset * 2.f), 0.f);
+		float width = std::max(fraction * (size.x - m_styleConfig.barOffset * 2.f), 0.f);
 
-		Color endColor = Lerp(m_progressBarBeginColor, m_progressBarEndColor, fraction);
+		Color endColor = Lerp(m_styleConfig.progressBarBeginColor, m_styleConfig.progressBarEndColor, fraction);
 		m_progressBarSprite->SetCornerColor(RectCorner::RightBottom, endColor);
 		m_progressBarSprite->SetCornerColor(RectCorner::RightTop, endColor);
 
 		m_backgroundSprite->SetSize(size);
-		m_progressBarSprite->SetSize({ width, size.y - m_barOffset * 2.f });
+		m_progressBarSprite->SetSize({ width, size.y - m_styleConfig.barOffset * 2.f });
 	}
 
 	void SimpleProgressBarWidgetStyle::UpdateRenderLayer(int baseRenderLayer)
@@ -497,7 +506,8 @@ namespace Nz
 		auto& registry = GetRegistry();
 		UInt32 renderMask = GetRenderMask();
 
-		m_backgroundScrollbarSprite = std::make_shared<Sprite>((scrollBarWidget->GetOrientation() == ScrollbarOrientation::Horizontal) ? m_config.backgroundHorizontalMaterial : m_config.backgroundVerticalMaterial);
+		m_backgroundScrollbarSprite = std::make_shared<Sprite>(m_config.material);
+		m_backgroundScrollbarSprite->SetTextureCoords((scrollBarWidget->GetOrientation() == ScrollbarOrientation::Horizontal) ? m_config.backgroundHorizontalCoords : m_config.backgroundVerticalCoords);
 
 		m_backgroundScrollbarSpriteEntity = CreateGraphicsEntity();
 		registry.get<GraphicsComponent>(m_backgroundScrollbarSpriteEntity).AttachRenderable(m_backgroundScrollbarSprite, renderMask);
@@ -509,17 +519,17 @@ namespace Nz
 	std::unique_ptr<ImageButtonWidget> SimpleScrollbarWidgetStyle::CreateBackButton(ScrollbarWidget* widget, ScrollbarOrientation orientation)
 	{
 		if (orientation == ScrollbarOrientation::Horizontal)
-			return std::make_unique<ImageButtonWidget>(widget, m_config.buttonLeftMaterial, m_config.buttonLeftHoveredMaterial, m_config.buttonLeftPressedMaterial, m_config.buttonCornerSize, m_config.buttonCornerTexcoords);
+			return std::make_unique<ImageButtonWidget>(widget, m_config.material, m_config.buttonLeftCoords, m_config.buttonLeftHoveredCoords, m_config.buttonLeftPressedCoords, m_config.buttonCornerSize, m_config.buttonCornerTexcoords);
 		else
-			return std::make_unique<ImageButtonWidget>(widget, m_config.buttonUpMaterial, m_config.buttonUpHoveredMaterial, m_config.buttonUpPressedMaterial, m_config.buttonCornerSize, m_config.buttonCornerTexcoords);
+			return std::make_unique<ImageButtonWidget>(widget, m_config.material, m_config.buttonUpCoords, m_config.buttonUpHoveredCoords, m_config.buttonUpPressedCoords, m_config.buttonCornerSize, m_config.buttonCornerTexcoords);
 	}
 
 	std::unique_ptr<ImageButtonWidget> SimpleScrollbarWidgetStyle::CreateForwardButton(ScrollbarWidget* widget, ScrollbarOrientation orientation)
 	{
 		if (orientation == ScrollbarOrientation::Horizontal)
-			return std::make_unique<ImageButtonWidget>(widget, m_config.buttonRightMaterial, m_config.buttonRightHoveredMaterial, m_config.buttonRightPressedMaterial, m_config.buttonCornerSize, m_config.buttonCornerTexcoords);
+			return std::make_unique<ImageButtonWidget>(widget, m_config.material, m_config.buttonRightCoords, m_config.buttonRightHoveredCoords, m_config.buttonRightPressedCoords, m_config.buttonCornerSize, m_config.buttonCornerTexcoords);
 		else
-			return std::make_unique<ImageButtonWidget>(widget, m_config.buttonDownMaterial, m_config.buttonDownHoveredMaterial, m_config.buttonDownPressedMaterial, m_config.buttonCornerSize, m_config.buttonCornerTexcoords);
+			return std::make_unique<ImageButtonWidget>(widget, m_config.material, m_config.buttonDownCoords, m_config.buttonDownHoveredCoords, m_config.buttonDownPressedCoords, m_config.buttonCornerSize, m_config.buttonCornerTexcoords);
 	}
 
 	void SimpleScrollbarWidgetStyle::Layout(const Vector2f& size)
@@ -536,14 +546,11 @@ namespace Nz
 
 	SimpleScrollbarButtonWidgetStyle::SimpleScrollbarButtonWidgetStyle(ScrollbarButtonWidget* scrollbarButtonWidget, StyleConfig config) :
 	ScrollbarButtonWidgetStyle(scrollbarButtonWidget, 1),
-	m_hoveredMaterial(std::move(config.hoveredMaterial)),
-	m_material(std::move(config.material)),
-	m_pressedMaterial(std::move(config.grabbedMaterial)),
-	m_pressedHoveredMaterial(std::move(config.grabbedHoveredMaterial)),
+	m_config(std::move(config)),
 	m_isHovered(false),
 	m_isPressed(false)
 	{
-		assert(m_material);
+		assert(m_config.material);
 
 		auto& registry = GetRegistry();
 		UInt32 renderMask = GetRenderMask();
@@ -552,8 +559,9 @@ namespace Nz
 		corner.size = Vector2f(config.cornerSize);
 		corner.textureCoords = Vector2f(config.cornerTexCoords);
 
-		m_sprite = std::make_shared<SlicedSprite>(m_material);
+		m_sprite = std::make_shared<SlicedSprite>(m_config.material);
 		m_sprite->SetCorners(corner, corner);
+		m_sprite->SetTextureCoords(m_config.coords);
 
 		m_entity = CreateGraphicsEntity();
 		registry.get<GraphicsComponent>(m_entity).AttachRenderable(m_sprite, renderMask);
@@ -595,22 +603,22 @@ namespace Nz
 
 	void SimpleScrollbarButtonWidgetStyle::Update(bool hovered, bool pressed)
 	{
-		if (pressed && hovered && m_pressedHoveredMaterial)
-			m_sprite->SetMaterial(m_pressedHoveredMaterial);
-		else if (pressed && m_pressedMaterial)
-			m_sprite->SetMaterial(m_pressedMaterial);
-		else if (hovered && m_hoveredMaterial)
-			m_sprite->SetMaterial(m_hoveredMaterial);
+		if (pressed && hovered && m_config.grabbedHoveredCoords)
+			m_sprite->SetTextureCoords(*m_config.grabbedHoveredCoords);
+		else if (pressed && m_config.grabbedCoords)
+			m_sprite->SetTextureCoords(*m_config.grabbedCoords);
+		else if (hovered && m_config.hoveredCoords)
+			m_sprite->SetTextureCoords(*m_config.hoveredCoords);
 		else
-			m_sprite->SetMaterial(m_material);
+			m_sprite->SetTextureCoords(m_config.coords);
 	}
 
 
 	SimpleTextAreaWidgetStyle::SimpleTextAreaWidgetStyle(AbstractTextAreaWidget* textAreaWidget, StyleConfig config) :
 	TextAreaWidgetStyle(textAreaWidget, 2),
-	m_config(std::move(config)),
 	m_backgroundEntity(entt::null),
 	m_backgroundColor(Color::White()),
+	m_config(std::move(config)),
 	m_hasFocus(false),
 	m_isDisabled(false)
 	{
@@ -644,14 +652,13 @@ namespace Nz
 				backgroundCorner.size = Vector2f(m_config.backgroundCornerSize);
 				backgroundCorner.textureCoords = Vector2f(m_config.backgroundCornerTexCoords);
 
-				const std::shared_ptr<MaterialInstance>& disabledMaterial = (m_config.backgroundDisabledMaterial) ? m_config.backgroundDisabledMaterial : m_config.backgroundMaterial;
-
-				m_backgroundSprite = std::make_shared<SlicedSprite>((textAreaWidget->IsEnabled()) ? m_config.backgroundMaterial : disabledMaterial);
+				m_backgroundSprite = std::make_shared<SlicedSprite>(m_config.material);
 				m_backgroundSprite->SetColor(m_backgroundColor);
 				m_backgroundSprite->SetCorners(backgroundCorner, backgroundCorner);
 				m_backgroundSprite->SetSize(textAreaWidget->GetSize());
+				m_backgroundSprite->SetTextureCoords((m_config.backgroundDisabledCoords) ? *m_config.backgroundDisabledCoords : m_config.backgroundCoords);
 				m_backgroundSprite->UpdateRenderLayer(m_baseRenderLayer);
-				if (!textAreaWidget->IsEnabled() && disabledMaterial == m_config.backgroundMaterial)
+				if (!textAreaWidget->IsEnabled() && !m_config.backgroundDisabledCoords)
 					m_backgroundSprite->SetColor(Color(0.5f));
 			}
 
@@ -679,8 +686,8 @@ namespace Nz
 	{
 		if (m_backgroundSprite)
 		{
-			if (m_config.backgroundDisabledMaterial)
-				m_backgroundSprite->SetMaterial(m_config.backgroundDisabledMaterial);
+			if (m_config.backgroundDisabledCoords)
+				m_backgroundSprite->SetTextureCoords(*m_config.backgroundDisabledCoords);
 			else
 				m_backgroundSprite->SetColor(Color(0.5f));
 		}
@@ -691,7 +698,7 @@ namespace Nz
 		if (m_backgroundSprite)
 		{
 			m_backgroundSprite->SetColor(Color::White());
-			m_backgroundSprite->SetMaterial(m_config.backgroundMaterial);
+			m_backgroundSprite->SetTextureCoords(m_config.backgroundCoords);
 		}
 	}
 

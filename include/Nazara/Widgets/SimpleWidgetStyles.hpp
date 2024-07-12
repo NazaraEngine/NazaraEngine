@@ -44,11 +44,12 @@ namespace Nz
 
 			struct StyleConfig
 			{
-				std::shared_ptr<MaterialInstance> disabledMaterial;
-				std::shared_ptr<MaterialInstance> hoveredMaterial;
 				std::shared_ptr<MaterialInstance> material;
-				std::shared_ptr<MaterialInstance> pressedMaterial;
-				std::shared_ptr<MaterialInstance> pressedHoveredMaterial;
+				std::optional<Rectf> disabledCoords;
+				std::optional<Rectf> hoveredCoords;
+				std::optional<Rectf> pressedCoords;
+				std::optional<Rectf> pressedHoveredCoords;
+				Rectf coords;
 				float cornerSize;
 				float cornerTexCoords;
 			};
@@ -57,15 +58,11 @@ namespace Nz
 			virtual void UpdateMaterial(bool hovered, bool pressed, bool disabled);
 
 		private:
-			std::shared_ptr<MaterialInstance> m_disabledMaterial;
-			std::shared_ptr<MaterialInstance> m_hoveredMaterial;
-			std::shared_ptr<MaterialInstance> m_material;
-			std::shared_ptr<MaterialInstance> m_pressedMaterial;
-			std::shared_ptr<MaterialInstance> m_pressedHoveredMaterial;
 			std::shared_ptr<SlicedSprite> m_sprite;
 			std::shared_ptr<TextSprite> m_textSprite;
 			entt::entity m_spriteEntity;
 			entt::entity m_textEntity;
+			StyleConfig m_styleConfig;
 			bool m_isDisabled;
 			bool m_isHovered;
 			bool m_isPressed;
@@ -94,10 +91,12 @@ namespace Nz
 
 			struct StyleConfig
 			{
-				std::shared_ptr<MaterialInstance> backgroundMaterial;
-				std::shared_ptr<MaterialInstance> backgroundHoveredMaterial;
-				std::shared_ptr<MaterialInstance> checkMaterial;
-				std::shared_ptr<MaterialInstance> tristateMaterial;
+				std::shared_ptr<MaterialInstance> material;
+				std::optional<Rectf> backgroundHoveredCoords;
+				Rectf backgroundCoords;
+				Rectf checkCoords;
+				Rectf coords;
+				Rectf tristateCoords;
 				float backgroundCornerSize;
 				float backgroundCornerTexCoords;
 			};
@@ -106,14 +105,11 @@ namespace Nz
 			virtual void UpdateMaterial(bool hovered);
 
 		private:
-			std::shared_ptr<MaterialInstance> m_checkMaterial;
-			std::shared_ptr<MaterialInstance> m_hoveredMaterial;
-			std::shared_ptr<MaterialInstance> m_material;
-			std::shared_ptr<MaterialInstance> m_tristateMaterial;
 			std::shared_ptr<Sprite> m_checkSprite;
 			std::shared_ptr<SlicedSprite> m_backgroundSprite;
 			entt::entity m_backgroundEntity;
 			entt::entity m_checkEntity;
+			StyleConfig m_styleConfig;
 			bool m_isHovered;
 	};
 
@@ -142,7 +138,9 @@ namespace Nz
 
 			struct StyleConfig
 			{
-				std::shared_ptr<MaterialInstance> hoveredMaterial;
+				std::shared_ptr<MaterialInstance> material;
+				std::optional<Rectf> hoveredCoords;
+				Rectf coords;
 				float hoveredCornerSize;
 				float hoveredCornerTexCoords;
 			};
@@ -154,6 +152,7 @@ namespace Nz
 			std::shared_ptr<SlicedSprite> m_hoveredSprite;
 			std::shared_ptr<SlicedSprite> m_sprite;
 			entt::entity m_entity;
+			StyleConfig m_styleConfig;
 			bool m_isHovered;
 			bool m_isPressed;
 	};
@@ -161,7 +160,9 @@ namespace Nz
 	class NAZARA_WIDGETS_API SimpleLabelWidgetStyle : public LabelWidgetStyle
 	{
 		public:
-			SimpleLabelWidgetStyle(AbstractLabelWidget* labelWidget, std::shared_ptr<MaterialInstance> material, std::shared_ptr<MaterialInstance> hoveredMaterial = {});
+			struct StyleConfig;
+
+			SimpleLabelWidgetStyle(AbstractLabelWidget* labelWidget, StyleConfig styleConfig);
 			SimpleLabelWidgetStyle(const SimpleLabelWidgetStyle&) = delete;
 			SimpleLabelWidgetStyle(SimpleLabelWidgetStyle&&) = default;
 			~SimpleLabelWidgetStyle() = default;
@@ -177,14 +178,21 @@ namespace Nz
 			SimpleLabelWidgetStyle& operator=(const SimpleLabelWidgetStyle&) = delete;
 			SimpleLabelWidgetStyle& operator=(SimpleLabelWidgetStyle&&) = default;
 
+			struct StyleConfig
+			{
+				std::shared_ptr<MaterialInstance> material;
+				std::shared_ptr<MaterialInstance> hoveredMaterial;
+				float hoveredCornerSize;
+				float hoveredCornerTexCoords;
+			};
+
 		protected:
 			virtual void UpdateMaterial(bool hovered);
 
 		private:
-			std::shared_ptr<MaterialInstance> m_hoveredMaterial;
-			std::shared_ptr<MaterialInstance> m_material;
 			std::shared_ptr<TextSprite> m_textSprite;
 			entt::entity m_entity;
+			StyleConfig m_styleConfig;
 	};
 
 	class NAZARA_WIDGETS_API SimpleProgressBarWidgetStyle : public ProgressBarWidgetStyle
@@ -206,7 +214,8 @@ namespace Nz
 
 			struct StyleConfig
 			{
-				std::shared_ptr<MaterialInstance> backgroundMaterial;
+				std::shared_ptr<MaterialInstance> material;
+				Rectf backgroundCoords;
 				Color progressBarBeginColor;
 				Color progressBarEndColor;
 				float backgroundCornerSize;
@@ -215,14 +224,11 @@ namespace Nz
 			};
 
 		private:
-			std::shared_ptr<MaterialInstance> m_backgroundMaterial;
 			std::shared_ptr<SlicedSprite> m_backgroundSprite;
 			std::shared_ptr<Sprite> m_progressBarSprite;
 			entt::entity m_backgroundEntity;
 			entt::entity m_barEntity;
-			Color m_progressBarBeginColor;
-			Color m_progressBarEndColor;
-			float m_barOffset;
+			StyleConfig m_styleConfig;
 	};
 
 	class NAZARA_WIDGETS_API SimpleScrollAreaWidgetStyle : public ScrollAreaWidgetStyle
@@ -269,30 +275,31 @@ namespace Nz
 
 			struct StyleConfig
 			{
-				std::shared_ptr<MaterialInstance> backgroundHorizontalMaterial;
-				std::shared_ptr<MaterialInstance> backgroundVerticalMaterial;
-				std::shared_ptr<MaterialInstance> buttonDownMaterial;
-				std::shared_ptr<MaterialInstance> buttonDownHoveredMaterial;
-				std::shared_ptr<MaterialInstance> buttonDownPressedMaterial;
-				std::shared_ptr<MaterialInstance> buttonLeftMaterial;
-				std::shared_ptr<MaterialInstance> buttonLeftHoveredMaterial;
-				std::shared_ptr<MaterialInstance> buttonLeftPressedMaterial;
-				std::shared_ptr<MaterialInstance> buttonRightMaterial;
-				std::shared_ptr<MaterialInstance> buttonRightHoveredMaterial;
-				std::shared_ptr<MaterialInstance> buttonRightPressedMaterial;
-				std::shared_ptr<MaterialInstance> buttonUpMaterial;
-				std::shared_ptr<MaterialInstance> buttonUpHoveredMaterial;
-				std::shared_ptr<MaterialInstance> buttonUpPressedMaterial;
+				std::shared_ptr<MaterialInstance> material;
+				Rectf backgroundHorizontalCoords;
+				Rectf backgroundVerticalCoords;
+				Rectf buttonDownCoords;
+				Rectf buttonDownHoveredCoords;
+				Rectf buttonDownPressedCoords;
+				Rectf buttonLeftCoords;
+				Rectf buttonLeftHoveredCoords;
+				Rectf buttonLeftPressedCoords;
+				Rectf buttonRightCoords;
+				Rectf buttonRightHoveredCoords;
+				Rectf buttonRightPressedCoords;
+				Rectf buttonUpCoords;
+				Rectf buttonUpHoveredCoords;
+				Rectf buttonUpPressedCoords;
 				float buttonCornerSize;
 				float buttonCornerTexcoords;
 			};
 
 		private:
-			StyleConfig m_config;
 			std::shared_ptr<Sprite> m_backgroundScrollbarSprite;
 			std::shared_ptr<SlicedSprite> m_scrollbarSprite;
 			entt::entity m_backgroundScrollbarSpriteEntity;
 			entt::entity m_scrollbarSpriteEntity;
+			StyleConfig m_config;
 	};
 
 	class NAZARA_WIDGETS_API SimpleScrollbarButtonWidgetStyle : public ScrollbarButtonWidgetStyle
@@ -319,10 +326,11 @@ namespace Nz
 
 			struct StyleConfig
 			{
+				std::optional<Rectf> grabbedCoords;
+				std::optional<Rectf> grabbedHoveredCoords;
+				std::optional<Rectf> hoveredCoords;
 				std::shared_ptr<MaterialInstance> material;
-				std::shared_ptr<MaterialInstance> grabbedMaterial;
-				std::shared_ptr<MaterialInstance> grabbedHoveredMaterial;
-				std::shared_ptr<MaterialInstance> hoveredMaterial;
+				Rectf coords;
 				float cornerSize;
 				float cornerTexCoords;
 			};
@@ -331,13 +339,9 @@ namespace Nz
 			virtual void Update(bool hovered, bool pressed);
 
 		private:
-			StyleConfig m_config;
-			std::shared_ptr<MaterialInstance> m_hoveredMaterial;
-			std::shared_ptr<MaterialInstance> m_material;
-			std::shared_ptr<MaterialInstance> m_pressedMaterial;
-			std::shared_ptr<MaterialInstance> m_pressedHoveredMaterial;
 			std::shared_ptr<SlicedSprite> m_sprite;
 			entt::entity m_entity;
+			StyleConfig m_config;
 			bool m_isHovered;
 			bool m_isPressed;
 	};
@@ -372,11 +376,12 @@ namespace Nz
 
 			struct StyleConfig
 			{
-				std::shared_ptr<MaterialInstance> backgroundMaterial;
-				std::shared_ptr<MaterialInstance> backgroundDisabledMaterial;
+				std::optional<Rectf> backgroundDisabledCoords;
+				std::shared_ptr<MaterialInstance> material;
 				Color insertionCursorColor;
 				Color selectionCursorColor;
 				Color selectionCursorColorNoFocus;
+				Rectf backgroundCoords;
 				Vector2f padding;
 				float backgroundCornerSize;
 				float backgroundCornerTexCoords;
@@ -391,13 +396,13 @@ namespace Nz
 				entt::entity entity;
 			};
 
-			StyleConfig m_config;
 			std::shared_ptr<SlicedSprite> m_backgroundSprite;
 			std::shared_ptr<TextSprite> m_textSprite;
 			std::vector<Cursor> m_cursors;
 			entt::entity m_backgroundEntity;
 			entt::entity m_textEntity;
 			Color m_backgroundColor;
+			StyleConfig m_config;
 			bool m_hasFocus;
 			bool m_isDisabled;
 			int m_baseRenderLayer;

@@ -36,34 +36,40 @@ namespace Nz
 			DefaultWidgetTheme& operator=(DefaultWidgetTheme&&) = default;
 
 		private:
-			std::shared_ptr<MaterialInstance> m_buttonMaterial;
-			std::shared_ptr<MaterialInstance> m_buttonHoveredMaterial;
-			std::shared_ptr<MaterialInstance> m_buttonPressedHoveredMaterial;
-			std::shared_ptr<MaterialInstance> m_buttonPressedMaterial;
-			std::shared_ptr<MaterialInstance> m_checkboxBackgroundMaterial;
-			std::shared_ptr<MaterialInstance> m_checkboxBackgroundHoveredMaterial;
-			std::shared_ptr<MaterialInstance> m_checkboxCheckMaterial;
-			std::shared_ptr<MaterialInstance> m_checkboxTristateMaterial;
-			std::shared_ptr<MaterialInstance> m_hoveredMaterial;
-			std::shared_ptr<MaterialInstance> m_progressBarMaterial;
-			std::shared_ptr<MaterialInstance> m_scrollbarBackgroundHorizontalMaterial;
-			std::shared_ptr<MaterialInstance> m_scrollbarBackgroundVerticalMaterial;
-			std::shared_ptr<MaterialInstance> m_scrollbarButtonMaterial;
-			std::shared_ptr<MaterialInstance> m_scrollbarButtonHoveredMaterial;
-			std::shared_ptr<MaterialInstance> m_scrollbarButtonGrabbedMaterial;
-			std::shared_ptr<MaterialInstance> m_scrollbarButtonDownMaterial;
-			std::shared_ptr<MaterialInstance> m_scrollbarButtonDownHoveredMaterial;
-			std::shared_ptr<MaterialInstance> m_scrollbarButtonDownPressedMaterial;
-			std::shared_ptr<MaterialInstance> m_scrollbarButtonLeftMaterial;
-			std::shared_ptr<MaterialInstance> m_scrollbarButtonLeftHoveredMaterial;
-			std::shared_ptr<MaterialInstance> m_scrollbarButtonLeftPressedMaterial;
-			std::shared_ptr<MaterialInstance> m_scrollbarButtonRightMaterial;
-			std::shared_ptr<MaterialInstance> m_scrollbarButtonRightHoveredMaterial;
-			std::shared_ptr<MaterialInstance> m_scrollbarButtonRightPressedMaterial;
-			std::shared_ptr<MaterialInstance> m_scrollbarButtonUpMaterial;
-			std::shared_ptr<MaterialInstance> m_scrollbarButtonUpHoveredMaterial;
-			std::shared_ptr<MaterialInstance> m_scrollbarButtonUpPressedMaterial;
-			std::shared_ptr<MaterialInstance> m_textBoxMaterial;
+			Rectf RectToCoords(const Rectf& rect) const;
+
+			std::shared_ptr<MaterialInstance> m_material;
+			Rectf m_buttonRect;
+			Rectf m_buttonHoveredRect;
+			Rectf m_buttonPressedHoveredRect;
+			Rectf m_buttonPressedRect;
+			Rectf m_checkboxBackgroundRect;
+			Rectf m_checkboxBackgroundDisabledRect;
+			Rectf m_checkboxBackgroundHoveredRect;
+			Rectf m_checkboxCheckRect;
+			Rectf m_checkboxTristateRect;
+			Rectf m_hoveredRect;
+			Rectf m_progressBarRect;
+			Rectf m_scrollbarBackgroundHorizontalRect;
+			Rectf m_scrollbarBackgroundVerticalRect;
+			Rectf m_scrollbarButtonRect;
+			Rectf m_scrollbarButtonDisabledRect;
+			Rectf m_scrollbarButtonHoveredRect;
+			Rectf m_scrollbarButtonGrabbedRect;
+			Rectf m_scrollbarButtonDownRect;
+			Rectf m_scrollbarButtonDownHoveredRect;
+			Rectf m_scrollbarButtonDownPressedRect;
+			Rectf m_scrollbarButtonLeftRect;
+			Rectf m_scrollbarButtonLeftHoveredRect;
+			Rectf m_scrollbarButtonLeftPressedRect;
+			Rectf m_scrollbarButtonRightRect;
+			Rectf m_scrollbarButtonRightHoveredRect;
+			Rectf m_scrollbarButtonRightPressedRect;
+			Rectf m_scrollbarButtonUpRect;
+			Rectf m_scrollbarButtonUpHoveredRect;
+			Rectf m_scrollbarButtonUpPressedRect;
+			Rectf m_textBoxRect;
+			Vector2f m_imageSize;
 	};
 }
 
