@@ -29,24 +29,24 @@ namespace Nz
 	{
 	}
 
-	template<typename T, typename... Args>
+	template<std::derived_from<BaseWidget> T, typename... Args>
 	T* BaseWidget::Add(Args&&... args)
 	{
-		std::unique_ptr<T> widget = std::make_unique<T>(this, std::forward<Args>(args)...);
-		T* widgetPtr = widget.get();
-		AddChild(std::move(widget));
-
-		return widgetPtr;
+		return AddChild(std::make_unique<T>(this, std::forward<Args>(args)...));
 	}
 
-	inline void BaseWidget::AddChild(std::unique_ptr<BaseWidget>&& widget)
+	template<std::derived_from<BaseWidget> T>
+	T* BaseWidget::AddChild(std::unique_ptr<T>&& widget)
 	{
 		widget->SetParent(this);
 		widget->SetBaseRenderLayer(m_baseRenderLayer + m_renderLayerCount);
 		widget->Show(widget->IsVisible() && m_visible);
 
+		T* widgetPtr = widget.get();
 		m_widgetChilds.emplace_back(std::move(widget));
-		OnChildAdded(m_widgetChilds.back().get());
+		OnChildAdded(widgetPtr);
+
+		return widgetPtr;
 	}
 
 	inline void BaseWidget::Center()

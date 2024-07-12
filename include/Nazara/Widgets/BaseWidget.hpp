@@ -15,6 +15,7 @@
 #include <Nazara/Widgets/Export.hpp>
 #include <entt/entity/entity.hpp>
 #include <entt/entity/registry.hpp>
+#include <concepts>
 #include <limits>
 #include <optional>
 
@@ -35,8 +36,8 @@ namespace Nz
 			BaseWidget(BaseWidget&&) = delete;
 			virtual ~BaseWidget();
 
-			template<typename T, typename... Args> T* Add(Args&&... args);
-			inline void AddChild(std::unique_ptr<BaseWidget>&& widget);
+			template<std::derived_from<BaseWidget> T, typename... Args> T* Add(Args&&... args);
+			template<std::derived_from<BaseWidget> T> T* AddChild(std::unique_ptr<T>&& widget);
 
 			inline void Center();
 			inline void CenterHorizontal();
