@@ -46,7 +46,6 @@ int main(int argc, char* argv[])
 	Nz::ButtonWidget* buttonWidget = canvas2D.Add<Nz::ButtonWidget>();
 	buttonWidget->SetPosition({ 200.f, 400.f });
 	buttonWidget->UpdateText(Nz::SimpleTextDrawer::Draw("Press me senpai", 72));
-	buttonWidget->Resize(buttonWidget->GetPreferredSize());
 
 	Nz::TextureSamplerInfo samplerInfo;
 	samplerInfo.anisotropyLevel = 8;
@@ -56,11 +55,11 @@ int main(int argc, char* argv[])
 
 	Nz::ImageWidget* imageWidget = canvas2D.Add<Nz::ImageWidget>(materialInstance);
 	imageWidget->SetPosition({ 1200.f, 200.f });
-	imageWidget->Resize(imageWidget->GetPreferredSize() / 4.f);
+	imageWidget->Resize(imageWidget->GetSize() / 4.f);
 
 	Nz::ImageButtonWidget* imageButtonWidget = canvas2D.Add<Nz::ImageButtonWidget>(materialInstance);
 	imageButtonWidget->SetPosition({ 1400, 500.f });
-	imageButtonWidget->Resize(imageButtonWidget->GetPreferredSize() / 4.f);
+	imageButtonWidget->Resize(imageButtonWidget->GetSize() / 4.f);
 
 	Nz::TextAreaWidget* textAreaWidget = canvas2D.Add<Nz::TextAreaWidget>();
 	textAreaWidget->SetPosition({ 800.f, 500.f });

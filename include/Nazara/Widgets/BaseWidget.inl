@@ -21,6 +21,7 @@ namespace Nz
 	m_size(50.f, 50.f),
 	m_parentWidget(nullptr),
 	m_disableVisibilitySignal(false),
+	m_followPreferredSize(true),
 	m_isMouseInputEnabled(true),
 	m_visible(true),
 	m_baseRenderLayer(0),
@@ -244,6 +245,13 @@ namespace Nz
 		return m_visible;
 	}
 
+	inline void BaseWidget::ResizeToPreferredSize()
+	{
+		m_followPreferredSize = true;
+		if (m_preferredSize.x > 0.f && m_preferredSize.y > 0.f)
+			InternalResize(m_preferredSize);
+	}
+
 	inline void BaseWidget::SetFixedHeight(float fixedHeight)
 	{
 		SetMaximumHeight(fixedHeight);
@@ -277,7 +285,7 @@ namespace Nz
 
 		Vector2f size = GetSize();
 		if (size.x > m_maximumSize.x || size.y > m_maximumSize.y)
-			Resize(size); //< Will clamp automatically
+			InternalResize(size); //< Will clamp automatically
 	}
 
 	inline void BaseWidget::SetMaximumWidth(float maximumWidth)
@@ -303,7 +311,7 @@ namespace Nz
 
 		Vector2f size = GetSize();
 		if (size.x < m_minimumSize.x || size.y < m_minimumSize.y)
-			Resize(size); //< Will clamp automatically
+			InternalResize(size); //< Will clamp automatically
 	}
 
 	inline void BaseWidget::SetMinimumWidth(float minimumWidth)
@@ -357,6 +365,9 @@ namespace Nz
 
 			if (m_parentWidget)
 				m_parentWidget->OnChildPreferredSizeUpdated(this);
+
+			if (m_followPreferredSize && m_preferredSize.x > 0.f && m_preferredSize.y > 0.f)
+				InternalResize(m_preferredSize);
 		}
 	}
 

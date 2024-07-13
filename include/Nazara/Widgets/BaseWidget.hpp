@@ -54,8 +54,6 @@ namespace Nz
 			template<typename F> void ForEachWidgetChild(F&& iterator, bool onlyVisible = true);
 			template<typename F> void ForEachWidgetChild(F&& iterator, bool onlyVisible = true) const;
 
-			//virtual BaseWidget* Clone() const = 0;
-
 			inline const Color& GetBackgroundColor() const;
 			inline Canvas* GetCanvas();
 			inline const Canvas* GetCanvas() const;
@@ -77,7 +75,7 @@ namespace Nz
 			inline const Rectf& GetRenderingRect() const;
 
 			inline Vector2f GetSize() const;
-			const std::shared_ptr<WidgetTheme>& GetTheme() const;
+			inline const std::shared_ptr<WidgetTheme>& GetTheme() const;
 			inline std::size_t GetVisibleWidgetChildCount() const;
 			inline float GetWidth() const;
 			inline std::size_t GetWidgetChildCount() const;
@@ -91,14 +89,16 @@ namespace Nz
 
 			std::unique_ptr<BaseWidget> ReleaseFromParent();
 			void Resize(const Vector2f& size);
+			inline void ResizeToPreferredSize();
 
 			virtual void SetBackgroundColor(const Color& color);
 			void SetCursor(SystemCursor systemCursor);
-			void SetFocus();
 
 			inline void SetFixedHeight(float fixedHeight);
 			inline void SetFixedSize(const Vector2f& fixedSize);
 			inline void SetFixedWidth(float fixedWidth);
+
+			void SetFocus();
 
 			inline void SetMaximumHeight(float maximumHeight);
 			inline void SetMaximumSize(const Vector2f& maximumSize);
@@ -120,8 +120,6 @@ namespace Nz
 			NazaraSignal(OnWidgetVisibilityUpdated, const BaseWidget* /*widget*/, bool /*isVisible*/);
 
 		protected:
-			virtual void Layout();
-
 			void ClearMouseFocus();
 
 			entt::entity CreateEntity();
@@ -135,10 +133,14 @@ namespace Nz
 			Recti GetScissorBox() const;
 			Rectf GetScissorRect() const;
 
+			void InternalResize(const Vector2f& size);
+
 			void InvalidateNode(Invalidation invalidation) override;
 
 			virtual bool IsFocusable() const;
 			inline bool IsInside(float x, float y) const;
+
+			virtual void Layout();
 
 			virtual void OnChildAdded(const BaseWidget* child);
 			virtual void OnChildPreferredSizeUpdated(const BaseWidget* child);
@@ -208,6 +210,7 @@ namespace Nz
 			Vector2f m_size;
 			BaseWidget* m_parentWidget;
 			bool m_disableVisibilitySignal;
+			bool m_followPreferredSize;
 			bool m_isMouseInputEnabled;
 			bool m_visible;
 			int m_baseRenderLayer;

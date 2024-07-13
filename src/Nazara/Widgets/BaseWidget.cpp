@@ -141,17 +141,8 @@ namespace Nz
 
 	void BaseWidget::Resize(const Vector2f& size)
 	{
-		// Adjust new size
-		Vector2f newSize = size;
-		newSize.Maximize(m_minimumSize);
-		newSize.Minimize(m_maximumSize);
-
-		NotifyParentResized(newSize);
-		m_size = newSize;
-
-		Layout();
-
-		OnWidgetResized(this, newSize);
+		m_followPreferredSize = false;
+		InternalResize(size);
 	}
 
 	void BaseWidget::SetBackgroundColor(const Color& color)
@@ -284,14 +275,6 @@ namespace Nz
 		m_registry->destroy(entity);
 	}
 
-	void BaseWidget::Layout()
-	{
-		if (m_backgroundSprite)
-			m_backgroundSprite->SetSize({ m_size.x, m_size.y });
-
-		UpdatePositionAndSize();
-	}
-
 	void BaseWidget::InvalidateNode(Invalidation invalidation)
 	{
 		Node::InvalidateNode(invalidation);
@@ -329,9 +312,32 @@ namespace Nz
 		return widgetRect;
 	}
 
+	void BaseWidget::InternalResize(const Vector2f& size)
+	{
+		// Adjust new size
+		Vector2f newSize = size;
+		newSize.Maximize(m_minimumSize);
+		newSize.Minimize(m_maximumSize);
+
+		NotifyParentResized(newSize);
+		m_size = newSize;
+
+		Layout();
+
+		OnWidgetResized(this, newSize);
+	}
+
 	bool BaseWidget::IsFocusable() const
 	{
 		return false;
+	}
+
+	void BaseWidget::Layout()
+	{
+		if (m_backgroundSprite)
+			m_backgroundSprite->SetSize({ m_size.x, m_size.y });
+
+		UpdatePositionAndSize();
 	}
 
 	void BaseWidget::OnChildAdded(const BaseWidget* /*child*/)

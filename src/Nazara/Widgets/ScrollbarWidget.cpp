@@ -19,8 +19,6 @@ namespace Nz
 		m_style = (styleFactory) ? styleFactory(this) : GetTheme()->CreateStyle(this);
 		SetRenderLayerCount(m_style->GetRenderLayerCount());
 
-		SetPreferredSize({ 32.f, 32.f });
-
 		m_scrollCenterButton = Add<ScrollbarButtonWidget>();
 
 		m_scrollCenterButton->OnButtonReleased.Connect([this](const ScrollbarButtonWidget*)
@@ -85,7 +83,7 @@ namespace Nz
 			SetValue(GetValue() + 0.1f * (GetMaximumValue() - GetMinimumValue()));
 		});
 
-		Layout();
+		SetPreferredSize({ 32.f, 32.f });
 	}
 
 	void ScrollbarWidget::Layout()
