@@ -468,8 +468,8 @@ namespace Nz
 	template<std::size_t N>
 	void Graphics::RegisterEmbedShaderModule(const UInt8(&content)[N])
 	{
-		nzsl::Unserializer unserializer(content, N);
-		m_shaderModuleResolver->RegisterModule(nzsl::Ast::UnserializeShader(unserializer));
+		nzsl::Deserializer deserializer(content, N);
+		m_shaderModuleResolver->RegisterModule(nzsl::Ast::DeserializeShader(deserializer));
 	}
 
 	void Graphics::RegisterMaterialPasses()

@@ -78,8 +78,8 @@ namespace Nz
 
 			case ShaderLanguage::NazaraBinary:
 			{
-				nzsl::Unserializer unserializer(source, sourceSize);
-				auto shader = nzsl::Ast::UnserializeShader(unserializer);
+				nzsl::Deserializer deserializer(source, sourceSize);
+				auto shader = nzsl::Ast::DeserializeShader(deserializer);
 				return Create(device, shaderStages, *shader, states);
 			}
 

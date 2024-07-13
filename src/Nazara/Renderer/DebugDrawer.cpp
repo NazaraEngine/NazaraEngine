@@ -28,8 +28,8 @@ namespace Nz
 	m_renderDevice(renderDevice),
 	m_viewerDataUpdated(false)
 	{
-		nzsl::Unserializer unserializer(r_debugDrawShader, sizeof(r_debugDrawShader));
-		nzsl::Ast::ModulePtr shaderModule = nzsl::Ast::UnserializeShader(unserializer);
+		nzsl::Deserializer deserializer(r_debugDrawShader, sizeof(r_debugDrawShader));
+		nzsl::Ast::ModulePtr shaderModule = nzsl::Ast::DeserializeShader(deserializer);
 
 		auto debugDrawShader = m_renderDevice.InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, *shaderModule, {});
 		if (!debugDrawShader)
