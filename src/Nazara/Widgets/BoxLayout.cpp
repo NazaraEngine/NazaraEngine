@@ -193,7 +193,7 @@ namespace Nz
 
 		float childCount = 0.f;
 
-		Vector2f preferredSize;
+		Vector2f preferredSize = Vector2f::Zero();
 		ForEachWidgetChild([&](const BaseWidget* child)
 		{
 			const Vector2f& childPreferredSize = child->GetPreferredSize();
@@ -203,7 +203,7 @@ namespace Nz
 			childCount += 1.f;
 		});
 
-		if (childCount > 1.f)
+		if (childCount > 1.1f) //< +0.1 for float imprecision
 			preferredSize[axis] += m_spacing * (childCount - 1.f);
 
 		SetPreferredSize(preferredSize);
