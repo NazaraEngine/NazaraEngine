@@ -12,6 +12,7 @@
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Sphere.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <NazaraUtils/Constants.hpp>
 #include <NazaraUtils/EnumArray.hpp>
 #include <string>
 
@@ -44,19 +45,25 @@ namespace Nz
 			constexpr Box& ExtendTo(const Box& box);
 			constexpr Box& ExtendTo(const Vector3<T>& point);
 
+			constexpr T GetBottom() const;
 			constexpr Sphere<T> GetBoundingSphere() const;
 			constexpr Vector3<T> GetCenter() const;
 			constexpr Vector3<T> GetCorner(BoxCorner corner) const;
 			constexpr EnumArray<BoxCorner, Vector3<T>> GetCorners() const;
+			constexpr T GetFar() const;
+			constexpr T GetLeft() const;
 			constexpr Vector3<T> GetLengths() const;
 			constexpr Vector3<T> GetMaximum() const;
 			constexpr Vector3<T> GetMinimum() const;
+			constexpr T GetNear() const;
 			constexpr Vector3<T> GetNegativeVertex(const Vector3<T>& normal) const;
 			constexpr Vector3<T> GetPosition() const;
 			constexpr Vector3<T> GetPositiveVertex(const Vector3<T>& normal) const;
 			constexpr T GetRadius() const;
+			constexpr T GetRight() const;
 			constexpr Sphere<T> GetSquaredBoundingSphere() const;
 			constexpr T GetSquaredRadius() const;
+			constexpr T GetTop() const;
 
 			constexpr bool Intersect(const Box& box, Box* intersection = nullptr) const;
 

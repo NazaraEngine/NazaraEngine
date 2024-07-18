@@ -142,9 +142,9 @@ namespace Nz
 	template<typename T>
 	constexpr bool Box<T>::Contains(T X, T Y, T Z) const
 	{
-		return X >= x && X < x + width &&
-		       Y >= y && Y < y + height &&
-		       Z >= z && Z < z + depth;
+		return X >= GetLeft() && X < GetRight() &&
+		       Y >= GetTop() && Y < GetBottom() &&
+		       Z >= GetNear() && Z < GetFar();
 	}
 
 	/*!
@@ -158,8 +158,8 @@ namespace Nz
 	template<typename T>
 	constexpr bool Box<T>::Contains(const Box<T>& box) const
 	{
-		return Contains(box.x, box.y, box.z) &&
-		       Contains(box.x + box.width, box.y + box.height, box.z + box.depth);
+		return Contains(box.GetLeft(), box.GetTop(), box.GetNear()) &&
+		       Contains(box.GetRight(), box.GetBottom(), box.GetFar());
 	}
 
 	/*!
@@ -189,13 +189,13 @@ namespace Nz
 	template<typename T>
 	constexpr Box<T>& Box<T>::ExtendTo(T X, T Y, T Z)
 	{
-		width = std::max(x + width, X);
-		height = std::max(y + height, Y);
-		depth = std::max(z + depth, Z);
+		width = std::max(GetRight(), X);
+		height = std::max(GetBottom(), Y);
+		depth = std::max(GetFar(), Z);
 
-		x = std::min(x, X);
-		y = std::min(y, Y);
-		z = std::min(z, Z);
+		x = std::min(GetLeft(), X);
+		y = std::min(GetTop(), Y);
+		z = std::min(GetNear(), Z);
 
 		width -= x;
 		height -= y;
@@ -215,13 +215,13 @@ namespace Nz
 	template<typename T>
 	constexpr Box<T>& Box<T>::ExtendTo(const Box& box)
 	{
-		width = std::max(x + width, box.x + box.width);
-		height = std::max(y + height, box.y + box.height);
-		depth = std::max(z + depth, box.z + box.depth);
+		width = std::max(GetRight(), box.GetRight());
+		height = std::max(GetBottom(), box.GetBottom());
+		depth = std::max(GetFar(), box.GetFar());
 
-		x = std::min(x, box.x);
-		y = std::min(y, box.y);
-		z = std::min(z, box.z);
+		x = std::min(GetLeft(), box.GetLeft());
+		y = std::min(GetTop(), box.GetTop());
+		z = std::min(GetNear(), box.GetNear());
 
 		width -= x;
 		height -= y;
@@ -242,6 +242,15 @@ namespace Nz
 	constexpr Box<T>& Box<T>::ExtendTo(const Vector3<T>& point)
 	{
 		return ExtendTo(point.x, point.y, point.z);
+	}
+
+	template<typename T>
+	constexpr T Box<T>::GetBottom() const
+	{
+		if constexpr (std::is_floating_point_v<T>)
+			return IsInfinity(height) ? Infinity<T> : y + height;
+		else
+			return y + height;
 	}
 
 	/*!
@@ -280,28 +289,28 @@ namespace Nz
 		switch (corner)
 		{
 			case BoxCorner::FarLeftBottom:
-				return Vector3<T>(x, y, z);
+				return Vector3<T>(GetLeft(), GetBottom(), GetFar());
 
 			case BoxCorner::FarLeftTop:
-				return Vector3<T>(x, y + height, z);
+				return Vector3<T>(GetLeft(), GetTop(), GetFar());
 
 			case BoxCorner::FarRightBottom:
-				return Vector3<T>(x + width, y, z);
+				return Vector3<T>(GetRight(), GetBottom(), GetFar());
 
 			case BoxCorner::FarRightTop:
-				return Vector3<T>(x + width, y + height, z);
+				return Vector3<T>(GetRight(), GetTop(), GetFar());
 
 			case BoxCorner::NearLeftBottom:
-				return Vector3<T>(x, y, z + depth);
+				return Vector3<T>(GetLeft(), GetBottom(), GetNear());
 
 			case BoxCorner::NearLeftTop:
-				return Vector3<T>(x, y + height, z + depth);
+				return Vector3<T>(GetLeft(), GetTop(), GetNear());
 
 			case BoxCorner::NearRightBottom:
-				return Vector3<T>(x + width, y, z + depth);
+				return Vector3<T>(GetRight(), GetBottom(), GetNear());
 
 			case BoxCorner::NearRightTop:
-				return Vector3<T>(x + width, y + height, z + depth);
+				return Vector3<T>(GetRight(), GetTop(), GetNear());
 		}
 
 		NazaraErrorFmt("Corner not handled ({0:#x})", UnderlyingCast(corner));
@@ -323,6 +332,21 @@ namespace Nz
 		};
 	}
 
+	template<typename T>
+	constexpr T Box<T>::GetFar() const
+	{
+		if constexpr (std::is_floating_point_v<T>)
+			return IsInfinity(depth) ? Infinity<T> : z + depth;
+		else
+			return z + depth;
+	}
+
+	template<typename T>
+	constexpr T Box<T>::GetLeft() const
+	{
+		return x;
+	}
+
 	/*!
 	* \brief Gets a Vector3 for the lengths
 	* \return The lengths of the box (width, height, depth)
@@ -342,7 +366,7 @@ namespace Nz
 	template<typename T>
 	constexpr Vector3<T> Box<T>::GetMaximum() const
 	{
-		return GetPosition() + GetLengths();
+		return { GetRight(), GetBottom(), GetFar() };
 	}
 
 	/*!
@@ -354,7 +378,13 @@ namespace Nz
 	template<typename T>
 	constexpr Vector3<T> Box<T>::GetMinimum() const
 	{
-		return GetPosition();
+		return { GetLeft(), GetTop(), GetNear() };
+	}
+
+	template<typename T>
+	constexpr T Box<T>::GetNear() const
+	{
+		return z;
 	}
 
 	/*!
@@ -368,16 +398,10 @@ namespace Nz
 	template<typename T>
 	constexpr Vector3<T> Box<T>::GetNegativeVertex(const Vector3<T>& normal) const
 	{
-		Vector3<T> neg(GetPosition());
-
-		if (normal.x < T(0.0))
-			neg.x += width;
-
-		if (normal.y < T(0.0))
-			neg.y += height;
-
-		if (normal.z < T(0.0))
-			neg.z += depth;
+		Vector3<T> neg;
+		neg.x = (normal.x < T(0.0)) ? GetRight() : GetLeft();
+		neg.y = (normal.y < T(0.0)) ? GetBottom() : GetTop();
+		neg.z = (normal.z < T(0.0)) ? GetFar() : GetNear();
 
 		return neg;
 	}
@@ -391,7 +415,7 @@ namespace Nz
 	template<typename T>
 	constexpr Vector3<T> Box<T>::GetPosition() const
 	{
-		return Vector3<T>(x, y, z);
+		return Vector3<T>(GetLeft(), GetTop(), GetNear());
 	}
 
 	/*!
@@ -405,16 +429,10 @@ namespace Nz
 	template<typename T>
 	constexpr Vector3<T> Box<T>::GetPositiveVertex(const Vector3<T>& normal) const
 	{
-		Vector3<T> pos(GetPosition());
-
-		if (normal.x > T(0.0))
-			pos.x += width;
-
-		if (normal.y > T(0.0))
-			pos.y += height;
-
-		if (normal.z > T(0.0))
-			pos.z += depth;
+		Vector3<T> pos;
+		pos.x = (normal.x > T(0.0)) ? GetRight() : GetLeft();
+		pos.y = (normal.y > T(0.0)) ? GetBottom() : GetTop();
+		pos.z = (normal.z > T(0.0)) ? GetFar() : GetNear();
 
 		return pos;
 	}
@@ -427,6 +445,15 @@ namespace Nz
 	constexpr T Box<T>::GetRadius() const
 	{
 		return std::sqrt(GetSquaredRadius());
+	}
+
+	template<typename T>
+	constexpr T Box<T>::GetRight() const
+	{
+		if constexpr (std::is_floating_point_v<T>)
+			return IsInfinity(width) ? Infinity<T> : x + width;
+		else
+			return x + width;
 	}
 
 	/*!
@@ -454,6 +481,12 @@ namespace Nz
 		return size.GetSquaredLength();
 	}
 
+	template<typename T>
+	constexpr T Box<T>::GetTop() const
+	{
+		return y;
+	}
+
 	/*!
 	* \brief Checks whether or not this box intersects another one
 	* \return true if the box intersects
@@ -464,24 +497,33 @@ namespace Nz
 	template<typename T>
 	constexpr bool Box<T>::Intersect(const Box& box, Box* intersection) const
 	{
-		T left = std::max(x, box.x);
-		T right = std::min(x + width, box.x + box.width);
-		T top = std::max(y, box.y);
-		T bottom = std::min(y + height, box.y + box.height);
-		T up = std::max(z, box.z);
-		T down = std::min(z + depth, box.z + box.depth);
+		T left = std::max(GetLeft(), box.GetLeft());
+		T right = std::min(GetRight(), box.GetRight());
+		T bottom = std::max(GetBottom(), box.GetBottom());
+		T top = std::min(GetTop(), box.GetTop());
+		T near = std::max(GetNear(), box.GetNear());
+		T far = std::min(GetFar(), box.GetFar());
 
-		if (left > right || top > bottom || up > down)
+		if (left > right || top > bottom || near > far)
 			return false;
 
 		if (intersection)
 		{
 			intersection->x = left;
 			intersection->y = top;
-			intersection->z = up;
-			intersection->width = right - left;
-			intersection->height = bottom - top;
-			intersection->depth = down - up;
+			intersection->z = near;
+			if constexpr (std::is_floating_point_v<T>)
+			{
+				intersection->width = IsInfinity(right) ? Infinity<T> : right - left;
+				intersection->height = IsInfinity(bottom) ? Infinity<T> : bottom - top;
+				intersection->depth = IsInfinity(far) ? Infinity<T> : far - near;
+			}
+			else
+			{
+				intersection->width = right - left;
+				intersection->height = bottom - top;
+				intersection->depth = far - near;
+			}
 		}
 
 		return true;
