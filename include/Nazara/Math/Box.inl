@@ -497,32 +497,32 @@ namespace Nz
 	template<typename T>
 	constexpr bool Box<T>::Intersect(const Box& box, Box* intersection) const
 	{
-		T left = std::max(GetLeft(), box.GetLeft());
-		T right = std::min(GetRight(), box.GetRight());
-		T bottom = std::max(GetBottom(), box.GetBottom());
-		T top = std::min(GetTop(), box.GetTop());
-		T near = std::max(GetNear(), box.GetNear());
-		T far = std::min(GetFar(), box.GetFar());
+		T maxLeft = std::max(GetLeft(), box.GetLeft());
+		T minRight = std::min(GetRight(), box.GetRight());
+		T maxBottom = std::max(GetBottom(), box.GetBottom());
+		T minTop = std::min(GetTop(), box.GetTop());
+		T maxNear = std::max(GetNear(), box.GetNear());
+		T minFar = std::min(GetFar(), box.GetFar());
 
-		if (left > right || top > bottom || near > far)
+		if (maxLeft > minRight || minTop > maxBottom || maxNear > minFar)
 			return false;
 
 		if (intersection)
 		{
-			intersection->x = left;
-			intersection->y = top;
-			intersection->z = near;
+			intersection->x = maxLeft;
+			intersection->y = minTop;
+			intersection->z = maxNear;
 			if constexpr (std::is_floating_point_v<T>)
 			{
-				intersection->width = IsInfinity(right) ? Infinity<T> : right - left;
-				intersection->height = IsInfinity(bottom) ? Infinity<T> : bottom - top;
-				intersection->depth = IsInfinity(far) ? Infinity<T> : far - near;
+				intersection->width = IsInfinity(minRight) ? Infinity<T> : minRight - maxLeft;
+				intersection->height = IsInfinity(maxBottom) ? Infinity<T> : maxBottom - minTop;
+				intersection->depth = IsInfinity(minFar) ? Infinity<T> : minFar - maxNear;
 			}
 			else
 			{
-				intersection->width = right - left;
-				intersection->height = bottom - top;
-				intersection->depth = far - near;
+				intersection->width = minRight - maxLeft;
+				intersection->height = maxBottom - minTop;
+				intersection->depth = minFar - maxNear;
 			}
 		}
 
