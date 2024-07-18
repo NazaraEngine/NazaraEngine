@@ -36,7 +36,7 @@ SCENARIO("Box", "[MATH][BOX]")
 			{
 				REQUIRE(firstCenterAndUnit.GetBoundingSphere() == Nz::Spheref(Nz::Vector3f::Unit() * 0.5f, std::sqrt(3.f * 0.5f * 0.5f)));
 				REQUIRE(firstCenterAndUnit.GetCenter() == (Nz::Vector3f::Unit() * 0.5f));
-				REQUIRE(firstCenterAndUnit.GetCorner(Nz::BoxCorner::FarLeftTop) == Nz::Vector3f::UnitY());
+				REQUIRE(firstCenterAndUnit.GetCorner(Nz::BoxCorner::NearLeftBottom) == Nz::Vector3f::UnitY());
 				REQUIRE(firstCenterAndUnit.GetLengths() == Nz::Vector3f::Unit());
 				REQUIRE(firstCenterAndUnit.GetMaximum() == Nz::Vector3f::Unit());
 				REQUIRE(firstCenterAndUnit.GetMinimum() == Nz::Vector3f::Zero());
