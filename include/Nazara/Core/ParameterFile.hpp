@@ -23,10 +23,6 @@ namespace Nz
 	class ParameterFileSection;
 	class Stream;
 
-	// TOOD: Move to NazaraUtils
-	template<typename T>
-	concept Functor = IsFunctor_v<T>;
-
 	class NAZARA_CORE_API ParameterFile
 	{
 		friend ParameterFileSection;
