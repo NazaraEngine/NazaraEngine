@@ -9,6 +9,7 @@
 
 #include <Nazara/Math/Enums.hpp>
 #include <Nazara/Math/Vector2.hpp>
+#include <NazaraUtils/Constants.hpp>
 #include <NazaraUtils/EnumArray.hpp>
 #include <string>
 
@@ -40,15 +41,19 @@ namespace Nz
 			constexpr Rect& ExtendTo(const Rect& rect);
 			constexpr Rect& ExtendTo(const Vector2<T>& point);
 
+			constexpr T GetBottom() const;
 			constexpr Vector2<T> GetCenter() const;
 			constexpr Vector2<T> GetCorner(RectCorner corner) const;
 			constexpr EnumArray<RectCorner, Vector2<T>> GetCorners() const;
+			constexpr T GetLeft() const;
 			constexpr Vector2<T> GetLengths() const;
 			constexpr Vector2<T> GetMaximum() const;
 			constexpr Vector2<T> GetMinimum() const;
 			constexpr Vector2<T> GetNegativeVertex(const Vector2<T>& normal) const;
 			constexpr Vector2<T> GetPosition() const;
 			constexpr Vector2<T> GetPositiveVertex(const Vector2<T>& normal) const;
+			constexpr T GetRight() const;
+			constexpr T GetTop() const;
 
 			constexpr bool Intersect(const Rect& rect, Rect* intersection = nullptr) const;
 
