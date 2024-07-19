@@ -548,7 +548,7 @@ namespace Nz
 		T minZ = std::max(GetMinZ(), box.GetMinZ());
 		T maxZ = std::min(GetMaxZ(), box.GetMaxZ());
 
-		if (maxX > minX || maxY > minY || maxZ > minZ)
+		if (minX > maxX || minY > maxY || minZ > maxZ)
 			return false;
 
 		if (intersection)
