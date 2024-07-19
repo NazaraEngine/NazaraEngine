@@ -11,7 +11,7 @@
 
 namespace Nz
 {
-	inline UInt32 DistanceAsSortKey(float distance);
+	constexpr UInt32 DistanceAsSortKey(float distance);
 }
 
 #include <Nazara/Graphics/Algorithm.inl>

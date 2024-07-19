@@ -2,13 +2,13 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-#include <cmath>
+#include <NazaraUtils/MathUtils.hpp>
 #include <cstring>
 #include <limits>
 
 namespace Nz
 {
-	inline UInt32 DistanceAsSortKey(float distance)
+	constexpr UInt32 DistanceAsSortKey(float distance)
 	{
 #if defined(arm) && \
     ((defined(__MAVERICK__) && defined(NAZARA_BIG_ENDIAN)) || \
@@ -19,16 +19,13 @@ namespace Nz
 		static_assert(sizeof(float) == sizeof(UInt32));
 		static_assert(std::numeric_limits<float>::is_iec559);
 
-		if (std::isnan(distance))
-			return std::numeric_limits<UInt32>::max();
+		if (IsNaN(distance))
+			return MaxValue<UInt32>();
 
-		if (std::isinf(distance))
-			return 0;
+		if (IsInfinity(distance))
+			return MinValue<UInt32>();
 
-		UInt32 distanceInt;
-		std::memcpy(&distanceInt, &distance, sizeof(UInt32));
-
-		return ~distanceInt; //< Reverse distance to have back to front
+		return ~BitCast<UInt32>(distance); //< Reverse distance to have back to front
 	}
 }
 
