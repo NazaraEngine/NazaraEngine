@@ -82,7 +82,7 @@ namespace Nz
 		Vector2f originShift = m_origin * ((m_orientation == Orientation::Horizontal) ? Vector2f(totalSectionSize, m_size) : Vector2f(m_size, totalSectionSize));
 
 		Vector3f topLeftCorner = -originShift;
-		Vector2f topLeftUV = m_textureCoords.GetCorner(RectCorner::LeftTop);
+		Vector2f topLeftUV = m_textureCoords.GetCorner<CoordinateSystem::UV>(RectCorner::LeftTop);
 
 		m_spriteCount = 0;
 

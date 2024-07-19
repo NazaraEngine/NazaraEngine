@@ -101,7 +101,7 @@ namespace Nz
 		{
 			vertices->color = m_color * m_cornerColor[corner];
 			vertices->position = Vector3f(m_size * cornerExtent[corner], 0.f) - originShift;
-			vertices->uv = m_textureCoords.GetCorner(corner);
+			vertices->uv = m_textureCoords.GetCorner<CoordinateSystem::UV>(corner);
 
 			vertices++;
 		}

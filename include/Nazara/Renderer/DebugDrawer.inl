@@ -27,18 +27,18 @@ namespace Nz
 
 	inline void DebugDrawer::DrawBoxCorners(const EnumArray<BoxCorner, Vector3f>& corners, const Color& color)
 	{
-		DrawLine(corners[BoxCorner::NearLeftBottom],  corners[BoxCorner::NearRightBottom], color);
-		DrawLine(corners[BoxCorner::NearLeftBottom],  corners[BoxCorner::NearLeftTop],     color);
-		DrawLine(corners[BoxCorner::NearLeftBottom],  corners[BoxCorner::FarLeftBottom],   color);
-		DrawLine(corners[BoxCorner::FarRightTop],     corners[BoxCorner::FarLeftTop],      color);
-		DrawLine(corners[BoxCorner::FarRightTop],     corners[BoxCorner::FarRightBottom],  color);
-		DrawLine(corners[BoxCorner::FarRightTop],     corners[BoxCorner::NearRightTop],    color);
-		DrawLine(corners[BoxCorner::FarLeftBottom],   corners[BoxCorner::FarRightBottom],  color);
-		DrawLine(corners[BoxCorner::FarLeftBottom],   corners[BoxCorner::FarLeftTop],      color);
-		DrawLine(corners[BoxCorner::NearLeftTop],     corners[BoxCorner::NearRightTop],    color);
-		DrawLine(corners[BoxCorner::NearLeftTop],     corners[BoxCorner::FarLeftTop],      color);
-		DrawLine(corners[BoxCorner::NearRightBottom], corners[BoxCorner::NearRightTop],    color);
-		DrawLine(corners[BoxCorner::NearRightBottom], corners[BoxCorner::FarRightBottom],  color);
+		DrawLine(corners[BoxCorner::LeftBottomNear],  corners[BoxCorner::RightBottomNear], color);
+		DrawLine(corners[BoxCorner::LeftBottomNear],  corners[BoxCorner::LeftTopNear],     color);
+		DrawLine(corners[BoxCorner::LeftBottomNear],  corners[BoxCorner::LeftBottomFar],   color);
+		DrawLine(corners[BoxCorner::RightTopFar],     corners[BoxCorner::LeftTopFar],      color);
+		DrawLine(corners[BoxCorner::RightTopFar],     corners[BoxCorner::RightBottomFar],  color);
+		DrawLine(corners[BoxCorner::RightTopFar],     corners[BoxCorner::RightTopNear],    color);
+		DrawLine(corners[BoxCorner::LeftBottomFar],   corners[BoxCorner::RightBottomFar],  color);
+		DrawLine(corners[BoxCorner::LeftBottomFar],   corners[BoxCorner::LeftTopFar],      color);
+		DrawLine(corners[BoxCorner::LeftTopNear],     corners[BoxCorner::RightTopNear],    color);
+		DrawLine(corners[BoxCorner::LeftTopNear],     corners[BoxCorner::LeftTopFar],      color);
+		DrawLine(corners[BoxCorner::RightBottomNear], corners[BoxCorner::RightTopNear],    color);
+		DrawLine(corners[BoxCorner::RightBottomNear], corners[BoxCorner::RightBottomFar],  color);
 	}
 
 	inline void DebugDrawer::DrawFrustum(const Frustumf& frustum, const Color& color)

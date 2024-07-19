@@ -20,19 +20,27 @@ namespace Nz
 
 	enum class BoxCorner
 	{
-		FarLeftBottom,
-		FarLeftTop,
-		FarRightBottom,
-		FarRightTop,
-		NearLeftBottom,
-		NearLeftTop,
-		NearRightBottom,
-		NearRightTop,
+		LeftBottomFar,
+		LeftBottomNear,
+		LeftTopFar,
+		LeftTopNear,
+		RightBottomFar,
+		RightBottomNear,
+		RightTopFar,
+		RightTopNear,
 
-		Max = NearRightTop
+		Max = RightTopNear
 	};
 
 	constexpr std::size_t BoxCornerCount = UnderlyingCast(BoxCorner::Max) + 1;
+
+	enum class CoordinateSystem
+	{
+		Cartesian,
+		Screen,
+		UV = Screen,
+		World = Cartesian
+	};
 
 	enum class Extent
 	{
