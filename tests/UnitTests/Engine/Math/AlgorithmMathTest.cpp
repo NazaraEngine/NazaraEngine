@@ -61,7 +61,7 @@ TEST_CASE("DegreeToRadian", "[MATH][ALGORITHM]")
 {
 	SECTION("Convert 45.f degree to radian")
 	{
-		REQUIRE(Nz::DegreeToRadian(45.f) == Catch::Approx(Nz::Pi<float> / 4.f));
+		REQUIRE(Nz::DegreeToRadian(45.f) == Catch::Approx(Nz::Pi<float>() / 4.f));
 	}
 }
 
@@ -243,6 +243,6 @@ TEST_CASE("RadianToDegree", "[MATH][ALGORITHM]")
 {
 	SECTION("PI / 4 to degree")
 	{
-		REQUIRE(Nz::RadianToDegree(Nz::Pi<float> / 4.f) == Catch::Approx(45.f));
+		REQUIRE(Nz::RadianToDegree(Nz::Pi<float>() / 4.f) == Catch::Approx(45.f));
 	}
 }

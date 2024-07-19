@@ -140,7 +140,7 @@ int main(int argc, char* argv[])
 
 		Nz::RigidBody3D::DynamicSettings settings;
 		settings.geom = sphereCollider;
-		settings.mass = 4.f / 3.f * Nz::Pi<float> * Nz::IntegralPow(radius, 3);
+		settings.mass = 4.f / 3.f * Nz::Pi<float>() * Nz::IntegralPow(radius, 3);
 
 		ballEntity.emplace<Nz::RigidBody3DComponent>(settings);
 	}

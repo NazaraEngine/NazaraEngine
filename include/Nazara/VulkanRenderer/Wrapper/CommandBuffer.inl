@@ -442,8 +442,8 @@ namespace Nz
 					scissorRegion.y
 				},
 				{
-					UInt32(scissorRegion.width),
-					UInt32(scissorRegion.height)
+					SafeCast<UInt32>(scissorRegion.width),
+					SafeCast<UInt32>(scissorRegion.height)
 				}
 			};
 

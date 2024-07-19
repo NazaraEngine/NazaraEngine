@@ -121,7 +121,7 @@ namespace Nz
 				float gravityFactor = 1.f;
 				float linearDamping = 0.05f;
 				float mass = 1.f;
-				float maxAngularVelocity = 0.25f * Pi<float> * 60.f;
+				float maxAngularVelocity = 0.25f * Pi<float>() * 60.f;
 				float maxLinearVelocity = 500.f;
 				float restitution = 0.f;
 			};

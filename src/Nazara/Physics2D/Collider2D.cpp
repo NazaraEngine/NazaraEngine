@@ -65,7 +65,7 @@ namespace Nz
 			Vector2f origin = FromChipmunk(pos);
 			float r = SafeCast<float>(radius);
 
-			RadianAnglef angleBetweenVertices = 2.f * Pi<float> / vertices.size();
+			RadianAnglef angleBetweenVertices = Tau<float>() / vertices.size();
 			for (std::size_t i = 0; i < vertices.size(); ++i)
 			{
 				RadianAnglef angle = float(i) * angleBetweenVertices;

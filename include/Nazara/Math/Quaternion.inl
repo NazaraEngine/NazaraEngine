@@ -683,7 +683,7 @@ namespace Nz
 				crossProduct = Vector3<T>::UnitY().CrossProduct(from);
 
 			crossProduct.Normalize();
-			return Quaternion(Pi<T>, crossProduct);
+			return Quaternion(Pi<T>(), crossProduct);
 		}
 		else if (dot > T(0.999999))
 			return Quaternion::Identity();

@@ -184,12 +184,12 @@ namespace Nz
 
 		for (unsigned int slice = 0; slice < sliceCount; ++slice)
 		{
-			Quaternionf rot(RadianAnglef(2.f * Pi<float> * slice / sliceCount), Nz::Vector3f::Down());
+			Quaternionf rot(RadianAnglef(Tau<float>() * slice / sliceCount), Nz::Vector3f::Down());
 
 			Vector3f top(0.f, halfHeight, 0.f);
 			for (unsigned int i = 0; i < cornerStepCount; ++i)
 			{
-				auto [sin, cos] = RadianAnglef(0.5f * Pi<float> * i / cornerStepCount).GetSinCos();
+				auto [sin, cos] = RadianAnglef(HalfPi<float>() * i / cornerStepCount).GetSinCos();
 
 				UInt16 index;
 				if (firstVertex && i == 0)
@@ -217,7 +217,7 @@ namespace Nz
 			Vector3f bottom(0.f, -halfHeight, 0.f);
 			for (unsigned int i = 0; i < cornerStepCount; ++i)
 			{
-				auto [sin, cos] = RadianAnglef(0.5f * Pi<float> * i / cornerStepCount).GetSinCos();
+				auto [sin, cos] = RadianAnglef(HalfPi<float>() * i / cornerStepCount).GetSinCos();
 
 				UInt16 index;
 				if (lastVertex && i == sliceCount - 1)

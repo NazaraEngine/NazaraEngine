@@ -856,7 +856,7 @@ namespace Nz
 
 	void GenerateCone(float length, float radius, unsigned int subdivision, const Matrix4f& matrix, const Rectf& textureCoords, VertexPointers vertexPointers, IndexIterator indices, Boxf* aabb, UInt32 indexOffset)
 	{
-		constexpr float round = 2.f * Pi<float>;
+		constexpr float round = Tau<float>();
 		float delta = round/subdivision;
 
 		*vertexPointers.positionPtr++ = matrix.GetTranslation(); // matrix.Transform(Vector3f(0.f));
@@ -1006,16 +1006,16 @@ namespace Nz
 		for (unsigned int stack = 0; stack < stackCount; ++stack)
 		{
 			float stackVal = stack * invStackCount;
-			RadianAnglef stackValPi = stackVal * Pi<float>;
+			RadianAnglef stackValPi = stackVal * Pi<float>();
 			float sinStackValPi = stackValPi.GetSin();
 
-			stackValPi -= HalfPi<float>;
+			stackValPi -= HalfPi<float>();
 			float normalY = stackValPi.GetSin();
 
 			for (unsigned int slice = 0; slice < sliceCount; ++slice)
 			{
 				float sliceVal = slice * invSliceCount;
-				RadianAnglef sliceValPi2 = sliceVal * 2.f * Pi<float>;
+				RadianAnglef sliceValPi2 = sliceVal * Tau<float>();
 				auto sincos = sliceValPi2.GetSinCos();
 
 				Vector3f normal;

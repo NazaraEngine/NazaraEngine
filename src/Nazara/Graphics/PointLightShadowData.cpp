@@ -64,7 +64,7 @@ namespace Nz
 
 		constexpr float zNear = 0.01f;
 
-		Matrix4f projectionMatrix = Matrix4f::Perspective(RadianAnglef(HalfPi<float>), 1.f, zNear, m_light.GetRadius());
+		Matrix4f projectionMatrix = Matrix4f::Perspective(RadianAnglef(HalfPi<float>()), 1.f, zNear, m_light.GetRadius());
 
 		UInt32 shadowMapSize = light.GetShadowMapSize();
 		for (std::size_t i = 0; i < m_directions.size(); ++i)

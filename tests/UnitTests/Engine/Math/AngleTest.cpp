@@ -26,7 +26,7 @@ SCENARIO("Angle", "[MATH][ANGLE]")
 
 			THEN("It should be equal to pi/2")
 			{
-				Nz::RadianAnglef expectedResult(Nz::HalfPi<float>);
+				Nz::RadianAnglef expectedResult(Nz::HalfPi<float>());
 
 				CHECK(radAngle == expectedResult);
 				CHECK(angle.ToRadianAngle() == expectedResult);
@@ -120,7 +120,7 @@ SCENARIO("Angle", "[MATH][ANGLE]")
 
 	GIVEN("A radian angle of -Pi")
 	{
-		Nz::RadianAnglef angle(-Nz::Pi<float>);
+		Nz::RadianAnglef angle(-Nz::Pi<float>());
 
 		WHEN("We convert it to radians")
 		{
@@ -186,7 +186,7 @@ SCENARIO("Angle", "[MATH][ANGLE]")
 
 	GIVEN("A radian angle of 7pi")
 	{
-		Nz::RadianAnglef angle(7.f * Nz::Pi<float>);
+		Nz::RadianAnglef angle(7.f * Nz::Pi<float>());
 
 		WHEN("We normalize it")
 		{
@@ -194,7 +194,7 @@ SCENARIO("Angle", "[MATH][ANGLE]")
 
 			THEN("It should be equal to a normalized version of itself")
 			{
-				Nz::RadianAnglef expectedResult(-Nz::Pi<float>);
+				Nz::RadianAnglef expectedResult(-Nz::Pi<float>());
 
 				INFO(angle);
 				CHECK(angle.ApproxEqual(expectedResult));
@@ -204,7 +204,7 @@ SCENARIO("Angle", "[MATH][ANGLE]")
 
 	GIVEN("A radian angle of -4pi")
 	{
-		Nz::RadianAnglef angle(-4.f * Nz::Pi<float>);
+		Nz::RadianAnglef angle(-4.f * Nz::Pi<float>());
 
 		WHEN("We normalize it")
 		{

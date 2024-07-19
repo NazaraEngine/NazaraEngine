@@ -66,7 +66,7 @@ namespace Nz
 			template<typename T>
 			static constexpr T Convert(T angle)
 			{
-				return angle / (T(2) * Pi<T>);
+				return angle / Tau<T>();
 			}
 		};
 
@@ -86,7 +86,7 @@ namespace Nz
 			template<typename T>
 			static constexpr T Convert(T angle)
 			{
-				return angle * T(2) * Pi<T>;
+				return angle * Tau<T>();
 			}
 		};
 
@@ -125,7 +125,7 @@ namespace Nz
 			template<typename T>
 			static constexpr T GetLimit()
 			{
-				return T(2) * Pi<T>;
+				return Tau<T>();
 			}
 
 			template<typename T>
