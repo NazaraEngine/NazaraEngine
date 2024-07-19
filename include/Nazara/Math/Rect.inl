@@ -114,8 +114,8 @@ namespace Nz
 	template<typename T>
 	constexpr bool Rect<T>::Contains(T X, T Y) const
 	{
-		return X >= GetLeft() && X < GetRight() &&
-		       Y >= GetTop() && Y < GetBottom();
+		return X >= GetMinX() && X < GetMaxX() &&
+		       Y >= GetMinY() && Y < GetMaxY();
 	}
 
 	/*!
@@ -129,8 +129,8 @@ namespace Nz
 	template<typename T>
 	constexpr bool Rect<T>::Contains(const Rect<T>& rect) const
 	{
-		return Contains(rect.GetLeft(), rect.GetTop()) &&
-		       Contains(rect.GetRight(), rect.GetBottom());
+		return Contains(rect.GetMinX(), rect.GetMinY()) &&
+		       Contains(rect.GetMaxX(), rect.GetMaxY());
 	}
 
 	/*!
@@ -159,11 +159,11 @@ namespace Nz
 	template<typename T>
 	constexpr Rect<T>& Rect<T>::ExtendTo(T X, T Y)
 	{
-		width = std::max(GetRight(), X);
-		height = std::max(GetBottom(), Y);
+		width = std::max(GetMaxX(), X);
+		height = std::max(GetMaxY(), Y);
 
-		x = std::min(GetLeft(), X);
-		y = std::min(GetTop(), Y);
+		x = std::min(GetMinX(), X);
+		y = std::min(GetMinY(), Y);
 
 		width -= x;
 		height -= y;
@@ -182,11 +182,11 @@ namespace Nz
 	template<typename T>
 	constexpr Rect<T>& Rect<T>::ExtendTo(const Rect& rect)
 	{
-		width = std::max(GetRight(), rect.GetRight());
-		height = std::max(GetBottom(), rect.GetBottom());
+		width = std::max(GetMaxX(), rect.GetMaxX());
+		height = std::max(GetMaxY(), rect.GetMaxY());
 
-		x = std::min(GetLeft(), rect.GetLeft());
-		y = std::min(GetTop(), rect.GetTop());
+		x = std::min(GetMinX(), rect.GetMinX());
+		y = std::min(GetMinY(), rect.GetMinY());
 
 		width -= x;
 		height -= y;
@@ -208,15 +208,6 @@ namespace Nz
 		return ExtendTo(point.x, point.y);
 	}
 
-	template<typename T>
-	constexpr T Rect<T>::GetBottom() const
-	{
-		if constexpr (std::is_floating_point_v<T>)
-			return IsInfinity(height) ? Infinity<T> : y + height;
-		else
-			return y + height;
-	}
-
 	/*!
 	* \brief Gets a Vector2 for the center
 	* \return The position of the center of the rectangle
@@ -236,42 +227,59 @@ namespace Nz
 	* \remark If enumeration is not defined in RectCorner, a NazaraError is thrown and a Vector2 uninitialised is returned
 	*/
 	template<typename T>
+	template<CoordinateSystem CS>
 	constexpr Vector2<T> Rect<T>::GetCorner(RectCorner corner) const
 	{
-		switch (corner)
+		if constexpr (CS == CoordinateSystem::Cartesian)
 		{
-			case RectCorner::LeftBottom:
-				return Vector2<T>(GetLeft(), GetBottom());
+			switch (corner)
+			{
+				case RectCorner::LeftBottom:
+					return Vector2<T>(GetMinX(), GetMinY());
 
-			case RectCorner::LeftTop:
-				return Vector2<T>(GetLeft(), GetTop());
+				case RectCorner::LeftTop:
+					return Vector2<T>(GetMinX(), GetMaxY());
 
-			case RectCorner::RightBottom:
-				return Vector2<T>(GetRight(), GetBottom());
+				case RectCorner::RightBottom:
+					return Vector2<T>(GetMaxX(), GetMinY());
 
-			case RectCorner::RightTop:
-				return Vector2<T>(GetRight(), GetTop());
+				case RectCorner::RightTop:
+					return Vector2<T>(GetMaxX(), GetMaxY());
+			}
 		}
+		else if constexpr (CS == CoordinateSystem::Screen)
+		{
+			switch (corner)
+			{
+				case RectCorner::LeftBottom:
+					return Vector2<T>(GetMinX(), GetMaxY());
 
-		NazaraErrorFmt("corner not handled ({0:#x})", UnderlyingCast(corner));
-		return Vector2<T>();
+				case RectCorner::LeftTop:
+					return Vector2<T>(GetMinX(), GetMinY());
+
+				case RectCorner::RightBottom:
+					return Vector2<T>(GetMaxX(), GetMaxY());
+
+				case RectCorner::RightTop:
+					return Vector2<T>(GetMaxX(), GetMinY());
+			}
+		}
+		else
+			static_assert(AlwaysFalseValue<CS>(), "unhandled coordinate system");
+
+		NAZARA_UNREACHABLE();
 	}
 
 	template<typename T>
+	template<CoordinateSystem CS>
 	constexpr EnumArray<RectCorner, Vector2<T>> Rect<T>::GetCorners() const
 	{
 		return {
-			GetCorner(RectCorner::LeftBottom),
-			GetCorner(RectCorner::LeftTop),
-			GetCorner(RectCorner::RightBottom),
-			GetCorner(RectCorner::RightTop)
+			GetCorner<CS>(RectCorner::LeftBottom),
+			GetCorner<CS>(RectCorner::LeftTop),
+			GetCorner<CS>(RectCorner::RightBottom),
+			GetCorner<CS>(RectCorner::RightTop)
 		};
-	}
-
-	template<typename T>
-	constexpr T Rect<T>::GetLeft() const
-	{
-		return x;
 	}
 
 	/*!
@@ -293,7 +301,31 @@ namespace Nz
 	template<typename T>
 	constexpr Vector2<T> Rect<T>::GetMaximum() const
 	{
-		return { GetRight(), GetBottom() };
+		return { GetMaxX(), GetMaxY() };
+	}
+
+	template<typename T>
+	constexpr T Rect<T>::GetMaxX() const
+	{
+		if constexpr (std::is_floating_point_v<T>)
+		{
+			if (IsInfinity(width))
+				return Infinity();
+		}
+
+		return x + width;
+	}
+
+	template<typename T>
+	constexpr T Rect<T>::GetMaxY() const
+	{
+		if constexpr (std::is_floating_point_v<T>)
+		{
+			if (IsInfinity(height))
+				return Infinity();
+		}
+
+		return y + height;
 	}
 
 	/*!
@@ -305,7 +337,19 @@ namespace Nz
 	template<typename T>
 	constexpr Vector2<T> Rect<T>::GetMinimum() const
 	{
-		return { GetLeft(), GetTop() };
+		return { GetMinX(), GetMinY() };
+	}
+
+	template<typename T>
+	constexpr T Rect<T>::GetMinX() const
+	{
+		return x;
+	}
+
+	template<typename T>
+	constexpr T Rect<T>::GetMinY() const
+	{
+		return y;
 	}
 
 	/*!
@@ -320,8 +364,8 @@ namespace Nz
 	constexpr Vector2<T> Rect<T>::GetNegativeVertex(const Vector2<T>& normal) const
 	{
 		Vector2<T> neg;
-		neg.x = (normal.x < T(0.0)) ? GetRight() : GetLeft();
-		neg.y = (normal.y < T(0.0)) ? GetBottom() : GetTop();
+		neg.x = (normal.x < T(0.0)) ? GetMaxX() : GetMinX();
+		neg.y = (normal.y < T(0.0)) ? GetMaxY() : GetMinY();
 
 		return neg;
 	}
@@ -335,7 +379,7 @@ namespace Nz
 	template<typename T>
 	constexpr Vector2<T> Rect<T>::GetPosition() const
 	{
-		return Vector2<T>(GetLeft(), GetTop());
+		return Vector2<T>(GetMinX(), GetMaxY());
 	}
 
 	/*!
@@ -350,25 +394,10 @@ namespace Nz
 	constexpr Vector2<T> Rect<T>::GetPositiveVertex(const Vector2<T>& normal) const
 	{
 		Vector2<T> pos;
-		pos.x = (normal.x > T(0.0)) ? GetRight() : GetLeft();
-		pos.y = (normal.y > T(0.0)) ? GetBottom() : GetTop();
+		pos.x = (normal.x > T(0.0)) ? GetMaxX() : GetMinX();
+		pos.y = (normal.y > T(0.0)) ? GetMaxY() : GetMinY();
 
 		return pos;
-	}
-
-	template<typename T>
-	constexpr T Rect<T>::GetRight() const
-	{
-		if constexpr (std::is_floating_point_v<T>)
-			return IsInfinity(width) ? Infinity<T> : x + width;
-		else
-			return x + width;
-	}
-
-	template<typename T>
-	constexpr T Rect<T>::GetTop() const
-	{
-		return y;
 	}
 
 	/*!
@@ -381,27 +410,27 @@ namespace Nz
 	template<typename T>
 	constexpr bool Rect<T>::Intersect(const Rect& rect, Rect* intersection) const
 	{
-		T left = std::max(GetLeft(), rect.GetLeft());
-		T right = std::min(GetRight(), rect.GetRight());
-		T top = std::max(GetTop(), rect.GetTop());
-		T bottom = std::min(GetBottom(), rect.GetBottom());
+		T minX = std::max(GetMinX(), rect.GetMinX());
+		T maxX = std::min(GetMaxX(), rect.GetMaxX());
+		T minY = std::max(GetMinY(), rect.GetMinY());
+		T maxY = std::min(GetMaxY(), rect.GetMaxY());
 
-		if (left > right || top > bottom)
+		if (minX > maxX || minY > maxY)
 			return false;
 
 		if (intersection)
 		{
-			intersection->x = left;
-			intersection->y = top;
+			intersection->x = minX;
+			intersection->y = minY;
 			if constexpr (std::is_floating_point_v<T>)
 			{
-				intersection->width = (IsInfinity(right)) ? Infinity<T> : right - left;
-				intersection->height = (IsInfinity(bottom)) ? Infinity<T> : bottom - top;
+				intersection->width = (IsInfinity(maxX)) ? Infinity<T>() : maxX - minX;
+				intersection->height = (IsInfinity(minY)) ? Infinity<T>() : maxY - minY;
 			}
 			else
 			{
-				intersection->width = right - left;
-				intersection->height = bottom - top;
+				intersection->width = maxX - minX;
+				intersection->height = maxY - minY;
 			}
 		}
 

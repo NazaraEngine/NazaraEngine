@@ -152,7 +152,7 @@ namespace Nz
 				{
 					vertexPtr->color = tile.color;
 					vertexPtr->position = tileLeftBottom + Vector3f(m_tileSize * cornerExtent[corner] - originShift, 0.f);
-					vertexPtr->uv = tile.textureCoords.GetCorner(corner);
+					vertexPtr->uv = tile.textureCoords.GetCorner<CoordinateSystem::UV>(corner);
 
 					++vertexPtr;
 				}

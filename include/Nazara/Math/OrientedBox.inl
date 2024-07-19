@@ -261,14 +261,14 @@ namespace Nz
 	template<typename T>
 	std::ostream& operator<<(std::ostream& out, const OrientedBox<T>& orientedBox)
 	{
-		return out << "OrientedBox(FLB: " << orientedBox.GetCorner(BoxCorner::FarLeftBottom) << ",\n"
-				   << "            FLT: " << orientedBox.GetCorner(BoxCorner::FarLeftTop)      << ",\n"
-				   << "            FRB: " << orientedBox.GetCorner(BoxCorner::FarRightBottom)  << ",\n"
-				   << "            FRT: " << orientedBox.GetCorner(BoxCorner::FarRightTop)     << ",\n"
-				   << "            NLB: " << orientedBox.GetCorner(BoxCorner::NearLeftBottom)  << ",\n"
-				   << "            NLT: " << orientedBox.GetCorner(BoxCorner::NearLeftTop)     << ",\n"
-				   << "            NRB: " << orientedBox.GetCorner(BoxCorner::NearRightBottom) << ",\n"
-				   << "            NRT: " << orientedBox.GetCorner(BoxCorner::NearRightTop)    << ")\n";
+		return out << "OrientedBox(FLB: " << orientedBox.GetCorner(BoxCorner::LeftBottomFar) << ",\n"
+				   << "            FLT: " << orientedBox.GetCorner(BoxCorner::LeftTopFar)      << ",\n"
+				   << "            FRB: " << orientedBox.GetCorner(BoxCorner::RightBottomFar)  << ",\n"
+				   << "            FRT: " << orientedBox.GetCorner(BoxCorner::RightTopFar)     << ",\n"
+				   << "            NLB: " << orientedBox.GetCorner(BoxCorner::LeftBottomNear)  << ",\n"
+				   << "            NLT: " << orientedBox.GetCorner(BoxCorner::LeftTopNear)     << ",\n"
+				   << "            NRB: " << orientedBox.GetCorner(BoxCorner::RightBottomNear) << ",\n"
+				   << "            NRT: " << orientedBox.GetCorner(BoxCorner::RightTopNear)    << ")\n";
 	}
 }
 

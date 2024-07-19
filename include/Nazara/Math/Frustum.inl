@@ -70,14 +70,14 @@ namespace Nz
 	{
 		switch (corner)
 		{
-			case BoxCorner::FarLeftBottom:   return Plane<T>::Intersect(GetPlane(FrustumPlane::Far),  GetPlane(FrustumPlane::Left),  GetPlane(FrustumPlane::Bottom));
-			case BoxCorner::FarLeftTop:      return Plane<T>::Intersect(GetPlane(FrustumPlane::Far),  GetPlane(FrustumPlane::Left),  GetPlane(FrustumPlane::Top));
-			case BoxCorner::FarRightBottom:  return Plane<T>::Intersect(GetPlane(FrustumPlane::Far),  GetPlane(FrustumPlane::Right), GetPlane(FrustumPlane::Bottom));
-			case BoxCorner::FarRightTop:     return Plane<T>::Intersect(GetPlane(FrustumPlane::Far),  GetPlane(FrustumPlane::Right), GetPlane(FrustumPlane::Top));
-			case BoxCorner::NearLeftBottom:  return Plane<T>::Intersect(GetPlane(FrustumPlane::Near), GetPlane(FrustumPlane::Left),  GetPlane(FrustumPlane::Bottom));
-			case BoxCorner::NearLeftTop:     return Plane<T>::Intersect(GetPlane(FrustumPlane::Near), GetPlane(FrustumPlane::Left),  GetPlane(FrustumPlane::Top));
-			case BoxCorner::NearRightBottom: return Plane<T>::Intersect(GetPlane(FrustumPlane::Near), GetPlane(FrustumPlane::Right), GetPlane(FrustumPlane::Bottom));
-			case BoxCorner::NearRightTop:    return Plane<T>::Intersect(GetPlane(FrustumPlane::Near), GetPlane(FrustumPlane::Right), GetPlane(FrustumPlane::Top));
+			case BoxCorner::LeftBottomFar:   return Plane<T>::Intersect(GetPlane(FrustumPlane::Far),  GetPlane(FrustumPlane::Left),  GetPlane(FrustumPlane::Bottom));
+			case BoxCorner::LeftTopFar:      return Plane<T>::Intersect(GetPlane(FrustumPlane::Far),  GetPlane(FrustumPlane::Left),  GetPlane(FrustumPlane::Top));
+			case BoxCorner::RightBottomFar:  return Plane<T>::Intersect(GetPlane(FrustumPlane::Far),  GetPlane(FrustumPlane::Right), GetPlane(FrustumPlane::Bottom));
+			case BoxCorner::RightTopFar:     return Plane<T>::Intersect(GetPlane(FrustumPlane::Far),  GetPlane(FrustumPlane::Right), GetPlane(FrustumPlane::Top));
+			case BoxCorner::LeftBottomNear:  return Plane<T>::Intersect(GetPlane(FrustumPlane::Near), GetPlane(FrustumPlane::Left),  GetPlane(FrustumPlane::Bottom));
+			case BoxCorner::LeftTopNear:     return Plane<T>::Intersect(GetPlane(FrustumPlane::Near), GetPlane(FrustumPlane::Left),  GetPlane(FrustumPlane::Top));
+			case BoxCorner::RightBottomNear: return Plane<T>::Intersect(GetPlane(FrustumPlane::Near), GetPlane(FrustumPlane::Right), GetPlane(FrustumPlane::Bottom));
+			case BoxCorner::RightTopNear:    return Plane<T>::Intersect(GetPlane(FrustumPlane::Near), GetPlane(FrustumPlane::Right), GetPlane(FrustumPlane::Top));
 		}
 
 		NazaraError("invalid frustum corner");
@@ -88,14 +88,14 @@ namespace Nz
 	constexpr EnumArray<BoxCorner, Vector3<T>> Frustum<T>::ComputeCorners() const
 	{
 		return {
-			ComputeCorner(BoxCorner::FarLeftBottom),
-			ComputeCorner(BoxCorner::FarLeftTop),
-			ComputeCorner(BoxCorner::FarRightBottom),
-			ComputeCorner(BoxCorner::FarRightTop),
-			ComputeCorner(BoxCorner::NearLeftBottom),
-			ComputeCorner(BoxCorner::NearLeftTop),
-			ComputeCorner(BoxCorner::NearRightBottom),
-			ComputeCorner(BoxCorner::NearRightTop)
+			ComputeCorner(BoxCorner::LeftBottomFar),
+			ComputeCorner(BoxCorner::LeftTopFar),
+			ComputeCorner(BoxCorner::RightBottomFar),
+			ComputeCorner(BoxCorner::RightTopFar),
+			ComputeCorner(BoxCorner::LeftBottomNear),
+			ComputeCorner(BoxCorner::LeftTopNear),
+			ComputeCorner(BoxCorner::RightBottomNear),
+			ComputeCorner(BoxCorner::RightTopNear)
 		};
 	}
 
@@ -529,25 +529,25 @@ namespace Nz
 
 		// Computing the frustum
 		EnumArray<BoxCorner, Vector3<T>> corners;
-		corners[BoxCorner::FarLeftBottom]  = fc - u * farH - s * farW;
-		corners[BoxCorner::FarLeftTop]     = fc + u * farH - s * farW;
-		corners[BoxCorner::FarRightTop]    = fc + u * farH + s * farW;
-		corners[BoxCorner::FarRightBottom] = fc - u * farH + s * farW;
+		corners[BoxCorner::LeftBottomFar]  = fc - u * farH - s * farW;
+		corners[BoxCorner::LeftTopFar]     = fc + u * farH - s * farW;
+		corners[BoxCorner::RightTopFar]    = fc + u * farH + s * farW;
+		corners[BoxCorner::RightBottomFar] = fc - u * farH + s * farW;
 
-		corners[BoxCorner::NearLeftBottom]  = nc - u * nearH - s * nearW;
-		corners[BoxCorner::NearLeftTop]     = nc + u * nearH - s * nearW;
-		corners[BoxCorner::NearRightTop]    = nc + u * nearH + s * nearW;
-		corners[BoxCorner::NearRightBottom] = nc - u * nearH + s * nearW;
+		corners[BoxCorner::LeftBottomNear]  = nc - u * nearH - s * nearW;
+		corners[BoxCorner::LeftTopNear]     = nc + u * nearH - s * nearW;
+		corners[BoxCorner::RightTopNear]    = nc + u * nearH + s * nearW;
+		corners[BoxCorner::RightBottomNear] = nc - u * nearH + s * nearW;
 
 		// Construction of frustum's planes
 
 		EnumArray<FrustumPlane, Plane<T>> planes;
-		planes[FrustumPlane::Bottom] = Plane(corners[BoxCorner::NearLeftBottom],  corners[BoxCorner::NearRightBottom], corners[BoxCorner::FarRightBottom]);
-		planes[FrustumPlane::Far]    = Plane(corners[BoxCorner::FarRightTop],     corners[BoxCorner::FarLeftTop],      corners[BoxCorner::FarLeftBottom]);
-		planes[FrustumPlane::Left]   = Plane(corners[BoxCorner::NearLeftTop],     corners[BoxCorner::NearLeftBottom],  corners[BoxCorner::FarLeftBottom]);
-		planes[FrustumPlane::Near]   = Plane(corners[BoxCorner::NearLeftTop],     corners[BoxCorner::NearRightTop],    corners[BoxCorner::NearRightBottom]);
-		planes[FrustumPlane::Right]  = Plane(corners[BoxCorner::NearRightBottom], corners[BoxCorner::NearRightTop],    corners[BoxCorner::FarRightBottom]);
-		planes[FrustumPlane::Top]    = Plane(corners[BoxCorner::NearRightTop],    corners[BoxCorner::NearLeftTop],     corners[BoxCorner::FarLeftTop]);
+		planes[FrustumPlane::Bottom] = Plane(corners[BoxCorner::LeftBottomNear],  corners[BoxCorner::RightBottomNear], corners[BoxCorner::RightBottomFar]);
+		planes[FrustumPlane::Far]    = Plane(corners[BoxCorner::RightTopFar],     corners[BoxCorner::LeftTopFar],      corners[BoxCorner::LeftBottomFar]);
+		planes[FrustumPlane::Left]   = Plane(corners[BoxCorner::LeftTopNear],     corners[BoxCorner::LeftBottomNear],  corners[BoxCorner::LeftBottomFar]);
+		planes[FrustumPlane::Near]   = Plane(corners[BoxCorner::LeftTopNear],     corners[BoxCorner::RightTopNear],    corners[BoxCorner::RightBottomNear]);
+		planes[FrustumPlane::Right]  = Plane(corners[BoxCorner::RightBottomNear], corners[BoxCorner::RightTopNear],    corners[BoxCorner::RightBottomFar]);
+		planes[FrustumPlane::Top]    = Plane(corners[BoxCorner::RightTopNear],    corners[BoxCorner::LeftTopNear],     corners[BoxCorner::LeftTopFar]);
 
 		return Frustum(planes);
 	}

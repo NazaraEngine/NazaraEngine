@@ -99,7 +99,7 @@ namespace Nz
 
 		Vector3f originShift = m_origin * m_size;
 		Vector3f topLeftCorner = -originShift;
-		Vector2f topLeftUV = m_textureCoords.GetCorner(RectCorner::LeftTop);
+		Vector2f topLeftUV = m_textureCoords.GetCorner<CoordinateSystem::UV>(RectCorner::LeftTop);
 
 		m_spriteCount = 0;
 		for (std::size_t y = 0; y < 3; ++y)

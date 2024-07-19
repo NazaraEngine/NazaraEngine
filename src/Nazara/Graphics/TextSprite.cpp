@@ -206,7 +206,7 @@ namespace Nz
 				m_vertices[offset].position = sprite.corners[cornerIndex];
 				m_vertices[offset].position.y = bounds.height - m_vertices[offset].position.y;
 				m_vertices[offset].position *= scale;
-				m_vertices[offset].uv = uvRect.GetCorner((sprite.flipped) ? flippedCorners[cornerIndex] : normalCorners[cornerIndex]);
+				m_vertices[offset].uv = uvRect.GetCorner<CoordinateSystem::UV>((sprite.flipped) ? flippedCorners[cornerIndex] : normalCorners[cornerIndex]);
 				offset++;
 			}
 
