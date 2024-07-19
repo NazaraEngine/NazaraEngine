@@ -379,7 +379,7 @@ namespace Nz
 	template<typename T>
 	constexpr Vector2<T> Rect<T>::GetPosition() const
 	{
-		return Vector2<T>(GetMinX(), GetMaxY());
+		return Vector2<T>(GetMinX(), GetMinY());
 	}
 
 	/*!
