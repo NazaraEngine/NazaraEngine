@@ -166,6 +166,27 @@ namespace Nz
 		m_commandBuffer.InsertDebugLabel(label, color);
 	}
 
+	void OpenGLCommandBufferBuilder::MemoryBarrier(PipelineStageFlags srcStageMask, PipelineStageFlags dstStageMask, MemoryAccessFlags srcAccessMask, MemoryAccessFlags dstAccessMask)
+	{
+		GLbitfield barriers = 0;
+
+		if (srcAccessMask.Test(MemoryAccess::MemoryWrite))
+			barriers |= GL_BUFFER_UPDATE_BARRIER_BIT;
+
+
+		if (dstAccessMask.Test(MemoryAccess::IndexBufferRead))
+			barriers |= GL_ELEMENT_ARRAY_BARRIER_BIT;
+
+		if (dstAccessMask.Test(MemoryAccess::VertexBufferRead))
+			barriers |= GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT;
+
+		if (dstAccessMask.Test(MemoryAccess::UniformBufferRead))
+			barriers |= GL_UNIFORM_BARRIER_BIT;
+
+		if (barriers != 0)
+			m_commandBuffer.InsertMemoryBarrier(barriers);
+	}
+
 	void OpenGLCommandBufferBuilder::NextSubpass()
 	{
 		/* nothing to do */

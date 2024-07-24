@@ -57,6 +57,8 @@ namespace Nz
 
 			inline Vk::CommandBuffer& GetCommandBuffer();
 
+			void MemoryBarrier(PipelineStageFlags srcStageMask, PipelineStageFlags dstStageMask, MemoryAccessFlags srcAccessMask, MemoryAccessFlags dstAccessMask) override;
+
 			void NextSubpass() override;
 
 			void PreTransferBarrier() override;

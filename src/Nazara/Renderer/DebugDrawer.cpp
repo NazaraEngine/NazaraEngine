@@ -174,6 +174,8 @@ namespace Nz
 			{
 				builder.BeginDebugRegion("Debug drawer upload", Color::Yellow());
 				{
+					builder.MemoryBarrier(PipelineStage::VertexInput | PipelineStage::FragmentShader, PipelineStage::Transfer, MemoryAccess::VertexBufferRead | MemoryAccess::UniformBufferRead, MemoryAccess::TransferWrite);
+
 					if (m_viewerDataUpdated)
 					{
 						const UploadPool::Allocation& viewerDataAllocation = uploadPool.Allocate(m_viewerData.size());
@@ -186,7 +188,7 @@ namespace Nz
 						builder.CopyBuffer(*pendingUpload.allocation, pendingUpload.vertexBuffer);
 					m_pendingUploads.clear();
 
-					builder.PostTransferBarrier();
+					builder.MemoryBarrier(PipelineStage::Transfer, PipelineStage::VertexInput | PipelineStage::FragmentShader, MemoryAccess::TransferWrite, MemoryAccess::VertexBufferRead | MemoryAccess::UniformBufferRead);
 				}
 				builder.EndDebugRegion();
 			}, QueueType::Graphics);

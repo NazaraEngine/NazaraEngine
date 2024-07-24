@@ -270,7 +270,7 @@ namespace Nz
 				for (auto& copy : m_pendingCopies)
 					builder.CopyBuffer(*copy.allocation, copy.targetBuffer, copy.size);
 
-				builder.PostTransferBarrier();
+				builder.MemoryBarrier(PipelineStage::Transfer, PipelineStage::VertexInput, MemoryAccess::TransferWrite, MemoryAccess::VertexBufferRead);
 			}, Nz::QueueType::Transfer);
 
 			m_pendingCopies.clear();

@@ -74,6 +74,8 @@ namespace Nz
 
 			virtual void InsertDebugLabel(std::string_view label, const Color& color) = 0;
 
+			virtual void MemoryBarrier(PipelineStageFlags srcStageMask, PipelineStageFlags dstStageMask, MemoryAccessFlags srcAccessMask, MemoryAccessFlags dstAccessMask) = 0;
+
 			virtual void NextSubpass() = 0;
 
 			virtual void PreTransferBarrier() = 0;

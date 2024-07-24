@@ -221,7 +221,7 @@ namespace Nz
 			},
 		};
 
-		m_commandBuffer.SetImageLayout(swapchainImage, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, swapchainImageRange);
+		m_commandBuffer.SetImageLayout(swapchainImage, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, swapchainImageRange);
 
 		m_commandBuffer.BlitImage(vkFromTexture.GetImage(), ToVulkan(fromLayout), vkSwapchain.GetImage(imageIndex), VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, swapchainBlit, VK_FILTER_LINEAR);
 
@@ -374,6 +374,11 @@ namespace Nz
 		m_commandBuffer.InsertDebugLabel(labelEOS.data(), color);
 	}
 
+	void VulkanCommandBufferBuilder::MemoryBarrier(PipelineStageFlags srcStageMask, PipelineStageFlags dstStageMask, MemoryAccessFlags srcAccessMask, MemoryAccessFlags dstAccessMask)
+	{
+		m_commandBuffer.MemoryBarrier(ToVulkan(srcStageMask), ToVulkan(dstStageMask), ToVulkan(srcAccessMask), ToVulkan(dstAccessMask));
+	}
+
 	void VulkanCommandBufferBuilder::NextSubpass()
 	{
 		m_commandBuffer.NextSubpass();
@@ -382,12 +387,12 @@ namespace Nz
 
 	void VulkanCommandBufferBuilder::PreTransferBarrier()
 	{
-		m_commandBuffer.MemoryBarrier(VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0U, VK_ACCESS_TRANSFER_READ_BIT);
+		m_commandBuffer.MemoryBarrier(VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0U, VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT);
 	}
 
 	void VulkanCommandBufferBuilder::PostTransferBarrier()
 	{
-		m_commandBuffer.MemoryBarrier(VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_VERTEX_SHADER_BIT, VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_UNIFORM_READ_BIT);
+		m_commandBuffer.MemoryBarrier(VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_VERTEX_SHADER_BIT, VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_UNIFORM_READ_BIT);
 	}
 
 	void VulkanCommandBufferBuilder::SetScissor(const Recti& scissorRegion)
