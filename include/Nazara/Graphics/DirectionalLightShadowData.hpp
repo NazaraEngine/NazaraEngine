@@ -35,6 +35,7 @@ namespace Nz
 
 			inline std::size_t GetCascadeCount() const;
 			inline void GetCascadeData(const AbstractViewer* viewer, SparsePtr<float> distance, SparsePtr<Matrix4f> viewProjMatrix) const;
+			inline float GetDepthPlaneFactor() const;
 
 			inline bool IsShadowStabilization() const;
 
@@ -46,6 +47,8 @@ namespace Nz
 			void RegisterViewer(const AbstractViewer* viewer) override;
 
 			const Texture* RetrieveLightShadowmap(const BakedFrameGraph& bakedGraph, const AbstractViewer* viewer) const override;
+
+			inline void SetDepthPlaneFactor(float depthPlaneFactor);
 
 			void UnregisterMaterialInstance(const MaterialInstance& matInstance) override;
 			void UnregisterViewer(const AbstractViewer* viewer) override;
@@ -86,6 +89,7 @@ namespace Nz
 			FramePipeline& m_pipeline;
 			const DirectionalLight& m_light;
 			bool m_isShadowStabilizationEnabled;
+			float m_depthPlaneFactor;
 			float m_invTexelScale;
 			float m_texelScale;
 	};

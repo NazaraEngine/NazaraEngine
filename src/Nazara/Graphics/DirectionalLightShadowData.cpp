@@ -21,7 +21,8 @@ namespace Nz
 	m_elementRegistry(elementRegistry),
 	m_pipeline(pipeline),
 	m_light(light),
-	m_isShadowStabilizationEnabled(true)
+	m_isShadowStabilizationEnabled(true),
+	m_depthPlaneFactor(5.f)
 	{
 		m_onLightShadowMapSettingChange.Connect(m_light.OnLightShadowMapSettingChange, [this](Light* /*light*/, PixelFormat /*newPixelFormat*/, UInt32 newSize)
 		{
@@ -60,7 +61,7 @@ namespace Nz
 
 		// Calculate split depths based on view camera frustum
 		// Based on method presented in https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html
-		constexpr float lambda = 0.95f;
+		constexpr float lambda = 0.97f;
 
 		float ratio = farPlane / nearPlane;
 		float clipRange = farPlane - nearPlane;
@@ -181,6 +182,16 @@ namespace Nz
 		}
 
 		cascade.distance = cascadeDist;
+
+		if (zNear < 0.f)
+			zNear *= m_depthPlaneFactor;
+		else
+			zNear /= m_depthPlaneFactor;
+
+		if (zFar > 0.f)
+			zFar *= m_depthPlaneFactor;
+		else
+			zFar /= m_depthPlaneFactor;
 
 		Matrix4f lightProj = Matrix4f::Ortho(left, right, top, bottom, zNear, zFar);
 

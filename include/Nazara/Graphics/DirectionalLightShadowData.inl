@@ -31,9 +31,19 @@ namespace Nz
 		}
 	}
 
+	inline float DirectionalLightShadowData::GetDepthPlaneFactor() const
+	{
+		return m_depthPlaneFactor;
+	}
+
 	inline bool DirectionalLightShadowData::IsShadowStabilization() const
 	{
 		return m_isShadowStabilizationEnabled;
+	}
+
+	inline void DirectionalLightShadowData::SetDepthPlaneFactor(float depthPlaneFactor)
+	{
+		m_depthPlaneFactor = depthPlaneFactor;
 	}
 }
 
