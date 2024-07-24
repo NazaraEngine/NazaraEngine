@@ -55,7 +55,7 @@ namespace Nz
 
 			void InsertDebugLabel(std::string_view label, const Color& color) override;
 
-			void MemoryBarrier(PipelineStageFlags srcStageMask, PipelineStageFlags dstStageMask, MemoryAccessFlags srcAccessMask, MemoryAccessFlags dstAccessMask);
+			void MemoryBarrier(PipelineStageFlags srcStageMask, PipelineStageFlags dstStageMask, MemoryAccessFlags srcAccessMask, MemoryAccessFlags dstAccessMask) override;
 
 			void NextSubpass() override;
 
