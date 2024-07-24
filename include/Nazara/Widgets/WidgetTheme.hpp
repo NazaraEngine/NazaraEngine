@@ -237,7 +237,7 @@ namespace Nz
 			ScrollbarButtonWidgetStyle& operator=(const ScrollbarButtonWidgetStyle&) = delete;
 			ScrollbarButtonWidgetStyle& operator=(ScrollbarButtonWidgetStyle&&) = default;
 	};
-	
+
 	class NAZARA_WIDGETS_API TextAreaWidgetStyle : public BaseWidgetStyle
 	{
 		public:

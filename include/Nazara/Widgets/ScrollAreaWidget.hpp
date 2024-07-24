@@ -44,11 +44,14 @@ namespace Nz
 		private:
 			void Layout() override;
 
+			void OnChildPreferredSizeUpdated(const BaseWidget* child) override;
 			bool OnMouseWheelMoved(int x, int y, float delta) override;
+			void OnVisibilityUpdated(bool isVisible) override;
 
 			std::unique_ptr<ScrollAreaWidgetStyle> m_style;
 			BaseWidget* m_content;
-			ScrollbarWidget* m_horizontalScrollbar;
+			ScrollbarWidget* m_verticalScrollbar;
+			bool m_isPerformingLayout;
 			bool m_isScrollbarEnabled;
 			bool m_hasScrollbar;
 	};

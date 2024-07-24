@@ -206,6 +206,8 @@ namespace Nz
 
 			ShowChildren(show);
 
+			OnVisibilityUpdated(m_visible);
+
 			if (m_parentWidget)
 				m_parentWidget->OnChildVisibilityUpdated(this);
 
@@ -294,7 +296,7 @@ namespace Nz
 				scissorRect = parentScissorRect;
 		}
 
-		scissorRect.y = GetCanvas()->GetSize().y - scissorRect.height - scissorRect.y; //< scissor rect is in screen coordinates
+		scissorRect.y = std::max(0.f, GetCanvas()->GetSize().y - scissorRect.height - scissorRect.y); //< scissor rect is in screen coordinates
 
 		return Recti(scissorRect);
 	}
@@ -428,6 +430,10 @@ namespace Nz
 	bool BaseWidget::OnTextEdited(const std::array<char, 32>& /*characters*/, int /*length*/)
 	{
 		return false;
+	}
+
+	void BaseWidget::OnVisibilityUpdated(bool /*newVisibilityState*/)
+	{
 	}
 
 	void BaseWidget::ShowChildren(bool show)

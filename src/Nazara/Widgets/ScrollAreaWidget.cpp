@@ -10,6 +10,7 @@ namespace Nz
 	ScrollAreaWidget::ScrollAreaWidget(BaseWidget* parent, BaseWidget* content, const StyleFactory& styleFactory) :
 	BaseWidget(parent),
 	m_content(content),
+	m_isPerformingLayout(false),
 	m_isScrollbarEnabled(true),
 	m_hasScrollbar(false)
 	{
@@ -19,8 +20,8 @@ namespace Nz
 		//m_style = (styleFactory) ? styleFactory(this) : GetTheme()->CreateStyle(this);
 		//SetRenderLayerCount(m_style->GetRenderLayerCount());
 
-		m_horizontalScrollbar = Add<ScrollbarWidget>(ScrollbarOrientation::Vertical);
-		m_horizontalScrollbar->OnScrollbarValueUpdate.Connect([this](ScrollbarWidget*, float newValue)
+		m_verticalScrollbar = Add<ScrollbarWidget>(ScrollbarOrientation::Vertical);
+		m_verticalScrollbar->OnScrollbarValueUpdate.Connect([this](ScrollbarWidget*, float newValue)
 		{
 			float contentPosition = (GetHeight() - m_content->GetHeight()) * (1.f - newValue);
 
@@ -37,29 +38,31 @@ namespace Nz
 		{
 			m_isScrollbarEnabled = enable;
 
-			bool isVisible = IsScrollbarVisible();
-			m_horizontalScrollbar->Show(isVisible);
+			Layout();
 		}
 	}
 
 	float ScrollAreaWidget::GetScrollHeight() const
 	{
-		return m_horizontalScrollbar->GetValue() * m_content->GetHeight();
+		return m_verticalScrollbar->GetValue() * m_content->GetHeight();
 	}
 
 	float ScrollAreaWidget::GetScrollRatio() const
 	{
-		return m_horizontalScrollbar->GetValue();
+		return m_verticalScrollbar->GetValue();
 	}
 
 	void ScrollAreaWidget::ScrollToRatio(float ratio)
 	{
-		m_horizontalScrollbar->SetValue(ratio);
+		m_verticalScrollbar->SetValue(ratio);
 	}
 
 	void ScrollAreaWidget::Layout()
 	{
-		float scrollBarWidth = m_horizontalScrollbar->GetPreferredWidth();
+		// Prevent infinite recursion
+		m_isPerformingLayout = true;
+
+		float scrollBarWidth = m_verticalScrollbar->GetPreferredWidth();
 
 		float areaWidth = GetWidth();
 		float areaHeight = GetHeight();
@@ -67,33 +70,41 @@ namespace Nz
 		m_content->Resize({ areaWidth, areaHeight }); //< setting width with line wrap adjust preferred height
 		float contentHeight = m_content->GetPreferredHeight();
 
+		float scrollRatio = m_verticalScrollbar->GetValue();
 		if (contentHeight > areaHeight)
 		{
 			m_hasScrollbar = true;
 
-			Nz::Vector2f contentSize(areaWidth - scrollBarWidth, contentHeight);
-			m_content->Resize(contentSize);
-
 			if (m_isScrollbarEnabled)
-				m_horizontalScrollbar->Show();
+			{
+				m_verticalScrollbar->Show();
+				areaWidth -= scrollBarWidth;
 
-			m_horizontalScrollbar->SetPosition({ contentSize.x, 0.f, 0.f });
-			m_horizontalScrollbar->Resize({ scrollBarWidth, GetHeight() });
-
-			ScrollToRatio(m_horizontalScrollbar->GetValue());
+				m_verticalScrollbar->SetPosition({ areaWidth, 0.f, 0.f });
+				m_verticalScrollbar->Resize({ scrollBarWidth, GetHeight() });
+			}
 		}
 		else
 		{
 			m_hasScrollbar = false;
 
-			m_content->Resize(GetSize());
+			m_verticalScrollbar->Hide();
 
-			m_horizontalScrollbar->Hide();
-
-			ScrollToRatio(0.f);
+			scrollRatio = 0.f;
 		}
 
+		m_content->Resize({ areaWidth, std::max(areaHeight, contentHeight) });
+		ScrollToRatio(scrollRatio);
+
 		BaseWidget::Layout();
+
+		m_isPerformingLayout = false;
+	}
+
+	void ScrollAreaWidget::OnChildPreferredSizeUpdated(const BaseWidget* child)
+	{
+		if (child == m_content && !m_isPerformingLayout)
+			Layout();
 	}
 
 	bool ScrollAreaWidget::OnMouseWheelMoved(int /*x*/, int /*y*/, float delta)
@@ -102,5 +113,13 @@ namespace Nz
 
 		ScrollToHeight(GetScrollHeight() - scrollStep * delta);
 		return true;
+	}
+
+	void ScrollAreaWidget::OnVisibilityUpdated(bool isVisible)
+	{
+		// Fix scrollbar getting visible when showing the scroll area widget
+		// FIXME: Handle this in a better and transparent way
+		if (isVisible && !IsScrollbarVisible())
+			m_verticalScrollbar->Hide();
 	}
 }

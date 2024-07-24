@@ -162,6 +162,7 @@ namespace Nz
 			virtual void OnParentResized(const Vector2f& newSize);
 			virtual bool OnTextEntered(char32_t character, bool repeated);
 			virtual bool OnTextEdited(const std::array<char, 32>& characters, int length);
+			virtual void OnVisibilityUpdated(bool newVisibilityState);
 
 			inline void SetBaseRenderLayer(int baseRenderLayer);
 			inline void SetPreferredSize(const Vector2f& preferredSize);
