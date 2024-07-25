@@ -166,7 +166,7 @@ namespace Nz
 		m_commandBuffer.InsertDebugLabel(label, color);
 	}
 
-	void OpenGLCommandBufferBuilder::MemoryBarrier(PipelineStageFlags srcStageMask, PipelineStageFlags dstStageMask, MemoryAccessFlags srcAccessMask, MemoryAccessFlags dstAccessMask)
+	void OpenGLCommandBufferBuilder::MemoryBarrier(PipelineStageFlags /*srcStageMask*/, PipelineStageFlags /*dstStageMask*/, MemoryAccessFlags srcAccessMask, MemoryAccessFlags dstAccessMask)
 	{
 		GLbitfield barriers = 0;
 
