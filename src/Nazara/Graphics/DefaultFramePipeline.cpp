@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-#include <Nazara/Graphics/ForwardFramePipeline.hpp>
+#include <Nazara/Graphics/DefaultFramePipeline.hpp>
 #include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
@@ -16,7 +16,7 @@
 
 namespace Nz
 {
-	ForwardFramePipeline::ForwardFramePipeline(ElementRendererRegistry& elementRegistry) :
+	DefaultFramePipeline::DefaultFramePipeline(ElementRendererRegistry& elementRegistry) :
 	m_elementRegistry(elementRegistry),
 	m_renderablePool(4096),
 	m_lightPool(64),
@@ -28,13 +28,13 @@ namespace Nz
 	{
 	}
 
-	ForwardFramePipeline::~ForwardFramePipeline()
+	DefaultFramePipeline::~DefaultFramePipeline()
 	{
 		// Force viewer passes to unregister their materials
 		m_viewerPool.Clear();
 	}
 
-	const std::vector<Nz::FramePipelinePass::VisibleRenderable>& ForwardFramePipeline::FrustumCull(const Frustumf& frustum, UInt32 mask, std::size_t& visibilityHash) const
+	const std::vector<Nz::FramePipelinePass::VisibleRenderable>& DefaultFramePipeline::FrustumCull(const Frustumf& frustum, UInt32 mask, std::size_t& visibilityHash) const
 	{
 		auto CombineHash = [](std::size_t currentHash, std::size_t newHash)
 		{
@@ -72,7 +72,7 @@ namespace Nz
 		return m_visibleRenderables;
 	}
 
-	void ForwardFramePipeline::ForEachRegisteredMaterialInstance(FunctionRef<void(const MaterialInstance& materialInstance)> callback)
+	void DefaultFramePipeline::ForEachRegisteredMaterialInstance(FunctionRef<void(const MaterialInstance& materialInstance)> callback)
 	{
 		for (RenderableData& renderable : m_renderablePool)
 		{
@@ -85,12 +85,12 @@ namespace Nz
 		}
 	}
 
-	void ForwardFramePipeline::QueueTransfer(TransferInterface* transfer)
+	void DefaultFramePipeline::QueueTransfer(TransferInterface* transfer)
 	{
 		m_transferSet.insert(transfer);
 	}
 
-	std::size_t ForwardFramePipeline::RegisterLight(const Light* light, UInt32 renderMask)
+	std::size_t DefaultFramePipeline::RegisterLight(const Light* light, UInt32 renderMask)
 	{
 		std::size_t lightIndex;
 		LightData* lightData = m_lightPool.Allocate(lightIndex);
@@ -150,7 +150,7 @@ namespace Nz
 		return lightIndex;
 	}
 
-	std::size_t ForwardFramePipeline::RegisterRenderable(std::size_t worldInstanceIndex, std::size_t skeletonInstanceIndex, const InstancedRenderable* instancedRenderable, UInt32 renderMask, const Recti& scissorBox)
+	std::size_t DefaultFramePipeline::RegisterRenderable(std::size_t worldInstanceIndex, std::size_t skeletonInstanceIndex, const InstancedRenderable* instancedRenderable, UInt32 renderMask, const Recti& scissorBox)
 	{
 		std::size_t renderableIndex;
 		RenderableData* renderableData = m_renderablePool.Allocate(renderableIndex);
@@ -242,7 +242,7 @@ namespace Nz
 		return renderableIndex;
 	}
 
-	std::size_t ForwardFramePipeline::RegisterSkeleton(SkeletonInstancePtr skeletonInstance)
+	std::size_t DefaultFramePipeline::RegisterSkeleton(SkeletonInstancePtr skeletonInstance)
 	{
 		std::size_t skeletonInstanceIndex;
 		SkeletonInstanceData& skeletonInstanceData = *m_skeletonInstances.Allocate(skeletonInstanceIndex);
@@ -256,7 +256,7 @@ namespace Nz
 		return skeletonInstanceIndex;
 	}
 
-	std::size_t ForwardFramePipeline::RegisterViewer(PipelineViewer* viewerInstance, Int32 renderOrder)
+	std::size_t DefaultFramePipeline::RegisterViewer(PipelineViewer* viewerInstance, Int32 renderOrder)
 	{
 		std::size_t viewerIndex;
 		auto& viewerData = *m_viewerPool.Allocate(viewerIndex);
@@ -313,7 +313,7 @@ namespace Nz
 		return viewerIndex;
 	}
 
-	std::size_t ForwardFramePipeline::RegisterWorldInstance(WorldInstancePtr worldInstance)
+	std::size_t DefaultFramePipeline::RegisterWorldInstance(WorldInstancePtr worldInstance)
 	{
 		std::size_t worldInstanceIndex;
 		WorldInstanceData& worldInstanceData = *m_worldInstances.Allocate(worldInstanceIndex);
@@ -328,12 +328,12 @@ namespace Nz
 		return worldInstanceIndex;
 	}
 
-	const Light* ForwardFramePipeline::RetrieveLight(std::size_t lightIndex) const
+	const Light* DefaultFramePipeline::RetrieveLight(std::size_t lightIndex) const
 	{
 		return m_lightPool.RetrieveFromIndex(lightIndex)->light;
 	}
 
-	const LightShadowData* ForwardFramePipeline::RetrieveLightShadowData(std::size_t lightIndex) const
+	const LightShadowData* DefaultFramePipeline::RetrieveLightShadowData(std::size_t lightIndex) const
 	{
 		if (!m_shadowCastingLights.UnboundedTest(lightIndex))
 			return nullptr;
@@ -341,7 +341,7 @@ namespace Nz
 		return m_lightPool.RetrieveFromIndex(lightIndex)->shadowData.get();
 	}
 
-	const Texture* ForwardFramePipeline::RetrieveLightShadowmap(std::size_t lightIndex, const AbstractViewer* viewer) const
+	const Texture* DefaultFramePipeline::RetrieveLightShadowmap(std::size_t lightIndex, const AbstractViewer* viewer) const
 	{
 		const LightShadowData* lightShadowData = RetrieveLightShadowData(lightIndex);
 		if (!lightShadowData)
@@ -350,7 +350,7 @@ namespace Nz
 		return lightShadowData->RetrieveLightShadowmap(m_bakedFrameGraph, viewer);
 	}
 
-	void ForwardFramePipeline::Render(RenderResources& renderResources)
+	void DefaultFramePipeline::Render(RenderResources& renderResources)
 	{
 		// Destroy instances at the end of the frame
 
@@ -489,7 +489,7 @@ namespace Nz
 		m_rebuildFrameGraph = false;
 	}
 
-	void ForwardFramePipeline::UnregisterLight(std::size_t lightIndex)
+	void DefaultFramePipeline::UnregisterLight(std::size_t lightIndex)
 	{
 		m_removedLightInstances.UnboundedSet(lightIndex);
 
@@ -500,7 +500,7 @@ namespace Nz
 		}
 	}
 
-	void ForwardFramePipeline::UnregisterRenderable(std::size_t renderableIndex)
+	void DefaultFramePipeline::UnregisterRenderable(std::size_t renderableIndex)
 	{
 		RenderableData& renderable = *m_renderablePool.RetrieveFromIndex(renderableIndex);
 
@@ -526,13 +526,13 @@ namespace Nz
 		m_renderablePool.Free(renderableIndex);
 	}
 
-	void ForwardFramePipeline::UnregisterSkeleton(std::size_t skeletonIndex)
+	void DefaultFramePipeline::UnregisterSkeleton(std::size_t skeletonIndex)
 	{
 		// Defer instance release
 		m_removedSkeletonInstances.UnboundedSet(skeletonIndex);
 	}
 
-	void ForwardFramePipeline::UnregisterViewer(std::size_t viewerIndex)
+	void DefaultFramePipeline::UnregisterViewer(std::size_t viewerIndex)
 	{
 		auto& viewerData = *m_viewerPool.RetrieveFromIndex(viewerIndex);
 		viewerData.pendingDestruction = true;
@@ -549,25 +549,25 @@ namespace Nz
 		m_rebuildFrameGraph = true;
 	}
 
-	void ForwardFramePipeline::UnregisterWorldInstance(std::size_t worldInstance)
+	void DefaultFramePipeline::UnregisterWorldInstance(std::size_t worldInstance)
 	{
 		// Defer instance release
 		m_removedWorldInstances.UnboundedSet(worldInstance);
 	}
 
-	void ForwardFramePipeline::UpdateLightRenderMask(std::size_t lightIndex, UInt32 renderMask)
+	void DefaultFramePipeline::UpdateLightRenderMask(std::size_t lightIndex, UInt32 renderMask)
 	{
 		LightData* lightData = m_lightPool.RetrieveFromIndex(lightIndex);
 		lightData->renderMask = renderMask;
 	}
 
-	void ForwardFramePipeline::UpdateRenderableRenderMask(std::size_t renderableIndex, UInt32 renderMask)
+	void DefaultFramePipeline::UpdateRenderableRenderMask(std::size_t renderableIndex, UInt32 renderMask)
 	{
 		RenderableData* renderableData = m_renderablePool.RetrieveFromIndex(renderableIndex);
 		renderableData->renderMask = renderMask;
 	}
 
-	void ForwardFramePipeline::UpdateRenderableScissorBox(std::size_t renderableIndex, const Recti& scissorBox)
+	void DefaultFramePipeline::UpdateRenderableScissorBox(std::size_t renderableIndex, const Recti& scissorBox)
 	{
 		RenderableData* renderableData = m_renderablePool.RetrieveFromIndex(renderableIndex);
 		renderableData->scissorBox = scissorBox;
@@ -589,7 +589,7 @@ namespace Nz
 		}
 	}
 
-	void ForwardFramePipeline::UpdateRenderableSkeletonInstance(std::size_t renderableIndex, std::size_t skeletonIndex)
+	void DefaultFramePipeline::UpdateRenderableSkeletonInstance(std::size_t renderableIndex, std::size_t skeletonIndex)
 	{
 		RenderableData* renderableData = m_renderablePool.RetrieveFromIndex(renderableIndex);
 		renderableData->skeletonInstanceIndex = skeletonIndex;
@@ -611,7 +611,7 @@ namespace Nz
 		}
 	}
 
-	void ForwardFramePipeline::UpdateViewerRenderOrder(std::size_t viewerIndex, Int32 renderOrder)
+	void DefaultFramePipeline::UpdateViewerRenderOrder(std::size_t viewerIndex, Int32 renderOrder)
 	{
 		ViewerData* viewerData = m_viewerPool.RetrieveFromIndex(viewerIndex);
 		assert(!viewerData->pendingDestruction);
@@ -622,7 +622,7 @@ namespace Nz
 		}
 	}
 
-	BakedFrameGraph ForwardFramePipeline::BuildFrameGraph()
+	BakedFrameGraph DefaultFramePipeline::BuildFrameGraph()
 	{
 		FrameGraph frameGraph;
 
@@ -743,7 +743,7 @@ namespace Nz
 		return frameGraph.Bake();
 	}
 
-	std::size_t ForwardFramePipeline::BuildMergePass(FrameGraph& frameGraph, std::span<ViewerData*> targetViewers)
+	std::size_t DefaultFramePipeline::BuildMergePass(FrameGraph& frameGraph, std::span<ViewerData*> targetViewers)
 	{
 		FramePass& mergePass = frameGraph.AddPass("Merge pass");
 
@@ -804,7 +804,7 @@ namespace Nz
 		return mergedAttachment;
 	}
 
-	void ForwardFramePipeline::RegisterMaterialInstance(MaterialInstance* materialInstance)
+	void DefaultFramePipeline::RegisterMaterialInstance(MaterialInstance* materialInstance)
 	{
 		auto it = m_materialInstances.find(materialInstance);
 		if (it == m_materialInstances.end())
@@ -820,7 +820,7 @@ namespace Nz
 		it->second.usedCount++;
 	}
 
-	void ForwardFramePipeline::UnregisterMaterialInstance(MaterialInstance* materialInstance)
+	void DefaultFramePipeline::UnregisterMaterialInstance(MaterialInstance* materialInstance)
 	{
 		auto it = m_materialInstances.find(materialInstance);
 		assert(it != m_materialInstances.end());
