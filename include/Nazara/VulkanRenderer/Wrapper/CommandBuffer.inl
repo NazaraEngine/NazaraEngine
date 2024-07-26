@@ -540,7 +540,7 @@ namespace Nz
 					break;
 				case VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL:
 					if (oldImageLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)
-						srcAccessMask |= VK_ACCESS_TRANSFER_READ_BIT;
+						srcAccessMask |= VK_ACCESS_SHADER_READ_BIT;
 
 					dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
 					break;
