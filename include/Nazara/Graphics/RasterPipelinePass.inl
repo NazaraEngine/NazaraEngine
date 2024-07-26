@@ -5,12 +5,12 @@
 
 namespace Nz
 {
-	inline DepthPipelinePass::DepthPipelinePass(PassData& passData, std::string passName, const ParameterList& parameters) :
-	DepthPipelinePass(passData, std::move(passName), GetMaterialPassIndex(parameters))
+	inline RasterPipelinePass::RasterPipelinePass(PassData& passData, std::string passName, const ParameterList& parameters) :
+	RasterPipelinePass(passData, std::move(passName), GetMaterialPassIndex(parameters))
 	{
 	}
 
-	inline DepthPipelinePass::DepthPipelinePass(PassData& passData, std::string passName, std::size_t materialPassIndex) :
+	inline RasterPipelinePass::RasterPipelinePass(PassData& passData, std::string passName, std::size_t materialPassIndex) :
 	FramePipelinePass(FramePipelineNotification::ElementInvalidation | FramePipelineNotification::MaterialInstanceRegistration),
 	m_passIndex(materialPassIndex),
 	m_lastVisibilityHash(0),
@@ -23,12 +23,12 @@ namespace Nz
 	{
 	}
 
-	inline void DepthPipelinePass::InvalidateCommandBuffers()
+	inline void RasterPipelinePass::InvalidateCommandBuffers()
 	{
 		m_rebuildCommandBuffer = true;
 	}
 
-	inline void DepthPipelinePass::InvalidateElements()
+	inline void RasterPipelinePass::InvalidateElements()
 	{
 		m_rebuildElements = true;
 	}

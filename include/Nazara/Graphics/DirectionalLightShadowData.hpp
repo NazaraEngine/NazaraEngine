@@ -8,10 +8,10 @@
 #define NAZARA_GRAPHICS_DIRECTIONALLIGHTSHADOWDATA_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Graphics/DepthPipelinePass.hpp>
 #include <Nazara/Graphics/Export.hpp>
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/LightShadowData.hpp>
+#include <Nazara/Graphics/RasterPipelinePass.hpp>
 #include <Nazara/Graphics/ShadowViewer.hpp>
 #include <NazaraUtils/FixedVector.hpp>
 #include <NazaraUtils/SparsePtr.hpp>
@@ -69,7 +69,7 @@ namespace Nz
 
 			struct CascadeData
 			{
-				std::optional<DepthPipelinePass> depthPass;
+				std::optional<RasterPipelinePass> depthPass;
 				std::size_t attachmentIndex;
 				Matrix4f viewProjMatrix;
 				ShadowViewer viewer;
