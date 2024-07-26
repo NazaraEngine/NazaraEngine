@@ -35,6 +35,7 @@
 #include <Nazara/Graphics/Billboard.hpp>
 #include <Nazara/Graphics/Camera.hpp>
 #include <Nazara/Graphics/DebugDrawPipelinePass.hpp>
+#include <Nazara/Graphics/DefaultFramePipeline.hpp>
 #include <Nazara/Graphics/DepthPipelinePass.hpp>
 #include <Nazara/Graphics/DirectionalLight.hpp>
 #include <Nazara/Graphics/DirectionalLightShadowData.hpp>
@@ -42,7 +43,6 @@
 #include <Nazara/Graphics/ElementRendererRegistry.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/Export.hpp>
-#include <Nazara/Graphics/ForwardFramePipeline.hpp>
 #include <Nazara/Graphics/ForwardPipelinePass.hpp>
 #include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Graphics/FrameGraphStructs.hpp>
