@@ -7,7 +7,7 @@
 #include <Nazara/Core/Components/NodeComponent.hpp>
 #include <Nazara/Core/Components/SharedSkeletonComponent.hpp>
 #include <Nazara/Core/Components/SkeletonComponent.hpp>
-#include <Nazara/Graphics/ForwardFramePipeline.hpp>
+#include <Nazara/Graphics/DefaultFramePipeline.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
 #include <Nazara/Graphics/Components/CameraComponent.hpp>
@@ -38,7 +38,7 @@ namespace Nz
 		m_sharedSkeletonDestroyConnection = registry.on_destroy<SharedSkeletonComponent>().connect<&RenderSystem::OnSharedSkeletonDestroy>(this);
 		m_skeletonDestroyConnection = registry.on_destroy<SkeletonComponent>().connect<&RenderSystem::OnSkeletonDestroy>(this);
 
-		m_pipeline = std::make_unique<ForwardFramePipeline>(m_elementRegistry);
+		m_pipeline = std::make_unique<DefaultFramePipeline>(m_elementRegistry);
 	}
 
 	RenderSystem::~RenderSystem()

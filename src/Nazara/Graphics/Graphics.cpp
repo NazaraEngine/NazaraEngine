@@ -6,8 +6,8 @@
 #include <Nazara/Core/CommandLineParameters.hpp>
 #include <Nazara/Core/EnvironmentVariables.hpp>
 #include <Nazara/Graphics/DebugDrawPipelinePass.hpp>
+#include <Nazara/Graphics/DefaultFramePipeline.hpp>
 #include <Nazara/Graphics/DepthPipelinePass.hpp>
-#include <Nazara/Graphics/ForwardPipelinePass.hpp>
 #include <Nazara/Graphics/GuillotineTextureAtlas.hpp>
 #include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/MaterialPipeline.hpp>
