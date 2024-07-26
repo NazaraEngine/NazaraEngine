@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_GRAPHICS_DEPTHPIPELINEPASS_HPP
-#define NAZARA_GRAPHICS_DEPTHPIPELINEPASS_HPP
+#ifndef NAZARA_GRAPHICS_RASTERPIPELINEPASS_HPP
+#define NAZARA_GRAPHICS_RASTERPIPELINEPASS_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/ParameterList.hpp>
@@ -28,14 +28,14 @@ namespace Nz
 	class FramePass;
 	class FramePipeline;
 
-	class NAZARA_GRAPHICS_API DepthPipelinePass : public FramePipelinePass
+	class NAZARA_GRAPHICS_API RasterPipelinePass : public FramePipelinePass
 	{
 		public:
-			inline DepthPipelinePass(PassData& passData, std::string passName, const ParameterList& parameters);
-			inline DepthPipelinePass(PassData& passData, std::string passName, std::size_t materialPassIndex);
-			DepthPipelinePass(const DepthPipelinePass&) = delete;
-			DepthPipelinePass(DepthPipelinePass&&) = delete;
-			~DepthPipelinePass() = default;
+			inline RasterPipelinePass(PassData& passData, std::string passName, const ParameterList& parameters);
+			inline RasterPipelinePass(PassData& passData, std::string passName, std::size_t materialPassIndex);
+			RasterPipelinePass(const RasterPipelinePass&) = delete;
+			RasterPipelinePass(RasterPipelinePass&&) = delete;
+			~RasterPipelinePass() = default;
 
 			inline void InvalidateCommandBuffers();
 			void InvalidateElements() override;
@@ -48,8 +48,8 @@ namespace Nz
 
 			void UnregisterMaterialInstance(const MaterialInstance& materialInstance) override;
 
-			DepthPipelinePass& operator=(const DepthPipelinePass&) = delete;
-			DepthPipelinePass& operator=(DepthPipelinePass&&) = delete;
+			RasterPipelinePass& operator=(const RasterPipelinePass&) = delete;
+			RasterPipelinePass& operator=(RasterPipelinePass&&) = delete;
 
 			static std::size_t GetMaterialPassIndex(const ParameterList& parameters);
 
@@ -78,6 +78,6 @@ namespace Nz
 	};
 }
 
-#include <Nazara/Graphics/DepthPipelinePass.inl>
+#include <Nazara/Graphics/RasterPipelinePass.inl>
 
-#endif // NAZARA_GRAPHICS_DEPTHPIPELINEPASS_HPP
+#endif // NAZARA_GRAPHICS_RASTERPIPELINEPASS_HPP

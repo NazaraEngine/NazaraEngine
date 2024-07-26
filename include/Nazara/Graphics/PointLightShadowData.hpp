@@ -8,10 +8,10 @@
 #define NAZARA_GRAPHICS_POINTLIGHTSHADOWDATA_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Graphics/DepthPipelinePass.hpp>
 #include <Nazara/Graphics/Export.hpp>
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/LightShadowData.hpp>
+#include <Nazara/Graphics/RasterPipelinePass.hpp>
 #include <Nazara/Graphics/ShadowViewer.hpp>
 #include <array>
 
@@ -47,7 +47,7 @@ namespace Nz
 
 			struct DirectionData
 			{
-				std::optional<DepthPipelinePass> depthPass;
+				std::optional<RasterPipelinePass> depthPass;
 				std::size_t attachmentIndex;
 				ShadowViewer viewer;
 			};
