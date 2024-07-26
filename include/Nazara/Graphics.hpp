@@ -36,7 +36,6 @@
 #include <Nazara/Graphics/Camera.hpp>
 #include <Nazara/Graphics/DebugDrawPipelinePass.hpp>
 #include <Nazara/Graphics/DefaultFramePipeline.hpp>
-#include <Nazara/Graphics/DepthPipelinePass.hpp>
 #include <Nazara/Graphics/DirectionalLight.hpp>
 #include <Nazara/Graphics/DirectionalLightShadowData.hpp>
 #include <Nazara/Graphics/ElementRenderer.hpp>
@@ -73,6 +72,7 @@
 #include <Nazara/Graphics/PredefinedMaterials.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructBuilder.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
+#include <Nazara/Graphics/RasterPipelinePass.hpp>
 #include <Nazara/Graphics/RenderBufferPool.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>
 #include <Nazara/Graphics/RenderElementOwner.hpp>

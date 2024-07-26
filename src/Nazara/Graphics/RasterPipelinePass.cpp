@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-#include <Nazara/Graphics/DepthPipelinePass.hpp>
+#include <Nazara/Graphics/RasterPipelinePass.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/ElementRenderer.hpp>
 #include <Nazara/Graphics/ElementRendererRegistry.hpp>
@@ -13,7 +13,7 @@
 
 namespace Nz
 {
-	void DepthPipelinePass::Prepare(FrameData& frameData)
+	void RasterPipelinePass::Prepare(FrameData& frameData)
 	{
 		if (m_lastVisibilityHash != frameData.visibilityHash || m_rebuildElements) //< FIXME
 		{
@@ -88,7 +88,7 @@ namespace Nz
 		}
 	}
 
-	void DepthPipelinePass::RegisterMaterialInstance(const MaterialInstance& materialInstance)
+	void RasterPipelinePass::RegisterMaterialInstance(const MaterialInstance& materialInstance)
 	{
 		if (!materialInstance.HasPass(m_passIndex))
 			return;
@@ -114,7 +114,7 @@ namespace Nz
 			it->second.usedCount++;
 	}
 
-	FramePass& DepthPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, const PassInputOuputs& inputOuputs)
+	FramePass& RasterPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, const PassInputOuputs& inputOuputs)
 	{
 		if (inputOuputs.inputAttachments.size() > 0)
 			throw std::runtime_error("no input expected");
@@ -158,7 +158,7 @@ namespace Nz
 		return depthPrepass;
 	}
 
-	void DepthPipelinePass::UnregisterMaterialInstance(const MaterialInstance& materialInstance)
+	void RasterPipelinePass::UnregisterMaterialInstance(const MaterialInstance& materialInstance)
 	{
 		auto it = m_materialInstances.find(&materialInstance);
 		if (it != m_materialInstances.end())
@@ -168,7 +168,7 @@ namespace Nz
 		}
 	}
 
-	std::size_t DepthPipelinePass::GetMaterialPassIndex(const ParameterList& parameters)
+	std::size_t RasterPipelinePass::GetMaterialPassIndex(const ParameterList& parameters)
 	{
 		Result<long long, ParameterList::Error> passIndexResult = parameters.GetIntegerParameter("MatPassIndex");
 		if (passIndexResult.IsOk())

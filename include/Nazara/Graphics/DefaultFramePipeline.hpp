@@ -12,7 +12,6 @@
 #include <Nazara/Graphics/BakedFrameGraph.hpp>
 #include <Nazara/Graphics/Camera.hpp>
 #include <Nazara/Graphics/DebugDrawPipelinePass.hpp>
-#include <Nazara/Graphics/DepthPipelinePass.hpp>
 #include <Nazara/Graphics/Export.hpp>
 #include <Nazara/Graphics/FramePipeline.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
@@ -20,6 +19,7 @@
 #include <Nazara/Graphics/LightShadowData.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
 #include <Nazara/Graphics/PostProcessPipelinePass.hpp>
+#include <Nazara/Graphics/RasterPipelinePass.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>
 #include <Nazara/Graphics/RenderQueue.hpp>
 #include <Nazara/Graphics/RenderQueueRegistry.hpp>

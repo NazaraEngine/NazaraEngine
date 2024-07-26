@@ -7,13 +7,13 @@
 #include <Nazara/Core/EnvironmentVariables.hpp>
 #include <Nazara/Graphics/DebugDrawPipelinePass.hpp>
 #include <Nazara/Graphics/DefaultFramePipeline.hpp>
-#include <Nazara/Graphics/DepthPipelinePass.hpp>
 #include <Nazara/Graphics/GuillotineTextureAtlas.hpp>
 #include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/MaterialPipeline.hpp>
 #include <Nazara/Graphics/PipelinePassList.hpp>
 #include <Nazara/Graphics/PostProcessPipelinePass.hpp>
 #include <Nazara/Graphics/PredefinedMaterials.hpp>
+#include <Nazara/Graphics/RasterPipelinePass.hpp>
 #include <Nazara/Graphics/TextureAsset.hpp>
 #include <Nazara/Graphics/Formats/ModelMeshLoader.hpp>
 #include <Nazara/Graphics/Formats/PipelinePassListLoader.hpp>
@@ -408,10 +408,10 @@ namespace Nz
 
 	void Graphics::RegisterPipelinePasses()
 	{
-		m_pipelinePassRegistry.RegisterPass<DepthPipelinePass>("Depth", {}, {});
 		m_pipelinePassRegistry.RegisterPass<DebugDrawPipelinePass>("DebugDraw", { "Input" }, { "Output" });
 		m_pipelinePassRegistry.RegisterPass<ForwardPipelinePass>("Forward", {}, { "Output" });
 		m_pipelinePassRegistry.RegisterPass<PostProcessPipelinePass>("PostProcess", { "Input" }, { "Output" });
+		m_pipelinePassRegistry.RegisterPass<RasterPipelinePass>("Raster", {}, {});
 	}
 
 	void Graphics::RegisterShaderModules()
