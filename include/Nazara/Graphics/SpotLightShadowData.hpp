@@ -8,9 +8,9 @@
 #define NAZARA_GRAPHICS_SPOTLIGHTSHADOWDATA_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Graphics/DepthPipelinePass.hpp>
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/LightShadowData.hpp>
+#include <Nazara/Graphics/RasterPipelinePass.hpp>
 #include <Nazara/Graphics/ShadowViewer.hpp>
 
 namespace Nz
@@ -45,7 +45,7 @@ namespace Nz
 			NazaraSlot(Light, OnLightShadowMapSettingChange, m_onLightShadowMapSettingChange);
 			NazaraSlot(Light, OnLightTransformInvalided, m_onLightTransformInvalidated);
 
-			std::optional<DepthPipelinePass> m_depthPass;
+			std::optional<RasterPipelinePass> m_depthPass;
 			std::size_t m_attachmentIndex;
 			FramePipeline& m_pipeline;
 			const SpotLight& m_light;
