@@ -4,16 +4,16 @@
 
 #pragma once
 
-#ifndef NAZARA_GRAPHICS_FORWARDFRAMEPIPELINE_HPP
-#define NAZARA_GRAPHICS_FORWARDFRAMEPIPELINE_HPP
+#ifndef NAZARA_GRAPHICS_DEFAULTFRAMEPIPELINE_HPP
+#define NAZARA_GRAPHICS_DEFAULTFRAMEPIPELINE_HPP
 
+#include <Nazara/Graphics/DefaultFramePipeline.hpp>
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/BakedFrameGraph.hpp>
 #include <Nazara/Graphics/Camera.hpp>
 #include <Nazara/Graphics/DebugDrawPipelinePass.hpp>
 #include <Nazara/Graphics/DepthPipelinePass.hpp>
 #include <Nazara/Graphics/Export.hpp>
-#include <Nazara/Graphics/ForwardPipelinePass.hpp>
 #include <Nazara/Graphics/FramePipeline.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/Light.hpp>
@@ -39,13 +39,13 @@ namespace Nz
 	class RenderFrame;
 	class RenderTarget;
 
-	class NAZARA_GRAPHICS_API ForwardFramePipeline : public FramePipeline
+	class NAZARA_GRAPHICS_API DefaultFramePipeline : public FramePipeline
 	{
 		public:
-			ForwardFramePipeline(ElementRendererRegistry& elementRegistry);
-			ForwardFramePipeline(const ForwardFramePipeline&) = delete;
-			ForwardFramePipeline(ForwardFramePipeline&&) = delete;
-			~ForwardFramePipeline();
+			DefaultFramePipeline(ElementRendererRegistry& elementRegistry);
+			DefaultFramePipeline(const DefaultFramePipeline&) = delete;
+			DefaultFramePipeline(DefaultFramePipeline&&) = delete;
+			~DefaultFramePipeline();
 
 			const std::vector<FramePipelinePass::VisibleRenderable>& FrustumCull(const Frustumf& frustum, UInt32 mask, std::size_t& visibilityHash) const override;
 
@@ -77,8 +77,8 @@ namespace Nz
 			void UpdateRenderableSkeletonInstance(std::size_t renderableIndex, std::size_t skeletonIndex) override;
 			void UpdateViewerRenderOrder(std::size_t viewerIndex, Int32 renderOrder) override;
 
-			ForwardFramePipeline& operator=(const ForwardFramePipeline&) = delete;
-			ForwardFramePipeline& operator=(ForwardFramePipeline&&) = delete;
+			DefaultFramePipeline& operator=(const DefaultFramePipeline&) = delete;
+			DefaultFramePipeline& operator=(DefaultFramePipeline&&) = delete;
 
 		private:
 			struct ViewerData;
@@ -186,6 +186,6 @@ namespace Nz
 	};
 }
 
-#include <Nazara/Graphics/ForwardFramePipeline.inl>
+#include <Nazara/Graphics/DefaultFramePipeline.inl>
 
-#endif // NAZARA_GRAPHICS_FORWARDFRAMEPIPELINE_HPP
+#endif // NAZARA_GRAPHICS_DEFAULTFRAMEPIPELINE_HPP
