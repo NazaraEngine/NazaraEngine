@@ -150,6 +150,11 @@ namespace Nz
 		return FromJolt(m_body->GetCenterOfMassTransform());
 	}
 
+	PhysObjectLayer3D RigidBody3D::GetObjectLayer() const
+	{
+		return m_body->GetObjectLayer();
+	}
+
 	Vector3f RigidBody3D::GetPosition() const
 	{
 		return FromJolt(m_body->GetPosition());
@@ -261,6 +266,12 @@ namespace Nz
 
 			m_body->SetMotionType(JPH::EMotionType::Kinematic);
 		}
+	}
+
+	void RigidBody3D::SetObjectLayer(PhysObjectLayer3D objectLayer)
+	{
+		JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterfaceNoLock();
+		bodyInterface.SetObjectLayer(m_body->GetID(), objectLayer);
 	}
 
 	void RigidBody3D::SetPosition(const Vector3f& position)

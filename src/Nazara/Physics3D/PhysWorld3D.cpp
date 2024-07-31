@@ -27,139 +27,6 @@
 #include <tsl/ordered_set.h>
 #include <cassert>
 
-namespace DitchMeAsap
-{
-	using namespace JPH;
-
-	// Layer that objects can be in, determines which other objects it can collide with
-	// Typically you at least want to have 1 layer for moving bodies and 1 layer for static bodies, but you can have more
-	// layers if you want. E.g. you could have a layer for high detail collision (which is not used by the physics simulation
-	// but only if you do collision testing).
-	namespace Layers
-	{
-		static constexpr uint8 NON_MOVING = 0;
-		static constexpr uint8 MOVING = 1;
-		static constexpr uint8 NUM_LAYERS = 2;
-	};
-
-	/// Class that determines if two object layers can collide
-	class ObjectLayerPairFilterImpl : public ObjectLayerPairFilter
-	{
-	public:
-		virtual bool ShouldCollide(ObjectLayer inObject1, ObjectLayer inObject2) const override
-		{
-			switch (inObject1)
-			{
-			case Layers::NON_MOVING:
-				return inObject2 == Layers::MOVING; // Non moving only collides with moving
-			case Layers::MOVING:
-				return true; // Moving collides with everything
-			default:
-				JPH_ASSERT(false);
-				return false;
-			}
-		}
-	};
-
-	// Each broadphase layer results in a separate bounding volume tree in the broad phase. You at least want to have
-	// a layer for non-moving and moving objects to avoid having to update a tree full of static objects every frame.
-	// You can have a 1-on-1 mapping between object layers and broadphase layers (like in this case) but if you have
-	// many object layers you'll be creating many broad phase trees, which is not efficient. If you want to fine tune
-	// your broadphase layers define JPH_TRACK_BROADPHASE_STATS and look at the stats reported on the TTY.
-	namespace BroadPhaseLayers
-	{
-		static constexpr BroadPhaseLayer NON_MOVING(0);
-		static constexpr BroadPhaseLayer MOVING(1);
-		static constexpr uint NUM_LAYERS(2);
-	};
-
-	// BroadPhaseLayerInterface implementation
-	// This defines a mapping between object and broadphase layers.
-	class BPLayerInterfaceImpl final : public BroadPhaseLayerInterface
-	{
-	public:
-		BPLayerInterfaceImpl()
-		{
-			// Create a mapping table from object to broad phase layer
-			mObjectToBroadPhase[Layers::NON_MOVING] = BroadPhaseLayers::NON_MOVING;
-			mObjectToBroadPhase[Layers::MOVING] = BroadPhaseLayers::MOVING;
-		}
-
-		virtual uint GetNumBroadPhaseLayers() const override
-		{
-			return BroadPhaseLayers::NUM_LAYERS;
-		}
-
-		virtual BroadPhaseLayer GetBroadPhaseLayer(ObjectLayer inLayer) const override
-		{
-			JPH_ASSERT(inLayer < Layers::NUM_LAYERS);
-			return mObjectToBroadPhase[inLayer];
-		}
-
-#if defined(JPH_EXTERNAL_PROFILE) || defined(JPH_PROFILE_ENABLED)
-		virtual const char* GetBroadPhaseLayerName(BroadPhaseLayer inLayer) const override
-		{
-			switch ((BroadPhaseLayer::Type)inLayer)
-			{
-			case (BroadPhaseLayer::Type)BroadPhaseLayers::NON_MOVING:   return "NON_MOVING";
-			case (BroadPhaseLayer::Type)BroadPhaseLayers::MOVING:       return "MOVING";
-			default:                                                    JPH_ASSERT(false); return "INVALID";
-			}
-		}
-#endif // JPH_EXTERNAL_PROFILE || JPH_PROFILE_ENABLED
-
-	private:
-		BroadPhaseLayer mObjectToBroadPhase[Layers::NUM_LAYERS];
-	};
-	/// Class that determines if an object layer can collide with a broadphase layer
-	class ObjectVsBroadPhaseLayerFilterImpl : public ObjectVsBroadPhaseLayerFilter
-	{
-	public:
-		virtual bool ShouldCollide(ObjectLayer inLayer1, BroadPhaseLayer inLayer2) const override
-		{
-			switch (inLayer1)
-			{
-			case Layers::NON_MOVING:
-				return inLayer2 == BroadPhaseLayers::MOVING;
-			case Layers::MOVING:
-				return true;
-			default:
-				JPH_ASSERT(false);
-				return false;
-			}
-		}
-	};
-
-	// An example contact listener
-	/*class MyContactListener : public ContactListener
-	{
-	public:
-		// See: ContactListener
-		virtual ValidateResult  OnContactValidate(const Body& inBody1, const Body& inBody2, RVec3Arg inBaseOffset, const CollideShapeResult& inCollisionResult) override
-		{
-			cout << "Contact validate callback" << endl;
-
-			// Allows you to ignore a contact before it is created (using layers to not make objects collide is cheaper!)
-			return ValidateResult::AcceptAllContactsForThisBodyPair;
-		}
-
-		virtual void OnContactAdded(const Body& inBody1, const Body& inBody2, const ContactManifold& inManifold, ContactSettings& ioSettings) override
-		{
-			cout << "A contact was added" << endl;
-		}
-
-		virtual void OnContactPersisted(const Body& inBody1, const Body& inBody2, const ContactManifold& inManifold, ContactSettings& ioSettings) override
-		{
-			cout << "A contact was persisted" << endl;
-		}
-
-		virtual void OnContactRemoved(const SubShapeIDPair& inSubShapePair) override
-		{
-			cout << "A contact was removed" << endl;
-		}
-	};*/
-}
-
 namespace Nz
 {
 	namespace NAZARA_ANONYMOUS_NAMESPACE
@@ -184,7 +51,7 @@ namespace Nz
 
 					JPH::Body& body = lock.GetBody();
 
-					hitInfo.hitBody = BitCast<PhysBody3D*>(static_cast<std::uintptr_t>(body.GetUserData()));
+					hitInfo.hitBody = IntegerToPointer<PhysBody3D*>(body.GetUserData());
 
 					if (auto fractionOpt = m_callback(hitInfo))
 					{
@@ -234,7 +101,7 @@ namespace Nz
 
 					JPH::Body& body = lock.GetBody();
 
-					hitInfo.hitBody = BitCast<PhysBody3D*>(static_cast<std::uintptr_t>(body.GetUserData()));
+					hitInfo.hitBody = IntegerToPointer<PhysBody3D*>(body.GetUserData());
 
 					if (auto fractionOpt = m_callback(hitInfo))
 					{
@@ -284,7 +151,7 @@ namespace Nz
 
 					JPH::Body& body = lock.GetBody();
 
-					hitInfo.hitBody = BitCast<PhysBody3D*>(static_cast<std::uintptr_t>(body.GetUserData()));
+					hitInfo.hitBody = IntegerToPointer<PhysBody3D*>(body.GetUserData());
 					hitInfo.hitNormal = FromJolt(body.GetWorldSpaceSurfaceNormal(result.mSubShapeID2, ToJolt(hitInfo.hitPosition)));
 
 					if (auto fractionOpt = m_callback(hitInfo))
@@ -346,6 +213,129 @@ namespace Nz
 			PhysWorld3D& m_physWorld;
 	};
 
+	class PhysWorld3D::BroadphaseLayerInterfaceBridge : public JPH::BroadPhaseLayerInterface
+	{
+		public:
+			BroadphaseLayerInterfaceBridge(std::unique_ptr<PhysWorld3D::BroadphaseLayerInterface> broadphaseLayerInterface) :
+			m_broadphaseLayerInterface(std::move(broadphaseLayerInterface))
+			{
+			}
+
+			JPH::uint GetNumBroadPhaseLayers() const override
+			{
+				return SafeCaster(m_broadphaseLayerInterface->GetBroadphaseLayerCount());
+			}
+
+			JPH::BroadPhaseLayer GetBroadPhaseLayer(JPH::ObjectLayer inLayer) const
+			{
+				return JPH::BroadPhaseLayer(m_broadphaseLayerInterface->GetBroadphaseLayer(inLayer));
+			}
+
+#if defined(JPH_EXTERNAL_PROFILE) || defined(JPH_PROFILE_ENABLED)
+			const char* GetBroadPhaseLayerName(JPH::BroadPhaseLayer inLayer) const override
+			{
+				return m_broadphaseLayerInterface->GetBroadphaseLayerName(inLayer.GetValue());
+			}
+#endif
+
+		private:
+			std::unique_ptr<PhysWorld3D::BroadphaseLayerInterface> m_broadphaseLayerInterface;
+	};
+
+	class PhysWorld3D::ContactListenerBridge : public JPH::ContactListener
+	{
+		public:
+			ContactListenerBridge(const JPH::BodyLockInterfaceNoLock& bodyLockInterface, std::unique_ptr<PhysWorld3D::ContactListener> contactListener) :
+			m_contactListener(std::move(contactListener)),
+			m_bodyLockInterface(bodyLockInterface)
+			{
+			}
+
+			JPH::ValidateResult OnContactValidate(const JPH::Body& inBody1, const JPH::Body& inBody2, JPH::RVec3Arg inBaseOffset, const JPH::CollideShapeResult& inCollisionResult) override
+			{
+				PhysBody3D* body1 = IntegerToPointer<PhysBody3D*>(inBody1.GetUserData());
+				PhysBody3D* body2 = IntegerToPointer<PhysBody3D*>(inBody2.GetUserData());
+
+				ShapeCollisionInfo shapeCollisionInfo;
+				shapeCollisionInfo.collisionPosition1 = FromJolt(inCollisionResult.mContactPointOn1);
+				shapeCollisionInfo.collisionPosition2 = FromJolt(inCollisionResult.mContactPointOn2);
+				shapeCollisionInfo.penetrationAxis = FromJolt(inCollisionResult.mPenetrationAxis);
+				shapeCollisionInfo.penetrationDepth = inCollisionResult.mPenetrationDepth;
+
+				return static_cast<JPH::ValidateResult>(UnderlyingCast(m_contactListener->ValidateContact(body1, body2, FromJolt(inBaseOffset), shapeCollisionInfo)));
+			}
+
+			void OnContactAdded(const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings) override
+			{
+				PhysBody3D* body1 = IntegerToPointer<PhysBody3D*>(inBody1.GetUserData());
+				PhysBody3D* body2 = IntegerToPointer<PhysBody3D*>(inBody2.GetUserData());
+
+				m_contactListener->OnContactAdded(body1, body2);
+			}
+
+			void OnContactPersisted(const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings) override
+			{
+				PhysBody3D* body1 = IntegerToPointer<PhysBody3D*>(inBody1.GetUserData());
+				PhysBody3D* body2 = IntegerToPointer<PhysBody3D*>(inBody2.GetUserData());
+
+				m_contactListener->OnContactPersisted(body1, body2);
+			}
+
+			void OnContactRemoved(const JPH::SubShapeIDPair& inSubShapePair) override
+			{
+				JPH::BodyLockRead lock1(m_bodyLockInterface, inSubShapePair.GetBody1ID());
+				if (!lock1.Succeeded())
+					return; //< body1 was destroyed
+
+				JPH::BodyLockRead lock2(m_bodyLockInterface, inSubShapePair.GetBody2ID());
+				if (!lock2.Succeeded())
+					return; //< body2 was destroyed
+
+				PhysBody3D* body1 = IntegerToPointer<PhysBody3D*>(lock1.GetBody().GetUserData());
+				PhysBody3D* body2 = IntegerToPointer<PhysBody3D*>(lock2.GetBody().GetUserData());
+
+				m_contactListener->OnContactRemoved(body1, body2);
+			}
+
+		private:
+			std::unique_ptr<PhysWorld3D::ContactListener> m_contactListener;
+			const JPH::BodyLockInterfaceNoLock& m_bodyLockInterface;
+	};
+
+	class PhysWorld3D::ObjectLayerPairFilterBridge : public JPH::ObjectLayerPairFilter
+	{
+		public:
+			ObjectLayerPairFilterBridge(std::unique_ptr<PhysWorld3D::ObjectLayerPairFilter> broadphaseLayerInterface) :
+			m_objectLayerPairFilter(std::move(broadphaseLayerInterface))
+			{
+			}
+
+			bool ShouldCollide(PhysObjectLayer3D layer1, PhysObjectLayer3D layer2) const
+			{
+				return m_objectLayerPairFilter->ShouldCollide(layer1, layer2);
+			}
+
+		private:
+			std::unique_ptr<PhysWorld3D::ObjectLayerPairFilter> m_objectLayerPairFilter;
+	};
+
+	class PhysWorld3D::ObjectVsBroadphaseLayerFilterBridge : public JPH::ObjectVsBroadPhaseLayerFilter
+	{
+		public:
+			ObjectVsBroadphaseLayerFilterBridge(std::unique_ptr<PhysWorld3D::ObjectVsBroadphaseLayerFilter> broadphaseLayerInterface) :
+			m_objectVsBroadphaseLayerFilter(std::move(broadphaseLayerInterface))
+			{
+			}
+
+			bool ShouldCollide(PhysObjectLayer3D layer1, PhysBroadphase3D layer2) const
+			{
+				return m_objectVsBroadphaseLayerFilter->ShouldCollide(layer1, layer2);
+			}
+
+		private:
+			std::unique_ptr<PhysWorld3D::ObjectVsBroadphaseLayerFilter> m_objectVsBroadphaseLayerFilter;
+	};
+
 	class PhysWorld3D::StepListener : public JPH::PhysicsStepListener
 	{
 		public:
@@ -367,24 +357,27 @@ namespace Nz
 	{
 		using BodySet = tsl::ordered_set<JPH::BodyID, std::hash<JPH::BodyID>, std::equal_to<JPH::BodyID>, std::allocator<JPH::BodyID>, std::vector<JPH::BodyID>>;
 
-		JPH::TempAllocatorImpl tempAllocator;
 		JPH::PhysicsSystem physicsSystem;
+		JPH::TempAllocatorImpl tempAllocator;
 		BodySet pendingAdditionActivate;
 		BodySet pendingAdditionNoActivate;
 		BodySet pendingDeactivations;
+		std::optional<ContactListenerBridge> contactListenerBridge;
 		std::vector<JPH::BodyID> tempBodyIDVec;
 		std::unique_ptr<JPH::SphereShape> nullShape;
 
 		PhysWorld3D::BodyActivationListener bodyActivationListener;
+		PhysWorld3D::BroadphaseLayerInterfaceBridge broadphaseLayerInterfaceBridge;
+		PhysWorld3D::ObjectLayerPairFilterBridge objectLayerPairFilterBridge;
+		PhysWorld3D::ObjectVsBroadphaseLayerFilterBridge objectVsBroadphaseLayerFilterBridge;
 		PhysWorld3D::StepListener stepListener;
 
-		DitchMeAsap::BPLayerInterfaceImpl layerInterface;
-		DitchMeAsap::ObjectLayerPairFilterImpl objectLayerFilter;
-		DitchMeAsap::ObjectVsBroadPhaseLayerFilterImpl objectBroadphaseLayerFilter;
-
-		JoltWorld(PhysWorld3D& world, JPH::uint tempAllocatorSize) :
+		JoltWorld(PhysWorld3D& world, std::unique_ptr<PhysWorld3D::BroadphaseLayerInterface> broadphaseLayerInterfaceImpl, std::unique_ptr<ObjectLayerPairFilter> objectLayerPairFilterImpl, std::unique_ptr<ObjectVsBroadphaseLayerFilter> objectVsBroadphaseLayerFilterImpl, JPH::uint tempAllocatorSize) :
 		tempAllocator(tempAllocatorSize),
 		bodyActivationListener(world),
+		broadphaseLayerInterfaceBridge(std::move(broadphaseLayerInterfaceImpl)),
+		objectLayerPairFilterBridge(std::move(objectLayerPairFilterImpl)),
+		objectVsBroadphaseLayerFilterBridge(std::move(objectVsBroadphaseLayerFilterImpl)),
 		stepListener(world)
 		{
 		}
@@ -396,15 +389,21 @@ namespace Nz
 		JoltWorld& operator=(JoltWorld&&) = delete;
 	};
 
-	PhysWorld3D::PhysWorld3D() :
-	m_maxStepCount(50),
-	m_gravity(Vector3f::Zero()),
-	m_stepSize(Time::TickDuration(120)),
+	PhysWorld3D::PhysWorld3D(Settings&& settings) :
+	m_maxStepCount(settings.maxStepCount),
+	m_gravity(settings.gravity),
+	m_stepDuration(settings.stepDuration),
 	m_timestepAccumulator(Time::Zero())
 	{
-		m_world = std::make_unique<JoltWorld>(*this, 10 * 1024 * 1024);
-		m_world->physicsSystem.Init(0xFFFF, 0, 0xFFFF, 10 * 1024, m_world->layerInterface, m_world->objectBroadphaseLayerFilter, m_world->objectLayerFilter);
+		m_world = std::make_unique<JoltWorld>(*this, std::move(settings.broadphaseLayerInterface), std::move(settings.objectLayerPairFilter), std::move(settings.objectVsBroadphaseLayerFilter), settings.tempAllocatorSize);
+		m_world->physicsSystem.Init(settings.maxBodies, settings.numBodyMutexes, settings.maxBodyPairs, settings.maxContactConstraints, m_world->broadphaseLayerInterfaceBridge, m_world->objectVsBroadphaseLayerFilterBridge, m_world->objectLayerPairFilterBridge);
 		m_world->physicsSystem.SetBodyActivationListener(&m_world->bodyActivationListener);
+
+		if (settings.contactListener)
+		{
+			m_world->contactListenerBridge.emplace(m_world->physicsSystem.GetBodyLockInterfaceNoLock(), std::move(settings.contactListener));
+			m_world->physicsSystem.SetContactListener(&*m_world->contactListenerBridge);
+		}
 
 		m_world->physicsSystem.AddStepListener(&m_world->stepListener);
 
@@ -481,7 +480,7 @@ namespace Nz
 
 	Time PhysWorld3D::GetStepSize() const
 	{
-		return m_stepSize;
+		return m_stepDuration;
 	}
 
 	bool PhysWorld3D::RaycastQuery(const Vector3f& from, const Vector3f& to, const FunctionRef<std::optional<float>(const RaycastHit& hitInfo)>& callback)
@@ -523,7 +522,7 @@ namespace Nz
 		RaycastHit hitInfo;
 		hitInfo.fraction = collector.mHit.GetEarlyOutFraction();
 		hitInfo.hitPosition = Lerp(from, to, hitInfo.fraction);
-		hitInfo.hitBody = BitCast<PhysBody3D*>(static_cast<std::uintptr_t>(body.GetUserData()));
+		hitInfo.hitBody = IntegerToPointer<PhysBody3D*>(body.GetUserData());
 		hitInfo.hitNormal = FromJolt(body.GetWorldSpaceSurfaceNormal(collector.mHit.mSubShapeID2, rayCast.GetPointOnRay(collector.mHit.GetEarlyOutFraction())));
 
 		callback(hitInfo);
@@ -589,33 +588,92 @@ namespace Nz
 
 	void PhysWorld3D::SetStepSize(Time stepSize)
 	{
-		m_stepSize = stepSize;
+		m_stepDuration = stepSize;
 	}
 
 	bool PhysWorld3D::Step(Time timestep)
 	{
 		m_timestepAccumulator += timestep;
-		if (m_timestepAccumulator < m_stepSize)
+		if (m_timestepAccumulator < m_stepDuration)
 			return false;
 
 		RefreshBodies();
 
 		JPH::JobSystem& jobSystem = Physics3D::Instance()->GetThreadPool();
-		float stepSize = m_stepSize.AsSeconds<float>();
+		float stepSize = m_stepDuration.AsSeconds<float>();
 
 		std::size_t stepCount = 0;
-		while (m_timestepAccumulator >= m_stepSize && stepCount < m_maxStepCount)
+		while (m_timestepAccumulator >= m_stepDuration && stepCount < m_maxStepCount)
 		{
 			m_world->physicsSystem.Update(stepSize, 1, &m_world->tempAllocator, &jobSystem);
 
 			for (PhysWorld3DStepListener* stepListener : m_stepListeners)
 				stepListener->PostSimulate(stepSize);
 
-			m_timestepAccumulator -= m_stepSize;
+			m_timestepAccumulator -= m_stepDuration;
 			stepCount++;
 		}
 
 		return true;
+	}
+
+	auto PhysWorld3D::BuildDefaultSettings() -> Settings
+	{
+		struct DefaultLayerInterface final : BroadphaseLayerInterface
+		{
+			unsigned int GetBroadphaseLayerCount() const override
+			{
+				return 2;
+			}
+
+			PhysBroadphase3D GetBroadphaseLayer(PhysObjectLayer3D layer) const override
+			{
+				return SafeCaster(layer);
+			}
+
+			const char* GetBroadphaseLayerName(PhysBroadphase3D broadphaseLayer) const override
+			{
+				switch (broadphaseLayer)
+				{
+					case 0:  return "NON_MOVING";
+					case 1:  return "MOVING";
+					default: return "INVALID";
+				}
+			}
+		};
+
+		struct DefaultObjectLayerPairFilter final : ObjectLayerPairFilter
+		{
+			bool ShouldCollide(PhysObjectLayer3D object1, PhysObjectLayer3D object2) const override
+			{
+				switch (object1)
+				{
+					case 0:  return object2 == 1;
+					case 1:  return true;
+					default: return false;
+				}
+			}
+		};
+
+		struct DefaultObjectVsBroadphaseLayerFilter final : ObjectVsBroadphaseLayerFilter
+		{
+			bool ShouldCollide(PhysObjectLayer3D objectLayer, PhysBroadphase3D broadphaseLayer) const override
+			{
+				switch (objectLayer)
+				{
+					case 0:  return broadphaseLayer == 1;
+					case 1:  return true;
+					default: return false;
+				}
+			}
+		};
+
+		Settings settings;
+		settings.broadphaseLayerInterface = std::make_unique<DefaultLayerInterface>();
+		settings.objectLayerPairFilter = std::make_unique<DefaultObjectLayerPairFilter>();
+		settings.objectVsBroadphaseLayerFilter = std::make_unique<DefaultObjectVsBroadphaseLayerFilter>();
+
+		return settings;
 	}
 
 	void PhysWorld3D::RegisterBody(const JPH::BodyID& bodyID, bool activate, bool removeFromDeactivationList)

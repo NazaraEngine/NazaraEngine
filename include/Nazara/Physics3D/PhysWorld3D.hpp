@@ -12,6 +12,7 @@
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Physics3D/Export.hpp>
+#include <Nazara/Physics3D/PhysObjectLayer3D.hpp>
 #include <NazaraUtils/FunctionRef.hpp>
 #include <NazaraUtils/MovablePtr.hpp>
 #include <atomic>
@@ -27,10 +28,10 @@ namespace JPH
 
 namespace Nz
 {
+	class Collider3D;
 	class PhysBody3D;
 	class PhysCharacter3D;
 	class PhysCharacter3DImpl;
-	class Collider3D;
 	class PhysWorld3DStepListener;
 	class RigidBody3D;
 
@@ -40,11 +41,17 @@ namespace Nz
 		friend RigidBody3D;
 
 		public:
+			struct BroadphaseLayerInterface;
+			struct ContactListener;
+			enum class ContactValidateResult;
+			struct ObjectLayerPairFilter;
+			struct ObjectVsBroadphaseLayerFilter;
 			struct PointCollisionInfo;
 			struct RaycastHit;
+			struct Settings;
 			struct ShapeCollisionInfo;
 
-			PhysWorld3D();
+			PhysWorld3D(Settings&& settings = BuildDefaultSettings());
 			PhysWorld3D(const PhysWorld3D&) = delete;
 			PhysWorld3D(PhysWorld3D&& ph) = delete;
 			~PhysWorld3D();
@@ -81,6 +88,42 @@ namespace Nz
 			PhysWorld3D& operator=(const PhysWorld3D&) = delete;
 			PhysWorld3D& operator=(PhysWorld3D&&) = delete;
 
+			static Settings BuildDefaultSettings();
+
+			struct BroadphaseLayerInterface
+			{
+				virtual PhysBroadphase3D GetBroadphaseLayer(PhysObjectLayer3D layer) const = 0;
+				virtual unsigned int GetBroadphaseLayerCount() const = 0;
+				virtual const char* GetBroadphaseLayerName(PhysBroadphase3D broadphaseLayer) const = 0;
+			};
+
+			struct ContactListener
+			{
+				virtual ContactValidateResult ValidateContact(const PhysBody3D* body1, const PhysBody3D* body2, const Vector3f& baseOffset, const ShapeCollisionInfo& collisionResult) = 0;
+
+				virtual void OnContactAdded(const PhysBody3D* body1, const PhysBody3D* body2) = 0; //< TODO: Add ContactManifold and ContactSettings
+				virtual void OnContactPersisted(const PhysBody3D* body1, const PhysBody3D* body2) = 0; //< TODO: Add ContactManifold and ContactSettings
+				virtual void OnContactRemoved(const PhysBody3D* body1, const PhysBody3D* body2) = 0; //< TODO: Add subshape id
+			};
+
+			enum class ContactValidateResult
+			{
+				AcceptAllContactsForThisBodyPair, ///< Accept this and any further contact points for this body pair
+				AcceptContact,                    ///< Accept this contact only (and continue calling this callback for every contact manifold for the same body pair)
+				RejectContact,                    ///< Reject this contact only (but process any other contact manifolds for the same body pair)
+				RejectAllContactsForThisBodyPair  ///< Rejects this and any further contact points for this body pair
+			};
+
+			struct ObjectLayerPairFilter
+			{
+				virtual bool ShouldCollide(PhysObjectLayer3D object1, PhysObjectLayer3D object2) const = 0;
+			};
+
+			struct ObjectVsBroadphaseLayerFilter
+			{
+				virtual bool ShouldCollide(PhysObjectLayer3D objectLayer, PhysBroadphase3D broadphaseLayer) const = 0;
+			};
+
 			struct PointCollisionInfo
 			{
 				PhysBody3D* hitBody = nullptr;
@@ -92,6 +135,22 @@ namespace Nz
 				PhysBody3D* hitBody = nullptr;
 				Vector3f hitNormal;
 				Vector3f hitPosition;
+			};
+
+			struct Settings
+			{
+				std::unique_ptr<BroadphaseLayerInterface> broadphaseLayerInterface; //< mandatory
+				std::unique_ptr<ContactListener> contactListener;
+				std::unique_ptr<ObjectLayerPairFilter> objectLayerPairFilter; //< mandatory
+				std::unique_ptr<ObjectVsBroadphaseLayerFilter> objectVsBroadphaseLayerFilter; //< mandatory
+				Time stepDuration = Time::TickDuration(120);
+				Vector3f gravity = Vector3f::Zero();
+				unsigned int maxStepCount = 50;
+				unsigned int maxBodies = 0xFFFF;
+				unsigned int maxBodyPairs = 0xFFFF;
+				unsigned int maxContactConstraints = 10 * 1024;
+				unsigned int numBodyMutexes = 0; //< 0 = auto-determined
+				unsigned int tempAllocatorSize = 10 * 1024 * 1024;
 			};
 
 			struct ShapeCollisionInfo
@@ -107,10 +166,22 @@ namespace Nz
 			class BodyActivationListener;
 			friend BodyActivationListener;
 
-			class StepListener;
-			friend StepListener;
+			class BroadphaseLayerInterfaceBridge;
+			friend BroadphaseLayerInterfaceBridge;
+
+			class ContactListenerBridge;
+			friend ContactListenerBridge;
+
+			class ObjectLayerPairFilterBridge;
+			friend ObjectLayerPairFilterBridge;
+
+			class ObjectVsBroadphaseLayerFilterBridge;
+			friend ObjectVsBroadphaseLayerFilterBridge;
 
 			struct JoltWorld;
+
+			class StepListener;
+			friend StepListener;
 
 			std::shared_ptr<PhysCharacter3DImpl> GetDefaultCharacterImpl();
 			const JPH::Shape* GetNullShape() const;
@@ -128,7 +199,7 @@ namespace Nz
 			std::unique_ptr<JoltWorld> m_world;
 			std::vector<PhysWorld3DStepListener*> m_stepListeners;
 			Vector3f m_gravity;
-			Time m_stepSize;
+			Time m_stepDuration;
 			Time m_timestepAccumulator;
 	};
 }
