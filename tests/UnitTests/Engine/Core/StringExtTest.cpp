@@ -102,7 +102,7 @@ SCENARIO("String", "[CORE][STRING]")
 	{
 		CHECK(Nz::TrimRight(Nz::PointerToString(nullptr), '0') == "0x");
 
-		const void* ptr = Nz::IntegerToPointer<const void*>(0xDEADBEEF));
+		const void* ptr = Nz::IntegerToPointer<const void*>(0xDEADBEEF);
 		CHECK(Nz::MatchPattern(Nz::PointerToString(ptr), "0x*DEADBEEF"));
 	}
 
