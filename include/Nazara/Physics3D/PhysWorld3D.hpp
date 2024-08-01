@@ -12,7 +12,7 @@
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Physics3D/Export.hpp>
-#include <Nazara/Physics3D/PhysObjectLayer3D.hpp>
+#include <Nazara/Physics3D/PhysFilter3D.hpp>
 #include <NazaraUtils/FunctionRef.hpp>
 #include <NazaraUtils/MovablePtr.hpp>
 #include <atomic>
@@ -41,11 +41,7 @@ namespace Nz
 		friend RigidBody3D;
 
 		public:
-			struct BroadphaseLayerInterface;
 			struct ContactListener;
-			enum class ContactValidateResult;
-			struct ObjectLayerPairFilter;
-			struct ObjectVsBroadphaseLayerFilter;
 			struct PointCollisionInfo;
 			struct RaycastHit;
 			struct Settings;
@@ -56,9 +52,9 @@ namespace Nz
 			PhysWorld3D(PhysWorld3D&& ph) = delete;
 			~PhysWorld3D();
 
-			bool CollisionQuery(const Vector3f& point, const FunctionRef<std::optional<float>(const PointCollisionInfo& collisionInfo)>& callback);
-			bool CollisionQuery(const Collider3D& collider, const Matrix4f& colliderTransform, const FunctionRef<std::optional<float>(const ShapeCollisionInfo& hitInfo)>& callback);
-			bool CollisionQuery(const Collider3D& collider, const Matrix4f& colliderTransform, const Vector3f& colliderScale, const FunctionRef<std::optional<float>(const ShapeCollisionInfo& hitInfo)>& callback);
+			bool CollisionQuery(const Vector3f& point, const FunctionRef<std::optional<float>(const PointCollisionInfo& collisionInfo)>& callback, const PhysBroadphaseLayerFilter3D* broadphaseFilter = nullptr, const PhysObjectLayerFilter3D* objectLayerFilter = nullptr, const PhysBodyFilter3D* bodyFilter = nullptr);
+			bool CollisionQuery(const Collider3D& collider, const Matrix4f& colliderTransform, const FunctionRef<std::optional<float>(const ShapeCollisionInfo& hitInfo)>& callback, const PhysBroadphaseLayerFilter3D* broadphaseFilter = nullptr, const PhysObjectLayerFilter3D* objectLayerFilter = nullptr, const PhysBodyFilter3D* bodyFilter = nullptr);
+			bool CollisionQuery(const Collider3D& collider, const Matrix4f& colliderTransform, const Vector3f& colliderScale, const FunctionRef<std::optional<float>(const ShapeCollisionInfo& hitInfo)>& callback, const PhysBroadphaseLayerFilter3D* broadphaseFilter = nullptr, const PhysObjectLayerFilter3D* objectLayerFilter = nullptr, const PhysBodyFilter3D* bodyFilter = nullptr);
 
 			UInt32 GetActiveBodyCount() const;
 			Boxf GetBoundingBox() const;
@@ -70,13 +66,14 @@ namespace Nz
 			inline bool IsBodyActive(UInt32 bodyIndex) const;
 			inline bool IsBodyRegistered(UInt32 bodyIndex) const;
 
-			bool RaycastQuery(const Vector3f& from, const Vector3f& to, const FunctionRef<std::optional<float>(const RaycastHit& hitInfo)>& callback);
-			bool RaycastQueryFirst(const Vector3f& from, const Vector3f& to, const FunctionRef<void(const RaycastHit& hitInfo)>& callback);
+			bool RaycastQuery(const Vector3f& from, const Vector3f& to, const FunctionRef<std::optional<float>(const RaycastHit& hitInfo)>& callback, const PhysBroadphaseLayerFilter3D* broadphaseFilter = nullptr, const PhysObjectLayerFilter3D* objectLayerFilter = nullptr, const PhysBodyFilter3D* bodyFilter = nullptr);
+			bool RaycastQueryFirst(const Vector3f& from, const Vector3f& to, const FunctionRef<void(const RaycastHit& hitInfo)>& callback, const PhysBroadphaseLayerFilter3D* broadphaseFilter = nullptr, const PhysObjectLayerFilter3D* objectLayerFilter = nullptr, const PhysBodyFilter3D* bodyFilter = nullptr);
 
 			void RefreshBodies();
 
 			inline void RegisterStepListener(PhysWorld3DStepListener* stepListener);
 
+			void SetContactListener(std::unique_ptr<ContactListener> contactListener);
 			void SetGravity(const Vector3f& gravity);
 			void SetMaxStepCount(std::size_t maxStepCount);
 			void SetStepSize(Time stepSize);
@@ -90,38 +87,15 @@ namespace Nz
 
 			static Settings BuildDefaultSettings();
 
-			struct BroadphaseLayerInterface
-			{
-				virtual PhysBroadphase3D GetBroadphaseLayer(PhysObjectLayer3D layer) const = 0;
-				virtual unsigned int GetBroadphaseLayerCount() const = 0;
-				virtual const char* GetBroadphaseLayerName(PhysBroadphase3D broadphaseLayer) const = 0;
-			};
-
 			struct ContactListener
 			{
-				virtual ContactValidateResult ValidateContact(const PhysBody3D* body1, const PhysBody3D* body2, const Vector3f& baseOffset, const ShapeCollisionInfo& collisionResult) = 0;
+				virtual ~ContactListener();
+
+				virtual PhysContactValidateResult3D ValidateContact(const PhysBody3D* body1, const PhysBody3D* body2, const Vector3f& baseOffset, const ShapeCollisionInfo& collisionResult) = 0;
 
 				virtual void OnContactAdded(const PhysBody3D* body1, const PhysBody3D* body2) = 0; //< TODO: Add ContactManifold and ContactSettings
 				virtual void OnContactPersisted(const PhysBody3D* body1, const PhysBody3D* body2) = 0; //< TODO: Add ContactManifold and ContactSettings
 				virtual void OnContactRemoved(const PhysBody3D* body1, const PhysBody3D* body2) = 0; //< TODO: Add subshape id
-			};
-
-			enum class ContactValidateResult
-			{
-				AcceptAllContactsForThisBodyPair, ///< Accept this and any further contact points for this body pair
-				AcceptContact,                    ///< Accept this contact only (and continue calling this callback for every contact manifold for the same body pair)
-				RejectContact,                    ///< Reject this contact only (but process any other contact manifolds for the same body pair)
-				RejectAllContactsForThisBodyPair  ///< Rejects this and any further contact points for this body pair
-			};
-
-			struct ObjectLayerPairFilter
-			{
-				virtual bool ShouldCollide(PhysObjectLayer3D object1, PhysObjectLayer3D object2) const = 0;
-			};
-
-			struct ObjectVsBroadphaseLayerFilter
-			{
-				virtual bool ShouldCollide(PhysObjectLayer3D objectLayer, PhysBroadphase3D broadphaseLayer) const = 0;
 			};
 
 			struct PointCollisionInfo
@@ -139,11 +113,11 @@ namespace Nz
 
 			struct Settings
 			{
-				std::unique_ptr<BroadphaseLayerInterface> broadphaseLayerInterface; //< mandatory
+				std::unique_ptr<PhysBroadphaseLayerInterface3D> broadphaseLayerInterface; //< mandatory
 				std::unique_ptr<ContactListener> contactListener;
-				std::unique_ptr<ObjectLayerPairFilter> objectLayerPairFilter; //< mandatory
-				std::unique_ptr<ObjectVsBroadphaseLayerFilter> objectVsBroadphaseLayerFilter; //< mandatory
-				Time stepDuration = Time::TickDuration(120);
+				std::unique_ptr<PhysObjectLayerPairFilter3D> objectLayerPairFilter; //< mandatory
+				std::unique_ptr<PhysObjectVsBroadphaseLayerFilter3D> objectVsBroadphaseLayerFilter; //< mandatory
+				Time stepSize = Time::TickDuration(120);
 				Vector3f gravity = Vector3f::Zero();
 				unsigned int maxStepCount = 50;
 				unsigned int maxBodies = 0xFFFF;
@@ -198,8 +172,7 @@ namespace Nz
 			std::unique_ptr<std::uint64_t[]> m_registeredBodies;
 			std::unique_ptr<JoltWorld> m_world;
 			std::vector<PhysWorld3DStepListener*> m_stepListeners;
-			Vector3f m_gravity;
-			Time m_stepDuration;
+			Time m_stepSize;
 			Time m_timestepAccumulator;
 	};
 }

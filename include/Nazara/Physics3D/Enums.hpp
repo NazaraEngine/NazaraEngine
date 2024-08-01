@@ -24,6 +24,14 @@ namespace Nz
 		Max = TranslatedRotatedDecoration
 	};
 
+	enum class PhysContactValidateResult3D
+	{
+		AcceptAllContactsForThisBodyPair, ///< Accept this and any further contact points for this body pair
+		AcceptContact,                    ///< Accept this contact only (and continue calling this callback for every contact manifold for the same body pair)
+		RejectContact,                    ///< Reject this contact only (but process any other contact manifolds for the same body pair)
+		RejectAllContactsForThisBodyPair  ///< Rejects this and any further contact points for this body pair
+	};
+
 	enum class PhysMotionQuality3D
 	{
 		Discrete,

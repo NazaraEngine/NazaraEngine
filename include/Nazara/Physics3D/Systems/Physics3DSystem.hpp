@@ -25,30 +25,43 @@ namespace Nz
 			static constexpr Int64 ExecutionOrder = 0;
 			using Components = TypeList<PhysCharacter3DComponent, RigidBody3DComponent, class NodeComponent>;
 
+			struct ContactListener;
 			struct PointCollisionInfo;
 			struct RaycastHit;
 			struct ShapeCollisionInfo;
+			using Settings = PhysWorld3D::Settings;
 
-			Physics3DSystem(entt::registry& registry);
+			Physics3DSystem(entt::registry& registry, Settings&& settings = PhysWorld3D::BuildDefaultSettings());
 			Physics3DSystem(const Physics3DSystem&) = delete;
 			Physics3DSystem(Physics3DSystem&&) = delete;
 			~Physics3DSystem();
 
-			bool CollisionQuery(const Vector3f& point, const FunctionRef<std::optional<float>(const PointCollisionInfo& collisionInfo)>& callback);
-			bool CollisionQuery(const Collider3D& collider, const Matrix4f& colliderTransform, const FunctionRef<std::optional<float>(const ShapeCollisionInfo& hitInfo)>& callback);
-			bool CollisionQuery(const Collider3D& collider, const Matrix4f& colliderTransform, const Vector3f& colliderScale, const FunctionRef<std::optional<float>(const ShapeCollisionInfo& hitInfo)>& callback);
+			bool CollisionQuery(const Vector3f& point, const FunctionRef<std::optional<float>(const PointCollisionInfo& collisionInfo)>& callback, const PhysBroadphaseLayerFilter3D* broadphaseFilter = nullptr, const PhysObjectLayerFilter3D* objectLayerFilter = nullptr, const PhysBodyFilter3D* bodyFilter = nullptr);
+			bool CollisionQuery(const Collider3D& collider, const Matrix4f& colliderTransform, const FunctionRef<std::optional<float>(const ShapeCollisionInfo& hitInfo)>& callback, const PhysBroadphaseLayerFilter3D* broadphaseFilter = nullptr, const PhysObjectLayerFilter3D* objectLayerFilter = nullptr, const PhysBodyFilter3D* bodyFilter = nullptr);
+			bool CollisionQuery(const Collider3D& collider, const Matrix4f& colliderTransform, const Vector3f& colliderScale, const FunctionRef<std::optional<float>(const ShapeCollisionInfo& hitInfo)>& callback, const PhysBroadphaseLayerFilter3D* broadphaseFilter = nullptr, const PhysObjectLayerFilter3D* objectLayerFilter = nullptr, const PhysBodyFilter3D* bodyFilter = nullptr);
 
 			inline PhysWorld3D& GetPhysWorld();
 			inline const PhysWorld3D& GetPhysWorld() const;
 			inline entt::handle GetRigidBodyEntity(UInt32 bodyIndex) const;
 
-			bool RaycastQuery(const Vector3f& from, const Vector3f& to, const FunctionRef<std::optional<float>(const RaycastHit& hitInfo)>& callback);
-			bool RaycastQueryFirst(const Vector3f& from, const Vector3f& to, const FunctionRef<void(const RaycastHit& hitInfo)>& callback);
+			bool RaycastQuery(const Vector3f& from, const Vector3f& to, const FunctionRef<std::optional<float>(const RaycastHit& hitInfo)>& callback, const PhysBroadphaseLayerFilter3D* broadphaseFilter = nullptr, const PhysObjectLayerFilter3D* objectLayerFilter = nullptr, const PhysBodyFilter3D* bodyFilter = nullptr);
+			bool RaycastQueryFirst(const Vector3f& from, const Vector3f& to, const FunctionRef<void(const RaycastHit& hitInfo)>& callback, const PhysBroadphaseLayerFilter3D* broadphaseFilter = nullptr, const PhysObjectLayerFilter3D* objectLayerFilter = nullptr, const PhysBodyFilter3D* bodyFilter = nullptr);
+
+			void SetContactListener(std::unique_ptr<ContactListener> contactListener);
 
 			void Update(Time elapsedTime);
 
 			Physics3DSystem& operator=(const Physics3DSystem&) = delete;
 			Physics3DSystem& operator=(Physics3DSystem&&) = delete;
+
+			struct ContactListener
+			{
+				virtual PhysContactValidateResult3D ValidateContact(entt::handle entity1, const PhysBody3D* body1, entt::handle entity2, const PhysBody3D* body2, const Vector3f& baseOffset, const ShapeCollisionInfo& collisionResult) = 0;
+
+				virtual void OnContactAdded(entt::handle entity1, const PhysBody3D* body1, entt::handle entity2, const PhysBody3D* body2) = 0; //< TODO: Add ContactManifold and ContactSettings
+				virtual void OnContactPersisted(entt::handle entity1, const PhysBody3D* body1, entt::handle entity2, const PhysBody3D* body2) = 0; //< TODO: Add ContactManifold and ContactSettings
+				virtual void OnContactRemoved(entt::handle entity1, const PhysBody3D* body1, entt::handle entity2, const PhysBody3D* body2) = 0; //< TODO: Add subshape id
+			};
 
 			struct PointCollisionInfo : PhysWorld3D::PointCollisionInfo
 			{

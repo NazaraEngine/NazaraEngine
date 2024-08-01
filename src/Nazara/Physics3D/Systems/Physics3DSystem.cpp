@@ -9,10 +9,11 @@
 
 namespace Nz
 {
-	Physics3DSystem::Physics3DSystem(entt::registry& registry) :
+	Physics3DSystem::Physics3DSystem(entt::registry& registry, Settings&& settings) :
 	m_registry(registry),
-	m_characterConstructObserver(m_registry, entt::collector.group<PhysCharacter3DComponent,   NodeComponent>(entt::exclude<DisabledComponent, RigidBody3DComponent>)),
-	m_rigidBodyConstructObserver(m_registry, entt::collector.group<RigidBody3DComponent, NodeComponent>(entt::exclude<DisabledComponent, PhysCharacter3DComponent>))
+	m_characterConstructObserver(m_registry, entt::collector.group<PhysCharacter3DComponent, NodeComponent>(entt::exclude<DisabledComponent, RigidBody3DComponent>)),
+	m_rigidBodyConstructObserver(m_registry, entt::collector.group<RigidBody3DComponent,     NodeComponent>(entt::exclude<DisabledComponent, PhysCharacter3DComponent>)),
+	m_physWorld(std::move(settings))
 	{
 		m_bodyConstructConnection = registry.on_construct<RigidBody3DComponent>().connect<&Physics3DSystem::OnBodyConstruct>(this);
 		m_bodyDestructConnection = registry.on_destroy<RigidBody3DComponent>().connect<&Physics3DSystem::OnBodyDestruct>(this);
@@ -35,7 +36,7 @@ namespace Nz
 			rigidBodyComponent.Destroy(true);
 	}
 
-	bool Physics3DSystem::CollisionQuery(const Vector3f& point, const FunctionRef<std::optional<float>(const PointCollisionInfo& collisionInfo)>& callback)
+	bool Physics3DSystem::CollisionQuery(const Vector3f& point, const FunctionRef<std::optional<float>(const PointCollisionInfo& collisionInfo)>& callback, const PhysBroadphaseLayerFilter3D* broadphaseFilter, const PhysObjectLayerFilter3D* objectLayerFilter, const PhysBodyFilter3D* bodyFilter)
 	{
 		return m_physWorld.CollisionQuery(point, [&](const PhysWorld3D::PointCollisionInfo& hitInfo)
 		{
@@ -50,15 +51,15 @@ namespace Nz
 			}
 
 			return callback(extendedHitInfo);
-		});
+		}, broadphaseFilter, objectLayerFilter, bodyFilter);
 	}
 
-	bool Physics3DSystem::CollisionQuery(const Collider3D& collider, const Matrix4f& shapeTransform, const FunctionRef<std::optional<float>(const ShapeCollisionInfo& hitInfo)>& callback)
+	bool Physics3DSystem::CollisionQuery(const Collider3D& collider, const Matrix4f& shapeTransform, const FunctionRef<std::optional<float>(const ShapeCollisionInfo& hitInfo)>& callback, const PhysBroadphaseLayerFilter3D* broadphaseFilter, const PhysObjectLayerFilter3D* objectLayerFilter, const PhysBodyFilter3D* bodyFilter)
 	{
-		return CollisionQuery(collider, shapeTransform, Vector3f::Unit(), callback);
+		return CollisionQuery(collider, shapeTransform, Vector3f::Unit(), callback, broadphaseFilter, objectLayerFilter, bodyFilter);
 	}
 
-	bool Physics3DSystem::CollisionQuery(const Collider3D& collider, const Matrix4f& colliderTransform, const Vector3f& colliderScale, const FunctionRef<std::optional<float>(const ShapeCollisionInfo& hitInfo)>& callback)
+	bool Physics3DSystem::CollisionQuery(const Collider3D& collider, const Matrix4f& colliderTransform, const Vector3f& colliderScale, const FunctionRef<std::optional<float>(const ShapeCollisionInfo& hitInfo)>& callback, const PhysBroadphaseLayerFilter3D* broadphaseFilter, const PhysObjectLayerFilter3D* objectLayerFilter, const PhysBodyFilter3D* bodyFilter)
 	{
 		return m_physWorld.CollisionQuery(collider, colliderTransform, colliderScale, [&](const PhysWorld3D::ShapeCollisionInfo& hitInfo)
 		{
@@ -73,10 +74,10 @@ namespace Nz
 			}
 
 			return callback(extendedHitInfo);
-		});
+		}, broadphaseFilter, objectLayerFilter, bodyFilter);
 	}
 
-	bool Physics3DSystem::RaycastQuery(const Vector3f& from, const Vector3f& to, const FunctionRef<std::optional<float>(const RaycastHit& hitInfo)>& callback)
+	bool Physics3DSystem::RaycastQuery(const Vector3f& from, const Vector3f& to, const FunctionRef<std::optional<float>(const RaycastHit& hitInfo)>& callback, const PhysBroadphaseLayerFilter3D* broadphaseFilter, const PhysObjectLayerFilter3D* objectLayerFilter, const PhysBodyFilter3D* bodyFilter)
 	{
 		return m_physWorld.RaycastQuery(from, to, [&](const PhysWorld3D::RaycastHit& hitInfo)
 		{
@@ -91,10 +92,10 @@ namespace Nz
 			}
 
 			return callback(extendedHitInfo);
-		});
+		}, broadphaseFilter, objectLayerFilter, bodyFilter);
 	}
 
-	bool Physics3DSystem::RaycastQueryFirst(const Vector3f& from, const Vector3f& to, const FunctionRef<void(const RaycastHit& hitInfo)>& callback)
+	bool Physics3DSystem::RaycastQueryFirst(const Vector3f& from, const Vector3f& to, const FunctionRef<void(const RaycastHit& hitInfo)>& callback, const PhysBroadphaseLayerFilter3D* broadphaseFilter, const PhysObjectLayerFilter3D* objectLayerFilter, const PhysBodyFilter3D* bodyFilter)
 	{
 		return m_physWorld.RaycastQueryFirst(from, to, [&](const PhysWorld3D::RaycastHit& hitInfo)
 		{
@@ -109,7 +110,52 @@ namespace Nz
 			}
 
 			callback(extendedHitInfo);
-		});
+		}, broadphaseFilter, objectLayerFilter, bodyFilter);
+	}
+
+	void Physics3DSystem::SetContactListener(std::unique_ptr<ContactListener> contactListener)
+	{
+		class ContactListenerBridge : public PhysWorld3D::ContactListener
+		{
+			public:
+				ContactListenerBridge(Physics3DSystem& physSystem, std::unique_ptr<Physics3DSystem::ContactListener> physContactListener) :
+				m_contactListener(std::move(physContactListener)),
+				m_physSystem(physSystem)
+				{
+				}
+
+				PhysContactValidateResult3D ValidateContact(const PhysBody3D* body1, const PhysBody3D* body2, const Vector3f& baseOffset, const PhysWorld3D::ShapeCollisionInfo& collisionResult) override
+				{
+					ShapeCollisionInfo collisionInfo;
+					collisionInfo.collisionPosition1 = collisionResult.collisionPosition1;
+					collisionInfo.collisionPosition2 = collisionResult.collisionPosition2;
+					collisionInfo.penetrationAxis = collisionResult.penetrationAxis;
+					collisionInfo.penetrationDepth = collisionResult.penetrationDepth;
+
+					return m_contactListener->ValidateContact(m_physSystem.GetRigidBodyEntity(body1->GetBodyIndex()), body1, m_physSystem.GetRigidBodyEntity(body2->GetBodyIndex()), body2, baseOffset, collisionInfo);
+				}
+
+				void OnContactAdded(const PhysBody3D* body1, const PhysBody3D* body2) override
+				{
+					return m_contactListener->OnContactAdded(m_physSystem.GetRigidBodyEntity(body1->GetBodyIndex()), body1, m_physSystem.GetRigidBodyEntity(body2->GetBodyIndex()), body2);
+				}
+
+				void OnContactPersisted(const PhysBody3D* body1, const PhysBody3D* body2) override
+				{
+					return m_contactListener->OnContactPersisted(m_physSystem.GetRigidBodyEntity(body1->GetBodyIndex()), body1, m_physSystem.GetRigidBodyEntity(body2->GetBodyIndex()), body2);
+				}
+
+				void OnContactRemoved(const PhysBody3D* body1, const PhysBody3D* body2) override
+				{
+					return m_contactListener->OnContactRemoved(m_physSystem.GetRigidBodyEntity(body1->GetBodyIndex()), body1, m_physSystem.GetRigidBodyEntity(body2->GetBodyIndex()), body2);
+				}
+
+			private:
+				std::unique_ptr<Physics3DSystem::ContactListener> m_contactListener;
+				Physics3DSystem& m_physSystem;
+		};
+
+		m_physWorld.SetContactListener(std::make_unique<ContactListenerBridge>(*this, std::move(contactListener)));
 	}
 
 	void Physics3DSystem::Update(Time elapsedTime)

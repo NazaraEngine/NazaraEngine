@@ -31,6 +31,62 @@ namespace Nz
 {
 	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
+		class BodyFilterBridge : public JPH::BodyFilter
+		{
+			public:
+				BodyFilterBridge(const PhysBodyFilter3D* bodyFilter) :
+				m_bodyFilter(bodyFilter)
+				{
+				}
+
+				bool ShouldCollide(const JPH::BodyID& inBodyID) const override
+				{
+					return m_bodyFilter->ShouldCollide(inBodyID.GetIndex());
+				}
+
+				bool ShouldCollideLocked(const JPH::Body& inBody) const override
+				{
+					return m_bodyFilter->ShouldCollideLocked(*IntegerToPointer<PhysBody3D*>(inBody.GetUserData()));
+				}
+
+			private:
+				const PhysBodyFilter3D* m_bodyFilter;
+		};
+
+		class BroadphaseLayerFilterBridge : public JPH::BroadPhaseLayerFilter
+		{
+			public:
+				BroadphaseLayerFilterBridge(const PhysBroadphaseLayerFilter3D* broadphaseFilter) :
+				m_broadphaseFilter(broadphaseFilter)
+				{
+				}
+
+				bool ShouldCollide(JPH::BroadPhaseLayer inLayer) const override
+				{
+					return m_broadphaseFilter->ShouldCollide(inLayer.GetValue());
+				}
+
+			private:
+				const PhysBroadphaseLayerFilter3D* m_broadphaseFilter;
+		};
+		
+		class ObjectLayerFilterBridge : public JPH::ObjectLayerFilter
+		{
+			public:
+				ObjectLayerFilterBridge(const PhysObjectLayerFilter3D* objectLayerFilter) :
+				m_objectLayerFilter(objectLayerFilter)
+				{
+				}
+
+				bool ShouldCollide(JPH::ObjectLayer inLayer) const override
+				{
+					return m_objectLayerFilter->ShouldCollide(inLayer);
+				}
+
+			private:
+				const PhysObjectLayerFilter3D* m_objectLayerFilter;
+		};
+		
 		class PointCallbackHitResult : public JPH::CollidePointCollector
 		{
 			public:
@@ -216,7 +272,7 @@ namespace Nz
 	class PhysWorld3D::BroadphaseLayerInterfaceBridge : public JPH::BroadPhaseLayerInterface
 	{
 		public:
-			BroadphaseLayerInterfaceBridge(std::unique_ptr<PhysWorld3D::BroadphaseLayerInterface> broadphaseLayerInterface) :
+			BroadphaseLayerInterfaceBridge(std::unique_ptr<PhysBroadphaseLayerInterface3D> broadphaseLayerInterface) :
 			m_broadphaseLayerInterface(std::move(broadphaseLayerInterface))
 			{
 			}
@@ -239,8 +295,10 @@ namespace Nz
 #endif
 
 		private:
-			std::unique_ptr<PhysWorld3D::BroadphaseLayerInterface> m_broadphaseLayerInterface;
+			std::unique_ptr<PhysBroadphaseLayerInterface3D> m_broadphaseLayerInterface;
 	};
+
+	PhysWorld3D::ContactListener::~ContactListener() = default;
 
 	class PhysWorld3D::ContactListenerBridge : public JPH::ContactListener
 	{
@@ -305,7 +363,7 @@ namespace Nz
 	class PhysWorld3D::ObjectLayerPairFilterBridge : public JPH::ObjectLayerPairFilter
 	{
 		public:
-			ObjectLayerPairFilterBridge(std::unique_ptr<PhysWorld3D::ObjectLayerPairFilter> broadphaseLayerInterface) :
+			ObjectLayerPairFilterBridge(std::unique_ptr<PhysObjectLayerPairFilter3D> broadphaseLayerInterface) :
 			m_objectLayerPairFilter(std::move(broadphaseLayerInterface))
 			{
 			}
@@ -316,13 +374,13 @@ namespace Nz
 			}
 
 		private:
-			std::unique_ptr<PhysWorld3D::ObjectLayerPairFilter> m_objectLayerPairFilter;
+			std::unique_ptr<PhysObjectLayerPairFilter3D> m_objectLayerPairFilter;
 	};
 
 	class PhysWorld3D::ObjectVsBroadphaseLayerFilterBridge : public JPH::ObjectVsBroadPhaseLayerFilter
 	{
 		public:
-			ObjectVsBroadphaseLayerFilterBridge(std::unique_ptr<PhysWorld3D::ObjectVsBroadphaseLayerFilter> broadphaseLayerInterface) :
+			ObjectVsBroadphaseLayerFilterBridge(std::unique_ptr<PhysObjectVsBroadphaseLayerFilter3D> broadphaseLayerInterface) :
 			m_objectVsBroadphaseLayerFilter(std::move(broadphaseLayerInterface))
 			{
 			}
@@ -333,7 +391,7 @@ namespace Nz
 			}
 
 		private:
-			std::unique_ptr<PhysWorld3D::ObjectVsBroadphaseLayerFilter> m_objectVsBroadphaseLayerFilter;
+			std::unique_ptr<PhysObjectVsBroadphaseLayerFilter3D> m_objectVsBroadphaseLayerFilter;
 	};
 
 	class PhysWorld3D::StepListener : public JPH::PhysicsStepListener
@@ -372,7 +430,7 @@ namespace Nz
 		PhysWorld3D::ObjectVsBroadphaseLayerFilterBridge objectVsBroadphaseLayerFilterBridge;
 		PhysWorld3D::StepListener stepListener;
 
-		JoltWorld(PhysWorld3D& world, std::unique_ptr<PhysWorld3D::BroadphaseLayerInterface> broadphaseLayerInterfaceImpl, std::unique_ptr<ObjectLayerPairFilter> objectLayerPairFilterImpl, std::unique_ptr<ObjectVsBroadphaseLayerFilter> objectVsBroadphaseLayerFilterImpl, JPH::uint tempAllocatorSize) :
+		JoltWorld(PhysWorld3D& world, std::unique_ptr<PhysBroadphaseLayerInterface3D> broadphaseLayerInterfaceImpl, std::unique_ptr<PhysObjectLayerPairFilter3D> objectLayerPairFilterImpl, std::unique_ptr<PhysObjectVsBroadphaseLayerFilter3D> objectVsBroadphaseLayerFilterImpl, JPH::uint tempAllocatorSize) :
 		tempAllocator(tempAllocatorSize),
 		bodyActivationListener(world),
 		broadphaseLayerInterfaceBridge(std::move(broadphaseLayerInterfaceImpl)),
@@ -391,13 +449,13 @@ namespace Nz
 
 	PhysWorld3D::PhysWorld3D(Settings&& settings) :
 	m_maxStepCount(settings.maxStepCount),
-	m_gravity(settings.gravity),
-	m_stepDuration(settings.stepDuration),
+	m_stepSize(settings.stepSize),
 	m_timestepAccumulator(Time::Zero())
 	{
 		m_world = std::make_unique<JoltWorld>(*this, std::move(settings.broadphaseLayerInterface), std::move(settings.objectLayerPairFilter), std::move(settings.objectVsBroadphaseLayerFilter), settings.tempAllocatorSize);
 		m_world->physicsSystem.Init(settings.maxBodies, settings.numBodyMutexes, settings.maxBodyPairs, settings.maxContactConstraints, m_world->broadphaseLayerInterfaceBridge, m_world->objectVsBroadphaseLayerFilterBridge, m_world->objectLayerPairFilterBridge);
 		m_world->physicsSystem.SetBodyActivationListener(&m_world->bodyActivationListener);
+		m_world->physicsSystem.SetGravity(ToJolt(settings.gravity));
 
 		if (settings.contactListener)
 		{
@@ -420,31 +478,47 @@ namespace Nz
 
 	PhysWorld3D::~PhysWorld3D() = default;
 
-	bool PhysWorld3D::CollisionQuery(const Vector3f& point, const FunctionRef<std::optional<float>(const PointCollisionInfo& collisionInfo)>& callback)
+	bool PhysWorld3D::CollisionQuery(const Vector3f& point, const FunctionRef<std::optional<float>(const PointCollisionInfo& collisionInfo)>& callback, const PhysBroadphaseLayerFilter3D* broadphaseFilter, const PhysObjectLayerFilter3D* objectLayerFilter, const PhysBodyFilter3D* bodyFilter)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
+		JPH::BodyFilter defaultBodyFilter;
+		JPH::BroadPhaseLayerFilter defaultBroadphaseFilter;
+		JPH::ObjectLayerFilter defaultObjectFilter;
+
+		BodyFilterBridge bodyFilterBridge(bodyFilter);
+		BroadphaseLayerFilterBridge broadphaseLayerFilterBridge(broadphaseFilter);
+		ObjectLayerFilterBridge objectLayerFilterBridge(objectLayerFilter);
+
 		PointCallbackHitResult collector(m_world->physicsSystem.GetBodyLockInterface(), callback);
-		m_world->physicsSystem.GetNarrowPhaseQuery().CollidePoint(ToJolt(point), collector);
+		m_world->physicsSystem.GetNarrowPhaseQuery().CollidePoint(ToJolt(point), collector, (broadphaseFilter) ? broadphaseLayerFilterBridge : defaultBroadphaseFilter, (objectLayerFilter) ? objectLayerFilterBridge : defaultObjectFilter, (bodyFilter) ? bodyFilterBridge : defaultBodyFilter);
 
 		return collector.DidHit();
 	}
 
-	bool PhysWorld3D::CollisionQuery(const Collider3D& collider, const Matrix4f& colliderTransform, const FunctionRef<std::optional<float>(const ShapeCollisionInfo& hitInfo)>& callback)
+	bool PhysWorld3D::CollisionQuery(const Collider3D& collider, const Matrix4f& colliderTransform, const FunctionRef<std::optional<float>(const ShapeCollisionInfo& hitInfo)>& callback, const PhysBroadphaseLayerFilter3D* broadphaseFilter, const PhysObjectLayerFilter3D* objectLayerFilter, const PhysBodyFilter3D* bodyFilter)
 	{
-		return CollisionQuery(collider, colliderTransform, Vector3f::Unit(), callback);
+		return CollisionQuery(collider, colliderTransform, Vector3f::Unit(), callback, broadphaseFilter, objectLayerFilter, bodyFilter);
 	}
 
-	bool PhysWorld3D::CollisionQuery(const Collider3D& collider, const Matrix4f& colliderTransform, const Vector3f& colliderScale, const FunctionRef<std::optional<float>(const ShapeCollisionInfo& hitInfo)>& callback)
+	bool PhysWorld3D::CollisionQuery(const Collider3D& collider, const Matrix4f& colliderTransform, const Vector3f& colliderScale, const FunctionRef<std::optional<float>(const ShapeCollisionInfo& hitInfo)>& callback, const PhysBroadphaseLayerFilter3D* broadphaseFilter, const PhysObjectLayerFilter3D* objectLayerFilter, const PhysBodyFilter3D* bodyFilter)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
+
+		JPH::BodyFilter defaultBodyFilter;
+		JPH::BroadPhaseLayerFilter defaultBroadphaseFilter;
+		JPH::ObjectLayerFilter defaultObjectFilter;
+
+		BodyFilterBridge bodyFilterBridge(bodyFilter);
+		BroadphaseLayerFilterBridge broadphaseLayerFilterBridge(broadphaseFilter);
+		ObjectLayerFilterBridge objectLayerFilterBridge(objectLayerFilter);
 
 		JPH::Shape* shape = collider.GetShapeSettings()->Create().Get();
 
 		JPH::CollideShapeSettings collideShapeSettings;
 
 		ShapeCallbackHitResult collector(m_world->physicsSystem.GetBodyLockInterface(), callback);
-		m_world->physicsSystem.GetNarrowPhaseQuery().CollideShape(shape, ToJolt(colliderScale), ToJolt(colliderTransform), collideShapeSettings, JPH::Vec3::sZero(), collector);
+		m_world->physicsSystem.GetNarrowPhaseQuery().CollideShape(shape, ToJolt(colliderScale), ToJolt(colliderTransform), collideShapeSettings, JPH::Vec3::sZero(), collector, (broadphaseFilter) ? broadphaseLayerFilterBridge : defaultBroadphaseFilter, (objectLayerFilter) ? objectLayerFilterBridge : defaultObjectFilter, (bodyFilter) ? bodyFilterBridge : defaultBodyFilter);
 
 		return collector.DidHit();
 	}
@@ -480,12 +554,20 @@ namespace Nz
 
 	Time PhysWorld3D::GetStepSize() const
 	{
-		return m_stepDuration;
+		return m_stepSize;
 	}
 
-	bool PhysWorld3D::RaycastQuery(const Vector3f& from, const Vector3f& to, const FunctionRef<std::optional<float>(const RaycastHit& hitInfo)>& callback)
+	bool PhysWorld3D::RaycastQuery(const Vector3f& from, const Vector3f& to, const FunctionRef<std::optional<float>(const RaycastHit& hitInfo)>& callback, const PhysBroadphaseLayerFilter3D* broadphaseFilter, const PhysObjectLayerFilter3D* objectLayerFilter, const PhysBodyFilter3D* bodyFilter)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
+		
+		JPH::BodyFilter defaultBodyFilter;
+		JPH::BroadPhaseLayerFilter defaultBroadphaseFilter;
+		JPH::ObjectLayerFilter defaultObjectFilter;
+
+		BodyFilterBridge bodyFilterBridge(bodyFilter);
+		BroadphaseLayerFilterBridge broadphaseLayerFilterBridge(broadphaseFilter);
+		ObjectLayerFilterBridge objectLayerFilterBridge(objectLayerFilter);
 
 		JPH::RRayCast rayCast;
 		rayCast.mDirection = ToJolt(to - from);
@@ -494,13 +576,21 @@ namespace Nz
 		JPH::RayCastSettings rayCastSettings;
 
 		RaycastCallbackHitResult collector(m_world->physicsSystem.GetBodyLockInterface(), from, to, callback);
-		m_world->physicsSystem.GetNarrowPhaseQuery().CastRay(rayCast, rayCastSettings, collector);
+		m_world->physicsSystem.GetNarrowPhaseQuery().CastRay(rayCast, rayCastSettings, collector, (broadphaseFilter) ? broadphaseLayerFilterBridge : defaultBroadphaseFilter, (objectLayerFilter) ? objectLayerFilterBridge : defaultObjectFilter, (bodyFilter) ? bodyFilterBridge : defaultBodyFilter);
 
 		return collector.DidHit();
 	}
 
-	bool PhysWorld3D::RaycastQueryFirst(const Vector3f& from, const Vector3f& to, const FunctionRef<void(const RaycastHit& hitInfo)>& callback)
+	bool PhysWorld3D::RaycastQueryFirst(const Vector3f& from, const Vector3f& to, const FunctionRef<void(const RaycastHit& hitInfo)>& callback, const PhysBroadphaseLayerFilter3D* broadphaseFilter, const PhysObjectLayerFilter3D* objectLayerFilter, const PhysBodyFilter3D* bodyFilter)
 	{
+		JPH::BodyFilter defaultBodyFilter;
+		JPH::BroadPhaseLayerFilter defaultBroadphaseFilter;
+		JPH::ObjectLayerFilter defaultObjectFilter;
+
+		BodyFilterBridge bodyFilterBridge(bodyFilter);
+		BroadphaseLayerFilterBridge broadphaseLayerFilterBridge(broadphaseFilter);
+		ObjectLayerFilterBridge objectLayerFilterBridge(objectLayerFilter);
+
 		JPH::RRayCast rayCast;
 		rayCast.mDirection = ToJolt(to - from);
 		rayCast.mOrigin = ToJolt(from);
@@ -508,7 +598,7 @@ namespace Nz
 		JPH::RayCastSettings rayCastSettings;
 
 		JPH::ClosestHitCollisionCollector<JPH::CastRayCollector> collector;
-		m_world->physicsSystem.GetNarrowPhaseQuery().CastRay(rayCast, rayCastSettings, collector);
+		m_world->physicsSystem.GetNarrowPhaseQuery().CastRay(rayCast, rayCastSettings, collector, (broadphaseFilter) ? broadphaseLayerFilterBridge : defaultBroadphaseFilter, (objectLayerFilter) ? objectLayerFilterBridge : defaultObjectFilter, (bodyFilter) ? bodyFilterBridge : defaultBodyFilter);
 
 		if (!collector.HadHit())
 			return false;
@@ -576,6 +666,12 @@ namespace Nz
 		}
 	}
 
+	void PhysWorld3D::SetContactListener(std::unique_ptr<ContactListener> contactListener)
+	{
+		m_world->contactListenerBridge.emplace(m_world->physicsSystem.GetBodyLockInterfaceNoLock(), std::move(contactListener));
+		m_world->physicsSystem.SetContactListener(&*m_world->contactListenerBridge);
+	}
+
 	void PhysWorld3D::SetGravity(const Vector3f& gravity)
 	{
 		m_world->physicsSystem.SetGravity(ToJolt(gravity));
@@ -588,29 +684,29 @@ namespace Nz
 
 	void PhysWorld3D::SetStepSize(Time stepSize)
 	{
-		m_stepDuration = stepSize;
+		m_stepSize = stepSize;
 	}
 
 	bool PhysWorld3D::Step(Time timestep)
 	{
 		m_timestepAccumulator += timestep;
-		if (m_timestepAccumulator < m_stepDuration)
+		if (m_timestepAccumulator < m_stepSize)
 			return false;
 
 		RefreshBodies();
 
 		JPH::JobSystem& jobSystem = Physics3D::Instance()->GetThreadPool();
-		float stepSize = m_stepDuration.AsSeconds<float>();
+		float stepSize = m_stepSize.AsSeconds<float>();
 
 		std::size_t stepCount = 0;
-		while (m_timestepAccumulator >= m_stepDuration && stepCount < m_maxStepCount)
+		while (m_timestepAccumulator >= m_stepSize && stepCount < m_maxStepCount)
 		{
 			m_world->physicsSystem.Update(stepSize, 1, &m_world->tempAllocator, &jobSystem);
 
 			for (PhysWorld3DStepListener* stepListener : m_stepListeners)
 				stepListener->PostSimulate(stepSize);
 
-			m_timestepAccumulator -= m_stepDuration;
+			m_timestepAccumulator -= m_stepSize;
 			stepCount++;
 		}
 
@@ -619,7 +715,7 @@ namespace Nz
 
 	auto PhysWorld3D::BuildDefaultSettings() -> Settings
 	{
-		struct DefaultLayerInterface final : BroadphaseLayerInterface
+		struct DefaultLayerInterface final : PhysBroadphaseLayerInterface3D
 		{
 			unsigned int GetBroadphaseLayerCount() const override
 			{
@@ -642,7 +738,7 @@ namespace Nz
 			}
 		};
 
-		struct DefaultObjectLayerPairFilter final : ObjectLayerPairFilter
+		struct DefaultObjectLayerPairFilter final : PhysObjectLayerPairFilter3D
 		{
 			bool ShouldCollide(PhysObjectLayer3D object1, PhysObjectLayer3D object2) const override
 			{
@@ -655,7 +751,7 @@ namespace Nz
 			}
 		};
 
-		struct DefaultObjectVsBroadphaseLayerFilter final : ObjectVsBroadphaseLayerFilter
+		struct DefaultObjectVsBroadphaseLayerFilter final : PhysObjectVsBroadphaseLayerFilter3D
 		{
 			bool ShouldCollide(PhysObjectLayer3D objectLayer, PhysBroadphase3D broadphaseLayer) const override
 			{

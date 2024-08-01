@@ -2,7 +2,6 @@
 // This file is part of the "Nazara Engine - Physics3D module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-
 namespace Nz
 {
 	inline bool PhysWorld3D::IsBodyActive(UInt32 bodyIndex) const
