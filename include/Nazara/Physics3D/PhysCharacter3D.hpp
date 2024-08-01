@@ -12,6 +12,7 @@
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Physics3D/Export.hpp>
 #include <Nazara/Physics3D/PhysBody3D.hpp>
+#include <Nazara/Physics3D/PhysObjectLayer3D.hpp>
 #include <Nazara/Physics3D/PhysWorld3DStepListener.hpp>
 #include <NazaraUtils/MovablePtr.hpp>
 #include <memory>
@@ -71,6 +72,7 @@ namespace Nz
 			struct Settings
 			{
 				std::shared_ptr<Collider3D> collider;
+				PhysObjectLayer3D objectLayer = 0;
 				Quaternionf rotation = Quaternionf::Identity();
 				Vector3f position = Vector3f::Zero();
 			};

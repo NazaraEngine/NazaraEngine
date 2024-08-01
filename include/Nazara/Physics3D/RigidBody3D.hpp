@@ -98,6 +98,7 @@ namespace Nz
 			struct CommonSettings
 			{
 				std::shared_ptr<Collider3D> geom;
+				PhysObjectLayer3D objectLayer = 0;
 				Quaternionf rotation = Quaternionf::Identity();
 				Vector3f position = Vector3f::Zero();
 				bool initiallySleeping = false;

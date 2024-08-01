@@ -282,7 +282,7 @@ namespace Nz
 				return SafeCaster(m_broadphaseLayerInterface->GetBroadphaseLayerCount());
 			}
 
-			JPH::BroadPhaseLayer GetBroadPhaseLayer(JPH::ObjectLayer inLayer) const
+			JPH::BroadPhaseLayer GetBroadPhaseLayer(JPH::ObjectLayer inLayer) const override
 			{
 				return JPH::BroadPhaseLayer(m_broadphaseLayerInterface->GetBroadphaseLayer(inLayer));
 			}
@@ -368,7 +368,7 @@ namespace Nz
 			{
 			}
 
-			bool ShouldCollide(PhysObjectLayer3D layer1, PhysObjectLayer3D layer2) const
+			bool ShouldCollide(PhysObjectLayer3D layer1, PhysObjectLayer3D layer2) const override
 			{
 				return m_objectLayerPairFilter->ShouldCollide(layer1, layer2);
 			}
@@ -385,9 +385,9 @@ namespace Nz
 			{
 			}
 
-			bool ShouldCollide(PhysObjectLayer3D layer1, PhysBroadphase3D layer2) const
+			bool ShouldCollide(JPH::ObjectLayer layer1, JPH::BroadPhaseLayer layer2) const override
 			{
-				return m_objectVsBroadphaseLayerFilter->ShouldCollide(layer1, layer2);
+				return m_objectVsBroadphaseLayerFilter->ShouldCollide(layer1, layer2.GetValue());
 			}
 
 		private:

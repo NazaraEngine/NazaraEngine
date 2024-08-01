@@ -166,15 +166,12 @@ namespace Nz
 
 		JPH::CharacterSettings characterSettings;
 		characterSettings.mShape = shapeResult.Get();
-		characterSettings.mLayer = 1;
+		characterSettings.mLayer = settings.objectLayer;
 
-		m_character = std::make_unique<JPH::Character>(&characterSettings, ToJolt(settings.position), ToJolt(settings.rotation), 0, m_world->GetPhysicsSystem());
+		m_character = std::make_unique<JPH::Character>(&characterSettings, ToJolt(settings.position), ToJolt(settings.rotation), PointerToInteger<UInt64>(this), m_world->GetPhysicsSystem());
 		m_character->AddToPhysicsSystem();
 
 		m_bodyIndex = m_character->GetBodyID().GetIndex();
-
-		JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterfaceNoLock();
-		bodyInterface.SetUserData(m_character->GetBodyID(), SafeCast<UInt64>(BitCast<std::uintptr_t>(this)));
 
 		m_world->RegisterStepListener(this);
 	}

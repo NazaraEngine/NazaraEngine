@@ -442,6 +442,7 @@ namespace Nz
 			creationSettings.mIsSensor = true; //< not the best solution but enough for now
 		}
 
+		creationSettings.mObjectLayer = settings.objectLayer;
 		creationSettings.mPosition = ToJolt(settings.position);
 		creationSettings.mRotation = ToJolt(settings.rotation);
 		creationSettings.mUserData = SafeCast<UInt64>(BitCast<std::uintptr_t>(this));
