@@ -583,6 +583,8 @@ namespace Nz
 
 	bool PhysWorld3D::RaycastQueryFirst(const Vector3f& from, const Vector3f& to, const FunctionRef<void(const RaycastHit& hitInfo)>& callback, const PhysBroadphaseLayerFilter3D* broadphaseFilter, const PhysObjectLayerFilter3D* objectLayerFilter, const PhysBodyFilter3D* bodyFilter)
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 		JPH::BodyFilter defaultBodyFilter;
 		JPH::BroadPhaseLayerFilter defaultBroadphaseFilter;
 		JPH::ObjectLayerFilter defaultObjectFilter;
