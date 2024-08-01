@@ -18,7 +18,7 @@ namespace Nz
 	m_constraint(std::move(constraint.m_constraint))
 	{
 		if (m_constraint)
-			m_constraint->SetUserData(SafeCast<UInt64>(BitCast<std::uintptr_t>(this)));
+			m_constraint->SetUserData(PointerToInteger<UInt64>(this));
 	}
 
 	PhysConstraint3D::~PhysConstraint3D()
@@ -28,24 +28,24 @@ namespace Nz
 
 	RigidBody3D& PhysConstraint3D::GetBodyA()
 	{
-		return *BitCast<RigidBody3D*>(static_cast<std::uintptr_t>(m_constraint->GetBody1()->GetUserData()));
+		return *IntegerToPointer<RigidBody3D*>(m_constraint->GetBody1()->GetUserData());
 	}
 
 	const RigidBody3D& PhysConstraint3D::GetBodyA() const
 	{
-		return *BitCast<RigidBody3D*>(static_cast<std::uintptr_t>(m_constraint->GetBody1()->GetUserData()));
+		return *IntegerToPointer<RigidBody3D*>(m_constraint->GetBody1()->GetUserData());
 	}
 
 	RigidBody3D& PhysConstraint3D::GetBodyB()
 	{
 		NazaraAssert(!IsSingleBody(), "constraint is not attached to a second body");
-		return *BitCast<RigidBody3D*>(static_cast<std::uintptr_t>(m_constraint->GetBody2()->GetUserData()));
+		return *IntegerToPointer<RigidBody3D*>(m_constraint->GetBody2()->GetUserData());
 	}
 
 	const RigidBody3D& PhysConstraint3D::GetBodyB() const
 	{
 		NazaraAssert(!IsSingleBody(), "constraint is not attached to a second body");
-		return *BitCast<RigidBody3D*>(static_cast<std::uintptr_t>(m_constraint->GetBody2()->GetUserData()));
+		return *IntegerToPointer<RigidBody3D*>(m_constraint->GetBody2()->GetUserData());
 	}
 
 	PhysWorld3D& PhysConstraint3D::GetWorld()
@@ -70,7 +70,7 @@ namespace Nz
 		m_constraint = std::move(constraint.m_constraint);
 
 		if (m_constraint)
-			m_constraint->SetUserData(SafeCast<UInt64>(BitCast<std::uintptr_t>(this)));
+			m_constraint->SetUserData(PointerToInteger<UInt64>(this));
 
 		return *this;
 	}
@@ -91,7 +91,7 @@ namespace Nz
 		assert(!m_constraint);
 		m_constraint = std::move(constraint);
 		m_constraint->SetEmbedded();
-		m_constraint->SetUserData(SafeCast<UInt64>(BitCast<std::uintptr_t>(this)));
+		m_constraint->SetUserData(PointerToInteger<UInt64>(this));
 
 		JPH::PhysicsSystem* physicsSystem = GetWorld().GetPhysicsSystem();
 		physicsSystem->AddConstraint(m_constraint.get());
