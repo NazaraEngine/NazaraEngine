@@ -67,6 +67,12 @@ namespace Nz
 		return FromJolt(m_character->GetLinearVelocity(false));
 	}
 
+	PhysObjectLayer3D PhysCharacter3D::GetObjectLayer() const
+	{
+		JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterfaceNoLock();
+		return bodyInterface.GetObjectLayer(m_character->GetBodyID());
+	}
+
 	Quaternionf PhysCharacter3D::GetRotation() const
 	{
 		return FromJolt(m_character->GetRotation(false));
@@ -105,6 +111,11 @@ namespace Nz
 	void PhysCharacter3D::SetLinearVelocity(const Vector3f& linearVel)
 	{
 		m_character->SetLinearVelocity(ToJolt(linearVel), false);
+	}
+
+	void PhysCharacter3D::SetObjectLayer(PhysObjectLayer3D objectLayer)
+	{
+		m_character->SetLayer(objectLayer);
 	}
 
 	void PhysCharacter3D::SetRotation(const Quaternionf& rotation)

@@ -47,6 +47,7 @@ namespace Nz
 			UInt32 GetBodyIndex() const override;
 			inline const std::shared_ptr<Collider3D>& GetCollider() const;
 			Vector3f GetLinearVelocity() const;
+			PhysObjectLayer3D GetObjectLayer() const;
 			inline PhysWorld3D& GetPhysWorld();
 			inline const PhysWorld3D& GetPhysWorld() const;
 			Vector3f GetPosition() const;
@@ -59,6 +60,7 @@ namespace Nz
 			void SetFriction(float friction);
 			inline void SetImpl(std::shared_ptr<PhysCharacter3DImpl> characterImpl);
 			void SetLinearVelocity(const Vector3f& linearVel);
+			void SetObjectLayer(PhysObjectLayer3D objectLayer);
 			void SetRotation(const Quaternionf& rotation);
 			void SetUp(const Vector3f& up);
 
