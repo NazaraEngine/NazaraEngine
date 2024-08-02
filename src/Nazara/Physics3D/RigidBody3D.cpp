@@ -124,6 +124,17 @@ namespace Nz
 		return m_bodyIndex;
 	}
 
+	std::pair<Vector3f, Vector3f> RigidBody3D::GetLinearAndAngularVelocity() const
+	{
+		JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterfaceNoLock();
+
+		JPH::Vec3 angularVel;
+		JPH::Vec3 linearVel;
+		bodyInterface.GetLinearAndAngularVelocity(m_body->GetID(), linearVel, angularVel);
+
+		return { FromJolt(linearVel), FromJolt(angularVel) };
+	}
+
 	float RigidBody3D::GetLinearDamping() const
 	{
 		if NAZARA_UNLIKELY(IsStatic())
@@ -229,6 +240,12 @@ namespace Nz
 				m_body->GetMotionProperties()->SetMassProperties(JPH::EAllowedDOFs::All, massProperties);
 			}
 		}
+	}
+
+	void RigidBody3D::SetLinearAndAngularVelocity(const Vector3f& linearVelocity, const Vector3f& angularVelocity)
+	{
+		JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterfaceNoLock();
+		bodyInterface.SetLinearAndAngularVelocity(m_body->GetID(), ToJolt(linearVelocity), ToJolt(angularVelocity));
 	}
 
 	void RigidBody3D::SetLinearDamping(float damping)

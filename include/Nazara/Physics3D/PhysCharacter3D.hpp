@@ -44,9 +44,11 @@ namespace Nz
 			inline void DisableSleeping();
 			void EnableSleeping(bool enable);
 
+			Vector3f GetAngularVelocity() const;
 			UInt32 GetBodyIndex() const override;
 			inline const std::shared_ptr<Collider3D>& GetCollider() const;
 			Vector3f GetLinearVelocity() const;
+			std::pair<Vector3f, Vector3f> GetLinearAndAngularVelocity() const;
 			PhysObjectLayer3D GetObjectLayer() const;
 			inline PhysWorld3D& GetPhysWorld();
 			inline const PhysWorld3D& GetPhysWorld() const;
@@ -57,8 +59,10 @@ namespace Nz
 
 			bool IsOnGround() const;
 
+			void SetAngularVelocity(const Vector3f& angularVelocity);
 			void SetFriction(float friction);
 			inline void SetImpl(std::shared_ptr<PhysCharacter3DImpl> characterImpl);
+			void SetLinearAndAngularVelocity(const Vector3f& linearVelocity, const Vector3f& angularVelocity);
 			void SetLinearVelocity(const Vector3f& linearVel);
 			void SetObjectLayer(PhysObjectLayer3D objectLayer);
 			void SetRotation(const Quaternionf& rotation);

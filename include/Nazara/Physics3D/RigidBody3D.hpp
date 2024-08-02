@@ -58,6 +58,7 @@ namespace Nz
 			inline const JPH::Body* GetBody() const;
 			UInt32 GetBodyIndex() const override;
 			inline const std::shared_ptr<Collider3D>& GetGeom() const;
+			std::pair<Vector3f, Vector3f> GetLinearAndAngularVelocity() const;
 			float GetLinearDamping() const;
 			Vector3f GetLinearVelocity() const;
 			float GetMass() const;
@@ -76,6 +77,7 @@ namespace Nz
 			void SetAngularDamping(float angularDamping);
 			void SetAngularVelocity(const Vector3f& angularVelocity);
 			void SetGeom(std::shared_ptr<Collider3D> geom, bool recomputeInertia = true);
+			void SetLinearAndAngularVelocity(const Vector3f& linearVelocity, const Vector3f& angularVelocity);
 			void SetLinearDamping(float damping);
 			void SetLinearVelocity(const Vector3f& velocity);
 			void SetMass(float mass, bool recomputeInertia = true);

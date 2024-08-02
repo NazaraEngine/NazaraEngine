@@ -57,6 +57,12 @@ namespace Nz
 		bodyLock.GetBody().SetAllowSleeping(enable);
 	}
 
+	Vector3f PhysCharacter3D::GetAngularVelocity() const
+	{
+		JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterfaceNoLock();
+		return FromJolt(bodyInterface.GetAngularVelocity(m_character->GetBodyID()));
+	}
+
 	UInt32 PhysCharacter3D::GetBodyIndex() const
 	{
 		return m_bodyIndex;
@@ -65,6 +71,17 @@ namespace Nz
 	Vector3f PhysCharacter3D::GetLinearVelocity() const
 	{
 		return FromJolt(m_character->GetLinearVelocity(false));
+	}
+
+	std::pair<Vector3f, Vector3f> PhysCharacter3D::GetLinearAndAngularVelocity() const
+	{
+		JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterfaceNoLock();
+
+		JPH::Vec3 angularVel;
+		JPH::Vec3 linearVel;
+		bodyInterface.GetLinearAndAngularVelocity(m_character->GetBodyID(), linearVel, angularVel);
+
+		return { FromJolt(linearVel), FromJolt(angularVel) };
 	}
 
 	PhysObjectLayer3D PhysCharacter3D::GetObjectLayer() const
@@ -102,10 +119,21 @@ namespace Nz
 		return m_character->GetGroundState() == JPH::Character::EGroundState::OnGround;
 	}
 
+	void PhysCharacter3D::SetAngularVelocity(const Vector3f& angularVelocity)
+	{
+		JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterfaceNoLock();
+		bodyInterface.SetAngularVelocity(m_character->GetBodyID(), ToJolt(angularVelocity));
+	}
+
 	void PhysCharacter3D::SetFriction(float friction)
 	{
 		JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterfaceNoLock();
 		bodyInterface.SetFriction(m_character->GetBodyID(), friction);
+	}
+
+	void PhysCharacter3D::SetLinearAndAngularVelocity(const Vector3f& linearVelocity, const Vector3f& angularVelocity)
+	{
+		m_character->SetLinearAndAngularVelocity(ToJolt(linearVelocity), ToJolt(angularVelocity), false);
 	}
 
 	void PhysCharacter3D::SetLinearVelocity(const Vector3f& linearVel)
