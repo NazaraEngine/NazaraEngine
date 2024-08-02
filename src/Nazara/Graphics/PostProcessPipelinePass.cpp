@@ -60,11 +60,11 @@ namespace Nz
 		if (inputOuputs.depthStencilOutput != InvalidAttachmentIndex)
 			throw std::runtime_error("unexpected depth-stencil output");
 
-		std::size_t inputColorBufferIndex = inputOuputs.inputAttachments[0];
+		std::size_t inputColorBufferIndex = inputOuputs.inputAttachments[0].attachmentIndex;
 
 		FramePass& postProcess = frameGraph.AddPass(m_passName);
 		postProcess.AddInput(inputColorBufferIndex);
-		postProcess.AddOutput(inputOuputs.outputAttachments[0]);
+		postProcess.AddOutput(inputOuputs.outputAttachments[0].attachmentIndex);
 
 		postProcess.SetExecutionCallback([&]
 		{

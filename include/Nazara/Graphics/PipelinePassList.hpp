@@ -62,6 +62,8 @@ namespace Nz
 			inline void SetPassDepthStencilOutput(std::size_t passIndex, std::size_t attachmentIndex);
 			inline void SetPassInput(std::size_t passIndex, std::size_t inputIndex, std::size_t attachmentIndex);
 			inline void SetPassOutput(std::size_t passIndex, std::size_t outputIndex, std::size_t attachmentIndex);
+			inline void SetPassOutputClearColor(std::size_t passIndex, std::size_t outputIndex, const Color& clearColor);
+			inline void SetPassOutputClearColor(std::size_t passIndex, std::size_t outputIndex, FramePipelinePass::ViewerClearColor);
 
 			PipelinePassList& operator=(const PipelinePassList&) = delete;
 			PipelinePassList& operator=(PipelinePassList&&) = delete;
@@ -81,6 +83,12 @@ namespace Nz
 				std::size_t attachmentIndex;
 			};
 
+			struct PassOutput
+			{
+				std::size_t attachmentIndex = NoAttachment;
+				std::variant<std::monostate, FramePipelinePass::ViewerClearColor, Color> clearColor;
+			};
+
 			struct Pass
 			{
 				std::size_t depthStencilInput = NoAttachment;
@@ -88,7 +96,7 @@ namespace Nz
 				std::size_t implIndex;
 				std::string name;
 				FixedVector<std::size_t /*attachmentIndex*/, MaxPassAttachment> inputs;
-				FixedVector<std::size_t /*attachmentIndex*/, MaxPassAttachment> outputs;
+				FixedVector<PassOutput, MaxPassAttachment> outputs;
 				FramePipelinePassFlags flags;
 				ParameterList parameterList;
 			};

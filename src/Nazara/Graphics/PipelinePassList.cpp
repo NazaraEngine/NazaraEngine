@@ -81,13 +81,16 @@ namespace Nz
 		{
 			const Pass& passData = m_passes[passIndex];
 
-			std::array<std::size_t, MaxPassAttachment> inputs;
+			std::array<FramePipelinePass::PassInputData, MaxPassAttachment> inputs;
 			for (std::size_t i = 0; i < passData.inputs.size(); ++i)
-				inputs[i] = GetAttachmentIndex(passData.inputs[i]);
+				inputs[i].attachmentIndex = GetAttachmentIndex(passData.inputs[i]);
 
-			std::array<std::size_t, MaxPassAttachment> outputs;
+			std::array<FramePipelinePass::PassOutputData, MaxPassAttachment> outputs;
 			for (std::size_t i = 0; i < passData.outputs.size(); ++i)
-				outputs[i] = GetAttachmentIndex(passData.outputs[i]);
+			{
+				outputs[i].attachmentIndex = GetAttachmentIndex(passData.outputs[i].attachmentIndex);
+				outputs[i].clearColor = passData.outputs[i].clearColor;
+			}
 
 			FramePipelinePass::PassInputOuputs passInputOuputs;
 			passInputOuputs.depthStencilInput = GetAttachmentIndex(passData.depthStencilInput);

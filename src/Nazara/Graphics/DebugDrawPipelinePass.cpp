@@ -35,8 +35,8 @@ namespace Nz
 			throw std::runtime_error("one output expected");
 
 		FramePass& debugDrawPass = frameGraph.AddPass("Debug draw pass");
-		debugDrawPass.AddInput(inputOuputs.inputAttachments[0]);
-		debugDrawPass.AddOutput(inputOuputs.outputAttachments[0]);
+		debugDrawPass.AddInput(inputOuputs.inputAttachments[0].attachmentIndex);
+		debugDrawPass.AddOutput(inputOuputs.outputAttachments[0].attachmentIndex);
 
 		if (inputOuputs.depthStencilInput != InvalidAttachmentIndex)
 			debugDrawPass.SetDepthStencilInput(inputOuputs.depthStencilInput);
