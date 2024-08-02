@@ -64,9 +64,25 @@ namespace Nz
 		assert(outputIndex < MaxPassAttachment);
 
 		if (outputIndex >= pass.outputs.size())
-			pass.outputs.resize(outputIndex + 1, NoAttachment);
+			pass.outputs.resize(outputIndex + 1);
 
-		pass.outputs[outputIndex] = attachmentIndex;
+		pass.outputs[outputIndex].attachmentIndex = attachmentIndex;
+	}
+
+	inline void PipelinePassList::SetPassOutputClearColor(std::size_t passIndex, std::size_t outputIndex, const Color& clearColor)
+	{
+		assert(passIndex < m_passes.size());
+		auto& pass = m_passes[passIndex];
+		assert(outputIndex < MaxPassAttachment);
+		pass.outputs[outputIndex].clearColor = clearColor;
+	}
+
+	inline void PipelinePassList::SetPassOutputClearColor(std::size_t passIndex, std::size_t outputIndex, FramePipelinePass::ViewerClearColor)
+	{
+		assert(passIndex < m_passes.size());
+		auto& pass = m_passes[passIndex];
+		assert(outputIndex < MaxPassAttachment);
+		pass.outputs[outputIndex].clearColor = FramePipelinePass::ViewerClearColor{};
 	}
 
 	inline void PipelinePassList::SetPassDepthStencilInput(std::size_t passIndex, std::size_t attachmentIndex)
