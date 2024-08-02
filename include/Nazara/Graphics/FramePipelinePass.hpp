@@ -57,6 +57,8 @@ namespace Nz
 			FramePipelinePass& operator=(const FramePipelinePass&) = delete;
 			FramePipelinePass& operator=(FramePipelinePass&&) = delete;
 
+			struct ViewerClearColor {};
+
 			struct FrameData
 			{
 				const Bitset<UInt64>* visibleLights;
@@ -73,10 +75,21 @@ namespace Nz
 				FramePipeline& pipeline;
 			};
 
+			struct PassInputData
+			{
+				std::size_t attachmentIndex;
+			};
+
+			struct PassOutputData
+			{
+				std::size_t attachmentIndex;
+				std::variant<std::monostate, ViewerClearColor, Color> clearColor;
+			};
+
 			struct PassInputOuputs
 			{
-				std::span<const std::size_t> inputAttachments;
-				std::span<const std::size_t> outputAttachments;
+				std::span<const PassInputData> inputAttachments;
+				std::span<const PassOutputData> outputAttachments;
 				std::size_t depthStencilInput = InvalidAttachmentIndex;
 				std::size_t depthStencilOutput = InvalidAttachmentIndex;
 			};
