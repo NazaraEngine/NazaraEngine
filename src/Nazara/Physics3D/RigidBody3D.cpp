@@ -418,7 +418,6 @@ namespace Nz
 		creationSettings.mGravityFactor = settings.gravityFactor;
 		creationSettings.mMaxAngularVelocity = settings.maxAngularVelocity;
 		creationSettings.mMaxLinearVelocity = settings.maxLinearVelocity;
-		creationSettings.mObjectLayer = 1;
 		creationSettings.mRestitution = settings.restitution;
 
 		creationSettings.mMotionType = (settings.mass > 0.f) ? JPH::EMotionType::Dynamic : JPH::EMotionType::Kinematic;
