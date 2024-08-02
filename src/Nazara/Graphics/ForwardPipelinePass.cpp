@@ -153,7 +153,7 @@ namespace Nz
 			throw std::runtime_error("expected depth-stencil output");
 
 		FramePass& forwardPass = frameGraph.AddPass(m_passName);
-		forwardPass.AddOutput(inputOuputs.outputAttachments[0]);
+		forwardPass.AddOutput(inputOuputs.outputAttachments[0].attachmentIndex);
 		if (inputOuputs.depthStencilInput != FramePipelinePass::InvalidAttachmentIndex)
 			forwardPass.SetDepthStencilInput(inputOuputs.depthStencilInput);
 		else

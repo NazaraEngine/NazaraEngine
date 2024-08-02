@@ -126,7 +126,7 @@ local modules = {
 	Graphics = {
 		Option = "graphics",
 		Deps = {"NazaraRenderer", "NazaraTextRenderer"},
-		Packages = {"entt"}
+		Packages = {"entt", "fast_float"}
 	},
 	Physics2D = {
 		Option = "physics2d",
@@ -315,6 +315,10 @@ if has_config("audio") then
 		-- OpenAL is supported as a system library on wasm
 		add_requires("openal-soft", { configs = { shared = true }})
 	end
+end
+
+if has_config("graphics") then
+	add_requires("fast_float")
 end
 
 if has_config("physics2d") then
