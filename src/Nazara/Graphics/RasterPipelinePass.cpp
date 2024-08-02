@@ -119,25 +119,40 @@ namespace Nz
 		if (inputOuputs.inputAttachments.size() > 0)
 			throw std::runtime_error("no input expected");
 
-		if (inputOuputs.outputAttachments.size() > 0)
-			throw std::runtime_error("no output expected");
-
-		if (inputOuputs.depthStencilInput != InvalidAttachmentIndex)
-			throw std::runtime_error("no depth-stencil input expected");
-
 		if (inputOuputs.depthStencilOutput == InvalidAttachmentIndex)
 			throw std::runtime_error("expected depth-stencil output");
 
-		FramePass& depthPrepass = frameGraph.AddPass(m_passName);
-		depthPrepass.SetDepthStencilOutput(inputOuputs.depthStencilOutput);
-		depthPrepass.SetDepthStencilClear(1.f, 0);
+		FramePass& pass = frameGraph.AddPass(m_passName);
+		for (auto&& outputData : inputOuputs.outputAttachments)
+		{
+			std::size_t outputIndex = pass.AddOutput(outputData.attachmentIndex);
 
-		depthPrepass.SetExecutionCallback([&]
+			std::visit(Nz::Overloaded{
+				[](std::monostate) {},
+				[&](const Color& color)
+				{
+					pass.SetClearColor(outputIndex, color);
+				},
+				[&](ViewerClearColor)
+				{
+					pass.SetClearColor(outputIndex, m_viewer->GetClearColor());
+				}
+			}, outputData.clearColor);
+		}
+
+		if (inputOuputs.depthStencilInput != FramePipelinePass::InvalidAttachmentIndex)
+			pass.SetDepthStencilInput(inputOuputs.depthStencilInput);
+		else
+			pass.SetDepthStencilClear(1.f, 0);
+
+		pass.SetDepthStencilOutput(inputOuputs.depthStencilOutput);
+
+		pass.SetExecutionCallback([&]
 		{
 			return (m_rebuildCommandBuffer) ? FramePassExecution::UpdateAndExecute : FramePassExecution::Execute;
 		});
 
-		depthPrepass.SetCommandCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& /*env*/)
+		pass.SetCommandCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& /*env*/)
 		{
 			Recti viewport = m_viewer->GetViewport();
 
@@ -155,7 +170,7 @@ namespace Nz
 			m_rebuildCommandBuffer = false;
 		});
 
-		return depthPrepass;
+		return pass;
 	}
 
 	void RasterPipelinePass::UnregisterMaterialInstance(const MaterialInstance& materialInstance)
@@ -185,6 +200,6 @@ namespace Nz
 		}
 		// TODO: Log error if key is present but not of the right type
 
-		throw std::runtime_error("DepthPipelinePass expect either MatPass or MatPassIndex parameter");
+		throw std::runtime_error("RasterPipelinePass expect either MatPass or MatPassIndex parameter");
 	}
 }
