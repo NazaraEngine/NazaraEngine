@@ -40,6 +40,8 @@ namespace Nz
 
 			virtual void BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix = Matrix4f::Identity()) const = 0;
 
+			bool CollisionQuery(const Vector3f& point) const;
+
 			virtual std::shared_ptr<StaticMesh> GenerateDebugMesh() const;
 
 			inline JPH::ShapeSettings* GetShapeSettings() const;

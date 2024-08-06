@@ -12,6 +12,7 @@
 #include <Nazara/Physics3D/JoltHelper.hpp>
 #include <NazaraUtils/StackArray.hpp>
 #include <Jolt/Core/Core.h>
+#include <Jolt/Physics/Collision/CollisionCollectorImpl.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
 #include <Jolt/Physics/Collision/Shape/ConvexHullShape.h>
@@ -27,6 +28,19 @@ namespace Nz
 {
 	Collider3D::Collider3D() = default;
 	Collider3D::~Collider3D() = default;
+
+	bool Collider3D::CollisionQuery(const Vector3f& point) const
+	{
+		auto result = m_shapeSettings->Create();
+		if (result.HasError())
+			throw std::runtime_error(std::string("shape creation failed: ") + result.GetError().c_str());
+
+		JPH::AnyHitCollisionCollector<JPH::CollidePointCollector> collector;
+
+		result.Get()->CollidePoint(ToJolt(point), JPH::SubShapeIDCreator{}, collector);
+
+		return collector.HadHit();
+	}
 
 	std::shared_ptr<StaticMesh> Collider3D::GenerateDebugMesh() const
 	{
