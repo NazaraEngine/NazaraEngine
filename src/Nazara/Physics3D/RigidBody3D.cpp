@@ -226,13 +226,17 @@ namespace Nz
 	{
 		if (m_geom != geom)
 		{
-			float mass = GetMass();
+			float mass;
+			if (m_body->IsDynamic())
+				mass = GetMass();
 
 			const JPH::Shape* shape;
 			m_geom = std::move(geom);
 			if (m_geom)
 			{
-				m_body->SetIsSensor(false);
+				if (!m_isTrigger)
+					m_body->SetIsSensor(false);
+
 				shape = m_geom->GetShapeSettings()->Create().Get();
 			}
 			else
@@ -243,7 +247,7 @@ namespace Nz
 
 			JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterface();
 			bodyInterface.SetShape(m_body->GetID(), shape, false, (ShouldActivate()) ? JPH::EActivation::Activate : JPH::EActivation::DontActivate);
-			if (recomputeInertia)
+			if (recomputeInertia && m_body->IsDynamic())
 			{
 				JPH::MassProperties massProperties = m_body->GetShape()->GetMassProperties();
 				massProperties.ScaleToMass(mass);
