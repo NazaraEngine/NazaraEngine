@@ -18,7 +18,7 @@ namespace Nz
 		Mesh,
 		Sphere,
 
-		ScaleDecoration,
+		ScaledDecoration,
 		TranslatedRotatedDecoration,
 
 		Max = TranslatedRotatedDecoration

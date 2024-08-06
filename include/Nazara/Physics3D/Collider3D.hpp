@@ -149,6 +149,20 @@ namespace Nz
 
 	/*********************************** Decorated ******************************************/
 
+	class NAZARA_PHYSICS3D_API ScaledCollider3D final : public Collider3D
+	{
+		public:
+			inline ScaledCollider3D(std::shared_ptr<Collider3D> collider, const Vector3f& scale);
+			~ScaledCollider3D();
+
+			void BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const override;
+
+			ColliderType3D GetType() const override;
+
+		private:
+			std::shared_ptr<Collider3D> m_collider;
+	};
+
 	class NAZARA_PHYSICS3D_API TranslatedRotatedCollider3D final : public Collider3D
 	{
 		public:
@@ -164,7 +178,6 @@ namespace Nz
 		private:
 			std::shared_ptr<Collider3D> m_collider;
 	};
-
 }
 
 #include <Nazara/Physics3D/Collider3D.inl>

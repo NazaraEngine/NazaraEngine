@@ -17,6 +17,7 @@
 #include <Jolt/Physics/Collision/Shape/ConvexHullShape.h>
 #include <Jolt/Physics/Collision/Shape/MeshShape.h>
 #include <Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h>
+#include <Jolt/Physics/Collision/Shape/ScaledShape.h>
 #include <Jolt/Physics/Collision/Shape/SphereShape.h>
 #include <Jolt/Physics/Collision/Shape/StaticCompoundShape.h>
 #include <optional>
@@ -432,6 +433,32 @@ namespace Nz
 	ColliderType3D SphereCollider3D::GetType() const
 	{
 		return ColliderType3D::Sphere;
+	}
+
+	/******************************** ScaledCollider3D *********************************/
+
+	ScaledCollider3D::ScaledCollider3D(std::shared_ptr<Collider3D> collider, const Vector3f& scale) :
+	m_collider(std::move(collider))
+	{
+		SetupShapeSettings(std::make_unique<JPH::ScaledShapeSettings>(m_collider->GetShapeSettings(), ToJolt(scale)));
+	}
+
+	ScaledCollider3D::~ScaledCollider3D()
+	{
+		// We have to destroy shape settings first as it carries references on the inner collider
+		ResetShapeSettings();
+	}
+
+	void ScaledCollider3D::BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const
+	{
+		const JPH::ScaledShapeSettings* settings = GetShapeSettingsAs<JPH::ScaledShapeSettings>();
+
+		m_collider->BuildDebugMesh(vertices, indices, offsetMatrix * Matrix4f::Scale(FromJolt(settings->mScale)));
+	}
+
+	ColliderType3D ScaledCollider3D::GetType() const
+	{
+		return ColliderType3D::ScaledDecoration;
 	}
 
 	/******************************** TranslatedRotatedCollider3D *********************************/
