@@ -8,17 +8,21 @@
 #define NAZARA_PHYSICS3D_JOLTHELPER_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Jolt/Jolt.h>
+#include <Jolt/Geometry/AABox.h>
 
 namespace Nz
 {
+	inline Boxf FromJolt(const JPH::AABox& aabb);
 	inline Quaternionf FromJolt(const JPH::Quat& quat);
 	inline Matrix4f FromJolt(const JPH::Mat44& matrix);
 	inline Vector3f FromJolt(const JPH::Vec3& vec);
 
+	inline JPH::AABox ToJolt(const Boxf& aabb);
 	inline JPH::Mat44 ToJolt(const Matrix4f& transformMatrix);
 	inline JPH::Quat ToJolt(const Quaternionf& quaternion);
 	inline JPH::Vec3 ToJolt(const Vector3f& vec);

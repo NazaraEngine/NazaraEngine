@@ -12,6 +12,7 @@
 #include <Nazara/Physics3D/JoltHelper.hpp>
 #include <NazaraUtils/StackArray.hpp>
 #include <Jolt/Core/Core.h>
+#include <Jolt/Physics/Collision/CollidePointResult.h>
 #include <Jolt/Physics/Collision/CollisionCollectorImpl.h>
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
@@ -58,6 +59,30 @@ namespace Nz
 		return colliderSubMesh;
 	}
 
+	Boxf Collider3D::GetBoundingBox() const
+	{
+		auto result = m_shapeSettings->Create();
+		if (result.HasError())
+			throw std::runtime_error(std::string("shape creation failed: ") + result.GetError().c_str());
+
+		return FromJolt(result.Get()->GetLocalBounds());
+	}
+
+	void Collider3D::ResetShapeSettings()
+	{
+		m_shapeSettings.reset();
+	}
+
+	void Collider3D::SetupShapeSettings(std::unique_ptr<JPH::ShapeSettings>&& shapeSettings)
+	{
+		assert(!m_shapeSettings);
+		m_shapeSettings = std::move(shapeSettings);
+		m_shapeSettings->SetEmbedded();
+
+		if (auto result = m_shapeSettings->Create(); result.HasError())
+			throw std::runtime_error(std::string("shape creation failed: ") + result.GetError().c_str());
+	}
+
 	std::shared_ptr<Collider3D> Collider3D::Build(const PrimitiveList& list)
 	{
 		std::size_t primitiveCount = list.GetSize();
@@ -79,21 +104,6 @@ namespace Nz
 			return CreateGeomFromPrimitive(list.GetPrimitive(0));
 		else
 			return nullptr;// std::make_shared<NullCollider3D>();  //< TODO
-	}
-
-	void Collider3D::ResetShapeSettings()
-	{
-		m_shapeSettings.reset();
-	}
-
-	void Collider3D::SetupShapeSettings(std::unique_ptr<JPH::ShapeSettings>&& shapeSettings)
-	{
-		assert(!m_shapeSettings);
-		m_shapeSettings = std::move(shapeSettings);
-		m_shapeSettings->SetEmbedded();
-
-		if (auto result = m_shapeSettings->Create(); result.HasError())
-			throw std::runtime_error(std::string("shape creation failed: ") + result.GetError().c_str());
 	}
 
 	std::shared_ptr<Collider3D> Collider3D::CreateGeomFromPrimitive(const Primitive& primitive)

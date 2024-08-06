@@ -2,9 +2,13 @@
 // This file is part of the "Nazara Engine - Physics3D module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-
 namespace Nz
 {
+	Boxf FromJolt(const JPH::AABox& aabb)
+	{
+		return Boxf(FromJolt(aabb.mMin), FromJolt(aabb.GetSize()));
+	}
+
 	Quaternionf FromJolt(const JPH::Quat& quat)
 	{
 		return Quaternionf(quat.GetW(), quat.GetX(), quat.GetY(), quat.GetZ());
@@ -27,6 +31,11 @@ namespace Nz
 	inline Vector3f FromJolt(const JPH::Vec3& vec)
 	{
 		return Vector3f(vec.GetX(), vec.GetY(), vec.GetZ());
+	}
+
+	inline JPH::AABox ToJolt(const Boxf& aabb)
+	{
+		return JPH::AABox(ToJolt(aabb.GetMinimum()), ToJolt(aabb.GetMaximum()));
 	}
 
 	inline JPH::Mat44 ToJolt(const Matrix4f& transformMatrix)
