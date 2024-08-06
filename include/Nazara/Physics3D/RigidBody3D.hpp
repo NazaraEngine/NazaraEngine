@@ -69,6 +69,8 @@ namespace Nz
 			Quaternionf GetRotation() const;
 			inline PhysWorld3D& GetWorld() const;
 
+			bool IsDynamic() const;
+			bool IsKinematic() const;
 			inline bool IsSimulationEnabled() const;
 			bool IsSleeping() const;
 			bool IsSleepingEnabled() const;

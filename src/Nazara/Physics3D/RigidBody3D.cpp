@@ -184,6 +184,16 @@ namespace Nz
 		return FromJolt(m_body->GetRotation());
 	}
 
+	bool RigidBody3D::IsDynamic() const
+	{
+		return m_body->IsDynamic();
+	}
+
+	bool RigidBody3D::IsKinematic() const
+	{
+		return m_body->IsKinematic();
+	}
+
 	bool RigidBody3D::IsSleeping() const
 	{
 		return !m_body->IsActive();
