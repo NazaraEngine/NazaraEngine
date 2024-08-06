@@ -360,6 +360,14 @@ if has_config("renderer") then
 			elseif is_plat("mingw") then
 				return false
 			end
+		elseif os.host() == "macosx" then
+			if is_plat("macosx") then
+				-- x86_64 macos cannot execute arm64 binaries
+				if os.arch() == "x86_64" and is_arch("arm64") then
+					return false
+				end
+				return false
+			end
 		end
 		if not is_plat(os.host()) and not is_plat(os.subhost()) then
 			return true
