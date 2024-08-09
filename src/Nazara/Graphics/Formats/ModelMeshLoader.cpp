@@ -41,7 +41,7 @@ namespace Nz::Loaders
 			{
 				for (std::size_t matIndex = 0; matIndex < model->GetMaterialCount(); ++matIndex)
 				{
-					if (std::shared_ptr<MaterialInstance> matInstance = MaterialInstance::Build(mesh->GetMaterialData(matIndex)))
+					if (std::shared_ptr<MaterialInstance> matInstance = MaterialInstance::Build(mesh->GetMaterialData(mesh->GetSubMesh(matIndex)->GetMaterialIndex())))
 						model->SetMaterial(matIndex, std::move(matInstance));
 				}
 			}
