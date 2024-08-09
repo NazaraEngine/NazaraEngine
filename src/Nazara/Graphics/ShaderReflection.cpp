@@ -168,7 +168,7 @@ namespace Nz
 		if (node.description.layout.GetResultingValue() != nzsl::Ast::MemoryLayout::Std140)
 			throw std::runtime_error("unexpected layout for struct " + node.description.name);
 
-		if (node.description.isConditional || m_isConditional)
+		if (node.description.conditionIndex != 0 || m_isConditional)
 			throw std::runtime_error("struct " + node.description.name + " condition must be resolved");
 
 		StructData structData(nzsl::StructLayout::Std140);
