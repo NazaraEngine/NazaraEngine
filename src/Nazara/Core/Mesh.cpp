@@ -565,14 +565,6 @@ namespace Nz
 		m_animationPath = animationPath;
 	}
 
-	void Mesh::SetMaterialData(std::size_t matIndex, ParameterList data)
-	{
-		NazaraAssert(m_isValid, "Mesh should be created first");
-		NazaraAssert(matIndex < m_materialData.size(), "Material index out of range");
-
-		m_materialData[matIndex] = std::move(data);
-	}
-
 	void Mesh::SetMaterialCount(std::size_t matCount)
 	{
 		NazaraAssert(m_isValid, "Mesh should be created first");
@@ -591,6 +583,14 @@ namespace Nz
 			}
 		}
 #endif
+	}
+
+	void Mesh::SetMaterialData(std::size_t matIndex, ParameterList data)
+	{
+		NazaraAssert(m_isValid, "Mesh should be created first");
+		NazaraAssert(matIndex < m_materialData.size(), "Material index out of range");
+
+		m_materialData[matIndex] = std::move(data);
 	}
 
 	void Mesh::Transform(const Matrix4f& matrix)
