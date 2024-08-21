@@ -50,7 +50,7 @@ jobs:
     - name: Setup xmake
       uses: xmake-io/github-action-setup-xmake@v1
       with:
-        xmake-version: branch@dev
+        xmake-version: branch@toolchain
         actions-cache-folder: .xmake-cache-W${{ steps.cache_key.outputs.key }}
 
     # Update xmake repository (in order to have the file that will be cached)
@@ -72,7 +72,7 @@ jobs:
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
-      run: xmake config --arch=${{ matrix.arch }} --mode=${{ matrix.confs.mode }} --static=${{ matrix.kind == 'static' && 'yes' || 'no' }} ${{ matrix.confs.config }} --ccache=n --ffmpeg=y --shadernodes=y --tests=y --unitybuild=y --yes
+      run: xmake config --arch=${{ matrix.arch }} --mode=${{ matrix.confs.mode }} --static=${{ matrix.kind == 'static' && 'yes' || 'no' }} ${{ matrix.confs.config }} --ccache=n --ffmpeg=y --shadernodes=y --tests=y --unitybuild=y --yes -vD
 
     # Save dependencies
     - name: Save cached xmake dependencies
@@ -92,7 +92,7 @@ jobs:
 
     # Build the engine
     - name: Build Nazara
-      run: xmake --yes
+      run: xmake --yes -vD
 
     - name: Save downloaded assets
       if: ${{ !steps.restore-assets.outputs.cache-hit }}
