@@ -97,6 +97,7 @@ namespace Nz
 
 	inline void FrameGraph::BindExternalTexture(std::size_t attachmentIndex, std::shared_ptr<Texture> texture)
 	{
+		attachmentIndex = ResolveAttachmentIndex(attachmentIndex);
 		m_externalTextures[attachmentIndex] = std::move(texture);
 	}
 }

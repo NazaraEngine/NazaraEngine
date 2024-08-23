@@ -1071,19 +1071,16 @@ namespace Nz
 
 		auto CheckExternalTexture = [this](std::size_t attachmentIndex, FrameGraphTextureData& data)
 		{
-			// Check if texture
+			attachmentIndex = ResolveAttachmentIndex(attachmentIndex);
+
+			// Check if texture is bound to an external texture
 			if (auto externalIt = m_externalTextures.find(attachmentIndex); externalIt != m_externalTextures.end())
 			{
 				if (data.viewData)
 					throw std::runtime_error("texture views cannot be bound to external textures");
 
-				data.externalTexture = externalIt->second;
-				data.canReuse = false;
-				data.size = FramePassAttachmentSize::Fixed;
-
-				const TextureInfo& textureInfo = data.externalTexture->GetTextureInfo();
-				data.width = textureInfo.width;
-				data.height = textureInfo.height;
+				const std::shared_ptr<Texture>& externalTexture = externalIt->second;
+				const TextureInfo& textureInfo = externalTexture->GetTextureInfo();
 
 				// Check that texture settings match
 				if (textureInfo.type != data.type)
@@ -1094,6 +1091,12 @@ namespace Nz
 
 				if (textureInfo.pixelFormat != data.format)
 					throw std::runtime_error("external texture format doesn't match attachment type");
+
+				data.canReuse = false;
+				data.externalTexture = externalTexture;
+				data.size = FramePassAttachmentSize::Fixed;
+				data.width = textureInfo.width;
+				data.height = textureInfo.height;
 			}
 		};
 
@@ -1262,9 +1265,6 @@ namespace Nz
 
 				std::size_t textureId = RegisterTexture(proxy.attachmentId);
 				m_pending.attachmentToTextures.emplace(attachmentIndex, textureId);
-
-				if (m_externalTextures.contains(proxy.attachmentId))
-					throw std::runtime_error("proxy attachments cannot be bound to external textures");
 
 				if (std::find(m_graphOutputs.begin(), m_graphOutputs.end(), attachmentIndex) != m_graphOutputs.end())
 					m_pending.textures[textureId].canReuse = false;
