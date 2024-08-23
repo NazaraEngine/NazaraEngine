@@ -52,7 +52,7 @@ jobs:
 
     # Update xmake repository (in order to have the file that will be cached)
     - name: Update xmake repository
-      run: xmake repo --update
+      run: xmake repo --update -vD
 
     # Fetch xmake dephash
     - name: Retrieve dependencies hash
