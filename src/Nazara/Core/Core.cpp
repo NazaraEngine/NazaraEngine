@@ -34,7 +34,6 @@ namespace Nz
 	* \class Nz::Core
 	* \brief Core class that represents the Core module
 	*/
-
 	Core::Core(Config /*config*/) :
 	ModuleBase("Core", this, ModuleBase::NoLog{})
 	{
