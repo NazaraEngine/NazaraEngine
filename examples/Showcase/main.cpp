@@ -426,11 +426,12 @@ int main(int argc, char* argv[])
 	entt::handle tvCameraEntity = world.CreateEntity();
 	{
 		auto& cameraNode = tvCameraEntity.emplace<Nz::NodeComponent>();
-		//cameraNode.SetParentJoint(bobEntity, "Head");
+		cameraNode.SetParentJoint(bobEntity, "mixamorig:Head");
 		//cameraNode.SetRotation(Nz::EulerAnglesf(-30.f, 180.f, 0.f));
-		cameraNode.SetParent(playerCamera);
+		//cameraNode.SetParent(playerCamera);
 
 		auto& cameraComponent = tvCameraEntity.emplace<Nz::CameraComponent>(std::make_shared<Nz::RenderTexture>(screenTexture));
+		//auto& cameraComponent = tvCameraEntity.emplace<Nz::CameraComponent>(std::make_shared<Nz::RenderTextureBlit>(Nz::Vector2ui(480, 360), screenTexture));
 		cameraComponent.UpdateZNear(0.2f);
 		cameraComponent.UpdateZFar(1000.f);
 		cameraComponent.UpdateRenderMask(1);
