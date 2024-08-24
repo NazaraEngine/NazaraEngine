@@ -16,7 +16,6 @@
 	#error OS not handled
 #endif
 
-
 namespace Nz
 {
 	namespace NAZARA_ANONYMOUS_NAMESPACE

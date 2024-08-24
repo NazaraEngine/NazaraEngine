@@ -41,7 +41,7 @@ namespace Nz
 
 			constexpr explicit operator Int64() const;
 
-			template<class Rep, class Period> static constexpr Time FromDuration(const std::chrono::duration<Rep, Period>& d);
+			template<class Rep, class Period> static constexpr Time FromDuration(const std::chrono::duration<Rep, Period>& duration);
 			static constexpr Time Microsecond();
 			static constexpr Time Microseconds(Int64 microseconds);
 			static constexpr Time Millisecond();
@@ -73,8 +73,8 @@ namespace Nz
 
 			friend NAZARA_CORE_API std::ostream& operator<<(std::ostream& out, Time time);
 
-			friend inline bool Serialize(SerializationContext& context, Time time, TypeTag<Time>);
 			friend inline bool Deserialize(SerializationContext& context, Time* time, TypeTag<Time>);
+			friend inline bool Serialize(SerializationContext& context, Time time, TypeTag<Time>);
 
 		private:
 			constexpr explicit Time(Int64 nanoseconds);

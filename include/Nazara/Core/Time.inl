@@ -2,7 +2,6 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-
 namespace Nz
 {
 	constexpr Time::Time(Int64 nanoseconds) :
@@ -85,9 +84,9 @@ namespace Nz
 	}
 
 	template<class Rep, class Period>
-	constexpr Time Time::FromDuration(const std::chrono::duration<Rep, Period>& d)
+	constexpr Time Time::FromDuration(const std::chrono::duration<Rep, Period>& duration)
 	{
-		return Nanoseconds(std::chrono::duration_cast<std::chrono::nanoseconds>(d).count());
+		return Nanoseconds(std::chrono::duration_cast<std::chrono::nanoseconds>(duration).count());
 	}
 
 	constexpr Time Time::Microsecond()
@@ -211,17 +210,17 @@ namespace Nz
 		return lhs.m_nanoseconds >= rhs.m_nanoseconds;
 	}
 
-	inline bool Serialize(SerializationContext& context, Time time, TypeTag<Time>)
+	inline bool Deserialize(SerializationContext& context, Time* time, TypeTag<Time>)
 	{
-		if (!Serialize(context, time.m_nanoseconds))
+		if (!Deserialize(context, &time->m_nanoseconds))
 			return false;
 
 		return true;
 	}
 
-	inline bool Deserialize(SerializationContext& context, Time* time, TypeTag<Time>)
+	inline bool Serialize(SerializationContext& context, Time time, TypeTag<Time>)
 	{
-		if (!Deserialize(context, &time->m_nanoseconds))
+		if (!Serialize(context, time.m_nanoseconds))
 			return false;
 
 		return true;
