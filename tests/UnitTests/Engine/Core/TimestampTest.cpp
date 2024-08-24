@@ -30,8 +30,9 @@ SCENARIO("Timestamp", "[CORE][Timestamp]")
 		CHECK(now < future);
 		CHECK(future > Nz::Timestamp::Epoch());
 
+		// Sleep is very imprecise on CI so give it a nice range
 		CHECK(future - now >= Nz::Time::Milliseconds(800));
-		CHECK(future - now < Nz::Time::Milliseconds(1800));
+		CHECK(future - now < Nz::Time::Milliseconds(2500));
 	}
 
 	GIVEN("Arbitrary timestamp")
