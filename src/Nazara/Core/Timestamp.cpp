@@ -4,7 +4,6 @@
 
 #include <Nazara/Core/Timestamp.hpp>
 #include <ostream>
-#include <version>
 
 #if __cpp_lib_chrono < 201907L
 

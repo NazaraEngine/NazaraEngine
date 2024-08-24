@@ -20,7 +20,7 @@ SCENARIO("Timestamp", "[CORE][Timestamp]")
 		CHECK(now == now);
 		CHECK(now >= now);
 		CHECK(now <= now);
-		CHECK(now > Nz::Timestamp::FromSeconds(1724506946ull));
+		CHECK(now > Nz::Timestamp::FromSeconds(1724506946ll));
 		CHECK(now > Nz::Timestamp::Epoch());
 
 		std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -36,7 +36,7 @@ SCENARIO("Timestamp", "[CORE][Timestamp]")
 
 	GIVEN("Arbitrary timestamp")
 	{
-		Nz::Timestamp time = Nz::Timestamp::FromNanoseconds(1724507141322341300ull);
-		CHECK(ToString(time) == "timestamp: 1724507136.322");
+		Nz::Timestamp time = Nz::Timestamp::FromNanoseconds(1724507141322341300ll);
+		CHECK(ToString(time) == "timestamp: 1724507141.322");
 	}
 }

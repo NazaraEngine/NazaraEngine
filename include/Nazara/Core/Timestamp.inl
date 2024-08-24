@@ -35,6 +35,18 @@ namespace Nz
 		return AsTime().AsSeconds<Int64>();
 	}
 
+#if __cpp_lib_chrono >= 201907L
+	template<typename T>
+	constexpr T Timestamp::AsTimepoint() const
+	{
+		using NanosecondsTimepoint = std::chrono::time_point<std::chrono::utc_clock, std::chrono::nanoseconds>;
+		if constexpr (std::is_same_v<T, NanosecondsTimepoint>)
+			return NanosecondsTimepoint(m_nanoseconds); //< make sure it's a no-op
+		else
+			return std::chrono::time_point_cast<T>(NanosecondsTimepoint(m_nanoseconds));
+	}
+#endif
+
 	constexpr Time Timestamp::GetRemainder() const
 	{
 		// TODO: Use SafeCast when SafeCast gets constexpr support
@@ -114,22 +126,13 @@ namespace Nz
 		return Timestamp(time.AsNanoseconds());
 	}
 
-	template<typename T>
-	constexpr T Timestamp::AsTimepoint() const
-	{
-		if constexpr (std::is_same_v<T, std::chrono::time_point>)
-			return std::chrono::nanoseconds(m_nanoseconds); //< make sure it's a no-op
-		else
-			return std::chrono::duration_cast<T>(std::chrono::nanoseconds(m_nanoseconds));
-
-		return T();
-	}
-
+#if __cpp_lib_chrono >= 201907L
 	template<class Duration>
 	constexpr Timestamp Timestamp::FromTimepoint(const std::chrono::time_point<std::chrono::utc_clock, Duration>& timepoint)
 	{
 		return FromNanoseconds(std::chrono::duration_cast<std::chrono::nanoseconds>(timepoint.time_since_epoch()).count());
 	}
+#endif
 
 	constexpr Timestamp operator+(Timestamp lhs, Time rhs)
 	{

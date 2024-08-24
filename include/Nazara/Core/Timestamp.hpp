@@ -14,6 +14,7 @@
 #include <chrono>
 #include <iosfwd>
 #include <type_traits>
+#include <version>
 
 namespace Nz
 {
@@ -30,7 +31,9 @@ namespace Nz
 			constexpr Int64 AsMilliseconds() const;
 			constexpr Int64 AsNanoseconds() const;
 			constexpr Int64 AsSeconds() const;
+#if __cpp_lib_chrono >= 201907L
 			template<typename T> constexpr T AsTimepoint() const;
+#endif
 
 			constexpr Time GetRemainder() const;
 
@@ -48,7 +51,9 @@ namespace Nz
 			static constexpr Timestamp FromNanoseconds(Int64 nanoseconds);
 			static constexpr Timestamp FromSeconds(Int64 seconds);
 			static constexpr Timestamp FromTime(Time time);
+#if __cpp_lib_chrono >= 201907L
 			template<class Duration> static constexpr Timestamp FromTimepoint(const std::chrono::time_point<std::chrono::utc_clock, Duration>& timepoint);
+#endif
 			static Timestamp Now();
 
 			// External part
