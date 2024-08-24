@@ -56,7 +56,7 @@ namespace Nz
 
 	std::ostream& operator<<(std::ostream& out, Timestamp timestamp)
 	{
-		UInt64 seconds = timestamp.AsSeconds();
+		Int64 seconds = timestamp.AsSeconds();
 		Time remainder = timestamp.GetRemainder();
 		out << "timestamp: " << seconds;
 		if (remainder > Time::Microsecond())

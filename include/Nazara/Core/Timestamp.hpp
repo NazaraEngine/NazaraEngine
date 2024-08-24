@@ -12,6 +12,7 @@
 #include <Nazara/Core/Serialization.hpp>
 #include <Nazara/Core/Time.hpp>
 #include <chrono>
+#include <cstdlib>
 #include <iosfwd>
 #include <type_traits>
 #include <version>

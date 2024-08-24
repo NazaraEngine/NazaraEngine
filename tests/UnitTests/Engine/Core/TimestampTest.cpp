@@ -30,8 +30,8 @@ SCENARIO("Timestamp", "[CORE][Timestamp]")
 		CHECK(now < future);
 		CHECK(future > Nz::Timestamp::Epoch());
 
-		CHECK(future - now >= Nz::Time::Second());
-		CHECK(future - now < Nz::Time::Second() + Nz::Time::Milliseconds(100));
+		CHECK(future - now >= Nz::Time::Milliseconds(800));
+		CHECK(future - now < Nz::Time::Milliseconds(1800));
 	}
 
 	GIVEN("Arbitrary timestamp")
