@@ -40,8 +40,7 @@ namespace Nz
 
 			inline std::unique_ptr<WebRequest> AllocateRequest();
 
-			inline std::unique_ptr<WebRequest> CreateGetRequest(const std::string& url, WebRequest::ResultCallback callback);
-			inline std::unique_ptr<WebRequest> CreatePostRequest(const std::string& url, WebRequest::ResultCallback callback);
+			inline std::unique_ptr<WebRequest> CreateRequest(WebRequestMethod method, const std::string& url, WebRequest::ResultCallback callback);
 
 			inline const std::string& GetUserAgent() const;
 

@@ -8,7 +8,7 @@ int main(int argc, char* argv[])
 
 	std::unique_ptr<Nz::WebService> webService = Nz::Network::Instance()->InstantiateWebService();
 
-	std::unique_ptr<Nz::WebRequest> webRequest = webService->CreateGetRequest("https://test.digitalpulse.software", [&](const Nz::WebRequestResult& result)
+	std::unique_ptr<Nz::WebRequest> webRequest = webService->CreateRequest(Nz::WebRequestMethod::Get, "https://test.digitalpulse.software", [&](const Nz::WebRequestResult& result)
 	{
 		if (result)
 		{

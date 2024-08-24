@@ -120,6 +120,16 @@ namespace Nz
 
 	constexpr std::size_t SocketTypeCount = static_cast<std::size_t>(SocketType::Max) + 1;
 
+	enum class WebRequestMethod
+	{
+		Delete,
+		Head,
+		Get,
+		Patch,
+		Put,
+		Post
+	};
+
 	enum class WebRequestOption
 	{
 		FailOnError,

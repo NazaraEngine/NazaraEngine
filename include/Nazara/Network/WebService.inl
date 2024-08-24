@@ -10,22 +10,12 @@ namespace Nz
 		return std::make_unique<WebRequest>(*this);
 	}
 
-	inline std::unique_ptr<WebRequest> WebService::CreateGetRequest(const std::string& url, WebRequest::ResultCallback callback)
+	inline std::unique_ptr<WebRequest> WebService::CreateRequest(WebRequestMethod method, const std::string& url, WebRequest::ResultCallback callback)
 	{
 		std::unique_ptr<WebRequest> request = AllocateRequest();
+		request->SetMethod(method);
 		request->SetURL(url);
 		request->SetResultCallback(std::move(callback));
-		request->SetupGet();
-
-		return request;
-	}
-
-	inline std::unique_ptr<WebRequest> WebService::CreatePostRequest(const std::string& url, WebRequest::ResultCallback callback)
-	{
-		std::unique_ptr<WebRequest> request = AllocateRequest();
-		request->SetURL(url);
-		request->SetResultCallback(std::move(callback));
-		request->SetupPost();
 
 		return request;
 	}

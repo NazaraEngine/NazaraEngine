@@ -105,6 +105,49 @@ namespace Nz
 	}
 #endif
 
+	void WebRequest::SetMethod(WebRequestMethod method)
+	{
+		switch (method)
+		{
+			case WebRequestMethod::Delete: return SetMethod("DELETE");
+			case WebRequestMethod::Head:   return SetMethod("HEAD");
+			case WebRequestMethod::Get:
+			{
+#ifndef NAZARA_PLATFORM_WEB
+				auto& libcurl = m_webService.GetCurlLibrary();
+				libcurl.easy_setopt(m_curlHandle, CURLOPT_HTTPGET, long(1));
+				libcurl.easy_setopt(m_curlHandle, CURLOPT_POST, long(0));
+#else
+				SetMethod("GET");
+#endif
+				break;
+			}
+
+			case WebRequestMethod::Patch:  return SetMethod("PATCH");
+			case WebRequestMethod::Put:    return SetMethod("PUT");
+			case WebRequestMethod::Post:
+			{
+#ifndef NAZARA_PLATFORM_WEB
+				auto& libcurl = m_webService.GetCurlLibrary();
+				libcurl.easy_setopt(m_curlHandle, CURLOPT_HTTPGET, long(0));
+				libcurl.easy_setopt(m_curlHandle, CURLOPT_POST, long(1));
+#else
+				SetMethod("POST");
+#endif
+				break;
+			}
+		}
+	}
+
+	void WebRequest::SetMethod(std::string customMethod)
+	{
+		m_httpMethod = std::move(customMethod);
+#ifndef NAZARA_PLATFORM_WEB
+		auto& libcurl = m_webService.GetCurlLibrary();
+		libcurl.easy_setopt(m_curlHandle, CURLOPT_CUSTOMREQUEST, m_httpMethod.data());
+#endif
+	}
+
 	void WebRequest::SetServiceName(std::string serviceName)
 	{
 		if (!serviceName.empty())
@@ -130,26 +173,6 @@ namespace Nz
 		libcurl.easy_setopt(m_curlHandle, CURLOPT_URL, url.data());
 #else
 		m_url = url;
-#endif
-	}
-
-	void WebRequest::SetupGet()
-	{
-#ifndef NAZARA_PLATFORM_WEB
-		auto& libcurl = m_webService.GetCurlLibrary();
-		libcurl.easy_setopt(m_curlHandle, CURLOPT_HTTPGET, long(1));
-#else
-		m_httpMethod = "GET";
-#endif
-	}
-
-	void WebRequest::SetupPost()
-	{
-#ifndef NAZARA_PLATFORM_WEB
-		auto& libcurl = m_webService.GetCurlLibrary();
-		libcurl.easy_setopt(m_curlHandle, CURLOPT_POST, long(1));
-#else
-		m_httpMethod = "POST";
 #endif
 	}
 

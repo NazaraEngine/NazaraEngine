@@ -27,7 +27,7 @@ SCENARIO("WebService", "[NETWORK][WebService]")
 
 	GIVEN("When performing a GET web request")
 	{
-		std::unique_ptr<Nz::WebRequest> webRequest = webService->CreateGetRequest("https://test.digitalpulse.software", [&](const Nz::WebRequestResult& result)
+		std::unique_ptr<Nz::WebRequest> webRequest = webService->CreateRequest(Nz::WebRequestMethod::Get, "https://test.digitalpulse.software", [&](const Nz::WebRequestResult& result)
 		{
 			REQUIRE(result);
 			CHECK(result.GetStatusCode() == 200);
@@ -42,7 +42,7 @@ SCENARIO("WebService", "[NETWORK][WebService]")
 
 	GIVEN("When performing a GET web request on a non-existing URL")
 	{
-		std::unique_ptr<Nz::WebRequest> webRequest = webService->CreateGetRequest("https://test.digitalpulse.software/404", [&](const Nz::WebRequestResult& result)
+		std::unique_ptr<Nz::WebRequest> webRequest = webService->CreateRequest(Nz::WebRequestMethod::Get, "https://test.digitalpulse.software/404", [&](const Nz::WebRequestResult& result)
 		{
 			REQUIRE(result);
 			CHECK(result.GetStatusCode() == 404);
@@ -56,7 +56,7 @@ SCENARIO("WebService", "[NETWORK][WebService]")
 
 	GIVEN("When performing a POST web request")
 	{
-		std::unique_ptr<Nz::WebRequest> webRequest = webService->CreatePostRequest("https://test.digitalpulse.software/headers", [&](const Nz::WebRequestResult& result)
+		std::unique_ptr<Nz::WebRequest> webRequest = webService->CreateRequest(Nz::WebRequestMethod::Post, "https://test.digitalpulse.software/headers", [&](const Nz::WebRequestResult& result)
 		{
 			REQUIRE(result);
 			CHECK(result.GetStatusCode() == 200);
@@ -64,7 +64,7 @@ SCENARIO("WebService", "[NETWORK][WebService]")
 			CHECK(result.GetDownloadSpeed() > 0);
 
 			INFO(result.GetBody());
-			CHECK(result.GetBody().find("uthorization: Lynix") != std::string::npos); //< Don't include A because some implementation can lowercase headers
+			CHECK(result.GetBody().find("uthorization: Lynix") != std::string::npos); //< Don't include "A" because some implementation can lowercase headers
 		});
 		webRequest->SetJSonContent(R"({"value":42})");
 		webRequest->SetHeader("Authorization", "Lynix");

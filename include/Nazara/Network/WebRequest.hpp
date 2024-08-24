@@ -47,14 +47,13 @@ namespace Nz
 			inline void SetHeader(std::string header, std::string value);
 			void SetJSonContent(std::string encodedJSon);
 			void SetMaximumFileSize(UInt64 maxFileSize);
+			void SetMethod(WebRequestMethod method);
+			void SetMethod(std::string customMethod);
 			inline void SetOptions(WebRequestOptionFlags options);
 			inline void SetProgressCallback(ProgressCallback callback);
 			inline void SetResultCallback(ResultCallback callback);
 			void SetServiceName(std::string serviceName);
 			void SetURL(const std::string& url);
-
-			void SetupGet();
-			void SetupPost();
 
 			WebRequest& operator=(const WebRequest&) = delete;
 			WebRequest& operator=(WebRequest&&) = delete;
@@ -73,11 +72,11 @@ namespace Nz
 			inline void TriggerSuccessCallback();
 
 #ifdef NAZARA_PLATFORM_WEB
-			std::string m_httpMethod;
 			std::string m_url;
 			std::vector<const char*> m_requestHeaders;
 #endif
 			std::string m_content;
+			std::string m_httpMethod;
 			std::string m_responseBody;
 			std::unordered_map<std::string, std::string> m_headers;
 			WebService& m_webService;
