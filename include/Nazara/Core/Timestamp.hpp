@@ -53,7 +53,7 @@ namespace Nz
 			static constexpr Timestamp FromSeconds(Int64 seconds);
 			static constexpr Timestamp FromTime(Time time);
 #if __cpp_lib_chrono >= 201907L
-			template<class Duration> static constexpr Timestamp FromTimepoint(const std::chrono::time_point<std::chrono::utc_clock, Duration>& timepoint);
+			template<typename Clock, typename Duration> static constexpr Timestamp FromTimepoint(const std::chrono::time_point<Clock, Duration>& timepoint);
 #endif
 			static Timestamp Now();
 

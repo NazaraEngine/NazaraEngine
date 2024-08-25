@@ -39,11 +39,18 @@ namespace Nz
 	template<typename T>
 	constexpr T Timestamp::AsTimepoint() const
 	{
-		using NanosecondsTimepoint = std::chrono::time_point<std::chrono::utc_clock, std::chrono::nanoseconds>;
-		if constexpr (std::is_same_v<T, NanosecondsTimepoint>)
-			return NanosecondsTimepoint(m_nanoseconds); //< make sure it's a no-op
+		using Clock = typename T::clock;
+		static_assert(std::is_same_v<Clock, std::chrono::system_clock>, "std::chrono::system_clock must be used to represent timestamps using time_point");
+
+		using Duration = typename T::duration;
+		if constexpr (std::is_same_v<Duration, std::chrono::nanoseconds>)
+			return T(std::chrono::nanoseconds(m_nanoseconds)); //< make sure it's a no-op
 		else
-			return std::chrono::time_point_cast<T>(NanosecondsTimepoint(m_nanoseconds));
+		{
+			std::chrono::nanoseconds elapsedTime(m_nanoseconds);
+			std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds> timepoint(elapsedTime);
+			return std::chrono::time_point_cast<Duration>(timepoint);
+		}
 	}
 #endif
 
@@ -127,8 +134,8 @@ namespace Nz
 	}
 
 #if __cpp_lib_chrono >= 201907L
-	template<class Duration>
-	constexpr Timestamp Timestamp::FromTimepoint(const std::chrono::time_point<std::chrono::utc_clock, Duration>& timepoint)
+	template<typename Clock, typename Duration>
+	constexpr Timestamp Timestamp::FromTimepoint(const std::chrono::time_point<Clock, Duration>& timepoint)
 	{
 		return FromNanoseconds(std::chrono::duration_cast<std::chrono::nanoseconds>(timepoint.time_since_epoch()).count());
 	}

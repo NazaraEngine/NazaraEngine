@@ -20,7 +20,7 @@ namespace Nz
 	Timestamp Timestamp::Now()
 	{
 #if __cpp_lib_chrono >= 201907L
-		auto now = std::chrono::utc_clock::now();
+		auto now = std::chrono::system_clock::now();
 		return FromTimepoint(now);
 #else
 
@@ -35,7 +35,7 @@ namespace Nz
 		Int64 nanoseconds = Int64(time.dwHighDateTime) << 32 | time.dwLowDateTime;
 
 		// FILETIME is relative to Windows Epoch (January 1, 1601), convert to regular Epoch
-		constexpr Int64 EpochDiff = 116444736000000000ll; //< nanoseconds difference between January 1, 1601 and January 1, 1970
+		constexpr Int64 EpochDiff = 116'444'736'000'000'000ll; //< nanoseconds difference between January 1, 1601 and January 1, 1970
 		nanoseconds -= EpochDiff;
 
 		// FILETIME stores the number of "100-nanosecond interval"

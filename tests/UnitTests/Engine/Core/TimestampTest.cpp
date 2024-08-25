@@ -37,7 +37,11 @@ SCENARIO("Timestamp", "[CORE][Timestamp]")
 
 	GIVEN("Arbitrary timestamp")
 	{
-		Nz::Timestamp time = Nz::Timestamp::FromNanoseconds(1724507141322341300ll);
+		Nz::Timestamp time = Nz::Timestamp::FromNanoseconds(1724507141322341000ll);
 		CHECK(ToString(time) == "timestamp: 1724507141.322");
+#if __cpp_lib_chrono >= 201907L
+		CHECK(Nz::Timestamp::FromTimepoint(time.AsTimepoint<std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>>()) == time);
+		CHECK(Nz::Timestamp::FromTimepoint(time.AsTimepoint<std::chrono::time_point<std::chrono::system_clock, std::chrono::microseconds>>()) == time);
+#endif
 	}
 }
