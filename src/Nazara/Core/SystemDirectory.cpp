@@ -327,6 +327,8 @@ namespace Nz
 #else
 	#error Missing implementation on this platform
 #endif
+
+		return Err("unhandled");
 	}
 }
 
