@@ -108,7 +108,7 @@ local modules = {
 			end
 
 			if is_plat("macosx", "iphoneos") then
-				add_headerfiles("src/Nazara/Core/Darwin/TimeImpl.hpp", { prefixdir = "private", install = false })
+				add_headerfiles("src/Nazara/Core/Darwin/TimeImpl.hpp", { install = false })
 				add_files("src/Nazara/Core/Darwin/TimeImpl.cpp")
 
 				remove_headerfiles("src/Nazara/Core/Posix/TimeImpl.hpp")
@@ -238,7 +238,7 @@ end
 NazaraModules = modules
 
 set_project("NazaraEngine")
-set_xmakever("2.8.3")
+set_xmakever("2.8.7")
 set_license("MIT")
 
 includes("xmake/**.lua")
@@ -345,33 +345,8 @@ end
 if has_config("renderer") then
 	add_requires("nzsl >=2023.12.31", { debug = is_mode("debug"), configs = { symbols = not is_mode("release"), shared = not is_plat("wasm", "android") and not has_config("static") } })
 
-	local function is_cross_compiling()
-		if os.host() == "windows" then
-			local host_arch = os.arch()
-			if is_plat("windows") then
-				-- maybe cross-compilation for arm64 on x86/x64
-				if (host_arch == "x86" or host_arch == "x64") and is_arch("arm64") then
-					return true
-				-- maybe cross-compilation for x86/64 on arm64
-				elseif host_arch == "arm64" and not is_arch("arm64") then
-					return true
-				end
-				return false
-			elseif is_plat("mingw") then
-				return false
-			end
-		end
-		if not is_plat(os.host()) and not is_plat(os.subhost()) then
-			return true
-		end
-		if not is_arch(os.arch()) and not is_arch(os.subarch()) then
-			return true
-		end
-		return false
-	end
-
 	-- When cross-compiling, compile shaders using host shader compiler
-	if has_config("compile_shaders") and is_cross_compiling() then
+	if has_config("compile_shaders") and is_cross() then
 		add_requires("nzsl~host", { kind = "binary", host = true })
 	end
 end
@@ -473,7 +448,7 @@ function ModuleTargetConfig(name, module)
 	-- Add header and source files
 	for _, ext in ipairs({".h", ".hpp", ".inl"}) do
 		add_headerfiles("include/(Nazara/" .. name .. "/**" .. ext .. ")")
-		add_headerfiles("src/Nazara/" .. name .. "/**" .. ext, { prefixdir = "private", install = false })
+		add_headerfiles("src/Nazara/" .. name .. "/**" .. ext, { install = false })
 	end
 	remove_headerfiles("src/Nazara/" .. name .. "/Resources/**.h")
 
