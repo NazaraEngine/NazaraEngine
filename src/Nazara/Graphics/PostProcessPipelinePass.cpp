@@ -8,11 +8,10 @@
 
 namespace Nz
 {
-	PostProcessPipelinePass::PostProcessPipelinePass(PassData& passData, std::string passName, std::string shaderName) :
+	PostProcessPipelinePass::PostProcessPipelinePass(PassData& /*passData*/, std::string passName, std::string shaderName) :
 	FramePipelinePass({}),
 	m_passName(std::move(passName)),
-	m_shader(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, std::move(shaderName)),
-	m_pipeline(passData.pipeline)
+	m_shader(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, std::move(shaderName))
 	{
 		RenderPipelineLayoutInfo layoutInfo;
 		layoutInfo.bindings.assign({

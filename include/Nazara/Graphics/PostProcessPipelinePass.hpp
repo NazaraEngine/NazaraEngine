@@ -51,7 +51,6 @@ namespace Nz
 			std::shared_ptr<ShaderBinding> m_shaderBinding;
 			std::string m_passName;
 			UberShader m_shader;
-			FramePipeline& m_pipeline;
 			bool m_rebuildFramePass;
 	};
 }

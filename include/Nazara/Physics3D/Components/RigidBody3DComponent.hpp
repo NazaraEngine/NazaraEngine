@@ -20,11 +20,11 @@ namespace Nz
 		public:
 			inline RigidBody3DComponent(const RigidBody3D::DynamicSettings& settings);
 			inline RigidBody3DComponent(const RigidBody3D::StaticSettings& settings);
-			RigidBody3DComponent(const RigidBody3DComponent&) = default;
+			RigidBody3DComponent(const RigidBody3DComponent&) = delete;
 			RigidBody3DComponent(RigidBody3DComponent&&) noexcept = default;
 			~RigidBody3DComponent() = default;
 
-			RigidBody3DComponent& operator=(const RigidBody3DComponent&) = default;
+			RigidBody3DComponent& operator=(const RigidBody3DComponent&) = delete;
 			RigidBody3DComponent& operator=(RigidBody3DComponent&&) noexcept = default;
 
 		private:

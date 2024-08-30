@@ -18,11 +18,11 @@ namespace Nz
 
 		public:
 			inline PhysCharacter3DComponent(const PhysCharacter3D::Settings& settings);
-			PhysCharacter3DComponent(const PhysCharacter3DComponent&) = default;
+			PhysCharacter3DComponent(const PhysCharacter3DComponent&) = delete;
 			PhysCharacter3DComponent(PhysCharacter3DComponent&&) noexcept = default;
 			~PhysCharacter3DComponent() = default;
 
-			PhysCharacter3DComponent& operator=(const PhysCharacter3DComponent&) = default;
+			PhysCharacter3DComponent& operator=(const PhysCharacter3DComponent&) = delete;
 			PhysCharacter3DComponent& operator=(PhysCharacter3DComponent&&) noexcept = default;
 
 		private:

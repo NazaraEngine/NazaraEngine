@@ -14,7 +14,7 @@
 
 namespace Nz::PlatformImpl
 {
-	constexpr bool ArePathWide = std::is_same_v< std::filesystem::path::value_type, wchar_t>;
+	constexpr bool ArePathWide = std::is_same_v<std::filesystem::path::value_type, wchar_t>;
 
 	using WidePathHolder = std::conditional_t<ArePathWide, /*null-terminated*/ std::wstring_view, std::wstring>;
 

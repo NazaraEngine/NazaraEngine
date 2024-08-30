@@ -40,7 +40,7 @@ namespace Nz
 
 		private:
 			void InvalidateNode(Invalidation invalidation) override;
-			void UpdateSkinningMatrix() const;
+			inline void UpdateSkinningMatrix() const;
 
 			Matrix4f m_inverseBindMatrix;
 			mutable Matrix4f m_skinningMatrix;
