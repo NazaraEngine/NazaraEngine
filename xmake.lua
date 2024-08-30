@@ -91,7 +91,7 @@ local modules = {
 			end
 
 			if is_plat("windows", "mingw") then
-				add_syslinks("Ole32")
+				add_syslinks("Advapi32", "Ole32", "Shell32", "Userenv")
 			elseif is_plat("linux") then
 				add_packages("libuuid")
 				add_syslinks("dl", "pthread")

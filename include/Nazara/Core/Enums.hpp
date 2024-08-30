@@ -11,6 +11,14 @@
 
 namespace Nz
 {
+	enum class ApplicationDirectory
+	{
+		Cache,
+		Config,
+		Data,
+		SavedGames
+	};
+
 	enum class AnimationType
 	{
 		Skeletal,
@@ -573,6 +581,24 @@ namespace Nz
 	};
 
 	using StreamOptionFlags = Flags<StreamOption>;
+
+	enum class SystemDirectory
+	{
+		// System-specific
+		Cache,
+		Fonts,
+		Temporary,
+
+		// User-specific
+		UserConfig,
+		UserDesktop,
+		UserDocuments,
+		UserDownloads,
+		UserHome,
+		UserMusic,
+		UserPictures,
+		UserVideos,
+	};
 
 	enum class VertexComponent
 	{
