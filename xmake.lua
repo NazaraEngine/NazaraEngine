@@ -92,6 +92,11 @@ local modules = {
 
 			if is_plat("windows", "mingw") then
 				add_syslinks("Advapi32", "Ole32", "Shell32", "Userenv")
+				if is_plat("mingw") then
+					-- uuid syslinks seems necessary for folderid
+					-- https://stackoverflow.com/questions/66338153/undefined-reference-to-folderid-c
+					add_syslinks("uuid")
+				end
 			elseif is_plat("linux") then
 				add_packages("libuuid")
 				add_syslinks("dl", "pthread")
