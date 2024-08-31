@@ -3,8 +3,8 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Core/SystemDirectory.hpp>
-#include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/EnvironmentVariables.hpp>
+#include <Nazara/Core/Error.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
 #include <NazaraUtils/PathUtils.hpp>
 #include <array>
@@ -28,7 +28,7 @@ namespace Nz
 		{
 			const char* name;
 		};
-		
+
 		Result<std::filesystem::path, std::string> Absolute(const std::filesystem::path& path)
 		{
 			std::error_code ec;
@@ -176,7 +176,7 @@ namespace Nz
 
 			case ApplicationDirectory::SavedGames:
 			{
-				auto dir = JoinPath(Env{ "XDG_DATA_HOME" }, "saves");
+				auto dir = JoinPath(Env{ "XDG_DATA_HOME" }, applicationName, "saves");
 				if (!dir)
 					dir = JoinPath("~/.local/share", applicationName, "saves");
 
