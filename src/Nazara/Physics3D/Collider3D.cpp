@@ -68,6 +68,15 @@ namespace Nz
 		return FromJolt(result.Get()->GetLocalBounds());
 	}
 
+	Vector3f Collider3D::GetCenterOfMass() const
+	{
+		auto result = m_shapeSettings->Create();
+		if (result.HasError())
+			throw std::runtime_error(std::string("shape creation failed: ") + result.GetError().c_str());
+
+		return FromJolt(result.Get()->GetCenterOfMass());
+	}
+
 	void Collider3D::ResetShapeSettings()
 	{
 		m_shapeSettings.reset();

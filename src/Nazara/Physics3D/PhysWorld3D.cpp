@@ -69,7 +69,7 @@ namespace Nz
 			private:
 				const PhysBroadphaseLayerFilter3D* m_broadphaseFilter;
 		};
-		
+
 		class ObjectLayerFilterBridge : public JPH::ObjectLayerFilter
 		{
 			public:
@@ -86,7 +86,7 @@ namespace Nz
 			private:
 				const PhysObjectLayerFilter3D* m_objectLayerFilter;
 		};
-		
+
 		class PointCallbackHitResult : public JPH::CollidePointCollector
 		{
 			public:
@@ -560,7 +560,7 @@ namespace Nz
 	bool PhysWorld3D::RaycastQuery(const Vector3f& from, const Vector3f& to, const FunctionRef<std::optional<float>(const RaycastHit& hitInfo)>& callback, const PhysBroadphaseLayerFilter3D* broadphaseFilter, const PhysObjectLayerFilter3D* objectLayerFilter, const PhysBodyFilter3D* bodyFilter)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
-		
+
 		JPH::BodyFilter defaultBodyFilter;
 		JPH::BroadPhaseLayerFilter defaultBroadphaseFilter;
 		JPH::ObjectLayerFilter defaultObjectFilter;

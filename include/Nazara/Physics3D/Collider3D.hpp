@@ -45,6 +45,7 @@ namespace Nz
 			virtual std::shared_ptr<StaticMesh> GenerateDebugMesh() const;
 
 			Boxf GetBoundingBox() const;
+			Vector3f GetCenterOfMass() const;
 			inline JPH::ShapeSettings* GetShapeSettings() const;
 			virtual ColliderType3D GetType() const = 0;
 
