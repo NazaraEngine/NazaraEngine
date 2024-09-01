@@ -163,7 +163,7 @@ namespace Nz
 					case ImageType::E1D_Array:
 					case ImageType::E2D_Array:
 					case ImageType::E3D:
-						framebuffer.TextureLayer(attachment, parentTexture.GetTexture().GetObjectId(), texViewInfo.baseArrayLayer, texViewInfo.baseMipLevel);
+						framebuffer.TextureLayer(attachment, parentTexture.GetTexture().GetObjectId(), texViewInfo.baseMipLevel, texViewInfo.baseArrayLayer);
 						break;
 				}
 			}
