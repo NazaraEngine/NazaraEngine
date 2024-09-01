@@ -206,7 +206,7 @@ namespace Nz
 		m_rendererLib = std::move(chosenLib);
 #endif
 
-		NazaraDebug("Using {0} as renderer", m_rendererImpl->QueryAPIString());
+		NazaraNotice("Using {0} as renderer", m_rendererImpl->QueryAPIString());
 	}
 
 	Renderer* Renderer::s_instance = nullptr;

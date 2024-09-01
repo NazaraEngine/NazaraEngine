@@ -290,7 +290,7 @@ namespace Nz::GL
 		m_ownsDisplay = true;
 
 		const char* vendor = m_loader.eglQueryString(m_display, EGL_VENDOR);
-		NazaraNotice("Initialized EGL " + std::to_string(major) + "." + std::to_string(minor) + " display (" + vendor + ")");
+		NazaraNotice("Initialized EGL {0}.{1} display ({2})", major, minor, vendor);
 
 		return true;
 	}

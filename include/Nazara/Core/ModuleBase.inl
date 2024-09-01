@@ -37,7 +37,7 @@ namespace Nz
 	template<typename T>
 	void ModuleBase<T>::LogInit()
 	{
-		NazaraNotice("Initializing " + m_moduleName + "...");
+		NazaraNotice("Initializing {0}...", m_moduleName);
 	}
 
 	template<typename T>
@@ -46,7 +46,7 @@ namespace Nz
 		if (m_moduleName.empty())
 			return;
 
-		NazaraNotice("Uninitialized " + m_moduleName);
+		NazaraNotice("Uninitialized {0}", m_moduleName);
 		m_moduleName.clear();
 	}
 }
