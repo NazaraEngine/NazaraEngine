@@ -82,9 +82,7 @@ on_run(function ()
 	-- OpenGL renderer wrapper
 	paths["OpenGLWrapper"] = {
 		Excludes = {
-			["DeviceFunctions.hpp"] = true,
-			["GlobalFunctions.hpp"] = true,
-			["InstanceFunctions.hpp"] = true,
+			["CoreFunctions.hpp"] = true
 		},
 		Header = paths["OpenGLRenderer"].Header,
 		HeaderGuard = "NAZARA_OPENGLRENDERER_WRAPPER_HPP",

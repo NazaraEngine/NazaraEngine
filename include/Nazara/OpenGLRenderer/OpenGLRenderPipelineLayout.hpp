@@ -11,7 +11,7 @@
 #include <Nazara/OpenGLRenderer/Export.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLShaderBinding.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/CoreFunctions.hpp>
+#include <Nazara/OpenGLRenderer/Wrapper/OpenGL.hpp>
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <NazaraUtils/Bitset.hpp>
 #include <NZSL/GlslWriter.hpp>

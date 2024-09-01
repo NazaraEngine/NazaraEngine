@@ -11,8 +11,8 @@
 #include <Nazara/Core/DynLib.hpp>
 #include <Nazara/OpenGLRenderer/Export.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLVaoCache.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/CoreFunctions.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Loader.hpp>
+#include <Nazara/OpenGLRenderer/Wrapper/OpenGL.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
 #include <NazaraUtils/Algorithm.hpp>
@@ -193,9 +193,8 @@ namespace Nz::GL
 
 			void UpdateStates(const RenderStates& renderStates, bool isViewportFlipped) const;
 
-#define NAZARA_OPENGLRENDERER_FUNC(name, sig) sig name = nullptr;
-			NAZARA_OPENGLRENDERER_FOREACH_GLES_FUNC(NAZARA_OPENGLRENDERER_FUNC, NAZARA_OPENGLRENDERER_FUNC)
-#undef NAZARA_OPENGLRENDERER_FUNC
+#define NAZARA_OPENGLRENDERER_FUNCTION(name, sig) sig name = nullptr;
+#include <Nazara/OpenGLRenderer/Wrapper/CoreFunctions.hpp>
 
 			Context& operator=(const Context&) = delete;
 			Context& operator=(Context&&) = delete;
@@ -224,9 +223,8 @@ namespace Nz::GL
 
 			enum class FunctionIndex
 			{
-#define NAZARA_OPENGLRENDERER_FUNC(name, sig) name,
-				NAZARA_OPENGLRENDERER_FOREACH_GLES_FUNC(NAZARA_OPENGLRENDERER_FUNC, NAZARA_OPENGLRENDERER_FUNC)
-#undef NAZARA_OPENGLRENDERER_FUNC
+#define NAZARA_OPENGLRENDERER_FUNCTION(name, sig) name,
+#include <Nazara/OpenGLRenderer/Wrapper/CoreFunctions.hpp>
 
 				Count
 			};

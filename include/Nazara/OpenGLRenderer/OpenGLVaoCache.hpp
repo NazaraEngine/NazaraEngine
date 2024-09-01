@@ -9,7 +9,7 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/OpenGLRenderer/Export.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/CoreFunctions.hpp>
+#include <Nazara/OpenGLRenderer/Wrapper/OpenGL.hpp>
 #include <array>
 #include <memory>
 #include <optional>

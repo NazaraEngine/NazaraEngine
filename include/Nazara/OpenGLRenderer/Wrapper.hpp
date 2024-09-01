@@ -32,10 +32,10 @@
 #include <Nazara/OpenGLRenderer/Wrapper/Buffer.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/ContextObject.hpp>
-#include <Nazara/OpenGLRenderer/Wrapper/CoreFunctions.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/DeviceObject.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Framebuffer.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Loader.hpp>
+#include <Nazara/OpenGLRenderer/Wrapper/OpenGL.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Program.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Sampler.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Shader.hpp>

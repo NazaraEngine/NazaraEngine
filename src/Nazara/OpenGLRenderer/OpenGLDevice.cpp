@@ -60,7 +60,7 @@ namespace Nz
 
 		m_deviceInfo.name += ')';
 
-		m_deviceInfo.type = RenderDeviceType::Unknown;
+		m_deviceInfo.type = RenderDeviceType::Unknown; //< TODO: Try to extract from device name pattern
 
 		// Features
 		if (m_referenceContext->IsExtensionSupported(GL::Extension::TextureFilterAnisotropic))

@@ -22,9 +22,8 @@ namespace Nz::GL
 	namespace
 	{
 		constexpr std::array s_functionNames = {
-#define NAZARA_OPENGLRENDERER_FUNC(name, sig) #name,
-				NAZARA_OPENGLRENDERER_FOREACH_GLES_FUNC(NAZARA_OPENGLRENDERER_FUNC, NAZARA_OPENGLRENDERER_FUNC)
-#undef NAZARA_OPENGLRENDERER_FUNC
+#define NAZARA_OPENGLRENDERER_FUNCTION(name, sig) #name,
+#include <Nazara/OpenGLRenderer/Wrapper/CoreFunctions.hpp>
 		};
 
 		template<typename FuncType, std::size_t FuncIndex, typename>
@@ -453,11 +452,11 @@ namespace Nz::GL
 
 		try
 		{
-#define NAZARA_OPENGLRENDERER_FUNC(name, sig) loader.Load<sig, UnderlyingCast(FunctionIndex:: name)>(name, #name, true, true);
-#define NAZARA_OPENGLRENDERER_EXT_FUNC(name, sig) //< Do nothing
-			NAZARA_OPENGLRENDERER_FOREACH_GLES_FUNC(NAZARA_OPENGLRENDERER_FUNC, NAZARA_OPENGLRENDERER_EXT_FUNC)
-#undef NAZARA_OPENGLRENDERER_EXT_FUNC
-#undef NAZARA_OPENGLRENDERER_FUNC
+#define NAZARA_OPENGLRENDERER_FUNCTION(name, sig) loader.Load<sig, UnderlyingCast(FunctionIndex:: name)>(name, #name, true, true);
+#define NAZARA_OPENGLRENDERER_GL_FUNCTION(ver, name, sign)
+#define NAZARA_OPENGLRENDERER_GL_GLES_FUNCTION(glVer, glesVer, name, sign)
+
+#include <Nazara/OpenGLRenderer/Wrapper/CoreFunctions.hpp>
 		}
 		catch (const std::exception& e)
 		{
@@ -559,13 +558,22 @@ namespace Nz::GL
 		else if (m_supportedExtensions.count("GL_OES_texture_view"))
 			m_extensionStatus[Extension::TextureView] = ExtensionStatus::KHR; //< not sure about the OES => KHR mapping
 		else if (m_supportedExtensions.count("GL_EXT_texture_view"))
-			m_extensionStatus[Extension::TextureView] = ExtensionStatus::EXT; //< not sure about the OES => KHR mapping
+			m_extensionStatus[Extension::TextureView] = ExtensionStatus::EXT;
 
-#define NAZARA_OPENGLRENDERER_FUNC(name, sig)
-#define NAZARA_OPENGLRENDERER_EXT_FUNC(name, sig) loader.Load<sig, UnderlyingCast(FunctionIndex:: name)>(name, #name, false);
-		NAZARA_OPENGLRENDERER_FOREACH_GLES_FUNC(NAZARA_OPENGLRENDERER_FUNC, NAZARA_OPENGLRENDERER_EXT_FUNC)
-#undef NAZARA_OPENGLRENDERER_EXT_FUNC
-#undef NAZARA_OPENGLRENDERER_FUNC
+#define NAZARA_OPENGLRENDERER_FUNCTION(name, sig)
+#define NAZARA_OPENGLRENDERER_GL_FUNCTION(ver, name, sig) \
+		if (m_params.type == ContextType::OpenGL && glVersion >= ver) \
+			loader.Load<sig, UnderlyingCast(FunctionIndex:: name)>(name, #name, false, true); \
+		else \
+			ImplementFallback(#name);
+
+#define NAZARA_OPENGLRENDERER_GL_GLES_FUNCTION(glVer, glesVer, name, sig) \
+		if ((m_params.type == ContextType::OpenGL && glVersion >= glVer) || (m_params.type == ContextType::OpenGL_ES && glVersion >= glesVer)) \
+			loader.Load<sig, UnderlyingCast(FunctionIndex:: name)>(name, #name, false, true); \
+		else \
+			ImplementFallback(#name);
+
+#include <Nazara/OpenGLRenderer/Wrapper/CoreFunctions.hpp>
 
 		// Match Vulkan convention if supported (so we don't have to inject code in the shader to fix it)
 		if (glClipControl)
@@ -1060,32 +1068,58 @@ namespace Nz::GL
 		{
 			constexpr std::size_t functionIndex = UnderlyingCast(FunctionIndex::glClipControl);
 
-			return loader.Load<PFNGLCLIPCONTROLEXTPROC, functionIndex>(glClipControl, "glClipControlEXT", false); //< from GL_EXT_clip_control
-
+			return IsExtensionSupported("GL_EXT_clip_control") && loader.Load<PFNGLCLIPCONTROLEXTPROC, functionIndex>(glClipControl, "glClipControlEXT", false);
 		}
 		else if (function == "glDebugMessageCallback")
 		{
 			constexpr std::size_t functionIndex = UnderlyingCast(FunctionIndex::glDebugMessageCallback);
 
-			return loader.Load<PFNGLDEBUGMESSAGECALLBACKKHRPROC, functionIndex>(glDebugMessageCallback, "glDebugMessageCallbackKHR", false) || //< from GL_KHR_debug
-			       loader.Load<PFNGLDEBUGMESSAGECALLBACKPROC, functionIndex>(glDebugMessageCallback, "glDebugMessageCallbackARB", false);      //< from GL_ARB_debug_output
+			if (IsExtensionSupported("GL_KHR_debug"))
+			{
+				if (loader.Load<PFNGLDEBUGMESSAGECALLBACKKHRPROC, functionIndex>(glDebugMessageCallback, "glDebugMessageCallbackKHR", false))
+					return true;
+			}
+
+			if (m_params.type == ContextType::OpenGL && IsExtensionSupported("GL_ARB_debug_output"))
+			{
+				if (loader.Load<PFNGLDEBUGMESSAGECALLBACKKHRPROC, functionIndex>(glDebugMessageCallback, "glDebugMessageCallbackARB", false))
+					return true;
+			}
 		}
 		else if (function == "glPolygonMode")
 		{
 			constexpr std::size_t functionIndex = UnderlyingCast(FunctionIndex::glPolygonMode);
 
-			return loader.Load<PFNGLPOLYGONMODENVPROC, functionIndex>(glPolygonMode, "glPolygonModeNV", false); //< from GL_NV_polygon_mode
+			return IsExtensionSupported("GL_NV_polygon_mode") && loader.Load<PFNGLPOLYGONMODENVPROC, functionIndex>(glPolygonMode, "glPolygonModeNV", false);
 		}
 		else if (function == "glSpecializeShader")
 		{
 			constexpr std::size_t functionIndex = UnderlyingCast(FunctionIndex::glSpecializeShader);
-			return loader.Load<PFNGLSPECIALIZESHADERPROC, functionIndex>(glSpecializeShader, "glSpecializeShaderARB", false); //< from GL_ARB_spirv_extensions
+
+			if (m_params.type == ContextType::OpenGL && IsExtensionSupported("GL_ARB_spirv_extensions"))
+				return loader.Load<PFNGLSPECIALIZESHADERPROC, functionIndex>(glSpecializeShader, "glSpecializeShaderARB", false);
 		}
 		else if (function == "glTextureView")
 		{
 			constexpr std::size_t functionIndex = UnderlyingCast(FunctionIndex::glTextureView);
-			return loader.Load<PFNGLTEXTUREVIEWPROC, functionIndex>(glTextureView, "glTextureViewOES", false) ||
-			       loader.Load<PFNGLTEXTUREVIEWPROC, functionIndex>(glTextureView, "glTextureViewEXT", false); //< from GL_EXT_texture_view
+
+			if (m_params.type == ContextType::OpenGL && IsExtensionSupported("GL_ARB_texture_view"))
+			{
+				if (loader.Load<PFNGLTEXTUREVIEWPROC, functionIndex>(glTextureView, "glTextureView", false))
+					return true;
+			}
+
+			if (IsExtensionSupported("GL_EXT_texture_view"))
+			{
+				if (loader.Load<PFNGLTEXTUREVIEWPROC, functionIndex>(glTextureView, "glTextureViewEXT", false))
+					return true;
+			}
+
+			if (IsExtensionSupported("GL_OES_texture_view"))
+			{
+				if (loader.Load<PFNGLTEXTUREVIEWPROC, functionIndex>(glTextureView, "glTextureViewOES", false))
+					return true;
+			}
 		}
 
 		return false;
