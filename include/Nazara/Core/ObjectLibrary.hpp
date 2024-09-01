@@ -21,16 +21,13 @@ namespace Nz
 		friend Type;
 
 		public:
-			ObjectLibrary() = default;
-			~ObjectLibrary() = default;
-
 			void Clear();
 
-			std::shared_ptr<Type> Get(std::string_view name);
-			bool Has(std::string_view name);
+			std::shared_ptr<Type> Get(std::string_view name) const;
+			bool Has(std::string_view name) const;
 
 			void Register(std::string name, std::shared_ptr<Type> object);
-			std::shared_ptr<Type> Query(std::string_view name);
+			std::shared_ptr<Type> Query(std::string_view name) const;
 			void Unregister(std::string_view name);
 
 		private:
