@@ -69,7 +69,7 @@ namespace Nz
 	{
 		Unload();
 
-		if (libraryPath.extension() != NAZARA_DYNLIB_EXTENSION)
+		if (libraryPath.extension().empty())
 			libraryPath += NAZARA_DYNLIB_EXTENSION;
 
 		auto impl = std::make_unique<PlatformImpl::DynLibImpl>();

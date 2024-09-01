@@ -4,6 +4,7 @@
 
 #include <Nazara/OpenGLRenderer/Wrapper/EGL/EGLLoader.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/Log.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/EGL/EGLContextBase.hpp>
 
@@ -54,15 +55,29 @@ namespace Nz::GL
 	EGLLoader::EGLLoader(const Renderer::Config& config) :
 	m_defaultDisplay(nullptr)
 	{
-		if (!m_eglLib.Load("libEGL"))
-			throw std::runtime_error("failed to load libEGL: " + m_eglLib.GetLastError());
+		std::array libs{
+			"libEGL",
+#if defined(NAZARA_PLATFORM_LINUX) || defined(NAZARA_PLATFORM_ANDROID) || defined(NAZARA_PLATFORM_FREEBSD)
+			"libEGL.so.1",
+#endif
+		};
 
-		SymbolLoader loader(*this);
+		for (const char* libname : libs)
+		{
+			ErrorFlags errorFlags(ErrorMode::Silent, ErrorMode::ThrowException);
+
+			if (!m_eglLib.Load(Utf8Path(libname)))
+				continue;
+
+			Error::ApplyFlags({}, ErrorMode::Silent);
+
+			SymbolLoader loader(*this);
 
 #define NAZARA_OPENGLRENDERER_EGL_FUNC(name, sig) loader.Load<sig>(name, #name, true);
 #define NAZARA_OPENGLRENDERER_EGL_FUNC_OPT(name, sig) loader.Load<sig>(name, #name, false);
 
 #include <Nazara/OpenGLRenderer/Wrapper/EGL/EGLFunctions.hpp>
+		}
 
 		EGLDisplay defaultDisplay = eglGetDisplay(EGL_DEFAULT_DISPLAY);
 		if (!defaultDisplay)
