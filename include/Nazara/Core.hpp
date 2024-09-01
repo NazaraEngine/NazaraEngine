@@ -119,10 +119,13 @@
 #include <Nazara/Core/Stream.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <Nazara/Core/SubMesh.hpp>
+#include <Nazara/Core/SystemDirectory.hpp>
 #include <Nazara/Core/TaskScheduler.hpp>
 #include <Nazara/Core/TaskSchedulerAppComponent.hpp>
 #include <Nazara/Core/ThreadExt.hpp>
 #include <Nazara/Core/Time.hpp>
+#include <Nazara/Core/TimerManager.hpp>
+#include <Nazara/Core/Timestamp.hpp>
 #include <Nazara/Core/TriangleIterator.hpp>
 #include <Nazara/Core/Unicode.hpp>
 #include <Nazara/Core/UniformBuffer.hpp>

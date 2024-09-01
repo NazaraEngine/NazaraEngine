@@ -35,7 +35,9 @@
 #include <Nazara/Physics3D/PhysBody3D.hpp>
 #include <Nazara/Physics3D/PhysCharacter3D.hpp>
 #include <Nazara/Physics3D/PhysConstraint3D.hpp>
+#include <Nazara/Physics3D/PhysFilter3D.hpp>
 #include <Nazara/Physics3D/Physics3D.hpp>
+#include <Nazara/Physics3D/PhysObjectLayer3D.hpp>
 #include <Nazara/Physics3D/PhysWorld3D.hpp>
 #include <Nazara/Physics3D/PhysWorld3DStepListener.hpp>
 #include <Nazara/Physics3D/RigidBody3D.hpp>
