@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_OPENGLRENDERER_WRAPPER_COREFUNCTIONS_HPP
-#define NAZARA_OPENGLRENDERER_WRAPPER_COREFUNCTIONS_HPP
+#ifndef NAZARA_OPENGLRENDERER_WRAPPER_OPENGL_HPP
+#define NAZARA_OPENGLRENDERER_WRAPPER_OPENGL_HPP
 
 // no include reordering
 
@@ -41,4 +41,4 @@ typedef void (GL_APIENTRYP PFNGLCLIPCONTROLPROC) (GLenum origin, GLenum depth);
 // SPIR-V shaders (OpenGL 4.6)
 typedef void (GL_APIENTRYP PFNGLSPECIALIZESHADERPROC) (GLuint shader, const GLchar* pEntryPoint, GLuint numSpecializationConstants, const GLuint* pConstantIndex, const GLuint* pConstantValue);
 
-#endif // NAZARA_OPENGLRENDERER_WRAPPER_COREFUNCTIONS_HPP
+#endif // NAZARA_OPENGLRENDERER_WRAPPER_OPENGL_HPP
