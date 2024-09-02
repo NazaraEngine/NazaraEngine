@@ -347,7 +347,7 @@ namespace Nz::GL
 					case ImageType::E1D_Array:
 					case ImageType::E2D_Array:
 					case ImageType::E3D:
-						framebuffer.TextureLayer(GL_COLOR_ATTACHMENT0, parentTexture.GetTexture().GetObjectId(), texViewInfo.baseArrayLayer, texViewInfo.baseMipLevel);
+						framebuffer.TextureLayer(GL_COLOR_ATTACHMENT0, parentTexture.GetTexture().GetObjectId(), texViewInfo.baseMipLevel, texViewInfo.baseArrayLayer);
 						break;
 				}
 			}
@@ -1250,7 +1250,7 @@ R"(OpenGL debug message (ID: {0:#x})
 				case ImageType::E1D_Array:
 				case ImageType::E2D_Array:
 				case ImageType::E3D:
-					framebuffer.TextureLayer(GL_COLOR_ATTACHMENT0, parentTexture.GetTexture().GetObjectId(), texViewInfo.baseArrayLayer, texViewInfo.baseMipLevel);
+					framebuffer.TextureLayer(GL_COLOR_ATTACHMENT0, parentTexture.GetTexture().GetObjectId(), texViewInfo.baseMipLevel, texViewInfo.baseArrayLayer);
 					break;
 			}
 		}
