@@ -522,8 +522,7 @@ namespace Nz
 		if (y != quat.y)
 			return y < quat.y;
 
-		if (z != quat.z)
-			return z < quat.z;
+		return z < quat.z;
 	}
 
 	template<typename T>
@@ -538,8 +537,7 @@ namespace Nz
 		if (y != quat.y)
 			return y < quat.y;
 
-		if (z != quat.z)
-			return z <= quat.z;
+		return z <= quat.z;
 	}
 
 	template<typename T>
@@ -554,8 +552,7 @@ namespace Nz
 		if (y != quat.y)
 			return y > quat.y;
 
-		if (z != quat.z)
-			return z > quat.z;
+		return z > quat.z;
 	}
 
 	template<typename T>
@@ -570,8 +567,7 @@ namespace Nz
 		if (y != quat.y)
 			return y > quat.y;
 
-		if (z != quat.z)
-			return z >= quat.z;
+		return z >= quat.z;
 	}
 
 	template<typename T>
