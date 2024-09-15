@@ -236,11 +236,11 @@ namespace Nz
 		auto view = m_registry.view<NodeComponent, T>(entt::exclude<DisabledComponent>);
 		for (auto entity : view)
 		{
-			auto& bodyComponent = view.get<T>(entity);
+			auto& bodyComponent = view.template get<T>(entity);
 			if (bodyComponent.GetReplicationMode() == PhysicsReplication3D::None || !m_physWorld.IsBodyActive(bodyComponent.GetBodyIndex()))
 				continue;
 
-			auto& nodeComponent = view.get<NodeComponent>(entity);
+			auto& nodeComponent = view.template get<NodeComponent>(entity);
 			auto [position, rotation] = bodyComponent.GetPositionAndRotation();
 
 			switch (bodyComponent.GetReplicationMode())
