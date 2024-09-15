@@ -181,37 +181,8 @@ namespace Nz
 		if (!m_physWorld.Step(elapsedTime))
 			return; // No physics step took place
 
-		// Replicate characters to their NodeComponent
-		{
-			auto view = m_registry.view<NodeComponent, const PhysCharacter3DComponent>(entt::exclude<DisabledComponent>);
-			for (auto entity : view)
-			{
-				auto& characterComponent = view.get<const PhysCharacter3DComponent>(entity);
-				if (!m_physWorld.IsBodyActive(characterComponent.GetBodyIndex()))
-					continue;
-
-				auto& nodeComponent = view.get<NodeComponent>(entity);
-
-				auto [position, rotation] = characterComponent.GetPositionAndRotation();
-				nodeComponent.SetTransform(position, rotation);
-			}
-		}
-
-		// Replicate active rigid body position to their node components
-		{
-			auto view = m_registry.view<NodeComponent, const RigidBody3DComponent>(entt::exclude<DisabledComponent>);
-			for (auto entity : m_registry.view<NodeComponent, const RigidBody3DComponent>(entt::exclude<DisabledComponent>))
-			{
-				auto& rigidBodyComponent = view.get<const RigidBody3DComponent>(entity);
-				if (!m_physWorld.IsBodyActive(rigidBodyComponent.GetBodyIndex()))
-					continue;
-
-				auto& nodeComponent = view.get<NodeComponent>(entity);
-
-				auto [position, rotation] = rigidBodyComponent.GetPositionAndRotation();
-				nodeComponent.SetTransform(position, rotation);
-			}
-		}
+		ReplicateEntities<PhysCharacter3DComponent>();
+		ReplicateEntities<RigidBody3DComponent>();
 	}
 
 	void Physics3DSystem::OnBodyConstruct(entt::registry& registry, entt::entity entity)
@@ -257,5 +228,44 @@ namespace Nz
 		assert(uniqueIndex <= m_bodyIndicesToEntity.size());
 
 		m_bodyIndicesToEntity[uniqueIndex] = entt::null;
+	}
+
+	template<typename T>
+	void Physics3DSystem::ReplicateEntities()
+	{
+		auto view = m_registry.view<NodeComponent, T>(entt::exclude<DisabledComponent>);
+		for (auto entity : view)
+		{
+			auto& bodyComponent = view.get<T>(entity);
+			if (bodyComponent.GetReplicationMode() == PhysicsReplication3D::None || !m_physWorld.IsBodyActive(bodyComponent.GetBodyIndex()))
+				continue;
+
+			auto& nodeComponent = view.get<NodeComponent>(entity);
+			auto [position, rotation] = bodyComponent.GetPositionAndRotation();
+
+			switch (bodyComponent.GetReplicationMode())
+			{
+				case PhysicsReplication3D::Global:
+				case PhysicsReplication3D::GlobalOnce:
+				{
+					nodeComponent.SetGlobalTransform(position, rotation);
+					if (bodyComponent.GetReplicationMode() == PhysicsReplication3D::GlobalOnce)
+						bodyComponent.SetReplicationMode(PhysicsReplication3D::None);
+					break;
+				}
+
+				case PhysicsReplication3D::Local:
+				case PhysicsReplication3D::LocalOnce:
+				{
+					nodeComponent.SetTransform(position, rotation);
+					if (bodyComponent.GetReplicationMode() == PhysicsReplication3D::LocalOnce)
+						bodyComponent.SetReplicationMode(PhysicsReplication3D::None);
+					break;
+				}
+
+				case PhysicsReplication3D::None:
+					NAZARA_UNREACHABLE();
+			}
+		}
 	}
 }

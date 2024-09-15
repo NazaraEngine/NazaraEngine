@@ -37,6 +37,15 @@ namespace Nz
 		Discrete,
 		LinearCast
 	};
+
+	enum class PhysicsReplication3D
+	{
+		None,
+		Local,
+		LocalOnce,
+		Global,
+		GlobalOnce
+	};
 }
 
 #endif // NAZARA_PHYSICS3D_ENUMS_HPP

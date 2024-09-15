@@ -2,12 +2,22 @@
 // This file is part of the "Nazara Engine - Physics3D module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-
 namespace Nz
 {
-	inline PhysCharacter3DComponent::PhysCharacter3DComponent(const PhysCharacter3D::Settings& settings)
+	inline PhysCharacter3DComponent::PhysCharacter3DComponent(const PhysCharacter3D::Settings& settings, PhysicsReplication3D replication) :
+	m_replicationMode(replication)
 	{
 		m_settings = std::make_unique<PhysCharacter3D::Settings>(settings);
+	}
+
+	inline PhysicsReplication3D PhysCharacter3DComponent::GetReplicationMode() const
+	{
+		return m_replicationMode;
+	}
+
+	inline void PhysCharacter3DComponent::SetReplicationMode(PhysicsReplication3D replicationMode)
+	{
+		m_replicationMode = replicationMode;
 	}
 
 	inline void PhysCharacter3DComponent::Construct(PhysWorld3D& world)

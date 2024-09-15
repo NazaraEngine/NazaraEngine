@@ -84,6 +84,8 @@ namespace Nz
 			void OnCharacterConstruct(entt::registry& registry, entt::entity entity);
 			void OnCharacterDestruct(entt::registry& registry, entt::entity entity);
 
+			template<typename T> void ReplicateEntities();
+
 			std::size_t m_stepCount;
 			std::vector<entt::entity> m_bodyIndicesToEntity;
 			entt::registry& m_registry;

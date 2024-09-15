@@ -8,6 +8,7 @@
 #define NAZARA_PHYSICS3D_COMPONENTS_PHYSCHARACTER3DCOMPONENT_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Physics3D/Enums.hpp>
 #include <Nazara/Physics3D/PhysCharacter3D.hpp>
 
 namespace Nz
@@ -17,10 +18,14 @@ namespace Nz
 		friend class Physics3DSystem;
 
 		public:
-			inline PhysCharacter3DComponent(const PhysCharacter3D::Settings& settings);
+			inline PhysCharacter3DComponent(const PhysCharacter3D::Settings& settings, PhysicsReplication3D replication = PhysicsReplication3D::Local);
 			PhysCharacter3DComponent(const PhysCharacter3DComponent&) = delete;
 			PhysCharacter3DComponent(PhysCharacter3DComponent&&) noexcept = default;
 			~PhysCharacter3DComponent() = default;
+
+			inline PhysicsReplication3D GetReplicationMode() const;
+
+			inline void SetReplicationMode(PhysicsReplication3D replicationMode);
 
 			PhysCharacter3DComponent& operator=(const PhysCharacter3DComponent&) = delete;
 			PhysCharacter3DComponent& operator=(PhysCharacter3DComponent&&) noexcept = default;
@@ -29,6 +34,7 @@ namespace Nz
 			inline void Construct(PhysWorld3D& world);
 
 			std::unique_ptr<PhysCharacter3D::Settings> m_settings;
+			PhysicsReplication3D m_replicationMode;
 	};
 }
 

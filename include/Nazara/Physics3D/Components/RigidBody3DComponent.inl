@@ -6,14 +6,26 @@
 
 namespace Nz
 {
-	inline RigidBody3DComponent::RigidBody3DComponent(const RigidBody3D::DynamicSettings& settings)
+	inline RigidBody3DComponent::RigidBody3DComponent(const RigidBody3D::DynamicSettings& settings, PhysicsReplication3D replication) :
+	m_replicationMode(replication)
 	{
 		m_settings = std::make_unique<Setting>(settings);
 	}
 
-	inline RigidBody3DComponent::RigidBody3DComponent(const RigidBody3D::StaticSettings& settings)
+	inline RigidBody3DComponent::RigidBody3DComponent(const RigidBody3D::StaticSettings& settings, PhysicsReplication3D replication) :
+	m_replicationMode(replication)
 	{
 		m_settings = std::make_unique<Setting>(settings);
+	}
+
+	inline PhysicsReplication3D RigidBody3DComponent::GetReplicationMode() const
+	{
+		return m_replicationMode;
+	}
+
+	inline void RigidBody3DComponent::SetReplicationMode(PhysicsReplication3D replicationMode)
+	{
+		m_replicationMode = replicationMode;
 	}
 
 	inline void RigidBody3DComponent::Construct(PhysWorld3D& world)

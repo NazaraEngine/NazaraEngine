@@ -8,6 +8,7 @@
 #define NAZARA_PHYSICS3D_COMPONENTS_RIGIDBODY3DCOMPONENT_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Physics3D/Enums.hpp>
 #include <Nazara/Physics3D/RigidBody3D.hpp>
 #include <variant>
 
@@ -18,11 +19,15 @@ namespace Nz
 		friend class Physics3DSystem;
 
 		public:
-			inline RigidBody3DComponent(const RigidBody3D::DynamicSettings& settings);
-			inline RigidBody3DComponent(const RigidBody3D::StaticSettings& settings);
+			inline RigidBody3DComponent(const RigidBody3D::DynamicSettings& settings, PhysicsReplication3D replication = PhysicsReplication3D::Local);
+			inline RigidBody3DComponent(const RigidBody3D::StaticSettings& settings, PhysicsReplication3D replication = PhysicsReplication3D::None);
 			RigidBody3DComponent(const RigidBody3DComponent&) = delete;
 			RigidBody3DComponent(RigidBody3DComponent&&) noexcept = default;
 			~RigidBody3DComponent() = default;
+
+			inline PhysicsReplication3D GetReplicationMode() const;
+
+			inline void SetReplicationMode(PhysicsReplication3D replicationMode);
 
 			RigidBody3DComponent& operator=(const RigidBody3DComponent&) = delete;
 			RigidBody3DComponent& operator=(RigidBody3DComponent&&) noexcept = default;
@@ -31,7 +36,9 @@ namespace Nz
 			inline void Construct(PhysWorld3D& world);
 
 			using Setting = std::variant<RigidBody3D::DynamicSettings, RigidBody3D::StaticSettings>;
+
 			std::unique_ptr<Setting> m_settings;
+			PhysicsReplication3D m_replicationMode;
 	};
 }
 
