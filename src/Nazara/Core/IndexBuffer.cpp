@@ -94,6 +94,18 @@ namespace Nz
 		OptimizeIndices(mapper.begin(), m_indexCount);
 	}
 
+	void IndexBuffer::ReverseWinding()
+	{
+		IndexMapper mapper(*this);
+		for (UInt32 i = 0; i < mapper.GetIndexCount(); ++i)
+		{
+			UInt32 b = mapper.Get(i * 3 + 1);
+			UInt32 c = mapper.Get(i * 3 + 2);
+			mapper.Set(i * 3 + 1, c);
+			mapper.Set(i * 3 + 2, b);
+		}
+	}
+
 	void IndexBuffer::Unmap() const
 	{
 		m_buffer->Unmap();

@@ -108,21 +108,37 @@ namespace Nz
 			BufferMapper<IndexBuffer> indexMapper(*indexBuffer, 0, indexBuffer->GetIndexCount());
 			UInt16* index = static_cast<UInt16*>(indexMapper.GetPointer());
 
-			for (unsigned int i = 0; i < header.num_tris; ++i)
-			{
 #ifdef NAZARA_BIG_ENDIAN
+			for (UInt32 i = 0; i < header.num_tris; ++i)
+			{
 				triangles[i].vertices[0] = ByteSwap(triangles[i].vertices[0]);
 				triangles[i].texCoords[0] = ByteSwap(triangles[i].texCoords[0]);
 				triangles[i].vertices[1] = ByteSwap(triangles[i].vertices[1]);
 				triangles[i].texCoords[1] = ByteSwap(triangles[i].texCoords[1]);
 				triangles[i].vertices[2] = ByteSwap(triangles[i].vertices[2]);
 				triangles[i].texCoords[2] = ByteSwap(triangles[i].texCoords[2]);
+			}
 #endif
 
-				// Reverse winding order
-				*index++ = triangles[i].vertices[0];
-				*index++ = triangles[i].vertices[2];
-				*index++ = triangles[i].vertices[1];
+			if (parameters.reverseWinding)
+			{
+				// Winding order is reversed relative to what the engine expects
+
+				for (UInt32 i = 0; i < header.num_tris; ++i)
+				{
+					*index++ = triangles[i].vertices[0];
+					*index++ = triangles[i].vertices[1];
+					*index++ = triangles[i].vertices[2];
+				}
+			}
+			else
+			{
+				for (UInt32 i = 0; i < header.num_tris; ++i)
+				{
+					*index++ = triangles[i].vertices[0];
+					*index++ = triangles[i].vertices[2];
+					*index++ = triangles[i].vertices[1];
+				}
 			}
 
 			indexMapper.Unmap();

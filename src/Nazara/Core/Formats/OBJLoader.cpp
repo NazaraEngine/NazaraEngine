@@ -256,6 +256,9 @@ namespace Nz
 
 				indexMapper.Unmap(); // Pour laisser les autres tâches affecter l'index buffer
 
+				if (parameters.reverseWinding)
+					indexBuffer->ReverseWinding();
+
 				if (parameters.optimizeIndexBuffers)
 					indexBuffer->Optimize();
 

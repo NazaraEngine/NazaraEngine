@@ -405,16 +405,33 @@ std::shared_ptr<Nz::SubMesh> ProcessSubMesh(const std::filesystem::path& originP
 	Nz::IndexMapper indexMapper(*indexBuffer);
 	Nz::IndexIterator index = indexMapper.begin();
 
-	for (unsigned int faceIndex = 0; faceIndex < meshData->mNumFaces; ++faceIndex)
+	if (parameters.reverseWinding)
 	{
-		const aiFace& face = meshData->mFaces[faceIndex];
-		if (face.mNumIndices != 3)
-			NazaraWarning("Assimp plugin: This face is not a triangle!");
+		for (unsigned int faceIndex = 0; faceIndex < meshData->mNumFaces; ++faceIndex)
+		{
+			const aiFace& face = meshData->mFaces[faceIndex];
+			if (face.mNumIndices != 3)
+				NazaraWarning("Assimp plugin: This face is not a triangle!");
 
-		*index++ = face.mIndices[0];
-		*index++ = face.mIndices[1];
-		*index++ = face.mIndices[2];
+			*index++ = face.mIndices[0];
+			*index++ = face.mIndices[2];
+			*index++ = face.mIndices[1];
+		}
 	}
+	else
+	{
+		for (unsigned int faceIndex = 0; faceIndex < meshData->mNumFaces; ++faceIndex)
+		{
+			const aiFace& face = meshData->mFaces[faceIndex];
+			if (face.mNumIndices != 3)
+				NazaraWarning("Assimp plugin: This face is not a triangle!");
+
+			*index++ = face.mIndices[0];
+			*index++ = face.mIndices[1];
+			*index++ = face.mIndices[2];
+		}
+	}
+
 	indexMapper.Unmap();
 
 	std::shared_ptr<Nz::VertexBuffer> vertexBuffer = std::make_shared<Nz::VertexBuffer>(parameters.vertexDeclaration, vertexCount, parameters.vertexBufferFlags, parameters.bufferFactory);

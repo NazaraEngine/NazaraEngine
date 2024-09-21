@@ -64,6 +64,9 @@ namespace Nz
 		bool optimizeIndexBuffers = false;
 		#endif
 
+		// Should the winding of the triangles be reversed?
+		bool reverseWinding = false;
+
 		/* The declaration must have a Vector3f position component enabled
 		 * If the declaration has a Vector2f UV component enabled, UV are generated
 		 * If the declaration has a Vector3f Normals component enabled, Normals are generated.

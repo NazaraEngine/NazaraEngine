@@ -104,16 +104,27 @@ namespace Nz
 					// Index buffer
 					IndexMapper indexMapper(*indexBuffer);
 
-					// Le format définit un set de triangles nous permettant de retrouver facilement les indices
-					// Cependant les sommets des triangles ne sont pas spécifiés dans le même ordre que ceux du moteur
-					// (On parle ici de winding)
-					UInt32 index = 0;
-					for (const MD5MeshParser::Triangle& triangle : md5Mesh.triangles)
+					if (parameters.reverseWinding)
 					{
-						// On les respécifie dans le bon ordre (inversion du winding)
-						indexMapper.Set(index++, triangle.x);
-						indexMapper.Set(index++, triangle.z);
-						indexMapper.Set(index++, triangle.y);
+						// Winding order is reversed relative to what the engine expects
+						UInt32 index = 0;
+						for (const MD5MeshParser::Triangle& triangle : md5Mesh.triangles)
+						{
+							// On les respécifie dans le bon ordre (inversion du winding)
+							indexMapper.Set(index++, triangle.x);
+							indexMapper.Set(index++, triangle.y);
+							indexMapper.Set(index++, triangle.z);
+						}
+					}
+					else
+					{
+						UInt32 index = 0;
+						for (const MD5MeshParser::Triangle& triangle : md5Mesh.triangles)
+						{
+							indexMapper.Set(index++, triangle.x);
+							indexMapper.Set(index++, triangle.z);
+							indexMapper.Set(index++, triangle.y);
+						}
 					}
 
 					indexMapper.Unmap();

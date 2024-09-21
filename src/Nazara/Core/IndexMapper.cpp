@@ -119,11 +119,6 @@ namespace Nz
 		return m_mapper.GetBuffer();
 	}
 
-	UInt32 IndexMapper::GetIndexCount() const
-	{
-		return m_indexCount;
-	}
-
 	void IndexMapper::Set(std::size_t i, UInt32 value)
 	{
 		NazaraAssert(i < m_indexCount, "Index out of range");

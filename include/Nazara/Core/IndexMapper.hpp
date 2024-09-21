@@ -25,7 +25,7 @@ namespace Nz
 
 			UInt32 Get(std::size_t i) const;
 			const IndexBuffer* GetBuffer() const;
-			UInt32 GetIndexCount() const;
+			inline UInt32 GetIndexCount() const;
 
 			void Set(std::size_t i, UInt32 value);
 
@@ -46,7 +46,9 @@ namespace Nz
 			Getter m_getter;
 			Setter m_setter;
 			UInt32 m_indexCount;
-};
+	};
 }
+
+#include <Nazara/Core/IndexMapper.inl>
 
 #endif // NAZARA_CORE_INDEXMAPPER_HPP

@@ -44,6 +44,8 @@ namespace Nz
 
 			void Optimize();
 
+			void ReverseWinding();
+
 			void Unmap() const;
 
 			IndexBuffer& operator=(const IndexBuffer&) = default;
