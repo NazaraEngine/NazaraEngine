@@ -47,14 +47,9 @@ jobs:
         xmake-version: branch@dev
         actions-cache-folder: .xmake-cache-W${{ steps.cache_key.outputs.key }}
 
-    # Update xmake repository (in order to have the file that will be cached)
-    - name: Update xmake repository
-      run: xmake repo --update
-
-    # Fetch xmake dephash
-    - name: Retrieve dependencies hash
-      id: dep_hash
-      run: echo "hash=$(xmake l utils.ci.packageskey)" >> $GITHUB_OUTPUT
+    # Update xmake to toolchain
+    - name: Switch to toolchain branch
+      run: xmake update -s toolchain
 
     # Setup emsdk
     - name: Setup emscripten
@@ -63,25 +58,9 @@ jobs:
         version: 3.1.35
         actions-cache-folder: emsdk-cache-${{ matrix.mode }}-${{ matrix.kind }}
 
-    # Cache xmake dependencies
-    - name: Restore cached xmake dependencies
-      id: restore-depcache
-      uses: actions/cache/restore@v4
-      with:
-        path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
-        key: Wasm-${{ matrix.arch }}-${{ matrix.mode }}-${{ steps.dep_hash.outputs.hash }}-W${{ steps.cache_key.outputs.key }}
-
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
       run: xmake config --plat=wasm --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --ccache=n --assimp=n --embed_rendererbackends=y --embed_plugins=y --link_openal=y --ffmpeg=n --shadernodes=n --tests=y --yes
-
-    # Save dependencies
-    - name: Save cached xmake dependencies
-      if: ${{ !steps.restore-depcache.outputs.cache-hit }}
-      uses: actions/cache/save@v4
-      with:
-        path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
-        key: ${{ steps.restore-depcache.outputs.cache-primary-key }}
 
     # Cache assets downloading
     - name: Restore cached assets

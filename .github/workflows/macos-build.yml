@@ -53,34 +53,13 @@ jobs:
         xmake-version: branch@dev
         actions-cache-folder: .xmake-cache-W${{ steps.cache_key.outputs.key }}
 
-    # Update xmake repository (in order to have the file that will be cached)
-    - name: Update xmake repository
-      run: xmake repo --update
-
-    # Fetch xmake dephash
-    - name: Retrieve dependencies hash
-      id: dep_hash
-      run: echo "hash=$(xmake l utils.ci.packageskey)" >> $GITHUB_OUTPUT
-
-    # Cache xmake dependencies
-    - name: Restore cached xmake dependencies
-      id: restore-depcache
-      uses: actions/cache/restore@v4
-      with:
-        path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
-        key: macOS-${{ matrix.arch }}-${{ matrix.confs.mode }}${{ matrix.confs.cache_key }}-${{ steps.dep_hash.outputs.hash }}-W${{ steps.cache_key.outputs.key }}
+    # Update xmake to toolchain
+    - name: Switch to toolchain branch
+      run: xmake update -s toolchain
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
       run: xmake config --arch=${{ matrix.arch }} --mode=${{ matrix.confs.mode }} --static=${{ matrix.kind == 'static' && 'yes' || 'no' }} ${{ matrix.confs.config }} --ccache=n --ffmpeg=y --shadernodes=y --tests=y --unitybuild=y --yes
-
-    # Save dependencies
-    - name: Save cached xmake dependencies
-      if: ${{ !steps.restore-depcache.outputs.cache-hit }}
-      uses: actions/cache/save@v4
-      with:
-        path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
-        key: ${{ steps.restore-depcache.outputs.cache-primary-key }}
 
     # Cache assets downloading
     - name: Restore cached assets
