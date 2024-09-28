@@ -126,7 +126,7 @@ namespace Nz
 
 	constexpr Timestamp Timestamp::FromSeconds(Int64 seconds)
 	{
-		return Timestamp(seconds * 1'000'000'000ull);
+		return Timestamp(seconds * 1'000'000'000ll);
 	}
 
 	constexpr Timestamp Timestamp::FromTime(Time time)
