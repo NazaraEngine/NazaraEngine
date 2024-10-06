@@ -181,7 +181,7 @@ namespace Nz
 			return false;
 		}
 
-		streamSource.stream = streamSource.ownedStream.get();
+		streamSource.stream = &imageStream;
 		StoreTextureInfoAndParams(Texture::BuildTextureInfo(*image), params);
 
 		return true;
@@ -209,7 +209,7 @@ namespace Nz
 		}
 
 		streamSource.additionalParam = atlasSize;
-		streamSource.stream = streamSource.ownedStream.get();
+		streamSource.stream = &imageStream;
 		StoreTextureInfoAndParams(Texture::BuildTextureInfo(*image), params);
 
 		return true;
@@ -237,7 +237,7 @@ namespace Nz
 		}
 
 		streamSource.additionalParam = cubemapParams;
-		streamSource.stream = streamSource.ownedStream.get();
+		streamSource.stream = &imageStream;
 		StoreTextureInfoAndParams(Texture::BuildTextureInfo(*image), params);
 
 		return true;
