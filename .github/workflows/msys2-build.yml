@@ -53,9 +53,7 @@ jobs:
     - name: Set xmake env
       run: echo "XMAKE_GLOBALDIR=${{ runner.workspace }}/xmake-global" >> $GITHUB_ENV
 
-    - run: 
-        xmake update -s github:SirLynix/xmake#msys2-debug
-        sleep 5
+    - run: xmake update -s github:SirLynix/xmake#msys2-debug && sleep 5
 
     # Update xmake repository (in order to have the file that will be cached)
     - name: Update xmake repository
