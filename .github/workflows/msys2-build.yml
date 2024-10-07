@@ -74,7 +74,7 @@ jobs:
 
     # Setup compilation mode and install project dependencies
     - name: Configure xmake and install dependencies
-      run: xmake config --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --static=${{ matrix.kind == 'static' && 'yes' || 'no' }} --ccache=n --ffmpeg=y --shadernodes=y --tests=y --unitybuild=y --yes -vD
+      run: xmake config --arch=${{ matrix.arch }} --mode=${{ matrix.mode }} --static=${{ matrix.kind == 'static' && 'yes' || 'no' }} --ccache=n --ffmpeg=y --shadernodes=y --tests=y --unitybuild=y --yes
 
     # Save dependencies
     - name: Save cached xmake dependencies
