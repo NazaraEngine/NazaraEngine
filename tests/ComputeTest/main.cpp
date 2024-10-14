@@ -82,7 +82,7 @@ int main()
 	std::shared_ptr<Nz::RenderPipelineLayout> computePipelineLayout = device->InstantiateRenderPipelineLayout(computePipelineLayoutInfo);
 
 	std::shared_ptr<nzsl::FilesystemModuleResolver> moduleResolver = std::make_shared<nzsl::FilesystemModuleResolver>();
-	moduleResolver->RegisterModuleDirectory(resourceDir / "../shaders/", true);
+	moduleResolver->RegisterDirectory(resourceDir / "../shaders/", true);
 
 	std::shared_ptr<Nz::ComputePipeline> computePipeline;
 	try
