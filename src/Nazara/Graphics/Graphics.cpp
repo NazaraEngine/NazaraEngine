@@ -512,12 +512,12 @@ namespace Nz
 #ifdef NAZARA_DEBUG
 		// Override embed files with dev files in debug
 		if (std::filesystem::path modulePath = "../../src/Nazara/Graphics/Resources/Shaders"; std::filesystem::is_directory(modulePath))
-			m_shaderModuleResolver->RegisterModuleDirectory(modulePath, true);
+			m_shaderModuleResolver->RegisterDirectory(modulePath, true);
 #endif
 
 		// Let application register their own shaders
 		if (std::filesystem::path shaderPath = "Shaders"; std::filesystem::is_directory(shaderPath))
-			m_shaderModuleResolver->RegisterModuleDirectory(shaderPath);
+			m_shaderModuleResolver->RegisterDirectory(shaderPath);
 	}
 
 	void Graphics::SelectDepthStencilFormats()
