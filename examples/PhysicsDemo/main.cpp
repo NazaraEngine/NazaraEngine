@@ -291,6 +291,7 @@ int main(int argc, char* argv[])
 			Nz::Vector3f currentUp = currentRotation * Nz::Vector3f::Up();
 			Nz::Vector3f upError = currentUp.CrossProduct(desiredUp);
 
+			playerShipBody.WakeUp();
 			playerShipBody.AddTorque(headingController.Update(headingError, elapsedTime) * 200.f);
 			playerShipBody.AddTorque(upController.Update(upError, elapsedTime) * 200.f);
 

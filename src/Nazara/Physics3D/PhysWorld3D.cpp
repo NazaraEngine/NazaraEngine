@@ -746,7 +746,7 @@ namespace Nz
 			{
 				switch (object1)
 				{
-					case 0:  return object2 == 1;
+					case 0:  return object2 == 0 || object2 == 1;
 					case 1:  return true;
 					default: return false;
 				}
@@ -759,7 +759,7 @@ namespace Nz
 			{
 				switch (objectLayer)
 				{
-					case 0:  return broadphaseLayer == 1;
+					case 0:  return broadphaseLayer == 0 || broadphaseLayer == 1;
 					case 1:  return true;
 					default: return false;
 				}
