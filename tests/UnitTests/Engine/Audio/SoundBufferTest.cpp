@@ -19,6 +19,7 @@ SCENARIO("SoundBuffer", "[AUDIO][SOUNDBUFFER]")
 			{
 				CHECK(soundBuffer->GetDuration() == 8192_ms);
 				CHECK(soundBuffer->GetFormat() == Nz::AudioFormat::I16_Stereo);
+				CHECK(soundBuffer->GetSampleCount() == 1572864);
 				CHECK(soundBuffer->GetSampleRate() == 96000);
 			}
 		}
@@ -32,6 +33,7 @@ SCENARIO("SoundBuffer", "[AUDIO][SOUNDBUFFER]")
 			{
 				CHECK(soundBuffer->GetDuration() == 27'193'468_us);
 				CHECK(soundBuffer->GetFormat() == Nz::AudioFormat::I16_Stereo);
+				CHECK(soundBuffer->GetSampleCount() == 1746432);
 				CHECK(soundBuffer->GetSampleRate() == 32000);
 			}
 		}
@@ -45,6 +47,7 @@ SCENARIO("SoundBuffer", "[AUDIO][SOUNDBUFFER]")
 			{
 				CHECK(soundBuffer->GetDuration() == 63'059'591_us);
 				CHECK(soundBuffer->GetFormat() == Nz::AudioFormat::I16_Stereo);
+				CHECK(soundBuffer->GetSampleCount() == 5561856);
 				CHECK(soundBuffer->GetSampleRate() == 44100);
 			}
 		}
@@ -58,6 +61,7 @@ SCENARIO("SoundBuffer", "[AUDIO][SOUNDBUFFER]")
 			{
 				CHECK(soundBuffer->GetDuration() == 2'490'340_us);
 				CHECK(soundBuffer->GetFormat() == Nz::AudioFormat::I16_Mono);
+				CHECK(soundBuffer->GetSampleCount() == 109824);
 				CHECK(soundBuffer->GetSampleRate() == 44100);
 			}
 		}
