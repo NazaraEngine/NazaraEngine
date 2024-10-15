@@ -31,7 +31,7 @@ SCENARIO("SoundBuffer", "[AUDIO][SOUNDBUFFER]")
 
 			THEN("We can ask the informations of the file")
 			{
-				CHECK(soundBuffer->GetDuration() == 27'193'468_us);
+				CHECK(soundBuffer->GetDuration() == 27'288_ms);
 				CHECK(soundBuffer->GetFormat() == Nz::AudioFormat::I16_Stereo);
 				CHECK(soundBuffer->GetSampleCount() == 1746432);
 				CHECK(soundBuffer->GetSampleRate() == 32000);

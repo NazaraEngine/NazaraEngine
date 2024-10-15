@@ -6,10 +6,10 @@
 #include <Nazara/Audio/DummyAudioDevice.hpp>
 #include <Nazara/Audio/OpenALDevice.hpp>
 #include <Nazara/Audio/OpenALLibrary.hpp>
+#include <Nazara/Audio/Formats/drmp3Loader.hpp>
 #include <Nazara/Audio/Formats/drwavLoader.hpp>
 #include <Nazara/Audio/Formats/libflacLoader.hpp>
 #include <Nazara/Audio/Formats/libvorbisLoader.hpp>
-#include <Nazara/Audio/Formats/minimp3Loader.hpp>
 #include <Nazara/Core/CommandLineParameters.hpp>
 #include <Nazara/Core/EnvironmentVariables.hpp>
 #include <Nazara/Core/Error.hpp>
@@ -45,14 +45,14 @@ namespace Nz
 		}
 
 		// Loaders
+		m_soundBufferLoader.RegisterLoader(Loaders::GetSoundBufferLoader_drmp3());
+		m_soundStreamLoader.RegisterLoader(Loaders::GetSoundStreamLoader_drmp3());
 		m_soundBufferLoader.RegisterLoader(Loaders::GetSoundBufferLoader_drwav());
 		m_soundStreamLoader.RegisterLoader(Loaders::GetSoundStreamLoader_drwav());
 		m_soundBufferLoader.RegisterLoader(Loaders::GetSoundBufferLoader_libflac());
 		m_soundStreamLoader.RegisterLoader(Loaders::GetSoundStreamLoader_libflac());
 		m_soundBufferLoader.RegisterLoader(Loaders::GetSoundBufferLoader_libvorbis());
 		m_soundStreamLoader.RegisterLoader(Loaders::GetSoundStreamLoader_libvorbis());
-		m_soundBufferLoader.RegisterLoader(Loaders::GetSoundBufferLoader_minimp3());
-		m_soundStreamLoader.RegisterLoader(Loaders::GetSoundStreamLoader_minimp3());
 
 		if (s_openalLibrary.IsLoaded())
 		{

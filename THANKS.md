@@ -23,10 +23,9 @@ Nazara also uses the following libraries at its core and for external tools, we 
 - [UTF8-CPP](https://github.com/nemtrif/utfcpp): UTF-8 with C++ in a Portable Way
 
 **Nazara audio module**:
-- [dr_wav](https://github.com/mackron/dr_libs): Single file audio decoding libraries for C/C++
+- [dr_mp3 and dr_wav](https://github.com/mackron/dr_libs): Single file audio decoding libraries for C/C++
 - [FLAC](https://xiph.org/flac): Free Lossless Audio Codec
 - [libvorbis](https://xiph.org/vorbis): Reference implementation of the Ogg Vorbis audio format
-- [minimp3](https://github.com/lieff/minimp3): Minimalistic MP3 decoder single header library
 - [OpenAL Soft](https://openal-soft.org): OpenAL Soft is a software implementation of the OpenAL 3D audio API
 
 **Nazara Chipmunk physics module**:

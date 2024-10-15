@@ -60,7 +60,7 @@ local modules = {
 	Audio = {
 		Option = "audio",
 		Deps = {"NazaraCore"},
-		Packages = {"dr_wav", "frozen", "libflac", "libvorbis", "minimp3"},
+		Packages = {"dr_mp3", "dr_wav", "frozen", "libflac", "libvorbis"},
 		Custom = function ()
 			if is_plat("wasm") or has_config("link_openal") then
 				add_defines("NAZARA_AUDIO_OPENAL_LINK")
@@ -308,7 +308,7 @@ end
 
 -- Module dependencies
 if has_config("audio") then
-	add_requires("dr_wav", "libflac", "minimp3")
+	add_requires("dr_mp3", "dr_wav", "libflac")
 	add_requires("libvorbis", { configs = { with_vorbisenc = false } })
 
 	if not is_plat("wasm") then
