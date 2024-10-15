@@ -268,4 +268,6 @@ namespace Nz
 			}
 		}
 	}
+
+	Physics3DSystem::ContactListener::~ContactListener() = default;
 }

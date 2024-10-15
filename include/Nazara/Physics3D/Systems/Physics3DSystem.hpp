@@ -56,6 +56,8 @@ namespace Nz
 
 			struct ContactListener
 			{
+				virtual ~ContactListener();
+
 				virtual PhysContactValidateResult3D ValidateContact(entt::handle entity1, const PhysBody3D* body1, entt::handle entity2, const PhysBody3D* body2, const Vector3f& baseOffset, const ShapeCollisionInfo& collisionResult) = 0;
 
 				virtual void OnContactAdded(entt::handle entity1, const PhysBody3D* body1, entt::handle entity2, const PhysBody3D* body2) = 0; //< TODO: Add ContactManifold and ContactSettings
