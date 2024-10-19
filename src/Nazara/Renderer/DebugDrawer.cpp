@@ -19,7 +19,7 @@ namespace Nz
 	namespace
 	{
 		const UInt8 r_debugDrawShader[] = {
-			#include <Nazara/Renderer/Resources/Shaders/DebugDraw.nzslb.h>
+			#include <Nazara/Renderer/Shaders/DebugDraw.nzslb.h>
 		};
 	}
 

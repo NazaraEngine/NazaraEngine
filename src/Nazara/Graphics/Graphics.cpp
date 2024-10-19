@@ -5,7 +5,6 @@
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Core/CommandLineParameters.hpp>
 #include <Nazara/Core/EnvironmentVariables.hpp>
-#include <Nazara/Core/FilesystemAppComponent.hpp>
 #include <Nazara/Graphics/DebugDrawPipelinePass.hpp>
 #include <Nazara/Graphics/DepthPipelinePass.hpp>
 #include <Nazara/Graphics/ForwardPipelinePass.hpp>
@@ -31,7 +30,7 @@ namespace Nz
 	namespace
 	{
 		const UInt8 r_shaderArchive[] = {
-			#include <Nazara/Graphics/Resources/Shaders.nzsla.h>
+			#include <Nazara/Graphics/ShaderArchives/Shaders.nzsla.h>
 		};
 	}
 

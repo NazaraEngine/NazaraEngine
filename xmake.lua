@@ -481,8 +481,17 @@ function ModuleTargetConfig(name, module)
 		add_rules("@nzsl/archive.shaders")
 		add_rules("@nzsl/compile.shaders", { inplace = true })
 
-		for _, filepath in pairs(os.files("src/Nazara/" .. name .. "/Resources/**.nzsl")) do
-			add_files(filepath, { archive = "src/Nazara/" .. name .. "/Resources/Shaders.nzsla.h" })
+		-- Regular shaders (Shaders/**.nzsl => .nzslb.h)
+		for _, filepath in pairs(os.files("src/Nazara/" .. name .. "/Shaders/**.nzsl")) do
+			add_files(filepath)
+		end
+
+		-- Shader archives (ShaderArchives/foo/**.nzsl => ShaderArchives/foo.nzsla.h)
+		for _, archivefolder in pairs(os.dirs("src/Nazara/" .. name .. "/ShaderArchives/*")) do
+			local archive = archivefolder .. ".nzsla.h"
+			for _, filepath in pairs(os.files(archivefolder .. "/**.nzsl")) do
+				add_files(filepath, { archive = archive })
+			end
 		end
 	end
 
