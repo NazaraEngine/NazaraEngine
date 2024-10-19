@@ -54,7 +54,7 @@ namespace Nz
 			Physics3DSystem& operator=(const Physics3DSystem&) = delete;
 			Physics3DSystem& operator=(Physics3DSystem&&) = delete;
 
-			struct ContactListener
+			struct NAZARA_PHYSICS3D_API ContactListener
 			{
 				virtual ~ContactListener();
 
