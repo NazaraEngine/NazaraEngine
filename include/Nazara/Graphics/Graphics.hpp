@@ -100,7 +100,6 @@ namespace Nz
 			void BuildDefaultMaterials();
 			void BuildDefaultPipelinePasses();
 			void BuildDefaultTextures();
-			template<std::size_t N> void RegisterEmbedShaderModule(const UInt8(&content)[N]);
 			void RegisterMaterialPasses();
 			void RegisterPipelinePasses();
 			void RegisterShaderModules();

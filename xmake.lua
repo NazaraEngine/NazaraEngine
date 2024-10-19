@@ -348,7 +348,7 @@ if has_config("platform") then
 end
 
 if has_config("renderer") then
-	add_requires("nzsl >=2023.12.31", { debug = is_mode("debug"), configs = { symbols = not is_mode("release"), shared = not is_plat("wasm", "android") and not has_config("static") } })
+	add_requires("nzsl >=2024.10.19", { debug = is_mode("debug"), configs = { symbols = not is_mode("release"), shared = not is_plat("wasm", "android") and not has_config("static") } })
 
 	-- When cross-compiling, compile shaders using host shader compiler
 	if has_config("compile_shaders") and is_cross() then
@@ -478,9 +478,11 @@ function ModuleTargetConfig(name, module)
 	end
 
 	if has_config("compile_shaders") then
+		add_rules("@nzsl/archive.shaders")
 		add_rules("@nzsl/compile.shaders", { inplace = true })
-		for _, filepath in pairs(table.join(os.files("src/Nazara/" .. name .. "/Resources/**.nzsl"), os.files("src/Nazara/" .. name .. "/Resources/**.nzslb"))) do
-			add_files(filepath)
+
+		for _, filepath in pairs(os.files("src/Nazara/" .. name .. "/Resources/**.nzsl")) do
+			add_files(filepath, { archive = "src/Nazara/" .. name .. "/Resources/Shaders.nzsla.h" })
 		end
 	end
 

@@ -21,8 +21,8 @@
 #include <Nazara/Graphics/Formats/TextureLoader.hpp>
 #include <Nazara/TextRenderer/Font.hpp>
 #include <NazaraUtils/StackArray.hpp>
+#include <NZSL/Archive.hpp>
 #include <NZSL/Ast/AstSerializer.hpp>
-#include <NZSL/Ast/Module.hpp>
 #include <array>
 #include <stdexcept>
 
@@ -30,74 +30,8 @@ namespace Nz
 {
 	namespace
 	{
-		const UInt8 r_textureBlitShader[] = {
-			#include <Nazara/Graphics/Resources/Shaders/TextureBlit.nzslb.h>
-		};
-
-		const UInt8 r_basicMaterialShader[] = {
-			#include <Nazara/Graphics/Resources/Shaders/BasicMaterial.nzslb.h>
-		};
-
-		const UInt8 r_fullscreenVertexShader[] = {
-			#include <Nazara/Graphics/Resources/Shaders/FullscreenVertex.nzslb.h>
-		};
-
-		const UInt8 r_phongMaterialShader[] = {
-			#include <Nazara/Graphics/Resources/Shaders/PhongMaterial.nzslb.h>
-		};
-
-		const UInt8 r_physicallyBasedMaterialShader[] = {
-			#include <Nazara/Graphics/Resources/Shaders/PhysicallyBasedMaterial.nzslb.h>
-		};
-
-		// Modules
-		const UInt8 r_instanceDataModule[] = {
-			#include <Nazara/Graphics/Resources/Shaders/Modules/Engine/InstanceData.nzslb.h>
-		};
-
-		const UInt8 r_lightDataModule[] = {
-			#include <Nazara/Graphics/Resources/Shaders/Modules/Engine/LightData.nzslb.h>
-		};
-
-		const UInt8 r_lightShadowModule[] = {
-			#include <Nazara/Graphics/Resources/Shaders/Modules/Engine/LightShadow.nzslb.h>
-		};
-
-		const UInt8 r_skeletalDataModule[] = {
-			#include <Nazara/Graphics/Resources/Shaders/Modules/Engine/SkeletalData.nzslb.h>
-		};
-
-		const UInt8 r_skinningDataModule[] = {
-			#include <Nazara/Graphics/Resources/Shaders/Modules/Engine/SkinningData.nzslb.h>
-		};
-
-		const UInt8 r_skinningLinearModule[] = {
-			#include <Nazara/Graphics/Resources/Shaders/Modules/Engine/SkinningLinear.nzslb.h>
-		};
-
-		const UInt8 r_viewerDataModule[] = {
-			#include <Nazara/Graphics/Resources/Shaders/Modules/Engine/ViewerData.nzslb.h>
-		};
-
-		const UInt8 r_mathColorModule[] = {
-			#include <Nazara/Graphics/Resources/Shaders/Modules/Math/Color.nzslb.h>
-		};
-
-		const UInt8 r_mathConstantsModule[] = {
-			#include <Nazara/Graphics/Resources/Shaders/Modules/Math/Constants.nzslb.h>
-		};
-
-		const UInt8 r_mathCookTorrancePBRModule[] = {
-			#include <Nazara/Graphics/Resources/Shaders/Modules/Math/CookTorrancePBR.nzslb.h>
-		};
-
-		const UInt8 r_mathDepthModule[] = {
-			#include <Nazara/Graphics/Resources/Shaders/Modules/Math/Depth.nzslb.h>
-		};
-
-		// Passes
-		const UInt8 r_gammaCorrectionPass[] = {
-			#include <Nazara/Graphics/Resources/Shaders/Passes/GammaCorrection.nzslb.h>
+		const UInt8 r_shaderArchive[] = {
+			#include <Nazara/Graphics/Resources/Shaders.nzsla.h>
 		};
 	}
 
@@ -465,13 +399,6 @@ namespace Nz
 		}
 	}
 
-	template<std::size_t N>
-	void Graphics::RegisterEmbedShaderModule(const UInt8(&content)[N])
-	{
-		nzsl::Deserializer deserializer(content, N);
-		m_shaderModuleResolver->RegisterModule(nzsl::Ast::DeserializeShader(deserializer));
-	}
-
 	void Graphics::RegisterMaterialPasses()
 	{
 		m_materialPassRegistry.RegisterPass("ForwardPass");
@@ -491,23 +418,9 @@ namespace Nz
 	void Graphics::RegisterShaderModules()
 	{
 		m_shaderModuleResolver = std::make_shared<nzsl::FilesystemModuleResolver>();
-		RegisterEmbedShaderModule(r_basicMaterialShader);
-		RegisterEmbedShaderModule(r_fullscreenVertexShader);
-		RegisterEmbedShaderModule(r_gammaCorrectionPass);
-		RegisterEmbedShaderModule(r_instanceDataModule);
-		RegisterEmbedShaderModule(r_lightDataModule);
-		RegisterEmbedShaderModule(r_lightShadowModule);
-		RegisterEmbedShaderModule(r_mathColorModule);
-		RegisterEmbedShaderModule(r_mathConstantsModule);
-		RegisterEmbedShaderModule(r_mathCookTorrancePBRModule);
-		RegisterEmbedShaderModule(r_mathDepthModule);
-		RegisterEmbedShaderModule(r_phongMaterialShader);
-		RegisterEmbedShaderModule(r_physicallyBasedMaterialShader);
-		RegisterEmbedShaderModule(r_skinningDataModule);
-		RegisterEmbedShaderModule(r_skinningLinearModule);
-		RegisterEmbedShaderModule(r_skeletalDataModule);
-		RegisterEmbedShaderModule(r_textureBlitShader);
-		RegisterEmbedShaderModule(r_viewerDataModule);
+
+		nzsl::Deserializer deserializer(r_shaderArchive, sizeof(r_shaderArchive));
+		m_shaderModuleResolver->RegisterArchive(nzsl::DeserializeArchive(deserializer));
 
 #ifdef NAZARA_DEBUG
 		// Override embed files with dev files in debug

@@ -20,6 +20,9 @@ coverage.out
 # Embed resources
 src/Nazara/*/Resources/**/*.h
 
+# Compiled shaders
+src/Nazara/*/Resources/Shaders/**/*.nzslb
+
 # Nazara binaries
 bin/*
 !bin/resources
