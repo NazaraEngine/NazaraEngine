@@ -2,7 +2,6 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-
 namespace Nz
 {
 	inline EnttWorld::EnttWorld() :
@@ -15,6 +14,11 @@ namespace Nz
 	T& EnttWorld::AddSystem(Args&&... args)
 	{
 		return m_systemGraph.AddSystem<T>(std::forward<Args>(args)...);
+	}
+
+	inline void EnttWorld::ClearSystems()
+	{
+		m_systemGraph.Clear();
 	}
 
 	inline entt::handle EnttWorld::CreateEntity()

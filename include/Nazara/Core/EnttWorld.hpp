@@ -24,6 +24,8 @@ namespace Nz
 
 			template<typename T, typename... Args> T& AddSystem(Args&&... args);
 
+			inline void ClearSystems();
+
 			entt::handle CreateEntity();
 
 			inline std::size_t GetAliveEntityCount() const;
