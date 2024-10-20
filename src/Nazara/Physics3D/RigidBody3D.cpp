@@ -345,7 +345,7 @@ namespace Nz
 
 	void RigidBody3D::WakeUp()
 	{
-		JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterface();
+		JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterfaceNoLock();
 		if (bodyInterface.IsAdded(m_body->GetID()))
 			bodyInterface.ActivateBody(m_body->GetID());
 	}
