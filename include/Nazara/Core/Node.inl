@@ -348,17 +348,13 @@ namespace Nz
 	{
 		// Position
 		if (m_parent && m_doesInheritPosition)
-		{
-			m_parent->EnsureGlobalsUpdate();
-
-			m_position = (m_parent->m_globalRotation.GetConjugate() * (position - m_parent->m_globalPosition)) / m_parent->m_globalScale;
-		}
+			m_position = m_parent->ToLocalPosition(position);
 		else
 			m_position = position;
 
 		// Rotation
 		if (m_parent && m_doesInheritRotation)
-			m_rotation = m_parent->GetGlobalRotation().GetConjugate() * rotation;
+			m_rotation = m_parent->ToLocalRotation(rotation);
 		else
 			m_rotation = rotation;
 
@@ -374,23 +370,19 @@ namespace Nz
 	{
 		// Position
 		if (m_parent && m_doesInheritPosition)
-		{
-			m_parent->EnsureGlobalsUpdate();
-
-			m_position = (m_parent->m_globalRotation.GetConjugate() * (position - m_parent->m_globalPosition)) / m_parent->m_globalScale;
-		}
+			m_position = m_parent->ToLocalPosition(position);
 		else
 			m_position = position;
 
 		// Rotation
 		if (m_parent && m_doesInheritRotation)
-			m_rotation = m_parent->GetGlobalRotation().GetConjugate() * rotation;
+			m_rotation = m_parent->ToLocalRotation(rotation);
 		else
 			m_rotation = rotation;
 
 		// Scale
 		if (m_parent && m_doesInheritScale)
-			m_scale = scale / m_parent->GetScale();
+			m_scale = m_parent->ToLocalScale(scale);
 		else
 			m_scale = scale;
 
