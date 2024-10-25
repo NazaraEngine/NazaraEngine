@@ -542,19 +542,9 @@ namespace Nz
 		return FromJolt(m_world->physicsSystem.GetGravity());
 	}
 
-	std::size_t PhysWorld3D::GetMaxStepCount() const
-	{
-		return m_maxStepCount;
-	}
-
 	JPH::PhysicsSystem* PhysWorld3D::GetPhysicsSystem()
 	{
 		return &m_world->physicsSystem;
-	}
-
-	Time PhysWorld3D::GetStepSize() const
-	{
-		return m_stepSize;
 	}
 
 	bool PhysWorld3D::RaycastQuery(const Vector3f& from, const Vector3f& to, const FunctionRef<std::optional<float>(const RaycastHit& hitInfo)>& callback, const PhysBroadphaseLayerFilter3D* broadphaseFilter, const PhysObjectLayerFilter3D* objectLayerFilter, const PhysBodyFilter3D* bodyFilter)
@@ -677,11 +667,6 @@ namespace Nz
 	void PhysWorld3D::SetGravity(const Vector3f& gravity)
 	{
 		m_world->physicsSystem.SetGravity(ToJolt(gravity));
-	}
-
-	void PhysWorld3D::SetMaxStepCount(std::size_t maxStepCount)
-	{
-		m_maxStepCount = maxStepCount;
 	}
 
 	void PhysWorld3D::SetStepSize(Time stepSize)

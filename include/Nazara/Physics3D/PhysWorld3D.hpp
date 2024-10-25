@@ -59,9 +59,10 @@ namespace Nz
 			UInt32 GetActiveBodyCount() const;
 			Boxf GetBoundingBox() const;
 			Vector3f GetGravity() const;
-			std::size_t GetMaxStepCount() const;
+			inline std::size_t GetMaxStepCount() const;
 			JPH::PhysicsSystem* GetPhysicsSystem();
-			Time GetStepSize() const;
+			inline Time GetStepSize() const;
+			inline Time GetTimestepAccumulator() const;
 
 			inline bool IsBodyActive(UInt32 bodyIndex) const;
 			inline bool IsBodyRegistered(UInt32 bodyIndex) const;
@@ -75,7 +76,7 @@ namespace Nz
 
 			void SetContactListener(std::unique_ptr<ContactListener> contactListener);
 			void SetGravity(const Vector3f& gravity);
-			void SetMaxStepCount(std::size_t maxStepCount);
+			inline void SetMaxStepCount(std::size_t maxStepCount);
 			void SetStepSize(Time stepSize);
 
 			bool Step(Time timestep);

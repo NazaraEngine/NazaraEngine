@@ -4,6 +4,26 @@
 
 namespace Nz
 {
+	inline std::size_t PhysWorld3D::GetMaxStepCount() const
+	{
+		return m_maxStepCount;
+	}
+
+	inline Time PhysWorld3D::GetStepSize() const
+	{
+		return m_stepSize;
+	}
+
+	inline Time PhysWorld3D::GetTimestepAccumulator() const
+	{
+		return m_timestepAccumulator;
+	}
+
+	inline void PhysWorld3D::SetMaxStepCount(std::size_t maxStepCount)
+	{
+		m_maxStepCount = maxStepCount;
+	}
+
 	inline bool PhysWorld3D::IsBodyActive(UInt32 bodyIndex) const
 	{
 		UInt32 blockIndex = bodyIndex / 64;
