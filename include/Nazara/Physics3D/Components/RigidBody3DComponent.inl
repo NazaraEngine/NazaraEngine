@@ -18,9 +18,19 @@ namespace Nz
 		m_settings = std::make_unique<Setting>(settings);
 	}
 
+	inline auto RigidBody3DComponent::GetReplicationCallback() const -> const CustomReplicationCallback&
+	{
+		return m_replicationCustomCallback;
+	}
+
 	inline PhysicsReplication3D RigidBody3DComponent::GetReplicationMode() const
 	{
 		return m_replicationMode;
+	}
+
+	inline void RigidBody3DComponent::SetReplicationCallback(CustomReplicationCallback customCallback)
+	{
+		m_replicationCustomCallback = std::move(customCallback);
 	}
 
 	inline void RigidBody3DComponent::SetReplicationMode(PhysicsReplication3D replicationMode)

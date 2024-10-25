@@ -10,6 +10,7 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Physics3D/Enums.hpp>
 #include <Nazara/Physics3D/PhysCharacter3D.hpp>
+#include <entt/fwd.hpp>
 
 namespace Nz
 {
@@ -18,13 +19,17 @@ namespace Nz
 		friend class Physics3DSystem;
 
 		public:
-			inline PhysCharacter3DComponent(const PhysCharacter3D::Settings& settings, PhysicsReplication3D replication = PhysicsReplication3D::Local);
+			using CustomReplicationCallback = std::function<void(entt::handle entity, PhysCharacter3DComponent& rigidBodyComponent)>;
+
+			inline PhysCharacter3DComponent(const Settings& settings, PhysicsReplication3D replication = PhysicsReplication3D::Local);
 			PhysCharacter3DComponent(const PhysCharacter3DComponent&) = delete;
 			PhysCharacter3DComponent(PhysCharacter3DComponent&&) noexcept = default;
 			~PhysCharacter3DComponent() = default;
 
+			inline const CustomReplicationCallback& GetReplicationCallback() const;
 			inline PhysicsReplication3D GetReplicationMode() const;
 
+			inline void SetReplicationCallback(CustomReplicationCallback customCallback);
 			inline void SetReplicationMode(PhysicsReplication3D replicationMode);
 
 			PhysCharacter3DComponent& operator=(const PhysCharacter3DComponent&) = delete;
@@ -33,7 +38,8 @@ namespace Nz
 		private:
 			inline void Construct(PhysWorld3D& world);
 
-			std::unique_ptr<PhysCharacter3D::Settings> m_settings;
+			std::unique_ptr<Settings> m_settings;
+			CustomReplicationCallback m_replicationCustomCallback;
 			PhysicsReplication3D m_replicationMode;
 	};
 }

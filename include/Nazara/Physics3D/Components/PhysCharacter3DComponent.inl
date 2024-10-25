@@ -4,15 +4,25 @@
 
 namespace Nz
 {
-	inline PhysCharacter3DComponent::PhysCharacter3DComponent(const PhysCharacter3D::Settings& settings, PhysicsReplication3D replication) :
+	inline PhysCharacter3DComponent::PhysCharacter3DComponent(const Settings& settings, PhysicsReplication3D replication) :
 	m_replicationMode(replication)
 	{
 		m_settings = std::make_unique<PhysCharacter3D::Settings>(settings);
 	}
 
+	inline auto PhysCharacter3DComponent::GetReplicationCallback() const -> const CustomReplicationCallback&
+	{
+		return m_replicationCustomCallback;
+	}
+
 	inline PhysicsReplication3D PhysCharacter3DComponent::GetReplicationMode() const
 	{
 		return m_replicationMode;
+	}
+
+	inline void PhysCharacter3DComponent::SetReplicationCallback(CustomReplicationCallback customCallback)
+	{
+		m_replicationCustomCallback = std::move(customCallback);
 	}
 
 	inline void PhysCharacter3DComponent::SetReplicationMode(PhysicsReplication3D replicationMode)

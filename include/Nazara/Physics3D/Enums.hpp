@@ -40,6 +40,8 @@ namespace Nz
 
 	enum class PhysicsReplication3D
 	{
+		Custom,
+		CustomOnce,
 		None,
 		Local,
 		LocalOnce,

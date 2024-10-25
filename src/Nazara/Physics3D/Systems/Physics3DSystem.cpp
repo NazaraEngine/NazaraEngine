@@ -245,6 +245,19 @@ namespace Nz
 
 			switch (bodyComponent.GetReplicationMode())
 			{
+				case PhysicsReplication3D::Custom:
+				case PhysicsReplication3D::CustomOnce:
+				{
+					const auto& replicationCallback = bodyComponent.GetReplicationCallback();
+					if NAZARA_LIKELY(replicationCallback)
+						replicationCallback(entt::handle(m_registry, entity), bodyComponent);
+					else
+						NazaraError("physics component has custom replication mode but no callback");
+
+					if (bodyComponent.GetReplicationMode() == PhysicsReplication3D::CustomOnce)
+						bodyComponent.SetReplicationMode(PhysicsReplication3D::None);
+				}
+
 				case PhysicsReplication3D::Global:
 				case PhysicsReplication3D::GlobalOnce:
 				{
