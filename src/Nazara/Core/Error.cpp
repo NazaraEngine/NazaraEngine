@@ -50,7 +50,7 @@ namespace Nz
 		ErrorModeFlags previousFlags = flags;
 
 		flags |= orFlags;
-		flags &= ~andFlags;
+		flags &= andFlags;
 
 		return previousFlags;
 	}

@@ -383,7 +383,7 @@ namespace Nz
 
 	std::shared_ptr<VulkanDevice> Vulkan::CreateDevice(const Vk::PhysicalDevice& deviceInfo, const RenderDeviceFeatures& enabledFeatures)
 	{
-		Nz::ErrorFlags errFlags(ErrorMode::ThrowException, true);
+		Nz::ErrorFlags errFlags(ErrorMode::ThrowException);
 
 		// Find a queue that supports graphics operations
 		UInt32 graphicsQueueNodeIndex = UINT32_MAX;
@@ -420,7 +420,7 @@ namespace Nz
 
 	std::shared_ptr<VulkanDevice> Vulkan::CreateDevice(const Vk::PhysicalDevice& deviceInfo, const RenderDeviceFeatures& enabledFeatures, const Vk::Surface& surface, UInt32* graphicsFamilyIndex, UInt32* presentableFamilyIndex, UInt32* transferFamilyIndex)
 	{
-		Nz::ErrorFlags errFlags(ErrorMode::ThrowException, true);
+		Nz::ErrorFlags errFlags(ErrorMode::ThrowException);
 
 		// Find a queue that supports graphics operations
 		UInt32 graphicsQueueNodeIndex = UINT32_MAX;

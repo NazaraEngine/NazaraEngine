@@ -64,12 +64,12 @@ namespace Nz::GL
 
 		for (const char* libname : libs)
 		{
-			ErrorFlags errorFlags(ErrorMode::Silent, ErrorMode::ThrowException);
+			ErrorFlags errorFlags(ErrorMode::Silent, ~ErrorMode::ThrowException);
 
 			if (!m_eglLib.Load(Utf8Path(libname)))
 				continue;
 
-			Error::ApplyFlags({}, ErrorMode::Silent);
+			Error::ApplyFlags({}, ~ErrorMode::Silent);
 
 			SymbolLoader loader(*this);
 

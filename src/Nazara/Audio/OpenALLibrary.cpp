@@ -59,7 +59,7 @@ namespace Nz
 
 		for (const char* libname : libs)
 		{
-			ErrorFlags disableError(ErrorMode::Silent, ErrorMode::ThrowException);
+			ErrorFlags disableError(ErrorMode::Silent, ~ErrorMode::ThrowException);
 
 			if (!m_library.Load(Utf8Path(libname)))
 				continue;
