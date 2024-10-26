@@ -344,7 +344,7 @@ namespace Nz
 			std::filesystem::path mtlLib = parser.GetMtlLib();
 			if (!mtlLib.empty())
 			{
-				ErrorFlags errFlags({}, ~ErrorMode::ThrowException);
+				ErrorFlags errFlags({}, ErrorMode::ThrowException);
 				ParseMTL(*mesh, stream.GetDirectory() / mtlLib, materials, meshes, meshCount);
 			}
 

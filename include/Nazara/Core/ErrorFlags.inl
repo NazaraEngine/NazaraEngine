@@ -18,8 +18,8 @@ namespace Nz
 	* \param replace Replace the entirely the old flag if true, else do a "OR"
 	*/
 
-	inline ErrorFlags::ErrorFlags(ErrorModeFlags orFlags, ErrorModeFlags andFlags) :
-	m_previousFlags(Error::ApplyFlags(orFlags, andFlags))
+	inline ErrorFlags::ErrorFlags(ErrorModeFlags orFlags, ErrorModeFlags nandFlags) :
+	m_previousFlags(Error::ApplyFlags(orFlags, nandFlags))
 	{
 	}
 
@@ -46,11 +46,11 @@ namespace Nz
 	* \param flags Flags for the error
 	* \param replace Replace the entirely the old flag if true, else do a "OR"
 	*/
-	inline void ErrorFlags::SetFlags(ErrorModeFlags orFlags, ErrorModeFlags andFlags)
+	inline void ErrorFlags::SetFlags(ErrorModeFlags orFlags, ErrorModeFlags nandFlags)
 	{
 		ErrorModeFlags newFlags = m_previousFlags;
 		newFlags |= orFlags;
-		newFlags &= andFlags;
+		newFlags &= ~nandFlags;
 
 		Error::SetFlags(newFlags);
 	}

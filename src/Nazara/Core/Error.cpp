@@ -41,7 +41,7 @@ namespace Nz
 	* \class Nz::Error
 	* \brief Core class that represents an error
 	*/
-	ErrorModeFlags Error::ApplyFlags(ErrorModeFlags orFlags, ErrorModeFlags andFlags)
+	ErrorModeFlags Error::ApplyFlags(ErrorModeFlags orFlags, ErrorModeFlags nandFlags)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
@@ -50,7 +50,7 @@ namespace Nz
 		ErrorModeFlags previousFlags = flags;
 
 		flags |= orFlags;
-		flags &= andFlags;
+		flags &= ~nandFlags;
 
 		return previousFlags;
 	}

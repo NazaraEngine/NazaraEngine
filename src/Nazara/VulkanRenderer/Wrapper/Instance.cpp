@@ -21,7 +21,7 @@ namespace Nz::Vk
 			const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
 			void*                                       /*pUserData*/)
 		{
-			ErrorFlags errFlags({}, ~ErrorMode::ThrowException);
+			ErrorFlags errFlags({}, ErrorMode::ThrowException);
 
 			std::stringstream ss;
 			ss << "Vulkan log: ";

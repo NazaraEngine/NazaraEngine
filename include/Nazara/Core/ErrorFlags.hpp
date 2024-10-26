@@ -15,14 +15,14 @@ namespace Nz
 	class ErrorFlags
 	{
 		public:
-			inline ErrorFlags(ErrorModeFlags orFlags, ErrorModeFlags andFlags = {});
+			inline ErrorFlags(ErrorModeFlags orFlags, ErrorModeFlags nandFlags = {});
 			ErrorFlags(const ErrorFlags&) = delete;
 			ErrorFlags(ErrorFlags&&) = delete;
 			inline ~ErrorFlags();
 
 			inline ErrorModeFlags GetPreviousFlags() const;
 
-			inline void SetFlags(ErrorModeFlags orFlags, ErrorModeFlags andFlags = {});
+			inline void SetFlags(ErrorModeFlags orFlags, ErrorModeFlags nandFlags = {});
 
 			ErrorFlags& operator=(const ErrorFlags&) = delete;
 			ErrorFlags& operator=(ErrorFlags&&) = delete;
