@@ -699,7 +699,7 @@ namespace Nz
 		if (rotationBetween < maxRotation)
 			return to;
 
-		return Slerp(from, to, std::min(maxRotation.value / rotationBetween.value), 1.f);
+		return Slerp(from, to, std::min(maxRotation.value / rotationBetween.value, 1.f));
 	}
 
 	template<typename T>
