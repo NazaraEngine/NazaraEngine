@@ -11,41 +11,37 @@
 #include <Nazara/VulkanRenderer/Wrapper/Instance.hpp>
 #include <NazaraUtils/MovablePtr.hpp>
 #include <vulkan/vulkan_core.h>
-#include <string>
 
-namespace Nz
+namespace Nz::Vk
 {
-	namespace Vk
+	template<typename C, typename VkType, typename CreateInfo, VkObjectType ObjectType>
+	class InstanceObject
 	{
-		template<typename C, typename VkType, typename CreateInfo, VkObjectType ObjectType>
-		class InstanceObject
-		{
-			public:
-				InstanceObject();
-				InstanceObject(const InstanceObject&) = delete;
-				InstanceObject(InstanceObject&& object) noexcept;
-				~InstanceObject();
+		public:
+			InstanceObject();
+			InstanceObject(const InstanceObject&) = delete;
+			InstanceObject(InstanceObject&& object) noexcept;
+			~InstanceObject();
 
-				bool Create(Instance& instance, const CreateInfo& createInfo, const VkAllocationCallbacks* allocator = nullptr);
-				void Destroy();
+			bool Create(Instance& instance, const CreateInfo& createInfo, const VkAllocationCallbacks* allocator = nullptr);
+			void Destroy();
 
-				bool IsValid() const;
+			bool IsValid() const;
 
-				Instance* GetInstance() const;
-				VkResult GetLastErrorCode() const;
+			Instance* GetInstance() const;
+			VkResult GetLastErrorCode() const;
 
-				InstanceObject& operator=(const InstanceObject&) = delete;
-				InstanceObject& operator=(InstanceObject&& object) noexcept;
+			InstanceObject& operator=(const InstanceObject&) = delete;
+			InstanceObject& operator=(InstanceObject&& object) noexcept;
 
-				operator VkType() const;
+			operator VkType() const;
 
-			protected:
-				MovablePtr<Instance> m_instance;
-				VkAllocationCallbacks m_allocator;
-				VkType m_handle;
-				mutable VkResult m_lastErrorCode;
-		};
-	}
+		protected:
+			MovablePtr<Instance> m_instance;
+			VkAllocationCallbacks m_allocator;
+			VkType m_handle;
+			mutable VkResult m_lastErrorCode;
+	};
 }
 
 #include <Nazara/VulkanRenderer/Wrapper/InstanceObject.inl>

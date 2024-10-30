@@ -11,41 +11,38 @@
 #include <Nazara/VulkanRenderer/Wrapper/DeviceObject.hpp>
 #include <string_view>
 
-namespace Nz
+namespace Nz::Vk
 {
-	namespace Vk
+	class Pipeline
 	{
-		class Pipeline
-		{
-			public:
-				inline Pipeline();
-				Pipeline(const Pipeline&) = delete;
-				Pipeline(Pipeline&&) noexcept;
-				inline ~Pipeline();
+		public:
+			inline Pipeline();
+			Pipeline(const Pipeline&) = delete;
+			Pipeline(Pipeline&&) noexcept;
+			inline ~Pipeline();
 
-				inline bool CreateCompute(Device& device, const VkComputePipelineCreateInfo& createInfo, VkPipelineCache cache = VK_NULL_HANDLE, const VkAllocationCallbacks* allocator = nullptr);
-				inline bool CreateGraphics(Device& device, const VkGraphicsPipelineCreateInfo& createInfo, VkPipelineCache cache = VK_NULL_HANDLE, const VkAllocationCallbacks* allocator = nullptr);
-				inline void Destroy();
+			inline bool CreateCompute(Device& device, const VkComputePipelineCreateInfo& createInfo, VkPipelineCache cache = VK_NULL_HANDLE, const VkAllocationCallbacks* allocator = nullptr);
+			inline bool CreateGraphics(Device& device, const VkGraphicsPipelineCreateInfo& createInfo, VkPipelineCache cache = VK_NULL_HANDLE, const VkAllocationCallbacks* allocator = nullptr);
+			inline void Destroy();
 
-				inline Device& GetDevice() const;
-				inline VkResult GetLastErrorCode() const;
+			inline Device& GetDevice() const;
+			inline VkResult GetLastErrorCode() const;
 
-				inline void SetDebugName(std::string_view name);
+			inline void SetDebugName(std::string_view name);
 
-				Pipeline& operator=(const Pipeline&) = delete;
-				Pipeline& operator=(Pipeline&&) = delete;
+			Pipeline& operator=(const Pipeline&) = delete;
+			Pipeline& operator=(Pipeline&&) = delete;
 
-				inline operator VkPipeline() const;
+			inline operator VkPipeline() const;
 
-			protected:
-				inline bool Create(Device& device, VkResult result, const VkAllocationCallbacks* allocator);
+		protected:
+			inline bool Create(Device& device, VkResult result, const VkAllocationCallbacks* allocator);
 
-				MovablePtr<Device> m_device;
-				VkAllocationCallbacks m_allocator;
-				VkPipeline m_handle;
-				mutable VkResult m_lastErrorCode;
-		};
-	}
+			MovablePtr<Device> m_device;
+			VkAllocationCallbacks m_allocator;
+			VkPipeline m_handle;
+			mutable VkResult m_lastErrorCode;
+	};
 }
 
 #include <Nazara/VulkanRenderer/Wrapper/Pipeline.inl>

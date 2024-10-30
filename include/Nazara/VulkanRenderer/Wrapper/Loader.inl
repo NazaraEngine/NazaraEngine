@@ -2,15 +2,11 @@
 // This file is part of the "Nazara Engine - Vulkan renderer"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-
-namespace Nz
+namespace Nz::Vk
 {
-	namespace Vk
+	inline PFN_vkVoidFunction Loader::GetInstanceProcAddr(VkInstance instance, const char* name)
 	{
-		inline PFN_vkVoidFunction Loader::GetInstanceProcAddr(VkInstance instance, const char* name)
-		{
-			return vkGetInstanceProcAddr(instance, name);
-		}
+		return vkGetInstanceProcAddr(instance, name);
 	}
 }
 

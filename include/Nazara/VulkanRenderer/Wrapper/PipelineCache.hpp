@@ -10,28 +10,25 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DeviceObject.hpp>
 
-namespace Nz
+namespace Nz::Vk
 {
-	namespace Vk
+	class PipelineCache : public DeviceObject<PipelineCache, VkPipelineCache, VkPipelineCacheCreateInfo, VK_OBJECT_TYPE_PIPELINE_CACHE>
 	{
-		class PipelineCache : public DeviceObject<PipelineCache, VkPipelineCache, VkPipelineCacheCreateInfo, VK_OBJECT_TYPE_PIPELINE_CACHE>
-		{
-			friend DeviceObject;
+		friend DeviceObject;
 
-			public:
-				PipelineCache() = default;
-				PipelineCache(const PipelineCache&) = delete;
-				PipelineCache(PipelineCache&&) = default;
-				~PipelineCache() = default;
+		public:
+			PipelineCache() = default;
+			PipelineCache(const PipelineCache&) = delete;
+			PipelineCache(PipelineCache&&) = default;
+			~PipelineCache() = default;
 
-				PipelineCache& operator=(const PipelineCache&) = delete;
-				PipelineCache& operator=(PipelineCache&&) = delete;
+			PipelineCache& operator=(const PipelineCache&) = delete;
+			PipelineCache& operator=(PipelineCache&&) = delete;
 
-			private:
-				static inline VkResult CreateHelper(Device& device, const VkPipelineCacheCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkPipelineCache* handle);
-				static inline void DestroyHelper(Device& device, VkPipelineCache handle, const VkAllocationCallbacks* allocator);
-		};
-	}
+		private:
+			static inline VkResult CreateHelper(Device& device, const VkPipelineCacheCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkPipelineCache* handle);
+			static inline void DestroyHelper(Device& device, VkPipelineCache handle, const VkAllocationCallbacks* allocator);
+	};
 }
 
 #include <Nazara/VulkanRenderer/Wrapper/PipelineCache.inl>

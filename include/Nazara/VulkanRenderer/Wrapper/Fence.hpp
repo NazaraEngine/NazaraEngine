@@ -10,36 +10,33 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DeviceObject.hpp>
 
-namespace Nz
+namespace Nz::Vk
 {
-	namespace Vk
+	class Fence : public DeviceObject<Fence, VkFence, VkFenceCreateInfo, VK_OBJECT_TYPE_FENCE>
 	{
-		class Fence : public DeviceObject<Fence, VkFence, VkFenceCreateInfo, VK_OBJECT_TYPE_FENCE>
-		{
-			friend DeviceObject;
+		friend DeviceObject;
 
-			public:
-				Fence() = default;
-				Fence(const Fence&) = delete;
-				Fence(Fence&&) = default;
-				~Fence() = default;
+		public:
+			Fence() = default;
+			Fence(const Fence&) = delete;
+			Fence(Fence&&) = default;
+			~Fence() = default;
 
-				using DeviceObject::Create;
-				inline bool Create(Device& device, VkFenceCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
+			using DeviceObject::Create;
+			inline bool Create(Device& device, VkFenceCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
 
-				inline bool Reset();
+			inline bool Reset();
 
-				inline bool Wait();
-				inline bool Wait(UInt64 timeout, bool* didTimeout = nullptr);
+			inline bool Wait();
+			inline bool Wait(UInt64 timeout, bool* didTimeout = nullptr);
 
-				Fence& operator=(const Fence&) = delete;
-				Fence& operator=(Fence&&) = delete;
+			Fence& operator=(const Fence&) = delete;
+			Fence& operator=(Fence&&) = delete;
 
-			private:
-				static inline VkResult CreateHelper(Device& device, const VkFenceCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkFence* handle);
-				static inline void DestroyHelper(Device& device, VkFence handle, const VkAllocationCallbacks* allocator);
-		};
-	}
+		private:
+			static inline VkResult CreateHelper(Device& device, const VkFenceCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkFence* handle);
+			static inline void DestroyHelper(Device& device, VkFence handle, const VkAllocationCallbacks* allocator);
+	};
 }
 
 #include <Nazara/VulkanRenderer/Wrapper/Fence.inl>

@@ -13,37 +13,34 @@
 #include <vulkan/vulkan_core.h>
 #include <vector>
 
-namespace Nz
+namespace Nz::Vk
 {
-	namespace Vk
+	class NAZARA_VULKANRENDERER_API Loader
 	{
-		class NAZARA_VULKANRENDERER_API Loader
-		{
-			public:
-				Loader() = delete;
-				~Loader() = delete;
+		public:
+			Loader() = delete;
+			~Loader() = delete;
 
-				static bool EnumerateInstanceExtensionProperties(std::vector<VkExtensionProperties>* properties, const char* layerName = nullptr);
-				static bool EnumerateInstanceLayerProperties(std::vector<VkLayerProperties>* properties);
+			static bool EnumerateInstanceExtensionProperties(std::vector<VkExtensionProperties>* properties, const char* layerName = nullptr);
+			static bool EnumerateInstanceLayerProperties(std::vector<VkLayerProperties>* properties);
 
-				static inline PFN_vkVoidFunction GetInstanceProcAddr(VkInstance instance, const char* name);
+			static inline PFN_vkVoidFunction GetInstanceProcAddr(VkInstance instance, const char* name);
 
-				static bool Initialize();
-				static void Uninitialize();
+			static bool Initialize();
+			static void Uninitialize();
 
-				// Vulkan functions
-				static PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr;
+			// Vulkan functions
+			static PFN_vkGetInstanceProcAddr vkGetInstanceProcAddr;
 
 #define NAZARA_VULKANRENDERER_GLOBAL_FUNCTION(func) static PFN_##func func;
 #define NAZARA_VULKANRENDERER_GLOBAL_FUNCTION_OPT NAZARA_VULKANRENDERER_GLOBAL_FUNCTION
 
 #include <Nazara/VulkanRenderer/Wrapper/GlobalFunctions.hpp>
 
-			private:
-				static DynLib s_vulkanLib;
-				static VkResult s_lastErrorCode;
-		};
-	}
+		private:
+			static DynLib s_vulkanLib;
+			static VkResult s_lastErrorCode;
+	};
 }
 
 #include <Nazara/VulkanRenderer/Wrapper/Loader.inl>

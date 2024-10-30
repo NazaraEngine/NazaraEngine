@@ -10,28 +10,25 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DeviceObject.hpp>
 
-namespace Nz
+namespace Nz::Vk
 {
-	namespace Vk
+	class Framebuffer : public DeviceObject<Framebuffer, VkFramebuffer, VkFramebufferCreateInfo, VK_OBJECT_TYPE_FRAMEBUFFER>
 	{
-		class Framebuffer : public DeviceObject<Framebuffer, VkFramebuffer, VkFramebufferCreateInfo, VK_OBJECT_TYPE_FRAMEBUFFER>
-		{
-			friend DeviceObject;
+		friend DeviceObject;
 
-			public:
-				Framebuffer() = default;
-				Framebuffer(const Framebuffer&) = delete;
-				Framebuffer(Framebuffer&&) noexcept = default;
-				~Framebuffer() = default;
+		public:
+			Framebuffer() = default;
+			Framebuffer(const Framebuffer&) = delete;
+			Framebuffer(Framebuffer&&) noexcept = default;
+			~Framebuffer() = default;
 
-				Framebuffer& operator=(const Framebuffer&) = delete;
-				Framebuffer& operator=(Framebuffer&&) noexcept = default;
+			Framebuffer& operator=(const Framebuffer&) = delete;
+			Framebuffer& operator=(Framebuffer&&) noexcept = default;
 
-			private:
-				static inline VkResult CreateHelper(Device& device, const VkFramebufferCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkFramebuffer* handle);
-				static inline void DestroyHelper(Device& device, VkFramebuffer handle, const VkAllocationCallbacks* allocator);
-		};
-	}
+		private:
+			static inline VkResult CreateHelper(Device& device, const VkFramebufferCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkFramebuffer* handle);
+			static inline void DestroyHelper(Device& device, VkFramebuffer handle, const VkAllocationCallbacks* allocator);
+	};
 }
 
 #include <Nazara/VulkanRenderer/Wrapper/Framebuffer.inl>

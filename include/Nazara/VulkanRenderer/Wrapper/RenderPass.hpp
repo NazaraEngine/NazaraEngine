@@ -10,28 +10,25 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DeviceObject.hpp>
 
-namespace Nz
+namespace Nz::Vk
 {
-	namespace Vk
+	class RenderPass : public DeviceObject<RenderPass, VkRenderPass, VkRenderPassCreateInfo, VK_OBJECT_TYPE_RENDER_PASS>
 	{
-		class RenderPass : public DeviceObject<RenderPass, VkRenderPass, VkRenderPassCreateInfo, VK_OBJECT_TYPE_RENDER_PASS>
-		{
-			friend DeviceObject;
+		friend DeviceObject;
 
-			public:
-				RenderPass() = default;
-				RenderPass(const RenderPass&) = delete;
-				RenderPass(RenderPass&&) = default;
-				~RenderPass() = default;
+		public:
+			RenderPass() = default;
+			RenderPass(const RenderPass&) = delete;
+			RenderPass(RenderPass&&) = default;
+			~RenderPass() = default;
 
-				RenderPass& operator=(const RenderPass&) = delete;
-				RenderPass& operator=(RenderPass&&) = default;
+			RenderPass& operator=(const RenderPass&) = delete;
+			RenderPass& operator=(RenderPass&&) = default;
 
-			private:
-				static inline VkResult CreateHelper(Device& device, const VkRenderPassCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkRenderPass* handle);
-				static inline void DestroyHelper(Device& device, VkRenderPass handle, const VkAllocationCallbacks* allocator);
-		};
-	}
+		private:
+			static inline VkResult CreateHelper(Device& device, const VkRenderPassCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkRenderPass* handle);
+			static inline void DestroyHelper(Device& device, VkRenderPass handle, const VkAllocationCallbacks* allocator);
+	};
 }
 
 #include <Nazara/VulkanRenderer/Wrapper/RenderPass.inl>

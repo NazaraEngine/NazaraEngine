@@ -2,20 +2,16 @@
 // This file is part of the "Nazara Engine - Vulkan renderer"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-
-namespace Nz
+namespace Nz::Vk
 {
-	namespace Vk
+	inline VkResult Framebuffer::CreateHelper(Device& device, const VkFramebufferCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkFramebuffer* handle)
 	{
-		inline VkResult Framebuffer::CreateHelper(Device& device, const VkFramebufferCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkFramebuffer* handle)
-		{
-			return device.vkCreateFramebuffer(device, createInfo, allocator, handle);
-		}
+		return device.vkCreateFramebuffer(device, createInfo, allocator, handle);
+	}
 
-		inline void Framebuffer::DestroyHelper(Device& device, VkFramebuffer handle, const VkAllocationCallbacks* allocator)
-		{
-			return device.vkDestroyFramebuffer(device, handle, allocator);
-		}
+	inline void Framebuffer::DestroyHelper(Device& device, VkFramebuffer handle, const VkAllocationCallbacks* allocator)
+	{
+		return device.vkDestroyFramebuffer(device, handle, allocator);
 	}
 }
 

@@ -4,41 +4,38 @@
 
 #include <Nazara/VulkanRenderer/Utils.hpp>
 
-namespace Nz
+namespace Nz::Vk
 {
-	namespace Vk
+	inline bool Image::BindImageMemory(VkDeviceMemory memory, VkDeviceSize offset)
 	{
-		inline bool Image::BindImageMemory(VkDeviceMemory memory, VkDeviceSize offset)
+		m_lastErrorCode = m_device->vkBindImageMemory(*m_device, m_handle, memory, offset);
+		if (m_lastErrorCode != VK_SUCCESS)
 		{
-			m_lastErrorCode = m_device->vkBindImageMemory(*m_device, m_handle, memory, offset);
-			if (m_lastErrorCode != VK_SUCCESS)
-			{
-				NazaraErrorFmt("failed to bind image memory: {0}", TranslateVulkanError(m_lastErrorCode));
-				return false;
-			}
-
-			return true;
+			NazaraErrorFmt("failed to bind image memory: {0}", TranslateVulkanError(m_lastErrorCode));
+			return false;
 		}
 
-		inline VkMemoryRequirements Image::GetMemoryRequirements() const
-		{
-			NazaraAssert(IsValid(), "Invalid image");
+		return true;
+	}
 
-			VkMemoryRequirements memoryRequirements;
-			m_device->vkGetImageMemoryRequirements(*m_device, m_handle, &memoryRequirements);
+	inline VkMemoryRequirements Image::GetMemoryRequirements() const
+	{
+		NazaraAssert(IsValid(), "Invalid image");
 
-			return memoryRequirements;
-		}
+		VkMemoryRequirements memoryRequirements;
+		m_device->vkGetImageMemoryRequirements(*m_device, m_handle, &memoryRequirements);
 
-		inline VkResult Image::CreateHelper(Device& device, const VkImageCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkImage* handle)
-		{
-			return device.vkCreateImage(device, createInfo, allocator, handle);
-		}
+		return memoryRequirements;
+	}
 
-		inline void Image::DestroyHelper(Device& device, VkImage handle, const VkAllocationCallbacks* allocator)
-		{
-			return device.vkDestroyImage(device, handle, allocator);
-		}
+	inline VkResult Image::CreateHelper(Device& device, const VkImageCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkImage* handle)
+	{
+		return device.vkCreateImage(device, createInfo, allocator, handle);
+	}
+
+	inline void Image::DestroyHelper(Device& device, VkImage handle, const VkAllocationCallbacks* allocator)
+	{
+		return device.vkDestroyImage(device, handle, allocator);
 	}
 }
 

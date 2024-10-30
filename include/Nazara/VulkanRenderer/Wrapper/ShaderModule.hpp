@@ -10,31 +10,28 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DeviceObject.hpp>
 
-namespace Nz
+namespace Nz::Vk
 {
-	namespace Vk
+	class ShaderModule : public DeviceObject<ShaderModule, VkShaderModule, VkShaderModuleCreateInfo, VK_OBJECT_TYPE_SHADER_MODULE>
 	{
-		class ShaderModule : public DeviceObject<ShaderModule, VkShaderModule, VkShaderModuleCreateInfo, VK_OBJECT_TYPE_SHADER_MODULE>
-		{
-			friend DeviceObject;
+		friend DeviceObject;
 
-			public:
-				ShaderModule() = default;
-				ShaderModule(const ShaderModule&) = delete;
-				ShaderModule(ShaderModule&&) = default;
-				~ShaderModule() = default;
+		public:
+			ShaderModule() = default;
+			ShaderModule(const ShaderModule&) = delete;
+			ShaderModule(ShaderModule&&) = default;
+			~ShaderModule() = default;
 
-				using DeviceObject::Create;
-				inline bool Create(Device& device, const UInt32* code, std::size_t size, VkShaderModuleCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
+			using DeviceObject::Create;
+			inline bool Create(Device& device, const UInt32* code, std::size_t size, VkShaderModuleCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
 
-				ShaderModule& operator=(const ShaderModule&) = delete;
-				ShaderModule& operator=(ShaderModule&&) = delete;
+			ShaderModule& operator=(const ShaderModule&) = delete;
+			ShaderModule& operator=(ShaderModule&&) = delete;
 
-			private:
-				static inline VkResult CreateHelper(Device& device, const VkShaderModuleCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkShaderModule* handle);
-				static inline void DestroyHelper(Device& device, VkShaderModule handle, const VkAllocationCallbacks* allocator);
-		};
-	}
+		private:
+			static inline VkResult CreateHelper(Device& device, const VkShaderModuleCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkShaderModule* handle);
+			static inline void DestroyHelper(Device& device, VkShaderModule handle, const VkAllocationCallbacks* allocator);
+	};
 }
 
 #include <Nazara/VulkanRenderer/Wrapper/ShaderModule.inl>

@@ -10,31 +10,28 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DeviceObject.hpp>
 
-namespace Nz
+namespace Nz::Vk
 {
-	namespace Vk
+	class Semaphore : public DeviceObject<Semaphore, VkSemaphore, VkSemaphoreCreateInfo, VK_OBJECT_TYPE_SEMAPHORE>
 	{
-		class Semaphore : public DeviceObject<Semaphore, VkSemaphore, VkSemaphoreCreateInfo, VK_OBJECT_TYPE_SEMAPHORE>
-		{
-			friend DeviceObject;
+		friend DeviceObject;
 
-			public:
-				Semaphore() = default;
-				Semaphore(const Semaphore&) = delete;
-				Semaphore(Semaphore&&) = default;
-				~Semaphore() = default;
+		public:
+			Semaphore() = default;
+			Semaphore(const Semaphore&) = delete;
+			Semaphore(Semaphore&&) = default;
+			~Semaphore() = default;
 
-				using DeviceObject::Create;
-				inline bool Create(Device& device, VkSemaphoreCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
+			using DeviceObject::Create;
+			inline bool Create(Device& device, VkSemaphoreCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
 
-				Semaphore& operator=(const Semaphore&) = delete;
-				Semaphore& operator=(Semaphore&&) = delete;
+			Semaphore& operator=(const Semaphore&) = delete;
+			Semaphore& operator=(Semaphore&&) = delete;
 
-			private:
-				static inline VkResult CreateHelper(Device& device, const VkSemaphoreCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkSemaphore* handle);
-				static inline void DestroyHelper(Device& device, VkSemaphore handle, const VkAllocationCallbacks* allocator);
-		};
-	}
+		private:
+			static inline VkResult CreateHelper(Device& device, const VkSemaphoreCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkSemaphore* handle);
+			static inline void DestroyHelper(Device& device, VkSemaphore handle, const VkAllocationCallbacks* allocator);
+	};
 }
 
 #include <Nazara/VulkanRenderer/Wrapper/Semaphore.inl>

@@ -2,20 +2,16 @@
 // This file is part of the "Nazara Engine - Vulkan renderer"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-
-namespace Nz
+namespace Nz::Vk
 {
-	namespace Vk
+	inline VkResult PipelineCache::CreateHelper(Device& device, const VkPipelineCacheCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkPipelineCache* handle)
 	{
-		inline VkResult PipelineCache::CreateHelper(Device& device, const VkPipelineCacheCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkPipelineCache* handle)
-		{
-			return device.vkCreatePipelineCache(device, createInfo, allocator, handle);
-		}
+		return device.vkCreatePipelineCache(device, createInfo, allocator, handle);
+	}
 
-		inline void PipelineCache::DestroyHelper(Device& device, VkPipelineCache handle, const VkAllocationCallbacks* allocator)
-		{
-			return device.vkDestroyPipelineCache(device, handle, allocator);
-		}
+	inline void PipelineCache::DestroyHelper(Device& device, VkPipelineCache handle, const VkAllocationCallbacks* allocator)
+	{
+		return device.vkDestroyPipelineCache(device, handle, allocator);
 	}
 }
 

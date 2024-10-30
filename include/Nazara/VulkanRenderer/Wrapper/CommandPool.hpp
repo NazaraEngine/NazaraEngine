@@ -10,38 +10,35 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DeviceObject.hpp>
 
-namespace Nz
+namespace Nz::Vk
 {
-	namespace Vk
+	class CommandBuffer;
+
+	class NAZARA_VULKANRENDERER_API CommandPool : public DeviceObject<CommandPool, VkCommandPool, VkCommandPoolCreateInfo, VK_OBJECT_TYPE_COMMAND_POOL>
 	{
-		class CommandBuffer;
+		friend DeviceObject;
 
-		class NAZARA_VULKANRENDERER_API CommandPool : public DeviceObject<CommandPool, VkCommandPool, VkCommandPoolCreateInfo, VK_OBJECT_TYPE_COMMAND_POOL>
-		{
-			friend DeviceObject;
+		public:
+			CommandPool() = default;
+			CommandPool(const CommandPool&) = delete;
+			CommandPool(CommandPool&&) = default;
+			~CommandPool() = default;
 
-			public:
-				CommandPool() = default;
-				CommandPool(const CommandPool&) = delete;
-				CommandPool(CommandPool&&) = default;
-				~CommandPool() = default;
+			CommandBuffer AllocateCommandBuffer(VkCommandBufferLevel level);
+			std::vector<CommandBuffer> AllocateCommandBuffers(UInt32 commandBufferCount, VkCommandBufferLevel level);
 
-				CommandBuffer AllocateCommandBuffer(VkCommandBufferLevel level);
-				std::vector<CommandBuffer> AllocateCommandBuffers(UInt32 commandBufferCount, VkCommandBufferLevel level);
+			using DeviceObject::Create;
+			inline bool Create(Device& device, UInt32 queueFamilyIndex, VkCommandPoolCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
 
-				using DeviceObject::Create;
-				inline bool Create(Device& device, UInt32 queueFamilyIndex, VkCommandPoolCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
+			inline bool Reset(VkCommandPoolResetFlags flags = 0);
 
-				inline bool Reset(VkCommandPoolResetFlags flags = 0);
+			CommandPool& operator=(const CommandPool&) = delete;
+			CommandPool& operator=(CommandPool&&) = delete;
 
-				CommandPool& operator=(const CommandPool&) = delete;
-				CommandPool& operator=(CommandPool&&) = delete;
-
-			private:
-				static inline VkResult CreateHelper(Device& device, const VkCommandPoolCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkCommandPool* handle);
-				static inline void DestroyHelper(Device& device, VkCommandPool handle, const VkAllocationCallbacks* allocator);
-		};
-	}
+		private:
+			static inline VkResult CreateHelper(Device& device, const VkCommandPoolCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkCommandPool* handle);
+			static inline void DestroyHelper(Device& device, VkCommandPool handle, const VkAllocationCallbacks* allocator);
+	};
 }
 
 #include <Nazara/VulkanRenderer/Wrapper/CommandPool.inl>

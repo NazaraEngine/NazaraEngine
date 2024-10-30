@@ -10,35 +10,32 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DeviceObject.hpp>
 
-namespace Nz
+namespace Nz::Vk
 {
-	namespace Vk
+	class Buffer : public DeviceObject<Buffer, VkBuffer, VkBufferCreateInfo, VK_OBJECT_TYPE_BUFFER>
 	{
-		class Buffer : public DeviceObject<Buffer, VkBuffer, VkBufferCreateInfo, VK_OBJECT_TYPE_BUFFER>
-		{
-			friend DeviceObject;
+		friend DeviceObject;
 
-			public:
-				Buffer() = default;
-				Buffer(const Buffer&) = delete;
-				Buffer(Buffer&&) noexcept = default;
-				~Buffer() = default;
+		public:
+			Buffer() = default;
+			Buffer(const Buffer&) = delete;
+			Buffer(Buffer&&) noexcept = default;
+			~Buffer() = default;
 
-				bool BindBufferMemory(VkDeviceMemory memory, VkDeviceSize offset = 0);
+			bool BindBufferMemory(VkDeviceMemory memory, VkDeviceSize offset = 0);
 
-				using DeviceObject::Create;
-				inline bool Create(Device& device, VkBufferCreateFlags flags, VkDeviceSize size, VkBufferUsageFlags usage, const VkAllocationCallbacks* allocator = nullptr);
+			using DeviceObject::Create;
+			inline bool Create(Device& device, VkBufferCreateFlags flags, VkDeviceSize size, VkBufferUsageFlags usage, const VkAllocationCallbacks* allocator = nullptr);
 
-				VkMemoryRequirements GetMemoryRequirements() const;
+			VkMemoryRequirements GetMemoryRequirements() const;
 
-				Buffer& operator=(const Buffer&) = delete;
-				Buffer& operator=(Buffer&&) = delete;
+			Buffer& operator=(const Buffer&) = delete;
+			Buffer& operator=(Buffer&&) = delete;
 
-			private:
-				static inline VkResult CreateHelper(Device& device, const VkBufferCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkBuffer* handle);
-				static inline void DestroyHelper(Device& device, VkBuffer handle, const VkAllocationCallbacks* allocator);
-		};
-	}
+		private:
+			static inline VkResult CreateHelper(Device& device, const VkBufferCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkBuffer* handle);
+			static inline void DestroyHelper(Device& device, VkBuffer handle, const VkAllocationCallbacks* allocator);
+	};
 }
 
 #include <Nazara/VulkanRenderer/Wrapper/Buffer.inl>
