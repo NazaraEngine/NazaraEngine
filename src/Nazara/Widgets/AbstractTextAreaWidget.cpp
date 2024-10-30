@@ -17,6 +17,7 @@ namespace Nz
 	BaseWidget(parent),
 	m_maximumTextLength(0),
 	m_echoMode(EchoMode::Normal),
+	m_textPadding(10.f, 10.f),
 	m_cursorPositionBegin(0U, 0U),
 	m_cursorPositionEnd(0U, 0U),
 	m_isEnabled(true),
@@ -79,7 +80,7 @@ namespace Nz
 			AbstractTextDrawer& textDrawer = GetTextDrawer();
 
 			if (enable)
-				textDrawer.SetMaxLineWidth(GetWidth());
+				textDrawer.SetMaxLineWidth(GetWidth() - m_textPadding.x * 2.f);
 			else
 				textDrawer.SetMaxLineWidth(std::numeric_limits<float>::infinity());
 
@@ -90,9 +91,8 @@ namespace Nz
 	Vector2ui AbstractTextAreaWidget::GetHoveredGlyph(float x, float y) const
 	{
 		const AbstractTextDrawer& textDrawer = GetTextDrawer();
-		const Vector2f& textPadding = m_style->GetTextPadding();
 
-		x -= m_textOffset + textPadding.x;
+		x -= m_textOffset + m_textPadding.x;
 		float textHeight = textDrawer.GetBounds().height;
 		y = textHeight - y;
 
@@ -149,8 +149,7 @@ namespace Nz
 		if (m_isLineWrapEnabled)
 		{
 			AbstractTextDrawer& textDrawer = GetTextDrawer();
-
-			textDrawer.SetMaxLineWidth(GetWidth());
+			textDrawer.SetMaxLineWidth(GetWidth() - m_textPadding.x * 2.f);
 		}
 
 		UpdateTextSprite();
@@ -596,13 +595,11 @@ namespace Nz
 		};
 
 		// Move text so that cursor always lies in drawer bounds
-		const Vector2f& textPadding = m_style->GetTextPadding();
-
 		auto [lastGlyph, overshooting] = GetGlyph(m_cursorPositionEnd);
 		float glyphPos = (lastGlyph) ? lastGlyph->bounds.x : 0.f;
 		float glyphWidth = (lastGlyph) ? lastGlyph->bounds.width : 0.f;
 		float textPosition = m_textOffset;
-		float width = GetWidth() - textPadding.x;
+		float width = GetWidth() - m_textPadding.x;
 
 		float cursorPosition = glyphPos + textPosition + ((overshooting) ? glyphWidth : 0.f);
 
@@ -683,13 +680,11 @@ namespace Nz
 
 		const AbstractTextDrawer::Line* lines = textDrawer.GetLines();
 
-		const Vector2f& textPadding = m_style->GetTextPadding();
-
 		float preferredHeight = 0.f;
 		std::size_t lineCount = textDrawer.GetLineCount();
 		for (std::size_t i = 0; i < lineCount; ++i)
 			preferredHeight += lines[i].bounds.height;
 
-		SetPreferredSize({ -1.f, preferredHeight + textPadding.y * 2.f });
+		SetPreferredSize({ -1.f, preferredHeight + m_textPadding.y * 2.f });
 	}
 }

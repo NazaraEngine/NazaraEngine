@@ -102,6 +102,11 @@ namespace Nz
 		return { m_cursorPositionBegin, m_cursorPositionEnd };
 	}
 
+	inline Vector2f AbstractTextAreaWidget::GetTextPadding() const
+	{
+		return m_textPadding;
+	}
+
 	inline bool AbstractTextAreaWidget::HasSelection() const
 	{
 		return m_cursorPositionBegin != m_cursorPositionEnd;
@@ -248,6 +253,12 @@ namespace Nz
 
 			RefreshCursorSize();
 		}
+	}
+
+	inline void AbstractTextAreaWidget::SetTextPadding(Vector2f textPadding)
+	{
+		m_textPadding = textPadding;
+		Layout();
 	}
 
 	inline void AbstractTextAreaWidget::Write(std::string_view text)

@@ -53,6 +53,7 @@ namespace Nz
 			inline std::size_t GetGlyphIndex(const Vector2ui& cursorPosition) const;
 			inline std::size_t GetMaximumTextLength() const;
 			inline std::pair<Vector2ui, Vector2ui> GetSelection() const;
+			inline Vector2f GetTextPadding() const;
 
 			Vector2ui GetHoveredGlyph(float x, float y) const;
 
@@ -77,6 +78,7 @@ namespace Nz
 			virtual void SetMaximumTextLength(std::size_t maximumLength) = 0;
 			inline void SetReadOnly(bool readOnly = true);
 			inline void SetSelection(Vector2ui fromPosition, Vector2ui toPosition);
+			inline void SetTextPadding(Vector2f textPadding);
 
 			inline void Write(std::string_view text);
 			inline void Write(std::string_view text, const Vector2ui& glyphPosition);
@@ -141,6 +143,7 @@ namespace Nz
 			std::vector<Rectf> m_cursorRects;
 			CharacterFilter m_characterFilter;
 			EchoMode m_echoMode;
+			Vector2f m_textPadding;
 			Vector2ui m_cursorPositionBegin;
 			Vector2ui m_cursorPositionEnd;
 			Vector2ui m_selectionCursor;

@@ -630,8 +630,6 @@ namespace Nz
 
 		auto& textGfx = registry.get<GraphicsComponent>(m_textEntity);
 		textGfx.AttachRenderable(m_textSprite, renderMask);
-
-		m_textPadding = m_config.padding;
 	}
 
 	void SimpleTextAreaWidgetStyle::EnableBackground(bool enable)
@@ -782,21 +780,25 @@ namespace Nz
 	void SimpleTextAreaWidgetStyle::UpdateText(const AbstractTextDrawer& drawer)
 	{
 		AbstractTextAreaWidget* textAreaWidget = GetOwnerWidget<AbstractTextAreaWidget>();
+		Vector2f textPadding = textAreaWidget->GetTextPadding();
 
 		m_textSprite->Update(drawer);
 
 		Vector2f textSize = Vector2f(m_textSprite->GetAABB().GetLengths());
 
 		auto& textNode = GetRegistry().get<NodeComponent>(m_textEntity);
-		textNode.SetPosition({ m_textPadding.x, textAreaWidget->GetHeight() - m_textPadding.y - textSize.y });
+		textNode.SetPosition({ textPadding.x, textAreaWidget->GetHeight() - textPadding.y - textSize.y });
 
 		UpdateCursorColor(textAreaWidget->HasFocus());
 	}
 
 	void SimpleTextAreaWidgetStyle::UpdateTextOffset(float offset)
 	{
+		AbstractTextAreaWidget* textAreaWidget = GetOwnerWidget<AbstractTextAreaWidget>();
+		Vector2f textPadding = textAreaWidget->GetTextPadding();
+
 		auto& textNode = GetRegistry().get<NodeComponent>(m_textEntity);
-		textNode.SetPosition({ m_textPadding.x + offset, textNode.GetPosition().y });
+		textNode.SetPosition({ textPadding.x + offset, textNode.GetPosition().y });
 	}
 
 	void SimpleTextAreaWidgetStyle::UpdateCursorColor(bool hasFocus)

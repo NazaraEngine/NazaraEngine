@@ -315,7 +315,6 @@ namespace Nz
 		styleConfig.backgroundCoords = RectToCoords(m_textBoxRect);
 		styleConfig.insertionCursorColor = Color::Black();
 		styleConfig.material = m_material;
-		styleConfig.padding = { 10.f, 10.f };
 		styleConfig.selectionCursorColor = Color(0.f, 0.f, 0.f, 0.2f);
 		styleConfig.selectionCursorColorNoFocus = Color(0.5f, 0.5f, 0.5f, 0.2f);
 

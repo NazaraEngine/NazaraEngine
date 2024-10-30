@@ -382,7 +382,6 @@ namespace Nz
 				Color selectionCursorColor;
 				Color selectionCursorColorNoFocus;
 				Rectf backgroundCoords;
-				Vector2f padding;
 				float backgroundCornerSize;
 				float backgroundCornerTexCoords;
 			};

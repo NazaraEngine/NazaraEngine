@@ -248,8 +248,6 @@ namespace Nz
 
 			virtual void EnableBackground(bool enable) = 0;
 
-			inline const Vector2f& GetTextPadding() const;
-
 			virtual void Layout(const Vector2f& size) = 0;
 
 			virtual void OnDisabled();
@@ -266,9 +264,6 @@ namespace Nz
 
 			TextAreaWidgetStyle& operator=(const TextAreaWidgetStyle&) = delete;
 			TextAreaWidgetStyle& operator=(TextAreaWidgetStyle&&) = default;
-
-		protected:
-			Vector2f m_textPadding;
 	};
 
 }
