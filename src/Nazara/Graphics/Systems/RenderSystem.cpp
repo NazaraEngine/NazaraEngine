@@ -46,6 +46,8 @@ namespace Nz
 		m_cameraConstructObserver.disconnect();
 		m_graphicsConstructObserver.disconnect();
 		m_lightConstructObserver.disconnect();
+		// Destroy swapchains before pipeline (to free release queues which may point to resources owned by the pipeline)
+		m_windowSwapchains.clear();
 		m_pipeline.reset();
 	}
 
