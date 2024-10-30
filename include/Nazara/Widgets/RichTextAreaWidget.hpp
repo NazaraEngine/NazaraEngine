@@ -15,7 +15,7 @@ namespace Nz
 	class NAZARA_WIDGETS_API RichTextAreaWidget : public AbstractTextAreaWidget
 	{
 		public:
-			RichTextAreaWidget(BaseWidget* parent);
+			inline RichTextAreaWidget(BaseWidget* parent, const StyleFactory& styleFactory = nullptr);
 			RichTextAreaWidget(const RichTextAreaWidget&) = delete;
 			RichTextAreaWidget(RichTextAreaWidget&&) = delete;
 			~RichTextAreaWidget() = default;

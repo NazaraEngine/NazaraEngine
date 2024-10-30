@@ -6,12 +6,6 @@
 
 namespace Nz
 {
-	RichTextAreaWidget::RichTextAreaWidget(BaseWidget* parent) :
-	AbstractTextAreaWidget(parent)
-	{
-		Layout();
-	}
-
 	void RichTextAreaWidget::AppendText(std::string_view text)
 	{
 		//m_text += text;

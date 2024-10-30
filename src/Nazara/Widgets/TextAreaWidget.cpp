@@ -30,8 +30,8 @@ namespace Nz
 		}
 	}
 
-	TextAreaWidget::TextAreaWidget(BaseWidget* parent) :
-	AbstractTextAreaWidget(parent)
+	TextAreaWidget::TextAreaWidget(BaseWidget* parent, const StyleFactory& styleFactory) :
+	AbstractTextAreaWidget(parent, styleFactory)
 	{
 		SetCharacterSize(GetCharacterSize()); //< Actualize minimum / preferred size
 

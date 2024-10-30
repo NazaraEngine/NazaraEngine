@@ -2,9 +2,14 @@
 // This file is part of the "Nazara Engine - Widgets module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-
 namespace Nz
 {
+	inline RichTextAreaWidget::RichTextAreaWidget(BaseWidget* parent, const StyleFactory& styleFactory) :
+	AbstractTextAreaWidget(parent, styleFactory)
+	{
+		Layout();
+	}
+
 	inline unsigned int RichTextAreaWidget::GetCharacterSize() const
 	{
 		return m_drawer.GetCharacterSize();

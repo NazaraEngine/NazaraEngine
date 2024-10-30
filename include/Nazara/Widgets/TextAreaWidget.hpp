@@ -15,7 +15,7 @@ namespace Nz
 	class NAZARA_WIDGETS_API TextAreaWidget : public AbstractTextAreaWidget
 	{
 		public:
-			TextAreaWidget(BaseWidget* parent);
+			TextAreaWidget(BaseWidget* parent, const StyleFactory& styleFactory = nullptr);
 			TextAreaWidget(const TextAreaWidget&) = delete;
 			TextAreaWidget(TextAreaWidget&&) = delete;
 			~TextAreaWidget() = default;
