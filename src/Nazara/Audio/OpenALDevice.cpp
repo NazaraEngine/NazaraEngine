@@ -237,6 +237,8 @@ namespace Nz
 
 	void OpenALDevice::DetachThread() const
 	{
+		NAZARA_USE_ANONYMOUS_NAMESPACE
+
 #ifdef ALC_EXT_thread_local_context
 		const OpenALDevice*& device = s_currentThreadALDevice;
 		if (device)
