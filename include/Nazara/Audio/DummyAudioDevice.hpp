@@ -27,6 +27,8 @@ namespace Nz
 			std::shared_ptr<AudioBuffer> CreateBuffer() override;
 			std::shared_ptr<AudioSource> CreateSource() override;
 
+			void DetachThread() const override;
+
 			float GetDopplerFactor() const override;
 			float GetGlobalVolume() const override;
 			Vector3f GetListenerDirection(Vector3f* up = nullptr) const override;

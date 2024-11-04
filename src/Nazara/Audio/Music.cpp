@@ -424,9 +424,10 @@ namespace Nz
 		std::optional<std::lock_guard<std::recursive_mutex>> exitLock;
 
 		// Allocation of streaming buffers
-		CallOnExit unqueueBuffers([&]
-		{
-			m_source->UnqueueAllBuffers();
+		NAZARA_DEFER(
+		{ 
+			m_source->UnqueueAllBuffers(); 
+			m_source->GetAudioDevice()->DetachThread();
 		});
 
 		try

@@ -92,9 +92,11 @@ namespace Nz
 			if (func && wrapErrorHandling)
 			{
 				if constexpr (
-					FuncIndex != UnderlyingCast(FunctionIndex::alGetError) &&      //< Prevent infinite recursion
-					FuncIndex != UnderlyingCast(FunctionIndex::alcCloseDevice) &&  //< alcDestroyContext is called with no context
-					FuncIndex != UnderlyingCast(FunctionIndex::alcDestroyContext)) //< alcDestroyContext is called with no context
+					FuncIndex != UnderlyingCast(FunctionIndex::alGetError) &&            //< Prevent infinite recursion
+					FuncIndex != UnderlyingCast(FunctionIndex::alcCloseDevice) &&        //< alcDestroyContext is called with no context
+					FuncIndex != UnderlyingCast(FunctionIndex::alcDestroyContext) &&     //< alcDestroyContext is called with no context
+					FuncIndex != UnderlyingCast(FunctionIndex::alcMakeContextCurrent) && //< alcMakeContextCurrent is called with no context
+					FuncIndex != UnderlyingCast(FunctionIndex::alcSetThreadContext))     //< alcSetThreadContext is called with no context
 				{
 					using Wrapper = ALWrapper<FuncType, FuncIndex, FuncType>;
 					func = Wrapper::WrapErrorHandling();
@@ -121,12 +123,6 @@ namespace Nz
 		if (!m_context)
 			throw std::runtime_error("failed to create OpenAL context");
 
-		// Don't use MakeContextCurrent as device pointers are not loaded yet
-		if (m_library.alcMakeContextCurrent(m_context) != AL_TRUE)
-			throw std::runtime_error("failed to activate OpenAL context");
-
-		s_currentGlobalALDevice = this;
-
 		SymbolLoader loader(*this);
 #ifdef NAZARA_DEBUG
 		loader.wrapErrorHandling = true;
@@ -137,6 +133,9 @@ namespace Nz
 #define NAZARA_AUDIO_AL_EXT_FUNCTION(name) loader.Load<decltype(&::name), UnderlyingCast(FunctionIndex:: name), false>(name, #name, nullptr);
 #define NAZARA_AUDIO_ALC_EXT_FUNCTION(name) loader.Load<decltype(&::name), UnderlyingCast(FunctionIndex:: name), true>(name, #name, nullptr);
 #include <Nazara/Audio/OpenALFunctions.hpp>
+
+		if (!MakeContextCurrent())
+			throw std::runtime_error("failed to activate OpenAL context");
 
 		m_renderer = reinterpret_cast<const char*>(alGetString(AL_RENDERER));
 		m_vendor = reinterpret_cast<const char*>(alGetString(AL_VENDOR));
@@ -151,9 +150,9 @@ namespace Nz
 		if (library.alIsExtensionPresent("AL_EXT_MCFORMATS"))
 		{
 			m_audioFormatValues[AudioFormat::I16_Quad] = alGetEnumValue("AL_FORMAT_QUAD16");
-			m_audioFormatValues[AudioFormat::I16_5_1] = alGetEnumValue("AL_FORMAT_51CHN16");
-			m_audioFormatValues[AudioFormat::I16_6_1] = alGetEnumValue("AL_FORMAT_61CHN16");
-			m_audioFormatValues[AudioFormat::I16_7_1] = alGetEnumValue("AL_FORMAT_71CHN16");
+			m_audioFormatValues[AudioFormat::I16_5_1]  = alGetEnumValue("AL_FORMAT_51CHN16");
+			m_audioFormatValues[AudioFormat::I16_6_1]  = alGetEnumValue("AL_FORMAT_61CHN16");
+			m_audioFormatValues[AudioFormat::I16_7_1]  = alGetEnumValue("AL_FORMAT_71CHN16");
 		}
 		else if (library.alIsExtensionPresent("AL_LOKI_quadriphonic"))
 			m_audioFormatValues[AudioFormat::I16_Quad] = alGetEnumValue("AL_FORMAT_QUAD16_LOKI");
@@ -172,18 +171,22 @@ namespace Nz
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
-		// alcMakeContextCurrent resets the thread context
-		alcMakeContextCurrent(m_context);
-		alcDestroyContext(m_context);
-		alcCloseDevice(m_device);
-
 #ifdef ALC_EXT_thread_local_context
-		if (s_currentThreadALDevice)
+		if (s_currentThreadALDevice == this)
+		{
+			alcSetThreadContext(nullptr);
 			s_currentThreadALDevice = nullptr;
+		}
 #endif
 
 		if (s_currentGlobalALDevice == this)
+		{
+			alcMakeContextCurrent(nullptr);
 			s_currentGlobalALDevice = nullptr;
+		}
+
+		alcDestroyContext(m_context);
+		alcCloseDevice(m_device);
 	}
 
 	bool OpenALDevice::ClearErrorFlag() const
@@ -230,6 +233,18 @@ namespace Nz
 		}
 
 		return std::make_shared<OpenALSource>(shared_from_this(), sourceId);
+	}
+
+	void OpenALDevice::DetachThread() const
+	{
+#ifdef ALC_EXT_thread_local_context
+		const OpenALDevice*& device = s_currentThreadALDevice;
+		if (device)
+		{
+			device->alcSetThreadContext(nullptr);
+			s_currentThreadALDevice = nullptr;
+		}
+#endif
 	}
 
 	/*!
@@ -331,7 +346,7 @@ namespace Nz
 		return velocity;
 	}
 
-	void OpenALDevice::MakeContextCurrent() const
+	bool OpenALDevice::MakeContextCurrent() const
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
@@ -340,7 +355,9 @@ namespace Nz
 		{
 			if (s_currentThreadALDevice != this)
 			{
-				alcSetThreadContext(m_context);
+				if (alcSetThreadContext(m_context) != ALC_TRUE)
+					return false;
+
 				s_currentThreadALDevice = this;
 			}
 		}
@@ -349,7 +366,9 @@ namespace Nz
 		{
 			if (s_currentGlobalALDevice != this)
 			{
-				alcMakeContextCurrent(m_context);
+				if (alcMakeContextCurrent(m_context) != ALC_TRUE)
+					return false;
+
 				s_currentGlobalALDevice = this;
 
 #ifdef ALC_EXT_thread_local_context
@@ -362,6 +381,8 @@ namespace Nz
 #endif
 			}
 		}
+
+		return true;
 	}
 
 	template<typename... Args>

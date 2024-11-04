@@ -29,6 +29,11 @@ namespace Nz
 		return std::make_shared<DummyAudioSource>(shared_from_this());
 	}
 
+	void DummyAudioDevice::DetachThread() const
+	{
+		// nothing to do
+	}
+
 	float DummyAudioDevice::GetDopplerFactor() const
 	{
 		return m_dopplerFactor;

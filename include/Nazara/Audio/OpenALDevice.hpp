@@ -51,6 +51,8 @@ namespace Nz
 			std::shared_ptr<AudioBuffer> CreateBuffer() override;
 			std::shared_ptr<AudioSource> CreateSource() override;
 
+			void DetachThread() const override;
+
 			float GetDopplerFactor() const override;
 			inline ALFunction GetFunctionByIndex(std::size_t funcIndex) const;
 			float GetGlobalVolume() const override;
@@ -66,7 +68,7 @@ namespace Nz
 			inline bool IsExtensionSupported(OpenALExtension extension) const;
 			bool IsFormatSupported(AudioFormat format) const override;
 
-			void MakeContextCurrent() const;
+			bool MakeContextCurrent() const;
 
 			template<typename... Args> void PrintFunctionCall(std::size_t funcIndex, Args... args) const;
 			bool ProcessErrorFlag() const;

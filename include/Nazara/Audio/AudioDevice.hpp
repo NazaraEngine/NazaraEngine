@@ -32,6 +32,8 @@ namespace Nz
 			virtual std::shared_ptr<AudioBuffer> CreateBuffer() = 0;
 			virtual std::shared_ptr<AudioSource> CreateSource() = 0;
 
+			virtual void DetachThread() const = 0;
+
 			virtual float GetDopplerFactor() const = 0;
 			virtual float GetGlobalVolume() const = 0;
 			virtual Vector3f GetListenerDirection(Vector3f* up = nullptr) const = 0;
