@@ -92,11 +92,14 @@ namespace Nz
 			if (func && wrapErrorHandling)
 			{
 				if constexpr (
-					FuncIndex != UnderlyingCast(FunctionIndex::alGetError) &&            //< Prevent infinite recursion
-					FuncIndex != UnderlyingCast(FunctionIndex::alcCloseDevice) &&        //< alcDestroyContext is called with no context
-					FuncIndex != UnderlyingCast(FunctionIndex::alcDestroyContext) &&     //< alcDestroyContext is called with no context
-					FuncIndex != UnderlyingCast(FunctionIndex::alcMakeContextCurrent) && //< alcMakeContextCurrent is called with no context
-					FuncIndex != UnderlyingCast(FunctionIndex::alcSetThreadContext))     //< alcSetThreadContext is called with no context
+				    FuncIndex != UnderlyingCast(FunctionIndex::alGetError)            //< Prevent infinite recursion
+				 && FuncIndex != UnderlyingCast(FunctionIndex::alcCloseDevice)        //< alcDestroyContext is called with no context
+				 && FuncIndex != UnderlyingCast(FunctionIndex::alcDestroyContext)     //< alcDestroyContext is called with no context
+				 && FuncIndex != UnderlyingCast(FunctionIndex::alcMakeContextCurrent) //< alcMakeContextCurrent is called with no context
+#ifdef ALC_EXT_thread_local_context
+				 && FuncIndex != UnderlyingCast(FunctionIndex::alcSetThreadContext)   //< alcSetThreadContext is called with no context
+#endif
+					)
 				{
 					using Wrapper = ALWrapper<FuncType, FuncIndex, FuncType>;
 					func = Wrapper::WrapErrorHandling();
