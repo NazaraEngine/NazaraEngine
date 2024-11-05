@@ -402,9 +402,9 @@ namespace Nz
 			{
 			}
 
-			void OnStep(float inDeltaTime, JPH::PhysicsSystem& /*inPhysicsSystem*/) override
+			void OnStep(const JPH::PhysicsStepListenerContext& inContext) override
 			{
-				m_physWorld.OnPreStep(inDeltaTime);
+				m_physWorld.OnPreStep(inContext.mDeltaTime);
 			}
 
 		private:
