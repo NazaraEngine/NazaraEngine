@@ -114,10 +114,10 @@ namespace Nz
 			struct DynamicSettings : CommonSettings
 			{
 				DynamicSettings() = default;
-				DynamicSettings(std::shared_ptr<Collider3D> collider, float mass_) :
+				DynamicSettings(std::shared_ptr<Collider3D> collider_, float mass_) :
 				mass(mass_)
 				{
-					collider = std::move(collider);
+					collider = std::move(collider_);
 				}
 
 				// Default values from Jolt
@@ -138,9 +138,9 @@ namespace Nz
 			struct StaticSettings : CommonSettings
 			{
 				StaticSettings() = default;
-				StaticSettings(std::shared_ptr<Collider3D> collider)
+				StaticSettings(std::shared_ptr<Collider3D> collider_)
 				{
-					collider = std::move(collider);
+					collider = std::move(collider_);
 				}
 			};
 

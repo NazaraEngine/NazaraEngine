@@ -545,7 +545,7 @@ namespace Nz
 		m_isRegistered        = object.m_isRegistered;
 		m_isSimulationEnabled = object.m_isSimulationEnabled;
 		m_isStatic            = object.m_isStatic;
-		m_collider                = std::move(object.m_collider);
+		m_collider            = std::move(object.m_collider);
 		m_gravityFactor       = object.m_gravityFactor;
 		m_mass                = object.m_mass;
 		m_positionOffset      = object.m_positionOffset;

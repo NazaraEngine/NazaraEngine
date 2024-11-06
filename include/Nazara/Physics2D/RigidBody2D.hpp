@@ -126,10 +126,10 @@ namespace Nz
 			struct DynamicSettings : CommonSettings
 			{
 				DynamicSettings() = default;
-				DynamicSettings(std::shared_ptr<Collider2D> collider, float mass_) :
+				DynamicSettings(std::shared_ptr<Collider2D> collider_, float mass_) :
 				mass(mass_)
 				{
-					collider = std::move(collider);
+					collider = std::move(collider_);
 				}
 
 				RadianAnglef angularVelocity = RadianAnglef::Zero();
@@ -141,9 +141,9 @@ namespace Nz
 			struct StaticSettings : CommonSettings
 			{
 				StaticSettings() = default;
-				StaticSettings(std::shared_ptr<Collider2D> collider)
+				StaticSettings(std::shared_ptr<Collider2D> collider_)
 				{
-					collider = std::move(collider);
+					collider = std::move(collider_);
 				}
 			};
 
