@@ -224,26 +224,18 @@ namespace Nz
 
 	void RigidBody3D::SetGeom(std::shared_ptr<Collider3D> geom, bool recomputeInertia)
 	{
+		if (!geom)
+			geom = EmptyCollider3D::Get();
+
 		if (m_geom != geom)
 		{
 			float mass;
 			if (m_body->IsDynamic())
 				mass = GetMass();
 
-			const JPH::Shape* shape;
 			m_geom = std::move(geom);
-			if (m_geom)
-			{
-				if (!m_isTrigger)
-					m_body->SetIsSensor(false);
 
-				shape = m_geom->GetShapeSettings()->Create().Get();
-			}
-			else
-			{
-				m_body->SetIsSensor(true);
-				shape = m_world->GetNullShape();
-			}
+			const JPH::Shape* shape = m_geom->GetShapeSettings()->Create().Get();
 
 			JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterface();
 			bodyInterface.SetShape(m_body->GetID(), shape, false, (ShouldActivate()) ? JPH::EActivation::Activate : JPH::EActivation::DontActivate);
@@ -372,7 +364,7 @@ namespace Nz
 
 	void RigidBody3D::Create(PhysWorld3D& world, const DynamicSettings& settings)
 	{
-		m_geom = settings.geom;
+		m_geom = (settings.geom) ? settings.geom : EmptyCollider3D::Get();
 		m_isSimulationEnabled = settings.isSimulationEnabled;
 		m_isTrigger = settings.isTrigger;
 		m_world = &world;
@@ -463,15 +455,9 @@ namespace Nz
 	void RigidBody3D::BuildSettings(const CommonSettings& settings, JPH::BodyCreationSettings& creationSettings)
 	{
 		if (settings.geom)
-		{
 			creationSettings.SetShapeSettings(settings.geom->GetShapeSettings());
-			creationSettings.mIsSensor = settings.isTrigger;
-		}
 		else
-		{
-			creationSettings.SetShape(m_world->GetNullShape());
-			creationSettings.mIsSensor = true; //< not the best solution but enough for now
-		}
+			creationSettings.SetShapeSettings(EmptyCollider3D::Get()->GetShapeSettings());
 
 		creationSettings.mObjectLayer = settings.objectLayer;
 		creationSettings.mPosition = ToJolt(settings.position);

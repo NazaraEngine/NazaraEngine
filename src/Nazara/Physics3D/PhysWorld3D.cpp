@@ -813,17 +813,6 @@ namespace Nz
 		return m_defaultCharacterImpl;
 	}
 
-	const JPH::Shape* PhysWorld3D::GetNullShape() const
-	{
-		if (!m_world->nullShape)
-		{
-			m_world->nullShape = std::make_unique<JPH::SphereShape>(std::numeric_limits<float>::epsilon());
-			m_world->nullShape->SetEmbedded();
-		}
-
-		return m_world->nullShape.get();
-	}
-
 	void PhysWorld3D::OnPreStep(float deltatime)
 	{
 		for (PhysWorld3DStepListener* stepListener : m_stepListeners)

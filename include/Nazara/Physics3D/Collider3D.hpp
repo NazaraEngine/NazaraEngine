@@ -127,6 +127,19 @@ namespace Nz
 			ColliderType3D GetType() const override;
 	};
 
+	class NAZARA_PHYSICS3D_API EmptyCollider3D final : public Collider3D
+	{
+		public:
+			EmptyCollider3D();
+			~EmptyCollider3D() = default;
+
+			void BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const override;
+
+			ColliderType3D GetType() const override;
+
+			static std::shared_ptr<EmptyCollider3D> Get();
+	};
+
 	class NAZARA_PHYSICS3D_API MeshCollider3D final : public Collider3D
 	{
 		public:

@@ -17,6 +17,7 @@
 #include <Jolt/Physics/Collision/Shape/BoxShape.h>
 #include <Jolt/Physics/Collision/Shape/CapsuleShape.h>
 #include <Jolt/Physics/Collision/Shape/ConvexHullShape.h>
+#include <Jolt/Physics/Collision/Shape/EmptyShape.h>
 #include <Jolt/Physics/Collision/Shape/MeshShape.h>
 #include <Jolt/Physics/Collision/Shape/RotatedTranslatedShape.h>
 #include <Jolt/Physics/Collision/Shape/ScaledShape.h>
@@ -384,6 +385,28 @@ namespace Nz
 	ColliderType3D ConvexHullCollider3D::GetType() const
 	{
 		return ColliderType3D::Convex;
+	}
+
+	/******************************** EmptyCollider3D *********************************/
+
+	EmptyCollider3D::EmptyCollider3D()
+	{
+		SetupShapeSettings(std::make_unique<JPH::EmptyShapeSettings>());
+	}
+
+	void EmptyCollider3D::BuildDebugMesh(std::vector<Vector3f>& /*vertices*/, std::vector<UInt16>& /*indices*/, const Matrix4f& /*offsetMatrix*/) const
+	{
+	}
+
+	ColliderType3D EmptyCollider3D::GetType() const
+	{
+		return ColliderType3D::Empty;
+	}
+
+	std::shared_ptr<EmptyCollider3D> EmptyCollider3D::Get()
+	{
+		static std::shared_ptr<EmptyCollider3D> emptyCollider = std::make_shared<EmptyCollider3D>();
+		return emptyCollider;
 	}
 
 	/******************************** MeshCollider3D *********************************/

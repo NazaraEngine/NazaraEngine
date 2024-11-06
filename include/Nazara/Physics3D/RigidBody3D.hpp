@@ -22,6 +22,7 @@ namespace JPH
 {
 	class Body;
 	class BodyCreationSettings;
+	class Shape;
 }
 
 namespace Nz
@@ -155,6 +156,8 @@ namespace Nz
 			void BuildSettings(const StaticSettings& settings, JPH::BodyCreationSettings& creationSettings);
 
 			bool ShouldActivate() const;
+
+			static const JPH::Shape* GetEmptyShape();
 
 			std::shared_ptr<Collider3D> m_geom;
 			MovablePtr<JPH::Body> m_body;

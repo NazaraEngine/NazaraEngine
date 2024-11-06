@@ -159,7 +159,6 @@ namespace Nz
 			friend StepListener;
 
 			std::shared_ptr<PhysCharacter3DImpl> GetDefaultCharacterImpl();
-			const JPH::Shape* GetNullShape() const;
 
 			void OnPreStep(float deltatime);
 
