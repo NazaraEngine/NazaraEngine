@@ -200,6 +200,7 @@ namespace Nz
 					PhysWorld3D::RaycastHit hitInfo;
 					hitInfo.fraction = result.mFraction;
 					hitInfo.hitPosition = Lerp(m_from, m_to, result.mFraction);
+					hitInfo.subShapeID = result.mSubShapeID2.GetValue();
 
 					JPH::BodyLockWrite lock(m_bodyLockInterface, result.mBodyID);
 					if (!lock.Succeeded())
@@ -606,6 +607,7 @@ namespace Nz
 		hitInfo.hitPosition = Lerp(from, to, hitInfo.fraction);
 		hitInfo.hitBody = IntegerToPointer<PhysBody3D*>(body.GetUserData());
 		hitInfo.hitNormal = FromJolt(body.GetWorldSpaceSurfaceNormal(collector.mHit.mSubShapeID2, rayCast.GetPointOnRay(collector.mHit.GetEarlyOutFraction())));
+		hitInfo.subShapeID = collector.mHit.mSubShapeID2.GetValue();
 
 		callback(hitInfo);
 		return true;

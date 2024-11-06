@@ -110,6 +110,7 @@ namespace Nz
 				PhysBody3D* hitBody = nullptr;
 				Vector3f hitNormal;
 				Vector3f hitPosition;
+				UInt32 subShapeID;
 			};
 
 			struct Settings
