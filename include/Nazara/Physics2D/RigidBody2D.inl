@@ -35,9 +35,9 @@ namespace Nz
 		return m_bodyIndex;
 	}
 
-	inline const std::shared_ptr<Collider2D>& RigidBody2D::GetGeom() const
+	inline const std::shared_ptr<Collider2D>& RigidBody2D::GetCollider() const
 	{
-		return m_geom;
+		return m_collider;
 	}
 
 	inline cpBody* RigidBody2D::GetHandle() const

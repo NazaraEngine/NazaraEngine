@@ -210,8 +210,8 @@ namespace Nz
 
 	/******************************** CompoundCollider2D *********************************/
 
-	CompoundCollider2D::CompoundCollider2D(std::vector<std::shared_ptr<Collider2D>> geoms) :
-	m_geoms(std::move(geoms)),
+	CompoundCollider2D::CompoundCollider2D(std::vector<std::shared_ptr<Collider2D>> colliders) :
+	m_colliders(std::move(colliders)),
 	m_doesOverrideCollisionProperties(true)
 	{
 	}
@@ -219,10 +219,10 @@ namespace Nz
 	Vector2f CompoundCollider2D::ComputeCenterOfMass() const
 	{
 		Vector2f centerOfMass = Vector2f::Zero();
-		for (const auto& geom : m_geoms)
-			centerOfMass += geom->ComputeCenterOfMass();
+		for (const auto& collider : m_colliders)
+			centerOfMass += collider->ComputeCenterOfMass();
 
-		return centerOfMass / float(m_geoms.size());
+		return centerOfMass / float(m_colliders.size());
 	}
 
 	float CompoundCollider2D::ComputeMomentOfInertia(float mass) const
@@ -230,8 +230,8 @@ namespace Nz
 		///TODO: Correctly compute moment using parallel axis theorem:
 		/// https://chipmunk-physics.net/forum/viewtopic.php?t=1056
 		float momentOfInertia = 0.f;
-		for (const auto& geom : m_geoms)
-			momentOfInertia += geom->ComputeMomentOfInertia(mass); //< Eeeer
+		for (const auto& collider : m_colliders)
+			momentOfInertia += collider->ComputeMomentOfInertia(mass); //< Eeeer
 
 		return momentOfInertia;
 	}
@@ -246,8 +246,8 @@ namespace Nz
 		// Since C++ does not allow protected call from other objects, we have to be a friend of Collider2D, yay
 
 		std::size_t shapeCount = 0;
-		for (const auto& geom : m_geoms)
-			shapeCount += geom->CreateShapes(body, shapes);
+		for (const auto& collider : m_colliders)
+			shapeCount += collider->CreateShapes(body, shapes);
 
 		return shapeCount;
 	}
@@ -260,8 +260,8 @@ namespace Nz
 		else
 		{
 			std::size_t shapeCount = 0;
-			for (const auto& geom : m_geoms)
-				shapeCount += geom->GenerateShapes(body, shapes);
+			for (const auto& collider : m_colliders)
+				shapeCount += collider->GenerateShapes(body, shapes);
 
 			return shapeCount;
 		}

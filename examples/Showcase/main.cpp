@@ -362,7 +362,7 @@ int main(int argc, char* argv[])
 		auto translatedFloorCollider = std::make_shared<Nz::TranslatedRotatedCollider3D>(std::move(floorCollider), Nz::Vector3f::Down() * 0.5f);
 
 		Nz::RigidBody3D::StaticSettings floorSettings;
-		floorSettings.geom = translatedFloorCollider;
+		floorSettings.collider = translatedFloorCollider;
 
 		floorEntity.emplace<Nz::RigidBody3DComponent>(floorSettings);
 

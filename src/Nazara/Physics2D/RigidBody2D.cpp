@@ -14,7 +14,7 @@
 namespace Nz
 {
 	RigidBody2D::RigidBody2D(const RigidBody2D& object) :
-	m_geom(object.m_geom),
+	m_collider(object.m_collider),
 	m_world(object.m_world),
 	m_positionOffset(object.m_positionOffset),
 	m_isRegistered(false),
@@ -24,13 +24,13 @@ namespace Nz
 	m_mass(object.GetMass())
 	{
 		NazaraAssert(m_world, "Invalid world");
-		NazaraAssert(m_geom, "Invalid geometry");
+		NazaraAssert(m_collider, "Invalid geometry");
 
 		m_bodyIndex = m_world->RegisterBody(*this);
 		m_handle = cpBodyNew(m_mass, object.GetMomentOfInertia());
 		cpBodySetUserData(m_handle, this);
 
-		SetGeom(object.GetGeom(), false, false);
+		SetCollider(object.GetCollider(), false, false);
 		SetVelocityFunction(object.m_velocityFunc);
 
 		CopyBodyData(object.GetHandle(), m_handle);
@@ -44,7 +44,7 @@ namespace Nz
 
 	RigidBody2D::RigidBody2D(RigidBody2D&& object) noexcept :
 	m_shapes(std::move(object.m_shapes)),
-	m_geom(std::move(object.m_geom)),
+	m_collider(std::move(object.m_collider)),
 	m_handle(object.m_handle),
 	m_world(object.m_world),
 	m_bodyIndex(object.m_bodyIndex),
@@ -286,11 +286,11 @@ namespace Nz
 		cpShapeSetFriction(m_shapes[shapeIndex], cpFloat(friction));
 	}
 
-	void RigidBody2D::SetGeom(std::shared_ptr<Collider2D> geom, bool recomputeMoment, bool recomputeMassCenter)
+	void RigidBody2D::SetCollider(std::shared_ptr<Collider2D> collider, bool recomputeMoment, bool recomputeMassCenter)
 	{
-		// We have no public way of getting rid of an existing geom without removing the whole body
+		// We have no public way of getting rid of an existing collider without removing the whole body
 		// So let's save some attributes of the body, destroy it and rebuild it
-		if (m_geom)
+		if (m_collider)
 		{
 			cpFloat mass = cpBodyGetMass(m_handle);
 			cpFloat moment = cpBodyGetMoment(m_handle);
@@ -311,12 +311,12 @@ namespace Nz
 			m_handle = newHandle;
 		}
 
-		if (geom)
-			m_geom = std::move(geom);
+		if (collider)
+			m_collider = std::move(collider);
 		else
-			m_geom = std::make_shared<NullCollider2D>();
+			m_collider = std::make_shared<NullCollider2D>();
 
-		m_geom->GenerateShapes(m_handle, &m_shapes);
+		m_collider->GenerateShapes(m_handle, &m_shapes);
 
 		for (cpShape* shape : m_shapes)
 			cpShapeSetUserData(shape, this);
@@ -327,11 +327,11 @@ namespace Nz
 		if (recomputeMoment)
 		{
 			if (!IsStatic() && !IsKinematic())
-				cpBodySetMoment(m_handle, m_geom->ComputeMomentOfInertia(m_mass));
+				cpBodySetMoment(m_handle, m_collider->ComputeMomentOfInertia(m_mass));
 		}
 
 		if (recomputeMassCenter)
-			SetMassCenter(m_geom->ComputeCenterOfMass());
+			SetMassCenter(m_collider->ComputeCenterOfMass());
 	}
 
 	void RigidBody2D::SetMass(float mass, bool recomputeMoment)
@@ -345,7 +345,7 @@ namespace Nz
 					cpBodySetMass(body->GetHandle(), mass);
 
 					if (recomputeMoment)
-						cpBodySetMoment(body->GetHandle(), body->GetGeom()->ComputeMomentOfInertia(mass));
+						cpBodySetMoment(body->GetHandle(), body->GetCollider()->ComputeMomentOfInertia(mass));
 				});
 			}
 			else
@@ -361,7 +361,7 @@ namespace Nz
 					cpBodySetMass(body->GetHandle(), mass);
 
 					if (recomputeMoment)
-						cpBodySetMoment(body->GetHandle(), body->GetGeom()->ComputeMomentOfInertia(mass));
+						cpBodySetMoment(body->GetHandle(), body->GetCollider()->ComputeMomentOfInertia(mass));
 				}
 			});
 		}
@@ -545,7 +545,7 @@ namespace Nz
 		m_isRegistered        = object.m_isRegistered;
 		m_isSimulationEnabled = object.m_isSimulationEnabled;
 		m_isStatic            = object.m_isStatic;
-		m_geom                = std::move(object.m_geom);
+		m_collider                = std::move(object.m_collider);
 		m_gravityFactor       = object.m_gravityFactor;
 		m_mass                = object.m_mass;
 		m_positionOffset      = object.m_positionOffset;
@@ -583,7 +583,7 @@ namespace Nz
 		m_handle = (m_mass > 0.f) ? cpBodyNew(m_mass, 0.f) : cpBodyNewKinematic(); // moment will be recomputed by SetGeom
 		cpBodySetUserData(m_handle, this);
 
-		SetGeom(settings.geom);
+		SetCollider(settings.collider);
 		SetAngularVelocity(settings.angularVelocity);
 		SetPosition(settings.position);
 		SetRotation(settings.rotation);
@@ -605,7 +605,7 @@ namespace Nz
 		m_handle = cpBodyNewStatic();
 		cpBodySetUserData(m_handle, this);
 
-		SetGeom(settings.geom);
+		SetCollider(settings.collider);
 		SetPosition(settings.position);
 		SetRotation(settings.rotation);
 	}

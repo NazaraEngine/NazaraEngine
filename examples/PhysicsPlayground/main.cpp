@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
 		std::shared_ptr<Nz::CompoundCollider3D> boxCollider = std::make_shared<Nz::CompoundCollider3D>(std::move(colliders));
 
 		Nz::RigidBody3D::StaticSettings settings;
-		settings.geom = boxCollider;
+		settings.collider = boxCollider;
 
 		boxColliderEntity.emplace<Nz::RigidBody3DComponent>(settings);
 
@@ -139,7 +139,7 @@ int main(int argc, char* argv[])
 		ballNode.SetScale(radius);
 
 		Nz::RigidBody3D::DynamicSettings settings;
-		settings.geom = sphereCollider;
+		settings.collider = sphereCollider;
 		settings.mass = 4.f / 3.f * Nz::Pi<float>() * Nz::IntegralPow(radius, 3);
 
 		ballEntity.emplace<Nz::RigidBody3DComponent>(settings);
@@ -176,7 +176,7 @@ int main(int argc, char* argv[])
 		std::shared_ptr<Nz::BoxCollider3D> boxCollider = std::make_shared<Nz::BoxCollider3D>(Nz::Vector3f(width, height, depth));
 
 		Nz::RigidBody3D::DynamicSettings settings;
-		settings.geom = boxCollider;
+		settings.collider = boxCollider;
 		settings.mass = width * height * depth;
 
 		boxEntity.emplace<Nz::RigidBody3DComponent>(settings);
@@ -243,7 +243,7 @@ int main(int argc, char* argv[])
 			shipNode.SetPosition({ xRandom(rd), yRandom(rd), zRandom(rd) });
 
 			Nz::RigidBody3D::DynamicSettings settings;
-			settings.geom = shipCollider;
+			settings.collider = shipCollider;
 			settings.mass = 100.f;
 
 			shipEntity.emplace<Nz::RigidBody3DComponent>(settings);

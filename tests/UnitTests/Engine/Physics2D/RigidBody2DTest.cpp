@@ -21,7 +21,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 		Nz::Rectf aabb(positionAABB.x, positionAABB.y, 1.f, 2.f);
 
 		Nz::RigidBody2D::DynamicSettings dynamicSettings;
-		dynamicSettings.geom = std::make_shared<Nz::BoxCollider2D>(aabb);
+		dynamicSettings.collider = std::make_shared<Nz::BoxCollider2D>(aabb);
 		dynamicSettings.mass = 1.f;
 
 		Nz::RigidBody2D body(world, dynamicSettings);
@@ -74,7 +74,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 		WHEN("We set a new geometry")
 		{
 			float radius = 5.f;
-			body.SetGeom(std::make_shared<Nz::CircleCollider2D>(radius));
+			body.SetCollider(std::make_shared<Nz::CircleCollider2D>(radius));
 
 			world.Step(Nz::Time::Second());
 
@@ -124,7 +124,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 		auto box = std::make_shared<Nz::BoxCollider2D>(aabb);
 
 		Nz::RigidBody2D body(world, dynamicSettings);
-		body.SetGeom(box, true, false);
+		body.SetCollider(box, true, false);
 
 		Nz::Vector2f position = Nz::Vector2f::Zero();
 		body.SetPosition(position);
@@ -138,7 +138,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 				CHECK(body.GetAABB() == aabb);
 				CHECK(body.GetAngularVelocity() == 0.f);
 				CHECK(body.GetMassCenter(Nz::CoordSys::Global) == position);
-				CHECK(body.GetGeom() == box);
+				CHECK(body.GetCollider() == box);
 				CHECK(body.GetMass() == Catch::Approx(dynamicSettings.mass));
 				CHECK(body.GetPosition() == position);
 				CHECK(body.GetRotation().value == Catch::Approx(0.f));
@@ -224,7 +224,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 		std::shared_ptr<Nz::Collider2D> circle = std::make_shared<Nz::CircleCollider2D>(radius, position);
 
 		Nz::RigidBody2D body(world, Nz::RigidBody2D::DynamicSettings({}, 1.f));
-		body.SetGeom(circle, true, false);
+		body.SetCollider(circle, true, false);
 
 		world.Step(Nz::Time::Second());
 
@@ -255,7 +255,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 
 		float mass = 1.f;
 		Nz::RigidBody2D body(world, Nz::RigidBody2D::DynamicSettings({}, mass));
-		body.SetGeom(compound, true, false);
+		body.SetCollider(compound, true, false);
 
 		world.Step(Nz::Time::Second());
 
@@ -284,7 +284,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 		std::shared_ptr<Nz::ConvexCollider2D> convex = std::make_shared<Nz::ConvexCollider2D>(sparsePtr, vertices.size());
 		float mass = 1.f;
 		Nz::RigidBody2D body(world, Nz::RigidBody2D::DynamicSettings({}, mass));
-		body.SetGeom(convex, true, false);
+		body.SetCollider(convex, true, false);
 
 		world.Step(Nz::Time::Second());
 
@@ -308,7 +308,7 @@ SCENARIO("RigidBody2D", "[PHYSICS2D][RIGIDBODY2D]")
 		std::shared_ptr<Nz::Collider2D> segment = std::make_shared<Nz::SegmentCollider2D>(positionA, positionB, 0.f);
 		float mass = 1.f;
 		Nz::RigidBody2D body(world, Nz::RigidBody2D::DynamicSettings({}, mass));
-		body.SetGeom(segment, true, false);
+		body.SetCollider(segment, true, false);
 
 		world.Step(Nz::Time::Second());
 
@@ -341,7 +341,7 @@ void EQUALITY(const Nz::RigidBody2D& left, const Nz::RigidBody2D& right)
 	CHECK(left.GetAABB() == right.GetAABB());
 	CHECK(left.GetAngularVelocity() == right.GetAngularVelocity());
 	CHECK(left.GetMassCenter() == right.GetMassCenter());
-	CHECK(left.GetGeom() == right.GetGeom());
+	CHECK(left.GetCollider() == right.GetCollider());
 	CHECK(left.GetHandle() != right.GetHandle());
 	CHECK(left.GetMass() == Catch::Approx(right.GetMass()));
 	CHECK(left.GetPosition() == right.GetPosition());

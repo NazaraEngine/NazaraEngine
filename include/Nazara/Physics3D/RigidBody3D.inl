@@ -35,9 +35,9 @@ namespace Nz
 		return m_body;
 	}
 
-	inline const std::shared_ptr<Collider3D>& RigidBody3D::GetGeom() const
+	inline const std::shared_ptr<Collider3D>& RigidBody3D::GetCollider() const
 	{
-		return m_geom;
+		return m_collider;
 	}
 
 	inline PhysWorld3D& RigidBody3D::GetWorld() const

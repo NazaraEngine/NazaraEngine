@@ -136,7 +136,7 @@ int main(int argc, char* argv[])
 		entityNode.SetPosition(Nz::Vector3f(12.5f, 0.f, 25.f));
 
 		Nz::RigidBody3D::DynamicSettings settings;
-		settings.geom = shipCollider;
+		settings.collider = shipCollider;
 		settings.mass = 100.f;
 
 		auto& entityPhys = playerEntity.emplace<Nz::RigidBody3DComponent>(settings);
@@ -179,7 +179,7 @@ int main(int argc, char* argv[])
 				entityNode.SetRotation(Nz::EulerAnglesf(0.f, Nz::TurnAnglef(0.5f), 0.f));
 
 				Nz::RigidBody3D::DynamicSettings settings;
-				settings.geom = shipCollider;
+				settings.collider = shipCollider;
 				settings.mass = 100.f;
 
 				auto& entityPhys = entity.emplace<Nz::RigidBody3DComponent>(settings);
@@ -239,7 +239,7 @@ int main(int argc, char* argv[])
 			entity.emplace<Nz::NodeComponent>();
 
 			Nz::RigidBody3D::DynamicSettings settings;
-			settings.geom = shipCollider;
+			settings.collider = shipCollider;
 			settings.mass = 100.f;
 
 			auto& entityPhys = entity.emplace<Nz::RigidBody3DComponent>(settings);

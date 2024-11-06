@@ -58,7 +58,7 @@ namespace Nz
 			inline JPH::Body* GetBody();
 			inline const JPH::Body* GetBody() const;
 			UInt32 GetBodyIndex() const override;
-			inline const std::shared_ptr<Collider3D>& GetGeom() const;
+			inline const std::shared_ptr<Collider3D>& GetCollider() const;
 			std::pair<Vector3f, Vector3f> GetLinearAndAngularVelocity() const;
 			float GetLinearDamping() const;
 			Vector3f GetLinearVelocity() const;
@@ -79,7 +79,7 @@ namespace Nz
 
 			void SetAngularDamping(float angularDamping);
 			void SetAngularVelocity(const Vector3f& angularVelocity);
-			void SetGeom(std::shared_ptr<Collider3D> geom, bool recomputeInertia = true);
+			void SetCollider(std::shared_ptr<Collider3D> collider, bool recomputeInertia = true);
 			void SetLinearAndAngularVelocity(const Vector3f& linearVelocity, const Vector3f& angularVelocity);
 			void SetLinearDamping(float damping);
 			void SetLinearVelocity(const Vector3f& velocity);
@@ -102,7 +102,7 @@ namespace Nz
 
 			struct CommonSettings
 			{
-				std::shared_ptr<Collider3D> geom;
+				std::shared_ptr<Collider3D> collider;
 				PhysObjectLayer3D objectLayer = 0;
 				Quaternionf rotation = Quaternionf::Identity();
 				Vector3f position = Vector3f::Zero();
@@ -117,7 +117,7 @@ namespace Nz
 				DynamicSettings(std::shared_ptr<Collider3D> collider, float mass_) :
 				mass(mass_)
 				{
-					geom = std::move(collider);
+					collider = std::move(collider);
 				}
 
 				// Default values from Jolt
@@ -140,7 +140,7 @@ namespace Nz
 				StaticSettings() = default;
 				StaticSettings(std::shared_ptr<Collider3D> collider)
 				{
-					geom = std::move(collider);
+					collider = std::move(collider);
 				}
 			};
 
@@ -157,9 +157,7 @@ namespace Nz
 
 			bool ShouldActivate() const;
 
-			static const JPH::Shape* GetEmptyShape();
-
-			std::shared_ptr<Collider3D> m_geom;
+			std::shared_ptr<Collider3D> m_collider;
 			MovablePtr<JPH::Body> m_body;
 			MovablePtr<PhysWorld3D> m_world;
 			UInt32 m_bodyIndex;

@@ -130,9 +130,9 @@ namespace Nz
 		return m_doesOverrideCollisionProperties;
 	}
 
-	inline const std::vector<std::shared_ptr<Collider2D>>& CompoundCollider2D::GetGeoms() const
+	inline const std::vector<std::shared_ptr<Collider2D>>& CompoundCollider2D::GetColliders() const
 	{
-		return m_geoms;
+		return m_colliders;
 	}
 
 	inline void Nz::CompoundCollider2D::OverridesCollisionProperties(bool shouldOverride)

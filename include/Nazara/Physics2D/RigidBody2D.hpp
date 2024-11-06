@@ -55,9 +55,9 @@ namespace Nz
 			Rectf GetAABB() const;
 			RadianAnglef GetAngularVelocity() const;
 			inline UInt32 GetBodyIndex() const;
+			inline const std::shared_ptr<Collider2D>& GetCollider() const;
 			float GetElasticity(std::size_t shapeIndex = 0) const;
 			float GetFriction(std::size_t shapeIndex = 0) const;
-			inline const std::shared_ptr<Collider2D>& GetGeom() const;
 			inline cpBody* GetHandle() const;
 			inline float GetMass() const;
 			Vector2f GetMassCenter(CoordSys coordSys = CoordSys::Local) const;
@@ -84,7 +84,7 @@ namespace Nz
 			void SetElasticity(std::size_t shapeIndex, float elasticity);
 			void SetFriction(float friction);
 			void SetFriction(std::size_t shapeIndex, float friction);
-			void SetGeom(std::shared_ptr<Collider2D> geom, bool recomputeMoment = true, bool recomputeMassCenter = true);
+			void SetCollider(std::shared_ptr<Collider2D> collider, bool recomputeMoment = true, bool recomputeMassCenter = true);
 			void SetMass(float mass, bool recomputeMoment = true);
 			void SetMassCenter(const Vector2f& center, CoordSys coordSys = CoordSys::Local);
 			void SetMomentOfInertia(float moment);
@@ -116,7 +116,7 @@ namespace Nz
 
 			struct CommonSettings
 			{
-				std::shared_ptr<Collider2D> geom;
+				std::shared_ptr<Collider2D> collider;
 				RadianAnglef rotation = RadianAnglef::Zero();
 				Vector2f position = Vector2f::Zero();
 				bool initiallySleeping = false;
@@ -129,7 +129,7 @@ namespace Nz
 				DynamicSettings(std::shared_ptr<Collider2D> collider, float mass_) :
 				mass(mass_)
 				{
-					geom = std::move(collider);
+					collider = std::move(collider);
 				}
 
 				RadianAnglef angularVelocity = RadianAnglef::Zero();
@@ -143,7 +143,7 @@ namespace Nz
 				StaticSettings() = default;
 				StaticSettings(std::shared_ptr<Collider2D> collider)
 				{
-					geom = std::move(collider);
+					collider = std::move(collider);
 				}
 			};
 
@@ -162,7 +162,7 @@ namespace Nz
 			static void CopyShapeData(cpShape* from, cpShape* to);
 
 			std::vector<cpShape*> m_shapes;
-			std::shared_ptr<Collider2D> m_geom;
+			std::shared_ptr<Collider2D> m_collider;
 			MovablePtr<cpBody> m_handle;
 			MovablePtr<PhysWorld2D> m_world;
 			UInt32 m_bodyIndex;

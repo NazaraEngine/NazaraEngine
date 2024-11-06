@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
 
 	Nz::RigidBody2DComponent::DynamicSettings boxSettings;
 	boxSettings.mass = 50.f;
-	boxSettings.geom = std::make_shared<Nz::BoxCollider2D>(Nz::Vector2f(32.f, 32.f));
+	boxSettings.collider = std::make_shared<Nz::BoxCollider2D>(Nz::Vector2f(32.f, 32.f));
 
 	std::shared_ptr<Nz::Sprite> boxSprite = std::make_shared<Nz::Sprite>(spriteMaterial);
 	boxSprite->SetSize({ 32.f, 32.f });
@@ -98,7 +98,7 @@ int main(int argc, char* argv[])
 		}
 
 		Nz::RigidBody2DComponent::StaticSettings groundSettings;
-		groundSettings.geom = std::make_shared<Nz::BoxCollider2D>(tilemap->GetSize());
+		groundSettings.collider = std::make_shared<Nz::BoxCollider2D>(tilemap->GetSize());
 
 		groundEntity.emplace<Nz::NodeComponent>().SetPosition({ windowSize.x * 0.5f, -windowSize.y * 0.2f });
 		groundEntity.emplace<Nz::GraphicsComponent>().AttachRenderable(tilemap, 1);

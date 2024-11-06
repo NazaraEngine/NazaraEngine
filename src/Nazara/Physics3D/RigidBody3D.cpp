@@ -5,18 +5,15 @@
 #include <Nazara/Physics3D/RigidBody3D.hpp>
 #include <Nazara/Physics3D/JoltHelper.hpp>
 #include <Nazara/Physics3D/PhysWorld3D.hpp>
-#include <NazaraUtils/MemoryHelper.hpp>
 #include <Jolt/Jolt.h>
 #include <Jolt/Physics/PhysicsSystem.h>
 #include <Jolt/Physics/Body/BodyCreationSettings.h>
-#include <algorithm>
-#include <array>
 #include <cmath>
 
 namespace Nz
 {
 	RigidBody3D::RigidBody3D(RigidBody3D&& body) noexcept :
-	m_geom(std::move(body.m_geom)),
+	m_collider(std::move(body.m_collider)),
 	m_body(std::move(body.m_body)),
 	m_world(std::move(body.m_world)),
 	m_bodyIndex(body.m_bodyIndex),
@@ -222,20 +219,20 @@ namespace Nz
 		m_body->SetAngularVelocity(ToJolt(angularVelocity));
 	}
 
-	void RigidBody3D::SetGeom(std::shared_ptr<Collider3D> geom, bool recomputeInertia)
+	void RigidBody3D::SetCollider(std::shared_ptr<Collider3D> collider, bool recomputeInertia)
 	{
-		if (!geom)
-			geom = EmptyCollider3D::Get();
+		if (!collider)
+			collider = EmptyCollider3D::Get();
 
-		if (m_geom != geom)
+		if (m_collider != collider)
 		{
 			float mass;
 			if (m_body->IsDynamic())
 				mass = GetMass();
 
-			m_geom = std::move(geom);
+			m_collider = std::move(collider);
 
-			const JPH::Shape* shape = m_geom->GetShapeSettings()->Create().Get();
+			const JPH::Shape* shape = m_collider->GetShapeSettings()->Create().Get();
 
 			JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterface();
 			bodyInterface.SetShape(m_body->GetID(), shape, false, (ShouldActivate()) ? JPH::EActivation::Activate : JPH::EActivation::DontActivate);
@@ -348,7 +345,7 @@ namespace Nz
 
 		m_body                = std::move(body.m_body);
 		m_bodyIndex           = body.m_bodyIndex;
-		m_geom                = std::move(body.m_geom);
+		m_collider                = std::move(body.m_collider);
 		m_world               = std::move(body.m_world);
 		m_isSimulationEnabled = body.m_isSimulationEnabled;
 		m_isTrigger           = body.m_isTrigger;
@@ -364,7 +361,7 @@ namespace Nz
 
 	void RigidBody3D::Create(PhysWorld3D& world, const DynamicSettings& settings)
 	{
-		m_geom = (settings.geom) ? settings.geom : EmptyCollider3D::Get();
+		m_collider = (settings.collider) ? settings.collider : EmptyCollider3D::Get();
 		m_isSimulationEnabled = settings.isSimulationEnabled;
 		m_isTrigger = settings.isTrigger;
 		m_world = &world;
@@ -384,7 +381,7 @@ namespace Nz
 
 	void RigidBody3D::Create(PhysWorld3D& world, const StaticSettings& settings)
 	{
-		m_geom = settings.geom;
+		m_collider = settings.collider;
 		m_isSimulationEnabled = settings.isSimulationEnabled;
 		m_isTrigger = settings.isTrigger;
 		m_world = &world;
@@ -410,7 +407,7 @@ namespace Nz
 			m_body = nullptr;
 		}
 
-		m_geom.reset();
+		m_collider.reset();
 	}
 
 	void RigidBody3D::BuildSettings(const DynamicSettings& settings, JPH::BodyCreationSettings& creationSettings)
@@ -454,8 +451,8 @@ namespace Nz
 
 	void RigidBody3D::BuildSettings(const CommonSettings& settings, JPH::BodyCreationSettings& creationSettings)
 	{
-		if (settings.geom)
-			creationSettings.SetShapeSettings(settings.geom->GetShapeSettings());
+		if (settings.collider)
+			creationSettings.SetShapeSettings(settings.collider->GetShapeSettings());
 		else
 			creationSettings.SetShapeSettings(EmptyCollider3D::Get()->GetShapeSettings());
 

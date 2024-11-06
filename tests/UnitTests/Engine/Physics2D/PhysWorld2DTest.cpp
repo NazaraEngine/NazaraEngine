@@ -201,7 +201,7 @@ Nz::RigidBody2D CreateBody(Nz::PhysWorld2D& world, const Nz::Vector2f& position,
 	box->SetCollisionMask(collisionMask);
 
 	Nz::RigidBody2D::DynamicSettings settings;
-	settings.geom = std::move(box);
+	settings.collider = std::move(box);
 	settings.mass = isMoving ? 1.f : 0.f;
 	settings.position = position;
 

@@ -127,14 +127,14 @@ namespace Nz
 	class NAZARA_PHYSICS2D_API CompoundCollider2D : public Collider2D
 	{
 		public:
-			CompoundCollider2D(std::vector<std::shared_ptr<Collider2D>> geoms);
+			CompoundCollider2D(std::vector<std::shared_ptr<Collider2D>> colliders);
 
 			Nz::Vector2f ComputeCenterOfMass() const override;
 			float ComputeMomentOfInertia(float mass) const override;
 
 			inline bool DoesOverrideCollisionProperties() const;
 
-			inline const std::vector<std::shared_ptr<Collider2D>>& GetGeoms() const;
+			inline const std::vector<std::shared_ptr<Collider2D>>& GetColliders() const;
 			ColliderType2D GetType() const override;
 
 			inline void OverridesCollisionProperties(bool shouldOverride);
@@ -143,7 +143,7 @@ namespace Nz
 			std::size_t CreateShapes(cpBody* body, std::vector<cpShape*>* shapes) const override;
 			std::size_t GenerateShapes(cpBody* body, std::vector<cpShape*>* shapes) const override;
 
-			std::vector<std::shared_ptr<Collider2D>> m_geoms;
+			std::vector<std::shared_ptr<Collider2D>> m_colliders;
 			bool m_doesOverrideCollisionProperties;
 	};
 
