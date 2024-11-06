@@ -13,6 +13,12 @@ namespace Nz
 	}
 
 	template<typename T>
+	const T* Collider3D::GetShapeAs() const
+	{
+		return SafeCast<T*>(GetShape());
+	}
+
+	template<typename T>
 	const T* Collider3D::GetShapeSettingsAs() const
 	{
 		return SafeCast<T*>(m_shapeSettings.get());

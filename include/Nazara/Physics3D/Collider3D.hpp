@@ -14,12 +14,13 @@
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Physics3D/Enums.hpp>
 #include <Nazara/Physics3D/Export.hpp>
-#include <NazaraUtils/Signal.hpp>
 #include <NazaraUtils/SparsePtr.hpp>
 #include <memory>
+#include <variant>
 
 namespace JPH
 {
+	class Shape;
 	class ShapeSettings;
 	class BoxShapeSettings;
 }
@@ -47,6 +48,7 @@ namespace Nz
 			Boxf GetBoundingBox() const;
 			Vector3f GetCenterOfMass() const;
 			inline JPH::ShapeSettings* GetShapeSettings() const;
+			const Collider3D* GetSubCollider(UInt32 subShapeID, UInt32& remainder) const;
 			virtual ColliderType3D GetType() const = 0;
 
 			Collider3D& operator=(const Collider3D&) = delete;
@@ -55,6 +57,8 @@ namespace Nz
 			static std::shared_ptr<Collider3D> Build(const PrimitiveList& list);
 
 		protected:
+			const JPH::Shape* GetShape() const;
+			template<typename T> const T* GetShapeAs() const;
 			template<typename T> const T* GetShapeSettingsAs() const;
 			void ResetShapeSettings();
 			void SetupShapeSettings(std::unique_ptr<JPH::ShapeSettings>&& shapeSettings);
@@ -143,13 +147,25 @@ namespace Nz
 	class NAZARA_PHYSICS3D_API MeshCollider3D final : public Collider3D
 	{
 		public:
-			MeshCollider3D(SparsePtr<const Vector3f> vertices, std::size_t vertexCount, SparsePtr<const UInt16> indices, std::size_t indexCount);
-			MeshCollider3D(SparsePtr<const Vector3f> vertices, std::size_t vertexCount, SparsePtr<const UInt32> indices, std::size_t indexCount);
+			struct Settings;
+
+			MeshCollider3D(const Settings& meshSettings);
 			~MeshCollider3D() = default;
 
 			void BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const override;
 
+			UInt32 GetTriangleUserData(UInt32 subShapeID) const;
 			ColliderType3D GetType() const override;
+
+			struct Settings
+			{
+				std::size_t indexCount;
+				std::size_t vertexCount;
+				std::variant<std::nullptr_t, SparsePtr<const UInt16>, SparsePtr<const UInt32>> indices;
+				SparsePtr<const Vector3f> vertices;
+				SparsePtr<const UInt32> triangleMaterials;
+				SparsePtr<const UInt32> triangleUserdata;
+			};
 	};
 
 	class NAZARA_PHYSICS3D_API SphereCollider3D final : public Collider3D

@@ -62,20 +62,27 @@ namespace Nz
 
 	Boxf Collider3D::GetBoundingBox() const
 	{
-		auto result = m_shapeSettings->Create();
-		if (result.HasError())
-			throw std::runtime_error(std::string("shape creation failed: ") + result.GetError().c_str());
-
-		return FromJolt(result.Get()->GetLocalBounds());
+		return FromJolt(GetShape()->GetLocalBounds());
 	}
 
 	Vector3f Collider3D::GetCenterOfMass() const
 	{
-		auto result = m_shapeSettings->Create();
-		if (result.HasError())
-			throw std::runtime_error(std::string("shape creation failed: ") + result.GetError().c_str());
+		return FromJolt(GetShape()->GetCenterOfMass());
+	}
 
-		return FromJolt(result.Get()->GetCenterOfMass());
+	const Collider3D* Collider3D::GetSubCollider(UInt32 subShapeID, UInt32& remainder) const
+	{
+		JPH::SubShapeID joltSubShapeID;
+		joltSubShapeID.SetValue(subShapeID);
+
+		JPH::SubShapeID joltRemainder;
+		const JPH::Shape* leafShape = GetShape()->GetLeafShape(joltSubShapeID, joltRemainder);
+		if (!leafShape)
+			return nullptr;
+
+		remainder = joltRemainder.GetValue();
+
+		return IntegerToPointer<const Nz::Collider3D*>(leafShape->GetUserData());
 	}
 
 	void Collider3D::ResetShapeSettings()
@@ -89,8 +96,11 @@ namespace Nz
 		m_shapeSettings = std::move(shapeSettings);
 		m_shapeSettings->SetEmbedded();
 
-		if (auto result = m_shapeSettings->Create(); result.HasError())
+		auto result = m_shapeSettings->Create();
+		if (result.HasError())
 			throw std::runtime_error(std::string("shape creation failed: ") + result.GetError().c_str());
+
+		result.Get()->SetUserData(PointerToInteger<JPH::uint64>(this));
 	}
 
 	std::shared_ptr<Collider3D> Collider3D::Build(const PrimitiveList& list)
@@ -114,6 +124,15 @@ namespace Nz
 			return CreateGeomFromPrimitive(list.GetPrimitive(0));
 		else
 			return nullptr;// std::make_shared<NullCollider3D>();  //< TODO
+	}
+
+	const JPH::Shape* Collider3D::GetShape() const
+	{
+		auto result = m_shapeSettings->Create();
+		if (result.HasError())
+			throw std::runtime_error(std::string("shape creation failed: ") + result.GetError().c_str());
+
+		return result.Get();
 	}
 
 	std::shared_ptr<Collider3D> Collider3D::CreateGeomFromPrimitive(const Primitive& primitive)
@@ -411,49 +430,62 @@ namespace Nz
 
 	/******************************** MeshCollider3D *********************************/
 
-	MeshCollider3D::MeshCollider3D(SparsePtr<const Vector3f> vertices, std::size_t vertexCount, SparsePtr<const UInt16> indices, std::size_t indexCount)
+	MeshCollider3D::MeshCollider3D(const Settings& meshSettings)
 	{
+		NazaraAssertFmt(meshSettings.indexCount > 0, "index count should be positive (got {})", meshSettings.vertexCount);
+		NazaraAssertFmt(meshSettings.indexCount % 3 == 0, "index count should be a multiple of 3 (got {})", meshSettings.indexCount);
+		NazaraAssertFmt(meshSettings.vertexCount > 0, "vertex count should be positive (got {})", meshSettings.vertexCount);
+		NazaraAssertFmt(meshSettings.vertices != nullptr, "invalid vertices", meshSettings.vertexCount);
+
 		std::unique_ptr<JPH::MeshShapeSettings> settings = std::make_unique<JPH::MeshShapeSettings>();
-		settings->mTriangleVertices.resize(vertexCount);
-		for (std::size_t i = 0; i < vertexCount; ++i)
+		settings->mTriangleVertices.resize(meshSettings.vertexCount);
+		for (std::size_t i = 0; i < meshSettings.vertexCount; ++i)
 		{
-			settings->mTriangleVertices[i].x = vertices[i].x;
-			settings->mTriangleVertices[i].y = vertices[i].y;
-			settings->mTriangleVertices[i].z = vertices[i].z;
+			settings->mTriangleVertices[i].x = meshSettings.vertices[i].x;
+			settings->mTriangleVertices[i].y = meshSettings.vertices[i].y;
+			settings->mTriangleVertices[i].z = meshSettings.vertices[i].z;
 		}
 
-		std::size_t triangleCount = indexCount / 3;
+		std::size_t triangleCount = meshSettings.indexCount / 3;
 		settings->mIndexedTriangles.resize(triangleCount);
-		for (std::size_t i = 0; i < triangleCount; ++i)
+
+		auto FillIndices = [&]<typename T>(SparsePtr<T> indexPtr)
 		{
-			settings->mIndexedTriangles[i].mIdx[0] = indices[i * 3 + 0];
-			settings->mIndexedTriangles[i].mIdx[1] = indices[i * 3 + 1];
-			settings->mIndexedTriangles[i].mIdx[2] = indices[i * 3 + 2];
+			for (std::size_t i = 0; i < triangleCount; ++i)
+			{
+				settings->mIndexedTriangles[i].mIdx[0] = indexPtr[i * 3 + 0];
+				settings->mIndexedTriangles[i].mIdx[1] = indexPtr[i * 3 + 1];
+				settings->mIndexedTriangles[i].mIdx[2] = indexPtr[i * 3 + 2];
+			}
+		};
+
+		std::visit(Overloaded {
+			[](std::nullptr_t)
+			{
+				NazaraError("invalid indices");
+			},
+			[&](SparsePtr<const UInt16> indexPtr)
+			{
+				FillIndices(indexPtr);
+			},
+			[&](SparsePtr<const UInt32> indexPtr)
+			{
+				FillIndices(indexPtr);
+			}
+		}, meshSettings.indices);
+
+		if (meshSettings.triangleMaterials)
+		{
+			for (std::size_t i = 0; i < triangleCount; ++i)
+				settings->mIndexedTriangles[i].mMaterialIndex = meshSettings.triangleMaterials[i];
 		}
 
-		settings->Sanitize();
-
-		SetupShapeSettings(std::move(settings));
-	}
-
-	MeshCollider3D::MeshCollider3D(SparsePtr<const Vector3f> vertices, std::size_t vertexCount, SparsePtr<const UInt32> indices, std::size_t indexCount)
-	{
-		std::unique_ptr<JPH::MeshShapeSettings> settings = std::make_unique<JPH::MeshShapeSettings>();
-		settings->mTriangleVertices.resize(vertexCount);
-		for (std::size_t i = 0; i < vertexCount; ++i)
+		if (meshSettings.triangleUserdata)
 		{
-			settings->mTriangleVertices[i].x = vertices[i].x;
-			settings->mTriangleVertices[i].y = vertices[i].y;
-			settings->mTriangleVertices[i].z = vertices[i].z;
-		}
+			for (std::size_t i = 0; i < triangleCount; ++i)
+				settings->mIndexedTriangles[i].mUserData = meshSettings.triangleUserdata[i];
 
-		std::size_t triangleCount = indexCount / 3;
-		settings->mIndexedTriangles.resize(triangleCount);
-		for (std::size_t i = 0; i < triangleCount; ++i)
-		{
-			settings->mIndexedTriangles[i].mIdx[0] = indices[i * 3 + 0];
-			settings->mIndexedTriangles[i].mIdx[1] = indices[i * 3 + 1];
-			settings->mIndexedTriangles[i].mIdx[2] = indices[i * 3 + 2];
+			settings->mPerTriangleUserData = true;
 		}
 
 		settings->Sanitize();
@@ -463,6 +495,14 @@ namespace Nz
 
 	void MeshCollider3D::BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const
 	{
+	}
+
+	UInt32 MeshCollider3D::GetTriangleUserData(UInt32 subShapeID) const
+	{
+		JPH::SubShapeID joltSubShapeID;
+		joltSubShapeID.SetValue(subShapeID);
+
+		return GetShapeAs<const JPH::MeshShape>()->GetTriangleUserData(joltSubShapeID);
 	}
 
 	ColliderType3D MeshCollider3D::GetType() const
