@@ -33,7 +33,7 @@ namespace Nz
 
 	void Collider3D::BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const
 	{
-		const JPH::MeshShape* shape = GetShapeAs<JPH::MeshShape>();
+		const JPH::Shape* shape = GetShape();
 
 		JPH::Shape::GetTrianglesContext context;
 		shape->GetTrianglesStart(context, shape->GetLocalBounds(), JPH::Vec3::sZero(), JPH::Quat::sIdentity(), JPH::Vec3::sReplicate(1.f));
