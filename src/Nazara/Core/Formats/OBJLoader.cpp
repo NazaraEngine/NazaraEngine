@@ -293,7 +293,7 @@ namespace Nz
 					if (hasNormals)
 					{
 						if (vertexIndices.normal > 0)
-							normalPtr[index] = TransformNormalSRT(parameters.vertexRotation, parameters.vertexScale, normals[vertexIndices.normal - 1]);
+							normalPtr[index] = TransformDirectionSRT(parameters.vertexRotation, parameters.vertexScale, normals[vertexIndices.normal - 1]);
 						else
 							hasNormals = false;
 					}

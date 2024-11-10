@@ -62,14 +62,14 @@ namespace Nz
 		return true;
 	}
 
+	inline Vector3f TransformDirectionSRT(const Quaternionf& transformRotation, const Vector3f& transformScale, const Vector3f& direction)
+	{
+		return Quaternionf::Mirror(transformRotation, transformScale) * direction;
+	}
+
 	inline Vector3f TransformPositionSRT(const Vector3f& transformTranslation, const Quaternionf& transformRotation, const Vector3f& transformScale, const Vector3f& position)
 	{
 		return transformRotation * (transformScale * position) + transformTranslation;
-	}
-
-	Vector3f TransformNormalSRT(const Quaternionf& transformRotation, const Vector3f& transformScale, const Vector3f& normal)
-	{
-		return Quaternionf::Mirror(transformRotation, transformScale) * normal;
 	}
 
 	inline Quaternionf TransformRotationSRT(const Quaternionf& transformRotation, const Vector3f& transformScale, const Quaternionf& rotation)

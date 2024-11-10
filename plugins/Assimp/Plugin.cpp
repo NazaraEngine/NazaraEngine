@@ -453,7 +453,7 @@ std::shared_ptr<Nz::SubMesh> ProcessSubMesh(const std::filesystem::path& originP
 	if (auto normalPtr = vertexMapper.GetComponentPtr<Nz::Vector3f>(Nz::VertexComponent::Normal))
 	{
 		for (unsigned int vertexIndex = 0; vertexIndex < vertexCount; ++vertexIndex)
-			*normalPtr++ = Nz::TransformNormalSRT(parameters.vertexRotation, parameters.vertexScale, FromAssimp(meshData->mNormals[vertexIndex]));
+			*normalPtr++ = Nz::TransformDirectionSRT(parameters.vertexRotation, parameters.vertexScale, FromAssimp(meshData->mNormals[vertexIndex]));
 	}
 
 	// Vertex tangents
@@ -463,7 +463,7 @@ std::shared_ptr<Nz::SubMesh> ProcessSubMesh(const std::filesystem::path& originP
 		if (meshData->HasTangentsAndBitangents())
 		{
 			for (unsigned int vertexIndex = 0; vertexIndex < vertexCount; ++vertexIndex)
-				*tangentPtr++ = Nz::TransformNormalSRT(parameters.vertexRotation, parameters.vertexScale, FromAssimp(meshData->mTangents[vertexIndex]));
+				*tangentPtr++ = Nz::TransformDirectionSRT(parameters.vertexRotation, parameters.vertexScale, FromAssimp(meshData->mTangents[vertexIndex]));
 		}
 		else
 			generateTangents = true;

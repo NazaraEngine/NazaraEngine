@@ -224,7 +224,7 @@ namespace Nz
 				{
 					const MD2_Vertex& vert = vertices[v];
 
-					*normalPtr++ = TransformNormalSRT(rotation, scale, md2Normals[vert.n]);
+					*normalPtr++ = TransformDirectionSRT(rotation, scale, md2Normals[vert.n]);
 				}
 			}
 
