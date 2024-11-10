@@ -495,6 +495,12 @@ namespace Nz
 		m_transformMatrixUpdated = true;
 	}
 
+	inline Vector3f Node::ToGlobalDirection(const Vector3f& localDirection) const
+	{
+		EnsureGlobalsUpdate();
+		return TransformDirectionSRT(m_globalRotation, m_globalScale, localDirection);
+	}
+
 	inline Vector3f Node::ToGlobalPosition(const Vector3f& localPosition) const
 	{
 		EnsureGlobalsUpdate();
@@ -513,10 +519,16 @@ namespace Nz
 		return TransformScaleSRT(m_globalScale, localScale);
 	}
 
+	inline Vector3f Node::ToLocalDirection(const Vector3f& globalDirection) const
+	{
+		EnsureGlobalsUpdate();
+		return TransformDirectionSRT(m_globalRotation.GetConjugate(), m_globalScale, globalDirection);
+	}
+
 	inline Vector3f Node::ToLocalPosition(const Vector3f& globalPosition) const
 	{
 		EnsureGlobalsUpdate();
-		return m_globalRotation.GetConjugate() * (globalPosition - m_globalPosition) / m_globalScale;
+		return Quaternionf::Mirror(m_globalRotation.GetConjugate(), m_globalScale) * (globalPosition - m_globalPosition) / m_globalScale;
 	}
 
 	inline Quaternionf Node::ToLocalRotation(const Quaternionf& globalRotation) const

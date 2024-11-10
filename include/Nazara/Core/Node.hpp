@@ -99,11 +99,13 @@ namespace Nz
 			inline void SetTransformMatrix(const Matrix4f& matrix, Invalidation invalidation = Invalidation::InvalidateRecursively);
 
 			// Local -> global
+			inline Vector3f ToGlobalDirection(const Vector3f& localDirection) const;
 			inline Vector3f ToGlobalPosition(const Vector3f& localPosition) const;
 			inline Quaternionf ToGlobalRotation(const Quaternionf& localRotation) const;
 			inline Vector3f ToGlobalScale(const Vector3f& localScale) const;
 
 			// Global -> local
+			inline Vector3f ToLocalDirection(const Vector3f& globalDirection) const;
 			inline Vector3f ToLocalPosition(const Vector3f& globalPosition) const;
 			inline Quaternionf ToLocalRotation(const Quaternionf& globalRotation) const;
 			inline Vector3f ToLocalScale(const Vector3f& globalScale) const;
