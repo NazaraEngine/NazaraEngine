@@ -18,6 +18,7 @@
 namespace Nz
 {
 	inline Boxf FromJolt(const JPH::AABox& aabb);
+	inline Vector3f FromJolt(const JPH::Float3& f3);
 	inline Quaternionf FromJolt(const JPH::Quat& quat);
 	inline Matrix4f FromJolt(const JPH::Mat44& matrix);
 	inline Vector3f FromJolt(const JPH::Vec3& vec);

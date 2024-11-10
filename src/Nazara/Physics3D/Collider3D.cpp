@@ -31,6 +31,39 @@ namespace Nz
 	Collider3D::Collider3D() = default;
 	Collider3D::~Collider3D() = default;
 
+	void Collider3D::BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const
+	{
+		const JPH::MeshShape* shape = GetShapeAs<JPH::MeshShape>();
+
+		JPH::Shape::GetTrianglesContext context;
+		shape->GetTrianglesStart(context, shape->GetLocalBounds(), JPH::Vec3::sZero(), JPH::Quat::sIdentity(), JPH::Vec3::sReplicate(1.f));
+
+		constexpr int maxTrianglePerCall = 128;
+
+		std::array<JPH::Float3, maxTrianglePerCall * 3> trianglePos;
+		int triangleCount;
+		while ((triangleCount = shape->GetTrianglesNext(context, maxTrianglePerCall, &trianglePos[0], nullptr)) > 0)
+		{
+			std::size_t vertexOffset = vertices.size();
+			for (int i = 0; i < triangleCount; ++i)
+			{
+				vertices.push_back(offsetMatrix * FromJolt(trianglePos[i * 3 + 0]));
+				vertices.push_back(offsetMatrix * FromJolt(trianglePos[i * 3 + 1]));
+				vertices.push_back(offsetMatrix * FromJolt(trianglePos[i * 3 + 2]));
+
+				std::size_t offset = vertexOffset + i * 3;
+				indices.push_back(SafeCast<UInt16>(offset + 0));
+				indices.push_back(SafeCast<UInt16>(offset + 1));
+
+				indices.push_back(SafeCast<UInt16>(offset + 1));
+				indices.push_back(SafeCast<UInt16>(offset + 2));
+
+				indices.push_back(SafeCast<UInt16>(offset + 2));
+				indices.push_back(SafeCast<UInt16>(offset + 0));
+			}
+		}
+	}
+
 	bool Collider3D::CollisionQuery(const Vector3f& point) const
 	{
 		auto result = m_shapeSettings->Create();
@@ -49,6 +82,8 @@ namespace Nz
 		std::vector<Vector3f> colliderVertices;
 		std::vector<UInt16> colliderIndices;
 		BuildDebugMesh(colliderVertices, colliderIndices);
+		if (colliderIndices.empty())
+			return nullptr;
 
 		std::shared_ptr<VertexBuffer> colliderVB = std::make_shared<VertexBuffer>(VertexDeclaration::Get(VertexLayout::XYZ), SafeCast<UInt32>(colliderVertices.size()), BufferUsage::Write, SoftwareBufferFactory, colliderVertices.data());
 		std::shared_ptr<IndexBuffer> colliderIB = std::make_shared<IndexBuffer>(IndexType::U16, SafeCast<UInt32>(colliderIndices.size()), BufferUsage::Write, SoftwareBufferFactory, colliderIndices.data());
@@ -357,8 +392,7 @@ namespace Nz
 
 	void ConvexHullCollider3D::BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const
 	{
-		const JPH::ConvexHullShapeSettings* settings = GetShapeSettingsAs<JPH::ConvexHullShapeSettings>();
-		const JPH::ConvexHullShape* shape = SafeCast<const JPH::ConvexHullShape*>(settings->Create().Get().GetPtr());
+		const JPH::ConvexHullShape* shape = GetShapeAs<JPH::ConvexHullShape>();
 
 		std::unordered_map<unsigned int, UInt16> vertexCache;
 		auto InsertVertex = [&](unsigned int vertexIndex) -> UInt16
@@ -493,16 +527,12 @@ namespace Nz
 		SetupShapeSettings(std::move(settings));
 	}
 
-	void MeshCollider3D::BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const
-	{
-	}
-
 	UInt32 MeshCollider3D::GetTriangleUserData(UInt32 subShapeID) const
 	{
 		JPH::SubShapeID joltSubShapeID;
 		joltSubShapeID.SetValue(subShapeID);
 
-		return GetShapeAs<const JPH::MeshShape>()->GetTriangleUserData(joltSubShapeID);
+		return GetShapeAs<JPH::MeshShape>()->GetTriangleUserData(joltSubShapeID);
 	}
 
 	ColliderType3D MeshCollider3D::GetType() const
@@ -515,10 +545,6 @@ namespace Nz
 	SphereCollider3D::SphereCollider3D(float radius)
 	{
 		SetupShapeSettings(std::make_unique<JPH::SphereShapeSettings>(radius));
-	}
-
-	void SphereCollider3D::BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const
-	{
 	}
 
 	float SphereCollider3D::GetRadius() const

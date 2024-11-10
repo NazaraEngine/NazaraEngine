@@ -39,7 +39,7 @@ namespace Nz
 			Collider3D(Collider3D&&) = delete;
 			virtual ~Collider3D();
 
-			virtual void BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix = Matrix4f::Identity()) const = 0;
+			virtual void BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix = Matrix4f::Identity()) const;
 
 			bool CollisionQuery(const Vector3f& point) const;
 
@@ -152,8 +152,6 @@ namespace Nz
 			MeshCollider3D(const Settings& meshSettings);
 			~MeshCollider3D() = default;
 
-			void BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const override;
-
 			UInt32 GetTriangleUserData(UInt32 subShapeID) const;
 			ColliderType3D GetType() const override;
 
@@ -173,8 +171,6 @@ namespace Nz
 		public:
 			SphereCollider3D(float radius);
 			~SphereCollider3D() = default;
-
-			void BuildDebugMesh(std::vector<Vector3f>& vertices, std::vector<UInt16>& indices, const Matrix4f& offsetMatrix) const override;
 
 			float GetRadius() const;
 			ColliderType3D GetType() const override;

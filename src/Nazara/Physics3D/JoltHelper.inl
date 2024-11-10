@@ -9,6 +9,11 @@ namespace Nz
 		return Boxf(FromJolt(aabb.mMin), FromJolt(aabb.GetSize()));
 	}
 
+	inline Vector3f FromJolt(const JPH::Float3& f3)
+	{
+		return Vector3f(f3.x, f3.y, f3.z);
+	}
+
 	Quaternionf FromJolt(const JPH::Quat& quat)
 	{
 		return Quaternionf(quat.GetW(), quat.GetX(), quat.GetY(), quat.GetZ());
