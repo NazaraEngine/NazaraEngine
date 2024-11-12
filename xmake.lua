@@ -76,6 +76,11 @@ local modules = {
 			end
 		end
 	},
+	Audio2 = {
+		Option = "audio",
+		Deps = {"NazaraCore"},
+		Packages = {"dr_mp3", "dr_wav", "frozen", "libflac", "libvorbis", "miniaudio"}
+	},
 	Core = {
 		Custom = function ()
 			add_headerfiles("include/(Nazara/*.hpp)")
@@ -317,6 +322,7 @@ end
 if has_config("audio") then
 	add_requires("dr_mp3 >=0.7", "dr_wav >=0.14", "libflac")
 	add_requires("libvorbis", { configs = { with_vorbisenc = false } })
+	add_requires("miniaudio", { configs = { headeronly = false, decoding = false, encoding = false, debug = is_mode("debug") }})
 
 	if not is_plat("wasm") then
 		-- OpenAL is supported as a system library on wasm
