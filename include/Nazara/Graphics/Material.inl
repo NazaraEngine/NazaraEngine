@@ -2,9 +2,17 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-
 namespace Nz
 {
+	inline std::size_t Material::FindStorageBufferByTag(std::string_view tag) const
+	{
+		auto it = m_storageBufferByTag.find(tag);
+		if (it == m_storageBufferByTag.end())
+			return InvalidIndex;
+
+		return it->second;
+	}
+
 	inline std::size_t Material::FindTextureByTag(std::string_view tag) const
 	{
 		auto it = m_textureByTag.find(tag);
@@ -36,6 +44,17 @@ namespace Nz
 	inline const MaterialSettings& Material::GetSettings() const
 	{
 		return m_settings;
+	}
+
+	inline auto Material::GetStorageBufferData(std::size_t storageBufferIndex) const ->  const StorageBufferData&
+	{
+		assert(storageBufferIndex < m_storageBuffers.size());
+		return m_storageBuffers[storageBufferIndex];
+	}
+
+	inline std::size_t Material::GetStorageBufferCount() const
+	{
+		return m_storageBuffers.size();
 	}
 
 	inline auto Material::GetTextureData(std::size_t textureIndex) const -> const TextureData&

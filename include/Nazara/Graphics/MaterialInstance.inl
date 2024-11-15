@@ -26,6 +26,11 @@ namespace Nz
 		}
 	}
 
+	inline std::size_t MaterialInstance::FindBufferProperty(std::string_view propertyName) const
+	{
+		return m_materialSettings.FindBufferProperty(propertyName);
+	}
+
 	inline std::size_t MaterialInstance::FindTextureProperty(std::string_view propertyName) const
 	{
 		return m_materialSettings.FindTextureProperty(propertyName);
@@ -34,6 +39,32 @@ namespace Nz
 	inline std::size_t MaterialInstance::FindValueProperty(std::string_view propertyName) const
 	{
 		return m_materialSettings.FindValueProperty(propertyName);
+	}
+
+	inline const MaterialSettings::BufferValue* MaterialInstance::GetBufferProperty(std::string_view propertyName) const
+	{
+		std::size_t propertyIndex = FindBufferProperty(propertyName);
+		if (propertyIndex == MaterialSettings::InvalidPropertyIndex)
+		{
+			NazaraErrorFmt("material has no storage buffer property named \"{0}\"", propertyName);
+			return nullptr;
+		}
+
+		return &GetBufferProperty(propertyIndex);
+	}
+
+	inline const MaterialSettings::BufferValue& MaterialInstance::GetBufferProperty(std::size_t storageBufferIndex) const
+	{
+		if (const MaterialSettings::BufferValue& storageBufferOverride = GetBufferPropertyOverride(storageBufferIndex); storageBufferOverride.buffer)
+			return storageBufferOverride;
+		else
+			return m_materialSettings.GetBufferProperty(storageBufferIndex).defaultValue;
+	}
+
+	inline const MaterialSettings::BufferValue& MaterialInstance::GetBufferPropertyOverride(std::size_t storageBufferIndex) const
+	{
+		assert(storageBufferIndex < m_bufferOverride.size());
+		return m_bufferOverride[storageBufferIndex];
 	}
 
 	inline const std::shared_ptr<const Material>& MaterialInstance::GetParentMaterial() const
@@ -120,6 +151,18 @@ namespace Nz
 	inline bool MaterialInstance::HasPass(std::size_t passIndex) const
 	{
 		return passIndex < m_passes.size() && m_passes[passIndex].enabled;
+	}
+
+	inline void MaterialInstance::SetBufferProperty(std::string_view propertyName, const MaterialSettings::BufferValue& value)
+	{
+		std::size_t propertyIndex = FindBufferProperty(propertyName);
+		if (propertyIndex == MaterialSettings::InvalidPropertyIndex)
+		{
+			NazaraErrorFmt("material has no buffer property named \"{0}\"", propertyName);
+			return;
+		}
+
+		return SetBufferProperty(propertyIndex, value);
 	}
 
 	inline void MaterialInstance::SetTextureProperty(std::string_view propertyName, std::shared_ptr<TextureAsset> texture)
@@ -229,4 +272,3 @@ namespace Nz
 		OnMaterialInstanceShaderBindingInvalidated(this);
 	}
 }
-

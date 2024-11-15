@@ -8,6 +8,11 @@ namespace Nz
 {
 	PropertyHandler::~PropertyHandler() = default;
 
+	bool PropertyHandler::NeedsUpdateOnStorageBufferUpdate(std::size_t /*updatedStorageBufferPropertyIndex*/) const
+	{
+		return false;
+	}
+
 	bool PropertyHandler::NeedsUpdateOnTextureUpdate(std::size_t /*updatedTexturePropertyIndex*/) const
 	{
 		return false;

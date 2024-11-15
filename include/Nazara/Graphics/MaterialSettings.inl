@@ -180,6 +180,11 @@ namespace Nz
 	template<> struct MaterialPropertyTypeInfo<MaterialPropertyType::UInt4> : MaterialPropertyTypeInfoVector<UInt32, 4> {};
 
 
+	inline void MaterialSettings::AddBufferProperty(std::string propertyName)
+	{
+		return AddBufferProperty(std::move(propertyName), nullptr, 0, 0);
+	}
+
 	inline void MaterialSettings::AddPass(std::size_t passIndex, MaterialPass materialPass)
 	{
 		if (passIndex >= m_materialPasses.size())
@@ -222,6 +227,17 @@ namespace Nz
 		valueProperty.defaultValue = std::move(defaultValue);
 	}
 
+	inline std::size_t MaterialSettings::FindBufferProperty(std::string_view propertyName) const
+	{
+		for (std::size_t i = 0; i < m_bufferProperties.size(); ++i)
+		{
+			if (m_bufferProperties[i].name == propertyName)
+				return i;
+		}
+
+		return InvalidPropertyIndex;
+	}
+
 	inline std::size_t MaterialSettings::FindTextureProperty(std::string_view propertyName) const
 	{
 		for (std::size_t i = 0; i < m_textureProperties.size(); ++i)
@@ -242,6 +258,17 @@ namespace Nz
 		}
 
 		return InvalidPropertyIndex;
+	}
+
+	inline auto MaterialSettings::GetBufferProperty(std::size_t bufferProperty) const -> const BufferProperty&
+	{
+		assert(bufferProperty < m_bufferProperties.size());
+		return m_bufferProperties[bufferProperty];
+	}
+
+	inline std::size_t MaterialSettings::GetBufferPropertyCount() const
+	{
+		return m_bufferProperties.size();
 	}
 
 	inline const MaterialPass* MaterialSettings::GetPass(std::size_t passIndex) const
@@ -301,4 +328,3 @@ namespace Nz
 		valueProperty.defaultValue.emplace<TypeIndex>(std::forward<U>(defaultValue));
 	}
 }
-

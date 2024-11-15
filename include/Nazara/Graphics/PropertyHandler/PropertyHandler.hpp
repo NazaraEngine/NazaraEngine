@@ -26,6 +26,7 @@ namespace Nz
 			PropertyHandler(PropertyHandler&&) = delete;
 			virtual ~PropertyHandler();
 
+			virtual bool NeedsUpdateOnStorageBufferUpdate(std::size_t updatedStorageBufferPropertyIndex) const;
 			virtual bool NeedsUpdateOnTextureUpdate(std::size_t updatedTexturePropertyIndex) const;
 			virtual bool NeedsUpdateOnValueUpdate(std::size_t updatedValuePropertyIndex) const;
 

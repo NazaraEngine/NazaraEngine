@@ -165,13 +165,14 @@ namespace Nz
 		if (!node.description.layout.HasValue())
 			return;
 
-		if (node.description.layout.GetResultingValue() != nzsl::Ast::MemoryLayout::Std140)
-			throw std::runtime_error("unexpected layout for struct " + node.description.name);
-
 		if (node.description.conditionIndex != 0 || m_isConditional)
 			throw std::runtime_error("struct " + node.description.name + " condition must be resolved");
 
-		StructData structData(nzsl::StructLayout::Std140);
+		nzsl::Ast::MemoryLayout structLayout = node.description.layout.GetResultingValue();
+		if (structLayout != nzsl::Ast::MemoryLayout::Std140 && structLayout != nzsl::Ast::MemoryLayout::Std430)
+			throw std::runtime_error("unexpected layout for struct " + node.description.name);
+
+		StructData structData((structLayout == nzsl::Ast::MemoryLayout::Std140) ? nzsl::StructLayout::Std140 : nzsl::StructLayout::Std430);
 
 		for (auto& member : node.description.members)
 		{
