@@ -47,6 +47,8 @@ namespace Nz
 	class NAZARA_GRAPHICS_API MaterialSettings
 	{
 		public:
+			struct BufferProperty;
+			struct BufferValue;
 			struct TextureProperty;
 			struct ValueProperty;
 
@@ -57,19 +59,29 @@ namespace Nz
 			MaterialSettings(MaterialSettings&&) noexcept = default;
 			~MaterialSettings() = default;
 
+			inline void AddBufferProperty(std::string propertyName);
+			void AddBufferProperty(std::string propertyName, std::shared_ptr<RenderBuffer> defaultBuffer);
+			void AddBufferProperty(std::string propertyName, std::shared_ptr<RenderBuffer> defaultBuffer, UInt64 defaultOffset, UInt64 defaultSize);
+
 			void AddPass(std::string_view passName, MaterialPass materialPass);
 			inline void AddPass(std::size_t passIndex, MaterialPass materialPass);
+
 			inline void AddPropertyHandler(std::unique_ptr<PropertyHandler> propertyHandler);
+
 			inline void AddTextureProperty(std::string propertyName, ImageType propertyType);
 			void AddTextureProperty(std::string propertyName, ImageType propertyType, std::shared_ptr<TextureAsset> defaultTexture);
 			void AddTextureProperty(std::string propertyName, ImageType propertyType, std::shared_ptr<TextureAsset> defaultTexture, const TextureSamplerInfo& defaultSamplerInfo);
+
 			inline void AddValueProperty(std::string propertyName, MaterialPropertyType propertyType, Value defaultValue);
 			template<typename T> void AddValueProperty(std::string propertyName);
 			template<typename T, typename U> void AddValueProperty(std::string propertyName, U&& defaultValue);
 
+			inline std::size_t FindBufferProperty(std::string_view propertyName) const;
 			inline std::size_t FindTextureProperty(std::string_view propertyName) const;
 			inline std::size_t FindValueProperty(std::string_view propertyName) const;
 
+			inline const BufferProperty& GetBufferProperty(std::size_t storageBufferPropertyIndex) const;
+			inline std::size_t GetBufferPropertyCount() const;
 			const MaterialPass* GetPass(std::string_view passName) const;
 			inline const MaterialPass* GetPass(std::size_t passIndex) const;
 			inline const std::vector<std::optional<MaterialPass>>& GetPasses() const;
@@ -81,6 +93,19 @@ namespace Nz
 
 			MaterialSettings& operator=(const MaterialSettings&) = delete;
 			MaterialSettings& operator=(MaterialSettings&&) = default;
+
+			struct BufferValue
+			{
+				std::shared_ptr<RenderBuffer> buffer;
+				UInt64 offset = 0;
+				UInt64 size = 0;
+			};
+
+			struct BufferProperty
+			{
+				std::string name;
+				BufferValue defaultValue;
+			};
 
 			struct TextureProperty
 			{
@@ -102,6 +127,7 @@ namespace Nz
 		private:
 			std::vector<std::unique_ptr<PropertyHandler>> m_propertyHandlers;
 			std::vector<std::optional<MaterialPass>> m_materialPasses;
+			std::vector<BufferProperty> m_bufferProperties;
 			std::vector<TextureProperty> m_textureProperties;
 			std::vector<ValueProperty> m_valueProperties;
 	};

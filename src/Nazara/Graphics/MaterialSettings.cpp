@@ -5,6 +5,7 @@
 #include <Nazara/Graphics/MaterialSettings.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/TextureAsset.hpp>
+#include <Nazara/Renderer/RenderBuffer.hpp>
 
 namespace Nz
 {
@@ -12,6 +13,23 @@ namespace Nz
 	{
 		std::size_t passIndex = Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex(passName);
 		return AddPass(passIndex, std::move(materialPass));
+	}
+
+	void MaterialSettings::AddBufferProperty(std::string propertyName, std::shared_ptr<RenderBuffer> defaultBuffer)
+	{
+		UInt64 size = (defaultBuffer) ? defaultBuffer->GetSize() : 0;
+		return AddBufferProperty(std::move(propertyName), std::move(defaultBuffer), 0, size);
+	}
+
+	void MaterialSettings::AddBufferProperty(std::string propertyName, std::shared_ptr<RenderBuffer> defaultBuffer, UInt64 defaultOffset, UInt64 defaultSize)
+	{
+		NazaraAssert(!defaultBuffer || defaultBuffer->GetType() == Nz::BufferType::Storage, "a default buffer was passed but wasn't a storage buffer");
+
+		auto& storageBufferProperty = m_bufferProperties.emplace_back();
+		storageBufferProperty.name = std::move(propertyName);
+		storageBufferProperty.defaultValue.buffer = std::move(defaultBuffer);
+		storageBufferProperty.defaultValue.offset = defaultOffset;
+		storageBufferProperty.defaultValue.size = defaultSize;
 	}
 
 	void MaterialSettings::AddTextureProperty(std::string propertyName, ImageType propertyType, std::shared_ptr<TextureAsset> defaultTexture)

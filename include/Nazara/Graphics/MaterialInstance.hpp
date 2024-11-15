@@ -61,8 +61,13 @@ namespace Nz
 
 			void FillShaderBinding(std::vector<ShaderBinding::Binding>& bindings) const;
 
+			inline std::size_t FindBufferProperty(std::string_view propertyName) const;
 			inline std::size_t FindTextureProperty(std::string_view propertyName) const;
 			inline std::size_t FindValueProperty(std::string_view propertyName) const;
+
+			inline const MaterialSettings::BufferValue* GetBufferProperty(std::string_view propertyName) const;
+			inline const MaterialSettings::BufferValue& GetBufferProperty(std::size_t storageBufferIndex) const;
+			inline const MaterialSettings::BufferValue& GetBufferPropertyOverride(std::size_t storageBufferIndex) const;
 
 			inline const std::shared_ptr<const Material>& GetParentMaterial() const;
 			inline MaterialPassFlags GetPassFlags(std::size_t passIndex) const;
@@ -83,6 +88,9 @@ namespace Nz
 			inline bool HasPass(std::size_t passIndex) const;
 
 			void OnTransfer(RenderResources& renderResources, CommandBufferBuilder& builder) override;
+
+			inline void SetBufferProperty(std::string_view propertyName, const MaterialSettings::BufferValue& bufferValue);
+			void SetBufferProperty(std::size_t valueIndex, const MaterialSettings::BufferValue& bufferValue);
 
 			inline void SetTextureProperty(std::string_view propertyName, std::shared_ptr<TextureAsset> texture);
 			inline void SetTextureProperty(std::string_view propertyName, std::shared_ptr<TextureAsset> texture, const TextureSamplerInfo& samplerInfo);
@@ -107,6 +115,8 @@ namespace Nz
 			template<typename F> void UpdatePassesStates(std::initializer_list<std::size_t> passesIndex, F&& stateUpdater);
 			template<typename F> void UpdatePassesStates(F&& stateUpdater, bool ignoreDisabled = true);
 
+			void UpdateStorageBufferBinding(std::size_t storageBufferBinding, std::shared_ptr<RenderBuffer> storageBuffer);
+			void UpdateStorageBufferBinding(std::size_t storageBufferBinding, std::shared_ptr<RenderBuffer> storageBuffer, UInt64 offset, UInt64 size);
 			void UpdateTextureBinding(std::size_t textureBinding, std::shared_ptr<TextureAsset> texture, std::shared_ptr<TextureSampler> textureSampler);
 			void UpdateUniformBufferData(std::size_t uniformBufferIndex, std::size_t offset, std::size_t size, const void* data);
 
@@ -145,6 +155,13 @@ namespace Nz
 				bool enabled = false;
 			};
 
+			struct StorageBuffer
+			{
+				std::shared_ptr<RenderBuffer> renderBuffer;
+				UInt64 offset;
+				UInt64 size;
+			};
+
 			struct TextureBinding
 			{
 				std::shared_ptr<TextureAsset> texture;
@@ -159,7 +176,7 @@ namespace Nz
 
 			struct UniformBuffer
 			{
-				std::size_t bufferIndex;
+				std::size_t poolBufferIndex;
 				std::vector<UInt8> values;
 				RenderBufferView bufferView;
 				bool dataInvalidated = true;
@@ -167,8 +184,10 @@ namespace Nz
 
 			std::shared_ptr<const Material> m_parent;
 			std::unordered_map<UInt32, nzsl::Ast::ConstantSingleValue> m_optionValuesOverride;
+			std::vector<MaterialSettings::BufferValue> m_bufferOverride;
 			std::vector<MaterialSettings::Value> m_valueOverride;
 			std::vector<PassData> m_passes;
+			std::vector<StorageBuffer> m_storageBufferBindings;
 			std::vector<TextureBinding> m_textureBinding;
 			std::vector<TextureProperty> m_textureOverride;
 			std::vector<UniformBuffer> m_uniformBuffers;

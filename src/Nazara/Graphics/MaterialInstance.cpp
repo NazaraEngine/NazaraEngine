@@ -29,6 +29,7 @@ namespace Nz
 		for (std::size_t i = 0; i < m_textureOverride.size(); ++i)
 			m_textureOverride[i].samplerInfo = settings.GetTextureProperty(i).defaultSamplerInfo;
 
+		m_bufferOverride.resize(settings.GetBufferPropertyCount());
 		m_valueOverride.resize(settings.GetValuePropertyCount());
 
 		const auto& passSettings = settings.GetPasses();
@@ -62,6 +63,7 @@ namespace Nz
 			}
 		}
 
+		m_storageBufferBindings.resize(m_parent->GetStorageBufferCount());
 		m_textureBinding.resize(m_parent->GetTextureCount());
 		m_uniformBuffers.resize(m_parent->GetUniformBlockCount());
 		for (std::size_t i = 0; i < m_uniformBuffers.size(); ++i)
@@ -69,7 +71,7 @@ namespace Nz
 			const auto& uniformBlockData = m_parent->GetUniformBlockData(i);
 
 			auto& uniformBuffer = m_uniformBuffers[i];
-			uniformBuffer.bufferView = uniformBlockData.bufferPool->Allocate(uniformBuffer.bufferIndex);
+			uniformBuffer.bufferView = uniformBlockData.bufferPool->Allocate(uniformBuffer.poolBufferIndex);
 			uniformBuffer.values.resize(uniformBlockData.bufferPool->GetBufferSize());
 		}
 
@@ -80,7 +82,9 @@ namespace Nz
 	MaterialInstance::MaterialInstance(const MaterialInstance& material, CopyToken) :
 	m_parent(material.m_parent),
 	m_optionValuesOverride(material.m_optionValuesOverride),
+	m_bufferOverride(material.m_bufferOverride),
 	m_valueOverride(material.m_valueOverride),
+	m_storageBufferBindings(material.m_storageBufferBindings),
 	m_textureBinding(material.m_textureBinding),
 	m_textureOverride(material.m_textureOverride),
 	m_materialSettings(material.m_materialSettings)
@@ -109,7 +113,7 @@ namespace Nz
 			const auto& uniformBlockData = m_parent->GetUniformBlockData(i);
 
 			auto& uniformBuffer = m_uniformBuffers[i];
-			uniformBuffer.bufferView = uniformBlockData.bufferPool->Allocate(uniformBuffer.bufferIndex);
+			uniformBuffer.bufferView = uniformBlockData.bufferPool->Allocate(uniformBuffer.poolBufferIndex);
 			assert(material.m_uniformBuffers[i].values.size() == uniformBlockData.bufferPool->GetBufferSize());
 			uniformBuffer.values = material.m_uniformBuffers[i].values;
 		}
@@ -120,7 +124,7 @@ namespace Nz
 		for (std::size_t i = 0; i < m_uniformBuffers.size(); ++i)
 		{
 			auto& uniformBuffer = m_uniformBuffers[i];
-			m_parent->GetUniformBlockData(i).bufferPool->Free(uniformBuffer.bufferIndex);
+			m_parent->GetUniformBlockData(i).bufferPool->Free(uniformBuffer.poolBufferIndex);
 		}
 	}
 
@@ -143,6 +147,21 @@ namespace Nz
 		const auto& renderDevice = Graphics::Instance()->GetRenderDevice();
 		auto& samplerCache = Graphics::Instance()->GetSamplerCache();
 
+		// Storage buffer
+		for (std::size_t i = 0; i < m_storageBufferBindings.size(); ++i)
+		{
+			const auto& storageSlot = m_parent->GetStorageBufferData(i);
+			const auto& storageInfo = m_storageBufferBindings[i];
+
+			bindings.push_back({
+				storageSlot.bindingIndex,
+				ShaderBinding::StorageBufferBinding {
+					storageInfo.renderBuffer.get(), storageInfo.offset, storageInfo.size
+				}
+			});
+		}
+
+		// Textures
 		for (std::size_t i = 0; i < m_textureBinding.size(); ++i)
 		{
 			const auto& textureSlot = m_parent->GetTextureData(i);
@@ -253,23 +272,16 @@ namespace Nz
 		}
 	}
 
-	void MaterialInstance::UpdatePassFlags(std::string_view passName, MaterialPassFlags materialFlags)
+	void MaterialInstance::SetBufferProperty(std::size_t valueIndex, const MaterialSettings::BufferValue& bufferValue)
 	{
-		std::size_t passIndex = Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex(passName);
-		return UpdatePassFlags(passIndex, materialFlags);
-	}
+		assert(valueIndex < m_bufferOverride.size());
+		m_bufferOverride[valueIndex] = bufferValue;
 
-	void MaterialInstance::UpdatePassStates(std::string_view passName, FunctionRef<bool(RenderStates&)> stateUpdater)
-	{
-		std::size_t passIndex = Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex(passName);
-		return UpdatePassStates(passIndex, stateUpdater);
-	}
-
-	void MaterialInstance::UpdatePassesStates(std::initializer_list<std::string_view> passesName, FunctionRef<bool(RenderStates&)> stateUpdater)
-	{
-		auto& materialPassRegistry = Graphics::Instance()->GetMaterialPassRegistry();
-		for (std::string_view passName : passesName)
-			UpdatePassStates(materialPassRegistry.GetPassIndex(passName), stateUpdater);
+		for (const auto& handler : m_materialSettings.GetPropertyHandlers())
+		{
+			if (handler->NeedsUpdateOnStorageBufferUpdate(valueIndex))
+				handler->Update(*this);
+		}
 	}
 
 	void MaterialInstance::SetTextureProperty(std::size_t textureIndex, std::shared_ptr<TextureAsset> texture)
@@ -333,6 +345,47 @@ namespace Nz
 
 		for (std::size_t i = 0; i < m_passes.size(); ++i)
 			InvalidatePassPipeline(i);
+	}
+
+	void MaterialInstance::UpdatePassFlags(std::string_view passName, MaterialPassFlags materialFlags)
+	{
+		std::size_t passIndex = Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex(passName);
+		return UpdatePassFlags(passIndex, materialFlags);
+	}
+
+	void MaterialInstance::UpdatePassStates(std::string_view passName, FunctionRef<bool(RenderStates&)> stateUpdater)
+	{
+		std::size_t passIndex = Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex(passName);
+		return UpdatePassStates(passIndex, stateUpdater);
+	}
+
+	void MaterialInstance::UpdatePassesStates(std::initializer_list<std::string_view> passesName, FunctionRef<bool(RenderStates&)> stateUpdater)
+	{
+		auto& materialPassRegistry = Graphics::Instance()->GetMaterialPassRegistry();
+		for (std::string_view passName : passesName)
+			UpdatePassStates(materialPassRegistry.GetPassIndex(passName), stateUpdater);
+	}
+
+	void MaterialInstance::UpdateStorageBufferBinding(std::size_t storageBufferBinding, std::shared_ptr<RenderBuffer> storageBuffer)
+	{
+		NazaraAssert(storageBuffer, "invalid buffer");
+
+		UInt64 size = storageBuffer->GetSize();
+		return UpdateStorageBufferBinding(storageBufferBinding, std::move(storageBuffer), 0, size);
+	}
+
+	void MaterialInstance::UpdateStorageBufferBinding(std::size_t storageBufferBinding, std::shared_ptr<RenderBuffer> storageBuffer, UInt64 offset, UInt64 size)
+	{
+		NazaraAssert(storageBuffer, "invalid buffer");
+		NazaraAssert(storageBuffer->GetType() == Nz::BufferType::Storage, "buffer is not a storage buffer");
+
+		assert(storageBufferBinding < m_storageBufferBindings.size());
+		auto& binding = m_storageBufferBindings[storageBufferBinding];
+		binding.renderBuffer = std::move(storageBuffer);
+		binding.offset = offset;
+		binding.size = size;
+
+		InvalidateShaderBinding();
 	}
 
 	void MaterialInstance::UpdateTextureBinding(std::size_t textureBinding, std::shared_ptr<TextureAsset> texture, std::shared_ptr<TextureSampler> textureSampler)

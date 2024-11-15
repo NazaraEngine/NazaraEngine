@@ -42,6 +42,7 @@ namespace Nz
 	class NAZARA_GRAPHICS_API Material : public Resource, public std::enable_shared_from_this<Material>
 	{
 		public:
+			struct StorageBufferData;
 			struct TextureData;
 			struct UniformBlockData;
 			using Params = MaterialParams;
@@ -52,12 +53,15 @@ namespace Nz
 
 			std::shared_ptr<MaterialInstance> GetDefaultInstance() const;
 
+			inline std::size_t FindStorageBufferByTag(std::string_view tag) const;
 			inline std::size_t FindTextureByTag(std::string_view tag) const;
 			inline std::size_t FindUniformBlockByTag(std::string_view tag) const;
 
 			inline UInt32 GetEngineBindingIndex(EngineShaderBinding shaderBinding) const;
 			inline const std::shared_ptr<RenderPipelineLayout>& GetRenderPipelineLayout() const;
 			inline const MaterialSettings& GetSettings() const;
+			inline const StorageBufferData& GetStorageBufferData(std::size_t storageBufferIndex) const;
+			inline std::size_t GetStorageBufferCount() const;
 			inline const TextureData& GetTextureData(std::size_t textureIndex) const;
 			inline std::size_t GetTextureCount() const;
 			inline const UniformBlockData& GetUniformBlockData(std::size_t uniformBlockIndex) const;
@@ -74,6 +78,13 @@ namespace Nz
 
 			static constexpr UInt32 InvalidBindingIndex = std::numeric_limits<UInt32>::max();
 			static constexpr std::size_t InvalidIndex = std::numeric_limits<std::size_t>::max();
+
+			struct StorageBufferData
+			{
+				UInt32 bindingSet;
+				UInt32 bindingIndex;
+				std::size_t structIndex;
+			};
 
 			struct TextureData
 			{
@@ -93,8 +104,10 @@ namespace Nz
 		private:
 			std::shared_ptr<RenderPipelineLayout> m_renderPipelineLayout;
 			std::unordered_map<UInt32, nzsl::Ast::ConstantSingleValue> m_optionValues;
+			std::unordered_map<std::string /*tag*/, std::size_t, StringHash<>, std::equal_to<>> m_storageBufferByTag;
 			std::unordered_map<std::string /*tag*/, std::size_t, StringHash<>, std::equal_to<>> m_textureByTag;
 			std::unordered_map<std::string /*tag*/, std::size_t, StringHash<>, std::equal_to<>> m_uniformBlockByTag;
+			std::vector<StorageBufferData> m_storageBuffers;
 			std::vector<TextureData> m_textures;
 			std::vector<UniformBlockData> m_uniformBlocks;
 			mutable std::weak_ptr<MaterialInstance> m_defaultInstance;

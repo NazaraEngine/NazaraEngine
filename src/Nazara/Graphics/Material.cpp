@@ -61,7 +61,17 @@ namespace Nz
 				m_textureByTag.emplace(tag, textureIndex);
 			}
 
-			assert(block->storageBlocks.empty()); //< TODO
+			for (const auto& [tag, storageBlock] : block->storageBlocks)
+			{
+				std::size_t storageBufferIndex = m_storageBuffers.size();
+
+				auto& storageBuffer = m_storageBuffers.emplace_back();
+				storageBuffer.bindingIndex = storageBlock.bindingIndex;
+				storageBuffer.bindingSet = storageBlock.bindingSet;
+				storageBuffer.structIndex = storageBlock.structIndex;
+
+				m_storageBufferByTag.emplace(tag, storageBufferIndex);
+			}
 
 			for (const auto& [tag, shaderBlock] : block->uniformBlocks)
 			{
