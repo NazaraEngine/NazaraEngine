@@ -15,7 +15,6 @@
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Math/Vector4.hpp>
-#include <Nazara/Renderer/Texture.hpp>
 #include <NazaraUtils/TypeList.hpp>
 #include <limits>
 #include <optional>
@@ -42,6 +41,7 @@ namespace Nz
 		UInt32, Vector2<UInt32>, Vector3<UInt32>, Vector4<UInt32>
 	>;
 
+	class RenderBuffer;
 	class TextureAsset;
 
 	class NAZARA_GRAPHICS_API MaterialSettings
@@ -94,8 +94,11 @@ namespace Nz
 			MaterialSettings& operator=(const MaterialSettings&) = delete;
 			MaterialSettings& operator=(MaterialSettings&&) = default;
 
-			struct BufferValue
+			struct NAZARA_GRAPHICS_API BufferValue
 			{
+				BufferValue() = default;
+				BufferValue(std::shared_ptr<RenderBuffer> buffer);
+
 				std::shared_ptr<RenderBuffer> buffer;
 				UInt64 offset = 0;
 				UInt64 size = 0;

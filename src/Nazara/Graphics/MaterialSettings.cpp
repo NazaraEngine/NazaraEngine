@@ -60,4 +60,11 @@ namespace Nz
 		std::size_t passIndex = Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex(passName);
 		return GetPass(passIndex);
 	}
+
+	MaterialSettings::BufferValue::BufferValue(std::shared_ptr<RenderBuffer> buffer) :
+	buffer(buffer)
+	{
+		if (buffer)
+			size = buffer->GetSize();
+	}
 }
