@@ -63,6 +63,7 @@ namespace Nz
 			const std::vector<RenderPipelineInfo::VertexBufferData>& GetVertexBufferData(std::size_t subMeshIndex) const;
 			const std::shared_ptr<RenderBuffer>& GetVertexBuffer(std::size_t subMeshIndex) const;
 
+			inline void SetIndexCount(std::size_t subMeshIndex, std::size_t indexCount);
 			inline void SetMaterial(std::size_t subMeshIndex, std::shared_ptr<MaterialInstance> material);
 
 			Model& operator=(const Model&) = delete;
@@ -75,6 +76,7 @@ namespace Nz
 		private:
 			struct SubMeshData
 			{
+				std::size_t indexCount = 0; //< if != 0 overrides GraphicalMesh index count
 				std::shared_ptr<MaterialInstance> material;
 				std::vector<RenderPipelineInfo::VertexBufferData> vertexBufferData;
 			};
