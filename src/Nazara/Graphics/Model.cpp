@@ -26,12 +26,15 @@ namespace Nz
 		{
 			auto& subMeshData = m_submeshes.emplace_back();
 			subMeshData.material = MaterialInstance::GetDefault(MaterialType::Basic);
-			subMeshData.vertexBufferData = {
-				{
-					0,
-					m_graphicalMesh->GetVertexDeclaration(i)
-				}
-			};
+			if (const auto& vertexDeclaration = m_graphicalMesh->GetVertexDeclaration(i))
+			{
+				subMeshData.vertexBufferData = {
+					{
+						0,
+						vertexDeclaration
+					}
+				};
+			}
 		}
 
 		m_onInvalidated.Connect(m_graphicalMesh->OnInvalidated, [this](GraphicalMesh*)
