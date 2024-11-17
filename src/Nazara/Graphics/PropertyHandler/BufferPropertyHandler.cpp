@@ -53,6 +53,8 @@ namespace Nz
 			return;
 
 		const MaterialSettings::BufferValue& storageBuffer = materialInstance.GetBufferProperty(m_propertyIndex);
+		if (!storageBuffer.buffer)
+			return;
 
 		materialInstance.UpdateStorageBufferBinding(m_storageBufferIndex, storageBuffer.buffer, storageBuffer.offset, storageBuffer.size);
 		if (m_optionHash != 0)
