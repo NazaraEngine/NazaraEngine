@@ -329,7 +329,9 @@ namespace Nz
 
 			if (currentVertexBuffer != drawData.vertexBuffer)
 			{
-				commandBuffer.BindVertexBuffer(0, *drawData.vertexBuffer);
+				if (drawData.vertexBuffer)
+					commandBuffer.BindVertexBuffer(0, *drawData.vertexBuffer);
+
 				currentVertexBuffer = drawData.vertexBuffer;
 			}
 
