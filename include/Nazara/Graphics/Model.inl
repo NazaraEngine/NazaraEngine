@@ -11,15 +11,26 @@ namespace Nz
 		return m_submeshes.size();
 	}
 
-	inline void Model::SetMaterial(std::size_t subMeshIndex, std::shared_ptr<MaterialInstance> material)
+	inline void Model::SetIndexCount(std::size_t submeshIndex, std::size_t indexCount)
 	{
-		NazaraAssertFmt(subMeshIndex < m_submeshes.size(), "submesh index out of range ({0} >= {1})", subMeshIndex, m_submeshes.size());
+		NazaraAssertFmt(submeshIndex < m_submeshes.size(), "submesh index out of range ({0} >= {1})", submeshIndex, m_submeshes.size());
+
+		if (m_submeshes[submeshIndex].indexCount != indexCount)
+		{
+			m_submeshes[submeshIndex].indexCount = indexCount;
+			OnElementInvalidated(this);
+		}
+	}
+
+	inline void Model::SetMaterial(std::size_t submeshIndex, std::shared_ptr<MaterialInstance> material)
+	{
+		NazaraAssertFmt(submeshIndex < m_submeshes.size(), "submesh index out of range ({0} >= {1})", submeshIndex, m_submeshes.size());
 		NazaraAssert(material, "invalid material");
 
-		if (m_submeshes[subMeshIndex].material != material)
+		if (m_submeshes[submeshIndex].material != material)
 		{
-			OnMaterialInvalidated(this, subMeshIndex, material);
-			m_submeshes[subMeshIndex].material = std::move(material);
+			OnMaterialInvalidated(this, submeshIndex, material);
+			m_submeshes[submeshIndex].material = std::move(material);
 
 			OnElementInvalidated(this);
 		}
