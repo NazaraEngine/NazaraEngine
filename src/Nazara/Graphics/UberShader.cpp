@@ -31,7 +31,7 @@ namespace Nz
 		}
 		catch (const std::exception& e)
 		{
-			NazaraErrorFmt("failed to compile ubershader {0}: {1}", moduleName, e.what());
+			NazaraError("failed to compile ubershader {0}: {1}", moduleName, e.what());
 			throw;
 		}
 
@@ -43,7 +43,7 @@ namespace Nz
 			nzsl::Ast::ModulePtr newShaderModule = resolver->Resolve(name);
 			if (!newShaderModule)
 			{
-				NazaraErrorFmt("failed to retrieve updated shader module {0}", name);
+				NazaraError("failed to retrieve updated shader module {0}", name);
 				return;
 			}
 
@@ -53,7 +53,7 @@ namespace Nz
 			}
 			catch (const std::exception& e)
 			{
-				NazaraErrorFmt("failed to retrieve updated shader module {0}: {1}", name, e.what());
+				NazaraError("failed to retrieve updated shader module {0}: {1}", name, e.what());
 				return;
 			}
 
@@ -76,7 +76,7 @@ namespace Nz
 		}
 		catch (const std::exception& e)
 		{
-			NazaraErrorFmt("failed to compile ubershader: {0}", e.what());
+			NazaraError("failed to compile ubershader: {0}", e.what());
 			throw;
 		}
 	}

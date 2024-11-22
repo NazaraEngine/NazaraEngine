@@ -131,7 +131,7 @@ namespace Nz::GL
 
 		if (m_handle <= 0)
 		{
-			NazaraErrorFmt("failed to create Web context: {0}", WebLoader::TranslateError(static_cast<EMSCRIPTEN_RESULT>(m_handle)));
+			NazaraError("failed to create Web context: {0}", WebLoader::TranslateError(static_cast<EMSCRIPTEN_RESULT>(m_handle)));
 			return false;
 		}
 

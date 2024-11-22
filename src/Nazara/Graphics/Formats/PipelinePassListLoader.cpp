@@ -49,7 +49,7 @@ namespace Nz::Loaders
 						auto it = m_current->attachmentsByName.find(finalOutputAttachment);
 						if (it == m_current->attachmentsByName.end())
 						{
-							NazaraErrorFmt("unknown attachment {}", finalOutputAttachment);
+							NazaraError("unknown attachment {}", finalOutputAttachment);
 							throw ResourceLoadingError::DecodingError;
 						}
 
@@ -74,7 +74,7 @@ namespace Nz::Loaders
 
 					if (format.empty())
 					{
-						NazaraErrorFmt("missing mandatory format in attachment {}", attachmentName);
+						NazaraError("missing mandatory format in attachment {}", attachmentName);
 						throw ResourceLoadingError::DecodingError;
 					}
 
@@ -88,13 +88,13 @@ namespace Nz::Loaders
 
 					if (attachmentFormat == PixelFormat::Undefined)
 					{
-						NazaraErrorFmt("unknown format {}", format);
+						NazaraError("unknown format {}", format);
 						throw ResourceLoadingError::DecodingError;
 					}
 
 					if (m_current->attachmentsByName.find(attachmentName) != m_current->attachmentsByName.end())
 					{
-						NazaraErrorFmt("attachment {} already exists", attachmentName);
+						NazaraError("attachment {} already exists", attachmentName);
 						throw ResourceLoadingError::DecodingError;
 					}
 
@@ -111,13 +111,13 @@ namespace Nz::Loaders
 					auto it = m_current->attachmentsByName.find(targetName);
 					if (it == m_current->attachmentsByName.end())
 					{
-						NazaraErrorFmt("unknown attachment {}", targetName);
+						NazaraError("unknown attachment {}", targetName);
 						throw ResourceLoadingError::DecodingError;
 					}
 
 					if (m_current->attachmentsByName.find(proxyName) != m_current->attachmentsByName.end())
 					{
-						NazaraErrorFmt("attachment {} already exists", proxyName);
+						NazaraError("attachment {} already exists", proxyName);
 						throw ResourceLoadingError::DecodingError;
 					}
 
@@ -179,7 +179,7 @@ namespace Nz::Loaders
 					std::size_t implIndex = passRegistry.GetPassIndex(impl);
 					if (implIndex == FramePipelinePassRegistry::InvalidIndex)
 					{
-						NazaraErrorFmt("unknown pass {}", impl);
+						NazaraError("unknown pass {}", impl);
 						throw ResourceLoadingError::DecodingError;
 					}
 
@@ -190,14 +190,14 @@ namespace Nz::Loaders
 						std::size_t inputIndex = passRegistry.GetPassInputIndex(implIndex, inputName);
 						if (inputIndex == FramePipelinePassRegistry::InvalidIndex)
 						{
-							NazaraErrorFmt("pass {} has no input {}", impl, inputName);
+							NazaraError("pass {} has no input {}", impl, inputName);
 							throw ResourceLoadingError::DecodingError;
 						}
 
 						auto it = m_current->attachmentsByName.find(attachmentName);
 						if (it == m_current->attachmentsByName.end())
 						{
-							NazaraErrorFmt("unknown attachment {}", attachmentName);
+							NazaraError("unknown attachment {}", attachmentName);
 							throw ResourceLoadingError::DecodingError;
 						}
 
@@ -209,14 +209,14 @@ namespace Nz::Loaders
 						std::size_t inputIndex = passRegistry.GetPassOutputIndex(implIndex, outputName);
 						if (inputIndex == FramePipelinePassRegistry::InvalidIndex)
 						{
-							NazaraErrorFmt("pass {} has no output {}", impl, outputName);
+							NazaraError("pass {} has no output {}", impl, outputName);
 							throw ResourceLoadingError::DecodingError;
 						}
 
 						auto it = m_current->attachmentsByName.find(attachmentName);
 						if (it == m_current->attachmentsByName.end())
 						{
-							NazaraErrorFmt("unknown attachment {}", attachmentName);
+							NazaraError("unknown attachment {}", attachmentName);
 							throw ResourceLoadingError::DecodingError;
 						}
 
@@ -228,7 +228,7 @@ namespace Nz::Loaders
 						auto it = m_current->attachmentsByName.find(depthstencilInput);
 						if (it == m_current->attachmentsByName.end())
 						{
-							NazaraErrorFmt("unknown attachment {}", depthstencilInput);
+							NazaraError("unknown attachment {}", depthstencilInput);
 							throw ResourceLoadingError::DecodingError;
 						}
 
@@ -240,7 +240,7 @@ namespace Nz::Loaders
 						auto it = m_current->attachmentsByName.find(depthstencilOutput);
 						if (it == m_current->attachmentsByName.end())
 						{
-							NazaraErrorFmt("unknown attachment {}", depthstencilOutput);
+							NazaraError("unknown attachment {}", depthstencilOutput);
 							throw ResourceLoadingError::DecodingError;
 						}
 
@@ -253,7 +253,7 @@ namespace Nz::Loaders
 							m_current->passList->EnablePassFlags(passId, FramePipelinePassFlag::LightShadowing);
 						else
 						{
-							NazaraErrorFmt("unknown pass flag {}", flagStr);
+							NazaraError("unknown pass flag {}", flagStr);
 							throw ResourceLoadingError::DecodingError;
 						}
 					}

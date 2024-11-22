@@ -70,7 +70,7 @@ namespace Nz
 
 			if (mesh.IsAnimable())
 			{
-				NazaraErrorFmt("an animated mesh cannot be saved to {0} format", format);
+				NazaraError("an animated mesh cannot be saved to {0} format", format);
 				return false;
 			}
 

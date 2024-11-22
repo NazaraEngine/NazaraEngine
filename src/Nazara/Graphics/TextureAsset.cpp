@@ -71,7 +71,7 @@ namespace Nz
 		if (!image)
 		{
 			if (!imageStream->GetPath().empty())
-				NazaraErrorFmt("failed to load image from file {}", PathToString(imageStream->GetPath()));
+				NazaraError("failed to load image from file {}", PathToString(imageStream->GetPath()));
 			else
 				NazaraError("failed to load image from stream");
 
@@ -101,7 +101,7 @@ namespace Nz
 		if (!image)
 		{
 			if (!imageStream->GetPath().empty())
-				NazaraErrorFmt("failed to load image from file {}", PathToString(imageStream->GetPath()));
+				NazaraError("failed to load image from file {}", PathToString(imageStream->GetPath()));
 			else
 				NazaraError("failed to load image from stream");
 
@@ -132,7 +132,7 @@ namespace Nz
 		if (!image)
 		{
 			if (!imageStream->GetPath().empty())
-				NazaraErrorFmt("failed to load image from file {}", PathToString(imageStream->GetPath()));
+				NazaraError("failed to load image from file {}", PathToString(imageStream->GetPath()));
 			else
 				NazaraError("failed to load image from stream");
 
@@ -174,7 +174,7 @@ namespace Nz
 		if (!image)
 		{
 			if (!imageStream.GetPath().empty())
-				NazaraErrorFmt("failed to load image from file {}", PathToString(imageStream.GetPath()));
+				NazaraError("failed to load image from file {}", PathToString(imageStream.GetPath()));
 			else
 				NazaraError("failed to load image from stream");
 
@@ -201,7 +201,7 @@ namespace Nz
 		if (!image)
 		{
 			if (!imageStream.GetPath().empty())
-				NazaraErrorFmt("failed to load image from file {}", PathToString(imageStream.GetPath()));
+				NazaraError("failed to load image from file {}", PathToString(imageStream.GetPath()));
 			else
 				NazaraError("failed to load image from stream");
 
@@ -229,7 +229,7 @@ namespace Nz
 		if (!image)
 		{
 			if (!imageStream.GetPath().empty())
-				NazaraErrorFmt("failed to load image from file {}", PathToString(imageStream.GetPath()));
+				NazaraError("failed to load image from file {}", PathToString(imageStream.GetPath()));
 			else
 				NazaraError("failed to load image from stream");
 
@@ -320,7 +320,7 @@ namespace Nz
 					if (image)
 						entry->texture = renderDevice.InstantiateTexture(m_textureInfo, image->GetConstPixels(), true);
 					else
-						NazaraErrorFmt("failed to load image from stream {}", streamSource.stream->GetPath());
+						NazaraError("failed to load image from stream {}", streamSource.stream->GetPath());
 				},
 				[&](const TextureBuilder& textureBuilder)
 				{

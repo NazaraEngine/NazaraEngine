@@ -723,7 +723,7 @@ namespace Nz
 	template<typename T>
 	constexpr T& Box<T>::operator[](std::size_t i)
 	{
-		NazaraAssertFmt(i < 6, "index out of range ({0} >= 6)", i);
+		NazaraAssert(i < 6, "index out of range ({0} >= 6)", i);
 
 		return *(&x+i);
 	}
@@ -737,7 +737,7 @@ namespace Nz
 	template<typename T>
 	constexpr const T& Box<T>::operator[](std::size_t i) const
 	{
-		NazaraAssertFmt(i < 6, "index out of range ({0} >= 6)", i);
+		NazaraAssert(i < 6, "index out of range ({0} >= 6)", i);
 
 		return *(&x+i);
 	}

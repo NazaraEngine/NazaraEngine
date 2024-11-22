@@ -81,7 +81,7 @@ namespace Nz
 
 		if (ALenum lastError = device.alGetError(); lastError != AL_NO_ERROR)
 		{
-			NazaraErrorFmt("failed to reset OpenAL buffer: {0}", std::to_string(lastError));
+			NazaraError("failed to reset OpenAL buffer: {0}", std::to_string(lastError));
 			return false;
 		}
 

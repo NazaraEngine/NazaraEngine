@@ -66,7 +66,7 @@ namespace Nz
 		std::string ext = ToLower(PathToString(filePath.extension()));
 		if (ext.empty())
 		{
-			NazaraErrorFmt("failed to get file extension from \"{0}\"", filePath);
+			NazaraError("failed to get file extension from \"{0}\"", filePath);
 			return nullptr;
 		}
 
@@ -93,7 +93,7 @@ namespace Nz
 				{
 					if (!file.Open(OpenMode::Read))
 					{
-						NazaraErrorFmt("failed to load resource: unable to open \"{0}\"", filePath);
+						NazaraError("failed to load resource: unable to open \"{0}\"", filePath);
 						return nullptr;
 					}
 				}
@@ -121,9 +121,9 @@ namespace Nz
 		}
 
 		if (found)
-			NazaraErrorFmt("failed to load resource from file \"{0}\": all loaders failed", filePath);
+			NazaraError("failed to load resource from file \"{0}\": all loaders failed", filePath);
 		else
-			NazaraErrorFmt("failed to load resource from file \"{0}\": no loader found for extension \"{1}\"", filePath, ext);
+			NazaraError("failed to load resource from file \"{0}\": no loader found for extension \"{1}\"", filePath, ext);
 
 		return nullptr;
 	}

@@ -188,13 +188,13 @@ namespace Nz
 		ConvertFunction func = s_convertFunctions[srcFormat][dstFormat];
 		if (!func)
 		{
-			NazaraErrorFmt("pixel format conversion from {0} to {1} is not supported", GetName(srcFormat), GetName(dstFormat));
+			NazaraError("pixel format conversion from {0} to {1} is not supported", GetName(srcFormat), GetName(dstFormat));
 			return false;
 		}
 
 		if (!func(reinterpret_cast<const UInt8*>(start), reinterpret_cast<const UInt8*>(end), reinterpret_cast<UInt8*>(dst)))
 		{
-			NazaraErrorFmt("pixel format conversion from {0} to {1} failed", GetName(srcFormat), GetName(dstFormat));
+			NazaraError("pixel format conversion from {0} to {1} failed", GetName(srcFormat), GetName(dstFormat));
 			return false;
 		}
 

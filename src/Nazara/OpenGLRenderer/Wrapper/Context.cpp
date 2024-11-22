@@ -367,13 +367,13 @@ namespace Nz::GL
 		// Validate framebuffer completeness
 		if (GLenum checkResult = m_blitFramebuffers->drawFBO.Check(); checkResult != GL_FRAMEBUFFER_COMPLETE)
 		{
-			NazaraErrorFmt("blit draw FBO is incomplete: {0}", TranslateOpenGLError(checkResult));
+			NazaraError("blit draw FBO is incomplete: {0}", TranslateOpenGLError(checkResult));
 			return false;
 		}
 
 		if (GLenum checkResult = m_blitFramebuffers->readFBO.Check(); checkResult != GL_FRAMEBUFFER_COMPLETE)
 		{
-			NazaraErrorFmt("blit read FBO is incomplete: {0}", TranslateOpenGLError(checkResult));
+			NazaraError("blit read FBO is incomplete: {0}", TranslateOpenGLError(checkResult));
 			return false;
 		}
 
@@ -396,7 +396,7 @@ namespace Nz::GL
 		// Validate framebuffer completeness
 		if (GLenum checkResult = m_blitFramebuffers->readFBO.Check(); checkResult != GL_FRAMEBUFFER_COMPLETE)
 		{
-			NazaraErrorFmt("blit read FBO is incomplete: {0}", TranslateOpenGLError(checkResult));
+			NazaraError("blit read FBO is incomplete: {0}", TranslateOpenGLError(checkResult));
 			return false;
 		}
 
@@ -460,7 +460,7 @@ namespace Nz::GL
 		}
 		catch (const std::exception& e)
 		{
-			NazaraError(e.what());
+			NazaraError("{}", e.what());
 			return false;
 		}
 
@@ -658,14 +658,14 @@ namespace Nz::GL
 
 		unsigned int maxTextureUnits = GetInteger<unsigned int>(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS);
 		if (maxTextureUnits < 32) //< OpenGL ES 3.0 requires at least 32 textures units
-			NazaraWarningFmt("GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS is {0}, expected >= 32", maxTextureUnits);
+			NazaraWarning("GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS is {0}, expected >= 32", maxTextureUnits);
 
 		assert(maxTextureUnits > 0);
 		m_state.textureUnits.resize(maxTextureUnits);
 
 		unsigned int maxUniformBufferUnits = GetInteger<unsigned int>(GL_MAX_UNIFORM_BUFFER_BINDINGS);
 		if (maxUniformBufferUnits < 24) //< OpenGL ES 3.0 requires at least 24 uniform buffers units
-			NazaraWarningFmt("GL_MAX_UNIFORM_BUFFER_BINDINGS is {0}, expected >= 24", maxUniformBufferUnits);
+			NazaraWarning("GL_MAX_UNIFORM_BUFFER_BINDINGS is {0}, expected >= 24", maxUniformBufferUnits);
 
 		assert(maxUniformBufferUnits > 0);
 		m_state.uboUnits.resize(maxUniformBufferUnits);
@@ -681,7 +681,7 @@ namespace Nz::GL
 		{
 			unsigned int maxStorageBufferUnits = GetInteger<unsigned int>(GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS);
 			if (maxStorageBufferUnits < 8) //< OpenGL ES 3.1 requires at least 8 storage buffers units
-				NazaraWarningFmt("GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS is {0}, expected >= 8", maxUniformBufferUnits);
+				NazaraWarning("GL_MAX_SHADER_STORAGE_BUFFER_BINDINGS is {0}, expected >= 8", maxUniformBufferUnits);
 
 			assert(maxStorageBufferUnits > 0);
 			m_state.storageUnits.resize(maxStorageBufferUnits);
@@ -740,7 +740,7 @@ namespace Nz::GL
 		{
 			hasAnyError = true;
 
-			NazaraErrorFmt("OpenGL error: {0}", TranslateOpenGLError(lastError));
+			NazaraError("OpenGL error: {0}", TranslateOpenGLError(lastError));
 		}
 
 		m_didCollectErrors = true;

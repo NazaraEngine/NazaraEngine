@@ -34,7 +34,7 @@ namespace Nz
 		if (textureProperty.type != textureData.imageType)
 		{
 			// TODO: Use EnumToString to show image type as string
-			NazaraErrorFmt("unmatching texture type: material property is of type {0} but shader sampler is of type {1}", UnderlyingCast(textureProperty.type), UnderlyingCast(textureData.imageType));
+			NazaraError("unmatching texture type: material property is of type {0} but shader sampler is of type {1}", UnderlyingCast(textureProperty.type), UnderlyingCast(textureData.imageType));
 			return;
 		}
 
@@ -51,10 +51,10 @@ namespace Nz
 					m_optionHash = optionData->hash;
 				}
 				else
-					NazaraErrorFmt("option {0} is not a boolean option (got {1})", m_optionName, nzsl::Ast::ToString(optionData->type));
+					NazaraError("option {0} is not a boolean option (got {1})", m_optionName, nzsl::Ast::ToString(optionData->type));
 			}
 			else
-				NazaraWarningFmt("option {0} not found in shader for property {1}", m_optionName, m_propertyName);
+				NazaraWarning("option {0} not found in shader for property {1}", m_optionName, m_propertyName);
 		}
 	}
 

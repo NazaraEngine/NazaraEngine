@@ -152,12 +152,12 @@ namespace Nz
 
 	inline void OBJParser::Error(std::string_view message)
 	{
-		NazaraErrorFmt("{0} on line #{1}", message, m_lineCount);
+		NazaraError("{0} on line #{1}", message, m_lineCount);
 	}
 
 	inline void OBJParser::Warning(std::string_view message)
 	{
-		NazaraWarningFmt("{0} on line #{1}", message, m_lineCount);
+		NazaraWarning("{0} on line #{1}", message, m_lineCount);
 	}
 
 	inline bool OBJParser::UnrecognizedLine(bool error)

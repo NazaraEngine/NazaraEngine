@@ -103,7 +103,7 @@ namespace Nz
 		if (closesocket(handle) == SOCKET_ERROR)
 		{
 			int lastError = WSAGetLastError();
-			NazaraWarningFmt("failed to close socket: {0} ({1})", Error::GetLastSystemError(lastError), lastError);
+			NazaraWarning("failed to close socket: {0} ({1})", Error::GetLastSystemError(lastError), lastError);
 		}
 	}
 
@@ -114,7 +114,7 @@ namespace Nz
 		if (GetLastError(handle, nullptr) == SocketError::Internal)
 		{
 			int lastError = WSAGetLastError();
-			NazaraWarningFmt("failed to clear socket error code: {0} ({1})", Error::GetLastSystemError(lastError), lastError);
+			NazaraWarning("failed to clear socket error code: {0} ({1})", Error::GetLastSystemError(lastError), lastError);
 		}
 	}
 
@@ -165,7 +165,7 @@ namespace Nz
 		int errorCode = WSAStartup(MAKEWORD(2, 2), &s_WSA);
 		if (errorCode != 0)
 		{
-			NazaraErrorFmt("failed to initialize Windows Socket 2.2: {0}", Error::GetLastSystemError(errorCode));
+			NazaraError("failed to initialize Windows Socket 2.2: {0}", Error::GetLastSystemError(errorCode));
 			return false;
 		}
 
@@ -505,9 +505,9 @@ namespace Nz
 			else
 			{
 #if NAZARAUTILS_WINDOWS_NT6
-				NazaraWarningFmt("Socket {0} was returned by poll without POLLOUT nor error events (events: {1:#x})", handle, descriptor.revents);
+				NazaraWarning("Socket {0} was returned by poll without POLLOUT nor error events (events: {1:#x})", handle, descriptor.revents);
 #else
-				NazaraWarningFmt("Socket {0} was returned by select but is not part of the write nor exception set", handle);
+				NazaraWarning("Socket {0} was returned by select but is not part of the write nor exception set", handle);
 #endif
 				return SocketState::NotConnected;
 			}
@@ -980,7 +980,7 @@ namespace Nz
 			case WSAEALREADY:
 			case WSAEISCONN:
 			case WSAEWOULDBLOCK:
-				NazaraWarningFmt("Internal error occurred: {0} ({1:#x})", Error::GetLastSystemError(error), error);
+				NazaraWarning("Internal error occurred: {0} ({1:#x})", Error::GetLastSystemError(error), error);
 				return SocketError::Internal;
 
 			case WSAEADDRNOTAVAIL:
@@ -1025,7 +1025,7 @@ namespace Nz
 				return SocketError::TimedOut;
 		}
 
-		NazaraWarningFmt("Unhandled WinSock error: {0} ({1:#x})", Error::GetLastSystemError(error), error);
+		NazaraWarning("Unhandled WinSock error: {0} ({1:#x})", Error::GetLastSystemError(error), error);
 		return SocketError::Unknown;
 	}
 

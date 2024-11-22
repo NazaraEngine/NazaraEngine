@@ -102,7 +102,7 @@ namespace Nz
 
 				if (readBytes < 0)
 				{
-					NazaraErrorFmt("an error occurred while reading file: {0}", VorbisErrToString(readBytes));
+					NazaraError("an error occurred while reading file: {0}", VorbisErrToString(readBytes));
 					return 0;
 				}
 
@@ -138,7 +138,7 @@ namespace Nz
 			std::optional<AudioFormat> formatOpt = GuessAudioFormat(info->channels);
 			if (!formatOpt)
 			{
-				NazaraErrorFmt("unexpected channel count: {0}", info->channels);
+				NazaraError("unexpected channel count: {0}", info->channels);
 				return Err(ResourceLoadingError::Unsupported);
 			}
 
@@ -216,7 +216,7 @@ namespace Nz
 					std::unique_ptr<File> file = std::make_unique<File>();
 					if (!file->Open(filePath, OpenMode::Read))
 					{
-						NazaraErrorFmt("failed to open stream from file: {0}", Error::GetLastError());
+						NazaraError("failed to open stream from file: {0}", Error::GetLastError());
 						return Err(ResourceLoadingError::FailedToOpenFile);
 					}
 
@@ -248,7 +248,7 @@ namespace Nz
 					std::optional<AudioFormat> formatOpt = GuessAudioFormat(info->channels);
 					if (!formatOpt)
 					{
-						NazaraErrorFmt("unexpected channel count: {0}", info->channels);
+						NazaraError("unexpected channel count: {0}", info->channels);
 						return Err(ResourceLoadingError::Unsupported);
 					}
 

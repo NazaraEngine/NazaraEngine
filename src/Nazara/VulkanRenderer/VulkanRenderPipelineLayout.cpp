@@ -127,7 +127,7 @@ namespace Nz
 		Vk::DescriptorSet descriptorSet = pool.descriptorPool->AllocateDescriptorSet(*m_descriptorSetLayouts[setIndex]);
 		if (!descriptorSet)
 		{
-			NazaraWarningFmt("failed to allocate descriptor set: {}", TranslateVulkanError(pool.descriptorPool->GetLastErrorCode()));
+			NazaraWarning("failed to allocate descriptor set: {}", TranslateVulkanError(pool.descriptorPool->GetLastErrorCode()));
 			return {};
 		}
 

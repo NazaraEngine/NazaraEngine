@@ -16,6 +16,6 @@ namespace Nz
 	m_renderDevice(renderDevice),
 	m_texturePixelFormat(texturePixelFormat)
 	{
-		NazaraAssertFmt(PixelFormatInfo::GetBytesPerPixel(imagePixelFormat) == PixelFormatInfo::GetBytesPerPixel(texturePixelFormat), "image pixel format ({0}) and texture pixel format ({1}) must have the same BPP ({2} != {3})", PixelFormatInfo::GetName(imagePixelFormat), PixelFormatInfo::GetName(texturePixelFormat), PixelFormatInfo::GetBytesPerPixel(imagePixelFormat), PixelFormatInfo::GetBytesPerPixel(texturePixelFormat));
+		NazaraAssert(PixelFormatInfo::GetBytesPerPixel(imagePixelFormat) == PixelFormatInfo::GetBytesPerPixel(texturePixelFormat), "image pixel format ({0}) and texture pixel format ({1}) must have the same BPP ({2} != {3})", PixelFormatInfo::GetName(imagePixelFormat), PixelFormatInfo::GetName(texturePixelFormat), PixelFormatInfo::GetBytesPerPixel(imagePixelFormat), PixelFormatInfo::GetBytesPerPixel(texturePixelFormat));
 	}
 }

@@ -53,7 +53,7 @@ namespace Nz
 		CURLMcode err = m_curl.multi_perform(m_curlMulti, &reportedActiveRequest);
 		if (err != CURLM_OK)
 		{
-			NazaraError(fmt::format("[WebService] curl_multi_perform failed with {0}: {1}", UnderlyingCast(err), m_curl.multi_strerror(err)));
+			NazaraError("[WebService] curl_multi_perform failed with {0}: {1}", UnderlyingCast(err), m_curl.multi_strerror(err));
 			return false;
 		}
 

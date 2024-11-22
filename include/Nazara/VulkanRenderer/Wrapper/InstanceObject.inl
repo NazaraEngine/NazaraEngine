@@ -36,7 +36,7 @@ namespace Nz::Vk
 		m_lastErrorCode = C::CreateHelper(*m_instance, &createInfo, allocator, &m_handle);
 		if (m_lastErrorCode != VkResult::VK_SUCCESS)
 		{
-			NazaraErrorFmt("failed to create Vulkan instance object: {0}", TranslateVulkanError(m_lastErrorCode));
+			NazaraError("failed to create Vulkan instance object: {0}", TranslateVulkanError(m_lastErrorCode));
 			return false;
 		}
 

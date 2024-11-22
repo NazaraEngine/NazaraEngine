@@ -64,7 +64,7 @@ namespace Nz
 			std::optional<AudioFormat> formatOpt = GuessAudioFormat(wav.channels);
 			if (!formatOpt)
 			{
-				NazaraErrorFmt("unexpected channel count: {0}", wav.channels);
+				NazaraError("unexpected channel count: {0}", wav.channels);
 				return Err(ResourceLoadingError::Unsupported);
 			}
 
@@ -137,7 +137,7 @@ namespace Nz
 					std::unique_ptr<File> file = std::make_unique<File>();
 					if (!file->Open(filePath, OpenMode::Read))
 					{
-						NazaraErrorFmt("failed to open stream from file: {0}", Error::GetLastError());
+						NazaraError("failed to open stream from file: {0}", Error::GetLastError());
 						return Err(ResourceLoadingError::FailedToOpenFile);
 					}
 
@@ -165,7 +165,7 @@ namespace Nz
 					std::optional<AudioFormat> formatOpt = GuessAudioFormat(m_decoder.channels);
 					if (!formatOpt)
 					{
-						NazaraErrorFmt("unexpected channel count: {0}", m_decoder.channels);
+						NazaraError("unexpected channel count: {0}", m_decoder.channels);
 						return Err(ResourceLoadingError::Unsupported);
 					}
 

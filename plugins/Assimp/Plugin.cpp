@@ -157,7 +157,7 @@ bool FindSkeletonRoot(SceneInfo& sceneInfo, const aiNode* node)
 			auto range = sceneInfo.nodeByName.equal_range(node->mName.C_Str());
 			if (std::distance(range.first, range.second) != 1)
 			{
-				NazaraErrorFmt("failed to identify skeleton root node: {0} node(s) matched", std::distance(range.first, range.second));
+				NazaraError("failed to identify skeleton root node: {0} node(s) matched", std::distance(range.first, range.second));
 				return false;
 			}
 
@@ -265,7 +265,7 @@ Nz::Result<std::shared_ptr<Nz::Animation>, Nz::ResourceLoadingError> LoadAnimati
 
 	if (!scene)
 	{
-		NazaraErrorFmt("Assimp failed to import file: {0}", aiGetErrorString());
+		NazaraError("Assimp failed to import file: {0}", aiGetErrorString());
 		return Nz::Err(Nz::ResourceLoadingError::DecodingError);
 	}
 
@@ -308,7 +308,7 @@ Nz::Result<std::shared_ptr<Nz::Animation>, Nz::ResourceLoadingError> LoadAnimati
 		std::size_t jointIndex = parameters.skeleton->GetJointIndex(nodeAnim->mNodeName.C_Str());
 		if (jointIndex == Nz::Skeleton::InvalidJointIndex)
 		{
-			NazaraErrorFmt("animation references joint {0} which is not part of the skeleton", nodeAnim->mNodeName.C_Str());
+			NazaraError("animation references joint {0} which is not part of the skeleton", nodeAnim->mNodeName.C_Str());
 			continue;
 		}
 
@@ -735,7 +735,7 @@ std::shared_ptr<Nz::SubMesh> ProcessSubMesh(const std::filesystem::path& originP
 							break;
 
 						default:
-							NazaraWarningFmt("Assimp texture map mode {0:#x} not handled", Nz::UnderlyingCast(mapMode[0]));
+							NazaraWarning("Assimp texture map mode {0:#x} not handled", Nz::UnderlyingCast(mapMode[0]));
 							break;
 					}
 
@@ -855,7 +855,7 @@ Nz::Result<std::shared_ptr<Nz::Mesh>, Nz::ResourceLoadingError> LoadMesh(Nz::Str
 
 	if (!scene)
 	{
-		NazaraErrorFmt("Assimp failed to import file: {0}", aiGetErrorString());
+		NazaraError("Assimp failed to import file: {0}", aiGetErrorString());
 		return Nz::Err(Nz::ResourceLoadingError::DecodingError);
 	}
 

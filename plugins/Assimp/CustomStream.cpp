@@ -44,7 +44,7 @@ aiReturn StreamSeek(aiFile* file, size_t offset, aiOrigin origin)
 			break;
 	}
 
-	NazaraWarningFmt("Unhandled aiOrigin enum (value: {0:#x})", Nz::UnderlyingCast(origin));
+	NazaraWarning("Unhandled aiOrigin enum (value: {0:#x})", Nz::UnderlyingCast(origin));
 	return aiReturn_FAILURE;
 }
 
@@ -88,7 +88,7 @@ aiFile* StreamOpener(aiFileIO* fileIO, const char* filePath, const char* openMod
 
 		if (openModes.IsErr())
 		{
-			NazaraErrorFmt("{0} for file {1}", openModes.GetError(), filePath);
+			NazaraError("{0} for file {1}", openModes.GetError(), filePath);
 			return nullptr;
 		}
 

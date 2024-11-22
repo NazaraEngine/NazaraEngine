@@ -90,7 +90,7 @@ namespace Nz
 			fd_set& targetSet = (i == 0) ? m_readSockets : m_writeSockets;
 			if (targetSet.fd_count > FD_SETSIZE)
 			{
-				NazaraErrorFmt("socket count exceeding hard-coded FD_SETSIZE ({0})", FD_SETSIZE);
+				NazaraError("socket count exceeding hard-coded FD_SETSIZE ({0})", FD_SETSIZE);
 				return false;
 			}
 
@@ -158,7 +158,7 @@ namespace Nz
 				}
 				else
 				{
-					NazaraWarningFmt("Socket {0} was returned by WSAPoll without POLLRDNORM nor POLLWRNORM events (events: {1:#x})", entry.fd, entry.revents);
+					NazaraWarning("Socket {0} was returned by WSAPoll without POLLRDNORM nor POLLWRNORM events (events: {1:#x})", entry.fd, entry.revents);
 					activeSockets--;
 				}
 

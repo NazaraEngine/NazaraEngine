@@ -167,7 +167,7 @@ namespace Nz
 
 		if (peerCount > ENetConstants::ENetProtocol_MaximumPeerId)
 		{
-			NazaraErrorFmt("peer count exceeds maximum peer count supported by protocol ({0})", UnderlyingCast(ENetConstants::ENetProtocol_MaximumPeerId));
+			NazaraError("peer count exceeds maximum peer count supported by protocol ({0})", UnderlyingCast(ENetConstants::ENetProtocol_MaximumPeerId));
 			return false;
 		}
 
@@ -337,7 +337,7 @@ namespace Nz
 		{
 			if (m_socket.Bind(address) != SocketState::Bound)
 			{
-				NazaraErrorFmt("failed to bind address {0}", address.ToString());
+				NazaraError("failed to bind address {0}", address.ToString());
 				return false;
 			}
 		}

@@ -112,7 +112,7 @@ namespace Nz
 	void InputImpl::SetMousePosition(int x, int y)
 	{
 		if (SDL_WarpMouseGlobal(x, y) != 0)
-			NazaraWarning(SDL_GetError());
+			NazaraWarning("SDL error: {}", SDL_GetError());
 	}
 
 	void InputImpl::SetMousePosition(int x, int y, const Window& relativeTo)

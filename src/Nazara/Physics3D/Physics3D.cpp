@@ -25,7 +25,7 @@ static void TraceImpl(const char* inFMT, ...)
 	va_end(list);
 
 	// Print to the TTY
-	NazaraError(buffer);
+	NazaraError("JoltPhysics: {}", buffer);
 }
 
 namespace Nz

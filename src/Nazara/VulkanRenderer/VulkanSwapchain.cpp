@@ -134,7 +134,7 @@ namespace Nz
 			{
 				PixelFormatContent formatContent = PixelFormatInfo::GetContent(format);
 				if (formatContent != PixelFormatContent::DepthStencil && formatContent != PixelFormatContent::Stencil)
-					NazaraWarningFmt("invalid format {0} for depth-stencil attachment", PixelFormatInfo::GetName(format));
+					NazaraWarning("invalid format {0} for depth-stencil attachment", PixelFormatInfo::GetName(format));
 
 				m_depthStencilFormat = ToVulkan(format);
 				if (m_depthStencilFormat == VK_FORMAT_UNDEFINED)
@@ -483,7 +483,7 @@ namespace Nz
 
 			if (!framebuffer.Create(*m_swapchain.GetDevice(), frameBufferCreate))
 			{
-				NazaraErrorFmt("failed to create framebuffer for image #{0}: {1}", i, TranslateVulkanError(framebuffer.GetLastErrorCode()));
+				NazaraError("failed to create framebuffer for image #{0}: {1}", i, TranslateVulkanError(framebuffer.GetLastErrorCode()));
 				return false;
 			}
 
@@ -498,7 +498,7 @@ namespace Nz
 		std::optional<PixelFormat> colorFormat = FromVulkan(m_surfaceFormat.format);
 		if (!colorFormat)
 		{
-			NazaraErrorFmt("unhandled vulkan pixel format ({0:#x})", UnderlyingCast(m_surfaceFormat.format));
+			NazaraError("unhandled vulkan pixel format ({0:#x})", UnderlyingCast(m_surfaceFormat.format));
 			return false;
 		}
 
@@ -508,7 +508,7 @@ namespace Nz
 			depthStencilFormat = FromVulkan(m_depthStencilFormat);
 			if (!depthStencilFormat)
 			{
-				NazaraErrorFmt("unhandled vulkan pixel format ({0:#x})", UnderlyingCast(m_depthStencilFormat));
+				NazaraError("unhandled vulkan pixel format ({0:#x})", UnderlyingCast(m_depthStencilFormat));
 				return false;
 			}
 		}
@@ -579,7 +579,7 @@ namespace Nz
 
 		if (!success)
 		{
-			NazaraErrorFmt("failed to create Vulkan surface: {0}", TranslateVulkanError(m_surface.GetLastErrorCode()));
+			NazaraError("failed to create Vulkan surface: {0}", TranslateVulkanError(m_surface.GetLastErrorCode()));
 			return false;
 		}
 
@@ -640,7 +640,7 @@ namespace Nz
 		Vk::Swapchain newSwapchain;
 		if (!newSwapchain.Create(m_device, swapchainInfo))
 		{
-			NazaraErrorFmt("failed to create swapchain: {0}", TranslateVulkanError(newSwapchain.GetLastErrorCode()));
+			NazaraError("failed to create swapchain: {0}", TranslateVulkanError(newSwapchain.GetLastErrorCode()));
 			return false;
 		}
 

@@ -56,7 +56,7 @@ namespace Nz::PlatformImpl
 	void FileImpl::Flush()
 	{
 		if (fsync(m_fileDescriptor) == -1)
-			NazaraErrorFmt("unable to flush file: {0}", Error::GetLastSystemError());
+			NazaraError("unable to flush file: {0}", Error::GetLastSystemError());
 	}
 
 	UInt64 FileImpl::GetCursorPos() const
@@ -133,7 +133,7 @@ namespace Nz::PlatformImpl
 		ssize_t read = SafeRead(m_fileDescriptor, buffer, size);
 		if (read < 0)
 		{
-			NazaraErrorFmt("failed to read from file: {0}", Error::GetLastSystemError());
+			NazaraError("failed to read from file: {0}", Error::GetLastSystemError());
 			return 0;
 		}
 
@@ -161,7 +161,7 @@ namespace Nz::PlatformImpl
 				break;
 
 			default:
-				NazaraInternalErrorFmt("cursor position not handled ({0:#x})", UnderlyingCast(pos));
+				NazaraInternalError("cursor position not handled ({0:#x})", UnderlyingCast(pos));
 				return false;
 		}
 
@@ -180,7 +180,7 @@ namespace Nz::PlatformImpl
 		ssize_t written = SafeWrite(m_fileDescriptor, buffer, size);
 		if (written < 0)
 		{
-			NazaraErrorFmt("failed to write to file: {0}", Error::GetLastSystemError());
+			NazaraError("failed to write to file: {0}", Error::GetLastSystemError());
 			return 0;
 		}
 

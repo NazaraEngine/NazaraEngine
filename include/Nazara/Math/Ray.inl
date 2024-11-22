@@ -196,7 +196,7 @@ namespace Nz
 				return false;
 		}
 
-		NazaraErrorFmt("invalid extent type ({0:#x})", UnderlyingCast(volume.extent));
+		NazaraError("invalid extent type ({0:#x})", UnderlyingCast(volume.extent));
 		return false;
 	}
 

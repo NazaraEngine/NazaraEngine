@@ -88,7 +88,7 @@ namespace Nz
 
 					if (byteStream.Read(ptr, byteCount) != byteCount)
 					{
-						NazaraErrorFmt("failed to read level #{0}", level);
+						NazaraError("failed to read level #{0}", level);
 						return false;
 					}
 
@@ -234,7 +234,7 @@ namespace Nz
 							buf[3] = (header.format.fourCC >> 24) & 255;
 							buf[4] = '\0';
 
-							NazaraErrorFmt("unhandled format \"{0}\"", buf);
+							NazaraError("unhandled format \"{0}\"", buf);
 							return false;
 						}
 					}

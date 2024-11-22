@@ -139,7 +139,7 @@ namespace Nz
 			long long imageQuality = parameters.custom.GetIntegerParameter("JPEGQuality").GetValueOr(100);
 			if (imageQuality <= 0 || imageQuality > 100)
 			{
-				NazaraErrorFmt("NativeJPEGSaver_Quality value ({0}) does not fit in bounds ]0, 100], clamping...", imageQuality);
+				NazaraError("NativeJPEGSaver_Quality value ({0}) does not fit in bounds ]0, 100], clamping...", imageQuality);
 				imageQuality = Nz::Clamp(imageQuality, 1LL, 100LL);
 			}
 
@@ -247,7 +247,7 @@ namespace Nz
 			ImageType type = image.GetType();
 			if (type != ImageType::E1D && type != ImageType::E2D)
 			{
-				NazaraErrorFmt("Image type {0:#x}) is not in a supported format", UnderlyingCast(type));
+				NazaraError("Image type {0:#x}) is not in a supported format", UnderlyingCast(type));
 				return false;
 			}
 
@@ -261,7 +261,7 @@ namespace Nz
 			}
 			catch (const std::exception& e)
 			{
-				NazaraError(e.what());
+				NazaraError("{}", e.what());
 				return false;
 			}
 		}

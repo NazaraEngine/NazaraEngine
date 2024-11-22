@@ -28,7 +28,7 @@ namespace Nz
 		std::size_t jointIndex = skeletonComponent->FindJointByName(jointName);
 		if (jointIndex == Skeleton::InvalidJointIndex)
 		{
-			NazaraErrorFmt("skeleton has no joint \"{0}\"", jointName);
+			NazaraError("skeleton has no joint \"{0}\"", jointName);
 			return;
 		}
 

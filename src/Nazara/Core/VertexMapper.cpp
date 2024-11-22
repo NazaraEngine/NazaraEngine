@@ -35,7 +35,7 @@ namespace Nz
 
 		if (!buffer)
 		{
-			NazaraInternalErrorFmt("animation type not handled ({0:#x})", UnderlyingCast(subMesh.GetAnimationType()));
+			NazaraInternalError("animation type not handled ({0:#x})", UnderlyingCast(subMesh.GetAnimationType()));
 		}
 
 		m_mapper.Map(*buffer, 0, buffer->GetVertexCount());

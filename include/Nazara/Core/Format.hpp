@@ -33,6 +33,7 @@ namespace Nz
 	template<typename... Args> using FormatString = std::string_view;
 #endif
 
+	NAZARA_FORCEINLINE std::string Format(FormatString<> str);
 	template<typename... Args> std::string Format(FormatString<Args...> str, Args&&... args);
 }
 

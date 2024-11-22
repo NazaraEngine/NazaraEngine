@@ -17,6 +17,15 @@ namespace Nz
 		NAZARA_CORE_API std::string FormatFromStore(std::string_view str);
 	}
 
+	NAZARA_FORCEINLINE std::string Format(FormatString<> str)
+	{
+#ifdef NAZARA_BUILD
+		return std::string(str.get().data(), str.get().size()); // fmt::basic_string_view is different from std::string_view
+#else
+		return std::string(str);
+#endif
+	}
+
 	template<typename... Args>
 	std::string Format(FormatString<Args...> str, Args&&... args)
 	{

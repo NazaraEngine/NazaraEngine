@@ -31,7 +31,7 @@ namespace Nz
 			File file(filePath);
 			if (!file.Open(OpenMode::Read | OpenMode::Text))
 			{
-				NazaraErrorFmt("failed to open MTL file ({0})", file.GetPath());
+				NazaraError("failed to open MTL file ({0})", file.GetPath());
 				return false;
 			}
 
@@ -50,7 +50,7 @@ namespace Nz
 				const MTLParser::Material* mtlMat = materialParser.GetMaterial(matName);
 				if (!mtlMat)
 				{
-					NazaraWarningFmt("MTL has no material \"{0}\"", matName);
+					NazaraWarning("MTL has no material \"{0}\"", matName);
 					continue;
 				}
 

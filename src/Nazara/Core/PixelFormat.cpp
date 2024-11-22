@@ -1562,7 +1562,7 @@ namespace Nz
 		for (auto&& [pixelFormat, pixelFormatInfo] : s_pixelFormatInfos.iter_kv())
 		{
 			if (!pixelFormatInfo.Validate())
-				NazaraWarningFmt("Pixel format {0:#x} {1} failed validation tests", UnderlyingCast(pixelFormat), GetName(pixelFormat));
+				NazaraWarning("Pixel format {0:#x} {1} failed validation tests", UnderlyingCast(pixelFormat), GetName(pixelFormat));
 		}
 
 		/***********************************A8************************************/

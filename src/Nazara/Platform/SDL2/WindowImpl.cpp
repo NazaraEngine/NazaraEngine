@@ -90,7 +90,7 @@ namespace Nz
 		m_handle = SDL_CreateWindow(title.c_str(), x, y, width, height, winStyle);
 		if (!m_handle)
 		{
-			NazaraErrorFmt("failed to create window: {0}", Error::GetLastSystemError());
+			NazaraError("failed to create window: {0}", Error::GetLastSystemError());
 			return false;
 		}
 
@@ -212,7 +212,7 @@ namespace Nz
 		{
 #ifndef NAZARA_PLATFORM_WEB
 			ErrorFlags flags(ErrorMode::ThrowException);
-			NazaraErrorFmt("failed to retrieve window manager info: {0}", SDL_GetError());
+			NazaraError("failed to retrieve window manager info: {0}", SDL_GetError());
 #endif
 		}
 
@@ -295,12 +295,12 @@ namespace Nz
 		if (!m_cursor)
 		{
 			if (SDL_ShowCursor(SDL_DISABLE) < 0)
-				NazaraWarning(SDL_GetError());
+				NazaraWarning("SDL error: {}", SDL_GetError());
 		}
 		else
 		{
 			if (SDL_ShowCursor(SDL_ENABLE) < 0)
-				NazaraWarning(SDL_GetError());
+				NazaraWarning("SDL error: {}", SDL_GetError());
 
 			SDL_SetCursor(m_cursor);
 		}
@@ -551,7 +551,7 @@ namespace Nz
 		}
 		catch (const std::exception& e)
 		{
-			NazaraError(e.what());
+			NazaraError("{}", e.what());
 		}
 		catch (...) // Don't let any exceptions go through C calls
 		{
@@ -626,7 +626,7 @@ namespace Nz
 	{
 		if (SDL_Init(SDL_INIT_VIDEO) < 0)
 		{
-			NazaraError(SDL_GetError());
+			NazaraError("SDL error: {}", SDL_GetError());
 			return false;
 		}
 

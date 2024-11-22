@@ -15,7 +15,7 @@ namespace Nz
 		SDL_DisplayMode mode;
 		if (SDL_GetDesktopDisplayMode(0, &mode) != 0) // handle multi screen ?
 		{
-			NazaraError(SDL_GetError());
+			NazaraError("SDL error: {}", SDL_GetError());
 
 			return VideoMode(800, 600, static_cast<UInt8>(32)); // useless ?
 		}
@@ -30,7 +30,7 @@ namespace Nz
 		int numModes = SDL_GetNumDisplayModes(0);
 		if (numModes < 0)
 		{
-			NazaraError(SDL_GetError());
+			NazaraError("SDL error: {}", SDL_GetError());
 
 			return;
 		}
@@ -39,7 +39,7 @@ namespace Nz
 		{
 			if (SDL_GetDisplayMode(0, i, &mode) != 0) // handle multi screen ?
 
-				NazaraError(SDL_GetError());
+				NazaraError("SDL error: {}", SDL_GetError());
 
 			VideoMode vMode(mode.w, mode.h, SDL_BITSPERPIXEL(mode.format));
 
