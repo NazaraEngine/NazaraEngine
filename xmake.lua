@@ -295,7 +295,7 @@ add_requires(
 	"fmt",
 	"frozen",
 	"ordered_map",
-	"nazarautils >=2024.07.19",
+	"nazarautils >=2024.11.22",
 	"stb",
 	"utfcpp"
 )

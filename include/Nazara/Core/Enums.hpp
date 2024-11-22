@@ -184,7 +184,7 @@ namespace Nz
 
 	enum class ErrorType
 	{
-		AssertFailed,
+		CheckFailed,
 		Internal,
 		Normal,
 		Warning,
