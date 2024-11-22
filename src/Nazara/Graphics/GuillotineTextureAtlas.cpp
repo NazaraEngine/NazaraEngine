@@ -50,7 +50,7 @@ namespace Nz
 		}
 		catch (const std::exception& e)
 		{
-			NazaraErrorFmt("failed to instantiate texture: {0}", e.what());
+			NazaraError("failed to instantiate texture: {0}", e.what());
 			return nullptr;
 		}
 

@@ -426,7 +426,7 @@ namespace Nz
 		{
 			hasAnyError = true;
 
-			NazaraErrorFmt("OpenAL error: {0}", TranslateOpenALError(lastError));
+			NazaraError("OpenAL error: {0}", TranslateOpenALError(lastError));
 		}
 
 		return hasAnyError;

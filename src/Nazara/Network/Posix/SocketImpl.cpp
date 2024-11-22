@@ -92,7 +92,7 @@ namespace Nz
 		NazaraAssert(handle != InvalidHandle, "Invalid handle");
 
 		if (close(handle) == -1)
-			NazaraWarningFmt("failed to close socket: {0}", Error::GetLastSystemError(errno));
+			NazaraWarning("failed to close socket: {0}", Error::GetLastSystemError(errno));
 	}
 
 	void SocketImpl::ClearErrorCode(SocketHandle handle)
@@ -101,7 +101,7 @@ namespace Nz
 
 		SocketError error;
 		if (GetLastError(handle, &error) != SocketError::NoError)
-			NazaraWarningFmt("failed to clear socket error code: {0}", ErrorToString(error));
+			NazaraWarning("failed to clear socket error code: {0}", ErrorToString(error));
 	}
 
 	SocketState SocketImpl::Connect(SocketHandle handle, const IpAddress& address, SocketError* error)
@@ -431,7 +431,7 @@ namespace Nz
 				return SocketState::Connected;
 			else
 			{
-				NazaraWarningFmt("socket {0} was returned by poll without POLLOUT nor error events (events: {1:#x})", handle, descriptor.revents);
+				NazaraWarning("socket {0} was returned by poll without POLLOUT nor error events (events: {1:#x})", handle, descriptor.revents);
 				return SocketState::NotConnected;
 			}
 		}
@@ -964,7 +964,7 @@ namespace Nz
 			case EALREADY:
 			case EISCONN:
 			case EWOULDBLOCK:
-				NazaraWarningFmt("internal error occurred: {0} ({1})", Error::GetLastSystemError(error), error);
+				NazaraWarning("internal error occurred: {0} ({1})", Error::GetLastSystemError(error), error);
 				return SocketError::Internal;
 
 			case EADDRNOTAVAIL:
@@ -1010,7 +1010,7 @@ namespace Nz
 				return SocketError::TimedOut;
 		}
 
-		NazaraWarningFmt("unhandled POSIX error: {0} ({1})", Error::GetLastSystemError(error), error);
+		NazaraWarning("unhandled POSIX error: {0} ({1})", Error::GetLastSystemError(error), error);
 		return SocketError::Unknown;
 	}
 

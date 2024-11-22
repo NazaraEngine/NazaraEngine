@@ -189,7 +189,7 @@ namespace Nz
 				return std::make_shared<SphereCollider3D>(primitive.sphere.size);
 		}
 
-		NazaraErrorFmt("Primitive type not handled ({0:#x})", UnderlyingCast(primitive.type));
+		NazaraError("Primitive type not handled ({0:#x})", UnderlyingCast(primitive.type));
 		return std::shared_ptr<Collider3D>();
 	}
 
@@ -466,10 +466,10 @@ namespace Nz
 
 	MeshCollider3D::MeshCollider3D(const Settings& meshSettings)
 	{
-		NazaraAssertFmt(meshSettings.indexCount > 0, "index count should be positive (got {})", meshSettings.vertexCount);
-		NazaraAssertFmt(meshSettings.indexCount % 3 == 0, "index count should be a multiple of 3 (got {})", meshSettings.indexCount);
-		NazaraAssertFmt(meshSettings.vertexCount > 0, "vertex count should be positive (got {})", meshSettings.vertexCount);
-		NazaraAssertFmt(meshSettings.vertices != nullptr, "invalid vertices", meshSettings.vertexCount);
+		NazaraAssert(meshSettings.indexCount > 0, "index count should be positive (got {})", meshSettings.vertexCount);
+		NazaraAssert(meshSettings.indexCount % 3 == 0, "index count should be a multiple of 3 (got {})", meshSettings.indexCount);
+		NazaraAssert(meshSettings.vertexCount > 0, "vertex count should be positive (got {})", meshSettings.vertexCount);
+		NazaraAssert(meshSettings.vertices != nullptr, "invalid vertices", meshSettings.vertexCount);
 
 		std::unique_ptr<JPH::MeshShapeSettings> settings = std::make_unique<JPH::MeshShapeSettings>();
 		settings->mTriangleVertices.resize(meshSettings.vertexCount);

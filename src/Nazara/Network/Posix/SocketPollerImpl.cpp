@@ -103,7 +103,7 @@ namespace Nz
 				}
 				else
 				{
-					NazaraWarningFmt("Socket {0} was returned by poll without POLLRDNORM nor POLLWRNORM events (events: {1:#x})", entry.fd, entry.revents);
+					NazaraWarning("Socket {0} was returned by poll without POLLRDNORM nor POLLWRNORM events (events: {1:#x})", entry.fd, entry.revents);
 					activeSockets--;
 				}
 

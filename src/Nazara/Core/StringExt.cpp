@@ -213,17 +213,17 @@ namespace Nz
 
 			return ptr - str.data();
 		}
-		catch (utf8::not_enough_room& /*e*/)
+		catch (const utf8::not_enough_room& /*e*/)
 		{
 			// Returns npos
 		}
-		catch (utf8::exception& e)
+		catch (const utf8::exception& e)
 		{
-			NazaraErrorFmt("UTF-8 error: {0}", e.what());
+			NazaraError("UTF-8 error: {0}", e.what());
 		}
-		catch (std::exception& e)
+		catch (const std::exception& e)
 		{
-			NazaraError(e.what());
+			NazaraError("{}", e.what());
 		}
 
 		return std::string::npos;

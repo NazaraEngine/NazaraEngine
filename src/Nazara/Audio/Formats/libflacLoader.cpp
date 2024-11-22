@@ -152,7 +152,7 @@ namespace Nz
 			ud.errorCallback = [&](const FLAC__StreamDecoder* /*decoder*/, FLAC__StreamDecoderErrorStatus status)
 			{
 				hasError = true;
-				NazaraError(FLAC__StreamDecoderErrorStatusString[status]);
+				NazaraError("FLAC error: {}", FLAC__StreamDecoderErrorStatusString[status]);
 			};
 
 			std::unique_ptr<Int16[]> samples;
@@ -198,7 +198,7 @@ namespace Nz
 			FLAC__StreamDecoderInitStatus status = FLAC__stream_decoder_init_stream(decoder, &FlacReadCallback, &FlacSeekCallback, &FlacTellCallback, &FlacLengthCallback, &FlacEofCallback, &WriteCallback, &MetadataCallback, &ErrorCallback, &ud);
 			if (status != FLAC__STREAM_DECODER_INIT_STATUS_OK)
 			{
-				NazaraWarning(FLAC__StreamDecoderInitStatusString[status]); //< an error shouldn't happen at this state
+				NazaraWarning("{}", FLAC__StreamDecoderInitStatusString[status]); //< an error shouldn't happen at this state
 				return Err(ResourceLoadingError::Internal);
 			}
 
@@ -228,7 +228,7 @@ namespace Nz
 			std::optional<AudioFormat> formatOpt = GuessAudioFormat(channelCount);
 			if (!formatOpt)
 			{
-				NazaraErrorFmt("unexpected channel count: {0}", channelCount);
+				NazaraError("unexpected channel count: {0}", channelCount);
 				return Err(ResourceLoadingError::Unsupported);
 			}
 
@@ -297,7 +297,7 @@ namespace Nz
 					std::unique_ptr<File> file = std::make_unique<File>();
 					if (!file->Open(filePath, OpenMode::Read))
 					{
-						NazaraErrorFmt("failed to open stream from file: {0}", Error::GetLastError());
+						NazaraError("failed to open stream from file: {0}", Error::GetLastError());
 						return Err(ResourceLoadingError::FailedToOpenFile);
 					}
 
@@ -317,7 +317,7 @@ namespace Nz
 					m_userData.errorCallback = [this](const FLAC__StreamDecoder* /*decoder*/, FLAC__StreamDecoderErrorStatus status)
 					{
 						m_errored = true;
-						NazaraError(FLAC__StreamDecoderErrorStatusString[status]);
+						NazaraError("{}", FLAC__StreamDecoderErrorStatusString[status]);
 					};
 
 					FLAC__StreamDecoder* decoder = FLAC__stream_decoder_new();
@@ -338,7 +338,7 @@ namespace Nz
 					FLAC__StreamDecoderInitStatus status = FLAC__stream_decoder_init_stream(decoder, &FlacReadCallback, &FlacSeekCallback, &FlacTellCallback, &FlacLengthCallback, &FlacEofCallback, &WriteCallback, &MetadataCallback, &ErrorCallback, &m_userData);
 					if (status != FLAC__STREAM_DECODER_INIT_STATUS_OK)
 					{
-						NazaraWarning(FLAC__StreamDecoderInitStatusString[status]); //< an error shouldn't happen at this state
+						NazaraWarning("{}", FLAC__StreamDecoderInitStatusString[status]); //< an error shouldn't happen at this state
 						return Err(ResourceLoadingError::Internal);
 					}
 
@@ -350,7 +350,7 @@ namespace Nz
 					std::optional<AudioFormat> formatOpt = GuessAudioFormat(m_channelCount);
 					if (!formatOpt)
 					{
-						NazaraErrorFmt("unexpected channel count: {0}", m_channelCount);
+						NazaraError("unexpected channel count: {0}", m_channelCount);
 						return Err(ResourceLoadingError::Unrecognized);
 					}
 

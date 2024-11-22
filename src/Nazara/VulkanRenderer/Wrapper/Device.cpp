@@ -56,7 +56,7 @@ namespace Nz
 			m_lastErrorCode = m_instance.vkCreateDevice(deviceInfo.physDevice, &createInfo, allocator, &m_device);
 			if (m_lastErrorCode != VkResult::VK_SUCCESS)
 			{
-				NazaraErrorFmt("failed to create Vulkan device: {0}", TranslateVulkanError(m_lastErrorCode));
+				NazaraError("failed to create Vulkan device: {0}", TranslateVulkanError(m_lastErrorCode));
 				return false;
 			}
 
@@ -102,7 +102,7 @@ namespace Nz
 			}
 			catch (const std::exception& e)
 			{
-				NazaraErrorFmt("Failed to query device function: {0}", e.what());
+				NazaraError("Failed to query device function: {0}", e.what());
 				return false;
 			}
 
@@ -172,7 +172,7 @@ namespace Nz
 				Vk::CommandPool& commandPool = m_internalData->commandPools[queueType];
 				if (!commandPool.Create(*this, m_defaultQueues[queueType], VK_COMMAND_POOL_CREATE_TRANSIENT_BIT))
 				{
-					NazaraErrorFmt("failed to create command pool: {0}", TranslateVulkanError(commandPool.GetLastErrorCode()));
+					NazaraError("failed to create command pool: {0}", TranslateVulkanError(commandPool.GetLastErrorCode()));
 					return false;
 				}
 			}
@@ -236,7 +236,7 @@ namespace Nz
 			m_lastErrorCode = vmaCreateAllocator(&allocatorInfo, &m_memAllocator);
 			if (m_lastErrorCode != VK_SUCCESS)
 			{
-				NazaraErrorFmt("failed to initialize Vulkan Memory Allocator (VMA): {0}", TranslateVulkanError(m_lastErrorCode));
+				NazaraError("failed to initialize Vulkan Memory Allocator (VMA): {0}", TranslateVulkanError(m_lastErrorCode));
 				return false;
 			}
 

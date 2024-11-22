@@ -92,7 +92,7 @@ namespace Nz
 				return m_ipv6 == LoopbackIpV6.m_ipv6; // Only compare the ip value
 		}
 
-		NazaraInternalErrorFmt("invalid protocol for IpAddress ({0:#x})", UnderlyingCast(m_protocol));
+		NazaraInternalError("invalid protocol for IpAddress ({0:#x})", UnderlyingCast(m_protocol));
 		return false;
 	}
 

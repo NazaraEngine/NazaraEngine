@@ -165,7 +165,7 @@ namespace Nz::GL
 		EGLint numConfig = 0;
 		if (m_loader.eglChooseConfig(m_display, configAttributes, configs, EGLint(maxConfigCount), &numConfig) != GL_TRUE)
 		{
-			NazaraErrorFmt("failed to retrieve compatible EGL configurations: {0}", EGLLoader::TranslateError(m_loader.eglGetError()));
+			NazaraError("failed to retrieve compatible EGL configurations: {0}", EGLLoader::TranslateError(m_loader.eglGetError()));
 			return false;
 		}
 
@@ -266,7 +266,7 @@ namespace Nz::GL
 
 		if (!m_handle)
 		{
-			NazaraErrorFmt("failed to create EGL context: {0}", EGLLoader::TranslateError(m_loader.eglGetError()));
+			NazaraError("failed to create EGL context: {0}", EGLLoader::TranslateError(m_loader.eglGetError()));
 			return false;
 		}
 

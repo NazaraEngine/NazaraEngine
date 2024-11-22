@@ -83,7 +83,7 @@ namespace Nz
 			{
 				ErrorFlags disableSilent({}, ErrorMode::Silent);
 
-				NazaraWarningFmt("failed to load {0}: {1}", libname, e.what());
+				NazaraWarning("failed to load {0}: {1}", libname, e.what());
 				continue;
 			}
 

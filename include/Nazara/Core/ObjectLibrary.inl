@@ -34,7 +34,7 @@ namespace Nz
 	{
 		std::shared_ptr<Type> ref = Query(name);
 		if (!ref)
-			NazaraErrorFmt("Object \"{}\" is not present", name);
+			NazaraError("Object \"{}\" is not present", name);
 
 		return ref;
 	}

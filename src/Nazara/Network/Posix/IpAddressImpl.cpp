@@ -181,7 +181,7 @@ namespace Nz
 				}
 
 				default:
-					NazaraInternalErrorFmt("unhandled ip protocol ({0:#x})", UnderlyingCast(ipAddress.GetProtocol()));
+					NazaraInternalError("unhandled ip protocol ({0:#x})", UnderlyingCast(ipAddress.GetProtocol()));
 					break;
 			}
 		}
@@ -257,7 +257,7 @@ namespace Nz
 				return ResolveError::TemporaryFailure;
 		}
 
-		NazaraWarningFmt("unhandled EAI error: {0} ({1}) as {2}", Error::GetLastSystemError(error), error, gai_strerror(error));
+		NazaraWarning("unhandled EAI error: {0} ({1}) as {2}", Error::GetLastSystemError(error), error, gai_strerror(error));
 		return ResolveError::Unknown;
 	}
 }

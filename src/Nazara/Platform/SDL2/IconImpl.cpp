@@ -27,7 +27,7 @@ namespace Nz
 		);
 
 		if (!m_icon)
-			NazaraErrorFmt("failed to create SDL Surface for icon: {0}", SDL_GetError());
+			NazaraError("failed to create SDL Surface for icon: {0}", SDL_GetError());
 	}
 
 	IconImpl::~IconImpl()

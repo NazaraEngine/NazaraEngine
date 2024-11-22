@@ -40,10 +40,10 @@ namespace Nz
 					m_optionHash = optionData->hash;
 				}
 				else
-					NazaraErrorFmt("option {0} is not a boolean option (got {1})", m_optionName, nzsl::Ast::ToString(optionData->type));
+					NazaraError("option {0} is not a boolean option (got {1})", m_optionName, nzsl::Ast::ToString(optionData->type));
 			}
 			else
-				NazaraWarningFmt("option {0} not found in shader for property {1}", m_optionName, m_propertyName);
+				NazaraWarning("option {0} not found in shader for property {1}", m_optionName, m_propertyName);
 		}
 	}
 

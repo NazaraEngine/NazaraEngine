@@ -362,7 +362,7 @@ namespace Nz
 				}
 
 				// If we arrive here, the extent is invalid
-				NazaraErrorFmt("invalid extent type (From) ({0:#x})", UnderlyingCast(from.extent));
+				NazaraError("invalid extent type (From) ({0:#x})", UnderlyingCast(from.extent));
 				return Null();
 			}
 
@@ -389,13 +389,13 @@ namespace Nz
 				}
 
 				// If we arrive here, the extent is invalid
-				NazaraErrorFmt("invalid extent type (From) ({0:#x})", UnderlyingCast(from.extent));
+				NazaraError("invalid extent type (From) ({0:#x})", UnderlyingCast(from.extent));
 				return Null();
 			}
 		}
 
 		// If we arrive here, the extent is invalid
-		NazaraErrorFmt("invalid extent type (To) ({0:#x})", UnderlyingCast(to.extent));
+		NazaraError("invalid extent type (To) ({0:#x})", UnderlyingCast(to.extent));
 		return Null();
 	}
 

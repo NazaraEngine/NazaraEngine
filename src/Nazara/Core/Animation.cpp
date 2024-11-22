@@ -61,7 +61,7 @@ namespace Nz
 
 		if (!sequence.name.empty())
 		{
-			NazaraAssertFmt(m_impl->sequenceMap.contains(sequence.name), "sequence name \"{0}\" is already in use", sequence.name);
+			NazaraAssert(m_impl->sequenceMap.contains(sequence.name), "sequence name \"{0}\" is already in use", sequence.name);
 			m_impl->sequenceMap[sequence.name] = static_cast<std::size_t>(m_impl->sequences.size());
 		}
 
@@ -75,9 +75,9 @@ namespace Nz
 		NazaraAssert(m_impl, "Animation not created");
 		NazaraAssert(m_impl->type == AnimationType::Skeletal, "Animation is not skeletal");
 		NazaraAssert(targetSkeleton && targetSkeleton->IsValid(), "invalid skeleton");
-		NazaraAssertFmt(targetSkeleton->GetJointCount() == m_impl->jointCount, "skeleton joint does not match animation joint count ({0} != {1})", targetSkeleton->GetJointCount(), m_impl->jointCount);
-		NazaraAssertFmt(frameA < m_impl->frameCount, "Frame A is out of range ({0} >= {1})", frameA, m_impl->frameCount);
-		NazaraAssertFmt(frameB < m_impl->frameCount, "Frame B is out of range ({0} >= {1})", frameB, m_impl->frameCount);
+		NazaraAssert(targetSkeleton->GetJointCount() == m_impl->jointCount, "skeleton joint does not match animation joint count ({0} != {1})", targetSkeleton->GetJointCount(), m_impl->jointCount);
+		NazaraAssert(frameA < m_impl->frameCount, "Frame A is out of range ({0} >= {1})", frameA, m_impl->frameCount);
+		NazaraAssert(frameB < m_impl->frameCount, "Frame B is out of range ({0} >= {1})", frameB, m_impl->frameCount);
 
 		Joint* joints = targetSkeleton->GetJoints();
 		for (std::size_t i = 0; i < m_impl->jointCount; ++i)

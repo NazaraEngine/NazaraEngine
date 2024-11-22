@@ -231,7 +231,7 @@ namespace Nz
 	{
 		assert(m_atlases.find(atlas) != m_atlases.end());
 
-		NazaraWarningFmt("TextSprite {0} has been cleared because atlas {1} has been invalidated (cleared or released)", fmt::ptr(this), fmt::ptr(atlas));
+		NazaraWarning("TextSprite {0} has been cleared because atlas {1} has been invalidated (cleared or released)", fmt::ptr(this), fmt::ptr(atlas));
 		Clear();
 	}
 

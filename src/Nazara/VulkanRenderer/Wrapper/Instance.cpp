@@ -24,7 +24,6 @@ namespace Nz::Vk
 			ErrorFlags errFlags({}, ErrorMode::ThrowException);
 
 			std::stringstream ss;
-			ss << "Vulkan log: ";
 
 			if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)
 				ss << "[Verbose]";
@@ -55,11 +54,11 @@ namespace Nz::Vk
 			ss << "]: " << pCallbackData->pMessage;
 
 			if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
-				NazaraError(ss.str());
+				NazaraError("Vulkan debug layer: {}", ss.str());
 			else if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
-				NazaraWarning(ss.str());
+				NazaraWarning("Vulkan debug layer: {}", ss.str());
 			else
-				NazaraNotice(ss.str());
+				NazaraNotice("Vulkan debug layer: {}", ss.str());
 
 			return VK_FALSE; //< Should the Vulkan call be aborted
 		}
@@ -75,7 +74,6 @@ namespace Nz::Vk
 			void* /*pUserData*/)
 		{
 			std::stringstream ss;
-			ss << "Vulkan log: ";
 
 			if (flags & VK_DEBUG_REPORT_INFORMATION_BIT_EXT)
 				ss << "[Info]";
@@ -99,11 +97,11 @@ namespace Nz::Vk
 			ss << ": " << pMessage;
 
 			if (flags & VK_DEBUG_REPORT_ERROR_BIT_EXT)
-				NazaraError(ss.str());
+				NazaraError("Vulkan debug layer: {}", ss.str());
 			else if (flags & VK_DEBUG_REPORT_WARNING_BIT_EXT)
-				NazaraWarning(ss.str());
+				NazaraWarning("Vulkan debug layer: {}", ss.str());
 			else
-				NazaraNotice(ss.str());
+				NazaraNotice("Vulkan debug layer: {}", ss.str());
 
 			return VK_FALSE; //< Should the Vulkan call be aborted
 		}
@@ -131,7 +129,7 @@ namespace Nz::Vk
 		m_lastErrorCode = Loader::vkCreateInstance(&createInfo, allocator, &m_instance);
 		if (m_lastErrorCode != VkResult::VK_SUCCESS)
 		{
-			NazaraErrorFmt("failed to create Vulkan instance: {0}", TranslateVulkanError(m_lastErrorCode));
+			NazaraError("failed to create Vulkan instance: {0}", TranslateVulkanError(m_lastErrorCode));
 			return false;
 		}
 
@@ -173,7 +171,7 @@ namespace Nz::Vk
 		}
 		catch (const std::exception& e)
 		{
-			NazaraErrorFmt("Failed to query instance function: {0}", e.what());
+			NazaraError("Failed to query instance function: {0}", e.what());
 			return false;
 		}
 
@@ -192,7 +190,7 @@ namespace Nz::Vk
 		m_lastErrorCode = vkEnumeratePhysicalDevices(m_instance, &deviceCount, nullptr);
 		if (m_lastErrorCode != VkResult::VK_SUCCESS || deviceCount == 0)
 		{
-			NazaraErrorFmt("failed to query physical device count: {0}", TranslateVulkanError(m_lastErrorCode));
+			NazaraError("failed to query physical device count: {0}", TranslateVulkanError(m_lastErrorCode));
 			return false;
 		}
 
@@ -201,7 +199,7 @@ namespace Nz::Vk
 		m_lastErrorCode = vkEnumeratePhysicalDevices(m_instance, &deviceCount, devices->data());
 		if (m_lastErrorCode != VkResult::VK_SUCCESS)
 		{
-			NazaraErrorFmt("failed to query physical devices: {0}", TranslateVulkanError(m_lastErrorCode));
+			NazaraError("failed to query physical devices: {0}", TranslateVulkanError(m_lastErrorCode));
 			return false;
 		}
 
@@ -217,7 +215,7 @@ namespace Nz::Vk
 		m_lastErrorCode = vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionPropertyCount, nullptr);
 		if (m_lastErrorCode != VkResult::VK_SUCCESS)
 		{
-			NazaraErrorFmt("failed to query extension properties count: {0}", TranslateVulkanError(m_lastErrorCode));
+			NazaraError("failed to query extension properties count: {0}", TranslateVulkanError(m_lastErrorCode));
 			return false;
 		}
 
@@ -229,7 +227,7 @@ namespace Nz::Vk
 		m_lastErrorCode = vkEnumerateDeviceExtensionProperties(device, nullptr, &extensionPropertyCount, extensionProperties->data());
 		if (m_lastErrorCode != VkResult::VK_SUCCESS)
 		{
-			NazaraErrorFmt("failed to query extension properties count: {0}", TranslateVulkanError(m_lastErrorCode));
+			NazaraError("failed to query extension properties count: {0}", TranslateVulkanError(m_lastErrorCode));
 			return false;
 		}
 

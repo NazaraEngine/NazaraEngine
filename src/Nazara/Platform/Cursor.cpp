@@ -35,7 +35,7 @@ namespace Nz
 		}
 		catch (const std::exception& e)
 		{
-			NazaraError(e.what());
+			NazaraError("{}", e.what());
 			return false;
 		}
 
@@ -59,7 +59,7 @@ namespace Nz
 		}
 		catch (const std::exception& e)
 		{
-			NazaraError(e.what());
+			NazaraError("{}", e.what());
 			return false;
 		}
 

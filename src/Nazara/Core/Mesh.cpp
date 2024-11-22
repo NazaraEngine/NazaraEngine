@@ -58,7 +58,7 @@ namespace Nz
 	{
 		NazaraAssert(m_isValid, "Mesh should be created first");
 		NazaraAssert(!identifier.empty(), "empty identifier");
-		NazaraAssertFmt(!m_subMeshMap.contains(identifier), "SubMesh identifier \"{0}\" is already in use", identifier);
+		NazaraAssert(!m_subMeshMap.contains(identifier), "SubMesh identifier \"{0}\" is already in use", identifier);
 		NazaraAssert(subMesh, "invalid submesh");
 		NazaraAssert(subMesh->GetAnimationType() == m_animationType, "Submesh animation type doesn't match mesh animation type");
 
@@ -407,7 +407,7 @@ namespace Nz
 		NazaraAssert(m_isValid, "Mesh should be created first");
 
 		auto it = m_subMeshMap.find(identifier);
-		NazaraAssertFmt(it != m_subMeshMap.end(), "SubMesh {0} not found", identifier);
+		NazaraAssert(it != m_subMeshMap.end(), "SubMesh {0} not found", identifier);
 
 		return m_subMeshes[it->second].subMesh;
 	}
@@ -432,7 +432,7 @@ namespace Nz
 		NazaraAssert(m_isValid, "Mesh should be created first");
 
 		auto it = m_subMeshMap.find(identifier);
-		NazaraAssertFmt(it != m_subMeshMap.end(), "SubMesh {0} not found", identifier);
+		NazaraAssert(it != m_subMeshMap.end(), "SubMesh {0} not found", identifier);
 
 		return it->second;
 	}
@@ -579,7 +579,7 @@ namespace Nz
 			if (matIndex >= matCount)
 			{
 				data.subMesh->SetMaterialIndex(0); // To prevent a crash
-				NazaraWarningFmt("SubMesh {0} material index is over mesh new material count ({1} >= {2}), setting it to first material", fmt::ptr(data.subMesh.get()), matIndex, matCount);
+				NazaraWarning("SubMesh {0} material index is over mesh new material count ({1} >= {2}), setting it to first material", fmt::ptr(data.subMesh.get()), matIndex, matCount);
 			}
 		}
 #endif

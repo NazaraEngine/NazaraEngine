@@ -46,7 +46,7 @@ namespace Nz
 		std::size_t propertyIndex = FindBufferProperty(propertyName);
 		if (propertyIndex == MaterialSettings::InvalidPropertyIndex)
 		{
-			NazaraErrorFmt("material has no storage buffer property named \"{0}\"", propertyName);
+			NazaraError("material has no storage buffer property named \"{0}\"", propertyName);
 			return nullptr;
 		}
 
@@ -83,7 +83,7 @@ namespace Nz
 		std::size_t propertyIndex = FindTextureProperty(propertyName);
 		if (propertyIndex == MaterialSettings::InvalidPropertyIndex)
 		{
-			NazaraErrorFmt("material has no texture property named \"{0}\"", propertyName);
+			NazaraError("material has no texture property named \"{0}\"", propertyName);
 			return nullptr;
 		}
 
@@ -109,7 +109,7 @@ namespace Nz
 		std::size_t propertyIndex = FindTextureProperty(propertyName);
 		if (propertyIndex == MaterialSettings::InvalidPropertyIndex)
 		{
-			NazaraErrorFmt("material has no texture property named \"{0}\"", propertyName);
+			NazaraError("material has no texture property named \"{0}\"", propertyName);
 			return nullptr;
 		}
 
@@ -127,7 +127,7 @@ namespace Nz
 		std::size_t propertyIndex = FindValueProperty(propertyName);
 		if (propertyIndex == MaterialSettings::InvalidPropertyIndex)
 		{
-			NazaraErrorFmt("material has no value property named \"{0}\"", propertyName);
+			NazaraError("material has no value property named \"{0}\"", propertyName);
 			return nullptr;
 		}
 
@@ -158,7 +158,7 @@ namespace Nz
 		std::size_t propertyIndex = FindBufferProperty(propertyName);
 		if (propertyIndex == MaterialSettings::InvalidPropertyIndex)
 		{
-			NazaraErrorFmt("material has no buffer property named \"{0}\"", propertyName);
+			NazaraError("material has no buffer property named \"{0}\"", propertyName);
 			return;
 		}
 
@@ -170,7 +170,7 @@ namespace Nz
 		std::size_t propertyIndex = FindTextureProperty(propertyName);
 		if (propertyIndex == MaterialSettings::InvalidPropertyIndex)
 		{
-			NazaraErrorFmt("material has no texture property named \"{0}\"", propertyName);
+			NazaraError("material has no texture property named \"{0}\"", propertyName);
 			return;
 		}
 
@@ -182,7 +182,7 @@ namespace Nz
 		std::size_t propertyIndex = FindTextureProperty(propertyName);
 		if (propertyIndex == MaterialSettings::InvalidPropertyIndex)
 		{
-			NazaraErrorFmt("material has no texture property named \"{0}\"", propertyName);
+			NazaraError("material has no texture property named \"{0}\"", propertyName);
 			return;
 		}
 
@@ -194,7 +194,7 @@ namespace Nz
 		std::size_t propertyIndex = FindTextureProperty(propertyName);
 		if (propertyIndex == MaterialSettings::InvalidPropertyIndex)
 		{
-			NazaraErrorFmt("material has no texture property named \"{0}\"", propertyName);
+			NazaraError("material has no texture property named \"{0}\"", propertyName);
 			return;
 		}
 
@@ -206,7 +206,7 @@ namespace Nz
 		std::size_t propertyIndex = FindValueProperty(propertyName);
 		if (propertyIndex == MaterialSettings::InvalidPropertyIndex)
 		{
-			NazaraErrorFmt("material has no value property named \"{0}\"", propertyName);
+			NazaraError("material has no value property named \"{0}\"", propertyName);
 			return;
 		}
 

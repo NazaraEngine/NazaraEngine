@@ -489,7 +489,7 @@ namespace Nz
 				glyph.valid = true;
 			}
 			else
-				NazaraWarningFmt("failed to extract glyph \"{0}\"", FromUtf32String(std::u32string_view(&character, 1)));
+				NazaraWarning("failed to extract glyph \"{0}\"", FromUtf32String(std::u32string_view(&character, 1)));
 		}
 		else
 		{

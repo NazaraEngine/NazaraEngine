@@ -38,7 +38,7 @@ namespace Nz
 
 		if (!m_library.IsLoaded())
 		{
-			NazaraErrorFmt("failed to load libcurl: {0}", m_library.GetLastError());
+			NazaraError("failed to load libcurl: {0}", m_library.GetLastError());
 			return false;
 		}
 
@@ -58,7 +58,7 @@ namespace Nz
 		}
 		catch (const std::exception& e)
 		{
-			NazaraError(e.what());
+			NazaraError("{}", e.what());
 			return false;
 		}
 

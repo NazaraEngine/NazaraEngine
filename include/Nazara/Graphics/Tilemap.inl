@@ -119,7 +119,7 @@ namespace Nz
 	inline void Tilemap::EnableTile(const Vector2ui& tilePos, const Rectf& coords, const Color& color, std::size_t materialIndex)
 	{
 		NazaraAssert(tilePos.x < m_mapSize.x&& tilePos.y < m_mapSize.y, "Tile position is out of bounds");
-		NazaraAssertFmt(materialIndex < m_layers.size(), "material index out of bounds ({0} >= {1})", materialIndex, m_layers.size());
+		NazaraAssert(materialIndex < m_layers.size(), "material index out of bounds ({0} >= {1})", materialIndex, m_layers.size());
 
 		std::size_t tileIndex = tilePos.y * m_mapSize.x + tilePos.x;
 		Tile& tile = m_tiles[tilePos.y * m_mapSize.x + tilePos.x];
@@ -167,7 +167,7 @@ namespace Nz
 	*/
 	inline void Tilemap::EnableTile(const Vector2ui& tilePos, const Rectui& rect, const Color& color, std::size_t materialIndex)
 	{
-		NazaraAssertFmt(materialIndex < m_layers.size(), "material index out of bounds ({0} >= {1})", materialIndex, m_layers.size());
+		NazaraAssert(materialIndex < m_layers.size(), "material index out of bounds ({0} >= {1})", materialIndex, m_layers.size());
 
 		Vector2ui textureSize(GetTextureSize(materialIndex));
 		float invWidth = 1.f / textureSize.x;
@@ -193,7 +193,7 @@ namespace Nz
 	*/
 	inline void Tilemap::EnableTiles(const Rectf& coords, const Color& color, std::size_t materialIndex)
 	{
-		NazaraAssertFmt(materialIndex < m_layers.size(), "material index out of bounds ({0} >= {1})", materialIndex, m_layers.size());
+		NazaraAssert(materialIndex < m_layers.size(), "material index out of bounds ({0} >= {1})", materialIndex, m_layers.size());
 
 		for (Layer& layer : m_layers)
 			layer.enabledTiles.Reset();
@@ -230,7 +230,7 @@ namespace Nz
 	*/
 	inline void Tilemap::EnableTiles(const Rectui& rect, const Color& color, std::size_t materialIndex)
 	{
-		NazaraAssertFmt(materialIndex < m_layers.size(), "material index out of bounds ({0} >= {1})", materialIndex, m_layers.size());
+		NazaraAssert(materialIndex < m_layers.size(), "material index out of bounds ({0} >= {1})", materialIndex, m_layers.size());
 
 		Vector2ui textureSize(GetTextureSize(materialIndex));
 		float invWidth = 1.f / textureSize.x;
@@ -256,7 +256,7 @@ namespace Nz
 	inline void Tilemap::EnableTiles(const Vector2ui* tilesPos, std::size_t tileCount, const Rectf& coords, const Color& color, std::size_t materialIndex)
 	{
 		NazaraAssert(tilesPos || tileCount == 0, "Invalid tile position array with a non-zero tileCount");
-		NazaraAssertFmt(materialIndex < m_layers.size(), "material index out of bounds ({0} >= {1})", materialIndex, m_layers.size());
+		NazaraAssert(materialIndex < m_layers.size(), "material index out of bounds ({0} >= {1})", materialIndex, m_layers.size());
 
 		for (std::size_t i = 0; i < tileCount; ++i)
 		{
@@ -315,7 +315,7 @@ namespace Nz
 	*/
 	inline void Tilemap::EnableTiles(const Vector2ui* tilesPos, std::size_t tileCount, const Rectui& rect, const Color& color, std::size_t materialIndex)
 	{
-		NazaraAssertFmt(materialIndex < m_layers.size(), "material index out of bounds ({0} >= {1})", materialIndex, m_layers.size());
+		NazaraAssert(materialIndex < m_layers.size(), "material index out of bounds ({0} >= {1})", materialIndex, m_layers.size());
 
 		Vector2ui textureSize(GetTextureSize(materialIndex));
 		float invWidth = 1.f / textureSize.x;

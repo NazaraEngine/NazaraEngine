@@ -22,7 +22,7 @@ namespace Nz::Vk
 
 	inline const Device::QueueList& Device::GetEnabledQueues(UInt32 familyQueue) const
 	{
-		NazaraAssertFmt(familyQueue < m_enabledQueuesInfos.size(), "invalid family queue {0}", familyQueue);
+		NazaraAssert(familyQueue < m_enabledQueuesInfos.size(), "invalid family queue {0}", familyQueue);
 
 		return *m_queuesByFamily[familyQueue];
 	}
@@ -70,7 +70,7 @@ namespace Nz::Vk
 			if (allowInstanceFallback)
 				return m_instance.GetProcAddr(name);
 
-			NazaraErrorFmt("failed to get {0} address", name);
+			NazaraError("failed to get {0} address", name);
 		}
 
 		return func;
@@ -125,7 +125,7 @@ namespace Nz::Vk
 		m_lastErrorCode = vkDeviceWaitIdle(m_device);
 		if (m_lastErrorCode != VkResult::VK_SUCCESS)
 		{
-			NazaraErrorFmt("failed to wait for device idle: {0}", TranslateVulkanError(m_lastErrorCode));
+			NazaraError("failed to wait for device idle: {0}", TranslateVulkanError(m_lastErrorCode));
 			return false;
 		}
 

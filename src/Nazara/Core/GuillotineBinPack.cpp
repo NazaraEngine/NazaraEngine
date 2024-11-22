@@ -413,7 +413,7 @@ namespace Nz
 				break;
 
 			default:
-				NazaraErrorFmt("split heuristic out of enum ({0:#x})", UnderlyingCast(method));
+				NazaraError("split heuristic out of enum ({0:#x})", UnderlyingCast(method));
 				splitHorizontal = true;
 		}
 
@@ -457,7 +457,7 @@ namespace Nz
 				return ScoreWorstShortSideFit(width, height, freeRect);
 		}
 
-		NazaraErrorFmt("Rect choice heuristic out of enum ({0:#x})", UnderlyingCast(rectChoice));
+		NazaraError("Rect choice heuristic out of enum ({0:#x})", UnderlyingCast(rectChoice));
 		return std::numeric_limits<Int32>::max();
 	}
 }

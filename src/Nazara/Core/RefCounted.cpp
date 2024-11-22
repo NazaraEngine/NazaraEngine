@@ -34,7 +34,7 @@ namespace Nz
 	{
 		#ifdef NAZARA_DEBUG
 		if (m_referenceCount > 0)
-			NazaraWarningFmt("Resource destroyed while still referenced {0} time(s)", m_referenceCount);
+			NazaraWarning("Resource destroyed while still referenced {0} time(s)", m_referenceCount);
 		#endif
 	}
 

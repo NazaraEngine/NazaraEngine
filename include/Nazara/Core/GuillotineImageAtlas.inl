@@ -11,7 +11,7 @@ namespace Nz
 	m_initialLayerSize(initialLayerSize),
 	m_maxLayerSize(std::max<UInt32>(initialLayerSize, 16384u))
 	{
-		NazaraAssertFmt(m_initialLayerSize != 0, "initial layer size must be positive ({0})", initialLayerSize);
+		NazaraAssert(m_initialLayerSize != 0, "initial layer size must be positive ({0})", initialLayerSize);
 	}
 
 	inline UInt32 GuillotineImageAtlas::GetMaxLayerSize() const

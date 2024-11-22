@@ -62,7 +62,7 @@ namespace Nz
 			UInt8* ptr = stbi_load_from_callbacks(&s_stbiCallbacks, &stream, &width, &height, &bpp, STBI_rgb_alpha);
 			if (!ptr)
 			{
-				NazaraErrorFmt("failed to load image: {0}", std::string(stbi_failure_reason()));
+				NazaraError("failed to load image: {0}", std::string(stbi_failure_reason()));
 				return Err(ResourceLoadingError::DecodingError);
 			}
 

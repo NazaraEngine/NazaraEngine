@@ -78,7 +78,7 @@ namespace Nz
 			VkResult result = vmaMapMemory(m_device.GetMemoryAllocator(), m_allocation, &mappedPtr);
 			if (result != VK_SUCCESS)
 			{
-				NazaraErrorFmt("failed to map buffer: {0}", TranslateVulkanError(result));
+				NazaraError("failed to map buffer: {0}", TranslateVulkanError(result));
 				return nullptr;
 			}
 
@@ -100,7 +100,7 @@ namespace Nz
 			VkResult result = vmaCreateBuffer(m_device.GetMemoryAllocator(), &createInfo, &allocInfo, &m_stagingBuffer, &m_stagingAllocation, &allocationInfo);
 			if (result != VK_SUCCESS)
 			{
-				NazaraErrorFmt("failed to allocate staging buffer: {0}", TranslateVulkanError(result));
+				NazaraError("failed to allocate staging buffer: {0}", TranslateVulkanError(result));
 				return nullptr;
 			}
 

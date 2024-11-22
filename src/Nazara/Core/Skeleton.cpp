@@ -276,7 +276,7 @@ namespace Nz
 			const std::string& name = m_impl->joints[i].GetName();
 			if (!name.empty())
 			{
-				NazaraAssertFmt(!m_impl->jointMap.contains(name), "joint name \"{0}\" is already present in joint map", name);
+				NazaraAssert(!m_impl->jointMap.contains(name), "joint name \"{0}\" is already present in joint map", name);
 				m_impl->jointMap.emplace(name, i);
 			}
 		}

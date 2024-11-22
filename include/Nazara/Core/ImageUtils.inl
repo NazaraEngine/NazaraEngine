@@ -159,7 +159,7 @@ namespace Nz::ImageUtils
 				return GetMaxLevel(width, height, depth);
 		}
 
-		NazaraErrorFmt("Image type not handled ({0:#x})", UnderlyingCast(type));
+		NazaraError("Image type not handled ({0:#x})", UnderlyingCast(type));
 		return 0;
 	}
 

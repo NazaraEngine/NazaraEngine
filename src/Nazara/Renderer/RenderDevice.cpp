@@ -15,7 +15,7 @@ namespace Nz
 		File file(sourcePath);
 		if (!file.Open(OpenMode::Read | OpenMode::Text))
 		{
-			NazaraErrorFmt("failed to open \"{0}\"", sourcePath);
+			NazaraError("failed to open \"{0}\"", sourcePath);
 			return {};
 		}
 

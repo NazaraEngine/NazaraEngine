@@ -17,7 +17,7 @@ namespace Nz
 	{
 		for (std::size_t i = 0; i < count; ++i)
 		{
-			NazaraAssertFmt(layers[i] < m_layers.size(), "Rectangle #{0} belongs to an out-of-bounds layer ({1} >= {2})", i, layers[i], m_layers.size());
+			NazaraAssert(layers[i] < m_layers.size(), "Rectangle #{0} belongs to an out-of-bounds layer ({1} >= {2})", i, layers[i], m_layers.size());
 
 			m_layers[layers[i]].binPack.FreeRectangle(rects[i]);
 			m_layers[layers[i]].freedRectangles++;
@@ -26,7 +26,7 @@ namespace Nz
 
 	AbstractImage* GuillotineImageAtlas::GetLayer(std::size_t layerIndex) const
 	{
-		NazaraAssertFmt(layerIndex < m_layers.size(), "layer index out of range ({0} >= {1})", layerIndex, m_layers.size());
+		NazaraAssert(layerIndex < m_layers.size(), "layer index out of range ({0} >= {1})", layerIndex, m_layers.size());
 
 		Layer& layer = m_layers[layerIndex];
 		ProcessGlyphQueue(layer);
@@ -91,7 +91,7 @@ namespace Nz
 					layer.binPack.FreeRectangle(glyph.rect);
 					layer.freedRectangles++;
 
-					NazaraErrorFmt("failed to convert image to {0}", PixelFormatInfo::GetName(m_pixelFormat));
+					NazaraError("failed to convert image to {0}", PixelFormatInfo::GetName(m_pixelFormat));
 					return false;
 				}
 

@@ -20,7 +20,7 @@ namespace Nz
 		auto& passRegistry = Graphics::Instance()->GetFramePipelinePassRegistry();
 
 		std::size_t passIndex = passRegistry.GetPassIndex(impl);
-		NazaraAssertFmt(passIndex != passRegistry.InvalidIndex, "invalid pass name {0}", impl);
+		NazaraAssert(passIndex != passRegistry.InvalidIndex, "invalid pass name {0}", impl);
 
 		return AddPass(std::move(name), passIndex, std::move(parameterList));
 	}

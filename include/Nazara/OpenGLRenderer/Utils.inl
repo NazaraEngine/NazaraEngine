@@ -41,7 +41,7 @@ namespace Nz
 			default: break;
 		}
 
-		NazaraErrorFmt("unhandled PixelFormat {0:#x})", UnderlyingCast(pixelFormat));
+		NazaraError("unhandled PixelFormat {0:#x})", UnderlyingCast(pixelFormat));
 		return {};
 	}
 
@@ -56,7 +56,7 @@ namespace Nz
 			case BlendEquation::Subtract:        return GL_FUNC_SUBTRACT;
 		}
 
-		NazaraErrorFmt("unhandled BlendEquation {0:#x})", UnderlyingCast(blendEquation));
+		NazaraError("unhandled BlendEquation {0:#x})", UnderlyingCast(blendEquation));
 		return {};
 	}
 
@@ -80,7 +80,7 @@ namespace Nz
 			case BlendFunc::Zero:             return GL_ZERO;
 		}
 
-		NazaraErrorFmt("unhandled BlendFunc {0:#x})", UnderlyingCast(blendFunc));
+		NazaraError("unhandled BlendFunc {0:#x})", UnderlyingCast(blendFunc));
 		return {};
 	}
 
@@ -93,7 +93,7 @@ namespace Nz
 			case FaceFilling::Point: return GL_POINT;
 		}
 
-		NazaraErrorFmt("unhandled FaceFilling {0:#x})", UnderlyingCast(side));
+		NazaraError("unhandled FaceFilling {0:#x})", UnderlyingCast(side));
 		return {};
 	}
 
@@ -109,7 +109,7 @@ namespace Nz
 			case FaceCulling::FrontAndBack: return GL_FRONT_AND_BACK;
 		}
 
-		NazaraErrorFmt("unhandled FaceSide {0:#x})", UnderlyingCast(side));
+		NazaraError("unhandled FaceSide {0:#x})", UnderlyingCast(side));
 		return {};
 	}
 
@@ -121,7 +121,7 @@ namespace Nz
 			case FrontFace::CounterClockwise: return GL_CCW;
 		}
 
-		NazaraErrorFmt("unhandled FrontFace {0:#x})", UnderlyingCast(face));
+		NazaraError("unhandled FrontFace {0:#x})", UnderlyingCast(face));
 		return {};
 	}
 
@@ -134,7 +134,7 @@ namespace Nz
 			case IndexType::U32: return GL_UNSIGNED_INT;
 		}
 
-		NazaraErrorFmt("unhandled IndexType {0:#x})", UnderlyingCast(indexType));
+		NazaraError("unhandled IndexType {0:#x})", UnderlyingCast(indexType));
 		return {};
 	}
 
@@ -150,7 +150,7 @@ namespace Nz
 			case PrimitiveMode::TriangleFan:   return GL_TRIANGLE_FAN;
 		}
 
-		NazaraErrorFmt("unhandled PrimitiveMode {0:#x})", UnderlyingCast(primitiveMode));
+		NazaraError("unhandled PrimitiveMode {0:#x})", UnderlyingCast(primitiveMode));
 		return {};
 	}
 
@@ -168,7 +168,7 @@ namespace Nz
 			case RendererComparison::NotEqual:       return GL_NOTEQUAL;
 		}
 
-		NazaraErrorFmt("unhandled RendererComparison {0:#x})", UnderlyingCast(comparison));
+		NazaraError("unhandled RendererComparison {0:#x})", UnderlyingCast(comparison));
 		return {};
 	}
 
@@ -180,7 +180,7 @@ namespace Nz
 			case SamplerFilter::Nearest: return GL_NEAREST;
 		}
 
-		NazaraErrorFmt("unhandled SamplerFilter {0:#x})", UnderlyingCast(filter));
+		NazaraError("unhandled SamplerFilter {0:#x})", UnderlyingCast(filter));
 		return {};
 	}
 
@@ -196,7 +196,7 @@ namespace Nz
 					case SamplerMipmapMode::Nearest: return GL_LINEAR_MIPMAP_NEAREST;
 				}
 
-				NazaraErrorFmt("unhandled SamplerFilter {0:#x})", UnderlyingCast(mipmapFilter));
+				NazaraError("unhandled SamplerFilter {0:#x})", UnderlyingCast(mipmapFilter));
 				return {};
 			}
 
@@ -208,12 +208,12 @@ namespace Nz
 					case SamplerMipmapMode::Nearest: return GL_NEAREST_MIPMAP_NEAREST;
 				}
 
-				NazaraErrorFmt("unhandled SamplerFilter {0:#x})", UnderlyingCast(mipmapFilter));
+				NazaraError("unhandled SamplerFilter {0:#x})", UnderlyingCast(mipmapFilter));
 				return {};
 			}
 		}
 
-		NazaraErrorFmt("unhandled SamplerFilter {0:#x})", UnderlyingCast(minFilter));
+		NazaraError("unhandled SamplerFilter {0:#x})", UnderlyingCast(minFilter));
 		return {};
 	}
 
@@ -226,7 +226,7 @@ namespace Nz
 			case SamplerWrap::Repeat:         return GL_REPEAT;
 		}
 
-		NazaraErrorFmt("unhandled SamplerWrap {0:#x})", UnderlyingCast(wrapMode));
+		NazaraError("unhandled SamplerWrap {0:#x})", UnderlyingCast(wrapMode));
 		return {};
 	}
 
@@ -239,7 +239,7 @@ namespace Nz
 			case nzsl::ShaderStageType::Vertex:   return GL_VERTEX_SHADER;
 		}
 
-		NazaraErrorFmt("unhandled nzsl::ShaderStageType {0:#x})", UnderlyingCast(stageType));
+		NazaraError("unhandled nzsl::ShaderStageType {0:#x})", UnderlyingCast(stageType));
 		return {};
 	}
 
@@ -257,7 +257,7 @@ namespace Nz
 			case StencilOperation::Zero:             return GL_ZERO;
 		}
 
-		NazaraErrorFmt("unhandled StencilOperation {0:#x})", UnderlyingCast(stencilOp));
+		NazaraError("unhandled StencilOperation {0:#x})", UnderlyingCast(stencilOp));
 		return {};
 	}
 
@@ -270,7 +270,7 @@ namespace Nz
 			case TextureAccess::WriteOnly: return GL_WRITE_ONLY;
 		}
 
-		NazaraErrorFmt("unhandled TextureAccess {0:#x})", UnderlyingCast(textureAccess));
+		NazaraError("unhandled TextureAccess {0:#x})", UnderlyingCast(textureAccess));
 		return {};
 	}
 
@@ -289,7 +289,7 @@ namespace Nz
 			case GL::BufferTarget::Uniform:           return GL_UNIFORM_BUFFER;
 		}
 
-		NazaraErrorFmt("unhandled GL::BufferTarget {0:#x})", UnderlyingCast(bufferTarget));
+		NazaraError("unhandled GL::BufferTarget {0:#x})", UnderlyingCast(bufferTarget));
 		return {};
 	}
 
@@ -309,7 +309,7 @@ namespace Nz
 			case GL::TextureTarget::Target3D:         return GL_TEXTURE_3D;
 		}
 
-		NazaraErrorFmt("unhandled GL::TextureTarget {0:#x})", UnderlyingCast(textureTarget));
+		NazaraError("unhandled GL::TextureTarget {0:#x})", UnderlyingCast(textureTarget));
 		return {};
 	}
 }

@@ -191,7 +191,7 @@ namespace Nz
 		if (!impl->Open(m_filePath, openMode))
 		{
 			ErrorFlags flags(ErrorMode::Silent); // Silent by default
-			NazaraErrorFmt("failed to open \"{0}\": {1}", m_filePath, Error::GetLastSystemError());
+			NazaraError("failed to open \"{0}\": {1}", m_filePath, Error::GetLastSystemError());
 			return false;
 		}
 
@@ -242,7 +242,7 @@ namespace Nz
 			std::unique_ptr<PlatformImpl::FileImpl> impl = std::make_unique<PlatformImpl::FileImpl>(this);
 			if (!impl->Open(filePath, m_openMode))
 			{
-				NazaraErrorFmt("failed to open new file; {0}", Error::GetLastSystemError());
+				NazaraError("failed to open new file; {0}", Error::GetLastSystemError());
 				return false;
 			}
 
@@ -280,7 +280,7 @@ namespace Nz
 		File file(path);
 		if (!file.Open(OpenMode::Read | OpenMode::Unbuffered)) //< unbuffered since we will read all the file at once
 		{
-			NazaraErrorFmt("failed to open \"{0}\"", path);
+			NazaraError("failed to open \"{0}\"", path);
 			return std::nullopt;
 		}
 
@@ -300,7 +300,7 @@ namespace Nz
 		File file(path);
 		if (!file.Open(OpenMode::Write | OpenMode::Unbuffered)) //< unbuffered since we will write all the file at once
 		{
-			NazaraErrorFmt("failed to open \"{0}\"", path);
+			NazaraError("failed to open \"{0}\"", path);
 			return false;
 		}
 

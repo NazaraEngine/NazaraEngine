@@ -168,7 +168,7 @@ namespace Nz
 			DynLib implLib;
 			if (!implLib.Load(rendererImpl.fileName))
 			{
-				NazaraWarningFmt("Failed to load {0}: {1}", rendererImpl.fileName, implLib.GetLastError());
+				NazaraWarning("Failed to load {0}: {1}", rendererImpl.fileName, implLib.GetLastError());
 				continue;
 			}
 
@@ -244,7 +244,7 @@ namespace Nz
 			if (auto it = renderAPIStr.find(value); it != renderAPIStr.end())
 				preferredAPI = it->second;
 			else
-				NazaraErrorFmt("unknown render API \"{0}\"", value);
+				NazaraError("unknown render API \"{0}\"", value);
 		}
 
 		if (GetParameter("render-api-validation", "NAZARA_RENDER_API_VALDATION", &value))
@@ -260,7 +260,7 @@ namespace Nz
 			if (auto it = validationStr.find(value); it != validationStr.end())
 				validationLevel = it->second;
 			else
-				NazaraErrorFmt("unknown validation level \"{0}\"", value);
+				NazaraError("unknown validation level \"{0}\"", value);
 		}
 	}
 }

@@ -90,7 +90,7 @@ namespace Nz
 			if (shaderBinding)
 				shaderBinding->Apply(*pipelineLayout, setIndex, context);
 			else
-				NazaraWarningFmt("no shader binding for set #{0}", setIndex);
+				NazaraWarning("no shader binding for set #{0}", setIndex);
 
 			setIndex++;
 		}

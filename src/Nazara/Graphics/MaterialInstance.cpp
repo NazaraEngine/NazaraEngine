@@ -423,7 +423,7 @@ namespace Nz
 			else if (valueStr == "PhysicallyBased")
 				matType = MaterialType::PhysicallyBased;
 			else
-				NazaraWarningFmt("unknown material type: {}", valueStr);
+				NazaraWarning("unknown material type: {}", valueStr);
 		}
 
 		std::shared_ptr<MaterialInstance> matInstance = Instantiate(matType, MaterialInstancePreset::Default);
@@ -458,7 +458,7 @@ namespace Nz
 				if (filterInt >= 0 || filterInt <= SafeCast<long long>(SamplerFilter::Max))
 					samplerInfo.magFilter = samplerInfo.minFilter = static_cast<SamplerFilter>(filterInt);
 				else
-					NazaraErrorFmt("invalid value for {0} sampler filter: {1}", paramFilterKey, filterInt);
+					NazaraError("invalid value for {0} sampler filter: {1}", paramFilterKey, filterInt);
 			}
 
 			if (auto value = materialData.GetIntegerParameter(paramWrapKey))
@@ -467,7 +467,7 @@ namespace Nz
 				if (wrapInt >= 0 || wrapInt <= SafeCast<long long>(SamplerWrap::Max))
 					samplerInfo.wrapModeU = samplerInfo.wrapModeV = samplerInfo.wrapModeW = static_cast<SamplerWrap>(wrapInt);
 				else
-					NazaraErrorFmt("invalid value for {0} sampler wrap: {1}", paramWrapKey, wrapInt);
+					NazaraError("invalid value for {0} sampler wrap: {1}", paramWrapKey, wrapInt);
 			}
 
 			matInstance->SetTextureSamplerProperty(matKey, samplerInfo);

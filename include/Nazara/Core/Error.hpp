@@ -14,19 +14,14 @@
 #include <string>
 
 #ifndef NAZARA_CORE_DISABLE_ASSERTS
-	#define NazaraAssert(a, err) if NAZARA_UNLIKELY(!(a)) Nz::Error::Trigger(Nz::ErrorType::AssertFailed, __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION, err)
-	#define NazaraAssertFmt(a, fmt, ...) if NAZARA_UNLIKELY(!(a)) Nz::Error::Trigger(Nz::ErrorType::AssertFailed, __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION, Nz::Format(NAZARA_FORMAT(fmt), __VA_ARGS__))
+	#define NazaraAssert(a, fmt, ...) if NAZARA_UNLIKELY(!(a)) Nz::Error::Trigger(Nz::ErrorType::AssertFailed, __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION, Nz::Format(NAZARA_FORMAT(fmt) __VA_OPT__(,) __VA_ARGS__))
 #else
 	#define NazaraAssert(a, err) for (;;) break
-	#define NazaraAssertFmt(a, fmt, ...) for (;;) break
 #endif
 
-#define NazaraError(err)                 Nz::Error::Trigger(Nz::ErrorType::Normal,   __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION, err)
-#define NazaraErrorFmt(fmt, ...)         Nz::Error::Trigger(Nz::ErrorType::Normal,   __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION, Nz::Format(NAZARA_FORMAT(fmt), __VA_ARGS__))
-#define NazaraInternalError(err)         Nz::Error::Trigger(Nz::ErrorType::Internal, __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION, err)
-#define NazaraInternalErrorFmt(fmt, ...) Nz::Error::Trigger(Nz::ErrorType::Internal, __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION, Nz::Format(NAZARA_FORMAT(fmt), __VA_ARGS__))
-#define NazaraWarning(err)               Nz::Error::Trigger(Nz::ErrorType::Warning,  __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION, err)
-#define NazaraWarningFmt(fmt, ...)       Nz::Error::Trigger(Nz::ErrorType::Warning,  __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION, Nz::Format(NAZARA_FORMAT(fmt), __VA_ARGS__))
+#define NazaraError(fmt, ...)         Nz::Error::Trigger(Nz::ErrorType::Normal,   __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION, Nz::Format(NAZARA_FORMAT(fmt) __VA_OPT__(,) __VA_ARGS__))
+#define NazaraInternalError(fmt, ...) Nz::Error::Trigger(Nz::ErrorType::Internal, __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION, Nz::Format(NAZARA_FORMAT(fmt) __VA_OPT__(,) __VA_ARGS__))
+#define NazaraWarning(fmt, ...)       Nz::Error::Trigger(Nz::ErrorType::Warning,  __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION, Nz::Format(NAZARA_FORMAT(fmt) __VA_OPT__(,) __VA_ARGS__))
 
 namespace Nz
 {
