@@ -8,17 +8,13 @@
 #define NAZARA_CORE_ERROR_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <NazaraUtils/Assert.hpp>
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/Export.hpp>
 #include <Nazara/Core/Format.hpp>
 #include <string>
 
-#ifndef NAZARA_CORE_DISABLE_ASSERTS
-	#define NazaraAssert(a, fmt, ...) if NAZARA_UNLIKELY(!(a)) Nz::Error::Trigger(Nz::ErrorType::AssertFailed, __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION, Nz::Format(NAZARA_FORMAT(fmt) __VA_OPT__(,) __VA_ARGS__))
-#else
-	#define NazaraAssert(a, err) for (;;) break
-#endif
-
+#define NazaraCheck(a, fmt, ...)      if NAZARA_UNLIKELY(!(a)) Nz::Error::Trigger(Nz::ErrorType::CheckFailed, __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION, Nz::Format(NAZARA_FORMAT(fmt) __VA_OPT__(,) __VA_ARGS__))
 #define NazaraError(fmt, ...)         Nz::Error::Trigger(Nz::ErrorType::Normal,   __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION, Nz::Format(NAZARA_FORMAT(fmt) __VA_OPT__(,) __VA_ARGS__))
 #define NazaraInternalError(fmt, ...) Nz::Error::Trigger(Nz::ErrorType::Internal, __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION, Nz::Format(NAZARA_FORMAT(fmt) __VA_OPT__(,) __VA_ARGS__))
 #define NazaraWarning(fmt, ...)       Nz::Error::Trigger(Nz::ErrorType::Warning,  __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION, Nz::Format(NAZARA_FORMAT(fmt) __VA_OPT__(,) __VA_ARGS__))

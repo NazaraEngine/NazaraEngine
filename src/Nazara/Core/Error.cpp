@@ -17,7 +17,6 @@
 	#include <errno.h>
 #endif
 
-
 namespace Nz
 {
 	namespace NAZARA_ANONYMOUS_NAMESPACE
@@ -162,7 +161,7 @@ namespace Nz
 
 		ErrorModeFlags& flags = s_flags;
 
-		if (type == ErrorType::AssertFailed || (flags & ErrorMode::Silent) == 0)
+		if (type == ErrorType::CheckFailed || (flags & ErrorMode::Silent) == 0)
 		{
 			if (line == 0 && file.empty())
 				Log::Write("{}{}", s_errorTypes[type], error);
@@ -178,7 +177,7 @@ namespace Nz
 			s_lastErrorLine = line;
 		}
 
-		if (type == ErrorType::AssertFailed || (type != ErrorType::Warning && flags.Test(ErrorMode::ThrowException)))
+		if (type == ErrorType::CheckFailed || (type != ErrorType::Warning && flags.Test(ErrorMode::ThrowException)))
 			throw std::runtime_error(s_lastError);
 	}
 }
