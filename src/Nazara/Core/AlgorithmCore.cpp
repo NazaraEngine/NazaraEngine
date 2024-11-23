@@ -193,7 +193,7 @@ namespace Nz
 			void MoveTriangleToEnd(int tri)
 			{
 				auto it = std::find(triIndices.begin(), triIndices.end(), tri);
-				NazaraAssert(it != triIndices.end(), "Triangle not found");
+				NazaraAssertMsg(it != triIndices.end(), "Triangle not found");
 
 				triIndices.erase(it);
 				triIndices.push_back(tri);
@@ -1066,22 +1066,22 @@ namespace Nz
 
 	void SkinLinearBlend(const SkinningData& skinningInfos, UInt32 startVertex, UInt32 vertexCount)
 	{
-		NazaraAssert(skinningInfos.inputJointIndices, "missing input joint indices");
-		NazaraAssert(skinningInfos.inputJointWeights, "missing input joint weights");
+		NazaraAssertMsg(skinningInfos.inputJointIndices, "missing input joint indices");
+		NazaraAssertMsg(skinningInfos.inputJointWeights, "missing input joint weights");
 
 		UInt32 endVertex = startVertex + vertexCount - 1;
 		if (skinningInfos.outputPositions || skinningInfos.outputNormals || skinningInfos.outputTangents)
 		{
-			NazaraAssert(skinningInfos.joints, "missing skeleton joints");
+			NazaraAssertMsg(skinningInfos.joints, "missing skeleton joints");
 
 			if (skinningInfos.outputPositions)
-				NazaraAssert(skinningInfos.inputPositions, "missing input positions");
+				NazaraAssertMsg(skinningInfos.inputPositions, "missing input positions");
 
 			if (skinningInfos.outputNormals)
-				NazaraAssert(skinningInfos.inputNormals, "missing input positions");
+				NazaraAssertMsg(skinningInfos.inputNormals, "missing input positions");
 
 			if (skinningInfos.outputTangents)
-				NazaraAssert(skinningInfos.inputTangents, "missing input positions");
+				NazaraAssertMsg(skinningInfos.inputTangents, "missing input positions");
 
 			bool hasPositions = skinningInfos.inputPositions && skinningInfos.outputPositions;
 			bool hasNormals = skinningInfos.inputNormals && skinningInfos.outputNormals;
@@ -1124,7 +1124,7 @@ namespace Nz
 
 		if (skinningInfos.outputUv)
 		{
-			NazaraAssert(skinningInfos.inputUv, "missing input uv");
+			NazaraAssertMsg(skinningInfos.inputUv, "missing input uv");
 
 			for (UInt64 i = startVertex; i <= endVertex; ++i)
 				skinningInfos.outputUv[i] = skinningInfos.inputUv[i];

@@ -12,7 +12,7 @@ namespace Nz
 	void NodeComponent::SetParent(entt::handle entity, bool keepDerived)
 	{
 		NodeComponent* nodeComponent = entity.try_get<NodeComponent>();
-		NazaraAssert(nodeComponent, "entity doesn't have a NodeComponent");
+		NazaraAssertMsg(nodeComponent, "entity doesn't have a NodeComponent");
 
 		Node::SetParent(nodeComponent, keepDerived);
 	}
@@ -23,7 +23,7 @@ namespace Nz
 		if (!skeletonComponent)
 			skeletonComponent = entity.try_get<SharedSkeletonComponent>();
 
-		NazaraAssert(skeletonComponent, "entity doesn't have a SkeletonComponent nor a SharedSkeletonComponent");
+		NazaraAssertMsg(skeletonComponent, "entity doesn't have a SkeletonComponent nor a SharedSkeletonComponent");
 
 		std::size_t jointIndex = skeletonComponent->FindJointByName(jointName);
 		if (jointIndex == Skeleton::InvalidJointIndex)
@@ -41,7 +41,7 @@ namespace Nz
 		if (!skeletonComponent)
 			skeletonComponent = entity.try_get<SharedSkeletonComponent>();
 
-		NazaraAssert(skeletonComponent, "entity doesn't have a SkeletonComponent nor a SharedSkeletonComponent");
+		NazaraAssertMsg(skeletonComponent, "entity doesn't have a SkeletonComponent nor a SharedSkeletonComponent");
 		Node::SetParent(skeletonComponent->GetAttachedJoint(jointIndex), keepDerived);
 	}
 }

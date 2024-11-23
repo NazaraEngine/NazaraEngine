@@ -203,7 +203,7 @@ namespace Nz
 	*/
 	inline Primitive& PrimitiveList::GetPrimitive(std::size_t i)
 	{
-		NazaraAssert(i < m_primitives.size(), "Primitive index out of range");
+		NazaraAssertMsg(i < m_primitives.size(), "primitive index out of range");
 
 		return m_primitives[i];
 	}
@@ -218,7 +218,7 @@ namespace Nz
 	*/
 	inline const Primitive& PrimitiveList::GetPrimitive(std::size_t i) const
 	{
-		NazaraAssert(i < m_primitives.size(), "Primitive index out of range");
+		NazaraAssertMsg(i < m_primitives.size(), "primitive index out of range");
 
 		return m_primitives[i];
 	}

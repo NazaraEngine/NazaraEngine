@@ -172,7 +172,7 @@ namespace Nz
 			const OBJParser::Mesh* meshes = parser.GetMeshes();
 			std::size_t meshCount = parser.GetMeshCount();
 
-			NazaraAssert(materials != nullptr && positions != nullptr && normals != nullptr && texCoords != nullptr && meshes != nullptr && meshCount > 0,
+			NazaraAssertMsg(materials != nullptr && positions != nullptr && normals != nullptr && texCoords != nullptr && meshes != nullptr && meshCount > 0,
 			             "Invalid OBJParser output");
 
 			// Triangulation temporary vector

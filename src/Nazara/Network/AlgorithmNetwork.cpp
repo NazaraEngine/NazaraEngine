@@ -204,8 +204,8 @@ namespace Nz
 	*/
 	bool ParseIPAddress(const char* addressPtr, UInt8 result[16], UInt16* port, bool* isIPv6, const char** endOfRead)
 	{
-		NazaraAssert(addressPtr, "Invalid address string");
-		NazaraAssert(result, "Invalid result pointer");
+		NazaraAssertMsg(addressPtr, "Invalid address string");
+		NazaraAssertMsg(result, "Invalid result pointer");
 
 		//find first colon, dot, and open bracket
 		const char* colonPtr = std::strchr(addressPtr, ':');

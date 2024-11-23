@@ -109,7 +109,7 @@ namespace Nz
 
 	UInt32 IndexMapper::Get(std::size_t i) const
 	{
-		NazaraAssert(i < m_indexCount, "Index out of range");
+		NazaraAssertMsg(i < m_indexCount, "Index out of range");
 
 		return m_getter(m_mapper.GetPointer(), i);
 	}
@@ -121,7 +121,7 @@ namespace Nz
 
 	void IndexMapper::Set(std::size_t i, UInt32 value)
 	{
-		NazaraAssert(i < m_indexCount, "Index out of range");
+		NazaraAssertMsg(i < m_indexCount, "Index out of range");
 
 		m_setter(m_mapper.GetPointer(), i, value);
 	}

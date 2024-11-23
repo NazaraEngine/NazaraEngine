@@ -115,7 +115,7 @@ namespace Nz
 
 	inline void Camera::UpdateZNear(float zNear)
 	{
-		NazaraAssert(!NumberEquals(zNear, 0.f), "zNear cannot be zero");
+		NazaraAssertMsg(!NumberEquals(zNear, 0.f), "zNear cannot be zero");
 
 		m_zNear = zNear;
 		UpdateProjectionMatrix();
@@ -244,7 +244,7 @@ namespace Nz
 
 	inline void Camera::UpdateViewport()
 	{
-		NazaraAssert(m_renderTarget, "no rendertarget!");
+		NazaraAssertMsg(m_renderTarget, "no rendertarget!");
 		return UpdateViewport(m_renderTarget->GetSize());
 	}
 

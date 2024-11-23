@@ -125,8 +125,8 @@ namespace Nz
 
 	void DummyAudioSource::QueueBuffer(std::shared_ptr<AudioBuffer> audioBuffer)
 	{
-		NazaraAssert(audioBuffer, "invalid buffer");
-		NazaraAssert(audioBuffer->IsCompatibleWith(*GetAudioDevice()), "incompatible buffer");
+		NazaraAssertMsg(audioBuffer, "invalid buffer");
+		NazaraAssertMsg(audioBuffer->IsCompatibleWith(*GetAudioDevice()), "incompatible buffer");
 
 		m_queuedBuffers.emplace_back(std::static_pointer_cast<DummyAudioBuffer>(audioBuffer));
 	}
@@ -163,7 +163,7 @@ namespace Nz
 
 	void DummyAudioSource::SetBuffer(std::shared_ptr<AudioBuffer> audioBuffer)
 	{
-		NazaraAssert(audioBuffer->IsCompatibleWith(*GetAudioDevice()), "incompatible buffer");
+		NazaraAssertMsg(audioBuffer->IsCompatibleWith(*GetAudioDevice()), "incompatible buffer");
 
 		m_queuedBuffers.clear();
 		m_queuedBuffers.emplace_back(std::static_pointer_cast<DummyAudioBuffer>(audioBuffer));

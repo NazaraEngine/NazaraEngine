@@ -42,9 +42,9 @@ namespace Nz
 	*/
 	SoundBuffer::SoundBuffer(AudioFormat format, UInt64 sampleCount, UInt32 sampleRate, const Int16* samples)
 	{
-		NazaraAssert(sampleCount > 0, "sample count must be different from zero");
-		NazaraAssert(sampleRate > 0, "sample rate must be different from zero");
-		NazaraAssert(samples, "invalid samples");
+		NazaraAssertMsg(sampleCount > 0, "sample count must be different from zero");
+		NazaraAssertMsg(sampleRate > 0, "sample rate must be different from zero");
+		NazaraAssertMsg(samples, "invalid samples");
 
 		m_duration = Time::Microseconds((1'000'000LL * sampleCount / (GetChannelCount(format) * sampleRate)));
 		m_format = format;
@@ -56,7 +56,7 @@ namespace Nz
 
 	const std::shared_ptr<AudioBuffer>& SoundBuffer::GetAudioBuffer(AudioDevice* device)
 	{
-		NazaraAssert(device, "invalid device");
+		NazaraAssertMsg(device, "invalid device");
 
 		auto it = m_audioBufferByDevice.find(device);
 		if (it == m_audioBufferByDevice.end())
@@ -104,7 +104,7 @@ namespace Nz
 	std::shared_ptr<SoundBuffer> SoundBuffer::LoadFromFile(const std::filesystem::path& filePath, const SoundBufferParams& params)
 	{
 		Audio* audio = Audio::Instance();
-		NazaraAssert(audio, "Audio module has not been initialized");
+		NazaraAssertMsg(audio, "Audio module has not been initialized");
 
 		return audio->GetSoundBufferLoader().LoadFromFile(filePath, params);
 	}
@@ -120,7 +120,7 @@ namespace Nz
 	std::shared_ptr<SoundBuffer> SoundBuffer::LoadFromMemory(const void* data, std::size_t size, const SoundBufferParams& params)
 	{
 		Audio* audio = Audio::Instance();
-		NazaraAssert(audio, "Audio module has not been initialized");
+		NazaraAssertMsg(audio, "Audio module has not been initialized");
 
 		return audio->GetSoundBufferLoader().LoadFromMemory(data, size, params);
 	}
@@ -135,7 +135,7 @@ namespace Nz
 	std::shared_ptr<SoundBuffer> SoundBuffer::LoadFromStream(Stream& stream, const SoundBufferParams& params)
 	{
 		Audio* audio = Audio::Instance();
-		NazaraAssert(audio, "Audio module has not been initialized");
+		NazaraAssertMsg(audio, "Audio module has not been initialized");
 
 		return audio->GetSoundBufferLoader().LoadFromStream(stream, params);
 	}

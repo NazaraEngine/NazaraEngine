@@ -72,7 +72,7 @@ namespace Nz
 
 	inline void SlicedSprite::SetMaterial(std::shared_ptr<MaterialInstance> material)
 	{
-		NazaraAssert(material, "invalid material");
+		NazaraAssertMsg(material, "invalid material");
 
 		if (m_material != material)
 		{

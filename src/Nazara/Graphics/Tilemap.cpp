@@ -32,9 +32,9 @@ namespace Nz
 	m_isometricModeEnabled(false),
 	m_shouldRebuildVertices(false)
 	{
-		NazaraAssert(m_tiles.size() != 0U, "invalid map size");
-		NazaraAssert(m_tileSize.x > 0 && m_tileSize.y > 0, "Invalid tile size");
-		NazaraAssert(m_layers.size() != 0U, "Invalid material count");
+		NazaraAssertMsg(m_tiles.size() != 0U, "invalid map size");
+		NazaraAssertMsg(m_tileSize.x > 0 && m_tileSize.y > 0, "Invalid tile size");
+		NazaraAssertMsg(m_layers.size() != 0U, "Invalid material count");
 
 		std::shared_ptr<MaterialInstance> defaultMaterialInstance = MaterialInstance::GetDefault(MaterialType::Basic);
 		for (auto& layer : m_layers)
@@ -92,8 +92,8 @@ namespace Nz
 
 	void Tilemap::SetMaterial(std::size_t matIndex, std::shared_ptr<MaterialInstance> material)
 	{
-		NazaraAssert(matIndex < m_layers.size(), "Material index out of bounds");
-		NazaraAssert(material, "invalid material");
+		NazaraAssertMsg(matIndex < m_layers.size(), "Material index out of bounds");
+		NazaraAssertMsg(material, "invalid material");
 
 		OnMaterialInvalidated(this, matIndex, material);
 		m_layers[matIndex].material = std::move(material);

@@ -254,7 +254,7 @@ namespace Nz
 	template<typename T>
 	constexpr Vector4<T> Matrix4<T>::GetColumn(std::size_t column) const
 	{
-		NazaraAssert(column < 4, "column index out of range");
+		NazaraAssertMsg(column < 4, "column index out of range");
 		const T* ptr = &m11 + column * 4;
 		return Vector4<T>(ptr[0], ptr[1], ptr[2], ptr[3]);
 	}
@@ -315,7 +315,7 @@ namespace Nz
 	template<typename T>
 	constexpr bool Matrix4<T>::GetInverse(Matrix4* dest) const
 	{
-		NazaraAssert(dest, "destination matrix must be valid");
+		NazaraAssertMsg(dest, "destination matrix must be valid");
 
 		T det = GetDeterminant();
 		if (det == T(0.0))
@@ -458,7 +458,7 @@ namespace Nz
 	template<typename T>
 	constexpr bool Matrix4<T>::GetInverseTransform(Matrix4* dest) const
 	{
-		NazaraAssert(dest, "destination matrix must be valid");
+		NazaraAssertMsg(dest, "destination matrix must be valid");
 
 		#ifdef NAZARA_DEBUG
 		if (!IsTransformMatrix())
@@ -601,7 +601,7 @@ namespace Nz
 	template<typename T>
 	constexpr Vector4<T> Matrix4<T>::GetRow(std::size_t row) const
 	{
-		NazaraAssert(row < 4, "row index out of range");
+		NazaraAssertMsg(row < 4, "row index out of range");
 
 		const T* ptr = &m11;
 		return Vector4<T>(ptr[row], ptr[row+4], ptr[row+8], ptr[row+12]);
@@ -926,8 +926,8 @@ namespace Nz
 	template<typename T>
 	constexpr T& Matrix4<T>::operator()(std::size_t x, std::size_t y)
 	{
-		NazaraAssert(x <= 3, "index out of range");
-		NazaraAssert(y <= 3, "index out of range");
+		NazaraAssertMsg(x <= 3, "index out of range");
+		NazaraAssertMsg(y <= 3, "index out of range");
 
 		return (&m11)[y*4 + x];
 	}
@@ -941,8 +941,8 @@ namespace Nz
 	template<typename T>
 	constexpr const T& Matrix4<T>::operator()(std::size_t x, std::size_t y) const
 	{
-		NazaraAssert(x <= 3, "index out of range");
-		NazaraAssert(y <= 3, "index out of range");
+		NazaraAssertMsg(x <= 3, "index out of range");
+		NazaraAssertMsg(y <= 3, "index out of range");
 
 		return (&m11)[y*4+x];
 	}
@@ -956,7 +956,7 @@ namespace Nz
 	template<typename T>
 	constexpr T& Matrix4<T>::operator[](std::size_t i)
 	{
-		NazaraAssert(i <= 16, "index out of range");
+		NazaraAssertMsg(i <= 16, "index out of range");
 
 		return (&m11)[i];
 	}
@@ -970,7 +970,7 @@ namespace Nz
 	template<typename T>
 	constexpr const T& Matrix4<T>::operator[](std::size_t i) const
 	{
-		NazaraAssert(i <= 16, "index out of range");
+		NazaraAssertMsg(i <= 16, "index out of range");
 
 		return (&m11)[i];
 	}

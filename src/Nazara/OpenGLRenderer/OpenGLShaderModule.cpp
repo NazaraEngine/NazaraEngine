@@ -15,14 +15,14 @@ namespace Nz
 	OpenGLShaderModule::OpenGLShaderModule(OpenGLDevice& device, nzsl::ShaderStageTypeFlags shaderStages, const nzsl::Ast::Module& shaderModule, const nzsl::ShaderWriter::States& states) :
 	m_device(device)
 	{
-		NazaraAssert(shaderStages != 0, "at least one shader stage must be specified");
+		NazaraAssertMsg(shaderStages != 0, "at least one shader stage must be specified");
 		Create(device, shaderStages, shaderModule, states);
 	}
 
 	OpenGLShaderModule::OpenGLShaderModule(OpenGLDevice& device, nzsl::ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const nzsl::ShaderWriter::States& states) :
 	m_device(device)
 	{
-		NazaraAssert(shaderStages != 0, "at least one shader stage must be specified");
+		NazaraAssertMsg(shaderStages != 0, "at least one shader stage must be specified");
 
 		switch (lang)
 		{
@@ -30,7 +30,7 @@ namespace Nz
 			{
 				for (nzsl::ShaderStageType shaderStage : shaderStages)
 				{
-					NazaraAssert(shaderStages == shaderStage, "when supplying GLSL, only one shader stage type can be specified");
+					NazaraAssertMsg(shaderStages == shaderStage, "when supplying GLSL, only one shader stage type can be specified");
 
 					auto& entry = m_shaders.emplace_back();
 					entry.shader = GlslShader{ std::string(static_cast<const char*>(source), sourceSize) };

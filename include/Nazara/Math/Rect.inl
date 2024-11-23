@@ -561,7 +561,7 @@ namespace Nz
 	template<typename T>
 	constexpr T& Rect<T>::operator[](std::size_t i)
 	{
-		NazaraAssert(i < 4, "Index out of range");
+		NazaraAssertMsg(i < 4, "index out of range");
 
 		return *(&x+i);
 	}
@@ -575,7 +575,7 @@ namespace Nz
 	template<typename T>
 	constexpr const T& Rect<T>::operator[](std::size_t i) const
 	{
-		NazaraAssert(i < 4, "Index out of range");
+		NazaraAssertMsg(i < 4, "index out of range");
 
 		return *(&x+i);
 	}

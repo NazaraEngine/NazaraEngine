@@ -33,7 +33,7 @@ namespace Nz
 	std::shared_ptr<SoundStream> SoundStream::OpenFromFile(const std::filesystem::path& filePath, const SoundStreamParams& params)
 	{
 		Audio* audio = Audio::Instance();
-		NazaraAssert(audio, "Audio module has not been initialized");
+		NazaraAssertMsg(audio, "Audio module has not been initialized");
 
 		return audio->GetSoundStreamLoader().LoadFromFile(filePath, params);
 	}
@@ -51,7 +51,7 @@ namespace Nz
 	std::shared_ptr<SoundStream> SoundStream::OpenFromMemory(const void* data, std::size_t size, const SoundStreamParams& params)
 	{
 		Audio* audio = Audio::Instance();
-		NazaraAssert(audio, "Audio module has not been initialized");
+		NazaraAssertMsg(audio, "Audio module has not been initialized");
 
 		return audio->GetSoundStreamLoader().LoadFromMemory(data, size, params);
 	}
@@ -68,7 +68,7 @@ namespace Nz
 	std::shared_ptr<SoundStream> SoundStream::OpenFromStream(Stream& stream, const SoundStreamParams& params)
 	{
 		Audio* audio = Audio::Instance();
-		NazaraAssert(audio, "Audio module has not been initialized");
+		NazaraAssertMsg(audio, "Audio module has not been initialized");
 
 		return audio->GetSoundStreamLoader().LoadFromStream(stream, params);
 	}

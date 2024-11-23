@@ -435,7 +435,7 @@ namespace
 			bool ActivateImpl() override
 			{
 				Nz::Core* core = Nz::Core::Instance();
-				NazaraAssert(core, "core module is not instancied");
+				NazaraAssertMsg(core, "core module is not instancied");
 
 				Nz::ImageStreamLoader::Entry loaderEntry;
 				loaderEntry.extensionSupport = CheckVideoExtension;
@@ -459,7 +459,7 @@ namespace
 			void DeactivateImpl() override
 			{
 				Nz::Core* core = Nz::Core::Instance();
-				NazaraAssert(core, "core module is not instanced");
+				NazaraAssertMsg(core, "core module is not instanced");
 
 				Nz::ImageStreamLoader& imageStreamLoader = core->GetImageStreamLoader();
 				imageStreamLoader.UnregisterLoader(m_ffmpegLoaderEntry);

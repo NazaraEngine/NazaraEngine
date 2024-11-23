@@ -34,7 +34,7 @@ namespace Nz::Vk
 
 	inline VkMemoryRequirements Buffer::GetMemoryRequirements() const
 	{
-		NazaraAssert(IsValid(), "Invalid buffer");
+		NazaraAssertMsg(IsValid(), "invalid buffer");
 
 		VkMemoryRequirements memoryRequirements;
 		m_device->vkGetBufferMemoryRequirements(*m_device, m_handle, &memoryRequirements);

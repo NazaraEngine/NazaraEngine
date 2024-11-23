@@ -47,7 +47,7 @@ namespace Nz
 	*/
 	inline std::string NumberToString(long long number, UInt8 radix)
 	{
-		NazaraAssert(radix >= 2 && radix <= 36, "base must be between 2 and 36");
+		NazaraAssertMsg(radix >= 2 && radix <= 36, "base must be between 2 and 36");
 
 		bool negative;
 		if (number < 0)
@@ -192,7 +192,7 @@ namespace Nz
 	*/
 	inline long long StringToNumber(std::string_view str, UInt8 radix, bool* ok)
 	{
-		NazaraAssert(radix >= 2 && radix <= 36, "base must be between 2 and 36");
+		NazaraAssertMsg(radix >= 2 && radix <= 36, "base must be between 2 and 36");
 
 		if (str.empty())
 		{

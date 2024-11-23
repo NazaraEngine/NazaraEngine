@@ -43,7 +43,7 @@ namespace Nz
 	*/
 	DynLibFunc DynLib::GetSymbol(const char* symbol) const
 	{
-		NazaraAssert(IsLoaded(), "library was not opened");
+		NazaraAssertMsg(IsLoaded(), "library was not opened");
 
 		return m_impl->GetSymbol(symbol, &m_lastError);
 	}

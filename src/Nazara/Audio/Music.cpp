@@ -56,7 +56,7 @@ namespace Nz
 	*/
 	bool Music::Create(std::shared_ptr<SoundStream> soundStream)
 	{
-		NazaraAssert(soundStream, "Invalid stream");
+		NazaraAssertMsg(soundStream, "invalid stream");
 
 		Destroy();
 
@@ -104,7 +104,7 @@ namespace Nz
 	*/
 	Time Music::GetDuration() const
 	{
-		NazaraAssert(m_stream, "Music not created");
+		NazaraAssertMsg(m_stream, "music not created");
 
 		return m_stream->GetDuration();
 	}
@@ -117,7 +117,7 @@ namespace Nz
 	*/
 	AudioFormat Music::GetFormat() const
 	{
-		NazaraAssert(m_stream, "Music not created");
+		NazaraAssertMsg(m_stream, "music not created");
 
 		return m_stream->GetFormat();
 	}
@@ -128,7 +128,7 @@ namespace Nz
 	*/
 	Time Music::GetPlayingOffset() const
 	{
-		NazaraAssert(m_stream, "Music not created");
+		NazaraAssertMsg(m_stream, "music not created");
 
 		// Prevent music thread from enqueuing new buffers while we're getting the count
 		std::lock_guard<std::recursive_mutex> lock(m_sourceLock);
@@ -160,7 +160,7 @@ namespace Nz
 	*/
 	UInt64 Music::GetSampleCount() const
 	{
-		NazaraAssert(m_stream, "Music not created");
+		NazaraAssertMsg(m_stream, "music not created");
 
 		return m_stream->GetSampleCount();
 	}
@@ -171,7 +171,7 @@ namespace Nz
 	*/
 	UInt64 Music::GetSampleOffset() const
 	{
-		NazaraAssert(m_stream, "Music not created");
+		NazaraAssertMsg(m_stream, "music not created");
 
 		if (!m_streaming)
 			return 0;
@@ -200,7 +200,7 @@ namespace Nz
 	*/
 	UInt32 Music::GetSampleRate() const
 	{
-		NazaraAssert(m_stream, "Music not created");
+		NazaraAssertMsg(m_stream, "music not created");
 
 		return m_sampleRate;
 	}
@@ -213,7 +213,7 @@ namespace Nz
 	*/
 	SoundStatus Music::GetStatus() const
 	{
-		NazaraAssert(m_stream, "Music not created");
+		NazaraAssertMsg(m_stream, "music not created");
 
 		std::lock_guard<std::recursive_mutex> lock(m_sourceLock);
 
@@ -307,7 +307,7 @@ namespace Nz
 	*/
 	void Music::Play()
 	{
-		NazaraAssert(m_stream, "Music not created");
+		NazaraAssertMsg(m_stream, "music not created");
 
 		// Maybe we are already playing
 		if (m_streaming)
@@ -352,7 +352,7 @@ namespace Nz
 	*/
 	void Music::SeekToSampleOffset(UInt64 offset)
 	{
-		NazaraAssert(m_stream, "Music not created");
+		NazaraAssertMsg(m_stream, "music not created");
 
 		bool isPlaying = m_streaming;
 		bool isPaused = GetStatus() == SoundStatus::Paused;

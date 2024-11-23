@@ -18,7 +18,7 @@ namespace Nz
 {
 	UInt64 WebRequestResult::GetDownloadedSize() const
 	{
-		NazaraAssert(HasSucceeded(), "web request failed");
+		NazaraAssertMsg(HasSucceeded(), "web request failed");
 
 #ifndef NAZARA_PLATFORM_WEB
 		auto& libcurl = m_webService.GetCurlLibrary();
@@ -35,7 +35,7 @@ namespace Nz
 	UInt64 WebRequestResult::GetDownloadSpeed() const
 	{
 #ifndef NAZARA_PLATFORM_WEB
-		NazaraAssert(HasSucceeded(), "web request failed");
+		NazaraAssertMsg(HasSucceeded(), "web request failed");
 
 		auto& libcurl = m_webService.GetCurlLibrary();
 

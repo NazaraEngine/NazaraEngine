@@ -247,7 +247,7 @@ bool IsSupported(std::string_view extension)
 
 Nz::Result<std::shared_ptr<Nz::Animation>, Nz::ResourceLoadingError> LoadAnimation(Nz::Stream& stream, const Nz::AnimationParams& parameters)
 {
-	NazaraAssert(parameters.IsValid(), "invalid animation parameters");
+	NazaraAssertMsg(parameters.IsValid(), "invalid animation parameters");
 
 	std::string streamPath = Nz::PathToString(stream.GetPath());
 
@@ -913,7 +913,7 @@ namespace
 			bool ActivateImpl() override
 			{
 				Nz::Core* core = Nz::Core::Instance();
-				NazaraAssert(core, "core module is not instancied");
+				NazaraAssertMsg(core, "core module is not instancied");
 
 				Nz::AnimationLoader::Entry animationLoaderEntry;
 				animationLoaderEntry.extensionSupport = IsSupported;
@@ -949,7 +949,7 @@ namespace
 			void DeactivateImpl() override
 			{
 				Nz::Core* core = Nz::Core::Instance();
-				NazaraAssert(core, "core module is not instanced");
+				NazaraAssertMsg(core, "core module is not instanced");
 
 				Nz::AnimationLoader& animationLoader = core->GetAnimationLoader();
 				animationLoader.UnregisterLoader(m_animationLoaderEntry);

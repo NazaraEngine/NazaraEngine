@@ -76,7 +76,7 @@ namespace Nz
 	*/
 	std::size_t Stream::Read(void* buffer, std::size_t size)
 	{
-		NazaraAssert(IsReadable(), "Stream is not readable");
+		NazaraAssertMsg(IsReadable(), "Stream is not readable");
 
 		if (m_bufferCapacity == 0)
 			return ReadBlock(buffer, size);

@@ -43,7 +43,7 @@ namespace Nz
 
 	std::shared_ptr<Texture> Texture::CreateFromImage(const Image& image, const TextureParams& params)
 	{
-		NazaraAssert(params.IsValid(), "Invalid TextureParams");
+		NazaraAssertMsg(params.IsValid(), "Invalid TextureParams");
 
 		TextureInfo texParams = BuildTextureInfo(image);
 		texParams.usageFlags = params.usageFlags;

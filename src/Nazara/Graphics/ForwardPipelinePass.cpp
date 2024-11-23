@@ -43,7 +43,7 @@ namespace Nz
 
 	void ForwardPipelinePass::Prepare(FrameData& frameData)
 	{
-		NazaraAssert(frameData.visibleLights, "visible lights must be valid");
+		NazaraAssertMsg(frameData.visibleLights, "visible lights must be valid");
 
 		if (m_lastVisibilityHash != frameData.visibilityHash || m_rebuildElements) //< FIXME
 		{

@@ -368,7 +368,7 @@ namespace Nz
 
 	void MaterialInstance::UpdateStorageBufferBinding(std::size_t storageBufferBinding, std::shared_ptr<RenderBuffer> storageBuffer)
 	{
-		NazaraAssert(storageBuffer, "invalid buffer");
+		NazaraAssertMsg(storageBuffer, "invalid buffer");
 
 		UInt64 size = storageBuffer->GetSize();
 		return UpdateStorageBufferBinding(storageBufferBinding, std::move(storageBuffer), 0, size);
@@ -376,8 +376,8 @@ namespace Nz
 
 	void MaterialInstance::UpdateStorageBufferBinding(std::size_t storageBufferBinding, std::shared_ptr<RenderBuffer> storageBuffer, UInt64 offset, UInt64 size)
 	{
-		NazaraAssert(storageBuffer, "invalid buffer");
-		NazaraAssert(storageBuffer->GetType() == Nz::BufferType::Storage, "buffer is not a storage buffer");
+		NazaraAssertMsg(storageBuffer, "invalid buffer");
+		NazaraAssertMsg(storageBuffer->GetType() == Nz::BufferType::Storage, "buffer is not a storage buffer");
 
 		assert(storageBufferBinding < m_storageBufferBindings.size());
 		auto& binding = m_storageBufferBindings[storageBufferBinding];
@@ -510,7 +510,7 @@ namespace Nz
 	std::shared_ptr<MaterialInstance> MaterialInstance::GetDefault(MaterialType materialType, MaterialInstancePreset preset)
 	{
 		Graphics* graphics = Graphics::Instance();
-		NazaraAssert(graphics, "Core module has not been initialized");
+		NazaraAssertMsg(graphics, "Core module has not been initialized");
 
 		return graphics->GetDefaultMaterials().materials[materialType].presets[preset];
 	}
@@ -518,7 +518,7 @@ namespace Nz
 	std::shared_ptr<MaterialInstance> MaterialInstance::LoadFromFile(const std::filesystem::path& filePath, const MaterialInstanceParams& params)
 	{
 		Graphics* graphics = Graphics::Instance();
-		NazaraAssert(graphics, "Core module has not been initialized");
+		NazaraAssertMsg(graphics, "Core module has not been initialized");
 
 		return graphics->GetMaterialInstanceLoader().LoadFromFile(filePath, params);
 	}
@@ -526,7 +526,7 @@ namespace Nz
 	std::shared_ptr<MaterialInstance> MaterialInstance::LoadFromMemory(const void* data, std::size_t size, const MaterialInstanceParams& params)
 	{
 		Graphics* graphics = Graphics::Instance();
-		NazaraAssert(graphics, "Core module has not been initialized");
+		NazaraAssertMsg(graphics, "Core module has not been initialized");
 
 		return graphics->GetMaterialInstanceLoader().LoadFromMemory(data, size, params);
 	}
@@ -534,7 +534,7 @@ namespace Nz
 	std::shared_ptr<MaterialInstance> MaterialInstance::LoadFromStream(Stream& stream, const MaterialInstanceParams& params)
 	{
 		Graphics* graphics = Graphics::Instance();
-		NazaraAssert(graphics, "Core module has not been initialized");
+		NazaraAssertMsg(graphics, "Core module has not been initialized");
 
 		return graphics->GetMaterialInstanceLoader().LoadFromStream(stream, params);
 	}

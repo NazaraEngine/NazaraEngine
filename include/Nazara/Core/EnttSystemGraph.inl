@@ -62,7 +62,7 @@ namespace Nz
 	template<typename T, typename... Args>
 	T& EnttSystemGraph::AddSystem(Args&&... args)
 	{
-		NazaraAssert(m_systemToNodes.find(entt::type_hash<T>()) == m_systemToNodes.end(), "this system already exists");
+		NazaraAssertMsg(m_systemToNodes.find(entt::type_hash<T>()) == m_systemToNodes.end(), "this system already exists");
 
 		constexpr bool CanUpdate = Detail::EnttSystemGraphHasUpdate<T>();
 

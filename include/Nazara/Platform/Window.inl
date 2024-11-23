@@ -51,13 +51,13 @@ namespace Nz
 
 	inline const Vector2i& Window::GetPosition() const
 	{
-		NazaraAssert(m_impl, "Window not created");
+		NazaraAssertMsg(m_impl, "Window not created");
 		return m_position;
 	}
 
 	inline const Vector2ui& Window::GetSize() const
 	{
-		NazaraAssert(m_impl, "Window not created");
+		NazaraAssertMsg(m_impl, "Window not created");
 		return m_size;
 	}
 

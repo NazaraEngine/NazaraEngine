@@ -137,7 +137,7 @@ namespace Nz
 		if (endPos > m_size)
 			size = static_cast<std::size_t>(m_size - m_pos);
 
-		NazaraAssert(buffer, "Invalid buffer");
+		NazaraAssertMsg(buffer, "Invalid buffer");
 
 		std::memcpy(&m_ptr[m_pos], buffer, size);
 

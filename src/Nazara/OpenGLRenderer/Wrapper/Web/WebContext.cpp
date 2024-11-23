@@ -81,10 +81,7 @@ namespace Nz::GL
 
 	bool WebContext::CreateInternal(EmscriptenWebGLContextAttributes config, const WebContext* shareContext)
 	{
-		if (shareContext)
-		{
-			NazaraWarning(std::string("shared contexes are not supported by WebGL but shareContext is not null"));
-		}
+		NazaraCheck(shareContext == nullptr, "shared contexes are not supported by WebGL but shareContext is not null");
 
 		struct Version
 		{

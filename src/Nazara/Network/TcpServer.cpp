@@ -34,8 +34,8 @@ namespace Nz
 
 	bool TcpServer::AcceptClient(TcpClient* newClient)
 	{
-		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Server isn't listening");
-		NazaraAssert(newClient, "Invalid client socket");
+		NazaraAssertMsg(m_handle != SocketImpl::InvalidHandle, "Server isn't listening");
+		NazaraAssertMsg(newClient, "Invalid client socket");
 
 		IpAddress clientAddress;
 		SocketHandle handle = SocketImpl::Accept(m_handle, &clientAddress, &m_lastError);
@@ -60,7 +60,7 @@ namespace Nz
 
 	SocketState TcpServer::Listen(const IpAddress& address, unsigned int queueSize)
 	{
-		NazaraAssert(address.IsValid(), "Invalid address");
+		NazaraAssertMsg(address.IsValid(), "Invalid address");
 
 		Open(address.GetProtocol());
 

@@ -43,8 +43,8 @@ namespace Nz
 		m_components.reserve(components.size());
 		for (const ComponentEntry& entry : components)
 		{
-			NazaraAssert(IsTypeSupported(entry.type), "Component type {0:#x} is not supported by vertex declarations", UnderlyingCast(entry.type));
-			NazaraAssert(entry.componentIndex == 0 || entry.component == VertexComponent::Userdata, "only userdata components can have non-zero component indexes");
+			NazaraAssertMsg(IsTypeSupported(entry.type), "Component type {0:#x} is not supported by vertex declarations", UnderlyingCast(entry.type));
+			NazaraAssertMsg(entry.componentIndex == 0 || entry.component == VertexComponent::Userdata, "only userdata components can have non-zero component indexes");
 
 			if (entry.component != VertexComponent::Unused)
 			{
@@ -112,7 +112,7 @@ namespace Nz
 				}
 			});
 
-			NazaraAssert(s_declarations[VertexLayout::XY]->GetStride() == sizeof(VertexStruct_XY), "Invalid stride for declaration VertexLayout::XY");
+			NazaraAssertMsg(s_declarations[VertexLayout::XY]->GetStride() == sizeof(VertexStruct_XY), "Invalid stride for declaration VertexLayout::XY");
 
 			s_declarations[VertexLayout::XY_Color] = NewDeclaration(VertexInputRate::Vertex, {
 				{
@@ -127,7 +127,7 @@ namespace Nz
 				},
 			});
 
-			NazaraAssert(s_declarations[VertexLayout::XY_Color]->GetStride() == sizeof(VertexStruct_XY_Color), "Invalid stride for declaration VertexLayout::XY_Color");
+			NazaraAssertMsg(s_declarations[VertexLayout::XY_Color]->GetStride() == sizeof(VertexStruct_XY_Color), "Invalid stride for declaration VertexLayout::XY_Color");
 
 			// VertexLayout::XY_UV : VertexStruct_XY_UV
 			s_declarations[VertexLayout::XY_UV] = NewDeclaration(VertexInputRate::Vertex, {
@@ -143,7 +143,7 @@ namespace Nz
 				},
 			});
 
-			NazaraAssert(s_declarations[VertexLayout::XY_UV]->GetStride() == sizeof(VertexStruct_XY_UV), "Invalid stride for declaration VertexLayout::XY_UV");
+			NazaraAssertMsg(s_declarations[VertexLayout::XY_UV]->GetStride() == sizeof(VertexStruct_XY_UV), "Invalid stride for declaration VertexLayout::XY_UV");
 
 			// VertexLayout::XYZ : VertexStruct_XYZ
 			s_declarations[VertexLayout::XYZ] = NewDeclaration(VertexInputRate::Vertex, {
@@ -154,7 +154,7 @@ namespace Nz
 				},
 			});
 
-			NazaraAssert(s_declarations[VertexLayout::XYZ]->GetStride() == sizeof(VertexStruct_XYZ), "Invalid stride for declaration VertexLayout::XYZ");
+			NazaraAssertMsg(s_declarations[VertexLayout::XYZ]->GetStride() == sizeof(VertexStruct_XYZ), "Invalid stride for declaration VertexLayout::XYZ");
 
 			// VertexLayout::XYZ_Color : VertexStruct_XYZ_Color
 			s_declarations[VertexLayout::XYZ_Color] = NewDeclaration(VertexInputRate::Vertex, {
@@ -170,7 +170,7 @@ namespace Nz
 				}
 			});
 
-			NazaraAssert(s_declarations[VertexLayout::XYZ_Color]->GetStride() == sizeof(VertexStruct_XYZ_Color), "Invalid stride for declaration VertexLayout::XYZ_Color");
+			NazaraAssertMsg(s_declarations[VertexLayout::XYZ_Color]->GetStride() == sizeof(VertexStruct_XYZ_Color), "Invalid stride for declaration VertexLayout::XYZ_Color");
 
 			// VertexLayout::XYZ_Color_UV : VertexStruct_XYZ_Color_UV
 			s_declarations[VertexLayout::XYZ_Color_UV] = NewDeclaration(VertexInputRate::Vertex, {
@@ -191,7 +191,7 @@ namespace Nz
 				},
 			});
 
-			NazaraAssert(s_declarations[VertexLayout::XYZ_Color_UV]->GetStride() == sizeof(VertexStruct_XYZ_Color_UV), "Invalid stride for declaration VertexLayout::XYZ_Color_UV");
+			NazaraAssertMsg(s_declarations[VertexLayout::XYZ_Color_UV]->GetStride() == sizeof(VertexStruct_XYZ_Color_UV), "Invalid stride for declaration VertexLayout::XYZ_Color_UV");
 
 			// VertexLayout::XYZ_Normal : VertexStruct_XYZ_Normal
 			s_declarations[VertexLayout::XYZ_Normal] = NewDeclaration(VertexInputRate::Vertex, {
@@ -207,7 +207,7 @@ namespace Nz
 				}
 			});
 
-			NazaraAssert(s_declarations[VertexLayout::XYZ_Normal]->GetStride() == sizeof(VertexStruct_XYZ_Normal), "Invalid stride for declaration VertexLayout::XYZ_Normal");
+			NazaraAssertMsg(s_declarations[VertexLayout::XYZ_Normal]->GetStride() == sizeof(VertexStruct_XYZ_Normal), "Invalid stride for declaration VertexLayout::XYZ_Normal");
 
 			// VertexLayout::XYZ_Normal_UV : VertexStruct_XYZ_Normal_UV
 			s_declarations[VertexLayout::XYZ_Normal_UV] = NewDeclaration(VertexInputRate::Vertex, {
@@ -228,7 +228,7 @@ namespace Nz
 				}
 			});
 
-			NazaraAssert(s_declarations[VertexLayout::XYZ_Normal_UV]->GetStride() == sizeof(VertexStruct_XYZ_Normal_UV), "Invalid stride for declaration VertexLayout::XYZ_Normal_UV");
+			NazaraAssertMsg(s_declarations[VertexLayout::XYZ_Normal_UV]->GetStride() == sizeof(VertexStruct_XYZ_Normal_UV), "Invalid stride for declaration VertexLayout::XYZ_Normal_UV");
 
 			// VertexLayout::XYZ_Normal_UV_Tangent : VertexStruct_XYZ_Normal_UV_Tangent
 			s_declarations[VertexLayout::XYZ_Normal_UV_Tangent] = NewDeclaration(VertexInputRate::Vertex, {
@@ -254,7 +254,7 @@ namespace Nz
 				}
 			});
 
-			NazaraAssert(s_declarations[VertexLayout::XYZ_Normal_UV_Tangent]->GetStride() == sizeof(VertexStruct_XYZ_Normal_UV_Tangent), "Invalid stride for declaration VertexLayout::XYZ_Normal_UV_Tangent");
+			NazaraAssertMsg(s_declarations[VertexLayout::XYZ_Normal_UV_Tangent]->GetStride() == sizeof(VertexStruct_XYZ_Normal_UV_Tangent), "Invalid stride for declaration VertexLayout::XYZ_Normal_UV_Tangent");
 
 			// VertexLayout::XYZ_Normal_UV_Tangent_Skinning : VertexStruct_XYZ_Normal_UV_Tangent_Skinning
 			s_declarations[VertexLayout::XYZ_Normal_UV_Tangent_Skinning] = NewDeclaration(VertexInputRate::Vertex, {
@@ -290,7 +290,7 @@ namespace Nz
 				},
 			});
 
-			NazaraAssert(s_declarations[VertexLayout::XYZ_Normal_UV_Tangent_Skinning]->GetStride() == sizeof(VertexStruct_XYZ_Normal_UV_Tangent_Skinning), "Invalid stride for declaration VertexLayout::XYZ_Normal_UV_Tangent_Skinning");
+			NazaraAssertMsg(s_declarations[VertexLayout::XYZ_Normal_UV_Tangent_Skinning]->GetStride() == sizeof(VertexStruct_XYZ_Normal_UV_Tangent_Skinning), "Invalid stride for declaration VertexLayout::XYZ_Normal_UV_Tangent_Skinning");
 
 			// VertexLayout::XYZ_SizeRot : VertexStruct_XYZ_SizeRot
 			s_declarations[VertexLayout::UV_SizeSinCos] = NewDeclaration(VertexInputRate::Vertex, {
@@ -306,7 +306,7 @@ namespace Nz
 				}
 			});
 
-			NazaraAssert(s_declarations[VertexLayout::UV_SizeSinCos]->GetStride() == sizeof(VertexStruct_UV_SizeSinCos), "Invalid stride for declaration VertexLayout::UV_SizeSinCos");
+			NazaraAssertMsg(s_declarations[VertexLayout::UV_SizeSinCos]->GetStride() == sizeof(VertexStruct_UV_SizeSinCos), "Invalid stride for declaration VertexLayout::UV_SizeSinCos");
 
 			// VertexLayout::XYZ_SizeRot_Color : VertexStruct_XYZ_SizeRot_Color
 			s_declarations[VertexLayout::UV_SizeSinCos_Color] = NewDeclaration(VertexInputRate::Vertex, {
@@ -327,7 +327,7 @@ namespace Nz
 				}
 			});
 
-			NazaraAssert(s_declarations[VertexLayout::UV_SizeSinCos_Color]->GetStride() == sizeof(VertexStruct_UV_SizeSinCos_Color), "Invalid stride for declaration VertexLayout::UV_SizeSinCos_Color");
+			NazaraAssertMsg(s_declarations[VertexLayout::UV_SizeSinCos_Color]->GetStride() == sizeof(VertexStruct_UV_SizeSinCos_Color), "Invalid stride for declaration VertexLayout::UV_SizeSinCos_Color");
 
 			// VertexLayout::XYZ_UV : VertexStruct_XYZ_UV
 			s_declarations[VertexLayout::XYZ_UV] = NewDeclaration(VertexInputRate::Vertex, {
@@ -343,7 +343,7 @@ namespace Nz
 				}
 			});
 
-			NazaraAssert(s_declarations[VertexLayout::XYZ_UV]->GetStride() == sizeof(VertexStruct_XYZ_UV), "Invalid stride for declaration VertexLayout::XYZ_UV");
+			NazaraAssertMsg(s_declarations[VertexLayout::XYZ_UV]->GetStride() == sizeof(VertexStruct_XYZ_UV), "Invalid stride for declaration VertexLayout::XYZ_UV");
 
 			// VertexLayout::Matrix4 : Matrix4f
 			s_declarations[VertexLayout::Matrix4] = NewDeclaration(VertexInputRate::Vertex, {
@@ -369,7 +369,7 @@ namespace Nz
 				}
 			});
 
-			NazaraAssert(s_declarations[VertexLayout::Matrix4]->GetStride() == sizeof(Matrix4f), "Invalid stride for declaration VertexLayout::Matrix4");
+			NazaraAssertMsg(s_declarations[VertexLayout::Matrix4]->GetStride() == sizeof(Matrix4f), "Invalid stride for declaration VertexLayout::Matrix4");
 		}
 		catch (const std::exception& e)
 		{

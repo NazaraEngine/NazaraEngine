@@ -171,8 +171,8 @@ namespace Nz
 			return true;
 		}
 
-		NazaraAssert(!IsCompressed(srcFormat), "cannot convert single pixel from compressed format");
-		NazaraAssert(!IsCompressed(dstFormat), "cannot convert single pixel to compressed format");
+		NazaraAssertMsg(!IsCompressed(srcFormat), "cannot convert single pixel from compressed format");
+		NazaraAssertMsg(!IsCompressed(dstFormat), "cannot convert single pixel to compressed format");
 
 		return Convert(srcFormat, dstFormat, src, static_cast<const UInt8*>(src) + GetBytesPerPixel(srcFormat), dst);
 	}

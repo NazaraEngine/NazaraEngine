@@ -183,7 +183,7 @@ namespace Nz::Vk
 
 	bool Instance::EnumeratePhysicalDevices(std::vector<VkPhysicalDevice>* devices) const
 	{
-		NazaraAssert(devices, "Invalid device vector");
+		NazaraAssertMsg(devices, "Invalid device vector");
 
 		// First, query physical device count
 		UInt32 deviceCount = 0; // Remember, Nz::UInt32 is a typedef on uint32_t
@@ -208,7 +208,7 @@ namespace Nz::Vk
 
 	bool Instance::GetPhysicalDeviceExtensions(VkPhysicalDevice device, std::vector<VkExtensionProperties>* extensionProperties) const
 	{
-		NazaraAssert(extensionProperties, "Invalid extension properties vector");
+		NazaraAssertMsg(extensionProperties, "Invalid extension properties vector");
 
 		// First, query extension count
 		UInt32 extensionPropertyCount = 0;
@@ -236,7 +236,7 @@ namespace Nz::Vk
 
 	bool Instance::GetPhysicalDeviceQueueFamilyProperties(VkPhysicalDevice device, std::vector<VkQueueFamilyProperties>* queueFamilyProperties) const
 	{
-		NazaraAssert(queueFamilyProperties, "Invalid family properties vector");
+		NazaraAssertMsg(queueFamilyProperties, "Invalid family properties vector");
 
 		// First, query physical device count
 		UInt32 queueFamiliesCount = 0; // Remember, Nz::UInt32 is a typedef on uint32_t
@@ -256,7 +256,7 @@ namespace Nz::Vk
 
 	void Instance::InstallDebugMessageCallback(RenderAPIValidationLevel validationLevel)
 	{
-		NazaraAssert(m_internalData, "Instance must be created before callbacks are installed");
+		NazaraAssertMsg(m_internalData, "Instance must be created before callbacks are installed");
 
 		if (Vk::DebugUtilsMessengerEXT::IsSupported(*this))
 		{

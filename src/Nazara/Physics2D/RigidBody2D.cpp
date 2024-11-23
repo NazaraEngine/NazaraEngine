@@ -23,8 +23,8 @@ namespace Nz
 	m_gravityFactor(object.m_gravityFactor),
 	m_mass(object.GetMass())
 	{
-		NazaraAssert(m_world, "Invalid world");
-		NazaraAssert(m_collider, "Invalid geometry");
+		NazaraAssertMsg(m_world, "Invalid world");
+		NazaraAssertMsg(m_collider, "Invalid geometry");
 
 		m_bodyIndex = m_world->RegisterBody(*this);
 		m_handle = cpBodyNew(m_mass, object.GetMomentOfInertia());

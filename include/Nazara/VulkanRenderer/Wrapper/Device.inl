@@ -22,7 +22,7 @@ namespace Nz::Vk
 
 	inline const Device::QueueList& Device::GetEnabledQueues(UInt32 familyQueue) const
 	{
-		NazaraAssert(familyQueue < m_enabledQueuesInfos.size(), "invalid family queue {0}", familyQueue);
+		NazaraAssertMsg(familyQueue < m_enabledQueuesInfos.size(), "invalid family queue %u", familyQueue);
 
 		return *m_queuesByFamily[familyQueue];
 	}

@@ -20,7 +20,7 @@ namespace Nz::Vk
 
 	inline VkMemoryRequirements Image::GetMemoryRequirements() const
 	{
-		NazaraAssert(IsValid(), "Invalid image");
+		NazaraAssertMsg(IsValid(), "invalid image");
 
 		VkMemoryRequirements memoryRequirements;
 		m_device->vkGetImageMemoryRequirements(*m_device, m_handle, &memoryRequirements);

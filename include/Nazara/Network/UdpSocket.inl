@@ -77,7 +77,7 @@ namespace Nz
 
 	bool UdpSocket::Create(NetProtocol protocol)
 	{
-		NazaraAssert(protocol != NetProtocol::Unknown, "Invalid protocol");
+		NazaraAssertMsg(protocol != NetProtocol::Unknown, "invalid protocol");
 
 		return Open(protocol);
 	}

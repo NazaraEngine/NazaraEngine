@@ -252,7 +252,7 @@ namespace Nz
 			}
 
 			auto it = s_formatHandlers.find(format);
-			NazaraAssert(it != s_formatHandlers.end(), "Invalid handler");
+			NazaraAssertMsg(it != s_formatHandlers.end(), "Invalid handler");
 
 			const FormatHandler& handler = it->second;
 			try

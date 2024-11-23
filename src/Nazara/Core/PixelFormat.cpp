@@ -18,7 +18,7 @@ namespace Nz
 			NazaraUnused(dst);
 			NazaraUnused(end);
 
-			NazaraInternalError("Conversion from " + std::string(PixelFormatInfo::GetName(from)) + " to " + std::string(PixelFormatInfo::GetName(to)) + " is not supported");
+			NazaraInternalError("Conversion from {0} to {1} is not supported", PixelFormatInfo::GetName(from), PixelFormatInfo::GetName(to));
 			return nullptr;
 		}
 
@@ -1403,7 +1403,7 @@ namespace Nz
 
 	bool PixelFormatInfo::Flip(PixelFlipping flipping, PixelFormat format, unsigned int width, unsigned int height, unsigned int depth, const void* src, void* dst)
 	{
-		NazaraAssert(IsValid(format), "invalid pixel format");
+		NazaraAssertMsg(IsValid(format), "invalid pixel format");
 
 		auto& flipFunction = s_flipFunctions[format][flipping];
 		if (flipFunction)
@@ -1411,7 +1411,7 @@ namespace Nz
 		else
 		{
 			// Generic flipping
-			NazaraAssert(!IsCompressed(format), "not able to flip compressed formats");
+			NazaraAssertMsg(!IsCompressed(format), "not able to flip compressed formats");
 
 			UInt8 bpp = GetBytesPerPixel(format);
 			unsigned int lineStride = width*bpp;

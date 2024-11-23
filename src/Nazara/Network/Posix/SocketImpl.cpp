@@ -28,7 +28,7 @@ namespace Nz
 {
 	SocketHandle SocketImpl::Accept(SocketHandle handle, IpAddress* address, SocketError* error)
 	{
-		NazaraAssert(handle != InvalidHandle, "Invalid handle");
+		NazaraAssertMsg(handle != InvalidHandle, "Invalid handle");
 
 		IpAddressImpl::SockAddrBuffer nameBuffer;
 		nameBuffer.fill(0);
@@ -55,8 +55,8 @@ namespace Nz
 
 	SocketState SocketImpl::Bind(SocketHandle handle, const IpAddress& address, SocketError* error)
 	{
-		NazaraAssert(handle != InvalidHandle, "Invalid handle");
-		NazaraAssert(address.IsValid(), "Invalid address");
+		NazaraAssertMsg(handle != InvalidHandle, "Invalid handle");
+		NazaraAssertMsg(address.IsValid(), "Invalid address");
 
 		IpAddressImpl::SockAddrBuffer nameBuffer;
 		int bufferLength = IpAddressImpl::ToSockAddr(address, nameBuffer.data());
@@ -77,8 +77,8 @@ namespace Nz
 
 	SocketHandle SocketImpl::Create(NetProtocol protocol, SocketType type, SocketError* error)
 	{
-		NazaraAssert(protocol != NetProtocol::Any, "Any protocol is not supported for socket creation");
-		NazaraAssert(type <= SocketType::Max, "Type has value out of enum");
+		NazaraAssertMsg(protocol != NetProtocol::Any, "Any protocol is not supported for socket creation");
+		NazaraAssertMsg(type <= SocketType::Max, "Type has value out of enum");
 
 		SocketHandle handle = socket(TranslateNetProtocolToAF(protocol), TranslateSocketTypeToSock(type), 0);
 		if (handle == InvalidHandle && error != nullptr)
@@ -89,7 +89,7 @@ namespace Nz
 
 	void SocketImpl::Close(SocketHandle handle)
 	{
-		NazaraAssert(handle != InvalidHandle, "Invalid handle");
+		NazaraAssertMsg(handle != InvalidHandle, "Invalid handle");
 
 		if (close(handle) == -1)
 			NazaraWarning("failed to close socket: {0}", Error::GetLastSystemError(errno));
@@ -97,7 +97,7 @@ namespace Nz
 
 	void SocketImpl::ClearErrorCode(SocketHandle handle)
 	{
-		NazaraAssert(handle != InvalidHandle, "Invalid handle");
+		NazaraAssertMsg(handle != InvalidHandle, "Invalid handle");
 
 		SocketError error;
 		if (GetLastError(handle, &error) != SocketError::NoError)
@@ -106,8 +106,8 @@ namespace Nz
 
 	SocketState SocketImpl::Connect(SocketHandle handle, const IpAddress& address, SocketError* error)
 	{
-		NazaraAssert(handle != InvalidHandle, "Invalid handle");
-		NazaraAssert(address.IsValid(), "Invalid address");
+		NazaraAssertMsg(handle != InvalidHandle, "Invalid handle");
+		NazaraAssertMsg(address.IsValid(), "Invalid address");
 
 		IpAddressImpl::SockAddrBuffer nameBuffer;
 		int bufferLength = IpAddressImpl::ToSockAddr(address, nameBuffer.data());
@@ -180,8 +180,8 @@ namespace Nz
 
 	SocketState SocketImpl::Listen(SocketHandle handle, const IpAddress& address, unsigned int queueSize, SocketError* error)
 	{
-		NazaraAssert(handle != InvalidHandle, "Invalid handle");
-		NazaraAssert(address.IsValid(), "Invalid address");
+		NazaraAssertMsg(handle != InvalidHandle, "Invalid handle");
+		NazaraAssertMsg(address.IsValid(), "Invalid address");
 
 		IpAddressImpl::SockAddrBuffer nameBuffer;
 		int bufferLength = IpAddressImpl::ToSockAddr(address, nameBuffer.data());
@@ -210,7 +210,7 @@ namespace Nz
 
 	std::size_t SocketImpl::QueryAvailableBytes(SocketHandle handle, SocketError* error)
 	{
-		NazaraAssert(handle != InvalidHandle, "Invalid handle");
+		NazaraAssertMsg(handle != InvalidHandle, "Invalid handle");
 
 		int availableBytes;
 		if (ioctl(handle, FIONREAD, &availableBytes) != 0)
@@ -312,7 +312,7 @@ namespace Nz
 
 	IpAddress SocketImpl::QueryPeerAddress(SocketHandle handle, SocketError* error)
 	{
-		NazaraAssert(handle != InvalidHandle, "Invalid handle");
+		NazaraAssertMsg(handle != InvalidHandle, "Invalid handle");
 
 		IpAddressImpl::SockAddrBuffer nameBuffer;
 		nameBuffer.fill(0);
@@ -354,7 +354,7 @@ namespace Nz
 
 	IpAddress SocketImpl::QuerySocketAddress(SocketHandle handle, SocketError* error)
 	{
-		NazaraAssert(handle != InvalidHandle, "Invalid handle");
+		NazaraAssertMsg(handle != InvalidHandle, "Invalid handle");
 
 		IpAddressImpl::SockAddrBuffer nameBuffer;
 		nameBuffer.fill(0);
@@ -383,7 +383,7 @@ namespace Nz
 
 	unsigned int SocketImpl::Poll(PollSocket* fdarray, std::size_t nfds, int timeout, SocketError* error)
 	{
-		NazaraAssert(fdarray && nfds > 0, "Invalid fdarray");
+		NazaraAssertMsg(fdarray && nfds > 0, "Invalid fdarray");
 
 		static_assert(sizeof(PollSocket) == sizeof(pollfd), "PollSocket size must match WSAPOLLFD size");
 
@@ -452,8 +452,8 @@ namespace Nz
 
 	bool SocketImpl::Receive(SocketHandle handle, void* buffer, int length, int* read, SocketError* error)
 	{
-		NazaraAssert(handle != InvalidHandle, "Invalid handle");
-		NazaraAssert(buffer && length > 0, "Invalid buffer");
+		NazaraAssertMsg(handle != InvalidHandle, "Invalid handle");
+		NazaraAssertMsg(buffer && length > 0, "Invalid buffer");
 
 		int byteRead = recv(handle, reinterpret_cast<char*>(buffer), length, 0);
 		if (byteRead == -1)
@@ -499,8 +499,8 @@ namespace Nz
 
 	bool SocketImpl::ReceiveFrom(SocketHandle handle, void* buffer, int length, IpAddress* from, int* read, SocketError* error)
 	{
-		NazaraAssert(handle != InvalidHandle, "Invalid handle");
-		NazaraAssert(buffer && length > 0, "Invalid buffer");
+		NazaraAssertMsg(handle != InvalidHandle, "Invalid handle");
+		NazaraAssertMsg(buffer && length > 0, "Invalid buffer");
 
 		IpAddressImpl::SockAddrBuffer nameBuffer;
 		nameBuffer.fill(0);
@@ -559,8 +559,8 @@ namespace Nz
 
 	bool SocketImpl::ReceiveMultiple(SocketHandle handle, NetBuffer* buffers, std::size_t bufferCount, IpAddress* from, int* read, SocketError* error)
 	{
-		NazaraAssert(handle != InvalidHandle, "Invalid handle");
-		NazaraAssert(buffers && bufferCount > 0, "Invalid buffers");
+		NazaraAssertMsg(handle != InvalidHandle, "Invalid handle");
+		NazaraAssertMsg(buffers && bufferCount > 0, "Invalid buffers");
 
 		StackArray<iovec> sysBuffers = NazaraStackArray(iovec, bufferCount);
 		for (std::size_t i = 0; i < bufferCount; ++i)
@@ -649,8 +649,8 @@ namespace Nz
 
 	bool SocketImpl::Send(SocketHandle handle, const void* buffer, int length, int* sent, SocketError* error)
 	{
-		NazaraAssert(handle != InvalidHandle, "Invalid handle");
-		NazaraAssert(buffer && length > 0, "Invalid buffer");
+		NazaraAssertMsg(handle != InvalidHandle, "Invalid handle");
+		NazaraAssertMsg(buffer && length > 0, "Invalid buffer");
 
 		int byteSent = send(handle, reinterpret_cast<const char*>(buffer), length, 0);
 		if (byteSent == -1)
@@ -686,8 +686,8 @@ namespace Nz
 
 	bool SocketImpl::SendMultiple(SocketHandle handle, const NetBuffer* buffers, std::size_t bufferCount, const IpAddress& to, int* sent, SocketError* error)
 	{
-		NazaraAssert(handle != InvalidHandle, "Invalid handle");
-		NazaraAssert(buffers && bufferCount > 0, "Invalid buffers");
+		NazaraAssertMsg(handle != InvalidHandle, "Invalid handle");
+		NazaraAssertMsg(buffers && bufferCount > 0, "Invalid buffers");
 
 		StackArray<iovec> sysBuffers = NazaraStackArray(iovec, bufferCount);
 		for (std::size_t i = 0; i < bufferCount; ++i)
@@ -744,8 +744,8 @@ namespace Nz
 
 	bool SocketImpl::SendTo(SocketHandle handle, const void* buffer, int length, const IpAddress& to, int* sent, SocketError* error)
 	{
-		NazaraAssert(handle != InvalidHandle, "Invalid handle");
-		NazaraAssert(buffer && length > 0, "Invalid buffer");
+		NazaraAssertMsg(handle != InvalidHandle, "Invalid handle");
+		NazaraAssertMsg(buffer && length > 0, "Invalid buffer");
 
 		IpAddressImpl::SockAddrBuffer nameBuffer;
 		int bufferLength = IpAddressImpl::ToSockAddr(to, nameBuffer.data());
@@ -784,7 +784,7 @@ namespace Nz
 
 	bool SocketImpl::SetBlocking(SocketHandle handle, bool blocking, SocketError* error)
 	{
-		NazaraAssert(handle != InvalidHandle, "Invalid handle");
+		NazaraAssertMsg(handle != InvalidHandle, "Invalid handle");
 
 		u_long block = (blocking) ? 0 : 1;
 		if (ioctl(handle, FIONBIO, &block) == -1)
@@ -803,7 +803,7 @@ namespace Nz
 
 	bool SocketImpl::SetBroadcasting(SocketHandle handle, bool broadcasting, SocketError* error)
 	{
-		NazaraAssert(handle != InvalidHandle, "Invalid handle");
+		NazaraAssertMsg(handle != InvalidHandle, "Invalid handle");
 
 		int option = broadcasting;
 		if (setsockopt(handle, SOL_SOCKET, SO_BROADCAST, reinterpret_cast<const char*>(&option), sizeof(option)) == -1)
@@ -822,7 +822,7 @@ namespace Nz
 
 	bool SocketImpl::SetIPv6Only(SocketHandle handle, bool ipv6Only, SocketError* error)
 	{
-		NazaraAssert(handle != InvalidHandle, "Invalid handle");
+		NazaraAssertMsg(handle != InvalidHandle, "Invalid handle");
 
 		int option = ipv6Only;
 		if (setsockopt(handle, IPPROTO_IPV6, IPV6_V6ONLY, reinterpret_cast<const char*>(&option), sizeof(option)) == -1)
@@ -841,7 +841,7 @@ namespace Nz
 
 	bool SocketImpl::SetKeepAlive(SocketHandle handle, bool enabled, UInt64 msTime, UInt64 msInterval, SocketError* error)
 	{
-		NazaraAssert(handle != InvalidHandle, "Invalid handle");
+		NazaraAssertMsg(handle != InvalidHandle, "Invalid handle");
 
 		int keepAlive = enabled ? 1 : 0;
 		int keepIdle = msTime / 1000; // Linux works with seconds.
@@ -879,7 +879,7 @@ namespace Nz
 
 	bool SocketImpl::SetNoDelay(SocketHandle handle, bool nodelay, SocketError* error)
 	{
-		NazaraAssert(handle != InvalidHandle, "Invalid handle");
+		NazaraAssertMsg(handle != InvalidHandle, "Invalid handle");
 
 		int option = nodelay ? 1 : 0;
 		if (setsockopt(handle, IPPROTO_TCP, TCP_NODELAY, &option, sizeof(option)) == -1)
@@ -910,7 +910,7 @@ namespace Nz
 
 	bool SocketImpl::SetReceiveBufferSize(SocketHandle handle, std::size_t size, SocketError* error)
 	{
-		NazaraAssert(handle != InvalidHandle, "Invalid handle");
+		NazaraAssertMsg(handle != InvalidHandle, "Invalid handle");
 
 		int option = static_cast<int>(size);
 		if (setsockopt(handle, SOL_SOCKET, SO_RCVBUF, reinterpret_cast<const char*>(&option), sizeof(option)) == -1)
@@ -929,7 +929,7 @@ namespace Nz
 
 	bool SocketImpl::SetSendBufferSize(SocketHandle handle, std::size_t size, SocketError* error)
 	{
-		NazaraAssert(handle != InvalidHandle, "Invalid handle");
+		NazaraAssertMsg(handle != InvalidHandle, "Invalid handle");
 
 		int option = static_cast<int>(size);
 		if (setsockopt(handle, SOL_SOCKET, SO_SNDBUF, reinterpret_cast<const char*>(&option), sizeof(option)) == -1)
@@ -1016,7 +1016,7 @@ namespace Nz
 
 	int SocketImpl::TranslateNetProtocolToAF(NetProtocol protocol)
 	{
-		NazaraAssert(protocol <= NetProtocol::Max, "Protocol has value out of enum");
+		NazaraAssertMsg(protocol <= NetProtocol::Max, "Protocol has value out of enum");
 
 		constexpr EnumArray<NetProtocol, int> addressFamily {
 			AF_UNSPEC, //< NetProtocol::Any
@@ -1030,7 +1030,7 @@ namespace Nz
 
 	int SocketImpl::TranslateSocketTypeToSock(SocketType type)
 	{
-		NazaraAssert(type <= SocketType::Max, "Socket type has value out of enum");
+		NazaraAssertMsg(type <= SocketType::Max, "Socket type has value out of enum");
 
 		constexpr EnumArray<SocketType, int> socketType {
 			SOCK_RAW,     //< SocketType::Raw

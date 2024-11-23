@@ -76,7 +76,7 @@ namespace Nz
 	*/
 	bool SocketPoller::IsReadyToRead(const AbstractSocket& socket) const
 	{
-		NazaraAssert(IsRegistered(socket), "Socket is not registered in the poller");
+		NazaraAssertMsg(IsRegistered(socket), "Socket is not registered in the poller");
 
 		return m_impl->IsReadyToRead(socket.GetNativeHandle());
 	}
@@ -97,7 +97,7 @@ namespace Nz
 	*/
 	bool SocketPoller::IsReadyToWrite(const AbstractSocket& socket) const
 	{
-		NazaraAssert(IsRegistered(socket), "Socket is not registered in the poller");
+		NazaraAssertMsg(IsRegistered(socket), "Socket is not registered in the poller");
 
 		return m_impl->IsReadyToWrite(socket.GetNativeHandle());
 	}
@@ -141,7 +141,7 @@ namespace Nz
 	*/
 	bool SocketPoller::RegisterSocket(AbstractSocket& socket, SocketPollEventFlags eventFlags)
 	{
-		NazaraAssert(!IsRegistered(socket), "This socket is already registered in this SocketPoller");
+		NazaraAssertMsg(!IsRegistered(socket), "This socket is already registered in this SocketPoller");
 
 		return m_impl->RegisterSocket(socket.GetNativeHandle(), eventFlags);
 	}
@@ -162,7 +162,7 @@ namespace Nz
 	*/
 	void SocketPoller::UnregisterSocket(AbstractSocket& socket)
 	{
-		NazaraAssert(IsRegistered(socket), "This socket is not registered in this SocketPoller");
+		NazaraAssertMsg(IsRegistered(socket), "This socket is not registered in this SocketPoller");
 
 		return m_impl->UnregisterSocket(socket.GetNativeHandle());
 	}

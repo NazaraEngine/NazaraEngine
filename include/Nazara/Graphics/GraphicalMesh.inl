@@ -72,7 +72,7 @@ namespace Nz
 
 	inline void GraphicalMesh::UpdateSubMeshIndexCount(std::size_t subMeshIndex, UInt32 indexCount)
 	{
-		NazaraAssert(subMeshIndex < m_subMeshes.size(), "invalid submesh index");
+		NazaraAssertMsg(subMeshIndex < m_subMeshes.size(), "invalid submesh index");
 		m_subMeshes[subMeshIndex].indexCount = indexCount;
 
 		OnInvalidated(this);

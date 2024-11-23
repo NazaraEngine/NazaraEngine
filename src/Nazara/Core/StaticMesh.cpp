@@ -14,7 +14,7 @@ namespace Nz
 	m_indexBuffer(std::move(indexBuffer)),
 	m_vertexBuffer(std::move(vertexBuffer))
 	{
-		NazaraAssert(m_vertexBuffer, "Invalid vertex buffer");
+		NazaraAssertMsg(m_vertexBuffer, "Invalid vertex buffer");
 	}
 
 	void StaticMesh::Center()

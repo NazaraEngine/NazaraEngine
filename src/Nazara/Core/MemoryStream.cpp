@@ -46,7 +46,7 @@ namespace Nz
 
 	void MemoryStream::SetBuffer(ByteArray* byteArray, OpenModeFlags openMode)
 	{
-		NazaraAssert(byteArray, "Invalid ByteArray");
+		NazaraAssertMsg(byteArray, "Invalid ByteArray");
 
 		m_buffer = byteArray;
 		m_openMode = openMode;
@@ -136,7 +136,7 @@ namespace Nz
 			if (endPos > m_buffer->GetSize())
 				m_buffer->Resize(endPos);
 
-			NazaraAssert(buffer, "Invalid buffer");
+			NazaraAssertMsg(buffer, "Invalid buffer");
 
 			std::memcpy(m_buffer->GetBuffer() + m_pos, buffer, size);
 

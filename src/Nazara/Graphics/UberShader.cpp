@@ -68,7 +68,7 @@ namespace Nz
 	m_shaderModule(std::move(shaderModule)),
 	m_shaderStages(shaderStages)
 	{
-		NazaraAssert(m_shaderModule, "invalid shader module");
+		NazaraAssertMsg(m_shaderModule, "invalid shader module");
 
 		try
 		{
@@ -109,7 +109,7 @@ namespace Nz
 
 	nzsl::Ast::ModulePtr UberShader::Validate(const nzsl::Ast::Module& module, std::unordered_map<std::string, Option, StringHash<>, std::equal_to<>>* options)
 	{
-		NazaraAssert(m_shaderStages != 0, "there must be at least one shader stage");
+		NazaraAssertMsg(m_shaderStages != 0, "there must be at least one shader stage");
 		assert(options);
 
 		// Try to partially sanitize shader

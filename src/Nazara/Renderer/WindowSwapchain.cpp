@@ -14,7 +14,7 @@ namespace Nz
 	m_parameters(std::move(parameters)),
 	m_renderOnlyIfFocused(false)
 	{
-		NazaraAssert(m_renderDevice, "invalid render device");
+		NazaraAssertMsg(m_renderDevice, "invalid render device");
 
 		if (m_window->IsValid())
 		{

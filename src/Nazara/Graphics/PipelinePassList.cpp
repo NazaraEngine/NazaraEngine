@@ -20,7 +20,7 @@ namespace Nz
 		auto& passRegistry = Graphics::Instance()->GetFramePipelinePassRegistry();
 
 		std::size_t passIndex = passRegistry.GetPassIndex(impl);
-		NazaraAssert(passIndex != passRegistry.InvalidIndex, "invalid pass name {0}", impl);
+		NazaraCheck(passIndex != passRegistry.InvalidIndex, "invalid pass name {0}", impl);
 
 		return AddPass(std::move(name), passIndex, std::move(parameterList));
 	}
@@ -38,7 +38,7 @@ namespace Nz
 
 	std::size_t PipelinePassList::RegisterPasses(const std::vector<std::unique_ptr<FramePipelinePass>>& passes, FrameGraph& frameGraph, std::optional<unsigned int> viewerIndex, const FunctionRef<void(std::size_t passIndex, FramePass& framePass, FramePipelinePassFlags flags)>& passCallback) const
 	{
-		NazaraAssert(m_passes.size() == passes.size(), "pass vector size doesn't match passlist size");
+		NazaraAssertMsg(m_passes.size() == passes.size(), "pass vector size doesn't match passlist size");
 
 		StackArray<std::size_t> attachmentIndices = NazaraStackArrayNoInit(std::size_t, m_attachments.size());
 		auto GetAttachmentIndex = [&](std::size_t attachmentIndex)
@@ -106,7 +106,7 @@ namespace Nz
 	std::shared_ptr<PipelinePassList> PipelinePassList::LoadFromFile(const std::filesystem::path& filePath, const PipelinePassListParams& params)
 	{
 		Graphics* graphics = Graphics::Instance();
-		NazaraAssert(graphics, "Graphics module has not been initialized");
+		NazaraAssertMsg(graphics, "Graphics module has not been initialized");
 
 		return graphics->GetPipelinePassListLoader().LoadFromFile(filePath, params);
 	}
@@ -114,7 +114,7 @@ namespace Nz
 	std::shared_ptr<PipelinePassList> PipelinePassList::LoadFromMemory(const void* data, std::size_t size, const PipelinePassListParams& params)
 	{
 		Graphics* graphics = Graphics::Instance();
-		NazaraAssert(graphics, "Graphics module has not been initialized");
+		NazaraAssertMsg(graphics, "Graphics module has not been initialized");
 
 		return graphics->GetPipelinePassListLoader().LoadFromMemory(data, size, params);
 	}
@@ -122,7 +122,7 @@ namespace Nz
 	std::shared_ptr<PipelinePassList> PipelinePassList::LoadFromStream(Stream& stream, const PipelinePassListParams& params)
 	{
 		Graphics* graphics = Graphics::Instance();
-		NazaraAssert(graphics, "Graphics module has not been initialized");
+		NazaraAssertMsg(graphics, "Graphics module has not been initialized");
 
 		return graphics->GetPipelinePassListLoader().LoadFromStream(stream, params);
 	}

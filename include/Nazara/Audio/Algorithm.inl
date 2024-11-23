@@ -19,7 +19,7 @@ namespace Nz
 	*/
 	UInt32 GetChannelCount(AudioFormat format)
 	{
-		NazaraAssert(format != AudioFormat::Unknown, "invalid audio format");
+		NazaraAssertMsg(format != AudioFormat::Unknown, "invalid audio format");
 
 		switch (format)
 		{

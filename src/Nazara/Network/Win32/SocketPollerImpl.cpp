@@ -64,7 +64,7 @@ namespace Nz
 
 	bool SocketPollerImpl::RegisterSocket(SocketHandle socket, SocketPollEventFlags eventFlags)
 	{
-		NazaraAssert(!IsRegistered(socket), "Socket is already registered");
+		NazaraAssertMsg(!IsRegistered(socket), "Socket is already registered");
 
 		#if NAZARA_NETWORK_POLL_SUPPORT
 		PollSocket entry = {
@@ -103,7 +103,7 @@ namespace Nz
 
 	void SocketPollerImpl::UnregisterSocket(SocketHandle socket)
 	{
-		NazaraAssert(IsRegistered(socket), "Socket is not registered");
+		NazaraAssertMsg(IsRegistered(socket), "Socket is not registered");
 
 		#if NAZARA_NETWORK_POLL_SUPPORT
 		if (m_sockets.size() > 1U)

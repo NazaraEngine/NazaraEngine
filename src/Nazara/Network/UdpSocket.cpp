@@ -35,8 +35,8 @@ namespace Nz
 
 	SocketState UdpSocket::Bind(const IpAddress& address)
 	{
-		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Socket hasn't been created");
-		NazaraAssert(address.IsValid(), "Invalid address");
+		NazaraAssertMsg(m_handle != SocketImpl::InvalidHandle, "Socket hasn't been created");
+		NazaraAssertMsg(address.IsValid(), "Invalid address");
 
 		SocketState state = SocketImpl::Bind(m_handle, address, &m_lastError);
 		if (state == SocketState::Bound)
@@ -56,7 +56,7 @@ namespace Nz
 
 	void UdpSocket::EnableBroadcasting(bool broadcasting)
 	{
-		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
+		NazaraAssertMsg(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
 
 		if (m_isBroadCastingEnabled != broadcasting)
 		{
@@ -74,7 +74,7 @@ namespace Nz
 
 	std::size_t UdpSocket::QueryMaxDatagramSize()
 	{
-		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Socket hasn't been created");
+		NazaraAssertMsg(m_handle != SocketImpl::InvalidHandle, "Socket hasn't been created");
 
 		return SocketImpl::QueryMaxDatagramSize(m_handle, &m_lastError);
 	}
@@ -94,8 +94,8 @@ namespace Nz
 
 	bool UdpSocket::Receive(void* buffer, std::size_t size, IpAddress* from, std::size_t* received)
 	{
-		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Socket hasn't been created");
-		NazaraAssert(buffer && size > 0, "Invalid buffer");
+		NazaraAssertMsg(m_handle != SocketImpl::InvalidHandle, "Socket hasn't been created");
+		NazaraAssertMsg(buffer && size > 0, "Invalid buffer");
 
 		int read;
 		if (!SocketImpl::ReceiveFrom(m_handle, buffer, static_cast<int>(size), from, &read, &m_lastError))
@@ -130,8 +130,8 @@ namespace Nz
 	*/
 	bool UdpSocket::ReceiveMultiple(NetBuffer* buffers, std::size_t bufferCount, IpAddress* from, std::size_t* received)
 	{
-		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Socket hasn't been created");
-		NazaraAssert(buffers && bufferCount > 0, "Invalid buffer");
+		NazaraAssertMsg(m_handle != SocketImpl::InvalidHandle, "Socket hasn't been created");
+		NazaraAssertMsg(buffers && bufferCount > 0, "Invalid buffer");
 
 		int read;
 		if (!SocketImpl::ReceiveMultiple(m_handle, buffers, bufferCount, from, &read, &m_lastError))
@@ -170,9 +170,9 @@ namespace Nz
 
 	bool UdpSocket::Send(const IpAddress& to, const void* buffer, std::size_t size, std::size_t* sent)
 	{
-		NazaraAssert(to.IsValid(), "Invalid ip address");
-		NazaraAssert(to.GetProtocol() == m_protocol, "IP Address has a different protocol than the socket");
-		NazaraAssert(buffer && size > 0, "Invalid buffer");
+		NazaraAssertMsg(to.IsValid(), "Invalid ip address");
+		NazaraAssertMsg(to.GetProtocol() == m_protocol, "IP Address has a different protocol than the socket");
+		NazaraAssertMsg(buffer && size > 0, "Invalid buffer");
 
 		int byteSent;
 		if (!SocketImpl::SendTo(m_handle, buffer, static_cast<int>(size), to, &byteSent, &m_lastError))
@@ -195,9 +195,9 @@ namespace Nz
 	*/
 	bool UdpSocket::SendMultiple(const IpAddress& to, const NetBuffer* buffers, std::size_t bufferCount, std::size_t* sent)
 	{
-		NazaraAssert(to.IsValid(), "Invalid ip address");
-		NazaraAssert(to.GetProtocol() == m_protocol, "IP Address has a different protocol than the socket");
-		NazaraAssert(buffers && bufferCount > 0, "Invalid buffer");
+		NazaraAssertMsg(to.IsValid(), "Invalid ip address");
+		NazaraAssertMsg(to.GetProtocol() == m_protocol, "IP Address has a different protocol than the socket");
+		NazaraAssertMsg(buffers && bufferCount > 0, "Invalid buffer");
 
 		int byteSent;
 		if (!SocketImpl::SendMultiple(m_handle, buffers, bufferCount, to, &byteSent, &m_lastError))

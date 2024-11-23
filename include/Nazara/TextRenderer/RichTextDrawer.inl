@@ -45,25 +45,25 @@ namespace Nz
 
 	inline auto RichTextDrawer::GetBlock(std::size_t index) -> BlockRef
 	{
-		NazaraAssert(index < m_blocks.size(), "Invalid block index");
+		NazaraAssertMsg(index < m_blocks.size(), "invalid block index");
 		return BlockRef(*this, index);
 	}
 
 	inline unsigned int RichTextDrawer::GetBlockCharacterSize(std::size_t index) const
 	{
-		NazaraAssert(index < m_blocks.size(), "Invalid block index");
+		NazaraAssertMsg(index < m_blocks.size(), "invalid block index");
 		return m_blocks[index].characterSize;
 	}
 
 	inline float RichTextDrawer::GetBlockCharacterSpacingOffset(std::size_t index) const
 	{
-		NazaraAssert(index < m_blocks.size(), "Invalid block index");
+		NazaraAssertMsg(index < m_blocks.size(), "invalid block index");
 		return m_blocks[index].characterSpacingOffset;
 	}
 
 	inline const Color& RichTextDrawer::GetBlockColor(std::size_t index) const
 	{
-		NazaraAssert(index < m_blocks.size(), "Invalid block index");
+		NazaraAssertMsg(index < m_blocks.size(), "invalid block index");
 		return m_blocks[index].color;
 	}
 
@@ -74,13 +74,13 @@ namespace Nz
 
 	inline std::size_t RichTextDrawer::GetBlockFirstGlyphIndex(std::size_t index) const
 	{
-		NazaraAssert(index < m_blocks.size(), "Invalid block index");
+		NazaraAssertMsg(index < m_blocks.size(), "invalid block index");
 		return m_blocks[index].glyphIndex;
 	}
 
 	inline const std::shared_ptr<Font>& RichTextDrawer::GetBlockFont(std::size_t index) const
 	{
-		NazaraAssert(index < m_blocks.size(), "Invalid block index");
+		NazaraAssertMsg(index < m_blocks.size(), "invalid block index");
 		std::size_t fontIndex = m_blocks[index].fontIndex;
 		assert(fontIndex < m_fonts.size());
 		return m_fonts[fontIndex].font;
@@ -88,31 +88,31 @@ namespace Nz
 
 	inline float RichTextDrawer::GetBlockLineSpacingOffset(std::size_t index) const
 	{
-		NazaraAssert(index < m_blocks.size(), "Invalid block index");
+		NazaraAssertMsg(index < m_blocks.size(), "invalid block index");
 		return m_blocks[index].lineSpacingOffset;
 	}
 
 	inline const Color& RichTextDrawer::GetBlockOutlineColor(std::size_t index) const
 	{
-		NazaraAssert(index < m_blocks.size(), "Invalid block index");
+		NazaraAssertMsg(index < m_blocks.size(), "invalid block index");
 		return m_blocks[index].outlineColor;
 	}
 
 	inline float RichTextDrawer::GetBlockOutlineThickness(std::size_t index) const
 	{
-		NazaraAssert(index < m_blocks.size(), "Invalid block index");
+		NazaraAssertMsg(index < m_blocks.size(), "invalid block index");
 		return m_blocks[index].outlineThickness;
 	}
 
 	inline TextStyleFlags RichTextDrawer::GetBlockStyle(std::size_t index) const
 	{
-		NazaraAssert(index < m_blocks.size(), "Invalid block index");
+		NazaraAssertMsg(index < m_blocks.size(), "invalid block index");
 		return m_blocks[index].style;
 	}
 
 	inline const std::string& RichTextDrawer::GetBlockText(std::size_t index) const
 	{
-		NazaraAssert(index < m_blocks.size(), "Invalid block index");
+		NazaraAssertMsg(index < m_blocks.size(), "invalid block index");
 		return m_blocks[index].text;
 	}
 
@@ -263,7 +263,7 @@ namespace Nz
 
 	inline void RichTextDrawer::SetBlockCharacterSize(std::size_t index, unsigned int characterSize)
 	{
-		NazaraAssert(index < m_blocks.size(), "Invalid block index");
+		NazaraAssertMsg(index < m_blocks.size(), "invalid block index");
 		m_blocks[index].characterSize = characterSize;
 
 		InvalidateGlyphs();
@@ -271,7 +271,7 @@ namespace Nz
 
 	inline void RichTextDrawer::SetBlockCharacterSpacingOffset(std::size_t index, float offset)
 	{
-		NazaraAssert(index < m_blocks.size(), "Invalid block index");
+		NazaraAssertMsg(index < m_blocks.size(), "invalid block index");
 		m_blocks[index].characterSpacingOffset = offset;
 
 		InvalidateGlyphs();
@@ -279,7 +279,7 @@ namespace Nz
 
 	inline void RichTextDrawer::SetBlockColor(std::size_t index, const Color& color)
 	{
-		NazaraAssert(index < m_blocks.size(), "Invalid block index");
+		NazaraAssertMsg(index < m_blocks.size(), "invalid block index");
 		m_blocks[index].color = color;
 
 		InvalidateGlyphs();
@@ -287,7 +287,7 @@ namespace Nz
 
 	inline void RichTextDrawer::SetBlockFont(std::size_t index, std::shared_ptr<Font> font)
 	{
-		NazaraAssert(index < m_blocks.size(), "Invalid block index");
+		NazaraAssertMsg(index < m_blocks.size(), "invalid block index");
 		std::size_t fontIndex = HandleFontAddition(font);
 		std::size_t oldFontIndex = m_blocks[index].fontIndex;
 
@@ -304,7 +304,7 @@ namespace Nz
 
 	inline void RichTextDrawer::SetBlockLineSpacingOffset(std::size_t index, float offset)
 	{
-		NazaraAssert(index < m_blocks.size(), "Invalid block index");
+		NazaraAssertMsg(index < m_blocks.size(), "invalid block index");
 		m_blocks[index].lineSpacingOffset = offset;
 
 		InvalidateGlyphs();
@@ -312,7 +312,7 @@ namespace Nz
 
 	inline void RichTextDrawer::SetBlockOutlineColor(std::size_t index, const Color& color)
 	{
-		NazaraAssert(index < m_blocks.size(), "Invalid block index");
+		NazaraAssertMsg(index < m_blocks.size(), "invalid block index");
 		m_blocks[index].outlineColor = color;
 
 		InvalidateGlyphs();
@@ -320,7 +320,7 @@ namespace Nz
 
 	inline void RichTextDrawer::SetBlockOutlineThickness(std::size_t index, float thickness)
 	{
-		NazaraAssert(index < m_blocks.size(), "Invalid block index");
+		NazaraAssertMsg(index < m_blocks.size(), "invalid block index");
 		m_blocks[index].outlineThickness = thickness;
 
 		InvalidateGlyphs();
@@ -328,7 +328,7 @@ namespace Nz
 
 	inline void RichTextDrawer::SetBlockStyle(std::size_t index, TextStyleFlags style)
 	{
-		NazaraAssert(index < m_blocks.size(), "Invalid block index");
+		NazaraAssertMsg(index < m_blocks.size(), "invalid block index");
 		m_blocks[index].style = style;
 
 		InvalidateGlyphs();
@@ -336,7 +336,7 @@ namespace Nz
 
 	inline void RichTextDrawer::SetBlockText(std::size_t index, std::string str)
 	{
-		NazaraAssert(index < m_blocks.size(), "Invalid block index");
+		NazaraAssertMsg(index < m_blocks.size(), "invalid block index");
 
 		std::size_t previousLength = m_blocks[index].text.size(); //< FIXME: Count Unicode glyphs
 

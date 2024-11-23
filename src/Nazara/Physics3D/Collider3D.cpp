@@ -466,10 +466,10 @@ namespace Nz
 
 	MeshCollider3D::MeshCollider3D(const Settings& meshSettings)
 	{
-		NazaraAssert(meshSettings.indexCount > 0, "index count should be positive (got {})", meshSettings.vertexCount);
-		NazaraAssert(meshSettings.indexCount % 3 == 0, "index count should be a multiple of 3 (got {})", meshSettings.indexCount);
-		NazaraAssert(meshSettings.vertexCount > 0, "vertex count should be positive (got {})", meshSettings.vertexCount);
-		NazaraAssert(meshSettings.vertices != nullptr, "invalid vertices", meshSettings.vertexCount);
+		NazaraAssertMsg(meshSettings.indexCount > 0, "index count should be positive (got %u)", meshSettings.vertexCount);
+		NazaraAssertMsg(meshSettings.indexCount % 3 == 0, "index count should be a multiple of 3 (got %u)", meshSettings.indexCount);
+		NazaraAssertMsg(meshSettings.vertexCount > 0, "vertex count should be positive (got %u)", meshSettings.vertexCount);
+		NazaraAssertMsg(meshSettings.vertices != nullptr, "invalid vertices", meshSettings.vertexCount);
 
 		std::unique_ptr<JPH::MeshShapeSettings> settings = std::make_unique<JPH::MeshShapeSettings>();
 		settings->mTriangleVertices.resize(meshSettings.vertexCount);

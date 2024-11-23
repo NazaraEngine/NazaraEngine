@@ -39,7 +39,7 @@ namespace Nz
 				case SDL_BUTTON_X1:     return Mouse::XButton1;
 				case SDL_BUTTON_X2:     return Mouse::XButton2;
 				default:
-					NazaraAssert(false, "Unkown mouse button");
+					NazaraAssertMsg(false, "Unkown mouse button");
 					return Mouse::Left;
 			}
 		}

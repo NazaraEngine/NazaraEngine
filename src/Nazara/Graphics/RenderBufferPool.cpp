@@ -61,7 +61,7 @@ namespace Nz
 
 	void RenderBufferPool::Free(std::size_t index)
 	{
-		NazaraAssert(!m_availableEntries.Test(index), "index is not a currently active buffer");
+		NazaraAssertMsg(!m_availableEntries.Test(index), "index is not a currently active buffer");
 
 		m_availableEntries.Set(index, true);
 	}

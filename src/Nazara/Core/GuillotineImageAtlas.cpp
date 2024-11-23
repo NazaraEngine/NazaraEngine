@@ -17,7 +17,7 @@ namespace Nz
 	{
 		for (std::size_t i = 0; i < count; ++i)
 		{
-			NazaraAssert(layers[i] < m_layers.size(), "Rectangle #{0} belongs to an out-of-bounds layer ({1} >= {2})", i, layers[i], m_layers.size());
+			NazaraAssertMsg(layers[i] < m_layers.size(), "Rectangle #%zu belongs to an out-of-bounds layer (%zu >= %zu)", i, layers[i], m_layers.size());
 
 			m_layers[layers[i]].binPack.FreeRectangle(rects[i]);
 			m_layers[layers[i]].freedRectangles++;
@@ -26,7 +26,7 @@ namespace Nz
 
 	AbstractImage* GuillotineImageAtlas::GetLayer(std::size_t layerIndex) const
 	{
-		NazaraAssert(layerIndex < m_layers.size(), "layer index out of range ({0} >= {1})", layerIndex, m_layers.size());
+		NazaraAssertMsg(layerIndex < m_layers.size(), "layer index out of range (%zu >= %zu)", layerIndex, m_layers.size());
 
 		Layer& layer = m_layers[layerIndex];
 		ProcessGlyphQueue(layer);
@@ -46,7 +46,7 @@ namespace Nz
 
 	bool GuillotineImageAtlas::Insert(const Image& image, Rectui* rect, bool* flipped, std::size_t* layerIndex)
 	{
-		NazaraAssert(layerIndex || m_layers.size() <= 1, "invalid layerIndex on a multi-layer atlas");
+		NazaraAssertMsg(layerIndex || m_layers.size() <= 1, "invalid layerIndex on a multi-layer atlas");
 
 		// Ensure there's at least one layer before inserting
 		if (m_layers.empty())
@@ -213,7 +213,7 @@ namespace Nz
 
 				// Rotate the glyph
 				const UInt8* src = glyph.image.GetConstPixels();
-				NazaraAssert(src, "glyph image has no pixels");
+				NazaraAssertMsg(src, "glyph image has no pixels");
 				UInt8* ptr = pixelBuffer.data();
 
 				unsigned int lineStride = glyphWidth * PixelFormatInfo::GetBytesPerPixel(m_pixelFormat);
@@ -235,7 +235,7 @@ namespace Nz
 			else
 			{
 				pixels = glyph.image.GetConstPixels();
-				NazaraAssert(pixels, "glyph image has no pixels");
+				NazaraAssertMsg(pixels, "glyph image has no pixels");
 			}
 
 			layer.image->Update(pixels, Rectui(glyph.rect.x + paddingX, glyph.rect.y + paddingY, glyphWidth, glyphHeight), 0, glyphWidth, glyphHeight);

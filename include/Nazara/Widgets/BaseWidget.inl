@@ -52,7 +52,7 @@ namespace Nz
 
 	inline void BaseWidget::Center()
 	{
-		NazaraAssert(m_parentWidget, "Widget has no parent");
+		NazaraAssertMsg(m_parentWidget, "Widget has no parent");
 
 		Vector2f parentSize = m_parentWidget->GetSize();
 		Vector2f mySize = GetSize();
@@ -61,7 +61,7 @@ namespace Nz
 
 	inline void BaseWidget::CenterHorizontal()
 	{
-		NazaraAssert(m_parentWidget, "Widget has no parent");
+		NazaraAssertMsg(m_parentWidget, "Widget has no parent");
 
 		Vector2f parentSize = m_parentWidget->GetSize();
 		Vector2f mySize = GetSize();
@@ -70,7 +70,7 @@ namespace Nz
 
 	inline void BaseWidget::CenterVertical()
 	{
-		NazaraAssert(m_parentWidget, "Widget has no parent");
+		NazaraAssertMsg(m_parentWidget, "Widget has no parent");
 
 		Vector2f parentSize = m_parentWidget->GetSize();
 		Vector2f mySize = GetSize();

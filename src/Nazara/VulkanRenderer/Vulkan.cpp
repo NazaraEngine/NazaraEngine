@@ -129,7 +129,7 @@ namespace Nz
 
 	bool Vulkan::Initialize(UInt32 targetApiVersion, RenderAPIValidationLevel validationLevel, const ParameterList& parameters)
 	{
-		NazaraAssert(!IsInitialized(), "Vulkan is already initialized");
+		NazaraAssertMsg(!IsInitialized(), "Vulkan is already initialized");
 
 		// Initialize module here
 		if (!Vk::Loader::Initialize())

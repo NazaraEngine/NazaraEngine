@@ -9,7 +9,7 @@ namespace Nz
 {
 	inline void LinearSlicedSprite::AddSection(float size, float textureCoord)
 	{
-		NazaraAssert(m_sectionCount < m_sections.size(), "too many sections");
+		NazaraAssertMsg(m_sectionCount < m_sections.size(), "too many sections");
 
 		auto& section = m_sections[m_sectionCount++];
 		section.size = size;
@@ -42,7 +42,7 @@ namespace Nz
 
 	inline auto LinearSlicedSprite::GetSection(std::size_t sectionIndex) const -> const Section&
 	{
-		NazaraAssert(sectionIndex < m_sectionCount, "section index ouf of range ({0} >= {1})", sectionIndex, m_sectionCount);
+		NazaraAssertMsg(sectionIndex < m_sectionCount, "section index ouf of range (%zu >= %zu)", sectionIndex, m_sectionCount);
 		return m_sections[sectionIndex];
 	}
 
@@ -70,7 +70,7 @@ namespace Nz
 
 	inline void LinearSlicedSprite::RemoveSection(std::size_t sectionIndex)
 	{
-		NazaraAssert(sectionIndex < m_sectionCount, "section index ouf of range ({0} >= {1})", sectionIndex, m_sectionCount);
+		NazaraAssertMsg(sectionIndex < m_sectionCount, "section index ouf of range (%zu >= %zu)", sectionIndex, m_sectionCount);
 		if (m_sectionCount >= sectionIndex + 1)
 			std::move(m_sections.begin() + sectionIndex + 1, m_sections.begin() + m_sectionCount, m_sections.begin() + sectionIndex);
 
@@ -101,7 +101,7 @@ namespace Nz
 
 	inline void LinearSlicedSprite::SetSection(std::size_t sectionIndex, float size, float textureCoord)
 	{
-		NazaraAssert(sectionIndex < m_sectionCount, "section index ouf of range ({0} >= {1})", sectionIndex, m_sectionCount);
+		NazaraAssertMsg(sectionIndex < m_sectionCount, "section index ouf of range (%zu >= %zu)", sectionIndex, m_sectionCount);
 
 		auto& section = m_sections[sectionIndex];
 		section.size = size;
@@ -112,7 +112,7 @@ namespace Nz
 
 	inline void LinearSlicedSprite::SetSectionSize(std::size_t sectionIndex, float size)
 	{
-		NazaraAssert(sectionIndex < m_sectionCount, "section index ouf of range ({0} >= {1})", sectionIndex, m_sectionCount);
+		NazaraAssertMsg(sectionIndex < m_sectionCount, "section index ouf of range (%zu >= %zu)", sectionIndex, m_sectionCount);
 
 		auto& section = m_sections[sectionIndex];
 		section.size = size;
@@ -122,7 +122,7 @@ namespace Nz
 
 	inline void LinearSlicedSprite::SetSectionTextureCoord(std::size_t sectionIndex, float textureCoord)
 	{
-		NazaraAssert(sectionIndex < m_sectionCount, "section index ouf of range ({0} >= {1})", sectionIndex, m_sectionCount);
+		NazaraAssertMsg(sectionIndex < m_sectionCount, "section index ouf of range (%zu >= %zu)", sectionIndex, m_sectionCount);
 
 		auto& section = m_sections[sectionIndex];
 		section.textureCoord = textureCoord;
@@ -132,7 +132,7 @@ namespace Nz
 
 	inline void LinearSlicedSprite::SetSize(float size)
 	{
-		NazaraAssert(size >= 0.f, "size must be positive (got {0})", size);
+		NazaraAssertMsg(size >= 0.f, "size must be positive (got %f)", size);
 
 		m_size = size;
 

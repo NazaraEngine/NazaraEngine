@@ -164,7 +164,7 @@ namespace Nz
 	template<typename T>
 	std::enable_if_t<std::is_arithmetic<T>::value, bool> Deserialize(SerializationContext& context, T* value, TypeTag<T>)
 	{
-		NazaraAssert(value, "Invalid data pointer");
+		NazaraAssertMsg(value, "invalid data pointer");
 
 		context.ResetReadBitPosition();
 

@@ -68,12 +68,12 @@ namespace Nz
 		if (ns >= 0)
 		{
 			timestamp += ns;
-			NazaraAssert(timestamp >= m_nanoseconds, "timestamp overflow detected");
+			NazaraAssertMsg(timestamp >= m_nanoseconds, "timestamp overflow detected");
 		}
 		else
 		{
 			timestamp += ns;
-			NazaraAssert(timestamp < m_nanoseconds, "timestamp underflow detected");
+			NazaraAssertMsg(timestamp < m_nanoseconds, "timestamp underflow detected");
 		}
 
 		m_nanoseconds = timestamp;
@@ -87,12 +87,12 @@ namespace Nz
 		if (ns >= 0)
 		{
 			timestamp -= ns;
-			NazaraAssert(timestamp < m_nanoseconds, "timestamp underflow detected");
+			NazaraAssertMsg(timestamp < m_nanoseconds, "timestamp underflow detected");
 		}
 		else
 		{
 			timestamp -= ns;
-			NazaraAssert(timestamp >= m_nanoseconds, "timestamp overflow detected");
+			NazaraAssertMsg(timestamp >= m_nanoseconds, "timestamp overflow detected");
 		}
 
 		m_nanoseconds = timestamp;

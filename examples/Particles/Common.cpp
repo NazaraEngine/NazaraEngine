@@ -62,7 +62,7 @@ void ParticleDemo::RegisterEntity(const Ndk::EntityHandle& entity)
 
 void ParticleDemo::RegisterParticleGroup(const Ndk::EntityHandle& entity)
 {
-	NazaraAssert(entity->HasComponent<Ndk::ParticleGroupComponent>(), "Must have particle group component");
+	NazaraAssertMsg(entity->HasComponent<Ndk::ParticleGroupComponent>(), "Must have particle group component");
 
 	m_particleGroups.emplace_back(entity);
 }

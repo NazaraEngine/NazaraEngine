@@ -39,60 +39,60 @@ namespace Nz
 		switch (m_textureInfo.type)
 		{
 			case ImageType::E1D:
-				NazaraAssert(m_textureInfo.width > 0, "Width must be over zero");
-				NazaraAssert(m_textureInfo.height == 1, "Height must be one");
-				NazaraAssert(m_textureInfo.depth == 1, "Depth must be one");
-				NazaraAssert(m_textureInfo.layerCount == 1, "Array count must be one");
+				NazaraAssertMsg(m_textureInfo.width > 0, "Width must be over zero");
+				NazaraAssertMsg(m_textureInfo.height == 1, "Height must be one");
+				NazaraAssertMsg(m_textureInfo.depth == 1, "Depth must be one");
+				NazaraAssertMsg(m_textureInfo.layerCount == 1, "Array count must be one");
 
 				createInfo.imageType = VK_IMAGE_TYPE_1D;
 				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_1D;
 				break;
 
 			case ImageType::E1D_Array:
-				NazaraAssert(m_textureInfo.width > 0, "Width must be over zero");
-				NazaraAssert(m_textureInfo.height == 1, "Height must be one");
-				NazaraAssert(m_textureInfo.depth == 1, "Depth must be one");
-				NazaraAssert(m_textureInfo.layerCount > 0, "Array count must be over zero");
+				NazaraAssertMsg(m_textureInfo.width > 0, "Width must be over zero");
+				NazaraAssertMsg(m_textureInfo.height == 1, "Height must be one");
+				NazaraAssertMsg(m_textureInfo.depth == 1, "Depth must be one");
+				NazaraAssertMsg(m_textureInfo.layerCount > 0, "Array count must be over zero");
 
 				createInfo.imageType = VK_IMAGE_TYPE_1D;
 				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_1D_ARRAY;
 				break;
 
 			case ImageType::E2D:
-				NazaraAssert(m_textureInfo.width > 0, "Width must be over zero");
-				NazaraAssert(m_textureInfo.height > 0, "Height must be over zero");
-				NazaraAssert(m_textureInfo.depth == 1, "Depth must be one");
-				NazaraAssert(m_textureInfo.layerCount == 1, "Array count must be one");
+				NazaraAssertMsg(m_textureInfo.width > 0, "Width must be over zero");
+				NazaraAssertMsg(m_textureInfo.height > 0, "Height must be over zero");
+				NazaraAssertMsg(m_textureInfo.depth == 1, "Depth must be one");
+				NazaraAssertMsg(m_textureInfo.layerCount == 1, "Array count must be one");
 
 				createInfo.imageType = VK_IMAGE_TYPE_2D;
 				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_2D;
 				break;
 
 			case ImageType::E2D_Array:
-				NazaraAssert(m_textureInfo.width > 0, "Width must be over zero");
-				NazaraAssert(m_textureInfo.height > 0, "Height must be over zero");
-				NazaraAssert(m_textureInfo.depth == 1, "Depth must be one");
-				NazaraAssert(m_textureInfo.layerCount > 0, "Array count must be over zero");
+				NazaraAssertMsg(m_textureInfo.width > 0, "Width must be over zero");
+				NazaraAssertMsg(m_textureInfo.height > 0, "Height must be over zero");
+				NazaraAssertMsg(m_textureInfo.depth == 1, "Depth must be one");
+				NazaraAssertMsg(m_textureInfo.layerCount > 0, "Array count must be over zero");
 
 				createInfo.imageType = VK_IMAGE_TYPE_2D;
 				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
 				break;
 
 			case ImageType::E3D:
-				NazaraAssert(m_textureInfo.width > 0, "Width must be over zero");
-				NazaraAssert(m_textureInfo.height > 0, "Height must be over zero");
-				NazaraAssert(m_textureInfo.depth > 0, "Depth must be over zero");
-				NazaraAssert(m_textureInfo.layerCount == 1, "Array count must be one");
+				NazaraAssertMsg(m_textureInfo.width > 0, "Width must be over zero");
+				NazaraAssertMsg(m_textureInfo.height > 0, "Height must be over zero");
+				NazaraAssertMsg(m_textureInfo.depth > 0, "Depth must be over zero");
+				NazaraAssertMsg(m_textureInfo.layerCount == 1, "Array count must be one");
 
 				createInfo.imageType = VK_IMAGE_TYPE_3D;
 				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_3D;
 				break;
 
 			case ImageType::Cubemap:
-				NazaraAssert(m_textureInfo.width > 0, "Width must be over zero");
-				NazaraAssert(m_textureInfo.height > 0, "Height must be over zero");
-				NazaraAssert(m_textureInfo.depth == 1, "Depth must be one");
-				NazaraAssert(m_textureInfo.layerCount > 0 && m_textureInfo.layerCount % 6 == 0, "Array count must be a multiple of 6");
+				NazaraAssertMsg(m_textureInfo.width > 0, "Width must be over zero");
+				NazaraAssertMsg(m_textureInfo.height > 0, "Height must be over zero");
+				NazaraAssertMsg(m_textureInfo.depth == 1, "Depth must be one");
+				NazaraAssertMsg(m_textureInfo.layerCount > 0 && m_textureInfo.layerCount % 6 == 0, "Array count must be a multiple of 6");
 
 				createInfo.flags |= VK_IMAGE_CREATE_CUBE_COMPATIBLE_BIT;
 				createInfo.imageType = VK_IMAGE_TYPE_2D;
@@ -136,7 +136,7 @@ namespace Nz
 	VulkanTexture::VulkanTexture(VulkanDevice& device, const TextureInfo& textureInfo, const void* initialData, bool buildMipmaps, unsigned int srcWidth, unsigned int srcHeight) :
 	VulkanTexture(device, textureInfo)
 	{
-		NazaraAssert(initialData, "missing initial data");
+		NazaraAssertMsg(initialData, "missing initial data");
 
 		Vk::AutoCommandBuffer initCommandBuffer = m_device.AllocateCommandBuffer(QueueType::Graphics);
 		if (!initCommandBuffer->Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT))
@@ -215,8 +215,8 @@ namespace Nz
 	{
 		m_textureViewInfo = ApplyView(m_parentTexture->m_textureViewInfo, viewInfo);
 
-		NazaraAssert(viewInfo.layerCount <= m_parentTexture->m_textureViewInfo.layerCount - viewInfo.baseArrayLayer, "layer count exceeds number of layers");
-		NazaraAssert(viewInfo.levelCount <= m_parentTexture->m_textureViewInfo.levelCount - viewInfo.baseMipLevel, "level count exceeds number of levels");
+		NazaraAssertMsg(viewInfo.layerCount <= m_parentTexture->m_textureViewInfo.layerCount - viewInfo.baseArrayLayer, "layer count exceeds number of layers");
+		NazaraAssertMsg(viewInfo.levelCount <= m_parentTexture->m_textureViewInfo.levelCount - viewInfo.baseMipLevel, "level count exceeds number of levels");
 
 		m_viewInfo = viewInfo;
 		m_subresourceRange = {
@@ -235,55 +235,55 @@ namespace Nz
 		switch (m_textureViewInfo.type)
 		{
 			case ImageType::E1D:
-				NazaraAssert(m_textureViewInfo.width > 0, "Width must be over zero");
-				NazaraAssert(m_textureViewInfo.height == 1, "Height must be one");
-				NazaraAssert(m_textureViewInfo.depth == 1, "Depth must be one");
-				NazaraAssert(m_textureViewInfo.layerCount == 1, "Array count must be one");
+				NazaraAssertMsg(m_textureViewInfo.width > 0, "Width must be over zero");
+				NazaraAssertMsg(m_textureViewInfo.height == 1, "Height must be one");
+				NazaraAssertMsg(m_textureViewInfo.depth == 1, "Depth must be one");
+				NazaraAssertMsg(m_textureViewInfo.layerCount == 1, "Array count must be one");
 
 				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_1D;
 				break;
 
 			case ImageType::E1D_Array:
-				NazaraAssert(m_textureViewInfo.width > 0, "Width must be over zero");
-				NazaraAssert(m_textureViewInfo.height == 1, "Height must be one");
-				NazaraAssert(m_textureViewInfo.depth == 1, "Depth must be one");
-				NazaraAssert(m_textureViewInfo.layerCount > 0, "Array count must be over zero");
+				NazaraAssertMsg(m_textureViewInfo.width > 0, "Width must be over zero");
+				NazaraAssertMsg(m_textureViewInfo.height == 1, "Height must be one");
+				NazaraAssertMsg(m_textureViewInfo.depth == 1, "Depth must be one");
+				NazaraAssertMsg(m_textureViewInfo.layerCount > 0, "Array count must be over zero");
 
 				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_1D_ARRAY;
 				break;
 
 			case ImageType::E2D:
-				NazaraAssert(m_textureViewInfo.width > 0, "Width must be over zero");
-				NazaraAssert(m_textureViewInfo.height > 0, "Height must be over zero");
-				NazaraAssert(m_textureViewInfo.depth == 1, "Depth must be one");
-				NazaraAssert(m_textureViewInfo.layerCount == 1, "Array count must be one");
+				NazaraAssertMsg(m_textureViewInfo.width > 0, "Width must be over zero");
+				NazaraAssertMsg(m_textureViewInfo.height > 0, "Height must be over zero");
+				NazaraAssertMsg(m_textureViewInfo.depth == 1, "Depth must be one");
+				NazaraAssertMsg(m_textureViewInfo.layerCount == 1, "Array count must be one");
 
 				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_2D;
 				break;
 
 			case ImageType::E2D_Array:
-				NazaraAssert(m_textureViewInfo.width > 0, "Width must be over zero");
-				NazaraAssert(m_textureViewInfo.height > 0, "Height must be over zero");
-				NazaraAssert(m_textureViewInfo.depth == 1, "Depth must be one");
-				NazaraAssert(m_textureViewInfo.layerCount > 0, "Array count must be over zero");
+				NazaraAssertMsg(m_textureViewInfo.width > 0, "Width must be over zero");
+				NazaraAssertMsg(m_textureViewInfo.height > 0, "Height must be over zero");
+				NazaraAssertMsg(m_textureViewInfo.depth == 1, "Depth must be one");
+				NazaraAssertMsg(m_textureViewInfo.layerCount > 0, "Array count must be over zero");
 
 				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_2D_ARRAY;
 				break;
 
 			case ImageType::E3D:
-				NazaraAssert(m_textureViewInfo.width > 0, "Width must be over zero");
-				NazaraAssert(m_textureViewInfo.height > 0, "Height must be over zero");
-				NazaraAssert(m_textureViewInfo.depth > 0, "Depth must be over zero");
-				NazaraAssert(m_textureViewInfo.layerCount == 1, "Array count must be one");
+				NazaraAssertMsg(m_textureViewInfo.width > 0, "Width must be over zero");
+				NazaraAssertMsg(m_textureViewInfo.height > 0, "Height must be over zero");
+				NazaraAssertMsg(m_textureViewInfo.depth > 0, "Depth must be over zero");
+				NazaraAssertMsg(m_textureViewInfo.layerCount == 1, "Array count must be one");
 
 				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_3D;
 				break;
 
 			case ImageType::Cubemap:
-				NazaraAssert(m_textureViewInfo.width > 0, "Width must be over zero");
-				NazaraAssert(m_textureViewInfo.height > 0, "Height must be over zero");
-				NazaraAssert(m_textureViewInfo.depth == 1, "Depth must be one");
-				NazaraAssert(m_textureViewInfo.layerCount > 0 && m_textureViewInfo.layerCount % 6 == 0, "Array count must be a multiple of 6");
+				NazaraAssertMsg(m_textureViewInfo.width > 0, "Width must be over zero");
+				NazaraAssertMsg(m_textureViewInfo.height > 0, "Height must be over zero");
+				NazaraAssertMsg(m_textureViewInfo.depth == 1, "Depth must be one");
+				NazaraAssertMsg(m_textureViewInfo.layerCount > 0 && m_textureViewInfo.layerCount % 6 == 0, "Array count must be a multiple of 6");
 
 				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_CUBE;
 				break;
@@ -350,8 +350,8 @@ namespace Nz
 		if (m_parentTexture)
 		{
 			assert(m_viewInfo);
-			NazaraAssert(viewInfo.layerCount <= m_viewInfo->layerCount - viewInfo.baseArrayLayer, "layer count exceeds number of layers");
-			NazaraAssert(viewInfo.levelCount <= m_viewInfo->levelCount - viewInfo.baseMipLevel, "level count exceeds number of levels");
+			NazaraAssertMsg(viewInfo.layerCount <= m_viewInfo->layerCount - viewInfo.baseArrayLayer, "layer count exceeds number of layers");
+			NazaraAssertMsg(viewInfo.levelCount <= m_viewInfo->levelCount - viewInfo.baseMipLevel, "level count exceeds number of levels");
 
 			TextureViewInfo ajustedView = viewInfo;
 			ajustedView.baseArrayLayer += m_viewInfo->baseArrayLayer;

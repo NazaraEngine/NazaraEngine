@@ -69,7 +69,7 @@ namespace Nz
 
 	inline bool Physics2DSystem::RaycastQuery(const Vector2f& from, const Vector2f& to, float radius, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, std::vector<RaycastHit>* hitInfos)
 	{
-		NazaraAssert(hitInfos, "invalid output pointer");
+		NazaraAssertMsg(hitInfos, "invalid output pointer");
 
 		std::size_t originalSize = hitInfos->size();
 
@@ -107,7 +107,7 @@ namespace Nz
 
 	inline void Physics2DSystem::RegionQuery(const Rectf& boundingBox, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, std::vector<entt::handle>* bodies)
 	{
-		NazaraAssert(bodies, "invalid output pointer");
+		NazaraAssertMsg(bodies, "invalid output pointer");
 
 		return m_physWorld.RegionQuery(boundingBox, collisionGroup, categoryMask, collisionMask, [&](RigidBody2D* body)
 		{

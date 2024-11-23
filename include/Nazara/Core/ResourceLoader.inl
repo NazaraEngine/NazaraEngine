@@ -36,7 +36,7 @@ namespace Nz
 	template<typename Type, typename Parameters>
 	bool ResourceLoader<Type, Parameters>::IsExtensionSupported(std::string_view extension) const
 	{
-		NazaraAssert(extension.size() >= 2 || extension.front() != '.', "extension should start with a .");
+		NazaraAssertMsg(extension.size() >= 2 || extension.front() != '.', "extension should start with a .");
 
 		for (auto& loaderPtr : m_loaders)
 		{
@@ -61,7 +61,7 @@ namespace Nz
 	template<typename Type, typename Parameters>
 	std::shared_ptr<Type> ResourceLoader<Type, Parameters>::LoadFromFile(const std::filesystem::path& filePath, const Parameters& parameters) const
 	{
-		NazaraAssert(parameters.IsValid(), "invalid parameters");
+		NazaraAssertMsg(parameters.IsValid(), "invalid parameters");
 
 		std::string ext = ToLower(PathToString(filePath.extension()));
 		if (ext.empty())
@@ -139,9 +139,9 @@ namespace Nz
 	template<typename Type, typename Parameters>
 	std::shared_ptr<Type> ResourceLoader<Type, Parameters>::LoadFromMemory(const void* data, std::size_t size, const Parameters& parameters) const
 	{
-		NazaraAssert(data, "invalid data pointer");
-		NazaraAssert(size, "no data to load");
-		NazaraAssert(parameters.IsValid(), "invalid parameters");
+		NazaraAssertMsg(data, "invalid data pointer");
+		NazaraAssertMsg(size, "no data to load");
+		NazaraAssertMsg(parameters.IsValid(), "invalid parameters");
 
 		MemoryView stream(data, size);
 
@@ -196,8 +196,8 @@ namespace Nz
 	template<typename Type, typename Parameters>
 	std::shared_ptr<Type> ResourceLoader<Type, Parameters>::LoadFromStream(Stream& stream, const Parameters& parameters) const
 	{
-		NazaraAssert(stream.GetCursorPos() < stream.GetSize(), "no data to load");
-		NazaraAssert(parameters.IsValid(), "invalid parameters");
+		NazaraAssertMsg(stream.GetCursorPos() < stream.GetSize(), "no data to load");
+		NazaraAssertMsg(parameters.IsValid(), "invalid parameters");
 
 		// Retrieve extension from stream (if any)
 		std::string ext = ToLower(PathToString(stream.GetPath().extension()));
@@ -252,7 +252,7 @@ namespace Nz
 	template<typename Type, typename Parameters>
 	auto ResourceLoader<Type, Parameters>::RegisterLoader(Entry loader) -> const Entry*
 	{
-		NazaraAssert(loader.fileLoader || loader.memoryLoader || loader.streamLoader, "A loader function is mandatory");
+		NazaraAssertMsg(loader.fileLoader || loader.memoryLoader || loader.streamLoader, "A loader function is mandatory");
 
 		auto it = m_loaders.emplace(m_loaders.begin(), std::make_unique<Entry>(std::move(loader)));
 		return it->get();

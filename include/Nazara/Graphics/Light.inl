@@ -59,7 +59,7 @@ namespace Nz
 		if (m_shadowMapFormat != format)
 		{
 			[[maybe_unused]] PixelFormatContent content = PixelFormatInfo::GetContent(format);
-			NazaraAssert(content != PixelFormatContent::Depth && content != PixelFormatContent::DepthStencil, "invalid shadow map format (has no depth)");
+			NazaraAssertMsg(content != PixelFormatContent::Depth && content != PixelFormatContent::DepthStencil, "invalid shadow map format (has no depth)");
 
 			OnLightShadowMapSettingChange(this, format, m_shadowMapSize);
 			m_shadowMapFormat = format;
@@ -70,9 +70,9 @@ namespace Nz
 	{
 		if (m_shadowMapFormat != format || m_shadowMapSize != size)
 		{
-			NazaraAssert(size > 0, "invalid shadow map size");
+			NazaraAssertMsg(size > 0, "invalid shadow map size");
 			[[maybe_unused]] PixelFormatContent content = PixelFormatInfo::GetContent(format);
-			NazaraAssert(content != PixelFormatContent::Depth && content != PixelFormatContent::DepthStencil, "invalid shadow map format (has no depth)");
+			NazaraAssertMsg(content != PixelFormatContent::Depth && content != PixelFormatContent::DepthStencil, "invalid shadow map format (has no depth)");
 
 			OnLightShadowMapSettingChange(this, format, size);
 			m_shadowMapFormat = format;
@@ -84,7 +84,7 @@ namespace Nz
 	{
 		if (m_shadowMapSize != size)
 		{
-			NazaraAssert(size > 0, "invalid shadow map size");
+			NazaraAssertMsg(size > 0, "invalid shadow map size");
 
 			OnLightShadowMapSettingChange(this, m_shadowMapFormat, size);
 			m_shadowMapSize = size;

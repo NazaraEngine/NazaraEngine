@@ -83,8 +83,8 @@ namespace Nz
 
 	ENetPeer* ENetHost::Connect(const IpAddress& remoteAddress, std::size_t channelCount, UInt32 data)
 	{
-		NazaraAssert(remoteAddress.IsValid(), "Invalid remote address");
-		NazaraAssert(remoteAddress.GetPort() != 0, "Remote address has no port");
+		NazaraAssertMsg(remoteAddress.IsValid(), "Invalid remote address");
+		NazaraAssertMsg(remoteAddress.GetPort() != 0, "Remote address has no port");
 
 		std::size_t peerId;
 		for (peerId = 0; peerId < m_peers.size(); ++peerId)
@@ -163,7 +163,7 @@ namespace Nz
 
 	bool ENetHost::Create(const IpAddress& listenAddress, std::size_t peerCount, std::size_t channelCount, UInt32 incomingBandwidth, UInt32 outgoingBandwidth)
 	{
-		NazaraAssert(listenAddress.IsValid(), "Invalid listening address");
+		NazaraAssertMsg(listenAddress.IsValid(), "Invalid listening address");
 
 		if (peerCount > ENetConstants::ENetProtocol_MaximumPeerId)
 		{
@@ -311,7 +311,7 @@ namespace Nz
 
 	void ENetHost::SimulateNetwork(double packetLossProbability, UInt16 minDelay, UInt16 maxDelay)
 	{
-		NazaraAssert(maxDelay >= minDelay, "Maximum delay cannot be greater than minimum delay");
+		NazaraAssertMsg(maxDelay >= minDelay, "Maximum delay cannot be greater than minimum delay");
 
 		if (packetLossProbability <= 0.0 && minDelay == 0 && maxDelay == 0)
 			m_isSimulationEnabled = false;

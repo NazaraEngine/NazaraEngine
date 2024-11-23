@@ -267,8 +267,8 @@ namespace Nz
 		if (!CheckFileOpening())
 			return false;
 
-		NazaraAssert(IsOpen(), "file is not open");
-		NazaraAssert(IsWritable(), "file is not writable");
+		NazaraAssertMsg(IsOpen(), "file is not open");
+		NazaraAssertMsg(IsWritable(), "file is not writable");
 
 		return m_impl->SetSize(size);
 	}
@@ -316,7 +316,7 @@ namespace Nz
 	/*!
 	* \brief Flushes the stream
 	*
-	* \remark Produces a NazaraAssert if file is not open
+	* \remark Produces a NazaraAssertMsg if file is not open
 	*/
 
 	void File::FlushStream()
@@ -324,7 +324,7 @@ namespace Nz
 		if (!IsOpen() && m_openMode.Test(OpenMode::Defer))
 			return;
 
-		NazaraAssert(IsOpen(), "File is not open");
+		NazaraAssertMsg(IsOpen(), "File is not open");
 
 		m_impl->Flush();
 	}
@@ -336,7 +336,7 @@ namespace Nz
 	* \param buffer Preallocated buffer to contain information read
 	* \param size Size of the read and thus of the buffer
 	*
-	* \remark Produces a NazaraAssert if file is not open
+	* \remark Produces a NazaraAssertMsg if file is not open
 	*/
 
 	std::size_t File::ReadBlock(void* buffer, std::size_t size)
@@ -344,7 +344,7 @@ namespace Nz
 		if (!CheckFileOpening())
 			return false;
 
-		NazaraAssert(IsOpen(), "File is not open");
+		NazaraAssertMsg(IsOpen(), "File is not open");
 
 		if (size == 0)
 			return 0;
@@ -368,7 +368,7 @@ namespace Nz
 	*
 	* \param offset Offset according to the cursor begin position
 	*
-	* \remark Produces a NazaraAssert if file is not open
+	* \remark Produces a NazaraAssertMsg if file is not open
 	*/
 
 	bool File::SeekStreamCursor(UInt64 offset)
@@ -376,7 +376,7 @@ namespace Nz
 		if (!CheckFileOpening())
 			return false;
 
-		NazaraAssert(IsOpen(), "File is not open");
+		NazaraAssertMsg(IsOpen(), "File is not open");
 
 		return m_impl->SetCursorPos(CursorPosition::AtBegin, offset);
 	}
@@ -385,14 +385,14 @@ namespace Nz
 	* \brief Gets the position of the cursor in the file
 	* \return Position of the cursor
 	*
-	* \remark Produces a NazaraAssert if file is not open
+	* \remark Produces a NazaraAssertMsg if file is not open
 	*/
 	UInt64 File::TellStreamCursor() const
 	{
 		if (!IsOpen() && m_openMode.Test(OpenMode::Defer))
 			return 0;
 
-		NazaraAssert(IsOpen(), "File is not open");
+		NazaraAssertMsg(IsOpen(), "File is not open");
 
 		return m_impl->GetCursorPos();
 	}
@@ -408,7 +408,7 @@ namespace Nz
 		if (!IsOpen() && m_openMode.Test(OpenMode::Defer))
 			return false;
 
-		NazaraAssert(IsOpen(), "File is not open");
+		NazaraAssertMsg(IsOpen(), "File is not open");
 
 		return m_impl->EndOfFile();
 	}
@@ -420,20 +420,20 @@ namespace Nz
 	* \param buffer Preallocated buffer containing information to write
 	* \param size Size of the writting and thus of the buffer
 	*
-	* \remark Produces a NazaraAssert if file is not open
-	* \remark Produces a NazaraAssert if buffer is nullptr
+	* \remark Produces a NazaraAssertMsg if file is not open
+	* \remark Produces a NazaraAssertMsg if buffer is nullptr
 	*/
 	std::size_t File::WriteBlock(const void* buffer, std::size_t size)
 	{
 		if (!CheckFileOpening())
 			return false;
 
-		NazaraAssert(IsOpen(), "File is not open");
+		NazaraAssertMsg(IsOpen(), "File is not open");
 
 		if (size == 0)
 			return 0;
 
-		NazaraAssert(buffer, "Invalid buffer");
+		NazaraAssertMsg(buffer, "Invalid buffer");
 
 		return m_impl->Write(buffer, size);
 	}
@@ -445,7 +445,7 @@ namespace Nz
 	* \param hash Hash to append data of the file
 	* \param originalFile Path of the file
 	*
-	* \remark Produces a NazaraAssert if hash is nullptr
+	* \remark Produces a NazaraAssertMsg if hash is nullptr
 	* \remark Produces a NazaraError if file could not be open
 	* \remark Produces a NazaraError if file could not be read
 	*/

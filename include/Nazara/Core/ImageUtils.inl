@@ -24,12 +24,12 @@ namespace Nz::ImageUtils
 				break;
 
 			case ImageType::E1D:
-				NazaraAssert(baseLayer == 0, "out of bounds");
-				NazaraAssert(layerCount <= 1, "out of bounds");
+				NazaraAssertMsg(baseLayer == 0, "out of bounds");
+				NazaraAssertMsg(layerCount <= 1, "out of bounds");
 				[[fallthrough]];
 			case ImageType::E2D:
-				NazaraAssert(baseLayer == 0, "out of bounds");
-				NazaraAssert(layerCount <= 1, "out of bounds");
+				NazaraAssertMsg(baseLayer == 0, "out of bounds");
+				NazaraAssertMsg(layerCount <= 1, "out of bounds");
 				[[fallthrough]];
 			case ImageType::E3D:
 				region.z = 0;
@@ -40,9 +40,9 @@ namespace Nz::ImageUtils
 
 	inline void Copy(UInt8* destination, const UInt8* source, PixelFormat format, UInt32 width, UInt32 height, UInt32 depth, UInt32 dstWidth, UInt32 dstHeight, UInt32 srcWidth, UInt32 srcHeight)
 	{
-		NazaraAssert(width > 0, "width must be greater than zero");
-		NazaraAssert(height > 0, "height must be greater than zero");
-		NazaraAssert(depth > 0, "depth must be greater than zero");
+		NazaraAssertMsg(width > 0, "width must be greater than zero");
+		NazaraAssertMsg(height > 0, "height must be greater than zero");
+		NazaraAssertMsg(depth > 0, "depth must be greater than zero");
 
 		if (dstWidth == 0)
 			dstWidth = width;
@@ -185,12 +185,12 @@ namespace Nz::ImageUtils
 				break;
 
 			case ImageType::E1D:
-				NazaraAssert(region.y == 0, "out of bounds");
-				NazaraAssert(region.height <= 1, "out of bounds");
+				NazaraAssertMsg(region.y == 0, "out of bounds");
+				NazaraAssertMsg(region.height <= 1, "out of bounds");
 				[[fallthrough]];
 			case ImageType::E2D:
-				NazaraAssert(region.z == 0, "out of bounds");
-				NazaraAssert(region.depth <= 1, "out of bounds");
+				NazaraAssertMsg(region.z == 0, "out of bounds");
+				NazaraAssertMsg(region.depth <= 1, "out of bounds");
 				[[fallthrough]];
 			case ImageType::E3D:
 				baseLayer = 0;

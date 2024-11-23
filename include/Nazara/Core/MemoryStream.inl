@@ -37,7 +37,7 @@ namespace Nz
 	*/
 	inline ByteArray& MemoryStream::GetBuffer()
 	{
-		NazaraAssert(m_buffer, "Invalid buffer");
+		NazaraAssertMsg(m_buffer, "invalid buffer");
 
 		return *m_buffer;
 	}
@@ -50,7 +50,7 @@ namespace Nz
 	*/
 	inline const ByteArray& MemoryStream::GetBuffer() const
 	{
-		NazaraAssert(m_buffer, "Invalid buffer");
+		NazaraAssertMsg(m_buffer, "invalid buffer");
 
 		return *m_buffer;
 	}

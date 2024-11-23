@@ -26,7 +26,7 @@ namespace Nz
 	std::shared_ptr<ImageStream> ImageStream::OpenFromFile(const std::filesystem::path& filePath, const ImageStreamParams& params)
 	{
 		Core* core = Core::Instance();
-		NazaraAssert(core, "Core module has not been initialized");
+		NazaraAssertMsg(core, "Core module has not been initialized");
 
 		return core->GetImageStreamLoader().LoadFromFile(filePath, params);
 	}
@@ -44,7 +44,7 @@ namespace Nz
 	std::shared_ptr<ImageStream> ImageStream::OpenFromMemory(const void* data, std::size_t size, const ImageStreamParams& params)
 	{
 		Core* core = Core::Instance();
-		NazaraAssert(core, "Core module has not been initialized");
+		NazaraAssertMsg(core, "Core module has not been initialized");
 
 		return core->GetImageStreamLoader().LoadFromMemory(data, size, params);
 	}
@@ -61,7 +61,7 @@ namespace Nz
 	std::shared_ptr<ImageStream> ImageStream::OpenFromStream(Stream& stream, const ImageStreamParams& params)
 	{
 		Core* core = Core::Instance();
-		NazaraAssert(core, "Core module has not been initialized");
+		NazaraAssertMsg(core, "Core module has not been initialized");
 
 		return core->GetImageStreamLoader().LoadFromStream(stream, params);
 	}

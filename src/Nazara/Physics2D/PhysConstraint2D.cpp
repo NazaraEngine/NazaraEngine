@@ -44,13 +44,13 @@ namespace Nz
 
 	RigidBody2D& PhysConstraint2D::GetBodyB()
 	{
-		NazaraAssert(!IsSingleBody(), "constraint is not attached to a second body");
+		NazaraAssertMsg(!IsSingleBody(), "constraint is not attached to a second body");
 		return *static_cast<RigidBody2D*>(cpBodyGetUserData(cpConstraintGetBodyB(m_constraint)));
 	}
 
 	const RigidBody2D& PhysConstraint2D::GetBodyB() const
 	{
-		NazaraAssert(!IsSingleBody(), "constraint is not attached to a second body");
+		NazaraAssertMsg(!IsSingleBody(), "constraint is not attached to a second body");
 		return *static_cast<RigidBody2D*>(cpBodyGetUserData(cpConstraintGetBodyB(m_constraint)));
 	}
 

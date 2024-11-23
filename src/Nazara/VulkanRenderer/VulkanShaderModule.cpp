@@ -94,7 +94,7 @@ namespace Nz
 
 			case ShaderLanguage::SpirV:
 			{
-				NazaraAssert(sourceSize % sizeof(UInt32) == 0, "sourceSize must be a multiple of sizeof(UInt32), got {0}", sourceSize);
+				NazaraAssertMsg(sourceSize % sizeof(UInt32) == 0, "sourceSize must be a multiple of 4, got %u", sourceSize);
 
 				SpirvEntryPointExtractor extractor;
 				extractor.Decode(static_cast<const UInt32*>(source), sourceSize / sizeof(UInt32));

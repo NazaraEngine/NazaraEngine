@@ -263,7 +263,7 @@ namespace Nz
 		QueueHandle Device::GetQueue(UInt32 queueFamilyIndex, UInt32 queueIndex)
 		{
 			const auto& queues = GetEnabledQueues(queueFamilyIndex);
-			NazaraAssert(queueIndex < queues.size(), "Invalid queue index");
+			NazaraAssertMsg(queueIndex < queues.size(), "Invalid queue index");
 
 			return QueueHandle(*this, queues[queueIndex].queue, queueFamilyIndex);
 		}

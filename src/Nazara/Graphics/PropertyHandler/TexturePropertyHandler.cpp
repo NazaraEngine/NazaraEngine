@@ -47,7 +47,7 @@ namespace Nz
 			{
 				if (IsPrimitiveType(optionData->type) && std::get<nzsl::Ast::PrimitiveType>(optionData->type) == nzsl::Ast::PrimitiveType::Boolean)
 				{
-					NazaraAssert(optionData->hash != 0, "unexpected option hash");
+					NazaraAssertMsg(optionData->hash != 0, "unexpected option hash");
 					m_optionHash = optionData->hash;
 				}
 				else

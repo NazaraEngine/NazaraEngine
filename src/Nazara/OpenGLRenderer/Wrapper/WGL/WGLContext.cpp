@@ -46,7 +46,7 @@ namespace Nz::GL
 
 	bool WGLContext::Create(const WGLContext* baseContext, const ContextParams& params, WindowHandle window, const WGLContext* shareContext)
 	{
-		NazaraAssert(window.type == WindowBackend::Windows, "expected Windows window");
+		NazaraAssertMsg(window.type == WindowBackend::Windows, "expected Windows window");
 
 		Destroy();
 
