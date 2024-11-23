@@ -338,7 +338,7 @@ namespace Nz
 
 	void VulkanSwapchain::Present(UInt32 imageIndex, VkSemaphore waitSemaphore)
 	{
-		NazaraAssert(imageIndex < m_inflightFences.size(), "Invalid image index");
+		NazaraAssertMsg(imageIndex < m_inflightFences.size(), "Invalid image index");
 
 		m_currentFrame = (m_currentFrame + 1) % m_inflightFences.size();
 
@@ -370,7 +370,7 @@ namespace Nz
 
 	void VulkanSwapchain::SetPresentMode(PresentMode presentMode)
 	{
-		NazaraAssert(m_supportedPresentModes & presentMode, "unsupported present mode");
+		NazaraAssertMsg(m_supportedPresentModes & presentMode, "unsupported present mode");
 
 		if (m_presentMode != presentMode)
 		{
@@ -527,7 +527,7 @@ namespace Nz
 		bool success = false;
 #if defined(NAZARA_PLATFORM_WINDOWS)
 		{
-			NazaraAssert(windowHandle.type == WindowBackend::Windows, "expected Windows window");
+			NazaraAssertMsg(windowHandle.type == WindowBackend::Windows, "expected Windows window");
 
 			HWND winHandle = static_cast<HWND>(windowHandle.windows.window);
 			HINSTANCE instance = reinterpret_cast<HINSTANCE>(GetWindowLongPtrW(winHandle, GWLP_HINSTANCE));
@@ -569,7 +569,7 @@ namespace Nz
 		}
 #elif defined(NAZARA_PLATFORM_MACOS)
 		{
-			NazaraAssert(windowHandle.type == WindowBackend::Cocoa, "expected cocoa window");
+			NazaraAssertMsg(windowHandle.type == WindowBackend::Cocoa, "expected cocoa window");
 			id layer = CreateAndAttachMetalLayer(windowHandle.cocoa.window);
 			success = m_surface.Create(layer);
 		}

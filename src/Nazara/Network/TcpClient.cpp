@@ -37,8 +37,8 @@ namespace Nz
 
 	SocketState TcpClient::Connect(const IpAddress& remoteAddress)
 	{
-		NazaraAssert(remoteAddress.IsValid(), "Invalid remote address");
-		NazaraAssert(remoteAddress.GetPort() != 0, "Remote address has no port");
+		NazaraAssertMsg(remoteAddress.IsValid(), "Invalid remote address");
+		NazaraAssertMsg(remoteAddress.GetPort() != 0, "Remote address has no port");
 
 		Disconnect();
 		Open(remoteAddress.GetProtocol());
@@ -161,7 +161,7 @@ namespace Nz
 		{
 			case SocketState::Connecting:
 			{
-				NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
+				NazaraAssertMsg(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
 
 				SocketState newState = SocketImpl::PollConnection(m_handle, m_peerAddress, waitDuration, &m_lastError);
 
@@ -203,8 +203,8 @@ namespace Nz
 
 	bool TcpClient::Receive(void* buffer, std::size_t size, std::size_t* received)
 	{
-		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
-		NazaraAssert(buffer && size > 0, "Invalid buffer");
+		NazaraAssertMsg(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
+		NazaraAssertMsg(buffer && size > 0, "Invalid buffer");
 
 		int read;
 		if (!SocketImpl::Receive(m_handle, buffer, static_cast<int>(size), &read, &m_lastError))
@@ -244,8 +244,8 @@ namespace Nz
 	*/
 	bool TcpClient::Send(const void* buffer, std::size_t size, std::size_t* sent)
 	{
-		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
-		NazaraAssert(buffer && size > 0, "Invalid buffer");
+		NazaraAssertMsg(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
+		NazaraAssertMsg(buffer && size > 0, "Invalid buffer");
 
 		std::size_t totalByteSent = 0;
 
@@ -294,7 +294,7 @@ namespace Nz
 	*/
 	bool TcpClient::SendMultiple(const NetBuffer* buffers, std::size_t bufferCount, std::size_t* sent)
 	{
-		NazaraAssert(buffers && bufferCount > 0, "Invalid buffer");
+		NazaraAssertMsg(buffers && bufferCount > 0, "Invalid buffer");
 
 		int byteSent;
 		if (!SocketImpl::SendMultiple(m_handle, buffers, bufferCount, m_peerAddress, &byteSent, &m_lastError))
@@ -341,7 +341,7 @@ namespace Nz
 		{
 			case SocketState::Connecting:
 			{
-				NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
+				NazaraAssertMsg(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
 
 				SocketState newState = SocketImpl::PollConnection(m_handle, m_peerAddress, (msTimeout > 0) ? msTimeout : std::numeric_limits<UInt64>::max(), &m_lastError);
 
@@ -427,7 +427,7 @@ namespace Nz
 
 	std::size_t TcpClient::ReadBlock(void* buffer, std::size_t size)
 	{
-		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
+		NazaraAssertMsg(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
 
 		CallOnExit restoreBlocking([this] { SocketImpl::SetBlocking(m_handle, true); });
 		if (m_isBlockingEnabled)
@@ -504,8 +504,8 @@ namespace Nz
 	*/
 	std::size_t TcpClient::WriteBlock(const void* buffer, std::size_t size)
 	{
-		NazaraAssert(buffer, "Invalid buffer");
-		NazaraAssert(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
+		NazaraAssertMsg(buffer, "Invalid buffer");
+		NazaraAssertMsg(m_handle != SocketImpl::InvalidHandle, "Invalid handle");
 
 		CallOnExit restoreBlocking([this] { SocketImpl::SetBlocking(m_handle, true); });
 		if (m_isBlockingEnabled)

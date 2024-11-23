@@ -13,8 +13,8 @@ namespace Nz
 	m_buffer(std::move(buffer)),
 	m_startOffset(0)
 	{
-		NazaraAssert(m_buffer, "invalid buffer");
-		NazaraAssert(m_buffer->GetType() == BufferType::Uniform, "buffer must be an uniform buffer");
+		NazaraAssertMsg(m_buffer, "invalid buffer");
+		NazaraAssertMsg(m_buffer->GetType() == BufferType::Uniform, "buffer must be an uniform buffer");
 
 		m_endOffset = m_buffer->GetSize();
 	}
@@ -30,31 +30,31 @@ namespace Nz
 	m_endOffset(size),
 	m_startOffset(0)
 	{
-		NazaraAssert(size > 0, "invalid size");
+		NazaraAssertMsg(size > 0, "invalid size");
 
 		m_buffer = bufferFactory(BufferType::Uniform, size, usage, initialData);
 	}
 
 	bool UniformBuffer::Fill(const void* data, UInt64 offset, UInt64 size)
 	{
-		NazaraAssert(m_buffer, "Invalid buffer");
-		NazaraAssert(m_startOffset + offset + size <= m_endOffset, "Exceeding virtual buffer size");
+		NazaraAssertMsg(m_buffer, "Invalid buffer");
+		NazaraAssertMsg(m_startOffset + offset + size <= m_endOffset, "Exceeding virtual buffer size");
 
 		return m_buffer->Fill(data, m_startOffset + offset, size);
 	}
 
 	void* UniformBuffer::Map(UInt64 offset, UInt64 size)
 	{
-		NazaraAssert(m_buffer, "Invalid buffer");
-		NazaraAssert(m_startOffset + offset + size <= m_endOffset, "Exceeding virtual buffer size");
+		NazaraAssertMsg(m_buffer, "Invalid buffer");
+		NazaraAssertMsg(m_startOffset + offset + size <= m_endOffset, "Exceeding virtual buffer size");
 
 		return m_buffer->Map(m_startOffset + offset, size);
 	}
 
 	void* UniformBuffer::Map(UInt64 offset, UInt64 size) const
 	{
-		NazaraAssert(m_buffer, "Invalid buffer");
-		NazaraAssert(m_startOffset + offset + size <= m_endOffset, "Exceeding virtual buffer size");
+		NazaraAssertMsg(m_buffer, "Invalid buffer");
+		NazaraAssertMsg(m_startOffset + offset + size <= m_endOffset, "Exceeding virtual buffer size");
 
 		return m_buffer->Map(m_startOffset + offset, size);
 	}

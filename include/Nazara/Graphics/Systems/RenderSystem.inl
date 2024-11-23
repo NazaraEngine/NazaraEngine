@@ -14,7 +14,7 @@ namespace Nz
 	inline void RenderSystem::DetachExternalSwapchain(WindowSwapchain& swapchain)
 	{
 		auto it = std::find_if(m_externalSwapchains.begin(), m_externalSwapchains.end(), [&](WindowSwapchain& externalSwapchain) { return &externalSwapchain == &swapchain; });
-		NazaraAssert(it != m_externalSwapchains.end(), "external swapchain is not part of this render system");
+		NazaraAssertMsg(it != m_externalSwapchains.end(), "external swapchain is not part of this render system");
 		m_externalSwapchains.erase(it);
 	}
 

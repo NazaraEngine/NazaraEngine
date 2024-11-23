@@ -444,7 +444,7 @@ namespace Nz
 	{
 		bool InitializeFreeType()
 		{
-			NazaraAssert(!s_freetypeLibraryOwner, "double initialization for FreeType");
+			NazaraAssertMsg(!s_freetypeLibraryOwner, "double initialization for FreeType");
 			if (FT_Init_FreeType(&s_freetypeLibrary) != 0)
 			{
 				NazaraWarning("failed to initialize FreeType library");
@@ -457,7 +457,7 @@ namespace Nz
 
 		FontLoader::Entry GetFontLoader_FreeType()
 		{
-			NazaraAssert(s_freetypeLibraryOwner, "FreeType has not been initialized");
+			NazaraAssertMsg(s_freetypeLibraryOwner, "FreeType has not been initialized");
 
 			FontLoader::Entry loader;
 			loader.extensionSupport = IsFreetypeSupported;

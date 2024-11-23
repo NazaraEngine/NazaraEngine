@@ -29,7 +29,7 @@ namespace Nz
 		if (const ShaderReflection::OptionData* optionData = reflection.GetOptionByName(m_optionName))
 		{
 			// TODO: Check if option type matches property type
-			NazaraAssert(optionData->hash != 0, "unexpected option hash");
+			NazaraAssertMsg(optionData->hash != 0, "unexpected option hash");
 			m_optionHash = optionData->hash;
 			m_propertyIndex = propertyIndex;
 		}

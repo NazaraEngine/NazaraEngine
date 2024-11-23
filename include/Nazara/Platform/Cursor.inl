@@ -7,7 +7,7 @@ namespace Nz
 {
 	inline SystemCursor Cursor::GetSystemCursor() const
 	{
-		NazaraAssert(IsValid(), "Invalid cursor");
+		NazaraAssertMsg(IsValid(), "Invalid cursor");
 
 		return m_systemCursor;
 	}

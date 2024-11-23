@@ -76,7 +76,7 @@ namespace Nz
 	OpenGLTexture::OpenGLTexture(OpenGLDevice& device, const TextureInfo& textureInfo, const void* initialData, bool buildMipmaps, unsigned int srcWidth, unsigned int srcHeight) :
 	OpenGLTexture(device, textureInfo)
 	{
-		NazaraAssert(initialData, "missing initial data");
+		NazaraAssertMsg(initialData, "missing initial data");
 
 		Boxui wholeRegion(0, 0, 0, m_textureInfo.width, m_textureInfo.height, m_textureInfo.depth);
 		ImageUtils::ArrayToRegion(m_textureInfo.type, 0, m_textureInfo.layerCount, wholeRegion);
@@ -91,8 +91,8 @@ namespace Nz
 	{
 		const GL::Context& context = m_parentTexture->m_texture.EnsureDeviceContext();
 
-		NazaraAssert(viewInfo.layerCount <= m_parentTexture->m_textureInfo.layerCount - viewInfo.baseArrayLayer, "layer count exceeds number of layers");
-		NazaraAssert(viewInfo.levelCount <= m_parentTexture->m_textureInfo.levelCount - viewInfo.baseMipLevel, "level count exceeds number of levels");
+		NazaraAssertMsg(viewInfo.layerCount <= m_parentTexture->m_textureInfo.layerCount - viewInfo.baseArrayLayer, "layer count exceeds number of layers");
+		NazaraAssertMsg(viewInfo.levelCount <= m_parentTexture->m_textureInfo.levelCount - viewInfo.baseMipLevel, "level count exceeds number of levels");
 
 		m_textureInfo = ApplyView(m_parentTexture->m_textureInfo, viewInfo);
 		m_viewInfo = viewInfo;
@@ -129,8 +129,8 @@ namespace Nz
 		if (m_parentTexture)
 		{
 			assert(m_viewInfo);
-			NazaraAssert(viewInfo.layerCount <= m_viewInfo->layerCount - viewInfo.baseArrayLayer, "layer count exceeds number of layers");
-			NazaraAssert(viewInfo.levelCount <= m_viewInfo->levelCount - viewInfo.baseMipLevel, "level count exceeds number of levels");
+			NazaraAssertMsg(viewInfo.layerCount <= m_viewInfo->layerCount - viewInfo.baseArrayLayer, "layer count exceeds number of layers");
+			NazaraAssertMsg(viewInfo.levelCount <= m_viewInfo->levelCount - viewInfo.baseMipLevel, "level count exceeds number of levels");
 
 			TextureViewInfo ajustedView = viewInfo;
 			ajustedView.baseArrayLayer += m_viewInfo->baseArrayLayer;

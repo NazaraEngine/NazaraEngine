@@ -9,7 +9,7 @@ namespace Nz
 {
 	inline void OpenGLTexture::GenerateMipmaps(UInt8 baseLevel, UInt8 levelCount)
 	{
-		NazaraAssert(baseLevel + levelCount <= m_textureInfo.levelCount, "out of bounds");
+		NazaraAssertMsg(baseLevel + levelCount <= m_textureInfo.levelCount, "out of bounds");
 
 		GL::Texture* targetTexture;
 		if (RequiresTextureViewEmulation())

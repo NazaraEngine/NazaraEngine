@@ -29,8 +29,8 @@ namespace Nz
 	BaseWidget::BaseWidget(BaseWidget* parent) :
 	BaseWidget(parent->GetTheme())
 	{
-		NazaraAssert(parent, "Invalid parent");
-		NazaraAssert(parent->GetCanvas(), "Parent has no canvas");
+		NazaraAssertMsg(parent, "Invalid parent");
+		NazaraAssertMsg(parent->GetCanvas(), "Parent has no canvas");
 
 		m_canvas = parent->GetCanvas();
 		m_parentWidget = parent;
@@ -72,7 +72,7 @@ namespace Nz
 	 */
 	void BaseWidget::Destroy()
 	{
-		NazaraAssert(this != m_canvas, "Canvas cannot be destroyed by calling Destroy()");
+		NazaraAssertMsg(this != m_canvas, "Canvas cannot be destroyed by calling Destroy()");
 
 		m_parentWidget->DestroyChild(this); //< This does delete us
 	}
@@ -260,7 +260,7 @@ namespace Nz
 			{
 				return widgetEntity.handle == entity;
 			});
-			NazaraAssert(it != m_entities.end(), "Entity does not belong to this widget");
+			NazaraAssertMsg(it != m_entities.end(), "Entity does not belong to this widget");
 
 			it->wasVisible = newVisibilityState;
 		});
@@ -271,7 +271,7 @@ namespace Nz
 	void BaseWidget::DestroyEntity(entt::entity entity)
 	{
 		auto it = std::find_if(m_entities.begin(), m_entities.end(), [&](const WidgetEntity& widgetEntity) { return widgetEntity.handle == entity; });
-		NazaraAssert(it != m_entities.end(), "Entity does not belong to this widget");
+		NazaraAssertMsg(it != m_entities.end(), "Entity does not belong to this widget");
 
 		m_entities.erase(it);
 		m_registry->destroy(entity);
@@ -449,7 +449,7 @@ namespace Nz
 			return widgetPtr.get() == widget;
 		});
 
-		NazaraAssert(it != m_widgetChilds.end(), "Child widget not found in parent");
+		NazaraAssertMsg(it != m_widgetChilds.end(), "Child widget not found in parent");
 
 		m_widgetChilds.erase(it);
 	}
@@ -461,7 +461,7 @@ namespace Nz
 
 	void BaseWidget::RegisterToCanvas()
 	{
-		NazaraAssert(!IsRegisteredToCanvas(), "Widget is already registered to canvas");
+		NazaraAssertMsg(!IsRegisteredToCanvas(), "Widget is already registered to canvas");
 
 		m_canvasIndex = m_canvas->RegisterWidget(this);
 	}
@@ -469,7 +469,7 @@ namespace Nz
 	void BaseWidget::SetParent(BaseWidget* widget)
 	{
 		// Changing a widget canvas is a problem because of the canvas entities
-		NazaraAssert(m_canvas == widget->GetCanvas(), "Transferring a widget between canvas is not yet supported");
+		NazaraAssertMsg(m_canvas == widget->GetCanvas(), "Transferring a widget between canvas is not yet supported");
 
 		Node::SetParent(widget);
 		m_parentWidget = widget;

@@ -67,7 +67,7 @@ namespace Nz
 
 	UInt32 TriangleIterator::operator[](std::size_t i) const
 	{
-		NazaraAssert(i < 3, "Index out of range");
+		NazaraAssertMsg(i < 3, "Index out of range");
 
 		return m_triangleIndices[i];
 	}

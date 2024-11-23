@@ -77,7 +77,7 @@ namespace Nz::Vk
 
 	inline bool QueueHandle::Submit(UInt32 commandBufferCount, const VkCommandBuffer* commandBuffers, std::initializer_list<VkSemaphore> waitSemaphores, std::initializer_list<VkPipelineStageFlags> waitStages, std::initializer_list<VkSemaphore> signalSemaphores, VkFence signalFence) const
 	{
-		NazaraAssert(waitSemaphores.size() == waitStages.size(), "Wait stage count must match wait semaphores count");
+		NazaraAssertMsg(waitSemaphores.size() == waitStages.size(), "wait stage count must match wait semaphores count");
 
 		// Make continuous array of semaphores (initializer_list doesn't have that guarantee)
 		StackArray<VkSemaphore> signalSemaphoresCont = NazaraStackArrayNoInit(VkSemaphore, signalSemaphores.size());

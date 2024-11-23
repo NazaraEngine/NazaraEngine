@@ -73,7 +73,7 @@ namespace Nz
 	*/
 	Time Sound::GetDuration() const
 	{
-		NazaraAssert(m_buffer, "Invalid sound buffer");
+		NazaraAssertMsg(m_buffer, "invalid sound buffer");
 
 		return m_buffer->GetDuration();
 	}
@@ -212,7 +212,7 @@ namespace Nz
 	*/
 	void Sound::Play()
 	{
-		NazaraAssert(IsPlayable(), "Sound is not playable");
+		NazaraAssertMsg(IsPlayable(), "sound is not playable");
 
 		m_source->Play();
 	}
@@ -224,7 +224,7 @@ namespace Nz
 	*/
 	void Sound::SetBuffer(std::shared_ptr<SoundBuffer> buffer)
 	{
-		NazaraAssert(buffer, "Invalid sound buffer");
+		NazaraAssertMsg(buffer, "invalid sound buffer");
 
 		if (m_buffer == buffer)
 			return;

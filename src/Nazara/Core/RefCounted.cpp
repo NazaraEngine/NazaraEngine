@@ -74,7 +74,7 @@ namespace Nz
 
 	bool RefCounted::RemoveReference() const
 	{
-		NazaraAssert(m_referenceCount > 0, "impossible to remove reference (Ref. counter is already 0)");
+		NazaraAssertMsg(m_referenceCount > 0, "impossible to remove reference (Ref. counter is already 0)");
 
 		if (--m_referenceCount == 0 && !m_persistent)
 		{

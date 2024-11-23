@@ -25,7 +25,7 @@ namespace Nz
 
 	ShaderBindingPtr VulkanRenderPipelineLayout::AllocateShaderBinding(UInt32 setIndex)
 	{
-		NazaraAssert(setIndex < m_descriptorSetLayouts.size(), "invalid set index");
+		NazaraAssertMsg(setIndex < m_descriptorSetLayouts.size(), "invalid set index");
 
 		for (std::size_t i = 0; i < m_descriptorPools.size(); ++i)
 		{

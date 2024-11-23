@@ -46,8 +46,8 @@ namespace Nz
 
 	bool Animation::AddSequence(Sequence sequence)
 	{
-		NazaraAssert(m_impl, "Animation not created");
-		NazaraAssert(sequence.frameCount > 0, "Sequence frame count must be over zero");
+		NazaraAssertMsg(m_impl, "animation not created");
+		NazaraAssertMsg(sequence.frameCount > 0, "sequence frame count must be over zero");
 
 		if (m_impl->type == AnimationType::Skeletal)
 		{
@@ -61,7 +61,7 @@ namespace Nz
 
 		if (!sequence.name.empty())
 		{
-			NazaraAssert(m_impl->sequenceMap.contains(sequence.name), "sequence name \"{0}\" is already in use", sequence.name);
+			NazaraAssertMsg(m_impl->sequenceMap.contains(sequence.name), "sequence name \"%s\" is already in use", sequence.name.c_str());
 			m_impl->sequenceMap[sequence.name] = static_cast<std::size_t>(m_impl->sequences.size());
 		}
 
@@ -72,18 +72,18 @@ namespace Nz
 
 	void Animation::AnimateSkeleton(Skeleton* targetSkeleton, std::size_t frameA, std::size_t frameB, float interpolation) const
 	{
-		NazaraAssert(m_impl, "Animation not created");
-		NazaraAssert(m_impl->type == AnimationType::Skeletal, "Animation is not skeletal");
-		NazaraAssert(targetSkeleton && targetSkeleton->IsValid(), "invalid skeleton");
-		NazaraAssert(targetSkeleton->GetJointCount() == m_impl->jointCount, "skeleton joint does not match animation joint count ({0} != {1})", targetSkeleton->GetJointCount(), m_impl->jointCount);
-		NazaraAssert(frameA < m_impl->frameCount, "Frame A is out of range ({0} >= {1})", frameA, m_impl->frameCount);
-		NazaraAssert(frameB < m_impl->frameCount, "Frame B is out of range ({0} >= {1})", frameB, m_impl->frameCount);
+		NazaraAssertMsg(m_impl, "Animation not created");
+		NazaraAssertMsg(m_impl->type == AnimationType::Skeletal, "Animation is not skeletal");
+		NazaraAssertMsg(targetSkeleton && targetSkeleton->IsValid(), "invalid skeleton");
+		NazaraAssertMsg(targetSkeleton->GetJointCount() == m_impl->jointCount, "skeleton joint does not match animation joint count (%zu != %zu)", targetSkeleton->GetJointCount(), m_impl->jointCount);
+		NazaraAssertMsg(frameA < m_impl->frameCount, "Frame A is out of range (%zu >= %zu)", frameA, m_impl->frameCount);
+		NazaraAssertMsg(frameB < m_impl->frameCount, "Frame B is out of range (%zu >= %zu)", frameB, m_impl->frameCount);
 
 		Joint* joints = targetSkeleton->GetJoints();
 		for (std::size_t i = 0; i < m_impl->jointCount; ++i)
 		{
-			const SequenceJoint& sequenceJointA = m_impl->sequenceJoints[frameA*m_impl->jointCount + i];
-			const SequenceJoint& sequenceJointB = m_impl->sequenceJoints[frameB*m_impl->jointCount + i];
+			const SequenceJoint& sequenceJointA = m_impl->sequenceJoints[frameA * m_impl->jointCount + i];
+			const SequenceJoint& sequenceJointB = m_impl->sequenceJoints[frameB * m_impl->jointCount + i];
 
 			Joint& joint = joints[i];
 			joint.SetPosition(Vector3f::Lerp(sequenceJointA.position, sequenceJointB.position, interpolation), Node::Invalidation::DontInvalidate);
@@ -96,8 +96,8 @@ namespace Nz
 
 	bool Animation::CreateSkeletal(std::size_t frameCount, std::size_t jointCount)
 	{
-		NazaraAssert(frameCount > 0, "frame count must be over zero");
-		NazaraAssert(jointCount > 0, "frame count must be over zero");
+		NazaraAssertMsg(frameCount > 0, "frame count must be over zero");
+		NazaraAssertMsg(jointCount > 0, "frame count must be over zero");
 
 		Destroy();
 
@@ -117,21 +117,21 @@ namespace Nz
 
 	std::size_t Animation::GetFrameCount() const
 	{
-		NazaraAssert(m_impl, "Animation not created");
+		NazaraAssertMsg(m_impl, "Animation not created");
 
 		return m_impl->frameCount;
 	}
 
 	std::size_t Animation::GetJointCount() const
 	{
-		NazaraAssert(m_impl, "Animation not created");
+		NazaraAssertMsg(m_impl, "Animation not created");
 
 		return m_impl->jointCount;
 	}
 
 	auto Animation::GetSequence(std::string_view sequenceName) -> Sequence*
 	{
-		NazaraAssert(m_impl, "Animation not created");
+		NazaraAssertMsg(m_impl, "Animation not created");
 
 		auto it = m_impl->sequenceMap.find(sequenceName);
 		if (it == m_impl->sequenceMap.end())
@@ -145,15 +145,15 @@ namespace Nz
 
 	auto Animation::GetSequence(std::size_t index) -> Sequence*
 	{
-		NazaraAssert(m_impl, "Animation not created");
-		NazaraAssert(index < m_impl->sequences.size(), "Sequence index out of range");
+		NazaraAssertMsg(m_impl, "Animation not created");
+		NazaraAssertMsg(index < m_impl->sequences.size(), "Sequence index out of range");
 
 		return &m_impl->sequences[index];
 	}
 
 	auto Animation::GetSequence(std::string_view sequenceName) const -> const Sequence*
 	{
-		NazaraAssert(m_impl, "Animation not created");
+		NazaraAssertMsg(m_impl, "Animation not created");
 
 		auto it = m_impl->sequenceMap.find(sequenceName);
 		if (it == m_impl->sequenceMap.end())
@@ -167,22 +167,22 @@ namespace Nz
 
 	auto Animation::GetSequence(std::size_t index) const -> const Sequence*
 	{
-		NazaraAssert(m_impl, "Animation not created");
-		NazaraAssert(index < m_impl->sequences.size(), "Sequence index out of range");
+		NazaraAssertMsg(m_impl, "Animation not created");
+		NazaraAssertMsg(index < m_impl->sequences.size(), "Sequence index out of range");
 
 		return &m_impl->sequences[index];
 	}
 
 	std::size_t Animation::GetSequenceCount() const
 	{
-		NazaraAssert(m_impl, "Animation not created");
+		NazaraAssertMsg(m_impl, "Animation not created");
 
 		return static_cast<std::size_t>(m_impl->sequences.size());
 	}
 
 	std::size_t Animation::GetSequenceIndex(std::string_view sequenceName) const
 	{
-		NazaraAssert(m_impl, "Animation not created");
+		NazaraAssertMsg(m_impl, "Animation not created");
 
 		auto it = m_impl->sequenceMap.find(sequenceName);
 		if (it == m_impl->sequenceMap.end())
@@ -196,37 +196,37 @@ namespace Nz
 
 	auto Animation::GetSequenceJoints(std::size_t frameIndex) -> SequenceJoint*
 	{
-		NazaraAssert(m_impl, "Animation not created");
-		NazaraAssert(m_impl->type == AnimationType::Skeletal, "Animation is not skeletal");
+		NazaraAssertMsg(m_impl, "Animation not created");
+		NazaraAssertMsg(m_impl->type == AnimationType::Skeletal, "Animation is not skeletal");
 
 		return &m_impl->sequenceJoints[frameIndex * m_impl->jointCount];
 	}
 
 	auto Animation::GetSequenceJoints(std::size_t frameIndex) const -> const SequenceJoint*
 	{
-		NazaraAssert(m_impl, "Animation not created");
-		NazaraAssert(m_impl->type == AnimationType::Skeletal, "Animation is not skeletal");
+		NazaraAssertMsg(m_impl, "Animation not created");
+		NazaraAssertMsg(m_impl->type == AnimationType::Skeletal, "Animation is not skeletal");
 
 		return &m_impl->sequenceJoints[frameIndex * m_impl->jointCount];
 	}
 
 	AnimationType Animation::GetType() const
 	{
-		NazaraAssert(m_impl, "Animation not created");
+		NazaraAssertMsg(m_impl, "Animation not created");
 
 		return m_impl->type;
 	}
 
 	bool Animation::HasSequence(std::string_view sequenceName) const
 	{
-		NazaraAssert(m_impl, "Animation not created");
+		NazaraAssertMsg(m_impl, "Animation not created");
 
 		return m_impl->sequenceMap.contains(sequenceName);
 	}
 
 	bool Animation::HasSequence(std::size_t index) const
 	{
-		NazaraAssert(m_impl, "Animation not created");
+		NazaraAssertMsg(m_impl, "Animation not created");
 
 		return index >= m_impl->sequences.size();
 	}
@@ -238,7 +238,7 @@ namespace Nz
 
 	void Animation::RemoveSequence(std::string_view identifier)
 	{
-		NazaraAssert(m_impl, "Animation not created");
+		NazaraAssertMsg(m_impl, "Animation not created");
 
 		auto it = m_impl->sequenceMap.find(identifier);
 		if (it == m_impl->sequenceMap.end())
@@ -253,8 +253,8 @@ namespace Nz
 
 	void Animation::RemoveSequence(std::size_t index)
 	{
-		NazaraAssert(m_impl, "Animation not created");
-		NazaraAssert(index < m_impl->sequences.size(), "Sequence index out of range");
+		NazaraAssertMsg(m_impl, "Animation not created");
+		NazaraAssertMsg(index < m_impl->sequences.size(), "Sequence index out of range");
 
 		m_impl->sequences.erase(m_impl->sequences.begin() + index);
 
@@ -271,7 +271,7 @@ namespace Nz
 	std::shared_ptr<Animation> Animation::LoadFromFile(const std::filesystem::path& filePath, const AnimationParams& params)
 	{
 		Core* core = Core::Instance();
-		NazaraAssert(core, "Core module has not been initialized");
+		NazaraAssertMsg(core, "Core module has not been initialized");
 
 		return core->GetAnimationLoader().LoadFromFile(filePath, params);
 	}
@@ -279,7 +279,7 @@ namespace Nz
 	std::shared_ptr<Animation> Animation::LoadFromMemory(const void* data, std::size_t size, const AnimationParams& params)
 	{
 		Core* core = Core::Instance();
-		NazaraAssert(core, "Core module has not been initialized");
+		NazaraAssertMsg(core, "Core module has not been initialized");
 
 		return core->GetAnimationLoader().LoadFromMemory(data, size, params);
 	}
@@ -287,7 +287,7 @@ namespace Nz
 	std::shared_ptr<Animation> Animation::LoadFromStream(Stream& stream, const AnimationParams& params)
 	{
 		Core* core = Core::Instance();
-		NazaraAssert(core, "Core module has not been initialized");
+		NazaraAssertMsg(core, "Core module has not been initialized");
 
 		return core->GetAnimationLoader().LoadFromStream(stream, params);
 	}

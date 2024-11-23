@@ -59,7 +59,7 @@ namespace Nz
 	void RenderSystem::DestroySwapchain(WindowSwapchain& swapchain)
 	{
 		auto it = std::find_if(m_windowSwapchains.begin(), m_windowSwapchains.end(), [&](const auto& ptr) { return ptr.get() == &swapchain; });
-		NazaraAssert(it != m_windowSwapchains.end(), "invalid swapchain");
+		NazaraAssertMsg(it != m_windowSwapchains.end(), "invalid swapchain");
 
 		m_windowSwapchains.erase(it);
 	}

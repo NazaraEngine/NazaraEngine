@@ -36,7 +36,7 @@ namespace Nz
 	template<typename Type, typename Parameters>
 	bool ResourceSaver<Type, Parameters>::IsExtensionSupported(std::string_view extension) const
 	{
-		NazaraAssert(extension.size() >= 2 || extension.front() != '.', "extension should start with a . (got {})", extension);
+		NazaraCheck(extension.size() >= 2 || extension.front() != '.', "extension should start with a . (got {})", extension);
 
 		for (const auto& saverPtr : m_savers)
 		{
@@ -64,7 +64,7 @@ namespace Nz
 	template<typename Type, typename Parameters>
 	bool ResourceSaver<Type, Parameters>::SaveToFile(const Type& resource, const std::filesystem::path& filePath, const Parameters& parameters) const
 	{
-		NazaraAssert(parameters.IsValid(), "Invalid parameters");
+		NazaraAssertMsg(parameters.IsValid(), "invalid parameters");
 
 		std::string extension = ToLower(PathToString(filePath.extension()));
 		if (extension.empty())
@@ -126,8 +126,8 @@ namespace Nz
 	template<typename Type, typename Parameters>
 	bool ResourceSaver<Type, Parameters>::SaveToStream(const Type& resource, Stream& stream, std::string_view format, const Parameters& parameters) const
 	{
-		NazaraAssert(stream.IsWritable(), "Stream is not writable");
-		NazaraAssert(parameters.IsValid(), "Invalid parameters");
+		NazaraAssertMsg(stream.IsWritable(), "stream is not writable");
+		NazaraAssertMsg(parameters.IsValid(), "invalid parameters");
 
 		UInt64 streamPos = stream.GetCursorPos();
 		bool found = false;
@@ -168,8 +168,8 @@ namespace Nz
 	template<typename Type, typename Parameters>
 	auto ResourceSaver<Type, Parameters>::RegisterSaver(Entry saver) -> const Entry*
 	{
-		NazaraAssert(saver.formatSupport, "A format support callback is mandatory");
-		NazaraAssert(saver.streamSaver || saver.fileSaver, "A saver function is mandatory");
+		NazaraAssertMsg(saver.formatSupport, "a format support callback is mandatory");
+		NazaraAssertMsg(saver.streamSaver || saver.fileSaver, "a saver function is mandatory");
 
 		auto it = m_savers.emplace(m_savers.begin(), std::make_unique<Entry>(std::move(saver)));
 		return it->get();

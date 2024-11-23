@@ -54,7 +54,7 @@ namespace Nz
 	template<typename T>
 	auto VertexDeclaration::GetComponentByType(VertexComponent vertexComponent, std::size_t componentIndex) const -> const Component*
 	{
-		NazaraAssert(componentIndex == 0 || vertexComponent == VertexComponent::Userdata, "Only userdata vertex component can have component indexes");
+		NazaraAssertMsg(componentIndex == 0 || vertexComponent == VertexComponent::Userdata, "only userdata vertex component can have component indexes");
 		if (const Component* component = FindComponent(vertexComponent, componentIndex))
 		{
 			if (GetComponentTypeOf<T>() == component->type)
@@ -72,7 +72,7 @@ namespace Nz
 
 	inline const std::shared_ptr<VertexDeclaration>& VertexDeclaration::Get(VertexLayout layout)
 	{
-		NazaraAssert(layout <= VertexLayout::Max, "Vertex layout out of enum");
+		NazaraAssertMsg(layout <= VertexLayout::Max, "vertex layout out of enum");
 		return s_declarations[layout];
 	}
 }

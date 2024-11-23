@@ -13,8 +13,8 @@ namespace Nz
 	m_vertexDeclaration(std::move(vertexDeclaration)),
 	m_startOffset(0)
 	{
-		NazaraAssert(m_buffer, "invalid buffer");
-		NazaraAssert(m_buffer->GetType() == BufferType::Vertex, "buffer must be an vertex buffer");
+		NazaraAssertMsg(m_buffer, "invalid buffer");
+		NazaraAssertMsg(m_buffer->GetType() == BufferType::Vertex, "buffer must be an vertex buffer");
 
 		m_endOffset = m_buffer->GetSize();
 		m_vertexCount = SafeCast<UInt32>((m_vertexDeclaration) ? m_endOffset / m_vertexDeclaration->GetStride() : 0);
@@ -26,8 +26,8 @@ namespace Nz
 	m_endOffset(size),
 	m_startOffset(offset)
 	{
-		NazaraAssert(m_buffer, "invalid buffer");
-		NazaraAssert(m_buffer->GetType() == BufferType::Vertex, "buffer must be an vertex buffer");
+		NazaraAssertMsg(m_buffer, "invalid buffer");
+		NazaraAssertMsg(m_buffer->GetType() == BufferType::Vertex, "buffer must be an vertex buffer");
 
 		m_vertexCount = SafeCast<UInt32>((m_vertexDeclaration) ? m_endOffset / m_vertexDeclaration->GetStride() : 0);
 	}
@@ -37,8 +37,8 @@ namespace Nz
 	m_vertexCount(vertexCount),
 	m_startOffset(0)
 	{
-		NazaraAssert(m_vertexDeclaration, "invalid vertex declaration");
-		NazaraAssert(vertexCount > 0, "invalid vertex count");
+		NazaraAssertMsg(m_vertexDeclaration, "invalid vertex declaration");
+		NazaraAssertMsg(vertexCount > 0, "invalid vertex count");
 
 		m_endOffset = vertexCount * m_vertexDeclaration->GetStride();
 		m_buffer = bufferFactory(BufferType::Vertex, m_endOffset, usage, initialData);
@@ -52,8 +52,8 @@ namespace Nz
 
 	bool VertexBuffer::FillRaw(const void* data, UInt64 offset, UInt64 size)
 	{
-		NazaraAssert(m_buffer, "Invalid buffer");
-		NazaraAssert(m_startOffset + offset + size <= m_endOffset, "Exceeding virtual buffer size");
+		NazaraAssertMsg(m_buffer, "Invalid buffer");
+		NazaraAssertMsg(m_startOffset + offset + size <= m_endOffset, "Exceeding virtual buffer size");
 
 		return m_buffer->Fill(data, m_startOffset + offset, size);
 	}
@@ -67,8 +67,8 @@ namespace Nz
 
 	void* VertexBuffer::Map(UInt64 startVertex, UInt64 length) const
 	{
-		NazaraAssert(m_buffer, "Invalid buffer");
-		NazaraAssert(m_vertexDeclaration, "Invalid vertex declaration");
+		NazaraAssertMsg(m_buffer, "Invalid buffer");
+		NazaraAssertMsg(m_vertexDeclaration, "Invalid vertex declaration");
 
 		UInt64 stride = m_vertexDeclaration->GetStride();
 
@@ -77,23 +77,23 @@ namespace Nz
 
 	void* VertexBuffer::MapRaw(UInt64 offset, UInt64 size)
 	{
-		NazaraAssert(m_buffer, "Invalid buffer");
-		NazaraAssert(m_startOffset + offset + size <= m_endOffset, "Exceeding virtual buffer size");
+		NazaraAssertMsg(m_buffer, "Invalid buffer");
+		NazaraAssertMsg(m_startOffset + offset + size <= m_endOffset, "Exceeding virtual buffer size");
 
 		return m_buffer->Map(offset, size);
 	}
 
 	void* VertexBuffer::MapRaw(UInt64 offset, UInt64 size) const
 	{
-		NazaraAssert(m_buffer, "Invalid buffer");
-		NazaraAssert(m_startOffset + offset + size <= m_endOffset, "Exceeding virtual buffer size");
+		NazaraAssertMsg(m_buffer, "Invalid buffer");
+		NazaraAssertMsg(m_startOffset + offset + size <= m_endOffset, "Exceeding virtual buffer size");
 
 		return m_buffer->Map(offset, size);
 	}
 
 	void VertexBuffer::SetVertexDeclaration(std::shared_ptr<const VertexDeclaration> vertexDeclaration)
 	{
-		NazaraAssert(vertexDeclaration, "Invalid vertex declaration");
+		NazaraAssertMsg(vertexDeclaration, "Invalid vertex declaration");
 
 		m_vertexCount = SafeCast<UInt32>((m_endOffset - m_startOffset) / vertexDeclaration->GetStride());
 		m_vertexDeclaration = std::move(vertexDeclaration);

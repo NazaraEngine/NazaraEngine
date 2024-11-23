@@ -17,7 +17,7 @@ namespace Nz
 	m_skeleton(std::move(skeleton)),
 	m_dataInvalided(true)
 	{
-		NazaraAssert(m_skeleton, "invalid skeleton");
+		NazaraAssertMsg(m_skeleton, "invalid skeleton");
 
 		m_skeletalDataBuffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform, PredefinedSkeletalOffsets.totalSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write);
 		m_skeletalDataBuffer->UpdateDebugName("Skeletal data");

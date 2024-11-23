@@ -624,7 +624,7 @@ namespace Nz
 
 	inline ByteArray::reference ByteArray::operator[](size_type pos)
 	{
-		NazaraAssert(pos < GetSize(), "Index out of range");
+		NazaraAssertMsg(pos < GetSize(), "index out of range");
 
 		return m_array[pos];
 	}
@@ -638,7 +638,7 @@ namespace Nz
 
 	inline ByteArray::const_reference ByteArray::operator[](size_type pos) const
 	{
-		NazaraAssert(pos < GetSize(), "Index out of range");
+		NazaraAssertMsg(pos < GetSize(), "index out of range");
 
 		return m_array[pos];
 	}

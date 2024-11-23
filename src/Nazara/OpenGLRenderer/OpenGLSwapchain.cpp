@@ -146,7 +146,7 @@ namespace Nz
 
 	void OpenGLSwapchain::SetPresentMode(PresentMode presentMode)
 	{
-		NazaraAssert(m_supportedPresentModes & presentMode, "unsupported present mode");
+		NazaraAssertMsg(m_supportedPresentModes & presentMode, "unsupported present mode");
 
 		if (m_presentMode != presentMode)
 		{

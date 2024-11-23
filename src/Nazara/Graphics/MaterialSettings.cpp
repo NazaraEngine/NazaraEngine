@@ -23,7 +23,7 @@ namespace Nz
 
 	void MaterialSettings::AddBufferProperty(std::string propertyName, std::shared_ptr<RenderBuffer> defaultBuffer, UInt64 defaultOffset, UInt64 defaultSize)
 	{
-		NazaraAssert(!defaultBuffer || defaultBuffer->GetType() == Nz::BufferType::Storage, "a default buffer was passed but wasn't a storage buffer");
+		NazaraAssertMsg(!defaultBuffer || defaultBuffer->GetType() == Nz::BufferType::Storage, "a default buffer was passed but wasn't a storage buffer");
 
 		auto& storageBufferProperty = m_bufferProperties.emplace_back();
 		storageBufferProperty.name = std::move(propertyName);

@@ -69,7 +69,7 @@ namespace Nz
 	template<typename T>
 	constexpr const Vector3<T>& OrientedBox<T>::GetCorner(BoxCorner corner) const
 	{
-		NazaraAssert(corner <= BoxCorner::Max, "invalid corner");
+		NazaraAssertMsg(corner <= BoxCorner::Max, "invalid corner");
 		return m_corners[corner];
 	}
 
@@ -133,7 +133,7 @@ namespace Nz
 	template<typename T>
 	constexpr Vector3<T>& OrientedBox<T>::operator()(unsigned int i)
 	{
-		NazaraAssert(i < m_corners.size(), "corner out of range");
+		NazaraAssertMsg(i < m_corners.size(), "corner out of range");
 		return m_corners[static_cast<BoxCorner>(i)];
 	}
 
@@ -144,7 +144,7 @@ namespace Nz
 	template<typename T>
 	constexpr const Vector3<T>& OrientedBox<T>::operator()(unsigned int i) const
 	{
-		NazaraAssert(i < m_corners.size(), "corner out of range");
+		NazaraAssertMsg(i < m_corners.size(), "corner out of range");
 		return m_corners[static_cast<BoxCorner>(i)];
 	}
 

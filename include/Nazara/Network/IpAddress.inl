@@ -142,13 +142,10 @@ namespace Nz
 	/*!
 	* \brief Converts IpAddress to IPv4
 	* \return Corresponding IPv4
-	*
-	* \remark Produces a NazaraAssert if net protocol is not IPv4
 	*/
-
 	inline IpAddress::IPv4 IpAddress::ToIPv4() const
 	{
-		NazaraAssert(m_isValid && m_protocol == NetProtocol::IPv4, "Address is not a valid IPv4");
+		NazaraAssertMsg(m_isValid && m_protocol == NetProtocol::IPv4, "address is not a valid IPv4");
 
 		return m_ipv4;
 	}
@@ -156,13 +153,10 @@ namespace Nz
 	/*!
 	* \brief Converts IpAddress to IPv6
 	* \return Corresponding IPv6
-	*
-	* \remark Produces a NazaraAssert if net protocol is not IPv6
 	*/
-
 	inline IpAddress::IPv6 IpAddress::ToIPv6() const
 	{
-		NazaraAssert(m_isValid && m_protocol == NetProtocol::IPv6, "IP is not a valid IPv6");
+		NazaraAssertMsg(m_isValid && m_protocol == NetProtocol::IPv6, "ip is not a valid IPv6");
 
 		return m_ipv6;
 	}
@@ -170,13 +164,10 @@ namespace Nz
 	/*!
 	* \brief Converts IpAddress to UInt32
 	* \return Corresponding UInt32
-	*
-	* \remark Produces a NazaraAssert if net protocol is not IPv4
 	*/
-
 	inline UInt32 IpAddress::ToUInt32() const
 	{
-		NazaraAssert(m_isValid && m_protocol == NetProtocol::IPv4, "Address is not a valid IPv4");
+		NazaraAssertMsg(m_isValid && m_protocol == NetProtocol::IPv4, "address is not a valid IPv4");
 
 		return UInt32(m_ipv4[0]) << 24 |
 		       UInt32(m_ipv4[1]) << 16 |

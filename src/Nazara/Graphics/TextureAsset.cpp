@@ -22,7 +22,7 @@ namespace Nz
 
 	bool TextureAsset::Create(std::shared_ptr<Texture> texture)
 	{
-		NazaraAssert(texture, "invalid texture");
+		NazaraAssertMsg(texture, "invalid texture");
 
 		Destroy();
 
@@ -40,7 +40,7 @@ namespace Nz
 
 	bool TextureAsset::Create(std::shared_ptr<TextureAsset> textureAsset, const TextureViewInfo& viewInfo, const TextureAssetParams& params)
 	{
-		NazaraAssert(textureAsset, "invalid texture asset");
+		NazaraAssertMsg(textureAsset, "invalid texture asset");
 
 		Destroy();
 
@@ -57,7 +57,7 @@ namespace Nz
 
 	bool TextureAsset::Create(std::unique_ptr<Stream> imageStream, const TextureAssetParams& params)
 	{
-		NazaraAssert(imageStream, "invalid image stream");
+		NazaraAssertMsg(imageStream, "invalid image stream");
 
 		Destroy();
 
@@ -87,7 +87,7 @@ namespace Nz
 
 	bool TextureAsset::Create(std::unique_ptr<Stream> imageStream, const TextureAssetParams& params, const Vector2ui32& atlasSize)
 	{
-		NazaraAssert(imageStream, "invalid image stream");
+		NazaraAssertMsg(imageStream, "invalid image stream");
 
 		Destroy();
 
@@ -118,7 +118,7 @@ namespace Nz
 
 	bool TextureAsset::Create(std::unique_ptr<Stream> imageStream, const TextureAssetParams& params, const CubemapParams& cubemapParams)
 	{
-		NazaraAssert(imageStream, "invalid image stream");
+		NazaraAssertMsg(imageStream, "invalid image stream");
 
 		Destroy();
 
@@ -149,7 +149,7 @@ namespace Nz
 
 	bool TextureAsset::Create(Image referenceImage, const TextureAssetParams& params)
 	{
-		NazaraAssert(referenceImage.IsValid(), "invalid image");
+		NazaraAssertMsg(referenceImage.IsValid(), "invalid image");
 
 		Destroy();
 
@@ -245,7 +245,7 @@ namespace Nz
 
 	bool TextureAsset::Create(const TextureInfo& textureInfo, ImageBuilder imageBuilder, const TextureAssetParams& params)
 	{
-		NazaraAssert(imageBuilder, "invalid builder");
+		NazaraAssertMsg(imageBuilder, "invalid builder");
 
 		Destroy();
 
@@ -257,7 +257,7 @@ namespace Nz
 
 	bool TextureAsset::Create(const TextureInfo& textureInfo, TextureBuilder textureBuilder, const TextureAssetParams& params)
 	{
-		NazaraAssert(textureBuilder, "invalid builder");
+		NazaraAssertMsg(textureBuilder, "invalid builder");
 
 		Destroy();
 

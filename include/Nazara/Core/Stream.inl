@@ -67,22 +67,22 @@ namespace Nz
 
 	inline void Stream::Flush()
 	{
-		NazaraAssert(IsWritable(), "Stream is not writable");
+		NazaraAssertMsg(IsWritable(), "stream is not writable");
 
 		FlushStream();
 	}
 
 	inline const void* Stream::GetMappedPointer() const
 	{
-		NazaraAssert(IsMemoryMapped(), "Stream is not memory-mapped");
-		NazaraAssert(IsReadable(), "Stream is not readable");
+		NazaraAssertMsg(IsMemoryMapped(), "stream is not memory-mapped");
+		NazaraAssertMsg(IsReadable(), "stream is not readable");
 		return GetMemoryMappedPointer();
 	}
 
 	inline void* Stream::GetMappedPointerMutable()
 	{
-		NazaraAssert(IsMemoryMapped(), "Stream is not memory-mapped");
-		NazaraAssert(IsWritable(), "Stream is not writable");
+		NazaraAssertMsg(IsMemoryMapped(), "stream is not memory-mapped");
+		NazaraAssertMsg(IsWritable(), "stream is not writable");
 		return GetMemoryMappedPointer();
 	}
 
@@ -183,7 +183,7 @@ namespace Nz
 	*/
 	inline std::size_t Stream::Write(const void* buffer, std::size_t size)
 	{
-		NazaraAssert(IsWritable(), "Stream is not writable");
+		NazaraAssertMsg(IsWritable(), "stream is not writable");
 
 		std::size_t writeSize = WriteBlock(buffer, size);
 

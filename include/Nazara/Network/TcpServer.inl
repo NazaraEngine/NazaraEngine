@@ -60,8 +60,8 @@ namespace Nz
 
 	inline SocketState TcpServer::Listen(NetProtocol protocol, UInt16 port, unsigned int queueSize)
 	{
-		NazaraAssert(protocol != NetProtocol::Any, "Any protocol not supported for Listen"); //< TODO
-		NazaraAssert(protocol != NetProtocol::Unknown, "Invalid protocol");
+		NazaraAssertMsg(protocol != NetProtocol::Any, "Any protocol not supported for Listen"); //< TODO
+		NazaraAssertMsg(protocol != NetProtocol::Unknown, "Invalid protocol");
 
 		IpAddress any;
 		switch (protocol)

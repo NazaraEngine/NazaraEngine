@@ -28,14 +28,14 @@ namespace Nz
 
 	inline void ENetHost::AllowsIncomingConnections(bool allow)
 	{
-		NazaraAssert(m_address.IsValid() && !m_address.IsLoopback(), "Only server hosts can allow incoming connections");
+		NazaraAssertMsg(m_address.IsValid() && !m_address.IsLoopback(), "only server hosts can allow incoming connections");
 
 		m_allowsIncomingConnections = allow;
 	}
 
 	inline bool ENetHost::Create(NetProtocol protocol, UInt16 port, std::size_t peerCount, std::size_t channelCount)
 	{
-		NazaraAssert(protocol != NetProtocol::Unknown, "Invalid protocol");
+		NazaraAssertMsg(protocol != NetProtocol::Unknown, "invalid protocol");
 
 		IpAddress any;
 		switch (protocol)

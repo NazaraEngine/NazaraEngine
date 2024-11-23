@@ -40,7 +40,7 @@ namespace Nz
 
 	std::unique_ptr<AbstractHash> AbstractHash::Get(HashType type)
 	{
-		NazaraAssert(type <= HashType::Max, "Hash type value out of enum");
+		NazaraAssertMsg(type <= HashType::Max, "hash type value out of enum");
 
 		switch (type)
 		{

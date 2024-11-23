@@ -78,7 +78,7 @@ namespace Nz
 		if (!m_isValid)
 			return false;
 
-		NazaraAssert(m_protocol <= NetProtocol::Max, "Protocol has value out of enum");
+		NazaraAssertMsg(m_protocol <= NetProtocol::Max, "Protocol has value out of enum");
 		switch (m_protocol)
 		{
 			case NetProtocol::Any:
@@ -108,7 +108,7 @@ namespace Nz
 
 		if (m_isValid)
 		{
-			NazaraAssert(m_protocol <= NetProtocol::Max, "Protocol has value out of enum");
+			NazaraAssertMsg(m_protocol <= NetProtocol::Max, "Protocol has value out of enum");
 			switch (m_protocol)
 			{
 				case NetProtocol::Any:
@@ -216,7 +216,7 @@ namespace Nz
 	*/
 	std::string IpAddress::ResolveAddress(const IpAddress& address, std::string* service, ResolveError* error)
 	{
-		NazaraAssert(address.IsValid(), "Invalid address");
+		NazaraAssertMsg(address.IsValid(), "Invalid address");
 
 		std::string hostname;
 		IpAddressImpl::ResolveAddress(address, &hostname, service, error);
@@ -237,7 +237,7 @@ namespace Nz
 	*/
 	std::vector<HostnameInfo> IpAddress::ResolveHostname(NetProtocol protocol, const std::string& hostname, const std::string& service, ResolveError* error)
 	{
-		NazaraAssert(protocol != NetProtocol::Unknown, "Invalid protocol");
+		NazaraAssertMsg(protocol != NetProtocol::Unknown, "Invalid protocol");
 
 		return IpAddressImpl::ResolveHostname(protocol, hostname, service, error);
 	}

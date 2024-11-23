@@ -26,7 +26,7 @@ namespace Nz
 		if (!m_program.Create(device))
 			throw std::runtime_error("failed to create program");
 
-		NazaraAssert(m_pipelineInfo.shaderModule, "invalid shader module");
+		NazaraAssertMsg(m_pipelineInfo.shaderModule, "invalid shader module");
 
 		OpenGLShaderModule& shaderModule = SafeCast<OpenGLShaderModule&>(*m_pipelineInfo.shaderModule);
 

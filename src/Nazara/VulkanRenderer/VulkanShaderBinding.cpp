@@ -36,9 +36,9 @@ namespace Nz
 			}, binding.content);
 		}
 
-		NazaraAssert(bufferBindingCount < 128, "too many concurrent buffer update");
-		NazaraAssert(imageBindingCount < 128, "too many concurrent image binding update");
-		NazaraAssert(bindingCount < 128, "too many binding update");
+		NazaraAssertMsg(bufferBindingCount < 128, "too many concurrent buffer update");
+		NazaraAssertMsg(imageBindingCount < 128, "too many concurrent image binding update");
+		NazaraAssertMsg(bindingCount < 128, "too many binding update");
 
 		StackVector<VkDescriptorBufferInfo> bufferBinding = NazaraStackVector(VkDescriptorBufferInfo, bufferBindingCount);
 		StackVector<VkDescriptorImageInfo> imageBinding = NazaraStackVector(VkDescriptorImageInfo, imageBindingCount);

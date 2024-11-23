@@ -68,7 +68,7 @@ namespace Nz
 			if (firstGlyph > blockFirstGlyph)
 			{
 				std::size_t characterPosition = GetCharacterPosition(blockText, firstGlyph - blockFirstGlyph);
-				NazaraAssert(characterPosition != std::string::npos, "Invalid character position");
+				NazaraAssertMsg(characterPosition != std::string::npos, "Invalid character position");
 
 				newText.append(blockText.substr(0, characterPosition));
 			}

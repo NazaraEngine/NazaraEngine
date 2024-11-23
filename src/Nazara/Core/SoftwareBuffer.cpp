@@ -20,7 +20,7 @@ namespace Nz
 
 	bool SoftwareBuffer::Fill(const void* data, UInt64 offset, UInt64 size)
 	{
-		NazaraAssert(!m_mapped, "Buffer is already mapped");
+		NazaraAssertMsg(!m_mapped, "Buffer is already mapped");
 
 		std::memcpy(&m_buffer[offset], data, size);
 		return true;
@@ -33,7 +33,7 @@ namespace Nz
 
 	void* SoftwareBuffer::Map(UInt64 offset, UInt64 /*size*/)
 	{
-		NazaraAssert(!m_mapped, "Buffer is already mapped");
+		NazaraAssertMsg(!m_mapped, "Buffer is already mapped");
 
 		m_mapped = true;
 
@@ -42,7 +42,7 @@ namespace Nz
 
 	bool SoftwareBuffer::Unmap()
 	{
-		NazaraAssert(m_mapped, "Buffer is not mapped");
+		NazaraAssertMsg(m_mapped, "Buffer is not mapped");
 
 		m_mapped = false;
 

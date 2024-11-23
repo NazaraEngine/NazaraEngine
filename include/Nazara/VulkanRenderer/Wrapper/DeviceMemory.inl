@@ -93,7 +93,7 @@ namespace Nz::Vk
 
 	inline void DeviceMemory::Unmap()
 	{
-		NazaraAssert(m_mappedPtr != nullptr, "Memory is not mapped");
+		NazaraAssertMsg(m_mappedPtr != nullptr, "Memory is not mapped");
 
 		m_device->vkUnmapMemory(*m_device, m_handle);
 		m_mappedPtr = nullptr;

@@ -18,8 +18,8 @@ namespace Nz
 	m_endOffset(m_buffer->GetSize()),
 	m_startOffset(0)
 	{
-		NazaraAssert(m_buffer, "invalid buffer");
-		NazaraAssert(m_buffer->GetType() == BufferType::Index, "buffer must be an index buffer");
+		NazaraAssertMsg(m_buffer, "invalid buffer");
+		NazaraAssertMsg(m_buffer->GetType() == BufferType::Index, "buffer must be an index buffer");
 
 		m_endOffset = m_buffer->GetSize();
 		m_indexCount = SafeCast<UInt32>(m_endOffset / GetStride());
@@ -31,9 +31,9 @@ namespace Nz
 	m_endOffset(offset + size),
 	m_startOffset(offset)
 	{
-		NazaraAssert(m_buffer, "invalid buffer");
-		NazaraAssert(m_buffer->GetType() == BufferType::Index, "buffer must be an index buffer");
-		NazaraAssert(size > 0, "invalid buffer size");
+		NazaraAssertMsg(m_buffer, "invalid buffer");
+		NazaraAssertMsg(m_buffer->GetType() == BufferType::Index, "buffer must be an index buffer");
+		NazaraAssertMsg(size > 0, "invalid buffer size");
 
 		m_indexCount = SafeCast<UInt32>(size / GetStride());
 	}
@@ -43,7 +43,7 @@ namespace Nz
 	m_indexCount(indexCount),
 	m_startOffset(0)
 	{
-		NazaraAssert(indexCount > 0, "invalid index count");
+		NazaraAssertMsg(indexCount > 0, "invalid index count");
 
 		m_endOffset = indexCount * GetStride();
 		m_buffer = bufferFactory(BufferType::Index, m_endOffset, usage, initialData);
@@ -65,24 +65,24 @@ namespace Nz
 
 	bool IndexBuffer::FillRaw(const void* data, UInt64 offset, UInt64 size)
 	{
-		NazaraAssert(m_buffer, "Invalid buffer");
-		NazaraAssert(m_startOffset + offset + size <= m_endOffset, "Exceeding virtual buffer size");
+		NazaraAssertMsg(m_buffer, "Invalid buffer");
+		NazaraAssertMsg(m_startOffset + offset + size <= m_endOffset, "Exceeding virtual buffer size");
 
 		return m_buffer->Fill(data, m_startOffset+offset, size);
 	}
 
 	void* IndexBuffer::MapRaw(UInt64 offset, UInt64 size)
 	{
-		NazaraAssert(m_buffer, "Invalid buffer");
-		NazaraAssert(m_startOffset + offset + size <= m_endOffset, "Exceeding virtual buffer size");
+		NazaraAssertMsg(m_buffer, "Invalid buffer");
+		NazaraAssertMsg(m_startOffset + offset + size <= m_endOffset, "Exceeding virtual buffer size");
 
 		return m_buffer->Map(offset, size);
 	}
 
 	void* IndexBuffer::MapRaw(UInt64 offset, UInt64 size) const
 	{
-		NazaraAssert(m_buffer, "Invalid buffer");
-		NazaraAssert(m_startOffset + offset + size <= m_endOffset, "Exceeding virtual buffer size");
+		NazaraAssertMsg(m_buffer, "Invalid buffer");
+		NazaraAssertMsg(m_startOffset + offset + size <= m_endOffset, "Exceeding virtual buffer size");
 
 		return m_buffer->Map(offset, size);
 	}

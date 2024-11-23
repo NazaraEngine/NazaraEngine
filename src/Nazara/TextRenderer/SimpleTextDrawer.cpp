@@ -24,7 +24,7 @@ namespace Nz
 
 	const std::shared_ptr<Font>& SimpleTextDrawer::GetFont([[maybe_unused]] std::size_t index) const
 	{
-		NazaraAssert(index == 0, "font index out of range");
+		NazaraAssertMsg(index == 0, "font index out of range");
 		return GetTextFont();
 	}
 
@@ -307,7 +307,7 @@ namespace Nz
 #ifdef NAZARA_DEBUG
 		if (m_font.get() != font)
 		{
-			NazaraInternalError("Not listening to " + PointerToString(font));
+			NazaraInternalError("Not listening to {0}", PointerToString(font));
 			return;
 		}
 #endif
@@ -328,7 +328,7 @@ namespace Nz
 		#ifdef NAZARA_DEBUG
 		if (m_font.get() != font)
 		{
-			NazaraInternalError("Not listening to " + PointerToString(font));
+			NazaraInternalError("not listening to {0}", PointerToString(font));
 			return;
 		}
 		#endif
@@ -344,7 +344,7 @@ namespace Nz
 		#ifdef NAZARA_DEBUG
 		if (m_font.get() != font)
 		{
-			NazaraInternalError("Not listening to " + PointerToString(font));
+			NazaraInternalError("not listening to {0}", PointerToString(font));
 			return;
 		}
 		#endif

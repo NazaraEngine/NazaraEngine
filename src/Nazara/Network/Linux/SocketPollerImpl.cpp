@@ -45,7 +45,7 @@ namespace Nz
 
 	bool SocketPollerImpl::RegisterSocket(SocketHandle socket, SocketPollEventFlags eventFlags)
 	{
-		NazaraAssert(!IsRegistered(socket), "Socket is already registered");
+		NazaraAssertMsg(!IsRegistered(socket), "Socket is already registered");
 
 		epoll_event entry;
 		std::memset(&entry, 0, sizeof(epoll_event));
@@ -71,7 +71,7 @@ namespace Nz
 
 	void SocketPollerImpl::UnregisterSocket(SocketHandle socket)
 	{
-		NazaraAssert(IsRegistered(socket), "Socket is not registered");
+		NazaraAssertMsg(IsRegistered(socket), "Socket is not registered");
 
 		m_readyToReadSockets.erase(socket);
 		m_readyToWriteSockets.erase(socket);

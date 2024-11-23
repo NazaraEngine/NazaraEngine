@@ -266,8 +266,8 @@ namespace Nz
 
 	void RigidBody3D::SetMass(float mass, bool recomputeInertia)
 	{
-		NazaraAssert(mass >= 0.f, "Mass must be positive and finite");
-		NazaraAssert(std::isfinite(mass), "Mass must be positive and finite");
+		NazaraAssertMsg(mass >= 0.f, "Mass must be positive and finite");
+		NazaraAssertMsg(std::isfinite(mass), "Mass must be positive and finite");
 
 		if (mass > 0.f)
 		{

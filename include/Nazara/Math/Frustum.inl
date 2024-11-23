@@ -270,7 +270,7 @@ namespace Nz
 	template<typename T>
 	constexpr const Plane<T>& Frustum<T>::GetPlane(FrustumPlane plane) const
 	{
-		NazaraAssert(plane <= FrustumPlane::Max, "invalid plane");
+		NazaraAssertMsg(plane <= FrustumPlane::Max, "invalid plane");
 		return m_planes[plane];
 	}
 

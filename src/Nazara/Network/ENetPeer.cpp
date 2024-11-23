@@ -181,7 +181,7 @@ namespace Nz
 
 	void ENetPeer::SimulateNetwork(double packetLossProbability, UInt16 minDelay, UInt16 maxDelay)
 	{
-		NazaraAssert(maxDelay >= minDelay, "Maximum delay cannot be greater than minimum delay");
+		NazaraAssertMsg(maxDelay >= minDelay, "Maximum delay cannot be greater than minimum delay");
 
 		if (packetLossProbability <= 0.0 && minDelay == 0 && maxDelay == 0)
 			m_isSimulationEnabled = false;

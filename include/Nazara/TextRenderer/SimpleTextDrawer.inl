@@ -60,7 +60,7 @@ namespace Nz
 
 	inline float SimpleTextDrawer::GetLineHeight() const
 	{
-		NazaraAssert(m_font, "SimpleTextDrawer has no font");
+		NazaraAssertMsg(m_font, "SimpleTextDrawer has no font");
 		return GetLineHeight(m_font->GetSizeInfo(m_characterSize));
 	}
 
@@ -133,7 +133,7 @@ namespace Nz
 	{
 		if (m_maxLineWidth != lineWidth)
 		{
-			NazaraAssert(lineWidth > 0.f, "Max line width must be positive");
+			NazaraAssertMsg(lineWidth > 0.f, "max line width must be positive");
 
 			m_maxLineWidth = lineWidth;
 
@@ -349,7 +349,7 @@ namespace Nz
 
 	inline void SimpleTextDrawer::UpdateGlyphs() const
 	{
-		NazaraAssert(m_font && m_font->IsValid(), "Invalid font");
+		NazaraAssertMsg(m_font && m_font->IsValid(), "invalid font");
 
 		ClearGlyphs();
 		GenerateGlyphs(m_text);

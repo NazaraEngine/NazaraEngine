@@ -15,7 +15,7 @@ namespace Nz
 	{
 		bool Loader::EnumerateInstanceExtensionProperties(std::vector<VkExtensionProperties>* properties, const char* layerName)
 		{
-			NazaraAssert(properties, "Invalid device vector");
+			NazaraAssertMsg(properties, "Invalid device vector");
 
 			// First, query physical device count
 			UInt32 propertyCount = 0; // Remember, Nz::UInt32 is a typedef on uint32_t
@@ -40,7 +40,7 @@ namespace Nz
 
 		bool Loader::EnumerateInstanceLayerProperties(std::vector<VkLayerProperties>* properties)
 		{
-			NazaraAssert(properties, "Invalid device vector");
+			NazaraAssertMsg(properties, "Invalid device vector");
 
 			// First, query physical device count
 			UInt32 propertyCount = 0; // Remember, Nz::UInt32 is a typedef on uint32_t

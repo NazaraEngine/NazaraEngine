@@ -13,8 +13,8 @@ namespace Nz
 
 	inline VkImageSubresourceLayers VulkanTexture::BuildSubresourceLayers(UInt32 level, UInt32 baseLayer, UInt32 layerCount) const
 	{
-		NazaraAssert(m_subresourceRange.baseMipLevel + level < m_textureInfo.levelCount, "mipmap level out of bounds");
-		NazaraAssert(m_subresourceRange.baseArrayLayer + baseLayer + layerCount <= m_textureInfo.layerCount, "mipmap level out of bounds");
+		NazaraAssertMsg(m_subresourceRange.baseMipLevel + level < m_textureInfo.levelCount, "mipmap level out of bounds");
+		NazaraAssertMsg(m_subresourceRange.baseArrayLayer + baseLayer + layerCount <= m_textureInfo.layerCount, "mipmap level out of bounds");
 
 		VkImageSubresourceLayers subresourceLayers;
 		subresourceLayers.aspectMask = m_subresourceRange.aspectMask;
@@ -34,7 +34,7 @@ namespace Nz
 	{
 		VkImageSubresourceLayers subresourceLayers = BuildSubresourceLayers(baseLevel, baseLayer, layerCount);
 
-		NazaraAssert(subresourceLayers.mipLevel + levelCount <= m_textureInfo.levelCount, "mipmap level out of bounds");
+		NazaraAssertMsg(subresourceLayers.mipLevel + levelCount <= m_textureInfo.levelCount, "mipmap level out of bounds");
 
 		return {
 			subresourceLayers.aspectMask,

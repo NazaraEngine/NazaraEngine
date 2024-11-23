@@ -82,7 +82,7 @@ namespace Nz
 
 	bool Font::Create(std::unique_ptr<FontData> data)
 	{
-		NazaraAssert(data, "invalid font data");
+		NazaraAssertMsg(data, "invalid font data");
 
 		Destroy();
 		m_data = std::move(data);
@@ -107,7 +107,7 @@ namespace Nz
 
 	bool Font::ExtractGlyph(unsigned int characterSize, char32_t character, TextStyleFlags style, float outlineThickness, FontGlyph* glyph) const
 	{
-		NazaraAssert(IsValid(), "invalid font");
+		NazaraAssertMsg(IsValid(), "invalid font");
 		return m_data->ExtractGlyph(characterSize, character, style, outlineThickness, glyph);
 	}
 
@@ -137,13 +137,13 @@ namespace Nz
 
 	std::string Font::GetFamilyName() const
 	{
-		NazaraAssert(IsValid(), "invalid font");
+		NazaraAssertMsg(IsValid(), "invalid font");
 		return m_data->GetFamilyName();
 	}
 
 	int Font::GetKerning(unsigned int characterSize, char32_t first, char32_t second) const
 	{
-		NazaraAssert(IsValid(), "invalid font");
+		NazaraAssertMsg(IsValid(), "invalid font");
 		if (!m_fontHasKerning)
 			return 0;
 
@@ -182,7 +182,7 @@ namespace Nz
 
 	const Font::SizeInfo& Font::GetSizeInfo(unsigned int characterSize) const
 	{
-		NazaraAssert(IsValid(), "invalid font");
+		NazaraAssertMsg(IsValid(), "invalid font");
 
 		auto it = m_sizeInfoCache.find(characterSize);
 		if (it == m_sizeInfoCache.end())
@@ -209,7 +209,7 @@ namespace Nz
 
 	std::string Font::GetStyleName() const
 	{
-		NazaraAssert(IsValid(), "invalid font");
+		NazaraAssertMsg(IsValid(), "invalid font");
 		return m_data->GetStyleName();
 	}
 
@@ -226,7 +226,7 @@ namespace Nz
 
 	bool Font::Precache(unsigned int characterSize, TextStyleFlags style, float outlineThickness, std::string_view characterSet) const
 	{
-		NazaraAssert(!characterSet.empty(), "empty character set");
+		NazaraAssertMsg(!characterSet.empty(), "empty character set");
 
 		UInt64 key = ComputeKey(characterSize, style, outlineThickness);
 		auto& glyphMap = m_glyphes[key];
@@ -277,7 +277,7 @@ namespace Nz
 	{
 		if (m_minimumStepSize != minimumStepSize)
 		{
-			NazaraAssert(minimumStepSize != 0, "Minimum step size cannot be zero");
+			NazaraAssertMsg(minimumStepSize != 0, "Minimum step size cannot be zero");
 
 			m_minimumStepSize = minimumStepSize;
 			ClearGlyphCache();
@@ -318,7 +318,7 @@ namespace Nz
 	std::shared_ptr<Font> Font::OpenFromFile(const std::filesystem::path& filePath, const FontParams& params)
 	{
 		TextRenderer* textRenderer = TextRenderer::Instance();
-		NazaraAssert(textRenderer, "TextRenderer module has not been initialized");
+		NazaraAssertMsg(textRenderer, "TextRenderer module has not been initialized");
 
 		return textRenderer->GetFontLoader().LoadFromFile(filePath, params);
 	}
@@ -326,7 +326,7 @@ namespace Nz
 	std::shared_ptr<Font> Font::OpenFromMemory(const void* data, std::size_t size, const FontParams& params)
 	{
 		TextRenderer* textRenderer = TextRenderer::Instance();
-		NazaraAssert(textRenderer, "TextRenderer module has not been initialized");
+		NazaraAssertMsg(textRenderer, "TextRenderer module has not been initialized");
 
 		return textRenderer->GetFontLoader().LoadFromMemory(data, size, params);
 	}
@@ -334,7 +334,7 @@ namespace Nz
 	std::shared_ptr<Font> Font::OpenFromStream(Stream& stream, const FontParams& params)
 	{
 		TextRenderer* textRenderer = TextRenderer::Instance();
-		NazaraAssert(textRenderer, "TextRenderer module has not been initialized");
+		NazaraAssertMsg(textRenderer, "TextRenderer module has not been initialized");
 
 		return textRenderer->GetFontLoader().LoadFromStream(stream, params);
 	}
@@ -351,7 +351,7 @@ namespace Nz
 
 	void Font::SetDefaultMinimumStepSize(unsigned int minimumStepSize)
 	{
-		NazaraAssert(minimumStepSize, "minimum step size cannot be zero as it implies a division by zero");
+		NazaraAssertMsg(minimumStepSize, "minimum step size cannot be zero as it implies a division by zero");
 
 		s_defaultMinimumStepSize = minimumStepSize;
 	}
@@ -420,7 +420,7 @@ namespace Nz
 		Glyph& glyph = glyphMap[character]; //< Insert a new glyph
 		glyph.valid = false;
 
-		NazaraAssert(m_atlas, "font has no atlas");
+		NazaraAssertMsg(m_atlas, "font has no atlas");
 
 		// Check if requested style is supported by our font (otherwise it will need to be simulated)
 		glyph.fauxOutlineThickness = 0.f;

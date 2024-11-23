@@ -56,7 +56,7 @@ namespace Nz
 
 	auto RichTextDrawer::AppendText(std::string_view str, bool forceNewBlock) -> BlockRef
 	{
-		NazaraAssert(!str.empty(), "String cannot be empty");
+		NazaraAssertMsg(!str.empty(), "String cannot be empty");
 
 		std::size_t currentFontIndex = HandleFontAddition(m_currentFont);
 
@@ -126,7 +126,7 @@ namespace Nz
 
 	const std::shared_ptr<Font>& RichTextDrawer::GetFont(std::size_t index) const
 	{
-		NazaraAssert(index < m_fonts.size(), "Font index out of range");
+		NazaraAssertMsg(index < m_fonts.size(), "Font index out of range");
 
 		return m_fonts[index].font;
 	}
@@ -220,7 +220,7 @@ namespace Nz
 
 	void RichTextDrawer::RemoveBlock(std::size_t index)
 	{
-		NazaraAssert(index < m_blocks.size(), "Invalid block index");
+		NazaraAssertMsg(index < m_blocks.size(), "Invalid block index");
 
 		std::size_t textLength = m_blocks[index].text.size();
 
@@ -522,7 +522,7 @@ namespace Nz
 		auto it = std::find_if(m_fonts.begin(), m_fonts.end(), [font](const auto& fontData) { return fontData.font.get() == font; });
 		if (it == m_fonts.end())
 		{
-			NazaraInternalError("Not listening to " + PointerToString(font));
+			NazaraInternalError("Not listening to {0}", PointerToString(font));
 			return;
 		}
 #endif
@@ -544,7 +544,7 @@ namespace Nz
 		auto it = std::find_if(m_fonts.begin(), m_fonts.end(), [font](const auto& fontData) { return fontData.font.get() == font; });
 		if (it == m_fonts.end())
 		{
-			NazaraInternalError("Not listening to " + PointerToString(font));
+			NazaraInternalError("Not listening to {0}", PointerToString(font));
 			return;
 		}
 #endif
@@ -561,7 +561,7 @@ namespace Nz
 		auto it = std::find_if(m_fonts.begin(), m_fonts.end(), [font](const auto& fontData) { return fontData.font.get() == font; });
 		if (it == m_fonts.end())
 		{
-			NazaraInternalError("Not listening to " + PointerToString(font));
+			NazaraInternalError("Not listening to {0}", PointerToString(font));
 			return;
 		}
 #endif
