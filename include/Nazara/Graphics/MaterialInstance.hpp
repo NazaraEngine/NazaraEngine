@@ -33,6 +33,7 @@ namespace Nz
 	class MaterialInstance;
 	class MaterialPipeline;
 	class TextureAsset;
+	struct RenderResourceReferences;
 
 	using MaterialInstanceLibrary = ObjectLibrary<MaterialInstance>;
 	using MaterialInstanceLoader = ResourceLoader<MaterialInstance, MaterialInstanceParams>;
@@ -59,7 +60,7 @@ namespace Nz
 			void EnablePass(std::string_view passName, bool enable = true);
 			inline void EnablePass(std::size_t passIndex, bool enable = true);
 
-			void FillShaderBinding(std::vector<ShaderBinding::Binding>& bindings) const;
+			void FillShaderBinding(RenderResourceReferences& resourceReferences, std::vector<ShaderBinding::Binding>& bindings) const;
 
 			inline std::size_t FindBufferProperty(std::string_view propertyName) const;
 			inline std::size_t FindTextureProperty(std::string_view propertyName) const;
@@ -177,6 +178,7 @@ namespace Nz
 			struct UniformBuffer
 			{
 				std::size_t poolBufferIndex;
+				std::shared_ptr<RenderBuffer> renderBuffer;
 				std::vector<UInt8> values;
 				RenderBufferView bufferView;
 				bool dataInvalidated = true;

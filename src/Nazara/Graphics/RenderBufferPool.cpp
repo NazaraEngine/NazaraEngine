@@ -32,7 +32,7 @@ namespace Nz
 		}
 	}
 
-	RenderBufferView RenderBufferPool::Allocate(std::size_t& index)
+	std::pair<std::shared_ptr<RenderBuffer>, RenderBufferView> RenderBufferPool::Allocate(std::size_t& index)
 	{
 		// First try to fetch from an already allocated block
 		index = m_availableEntries.FindFirst();
@@ -43,7 +43,7 @@ namespace Nz
 
 			std::size_t localIndex = index - (blockIndex * m_bufferPerBlock); //< faster than index % m_bufferPerBlock
 
-			return RenderBufferView(m_bufferBlocks[blockIndex].get(), localIndex * m_bufferAlignedSize, m_bufferSize);
+			return { m_bufferBlocks[blockIndex], RenderBufferView(m_bufferBlocks[blockIndex].get(), localIndex * m_bufferAlignedSize, m_bufferSize) };
 		}
 
 		// Allocate a new block
@@ -56,7 +56,7 @@ namespace Nz
 
 		std::size_t localIndex = index - (blockIndex * m_bufferPerBlock); //< faster than index % m_bufferPerBlock
 
-		return RenderBufferView(m_bufferBlocks[blockIndex].get(), localIndex * m_bufferAlignedSize, m_bufferSize);
+		return { m_bufferBlocks[blockIndex], RenderBufferView(m_bufferBlocks[blockIndex].get(), localIndex * m_bufferAlignedSize, m_bufferSize) };
 	}
 
 	void RenderBufferPool::Free(std::size_t index)

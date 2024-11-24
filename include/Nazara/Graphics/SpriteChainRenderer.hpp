@@ -9,6 +9,7 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/ElementRenderer.hpp>
+#include <Nazara/Graphics/RenderResourceReferences.hpp>
 #include <Nazara/Graphics/RenderSpriteChain.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
@@ -45,6 +46,7 @@ namespace Nz
 			std::size_t count;
 		};
 
+		std::optional<RenderResourceReferences> references;
 		std::unordered_map<const RenderSpriteChain*, DrawCallIndices> drawCallPerElement;
 		std::vector<DrawCall> drawCalls;
 		std::vector<std::shared_ptr<RenderBuffer>> vertexBuffers;
@@ -95,13 +97,14 @@ namespace Nz
 				Recti currentScissorBox = Recti(-1, -1, -1, -1);
 			};
 
-			struct VertexBufferPool
+			struct PoolData
 			{
+				std::vector<RenderResourceReferences> references;
 				std::vector<std::shared_ptr<RenderBuffer>> vertexBuffers;
 			};
 
 			std::shared_ptr<RenderBuffer> m_indexBuffer;
-			std::shared_ptr<VertexBufferPool> m_vertexBufferPool;
+			std::shared_ptr<PoolData> m_pool;
 			std::size_t m_maxVertexBufferSize;
 			std::size_t m_maxVertexCount;
 			std::vector<BufferCopy> m_pendingCopies;

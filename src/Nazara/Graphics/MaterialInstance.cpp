@@ -8,6 +8,7 @@
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
 #include <Nazara/Graphics/MaterialPipeline.hpp>
+#include <Nazara/Graphics/RenderResourceReferences.hpp>
 #include <Nazara/Graphics/TextureAsset.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/RenderResources.hpp>
@@ -71,7 +72,7 @@ namespace Nz
 			const auto& uniformBlockData = m_parent->GetUniformBlockData(i);
 
 			auto& uniformBuffer = m_uniformBuffers[i];
-			uniformBuffer.bufferView = uniformBlockData.bufferPool->Allocate(uniformBuffer.poolBufferIndex);
+			std::tie(uniformBuffer.renderBuffer, uniformBuffer.bufferView) = uniformBlockData.bufferPool->Allocate(uniformBuffer.poolBufferIndex);
 			uniformBuffer.values.resize(uniformBlockData.bufferPool->GetBufferSize());
 		}
 
@@ -113,7 +114,7 @@ namespace Nz
 			const auto& uniformBlockData = m_parent->GetUniformBlockData(i);
 
 			auto& uniformBuffer = m_uniformBuffers[i];
-			uniformBuffer.bufferView = uniformBlockData.bufferPool->Allocate(uniformBuffer.poolBufferIndex);
+			std::tie(uniformBuffer.renderBuffer, uniformBuffer.bufferView) = uniformBlockData.bufferPool->Allocate(uniformBuffer.poolBufferIndex);
 			assert(material.m_uniformBuffers[i].values.size() == uniformBlockData.bufferPool->GetBufferSize());
 			uniformBuffer.values = material.m_uniformBuffers[i].values;
 		}
@@ -140,7 +141,7 @@ namespace Nz
 		return EnablePass(passIndex, enable);
 	}
 
-	void MaterialInstance::FillShaderBinding(std::vector<ShaderBinding::Binding>& bindings) const
+	void MaterialInstance::FillShaderBinding(RenderResourceReferences& resourceReferences, std::vector<ShaderBinding::Binding>& bindings) const
 	{
 		// Textures
 		const auto& defaultTextures = Graphics::Instance()->GetDefaultTextures();
@@ -159,6 +160,8 @@ namespace Nz
 					storageInfo.renderBuffer.get(), storageInfo.offset, storageInfo.size
 				}
 			});
+
+			resourceReferences.renderBuffers.emplace(storageInfo.renderBuffer);
 		}
 
 		// Textures
@@ -171,13 +174,18 @@ namespace Nz
 			if (textureBinding.texture)
 			{
 				if (const auto& textureObject = textureBinding.texture->GetOrCreateTexture(*renderDevice))
+				{
 					texture = textureObject.get();
+					resourceReferences.textures.emplace(textureObject);
+				}
 			}
 
 			if (!texture)
 				texture = defaultTextures.whiteTextures[textureSlot.imageType]->GetOrCreateTexture(*renderDevice).get();
 
 			const std::shared_ptr<TextureSampler>& sampler = (textureBinding.sampler) ? textureBinding.sampler : samplerCache.Get({});
+			if (textureBinding.sampler)
+				resourceReferences.samplers.emplace(textureBinding.sampler);
 
 			bindings.push_back({
 				textureSlot.bindingIndex,
@@ -199,6 +207,8 @@ namespace Nz
 					uboInfo.bufferView.GetBuffer(), uboInfo.bufferView.GetOffset(), uboInfo.bufferView.GetSize()
 				}
 			});
+
+			resourceReferences.renderBuffers.emplace(uboInfo.renderBuffer);
 		}
 	}
 

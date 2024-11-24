@@ -9,6 +9,7 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/ElementRenderer.hpp>
+#include <Nazara/Graphics/RenderResourceReferences.hpp>
 #include <Nazara/Graphics/RenderSubmesh.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
@@ -21,7 +22,7 @@ namespace Nz
 	class NAZARA_GRAPHICS_API SubmeshRenderer final : public ElementRenderer
 	{
 		public:
-			SubmeshRenderer() = default;
+			SubmeshRenderer();
 			~SubmeshRenderer() = default;
 
 			RenderElementPool<RenderSubmesh>& GetPool() override;
@@ -32,6 +33,12 @@ namespace Nz
 			void Reset(ElementRendererData& rendererData, RenderResources& renderResources) override;
 
 		private:
+			struct PoolData
+			{
+				std::vector<RenderResourceReferences> references;
+			};
+
+			std::shared_ptr<PoolData> m_pool;
 			std::vector<ShaderBinding::Binding> m_bindingCache;
 			std::vector<ShaderBinding::SampledTextureBinding> m_textureBindingCache;
 			RenderElementPool<RenderSubmesh> m_submeshPool;
@@ -57,6 +64,7 @@ namespace Nz
 			std::size_t count;
 		};
 
+		std::optional<RenderResourceReferences> references;
 		std::unordered_map<const RenderSubmesh*, DrawCallIndices> drawCallPerElement;
 		std::vector<DrawCall> drawCalls;
 		std::vector<ShaderBindingPtr> shaderBindings;

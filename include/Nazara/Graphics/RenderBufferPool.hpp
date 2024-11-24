@@ -26,7 +26,7 @@ namespace Nz
 			RenderBufferPool(RenderBufferPool&&) = delete;
 			~RenderBufferPool() = default;
 
-			RenderBufferView Allocate(std::size_t& index);
+			std::pair<std::shared_ptr<RenderBuffer>, RenderBufferView> Allocate(std::size_t& index);
 
 			void Free(std::size_t index);
 

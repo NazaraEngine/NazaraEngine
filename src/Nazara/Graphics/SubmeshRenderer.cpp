@@ -14,6 +14,11 @@
 
 namespace Nz
 {
+	SubmeshRenderer::SubmeshRenderer()
+	{
+		m_pool = std::make_shared<PoolData>();
+	}
+
 	RenderElementPool<RenderSubmesh>& SubmeshRenderer::GetPool()
 	{
 		return m_submeshPool;
@@ -30,6 +35,17 @@ namespace Nz
 		auto& renderDevice = *graphics->GetRenderDevice();
 
 		auto& data = static_cast<SubmeshRendererData&>(rendererData);
+		if (!data.references)
+		{
+			if (!m_pool->references.empty())
+			{
+				data.references = std::move(m_pool->references.back());
+				m_pool->references.pop_back();
+			}
+			else
+				data.references.emplace();
+		}
+	
 
 		Recti invalidScissorBox(-1, -1, -1, -1);
 
@@ -69,7 +85,7 @@ namespace Nz
 
 		for (std::size_t i = 0; i < elementCount; ++i)
 		{
-			assert(elements[i]->GetElementType() == UnderlyingCast(BasicRenderElement::Submesh));
+			NazaraAssert(elements[i]->GetElementType() == UnderlyingCast(BasicRenderElement::Submesh));
 			const RenderSubmesh& submesh = static_cast<const RenderSubmesh&>(*elements[i]);
 			const RenderStates& renderState = renderStates[i];
 
@@ -127,19 +143,21 @@ namespace Nz
 
 			if (!currentShaderBinding)
 			{
-				assert(currentMaterialInstance);
+				NazaraAssert(currentMaterialInstance);
 
 				m_bindingCache.clear();
 				m_textureBindingCache.clear();
 				m_textureBindingCache.reserve(renderState.shadowMapsSpot.size() + renderState.shadowMapsDirectional.size() + renderState.shadowMapsPoint.size());
-				currentMaterialInstance->FillShaderBinding(m_bindingCache);
+
+				NazaraAssert(data.references);
+				currentMaterialInstance->FillShaderBinding(*data.references, m_bindingCache);
 
 				const Material& material = *currentMaterialInstance->GetParentMaterial();
 
 				// Predefined shader bindings
 				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::InstanceDataUbo); bindingIndex != Material::InvalidBindingIndex)
 				{
-					assert(currentWorldInstance);
+					NazaraAssert(currentWorldInstance);
 					const auto& instanceBuffer = currentWorldInstance->GetInstanceBuffer();
 
 					auto& bindingEntry = m_bindingCache.emplace_back();
@@ -352,6 +370,16 @@ namespace Nz
 	void SubmeshRenderer::Reset(ElementRendererData& rendererData, RenderResources& renderResources)
 	{
 		auto& data = static_cast<SubmeshRendererData&>(rendererData);
+
+		if (data.references)
+		{
+			renderResources.PushReleaseCallback([pool = m_pool, references = std::move(*data.references)]() mutable
+			{
+				references.Clear();
+				pool->references.push_back(std::move(references));
+			});
+			data.references.reset();
+		}
 
 		for (auto& shaderBinding : data.shaderBindings)
 			renderResources.PushForRelease(std::move(shaderBinding));

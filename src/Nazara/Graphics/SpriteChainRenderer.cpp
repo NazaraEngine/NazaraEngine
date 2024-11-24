@@ -21,7 +21,7 @@ namespace Nz
 	m_maxVertexCount(m_maxVertexBufferSize / (2 * sizeof(float))), // Treat vec2 as the minimum declaration possible
 	m_device(device)
 	{
-		m_vertexBufferPool = std::make_shared<VertexBufferPool>();
+		m_pool = std::make_shared<PoolData>();
 
 		std::size_t maxQuadCount = m_maxVertexCount / 4;
 		std::size_t indexCount = 6 * maxQuadCount;
@@ -63,6 +63,17 @@ namespace Nz
 		const auto& defaultSampler = graphics->GetSamplerCache().Get({});
 
 		auto& data = static_cast<SpriteChainRendererData&>(rendererData);
+
+		if (!data.references)
+		{
+			if (!m_pool->references.empty())
+			{
+				data.references = std::move(m_pool->references.back());
+				m_pool->references.pop_back();
+			}
+			else
+				data.references.emplace();
+		}
 
 		Recti invalidScissorBox(-1, -1, -1, -1);
 
@@ -139,10 +150,10 @@ namespace Nz
 					std::shared_ptr<RenderBuffer> vertexBuffer;
 
 					// Try to reuse vertex buffers from pool if any
-					if (!m_vertexBufferPool->vertexBuffers.empty())
+					if (!m_pool->vertexBuffers.empty())
 					{
-						vertexBuffer = std::move(m_vertexBufferPool->vertexBuffers.back());
-						m_vertexBufferPool->vertexBuffers.pop_back();
+						vertexBuffer = std::move(m_pool->vertexBuffers.back());
+						m_pool->vertexBuffers.pop_back();
 					}
 					else
 						vertexBuffer = m_device.InstantiateBuffer(BufferType::Vertex, m_maxVertexBufferSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write);
@@ -157,7 +168,7 @@ namespace Nz
 					m_bindingCache.clear();
 
 					const MaterialInstance& materialInstance = spriteChain.GetMaterialInstance();
-					materialInstance.FillShaderBinding(m_bindingCache);
+					materialInstance.FillShaderBinding(*data.references, m_bindingCache);
 
 					// Engine shader bindings
 					const Material& material = *materialInstance.GetParentMaterial();
@@ -336,9 +347,19 @@ namespace Nz
 	{
 		auto& data = static_cast<SpriteChainRendererData&>(rendererData);
 
+		if (data.references)
+		{
+			renderResources.PushReleaseCallback([pool = m_pool, references = std::move(*data.references)]() mutable
+			{
+				references.Clear();
+				pool->references.push_back(std::move(references));
+			});
+			data.references.reset();
+		}
+
 		for (auto& vertexBufferPtr : data.vertexBuffers)
 		{
-			renderResources.PushReleaseCallback([pool = m_vertexBufferPool, vertexBuffer = std::move(vertexBufferPtr)]() mutable
+			renderResources.PushReleaseCallback([pool = m_pool, vertexBuffer = std::move(vertexBufferPtr)]() mutable
 			{
 				pool->vertexBuffers.push_back(std::move(vertexBuffer));
 			});
