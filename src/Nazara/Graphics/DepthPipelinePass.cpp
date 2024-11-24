@@ -107,7 +107,7 @@ namespace Nz
 
 			matPassEntry.onMaterialInstanceShaderBindingInvalidated.Connect(materialInstance.OnMaterialInstanceShaderBindingInvalidated, [this](const MaterialInstance*)
 			{
-				m_rebuildCommandBuffer = true;
+				m_rebuildElements = true;
 			});
 		}
 		else
