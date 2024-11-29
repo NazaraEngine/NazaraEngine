@@ -256,6 +256,8 @@ namespace Nz
 
 					if (bodyComponent.GetReplicationMode() == PhysicsReplication3D::CustomOnce)
 						bodyComponent.SetReplicationMode(PhysicsReplication3D::None);
+
+					break;
 				}
 
 				case PhysicsReplication3D::Global:
@@ -264,6 +266,7 @@ namespace Nz
 					nodeComponent.SetGlobalTransform(position, rotation);
 					if (bodyComponent.GetReplicationMode() == PhysicsReplication3D::GlobalOnce)
 						bodyComponent.SetReplicationMode(PhysicsReplication3D::None);
+
 					break;
 				}
 
@@ -273,6 +276,7 @@ namespace Nz
 					nodeComponent.SetTransform(position, rotation);
 					if (bodyComponent.GetReplicationMode() == PhysicsReplication3D::LocalOnce)
 						bodyComponent.SetReplicationMode(PhysicsReplication3D::None);
+
 					break;
 				}
 
