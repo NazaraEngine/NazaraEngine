@@ -459,7 +459,7 @@ namespace Nz
 			Error(message);
 		else
 			Warning(message);
-}
+	}
 }
 
 #undef NAZARA_CORE_STRICT_RESOURCE_PARSING

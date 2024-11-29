@@ -7,12 +7,11 @@
 #ifndef NAZARA_GRAPHICS_PREDEFINEDSHADERSTRUCTBUILDER_HPP
 #define NAZARA_GRAPHICS_PREDEFINEDSHADERSTRUCTBUILDER_HPP
 
-#include <Nazara/Graphics/Export.hpp>
 #include <NZSL/Math/FieldOffsets.hpp>
 
 namespace Nz
 {
-	struct NAZARA_GRAPHICS_API PredefinedDirectionalLightData
+	struct PredefinedDirectionalLightData
 	{
 		nzsl::FieldOffsets fieldOffsets;
 
@@ -32,7 +31,7 @@ namespace Nz
 		static constexpr PredefinedDirectionalLightData Build();
 	};
 
-	struct NAZARA_GRAPHICS_API PredefinedPointLightData
+	struct PredefinedPointLightData
 	{
 		nzsl::FieldOffsets fieldOffsets;
 
@@ -49,7 +48,7 @@ namespace Nz
 		static constexpr PredefinedPointLightData Build();
 	};
 
-	struct NAZARA_GRAPHICS_API PredefinedSpotLightData
+	struct PredefinedSpotLightData
 	{
 		nzsl::FieldOffsets fieldOffsets;
 
@@ -69,7 +68,7 @@ namespace Nz
 		static constexpr PredefinedSpotLightData Build();
 	};
 
-	struct NAZARA_GRAPHICS_API PredefinedLightData
+	struct PredefinedLightData
 	{
 		nzsl::FieldOffsets fieldOffsets;
 
@@ -87,7 +86,7 @@ namespace Nz
 		static constexpr PredefinedLightData Build();
 	};
 
-	struct NAZARA_GRAPHICS_API PredefinedInstanceData
+	struct PredefinedInstanceData
 	{
 		nzsl::FieldOffsets fieldOffsets;
 
@@ -99,7 +98,7 @@ namespace Nz
 		static constexpr PredefinedInstanceData Build();
 	};
 
-	struct NAZARA_GRAPHICS_API PredefinedSkeletalData
+	struct PredefinedSkeletalData
 	{
 		nzsl::FieldOffsets fieldOffsets;
 
@@ -112,7 +111,7 @@ namespace Nz
 		static constexpr PredefinedSkeletalData Build();
 	};
 
-	struct NAZARA_GRAPHICS_API PredefinedViewerData
+	struct PredefinedViewerData
 	{
 		nzsl::FieldOffsets fieldOffsets;
 
