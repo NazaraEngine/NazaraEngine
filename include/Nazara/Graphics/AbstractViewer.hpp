@@ -15,6 +15,7 @@
 
 namespace Nz
 {
+	class DebugDrawer;
 	class RenderTarget;
 	class ViewerInstance;
 
@@ -25,6 +26,7 @@ namespace Nz
 			virtual ~AbstractViewer();
 
 			virtual const Color& GetClearColor() const = 0;
+			virtual DebugDrawer* GetDebugDrawer() = 0;
 			virtual UInt32 GetRenderMask() const = 0;
 			virtual const RenderTarget& GetRenderTarget() const = 0;
 			virtual ViewerInstance& GetViewerInstance() = 0;

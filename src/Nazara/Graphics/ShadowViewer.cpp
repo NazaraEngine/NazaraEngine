@@ -11,6 +11,11 @@ namespace Nz
 		throw std::runtime_error("no clear color");
 	}
 
+	DebugDrawer* ShadowViewer::GetDebugDrawer()
+	{
+		return nullptr;
+	}
+
 	UInt32 ShadowViewer::GetRenderMask() const
 	{
 		return m_renderMask;

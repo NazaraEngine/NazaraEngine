@@ -14,6 +14,8 @@
 #include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector2.hpp>
+#include <Nazara/Renderer/DebugDrawer.hpp>
+#include <memory>
 
 namespace Nz
 {
@@ -27,6 +29,8 @@ namespace Nz
 			inline Camera(const Camera& camera);
 			inline Camera(Camera&& camera) noexcept;
 			~Camera() = default;
+
+			DebugDrawer* AccessDebugDrawer();
 
 			std::vector<std::unique_ptr<FramePipelinePass>> BuildPasses(FramePipelinePass::PassData& passData) const override;
 
@@ -63,6 +67,8 @@ namespace Nz
 			inline Camera& operator=(Camera&& camera) noexcept;
 
 		private:
+			DebugDrawer* GetDebugDrawer() override;
+
 			inline void UpdateProjectionMatrix();
 			inline void UpdateViewport();
 			inline void UpdateViewport(Vector2ui renderTargetSize);
@@ -72,6 +78,7 @@ namespace Nz
 
 			std::shared_ptr<PipelinePassList> m_framePipelinePasses;
 			std::shared_ptr<const RenderTarget> m_renderTarget;
+			std::unique_ptr<DebugDrawer> m_debugDrawer;
 			Color m_clearColor;
 			DegreeAnglef m_fov;
 			Int32 m_renderOrder;

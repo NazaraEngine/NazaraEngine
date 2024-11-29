@@ -5,17 +5,25 @@
 #include <Nazara/Graphics/DebugDrawPipelinePass.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/FrameGraph.hpp>
-#include <Nazara/Graphics/FramePipeline.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Renderer/DebugDrawer.hpp>
+#include <Nazara/Renderer/RenderResources.hpp>
 
 namespace Nz
 {
 	void DebugDrawPipelinePass::Prepare(FrameData& frameData)
 	{
-		DebugDrawer& debugDrawer = m_pipeline.GetDebugDrawer();
-		debugDrawer.SetViewerData(m_viewer->GetViewerInstance().GetViewProjMatrix());
-		debugDrawer.Prepare(frameData.renderResources);
+		DebugDrawer* debugDrawer = m_viewer->GetDebugDrawer();
+		if (!debugDrawer)
+			return;
+
+		debugDrawer->SetViewerData(m_viewer->GetViewerInstance().GetViewProjMatrix());
+		debugDrawer->Prepare(frameData.renderResources);
+
+		frameData.renderResources.Execute([&](CommandBufferBuilder& builder)
+		{
+			debugDrawer->Upload(builder, frameData.renderResources);
+		}, Nz::QueueType::Graphics);
 	}
 
 	FramePass& DebugDrawPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, const PassInputOuputs& inputOuputs)
@@ -38,7 +46,7 @@ namespace Nz
 
 		debugDrawPass.SetExecutionCallback([&]
 		{
-			return FramePassExecution::UpdateAndExecute;
+			return (m_viewer->GetDebugDrawer()) ? FramePassExecution::UpdateAndExecute : FramePassExecution::Skip;
 		});
 
 		debugDrawPass.SetCommandCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& /*env*/)
@@ -48,8 +56,11 @@ namespace Nz
 			builder.SetScissor(viewport);
 			builder.SetViewport(viewport);
 
-			DebugDrawer& debugDrawer = m_pipeline.GetDebugDrawer();
-			debugDrawer.Draw(builder);
+			DebugDrawer* debugDrawer = m_viewer->GetDebugDrawer();
+			NazaraAssert(debugDrawer);
+
+			debugDrawer->Draw(builder);
+			debugDrawer->Reset();
 		});
 
 		return debugDrawPass;

@@ -15,6 +15,14 @@ namespace Nz
 	{
 	}
 
+	DebugDrawer* Camera::AccessDebugDrawer()
+	{
+		if (!m_debugDrawer)
+			m_debugDrawer = std::make_unique<DebugDrawer>(*Graphics::Instance()->GetRenderDevice());
+
+		return m_debugDrawer.get();
+	}
+
 	std::vector<std::unique_ptr<FramePipelinePass>> Camera::BuildPasses(FramePipelinePass::PassData& passData) const
 	{
 		assert(m_framePipelinePasses);
@@ -80,5 +88,10 @@ namespace Nz
 
 			UpdateViewport();
 		}
+	}
+
+	DebugDrawer* Camera::GetDebugDrawer()
+	{
+		return m_debugDrawer.get();
 	}
 }

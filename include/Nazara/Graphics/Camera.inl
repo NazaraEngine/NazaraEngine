@@ -2,8 +2,6 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-#include <Nazara/Graphics/Components/CameraComponent.hpp>
-
 namespace Nz
 {
 	inline Camera::Camera(std::shared_ptr<const RenderTarget> renderTarget, std::shared_ptr<PipelinePassList> pipelinePasses, ProjectionType projectionType) :
@@ -41,6 +39,7 @@ namespace Nz
 
 	inline Camera::Camera(Camera&& camera) noexcept :
 	m_framePipelinePasses(std::move(camera.m_framePipelinePasses)),
+	m_debugDrawer(std::move(camera.m_debugDrawer)),
 	m_clearColor(camera.m_clearColor),
 	m_fov(camera.m_fov),
 	m_renderOrder(camera.m_renderOrder),

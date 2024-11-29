@@ -22,6 +22,7 @@ namespace Nz
 			~ShadowViewer() = default;
 
 			const Color& GetClearColor() const override;
+			DebugDrawer* GetDebugDrawer() override;
 			UInt32 GetRenderMask() const override;
 			const RenderTarget& GetRenderTarget() const override;
 			ViewerInstance& GetViewerInstance() override;

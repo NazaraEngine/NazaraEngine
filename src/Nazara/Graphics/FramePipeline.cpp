@@ -3,14 +3,8 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Graphics/FramePipeline.hpp>
-#include <Nazara/Graphics/Graphics.hpp>
 
 namespace Nz
 {
-	FramePipeline::FramePipeline() :
-	m_debugDrawer(*Graphics::Instance()->GetRenderDevice())
-	{
-	}
-
 	FramePipeline::~FramePipeline() = default;
 }

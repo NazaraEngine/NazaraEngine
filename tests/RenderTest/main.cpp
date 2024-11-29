@@ -322,7 +322,7 @@ int main()
 			return;
 		}
 
-		debugDrawer.Reset(frame);
+		debugDrawer.Reset();
 		debugDrawer.SetViewerData(ubo.viewMatrix * ubo.projectionMatrix);
 
 		Nz::Boxf aabb = spaceship->GetAABB();

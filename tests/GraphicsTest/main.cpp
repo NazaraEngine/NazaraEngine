@@ -188,14 +188,16 @@ int main()
 			return;
 		}
 
-		framePipeline.GetDebugDrawer().DrawLine(Nz::Vector3f::Zero(), Nz::Vector3f::Forward(), Nz::Color::Blue());
+		Nz::DebugDrawer* debugDrawer = camera.AccessDebugDrawer();
+
+		debugDrawer->DrawLine(Nz::Vector3f::Zero(), Nz::Vector3f::Forward(), Nz::Color::Blue());
 
 		for (const Nz::WorldInstancePtr& worldInstance : { modelInstance, modelInstance2 })
 		{
 			Nz::Boxf aabb = spaceshipModel->GetAABB();
 			aabb.Transform(worldInstance->GetWorldMatrix());
 
-			framePipeline.GetDebugDrawer().DrawBox(aabb, Nz::Color::Green());
+			debugDrawer->DrawBox(aabb, Nz::Color::Green());
 		}
 
 		viewerInstance.UpdateViewMatrix(Nz::Matrix4f::TransformInverse(viewerPos, camAngles));

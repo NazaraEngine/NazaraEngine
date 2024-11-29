@@ -427,7 +427,7 @@ int main(int argc, char* argv[])
 	{
 		auto& cameraNode = tvCameraEntity.emplace<Nz::NodeComponent>();
 		cameraNode.SetParentJoint(bobEntity, "mixamorig:Head");
-		//cameraNode.SetRotation(Nz::EulerAnglesf(-30.f, 180.f, 0.f));
+		cameraNode.SetRotation(Nz::EulerAnglesf(-30.f, 180.f, 0.f));
 		//cameraNode.SetParent(playerCamera);
 
 		auto& cameraComponent = tvCameraEntity.emplace<Nz::CameraComponent>(std::make_shared<Nz::RenderTexture>(screenTexture));
@@ -635,16 +635,13 @@ int main(int argc, char* argv[])
 				playerShipBody.AddForce(Nz::Vector3f::Down() * 3.f * mass, Nz::CoordSys::Local);*/
 		}
 
+		auto& cameraComponent = playerCamera.get<Nz::CameraComponent>();
 
-		Nz::DebugDrawer& debugDrawer = renderSystem.GetFramePipeline().GetDebugDrawer();
+		Nz::DebugDrawer* debugDrawer = cameraComponent.AccessDebugDrawer();
 		auto& lightNode = lightEntity3.get<Nz::NodeComponent>();
 		//debugDrawer.DrawLine(lightNode.GetGlobalPosition(), lightNode.GetForward() * 10.f, Nz::Color::Blue());
 		Nz::Vector3f pos = lightNode.GetGlobalPosition();
-		debugDrawer.DrawPoint(pos, Nz::Color::Blue());
-		/*debugDrawer.DrawBox(floorBox, Nz::Color::Red);
-		Nz::Boxf intersection;
-		if (floorBox.Intersect(test, &intersection))
-			debugDrawer.DrawBox(intersection, Nz::Color::Green());*/
+		debugDrawer->DrawPoint(pos, Nz::Color::Blue());
 
 		fps++;
 

@@ -487,10 +487,6 @@ namespace Nz
 
 		m_bakedFrameGraph.Execute(renderResources);
 		m_rebuildFrameGraph = false;
-
-		// reset at the end instead of the beginning so debug draw can be used before calling this method
-		DebugDrawer& debugDrawer = GetDebugDrawer();
-		debugDrawer.Reset(renderResources);
 	}
 
 	void ForwardFramePipeline::UnregisterLight(std::size_t lightIndex)

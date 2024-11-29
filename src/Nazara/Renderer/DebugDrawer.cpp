@@ -110,6 +110,14 @@ namespace Nz
 		if (!m_lineVertices.empty())
 		{
 			std::size_t vertexCount = m_lineVertices.size();
+
+			for (auto& drawCall : m_drawCalls)
+			{
+				renderResources.PushReleaseCallback([pool = m_dataPool, buffer = std::move(drawCall.vertexBuffer)]() mutable
+				{
+					pool->vertexBuffers.push_back(std::move(buffer));
+				});
+			}
 			m_drawCalls.clear();
 			m_drawCalls.reserve(vertexCount / m_vertexPerBlock + 1);
 
@@ -145,7 +153,17 @@ namespace Nz
 		}
 
 		// Handle viewer data
-		if (m_viewerDataUpdated)
+		if (m_currentViewerData.binding)
+		{
+			// keep pipeline layout alive as needs to stay alive until all shader bindings have been freed
+			renderResources.PushReleaseCallback([pool = m_dataPool, data = std::move(m_currentViewerData), pipelineLayout = m_renderPipelineLayout]() mutable
+			{
+				pool->viewerData.push_back(std::move(data));
+			});
+		}
+		m_currentViewerData.binding = {};
+
+		if (!m_viewerDataUpdated)
 		{
 			if (!m_dataPool->viewerData.empty())
 			{
@@ -167,68 +185,47 @@ namespace Nz
 				});
 			}
 		}
-
-		if (m_viewerDataUpdated || !m_pendingUploads.empty())
-		{
-			renderResources.Execute([&](CommandBufferBuilder& builder)
-			{
-				builder.BeginDebugRegion("Debug drawer upload", Color::Yellow());
-				{
-					builder.MemoryBarrier(PipelineStage::VertexInput | PipelineStage::FragmentShader, PipelineStage::Transfer, MemoryAccess::VertexBufferRead | MemoryAccess::UniformBufferRead, MemoryAccess::TransferWrite);
-
-					if (m_viewerDataUpdated)
-					{
-						const UploadPool::Allocation& viewerDataAllocation = uploadPool.Allocate(m_viewerData.size());
-						std::memcpy(viewerDataAllocation.mappedPtr, m_viewerData.data(), m_viewerData.size());
-
-						builder.CopyBuffer(viewerDataAllocation, m_currentViewerData.buffer.get());
-					}
-
-					for (auto& pendingUpload : m_pendingUploads)
-						builder.CopyBuffer(*pendingUpload.allocation, pendingUpload.vertexBuffer);
-					m_pendingUploads.clear();
-
-					builder.MemoryBarrier(PipelineStage::Transfer, PipelineStage::VertexInput | PipelineStage::FragmentShader, MemoryAccess::TransferWrite, MemoryAccess::VertexBufferRead | MemoryAccess::UniformBufferRead);
-				}
-				builder.EndDebugRegion();
-			}, QueueType::Graphics);
-		}
-
-		m_viewerDataUpdated = false;
 	}
 
-	void DebugDrawer::Reset(RenderResources& renderResources)
+	void DebugDrawer::Reset()
 	{
-		if (m_currentViewerData.binding)
-		{
-			// keep pipeline layout alive as needs to stay alive until all shader bindings have been freed
-			renderResources.PushReleaseCallback([pool = m_dataPool, data = std::move(m_currentViewerData), pipelineLayout = m_renderPipelineLayout]() mutable
-			{
-				pool->viewerData.push_back(std::move(data));
-			});
-		}
-		m_currentViewerData.binding = {};
-
-		for (auto& drawCall : m_drawCalls)
-		{
-			renderResources.PushReleaseCallback([pool = m_dataPool, buffer = std::move(drawCall.vertexBuffer)]() mutable
-			{
-				pool->vertexBuffers.push_back(std::move(buffer));
-			});
-		}
-		m_drawCalls.clear();
-
 		m_lineVertices.clear();
 	}
 
 	void DebugDrawer::SetViewerData(const Matrix4f& viewProjMatrix)
 	{
 		// Setup viewer data buffer for current frame
-		nzsl::FieldOffsets viewerDataFields(nzsl::StructLayout::Std140);
-		std::size_t viewProjOffset = viewerDataFields.AddMatrix(nzsl::StructFieldType::Float1, 4, 4, true);
+		AccessByOffset<Matrix4f&>(m_viewerData.data(), PredefinedDebugDrawerOffsets.viewProjOffset) = viewProjMatrix;
 
-		m_viewerData.resize(viewerDataFields.GetSize());
-		AccessByOffset<Matrix4f&>(m_viewerData.data(), viewProjOffset) = viewProjMatrix;
+		m_viewerDataUpdated = false;
+	}
+
+	void DebugDrawer::Upload(CommandBufferBuilder& builder, RenderResources& renderResources)
+	{
+		if (!m_viewerDataUpdated || !m_pendingUploads.empty())
+		{
+			UploadPool& uploadPool = renderResources.GetUploadPool();
+
+			builder.BeginDebugRegion("Debug drawer upload", Color::Yellow());
+			{
+				builder.MemoryBarrier(PipelineStage::VertexInput | PipelineStage::FragmentShader, PipelineStage::Transfer, MemoryAccess::VertexBufferRead | MemoryAccess::UniformBufferRead, MemoryAccess::TransferWrite);
+
+				if (!m_viewerDataUpdated)
+				{
+					const UploadPool::Allocation& viewerDataAllocation = uploadPool.Allocate(m_viewerData.size());
+					std::memcpy(viewerDataAllocation.mappedPtr, m_viewerData.data(), m_viewerData.size());
+
+					builder.CopyBuffer(viewerDataAllocation, m_currentViewerData.buffer.get());
+				}
+
+				for (auto& pendingUpload : m_pendingUploads)
+					builder.CopyBuffer(*pendingUpload.allocation, pendingUpload.vertexBuffer);
+				m_pendingUploads.clear();
+
+				builder.MemoryBarrier(PipelineStage::Transfer, PipelineStage::VertexInput | PipelineStage::FragmentShader, MemoryAccess::TransferWrite, MemoryAccess::VertexBufferRead | MemoryAccess::UniformBufferRead);
+			}
+			builder.EndDebugRegion();
+		}
 
 		m_viewerDataUpdated = true;
 	}

@@ -13,7 +13,6 @@
 #include <Nazara/Graphics/RenderElement.hpp>
 #include <Nazara/Graphics/SkeletonInstance.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
-#include <Nazara/Renderer/DebugDrawer.hpp>
 #include <NazaraUtils/FunctionRef.hpp>
 #include <memory>
 #include <vector>
@@ -30,7 +29,7 @@ namespace Nz
 	class NAZARA_GRAPHICS_API FramePipeline
 	{
 		public:
-			FramePipeline();
+			FramePipeline() = default;
 			FramePipeline(const FramePipeline&) = delete;
 			FramePipeline(FramePipeline&&) noexcept = default;
 			virtual ~FramePipeline();
@@ -39,8 +38,6 @@ namespace Nz
 			virtual const std::vector<FramePipelinePass::VisibleRenderable>& FrustumCull(const Frustumf& frustum, UInt32 mask, std::size_t& visibilityHash) const = 0;
 
 			virtual void ForEachRegisteredMaterialInstance(FunctionRef<void(const MaterialInstance& materialInstance)> callback) = 0;
-
-			inline DebugDrawer& GetDebugDrawer();
 
 			virtual void QueueTransfer(TransferInterface* transfer) = 0;
 
@@ -74,9 +71,6 @@ namespace Nz
 			NazaraSignal(OnTransfer, FramePipeline* /*pipeline*/, RenderResources& /*renderResources*/, CommandBufferBuilder& /*builder*/);
 
 			static constexpr std::size_t NoSkeletonInstance = std::numeric_limits<std::size_t>::max();
-
-		private:
-			DebugDrawer m_debugDrawer;
 	};
 }
 

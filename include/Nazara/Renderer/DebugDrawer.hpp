@@ -15,6 +15,7 @@
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Renderer/Export.hpp>
+#include <Nazara/Renderer/PredefinedShaderStructs.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
 #include <memory>
 #include <vector>
@@ -48,11 +49,13 @@ namespace Nz
 			inline void DrawPoint(const Vector3f& point, const Color& color, float boxSize = 0.01f);
 			void DrawSkeleton(const Skeleton& skeleton, const Color& color);
 
-			void Prepare(RenderResources& renderFrame);
+			void Prepare(RenderResources& renderResources);
 
-			void Reset(RenderResources& renderFrame);
+			void Reset();
 
 			void SetViewerData(const Matrix4f& viewProjMatrix);
+
+			void Upload(CommandBufferBuilder& builder, RenderResources& renderResources);
 
 			DebugDrawer& operator=(const DebugDrawer&) = delete;
 			DebugDrawer& operator=(DebugDrawer&&) = delete;
@@ -84,13 +87,13 @@ namespace Nz
 				RenderBuffer* vertexBuffer;
 			};
 
+			std::array<UInt8, PredefinedDebugDrawerOffsets.totalSize> m_viewerData;
 			std::shared_ptr<DataPool> m_dataPool;
 			std::shared_ptr<RenderPipeline> m_renderPipeline;
 			std::shared_ptr<RenderPipelineLayout> m_renderPipelineLayout;
 			std::size_t m_vertexPerBlock;
 			std::vector<DrawCall> m_drawCalls;
 			std::vector<PendingUpload> m_pendingUploads;
-			std::vector<UInt8> m_viewerData;
 			std::vector<VertexStruct_XYZ_Color> m_lineVertices;
 			RenderDevice& m_renderDevice;
 			ViewerData m_currentViewerData;
