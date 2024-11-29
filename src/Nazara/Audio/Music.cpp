@@ -425,8 +425,8 @@ namespace Nz
 
 		// Allocation of streaming buffers
 		NAZARA_DEFER(
-		{ 
-			m_source->UnqueueAllBuffers(); 
+		{
+			m_source->UnqueueAllBuffers();
 			m_source->GetAudioDevice()->DetachThread();
 		});
 

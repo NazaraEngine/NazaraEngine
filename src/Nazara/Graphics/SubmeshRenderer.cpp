@@ -45,7 +45,7 @@ namespace Nz
 			else
 				data.references.emplace();
 		}
-	
+
 
 		Recti invalidScissorBox(-1, -1, -1, -1);
 

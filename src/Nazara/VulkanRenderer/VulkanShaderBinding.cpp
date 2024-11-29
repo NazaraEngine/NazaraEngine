@@ -51,7 +51,7 @@ namespace Nz
 			VkWriteDescriptorSet& writeOp = writeOps.emplace_back();
 			writeOp.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 			writeOp.dstSet = m_descriptorSet;
-			writeOp.dstBinding = UInt32(binding.bindingIndex);
+			writeOp.dstBinding = binding.bindingIndex;
 
 			std::visit([&](auto&& arg)
 			{

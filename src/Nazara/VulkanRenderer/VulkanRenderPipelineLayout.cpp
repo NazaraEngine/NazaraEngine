@@ -133,7 +133,7 @@ namespace Nz
 
 		pool.freeBindings.Reset(freeBindingId);
 
-		VulkanShaderBinding* freeBindingMemory = reinterpret_cast<VulkanShaderBinding*>(&pool.storage[freeBindingId]);
+		VulkanShaderBinding* freeBindingMemory = reinterpret_cast<VulkanShaderBinding*>(std::launder(&pool.storage[freeBindingId]));
 		return ShaderBindingPtr(PlacementNew(freeBindingMemory, *this, poolIndex, freeBindingId, std::move(descriptorSet)));
 	}
 
@@ -148,7 +148,7 @@ namespace Nz
 		auto& pool = m_descriptorPools[poolIndex];
 		assert(!pool.freeBindings.Test(bindingIndex));
 
-		VulkanShaderBinding* bindingMemory = reinterpret_cast<VulkanShaderBinding*>(&pool.storage[bindingIndex]);
+		VulkanShaderBinding* bindingMemory = reinterpret_cast<VulkanShaderBinding*>(std::launder(&pool.storage[bindingIndex]));
 		PlacementDestroy(bindingMemory);
 
 		pool.freeBindings.Set(bindingIndex);

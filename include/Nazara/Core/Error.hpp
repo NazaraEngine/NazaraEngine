@@ -8,10 +8,10 @@
 #define NAZARA_CORE_ERROR_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <NazaraUtils/Assert.hpp>
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/Export.hpp>
 #include <Nazara/Core/Format.hpp>
+#include <NazaraUtils/Assert.hpp>
 #include <string>
 
 #define NazaraCheck(a, fmt, ...)      if NAZARA_UNLIKELY(!(a)) Nz::Error::Trigger(Nz::ErrorType::CheckFailed, __LINE__, __FILE__, NAZARA_PRETTY_FUNCTION, Nz::Format(NAZARA_FORMAT(fmt) __VA_OPT__(,) __VA_ARGS__))
