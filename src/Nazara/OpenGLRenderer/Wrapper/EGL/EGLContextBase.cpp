@@ -109,7 +109,8 @@ namespace Nz::GL
 			case PresentMode::Immediate:           interval = 0;  break;
 			case PresentMode::RelaxedVerticalSync: interval = -1; break;
 			case PresentMode::VerticalSync:        interval = 1;  break;
-			default: return; // TODO: Unreachable
+			default:
+				NAZARA_UNREACHABLE();
 		}
 
 		m_loader.eglSwapInterval(m_display, interval);

@@ -96,7 +96,8 @@ namespace Nz::GL
 			case PresentMode::Immediate:           interval = 0;  break;
 			case PresentMode::RelaxedVerticalSync: interval = -1; break; //< WGL_EXT_swap_control_tear
 			case PresentMode::VerticalSync:        interval = 1;  break;
-			default: return; // TODO: Unreachable
+			default:
+				NAZARA_UNREACHABLE();
 		}
 
 		wglSwapIntervalEXT(interval);
