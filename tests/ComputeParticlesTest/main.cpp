@@ -56,7 +56,7 @@ int main()
 
 	std::shared_ptr<Nz::RenderDevice> device = Nz::Renderer::Instance()->InstanciateRenderDevice(0, enabledFeatures);
 
-	nzsl::FieldOffsets particleLayout(nzsl::StructLayout::Std140);
+	nzsl::FieldOffsets particleLayout(nzsl::StructLayout::Std430);
 	std::size_t particleColorOffset = particleLayout.AddField(nzsl::StructFieldType::Float3);
 	std::size_t particlePosOffset = particleLayout.AddField(nzsl::StructFieldType::Float2);
 	std::size_t particleTargetPosOffset = particleLayout.AddField(nzsl::StructFieldType::Float2);
@@ -426,7 +426,7 @@ const char fragVertSource[] = R"(
 [nzsl_version("1.0")]
 module;
 
-[layout(std140)]
+[layout(std430)]
 struct Particle
 {
 	color: vec3[f32],
@@ -435,13 +435,14 @@ struct Particle
 	velocity: vec2[f32]
 }
 
-[layout(std140)]
+[layout(std430)]
 struct ParticleData
 {
 	particle_count: u32,
 	particles: dyn_array[Particle]
 }
 
+[layout(std140)]
 struct ViewerData
 {
 	projectionMatrix: mat4[f32]
@@ -450,7 +451,7 @@ struct ViewerData
 external
 {
 	[binding(0)] viewerData: uniform[ViewerData],
-	[binding(1)] particleData: storage[ParticleData],
+	[binding(1)] particleData: storage[ParticleData, readonly],
 	[binding(2)] texture: sampler2D[f32]
 }
 

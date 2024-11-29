@@ -1,7 +1,7 @@
 [nzsl_version("1.0")]
 module Compute.Particles;
 
-[layout(std140)]
+[layout(std430)]
 struct Particle
 {
 	color: vec3[f32],
@@ -10,7 +10,7 @@ struct Particle
 	velocity: vec2[f32]
 }
 
-[layout(std140)]
+[layout(std430)]
 struct ParticleData
 {
 	particle_count: u32,
