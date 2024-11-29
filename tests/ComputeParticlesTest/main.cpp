@@ -567,13 +567,13 @@ SpriteRenderData BuildSpriteData(Nz::RenderDevice& device, const SpriteRenderPip
 	try
 	{
 		std::array<Nz::VertexStruct_XY_UV, 4> pos;
-		pos[0].position = textureRect.GetCorner(Nz::RectCorner::LeftBottom);
+		pos[0].position = textureRect.GetCorner(Nz::RectCorner::LeftTop);
 		pos[0].uv = Nz::Vector2f(0.f, 0.f);
-		pos[1].position = textureRect.GetCorner(Nz::RectCorner::LeftTop);
+		pos[1].position = textureRect.GetCorner(Nz::RectCorner::LeftBottom);
 		pos[1].uv = Nz::Vector2f(0.f, 1.f);
-		pos[2].position = textureRect.GetCorner(Nz::RectCorner::RightBottom);
+		pos[2].position = textureRect.GetCorner(Nz::RectCorner::RightTop);
 		pos[2].uv = Nz::Vector2f(1.f, 0.f);
-		pos[3].position = textureRect.GetCorner(Nz::RectCorner::RightTop);
+		pos[3].position = textureRect.GetCorner(Nz::RectCorner::RightBottom);
 		pos[3].uv = Nz::Vector2f(1.f, 1.f);
 
 		SpriteRenderData renderData;
