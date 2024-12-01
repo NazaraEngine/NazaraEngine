@@ -105,23 +105,24 @@ namespace Nz
 
 	void DebugDrawer::Prepare(RenderResources& renderResources)
 	{
-		UploadPool& uploadPool = renderResources.GetUploadPool();
+		for (auto& drawCall : m_drawCalls)
+		{
+			renderResources.PushReleaseCallback([pool = m_dataPool, buffer = std::move(drawCall.vertexBuffer)]() mutable
+			{
+				pool->vertexBuffers.push_back(std::move(buffer));
+			});
+		}
+		m_drawCalls.clear();
+		m_pendingUploads.clear();
 
 		if (!m_lineVertices.empty())
 		{
+			UploadPool& uploadPool = renderResources.GetUploadPool();
+
 			std::size_t vertexCount = m_lineVertices.size();
 
-			for (auto& drawCall : m_drawCalls)
-			{
-				renderResources.PushReleaseCallback([pool = m_dataPool, buffer = std::move(drawCall.vertexBuffer)]() mutable
-				{
-					pool->vertexBuffers.push_back(std::move(buffer));
-				});
-			}
-			m_drawCalls.clear();
 			m_drawCalls.reserve(vertexCount / m_vertexPerBlock + 1);
 
-			m_pendingUploads.clear();
 			m_pendingUploads.reserve(vertexCount / m_vertexPerBlock + 1);
 
 			// Handle vertex buffers
