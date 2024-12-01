@@ -34,9 +34,11 @@ namespace Nz
 		public:
 			struct DynamicSettings;
 			struct StaticSettings;
+			using Settings = std::variant<DynamicSettings, StaticSettings>;
 
 			inline RigidBody3D(PhysWorld3D& world, const DynamicSettings& settings);
 			inline RigidBody3D(PhysWorld3D& world, const StaticSettings& settings);
+			inline RigidBody3D(PhysWorld3D& world, const Settings& settings);
 			RigidBody3D(const RigidBody3D& object) = delete;
 			RigidBody3D(RigidBody3D&& object) noexcept;
 			~RigidBody3D();
@@ -68,6 +70,7 @@ namespace Nz
 			Vector3f GetPosition() const;
 			std::pair<Vector3f, Quaternionf> GetPositionAndRotation() const;
 			Quaternionf GetRotation() const;
+			Settings GetSettings() const;
 			inline PhysWorld3D& GetWorld() const;
 
 			bool IsDynamic() const;
@@ -148,6 +151,7 @@ namespace Nz
 			RigidBody3D() = default;
 			void Create(PhysWorld3D& world, const DynamicSettings& settings);
 			void Create(PhysWorld3D& world, const StaticSettings& settings);
+			void Create(PhysWorld3D& world, const Settings& settings);
 			void Destroy(bool worldDestruction = false);
 
 		private:

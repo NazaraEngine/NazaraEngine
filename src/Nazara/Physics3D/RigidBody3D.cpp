@@ -181,6 +181,56 @@ namespace Nz
 		return FromJolt(m_body->GetRotation());
 	}
 
+	auto RigidBody3D::GetSettings() const -> Settings
+	{
+		JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterfaceNoLock();
+
+		if (!IsStatic())
+		{
+			JPH::MotionProperties* motionProperties = m_body->GetMotionProperties();
+
+			DynamicSettings dynamicSettings;
+			dynamicSettings.allowSleeping = IsSleepingEnabled();
+			dynamicSettings.angularDamping = GetAngularDamping();
+			dynamicSettings.collider = GetCollider();
+			dynamicSettings.friction = bodyInterface.GetFriction(m_body->GetID());
+			dynamicSettings.gravityFactor = bodyInterface.GetGravityFactor(m_body->GetID());
+			dynamicSettings.initiallySleeping = IsSleeping();
+			dynamicSettings.isSimulationEnabled = IsSimulationEnabled();
+			dynamicSettings.isTrigger = m_isTrigger;
+			dynamicSettings.linearDamping = GetLinearDamping();
+			dynamicSettings.mass = GetMass();
+			dynamicSettings.maxAngularVelocity = motionProperties->GetMaxAngularVelocity();
+			dynamicSettings.maxLinearVelocity = motionProperties->GetMaxLinearVelocity();
+			dynamicSettings.objectLayer = GetObjectLayer();
+			dynamicSettings.restitution = m_body->GetRestitution();
+
+			std::tie(dynamicSettings.linearVelocity, dynamicSettings.angularVelocity) = GetLinearAndAngularVelocity();
+			std::tie(dynamicSettings.position, dynamicSettings.rotation) = GetPositionAndRotation();
+
+			switch (motionProperties->GetMotionQuality())
+			{
+				case JPH::EMotionQuality::Discrete:   dynamicSettings.motionQuality = PhysMotionQuality3D::Discrete;   break;
+				case JPH::EMotionQuality::LinearCast: dynamicSettings.motionQuality = PhysMotionQuality3D::LinearCast; break;
+			}
+
+			return dynamicSettings;
+		}
+		else
+		{
+			StaticSettings staticSettings;
+			staticSettings.collider = GetCollider();
+			staticSettings.initiallySleeping = IsSleeping();
+			staticSettings.isSimulationEnabled = IsSimulationEnabled();
+			staticSettings.isTrigger = m_isTrigger;
+			staticSettings.objectLayer = GetObjectLayer();
+
+			std::tie(staticSettings.position, staticSettings.rotation) = GetPositionAndRotation();
+
+			return staticSettings;
+		}
+	}
+
 	bool RigidBody3D::IsDynamic() const
 	{
 		return m_body->IsDynamic();
@@ -397,6 +447,11 @@ namespace Nz
 
 		if (settings.isSimulationEnabled)
 			m_world->RegisterBody(bodyId, false, false); //< static bodies cannot be activated
+	}
+
+	void RigidBody3D::Create(PhysWorld3D& world, const Settings& settings)
+	{
+		std::visit([this, &world](auto&& innerSettings) { Create(world, innerSettings); }, settings);
 	}
 
 	void RigidBody3D::Destroy(bool worldDestruction)

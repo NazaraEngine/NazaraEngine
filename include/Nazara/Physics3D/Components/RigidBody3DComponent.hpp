@@ -25,6 +25,7 @@ namespace Nz
 
 			inline RigidBody3DComponent(const RigidBody3D::DynamicSettings& settings, PhysicsReplication3D replication = PhysicsReplication3D::Local);
 			inline RigidBody3DComponent(const RigidBody3D::StaticSettings& settings, PhysicsReplication3D replication = PhysicsReplication3D::None);
+			inline RigidBody3DComponent(const Settings& settings, PhysicsReplication3D replication);
 			RigidBody3DComponent(const RigidBody3DComponent&) = delete;
 			RigidBody3DComponent(RigidBody3DComponent&&) noexcept = default;
 			~RigidBody3DComponent() = default;
@@ -41,9 +42,7 @@ namespace Nz
 		private:
 			inline void Construct(PhysWorld3D& world);
 
-			using Setting = std::variant<RigidBody3D::DynamicSettings, RigidBody3D::StaticSettings>;
-
-			std::unique_ptr<Setting> m_settings;
+			std::unique_ptr<Settings> m_settings;
 			CustomReplicationCallback m_replicationCustomCallback;
 			PhysicsReplication3D m_replicationMode;
 	};

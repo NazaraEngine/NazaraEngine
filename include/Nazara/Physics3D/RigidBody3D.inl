@@ -2,7 +2,6 @@
 // This file is part of the "Nazara Engine - Physics3D module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-
 namespace Nz
 {
 	inline RigidBody3D::RigidBody3D(PhysWorld3D& world, const DynamicSettings& settings)
@@ -11,6 +10,11 @@ namespace Nz
 	}
 
 	inline RigidBody3D::RigidBody3D(PhysWorld3D& world, const StaticSettings& settings)
+	{
+		Create(world, settings);
+	}
+
+	inline RigidBody3D::RigidBody3D(PhysWorld3D& world, const Settings& settings)
 	{
 		Create(world, settings);
 	}
