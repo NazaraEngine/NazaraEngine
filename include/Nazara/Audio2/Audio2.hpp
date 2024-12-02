@@ -60,7 +60,6 @@ namespace Nz
 			//SoundBufferLoader m_soundBufferLoader;
 			//SoundStreamLoader m_soundStreamLoader;
 			ma_context* m_maContext;
-			void* m_maLog;
 
 			static Audio2* s_instance;
 	};
