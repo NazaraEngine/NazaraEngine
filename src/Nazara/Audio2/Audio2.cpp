@@ -30,16 +30,17 @@ namespace Nz
 	ModuleBase("Audio2", this)
 	{
 		// Setup miniaudio
-		std::unique_ptr<ma_log> maLog = std::make_unique<ma_log>();
-		if (ma_result result = ma_log_init(nullptr, maLog.get()); result != MA_SUCCESS)
+		std::unique_ptr<ma_context> maContext = std::make_unique<ma_context>();
+
+		if (ma_result result = ma_log_init(nullptr, &maContext->log); result != MA_SUCCESS)
 			throw std::runtime_error(Format("failed to initialize miniaudio logger: {}", ma_result_description(result)));
 
 		CallOnExit uninitLog([&]
 		{
-			ma_log_uninit(maLog.get());
+			ma_log_uninit(&maContext->log);
 		});
 
-		ma_log_register_callback(maLog.get(), ma_log_callback_init([](void* /*pUserData*/, ma_uint32 level, const char* pMessage)
+		ma_log_register_callback(&maContext->log, ma_log_callback_init([](void* /*pUserData*/, ma_uint32 level, const char* pMessage)
 		{
 			std::string_view message(pMessage);
 			if NAZARA_LIKELY(!message.empty() && message.ends_with('\n'))
@@ -56,26 +57,26 @@ namespace Nz
 					break;
 
 				case MA_LOG_LEVEL_WARNING:
-					NazaraWarningFmt("[MiniAudio] {}", message);
+					NazaraWarning("[MiniAudio] {}", message);
 					break;
 
 				case MA_LOG_LEVEL_ERROR:
-					NazaraErrorFmt("[MiniAudio] {}", message);
+					NazaraError("[MiniAudio] {}", message);
 					break;
 			}
 		}, nullptr));
 
 		ma_context_config contextConfig = ma_context_config_init();
-		contextConfig.pLog = maLog.get();
+		contextConfig.pLog = &maContext->log;
 
 		ma_backend nullBackend = ma_backend_null;
 
-		std::unique_ptr<ma_context> maContext = std::make_unique<ma_context>();
 		ma_result result = ma_context_init((config.noAudio) ? &nullBackend : nullptr, (config.noAudio) ? 1 : 0, &contextConfig, maContext.get());
 		if (result != MA_SUCCESS)
 			throw std::runtime_error(Format("failed to initialize miniaudio: {}", ma_result_description(result)));
 
 		CallOnExit releaseContext([&] { ma_context_uninit(maContext.get()); });
+		uninitLog.Reset(); //< from now, ma_context_uninit will also uninit log
 
 		if (maContext->backend == ma_backend_null && !config.allowNullDevice)
 			throw std::runtime_error("no audio backend");
@@ -92,21 +93,14 @@ namespace Nz
 
 		releaseContext.Reset();
 		m_maContext = maContext.release();
-
-		uninitLog.Reset();
-		m_maLog = maLog.release();
 	}
 
 	Audio2::~Audio2()
 	{
 		if (ma_result result = ma_context_uninit(m_maContext))
-			NazaraWarningFmt("failed to uninit context: {}", ma_result_description(result));
+			NazaraWarning("failed to uninit context: {}", ma_result_description(result));
 
 		delete m_maContext;
-
-		ma_log* maLog = static_cast<ma_log*>(m_maLog);
-		ma_log_uninit(maLog);
-		delete maLog;
 	}
 
 #if 0
