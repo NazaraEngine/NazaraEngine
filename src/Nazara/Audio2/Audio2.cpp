@@ -4,6 +4,7 @@
 
 #include <Nazara/Audio2/Audio2.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
+#include <Nazara/Audio2/AudioDevice.hpp>
 #include <Nazara/Audio2/AudioDeviceInfo.hpp>
 /*#include <Nazara/Audio2/Formats/drmp3Loader.hpp>
 #include <Nazara/Audio2/Formats/drwavLoader.hpp>
@@ -140,6 +141,24 @@ namespace Nz
 		return m_soundStreamLoader;
 	}
 #endif
+
+	std::shared_ptr<AudioDevice> Audio2::OpenCaptureDevice(const AudioDeviceId* captureDevice)
+	{
+		ma_device_config deviceConfig = ma_device_config_init(ma_device_type_capture);
+		if (captureDevice)
+			deviceConfig.playback.pDeviceID = reinterpret_cast<const ma_device_id*>(&captureDevice->data[0]);
+
+		return std::make_shared<AudioDevice>(m_maContext, deviceConfig);
+	}
+
+	std::shared_ptr<AudioDevice> Audio2::OpenPlaybackDevice(const AudioDeviceId* playbackDevice)
+	{
+		ma_device_config deviceConfig = ma_device_config_init(ma_device_type_playback);
+		if (playbackDevice)
+			deviceConfig.playback.pDeviceID = reinterpret_cast<const ma_device_id*>(&playbackDevice->data[0]);
+
+		return std::make_shared<AudioDevice>(m_maContext, deviceConfig);
+	}
 
 	std::vector<AudioDeviceInfo> Audio2::QueryDevices() const
 	{
