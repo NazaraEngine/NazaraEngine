@@ -1,5 +1,6 @@
 #include <Nazara/Core.hpp>
 #include <Nazara/Audio2.hpp>
+#include <Nazara/Audio2/AudioDevice.hpp>
 #include <iostream>
 
 int main()
@@ -14,6 +15,16 @@ int main()
 		std::cout << " - default: " << ((deviceInfo.isDefault) ? "yes" : "no") << "\n";
 	}
 	std::cout << std::flush;
+
+	std::shared_ptr<Nz::AudioDevice> audioDevice = Nz::Audio2::Instance()->OpenPlaybackDevice();
+	audioDevice->SetDataCallback([](const Nz::AudioDevice& audioDevice, const void* inputData, void* outputData, Nz::UInt32 frameCount)
+	{
+		//std::cout << Nz::Format("Data callback (framecount: {})", frameCount) << std::endl;
+	});
+
+	audioDevice->Start();
+
+	std::getchar();
 
 	return 0;
 }
