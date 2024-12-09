@@ -298,7 +298,13 @@ namespace Nz
 	void RigidBody3D::SetLinearAndAngularVelocity(const Vector3f& linearVelocity, const Vector3f& angularVelocity)
 	{
 		JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterfaceNoLock();
-		bodyInterface.SetLinearAndAngularVelocity(m_body->GetID(), ToJolt(linearVelocity), ToJolt(angularVelocity));
+		if (bodyInterface.IsAdded(m_body->GetID()))
+			bodyInterface.SetLinearAndAngularVelocity(m_body->GetID(), ToJolt(linearVelocity), ToJolt(angularVelocity));
+		else
+		{
+			m_body->SetLinearVelocityClamped(ToJolt(linearVelocity));
+			m_body->SetAngularVelocityClamped(ToJolt(angularVelocity));
+		}
 	}
 
 	void RigidBody3D::SetLinearDamping(float damping)
