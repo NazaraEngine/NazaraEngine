@@ -88,7 +88,6 @@ namespace Nz
 			};
 
 			std::shared_ptr<VirtualDirectoryResolver> m_resolver;
-			std::vector<std::string_view> m_cachedDirectoryParts;
 			std::vector<ContentEntry> m_content;
 			std::weak_ptr<VirtualDirectory> m_parent;
 			bool m_isUprootAllowed;

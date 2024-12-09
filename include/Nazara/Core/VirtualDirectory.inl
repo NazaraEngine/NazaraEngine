@@ -7,6 +7,7 @@
 #include <Nazara/Core/OwnedMemoryStream.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
+#include <NazaraUtils/FixedVector.hpp>
 #include <algorithm>
 #include <cassert>
 
@@ -97,28 +98,30 @@ namespace Nz
 		});
 	}
 
-	template<typename F> bool VirtualDirectory::GetEntry(std::string_view path, F&& callback)
+	template<typename F>
+	bool VirtualDirectory::GetEntry(std::string_view path, F&& callback)
 	{
 		assert(!path.empty());
 
 		VirtualDirectoryPtr currentDir = shared_from_this();
-		m_cachedDirectoryParts.clear();
+
+		HybridVector<std::string_view, 32> directoryParts;
 		return SplitPath(path, [&](std::string_view dirName)
 		{
 			assert(!dirName.empty());
 
 			// If we have directory parts, we're access this path across a resolver
-			if (!m_cachedDirectoryParts.empty())
+			if (!directoryParts.empty())
 			{
 				// Special case when traversing directory
 				if (dirName == ".." && !currentDir->IsUprootAllowed())
 				{
 					// Don't allow to escape virtual directory
-					if (!m_cachedDirectoryParts.empty())
-						m_cachedDirectoryParts.pop_back();
+					if (!directoryParts.empty())
+						directoryParts.pop_back();
 				}
 				else if (dirName != ".")
-					m_cachedDirectoryParts.emplace_back(dirName);
+					directoryParts.emplace_back(dirName);
 
 				return true;
 			}
@@ -142,8 +145,8 @@ namespace Nz
 
 			if (!isFile && currentDir->GetResolver())
 			{
-				assert(m_cachedDirectoryParts.empty());
-				m_cachedDirectoryParts.push_back(dirName);
+				assert(directoryParts.empty());
+				directoryParts.push_back(dirName);
 				return true;
 			}
 
@@ -151,13 +154,13 @@ namespace Nz
 		},
 		[&](std::string_view name)
 		{
-			if (!m_cachedDirectoryParts.empty())
+			if (!directoryParts.empty())
 			{
 				if (const auto& resolver = currentDir->GetResolver())
 				{
-					m_cachedDirectoryParts.push_back(name);
+					directoryParts.push_back(name);
 
-					std::optional<Entry> entryOpt = resolver->Resolve({}, m_cachedDirectoryParts.data(), m_cachedDirectoryParts.size());
+					std::optional<Entry> entryOpt = resolver->Resolve({}, directoryParts.data(), directoryParts.size());
 					if (!entryOpt)
 						return false;
 
@@ -338,7 +341,8 @@ namespace Nz
 		return StoreFile(path, std::make_shared<MemoryView>(data, size));
 	}
 
-	template<typename F> bool VirtualDirectory::GetEntryInternal(std::string_view name, bool allowResolve, F&& callback)
+	template<typename F>
+	bool VirtualDirectory::GetEntryInternal(std::string_view name, bool allowResolve, F&& callback)
 	{
 		if (name == ".")
 		{
@@ -384,7 +388,7 @@ namespace Nz
 	}
 
 	inline bool VirtualDirectory::CreateOrRetrieveDirectory(std::string_view path, std::shared_ptr<VirtualDirectory>& directory, std::string_view& entryName)
-{
+	{
 		directory = shared_from_this();
 
 		bool allowCreation = true;
