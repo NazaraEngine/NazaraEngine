@@ -80,9 +80,9 @@ namespace
 				m_ioContext = avio_alloc_context(static_cast<unsigned char*>(buffer), BufferSize, 0, &m_byteStream, &FFmpegStream::Read, nullptr, &FFmpegStream::Seek);
 				if (!m_ioContext)
 				{
-					NazaraError("failed to create io context");
-
 					av_free(buffer);
+
+					NazaraError("failed to create io context");
 					return Nz::Err(Nz::ResourceLoadingError::Internal);
 				}
 
@@ -311,7 +311,6 @@ namespace
 			{
 				return 0;
 			}
-
 
 		private:
 			static std::string ErrorToString(int errCode)
