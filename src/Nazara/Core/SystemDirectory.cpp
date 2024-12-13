@@ -155,12 +155,22 @@ namespace Nz
 #elif defined(NAZARA_PLATFORM_LINUX)
 		switch (applicationDirectory)
 		{
-			case ApplicationDirectory::Cache:  return JoinPath("~/.cache", applicationName);
+			case ApplicationDirectory::Cache:
+			{
+				auto dir = JoinPath(Env{ "HOME" }, ".cache", applicationName);
+				if (!dir)
+					dir = JoinPath(".cache", applicationName);
+
+				return dir;
+			}
+
 			case ApplicationDirectory::Config:
 			{
 				auto dir = JoinPath(Env{ "XDG_CONFIG_HOME" }, applicationName);
 				if (!dir)
-					dir = JoinPath("~/.config", applicationName);
+					dir = JoinPath(Env{ "HOME" }, ".config", applicationName);
+				if (!dir)
+					dir = JoinPath(".config", applicationName);
 
 				return dir;
 			}
@@ -169,7 +179,9 @@ namespace Nz
 			{
 				auto dir = JoinPath(Env{ "XDG_DATA_HOME" }, applicationName, "data");
 				if (!dir)
-					dir = JoinPath("~/.local/share", applicationName, "data");
+					dir = JoinPath(Env{ "HOME" }, ".local/share", applicationName, "data");
+				if (!dir)
+					dir = JoinPath(".local/share", applicationName, "data");
 
 				return dir;
 			}
@@ -178,7 +190,9 @@ namespace Nz
 			{
 				auto dir = JoinPath(Env{ "XDG_DATA_HOME" }, applicationName, "saves");
 				if (!dir)
-					dir = JoinPath("~/.local/share", applicationName, "saves");
+					dir = JoinPath(Env{ "HOME" }, ".local/share", applicationName, "save");
+				if (!dir)
+					dir = JoinPath(".local/share", applicationName, "saves");
 
 				return dir;
 			}
@@ -252,13 +266,18 @@ namespace Nz
 			case SystemDirectory::UserVideos:    return ToPath(FOLDERID_Videos);
 		}
 #elif defined(NAZARA_PLATFORM_LINUX)
+		const char* linuxHomeEnvironment = GetEnvironmentVariable(env.name);
+		bool hasHomeEnv = (!linuxHomeEnvironment || *linuxHomeEnvironment == '\0');
+
 		switch (systemDirectory)
 		{
 			case SystemDirectory::Cache:
 			{
 				auto dir = ToPath(Env{ "XDG_CACHE_HOME" });
 				if (!dir)
-					dir = ToPath("~/.cache");
+					dir = JoinPath(Env{ "HOME" }, ".cache");
+				if (!dir)
+					dir = ToPath(".cache");
 
 				return dir;
 			}
@@ -284,19 +303,21 @@ namespace Nz
 			{
 				auto dir = ToPath(Env{ "XDG_CONFIG_HOME" });
 				if (!dir)
-					dir = ToPath("~/.config");
+					dir = JoinPath(Env{ "HOME" }, ".config");
+				if (!dir)
+					dir = ToPath(".config");
 
 				return dir;
 			}
 
-			case SystemDirectory::Fonts:         return ToPath("~/.fonts");
-			case SystemDirectory::UserDesktop:   return ToPath("~/Desktop");
-			case SystemDirectory::UserDownloads: return ToPath("~/Downloads");
-			case SystemDirectory::UserDocuments: return ToPath("~/Documents");
-			case SystemDirectory::UserHome:      return ToPath("~");
-			case SystemDirectory::UserMusic:     return ToPath("~/Music");
-			case SystemDirectory::UserPictures:  return ToPath("~/Pictures");
-			case SystemDirectory::UserVideos:    return ToPath("~/Videos");
+			case SystemDirectory::Fonts:         return (hasHomeEnv ? JoinPath(Env{ "HOME" }, ".fonts")    : ToPath(".fonts"));
+			case SystemDirectory::UserDesktop:   return (hasHomeEnv ? JoinPath(Env{ "HOME" }, "Desktop")   : ToPath("Desktop"));
+			case SystemDirectory::UserDownloads: return (hasHomeEnv ? JoinPath(Env{ "HOME" }, "Downloads") : ToPath("Downloads"));
+			case SystemDirectory::UserDocuments: return (hasHomeEnv ? JoinPath(Env{ "HOME" }, "Documents") : ToPath("Documents"));
+			case SystemDirectory::UserHome:      return (hasHomeEnv ? ToPath(Env{ "HOME" })                : ToPath("./"));
+			case SystemDirectory::UserMusic:     return (hasHomeEnv ? JoinPath(Env{ "HOME" }, "Music")     : ToPath("Music"));
+			case SystemDirectory::UserPictures:  return (hasHomeEnv ? JoinPath(Env{ "HOME" }, "Pictures")  : ToPath("Pictures"));
+			case SystemDirectory::UserVideos:    return (hasHomeEnv ? JoinPath(Env{ "HOME" }, "Videos")    : ToPath("Videos"));
 		}
 #elif defined(NAZARA_PLATFORM_MACOS)
 		switch (systemDirectory)
