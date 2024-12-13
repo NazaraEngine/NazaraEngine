@@ -46,6 +46,16 @@ namespace Nz
 	{
 		Destroy();
 	}
+	
+	void PhysCharacter3D::AddImpulse(const Vector3f& impulse, CoordSys coordSys)
+	{
+		m_character->AddImpulse(ToJolt(impulse));
+	}
+
+	void PhysCharacter3D::AddLinearVelocity(const Vector3f& linearVelocity)
+	{
+		m_character->AddLinearVelocity(ToJolt(linearVelocity));
+	}
 
 	void PhysCharacter3D::EnableSleeping(bool enable)
 	{

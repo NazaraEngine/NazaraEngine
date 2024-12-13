@@ -31,6 +31,20 @@ namespace Nz
 		Destroy();
 	}
 
+	void RigidBody3D::AddAngularImpulse(const Vector3f& angularImpulse, CoordSys coordSys)
+	{
+		switch (coordSys)
+		{
+			case CoordSys::Global:
+				m_body->AddAngularImpulse(ToJolt(angularImpulse));
+				break;
+
+			case CoordSys::Local:
+				m_body->AddAngularImpulse(m_body->GetRotation() * ToJolt(angularImpulse));
+				break;
+		}
+	}
+
 	void RigidBody3D::AddForce(const Vector3f& force, CoordSys coordSys)
 	{
 		switch (coordSys)
@@ -57,6 +71,43 @@ namespace Nz
 				m_body->AddForce(m_body->GetRotation() * ToJolt(force), ToJolt(ToWorld(point)));
 				break;
 		}
+	}
+
+	void RigidBody3D::AddImpulse(const Vector3f& impulse, CoordSys coordSys)
+	{
+		switch (coordSys)
+		{
+			case CoordSys::Global:
+				m_body->AddImpulse(ToJolt(impulse));
+				break;
+
+			case CoordSys::Local:
+				m_body->AddImpulse(m_body->GetRotation() * ToJolt(impulse));
+				break;
+		}
+	}
+
+	void RigidBody3D::AddImpulse(const Vector3f& impulse, const Vector3f& point, CoordSys coordSys)
+	{
+		switch (coordSys)
+		{
+			case CoordSys::Global:
+				m_body->AddImpulse(ToJolt(impulse), ToJolt(point));
+				break;
+
+			case CoordSys::Local:
+				m_body->AddImpulse(m_body->GetRotation() * ToJolt(impulse), ToJolt(ToWorld(point)));
+				break;
+		}
+	}
+
+	void RigidBody3D::AddLinearVelocity(const Vector3f& linearVelocity)
+	{
+		JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterfaceNoLock();
+		if (bodyInterface.IsAdded(m_body->GetID()))
+			bodyInterface.AddLinearVelocity(m_body->GetID(), ToJolt(linearVelocity));
+		else
+			m_body->SetLinearVelocityClamped(m_body->GetLinearVelocity() + ToJolt(linearVelocity));
 	}
 
 	void RigidBody3D::AddTorque(const Vector3f& torque, CoordSys coordSys)

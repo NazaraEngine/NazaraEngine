@@ -43,8 +43,12 @@ namespace Nz
 			RigidBody3D(RigidBody3D&& object) noexcept;
 			~RigidBody3D();
 
+			void AddAngularImpulse(const Vector3f& angularImpulse, CoordSys coordSys = CoordSys::Global);
 			void AddForce(const Vector3f& force, CoordSys coordSys = CoordSys::Global);
 			void AddForce(const Vector3f& force, const Vector3f& point, CoordSys coordSys = CoordSys::Global);
+			void AddImpulse(const Vector3f& impulse, CoordSys coordSys = CoordSys::Global);
+			void AddImpulse(const Vector3f& impulse, const Vector3f& point, CoordSys coordSys = CoordSys::Global);
+			void AddLinearVelocity(const Vector3f& linearVelocity);
 			void AddTorque(const Vector3f& torque, CoordSys coordSys = CoordSys::Global);
 
 			inline void DisableSimulation();

@@ -41,6 +41,9 @@ namespace Nz
 			PhysCharacter3D(PhysCharacter3D&& character) noexcept;
 			~PhysCharacter3D();
 
+			void AddImpulse(const Vector3f& impulse, CoordSys coordSys = CoordSys::Global);
+			void AddLinearVelocity(const Vector3f& linearVelocity);
+
 			inline void DisableSleeping();
 			void EnableSleeping(bool enable);
 
