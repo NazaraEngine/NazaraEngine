@@ -266,9 +266,6 @@ namespace Nz
 			case SystemDirectory::UserVideos:    return ToPath(FOLDERID_Videos);
 		}
 #elif defined(NAZARA_PLATFORM_LINUX)
-		const char* linuxHomeEnvironment = GetEnvironmentVariable(env.name);
-		bool hasHomeEnv = (!linuxHomeEnvironment || *linuxHomeEnvironment == '\0');
-
 		switch (systemDirectory)
 		{
 			case SystemDirectory::Cache:
@@ -278,6 +275,15 @@ namespace Nz
 					dir = JoinPath(Env{ "HOME" }, ".cache");
 				if (!dir)
 					dir = ToPath(".cache");
+
+				return dir;
+			}
+
+			case SystemDirectory::Fonts:
+			{
+				auto dir = JoinPath(Env{ "HOME" }, ".fonts");
+				if (!dir)
+					dir = ToPath(".fonts");
 
 				return dir;
 			}
@@ -310,20 +316,68 @@ namespace Nz
 				return dir;
 			}
 
-			case SystemDirectory::Fonts:         return (hasHomeEnv ? JoinPath(Env{ "HOME" }, ".fonts")    : ToPath(".fonts"));
-			case SystemDirectory::UserDesktop:   return (hasHomeEnv ? JoinPath(Env{ "HOME" }, "Desktop")   : ToPath("Desktop"));
-			case SystemDirectory::UserDownloads: return (hasHomeEnv ? JoinPath(Env{ "HOME" }, "Downloads") : ToPath("Downloads"));
-			case SystemDirectory::UserDocuments: return (hasHomeEnv ? JoinPath(Env{ "HOME" }, "Documents") : ToPath("Documents"));
-			case SystemDirectory::UserHome:      return (hasHomeEnv ? ToPath(Env{ "HOME" })                : ToPath("./"));
-			case SystemDirectory::UserMusic:     return (hasHomeEnv ? JoinPath(Env{ "HOME" }, "Music")     : ToPath("Music"));
-			case SystemDirectory::UserPictures:  return (hasHomeEnv ? JoinPath(Env{ "HOME" }, "Pictures")  : ToPath("Pictures"));
-			case SystemDirectory::UserVideos:    return (hasHomeEnv ? JoinPath(Env{ "HOME" }, "Videos")    : ToPath("Videos"));
+			case SystemDirectory::UserDesktop:
+			{
+				auto dir = JoinPath(Env{ "HOME" }, "Desktop");
+				if (!dir)
+					dir = ToPath("Desktop");
+
+				return dir;
+			}
+
+			case SystemDirectory::UserDownloads:
+			{
+				auto dir = JoinPath(Env{ "HOME" }, "Downloads");
+				if (!dir)
+					dir = ToPath("Downloads");
+
+				return dir;
+			}
+
+			case SystemDirectory::UserDocuments:
+			{
+				auto dir = JoinPath(Env{ "HOME" }, "Documents");
+				if (!dir)
+					dir = ToPath("Documents");
+
+				return dir;
+			}
+
+			case SystemDirectory::UserHome:
+				return ToPath(Env{ "HOME" });
+
+			case SystemDirectory::UserMusic:
+			{
+				auto dir = JoinPath(Env{ "HOME" }, "Music");
+				if (!dir)
+					dir = ToPath("Music");
+
+				return dir;
+			}
+
+			case SystemDirectory::UserPictures:
+			{
+				auto dir = JoinPath(Env{ "HOME" }, "Pictures");
+				if (!dir)
+					dir = ToPath("Pictures");
+
+				return dir;
+			}
+
+			case SystemDirectory::UserVideos:
+			{
+				auto dir = JoinPath(Env{ "HOME" }, "Videos");
+				if (!dir)
+					dir = ToPath("Videos");
+
+				return dir;
+			}
 		}
 #elif defined(NAZARA_PLATFORM_MACOS)
 		switch (systemDirectory)
 		{
 			// TODO: Use NSSearchPathForDirectoriesInDomains
-			case SystemDirectory::Cache:     return ToPath("~/Library/Caches");
+			case SystemDirectory::Cache:     return JoinPath(Env{ "HOME"}, "/Library/Caches");
 			case SystemDirectory::Fonts:     return ToPath("/System/Library/Fonts");
 			case SystemDirectory::Temporary:
 			{
@@ -334,14 +388,65 @@ namespace Nz
 				return dir;
 			}
 
-			case SystemDirectory::UserConfig:    return ToPath("~/Library/Preferences");
-			case SystemDirectory::UserDesktop:   return ToPath("~/Desktop");
-			case SystemDirectory::UserDownloads: return ToPath("~/Downloads");
-			case SystemDirectory::UserDocuments: return ToPath("~/Documents");
-			case SystemDirectory::UserHome:      return ToPath("~");
-			case SystemDirectory::UserMusic:     return ToPath("~/Music");
-			case SystemDirectory::UserPictures:  return ToPath("~/Pictures");
-			case SystemDirectory::UserVideos:    return ToPath("~/Videos");
+			case SystemDirectory::UserConfig:
+				return JoinPath(Env{ "HOME" }, "Library/Preferences");
+
+			case SystemDirectory::UserDesktop:
+			{
+				auto dir = JoinPath(Env{ "HOME" }, "Desktop");
+				if (!dir)
+					dir = ToPath("Desktop");
+
+				return dir;
+			}
+
+			case SystemDirectory::UserDownloads:
+			{
+				auto dir = JoinPath(Env{ "HOME" }, "Downloads");
+				if (!dir)
+					dir = ToPath("Downloads");
+
+				return dir;
+			}
+
+			case SystemDirectory::UserDocuments:
+			{
+				auto dir = JoinPath(Env{ "HOME" }, "Documents");
+				if (!dir)
+					dir = ToPath("Documents");
+
+				return dir;
+			}
+
+			case SystemDirectory::UserHome:
+				return ToPath(Env{ "HOME" });
+
+			case SystemDirectory::UserMusic:
+			{
+				auto dir = JoinPath(Env{ "HOME" }, "Music");
+				if (!dir)
+					dir = ToPath("Music");
+
+				return dir;
+			}
+
+			case SystemDirectory::UserPictures:
+			{
+				auto dir = JoinPath(Env{ "HOME" }, "Pictures");
+				if (!dir)
+					dir = ToPath("Pictures");
+
+				return dir;
+			}
+
+			case SystemDirectory::UserVideos:
+			{
+				auto dir = JoinPath(Env{ "HOME" }, "Videos");
+				if (!dir)
+					dir = ToPath("Videos");
+
+				return dir;
+			}
 		}
 #elif defined(NAZARA_PLATFORM_WEB)
 		return Err("unsupported");
