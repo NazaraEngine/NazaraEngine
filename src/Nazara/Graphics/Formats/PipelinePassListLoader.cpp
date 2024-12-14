@@ -245,7 +245,7 @@ namespace Nz::Loaders
 									fast_float::from_chars_result r = fast_float::from_chars(ptr, end, color[i]);
 									if (r.ec != std::errc{})
 									{
-										NazaraErrorFmt("failed to decode clear color \"{}\" for output {}", outputData.clearColor, outputData.name);
+										NazaraError("failed to decode clear color \"{}\" for output {}", outputData.clearColor, outputData.name);
 										throw ResourceLoadingError::DecodingError;
 									}
 
@@ -253,7 +253,7 @@ namespace Nz::Loaders
 									{
 										if (i < 3)
 										{
-											NazaraErrorFmt("failed to decode clear color \"{}\" for output {} (expected 3 or 4 floats)", outputData.clearColor, outputData.name);
+											NazaraError("failed to decode clear color \"{}\" for output {} (expected 3 or 4 floats)", outputData.clearColor, outputData.name);
 											throw ResourceLoadingError::DecodingError;
 										}
 									}
@@ -265,8 +265,7 @@ namespace Nz::Loaders
 
 								if (ptr != end)
 								{
-									NazaraErrorFmt("failed to decode clear color \"{}\" for output {} (more than 4 floats)", outputData.clearColor, outputData.name);
-
+									NazaraError("failed to decode clear color \"{}\" for output {} (more than 4 floats)", outputData.clearColor, outputData.name);
 									throw ResourceLoadingError::DecodingError;
 								}
 
