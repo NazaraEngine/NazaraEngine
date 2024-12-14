@@ -8,6 +8,7 @@
 #define NAZARA_GRAPHICS_FRAMEPIPELINEPASS_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/Color.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/Export.hpp>
 #include <Nazara/Math/Frustum.hpp>
