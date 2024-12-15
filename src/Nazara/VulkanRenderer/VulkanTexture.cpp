@@ -220,7 +220,7 @@ namespace Nz
 
 		m_viewInfo = viewInfo;
 		m_subresourceRange = {
-			ToVulkan(PixelFormatInfo::GetContent(m_textureViewInfo.pixelFormat)),
+			(viewInfo.planes != TexturePlaneFlags{}) ? ToVulkan(viewInfo.planes) : ToVulkan(PixelFormatInfo::GetContent(m_textureViewInfo.pixelFormat)),
 			viewInfo.baseMipLevel,
 			viewInfo.levelCount,
 			viewInfo.baseArrayLayer,
