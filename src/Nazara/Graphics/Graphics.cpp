@@ -326,6 +326,7 @@ namespace Nz
 		std::size_t forwardPass = m_defaultPipelinePasses->AddPass("ForwardPass", m_pipelinePassRegistry.GetPassIndex("Forward"));
 
 		m_defaultPipelinePasses->SetPassOutput(forwardPass, 0, forwardColorOutput);
+		m_defaultPipelinePasses->SetPassDepthClearValue(forwardPass, FramePipelinePass::ViewerClearValue{});
 		m_defaultPipelinePasses->SetPassDepthStencilOutput(forwardPass, forwardDepthOutput);
 
 		m_defaultPipelinePasses->EnablePassFlags(forwardPass, FramePipelinePassFlag::LightShadowing);

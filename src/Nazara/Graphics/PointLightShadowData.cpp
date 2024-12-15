@@ -160,6 +160,7 @@ namespace Nz
 			direction.attachmentIndex = frameGraph.AddAttachmentCubeFace(m_cubeAttachmentIndex, static_cast<CubemapFace>(i));
 
 			FramePipelinePass::PassInputOuputs passInputOuputs;
+			passInputOuputs.clearDepth = 1.f;
 			passInputOuputs.depthStencilOutput = direction.attachmentIndex;
 
 			direction.depthPass->RegisterToFrameGraph(frameGraph, passInputOuputs);

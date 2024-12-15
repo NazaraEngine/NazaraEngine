@@ -128,12 +128,12 @@ namespace Nz
 			std::size_t outputIndex = pass.AddOutput(outputData.attachmentIndex);
 
 			std::visit(Nz::Overloaded{
-				[](std::monostate) {},
+				[](DontClear) {},
 				[&](const Color& color)
 				{
 					pass.SetClearColor(outputIndex, color);
 				},
-				[&](ViewerClearColor)
+				[&](ViewerClearValue)
 				{
 					pass.SetClearColor(outputIndex, m_viewer->GetClearColor());
 				}
@@ -143,7 +143,19 @@ namespace Nz
 		if (inputOuputs.depthStencilInput != FramePipelinePass::InvalidAttachmentIndex)
 			pass.SetDepthStencilInput(inputOuputs.depthStencilInput);
 		else
-			pass.SetDepthStencilClear(1.f, 0);
+		{
+			std::visit(Nz::Overloaded{
+				[](DontClear) {},
+				[&](float depth)
+				{
+					pass.SetDepthStencilClear(depth, 0);
+				},
+				[&](ViewerClearValue)
+				{
+					pass.SetDepthStencilClear(m_viewer->GetClearDepth(), 0);
+				}
+			}, inputOuputs.clearDepth);
+		}
 
 		pass.SetDepthStencilOutput(inputOuputs.depthStencilOutput);
 

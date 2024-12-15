@@ -16,6 +16,7 @@
 #include <NazaraUtils/Bitset.hpp>
 #include <limits>
 #include <span>
+#include <variant>
 
 namespace Nz
 {
@@ -58,7 +59,8 @@ namespace Nz
 			FramePipelinePass& operator=(const FramePipelinePass&) = delete;
 			FramePipelinePass& operator=(FramePipelinePass&&) = delete;
 
-			struct ViewerClearColor {};
+			struct DontClear {};
+			struct ViewerClearValue {};
 
 			struct FrameData
 			{
@@ -84,7 +86,7 @@ namespace Nz
 			struct PassOutputData
 			{
 				std::size_t attachmentIndex;
-				std::variant<std::monostate, ViewerClearColor, Color> clearColor;
+				std::variant<DontClear, ViewerClearValue, Color> clearColor;
 			};
 
 			struct PassInputOuputs
@@ -93,6 +95,7 @@ namespace Nz
 				std::span<const PassOutputData> outputAttachments;
 				std::size_t depthStencilInput = InvalidAttachmentIndex;
 				std::size_t depthStencilOutput = InvalidAttachmentIndex;
+				std::variant<DontClear, ViewerClearValue, float> clearDepth;
 			};
 
 			struct VisibleRenderable

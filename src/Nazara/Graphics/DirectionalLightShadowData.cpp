@@ -259,6 +259,7 @@ namespace Nz
 			cascade.attachmentIndex = frameGraph.AddAttachmentArrayLayer(viewerData.textureArrayAttachmentIndex, i);
 
 			FramePipelinePass::PassInputOuputs passInputOuputs;
+			passInputOuputs.clearDepth = 1.f;
 			passInputOuputs.depthStencilOutput = cascade.attachmentIndex;
 
 			cascade.depthPass->RegisterToFrameGraph(frameGraph, passInputOuputs);

@@ -58,12 +58,14 @@ namespace Nz
 
 			inline void SetFinalOutput(std::size_t attachmentIndex);
 
+			inline void SetPassDepthClearValue(std::size_t passIndex, float depthValue);
+			inline void SetPassDepthClearValue(std::size_t passIndex, FramePipelinePass::ViewerClearValue);
 			inline void SetPassDepthStencilInput(std::size_t passIndex, std::size_t attachmentIndex);
 			inline void SetPassDepthStencilOutput(std::size_t passIndex, std::size_t attachmentIndex);
 			inline void SetPassInput(std::size_t passIndex, std::size_t inputIndex, std::size_t attachmentIndex);
 			inline void SetPassOutput(std::size_t passIndex, std::size_t outputIndex, std::size_t attachmentIndex);
 			inline void SetPassOutputClearColor(std::size_t passIndex, std::size_t outputIndex, const Color& clearColor);
-			inline void SetPassOutputClearColor(std::size_t passIndex, std::size_t outputIndex, FramePipelinePass::ViewerClearColor);
+			inline void SetPassOutputClearColor(std::size_t passIndex, std::size_t outputIndex, FramePipelinePass::ViewerClearValue);
 
 			PipelinePassList& operator=(const PipelinePassList&) = delete;
 			PipelinePassList& operator=(PipelinePassList&&) = delete;
@@ -86,7 +88,7 @@ namespace Nz
 			struct PassOutput
 			{
 				std::size_t attachmentIndex = NoAttachment;
-				std::variant<std::monostate, FramePipelinePass::ViewerClearColor, Color> clearColor;
+				std::variant<FramePipelinePass::DontClear, FramePipelinePass::ViewerClearValue, Color> clearColor;
 			};
 
 			struct Pass
@@ -95,6 +97,7 @@ namespace Nz
 				std::size_t depthStencilOutput = NoAttachment;
 				std::size_t implIndex;
 				std::string name;
+				std::variant<FramePipelinePass::DontClear, FramePipelinePass::ViewerClearValue, float> clearDepth;
 				FixedVector<std::size_t /*attachmentIndex*/, MaxPassAttachment> inputs;
 				FixedVector<PassOutput, MaxPassAttachment> outputs;
 				FramePipelinePassFlags flags;

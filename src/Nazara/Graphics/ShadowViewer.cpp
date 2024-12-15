@@ -11,6 +11,11 @@ namespace Nz
 		throw std::runtime_error("no clear color");
 	}
 
+	float ShadowViewer::GetClearDepth() const
+	{
+		return 1.0f;
+	}
+
 	DebugDrawer* ShadowViewer::GetDebugDrawer()
 	{
 		return nullptr;

@@ -14,6 +14,7 @@ namespace Nz
 	m_viewport(0, 0, 0, 0),
 	m_size(-1.f, -1.f),
 	m_renderMask(0xFFFFFFFF),
+	m_clearDepth(1.f),
 	m_zFar((projectionType == ProjectionType::Perspective) ? 1000.f : 1.f),
 	m_zNear((projectionType == ProjectionType::Perspective) ? 1.f : -1.f)
 	{
@@ -49,6 +50,7 @@ namespace Nz
 	m_size(camera.m_size),
 	m_renderMask(camera.m_renderMask),
 	m_aspectRatio(camera.m_aspectRatio),
+	m_clearDepth(camera.m_clearDepth),
 	m_zFar(camera.m_zFar),
 	m_zNear(camera.m_zNear)
 	{
@@ -98,6 +100,11 @@ namespace Nz
 	inline void Camera::UpdateClearColor(Color color)
 	{
 		m_clearColor = color;
+	}
+
+	inline void Camera::UpdateClearDepth(float depth)
+	{
+		m_clearDepth = depth;
 	}
 
 	inline void Camera::UpdateFOV(DegreeAnglef fov)

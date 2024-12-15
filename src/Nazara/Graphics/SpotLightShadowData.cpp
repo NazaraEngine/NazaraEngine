@@ -109,6 +109,7 @@ namespace Nz
 		});
 
 		FramePipelinePass::PassInputOuputs passInputOuputs;
+		passInputOuputs.clearDepth = 1.f;
 		passInputOuputs.depthStencilOutput = m_attachmentIndex;
 
 		m_depthPass->RegisterToFrameGraph(frameGraph, passInputOuputs);

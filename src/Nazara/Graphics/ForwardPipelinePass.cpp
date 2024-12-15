@@ -157,7 +157,19 @@ namespace Nz
 		if (inputOuputs.depthStencilInput != FramePipelinePass::InvalidAttachmentIndex)
 			forwardPass.SetDepthStencilInput(inputOuputs.depthStencilInput);
 		else
-			forwardPass.SetDepthStencilClear(1.f, 0);
+		{
+			std::visit(Nz::Overloaded{
+				[](DontClear) {},
+				[&](float depth)
+				{
+					forwardPass.SetDepthStencilClear(depth, 0);
+				},
+				[&](ViewerClearValue)
+				{
+					forwardPass.SetDepthStencilClear(m_viewer->GetClearDepth(), 0);
+				}
+			}, inputOuputs.clearDepth);
+		}
 
 		forwardPass.SetDepthStencilOutput(inputOuputs.depthStencilOutput);
 

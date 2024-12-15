@@ -34,6 +34,11 @@ namespace Nz
 		return m_clearColor;
 	}
 
+	float Camera::GetClearDepth() const
+	{
+		return m_clearDepth;
+	}
+
 	UInt32 Camera::GetRenderMask() const
 	{
 		return m_renderMask;

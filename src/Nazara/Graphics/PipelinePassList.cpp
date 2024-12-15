@@ -93,6 +93,7 @@ namespace Nz
 			}
 
 			FramePipelinePass::PassInputOuputs passInputOuputs;
+			passInputOuputs.clearDepth = passData.clearDepth;
 			passInputOuputs.depthStencilInput = GetAttachmentIndex(passData.depthStencilInput);
 			passInputOuputs.depthStencilOutput = GetAttachmentIndex(passData.depthStencilOutput);
 			passInputOuputs.inputAttachments = std::span(inputs.data(), passData.inputs.size());

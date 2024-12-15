@@ -36,6 +36,7 @@ namespace Nz
 
 			inline float GetAspectRatio() const;
 			const Color& GetClearColor() const override;
+			float GetClearDepth() const override;
 			inline DegreeAnglef GetFOV() const;
 			inline ProjectionType GetProjectionType() const;
 			UInt32 GetRenderMask() const override;
@@ -52,6 +53,7 @@ namespace Nz
 			std::size_t RegisterPasses(const std::vector<std::unique_ptr<FramePipelinePass>>& passes, FrameGraph& frameGraph, std::optional<unsigned int> viewerIndex, const FunctionRef<void(std::size_t passIndex, FramePass& framePass, FramePipelinePassFlags flags)>& passCallback = nullptr) const override;
 
 			inline void UpdateClearColor(Color color);
+			inline void UpdateClearDepth(float depth);
 			inline void UpdateFOV(DegreeAnglef fov);
 			inline void UpdateProjectionType(ProjectionType projectionType);
 			inline void UpdateRenderMask(UInt32 renderMask);
@@ -89,6 +91,7 @@ namespace Nz
 			ViewerInstance m_viewerInstance;
 			UInt32 m_renderMask;
 			float m_aspectRatio;
+			float m_clearDepth;
 			float m_zFar;
 			float m_zNear;
 	};

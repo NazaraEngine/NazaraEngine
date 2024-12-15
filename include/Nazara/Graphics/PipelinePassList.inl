@@ -45,6 +45,33 @@ namespace Nz
 		m_finalOutputAttachment = attachmentIndex;
 	}
 
+	inline void PipelinePassList::SetPassDepthClearValue(std::size_t passIndex, float clearDepth)
+	{
+		assert(passIndex < m_passes.size());
+		auto& pass = m_passes[passIndex];
+		pass.clearDepth = clearDepth;
+	}
+
+	inline void PipelinePassList::SetPassDepthClearValue(std::size_t passIndex, FramePipelinePass::ViewerClearValue)
+	{
+		assert(passIndex < m_passes.size());
+		auto& pass = m_passes[passIndex];
+		pass.clearDepth = FramePipelinePass::ViewerClearValue{};
+	}
+
+	inline void PipelinePassList::SetPassDepthStencilInput(std::size_t passIndex, std::size_t attachmentIndex)
+	{
+		assert(passIndex < m_passes.size());
+		auto& pass = m_passes[passIndex];
+		pass.depthStencilInput = attachmentIndex;
+	}
+
+	inline void PipelinePassList::SetPassDepthStencilOutput(std::size_t passIndex, std::size_t attachmentIndex)
+	{
+		assert(passIndex < m_passes.size());
+		auto& pass = m_passes[passIndex];
+		pass.depthStencilOutput = attachmentIndex;
+	}
 	inline void PipelinePassList::SetPassInput(std::size_t passIndex, std::size_t inputIndex, std::size_t attachmentIndex)
 	{
 		assert(passIndex < m_passes.size());
@@ -77,26 +104,12 @@ namespace Nz
 		pass.outputs[outputIndex].clearColor = clearColor;
 	}
 
-	inline void PipelinePassList::SetPassOutputClearColor(std::size_t passIndex, std::size_t outputIndex, FramePipelinePass::ViewerClearColor)
+	inline void PipelinePassList::SetPassOutputClearColor(std::size_t passIndex, std::size_t outputIndex, FramePipelinePass::ViewerClearValue)
 	{
 		assert(passIndex < m_passes.size());
 		auto& pass = m_passes[passIndex];
 		assert(outputIndex < MaxPassAttachment);
-		pass.outputs[outputIndex].clearColor = FramePipelinePass::ViewerClearColor{};
-	}
-
-	inline void PipelinePassList::SetPassDepthStencilInput(std::size_t passIndex, std::size_t attachmentIndex)
-	{
-		assert(passIndex < m_passes.size());
-		auto& pass = m_passes[passIndex];
-		pass.depthStencilInput = attachmentIndex;
-	}
-
-	inline void PipelinePassList::SetPassDepthStencilOutput(std::size_t passIndex, std::size_t attachmentIndex)
-	{
-		assert(passIndex < m_passes.size());
-		auto& pass = m_passes[passIndex];
-		pass.depthStencilOutput = attachmentIndex;
+		pass.outputs[outputIndex].clearColor = FramePipelinePass::ViewerClearValue{};
 	}
 }
 

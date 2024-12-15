@@ -143,6 +143,7 @@ namespace Nz::Loaders
 					std::string impl;
 					std::string depthstencilInput;
 					std::string depthstencilOutput;
+					std::string clearDepthValue;
 					std::vector<InputOutput> inputs;
 					std::vector<Output> outputs;
 					std::vector<std::string> flags;
@@ -150,6 +151,7 @@ namespace Nz::Loaders
 					section.Block(
 						"depthstencilinput", &depthstencilInput,
 						"depthstenciloutput", &depthstencilOutput,
+						"depthclear", &clearDepthValue,
 						"impl", [&](ParameterFileSection implSection, std::string passImpl)
 						{
 							impl = std::move(passImpl);
@@ -174,7 +176,7 @@ namespace Nz::Loaders
 							outputData.attachmentName = std::move(attachment);
 
 							implSection.Block(ParameterFile::OptionalBlock,
-								"ClearColor", &outputData.clearColor
+								"clearcolor", &outputData.clearColor
 							);
 						},
 						"flag", [&](std::string flag)
@@ -231,10 +233,10 @@ namespace Nz::Loaders
 
 						m_current->passList->SetPassOutput(passId, inputIndex, it->second);
 
-						if (!outputData.clearColor.empty())
+						if (!outputData.clearColor.empty() && outputData.clearColor != "None")
 						{
 							if (outputData.clearColor == "Viewer")
-								m_current->passList->SetPassOutputClearColor(passId, inputIndex, FramePipelinePass::ViewerClearColor{});
+								m_current->passList->SetPassOutputClearColor(passId, inputIndex, FramePipelinePass::ViewerClearValue{});
 							else
 							{
 								float color[4] = { 0.f, 0.f, 0.f, 1.f };
@@ -271,6 +273,26 @@ namespace Nz::Loaders
 
 								m_current->passList->SetPassOutputClearColor(passId, inputIndex, Color(color[0], color[1], color[2], color[3]));
 							}
+						}
+					}
+
+					if (!clearDepthValue.empty() && clearDepthValue != "None")
+					{
+						if (clearDepthValue == "Viewer")
+							m_current->passList->SetPassDepthClearValue(passId, FramePipelinePass::ViewerClearValue{});
+						else
+						{
+							float clearValue;
+							const char* ptr = clearDepthValue.c_str();
+							const char* end = ptr + clearDepthValue.size();
+							fast_float::from_chars_result r = fast_float::from_chars(ptr, end, clearValue);
+							if (r.ec != std::errc{} || ptr != end)
+							{
+								NazaraError("failed to decode clear depth value \"{}\"", clearDepthValue);
+								throw ResourceLoadingError::DecodingError;
+							}
+
+							m_current->passList->SetPassDepthClearValue(passId, clearValue);
 						}
 					}
 
