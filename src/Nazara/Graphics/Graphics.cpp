@@ -458,6 +458,7 @@ namespace Nz
 
 	void Graphics::RegisterPipelinePasses()
 	{
+		m_pipelinePassRegistry.RegisterPass<BlitPipelinePass>("Blit", { "Input" }, { "Output" });
 		m_pipelinePassRegistry.RegisterPass<DebugDrawPipelinePass>("DebugDraw", { "Input" }, { "Output" });
 		m_pipelinePassRegistry.RegisterPass<ForwardPipelinePass>("Forward", {}, { "Output" });
 		m_pipelinePassRegistry.RegisterPass<PostProcessPipelinePass>("PostProcess", { "Input" }, { "Output" });
