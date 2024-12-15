@@ -25,9 +25,6 @@ namespace Nz
 			constexpr OrientedBox() = default;
 			constexpr OrientedBox(const Box<T>& box);
 			template<typename U> constexpr explicit OrientedBox(const OrientedBox<U>& orientedBox);
-			constexpr OrientedBox(const OrientedBox&) = default;
-			constexpr OrientedBox(OrientedBox&&) noexcept = default;
-			~OrientedBox() = default;
 
 			constexpr bool ApproxEqual(const OrientedBox& obb, T maxDifference = std::numeric_limits<T>::epsilon()) const;
 
@@ -43,9 +40,6 @@ namespace Nz
 
 			constexpr Vector3<T>& operator()(unsigned int i);
 			constexpr const Vector3<T>& operator()(unsigned int i) const;
-
-			constexpr OrientedBox& operator=(const OrientedBox&) = default;
-			constexpr OrientedBox& operator=(OrientedBox&&) noexcept = default;
 
 			constexpr bool operator==(const OrientedBox& box) const;
 			constexpr bool operator!=(const OrientedBox& box) const;

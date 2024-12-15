@@ -27,9 +27,6 @@ namespace Nz
 			constexpr explicit Rect(const Vector2<T>& lengths);
 			constexpr explicit Rect(const Vector2<T>& pos, const Vector2<T>& lengths);
 			template<typename U> constexpr explicit Rect(const Rect<U>& rect);
-			constexpr Rect(const Rect&) = default;
-			constexpr Rect(Rect&&) noexcept = default;
-			~Rect() = default;
 
 			constexpr bool ApproxEqual(const Rect& rect, T maxDifference = std::numeric_limits<T>::epsilon()) const;
 
@@ -72,9 +69,6 @@ namespace Nz
 
 			constexpr T& operator[](std::size_t i);
 			constexpr const T& operator[](std::size_t i) const;
-
-			constexpr Rect& operator=(const Rect&) = default;
-			constexpr Rect& operator=(Rect&&) noexcept = default;
 
 			constexpr bool operator==(const Rect& rect) const;
 			constexpr bool operator!=(const Rect& rect) const;

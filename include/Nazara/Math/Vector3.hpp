@@ -30,10 +30,7 @@ namespace Nz
 			constexpr explicit Vector3(T scale);
 			constexpr Vector3(const Vector2<T>& vec, T Z = 0.0);
 			template<typename U> constexpr explicit Vector3(const Vector3<U>& vec);
-			constexpr Vector3(const Vector3&) = default;
-			constexpr Vector3(Vector3&&) = default;
 			constexpr explicit Vector3(const Vector4<T>& vec);
-			~Vector3() = default;
 
 			T AbsDotProduct(const Vector3& vec) const;
 			RadianAngle<T> AngleBetween(const Vector3& vec) const;
@@ -76,9 +73,6 @@ namespace Nz
 			constexpr Vector3 operator/(T scale) const;
 			constexpr Vector3 operator%(const Vector3& vec) const;
 			constexpr Vector3 operator%(T mod) const;
-
-			constexpr Vector3& operator=(const Vector3&) = default;
-			constexpr Vector3& operator=(Vector3&&) = default;
 
 			constexpr Vector3& operator+=(const Vector3& vec);
 			constexpr Vector3& operator-=(const Vector3& vec);

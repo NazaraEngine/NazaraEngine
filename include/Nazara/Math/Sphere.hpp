@@ -25,9 +25,6 @@ namespace Nz
 			constexpr Sphere(const Vector3<T>& center, T Radius);
 			constexpr Sphere(const T sphere[4]);
 			template<typename U> constexpr explicit Sphere(const Sphere<U>& sphere);
-			constexpr Sphere(const Sphere&) = default;
-			constexpr Sphere(Sphere&&) = default;
-			~Sphere() = default;
 
 			constexpr bool ApproxEqual(const Sphere& sphere, T maxDifference = std::numeric_limits<T>::epsilon()) const;
 
@@ -56,9 +53,6 @@ namespace Nz
 			constexpr T operator[](std::size_t i) const;
 
 			constexpr Sphere operator*(T scalar) const;
-
-			constexpr Sphere& operator=(const Sphere& other) = default;
-			constexpr Sphere& operator=(Sphere&&) = default;
 
 			constexpr Sphere& operator*=(T scalar);
 

@@ -31,9 +31,6 @@ namespace Nz
 			Ray(const Plane<T>& planeOne, const Plane<T>& planeTwo);
 			template<typename U> constexpr explicit Ray(const Ray<U>& ray);
 			template<typename U> constexpr explicit Ray(const Vector3<U>& origin, const Vector3<U>& direction);
-			constexpr Ray(const Ray&) = default;
-			constexpr Ray(Ray&&) = default;
-			~Ray() = default;
 
 			constexpr bool ApproxEqual(const Ray& ray, T maxDifference = std::numeric_limits<T>::epsilon()) const;
 
@@ -49,9 +46,6 @@ namespace Nz
 			constexpr bool Intersect(const Vector3<T>& firstPoint, const Vector3<T>& secondPoint, const Vector3<T>& thirdPoint, T* hit = nullptr) const;
 
 			std::string ToString() const;
-
-			constexpr Ray& operator=(const Ray&) = default;
-			constexpr Ray& operator=(Ray&&) = default;
 
 			constexpr Vector3<T> operator*(T lambda) const;
 

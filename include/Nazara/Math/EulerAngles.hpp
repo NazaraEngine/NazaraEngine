@@ -26,9 +26,6 @@ namespace Nz
 			template<AngleUnit Unit> constexpr EulerAngles(const Angle<Unit, T>& angle);
 			constexpr EulerAngles(const Quaternion<T>& quat);
 			template<typename U> constexpr explicit EulerAngles(const EulerAngles<U>& angles);
-			constexpr EulerAngles(const EulerAngles&) = default;
-			constexpr EulerAngles(EulerAngles&&) = default;
-			~EulerAngles() = default;
 
 			constexpr bool ApproxEqual(const EulerAngles& angles, T maxDifference = std::numeric_limits<T>::epsilon()) const;
 
@@ -39,9 +36,6 @@ namespace Nz
 
 			constexpr EulerAngles operator+(const EulerAngles& angles) const;
 			constexpr EulerAngles operator-(const EulerAngles& angles) const;
-
-			constexpr EulerAngles& operator=(const EulerAngles&) = default;
-			constexpr EulerAngles& operator=(EulerAngles&&) = default;
 
 			constexpr EulerAngles& operator+=(const EulerAngles& angles);
 			constexpr EulerAngles& operator-=(const EulerAngles& angles);

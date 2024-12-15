@@ -33,9 +33,6 @@ namespace Nz
 			constexpr Vector4(const Vector2<T>& vec, T Z = 0.0, T W = 1.0);
 			constexpr Vector4(const Vector3<T>& vec, T W = 1.0);
 			template<typename U> constexpr explicit Vector4(const Vector4<U>& vec);
-			constexpr Vector4(const Vector4&) = default;
-			constexpr Vector4(Vector4&&) = default;
-			~Vector4() = default;
 
 			T AbsDotProduct(const Vector4& vec) const;
 			template<typename F> constexpr Vector4& Apply(F&& func);
@@ -51,9 +48,6 @@ namespace Nz
 			Vector4& Normalize(T* length = nullptr);
 
 			std::string ToString() const;
-
-			constexpr Vector4& operator=(const Vector4&) = default;
-			constexpr Vector4& operator=(Vector4&&) = default;
 
 			constexpr T& operator[](std::size_t i);
 			constexpr const T& operator[](std::size_t i) const;

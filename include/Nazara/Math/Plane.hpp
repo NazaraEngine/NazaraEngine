@@ -27,8 +27,6 @@ namespace Nz
 			constexpr Plane(const Vector3<T>& Normal, const Vector3<T>& point);
 			Plane(const Vector3<T>& point1, const Vector3<T>& point2, const Vector3<T>& point3);
 			template<typename U> constexpr explicit Plane(const Plane<U>& plane);
-			constexpr Plane(const Plane& plane) = default;
-			~Plane() = default;
 
 			constexpr bool ApproxEqual(const Plane& plane, T maxDifference = std::numeric_limits<T>::epsilon()) const;
 
@@ -37,8 +35,6 @@ namespace Nz
 			constexpr T SignedDistance(const Vector3<T>& point) const;
 
 			std::string ToString() const;
-
-			constexpr Plane& operator=(const Plane& other) = default;
 
 			constexpr bool operator==(const Plane& plane) const;
 			constexpr bool operator!=(const Plane& plane) const;

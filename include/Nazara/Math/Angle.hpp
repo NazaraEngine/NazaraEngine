@@ -29,9 +29,6 @@ namespace Nz
 			constexpr Angle(T angle);
 			template<typename U> constexpr explicit Angle(const Angle<Unit, U>& Angle);
 			template<AngleUnit FromUnit> constexpr Angle(const Angle<FromUnit, T>& angle);
-			constexpr Angle(const Angle&) = default;
-			constexpr Angle(Angle&&) noexcept = default;
-			~Angle() = default;
 
 			constexpr bool ApproxEqual(const Angle& angle) const;
 			constexpr bool ApproxEqual(const Angle& angle, T maxDifference) const;
@@ -54,9 +51,6 @@ namespace Nz
 			std::string ToString() const;
 			constexpr T ToTurns() const;
 			constexpr Angle<AngleUnit::Turn, T> ToTurnAngle() const;
-
-			constexpr Angle& operator=(const Angle&) = default;
-			constexpr Angle& operator=(Angle&&) noexcept = default;
 
 			constexpr Angle operator+() const;
 			constexpr Angle operator-() const;

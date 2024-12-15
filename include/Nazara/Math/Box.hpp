@@ -31,9 +31,6 @@ namespace Nz
 			constexpr explicit Box(const Vector3<T>& lengths);
 			constexpr explicit Box(const Vector3<T>& pos, const Vector3<T>& lengths);
 			template<typename U> constexpr explicit Box(const Box<U>& box);
-			constexpr Box(const Box&) = default;
-			constexpr Box(Box&&) = default;
-			~Box() = default;
 
 			constexpr bool ApproxEqual(const Box& box, T maxDifference = std::numeric_limits<T>::epsilon()) const;
 
@@ -83,9 +80,6 @@ namespace Nz
 
 			constexpr T& operator[](std::size_t i);
 			constexpr const T& operator[](std::size_t i) const;
-
-			constexpr Box& operator=(const Box&) = default;
-			constexpr Box& operator=(Box&&) = default;
 
 			constexpr bool operator==(const Box& box) const;
 			constexpr bool operator!=(const Box& box) const;

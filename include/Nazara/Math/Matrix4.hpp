@@ -35,9 +35,6 @@ namespace Nz
 			                  T r41, T r42, T r43, T r44);
 			constexpr Matrix4(const T matrix[16]);
 			template<typename U> constexpr explicit Matrix4(const Matrix4<U>& matrix);
-			constexpr Matrix4(const Matrix4&) = default;
-			constexpr Matrix4(Matrix4&&) = default;
-			~Matrix4() = default;
 
 			constexpr Matrix4& ApplyRotation(const Quaternion<T>& rotation);
 			constexpr Matrix4& ApplyScale(const Vector3<T>& scale);
@@ -86,9 +83,6 @@ namespace Nz
 
 			constexpr T& operator[](std::size_t i);
 			constexpr const T& operator[](std::size_t i) const;
-
-			constexpr Matrix4& operator=(const Matrix4&) = default;
-			constexpr Matrix4& operator=(Matrix4&&) = default;
 
 			constexpr Matrix4 operator*(const Matrix4& matrix) const;
 			constexpr Vector2<T> operator*(const Vector2<T>& vector) const;

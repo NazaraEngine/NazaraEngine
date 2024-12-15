@@ -26,9 +26,6 @@ namespace Nz
 			constexpr explicit BoundingVolume(const Box<T>& box);
 			constexpr explicit BoundingVolume(const OrientedBox<T>& orientedBox);
 			template<typename U> constexpr explicit BoundingVolume(const BoundingVolume<U>& volume);
-			constexpr BoundingVolume(const BoundingVolume&) = default;
-			constexpr BoundingVolume(BoundingVolume&&) = default;
-			~BoundingVolume() = default;
 
 			constexpr bool ApproxEqual(const BoundingVolume& volume, T maxDifference = std::numeric_limits<T>::epsilon()) const;
 
@@ -44,9 +41,6 @@ namespace Nz
 
 			constexpr void Update(const Matrix4<T>& transformMatrix);
 			constexpr void Update(const Vector3<T>& translation);
-
-			BoundingVolume& operator=(const BoundingVolume&) = default;
-			BoundingVolume& operator=(BoundingVolume&&) = default;
 
 			constexpr BoundingVolume operator*(T scalar) const;
 

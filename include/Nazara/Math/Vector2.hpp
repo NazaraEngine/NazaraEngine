@@ -28,11 +28,8 @@ namespace Nz
 			constexpr Vector2(T X, T Y);
 			constexpr explicit Vector2(T scale);
 			template<typename U> constexpr explicit Vector2(const Vector2<U>& vec);
-			constexpr Vector2(const Vector2&) = default;
-			constexpr Vector2(Vector2&&) = default;
 			constexpr explicit Vector2(const Vector3<T>& vec);
 			constexpr explicit Vector2(const Vector4<T>& vec);
-			~Vector2() = default;
 
 			T AbsDotProduct(const Vector2& vec) const;
 			RadianAngle<T> AngleBetween(const Vector2& vec) const;
@@ -69,9 +66,6 @@ namespace Nz
 			constexpr Vector2 operator/(T scale) const;
 			constexpr Vector2 operator%(const Vector2& vec) const;
 			constexpr Vector2 operator%(T mod) const;
-
-			constexpr Vector2& operator=(const Vector2&) = default;
-			constexpr Vector2& operator=(Vector2&&) = default;
 
 			constexpr Vector2& operator+=(const Vector2& vec);
 			constexpr Vector2& operator-=(const Vector2& vec);

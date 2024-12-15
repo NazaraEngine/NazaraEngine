@@ -30,9 +30,6 @@ namespace Nz
 			constexpr Frustum() = default;
 			constexpr explicit Frustum(const EnumArray<FrustumPlane, Plane<T>>& planes);
 			template<typename U> constexpr explicit Frustum(const Frustum<U>& frustum);
-			constexpr Frustum(const Frustum&) = default;
-			constexpr Frustum(Frustum&&) = default;
-			~Frustum() = default;
 
 			constexpr bool ApproxEqual(const Frustum& frustum, T maxDifference = std::numeric_limits<T>::epsilon()) const;
 
@@ -62,9 +59,6 @@ namespace Nz
 			template<typename F> constexpr void Split(const T* splitFactors, std::size_t factorCount, F&& callback) const;
 
 			std::string ToString() const;
-
-			constexpr Frustum& operator=(const Frustum&) = default;
-			constexpr Frustum& operator=(Frustum&&) = default;
 
 			constexpr bool operator==(const Frustum& angles) const;
 			constexpr bool operator!=(const Frustum& angles) const;

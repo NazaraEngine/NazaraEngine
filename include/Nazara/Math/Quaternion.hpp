@@ -26,9 +26,6 @@ namespace Nz
 			constexpr Quaternion(RadianAngle<T> angle, const Vector3<T>& axis);
 			constexpr Quaternion(const T quat[4]);
 			template<typename U> constexpr explicit Quaternion(const Quaternion<U>& quat);
-			constexpr Quaternion(const Quaternion&) = default;
-			constexpr Quaternion(Quaternion&&) = default;
-			~Quaternion() = default;
 
 			RadianAngle<T> AngleBetween(const Quaternion& vec) const;
 			constexpr bool ApproxEqual(const Quaternion& quat, T maxDifference = std::numeric_limits<T>::epsilon()) const;
@@ -53,9 +50,6 @@ namespace Nz
 			RadianAngle<T> To2DAngle() const;
 			EulerAngles<T> ToEulerAngles() const;
 			std::string ToString() const;
-
-			constexpr Quaternion& operator=(const Quaternion& quat) = default;
-			constexpr Quaternion& operator=(Quaternion&&) = default;
 
 			constexpr Quaternion operator+(const Quaternion& quat) const;
 			constexpr Quaternion operator*(const Quaternion& quat) const;
