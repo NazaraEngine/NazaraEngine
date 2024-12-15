@@ -464,6 +464,31 @@ namespace Nz
 		NazaraError("unhandled StencilOperation {0:#x}", UnderlyingCast(stencilOp));
 		return {};
 	}
+	
+	inline VkImageAspectFlagBits ToVulkan(TexturePlane texturePlane)
+	{
+		switch (texturePlane)
+		{
+			case TexturePlane::Color:   return VK_IMAGE_ASPECT_COLOR_BIT;
+			case TexturePlane::Depth:   return VK_IMAGE_ASPECT_DEPTH_BIT;
+			case TexturePlane::Stencil: return VK_IMAGE_ASPECT_STENCIL_BIT;
+			case TexturePlane::Plane0:  return VK_IMAGE_ASPECT_PLANE_0_BIT;
+			case TexturePlane::Plane1:  return VK_IMAGE_ASPECT_PLANE_1_BIT;
+			case TexturePlane::Plane2:  return VK_IMAGE_ASPECT_PLANE_2_BIT;
+		}
+
+		NazaraError("unhandled TexturePlane {0:#x})", UnderlyingCast(texturePlane));
+		return {};
+	}
+
+	inline VkImageAspectFlags ToVulkan(TexturePlaneFlags texturePlanes)
+	{
+		VkImageAspectFlags imageAspectBits = 0;
+		for (TexturePlane textureUsage : texturePlanes)
+			imageAspectBits |= ToVulkan(textureUsage);
+
+		return imageAspectBits;
+	}
 
 	inline VkImageLayout ToVulkan(TextureLayout textureLayout)
 	{
@@ -501,10 +526,10 @@ namespace Nz
 		return {};
 	}
 
-	inline VkImageUsageFlags ToVulkan(TextureUsageFlags textureLayout)
+	inline VkImageUsageFlags ToVulkan(TextureUsageFlags textureUsages)
 	{
 		VkImageUsageFlags imageUsageBits = 0;
-		for (TextureUsage textureUsage : textureLayout)
+		for (TextureUsage textureUsage : textureUsages)
 			imageUsageBits |= ToVulkan(textureUsage);
 
 		return imageUsageBits;
