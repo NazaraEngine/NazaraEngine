@@ -94,7 +94,7 @@ namespace Nz
 		NazaraAssertMsg(viewInfo.layerCount <= m_parentTexture->m_textureInfo.layerCount - viewInfo.baseArrayLayer, "layer count exceeds number of layers");
 		NazaraAssertMsg(viewInfo.levelCount <= m_parentTexture->m_textureInfo.levelCount - viewInfo.baseMipLevel, "level count exceeds number of levels");
 
-		m_textureInfo = ApplyView(m_parentTexture->m_textureInfo, viewInfo);
+		m_textureInfo = ApplyView(m_parentTexture->m_textureInfo, viewInfo); //< will apply viewInfo.reinterpretFormat
 		m_viewInfo = viewInfo;
 
 		// Try to use texture views if supported (core in GL 4.3 or extension)
