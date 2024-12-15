@@ -48,6 +48,7 @@ namespace Nz
 			{
 				const Texture* texture;
 				const TextureSampler* sampler;
+				TextureLayout textureLayout = TextureLayout::ColorInput;
 			};
 
 			struct SampledTextureBindings
