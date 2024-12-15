@@ -45,4 +45,9 @@ namespace Nz
 	{
 		return m_viewport;
 	}
+
+	bool ShadowViewer::IsZReversed() const
+	{
+		return false;
+	}
 }

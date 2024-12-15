@@ -17,8 +17,9 @@ namespace Nz
 
 	DebugDrawer* Camera::AccessDebugDrawer()
 	{
+		// FIXME: If reversed depth is turned on/off after creating the debug drawer the debug drawer will not follow
 		if (!m_debugDrawer)
-			m_debugDrawer = std::make_unique<DebugDrawer>(*Graphics::Instance()->GetRenderDevice());
+			m_debugDrawer = std::make_unique<DebugDrawer>(*Graphics::Instance()->GetRenderDevice(), m_isReversedZEnabled);
 
 		return m_debugDrawer.get();
 	}
@@ -65,6 +66,11 @@ namespace Nz
 	const Recti& Camera::GetViewport() const
 	{
 		return m_viewport;
+	}
+
+	bool Camera::IsZReversed() const
+	{
+		return IsReversedZEnabled();
 	}
 
 	std::size_t Camera::RegisterPasses(const std::vector<std::unique_ptr<FramePipelinePass>>& passes, FrameGraph& frameGraph, std::optional<unsigned int> viewerIndex, const FunctionRef<void(std::size_t passIndex, FramePass& framePass, FramePipelinePassFlags flags)>& passCallback) const

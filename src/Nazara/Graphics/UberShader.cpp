@@ -87,6 +87,7 @@ namespace Nz
 		if (it == m_combinations.end())
 		{
 			nzsl::ShaderWriter::States states;
+
 			// TODO: Remove this when arrays are accepted as config values
 			for (const auto& [optionHash, optionValue] : config.optionValues)
 			{

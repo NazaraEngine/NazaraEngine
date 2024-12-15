@@ -23,7 +23,7 @@ namespace Nz
 		};
 	}
 
-	DebugDrawer::DebugDrawer(RenderDevice& renderDevice, std::size_t maxVertexPerDraw) :
+	DebugDrawer::DebugDrawer(RenderDevice& renderDevice, bool usesReversedZ, std::size_t maxVertexPerDraw) :
 	m_vertexPerBlock(maxVertexPerDraw),
 	m_renderDevice(renderDevice),
 	m_viewerDataUpdated(false)
@@ -53,6 +53,7 @@ namespace Nz
 		pipelineInfo.shaderModules.push_back(std::move(debugDrawShader));
 		pipelineInfo.depthBuffer = true;
 		pipelineInfo.depthWrite = true;
+		pipelineInfo.depthCompare = (usesReversedZ) ? Nz::RendererComparison::GreaterOrEqual : Nz::RendererComparison::LessOrEqual;
 
 		pipelineInfo.blending = true;
 		pipelineInfo.blend.srcColor = BlendFunc::SrcAlpha;

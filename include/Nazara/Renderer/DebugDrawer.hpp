@@ -34,7 +34,7 @@ namespace Nz
 	class NAZARA_RENDERER_API DebugDrawer
 	{
 		public:
-			DebugDrawer(RenderDevice& renderDevice, std::size_t maxVertexPerDraw = DefaultVertexBlockSize);
+			DebugDrawer(RenderDevice& renderDevice, bool usesReversedZ = false, std::size_t maxVertexPerDraw = DefaultVertexBlockSize);
 			DebugDrawer(const DebugDrawer&) = delete;
 			DebugDrawer(DebugDrawer&&) noexcept = default;
 			~DebugDrawer();

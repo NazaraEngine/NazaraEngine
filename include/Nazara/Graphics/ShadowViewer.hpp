@@ -30,6 +30,8 @@ namespace Nz
 			const ViewerInstance& GetViewerInstance() const override;
 			const Recti& GetViewport() const override;
 
+			bool IsZReversed() const override;
+
 			inline void UpdateRenderMask(UInt32 renderMask);
 			inline void UpdateViewport(const Recti& viewport);
 

@@ -559,7 +559,7 @@ namespace Nz
 	* \param viewProjMatrix Matrix which represents the transformation of the frustum
 	*/
 	template<typename T>
-	Frustum<T> Frustum<T>::Extract(const Matrix4<T>& viewProjMatrix)
+	Frustum<T> Frustum<T>::Extract(const Matrix4<T>& viewProjMatrix, bool isZReversed)
 	{
 		EnumArray<FrustumPlane, Plane<T>> planes;
 		planes[FrustumPlane::Left].normal.x = viewProjMatrix(3, 0) + viewProjMatrix(0, 0);
@@ -591,6 +591,9 @@ namespace Nz
 		planes[FrustumPlane::Far].normal.y = viewProjMatrix(3, 1) - viewProjMatrix(2, 1);
 		planes[FrustumPlane::Far].normal.z = viewProjMatrix(3, 2) - viewProjMatrix(2, 2);
 		planes[FrustumPlane::Far].distance = viewProjMatrix(3, 3) - viewProjMatrix(2, 3);
+
+		if (isZReversed)
+			std::swap(planes[FrustumPlane::Near], planes[FrustumPlane::Far]);
 
 		for (auto& plane : planes)
 			plane.Normalize();

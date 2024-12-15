@@ -79,7 +79,7 @@ namespace Nz
 		StackVector<Frustumf> frustums = NazaraStackVector(Frustumf, m_cascadeCount);
 		StackVector<float> frustumDists = NazaraStackVector(float, m_cascadeCount);
 
-		Frustumf frustum = Frustumf::Extract(viewProjMatrix);
+		Frustumf frustum = Frustumf::Extract(viewProjMatrix, viewer->IsZReversed());
 		frustum.Split(cascadeSplits.data(), m_cascadeCount - 1, [&](float zNearPct, float zFarPct)
 		{
 			frustums.push_back(frustum.Reduce(zNearPct, zFarPct));

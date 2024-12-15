@@ -34,6 +34,8 @@ namespace Nz
 
 			std::vector<std::unique_ptr<FramePipelinePass>> BuildPasses(FramePipelinePass::PassData& passData) const override;
 
+			inline void EnableReversedZ(bool enable);
+
 			inline float GetAspectRatio() const;
 			const Color& GetClearColor() const override;
 			float GetClearDepth() const override;
@@ -49,6 +51,9 @@ namespace Nz
 			const Recti& GetViewport() const override;
 			inline float GetZFar() const;
 			inline float GetZNear() const;
+
+			inline bool IsReversedZEnabled() const;
+			bool IsZReversed() const override;
 
 			std::size_t RegisterPasses(const std::vector<std::unique_ptr<FramePipelinePass>>& passes, FrameGraph& frameGraph, std::optional<unsigned int> viewerIndex, const FunctionRef<void(std::size_t passIndex, FramePass& framePass, FramePipelinePassFlags flags)>& passCallback = nullptr) const override;
 
@@ -90,6 +95,7 @@ namespace Nz
 			Vector2f m_size;
 			ViewerInstance m_viewerInstance;
 			UInt32 m_renderMask;
+			bool m_isReversedZEnabled;
 			float m_aspectRatio;
 			float m_clearDepth;
 			float m_zFar;

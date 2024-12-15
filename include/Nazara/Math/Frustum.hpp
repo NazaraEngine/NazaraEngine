@@ -71,7 +71,7 @@ namespace Nz
 
 			static constexpr bool ApproxEqual(const Frustum& lhs, const Frustum& rhs, T maxDifference = std::numeric_limits<T>::epsilon());
 			static Frustum Build(RadianAngle<T> angle, T ratio, T zNear, T zFar, const Vector3<T>& eye, const Vector3<T>& target, const Vector3<T>& up = Vector3<T>::Up());
-			static Frustum Extract(const Matrix4<T>& viewProjMatrix);
+			static Frustum Extract(const Matrix4<T>& viewProjMatrix, bool isZReversed = false);
 
 			template<typename U> friend bool Serialize(SerializationContext& context, const Frustum<U>& frustum, TypeTag<Frustum<U>>);
 			template<typename U> friend bool Deserialize(SerializationContext& context, Frustum<U>* frustum, TypeTag<Frustum<U>>);

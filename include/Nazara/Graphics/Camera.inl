@@ -14,6 +14,7 @@ namespace Nz
 	m_viewport(0, 0, 0, 0),
 	m_size(-1.f, -1.f),
 	m_renderMask(0xFFFFFFFF),
+	m_isReversedZEnabled(false),
 	m_clearDepth(1.f),
 	m_zFar((projectionType == ProjectionType::Perspective) ? 1000.f : 1.f),
 	m_zNear((projectionType == ProjectionType::Perspective) ? 1.f : -1.f)
@@ -31,6 +32,7 @@ namespace Nz
 	m_viewport(camera.m_viewport),
 	m_size(camera.m_size),
 	m_renderMask(camera.m_renderMask),
+	m_isReversedZEnabled(camera.m_isReversedZEnabled),
 	m_aspectRatio(camera.m_aspectRatio),
 	m_clearDepth(camera.m_clearDepth),
 	m_zFar(camera.m_zFar),
@@ -50,12 +52,22 @@ namespace Nz
 	m_viewport(camera.m_viewport),
 	m_size(camera.m_size),
 	m_renderMask(camera.m_renderMask),
+	m_isReversedZEnabled(camera.m_isReversedZEnabled),
 	m_aspectRatio(camera.m_aspectRatio),
 	m_clearDepth(camera.m_clearDepth),
 	m_zFar(camera.m_zFar),
 	m_zNear(camera.m_zNear)
 	{
 		UpdateTarget(std::move(camera.m_renderTarget));
+	}
+
+	inline void Camera::EnableReversedZ(bool enable)
+	{
+		if (m_isReversedZEnabled == enable)
+			return;
+
+		m_isReversedZEnabled = enable;
+		UpdateProjectionMatrix();
 	}
 
 	inline float Camera::GetAspectRatio() const
@@ -96,6 +108,11 @@ namespace Nz
 	inline float Camera::GetZNear() const
 	{
 		return m_zNear;
+	}
+
+	inline bool Camera::IsReversedZEnabled() const
+	{
+		return m_isReversedZEnabled;
 	}
 
 	inline void Camera::UpdateClearColor(Color color)
@@ -139,6 +156,7 @@ namespace Nz
 		m_viewport = camera.m_viewport;
 		m_size = camera.m_size;
 		m_renderMask = camera.m_renderMask;
+		m_isReversedZEnabled = camera.m_isReversedZEnabled;
 		m_aspectRatio = camera.m_aspectRatio;
 		m_clearDepth = camera.m_clearDepth;
 		m_zFar = camera.m_zFar;
@@ -165,6 +183,7 @@ namespace Nz
 		m_viewport = camera.m_viewport;
 		m_size = camera.m_size;
 		m_renderMask = camera.m_renderMask;
+		m_isReversedZEnabled = camera.m_isReversedZEnabled;
 		m_aspectRatio = camera.m_aspectRatio;
 		m_clearDepth = camera.m_clearDepth;
 		m_zFar = camera.m_zFar;
@@ -234,17 +253,22 @@ namespace Nz
 
 	inline void Camera::UpdateProjectionMatrix()
 	{
+		float zNear = m_zNear;
+		float zFar = m_zFar;
+		if (m_isReversedZEnabled)
+			std::swap(zNear, zFar);
+
 		switch (m_projectionType)
 		{
 			case ProjectionType::Orthographic:
 				if (m_size.x < 0.f || m_size.y < 0.f)
-					m_viewerInstance.UpdateProjectionMatrix(Matrix4f::Ortho(float(m_viewport.x), float(m_viewport.x + m_viewport.width), float(m_viewport.y), float(m_viewport.y + m_viewport.height), m_zNear, m_zFar));
+					m_viewerInstance.UpdateProjectionMatrix(Matrix4f::Ortho(float(m_viewport.x), float(m_viewport.x + m_viewport.width), float(m_viewport.y), float(m_viewport.y + m_viewport.height), zNear, zFar));
 				else
-					m_viewerInstance.UpdateProjectionMatrix(Matrix4f::Ortho(0.f, m_size.x, 0.f, m_size.y, m_zNear, m_zFar));
+					m_viewerInstance.UpdateProjectionMatrix(Matrix4f::Ortho(0.f, m_size.x, 0.f, m_size.y, zNear, zFar));
 				break;
 
 			case ProjectionType::Perspective:
-				m_viewerInstance.UpdateProjectionMatrix(Matrix4f::Perspective(m_fov, m_aspectRatio, m_zNear, m_zFar));
+				m_viewerInstance.UpdateProjectionMatrix(Matrix4f::Perspective(m_fov, m_aspectRatio, zNear, zFar));
 				break;
 		}
 
