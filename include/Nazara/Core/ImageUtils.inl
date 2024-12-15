@@ -101,27 +101,27 @@ namespace Nz::ImageUtils
 		{
 			if constexpr (std::is_same_v<Ret, bool>)
 			{
-				if (!callback(i, width, height, depth))
+				if (!callback(SafeCast<UInt8>(i), width, height, depth))
 					return false;
 			}
 			else if constexpr (std::is_void_v<Ret>)
-				callback(i, width, height, depth);
+				callback(SafeCast<UInt8>(i), width, height, depth);
 			else
 				static_assert(AlwaysFalse<Ret>(), "callback must either return a bool or nothing");
 
 			switch (type)
 			{
 				case ImageType::E3D:
-					depth = std::max<UInt8>(depth >> 1u, 1u);
+					depth = std::max(depth >> 1u, 1u);
 					[[fallthrough]];
 				case ImageType::E2D:
 				case ImageType::E2D_Array:
 				case ImageType::Cubemap:
-					height = std::max<UInt8>(height >> 1u, 1u);
+					height = std::max(height >> 1u, 1u);
 					[[fallthrough]];
 				case ImageType::E1D:
 				case ImageType::E1D_Array:
-					width = std::max<UInt8>(width >> 1u, 1u);
+					width = std::max(width >> 1u, 1u);
 					break;
 			}
 		}
