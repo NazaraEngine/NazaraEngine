@@ -32,6 +32,7 @@ namespace Nz
 	m_size(camera.m_size),
 	m_renderMask(camera.m_renderMask),
 	m_aspectRatio(camera.m_aspectRatio),
+	m_clearDepth(camera.m_clearDepth),
 	m_zFar(camera.m_zFar),
 	m_zNear(camera.m_zNear)
 	{
@@ -139,6 +140,7 @@ namespace Nz
 		m_size = camera.m_size;
 		m_renderMask = camera.m_renderMask;
 		m_aspectRatio = camera.m_aspectRatio;
+		m_clearDepth = camera.m_clearDepth;
 		m_zFar = camera.m_zFar;
 		m_zNear = camera.m_zNear;
 
@@ -164,6 +166,7 @@ namespace Nz
 		m_size = camera.m_size;
 		m_renderMask = camera.m_renderMask;
 		m_aspectRatio = camera.m_aspectRatio;
+		m_clearDepth = camera.m_clearDepth;
 		m_zFar = camera.m_zFar;
 		m_zNear = camera.m_zNear;
 
