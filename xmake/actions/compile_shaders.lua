@@ -17,6 +17,7 @@ task("compile-shaders")
 		task.run("config", {}, {disable_dump = true})
 
 		local nzsl = project.required_package("nzsl")
+		local nzsla = path.join(nzsl:installdir(), "bin", "nzsla")
 		local nzslc = path.join(nzsl:installdir(), "bin", "nzslc")
 
 		local envs = nzsl:get("envs")
@@ -29,8 +30,8 @@ task("compile-shaders")
 			end
 		end
 
-		print("Compiling shaders...")
-		for _, filepath in pairs(os.files("src/Nazara/*/Resources/**.nzsl")) do
+		print("Compiling standalone shaders...")
+		for _, filepath in pairs(os.files("src/Nazara/*/Shaders/**.nzsl")) do
 			print(" - Compiling " .. filepath)
 			local argv = {"--compile=nzslb-header", "--partial", "--optimize" }
 			if option.get("measure") then
@@ -41,5 +42,30 @@ task("compile-shaders")
 			end
 			table.insert(argv, filepath)
 			os.vrunv(nzslc, argv, { envs = envs })
+		end
+
+		print("Compiling shader archives...")
+		for _, archivefolder in pairs(os.dirs("src/Nazara/*/ShaderArchives/*")) do
+			print(" - Compiling " .. archivefolder .. " shaders")
+			local archive = archivefolder .. ".nzsla.h"
+			local nzsla_argv = {"--archive", "--compress=lz4hc", "--header" }
+			table.insert(nzsla_argv, "--output=" .. archive)
+
+			for _, filepath in pairs(os.files(archivefolder .. "/**.nzsl")) do
+				print("   - Compiling " .. filepath .. "...")
+				local nzslc_argvs = {"--compile=nzslb", "--partial", "--optimize" }
+				if option.get("measure") then
+					table.insert(nzslc_argvs, "--measure")
+				end
+				if option.get("benchmark-iteration") then
+					table.insert(nzslc_argvs, "--benchmark-iteration=" .. option.get("benchmark-iteration"))
+				end
+				table.insert(nzslc_argvs, filepath)
+				os.vrunv(nzslc, nzslc_argvs, { envs = envs })
+
+				table.insert(nzsla_argv, path.join(path.directory(filepath), path.basename(filepath) .. ".nzslb"))
+			end
+			
+			os.vrunv(nzsla, nzsla_argv, { envs = envs })
 		end
 	end)
