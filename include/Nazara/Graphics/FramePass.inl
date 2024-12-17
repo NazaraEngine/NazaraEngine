@@ -7,7 +7,6 @@
 namespace Nz
 {
 	inline FramePass::FramePass(FrameGraph& /*owner*/, std::size_t passId, std::string name) :
-	m_depthStencilInput(InvalidAttachmentId),
 	m_depthStencilOutput(InvalidAttachmentId),
 	m_passId(passId),
 	m_name(std::move(name))
@@ -44,13 +43,13 @@ namespace Nz
 		for (const auto& output : m_outputs)
 			func(output.attachmentId);
 
-		if (m_depthStencilInput != FramePass::InvalidAttachmentId)
+		if (m_depthStencilInput)
 		{
-			func(m_depthStencilInput);
+			func(m_depthStencilInput->attachmentId);
 
-			if (m_depthStencilOutput != FramePass::InvalidAttachmentId && m_depthStencilOutput != m_depthStencilInput)
+			if (m_depthStencilOutput != FramePass::InvalidAttachmentId && m_depthStencilOutput != m_depthStencilInput->attachmentId)
 			{
-				if (!singleDSInputOutputCall || m_depthStencilOutput != m_depthStencilInput)
+				if (!singleDSInputOutputCall || m_depthStencilOutput != m_depthStencilInput->attachmentId)
 					func(m_depthStencilOutput);
 			}
 		}
@@ -68,7 +67,7 @@ namespace Nz
 		return m_depthStencilClear;
 	}
 
-	inline std::size_t FramePass::GetDepthStencilInput() const
+	inline auto FramePass::GetDepthStencilInput() const -> const std::optional<DepthStencilInput>&
 	{
 		return m_depthStencilInput;
 	}
@@ -146,15 +145,30 @@ namespace Nz
 		m_inputs[inputIndex].textureUsageFlags = usageFlags;
 	}
 
+	inline void FramePass::SetOutputAccess(std::size_t outputIndex, TextureLayout layout, PipelineStageFlags stageFlags, MemoryAccessFlags accessFlags)
+	{
+		assert(outputIndex < m_outputs.size());
+		m_outputs[outputIndex].accessFlags = accessFlags;
+		m_outputs[outputIndex].layout = layout;
+		m_outputs[outputIndex].stageFlags = stageFlags;
+	}
+
+	inline void FramePass::SetOutputUsage(std::size_t outputIndex, TextureUsageFlags usageFlags)
+	{
+		assert(outputIndex < m_outputs.size());
+		m_outputs[outputIndex].textureUsageFlags = usageFlags;
+	}
+
 	inline void FramePass::SetReadInput(std::size_t inputIndex, bool doesRead)
 	{
 		assert(inputIndex < m_inputs.size());
 		m_inputs[inputIndex].doesRead = doesRead;
 	}
 
-	inline void FramePass::SetDepthStencilInput(std::size_t attachmentId)
+	inline void FramePass::SetDepthStencilInput(std::size_t attachmentId, TextureUsage attachmentUsage)
 	{
-		m_depthStencilInput = attachmentId;
+		NazaraAssertMsg(attachmentUsage == TextureUsage::DepthStencilAttachment || attachmentUsage == TextureUsage::ShaderSampling, "unexpected usage, depth-stencil input can be used as attachment or as sampled texture");
+		m_depthStencilInput = DepthStencilInput{ attachmentId, attachmentUsage };
 	}
 
 	inline void FramePass::SetDepthStencilOutput(std::size_t attachmentId)

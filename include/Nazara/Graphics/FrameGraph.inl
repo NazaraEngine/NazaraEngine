@@ -115,4 +115,19 @@ namespace Nz
 		attachmentIndex = ResolveAttachmentIndex(attachmentIndex);
 		m_externalTextures[attachmentIndex] = std::move(texture);
 	}
+
+	inline TextureLayout FrameGraph::GetWriteDepthStencilLayout(std::size_t attachmentIndex) const
+	{
+		TextureLayout layout = TextureLayout::DepthStencilReadWrite;
+		if (std::holds_alternative<AttachmentView>(m_attachments[attachmentIndex]))
+		{
+			const auto& attachmentView = std::get<AttachmentView>(m_attachments[attachmentIndex]);
+			if (attachmentView.planeFlags == TexturePlane::Depth)
+				layout = TextureLayout::DepthReadWriteStencilReadOnly;
+			else if (attachmentView.planeFlags == TexturePlane::Stencil)
+				layout = TextureLayout::DepthReadOnlyStencilReadWrite;
+		}
+
+		return layout;
+	}
 }
