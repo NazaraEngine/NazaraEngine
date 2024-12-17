@@ -62,6 +62,7 @@ namespace Nz
 		std::size_t outerAngleOffset;
 		std::size_t invRadiusOffset;
 		std::size_t viewProjMatrixOffset;
+		std::size_t worldMatrixOffset;
 
 		std::size_t totalSize;
 
