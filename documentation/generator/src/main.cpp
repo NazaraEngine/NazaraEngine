@@ -1,5 +1,5 @@
 #include <Nazara/Core/Clock.hpp>
-#include <NazaraUtils/Algorithm.hpp>
+#include <NazaraUtils/PathUtils.hpp>
 #include <cppast/libclang_parser.hpp>
 #include <cppast/cpp_class.hpp>
 #include <cppast/cpp_expression.hpp>

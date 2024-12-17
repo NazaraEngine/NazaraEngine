@@ -4,6 +4,8 @@
 
 // no header guards
 
+#ifndef NAZARA_DOCGEN
+
 #if (!defined(NAZARA_AUDIO_AL_FUNCTION) || !defined(NAZARA_AUDIO_ALC_FUNCTION)) && !defined(NAZARA_AUDIO_AL_ALC_FUNCTION)
 #error You must define NAZARA_AUDIO_AL_FUNCTION and NAZARA_AUDIO_ALC_FUNCTION, or NAZARA_AUDIO_AL_ALC_FUNCTION before including this file
 #endif
@@ -168,3 +170,5 @@ NAZARA_AUDIO_ALC_EXT_END()
 #undef NAZARA_AUDIO_ALC_EXT_BEGIN
 #undef NAZARA_AUDIO_ALC_EXT_END
 #undef NAZARA_AUDIO_ALC_FUNCTION
+
+#endif // NAZARA_DOCGEN
