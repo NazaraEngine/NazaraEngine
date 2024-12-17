@@ -695,7 +695,7 @@ namespace Nz
 		                    std::abs(matrix(0,1)) * halfSize.x + std::abs(matrix(1,1)) * halfSize.y + std::abs(matrix(2,1)) * halfSize.z,
 		                    std::abs(matrix(0,2)) * halfSize.x + std::abs(matrix(1,2)) * halfSize.y + std::abs(matrix(2,2)) * halfSize.z);
 
-		return operator=(Boxf::FromExtents(center - halfSize, center + halfSize));
+		return this->operator=(Boxf::FromExtents(center - halfSize, center + halfSize));
 	}
 
 	/*!

@@ -447,7 +447,7 @@ namespace Nz
 	template<typename T>
 	constexpr Quaternion<T>& Quaternion<T>::operator+=(const Quaternion& quat)
 	{
-		return operator=(operator+(quat));
+		return this->operator=(operator+(quat));
 	}
 
 	/*!
@@ -459,7 +459,7 @@ namespace Nz
 	template<typename T>
 	constexpr Quaternion<T>& Quaternion<T>::operator*=(const Quaternion& quat)
 	{
-		return operator=(operator*(quat));
+		return this->operator=(operator*(quat));
 	}
 
 	/*!
@@ -471,7 +471,7 @@ namespace Nz
 	template<typename T>
 	constexpr Quaternion<T>& Quaternion<T>::operator*=(T scale)
 	{
-		return operator=(operator*(scale));
+		return this->operator=(operator*(scale));
 	}
 
 	/*!
@@ -483,7 +483,7 @@ namespace Nz
 	template<typename T>
 	constexpr Quaternion<T>& Quaternion<T>::operator/=(const Quaternion& quat)
 	{
-		return operator=(operator/(quat));
+		return this->operator=(operator/(quat));
 	}
 
 	/*!

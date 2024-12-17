@@ -172,7 +172,7 @@ namespace Nz
 	template<typename T>
 	constexpr Matrix4<T>& Matrix4<T>::Concatenate(const Matrix4& matrix)
 	{
-		return operator=(Matrix4(
+		return this->operator=(Matrix4(
 			m11 * matrix.m11 + m12 * matrix.m21 + m13 * matrix.m31 + m14 * matrix.m41,
 			m11 * matrix.m12 + m12 * matrix.m22 + m13 * matrix.m32 + m14 * matrix.m42,
 			m11 * matrix.m13 + m12 * matrix.m23 + m13 * matrix.m33 + m14 * matrix.m43,
@@ -222,7 +222,7 @@ namespace Nz
 		}
 		#endif
 
-		return operator=(Matrix4(
+		return this->operator=(Matrix4(
 			m11*matrix.m11 + m12*matrix.m21 + m13*matrix.m31,
 			m11*matrix.m12 + m12*matrix.m22 + m13*matrix.m32,
 			m11*matrix.m13 + m12*matrix.m23 + m13*matrix.m33,
