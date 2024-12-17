@@ -71,6 +71,8 @@ namespace Nz
 				}
 				else if constexpr (std::is_same_v<T, AttachmentProxy>)
 					return frameGraph.AddAttachmentProxy(arg.name, GetAttachmentIndex(arg.attachmentIndex));
+				else if constexpr (std::is_same_v<T, AttachmentView>)
+					return frameGraph.AddAttachmentView(arg.name, GetAttachmentIndex(arg.attachmentIndex), arg.pixelFormat, arg.planeFlags);
 				else
 					static_assert(AlwaysFalse<T>(), "unhandled case");
 

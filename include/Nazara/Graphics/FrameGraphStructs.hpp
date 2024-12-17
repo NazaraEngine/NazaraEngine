@@ -23,7 +23,9 @@ namespace Nz
 		struct ViewData
 		{
 			std::size_t parentTextureId;
-			std::size_t arrayLayer;
+			std::size_t baseArrayLayer;
+			std::size_t layerCount;
+			TexturePlaneFlags planeFlags;
 		};
 
 		std::optional<ViewData> viewData;

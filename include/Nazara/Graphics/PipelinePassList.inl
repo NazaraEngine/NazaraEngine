@@ -22,6 +22,14 @@ namespace Nz
 		return index;
 	}
 
+	inline std::size_t PipelinePassList::AddAttachmentView(std::string name, std::size_t attachmentIndex, PixelFormat pixelFormat, TexturePlaneFlags texturePlanes)
+	{
+		std::size_t index = m_attachments.size();
+		m_attachments.emplace_back(AttachmentView{ std::move(name), attachmentIndex, pixelFormat, texturePlanes });
+
+		return index;
+	}
+
 	inline std::size_t PipelinePassList::AddPass(std::string name, std::size_t implIndex, ParameterList parameterList)
 	{
 		std::size_t index = m_passes.size();
