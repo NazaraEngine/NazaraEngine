@@ -149,9 +149,9 @@ namespace Nz::Loaders
 					std::vector<std::string> flags;
 
 					section.Block(
+						"cleardepth", &clearDepthValue,
 						"depthstencilinput", &depthstencilInput,
 						"depthstenciloutput", &depthstencilOutput,
-						"depthclear", &clearDepthValue,
 						"impl", [&](ParameterFileSection implSection, std::string passImpl)
 						{
 							impl = std::move(passImpl);
@@ -286,7 +286,7 @@ namespace Nz::Loaders
 							const char* ptr = clearDepthValue.c_str();
 							const char* end = ptr + clearDepthValue.size();
 							fast_float::from_chars_result r = fast_float::from_chars(ptr, end, clearValue);
-							if (r.ec != std::errc{} || ptr != end)
+							if (r.ec != std::errc{} || r.ptr != end)
 							{
 								NazaraError("failed to decode clear depth value \"{}\"", clearDepthValue);
 								throw ResourceLoadingError::DecodingError;
