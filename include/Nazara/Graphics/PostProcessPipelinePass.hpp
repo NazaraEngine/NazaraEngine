@@ -48,8 +48,8 @@ namespace Nz
 			std::shared_ptr<RenderPipelineLayout> m_renderPipelineLayout;
 			std::shared_ptr<RenderPipeline> m_renderPipeline;
 			std::shared_ptr<RenderPipeline> m_nextRenderPipeline;
-			std::shared_ptr<ShaderBinding> m_shaderBinding;
 			std::string m_passName;
+			ShaderBindingPtr m_shaderBinding;
 			UberShader m_shader;
 			bool m_rebuildFramePass;
 	};

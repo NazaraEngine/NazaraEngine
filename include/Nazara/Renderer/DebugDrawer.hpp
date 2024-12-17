@@ -16,6 +16,7 @@
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Renderer/Export.hpp>
 #include <Nazara/Renderer/PredefinedShaderStructs.hpp>
+#include <Nazara/Renderer/ShaderBinding.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
 #include <memory>
 #include <vector>
@@ -28,7 +29,6 @@ namespace Nz
 	class RenderPipeline;
 	class RenderPipelineLayout;
 	class RenderResources;
-	class ShaderBinding;
 	class Skeleton;
 
 	class NAZARA_RENDERER_API DebugDrawer
@@ -66,7 +66,7 @@ namespace Nz
 			struct ViewerData
 			{
 				std::shared_ptr<RenderBuffer> buffer;
-				std::shared_ptr<ShaderBinding> binding;
+				ShaderBindingPtr binding;
 			};
 
 			struct DataPool

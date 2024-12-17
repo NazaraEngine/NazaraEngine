@@ -17,7 +17,7 @@ NAZARA_REQUEST_DEDICATED_GPU()
 struct SpriteRenderData
 {
 	std::shared_ptr<Nz::RenderBuffer> vertexBuffer;
-	std::shared_ptr<Nz::ShaderBinding> shaderBinding;
+	Nz::ShaderBindingPtr shaderBinding;
 };
 
 struct SpriteRenderPipeline
@@ -174,7 +174,7 @@ int main()
 
 	std::atomic_bool hasNewPipeline = false;
 
-	std::shared_ptr<Nz::ShaderBinding> computeBinding = computePipelineLayout->AllocateShaderBinding(0);
+	Nz::ShaderBindingPtr computeBinding = computePipelineLayout->AllocateShaderBinding(0);
 	computeBinding->Update({
 		{
 			0,

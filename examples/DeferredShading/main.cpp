@@ -361,7 +361,7 @@ int main(int argc, char* argv[])
 
 	fullscreenPipelineInfoViewer.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, shaderDir / "bloom_bright.nzsl", states));
 
-	std::shared_ptr<Nz::ShaderBinding> bloomBrightShaderBinding;
+	Nz::ShaderBindingPtr bloomBrightShaderBinding;
 
 	std::shared_ptr<Nz::RenderPipeline> bloomBrightPipeline = device->InstantiateRenderPipeline(fullscreenPipelineInfoViewer);
 
@@ -386,7 +386,7 @@ int main(int argc, char* argv[])
 	gaussianBlurPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, shaderDir / "gaussian_blur.nzsl", states));
 
 	std::shared_ptr<Nz::RenderPipeline> gaussianBlurPipeline = device->InstantiateRenderPipeline(gaussianBlurPipelineInfo);
-	std::vector<std::shared_ptr<Nz::ShaderBinding>> gaussianBlurShaderBinding(BloomSubdivisionCount * 2);
+	std::vector<Nz::ShaderBindingPtr> gaussianBlurShaderBinding(BloomSubdivisionCount * 2);
 
 	std::vector<Nz::UInt8> gaussianBlurData(gaussianBlurDataOffsets.GetSize());
 	std::vector<std::shared_ptr<Nz::RenderBuffer>> gaussianBlurUbos;
@@ -410,7 +410,7 @@ int main(int argc, char* argv[])
 	}
 
 	// Tone mapping
-	std::shared_ptr<Nz::ShaderBinding> toneMappingShaderBinding;
+	Nz::ShaderBindingPtr toneMappingShaderBinding;
 
 	fullscreenPipelineInfoViewer.shaderModules.clear();
 	fullscreenPipelineInfoViewer.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, shaderDir / "tone_mapping.nzsl", states));
@@ -419,7 +419,7 @@ int main(int argc, char* argv[])
 
 	// Bloom blend
 
-	std::shared_ptr<Nz::ShaderBinding> bloomBlitBinding;
+	Nz::ShaderBindingPtr bloomBlitBinding;
 
 	Nz::RenderPipelineLayoutInfo bloomBlendPipelineLayoutInfo;
 	bloomBlendPipelineLayoutInfo.bindings.push_back({
@@ -452,7 +452,7 @@ int main(int argc, char* argv[])
 
 	std::shared_ptr<Nz::RenderPipeline> bloomBlendPipeline = device->InstantiateRenderPipeline(bloomBlendPipelineInfo);
 
-	std::vector<std::shared_ptr<Nz::ShaderBinding>> bloomBlendShaderBinding(BloomSubdivisionCount);
+	std::vector<Nz::ShaderBindingPtr> bloomBlendShaderBinding(BloomSubdivisionCount);
 
 	// Gamma correction
 
@@ -509,7 +509,7 @@ int main(int argc, char* argv[])
 	std::size_t gr_weightOffset = godraysFieldOffsets.AddField(nzsl::StructFieldType::Float1);
 	std::size_t gr_lightPositionOffset = godraysFieldOffsets.AddField(nzsl::StructFieldType::Float2);
 
-	std::shared_ptr<Nz::ShaderBinding> godRaysShaderBinding = godraysPipelineInfo.pipelineLayout->AllocateShaderBinding(0);
+	Nz::ShaderBindingPtr godRaysShaderBinding = godraysPipelineInfo.pipelineLayout->AllocateShaderBinding(0);
 
 	/*
 		uniformExposure = 0.0034f;
@@ -527,7 +527,7 @@ int main(int argc, char* argv[])
 
 	std::shared_ptr<Nz::RenderBuffer> godRaysUBO = device->InstantiateBuffer(Nz::BufferType::Uniform, godRaysData.size(), Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::Dynamic | Nz::BufferUsage::Write, godRaysData.data());
 
-	std::shared_ptr<Nz::ShaderBinding> godRaysBlitShaderBinding;
+	Nz::ShaderBindingPtr godRaysBlitShaderBinding;
 
 
 	std::shared_ptr<Nz::RenderPipeline> fullscreenPipeline = device->InstantiateRenderPipeline(fullscreenPipelineInfo);
@@ -565,7 +565,7 @@ int main(int argc, char* argv[])
 	stencilPipelineInfo.colorWriteMask = 0;
 	stencilPipelineInfo.depthBuffer = true;
 	stencilPipelineInfo.depthWrite = false;
-	stencilPipelineInfo.faceCulling = Nz::FaceCulling::None;
+	stencilPipelineInfo.faceCulling = Nz::FaceCulling::Front;
 	stencilPipelineInfo.stencilTest = true;
 	stencilPipelineInfo.stencilFront.compare = Nz::RendererComparison::Always;
 	stencilPipelineInfo.stencilFront.depthFail = Nz::StencilOperation::Invert;
@@ -577,16 +577,16 @@ int main(int argc, char* argv[])
 	std::shared_ptr<Nz::RenderPipeline> stencilPipeline = device->InstantiateRenderPipeline(stencilPipelineInfo);
 
 
-	std::vector<std::shared_ptr<Nz::ShaderBinding>> lightingShaderBindings;
+	std::vector<Nz::ShaderBindingPtr> lightingShaderBindings;
 
-	std::shared_ptr<Nz::ShaderBinding> bloomSkipBlit;
-	std::shared_ptr<Nz::ShaderBinding> finalBlitBinding;
+	Nz::ShaderBindingPtr bloomSkipBlit;
+	Nz::ShaderBindingPtr finalBlitBinding;
 
 	bool lightUpdate = true;
 
 	std::shared_ptr<Nz::TextureSampler> textureSampler = device->InstantiateTextureSampler({});
 
-	std::shared_ptr<Nz::ShaderBinding> skyboxShaderBinding = skyboxPipelineLayout->AllocateShaderBinding(0);
+	Nz::ShaderBindingPtr skyboxShaderBinding = skyboxPipelineLayout->AllocateShaderBinding(0);
 	skyboxShaderBinding->Update({
 		{
 			0,
@@ -604,7 +604,7 @@ int main(int argc, char* argv[])
 		}
 	});
 
-	std::shared_ptr<Nz::ShaderBinding> gbufferShaderBinding;
+	Nz::ShaderBindingPtr gbufferShaderBinding;
 
 	bool bloomEnabled = true;
 	bool forwardEnabled = true;
@@ -1222,7 +1222,7 @@ int main(int argc, char* argv[])
 
 			for (std::size_t i = 0; i < MaxPointLight; ++i)
 			{
-				std::shared_ptr<Nz::ShaderBinding> lightingShaderBinding = lightingPipelineInfo.pipelineLayout->AllocateShaderBinding(1);
+				Nz::ShaderBindingPtr lightingShaderBinding = lightingPipelineInfo.pipelineLayout->AllocateShaderBinding(1);
 				lightingShaderBinding->Update({
 					{
 						0,
