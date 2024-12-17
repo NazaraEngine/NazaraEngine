@@ -2,16 +2,21 @@
 module PhongMaterial;
 
 import InstanceData from Engine.InstanceData;
-import LightData from Engine.LightData;
+import LightData from Lighting.LightData;
 import SkeletalData from Engine.SkeletalData;
 import ViewerData from Engine.ViewerData;
 
-import * from Engine.LightShadow;
+import * from Lighting.Phong;
+import * from Lighting.Shadow;
 import SkinLinearPosition, SkinLinearPositionNormal from Engine.SkinningLinear;
+import GBufferOutput from DeferredShading.GBuffer;
+import * from DeferredShading.NormalEncoding;
+import EncodeNormal from DeferredShading.NormalEncoding;
 
 // Pass-specific options
 option DepthPass: bool = false;
 option DistanceDepth: bool = false;
+option ForwardPass: bool = true;
 option ShadowPass: bool = false;
 
 // Basic material options
@@ -41,6 +46,7 @@ option VertexUvLoc: u32 = InvalidLoc;
 option VertexJointIndicesLoc: u32 = InvalidLoc;
 option VertexJointWeightsLoc: u32 = InvalidLoc;
 
+option EnableShadowMapping: bool = true;
 option MaxLightCount: u32 = 3;
 
 const HasNormal = (VertexNormalLoc != InvalidLoc);
@@ -80,11 +86,6 @@ struct MaterialSettings
 	Shininess: f32
 }
 
-// TODO: Add enums
-const DirectionalLight = 0;
-const PointLight = 1;
-const SpotLight = 2;
-
 [tag("Material")]
 [auto_binding]
 external
@@ -106,7 +107,7 @@ external
 	[tag("InstanceData")] instanceData: uniform[InstanceData],
 	[tag("ViewerData")] viewerData: uniform[ViewerData],
 	[tag("SkeletalData")] skeletalData: uniform[SkeletalData],
-	[tag("LightData")] lightData: uniform[LightData],
+	[tag("LightData")/*, cond(ForwardPass)*/] lightData: uniform[LightData],
 	[tag("ShadowMapsDirectional")] shadowMapsDirectional: array[depth_sampler2D_array[f32], MaxLightCount],
 	[tag("ShadowMapsPoint")] shadowMapsPoint: array[sampler_cube[f32], MaxLightCount],
 	[tag("ShadowMapsSpot")] shadowMapsSpot: array[depth_sampler2D[f32], MaxLightCount],
@@ -124,11 +125,15 @@ struct VertOut
 }
 
 // Fragment stage
+[cond(ForwardPass)]
 struct FragOut
 {
-	[location(0)] RenderTarget0: vec4[f32],
+	[location(0)] color: vec4[f32],
 	[builtin(frag_depth), cond(DistanceDepth)] fragdepth: f32,
 }
+
+[cond(!ForwardPass)]
+alias FragOut = GBufferOutput;
 
 fn ComputeColor(input: VertOut) -> vec4[f32]
 {
@@ -156,15 +161,8 @@ fn ComputeColor(input: VertOut) -> vec4[f32]
 }
 
 [cond(HasLighting)]
-fn ComputeLighting(color: vec3[f32], input: VertOut) -> vec3[f32]
+fn ComputeNormal(input: VertOut) -> vec3[f32]
 {
-	let lightAmbient = vec3[f32](0.0, 0.0, 0.0);
-	let lightDiffuse = vec3[f32](0.0, 0.0, 0.0);
-	let lightSpecular = vec3[f32](0.0, 0.0, 0.0);
-
-	let eyeVec = normalize(viewerData.eyePosition - input.worldPos);
-
-	let normal: vec3[f32];
 	const if (HasNormalMapping)
 	{
 		let N = normalize(input.normal);
@@ -172,77 +170,64 @@ fn ComputeLighting(color: vec3[f32], input: VertOut) -> vec3[f32]
 		let B = cross(N, T);
 		let tbnMatrix = mat3[f32](T, B, N);
 
-		normal = normalize(tbnMatrix * (MaterialNormalMap.Sample(input.uv).xyz * 2.0 - vec3[f32](1.0, 1.0, 1.0)));
+		return normalize(tbnMatrix * (MaterialNormalMap.Sample(input.uv).xyz * 2.0 - vec3[f32](1.0, 1.0, 1.0)));
 	}
 	else
-		normal = normalize(input.normal);
+		return normalize(input.normal);
+}
+
+[cond(HasLighting)]
+fn ComputeLighting(color: vec3[f32], input: VertOut, normal: vec3[f32]) -> vec3[f32]
+{
+	let lightAmbient = vec3[f32](0.0, 0.0, 0.0);
+	let lightDiffuse = vec3[f32](0.0, 0.0, 0.0);
+	let lightSpecular = vec3[f32](0.0, 0.0, 0.0);
+
+	let eyeVec = normalize(viewerData.eyePosition - input.worldPos);
 
 	for lightIndex in 0 -> lightData.directionalLightCount
 	{
 		let light = lightData.directionalLights[lightIndex];
+		let result = ComputeDirectionalLight(light, eyeVec, normal, settings.Shininess);
 
-		let lambert = max(dot(normal, -light.direction), 0.0);
+		let shadowFactor = 1.0;
+		const if (EnableShadowMapping)
+			shadowFactor = ComputeDirectionalLightShadow(light, shadowMapsDirectional[lightIndex], input.worldPos, result.lambert, viewerData.viewMatrix);
 
-		let reflection = reflect(light.direction, normal);
-		let specFactor = max(dot(reflection, eyeVec), 0.0);
-		specFactor = pow(specFactor, settings.Shininess);
-
-		let shadowFactor = ComputeDirectionalLightShadow(light, shadowMapsDirectional[lightIndex], input.worldPos, lambert, viewerData.viewMatrix);
-
-		lightAmbient += shadowFactor * light.color.rgb * light.ambientFactor * settings.AmbientColor.rgb;
-		lightDiffuse += shadowFactor * lambert * light.color.rgb * light.diffuseFactor;
-		lightSpecular += shadowFactor * specFactor * light.color.rgb;
+		lightAmbient += result.ambient;
+		lightDiffuse += shadowFactor * result.diffuse;
+		lightSpecular += shadowFactor * result.specular;
 	}
 
 	for lightIndex in 0 -> lightData.pointLightCount
 	{
 		let light = lightData.pointLights[lightIndex];
+		let result = ComputePointLight(light, eyeVec, normal, settings.Shininess, input.worldPos);
 
-		let lightToPos = input.worldPos - light.position;
-		let dist = length(lightToPos);
-		let lightToPosNorm = lightToPos / max(dist, 0.0001);
+		let shadowFactor = 1.0;
+		const if (EnableShadowMapping)
+			shadowFactor = ComputePointLightShadow(light, shadowMapsPoint[lightIndex], result.dist, result.lightToWorldDir);
 
-		let attenuationFactor = max(1.0 - dist * light.invRadius, 0.0);
-		let lambert = clamp(dot(normal, -lightToPosNorm), 0.0, 1.0);
-
-		let reflection = reflect(lightToPosNorm, normal);
-		let specFactor = max(dot(reflection, eyeVec), 0.0);
-		specFactor = pow(specFactor, settings.Shininess);
-
-		let shadowFactor = ComputePointLightShadow(light, shadowMapsPoint[lightIndex], dist, lightToPosNorm);
-
-		lightAmbient += attenuationFactor * light.color.rgb * light.ambientFactor * settings.AmbientColor.rgb;
-		lightDiffuse += shadowFactor * attenuationFactor * lambert * light.color.rgb * light.diffuseFactor;
-		lightSpecular += shadowFactor * attenuationFactor * specFactor * light.color.rgb;
+		lightAmbient += result.ambient;
+		lightDiffuse += shadowFactor * result.diffuse;
+		lightSpecular += shadowFactor * result.specular;
 	}
 
 	for lightIndex in 0 -> lightData.spotLightCount
 	{
 		let light = lightData.spotLights[lightIndex];
+		let result = ComputeSpotLight(light, eyeVec, normal, settings.Shininess, input.worldPos);
 
-		let lightToPos = input.worldPos - light.position;
-		let dist = length(lightToPos);
-		let lightToPosNorm = lightToPos / max(dist, 0.0001);
+		let shadowFactor = 1.0;
+		const if (EnableShadowMapping)
+			shadowFactor = ComputeSpotLightShadow(light, shadowMapsSpot[lightIndex], input.worldPos, result.lambert);
 
-		let curAngle = dot(light.direction, lightToPosNorm);
-		let innerMinusOuterAngle = light.innerAngle - light.outerAngle;
-
-		let attenuationFactor = max(1.0 - dist * light.invRadius, 0.0);
-		attenuationFactor *= max((curAngle - light.outerAngle) / innerMinusOuterAngle, 0.0);			
-
-		let lambert = clamp(dot(normal, -lightToPosNorm), 0.0, 1.0);
-
-		let reflection = reflect(lightToPosNorm, normal);
-		let specFactor = max(dot(reflection, eyeVec), 0.0);
-		specFactor = pow(specFactor, settings.Shininess);
-
-		let shadowFactor = ComputeSpotLightShadow(light, shadowMapsSpot[lightIndex], input.worldPos, lambert);
-
-		lightAmbient += attenuationFactor * light.color.rgb * light.ambientFactor * settings.AmbientColor.rgb;
-		lightDiffuse += shadowFactor * attenuationFactor * lambert * light.color.rgb * light.diffuseFactor;
-		lightSpecular += shadowFactor * attenuationFactor * specFactor * light.color.rgb;
+		lightAmbient += result.ambient;
+		lightDiffuse += shadowFactor * result.diffuse;
+		lightSpecular += shadowFactor * result.specular;
 	}
 
+	lightAmbient *= settings.AmbientColor.rgb;
 	lightSpecular *= settings.SpecularColor.rgb;
 
 	const if (HasSpecularTexture)
@@ -257,13 +242,29 @@ fn FragMain(input: VertOut) -> FragOut
 {
 	let color = ComputeColor(input);
 
-	const if (HasLighting)
-		color.rgb = ComputeLighting(color.rgb, input);
+	const if (ForwardPass)
+	{
+		const if (HasLighting)
+		{
+			let normal = ComputeNormal(input);
+			color.rgb = ComputeLighting(color.rgb, input, normal);
+		}
 	
-	let output: FragOut;
-	output.RenderTarget0 = color;
+		let output: FragOut;
+		output.color = color;
+	
+		return output;
+	}
+	else
+	{
+		let normal = ComputeNormal(input);
 
-	return output;
+		let output: FragOut;
+		output.albedo = color;
+		output.normal = vec4[f32](EncodeNormal(normal), 1.0);
+
+		return output;
+	}
 }
 
 // Shadow passes entries
@@ -274,7 +275,7 @@ fn FragDepthDist(input: VertOut) -> FragOut
 	let color = ComputeColor(input);
 
 	let output: FragOut;
-	output.RenderTarget0 = color;
+	output.color = color;
 
 	let dist = distance(viewerData.eyePosition, input.worldPos);
 	output.fragdepth = dist / viewerData.farPlane;
@@ -288,7 +289,7 @@ fn FragDepth(input: VertOut) -> FragOut
 	let color = ComputeColor(input);
 
 	let output: FragOut;
-	output.RenderTarget0 = color;
+	output.color = color;
 	return output;
 }
 

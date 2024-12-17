@@ -2,11 +2,14 @@
 module PhysicallyBasedMaterial;
 
 import InstanceData from Engine.InstanceData;
-import LightData from Engine.LightData;
+import LightData from Lighting.LightData;
 import SkeletalData from Engine.SkeletalData;
 import ViewerData from Engine.ViewerData;
 
-import * from Engine.LightShadow;
+import * from Lighting.PhysicalledBased;
+import * from Lighting.Shadow;
+import Pi from Math.Constants;
+import DirectionalLight, PointLight, SpotLight from Lighting.LightData;
 import SkinLinearPosition, SkinLinearPositionNormal from Engine.SkinningLinear;
 
 // Pass-specific options
@@ -43,6 +46,7 @@ option VertexUvLoc: u32 = InvalidLoc;
 option VertexJointIndicesLoc: u32 = InvalidLoc;
 option VertexJointWeightsLoc: u32 = InvalidLoc;
 
+option EnableShadowMapping: bool = true;
 option MaxLightCount: u32 = 3;
 
 const HasNormal = (VertexNormalLoc != InvalidLoc);
@@ -77,11 +81,6 @@ struct MaterialSettings
 	[tag("RoughnessFactor")]
 	RoughnessFactor: f32
 }
-
-// TODO: Add enums
-const DirectionalLight = 0;
-const PointLight = 1;
-const SpotLight = 2;
 
 [tag("Material")]
 [auto_binding]
@@ -124,8 +123,6 @@ struct VertOut
 }
 
 // Fragment stage
-import ComputeLightRadiance, DistributionGGX, GeometrySmith, FresnelSchlick from Math.CookTorrancePBR;
-import Pi from Math.Constants;
 
 struct FragOut
 {
@@ -197,51 +194,37 @@ fn ComputeLighting(color: vec3[f32], input: VertOut) -> vec3[f32]
 	for lightIndex in u32(0) -> lightData.directionalLightCount
 	{
 		let light = lightData.directionalLights[lightIndex];
+		let result = ComputeDirectionalLight(light, eyeVec, albedoFactor, F0, normal, metallic, roughness);
 
-		let lambert = max(dot(normal, -light.direction), 0.0);
+		let shadowFactor = 1.0;
+		const if (EnableShadowMapping)
+			shadowFactor = ComputeDirectionalLightShadow(light, shadowMapsDirectional[lightIndex], input.worldPos, result.lambert, viewerData.viewMatrix);
 
-		let shadowFactor = ComputeDirectionalLightShadow(light, shadowMapsDirectional[lightIndex], input.worldPos, lambert, viewerData.viewMatrix);
-		let radiance = ComputeLightRadiance(light.color.rgb, -light.direction, albedoFactor, eyeVec, F0, normal, metallic, roughness);
-
-		lightRadiance += shadowFactor * radiance;
+		lightRadiance += shadowFactor * result.radiance;
 	}
 
 	for lightIndex in u32(0) -> lightData.pointLightCount
 	{
 		let light = lightData.pointLights[lightIndex];
+		let result = ComputePointLight(light, eyeVec, albedoFactor, F0, normal, metallic, roughness, input.worldPos);
 
-		let lightToPos = input.worldPos - light.position;
-		let dist = length(lightToPos);
+		let shadowFactor = 1.0;
+		const if (EnableShadowMapping)
+			shadowFactor = ComputePointLightShadow(light, shadowMapsPoint[lightIndex], result.dist, result.lightToWorldDir);
 
-		let attenuation = max(1.0 - dist * light.invRadius, 0.0);
-		let lightToPosNorm = lightToPos / max(dist, 0.0001);
-
-		let shadowFactor = ComputePointLightShadow(light, shadowMapsPoint[lightIndex], dist, lightToPosNorm);
-		let radiance = ComputeLightRadiance(light.color.rgb * attenuation, -lightToPosNorm, albedoFactor, eyeVec, F0, normal, metallic, roughness);
-
-		lightRadiance += shadowFactor * radiance;
+		lightRadiance += shadowFactor * result.radiance;
 	}
 
 	for lightIndex in u32(0) -> lightData.spotLightCount
 	{
 		let light = lightData.spotLights[lightIndex];
+		let result = ComputeSpotLight(light, eyeVec, albedoFactor, F0, normal, metallic, roughness, input.worldPos);
 
-		let lightToPos = input.worldPos - light.position;
-		let dist = length(lightToPos);
-		let lightToPosNorm = lightToPos / max(dist, 0.0001);
+		let shadowFactor = 1.0;
+		const if (EnableShadowMapping)
+			shadowFactor = ComputeSpotLightShadow(light, shadowMapsSpot[lightIndex], input.worldPos, result.lambert);
 
-		let curAngle = dot(light.direction, lightToPosNorm);
-		let innerMinusOuterAngle = light.innerAngle - light.outerAngle;
-
-		let attenuation = max(1.0 - dist * light.invRadius, 0.0);
-		attenuation *= max((curAngle - light.outerAngle) / innerMinusOuterAngle, 0.0);			
-
-		let lambert = clamp(dot(normal, -lightToPosNorm), 0.0, 1.0);
-
-		let shadowFactor = ComputeSpotLightShadow(light, shadowMapsSpot[lightIndex], input.worldPos, lambert);
-		let radiance = ComputeLightRadiance(light.color.rgb * attenuation, -lightToPosNorm, albedoFactor, eyeVec, F0, normal, metallic, roughness);
-
-		lightRadiance += shadowFactor * radiance;
+		lightRadiance += shadowFactor * result.radiance;
 	}
 
 	let ambient = (0.03).rrr * albedo;

@@ -1,0 +1,120 @@
+[nzsl_version("1.1")]
+module Lighting.Shadow;
+
+option MaxLightCascadeCount: u32 = 4;
+
+import DirectionalLight, PointLight, SpotLight from Lighting.LightData;
+
+[export]
+fn SelectCascade(light: DirectionalLight, worldPos: vec3[f32]) -> u32
+{
+	let cascadeIndex = light.cascadeCount - u32(1);
+	for index in u32(0) -> light.cascadeCount
+	{
+		let lightProjPos = light.viewProjMatrices[index] * vec4[f32](worldPos, 1.0);
+
+		if (min(lightProjPos.x, min(lightProjPos.y, lightProjPos.z)) > 0.0 && max(lightProjPos.x, max(lightProjPos.y, lightProjPos.z)) < 1.0)
+		{
+			cascadeIndex = index;
+			break;
+		}
+	}
+
+	return cascadeIndex;
+}
+
+[export]
+fn ComputeDirectionalLightShadow(light: DirectionalLight, shadowmap: depth_sampler2D_array[f32], worldPos: vec3[f32], lambert: f32, viewMatrix: mat4[f32]) -> f32
+{
+	let shadowFactor = 1.0;
+	if (light.invShadowMapSize.x > 0.0)
+	{
+		cascadeIndex = SelectCascade(light, worldPos);
+
+		let lightProjPos = light.viewProjMatrices[cascadeIndex] * vec4[f32](worldPos, 1.0);
+		let shadowCoords = lightProjPos.xyz / lightProjPos.w;
+
+		shadowFactor = 0.0;
+		[unroll]
+		for x in -1 -> 2
+		{
+			[unroll]
+			for y in -1 -> 2
+			{
+				let coords = shadowCoords.xy + vec2[f32](f32(x), f32(y)) * light.invShadowMapSize;
+				shadowFactor += shadowmap.SampleDepthComp(vec3[f32](coords, f32(cascadeIndex)), shadowCoords.z).r;
+			}
+		}
+		shadowFactor /= 9.0;
+	}
+
+	return shadowFactor;
+}
+
+[export]
+fn ComputePointLightShadow(light: PointLight, shadowmap: sampler_cube[f32], dist: f32, lightDir: vec3[f32]) -> f32
+{
+	let shadowFactor = 1.0;
+	if (light.invShadowMapSize.x > 0.0)
+	{
+		shadowFactor = 0.0;
+
+		let sampleDir = vec3[f32](lightDir.x, lightDir.y, -lightDir.z);
+
+		const sampleCount = 4;
+		const offset = 0.005;
+
+		const invSampleCount = 1.0 / f32(sampleCount);
+		const start = vec3[f32](offset * 0.5, offset * 0.5, offset * 0.5);
+		const shadowContribution = 1.0 / f32(sampleCount * sampleCount * sampleCount);
+
+		[unroll]
+		for x in 0 -> sampleCount
+		{
+			[unroll]
+			for y in 0 -> sampleCount
+			{
+				[unroll]
+				for z in 0 -> sampleCount
+				{
+					let dirOffset = vec3[f32](f32(x), f32(y), f32(z)) * invSampleCount * offset - start;
+					let sampleDir = sampleDir + dirOffset;
+
+					let closestDepth = shadowmap.Sample(sampleDir).r;
+					closestDepth *= light.radius;
+
+					if (closestDepth > dist)
+						shadowFactor += shadowContribution;
+				}
+			}
+		}
+	}
+
+	return shadowFactor;
+}
+
+[export]
+fn ComputeSpotLightShadow(light: SpotLight, shadowmap: depth_sampler2D[f32], worldPos: vec3[f32], lambert: f32) -> f32
+{
+	let shadowFactor = 1.0;
+	if (light.invShadowMapSize.x > 0.0)
+{
+		let lightProjPos = light.viewProjMatrix * vec4[f32](worldPos, 1.0);
+		let shadowCoords = lightProjPos.xyz / lightProjPos.w;
+
+		shadowFactor = 0.0;
+		[unroll]
+		for x in -1 -> 2
+		{
+			[unroll]
+			for y in -1 -> 2
+			{
+				let coords = shadowCoords.xy + vec2[f32](f32(x), f32(y)) * light.invShadowMapSize;
+				shadowFactor += shadowmap.SampleDepthComp(coords, shadowCoords.z).r;
+			}
+		}
+		shadowFactor /= 9.0;
+	}
+
+	return shadowFactor;
+}

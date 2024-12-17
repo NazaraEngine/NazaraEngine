@@ -5,6 +5,8 @@
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Core/CommandLineParameters.hpp>
 #include <Nazara/Core/EnvironmentVariables.hpp>
+#include <Nazara/Core/FilesystemAppComponent.hpp>
+#include <Nazara/Graphics/BlitPipelinePass.hpp>
 #include <Nazara/Graphics/DebugDrawPipelinePass.hpp>
 #include <Nazara/Graphics/DefaultFramePipeline.hpp>
 #include <Nazara/Graphics/ForwardPipelinePass.hpp>
@@ -12,6 +14,7 @@
 #include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/MaterialPipeline.hpp>
 #include <Nazara/Graphics/PipelinePassList.hpp>
+#include <Nazara/Graphics/LightingPipelinePass.hpp>
 #include <Nazara/Graphics/PostProcessPipelinePass.hpp>
 #include <Nazara/Graphics/PredefinedMaterials.hpp>
 #include <Nazara/Graphics/RasterPipelinePass.hpp>
@@ -192,6 +195,7 @@ namespace Nz
 		std::size_t shadowPassIndex = m_materialPassRegistry.GetPassIndex("ShadowPass");
 		std::size_t distanceShadowPassIndex = m_materialPassRegistry.GetPassIndex("DistanceShadowPass");
 		std::size_t forwardPassIndex = m_materialPassRegistry.GetPassIndex("ForwardPass");
+		std::size_t gbufferPassIndex = m_materialPassRegistry.GetPassIndex("GBufferPass");
 
 		const auto& enabledFeatures = m_renderDevice->GetEnabledFeatures();
 
@@ -260,6 +264,10 @@ namespace Nz
 			forwardPass.states.depthBuffer = true;
 			forwardPass.shaders.push_back(std::make_shared<UberShader>(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, "PhongMaterial"));
 			settings.AddPass(forwardPassIndex, forwardPass);
+
+			MaterialPass gbufferPass = forwardPass;
+			gbufferPass.options["ForwardPass"_opt] = false;
+			settings.AddPass(gbufferPassIndex, gbufferPass);
 
 			MaterialPass depthPass = forwardPass;
 			depthPass.options["DepthPass"_opt] = true;
@@ -372,11 +380,12 @@ namespace Nz
 
 		std::size_t forwardPass = m_defaultPipelinePasses->AddPass("ForwardPass", m_pipelinePassRegistry.GetPassIndex("Forward"));
 
-		m_defaultPipelinePasses->SetPassOutput(forwardPass, 0, forwardColorOutput);
-		m_defaultPipelinePasses->SetPassOutputClearColor(forwardPass, 0, FramePipelinePass::ViewerClearValue{});
 		m_defaultPipelinePasses->SetPassDepthClearValue(forwardPass, FramePipelinePass::ViewerClearValue{});
 		m_defaultPipelinePasses->SetPassDepthStencilOutput(forwardPass, forwardDepthOutput);
 
+		m_defaultPipelinePasses->SetPassOutput(forwardPass, 0, forwardColorOutput);
+		m_defaultPipelinePasses->SetPassOutputClearColor(forwardPass, 0, FramePipelinePass::ViewerClearValue{});
+		
 		m_defaultPipelinePasses->EnablePassFlags(forwardPass, FramePipelinePassFlag::LightShadowing);
 
 		// Gamma correction
@@ -454,6 +463,7 @@ namespace Nz
 		m_materialPassRegistry.RegisterPass("DepthPass");
 		m_materialPassRegistry.RegisterPass("ShadowPass");
 		m_materialPassRegistry.RegisterPass("DistanceShadowPass");
+		m_materialPassRegistry.RegisterPass("GBufferPass");
 	}
 
 	void Graphics::RegisterPipelinePasses()
@@ -461,6 +471,7 @@ namespace Nz
 		m_pipelinePassRegistry.RegisterPass<BlitPipelinePass>("Blit", { "Input" }, { "Output" });
 		m_pipelinePassRegistry.RegisterPass<DebugDrawPipelinePass>("DebugDraw", { "Input" }, { "Output" });
 		m_pipelinePassRegistry.RegisterPass<ForwardPipelinePass>("Forward", {}, { "Output" });
+		m_pipelinePassRegistry.RegisterPass<LightingPipelinePass>("Lighting", { "Albedo", "Normal", "Depth" }, { "Output" });
 		m_pipelinePassRegistry.RegisterPass<PostProcessPipelinePass>("PostProcess", { "Input" }, { "Output" });
 		m_pipelinePassRegistry.RegisterPass<RasterPipelinePass>("Raster", { "Input" }, {"Output0", "Output1", "Output2", "Output3", "Output4", "Output5", "Output6", "Output7"});
 	}

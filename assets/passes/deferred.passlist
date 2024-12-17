@@ -1,0 +1,71 @@
+passlist "Deferred Passlist"
+{
+    attachment "DepthStencilBuffer"
+    {
+        format "PreferredDepthStencil"
+    }
+
+    attachment "GBuffer0"
+    {
+        format "RGBA8"
+    }
+    
+    attachment "GBuffer1"
+    {
+        format "RGBA8"
+    }
+
+    pass "GBuffer"
+    {
+        impl "Raster"
+        {
+            MatPass "GBufferPass"
+        }
+
+        output "Output0" "GBuffer0"
+        {
+            clearcolor "0.0 0.0 0.0 0.0"
+        }
+
+        output "Output1" "GBuffer1"
+        {
+            clearcolor "0.0 0.0 0.0 0.0"
+        }
+
+        cleardepth "1.0"
+        depthstenciloutput "DepthStencilBuffer"
+    }
+
+    attachment "LightOutput"
+    {
+        format "RGBA8"
+    }
+
+    attachmentview "DepthBuffer"
+    {
+        attachment "DepthStencilBuffer"
+        planes "depth"
+    }
+
+    attachmentview "StencilBuffer"
+    {
+        attachment "DepthStencilBuffer"
+        planes "stencil"
+    }
+
+    pass "Lighting"
+    {
+        impl "Lighting"
+
+        input "Albedo" "GBuffer0"
+        input "Normal" "GBuffer1"
+        input "Depth" "DepthBuffer"
+
+        output "Output" "LightOutput"
+
+        depthstencilinput "StencilBuffer"
+        depthstenciloutput "StencilBuffer"
+    }
+
+    output "LightOutput"
+}
