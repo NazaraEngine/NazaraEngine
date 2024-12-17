@@ -9,12 +9,12 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Stream.hpp>
+#include <NazaraUtils/FixedVector.hpp>
 #include <NazaraUtils/FunctionRef.hpp>
 #include <memory>
 #include <optional>
 #include <string>
 #include <variant>
-#include <vector>
 
 namespace Nz
 {
@@ -87,8 +87,8 @@ namespace Nz
 				Entry entry;
 			};
 
+			HybridVector<ContentEntry, 3> m_content;
 			std::shared_ptr<VirtualDirectoryResolver> m_resolver;
-			std::vector<ContentEntry> m_content;
 			std::weak_ptr<VirtualDirectory> m_parent;
 			bool m_isUprootAllowed;
 	};

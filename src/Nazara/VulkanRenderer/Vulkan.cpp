@@ -11,6 +11,7 @@
 #include <Nazara/VulkanRenderer/VulkanDevice.hpp>
 #include <NazaraUtils/Algorithm.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
+#include <NazaraUtils/FixedVector.hpp>
 #include <NazaraUtils/StringHash.hpp>
 #include <array>
 #include <unordered_set>
@@ -172,7 +173,7 @@ namespace Nz
 
 		VkInstanceCreateFlags createFlags = SafeCaster(parameters.GetIntegerParameter("VkInstanceInfo_OverrideCreateFlags").GetValueOr(0));
 
-		std::vector<const char*> enabledLayers;
+		HybridVector<const char*, 4> enabledLayers;
 
 		std::vector<AvailableVulkanLayer> availableLayers;
 		std::unordered_map<std::string, std::size_t, StringHash<>, std::equal_to<>> availableLayerByName;
@@ -192,8 +193,7 @@ namespace Nz
 			}
 		}
 
-		std::vector<const char*> enabledExtensions;
-		std::vector<std::string> additionalLayers; // Just to keep the String alive
+		HybridVector<std::string, 4> additionalLayers; // Just to keep the String alive
 		if (long long customLayerCount = parameters.GetIntegerParameter("VkInstanceInfo_EnabledLayerCount").GetValueOr(0) > 0)
 		{
 			additionalLayers.reserve(customLayerCount);
@@ -219,6 +219,7 @@ namespace Nz
 				availableExtensions.emplace(extProperty.extensionName);
 		}
 
+		HybridVector<const char*, 8> enabledExtensions;
 		if (auto result = parameters.GetBooleanParameter("VkInstanceInfo_OverrideEnabledExtensions"); !result.GetValueOr(false))
 		{
 			enabledExtensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
@@ -256,7 +257,7 @@ namespace Nz
 				enabledExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
 		}
 
-		std::vector<std::string> additionalExtensions; // Just to keep the String alive
+		HybridVector<std::string, 4> additionalExtensions; // Just to keep the String alive
 		if (long long customLayerCount = parameters.GetIntegerParameter("VkInstanceInfo_EnabledExtensionCount").GetValueOr(0) > 0)
 		{
 			additionalExtensions.reserve(customLayerCount);
@@ -492,7 +493,7 @@ namespace Nz
 
 	std::shared_ptr<VulkanDevice> Vulkan::CreateDevice(const Vk::PhysicalDevice& deviceInfo, const RenderDeviceFeatures& enabledFeatures, const QueueFamily* queueFamilies, std::size_t queueFamilyCount)
 	{
-		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+		HybridVector<VkDeviceQueueCreateInfo, 8> queueCreateInfos;
 		queueCreateInfos.reserve(queueFamilyCount);
 
 		for (std::size_t i = 0; i < queueFamilyCount; ++i)
