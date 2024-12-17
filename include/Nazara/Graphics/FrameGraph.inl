@@ -76,6 +76,21 @@ namespace Nz
 		return id;
 	}
 
+	inline std::size_t FrameGraph::AddAttachmentView(std::string name, std::size_t attachmentId, PixelFormat format, TexturePlaneFlags planes)
+	{
+		attachmentId = ResolveAttachmentIndex(attachmentId);
+
+		std::size_t id = m_attachments.size();
+		m_attachments.emplace_back(AttachmentView{
+			std::move(name),
+			format,
+			planes,
+			attachmentId
+		});
+
+		return id;
+	}
+
 	inline std::size_t FrameGraph::AddDummyAttachment()
 	{
 		std::size_t id = m_attachments.size();
