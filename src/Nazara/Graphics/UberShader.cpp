@@ -100,7 +100,17 @@ namespace Nz
 			}
 			states.shaderModuleResolver = Graphics::Instance()->GetShaderModuleResolver();
 
-			std::shared_ptr<ShaderModule> stage = Graphics::Instance()->GetRenderDevice()->InstantiateShaderModule(m_shaderStages, *m_shaderModule, std::move(states));
+			std::shared_ptr<ShaderModule> stage;
+
+			try
+			{
+				stage = Graphics::Instance()->GetRenderDevice()->InstantiateShaderModule(m_shaderStages, *m_shaderModule, std::move(states));
+			}
+			catch (const std::exception& e)
+			{
+				NazaraError("failed to instanciate shader: {0}", e.what());
+				throw;
+			}
 
 			it = m_combinations.emplace(config, std::move(stage)).first;
 		}

@@ -34,10 +34,7 @@ namespace Nz
 
 #ifndef NAZARA_PLATFORM_WEB
 		while (m_running)
-		{
-			Time elapsedTime = m_clock.Restart();
-			Update(elapsedTime);
-		}
+			Update(m_clock.Restart());
 #else
 		emscripten_set_main_loop_arg([](void* application)
 		{

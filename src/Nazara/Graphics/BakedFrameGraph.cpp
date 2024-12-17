@@ -227,8 +227,8 @@ namespace Nz
 
 			if (!passData.outputTextureIndices.empty())
 			{
-				unsigned int framebufferWidth = std::numeric_limits<unsigned int>::max();
-				unsigned int framebufferHeight = std::numeric_limits<unsigned int>::max();
+				unsigned int framebufferWidth = MaxValue();
+				unsigned int framebufferHeight = MaxValue();
 				for (std::size_t textureId : passData.outputTextureIndices)
 				{
 					auto& textureData = m_textures[textureId];

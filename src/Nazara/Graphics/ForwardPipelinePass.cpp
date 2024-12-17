@@ -153,7 +153,24 @@ namespace Nz
 			throw std::runtime_error("expected depth-stencil output");
 
 		FramePass& forwardPass = frameGraph.AddPass(m_passName);
-		forwardPass.AddOutput(inputOuputs.outputAttachments[0].attachmentIndex);
+		
+		for (auto&& outputData : inputOuputs.outputAttachments)
+		{
+			std::size_t outputIndex = forwardPass.AddOutput(outputData.attachmentIndex);
+
+			std::visit(Nz::Overloaded{
+				[](DontClear) {},
+				[&](const Color& color)
+				{
+					forwardPass.SetClearColor(outputIndex, color);
+				},
+				[&](ViewerClearValue)
+				{
+					forwardPass.SetClearColor(outputIndex, m_viewer->GetClearColor());
+				}
+			}, outputData.clearColor);
+		}
+
 		if (inputOuputs.depthStencilInput != FramePipelinePass::InvalidAttachmentIndex)
 			forwardPass.SetDepthStencilInput(inputOuputs.depthStencilInput);
 		else
@@ -172,8 +189,6 @@ namespace Nz
 		}
 
 		forwardPass.SetDepthStencilOutput(inputOuputs.depthStencilOutput);
-
-		forwardPass.SetClearColor(0, m_viewer->GetClearColor());
 
 		forwardPass.SetExecutionCallback([&]()
 		{

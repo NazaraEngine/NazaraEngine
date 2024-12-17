@@ -139,8 +139,10 @@ namespace Nz
 
 				unsigned int AddVertex(const Vector3f& position)
 				{
-					m_vertices.normalPtr[m_vertexIndex] = Vector3f::Normalize(m_matrix.Transform(position, 0.f));
 					m_vertices.positionPtr[m_vertexIndex] = m_matrix.Transform(m_size * position.GetNormal());
+
+					if (m_vertices.normalPtr)
+						m_vertices.normalPtr[m_vertexIndex] = Vector3f::Normalize(m_matrix.Transform(position, 0.f));
 
 					return m_vertexIndex++;
 				}

@@ -36,8 +36,6 @@ int main(int argc, char* argv[])
 	Nz::Window& window = windowing.CreateWindow(Nz::VideoMode(1920, 1080, 32), windowTitle);
 	Nz::WindowSwapchain& windowSwapchain = renderSystem.CreateSwapchain(window);
 
-	std::shared_ptr<Nz::RenderDevice> device = Nz::Graphics::Instance()->GetRenderDevice();
-
 	Nz::MeshParams meshParams;
 	meshParams.center = true;
 	meshParams.vertexRotation = Nz::EulerAnglesf(0.f, 90.f, 0.f);
