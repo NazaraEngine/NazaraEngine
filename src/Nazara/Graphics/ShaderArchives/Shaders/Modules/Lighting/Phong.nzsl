@@ -1,0 +1,104 @@
+[nzsl_version("1.0")]
+module Lighting.Phong;
+
+import DirectionalLight, PointLight, SpotLight from Lighting.LightData;
+
+[export]
+struct DirectionalLightResult
+{
+    ambient: vec3[f32],
+    diffuse: vec3[f32],
+    specular: vec3[f32],
+    lambert: f32
+}
+
+[export]
+struct PointLightResult
+{
+    ambient: vec3[f32],
+    diffuse: vec3[f32],
+    specular: vec3[f32],
+    lambert: f32,
+    dist: f32,
+    lightToWorldDir: vec3[f32]
+}
+
+[export]
+struct SpotLightResult
+{
+    ambient: vec3[f32],
+    diffuse: vec3[f32],
+    specular: vec3[f32],
+    lambert: f32
+}
+
+[export]
+fn ComputeDirectionalLight(light: DirectionalLight, eyeVec: vec3[f32], normal: vec3[f32], shininess: f32) -> DirectionalLightResult
+{
+    let lambert = max(dot(normal, -light.direction), 0.0);
+
+    let reflection = reflect(light.direction, normal);
+    let specFactor = max(dot(reflection, eyeVec), 0.0);
+    specFactor = pow(specFactor, shininess);
+
+    let result: DirectionalLightResult;
+    result.ambient = light.color.rgb * light.ambientFactor;
+    result.diffuse = lambert * light.color.rgb * light.diffuseFactor;
+    result.specular = specFactor * light.color.rgb;
+    result.lambert = lambert;
+
+    return result;
+}
+
+[export]
+fn ComputePointLight(light: PointLight, eyeVec: vec3[f32], normal: vec3[f32], shininess: f32, worldPos: vec3[f32]) -> PointLightResult
+{
+    let lightToPos = worldPos - light.position;
+    let dist = length(lightToPos);
+    let lightToPosNorm = lightToPos / max(dist, 0.0001);
+
+    let attenuationFactor = max(1.0 - dist * light.invRadius, 0.0);
+    let lambert = clamp(dot(normal, -lightToPosNorm), 0.0, 1.0);
+
+    let reflection = reflect(lightToPosNorm, normal);
+    let specFactor = max(dot(reflection, eyeVec), 0.0);
+    specFactor = pow(specFactor, shininess);
+
+    let result: PointLightResult;
+    result.ambient = attenuationFactor * light.color.rgb * light.ambientFactor;
+    result.diffuse = attenuationFactor * lambert * light.color.rgb * light.diffuseFactor;
+    result.specular = attenuationFactor * specFactor * light.color.rgb;
+    result.lambert = lambert;
+    result.dist = dist;
+    result.lightToWorldDir = lightToPosNorm;
+
+    return result;
+}
+
+[export]
+fn ComputeSpotLight(light: SpotLight, eyeVec: vec3[f32], normal: vec3[f32], shininess: f32, worldPos: vec3[f32]) -> SpotLightResult
+{
+    let lightToPos = worldPos - light.position;
+    let dist = length(lightToPos);
+    let lightToPosNorm = lightToPos / max(dist, 0.0001);
+
+    let curAngle = dot(light.direction, lightToPosNorm);
+    let innerMinusOuterAngle = light.innerAngle - light.outerAngle;
+
+    let attenuationFactor = max(1.0 - dist * light.invRadius, 0.0);
+    attenuationFactor *= max((curAngle - light.outerAngle) / innerMinusOuterAngle, 0.0);			
+
+    let lambert = clamp(dot(normal, -lightToPosNorm), 0.0, 1.0);
+
+    let reflection = reflect(lightToPosNorm, normal);
+    let specFactor = max(dot(reflection, eyeVec), 0.0);
+    specFactor = pow(specFactor, shininess);
+
+    let result: SpotLightResult;
+    result.ambient = attenuationFactor * light.color.rgb * light.ambientFactor;
+    result.diffuse = attenuationFactor * lambert * light.color.rgb * light.diffuseFactor;
+    result.specular = attenuationFactor * specFactor * light.color.rgb;
+    result.lambert = lambert;
+
+    return result;
+}

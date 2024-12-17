@@ -1,0 +1,151 @@
+[nzsl_version("1.0")]
+module DeferredShading.PhongLighting;
+
+import DecodeNormal from DeferredShading.NormalEncoding;
+import DirectionalLight, PointLight, SpotLight from Lighting.LightData;
+import ViewerData from Engine.ViewerData;
+
+import * from Lighting.Phong;
+import * from Lighting.Shadow;
+
+option LightType: i32;
+
+// TODO: Add enums
+const LightType_Directional = 0;
+const LightType_Point = 1;
+const LightType_Spot = 2;
+
+[set(0)]
+external
+{
+	[binding(0)] viewerData: uniform[ViewerData],
+	[binding(1)] albedoMap: sampler2D[f32],
+	[binding(2)] normalMap: sampler2D[f32],
+	[binding(3)] depthMap: sampler2D[f32]
+}
+
+[cond(LightType == LightType_Directional)]
+alias LightData = DirectionalLight;
+
+[cond(LightType == LightType_Point)]
+alias LightData = PointLight;
+
+[cond(LightType == LightType_Spot)]
+alias LightData = SpotLight;
+
+[set(1)]
+external
+{
+	[binding(0)] lightData: uniform[LightData]
+}
+
+struct FragIn
+{
+	[builtin(frag_coord)] fragcoord: vec4[f32]
+}
+
+struct FragOut
+{
+	[location(0)] color: vec4[f32]
+}
+
+[entry(frag)]
+fn main(input: FragIn) -> FragOut
+{
+	let texCoords = input.fragcoord.xy * viewerData.invRenderTargetSize;
+
+	let albedo = albedoMap.Sample(texCoords);
+	let normal = DecodeNormal(normalMap.Sample(texCoords).rgb);
+	let depth = depthMap.Sample(texCoords).r;
+
+	let viewspace = vec4[f32](texCoords * 2.0 - vec2[f32](1.0, 1.0), depth, 1.0);
+	let worldPos = viewerData.invViewProjMatrix * viewspace;
+	let worldPos = worldPos.xyz / worldPos.w;
+
+	let lightAmbient  = vec3[f32](0.0, 0.0, 0.0);
+	let lightDiffuse  = vec3[f32](0.0, 0.0, 0.0);
+	let lightSpecular = vec3[f32](0.0, 0.0, 0.0);
+
+	let eyeVec = normalize(viewerData.eyePosition - worldPos);
+
+	const shininess = 2.0;
+
+	let light = lightData;
+	const if (LightType == LightType_Directional)
+	{
+		let result = ComputeDirectionalLight(light, eyeVec, normal, shininess);
+
+		let shadowFactor = 1.0;
+
+		lightAmbient += result.ambient;
+		lightDiffuse += shadowFactor * result.diffuse;
+		lightSpecular += shadowFactor * result.specular;
+	}
+	else if (LightType == LightType_Point)
+	{
+		let result = ComputePointLight(light, eyeVec, normal, shininess, worldPos);
+
+		let shadowFactor = 1.0;
+
+		lightAmbient += result.ambient;
+		lightDiffuse += shadowFactor * result.diffuse;
+		lightSpecular += shadowFactor * result.specular;
+	}
+	else if (LightType == LightType_Spot)
+	{
+		let result = ComputeSpotLight(light, eyeVec, normal, shininess, worldPos);
+
+		let shadowFactor = 1.0;
+
+		lightAmbient += result.ambient;
+		lightDiffuse += shadowFactor * result.diffuse;
+		lightSpecular += shadowFactor * result.specular;
+	}
+
+	let lightColor = lightAmbient + lightDiffuse + lightSpecular;
+
+	let output: FragOut;
+	output.color = albedo * vec4[f32](lightColor, 1.0);
+
+	return output;
+}
+
+[cond(LightType == LightType_Directional)]
+struct VertIn
+{
+	[builtin(vertex_index)] vert_index: i32
+}
+
+[cond(LightType != LightType_Directional)]
+struct VertIn
+{
+	[location(0)] pos: vec3[f32]
+}
+
+struct VertOut
+{
+	[builtin(position)] position: vec4[f32]
+}
+
+const fullscreenTri = array[vec2[f32]](
+	vec2[f32](-1.0, -3.0),
+	vec2[f32](-1.0, 1.0),
+	vec2[f32]( 3.0, 1.0)
+);
+
+[entry(vert)]
+fn VertexShader(input: VertIn) -> VertOut
+{
+	let output: VertOut;
+
+	const if (LightType == LightType_Directional)
+		output.position = vec4[f32](fullscreenTri[input.vert_index], 0.0, 1.0);
+
+	const if (LightType == LightType_Point)
+		output.position = viewerData.viewProjMatrix * vec4[f32](lightData.position + input.pos * lightData.radius, 1.0);
+
+	const if (LightType == LightType_Spot)
+		output.position = viewerData.viewProjMatrix * lightData.worldMatrix * vec4[f32](input.pos, 1.0); //< worldMatrix takes care of the radius
+
+	return output;
+}

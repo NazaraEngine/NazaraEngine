@@ -5,10 +5,12 @@ import InstanceData from Engine.InstanceData;
 import SkeletalData from Engine.SkeletalData;
 import ViewerData from Engine.ViewerData;
 import SkinLinearPosition from Engine.SkinningLinear;
+import GBufferOutput from DeferredShading.GBuffer;
 
 // Pass-specific options
 option DepthPass: bool = false;
 option DistanceDepth: bool = false;
+option ForwardPass: bool = true;
 option ShadowPass: bool = false;
 
 // Material options
@@ -82,11 +84,15 @@ struct VertOut
 }
 
 // Fragment stage
+[cond(ForwardPass)]
 struct FragOut
 {
-	[location(0)] RenderTarget0: vec4[f32],
-	[builtin(frag_depth), cond(DistanceDepth)] fragdepth: f32
+	[location(0)] color: vec4[f32],
+	[builtin(frag_depth), cond(DistanceDepth)] linearDepth: f32
 }
+
+[cond(!ForwardPass)]
+alias FragOut = GBufferOutput;
 
 fn ComputeColor(input: VertOut) -> vec4[f32]
 {
@@ -119,7 +125,16 @@ fn FragMain(input: VertOut) -> FragOut
 	let color = ComputeColor(input);
 
 	let output: FragOut;
-	output.RenderTarget0 = color;
+	const if (ForwardPass)
+	{
+		output.color = color;
+	}
+	else
+	{
+		output.albedo = color;
+		output.normal = vec4[f32](0.0, 0.0, 0.0, 0.0);
+	}
+
 	return output;
 }
 
@@ -131,10 +146,10 @@ fn FragDepthDist(input: VertOut) -> FragOut
 	let color = ComputeColor(input);
 
 	let output: FragOut;
-	output.RenderTarget0 = color;
+	output.color = color;
 
 	let dist = distance(viewerData.eyePosition, input.worldPos);
-	output.fragdepth = dist / viewerData.farPlane;
+	output.linearDepth = dist / viewerData.farPlane;
 
 	return output;
 }
@@ -145,7 +160,7 @@ fn FragDepth(input: VertOut) -> FragOut
 	let color = ComputeColor(input);
 
 	let output: FragOut;
-	output.RenderTarget0 = color;
+	output.color = color;
 	return output;
 }
 

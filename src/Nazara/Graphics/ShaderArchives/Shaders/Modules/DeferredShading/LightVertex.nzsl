@@ -1,0 +1,37 @@
+[nzsl_version("1.0")]
+module DeferredShading.LightVertex;
+
+import ViewerData from Engine.ViewerData;
+
+[export]
+struct VertIn
+{
+	[location(0)] position: vec3[f32]
+}
+
+[export]
+struct VertOut
+{
+	[builtin(position)] position: vec4[f32]
+}
+
+[layout(std140)]
+struct LightMeshData
+{
+	worldMatrix: mat4[f32]
+}
+
+external
+{
+	[set(0), binding(0)] viewerData: uniform[ViewerData],
+	[set(1), binding(0)] lightData: uniform[LightMeshData]
+}
+
+[export, entry(vert)]
+fn VertexShader(input: VertIn) -> VertOut
+{
+	let output: VertOut;
+	output.position = viewerData.viewProjMatrix * lightData.worldMatrix * vec4[f32](input.position, 1.0);
+
+	return output;
+}
