@@ -352,6 +352,12 @@ namespace Nz
 			deviceInfo.memoryProperties = s_instance.GetPhysicalDeviceMemoryProperties(physDevice);
 			deviceInfo.properties       = s_instance.GetPhysicalDeviceProperties(physDevice);
 
+			if (deviceInfo.properties.apiVersion < VK_VERSION_1_1)
+			{
+				NazaraWarning("ignored physical device {} because its reported API version ({}.{}.{}) is lower than the minimum 1.1", deviceInfo.properties.deviceName, VK_API_VERSION_MAJOR(deviceInfo.properties.apiVersion), VK_API_VERSION_MINOR(deviceInfo.properties.apiVersion), VK_API_VERSION_PATCH(deviceInfo.properties.apiVersion));
+				continue;
+			}
+
 			std::vector<VkExtensionProperties> extensions;
 			if (s_instance.GetPhysicalDeviceExtensions(physDevice, &extensions))
 			{

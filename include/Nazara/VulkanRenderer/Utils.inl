@@ -494,15 +494,17 @@ namespace Nz
 	{
 		switch (textureLayout)
 		{
-			case TextureLayout::ColorInput:            return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-			case TextureLayout::ColorOutput:           return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-			case TextureLayout::DepthStencilReadOnly:  return VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
-			case TextureLayout::DepthStencilReadWrite: return VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-			case TextureLayout::General:               return VK_IMAGE_LAYOUT_GENERAL;
-			case TextureLayout::Present:               return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-			case TextureLayout::TransferSource:        return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-			case TextureLayout::TransferDestination:   return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-			case TextureLayout::Undefined:             return VK_IMAGE_LAYOUT_UNDEFINED;
+			case TextureLayout::ColorInput:                    return VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+			case TextureLayout::ColorOutput:                   return VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			case TextureLayout::DepthReadOnlyStencilReadWrite: return VK_IMAGE_LAYOUT_DEPTH_READ_ONLY_STENCIL_ATTACHMENT_OPTIMAL;
+			case TextureLayout::DepthReadWriteStencilReadOnly: return VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_STENCIL_READ_ONLY_OPTIMAL;
+			case TextureLayout::DepthStencilReadOnly:          return VK_IMAGE_LAYOUT_DEPTH_STENCIL_READ_ONLY_OPTIMAL;
+			case TextureLayout::DepthStencilReadWrite:         return VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+			case TextureLayout::General:                       return VK_IMAGE_LAYOUT_GENERAL;
+			case TextureLayout::Present:                       return VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+			case TextureLayout::TransferSource:                return VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+			case TextureLayout::TransferDestination:           return VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+			case TextureLayout::Undefined:                     return VK_IMAGE_LAYOUT_UNDEFINED;
 		}
 
 		NazaraError("unhandled TextureLayout {0:#x}", UnderlyingCast(textureLayout));
