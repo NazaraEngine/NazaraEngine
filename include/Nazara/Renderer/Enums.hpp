@@ -213,6 +213,8 @@ namespace Nz
 	{
 		ColorInput,
 		ColorOutput,
+		DepthReadOnlyStencilReadWrite,
+		DepthReadWriteStencilReadOnly,
 		DepthStencilReadOnly,
 		DepthStencilReadWrite,
 		General,
