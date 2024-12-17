@@ -47,6 +47,7 @@ namespace Nz
 
 			inline std::size_t AddAttachment(FramePassAttachment attachment);
 			inline std::size_t AddAttachmentProxy(std::string name, std::size_t attachmentIndex);
+			inline std::size_t AddAttachmentView(std::string name, std::size_t attachmentIndex, PixelFormat pixelFormat, TexturePlaneFlags texturePlanes = {});
 			inline std::size_t AddPass(std::string name, std::size_t implIndex, ParameterList parameterList = {});
 			std::size_t AddPass(std::string name, std::string_view impl, ParameterList parameterList = {});
 
@@ -85,6 +86,14 @@ namespace Nz
 				std::size_t attachmentIndex;
 			};
 
+			struct AttachmentView
+			{
+				std::string name;
+				std::size_t attachmentIndex;
+				PixelFormat pixelFormat;
+				TexturePlaneFlags planeFlags;
+			};
+
 			struct PassOutput
 			{
 				std::size_t attachmentIndex = NoAttachment;
@@ -105,7 +114,7 @@ namespace Nz
 			};
 
 			std::size_t m_finalOutputAttachment;
-			std::vector<std::variant<FramePassAttachment, AttachmentProxy>> m_attachments;
+			std::vector<std::variant<FramePassAttachment, AttachmentProxy, AttachmentView>> m_attachments;
 			std::vector<Pass> m_passes;
 	};
 }

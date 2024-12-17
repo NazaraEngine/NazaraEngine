@@ -337,6 +337,10 @@ namespace Nz
 			if (textureId == InvalidTextureIndex)
 				return nullptr;
 
+			// For texture view, use the parent texture layout
+			if (m_pending.textures[textureId].viewData)
+				textureId = m_pending.textures[textureId].viewData->parentTextureId;
+
 			auto it = std::find_if(barriers.begin(), barriers.end(), [&](const Barrier& barrier) { return barrier.textureId == textureId; });
 			if (it != barriers.end())
 				return &*it;
@@ -759,9 +763,13 @@ namespace Nz
 
 		auto RegisterColorInputRead = [&](const FramePass::Input& input)
 		{
-			std::size_t textureId = Retrieve(m_pending.attachmentToTextures, input.attachmentId);
+			std::size_t textureId = Retrieve(m_pending.attachmentToTextures, ResolveAttachmentIndex(input.attachmentId));
 			if (textureId == InvalidTextureIndex)
 				return;
+
+			// For texture view, use the parent texture layout
+			if (m_pending.textures[textureId].viewData)
+				textureId = m_pending.textures[textureId].viewData->parentTextureId;
 
 			TextureLayout& textureLayout = textureLayouts[textureId];
 			if (!input.assumedLayout)
@@ -778,6 +786,10 @@ namespace Nz
 			std::size_t textureId = Retrieve(m_pending.attachmentToTextures, output.attachmentId);
 			if (textureId == InvalidTextureIndex)
 				return InvalidAttachmentIndex;
+
+			// For texture view, use the parent texture layout
+			if (m_pending.textures[textureId].viewData)
+				textureId = m_pending.textures[textureId].viewData->parentTextureId;
 
 			TextureLayout initialLayout = textureLayouts[textureId];
 			textureLayouts[textureId] = TextureLayout::ColorOutput;
@@ -817,11 +829,14 @@ namespace Nz
 
 			*first = true;
 
-			std::size_t textureId = Retrieve(m_pending.attachmentToTextures, attachmentId);
+			std::size_t textureId = Retrieve(m_pending.attachmentToTextures, ResolveAttachmentIndex(attachmentId));
 			if (textureId == InvalidTextureIndex)
 				return nullptr;
 
-			TextureLayout initialLayout = textureLayouts[textureId];
+			// For texture view, use the parent texture layout
+			if (m_pending.textures[textureId].viewData)
+				textureId = m_pending.textures[textureId].viewData->parentTextureId;
+
 			textureLayouts[textureId] = textureLayout;
 
 			depthStencilAttachmentId = attachmentId;
@@ -831,7 +846,7 @@ namespace Nz
 
 			auto& depthStencilAttachment = renderPassAttachments.emplace_back();
 			depthStencilAttachment.format = m_pending.textures[textureId].format;
-			depthStencilAttachment.initialLayout = initialLayout;
+			depthStencilAttachment.initialLayout = textureLayout;
 
 			return &depthStencilAttachment;
 		};
@@ -1251,7 +1266,8 @@ namespace Nz
 				data.size = parentTexture.size;
 				data.viewData = {
 					parentTextureId,
-					texLayer.layerIndex
+					texLayer.layerIndex,
+					1
 				};
 				data.viewerIndex = parentTexture.viewerIndex;
 
@@ -1268,6 +1284,37 @@ namespace Nz
 
 				if (std::find(m_graphOutputs.begin(), m_graphOutputs.end(), attachmentIndex) != m_graphOutputs.end())
 					m_pending.textures[textureId].canReuse = false;
+
+				return textureId;
+			}
+			else if constexpr (std::is_same_v<T, AttachmentView>)
+			{
+				const AttachmentView& view = arg;
+
+				// TODO: Reuse texture views from pool?
+
+				std::size_t parentTextureId = RegisterTexture(view.attachmentId);
+
+				std::size_t textureId = m_pending.textures.size();
+				m_pending.attachmentToTextures.emplace(attachmentIndex, textureId);
+
+				FrameGraphTextureData& data = m_pending.textures.emplace_back();
+				const FrameGraphTextureData& parentTexture = m_pending.textures[parentTextureId];
+
+				data.type = parentTexture.type;
+				data.format = view.format != PixelFormat::Undefined ? view.format : parentTexture.format;
+				data.width = parentTexture.width;
+				data.height = parentTexture.height;
+				data.size = parentTexture.size;
+				data.viewData = {
+					parentTextureId,
+					0,
+					parentTexture.layerCount,
+					view.planeFlags
+				};
+				data.viewerIndex = parentTexture.viewerIndex;
+
+				CheckExternalTexture(attachmentIndex, data);
 
 				return textureId;
 			}

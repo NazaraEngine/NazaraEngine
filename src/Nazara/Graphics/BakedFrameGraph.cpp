@@ -194,7 +194,9 @@ namespace Nz
 				TextureViewInfo textureViewParams;
 				textureViewParams.viewType = textureData.type;
 				textureViewParams.reinterpretFormat = textureData.format;
-				textureViewParams.baseArrayLayer = SafeCast<unsigned int>(textureData.viewData->arrayLayer);
+				textureViewParams.planes = textureData.viewData->planeFlags;
+				textureViewParams.baseArrayLayer = SafeCast<UInt32>(textureData.viewData->baseArrayLayer);
+				textureViewParams.layerCount = SafeCast<UInt32>(textureData.viewData->layerCount);
 
 				textureData.texture = parentTexture.texture->CreateView(textureViewParams);
 			}

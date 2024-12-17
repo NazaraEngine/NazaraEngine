@@ -35,6 +35,7 @@ namespace Nz::Loaders
 								section.Block(
 									"attachment", &PassListLoader::HandleAttachment, this,
 									"attachmentproxy", &PassListLoader::HandleAttachmentProxy, this,
+									"attachmentview", &PassListLoader::HandleAttachmentView, this,
 									"pass", &PassListLoader::HandlePass, this,
 									"output", &finalOutputAttachment
 								);
@@ -65,6 +66,46 @@ namespace Nz::Loaders
 				}
 
 			private:
+				PixelFormat DecodePixelFormat(std::string_view pixelFormat) const
+				{
+					PixelFormat attachmentFormat = PixelFormat::Undefined;
+					if (pixelFormat == "PreferredDepth")
+						attachmentFormat = Graphics::Instance()->GetPreferredDepthFormat();
+					else if (pixelFormat == "PreferredDepthStencil")
+						attachmentFormat = Graphics::Instance()->GetPreferredDepthStencilFormat();
+					else
+						attachmentFormat = PixelFormatInfo::IdentifyFormat(pixelFormat);
+
+					if (attachmentFormat == PixelFormat::Undefined)
+					{
+						NazaraError("unknown format {}", pixelFormat);
+						throw ResourceLoadingError::DecodingError;
+					}
+
+					return attachmentFormat;
+				};
+
+				TexturePlane DecodeTexturePlane(std::string_view texturePlane) const
+				{
+					if (texturePlane == "color")
+						return TexturePlane::Color;
+					else if (texturePlane == "depth")
+						return TexturePlane::Depth;
+					else if (texturePlane == "stencil")
+						return TexturePlane::Stencil;
+					else if (texturePlane == "plane0")
+						return TexturePlane::Plane0;
+					else if (texturePlane == "plane1")
+						return TexturePlane::Plane1;
+					else if (texturePlane == "plane2")
+						return TexturePlane::Plane2;
+					else
+					{
+						NazaraError("unknown texture plane {}", texturePlane);
+						throw ResourceLoadingError::DecodingError;
+					}
+				};
+
 				void HandleAttachment(ParameterFileSection section, std::string attachmentName)
 				{
 					std::string format;
@@ -79,20 +120,7 @@ namespace Nz::Loaders
 						throw ResourceLoadingError::DecodingError;
 					}
 
-					PixelFormat attachmentFormat = PixelFormat::Undefined;
-					if (format == "PreferredDepth")
-						attachmentFormat = Graphics::Instance()->GetPreferredDepthFormat();
-					else if (format == "PreferredDepthStencil")
-						attachmentFormat = Graphics::Instance()->GetPreferredDepthStencilFormat();
-					else
-						attachmentFormat = PixelFormatInfo::IdentifyFormat(format);
-
-					if (attachmentFormat == PixelFormat::Undefined)
-					{
-						NazaraError("unknown format {}", format);
-						throw ResourceLoadingError::DecodingError;
-					}
-
+					PixelFormat attachmentFormat = DecodePixelFormat(format);
 					if (m_current->attachmentsByName.find(attachmentName) != m_current->attachmentsByName.end())
 					{
 						NazaraError("attachment {} already exists", attachmentName);
@@ -124,6 +152,49 @@ namespace Nz::Loaders
 
 					std::size_t proxyId = m_current->passList->AddAttachmentProxy(proxyName, it->second);
 					m_current->attachmentsByName.emplace(std::move(proxyName), proxyId);
+				}
+
+				void HandleAttachmentView(ParameterFileSection section, std::string attachmentName)
+				{
+					std::string format;
+					std::string targetName;
+					std::string planes;
+
+					section.Block(
+						"attachment", &targetName,
+						"format", &format,
+						"planes", &planes
+					);
+
+					PixelFormat attachmentFormat = (!format.empty()) ? DecodePixelFormat(format) : PixelFormat::Undefined;
+					TexturePlaneFlags planeFlags;
+
+					if (!planes.empty())
+					{
+						SplitStringAny(planes, " |", [&](std::string_view texturePlane)
+						{
+							if (!texturePlane.empty())
+								planeFlags |= DecodeTexturePlane(texturePlane);
+
+							return true;
+						});
+					}
+
+					auto it = m_current->attachmentsByName.find(targetName);
+					if (it == m_current->attachmentsByName.end())
+					{
+						NazaraError("unknown attachment {}", targetName);
+						throw ResourceLoadingError::DecodingError;
+					}
+
+					if (m_current->attachmentsByName.find(attachmentName) != m_current->attachmentsByName.end())
+					{
+						NazaraError("attachment {} already exists", attachmentName);
+						throw ResourceLoadingError::DecodingError;
+					}
+
+					std::size_t viewId = m_current->passList->AddAttachmentView(attachmentName, it->second, attachmentFormat, planeFlags);
+					m_current->attachmentsByName.emplace(std::move(attachmentName), viewId);
 				}
 
 				void HandlePass(ParameterFileSection section, std::string passName)
