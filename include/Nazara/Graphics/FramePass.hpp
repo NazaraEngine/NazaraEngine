@@ -8,12 +8,12 @@
 #define NAZARA_GRAPHICS_FRAMEPASS_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <NazaraUtils/Constants.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Graphics/Export.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <functional>
-#include <limits>
 #include <optional>
 #include <string>
 
@@ -44,6 +44,7 @@ namespace Nz
 			using CommandCallback = std::function<void(CommandBufferBuilder& builder, const FramePassEnvironment& env)>;
 			using ExecutionCallback = std::function<FramePassExecution()>;
 			struct DepthStencilClear;
+			struct DepthStencilInput;
 			struct Input;
 			struct Output;
 
@@ -59,7 +60,7 @@ namespace Nz
 
 			inline const CommandCallback& GetCommandCallback() const;
 			inline const std::optional<DepthStencilClear>& GetDepthStencilClear() const;
-			inline std::size_t GetDepthStencilInput() const;
+			inline const std::optional<DepthStencilInput>& GetDepthStencilInput() const;
 			inline std::size_t GetDepthStencilOutput() const;
 			inline const ExecutionCallback& GetExecutionCallback() const;
 			inline const std::vector<Input>& GetInputs() const;
@@ -70,18 +71,20 @@ namespace Nz
 			inline void SetCommandCallback(CommandCallback callback);
 			inline void SetClearColor(std::size_t outputIndex, const std::optional<Color>& color);
 			inline void SetDepthStencilClear(float depth, UInt32 stencil);
-			inline void SetDepthStencilInput(std::size_t attachmentId);
+			inline void SetDepthStencilInput(std::size_t attachmentId, TextureUsage attachmentUsage = TextureUsage::DepthStencilAttachment);
 			inline void SetDepthStencilOutput(std::size_t attachmentId);
 			inline void SetExecutionCallback(ExecutionCallback callback);
 			inline void SetInputAccess(std::size_t inputIndex, TextureLayout layout, PipelineStageFlags stageFlags, MemoryAccessFlags accessFlags);
 			inline void SetInputAssumedLayout(std::size_t inputIndex, TextureLayout layout);
 			inline void SetInputUsage(std::size_t inputIndex, TextureUsageFlags usageFlags);
+			inline void SetOutputAccess(std::size_t inputIndex, TextureLayout layout, PipelineStageFlags stageFlags, MemoryAccessFlags accessFlags);
+			inline void SetOutputUsage(std::size_t inputIndex, TextureUsageFlags usageFlags);
 			inline void SetReadInput(std::size_t inputIndex, bool doesRead);
 
 			FramePass& operator=(const FramePass&) = delete;
 			FramePass& operator=(FramePass&&) = delete;
 
-			static constexpr std::size_t InvalidAttachmentId = std::numeric_limits<std::size_t>::max();
+			static constexpr std::size_t InvalidAttachmentId = MaxValue();
 
 			struct DepthStencilClear
 			{
@@ -89,14 +92,20 @@ namespace Nz
 				UInt32 stencil;
 			};
 
+			struct DepthStencilInput
+			{
+				std::size_t attachmentId;
+				TextureUsage textureUsageFlags = TextureUsage::DepthStencilAttachment;
+			};
+
 			struct Input
 			{
 				std::optional<TextureLayout> assumedLayout;
-				std::optional<TextureUsageFlags> textureUsageFlags;
 				std::size_t attachmentId;
 				MemoryAccessFlags accessFlags = MemoryAccess::ShaderRead;
 				PipelineStageFlags stageFlags = PipelineStage::FragmentShader;
 				TextureLayout layout = TextureLayout::ColorInput;
+				TextureUsageFlags textureUsageFlags = TextureUsage::ShaderSampling;
 				bool doesRead = true;
 			};
 
@@ -104,11 +113,15 @@ namespace Nz
 			{
 				std::optional<Color> clearColor;
 				std::size_t attachmentId;
+				MemoryAccessFlags accessFlags = MemoryAccess::ColorWrite;
+				PipelineStageFlags stageFlags = PipelineStage::ColorOutput;
+				TextureLayout layout = TextureLayout::ColorOutput;
+				TextureUsageFlags textureUsageFlags = TextureUsage::ColorAttachment;
 			};
 
 		private:
 			std::optional<DepthStencilClear> m_depthStencilClear;
-			std::size_t m_depthStencilInput;
+			std::optional<DepthStencilInput> m_depthStencilInput;
 			std::size_t m_depthStencilOutput;
 			std::size_t m_passId;
 			std::string m_name;

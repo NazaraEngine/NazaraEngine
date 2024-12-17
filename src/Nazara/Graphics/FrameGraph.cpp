@@ -11,7 +11,6 @@
 #include <NazaraUtils/Bitset.hpp>
 #include <NazaraUtils/StackArray.hpp>
 #include <stdexcept>
-#include <unordered_set>
 
 namespace Nz
 {
@@ -84,40 +83,42 @@ namespace Nz
 				auto& bakedSubpass = bakedPass.subpasses.emplace_back();
 				bakedSubpass.commandCallback = framePass.GetCommandCallback();
 
-				const auto& colorOutputs = framePass.GetOutputs();
-				for (std::size_t i = 0; i < colorOutputs.size(); ++i)
+				std::size_t colorAttachmentIndex = 0;
+				for (const auto& output : framePass.GetOutputs())
 				{
-					const auto& output = colorOutputs[i];
+					if (!output.textureUsageFlags.Test(TextureUsage::ColorAttachment))
+						continue;
+
 					if (std::size_t textureIndex = Retrieve(m_pending.attachmentToTextures, output.attachmentId); textureIndex != InvalidTextureIndex)
 						bakedPass.outputTextureIndices.push_back(textureIndex);
 
 					if (output.clearColor)
 					{
-						bakedPass.outputClearValues.resize(i + 1);
-						bakedPass.outputClearValues[i].color = *output.clearColor;
+						bakedPass.outputClearValues.resize(colorAttachmentIndex + 1);
+						bakedPass.outputClearValues[colorAttachmentIndex].color = *output.clearColor;
 					}
+
+					colorAttachmentIndex++;
 				}
 
 				// Add depth-stencil clear values
 				if (const auto& depthStencilClear = framePass.GetDepthStencilClear())
 				{
-					std::size_t depthClearIndex = colorOutputs.size();
-					bakedPass.outputClearValues.resize(depthClearIndex + 1);
+					bakedPass.outputClearValues.resize(colorAttachmentIndex + 1);
 
-					auto& dsClearValues = bakedPass.outputClearValues[depthClearIndex];
+					auto& dsClearValues = bakedPass.outputClearValues[colorAttachmentIndex];
 					dsClearValues.depth = depthStencilClear->depth;
 					dsClearValues.stencil = depthStencilClear->stencil;
 				}
 
-				std::size_t attachmentId;
-				if (attachmentId = framePass.GetDepthStencilOutput(); attachmentId != FramePass::InvalidAttachmentId)
+				if (std::size_t attachmentId = framePass.GetDepthStencilOutput(); attachmentId != FramePass::InvalidAttachmentId)
 				{
 					if (std::size_t textureIndex = Retrieve(m_pending.attachmentToTextures, attachmentId); textureIndex != InvalidTextureIndex)
 						bakedPass.outputTextureIndices.push_back(textureIndex);
 				}
-				else if (attachmentId = framePass.GetDepthStencilInput(); attachmentId != FramePass::InvalidAttachmentId)
+				else if (const auto& depthStencilInput = framePass.GetDepthStencilInput())
 				{
-					if (std::size_t textureIndex = Retrieve(m_pending.attachmentToTextures, attachmentId); textureIndex != InvalidTextureIndex)
+					if (std::size_t textureIndex = Retrieve(m_pending.attachmentToTextures, depthStencilInput->attachmentId); textureIndex != InvalidTextureIndex)
 						bakedPass.outputTextureIndices.push_back(textureIndex);
 				}
 			}
@@ -208,7 +209,7 @@ namespace Nz
 				if (textureId != InvalidTextureIndex)
 				{
 					FrameGraphTextureData& attachmentData = m_pending.textures[textureId];
-					attachmentData.usage |= input.textureUsageFlags.value_or(TextureUsage::ShaderSampling);
+					attachmentData.usage |= input.textureUsageFlags;
 				}
 			}
 
@@ -218,17 +219,17 @@ namespace Nz
 				if (textureId != InvalidTextureIndex)
 				{
 					FrameGraphTextureData& attachmentData = m_pending.textures[textureId];
-					attachmentData.usage |= TextureUsage::ColorAttachment;
+					attachmentData.usage |= output.textureUsageFlags;
 				}
 			}
 
-			if (std::size_t depthStencilInput = framePass.GetDepthStencilInput(); depthStencilInput != FramePass::InvalidAttachmentId)
+			if (const auto& depthStencilInput = framePass.GetDepthStencilInput())
 			{
-				std::size_t textureId = RegisterTexture(depthStencilInput);
+				std::size_t textureId = RegisterTexture(depthStencilInput->attachmentId);
 				if (textureId != InvalidTextureIndex)
 				{
 					FrameGraphTextureData& attachmentData = m_pending.textures[textureId];
-					attachmentData.usage |= TextureUsage::DepthStencilAttachment;
+					attachmentData.usage |= depthStencilInput->textureUsageFlags;
 				}
 
 				if (std::size_t depthStencilOutput = framePass.GetDepthStencilOutput(); depthStencilOutput != FramePass::InvalidAttachmentId)
@@ -238,8 +239,8 @@ namespace Nz
 						// Special case where multiples attachments point simultaneously to the same texture
 						m_pending.attachmentToTextures.emplace(depthStencilOutput, textureId);
 
-						auto inputIt = m_pending.attachmentLastUse.find(depthStencilInput);
-						auto outputIt = m_pending.attachmentLastUse.find(depthStencilInput);
+						auto inputIt = m_pending.attachmentLastUse.find(depthStencilInput->attachmentId);
+						auto outputIt = m_pending.attachmentLastUse.find(depthStencilInput->attachmentId);
 						if (inputIt != m_pending.attachmentLastUse.end() && outputIt != m_pending.attachmentLastUse.end())
 						{
 							if (inputIt->second > outputIt->second)
@@ -387,48 +388,38 @@ namespace Nz
 				if (barrier->layout != TextureLayout::Undefined)
 					throw std::runtime_error("layout mismatch");
 
-				barrier->access |= MemoryAccess::ColorWrite;
-				barrier->stages |= PipelineStage::ColorOutput;
-				barrier->layout = TextureLayout::ColorOutput;
+				barrier->access |= output.accessFlags;
+				barrier->stages |= output.stageFlags;
+				barrier->layout = output.layout;
 			}
 
-			std::size_t dsInputAttachment = framePass.GetDepthStencilInput();
-			std::size_t dsOutputAttachement = framePass.GetDepthStencilOutput();
-
-			if (dsInputAttachment != FramePass::InvalidAttachmentId && dsOutputAttachement != FramePass::InvalidAttachmentId)
+			if (const auto& dsInput = framePass.GetDepthStencilInput())
 			{
-				// DS input/output
-				if (Barrier* invalidationBarrier = GetInvalidationBarrier(dsInputAttachment))
+				// DS input(/output)
+				if (Barrier* invalidationBarrier = GetInvalidationBarrier(dsInput->attachmentId))
 				{
-					if (invalidationBarrier->layout != TextureLayout::Undefined)
+					TextureLayout depthStencilLayout;
+					MemoryAccessFlags access = MemoryAccess::DepthStencilRead;
+					PipelineStageFlags stages = PipelineStage::FragmentTestsEarly;
+
+					if (std::size_t dsOutputAttachement = framePass.GetDepthStencilOutput(); dsOutputAttachement == dsInput->attachmentId)
+					{
+						depthStencilLayout = GetWriteDepthStencilLayout(dsOutputAttachement);
+						access |= MemoryAccess::DepthStencilWrite;
+						stages |= PipelineStage::FragmentTestsLate;
+					}
+					else
+						depthStencilLayout = TextureLayout::DepthStencilReadOnly;
+
+					if (invalidationBarrier->layout != TextureLayout::Undefined && invalidationBarrier->layout != depthStencilLayout)
 						throw std::runtime_error("layout mismatch");
 
-					invalidationBarrier->layout = TextureLayout::DepthStencilReadWrite;
-					invalidationBarrier->access = MemoryAccess::DepthStencilRead | MemoryAccess::DepthStencilWrite;
-					invalidationBarrier->stages = PipelineStage::FragmentTestsEarly | PipelineStage::FragmentTestsLate;
-				}
-
-				if (Barrier* flushBarrier = GetFlushBarrier(dsOutputAttachement))
-				{
-					flushBarrier->layout = TextureLayout::DepthStencilReadWrite;
-					flushBarrier->access = MemoryAccess::DepthStencilWrite;
-					flushBarrier->stages = PipelineStage::FragmentTestsLate;
+					invalidationBarrier->layout = depthStencilLayout;
+					invalidationBarrier->access |= access;
+					invalidationBarrier->stages |= stages;
 				}
 			}
-			else if (dsInputAttachment != FramePass::InvalidAttachmentId)
-			{
-				// DS input-only
-				if (Barrier* invalidationBarrier = GetInvalidationBarrier(dsInputAttachment))
-				{
-					if (invalidationBarrier->layout != TextureLayout::Undefined)
-						throw std::runtime_error("layout mismatch");
-
-					invalidationBarrier->layout = TextureLayout::DepthStencilReadWrite;
-					invalidationBarrier->access = MemoryAccess::DepthStencilRead;
-					invalidationBarrier->stages = PipelineStage::FragmentTestsEarly | PipelineStage::FragmentTestsLate;
-				}
-			}
-			else if (dsOutputAttachement != FramePass::InvalidAttachmentId)
+			else if (std::size_t dsOutputAttachement = framePass.GetDepthStencilOutput(); dsOutputAttachement != FramePass::InvalidAttachmentId)
 			{
 				// DS output-only
 				if (Barrier* flushBarrier = GetFlushBarrier(dsOutputAttachement))
@@ -436,7 +427,7 @@ namespace Nz
 					if (flushBarrier->layout != TextureLayout::Undefined)
 						throw std::runtime_error("layout mismatch");
 
-					flushBarrier->layout = TextureLayout::DepthStencilReadWrite;
+					flushBarrier->layout = GetWriteDepthStencilLayout(dsOutputAttachement);
 					flushBarrier->access = MemoryAccess::DepthStencilWrite;
 					flushBarrier->stages = PipelineStage::FragmentTestsLate;
 				}
@@ -641,8 +632,17 @@ namespace Nz
 				}
 				else if (depthStencilAttachment)
 				{
-					if (depthStencilAttachment->attachmentLayout == TextureLayout::DepthStencilReadWrite)
-						subpassInfo[subpassIndex].hasDepthStencilWrite = true;
+					switch (depthStencilAttachment->attachmentLayout)
+					{
+						case TextureLayout::DepthReadOnlyStencilReadWrite:
+						case TextureLayout::DepthReadWriteStencilReadOnly:
+						case TextureLayout::DepthStencilReadWrite:
+							subpassInfo[subpassIndex].hasDepthStencilWrite = true;
+							break;
+
+						default:
+							break;
+					}
 
 					subpassInfo[subpassIndex].hasDepthStencilRead = true;
 
@@ -774,16 +774,16 @@ namespace Nz
 			TextureLayout& textureLayout = textureLayouts[textureId];
 			if (!input.assumedLayout)
 			{
-				assert(textureLayouts[textureId] != TextureLayout::Undefined);
+				NazaraAssertMsg(textureLayouts[textureId] != TextureLayout::Undefined, "Texture has Undefined layout, this can happen if you're trying to read a texture that wasn't read to");
 				textureLayout = input.layout;
 			}
 			else
 				textureLayout = *input.assumedLayout;
 		};
 
-		auto RegisterColorOutput = [&](const FramePass::Output& output, bool shouldLoad)
+		auto RegisterOutput = [&](const FramePass::Output& output, bool shouldLoad)
 		{
-			std::size_t textureId = Retrieve(m_pending.attachmentToTextures, output.attachmentId);
+			std::size_t textureId = Retrieve(m_pending.attachmentToTextures, ResolveAttachmentIndex(output.attachmentId));
 			if (textureId == InvalidTextureIndex)
 				return InvalidAttachmentIndex;
 
@@ -792,7 +792,10 @@ namespace Nz
 				textureId = m_pending.textures[textureId].viewData->parentTextureId;
 
 			TextureLayout initialLayout = textureLayouts[textureId];
-			textureLayouts[textureId] = TextureLayout::ColorOutput;
+			textureLayouts[textureId] = output.layout;
+
+			if (!output.textureUsageFlags.Test(TextureUsage::ColorAttachment))
+				return InvalidAttachmentIndex;
 
 			auto it = usedTextureAttachments.find(textureId);
 			if (it != usedTextureAttachments.end())
@@ -885,12 +888,12 @@ namespace Nz
 					if (HasAttachment(subpassInputs, output.attachmentId))
 						shouldLoad = true;
 
-					std::size_t attachmentIndex = RegisterColorOutput(output, shouldLoad);
+					std::size_t attachmentIndex = RegisterOutput(output, shouldLoad);
 					if (attachmentIndex != InvalidAttachmentIndex)
 					{
 						colorAttachments.push_back({
 							attachmentIndex,
-							TextureLayout::ColorOutput
+							output.layout
 						});
 					}
 				}
@@ -902,14 +905,19 @@ namespace Nz
 			for (auto& subpass : physicalPass.passes)
 			{
 				const FramePass& framePass = m_framePasses[subpass.passIndex];
-				std::size_t dsInputAttachment = framePass.GetDepthStencilInput();
+				std::size_t dsInputAttachment = FramePass::InvalidAttachmentId;
+				if (const auto& dsInput = framePass.GetDepthStencilInput())
+					dsInputAttachment = dsInput->attachmentId;
+
 				std::size_t dsOutputAttachement = framePass.GetDepthStencilOutput();
 
-				if (dsInputAttachment != FramePass::InvalidAttachmentId && dsOutputAttachement != FramePass::InvalidAttachmentId)
+				if (dsInputAttachment != FramePass::InvalidAttachmentId && dsOutputAttachement == dsInputAttachment)
 				{
+					TextureLayout layout = GetWriteDepthStencilLayout(dsOutputAttachement);
+
 					// DS input/output
 					bool first;
-					RenderPass::Attachment* dsAttachment = RegisterDepthStencil(dsInputAttachment, TextureLayout::DepthStencilReadWrite, &first);
+					RenderPass::Attachment* dsAttachment = RegisterDepthStencil(dsInputAttachment, layout, &first);
 					if (dsAttachment)
 					{
 						if (first)
@@ -920,7 +928,7 @@ namespace Nz
 
 						depthStencilAttachment = RenderPass::AttachmentReference{
 							depthStencilAttachmentIndex.value(),
-							TextureLayout::DepthStencilReadWrite
+							layout
 						};
 					}
 				}
@@ -965,9 +973,11 @@ namespace Nz
 				}
 				else if (dsOutputAttachement != FramePass::InvalidAttachmentId)
 				{
+					TextureLayout layout = GetWriteDepthStencilLayout(dsOutputAttachement);
+
 					// DS output-only
 					bool first;
-					RenderPass::Attachment* dsAttachment = RegisterDepthStencil(dsOutputAttachement, TextureLayout::DepthStencilReadWrite, &first);
+					RenderPass::Attachment* dsAttachment = RegisterDepthStencil(dsOutputAttachement, layout, &first);
 					if (dsAttachment)
 					{
 						if (first)
@@ -979,7 +989,7 @@ namespace Nz
 
 						depthStencilAttachment = RenderPass::AttachmentReference{
 							depthStencilAttachmentIndex.value(),
-							TextureLayout::DepthStencilReadWrite
+							layout
 						};
 					}
 				}
@@ -1021,8 +1031,8 @@ namespace Nz
 			for (const auto& input : framePass.GetInputs())
 				UniquePushBack(m_pending.attachmentReadList[input.attachmentId], passIndex);
 
-			if (std::size_t depthStencilId = framePass.GetDepthStencilInput(); depthStencilId != FramePass::InvalidAttachmentId)
-				UniquePushBack(m_pending.attachmentReadList[depthStencilId], passIndex);
+			if (const auto& depthStencilInput = framePass.GetDepthStencilInput())
+				UniquePushBack(m_pending.attachmentReadList[depthStencilInput->attachmentId], passIndex);
 
 			for (const auto& output : framePass.GetOutputs())
 				UniquePushBack(m_pending.attachmentWriteList[output.attachmentId], passIndex);
@@ -1378,7 +1388,7 @@ namespace Nz
 		for (const auto& input : framePass.GetInputs())
 			RegisterPassInput(passIndex, input.attachmentId);
 
-		if (std::size_t dsInput = framePass.GetDepthStencilInput(); dsInput != FramePass::InvalidAttachmentId)
-			RegisterPassInput(passIndex, dsInput);
+		if (const auto& depthStencilInput = framePass.GetDepthStencilInput())
+			RegisterPassInput(passIndex, depthStencilInput->attachmentId);
 	}
 }

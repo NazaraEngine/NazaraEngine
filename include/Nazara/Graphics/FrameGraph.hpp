@@ -56,6 +56,8 @@ namespace Nz
 		private:
 			struct PassBarriers;
 
+			inline TextureLayout GetWriteDepthStencilLayout(std::size_t attachmentIndex) const;
+
 			using BarrierList = std::vector<PassBarriers>;
 			using PassList = std::vector<std::size_t /*PassIndex*/>;
 			using AttachmentIdToPassMap = std::unordered_map<std::size_t /*resourceIndex*/, PassList /*passIndexes*/>;
