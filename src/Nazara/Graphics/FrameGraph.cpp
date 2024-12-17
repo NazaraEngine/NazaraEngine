@@ -402,8 +402,9 @@ namespace Nz
 					MemoryAccessFlags access = MemoryAccess::DepthStencilRead;
 					PipelineStageFlags stages = PipelineStage::FragmentTestsEarly;
 
-					if (std::size_t dsOutputAttachement = framePass.GetDepthStencilOutput(); dsOutputAttachement == dsInput->attachmentId)
+					if (std::size_t dsOutputAttachement = framePass.GetDepthStencilOutput())
 					{
+						NazaraAssertMsg(dsOutputAttachement == dsInput->attachmentId, "it's not possible to use a different input and output depth buffer");
 						depthStencilLayout = GetWriteDepthStencilLayout(dsOutputAttachement);
 						access |= MemoryAccess::DepthStencilWrite;
 						stages |= PipelineStage::FragmentTestsLate;
