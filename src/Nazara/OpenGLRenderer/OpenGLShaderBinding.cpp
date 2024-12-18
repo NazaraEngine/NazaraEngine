@@ -7,8 +7,8 @@
 #include <Nazara/OpenGLRenderer/OpenGLRenderPipelineLayout.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLTexture.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLTextureSampler.hpp>
-#include <NazaraUtils/Algorithm.hpp>
 #include <NazaraUtils/StackVector.hpp>
+#include <NazaraUtils/TypeTraits.hpp>
 
 namespace Nz
 {

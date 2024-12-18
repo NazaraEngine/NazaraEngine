@@ -175,7 +175,7 @@ namespace Nz
 		{
 			std::size_t outputIndex = forwardPass.AddOutput(outputData.attachmentIndex);
 
-			std::visit(Nz::Overloaded{
+			std::visit(Overloaded{
 				[](DontClear) {},
 				[&](const Color& color)
 				{
@@ -192,7 +192,7 @@ namespace Nz
 			forwardPass.SetDepthStencilInput(inputOuputs.depthStencilInput);
 		else if (inputOuputs.depthStencilOutput != InvalidAttachmentIndex)
 		{
-			std::visit(Nz::Overloaded{
+			std::visit(Overloaded{
 				[](DontClear) {},
 				[&](float depth)
 				{
