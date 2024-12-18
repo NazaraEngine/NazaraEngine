@@ -45,4 +45,4 @@ namespace Nz
 
 #include <Nazara/Graphics/BlitPipelinePass.inl>
 
-#endif // NAZARA_GRAPHICS_DEBUGDRAWPIPELINEPASS_HPP
+#endif // NAZARA_GRAPHICS_BLITPIPELINEPASS_HPP
