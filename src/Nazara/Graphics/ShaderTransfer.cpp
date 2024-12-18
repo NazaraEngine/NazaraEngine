@@ -6,8 +6,8 @@
 #include <Nazara/Graphics/DirectionalLight.hpp>
 #include <Nazara/Graphics/DirectionalLightShadowData.hpp>
 #include <Nazara/Graphics/PointLight.hpp>
-#include <Nazara/Graphics/SpotLight.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
+#include <Nazara/Graphics/SpotLight.hpp>
 
 namespace Nz
 {

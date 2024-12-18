@@ -36,7 +36,7 @@ namespace Nz
 		blitPass.AddOutput(outputAttachment);
 		blitPass.SetOutputAccess(0, TextureLayout::TransferDestination, PipelineStage::Transfer, MemoryAccess::MemoryWrite);
 		blitPass.SetOutputUsage(0, TextureUsage::TransferDestination);
-		
+
 		blitPass.SetCommandCallback([this, inputAttachment, outputAttachment](CommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
 			const std::shared_ptr<Texture>& sourceTexture = env.frameGraph.GetAttachmentTexture(inputAttachment);

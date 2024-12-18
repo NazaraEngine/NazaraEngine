@@ -8,11 +8,11 @@
 #define NAZARA_GRAPHICS_FRAMEPASS_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <NazaraUtils/Constants.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Graphics/Export.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Renderer/Enums.hpp>
+#include <NazaraUtils/Constants.hpp>
 #include <functional>
 #include <optional>
 #include <string>

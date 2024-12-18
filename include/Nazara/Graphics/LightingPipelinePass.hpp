@@ -11,9 +11,9 @@
 #include <Nazara/Core/ParameterList.hpp>
 #include <Nazara/Graphics/ElementRenderer.hpp>
 #include <Nazara/Graphics/FramePipelinePass.hpp>
+#include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
-#include <Nazara/Math/Frustum.hpp>
 #include <memory>
 
 namespace Nz
