@@ -7,8 +7,8 @@
 #include <Nazara/OpenGLRenderer/OpenGLRenderPipelineLayout.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLTexture.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLTextureSampler.hpp>
-#include <NazaraUtils/Algorithm.hpp>
 #include <NazaraUtils/StackVector.hpp>
+#include <NazaraUtils/TypeTraits.hpp>
 
 namespace Nz
 {
@@ -84,18 +84,18 @@ namespace Nz
 		{
 			const Binding& binding = bindings[i];
 
-			std::visit([&](auto&& arg)
-			{
-				using T = std::decay_t<decltype(arg)>;
-
-				if constexpr (std::is_same_v<T, SampledTextureBinding>)
+			std::visit(Overloaded{
+				[](std::monostate) {},
+				[&](const SampledTextureBinding& arg)
+				{
 					HandleTextureBinding(binding.bindingIndex, arg);
-				else if constexpr (std::is_same_v<T, SampledTextureBindings>)
+				},
+				[&](const SampledTextureBindings& arg)
 				{
 					for (UInt32 i = 0; i < arg.arraySize; ++i)
 						HandleTextureBinding(binding.bindingIndex + i, arg.textureBindings[i]);
-				}
-				else if constexpr (std::is_same_v<T, StorageBufferBinding>)
+				},
+				[&](const StorageBufferBinding& arg)
 				{
 					auto& storageDescriptor = m_owner.GetStorageBufferDescriptor(m_poolIndex, m_bindingIndex, binding.bindingIndex);
 					storageDescriptor.offset = arg.offset;
@@ -110,8 +110,8 @@ namespace Nz
 					}
 					else
 						storageDescriptor.buffer = 0;
-				}
-				else if constexpr (std::is_same_v<T, TextureBinding>)
+				},
+				[&](const TextureBinding& arg)
 				{
 					auto& textureDescriptor = m_owner.GetTextureDescriptor(m_poolIndex, m_bindingIndex, binding.bindingIndex);
 					if (const OpenGLTexture* glTexture = SafeCast<const OpenGLTexture*>(arg.texture))
@@ -143,8 +143,8 @@ namespace Nz
 						textureDescriptor.level = 0;
 						textureDescriptor.texture = 0;
 					}
-				}
-				else if constexpr (std::is_same_v<T, UniformBufferBinding>)
+				},
+				[&](const UniformBufferBinding& arg)
 				{
 					auto& uboDescriptor = m_owner.GetUniformBufferDescriptor(m_poolIndex, m_bindingIndex, binding.bindingIndex);
 					uboDescriptor.offset = arg.offset;
@@ -159,10 +159,7 @@ namespace Nz
 					}
 					else
 						uboDescriptor.buffer = 0;
-				}
-				else
-					static_assert(AlwaysFalse<T>(), "non-exhaustive visitor");
-
+				},
 			}, binding.content);
 		}
 	}

@@ -7,12 +7,13 @@ Makefile
 vs*/*
 vsxmake*/*
 
-# Ignore assets (except shaders)
+# Ignore assets (except data)
 assets/*
 !assets/examples_version.txt
 !assets/readme.md
 !assets/tests_version.txt
 !assets/shaders
+!assets/passes
 
 # Coverage
 coverage.out
