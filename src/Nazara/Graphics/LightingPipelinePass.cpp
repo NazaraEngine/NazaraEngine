@@ -67,7 +67,7 @@ namespace Nz
 				{
 					case DirectionalLightType:
 					{
-						UInt64 lightSize = AlignPow2(PredefinedDirectionalLightOffsets.totalSize, uboAlignment);
+						UInt64 lightSize = AlignPow2<UInt64>(PredefinedDirectionalLightOffsets.totalSize, uboAlignment);
 						void* lightData = PushLightData(*renderDevice, 256, m_lightBufferPool->directionalLightPool, frameData.renderResources, m_directionalLights, lightSize);
 						ShaderTransfer::WriteLight(SafeCast<const DirectionalLight*>(light), lightData);
 						break;
@@ -75,7 +75,7 @@ namespace Nz
 
 					case PointLightType:
 					{
-						UInt64 lightSize = AlignPow2(PredefinedPointLightOffsets.totalSize, uboAlignment);
+						UInt64 lightSize = AlignPow2<UInt64>(PredefinedPointLightOffsets.totalSize, uboAlignment);
 						void* lightData = PushLightData(*renderDevice, 1024, m_lightBufferPool->pointLightPool, frameData.renderResources, m_pointLights, lightSize);
 						ShaderTransfer::WriteLight(SafeCast<const PointLight*>(light), lightData);
 
@@ -84,7 +84,7 @@ namespace Nz
 
 					case SpotLightType:
 					{
-						UInt64 lightSize = AlignPow2(PredefinedSpotLightOffsets.totalSize, uboAlignment);
+						UInt64 lightSize = AlignPow2<UInt64>(PredefinedSpotLightOffsets.totalSize, uboAlignment);
 						void* lightData = PushLightData(*renderDevice, 1024, m_lightBufferPool->spotLightPool, frameData.renderResources, m_spotLights, lightSize);
 						ShaderTransfer::WriteLight(SafeCast<const SpotLight*>(light), lightData);
 						break;
@@ -94,9 +94,9 @@ namespace Nz
 
 			frameData.renderResources.Execute([&](CommandBufferBuilder& builder)
 			{
-				UInt64 directionalLightSize = AlignPow2(PredefinedDirectionalLightOffsets.totalSize, uboAlignment);
-				UInt64 pointLightSize = AlignPow2(PredefinedPointLightOffsets.totalSize, uboAlignment);
-				UInt64 spotLightSize = AlignPow2(PredefinedSpotLightOffsets.totalSize, uboAlignment);
+				UInt64 directionalLightSize = AlignPow2<UInt64>(PredefinedDirectionalLightOffsets.totalSize, uboAlignment);
+				UInt64 pointLightSize = AlignPow2<UInt64>(PredefinedPointLightOffsets.totalSize, uboAlignment);
+				UInt64 spotLightSize = AlignPow2<UInt64>(PredefinedSpotLightOffsets.totalSize, uboAlignment);
 
 				for (auto& lightBlock : m_directionalLights)
 					builder.CopyBuffer(*lightBlock.uploadAllocation, RenderBufferView(lightBlock.memory.lightUbo.get(), 0, lightBlock.lightCount * directionalLightSize));
