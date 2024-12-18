@@ -61,7 +61,7 @@ namespace Nz
 			writeOp.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 			writeOp.dstSet = m_descriptorSet;
 			writeOp.dstBinding = binding.bindingIndex;
-			
+
 			std::visit(Overloaded{
 				[](std::monostate) {},
 				[&](const SampledTextureBinding& arg)

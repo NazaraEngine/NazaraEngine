@@ -46,7 +46,7 @@ namespace Nz
 	{
 		Destroy();
 	}
-	
+
 	void PhysCharacter3D::AddImpulse(const Vector3f& impulse, CoordSys coordSys)
 	{
 		m_character->AddImpulse(ToJolt(impulse));

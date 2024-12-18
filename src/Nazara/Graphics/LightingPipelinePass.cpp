@@ -5,14 +5,14 @@
 #include <Nazara/Graphics/LightingPipelinePass.hpp>
 #include <Nazara/Core/Primitive.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
+#include <Nazara/Graphics/DirectionalLight.hpp>
 #include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Graphics/FramePipeline.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
-#include <Nazara/Graphics/DirectionalLight.hpp>
 #include <Nazara/Graphics/PointLight.hpp>
-#include <Nazara/Graphics/SpotLight.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/ShaderTransfer.hpp>
+#include <Nazara/Graphics/SpotLight.hpp>
 #include <Nazara/Graphics/UberShader.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Renderer/RenderFrame.hpp>
@@ -357,7 +357,7 @@ namespace Nz
 		{
 			UberShader::Config config;
 			config.optionValues[nzsl::Ast::HashOption("LightType")] = static_cast<Int32>(lightType);
-			
+
 			RenderPipelineInfo pipelineInfo;
 			pipelineInfo.pipelineLayout = m_commonPipelineLayout;
 			pipelineInfo.primitiveMode = PrimitiveMode::TriangleList;

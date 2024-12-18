@@ -154,7 +154,7 @@ namespace Nz
 			throw std::runtime_error("expected depth-stencil output");
 
 		FramePass& forwardPass = frameGraph.AddPass(m_passName);
-		
+
 		for (auto&& outputData : inputOuputs.outputAttachments)
 		{
 			std::size_t outputIndex = forwardPass.AddOutput(outputData.attachmentIndex);

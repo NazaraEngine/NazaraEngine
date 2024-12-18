@@ -457,7 +457,7 @@ namespace Nz
 		NazaraError("unhandled StencilOperation {0:#x})", UnderlyingCast(stencilOp));
 		return {};
 	}
-	
+
 	inline VkImageAspectFlagBits ToVulkan(TexturePlane texturePlane)
 	{
 		switch (texturePlane)
@@ -554,4 +554,3 @@ namespace Nz
 		}
 	}
 }
-
