@@ -11,10 +11,10 @@
 #include <Nazara/Graphics/DefaultFramePipeline.hpp>
 #include <Nazara/Graphics/ForwardPipelinePass.hpp>
 #include <Nazara/Graphics/GuillotineTextureAtlas.hpp>
+#include <Nazara/Graphics/LightingPipelinePass.hpp>
 #include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/MaterialPipeline.hpp>
 #include <Nazara/Graphics/PipelinePassList.hpp>
-#include <Nazara/Graphics/LightingPipelinePass.hpp>
 #include <Nazara/Graphics/PostProcessPipelinePass.hpp>
 #include <Nazara/Graphics/PredefinedMaterials.hpp>
 #include <Nazara/Graphics/RasterPipelinePass.hpp>
@@ -385,7 +385,7 @@ namespace Nz
 
 		m_defaultPipelinePasses->SetPassOutput(forwardPass, 0, forwardColorOutput);
 		m_defaultPipelinePasses->SetPassOutputClearColor(forwardPass, 0, FramePipelinePass::ViewerClearValue{});
-		
+
 		m_defaultPipelinePasses->EnablePassFlags(forwardPass, FramePipelinePassFlag::LightShadowing);
 
 		// Gamma correction
