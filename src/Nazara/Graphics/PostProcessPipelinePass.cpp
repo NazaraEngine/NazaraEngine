@@ -110,7 +110,7 @@ namespace Nz
 		Result<std::string, ParameterList::Error> shaderResult = parameters.GetStringParameter("Shader");
 		if (shaderResult.IsOk())
 			return std::move(shaderResult).GetValue();
-		// TODO: Log error if key is present but not of the right
+		// TODO: Log error if key is present but not of the right type
 
 		throw std::runtime_error("PostProcessPipelinePass expect a Shader parameter");
 	}

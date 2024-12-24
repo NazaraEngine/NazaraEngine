@@ -213,6 +213,8 @@ namespace Nz
 	{
 		ColorInput,
 		ColorOutput,
+		DepthReadOnlyStencilReadWrite,
+		DepthReadWriteStencilReadOnly,
 		DepthStencilReadOnly,
 		DepthStencilReadWrite,
 		General,
@@ -221,6 +223,26 @@ namespace Nz
 		TransferDestination,
 		Undefined
 	};
+
+	enum class TexturePlane
+	{
+		Color,
+		Depth,
+		Stencil,
+		Plane0,
+		Plane1,
+		Plane2,
+
+		Max = Plane2
+	};
+
+	template<>
+	struct EnumAsFlags<TexturePlane>
+	{
+		static constexpr TexturePlane max = TexturePlane::Max;
+	};
+
+	using TexturePlaneFlags = Flags<TexturePlane>;
 
 	enum class TextureUsage
 	{
