@@ -56,12 +56,18 @@ passlist "Deferred Passlist"
     pass "Lighting"
     {
         impl "Lighting"
+        {
+            Shader "DeferredShading.PhysicalledBasedLighting"
+        }
 
         input "Albedo" "GBuffer0"
         input "Normal" "GBuffer1"
         input "Depth" "DepthBuffer"
 
         output "Output" "LightOutput"
+        {
+            clearcolor "0.0 0.0 0.0 0.0"
+        }
 
         depthstencilinput "StencilBuffer"
         depthstenciloutput "StencilBuffer"
