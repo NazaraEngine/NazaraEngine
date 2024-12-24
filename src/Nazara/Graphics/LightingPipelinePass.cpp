@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Graphics/LightingPipelinePass.hpp>
+#include <Nazara/Core/Format.hpp>
 #include <Nazara/Core/Primitive.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/DirectionalLight.hpp>
@@ -16,13 +17,20 @@
 #include <Nazara/Graphics/UberShader.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Renderer/RenderFrame.hpp>
-#include <NZSL/Parser.hpp>
+#include <NazaraUtils/StackVector.hpp>
+#include <NZSL/Ast/SanitizeVisitor.hpp>
 
 namespace Nz
 {
 	LightingPipelinePass::LightingPipelinePass(PassData& passData, std::string passName, const ParameterList& parameters) :
+	LightingPipelinePass(passData, std::move(passName), GetShaderName(parameters))
+	{
+	}
+
+	LightingPipelinePass::LightingPipelinePass(PassData& passData, std::string passName, std::string shaderName) :
 	FramePipelinePass(0),
 	m_lastVisibilityHash(0),
+	m_passName(std::move(passName)),
 	m_viewer(passData.viewer),
 	m_pipeline(passData.pipeline),
 	m_rebuildCommandBuffer(false),
@@ -32,8 +40,8 @@ namespace Nz
 		const auto& renderDevice = graphics->GetRenderDevice();
 
 		SetupMeshes();
-		SetupPipelineLayouts(*renderDevice);
-		SetupPipelines(*renderDevice);
+		SetupPipelineLayouts(*renderDevice, shaderName);
+		SetupPipelines(*renderDevice, std::move(shaderName));
 
 		m_lightBufferPool = std::make_shared<LightBufferPool>();
 	}
@@ -78,7 +86,6 @@ namespace Nz
 						UInt64 lightSize = AlignPow2<UInt64>(PredefinedPointLightOffsets.totalSize, uboAlignment);
 						void* lightData = PushLightData(*renderDevice, 1024, m_lightBufferPool->pointLightPool, frameData.renderResources, m_pointLights, lightSize);
 						ShaderTransfer::WriteLight(SafeCast<const PointLight*>(light), lightData);
-
 						break;
 					}
 
@@ -119,75 +126,116 @@ namespace Nz
 
 	FramePass& LightingPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, const PassInputOuputs& inputOuputs)
 	{
-		if (inputOuputs.inputAttachments.size() != 3)
-			throw std::runtime_error("three inputs expected");
+		std::size_t inputCount = m_gbufferBindingIndices.size();
+		if (m_depthMapBindingIndex != MaxValue<UInt32>())
+			inputCount++;
+
+		if (inputOuputs.inputAttachments.size() != inputCount)
+			throw std::runtime_error("at least one input expected");
 
 		Graphics* graphics = Graphics::Instance();
 
 		const auto& sampler = graphics->GetSamplerCache().Get({});
 
-		FramePass& lightingPass = frameGraph.AddPass("Lighting pass");
+		FramePass& lightingPass = frameGraph.AddPass(m_passName);
 
-		std::size_t albedoAttachment = inputOuputs.inputAttachments[0].attachmentIndex;
-		std::size_t normalAttachment = inputOuputs.inputAttachments[1].attachmentIndex;
-		std::size_t depthAttachment = inputOuputs.inputAttachments[2].attachmentIndex;
+		HybridVector<std::size_t, 8> inputAttachmentIndices;
+		for (const auto& inputData : inputOuputs.inputAttachments)
+		{
+			lightingPass.AddInput(inputData.attachmentIndex);
+			inputAttachmentIndices.push_back(inputData.attachmentIndex);
+		}
 
-		lightingPass.AddInput(albedoAttachment);
-		lightingPass.AddInput(normalAttachment);
-		std::size_t depthInput = lightingPass.AddInput(depthAttachment);
+		// We expect the last input to be the depth buffer, if one exists
+		if (m_depthMapBindingIndex != MaxValue<UInt32>())
+			lightingPass.SetInputAccess(inputOuputs.inputAttachments.size() - 1, TextureLayout::DepthReadOnlyStencilReadWrite, PipelineStage::FragmentShader, MemoryAccess::ShaderRead);
+		
+		for (auto&& outputData : inputOuputs.outputAttachments)
+		{
+			std::size_t outputIndex = lightingPass.AddOutput(outputData.attachmentIndex);
 
-		lightingPass.SetInputAccess(depthInput, TextureLayout::DepthReadOnlyStencilReadWrite, PipelineStage::FragmentShader, MemoryAccess::ShaderRead);
+			std::visit(Overloaded{
+				[](DontClear) {},
+				[&](const Color& color)
+				{
+					lightingPass.SetClearColor(outputIndex, color);
+				},
+				[&](ViewerClearValue)
+				{
+					lightingPass.SetClearColor(outputIndex, m_viewer->GetClearColor());
+				}
+			}, outputData.clearColor);
+		}
+		
+		if (inputOuputs.depthStencilInput != FramePipelinePass::InvalidAttachmentIndex)
+			lightingPass.SetDepthStencilInput(inputOuputs.depthStencilInput);
+		else
+		{
+			std::visit(Overloaded{
+				[](DontClear) {},
+				[&](float depth)
+				{
+					lightingPass.SetDepthStencilClear(depth, 0);
+				},
+				[&](ViewerClearValue)
+				{
+					lightingPass.SetDepthStencilClear(m_viewer->GetClearDepth(), 0);
+				}
+			}, inputOuputs.clearDepth);
+		}
 
-		for (const PassOutputData& outputData : inputOuputs.outputAttachments)
-			lightingPass.AddOutput(outputData.attachmentIndex);
-
-		lightingPass.SetDepthStencilInput(inputOuputs.depthStencilInput);
 		lightingPass.SetDepthStencilOutput(inputOuputs.depthStencilOutput);
-
-		lightingPass.SetClearColor(0, Color::Black());
 
 		lightingPass.SetExecutionCallback([&]()
 		{
 			return (m_rebuildCommandBuffer) ? FramePassExecution::UpdateAndExecute : FramePassExecution::Execute;
 		});
 
-		lightingPass.SetCommandCallback([this, &sampler, albedoAttachment, normalAttachment, depthAttachment](CommandBufferBuilder& builder, const FramePassEnvironment& env)
+		lightingPass.SetCommandCallback([this, &sampler, inputCount, inputAttachmentIndices](CommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
 			env.renderResources.PushForRelease(std::move(m_commonShaderBinding));
 
 			const auto& viewerBuffer = m_viewer->GetViewerInstance().GetViewerBuffer();
-			const auto& albedoMap = env.frameGraph.GetAttachmentTexture(albedoAttachment);
-			const auto& normalMap = env.frameGraph.GetAttachmentTexture(normalAttachment);
-			const auto& depthMap = env.frameGraph.GetAttachmentTexture(depthAttachment);
 
-			m_commonShaderBinding = m_commonPipelineLayout->AllocateShaderBinding(0);
-			m_commonShaderBinding->Update({
-				{
-					0,
-					ShaderBinding::UniformBufferBinding {
-						viewerBuffer.get(),
-						0, viewerBuffer->GetSize()
-					}
-				},
-				{
-					1,
-					ShaderBinding::SampledTextureBinding {
-						albedoMap.get(), sampler.get(),
-					}
-				},
-				{
-					2,
-					ShaderBinding::SampledTextureBinding {
-						normalMap.get(), sampler.get(),
-					}
-				},
-				{
-					3,
-					ShaderBinding::SampledTextureBinding {
-						depthMap.get(), sampler.get(), TextureLayout::DepthReadOnlyStencilReadWrite
-					}
+			StackVector<ShaderBinding::Binding> bindings = NazaraStackVector(ShaderBinding::Binding, inputCount + 1);
+			bindings.push_back({
+				0,
+				ShaderBinding::UniformBufferBinding {
+					viewerBuffer.get(),
+					0, viewerBuffer->GetSize()
 				}
 			});
+
+			std::size_t gbufferInputCount = inputCount;
+			if (m_depthMapBindingIndex != MaxValue<UInt32>())
+				gbufferInputCount--;
+
+			for (std::size_t i = 0; i < gbufferInputCount; ++i)
+			{
+				const auto& attachmentTexture = env.frameGraph.GetAttachmentTexture(inputAttachmentIndices[i]);
+
+				bindings.push_back({
+					m_gbufferBindingIndices[i],
+					ShaderBinding::SampledTextureBinding {
+						attachmentTexture.get(), sampler.get(),
+					}
+				});
+			}
+
+			if (m_depthMapBindingIndex != MaxValue<UInt32>())
+			{
+				const auto& attachmentTexture = env.frameGraph.GetAttachmentTexture(inputAttachmentIndices[gbufferInputCount]);
+
+				bindings.push_back({
+					m_depthMapBindingIndex,
+					ShaderBinding::SampledTextureBinding {
+						attachmentTexture.get(), sampler.get(), TextureLayout::DepthReadOnlyStencilReadWrite
+					}
+				});
+			}
+
+			m_commonShaderBinding = m_commonPipelineLayout->AllocateShaderBinding(0);
+			m_commonShaderBinding->Update(bindings.data(), bindings.size());
 
 			Recti viewport = m_viewer->GetViewport();
 
@@ -256,6 +304,16 @@ namespace Nz
 		return lightingPass;
 	}
 
+	std::string LightingPipelinePass::GetShaderName(const ParameterList& parameters)
+	{
+		Result<std::string, ParameterList::Error> shaderResult = parameters.GetStringParameter("Shader");
+		if (shaderResult.IsOk())
+			return std::move(shaderResult).GetValue();
+		// TODO: Log error if key is present but not of the right type
+
+		throw std::runtime_error("LightingPipelinePass expect a Shader parameter");
+	}
+
 	void LightingPipelinePass::SetupMeshes()
 	{
 		MeshParams meshPrimitiveParams;
@@ -283,45 +341,90 @@ namespace Nz
 		}
 	}
 
-	void LightingPipelinePass::SetupPipelineLayouts(RenderDevice& renderDevice)
+	void LightingPipelinePass::SetupPipelineLayouts(RenderDevice& renderDevice, const std::string& shaderName)
 	{
-		RenderPipelineLayoutInfo pipelineLayoutInfo;
-		pipelineLayoutInfo.bindings.assign({
-			{
-				0, 0, 1,
-				ShaderBindingType::UniformBuffer,
-				nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex
-			},
-			{
-				0, 1, 1,
-				ShaderBindingType::Sampler,
-				nzsl::ShaderStageType::Fragment
-			},
-			{
-				0, 2, 1,
-				ShaderBindingType::Sampler,
-				nzsl::ShaderStageType::Fragment
-			},
-			{
-				0, 3, 1,
-				ShaderBindingType::Sampler,
-				nzsl::ShaderStageType::Fragment
-			},
-			{
-				1, 0, 1,
-				ShaderBindingType::UniformBuffer,
-				nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex
-			}
-		});
+		using namespace nzsl::Ast::Literals;
 
-		m_commonPipelineLayout = renderDevice.InstantiateRenderPipelineLayout(pipelineLayoutInfo);
+		Graphics* graphics = Graphics::Instance();
+		NazaraAssert(graphics);
+
+		nzsl::Ast::ModulePtr referenceModule = graphics->GetShaderModuleResolver()->Resolve(shaderName);
+
+		nzsl::Ast::SanitizeVisitor::Options options;
+		options.forceAutoBindingResolve = true;
+		options.partialSanitization = true;
+		options.moduleResolver = graphics->GetShaderModuleResolver();
+		options.optionValues["LightType"_opt] = Int32(0); //< just to avoid unresolved externals
+		options.optionValues["MaxLightCount"_opt] = SafeCast<UInt32>(PredefinedLightData::MaxLightCount);
+		options.optionValues["MaxLightCascadeCount"_opt] = SafeCast<UInt32>(PredefinedDirectionalLightData::MaxLightCascadeCount);
+		options.optionValues["MaxJointCount"_opt] = SafeCast<UInt32>(PredefinedSkeletalData::MaxMatricesCount);
+
+		nzsl::Ast::ModulePtr sanitizedModule = nzsl::Ast::Sanitize(*referenceModule, options);
+
+		RenderPipelineLayoutInfo pipelineLayoutInfo;
+		ShaderReflection reflection;
+		reflection.Reflect(*sanitizedModule);
+
+		const auto* passDataExternalBlock = reflection.GetExternalBlockByTag("PassData");
+		if (!passDataExternalBlock)
+			throw std::runtime_error("failed to find external block with a PassData tag");
+
+		if (auto viewerDataIt = passDataExternalBlock->uniformBlocks.find("ViewerData"); viewerDataIt != passDataExternalBlock->uniformBlocks.end())
+		{
+			const auto& externalBlock = viewerDataIt->second;
+			if (externalBlock.bindingSet != 0)
+				throw std::runtime_error("ViewerData uniform buffer should be in the binding set #0");
+
+			m_viewerDataBindingIndex = externalBlock.bindingIndex;
+		}
+		else
+			throw std::runtime_error("missing ViewerData tagged uniform buffer in PassData external block");
+
+		for (std::size_t i = 0; m_gbufferBindingIndices.max_size(); ++i)
+		{
+			auto it = passDataExternalBlock->samplers.find(Format("GBuffer{}", i));
+			if (it == passDataExternalBlock->samplers.end())
+				break;
+
+			if (it->second.bindingSet != 0)
+				throw std::runtime_error(Format("GBuffer{} sampler should be in the binding set #0", i));
+
+			m_gbufferBindingIndices.push_back(it->second.bindingIndex);
+		}
+
+		if (auto it = passDataExternalBlock->samplers.find("DepthBuffer"); it != passDataExternalBlock->samplers.end())
+		{
+			if (it->second.bindingSet != 0)
+				throw std::runtime_error("DepthBuffer sampler should be in the binding set #0");
+
+			m_depthMapBindingIndex = it->second.bindingIndex;
+		}
+		else
+			m_depthMapBindingIndex = Nz::MaxValue();
+
+		const auto* lightDataExternalBlock = reflection.GetExternalBlockByTag("LightData");
+		if (!lightDataExternalBlock)
+			throw std::runtime_error("failed to find external block with a LightData tag");
+
+		if (auto lightDataIt = lightDataExternalBlock->uniformBlocks.find("LightData"); lightDataIt != lightDataExternalBlock->uniformBlocks.end())
+		{
+			const auto& externalBlock = lightDataIt->second;
+			if (externalBlock.bindingSet != 1)
+				throw std::runtime_error("LightData uniform buffer should be in the binding set #1");
+
+			m_lightDataBindingIndex = externalBlock.bindingIndex;
+		}
+		else
+			throw std::runtime_error("missing LightData tagged uniform buffer in LightData external block");
+
+		m_commonPipelineLayout = renderDevice.InstantiateRenderPipelineLayout(reflection.GetPipelineLayoutInfo());
 	}
 
-	void LightingPipelinePass::SetupPipelines(RenderDevice& renderDevice)
+	void LightingPipelinePass::SetupPipelines(RenderDevice& renderDevice, std::string&& shaderName)
 	{
 		m_fullscreenVertexShader = std::make_shared<UberShader>(nzsl::ShaderStageType::Vertex, "Engine.FullscreenVertex");
-		m_lightingShader = std::make_shared<UberShader>(nzsl::ShaderStageType::Fragment, "DeferredShading.PhongLighting");
-		m_meshStencilShader = std::make_shared<UberShader>(nzsl::ShaderStageType::Vertex, "DeferredShading.PhongLighting");
+		m_lightingShader = std::make_shared<UberShader>(nzsl::ShaderStageType::Fragment, shaderName);
+		m_meshStencilShader = std::make_shared<UberShader>(nzsl::ShaderStageType::Vertex, std::move(shaderName));
 
 		// Stencil pipeline
 		for (BasicLightType lightType : { BasicLightType::Point, BasicLightType::Spot })
@@ -419,7 +522,7 @@ namespace Nz
 				lightBlock.memory.shaderBindings[i] = m_commonPipelineLayout->AllocateShaderBinding(1);
 				lightBlock.memory.shaderBindings[i]->Update({
 					{
-						0,
+						m_lightDataBindingIndex,
 						ShaderBinding::UniformBufferBinding {
 							lightBlock.memory.lightUbo.get(),
 							i * lightSize, lightSize
