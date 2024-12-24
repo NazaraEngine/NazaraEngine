@@ -9,11 +9,11 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/ParameterList.hpp>
-#include <Nazara/Graphics/ElementRenderer.hpp>
 #include <Nazara/Graphics/FramePipelinePass.hpp>
 #include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
+#include <NazaraUtils/FixedVector.hpp>
 #include <memory>
 
 namespace Nz
@@ -33,7 +33,8 @@ namespace Nz
 	class NAZARA_GRAPHICS_API LightingPipelinePass : public FramePipelinePass
 	{
 		public:
-			LightingPipelinePass(PassData& passData, std::string passName, const ParameterList& parameters = {});
+			LightingPipelinePass(PassData& passData, std::string passName, const ParameterList& parameters);
+			LightingPipelinePass(PassData& passData, std::string passName, std::string shaderName);
 			LightingPipelinePass(const LightingPipelinePass&) = delete;
 			LightingPipelinePass(LightingPipelinePass&&) = delete;
 			~LightingPipelinePass();
@@ -48,10 +49,12 @@ namespace Nz
 			LightingPipelinePass& operator=(const LightingPipelinePass&) = delete;
 			LightingPipelinePass& operator=(LightingPipelinePass&&) = delete;
 
+			static std::string GetShaderName(const ParameterList& parameters);
+
 		private:
 			void SetupMeshes();
-			void SetupPipelineLayouts(RenderDevice& renderDevice);
-			void SetupPipelines(RenderDevice& renderDevice);
+			void SetupPipelineLayouts(RenderDevice& renderDevice, const std::string& shaderName);
+			void SetupPipelines(RenderDevice& renderDevice, std::string&& shaderName);
 
 			struct LightBlockMemory
 			{
@@ -93,11 +96,16 @@ namespace Nz
 			std::shared_ptr<UberShader> m_lightingShader;
 			std::shared_ptr<UberShader> m_meshStencilShader;
 			std::size_t m_lastVisibilityHash;
+			std::string m_passName;
 			std::vector<LightBlock> m_directionalLights;
 			std::vector<LightBlock> m_pointLights;
 			std::vector<LightBlock> m_spotLights;
 			EnumArray<BasicLightType, std::shared_ptr<RenderPipeline>> m_lightingPipelines;
 			EnumArray<BasicLightType, std::shared_ptr<RenderPipeline>> m_stencilPipelines;
+			FixedVector<UInt32, 8> m_gbufferBindingIndices;
+			UInt32 m_depthMapBindingIndex;
+			UInt32 m_lightDataBindingIndex;
+			UInt32 m_viewerDataBindingIndex;
 			ShaderBindingPtr m_commonShaderBinding;
 			AbstractViewer* m_viewer;
 			FramePipeline& m_pipeline;
