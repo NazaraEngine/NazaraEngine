@@ -110,6 +110,7 @@ namespace Nz
 	enum class MaterialInstancePreset
 	{
 		NoDepth,
+		ReverseZ,
 		Transparent,
 
 		Max = Transparent

@@ -287,6 +287,16 @@ namespace Nz
 			});
 		};
 
+		m_defaultMaterials.presetModifier[MaterialInstancePreset::ReverseZ] = [=](MaterialInstance& matInstance)
+		{
+			matInstance.UpdatePassesStates({ depthPassIndex, forwardPassIndex }, [](RenderStates& states)
+			{
+				states.depthCompare = RendererComparison::GreaterOrEqual;
+			});
+
+			// TODO: Reverse depth for shadow pass?
+		};
+
 		m_defaultMaterials.presetModifier[MaterialInstancePreset::Transparent] = [=](MaterialInstance& matInstance)
 		{
 			matInstance.DisablePass(depthPassIndex);
