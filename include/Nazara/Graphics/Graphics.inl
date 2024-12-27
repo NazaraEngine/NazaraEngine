@@ -2,7 +2,6 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-
 namespace Nz
 {
 	inline const std::shared_ptr<RenderPipeline>& Graphics::GetBlitPipeline(bool transparent) const
@@ -13,11 +12,6 @@ namespace Nz
 	inline const std::shared_ptr<RenderPipelineLayout>& Graphics::GetBlitPipelineLayout() const
 	{
 		return m_blitPipelineLayout;
-	}
-
-	inline auto Graphics::GetDefaultMaterials() const -> const DefaultMaterials&
-	{
-		return m_defaultMaterials;
 	}
 
 	inline const std::shared_ptr<PipelinePassList>& Graphics::GetDefaultPipelinePasses() const
@@ -124,6 +118,11 @@ namespace Nz
 	inline const std::shared_ptr<nzsl::FilesystemModuleResolver>& Graphics::GetShaderModuleResolver() const
 	{
 		return m_shaderModuleResolver;
+	}
+
+	inline auto Graphics::GetDefaultMaterials() -> DefaultMaterials&
+	{
+		return m_defaultMaterials;
 	}
 }
 

@@ -53,6 +53,8 @@ namespace Nz
 			MaterialInstance(MaterialInstance&&) = delete;
 			~MaterialInstance();
 
+			void ApplyPreset(MaterialInstancePresetFlags presetFlags);
+
 			inline std::shared_ptr<MaterialInstance> Clone() const;
 
 			void DisablePass(std::string_view passName);
@@ -127,11 +129,11 @@ namespace Nz
 			static constexpr std::size_t InvalidPropertyIndex = MaterialSettings::InvalidPropertyIndex;
 
 			static std::shared_ptr<MaterialInstance> Build(const ParameterList& materialData);
-			static std::shared_ptr<MaterialInstance> GetDefault(MaterialType materialType, MaterialInstancePreset preset = MaterialInstancePreset::Default);
+			static std::shared_ptr<MaterialInstance> GetDefault(MaterialType materialType, MaterialInstancePresetFlags presetFlags = {});
 			static std::shared_ptr<MaterialInstance> LoadFromFile(const std::filesystem::path& filePath, const MaterialInstanceParams& params = MaterialInstanceParams());
 			static std::shared_ptr<MaterialInstance> LoadFromMemory(const void* data, std::size_t size, const MaterialInstanceParams& params = MaterialInstanceParams());
 			static std::shared_ptr<MaterialInstance> LoadFromStream(Stream& stream, const MaterialInstanceParams& params = MaterialInstanceParams());
-			static std::shared_ptr<MaterialInstance> Instantiate(MaterialType materialType, MaterialInstancePreset preset = MaterialInstancePreset::Default);
+			static std::shared_ptr<MaterialInstance> Instantiate(MaterialType materialType, MaterialInstancePresetFlags presetFlags = {});
 
 			NazaraSignal(OnMaterialInstancePipelineInvalidated, const MaterialInstance* /*matInstance*/, std::size_t /*passIndex*/);
 			NazaraSignal(OnMaterialInstanceShaderBindingInvalidated, const MaterialInstance* /*matInstance*/);

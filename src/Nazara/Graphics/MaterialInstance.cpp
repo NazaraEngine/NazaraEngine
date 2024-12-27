@@ -129,6 +129,13 @@ namespace Nz
 		}
 	}
 
+	void MaterialInstance::ApplyPreset(MaterialInstancePresetFlags presetFlags)
+	{
+		auto& defaultMaterials = Graphics::Instance()->GetDefaultMaterials();
+		for (MaterialInstancePreset presetFlag : presetFlags)
+			defaultMaterials.presetModifier[presetFlag](*this);
+	}
+
 	void MaterialInstance::DisablePass(std::string_view passName)
 	{
 		std::size_t passIndex = Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex(passName);
@@ -436,7 +443,7 @@ namespace Nz
 				NazaraWarning("unknown material type: {}", valueStr);
 		}
 
-		std::shared_ptr<MaterialInstance> matInstance = Instantiate(matType, MaterialInstancePreset::Default);
+		std::shared_ptr<MaterialInstance> matInstance = Instantiate(matType);
 
 		auto ConvertBool = [&](const char* paramKey, std::string_view matKey)
 		{
@@ -517,12 +524,33 @@ namespace Nz
 		return matInstance;
 	}
 
-	std::shared_ptr<MaterialInstance> MaterialInstance::GetDefault(MaterialType materialType, MaterialInstancePreset preset)
+	std::shared_ptr<MaterialInstance> MaterialInstance::GetDefault(MaterialType materialType, MaterialInstancePresetFlags presetFlags)
 	{
 		Graphics* graphics = Graphics::Instance();
 		NazaraAssertMsg(graphics, "Core module has not been initialized");
 
-		return graphics->GetDefaultMaterials().materials[materialType].presets[preset];
+		std::size_t cacheKey = static_cast<std::size_t>(presetFlags);
+
+		auto& defaultMaterials = graphics->GetDefaultMaterials();
+		auto& materialData = defaultMaterials.materials[materialType];
+		if (materialData.presetCache[cacheKey])
+			return materialData.presetCache[cacheKey];
+
+		std::shared_ptr<MaterialInstance> matInstance;
+		if (presetFlags.Count() == 0)
+		{
+			// No flag, just get the default mat instance
+			matInstance = materialData.material->GetDefaultInstance();
+		}
+		else
+		{
+			// Build a new instance
+			matInstance = materialData.material->Instantiate();
+			matInstance->ApplyPreset(presetFlags);
+		}
+		materialData.presetCache[cacheKey] = matInstance;
+
+		return matInstance;
 	}
 
 	std::shared_ptr<MaterialInstance> MaterialInstance::LoadFromFile(const std::filesystem::path& filePath, const MaterialInstanceParams& params)
@@ -549,8 +577,8 @@ namespace Nz
 		return graphics->GetMaterialInstanceLoader().LoadFromStream(stream, params);
 	}
 
-	std::shared_ptr<MaterialInstance> MaterialInstance::Instantiate(MaterialType materialType, MaterialInstancePreset preset)
+	std::shared_ptr<MaterialInstance> MaterialInstance::Instantiate(MaterialType materialType, MaterialInstancePresetFlags presetFlags)
 	{
-		return GetDefault(materialType, preset)->Clone();
+		return GetDefault(materialType, presetFlags)->Clone();
 	}
 }

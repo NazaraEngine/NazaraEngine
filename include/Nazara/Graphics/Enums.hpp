@@ -109,12 +109,21 @@ namespace Nz
 
 	enum class MaterialInstancePreset
 	{
-		Default,
 		NoDepth,
 		Transparent,
 
 		Max = Transparent
 	};
+
+	template<>
+	struct EnumAsFlags<MaterialInstancePreset>
+	{
+		static constexpr MaterialInstancePreset max = MaterialInstancePreset::Max;
+	};
+
+	using MaterialInstancePresetFlags = Flags<MaterialInstancePreset>;
+
+	constexpr std::size_t MaterialInstancePresetFlags_ValueCount = 1u << (static_cast<std::size_t>(MaterialInstancePreset::Max) + 1);
 
 	enum class MaterialType
 	{

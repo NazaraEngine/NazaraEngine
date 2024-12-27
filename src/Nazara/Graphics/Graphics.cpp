@@ -277,35 +277,33 @@ namespace Nz
 			m_defaultMaterials.materials[MaterialType::Phong].material = std::make_shared<Material>(std::move(settings), "PhongMaterial");
 		}
 
-		for (auto&& [materialType, materialData] : m_defaultMaterials.materials.iter_kv())
+		m_defaultMaterials.presetModifier[MaterialInstancePreset::NoDepth] = [=](MaterialInstance& matInstance)
 		{
-			materialData.presets[MaterialInstancePreset::Default] = materialData.material->GetDefaultInstance();
-
-			materialData.presets[MaterialInstancePreset::NoDepth] = materialData.material->Instantiate();
-			materialData.presets[MaterialInstancePreset::NoDepth]->DisablePass(depthPassIndex);
-			materialData.presets[MaterialInstancePreset::NoDepth]->DisablePass(shadowPassIndex);
-			materialData.presets[MaterialInstancePreset::NoDepth]->UpdatePassStates(forwardPassIndex, [](RenderStates& states)
+			matInstance.DisablePass(depthPassIndex);
+			matInstance.DisablePass(shadowPassIndex);
+			matInstance.UpdatePassStates(forwardPassIndex, [](RenderStates& states)
 			{
 				states.depthBuffer = false;
 			});
+		};
 
-			materialData.presets[MaterialInstancePreset::Transparent] = materialData.material->Instantiate();
-			materialData.presets[MaterialInstancePreset::Transparent]->DisablePass(depthPassIndex);
-			materialData.presets[MaterialInstancePreset::Transparent]->DisablePass(shadowPassIndex);
-			materialData.presets[MaterialInstancePreset::Transparent]->UpdatePassFlags(forwardPassIndex, MaterialPassFlag::SortByDistance);
-			materialData.presets[MaterialInstancePreset::Transparent]->UpdatePassStates(forwardPassIndex, [](RenderStates& renderStates)
+		m_defaultMaterials.presetModifier[MaterialInstancePreset::Transparent] = [=](MaterialInstance& matInstance)
+		{
+			matInstance.DisablePass(depthPassIndex);
+			matInstance.DisablePass(shadowPassIndex);
+			matInstance.UpdatePassFlags(forwardPassIndex, MaterialPassFlag::SortByDistance);
+			matInstance.UpdatePassStates(forwardPassIndex, [](RenderStates& states)
 			{
-				renderStates.depthBuffer = true;
-				renderStates.depthWrite = false;
-				renderStates.blending = true;
-				renderStates.blend.modeColor = BlendEquation::Add;
-				renderStates.blend.modeAlpha = BlendEquation::Add;
-				renderStates.blend.srcColor = BlendFunc::SrcAlpha;
-				renderStates.blend.dstColor = BlendFunc::InvSrcAlpha;
-				renderStates.blend.srcAlpha = BlendFunc::One;
-				renderStates.blend.dstAlpha = BlendFunc::One;
+				states.depthWrite = false;
+				states.blending = true;
+				states.blend.modeColor = BlendEquation::Add;
+				states.blend.modeAlpha = BlendEquation::Add;
+				states.blend.srcColor = BlendFunc::SrcAlpha;
+				states.blend.dstColor = BlendFunc::InvSrcAlpha;
+				states.blend.srcAlpha = BlendFunc::One;
+				states.blend.dstAlpha = BlendFunc::One;
 			});
-		}
+		};
 	}
 
 	void Graphics::BuildDefaultPipelinePasses()

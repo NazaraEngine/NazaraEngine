@@ -34,6 +34,8 @@ namespace Nz
 	class NAZARA_GRAPHICS_API Graphics : public ModuleBase<Graphics>
 	{
 		friend ModuleBase;
+		friend Material;
+		friend MaterialInstance;
 
 		public:
 			using Dependencies = TypeList<Renderer, TextRenderer>;
@@ -47,7 +49,6 @@ namespace Nz
 
 			inline const std::shared_ptr<RenderPipeline>& GetBlitPipeline(bool transparent) const;
 			inline const std::shared_ptr<RenderPipelineLayout>& GetBlitPipelineLayout() const;
-			inline const DefaultMaterials& GetDefaultMaterials() const;
 			inline const std::shared_ptr<PipelinePassList>& GetDefaultPipelinePasses() const;
 			inline const DefaultTextures& GetDefaultTextures() const;
 			inline FramePipelinePassRegistry& GetFramePipelinePassRegistry();
@@ -82,10 +83,13 @@ namespace Nz
 			{
 				struct MaterialData
 				{
+					std::array<std::shared_ptr<MaterialInstance>, MaterialInstancePresetFlags_ValueCount> presetCache;
 					std::shared_ptr<Material> material;
-					EnumArray<MaterialInstancePreset, std::shared_ptr<MaterialInstance>> presets;
 				};
 
+				using PresetModifier = std::function<void(MaterialInstance& matInstance)>;
+
+				EnumArray<MaterialInstancePreset, PresetModifier> presetModifier;
 				EnumArray<MaterialType, MaterialData> materials;
 			};
 
@@ -96,6 +100,8 @@ namespace Nz
 			};
 
 		private:
+			inline DefaultMaterials& GetDefaultMaterials();
+
 			void BuildBlitPipeline();
 			void BuildDefaultMaterials();
 			void BuildDefaultPipelinePasses();
