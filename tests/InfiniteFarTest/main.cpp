@@ -66,6 +66,7 @@ int main()
 	std::shared_ptr<Nz::PipelinePassList> reverseDepthPipelinePass = Nz::PipelinePassList::LoadFromFile(assetDir / "passes/reversedepth.passlist");
 
 	Nz::Camera camera(std::make_shared<Nz::RenderWindow>(windowSwapchain), std::move(reverseDepthPipelinePass));
+	camera.EnableInfiniteZFar(true);
 	camera.EnableReversedZ(true);
 	camera.UpdateClearColor(Nz::Color::Gray());
 	camera.UpdateClearDepth(0.f);

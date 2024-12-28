@@ -430,7 +430,7 @@ namespace Nz
 	template<typename T>
 	constexpr bool Frustum<T>::HasInfiniteFarPlane() const
 	{
-		return m_planes[FrustumPlane::Far].distance < m_planes[FrustumPlane::Near].distance;
+		return IsInfinity(m_planes[FrustumPlane::Far].distance);
 	}
 
 	template<typename T>
@@ -496,6 +496,11 @@ namespace Nz
 		return ss.str();
 	}
 
+	template<typename T>
+	constexpr void Frustum<T>::UpdateFarPlaneDistance(T nearDistance, T farDistance)
+	{
+		m_planes[FrustumPlane::Far].distance = -m_planes[FrustumPlane::Near].distance - nearDistance + farDistance;
+	}
 
 	/*!
 	* \brief Builds the frustum object
@@ -620,8 +625,16 @@ namespace Nz
 		if (isZReversed)
 			std::swap(planes[FrustumPlane::Near], planes[FrustumPlane::Far]);
 
+		bool hasInfiniteFar = planes[FrustumPlane::Far].normal.ApproxEqual(Nz::Vector3f::Zero(), 0.0001f);
+
 		for (auto& plane : planes)
 			plane.Normalize();
+
+		if (hasInfiniteFar)
+		{
+			planes[FrustumPlane::Far].normal = -planes[FrustumPlane::Near].normal;
+			planes[FrustumPlane::Far].distance = Infinity();
+		}
 
 		return Frustum(planes);
 	}

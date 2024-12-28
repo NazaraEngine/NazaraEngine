@@ -14,6 +14,7 @@ namespace Nz
 	m_viewport(0, 0, 0, 0),
 	m_size(-1.f, -1.f),
 	m_renderMask(0xFFFFFFFF),
+	m_isInfiniteFarEnabled(false),
 	m_isReversedZEnabled(false),
 	m_clearDepth(1.f),
 	m_zFar((projectionType == ProjectionType::Perspective) ? 1000.f : 1.f),
@@ -32,6 +33,7 @@ namespace Nz
 	m_viewport(camera.m_viewport),
 	m_size(camera.m_size),
 	m_renderMask(camera.m_renderMask),
+	m_isInfiniteFarEnabled(camera.m_isInfiniteFarEnabled),
 	m_isReversedZEnabled(camera.m_isReversedZEnabled),
 	m_aspectRatio(camera.m_aspectRatio),
 	m_clearDepth(camera.m_clearDepth),
@@ -52,6 +54,7 @@ namespace Nz
 	m_viewport(camera.m_viewport),
 	m_size(camera.m_size),
 	m_renderMask(camera.m_renderMask),
+	m_isInfiniteFarEnabled(camera.m_isInfiniteFarEnabled),
 	m_isReversedZEnabled(camera.m_isReversedZEnabled),
 	m_aspectRatio(camera.m_aspectRatio),
 	m_clearDepth(camera.m_clearDepth),
@@ -59,6 +62,15 @@ namespace Nz
 	m_zNear(camera.m_zNear)
 	{
 		UpdateTarget(std::move(camera.m_renderTarget));
+	}
+
+	inline void Camera::EnableInfiniteZFar(bool enable)
+	{
+		if (m_isInfiniteFarEnabled == enable)
+			return;
+
+		m_isInfiniteFarEnabled = enable;
+		UpdateProjectionMatrix();
 	}
 
 	inline void Camera::EnableReversedZ(bool enable)
@@ -110,6 +122,11 @@ namespace Nz
 		return m_zNear;
 	}
 
+	inline bool Camera::IsInfiniteZFarEnabled() const
+	{
+		return m_isInfiniteFarEnabled;
+	}
+
 	inline bool Camera::IsReversedZEnabled() const
 	{
 		return m_isReversedZEnabled;
@@ -156,6 +173,7 @@ namespace Nz
 		m_viewport = camera.m_viewport;
 		m_size = camera.m_size;
 		m_renderMask = camera.m_renderMask;
+		m_isInfiniteFarEnabled = camera.m_isInfiniteFarEnabled;
 		m_isReversedZEnabled = camera.m_isReversedZEnabled;
 		m_aspectRatio = camera.m_aspectRatio;
 		m_clearDepth = camera.m_clearDepth;
@@ -183,6 +201,7 @@ namespace Nz
 		m_viewport = camera.m_viewport;
 		m_size = camera.m_size;
 		m_renderMask = camera.m_renderMask;
+		m_isInfiniteFarEnabled = camera.m_isInfiniteFarEnabled;
 		m_isReversedZEnabled = camera.m_isReversedZEnabled;
 		m_aspectRatio = camera.m_aspectRatio;
 		m_clearDepth = camera.m_clearDepth;
@@ -255,7 +274,9 @@ namespace Nz
 	{
 		float zNear = m_zNear;
 		float zFar = m_zFar;
-		if (m_isReversedZEnabled && !IsInfinity(zFar))
+		if (m_isInfiniteFarEnabled)
+			zFar = Infinity();
+		else if (m_isReversedZEnabled)
 			std::swap(zNear, zFar);
 
 		switch (m_projectionType)

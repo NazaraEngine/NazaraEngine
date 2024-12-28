@@ -64,6 +64,8 @@ namespace Nz
 
 			std::string ToString() const;
 
+			constexpr void UpdateFarPlaneDistance(T nearDistance, T farDistance);
+
 			constexpr bool operator==(const Frustum& angles) const;
 			constexpr bool operator!=(const Frustum& angles) const;
 

@@ -34,6 +34,7 @@ namespace Nz
 
 			std::vector<std::unique_ptr<FramePipelinePass>> BuildPasses(FramePipelinePass::PassData& passData) const override;
 
+			inline void EnableInfiniteZFar(bool enable);
 			inline void EnableReversedZ(bool enable);
 
 			inline float GetAspectRatio() const;
@@ -52,6 +53,7 @@ namespace Nz
 			inline float GetZFar() const;
 			inline float GetZNear() const;
 
+			inline bool IsInfiniteZFarEnabled() const;
 			inline bool IsReversedZEnabled() const;
 			bool IsZReversed() const override;
 
@@ -95,6 +97,7 @@ namespace Nz
 			Vector2f m_size;
 			ViewerInstance m_viewerInstance;
 			UInt32 m_renderMask;
+			bool m_isInfiniteFarEnabled;
 			bool m_isReversedZEnabled;
 			float m_aspectRatio;
 			float m_clearDepth;

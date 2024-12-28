@@ -414,7 +414,7 @@ namespace Nz
 		{
 			// Extract frustum from viewproj matrix
 			const Matrix4f& viewProjMatrix = viewerData->viewer->GetViewerInstance().GetViewProjMatrix();
-			viewerData->frame.frustum = Frustumf::Extract(viewProjMatrix);
+			viewerData->frame.frustum = Frustumf::Extract(viewProjMatrix, viewerData->viewer->IsZReversed());
 
 			viewerData->frame.visibleLights.Clear();
 			for (auto it = m_lightPool.begin(); it != m_lightPool.end(); ++it)

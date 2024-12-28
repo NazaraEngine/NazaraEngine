@@ -9,7 +9,6 @@
 #include <Nazara/Graphics/FramePipeline.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Math/Quaternion.hpp>
-#include <Nazara/Math/Sphere.hpp>
 #include <NazaraUtils/Algorithm.hpp>
 #include <NazaraUtils/StackArray.hpp>
 #include <NazaraUtils/StackVector.hpp>
@@ -80,6 +79,9 @@ namespace Nz
 		StackVector<float> frustumDists = NazaraStackVector(float, m_cascadeCount);
 
 		Frustumf frustum = Frustumf::Extract(viewProjMatrix, viewer->IsZReversed());
+		if (frustum.HasInfiniteFarPlane())
+			frustum.UpdateFarPlaneDistance(nearPlane, farPlane);
+
 		frustum.Split(cascadeSplits.data(), m_cascadeCount - 1, [&](float zNearPct, float zFarPct)
 		{
 			frustums.push_back(frustum.Reduce(zNearPct, zFarPct));
