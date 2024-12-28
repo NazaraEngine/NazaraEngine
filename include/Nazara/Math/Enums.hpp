@@ -53,14 +53,15 @@ namespace Nz
 
 	enum class FrustumPlane
 	{
-		Bottom,
-		Far,
-		Left,
-		Near,
-		Right,
-		Top,
+		// Use indices to put the far plane at the end (to handle infinite far plane)
+		Bottom = 2,
+		Far = 5,
+		Left = 0,
+		Near = 4,
+		Right = 1,
+		Top = 3,
 
-		Max = Top
+		Max = Far
 	};
 
 	constexpr std::size_t FrustumPlaneCount = UnderlyingCast(FrustumPlane::Max) + 1;

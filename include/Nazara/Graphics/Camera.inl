@@ -255,7 +255,7 @@ namespace Nz
 	{
 		float zNear = m_zNear;
 		float zFar = m_zFar;
-		if (m_isReversedZEnabled)
+		if (m_isReversedZEnabled && !IsInfinity(zFar))
 			std::swap(zNear, zFar);
 
 		switch (m_projectionType)

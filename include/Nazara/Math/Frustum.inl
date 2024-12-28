@@ -68,6 +68,8 @@ namespace Nz
 	template<typename T>
 	constexpr Vector3<T> Frustum<T>::ComputeCorner(BoxCorner corner) const
 	{
+		NazaraAssertMsg(!HasInfiniteFarPlane(), "an infinite frustum doesn't have corners");
+
 		switch (corner)
 		{
 			case BoxCorner::LeftBottomFar:   return Plane<T>::Intersect(GetPlane(FrustumPlane::Far),  GetPlane(FrustumPlane::Left),  GetPlane(FrustumPlane::Bottom));
@@ -160,17 +162,14 @@ namespace Nz
 		Vector3<T> center = box.GetCenter();
 		Vector3<T> extents = box.GetLengths() * T(0.5);
 
-		for (const auto& plane : m_planes)
+		return TestEachPlane([&](const Plane<T>& plane)
 		{
 			Vector3<T> projectedExtents = extents * plane.normal.GetAbs();
 			float radius = projectedExtents.x + projectedExtents.y + projectedExtents.z;
 
 			float distance = plane.SignedDistance(center);
-			if (distance < T(radius))
-				return false;
-		}
-
-		return true;
+			return distance >= T(radius);
+		});
 	}
 
 	/*!
@@ -194,13 +193,10 @@ namespace Nz
 	template<typename T>
 	constexpr bool Frustum<T>::Contains(const Sphere<T>& sphere) const
 	{
-		for (const auto& plane : m_planes)
+		return TestEachPlane([&](const Plane<T>& plane)
 		{
-			if (plane.SignedDistance(sphere.GetPosition()) < -sphere.radius)
-				return false;
-		}
-
-		return true;
+			return plane.SignedDistance(sphere.GetPosition()) >= -sphere.radius;
+		});
 	}
 
 	/*!
@@ -212,13 +208,10 @@ namespace Nz
 	template<typename T>
 	constexpr bool Frustum<T>::Contains(const Vector3<T>& point) const
 	{
-		for (const auto& plane : m_planes)
+		return TestEachPlane([&](const Plane<T>& plane)
 		{
-			if (plane.SignedDistance(point) < T(0.0))
-				return false;
-		}
-
-		return true;
+			return plane.SignedDistance(point) >= T(0.0);
+		});
 	}
 
 	/*!
@@ -231,16 +224,16 @@ namespace Nz
 	template<typename T>
 	constexpr bool Frustum<T>::Contains(const Vector3<T>* points, std::size_t pointCount) const
 	{
-		for (const auto& plane : m_planes)
+		return TestEachPlane([&](const Plane<T>& plane)
 		{
 			for (std::size_t i = 0; i < pointCount; ++i)
 			{
 				if (plane.SignedDistance(points[i]) < T(0.0))
 					return false;
 			}
-		}
 
-		return true;
+			return true;
+		});
 	}
 
 	template<typename T>
@@ -337,12 +330,11 @@ namespace Nz
 	{
 		// https://gdbooks.gitbooks.io/3dcollisions/content/Chapter2/static_aabb_plane.html
 		// https://learnopengl.com/Guest-Articles/2021/Scene/Frustum-Culling
-		IntersectionSide side = IntersectionSide::Inside;
-
 		Vector3<T> center = box.GetCenter();
 		Vector3<T> extents = box.GetLengths() * T(0.5);
 
-		for (const auto& plane : m_planes)
+		IntersectionSide side = IntersectionSide::Inside;
+		TestEachPlane([&](const Plane<T>& plane)
 		{
 			Vector3<T> projectedExtents = extents * plane.normal.GetAbs();
 			float radius = projectedExtents.x + projectedExtents.y + projectedExtents.z;
@@ -350,10 +342,15 @@ namespace Nz
 			float distance = plane.SignedDistance(center);
 
 			if (distance < T(-radius))
-				return IntersectionSide::Outside;
+			{
+				side = IntersectionSide::Outside;
+				return false;
+			}
 			else if (distance < T(radius))
 				side = IntersectionSide::Intersecting;
-		}
+
+			return true;
+		});
 
 		return side;
 	}
@@ -405,8 +402,7 @@ namespace Nz
 	constexpr IntersectionSide Frustum<T>::Intersect(const Vector3<T>* points, std::size_t pointCount) const
 	{
 		IntersectionSide side = IntersectionSide::Inside;
-
-		for (const auto& plane : m_planes)
+		TestEachPlane([&](const Plane<T>& plane)
 		{
 			bool outside = true;
 			for (std::size_t i = 0; i < pointCount; ++i)
@@ -420,15 +416,28 @@ namespace Nz
 
 			// But if no point is intersecting on this plane, then it's outside
 			if (outside)
-				return IntersectionSide::Outside;
-		}
+			{
+				side = IntersectionSide::Outside;
+				return false;
+			}
+
+			return true;
+		});
 
 		return side;
 	}
 
 	template<typename T>
+	constexpr bool Frustum<T>::HasInfiniteFarPlane() const
+	{
+		return m_planes[FrustumPlane::Far].distance < m_planes[FrustumPlane::Near].distance;
+	}
+
+	template<typename T>
 	constexpr Frustum<T> Frustum<T>::Reduce(T nearFactor, T farFactor) const
 	{
+		NazaraAssertMsg(!HasInfiniteFarPlane(), "an infinite frustum cannot be reduced");
+
 		EnumArray<FrustumPlane, Plane<T>> planes = m_planes;
 		planes[FrustumPlane::Near].distance = Lerp(m_planes[FrustumPlane::Near].distance, -m_planes[FrustumPlane::Far].distance, nearFactor);
 		planes[FrustumPlane::Far].distance = Lerp(-m_planes[FrustumPlane::Near].distance, m_planes[FrustumPlane::Far].distance, farFactor);
@@ -447,6 +456,8 @@ namespace Nz
 	template<typename F>
 	constexpr void Frustum<T>::Split(const T* splitFactors, std::size_t factorCount, F&& callback) const
 	{
+		NazaraAssertMsg(!HasInfiniteFarPlane(), "an infinite frustum cannot be reduced");
+
 		T previousFar = T(0.0);
 		for (std::size_t i = 0; i < factorCount; ++i)
 		{
@@ -458,6 +469,20 @@ namespace Nz
 		callback(previousFar, T(1.0));
 	}
 
+	template<typename T>
+	template<typename F>
+	constexpr bool Frustum<T>::TestEachPlane(F&& callback) const
+	{
+		std::size_t planeCount = (HasInfiniteFarPlane()) ? 5 : 6;
+		for (std::size_t i = 0; i < planeCount; ++i)
+		{
+			const auto& plane = m_planes[static_cast<FrustumPlane>(i)];
+			if (!callback(plane))
+				return false;
+		}
+
+		return true;
+	}
 	/*!
 	* \brief Gives a string representation
 	* \return A string representation of the object: "Frustum(Plane ...)"

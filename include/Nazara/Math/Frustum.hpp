@@ -53,10 +53,14 @@ namespace Nz
 			constexpr IntersectionSide Intersect(const Sphere<T>& sphere) const;
 			constexpr IntersectionSide Intersect(const Vector3<T>* points, std::size_t pointCount) const;
 
+			constexpr bool HasInfiniteFarPlane() const;
+
 			constexpr Frustum<T> Reduce(T nearFactor, T farFactor) const;
 
 			template<typename F> constexpr void Split(std::initializer_list<T> splitFactors, F&& callback) const;
 			template<typename F> constexpr void Split(const T* splitFactors, std::size_t factorCount, F&& callback) const;
+
+			template<typename F> constexpr bool TestEachPlane(F&& callback) const;
 
 			std::string ToString() const;
 

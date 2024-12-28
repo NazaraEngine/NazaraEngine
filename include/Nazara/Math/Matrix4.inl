@@ -1216,12 +1216,25 @@ namespace Nz
 
 		T yScale = angle.GetTan();
 
-		return Matrix4(
-			T(1.0) / (ratio * yScale), T(0.0),             T(0.0),                          T(0.0),
-			T(0.0),                    T(-1.0) / (yScale), T(0.0),                          T(0.0),
-			T(0.0),                    T(0.0),             zFar / (zNear - zFar),           T(-1.0),
-			T(0.0),                    T(0.0),            -(zNear * zFar) / (zFar - zNear), T(0.0)
-		);
+		if (IsInfinity(zFar))
+		{
+			// We assume reverse Z
+			return Matrix4(
+				T(1.0) / (ratio * yScale), T(0.0),             T(0.0),   T(0.0),
+				T(0.0),                    T(-1.0) / (yScale), T(0.0),   T(0.0),
+				T(0.0),                    T(0.0),             T(0.0),   T(-1.0),
+				T(0.0),                    T(0.0),             T(zNear), T(0.0)
+			);
+		}
+		else
+		{
+			return Matrix4(
+				T(1.0) / (ratio * yScale), T(0.0),             T(0.0),                          T(0.0),
+				T(0.0),                    T(-1.0) / (yScale), T(0.0),                          T(0.0),
+				T(0.0),                    T(0.0),             zFar / (zNear - zFar),           T(-1.0),
+				T(0.0),                    T(0.0),            -(zNear * zFar) / (zFar - zNear), T(0.0)
+			);
+		}
 	}
 
 	/*!
