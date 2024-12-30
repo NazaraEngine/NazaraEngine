@@ -92,6 +92,37 @@ namespace Nz
 		}
 	}
 
+	void DebugDrawer::DrawSphere(const Spheref& sphere, const Color& color)
+	{
+		constexpr unsigned int sliceCount = 20;
+
+		std::array rotations = {
+			Quaternionf::Identity(),
+			Quaternionf(TurnAnglef(0.25f), Vector3f::UnitX()),
+			Quaternionf(TurnAnglef(0.25f), Vector3f::UnitZ())
+		};
+
+		for (const Quaternionf& rot : rotations)
+		{
+			Vector3f firstPos;
+			Vector3f lastPos;
+			for (unsigned int slice = 0; slice < sliceCount; ++slice)
+			{
+				auto [sin, cos] = RadianAnglef(Tau<float>() * slice / sliceCount).GetSinCos();
+
+				Vector3f pos = sphere.GetPosition() + sphere.radius * (rot * Vector3f(sin, 0.f, cos));
+				if (slice > 0)
+					DrawLine(lastPos, pos, color);
+				else
+					firstPos = pos;
+
+				lastPos = pos;
+			}
+
+			DrawLine(lastPos, firstPos, color);
+		}
+	}
+
 	void DebugDrawer::DrawSkeleton(const Skeleton& skeleton, const Color& color)
 	{
 		std::size_t jointCount = skeleton.GetJointCount();

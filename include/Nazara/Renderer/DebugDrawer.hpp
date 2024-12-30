@@ -13,6 +13,7 @@
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Math/Matrix4.hpp>
+#include <Nazara/Math/Sphere.hpp>
 #include <Nazara/Math/Vector3.hpp>
 #include <Nazara/Renderer/Export.hpp>
 #include <Nazara/Renderer/PredefinedShaderStructs.hpp>
@@ -47,6 +48,8 @@ namespace Nz
 			inline void DrawLine(const Vector3f& start, const Vector3f& end, const Color& color);
 			inline void DrawLine(const Vector3f& start, const Vector3f& end, const Color& startColor, const Color& endColor);
 			inline void DrawPoint(const Vector3f& point, const Color& color, float boxSize = 0.01f);
+			void DrawSphere(const Spheref& sphere, const Color& color);
+			inline void DrawSphere(const Vector3f& point, float radius, const Color& color);
 			void DrawSkeleton(const Skeleton& skeleton, const Color& color);
 
 			void Prepare(RenderResources& renderResources);

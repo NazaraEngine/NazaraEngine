@@ -66,5 +66,10 @@ namespace Nz
 	{
 		return DrawBox(Boxf(point - Vector3f(boxSize * 0.5f), Vector3f(boxSize)), color);
 	}
+
+	inline void DebugDrawer::DrawSphere(const Vector3f& point, float radius, const Color& color)
+	{
+		return DrawSphere(Spheref(point, radius), color);
+	}
 }
 
