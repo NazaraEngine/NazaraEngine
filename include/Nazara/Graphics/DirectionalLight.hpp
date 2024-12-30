@@ -11,8 +11,9 @@
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Graphics/Export.hpp>
 #include <Nazara/Graphics/Light.hpp>
-#include <Nazara/Math/Angle.hpp>
+#include <NazaraUtils/FixedVector.hpp>
 #include <memory>
+#include <span>
 
 namespace Nz
 {
@@ -26,6 +27,8 @@ namespace Nz
 
 			float ComputeContributionScore(const Frustumf& viewerFrustum) const override;
 
+			inline void EnableFixedShadowCascadSplit(bool enable);
+
 			bool FrustumCull(const Frustumf& viewerFrustum) const override;
 
 			std::unique_ptr<LightShadowData> InstanciateShadowData(FramePipeline& pipeline, ElementRendererRegistry& elementRegistry) const override;
@@ -35,12 +38,18 @@ namespace Nz
 			inline Color GetColor() const;
 			inline const Vector3f& GetDirection() const;
 			inline const Quaternionf& GetRotation() const;
+			inline float GetShadowCascadeSplitLambda() const;
+			inline std::span<const float> GetShadowCascadeFixedSplitFactors() const;
+
+			inline bool IsUsingFixedShadowCascadeSplit() const;
 
 			inline void UpdateAmbientFactor(float factor);
 			inline void UpdateColor(Color color);
 			inline void UpdateDiffuseFactor(float factor);
 			inline void UpdateDirection(const Vector3f& direction);
 			inline void UpdateRotation(const Quaternionf& rotation);
+			inline void UpdateShadowCascadeFixedSplitFactors(std::span<const float> splitFactors);
+			inline void UpdateShadowCascadeSplitLambda(float lambda);
 
 			void UpdateTransform(const Vector3f& position, const Quaternionf& rotation, const Vector3f& scale) override;
 
@@ -51,10 +60,13 @@ namespace Nz
 			inline void UpdateBoundingVolume();
 
 			Color m_color;
+			HybridVector<float, 8> m_fixedSplitFactors;
 			Quaternionf m_rotation;
 			Vector3f m_direction;
 			float m_ambientFactor;
 			float m_diffuseFactor;
+			float m_shadowCascadeSplitLambda;
+			bool m_shadowCascadeFixedSplit;
 	};
 }
 

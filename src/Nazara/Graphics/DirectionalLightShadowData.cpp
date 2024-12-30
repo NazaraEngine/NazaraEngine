@@ -58,21 +58,33 @@ namespace Nz
 		float nearPlane = viewerInstance.GetNearPlane();
 		float farPlane = viewerInstance.GetFarPlane();
 
-		// Calculate split depths based on view camera frustum
-		// Based on method presented in https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html
-		constexpr float lambda = 0.97f;
-
 		float ratio = farPlane / nearPlane;
 		float clipRange = farPlane - nearPlane;
 
 		StackArray<float> cascadeSplits = NazaraStackArrayNoInit(float, m_cascadeCount - 1);
-		for (uint32_t i = 0; i < m_cascadeCount - 1; i++)
+		if (m_light.IsUsingFixedShadowCascadeSplit())
 		{
-			float p = float(i + 1) / float(m_cascadeCount);
-			float log = nearPlane * std::pow(ratio, p);
-			float uniform = nearPlane + clipRange * p;
-			float d = lambda * (log - uniform) + uniform;
-			cascadeSplits[i] = (d - nearPlane) / clipRange;
+			std::span<const float> splitFactors = m_light.GetShadowCascadeFixedSplitFactors();
+			cascadeSplits.fill(1.f);
+
+			std::size_t splitCount = std::min(cascadeSplits.size(), splitFactors.size());
+			for (std::size_t i = 0; i < splitCount; ++i)
+				cascadeSplits[i] = splitFactors[i];
+		}
+		else
+		{
+			// Calculate split depths based on view camera frustum
+			// Based on method presented in https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html
+			float lambda = m_light.GetShadowCascadeSplitLambda();
+
+			for (std::size_t i = 0; i < m_cascadeCount - 1; i++)
+			{
+				float p = float(i + 1) / float(m_cascadeCount);
+				float log = nearPlane * std::pow(ratio, p);
+				float uniform = nearPlane + clipRange * p;
+				float d = lambda * (log - uniform) + uniform;
+				cascadeSplits[i] = (d - nearPlane) / clipRange;
+			}
 		}
 
 		StackVector<Frustumf> frustums = NazaraStackVector(Frustumf, m_cascadeCount);
