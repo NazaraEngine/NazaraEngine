@@ -91,12 +91,12 @@ namespace Nz
 	{
 		return {
 			ComputeCorner(BoxCorner::LeftBottomFar),
-			ComputeCorner(BoxCorner::LeftTopFar),
-			ComputeCorner(BoxCorner::RightBottomFar),
-			ComputeCorner(BoxCorner::RightTopFar),
 			ComputeCorner(BoxCorner::LeftBottomNear),
+			ComputeCorner(BoxCorner::LeftTopFar),
 			ComputeCorner(BoxCorner::LeftTopNear),
+			ComputeCorner(BoxCorner::RightBottomFar),
 			ComputeCorner(BoxCorner::RightBottomNear),
+			ComputeCorner(BoxCorner::RightTopFar),
 			ComputeCorner(BoxCorner::RightTopNear)
 		};
 	}
