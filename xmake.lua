@@ -229,7 +229,7 @@ if is_plat("wasm") then
 	rendererBackends.VulkanRenderer = nil
 end
 
-if not has_config("embed_rendererbackends", "static") then
+if not has_config("embed_rendererbackends", "static") and has_config("renderer") then
 	-- Register renderer backends as separate modules
 	for name, module in pairs(rendererBackends) do
 		if (modules[name] ~= nil) then
