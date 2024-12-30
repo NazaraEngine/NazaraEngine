@@ -355,8 +355,8 @@ int main(int argc, char* argv[])
 		{
 			auto& cameraComponent = cameraEntity.get<Nz::CameraComponent>();
 
-			Nz::Vector3f from = cameraComponent.Unproject({ float(event.x), float(event.y), 0.f });
-			Nz::Vector3f to = cameraComponent.Unproject({ float(event.x), float(event.y), 1.f });
+			Nz::Vector3f from = cameraComponent.UnprojectFromScreen({ float(event.x), float(event.y), 0.f });
+			Nz::Vector3f to = cameraComponent.UnprojectFromScreen({ float(event.x), float(event.y), 1.f });
 
 			Nz::Physics3DSystem::RaycastHit lastHitInfo;
 			auto callback = [&](const decltype(lastHitInfo)& hitInfo) -> std::optional<float>
@@ -383,8 +383,8 @@ int main(int argc, char* argv[])
 
 					grabbedObjectMove.Connect(eventHandler.OnMouseMoved, [&, distance = Nz::Vector3f::Distance(from, lastHitInfo.hitPosition)](const Nz::WindowEventHandler*, const Nz::WindowEvent::MouseMoveEvent& event)
 					{
-						Nz::Vector3f from = cameraComponent.Unproject({ float(event.x), float(event.y), 0.f });
-						Nz::Vector3f to = cameraComponent.Unproject({ float(event.x), float(event.y), 1.f });
+						Nz::Vector3f from = cameraComponent.UnprojectFromScreen({ float(event.x), float(event.y), 0.f });
+						Nz::Vector3f to = cameraComponent.UnprojectFromScreen({ float(event.x), float(event.y), 1.f });
 
 						Nz::Vector3f newPosition = from + (to - from).Normalize() * distance;
 						grabConstraint->SetPosition(newPosition);

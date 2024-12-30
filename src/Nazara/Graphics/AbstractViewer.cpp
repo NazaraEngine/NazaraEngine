@@ -10,7 +10,7 @@ namespace Nz
 {
 	AbstractViewer::~AbstractViewer() = default;
 
-	Vector3f AbstractViewer::Project(const Vector3f& worldPos) const
+	Vector3f AbstractViewer::ProjectToClipspace(const Vector3f& worldPos) const
 	{
 		const Matrix4f& viewProj = GetViewerInstance().GetViewProjMatrix();
 
@@ -19,6 +19,12 @@ namespace Nz
 		clipspace.y = clipspace.y / clipspace.w;
 		clipspace.z = clipspace.z / clipspace.w;
 
+		return Vector3f(clipspace);
+	}
+
+	Vector3f AbstractViewer::ProjectToScreen(const Vector3f& worldPos) const
+	{
+		Vector3f clipspace = ProjectToClipspace(worldPos);
 		Vector2f screenSize = Vector2f(GetRenderTarget().GetSize());
 
 		Vector3f screenSpace;
@@ -29,21 +35,25 @@ namespace Nz
 		return screenSpace;
 	}
 
-	Vector3f AbstractViewer::Unproject(const Vector3f& screenPos) const
+	Vector3f AbstractViewer::UnprojectFromClipspace(const Vector3f& clipSpace) const
+	{
+		// Clip space => projection space => view space => world space
+		const Matrix4f& inverseViewProj = GetViewerInstance().GetInvViewProjMatrix();
+
+		Vector4f unproj = inverseViewProj * Vector4f(clipSpace, 1.f);
+		return Vector3f(unproj.x, unproj.y, unproj.z) / unproj.w;
+	}
+
+	Vector3f AbstractViewer::UnprojectFromScreen(const Vector3f& screenPos) const
 	{
 		Vector2f screenSize = Vector2f(GetRenderTarget().GetSize());
 
 		// Screen space => clip space
-		Vector4f clipSpace;
+		Vector3f clipSpace;
 		clipSpace.x = screenPos.x / screenSize.x * 2.f - 1.f;
 		clipSpace.y = screenPos.y / screenSize.y * 2.f - 1.f;
 		clipSpace.z = screenPos.z;
-		clipSpace.w = 1.f;
 
-		// Clip space => projection space => view space => world space
-		const Matrix4f& inverseViewProj = GetViewerInstance().GetInvViewProjMatrix();
-
-		Vector4f unproj = inverseViewProj * clipSpace;
-		return Vector3f(unproj.x, unproj.y, unproj.z) / unproj.w;
+		return UnprojectFromClipspace(clipSpace);
 	}
 }

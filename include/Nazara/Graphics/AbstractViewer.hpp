@@ -36,9 +36,11 @@ namespace Nz
 
 			virtual bool IsZReversed() const = 0;
 
-			Vector3f Project(const Vector3f& worldPos) const;
+			Vector3f ProjectToClipspace(const Vector3f& worldPos) const;
+			Vector3f ProjectToScreen(const Vector3f& worldPos) const;
 
-			Vector3f Unproject(const Vector3f& screenPos) const;
+			Vector3f UnprojectFromClipspace(const Vector3f& clipSpace) const;
+			Vector3f UnprojectFromScreen(const Vector3f& screenPos) const;
 
 			NazaraSignal(OnRenderMaskUpdated, AbstractViewer* /*viewer*/, UInt32 /*newRenderMask*/);
 	};
