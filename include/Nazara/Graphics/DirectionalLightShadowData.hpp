@@ -37,7 +37,7 @@ namespace Nz
 			inline void GetCascadeData(const AbstractViewer* viewer, SparsePtr<float> distance, SparsePtr<Matrix4f> viewProjMatrix) const;
 			inline float GetDepthPlaneFactor() const;
 
-			inline bool IsShadowStabilization() const;
+			inline bool IsShadowStabilizationEnabled() const;
 
 			void PrepareRendering(RenderResources& renderResources, const AbstractViewer* viewer) override;
 

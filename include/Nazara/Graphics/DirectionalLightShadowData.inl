@@ -36,7 +36,7 @@ namespace Nz
 		return m_depthPlaneFactor;
 	}
 
-	inline bool DirectionalLightShadowData::IsShadowStabilization() const
+	inline bool DirectionalLightShadowData::IsShadowStabilizationEnabled() const
 	{
 		return m_isShadowStabilizationEnabled;
 	}
