@@ -111,7 +111,7 @@ namespace Nz
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
-		return s_vendorNames[m_cpuVendor];
+		return (m_cpuVendor != ProcessorVendor::Unknown) ? s_vendorNames[m_cpuVendor] : "Unknown";
 	}
 
 	void HardwareInfo::Cpuid(UInt32 functionId, UInt32 subFunctionId, UInt32 result[4])
