@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Full Cycle Games
+// Copyright (C) 2025 Full Cycle Games
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 

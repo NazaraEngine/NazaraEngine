@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
+// Copyright (C) 2025 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
@@ -153,7 +153,7 @@ namespace Nz
 			throw std::runtime_error("expected depth-stencil output");
 
 		FramePass& forwardPass = frameGraph.AddPass(m_passName);
-		
+
 		for (auto&& outputData : inputOuputs.outputAttachments)
 		{
 			std::size_t outputIndex = forwardPass.AddOutput(outputData.attachmentIndex);

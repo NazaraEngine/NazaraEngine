@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
+// Copyright (C) 2025 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
@@ -152,4 +152,3 @@ namespace Nz
 		return SetTextureCoords(Rectf(textureRect.x * invTextureSize.x, textureRect.y * invTextureSize.y, textureRect.width * invTextureSize.x, textureRect.height * invTextureSize.y));
 	}
 }
-

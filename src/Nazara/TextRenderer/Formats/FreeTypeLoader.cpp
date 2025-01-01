@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com) - 2009 Cruden BV
+// Copyright (C) 2025 Jérôme "SirLynix" Leclercq (lynix680@gmail.com) - 2009 Cruden BV
 // This file is part of the "Nazara Engine - Text renderer"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 

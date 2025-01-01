@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
+// Copyright (C) 2025 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Text renderer"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
@@ -620,4 +620,3 @@ namespace Nz
 		m_drawer.SetBlockText(m_blockIndex, std::move(text));
 	}
 }
-
