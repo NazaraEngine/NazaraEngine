@@ -218,8 +218,6 @@ namespace Nz
 			return true;
 		}
 
-		constexpr FormatHandler test = &SaveBMP;
-
 		constexpr frozen::unordered_map s_formatHandlers = frozen::make_unordered_map<frozen::string, FormatHandler>({
 			{ ".bmp",  &SaveBMP },
 			{ ".hdr",  &SaveHDR },
