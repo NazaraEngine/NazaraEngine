@@ -229,15 +229,19 @@ if is_plat("wasm") then
 	rendererBackends.VulkanRenderer = nil
 end
 
-if not has_config("embed_rendererbackends", "static") and has_config("renderer") then
-	-- Register renderer backends as separate modules
-	for name, module in pairs(rendererBackends) do
-		if (modules[name] ~= nil) then
-			os.raise("overriding module " .. name)
-		end
-
-		modules[name] = module
+local allModules = table.clone(modules)
+-- Register renderer backends as separate modules
+for name, module in pairs(rendererBackends) do
+	if (allModules[name] ~= nil) then
+		os.raise("overriding module " .. name)
 	end
+
+	allModules[name] = module
+end
+
+-- but don't treat them as separate module if either embed_rendererbackends or static config is set
+if not has_config("embed_rendererbackends", "static") and has_config("renderer") then
+	modules = allModules
 end
 
 NazaraModules = modules
@@ -279,7 +283,7 @@ for opt, policy in table.orderpairs(sanitizers) do
 end
 
 -- Allow to disable some modules
-for name, module in table.orderpairs(modules) do
+for name, module in table.orderpairs(allModules) do
 	if module.Option then
 		option(module.Option, { description = "Enables the " .. name .. " module", default = true, category = "Modules" })
 	end
