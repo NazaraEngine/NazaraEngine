@@ -247,7 +247,7 @@ end
 NazaraModules = modules
 
 set_project("NazaraEngine")
-set_xmakever("2.8.7")
+set_xmakever("2.9.5")
 set_license("MIT")
 
 includes("xmake/**.lua")
@@ -288,6 +288,9 @@ for name, module in table.orderpairs(allModules) do
 		option(module.Option, { description = "Enables the " .. name .. " module", default = true, category = "Modules" })
 	end
 end
+
+-- Don't strip installed libs or libs that are not linked will not be installed (libcurl for example)
+set_policy("install.strip_packagelibs", false)
 
 ----------------------- Dependencies -----------------------
 
