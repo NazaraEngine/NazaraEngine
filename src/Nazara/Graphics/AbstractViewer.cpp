@@ -12,19 +12,17 @@ namespace Nz
 
 	Vector3f AbstractViewer::ProjectToClipspace(const Vector3f& worldPos) const
 	{
-		const Matrix4f& viewProj = GetViewerInstance().GetViewProjMatrix();
-
-		Vector4f clipspace = viewProj * Vector4f(worldPos, 1.f);
-		clipspace.x = clipspace.x / clipspace.w;
-		clipspace.y = clipspace.y / clipspace.w;
-		clipspace.z = clipspace.z / clipspace.w;
-
-		return Vector3f(clipspace);
+		return ProjectToClipspace(GetViewerInstance().GetViewProjMatrix(), worldPos);
 	}
 
 	Vector3f AbstractViewer::ProjectToScreen(const Vector3f& worldPos) const
 	{
-		Vector3f clipspace = ProjectToClipspace(worldPos);
+		return ProjectToScreen(GetViewerInstance().GetViewProjMatrix(), worldPos);
+	}
+
+	Vector3f AbstractViewer::ProjectToScreen(const Matrix4f& viewProjMatrix, const Vector3f& worldPos) const
+	{
+		Vector3f clipspace = ProjectToClipspace(viewProjMatrix, worldPos);
 		Vector2f screenSize = Vector2f(GetRenderTarget().GetSize());
 
 		Vector3f screenSpace;
@@ -37,14 +35,15 @@ namespace Nz
 
 	Vector3f AbstractViewer::UnprojectFromClipspace(const Vector3f& clipSpace) const
 	{
-		// Clip space => projection space => view space => world space
-		const Matrix4f& inverseViewProj = GetViewerInstance().GetInvViewProjMatrix();
-
-		Vector4f unproj = inverseViewProj * Vector4f(clipSpace, 1.f);
-		return Vector3f(unproj.x, unproj.y, unproj.z) / unproj.w;
+		return UnprojectFromClipspace(GetViewerInstance().GetInvViewProjMatrix(), clipSpace);
 	}
 
 	Vector3f AbstractViewer::UnprojectFromScreen(const Vector3f& screenPos) const
+	{
+		return UnprojectFromScreen(GetViewerInstance().GetInvViewProjMatrix(), screenPos);
+	}
+
+	Vector3f AbstractViewer::UnprojectFromScreen(const Matrix4f& invViewProjMatrix, const Vector3f& screenPos) const
 	{
 		Vector2f screenSize = Vector2f(GetRenderTarget().GetSize());
 
@@ -54,6 +53,6 @@ namespace Nz
 		clipSpace.y = screenPos.y / screenSize.y * -2.f - 1.f;
 		clipSpace.z = screenPos.z;
 
-		return UnprojectFromClipspace(clipSpace);
+		return UnprojectFromClipspace(invViewProjMatrix, clipSpace);
 	}
 }

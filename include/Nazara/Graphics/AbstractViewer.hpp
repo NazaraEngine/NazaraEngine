@@ -10,6 +10,7 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
 #include <Nazara/Graphics/Export.hpp>
+#include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <NazaraUtils/Signal.hpp>
 
@@ -38,9 +39,14 @@ namespace Nz
 
 			Vector3f ProjectToClipspace(const Vector3f& worldPos) const;
 			Vector3f ProjectToScreen(const Vector3f& worldPos) const;
+			Vector3f ProjectToScreen(const Matrix4f& viewProjMatrix, const Vector3f& worldPos) const;
 
 			Vector3f UnprojectFromClipspace(const Vector3f& clipSpace) const;
 			Vector3f UnprojectFromScreen(const Vector3f& screenPos) const;
+			Vector3f UnprojectFromScreen(const Matrix4f& invViewProjMatrix, const Vector3f& screenPos) const;
+
+			static inline Vector3f ProjectToClipspace(const Matrix4f& viewProjMatrix, const Vector3f& worldPos);
+			static inline Vector3f UnprojectFromClipspace(const Matrix4f& viewProjMatrix, const Vector3f& clipSpace);
 
 			NazaraSignal(OnRenderMaskUpdated, AbstractViewer* /*viewer*/, UInt32 /*newRenderMask*/);
 	};
