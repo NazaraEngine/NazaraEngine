@@ -29,7 +29,7 @@ namespace Nz
 
 		Vector3f screenSpace;
 		screenSpace.x = (clipspace.x * 0.5f + 0.5f) * screenSize.x;
-		screenSpace.y = (clipspace.y * 0.5f + 0.5f) * screenSize.y;
+		screenSpace.y = (clipspace.y * -0.5f + 0.5f) * screenSize.y;
 		screenSpace.z = clipspace.z;
 
 		return screenSpace;
@@ -51,7 +51,7 @@ namespace Nz
 		// Screen space => clip space
 		Vector3f clipSpace;
 		clipSpace.x = screenPos.x / screenSize.x * 2.f - 1.f;
-		clipSpace.y = screenPos.y / screenSize.y * 2.f - 1.f;
+		clipSpace.y = screenPos.y / screenSize.y * -2.f - 1.f;
 		clipSpace.z = screenPos.z;
 
 		return UnprojectFromClipspace(clipSpace);
