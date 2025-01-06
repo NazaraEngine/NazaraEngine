@@ -19,6 +19,7 @@ namespace Nz
 		bool anisotropicFiltering = false;
 		bool computeShaders = false;
 		bool depthClamping = false;
+		bool drawBaseVertex = false;
 		bool nonSolidFaceFilling = false;
 		bool storageBuffers = false;
 		bool textureReadWithoutFormat = false;

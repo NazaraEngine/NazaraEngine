@@ -72,6 +72,9 @@ namespace Nz
 		if (m_referenceContext->IsExtensionSupported(GL::Extension::DepthClamp))
 			m_deviceInfo.features.depthClamping = true;
 
+		if (m_referenceContext->glDrawElementsInstancedBaseVertex)
+			m_deviceInfo.features.drawBaseVertex = true;
+
 		if (m_referenceContext->glPolygonMode) //< not supported in core OpenGL ES, but supported in OpenGL or with GL_NV_polygon_mode extension
 			m_deviceInfo.features.nonSolidFaceFilling = true;
 

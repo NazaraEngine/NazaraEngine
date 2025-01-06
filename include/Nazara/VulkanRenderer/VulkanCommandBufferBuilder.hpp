@@ -48,7 +48,7 @@ namespace Nz
 			void Dispatch(UInt32 workgroupX, UInt32 workgroupY, UInt32 workgroupZ) override;
 
 			void Draw(UInt32 vertexCount, UInt32 instanceCount = 1, UInt32 firstVertex = 0, UInt32 firstInstance = 0) override;
-			void DrawIndexed(UInt32 indexCount, UInt32 instanceCount = 1, UInt32 firstIndex = 0, UInt32 firstInstance = 0) override;
+			void DrawIndexed(UInt32 indexCount, UInt32 instanceCount = 1, UInt32 firstIndex = 0, UInt32 vertexOffset = 0, UInt32 firstInstance = 0) override;
 
 			void EndDebugRegion() override;
 			void EndRenderPass() override;

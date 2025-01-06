@@ -146,9 +146,9 @@ namespace Nz
 		m_commandBuffer.Draw(vertexCount, instanceCount, firstVertex, firstInstance);
 	}
 
-	void OpenGLCommandBufferBuilder::DrawIndexed(UInt32 indexCount, UInt32 instanceCount, UInt32 firstIndex, UInt32 firstInstance)
+	void OpenGLCommandBufferBuilder::DrawIndexed(UInt32 indexCount, UInt32 instanceCount, UInt32 firstIndex, UInt32 vertexOffset, UInt32 firstInstance)
 	{
-		m_commandBuffer.DrawIndexed(indexCount, instanceCount, firstIndex, firstInstance);
+		m_commandBuffer.DrawIndexed(indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 	}
 
 	void OpenGLCommandBufferBuilder::EndDebugRegion()

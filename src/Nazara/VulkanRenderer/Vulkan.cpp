@@ -58,6 +58,7 @@ namespace Nz
 		deviceInfo.features.anisotropicFiltering = physDevice.features.samplerAnisotropy;
 		deviceInfo.features.computeShaders = true;
 		deviceInfo.features.depthClamping = physDevice.features.depthClamp;
+		deviceInfo.features.drawBaseVertex = true;
 		deviceInfo.features.nonSolidFaceFilling = physDevice.features.fillModeNonSolid;
 		deviceInfo.features.storageBuffers = true;
 		deviceInfo.features.textureReadWithoutFormat = physDevice.features.shaderStorageImageReadWithoutFormat;
