@@ -59,7 +59,7 @@ namespace Nz
 			inline void Dispatch(UInt32 numGroupsX, UInt32 numGroupsY, UInt32 numGroupsZ);
 
 			inline void Draw(UInt32 vertexCount, UInt32 instanceCount = 1, UInt32 firstVertex = 0, UInt32 firstInstance = 0);
-			inline void DrawIndexed(UInt32 indexCount, UInt32 instanceCount = 1, UInt32 firstIndex = 0, UInt32 firstInstance = 0);
+			inline void DrawIndexed(UInt32 indexCount, UInt32 instanceCount = 1, UInt32 firstIndex = 0, UInt32 vertexOffset = 0, UInt32 firstInstance = 0);
 
 			inline void EndDebugRegion();
 
@@ -242,6 +242,7 @@ namespace Nz
 			{
 				DrawStates states;
 				ShaderBindings bindings;
+				UInt32 baseVertex;
 				UInt32 firstIndex;
 				UInt32 firstInstance;
 				UInt32 indexCount;

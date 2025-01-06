@@ -1086,6 +1086,19 @@ namespace Nz::GL
 					return true;
 			}
 		}
+		else if (function == "glDrawElementsInstancedBaseVertex")
+		{
+			constexpr std::size_t functionIndex = UnderlyingCast(FunctionIndex::glDrawElementsInstancedBaseVertex);
+
+			if (m_params.type == ContextType::OpenGL_ES)
+			{
+				if (IsExtensionSupported("GL_OES_draw_elements_base_vertex"))
+					return loader.Load<PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXPROC, functionIndex>(glDrawElementsInstancedBaseVertex, "glDrawElementsInstancedBaseVertexOES", false);
+
+				if (IsExtensionSupported("GL_EXT_draw_elements_base_vertex"))
+					return loader.Load<PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXPROC, functionIndex>(glDrawElementsInstancedBaseVertex, "glDrawElementsInstancedBaseVertexEXT", false);
+			}
+		}
 		else if (function == "glPolygonMode")
 		{
 			constexpr std::size_t functionIndex = UnderlyingCast(FunctionIndex::glPolygonMode);
