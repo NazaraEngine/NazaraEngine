@@ -175,7 +175,7 @@ namespace Nz
 
 	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const DispatchCommand& command)
 	{
-		if (!context->glDispatchCompute)
+		if NAZARA_UNLIKELY(!context->glDispatchCompute)
 			throw std::runtime_error("compute shaders are not supported on this device");
 
 		command.states.pipeline->Apply(*context);
@@ -204,7 +204,16 @@ namespace Nz
 
 		ApplyStates(*context, command.states);
 		ApplyBindings(*context, command.bindings);
-		context->glDrawElementsInstanced(ToOpenGL(command.states.pipeline->GetPipelineInfo().primitiveMode), command.indexCount, ToOpenGL(command.states.indexBufferType), origin, command.instanceCount);
+
+		if (command.baseVertex != 0)
+		{
+			if NAZARA_UNLIKELY(!context->glDrawElementsInstancedBaseVertex)
+				throw std::runtime_error("draw base vertex is not supported on this device");
+
+			context->glDrawElementsInstancedBaseVertex(ToOpenGL(command.states.pipeline->GetPipelineInfo().primitiveMode), command.indexCount, ToOpenGL(command.states.indexBufferType), origin, command.instanceCount, command.baseVertex);
+		}
+		else
+			context->glDrawElementsInstanced(ToOpenGL(command.states.pipeline->GetPipelineInfo().primitiveMode), command.indexCount, ToOpenGL(command.states.indexBufferType), origin, command.instanceCount);
 	}
 
 	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const EndDebugRegionCommand& /*command*/)
