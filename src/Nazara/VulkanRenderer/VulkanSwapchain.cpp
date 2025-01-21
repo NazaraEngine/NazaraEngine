@@ -116,14 +116,22 @@ namespace Nz
 			}
 			else
 			{
-				// Search for RGBA8 and default to first format
+				// Search for UNORM (TODO: Add a way to use hardware gamma correction), otherwise default to the first format
 				for (const VkSurfaceFormatKHR& surfaceFormat : surfaceFormats)
 				{
-					if (surfaceFormat.format == VK_FORMAT_R8G8B8A8_UNORM)
-						return surfaceFormat;
+					switch (surfaceFormat.format)
+					{
+						// TODO: Add more formats
+						case VK_FORMAT_R8G8B8A8_UNORM:
+						case VK_FORMAT_B8G8R8A8_UNORM:
+							return surfaceFormat;
+
+						default:
+							break;
+					}
 				}
 
-				return surfaceFormats.front();
+				return surfaceFormats.front(); // Choose default
 			}
 		}();
 
