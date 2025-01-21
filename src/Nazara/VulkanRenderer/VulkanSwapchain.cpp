@@ -119,11 +119,17 @@ namespace Nz
 				// Search for RGBA8 and default to first format
 				for (const VkSurfaceFormatKHR& surfaceFormat : surfaceFormats)
 				{
-					if (surfaceFormat.format == VK_FORMAT_R8G8B8A8_UNORM)
-						return surfaceFormat;
+					switch (surfaceFormat.format)
+					{
+						case VK_FORMAT_R8G8B8A8_UNORM: [[fallthrough]];
+						case VK_FORMAT_B8G8R8A8_UNORM: return surfaceFormat;
+						// Maybe add more formats
+
+						default: break;
+					}
 				}
 
-				return surfaceFormats.front();
+				return surfaceFormats.front(); // Choose default
 			}
 		}();
 
