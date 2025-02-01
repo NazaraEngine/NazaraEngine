@@ -36,6 +36,7 @@ namespace Nz
 
 			inline const Framebuffer& GetFramebuffer(std::size_t i) const;
 			inline std::size_t GetFramebufferCount() const;
+			inline const std::shared_ptr<RenderDevice>& GetRenderDevice() const;
 			inline const RenderPass& GetRenderPass() const;
 			const Vector2ui& GetSize() const;
 			inline Swapchain* GetSwapchain();
