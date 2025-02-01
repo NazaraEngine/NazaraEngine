@@ -101,7 +101,7 @@ int main()
 	auto& windowingApp = app.AddComponent<Nz::WindowingAppComponent>();
 
 	auto& pluginManager = app.AddComponent<Nz::PluginManagerAppComponent>();
-	Nz::ImGuiPlugin& plugin = pluginManager.Load<Nz::ImGuiPlugin>();
+	Nz::ImGuiPlugin& imgui = pluginManager.Load<Nz::ImGuiPlugin>();
 
 	std::shared_ptr<Nz::RenderDevice> device = Nz::Renderer::Instance()->InstanciateRenderDevice(0);
 
@@ -253,7 +253,7 @@ int main()
 	unsigned int fps = 0;
 	bool uboUpdate = true;
 
-	Nz::Mouse::SetRelativeMouseMode(true);
+	//Nz::Mouse::SetRelativeMouseMode(true);
 
 	Nz::DebugDrawer debugDrawer(*device);
 
@@ -290,14 +290,20 @@ int main()
 
 	// ImGui part
 	IMGUI_CHECKVERSION();
-	ImGui::CreateContext();
+	ImGuiContext* context = ImGui::CreateContext();
 	ImGuiIO& io = ImGui::GetIO();
 
 	NAZARA_DEFER({ ImGui::DestroyContext(); });
 
 	ImGui::StyleColorsDark();
 
-	app.AddUpdaterFunc([&]
+	imgui.SetupContext(context, window);
+	NAZARA_DEFER({ imgui.ShutdownContext(context); });
+
+	imgui.SetupRenderer(context, windowSwapchain);
+	NAZARA_DEFER({ imgui.ShutdownRenderer(context); });
+
+	app.AddUpdaterFunc([&](Nz::Time updateTime)
 	{
 		if (std::optional<Nz::Time> deltaTime = updateClock.RestartIfOver(Nz::Time::TickDuration(60)))
 		{
@@ -366,7 +372,14 @@ int main()
 			uboUpdate = false;
 		}
 
+		imgui.NewFrame(context, updateTime);
+
+		ImGui::NewFrame();
+		ImGui::ShowDemoWindow();
+		ImGui::Render();
+
 		debugDrawer.Prepare(frame);
+		imgui.Prepare(context, frame);
 
 		const Nz::WindowSwapchain* windowRT = &windowSwapchain;
 		frame.Execute([&](Nz::CommandBufferBuilder& builder)
@@ -395,6 +408,8 @@ int main()
 					builder.DrawIndexed(meshIB->GetIndexCount());
 
 					debugDrawer.Draw(builder);
+
+					imgui.Draw(context, builder);
 				}
 				builder.EndRenderPass();
 			}
