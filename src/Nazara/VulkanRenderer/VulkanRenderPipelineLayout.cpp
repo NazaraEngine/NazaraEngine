@@ -60,6 +60,15 @@ namespace Nz
 
 		StackArray<VulkanDescriptorSetLayoutInfo> setLayoutInfo = NazaraStackArray(VulkanDescriptorSetLayoutInfo, setCount);
 		StackArray<VkDescriptorSetLayout> setLayouts = NazaraStackArrayNoInit(VkDescriptorSetLayout, setCount);
+		VkPushConstantRange pushConstantRange;
+		if (layoutInfo.pushConstantSize > 0)
+		{
+			pushConstantRange = {
+				.stageFlags = VK_SHADER_STAGE_ALL,
+				.offset = 0,
+				.size = layoutInfo.pushConstantSize
+			};
+		}
 
 		m_descriptorSetLayouts.resize(setCount);
 		for (const auto& bindingInfo : m_layoutInfo.bindings)
@@ -80,7 +89,7 @@ namespace Nz
 			setLayouts[i] = *m_descriptorSetLayouts[i];
 		}
 
-		if (!m_pipelineLayout.Create(*m_device, SafeCaster(setLayouts.size()), setLayouts.data()))
+		if (!m_pipelineLayout.Create(*m_device, { setLayouts.data(), setLayouts.size() }, (layoutInfo.pushConstantSize > 0) ? std::span<VkPushConstantRange>(&pushConstantRange, 1) : std::span<VkPushConstantRange>{}))
 			return false;
 
 		return true;

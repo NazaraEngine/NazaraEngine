@@ -62,6 +62,8 @@ namespace Nz
 			void PreTransferBarrier() override;
 			void PostTransferBarrier() override;
 
+			void PushConstants(const RenderPipelineLayout& pipelineLayout, UInt32 offset, UInt32 size, const void* data) override;
+
 			void SetScissor(const Recti& scissorRegion) override;
 			void SetViewport(const Recti& viewportRegion) override;
 

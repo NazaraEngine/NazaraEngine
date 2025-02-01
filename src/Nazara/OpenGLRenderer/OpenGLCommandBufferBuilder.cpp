@@ -202,6 +202,11 @@ namespace Nz
 		m_commandBuffer.InsertMemoryBarrier(GL_BUFFER_UPDATE_BARRIER_BIT);
 	}
 
+	void OpenGLCommandBufferBuilder::PushConstants(const RenderPipelineLayout& pipelineLayout, UInt32 offset, UInt32 size, const void* data)
+	{
+		NazaraWarning("TODO");
+	}
+
 	void OpenGLCommandBufferBuilder::SetScissor(const Recti& scissorRegion)
 	{
 		m_commandBuffer.SetScissor(scissorRegion);
