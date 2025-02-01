@@ -128,7 +128,10 @@ namespace Nz
 	{
 		switch (componentType)
 		{
-			case ComponentType::Color:      return VK_FORMAT_R32G32B32A32_SFLOAT;
+			case ComponentType::Byte1:      return VK_FORMAT_R8_UNORM;
+			case ComponentType::Byte2:      return VK_FORMAT_R8G8_UNORM;
+			case ComponentType::Byte3:      return VK_FORMAT_R8G8B8_UNORM;
+			case ComponentType::Byte4:      return VK_FORMAT_R8G8B8A8_UNORM;
 			case ComponentType::Double1:    return VK_FORMAT_R64_SFLOAT;
 			case ComponentType::Double2:    return VK_FORMAT_R64G64_SFLOAT;
 			case ComponentType::Double3:    return VK_FORMAT_R64G64B64_SFLOAT;
@@ -141,6 +144,10 @@ namespace Nz
 			case ComponentType::Int2:       return VK_FORMAT_R32G32_SINT;
 			case ComponentType::Int3:       return VK_FORMAT_R32G32B32_SINT;
 			case ComponentType::Int4:       return VK_FORMAT_R32G32B32A32_SINT;
+			case ComponentType::UInt1:      return VK_FORMAT_R32_UINT;
+			case ComponentType::UInt2:      return VK_FORMAT_R32G32_UINT;
+			case ComponentType::UInt3:      return VK_FORMAT_R32G32B32_UINT;
+			case ComponentType::UInt4:      return VK_FORMAT_R32G32B32A32_UINT;
 		}
 
 		NazaraError("unhandled ComponentType {0:#x})", UnderlyingCast(componentType));

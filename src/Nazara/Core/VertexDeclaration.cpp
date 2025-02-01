@@ -16,7 +16,10 @@ namespace Nz
 	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
 		constexpr EnumArray<ComponentType, std::size_t> s_componentStride = {
-			4 * sizeof(float),    // ComponentType::Color
+			1 * sizeof(UInt8),    // ComponentType::Byte1
+			2 * sizeof(UInt8),    // ComponentType::Byte2
+			3 * sizeof(UInt8),    // ComponentType::Byte3
+			4 * sizeof(UInt8),    // ComponentType::Byte4
 			1 * sizeof(double),   // ComponentType::Double1
 			2 * sizeof(double),   // ComponentType::Double2
 			3 * sizeof(double),   // ComponentType::Double3
@@ -25,14 +28,18 @@ namespace Nz
 			2 * sizeof(float),    // ComponentType::Float2
 			3 * sizeof(float),    // ComponentType::Float3
 			4 * sizeof(float),    // ComponentType::Float4
-			1 * sizeof(UInt32),   // ComponentType::Int1
-			2 * sizeof(UInt32),   // ComponentType::Int2
-			3 * sizeof(UInt32),   // ComponentType::Int3
-			4 * sizeof(UInt32),   // ComponentType::Int4
+			1 * sizeof(Int32),    // ComponentType::Int1
+			2 * sizeof(Int32),    // ComponentType::Int2
+			3 * sizeof(Int32),    // ComponentType::Int3
+			4 * sizeof(Int32),    // ComponentType::Int4
+			1 * sizeof(UInt32),   // ComponentType::UInt1
+			2 * sizeof(UInt32),   // ComponentType::UInt2
+			3 * sizeof(UInt32),   // ComponentType::UInt3
+			4 * sizeof(UInt32),   // ComponentType::UInt4
 		};
 	}
 
-	VertexDeclaration::VertexDeclaration(VertexInputRate inputRate, std::initializer_list<ComponentEntry> components) :
+	VertexDeclaration::VertexDeclaration(VertexInputRate inputRate, std::initializer_list<ComponentEntry> componentEntries) :
 	m_inputRate(inputRate)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
@@ -40,10 +47,9 @@ namespace Nz
 		ErrorFlags errFlags(ErrorMode::ThrowException);
 		std::size_t offset = 0;
 
-		m_components.reserve(components.size());
-		for (const ComponentEntry& entry : components)
+		m_components.reserve(componentEntries.size());
+		for (const ComponentEntry& entry : componentEntries)
 		{
-			NazaraAssertMsg(IsTypeSupported(entry.type), "Component type {0:#x} is not supported by vertex declarations", UnderlyingCast(entry.type));
 			NazaraAssertMsg(entry.componentIndex == 0 || entry.component == VertexComponent::Userdata, "only userdata components can have non-zero component indexes");
 
 			if (entry.component != VertexComponent::Unused)
@@ -68,28 +74,32 @@ namespace Nz
 		m_stride = offset;
 	}
 
-	bool VertexDeclaration::IsTypeSupported(ComponentType type)
+	VertexDeclaration::VertexDeclaration(VertexInputRate inputRate, std::size_t stride, std::initializer_list<Component> components) :
+	m_stride(stride),
+	m_inputRate(inputRate)
 	{
-		switch (type)
-		{
-			case ComponentType::Color:
-			case ComponentType::Double1:
-			case ComponentType::Double2:
-			case ComponentType::Double3:
-			case ComponentType::Double4:
-			case ComponentType::Float1:
-			case ComponentType::Float2:
-			case ComponentType::Float3:
-			case ComponentType::Float4:
-			case ComponentType::Int1:
-			case ComponentType::Int2:
-			case ComponentType::Int3:
-			case ComponentType::Int4:
-				return true;
-		}
+		NAZARA_USE_ANONYMOUS_NAMESPACE
 
-		NazaraError("Component type not handled ({0:#x})", UnderlyingCast(type));
-		return false;
+		ErrorFlags errFlags(ErrorMode::ThrowException);
+
+		m_components.reserve(components.size());
+		for (const Component& entry : components)
+		{
+			NazaraAssertMsg(entry.componentIndex == 0 || entry.component == VertexComponent::Userdata, "only userdata components can have non-zero component indexes");
+			NazaraAssertMsg(entry.offset + s_componentStride[entry.type], "component offset + size exceeds stride");
+
+			if (entry.component != VertexComponent::Unused)
+			{
+				// Check for duplicates
+				for (const Component& component : m_components)
+				{
+					if (component.component == entry.component && component.componentIndex == entry.componentIndex)
+						NazaraError("duplicate component type found");
+				}
+			}
+
+			m_components.push_back(entry);
+		}
 	}
 
 	bool VertexDeclaration::Initialize()
@@ -128,6 +138,27 @@ namespace Nz
 			});
 
 			NazaraAssertMsg(s_declarations[VertexLayout::XY_Color]->GetStride() == sizeof(VertexStruct_XY_Color), "Invalid stride for declaration VertexLayout::XY_Color");
+
+			// VertexLayout::XY_Color_UV : VertexStruct_XY_Color_UV
+			s_declarations[VertexLayout::XY_Color_UV] = NewDeclaration(VertexInputRate::Vertex, {
+				{
+					VertexComponent::Position,
+					ComponentType::Float2,
+					0
+				},
+				{
+					VertexComponent::Color,
+					ComponentType::Float4,
+					0
+				},
+				{
+					VertexComponent::TexCoord,
+					ComponentType::Float2,
+					0
+				},
+			});
+
+			NazaraAssertMsg(s_declarations[VertexLayout::XY_Color_UV]->GetStride() == sizeof(VertexStruct_XY_Color_UV), "Invalid stride for declaration VertexLayout::XY_Color_UV");
 
 			// VertexLayout::XY_UV : VertexStruct_XY_UV
 			s_declarations[VertexLayout::XY_UV] = NewDeclaration(VertexInputRate::Vertex, {
@@ -322,7 +353,7 @@ namespace Nz
 				},
 				{
 					VertexComponent::Color,
-					ComponentType::Color,
+					ComponentType::Float4,
 					0
 				}
 			});

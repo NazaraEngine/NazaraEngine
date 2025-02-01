@@ -14,6 +14,7 @@
 #include <GLES2/gl2ext.h>
 
 // Define some OpenGL (not ES) defines/function types
+#define GL_DOUBLE                          0x140A
 #define GL_POINT                           0x1B00
 #define GL_LINE                            0x1B01
 #define GL_FILL                            0x1B02
@@ -25,6 +26,9 @@ typedef void (GL_APIENTRYP PFNGLPOLYGONMODEPROC) (GLenum face, GLenum mode);
 
 // Depth clamp (OpenGL 3.2)
 #define GL_DEPTH_CLAMP                     0x864F
+
+// 64bits vertex attributes (OpenGL 4.1)
+typedef void (GL_APIENTRYP PFNGLVERTEXATTRIBLPOINTERPROC) (GLuint index, GLint size, GLenum type, GLsizei stride, const void* pointer);
 
 // Texture views (OpenGL 4.3)
 typedef void (GL_APIENTRYP PFNGLTEXTUREVIEWPROC) (GLuint texture, GLenum target, GLuint origtexture, GLenum internalformat, GLuint minlevel, GLuint numlevels, GLuint minlayer, GLuint numlayers);

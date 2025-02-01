@@ -7,7 +7,6 @@
 #include <Nazara/OpenGLRenderer/OpenGLComputePipeline.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLFboFramebuffer.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLRenderPass.hpp>
-#include <Nazara/OpenGLRenderer/OpenGLRenderPipelineLayout.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLTexture.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLVaoCache.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
@@ -23,11 +22,23 @@ namespace Nz
 		{
 			switch (component)
 			{
-				case ComponentType::Color:
-					attrib.normalized = GL_FALSE;
-					attrib.size = 4;
-					attrib.type = GL_FLOAT;
+				case ComponentType::Byte1:
+				case ComponentType::Byte2:
+				case ComponentType::Byte3:
+				case ComponentType::Byte4:
+					attrib.normalized = GL_TRUE;
+					attrib.size = (UnderlyingCast(component) - UnderlyingCast(ComponentType::Byte1) + 1);
+					attrib.type = GL_UNSIGNED_BYTE;
 					return;
+
+				case ComponentType::Double1:
+				case ComponentType::Double2:
+				case ComponentType::Double3:
+				case ComponentType::Double4:
+					attrib.normalized = GL_FALSE;
+					attrib.size = (UnderlyingCast(component) - UnderlyingCast(ComponentType::Double1) + 1);
+					attrib.type = GL_DOUBLE;
+					break;
 
 				case ComponentType::Float1:
 				case ComponentType::Float2:
@@ -47,11 +58,14 @@ namespace Nz
 					attrib.type = GL_INT;
 					return;
 
-				case ComponentType::Double1:
-				case ComponentType::Double2:
-				case ComponentType::Double3:
-				case ComponentType::Double4:
-					break;
+				case ComponentType::UInt1:
+				case ComponentType::UInt2:
+				case ComponentType::UInt3:
+				case ComponentType::UInt4:
+					attrib.normalized = GL_FALSE;
+					attrib.size = (UnderlyingCast(component) - UnderlyingCast(ComponentType::UInt1) + 1);
+					attrib.type = GL_UNSIGNED_INT;
+					return;
 			}
 
 			throw std::runtime_error("component type 0x" + NumberToString(UnderlyingCast(component), 16) + " is not handled");

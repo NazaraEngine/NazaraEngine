@@ -97,7 +97,11 @@ namespace Nz
 
 	enum class ComponentType
 	{
-		Color,
+		// TODO: Rework to handle normalized
+		Byte1,
+		Byte2,
+		Byte3,
+		Byte4,
 		Double1,
 		Double2,
 		Double3,
@@ -110,8 +114,12 @@ namespace Nz
 		Int2,
 		Int3,
 		Int4,
+		UInt1,
+		UInt2,
+		UInt3,
+		UInt4,
 
-		Max = Int4
+		Max = UInt4
 	};
 
 	constexpr std::size_t ComponentTypeCount = static_cast<std::size_t>(ComponentType::Max) + 1;
@@ -629,6 +637,7 @@ namespace Nz
 		UV_SizeSinCos,
 		XY,
 		XY_Color,
+		XY_Color_UV,
 		XY_UV,
 		XYZ,
 		XYZ_Color,
