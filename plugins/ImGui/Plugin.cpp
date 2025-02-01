@@ -171,7 +171,7 @@ namespace NzImGui
 							if (auto it = rendererBackend->shaderBindings.find(textureIndex); it != rendererBackend->shaderBindings.end())
 								commandBufferBuilder.BindRenderShaderBinding(0, *it->second);
 
-							commandBufferBuilder.DrawIndexed(command.ElemCount, 1, command.IdxOffset, command.VtxOffset);
+							commandBufferBuilder.DrawIndexed(command.ElemCount, 1, globalIndexOffset + command.IdxOffset, globalVertexOffset + command.VtxOffset);
 						}
 					}
 					globalIndexOffset += commandList->IdxBuffer.size();
@@ -222,12 +222,13 @@ namespace NzImGui
 				ImDrawIdx* indexCopyPtr = static_cast<ImDrawIdx*>(indexAllocation.mappedPtr);
 				ImDrawVert* vertexCopyPtr = static_cast<ImDrawVert*>(vertexAllocation.mappedPtr);
 
-				std::size_t indexCount = 0;
-				std::size_t vertexCount = 0;
 				for (const ImDrawList* commandList : drawData->CmdLists)
 				{
 					std::memcpy(indexCopyPtr, commandList->IdxBuffer.Data, commandList->IdxBuffer.size_in_bytes());
 					std::memcpy(vertexCopyPtr, commandList->VtxBuffer.Data, commandList->VtxBuffer.size_in_bytes());
+
+					indexCopyPtr += commandList->IdxBuffer.size();
+					vertexCopyPtr += commandList->VtxBuffer.size();
 				}
 
 				ImGuiIO& io = ImGui::GetIO();
