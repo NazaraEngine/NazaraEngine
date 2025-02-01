@@ -71,6 +71,7 @@ namespace Nz
 		enabledFeatures.anisotropicFiltering = !config.forceDisableFeatures.anisotropicFiltering && renderDeviceInfo[bestRenderDeviceIndex].features.anisotropicFiltering;
 		enabledFeatures.computeShaders = !config.forceDisableFeatures.computeShaders && renderDeviceInfo[bestRenderDeviceIndex].features.computeShaders;
 		enabledFeatures.depthClamping = !config.forceDisableFeatures.depthClamping && renderDeviceInfo[bestRenderDeviceIndex].features.depthClamping;
+		enabledFeatures.drawBaseVertex = !config.forceDisableFeatures.drawBaseVertex && renderDeviceInfo[bestRenderDeviceIndex].features.drawBaseVertex;
 		enabledFeatures.nonSolidFaceFilling = !config.forceDisableFeatures.nonSolidFaceFilling && renderDeviceInfo[bestRenderDeviceIndex].features.nonSolidFaceFilling;
 		enabledFeatures.storageBuffers = !config.forceDisableFeatures.storageBuffers && renderDeviceInfo[bestRenderDeviceIndex].features.storageBuffers;
 		enabledFeatures.textureReadWithoutFormat = !config.forceDisableFeatures.textureReadWithoutFormat && renderDeviceInfo[bestRenderDeviceIndex].features.textureReadWithoutFormat;
