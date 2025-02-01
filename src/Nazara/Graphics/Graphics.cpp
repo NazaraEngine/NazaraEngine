@@ -314,6 +314,23 @@ namespace Nz
 				states.blend.dstAlpha = BlendFunc::One;
 			});
 		};
+		
+		m_defaultMaterials.presetModifier[MaterialInstancePreset::AdditiveBlended] = [=](MaterialInstance& matInstance)
+		{
+			matInstance.DisablePass(depthPassIndex);
+			matInstance.DisablePass(shadowPassIndex);
+			matInstance.UpdatePassStates(forwardPassIndex, [](RenderStates& states)
+			{
+				states.depthWrite = false;
+				states.blending = true;
+				states.blend.modeColor = BlendEquation::Add;
+				states.blend.modeAlpha = BlendEquation::Add;
+				states.blend.srcColor = BlendFunc::SrcAlpha;
+				states.blend.dstColor = BlendFunc::One;
+				states.blend.srcAlpha = BlendFunc::One;
+				states.blend.dstAlpha = BlendFunc::Zero;
+			});
+		};
 	}
 
 	void Graphics::BuildDefaultPipelinePasses()

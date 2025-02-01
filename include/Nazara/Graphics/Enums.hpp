@@ -110,6 +110,7 @@ namespace Nz
 	enum class MaterialInstancePreset
 	{
 		AlphaBlended,
+		AdditiveBlended,
 		NoDepth,
 		ReverseZ,
 
