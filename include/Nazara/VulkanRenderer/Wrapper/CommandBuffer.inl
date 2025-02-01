@@ -432,6 +432,11 @@ namespace Nz::Vk
 		return m_pool->GetDevice()->vkCmdPipelineBarrier(m_handle, srcStageMask, dstStageMask, dependencyFlags, memoryBarrierCount, memoryBarriers, bufferMemoryBarrierCount, bufferMemoryBarriers, imageMemoryBarrierCount, imageMemoryBarriers);
 	}
 
+	inline void CommandBuffer::PushConstants(VkPipelineLayout pipelineLayout, VkShaderStageFlags shaderStages, UInt32 offset, UInt32 size, const void* values)
+	{
+		return m_pool->GetDevice()->vkCmdPushConstants(m_handle, pipelineLayout, shaderStages, offset, size, values);
+	}
+
 	inline void CommandBuffer::SetScissor(const Recti& scissorRegion)
 	{
 		VkRect2D rect = {

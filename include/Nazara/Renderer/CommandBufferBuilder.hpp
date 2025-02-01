@@ -81,6 +81,8 @@ namespace Nz
 			virtual void PreTransferBarrier() = 0;
 			virtual void PostTransferBarrier() = 0;
 
+			virtual void PushConstants(const RenderPipelineLayout& pipelineLayout, UInt32 offset, UInt32 size, const void* data) = 0;
+
 			virtual void SetScissor(const Recti& scissorRegion) = 0;
 			virtual void SetViewport(const Recti& viewportRegion) = 0;
 
