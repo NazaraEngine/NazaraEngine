@@ -52,7 +52,7 @@ namespace Nz
 			inline const std::shared_ptr<Collider3D>& GetCollider() const;
 			Vector3f GetLinearVelocity() const;
 			std::pair<Vector3f, Vector3f> GetLinearAndAngularVelocity() const;
-			PhysObjectLayer3D GetObjectLayer() const;
+			PhysObjectLayer3D GetObjectLayer() const override;
 			inline PhysWorld3D& GetPhysWorld();
 			inline const PhysWorld3D& GetPhysWorld() const;
 			Vector3f GetPosition() const;
