@@ -572,6 +572,7 @@ namespace Nz
 		creationSettings.mPosition = ToJolt(settings.position);
 		creationSettings.mRotation = ToJolt(settings.rotation);
 		creationSettings.mUserData = PointerToInteger<UInt64>(this);
+		creationSettings.mIsSensor = settings.isTrigger;
 	}
 
 	bool RigidBody3D::ShouldActivate() const
