@@ -1,0 +1,51 @@
+[nzsl_version("1.0")]
+module;
+
+[layout(std140)]
+struct Data
+{
+	invHalfScreenSize: vec2[f32]
+}
+
+external
+{
+	[set(0), binding(0)] tex: sampler2D[f32],
+	data: push_constant[Data]
+}
+
+struct VertIn
+{
+	[location(0)] position: vec2[f32],
+	[location(1)] uv: vec2[f32],
+	[location(2)] color: vec4[f32],
+}
+
+struct VertOut
+{
+	[builtin(position)] position: vec4[f32],
+	[location(0)] color: vec4[f32],
+	[location(1)] uv: vec2[f32]
+}
+
+struct FragOut
+{
+	[location(0)] color: vec4[f32]
+}
+
+[entry(frag)]
+fn main(fragIn: VertOut) -> FragOut
+{
+	let fragOut: FragOut;
+	fragOut.color = fragIn.color * tex.Sample(fragIn.uv);
+	return fragOut;
+}
+
+[entry(vert)]
+fn main(vertIn: VertIn) -> VertOut
+{
+	let vertOut: VertOut;
+	vertOut.position = vec4[f32](vertIn.position * data.invHalfScreenSize - (1.0).xx, 0.0, 1.0);
+	vertOut.color = vertIn.color;
+	vertOut.uv = vertIn.uv;
+	return vertOut;
+}

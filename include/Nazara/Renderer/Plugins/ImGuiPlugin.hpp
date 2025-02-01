@@ -9,14 +9,18 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/PluginInterface.hpp>
+#include <Nazara/Core/Time.hpp>
 #include <Nazara/Renderer/Export.hpp>
 
 struct ImGuiContext;
 
 namespace Nz
 {
+	class CommandBufferBuilder;
 	class RenderDevice;
+	class RenderResources;
 	class Window;
+	class WindowSwapchain;
 
 	// Don't export class due to MinGW bug, export every method instead
 	class ImGuiPlugin : public PluginInterface
@@ -33,8 +37,13 @@ namespace Nz
 			ImGuiPlugin(ImGuiPlugin&&) = delete;
 			~ImGuiPlugin() = default;
 
+			virtual void Draw(ImGuiContext* context, CommandBufferBuilder& commandBufferBuilder) = 0;
+			virtual void Prepare(ImGuiContext* context, RenderResources& renderResources) = 0;
+
+			virtual void NewFrame(ImGuiContext* context, Nz::Time updateTime) = 0;
+
 			virtual void SetupContext(ImGuiContext* context, Window& window) = 0;
-			virtual void SetupRenderer(ImGuiContext* context, RenderDevice& renderDevice) = 0;
+			virtual void SetupRenderer(ImGuiContext* context, WindowSwapchain& windowSwapchain) = 0;
 			virtual void ShutdownContext(ImGuiContext* context) = 0;
 			virtual void ShutdownRenderer(ImGuiContext* context) = 0;
 

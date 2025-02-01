@@ -21,11 +21,11 @@ coverage.out
 src/Nazara/*/Resources/**/*.h
 
 # Compiled shaders and archives
-src/Nazara/*/Shaders/**/*.nzslb
-src/Nazara/*/Shaders/**/*.nzslb.h
-src/Nazara/*/ShaderArchives/**/*.nzslb
-src/Nazara/*/ShaderArchives/**/*.nzsla
-src/Nazara/*/ShaderArchives/**/*.nzsla.h
+**.nzslb
+**.nzslb.h
+**.nzslb
+**.nzsla
+**.nzsla.h
 
 # Nazara binaries
 bin/*
