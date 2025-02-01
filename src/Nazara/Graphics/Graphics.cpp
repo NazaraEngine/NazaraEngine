@@ -297,7 +297,7 @@ namespace Nz
 			// TODO: Reverse depth for shadow pass?
 		};
 
-		m_defaultMaterials.presetModifier[MaterialInstancePreset::Transparent] = [=](MaterialInstance& matInstance)
+		m_defaultMaterials.presetModifier[MaterialInstancePreset::AlphaBlended] = [=](MaterialInstance& matInstance)
 		{
 			matInstance.DisablePass(depthPassIndex);
 			matInstance.DisablePass(shadowPassIndex);

@@ -83,7 +83,7 @@ int main(int argc, char* argv[])
 		tilemap->SetOrigin({ 0.5f, 0.5f });
 		for (std::size_t i = 0; i < 18; ++i)
 		{
-			std::shared_ptr<Nz::MaterialInstance> tileMaterial = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Basic, Nz::MaterialInstancePreset::Transparent);
+			std::shared_ptr<Nz::MaterialInstance> tileMaterial = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Basic, Nz::MaterialInstancePreset::AlphaBlended);
 			tileMaterial->SetTextureProperty("BaseColorMap", Nz::TextureAsset::OpenFromFile(resourceDir / "tiles" / (std::to_string(i + 1) + ".png"), { .sRGB = true }));
 
 			tilemap->SetMaterial(i, tileMaterial);

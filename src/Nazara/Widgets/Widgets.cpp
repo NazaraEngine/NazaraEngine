@@ -28,7 +28,7 @@ namespace Nz
 			return true;
 		});
 
-		m_transparentMaterial = MaterialInstance::Instantiate(MaterialType::Basic, MaterialInstancePreset::Transparent);
+		m_transparentMaterial = MaterialInstance::Instantiate(MaterialType::Basic, MaterialInstancePreset::AlphaBlended);
 		m_transparentMaterial->UpdatePassesStates([](RenderStates& renderStates)
 		{
 			renderStates.scissorTest = true;

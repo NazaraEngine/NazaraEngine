@@ -71,7 +71,7 @@ int main(int argc, char* argv[])
 	for (std::size_t i = 0; i < model->GetSubMeshCount(); ++i)
 		model->SetMaterial(i, material);
 
-	std::shared_ptr<Nz::MaterialInstance> textMaterial = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Basic, Nz::MaterialInstancePreset::Transparent);
+	std::shared_ptr<Nz::MaterialInstance> textMaterial = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Basic, Nz::MaterialInstancePreset::AlphaBlended);
 	textMaterial->UpdatePassFlags("ForwardPass", Nz::MaterialPassFlag::SortByDistance);
 	textMaterial->UpdatePassStates("ForwardPass", [](Nz::RenderStates& states)
 	{

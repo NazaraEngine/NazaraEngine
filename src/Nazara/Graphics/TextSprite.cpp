@@ -19,7 +19,7 @@ namespace Nz
 	m_material(std::move(material))
 	{
 		if (!m_material)
-			m_material = MaterialInstance::GetDefault(MaterialType::Basic, MaterialInstancePreset::Transparent);
+			m_material = MaterialInstance::GetDefault(MaterialType::Basic, MaterialInstancePreset::AlphaBlended);
 	}
 
 	void TextSprite::BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, std::vector<RenderElementOwner>& elements) const

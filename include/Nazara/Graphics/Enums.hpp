@@ -109,11 +109,11 @@ namespace Nz
 
 	enum class MaterialInstancePreset
 	{
+		AlphaBlended,
 		NoDepth,
 		ReverseZ,
-		Transparent,
 
-		Max = Transparent
+		Max = ReverseZ
 	};
 
 	template<>
