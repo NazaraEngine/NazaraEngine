@@ -36,6 +36,11 @@ namespace Nz
 		return m_swapchain->GetFramebufferCount();
 	}
 
+	inline const std::shared_ptr<RenderDevice>& WindowSwapchain::GetRenderDevice() const
+	{
+		return m_renderDevice;
+	}
+
 	inline const RenderPass& WindowSwapchain::GetRenderPass() const
 	{
 		assert(m_swapchain);
