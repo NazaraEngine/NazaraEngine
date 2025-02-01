@@ -94,6 +94,8 @@ namespace Nz::Vk
 			inline void PipelineBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkDependencyFlags dependencyFlags, const VkMemoryBarrier& memoryBarrier);
 			inline void PipelineBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkDependencyFlags dependencyFlags, UInt32 memoryBarrierCount, const VkMemoryBarrier* memoryBarriers, UInt32 bufferMemoryBarrierCount, const VkBufferMemoryBarrier* bufferMemoryBarriers, UInt32 imageMemoryBarrierCount, const VkImageMemoryBarrier* imageMemoryBarriers);
 
+			inline void PushConstants(VkPipelineLayout pipelineLayout, VkShaderStageFlags shaderStages, UInt32 offset, UInt32 size, const void* values);
+
 			inline void SetScissor(const Recti& scissorRegion);
 			inline void SetScissor(const VkRect2D& scissorRegion);
 			inline void SetScissor(UInt32 firstScissor, UInt32 scissorCount, const VkRect2D* scissors);

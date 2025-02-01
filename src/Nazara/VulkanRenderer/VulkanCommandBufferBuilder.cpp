@@ -395,6 +395,13 @@ namespace Nz
 		m_commandBuffer.MemoryBarrier(VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_VERTEX_SHADER_BIT, VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_UNIFORM_READ_BIT);
 	}
 
+	void VulkanCommandBufferBuilder::PushConstants(const RenderPipelineLayout& pipelineLayout, UInt32 offset, UInt32 size, const void* data)
+	{
+		const VulkanRenderPipelineLayout& vkPipelineLayout = SafeCast<const VulkanRenderPipelineLayout&>(pipelineLayout);
+
+		m_commandBuffer.PushConstants(vkPipelineLayout.GetPipelineLayout(), VK_SHADER_STAGE_ALL, offset, size, data);
+	}
+
 	void VulkanCommandBufferBuilder::SetScissor(const Recti& scissorRegion)
 	{
 		m_commandBuffer.SetScissor(scissorRegion);

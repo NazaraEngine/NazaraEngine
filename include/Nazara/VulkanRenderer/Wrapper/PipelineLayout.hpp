@@ -9,6 +9,7 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/DeviceObject.hpp>
+#include <span>
 
 namespace Nz::Vk
 {
@@ -24,7 +25,8 @@ namespace Nz::Vk
 
 			using DeviceObject::Create;
 			bool Create(Device& device, VkDescriptorSetLayout layout, VkPipelineLayoutCreateFlags flags = 0);
-			bool Create(Device& device, UInt32 layoutCount, const VkDescriptorSetLayout* layouts, VkPipelineLayoutCreateFlags flags = 0);
+			bool Create(Device& device, std::span<const VkDescriptorSetLayout> layouts, VkPipelineLayoutCreateFlags flags = 0);
+			bool Create(Device& device, std::span<const VkDescriptorSetLayout> layouts, std::span<const VkPushConstantRange> pushConstantRanges, VkPipelineLayoutCreateFlags flags = 0);
 
 			PipelineLayout& operator=(const PipelineLayout&) = delete;
 			PipelineLayout& operator=(PipelineLayout&&) = delete;

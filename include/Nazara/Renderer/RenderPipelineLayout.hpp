@@ -29,6 +29,7 @@ namespace Nz
 		};
 
 		std::vector<Binding> bindings;
+		UInt32 pushConstantSize = 0;
 	};
 
 	class NAZARA_RENDERER_API RenderPipelineLayout
