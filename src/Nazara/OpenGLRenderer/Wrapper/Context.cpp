@@ -556,7 +556,7 @@ namespace Nz::GL
 		else if (m_supportedExtensions.count("GL_ARB_texture_view"))
 			m_extensionStatus[Extension::TextureView] = ExtensionStatus::ARB;
 		else if (m_supportedExtensions.count("GL_OES_texture_view"))
-			m_extensionStatus[Extension::TextureView] = ExtensionStatus::KHR; //< not sure about the OES => KHR mapping
+			m_extensionStatus[Extension::TextureView] = ExtensionStatus::ARB;
 		else if (m_supportedExtensions.count("GL_EXT_texture_view"))
 			m_extensionStatus[Extension::TextureView] = ExtensionStatus::EXT;
 
@@ -1133,6 +1133,13 @@ namespace Nz::GL
 				if (loader.Load<PFNGLTEXTUREVIEWPROC, functionIndex>(glTextureView, "glTextureViewOES", false))
 					return true;
 			}
+		}
+		else if (function == "glVertexAttribLPointer")
+		{
+			constexpr std::size_t functionIndex = UnderlyingCast(FunctionIndex::glVertexAttribLPointer);
+
+			if (m_params.type == ContextType::OpenGL && IsExtensionSupported("GL_EXT_vertex_attrib_64bit"))
+				return loader.Load<PFNGLVERTEXATTRIBLPOINTERPROC, functionIndex>(glVertexAttribLPointer, "glVertexAttribLPointerEXT", false);
 		}
 
 		return false;

@@ -57,6 +57,15 @@ namespace Nz::GL
 								else
 									[[fallthrough]];
 
+							case GL_DOUBLE:
+								if (!attrib.normalized)
+								{
+									m_context.glVertexAttribLPointer(bindingIndex, attrib.size, attrib.type, attrib.stride, attrib.pointer);
+									break;
+								}
+								else
+									[[fallthrough]];
+
 							default:
 								m_context.glVertexAttribPointer(bindingIndex, attrib.size, attrib.type, attrib.normalized, attrib.stride, attrib.pointer);
 								break;

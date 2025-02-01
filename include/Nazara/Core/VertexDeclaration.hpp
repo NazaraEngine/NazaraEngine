@@ -31,7 +31,8 @@ namespace Nz
 			struct Component;
 			struct ComponentEntry;
 
-			VertexDeclaration(VertexInputRate inputRate, std::initializer_list<ComponentEntry> components);
+			VertexDeclaration(VertexInputRate inputRate, std::initializer_list<ComponentEntry> componentEntries);
+			VertexDeclaration(VertexInputRate inputRate, std::size_t stride, std::initializer_list<Component> components);
 			VertexDeclaration(const VertexDeclaration&) = delete;
 			VertexDeclaration(VertexDeclaration&&) = delete;
 			~VertexDeclaration() = default;
@@ -53,7 +54,6 @@ namespace Nz
 			VertexDeclaration& operator=(VertexDeclaration&&) = delete;
 
 			static inline const std::shared_ptr<VertexDeclaration>& Get(VertexLayout layout);
-			static bool IsTypeSupported(ComponentType type);
 
 			struct Component
 			{
