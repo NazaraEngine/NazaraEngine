@@ -57,6 +57,12 @@ namespace Nz
 		m_character->AddLinearVelocity(ToJolt(linearVelocity));
 	}
 
+	bool PhysCharacter3D::ApplyBuoyancyImpulse(const Vector3f& surfacePosition, const Vector3f& surfaceNormal, float buoyancy, float linearDrag, float angularDrag, const Vector3f& fluidVelocity, const Vector3f& gravity, float deltaTime)
+	{
+		JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterfaceNoLock();
+		return bodyInterface.ApplyBuoyancyImpulse(m_character->GetBodyID(), ToJolt(surfacePosition), ToJolt(surfaceNormal), buoyancy, linearDrag, angularDrag, ToJolt(fluidVelocity), ToJolt(gravity), deltaTime);
+	}
+
 	void PhysCharacter3D::EnableSleeping(bool enable)
 	{
 		const JPH::BodyLockInterfaceNoLock& bodyInterface = m_world->GetPhysicsSystem()->GetBodyLockInterfaceNoLock();

@@ -44,6 +44,8 @@ namespace Nz
 			void AddImpulse(const Vector3f& impulse, CoordSys coordSys = CoordSys::Global);
 			void AddLinearVelocity(const Vector3f& linearVelocity);
 
+			bool ApplyBuoyancyImpulse(const Vector3f& surfacePosition, const Vector3f& surfaceNormal, float buoyancy, float linearDrag, float angularDrag, const Vector3f& fluidVelocity, const Vector3f& gravity, float deltaTime);
+
 			inline void DisableSleeping();
 			void EnableSleeping(bool enable);
 

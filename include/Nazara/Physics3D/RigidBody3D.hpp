@@ -50,6 +50,8 @@ namespace Nz
 			void AddLinearVelocity(const Vector3f& linearVelocity);
 			void AddTorque(const Vector3f& torque, CoordSys coordSys = CoordSys::Global);
 
+			bool ApplyBuoyancyImpulse(const Vector3f& surfacePosition, const Vector3f& surfaceNormal, float buoyancy, float linearDrag, float angularDrag, const Vector3f& fluidVelocity, const Vector3f& gravity, float deltaTime);
+
 			inline void DisableSimulation();
 			inline void DisableSleeping();
 			void EnableSimulation(bool enable);
