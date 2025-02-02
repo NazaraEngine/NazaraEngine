@@ -10,6 +10,7 @@
 #include <Nazara/Renderer/WindowSwapchain.hpp>
 #include <Nazara/Renderer/Plugins/ImGuiPlugin.hpp>
 #include <NZSL/Math/FieldOffsets.hpp>
+#include <NazaraUtils/FixedVector.hpp>
 #include <frozen/unordered_map.h>
 #include <imgui.h>
 #include <span>
@@ -41,29 +42,40 @@ namespace NzImGui
 		}
 	};
 
-	static constexpr PushConstants PushConstantsFields = PushConstants::Build();
+	constexpr PushConstants PushConstantsFields = PushConstants::Build();
 
-	const Nz::UInt8 r_imguiShader[] = {
+	constexpr Nz::UInt8 r_imguiShader[] = {
 		#include <Shader.nzslb.h>
+	};
+
+	struct ImGuiPool
+	{
+		Nz::HybridVector<std::shared_ptr<Nz::RenderBuffer>, 4> indexBuffers;
+		Nz::HybridVector<std::shared_ptr<Nz::RenderBuffer>, 4> vertexBuffers;
 	};
 
 	struct ImGuiPlatformBackend
 	{
 		std::string clipboardText;
 		Nz::Window* window;
+
+		NazaraSlot(Nz::WindowEventHandler, OnMouseButtonPressed, onMouseButtonPressed);
+		NazaraSlot(Nz::WindowEventHandler, OnMouseButtonReleased, onMouseButtonReleased);
+		NazaraSlot(Nz::WindowEventHandler, OnMouseMoved, onMouseMoved);
+		NazaraSlot(Nz::WindowEventHandler, OnMouseWheelMoved, onMouseWheelMoved);
 	};
 
 	struct ImGuiRendererBackend
 	{
 		std::shared_ptr<Nz::RenderBuffer> indexBuffer;
 		std::shared_ptr<Nz::RenderBuffer> vertexBuffer;
-		std::shared_ptr<Nz::RenderBuffer> uniformBuffer;
 		std::shared_ptr<Nz::RenderDevice> device;
 		std::shared_ptr<Nz::RenderPipeline> renderPipeline;
 		std::shared_ptr<Nz::RenderPipelineLayout> renderPipelineLayout;
 		std::shared_ptr<Nz::Texture> fontTexture;
 		std::shared_ptr<Nz::TextureSampler> fontTextureSampler;
 		std::shared_ptr<Nz::VertexDeclaration> vertexDeclaration;
+		std::shared_ptr<ImGuiPool> pool;
 		std::unordered_map<unsigned int, Nz::ShaderBindingPtr> shaderBindings;
 		Nz::WindowSwapchain* windowSwapchain;
 	};
@@ -236,13 +248,49 @@ namespace NzImGui
 
 				// now that we have macro buffers, allocate them on gpu
 				if (rendererBackend->indexBuffer)
-					renderResources.PushForRelease(std::move(rendererBackend->indexBuffer));
+				{
+					renderResources.PushReleaseCallback([pool = rendererBackend->pool, indexBuffer = std::move(rendererBackend->indexBuffer)]() mutable
+					{
+						pool->indexBuffers.push_back(std::move(indexBuffer));
+					});
+					rendererBackend->indexBuffer.reset();
+				}
 
 				if (rendererBackend->vertexBuffer)
-					renderResources.PushForRelease(std::move(rendererBackend->vertexBuffer));
+				{
+					renderResources.PushReleaseCallback([pool = rendererBackend->pool, vertexBuffer = std::move(rendererBackend->vertexBuffer)]() mutable
+					{
+						pool->vertexBuffers.push_back(std::move(vertexBuffer));
+					});
+					rendererBackend->vertexBuffer.reset();
+				}
 
-				rendererBackend->indexBuffer = rendererBackend->device->InstantiateBuffer(Nz::BufferType::Index, totalIndexCount * sizeof(ImDrawIdx), Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::Dynamic, nullptr);
-				rendererBackend->vertexBuffer = rendererBackend->device->InstantiateBuffer(Nz::BufferType::Vertex, totalVertexCount * sizeof(ImDrawVert), Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::Dynamic, nullptr);
+				if (!rendererBackend->pool->indexBuffers.empty())
+				{
+					rendererBackend->indexBuffer = std::move(rendererBackend->pool->indexBuffers.back());
+					rendererBackend->pool->indexBuffers.pop_back();
+
+					Nz::UInt64 indexCount = rendererBackend->indexBuffer->GetSize() / sizeof(ImDrawIdx);
+					if (totalIndexCount > indexCount)
+						rendererBackend->indexBuffer.reset(); // Release buffer and force reallocation if it doesn't have enough space 
+				}
+
+				if (!rendererBackend->pool->vertexBuffers.empty())
+				{
+					rendererBackend->vertexBuffer = std::move(rendererBackend->pool->vertexBuffers.back());
+					rendererBackend->pool->vertexBuffers.pop_back();
+
+					Nz::UInt64 vertexCount = rendererBackend->vertexBuffer->GetSize() / sizeof(ImDrawVert);
+					if (totalVertexCount > vertexCount)
+						rendererBackend->vertexBuffer.reset(); // Release buffer and force reallocation if it doesn't have enough space 
+				}
+
+				if (!rendererBackend->indexBuffer)
+					rendererBackend->indexBuffer = rendererBackend->device->InstantiateBuffer(Nz::BufferType::Index, totalIndexCount * sizeof(ImDrawIdx), Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::Dynamic, nullptr);
+
+				if (!rendererBackend->vertexBuffer)
+					rendererBackend->vertexBuffer = rendererBackend->device->InstantiateBuffer(Nz::BufferType::Vertex, totalVertexCount * sizeof(ImDrawVert), Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::Dynamic, nullptr);
+
 				renderResources.Execute([&](Nz::CommandBufferBuilder& builder)
 				{
 					builder.CopyBuffer(indexAllocation, Nz::RenderBufferView(rendererBackend->indexBuffer.get()));
@@ -283,7 +331,7 @@ namespace NzImGui
 					Nz::Clipboard::SetString(clipboardText);
 				};
 
-				SetupInputs(io, window.GetEventHandler());
+				SetupInputs(io, backend, window.GetEventHandler());
 			}
 
 			void SetupFontTexture(ImGuiIO& io, ImGuiRendererBackend* rendererBackend)
@@ -314,23 +362,23 @@ namespace NzImGui
 				io.Fonts->SetTexID(Nz::IntegerToPointer<ImTextureID>(0));
 			}
 
-			void SetupInputs(ImGuiIO& io, Nz::WindowEventHandler& eventHandler)
+			void SetupInputs(ImGuiIO& io, ImGuiPlatformBackend* platformBackend, Nz::WindowEventHandler& eventHandler)
 			{
-				onMouseButtonPressed.Connect(eventHandler.OnMouseButtonPressed, [&io](const Nz::WindowEventHandler* /*eventHandler*/, const Nz::WindowEvent::MouseButtonEvent& event)
+				platformBackend->onMouseButtonPressed.Connect(eventHandler.OnMouseButtonPressed, [&io](const Nz::WindowEventHandler* /*eventHandler*/, const Nz::WindowEvent::MouseButtonEvent& event)
 				{
 					auto it = s_mouseButtonMap.find(event.button);
 					if (it != s_mouseButtonMap.end())
 						io.AddMouseButtonEvent(it->second, true);
 				});
 
-				onMouseButtonReleased.Connect(eventHandler.OnMouseButtonReleased, [&io](const Nz::WindowEventHandler* /*eventHandler*/, const Nz::WindowEvent::MouseButtonEvent& event)
+				platformBackend->onMouseButtonReleased.Connect(eventHandler.OnMouseButtonReleased, [&io](const Nz::WindowEventHandler* /*eventHandler*/, const Nz::WindowEvent::MouseButtonEvent& event)
 				{
 					auto it = s_mouseButtonMap.find(event.button);
 					if (it != s_mouseButtonMap.end())
 						io.AddMouseButtonEvent(it->second, false);
 				});
 				
-				onMouseMoved.Connect(eventHandler.OnMouseMoved, [&io](const Nz::WindowEventHandler* /*eventHandler*/, const Nz::WindowEvent::MouseMoveEvent& event)
+				platformBackend->onMouseMoved.Connect(eventHandler.OnMouseMoved, [&io](const Nz::WindowEventHandler* /*eventHandler*/, const Nz::WindowEvent::MouseMoveEvent& event)
 				{
 					io.AddMousePosEvent(event.x, event.y);
 				});
@@ -383,6 +431,7 @@ namespace NzImGui
 
 				io.BackendRendererUserData = IM_NEW(ImGuiRendererBackend);
 				ImGuiRendererBackend* backend = static_cast<ImGuiRendererBackend*>(io.BackendRendererUserData);
+				backend->pool = std::make_shared<ImGuiPool>();
 				backend->windowSwapchain = &windowSwapchain;
 				backend->device = backend->windowSwapchain->GetRenderDevice();
 				if (backend->device->GetEnabledFeatures().drawBaseVertex)
@@ -430,11 +479,6 @@ namespace NzImGui
 				IM_DELETE(static_cast<ImGuiRendererBackend*>(io.BackendRendererUserData));
 				io.BackendRendererUserData = nullptr;
 			}
-
-			NazaraSlot(Nz::WindowEventHandler, OnMouseButtonPressed,  onMouseButtonPressed);
-			NazaraSlot(Nz::WindowEventHandler, OnMouseButtonReleased, onMouseButtonReleased);
-			NazaraSlot(Nz::WindowEventHandler, OnMouseMoved,          onMouseMoved);
-			NazaraSlot(Nz::WindowEventHandler, OnMouseWheelMoved,     onMouseWheelMoved);
 	};
 }
 
