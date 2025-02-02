@@ -11,17 +11,160 @@
 #include <Nazara/Renderer/Plugins/ImGuiPlugin.hpp>
 #include <NZSL/Math/FieldOffsets.hpp>
 #include <NazaraUtils/FixedVector.hpp>
-#include <frozen/unordered_map.h>
 #include <imgui.h>
-#include <span>
 
 namespace NzImGui
 {
-	constexpr auto s_mouseButtonMap = frozen::make_unordered_map<Nz::Mouse::Button, int>({
-		{ Nz::Mouse::Button::Left, ImGuiMouseButton_Left },
-		{ Nz::Mouse::Button::Right, ImGuiMouseButton_Right },
-		{ Nz::Mouse::Button::Max, ImGuiMouseButton_Middle }
-	});
+	constexpr Nz::EnumArray<Nz::Mouse::Button, int> s_mouseButtonMap = {
+		ImGuiMouseButton_Left,
+		ImGuiMouseButton_Right,
+		ImGuiMouseButton_Middle,
+		-1,
+		-1
+	};
+
+	constexpr Nz::EnumArray<Nz::Keyboard::VKey, ImGuiKey> s_virtualKeyMap = {
+		ImGuiKey_A, // Nz::Keyboard::VKey::A,
+		ImGuiKey_B, // Nz::Keyboard::VKey::B,
+		ImGuiKey_C, // Nz::Keyboard::VKey::C,
+		ImGuiKey_D, // Nz::Keyboard::VKey::D,
+		ImGuiKey_E, // Nz::Keyboard::VKey::E,
+		ImGuiKey_F, // Nz::Keyboard::VKey::F,
+		ImGuiKey_G, // Nz::Keyboard::VKey::G,
+		ImGuiKey_H, // Nz::Keyboard::VKey::H,
+		ImGuiKey_I, // Nz::Keyboard::VKey::I,
+		ImGuiKey_J, // Nz::Keyboard::VKey::J,
+		ImGuiKey_K, // Nz::Keyboard::VKey::K,
+		ImGuiKey_L, // Nz::Keyboard::VKey::L,
+		ImGuiKey_M, // Nz::Keyboard::VKey::M,
+		ImGuiKey_N, // Nz::Keyboard::VKey::N,
+		ImGuiKey_O, // Nz::Keyboard::VKey::O,
+		ImGuiKey_P, // Nz::Keyboard::VKey::P,
+		ImGuiKey_Q, // Nz::Keyboard::VKey::Q,
+		ImGuiKey_R, // Nz::Keyboard::VKey::R,
+		ImGuiKey_S, // Nz::Keyboard::VKey::S,
+		ImGuiKey_T, // Nz::Keyboard::VKey::T,
+		ImGuiKey_U, // Nz::Keyboard::VKey::U,
+		ImGuiKey_V, // Nz::Keyboard::VKey::V,
+		ImGuiKey_W, // Nz::Keyboard::VKey::W,
+		ImGuiKey_X, // Nz::Keyboard::VKey::X,
+		ImGuiKey_Y, // Nz::Keyboard::VKey::Y,
+		ImGuiKey_Z, // Nz::Keyboard::VKey::Z,
+
+		// Functional keys
+		ImGuiKey_F1,  // Nz::Keyboard::VKey::F1,
+		ImGuiKey_F2,  // Nz::Keyboard::VKey::F2,
+		ImGuiKey_F3,  // Nz::Keyboard::VKey::F3,
+		ImGuiKey_F4,  // Nz::Keyboard::VKey::F4,
+		ImGuiKey_F5,  // Nz::Keyboard::VKey::F5,
+		ImGuiKey_F6,  // Nz::Keyboard::VKey::F6,
+		ImGuiKey_F7,  // Nz::Keyboard::VKey::F7,
+		ImGuiKey_F8,  // Nz::Keyboard::VKey::F8,
+		ImGuiKey_F9,  // Nz::Keyboard::VKey::F9,
+		ImGuiKey_F10, // Nz::Keyboard::VKey::F10,
+		ImGuiKey_F11, // Nz::Keyboard::VKey::F11,
+		ImGuiKey_F12, // Nz::Keyboard::VKey::F12,
+		ImGuiKey_F13, // Nz::Keyboard::VKey::F13,
+		ImGuiKey_F14, // Nz::Keyboard::VKey::F14,
+		ImGuiKey_F15, // Nz::Keyboard::VKey::F15,
+
+		// Directional keys
+		ImGuiKey_DownArrow,  // Nz::Keyboard::VKey::Down,
+		ImGuiKey_LeftArrow,  // Nz::Keyboard::VKey::Left,
+		ImGuiKey_RightArrow, // Nz::Keyboard::VKey::Right,
+		ImGuiKey_UpArrow,    // Nz::Keyboard::VKey::Up,
+
+		// Numerical pad
+		ImGuiKey_KeypadAdd,      // Nz::Keyboard::VKey::Add,
+		ImGuiKey_KeypadDecimal,  // Nz::Keyboard::VKey::Decimal,
+		ImGuiKey_KeypadDivide,   // Nz::Keyboard::VKey::Divide,
+		ImGuiKey_KeypadMultiply, // Nz::Keyboard::VKey::Multiply,
+		ImGuiKey_KeypadEnter,    // Nz::Keyboard::VKey::NumpadReturn,
+		ImGuiKey_Keypad0,        // Nz::Keyboard::VKey::Numpad0,
+		ImGuiKey_Keypad1,        // Nz::Keyboard::VKey::Numpad1,
+		ImGuiKey_Keypad2,        // Nz::Keyboard::VKey::Numpad2,
+		ImGuiKey_Keypad3,        // Nz::Keyboard::VKey::Numpad3,
+		ImGuiKey_Keypad4,        // Nz::Keyboard::VKey::Numpad4,
+		ImGuiKey_Keypad5,        // Nz::Keyboard::VKey::Numpad5,
+		ImGuiKey_Keypad6,        // Nz::Keyboard::VKey::Numpad6,
+		ImGuiKey_Keypad7,        // Nz::Keyboard::VKey::Numpad7,
+		ImGuiKey_Keypad8,        // Nz::Keyboard::VKey::Numpad8,
+		ImGuiKey_Keypad9,        // Nz::Keyboard::VKey::Numpad9,
+		ImGuiKey_KeypadSubtract, // Nz::Keyboard::VKey::Subtract,
+
+		// Various
+		ImGuiKey_Backslash,    // Nz::Keyboard::VKey::Backslash,
+		ImGuiKey_Backspace,    // Nz::Keyboard::VKey::Backspace,
+		ImGuiKey_None,         // Nz::Keyboard::VKey::Clear,
+		ImGuiKey_Comma,        // Nz::Keyboard::VKey::Comma,
+		ImGuiKey_Minus,        // Nz::Keyboard::VKey::Dash,
+		ImGuiKey_Delete,       // Nz::Keyboard::VKey::Delete,
+		ImGuiKey_End,          // Nz::Keyboard::VKey::End,
+		ImGuiKey_Equal,        // Nz::Keyboard::VKey::Equal,
+		ImGuiKey_Escape,       // Nz::Keyboard::VKey::Escape,
+		ImGuiKey_Home,         // Nz::Keyboard::VKey::Home,
+		ImGuiKey_Insert,       // Nz::Keyboard::VKey::Insert,
+		ImGuiKey_LeftAlt,      // Nz::Keyboard::VKey::LAlt,
+		ImGuiKey_LeftBracket,  // Nz::Keyboard::VKey::LBracket,
+		ImGuiKey_LeftCtrl,     // Nz::Keyboard::VKey::LControl,
+		ImGuiKey_LeftShift,    // Nz::Keyboard::VKey::LShift,
+		ImGuiKey_LeftSuper,    // Nz::Keyboard::VKey::LSystem,
+		ImGuiKey_0,            // Nz::Keyboard::VKey::Num0,
+		ImGuiKey_1,            // Nz::Keyboard::VKey::Num1,
+		ImGuiKey_2,            // Nz::Keyboard::VKey::Num2,
+		ImGuiKey_3,            // Nz::Keyboard::VKey::Num3,
+		ImGuiKey_4,            // Nz::Keyboard::VKey::Num4,
+		ImGuiKey_5,            // Nz::Keyboard::VKey::Num5,
+		ImGuiKey_6,            // Nz::Keyboard::VKey::Num6,
+		ImGuiKey_7,            // Nz::Keyboard::VKey::Num7,
+		ImGuiKey_8,            // Nz::Keyboard::VKey::Num8,
+		ImGuiKey_9,            // Nz::Keyboard::VKey::Num9,
+		ImGuiKey_PageDown,     // Nz::Keyboard::VKey::PageDown,
+		ImGuiKey_PageUp,       // Nz::Keyboard::VKey::PageUp,
+		ImGuiKey_Pause,        // Nz::Keyboard::VKey::Pause,
+		ImGuiKey_Period,       // Nz::Keyboard::VKey::Period,
+		ImGuiKey_None,         // Nz::Keyboard::VKey::Print,
+		ImGuiKey_PrintScreen,  // Nz::Keyboard::VKey::PrintScreen,
+		ImGuiKey_Apostrophe,   // Nz::Keyboard::VKey::Quote,
+		ImGuiKey_RightAlt,     // Nz::Keyboard::VKey::RAlt,
+		ImGuiKey_RightBracket, // Nz::Keyboard::VKey::RBracket,
+		ImGuiKey_RightCtrl,    // Nz::Keyboard::VKey::RControl,
+		ImGuiKey_Enter,        // Nz::Keyboard::VKey::Return,
+		ImGuiKey_RightShift,   // Nz::Keyboard::VKey::RShift,
+		ImGuiKey_RightSuper,   // Nz::Keyboard::VKey::RSystem,
+		ImGuiKey_Semicolon,    // Nz::Keyboard::VKey::Semicolon,
+		ImGuiKey_Slash,        // Nz::Keyboard::VKey::Slash,
+		ImGuiKey_Space,        // Nz::Keyboard::VKey::Space,
+		ImGuiKey_Tab,          // Nz::Keyboard::VKey::Tab,
+		ImGuiKey_GraveAccent,  // Nz::Keyboard::VKey::Tilde,
+		ImGuiKey_Menu,         // Nz::Keyboard::VKey::Menu,
+		ImGuiKey_None,         // Nz::Keyboard::VKey::ISOBackslash102,
+
+		// Navigator keys
+		ImGuiKey_AppBack,    // Nz::Keyboard::VKey::Browser_Back,
+		ImGuiKey_None,       // Nz::Keyboard::VKey::Browser_Favorites,
+		ImGuiKey_AppForward, // Nz::Keyboard::VKey::Browser_Forward,
+		ImGuiKey_None,       // Nz::Keyboard::VKey::Browser_Home,
+		ImGuiKey_None,       // Nz::Keyboard::VKey::Browser_Refresh,
+		ImGuiKey_None,       // Nz::Keyboard::VKey::Browser_Search,
+		ImGuiKey_None,       // Nz::Keyboard::VKey::Browser_Stop,
+
+		// Lecture control keys
+		ImGuiKey_None, // Nz::Keyboard::VKey::Media_Next,
+		ImGuiKey_None, // Nz::Keyboard::VKey::Media_Play,
+		ImGuiKey_None, // Nz::Keyboard::VKey::Media_Previous,
+		ImGuiKey_None, // Nz::Keyboard::VKey::Media_Stop,
+
+		// Volume control keys
+		ImGuiKey_None, // Nz::Keyboard::VKey::Volume_Down,
+		ImGuiKey_None, // Nz::Keyboard::VKey::Volume_Mute,
+		ImGuiKey_None, // Nz::Keyboard::VKey::Volume_Up,
+
+		// Locking keys
+		ImGuiKey_CapsLock,   // Nz::Keyboard::VKey::CapsLock,
+		ImGuiKey_NumLock,    // Nz::Keyboard::VKey::NumLock,
+		ImGuiKey_ScrollLock, // Nz::Keyboard::VKey::ScrollLock,
+	};
 
 	struct PushConstants
 	{
@@ -59,10 +202,13 @@ namespace NzImGui
 		std::string clipboardText;
 		Nz::Window* window;
 
+		NazaraSlot(Nz::WindowEventHandler, OnKeyPressed, onKeyPressed);
+		NazaraSlot(Nz::WindowEventHandler, OnKeyReleased, onKeyReleased);
 		NazaraSlot(Nz::WindowEventHandler, OnMouseButtonPressed, onMouseButtonPressed);
 		NazaraSlot(Nz::WindowEventHandler, OnMouseButtonReleased, onMouseButtonReleased);
 		NazaraSlot(Nz::WindowEventHandler, OnMouseMoved, onMouseMoved);
 		NazaraSlot(Nz::WindowEventHandler, OnMouseWheelMoved, onMouseWheelMoved);
+		NazaraSlot(Nz::WindowEventHandler, OnTextEntered, onTextEntered);
 	};
 
 	struct ImGuiRendererBackend
@@ -364,23 +510,60 @@ namespace NzImGui
 
 			void SetupInputs(ImGuiIO& io, ImGuiPlatformBackend* platformBackend, Nz::WindowEventHandler& eventHandler)
 			{
+				platformBackend->onKeyPressed.Connect(eventHandler.OnKeyPressed, [&io](const Nz::WindowEventHandler* /*eventHandler*/, const Nz::WindowEvent::KeyEvent& event)
+					{
+						if (event.virtualKey == Nz::Keyboard::VKey::Undefined)
+							return;
+
+					ImGuiKey keyCode = s_virtualKeyMap[event.virtualKey];
+					if (keyCode != ImGuiKey_None)
+					{
+						io.AddKeyEvent(ImGuiMod_Alt, event.alt);
+						io.AddKeyEvent(ImGuiMod_Ctrl, event.control);
+						io.AddKeyEvent(ImGuiMod_Shift, event.shift);
+						io.AddKeyEvent(ImGuiMod_Super, event.system);
+						io.AddKeyEvent(keyCode, true);
+					}
+				});
+				
+				platformBackend->onKeyReleased.Connect(eventHandler.OnKeyReleased, [&io](const Nz::WindowEventHandler* /*eventHandler*/, const Nz::WindowEvent::KeyEvent& event)
+				{
+					if (event.virtualKey == Nz::Keyboard::VKey::Undefined)
+						return;
+
+					ImGuiKey keyCode = s_virtualKeyMap[event.virtualKey];
+					if (keyCode != ImGuiKey_None)
+					{
+						io.AddKeyEvent(ImGuiMod_Alt, event.alt);
+						io.AddKeyEvent(ImGuiMod_Ctrl, event.control);
+						io.AddKeyEvent(ImGuiMod_Shift, event.shift);
+						io.AddKeyEvent(ImGuiMod_Super, event.system);
+						io.AddKeyEvent(keyCode, false);
+					}
+				});
+				
 				platformBackend->onMouseButtonPressed.Connect(eventHandler.OnMouseButtonPressed, [&io](const Nz::WindowEventHandler* /*eventHandler*/, const Nz::WindowEvent::MouseButtonEvent& event)
 				{
-					auto it = s_mouseButtonMap.find(event.button);
-					if (it != s_mouseButtonMap.end())
-						io.AddMouseButtonEvent(it->second, true);
+					int mouseCode = s_mouseButtonMap[event.button];
+					if (mouseCode >= 0)
+						io.AddMouseButtonEvent(mouseCode, true);
 				});
 
 				platformBackend->onMouseButtonReleased.Connect(eventHandler.OnMouseButtonReleased, [&io](const Nz::WindowEventHandler* /*eventHandler*/, const Nz::WindowEvent::MouseButtonEvent& event)
 				{
-					auto it = s_mouseButtonMap.find(event.button);
-					if (it != s_mouseButtonMap.end())
-						io.AddMouseButtonEvent(it->second, false);
+					int mouseCode = s_mouseButtonMap[event.button];
+					if (mouseCode >= 0)
+						io.AddMouseButtonEvent(mouseCode, false);
 				});
 				
 				platformBackend->onMouseMoved.Connect(eventHandler.OnMouseMoved, [&io](const Nz::WindowEventHandler* /*eventHandler*/, const Nz::WindowEvent::MouseMoveEvent& event)
 				{
 					io.AddMousePosEvent(event.x, event.y);
+				});
+				
+				platformBackend->onTextEntered.Connect(eventHandler.OnTextEntered, [&io](const Nz::WindowEventHandler* /*eventHandler*/, const Nz::WindowEvent::TextEvent& event)
+				{
+					io.AddInputCharacter(event.character);
 				});
 			}
 
