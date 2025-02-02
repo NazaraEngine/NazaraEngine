@@ -9,7 +9,7 @@ if has_config("imgui") then
 		set_license("MIT")
 
 		add_deps("NazaraCore", "NazaraRenderer", "NazaraTextRenderer")
-		add_packages("frozen", "imgui", "nzsl")
+		add_packages("imgui", "nzsl")
 
 		add_headerfiles("**.hpp", "**.inl", { prefixdir = "private", install = false })
 		add_includedirs(".")
