@@ -329,7 +329,9 @@ namespace Nz
 				PhysBody3D* body1 = IntegerToPointer<PhysBody3D*>(inBody1.GetUserData());
 				PhysBody3D* body2 = IntegerToPointer<PhysBody3D*>(inBody2.GetUserData());
 
-				m_contactListener->OnContactAdded(body1, body2);
+				PhysContactResponse3D response = FromJolt(ioSettings);
+				m_contactListener->OnContactAdded(body1, body2, FromJolt(inManifold), response);
+				ioSettings = ToJolt(response);
 			}
 
 			void OnContactPersisted(const JPH::Body& inBody1, const JPH::Body& inBody2, const JPH::ContactManifold& inManifold, JPH::ContactSettings& ioSettings) override
@@ -337,23 +339,32 @@ namespace Nz
 				PhysBody3D* body1 = IntegerToPointer<PhysBody3D*>(inBody1.GetUserData());
 				PhysBody3D* body2 = IntegerToPointer<PhysBody3D*>(inBody2.GetUserData());
 
-				m_contactListener->OnContactPersisted(body1, body2);
+				PhysContactResponse3D response = FromJolt(ioSettings);
+				m_contactListener->OnContactPersisted(body1, body2, FromJolt(inManifold), response);
+				ioSettings = ToJolt(response);
 			}
 
 			void OnContactRemoved(const JPH::SubShapeIDPair& inSubShapePair) override
 			{
-				JPH::BodyLockRead lock1(m_bodyLockInterface, inSubShapePair.GetBody1ID());
-				if (!lock1.Succeeded())
-					return; //< body1 was destroyed
+				PhysBody3D* body1 = nullptr;
 
+				JPH::BodyLockRead lock1(m_bodyLockInterface, inSubShapePair.GetBody1ID());
+				if (lock1.Succeeded())
+					body1 = IntegerToPointer<PhysBody3D*>(lock1.GetBody().GetUserData());
+
+				PhysBody3D* body2 = nullptr;
 				JPH::BodyLockRead lock2(m_bodyLockInterface, inSubShapePair.GetBody2ID());
 				if (!lock2.Succeeded())
-					return; //< body2 was destroyed
+					body2 = IntegerToPointer<PhysBody3D*>(lock2.GetBody().GetUserData());
 
-				PhysBody3D* body1 = IntegerToPointer<PhysBody3D*>(lock1.GetBody().GetUserData());
-				PhysBody3D* body2 = IntegerToPointer<PhysBody3D*>(lock2.GetBody().GetUserData());
-
-				m_contactListener->OnContactRemoved(body1, body2);
+				m_contactListener->OnContactRemoved(
+					inSubShapePair.GetBody1ID().GetIndex(),
+					body1,
+					inSubShapePair.GetSubShapeID1().GetValue(),
+					inSubShapePair.GetBody2ID().GetIndex(),
+					body2,
+					inSubShapePair.GetSubShapeID2().GetValue()
+				);
 			}
 
 		private:

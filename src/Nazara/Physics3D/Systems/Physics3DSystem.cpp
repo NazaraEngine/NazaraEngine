@@ -135,19 +135,22 @@ namespace Nz
 					return m_contactListener->ValidateContact(m_physSystem.GetRigidBodyEntity(body1->GetBodyIndex()), body1, m_physSystem.GetRigidBodyEntity(body2->GetBodyIndex()), body2, baseOffset, collisionInfo);
 				}
 
-				void OnContactAdded(const PhysBody3D* body1, const PhysBody3D* body2) override
+				void OnContactAdded(const PhysBody3D* body1, const PhysBody3D* body2, const PhysContact3D& physContact, PhysContactResponse3D& physContactResponse) override
 				{
-					return m_contactListener->OnContactAdded(m_physSystem.GetRigidBodyEntity(body1->GetBodyIndex()), body1, m_physSystem.GetRigidBodyEntity(body2->GetBodyIndex()), body2);
+					return m_contactListener->OnContactAdded(m_physSystem.GetRigidBodyEntity(body1->GetBodyIndex()), body1, m_physSystem.GetRigidBodyEntity(body2->GetBodyIndex()), body2, physContact, physContactResponse);
 				}
 
-				void OnContactPersisted(const PhysBody3D* body1, const PhysBody3D* body2) override
+				void OnContactPersisted(const PhysBody3D* body1, const PhysBody3D* body2, const PhysContact3D& physContact, PhysContactResponse3D& physContactResponse) override
 				{
-					return m_contactListener->OnContactPersisted(m_physSystem.GetRigidBodyEntity(body1->GetBodyIndex()), body1, m_physSystem.GetRigidBodyEntity(body2->GetBodyIndex()), body2);
+					return m_contactListener->OnContactPersisted(m_physSystem.GetRigidBodyEntity(body1->GetBodyIndex()), body1, m_physSystem.GetRigidBodyEntity(body2->GetBodyIndex()), body2, physContact, physContactResponse);
 				}
 
-				void OnContactRemoved(const PhysBody3D* body1, const PhysBody3D* body2) override
+				void OnContactRemoved(UInt32 body1Index, const PhysBody3D* body1, UInt32 subShapeID1, UInt32 body2Index, const PhysBody3D* body2, UInt32 subShapeID2) override
 				{
-					return m_contactListener->OnContactRemoved(m_physSystem.GetRigidBodyEntity(body1->GetBodyIndex()), body1, m_physSystem.GetRigidBodyEntity(body2->GetBodyIndex()), body2);
+					entt::handle entity1 = m_physSystem.GetRigidBodyEntity(body1Index);
+					entt::handle entity2 = m_physSystem.GetRigidBodyEntity(body2Index);
+
+					return m_contactListener->OnContactRemoved(entity1, body1Index, body1, subShapeID1, entity2, body2Index, body2, subShapeID2);
 				}
 
 			private:

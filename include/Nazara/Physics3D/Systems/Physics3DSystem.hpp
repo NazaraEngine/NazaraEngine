@@ -60,9 +60,9 @@ namespace Nz
 
 				virtual PhysContactValidateResult3D ValidateContact(entt::handle entity1, const PhysBody3D* body1, entt::handle entity2, const PhysBody3D* body2, const Vector3f& baseOffset, const ShapeCollisionInfo& collisionResult) = 0;
 
-				virtual void OnContactAdded(entt::handle entity1, const PhysBody3D* body1, entt::handle entity2, const PhysBody3D* body2) = 0; //< TODO: Add ContactManifold and ContactSettings
-				virtual void OnContactPersisted(entt::handle entity1, const PhysBody3D* body1, entt::handle entity2, const PhysBody3D* body2) = 0; //< TODO: Add ContactManifold and ContactSettings
-				virtual void OnContactRemoved(entt::handle entity1, const PhysBody3D* body1, entt::handle entity2, const PhysBody3D* body2) = 0; //< TODO: Add subshape id
+				virtual void OnContactAdded(entt::handle entity1, const PhysBody3D* body1, entt::handle entity2, const PhysBody3D* body2, const PhysContact3D& physContact, PhysContactResponse3D& physContactResponse) = 0;
+				virtual void OnContactPersisted(entt::handle entity1, const PhysBody3D* body1, entt::handle entity2, const PhysBody3D* body2, const PhysContact3D& physContact, PhysContactResponse3D& physContactResponse) = 0;
+				virtual void OnContactRemoved(entt::handle entity1, UInt32 body1Index, const PhysBody3D* body1, UInt32 subShapeID1, entt::handle entity2, UInt32 body2Index, const PhysBody3D* body2, UInt32 subShapeID2) = 0;
 			};
 
 			struct PointCollisionInfo : PhysWorld3D::PointCollisionInfo

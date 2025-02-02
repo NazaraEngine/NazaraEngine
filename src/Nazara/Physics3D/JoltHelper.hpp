@@ -12,8 +12,11 @@
 #include <Nazara/Math/Matrix4.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <Nazara/Physics3D/PhysContact3D.hpp>
+#include <Nazara/Physics3D/PhysContactResponse3D.hpp>
 #include <Jolt/Jolt.h>
 #include <Jolt/Geometry/AABox.h>
+#include <Jolt/Physics/Collision/ContactListener.h>
 
 namespace Nz
 {
@@ -22,12 +25,15 @@ namespace Nz
 	inline Quaternionf FromJolt(const JPH::Quat& quat);
 	inline Matrix4f FromJolt(const JPH::Mat44& matrix);
 	inline Vector3f FromJolt(const JPH::Vec3& vec);
+	inline PhysContact3D FromJolt(const JPH::ContactManifold& contactManifold);
+	inline PhysContactResponse3D FromJolt(const JPH::ContactSettings& contactSettings);
 
 	inline JPH::AABox ToJolt(const Boxf& aabb);
 	inline JPH::Mat44 ToJolt(const Matrix4f& transformMatrix);
 	inline JPH::Quat ToJolt(const Quaternionf& quaternion);
 	inline JPH::Vec3 ToJolt(const Vector3f& vec);
 	inline JPH::Vec4 ToJolt(const Vector4f& vec);
+	inline JPH::ContactSettings ToJolt(const PhysContactResponse3D& contactResponse);
 }
 
 #include <Nazara/Physics3D/JoltHelper.inl>

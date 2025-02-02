@@ -38,6 +38,47 @@ namespace Nz
 		return Vector3f(vec.GetX(), vec.GetY(), vec.GetZ());
 	}
 
+	inline PhysContact3D FromJolt(const JPH::ContactManifold& contactManifold)
+	{
+		PhysContact3D contact;
+		contact.baseOffset = FromJolt(contactManifold.mBaseOffset);
+		contact.normal = FromJolt(contactManifold.mWorldSpaceNormal);
+		contact.penetrationDepth = contactManifold.mPenetrationDepth;
+		contact.subshapeID1 = contactManifold.mSubShapeID1.GetValue();
+		contact.subshapeID2 = contactManifold.mSubShapeID2.GetValue();
+
+		static_assert(decltype(contact.relativeContactPositions1)::FixedCapacity == decltype(contactManifold.mRelativeContactPointsOn1)::Capacity);
+
+		contact.relativeContactPositions1.resize(contactManifold.mRelativeContactPointsOn1.size());
+		for (JPH::uint i = 0; i < contactManifold.mRelativeContactPointsOn1.size(); ++i)
+			contact.relativeContactPositions1[i] = FromJolt(contactManifold.mRelativeContactPointsOn1[i]);
+
+		static_assert(decltype(contact.relativeContactPositions2)::FixedCapacity == decltype(contactManifold.mRelativeContactPointsOn2)::Capacity);
+
+		contact.relativeContactPositions2.resize(contactManifold.mRelativeContactPointsOn2.size());
+		for (JPH::uint i = 0; i < contactManifold.mRelativeContactPointsOn2.size(); ++i)
+			contact.relativeContactPositions2[i] = FromJolt(contactManifold.mRelativeContactPointsOn2[i]);
+
+		return contact;
+	}
+
+	inline PhysContactResponse3D FromJolt(const JPH::ContactSettings& contactSettings)
+	{
+		PhysContactResponse3D contactResponse;
+		contactResponse.combinedFriction = contactSettings.mCombinedFriction;
+		contactResponse.combinedRestitution = contactSettings.mCombinedRestitution;
+		contactResponse.invMassScale1 = contactSettings.mInvMassScale1;
+		contactResponse.invInertiaScale1 = contactSettings.mInvInertiaScale1;
+		contactResponse.invMassScale2 = contactSettings.mInvMassScale2;
+		contactResponse.invInertiaScale2 = contactSettings.mInvInertiaScale2;
+		contactResponse.isSensor = contactSettings.mIsSensor;
+		contactResponse.relativeAngularSurfaceVelocity = FromJolt(contactSettings.mRelativeAngularSurfaceVelocity);
+		contactResponse.relativeLinearSurfaceVelocity = FromJolt(contactSettings.mRelativeLinearSurfaceVelocity);
+
+		return contactResponse;
+	}
+
+
 	inline JPH::AABox ToJolt(const Boxf& aabb)
 	{
 		return JPH::AABox(ToJolt(aabb.GetMinimum()), ToJolt(aabb.GetMaximum()));
@@ -67,5 +108,21 @@ namespace Nz
 	inline JPH::Vec4 ToJolt(const Vector4f& vec)
 	{
 		return JPH::Vec4(vec.x, vec.y, vec.z, vec.w);
+	}
+
+	inline JPH::ContactSettings ToJolt(const PhysContactResponse3D& contactResponse)
+	{
+		JPH::ContactSettings contactSettings;
+		contactSettings.mCombinedFriction = contactResponse.combinedFriction;
+		contactSettings.mCombinedRestitution = contactResponse.combinedRestitution;
+		contactSettings.mInvMassScale1 = contactResponse.invMassScale1;
+		contactSettings.mInvInertiaScale1 = contactResponse.invInertiaScale1;
+		contactSettings.mInvMassScale2 = contactResponse.invMassScale2;
+		contactSettings.mInvInertiaScale2 = contactResponse.invInertiaScale2;
+		contactSettings.mIsSensor = contactResponse.isSensor;
+		contactSettings.mRelativeAngularSurfaceVelocity = ToJolt(contactResponse.relativeAngularSurfaceVelocity);
+		contactSettings.mRelativeLinearSurfaceVelocity = ToJolt(contactResponse.relativeLinearSurfaceVelocity);
+
+		return contactSettings;
 	}
 }

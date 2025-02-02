@@ -34,6 +34,8 @@ namespace Nz
 	class PhysCharacter3DImpl;
 	class PhysWorld3DStepListener;
 	class RigidBody3D;
+	struct PhysContact3D;
+	struct PhysContactResponse3D;
 
 	class NAZARA_PHYSICS3D_API PhysWorld3D
 	{
@@ -94,9 +96,9 @@ namespace Nz
 
 				virtual PhysContactValidateResult3D ValidateContact(const PhysBody3D* body1, const PhysBody3D* body2, const Vector3f& baseOffset, const ShapeCollisionInfo& collisionResult) = 0;
 
-				virtual void OnContactAdded(const PhysBody3D* body1, const PhysBody3D* body2) = 0; //< TODO: Add ContactManifold and ContactSettings
-				virtual void OnContactPersisted(const PhysBody3D* body1, const PhysBody3D* body2) = 0; //< TODO: Add ContactManifold and ContactSettings
-				virtual void OnContactRemoved(const PhysBody3D* body1, const PhysBody3D* body2) = 0; //< TODO: Add subshape id
+				virtual void OnContactAdded(const PhysBody3D* body1, const PhysBody3D* body2, const PhysContact3D& physContact, PhysContactResponse3D& physContactResponse) = 0;
+				virtual void OnContactPersisted(const PhysBody3D* body1, const PhysBody3D* body2, const PhysContact3D& physContact, PhysContactResponse3D& physContactResponse) = 0;
+				virtual void OnContactRemoved(UInt32 body1Index, const PhysBody3D* body1, UInt32 subShapeID1, UInt32 body2Index, const PhysBody3D* body2, UInt32 subShapeID2) = 0;
 			};
 
 			struct PointCollisionInfo
