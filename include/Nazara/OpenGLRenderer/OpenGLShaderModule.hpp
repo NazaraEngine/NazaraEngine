@@ -28,7 +28,7 @@ namespace Nz
 			OpenGLShaderModule(OpenGLDevice& device, nzsl::ShaderStageTypeFlags shaderStages, const nzsl::Ast::Module& shaderModule, const nzsl::ShaderWriter::States& states = {});
 			OpenGLShaderModule(OpenGLDevice& device, nzsl::ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const nzsl::ShaderWriter::States& states = {});
 
-			nzsl::ShaderStageTypeFlags Attach(GL::Program& program, const nzsl::GlslWriter::BindingMapping& bindingMapping, std::vector<ExplicitBinding>* explicitBindings) const;
+			nzsl::ShaderStageTypeFlags Attach(GL::Program& program, const nzsl::GlslWriter::Parameters& parameters, std::vector<ExplicitBinding>* explicitBindings) const;
 
 			inline const std::vector<ExplicitBinding>& GetExplicitBindings() const;
 

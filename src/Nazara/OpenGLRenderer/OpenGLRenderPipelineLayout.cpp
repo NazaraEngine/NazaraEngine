@@ -3,10 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/OpenGLRenderer/OpenGLRenderPipelineLayout.hpp>
-#include <Nazara/Core/ErrorFlags.hpp>
-#include <Nazara/OpenGLRenderer/Utils.hpp>
 #include <NazaraUtils/MemoryHelper.hpp>
-#include <NazaraUtils/StackVector.hpp>
 #include <cassert>
 #include <stdexcept>
 
@@ -24,7 +21,7 @@ namespace Nz
 			{
 				UInt64 bindingKey = UInt64(binding.setIndex) << 32 | UInt64(binding.bindingIndex + i);
 
-				m_bindingMapping[bindingKey] = bindingIndex++;
+				m_shaderParameters.bindingMapping[bindingKey] = bindingIndex++;
 			}
 
 			m_maxDescriptorCount = std::max<std::size_t>(m_maxDescriptorCount, binding.bindingIndex + binding.arraySize);

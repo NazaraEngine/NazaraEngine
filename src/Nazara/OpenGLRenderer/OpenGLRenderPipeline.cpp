@@ -38,7 +38,7 @@ namespace Nz
 		for (const auto& shaderModulePtr : m_pipelineInfo.shaderModules)
 		{
 			OpenGLShaderModule& shaderModule = SafeCast<OpenGLShaderModule&>(*shaderModulePtr);
-			stageFlags |= shaderModule.Attach(m_program, pipelineLayout.GetBindingMapping(), &explicitBindings);
+			stageFlags |= shaderModule.Attach(m_program, pipelineLayout.GetShaderParameters(), &explicitBindings);
 		}
 
 		// OpenGL ES programs must have both vertex and fragment shaders or a compute shader or a mesh and fragment shader.
@@ -53,7 +53,7 @@ namespace Nz
 					dummyModule.rootNode->statements.push_back(nzsl::ShaderBuilder::DeclareFunction(stage, "main", {}, {}));
 
 					OpenGLShaderModule shaderModule(device, stage, dummyModule);
-					stageFlags |= shaderModule.Attach(m_program, pipelineLayout.GetBindingMapping(), &explicitBindings);
+					stageFlags |= shaderModule.Attach(m_program, pipelineLayout.GetShaderParameters(), &explicitBindings);
 				}
 			};
 

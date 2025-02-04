@@ -15,8 +15,8 @@ namespace Nz
 	void OpenGLShaderBinding::Apply(const OpenGLRenderPipelineLayout& pipelineLayout, UInt32 setIndex, const GL::Context& context) const
 	{
 		//TODO: Check layout compatibility
-		const auto& bindingMapping = pipelineLayout.GetBindingMapping();
 		const auto& layoutInfo = pipelineLayout.GetLayoutInfo();
+		const auto& shaderParameters = pipelineLayout.GetShaderParameters();
 
 		m_owner.ForEachDescriptor(m_poolIndex, m_bindingIndex, [&](UInt32 bindingIndex, auto&& descriptor)
 		{
@@ -39,8 +39,8 @@ namespace Nz
 
 			const auto& bindingInfo = *bindingIt;
 
-			auto bindingMappingIt = bindingMapping.find(UInt64(setIndex) << 32 | bindingIndex);
-			assert(bindingMappingIt != bindingMapping.end());
+			auto bindingMappingIt = shaderParameters.bindingMapping.find(UInt64(setIndex) << 32 | bindingIndex);
+			assert(bindingMappingIt != shaderParameters.bindingMapping.end());
 
 			UInt32 bindingPoint = bindingMappingIt->second;
 

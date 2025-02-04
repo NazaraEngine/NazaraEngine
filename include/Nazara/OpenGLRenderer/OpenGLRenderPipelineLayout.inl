@@ -5,14 +5,14 @@
 
 namespace Nz
 {
-	inline const nzsl::GlslWriter::BindingMapping& OpenGLRenderPipelineLayout::GetBindingMapping() const
-	{
-		return m_bindingMapping;
-	}
-
 	inline const RenderPipelineLayoutInfo& OpenGLRenderPipelineLayout::GetLayoutInfo() const
 	{
 		return m_layoutInfo;
+	}
+
+	inline const nzsl::GlslWriter::Parameters& OpenGLRenderPipelineLayout::GetShaderParameters() const
+	{
+		return m_shaderParameters;
 	}
 
 	template<typename F>

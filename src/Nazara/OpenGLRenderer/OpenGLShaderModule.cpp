@@ -78,7 +78,7 @@ namespace Nz
 		}
 	}
 
-	nzsl::ShaderStageTypeFlags OpenGLShaderModule::Attach(GL::Program& program, const nzsl::GlslWriter::BindingMapping& bindingMapping, std::vector<ExplicitBinding>* explicitBindings) const
+	nzsl::ShaderStageTypeFlags OpenGLShaderModule::Attach(GL::Program& program, const nzsl::GlslWriter::Parameters& parameters, std::vector<ExplicitBinding>* explicitBindings) const
 	{
 		const auto& context = m_device.GetReferenceContext();
 		const auto& contextParams = context.GetParams();
@@ -118,7 +118,7 @@ namespace Nz
 					shader.SetSource(arg.sourceCode.data(), GLint(arg.sourceCode.size()));
 				else if constexpr (std::is_same_v<T, ShaderStatement>)
 				{
-					nzsl::GlslWriter::Output output = writer.Generate(shaderEntry.stage, *arg.ast, bindingMapping, m_states);
+					nzsl::GlslWriter::Output output = writer.Generate(shaderEntry.stage, *arg.ast, parameters, m_states);
 					shader.SetSource(output.code.data(), GLint(output.code.size()));
 
 					if (explicitBindings)

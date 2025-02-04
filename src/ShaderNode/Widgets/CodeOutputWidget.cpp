@@ -84,15 +84,15 @@ void CodeOutputWidget::Refresh()
 		{
 			case OutputLanguage::GLSL:
 			{
-				nzsl::GlslWriter::BindingMapping bindingMapping;
+				nzsl::GlslWriter::Parameters shaderParameters;
 				for (const auto& buffer : m_shaderGraph.GetBuffers())
-					bindingMapping.emplace(Nz::UInt64(buffer.setIndex) << 32 | Nz::UInt64(buffer.bindingIndex), bindingMapping.size());
+					shaderParameters.bindingMapping.emplace(Nz::UInt64(buffer.setIndex) << 32 | Nz::UInt64(buffer.bindingIndex), shaderParameters.bindingMapping.size());
 
 				for (const auto& texture : m_shaderGraph.GetTextures())
-					bindingMapping.emplace(Nz::UInt64(texture.setIndex) << 32 | Nz::UInt64(texture.bindingIndex), bindingMapping.size());
+					shaderParameters.bindingMapping.emplace(Nz::UInt64(texture.setIndex) << 32 | Nz::UInt64(texture.bindingIndex), shaderParameters.bindingMapping.size());
 
 				nzsl::GlslWriter writer;
-				nzsl::GlslWriter::Output output = writer.Generate(ShaderGraph::ToShaderStageType(m_shaderGraph.GetType()), *shaderModule, bindingMapping, states);
+				nzsl::GlslWriter::Output output = writer.Generate(ShaderGraph::ToShaderStageType(m_shaderGraph.GetType()), *shaderModule, shaderParameters, states);
 				codeOutput = std::move(output.code);
 				break;
 			}

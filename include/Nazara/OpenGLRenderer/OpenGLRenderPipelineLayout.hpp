@@ -33,8 +33,8 @@ namespace Nz
 
 			ShaderBindingPtr AllocateShaderBinding(UInt32 setIndex) override;
 
-			inline const nzsl::GlslWriter::BindingMapping& GetBindingMapping() const;
 			inline const RenderPipelineLayoutInfo& GetLayoutInfo() const;
+			inline const nzsl::GlslWriter::Parameters& GetShaderParameters() const;
 
 			void UpdateDebugName(std::string_view name) override;
 
@@ -102,7 +102,7 @@ namespace Nz
 
 			std::size_t m_maxDescriptorCount;
 			std::vector<DescriptorPool> m_descriptorPools;
-			nzsl::GlslWriter::BindingMapping m_bindingMapping;
+			nzsl::GlslWriter::Parameters m_shaderParameters;
 			RenderPipelineLayoutInfo m_layoutInfo;
 	};
 }

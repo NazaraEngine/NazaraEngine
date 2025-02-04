@@ -31,7 +31,7 @@ namespace Nz
 		OpenGLShaderModule& shaderModule = SafeCast<OpenGLShaderModule&>(*m_pipelineInfo.shaderModule);
 
 		std::vector<OpenGLShaderModule::ExplicitBinding> explicitBindings;
-		nzsl::ShaderStageTypeFlags stageFlags = shaderModule.Attach(m_program, pipelineLayout.GetBindingMapping(), &explicitBindings);
+		nzsl::ShaderStageTypeFlags stageFlags = shaderModule.Attach(m_program, pipelineLayout.GetShaderParameters(), &explicitBindings);
 		if (!stageFlags.Test(nzsl::ShaderStageType::Compute))
 			throw std::runtime_error("shader module has no compute stage");
 
