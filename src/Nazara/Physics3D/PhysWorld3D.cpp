@@ -354,7 +354,7 @@ namespace Nz
 
 				PhysBody3D* body2 = nullptr;
 				JPH::BodyLockRead lock2(m_bodyLockInterface, inSubShapePair.GetBody2ID());
-				if (!lock2.Succeeded())
+				if (lock2.Succeeded())
 					body2 = IntegerToPointer<PhysBody3D*>(lock2.GetBody().GetUserData());
 
 				m_contactListener->OnContactRemoved(
