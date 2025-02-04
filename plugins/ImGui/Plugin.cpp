@@ -482,17 +482,26 @@ namespace NzImGui
 
 			void SetupFontTexture(ImGuiIO& io, ImGuiRendererBackend* rendererBackend)
 			{
-				unsigned char* pixels;
-				int width, height;
-				io.Fonts->GetTexDataAsAlpha8(&pixels, &width, &height);
-
 				Nz::TextureInfo textureInfo;
-				textureInfo.pixelFormat = Nz::PixelFormat::L8;
-				textureInfo.width = width;
-				textureInfo.height = height;
 				textureInfo.type = Nz::ImageType::E2D;
 
+				unsigned char* pixels;
+				int width, height;
+				if (rendererBackend->device->IsTextureFormatSupported(Nz::PixelFormat::A8, Nz::TextureUsage::ShaderSampling))
+				{
+					textureInfo.pixelFormat = Nz::PixelFormat::A8;
+					io.Fonts->GetTexDataAsAlpha8(&pixels, &width, &height);
+				}
+				else
+				{
+					textureInfo.pixelFormat = Nz::PixelFormat::RGBA8;
+					io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
+				}
+
+				textureInfo.width = width;
+				textureInfo.height = height;
 				rendererBackend->fontTexture = rendererBackend->device->InstantiateTexture(textureInfo, pixels, true);
+
 				rendererBackend->fontTextureSampler = rendererBackend->device->InstantiateTextureSampler({});
 
 				rendererBackend->shaderBindings[0] = rendererBackend->renderPipelineLayout->AllocateShaderBinding(0);
@@ -511,19 +520,19 @@ namespace NzImGui
 			void SetupInputs(ImGuiIO& io, ImGuiPlatformBackend* platformBackend, Nz::WindowEventHandler& eventHandler)
 			{
 				platformBackend->onKeyPressed.Connect(eventHandler.OnKeyPressed, [&io](const Nz::WindowEventHandler* /*eventHandler*/, const Nz::WindowEvent::KeyEvent& event)
-					{
-						if (event.virtualKey == Nz::Keyboard::VKey::Undefined)
-							return;
+				{
+					if (event.virtualKey == Nz::Keyboard::VKey::Undefined)
+						return;
 
 					ImGuiKey keyCode = s_virtualKeyMap[event.virtualKey];
-					if (keyCode != ImGuiKey_None)
-					{
-						io.AddKeyEvent(ImGuiMod_Alt, event.alt);
-						io.AddKeyEvent(ImGuiMod_Ctrl, event.control);
-						io.AddKeyEvent(ImGuiMod_Shift, event.shift);
-						io.AddKeyEvent(ImGuiMod_Super, event.system);
-						io.AddKeyEvent(keyCode, true);
-					}
+					if (keyCode == ImGuiKey_None)
+						return;
+
+					io.AddKeyEvent(ImGuiMod_Alt, event.alt);
+					io.AddKeyEvent(ImGuiMod_Ctrl, event.control);
+					io.AddKeyEvent(ImGuiMod_Shift, event.shift);
+					io.AddKeyEvent(ImGuiMod_Super, event.system);
+					io.AddKeyEvent(keyCode, true);
 				});
 				
 				platformBackend->onKeyReleased.Connect(eventHandler.OnKeyReleased, [&io](const Nz::WindowEventHandler* /*eventHandler*/, const Nz::WindowEvent::KeyEvent& event)
@@ -532,14 +541,14 @@ namespace NzImGui
 						return;
 
 					ImGuiKey keyCode = s_virtualKeyMap[event.virtualKey];
-					if (keyCode != ImGuiKey_None)
-					{
-						io.AddKeyEvent(ImGuiMod_Alt, event.alt);
-						io.AddKeyEvent(ImGuiMod_Ctrl, event.control);
-						io.AddKeyEvent(ImGuiMod_Shift, event.shift);
-						io.AddKeyEvent(ImGuiMod_Super, event.system);
-						io.AddKeyEvent(keyCode, false);
-					}
+					if (keyCode == ImGuiKey_None)
+						return;
+
+					io.AddKeyEvent(ImGuiMod_Alt, event.alt);
+					io.AddKeyEvent(ImGuiMod_Ctrl, event.control);
+					io.AddKeyEvent(ImGuiMod_Shift, event.shift);
+					io.AddKeyEvent(ImGuiMod_Super, event.system);
+					io.AddKeyEvent(keyCode, false);
 				});
 				
 				platformBackend->onMouseButtonPressed.Connect(eventHandler.OnMouseButtonPressed, [&io](const Nz::WindowEventHandler* /*eventHandler*/, const Nz::WindowEvent::MouseButtonEvent& event)
