@@ -15,5 +15,6 @@ if has_config("imgui") then
 		add_includedirs(".")
 		add_files("**.cpp")
 		add_files("**.nzsl")
+		add_extrafiles("**.nzsl")
 		add_rules("@nzsl/compile.shaders", { inplace = true })
 end
