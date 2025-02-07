@@ -95,14 +95,11 @@ namespace Nz
 	template<typename T>
 	T& EnttSystemGraph::GetSystem() const
 	{
-		constexpr bool CanUpdate = Detail::EnttSystemGraphHasUpdate<T>();
-
-		auto it = m_systemToNodes.find(entt::type_hash<T>());
-		if (it == m_systemToNodes.end())
+		T* system = TryGetSystem<T>();
+		if (!system)
 			throw std::runtime_error("this system is not part of the graph");
 
-		auto& node = static_cast<Node<T, CanUpdate>&>(*m_nodes[it->second]);
-		return node.system;
+		return *system;
 	}
 
 	template<typename T>
@@ -115,5 +112,18 @@ namespace Nz
 		m_nodes.erase(m_nodes.begin() + it->second);
 		m_systemToNodes.erase(it);
 		m_systemOrderUpdated = false;
+	}
+
+	template<typename T>
+	T* Nz::EnttSystemGraph::TryGetSystem() const
+	{
+		constexpr bool CanUpdate = Detail::EnttSystemGraphHasUpdate<T>();
+
+		auto it = m_systemToNodes.find(entt::type_hash<T>());
+		if (it == m_systemToNodes.end())
+			return nullptr;
+
+		auto& node = static_cast<Node<T, CanUpdate>&>(*m_nodes[it->second]);
+		return &node.system;
 	}
 }

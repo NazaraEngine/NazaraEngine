@@ -35,6 +35,8 @@ namespace Nz
 
 			template<typename T> void RemoveSystem();
 
+			template<typename T> T* TryGetSystem() const;
+
 			void Update(Time elapsedTime) override;
 
 			operator entt::registry&();

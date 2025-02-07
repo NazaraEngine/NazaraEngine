@@ -34,6 +34,8 @@ namespace Nz
 
 			template<typename T> void RemoveSystem();
 
+			template<typename T> T* TryGetSystem() const;
+
 			void Update();
 			void Update(Time elapsedTime);
 
