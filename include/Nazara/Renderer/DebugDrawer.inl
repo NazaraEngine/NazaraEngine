@@ -62,6 +62,30 @@ namespace Nz
 		endVertex.position = end;
 	}
 
+	inline void DebugDrawer::DrawLines(std::span<const Vector3f> positions, const Color& color)
+	{
+		std::size_t offset = m_lineVertices.size();
+		m_lineVertices.resize(offset + positions.size());
+		for (std::size_t i = 0; i < positions.size(); ++i)
+		{
+			auto& vertex = m_lineVertices[i];
+			vertex.color = color;
+			vertex.position = positions[i];
+		}
+	}
+
+	inline void DebugDrawer::DrawLines(std::span<const UInt16> indices, std::span<const Vector3f> positions, const Color& color)
+	{
+		std::size_t offset = m_lineVertices.size();
+		m_lineVertices.resize(offset + indices.size());
+		for (std::size_t i = 0; i < indices.size(); ++i)
+		{
+			auto& vertex = m_lineVertices[i];
+			vertex.color = color;
+			vertex.position = positions[indices[i]];
+		}
+	}
+
 	inline void DebugDrawer::DrawPoint(const Vector3f& point, const Color& color, float boxSize)
 	{
 		return DrawBox(Boxf(point - Vector3f(boxSize * 0.5f), Vector3f(boxSize)), color);

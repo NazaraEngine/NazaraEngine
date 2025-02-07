@@ -20,6 +20,7 @@
 #include <Nazara/Renderer/ShaderBinding.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
 #include <memory>
+#include <span>
 #include <vector>
 
 namespace Nz
@@ -47,6 +48,8 @@ namespace Nz
 			inline void DrawFrustum(const Frustumf& frustum, const Color& color);
 			inline void DrawLine(const Vector3f& start, const Vector3f& end, const Color& color);
 			inline void DrawLine(const Vector3f& start, const Vector3f& end, const Color& startColor, const Color& endColor);
+			inline void DrawLines(std::span<const Vector3f> positions, const Color& color);
+			inline void DrawLines(std::span<const UInt16> indices, std::span<const Vector3f> positions, const Color& color);
 			inline void DrawPoint(const Vector3f& point, const Color& color, float boxSize = 0.01f);
 			void DrawSphere(const Spheref& sphere, const Color& color);
 			inline void DrawSphere(const Vector3f& point, float radius, const Color& color);
