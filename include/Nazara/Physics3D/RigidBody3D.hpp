@@ -84,6 +84,7 @@ namespace Nz
 			bool IsSleeping() const;
 			bool IsSleepingEnabled() const;
 			bool IsStatic() const;
+			bool IsTrigger() const override;
 
 			void SetAngularDamping(float angularDamping);
 			void SetAngularVelocity(const Vector3f& angularVelocity);

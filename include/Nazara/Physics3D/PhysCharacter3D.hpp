@@ -69,6 +69,7 @@ namespace Nz
 			Vector3f GetUp() const;
 
 			bool IsOnGround() const;
+			bool IsTrigger() const override;
 
 			void SetAngularVelocity(const Vector3f& angularVelocity);
 			void SetFriction(float friction);

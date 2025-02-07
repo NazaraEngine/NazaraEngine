@@ -170,6 +170,16 @@ namespace Nz
 		return m_character->GetGroundState() == JPH::Character::EGroundState::OnGround;
 	}
 
+	bool PhysCharacter3D::IsTrigger() const
+	{
+		const JPH::BodyLockInterfaceNoLock& bodyInterface = m_world->GetPhysicsSystem()->GetBodyLockInterfaceNoLock();
+		JPH::BodyLockRead bodyLock(bodyInterface, m_character->GetBodyID());
+		if (!bodyLock.Succeeded())
+			return false;
+
+		return bodyLock.GetBody().IsSensor();
+	}
+
 	void PhysCharacter3D::SetAngularVelocity(const Vector3f& angularVelocity)
 	{
 		JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterfaceNoLock();

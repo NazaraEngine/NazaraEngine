@@ -313,6 +313,11 @@ namespace Nz
 		return m_body->GetMotionType() == JPH::EMotionType::Static;
 	}
 
+	bool RigidBody3D::IsTrigger() const
+	{
+		return m_body->IsSensor();
+	}
+
 	void RigidBody3D::SetAngularDamping(float angularDamping)
 	{
 		if NAZARA_UNLIKELY(IsStatic())

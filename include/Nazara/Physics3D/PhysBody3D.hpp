@@ -24,6 +24,8 @@ namespace Nz
 			virtual UInt32 GetBodyIndex() const = 0;
 			virtual PhysObjectLayer3D GetObjectLayer() const = 0;
 
+			virtual bool IsTrigger() const = 0;
+
 			PhysBody3D& operator=(const PhysBody3D&) = delete;
 			PhysBody3D& operator=(PhysBody3D&&) = delete;
 	};
