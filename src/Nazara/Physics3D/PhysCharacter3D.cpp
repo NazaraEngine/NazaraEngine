@@ -100,6 +100,41 @@ namespace Nz
 		return { FromJolt(linearVel), FromJolt(angularVel) };
 	}
 
+	PhysBody3D* PhysCharacter3D::GetGroundBody() const
+	{
+		JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterfaceNoLock();
+		UInt64 userdata = bodyInterface.GetUserData(m_character->GetGroundBodyID());
+		if (userdata == 0)
+			return nullptr;
+
+		return IntegerToPointer<PhysBody3D*>(userdata);
+	}
+
+	UInt32 PhysCharacter3D::GetGroundBodyIndex() const
+	{
+		return m_character->GetGroundBodyID().GetIndex();
+	}
+
+	Vector3f PhysCharacter3D::GetGroundNormal() const
+	{
+		return FromJolt(m_character->GetGroundNormal());
+	}
+
+	Vector3f PhysCharacter3D::GetGroundPosition() const
+	{
+		return FromJolt(m_character->GetGroundPosition());
+	}
+
+	UInt32 PhysCharacter3D::GetGroundSubShapeID() const
+	{
+		return m_character->GetGroundSubShapeID().GetValue();
+	}
+
+	Vector3f PhysCharacter3D::GetGroundVelocity() const
+	{
+		return FromJolt(m_character->GetGroundVelocity());
+	}
+
 	PhysObjectLayer3D PhysCharacter3D::GetObjectLayer() const
 	{
 		JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterfaceNoLock();

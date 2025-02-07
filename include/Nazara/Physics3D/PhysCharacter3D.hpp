@@ -54,6 +54,12 @@ namespace Nz
 			inline const std::shared_ptr<Collider3D>& GetCollider() const;
 			Vector3f GetLinearVelocity() const;
 			std::pair<Vector3f, Vector3f> GetLinearAndAngularVelocity() const;
+			PhysBody3D* GetGroundBody() const;
+			UInt32 GetGroundBodyIndex() const;
+			Vector3f GetGroundNormal() const;
+			Vector3f GetGroundPosition() const;
+			UInt32 GetGroundSubShapeID() const;
+			Vector3f GetGroundVelocity() const;
 			PhysObjectLayer3D GetObjectLayer() const override;
 			inline PhysWorld3D& GetPhysWorld();
 			inline const PhysWorld3D& GetPhysWorld() const;
