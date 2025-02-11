@@ -1052,7 +1052,7 @@ int main(int argc, char* argv[])
 
 	std::size_t totalFrameCount = 0;
 
-	Nz::Mouse::SetRelativeMouseMode(true);
+	window.SetRelativeMouseMode(true);
 
 	Nz::Time elapsedTime = Nz::Time::Zero();
 	Nz::Time time = Nz::GetElapsedNanoseconds();

@@ -19,10 +19,7 @@
 #include <Nazara/Platform/VideoMode.hpp>
 #include <Nazara/Platform/WindowEventHandler.hpp>
 #include <Nazara/Platform/WindowHandle.hpp>
-#include <NazaraUtils/MovablePtr.hpp>
-#include <condition_variable>
-#include <mutex>
-#include <queue>
+#include <NazaraUtils/PrivateImpl.hpp>
 
 namespace Nz
 {
@@ -79,10 +76,14 @@ namespace Nz
 			void SetMaximumSize(const Vector2i& maxSize);
 			void SetMinimumSize(const Vector2i& minSize);
 			void SetPosition(const Vector2i& position);
+			void SetRelativeMouseMode(bool relativeMouseMode);
 			void SetSize(const Vector2i& size);
 			void SetStayOnTop(bool stayOnTop);
 			void SetTitle(const std::string& title);
 			void SetVisible(bool visible);
+
+			void StartTextInput();
+			void StopTextInput();
 
 			Window& operator=(const Window&) = delete;
 			Window& operator=(Window&& window) noexcept;
@@ -96,7 +97,7 @@ namespace Nz
 			inline WindowImpl* GetImpl();
 			inline const WindowImpl* GetImpl() const;
 
-			void IgnoreNextMouseEvent(int mouseX, int mouseY) const;
+			void IgnoreNextMouseEvent(float mouseX, float mouseY) const;
 
 			static bool Initialize();
 			static void Uninitialize();

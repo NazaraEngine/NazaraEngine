@@ -6,8 +6,8 @@
 
 #pragma once
 
-#ifndef NAZARA_PLATFORM_SDL2_WINDOWIMPL_HPP
-#define NAZARA_PLATFORM_SDL2_WINDOWIMPL_HPP
+#ifndef NAZARA_PLATFORM_SDL3_WINDOWIMPL_HPP
+#define NAZARA_PLATFORM_SDL3_WINDOWIMPL_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Math/Rect.hpp>
@@ -17,9 +17,9 @@
 #include <Nazara/Platform/Mouse.hpp>
 #include <Nazara/Platform/VideoMode.hpp>
 #include <Nazara/Platform/Window.hpp>
-#include <SDL_events.h>
-#include <SDL_keyboard.h>
-#include <SDL_video.h>
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_keyboard.h>
+#include <SDL3/SDL_video.h>
 #include <string>
 
 namespace Nz
@@ -49,7 +49,7 @@ namespace Nz
 
 			bool HasFocus() const;
 
-			void IgnoreNextMouseEvent(int mouseX, int mouseY);
+			void IgnoreNextMouseEvent(float mouseX, float mouseY);
 
 			bool IsMinimized() const;
 			bool IsVisible() const;
@@ -57,11 +57,15 @@ namespace Nz
 			void RaiseFocus();
 			void RefreshCursor();
 
+			void StartTextInput();
+			void StopTextInput();
+
 			void UpdateCursor(const Cursor& cursor);
 			void UpdateIcon(const Icon& icon);
 			void UpdateMaximumSize(int width, int height);
 			void UpdateMinimumSize(int width, int height);
 			void UpdatePosition(int x, int y);
+			void UpdateRelativeMouseMode(bool relativeMouseMode);
 			void UpdateSize(unsigned int width, unsigned int height);
 			void UpdateStayOnTop(bool stayOnTop);
 			void UpdateTitle(const std::string& title);
@@ -78,7 +82,7 @@ namespace Nz
 		private:
 			void SetEventListener(bool listener);
 
-			static int SDLCALL HandleEvent(void* userdata, SDL_Event* event);
+			static bool SDLCALL HandleEvent(void* userdata, SDL_Event* event);
 
 			UInt32 m_windowId;
 			SDL_Cursor* m_cursor;
@@ -91,4 +95,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_PLATFORM_SDL2_WINDOWIMPL_HPP
+#endif // NAZARA_PLATFORM_SDL3_WINDOWIMPL_HPP

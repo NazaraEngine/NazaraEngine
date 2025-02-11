@@ -4,16 +4,16 @@
 
 #include <Nazara/Platform/Mouse.hpp>
 #include <Nazara/Platform/Window.hpp>
-#include <Nazara/Platform/SDL2/InputImpl.hpp>
+#include <Nazara/Platform/SDL3/InputImpl.hpp>
 
 namespace Nz
 {
-	Vector2i Mouse::GetPosition()
+	Vector2f Mouse::GetPosition()
 	{
 		return InputImpl::GetMousePosition();
 	}
 
-	Vector2i Mouse::GetPosition(const Window& relativeTo)
+	Vector2f Mouse::GetPosition(const Window& relativeTo)
 	{
 		return InputImpl::GetMousePosition(relativeTo);
 	}
@@ -23,17 +23,12 @@ namespace Nz
 		return InputImpl::IsMouseButtonPressed(button);
 	}
 
-	bool Mouse::SetRelativeMouseMode(bool relativeMouseMode)
-	{
-		return InputImpl::SetRelativeMouseMode(relativeMouseMode);
-	}
-
-	void Mouse::SetPosition(const Vector2i& position)
+	void Mouse::SetPosition(const Vector2f& position)
 	{
 		InputImpl::SetMousePosition(position.x, position.y);
 	}
 
-	void Mouse::SetPosition(const Vector2i& position, const Window& relativeTo, bool ignoreEvent)
+	void Mouse::SetPosition(const Vector2f& position, const Window& relativeTo, bool ignoreEvent)
 	{
 		if (ignoreEvent && position.x > 0 && position.y > 0)
 			relativeTo.IgnoreNextMouseEvent(position.x, position.y);
@@ -41,12 +36,12 @@ namespace Nz
 		InputImpl::SetMousePosition(position.x, position.y, relativeTo);
 	}
 
-	void Mouse::SetPosition(int x, int y)
+	void Mouse::SetPosition(float x, float y)
 	{
 		InputImpl::SetMousePosition(x, y);
 	}
 
-	void Mouse::SetPosition(int x, int y, const Window& relativeTo, bool ignoreEvent)
+	void Mouse::SetPosition(float x, float y, const Window& relativeTo, bool ignoreEvent)
 	{
 		if (ignoreEvent && x > 0 && y > 0)
 			relativeTo.IgnoreNextMouseEvent(x, y);

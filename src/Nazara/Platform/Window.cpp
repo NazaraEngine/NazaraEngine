@@ -6,7 +6,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Platform/Cursor.hpp>
 #include <Nazara/Platform/Icon.hpp>
-#include <Nazara/Platform/SDL2/WindowImpl.hpp>
+#include <Nazara/Platform/SDL3/WindowImpl.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
 
 namespace Nz
@@ -229,6 +229,13 @@ NAZARA_WARNING_POP()
 		m_impl->UpdatePosition(position.x, position.y);
 	}
 
+	void Window::SetRelativeMouseMode(bool relativeMouseMode)
+	{
+		NazaraAssertMsg(m_impl, "window not created");
+
+		m_impl->UpdateRelativeMouseMode(relativeMouseMode);
+	}
+
 	void Window::SetSize(const Vector2i& size)
 	{
 		NazaraAssertMsg(m_impl, "window not created");
@@ -255,6 +262,16 @@ NAZARA_WARNING_POP()
 		NazaraAssertMsg(m_impl, "window not created");
 
 		m_impl->Show(visible);
+	}
+
+	void Window::StartTextInput()
+	{
+		m_impl->StartTextInput();
+	}
+
+	void Window::StopTextInput()
+	{
+		m_impl->StopTextInput();
 	}
 
 	Window& Window::operator=(Window&& window) noexcept
@@ -299,7 +316,7 @@ NAZARA_WARNING_POP()
 		m_cursorUpdateSlot.Disconnect();
 	}
 
-	void Window::IgnoreNextMouseEvent(int mouseX, int mouseY) const
+	void Window::IgnoreNextMouseEvent(float mouseX, float mouseY) const
 	{
 		NazaraAssertMsg(m_impl, "window not created");
 

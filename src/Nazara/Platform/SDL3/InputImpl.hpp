@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_PLATFORM_SDL2_INPUTIMPL_HPP
-#define NAZARA_PLATFORM_SDL2_INPUTIMPL_HPP
+#ifndef NAZARA_PLATFORM_SDL3_INPUTIMPL_HPP
+#define NAZARA_PLATFORM_SDL3_INPUTIMPL_HPP
 
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Platform/Enums.hpp>
@@ -20,22 +20,19 @@ namespace Nz
 		public:
 			static ClipboardContentType GetClipboardContentType();
 			static std::string GetClipboardString();
-			static std::string GetKeyName(Keyboard::Scancode scancode);
-			static std::string GetKeyName(Keyboard::VKey key);
-			static Vector2i GetMousePosition();
-			static Vector2i GetMousePosition(const Window& relativeTo);
+			static std::string_view GetKeyName(Keyboard::Scancode scancode);
+			static std::string_view GetKeyName(Keyboard::VKey key);
+			static Vector2f GetMousePosition();
+			static Vector2f GetMousePosition(const Window& relativeTo);
 			static bool IsKeyPressed(Keyboard::Scancode key);
 			static bool IsKeyPressed(Keyboard::VKey key);
 			static bool IsMouseButtonPressed(Mouse::Button button);
 			static void SetClipboardString(const std::string& str);
-			static bool SetRelativeMouseMode(bool relativeMouseMode);
-			static void SetMousePosition(int x, int y);
-			static void SetMousePosition(int x, int y, const Window& relativeTo);
-			static void StartTextInput();
-			static void StopTextInput();
+			static void SetMousePosition(float x, float y);
+			static void SetMousePosition(float x, float y, const Window& relativeTo);
 			static Keyboard::Scancode ToScanCode(Keyboard::VKey key);
 			static Keyboard::VKey ToVirtualKey(Keyboard::Scancode scancode);
 	};
 }
 
-#endif // NAZARA_PLATFORM_SDL2_INPUTIMPL_HPP
+#endif // NAZARA_PLATFORM_SDL3_INPUTIMPL_HPP

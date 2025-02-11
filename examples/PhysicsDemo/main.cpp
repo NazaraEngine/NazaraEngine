@@ -195,7 +195,7 @@ int main(int argc, char* argv[])
 	Nz::MillisecondClock fpsClock;
 	unsigned int fps = 0;
 
-	Nz::Mouse::SetRelativeMouseMode(true);
+	window.SetRelativeMouseMode(true);
 
 	Nz::PidController<Nz::Vector3f> headingController(0.3f, 0.f, 0.1f);
 	Nz::PidController<Nz::Vector3f> upController(1.f, 0.f, 0.1f);

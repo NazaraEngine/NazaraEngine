@@ -4,15 +4,15 @@
 
 #pragma once
 
-#ifndef NAZARA_PLATFORM_SDL2_CURSORIMPL_HPP
-#define NAZARA_PLATFORM_SDL2_CURSORIMPL_HPP
+#ifndef NAZARA_PLATFORM_SDL3_CURSORIMPL_HPP
+#define NAZARA_PLATFORM_SDL3_CURSORIMPL_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Image.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Platform/Enums.hpp>
 #include <NazaraUtils/MovablePtr.hpp>
-#include <SDL_mouse.h>
+#include <SDL3/SDL_mouse.h>
 
 namespace Nz
 {
@@ -37,4 +37,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_PLATFORM_SDL2_CURSORIMPL_HPP
+#endif // NAZARA_PLATFORM_SDL3_CURSORIMPL_HPP

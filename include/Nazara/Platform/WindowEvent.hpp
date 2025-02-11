@@ -38,8 +38,8 @@ namespace Nz
 		struct MouseButtonEvent
 		{
 			Mouse::Button button;
-			int x;
-			int y;
+			float x;
+			float y;
 			unsigned int clickCount; //< 1 for simple click, 2 for double click, 3 for triple click. (always 1 on release event)
 		};
 
@@ -47,10 +47,10 @@ namespace Nz
 		// -WindowEventType::MouseMoved
 		struct MouseMoveEvent
 		{
-			int deltaX;
-			int deltaY;
-			int x;
-			int y;
+			float deltaX;
+			float deltaY;
+			float x;
+			float y;
 		};
 
 		// Used by:
@@ -58,8 +58,8 @@ namespace Nz
 		struct MouseWheelEvent
 		{
 			float delta;
-			int x;
-			int y;
+			float x;
+			float y;
 		};
 
 		// Used by:

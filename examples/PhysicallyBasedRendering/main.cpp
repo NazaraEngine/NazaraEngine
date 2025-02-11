@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
 	Nz::MillisecondClock fpsClock;
 	unsigned int fps = 0;
 
-	Nz::Mouse::SetRelativeMouseMode(true);
+	window.SetRelativeMouseMode(true);
 
 	window.GetEventHandler().OnEvent.Connect([&](const Nz::WindowEventHandler*, const Nz::WindowEvent& event)
 	{

@@ -73,7 +73,7 @@ namespace Nz
 			void OnEventTextEntered(const WindowEventHandler* eventHandler, const WindowEvent::TextEvent& event);
 			void OnEventTextEdited(const WindowEventHandler* eventHandler, const WindowEvent::EditEvent& event);
 
-			void UpdateHoveredWidget(int x, int y);
+			void UpdateHoveredWidget(float x, float y);
 
 			struct WidgetEntry
 			{

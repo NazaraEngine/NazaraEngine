@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Platform module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-#include <Nazara/Platform/SDL2/IconImpl.hpp>
+#include <Nazara/Platform/SDL3/IconImpl.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
 #include <Nazara/Core/Image.hpp>
 #include <Nazara/Core/PixelFormat.hpp>
@@ -17,13 +17,12 @@ namespace Nz
 		if (!m_iconImage.Convert(PixelFormat::BGRA8))
 			NazaraError("failed to convert icon to BGRA8");
 
-		m_icon = SDL_CreateRGBSurfaceWithFormatFrom(
-			m_iconImage.GetPixels(),
+		m_icon = SDL_CreateSurfaceFrom(
 			m_iconImage.GetWidth(),
 			m_iconImage.GetHeight(),
-			32,
-			32 * m_iconImage.GetWidth(),
-			SDL_PIXELFORMAT_BGRA8888
+			SDL_PIXELFORMAT_BGRA8888,
+			m_iconImage.GetPixels(),
+			32 * m_iconImage.GetWidth()
 		);
 
 		if (!m_icon)
@@ -33,7 +32,7 @@ namespace Nz
 	IconImpl::~IconImpl()
 	{
 		if (m_icon)
-			SDL_FreeSurface(m_icon);
+			SDL_DestroySurface(m_icon);
 	}
 
 	SDL_Surface* IconImpl::GetIcon()
