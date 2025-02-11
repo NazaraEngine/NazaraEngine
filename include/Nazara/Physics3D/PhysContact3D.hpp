@@ -8,8 +8,8 @@
 #define NAZARA_PHYSICS3D_PHYSCONTACT3D_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <NazaraUtils/FixedVector.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <NazaraUtils/FixedVector.hpp>
 
 namespace Nz
 {

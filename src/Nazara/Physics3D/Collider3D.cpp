@@ -36,7 +36,7 @@ namespace Nz
 		const JPH::Shape* shape = GetShape();
 
 		JPH::Shape::GetTrianglesContext context;
-		shape->GetTrianglesStart(context, shape->GetLocalBounds(), JPH::Vec3::sZero(), JPH::Quat::sIdentity(), JPH::Vec3::sReplicate(1.f));
+		shape->GetTrianglesStart(context, shape->GetLocalBounds(), shape->GetCenterOfMass(), JPH::Quat::sIdentity(), JPH::Vec3::sReplicate(1.f));
 
 		constexpr int maxTrianglePerCall = 128;
 
@@ -394,6 +394,8 @@ namespace Nz
 	{
 		const JPH::ConvexHullShape* shape = GetShapeAs<JPH::ConvexHullShape>();
 
+		JPH::Vec3 centerOfMass = shape->GetCenterOfMass();
+
 		std::unordered_map<unsigned int, UInt16> vertexCache;
 		auto InsertVertex = [&](unsigned int vertexIndex) -> UInt16
 		{
@@ -403,7 +405,7 @@ namespace Nz
 
 			UInt16 index = SafeCast<UInt16>(vertices.size());
 
-			vertices.push_back(offsetMatrix * FromJolt(shape->GetPoint(vertexIndex)));
+			vertices.push_back(offsetMatrix * FromJolt(shape->GetPoint(vertexIndex) + centerOfMass));
 			vertexCache.emplace(vertexIndex, index);
 
 			return index;
