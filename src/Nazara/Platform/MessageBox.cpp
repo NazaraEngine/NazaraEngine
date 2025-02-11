@@ -3,10 +3,10 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Platform/MessageBox.hpp>
-#include <Nazara/Platform/SDL2/WindowImpl.hpp>
+#include <Nazara/Platform/SDL3/WindowImpl.hpp>
 #include <NazaraUtils/EnumArray.hpp>
 #include <NazaraUtils/StackArray.hpp>
-#include <SDL_messagebox.h>
+#include <SDL3/SDL_messagebox.h>
 
 namespace Nz
 {
@@ -58,7 +58,7 @@ namespace Nz
 		SDL_MessageBoxButtonData* buttonPtr = buttons.data();
 		for (const ButtonData& buttonData : m_buttons)
 		{
-			buttonPtr->buttonid = buttonData.buttonId;
+			buttonPtr->buttonID = buttonData.buttonId;
 			buttonPtr->flags = s_buttonFlags[buttonData.role];
 			buttonPtr->text = buttonData.text.c_str();
 

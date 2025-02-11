@@ -34,14 +34,13 @@ namespace Nz
 			Mouse() = delete;
 			~Mouse() = delete;
 
-			static Vector2i GetPosition();
-			static Vector2i GetPosition(const Window& relativeTo);
+			static Vector2f GetPosition();
+			static Vector2f GetPosition(const Window& relativeTo);
 			static bool IsButtonPressed(Button button);
-			static bool SetRelativeMouseMode(bool relativeMouseMode);
-			static void SetPosition(const Vector2i& position);
-			static void SetPosition(const Vector2i& position, const Window& relativeTo, bool ignoreEvent = true);
-			static void SetPosition(int x, int y);
-			static void SetPosition(int x, int y, const Window& relativeTo, bool ignoreEvent = true);
+			static void SetPosition(const Vector2f& position);
+			static void SetPosition(const Vector2f& position, const Window& relativeTo, bool ignoreEvent = true);
+			static void SetPosition(float x, float y);
+			static void SetPosition(float x, float y, const Window& relativeTo, bool ignoreEvent = true);
 
 			static constexpr std::size_t ButtonCount = static_cast<std::size_t>(Max + 1);
 	};

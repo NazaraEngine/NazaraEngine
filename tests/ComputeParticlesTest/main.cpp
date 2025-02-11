@@ -229,7 +229,7 @@ int main()
 	Nz::Vector2f previousMousePos;
 	Nz::Vector2f newMousePos;
 	{
-		Nz::Vector2i mousePos = Nz::Mouse::GetPosition(window);
+		Nz::Vector2f mousePos = Nz::Mouse::GetPosition(window);
 		previousMousePos = Nz::Vector2f(mousePos.x, windowSize.y - mousePos.y);
 		newMousePos = previousMousePos;
 	}
@@ -318,7 +318,7 @@ int main()
 			mouseSampleTimer %= mouseSampleRate;
 
 			previousMousePos = newMousePos;
-			Nz::Vector2i mousePos = Nz::Mouse::GetPosition(window);
+			Nz::Vector2f mousePos = Nz::Mouse::GetPosition(window);
 			newMousePos = Nz::Vector2f(mousePos.x, windowSize.y - mousePos.y);
 		}
 

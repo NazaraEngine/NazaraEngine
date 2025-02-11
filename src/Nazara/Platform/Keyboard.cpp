@@ -3,16 +3,16 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Platform/Keyboard.hpp>
-#include <Nazara/Platform/SDL2/InputImpl.hpp>
+#include <Nazara/Platform/SDL3/InputImpl.hpp>
 
 namespace Nz
 {
-	std::string Keyboard::GetKeyName(Scancode scancode)
+	std::string_view Keyboard::GetKeyName(Scancode scancode)
 	{
 		return InputImpl::GetKeyName(scancode);
 	}
 
-	std::string Keyboard::GetKeyName(VKey key)
+	std::string_view Keyboard::GetKeyName(VKey key)
 	{
 		return InputImpl::GetKeyName(key);
 	}
@@ -25,16 +25,6 @@ namespace Nz
 	bool Keyboard::IsKeyPressed(VKey key)
 	{
 		return InputImpl::IsKeyPressed(key);
-	}
-
-	void Keyboard::StartTextInput()
-	{
-		InputImpl::StartTextInput();
-	}
-
-	void Keyboard::StopTextInput()
-	{
-		InputImpl::StopTextInput();
 	}
 
 	Keyboard::Scancode Keyboard::ToScanCode(VKey key)

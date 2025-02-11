@@ -170,7 +170,7 @@ local modules = {
 		Deps = {"NazaraCore"},
 		Packages = {"utfcpp"},
 		Custom = function()
-			add_packages("libsdl", { components = {"lib"} })
+			add_packages("libsdl3")
 			if is_plat("windows", "mingw") then
 				add_defines("SDL_VIDEO_DRIVER_WINDOWS=1")
 			elseif is_plat("linux", "bsd") then
@@ -352,7 +352,7 @@ if has_config("opengl") then
 end
 
 if has_config("platform") then
-	add_requires("libsdl >=2.26.0")
+	add_requires("libsdl3")
 	if is_plat("linux", "bsd") then
 		add_requires("libxext", "wayland", { configs = { asan = false } })
 	end

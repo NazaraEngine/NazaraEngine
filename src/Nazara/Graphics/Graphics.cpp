@@ -315,7 +315,7 @@ namespace Nz
 				states.blend.dstAlpha = BlendFunc::One;
 			});
 		};
-		
+
 		m_defaultMaterials.presetModifier[MaterialInstancePreset::AdditiveBlended] = [=](MaterialInstance& matInstance)
 		{
 			matInstance.DisablePass(depthPassIndex);

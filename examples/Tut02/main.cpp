@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
 
 	eventHandler.OnKeyPressed.Connect([&](const Nz::WindowEventHandler*, const Nz::WindowEvent::KeyEvent& e)
 	{
-		textDrawer.SetText("You pressed " + Nz::Keyboard::GetKeyName(e.virtualKey));
+		textDrawer.SetText(Nz::Format("You pressed {0}", Nz::Keyboard::GetKeyName(e.virtualKey)));
 		textSprite->Update(textDrawer);
 
 		Nz::Boxf textBox = textSprite->GetAABB();

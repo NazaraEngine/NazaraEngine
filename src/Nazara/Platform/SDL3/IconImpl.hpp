@@ -4,13 +4,13 @@
 
 #pragma once
 
-#ifndef NAZARA_PLATFORM_SDL2_ICONIMPL_HPP
-#define NAZARA_PLATFORM_SDL2_ICONIMPL_HPP
+#ifndef NAZARA_PLATFORM_SDL3_ICONIMPL_HPP
+#define NAZARA_PLATFORM_SDL3_ICONIMPL_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Image.hpp>
 #include <NazaraUtils/MovablePtr.hpp>
-#include <SDL_surface.h>
+#include <SDL3/SDL_surface.h>
 
 namespace Nz
 {
@@ -33,4 +33,4 @@ namespace Nz
 	};
 }
 
-#endif // NAZARA_PLATFORM_SDL2_ICONIMPL_HPP
+#endif // NAZARA_PLATFORM_SDL3_ICONIMPL_HPP

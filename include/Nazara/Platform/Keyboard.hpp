@@ -148,10 +148,13 @@ namespace Nz
 				Browser_Search,
 				Browser_Stop,
 
-				// Lecture control keys
+				// Media control keys
+				Media_Eject,
+				Media_FastForward,
 				Media_Next,
 				Media_Play,
 				Media_Previous,
+				Media_Select,
 				Media_Stop,
 
 				// Volume control keys
@@ -297,10 +300,13 @@ namespace Nz
 				Browser_Search,
 				Browser_Stop,
 
-				// Lecture control keys
+				// Media control keys
+				Media_Eject,
+				Media_FastForward,
 				Media_Next,
 				Media_Play,
 				Media_Previous,
+				Media_Select,
 				Media_Stop,
 
 				// Volume control keys
@@ -319,12 +325,10 @@ namespace Nz
 			Keyboard() = delete;
 			~Keyboard() = delete;
 
-			static std::string GetKeyName(Scancode scancode);
-			static std::string GetKeyName(VKey key);
+			static std::string_view GetKeyName(Scancode scancode);
+			static std::string_view GetKeyName(VKey key);
 			static bool IsKeyPressed(Scancode scancode);
 			static bool IsKeyPressed(VKey key);
-			static void StartTextInput();
-			static void StopTextInput();
 			static Scancode ToScanCode(VKey key);
 			static VKey ToVirtualKey(Scancode key);
 	};

@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_PLATFORM_SDL2_VIDEOMODEIMPL_HPP
-#define NAZARA_PLATFORM_SDL2_VIDEOMODEIMPL_HPP
+#ifndef NAZARA_PLATFORM_SDL3_VIDEOMODEIMPL_HPP
+#define NAZARA_PLATFORM_SDL3_VIDEOMODEIMPL_HPP
 
 #include <Nazara/Platform/VideoMode.hpp>
 
@@ -15,8 +15,8 @@ namespace Nz
 	{
 		public:
 			static VideoMode GetDesktopMode();
-			static void GetFullscreenModes(std::vector<VideoMode>& modes);
+			static void GetFullscreenModes(std::vector<VideoMode>& modeList);
 	};
 }
 
-#endif // NAZARA_PLATFORM_SDL2_VIDEOMODEIMPL_HPP
+#endif // NAZARA_PLATFORM_SDL3_VIDEOMODEIMPL_HPP

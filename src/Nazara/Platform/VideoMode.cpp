@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Platform/VideoMode.hpp>
-#include <Nazara/Platform/SDL2/VideoModeImpl.hpp>
+#include <Nazara/Platform/SDL3/VideoModeImpl.hpp>
 #include <algorithm>
 #include <functional>
 

@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Platform/Icon.hpp>
-#include <Nazara/Platform/SDL2/IconImpl.hpp>
+#include <Nazara/Platform/SDL3/IconImpl.hpp>
 
 namespace Nz
 {

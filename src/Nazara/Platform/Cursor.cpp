@@ -4,7 +4,7 @@
 
 #include <Nazara/Platform/Cursor.hpp>
 #include <Nazara/Core/ErrorFlags.hpp>
-#include <Nazara/Platform/SDL2/CursorImpl.hpp>
+#include <Nazara/Platform/SDL3/CursorImpl.hpp>
 
 namespace Nz
 {

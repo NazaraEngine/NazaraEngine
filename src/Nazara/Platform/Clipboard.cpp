@@ -3,7 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Platform/Clipboard.hpp>
-#include <Nazara/Platform/SDL2/InputImpl.hpp>
+#include <Nazara/Platform/SDL3/InputImpl.hpp>
 
 namespace Nz
 {

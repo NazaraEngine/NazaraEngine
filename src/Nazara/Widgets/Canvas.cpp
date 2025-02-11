@@ -310,13 +310,13 @@ namespace Nz
 			m_widgetEntries[m_keyboardOwner].widget->OnTextEdited(event.text, event.length);
 	}
 
-	void Canvas::UpdateHoveredWidget(int x, int y)
+	void Canvas::UpdateHoveredWidget(float x, float y)
 	{
 		std::size_t bestEntry = InvalidCanvasIndex;
 		float bestEntryArea = std::numeric_limits<float>::infinity();
 		int bestEntryLayer = std::numeric_limits<int>::min();
 
-		Vector2f mousePos(float(x), m_size.y - float(y));
+		Vector2f mousePos(x, m_size.y - y);
 		for (std::size_t i = 0; i < m_widgetEntries.size(); ++i)
 		{
 			BaseWidget* widget = m_widgetEntries[i].widget;

@@ -248,7 +248,7 @@ int main()
 	unsigned int fps = 0;
 	bool uboUpdate = true;
 
-	Nz::Mouse::SetRelativeMouseMode(true);
+	window.SetRelativeMouseMode(true);
 
 	Nz::DebugDrawer debugDrawer(*device);
 

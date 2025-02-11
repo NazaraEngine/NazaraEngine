@@ -44,7 +44,6 @@ namespace Nz
 			{
 				void* display;      //< wl_display*
 				void* surface;      //< wl_surface*
-				void* shellSurface; //< wl_shell_surface*
 			} wayland;
 
 			struct
