@@ -405,9 +405,9 @@ namespace Nz
 						return false;
 
 					WindowEvent windowEvent;
-					windowEvent.type = WindowEventType::Resized;
-					windowEvent.size.width = static_cast<unsigned int>(std::max(0, event->window.data1));
-					windowEvent.size.height = static_cast<unsigned int>(std::max(0, event->window.data2));
+					windowEvent.type = WindowEventType::Moved;
+					windowEvent.position.x = static_cast<unsigned int>(std::max(0, event->window.data1));
+					windowEvent.position.y = static_cast<unsigned int>(std::max(0, event->window.data2));
 
 					window->m_parent->HandleEvent(windowEvent);
 					break;
@@ -568,7 +568,7 @@ namespace Nz
 
 					if (event->type == SDL_EVENT_KEY_DOWN)
 					{
-					// implements X11/Win32 APIs behavior for Enter and Backspace
+						// implements X11/Win32 APIs behavior for Enter and Backspace
 						switch (windowEvent.key.virtualKey)
 						{
 							case Nz::Keyboard::VKey::NumpadReturn:
