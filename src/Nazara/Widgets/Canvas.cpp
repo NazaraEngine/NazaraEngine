@@ -3,14 +3,21 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Widgets/Canvas.hpp>
+#include <Nazara/Platform/Window.hpp>
 #include <Nazara/Widgets/DefaultWidgetTheme.hpp>
 #include <limits>
 
 namespace Nz
 {
-	Canvas::Canvas(entt::registry& registry, Nz::WindowEventHandler& eventHandler, Nz::CursorControllerHandle cursorController, UInt32 renderMask, int initialRenderLayer) :
+	Canvas::Canvas(entt::registry& registry, Window& window, UInt32 renderMask, int initialRenderLayer) :
+	Canvas(registry, window.GetEventHandler(), window.GetCursorController().CreateHandle(), window.GetTextInputController().CreateHandle(), renderMask, initialRenderLayer)
+	{
+	}
+
+	Canvas::Canvas(entt::registry& registry, Nz::WindowEventHandler& eventHandler, CursorControllerHandle cursorController, TextInputControllerHandle textInputController, UInt32 renderMask, int initialRenderLayer) :
 	BaseWidget(std::make_shared<DefaultWidgetTheme>()),
 	m_cursorController(cursorController),
+	m_textInputController(textInputController),
 	m_renderMask(renderMask),
 	m_keyboardOwner(InvalidCanvasIndex),
 	m_hoveredWidget(InvalidCanvasIndex),

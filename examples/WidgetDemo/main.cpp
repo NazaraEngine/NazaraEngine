@@ -34,7 +34,7 @@ int main(int argc, char* argv[])
 	Nz::RenderSystem& renderSystem = world.AddSystem<Nz::RenderSystem>();
 	auto& windowSwapchain = renderSystem.CreateSwapchain(mainWindow);
 
-	Nz::Canvas canvas2D(world, mainWindow.GetEventHandler(), mainWindow.GetCursorController().CreateHandle(), 0xFFFFFFFF);
+	Nz::Canvas canvas2D(world, mainWindow, 0xFFFFFFFF);
 	canvas2D.Resize(Nz::Vector2f(mainWindow.GetSize()));
 
 	Nz::LabelWidget* labelWidget = canvas2D.Add<Nz::LabelWidget>();

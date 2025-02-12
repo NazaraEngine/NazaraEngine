@@ -8,6 +8,7 @@
 #define NAZARA_WIDGETS_CANVAS_HPP
 
 #include <Nazara/Platform/CursorController.hpp>
+#include <Nazara/Platform/TextInputController.hpp>
 #include <Nazara/Platform/WindowEventHandler.hpp>
 #include <Nazara/Widgets/BaseWidget.hpp>
 #include <entt/entity/registry.hpp>
@@ -15,12 +16,15 @@
 
 namespace Nz
 {
+	class Window;
+
 	class NAZARA_WIDGETS_API Canvas : public BaseWidget
 	{
 		friend BaseWidget;
 
 		public:
-			Canvas(entt::registry& registry, WindowEventHandler& eventHandler, CursorControllerHandle cursorController, UInt32 renderMask, int initialRenderLayer = 0);
+			Canvas(entt::registry& registry, Window& window, UInt32 renderMask, int initialRenderLayer = 0);
+			Canvas(entt::registry& registry, WindowEventHandler& eventHandler, CursorControllerHandle cursorController, TextInputControllerHandle textInputController, UInt32 renderMask, int initialRenderLayer = 0);
 			Canvas(const Canvas&) = delete;
 			Canvas(Canvas&&) = delete;
 			inline ~Canvas();
@@ -95,6 +99,7 @@ namespace Nz
 			NazaraSlot(WindowEventHandler, OnTextEdited, m_textEditedSlot);
 
 			CursorControllerHandle m_cursorController;
+			TextInputControllerHandle m_textInputController;
 			UInt32 m_renderMask;
 			std::bitset<Mouse::ButtonCount> m_mouseOwnerButtons;
 			std::size_t m_keyboardOwner;

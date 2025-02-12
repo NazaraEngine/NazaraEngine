@@ -94,7 +94,14 @@ namespace Nz
 				m_widgetEntries[previousOwner].widget->OnFocusLost();
 
 			if (m_keyboardOwner != InvalidCanvasIndex)
+			{
 				m_widgetEntries[m_keyboardOwner].widget->OnFocusReceived();
+
+				if (previousOwner == InvalidCanvasIndex)
+					m_textInputController->StartTextInput();
+			}
+			else if (previousOwner != InvalidCanvasIndex)
+				m_textInputController->StopTextInput();
 		}
 	}
 
