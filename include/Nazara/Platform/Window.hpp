@@ -16,6 +16,7 @@
 #include <Nazara/Platform/Enums.hpp>
 #include <Nazara/Platform/Export.hpp>
 #include <Nazara/Platform/Icon.hpp>
+#include <Nazara/Platform/TextInputController.hpp>
 #include <Nazara/Platform/VideoMode.hpp>
 #include <Nazara/Platform/WindowEventHandler.hpp>
 #include <Nazara/Platform/WindowHandle.hpp>
@@ -57,6 +58,7 @@ namespace Nz
 			const Vector2i& GetPosition() const;
 			const Vector2ui& GetSize() const;
 			WindowStyleFlags GetStyle() const;
+			inline TextInputController& GetTextInputController();
 			std::string GetTitle() const;
 
 			void HandleEvent(const WindowEvent& event);
@@ -103,11 +105,14 @@ namespace Nz
 			static void Uninitialize();
 
 			NazaraSlot(CursorController, OnCursorUpdated, m_cursorUpdateSlot);
+			NazaraSlot(TextInputController, OnTextInputStarted, m_textInputStarted);
+			NazaraSlot(TextInputController, OnTextInputStopped, m_textInputStopped);
 
 			std::shared_ptr<Cursor> m_cursor;
 			std::shared_ptr<Icon> m_icon;
 			std::unique_ptr<WindowImpl> m_impl;
 			CursorController m_cursorController;
+			TextInputController m_textInputController;
 			Vector2i m_position;
 			Vector2ui m_size;
 			WindowEventHandler m_eventHandler;

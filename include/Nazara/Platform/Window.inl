@@ -44,7 +44,7 @@ namespace Nz
 		return m_cursorController;
 	}
 
-	inline WindowEventHandler& Nz::Window::GetEventHandler()
+	inline WindowEventHandler& Window::GetEventHandler()
 	{
 		return m_eventHandler;
 	}
@@ -59,6 +59,11 @@ namespace Nz
 	{
 		NazaraAssertMsg(m_impl, "Window not created");
 		return m_size;
+	}
+
+	inline TextInputController& Window::GetTextInputController()
+	{
+		return m_textInputController;
 	}
 
 	inline bool Window::IsOpen(bool checkClosed)

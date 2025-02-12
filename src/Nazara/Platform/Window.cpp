@@ -309,11 +309,25 @@ NAZARA_WARNING_POP()
 			if (IsValid())
 				SetCursor(cursor);
 		});
+
+		m_textInputStarted.Connect(m_textInputController.OnTextInputStarted, [this](const TextInputController*)
+		{
+			if (IsValid())
+				StartTextInput();
+		});
+
+		m_textInputStopped.Connect(m_textInputController.OnTextInputStopped, [this](const TextInputController*)
+		{
+			if (IsValid())
+				StopTextInput();
+		});
 	}
 
 	void Window::DisconnectSlots()
 	{
 		m_cursorUpdateSlot.Disconnect();
+		m_textInputStarted.Disconnect();
+		m_textInputStopped.Disconnect();
 	}
 
 	void Window::IgnoreNextMouseEvent(float mouseX, float mouseY) const
