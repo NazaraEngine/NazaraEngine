@@ -1,11 +1,11 @@
-// Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
+// Copyright (C) 2025 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Audio2 module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Audio2/AudioDevice.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/Log.hpp>
 #include <Nazara/Core/Format.hpp>
+#include <Nazara/Core/Log.hpp>
 #include <NazaraUtils/MemoryHelper.hpp>
 #include <miniaudio.h>
 #include <stdexcept>

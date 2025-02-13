@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
+// Copyright (C) 2025 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Audio2 module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
@@ -8,8 +8,8 @@
 #define NAZARA_AUDIO2_AUDIODEVICE_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <NazaraUtils/PrivateImpl.hpp>
 #include <Nazara/Audio2/Export.hpp>
+#include <NazaraUtils/PrivateImpl.hpp>
 #include <functional>
 
 struct ma_context;
