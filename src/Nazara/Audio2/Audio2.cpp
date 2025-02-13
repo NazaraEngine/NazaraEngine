@@ -1,15 +1,15 @@
-// Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
+// Copyright (C) 2025 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Audio2 module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Audio2/Audio2.hpp>
-#include <NazaraUtils/CallOnExit.hpp>
 #include <Nazara/Audio2/AudioDevice.hpp>
 #include <Nazara/Audio2/AudioDeviceInfo.hpp>
-/*#include <Nazara/Audio2/Formats/drmp3Loader.hpp>
+#include <NazaraUtils/CallOnExit.hpp>
+#include <Nazara/Audio2/Formats/drmp3Loader.hpp>
 #include <Nazara/Audio2/Formats/drwavLoader.hpp>
 #include <Nazara/Audio2/Formats/libflacLoader.hpp>
-#include <Nazara/Audio2/Formats/libvorbisLoader.hpp>*/
+#include <Nazara/Audio2/Formats/libvorbisLoader.hpp>
 #include <Nazara/Core/CommandLineParameters.hpp>
 #include <Nazara/Core/EnvironmentVariables.hpp>
 #include <Nazara/Core/Error.hpp>
@@ -83,14 +83,14 @@ namespace Nz
 			throw std::runtime_error("no audio backend");
 
 		// Loaders
-		/*m_soundBufferLoader.RegisterLoader(Loaders::GetSoundBufferLoader_drmp3());
+		m_soundBufferLoader.RegisterLoader(Loaders::GetSoundBufferLoader_drmp3());
 		m_soundStreamLoader.RegisterLoader(Loaders::GetSoundStreamLoader_drmp3());
 		m_soundBufferLoader.RegisterLoader(Loaders::GetSoundBufferLoader_drwav());
 		m_soundStreamLoader.RegisterLoader(Loaders::GetSoundStreamLoader_drwav());
 		m_soundBufferLoader.RegisterLoader(Loaders::GetSoundBufferLoader_libflac());
 		m_soundStreamLoader.RegisterLoader(Loaders::GetSoundStreamLoader_libflac());
 		m_soundBufferLoader.RegisterLoader(Loaders::GetSoundBufferLoader_libvorbis());
-		m_soundStreamLoader.RegisterLoader(Loaders::GetSoundStreamLoader_libvorbis());*/
+		m_soundStreamLoader.RegisterLoader(Loaders::GetSoundStreamLoader_libvorbis());
 
 		releaseContext.Reset();
 		m_maContext = maContext.release();
@@ -104,7 +104,6 @@ namespace Nz
 		delete m_maContext;
 	}
 
-#if 0
 	/*!
 	* \brief Gets the default SoundBuffer loader
 	* \return A reference to the default SoundBuffer loader
@@ -140,7 +139,6 @@ namespace Nz
 	{
 		return m_soundStreamLoader;
 	}
-#endif
 
 	std::shared_ptr<AudioDevice> Audio2::OpenCaptureDevice(const AudioDeviceId* captureDevice)
 	{
@@ -163,7 +161,7 @@ namespace Nz
 	std::vector<AudioDeviceInfo> Audio2::QueryDevices() const
 	{
 		std::vector<AudioDeviceInfo> devices;
-	
+
 		ma_context_enumerate_devices(m_maContext, [](ma_context* /*context*/, ma_device_type deviceType, const ma_device_info* info, void* userdata) -> ma_bool32
 		{
 			std::vector<AudioDeviceInfo>& deviceList = *reinterpret_cast<std::vector<AudioDeviceInfo>*>(userdata);
