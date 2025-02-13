@@ -26,7 +26,7 @@ namespace Nz
 
 			inline void ClearSystems();
 
-			entt::handle CreateEntity();
+			inline entt::handle CreateEntity();
 
 			inline std::size_t GetAliveEntityCount() const;
 			entt::registry& GetRegistry();
