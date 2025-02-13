@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
+// Copyright (C) 2025 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Audio2 module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
@@ -11,6 +11,8 @@
 #include <Nazara/Audio2/AudioDeviceInfo.hpp>
 #include <Nazara/Audio2/Enums.hpp>
 #include <Nazara/Audio2/Export.hpp>
+#include <Nazara/Audio2/SoundBuffer.hpp>
+#include <Nazara/Audio2/SoundStream.hpp>
 #include <Nazara/Core/Core.hpp>
 #include <memory>
 
@@ -35,10 +37,10 @@ namespace Nz
 			Audio2(Audio2&&) = delete;
 			~Audio2();
 
-			//SoundBufferLoader& GetSoundBufferLoader();
-			//const SoundBufferLoader& GetSoundBufferLoader() const;
-			//SoundStreamLoader& GetSoundStreamLoader();
-			//const SoundStreamLoader& GetSoundStreamLoader() const;
+			SoundBufferLoader& GetSoundBufferLoader();
+			const SoundBufferLoader& GetSoundBufferLoader() const;
+			SoundStreamLoader& GetSoundStreamLoader();
+			const SoundStreamLoader& GetSoundStreamLoader() const;
 
 			std::shared_ptr<AudioDevice> OpenCaptureDevice(const AudioDeviceId* captureDevice = nullptr);
 			std::shared_ptr<AudioDevice> OpenPlaybackDevice(const AudioDeviceId* playbackDevice = nullptr);
@@ -57,8 +59,8 @@ namespace Nz
 			};
 
 		private:
-			//SoundBufferLoader m_soundBufferLoader;
-			//SoundStreamLoader m_soundStreamLoader;
+			SoundBufferLoader m_soundBufferLoader;
+			SoundStreamLoader m_soundStreamLoader;
 			ma_context* m_maContext;
 
 			static Audio2* s_instance;
