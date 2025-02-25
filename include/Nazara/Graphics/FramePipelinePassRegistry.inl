@@ -43,12 +43,12 @@ namespace Nz
 		return std::distance(passData.outputs.begin(), it);
 	}
 
-	template<typename T>
-	std::size_t FramePipelinePassRegistry::RegisterPass(std::string passName, std::vector<std::string> inputs, std::vector<std::string> outputs)
+	template<typename T, typename... Args>
+	std::size_t FramePipelinePassRegistry::RegisterPass(std::string passName, std::vector<std::string> inputs, std::vector<std::string> outputs, Args&&... args)
 	{
-		return RegisterPass(std::move(passName), std::move(inputs), std::move(outputs), [](FramePipelinePass::PassData& passData, std::string passName, const ParameterList& parameters) -> std::unique_ptr<FramePipelinePass>
+		return RegisterPass(std::move(passName), std::move(inputs), std::move(outputs), [...args = std::forward<Args>(args)](FramePipelinePass::PassData& passData, std::string passName, const ParameterList& parameters) -> std::unique_ptr<FramePipelinePass>
 		{
-			return std::make_unique<T>(passData, std::move(passName), parameters);
+			return std::make_unique<T>(passData, std::move(passName), args..., parameters);
 		});
 	}
 

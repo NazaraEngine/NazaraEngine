@@ -632,9 +632,9 @@ namespace NzImGui
 				backend->vertexDeclaration = std::make_shared<Nz::VertexDeclaration>(Nz::VertexInputRate::Vertex, sizeof(ImDrawVert), std::initializer_list<Nz::VertexDeclaration::Component>{
 					{
 						.type = Nz::ComponentType::Float2,
-							.component = Nz::VertexComponent::Position,
-							.componentIndex = 0,
-							.offset = offsetof(ImDrawVert, pos)
+						.component = Nz::VertexComponent::Position,
+						.componentIndex = 0,
+						.offset = offsetof(ImDrawVert, pos)
 					},
 					{
 						.type = Nz::ComponentType::Float2,

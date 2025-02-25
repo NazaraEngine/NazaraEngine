@@ -36,7 +36,7 @@ namespace Nz
 			inline std::size_t GetPassInputIndex(std::size_t passIndex, std::string_view inputName) const;
 			inline std::size_t GetPassOutputIndex(std::size_t passIndex, std::string_view inputName) const;
 
-			template<typename T> std::size_t RegisterPass(std::string passName, std::vector<std::string> inputs, std::vector<std::string> outputs);
+			template<typename T, typename... Args> std::size_t RegisterPass(std::string passName, std::vector<std::string> inputs, std::vector<std::string> outputs, Args&&... args);
 			inline std::size_t RegisterPass(std::string passName, std::vector<std::string> inputs, std::vector<std::string> outputs, Factory factory);
 
 			FramePipelinePassRegistry& operator=(const FramePipelinePassRegistry&) = default;
