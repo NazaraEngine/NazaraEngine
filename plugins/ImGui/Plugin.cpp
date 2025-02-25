@@ -477,6 +477,15 @@ namespace NzImGui
 					Nz::Clipboard::SetString(clipboardText);
 				};
 
+				platformIO.Platform_SetImeDataFn = [](ImGuiContext* /*context*/, ImGuiViewport* viewport, ImGuiPlatformImeData* data)
+				{
+					ImGuiPlatformBackend* backend = static_cast<ImGuiPlatformBackend*>(ImGui::GetIO().BackendPlatformUserData);
+					if (data->WantVisible)
+						backend->window->StartTextInput();
+					else
+						backend->window->StopTextInput();
+				};
+
 				SetupInputs(io, backend, window.GetEventHandler());
 			}
 
