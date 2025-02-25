@@ -29,6 +29,9 @@ namespace Nz
 			Canvas(Canvas&&) = delete;
 			inline ~Canvas();
 
+			inline void ClearKeyboardFocus();
+			inline void ClearMouseFocus();
+
 			inline entt::registry& GetRegistry();
 			inline const entt::registry& GetRegistry() const;
 			inline UInt32 GetRenderMask() const;

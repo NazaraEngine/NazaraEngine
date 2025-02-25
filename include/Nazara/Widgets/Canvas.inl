@@ -15,6 +15,16 @@ namespace Nz
 		m_canvasIndex = InvalidCanvasIndex;
 	}
 
+	inline void Canvas::ClearKeyboardFocus()
+	{
+		SetKeyboardOwner(InvalidCanvasIndex);
+	}
+
+	inline void Canvas::ClearMouseFocus()
+	{
+		SetMouseOwner(InvalidCanvasIndex);
+	}
+
 	inline entt::registry& Canvas::GetRegistry()
 	{
 		return m_registry;
