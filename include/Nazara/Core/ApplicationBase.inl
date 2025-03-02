@@ -55,6 +55,11 @@ namespace Nz
 		m_components.clear();
 	}
 
+	inline std::span<const char*> ApplicationBase::GetArgs() const
+	{
+		return m_args;
+	}
+
 	inline const CommandLineParameters& ApplicationBase::GetCommandLineParameters() const
 	{
 		return m_commandLineParams;

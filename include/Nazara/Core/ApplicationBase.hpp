@@ -13,6 +13,7 @@
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/CommandLineParameters.hpp>
 #include <atomic>
+#include <span>
 #include <string>
 #include <unordered_map>
 
@@ -38,6 +39,7 @@ namespace Nz
 
 			inline void ClearComponents();
 
+			inline std::span<const char*> GetArgs() const;
 			inline const CommandLineParameters& GetCommandLineParameters() const;
 			template<typename T> T& GetComponent();
 			template<typename T> const T& GetComponent() const;
@@ -72,6 +74,7 @@ namespace Nz
 			};
 
 			std::atomic_bool m_running;
+			std::span<const char*> m_args;
 			std::unordered_map<UInt64 /*typehash*/, ApplicationComponent*> m_componentByType;
 			std::vector<std::unique_ptr<ApplicationComponent>> m_components;
 			std::vector<Updater> m_updaters;

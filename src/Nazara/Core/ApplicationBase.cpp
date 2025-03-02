@@ -12,6 +12,7 @@ namespace Nz
 {
 	ApplicationBase::ApplicationBase(int argc, const Pointer<const char>* argv) :
 	m_running(true),
+	m_args(const_cast<const char**>(argv), SafeCast<std::size_t>(argc)),
 	m_commandLineParams(CommandLineParameters::Parse(argc, argv)),
 	m_currentTime(Time::Zero())
 	{
