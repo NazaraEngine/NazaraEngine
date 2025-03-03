@@ -48,6 +48,7 @@ namespace Nz
 			{
 				const Texture* texture;
 				const TextureSampler* sampler;
+				TextureLayout textureLayout = TextureLayout::ColorInput;
 			};
 
 			struct SampledTextureBindings
@@ -79,7 +80,7 @@ namespace Nz
 			struct Binding
 			{
 				UInt32 bindingIndex;
-				std::variant<SampledTextureBinding, SampledTextureBindings, StorageBufferBinding, TextureBinding, UniformBufferBinding> content;
+				std::variant<std::monostate, SampledTextureBinding, SampledTextureBindings, StorageBufferBinding, TextureBinding, UniformBufferBinding> content;
 			};
 
 		protected:
