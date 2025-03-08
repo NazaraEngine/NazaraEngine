@@ -62,6 +62,14 @@ Nz::Color FromAssimp(const aiColor4D& color)
 	return Nz::Color(color.r, color.g, color.b, color.a);
 }
 
+Nz::Matrix4f FromAssimp(const aiMatrix4x4& matrix)
+{
+	return Nz::Matrix4f(matrix.a1, matrix.b1, matrix.c1, matrix.d1,
+	                    matrix.a2, matrix.b2, matrix.c2, matrix.d2,
+	                    matrix.a3, matrix.b3, matrix.c3, matrix.d3,
+	                    matrix.a4, matrix.b4, matrix.c4, matrix.d4);
+}
+
 Nz::Vector3f FromAssimp(const aiVector3D& vec)
 {
 	return Nz::Vector3f(vec.x, vec.y, vec.z);
@@ -78,6 +86,7 @@ struct SceneInfo
 	{
 		const aiNode* node;
 		std::size_t totalChildrenCount;
+		Nz::Matrix4f transformMatrix;
 	};
 
 	struct SkeletalMesh
@@ -101,12 +110,15 @@ struct SceneInfo
 	std::vector<StaticMesh> staticMeshes;
 };
 
-void VisitNodes(SceneInfo& sceneInfo, const aiScene* scene, const aiNode* node)
+void VisitNodes(SceneInfo& sceneInfo, const aiScene* scene, const aiNode* node, std::size_t parentIndex = Nz::MaxValue())
 {
 	std::size_t nodeIndex = sceneInfo.nodes.size();
 	sceneInfo.nodeByName.emplace(node->mName.C_Str(), nodeIndex);
 	auto& sceneNode = sceneInfo.nodes.emplace_back();
 	sceneNode.node = node;
+	sceneNode.transformMatrix = FromAssimp(node->mTransformation);
+	if (parentIndex != Nz::MaxValue<std::size_t>())
+		sceneNode.transformMatrix = Nz::Matrix4f::ConcatenateTransform(sceneInfo.nodes[parentIndex].transformMatrix, sceneNode.transformMatrix);
 
 	for (unsigned int i = 0; i < node->mNumMeshes; ++i)
 	{
@@ -224,12 +236,7 @@ void ProcessJoints(const Nz::MeshParams& parameters, const Nz::Matrix4f& transfo
 		const aiBone* bone = skeletalMesh.mesh->mBones[it->second];
 		boneToJointIndex.emplace(bone, currentJointIndex);
 
-		Nz::Matrix4f offsetMatrix(bone->mOffsetMatrix.a1, bone->mOffsetMatrix.b1, bone->mOffsetMatrix.c1, bone->mOffsetMatrix.d1,
-		                          bone->mOffsetMatrix.a2, bone->mOffsetMatrix.b2, bone->mOffsetMatrix.c2, bone->mOffsetMatrix.d2,
-		                          bone->mOffsetMatrix.a3, bone->mOffsetMatrix.b3, bone->mOffsetMatrix.c3, bone->mOffsetMatrix.d3,
-		                          bone->mOffsetMatrix.a4, bone->mOffsetMatrix.b4, bone->mOffsetMatrix.c4, bone->mOffsetMatrix.d4);
-
-		joint->SetInverseBindMatrix(Nz::Matrix4f::ConcatenateTransform(Nz::Matrix4f::ConcatenateTransform(invTransformMatrix, offsetMatrix), transformMatrix));
+		joint->SetInverseBindMatrix(Nz::Matrix4f::ConcatenateTransform(Nz::Matrix4f::ConcatenateTransform(invTransformMatrix, FromAssimp(bone->mOffsetMatrix)), transformMatrix));
 	}
 
 	for (unsigned int i = 0; i < node->mNumChildren; ++i)
@@ -392,7 +399,7 @@ Nz::Result<std::shared_ptr<Nz::Animation>, Nz::ResourceLoadingError> LoadAnimati
 using EmbeddedTextures = std::unordered_map<const aiTexture*, std::filesystem::path>;
 using MaterialData = std::unordered_map<unsigned int, std::pair<Nz::UInt32, Nz::ParameterList>>;
 
-std::shared_ptr<Nz::SubMesh> ProcessSubMesh(const std::filesystem::path& originPath, const Nz::MeshParams& parameters, const aiScene* scene, const aiMesh* meshData, bool isSkeletalMesh, MaterialData& materialData, const std::unordered_map<const aiBone*, unsigned int>& boneToJointIndex, EmbeddedTextures& embeddedTextures)
+std::shared_ptr<Nz::SubMesh> ProcessSubMesh(const std::filesystem::path& originPath, const Nz::MeshParams& parameters, const aiScene* scene, const SceneInfo::Node& meshNode, const aiMesh* meshData, bool isSkeletalMesh, MaterialData& materialData, const std::unordered_map<const aiBone*, unsigned int>& boneToJointIndex, EmbeddedTextures& embeddedTextures)
 {
 	unsigned int indexCount = meshData->mNumFaces * 3;
 	unsigned int vertexCount = meshData->mNumVertices;
@@ -444,7 +451,10 @@ std::shared_ptr<Nz::SubMesh> ProcessSubMesh(const std::filesystem::path& originP
 	if (auto posPtr = vertexMapper.GetComponentPtr<Nz::Vector3f>(Nz::VertexComponent::Position))
 	{
 		for (unsigned int vertexIndex = 0; vertexIndex < vertexCount; ++vertexIndex)
+		{
 			posPtr[vertexIndex] = Nz::TransformPositionSRT(parameters.vertexOffset, parameters.vertexRotation, parameters.vertexScale, FromAssimp(meshData->mVertices[vertexIndex]));
+			posPtr[vertexIndex] = meshNode.transformMatrix.Transform(posPtr[vertexIndex]);
+		}
 
 		aabb = Nz::ComputeAABB(posPtr, vertexCount);
 	}
@@ -453,7 +463,10 @@ std::shared_ptr<Nz::SubMesh> ProcessSubMesh(const std::filesystem::path& originP
 	if (auto normalPtr = vertexMapper.GetComponentPtr<Nz::Vector3f>(Nz::VertexComponent::Normal))
 	{
 		for (unsigned int vertexIndex = 0; vertexIndex < vertexCount; ++vertexIndex)
-			*normalPtr++ = Nz::TransformDirectionSRT(parameters.vertexRotation, parameters.vertexScale, FromAssimp(meshData->mNormals[vertexIndex]));
+		{
+			normalPtr[vertexIndex] = Nz::TransformDirectionSRT(parameters.vertexRotation, parameters.vertexScale, FromAssimp(meshData->mNormals[vertexIndex]));
+			normalPtr[vertexIndex] = meshNode.transformMatrix.Transform(normalPtr[vertexIndex], 0.f);
+		}
 	}
 
 	// Vertex tangents
@@ -463,7 +476,10 @@ std::shared_ptr<Nz::SubMesh> ProcessSubMesh(const std::filesystem::path& originP
 		if (meshData->HasTangentsAndBitangents())
 		{
 			for (unsigned int vertexIndex = 0; vertexIndex < vertexCount; ++vertexIndex)
-				*tangentPtr++ = Nz::TransformDirectionSRT(parameters.vertexRotation, parameters.vertexScale, FromAssimp(meshData->mTangents[vertexIndex]));
+			{
+				tangentPtr[vertexIndex] = Nz::TransformDirectionSRT(parameters.vertexRotation, parameters.vertexScale, FromAssimp(meshData->mTangents[vertexIndex]));
+				tangentPtr[vertexIndex] = meshNode.transformMatrix.Transform(tangentPtr[vertexIndex], 0.f);
+			}
 		}
 		else
 			generateTangents = true;
@@ -886,13 +902,13 @@ Nz::Result<std::shared_ptr<Nz::Mesh>, Nz::ResourceLoadingError> LoadMesh(Nz::Str
 			ProcessJoints(parameters, transformMatrix, invTransformMatrix, skeletalMesh, mesh->GetSkeleton(), sceneInfo.nodes[sceneInfo.skeletonRootIndex].node, jointIndex, sceneInfo.assimpBoneToJointIndex, seenNodes);
 
 		for (auto& skeletalMesh : sceneInfo.skeletalMeshes)
-			mesh->AddSubMesh(ProcessSubMesh(stream.GetDirectory(), parameters, scene, skeletalMesh.mesh, true, materialData, sceneInfo.assimpBoneToJointIndex, embeddedTextures));
+			mesh->AddSubMesh(ProcessSubMesh(stream.GetDirectory(), parameters, scene, sceneInfo.nodes[skeletalMesh.nodeIndex], skeletalMesh.mesh, true, materialData, sceneInfo.assimpBoneToJointIndex, embeddedTextures));
 	}
 	else
 	{
 		mesh->CreateStatic();
-		for (unsigned int meshIndex = 0; meshIndex < scene->mNumMeshes; ++meshIndex)
-			mesh->AddSubMesh(ProcessSubMesh(stream.GetDirectory(), parameters, scene, scene->mMeshes[meshIndex], false, materialData, {}, embeddedTextures));
+		for (auto& staticMesh : sceneInfo.staticMeshes)
+			mesh->AddSubMesh(ProcessSubMesh(stream.GetDirectory(), parameters, scene, sceneInfo.nodes[staticMesh.nodeIndex], staticMesh.mesh, false, materialData, {}, embeddedTextures));
 
 		if (parameters.center)
 			mesh->Recenter();
