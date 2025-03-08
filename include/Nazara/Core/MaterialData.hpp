@@ -50,6 +50,7 @@ namespace Nz
 		static constexpr const char* HeightTexturePath        = "MatHeightTexturePath";
 		static constexpr const char* HeightTextureWrap        = "MatHeightTextureWrap";
 		static constexpr const char* LineWidth                = "MatLineWidth";
+		static constexpr const char* MetallicFactor           = "MatMetallicFactor";
 		static constexpr const char* MetallicTextureFilter    = "MatMetallicTextureFilter";
 		static constexpr const char* MetallicTexturePath      = "MatMetallicTexturePath";
 		static constexpr const char* MetallicTextureWrap      = "MatMetallicTextureWrap";
@@ -58,6 +59,7 @@ namespace Nz
 		static constexpr const char* NormalTexturePath        = "MatNormalTexturePath";
 		static constexpr const char* NormalTextureWrap        = "MatNormalTextureWrap";
 		static constexpr const char* PointSize                = "MatPointSize";
+		static constexpr const char* RoughnessFactor          = "MatRoughnessFactor";
 		static constexpr const char* RoughnessTextureFilter   = "MatRoughnessTextureFilter";
 		static constexpr const char* RoughnessTexturePath     = "MatRoughnessTexturePath";
 		static constexpr const char* RoughnessTextureWrap     = "MatRoughnessTextureWrap";

@@ -32,12 +32,16 @@ namespace Nz
 
 	void PredefinedMaterials::AddPbrSettings(MaterialSettings& settings)
 	{
+		settings.AddValueProperty<float>("MetallicFactor", 1.f);
+		settings.AddValueProperty<float>("RoughnessFactor", 1.f);
 		settings.AddTextureProperty("EmissiveMap", ImageType::E2D);
 		settings.AddTextureProperty("HeightMap", ImageType::E2D);
 		settings.AddTextureProperty("MetallicMap", ImageType::E2D);
 		settings.AddTextureProperty("NormalMap", ImageType::E2D);
 		settings.AddTextureProperty("RoughnessMap", ImageType::E2D);
 		settings.AddTextureProperty("SpecularMap", ImageType::E2D);
+		settings.AddPropertyHandler(std::make_unique<UniformValuePropertyHandler>("MetallicFactor"));
+		settings.AddPropertyHandler(std::make_unique<UniformValuePropertyHandler>("RoughnessFactor"));
 		settings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("EmissiveMap", "HasEmissiveTexture"));
 		settings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("HeightMap", "HasHeightTexture"));
 		settings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("MetallicMap", "HasMetallicTexture"));

@@ -492,6 +492,8 @@ namespace Nz
 
 		ConvertColor(MaterialData::BaseColor, "BaseColor");
 		ConvertBool(MaterialData::AlphaTest, "AlphaTest");
+		ConvertFloat(MaterialData::MetallicFactor, "MetallicFactor");
+		ConvertFloat(MaterialData::RoughnessFactor, "RoughnessFactor");
 		ConvertTexture(MaterialData::BaseColorTexturePath, "BaseColorMap", MaterialData::BaseColorTextureFilter, MaterialData::BaseColorTextureWrap);
 		ConvertTexture(MaterialData::AlphaTexturePath, "AlphaMap", MaterialData::AlphaTextureFilter, MaterialData::AlphaTextureWrap);
 

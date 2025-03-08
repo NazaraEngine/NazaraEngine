@@ -819,6 +819,12 @@ std::shared_ptr<Nz::SubMesh> ProcessSubMesh(const std::filesystem::path& originP
 				case aiShadingMode_CookTorrance:
 				case aiShadingMode_PBR_BRDF:
 					matData.SetParameter(Nz::MaterialData::Type, "PhysicallyBased");
+
+					if (float fValue; aiGetMaterialFloat(aiMat, AI_MATKEY_METALLIC_FACTOR, &fValue) == aiReturn_SUCCESS)
+						matData.SetParameter(Nz::MaterialData::MetallicFactor, fValue);
+
+					if (float fValue; aiGetMaterialFloat(aiMat, AI_MATKEY_ROUGHNESS_FACTOR, &fValue) == aiReturn_SUCCESS)
+						matData.SetParameter(Nz::MaterialData::RoughnessFactor, fValue);
 					break;
 
 				case aiShadingMode_NoShading:
