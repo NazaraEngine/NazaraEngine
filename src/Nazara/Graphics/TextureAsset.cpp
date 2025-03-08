@@ -384,7 +384,14 @@ namespace Nz
 
 	std::shared_ptr<TextureAsset> TextureAsset::OpenFromFile(const std::filesystem::path& filePath, const TextureAssetParams& params)
 	{
-		return OpenFromStream(std::make_unique<Nz::File>(filePath, Nz::OpenMode::Read), params);
+		std::unique_ptr<Nz::File> file = std::make_unique<Nz::File>(filePath, Nz::OpenMode::Read);
+		if (!file->IsOpen())
+		{
+			NazaraError("failed to open {}", filePath);
+			return {};
+		}
+
+		return OpenFromStream(std::move(file), params);
 	}
 
 	std::shared_ptr<TextureAsset> TextureAsset::OpenFromMemory(const void* data, std::size_t size, const TextureAssetParams& params)
@@ -412,7 +419,14 @@ namespace Nz
 
 	std::shared_ptr<TextureAsset> TextureAsset::OpenFromFile(const std::filesystem::path& filePath, const TextureAssetParams& params, const Vector2ui32& atlasSize)
 	{
-		return OpenFromStream(std::make_unique<Nz::File>(filePath, Nz::OpenMode::Read), params, atlasSize);
+		std::unique_ptr<Nz::File> file = std::make_unique<Nz::File>(filePath, Nz::OpenMode::Read);
+		if (!file->IsOpen())
+		{
+			NazaraError("failed to open {}", filePath);
+			return {};
+		}
+
+		return OpenFromStream(std::move(file), params, atlasSize);
 	}
 
 	std::shared_ptr<TextureAsset> TextureAsset::OpenFromMemory(const void* data, std::size_t size, const TextureAssetParams& params, const Vector2ui32& atlasSize)
@@ -440,7 +454,14 @@ namespace Nz
 
 	std::shared_ptr<TextureAsset> TextureAsset::OpenFromFile(const std::filesystem::path& filePath, const TextureAssetParams& params, const CubemapParams& cubemapParams)
 	{
-		return OpenFromStream(std::make_unique<Nz::File>(filePath, Nz::OpenMode::Read), params, cubemapParams);
+		std::unique_ptr<Nz::File> file = std::make_unique<Nz::File>(filePath, Nz::OpenMode::Read);
+		if (!file->IsOpen())
+		{
+			NazaraError("failed to open {}", filePath);
+			return {};
+		}
+
+		return OpenFromStream(std::move(file), params, cubemapParams);
 	}
 
 	std::shared_ptr<TextureAsset> TextureAsset::OpenFromMemory(const void* data, std::size_t size, const TextureAssetParams& params, const CubemapParams& cubemapParams)
