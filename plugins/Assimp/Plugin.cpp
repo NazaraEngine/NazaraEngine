@@ -641,7 +641,7 @@ std::shared_ptr<Nz::SubMesh> ProcessSubMesh(const std::filesystem::path& originP
 			return false;
 		};
 
-		auto SaveEmbeddedTextureToFile = [](const aiTexture* embeddedTexture, const std::filesystem::path& basePath, const char* filename) -> std::filesystem::path
+		auto SaveEmbeddedTextureToFile = [](const aiTexture* embeddedTexture, const std::filesystem::path& basePath, std::string_view filename) -> std::filesystem::path
 		{
 			if (basePath.empty())
 			{
@@ -658,6 +658,23 @@ std::shared_ptr<Nz::SubMesh> ProcessSubMesh(const std::filesystem::path& originP
 					NazaraError("can't create embedded resource folder (folder creation failed)");
 					return {};
 				}
+			}
+
+			constexpr std::string_view forbiddenFilenameCharacters = ":*/\\\":<|>";
+
+			std::string fixedFilename;
+			if (std::size_t i = filename.find_first_of(forbiddenFilenameCharacters); i != filename.npos)
+			{
+				fixedFilename = filename;
+
+				do 
+				{
+					fixedFilename.replace(i, 1, "_");
+					i = filename.find_first_of(forbiddenFilenameCharacters, i + 1);
+				}
+				while (i != filename.npos);
+
+				filename = fixedFilename;
 			}
 
 			targetPath /= Nz::Utf8Path(filename);
@@ -680,7 +697,7 @@ std::shared_ptr<Nz::SubMesh> ProcessSubMesh(const std::filesystem::path& originP
 			}
 			else
 			{
-				// Uncompressed data (always ARGB8 it seems)
+				// Uncompressed data (always RGBA8 it seems)
 				Nz::Image uncompressedData(Nz::ImageType::E2D, Nz::PixelFormat::RGBA8_SRGB, embeddedTexture->mWidth, embeddedTexture->mHeight);
 				const aiTexel* sourceData = embeddedTexture->pcData;
 				Nz::UInt8* imageData = uncompressedData.GetPixels();
