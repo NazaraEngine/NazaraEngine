@@ -8,8 +8,7 @@
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/RenderSubmesh.hpp>
-#include <Nazara/Graphics/WorldInstance.hpp>
-#include <Nazara/Renderer/CommandBufferBuilder.hpp>
+#include <NazaraUtils/StackArray.hpp>
 
 namespace Nz
 {
@@ -101,6 +100,20 @@ namespace Nz
 	const std::shared_ptr<RenderBuffer>& Model::GetVertexBuffer(std::size_t subMeshIndex) const
 	{
 		return m_graphicalMesh->GetVertexBuffer(subMeshIndex);
+	}
+
+	std::shared_ptr<Model> Model::BuildFromMesh(const Mesh& mesh)
+	{
+		std::shared_ptr<Model> model = std::make_shared<Model>(GraphicalMesh::BuildFromMesh(mesh));
+
+		StackArray<std::shared_ptr<MaterialInstance>> materials = NazaraStackArray(std::shared_ptr<MaterialInstance>, mesh.GetMaterialCount());
+		for (std::size_t i = 0; i < materials.size(); ++i)
+			materials[i] = MaterialInstance::Build(mesh.GetMaterialData(i));
+
+		for (std::size_t i = 0; i < model->GetSubMeshCount(); ++i)
+			model->SetMaterial(i, materials[mesh.GetSubMesh(i)->GetMaterialIndex()]);
+
+		return model;
 	}
 
 	std::shared_ptr<Model> Model::LoadFromFile(const std::filesystem::path& filePath, const ModelParams& params)

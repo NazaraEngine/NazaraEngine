@@ -20,6 +20,7 @@
 #include <Nazara/Graphics/GraphicalMesh.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Renderer/RenderPipeline.hpp>
+#include <NazaraUtils/FixedVector.hpp>
 #include <NazaraUtils/FunctionRef.hpp>
 #include <NazaraUtils/Result.hpp>
 #include <functional>
@@ -69,6 +70,7 @@ namespace Nz
 			Model& operator=(const Model&) = delete;
 			Model& operator=(Model&&) noexcept = default;
 
+			static std::shared_ptr<Model> BuildFromMesh(const Mesh& mesh);
 			static std::shared_ptr<Model> LoadFromFile(const std::filesystem::path& filePath, const ModelParams& params = ModelParams());
 			static std::shared_ptr<Model> LoadFromMemory(const void* data, std::size_t size, const ModelParams& params = ModelParams());
 			static std::shared_ptr<Model> LoadFromStream(Stream& stream, const ModelParams& params = ModelParams());
@@ -84,7 +86,7 @@ namespace Nz
 			NazaraSlot(GraphicalMesh, OnInvalidated, m_onInvalidated);
 
 			std::shared_ptr<GraphicalMesh> m_graphicalMesh;
-			std::vector<SubMeshData> m_submeshes;
+			HybridVector<SubMeshData, 3> m_submeshes;
 	};
 }
 
