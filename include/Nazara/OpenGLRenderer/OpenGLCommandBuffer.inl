@@ -190,6 +190,7 @@ namespace Nz
 		draw.firstInstance = firstInstance;
 		draw.indexCount = indexCount;
 		draw.instanceCount = instanceCount;
+		draw.baseVertex = vertexOffset;
 
 		m_commands.emplace_back(std::move(draw));
 	}
