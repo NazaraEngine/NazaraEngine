@@ -19,7 +19,7 @@ namespace Nz
 
 	void StaticMesh::Center()
 	{
-		Vector3f offset(m_aabb.x + m_aabb.width/2.f, m_aabb.y + m_aabb.height/2.f, m_aabb.z + m_aabb.depth/2.f);
+		Vector3f offset = m_aabb.GetCenter();
 
 		VertexMapper mapper(*m_vertexBuffer);
 		SparsePtr<Vector3f> position = mapper.GetComponentPtr<Vector3f>(VertexComponent::Position);
