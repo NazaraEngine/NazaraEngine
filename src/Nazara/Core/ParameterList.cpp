@@ -5,7 +5,7 @@
 #include <Nazara/Core/ParameterList.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/StringExt.hpp>
-#include <NazaraUtils/MemoryHelper.hpp>
+#include <NazaraUtils/TypeTraits.hpp>
 #include <cstring>
 
 namespace Nz
@@ -60,39 +60,29 @@ namespace Nz
 		if (it == m_parameters.end())
 			return Err(Error::MissingValue);
 
-		switch (it->second.type)
-		{
-			case ParameterType::Boolean:
-				return it->second.value.boolVal;
-
-			case ParameterType::Integer:
-				if (strict)
-					return Err(Error::WouldRequireConversion);
-
-				return (it->second.value.intVal != 0);
-
-			case ParameterType::String:
+		return std::visit(Overloaded{
+			[](Primitive<bool> primitive) -> Result<bool, Error> { return primitive.value; },
+			[&](Primitive<long long> primitive) -> Result<bool, Error>
 			{
 				if (strict)
 					return Err(Error::WouldRequireConversion);
 
-				if (it->second.value.stringVal == "1" || it->second.value.stringVal == "yes" || it->second.value.stringVal == "true")
+				return (primitive.value != 0);
+			},
+			[&](const std::string& value) -> Result<bool, Error>
+			{
+				if (strict)
+					return Err(Error::WouldRequireConversion);
+
+				if (value == "1" || value == "yes" || value == "true")
 					return true;
-				else if (it->second.value.stringVal == "0" || it->second.value.stringVal == "no" || it->second.value.stringVal == "false")
+				else if (value == "0" || value == "no" || value == "false")
 					return false;
 
 				return Err(Error::ConversionFailed);
-			}
-
-			case ParameterType::Color:
-			case ParameterType::Double:
-			case ParameterType::None:
-			case ParameterType::Pointer:
-			case ParameterType::Userdata:
-				break;
-		}
-
-		return Err(Error::WrongType);
+			},
+			[](auto) -> Result<bool, Error> { return Err(Error::WrongType); }
+		}, it->second);
 	}
 
 	/*!
@@ -110,22 +100,10 @@ namespace Nz
 		if (it == m_parameters.end())
 			return Err(Error::MissingValue);
 
-		switch (it->second.type)
-		{
-			case ParameterType::Color:
-				return it->second.value.colorVal;
+		if (!std::holds_alternative<Color>(it->second))
+			return Err(Error::WrongType);
 
-			case ParameterType::Boolean:
-			case ParameterType::Double:
-			case ParameterType::Integer:
-			case ParameterType::String:
-			case ParameterType::None:
-			case ParameterType::Pointer:
-			case ParameterType::Userdata:
-				break;
-		}
-
-		return Err(Error::WrongType);
+		return std::get<Color>(it->second);
 	}
 
 	/*!
@@ -144,46 +122,37 @@ namespace Nz
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
 			return Err(Error::MissingValue);
-
-		switch (it->second.type)
-		{
-			case ParameterType::Double:
-				return it->second.value.doubleVal;
-
-			case ParameterType::Integer:
-				if (strict)
-					return Err(Error::WouldRequireConversion);
-
-				return static_cast<double>(it->second.value.intVal);
-
-			case ParameterType::String:
+			
+		return std::visit(Overloaded{
+			[&](Primitive<double> primitive) -> Result<double, Error>
+			{
+				return primitive.value;
+			},
+			[&](Primitive<long long> primitive) -> Result<double, Error>
 			{
 				if (strict)
 					return Err(Error::WouldRequireConversion);
 
-				const std::string& str = it->second.value.stringVal;
+				return static_cast<double>(primitive.value);
+			},
+			[&](const std::string& value) -> Result<double, Error>
+			{
+				if (strict)
+					return Err(Error::WouldRequireConversion);
 
 				int& err = errno;
 				err = 0;
 
 				char* endStr;
-				double ret = std::strtod(str.data(), &endStr);
+				double ret = std::strtod(value.data(), &endStr);
 
-				if (str.data() == endStr || err == ERANGE)
-					break;
+				if (value.data() == endStr || err == ERANGE)
+					return Err(Error::ConversionFailed);
 
 				return ret;
-			}
-
-			case ParameterType::Boolean:
-			case ParameterType::Color:
-			case ParameterType::None:
-			case ParameterType::Pointer:
-			case ParameterType::Userdata:
-				break;
-		}
-
-		return Err(Error::WrongType);
+			},
+			[](auto) -> Result<double, Error> { return Err(Error::WrongType); }
+		}, it->second);
 	}
 
 	/*!
@@ -204,67 +173,43 @@ namespace Nz
 		if (it == m_parameters.end())
 			return Err(Error::MissingValue);
 
-		switch (it->second.type)
-		{
-			case ParameterType::Boolean:
-				if (strict)
-					return Err(Error::WouldRequireConversion);
-
-				return (it->second.value.boolVal) ? 1LL : 0LL;
-
-			case ParameterType::Double:
-				if (strict)
-					return Err(Error::WouldRequireConversion);
-
-				return static_cast<long long>(it->second.value.doubleVal);
-
-			case ParameterType::Integer:
-				return it->second.value.intVal;
-
-			case ParameterType::String:
+		return std::visit(Overloaded{
+			[&](Primitive<bool> primitive) -> Result<long long, Error>
 			{
 				if (strict)
 					return Err(Error::WouldRequireConversion);
 
-				const std::string& str = it->second.value.stringVal;
+				return (primitive.value) ? 1LL : 0LL;
+			},
+			[&](Primitive<double> primitive) -> Result<long long, Error>
+			{
+				if (strict)
+					return Err(Error::WouldRequireConversion);
+
+				return static_cast<long long>(primitive.value);
+			},
+			[&](Primitive<long long> primitive) -> Result<long long, Error>
+			{
+				return primitive.value;
+			},
+			[&](const std::string& value) -> Result<long long, Error>
+			{
+				if (strict)
+					return Err(Error::WouldRequireConversion);
 
 				int& err = errno;
 				err = 0;
 
 				char* endStr;
-				long long ret = std::strtoll(str.data(), &endStr, 0);
+				long long ret = std::strtoll(value.data(), &endStr, 0);
 
-				if (str.data() == endStr || err == ERANGE)
-					break;
+				if (value.data() == endStr || err == ERANGE)
+					return Err(Error::ConversionFailed);
 
 				return ret;
-			}
-
-			case ParameterType::Color:
-			case ParameterType::None:
-			case ParameterType::Pointer:
-			case ParameterType::Userdata:
-				break;
-		}
-
-		return Err(Error::WrongType);
-	}
-
-	/*!
-	* \brief Gets a parameter type
-	* \return result containing the parameter type or an error
-	*
-	* \param name Name of the variable
-	*
-	* \remark type must be a valid pointer to a ParameterType variable
-	*/
-	auto ParameterList::GetParameterType(std::string_view name) const -> Result<ParameterType, Error>
-	{
-		auto it = m_parameters.find(name);
-		if (it == m_parameters.end())
-			return Err(Error::MissingValue);
-
-		return it->second.type;
+			},
+			[](auto) -> Result<long long, Error> { return Err(Error::WrongType); }
+		}, it->second);
 	}
 
 	/*!
@@ -282,28 +227,21 @@ namespace Nz
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
 			return Err(Error::MissingValue);
-
-		switch (it->second.type)
-		{
-			case ParameterType::Pointer:
-				return it->second.value.ptrVal;
-
-			case ParameterType::Userdata:
+			
+		return std::visit(Overloaded{
+			[&](Primitive<void*> primitive) -> Result<void*, Error>
+			{
+				return primitive.value;
+			},
+			[&](const UserdataValue* userdata) -> Result<void*, Error>
+			{
 				if (strict)
 					return Err(Error::WouldRequireConversion);
 
-				return it->second.value.userdataVal->ptr.Get();
-
-			case ParameterType::Boolean:
-			case ParameterType::Color:
-			case ParameterType::Double:
-			case ParameterType::Integer:
-			case ParameterType::None:
-			case ParameterType::String:
-				break;
-		}
-
-		return Err(Error::WrongType);
+				return userdata->ptr.Get();
+			},
+			[](auto) -> Result<void*, Error> { return Err(Error::WrongType); }
+		}, it->second);
 	}
 
 	/*!
@@ -327,56 +265,60 @@ namespace Nz
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
 			return Err(Error::MissingValue);
-
-		switch (it->second.type)
-		{
-			case ParameterType::Boolean:
-				if (strict)
-					return Err(Error::WouldRequireConversion);
-
-				return std::string{ (it->second.value.boolVal) ? "true" : "false" };
-
-			case ParameterType::Color:
-				if (strict)
-					return Err(Error::WouldRequireConversion);
-
-				return it->second.value.colorVal.ToString();
-
-			case ParameterType::Double:
-				if (strict)
-					return Err(Error::WouldRequireConversion);
-
-				return std::to_string(it->second.value.doubleVal);
-
-			case ParameterType::Integer:
-				if (strict)
-					return Err(Error::WouldRequireConversion);
-
-				return std::to_string(it->second.value.intVal);
-
-			case ParameterType::String:
-				return it->second.value.stringVal;
-
-			case ParameterType::Pointer:
-				if (strict)
-					return Err(Error::WouldRequireConversion);
-
-				return PointerToString(it->second.value.ptrVal);
-
-			case ParameterType::Userdata:
-				if (strict)
-					return Err(Error::WouldRequireConversion);
-
-				return PointerToString(it->second.value.userdataVal->ptr);
-
-			case ParameterType::None:
-				if (strict)
-					return Err(Error::WouldRequireConversion);
-
+			
+		return std::visit(Overloaded{
+			[](std::monostate) ->Result<std::string, Error>
+			{
 				return std::string{};
-		}
+			},
+			[&](Primitive<bool> primitive) -> Result<std::string, Error>
+			{
+				if (strict)
+					return Err(Error::WouldRequireConversion);
 
-		return Err(Error::WrongType);
+				return std::string{ (primitive.value) ? "true" : "false" };
+			},
+			[&](Primitive<double> primitive) -> Result<std::string, Error>
+			{
+				if (strict)
+					return Err(Error::WouldRequireConversion);
+
+				return std::to_string(primitive.value);
+			},
+			[&](Primitive<long long> primitive) -> Result<std::string, Error>
+			{
+				if (strict)
+					return Err(Error::WouldRequireConversion);
+
+				return std::to_string(primitive.value);
+			},
+			[&](Primitive<void*> primitive) -> Result<std::string, Error>
+			{
+				if (strict)
+					return Err(Error::WouldRequireConversion);
+
+				return PointerToString(primitive.value);
+			},
+			[&](const UserdataValue* userdata) -> Result<std::string, Error>
+			{
+				if (strict)
+					return Err(Error::WouldRequireConversion);
+
+				return PointerToString(userdata->ptr.Get());
+			},
+			[&](const Color& value) -> Result<std::string, Error>
+			{
+				if (strict)
+					return Err(Error::WouldRequireConversion);
+
+				return value.ToString();
+			},
+			[&](const std::string& value) -> Result<std::string, Error>
+			{
+				return value;
+			},
+			[](auto) -> Result<std::string, Error> { return Err(Error::WrongType); }
+		}, it->second);
 	}
 
 	/*!
@@ -395,33 +337,25 @@ namespace Nz
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
 			return Err(Error::MissingValue);
-
-		switch (it->second.type)
-		{
-			case ParameterType::Boolean:
-				if (strict)
-					return Err(Error::WouldRequireConversion);
-
-				return std::string_view{ (it->second.value.boolVal) ? "true" : "false" };
-
-			case ParameterType::String:
-				return std::string_view{ it->second.value.stringVal };
-
-			case ParameterType::None:
-				if (strict)
-					return Err(Error::WouldRequireConversion);
-
+			
+		return std::visit(Overloaded{
+			[](std::monostate) ->Result<std::string_view, Error>
+			{
 				return std::string_view{};
+			},
+			[&](Primitive<bool> primitive) -> Result<std::string_view, Error>
+			{
+				if (strict)
+					return Err(Error::WouldRequireConversion);
 
-			case ParameterType::Color:
-			case ParameterType::Double:
-			case ParameterType::Integer:
-			case ParameterType::Pointer:
-			case ParameterType::Userdata:
-				break;
-		}
-
-		return Err(Error::WrongType);
+				return std::string_view{ (primitive.value) ? "true" : "false" };
+			},
+			[&](const std::string& value) -> Result<std::string_view, Error>
+			{
+				return std::string_view(value);
+			},
+			[](auto) -> Result<std::string_view, Error> { return Err(Error::WrongType); }
+		}, it->second);
 	}
 
 	/*!
@@ -442,11 +376,10 @@ namespace Nz
 			return Err(Error::MissingValue);
 
 		const auto& parameter = it->second;
-
-		if (parameter.type != ParameterType::Userdata)
+		if (!std::holds_alternative<UserdataValue*>(parameter))
 			return Err(Error::WrongType);
 
-		return parameter.value.userdataVal->ptr.Get();
+		return std::get<UserdataValue*>(parameter)->ptr.Get();
 	}
 
 	/*!
@@ -487,8 +420,7 @@ namespace Nz
 	*/
 	void ParameterList::SetParameter(std::string name)
 	{
-		Parameter& parameter = CreateValue(std::move(name));
-		parameter.type = ParameterType::None;
+		CreateValue(std::move(name));
 	}
 
 	/*!
@@ -502,9 +434,7 @@ namespace Nz
 	void ParameterList::SetParameter(std::string name, const Color& value)
 	{
 		Parameter& parameter = CreateValue(std::move(name));
-		parameter.type = ParameterType::Color;
-
-		PlacementNew(&parameter.value.colorVal, value);
+		parameter = value;
 	}
 
 	/*!
@@ -518,9 +448,7 @@ namespace Nz
 	void ParameterList::SetParameter(std::string name, std::string value)
 	{
 		Parameter& parameter = CreateValue(std::move(name));
-		parameter.type = ParameterType::String;
-
-		PlacementNew(&parameter.value.stringVal, std::move(value));
+		parameter = std::move(value);
 	}
 
 	/*!
@@ -534,9 +462,7 @@ namespace Nz
 	void ParameterList::SetParameter(std::string name, const char* value)
 	{
 		Parameter& parameter = CreateValue(std::move(name));
-		parameter.type = ParameterType::String;
-
-		PlacementNew(&parameter.value.stringVal, value);
+		parameter = std::string(value);
 	}
 
 	/*!
@@ -550,8 +476,7 @@ namespace Nz
 	void ParameterList::SetParameter(std::string name, bool value)
 	{
 		Parameter& parameter = CreateValue(std::move(name));
-		parameter.type = ParameterType::Boolean;
-		parameter.value.boolVal = value;
+		parameter = Primitive<bool>{ value };
 	}
 
 	/*!
@@ -565,8 +490,7 @@ namespace Nz
 	void ParameterList::SetParameter(std::string name, double value)
 	{
 		Parameter& parameter = CreateValue(std::move(name));
-		parameter.type = ParameterType::Double;
-		parameter.value.doubleVal = value;
+		parameter = Primitive<double>{ value };
 	}
 
 	/*!
@@ -580,8 +504,7 @@ namespace Nz
 	void ParameterList::SetParameter(std::string name, long long value)
 	{
 		Parameter& parameter = CreateValue(std::move(name));
-		parameter.type = ParameterType::Integer;
-		parameter.value.intVal = value;
+		parameter = Primitive<long long>{ value };
 	}
 
 	/*!
@@ -598,8 +521,7 @@ namespace Nz
 	void ParameterList::SetParameter(std::string name, void* value)
 	{
 		Parameter& parameter = CreateValue(std::move(name));
-		parameter.type = ParameterType::Pointer;
-		parameter.value.ptrVal = value;
+		parameter = Primitive<void*>{ value };
 	}
 
 	/*!
@@ -614,36 +536,42 @@ namespace Nz
 		ss << "ParameterList(";
 		for (auto it = m_parameters.cbegin(); it != m_parameters.cend();)
 		{
-			const auto& parameter = it->second;
-
 			ss << it->first << ": ";
-			switch (it->second.type)
-			{
-				case ParameterType::Boolean:
-					ss << "Boolean(" << parameter.value.boolVal << ")";
-					break;
-				case ParameterType::Color:
-					ss << "Color(" << parameter.value.colorVal.ToString() << ")";
-					break;
-				case ParameterType::Double:
-					ss << "Double(" << parameter.value.doubleVal << ")";
-					break;
-				case ParameterType::Integer:
-					ss << "Integer(" << parameter.value.intVal << ")";
-					break;
-				case ParameterType::String:
-					ss << "std::string(" << parameter.value.stringVal << ")";
-					break;
-				case ParameterType::Pointer:
-					ss << "Pointer(" << parameter.value.ptrVal << ")";
-					break;
-				case ParameterType::Userdata:
-					ss << "Userdata(" << parameter.value.userdataVal->ptr << ")";
-					break;
-				case ParameterType::None:
+			
+			std::visit(Overloaded{
+				[&](std::monostate)
+				{
 					ss << "None";
-					break;
-			}
+				},
+				[&](Primitive<bool> primitive)
+				{
+					ss << "Boolean(" << primitive.value << ")";
+				},
+				[&](Primitive<double> primitive)
+				{
+					ss << "Double(" << primitive.value << ")";
+				},
+				[&](Primitive<long long> primitive)
+				{
+					ss << "Integer(" << primitive.value << ")";
+				},
+				[&](Primitive<void*> primitive)
+				{
+					ss << "Pointer(" << primitive.value << ")";
+				},
+				[&](const UserdataValue* userdata)
+				{
+					ss << "Userdata(" << userdata->ptr << ")";
+				},
+				[&](const Color& value)
+				{
+					ss << "Color(" << value.ToString() << ")";
+				},
+				[&](const std::string& value)
+				{
+					ss << "String(" << value << ")";
+				}
+			}, it->second);
 
 			if (++it != m_parameters.cend())
 				ss << ", ";
@@ -668,8 +596,7 @@ namespace Nz
 	void ParameterList::SetParameter(std::string name, void* value, Destructor destructor)
 	{
 		Parameter& parameter = CreateValue(std::move(name));
-		parameter.type = ParameterType::Userdata;
-		parameter.value.userdataVal = new Parameter::UserdataValue(destructor, value);
+		parameter = new UserdataValue(destructor, value);
 	}
 
 	/*!
@@ -680,38 +607,11 @@ namespace Nz
 	*/
 	ParameterList& ParameterList::operator=(const ParameterList& list)
 	{
-		Clear();
-
-		for (auto it = list.m_parameters.begin(); it != list.m_parameters.end(); ++it)
+		m_parameters = list.m_parameters;
+		for (auto&& [parameterName, parameterValue] : m_parameters)
 		{
-			Parameter& parameter = m_parameters[it->first];
-
-			switch (it->second.type)
-			{
-				case ParameterType::Boolean:
-				case ParameterType::Color:
-				case ParameterType::Double:
-				case ParameterType::Integer:
-				case ParameterType::Pointer:
-					std::memcpy(&parameter, &it->second, sizeof(Parameter));
-					break;
-
-				case ParameterType::String:
-					parameter.type = ParameterType::String;
-
-					PlacementNew(&parameter.value.stringVal, it->second.value.stringVal);
-					break;
-
-				case ParameterType::Userdata:
-					parameter.type = ParameterType::Userdata;
-					parameter.value.userdataVal = it->second.value.userdataVal;
-					++(parameter.value.userdataVal->counter);
-					break;
-
-				case ParameterType::None:
-					parameter.type = ParameterType::None;
-					break;
-			}
+			if (std::holds_alternative<UserdataValue*>(parameterValue))
+				std::get<UserdataValue*>(parameterValue)->counter++;
 		}
 
 		return *this;
@@ -742,30 +642,14 @@ namespace Nz
 	*/
 	void ParameterList::DestroyValue(Parameter& parameter)
 	{
-		switch (parameter.type)
+		if (std::holds_alternative<UserdataValue*>(parameter))
 		{
-			case ParameterType::String:
-				PlacementDestroy(&parameter.value.stringVal);
-				break;
-
-			case ParameterType::Userdata:
-				{
-					Parameter::UserdataValue* userdata = parameter.value.userdataVal;
-					if (--userdata->counter == 0)
-					{
-						userdata->destructor(userdata->ptr);
-						delete userdata;
-					}
-					break;
-				}
-
-			case ParameterType::Boolean:
-			case ParameterType::Color:
-			case ParameterType::Double:
-			case ParameterType::Integer:
-			case ParameterType::None:
-			case ParameterType::Pointer:
-				break;
+			UserdataValue* userdata = std::get<UserdataValue*>(parameter);
+			if (--userdata->counter == 0)
+			{
+				userdata->destructor(userdata->ptr);
+				delete userdata;
+			}
 		}
 	}
 

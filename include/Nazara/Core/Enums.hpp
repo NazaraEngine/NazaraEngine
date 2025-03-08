@@ -298,20 +298,6 @@ namespace Nz
 
 	constexpr OpenModeFlags OpenMode_ReadWrite = OpenMode::Read | OpenMode::Write;
 
-	enum class ParameterType
-	{
-		Boolean,
-		Color,
-		Double,
-		Integer,
-		None,
-		Pointer,
-		String,
-		Userdata,
-
-		Max = Userdata
-	};
-
 	enum class PixelFormatContent
 	{
 		Undefined = -1,

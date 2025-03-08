@@ -15,6 +15,7 @@
 #include <atomic>
 #include <string>
 #include <unordered_map>
+#include <variant>
 
 namespace Nz
 {
@@ -26,7 +27,7 @@ namespace Nz
 
 			ParameterList() = default;
 			ParameterList(const ParameterList& list);
-			ParameterList(ParameterList&&) = default;
+			ParameterList(ParameterList&&) noexcept = default;
 			~ParameterList();
 
 			void Clear();
@@ -38,7 +39,6 @@ namespace Nz
 			Result<Color, Error> GetColorParameter(std::string_view name, bool strict = true) const;
 			Result<double, Error> GetDoubleParameter(std::string_view name, bool strict = true) const;
 			Result<long long, Error> GetIntegerParameter(std::string_view name, bool strict = true) const;
-			Result<ParameterType, Error> GetParameterType(std::string_view name) const;
 			Result<void*, Error> GetPointerParameter(std::string_view name, bool strict = true) const;
 			Result<std::string, Error> GetStringParameter(std::string_view name, bool strict = true) const;
 			Result<std::string_view, Error> GetStringViewParameter(std::string_view name, bool strict = true) const;
@@ -61,7 +61,7 @@ namespace Nz
 			std::string ToString() const;
 
 			ParameterList& operator=(const ParameterList& list);
-			ParameterList& operator=(ParameterList&&) = default;
+			ParameterList& operator=(ParameterList&& list) noexcept = default;
 
 			enum class Error
 			{
@@ -72,42 +72,27 @@ namespace Nz
 			};
 
 		private:
-			struct Parameter
+			struct UserdataValue
 			{
-				struct UserdataValue
+				UserdataValue(Destructor func, void* ud) :
+				counter(1),
+				destructor(func),
+				ptr(ud)
 				{
-					UserdataValue(Destructor func, void* ud) :
-					counter(1),
-					destructor(func),
-					ptr(ud)
-					{
-					}
+				}
 
-					std::atomic_uint counter;
-					Destructor destructor;
-					MovablePtr<void> ptr;
-				};
-
-				ParameterType type;
-				union Value
-				{
-					// We define an empty constructor/destructor, to be able to put classes in the union
-					Value() {}
-					Value(const Value&) {} // Placeholder
-					Value(Value&&) noexcept {} // Placeholder
-					~Value() {}
-
-					bool boolVal;
-					double doubleVal;
-					long long intVal;
-					void* ptrVal;
-					Color colorVal;
-					std::string stringVal;
-					UserdataValue* userdataVal;
-				};
-
-				Value value;
+				std::atomic_uint counter;
+				Destructor destructor;
+				MovablePtr<void> ptr;
 			};
+
+			template<typename T>
+			struct Primitive
+			{
+				T value;
+			};
+
+			using Parameter = std::variant<std::monostate, Primitive<bool>, Primitive<double>, Primitive<long long>, Primitive<void*>, Color, std::string, UserdataValue*>;
 
 			Parameter& CreateValue(std::string&& name);
 			void DestroyValue(Parameter& parameter);
@@ -116,7 +101,7 @@ namespace Nz
 			ParameterMap m_parameters;
 	};
 
-	std::ostream& operator<<(std::ostream& out, const ParameterList& parameterList);
+	NAZARA_CORE_API std::ostream& operator<<(std::ostream& out, const ParameterList& parameterList);
 }
 
 #include <Nazara/Core/ParameterList.inl>
