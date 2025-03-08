@@ -492,9 +492,18 @@ namespace Nz
 
 		ConvertColor(MaterialData::BaseColor, "BaseColor");
 		ConvertBool(MaterialData::AlphaTest, "AlphaTest");
-		ConvertFloat(MaterialData::AlphaThreshold, "AlphaTestThreshold");
 		ConvertTexture(MaterialData::BaseColorTexturePath, "BaseColorMap", MaterialData::BaseColorTextureFilter, MaterialData::BaseColorTextureWrap);
 		ConvertTexture(MaterialData::AlphaTexturePath, "AlphaMap", MaterialData::AlphaTextureFilter, MaterialData::AlphaTextureWrap);
+
+		if (auto value = materialData.GetDoubleParameter(MaterialData::AlphaTestThreshold))
+		{
+			float alphaCutoff = SafeCast<float>(value.GetValue());
+			matInstance->SetValueProperty("AlphaTestThreshold", alphaCutoff);
+
+			// Enable alpha test if alpha test threshold (cutoff) is present and alpha test key is not
+			if (alphaCutoff < 1.f && !materialData.HasParameter(MaterialData::AlphaTest))
+				matInstance->SetValueProperty("AlphaTest", true);
+		}
 
 		switch (matType)
 		{

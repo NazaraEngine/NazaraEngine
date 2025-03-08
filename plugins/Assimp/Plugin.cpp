@@ -830,6 +830,9 @@ std::shared_ptr<Nz::SubMesh> ProcessSubMesh(const std::filesystem::path& originP
 		else
 			matData.SetParameter(Nz::MaterialData::Type, "Phong");
 
+		if (float fValue; aiGetMaterialFloat(aiMat, "$mat.gltf.alphaCutoff", 0, 0, &fValue) == aiReturn_SUCCESS)
+			matData.SetParameter(Nz::MaterialData::AlphaTestThreshold, fValue);
+
 		matIt = materialData.insert(std::make_pair(meshData->mMaterialIndex, std::make_pair(Nz::UInt32(materialData.size()), std::move(matData)))).first;
 	}
 

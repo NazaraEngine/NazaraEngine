@@ -12,10 +12,10 @@ namespace Nz
 	struct MaterialData
 	{
 		static constexpr const char* AlphaTest                = "MatAlphaTest";
+		static constexpr const char* AlphaTestThreshold       = "MatAlphaTestThreshold";
 		static constexpr const char* AlphaTextureFilter       = "MatAlphaTextureFilter";
 		static constexpr const char* AlphaTexturePath         = "MatAlphaTexturePath";
 		static constexpr const char* AlphaTextureWrap         = "MatAlphaWTexturerap";
-		static constexpr const char* AlphaThreshold           = "MatAlphaThreshold";
 		static constexpr const char* AmbientColor             = "MatAmbientColor";
 		static constexpr const char* BackFaceStencilCompare   = "MatBackFaceStencilCompare";
 		static constexpr const char* BackFaceStencilFail      = "MatBackFaceStencilFail";
