@@ -115,7 +115,7 @@ namespace Nz
 			template<typename F> void UpdatePassStates(std::size_t passIndex, F&& stateUpdater);
 
 			void UpdatePassesStates(std::initializer_list<std::string_view> passesName, FunctionRef<bool(RenderStates&)> stateUpdater);
-			template<typename F> void UpdatePassesStates(std::initializer_list<std::size_t> passesIndex, F&& stateUpdater);
+			template<typename F> void UpdatePassesStates(std::initializer_list<std::size_t> passesIndex, F&& stateUpdater, bool ignoreDisabled = true);
 			template<typename F> void UpdatePassesStates(F&& stateUpdater, bool ignoreDisabled = true);
 
 			void UpdateStorageBufferBinding(std::size_t storageBufferBinding, std::shared_ptr<RenderBuffer> storageBuffer);

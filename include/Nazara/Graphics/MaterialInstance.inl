@@ -242,21 +242,26 @@ namespace Nz
 	}
 
 	template<typename F>
-	void MaterialInstance::UpdatePassesStates(std::initializer_list<std::size_t> passesIndex, F&& stateUpdater)
+	void MaterialInstance::UpdatePassesStates(std::initializer_list<std::size_t> passesIndex, F&& stateUpdater, bool ignoreDisabled)
 	{
 		for (std::size_t passIndex : passesIndex)
+		{
+			if (ignoreDisabled && !HasPass(passIndex))
+				continue;
+
 			UpdatePassStates(passIndex, stateUpdater);
+		}
 	}
 
 	template<typename F>
 	void MaterialInstance::UpdatePassesStates(F&& stateUpdater, bool ignoreDisabled)
 	{
-		for (std::size_t i = 0; i < m_passes.size(); ++i)
+		for (std::size_t passIndex = 0; passIndex < m_passes.size(); ++passIndex)
 		{
-			if (ignoreDisabled && !m_passes[i].enabled)
+			if (ignoreDisabled && !HasPass(passIndex))
 				continue;
 
-			UpdatePassStates(i, stateUpdater);
+			UpdatePassStates(passIndex, stateUpdater);
 		}
 	}
 
