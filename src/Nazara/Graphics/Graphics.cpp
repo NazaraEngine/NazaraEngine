@@ -280,12 +280,19 @@ namespace Nz
 
 		m_defaultMaterials.presetModifier[MaterialInstancePreset::NoDepth] = [=](MaterialInstance& matInstance)
 		{
-			matInstance.DisablePass(depthPassIndex);
-			matInstance.DisablePass(shadowPassIndex);
-			matInstance.UpdatePassStates(forwardPassIndex, [](RenderStates& states)
+			if (matInstance.HasPass(depthPassIndex))
+				matInstance.DisablePass(depthPassIndex);
+
+			if (matInstance.HasPass(shadowPassIndex))
+				matInstance.DisablePass(shadowPassIndex);
+
+			if (matInstance.HasPass(forwardPassIndex))
 			{
-				states.depthBuffer = false;
-			});
+				matInstance.UpdatePassStates(forwardPassIndex, [](RenderStates& states)
+				{
+					states.depthBuffer = false;
+				});
+			}
 		};
 
 		m_defaultMaterials.presetModifier[MaterialInstancePreset::ReverseZ] = [=](MaterialInstance& matInstance)
@@ -300,37 +307,51 @@ namespace Nz
 
 		m_defaultMaterials.presetModifier[MaterialInstancePreset::AlphaBlended] = [=](MaterialInstance& matInstance)
 		{
-			matInstance.DisablePass(depthPassIndex);
-			matInstance.DisablePass(shadowPassIndex);
-			matInstance.UpdatePassFlags(forwardPassIndex, MaterialPassFlag::SortByDistance);
-			matInstance.UpdatePassStates(forwardPassIndex, [](RenderStates& states)
+			if (matInstance.HasPass(depthPassIndex))
+				matInstance.DisablePass(depthPassIndex);
+
+			if (matInstance.HasPass(shadowPassIndex))
+				matInstance.DisablePass(shadowPassIndex);
+
+			if (matInstance.HasPass(forwardPassIndex))
 			{
-				states.depthWrite = false;
-				states.blending = true;
-				states.blend.modeColor = BlendEquation::Add;
-				states.blend.modeAlpha = BlendEquation::Add;
-				states.blend.srcColor = BlendFunc::SrcAlpha;
-				states.blend.dstColor = BlendFunc::InvSrcAlpha;
-				states.blend.srcAlpha = BlendFunc::One;
-				states.blend.dstAlpha = BlendFunc::One;
-			});
+				matInstance.UpdatePassFlags(forwardPassIndex, MaterialPassFlag::SortByDistance);
+				matInstance.UpdatePassStates(forwardPassIndex, [](RenderStates& states)
+				{
+					states.depthWrite = false;
+					states.blending = true;
+					states.blend.modeColor = BlendEquation::Add;
+					states.blend.modeAlpha = BlendEquation::Add;
+					states.blend.srcColor = BlendFunc::SrcAlpha;
+					states.blend.dstColor = BlendFunc::InvSrcAlpha;
+					states.blend.srcAlpha = BlendFunc::One;
+					states.blend.dstAlpha = BlendFunc::One;
+				});
+			}
 		};
 
 		m_defaultMaterials.presetModifier[MaterialInstancePreset::AdditiveBlended] = [=](MaterialInstance& matInstance)
 		{
-			matInstance.DisablePass(depthPassIndex);
-			matInstance.DisablePass(shadowPassIndex);
-			matInstance.UpdatePassStates(forwardPassIndex, [](RenderStates& states)
+			if (matInstance.HasPass(depthPassIndex))
+				matInstance.DisablePass(depthPassIndex);
+
+			if (matInstance.HasPass(shadowPassIndex))
+				matInstance.DisablePass(shadowPassIndex);
+
+			if (matInstance.HasPass(forwardPassIndex))
 			{
-				states.depthWrite = false;
-				states.blending = true;
-				states.blend.modeColor = BlendEquation::Add;
-				states.blend.modeAlpha = BlendEquation::Add;
-				states.blend.srcColor = BlendFunc::SrcAlpha;
-				states.blend.dstColor = BlendFunc::One;
-				states.blend.srcAlpha = BlendFunc::One;
-				states.blend.dstAlpha = BlendFunc::Zero;
-			});
+				matInstance.UpdatePassStates(forwardPassIndex, [](RenderStates& states)
+				{
+					states.depthWrite = false;
+					states.blending = true;
+					states.blend.modeColor = BlendEquation::Add;
+					states.blend.modeAlpha = BlendEquation::Add;
+					states.blend.srcColor = BlendFunc::SrcAlpha;
+					states.blend.dstColor = BlendFunc::One;
+					states.blend.srcAlpha = BlendFunc::One;
+					states.blend.dstAlpha = BlendFunc::Zero;
+				});
+			}
 		};
 	}
 
