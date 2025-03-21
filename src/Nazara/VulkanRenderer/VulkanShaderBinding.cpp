@@ -63,7 +63,7 @@ namespace Nz
 					const VulkanTextureSampler* vkSampler = SafeCast<const VulkanTextureSampler*>(arg.sampler);
 
 					VkDescriptorImageInfo& imageInfo = imageBinding.emplace_back();
-					imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+					imageInfo.imageLayout = ToVulkan(arg.textureLayout);
 					imageInfo.imageView = (vkTexture) ? vkTexture->GetImageView() : VK_NULL_HANDLE;
 					imageInfo.sampler = (vkSampler) ? vkSampler->GetSampler() : VK_NULL_HANDLE;
 
