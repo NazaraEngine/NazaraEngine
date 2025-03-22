@@ -7,8 +7,8 @@
 #include <Nazara/VulkanRenderer/VulkanRenderPipelineLayout.hpp>
 #include <Nazara/VulkanRenderer/VulkanTexture.hpp>
 #include <Nazara/VulkanRenderer/VulkanTextureSampler.hpp>
-#include <NazaraUtils/Algorithm.hpp>
 #include <NazaraUtils/StackVector.hpp>
+#include <NazaraUtils/TypeTraits.hpp>
 
 namespace Nz
 {
@@ -20,19 +20,28 @@ namespace Nz
 		{
 			const Binding& binding = bindings[i];
 
-			std::visit([&](auto&& arg)
-			{
-				using T = std::decay_t<decltype(arg)>;
-
-				if constexpr (std::is_same_v<T, StorageBufferBinding> || std::is_same_v<T, UniformBufferBinding>)
-					bufferBindingCount++;
-				else if constexpr (std::is_same_v<T, SampledTextureBinding> || std::is_same_v<T, TextureBinding>)
+			std::visit(Overloaded{
+				[](std::monostate) {},
+				[&](const SampledTextureBinding&)
+				{
 					imageBindingCount++;
-				else if constexpr (std::is_same_v<T, SampledTextureBindings>)
+				},
+				[&](const SampledTextureBindings& arg)
+				{
 					imageBindingCount += arg.arraySize;
-				else
-					static_assert(AlwaysFalse<T>(), "non-exhaustive visitor");
-
+				},
+				[&](const StorageBufferBinding&)
+				{
+					bufferBindingCount++;
+				},
+				[&](const TextureBinding&)
+				{
+					imageBindingCount++;
+				},
+				[&](const UniformBufferBinding&)
+				{
+					bufferBindingCount++;
+				},
 			}, binding.content);
 		}
 
@@ -53,11 +62,9 @@ namespace Nz
 			writeOp.dstSet = m_descriptorSet;
 			writeOp.dstBinding = binding.bindingIndex;
 
-			std::visit([&](auto&& arg)
-			{
-				using T = std::decay_t<decltype(arg)>;
-
-				if constexpr (std::is_same_v<T, SampledTextureBinding>)
+			std::visit(Overloaded{
+				[](std::monostate) {},
+				[&](const SampledTextureBinding& arg)
 				{
 					const VulkanTexture* vkTexture = SafeCast<const VulkanTexture*>(arg.texture);
 					const VulkanTextureSampler* vkSampler = SafeCast<const VulkanTextureSampler*>(arg.sampler);
@@ -70,8 +77,8 @@ namespace Nz
 					writeOp.descriptorCount = 1;
 					writeOp.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 					writeOp.pImageInfo = &imageInfo;
-				}
-				else if constexpr (std::is_same_v<T, SampledTextureBindings>)
+				},
+				[&](const SampledTextureBindings& arg)
 				{
 					for (UInt32 i = 0; i < arg.arraySize; ++i)
 					{
@@ -79,7 +86,7 @@ namespace Nz
 						const VulkanTextureSampler* vkSampler = SafeCast<const VulkanTextureSampler*>(arg.textureBindings[i].sampler);
 
 						VkDescriptorImageInfo& imageInfo = imageBinding.emplace_back();
-						imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+						imageInfo.imageLayout = ToVulkan(arg.textureBindings[i].textureLayout);
 						imageInfo.imageView = (vkTexture) ? vkTexture->GetImageView() : VK_NULL_HANDLE;
 						imageInfo.sampler = (vkSampler) ? vkSampler->GetSampler() : VK_NULL_HANDLE;
 					}
@@ -87,8 +94,8 @@ namespace Nz
 					writeOp.descriptorCount = arg.arraySize;
 					writeOp.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 					writeOp.pImageInfo = &imageBinding[imageBinding.size() - arg.arraySize];
-				}
-				else if constexpr (std::is_same_v<T, StorageBufferBinding>)
+				},
+				[&](const StorageBufferBinding& arg)
 				{
 					VulkanBuffer* vkBuffer = SafeCast<VulkanBuffer*>(arg.buffer);
 
@@ -100,8 +107,8 @@ namespace Nz
 					writeOp.descriptorCount = 1;
 					writeOp.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 					writeOp.pBufferInfo = &bufferInfo;
-				}
-				else if constexpr (std::is_same_v<T, TextureBinding>)
+				},
+				[&](const TextureBinding& arg)
 				{
 					const VulkanTexture* vkTexture = SafeCast<const VulkanTexture*>(arg.texture);
 
@@ -113,8 +120,8 @@ namespace Nz
 					writeOp.descriptorCount = 1;
 					writeOp.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
 					writeOp.pImageInfo = &imageInfo;
-				}
-				else if constexpr (std::is_same_v<T, UniformBufferBinding>)
+				},
+				[&](const UniformBufferBinding& arg)
 				{
 					VulkanBuffer* vkBuffer = SafeCast<VulkanBuffer*>(arg.buffer);
 
@@ -126,10 +133,7 @@ namespace Nz
 					writeOp.descriptorCount = 1;
 					writeOp.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 					writeOp.pBufferInfo = &bufferInfo;
-				}
-				else
-					static_assert(AlwaysFalse<T>(), "non-exhaustive visitor");
-
+				},
 			}, binding.content);
 		}
 
