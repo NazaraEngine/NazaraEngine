@@ -1,0 +1,69 @@
+---
+title: A guide reference
+description: Get started building your game using Nazara.
+---
+import {TabItem, Tabs, Card, CardGrid, LinkCard, Aside, FileTree, Steps, Badge} from '@astrojs/starlight/components';
+
+Here's an exemple of component that you can use in the documentation.
+
+<Tabs>
+    <TabItem label="Jolt" icon="star">
+        Jolt engine related content
+    </TabItem>
+    <TabItem label="Bolt" icon="moon">
+        Bolt engine related content
+    </TabItem>
+</Tabs>
+
+<CardGrid>
+    <Card title="Jolt" icon="star">
+        Jolt engine related content
+    </Card>
+    <Card title="Bolt" icon="moon">
+        Bolt engine related content
+    </Card>
+</CardGrid>
+
+<LinkCard
+    title="JoltBoxCollider3D"
+    description="JoltBoxCollider3D class description"
+    href="/reference/joltphysics3d/joltboxcollider3d"
+/>
+
+<Aside>A default aside without a custom title.</Aside>
+
+<Aside type="caution" title="Watch out!">
+    A warning aside *with* a custom title.
+</Aside>
+
+<Aside type="tip">
+
+    Other content is also supported in asides.
+
+    ```c++
+    JoltBoxCollider3D(Nz::Vector3f const& lengths, float convexRadius)
+    ```
+
+</Aside>
+
+<Aside type="danger">Do not give your password to anyone.</Aside>
+
+<FileTree>
+
+    - astro.config.mjs an **important** file
+    - package.json
+    - README.md
+    - src
+    - components
+    - **Header.astro**
+    - …
+    - pages/
+
+</FileTree>
+
+<br />
+<Badge text="New" variant="tip" size="small" />
+<Badge text="Deprecated" variant="caution" size="medium" />
+<Badge text="Starlight" variant="note" size="large" />
+<Badge text="Custom" variant="success" style={{ fontStyle: 'italic' }} />
+
