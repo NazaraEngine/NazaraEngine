@@ -119,13 +119,10 @@ namespace Nz
 
 	FramePass& RasterPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, const PassInputOuputs& inputOuputs)
 	{
-		if (inputOuputs.inputAttachments.size() > 0)
-			throw std::runtime_error("no input expected");
-
-		if (inputOuputs.depthStencilOutput == InvalidAttachmentIndex)
-			throw std::runtime_error("expected depth-stencil output");
-
 		FramePass& pass = frameGraph.AddPass(m_passName);
+		for (auto&& inputData : inputOuputs.inputAttachments)
+			pass.AddInput(inputData.attachmentIndex);
+
 		for (auto&& outputData : inputOuputs.outputAttachments)
 		{
 			std::size_t outputIndex = pass.AddOutput(outputData.attachmentIndex);
@@ -145,7 +142,7 @@ namespace Nz
 
 		if (inputOuputs.depthStencilInput != FramePipelinePass::InvalidAttachmentIndex)
 			pass.SetDepthStencilInput(inputOuputs.depthStencilInput);
-		else
+		else if (inputOuputs.depthStencilOutput != InvalidAttachmentIndex)
 		{
 			std::visit(Nz::Overloaded{
 				[](DontClear) {},
@@ -160,7 +157,8 @@ namespace Nz
 			}, inputOuputs.clearDepth);
 		}
 
-		pass.SetDepthStencilOutput(inputOuputs.depthStencilOutput);
+		if (inputOuputs.depthStencilOutput != InvalidAttachmentIndex)
+			pass.SetDepthStencilOutput(inputOuputs.depthStencilOutput);
 
 		pass.SetExecutionCallback([&]
 		{
