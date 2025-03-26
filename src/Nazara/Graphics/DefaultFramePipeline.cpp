@@ -58,6 +58,7 @@ namespace Nz
 
 			auto& visibleRenderable = m_visibleRenderables.emplace_back();
 			visibleRenderable.instancedRenderable = renderableData.renderable;
+			visibleRenderable.renderMask = renderableData.renderMask;
 			visibleRenderable.scissorBox = renderableData.scissorBox;
 			visibleRenderable.worldInstance = worldInstance.get();
 

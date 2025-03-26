@@ -22,6 +22,9 @@ namespace Nz
 
 			for (const auto& renderableData : frameData.visibleRenderables)
 			{
+				if ((m_renderMask & renderableData.renderMask) == 0)
+					continue;
+
 				InstancedRenderable::ElementData elementData{
 					&renderableData.scissorBox,
 					renderableData.skeletonInstance,
@@ -213,5 +216,20 @@ namespace Nz
 		// TODO: Log error if key is present but not of the right type
 
 		throw std::runtime_error("RasterPipelinePass expect either MatPass or MatPassIndex parameter");
+	}
+
+	UInt32 RasterPipelinePass::GetRenderMask(const ParameterList& parameters)
+	{
+		Result<long long, ParameterList::Error> renderMaskResult = parameters.GetIntegerParameter("RenderMask", false);
+		if (renderMaskResult.IsOk())
+		{
+			long long renderMask = renderMaskResult.GetValue();
+			if (renderMask < 0 || renderMask >= MaxValue<UInt32>())
+				throw std::runtime_error("RasterPipelinePass RenderMask value is out of range");
+
+			return renderMaskResult.GetValue();
+		}
+
+		return MaxValue();
 	}
 }

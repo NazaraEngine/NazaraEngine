@@ -104,6 +104,7 @@ namespace Nz
 				const SkeletonInstance* skeletonInstance;
 				const WorldInstance* worldInstance;
 				Recti scissorBox;
+				UInt32 renderMask;
 			};
 
 			static constexpr std::size_t InvalidAttachmentIndex = std::numeric_limits<std::size_t>::max();

@@ -32,7 +32,7 @@ namespace Nz
 	{
 		public:
 			inline RasterPipelinePass(PassData& passData, std::string passName, const ParameterList& parameters);
-			inline RasterPipelinePass(PassData& passData, std::string passName, std::size_t materialPassIndex);
+			inline RasterPipelinePass(PassData& passData, std::string passName, std::size_t materialPassIndex, UInt32 renderMask = MaxValue());
 			RasterPipelinePass(const RasterPipelinePass&) = delete;
 			RasterPipelinePass(RasterPipelinePass&&) = delete;
 			~RasterPipelinePass() = default;
@@ -52,6 +52,7 @@ namespace Nz
 			RasterPipelinePass& operator=(RasterPipelinePass&&) = delete;
 
 			static std::size_t GetMaterialPassIndex(const ParameterList& parameters);
+			static UInt32 GetRenderMask(const ParameterList& parameters);
 
 		private:
 			struct MaterialPassEntry
@@ -73,6 +74,7 @@ namespace Nz
 			AbstractViewer* m_viewer;
 			ElementRendererRegistry& m_elementRegistry;
 			FramePipeline& m_pipeline;
+			UInt32 m_renderMask;
 			bool m_rebuildCommandBuffer;
 			bool m_rebuildElements;
 	};
