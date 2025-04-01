@@ -114,14 +114,14 @@ jobs:
     - name: Run unit tests and generate coverage output (Linux)
       if: runner.os == 'Linux'
       run: |
-        xmake run UnitTests
+        xmake test
         gcovr -x coverage.out -s -f 'include/Nazara/.*' -f 'src/Nazara/.*' build/.objs/
 
     - name: Run unit tests and generate coverage output (Windows)
       if: runner.os == 'Windows'
       shell: cmd
       run: |
-        "C:\Program Files\OpenCppCoverage\OpenCppCoverage.exe" --export_type cobertura:coverage.out --sources "NazaraEngine\include\Nazara\*" --sources "NazaraEngine\src\Nazara\*" --modules "NazaraEngine\bin\*" --cover_children -- xmake run UnitTests
+        "C:\Program Files\OpenCppCoverage\OpenCppCoverage.exe" --export_type cobertura:coverage.out --sources "NazaraEngine\include\Nazara\*" --sources "NazaraEngine\src\Nazara\*" --modules "NazaraEngine\bin\*" --cover_children -- xmake test
 
     - name: Upload Coverage Report to Codecov
       uses: codecov/codecov-action@v5

@@ -25,6 +25,7 @@ target("UnitTests", function ()
     add_files("resources.cpp")
     add_files("Engine/**.cpp")
     add_includedirs(".")
+    add_tests("run_tests")
 
     if has_config("unitybuild") then
         add_rules("c++.unity_build")
