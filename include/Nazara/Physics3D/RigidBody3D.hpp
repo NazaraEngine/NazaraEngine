@@ -32,6 +32,7 @@ namespace Nz
 	{
 		public:
 			struct DynamicSettings;
+			struct SubmergedVolume;
 			struct StaticSettings;
 			using Settings = std::variant<DynamicSettings, StaticSettings>;
 
@@ -51,6 +52,9 @@ namespace Nz
 			void AddTorque(const Vector3f& torque, CoordSys coordSys = CoordSys::Global);
 
 			bool ApplyBuoyancyImpulse(const Vector3f& surfacePosition, const Vector3f& surfaceNormal, float buoyancy, float linearDrag, float angularDrag, const Vector3f& fluidVelocity, const Vector3f& gravity, float deltaTime);
+			bool ApplyBuoyancyImpulse(const SubmergedVolume& submergedVolume, float buoyancy, float linearDrag, float angularDrag, const Vector3f& fluidVelocity, const Vector3f& gravity, float deltaTime);
+
+			SubmergedVolume ComputeSubmergedVolume(const Vector3f& surfacePosition, const Vector3f& surfaceNormal) const;
 
 			inline void DisableSimulation();
 			inline void DisableSleeping();
@@ -109,6 +113,14 @@ namespace Nz
 			RigidBody3D& operator=(const RigidBody3D& object) = delete;
 			RigidBody3D& operator=(RigidBody3D&& object) noexcept;
 
+			struct SubmergedVolume
+			{
+				Vector3f relativeSubmergedCenter;
+				float submergedVolume;
+				float totalVolume;
+			};
+
+			// Settings
 			struct CommonSettings
 			{
 				std::shared_ptr<Collider3D> collider;

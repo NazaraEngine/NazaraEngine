@@ -130,6 +130,24 @@ namespace Nz
 		return bodyInterface.ApplyBuoyancyImpulse(m_body->GetID(), ToJolt(surfacePosition), ToJolt(surfaceNormal), buoyancy, linearDrag, angularDrag, ToJolt(fluidVelocity), ToJolt(gravity), deltaTime);
 	}
 
+	bool RigidBody3D::ApplyBuoyancyImpulse(const SubmergedVolume& submergedVolume, float buoyancy, float linearDrag, float angularDrag, const Vector3f& fluidVelocity, const Vector3f& gravity, float deltaTime)
+	{
+		return m_body->ApplyBuoyancyImpulse(submergedVolume.totalVolume, submergedVolume.submergedVolume, ToJolt(submergedVolume.relativeSubmergedCenter), buoyancy, linearDrag, angularDrag, ToJolt(fluidVelocity), ToJolt(gravity), deltaTime);
+	}
+
+	auto RigidBody3D::ComputeSubmergedVolume(const Vector3f& surfacePosition, const Vector3f& surfaceNormal) const -> SubmergedVolume
+	{
+		float submergedVolume, totalVolume;
+		JPH::Vec3 relativeCenterOfBuoyancy;
+		m_body->GetSubmergedVolume(ToJolt(surfacePosition), ToJolt(surfaceNormal), totalVolume, submergedVolume, relativeCenterOfBuoyancy);
+
+		return SubmergedVolume{
+			.relativeSubmergedCenter = FromJolt(relativeCenterOfBuoyancy),
+			.submergedVolume = submergedVolume,
+			.totalVolume = totalVolume
+		};
+	}
+
 	void RigidBody3D::EnableSimulation(bool enable)
 	{
 		if (m_isSimulationEnabled == enable)
