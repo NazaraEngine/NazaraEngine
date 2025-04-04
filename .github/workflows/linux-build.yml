@@ -110,7 +110,7 @@ jobs:
     # Run unit tests
     - name: Run unit tests
       if: matrix.confs.mode != 'releasedbg'
-      run: xmake test
+      run: xmake test -vD
 
     # Install the result files
     - name: Install Nazara
