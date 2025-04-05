@@ -33,11 +33,11 @@ namespace Nz
 		struct ALWrapper;
 
 		template<typename FuncType, std::size_t FuncIndex, typename Ret, typename... Args>
-		struct ALWrapper<FuncType, FuncIndex, Ret(AL_APIENTRY*)(Args...)>
+		struct ALWrapper<FuncType, FuncIndex, Ret(AL_APIENTRY*)(Args...) AL_API_NOEXCEPT>
 		{
 			static auto WrapErrorHandling()
 			{
-				return [](Args... args) -> Ret
+				return [](Args... args) AL_API_NOEXCEPT -> Ret
 				{
 					const OpenALDevice* device = OpenALDevice::GetCurrentDevice();
 					assert(device);
