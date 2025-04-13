@@ -13,6 +13,14 @@
 #include <cstring>
 #include <stdexcept>
 
+// OpenAL Soft version v1.24.0 introduced AL_API_NOEXCEPT and tagged every OpenAL version with it
+// however it doesn't exist with older (or other, such as emscripten) OpenAL implementations
+#ifdef AL_API_NOEXCEPT
+#define NAZARA_AL_API_NOEXCEPT AL_API_NOEXCEPT
+#else
+#define NAZARA_AL_API_NOEXCEPT
+#endif
+
 namespace Nz
 {
 	namespace NAZARA_ANONYMOUS_NAMESPACE
@@ -33,11 +41,11 @@ namespace Nz
 		struct ALWrapper;
 
 		template<typename FuncType, std::size_t FuncIndex, typename Ret, typename... Args>
-		struct ALWrapper<FuncType, FuncIndex, Ret(AL_APIENTRY*)(Args...) AL_API_NOEXCEPT>
+		struct ALWrapper<FuncType, FuncIndex, Ret(AL_APIENTRY*)(Args...) NAZARA_AL_API_NOEXCEPT>
 		{
 			static auto WrapErrorHandling()
 			{
-				return [](Args... args) AL_API_NOEXCEPT -> Ret
+				return [](Args... args) NAZARA_AL_API_NOEXCEPT-> Ret
 				{
 					const OpenALDevice* device = OpenALDevice::GetCurrentDevice();
 					assert(device);
