@@ -302,7 +302,7 @@ add_requires(
 	"fmt",
 	"frozen",
 	"ordered_map",
-	"nazarautils >=2024.11.23",
+	"nazarautils",
 	"stb",
 	"utfcpp"
 )
