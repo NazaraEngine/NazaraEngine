@@ -41,6 +41,7 @@ namespace Nz
 			inline std::size_t AddAttachmentCube(FramePassAttachment attachment);
 			inline std::size_t AddAttachmentCubeFace(std::size_t attachmentId, CubemapFace face);
 			inline std::size_t AddAttachmentProxy(std::string name, std::size_t attachmentId);
+			inline std::size_t AddAttachmentView(std::string name, std::size_t attachmentId, PixelFormat format, TexturePlaneFlags planes = {});
 			inline std::size_t AddDummyAttachment();
 			inline FramePass& AddPass(std::string name);
 			inline void AddOutput(std::size_t attachmentIndex);
@@ -54,6 +55,8 @@ namespace Nz
 
 		private:
 			struct PassBarriers;
+
+			inline TextureLayout GetWriteDepthStencilLayout(std::size_t attachmentIndex) const;
 
 			using BarrierList = std::vector<PassBarriers>;
 			using PassList = std::vector<std::size_t /*PassIndex*/>;
@@ -82,6 +85,14 @@ namespace Nz
 			{
 				std::size_t attachmentId;
 				std::string name;
+			};
+
+			struct AttachmentView
+			{
+				std::string name;
+				PixelFormat format;
+				TexturePlaneFlags planeFlags;
+				std::size_t attachmentId;
 			};
 
 			struct Barrier
@@ -146,7 +157,7 @@ namespace Nz
 			void ReorderPasses();
 			void TraverseGraph(std::size_t passIndex);
 
-			using AttachmentType = std::variant<FramePassAttachment, AttachmentProxy, AttachmentArray, AttachmentCube, AttachmentLayer, DummyAttachment>;
+			using AttachmentType = std::variant<FramePassAttachment, AttachmentProxy, AttachmentArray, AttachmentCube, AttachmentLayer, DummyAttachment, AttachmentView>;
 
 			static constexpr std::size_t InvalidAttachmentIndex = std::numeric_limits<std::size_t>::max();
 			static constexpr std::size_t InvalidTextureIndex = std::numeric_limits<std::size_t>::max();
