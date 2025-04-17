@@ -620,28 +620,64 @@ namespace Nz
 	template<typename T>
 	Quaternion<T> Quaternion<T>::LookAt(const Vector3<T>& forward, const Vector3<T>& up)
 	{
-		// From https://gamedev.stackexchange.com/questions/53129/quaternion-look-at-with-up-vector
+		return LookAt(forward, up, Vector3<T>::CrossProduct(up, forward));
+	}
 
-		Vector3<T> forward_w = Vector3<T>::Forward();
-		Vector3<T> axis = Vector3<T>::CrossProduct(forward, forward_w);
-		RadianAngle<T> angle = std::acos(Vector3<T>::DotProduct(forward, forward_w));
+	template<typename T>
+	Quaternion<T> Quaternion<T>::LookAt(const Vector3<T>& forward, const Vector3<T>& up, const Vector3<T>& right)
+	{
+		float m11 = right.x;
+		float m12 = right.y;
+		float m13 = right.z;
 
-		Vector3<T> third = Vector3<T>::CrossProduct(axis, forward_w);
-		if (Vector3<T>::DotProduct(third, forward) < 0)
-			angle = -angle;
+		float m21 = up.x;
+		float m22 = up.y;
+		float m23 = up.z;
 
-		Quaternion<T> q1 = Quaternion(angle, axis);
+		float m31 = forward.x;
+		float m32 = forward.y;
+		float m33 = forward.z;
 
-		Vector3<T> up_l = q1 * up;
-		Vector3<T> right = Vector3<T>::Normalize(Vector3<T>::CrossProduct(forward, up));
-		Vector3<T> up_w = Vector3<T>::Normalize(Vector3<T>::CrossProduct(right, forward));
+		Quaternion<T> quat;
 
-		Vector3<T> axis2 = Vector3<T>::CrossProduct(up_l, up_w);
-		RadianAngle<T> angle2 = std::acos(Vector3<T>::DotProduct(forward, forward_w));
+		T trace = m11 + m22 + m33;
+		if (trace > T(0.0))
+		{
+			T s = T(0.5) / std::sqrt(trace + T(1.0));
+			quat.w = T(0.25) / s;
+			quat.x = (m23 - m32) * s;
+			quat.y = (m31 - m13) * s;
+			quat.z = (m12 - m21) * s;
+		}
+		else if (m11 > m22 && m11 > m33)
+		{
+			T s = T(2.0) * std::sqrt(T(1.0) + m11 - m22 - m33);
 
-		Quaternion<T> q2 = Quaternion(angle2, axis2);
+			quat.w = (m23 - m32) / s;
+			quat.x = T(0.25) * s;
+			quat.y = (m21 + m12) / s;
+			quat.z = (m31 + m13) / s;
+		}
+		else if (m22 > m33)
+		{
+			T s = T(2.0) * std::sqrt(T(1.0) + m22 - m11 - m33);
 
-		return q2 * q1;
+			quat.w = (m31 - m13) / s;
+			quat.x = (m21 + m12) / s;
+			quat.y = T(0.25) * s;
+			quat.z = (m32 + m23) / s;
+		}
+		else
+		{
+			T s = T(2.0) * std::sqrt(T(1.0) + m33 - m11 - m22);
+
+			quat.w = (m12 - m21) / s;
+			quat.x = (m31 + m13) / s;
+			quat.y = (m32 + m23) / s;
+			quat.z = T(0.25) * s;
+		}
+
+		return quat;
 	}
 
 	/*!
