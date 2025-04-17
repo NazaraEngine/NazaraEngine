@@ -88,6 +88,8 @@ namespace Nz
 
 	enum class AudioFormat
 	{
+		Unknown,
+
 		Floating32, // f32
 		Signed16,   // int16
 		Signed24,   // 3*int8
@@ -98,11 +100,38 @@ namespace Nz
 	};
 
 	constexpr Nz::EnumArray<AudioFormat, std::size_t> AudioFormatSize = {
+		0,
 		sizeof(float),
 		sizeof(std::int16_t),
 		3 * sizeof(std::int8_t),
 		sizeof(std::int32_t),
 		sizeof(std::uint8_t),
+	};
+
+	enum class SoundAttenuationModel
+	{
+		Exponential,
+		Inverse,
+		Linear,
+		None,
+
+		Max = None
+	};
+
+	enum class SoundPanMode
+	{
+		Balance,
+		Pan,
+
+		Max = Pan
+	};
+
+	enum class SoundPositioning
+	{
+		Absolute,
+		Relative,
+
+		Max = Relative
 	};
 
 	enum class SoundStatus

@@ -4,7 +4,6 @@
 
 #include <Nazara/Audio2/SoundStream.hpp>
 #include <Nazara/Audio2/Audio2.hpp>
-#include <Nazara/Audio2/SoundStream.hpp>
 
 namespace Nz
 {

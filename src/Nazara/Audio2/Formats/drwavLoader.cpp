@@ -8,7 +8,6 @@
 #include <Nazara/Audio2/Export.hpp>
 #include <Nazara/Audio2/SoundBuffer.hpp>
 #include <Nazara/Audio2/SoundStream.hpp>
-#include <Nazara/Audio2/Formats/drwavLoader.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/MemoryView.hpp>
@@ -113,7 +112,7 @@ namespace Nz
 				{
 					drwav_uninit(&m_decoder);
 				}
-				
+
 				std::span<const AudioChannel> GetChannels() const override
 				{
 					return m_channels;
