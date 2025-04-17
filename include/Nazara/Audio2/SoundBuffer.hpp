@@ -10,6 +10,7 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Audio2/Enums.hpp>
 #include <Nazara/Audio2/Export.hpp>
+#include <Nazara/Audio2/SoundDataSource.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <Nazara/Core/Resource.hpp>
 #include <Nazara/Core/ResourceLoader.hpp>
@@ -38,7 +39,7 @@ namespace Nz
 	using SoundBufferLoader = ResourceLoader<SoundBuffer, SoundBufferParams>;
 	using SoundBufferManager = ResourceManager<SoundBuffer, SoundBufferParams>;
 
-	class NAZARA_AUDIO2_API SoundBuffer : public Resource
+	class NAZARA_AUDIO2_API SoundBuffer final : public Resource, public SoundDataSource
 	{
 		friend Sound;
 
@@ -53,14 +54,17 @@ namespace Nz
 
 			void ConvertFormat(AudioFormat format, AudioDitherMode ditherMode = AudioDitherMode::None);
 
-			inline std::span<const AudioChannel> GetChannels() const;
+			inline std::span<const AudioChannel> GetChannels() const override;
 			inline Time GetDuration() const;
-			inline AudioFormat GetFormat() const;
-			inline UInt64 GetFrameCount() const;
+			inline AudioFormat GetFormat() const override;
+			inline UInt64 GetFrameCount() const override;
+			inline std::mutex* GetMutex() override;
 			inline void* GetSamples();
 			inline const void* GetSamples() const;
 			inline UInt64 GetSampleCount() const;
-			inline UInt32 GetSampleRate() const;
+			inline UInt32 GetSampleRate() const override;
+
+			Result<ReadData, std::string> Read(UInt64 startingFrameIndex, void* frameOut, UInt64 frameCount) override;
 
 			SoundBuffer& operator=(const SoundBuffer&) = delete;
 			SoundBuffer& operator=(SoundBuffer&&) = delete;

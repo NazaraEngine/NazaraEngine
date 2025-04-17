@@ -804,7 +804,7 @@ on_run(function ()
 
 				local fileFixes = {}
 				for i = 1, #lines do
-					local content = lines[i]:match("^(%s*[^%s]*)%s+$")
+					local content = lines[i]:match("^(%s-[^%s]*)%s+$")
 					if content then
 						table.insert(fileFixes, { line = i, newContent = content })
 					end

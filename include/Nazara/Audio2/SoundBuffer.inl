@@ -40,6 +40,12 @@ namespace Nz
 		return m_frameCount;
 	}
 
+	inline std::mutex* Nz::SoundBuffer::GetMutex()
+	{
+		// no need for locking when reading as everything is in memory
+		return nullptr;
+	}
+
 	/*!
 	* \brief Gets the internal raw samples
 	* \return Pointer to raw data
