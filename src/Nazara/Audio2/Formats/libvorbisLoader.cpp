@@ -8,7 +8,6 @@
 #include <Nazara/Audio2/Export.hpp>
 #include <Nazara/Audio2/SoundBuffer.hpp>
 #include <Nazara/Audio2/SoundStream.hpp>
-#include <Nazara/Audio2/Formats/libvorbisLoader.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/MemoryView.hpp>
@@ -74,7 +73,7 @@ namespace Nz
 					static constexpr std::array s_channels = { AudioChannel::FrontLeft, AudioChannel::FrontCenter, AudioChannel::FrontRight, AudioChannel::SideLeft, AudioChannel::SideRight, AudioChannel::BackCenter, AudioChannel::LFE };
 					return s_channels;
 				}
-				
+
 				case 8:
 				{
 					static constexpr std::array s_channels = { AudioChannel::FrontLeft, AudioChannel::FrontCenter, AudioChannel::FrontRight, AudioChannel::SideLeft, AudioChannel::SideRight, AudioChannel::BackLeft, AudioChannel::BackRight, AudioChannel::LFE };

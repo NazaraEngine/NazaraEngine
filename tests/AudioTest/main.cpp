@@ -1,11 +1,16 @@
 #include <Nazara/Core.hpp>
 #include <Nazara/Audio2.hpp>
 #include <Nazara/Audio2/AudioDevice.hpp>
+#include <Nazara/Audio2/Sound.hpp>
 #include <iostream>
 
 int main()
 {
 	Nz::Application<Nz::Audio2> app;
+
+	std::filesystem::path resourceDir = "assets/examples";
+	if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory("../.." / resourceDir))
+		resourceDir = "../.." / resourceDir;
 
 	std::vector<Nz::AudioDeviceInfo> devices = Nz::Audio2::Instance()->QueryDevices();
 	for (const auto& deviceInfo : devices)
@@ -16,13 +21,12 @@ int main()
 	}
 	std::cout << std::flush;
 
-	std::shared_ptr<Nz::AudioDevice> audioDevice = Nz::Audio2::Instance()->OpenPlaybackDevice();
-	audioDevice->SetDataCallback([](const Nz::AudioDevice& audioDevice, const void* inputData, void* outputData, Nz::UInt32 frameCount)
-	{
-		//std::cout << Nz::Format("Data callback (framecount: {})", frameCount) << std::endl;
-	});
+	std::shared_ptr<Nz::SoundBuffer> soundBuffer = Nz::SoundBuffer::LoadFromFile(resourceDir / "Audio/file_example_MP3_700KB.mp3");
 
-	audioDevice->Start();
+	std::shared_ptr<Nz::AudioEngine> audioEngine = Nz::Audio2::Instance()->OpenPlaybackEngine();
+
+	Nz::Sound sound(Nz::Sound::Config{ .source = soundBuffer, .engine = audioEngine.get()});
+	sound.Start();
 
 	std::getchar();
 

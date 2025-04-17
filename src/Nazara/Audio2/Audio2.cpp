@@ -5,7 +5,7 @@
 #include <Nazara/Audio2/Audio2.hpp>
 #include <Nazara/Audio2/AudioDevice.hpp>
 #include <Nazara/Audio2/AudioDeviceInfo.hpp>
-#include <NazaraUtils/CallOnExit.hpp>
+#include <Nazara/Audio2/AudioEngine.hpp>
 #include <Nazara/Audio2/Formats/drmp3Loader.hpp>
 #include <Nazara/Audio2/Formats/drwavLoader.hpp>
 #include <Nazara/Audio2/Formats/libflacLoader.hpp>
@@ -14,6 +14,7 @@
 #include <Nazara/Core/EnvironmentVariables.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Format.hpp>
+#include <NazaraUtils/CallOnExit.hpp>
 #include <miniaudio.h>
 #include <cstring>
 #include <stdexcept>
@@ -156,6 +157,21 @@ namespace Nz
 			deviceConfig.playback.pDeviceID = reinterpret_cast<const ma_device_id*>(&playbackDevice->data[0]);
 
 		return std::make_shared<AudioDevice>(m_maContext, deviceConfig);
+	}
+
+	std::shared_ptr<AudioEngine> Audio2::OpenPlaybackEngine(const AudioDeviceId* playbackDevice)
+	{
+		ma_device_config deviceConfig = ma_device_config_init(ma_device_type_playback);
+		if (playbackDevice)
+			deviceConfig.playback.pDeviceID = reinterpret_cast<const ma_device_id*>(&playbackDevice->data[0]);
+
+		// Device config for engines (taken from ma_engine_init)
+		deviceConfig.playback.format = ma_format_f32;
+		deviceConfig.noPreSilencedOutputBuffer = MA_TRUE;
+		deviceConfig.noClip = MA_TRUE;
+
+		auto device = std::make_shared<AudioDevice>(m_maContext, deviceConfig);
+		return std::make_shared<AudioEngine>(std::move(device));
 	}
 
 	std::vector<AudioDeviceInfo> Audio2::QueryDevices() const

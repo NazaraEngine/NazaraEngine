@@ -26,8 +26,8 @@ namespace Nz
 			virtual std::span<const AudioChannel> GetChannels() const = 0;
 			virtual AudioFormat GetFormat() const = 0;
 			virtual UInt64 GetFrameCount() const = 0;
-			virtual UInt32 GetSampleRate() const = 0;
 			virtual std::mutex* GetMutex() = 0;
+			virtual UInt32 GetSampleRate() const = 0;
 
 			virtual Result<ReadData, std::string> Read(UInt64 startingFrameIndex, void* frameOut, UInt64 frameCount) = 0;
 
