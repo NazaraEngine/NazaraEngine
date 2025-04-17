@@ -8,7 +8,11 @@
 #define NAZARA_AUDIO2_SOUNDDATAREADER_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <NazaraUtils/PrivateImpl.hpp>
 #include <Nazara/Audio2/Export.hpp>
+#include <memory>
+
+typedef void ma_data_source;
 
 namespace Nz
 {
@@ -17,15 +21,17 @@ namespace Nz
 	class NAZARA_AUDIO2_API SoundDataReader
 	{
 		public:
-			inline SoundDataReader(SoundDataSource* source);
+			SoundDataReader(std::shared_ptr<SoundDataSource> source = nullptr);
 			SoundDataReader(const SoundDataReader&) = delete;
 			SoundDataReader(SoundDataReader&&) = delete;
-			~SoundDataReader() = default;
+			~SoundDataReader();
 
-			virtual void EnableLooping(bool looping) = 0;
+			ma_data_source* AsDataSource();
+
+			//virtual void EnableLooping(bool looping) = 0;
 
 			inline UInt64 GetReadOffset() const;
-			inline SoundDataSource* GetSource();
+			inline const std::shared_ptr<SoundDataSource>& GetSource();
 
 			inline void UpdateReadOffset(UInt64 offset);
 
@@ -33,7 +39,10 @@ namespace Nz
 			SoundDataReader& operator=(SoundDataReader&&) = delete;
 
 		private:
-			SoundDataSource* m_source;
+			struct MiniaudioDataSource;
+
+			PrivateImpl<MiniaudioDataSource, 72, 8> m_miniAudioSource;
+			std::shared_ptr<SoundDataSource> m_source;
 			UInt64 m_readOffset;
 	};
 }

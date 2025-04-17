@@ -546,50 +546,7 @@ namespace Nz
 	template<typename T>
 	Quaternion<T> Matrix4<T>::GetRotation() const
 	{
-		// http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/
-		Quaternion<T> quat;
-
-		T trace = m11 + m22 + m33;
-		if (trace > T(0.0))
-		{
-			T s = T(0.5) / std::sqrt(trace + T(1.0));
-			quat.w = T(0.25) / s;
-			quat.x = (m23 - m32) * s;
-			quat.y = (m31 - m13) * s;
-			quat.z = (m12 - m21) * s;
-		}
-		else
-		{
-			if (m11 > m22 && m11 > m33)
-			{
-				T s = T(2.0) * std::sqrt(T(1.0) + m11 - m22 - m33);
-
-				quat.w = (m23 - m32) / s;
-				quat.x = T(0.25) * s;
-				quat.y = (m21 + m12) / s;
-				quat.z = (m31 + m13) / s;
-			}
-			else if (m22 > m33)
-			{
-				T s = T(2.0) * std::sqrt(T(1.0) + m22 - m11 - m33);
-
-				quat.w = (m31 - m13) / s;
-				quat.x = (m21 + m12) / s;
-				quat.y = T(0.25) * s;
-				quat.z = (m32 + m23) / s;
-			}
-			else
-			{
-				T s = T(2.0) * std::sqrt(T(1.0) + m33 - m11 - m22);
-
-				quat.w = (m12 - m21) / s;
-				quat.x = (m31 + m13) / s;
-				quat.y = (m32 + m23) / s;
-				quat.z = T(0.25) * s;
-			}
-		}
-
-		return quat;
+		return Quaternion<T>::LookAt({ m31, m32, m33 }, { m21, m22, m23 }, { m11, m12, m13 });
 	}
 
 	/*!

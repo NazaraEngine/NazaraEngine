@@ -4,18 +4,12 @@
 
 namespace Nz
 {
-	inline SoundDataReader::SoundDataReader(SoundDataSource* source) :
-	m_source(source),
-	m_readOffset(0)
-	{
-	}
-
 	inline UInt64 SoundDataReader::GetReadOffset() const
 	{
 		return m_readOffset;
 	}
 
-	inline SoundDataSource* SoundDataReader::GetSource()
+	inline const std::shared_ptr<SoundDataSource>& SoundDataReader::GetSource()
 	{
 		return m_source;
 	}

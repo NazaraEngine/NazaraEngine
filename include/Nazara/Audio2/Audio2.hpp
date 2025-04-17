@@ -21,6 +21,7 @@ struct ma_context;
 namespace Nz
 {
 	class AudioDevice;
+	class AudioEngine;
 	class CommandLineParameters;
 
 	class NAZARA_AUDIO2_API Audio2 : public ModuleBase<Audio2>
@@ -44,6 +45,7 @@ namespace Nz
 
 			std::shared_ptr<AudioDevice> OpenCaptureDevice(const AudioDeviceId* captureDevice = nullptr);
 			std::shared_ptr<AudioDevice> OpenPlaybackDevice(const AudioDeviceId* playbackDevice = nullptr);
+			std::shared_ptr<AudioEngine> OpenPlaybackEngine(const AudioDeviceId* playbackDevice = nullptr);
 
 			std::vector<AudioDeviceInfo> QueryDevices() const;
 
