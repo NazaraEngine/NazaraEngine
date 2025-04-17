@@ -8,7 +8,6 @@
 #include <Nazara/Audio2/Export.hpp>
 #include <Nazara/Audio2/SoundBuffer.hpp>
 #include <Nazara/Audio2/SoundStream.hpp>
-#include <Nazara/Audio2/Formats/libflacLoader.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/MemoryView.hpp>
@@ -372,7 +371,7 @@ namespace Nz
 						if (frameCount == 0)
 							return ReadData{ readFrame, m_currentFramePosition };
 					}
-					
+
 					m_userData.writeCallback = [&](const FLAC__StreamDecoder* /*decoder*/, const FLAC__Frame* frame, const FLAC__int32* const framebuffer[])
 					{
 						UInt32 blockFrameCount = frame->header.blocksize;
