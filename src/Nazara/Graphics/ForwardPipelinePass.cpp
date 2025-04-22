@@ -20,7 +20,7 @@
 
 namespace Nz
 {
-	ForwardPipelinePass::ForwardPipelinePass(PassData& passData, std::string passName, const ParameterList& /*parameters*/) :
+	ForwardPipelinePass::ForwardPipelinePass(PassData& passData, std::string passName, const ParameterList& parameters) :
 	FramePipelinePass(FramePipelineNotification::ElementInvalidation | FramePipelineNotification::MaterialInstanceRegistration),
 	m_lastVisibilityHash(0),
 	m_passName(std::move(passName)),
@@ -28,22 +28,37 @@ namespace Nz
 	m_elementRegistry(passData.elementRegistry),
 	m_pipeline(passData.pipeline),
 	m_pendingLightUploadAllocation(nullptr),
+	m_renderMask(MaxValue()),
+	m_handleLights(true),
 	m_rebuildCommandBuffer(false),
 	m_rebuildElements(false)
 	{
+		if (auto result = parameters.GetBooleanParameter("Lighting", false); result)
+			m_handleLights = result.GetValue();
+		else if (result.GetError() != Nz::ParameterList::Error::MissingValue)
+			throw std::runtime_error("parameter Lighting has incorrect value");
+
+		if (auto result = parameters.GetIntegerParameter("RenderMask", false); result && result.GetValue() >= 0 && result.GetValue() < Nz::MaxValue<UInt32>())
+			m_renderMask = result.GetValue();
+		else if (result.GetError() != Nz::ParameterList::Error::MissingValue)
+			throw std::runtime_error("parameter RenderMask has incorrect value");
+
 		Graphics* graphics = Graphics::Instance();
 		m_forwardPassIndex = graphics->GetMaterialPassRegistry().GetPassIndex("ForwardPass");
 
-		std::size_t lightUboAlignedSize = AlignPow2(PredefinedLightOffsets.totalSize, SafeCast<std::size_t>(graphics->GetRenderDevice()->GetDeviceInfo().limits.minUniformBufferOffsetAlignment));
-		m_lightDataBuffer = graphics->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform, lightUboAlignedSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write);
-		m_lightDataBuffer->UpdateDebugName("Lights buffer");
+		if (m_handleLights)
+		{
+			std::size_t lightUboAlignedSize = AlignPow2(PredefinedLightOffsets.totalSize, SafeCast<std::size_t>(graphics->GetRenderDevice()->GetDeviceInfo().limits.minUniformBufferOffsetAlignment));
+			m_lightDataBuffer = graphics->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform, lightUboAlignedSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write);
+			m_lightDataBuffer->UpdateDebugName("Lights buffer");
 
-		m_renderState.lightData = RenderBufferView(m_lightDataBuffer.get());
+			m_renderState.lightData = RenderBufferView(m_lightDataBuffer.get());
+		}
 	}
 
 	void ForwardPipelinePass::Prepare(FrameData& frameData)
 	{
-		NazaraAssertMsg(frameData.visibleLights, "visible lights must be valid");
+		NazaraAssertMsg(!m_handleLights || frameData.visibleLights, "visible lights must be valid");
 
 		if (m_lastVisibilityHash != frameData.visibilityHash || m_rebuildElements) //< FIXME
 		{
@@ -52,6 +67,9 @@ namespace Nz
 
 			for (const auto& renderableData : frameData.visibleRenderables)
 			{
+				if ((m_renderMask & renderableData.renderMask) == 0)
+					continue;
+
 				InstancedRenderable::ElementData elementData{
 					&renderableData.scissorBox,
 					renderableData.skeletonInstance,
@@ -82,7 +100,8 @@ namespace Nz
 			return element->ComputeSortingScore(frameData.frustum, m_renderQueueRegistry);
 		});
 
-		PrepareLights(frameData.renderResources, frameData.frustum, *frameData.visibleLights);
+		if (m_handleLights)
+			PrepareLights(frameData.renderResources, frameData.frustum, *frameData.visibleLights);
 
 		if (m_rebuildElements)
 		{
@@ -149,9 +168,6 @@ namespace Nz
 		if (inputOuputs.outputAttachments.size() != 1)
 			throw std::runtime_error("one output expected");
 
-		if (inputOuputs.depthStencilOutput == InvalidAttachmentIndex)
-			throw std::runtime_error("expected depth-stencil output");
-
 		FramePass& forwardPass = frameGraph.AddPass(m_passName);
 
 		for (auto&& outputData : inputOuputs.outputAttachments)
@@ -173,7 +189,7 @@ namespace Nz
 
 		if (inputOuputs.depthStencilInput != FramePipelinePass::InvalidAttachmentIndex)
 			forwardPass.SetDepthStencilInput(inputOuputs.depthStencilInput);
-		else
+		else if (inputOuputs.depthStencilOutput != InvalidAttachmentIndex)
 		{
 			std::visit(Nz::Overloaded{
 				[](DontClear) {},
@@ -188,7 +204,8 @@ namespace Nz
 			}, inputOuputs.clearDepth);
 		}
 
-		forwardPass.SetDepthStencilOutput(inputOuputs.depthStencilOutput);
+		if (inputOuputs.depthStencilOutput != InvalidAttachmentIndex)
+			forwardPass.SetDepthStencilOutput(inputOuputs.depthStencilOutput);
 
 		forwardPass.SetExecutionCallback([&]()
 		{
