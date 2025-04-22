@@ -8,6 +8,7 @@
 #include <NZSL/SpirvWriter.hpp>
 #include <NZSL/Ast/AstSerializer.hpp>
 #include <NZSL/SpirV/SpirvDecoder.hpp>
+#include <NZSL/SpirV/SpirvPrinter.hpp>
 
 namespace Nz
 {
@@ -131,7 +132,7 @@ namespace Nz
 
 				if (!m_shaderModule.Create(device, reinterpret_cast<const UInt32*>(source), sourceSize))
 				{
-					NazaraError("failed to create shader module");
+					NazaraError("failed to create shader module, source: {}", nzsl::SpirvPrinter{}.Print(reinterpret_cast<const UInt32*>(source), sourceSize / 4));
 					return false;
 				}
 

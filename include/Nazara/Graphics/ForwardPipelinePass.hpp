@@ -95,6 +95,8 @@ namespace Nz
 			ElementRendererRegistry& m_elementRegistry;
 			FramePipeline& m_pipeline;
 			UploadPool::Allocation* m_pendingLightUploadAllocation;
+			UInt32 m_renderMask;
+			bool m_handleLights;
 			bool m_rebuildCommandBuffer;
 			bool m_rebuildElements;
 	};
