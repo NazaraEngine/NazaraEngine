@@ -311,8 +311,6 @@ namespace Nz
 			UInt8* basePtr = static_cast<UInt8*>(lightMemory) + PredefinedLightOffsets.spotLightsOffset + PredefinedSpotLightOffsets.totalSize * i;
 
 			const SpotLight* light = m_spotLights[i].light;
-
-			const Color& lightColor = light->GetColor();
 			ShaderTransfer::WriteLight(light, basePtr);
 
 			// Shadowmap handling
