@@ -1,11 +1,12 @@
 [nzsl_version("1.0")]
-module DeferredShading.PhongLighting;
+module DeferredShading.PhysicallyBasedLighting;
 
 import DecodeNormal from DeferredShading.NormalEncoding;
 import DirectionalLight, PointLight, SpotLight from Lighting.LightData;
 import ViewerData from Engine.ViewerData;
+import Pi from Math.Constants;
 
-import * from Lighting.Phong;
+import * from Lighting.PhysicalledBased;
 import * from Lighting.Shadow;
 
 option LightType: i32;
@@ -55,57 +56,61 @@ fn main(input: FragIn) -> FragOut
 	let texCoords = input.fragcoord.xy * viewerData.invRenderTargetSize;
 
 	let albedo = albedoMap.Sample(texCoords);
-	let normal = DecodeNormal(normalMap.Sample(texCoords).rgb);
+	let metalness = albedo.w;
+	let albedo = albedo.rgb;
+
+	let normal = normalMap.Sample(texCoords);
+	let roughness = normal.w;
+	let normal = DecodeNormal(normal.rgb);
+
 	let depth = depthMap.Sample(texCoords).r;
 
 	let viewspace = vec4[f32](texCoords * 2.0 - vec2[f32](1.0, 1.0), depth, 1.0);
 	let worldPos = viewerData.invViewProjMatrix * viewspace;
 	let worldPos = worldPos.xyz / worldPos.w;
 
-	let lightAmbient  = vec3[f32](0.0, 0.0, 0.0);
-	let lightDiffuse  = vec3[f32](0.0, 0.0, 0.0);
-	let lightSpecular = vec3[f32](0.0, 0.0, 0.0);
+	let lightRadiance  = vec3[f32](0.0, 0.0, 0.0);
 
 	let eyeVec = normalize(viewerData.eyePosition - worldPos);
 
-	const shininess = 2.0;
+	let F0 = vec3[f32](0.04, 0.04, 0.04);
+	F0 = lerp(F0, albedo, metalness.rrr);
+
+	let albedoFactor = albedo / Pi;
 
 	let light = lightData;
 	const if (LightType == LightType_Directional)
 	{
-		let result = ComputeDirectionalLight(light, eyeVec, normal, shininess);
+		let result = ComputeDirectionalLight(light, eyeVec, albedoFactor, F0, normal, metalness, roughness);
 
 		let shadowFactor = 1.0;
 
-		lightAmbient += result.ambient;
-		lightDiffuse += shadowFactor * result.diffuse;
-		lightSpecular += shadowFactor * result.specular;
+		lightRadiance += shadowFactor * result.radiance;
 	}
 	else if (LightType == LightType_Point)
 	{
-		let result = ComputePointLight(light, eyeVec, normal, shininess, worldPos);
+		let result = ComputePointLight(light, eyeVec, albedoFactor, F0, normal, metalness, roughness, worldPos);
 
 		let shadowFactor = 1.0;
 
-		lightAmbient += result.ambient;
-		lightDiffuse += shadowFactor * result.diffuse;
-		lightSpecular += shadowFactor * result.specular;
+		lightRadiance += shadowFactor * result.radiance;
 	}
 	else if (LightType == LightType_Spot)
 	{
-		let result = ComputeSpotLight(light, eyeVec, normal, shininess, worldPos);
+		let result = ComputeSpotLight(light, eyeVec, albedoFactor, F0, normal, metalness, roughness, worldPos);
 
 		let shadowFactor = 1.0;
 
-		lightAmbient += result.ambient;
-		lightDiffuse += shadowFactor * result.diffuse;
-		lightSpecular += shadowFactor * result.specular;
+		lightRadiance += shadowFactor * result.radiance;
 	}
 
-	let lightColor = lightAmbient + lightDiffuse + lightSpecular;
+	let ambient = (0.03).rrr * albedo;
+
+	let finalColor = ambient + lightRadiance;
+	finalColor = finalColor / (finalColor + vec3[f32](1.0, 1.0, 1.0));
 
 	let output: FragOut;
-	output.color = albedo * vec4[f32](lightColor, 1.0);
+	output.color = vec4[f32](finalColor, 1.0);
 
 	return output;
 }

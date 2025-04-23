@@ -1,0 +1,55 @@
+passlist "Forward Passlist"
+{
+    attachment "DepthBuffer"
+    {
+        format "Depth32F"
+    }
+
+    attachment "ForwardOutput"
+    {
+        format "RGBA16F"
+    }
+
+    pass "ForwardPass"
+    {
+        impl "Forward"
+        output "Output" "ForwardOutput"
+        {
+            clearcolor "Viewer"
+        }
+        cleardepth "Viewer"
+
+        depthstenciloutput "DepthBuffer"
+        flag "LightShadowing"
+    }
+
+    attachment "Gamma corrected"
+    {
+        format "RGBA8"
+    }
+
+    pass "Gamma correction"
+    {
+        impl "PostProcess"
+        {
+            Shader "PostProcess.GammaCorrection"
+        }
+
+        input "Input" "ForwardOutput"
+        output "Output" "Gamma corrected"
+    }
+
+    attachmentproxy "Debug draw output" "Gamma corrected"
+    attachmentproxy "DebugDraw depth output" "DepthBuffer"
+
+    pass "Debug Draw"
+    {
+        impl "DebugDraw"
+        input "Input" "Gamma corrected"
+        output "Output" "Debug draw output"
+        depthstencilinput "DepthBuffer"
+        depthstenciloutput "DebugDraw depth output"
+    }
+
+    output "Debug draw output"
+}
