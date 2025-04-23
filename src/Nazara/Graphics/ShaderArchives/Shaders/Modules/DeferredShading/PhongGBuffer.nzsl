@@ -1,0 +1,9 @@
+[nzsl_version("1.0")]
+module DeferredShading.PhongGBuffer;
+
+[export]
+struct GBufferOutput
+{
+    [location(0)] albedo: vec4[f32],
+    [location(1)] normal: vec4[f32]
+}
