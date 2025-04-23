@@ -57,7 +57,7 @@ passlist "Deferred Passlist"
     {
         impl "Lighting"
         {
-            Shader "DeferredShading.PhysicalledBasedLighting"
+            Shader "DeferredShading.PhysicallyBasedLighting"
         }
 
         input "Albedo" "GBuffer0"

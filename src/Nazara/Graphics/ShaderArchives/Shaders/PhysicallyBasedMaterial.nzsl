@@ -12,9 +12,13 @@ import Pi from Math.Constants;
 import DirectionalLight, PointLight, SpotLight from Lighting.LightData;
 import SkinLinearPosition, SkinLinearPositionNormal from Engine.SkinningLinear;
 
+import GBufferOutput from DeferredShading.PhysicallyBasedGBuffer;
+import EncodeNormal from DeferredShading.NormalEncoding;
+
 // Pass-specific options
 option DepthPass: bool = false;
 option DistanceDepth: bool = false;
+option ForwardPass: bool = true;
 option ShadowPass: bool = false;
 
 // Basic material options
@@ -57,6 +61,7 @@ const HasVertexUV = (VertexUvLoc != InvalidLoc);
 const HasUV = (HasVertexUV);
 const HasNormalMapping = HasNormalTexture && HasNormal && HasTangent && !DepthPass;
 const HasSkinning = (VertexJointIndicesLoc != InvalidLoc && VertexJointWeightsLoc != InvalidLoc);
+const HasLighting = HasNormal && !DepthPass;
 
 [layout(std140)]
 struct MaterialSettings
@@ -123,12 +128,15 @@ struct VertOut
 }
 
 // Fragment stage
-
+[cond(ForwardPass)]
 struct FragOut
 {
 	[location(0)] RenderTarget0: vec4[f32],
 	[builtin(frag_depth), cond(DistanceDepth)] fragdepth: f32,
 }
+
+[cond(!ForwardPass)]
+alias FragOut = GBufferOutput;
 
 [export]
 fn ComputeColor(input: VertOut) -> vec4[f32]
@@ -156,14 +164,9 @@ fn ComputeColor(input: VertOut) -> vec4[f32]
 	return color;
 }
 
-[export, cond(HasNormal)]
-fn ComputeLighting(color: vec3[f32], input: VertOut) -> vec3[f32]
+[cond(HasLighting)]
+fn ComputeNormal(input: VertOut) -> vec3[f32]
 {
-	let lightRadiance = vec3[f32](0.0, 0.0, 0.0);
-
-	let eyeVec = normalize(viewerData.eyePosition - input.worldPos);
-
-	let normal: vec3[f32];
 	const if (HasNormalMapping)
 	{
 		let N = normalize(input.normal);
@@ -171,20 +174,43 @@ fn ComputeLighting(color: vec3[f32], input: VertOut) -> vec3[f32]
 		let B = cross(N, T);
 		let tbnMatrix = mat3[f32](T, B, N);
 
-		normal = normalize(tbnMatrix * (MaterialNormalMap.Sample(input.uv).xyz * 2.0 - vec3[f32](1.0, 1.0, 1.0)));
+		return normalize(tbnMatrix * (MaterialNormalMap.Sample(input.uv).xyz * 2.0 - vec3[f32](1.0, 1.0, 1.0)));
 	}
 	else
-		normal = normalize(input.normal);
+		return normalize(input.normal);
+}
 
-	let albedo = color.xyz;
-
+[export, cond(HasLighting)]
+fn ComputeMetallic(input: VertOut) -> f32
+{
 	let metallic = settings.MetallicFactor;
 	const if (HasMetallicTexture)
 		metallic *= MaterialMetallicMap.Sample(input.uv).x;
 
+	return metallic;
+}
+
+[export, cond(HasLighting)]
+fn ComputeRoughness(input: VertOut) -> f32
+{
 	let roughness = settings.RoughnessFactor;
 	const if (HasRoughnessTexture)
 		roughness *= MaterialRoughnessMap.Sample(input.uv).x;
+
+	return roughness;
+}
+
+[export, cond(HasLighting)]
+fn ComputeLighting(color: vec3[f32], input: VertOut) -> vec3[f32]
+{
+	let lightRadiance = vec3[f32](0.0, 0.0, 0.0);
+
+	let eyeVec = normalize(viewerData.eyePosition - input.worldPos);
+
+	let albedo = color.xyz;
+	let normal = ComputeNormal(input);
+	let metallic = ComputeMetallic(input);
+	let roughness = ComputeRoughness(input);
 
 	let F0 = vec3[f32](0.04, 0.04, 0.04);
 	F0 = lerp(F0, albedo, metallic.rrr);
@@ -240,8 +266,31 @@ fn FragMain(input: VertOut) -> FragOut
 {
 	let color = ComputeColor(input);
 
-	const if (HasNormal)
-		color.rgb = ComputeLighting(color.rgb, input);
+	const if (ForwardPass)
+	{
+		const if (HasLighting)
+		{
+			let normal = ComputeNormal(input);
+			color.rgb = ComputeLighting(color.rgb, input, normal);
+		}
+	
+		let output: FragOut;
+		output.color = color;
+	
+		return output;
+	}
+	else
+	{
+		let normal = ComputeNormal(input);
+		let metalness = ComputeMetallic(input);
+		let roughness = ComputeRoughness(input);
+
+		let output: FragOut;
+		output.albedo = vec4[f32](color.rgb, metalness);
+		output.normal = vec4[f32](EncodeNormal(normal), roughness);
+
+		return output;
+	}
 
 	let output: FragOut;
 	output.RenderTarget0 = color;
