@@ -32,7 +32,8 @@ namespace Nz
 	struct TextureViewInfo
 	{
 		ImageType viewType;
-		PixelFormat reinterpretFormat = PixelFormat::Undefined;
+		PixelFormat reinterpretFormat = PixelFormat::Undefined; //< Undefined means no reinterpretation is made
+		TexturePlaneFlags planes = 0; // if not set it will default to all planes of the format
 		UInt8 baseMipLevel = 0;
 		UInt8 levelCount = 1;
 		UInt32 baseArrayLayer = 0;
