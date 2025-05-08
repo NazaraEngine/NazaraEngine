@@ -3,7 +3,7 @@
 /*
 	Nazara Engine - Physics3D module
 
-	Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
+	Copyright (C) 2025 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy of
 	this software and associated documentation files (the "Software"), to deal in
@@ -35,6 +35,8 @@
 #include <Nazara/Physics3D/PhysBody3D.hpp>
 #include <Nazara/Physics3D/PhysCharacter3D.hpp>
 #include <Nazara/Physics3D/PhysConstraint3D.hpp>
+#include <Nazara/Physics3D/PhysContact3D.hpp>
+#include <Nazara/Physics3D/PhysContactResponse3D.hpp>
 #include <Nazara/Physics3D/PhysFilter3D.hpp>
 #include <Nazara/Physics3D/Physics3D.hpp>
 #include <Nazara/Physics3D/PhysObjectLayer3D.hpp>

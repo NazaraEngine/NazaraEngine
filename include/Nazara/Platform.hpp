@@ -3,7 +3,7 @@
 /*
 	Nazara Engine - Platform module
 
-	Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
+	Copyright (C) 2025 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy of
 	this software and associated documentation files (the "Software"), to deal in
@@ -39,6 +39,7 @@
 #include <Nazara/Platform/MessageBox.hpp>
 #include <Nazara/Platform/Mouse.hpp>
 #include <Nazara/Platform/Platform.hpp>
+#include <Nazara/Platform/TextInputController.hpp>
 #include <Nazara/Platform/VideoMode.hpp>
 #include <Nazara/Platform/Window.hpp>
 #include <Nazara/Platform/WindowEvent.hpp>

@@ -3,7 +3,7 @@
 /*
 	Nazara Engine - Graphics module
 
-	Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
+	Copyright (C) 2025 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy of
 	this software and associated documentation files (the "Software"), to deal in
@@ -53,6 +53,7 @@
 #include <Nazara/Graphics/GraphicalMesh.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/GuillotineTextureAtlas.hpp>
+#include <Nazara/Graphics/ImGuiPipelinePass.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/LightShadowData.hpp>
@@ -79,6 +80,7 @@
 #include <Nazara/Graphics/RenderElementPool.hpp>
 #include <Nazara/Graphics/RenderQueue.hpp>
 #include <Nazara/Graphics/RenderQueueRegistry.hpp>
+#include <Nazara/Graphics/RenderResourceReferences.hpp>
 #include <Nazara/Graphics/RenderSpriteChain.hpp>
 #include <Nazara/Graphics/RenderSubmesh.hpp>
 #include <Nazara/Graphics/RenderTarget.hpp>

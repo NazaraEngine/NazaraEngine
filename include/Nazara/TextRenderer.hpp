@@ -1,9 +1,9 @@
 // this file was automatically generated and should not be edited
 
 /*
-	Nazara Engine - Platform module
+	Nazara Engine - Text renderer
 
-	Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
+	Copyright (C) 2025 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy of
 	this software and associated documentation files (the "Software"), to deal in

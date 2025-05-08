@@ -3,7 +3,7 @@
 /*
 	Nazara Engine - Renderer module
 
-	Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
+	Copyright (C) 2025 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy of
 	this software and associated documentation files (the "Software"), to deal in
@@ -38,6 +38,8 @@
 #include <Nazara/Renderer/Export.hpp>
 #include <Nazara/Renderer/Framebuffer.hpp>
 #include <Nazara/Renderer/GpuSwitch.hpp>
+#include <Nazara/Renderer/PredefinedShaderStructBuilder.hpp>
+#include <Nazara/Renderer/PredefinedShaderStructs.hpp>
 #include <Nazara/Renderer/RenderBuffer.hpp>
 #include <Nazara/Renderer/RenderBufferView.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
