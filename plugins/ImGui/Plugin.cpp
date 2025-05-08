@@ -9,12 +9,20 @@
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/Renderer/WindowSwapchain.hpp>
 #include <Nazara/Renderer/Plugins/ImGuiPlugin.hpp>
+#include <Nazara/Renderer/Plugins/ImGuiFunctions.hpp>
 #include <NZSL/Math/FieldOffsets.hpp>
 #include <NazaraUtils/FixedVector.hpp>
 #include <imgui.h>
 
 namespace NzImGui
 {
+	constexpr Nz::ImGuiFunctions s_imguiFunctions
+	{
+	#define NAZARA_RENDERER_PLUGINS_IMGUI_FUNC(func) &ImGui::func,
+	#define NAZARA_RENDERER_PLUGINS_IMGUI_FUNC_LAST(func) &ImGui::func
+#include <Nazara/Renderer/Plugins/ImGuiFunctionList.hpp>
+	};
+
 	constexpr Nz::EnumArray<Nz::Mouse::Button, int> s_mouseButtonMap = {
 		ImGuiMouseButton_Left,
 		ImGuiMouseButton_Right,
@@ -335,6 +343,11 @@ namespace NzImGui
 					globalIndexOffset += commandList->IdxBuffer.size();
 					globalVertexOffset += commandList->VtxBuffer.size();
 				}
+			}
+
+			const Nz::ImGuiFunctions& GetFunctions() const override
+			{
+				return s_imguiFunctions;
 			}
 
 			void NewFrame(ImGuiContext* context, Nz::Time updateTime) override

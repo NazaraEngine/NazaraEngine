@@ -21,6 +21,7 @@ namespace Nz
 	class RenderResources;
 	class Window;
 	class WindowSwapchain;
+	struct ImGuiFunctions;
 
 	// Don't export class due to MinGW bug, export every method instead
 	class ImGuiPlugin : public PluginInterface
@@ -38,6 +39,9 @@ namespace Nz
 			~ImGuiPlugin() = default;
 
 			virtual void Draw(ImGuiContext* context, CommandBufferBuilder& commandBufferBuilder) = 0;
+
+			virtual const ImGuiFunctions& GetFunctions() const = 0;
+
 			virtual void Prepare(ImGuiContext* context, RenderResources& renderResources) = 0;
 
 			virtual void NewFrame(ImGuiContext* context, Nz::Time updateTime) = 0;
