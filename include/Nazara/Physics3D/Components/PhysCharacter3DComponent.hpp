@@ -10,7 +10,7 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Physics3D/Enums.hpp>
 #include <Nazara/Physics3D/PhysCharacter3D.hpp>
-#include <entt/fwd.hpp>
+#include <flecs.h>
 
 namespace Nz
 {
@@ -19,7 +19,7 @@ namespace Nz
 		friend class Physics3DSystem;
 
 		public:
-			using CustomReplicationCallback = std::function<void(entt::handle entity, PhysCharacter3DComponent& rigidBodyComponent)>;
+			using CustomReplicationCallback = std::function<void(flecs::entity entity, PhysCharacter3DComponent& rigidBodyComponent)>;
 
 			inline PhysCharacter3DComponent(const Settings& settings, PhysicsReplication3D replication = PhysicsReplication3D::Local);
 			PhysCharacter3DComponent(const PhysCharacter3DComponent&) = delete;

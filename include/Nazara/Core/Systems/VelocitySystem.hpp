@@ -11,7 +11,7 @@
 #include <Nazara/Core/Export.hpp>
 #include <Nazara/Core/Time.hpp>
 #include <NazaraUtils/TypeList.hpp>
-#include <entt/entt.hpp>
+#include <flecs.h>
 
 namespace Nz
 {
@@ -20,7 +20,7 @@ namespace Nz
 		public:
 			using Components = TypeList<class NodeComponent, class VelocityComponent>;
 
-			inline VelocitySystem(entt::registry& registry);
+			inline VelocitySystem(flecs::world& world);
 			VelocitySystem(const VelocitySystem&) = delete;
 			VelocitySystem(VelocitySystem&&) = delete;
 			~VelocitySystem() = default;
@@ -31,7 +31,7 @@ namespace Nz
 			VelocitySystem& operator=(VelocitySystem&&) = delete;
 
 		private:
-			entt::registry& m_registry;
+			flecs::world& m_world;
 	};
 }
 

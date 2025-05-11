@@ -17,7 +17,7 @@
 #include <Nazara/Graphics/Components/LightComponent.hpp>
 #include <Nazara/Renderer/WindowSwapchain.hpp>
 #include <NazaraUtils/MemoryPool.hpp>
-#include <entt/entt.hpp>
+#include <flecs.h>
 #include <array>
 #include <memory>
 #include <set>
@@ -36,7 +36,7 @@ namespace Nz
 			static constexpr bool AllowConcurrent = false;
 			static constexpr Int64 ExecutionOrder = 1'000;
 
-			RenderSystem(entt::registry& registry);
+			RenderSystem(flecs::world& world);
 			RenderSystem(const RenderSystem&) = delete;
 			RenderSystem(RenderSystem&&) = delete;
 			~RenderSystem();
@@ -60,23 +60,15 @@ namespace Nz
 			struct GraphicsEntity;
 			struct LightEntity;
 
-			void OnCameraDestroy(entt::registry& registry, entt::entity entity);
-			void OnDisabledConstructed(entt::registry& registry, entt::entity entity);
-			void OnGraphicsDestroy(entt::registry& registry, entt::entity entity);
-			void OnLightDestroy(entt::registry& registry, entt::entity entity);
-			void OnNodeDestroy(entt::registry& registry, entt::entity entity);
-			void OnSharedSkeletonDestroy(entt::registry& registry, entt::entity entity);
-			void OnSkeletonDestroy(entt::registry& registry, entt::entity entity);
 			void UpdateGraphicsVisibility(GraphicsEntity* gfxData, GraphicsComponent& gfxComponent, bool isVisible);
 			void UpdateLightVisibility(LightEntity* gfxData, LightComponent& lightComponent, bool isVisible);
 			void UpdateInstances();
-			void UpdateObservers();
 
 			static constexpr std::size_t NoInstance = std::numeric_limits<std::size_t>::max();
 
 			struct CameraEntity
 			{
-				entt::entity entity;
+				flecs::entity entity;
 				std::size_t poolIndex;
 				std::size_t viewerIndex;
 
@@ -85,7 +77,7 @@ namespace Nz
 
 			struct GraphicsEntity
 			{
-				entt::entity entity;
+				flecs::entity entity;
 				std::array<std::size_t, GraphicsComponent::MaxRenderableCount> renderableIndices;
 				std::size_t poolIndex;
 				std::size_t skeletonInstanceIndex;
@@ -101,7 +93,7 @@ namespace Nz
 
 			struct LightEntity
 			{
-				entt::entity entity;
+				flecs::entity entity;
 				std::array<std::size_t, LightComponent::MaxLightCount> lightIndices;
 				std::size_t poolIndex;
 
@@ -119,27 +111,19 @@ namespace Nz
 				NazaraSlot(Skeleton, OnSkeletonJointsInvalidated, onJointsInvalidated);
 			};
 
-			entt::registry& m_registry;
-			entt::observer m_cameraConstructObserver;
-			entt::observer m_graphicsConstructObserver;
-			entt::observer m_lightConstructObserver;
-			entt::observer m_sharedSkeletonConstructObserver;
-			entt::observer m_skeletonConstructObserver;
-			entt::scoped_connection m_cameraDestroyConnection;
-			entt::scoped_connection m_disabledConstructedConnection;
-			entt::scoped_connection m_disabledDestroyConnection;
-			entt::scoped_connection m_graphicsDestroyConnection;
-			entt::scoped_connection m_lightDestroyConnection;
-			entt::scoped_connection m_nodeDestroyConnection;
-			entt::scoped_connection m_sharedSkeletonDestroyConnection;
-			entt::scoped_connection m_skeletonDestroyConnection;
+			flecs::world& m_world;
+			flecs::entity m_cameraConstructObserver;
+			flecs::entity m_graphicsConstructObserver;
+			flecs::entity m_lightConstructObserver;
+			flecs::entity m_sharedSkeletonConstructObserver;
+			flecs::entity m_skeletonConstructObserver;
 			std::set<CameraEntity*> m_invalidatedCameraNode;
 			std::set<GraphicsEntity*> m_invalidatedGfxWorldNode;
 			std::set<LightEntity*> m_invalidatedLightWorldNode;
 			std::unique_ptr<FramePipeline> m_pipeline;
-			std::unordered_map<entt::entity, CameraEntity*> m_cameraEntities;
-			std::unordered_map<entt::entity, GraphicsEntity*> m_graphicsEntities;
-			std::unordered_map<entt::entity, LightEntity*> m_lightEntities;
+			std::unordered_map<flecs::entity, CameraEntity*> m_cameraEntities;
+			std::unordered_map<flecs::entity, GraphicsEntity*> m_graphicsEntities;
+			std::unordered_map<flecs::entity, LightEntity*> m_lightEntities;
 			std::unordered_map<Skeleton*, SharedSkeleton> m_sharedSkeletonInstances;
 			std::vector<std::reference_wrapper<WindowSwapchain>> m_externalSwapchains;
 			std::vector<std::unique_ptr<WindowSwapchain>> m_windowSwapchains;

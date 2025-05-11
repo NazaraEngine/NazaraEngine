@@ -17,11 +17,11 @@ namespace Nz
 		public:
 			using Camera::Camera;
 			CameraComponent(const CameraComponent& camera) = default;
-			CameraComponent(CameraComponent&& camera) noexcept = default;
+			CameraComponent(CameraComponent&& camera) = delete;
 			~CameraComponent() = default;
 
 			CameraComponent& operator=(const CameraComponent& camera) = default;
-			CameraComponent& operator=(CameraComponent&& camera) noexcept = default;
+			CameraComponent& operator=(CameraComponent&& camera) = delete;
 	};
 }
 

@@ -125,23 +125,23 @@ local modules = {
 				remove_files("src/Nazara/Core/Posix/TimeImpl.cpp")
 			end
 		end,
-		Packages = { "concurrentqueue", "entt", "frozen", "ordered_map", "stb", "utfcpp" },
+		Packages = { "concurrentqueue", "entt", "flecs", "frozen", "ordered_map", "stb", "utfcpp" },
 		PublicPackages = { "nazarautils" }
 	},
 	Graphics = {
 		Option = "graphics",
 		Deps = {"NazaraRenderer", "NazaraTextRenderer"},
-		Packages = {"entt", "fast_float"}
+		Packages = {"entt", "fast_float", "flecs"}
 	},
 	Physics2D = {
 		Option = "physics2d",
 		Deps = {"NazaraCore"},
-		Packages = { "chipmunk2d", "entt" }
+		Packages = { "chipmunk2d", "entt", "flecs" }
 	},
 	Physics3D = {
 		Option = "physics3d",
 		Deps = {"NazaraCore"},
-		Packages = { "joltphysics", "entt", "ordered_map" }
+		Packages = { "joltphysics", "entt", "flecs", "ordered_map" }
 	},
 	Network = {
 		Option = "network",
@@ -225,7 +225,7 @@ local modules = {
 	Widgets = {
 		Option = "widgets",
 		Deps = {"NazaraGraphics"},
-		Packages = {"entt", "kiwisolver"}
+		Packages = {"entt", "flecs", "kiwisolver"}
 	}
 }
 
@@ -305,6 +305,7 @@ add_requires(
 	"concurrentqueue",
 	"entt 3.14.0",
 	"fmt",
+	"flecs",
 	"frozen",
 	"ordered_map",
 	"nazarautils",

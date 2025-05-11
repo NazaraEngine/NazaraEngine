@@ -2,7 +2,6 @@
 // This file is part of the "Nazara Engine - Physics3D module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-
 namespace Nz
 {
 	inline PhysWorld3D& Physics3DSystem::GetPhysWorld()
@@ -15,8 +14,8 @@ namespace Nz
 		return m_physWorld;
 	}
 
-	inline entt::handle Physics3DSystem::GetRigidBodyEntity(UInt32 bodyIndex) const
+	inline flecs::entity Physics3DSystem::GetRigidBodyEntity(UInt32 bodyIndex) const
 	{
-		return entt::handle(m_registry, m_bodyIndicesToEntity[bodyIndex]);
+		return m_bodyIndicesToEntity[bodyIndex];
 	}
 }

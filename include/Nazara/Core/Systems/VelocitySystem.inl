@@ -2,11 +2,10 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-
 namespace Nz
 {
-	inline VelocitySystem::VelocitySystem(entt::registry& registry) :
-	m_registry(registry)
+	inline VelocitySystem::VelocitySystem(flecs::world& world) :
+	m_world(world)
 	{
 	}
 }

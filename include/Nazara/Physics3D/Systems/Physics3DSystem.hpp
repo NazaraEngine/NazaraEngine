@@ -14,7 +14,7 @@
 #include <Nazara/Physics3D/Components/PhysCharacter3DComponent.hpp>
 #include <Nazara/Physics3D/Components/RigidBody3DComponent.hpp>
 #include <NazaraUtils/TypeList.hpp>
-#include <entt/entt.hpp>
+#include <flecs.h>
 #include <vector>
 
 namespace Nz
@@ -31,7 +31,7 @@ namespace Nz
 			struct ShapeCollisionInfo;
 			using Settings = PhysWorld3D::Settings;
 
-			Physics3DSystem(entt::registry& registry, Settings&& settings = PhysWorld3D::BuildDefaultSettings());
+			Physics3DSystem(flecs::world& world, Settings&& settings = PhysWorld3D::BuildDefaultSettings());
 			Physics3DSystem(const Physics3DSystem&) = delete;
 			Physics3DSystem(Physics3DSystem&&) = delete;
 			~Physics3DSystem();
@@ -42,7 +42,7 @@ namespace Nz
 
 			inline PhysWorld3D& GetPhysWorld();
 			inline const PhysWorld3D& GetPhysWorld() const;
-			inline entt::handle GetRigidBodyEntity(UInt32 bodyIndex) const;
+			inline flecs::entity GetRigidBodyEntity(UInt32 bodyIndex) const;
 
 			bool RaycastQuery(const Vector3f& from, const Vector3f& to, const FunctionRef<std::optional<float>(const RaycastHit& hitInfo)>& callback, const PhysBroadphaseLayerFilter3D* broadphaseFilter = nullptr, const PhysObjectLayerFilter3D* objectLayerFilter = nullptr, const PhysBodyFilter3D* bodyFilter = nullptr);
 			bool RaycastQueryFirst(const Vector3f& from, const Vector3f& to, const FunctionRef<void(const RaycastHit& hitInfo)>& callback, const PhysBroadphaseLayerFilter3D* broadphaseFilter = nullptr, const PhysObjectLayerFilter3D* objectLayerFilter = nullptr, const PhysBodyFilter3D* bodyFilter = nullptr);
@@ -58,45 +58,37 @@ namespace Nz
 			{
 				virtual ~ContactListener();
 
-				virtual PhysContactValidateResult3D ValidateContact(entt::handle entity1, const PhysBody3D* body1, entt::handle entity2, const PhysBody3D* body2, const Vector3f& baseOffset, const ShapeCollisionInfo& collisionResult) = 0;
+				virtual PhysContactValidateResult3D ValidateContact(flecs::entity entity1, const PhysBody3D* body1, flecs::entity entity2, const PhysBody3D* body2, const Vector3f& baseOffset, const ShapeCollisionInfo& collisionResult) = 0;
 
-				virtual void OnContactAdded(entt::handle entity1, const PhysBody3D* body1, entt::handle entity2, const PhysBody3D* body2, const PhysContact3D& physContact, PhysContactResponse3D& physContactResponse) = 0;
-				virtual void OnContactPersisted(entt::handle entity1, const PhysBody3D* body1, entt::handle entity2, const PhysBody3D* body2, const PhysContact3D& physContact, PhysContactResponse3D& physContactResponse) = 0;
-				virtual void OnContactRemoved(entt::handle entity1, UInt32 body1Index, const PhysBody3D* body1, UInt32 subShapeID1, entt::handle entity2, UInt32 body2Index, const PhysBody3D* body2, UInt32 subShapeID2) = 0;
+				virtual void OnContactAdded(flecs::entity entity1, const PhysBody3D* body1, flecs::entity entity2, const PhysBody3D* body2, const PhysContact3D& physContact, PhysContactResponse3D& physContactResponse) = 0;
+				virtual void OnContactPersisted(flecs::entity entity1, const PhysBody3D* body1, flecs::entity entity2, const PhysBody3D* body2, const PhysContact3D& physContact, PhysContactResponse3D& physContactResponse) = 0;
+				virtual void OnContactRemoved(flecs::entity entity1, UInt32 body1Index, const PhysBody3D* body1, UInt32 subShapeID1, flecs::entity entity2, UInt32 body2Index, const PhysBody3D* body2, UInt32 subShapeID2) = 0;
 			};
 
 			struct PointCollisionInfo : PhysWorld3D::PointCollisionInfo
 			{
-				entt::handle hitEntity;
+				flecs::entity hitEntity;
 			};
 
 			struct RaycastHit : PhysWorld3D::RaycastHit
 			{
-				entt::handle hitEntity;
+				flecs::entity hitEntity;
 			};
 
 			struct ShapeCollisionInfo : PhysWorld3D::ShapeCollisionInfo
 			{
-				entt::handle hitEntity;
+				flecs::entity hitEntity;
 			};
 
 		private:
-			void OnBodyConstruct(entt::registry& registry, entt::entity entity);
-			void OnBodyDestruct(entt::registry& registry, entt::entity entity);
-			void OnCharacterConstruct(entt::registry& registry, entt::entity entity);
-			void OnCharacterDestruct(entt::registry& registry, entt::entity entity);
-
 			template<typename T> void ReplicateEntities();
 
-			std::size_t m_stepCount;
-			std::vector<entt::entity> m_bodyIndicesToEntity;
-			entt::registry& m_registry;
-			entt::observer m_characterConstructObserver;
-			entt::observer m_rigidBodyConstructObserver;
-			entt::scoped_connection m_bodyConstructConnection;
-			entt::scoped_connection m_bodyDestructConnection;
-			entt::scoped_connection m_characterConstructConnection;
-			entt::scoped_connection m_characterDestructConnection;
+			std::vector<flecs::entity> m_bodyIndicesToEntity;
+			flecs::world& m_world;
+			flecs::entity m_characterConstructObserver;
+			flecs::entity m_rigidBodyConstructObserver;
+			flecs::entity m_bodyObserver;
+			flecs::entity m_characterObserver;
 			PhysWorld3D m_physWorld;
 	};
 }
