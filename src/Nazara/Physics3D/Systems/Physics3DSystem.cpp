@@ -3,37 +3,103 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Physics3D/Systems/Physics3DSystem.hpp>
-#include <Nazara/Core/Components/DisabledComponent.hpp>
 #include <Nazara/Core/Components/NodeComponent.hpp>
 #include <Nazara/Physics3D/PhysBody3D.hpp>
 
 namespace Nz
 {
-	Physics3DSystem::Physics3DSystem(entt::registry& registry, Settings&& settings) :
-	m_registry(registry),
-	m_characterConstructObserver(m_registry, entt::collector.group<PhysCharacter3DComponent, NodeComponent>(entt::exclude<DisabledComponent, RigidBody3DComponent>)),
-	m_rigidBodyConstructObserver(m_registry, entt::collector.group<RigidBody3DComponent,     NodeComponent>(entt::exclude<DisabledComponent, PhysCharacter3DComponent>)),
+	Physics3DSystem::Physics3DSystem(flecs::world& world, Settings&& settings) :
+	m_world(world),
 	m_physWorld(std::move(settings))
 	{
-		m_bodyConstructConnection = registry.on_construct<RigidBody3DComponent>().connect<&Physics3DSystem::OnBodyConstruct>(this);
-		m_bodyDestructConnection = registry.on_destroy<RigidBody3DComponent>().connect<&Physics3DSystem::OnBodyDestruct>(this);
-		m_characterConstructConnection = registry.on_construct<PhysCharacter3DComponent>().connect<&Physics3DSystem::OnCharacterConstruct>(this);
-		m_characterDestructConnection = registry.on_destroy<PhysCharacter3DComponent>().connect<&Physics3DSystem::OnCharacterDestruct>(this);
+		m_bodyObserver = m_world.observer<RigidBody3DComponent>()
+			.event(flecs::OnAdd)
+			.event(flecs::OnRemove)
+			.yield_existing()
+			.each([&](flecs::iter& it, std::size_t i, RigidBody3DComponent& rigidBody)
+			{
+				if (it.event() == flecs::OnAdd)
+				{
+					// Register rigid body owning entity
+					rigidBody.Construct(m_physWorld);
+
+					UInt32 uniqueIndex = rigidBody.GetBodyIndex();
+					if (uniqueIndex >= m_bodyIndicesToEntity.size())
+						m_bodyIndicesToEntity.resize(uniqueIndex + 1);
+
+					m_bodyIndicesToEntity[uniqueIndex] = it.entity(i);
+				}
+				else
+				{
+					// Unregister owning entity
+					UInt32 uniqueIndex = rigidBody.GetBodyIndex();
+					assert(uniqueIndex <= m_bodyIndicesToEntity.size());
+
+					m_bodyIndicesToEntity[uniqueIndex] = flecs::entity{};
+				}
+			});
+
+		m_characterObserver = m_world.observer<PhysCharacter3DComponent>()
+			.event(flecs::OnAdd)
+			.event(flecs::OnRemove)
+			.yield_existing()
+			.each([&](flecs::iter& it, std::size_t i, PhysCharacter3DComponent& character)
+			{
+				if (it.event() == flecs::OnAdd)
+				{
+					character.Construct(m_physWorld);
+
+					UInt32 uniqueIndex = character.GetBodyIndex();
+					if (uniqueIndex >= m_bodyIndicesToEntity.size())
+						m_bodyIndicesToEntity.resize(uniqueIndex + 1);
+
+					m_bodyIndicesToEntity[uniqueIndex] = it.entity(i);
+				}
+				else
+				{
+					// Unregister owning entity
+					UInt32 uniqueIndex = character.GetBodyIndex();
+					assert(uniqueIndex <= m_bodyIndicesToEntity.size());
+
+					m_bodyIndicesToEntity[uniqueIndex] = flecs::entity{};
+				}
+			});
+
+		// Move newly-created physics entities to their node position/rotation
+		m_characterConstructObserver = m_world.observer<PhysCharacter3DComponent, const NodeComponent>()
+			.event(flecs::OnAdd)
+			.yield_existing()
+			.each([&](PhysCharacter3DComponent& entityPhysics, const NodeComponent& entityNode)
+			{
+				entityPhysics.TeleportTo(entityNode.GetGlobalPosition(), entityNode.GetGlobalRotation());
+			});
+
+		m_rigidBodyConstructObserver = m_world.observer<RigidBody3DComponent, const NodeComponent>()
+			.event(flecs::OnAdd)
+			.yield_existing()
+			.each([&](RigidBody3DComponent& entityPhysics, const NodeComponent& entityNode)
+			{
+				entityPhysics.TeleportTo(entityNode.GetGlobalPosition(), entityNode.GetGlobalRotation());
+			});
 	}
 
 	Physics3DSystem::~Physics3DSystem()
 	{
-		m_characterConstructObserver.disconnect();
-		m_rigidBodyConstructObserver.disconnect();
+		m_bodyObserver.destruct();
+		m_characterObserver.destruct();
+		m_characterConstructObserver.destruct();
+		m_rigidBodyConstructObserver.destruct();
 
 		// Ensure every RigidBody3D is destroyed before world is
-		auto characterView = m_registry.view<PhysCharacter3DComponent>();
-		for (auto [entity, characterComponent] : characterView.each())
+		m_world.each([&](PhysCharacter3DComponent& characterComponent)
+		{
 			characterComponent.Destroy();
+		});
 
-		auto rigidBodyView = m_registry.view<RigidBody3DComponent>();
-		for (auto [entity, rigidBodyComponent] : rigidBodyView.each())
+		m_world.each([&](RigidBody3DComponent& rigidBodyComponent)
+		{
 			rigidBodyComponent.Destroy(true);
+		});
 	}
 
 	bool Physics3DSystem::CollisionQuery(const Vector3f& point, const FunctionRef<std::optional<float>(const PointCollisionInfo& collisionInfo)>& callback, const PhysBroadphaseLayerFilter3D* broadphaseFilter, const PhysObjectLayerFilter3D* objectLayerFilter, const PhysBodyFilter3D* bodyFilter)
@@ -47,7 +113,7 @@ namespace Nz
 			{
 				std::size_t bodyIndex = extendedHitInfo.hitBody->GetBodyIndex();
 				if (bodyIndex < m_bodyIndicesToEntity.size())
-					extendedHitInfo.hitEntity = entt::handle(m_registry, m_bodyIndicesToEntity[bodyIndex]);
+					extendedHitInfo.hitEntity = m_bodyIndicesToEntity[bodyIndex];
 			}
 
 			return callback(extendedHitInfo);
@@ -70,7 +136,7 @@ namespace Nz
 			{
 				std::size_t bodyIndex = extendedHitInfo.hitBody->GetBodyIndex();
 				if (bodyIndex < m_bodyIndicesToEntity.size())
-					extendedHitInfo.hitEntity = entt::handle(m_registry, m_bodyIndicesToEntity[bodyIndex]);
+					extendedHitInfo.hitEntity = m_bodyIndicesToEntity[bodyIndex];
 			}
 
 			return callback(extendedHitInfo);
@@ -88,7 +154,7 @@ namespace Nz
 			{
 				std::size_t bodyIndex = extendedHitInfo.hitBody->GetBodyIndex();
 				if (bodyIndex < m_bodyIndicesToEntity.size())
-					extendedHitInfo.hitEntity = entt::handle(m_registry, m_bodyIndicesToEntity[bodyIndex]);
+					extendedHitInfo.hitEntity = m_bodyIndicesToEntity[bodyIndex];
 			}
 
 			return callback(extendedHitInfo);
@@ -106,7 +172,7 @@ namespace Nz
 			{
 				std::size_t bodyIndex = extendedHitInfo.hitBody->GetBodyIndex();
 				if (bodyIndex < m_bodyIndicesToEntity.size())
-					extendedHitInfo.hitEntity = entt::handle(m_registry, m_bodyIndicesToEntity[bodyIndex]);
+					extendedHitInfo.hitEntity = m_bodyIndicesToEntity[bodyIndex];
 			}
 
 			callback(extendedHitInfo);
@@ -147,8 +213,8 @@ namespace Nz
 
 				void OnContactRemoved(UInt32 body1Index, const PhysBody3D* body1, UInt32 subShapeID1, UInt32 body2Index, const PhysBody3D* body2, UInt32 subShapeID2) override
 				{
-					entt::handle entity1 = m_physSystem.GetRigidBodyEntity(body1Index);
-					entt::handle entity2 = m_physSystem.GetRigidBodyEntity(body2Index);
+					flecs::entity entity1 = m_physSystem.GetRigidBodyEntity(body1Index);
+					flecs::entity entity2 = m_physSystem.GetRigidBodyEntity(body2Index);
 
 					return m_contactListener->OnContactRemoved(entity1, body1Index, body1, subShapeID1, entity2, body2Index, body2, subShapeID2);
 				}
@@ -163,23 +229,6 @@ namespace Nz
 
 	void Physics3DSystem::Update(Time elapsedTime)
 	{
-		// Move newly-created physics entities to their node position/rotation
-		m_characterConstructObserver.each([this](entt::entity entity)
-		{
-			PhysCharacter3DComponent& entityCharacter = m_registry.get<PhysCharacter3DComponent>(entity);
-			NodeComponent& entityNode = m_registry.get<NodeComponent>(entity);
-
-			entityCharacter.TeleportTo(entityNode.GetGlobalPosition(), entityNode.GetGlobalRotation());
-		});
-
-		m_rigidBodyConstructObserver.each([this](entt::entity entity)
-		{
-			RigidBody3DComponent& entityBody = m_registry.get<RigidBody3DComponent>(entity);
-			NodeComponent& entityNode = m_registry.get<NodeComponent>(entity);
-
-			entityBody.TeleportTo(entityNode.GetGlobalPosition(), entityNode.GetGlobalRotation());
-		});
-
 		// Update the physics world
 		if (!m_physWorld.Step(elapsedTime))
 			return; // No physics step took place
@@ -188,62 +237,14 @@ namespace Nz
 		ReplicateEntities<RigidBody3DComponent>();
 	}
 
-	void Physics3DSystem::OnBodyConstruct(entt::registry& registry, entt::entity entity)
-	{
-		// Register rigid body owning entity
-		RigidBody3DComponent& rigidBody = registry.get<RigidBody3DComponent>(entity);
-		rigidBody.Construct(m_physWorld);
-
-		UInt32 uniqueIndex = rigidBody.GetBodyIndex();
-		if (uniqueIndex >= m_bodyIndicesToEntity.size())
-			m_bodyIndicesToEntity.resize(uniqueIndex + 1);
-
-		m_bodyIndicesToEntity[uniqueIndex] = entity;
-	}
-
-	void Physics3DSystem::OnBodyDestruct(entt::registry& registry, entt::entity entity)
-	{
-		// Unregister owning entity
-		RigidBody3DComponent& rigidBody = registry.get<RigidBody3DComponent>(entity);
-		UInt32 uniqueIndex = rigidBody.GetBodyIndex();
-		assert(uniqueIndex <= m_bodyIndicesToEntity.size());
-
-		m_bodyIndicesToEntity[uniqueIndex] = entt::null;
-	}
-
-	void Physics3DSystem::OnCharacterConstruct(entt::registry& registry, entt::entity entity)
-	{
-		PhysCharacter3DComponent& character = registry.get<PhysCharacter3DComponent>(entity);
-		character.Construct(m_physWorld);
-
-		UInt32 uniqueIndex = character.GetBodyIndex();
-		if (uniqueIndex >= m_bodyIndicesToEntity.size())
-			m_bodyIndicesToEntity.resize(uniqueIndex + 1);
-
-		m_bodyIndicesToEntity[uniqueIndex] = entity;
-	}
-
-	void Physics3DSystem::OnCharacterDestruct(entt::registry& registry, entt::entity entity)
-	{
-		// Unregister owning entity
-		PhysCharacter3DComponent& character = registry.get<PhysCharacter3DComponent>(entity);
-		UInt32 uniqueIndex = character.GetBodyIndex();
-		assert(uniqueIndex <= m_bodyIndicesToEntity.size());
-
-		m_bodyIndicesToEntity[uniqueIndex] = entt::null;
-	}
-
 	template<typename T>
 	void Physics3DSystem::ReplicateEntities()
 	{
-		auto view = m_registry.view<NodeComponent, T>(entt::exclude<DisabledComponent>);
-		for (auto entity : view)
+		m_world.each([&](flecs::entity entity, NodeComponent& nodeComponent, T& bodyComponent)
 		{
-			auto& bodyComponent = view.template get<T>(entity);
 			if (bodyComponent.GetReplicationMode() == PhysicsReplication3D::None || !m_physWorld.IsBodyActive(bodyComponent.GetBodyIndex()))
-				continue;
+				return;
 
-			auto& nodeComponent = view.template get<NodeComponent>(entity);
 			auto [position, rotation] = bodyComponent.GetPositionAndRotation();
 
 			switch (bodyComponent.GetReplicationMode())
@@ -253,7 +254,7 @@ namespace Nz
 				{
 					const auto& replicationCallback = bodyComponent.GetReplicationCallback();
 					if NAZARA_LIKELY(replicationCallback)
-						replicationCallback(entt::handle(m_registry, entity), bodyComponent);
+						replicationCallback(entity, bodyComponent);
 					else
 						NazaraError("physics component has custom replication mode but no callback");
 
@@ -286,7 +287,7 @@ namespace Nz
 				case PhysicsReplication3D::None:
 					NAZARA_UNREACHABLE();
 			}
-		}
+		});
 	}
 
 	Physics3DSystem::ContactListener::~ContactListener() = default;

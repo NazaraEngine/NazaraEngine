@@ -10,7 +10,7 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Export.hpp>
 #include <Nazara/Core/Time.hpp>
-#include <entt/entt.hpp>
+#include <flecs.h>
 
 namespace Nz
 {
@@ -20,7 +20,7 @@ namespace Nz
 			static constexpr bool AllowConcurrent = false;
 			static constexpr Int64 ExecutionOrder = -1'000;
 
-			SkeletonSystem(entt::registry& registry);
+			SkeletonSystem(flecs::world& world);
 			SkeletonSystem(const SkeletonSystem&) = delete;
 			SkeletonSystem(SkeletonSystem&&) = delete;
 			~SkeletonSystem();
@@ -31,9 +31,9 @@ namespace Nz
 			SkeletonSystem& operator=(SkeletonSystem&&) = delete;
 
 		private:
-			entt::registry& m_registry;
-			entt::observer m_sharedSkeletonConstructObserver;
-			entt::observer m_skeletonConstructObserver;
+			flecs::observer m_sharedSkeletonObserver;
+			flecs::observer m_skeletonObserver;
+			flecs::world& m_world;
 	};
 }
 

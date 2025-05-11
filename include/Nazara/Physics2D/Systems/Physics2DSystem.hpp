@@ -12,16 +12,16 @@
 #include <Nazara/Physics2D/PhysWorld2D.hpp>
 #include <Nazara/Physics2D/Components/RigidBody2DComponent.hpp>
 #include <NazaraUtils/TypeList.hpp>
-#include <entt/entt.hpp>
+#include <flecs.h>
 
 namespace Nz
 {
 	class NAZARA_PHYSICS2D_API Physics2DSystem
 	{
-		using ContactEndCallback = std::function<void(PhysWorld2D& world, PhysArbiter2D& arbiter, entt::handle entityA, entt::handle entityB, void* userdata)>;
-		using ContactPostSolveCallback = std::function<void(PhysWorld2D& world, PhysArbiter2D& arbiter, entt::handle entityA, entt::handle entityB, void* userdata)>;
-		using ContactPreSolveCallback = std::function<bool(PhysWorld2D& world, PhysArbiter2D& arbiter, entt::handle entityA, entt::handle entityB, void* userdata)>;
-		using ContactStartCallback = std::function<bool(PhysWorld2D& world, PhysArbiter2D& arbiter, entt::handle entityA, entt::handle entityB, void* userdata)>;
+		using ContactEndCallback = std::function<void(PhysWorld2D& world, PhysArbiter2D& arbiter, flecs::entity entityA, flecs::entity entityB, void* userdata)>;
+		using ContactPostSolveCallback = std::function<void(PhysWorld2D& world, PhysArbiter2D& arbiter, flecs::entity entityA, flecs::entity entityB, void* userdata)>;
+		using ContactPreSolveCallback = std::function<bool(PhysWorld2D& world, PhysArbiter2D& arbiter, flecs::entity entityA, flecs::entity entityB, void* userdata)>;
+		using ContactStartCallback = std::function<bool(PhysWorld2D& world, PhysArbiter2D& arbiter, flecs::entity entityA, flecs::entity entityB, void* userdata)>;
 
 		public:
 			static constexpr Int64 ExecutionOrder = 0;
@@ -31,24 +31,24 @@ namespace Nz
 			struct NearestQueryResult;
 			struct RaycastHit;
 
-			Physics2DSystem(entt::registry& registry);
+			Physics2DSystem(flecs::world& world);
 			Physics2DSystem(const Physics2DSystem&) = delete;
 			Physics2DSystem(Physics2DSystem&&) = delete;
 			~Physics2DSystem();
 
 			inline PhysWorld2D& GetPhysWorld();
 			inline const PhysWorld2D& GetPhysWorld() const;
-			inline entt::handle GetRigidBodyEntity(UInt32 bodyIndex) const;
+			inline flecs::entity GetRigidBodyEntity(UInt32 bodyIndex) const;
 
-			inline bool NearestBodyQuery(const Vector2f& from, float maxDistance, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, entt::handle* nearestEntity = nullptr);
+			inline bool NearestBodyQuery(const Vector2f& from, float maxDistance, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, flecs::entity* nearestEntity = nullptr);
 			inline bool NearestBodyQuery(const Vector2f& from, float maxDistance, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, NearestQueryResult* result);
 
 			inline void RaycastQuery(const Vector2f& from, const Vector2f& to, float radius, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, const FunctionRef<void(const RaycastHit&)>& callback);
 			inline bool RaycastQuery(const Vector2f& from, const Vector2f& to, float radius, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, std::vector<RaycastHit>* hitInfos);
 			inline bool RaycastQueryFirst(const Vector2f& from, const Vector2f& to, float radius, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, RaycastHit* hitInfo = nullptr);
 
-			inline void RegionQuery(const Rectf& boundingBox, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, const FunctionRef<void(entt::handle)>& callback);
-			inline void RegionQuery(const Rectf& boundingBox, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, std::vector<entt::handle>* bodies);
+			inline void RegionQuery(const Rectf& boundingBox, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, const FunctionRef<void(flecs::entity)>& callback);
+			inline void RegionQuery(const Rectf& boundingBox, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, std::vector<flecs::entity>* bodies);
 
 			inline void RegisterCallbacks(unsigned int collisionId, ContactCallbacks callbacks);
 			inline void RegisterCallbacks(unsigned int collisionIdA, unsigned int collisionIdB, ContactCallbacks callbacks);
@@ -69,24 +69,21 @@ namespace Nz
 
 			struct NearestQueryResult : PhysWorld2D::NearestQueryResult
 			{
-				entt::handle nearestEntity;
+				flecs::entity nearestEntity;
 			};
 
 			struct RaycastHit : PhysWorld2D::RaycastHit
 			{
-				entt::handle nearestEntity;
+				flecs::entity nearestEntity;
 			};
 
 		private:
-			void OnBodyConstruct(entt::registry& registry, entt::entity entity);
-			void OnBodyDestruct(entt::registry& registry, entt::entity entity);
 			PhysWorld2D::ContactCallbacks SetupContactCallbacks(ContactCallbacks callbacks);
 
-			std::vector<entt::entity> m_bodyIndicesToEntity;
-			entt::registry& m_registry;
-			entt::observer m_physicsConstructObserver;
-			entt::scoped_connection m_bodyConstructConnection;
-			entt::scoped_connection m_bodyDestructConnection;
+			std::vector<flecs::entity> m_bodyIndicesToEntity;
+			flecs::world& m_world;
+			flecs::entity m_bodyObserver;
+			flecs::entity m_physicsConstructObserver;
 			PhysWorld2D m_physWorld;
 	};
 }

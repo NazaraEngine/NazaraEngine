@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Core/Systems/VelocitySystem.hpp>
-#include <Nazara/Core/Components/DisabledComponent.hpp>
 #include <Nazara/Core/Components/NodeComponent.hpp>
 #include <Nazara/Core/Components/VelocityComponent.hpp>
 
@@ -13,11 +12,9 @@ namespace Nz
 	{
 		float delta = elapsedTime.AsSeconds();
 
-		auto view = m_registry.view<NodeComponent, VelocityComponent>(entt::exclude<DisabledComponent>);
-		for (auto [entity, nodeComponent, velocityComponent] : view.each())
+		m_world.each([&](NodeComponent& nodeComponent, VelocityComponent& velocityComponent)
 		{
-			NazaraUnused(entity);
 			nodeComponent.Move(velocityComponent.GetLinearVelocity() * delta);
-		}
+		});
 	}
 }

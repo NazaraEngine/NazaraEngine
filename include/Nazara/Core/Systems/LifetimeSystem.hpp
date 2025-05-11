@@ -11,7 +11,7 @@
 #include <Nazara/Core/Export.hpp>
 #include <Nazara/Core/Time.hpp>
 #include <NazaraUtils/TypeList.hpp>
-#include <entt/entt.hpp>
+#include <flecs.h>
 
 namespace Nz
 {
@@ -22,7 +22,7 @@ namespace Nz
 			static constexpr Int64 ExecutionOrder = 1'000'000;
 			using Components = TypeList<class LifetimeComponent>;
 
-			inline LifetimeSystem(entt::registry& registry);
+			inline LifetimeSystem(flecs::world& world);
 			LifetimeSystem(const LifetimeSystem&) = delete;
 			LifetimeSystem(LifetimeSystem&&) = delete;
 			~LifetimeSystem() = default;
@@ -33,7 +33,7 @@ namespace Nz
 			LifetimeSystem& operator=(LifetimeSystem&&) = delete;
 
 		private:
-			entt::registry& m_registry;
+			flecs::world& m_world;
 	};
 }
 

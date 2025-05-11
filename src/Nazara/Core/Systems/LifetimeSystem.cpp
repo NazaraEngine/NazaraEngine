@@ -10,12 +10,13 @@ namespace Nz
 {
 	void LifetimeSystem::Update(Time elapsedTime)
 	{
-		auto view = m_registry.view<LifetimeComponent>(entt::exclude<DisabledComponent>);
-		for (auto [entity, lifetimeComponent] : view.each())
+		m_world.defer_begin();
+		m_world.each([&](flecs::entity entity, LifetimeComponent& lifetimeComponent)
 		{
 			lifetimeComponent.DecreaseLifetime(elapsedTime);
 			if (!lifetimeComponent.IsAlive())
-				m_registry.destroy(entity);
-		}
+				entity.destruct();
+		});
+		m_world.defer_end();
 	}
 }

@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Physics2D/Systems/Physics2DSystem.hpp>
-#include <Nazara/Core/Components/DisabledComponent.hpp>
 #include <Nazara/Core/Components/NodeComponent.hpp>
 
 namespace Nz
@@ -19,46 +18,69 @@ namespace Nz
 		}
 	}
 
-	Physics2DSystem::Physics2DSystem(entt::registry& registry) :
-	m_registry(registry),
-	m_physicsConstructObserver(m_registry, entt::collector.group<RigidBody2DComponent, NodeComponent>())
+	Physics2DSystem::Physics2DSystem(flecs::world& world) :
+	m_world(world)
 	{
-		m_bodyConstructConnection = registry.on_construct<RigidBody2DComponent>().connect<&Physics2DSystem::OnBodyConstruct>(this);
-		m_bodyDestructConnection = registry.on_destroy<RigidBody2DComponent>().connect<&Physics2DSystem::OnBodyDestruct>(this);
+		m_bodyObserver = m_world.observer<RigidBody2DComponent>()
+			.event(flecs::OnAdd)
+			.event(flecs::OnRemove)
+			.yield_existing()
+			.each([&](flecs::iter& it, std::size_t i, RigidBody2DComponent& rigidBody)
+			{
+				if (it.event() == flecs::OnAdd)
+				{
+					rigidBody.Construct(m_physWorld);
+
+					UInt32 uniqueIndex = rigidBody.GetBodyIndex();
+					if (uniqueIndex >= m_bodyIndicesToEntity.size())
+						m_bodyIndicesToEntity.resize(uniqueIndex + 1);
+
+					m_bodyIndicesToEntity[uniqueIndex] = it.entity(i);
+				}
+				else
+				{
+					// Unregister owning entity
+					UInt32 uniqueIndex = rigidBody.GetBodyIndex();
+					assert(uniqueIndex <= m_bodyIndicesToEntity.size());
+
+					m_bodyIndicesToEntity[uniqueIndex] = flecs::entity{};
+				}
+			});
+
+		// Move newly-created physics entities to their node position/rotation
+		m_physicsConstructObserver = m_world.observer<RigidBody2DComponent, const NodeComponent>()
+			.event(flecs::OnAdd)
+			.yield_existing()
+			.each([&](RigidBody2DComponent& entityPhysics, const NodeComponent& entityNode)
+			{
+				entityPhysics.TeleportTo(Vector2f(entityNode.GetPosition()), AngleFromQuaternion(entityNode.GetRotation()));
+			});
 	}
 
 	Physics2DSystem::~Physics2DSystem()
 	{
-		m_physicsConstructObserver.disconnect();
+		m_bodyObserver.destruct();
+		m_physicsConstructObserver.destruct();
 
 		// Ensure every body is destroyed before world is
-		auto rigidBodyView = m_registry.view<RigidBody2DComponent>();
-		for (auto [entity, rigidBodyComponent] : rigidBodyView.each())
+		m_world.each([](RigidBody2DComponent& rigidBodyComponent)
+		{
 			rigidBodyComponent.Destroy();
+		});
 	}
 
 	void Physics2DSystem::Update(Time elapsedTime)
 	{
-		// Move newly-created physics entities to their node position/rotation
-		m_physicsConstructObserver.each([&](entt::entity entity)
-		{
-			RigidBody2DComponent& entityPhysics = m_registry.get<RigidBody2DComponent>(entity);
-			NodeComponent& entityNode = m_registry.get<NodeComponent>(entity);
-
-			entityPhysics.TeleportTo(Vector2f(entityNode.GetPosition()), AngleFromQuaternion(entityNode.GetRotation()));
-		});
-
 		m_physWorld.Step(elapsedTime);
 
 		// Replicate rigid body position to their node components
-		auto view = m_registry.view<NodeComponent, const RigidBody2DComponent>(entt::exclude<DisabledComponent>);
-		for (auto [entity, nodeComponent, rigidBodyComponent] : view.each())
+		m_world.each([&](NodeComponent& nodeComponent, const RigidBody2DComponent& rigidBodyComponent)
 		{
 			if (rigidBodyComponent.IsSleeping())
-				continue;
+				return;
 
 			nodeComponent.SetTransform(rigidBodyComponent.GetPosition(), rigidBodyComponent.GetRotation());
-		}
+		});
 	}
 
 	PhysWorld2D::ContactCallbacks Physics2DSystem::SetupContactCallbacks(ContactCallbacks callbacks)
@@ -99,27 +121,5 @@ namespace Nz
 		}
 
 		return trampolineCallbacks;
-	}
-
-	void Physics2DSystem::OnBodyConstruct(entt::registry& registry, entt::entity entity)
-	{
-		RigidBody2DComponent& rigidBody = registry.get<RigidBody2DComponent>(entity);
-		rigidBody.Construct(m_physWorld);
-
-		UInt32 uniqueIndex = rigidBody.GetBodyIndex();
-		if (uniqueIndex >= m_bodyIndicesToEntity.size())
-			m_bodyIndicesToEntity.resize(uniqueIndex + 1);
-
-		m_bodyIndicesToEntity[uniqueIndex] = entity;
-	}
-
-	void Physics2DSystem::OnBodyDestruct(entt::registry& registry, entt::entity entity)
-	{
-		// Unregister owning entity
-		RigidBody2DComponent& rigidBody = registry.get<RigidBody2DComponent>(entity);
-		UInt32 uniqueIndex = rigidBody.GetBodyIndex();
-		assert(uniqueIndex <= m_bodyIndicesToEntity.size());
-
-		m_bodyIndicesToEntity[uniqueIndex] = entt::null;
 	}
 }

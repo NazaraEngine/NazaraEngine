@@ -2,11 +2,10 @@
 // This file is part of the "Nazara Engine - Core module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-
 namespace Nz
 {
-	inline LifetimeSystem::LifetimeSystem(entt::registry& registry) :
-	m_registry(registry)
+	inline LifetimeSystem::LifetimeSystem(flecs::world& world) :
+	m_world(world)
 	{
 	}
 }

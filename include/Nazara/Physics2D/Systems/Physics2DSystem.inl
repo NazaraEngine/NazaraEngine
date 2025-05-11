@@ -2,7 +2,6 @@
 // This file is part of the "Nazara Engine - Physics2D module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-
 namespace Nz
 {
 	inline PhysWorld2D& Physics2DSystem::GetPhysWorld()
@@ -15,12 +14,12 @@ namespace Nz
 		return m_physWorld;
 	}
 
-	inline entt::handle Physics2DSystem::GetRigidBodyEntity(UInt32 bodyIndex) const
+	inline flecs::entity Physics2DSystem::GetRigidBodyEntity(UInt32 bodyIndex) const
 	{
-		return entt::handle(m_registry, m_bodyIndicesToEntity[bodyIndex]);
+		return m_bodyIndicesToEntity[bodyIndex];
 	}
 
-	inline bool Physics2DSystem::NearestBodyQuery(const Vector2f& from, float maxDistance, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, entt::handle* nearestEntity)
+	inline bool Physics2DSystem::NearestBodyQuery(const Vector2f& from, float maxDistance, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, flecs::entity* nearestEntity)
 	{
 		RigidBody2D* nearestBody;
 		if (!m_physWorld.NearestBodyQuery(from, maxDistance, collisionGroup, categoryMask, collisionMask, &nearestBody))
@@ -97,7 +96,7 @@ namespace Nz
 		return true;
 	}
 
-	inline void Physics2DSystem::RegionQuery(const Rectf& boundingBox, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, const FunctionRef<void(entt::handle)>& callback)
+	inline void Physics2DSystem::RegionQuery(const Rectf& boundingBox, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, const FunctionRef<void(flecs::entity)>& callback)
 	{
 		return m_physWorld.RegionQuery(boundingBox, collisionGroup, categoryMask, collisionMask, [&](RigidBody2D* body)
 		{
@@ -105,7 +104,7 @@ namespace Nz
 		});
 	}
 
-	inline void Physics2DSystem::RegionQuery(const Rectf& boundingBox, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, std::vector<entt::handle>* bodies)
+	inline void Physics2DSystem::RegionQuery(const Rectf& boundingBox, UInt32 collisionGroup, UInt32 categoryMask, UInt32 collisionMask, std::vector<flecs::entity>* bodies)
 	{
 		NazaraAssertMsg(bodies, "invalid output pointer");
 
