@@ -267,8 +267,13 @@ Nz::Result<std::shared_ptr<Nz::Animation>, Nz::ResourceLoadingError> LoadAnimati
 	fileIO.OpenProc = StreamOpener;
 	fileIO.UserData = reinterpret_cast<char*>(&userdata);
 
-	const aiScene* scene = aiImportFileEx(userdata.originalFilePath, AssimpFlags, &fileIO);
-	Nz::CallOnExit releaseScene([&] { aiReleaseImport(scene); });
+	aiPropertyStore* properties = aiCreatePropertyStore();
+	NAZARA_DEFER(aiReleasePropertyStore(properties););
+
+	aiSetImportPropertyInteger(properties, AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, 0);
+
+	const aiScene* scene = aiImportFileExWithProperties(userdata.originalFilePath, AssimpFlags, &fileIO, properties);
+	NAZARA_DEFER(aiReleaseImport(scene););
 
 	if (!scene)
 	{
@@ -882,7 +887,7 @@ Nz::Result<std::shared_ptr<Nz::Mesh>, Nz::ResourceLoadingError> LoadMesh(Nz::Str
 		excludedComponents |= aiComponent_TEXCOORDS;
 
 	aiPropertyStore* properties = aiCreatePropertyStore();
-	Nz::CallOnExit releaseProperties([&] { aiReleasePropertyStore(properties); });
+	NAZARA_DEFER(aiReleasePropertyStore(properties););
 
 	aiSetImportPropertyFloat(properties,   AI_CONFIG_PP_GSN_MAX_SMOOTHING_ANGLE, float(smoothingAngle));
 	aiSetImportPropertyInteger(properties, AI_CONFIG_PP_SLM_TRIANGLE_LIMIT,      int(triangleLimit));
@@ -891,9 +896,7 @@ Nz::Result<std::shared_ptr<Nz::Mesh>, Nz::ResourceLoadingError> LoadMesh(Nz::Str
 	aiSetImportPropertyInteger(properties, AI_CONFIG_IMPORT_FBX_PRESERVE_PIVOTS, 0);
 
 	const aiScene* scene = aiImportFileExWithProperties(userdata.originalFilePath, postProcess, &fileIO, properties);
-	Nz::CallOnExit releaseScene([&] { aiReleaseImport(scene); });
-
-	releaseProperties.CallAndReset();
+	NAZARA_DEFER(aiReleaseImport(scene););
 
 	if (!scene)
 	{
