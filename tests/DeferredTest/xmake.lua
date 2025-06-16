@@ -1,0 +1,5 @@
+target("DeferredTest")
+	add_deps("NazaraGraphics")
+	add_files("main.cpp")
+	add_defines("NAZARA_ENTT")
+	add_packages("entt")

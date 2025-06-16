@@ -145,8 +145,6 @@ namespace Nz
 				FrameData frame;
 				PipelineViewer* viewer;
 				Int32 renderOrder = 0;
-				RenderQueueRegistry forwardRegistry;
-				RenderQueue<RenderElement*> forwardRenderQueue;
 				ShaderBindingPtr blitShaderBinding;
 				UInt32 renderMask;
 				bool pendingDestruction = false;
