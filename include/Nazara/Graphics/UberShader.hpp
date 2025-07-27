@@ -66,7 +66,7 @@ namespace Nz
 			NazaraSignal(OnShaderUpdated, UberShader* /*uberShader*/);
 
 		private:
-			nzsl::Ast::ModulePtr Validate(const nzsl::Ast::Module& module, std::unordered_map<std::string, Option, StringHash<>, std::equal_to<>>* options);
+			void Validate(nzsl::Ast::Module& module, std::unordered_map<std::string, Option, StringHash<>, std::equal_to<>>* options);
 
 			NazaraSlot(nzsl::ModuleResolver, OnModuleUpdated, m_onShaderModuleUpdated);
 

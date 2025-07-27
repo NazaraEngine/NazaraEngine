@@ -56,18 +56,18 @@ namespace Nz
 		};
 	}
 
-	bool VulkanShaderModule::Create(Vk::Device& device, nzsl::ShaderStageTypeFlags shaderStages, const nzsl::Ast::Module& shaderModule, const nzsl::ShaderWriter::States& states)
+	bool VulkanShaderModule::Create(Vk::Device& device, nzsl::ShaderStageTypeFlags shaderStages, nzsl::Ast::Module&& shaderModule, const nzsl::BackendParameters& parameters)
 	{
 		nzsl::SpirvWriter::Environment env;
 
 		nzsl::SpirvWriter writer;
 		writer.SetEnv(env);
 
-		std::vector<UInt32> code = writer.Generate(shaderModule, states);
+		std::vector<UInt32> code = writer.Generate(shaderModule, parameters);
 		return Create(device, shaderStages, ShaderLanguage::SpirV, code.data(), code.size() * sizeof(UInt32), {});
 	}
 
-	bool VulkanShaderModule::Create(Vk::Device& device, nzsl::ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const nzsl::ShaderWriter::States& states)
+	bool VulkanShaderModule::Create(Vk::Device& device, nzsl::ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const nzsl::BackendParameters& parameters)
 	{
 		switch (lang)
 		{
@@ -80,7 +80,7 @@ namespace Nz
 			{
 				nzsl::Deserializer deserializer(source, sourceSize);
 				auto shader = nzsl::Ast::DeserializeShader(deserializer);
-				return Create(device, shaderStages, *shader, states);
+				return Create(device, shaderStages, std::move(*shader), parameters);
 			}
 
 			case ShaderLanguage::NazaraShader:
@@ -89,7 +89,7 @@ namespace Nz
 
 				nzsl::Parser parser;
 				nzsl::Ast::ModulePtr shaderModule = parser.Parse(tokens);
-				return Create(device, shaderStages, *shaderModule, states);
+				return Create(device, shaderStages, std::move(*shaderModule), parameters);
 			}
 
 			case ShaderLanguage::SpirV:

@@ -398,10 +398,10 @@ std::shared_ptr<Nz::ComputePipeline> BuildComputePipeline(Nz::RenderDevice& devi
 		std::abort();
 	}
 
-	nzsl::ShaderWriter::States states;
-	states.optimize = true;
+	nzsl::BackendParameters parameters;
+	parameters.backendPasses |= nzsl::BackendPass::Optimize;
 
-	auto computeShader = device.InstantiateShaderModule(nzsl::ShaderStageType::Compute, *shaderModule, states);
+	auto computeShader = device.InstantiateShaderModule(nzsl::ShaderStageType::Compute, *shaderModule, parameters);
 	if (!computeShader)
 	{
 		std::cout << "Failed to instantiate shader" << std::endl;
@@ -505,10 +505,10 @@ SpriteRenderPipeline BuildSpritePipeline(Nz::RenderDevice& device)
 			std::abort();
 		}
 
-		nzsl::ShaderWriter::States states;
-		states.optimize = true;
+		nzsl::BackendParameters parameters;
+		parameters.backendPasses |= nzsl::BackendPass::Optimize;
 
-		auto fragVertShader = device.InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, *shaderModule, states);
+		auto fragVertShader = device.InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, *shaderModule, parameters);
 		if (!fragVertShader)
 		{
 			std::cout << "Failed to instantiate shader" << std::endl;
@@ -620,10 +620,10 @@ std::shared_ptr<Nz::Texture> GenerateSpriteTexture(Nz::RenderDevice& device, std
 		std::abort();
 	}
 
-	nzsl::ShaderWriter::States states;
-	states.optimize = true;
+	nzsl::BackendParameters parameters;
+	parameters.backendPasses |= nzsl::BackendPass::Optimize;
 
-	auto computeShader = device.InstantiateShaderModule(nzsl::ShaderStageType::Compute, *shaderModule, states);
+	auto computeShader = device.InstantiateShaderModule(nzsl::ShaderStageType::Compute, *shaderModule, parameters);
 	if (!computeShader)
 	{
 		std::cout << "Failed to instantiate shader" << std::endl;

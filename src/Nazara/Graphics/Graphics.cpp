@@ -158,7 +158,7 @@ namespace Nz
 
 		nzsl::Ast::ModulePtr blitShaderModule = m_shaderModuleResolver->Resolve("TextureBlit");
 
-		nzsl::ShaderWriter::States states;
+		nzsl::BackendParameters states;
 		states.shaderModuleResolver = m_shaderModuleResolver;
 
 		auto blitShader = m_renderDevice->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, *blitShaderModule, states);

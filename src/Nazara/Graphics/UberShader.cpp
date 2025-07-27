@@ -6,8 +6,12 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
+#include <NZSL/Ast/Cloner.hpp>
 #include <NZSL/Ast/ReflectVisitor.hpp>
-#include <NZSL/Ast/SanitizeVisitor.hpp>
+#include <NZSL/Ast/TransformerExecutor.hpp>
+#include <NZSL/Ast/Transformations/BindingResolverTransformer.hpp>
+#include <NZSL/Ast/Transformations/ResolveTransformer.hpp>
+#include <NZSL/Ast/Transformations/ValidationTransformer.hpp>
 #include <limits>
 #include <stdexcept>
 
@@ -27,7 +31,8 @@ namespace Nz
 
 		try
 		{
-			m_shaderModule = Validate(*m_shaderModule, &m_optionIndexByName);
+			m_shaderModule = nzsl::Ast::Clone(*m_shaderModule);
+			Validate(*m_shaderModule, &m_optionIndexByName);
 		}
 		catch (const std::exception& e)
 		{
@@ -49,7 +54,9 @@ namespace Nz
 
 			try
 			{
-				m_shaderModule = Validate(*newShaderModule, &m_optionIndexByName);
+				newShaderModule = nzsl::Ast::Clone(*newShaderModule);
+				Validate(*newShaderModule, &m_optionIndexByName);
+				m_shaderModule = std::move(newShaderModule);
 			}
 			catch (const std::exception& e)
 			{
@@ -72,7 +79,7 @@ namespace Nz
 
 		try
 		{
-			m_shaderModule = Validate(*m_shaderModule, &m_optionIndexByName);
+			Validate(*m_shaderModule, &m_optionIndexByName);
 		}
 		catch (const std::exception& e)
 		{
@@ -86,7 +93,7 @@ namespace Nz
 		auto it = m_combinations.find(config);
 		if (it == m_combinations.end())
 		{
-			nzsl::ShaderWriter::States states;
+			nzsl::BackendParameters states;
 
 			// TODO: Remove this when arrays are accepted as config values
 			for (const auto& [optionHash, optionValue] : config.optionValues)
@@ -118,20 +125,25 @@ namespace Nz
 		return it->second;
 	}
 
-	nzsl::Ast::ModulePtr UberShader::Validate(const nzsl::Ast::Module& module, std::unordered_map<std::string, Option, StringHash<>, std::equal_to<>>* options)
+	void UberShader::Validate(nzsl::Ast::Module& module, std::unordered_map<std::string, Option, StringHash<>, std::equal_to<>>* options)
 	{
 		NazaraAssertMsg(m_shaderStages != 0, "there must be at least one shader stage");
 		assert(options);
 
 		// Try to partially sanitize shader
 
-		nzsl::Ast::SanitizeVisitor::Options sanitizeOptions;
-		sanitizeOptions.partialSanitization = true;
-		sanitizeOptions.moduleResolver = Graphics::Instance()->GetShaderModuleResolver();
+		nzsl::Ast::Transformer::Context context;
+		context.partialCompilation = true;
 
-		nzsl::Ast::ModulePtr sanitizedModule = nzsl::Ast::Sanitize(module, sanitizeOptions);
-		m_usedModules.insert(sanitizedModule->metadata->moduleName);
-		for (auto&& importedModule : sanitizedModule->importedModules)
+		nzsl::Ast::TransformerExecutor executor;
+		executor.AddPass<nzsl::Ast::ResolveTransformer>({ Graphics::Instance()->GetShaderModuleResolver() });
+		executor.AddPass<nzsl::Ast::BindingResolverTransformer>();
+		executor.AddPass<nzsl::Ast::ValidationTransformer>();
+
+		executor.Transform(module, context);
+
+		m_usedModules.insert(module.metadata->moduleName);
+		for (auto&& importedModule : module.importedModules)
 			m_usedModules.insert(importedModule.module->metadata->moduleName);
 
 		nzsl::ShaderStageTypeFlags supportedStageType;
@@ -153,13 +165,11 @@ namespace Nz
 		};
 
 		nzsl::Ast::ReflectVisitor reflect;
-		reflect.Reflect(*sanitizedModule, callbacks);
+		reflect.Reflect(module, callbacks);
 
 		if ((m_shaderStages & supportedStageType) != m_shaderStages)
 			throw std::runtime_error("shader doesn't support all required shader stages");
 
 		*options = std::move(optionByName);
-
-		return sanitizedModule;
 	}
 }

@@ -16,6 +16,7 @@
 #include <Nazara/VulkanRenderer/VulkanTextureFramebuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanTextureSampler.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/QueueHandle.hpp>
+#include <NZSL/Ast/Cloner.hpp>
 
 namespace Nz
 {
@@ -73,16 +74,16 @@ namespace Nz
 		return pipelineLayout;
 	}
 
-	std::shared_ptr<ShaderModule> VulkanDevice::InstantiateShaderModule(nzsl::ShaderStageTypeFlags stages, const nzsl::Ast::Module& shaderModule, const nzsl::ShaderWriter::States& states)
+	std::shared_ptr<ShaderModule> VulkanDevice::InstantiateShaderModule(nzsl::ShaderStageTypeFlags stages, const nzsl::Ast::Module& shaderModule, const nzsl::BackendParameters& states)
 	{
 		auto stage = std::make_shared<VulkanShaderModule>();
-		if (!stage->Create(*this, stages, shaderModule, states))
+		if (!stage->Create(*this, stages, std::move(*nzsl::Ast::Clone(shaderModule)), states))
 			throw std::runtime_error("failed to instantiate vulkan shader module");
 
 		return stage;
 	}
 
-	std::shared_ptr<ShaderModule> VulkanDevice::InstantiateShaderModule(nzsl::ShaderStageTypeFlags stages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const nzsl::ShaderWriter::States& states)
+	std::shared_ptr<ShaderModule> VulkanDevice::InstantiateShaderModule(nzsl::ShaderStageTypeFlags stages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const nzsl::BackendParameters& states)
 	{
 		auto stage = std::make_shared<VulkanShaderModule>();
 		if (!stage->Create(*this, stages, lang, source, sourceSize, states))
