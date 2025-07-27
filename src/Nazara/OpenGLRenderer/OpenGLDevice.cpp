@@ -208,12 +208,12 @@ namespace Nz
 		return std::make_shared<OpenGLRenderPipelineLayout>(std::move(pipelineLayoutInfo));
 	}
 
-	std::shared_ptr<ShaderModule> OpenGLDevice::InstantiateShaderModule(nzsl::ShaderStageTypeFlags shaderStages, const nzsl::Ast::Module& shaderModule, const nzsl::ShaderWriter::States& states)
+	std::shared_ptr<ShaderModule> OpenGLDevice::InstantiateShaderModule(nzsl::ShaderStageTypeFlags shaderStages, const nzsl::Ast::Module& shaderModule, const nzsl::BackendParameters& states)
 	{
 		return std::make_shared<OpenGLShaderModule>(*this, shaderStages, shaderModule, states);
 	}
 
-	std::shared_ptr<ShaderModule> OpenGLDevice::InstantiateShaderModule(nzsl::ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const nzsl::ShaderWriter::States& states)
+	std::shared_ptr<ShaderModule> OpenGLDevice::InstantiateShaderModule(nzsl::ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const nzsl::BackendParameters& states)
 	{
 		return std::make_shared<OpenGLShaderModule>(*this, shaderStages, lang, source, sourceSize, states);
 	}

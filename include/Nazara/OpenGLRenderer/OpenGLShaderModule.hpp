@@ -25,10 +25,10 @@ namespace Nz
 		public:
 			struct ExplicitBinding;
 
-			OpenGLShaderModule(OpenGLDevice& device, nzsl::ShaderStageTypeFlags shaderStages, const nzsl::Ast::Module& shaderModule, const nzsl::ShaderWriter::States& states = {});
-			OpenGLShaderModule(OpenGLDevice& device, nzsl::ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const nzsl::ShaderWriter::States& states = {});
+			OpenGLShaderModule(OpenGLDevice& device, nzsl::ShaderStageTypeFlags shaderStages, const nzsl::Ast::Module& shaderModule, const nzsl::BackendParameters& parameters = {});
+			OpenGLShaderModule(OpenGLDevice& device, nzsl::ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const nzsl::BackendParameters& parameters = {});
 
-			nzsl::ShaderStageTypeFlags Attach(GL::Program& program, const nzsl::GlslWriter::Parameters& parameters, std::vector<ExplicitBinding>* explicitBindings) const;
+			nzsl::ShaderStageTypeFlags Attach(GL::Program& program, const nzsl::GlslWriter::Parameters& glslParameters, std::vector<ExplicitBinding>* explicitBindings) const;
 
 			inline const std::vector<ExplicitBinding>& GetExplicitBindings() const;
 
@@ -42,7 +42,7 @@ namespace Nz
 			};
 
 		private:
-			void Create(OpenGLDevice& device, nzsl::ShaderStageTypeFlags shaderStages, const nzsl::Ast::Module& shaderModule, const nzsl::ShaderWriter::States& states);
+			void Create(OpenGLDevice& device, nzsl::ShaderStageTypeFlags shaderStages, nzsl::Ast::ModulePtr&& shaderModule, const nzsl::BackendParameters& parameters);
 
 			static void CheckCompilationStatus(GL::Shader& shader);
 
@@ -63,7 +63,7 @@ namespace Nz
 			};
 
 			OpenGLDevice& m_device;
-			nzsl::ShaderWriter::States m_states;
+			nzsl::BackendParameters m_parameters;
 			std::string m_debugName;
 			std::vector<ExplicitBinding> m_explicitBindings;
 			std::vector<Shader> m_shaders;

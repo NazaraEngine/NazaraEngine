@@ -111,7 +111,7 @@ int main()
 		return __LINE__;
 	}
 
-	nzsl::ShaderWriter::States states;
+	nzsl::BackendParameters states;
 	states.optionValues[nzsl::Ast::HashOption("red")] = false; //< Try enabling this!
 	states.optimize = true;
 

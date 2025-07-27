@@ -76,7 +76,7 @@ int main(int argc, char* argv[])
 
 	Nz::Application<Nz::Graphics> app(argc, argv);
 
-	nzsl::ShaderWriter::States states;
+	nzsl::BackendParameters states;
 	states.shaderModuleResolver = Nz::Graphics::Instance()->GetShaderModuleResolver();
 
 	Nz::MeshParams meshParams;

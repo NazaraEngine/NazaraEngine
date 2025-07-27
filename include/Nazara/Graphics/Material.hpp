@@ -48,7 +48,7 @@ namespace Nz
 			using Params = MaterialParams;
 
 			Material(MaterialSettings settings, const std::string& referenceModuleName);
-			Material(MaterialSettings settings, const nzsl::Ast::ModulePtr& referenceModule);
+			Material(MaterialSettings settings, const nzsl::Ast::Module& referenceModule);
 			~Material() = default;
 
 			std::shared_ptr<MaterialInstance> GetDefaultInstance() const;

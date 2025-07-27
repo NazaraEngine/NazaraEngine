@@ -11,7 +11,7 @@
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/ShaderModule.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/ShaderModule.hpp>
-#include <NZSL/ShaderWriter.hpp>
+#include <NZSL/BackendParameters.hpp>
 #include <NZSL/Ast/Module.hpp>
 #include <vector>
 
@@ -22,8 +22,8 @@ namespace Nz
 		public:
 			struct Stage;
 
-			bool Create(Vk::Device& device, nzsl::ShaderStageTypeFlags shaderStages, const nzsl::Ast::Module& shaderModule, const nzsl::ShaderWriter::States& states);
-			bool Create(Vk::Device& device, nzsl::ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const nzsl::ShaderWriter::States& states);
+			bool Create(Vk::Device& device, nzsl::ShaderStageTypeFlags shaderStages, nzsl::Ast::Module&& shaderModule, const nzsl::BackendParameters& parameters);
+			bool Create(Vk::Device& device, nzsl::ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const nzsl::BackendParameters& parameters);
 
 			inline const Vk::ShaderModule& GetHandle() const;
 			inline const std::vector<Stage>& GetStages() const;
