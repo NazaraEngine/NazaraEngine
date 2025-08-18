@@ -628,7 +628,11 @@ namespace NzImGui
 					.binding = 0,
 					.declaration = rendererBackend->vertexDeclaration
 				});
-				renderPipelineInfo.shaderModules.push_back(rendererBackend->device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraBinary, r_imguiShader, sizeof(r_imguiShader), { .optimize = true }));
+
+				nzsl::BackendParameters states;
+				states.backendPasses |= nzsl::BackendPass::Optimize;
+
+				renderPipelineInfo.shaderModules.push_back(rendererBackend->device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraBinary, r_imguiShader, sizeof(r_imguiShader), states));
 
 				rendererBackend->renderPipeline = rendererBackend->device->InstantiateRenderPipeline(std::move(renderPipelineInfo));
 			}

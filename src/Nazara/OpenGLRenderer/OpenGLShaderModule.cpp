@@ -172,7 +172,7 @@ namespace Nz
 
 	void OpenGLShaderModule::Create(OpenGLDevice& /*device*/, nzsl::ShaderStageTypeFlags shaderStages, nzsl::Ast::ModulePtr&& shaderModule, const nzsl::BackendParameters& parameters)
 	{
-		nzsl::Ast::Transformer::Context context;
+		nzsl::Ast::TransformerContext context;
 		context.optionValues = parameters.optionValues;
 
 		// Process the shader once

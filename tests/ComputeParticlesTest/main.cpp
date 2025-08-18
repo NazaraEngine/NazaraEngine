@@ -423,7 +423,7 @@ std::shared_ptr<Nz::ComputePipeline> BuildComputePipeline(Nz::RenderDevice& devi
 }
 
 const char fragVertSource[] = R"(
-[nzsl_version("1.0")]
+[nzsl_version("1.1")]
 module;
 
 [layout(std430)]

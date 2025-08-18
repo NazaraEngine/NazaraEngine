@@ -40,7 +40,7 @@ namespace Nz
 		executor.AddPass<nzsl::Ast::BindingResolverTransformer>({ .forceAutoBindingResolve = true });
 		executor.AddPass<nzsl::Ast::ValidationTransformer>();
 
-		nzsl::Ast::Transformer::Context context;
+		nzsl::Ast::TransformerContext context;
 		context.partialCompilation = true;
 		context.optionValues["MaxLightCount"_opt] = SafeCast<UInt32>(PredefinedLightData::MaxLightCount);
 		context.optionValues["MaxLightCascadeCount"_opt] = SafeCast<UInt32>(PredefinedDirectionalLightData::MaxLightCascadeCount);
@@ -148,7 +148,7 @@ namespace Nz
 					const VertexDeclaration& vertexDeclaration = *vertexBuffers.front().declaration;
 					const auto& components = vertexDeclaration.GetComponents();
 
-					Int32 locationIndex = 0;
+					UInt32 locationIndex = 0;
 					for (const auto& component : components)
 					{
 						switch (component.component)
