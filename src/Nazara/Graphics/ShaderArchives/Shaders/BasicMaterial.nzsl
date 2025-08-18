@@ -1,4 +1,4 @@
-[nzsl_version("1.0")]
+[nzsl_version("1.1")]
 module BasicMaterial;
 
 import InstanceData from Engine.InstanceData;
@@ -20,21 +20,23 @@ option AlphaTest: bool = false;
 option Billboard: bool = false;
 
 // Vertex declaration related options
-option VertexColorLoc: i32 = -1;
-option VertexNormalLoc: i32 = -1;
-option VertexPositionLoc: i32 = -1;
-option VertexSizeRotLocation: i32 = -1;
-option VertexUvLoc: i32 = -1;
+const InvalidLoc: u32 = 0xFFFFFFFF; //< TODO support: u32.Max
 
-option VertexJointIndicesLoc: i32 = -1;
-option VertexJointWeightsLoc: i32 = -1;
+option VertexColorLoc: u32 = InvalidLoc;
+option VertexNormalLoc: u32 = InvalidLoc;
+option VertexPositionLoc: u32 = InvalidLoc;
+option VertexSizeRotLocation: u32 = InvalidLoc;
+option VertexUvLoc: u32 = InvalidLoc;
 
-const HasNormal = (VertexNormalLoc >= 0);
-const HasVertexColor = (VertexColorLoc >= 0);
+option VertexJointIndicesLoc: u32 = InvalidLoc;
+option VertexJointWeightsLoc: u32 = InvalidLoc;
+
+const HasNormal = (VertexNormalLoc != InvalidLoc);
+const HasVertexColor = (VertexColorLoc != InvalidLoc);
 const HasColor = (HasVertexColor || Billboard);
-const HasVertexUV = (VertexUvLoc >= 0);
+const HasVertexUV = (VertexUvLoc != InvalidLoc);
 const HasUV = (HasVertexUV);
-const HasSkinning = (VertexJointIndicesLoc >= 0 && VertexJointWeightsLoc >= 0);
+const HasSkinning = (VertexJointIndicesLoc != InvalidLoc && VertexJointWeightsLoc != InvalidLoc);
 
 [layout(std140)]
 struct MaterialSettings

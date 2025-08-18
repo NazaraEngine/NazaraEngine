@@ -132,7 +132,7 @@ namespace Nz
 
 		// Try to partially sanitize shader
 
-		nzsl::Ast::Transformer::Context context;
+		nzsl::Ast::TransformerContext context;
 		context.partialCompilation = true;
 
 		nzsl::Ast::TransformerExecutor executor;
