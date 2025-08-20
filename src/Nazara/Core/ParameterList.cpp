@@ -122,7 +122,7 @@ namespace Nz
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
 			return Err(Error::MissingValue);
-			
+
 		return std::visit(Overloaded{
 			[&](Primitive<double> primitive) -> Result<double, Error>
 			{
@@ -227,7 +227,7 @@ namespace Nz
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
 			return Err(Error::MissingValue);
-			
+
 		return std::visit(Overloaded{
 			[&](Primitive<void*> primitive) -> Result<void*, Error>
 			{
@@ -265,7 +265,7 @@ namespace Nz
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
 			return Err(Error::MissingValue);
-			
+
 		return std::visit(Overloaded{
 			[](std::monostate) ->Result<std::string, Error>
 			{
@@ -337,7 +337,7 @@ namespace Nz
 		auto it = m_parameters.find(name);
 		if (it == m_parameters.end())
 			return Err(Error::MissingValue);
-			
+
 		return std::visit(Overloaded{
 			[](std::monostate) ->Result<std::string_view, Error>
 			{
@@ -537,7 +537,7 @@ namespace Nz
 		for (auto it = m_parameters.cbegin(); it != m_parameters.cend();)
 		{
 			ss << it->first << ": ";
-			
+
 			std::visit(Overloaded{
 				[&](std::monostate)
 				{

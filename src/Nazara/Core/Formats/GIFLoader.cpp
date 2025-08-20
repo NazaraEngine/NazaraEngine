@@ -412,7 +412,7 @@ namespace Nz
 										break;
 
 									default:
-										NazaraWarning("unrecognized extension label (unknown tag {0:#x})", label);
+										NazaraWarning("unrecognized extension label (unknown tag {0:#x}", label);
 										break;
 								}
 
@@ -421,7 +421,7 @@ namespace Nz
 							}
 
 							default:
-								NazaraError("corrupt gif (unknown tag {0:#x})", tag);
+								NazaraError("corrupt gif (unknown tag {0:#x}", tag);
 								return Err(ResourceLoadingError::DecodingError);
 						}
 					}
