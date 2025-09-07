@@ -31,7 +31,7 @@ option HasSpecularTexture: bool = false;
 option Billboard: bool = false;
 
 // Vertex declaration related options
-const InvalidLoc: u32 = 0xFFFFFFFF; //< TODO support: u32.Max
+const InvalidLoc = u32.Max;
 
 option VertexColorLoc: u32 = InvalidLoc;
 option VertexNormalLoc: u32 = InvalidLoc;

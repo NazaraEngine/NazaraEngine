@@ -359,11 +359,11 @@ if has_config("platform") then
 end
 
 if has_config("renderer") then
-	add_requires("nzsl v1.1.0-rc1", { debug = is_mode("debug"), configs = { symbols = not is_mode("release"), shared = not is_plat("wasm", "android") and not has_config("static") } })
+	add_requires("nzsl 656b897b171d162bedd8d9d151f31255c0a3d92c", { debug = is_mode("debug"), configs = { symbols = not is_mode("release"), shared = not is_plat("wasm", "android") and not has_config("static") } })
 
 	-- When cross-compiling, compile shaders using host shader compiler
 	if has_config("compile_shaders") and is_cross() then
-		add_requires("nzsl~host v1.1.0-rc1", { kind = "binary", host = true })
+		add_requires("nzsl~host 656b897b171d162bedd8d9d151f31255c0a3d92c", { kind = "binary", host = true })
 	end
 end
 
