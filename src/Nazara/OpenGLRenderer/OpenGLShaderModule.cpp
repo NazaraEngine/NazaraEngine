@@ -177,7 +177,7 @@ namespace Nz
 
 		// Process the shader once
 		nzsl::Ast::TransformerExecutor executor;
-		executor.AddPass<nzsl::Ast::ResolveTransformer>({ .moduleResolver = parameters.shaderModuleResolver, .removeAliases = true });
+		executor.AddPass<nzsl::Ast::ResolveTransformer>({ .moduleResolver = parameters.shaderModuleResolver });
 		executor.AddPass<nzsl::Ast::BindingResolverTransformer>();
 
 		nzsl::GlslWriter::RegisterPasses(executor);
