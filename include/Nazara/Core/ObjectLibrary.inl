@@ -58,7 +58,7 @@ namespace Nz
 	template<typename Type>
 	void ObjectLibrary<Type>::Register(std::string name, std::shared_ptr<Type> object)
 	{
-		m_library.emplace(std::move(name), object);
+		m_library.emplace(std::move(name), std::move(object));
 	}
 
 	/*!
