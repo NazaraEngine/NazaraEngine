@@ -315,7 +315,7 @@ end
 
 -- Module dependencies
 if has_config("audio") then
-	add_requires("dr_mp3", "dr_wav", "libflac")
+	add_requires("dr_mp3 >=0.7", "dr_wav >=0.14", "libflac")
 	add_requires("libvorbis", { configs = { with_vorbisenc = false } })
 
 	if not is_plat("wasm") then

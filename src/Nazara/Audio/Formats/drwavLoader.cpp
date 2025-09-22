@@ -36,16 +36,23 @@ namespace Nz
 			Stream* stream = static_cast<Stream*>(pUserData);
 			switch (origin)
 			{
-				case drwav_seek_origin_start:
+				case DRWAV_SEEK_SET:
 					return stream->SetCursorPos(offset);
 
-				case drwav_seek_origin_current:
+				case DRWAV_SEEK_CUR:
 					return (stream->Read(nullptr, static_cast<std::size_t>(offset)) != 0);
 
 				default:
 					NazaraInternalError("Seek mode not handled");
 					return false;
 			}
+		}
+
+		drwav_bool32 TellWavCallback(void* pUserData, drwav_int64* pCursor)
+		{
+			Stream* stream = static_cast<Stream*>(pUserData);
+			*pCursor = static_cast<drwav_int64>(stream->GetCursorPos());
+			return true;
 		}
 
 		bool IsWavSupported(std::string_view extension)
@@ -56,7 +63,7 @@ namespace Nz
 		Result<std::shared_ptr<SoundBuffer>, ResourceLoadingError> LoadWavSoundBuffer(Stream& stream, const SoundBufferParams& parameters)
 		{
 			drwav wav;
-			if (!drwav_init(&wav, &ReadWavCallback, &SeekWavCallback, &stream, nullptr))
+			if (!drwav_init(&wav, &ReadWavCallback, &SeekWavCallback, &TellWavCallback, &stream, nullptr))
 				return Err(ResourceLoadingError::Unrecognized);
 
 			CallOnExit uninitOnExit([&] { drwav_uninit(&wav); });
@@ -153,7 +160,7 @@ namespace Nz
 
 				Result<void, ResourceLoadingError> Open(Stream& stream, const SoundStreamParams& parameters)
 				{
-					if (!drwav_init(&m_decoder, &ReadWavCallback, &SeekWavCallback, &stream, nullptr))
+					if (!drwav_init(&m_decoder, &ReadWavCallback, &SeekWavCallback, &TellWavCallback, &stream, nullptr))
 						return Err(ResourceLoadingError::Unrecognized);
 
 					CallOnExit resetOnError([this]
