@@ -53,7 +53,7 @@ namespace Nz
 			};
 
 		private:
-			mutable PrivateImpl<ma_device, 3312, 8> m_device;
+			mutable PrivateImpl<ma_device> m_device;
 			DataCallback m_dataCallback;
 	};
 }
