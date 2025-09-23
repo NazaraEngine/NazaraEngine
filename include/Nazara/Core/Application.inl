@@ -58,7 +58,7 @@ namespace Nz
 	T& Application<ModuleList...>::AddComponent(Args&&... args)
 	{
 		T& component = ApplicationBase::AddComponent<T>(std::forward<Args>(args)...);
-		Detail::ModuleRegisterer<typename decltype(m_modules)::ModuleTypeList>::template Register(m_modules, component);
+		Detail::ModuleRegisterer<typename decltype(m_modules)::ModuleTypeList>::Register(m_modules, component);
 
 		return component;
 	}

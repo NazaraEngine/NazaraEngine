@@ -31,9 +31,9 @@ SCENARIO("SoundStream", "[AUDIO][SoundStream]")
 
 			THEN("We can ask the informations of the file")
 			{
-				CHECK(soundStream->GetDuration() == 27'288_ms);
+				CHECK(soundStream->GetDuration() == 27'193'468_us);
 				CHECK(soundStream->GetFormat() == Nz::AudioFormat::I16_Stereo);
-				CHECK(soundStream->GetSampleCount() == 1746432);
+				CHECK(soundStream->GetSampleCount() == 1740382);
 				CHECK(soundStream->GetSampleRate() == 32000);
 			}
 		}

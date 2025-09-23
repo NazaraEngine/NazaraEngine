@@ -20,7 +20,6 @@
 #define DR_WAV_NO_STDIO
 #include <dr_wav.h>
 
-
 namespace Nz
 {
 	namespace
@@ -41,6 +40,9 @@ namespace Nz
 
 				case DRWAV_SEEK_CUR:
 					return (stream->Read(nullptr, static_cast<std::size_t>(offset)) != 0);
+
+				case DRWAV_SEEK_END:
+					return stream->SetCursorPos(stream->GetSize());
 
 				default:
 					NazaraInternalError("Seek mode not handled");

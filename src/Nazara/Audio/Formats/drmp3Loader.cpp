@@ -35,11 +35,14 @@ namespace Nz
 			Stream* stream = static_cast<Stream*>(pUserData);
 			switch (origin)
 			{
-				case DRMP3_SEEK_CUR:
+				case DRMP3_SEEK_SET:
 					return stream->SetCursorPos(offset);
 
-				case DRMP3_SEEK_END:
+				case DRMP3_SEEK_CUR:
 					return (stream->Read(nullptr, static_cast<std::size_t>(offset)) != 0);
+
+				case DRMP3_SEEK_END:
+					return stream->SetCursorPos(stream->GetSize());
 
 				default:
 					NazaraInternalError("Seek mode not handled");
