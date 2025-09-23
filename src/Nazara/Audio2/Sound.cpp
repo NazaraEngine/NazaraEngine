@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Audio2/Sound.hpp>
+#include <NazaraUtils/StackArray.hpp>
 #include <Nazara/Audio2/AudioEngine.hpp>
 #include <Nazara/Audio2/MiniaudioUtils.hpp>
 #include <miniaudio.h>
@@ -15,7 +16,12 @@ namespace Nz
 		ma_engine* engine = config.engine->GetInternalHandle();
 
 		m_sound = config.engine->AllocateInternalSound(m_soundIndex);
-		m_sourceReader = std::make_unique<SoundDataReader>(std::move(config.source));
+
+		StackArray<AudioChannel> deviceChannelMap = NazaraStackArrayNoInit(AudioChannel, engine->pDevice->playback.channels);
+		for (std::size_t i = 0; i < deviceChannelMap.size(); ++i)
+			deviceChannelMap[i] = FromMiniaudio(engine->pDevice->playback.channelMap[i]);
+
+		m_sourceReader = std::make_unique<SoundDataReader>(FromMiniaudio(engine->pDevice->playback.format), std::span(deviceChannelMap), engine->pDevice->sampleRate, std::move(config.source));
 
 		ma_sound_config miniaudioConfig = ma_sound_config_init_2(engine);
 		miniaudioConfig.channelsOut = MA_SOUND_SOURCE_CHANNEL_COUNT;

@@ -9,10 +9,13 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <NazaraUtils/PrivateImpl.hpp>
+#include <Nazara/Audio2/Enums.hpp>
 #include <Nazara/Audio2/Export.hpp>
 #include <memory>
+#include <span>
 
 typedef void ma_data_source;
+struct ma_decoder;
 
 namespace Nz
 {
@@ -21,7 +24,7 @@ namespace Nz
 	class NAZARA_AUDIO2_API SoundDataReader
 	{
 		public:
-			SoundDataReader(std::shared_ptr<SoundDataSource> source = nullptr);
+			SoundDataReader(AudioFormat outputFormat, std::span<const AudioChannel> outputChannels, std::uint32_t outputSampleRate, std::shared_ptr<SoundDataSource> source);
 			SoundDataReader(const SoundDataReader&) = delete;
 			SoundDataReader(SoundDataReader&&) = delete;
 			~SoundDataReader();
@@ -39,9 +42,10 @@ namespace Nz
 			SoundDataReader& operator=(SoundDataReader&&) = delete;
 
 		private:
-			struct MiniaudioDataSource;
+			struct MiniaudioDataSource; // ma_data_source_base
 
-			PrivateImpl<MiniaudioDataSource, 72, 8> m_miniAudioSource;
+			PrivateImpl<MiniaudioDataSource, 72, 8> m_miniAudioSource; //< must be the first parameter
+			PrivateImpl<ma_decoder, 552, 8> m_miniDecoder;
 			std::shared_ptr<SoundDataSource> m_source;
 			UInt64 m_readOffset;
 	};

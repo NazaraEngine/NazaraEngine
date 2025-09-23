@@ -31,6 +31,7 @@ namespace Nz
 
 		ma_engine_config engineConfig = ma_engine_config_init();
 		engineConfig.pDevice = m_impl->device->GetInternalDevice();
+		engineConfig.pProcessUserData = this;
 
 		ma_result result = ma_engine_init(&engineConfig, &m_impl->engine);
 		if (result != MA_SUCCESS)
