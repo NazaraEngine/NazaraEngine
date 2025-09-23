@@ -322,7 +322,7 @@ end
 if has_config("audio") then
 	add_requires("dr_mp3 >=0.7", "dr_wav >=0.14", "libflac")
 	add_requires("libvorbis", { configs = { with_vorbisenc = false } })
-	add_requires("miniaudio", { configs = { headeronly = false, decoding = false, encoding = false, debug = is_mode("debug") }})
+	add_requires("miniaudio", { configs = { headeronly = false, encoding = false, flac = false, mp3 = false, wav = false, debug = is_mode("debug") }})
 
 	if not is_plat("wasm") then
 		-- OpenAL is supported as a system library on wasm

@@ -66,9 +66,14 @@ namespace Nz
 
 	auto SoundBuffer::Read(UInt64 startingFrameIndex, void* frameOut, UInt64 frameCount) -> Result<ReadData, std::string>
 	{
-		NazaraAssert(startingFrameIndex < m_frameCount);
+		NazaraAssert(startingFrameIndex <= m_frameCount);
 		frameCount = std::min(m_frameCount - startingFrameIndex, frameCount);
-		std::memcpy(frameOut, &m_samples[0], frameCount * AudioFormatSize[m_format] * m_channels.size());
+		if (frameCount > 0)
+		{
+			std::size_t frameSize = AudioFormatSize[m_format] * m_channels.size();
+			std::memcpy(frameOut, &m_samples[startingFrameIndex * frameSize], frameCount * frameSize);
+		}
+
 		return Ok(ReadData{ frameCount, startingFrameIndex + frameCount });
 	}
 
