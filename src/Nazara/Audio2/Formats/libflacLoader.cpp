@@ -157,7 +157,7 @@ namespace Nz
 
 			std::unique_ptr<Int16[]> samples;
 			UInt32 channelCount = 0;
-			UInt64 frameCount = 0;
+			UInt64 totalFrameCount = 0;
 			UInt32 sampleRate = 0;
 
 			ud.metadataCallback = [&](const FLAC__StreamDecoder* /*decoder*/, const FLAC__StreamMetadata* meta)
@@ -165,30 +165,30 @@ namespace Nz
 				if (meta->type == FLAC__METADATA_TYPE_STREAMINFO)
 				{
 					channelCount = meta->data.stream_info.channels;
-					frameCount = meta->data.stream_info.total_samples;
+					totalFrameCount = meta->data.stream_info.total_samples;
 					sampleRate = meta->data.stream_info.sample_rate;
 
-					samples = std::make_unique<Int16[]>(channelCount * frameCount);
+					samples = std::make_unique<Int16[]>(channelCount * totalFrameCount);
 				}
 			};
 
 			UInt64 frameIndex = 0;
 			ud.writeCallback = [&](const FLAC__StreamDecoder* /*decoder*/, const FLAC__Frame* frame, const FLAC__int32* const buffer[])
 			{
-				std::size_t frameSampleCount = frame->header.blocksize * frame->header.channels;
-				if (frameIndex + frameSampleCount > frameCount)
+				std::size_t frameCount = frame->header.blocksize;
+				if (frameIndex + frameCount > totalFrameCount)
 				{
 					NazaraError("too many sample encountered");
 					return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
 				}
 
-				if (!DecodeFlacFrameSamples(frame, buffer, samples.get() + frameIndex))
+				if (!DecodeFlacFrameSamples(frame, buffer, samples.get() + frameIndex * channelCount))
 				{
 					NazaraError("failed to decode samples");
 					return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
 				}
 
-				frameIndex += frameSampleCount;
+				frameIndex += frameCount;
 
 				return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;
 			};
@@ -217,7 +217,7 @@ namespace Nz
 				return Err(ResourceLoadingError::DecodingError);
 			}
 
-			if (channelCount == 0 || frameCount == 0 || sampleRate == 0)
+			if (channelCount == 0 || totalFrameCount == 0 || sampleRate == 0)
 			{
 				NazaraError("invalid metadata");
 				return Err(ResourceLoadingError::DecodingError);
@@ -230,7 +230,7 @@ namespace Nz
 				return Err(ResourceLoadingError::Unsupported);
 			}
 
-			return std::make_shared<SoundBuffer>(AudioFormat::Signed16, channels, frameCount, sampleRate, samples.get());
+			return std::make_shared<SoundBuffer>(AudioFormat::Signed16, channels, totalFrameCount, sampleRate, samples.get());
 		}
 
 		class libflacStream : public SoundStream
@@ -359,11 +359,11 @@ namespace Nz
 					else
 					{
 						// Read overflown buffer first
-						readFrame = std::min<UInt64>(m_overflowBuffer.size(), frameCount);
+						readFrame = std::min<UInt64>(m_overflowBuffer.size() / m_channelCount, frameCount);
 						if (readFrame > 0)
 						{
 							std::memcpy(output, m_overflowBuffer.data(), readFrame * m_channelCount * sizeof(Int16));
-							m_overflowBuffer.erase(m_overflowBuffer.begin(), m_overflowBuffer.begin() + readFrame);
+							m_overflowBuffer.erase(m_overflowBuffer.begin(), m_overflowBuffer.begin() + readFrame * m_channelCount);
 							frameCount -= readFrame;
 							output += readFrame * m_channelCount;
 						}
@@ -382,21 +382,20 @@ namespace Nz
 
 							if (frameCount > 0)
 							{
-								assert(frameCount % frame->header.channels == 0);
 								if (!DecodeFlacFrameSamples(frame, framebuffer, output, 0, static_cast<UInt32>(frameCount)))
 									return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
 
 								readFrame += frameCount;
 							}
 
-							if (!DecodeFlacFrameSamples(frame, framebuffer, &m_overflowBuffer[overflownOffset], static_cast<UInt32>(frameCount), frameCount))
+							if (!DecodeFlacFrameSamples(frame, framebuffer, &m_overflowBuffer[overflownOffset], static_cast<UInt32>(frameCount), blockFrameCount))
 								return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
 
 							frameCount = 0;
 						}
 						else
 						{
-							if (!DecodeFlacFrameSamples(frame, framebuffer, output + readFrame * m_channelCount * sizeof(Int16)))
+							if (!DecodeFlacFrameSamples(frame, framebuffer, output + readFrame * m_channelCount))
 								return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
 
 							readFrame += blockFrameCount;
