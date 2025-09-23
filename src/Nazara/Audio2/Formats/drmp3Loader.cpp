@@ -36,16 +36,26 @@ namespace Nz
 			Stream* stream = static_cast<Stream*>(pUserData);
 			switch (origin)
 			{
-				case drmp3_seek_origin_start:
+				case DRMP3_SEEK_SET:
 					return stream->SetCursorPos(offset);
 
-				case drmp3_seek_origin_current:
+				case DRMP3_SEEK_CUR:
 					return (stream->Read(nullptr, static_cast<std::size_t>(offset)) != 0);
+
+				case DRMP3_SEEK_END:
+					return stream->SetCursorPos(stream->GetSize());
 
 				default:
 					NazaraInternalError("Seek mode not handled");
 					return false;
 			}
+		}
+
+		drmp3_bool32 TellMp3Callback(void* pUserData, drmp3_int64* pCursor)
+		{
+			Stream* stream = static_cast<Stream*>(pUserData);
+			*pCursor = static_cast<drmp3_int64>(stream->GetCursorPos());
+			return true;
 		}
 
 		bool IsMp3Supported(std::string_view extension)
@@ -56,7 +66,7 @@ namespace Nz
 		Result<std::shared_ptr<SoundBuffer>, ResourceLoadingError> LoadMp3SoundBuffer(Stream& stream, const SoundBufferParams& parameters)
 		{
 			drmp3 mp3;
-			if (!drmp3_init(&mp3, &ReadMp3Callback, &SeekMp3Callback, &stream, nullptr))
+			if (!drmp3_init(&mp3, &ReadMp3Callback, &SeekMp3Callback, &TellMp3Callback, nullptr, &stream, nullptr))
 				return Err(ResourceLoadingError::Unrecognized);
 
 			CallOnExit uninitOnExit([&] { drmp3_uninit(&mp3); });
@@ -174,7 +184,7 @@ namespace Nz
 
 				Result<void, ResourceLoadingError> Open(Stream& stream, const SoundStreamParams& parameters)
 				{
-					if (!drmp3_init(&m_decoder, &ReadMp3Callback, &SeekMp3Callback, &stream, nullptr))
+					if (!drmp3_init(&m_decoder, &ReadMp3Callback, &SeekMp3Callback, &TellMp3Callback, nullptr, &stream, nullptr))
 						return Err(ResourceLoadingError::Unrecognized);
 
 					CallOnExit resetOnError([this]
@@ -192,6 +202,7 @@ namespace Nz
 
 					UInt64 frameCount = drmp3_get_pcm_frame_count(&m_decoder);
 
+					m_channels = channels;
 					m_duration = Time::Microseconds(1'000'000LL * frameCount / m_decoder.sampleRate);
 					m_frameCount = frameCount;
 					m_sampleRate = m_decoder.sampleRate;
