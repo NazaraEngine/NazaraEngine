@@ -8,12 +8,14 @@
 #define NAZARA_AUDIO2_ALGORITHM_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Audio2/Export.hpp>
 #include <Nazara/Audio2/Enums.hpp>
 #include <span>
 
 namespace Nz
 {
-	void ConvertAudioFormat(AudioFormat sourceFormat, const void* input, AudioFormat destinationFormat, void* output, UInt64 sampleCount, AudioDitherMode ditherMode = AudioDitherMode::None);
+	NAZARA_AUDIO2_API void ConvertAudioFormat(AudioFormat sourceFormat, const void* input, AudioFormat destinationFormat, void* output, UInt64 sampleCount, AudioDitherMode ditherMode = AudioDitherMode::None);
+	NAZARA_AUDIO2_API UInt64 ConvertFrames(AudioFormat inputFormat, UInt32 inputChannelCount, UInt32 inputSampleRate, const void* input, AudioFormat outputFormat, UInt32 outputChannelCount, UInt32 outputSampleRate, void* output, UInt64 sampleCount);
 
 	inline std::span<const AudioChannel> GetAudioChannelMap(UInt32 channelCount);
 }

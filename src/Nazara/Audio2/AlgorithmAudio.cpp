@@ -12,4 +12,9 @@ namespace Nz
 	{
 		ma_pcm_convert(output, ToMiniaudio(destinationFormat), input, ToMiniaudio(sourceFormat), sampleCount, ToMiniaudio(ditherMode));
 	}
+
+	UInt64 ConvertFrames(AudioFormat inputFormat, UInt32 inputChannelCount, UInt32 inputSampleRate, const void* input, AudioFormat outputFormat, UInt32 outputChannelCount, UInt32 outputSampleRate, void* output, UInt64 sampleCount)
+	{
+		return ma_convert_frames(output, sampleCount, ToMiniaudio(outputFormat), outputChannelCount, outputSampleRate, input, sampleCount, ToMiniaudio(inputFormat), inputChannelCount, inputSampleRate);
+	}
 }
