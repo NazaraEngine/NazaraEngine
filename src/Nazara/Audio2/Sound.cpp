@@ -26,8 +26,8 @@ namespace Nz
 		ma_sound_config miniaudioConfig = ma_sound_config_init_2(engine);
 		miniaudioConfig.channelsOut = MA_SOUND_SOURCE_CHANNEL_COUNT;
 		miniaudioConfig.pDataSource = m_sourceReader->AsDataSource();
-		if (config.node)
-			miniaudioConfig.pInitialAttachment = config.node->GetInternalNode();
+		if (config.parentNode)
+			miniaudioConfig.pInitialAttachment = config.parentNode->GetInternalNode();
 
 		ma_result result = ma_sound_init_ex(engine, &miniaudioConfig, m_sound);
 		if (result != MA_SUCCESS)
@@ -46,6 +46,11 @@ namespace Nz
 	void Sound::EnableLooping(bool loop)
 	{
 		ma_sound_set_looping(m_sound, loop);
+	}
+
+	void Sound::EnableSpatialization(bool spatialization)
+	{
+		ma_sound_set_spatialization_enabled(m_sound, spatialization);
 	}
 
 	SoundAttenuationModel Sound::GetAttenuationModel() const
@@ -165,6 +170,21 @@ namespace Nz
 		return ma_sound_is_playing(m_sound);
 	}
 
+	bool Sound::IsSpatializationEnabled() const
+	{
+		return ma_sound_is_spatialization_enabled(m_sound);
+	}
+
+	void Sound::Pause()
+	{
+		ma_sound_stop(m_sound);
+	}
+
+	void Sound::Play()
+	{
+		ma_sound_start(m_sound);
+	}
+
 	void Sound::SetAttenuationModel(SoundAttenuationModel attenuationModel)
 	{
 		ma_sound_set_attenuation_model(m_sound, ToMiniaudio(attenuationModel));
@@ -237,7 +257,7 @@ namespace Nz
 
 	void Sound::SetPosition(const Vector3f& position)
 	{
-		ma_sound_set_velocity(m_sound, position.x, position.y, position.z);
+		ma_sound_set_position(m_sound, position.x, position.y, position.z);
 	}
 
 	void Sound::SetVelocity(const Vector3f& velocity)
@@ -250,13 +270,9 @@ namespace Nz
 		ma_sound_set_volume(m_sound, volume);
 	}
 
-	void Sound::Start()
-	{
-		ma_sound_start(m_sound);
-	}
-
 	void Sound::Stop()
 	{
 		ma_sound_stop(m_sound);
+		ma_sound_seek_to_pcm_frame(m_sound, 0);
 	}
 }
