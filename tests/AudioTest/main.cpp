@@ -26,7 +26,7 @@ int main()
 	std::shared_ptr<Nz::AudioEngine> audioEngine = Nz::Audio2::Instance()->OpenPlaybackEngine();
 
 	Nz::Sound sound(Nz::Sound::Config{ .source = soundBuffer, .engine = audioEngine.get()});
-	sound.Start();
+	sound.Play();
 
 	std::getchar();
 

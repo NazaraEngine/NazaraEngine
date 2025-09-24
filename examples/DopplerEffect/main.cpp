@@ -8,7 +8,7 @@
 ** - Gestion basique de position 3D
 */
 
-#include <Nazara/Audio.hpp>
+#include <Nazara/Audio2.hpp>
 #include <Nazara/Core/Application.hpp>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/Modules.hpp>
@@ -24,16 +24,14 @@ int main(int argc, char* argv[])
 	if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory("../.." / resourceDir))
 		resourceDir = "../.." / resourceDir;
 
-	Nz::Application<Nz::Audio> app(argc, argv);
+	Nz::Application<Nz::Audio2> app(argc, argv);
 	app.AddComponent<Nz::SignalHandlerAppComponent>();
 
-	Nz::Sound sound;
-	if (!sound.LoadFromFile(resourceDir / "Audio/siren.wav"))
-	{
-		std::cout << "Failed to load sound" << std::endl;
-		std::getchar();
-		return 1;
-	}
+	std::shared_ptr<Nz::SoundBuffer> soundBuffer = Nz::SoundBuffer::LoadFromFile(resourceDir / "Audio/siren.wav");
+
+	std::shared_ptr<Nz::AudioEngine> audioEngine = Nz::Audio2::Instance()->OpenPlaybackEngine();
+
+	Nz::Sound sound(Nz::Sound::Config{ .source = soundBuffer, .engine = audioEngine.get() });
 
 	std::cout << "Doppler effect demo" << std::endl;
 	std::cout << "Press enter to start" << std::endl;
@@ -42,6 +40,7 @@ int main(int argc, char* argv[])
 
 	// Make a repeating sound, located to the left (and a bit forward so it doesn't switch from left to right speaker brutally) with a right velocity
 	sound.EnableLooping(true);
+	sound.EnableSpatialization(true);
 	sound.SetPosition(Nz::Vector3f::Left() * 50.f + Nz::Vector3f::Forward() * 5.f);
 	sound.SetVelocity(Nz::Vector3f::Right() * 10.f);
 
@@ -51,7 +50,7 @@ int main(int argc, char* argv[])
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000 / 30));
 
-		if (sound.GetStatus() != Nz::SoundStatus::Playing)
+		if (!sound.IsPlaying())
 			app.Quit();
 
 		// Move sound position according to its velocity

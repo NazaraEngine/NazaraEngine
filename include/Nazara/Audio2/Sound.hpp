@@ -30,6 +30,8 @@ namespace Nz
 			~Sound();
 
 			void EnableLooping(bool loop);
+			void EnableSpatialization(bool spatialization);
+
 			SoundAttenuationModel GetAttenuationModel() const override;
 			void GetCone(RadianAnglef& innerAngle, RadianAnglef& outerAngle, float& outerGain) const override;
 			Vector3f GetDirection() const override;
@@ -54,6 +56,10 @@ namespace Nz
 
 			bool IsLooping() const;
 			bool IsPlaying() const;
+			bool IsSpatializationEnabled() const;
+
+			void Pause();
+			void Play();
 
 			void SetAttenuationModel(SoundAttenuationModel attenuationModel) override;
 			void SetCone(RadianAnglef innerAngle, RadianAnglef outerAngle, float outerGain) override;
@@ -73,7 +79,6 @@ namespace Nz
 			void SetVelocity(const Vector3f& velocity) override;
 			void SetVolume(float volume) override;
 
-			void Start();
 			void Stop();
 
 			Sound& operator=(const Sound&) = delete;
@@ -83,7 +88,7 @@ namespace Nz
 			{
 				std::shared_ptr<SoundDataSource> source;
 				AudioEngine* engine;
-				AudioNode* node = nullptr;
+				AudioNode* parentNode = nullptr;
 			};
 
 		private:

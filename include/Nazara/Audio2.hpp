@@ -1,9 +1,9 @@
 // this file was automatically generated and should not be edited
 
 /*
-	Nazara Engine - Audio module
+	Nazara Engine - Audio2 module
 
-	Copyright (C) 2024 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
+	Copyright (C) 2025 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy of
 	this software and associated documentation files (the "Software"), to deal in
@@ -29,9 +29,20 @@
 #ifndef NAZARA_GLOBAL_AUDIO2_HPP
 #define NAZARA_GLOBAL_AUDIO2_HPP
 
+#include <Nazara/Audio2/Algorithm.hpp>
 #include <Nazara/Audio2/Audio2.hpp>
+#include <Nazara/Audio2/AudioDevice.hpp>
 #include <Nazara/Audio2/AudioDeviceInfo.hpp>
+#include <Nazara/Audio2/AudioEngine.hpp>
+#include <Nazara/Audio2/AudioNode.hpp>
 #include <Nazara/Audio2/Enums.hpp>
 #include <Nazara/Audio2/Export.hpp>
+#include <Nazara/Audio2/Sound.hpp>
+#include <Nazara/Audio2/SoundBuffer.hpp>
+#include <Nazara/Audio2/SoundDataReader.hpp>
+#include <Nazara/Audio2/SoundDataSource.hpp>
+#include <Nazara/Audio2/SoundGroup.hpp>
+#include <Nazara/Audio2/SoundInterface.hpp>
+#include <Nazara/Audio2/SoundStream.hpp>
 
 #endif // NAZARA_GLOBAL_AUDIO2_HPP
