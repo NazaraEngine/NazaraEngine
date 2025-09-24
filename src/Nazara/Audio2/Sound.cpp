@@ -43,6 +43,11 @@ namespace Nz
 		}
 	}
 
+	void Sound::EnableLooping(bool loop)
+	{
+		ma_sound_set_looping(m_sound, loop);
+	}
+
 	SoundAttenuationModel Sound::GetAttenuationModel() const
 	{
 		return FromMiniaudio(ma_sound_get_attenuation_model(m_sound));
@@ -148,6 +153,11 @@ namespace Nz
 	float Sound::GetVolume() const
 	{
 		return ma_sound_get_volume(m_sound);
+	}
+
+	bool Sound::IsLooping() const
+	{
+		return ma_sound_is_looping(m_sound);
 	}
 
 	bool Sound::IsPlaying() const
