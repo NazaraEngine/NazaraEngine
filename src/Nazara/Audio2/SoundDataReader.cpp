@@ -15,22 +15,26 @@ namespace Nz
 {
 	namespace NAZARA_ANONYMOUS_NAMESPACE
 	{
-		static ma_data_source_vtable s_soundDataSourceFuncs =
+		static constexpr ma_data_source_vtable s_soundDataSourceFuncs =
 		{
 			.onRead = [](ma_data_source* dataSource, void* framesOut, ma_uint64 frameCount, ma_uint64* frameRead) -> ma_result
 			{
 				SoundDataReader* reader = static_cast<SoundDataReader*>(dataSource);
+				const std::shared_ptr<SoundDataSource>& source = reader->GetSource();
 
 				std::unique_lock<std::mutex> lock;
-				if (std::mutex* mutex = reader->GetSource()->GetMutex())
+				if (std::mutex* mutex = source->GetMutex())
 					lock = std::unique_lock(*mutex);
 
-				auto res = reader->GetSource()->Read(reader->GetReadOffset(), framesOut, frameCount);
+				auto res = source->Read(reader->GetReadOffset(), framesOut, frameCount);
 				if (!res)
 					return MA_ERROR;
 
 				SoundDataSource::ReadData readData = *res;
 				*frameRead = readData.readFrame;
+
+				if (reader->IsLooping() && readData.cursorPosition >= source->GetFrameCount())
+					readData.cursorPosition = 0;
 
 				reader->UpdateReadOffset(readData.cursorPosition);
 
@@ -46,12 +50,13 @@ namespace Nz
 			.onGetDataFormat = [](ma_data_source* dataSource, ma_format* format, ma_uint32* channelCount, ma_uint32* sampleRate, ma_channel* channelMap, std::size_t channelMapCapacity)
 			{
 				SoundDataReader* reader = static_cast<SoundDataReader*>(dataSource);
+				const std::shared_ptr<SoundDataSource>& source = reader->GetSource();
 
-				std::span channels = reader->GetSource()->GetChannels();
+				std::span channels = source->GetChannels();
 
-				*format = ToMiniaudio(reader->GetSource()->GetFormat());
+				*format = ToMiniaudio(source->GetFormat());
 				*channelCount = channels.size();
-				*sampleRate = reader->GetSource()->GetSampleRate();
+				*sampleRate = source->GetSampleRate();
 
 				std::size_t minChannelCount = std::min<std::size_t>(channelMapCapacity, *channelCount);
 				for (std::size_t i = 0; i < minChannelCount; ++i)
@@ -73,7 +78,13 @@ namespace Nz
 				*pLength = reader->GetSource()->GetFrameCount();
 				return MA_SUCCESS;
 			},
-			.onSetLooping = nullptr
+			.onSetLooping = [](ma_data_source* dataSource, ma_bool32 isLooping)
+			{
+				SoundDataReader* reader = static_cast<SoundDataReader*>(dataSource);
+				reader->EnableLooping(isLooping);
+
+				return MA_SUCCESS;
+			}
 		};
 
 		static ma_decoding_backend_vtable s_customBackendVTable =
@@ -99,11 +110,12 @@ namespace Nz
 	};
 
 	SoundDataReader::SoundDataReader(AudioFormat outputFormat, std::span<const AudioChannel> outputChannels, std::uint32_t outputSampleRate, std::shared_ptr<SoundDataSource> source) :
+	m_isLooping(false),
 	m_source(std::move(source)),
 	m_readOffset(0)
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
-		
+
 		NazaraAssertMsg(m_source, "invalid source");
 
 		ma_data_source_config config = ma_data_source_config_init();

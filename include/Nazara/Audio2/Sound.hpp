@@ -29,6 +29,7 @@ namespace Nz
 			Sound(Sound&&) noexcept = default;
 			~Sound();
 
+			void EnableLooping(bool loop);
 			SoundAttenuationModel GetAttenuationModel() const override;
 			void GetCone(RadianAnglef& innerAngle, RadianAnglef& outerAngle, float& outerGain) const override;
 			Vector3f GetDirection() const override;
@@ -51,6 +52,7 @@ namespace Nz
 			Vector3f GetVelocity() const override;
 			float GetVolume() const override;
 
+			bool IsLooping() const;
 			bool IsPlaying() const;
 
 			void SetAttenuationModel(SoundAttenuationModel attenuationModel) override;

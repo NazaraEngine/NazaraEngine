@@ -4,6 +4,11 @@
 
 namespace Nz
 {
+	inline void SoundDataReader::EnableLooping(bool loop)
+	{
+		m_isLooping.store(loop, std::memory_order_relaxed);
+	}
+
 	inline UInt64 SoundDataReader::GetReadOffset() const
 	{
 		return m_readOffset;
@@ -12,6 +17,11 @@ namespace Nz
 	inline const std::shared_ptr<SoundDataSource>& SoundDataReader::GetSource()
 	{
 		return m_source;
+	}
+
+	inline bool SoundDataReader::IsLooping() const
+	{
+		return m_isLooping.load(std::memory_order_relaxed);
 	}
 
 	inline void SoundDataReader::UpdateReadOffset(UInt64 offset)
