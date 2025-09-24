@@ -11,6 +11,7 @@
 #include <NazaraUtils/PrivateImpl.hpp>
 #include <Nazara/Audio2/Enums.hpp>
 #include <Nazara/Audio2/Export.hpp>
+#include <atomic>
 #include <memory>
 #include <span>
 
@@ -31,10 +32,12 @@ namespace Nz
 
 			ma_data_source* AsDataSource();
 
-			//virtual void EnableLooping(bool looping) = 0;
+			inline void EnableLooping(bool loop);
 
 			inline UInt64 GetReadOffset() const;
 			inline const std::shared_ptr<SoundDataSource>& GetSource();
+
+			inline bool IsLooping() const;
 
 			inline void UpdateReadOffset(UInt64 offset);
 
@@ -46,6 +49,7 @@ namespace Nz
 
 			PrivateImpl<MiniaudioDataSource, 72, 8> m_miniAudioSource; //< must be the first parameter
 			PrivateImpl<ma_decoder, 552, 8> m_miniDecoder;
+			std::atomic_bool m_isLooping;
 			std::shared_ptr<SoundDataSource> m_source;
 			UInt64 m_readOffset;
 	};
