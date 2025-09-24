@@ -1,4 +1,4 @@
-#include <Nazara/Audio/Algorithm.hpp>
+#include <Nazara/Audio2/Algorithm.hpp>
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 
@@ -8,13 +8,14 @@ TEST_CASE("MixToMono", "[AUDIO][ALGORITHM]")
 {
 	SECTION("Mix two channels together")
 	{
-		std::array<int, 4> input = { { 1, 3, 5, 3 } };
-		std::array<int, 2> output = { { 0, 0 } };
+		std::array<Nz::Int16, 4> input = { { 1, 3, 5, 3 } };
+		std::array<Nz::Int16, 2> output = { { 0, 0 } };
 
 		// Two channels and two frames !
-		Nz::MixToMono(input.data(), output.data(), 2, 2);
+		Nz::UInt64 outputFrame = Nz::ConvertFrames(Nz::AudioFormat::Signed16, 2, 100, input.data(), Nz::AudioFormat::Signed16, 1, 100, output.data(), 2);
+		CHECK(outputFrame == 2);
 
-		std::array<int, 2> theoric = { { 2, 4 } }; // It's the mean of the two channels
+		std::array<Nz::Int16, 2> theoric = { { 2, 4 } }; // It's the mean of the two channels
 		CHECK(output == theoric);
 	}
 }
