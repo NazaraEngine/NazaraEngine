@@ -1,0 +1,76 @@
+[nzsl_version("1.0")]
+module Lighting.PhysicalledBased;
+
+import DirectionalLight, PointLight, SpotLight from Lighting.LightData;
+import ComputeLightRadiance, DistributionGGX, GeometrySmith, FresnelSchlick from Math.CookTorrancePBR;
+
+[export]
+struct DirectionalLightResult
+{
+    radiance: vec3[f32],
+    lambert: f32
+}
+
+[export]
+struct PointLightResult
+{
+    radiance: vec3[f32],
+    dist: f32,
+    lightToWorldDir: vec3[f32]
+}
+
+[export]
+struct SpotLightResult
+{
+    radiance: vec3[f32],
+    lambert: f32
+}
+
+[export]
+fn ComputeDirectionalLight(light: DirectionalLight, eyeVec: vec3[f32], albedoFactor: vec3[f32], F0: vec3[f32], normal: vec3[f32], metallic: f32, roughness: f32) -> DirectionalLightResult
+{
+    let result: DirectionalLightResult;
+    result.radiance = ComputeLightRadiance(light.color.rgb, -light.direction, albedoFactor, eyeVec, F0, normal, metallic, roughness);
+    result.lambert = max(dot(normal, -light.direction), 0.0);
+
+    return result;
+}
+
+[export]
+fn ComputePointLight(light: PointLight, eyeVec: vec3[f32], albedoFactor: vec3[f32], F0: vec3[f32], normal: vec3[f32], metallic: f32, roughness: f32, worldPos: vec3[f32]) -> PointLightResult
+{
+    let lightToPos = worldPos - light.position;
+    let dist = length(lightToPos);
+
+    let attenuation = max(1.0 - dist * light.invRadius, 0.0);
+    let lightToPosNorm = lightToPos / max(dist, 0.0001);
+
+    let result: PointLightResult;
+    result.radiance = ComputeLightRadiance(light.color.rgb * attenuation, -lightToPosNorm, albedoFactor, eyeVec, F0, normal, metallic, roughness);
+    result.dist = dist;
+    result.lightToWorldDir = lightToPosNorm;
+
+    return result;
+}
+
+[export]
+fn ComputeSpotLight(light: SpotLight, eyeVec: vec3[f32], albedoFactor: vec3[f32], F0: vec3[f32], normal: vec3[f32], metallic: f32, roughness: f32, worldPos: vec3[f32]) -> SpotLightResult
+{
+    let lightToPos = worldPos - light.position;
+    let dist = length(lightToPos);
+    let lightToPosNorm = lightToPos / max(dist, 0.0001);
+
+    let curAngle = dot(light.direction, lightToPosNorm);
+    let innerMinusOuterAngle = light.innerAngle - light.outerAngle;
+
+    let attenuation = max(1.0 - dist * light.invRadius, 0.0);
+    attenuation *= max((curAngle - light.outerAngle) / innerMinusOuterAngle, 0.0);			
+
+    let lambert = clamp(dot(normal, -lightToPosNorm), 0.0, 1.0);
+
+    let result: SpotLightResult;
+    result.radiance = ComputeLightRadiance(light.color.rgb * attenuation, -lightToPosNorm, albedoFactor, eyeVec, F0, normal, metallic, roughness);
+    result.lambert = clamp(dot(normal, -lightToPosNorm), 0.0, 1.0);
+
+    return result;
+}
