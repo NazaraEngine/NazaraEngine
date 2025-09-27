@@ -488,7 +488,7 @@ function ModuleTargetConfig(name, module)
 		end
 	end
 
-	if has_config("compile_shaders") then
+	if has_config("renderer") and has_config("compile_shaders") then
 		add_rules("@nzsl/archive.shaders")
 		add_rules("@nzsl/compile.shaders", { inplace = true })
 
