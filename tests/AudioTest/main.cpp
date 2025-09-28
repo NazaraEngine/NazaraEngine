@@ -1,7 +1,6 @@
 #include <Nazara/Core.hpp>
 #include <Nazara/Audio2.hpp>
-#include <Nazara/Audio2/AudioDevice.hpp>
-#include <Nazara/Audio2/Sound.hpp>
+#include <Nazara/Audio2/AudioEffect.hpp>
 #include <iostream>
 
 int main()
@@ -25,7 +24,10 @@ int main()
 
 	std::shared_ptr<Nz::AudioEngine> audioEngine = Nz::Audio2::Instance()->OpenPlaybackEngine();
 
-	Nz::Sound sound(Nz::Sound::Config{ .source = soundBuffer, .engine = audioEngine.get()});
+	Nz::AudioReverbEffect reverbEffect({ .engine = audioEngine.get() });
+	reverbEffect.AttachOutputBus(0, audioEngine->GetEndpoint(), 0);
+
+	Nz::Sound sound(Nz::Sound::Config{ .source = soundBuffer, .engine = audioEngine.get(), .outputNode = &reverbEffect });
 	sound.Play();
 
 	std::getchar();
