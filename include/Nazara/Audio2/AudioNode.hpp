@@ -19,13 +19,27 @@ namespace Nz
 		public:
 			AudioNode() = default;
 			AudioNode(const AudioNode&) = delete;
-			AudioNode(AudioNode&&) = delete;
+			AudioNode(AudioNode&&) = default;
 			virtual ~AudioNode();
 
+			void AttachOutputBus(UInt32 outputBusIndex, AudioNode& otherNode, UInt32 otherNodeInputIndex);
+			void DetachOutputBus(UInt32 outputBusIndex);
+			void DetachAllOutputBuses();
+
+			UInt32 GetInputBusCount() const;
+			UInt32 GetInputChannelCount(UInt32 inputBusIndex) const;
+
 			virtual ma_node* GetInternalNode() = 0;
+			virtual const ma_node* GetInternalNode() const = 0;
+
+			UInt32 GetOutputBusCount() const;
+			float GetOutputBusVolume(UInt32 outputBusIndex) const;
+			UInt32 GetOutputChannelCount(UInt32 outputBusIndex) const;
+
+			void SetOutputBusVolume(UInt32 outputBusIndex, float volume);
 
 			AudioNode& operator=(const AudioNode&) = delete;
-			AudioNode& operator=(AudioNode&&) = delete;
+			AudioNode& operator=(AudioNode&&) = default;
 	};
 }
 

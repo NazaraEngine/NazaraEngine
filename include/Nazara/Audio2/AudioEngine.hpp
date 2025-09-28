@@ -8,6 +8,7 @@
 #define NAZARA_AUDIO2_AUDIOENGINE_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Audio2/AudioNode.hpp>
 #include <Nazara/Audio2/Export.hpp>
 #include <Nazara/Math/Angle.hpp>
 #include <Nazara/Math/Quaternion.hpp>
@@ -18,6 +19,7 @@
 
 struct ma_engine;
 struct ma_sound;
+struct ma_node_graph;
 using ma_sound_group = ma_sound;
 
 namespace Nz
@@ -26,9 +28,11 @@ namespace Nz
 	class Sound;
 	class SoundGroup;
 
-	class NAZARA_AUDIO2_API AudioEngine
+	class NAZARA_AUDIO2_API AudioEngine : public AudioNode
 	{
 		public:
+			class Endpoint;
+
 			AudioEngine(std::shared_ptr<AudioDevice> audioDevice);
 			AudioEngine(const AudioEngine&) = delete;
 			AudioEngine(AudioEngine&&) = delete;
@@ -40,7 +44,13 @@ namespace Nz
 			void FreeInternalSound(std::size_t soundIndex);
 			void FreeInternalSoundGroup(std::size_t soundGroupIndex);
 
+			std::uint32_t GetChannelCount() const;
+			Endpoint& GetEndpoint();
+			const Endpoint& GetEndpoint() const;
+			ma_node_graph* GetInternalGraph() const;
 			ma_engine* GetInternalHandle() const;
+			ma_node* GetInternalNode() override;
+			const ma_node* GetInternalNode() const override;
 
 			void GetListenerCone(UInt32 listenerIndex, RadianAnglef& innerAngle, RadianAnglef& outerAngle, float& outerGain) const;
 			Vector3f GetListenerDirection(UInt32 listenerIndex) const;
@@ -49,6 +59,8 @@ namespace Nz
 			Vector3f GetListenerVelocity(UInt32 listenerIndex) const;
 			Vector3f GetListenerWorldUp(UInt32 listenerIndex) const;
 			UInt32 GetListenerCount() const;
+
+			std::uint32_t GetSampleRate() const;
 			float GetVolume() const;
 
 			bool IsListenerActive(UInt32 listenerIndex) const;
@@ -68,6 +80,18 @@ namespace Nz
 		private:
 			struct Impl;
 			std::unique_ptr<Impl> m_impl;
+	};
+
+	class NAZARA_AUDIO2_API AudioEngine::Endpoint final : public AudioNode
+	{
+		friend class AudioEngine;
+
+		public:
+			ma_node* GetInternalNode() override;
+			const ma_node* GetInternalNode() const override;
+
+		private:
+			ma_node* endpointNode;
 	};
 }
 

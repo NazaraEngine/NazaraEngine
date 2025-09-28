@@ -34,6 +34,10 @@ namespace Nz
 			Vector3f GetDirection() const override;
 			float GetDirectionalAttenuationFactor() const override;
 			float GetDopplerFactor() const override;
+			AudioEngine& GetEngine() override;
+			const AudioEngine& GetEngine() const override;
+			ma_node* GetInternalNode() override;
+			const ma_node* GetInternalNode() const override;
 			float GetMaxDistance() const override;
 			float GetMaxGain() const override;
 			float GetMinDistance() const override;
@@ -43,9 +47,6 @@ namespace Nz
 			float GetPitch() const override;
 			SoundPositioning GetPositioning() const override;
 			float GetRolloff() const override;
-			AudioEngine& GetEngine() override;
-			const AudioEngine& GetEngine() const override;
-			ma_node* GetInternalNode() override;
 			UInt32 GetListenerIndex() const override;
 			Vector3f GetPosition() const override;
 			Vector3f GetVelocity() const override;
