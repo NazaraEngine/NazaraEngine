@@ -59,6 +59,28 @@ namespace Nz
 		return ma_sound_group_get_doppler_factor(m_soundGroup);
 	}
 
+	AudioEngine& SoundGroup::GetEngine()
+	{
+		ma_engine* engine = ma_sound_group_get_engine(m_soundGroup);
+		return *static_cast<AudioEngine*>(engine->pProcessUserData);
+	}
+
+	const AudioEngine& SoundGroup::GetEngine() const
+	{
+		ma_engine* engine = ma_sound_group_get_engine(m_soundGroup);
+		return *static_cast<AudioEngine*>(engine->pProcessUserData);
+	}
+
+	ma_node* SoundGroup::GetInternalNode()
+	{
+		return &m_soundGroup->engineNode;
+	}
+
+	const ma_node* SoundGroup::GetInternalNode() const
+	{
+		return &m_soundGroup->engineNode;
+	}
+
 	float SoundGroup::GetMaxDistance() const
 	{
 		return ma_sound_group_get_max_distance(m_soundGroup);
@@ -102,18 +124,6 @@ namespace Nz
 	float SoundGroup::GetRolloff() const
 	{
 		return ma_sound_group_get_rolloff(m_soundGroup);
-	}
-
-	AudioEngine& SoundGroup::GetEngine()
-	{
-		ma_engine* engine = ma_sound_group_get_engine(m_soundGroup);
-		return *static_cast<AudioEngine*>(engine->pProcessUserData);
-	}
-
-	const AudioEngine& SoundGroup::GetEngine() const
-	{
-		ma_engine* engine = ma_sound_group_get_engine(m_soundGroup);
-		return *static_cast<AudioEngine*>(engine->pProcessUserData);
 	}
 
 	UInt32 SoundGroup::GetListenerIndex() const
@@ -234,10 +244,5 @@ namespace Nz
 	void SoundGroup::Stop()
 	{
 		ma_sound_group_stop(m_soundGroup);
-	}
-
-	ma_node* SoundGroup::GetInternalNode()
-	{
-		return &m_soundGroup->engineNode;
 	}
 }

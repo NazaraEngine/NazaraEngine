@@ -26,8 +26,17 @@ namespace Nz
 		ma_sound_config miniaudioConfig = ma_sound_config_init_2(engine);
 		miniaudioConfig.channelsOut = MA_SOUND_SOURCE_CHANNEL_COUNT;
 		miniaudioConfig.pDataSource = m_sourceReader->AsDataSource();
-		if (config.parentNode)
-			miniaudioConfig.pInitialAttachment = config.parentNode->GetInternalNode();
+		if (config.outputNode)
+		{
+			miniaudioConfig.pInitialAttachment = config.outputNode->GetInternalNode();
+			miniaudioConfig.initialAttachmentInputBusIndex = config.outputNodeBus;
+		}
+
+		if (!config.attachToNode)
+			miniaudioConfig.flags |= MA_SOUND_FLAG_NO_DEFAULT_ATTACHMENT;
+
+		if (!config.enablePitching)
+			miniaudioConfig.flags |= MA_SOUND_FLAG_NO_PITCH;
 
 		ma_result result = ma_sound_init_ex(engine, &miniaudioConfig, m_sound);
 		if (result != MA_SUCCESS)
@@ -78,7 +87,24 @@ namespace Nz
 		return ma_sound_get_doppler_factor(m_sound);
 	}
 
+	AudioEngine& Sound::GetEngine()
+	{
+		ma_engine* engine = ma_sound_get_engine(m_sound);
+		return *static_cast<AudioEngine*>(engine->pProcessUserData);
+	}
+
+	const AudioEngine& Sound::GetEngine() const
+	{
+		ma_engine* engine = ma_sound_get_engine(m_sound);
+		return *static_cast<AudioEngine*>(engine->pProcessUserData);
+	}
+
 	ma_node* Sound::GetInternalNode()
+	{
+		return &m_sound->engineNode;
+	}
+
+	const ma_node* Sound::GetInternalNode() const
 	{
 		return &m_sound->engineNode;
 	}
@@ -126,18 +152,6 @@ namespace Nz
 	float Sound::GetRolloff() const
 	{
 		return ma_sound_get_rolloff(m_sound);
-	}
-
-	AudioEngine& Sound::GetEngine()
-	{
-		ma_engine* engine = ma_sound_get_engine(m_sound);
-		return *static_cast<AudioEngine*>(engine->pProcessUserData);
-	}
-
-	const AudioEngine& Sound::GetEngine() const
-	{
-		ma_engine* engine = ma_sound_get_engine(m_sound);
-		return *static_cast<AudioEngine*>(engine->pProcessUserData);
 	}
 
 	UInt32 Sound::GetListenerIndex() const

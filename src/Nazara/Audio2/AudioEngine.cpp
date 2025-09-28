@@ -21,11 +21,14 @@ namespace Nz
 
 		std::shared_ptr<AudioDevice> device;
 		MemoryPool<ma_sound> soundPool;
+		Endpoint endpoint;
 		ma_engine engine;
 	};
 
 	AudioEngine::AudioEngine(std::shared_ptr<AudioDevice> audioDevice)
 	{
+		NazaraAssertMsg(audioDevice, "invalid audio device");
+
 		m_impl = std::make_unique<Impl>();
 		m_impl->device = std::move(audioDevice);
 
@@ -37,9 +40,11 @@ namespace Nz
 		if (result != MA_SUCCESS)
 			throw std::runtime_error(Format("ma_engine_init failed: {}", ma_result_description(result)));
 
+		m_impl->endpoint.endpointNode = ma_engine_get_endpoint(&m_impl->engine);
+
 		// Normally ma_engine sets the device data callback to ma_engine_data_callback_internal but we don't have access to that function
 		// and we want to keep userdata pointing to AudioDevice, so do the job ourselves
-		m_impl->device->SetDataCallback([this](const AudioDevice& device, const void* inputData, void* outputData, UInt32 frameCount)
+		m_impl->device->SetDataCallback([this](const AudioDevice& /*device*/, const void* /*inputData*/, void* outputData, UInt32 frameCount)
 		{
 			ma_engine_read_pcm_frames(&m_impl->engine, outputData, frameCount, nullptr);
 		});
@@ -78,10 +83,45 @@ namespace Nz
 		m_impl->soundPool.Free(soundGroupIndex);
 	}
 
+	std::uint32_t AudioEngine::GetChannelCount() const
+	{
+		return ma_engine_get_channels(&m_impl->engine);
+	}
+
+	auto AudioEngine::GetEndpoint() -> Endpoint&
+	{
+		return m_impl->endpoint;
+	}
+
+	auto AudioEngine::GetEndpoint() const -> const Endpoint&
+	{
+		return m_impl->endpoint;
+	}
+
+	std::uint32_t AudioEngine::GetSampleRate() const
+	{
+		return ma_engine_get_sample_rate(&m_impl->engine);
+	}
+
+	ma_node_graph* AudioEngine::GetInternalGraph() const
+	{
+		return ma_engine_get_node_graph(GetInternalHandle());
+	}
+
 	ma_engine* AudioEngine::GetInternalHandle() const
 	{
 		// some ma_engine API are not const-correct
 		return const_cast<ma_engine*>(static_cast<const ma_engine*>(&m_impl->engine));
+	}
+
+	ma_node* AudioEngine::GetInternalNode()
+	{
+		return &m_impl->engine.nodeGraph.base;
+	}
+
+	const ma_node* AudioEngine::GetInternalNode() const
+	{
+		return &m_impl->engine.nodeGraph.base;
 	}
 
 	void AudioEngine::GetListenerCone(UInt32 listenerIndex, RadianAnglef& innerAngle, RadianAnglef& outerAngle, float& outerGain) const
@@ -171,5 +211,15 @@ namespace Nz
 	void AudioEngine::SetVolume(float volume)
 	{
 		ma_engine_set_volume(&m_impl->engine, volume);
+	}
+
+	ma_node* AudioEngine::Endpoint::GetInternalNode()
+	{
+		return endpointNode;
+	}
+
+	const ma_node* AudioEngine::Endpoint::GetInternalNode() const
+	{
+		return endpointNode;
 	}
 }
