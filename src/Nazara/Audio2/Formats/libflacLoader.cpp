@@ -140,7 +140,7 @@ namespace Nz
 			return extension == ".flac";
 		}
 
-		Result<std::shared_ptr<SoundBuffer>, ResourceLoadingError> LoadFlacSoundBuffer(Stream& stream, const SoundBufferParams& parameters)
+		Result<std::shared_ptr<SoundBuffer>, ResourceLoadingError> LoadFlacSoundBuffer(Stream& stream, const SoundBufferParams& /*parameters*/)
 		{
 			FLAC__StreamDecoder* decoder = FLAC__stream_decoder_new();
 			CallOnExit freeDecoder([&] { FLAC__stream_decoder_delete(decoder); });
@@ -257,6 +257,11 @@ namespace Nz
 					return m_channels;
 				}
 
+				Time GetDuration() const override
+				{
+					return m_duration;
+				}
+
 				AudioFormat GetFormat() const override
 				{
 					return m_format;
@@ -296,7 +301,7 @@ namespace Nz
 					return Open(*m_ownedStream, parameters);
 				}
 
-				Result<void, ResourceLoadingError> Open(Stream& stream, const SoundStreamParams& parameters)
+				Result<void, ResourceLoadingError> Open(Stream& stream, const SoundStreamParams& /*parameters*/)
 				{
 					m_userData.stream = &stream;
 					m_userData.errorCallback = [this](const FLAC__StreamDecoder* /*decoder*/, FLAC__StreamDecoderErrorStatus status)
@@ -314,7 +319,7 @@ namespace Nz
 						m_frameCount = meta->data.stream_info.total_samples;
 						m_sampleRate = meta->data.stream_info.sample_rate;
 
-						m_duration = Time::Microseconds(1'000'000LL * m_frameCount * m_channelCount / m_sampleRate);
+						m_duration = Time::Microseconds(1'000'000LL * m_frameCount / m_sampleRate);
 					};
 
 					FLAC__StreamDecoderInitStatus status = FLAC__stream_decoder_init_stream(decoder, &FlacReadCallback, &FlacSeekCallback, &FlacTellCallback, &FlacLengthCallback, &FlacEofCallback, &WriteCallback, &MetadataCallback, &ErrorCallback, &m_userData);

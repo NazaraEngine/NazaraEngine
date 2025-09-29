@@ -22,7 +22,7 @@ int main(int argc, char* argv[])
 
 	std::shared_ptr<Nz::SoundStream> soundBuffer = Nz::SoundStream::OpenFromFile(resourceDir / "Audio/file_example_MP3_700KB.mp3");
 
-	Nz::Sound sound(Nz::Sound::Config{ .source = soundBuffer, .engine = audioEngine.get() });
+	Nz::Sound sound(Nz::Sound::Config{ .engine = audioEngine.get(), .source = soundBuffer });
 	sound.Play();
 
 	std::cout << "Playing sound..." << std::endl;

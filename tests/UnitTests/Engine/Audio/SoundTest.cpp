@@ -1,5 +1,6 @@
-#include <Nazara/Audio/Audio.hpp>
-#include <Nazara/Audio/Sound.hpp>
+#include <Nazara/Audio2/Audio2.hpp>
+#include <Nazara/Audio2/AudioEngine.hpp>
+#include <Nazara/Audio2/Sound.hpp>
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 #include <chrono>
@@ -14,18 +15,20 @@ SCENARIO("Sound", "[AUDIO][SOUND]")
 
 	GIVEN("A sound")
 	{
-		Nz::Sound sound;
+		std::shared_ptr<Nz::AudioEngine> audioEngine = Nz::Audio2::Instance()->OpenPlaybackEngine();
 
 		WHEN("We load our sound")
 		{
-			REQUIRE(sound.LoadFromFile(GetAssetDir() / "Audio/Cat.flac"));
+			std::shared_ptr<Nz::SoundBuffer> soundBuffer = Nz::SoundBuffer::LoadFromFile(GetAssetDir() / "Audio/Cat.flac");
+			REQUIRE(soundBuffer);
+
+			Nz::Sound sound({ .engine = audioEngine.get(), .source = soundBuffer });
 
 			THEN("We can ask the informations of the file")
 			{
 				CHECK(sound.GetDuration() == 8192_ms);
-				CHECK(sound.GetStatus() == Nz::SoundStatus::Stopped);
+				CHECK_FALSE(sound.IsPlaying());
 				CHECK_FALSE(sound.IsLooping());
-				CHECK(sound.IsPlayable());
 				CHECK(sound.IsSpatializationEnabled());
 				CHECK(sound.GetMinDistance() == 1.f);
 				CHECK(sound.GetPitch() == 1.f);
@@ -37,7 +40,7 @@ SCENARIO("Sound", "[AUDIO][SOUND]")
 
 			THEN("We can play it and get the time offset")
 			{
-				Nz::Audio::Instance()->GetDefaultDevice()->SetGlobalVolume(0.f);
+				audioEngine->SetVolume(0.f);
 
 				sound.Play();
 				std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -47,14 +50,12 @@ SCENARIO("Sound", "[AUDIO][SOUND]")
 				CHECK(sound.GetPlayingOffset() <= 1500_ms);
 				sound.Pause();
 				Nz::Time playingOffset = sound.GetPlayingOffset();
-				Nz::UInt64 sampleOffset = sound.GetSampleOffset();
-				CHECK(sound.GetStatus() == Nz::SoundStatus::Paused);
+				Nz::UInt64 frameOffset = sound.GetPlayingFrame();
 				std::this_thread::sleep_for(std::chrono::milliseconds(50));
-				CHECK(sound.GetStatus() == Nz::SoundStatus::Paused);
 				CHECK(sound.GetPlayingOffset() == playingOffset);
-				CHECK(sound.GetSampleOffset() == sampleOffset);
+				CHECK(sound.GetPlayingFrame() == frameOffset);
 
-				sound.SeekToPlayingOffset(3500_ms);
+				sound.SeekToTime(3500_ms);
 				CHECK(sound.GetPlayingOffset() == 3500_ms);
 
 				sound.Play();
@@ -65,36 +66,36 @@ SCENARIO("Sound", "[AUDIO][SOUND]")
 				{
 					REQUIRE(sound.GetDuration() == 8192_ms);
 
-					sound.SeekToPlayingOffset(8000_ms);
-					std::this_thread::sleep_for(std::chrono::milliseconds(200));
-					CHECK(sound.GetStatus() == Nz::SoundStatus::Stopped);
-					CHECK(sound.GetPlayingOffset() == 0_ms);
+					sound.SeekToTime(8000_ms);
+					std::this_thread::sleep_for(std::chrono::milliseconds(250));
+					CHECK_FALSE(sound.IsPlaying());
+					CHECK(sound.GetPlayingOffset() >= 8192_ms); //< >= because of Linux that gives 8.19202s for some reason
 
-					sound.SeekToPlayingOffset(9000_ms);
+					sound.SeekToTime(9000_ms);
 					sound.Play();
 					std::this_thread::sleep_for(std::chrono::milliseconds(50));
-					CHECK(sound.GetStatus() == Nz::SoundStatus::Playing);
+					CHECK_FALSE(sound.IsPlaying());
 
 					sound.Stop();
-					sound.SeekToPlayingOffset(8000_ms);
+					sound.SeekToTime(8000_ms);
 					std::this_thread::sleep_for(std::chrono::milliseconds(50));
-					CHECK(sound.GetStatus() == Nz::SoundStatus::Stopped);
-					CHECK(sound.GetPlayingOffset() == 0_ms); //< playing offset has no effect until Play()
+					CHECK_FALSE(sound.IsPlaying());
+					CHECK(sound.GetPlayingOffset() == 8000_ms);
 
 					AND_WHEN("We enable looping")
 					{
 						sound.EnableLooping(true);
 						CHECK(sound.IsLooping());
 						sound.Play();
-						CHECK(sound.GetStatus() == Nz::SoundStatus::Playing);
+						CHECK(sound.IsPlaying());
 						CHECK(sound.GetPlayingOffset() >= 8000_ms);
 						std::this_thread::sleep_for(std::chrono::milliseconds(300));
-						CHECK(sound.GetStatus() == Nz::SoundStatus::Playing);
+						CHECK(sound.IsPlaying());
 						CHECK(sound.GetPlayingOffset() < 300_ms);
 					}
 				}
 
-				Nz::Audio::Instance()->GetDefaultDevice()->SetGlobalVolume(100.f);
+				audioEngine->SetVolume(1.f);
 			}
 		}
 	}

@@ -8,8 +8,8 @@
 #define NAZARA_AUDIO2_ALGORITHM_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Audio2/Export.hpp>
 #include <Nazara/Audio2/Enums.hpp>
+#include <Nazara/Audio2/Export.hpp>
 #include <span>
 
 namespace Nz

@@ -65,15 +65,6 @@ namespace Nz
 	}
 
 	/*!
-	* \brief Gets the number of samples in the sound buffer
-	* \return Count of samples (number of seconds * sample rate * channel count)
-	*/
-	inline UInt64 SoundBuffer::GetSampleCount() const
-	{
-		return m_frameCount * m_channels.size();
-	}
-
-	/*!
 	* \brief Gets the rates of sample in the sound buffer
 	* \return Rate of sample in Hertz (Hz)
 	*/

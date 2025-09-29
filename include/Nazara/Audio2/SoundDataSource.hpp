@@ -10,6 +10,7 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Audio2/Enums.hpp>
 #include <Nazara/Audio2/Export.hpp>
+#include <Nazara/Core/Time.hpp>
 #include <NazaraUtils/Result.hpp>
 #include <mutex>
 #include <span>
@@ -24,6 +25,7 @@ namespace Nz
 			virtual ~SoundDataSource();
 
 			virtual std::span<const AudioChannel> GetChannels() const = 0;
+			virtual Time GetDuration() const = 0;
 			virtual AudioFormat GetFormat() const = 0;
 			virtual UInt64 GetFrameCount() const = 0;
 			virtual std::mutex* GetMutex() = 0;

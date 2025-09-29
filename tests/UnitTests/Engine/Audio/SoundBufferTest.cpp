@@ -1,12 +1,18 @@
-#include <Nazara/Audio/SoundBuffer.hpp>
+#include <Nazara/Audio2/SoundBuffer.hpp>
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
+#include <span>
 
 std::filesystem::path GetAssetDir();
 
 SCENARIO("SoundBuffer", "[AUDIO][SOUNDBUFFER]")
 {
 	using namespace Nz::Literals;
+
+	auto CompareChannels = [](std::span<const Nz::AudioChannel> channels1, std::span<const Nz::AudioChannel> referenceChannels)
+	{
+		return std::equal(channels1.begin(), channels1.end(), referenceChannels.begin(), referenceChannels.end());
+	};
 
 	GIVEN("A sound buffer")
 	{
@@ -18,9 +24,10 @@ SCENARIO("SoundBuffer", "[AUDIO][SOUNDBUFFER]")
 			THEN("We can ask the informations of the file")
 			{
 				CHECK(soundBuffer->GetDuration() == 8192_ms);
-				CHECK(soundBuffer->GetFormat() == Nz::AudioFormat::I16_Stereo);
-				CHECK(soundBuffer->GetSampleCount() == 1572864);
+				CHECK(soundBuffer->GetFormat() == Nz::AudioFormat::Signed16);
+				CHECK(soundBuffer->GetFrameCount() == 786432);
 				CHECK(soundBuffer->GetSampleRate() == 96000);
+				CHECK(CompareChannels(soundBuffer->GetChannels(), { { Nz::AudioChannel::FrontLeft, Nz::AudioChannel::FrontRight } }));
 			}
 		}
 
@@ -32,9 +39,10 @@ SCENARIO("SoundBuffer", "[AUDIO][SOUNDBUFFER]")
 			THEN("We can ask the informations of the file")
 			{
 				CHECK(soundBuffer->GetDuration() == 27'193'468_us);
-				CHECK(soundBuffer->GetFormat() == Nz::AudioFormat::I16_Stereo);
-				CHECK(soundBuffer->GetSampleCount() == 1740382);
+				CHECK(soundBuffer->GetFormat() == Nz::AudioFormat::Signed16);
+				CHECK(soundBuffer->GetFrameCount() == 870191);
 				CHECK(soundBuffer->GetSampleRate() == 32000);
+				CHECK(CompareChannels(soundBuffer->GetChannels(), { { Nz::AudioChannel::FrontLeft, Nz::AudioChannel::FrontRight } }));
 			}
 		}
 
@@ -46,9 +54,10 @@ SCENARIO("SoundBuffer", "[AUDIO][SOUNDBUFFER]")
 			THEN("We can ask the informations of the file")
 			{
 				CHECK(soundBuffer->GetDuration() == 63'059'591_us);
-				CHECK(soundBuffer->GetFormat() == Nz::AudioFormat::I16_Stereo);
-				CHECK(soundBuffer->GetSampleCount() == 5561856);
+				CHECK(soundBuffer->GetFormat() == Nz::AudioFormat::Signed16);
+				CHECK(soundBuffer->GetFrameCount() == 2780928);
 				CHECK(soundBuffer->GetSampleRate() == 44100);
+				CHECK(CompareChannels(soundBuffer->GetChannels(), { { Nz::AudioChannel::FrontLeft, Nz::AudioChannel::FrontRight } }));
 			}
 		}
 
@@ -60,9 +69,10 @@ SCENARIO("SoundBuffer", "[AUDIO][SOUNDBUFFER]")
 			THEN("We can ask the informations of the file")
 			{
 				CHECK(soundBuffer->GetDuration() == 2'490'340_us);
-				CHECK(soundBuffer->GetFormat() == Nz::AudioFormat::I16_Mono);
-				CHECK(soundBuffer->GetSampleCount() == 109824);
+				CHECK(soundBuffer->GetFormat() == Nz::AudioFormat::Signed16);
+				CHECK(soundBuffer->GetFrameCount() == 109824);
 				CHECK(soundBuffer->GetSampleRate() == 44100);
+				CHECK(CompareChannels(soundBuffer->GetChannels(), { { Nz::AudioChannel::Mono } }));
 			}
 		}
 	}

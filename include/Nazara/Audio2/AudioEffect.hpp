@@ -4,23 +4,19 @@
 
 #pragma once
 
-#ifndef NAZARA_AUDIO2_SOUNDEFFECT_HPP
-#define NAZARA_AUDIO2_SOUNDEFFECT_HPP
+#ifndef NAZARA_AUDIO2_AUDIOEFFECT_HPP
+#define NAZARA_AUDIO2_AUDIOEFFECT_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <NazaraUtils/PrivateImpl.hpp>
-#include <Nazara/Audio2/Export.hpp>
 #include <Nazara/Audio2/AudioNode.hpp>
+#include <Nazara/Audio2/Export.hpp>
+#include <NazaraUtils/PrivateImpl.hpp>
 
 namespace Nz
 {
 	class AudioEngine;
 
-	class NAZARA_AUDIO2_API AudioEffect : public AudioNode
-	{
-	};
-
-	class NAZARA_AUDIO2_API AudioDelayEffect final : public AudioEffect
+	class NAZARA_AUDIO2_API AudioDelayEffect final : public AudioNode
 	{
 		public:
 			struct Config;
@@ -67,7 +63,7 @@ namespace Nz
 			PrivateImpl<MiniaudioDelayNode> m_soundNode;
 	};
 
-	class NAZARA_AUDIO2_API AudioReverbEffect final : public AudioEffect
+	class NAZARA_AUDIO2_API AudioReverbEffect final : public AudioNode
 	{
 		public:
 			struct Config;
@@ -107,7 +103,7 @@ namespace Nz
 			PrivateImpl<MiniaudioReverbNode> m_soundNode;
 	};
 
-	class NAZARA_AUDIO2_API AudioSplitter final : public AudioEffect
+	class NAZARA_AUDIO2_API AudioSplitter final : public AudioNode
 	{
 		public:
 			struct Config;
@@ -141,4 +137,4 @@ namespace Nz
 
 #include <Nazara/Audio2/AudioEffect.inl>
 
-#endif // NAZARA_AUDIO2_SOUNDEFFECT_HPP
+#endif // NAZARA_AUDIO2_AUDIOEFFECT_HPP
