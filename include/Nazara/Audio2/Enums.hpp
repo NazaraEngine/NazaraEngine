@@ -133,17 +133,6 @@ namespace Nz
 
 		Max = Relative
 	};
-
-	enum class SoundStatus
-	{
-		Playing,
-		Paused,
-		Stopped,
-
-		Max = Stopped
-	};
-
-	constexpr std::size_t SoundStatusCount = static_cast<std::size_t>(SoundStatus::Max) + 1;
 }
 
 #endif // NAZARA_AUDIO2_ENUMS_HPP

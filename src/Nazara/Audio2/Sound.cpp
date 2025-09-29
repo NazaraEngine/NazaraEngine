@@ -3,9 +3,10 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Audio2/Sound.hpp>
-#include <NazaraUtils/StackArray.hpp>
 #include <Nazara/Audio2/AudioEngine.hpp>
 #include <Nazara/Audio2/MiniaudioUtils.hpp>
+#include <Nazara/Audio2/SoundDataSource.hpp>
+#include <NazaraUtils/StackArray.hpp>
 #include <miniaudio.h>
 
 namespace Nz
@@ -67,6 +68,11 @@ namespace Nz
 		return FromMiniaudio(ma_sound_get_attenuation_model(m_sound));
 	}
 
+	std::span<const AudioChannel> Sound::GetChannels() const
+	{
+		return m_sourceReader->GetSource()->GetChannels();
+	}
+
 	void Sound::GetCone(RadianAnglef& innerAngle, RadianAnglef& outerAngle, float& outerGain) const
 	{
 		ma_sound_get_cone(m_sound, &innerAngle.value, &outerAngle.value, &outerGain);
@@ -75,6 +81,11 @@ namespace Nz
 	Vector3f Sound::GetDirection() const
 	{
 		return FromMiniaudio(ma_sound_get_direction(m_sound));
+	}
+
+	Time Sound::GetDuration() const
+	{
+		return m_sourceReader->GetSource()->GetDuration();
 	}
 
 	float Sound::GetDirectionalAttenuationFactor() const
@@ -97,6 +108,16 @@ namespace Nz
 	{
 		ma_engine* engine = ma_sound_get_engine(m_sound);
 		return *static_cast<AudioEngine*>(engine->pProcessUserData);
+	}
+
+	AudioFormat Sound::GetFormat() const
+	{
+		return m_sourceReader->GetSource()->GetFormat();
+	}
+
+	UInt64 Sound::GetFrameCount() const
+	{
+		return m_sourceReader->GetSource()->GetFrameCount();
 	}
 
 	ma_node* Sound::GetInternalNode()
@@ -144,6 +165,24 @@ namespace Nz
 		return ma_sound_get_pitch(m_sound);
 	}
 
+	UInt64 Sound::GetPlayingFrame() const
+	{
+		ma_uint64 playingFrame;
+		ma_sound_get_cursor_in_pcm_frames(m_sound, &playingFrame);
+		return playingFrame;
+	}
+
+	Time Sound::GetPlayingOffset() const
+	{
+		UInt32 sampleRate = 0;
+		ma_sound_get_data_format(m_sound, nullptr, nullptr, &sampleRate, nullptr, 0);
+		if NAZARA_UNLIKELY(sampleRate == 0)
+			sampleRate = 1; //< avoid division by zero
+
+		UInt64 playingFrame = GetPlayingFrame();
+		return Time::Microseconds(playingFrame * 1'000'000ll / sampleRate);
+	}
+
 	SoundPositioning Sound::GetPositioning() const
 	{
 		return FromMiniaudio(ma_sound_get_positioning(m_sound));
@@ -162,6 +201,11 @@ namespace Nz
 	Vector3f Sound::GetPosition() const
 	{
 		return FromMiniaudio(ma_sound_get_position(m_sound));
+	}
+
+	UInt32 Sound::GetSampleRate() const
+	{
+		return m_sourceReader->GetSource()->GetSampleRate();
 	}
 
 	Vector3f Sound::GetVelocity() const
@@ -197,6 +241,19 @@ namespace Nz
 	void Sound::Play()
 	{
 		ma_sound_start(m_sound);
+	}
+
+	void Sound::SeekToFrame(UInt64 frameIndex)
+	{
+		ma_sound_seek_to_pcm_frame(m_sound, frameIndex);
+	}
+
+	void Sound::SeekToTime(Time time)
+	{
+		// Beware, ma_node are timed around the engine sample rate, not the buffer sample rate
+		ma_engine* engine = ma_sound_get_engine(m_sound);
+		UInt32 sampleRate = ma_engine_get_sample_rate(engine);
+		SeekToFrame(sampleRate * time.AsMicroseconds() / 1'000'000ll);
 	}
 
 	void Sound::SetAttenuationModel(SoundAttenuationModel attenuationModel)

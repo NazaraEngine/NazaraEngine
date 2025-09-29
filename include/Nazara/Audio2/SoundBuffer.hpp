@@ -32,6 +32,7 @@ namespace Nz
 		bool IsValid() const;
 	};
 
+
 	class Sound;
 	class SoundBuffer;
 
@@ -55,13 +56,12 @@ namespace Nz
 			void ConvertFormat(AudioFormat format, AudioDitherMode ditherMode = AudioDitherMode::None);
 
 			inline std::span<const AudioChannel> GetChannels() const override;
-			inline Time GetDuration() const;
+			inline Time GetDuration() const override;
 			inline AudioFormat GetFormat() const override;
 			inline UInt64 GetFrameCount() const override;
 			inline std::mutex* GetMutex() override;
 			inline void* GetSamples();
 			inline const void* GetSamples() const;
-			inline UInt64 GetSampleCount() const;
 			inline UInt32 GetSampleRate() const override;
 
 			Result<ReadData, std::string> Read(UInt64 startingFrameIndex, void* frameOut, UInt64 frameCount) override;

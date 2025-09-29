@@ -129,6 +129,11 @@ namespace Nz
 					return m_channels;
 				}
 
+				Time GetDuration() const override
+				{
+					return m_duration;
+				}
+
 				AudioFormat GetFormat() const override
 				{
 					return AudioFormat::Floating32;
@@ -182,7 +187,7 @@ namespace Nz
 					return Open(*m_ownedStream, parameters);
 				}
 
-				Result<void, ResourceLoadingError> Open(Stream& stream, const SoundStreamParams& parameters)
+				Result<void, ResourceLoadingError> Open(Stream& stream, const SoundStreamParams& /*parameters*/)
 				{
 					if (!drmp3_init(&m_decoder, &ReadMp3Callback, &SeekMp3Callback, &TellMp3Callback, nullptr, &stream, nullptr))
 						return Err(ResourceLoadingError::Unrecognized);

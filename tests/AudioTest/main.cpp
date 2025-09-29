@@ -27,7 +27,7 @@ int main()
 	Nz::AudioReverbEffect reverbEffect({ .engine = audioEngine.get() });
 	reverbEffect.AttachOutputBus(0, audioEngine->GetEndpoint(), 0);
 
-	Nz::Sound sound(Nz::Sound::Config{ .source = soundBuffer, .engine = audioEngine.get(), .outputNode = &reverbEffect });
+	Nz::Sound sound(Nz::Sound::Config{ .engine = audioEngine.get(), .source = soundBuffer, .outputNode = &reverbEffect });
 	sound.Play();
 
 	std::getchar();

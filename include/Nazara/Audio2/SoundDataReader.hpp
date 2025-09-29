@@ -8,15 +8,15 @@
 #define NAZARA_AUDIO2_SOUNDDATAREADER_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <NazaraUtils/PrivateImpl.hpp>
 #include <Nazara/Audio2/Enums.hpp>
 #include <Nazara/Audio2/Export.hpp>
+#include <NazaraUtils/PrivateImpl.hpp>
 #include <atomic>
 #include <memory>
 #include <span>
 
-typedef void ma_data_source;
 struct ma_decoder;
+using ma_data_source = void;
 
 namespace Nz
 {

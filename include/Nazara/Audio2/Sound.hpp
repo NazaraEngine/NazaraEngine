@@ -33,12 +33,16 @@ namespace Nz
 			void EnableSpatialization(bool spatialization);
 
 			SoundAttenuationModel GetAttenuationModel() const override;
+			std::span<const AudioChannel> GetChannels() const;
 			void GetCone(RadianAnglef& innerAngle, RadianAnglef& outerAngle, float& outerGain) const override;
 			Vector3f GetDirection() const override;
+			Time GetDuration() const;
 			float GetDirectionalAttenuationFactor() const override;
 			float GetDopplerFactor() const override;
 			AudioEngine& GetEngine() override;
 			const AudioEngine& GetEngine() const override;
+			AudioFormat GetFormat() const;
+			UInt64 GetFrameCount() const;
 			ma_node* GetInternalNode() override;
 			const ma_node* GetInternalNode() const override;
 			float GetMaxDistance() const override;
@@ -48,10 +52,13 @@ namespace Nz
 			float GetPan() const override;
 			SoundPanMode GetPanMode() const override;
 			float GetPitch() const override;
+			UInt64 GetPlayingFrame() const;
+			Time GetPlayingOffset() const;
 			SoundPositioning GetPositioning() const override;
 			float GetRolloff() const override;
 			UInt32 GetListenerIndex() const override;
 			Vector3f GetPosition() const override;
+			UInt32 GetSampleRate() const;
 			Vector3f GetVelocity() const override;
 			float GetVolume() const override;
 
@@ -61,6 +68,9 @@ namespace Nz
 
 			void Pause();
 			void Play();
+
+			void SeekToFrame(UInt64 time);
+			void SeekToTime(Time time);
 
 			void SetAttenuationModel(SoundAttenuationModel attenuationModel) override;
 			void SetCone(RadianAnglef innerAngle, RadianAnglef outerAngle, float outerGain) override;
@@ -87,8 +97,9 @@ namespace Nz
 
 			struct Config
 			{
-				std::shared_ptr<SoundDataSource> source;
 				AudioEngine* engine;
+
+				std::shared_ptr<SoundDataSource> source;
 				AudioNode* outputNode = nullptr;
 				UInt32 outputNodeBus = 0;
 				bool attachToNode = true;

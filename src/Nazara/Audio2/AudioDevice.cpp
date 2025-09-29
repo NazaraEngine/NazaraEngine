@@ -22,6 +22,7 @@ namespace Nz
 				audioDevice.m_dataCallback(audioDevice, pInput, pOutput, frameCount);
 		};
 
+		/*
 		deviceConfig.notificationCallback = [](const ma_device_notification* pNotification)
 		{
 			char deviceName[MA_MAX_DEVICE_NAME_LENGTH + 1];
@@ -54,6 +55,7 @@ namespace Nz
 					break;
 			}
 		};
+		*/
 
 		ma_result result = ma_device_init(context, &deviceConfig, m_device);
 		if (result != MA_SUCCESS)

@@ -244,6 +244,11 @@ namespace Nz
 					return m_channels;
 				}
 
+				Time GetDuration() const override
+				{
+					return m_duration;
+				}
+
 				AudioFormat GetFormat() const override
 				{
 					return m_format;
@@ -283,7 +288,7 @@ namespace Nz
 					return Open(*m_ownedStream, parameters);
 				}
 
-				Result<void, ResourceLoadingError> Open(Stream& stream, const SoundStreamParams& parameters)
+				Result<void, ResourceLoadingError> Open(Stream& stream, const SoundStreamParams& /*parameters*/)
 				{
 					int err = ov_open_callbacks(&stream, &m_decoder, nullptr, 0, s_vorbisCallbacks);
 					if (err != 0)

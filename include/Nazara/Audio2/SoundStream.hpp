@@ -20,8 +20,6 @@ namespace Nz
 {
 	struct SoundStreamParams : ResourceParameters
 	{
-		bool forceMono = false;
-
 		bool IsValid() const;
 	};
 
@@ -43,5 +41,7 @@ namespace Nz
 			static std::shared_ptr<SoundStream> OpenFromStream(Stream& stream, const SoundStreamParams& params = SoundStreamParams());
 	};
 }
+
+#include <Nazara/Audio2/SoundStream.inl>
 
 #endif // NAZARA_AUDIO2_SOUNDSTREAM_HPP

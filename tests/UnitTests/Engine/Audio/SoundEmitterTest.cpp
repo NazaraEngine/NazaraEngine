@@ -1,4 +1,6 @@
-#include <Nazara/Audio/Sound.hpp>
+#include <Nazara/Audio2/Audio2.hpp>
+#include <Nazara/Audio2/Sound.hpp>
+#include <Nazara/Audio2/SoundBuffer.hpp>
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 
@@ -8,11 +10,14 @@ SCENARIO("SoundEmitter", "[AUDIO][SOUNDEMITTER]")
 {
 	GIVEN("A sound emitter")
 	{
-		Nz::Sound sound;
+		std::shared_ptr<Nz::AudioEngine> audioEngine = Nz::Audio2::Instance()->OpenPlaybackEngine();
 
-		WHEN("We load our sound")
+		std::shared_ptr<Nz::SoundBuffer> soundBuffer = Nz::SoundBuffer::LoadFromFile(GetAssetDir() / "Audio/Cat.flac");
+		REQUIRE(soundBuffer);
+
+		WHEN("We create a sound")
 		{
-			REQUIRE(sound.LoadFromFile(GetAssetDir() / "Audio/Cat.flac"));
+			Nz::Sound sound({ .engine = audioEngine.get(), .source = soundBuffer });
 
 			THEN("We can ask information about position and velocity")
 			{
@@ -27,12 +32,12 @@ SCENARIO("SoundEmitter", "[AUDIO][SOUNDEMITTER]")
 
 			THEN("We can ask information about attenuation, pitch, ...")
 			{
-				sound.SetAttenuation(0.4f);
+				sound.SetAttenuationModel(Nz::SoundAttenuationModel::Inverse);
 				sound.SetMinDistance(40.f);
 				sound.SetPitch(0.8f);
 				sound.SetVolume(50.f);
 
-				REQUIRE(Catch::Approx(sound.GetAttenuation()) == 0.4f);
+				REQUIRE(sound.GetAttenuationModel() == Nz::SoundAttenuationModel::Inverse);
 				REQUIRE(Catch::Approx(sound.GetMinDistance()) == 40.f);
 				REQUIRE(Catch::Approx(sound.GetPitch()) == 0.8f);
 				REQUIRE(Catch::Approx(sound.GetVolume()) == 50.f);

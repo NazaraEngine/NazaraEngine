@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
 
 	std::shared_ptr<Nz::AudioEngine> audioEngine = Nz::Audio2::Instance()->OpenPlaybackEngine();
 
-	Nz::Sound sound(Nz::Sound::Config{ .source = soundBuffer, .engine = audioEngine.get() });
+	Nz::Sound sound(Nz::Sound::Config{ .engine = audioEngine.get(), .source = soundBuffer });
 
 	std::cout << "Doppler effect demo" << std::endl;
 	std::cout << "Press enter to start" << std::endl;

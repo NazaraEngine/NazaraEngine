@@ -3,11 +3,11 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Audio2/SoundDataReader.hpp>
+#include <Nazara/Audio2/MiniaudioUtils.hpp>
+#include <Nazara/Audio2/SoundDataSource.hpp>
 #include <NazaraUtils/Algorithm.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
 #include <NazaraUtils/StackArray.hpp>
-#include <Nazara/Audio2/MiniaudioUtils.hpp>
-#include <Nazara/Audio2/SoundDataSource.hpp>
 #include <miniaudio.h>
 #include <mutex>
 
@@ -26,7 +26,16 @@ namespace Nz
 				if (std::mutex* mutex = source->GetMutex())
 					lock = std::unique_lock(*mutex);
 
-				auto res = source->Read(reader->GetReadOffset(), framesOut, frameCount);
+				UInt64 cursorPosition = reader->GetReadOffset();
+				if (cursorPosition >= source->GetFrameCount())
+				{
+					if (reader->IsLooping())
+						cursorPosition = 0;
+					else
+						return MA_AT_END;
+				}
+
+				auto res = source->Read(cursorPosition, framesOut, frameCount);
 				if (!res)
 					return MA_ERROR;
 
@@ -55,7 +64,7 @@ namespace Nz
 				std::span channels = source->GetChannels();
 
 				*format = ToMiniaudio(source->GetFormat());
-				*channelCount = channels.size();
+				*channelCount = SafeCaster(channels.size());
 				*sampleRate = source->GetSampleRate();
 
 				std::size_t minChannelCount = std::min<std::size_t>(channelMapCapacity, *channelCount);
@@ -89,7 +98,7 @@ namespace Nz
 
 		static ma_decoding_backend_vtable s_customBackendVTable =
 		{
-			.onInit = [](void* pUserData, ma_read_proc /*onRead*/, ma_seek_proc /*onSeek*/, ma_tell_proc /*onTell*/, void* /*pReadSeekTellUserData*/, const ma_decoding_backend_config* pConfig, const ma_allocation_callbacks* /*pAllocationCallbacks*/, ma_data_source** ppBackend)
+			.onInit = [](void* pUserData, ma_read_proc /*onRead*/, ma_seek_proc /*onSeek*/, ma_tell_proc /*onTell*/, void* /*pReadSeekTellUserData*/, const ma_decoding_backend_config* /*pConfig*/, const ma_allocation_callbacks* /*pAllocationCallbacks*/, ma_data_source** ppBackend)
 			{
 				*ppBackend = pUserData;
 				return MA_SUCCESS;
@@ -127,10 +136,6 @@ namespace Nz
 
 		CallOnExit freeDataSource([&]{ ma_data_source_uninit(m_miniAudioSource.Get()); });
 
-		AudioFormat sourceFormat = m_source->GetFormat();
-		std::span<const AudioChannel> sourceChannels = m_source->GetChannels();
-		std::uint32_t sourceSampleRate = m_source->GetSampleRate();
-
 		StackArray<ma_channel> outputChannelMap = NazaraStackArrayNoInit(ma_channel, outputChannels.size());
 		for (std::size_t i = 0; i < outputChannels.size(); ++i)
 			outputChannelMap[i] = ToMiniaudio(outputChannels[i]);
@@ -143,7 +148,7 @@ namespace Nz
 		decoderConfig.pCustomBackendUserData = this;
 
 		ma_result decoderResult = ma_decoder_init(nullptr, nullptr, this, &decoderConfig, m_miniDecoder.Get());
-		if (result != MA_SUCCESS)
+		if (decoderResult != MA_SUCCESS)
 			throw std::runtime_error(Format("ma_decoder_init failed: {}", ma_result_description(result)));
 
 		freeDataSource.Reset();
