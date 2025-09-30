@@ -40,6 +40,7 @@ namespace Nz
 			inline bool IsLooping() const;
 
 			inline void UpdateReadOffset(UInt64 offset);
+			inline bool UpdateReadOffset(UInt64 offset, UInt64 expectedPreviousValue);
 
 			SoundDataReader& operator=(const SoundDataReader&) = delete;
 			SoundDataReader& operator=(SoundDataReader&&) = delete;
@@ -51,7 +52,7 @@ namespace Nz
 			PrivateImpl<ma_decoder, 552, 8> m_miniDecoder;
 			std::atomic_bool m_isLooping;
 			std::shared_ptr<SoundDataSource> m_source;
-			UInt64 m_readOffset;
+			std::atomic_uint64_t m_readOffset;
 	};
 }
 

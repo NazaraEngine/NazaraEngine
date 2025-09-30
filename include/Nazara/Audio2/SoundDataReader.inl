@@ -28,4 +28,9 @@ namespace Nz
 	{
 		m_readOffset = offset;
 	}
+
+	inline bool SoundDataReader::UpdateReadOffset(UInt64 offset, UInt64 expectedPreviousValue)
+	{
+		return m_readOffset.compare_exchange_strong(expectedPreviousValue, offset);
+	}
 }
