@@ -16,9 +16,9 @@ namespace Nz
 
 	AudioProcessor::AudioProcessor(const Config& config)
 	{
-		NAZARA_USE_ANONYMOUS_NAMESPACE
-
 		NazaraAssertMsg(config.engine, "invalid audio engine");
+		NazaraAssertMsg(config.inputChannelCount.empty() || config.inputChannelCount.size() == config.inputBusCount, "input channel count must have an entry for each input bus");
+		NazaraAssertMsg(config.outputChannelCount.empty() || config.outputChannelCount.size() == config.outputBusCount, "output channel count must have an entry for each output bus");
 
 		m_vtable->onProcess = [](ma_node* node, const float** ppFramesIn, UInt32* frameCountIn, float** ppFramesOut, UInt32* frameCountOut)
 		{
@@ -40,7 +40,7 @@ namespace Nz
 		{
 			UInt32 defaultChannelCount = config.engine->GetChannelCount();
 
-			defaultInputChannels = NazaraStackArrayNoInit(UInt32, defaultChannelCount);
+			defaultInputChannels = NazaraStackArrayNoInit(UInt32, config.inputBusCount);
 			for (UInt32 i = 0; i < config.inputBusCount; ++i)
 				defaultInputChannels[i] = defaultChannelCount;
 		}
@@ -50,7 +50,7 @@ namespace Nz
 		{
 			UInt32 defaultChannelCount = config.engine->GetChannelCount();
 
-			defaultOutputChannels = NazaraStackArrayNoInit(UInt32, defaultChannelCount);
+			defaultOutputChannels = NazaraStackArrayNoInit(UInt32, config.outputBusCount);
 			for (UInt32 i = 0; i < config.outputBusCount; ++i)
 				defaultOutputChannels[i] = defaultChannelCount;
 		}
