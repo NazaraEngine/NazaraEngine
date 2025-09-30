@@ -45,7 +45,8 @@ namespace Nz
 				if (reader->IsLooping() && readData.cursorPosition >= source->GetFrameCount())
 					readData.cursorPosition = 0;
 
-				reader->UpdateReadOffset(readData.cursorPosition);
+				// cursor position may have changed due to a seek from another thread, don't update it in that case as it could make the seek fail
+				reader->UpdateReadOffset(readData.cursorPosition, cursorPosition);
 
 				return MA_SUCCESS;
 			},
