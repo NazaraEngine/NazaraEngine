@@ -4,8 +4,4 @@
 
 namespace Nz
 {
-	inline void AudioDevice::SetDataCallback(DataCallback callback)
-	{
-		m_dataCallback = std::move(callback);
-	}
 }

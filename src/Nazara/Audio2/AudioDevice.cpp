@@ -18,6 +18,7 @@ namespace Nz
 		deviceConfig.dataCallback = [](ma_device* device, void* pOutput, const void* pInput, ma_uint32 frameCount)
 		{
 			AudioDevice& audioDevice = *static_cast<AudioDevice*>(device->pUserData);
+			std::unique_lock callbackLock(audioDevice.m_dataCallbackMutex);
 			if NAZARA_LIKELY(audioDevice.m_dataCallback)
 				audioDevice.m_dataCallback(audioDevice, pInput, pOutput, frameCount);
 		};
@@ -103,6 +104,12 @@ namespace Nz
 
 		NazaraError("unexpected device state {:#x}", UnderlyingCast(state));
 		return State::Stopped;
+	}
+
+	void AudioDevice::SetDataCallback(DataCallback callback)
+	{
+		std::unique_lock callbackLock(m_dataCallbackMutex);
+		m_dataCallback = std::move(callback);
 	}
 
 	void AudioDevice::SetMasterVolume(float volume)

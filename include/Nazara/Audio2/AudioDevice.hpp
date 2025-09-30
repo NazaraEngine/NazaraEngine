@@ -11,6 +11,7 @@
 #include <Nazara/Audio2/Export.hpp>
 #include <NazaraUtils/PrivateImpl.hpp>
 #include <functional>
+#include <mutex>
 
 struct ma_context;
 struct ma_device;
@@ -35,7 +36,7 @@ namespace Nz
 			float GetMasterVolume() const;
 			State GetState() const;
 
-			inline void SetDataCallback(DataCallback callback);
+			void SetDataCallback(DataCallback callback);
 			void SetMasterVolume(float volume);
 
 			bool Start();
@@ -53,6 +54,7 @@ namespace Nz
 			};
 
 		private:
+			std::mutex m_dataCallbackMutex;
 			mutable PrivateImpl<ma_device> m_device;
 			DataCallback m_dataCallback;
 	};
