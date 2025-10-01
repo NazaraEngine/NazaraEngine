@@ -907,7 +907,7 @@ std::unique_ptr<nzsl::Ast::DeclareFunctionStatement> ShaderGraph::ToFunction() c
 		if (it->second > 1 || !variableName.empty())
 		{
 			nzsl::Ast::ExpressionPtr varExpression;
-			if (nzsl::Ast::GetExpressionCategory(*expression) == nzsl::Ast::ExpressionCategory::RValue)
+			if (nzsl::Ast::GetExpressionCategory(*expression) == nzsl::Ast::ExpressionCategory::Temporary)
 			{
 				std::string name;
 				if (variableName.empty())
