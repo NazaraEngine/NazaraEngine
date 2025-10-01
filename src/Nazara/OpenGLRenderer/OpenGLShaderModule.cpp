@@ -8,18 +8,24 @@
 #include <NZSL/Lexer.hpp>
 #include <NZSL/Parser.hpp>
 #include <NZSL/Ast/AstSerializer.hpp>
+#include <NZSL/Ast/Cloner.hpp>
+#include <NZSL/Ast/Transformations/BindingResolverTransformer.hpp>
+#include <NZSL/Ast/Transformations/ConstantPropagationTransformer.hpp>
+#include <NZSL/Ast/Transformations/EliminateUnusedTransformer.hpp>
+#include <NZSL/Ast/Transformations/ResolveTransformer.hpp>
+#include <NZSL/Ast/Transformations/ValidationTransformer.hpp>
 #include <stdexcept>
 
 namespace Nz
 {
-	OpenGLShaderModule::OpenGLShaderModule(OpenGLDevice& device, nzsl::ShaderStageTypeFlags shaderStages, const nzsl::Ast::Module& shaderModule, const nzsl::ShaderWriter::States& states) :
+	OpenGLShaderModule::OpenGLShaderModule(OpenGLDevice& device, nzsl::ShaderStageTypeFlags shaderStages, const nzsl::Ast::Module& shaderModule, const nzsl::BackendParameters& parameters) :
 	m_device(device)
 	{
 		NazaraAssertMsg(shaderStages != 0, "at least one shader stage must be specified");
-		Create(device, shaderStages, shaderModule, states);
+		Create(device, shaderStages, nzsl::Ast::Clone(shaderModule), parameters);
 	}
 
-	OpenGLShaderModule::OpenGLShaderModule(OpenGLDevice& device, nzsl::ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const nzsl::ShaderWriter::States& states) :
+	OpenGLShaderModule::OpenGLShaderModule(OpenGLDevice& device, nzsl::ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const nzsl::BackendParameters& parameters) :
 	m_device(device)
 	{
 		NazaraAssertMsg(shaderStages != 0, "at least one shader stage must be specified");
@@ -28,10 +34,10 @@ namespace Nz
 		{
 			case ShaderLanguage::GLSL:
 			{
+				NazaraAssertMsg(shaderStages.Count() == 1, "when supplying GLSL, only one shader stage type can be specified");
+
 				for (nzsl::ShaderStageType shaderStage : shaderStages)
 				{
-					NazaraAssertMsg(shaderStages == shaderStage, "when supplying GLSL, only one shader stage type can be specified");
-
 					auto& entry = m_shaders.emplace_back();
 					entry.shader = GlslShader{ std::string(static_cast<const char*>(source), sourceSize) };
 					entry.stage = shaderStage;
@@ -45,7 +51,7 @@ namespace Nz
 			{
 				nzsl::Deserializer deserializer(source, sourceSize);
 				auto shader = nzsl::Ast::DeserializeShader(deserializer);
-				Create(device, shaderStages, *shader, states);
+				Create(device, shaderStages, std::move(shader), parameters);
 				break;
 			}
 
@@ -55,7 +61,7 @@ namespace Nz
 
 				nzsl::Parser parser;
 				nzsl::Ast::ModulePtr module = parser.Parse(tokens);
-				Create(device, shaderStages, *module, states);
+				Create(device, shaderStages, std::move(module), parameters);
 				break;
 			}
 
@@ -78,7 +84,7 @@ namespace Nz
 		}
 	}
 
-	nzsl::ShaderStageTypeFlags OpenGLShaderModule::Attach(GL::Program& program, const nzsl::GlslWriter::Parameters& parameters, std::vector<ExplicitBinding>* explicitBindings) const
+	nzsl::ShaderStageTypeFlags OpenGLShaderModule::Attach(GL::Program& program, const nzsl::GlslWriter::Parameters& glslParameters, std::vector<ExplicitBinding>* explicitBindings) const
 	{
 		const auto& context = m_device.GetReferenceContext();
 		const auto& contextParams = context.GetParams();
@@ -118,7 +124,7 @@ namespace Nz
 					shader.SetSource(arg.sourceCode.data(), GLint(arg.sourceCode.size()));
 				else if constexpr (std::is_same_v<T, ShaderStatement>)
 				{
-					nzsl::GlslWriter::Output output = writer.Generate(shaderEntry.stage, *arg.ast, parameters, m_states);
+					nzsl::GlslWriter::Output output = writer.Generate(shaderEntry.stage, *arg.ast, m_parameters, glslParameters);
 					shader.SetSource(output.code.data(), GLint(output.code.size()));
 
 					if (explicitBindings)
@@ -164,28 +170,47 @@ namespace Nz
 		m_debugName = name;
 	}
 
-	void OpenGLShaderModule::Create(OpenGLDevice& /*device*/, nzsl::ShaderStageTypeFlags shaderStages, const nzsl::Ast::Module& shaderModule, const nzsl::ShaderWriter::States& states)
+	void OpenGLShaderModule::Create(OpenGLDevice& /*device*/, nzsl::ShaderStageTypeFlags shaderStages, nzsl::Ast::ModulePtr&& shaderModule, const nzsl::BackendParameters& parameters)
 	{
-		m_states = states;
-		m_states.sanitized = true; //< Shader is always sanitized (because of keywords)
+		nzsl::Ast::TransformerContext context;
+		context.optionValues = parameters.optionValues;
 
-		/*
-		Always remove dead code with OpenGL (prevents errors on draw calls when no buffer is bound on a unused binding),
-		also prevents compilation failure because of functions using discard in a vertex shader
-		*/
-		m_states.optimize = true;
+		// Process the shader once
+		nzsl::Ast::TransformerExecutor executor;
+		executor.AddPass<nzsl::Ast::ResolveTransformer>({ .moduleResolver = parameters.shaderModuleResolver });
+		executor.AddPass<nzsl::Ast::BindingResolverTransformer>();
 
-		nzsl::Ast::SanitizeVisitor::Options options = nzsl::GlslWriter::GetSanitizeOptions();
-		options.optionValues = states.optionValues;
-		options.moduleResolver = states.shaderModuleResolver;
+		nzsl::GlslWriter::RegisterPasses(executor);
 
-		nzsl::Ast::ModulePtr sanitized = nzsl::Ast::Sanitize(shaderModule, options);
+		executor.AddPass<nzsl::Ast::ConstantPropagationTransformer>();
+		executor.AddPass<nzsl::Ast::ValidationTransformer>();
+
+		executor.Transform(*shaderModule, context);
+
+		m_parameters = parameters;
+		m_parameters.backendPasses = 0; //< Shader is already processed
 
 		for (nzsl::ShaderStageType shaderStage : shaderStages)
 		{
 			auto& entry = m_shaders.emplace_back();
-			entry.shader = ShaderStatement{ sanitized };
 			entry.stage = shaderStage;
+
+			nzsl::Ast::ModulePtr stageModule;
+			if (shaderStages == shaderStage)
+				// Only remaining stage
+				stageModule = std::move(shaderModule);
+			else
+				stageModule = nzsl::Ast::Clone(*shaderModule);
+
+			/*
+			Always remove dead code with OpenGL (prevents errors on draw calls when no buffer is bound on a unused binding),
+			also prevents compilation failure because of functions using discard in a vertex shader
+			*/
+			nzsl::Ast::EliminateUnusedPass(*stageModule, { .usedShaderStages = shaderStage });
+
+			entry.shader = ShaderStatement{ std::move(stageModule) };
+
+			shaderStages.Clear(shaderStage);
 		}
 	}
 

@@ -7,7 +7,11 @@
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
-#include <NZSL/Ast/SanitizeVisitor.hpp>
+#include <NZSL/Ast/Cloner.hpp>
+#include <NZSL/Ast/TransformerExecutor.hpp>
+#include <NZSL/Ast/Transformations/BindingResolverTransformer.hpp>
+#include <NZSL/Ast/Transformations/ResolveTransformer.hpp>
+#include <NZSL/Ast/Transformations/ValidationTransformer.hpp>
 
 namespace Nz
 {
@@ -18,32 +22,34 @@ namespace Nz
 
 
 	Material::Material(MaterialSettings settings, const std::string& referenceModuleName) :
-	Material(std::move(settings), Graphics::Instance()->GetShaderModuleResolver()->Resolve(referenceModuleName))
+	Material(std::move(settings), *Graphics::Instance()->GetShaderModuleResolver()->Resolve(referenceModuleName))
 	{
 	}
 
-	Material::Material(MaterialSettings settings, const nzsl::Ast::ModulePtr& referenceModule) :
+	Material::Material(MaterialSettings settings, const nzsl::Ast::Module& referenceModule) :
 	m_settings(std::move(settings))
 	{
 		using namespace nzsl::Ast::Literals;
-
-		NazaraAssertMsg(referenceModule, "invalid module");
 
 		Graphics* graphics = Graphics::Instance();
 
 		const std::shared_ptr<RenderDevice>& renderDevice = graphics->GetRenderDevice();
 
-		nzsl::Ast::SanitizeVisitor::Options options;
-		options.forceAutoBindingResolve = true;
-		options.partialSanitization = true;
-		options.moduleResolver = graphics->GetShaderModuleResolver();
-		options.optionValues["MaxLightCount"_opt] = SafeCast<UInt32>(PredefinedLightData::MaxLightCount);
-		options.optionValues["MaxLightCascadeCount"_opt] = SafeCast<UInt32>(PredefinedDirectionalLightData::MaxLightCascadeCount);
-		options.optionValues["MaxJointCount"_opt] = SafeCast<UInt32>(PredefinedSkeletalData::MaxMatricesCount);
+		nzsl::Ast::TransformerExecutor executor;
+		executor.AddPass<nzsl::Ast::ResolveTransformer>({ .moduleResolver = graphics->GetShaderModuleResolver() });
+		executor.AddPass<nzsl::Ast::BindingResolverTransformer>({ .forceAutoBindingResolve = true });
+		executor.AddPass<nzsl::Ast::ValidationTransformer>();
 
-		nzsl::Ast::ModulePtr sanitizedModule = nzsl::Ast::Sanitize(*referenceModule, options);
+		nzsl::Ast::TransformerContext context;
+		context.partialCompilation = true;
+		context.optionValues["MaxLightCount"_opt] = SafeCast<UInt32>(PredefinedLightData::MaxLightCount);
+		context.optionValues["MaxLightCascadeCount"_opt] = SafeCast<UInt32>(PredefinedDirectionalLightData::MaxLightCascadeCount);
+		context.optionValues["MaxJointCount"_opt] = SafeCast<UInt32>(PredefinedSkeletalData::MaxMatricesCount);
 
-		m_reflection.Reflect(*sanitizedModule);
+		nzsl::Ast::ModulePtr resolvedModule = nzsl::Ast::Clone(referenceModule);
+		executor.Transform(*resolvedModule, context);
+
+		m_reflection.Reflect(*resolvedModule);
 
 		m_renderPipelineLayout = renderDevice->InstantiateRenderPipelineLayout(m_reflection.GetPipelineLayoutInfo());
 
@@ -142,7 +148,7 @@ namespace Nz
 					const VertexDeclaration& vertexDeclaration = *vertexBuffers.front().declaration;
 					const auto& components = vertexDeclaration.GetComponents();
 
-					Int32 locationIndex = 0;
+					UInt32 locationIndex = 0;
 					for (const auto& component : components)
 					{
 						switch (component.component)

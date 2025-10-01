@@ -6,7 +6,7 @@
 #include <NZSL/FilesystemModuleResolver.hpp>
 #include <NZSL/LangWriter.hpp>
 #include <NZSL/Parser.hpp>
-#include <NZSL/Ast/SanitizeVisitor.hpp>
+#include <NZSL/Ast/Option.hpp>
 #include <imgui.h>
 #include <iostream>
 #include <thread>
@@ -14,7 +14,7 @@
 NAZARA_REQUEST_DEDICATED_GPU()
 
 const char shaderSource[] = R"(
-[nzsl_version("1.0")]
+[nzsl_version("1.1")]
 module;
 
 option red: bool = false;
@@ -116,9 +116,9 @@ int main()
 		return __LINE__;
 	}
 
-	nzsl::ShaderWriter::States states;
+	nzsl::BackendParameters states;
 	states.optionValues[nzsl::Ast::HashOption("red")] = false; //< Try enabling this!
-	states.optimize = true;
+	states.backendPasses |= nzsl::BackendPass::Optimize;
 
 	auto fragVertShader = device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, *shaderModule, states);
 	if (!fragVertShader)

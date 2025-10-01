@@ -1,9 +1,11 @@
 #include <ShaderNode/Widgets/CodeOutputWidget.hpp>
 #include <NZSL/GlslWriter.hpp>
 #include <NZSL/LangWriter.hpp>
-#include <NZSL/Ast/ConstantPropagationVisitor.hpp>
-#include <NZSL/Ast/EliminateUnusedPassVisitor.hpp>
-#include <NZSL/Ast/SanitizeVisitor.hpp>
+#include <NZSL/Ast/TransformerExecutor.hpp>
+#include <NZSL/Ast/Transformations/ConstantPropagationTransformer.hpp>
+#include <NZSL/Ast/Transformations/EliminateUnusedTransformer.hpp>
+#include <NZSL/Ast/Transformations/ResolveTransformer.hpp>
+#include <NZSL/Ast/Option.hpp>
 #include <NZSL/SpirvWriter.hpp>
 #include <NZSL/SpirV/SpirvPrinter.hpp>
 #include <ShaderNode/ShaderGraph.hpp>
@@ -56,26 +58,28 @@ void CodeOutputWidget::Refresh()
 {
 	try
 	{
-		nzsl::ShaderWriter::States states;
+		nzsl::BackendParameters backendParameters;
 
 		for (std::size_t i = 0; i < m_shaderGraph.GetOptionCount(); ++i)
 		{
 			const auto& option = m_shaderGraph.GetOption(i);
-			states.optionValues[Nz::CRC32(option.name)] = m_shaderGraph.IsOptionEnabled(i);
+			backendParameters.optionValues[nzsl::Ast::HashOption(option.name)] = m_shaderGraph.IsOptionEnabled(i);
 		}
 
 		nzsl::Ast::ModulePtr shaderModule = m_shaderGraph.ToModule();
 
 		if (m_optimisationCheckbox->isChecked())
 		{
-			nzsl::Ast::SanitizeVisitor::Options sanitizeOptions;
-			sanitizeOptions.optionValues = states.optionValues;
+			nzsl::Ast::TransformerContext context;
+			context.optionValues = backendParameters.optionValues;
 
-			shaderModule = nzsl::Ast::Sanitize(*shaderModule, sanitizeOptions);
+			nzsl::Ast::TransformerExecutor executor;
+			executor.AddPass<nzsl::Ast::ResolveTransformer>();
+			executor.AddPass<nzsl::Ast::ConstantPropagationTransformer>();
 
-			nzsl::Ast::ConstantPropagationVisitor optimiser;
-			shaderModule = nzsl::Ast::PropagateConstants(*shaderModule);
-			shaderModule = nzsl::Ast::EliminateUnusedPass(*shaderModule);
+			executor.Transform(*shaderModule);
+
+			nzsl::Ast::EliminateUnusedPass(*shaderModule);
 		}
 
 		std::string codeOutput;
@@ -92,7 +96,7 @@ void CodeOutputWidget::Refresh()
 					shaderParameters.bindingMapping.emplace(Nz::UInt64(texture.setIndex) << 32 | Nz::UInt64(texture.bindingIndex), shaderParameters.bindingMapping.size());
 
 				nzsl::GlslWriter writer;
-				nzsl::GlslWriter::Output output = writer.Generate(ShaderGraph::ToShaderStageType(m_shaderGraph.GetType()), *shaderModule, shaderParameters, states);
+				nzsl::GlslWriter::Output output = writer.Generate(ShaderGraph::ToShaderStageType(m_shaderGraph.GetType()), *shaderModule, backendParameters, shaderParameters);
 				codeOutput = std::move(output.code);
 				break;
 			}
@@ -100,14 +104,14 @@ void CodeOutputWidget::Refresh()
 			case OutputLanguage::NZSL:
 			{
 				nzsl::LangWriter writer;
-				codeOutput = writer.Generate(*shaderModule, states);
+				codeOutput = writer.Generate(*shaderModule);
 				break;
 			}
 
 			case OutputLanguage::SpirV:
 			{
 				nzsl::SpirvWriter writer;
-				std::vector<std::uint32_t> spirv = writer.Generate(*shaderModule, states);
+				std::vector<std::uint32_t> spirv = writer.Generate(*shaderModule, backendParameters);
 
 				nzsl::SpirvPrinter printer;
 				codeOutput = printer.Print(spirv.data(), spirv.size());
