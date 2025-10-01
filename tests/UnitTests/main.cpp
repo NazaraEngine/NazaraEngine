@@ -10,7 +10,8 @@
 
 int main(int argc, char* argv[])
 {
-	Nz::Modules<Nz::Audio2, Nz::Network, Nz::Physics2D, Nz::TextRenderer> nazaza;
+	Nz::Audio2::Config audioConfig{ .noAudio = true };
+	Nz::Modules<Nz::Audio2, Nz::Network, Nz::Physics2D, Nz::TextRenderer> nazaza(audioConfig);
 
 	return Catch::Session().run(argc, argv);
 }
