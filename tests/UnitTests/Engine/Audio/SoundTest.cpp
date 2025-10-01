@@ -40,8 +40,6 @@ SCENARIO("Sound", "[AUDIO][SOUND]")
 
 			THEN("We can play it and get the time offset")
 			{
-				audioEngine->SetVolume(0.f);
-
 				sound.Play();
 				std::this_thread::sleep_for(std::chrono::seconds(1));
 
@@ -94,8 +92,6 @@ SCENARIO("Sound", "[AUDIO][SOUND]")
 						CHECK(sound.GetPlayingOffset() < 300_ms);
 					}
 				}
-
-				audioEngine->SetVolume(1.f);
 			}
 		}
 	}
