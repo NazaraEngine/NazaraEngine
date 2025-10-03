@@ -40,13 +40,13 @@ SCENARIO("Sound", "[AUDIO][SOUND]")
 
 			THEN("We can play it and get the time offset")
 			{
-				sound.Play();
+				sound.Play(true);
 				std::this_thread::sleep_for(std::chrono::seconds(1));
 
 				CHECK(sound.GetPlayingOffset() >= 950_ms);
 				std::this_thread::sleep_for(std::chrono::milliseconds(200));
 				CHECK(sound.GetPlayingOffset() <= 1500_ms);
-				sound.Pause();
+				sound.Pause(true);
 				Nz::Time playingOffset = sound.GetPlayingOffset();
 				Nz::UInt64 frameOffset = sound.GetPlayingFrame();
 				std::this_thread::sleep_for(std::chrono::milliseconds(50));

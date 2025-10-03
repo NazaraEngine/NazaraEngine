@@ -47,6 +47,8 @@ namespace Nz
 		m_impl->device->SetDataCallback([this](const AudioDevice& /*device*/, const void* /*inputData*/, void* outputData, UInt32 frameCount)
 		{
 			ma_engine_read_pcm_frames(&m_impl->engine, outputData, frameCount, nullptr);
+			m_tickCounter.fetch_add(1);
+			m_tickCounter.notify_all();
 		});
 	}
 
@@ -211,6 +213,13 @@ namespace Nz
 	void AudioEngine::SetVolume(float volume)
 	{
 		ma_engine_set_volume(&m_impl->engine, volume);
+	}
+
+	void AudioEngine::WaitUntilCompletion()
+	{
+		// Wait until the engine process the next tick
+		std::uint64_t previousTick = m_tickCounter.load(std::memory_order_relaxed);
+		m_tickCounter.wait(previousTick, std::memory_order_relaxed);
 	}
 
 	ma_node* AudioEngine::Endpoint::GetInternalNode()
