@@ -52,7 +52,7 @@ namespace Nz
 	*/
 	inline void* SoundBuffer::GetSamples()
 	{
-		return m_samples.data();
+		return m_samples.get();
 	}
 
 	/*!
@@ -61,7 +61,7 @@ namespace Nz
 	*/
 	inline const void* SoundBuffer::GetSamples() const
 	{
-		return m_samples.data();
+		return m_samples.get();
 	}
 
 	/*!

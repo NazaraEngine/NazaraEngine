@@ -46,8 +46,8 @@ namespace Nz
 		m_frameCount = frameCount;
 		m_sampleRate = sampleRate;
 
-		std::size_t bufferSize = frameCount * AudioFormatSize[format] * channels.size();
-		m_samples.resize(bufferSize);
+		std::size_t bufferSize = frameCount * s_AudioFormatSize[format] * channels.size();
+		m_samples = std::make_unique_for_overwrite<UInt8[]>(bufferSize);
 		if (samples)
 			std::memcpy(&m_samples[0], samples, bufferSize);
 	}
@@ -57,8 +57,8 @@ namespace Nz
 		if (m_format == format)
 			return;
 
-		std::vector<std::uint8_t> convertedSamples(m_frameCount * AudioFormatSize[format] * m_channels.size());
-		ConvertAudioFormat(m_format, m_samples.data(), format, convertedSamples.data(), m_frameCount, ditherMode);
+		std::unique_ptr<UInt8[]> convertedSamples = std::make_unique_for_overwrite<UInt8[]>(m_frameCount * s_AudioFormatSize[format] * m_channels.size());
+		ConvertAudioFormat(m_format, m_samples.get(), format, convertedSamples.get(), m_frameCount, ditherMode);
 
 		m_samples = std::move(convertedSamples);
 		m_format = format;
@@ -70,7 +70,7 @@ namespace Nz
 		frameCount = std::min(m_frameCount - startingFrameIndex, frameCount);
 		if (frameCount > 0)
 		{
-			std::size_t frameSize = AudioFormatSize[m_format] * m_channels.size();
+			std::size_t frameSize = s_AudioFormatSize[m_format] * m_channels.size();
 			std::memcpy(frameOut, &m_samples[startingFrameIndex * frameSize], frameCount * frameSize);
 		}
 

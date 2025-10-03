@@ -144,9 +144,9 @@ namespace Nz
 
 			AudioFormat format = *formatOpt;
 
-			UInt64 frameCount = UInt64(ov_pcm_total(&file, -1));
-			UInt64 sampleCount = UInt64(frameCount * info->channels);
-			std::unique_ptr<Int16[]> samples = std::make_unique<Int16[]>(sampleCount); //< std::vector would default-init to zero
+			UInt64 frameCount = SafeCaster(ov_pcm_total(&file, -1));
+			UInt64 sampleCount = SafeCaster(frameCount * info->channels);
+			std::unique_ptr<Int16[]> samples = std::make_unique_for_overwrite<Int16[]>(sampleCount); //< std::vector would default-init to zero
 
 			UInt64 readSample = ReadOgg(&file, samples.get(), sampleCount);
 			if (readSample == 0)
