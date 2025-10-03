@@ -66,8 +66,8 @@ namespace Nz
 			bool IsPlaying() const override;
 			bool IsSpatializationEnabled() const;
 
-			void Pause();
-			void Play();
+			void Pause(bool waitUntilCompletion = false);
+			void Play(bool waitUntilCompletion = false);
 
 			void SeekToFrame(UInt64 time);
 			void SeekToTime(Time time);
@@ -90,7 +90,7 @@ namespace Nz
 			void SetVelocity(const Vector3f& velocity) override;
 			void SetVolume(float volume) override;
 
-			void Stop();
+			void Stop(bool waitUntilCompletion = false);
 
 			Sound& operator=(const Sound&) = delete;
 			Sound& operator=(Sound&&) noexcept = default;

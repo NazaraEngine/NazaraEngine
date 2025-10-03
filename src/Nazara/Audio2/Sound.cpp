@@ -8,6 +8,7 @@
 #include <Nazara/Audio2/SoundDataSource.hpp>
 #include <NazaraUtils/StackArray.hpp>
 #include <miniaudio.h>
+#include <atomic>
 
 namespace Nz
 {
@@ -48,8 +49,9 @@ namespace Nz
 	{
 		if (m_sound)
 		{
-			GetEngine().FreeInternalSound(m_soundIndex);
 			ma_sound_uninit(m_sound);
+			GetEngine().FreeInternalSound(m_soundIndex);
+			GetEngine().WaitUntilCompletion();
 		}
 	}
 
@@ -233,14 +235,20 @@ namespace Nz
 		return ma_sound_is_spatialization_enabled(m_sound);
 	}
 
-	void Sound::Pause()
+	void Sound::Pause(bool waitUntilCompletion)
 	{
 		ma_sound_stop(m_sound);
+
+		if (waitUntilCompletion)
+			GetEngine().WaitUntilCompletion();
 	}
 
-	void Sound::Play()
+	void Sound::Play(bool waitUntilCompletion)
 	{
 		ma_sound_start(m_sound);
+
+		if (waitUntilCompletion)
+			GetEngine().WaitUntilCompletion();
 	}
 
 	void Sound::SeekToFrame(UInt64 frameIndex)
@@ -341,9 +349,12 @@ namespace Nz
 		ma_sound_set_volume(m_sound, volume);
 	}
 
-	void Sound::Stop()
+	void Sound::Stop(bool waitUntilCompletion)
 	{
 		ma_sound_stop(m_sound);
 		ma_sound_seek_to_pcm_frame(m_sound, 0);
+
+		if (waitUntilCompletion)
+			GetEngine().WaitUntilCompletion();
 	}
 }

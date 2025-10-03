@@ -74,11 +74,14 @@ namespace Nz
 			void SetListenerWorldUp(UInt32 listenerIndex, const Vector3f& worldUp);
 			void SetVolume(float volume);
 
+			void WaitUntilCompletion();
+
 			AudioEngine& operator=(const AudioEngine&) = delete;
 			AudioEngine& operator=(AudioEngine&&) = delete;
 
 		private:
 			struct Impl;
+			std::atomic_uint64_t m_tickCounter;
 			std::unique_ptr<Impl> m_impl;
 	};
 

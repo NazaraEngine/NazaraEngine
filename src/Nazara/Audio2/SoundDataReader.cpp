@@ -11,6 +11,10 @@
 #include <miniaudio.h>
 #include <mutex>
 
+#ifdef NAZARA_WITH_TSAN
+	#include <sanitizer/tsan_interface.h>
+#endif
+
 namespace Nz
 {
 	namespace NAZARA_ANONYMOUS_NAMESPACE
@@ -60,6 +64,11 @@ namespace Nz
 			.onGetDataFormat = [](ma_data_source* dataSource, ma_format* format, ma_uint32* channelCount, ma_uint32* sampleRate, ma_channel* channelMap, std::size_t channelMapCapacity)
 			{
 				SoundDataReader* reader = static_cast<SoundDataReader*>(dataSource);
+
+#ifdef NAZARA_WITH_TSAN
+				__tsan_acquire(reader);
+#endif
+
 				const std::shared_ptr<SoundDataSource>& source = reader->GetSource();
 
 				std::span channels = source->GetChannels();
@@ -153,6 +162,10 @@ namespace Nz
 			throw std::runtime_error(Format("ma_decoder_init failed: {}", ma_result_description(result)));
 
 		freeDataSource.Reset();
+
+#ifdef NAZARA_WITH_TSAN
+		__tsan_release(this);
+#endif
 	}
 
 	SoundDataReader::~SoundDataReader()
