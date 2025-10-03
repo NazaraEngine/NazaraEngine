@@ -168,7 +168,7 @@ namespace Nz
 					totalFrameCount = meta->data.stream_info.total_samples;
 					sampleRate = meta->data.stream_info.sample_rate;
 
-					samples = std::make_unique<Int16[]>(channelCount * totalFrameCount);
+					samples = std::make_unique_for_overwrite<Int16[]>(channelCount * totalFrameCount);
 				}
 			};
 

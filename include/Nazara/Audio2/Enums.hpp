@@ -99,7 +99,7 @@ namespace Nz
 		Max = Unsigned8
 	};
 
-	constexpr Nz::EnumArray<AudioFormat, std::size_t> AudioFormatSize = {
+	constexpr Nz::EnumArray<AudioFormat, std::size_t> s_AudioFormatSize = {
 		0,
 		sizeof(float),
 		sizeof(std::int16_t),

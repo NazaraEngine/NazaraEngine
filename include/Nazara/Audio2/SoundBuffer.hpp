@@ -18,9 +18,8 @@
 #include <Nazara/Core/ResourceParameters.hpp>
 #include <Nazara/Core/Time.hpp>
 #include <NazaraUtils/FixedVector.hpp>
+#include <memory>
 #include <span>
-#include <unordered_map>
-#include <vector>
 
 namespace Nz
 {
@@ -74,7 +73,7 @@ namespace Nz
 			static std::shared_ptr<SoundBuffer> LoadFromStream(Stream& stream, const SoundBufferParams& params = SoundBufferParams());
 
 		private:
-			std::vector<UInt8> m_samples;
+			std::unique_ptr<UInt8[]> m_samples;
 			AudioFormat m_format;
 			HybridVector<AudioChannel, 4> m_channels;
 			Time m_duration;
