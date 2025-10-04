@@ -166,7 +166,7 @@ namespace Nz::GL
 			if (!m_handle)
 			{
 				// Create OpenGL context
-				std::array<Version, 8> supportedGLVersions = {
+				constexpr std::array<Version, 8> s_GLVersions = {
 					{
 						{ 4, 6 },
 						{ 4, 5 },
@@ -179,7 +179,7 @@ namespace Nz::GL
 					}
 				};
 
-				for (const Version& version : supportedGLVersions)
+				for (const Version& version : s_GLVersions)
 				{
 					if (params.glMajorVersion != 0)
 					{

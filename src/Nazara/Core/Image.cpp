@@ -93,7 +93,7 @@ namespace Nz
 				return true;
 
 			std::size_t pixelsPerFace = static_cast<std::size_t>(width) * height;
-			levels[level] = std::make_unique<UInt8[]>(pixelsPerFace * depth * PixelFormatInfo::GetBytesPerPixel(newFormat));
+			levels[level] = std::make_unique_for_overwrite<UInt8[]>(pixelsPerFace * depth * PixelFormatInfo::GetBytesPerPixel(newFormat));
 			UInt8* dst = levels[level].get();
 
 			std::size_t srcStride = pixelsPerFace * PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format);
@@ -500,7 +500,7 @@ namespace Nz
 		EnsureOwnership();
 
 		if NAZARA_UNLIKELY(!m_sharedImage->levels[level])
-			m_sharedImage->levels[level] = std::make_unique<UInt8[]>(GetMemoryUsage(level));
+			m_sharedImage->levels[level] = std::make_unique_for_overwrite<UInt8[]>(GetMemoryUsage(level));
 
 		return GetPixelPtr(m_sharedImage->levels[level].get(), PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format), x, y, z, width, height);
 	}
@@ -867,7 +867,7 @@ namespace Nz
 		if (allocateLevels)
 		{
 			for (UInt8 i = oldLevelCount; i < maxLevelCount; ++i)
-				m_sharedImage->levels[i] = std::make_unique<UInt8[]>(GetMemoryUsage(i));
+				m_sharedImage->levels[i] = std::make_unique_for_overwrite<UInt8[]>(GetMemoryUsage(i));
 		}
 	}
 
@@ -962,7 +962,7 @@ namespace Nz
 				{
 					std::size_t size = GetMemoryUsage(SafeCast<UInt8>(i));
 
-					levels[i] = std::make_unique<UInt8[]>(size);
+					levels[i] = std::make_unique_for_overwrite<UInt8[]>(size);
 					std::memcpy(levels[i].get(), m_sharedImage->levels[i].get(), size);
 				}
 			}

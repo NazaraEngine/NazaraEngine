@@ -296,11 +296,11 @@ namespace Nz
 
 		constexpr std::size_t BufferSize = Stream::DefaultBufferSize;
 
-		std::unique_ptr<UInt8[]> buffer = std::make_unique<UInt8[]>(BufferSize);
+		std::unique_ptr<UInt8[]> buffer = std::make_unique_for_overwrite<UInt8[]>(BufferSize);
 
 		// Save and restore cursor position after the call
 		std::size_t cursorPos = stream.GetCursorPos();
-		CallOnExit restoreCursorPos([&] { stream.SetCursorPos(cursorPos); });
+		NAZARA_DEFER({ stream.SetCursorPos(cursorPos); });
 
 		stream.SetCursorPos(0);
 

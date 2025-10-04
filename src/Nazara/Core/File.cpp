@@ -461,7 +461,7 @@ namespace Nz
 		UInt64 remainingSize = file.GetSize();
 
 		constexpr std::size_t BufferSize = Stream::DefaultBufferSize;
-		std::unique_ptr<UInt8[]> buffer = std::make_unique<UInt8[]>(BufferSize);
+		std::unique_ptr<UInt8[]> buffer = std::make_unique_for_overwrite<UInt8[]>(BufferSize);
 		while (remainingSize > 0)
 		{
 			std::size_t size = static_cast<std::size_t>(std::min<UInt64>(remainingSize, BufferSize));

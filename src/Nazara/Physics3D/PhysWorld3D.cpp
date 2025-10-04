@@ -480,12 +480,7 @@ namespace Nz
 		std::size_t blockCount = (m_world->physicsSystem.GetMaxBodies() - 1) / 64 + 1;
 
 		m_activeBodies = std::make_unique<std::atomic_uint64_t[]>(blockCount);
-		for (std::size_t i = 0; i < blockCount; ++i)
-			m_activeBodies[i] = 0;
-
 		m_registeredBodies = std::make_unique<std::uint64_t[]>(blockCount);
-		for (std::size_t i = 0; i < blockCount; ++i)
-			m_registeredBodies[i] = 0;
 	}
 
 	PhysWorld3D::~PhysWorld3D() = default;

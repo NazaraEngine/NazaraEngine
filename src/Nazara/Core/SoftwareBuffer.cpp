@@ -3,9 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Core/SoftwareBuffer.hpp>
-#include <Nazara/Core/Error.hpp>
 #include <cstring>
-#include <exception>
 
 namespace Nz
 {
@@ -13,7 +11,7 @@ namespace Nz
 	Buffer(DataStorage::Software, type, size, usage | BufferUsage::DirectMapping | BufferUsage::Dynamic | BufferUsage::PersistentMapping | BufferUsage::Read | BufferUsage::Write),
 	m_mapped(false)
 	{
-		m_buffer = std::make_unique<UInt8[]>(size);
+		m_buffer = std::make_unique_for_overwrite<UInt8[]>(size);
 		if (initialData)
 			std::memcpy(&m_buffer[0], initialData, size);
 	}

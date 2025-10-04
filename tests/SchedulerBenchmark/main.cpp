@@ -34,7 +34,7 @@ int main()
 
 	SceneData sceneData;
 	sceneData.imageSize = imageDimensions;
-	sceneData.pixels = std::make_unique<PixelColor[]>(imageDimensions * imageDimensions * 3);
+	sceneData.pixels = std::make_unique_for_overwrite<PixelColor[]>(imageDimensions * imageDimensions * 3);
 	sceneData.pixelDeltaU = viewportU / imageDimensions;
 	sceneData.pixelDeltaV = viewportV / imageDimensions;
 	sceneData.originPos = viewportUpperLeft + 0.5 * (sceneData.pixelDeltaU + sceneData.pixelDeltaV);

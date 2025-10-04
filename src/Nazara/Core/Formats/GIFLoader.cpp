@@ -433,12 +433,12 @@ namespace Nz
 
 					m_affectedPixels.Resize(m_header.width * m_header.height);
 					if (m_requiresFrameHistory)
-						m_previousFrame = std::make_unique<UInt8[]>(m_header.width * m_header.height * 4);
+						m_previousFrame = std::make_unique_for_overwrite<UInt8[]>(m_header.width * m_header.height * 4);
 					else
 						m_previousFrame.reset();
 
 					if (hasDisposeToPrevious)
-						m_disposedRendering = std::make_unique<UInt8[]>(m_header.width * m_header.height * 4);
+						m_disposedRendering = std::make_unique_for_overwrite<UInt8[]>(m_header.width * m_header.height * 4);
 					else
 						m_disposedRendering.reset();
 
