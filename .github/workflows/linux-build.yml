@@ -39,7 +39,7 @@ jobs:
       run: echo "key=$(date +'%W')" >> $GITHUB_OUTPUT
 
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     # Install system dependencies
     - name: Install system dependencies
