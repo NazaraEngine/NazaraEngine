@@ -5,12 +5,6 @@
 #include <Nazara/Audio/SoundBuffer.hpp>
 #include <Nazara/Audio/Algorithm.hpp>
 #include <Nazara/Audio/Audio.hpp>
-#include <Nazara/Audio/AudioBuffer.hpp>
-#include <Nazara/Audio/Export.hpp>
-#include <Nazara/Core/Error.hpp>
-#include <cstring>
-#include <memory>
-#include <stdexcept>
 
 namespace Nz
 {
@@ -40,58 +34,47 @@ namespace Nz
 	* \param sampleRate Rate of samples
 	* \param samples Samples raw data
 	*/
-	SoundBuffer::SoundBuffer(AudioFormat format, UInt64 sampleCount, UInt32 sampleRate, const Int16* samples)
+	SoundBuffer::SoundBuffer(AudioFormat format, std::span<const AudioChannel> channels, UInt64 frameCount, UInt32 sampleRate, const void* samples) :
+	m_channels(channels.begin(), channels.end())
 	{
-		NazaraAssertMsg(sampleCount > 0, "sample count must be different from zero");
-		NazaraAssertMsg(sampleRate > 0, "sample rate must be different from zero");
-		NazaraAssertMsg(samples, "invalid samples");
+		NazaraAssertMsg(!m_channels.empty(), "channel map cannot be empty");
+		NazaraAssertMsg(frameCount > 0, "frameCount must be different from zero");
+		NazaraAssertMsg(sampleRate > 0, "sampleRate must be different from zero");
 
-		m_duration = Time::Microseconds((1'000'000LL * sampleCount / (GetChannelCount(format) * sampleRate)));
+		m_duration = Time::Microseconds((1'000'000LL * frameCount / sampleRate));
 		m_format = format;
-		m_sampleCount = sampleCount;
+		m_frameCount = frameCount;
 		m_sampleRate = sampleRate;
-		m_samples = std::make_unique<Int16[]>(sampleCount);
-		std::memcpy(&m_samples[0], samples, sampleCount * sizeof(Int16));
+
+		std::size_t bufferSize = frameCount * s_AudioFormatSize[format] * channels.size();
+		m_samples = std::make_unique_for_overwrite<UInt8[]>(bufferSize);
+		if (samples)
+			std::memcpy(&m_samples[0], samples, bufferSize);
 	}
 
-	const std::shared_ptr<AudioBuffer>& SoundBuffer::GetAudioBuffer(AudioDevice* device)
+	void SoundBuffer::ConvertFormat(AudioFormat format, AudioDitherMode ditherMode)
 	{
-		NazaraAssertMsg(device, "invalid device");
+		if (m_format == format)
+			return;
 
-		auto it = m_audioBufferByDevice.find(device);
-		if (it == m_audioBufferByDevice.end())
+		std::unique_ptr<UInt8[]> convertedSamples = std::make_unique_for_overwrite<UInt8[]>(m_frameCount * s_AudioFormatSize[format] * m_channels.size());
+		ConvertAudioFormat(m_format, m_samples.get(), format, convertedSamples.get(), m_frameCount, ditherMode);
+
+		m_samples = std::move(convertedSamples);
+		m_format = format;
+	}
+
+	auto SoundBuffer::Read(UInt64 startingFrameIndex, void* frameOut, UInt64 frameCount) -> Result<ReadData, std::string>
+	{
+		NazaraAssert(startingFrameIndex <= m_frameCount);
+		frameCount = std::min(m_frameCount - startingFrameIndex, frameCount);
+		if (frameCount > 0)
 		{
-			// Try to find an existing compatible buffer
-			std::shared_ptr<AudioBuffer> audioBuffer;
-			for (it = m_audioBufferByDevice.begin(); it != m_audioBufferByDevice.end(); ++it)
-			{
-				const auto& entry = it->second;
-				if (entry.audioBuffer->IsCompatibleWith(*device))
-				{
-					audioBuffer = entry.audioBuffer;
-					break;
-				}
-			}
-
-			if (!audioBuffer)
-			{
-				// Create a new buffer
-				audioBuffer = device->CreateBuffer();
-				if (!audioBuffer->Reset(m_format, m_sampleCount, m_sampleRate, m_samples.get()))
-					throw std::runtime_error("failed to initialize audio buffer");
-			}
-
-			it = m_audioBufferByDevice.emplace(device, AudioDeviceEntry{}).first;
-
-			AudioDeviceEntry& entry = it->second;
-			entry.audioBuffer = std::move(audioBuffer);
-			entry.audioDeviceReleaseSlot.Connect(device->OnAudioDeviceRelease, [this](AudioDevice* device)
-			{
-				m_audioBufferByDevice.erase(device);
-			});
+			std::size_t frameSize = s_AudioFormatSize[m_format] * m_channels.size();
+			std::memcpy(frameOut, &m_samples[startingFrameIndex * frameSize], frameCount * frameSize);
 		}
 
-		return it->second.audioBuffer;
+		return Ok(ReadData{ frameCount, startingFrameIndex + frameCount });
 	}
 
 	/*!

@@ -1,17 +1,17 @@
 #include <Nazara/Core.hpp>
-#include <Nazara/Audio2.hpp>
-#include <Nazara/Audio2/AudioEffect.hpp>
+#include <Nazara/Audio.hpp>
+#include <Nazara/Audio/AudioEffect.hpp>
 #include <iostream>
 
 int main()
 {
-	Nz::Application<Nz::Audio2> app;
+	Nz::Application<Nz::Audio> app;
 
 	std::filesystem::path resourceDir = "assets/examples";
 	if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory("../.." / resourceDir))
 		resourceDir = "../.." / resourceDir;
 
-	std::vector<Nz::AudioDeviceInfo> devices = Nz::Audio2::Instance()->QueryDevices();
+	std::vector<Nz::AudioDeviceInfo> devices = Nz::Audio::Instance()->QueryDevices();
 	for (const auto& deviceInfo : devices)
 	{
 		std::cout << std::string_view(&deviceInfo.deviceName[0]) << "\n";
@@ -22,7 +22,7 @@ int main()
 
 	std::shared_ptr<Nz::SoundBuffer> soundBuffer = Nz::SoundBuffer::LoadFromFile(resourceDir / "Audio/file_example_MP3_700KB.mp3");
 
-	std::shared_ptr<Nz::AudioEngine> audioEngine = Nz::Audio2::Instance()->OpenPlaybackEngine();
+	std::shared_ptr<Nz::AudioEngine> audioEngine = Nz::Audio::Instance()->OpenPlaybackEngine();
 
 	Nz::AudioReverbEffect reverbEffect({ .engine = audioEngine.get() });
 	reverbEffect.AttachOutputBus(0, audioEngine->GetEndpoint(), 0);

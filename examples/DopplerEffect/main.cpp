@@ -8,7 +8,7 @@
 ** - Gestion basique de position 3D
 */
 
-#include <Nazara/Audio2.hpp>
+#include <Nazara/Audio.hpp>
 #include <Nazara/Core/Application.hpp>
 #include <Nazara/Core/Clock.hpp>
 #include <Nazara/Core/Modules.hpp>
@@ -24,12 +24,12 @@ int main(int argc, char* argv[])
 	if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory("../.." / resourceDir))
 		resourceDir = "../.." / resourceDir;
 
-	Nz::Application<Nz::Audio2> app(argc, argv);
+	Nz::Application<Nz::Audio> app(argc, argv);
 	app.AddComponent<Nz::SignalHandlerAppComponent>();
 
 	std::shared_ptr<Nz::SoundBuffer> soundBuffer = Nz::SoundBuffer::LoadFromFile(resourceDir / "Audio/siren.wav");
 
-	std::shared_ptr<Nz::AudioEngine> audioEngine = Nz::Audio2::Instance()->OpenPlaybackEngine();
+	std::shared_ptr<Nz::AudioEngine> audioEngine = Nz::Audio::Instance()->OpenPlaybackEngine();
 
 	Nz::Sound sound(Nz::Sound::Config{ .engine = audioEngine.get(), .source = soundBuffer });
 

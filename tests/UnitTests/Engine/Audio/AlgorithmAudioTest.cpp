@@ -1,4 +1,4 @@
-#include <Nazara/Audio2/Algorithm.hpp>
+#include <Nazara/Audio/Algorithm.hpp>
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 

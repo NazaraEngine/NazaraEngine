@@ -1,6 +1,6 @@
-#include <Nazara/Audio2/Audio2.hpp>
-#include <Nazara/Audio2/Sound.hpp>
-#include <Nazara/Audio2/SoundBuffer.hpp>
+#include <Nazara/Audio/Audio.hpp>
+#include <Nazara/Audio/Sound.hpp>
+#include <Nazara/Audio/SoundBuffer.hpp>
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 
@@ -10,7 +10,7 @@ SCENARIO("SoundEmitter", "[AUDIO][SOUNDEMITTER]")
 {
 	GIVEN("A sound emitter")
 	{
-		std::shared_ptr<Nz::AudioEngine> audioEngine = Nz::Audio2::Instance()->OpenPlaybackEngine();
+		std::shared_ptr<Nz::AudioEngine> audioEngine = Nz::Audio::Instance()->OpenPlaybackEngine();
 
 		std::shared_ptr<Nz::SoundBuffer> soundBuffer = Nz::SoundBuffer::LoadFromFile(GetAssetDir() / "Audio/Cat.flac");
 		REQUIRE(soundBuffer);

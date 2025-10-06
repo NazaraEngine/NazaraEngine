@@ -3,9 +3,9 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Audio/Audio.hpp>
-#include <Nazara/Audio/DummyAudioDevice.hpp>
-#include <Nazara/Audio/OpenALDevice.hpp>
-#include <Nazara/Audio/OpenALLibrary.hpp>
+#include <Nazara/Audio/AudioDevice.hpp>
+#include <Nazara/Audio/AudioDeviceInfo.hpp>
+#include <Nazara/Audio/AudioEngine.hpp>
 #include <Nazara/Audio/Formats/drmp3Loader.hpp>
 #include <Nazara/Audio/Formats/drwavLoader.hpp>
 #include <Nazara/Audio/Formats/libflacLoader.hpp>
@@ -13,15 +13,15 @@
 #include <Nazara/Core/CommandLineParameters.hpp>
 #include <Nazara/Core/EnvironmentVariables.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Core/Format.hpp>
+#include <NazaraUtils/CallOnExit.hpp>
+#include <miniaudio.h>
+#include <cstring>
 #include <stdexcept>
+#include <utility>
 
 namespace Nz
 {
-	namespace
-	{
-		OpenALLibrary s_openalLibrary;
-	}
-
 	/*!
 	* \ingroup audio
 	* \class Nz::Audio
@@ -29,20 +29,59 @@ namespace Nz
 	*/
 
 	Audio::Audio(Config config) :
-	ModuleBase("Audio", this),
-	m_hasDummyDevice(config.allowDummyDevice)
+	ModuleBase("Audio", this)
 	{
-		// Load OpenAL
-		if (!config.noAudio)
-		{
-			if (!s_openalLibrary.Load())
-			{
-				if (!config.allowDummyDevice)
-					throw std::runtime_error("failed to load OpenAL");
+		// Setup miniaudio
+		std::unique_ptr<ma_context> maContext = std::make_unique<ma_context>();
 
-				NazaraError("failed to load OpenAL");
+		if (ma_result result = ma_log_init(nullptr, &maContext->log); result != MA_SUCCESS)
+			throw std::runtime_error(Format("failed to initialize miniaudio logger: {}", ma_result_description(result)));
+
+		CallOnExit uninitLog([&]
+		{
+			ma_log_uninit(&maContext->log);
+		});
+
+		ma_log_register_callback(&maContext->log, ma_log_callback_init([](void* /*pUserData*/, ma_uint32 level, const char* pMessage)
+		{
+			std::string_view message(pMessage);
+			if NAZARA_LIKELY(!message.empty() && message.ends_with('\n'))
+				message.remove_suffix(1);
+
+			switch (level)
+			{
+				case MA_LOG_LEVEL_DEBUG:
+					NazaraDebug("[MiniAudio] {}", message);
+					break;
+
+				case MA_LOG_LEVEL_INFO:
+					NazaraNotice("[MiniAudio] {}", message);
+					break;
+
+				case MA_LOG_LEVEL_WARNING:
+					NazaraWarning("[MiniAudio] {}", message);
+					break;
+
+				case MA_LOG_LEVEL_ERROR:
+					NazaraError("[MiniAudio] {}", message);
+					break;
 			}
-		}
+		}, nullptr));
+
+		ma_context_config contextConfig = ma_context_config_init();
+		contextConfig.pLog = &maContext->log;
+
+		ma_backend nullBackend = ma_backend_null;
+
+		ma_result result = ma_context_init((config.noAudio) ? &nullBackend : nullptr, (config.noAudio) ? 1 : 0, &contextConfig, maContext.get());
+		if (result != MA_SUCCESS)
+			throw std::runtime_error(Format("failed to initialize miniaudio: {}", ma_result_description(result)));
+
+		CallOnExit releaseContext([&] { ma_context_uninit(maContext.get()); });
+		uninitLog.Reset(); //< from now, ma_context_uninit will also uninit log
+
+		if (maContext->backend == ma_backend_null && !config.allowNullDevice)
+			throw std::runtime_error("no audio backend");
 
 		// Loaders
 		m_soundBufferLoader.RegisterLoader(Loaders::GetSoundBufferLoader_drmp3());
@@ -54,34 +93,16 @@ namespace Nz
 		m_soundBufferLoader.RegisterLoader(Loaders::GetSoundBufferLoader_libvorbis());
 		m_soundStreamLoader.RegisterLoader(Loaders::GetSoundStreamLoader_libvorbis());
 
-		if (s_openalLibrary.IsLoaded())
-		{
-			try
-			{
-				m_defaultDevice = s_openalLibrary.OpenDevice();
-			}
-			catch (const std::exception& e)
-			{
-				if (!config.allowDummyDevice)
-					throw;
-
-				NazaraError("failed to open default OpenAL device: {0}", e.what());
-			}
-		}
-
-		if (!m_defaultDevice)
-			m_defaultDevice = std::make_shared<DummyAudioDevice>();
+		releaseContext.Reset();
+		m_maContext = maContext.release();
 	}
 
 	Audio::~Audio()
 	{
-		m_defaultDevice.reset();
-		s_openalLibrary.Unload();
-	}
+		if (ma_result result = ma_context_uninit(m_maContext))
+			NazaraWarning("failed to uninit context: {}", ma_result_description(result));
 
-	const std::shared_ptr<AudioDevice>& Audio::GetDefaultDevice() const
-	{
-		return m_defaultDevice;
+		delete m_maContext;
 	}
 
 	/*!
@@ -120,32 +141,68 @@ namespace Nz
 		return m_soundStreamLoader;
 	}
 
-	std::shared_ptr<AudioDevice> Audio::OpenOutputDevice(const std::string& deviceName)
+	std::shared_ptr<AudioDevice> Audio::OpenCaptureDevice(const AudioDeviceId* captureDevice)
 	{
-		if (deviceName == "dummy")
-			return std::make_shared<DummyAudioDevice>();
+		ma_device_config deviceConfig = ma_device_config_init(ma_device_type_capture);
+		if (captureDevice)
+			deviceConfig.playback.pDeviceID = reinterpret_cast<const ma_device_id*>(&captureDevice->data[0]);
 
-		return s_openalLibrary.OpenDevice(deviceName.c_str());
+		return std::make_shared<AudioDevice>(m_maContext, deviceConfig);
 	}
 
-	std::vector<std::string> Audio::QueryInputDevices() const
+	std::shared_ptr<AudioDevice> Audio::OpenPlaybackDevice(const AudioDeviceId* playbackDevice)
 	{
-		if (!s_openalLibrary.IsLoaded())
-			return {};
+		ma_device_config deviceConfig = ma_device_config_init(ma_device_type_playback);
+		if (playbackDevice)
+			deviceConfig.playback.pDeviceID = reinterpret_cast<const ma_device_id*>(&playbackDevice->data[0]);
 
-		return s_openalLibrary.QueryInputDevices();
+		return std::make_shared<AudioDevice>(m_maContext, deviceConfig);
 	}
 
-	std::vector<std::string> Audio::QueryOutputDevices() const
+	std::shared_ptr<AudioEngine> Audio::OpenPlaybackEngine(const AudioDeviceId* playbackDevice)
 	{
-		std::vector<std::string> outputDevices;
-		if (s_openalLibrary.IsLoaded())
-			outputDevices = s_openalLibrary.QueryOutputDevices();
+		ma_device_config deviceConfig = ma_device_config_init(ma_device_type_playback);
+		if (playbackDevice)
+			deviceConfig.playback.pDeviceID = reinterpret_cast<const ma_device_id*>(&playbackDevice->data[0]);
 
-		if (m_hasDummyDevice)
-			outputDevices.push_back("dummy");
+		// Device config for engines (taken from ma_engine_init)
+		deviceConfig.playback.format = ma_format_f32;
+		deviceConfig.noPreSilencedOutputBuffer = MA_TRUE;
+		deviceConfig.noClip = MA_TRUE;
 
-		return outputDevices;
+		auto device = std::make_shared<AudioDevice>(m_maContext, deviceConfig);
+		return std::make_shared<AudioEngine>(std::move(device));
+	}
+
+	std::vector<AudioDeviceInfo> Audio::QueryDevices() const
+	{
+		std::vector<AudioDeviceInfo> devices;
+
+		ma_context_enumerate_devices(m_maContext, [](ma_context* /*context*/, ma_device_type deviceType, const ma_device_info* info, void* userdata) -> ma_bool32
+		{
+			std::vector<AudioDeviceInfo>& deviceList = *reinterpret_cast<std::vector<AudioDeviceInfo>*>(userdata);
+
+			static_assert(sizeof(AudioDeviceId) >= sizeof(ma_device_id));
+			static_assert(alignof(AudioDeviceId) >= alignof(ma_device_id));
+			static_assert(std::tuple_size_v<decltype(AudioDeviceInfo::deviceName)> >= MA_MAX_DEVICE_NAME_LENGTH + 1);
+
+			auto& device = deviceList.emplace_back();
+			std::memcpy(&device.deviceId.data[0], &info->id, sizeof(ma_device_id));
+			std::strcpy(&device.deviceName[0], &info->name[0]);
+
+			device.isDefault = info->isDefault == MA_TRUE;
+			if (deviceType == ma_device_type_playback)
+				device.deviceType = AudioDeviceType::Playback;
+			else
+			{
+				assert(deviceType == ma_device_type_capture);
+				device.deviceType = AudioDeviceType::Capture;
+			}
+
+			return MA_TRUE;
+		}, &devices);
+
+		return devices;
 	}
 
 	Audio* Audio::s_instance = nullptr;

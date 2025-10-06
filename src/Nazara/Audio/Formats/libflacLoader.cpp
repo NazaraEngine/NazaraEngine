@@ -140,7 +140,7 @@ namespace Nz
 			return extension == ".flac";
 		}
 
-		Result<std::shared_ptr<SoundBuffer>, ResourceLoadingError> LoadFlacSoundBuffer(Stream& stream, const SoundBufferParams& parameters)
+		Result<std::shared_ptr<SoundBuffer>, ResourceLoadingError> LoadFlacSoundBuffer(Stream& stream, const SoundBufferParams& /*parameters*/)
 		{
 			FLAC__StreamDecoder* decoder = FLAC__stream_decoder_new();
 			CallOnExit freeDecoder([&] { FLAC__stream_decoder_delete(decoder); });
@@ -157,8 +157,7 @@ namespace Nz
 
 			std::unique_ptr<Int16[]> samples;
 			UInt32 channelCount = 0;
-			UInt64 frameCount = 0;
-			UInt64 sampleCount = 0;
+			UInt64 totalFrameCount = 0;
 			UInt32 sampleRate = 0;
 
 			ud.metadataCallback = [&](const FLAC__StreamDecoder* /*decoder*/, const FLAC__StreamMetadata* meta)
@@ -166,31 +165,30 @@ namespace Nz
 				if (meta->type == FLAC__METADATA_TYPE_STREAMINFO)
 				{
 					channelCount = meta->data.stream_info.channels;
-					frameCount = meta->data.stream_info.total_samples;
-					sampleCount = frameCount * channelCount;
+					totalFrameCount = meta->data.stream_info.total_samples;
 					sampleRate = meta->data.stream_info.sample_rate;
 
-					samples = std::make_unique_for_overwrite<Int16[]>(channelCount * frameCount);
+					samples = std::make_unique_for_overwrite<Int16[]>(channelCount * totalFrameCount);
 				}
 			};
 
-			UInt64 sampleIndex = 0;
+			UInt64 frameIndex = 0;
 			ud.writeCallback = [&](const FLAC__StreamDecoder* /*decoder*/, const FLAC__Frame* frame, const FLAC__int32* const buffer[])
 			{
-				std::size_t frameSampleCount = frame->header.blocksize * frame->header.channels;
-				if (sampleIndex + frameSampleCount > sampleCount)
+				std::size_t frameCount = frame->header.blocksize;
+				if (frameIndex + frameCount > totalFrameCount)
 				{
 					NazaraError("too many sample encountered");
 					return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
 				}
 
-				if (!DecodeFlacFrameSamples(frame, buffer, samples.get() + sampleIndex))
+				if (!DecodeFlacFrameSamples(frame, buffer, samples.get() + frameIndex * channelCount))
 				{
 					NazaraError("failed to decode samples");
 					return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
 				}
 
-				sampleIndex += frameSampleCount;
+				frameIndex += frameCount;
 
 				return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;
 			};
@@ -219,30 +217,20 @@ namespace Nz
 				return Err(ResourceLoadingError::DecodingError);
 			}
 
-			if (channelCount == 0 || frameCount == 0 || sampleCount == 0 || sampleRate == 0)
+			if (channelCount == 0 || totalFrameCount == 0 || sampleRate == 0)
 			{
 				NazaraError("invalid metadata");
 				return Err(ResourceLoadingError::DecodingError);
 			}
 
-			std::optional<AudioFormat> formatOpt = GuessAudioFormat(channelCount);
-			if (!formatOpt)
+			std::span<const AudioChannel> channels = GetAudioChannelMap(channelCount);
+			if (channels.empty())
 			{
 				NazaraError("unexpected channel count: {0}", channelCount);
 				return Err(ResourceLoadingError::Unsupported);
 			}
 
-			AudioFormat format = *formatOpt;
-
-			if (parameters.forceMono && format != AudioFormat::I16_Mono)
-			{
-				MixToMono(samples.get(), samples.get(), channelCount, frameCount);
-
-				format = AudioFormat::I16_Mono;
-				sampleCount = frameCount;
-			}
-
-			return std::make_shared<SoundBuffer>(format, sampleCount, sampleRate, samples.get());
+			return std::make_shared<SoundBuffer>(AudioFormat::Signed16, channels, totalFrameCount, sampleRate, samples.get());
 		}
 
 		class libflacStream : public SoundStream
@@ -250,7 +238,7 @@ namespace Nz
 			public:
 				libflacStream() :
 				m_decoder(nullptr),
-				m_readSampleCount(0),
+				m_currentFramePosition(0),
 				m_errored(false)
 				{
 				}
@@ -264,6 +252,11 @@ namespace Nz
 					}
 				}
 
+				std::span<const AudioChannel> GetChannels() const override
+				{
+					return m_channels;
+				}
+
 				Time GetDuration() const override
 				{
 					return m_duration;
@@ -271,20 +264,17 @@ namespace Nz
 
 				AudioFormat GetFormat() const override
 				{
-					if (m_mixToMono)
-						return AudioFormat::I16_Mono;
-					else
-						return m_format;
+					return m_format;
 				}
 
-				std::mutex& GetMutex() override
+				UInt64 GetFrameCount() const override
 				{
-					return m_mutex;
+					return m_frameCount;
 				}
 
-				UInt64 GetSampleCount() const override
+				std::mutex* GetMutex() override
 				{
-					return m_sampleCount;
+					return &m_mutex;
 				}
 
 				UInt32 GetSampleRate() const override
@@ -311,7 +301,7 @@ namespace Nz
 					return Open(*m_ownedStream, parameters);
 				}
 
-				Result<void, ResourceLoadingError> Open(Stream& stream, const SoundStreamParams& parameters)
+				Result<void, ResourceLoadingError> Open(Stream& stream, const SoundStreamParams& /*parameters*/)
 				{
 					m_userData.stream = &stream;
 					m_userData.errorCallback = [this](const FLAC__StreamDecoder* /*decoder*/, FLAC__StreamDecoderErrorStatus status)
@@ -323,16 +313,13 @@ namespace Nz
 					FLAC__StreamDecoder* decoder = FLAC__stream_decoder_new();
 					CallOnExit freeDecoder([&] { FLAC__stream_decoder_delete(decoder); });
 
-					UInt64 frameCount;
-
 					m_userData.metadataCallback = [&](const FLAC__StreamDecoder* /*decoder*/, const FLAC__StreamMetadata* meta)
 					{
 						m_channelCount = meta->data.stream_info.channels;
-						frameCount = meta->data.stream_info.total_samples;
-						m_sampleCount = frameCount * m_channelCount;
+						m_frameCount = meta->data.stream_info.total_samples;
 						m_sampleRate = meta->data.stream_info.sample_rate;
 
-						m_duration = Time::Microseconds(1'000'000LL * frameCount / m_sampleRate);
+						m_duration = Time::Microseconds(1'000'000LL * m_frameCount / m_sampleRate);
 					};
 
 					FLAC__StreamDecoderInitStatus status = FLAC__stream_decoder_init_stream(decoder, &FlacReadCallback, &FlacSeekCallback, &FlacTellCallback, &FlacLengthCallback, &FlacEofCallback, &WriteCallback, &MetadataCallback, &ErrorCallback, &m_userData);
@@ -347,23 +334,14 @@ namespace Nz
 					if (!FLAC__stream_decoder_process_until_end_of_metadata(decoder))
 						return Err(ResourceLoadingError::Unrecognized);
 
-					std::optional<AudioFormat> formatOpt = GuessAudioFormat(m_channelCount);
-					if (!formatOpt)
+					m_channels = GetAudioChannelMap(m_channelCount);
+					if (m_channels.empty())
 					{
 						NazaraError("unexpected channel count: {0}", m_channelCount);
-						return Err(ResourceLoadingError::Unrecognized);
+						return Err(ResourceLoadingError::Unsupported);
 					}
 
-					m_format = *formatOpt;
-
-					// Mixing to mono will be done on the fly
-					if (parameters.forceMono && m_format != AudioFormat::I16_Mono)
-					{
-						m_mixToMono = true;
-						m_sampleCount = frameCount;
-					}
-					else
-						m_mixToMono = false;
+					m_format = AudioFormat::Signed16;
 
 					finishDecoder.Reset();
 					freeDecoder.Reset();
@@ -372,80 +350,71 @@ namespace Nz
 					return Ok();
 				}
 
-				UInt64 Read(void* buffer, UInt64 sampleCount) override
+				Result<ReadData, std::string> Read(UInt64 startingFrameIndex, void* frameOut, UInt64 frameCount) override
 				{
-					// Convert to mono in the fly if necessary
-					if (m_mixToMono)
+					Int16* output = static_cast<Int16*>(frameOut);
+
+					UInt64 readFrame = 0;
+					if (m_currentFramePosition != startingFrameIndex)
 					{
-						// Keep a buffer to the side to prevent allocation
-						m_mixBuffer.resize(sampleCount * m_channelCount);
-
-						std::size_t readSample = ReadFlac(m_mixBuffer.data(), sampleCount * m_channelCount);
-						MixToMono(m_mixBuffer.data(), static_cast<Int16*>(buffer), m_channelCount, sampleCount);
-
-						return readSample / m_channelCount;
+						FLAC__stream_decoder_seek_absolute(m_decoder, startingFrameIndex);
+						m_currentFramePosition = startingFrameIndex;
+						m_overflowBuffer.clear();
 					}
 					else
-						return ReadFlac(static_cast<Int16*>(buffer), sampleCount);
-				}
-
-				UInt64 ReadFlac(Int16* buffer, UInt64 sampleCount)
-				{
-					// Read overflown buffer first
-					UInt64 readSample = std::min<UInt64>(m_overflowBuffer.size(), sampleCount);
-					if (readSample > 0)
 					{
-						std::memcpy(buffer, m_overflowBuffer.data(), readSample * sizeof(Int16));
-						m_overflowBuffer.erase(m_overflowBuffer.begin(), m_overflowBuffer.begin() + readSample);
-						sampleCount -= readSample;
-					}
+						// Read overflown buffer first
+						readFrame = std::min<UInt64>(m_overflowBuffer.size() / m_channelCount, frameCount);
+						if (readFrame > 0)
+						{
+							std::memcpy(output, m_overflowBuffer.data(), readFrame * m_channelCount * sizeof(Int16));
+							m_overflowBuffer.erase(m_overflowBuffer.begin(), m_overflowBuffer.begin() + readFrame * m_channelCount);
+							frameCount -= readFrame;
+							output += readFrame * m_channelCount;
+						}
 
-					if (sampleCount == 0)
-						return readSample;
+						if (frameCount == 0)
+							return ReadData{ readFrame, m_currentFramePosition };
+					}
 
 					m_userData.writeCallback = [&](const FLAC__StreamDecoder* /*decoder*/, const FLAC__Frame* frame, const FLAC__int32* const framebuffer[])
 					{
-						UInt32 frameCount = frame->header.blocksize;
-						UInt32 blockSampleCount = frameCount * frame->header.channels;
-						if (blockSampleCount > sampleCount)
+						UInt32 blockFrameCount = frame->header.blocksize;
+						if (blockFrameCount > frameCount)
 						{
 							std::size_t overflownOffset = m_overflowBuffer.size();
-							m_overflowBuffer.resize(overflownOffset + blockSampleCount - sampleCount);
+							m_overflowBuffer.resize(overflownOffset + (blockFrameCount - frameCount) * m_channelCount);
 
-							if (sampleCount > 0)
+							if (frameCount > 0)
 							{
-								assert(sampleCount % frame->header.channels == 0);
-								if (!DecodeFlacFrameSamples(frame, framebuffer, buffer + readSample, 0, static_cast<UInt32>(sampleCount / frame->header.channels)))
+								if (!DecodeFlacFrameSamples(frame, framebuffer, output, 0, static_cast<UInt32>(frameCount)))
 									return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
 
-								readSample += sampleCount;
+								readFrame += frameCount;
 							}
 
-							if (!DecodeFlacFrameSamples(frame, framebuffer, &m_overflowBuffer[overflownOffset], static_cast<UInt32>(sampleCount / frame->header.channels), frameCount))
+							if (!DecodeFlacFrameSamples(frame, framebuffer, &m_overflowBuffer[overflownOffset], static_cast<UInt32>(frameCount), blockFrameCount))
 								return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
 
-							sampleCount = 0;
+							frameCount = 0;
 						}
 						else
 						{
-							if (!DecodeFlacFrameSamples(frame, framebuffer, buffer + readSample))
+							if (!DecodeFlacFrameSamples(frame, framebuffer, output + readFrame * m_channelCount))
 								return FLAC__STREAM_DECODER_WRITE_STATUS_ABORT;
 
-							readSample += blockSampleCount;
-							sampleCount -= blockSampleCount;
+							readFrame += blockFrameCount;
+							frameCount -= blockFrameCount;
 						}
 
-						if (m_mixToMono)
-							m_readSampleCount += frameCount;
-						else
-							m_readSampleCount += blockSampleCount;
+						m_currentFramePosition += blockFrameCount;
 
 						return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;
 					};
 
-					CallOnExit resetWriteCallback([&] { m_userData.writeCallback = nullptr; });
+					NAZARA_DEFER({ m_userData.writeCallback = nullptr; });
 
-					while (sampleCount > 0)
+					while (frameCount > 0)
 					{
 						if (!FLAC__stream_decoder_process_single(m_decoder))
 							break; //< an error occurred
@@ -454,24 +423,13 @@ namespace Nz
 							break; //< we hit the end of the stream
 					}
 
-					return readSample;
-				}
-
-				void Seek(UInt64 offset) override
-				{
-					FLAC__stream_decoder_seek_absolute(m_decoder, (m_mixToMono) ? offset : offset / m_channelCount);
-					m_readSampleCount = offset;
-				}
-
-				UInt64 Tell() override
-				{
-					return m_readSampleCount;
+					return ReadData{ readFrame, m_currentFramePosition };
 				}
 
 			private:
 				std::mutex m_mutex;
+				std::span<const AudioChannel> m_channels;
 				std::unique_ptr<Stream> m_ownedStream;
-				std::vector<Int16> m_mixBuffer;
 				std::vector<Int16> m_overflowBuffer;
 				FLAC__StreamDecoder* m_decoder;
 				AudioFormat m_format;
@@ -479,10 +437,9 @@ namespace Nz
 				Time m_duration;
 				UInt32 m_channelCount;
 				UInt32 m_sampleRate;
-				UInt64 m_readSampleCount;
-				UInt64 m_sampleCount;
+				UInt64 m_currentFramePosition;
+				UInt64 m_frameCount;
 				bool m_errored;
-				bool m_mixToMono;
 		};
 
 		Result<std::shared_ptr<SoundStream>, ResourceLoadingError> LoadFlacSoundStreamFile(const std::filesystem::path& filePath, const SoundStreamParams& parameters)

@@ -21,11 +21,70 @@
 #define OV_EXCLUDE_STATIC_CALLBACKS
 #include <vorbis/vorbisfile.h>
 
-
 namespace Nz
 {
 	namespace
 	{
+		inline std::span<const AudioChannel> GetVorbisAudioChannelMap(UInt32 channelCount)
+		{
+			switch (channelCount)
+			{
+				case 0:
+					return {};
+
+				case 1:
+				{
+					static constexpr std::array s_channels = { AudioChannel::Mono };
+					return s_channels;
+				}
+
+				case 2:
+				{
+					static constexpr std::array s_channels = { AudioChannel::FrontLeft, AudioChannel::FrontRight };
+					return s_channels;
+				}
+
+				case 3:
+				{
+					static constexpr std::array s_channels = { AudioChannel::FrontLeft, AudioChannel::FrontCenter, AudioChannel::FrontRight };
+					return s_channels;
+				}
+
+				case 4:
+				{
+					static constexpr std::array s_channels = { AudioChannel::FrontLeft, AudioChannel::FrontRight, AudioChannel::BackLeft, AudioChannel::BackRight };
+					return s_channels;
+				}
+
+				case 5:
+				{
+					static constexpr std::array s_channels = { AudioChannel::FrontLeft, AudioChannel::FrontCenter, AudioChannel::FrontRight, AudioChannel::BackLeft, AudioChannel::BackRight };
+					return s_channels;
+				}
+
+				case 6:
+				{
+					static constexpr std::array s_channels = { AudioChannel::FrontLeft, AudioChannel::FrontCenter, AudioChannel::FrontRight, AudioChannel::BackLeft, AudioChannel::BackRight, AudioChannel::LFE };
+					return s_channels;
+				}
+
+				case 7:
+				{
+					static constexpr std::array s_channels = { AudioChannel::FrontLeft, AudioChannel::FrontCenter, AudioChannel::FrontRight, AudioChannel::SideLeft, AudioChannel::SideRight, AudioChannel::BackCenter, AudioChannel::LFE };
+					return s_channels;
+				}
+
+				case 8:
+				{
+					static constexpr std::array s_channels = { AudioChannel::FrontLeft, AudioChannel::FrontCenter, AudioChannel::FrontRight, AudioChannel::SideLeft, AudioChannel::SideRight, AudioChannel::BackLeft, AudioChannel::BackRight, AudioChannel::LFE };
+					return s_channels;
+				}
+
+				default:
+					return GetAudioChannelMap(channelCount);
+			}
+		}
+
 		std::size_t VorbisReadCallback(void* ptr, size_t size, size_t nmemb, void* datasource)
 		{
 			Stream* stream = static_cast<Stream*>(datasource);
@@ -63,7 +122,7 @@ namespace Nz
 			return static_cast<long>(stream->GetCursorPos());
 		}
 
-		static ov_callbacks s_vorbisCallbacks = {
+		constexpr ov_callbacks s_vorbisCallbacks = {
 			&VorbisReadCallback,
 			&VorbisSeekCallback,
 			nullptr,
@@ -75,7 +134,7 @@ namespace Nz
 		{
 			switch (errCode)
 			{
-			case 0:                 return "no error";
+				case 0:             return "no error";
 				case OV_EBADHEADER: return "invalid Vorbis bitstream header";
 				case OV_EBADLINK:   return "an invalid stream section was supplied to libvorbisfile, or the requested link is corrupt";
 				case OV_EFAULT:     return "internal logic fault";
@@ -88,15 +147,15 @@ namespace Nz
 			}
 		}
 
-		UInt64 ReadOgg(OggVorbis_File* file, void* buffer, UInt64 sampleCount)
+		UInt64 ReadOgg(OggVorbis_File* file, void* buffer, UInt64 frameCount)
 		{
-			constexpr int bigendian = (PlatformEndianness == Endianness::LittleEndian) ? 0 : 1;
+			constexpr int s_bigEndian = (PlatformEndianness == Endianness::LittleEndian) ? 0 : 1;
 
 			char* ptr = reinterpret_cast<char*>(buffer);
-			UInt64 remainingBytes = sampleCount * sizeof(Int16);
+			UInt64 remainingBytes = frameCount * file->vi->channels * sizeof(Int16);
 			do
 			{
-				long readBytes = ov_read(file, ptr, int(remainingBytes), bigendian, 2, 1, nullptr);
+				long readBytes = ov_read(file, ptr, int(remainingBytes), s_bigEndian, 2, 1, nullptr);
 				if (readBytes == 0)
 					break; //< End of file
 
@@ -113,7 +172,7 @@ namespace Nz
 			}
 			while (remainingBytes > 0);
 
-			return sampleCount - remainingBytes / sizeof(Int16);
+			return frameCount - remainingBytes / (file->vi->channels * sizeof(Int16));
 		}
 
 		bool IsVorbisSupported(std::string_view extension)
@@ -130,49 +189,46 @@ namespace Nz
 			if (err != 0)
 				return Err(ResourceLoadingError::Unrecognized);
 
-			CallOnExit clearOnExit([&] { ov_clear(&file); });
+			NAZARA_DEFER(ov_clear(&file););
 
 			vorbis_info* info = ov_info(&file, -1);
 			assert(info);
 
-			std::optional<AudioFormat> formatOpt = GuessAudioFormat(info->channels);
-			if (!formatOpt)
+			std::span<const AudioChannel> audioChannels = GetVorbisAudioChannelMap(info->channels);
+			if (audioChannels.empty())
 			{
 				NazaraError("unexpected channel count: {0}", info->channels);
 				return Err(ResourceLoadingError::Unsupported);
 			}
 
-			AudioFormat format = *formatOpt;
+			UInt64 frameCount = UInt64(ov_pcm_total(&file, -1));
 
-			UInt64 frameCount = SafeCaster(ov_pcm_total(&file, -1));
-			UInt64 sampleCount = SafeCaster(frameCount * info->channels);
-			std::unique_ptr<Int16[]> samples = std::make_unique_for_overwrite<Int16[]>(sampleCount); //< std::vector would default-init to zero
+			AudioFormat format = AudioFormat::Signed16;
 
-			UInt64 readSample = ReadOgg(&file, samples.get(), sampleCount);
-			if (readSample == 0)
+			std::shared_ptr<SoundBuffer> soundBuffer = std::make_shared<SoundBuffer>(format, audioChannels, frameCount, info->rate, nullptr);
+			void* samples = soundBuffer->GetSamples();
+
+			UInt64 readFrame = ReadOgg(&file, samples, frameCount);
+			if (readFrame == 0)
 				return Err(ResourceLoadingError::DecodingError);
 
-			if (readSample != sampleCount)
+			if (readFrame != frameCount)
 			{
 				NazaraError("failed to read the whole file");
 				return Err(ResourceLoadingError::DecodingError);
 			}
 
-			if (parameters.forceMono && format != AudioFormat::I16_Mono)
-			{
-				MixToMono(samples.get(), samples.get(), static_cast<UInt32>(info->channels), frameCount);
+			if (parameters.format != format)
+				soundBuffer->ConvertFormat(parameters.format);
 
-				format = AudioFormat::I16_Mono;
-				sampleCount = frameCount;
-			}
-
-			return std::make_shared<SoundBuffer>(format, sampleCount, info->rate, samples.get());
+			return soundBuffer;
 		}
 
 		class libvorbisStream : public SoundStream
 		{
 			public:
-				libvorbisStream()
+				libvorbisStream() :
+				m_currentFramePosition(0)
 				{
 					m_decoder.datasource = nullptr;
 				}
@@ -183,6 +239,11 @@ namespace Nz
 						ov_clear(&m_decoder);
 				}
 
+				std::span<const AudioChannel> GetChannels() const override
+				{
+					return m_channels;
+				}
+
 				Time GetDuration() const override
 				{
 					return m_duration;
@@ -190,20 +251,17 @@ namespace Nz
 
 				AudioFormat GetFormat() const override
 				{
-					if (m_mixToMono)
-						return AudioFormat::I16_Mono;
-					else
-						return m_format;
+					return m_format;
 				}
 
-				std::mutex& GetMutex() override
+				UInt64 GetFrameCount() const override
 				{
-					return m_mutex;
+					return m_frameCount;
 				}
 
-				UInt64 GetSampleCount() const override
+				std::mutex* GetMutex() override
 				{
-					return m_sampleCount;
+					return &m_mutex;
 				}
 
 				UInt32 GetSampleRate() const override
@@ -230,7 +288,7 @@ namespace Nz
 					return Open(*m_ownedStream, parameters);
 				}
 
-				Result<void, ResourceLoadingError> Open(Stream& stream, const SoundStreamParams& parameters)
+				Result<void, ResourceLoadingError> Open(Stream& stream, const SoundStreamParams& /*parameters*/)
 				{
 					int err = ov_open_callbacks(&stream, &m_decoder, nullptr, 0, s_vorbisCallbacks);
 					if (err != 0)
@@ -245,84 +303,49 @@ namespace Nz
 					vorbis_info* info = ov_info(&m_decoder, -1);
 					assert(info);
 
-					std::optional<AudioFormat> formatOpt = GuessAudioFormat(info->channels);
-					if (!formatOpt)
+					m_channels = GetVorbisAudioChannelMap(info->channels);
+					if (m_channels.empty())
 					{
 						NazaraError("unexpected channel count: {0}", info->channels);
 						return Err(ResourceLoadingError::Unsupported);
 					}
 
-					m_format = *formatOpt;
+					m_format = AudioFormat::Signed16;
 
 					UInt64 frameCount = UInt64(ov_pcm_total(&m_decoder, -1));
 
 					m_channelCount = info->channels;
 					m_duration = Time::Microseconds(1'000'000LL * frameCount / info->rate);
-					m_sampleCount = UInt64(frameCount * info->channels);
+					m_frameCount = UInt64(frameCount * info->channels);
 					m_sampleRate = info->rate;
-
-					// Mixing to mono will be done on the fly
-					if (parameters.forceMono && m_format != AudioFormat::I16_Mono)
-					{
-						m_mixToMono = true;
-						m_sampleCount = frameCount;
-					}
-					else
-						m_mixToMono = false;
 
 					clearOnError.Reset();
 
 					return Ok();
 				}
 
-				UInt64 Read(void* buffer, UInt64 sampleCount) override
+				Result<ReadData, std::string> Read(UInt64 startingFrameIndex, void* frameOut, UInt64 frameCount) override
 				{
-					// Convert to mono in the fly if necessary
-					if (m_mixToMono)
-					{
-						// Keep a buffer to the side to prevent allocation
-						m_mixBuffer.resize(sampleCount * m_channelCount);
+					if (m_currentFramePosition != startingFrameIndex)
+						ov_pcm_seek(&m_decoder, SafeCaster(startingFrameIndex));
 
-						std::size_t readSample = ReadOgg(&m_decoder, m_mixBuffer.data(), sampleCount * m_channelCount);
-						MixToMono(m_mixBuffer.data(), static_cast<Int16*>(buffer), m_channelCount, sampleCount);
+					UInt64 readFrame = ReadOgg(&m_decoder, frameOut, frameCount);
+					m_currentFramePosition = SafeCaster(ov_pcm_tell(&m_decoder));
 
-						return readSample / m_channelCount;
-					}
-					else
-					{
-						UInt64 readSample = ReadOgg(&m_decoder, buffer, sampleCount);
-						return readSample;
-					}
-				}
-
-				void Seek(UInt64 offset) override
-				{
-					if (!m_mixToMono)
-						offset /= m_channelCount;
-
-					ov_pcm_seek(&m_decoder, Int64(offset));
-				}
-
-				UInt64 Tell() override
-				{
-					UInt64 offset = UInt64(ov_pcm_tell(&m_decoder));
-					if (!m_mixToMono)
-						offset *= m_channelCount;
-
-					return offset;
+					return ReadData{ readFrame, m_currentFramePosition };
 				}
 
 			private:
 				std::mutex m_mutex;
+				std::span<const AudioChannel> m_channels;
 				std::unique_ptr<Stream> m_ownedStream;
-				std::vector<Int16> m_mixBuffer;
 				AudioFormat m_format;
 				OggVorbis_File m_decoder;
 				Time m_duration;
 				UInt32 m_channelCount;
 				UInt32 m_sampleRate;
-				UInt64 m_sampleCount;
-				bool m_mixToMono;
+				UInt64 m_currentFramePosition;
+				UInt64 m_frameCount;
 		};
 
 		Result<std::shared_ptr<SoundStream>, ResourceLoadingError> LoadVorbisSoundStreamFile(const std::filesystem::path& filePath, const SoundStreamParams& parameters)

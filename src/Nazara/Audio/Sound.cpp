@@ -3,253 +3,359 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Audio/Sound.hpp>
-#include <Nazara/Audio/Audio.hpp>
-#include <Nazara/Audio/AudioSource.hpp>
-#include <Nazara/Audio/Export.hpp>
-#include <Nazara/Core/Error.hpp>
-#include <NazaraUtils/Algorithm.hpp>
+#include <Nazara/Audio/AudioEngine.hpp>
+#include <Nazara/Audio/MiniaudioUtils.hpp>
+#include <Nazara/Audio/SoundDataSource.hpp>
+#include <NazaraUtils/StackArray.hpp>
+#include <miniaudio.h>
+#include <atomic>
 
 namespace Nz
 {
-	/*!
-	* \ingroup audio
-	* \class Nz::Sound
-	* \brief Audio class that represents a sound
-	*
-	* \remark Module Audio needs to be initialized to use this class
-	*/
-
-	Sound::Sound() :
-	Sound(*Audio::Instance()->GetDefaultDevice())
+	Sound::Sound(Config config)
 	{
+		NazaraAssertMsg(config.engine, "invalid sound engine");
+		ma_engine* engine = config.engine->GetInternalHandle();
+
+		m_sound = config.engine->AllocateInternalSound(m_soundIndex);
+
+		StackArray<AudioChannel> deviceChannelMap = NazaraStackArrayNoInit(AudioChannel, engine->pDevice->playback.channels);
+		for (std::size_t i = 0; i < deviceChannelMap.size(); ++i)
+			deviceChannelMap[i] = FromMiniaudio(engine->pDevice->playback.channelMap[i]);
+
+		m_sourceReader = std::make_unique<SoundDataReader>(FromMiniaudio(engine->pDevice->playback.format), std::span(deviceChannelMap), engine->pDevice->sampleRate, std::move(config.source));
+
+		ma_sound_config miniaudioConfig = ma_sound_config_init_2(engine);
+		miniaudioConfig.channelsOut = MA_SOUND_SOURCE_CHANNEL_COUNT;
+		miniaudioConfig.pDataSource = m_sourceReader->AsDataSource();
+		if (config.outputNode)
+		{
+			miniaudioConfig.pInitialAttachment = config.outputNode->GetInternalNode();
+			miniaudioConfig.initialAttachmentInputBusIndex = config.outputNodeBus;
+		}
+
+		if (!config.attachToNode)
+			miniaudioConfig.flags |= MA_SOUND_FLAG_NO_DEFAULT_ATTACHMENT;
+
+		if (!config.enablePitching)
+			miniaudioConfig.flags |= MA_SOUND_FLAG_NO_PITCH;
+
+		ma_result result = ma_sound_init_ex(engine, &miniaudioConfig, m_sound);
+		if (result != MA_SUCCESS)
+			throw std::runtime_error(Format("ma_sound_init_ex failed: {}", ma_result_description(result)));
 	}
 
-	/*!
-	* \brief Constructs a Sound object
-	*
-	* \param soundBuffer Buffer to read sound from
-	*/
-	Sound::Sound(AudioDevice& audioDevice, std::shared_ptr<SoundBuffer> soundBuffer) :
-	Sound(audioDevice)
-	{
-		SetBuffer(std::move(soundBuffer));
-	}
-
-	/*!
-	* \brief Destructs the object and calls Stop
-	*
-	* \see Stop
-	*/
 	Sound::~Sound()
 	{
-		if (m_source)
-			Stop();
+		if (m_sound)
+		{
+			ma_sound_stop(m_sound);
+			GetEngine().WaitForStateSync();
+			ma_sound_uninit(m_sound);
+			GetEngine().FreeInternalSound(m_soundIndex);
+		}
 	}
 
-	/*!
-	* \brief Enables the looping of the music
-	*
-	* \param loop Should sound loop
-	*/
 	void Sound::EnableLooping(bool loop)
 	{
-		m_source->EnableLooping(loop);
+		ma_sound_set_looping(m_sound, loop);
 	}
 
-	/*!
-	* \brief Gets the internal buffer
-	* \return Internal buffer
-	*/
-	const std::shared_ptr<SoundBuffer>& Sound::GetBuffer() const
+	void Sound::EnableSpatialization(bool spatialization)
 	{
-		return m_buffer;
+		ma_sound_set_spatialization_enabled(m_sound, spatialization);
 	}
 
-	/*!
-	* \brief Gets the duration of the sound
-	* \return Duration of the music in milliseconds
-	*
-	* \remark Produces a NazaraError if there is no buffer
-	*/
+	SoundAttenuationModel Sound::GetAttenuationModel() const
+	{
+		return FromMiniaudio(ma_sound_get_attenuation_model(m_sound));
+	}
+
+	std::span<const AudioChannel> Sound::GetChannels() const
+	{
+		return m_sourceReader->GetSource()->GetChannels();
+	}
+
+	void Sound::GetCone(RadianAnglef& innerAngle, RadianAnglef& outerAngle, float& outerGain) const
+	{
+		ma_sound_get_cone(m_sound, &innerAngle.value, &outerAngle.value, &outerGain);
+	}
+
+	Vector3f Sound::GetDirection() const
+	{
+		return FromMiniaudio(ma_sound_get_direction(m_sound));
+	}
+
 	Time Sound::GetDuration() const
 	{
-		NazaraAssertMsg(m_buffer, "invalid sound buffer");
-
-		return m_buffer->GetDuration();
+		return m_sourceReader->GetSource()->GetDuration();
 	}
 
-	/*!
-	* \brief Gets the current playing offset of the sound
-	* \return Offset
-	*/
+	float Sound::GetDirectionalAttenuationFactor() const
+	{
+		return ma_sound_get_directional_attenuation_factor(m_sound);
+	}
+
+	float Sound::GetDopplerFactor() const
+	{
+		return ma_sound_get_doppler_factor(m_sound);
+	}
+
+	AudioEngine& Sound::GetEngine()
+	{
+		ma_engine* engine = ma_sound_get_engine(m_sound);
+		return *static_cast<AudioEngine*>(engine->pProcessUserData);
+	}
+
+	const AudioEngine& Sound::GetEngine() const
+	{
+		ma_engine* engine = ma_sound_get_engine(m_sound);
+		return *static_cast<AudioEngine*>(engine->pProcessUserData);
+	}
+
+	AudioFormat Sound::GetFormat() const
+	{
+		return m_sourceReader->GetSource()->GetFormat();
+	}
+
+	UInt64 Sound::GetFrameCount() const
+	{
+		return m_sourceReader->GetSource()->GetFrameCount();
+	}
+
+	ma_node* Sound::GetInternalNode()
+	{
+		return &m_sound->engineNode;
+	}
+
+	const ma_node* Sound::GetInternalNode() const
+	{
+		return &m_sound->engineNode;
+	}
+
+	float Sound::GetMaxDistance() const
+	{
+		return ma_sound_get_max_distance(m_sound);
+	}
+
+	float Sound::GetMaxGain() const
+	{
+		return ma_sound_get_max_gain(m_sound);
+	}
+
+	float Sound::GetMinDistance() const
+	{
+		return ma_sound_get_min_distance(m_sound);
+	}
+
+	float Sound::GetMinGain() const
+	{
+		return ma_sound_get_min_gain(m_sound);
+	}
+
+	float Sound::GetPan() const
+	{
+		return ma_sound_get_pan(m_sound);
+	}
+
+	SoundPanMode Sound::GetPanMode() const
+	{
+		return FromMiniaudio(ma_sound_get_pan_mode(m_sound));
+	}
+
+	float Sound::GetPitch() const
+	{
+		return ma_sound_get_pitch(m_sound);
+	}
+
+	UInt64 Sound::GetPlayingFrame() const
+	{
+		ma_uint64 playingFrame;
+		ma_sound_get_cursor_in_pcm_frames(m_sound, &playingFrame);
+		return playingFrame;
+	}
+
 	Time Sound::GetPlayingOffset() const
 	{
-		return m_source->GetPlayingOffset();
+		UInt32 sampleRate = 0;
+		ma_sound_get_data_format(m_sound, nullptr, nullptr, &sampleRate, nullptr, 0);
+		if NAZARA_UNLIKELY(sampleRate == 0)
+			sampleRate = 1; //< avoid division by zero
+
+		UInt64 playingFrame = GetPlayingFrame();
+		return Time::Microseconds(playingFrame * 1'000'000ll / sampleRate);
 	}
 
-	/*!
-	* \brief Gets the current sample offset of the sound
-	* \return Offset
-	*/
-	UInt64 Sound::GetSampleOffset() const
+	SoundPositioning Sound::GetPositioning() const
 	{
-		return m_source->GetSampleOffset();
+		return FromMiniaudio(ma_sound_get_positioning(m_sound));
 	}
 
-	/*!
-	* \brief Gets the sample rate of the sound
-	* \return Offset
-	*/
+	float Sound::GetRolloff() const
+	{
+		return ma_sound_get_rolloff(m_sound);
+	}
+
+	UInt32 Sound::GetListenerIndex() const
+	{
+		return ma_sound_get_listener_index(m_sound);
+	}
+
+	Vector3f Sound::GetPosition() const
+	{
+		return FromMiniaudio(ma_sound_get_position(m_sound));
+	}
+
 	UInt32 Sound::GetSampleRate() const
 	{
-		return m_buffer->GetSampleRate();
+		return m_sourceReader->GetSource()->GetSampleRate();
 	}
 
-	/*!
-	* \brief Gets the status of the music
-	* \return Enumeration of type SoundStatus (Playing, Stopped, ...)
-	*/
-	SoundStatus Sound::GetStatus() const
+	Vector3f Sound::GetVelocity() const
 	{
-		return m_source->GetStatus();
+		return FromMiniaudio(ma_sound_get_velocity(m_sound));
 	}
 
-	/*!
-	* \brief Checks whether the sound is looping
-	* \return true if it is the case
-	*/
+	float Sound::GetVolume() const
+	{
+		return ma_sound_get_volume(m_sound);
+	}
+
 	bool Sound::IsLooping() const
 	{
-		return m_source->IsLooping();
+		return ma_sound_is_looping(m_sound);
 	}
 
-	/*!
-	* \brief Checks whether the sound is playable
-	* \return true if it is the case
-	*/
-	bool Sound::IsPlayable() const
+	bool Sound::IsPlaying() const
 	{
-		return m_buffer != nullptr;
+		return ma_sound_is_playing(m_sound);
 	}
 
-	/*!
-	* \brief Loads the sound from file
-	* \return true if loading is successful
-	*
-	* \param filePath Path to the file
-	* \param params Parameters for the sound
-	*
-	* \remark Produces a NazaraError if loading failed
-	*/
-	bool Sound::LoadFromFile(const std::filesystem::path& filePath, const SoundBufferParams& params)
+	bool Sound::IsSpatializationEnabled() const
 	{
-		std::shared_ptr<SoundBuffer> buffer = SoundBuffer::LoadFromFile(filePath, params);
-		if (!buffer)
-		{
-			NazaraError("failed to load buffer from file ({0})", filePath);
-			return false;
-		}
-
-		SetBuffer(std::move(buffer));
-		return true;
+		return ma_sound_is_spatialization_enabled(m_sound);
 	}
 
-	/*!
-	* \brief Loads the sound from memory
-	* \return true if loading is successful
-	*
-	* \param data Raw memory
-	* \param size Size of the memory
-	* \param params Parameters for the sound
-	*
-	* \remark Produces a NazaraError if loading failed
-	*/
-	bool Sound::LoadFromMemory(const void* data, std::size_t size, const SoundBufferParams& params)
+	void Sound::Pause(bool waitUntilCompletion)
 	{
-		std::shared_ptr<SoundBuffer> buffer = SoundBuffer::LoadFromMemory(data, size, params);
-		if (!buffer)
-		{
-			NazaraError("failed to load buffer from memory ({0})", PointerToString(data));
-			return false;
-		}
+		ma_sound_stop(m_sound);
 
-		SetBuffer(std::move(buffer));
-		return true;
+		if (waitUntilCompletion)
+			GetEngine().WaitForStateSync();
 	}
 
-	/*!
-	* \brief Loads the sound from stream
-	* \return true if loading is successful
-	*
-	* \param stream Stream to the sound
-	* \param params Parameters for the sound
-	*
-	* \remark Produces a NazaraError if loading failed
-	*/
-	bool Sound::LoadFromStream(Stream& stream, const SoundBufferParams& params)
+	void Sound::Play(bool waitUntilCompletion)
 	{
-		std::shared_ptr<SoundBuffer> buffer = SoundBuffer::LoadFromStream(stream, params);
-		if (!buffer)
-		{
-			NazaraError("failed to load buffer from stream");
-			return false;
-		}
+		ma_sound_start(m_sound);
 
-		SetBuffer(std::move(buffer));
-		return true;
+		if (waitUntilCompletion)
+			GetEngine().WaitForStateSync();
 	}
 
-	/*!
-	* \brief Pauses the sound
-	*/
-	void Sound::Pause()
+	void Sound::SeekToFrame(UInt64 frameIndex)
 	{
-		m_source->Pause();
+		ma_sound_seek_to_pcm_frame(m_sound, frameIndex);
 	}
 
-	/*!
-	* \brief Plays the music
-	*/
-	void Sound::Play()
+	void Sound::SeekToTime(Time time)
 	{
-		NazaraAssertMsg(IsPlayable(), "sound is not playable");
-
-		m_source->Play();
+		// Beware, ma_node are timed around the engine sample rate, not the buffer sample rate
+		ma_engine* engine = ma_sound_get_engine(m_sound);
+		UInt32 sampleRate = ma_engine_get_sample_rate(engine);
+		SeekToFrame(sampleRate * time.AsMicroseconds() / 1'000'000ll);
 	}
 
-	/*!
-	* \brief Sets the audio buffer
-	*
-	* \param buffer Audio buffer
-	*/
-	void Sound::SetBuffer(std::shared_ptr<SoundBuffer> buffer)
+	void Sound::SetAttenuationModel(SoundAttenuationModel attenuationModel)
 	{
-		NazaraAssertMsg(buffer, "invalid sound buffer");
-
-		if (m_buffer == buffer)
-			return;
-
-		Stop();
-
-		m_buffer = std::move(buffer);
-		m_source->SetBuffer(m_buffer->GetAudioBuffer(m_source->GetAudioDevice().get()));
+		ma_sound_set_attenuation_model(m_sound, ToMiniaudio(attenuationModel));
 	}
 
-	/*!
-	* \brief Sets the source to a sample offset
-	*
-	* \param offset Sample offset
-	*/
-	void Sound::SeekToSampleOffset(UInt64 offset)
+	void Sound::SetCone(RadianAnglef innerAngle, RadianAnglef outerAngle, float outerGain)
 	{
-		m_source->SetSampleOffset(SafeCast<UInt32>(offset));
+		ma_sound_set_cone(m_sound, innerAngle.value, outerAngle.value, outerGain);
 	}
 
-	/*!
-	* \brief Stops the sound
-	*/
-	void Sound::Stop()
+	void Sound::SetDirection(const Vector3f& direction)
 	{
-		m_source->Stop();
+		ma_sound_set_direction(m_sound, direction.x, direction.y, direction.z);
+	}
+
+	void Sound::SetDirectionalAttenuationFactor(float directionalAttenuationFactor)
+	{
+		ma_sound_set_directional_attenuation_factor(m_sound, directionalAttenuationFactor);
+	}
+
+	void Sound::SetDopplerFactor(float dopplerFactor)
+	{
+		ma_sound_set_doppler_factor(m_sound, dopplerFactor);
+	}
+
+	void Sound::SetMaxDistance(float maxDistance)
+	{
+		ma_sound_set_max_distance(m_sound, maxDistance);
+	}
+
+	void Sound::SetMaxGain(float maxGain)
+	{
+		ma_sound_set_max_gain(m_sound, maxGain);
+	}
+
+	void Sound::SetMinDistance(float minDistance)
+	{
+		ma_sound_set_min_distance(m_sound, minDistance);
+	}
+
+	void Sound::SetMinGain(float minGain)
+	{
+		ma_sound_set_min_gain(m_sound, minGain);
+	}
+
+	void Sound::SetPan(float pan)
+	{
+		ma_sound_set_pan(m_sound, pan);
+	}
+
+	void Sound::SetPanMode(SoundPanMode panMode)
+	{
+		ma_sound_set_pan_mode(m_sound, ToMiniaudio(panMode));
+	}
+
+	void Sound::SetPitch(float pitch)
+	{
+		ma_sound_set_pitch(m_sound, pitch);
+	}
+
+	void Sound::SetPositioning(SoundPositioning positioning)
+	{
+		ma_sound_set_positioning(m_sound, ToMiniaudio(positioning));
+	}
+
+	void Sound::SetRolloff(float rollOff)
+	{
+		ma_sound_set_rolloff(m_sound, rollOff);
+	}
+
+	void Sound::SetPosition(const Vector3f& position)
+	{
+		ma_sound_set_position(m_sound, position.x, position.y, position.z);
+	}
+
+	void Sound::SetVelocity(const Vector3f& velocity)
+	{
+		ma_sound_set_velocity(m_sound, velocity.x, velocity.y, velocity.z);
+	}
+
+	void Sound::SetVolume(float volume)
+	{
+		ma_sound_set_volume(m_sound, volume);
+	}
+
+	void Sound::Stop(bool waitUntilCompletion)
+	{
+		ma_sound_stop(m_sound);
+		ma_sound_seek_to_pcm_frame(m_sound, 0);
+
+		if (waitUntilCompletion)
+			GetEngine().WaitForStateSync();
 	}
 }

@@ -9,13 +9,15 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Audio/Enums.hpp>
-#include <optional>
+#include <Nazara/Audio/Export.hpp>
+#include <span>
 
 namespace Nz
 {
-	inline UInt32 GetChannelCount(AudioFormat format);
-	inline std::optional<AudioFormat> GuessAudioFormat(UInt32 channelCount);
-	template<typename T> void MixToMono(T* input, T* output, UInt32 channelCount, UInt64 frameCount);
+	NAZARA_AUDIO_API void ConvertAudioFormat(AudioFormat sourceFormat, const void* input, AudioFormat destinationFormat, void* output, UInt64 sampleCount, AudioDitherMode ditherMode = AudioDitherMode::None);
+	NAZARA_AUDIO_API UInt64 ConvertFrames(AudioFormat inputFormat, UInt32 inputChannelCount, UInt32 inputSampleRate, const void* input, AudioFormat outputFormat, UInt32 outputChannelCount, UInt32 outputSampleRate, void* output, UInt64 sampleCount);
+
+	inline std::span<const AudioChannel> GetAudioChannelMap(UInt32 channelCount);
 }
 
 #include <Nazara/Audio/Algorithm.inl>
