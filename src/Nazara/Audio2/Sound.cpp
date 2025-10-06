@@ -49,9 +49,10 @@ namespace Nz
 	{
 		if (m_sound)
 		{
+			ma_sound_stop(m_sound);
 			ma_sound_uninit(m_sound);
-			GetEngine().FreeInternalSound(m_soundIndex);
 			GetEngine().WaitUntilCompletion();
+			GetEngine().FreeInternalSound(m_soundIndex);
 		}
 	}
 
