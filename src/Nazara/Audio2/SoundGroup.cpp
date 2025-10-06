@@ -29,8 +29,10 @@ namespace Nz
 	{
 		if (m_soundGroup)
 		{
+			ma_sound_group_stop(m_soundGroup);
+			ma_sound_group_uninit(m_soundGroup);
+			GetEngine().WaitUntilCompletion();
 			GetEngine().FreeInternalSoundGroup(m_soundGroupIndex);
-			ma_sound_uninit(m_soundGroup);
 		}
 	}
 
