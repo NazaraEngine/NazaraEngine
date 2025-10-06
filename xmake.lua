@@ -76,7 +76,7 @@ local modules = {
 			end
 		end
 	},
-	Audio2 = {
+	Audio = {
 		Option = "audio",
 		Deps = {"NazaraCore"},
 		Packages = {"dr_mp3", "dr_wav", "frozen", "libflac", "libvorbis", "miniaudio"}

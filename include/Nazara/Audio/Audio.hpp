@@ -8,14 +8,20 @@
 #define NAZARA_AUDIO_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Audio/AudioDeviceInfo.hpp>
 #include <Nazara/Audio/Enums.hpp>
 #include <Nazara/Audio/Export.hpp>
 #include <Nazara/Audio/SoundBuffer.hpp>
 #include <Nazara/Audio/SoundStream.hpp>
 #include <Nazara/Core/Core.hpp>
+#include <memory>
+
+struct ma_context;
 
 namespace Nz
 {
+	class AudioDevice;
+	class AudioEngine;
 	class CommandLineParameters;
 
 	class NAZARA_AUDIO_API Audio : public ModuleBase<Audio>
@@ -32,17 +38,16 @@ namespace Nz
 			Audio(Audio&&) = delete;
 			~Audio();
 
-			const std::shared_ptr<AudioDevice>& GetDefaultDevice() const;
-
 			SoundBufferLoader& GetSoundBufferLoader();
 			const SoundBufferLoader& GetSoundBufferLoader() const;
 			SoundStreamLoader& GetSoundStreamLoader();
 			const SoundStreamLoader& GetSoundStreamLoader() const;
 
-			std::shared_ptr<AudioDevice> OpenOutputDevice(const std::string& deviceName);
+			std::shared_ptr<AudioDevice> OpenCaptureDevice(const AudioDeviceId* captureDevice = nullptr);
+			std::shared_ptr<AudioDevice> OpenPlaybackDevice(const AudioDeviceId* playbackDevice = nullptr);
+			std::shared_ptr<AudioEngine> OpenPlaybackEngine(const AudioDeviceId* playbackDevice = nullptr);
 
-			std::vector<std::string> QueryInputDevices() const;
-			std::vector<std::string> QueryOutputDevices() const;
+			std::vector<AudioDeviceInfo> QueryDevices() const;
 
 			Audio& operator=(const Audio&) = delete;
 			Audio& operator=(Audio&&) = delete;
@@ -51,15 +56,14 @@ namespace Nz
 			{
 				void Override(const CommandLineParameters& parameters);
 
-				bool allowDummyDevice = true;
+				bool allowNullDevice = true;
 				bool noAudio = false;
 			};
 
 		private:
-			std::shared_ptr<AudioDevice> m_defaultDevice;
 			SoundBufferLoader m_soundBufferLoader;
 			SoundStreamLoader m_soundStreamLoader;
-			bool m_hasDummyDevice;
+			ma_context* m_maContext;
 
 			static Audio* s_instance;
 	};

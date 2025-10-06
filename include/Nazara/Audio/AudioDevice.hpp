@@ -8,55 +8,55 @@
 #define NAZARA_AUDIO_AUDIODEVICE_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Audio/Enums.hpp>
 #include <Nazara/Audio/Export.hpp>
-#include <Nazara/Core/Error.hpp>
-#include <Nazara/Math/Quaternion.hpp>
-#include <Nazara/Math/Vector3.hpp>
-#include <NazaraUtils/Signal.hpp>
-#include <memory>
+#include <NazaraUtils/PrivateImpl.hpp>
+#include <functional>
+#include <mutex>
+
+struct ma_context;
+struct ma_device;
+struct ma_device_config;
 
 namespace Nz
 {
-	class AudioBuffer;
-	class AudioSource;
-
-	class NAZARA_AUDIO_API AudioDevice : public std::enable_shared_from_this<AudioDevice>
+	class NAZARA_AUDIO_API AudioDevice
 	{
 		public:
-			AudioDevice() = default;
+			using DataCallback = std::function<void(const AudioDevice& device, const void* inputData, void* outputData, UInt32 frameCount)>;
+			enum class State;
+
+			AudioDevice(ma_context* context, ma_device_config deviceConfig);
 			AudioDevice(const AudioDevice&) = delete;
 			AudioDevice(AudioDevice&&) = delete;
-			virtual ~AudioDevice();
+			~AudioDevice();
 
-			virtual std::shared_ptr<AudioBuffer> CreateBuffer() = 0;
-			virtual std::shared_ptr<AudioSource> CreateSource() = 0;
+			ma_device* GetInternalDevice();
+			const ma_device* GetInternalDevice() const;
 
-			virtual void DetachThread() const = 0;
+			float GetMasterVolume() const;
+			State GetState() const;
 
-			virtual float GetDopplerFactor() const = 0;
-			virtual float GetGlobalVolume() const = 0;
-			virtual Vector3f GetListenerDirection(Vector3f* up = nullptr) const = 0;
-			virtual Vector3f GetListenerPosition() const = 0;
-			virtual Quaternionf GetListenerRotation() const = 0;
-			virtual Vector3f GetListenerVelocity() const = 0;
-			virtual float GetSpeedOfSound() const = 0;
-			virtual const void* GetSubSystemIdentifier() const = 0;
+			void SetDataCallback(DataCallback callback);
+			void SetMasterVolume(float volume);
 
-			virtual bool IsFormatSupported(AudioFormat format) const = 0;
-
-			virtual void SetDopplerFactor(float dopplerFactor) = 0;
-			virtual void SetGlobalVolume(float volume) = 0;
-			virtual void SetListenerDirection(const Vector3f& direction, const Vector3f& up = Vector3f::Up()) = 0;
-			virtual void SetListenerPosition(const Vector3f& position) = 0;
-			inline void SetListenerRotation(const Quaternionf& rotation);
-			virtual void SetListenerVelocity(const Vector3f& velocity) = 0;
-			virtual void SetSpeedOfSound(float speed) = 0;
+			bool Start();
+			void Stop();
 
 			AudioDevice& operator=(const AudioDevice&) = delete;
 			AudioDevice& operator=(AudioDevice&&) = delete;
 
-			NazaraSignal(OnAudioDeviceRelease, AudioDevice* /*audioDevice*/);
+			enum class State
+			{
+				Starting,
+				Started,
+				Stopping,
+				Stopped
+			};
+
+		private:
+			std::mutex m_dataCallbackMutex;
+			mutable PrivateImpl<ma_device> m_device;
+			DataCallback m_dataCallback;
 	};
 }
 

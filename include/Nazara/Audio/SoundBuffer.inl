@@ -2,9 +2,17 @@
 // This file is part of the "Nazara Engine - Audio module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-
 namespace Nz
 {
+	/*!
+	* \brief Gets the channel map of this sound buffer
+	* \return Channel map
+	*/
+	inline std::span<const AudioChannel> SoundBuffer::GetChannels() const
+	{
+		return std::span<const AudioChannel>(m_channels.data(), m_channels.size());
+	}
+
 	/*!
 	* \brief Gets the duration of the sound buffer
 	* \return Duration of the sound buffer in milliseconds
@@ -16,7 +24,7 @@ namespace Nz
 
 	/*!
 	* \brief Gets the format of the sound buffer
-	* \return Enumeration of type AudioFormat (mono, stereo, ...)
+	* \return Enumeration of type AudioFormat (i16, f32, ...)
 	*/
 	inline AudioFormat SoundBuffer::GetFormat() const
 	{
@@ -24,21 +32,36 @@ namespace Nz
 	}
 
 	/*!
+	* \brief Gets the number of samples in the sound buffer
+	* \return Count of samples (number of seconds * sample rate * channel count)
+	*/
+	inline UInt64 SoundBuffer::GetFrameCount() const
+	{
+		return m_frameCount;
+	}
+
+	inline std::mutex* Nz::SoundBuffer::GetMutex()
+	{
+		// no need for locking when reading as everything is in memory
+		return nullptr;
+	}
+
+	/*!
 	* \brief Gets the internal raw samples
 	* \return Pointer to raw data
 	*/
-	inline const Int16* SoundBuffer::GetSamples() const
+	inline void* SoundBuffer::GetSamples()
 	{
 		return m_samples.get();
 	}
 
 	/*!
-	* \brief Gets the number of samples in the sound buffer
-	* \return Count of samples (number of seconds * sample rate * channel count)
+	* \brief Gets the internal raw samples
+	* \return Pointer to raw data
 	*/
-	inline UInt64 SoundBuffer::GetSampleCount() const
+	inline const void* SoundBuffer::GetSamples() const
 	{
-		return m_sampleCount;
+		return m_samples.get();
 	}
 
 	/*!

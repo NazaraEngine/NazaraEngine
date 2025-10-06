@@ -2,7 +2,7 @@
 ** PlayMusic - Example on playing a sound using streaming (doesn't load all the file in memory, only the played part) with Nz::Music
 */
 
-#include <Nazara/Audio2.hpp>
+#include <Nazara/Audio.hpp>
 #include <Nazara/Core/Application.hpp>
 #include <Nazara/Core/SignalHandlerAppComponent.hpp>
 #include <chrono>
@@ -15,10 +15,10 @@ int main(int argc, char* argv[])
 	if (!std::filesystem::is_directory(resourceDir) && std::filesystem::is_directory("../.." / resourceDir))
 		resourceDir = "../.." / resourceDir;
 
-	Nz::Application<Nz::Audio2> app(argc, argv);
+	Nz::Application<Nz::Audio> app(argc, argv);
 	app.AddComponent<Nz::SignalHandlerAppComponent>();
 
-	std::shared_ptr<Nz::AudioEngine> audioEngine = Nz::Audio2::Instance()->OpenPlaybackEngine();
+	std::shared_ptr<Nz::AudioEngine> audioEngine = Nz::Audio::Instance()->OpenPlaybackEngine();
 
 	std::shared_ptr<Nz::SoundStream> soundBuffer = Nz::SoundStream::OpenFromFile(resourceDir / "Audio/file_example_MP3_700KB.mp3");
 

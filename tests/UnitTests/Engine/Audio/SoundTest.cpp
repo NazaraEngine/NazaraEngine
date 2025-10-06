@@ -1,6 +1,6 @@
-#include <Nazara/Audio2/Audio2.hpp>
-#include <Nazara/Audio2/AudioEngine.hpp>
-#include <Nazara/Audio2/Sound.hpp>
+#include <Nazara/Audio/Audio.hpp>
+#include <Nazara/Audio/AudioEngine.hpp>
+#include <Nazara/Audio/Sound.hpp>
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 #include <chrono>
@@ -15,7 +15,7 @@ SCENARIO("Sound", "[AUDIO][SOUND]")
 
 	GIVEN("A sound")
 	{
-		std::shared_ptr<Nz::AudioEngine> audioEngine = Nz::Audio2::Instance()->OpenPlaybackEngine();
+		std::shared_ptr<Nz::AudioEngine> audioEngine = Nz::Audio::Instance()->OpenPlaybackEngine();
 
 		WHEN("We load our sound")
 		{

@@ -3,5 +3,5 @@ if is_plat("wasm") then
 end
 
 target("PlayMusic")
-	add_deps("NazaraAudio2")
+	add_deps("NazaraAudio")
 	add_files("main.cpp")

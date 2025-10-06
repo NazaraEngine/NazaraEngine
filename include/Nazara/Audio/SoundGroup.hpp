@@ -4,45 +4,38 @@
 
 #pragma once
 
-#ifndef NAZARA_AUDIO_SOUND_HPP
-#define NAZARA_AUDIO_SOUND_HPP
+#ifndef NAZARA_AUDIO_SOUNDGROUP_HPP
+#define NAZARA_AUDIO_SOUNDGROUP_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Audio/AudioNode.hpp>
 #include <Nazara/Audio/Export.hpp>
-#include <Nazara/Audio/SoundDataReader.hpp>
 #include <Nazara/Audio/SoundInterface.hpp>
 #include <NazaraUtils/MovablePtr.hpp>
 #include <NazaraUtils/MovableValue.hpp>
 
 struct ma_sound;
+using ma_sound_group = ma_sound;
 
 namespace Nz
 {
-	class NAZARA_AUDIO_API Sound final : public AudioNode, public SoundInterface
+	class NAZARA_AUDIO_API SoundGroup final : public AudioNode, public SoundInterface
 	{
 		public:
 			struct Config;
 
-			Sound(Config config);
-			Sound(const Sound&) = delete;
-			Sound(Sound&&) noexcept = default;
-			~Sound();
-
-			void EnableLooping(bool loop);
-			void EnableSpatialization(bool spatialization);
+			SoundGroup(Config config);
+			SoundGroup(const SoundGroup&) = delete;
+			SoundGroup(SoundGroup&&) noexcept = default;
+			~SoundGroup();
 
 			SoundAttenuationModel GetAttenuationModel() const override;
-			std::span<const AudioChannel> GetChannels() const;
 			void GetCone(RadianAnglef& innerAngle, RadianAnglef& outerAngle, float& outerGain) const override;
 			Vector3f GetDirection() const override;
-			Time GetDuration() const;
 			float GetDirectionalAttenuationFactor() const override;
 			float GetDopplerFactor() const override;
 			AudioEngine& GetEngine() override;
 			const AudioEngine& GetEngine() const override;
-			AudioFormat GetFormat() const;
-			UInt64 GetFrameCount() const;
 			ma_node* GetInternalNode() override;
 			const ma_node* GetInternalNode() const override;
 			float GetMaxDistance() const override;
@@ -52,25 +45,14 @@ namespace Nz
 			float GetPan() const override;
 			SoundPanMode GetPanMode() const override;
 			float GetPitch() const override;
-			UInt64 GetPlayingFrame() const;
-			Time GetPlayingOffset() const;
 			SoundPositioning GetPositioning() const override;
 			float GetRolloff() const override;
 			UInt32 GetListenerIndex() const override;
 			Vector3f GetPosition() const override;
-			UInt32 GetSampleRate() const;
 			Vector3f GetVelocity() const override;
 			float GetVolume() const override;
 
-			bool IsLooping() const;
 			bool IsPlaying() const override;
-			bool IsSpatializationEnabled() const;
-
-			void Pause(bool waitUntilCompletion = false);
-			void Play(bool waitUntilCompletion = false);
-
-			void SeekToFrame(UInt64 time);
-			void SeekToTime(Time time);
 
 			void SetAttenuationModel(SoundAttenuationModel attenuationModel) override;
 			void SetCone(RadianAnglef innerAngle, RadianAnglef outerAngle, float outerGain) override;
@@ -90,29 +72,24 @@ namespace Nz
 			void SetVelocity(const Vector3f& velocity) override;
 			void SetVolume(float volume) override;
 
-			void Stop(bool waitUntilCompletion = false);
+			void Start();
+			void Stop();
 
-			Sound& operator=(const Sound&) = delete;
-			Sound& operator=(Sound&&) noexcept = default;
+			SoundGroup& operator=(const SoundGroup&) = delete;
+			SoundGroup& operator=(SoundGroup&&) noexcept = default;
 
 			struct Config
 			{
 				AudioEngine* engine;
-
-				std::shared_ptr<SoundDataSource> source;
-				AudioNode* outputNode = nullptr;
-				UInt32 outputNodeBus = 0;
-				bool attachToNode = true;
-				bool enablePitching = false;
+				AudioNode* node = nullptr;
 			};
 
 		private:
-			std::unique_ptr<SoundDataReader> m_sourceReader;
-			MovableLiteral<std::size_t, MaxValue()> m_soundIndex;
-			MovablePtr<ma_sound> m_sound;
+			MovableLiteral<std::size_t, MaxValue()> m_soundGroupIndex;
+			MovablePtr<ma_sound_group> m_soundGroup;
 	};
 }
 
-#include <Nazara/Audio/Sound.inl>
+#include <Nazara/Audio/SoundGroup.inl>
 
-#endif // NAZARA_AUDIO_SOUND_HPP
+#endif // NAZARA_AUDIO_SOUNDGROUP_HPP

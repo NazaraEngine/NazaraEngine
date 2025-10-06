@@ -16,6 +16,7 @@
 #include <NazaraUtils/Endianness.hpp>
 #include <optional>
 
+#define DR_MP3_FLOAT_OUTPUT
 #define DR_MP3_IMPLEMENTATION
 #define DR_MP3_NO_STDIO
 #include <dr_mp3.h>
@@ -70,42 +71,50 @@ namespace Nz
 
 			CallOnExit uninitOnExit([&] { drmp3_uninit(&mp3); });
 
-			std::optional<AudioFormat> formatOpt = GuessAudioFormat(mp3.channels);
-			if (!formatOpt)
+			std::span<const AudioChannel> audioChannels = GetAudioChannelMap(mp3.channels);
+			if (audioChannels.empty())
 			{
 				NazaraError("unexpected channel count: {0}", mp3.channels);
 				return Err(ResourceLoadingError::Unsupported);
 			}
 
-			AudioFormat format = *formatOpt;
-
 			UInt64 frameCount = drmp3_get_pcm_frame_count(&mp3);
 
-			UInt64 sampleCount = frameCount * mp3.channels;
-			std::unique_ptr<Int16[]> samples = std::make_unique<Int16[]>(sampleCount); //< std::vector would default-init to zero
+			AudioFormat format = parameters.format;
+			if (format != AudioFormat::Signed16)
+				format = AudioFormat::Floating32;
 
-			if (drmp3_read_pcm_frames_s16(&mp3, frameCount, samples.get()) != frameCount)
+			std::shared_ptr<SoundBuffer> soundBuffer = std::make_shared<SoundBuffer>(format, audioChannels, frameCount, mp3.sampleRate, nullptr);
+			void* samples = soundBuffer->GetSamples();
+
+			if (format == AudioFormat::Signed16)
 			{
-				NazaraError("failed to read stream content");
-				return Err(ResourceLoadingError::DecodingError);
+				if (drmp3_read_pcm_frames_s16(&mp3, frameCount, static_cast<Int16*>(samples)) != frameCount)
+				{
+					NazaraError("failed to read stream content");
+					return Err(ResourceLoadingError::DecodingError);
+				}
+			}
+			else
+			{
+				if (drmp3_read_pcm_frames_f32(&mp3, frameCount, static_cast<float*>(samples)) != frameCount)
+				{
+					NazaraError("failed to read stream content");
+					return Err(ResourceLoadingError::DecodingError);
+				}
 			}
 
-			if (parameters.forceMono && format != AudioFormat::I16_Mono)
-			{
-				MixToMono(samples.get(), samples.get(), static_cast<UInt32>(mp3.channels), frameCount);
+			if (parameters.format != format)
+				soundBuffer->ConvertFormat(parameters.format);
 
-				format = AudioFormat::I16_Mono;
-				sampleCount = frameCount;
-			}
-
-			return std::make_shared<SoundBuffer>(format, sampleCount, mp3.sampleRate, samples.get());
+			return soundBuffer;
 		}
 
 		class drmp3Stream : public SoundStream
 		{
 			public:
 				drmp3Stream() :
-				m_readSampleCount(0)
+				m_currentFramePosition(0)
 				{
 					std::memset(&m_decoder, 0, sizeof(m_decoder));
 				}
@@ -115,6 +124,11 @@ namespace Nz
 					drmp3_uninit(&m_decoder);
 				}
 
+				std::span<const AudioChannel> GetChannels() const override
+				{
+					return m_channels;
+				}
+
 				Time GetDuration() const override
 				{
 					return m_duration;
@@ -122,25 +136,36 @@ namespace Nz
 
 				AudioFormat GetFormat() const override
 				{
-					if (m_mixToMono)
-						return AudioFormat::I16_Mono;
-					else
-						return m_format;
+					return AudioFormat::Floating32;
 				}
 
-				std::mutex& GetMutex() override
+				UInt64 GetFrameCount() const override
 				{
-					return m_mutex;
+					return m_frameCount;
 				}
 
-				UInt64 GetSampleCount() const override
+				std::mutex* GetMutex() override
 				{
-					return m_sampleCount;
+					return &m_mutex;
 				}
 
 				UInt32 GetSampleRate() const override
 				{
 					return m_sampleRate;
+				}
+
+				Result<ReadData, std::string> Read(UInt64 startingFrameIndex, void* frameOut, UInt64 frameCount) override
+				{
+					if (startingFrameIndex != m_currentFramePosition)
+					{
+						if (!drmp3_seek_to_pcm_frame(&m_decoder, startingFrameIndex))
+							return Err(fmt::format("failed to seek to frame {}", startingFrameIndex));
+					}
+
+					UInt64 readFrame = drmp3_read_pcm_frames_f32(&m_decoder, frameCount, reinterpret_cast<float*>(frameOut));
+					m_currentFramePosition += readFrame;
+
+					return ReadData{ readFrame, m_currentFramePosition };
 				}
 
 				Result<void, ResourceLoadingError> Open(const std::filesystem::path& filePath, const SoundStreamParams& parameters)
@@ -162,7 +187,7 @@ namespace Nz
 					return Open(*m_ownedStream, parameters);
 				}
 
-				Result<void, ResourceLoadingError> Open(Stream& stream, const SoundStreamParams& parameters)
+				Result<void, ResourceLoadingError> Open(Stream& stream, const SoundStreamParams& /*parameters*/)
 				{
 					if (!drmp3_init(&m_decoder, &ReadMp3Callback, &SeekMp3Callback, &TellMp3Callback, nullptr, &stream, nullptr))
 						return Err(ResourceLoadingError::Unrecognized);
@@ -173,80 +198,34 @@ namespace Nz
 						std::memset(&m_decoder, 0, sizeof(m_decoder));
 					});
 
-					std::optional<AudioFormat> formatOpt = GuessAudioFormat(m_decoder.channels);
-					if (!formatOpt)
+					std::span<const AudioChannel> channels = GetAudioChannelMap(m_decoder.channels);
+					if (channels.empty())
 					{
 						NazaraError("unexpected channel count: {0}", m_decoder.channels);
 						return Err(ResourceLoadingError::Unsupported);
 					}
 
-					m_format = *formatOpt;
-
 					UInt64 frameCount = drmp3_get_pcm_frame_count(&m_decoder);
 
+					m_channels = channels;
 					m_duration = Time::Microseconds(1'000'000LL * frameCount / m_decoder.sampleRate);
-					m_sampleCount = frameCount * m_decoder.channels;
+					m_frameCount = frameCount;
 					m_sampleRate = m_decoder.sampleRate;
-
-					// Mixing to mono will be done on the fly
-					if (parameters.forceMono && m_format != AudioFormat::I16_Mono)
-					{
-						m_mixToMono = true;
-						m_sampleCount = frameCount;
-					}
-					else
-						m_mixToMono = false;
 
 					resetOnError.Reset();
 
 					return Ok();
 				}
 
-				UInt64 Read(void* buffer, UInt64 sampleCount) override
-				{
-					// Convert to mono in the fly if necessary
-					if (m_mixToMono)
-					{
-						// Keep a buffer to the side to prevent allocation
-						m_mixBuffer.resize(sampleCount * m_decoder.channels);
-						std::size_t readSample = drmp3_read_pcm_frames_s16(&m_decoder, sampleCount, static_cast<Int16*>(m_mixBuffer.data()));
-						m_readSampleCount += readSample;
-
-						MixToMono(m_mixBuffer.data(), static_cast<Int16*>(buffer), m_decoder.channels, sampleCount);
-
-						return readSample;
-					}
-					else
-					{
-						UInt64 readSample = drmp3_read_pcm_frames_s16(&m_decoder, sampleCount / m_decoder.channels, static_cast<Int16*>(buffer));
-						m_readSampleCount += readSample * m_decoder.channels;
-
-						return readSample * m_decoder.channels;
-					}
-				}
-
-				void Seek(UInt64 offset) override
-				{
-					drmp3_seek_to_pcm_frame(&m_decoder, (m_mixToMono) ? offset : offset / m_decoder.channels);
-					m_readSampleCount = offset;
-				}
-
-				UInt64 Tell() override
-				{
-					return m_readSampleCount;
-				}
-
 			private:
 				std::mutex m_mutex;
+				std::span<const AudioChannel> m_channels;
 				std::unique_ptr<Stream> m_ownedStream;
-				std::vector<Int16> m_mixBuffer;
-				AudioFormat m_format;
 				drmp3 m_decoder;
 				Time m_duration;
 				UInt32 m_sampleRate;
-				UInt64 m_readSampleCount;
-				UInt64 m_sampleCount;
-				bool m_mixToMono;
+				UInt64 m_currentFramePosition;
+				UInt64 m_frameCount;
 		};
 
 		Result<std::shared_ptr<SoundStream>, ResourceLoadingError> LoadMp3SoundStreamFile(const std::filesystem::path& filePath, const SoundStreamParams& parameters)

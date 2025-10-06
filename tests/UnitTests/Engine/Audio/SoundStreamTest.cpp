@@ -1,4 +1,4 @@
-#include <Nazara/Audio2/SoundStream.hpp>
+#include <Nazara/Audio/SoundStream.hpp>
 #include <catch2/catch_approx.hpp>
 #include <catch2/catch_test_macros.hpp>
 #include <span>
