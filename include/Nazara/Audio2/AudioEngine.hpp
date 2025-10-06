@@ -13,9 +13,6 @@
 #include <Nazara/Math/Angle.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
-#include <NazaraUtils/MemoryPool.hpp>
-#include <NazaraUtils/PrivateImpl.hpp>
-#include <memory>
 
 struct ma_engine;
 struct ma_sound;
@@ -74,14 +71,13 @@ namespace Nz
 			void SetListenerWorldUp(UInt32 listenerIndex, const Vector3f& worldUp);
 			void SetVolume(float volume);
 
-			void WaitUntilCompletion();
+			void WaitForStateSync();
 
 			AudioEngine& operator=(const AudioEngine&) = delete;
 			AudioEngine& operator=(AudioEngine&&) = delete;
 
 		private:
 			struct Impl;
-			std::atomic_uint64_t m_tickCounter;
 			std::unique_ptr<Impl> m_impl;
 	};
 

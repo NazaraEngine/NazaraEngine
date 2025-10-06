@@ -30,8 +30,8 @@ namespace Nz
 		if (m_soundGroup)
 		{
 			ma_sound_group_stop(m_soundGroup);
+			GetEngine().WaitForStateSync();
 			ma_sound_group_uninit(m_soundGroup);
-			GetEngine().WaitUntilCompletion();
 			GetEngine().FreeInternalSoundGroup(m_soundGroupIndex);
 		}
 	}

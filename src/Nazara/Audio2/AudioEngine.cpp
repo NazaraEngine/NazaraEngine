@@ -8,6 +8,7 @@
 #include <Nazara/Core/Format.hpp>
 #include <NazaraUtils/MemoryPool.hpp>
 #include <miniaudio.h>
+#include <mutex>
 #include <stdexcept>
 
 namespace Nz
@@ -20,6 +21,7 @@ namespace Nz
 		}
 
 		std::shared_ptr<AudioDevice> device;
+		std::mutex readMutex;
 		MemoryPool<ma_sound> soundPool;
 		Endpoint endpoint;
 		ma_engine engine;
@@ -46,9 +48,8 @@ namespace Nz
 		// and we want to keep userdata pointing to AudioDevice, so do the job ourselves
 		m_impl->device->SetDataCallback([this](const AudioDevice& /*device*/, const void* /*inputData*/, void* outputData, UInt32 frameCount)
 		{
+			std::unique_lock lock(m_impl->readMutex);
 			ma_engine_read_pcm_frames(&m_impl->engine, outputData, frameCount, nullptr);
-			m_tickCounter.fetch_add(1);
-			m_tickCounter.notify_all();
 		});
 	}
 
@@ -215,11 +216,10 @@ namespace Nz
 		ma_engine_set_volume(&m_impl->engine, volume);
 	}
 
-	void AudioEngine::WaitUntilCompletion()
+	void AudioEngine::WaitForStateSync()
 	{
-		// Wait until the engine process the next tick
-		std::uint64_t previousTick = m_tickCounter.load(std::memory_order_relaxed);
-		m_tickCounter.wait(previousTick, std::memory_order_relaxed);
+		// Lock and unlock mutex to ensure we're not in a audio thread cycle (which means states set before calling this will be read by the audio thread)
+		std::unique_lock lock(m_impl->readMutex);
 	}
 
 	ma_node* AudioEngine::Endpoint::GetInternalNode()

@@ -50,8 +50,8 @@ namespace Nz
 		if (m_sound)
 		{
 			ma_sound_stop(m_sound);
+			GetEngine().WaitForStateSync();
 			ma_sound_uninit(m_sound);
-			GetEngine().WaitUntilCompletion();
 			GetEngine().FreeInternalSound(m_soundIndex);
 		}
 	}
@@ -241,7 +241,7 @@ namespace Nz
 		ma_sound_stop(m_sound);
 
 		if (waitUntilCompletion)
-			GetEngine().WaitUntilCompletion();
+			GetEngine().WaitForStateSync();
 	}
 
 	void Sound::Play(bool waitUntilCompletion)
@@ -249,7 +249,7 @@ namespace Nz
 		ma_sound_start(m_sound);
 
 		if (waitUntilCompletion)
-			GetEngine().WaitUntilCompletion();
+			GetEngine().WaitForStateSync();
 	}
 
 	void Sound::SeekToFrame(UInt64 frameIndex)
@@ -356,6 +356,6 @@ namespace Nz
 		ma_sound_seek_to_pcm_frame(m_sound, 0);
 
 		if (waitUntilCompletion)
-			GetEngine().WaitUntilCompletion();
+			GetEngine().WaitForStateSync();
 	}
 }
