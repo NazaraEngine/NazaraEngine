@@ -46,15 +46,20 @@ namespace Nz
 
 	class NAZARA_GRAPHICS_API Model : public InstancedRenderable, public Resource
 	{
+		struct CopyToken {};
+
 		public:
 			using Params = ModelParams;
 
 			Model(std::shared_ptr<GraphicalMesh> graphicalMesh);
 			Model(const Model&) = delete;
+			Model(const Model& model, CopyToken);
 			Model(Model&&) noexcept = default;
 			~Model() = default;
 
 			void BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, std::vector<RenderElementOwner>& elements) const override;
+
+			std::shared_ptr<Model> Clone() const;
 
 			const std::shared_ptr<RenderBuffer>& GetIndexBuffer(std::size_t subMeshIndex) const;
 			std::size_t GetIndexCount(std::size_t subMeshIndex) const;

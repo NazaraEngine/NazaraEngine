@@ -45,6 +45,12 @@ namespace Nz
 		UpdateAABB(m_graphicalMesh->GetAABB());
 	}
 
+	Model::Model(const Model& model, CopyToken) :
+	m_graphicalMesh(model.m_graphicalMesh),
+	m_submeshes(model.m_submeshes)
+	{
+	}
+
 	void Model::BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, std::vector<RenderElementOwner>& elements) const
 	{
 		for (std::size_t i = 0; i < m_submeshes.size(); ++i)
@@ -66,6 +72,11 @@ namespace Nz
 
 			elements.emplace_back(registry.AllocateElement<RenderSubmesh>(GetRenderLayer(), submeshData.material, passFlags, renderPipeline, *elementData.worldInstance, elementData.skeletonInstance, indexCount, indexType, indexBuffer, vertexBuffer, *elementData.scissorBox));
 		}
+	}
+
+	std::shared_ptr<Model> Model::Clone() const
+	{
+		return std::make_shared<Model>(*this, CopyToken{});
 	}
 
 	const std::shared_ptr<RenderBuffer>& Model::GetIndexBuffer(std::size_t subMeshIndex) const
