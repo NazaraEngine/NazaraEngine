@@ -1,5 +1,5 @@
 [nzsl_version("1.0")]
-module Lighting.PhysicalledBased;
+module Lighting.PhysicallyBased;
 
 import DirectionalLight, PointLight, SpotLight from Lighting.LightData;
 import ComputeLightRadiance, DistributionGGX, GeometrySmith, FresnelSchlick from Math.CookTorrancePBR;

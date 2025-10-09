@@ -1,5 +1,5 @@
 [nzsl_version("1.1")]
-module PhongMaterial;
+module Material.Phong;
 
 import InstanceData from Engine.InstanceData;
 import LightData from Lighting.LightData;
@@ -9,7 +9,7 @@ import ViewerData from Engine.ViewerData;
 import * from Lighting.Phong;
 import * from Lighting.Shadow;
 import SkinLinearPosition, SkinLinearPositionNormal from Engine.SkinningLinear;
-import GBufferOutput from DeferredShading.GBuffer;
+import GBufferOutput from DeferredShading.PhongGBuffer;
 import * from DeferredShading.NormalEncoding;
 import EncodeNormal from DeferredShading.NormalEncoding;
 

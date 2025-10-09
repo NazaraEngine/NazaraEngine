@@ -50,7 +50,7 @@ int main()
 	}
 
 	std::shared_ptr<Nz::MaterialInstance> materialInstance = spaceshipModel->GetMaterial(0);
-	std::shared_ptr<Nz::MaterialInstance> materialInstance2 = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Basic);
+	std::shared_ptr<Nz::MaterialInstance> materialInstance2 = Nz::MaterialInstance::Instantiate(Nz::MaterialType::PhysicallyBased);
 	materialInstance2->SetValueProperty(0, Nz::Color::Green());
 
 	Nz::Vector2ui windowSize = window.GetSize();

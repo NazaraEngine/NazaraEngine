@@ -206,63 +206,7 @@ namespace Nz
 
 			MaterialPass forwardPass;
 			forwardPass.states.depthBuffer = true;
-			forwardPass.shaders.push_back(std::make_shared<UberShader>(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, "BasicMaterial"));
-			settings.AddPass(forwardPassIndex, forwardPass);
-
-			MaterialPass depthPass = forwardPass;
-			depthPass.options["DepthPass"_opt] = true;
-			settings.AddPass(depthPassIndex, depthPass);
-
-			MaterialPass shadowPass = depthPass;
-			shadowPass.options["ShadowPass"_opt] = true;
-			shadowPass.states.frontFace = FrontFace::Clockwise;
-			shadowPass.states.depthClamp = enabledFeatures.depthClamping;
-			settings.AddPass(shadowPassIndex, shadowPass);
-
-			MaterialPass distanceShadowPass = shadowPass;
-			distanceShadowPass.options["DistanceDepth"_opt] = true;
-			settings.AddPass(distanceShadowPassIndex, distanceShadowPass);
-
-			m_defaultMaterials.materials[MaterialType::Basic].material = std::make_shared<Material>(std::move(settings), "BasicMaterial");
-		}
-
-		// PbrMaterial
-		{
-			MaterialSettings settings;
-			PredefinedMaterials::AddBasicSettings(settings);
-			PredefinedMaterials::AddPbrSettings(settings);
-
-			MaterialPass forwardPass;
-			forwardPass.states.depthBuffer = true;
-			forwardPass.shaders.push_back(std::make_shared<UberShader>(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, "PhysicallyBasedMaterial"));
-			settings.AddPass(forwardPassIndex, forwardPass);
-
-			MaterialPass depthPass = forwardPass;
-			depthPass.options["DepthPass"_opt] = true;
-			settings.AddPass(depthPassIndex, depthPass);
-
-			MaterialPass shadowPass = depthPass;
-			shadowPass.options["ShadowPass"_opt] = true;
-			shadowPass.states.frontFace = FrontFace::Clockwise;
-			shadowPass.states.depthClamp = enabledFeatures.depthClamping;
-			settings.AddPass(shadowPassIndex, shadowPass);
-
-			MaterialPass distanceShadowPass = shadowPass;
-			distanceShadowPass.options["DistanceDepth"_opt] = true;
-			settings.AddPass(distanceShadowPassIndex, distanceShadowPass);
-
-			m_defaultMaterials.materials[MaterialType::PhysicallyBased].material = std::make_shared<Material>(std::move(settings), "PhysicallyBasedMaterial");
-		}
-
-		// PhongMaterial
-		{
-			MaterialSettings settings;
-			PredefinedMaterials::AddBasicSettings(settings);
-			PredefinedMaterials::AddPhongSettings(settings);
-
-			MaterialPass forwardPass;
-			forwardPass.states.depthBuffer = true;
-			forwardPass.shaders.push_back(std::make_shared<UberShader>(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, "PhongMaterial"));
+			forwardPass.shaders.push_back(std::make_shared<UberShader>(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, "Material.Basic"));
 			settings.AddPass(forwardPassIndex, forwardPass);
 
 			MaterialPass gbufferPass = forwardPass;
@@ -283,7 +227,71 @@ namespace Nz
 			distanceShadowPass.options["DistanceDepth"_opt] = true;
 			settings.AddPass(distanceShadowPassIndex, distanceShadowPass);
 
-			m_defaultMaterials.materials[MaterialType::Phong].material = std::make_shared<Material>(std::move(settings), "PhongMaterial");
+			m_defaultMaterials.materials[MaterialType::Basic].material = std::make_shared<Material>(std::move(settings), "Material.Basic");
+		}
+
+		// PbrMaterial
+		{
+			MaterialSettings settings;
+			PredefinedMaterials::AddBasicSettings(settings);
+			PredefinedMaterials::AddPbrSettings(settings);
+
+			MaterialPass forwardPass;
+			forwardPass.states.depthBuffer = true;
+			forwardPass.shaders.push_back(std::make_shared<UberShader>(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, "Material.PhysicallyBased"));
+			settings.AddPass(forwardPassIndex, forwardPass);
+
+			MaterialPass gbufferPass = forwardPass;
+			gbufferPass.options["ForwardPass"_opt] = false;
+			settings.AddPass(gbufferPassIndex, gbufferPass);
+
+			MaterialPass depthPass = forwardPass;
+			depthPass.options["DepthPass"_opt] = true;
+			settings.AddPass(depthPassIndex, depthPass);
+
+			MaterialPass shadowPass = depthPass;
+			shadowPass.options["ShadowPass"_opt] = true;
+			shadowPass.states.frontFace = FrontFace::Clockwise;
+			shadowPass.states.depthClamp = enabledFeatures.depthClamping;
+			settings.AddPass(shadowPassIndex, shadowPass);
+
+			MaterialPass distanceShadowPass = shadowPass;
+			distanceShadowPass.options["DistanceDepth"_opt] = true;
+			settings.AddPass(distanceShadowPassIndex, distanceShadowPass);
+
+			m_defaultMaterials.materials[MaterialType::PhysicallyBased].material = std::make_shared<Material>(std::move(settings), "Material.PhysicallyBased");
+		}
+
+		// PhongMaterial
+		{
+			MaterialSettings settings;
+			PredefinedMaterials::AddBasicSettings(settings);
+			PredefinedMaterials::AddPhongSettings(settings);
+
+			MaterialPass forwardPass;
+			forwardPass.states.depthBuffer = true;
+			forwardPass.shaders.push_back(std::make_shared<UberShader>(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, "Material.Phong"));
+			settings.AddPass(forwardPassIndex, forwardPass);
+
+			MaterialPass gbufferPass = forwardPass;
+			gbufferPass.options["ForwardPass"_opt] = false;
+			settings.AddPass(gbufferPassIndex, gbufferPass);
+
+			MaterialPass depthPass = forwardPass;
+			depthPass.options["DepthPass"_opt] = true;
+			settings.AddPass(depthPassIndex, depthPass);
+
+			MaterialPass shadowPass = depthPass;
+			shadowPass.options["ShadowPass"_opt] = true;
+			shadowPass.states.frontFace = FrontFace::Clockwise;
+			shadowPass.states.depthClamp = enabledFeatures.depthClamping;
+			settings.AddPass(shadowPassIndex, shadowPass);
+
+			MaterialPass distanceShadowPass = shadowPass;
+			distanceShadowPass.options["DistanceDepth"_opt] = true;
+			settings.AddPass(distanceShadowPassIndex, distanceShadowPass);
+
+			m_defaultMaterials.materials[MaterialType::Phong].material = std::make_shared<Material>(std::move(settings), "Material.Phong");
 		}
 
 		m_defaultMaterials.presetModifier[MaterialInstancePreset::NoDepth] = [=](MaterialInstance& matInstance)
