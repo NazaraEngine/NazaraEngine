@@ -18,7 +18,11 @@
 #include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Renderer/RenderFrame.hpp>
 #include <NazaraUtils/StackVector.hpp>
-#include <NZSL/Ast/SanitizeVisitor.hpp>
+#include <NZSL/Ast/Cloner.hpp>
+#include <NZSL/Ast/TransformerExecutor.hpp>
+#include <NZSL/Ast/Transformations/BindingResolverTransformer.hpp>
+#include <NZSL/Ast/Transformations/ResolveTransformer.hpp>
+#include <NZSL/Ast/Transformations/ValidationTransformer.hpp>
 
 namespace Nz
 {
@@ -350,20 +354,24 @@ namespace Nz
 
 		nzsl::Ast::ModulePtr referenceModule = graphics->GetShaderModuleResolver()->Resolve(shaderName);
 
-		nzsl::Ast::SanitizeVisitor::Options options;
-		options.forceAutoBindingResolve = true;
-		options.partialSanitization = true;
-		options.moduleResolver = graphics->GetShaderModuleResolver();
-		options.optionValues["LightType"_opt] = Int32(0); //< just to avoid unresolved externals
-		options.optionValues["MaxLightCount"_opt] = SafeCast<UInt32>(PredefinedLightData::MaxLightCount);
-		options.optionValues["MaxLightCascadeCount"_opt] = SafeCast<UInt32>(PredefinedDirectionalLightData::MaxLightCascadeCount);
-		options.optionValues["MaxJointCount"_opt] = SafeCast<UInt32>(PredefinedSkeletalData::MaxMatricesCount);
+		nzsl::Ast::TransformerExecutor executor;
+		executor.AddPass<nzsl::Ast::ResolveTransformer>({ .moduleResolver = graphics->GetShaderModuleResolver() });
+		executor.AddPass<nzsl::Ast::BindingResolverTransformer>({ .forceAutoBindingResolve = true });
+		executor.AddPass<nzsl::Ast::ValidationTransformer>();
 
-		nzsl::Ast::ModulePtr sanitizedModule = nzsl::Ast::Sanitize(*referenceModule, options);
+		nzsl::Ast::TransformerContext context;
+		context.partialCompilation = true;
+		context.optionValues["LightType"_opt] = Int32(0); //< just to avoid unresolved externals
+		context.optionValues["MaxLightCount"_opt] = SafeCast<UInt32>(PredefinedLightData::MaxLightCount);
+		context.optionValues["MaxLightCascadeCount"_opt] = SafeCast<UInt32>(PredefinedDirectionalLightData::MaxLightCascadeCount);
+		context.optionValues["MaxJointCount"_opt] = SafeCast<UInt32>(PredefinedSkeletalData::MaxMatricesCount);
+
+		nzsl::Ast::ModulePtr resolvedModule = nzsl::Ast::Clone(*referenceModule);
+		executor.Transform(*resolvedModule, context);
 
 		RenderPipelineLayoutInfo pipelineLayoutInfo;
 		ShaderReflection reflection;
-		reflection.Reflect(*sanitizedModule);
+		reflection.Reflect(*resolvedModule);
 
 		const auto* passDataExternalBlock = reflection.GetExternalBlockByTag("PassData");
 		if (!passDataExternalBlock)

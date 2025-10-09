@@ -29,7 +29,7 @@ fn ComputeDirectionalLightShadow(light: DirectionalLight, shadowmap: depth_sampl
 	let shadowFactor = 1.0;
 	if (light.invShadowMapSize.x > 0.0)
 	{
-		cascadeIndex = SelectCascade(light, worldPos);
+		let cascadeIndex = SelectCascade(light, worldPos);
 
 		let lightProjPos = light.viewProjMatrices[cascadeIndex] * vec4[f32](worldPos, 1.0);
 		let shadowCoords = lightProjPos.xyz / lightProjPos.w;
