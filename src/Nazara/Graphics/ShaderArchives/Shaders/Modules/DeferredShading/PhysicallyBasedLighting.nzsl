@@ -6,7 +6,7 @@ import DirectionalLight, PointLight, SpotLight from Lighting.LightData;
 import ViewerData from Engine.ViewerData;
 import Pi from Math.Constants;
 
-import * from Lighting.PhysicalledBased;
+import * from Lighting.PhysicallyBased;
 import * from Lighting.Shadow;
 
 option LightType: i32;

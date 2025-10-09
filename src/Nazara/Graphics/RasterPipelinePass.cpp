@@ -225,7 +225,7 @@ namespace Nz
 			if (renderMask < 0 || renderMask >= MaxValue<UInt32>())
 				throw std::runtime_error("RasterPipelinePass RenderMask value is out of range");
 
-			return renderMaskResult.GetValue();
+			return SafeCaster(renderMaskResult.GetValue());
 		}
 
 		return MaxValue();
