@@ -371,7 +371,7 @@ namespace Nz
 				if (!barrier)
 					continue;
 
-				if (barrier->layout != TextureLayout::Undefined)
+				if (barrier->layout != TextureLayout::Undefined && barrier->layout != input.layout)
 					throw std::runtime_error("layout mismatch");
 
 				barrier->access |= input.accessFlags;
@@ -385,7 +385,7 @@ namespace Nz
 				if (!barrier)
 					continue;
 
-				if (barrier->layout != TextureLayout::Undefined)
+				if (barrier->layout != TextureLayout::Undefined && barrier->layout != output.layout)
 					throw std::runtime_error("layout mismatch");
 
 				barrier->access |= output.accessFlags;
