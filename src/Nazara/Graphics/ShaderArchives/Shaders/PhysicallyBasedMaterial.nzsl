@@ -131,7 +131,7 @@ struct VertOut
 [cond(ForwardPass)]
 struct FragOut
 {
-	[location(0)] RenderTarget0: vec4[f32],
+	[location(0)] color: vec4[f32],
 	[builtin(frag_depth), cond(DistanceDepth)] fragdepth: f32,
 }
 
@@ -269,10 +269,7 @@ fn FragMain(input: VertOut) -> FragOut
 	const if (ForwardPass)
 	{
 		const if (HasLighting)
-		{
-			let normal = ComputeNormal(input);
-			color.rgb = ComputeLighting(color.rgb, input, normal);
-		}
+			color.rgb = ComputeLighting(color.rgb, input);
 
 		let output: FragOut;
 		output.color = color;
@@ -301,7 +298,7 @@ fn FragDepthDist(input: VertOut) -> FragOut
 	let color = ComputeColor(input);
 
 	let output: FragOut;
-	output.RenderTarget0 = color;
+	output.color = color;
 
 	let dist = distance(viewerData.eyePosition, input.worldPos);
 	output.fragdepth = dist / viewerData.farPlane;
@@ -315,7 +312,7 @@ fn FragDepth(input: VertOut) -> FragOut
 	let color = ComputeColor(input);
 
 	let output: FragOut;
-	output.RenderTarget0 = color;
+	output.color = color;
 	return output;
 }
 

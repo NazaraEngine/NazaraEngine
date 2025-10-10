@@ -177,13 +177,15 @@ fn ComputeNormal(input: VertOut) -> vec3[f32]
 }
 
 [cond(HasLighting)]
-fn ComputeLighting(color: vec3[f32], input: VertOut, normal: vec3[f32]) -> vec3[f32]
+fn ComputeLighting(color: vec3[f32], input: VertOut) -> vec3[f32]
 {
 	let lightAmbient = vec3[f32](0.0, 0.0, 0.0);
 	let lightDiffuse = vec3[f32](0.0, 0.0, 0.0);
 	let lightSpecular = vec3[f32](0.0, 0.0, 0.0);
 
 	let eyeVec = normalize(viewerData.eyePosition - input.worldPos);
+
+	let normal = ComputeNormal(input);
 
 	for lightIndex in 0 -> lightData.directionalLightCount
 	{
@@ -245,10 +247,7 @@ fn FragMain(input: VertOut) -> FragOut
 	const if (ForwardPass)
 	{
 		const if (HasLighting)
-		{
-			let normal = ComputeNormal(input);
-			color.rgb = ComputeLighting(color.rgb, input, normal);
-		}
+			color.rgb = ComputeLighting(color.rgb, input);
 	
 		let output: FragOut;
 		output.color = color;
