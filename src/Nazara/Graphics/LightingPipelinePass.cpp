@@ -1,4 +1,4 @@
-// Copyright (C) 2024 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// Copyright (C) 2025 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
@@ -153,7 +153,7 @@ namespace Nz
 		// We expect the last input to be the depth buffer, if one exists
 		if (m_depthMapBindingIndex != MaxValue<UInt32>())
 			lightingPass.SetInputAccess(inputOuputs.inputAttachments.size() - 1, TextureLayout::DepthReadOnlyStencilReadWrite, PipelineStage::FragmentShader, MemoryAccess::ShaderRead);
-		
+
 		for (auto&& outputData : inputOuputs.outputAttachments)
 		{
 			std::size_t outputIndex = lightingPass.AddOutput(outputData.attachmentIndex);
@@ -170,7 +170,7 @@ namespace Nz
 				}
 			}, outputData.clearColor);
 		}
-		
+
 		if (inputOuputs.depthStencilInput != FramePipelinePass::InvalidAttachmentIndex)
 			lightingPass.SetDepthStencilInput(inputOuputs.depthStencilInput);
 		else
