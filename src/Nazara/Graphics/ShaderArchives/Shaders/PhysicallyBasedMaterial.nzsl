@@ -6,8 +6,8 @@ import LightData from Lighting.LightData;
 import SkeletalData from Engine.SkeletalData;
 import ViewerData from Engine.ViewerData;
 
-import * from Lighting.PhysicallyBased;
-import * from Lighting.Shadow;
+import Lighting.PhysicallyBased;
+import Lighting.Shadow;
 import Pi from Math.Constants;
 import DirectionalLight, PointLight, SpotLight from Lighting.LightData;
 import SkinLinearPosition, SkinLinearPositionNormal from Engine.SkinningLinear;
@@ -220,11 +220,11 @@ fn ComputeLighting(color: vec3[f32], input: VertOut) -> vec3[f32]
 	for lightIndex in u32(0) -> lightData.directionalLightCount
 	{
 		let light = lightData.directionalLights[lightIndex];
-		let result = ComputeDirectionalLight(light, eyeVec, albedoFactor, F0, normal, metallic, roughness);
+		let result = PhysicallyBased.ComputeDirectionalLight(light, eyeVec, albedoFactor, F0, normal, metallic, roughness);
 
 		let shadowFactor = 1.0;
 		const if (EnableShadowMapping)
-			shadowFactor = ComputeDirectionalLightShadow(light, shadowMapsDirectional[lightIndex], input.worldPos, result.lambert, viewerData.viewMatrix);
+			shadowFactor = Shadow.ComputeDirectionalLightShadow(light, shadowMapsDirectional[lightIndex], input.worldPos, result.lambert, viewerData.viewMatrix);
 
 		lightRadiance += shadowFactor * result.radiance;
 	}
@@ -232,11 +232,11 @@ fn ComputeLighting(color: vec3[f32], input: VertOut) -> vec3[f32]
 	for lightIndex in u32(0) -> lightData.pointLightCount
 	{
 		let light = lightData.pointLights[lightIndex];
-		let result = ComputePointLight(light, eyeVec, albedoFactor, F0, normal, metallic, roughness, input.worldPos);
+		let result = PhysicallyBased.ComputePointLight(light, eyeVec, albedoFactor, F0, normal, metallic, roughness, input.worldPos);
 
 		let shadowFactor = 1.0;
 		const if (EnableShadowMapping)
-			shadowFactor = ComputePointLightShadow(light, shadowMapsPoint[lightIndex], result.dist, result.lightToWorldDir);
+			shadowFactor = Shadow.ComputePointLightShadow(light, shadowMapsPoint[lightIndex], result.dist, result.lightToWorldDir);
 
 		lightRadiance += shadowFactor * result.radiance;
 	}
@@ -244,11 +244,11 @@ fn ComputeLighting(color: vec3[f32], input: VertOut) -> vec3[f32]
 	for lightIndex in u32(0) -> lightData.spotLightCount
 	{
 		let light = lightData.spotLights[lightIndex];
-		let result = ComputeSpotLight(light, eyeVec, albedoFactor, F0, normal, metallic, roughness, input.worldPos);
+		let result = PhysicallyBased.ComputeSpotLight(light, eyeVec, albedoFactor, F0, normal, metallic, roughness, input.worldPos);
 
 		let shadowFactor = 1.0;
 		const if (EnableShadowMapping)
-			shadowFactor = ComputeSpotLightShadow(light, shadowMapsSpot[lightIndex], input.worldPos, result.lambert);
+			shadowFactor = Shadow.ComputeSpotLightShadow(light, shadowMapsSpot[lightIndex], input.worldPos, result.lambert);
 
 		lightRadiance += shadowFactor * result.radiance;
 	}

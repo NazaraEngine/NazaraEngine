@@ -1,19 +1,16 @@
-[nzsl_version("1.0")]
+[nzsl_version("1.1")]
 module DeferredShading.PhongLighting;
 
 import DecodeNormal from DeferredShading.NormalEncoding;
 import DirectionalLight, PointLight, SpotLight from Lighting.LightData;
 import ViewerData from Engine.ViewerData;
+import Engine.LightType;
 
-import * from Lighting.Phong;
-import * from Lighting.Shadow;
+import Lighting.Phong;
+import Lighting.Shadow;
 
-option LightType: i32;
-
-// TODO: Add enums
-const LightType_Directional = 0;
-const LightType_Point = 1;
-const LightType_Spot = 2;
+option Light: i32;
+option EnableShadowMapping: bool;
 
 [set(0), tag("PassData")]
 external
@@ -24,13 +21,13 @@ external
 	[binding(3), tag("DepthBuffer")] depthMap: sampler2D[f32]
 }
 
-[cond(LightType == LightType_Directional)]
+[cond(Light == LightType.Directional)]
 alias LightData = DirectionalLight;
 
-[cond(LightType == LightType_Point)]
+[cond(Light == LightType.Point)]
 alias LightData = PointLight;
 
-[cond(LightType == LightType_Spot)]
+[cond(Light == LightType.Spot)]
 alias LightData = SpotLight;
 
 [set(1), tag("LightData")]
@@ -71,9 +68,9 @@ fn main(input: FragIn) -> FragOut
 	const shininess = 2.0;
 
 	let light = lightData;
-	const if (LightType == LightType_Directional)
+	const if (Light == LightType.Directional)
 	{
-		let result = ComputeDirectionalLight(light, eyeVec, normal, shininess);
+		let result = Phong.ComputeDirectionalLight(light, eyeVec, normal, shininess);
 
 		let shadowFactor = 1.0;
 
@@ -81,9 +78,9 @@ fn main(input: FragIn) -> FragOut
 		lightDiffuse += shadowFactor * result.diffuse;
 		lightSpecular += shadowFactor * result.specular;
 	}
-	else if (LightType == LightType_Point)
+	else if (Light == LightType.Point)
 	{
-		let result = ComputePointLight(light, eyeVec, normal, shininess, worldPos);
+		let result = Phong.ComputePointLight(light, eyeVec, normal, shininess, worldPos);
 
 		let shadowFactor = 1.0;
 
@@ -91,9 +88,9 @@ fn main(input: FragIn) -> FragOut
 		lightDiffuse += shadowFactor * result.diffuse;
 		lightSpecular += shadowFactor * result.specular;
 	}
-	else if (LightType == LightType_Spot)
+	else if (Light == LightType.Spot)
 	{
-		let result = ComputeSpotLight(light, eyeVec, normal, shininess, worldPos);
+		let result = Phong.ComputeSpotLight(light, eyeVec, normal, shininess, worldPos);
 
 		let shadowFactor = 1.0;
 
@@ -110,13 +107,13 @@ fn main(input: FragIn) -> FragOut
 	return output;
 }
 
-[cond(LightType == LightType_Directional)]
+[cond(Light == LightType.Directional)]
 struct VertIn
 {
 	[builtin(vertex_index)] vert_index: i32
 }
 
-[cond(LightType != LightType_Directional)]
+[cond(Light != LightType.Directional)]
 struct VertIn
 {
 	[location(0)] pos: vec3[f32]
@@ -138,13 +135,13 @@ fn VertexShader(input: VertIn) -> VertOut
 {
 	let output: VertOut;
 
-	const if (LightType == LightType_Directional)
+	const if (Light == LightType.Directional)
 		output.position = vec4[f32](fullscreenTri[input.vert_index], 0.0, 1.0);
 
-	const if (LightType == LightType_Point)
+	const if (Light == LightType.Point)
 		output.position = viewerData.viewProjMatrix * vec4[f32](lightData.position + input.pos * lightData.radius, 1.0);
 
-	const if (LightType == LightType_Spot)
+	const if (Light == LightType.Spot)
 		output.position = viewerData.viewProjMatrix * lightData.worldMatrix * vec4[f32](input.pos, 1.0); //< worldMatrix takes care of the radius
 
 	return output;

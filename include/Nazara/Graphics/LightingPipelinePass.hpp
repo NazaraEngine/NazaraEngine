@@ -85,6 +85,13 @@ namespace Nz
 				UploadPool::Allocation* uploadAllocation;
 			};
 
+			struct LightPipeline
+			{
+				std::shared_ptr<RenderPipeline> lightingPipeline;
+				std::shared_ptr<RenderPipeline> lightingPipelineShadow;
+				std::shared_ptr<RenderPipeline> stencilPipeline;
+			};
+
 			void* PushLightData(RenderDevice& renderDevice, UInt64 maxLight, std::vector<LightBlockMemory>& lightMemoryPool, RenderResources& renderResources, std::vector<LightBlock>& lights, UInt64 lightSize);
 			void ReleaseLights(std::vector<LightBlockMemory>& lightMemoryPool, RenderResources& renderResources, std::vector<LightBlock>& lights);
 
@@ -100,8 +107,7 @@ namespace Nz
 			std::vector<LightBlock> m_directionalLights;
 			std::vector<LightBlock> m_pointLights;
 			std::vector<LightBlock> m_spotLights;
-			EnumArray<BasicLightType, std::shared_ptr<RenderPipeline>> m_lightingPipelines;
-			EnumArray<BasicLightType, std::shared_ptr<RenderPipeline>> m_stencilPipelines;
+			EnumArray<BasicLightType, LightPipeline> m_pipelines;
 			FixedVector<UInt32, 8> m_gbufferBindingIndices;
 			UInt32 m_depthMapBindingIndex;
 			UInt32 m_lightDataBindingIndex;

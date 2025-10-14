@@ -250,7 +250,7 @@ namespace Nz
 
 			if (!m_directionalLights.empty())
 			{
-				builder.BindRenderPipeline(*m_lightingPipelines[BasicLightType::Directional]);
+				builder.BindRenderPipeline(*m_pipelines[BasicLightType::Directional].lightingPipeline);
 
 				for (const auto& directionalLight : m_directionalLights)
 				{
@@ -274,9 +274,9 @@ namespace Nz
 					{
 						builder.BindRenderShaderBinding(1, *pointLight.memory.shaderBindings[i]);
 
-						builder.BindRenderPipeline(*m_stencilPipelines[BasicLightType::Point]);
+						builder.BindRenderPipeline(*m_pipelines[BasicLightType::Point].stencilPipeline);
 						builder.DrawIndexed(indexCount);
-						builder.BindRenderPipeline(*m_lightingPipelines[BasicLightType::Point]);
+						builder.BindRenderPipeline(*m_pipelines[BasicLightType::Point].lightingPipeline);
 						builder.DrawIndexed(indexCount);
 					}
 				}
@@ -294,9 +294,9 @@ namespace Nz
 					{
 						builder.BindRenderShaderBinding(1, *spotLight.memory.shaderBindings[i]);
 
-						builder.BindRenderPipeline(*m_stencilPipelines[BasicLightType::Spot]);
+						builder.BindRenderPipeline(*m_pipelines[BasicLightType::Spot].stencilPipeline);
 						builder.DrawIndexed(indexCount);
-						builder.BindRenderPipeline(*m_lightingPipelines[BasicLightType::Spot]);
+						builder.BindRenderPipeline(*m_pipelines[BasicLightType::Spot].lightingPipeline);
 						builder.DrawIndexed(indexCount);
 					}
 				}
@@ -361,7 +361,8 @@ namespace Nz
 
 		nzsl::Ast::TransformerContext context;
 		context.partialCompilation = true;
-		context.optionValues["LightType"_opt] = Int32(0); //< just to avoid unresolved externals
+		context.optionValues["Light"_opt] = Int32(0); //< just to avoid unresolved externals
+		context.optionValues["EnableShadowMapping"_opt] = false; //< just to avoid unresolved externals
 		context.optionValues["MaxLightCount"_opt] = SafeCast<UInt32>(PredefinedLightData::MaxLightCount);
 		context.optionValues["MaxLightCascadeCount"_opt] = SafeCast<UInt32>(PredefinedDirectionalLightData::MaxLightCascadeCount);
 		context.optionValues["MaxJointCount"_opt] = SafeCast<UInt32>(PredefinedSkeletalData::MaxMatricesCount);
@@ -430,6 +431,8 @@ namespace Nz
 
 	void LightingPipelinePass::SetupPipelines(RenderDevice& renderDevice, std::string&& shaderName)
 	{
+		using namespace nzsl::Ast::Literals;
+
 		m_fullscreenVertexShader = std::make_shared<UberShader>(nzsl::ShaderStageType::Vertex, "Engine.FullscreenVertex");
 		m_lightingShader = std::make_shared<UberShader>(nzsl::ShaderStageType::Fragment, shaderName);
 		m_meshStencilShader = std::make_shared<UberShader>(nzsl::ShaderStageType::Vertex, std::move(shaderName));
@@ -438,7 +441,8 @@ namespace Nz
 		for (BasicLightType lightType : { BasicLightType::Point, BasicLightType::Spot })
 		{
 			UberShader::Config config;
-			config.optionValues[nzsl::Ast::HashOption("LightType")] = static_cast<Int32>(lightType);
+			config.optionValues["Light"_opt] = static_cast<Int32>(lightType);
+			config.optionValues["EnableShadowMapping"_opt] = false;
 
 			RenderPipelineInfo pipelineInfo;
 			pipelineInfo.primitiveMode = PrimitiveMode::TriangleList;
@@ -460,15 +464,12 @@ namespace Nz
 			pipelineInfo.stencilBack.compare = RendererComparison::Always;
 			pipelineInfo.stencilBack.depthFail = StencilOperation::Invert;
 
-			m_stencilPipelines[lightType] = renderDevice.InstantiateRenderPipeline(pipelineInfo);
+			m_pipelines[lightType].stencilPipeline = renderDevice.InstantiateRenderPipeline(pipelineInfo);
 		}
 
 		// Lighting pipeline
 		for (BasicLightType lightType : { BasicLightType::Directional, BasicLightType::Point, BasicLightType::Spot })
 		{
-			UberShader::Config config;
-			config.optionValues[nzsl::Ast::HashOption("LightType")] = static_cast<Int32>(lightType);
-
 			RenderPipelineInfo pipelineInfo;
 			pipelineInfo.pipelineLayout = m_commonPipelineLayout;
 			pipelineInfo.primitiveMode = PrimitiveMode::TriangleList;
@@ -492,10 +493,22 @@ namespace Nz
 				});
 			}
 
+			UberShader::Config config;
+			config.optionValues["Light"_opt] = static_cast<Int32>(lightType);
+			config.optionValues["EnableShadowMapping"_opt] = false;
+
 			pipelineInfo.shaderModules.push_back((lightType == BasicLightType::Directional) ? m_fullscreenVertexShader->Get({}) : m_meshStencilShader->Get(config));
 			pipelineInfo.shaderModules.push_back(m_lightingShader->Get(config));
 
-			m_lightingPipelines[lightType] = renderDevice.InstantiateRenderPipeline(pipelineInfo);
+			m_pipelines[lightType].lightingPipeline = renderDevice.InstantiateRenderPipeline(pipelineInfo);
+
+			config.optionValues["EnableShadowMapping"_opt] = true;
+
+			pipelineInfo.shaderModules.clear();
+			pipelineInfo.shaderModules.push_back((lightType == BasicLightType::Directional) ? m_fullscreenVertexShader->Get({}) : m_meshStencilShader->Get(config));
+			pipelineInfo.shaderModules.push_back(m_lightingShader->Get(config));
+
+			m_pipelines[lightType].lightingPipelineShadow = renderDevice.InstantiateRenderPipeline(pipelineInfo);
 		}
 	}
 

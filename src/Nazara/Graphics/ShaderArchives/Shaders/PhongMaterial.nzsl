@@ -6,11 +6,10 @@ import LightData from Lighting.LightData;
 import SkeletalData from Engine.SkeletalData;
 import ViewerData from Engine.ViewerData;
 
-import * from Lighting.Phong;
-import * from Lighting.Shadow;
+import Lighting.Phong;
+import Lighting.Shadow;
 import SkinLinearPosition, SkinLinearPositionNormal from Engine.SkinningLinear;
 import GBufferOutput from DeferredShading.PhongGBuffer;
-import * from DeferredShading.NormalEncoding;
 import EncodeNormal from DeferredShading.NormalEncoding;
 
 // Pass-specific options
@@ -190,11 +189,11 @@ fn ComputeLighting(color: vec3[f32], input: VertOut) -> vec3[f32]
 	for lightIndex in 0 -> lightData.directionalLightCount
 	{
 		let light = lightData.directionalLights[lightIndex];
-		let result = ComputeDirectionalLight(light, eyeVec, normal, settings.Shininess);
+		let result = Phong.ComputeDirectionalLight(light, eyeVec, normal, settings.Shininess);
 
 		let shadowFactor = 1.0;
 		const if (EnableShadowMapping)
-			shadowFactor = ComputeDirectionalLightShadow(light, shadowMapsDirectional[lightIndex], input.worldPos, result.lambert, viewerData.viewMatrix);
+			shadowFactor = Shadow.ComputeDirectionalLightShadow(light, shadowMapsDirectional[lightIndex], input.worldPos, result.lambert, viewerData.viewMatrix);
 
 		lightAmbient += result.ambient;
 		lightDiffuse += shadowFactor * result.diffuse;
@@ -204,11 +203,11 @@ fn ComputeLighting(color: vec3[f32], input: VertOut) -> vec3[f32]
 	for lightIndex in 0 -> lightData.pointLightCount
 	{
 		let light = lightData.pointLights[lightIndex];
-		let result = ComputePointLight(light, eyeVec, normal, settings.Shininess, input.worldPos);
+		let result = Phong.ComputePointLight(light, eyeVec, normal, settings.Shininess, input.worldPos);
 
 		let shadowFactor = 1.0;
 		const if (EnableShadowMapping)
-			shadowFactor = ComputePointLightShadow(light, shadowMapsPoint[lightIndex], result.dist, result.lightToWorldDir);
+			shadowFactor = Shadow.ComputePointLightShadow(light, shadowMapsPoint[lightIndex], result.dist, result.lightToWorldDir);
 
 		lightAmbient += result.ambient;
 		lightDiffuse += shadowFactor * result.diffuse;
@@ -218,11 +217,11 @@ fn ComputeLighting(color: vec3[f32], input: VertOut) -> vec3[f32]
 	for lightIndex in 0 -> lightData.spotLightCount
 	{
 		let light = lightData.spotLights[lightIndex];
-		let result = ComputeSpotLight(light, eyeVec, normal, settings.Shininess, input.worldPos);
+		let result = Phong.ComputeSpotLight(light, eyeVec, normal, settings.Shininess, input.worldPos);
 
 		let shadowFactor = 1.0;
 		const if (EnableShadowMapping)
-			shadowFactor = ComputeSpotLightShadow(light, shadowMapsSpot[lightIndex], input.worldPos, result.lambert);
+			shadowFactor = Shadow.ComputeSpotLightShadow(light, shadowMapsSpot[lightIndex], input.worldPos, result.lambert);
 
 		lightAmbient += result.ambient;
 		lightDiffuse += shadowFactor * result.diffuse;
