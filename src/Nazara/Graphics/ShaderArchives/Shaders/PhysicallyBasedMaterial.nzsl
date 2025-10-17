@@ -423,7 +423,7 @@ fn VertMain(input: VertIn) -> VertOut
 	output.worldPos = worldPosition.xyz;
 	output.position = viewerData.viewProjMatrix * worldPosition;
 
-	let rotationMatrix = transpose(inverse(mat3[f32](instanceData.worldMatrix)));
+	const if (HasNormal || HasNormalMapping) let rotationMatrix = transpose(mat3[f32](instanceData.invWorldMatrix));
 
 	const if (HasColor)
 		output.color = input.color;
