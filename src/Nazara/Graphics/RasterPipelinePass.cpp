@@ -127,7 +127,7 @@ namespace Nz
 		{
 			std::size_t outputIndex = pass.AddOutput(outputData.attachmentIndex);
 
-			std::visit(Nz::Overloaded{
+			std::visit(Overloaded{
 				[](DontClear) {},
 				[&](const Color& color)
 				{
@@ -144,7 +144,7 @@ namespace Nz
 			pass.SetDepthStencilInput(inputOuputs.depthStencilInput);
 		else if (inputOuputs.depthStencilOutput != InvalidAttachmentIndex)
 		{
-			std::visit(Nz::Overloaded{
+			std::visit(Overloaded{
 				[](DontClear) {},
 				[&](float depth)
 				{
@@ -225,7 +225,7 @@ namespace Nz
 			if (renderMask < 0 || renderMask >= MaxValue<UInt32>())
 				throw std::runtime_error("RasterPipelinePass RenderMask value is out of range");
 
-			return renderMaskResult.GetValue();
+			return SafeCaster(renderMaskResult.GetValue());
 		}
 
 		return MaxValue();

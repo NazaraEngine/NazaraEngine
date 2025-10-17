@@ -14,13 +14,14 @@
 #include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/PointLight.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
+#include <Nazara/Graphics/ShaderTransfer.hpp>
 #include <Nazara/Graphics/SpotLight.hpp>
 #include <Nazara/Graphics/SpotLightShadowData.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 
 namespace Nz
 {
-	ForwardPipelinePass::ForwardPipelinePass(PassData& passData, std::string passName, const ParameterList& /*parameters*/) :
+	ForwardPipelinePass::ForwardPipelinePass(PassData& passData, std::string passName, const ParameterList& parameters) :
 	FramePipelinePass(FramePipelineNotification::ElementInvalidation | FramePipelineNotification::MaterialInstanceRegistration),
 	m_lastVisibilityHash(0),
 	m_passName(std::move(passName)),
@@ -28,22 +29,37 @@ namespace Nz
 	m_elementRegistry(passData.elementRegistry),
 	m_pipeline(passData.pipeline),
 	m_pendingLightUploadAllocation(nullptr),
+	m_renderMask(MaxValue()),
+	m_handleLights(true),
 	m_rebuildCommandBuffer(false),
 	m_rebuildElements(false)
 	{
+		if (auto result = parameters.GetBooleanParameter("Lighting", false); result)
+			m_handleLights = result.GetValue();
+		else if (result.GetError() != Nz::ParameterList::Error::MissingValue)
+			throw std::runtime_error("parameter Lighting has incorrect value");
+
+		if (auto result = parameters.GetIntegerParameter("RenderMask", false); result && result.GetValue() >= 0 && result.GetValue() < Nz::MaxValue<UInt32>())
+			m_renderMask = SafeCaster(result.GetValue());
+		else if (result.GetError() != Nz::ParameterList::Error::MissingValue)
+			throw std::runtime_error("parameter RenderMask has incorrect value");
+
 		Graphics* graphics = Graphics::Instance();
 		m_forwardPassIndex = graphics->GetMaterialPassRegistry().GetPassIndex("ForwardPass");
 
-		std::size_t lightUboAlignedSize = AlignPow2(PredefinedLightOffsets.totalSize, SafeCast<std::size_t>(graphics->GetRenderDevice()->GetDeviceInfo().limits.minUniformBufferOffsetAlignment));
-		m_lightDataBuffer = graphics->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform, lightUboAlignedSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write);
-		m_lightDataBuffer->UpdateDebugName("Lights buffer");
+		if (m_handleLights)
+		{
+			std::size_t lightUboAlignedSize = AlignPow2(PredefinedLightOffsets.totalSize, SafeCast<std::size_t>(graphics->GetRenderDevice()->GetDeviceInfo().limits.minUniformBufferOffsetAlignment));
+			m_lightDataBuffer = graphics->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform, lightUboAlignedSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write);
+			m_lightDataBuffer->UpdateDebugName("Lights buffer");
 
-		m_renderState.lightData = RenderBufferView(m_lightDataBuffer.get());
+			m_renderState.lightData = RenderBufferView(m_lightDataBuffer.get());
+		}
 	}
 
 	void ForwardPipelinePass::Prepare(FrameData& frameData)
 	{
-		NazaraAssertMsg(frameData.visibleLights, "visible lights must be valid");
+		NazaraAssertMsg(!m_handleLights || frameData.visibleLights, "visible lights must be valid");
 
 		if (m_lastVisibilityHash != frameData.visibilityHash || m_rebuildElements) //< FIXME
 		{
@@ -52,6 +68,9 @@ namespace Nz
 
 			for (const auto& renderableData : frameData.visibleRenderables)
 			{
+				if ((m_renderMask & renderableData.renderMask) == 0)
+					continue;
+
 				InstancedRenderable::ElementData elementData{
 					&renderableData.scissorBox,
 					renderableData.skeletonInstance,
@@ -82,7 +101,8 @@ namespace Nz
 			return element->ComputeSortingScore(frameData.frustum, m_renderQueueRegistry);
 		});
 
-		PrepareLights(frameData.renderResources, frameData.frustum, *frameData.visibleLights);
+		if (m_handleLights)
+			PrepareLights(frameData.renderResources, frameData.frustum, *frameData.visibleLights);
 
 		if (m_rebuildElements)
 		{
@@ -149,16 +169,13 @@ namespace Nz
 		if (inputOuputs.outputAttachments.size() != 1)
 			throw std::runtime_error("one output expected");
 
-		if (inputOuputs.depthStencilOutput == InvalidAttachmentIndex)
-			throw std::runtime_error("expected depth-stencil output");
-
 		FramePass& forwardPass = frameGraph.AddPass(m_passName);
 
 		for (auto&& outputData : inputOuputs.outputAttachments)
 		{
 			std::size_t outputIndex = forwardPass.AddOutput(outputData.attachmentIndex);
 
-			std::visit(Nz::Overloaded{
+			std::visit(Overloaded{
 				[](DontClear) {},
 				[&](const Color& color)
 				{
@@ -173,9 +190,9 @@ namespace Nz
 
 		if (inputOuputs.depthStencilInput != FramePipelinePass::InvalidAttachmentIndex)
 			forwardPass.SetDepthStencilInput(inputOuputs.depthStencilInput);
-		else
+		else if (inputOuputs.depthStencilOutput != InvalidAttachmentIndex)
 		{
-			std::visit(Nz::Overloaded{
+			std::visit(Overloaded{
 				[](DontClear) {},
 				[&](float depth)
 				{
@@ -188,7 +205,8 @@ namespace Nz
 			}, inputOuputs.clearDepth);
 		}
 
-		forwardPass.SetDepthStencilOutput(inputOuputs.depthStencilOutput);
+		if (inputOuputs.depthStencilOutput != InvalidAttachmentIndex)
+			forwardPass.SetDepthStencilOutput(inputOuputs.depthStencilOutput);
 
 		forwardPass.SetExecutionCallback([&]()
 		{
@@ -243,27 +261,14 @@ namespace Nz
 			UInt8* basePtr = static_cast<UInt8*>(lightMemory) + PredefinedLightOffsets.directionalLightsOffset + PredefinedDirectionalLightOffsets.totalSize * i;
 
 			const DirectionalLight* light = m_directionalLights[i].light;
-
-			const Color& lightColor = light->GetColor();
-
-			AccessByOffset<Vector3f&>(basePtr, PredefinedDirectionalLightOffsets.colorOffset) = Vector3f(lightColor.r, lightColor.g, lightColor.b) * light->GetEnergy();
-			AccessByOffset<Vector3f&>(basePtr, PredefinedDirectionalLightOffsets.directionOffset) = light->GetDirection();
-			AccessByOffset<float&>(basePtr, PredefinedDirectionalLightOffsets.ambientFactorOffset) = light->GetAmbientFactor();
-			AccessByOffset<float&>(basePtr, PredefinedDirectionalLightOffsets.diffuseFactorOffset) = light->GetDiffuseFactor();
-			AccessByOffset<Vector2f&>(basePtr, PredefinedDirectionalLightOffsets.invShadowMapSizeOffset) = (light->IsShadowCaster()) ? Vector2f(1.f / light->GetShadowMapSize()) : Vector2f(-1.f, -1.f);
+			ShaderTransfer::WriteLight(light, basePtr);
 
 			// Shadowmap handling
 			const Texture* shadowmap = m_pipeline.RetrieveLightShadowmap(m_directionalLights[i].lightIndex, m_viewer);
 			if (shadowmap)
 			{
 				const DirectionalLightShadowData* shadowData = SafeCast<const DirectionalLightShadowData*>(m_pipeline.RetrieveLightShadowData(m_directionalLights[i].lightIndex));
-
-				float* cascadeFarPlanes = AccessByOffset<float*>(basePtr, PredefinedDirectionalLightOffsets.cascadeFarPlanesOffset);
-				Matrix4f* cascadeViewProj = AccessByOffset<Matrix4f*>(basePtr, PredefinedDirectionalLightOffsets.cascadeViewProjMatricesOffset);
-
-				shadowData->GetCascadeData(m_viewer, SparsePtr<float>(cascadeFarPlanes, 4*sizeof(float)), SparsePtr(cascadeViewProj));
-
-				AccessByOffset<UInt32&>(basePtr, PredefinedDirectionalLightOffsets.cascadeCountOffset) = SafeCast<UInt32>(shadowData->GetCascadeCount());
+				ShaderTransfer::WriteLightShadowData(m_viewer, shadowData, basePtr);
 			}
 
 			if (m_renderState.shadowMapsDirectional[i] != shadowmap)
@@ -284,16 +289,7 @@ namespace Nz
 			UInt8* basePtr = static_cast<UInt8*>(lightMemory) + PredefinedLightOffsets.pointLightsOffset + PredefinedPointLightOffsets.totalSize * i;
 
 			const PointLight* light = m_pointLights[i].light;
-
-			const Color& lightColor = light->GetColor();
-
-			AccessByOffset<Vector3f&>(basePtr, PredefinedPointLightOffsets.colorOffset) = Vector3f(lightColor.r, lightColor.g, lightColor.b) * light->GetEnergy();
-			AccessByOffset<Vector3f&>(basePtr, PredefinedPointLightOffsets.positionOffset) = light->GetPosition();
-			AccessByOffset<Vector2f&>(basePtr, PredefinedPointLightOffsets.invShadowMapSizeOffset) = (light->IsShadowCaster()) ? Vector2f(1.f / light->GetShadowMapSize()) : Vector2f(-1.f, -1.f);
-			AccessByOffset<float&>(basePtr, PredefinedPointLightOffsets.ambientFactorOffset) = light->GetAmbientFactor();
-			AccessByOffset<float&>(basePtr, PredefinedPointLightOffsets.diffuseFactorOffset) = light->GetDiffuseFactor();
-			AccessByOffset<float&>(basePtr, PredefinedPointLightOffsets.radiusOffset) = light->GetRadius();
-			AccessByOffset<float&>(basePtr, PredefinedPointLightOffsets.invRadiusOffset) = light->GetInvRadius();
+			ShaderTransfer::WriteLight(light, basePtr);
 
 			// Shadowmap handling
 			const Texture* shadowmap = m_pipeline.RetrieveLightShadowmap(m_pointLights[i].lightIndex, m_viewer);
@@ -315,19 +311,7 @@ namespace Nz
 			UInt8* basePtr = static_cast<UInt8*>(lightMemory) + PredefinedLightOffsets.spotLightsOffset + PredefinedSpotLightOffsets.totalSize * i;
 
 			const SpotLight* light = m_spotLights[i].light;
-
-			const Color& lightColor = light->GetColor();
-
-			AccessByOffset<Vector3f&>(basePtr, PredefinedSpotLightOffsets.colorOffset) = Vector3f(lightColor.r, lightColor.g, lightColor.b) * light->GetEnergy();
-			AccessByOffset<Vector3f&>(basePtr, PredefinedSpotLightOffsets.directionOffset) = light->GetDirection();
-			AccessByOffset<Vector3f&>(basePtr, PredefinedSpotLightOffsets.positionOffset) = light->GetPosition();
-			AccessByOffset<Vector2f&>(basePtr, PredefinedSpotLightOffsets.invShadowMapSizeOffset) = (light->IsShadowCaster()) ? Vector2f(1.f / light->GetShadowMapSize()) : Vector2f(-1.f, -1.f);
-			AccessByOffset<float&>(basePtr, PredefinedSpotLightOffsets.ambientFactorOffset) = light->GetAmbientFactor();
-			AccessByOffset<float&>(basePtr, PredefinedSpotLightOffsets.diffuseFactorOffset) = light->GetDiffuseFactor();
-			AccessByOffset<float&>(basePtr, PredefinedSpotLightOffsets.innerAngleOffset) = light->GetInnerAngleCos();
-			AccessByOffset<float&>(basePtr, PredefinedSpotLightOffsets.outerAngleOffset) = light->GetOuterAngleCos();
-			AccessByOffset<float&>(basePtr, PredefinedSpotLightOffsets.invRadiusOffset) = light->GetInvRadius();
-			AccessByOffset<Matrix4f&>(basePtr, PredefinedSpotLightOffsets.viewProjMatrixOffset) = light->GetViewProjMatrix();
+			ShaderTransfer::WriteLight(light, basePtr);
 
 			// Shadowmap handling
 			const Texture* shadowmap = m_pipeline.RetrieveLightShadowmap(m_spotLights[i].lightIndex, m_viewer);

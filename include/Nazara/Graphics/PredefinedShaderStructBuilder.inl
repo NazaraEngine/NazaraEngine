@@ -57,6 +57,7 @@ NAZARA_WARNING_CLANG_GCC_DISABLE("-Wmissing-field-initializers")
 		lightData.outerAngleOffset = lightData.fieldOffsets.AddField(nzsl::StructFieldType::Float1);
 		lightData.invRadiusOffset = lightData.fieldOffsets.AddField(nzsl::StructFieldType::Float1);
 		lightData.viewProjMatrixOffset = lightData.fieldOffsets.AddMatrix(nzsl::StructFieldType::Float1, 4, 4, true);
+		lightData.worldMatrixOffset = lightData.fieldOffsets.AddMatrix(nzsl::StructFieldType::Float1, 4, 4, true);
 
 		lightData.totalSize = lightData.fieldOffsets.GetAlignedSize();
 

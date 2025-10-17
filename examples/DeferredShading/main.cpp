@@ -686,10 +686,7 @@ int main(int argc, char* argv[])
 			depthStencilFormat
 		});
 
-		depthBuffer2 = graph.AddAttachment({
-			"Depth buffer",
-			depthStencilFormat
-		});
+		depthBuffer2 = graph.AddAttachmentProxy("Depth buffer 2", depthBuffer1);
 
 		lightOutput = graph.AddAttachment({
 			"Light output",

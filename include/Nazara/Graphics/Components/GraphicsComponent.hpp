@@ -35,7 +35,7 @@ namespace Nz
 
 			inline void DetachRenderable(const std::shared_ptr<InstancedRenderable>& renderable);
 
-			inline  Boxf GetAABB() const;
+			inline Boxf GetAABB() const;
 			inline const Renderable& GetRenderableEntry(std::size_t renderableIndex) const;
 			inline const std::array<Renderable, MaxRenderableCount>& GetRenderables() const;
 			inline const Recti& GetScissorBox() const;
