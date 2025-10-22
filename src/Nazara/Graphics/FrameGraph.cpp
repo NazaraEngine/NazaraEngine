@@ -404,7 +404,7 @@ namespace Nz
 
 					if (std::size_t dsOutputAttachement = framePass.GetDepthStencilOutput())
 					{
-						NazaraAssertMsg(dsOutputAttachement == dsInput->attachmentId, "it's not possible to use a different input and output depth buffer");
+						NazaraAssertMsg(ResolveAttachmentIndex(dsOutputAttachement) == ResolveAttachmentIndex(dsInput->attachmentId), "it's not possible to use a different input and output depth buffer");
 						depthStencilLayout = GetWriteDepthStencilLayout(dsOutputAttachement);
 						access |= MemoryAccess::DepthStencilWrite;
 						stages |= PipelineStage::FragmentTestsLate;
@@ -912,7 +912,7 @@ namespace Nz
 
 				std::size_t dsOutputAttachement = framePass.GetDepthStencilOutput();
 
-				if (dsInputAttachment != FramePass::InvalidAttachmentId && dsOutputAttachement == dsInputAttachment)
+				if (dsInputAttachment != FramePass::InvalidAttachmentId && ResolveAttachmentIndex(dsOutputAttachement) == ResolveAttachmentIndex(dsInputAttachment))
 				{
 					TextureLayout layout = GetWriteDepthStencilLayout(dsOutputAttachement);
 

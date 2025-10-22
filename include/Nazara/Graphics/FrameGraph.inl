@@ -118,6 +118,8 @@ namespace Nz
 
 	inline TextureLayout FrameGraph::GetWriteDepthStencilLayout(std::size_t attachmentIndex) const
 	{
+		attachmentIndex = ResolveAttachmentIndex(attachmentIndex);
+
 		TextureLayout layout = TextureLayout::DepthStencilReadWrite;
 		if (std::holds_alternative<AttachmentView>(m_attachments[attachmentIndex]))
 		{
