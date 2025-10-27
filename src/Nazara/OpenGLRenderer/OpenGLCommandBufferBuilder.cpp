@@ -34,19 +34,19 @@ namespace Nz
 		m_commandBuffer.BindComputePipeline(&glPipeline);
 	}
 
-	void OpenGLCommandBufferBuilder::BindComputeShaderBinding(UInt32 set, const ShaderBinding& binding)
+	void OpenGLCommandBufferBuilder::BindComputeShaderBinding(UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets)
 	{
 		const OpenGLShaderBinding& glBinding = SafeCast<const OpenGLShaderBinding&>(binding);
 
-		m_commandBuffer.BindComputeShaderBinding(glBinding.GetOwner(), set, &glBinding);
+		m_commandBuffer.BindComputeShaderBinding(glBinding.GetOwner(), set, &glBinding, dynamicOffsets);
 	}
 
-	void OpenGLCommandBufferBuilder::BindComputeShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding)
+	void OpenGLCommandBufferBuilder::BindComputeShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets)
 	{
 		const OpenGLRenderPipelineLayout& glPipelineLayout = SafeCast<const OpenGLRenderPipelineLayout&>(pipelineLayout);
 		const OpenGLShaderBinding& glBinding = SafeCast<const OpenGLShaderBinding&>(binding);
 
-		m_commandBuffer.BindComputeShaderBinding(glPipelineLayout, set, &glBinding);
+		m_commandBuffer.BindComputeShaderBinding(glPipelineLayout, set, &glBinding, dynamicOffsets);
 	}
 
 	void OpenGLCommandBufferBuilder::BindIndexBuffer(const RenderBuffer& indexBuffer, IndexType indexType, UInt64 offset)
@@ -63,19 +63,19 @@ namespace Nz
 		m_commandBuffer.BindRenderPipeline(&glPipeline);
 	}
 
-	void OpenGLCommandBufferBuilder::BindRenderShaderBinding(UInt32 set, const ShaderBinding& binding)
+	void OpenGLCommandBufferBuilder::BindRenderShaderBinding(UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets)
 	{
 		const OpenGLShaderBinding& glBinding = SafeCast<const OpenGLShaderBinding&>(binding);
 
-		m_commandBuffer.BindRenderShaderBinding(glBinding.GetOwner(), set, &glBinding);
+		m_commandBuffer.BindRenderShaderBinding(glBinding.GetOwner(), set, &glBinding, dynamicOffsets);
 	}
 
-	void OpenGLCommandBufferBuilder::BindRenderShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding)
+	void OpenGLCommandBufferBuilder::BindRenderShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets)
 	{
 		const OpenGLRenderPipelineLayout& glPipelineLayout = SafeCast<const OpenGLRenderPipelineLayout&>(pipelineLayout);
 		const OpenGLShaderBinding& glBinding = SafeCast<const OpenGLShaderBinding&>(binding);
 
-		m_commandBuffer.BindRenderShaderBinding(glPipelineLayout, set, &glBinding);
+		m_commandBuffer.BindRenderShaderBinding(glPipelineLayout, set, &glBinding, dynamicOffsets);
 	}
 
 	void OpenGLCommandBufferBuilder::BindVertexBuffer(UInt32 binding, const RenderBuffer& vertexBuffer, UInt64 offset)

@@ -67,8 +67,7 @@ namespace Nz
 				LightBlockMemory& operator=(LightBlockMemory&&) noexcept = default;
 
 				std::shared_ptr<RenderBuffer> lightUbo;
-				std::vector<ShaderBindingPtr> shaderBindings;
-				std::size_t maxLightCount;
+				ShaderBindingPtr shaderBinding;
 			};
 
 			struct LightBufferPool
@@ -110,7 +109,10 @@ namespace Nz
 			EnumArray<BasicLightType, LightPipeline> m_pipelines;
 			FixedVector<UInt32, 8> m_gbufferBindingIndices;
 			UInt32 m_depthMapBindingIndex;
+			UInt32 m_directionalLightSize;
 			UInt32 m_lightDataBindingIndex;
+			UInt32 m_pointLightSize;
+			UInt32 m_spotLightSize;
 			UInt32 m_viewerDataBindingIndex;
 			ShaderBindingPtr m_commonShaderBinding;
 			AbstractViewer* m_viewer;

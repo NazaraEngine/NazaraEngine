@@ -99,10 +99,10 @@ namespace Nz
 	void OpenGLCommandBuffer::ApplyBindings(const GL::Context& context, const ShaderBindings& states)
 	{
 		unsigned int setIndex = 0;
-		for (const auto& [pipelineLayout, shaderBinding] : states.shaderBindings)
+		for (const ShaderBinding& entry : states.shaderBindings)
 		{
-			if (shaderBinding)
-				shaderBinding->Apply(*pipelineLayout, setIndex, context);
+			if (entry.shaderBinding)
+				entry.shaderBinding->Apply(*entry.pipelineLayout, setIndex, context, entry.dynamicOffsets);
 			else
 				NazaraWarning("no shader binding for set #{0}", setIndex);
 

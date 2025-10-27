@@ -62,6 +62,7 @@ namespace Nz
 				RenderBuffer* buffer;
 				UInt64 offset;
 				UInt64 range;
+				bool dynamic = false;
 			};
 
 			struct TextureBinding
@@ -75,6 +76,7 @@ namespace Nz
 				RenderBuffer* buffer;
 				UInt64 offset;
 				UInt64 range;
+				bool dynamic = false;
 			};
 
 			struct Binding

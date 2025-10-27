@@ -9,14 +9,17 @@
 #include <Nazara/OpenGLRenderer/OpenGLTextureSampler.hpp>
 #include <NazaraUtils/StackVector.hpp>
 #include <NazaraUtils/TypeTraits.hpp>
+#include <fmt/format.h>
 
 namespace Nz
 {
-	void OpenGLShaderBinding::Apply(const OpenGLRenderPipelineLayout& pipelineLayout, UInt32 setIndex, const GL::Context& context) const
+	void OpenGLShaderBinding::Apply(const OpenGLRenderPipelineLayout& pipelineLayout, UInt32 setIndex, const GL::Context& context, std::span<const UInt32> dynamicOffsets) const
 	{
 		//TODO: Check layout compatibility
 		const auto& layoutInfo = pipelineLayout.GetLayoutInfo();
 		const auto& shaderParameters = pipelineLayout.GetShaderParameters();
+
+		std::size_t dynamicOffsetIndex = 0;
 
 		m_owner.ForEachDescriptor(m_poolIndex, m_bindingIndex, [&](UInt32 bindingIndex, auto&& descriptor)
 		{
@@ -47,31 +50,49 @@ namespace Nz
 			if constexpr (std::is_same_v<DescriptorType, OpenGLRenderPipelineLayout::SampledTextureDescriptor>)
 			{
 				if (bindingInfo.type != ShaderBindingType::Sampler)
-					throw std::runtime_error("descriptor (set=" + std::to_string(setIndex) + ", binding=" + std::to_string(bindingIndex) + ") is not a sampler");
+					throw std::runtime_error(fmt::format("descriptor (set={}, binding={}) is not a sampler", setIndex, bindingIndex));
 
 				context.BindSampler(bindingPoint, descriptor.sampler);
 				context.BindTexture(bindingPoint, descriptor.textureTarget, descriptor.texture);
 			}
 			else if constexpr (std::is_same_v<DescriptorType, OpenGLRenderPipelineLayout::StorageBufferDescriptor>)
 			{
-				if (bindingInfo.type != ShaderBindingType::StorageBuffer)
-					throw std::runtime_error("descriptor (set=" + std::to_string(setIndex) + ", binding=" + std::to_string(bindingIndex) + ") is not a storage buffer");
+				if (bindingInfo.type != ShaderBindingType::StorageBuffer && bindingInfo.type != ShaderBindingType::StorageBufferDynamic)
+					throw std::runtime_error(fmt::format("descriptor (set={}, binding={}) is not a storage buffer", setIndex, bindingIndex));
 
-				context.BindStorageBuffer(bindingPoint, descriptor.buffer, descriptor.offset, descriptor.size);
+				GLintptr offset = descriptor.offset;
+				if (bindingInfo.type == ShaderBindingType::StorageBufferDynamic)
+				{
+					if (dynamicOffsetIndex >= dynamicOffsets.size())
+						throw std::runtime_error(fmt::format("descriptor (set={}, binding={}) is dynamic but too few dynamic offsets were passed", setIndex, bindingIndex));
+
+					offset += dynamicOffsets[dynamicOffsetIndex++];
+				}
+
+				context.BindStorageBuffer(bindingPoint, descriptor.buffer, offset, descriptor.size);
 			}
 			else if constexpr (std::is_same_v<DescriptorType, OpenGLRenderPipelineLayout::TextureDescriptor>)
 			{
 				if (bindingInfo.type != ShaderBindingType::Texture)
-					throw std::runtime_error("descriptor (set=" + std::to_string(setIndex) + ", binding=" + std::to_string(bindingIndex) + ") is not a texture");
+					throw std::runtime_error(fmt::format("descriptor (set={}, binding={}) is not a texture", setIndex, bindingIndex));
 
 				context.BindImageTexture(bindingPoint, descriptor.texture, descriptor.level, descriptor.layered, descriptor.layer, descriptor.access, descriptor.format);
 			}
 			else if constexpr (std::is_same_v<DescriptorType, OpenGLRenderPipelineLayout::UniformBufferDescriptor>)
 			{
-				if (bindingInfo.type != ShaderBindingType::UniformBuffer)
-					throw std::runtime_error("descriptor (set=" + std::to_string(setIndex) + ", binding=" + std::to_string(bindingIndex) + ") is not an uniform buffer");
+				if (bindingInfo.type != ShaderBindingType::UniformBuffer && bindingInfo.type != ShaderBindingType::UniformBufferDynamic)
+					throw std::runtime_error(fmt::format("descriptor (set={}, binding={}) is not an uniform buffer", setIndex, bindingIndex));
 
-				context.BindUniformBuffer(bindingPoint, descriptor.buffer, descriptor.offset, descriptor.size);
+				GLintptr offset = descriptor.offset;
+				if (bindingInfo.type == ShaderBindingType::UniformBufferDynamic)
+				{
+					if (dynamicOffsetIndex >= dynamicOffsets.size())
+						throw std::runtime_error(fmt::format("descriptor (set={}, binding={}) is dynamic but too few dynamic offsets were passed", setIndex, bindingIndex));
+
+					offset += dynamicOffsets[dynamicOffsetIndex++];
+				}
+
+				context.BindUniformBuffer(bindingPoint, descriptor.buffer, offset, descriptor.size);
 			}
 			else
 				static_assert(AlwaysFalse<DescriptorType>(), "non-exhaustive visitor");

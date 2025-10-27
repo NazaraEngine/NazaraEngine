@@ -6,6 +6,7 @@
 #include <array>
 #include <chrono>
 #include <iostream>
+#include <random>
 
 int main()
 {
@@ -96,6 +97,33 @@ int main()
 		spotLight.UpdateInnerAngle(Nz::DegreeAnglef(15.f));
 		spotLight.UpdateOuterAngle(Nz::DegreeAnglef(20.f));
 	}
+
+	std::minstd_rand colorGen(0xDEADBEEF);
+
+	constexpr float radius = 3.0f;
+	for (std::size_t i = 0; i < 20; ++i)
+	{
+		std::uniform_real_distribution<float> dis(0.f, 360.f);
+
+		Nz::TurnAnglef angle = i / 20.f;
+
+		auto [sin, cos] = angle.GetSinCos();
+
+		entt::handle spotlight = world.CreateEntity();
+
+		auto& spotlightNode = spotlight.emplace<Nz::NodeComponent>();
+		spotlightNode.SetPosition(Nz::Vector3f(sin * radius, 0.0f, cos * radius));
+		spotlightNode.SetRotation(Nz::Quaternionf::RotationBetween(Nz::Vector3f::Forward(), -spotlightNode.GetPosition().GetNormal()));
+
+		auto& lightComponent = spotlight.emplace<Nz::LightComponent>();
+
+		auto& spotLight = lightComponent.AddLight<Nz::SpotLight>();
+		spotLight.UpdateRadius(5.0f);
+		spotLight.UpdateColor(Nz::Color::FromHSV(dis(colorGen), 1.0f, 1.0f));
+		spotLight.UpdateInnerAngle(Nz::DegreeAnglef(15.f));
+		spotLight.UpdateOuterAngle(Nz::DegreeAnglef(20.f));
+	}
+
 
 	Nz::EulerAnglesf camAngles(0.f, 0.f, 0.f);
 

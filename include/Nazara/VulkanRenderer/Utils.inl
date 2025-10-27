@@ -415,10 +415,12 @@ namespace Nz
 	{
 		switch (bindingType)
 		{
-			case ShaderBindingType::Sampler:       return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			case ShaderBindingType::StorageBuffer: return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-			case ShaderBindingType::Texture:       return VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-			case ShaderBindingType::UniformBuffer: return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			case ShaderBindingType::Sampler:              return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			case ShaderBindingType::StorageBuffer:        return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			case ShaderBindingType::StorageBufferDynamic: return VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC;
+			case ShaderBindingType::Texture:              return VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
+			case ShaderBindingType::UniformBuffer:        return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			case ShaderBindingType::UniformBufferDynamic: return VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
 		}
 
 		NazaraError("unhandled ShaderBindingType {0:#x}", UnderlyingCast(bindingType));
