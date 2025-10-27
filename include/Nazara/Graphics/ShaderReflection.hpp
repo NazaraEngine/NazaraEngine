@@ -31,7 +31,8 @@ namespace Nz
 			ShaderReflection(ShaderReflection&&) = delete;
 			~ShaderReflection() = default;
 
-			inline const RenderPipelineLayoutInfo& GetPipelineLayoutInfo() const;
+			inline const RenderPipelineLayoutInfo& GetPipelineLayoutInfo() const&;
+			inline RenderPipelineLayoutInfo&& GetPipelineLayoutInfo() &&;
 			inline const ExternalBlockData* GetExternalBlockByTag(std::string_view tag) const;
 			inline const OptionData* GetOptionByName(std::string_view optionName) const;
 			inline const StructData* GetStructByIndex(std::size_t structIndex) const;
@@ -57,6 +58,7 @@ namespace Nz
 			struct ExternalStorageBlock : ExternalData
 			{
 				std::size_t structIndex;
+				bool dynamic = false;
 			};
 
 			struct ExternalTexture : ExternalData
@@ -71,6 +73,7 @@ namespace Nz
 			struct ExternalUniformBlock : ExternalData
 			{
 				std::size_t structIndex;
+				bool dynamic = false;
 			};
 
 			struct ExternalBlockData

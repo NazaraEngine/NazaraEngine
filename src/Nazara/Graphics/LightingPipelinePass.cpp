@@ -43,6 +43,11 @@ namespace Nz
 		Graphics* graphics = Graphics::Instance();
 		const auto& renderDevice = graphics->GetRenderDevice();
 
+		UInt64 uboAlignment = renderDevice->GetDeviceInfo().limits.minUniformBufferOffsetAlignment;
+		m_directionalLightSize = SafeCaster(AlignPow2<UInt64>(PredefinedDirectionalLightOffsets.totalSize, uboAlignment));
+		m_pointLightSize = SafeCaster(AlignPow2<UInt64>(PredefinedPointLightOffsets.totalSize, uboAlignment));
+		m_spotLightSize = SafeCaster(AlignPow2<UInt64>(PredefinedSpotLightOffsets.totalSize, uboAlignment));
+
 		SetupMeshes();
 		SetupPipelineLayouts(*renderDevice, shaderName);
 		SetupPipelines(*renderDevice, std::move(shaderName));
@@ -65,8 +70,6 @@ namespace Nz
 			ReleaseLights(m_lightBufferPool->pointLightPool, frameData.renderResources, m_pointLights);
 			ReleaseLights(m_lightBufferPool->spotLightPool, frameData.renderResources, m_spotLights);
 
-			UInt64 uboAlignment = renderDevice->GetDeviceInfo().limits.minUniformBufferOffsetAlignment;
-
 			for (std::size_t lightIndex : frameData.visibleLights->IterBits())
 			{
 				const Light* light = m_pipeline.RetrieveLight(lightIndex);
@@ -79,24 +82,21 @@ namespace Nz
 				{
 					case DirectionalLightType:
 					{
-						UInt64 lightSize = AlignPow2<UInt64>(PredefinedDirectionalLightOffsets.totalSize, uboAlignment);
-						void* lightData = PushLightData(*renderDevice, 256, m_lightBufferPool->directionalLightPool, frameData.renderResources, m_directionalLights, lightSize);
+						void* lightData = PushLightData(*renderDevice, 256, m_lightBufferPool->directionalLightPool, frameData.renderResources, m_directionalLights, m_directionalLightSize);
 						ShaderTransfer::WriteLight(SafeCast<const DirectionalLight*>(light), lightData);
 						break;
 					}
 
 					case PointLightType:
 					{
-						UInt64 lightSize = AlignPow2<UInt64>(PredefinedPointLightOffsets.totalSize, uboAlignment);
-						void* lightData = PushLightData(*renderDevice, 1024, m_lightBufferPool->pointLightPool, frameData.renderResources, m_pointLights, lightSize);
+						void* lightData = PushLightData(*renderDevice, 1024, m_lightBufferPool->pointLightPool, frameData.renderResources, m_pointLights, m_pointLightSize);
 						ShaderTransfer::WriteLight(SafeCast<const PointLight*>(light), lightData);
 						break;
 					}
 
 					case SpotLightType:
 					{
-						UInt64 lightSize = AlignPow2<UInt64>(PredefinedSpotLightOffsets.totalSize, uboAlignment);
-						void* lightData = PushLightData(*renderDevice, 1024, m_lightBufferPool->spotLightPool, frameData.renderResources, m_spotLights, lightSize);
+						void* lightData = PushLightData(*renderDevice, 1024, m_lightBufferPool->spotLightPool, frameData.renderResources, m_spotLights, m_spotLightSize);
 						ShaderTransfer::WriteLight(SafeCast<const SpotLight*>(light), lightData);
 						break;
 					}
@@ -105,18 +105,14 @@ namespace Nz
 
 			frameData.renderResources.Execute([&](CommandBufferBuilder& builder)
 			{
-				UInt64 directionalLightSize = AlignPow2<UInt64>(PredefinedDirectionalLightOffsets.totalSize, uboAlignment);
-				UInt64 pointLightSize = AlignPow2<UInt64>(PredefinedPointLightOffsets.totalSize, uboAlignment);
-				UInt64 spotLightSize = AlignPow2<UInt64>(PredefinedSpotLightOffsets.totalSize, uboAlignment);
-
 				for (auto& lightBlock : m_directionalLights)
-					builder.CopyBuffer(*lightBlock.uploadAllocation, RenderBufferView(lightBlock.memory.lightUbo.get(), 0, lightBlock.lightCount * directionalLightSize));
+					builder.CopyBuffer(*lightBlock.uploadAllocation, RenderBufferView(lightBlock.memory.lightUbo.get(), 0, lightBlock.lightCount * m_directionalLightSize));
 
 				for (auto& lightBlock : m_pointLights)
-					builder.CopyBuffer(*lightBlock.uploadAllocation, RenderBufferView(lightBlock.memory.lightUbo.get(), 0, lightBlock.lightCount * pointLightSize));
+					builder.CopyBuffer(*lightBlock.uploadAllocation, RenderBufferView(lightBlock.memory.lightUbo.get(), 0, lightBlock.lightCount * m_pointLightSize));
 
 				for (auto& lightBlock : m_spotLights)
-					builder.CopyBuffer(*lightBlock.uploadAllocation, RenderBufferView(lightBlock.memory.lightUbo.get(), 0, lightBlock.lightCount * spotLightSize));
+					builder.CopyBuffer(*lightBlock.uploadAllocation, RenderBufferView(lightBlock.memory.lightUbo.get(), 0, lightBlock.lightCount * m_spotLightSize));
 
 				builder.MemoryBarrier(PipelineStage::Transfer, PipelineStage::VertexInput, MemoryAccess::TransferWrite, MemoryAccess::VertexBufferRead);
 			}, QueueType::Transfer);
@@ -256,7 +252,9 @@ namespace Nz
 				{
 					for (std::size_t i = 0; i < directionalLight.lightCount; ++i)
 					{
-						builder.BindRenderShaderBinding(1, *directionalLight.memory.shaderBindings[i]);
+						UInt32 lightOffset = SafeCaster(i * m_directionalLightSize);
+
+						builder.BindRenderShaderBinding(1, *directionalLight.memory.shaderBinding, std::span(&lightOffset, 1));
 						builder.Draw(3);
 					}
 				}
@@ -272,7 +270,9 @@ namespace Nz
 				{
 					for (std::size_t i = 0; i < pointLight.lightCount; ++i)
 					{
-						builder.BindRenderShaderBinding(1, *pointLight.memory.shaderBindings[i]);
+						UInt32 lightOffset = SafeCaster(i * m_pointLightSize);
+
+						builder.BindRenderShaderBinding(1, *pointLight.memory.shaderBinding, std::span(&lightOffset, 1));
 
 						builder.BindRenderPipeline(*m_pipelines[BasicLightType::Point].stencilPipeline);
 						builder.DrawIndexed(indexCount);
@@ -292,7 +292,9 @@ namespace Nz
 				{
 					for (std::size_t i = 0; i < spotLight.lightCount; ++i)
 					{
-						builder.BindRenderShaderBinding(1, *spotLight.memory.shaderBindings[i]);
+						UInt32 lightOffset = SafeCaster(i * m_spotLightSize);
+
+						builder.BindRenderShaderBinding(1, *spotLight.memory.shaderBinding, std::span(&lightOffset, 1));
 
 						builder.BindRenderPipeline(*m_pipelines[BasicLightType::Spot].stencilPipeline);
 						builder.DrawIndexed(indexCount);
@@ -370,7 +372,6 @@ namespace Nz
 		nzsl::Ast::ModulePtr resolvedModule = nzsl::Ast::Clone(*referenceModule);
 		executor.Transform(*resolvedModule, context);
 
-		RenderPipelineLayoutInfo pipelineLayoutInfo;
 		ShaderReflection reflection;
 		reflection.Reflect(*resolvedModule);
 
@@ -426,7 +427,13 @@ namespace Nz
 		else
 			throw std::runtime_error("missing LightData tagged uniform buffer in LightData external block");
 
-		m_commonPipelineLayout = renderDevice.InstantiateRenderPipelineLayout(reflection.GetPipelineLayoutInfo());
+		RenderPipelineLayoutInfo pipelineLayoutInfo = std::move(reflection).GetPipelineLayoutInfo();
+
+		auto it = std::find_if(pipelineLayoutInfo.bindings.begin(), pipelineLayoutInfo.bindings.end(), [&](const auto& binding) { return binding.setIndex == 1 && binding.bindingIndex == m_lightDataBindingIndex; });
+		NazaraAssert(it != pipelineLayoutInfo.bindings.end());
+		it->type = ShaderBindingType::UniformBufferDynamic;
+
+		m_commonPipelineLayout = renderDevice.InstantiateRenderPipelineLayout(std::move(pipelineLayoutInfo));
 	}
 
 	void LightingPipelinePass::SetupPipelines(RenderDevice& renderDevice, std::string&& shaderName)
@@ -437,12 +444,13 @@ namespace Nz
 		m_lightingShader = std::make_shared<UberShader>(nzsl::ShaderStageType::Fragment, shaderName);
 		m_meshStencilShader = std::make_shared<UberShader>(nzsl::ShaderStageType::Vertex, std::move(shaderName));
 
+		UberShader::Config config;
+		config.optionValues["EnableShadowMapping"_opt] = false;
+
 		// Stencil pipeline
 		for (BasicLightType lightType : { BasicLightType::Point, BasicLightType::Spot })
 		{
-			UberShader::Config config;
 			config.optionValues["Light"_opt] = static_cast<Int32>(lightType);
-			config.optionValues["EnableShadowMapping"_opt] = false;
 
 			RenderPipelineInfo pipelineInfo;
 			pipelineInfo.primitiveMode = PrimitiveMode::TriangleList;
@@ -493,7 +501,6 @@ namespace Nz
 				});
 			}
 
-			UberShader::Config config;
 			config.optionValues["Light"_opt] = static_cast<Int32>(lightType);
 			config.optionValues["EnableShadowMapping"_opt] = false;
 
@@ -517,8 +524,8 @@ namespace Nz
 		if (!lights.empty())
 		{
 			LightBlock& lightBlock = lights.back();
-			if (lightBlock.lightCount < lightBlock.memory.maxLightCount)
-				return AccessByOffset<void*>(lightBlock.uploadAllocation->mappedPtr, lightBlock.lightCount++);
+			if (lightBlock.lightCount < maxLight)
+				return AccessByOffset<void*>(lightBlock.uploadAllocation->mappedPtr, lightBlock.lightCount++ * lightSize);
 		}
 		LightBlock& lightBlock = lights.emplace_back();
 		lightBlock.lightCount = 1;
@@ -536,21 +543,16 @@ namespace Nz
 			// Allocate new light block
 			lightBlock.memory.lightUbo = renderDevice.InstantiateBuffer(BufferType::Uniform, maxLightCount * lightSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write, nullptr);
 
-			// TODO: Add a way to allocate multiple shader bindings at once
-			lightBlock.memory.shaderBindings.resize(maxLightCount);
-			for (std::size_t i = 0; i < maxLightCount; ++i)
-			{
-				lightBlock.memory.shaderBindings[i] = m_commonPipelineLayout->AllocateShaderBinding(1);
-				lightBlock.memory.shaderBindings[i]->Update({
-					{
-						m_lightDataBindingIndex,
-						ShaderBinding::UniformBufferBinding {
-							lightBlock.memory.lightUbo.get(),
-							i * lightSize, lightSize
-						}
+			lightBlock.memory.shaderBinding = m_commonPipelineLayout->AllocateShaderBinding(1);
+			lightBlock.memory.shaderBinding->Update({
+				{
+					m_lightDataBindingIndex,
+					ShaderBinding::UniformBufferBinding {
+						.buffer = lightBlock.memory.lightUbo.get(),
+						.offset = 0, .range = lightSize, .dynamic = true
 					}
-				});
-			}
+				}
+			});
 		}
 
 		lightBlock.uploadAllocation = &renderResources.GetUploadPool().Allocate(lightBlock.memory.lightUbo->GetSize());

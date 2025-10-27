@@ -145,9 +145,14 @@ namespace Nz::Vk
 		return m_pool->GetDevice()->vkCmdBeginRenderPass(m_handle, &beginInfo, contents);
 	}
 
-	inline void CommandBuffer::BindDescriptorSet(VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, UInt32 firstSet, const VkDescriptorSet& descriptorSets)
+	inline void CommandBuffer::BindDescriptorSet(VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, UInt32 firstSet, const VkDescriptorSet& descriptorSet)
 	{
-		return BindDescriptorSets(pipelineBindPoint, layout, firstSet, 1U, &descriptorSets);
+		return BindDescriptorSets(pipelineBindPoint, layout, firstSet, 1U, &descriptorSet);
+	}
+
+	inline void CommandBuffer::BindDescriptorSet(VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, UInt32 firstSet, const VkDescriptorSet& descriptorSet, UInt32 dynamicOffsetCount, const UInt32* dynamicOffsets)
+	{
+		return BindDescriptorSets(pipelineBindPoint, layout, firstSet, 1U, &descriptorSet, dynamicOffsetCount, dynamicOffsets);
 	}
 
 	inline void CommandBuffer::BindDescriptorSets(VkPipelineBindPoint pipelineBindPoint, VkPipelineLayout layout, UInt32 firstSet, UInt32 descriptorSetCount, const VkDescriptorSet* descriptorSets)

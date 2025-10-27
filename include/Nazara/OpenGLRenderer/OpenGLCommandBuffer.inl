@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/OpenGLRenderer/OpenGLFramebuffer.hpp>
+#include <algorithm>
 #include <cassert>
 #include <stdexcept>
 
@@ -36,12 +37,18 @@ namespace Nz
 		m_currentComputeStates.pipeline = pipeline;
 	}
 
-	inline void OpenGLCommandBuffer::BindComputeShaderBinding(const OpenGLRenderPipelineLayout& pipelineLayout, UInt32 set, const OpenGLShaderBinding* binding)
+	inline void OpenGLCommandBuffer::BindComputeShaderBinding(const OpenGLRenderPipelineLayout& pipelineLayout, UInt32 set, const OpenGLShaderBinding* binding, std::span<const UInt32> dynamicOffsets)
 	{
 		if (set >= m_currentComputeShaderBindings.shaderBindings.size())
 			m_currentComputeShaderBindings.shaderBindings.resize(set + 1);
 
-		m_currentComputeShaderBindings.shaderBindings[set] = std::make_pair(&pipelineLayout, binding);
+		ShaderBinding& shaderBinding = m_currentComputeShaderBindings.shaderBindings[set];
+		shaderBinding.pipelineLayout = &pipelineLayout;
+		shaderBinding.shaderBinding = binding;
+
+		// TODO: Add assign method to FixedVector
+		shaderBinding.dynamicOffsets.resize(dynamicOffsets.size());
+		std::copy(dynamicOffsets.begin(), dynamicOffsets.end(), shaderBinding.dynamicOffsets.begin());
 	}
 
 	inline void OpenGLCommandBuffer::BindIndexBuffer(GLuint indexBuffer, IndexType indexType, UInt64 offset)
@@ -56,12 +63,18 @@ namespace Nz
 		m_currentDrawStates.pipeline = pipeline;
 	}
 
-	inline void OpenGLCommandBuffer::BindRenderShaderBinding(const OpenGLRenderPipelineLayout& pipelineLayout, UInt32 set, const OpenGLShaderBinding* binding)
+	inline void OpenGLCommandBuffer::BindRenderShaderBinding(const OpenGLRenderPipelineLayout& pipelineLayout, UInt32 set, const OpenGLShaderBinding* binding, std::span<const UInt32> dynamicOffsets)
 	{
 		if (set >= m_currentGraphicsShaderBindings.shaderBindings.size())
 			m_currentGraphicsShaderBindings.shaderBindings.resize(set + 1);
 
-		m_currentGraphicsShaderBindings.shaderBindings[set] = std::make_pair(&pipelineLayout, binding);
+		ShaderBinding& shaderBinding = m_currentGraphicsShaderBindings.shaderBindings[set];
+		shaderBinding.pipelineLayout = &pipelineLayout;
+		shaderBinding.shaderBinding = binding;
+
+		// TODO: Add assign method to FixedVector
+		shaderBinding.dynamicOffsets.resize(dynamicOffsets.size());
+		std::copy(dynamicOffsets.begin(), dynamicOffsets.end(), shaderBinding.dynamicOffsets.begin());
 	}
 
 	inline void OpenGLCommandBuffer::BindVertexBuffer(UInt32 binding, GLuint vertexBuffer, UInt64 offset)

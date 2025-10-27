@@ -16,6 +16,7 @@
 #include <Nazara/Renderer/Export.hpp>
 #include <Nazara/Renderer/RenderBufferView.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
+#include <span>
 #include <string_view>
 
 namespace Nz
@@ -45,12 +46,12 @@ namespace Nz
 			inline void BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, const Recti& renderRect, std::initializer_list<ClearValues> clearValues);
 
 			virtual void BindComputePipeline(const ComputePipeline& pipeline) = 0;
-			virtual void BindComputeShaderBinding(UInt32 set, const ShaderBinding& binding) = 0;
-			virtual void BindComputeShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding) = 0;
+			virtual void BindComputeShaderBinding(UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets = {}) = 0;
+			virtual void BindComputeShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets = {}) = 0;
 			virtual void BindIndexBuffer(const RenderBuffer& indexBuffer, IndexType indexType, UInt64 offset = 0) = 0;
 			virtual void BindRenderPipeline(const RenderPipeline& pipeline) = 0;
-			virtual void BindRenderShaderBinding(UInt32 set, const ShaderBinding& binding) = 0;
-			virtual void BindRenderShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding) = 0;
+			virtual void BindRenderShaderBinding(UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets = {}) = 0;
+			virtual void BindRenderShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets = {}) = 0;
 			virtual void BindVertexBuffer(UInt32 binding, const RenderBuffer& vertexBuffer, UInt64 offset = 0) = 0;
 
 			virtual void BlitTexture(const Texture& fromTexture, const Boxui& fromBox, TextureLayout fromLayout, const Texture& toTexture, const Boxui& toBox, TextureLayout toLayout, SamplerFilter filter) = 0;

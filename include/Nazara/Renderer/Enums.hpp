@@ -186,10 +186,12 @@ namespace Nz
 	{
 		Sampler,
 		StorageBuffer,
+		StorageBufferDynamic,
 		Texture,
 		UniformBuffer,
+		UniformBufferDynamic,
 
-		Max = UniformBuffer
+		Max = UniformBufferDynamic
 	};
 
 	enum class ShaderLanguage

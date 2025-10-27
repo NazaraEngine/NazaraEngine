@@ -103,6 +103,7 @@ namespace Nz
 					}
 
 					case ShaderBindingType::StorageBuffer:
+					case ShaderBindingType::StorageBufferDynamic:
 					{
 						if (externalBlock->storageBlocks.contains(externalVar.tag))
 							throw std::runtime_error("duplicate storage buffer tag " + externalVar.tag + " in external block " + node.tag);
@@ -132,6 +133,7 @@ namespace Nz
 					}
 
 					case ShaderBindingType::UniformBuffer:
+					case ShaderBindingType::UniformBufferDynamic:
 					{
 						if (externalBlock->uniformBlocks.contains(externalVar.tag))
 							throw std::runtime_error("duplicate storage buffer tag " + externalVar.tag + " in external block " + node.tag);

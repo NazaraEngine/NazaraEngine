@@ -16,8 +16,10 @@
 #include <Nazara/OpenGLRenderer/OpenGLShaderBinding.hpp>
 #include <Nazara/Renderer/CommandBuffer.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
+#include <NazaraUtils/FixedVector.hpp>
 #include <NazaraUtils/TypeList.hpp>
 #include <optional>
+#include <span>
 #include <variant>
 #include <vector>
 
@@ -41,10 +43,10 @@ namespace Nz
 			inline void BeginDebugRegion(std::string_view regionName, const Color& color);
 
 			inline void BindComputePipeline(const OpenGLComputePipeline* pipeline);
-			inline void BindComputeShaderBinding(const OpenGLRenderPipelineLayout& pipelineLayout, UInt32 set, const OpenGLShaderBinding* binding);
+			inline void BindComputeShaderBinding(const OpenGLRenderPipelineLayout& pipelineLayout, UInt32 set, const OpenGLShaderBinding* binding, std::span<const UInt32> dynamicOffsets);
 			inline void BindIndexBuffer(GLuint indexBuffer, IndexType indexType, UInt64 offset = 0);
 			inline void BindRenderPipeline(const OpenGLRenderPipeline* pipeline);
-			inline void BindRenderShaderBinding(const OpenGLRenderPipelineLayout& pipelineLayout, UInt32 set, const OpenGLShaderBinding* binding);
+			inline void BindRenderShaderBinding(const OpenGLRenderPipelineLayout& pipelineLayout, UInt32 set, const OpenGLShaderBinding* binding, std::span<const UInt32> dynamicOffsets);
 			inline void BindVertexBuffer(UInt32 binding, GLuint vertexBuffer, UInt64 offset = 0);
 
 			inline void BlitTexture(const OpenGLTexture& source, const Boxui& sourceBox, const OpenGLTexture& target, const Boxui& targetBox, SamplerFilter filter = SamplerFilter::Nearest);
@@ -196,9 +198,16 @@ namespace Nz
 				UInt64 targetOffset;
 			};
 
+			struct ShaderBinding
+			{
+				HybridVector<UInt32, 4> dynamicOffsets;
+				const OpenGLRenderPipelineLayout* pipelineLayout;
+				const OpenGLShaderBinding* shaderBinding;
+			};
+
 			struct ShaderBindings
 			{
-				std::vector<std::pair<const OpenGLRenderPipelineLayout*, const OpenGLShaderBinding*>> shaderBindings;
+				std::vector<ShaderBinding> shaderBindings;
 			};
 
 			struct DispatchCommand

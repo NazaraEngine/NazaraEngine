@@ -86,20 +86,20 @@ namespace Nz
 		m_commandBuffer.BindPipeline(VK_PIPELINE_BIND_POINT_COMPUTE, vkPipeline.GetPipeline());
 	}
 
-	void VulkanCommandBufferBuilder::BindComputeShaderBinding(UInt32 set, const ShaderBinding& binding)
+	void VulkanCommandBufferBuilder::BindComputeShaderBinding(UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets)
 	{
 		const VulkanShaderBinding& vkBinding = SafeCast<const VulkanShaderBinding&>(binding);
 		const VulkanRenderPipelineLayout& pipelineLayout = vkBinding.GetOwner();
 
-		m_commandBuffer.BindDescriptorSet(VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout.GetPipelineLayout(), set, vkBinding.GetDescriptorSet());
+		m_commandBuffer.BindDescriptorSet(VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout.GetPipelineLayout(), set, vkBinding.GetDescriptorSet(), SafeCaster(dynamicOffsets.size()), dynamicOffsets.data());
 	}
 
-	void VulkanCommandBufferBuilder::BindComputeShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding)
+	void VulkanCommandBufferBuilder::BindComputeShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets)
 	{
 		const VulkanRenderPipelineLayout& vkPipelineLayout = SafeCast<const VulkanRenderPipelineLayout&>(pipelineLayout);
 		const VulkanShaderBinding& vkBinding = SafeCast<const VulkanShaderBinding&>(binding);
 
-		m_commandBuffer.BindDescriptorSet(VK_PIPELINE_BIND_POINT_COMPUTE, vkPipelineLayout.GetPipelineLayout(), set, vkBinding.GetDescriptorSet());
+		m_commandBuffer.BindDescriptorSet(VK_PIPELINE_BIND_POINT_COMPUTE, vkPipelineLayout.GetPipelineLayout(), set, vkBinding.GetDescriptorSet(), SafeCaster(dynamicOffsets.size()), dynamicOffsets.data());
 	}
 
 	void VulkanCommandBufferBuilder::BindIndexBuffer(const RenderBuffer& indexBuffer, IndexType indexType, UInt64 offset)
@@ -119,20 +119,20 @@ namespace Nz
 		m_commandBuffer.BindPipeline(VK_PIPELINE_BIND_POINT_GRAPHICS, vkPipeline.Get(*m_currentRenderPass, m_currentSubpassIndex));
 	}
 
-	void VulkanCommandBufferBuilder::BindRenderShaderBinding(UInt32 set, const ShaderBinding& binding)
+	void VulkanCommandBufferBuilder::BindRenderShaderBinding(UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets)
 	{
 		const VulkanShaderBinding& vkBinding = SafeCast<const VulkanShaderBinding&>(binding);
 		const VulkanRenderPipelineLayout& pipelineLayout = vkBinding.GetOwner();
 
-		m_commandBuffer.BindDescriptorSet(VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout.GetPipelineLayout(), set, vkBinding.GetDescriptorSet());
+		m_commandBuffer.BindDescriptorSet(VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout.GetPipelineLayout(), set, vkBinding.GetDescriptorSet(), SafeCaster(dynamicOffsets.size()), dynamicOffsets.data());
 	}
 
-	void VulkanCommandBufferBuilder::BindRenderShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding)
+	void VulkanCommandBufferBuilder::BindRenderShaderBinding(const RenderPipelineLayout& pipelineLayout, UInt32 set, const ShaderBinding& binding, std::span<const UInt32> dynamicOffsets)
 	{
 		const VulkanRenderPipelineLayout& vkPipelineLayout = SafeCast<const VulkanRenderPipelineLayout&>(pipelineLayout);
 		const VulkanShaderBinding& vkBinding = SafeCast<const VulkanShaderBinding&>(binding);
 
-		m_commandBuffer.BindDescriptorSet(VK_PIPELINE_BIND_POINT_GRAPHICS, vkPipelineLayout.GetPipelineLayout(), set, vkBinding.GetDescriptorSet());
+		m_commandBuffer.BindDescriptorSet(VK_PIPELINE_BIND_POINT_GRAPHICS, vkPipelineLayout.GetPipelineLayout(), set, vkBinding.GetDescriptorSet(), SafeCaster(dynamicOffsets.size()), dynamicOffsets.data());
 	}
 
 	void VulkanCommandBufferBuilder::BindVertexBuffer(UInt32 binding, const RenderBuffer& vertexBuffer, UInt64 offset)

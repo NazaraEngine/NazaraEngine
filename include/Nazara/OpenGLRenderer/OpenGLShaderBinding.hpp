@@ -11,6 +11,7 @@
 #include <Nazara/OpenGLRenderer/Export.hpp>
 #include <Nazara/OpenGLRenderer/Wrapper/Context.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
+#include <span>
 
 namespace Nz
 {
@@ -24,7 +25,7 @@ namespace Nz
 			OpenGLShaderBinding(OpenGLShaderBinding&&) = delete;
 			~OpenGLShaderBinding() = default;
 
-			void Apply(const OpenGLRenderPipelineLayout& pipelineLayout, UInt32 setIndex, const GL::Context& context) const;
+			void Apply(const OpenGLRenderPipelineLayout& pipelineLayout, UInt32 setIndex, const GL::Context& context, std::span<const UInt32> dynamicOffsets) const;
 
 			inline std::size_t GetBindingIndex() const;
 			inline std::size_t GetPoolIndex() const;

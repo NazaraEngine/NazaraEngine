@@ -4,9 +4,14 @@
 
 namespace Nz
 {
-	inline const RenderPipelineLayoutInfo& ShaderReflection::GetPipelineLayoutInfo() const
+	inline const RenderPipelineLayoutInfo& ShaderReflection::GetPipelineLayoutInfo() const&
 	{
 		return m_pipelineLayoutInfo;
+	}
+
+	inline RenderPipelineLayoutInfo&& ShaderReflection::GetPipelineLayoutInfo() &&
+	{
+		return std::move(m_pipelineLayoutInfo);
 	}
 
 	inline auto ShaderReflection::GetExternalBlockByTag(std::string_view tag) const -> const ExternalBlockData*

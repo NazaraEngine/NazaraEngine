@@ -105,7 +105,7 @@ namespace Nz
 					bufferInfo.range = arg.range;
 
 					writeOp.descriptorCount = 1;
-					writeOp.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+					writeOp.descriptorType = (arg.dynamic) ? VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC : VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 					writeOp.pBufferInfo = &bufferInfo;
 				},
 				[&](const TextureBinding& arg)
@@ -131,7 +131,7 @@ namespace Nz
 					bufferInfo.range = arg.range;
 
 					writeOp.descriptorCount = 1;
-					writeOp.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+					writeOp.descriptorType = (arg.dynamic) ? VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC : VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 					writeOp.pBufferInfo = &bufferInfo;
 				},
 			}, binding.content);
