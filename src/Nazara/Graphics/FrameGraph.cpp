@@ -338,9 +338,15 @@ namespace Nz
 			if (textureId == InvalidTextureIndex)
 				return nullptr;
 
-			// For texture view, use the parent texture layout
+			// For texture view, use the parent texture layout (only if we're targeting all layers)
 			if (m_pending.textures[textureId].viewData)
-				textureId = m_pending.textures[textureId].viewData->parentTextureId;
+			{
+				const auto& textureViewData = m_pending.textures[textureId].viewData;
+				const auto& parentTexture = m_pending.textures[textureViewData->parentTextureId];
+				UInt32 layerCount = (parentTexture.type == ImageType::Cubemap) ? 6 : parentTexture.layerCount;
+				if (textureViewData->layerCount == layerCount)
+					textureId = m_pending.textures[textureId].viewData->parentTextureId;
+			}
 
 			auto it = std::find_if(barriers.begin(), barriers.end(), [&](const Barrier& barrier) { return barrier.textureId == textureId; });
 			if (it != barriers.end())
