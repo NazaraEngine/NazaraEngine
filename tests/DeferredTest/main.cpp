@@ -92,15 +92,15 @@ int main()
 		directionalLight.EnableShadowCasting(true);
 		directionalLight.UpdateColor(Nz::Color::Red());*/
 
-		/*auto& pointLight = lightComponent.AddLight<Nz::PointLight>();
+		auto& pointLight = lightComponent.AddLight<Nz::PointLight>();
 		pointLight.EnableShadowCasting(true);
-		pointLight.UpdateColor(Nz::Color::Green());*/
+		pointLight.UpdateColor(Nz::Color::Green());
 
-		auto& spotLight = lightComponent.AddLight<Nz::SpotLight>();
+		/*auto& spotLight = lightComponent.AddLight<Nz::SpotLight>();
 		spotLight.EnableShadowCasting(true);
 		spotLight.UpdateColor(Nz::Color::Blue());
 		spotLight.UpdateInnerAngle(Nz::DegreeAnglef(15.f));
-		spotLight.UpdateOuterAngle(Nz::DegreeAnglef(20.f));
+		spotLight.UpdateOuterAngle(Nz::DegreeAnglef(20.f));*/
 	}
 
 	std::minstd_rand colorGen(0xDEADBEEF);
