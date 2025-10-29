@@ -21,19 +21,25 @@ external
 	[binding(3), tag("DepthBuffer")] depthMap: sampler2D[f32]
 }
 
-[cond(Light == LightType.Directional)]
-alias LightData = DirectionalLight;
-
-[cond(Light == LightType.Point)]
-alias LightData = PointLight;
-
-[cond(Light == LightType.Spot)]
-alias LightData = SpotLight;
-
-[set(1), tag("LightData")]
+[set(1), tag("LightData"), cond(Light == LightType.Directional)]
 external
 {
-	[binding(0), tag("LightData")] lightData: uniform[LightData]
+	[binding(0), tag("LightData")] lightData: uniform[DirectionalLight],
+	[binding(1), tag("ShadowMap")] shadowMap: depth_sampler2D_array[f32],
+}
+
+[set(1), tag("LightData"), cond(Light == LightType.Point)]
+external
+{
+	[binding(0), tag("LightData")] lightData: uniform[PointLight],
+	[binding(1), tag("ShadowMap")] shadowMap: sampler_cube[f32],
+}
+
+[set(1), tag("LightData"), cond(Light == LightType.Spot)]
+external
+{
+	[binding(0), tag("LightData")] lightData: uniform[SpotLight],
+	[binding(1), tag("ShadowMap")] shadowMap: depth_sampler2D[f32],
 }
 
 struct FragIn
@@ -73,6 +79,8 @@ fn main(input: FragIn) -> FragOut
 		let result = Phong.ComputeDirectionalLight(light, eyeVec, normal, shininess);
 
 		let shadowFactor = 1.0;
+		const if (EnableShadowMapping)
+			shadowFactor = Shadow.ComputeDirectionalLightShadow(light, shadowMap, worldPos, result.lambert, viewerData.viewMatrix);
 
 		lightAmbient += result.ambient;
 		lightDiffuse += shadowFactor * result.diffuse;
@@ -83,6 +91,8 @@ fn main(input: FragIn) -> FragOut
 		let result = Phong.ComputePointLight(light, eyeVec, normal, shininess, worldPos);
 
 		let shadowFactor = 1.0;
+		const if (EnableShadowMapping)
+			shadowFactor = Shadow.ComputePointLightShadow(light, shadowMap, result.dist, result.lightToWorldDir);
 
 		lightAmbient += result.ambient;
 		lightDiffuse += shadowFactor * result.diffuse;
@@ -93,6 +103,8 @@ fn main(input: FragIn) -> FragOut
 		let result = Phong.ComputeSpotLight(light, eyeVec, normal, shininess, worldPos);
 
 		let shadowFactor = 1.0;
+		const if (EnableShadowMapping)
+			shadowFactor = Shadow.ComputeSpotLightShadow(light, shadowMap, worldPos, result.lambert);
 
 		lightAmbient += result.ambient;
 		lightDiffuse += shadowFactor * result.diffuse;

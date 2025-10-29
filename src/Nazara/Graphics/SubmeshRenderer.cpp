@@ -76,10 +76,7 @@ namespace Nz
 		const auto& depthTextureCube = Graphics::Instance()->GetDefaultTextures().depthTextures[ImageType::Cubemap];
 		const auto& whiteTexture2D = Graphics::Instance()->GetDefaultTextures().whiteTextures[ImageType::E2D];
 		const auto& defaultSampler = graphics->GetSamplerCache().Get({});
-
-		TextureSamplerInfo samplerInfo;
-		samplerInfo.depthCompare = true;
-		const auto& shadowSampler = graphics->GetSamplerCache().Get(samplerInfo);
+		const auto& shadowSampler = graphics->GetSamplerCache().Get({ .depthCompare = true });
 
 		std::size_t oldDrawCallCount = data.drawCalls.size();
 

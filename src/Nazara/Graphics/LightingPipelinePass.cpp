@@ -70,9 +70,17 @@ namespace Nz
 			ReleaseLights(m_lightBufferPool->pointLightPool, frameData.renderResources, m_pointLights);
 			ReleaseLights(m_lightBufferPool->spotLightPool, frameData.renderResources, m_spotLights);
 
+			ReleaseLights(m_lightBufferPool->shadowDirectionalLightPool, frameData.renderResources, m_shadowDirectionalLights);
+			ReleaseLights(m_lightBufferPool->shadowPointLightPool, frameData.renderResources, m_shadowPointLights);
+			ReleaseLights(m_lightBufferPool->shadowSpotLightPool, frameData.renderResources, m_shadowSpotLights);
+
+			const auto& defaultSampler = graphics->GetSamplerCache().Get({});
+			const auto& depthSampler = graphics->GetSamplerCache().Get({ .depthCompare = true });
+
 			for (std::size_t lightIndex : frameData.visibleLights->IterBits())
 			{
 				const Light* light = m_pipeline.RetrieveLight(lightIndex);
+				const Texture* shadowMap = m_pipeline.RetrieveLightShadowmap(lightIndex, m_viewer);
 
 				constexpr UInt8 DirectionalLightType = static_cast<UInt8>(BasicLightType::Directional);
 				constexpr UInt8 PointLightType = static_cast<UInt8>(BasicLightType::Point);
@@ -82,21 +90,36 @@ namespace Nz
 				{
 					case DirectionalLightType:
 					{
-						void* lightData = PushLightData(*renderDevice, 256, m_lightBufferPool->directionalLightPool, frameData.renderResources, m_directionalLights, m_directionalLightSize);
+						void* lightData;
+						if (shadowMap)
+							lightData = PushLightData(*renderDevice, 256, m_lightBufferPool->shadowDirectionalLightPool, frameData.renderResources, m_shadowDirectionalLights, m_directionalLightSize, shadowMap, depthSampler.get());
+						else
+							lightData = PushLightData(*renderDevice, 256, m_lightBufferPool->directionalLightPool, frameData.renderResources, m_directionalLights, m_directionalLightSize);
+
 						ShaderTransfer::WriteLight(SafeCast<const DirectionalLight*>(light), lightData);
 						break;
 					}
 
 					case PointLightType:
 					{
-						void* lightData = PushLightData(*renderDevice, 1024, m_lightBufferPool->pointLightPool, frameData.renderResources, m_pointLights, m_pointLightSize);
+						void* lightData;
+						if (shadowMap)
+							lightData = PushLightData(*renderDevice, 1024, m_lightBufferPool->shadowPointLightPool, frameData.renderResources, m_shadowPointLights, m_pointLightSize, shadowMap, defaultSampler.get());
+						else
+							lightData = PushLightData(*renderDevice, 1024, m_lightBufferPool->pointLightPool, frameData.renderResources, m_pointLights, m_pointLightSize);
+
 						ShaderTransfer::WriteLight(SafeCast<const PointLight*>(light), lightData);
 						break;
 					}
 
 					case SpotLightType:
 					{
-						void* lightData = PushLightData(*renderDevice, 1024, m_lightBufferPool->spotLightPool, frameData.renderResources, m_spotLights, m_spotLightSize);
+						void* lightData;
+						if (shadowMap)
+							lightData = PushLightData(*renderDevice, 1024, m_lightBufferPool->shadowSpotLightPool, frameData.renderResources, m_shadowSpotLights, m_spotLightSize, shadowMap, depthSampler.get());
+						else
+							lightData = PushLightData(*renderDevice, 1024, m_lightBufferPool->spotLightPool, frameData.renderResources, m_spotLights, m_spotLightSize);
+
 						ShaderTransfer::WriteLight(SafeCast<const SpotLight*>(light), lightData);
 						break;
 					}
@@ -105,14 +128,17 @@ namespace Nz
 
 			frameData.renderResources.Execute([&](CommandBufferBuilder& builder)
 			{
-				for (auto& lightBlock : m_directionalLights)
-					builder.CopyBuffer(*lightBlock.uploadAllocation, RenderBufferView(lightBlock.memory.lightUbo.get(), 0, lightBlock.lightCount * m_directionalLightSize));
-
-				for (auto& lightBlock : m_pointLights)
-					builder.CopyBuffer(*lightBlock.uploadAllocation, RenderBufferView(lightBlock.memory.lightUbo.get(), 0, lightBlock.lightCount * m_pointLightSize));
-
-				for (auto& lightBlock : m_spotLights)
-					builder.CopyBuffer(*lightBlock.uploadAllocation, RenderBufferView(lightBlock.memory.lightUbo.get(), 0, lightBlock.lightCount * m_spotLightSize));
+				for (auto& lightBlockContainer : { &m_directionalLights, &m_pointLights, &m_spotLights })
+				{
+					for (auto& lightBlock : *lightBlockContainer)
+						builder.CopyBuffer(*lightBlock.uploadAllocation, RenderBufferView(lightBlock.memory.lightUbo.get(), 0, lightBlock.lightCount * m_directionalLightSize));
+				}
+				
+				for (auto& lightBlockContainer : { &m_shadowDirectionalLights, &m_shadowPointLights, &m_shadowSpotLights })
+				{
+					for (auto& lightBlock : *lightBlockContainer)
+						builder.CopyBuffer(*lightBlock.uploadAllocation, RenderBufferView(lightBlock.memory.lightUbo.get(), 0, lightBlock.lightCount * m_directionalLightSize));
+				}
 
 				builder.MemoryBarrier(PipelineStage::Transfer, PipelineStage::VertexInput, MemoryAccess::TransferWrite, MemoryAccess::VertexBufferRead);
 			}, QueueType::Transfer);
@@ -260,7 +286,23 @@ namespace Nz
 				}
 			}
 
-			if (!m_pointLights.empty())
+			if (!m_shadowDirectionalLights.empty())
+			{
+				builder.BindRenderPipeline(*m_pipelines[BasicLightType::Directional].lightingPipelineShadow);
+
+				for (const auto& directionalLight : m_shadowDirectionalLights)
+				{
+					for (std::size_t i = 0; i < directionalLight.lightCount; ++i)
+					{
+						UInt32 lightOffset = SafeCaster(i * m_directionalLightSize);
+
+						builder.BindRenderShaderBinding(1, *directionalLight.memory.shaderBindings[i], std::span(&lightOffset, 1));
+						builder.Draw(3);
+					}
+				}
+			}
+
+			if (!m_pointLights.empty() || !m_shadowPointLights.empty())
 			{
 				builder.BindIndexBuffer(*m_pointLightMesh->GetIndexBuffer(0), IndexType::U16);
 				builder.BindVertexBuffer(0, *m_pointLightMesh->GetVertexBuffer(0));
@@ -280,9 +322,24 @@ namespace Nz
 						builder.DrawIndexed(indexCount);
 					}
 				}
+
+				for (const auto& pointLight : m_shadowPointLights)
+				{
+					for (std::size_t i = 0; i < pointLight.lightCount; ++i)
+					{
+						UInt32 lightOffset = SafeCaster(i * m_pointLightSize);
+
+						builder.BindRenderShaderBinding(1, *pointLight.memory.shaderBindings[i], std::span(&lightOffset, 1));
+
+						builder.BindRenderPipeline(*m_pipelines[BasicLightType::Point].stencilPipelineShadow);
+						builder.DrawIndexed(indexCount);
+						builder.BindRenderPipeline(*m_pipelines[BasicLightType::Point].lightingPipelineShadow);
+						builder.DrawIndexed(indexCount);
+					}
+				}
 			}
 
-			if (!m_spotLights.empty())
+			if (!m_spotLights.empty() || !m_shadowSpotLights.empty())
 			{
 				builder.BindIndexBuffer(*m_spotLightMesh->GetIndexBuffer(0), IndexType::U16);
 				builder.BindVertexBuffer(0, *m_spotLightMesh->GetVertexBuffer(0));
@@ -299,6 +356,21 @@ namespace Nz
 						builder.BindRenderPipeline(*m_pipelines[BasicLightType::Spot].stencilPipeline);
 						builder.DrawIndexed(indexCount);
 						builder.BindRenderPipeline(*m_pipelines[BasicLightType::Spot].lightingPipeline);
+						builder.DrawIndexed(indexCount);
+					}
+				}
+
+				for (const auto& spotLight : m_shadowSpotLights)
+				{
+					for (std::size_t i = 0; i < spotLight.lightCount; ++i)
+					{
+						UInt32 lightOffset = SafeCaster(i * m_spotLightSize);
+
+						builder.BindRenderShaderBinding(1, *spotLight.memory.shaderBindings[i], std::span(&lightOffset, 1));
+
+						builder.BindRenderPipeline(*m_pipelines[BasicLightType::Spot].stencilPipelineShadow);
+						builder.DrawIndexed(indexCount);
+						builder.BindRenderPipeline(*m_pipelines[BasicLightType::Spot].lightingPipelineShadow);
 						builder.DrawIndexed(indexCount);
 					}
 				}
@@ -364,7 +436,7 @@ namespace Nz
 		nzsl::Ast::TransformerContext context;
 		context.partialCompilation = true;
 		context.optionValues["Light"_opt] = Int32(0); //< just to avoid unresolved externals
-		context.optionValues["EnableShadowMapping"_opt] = false; //< just to avoid unresolved externals
+		context.optionValues["EnableShadowMapping"_opt] = true;
 		context.optionValues["MaxLightCount"_opt] = SafeCast<UInt32>(PredefinedLightData::MaxLightCount);
 		context.optionValues["MaxLightCascadeCount"_opt] = SafeCast<UInt32>(PredefinedDirectionalLightData::MaxLightCascadeCount);
 		context.optionValues["MaxJointCount"_opt] = SafeCast<UInt32>(PredefinedSkeletalData::MaxMatricesCount);
@@ -410,7 +482,7 @@ namespace Nz
 			m_depthMapBindingIndex = it->second.bindingIndex;
 		}
 		else
-			m_depthMapBindingIndex = Nz::MaxValue();
+			m_depthMapBindingIndex = MaxValue();
 
 		const auto* lightDataExternalBlock = reflection.GetExternalBlockByTag("LightData");
 		if (!lightDataExternalBlock)
@@ -418,20 +490,41 @@ namespace Nz
 
 		if (auto lightDataIt = lightDataExternalBlock->uniformBlocks.find("LightData"); lightDataIt != lightDataExternalBlock->uniformBlocks.end())
 		{
-			const auto& externalBlock = lightDataIt->second;
-			if (externalBlock.bindingSet != 1)
+			const auto& uniformBlock = lightDataIt->second;
+			if (uniformBlock.bindingSet != 1)
 				throw std::runtime_error("LightData uniform buffer should be in the binding set #1");
 
-			m_lightDataBindingIndex = externalBlock.bindingIndex;
+			m_lightDataBindingIndex = uniformBlock.bindingIndex;
 		}
 		else
 			throw std::runtime_error("missing LightData tagged uniform buffer in LightData external block");
 
-		RenderPipelineLayoutInfo pipelineLayoutInfo = std::move(reflection).GetPipelineLayoutInfo();
+		if (auto shadowMapIt = lightDataExternalBlock->samplers.find("ShadowMap"); shadowMapIt != lightDataExternalBlock->samplers.end())
+		{
+			const auto& sampler = shadowMapIt->second;
+			if (sampler.bindingSet != 1)
+				throw std::runtime_error("ShadowMap sampler should be in the binding set #1");
 
-		auto it = std::find_if(pipelineLayoutInfo.bindings.begin(), pipelineLayoutInfo.bindings.end(), [&](const auto& binding) { return binding.setIndex == 1 && binding.bindingIndex == m_lightDataBindingIndex; });
-		NazaraAssert(it != pipelineLayoutInfo.bindings.end());
-		it->type = ShaderBindingType::UniformBufferDynamic;
+			m_lightShadowmapBindingIndex = sampler.bindingIndex;
+		}
+		else
+			m_lightShadowmapBindingIndex = MaxValue();
+
+		RenderPipelineLayoutInfo pipelineLayoutInfo = std::move(reflection).GetPipelineLayoutInfo();
+		{
+			auto it = std::find_if(pipelineLayoutInfo.bindings.begin(), pipelineLayoutInfo.bindings.end(), [&](const auto& binding) { return binding.setIndex == 1 && binding.bindingIndex == m_lightDataBindingIndex; });
+			NazaraAssert(it != pipelineLayoutInfo.bindings.end());
+			it->type = ShaderBindingType::UniformBufferDynamic;
+		}
+
+		if (m_lightShadowmapBindingIndex != MaxValue<UInt32>())
+		{
+			m_shadowPipelineLayout = renderDevice.InstantiateRenderPipelineLayout(pipelineLayoutInfo);
+
+			auto it = std::find_if(pipelineLayoutInfo.bindings.begin(), pipelineLayoutInfo.bindings.end(), [&](const auto& binding) { return binding.setIndex == 1 && binding.bindingIndex == m_lightShadowmapBindingIndex; });
+			NazaraAssert(it != pipelineLayoutInfo.bindings.end());
+			pipelineLayoutInfo.bindings.erase(it);
+		}
 
 		m_commonPipelineLayout = renderDevice.InstantiateRenderPipelineLayout(std::move(pipelineLayoutInfo));
 	}
@@ -473,6 +566,16 @@ namespace Nz
 			pipelineInfo.stencilBack.depthFail = StencilOperation::Invert;
 
 			m_pipelines[lightType].stencilPipeline = renderDevice.InstantiateRenderPipeline(pipelineInfo);
+
+			// Shadow pipeline
+			pipelineInfo.pipelineLayout = m_shadowPipelineLayout;
+
+			config.optionValues["EnableShadowMapping"_opt] = true;
+
+			pipelineInfo.shaderModules.clear();
+			pipelineInfo.shaderModules.push_back(m_meshStencilShader->Get(config));
+
+			m_pipelines[lightType].stencilPipelineShadow = renderDevice.InstantiateRenderPipeline(pipelineInfo);
 		}
 
 		// Lighting pipeline
@@ -509,6 +612,9 @@ namespace Nz
 
 			m_pipelines[lightType].lightingPipeline = renderDevice.InstantiateRenderPipeline(pipelineInfo);
 
+			// Shadow pipeline
+			pipelineInfo.pipelineLayout = m_shadowPipelineLayout;
+
 			config.optionValues["EnableShadowMapping"_opt] = true;
 
 			pipelineInfo.shaderModules.clear();
@@ -521,45 +627,101 @@ namespace Nz
 
 	void* LightingPipelinePass::PushLightData(RenderDevice& renderDevice, UInt64 maxLight, std::vector<LightBlockMemory>& lightMemoryPool, RenderResources& renderResources, std::vector<LightBlock>& lights, UInt64 lightSize)
 	{
-		if (!lights.empty())
+		if (lights.empty() || lights.back().lightCount >= maxLight)
 		{
-			LightBlock& lightBlock = lights.back();
-			if (lightBlock.lightCount < maxLight)
-				return AccessByOffset<void*>(lightBlock.uploadAllocation->mappedPtr, lightBlock.lightCount++ * lightSize);
-		}
-		LightBlock& lightBlock = lights.emplace_back();
-		lightBlock.lightCount = 1;
+			LightBlock& lightBlock = lights.emplace_back();
 
-		if (!lightMemoryPool.empty())
-		{
-			lightBlock.memory = std::move(lightMemoryPool.back());
-			lightMemoryPool.pop_back();
-		}
-		else
-		{
-			UInt64 maxUniformBufferSize = renderDevice.GetDeviceInfo().limits.maxUniformBufferSize;
-			UInt64 maxLightCount = std::min(maxLight, maxUniformBufferSize / lightSize);
+			if (!lightMemoryPool.empty())
+			{
+				lightBlock.memory = std::move(lightMemoryPool.back());
+				lightMemoryPool.pop_back();
+			}
+			else
+			{
+				UInt64 maxUniformBufferSize = renderDevice.GetDeviceInfo().limits.maxUniformBufferSize;
+				UInt64 maxLightCount = std::min(maxLight, maxUniformBufferSize / lightSize);
 
-			// Allocate new light block
-			lightBlock.memory.lightUbo = renderDevice.InstantiateBuffer(BufferType::Uniform, maxLightCount * lightSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write, nullptr);
+				// Allocate new light block
+				lightBlock.memory.lightUbo = renderDevice.InstantiateBuffer(BufferType::Uniform, maxLightCount * lightSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write, nullptr);
 
-			lightBlock.memory.shaderBinding = m_commonPipelineLayout->AllocateShaderBinding(1);
-			lightBlock.memory.shaderBinding->Update({
-				{
-					m_lightDataBindingIndex,
-					ShaderBinding::UniformBufferBinding {
-						.buffer = lightBlock.memory.lightUbo.get(),
-						.offset = 0, .range = lightSize, .dynamic = true
+				lightBlock.memory.shaderBinding = m_commonPipelineLayout->AllocateShaderBinding(1);
+				lightBlock.memory.shaderBinding->Update({
+					{
+						m_lightDataBindingIndex,
+						ShaderBinding::UniformBufferBinding {
+							.buffer = lightBlock.memory.lightUbo.get(),
+							.offset = 0, .range = lightSize, .dynamic = true
+						}
 					}
-				}
-			});
+				});
+			}
+
+			lightBlock.uploadAllocation = &renderResources.GetUploadPool().Allocate(lightBlock.memory.lightUbo->GetSize());
 		}
 
-		lightBlock.uploadAllocation = &renderResources.GetUploadPool().Allocate(lightBlock.memory.lightUbo->GetSize());
-		return lightBlock.uploadAllocation->mappedPtr;
+		LightBlock& lightBlock = lights.back();
+		return AccessByOffset<void*>(lightBlock.uploadAllocation->mappedPtr, lightBlock.lightCount++ * lightSize);
+	}
+
+	void* LightingPipelinePass::PushLightData(RenderDevice& renderDevice, UInt64 maxLight, std::vector<LightBlockMemoryShadow>& lightMemoryPool, RenderResources& renderResources, std::vector<LightBlockShadow>& lights, UInt64 lightSize, const Texture* shadowMap, const TextureSampler* shadowMapSampler)
+	{
+		if (lights.empty() || lights.back().lightCount >= maxLight)
+		{
+			LightBlockShadow& lightBlock = lights.emplace_back();
+
+			if (!lightMemoryPool.empty())
+			{
+				lightBlock.memory = std::move(lightMemoryPool.back());
+				lightMemoryPool.pop_back();
+			}
+			else
+			{
+				UInt64 maxUniformBufferSize = renderDevice.GetDeviceInfo().limits.maxUniformBufferSize;
+				UInt64 maxLightCount = std::min(maxLight, maxUniformBufferSize / lightSize);
+
+				// Allocate new light block
+				lightBlock.memory.lightUbo = renderDevice.InstantiateBuffer(BufferType::Uniform, maxLightCount * lightSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write, nullptr);
+				lightBlock.memory.shaderBindings.clear();
+			}
+
+			lightBlock.uploadAllocation = &renderResources.GetUploadPool().Allocate(lightBlock.memory.lightUbo->GetSize());
+		}
+
+		LightBlockShadow& lightBlock = lights.back();
+		lightBlock.memory.shaderBindings.push_back(m_shadowPipelineLayout->AllocateShaderBinding(1));
+		lightBlock.memory.shaderBindings.back()->Update({
+			{
+				m_lightDataBindingIndex,
+				ShaderBinding::UniformBufferBinding {
+					.buffer = lightBlock.memory.lightUbo.get(),
+					.offset = 0, .range = lightSize, .dynamic = true
+				}
+			},
+			{
+				m_lightShadowmapBindingIndex,
+				ShaderBinding::SampledTextureBinding {
+					.texture = shadowMap, .sampler = shadowMapSampler
+				}
+			}
+		});
+
+		return AccessByOffset<void*>(lightBlock.uploadAllocation->mappedPtr, lightBlock.lightCount++ * lightSize);
 	}
 
 	void LightingPipelinePass::ReleaseLights(std::vector<LightBlockMemory>& lightMemoryPool, RenderResources& renderResources, std::vector<LightBlock>& lights)
+	{
+		for (auto& lightBlock : lights)
+		{
+			renderResources.PushReleaseCallback([poolPtr = m_lightBufferPool, &lightMemoryPool, block = std::move(lightBlock.memory)]() mutable
+			{
+				lightMemoryPool.push_back(std::move(block));
+			});
+		}
+
+		lights.clear();
+	}
+
+	void LightingPipelinePass::ReleaseLights(std::vector<LightBlockMemoryShadow>& lightMemoryPool, RenderResources& renderResources, std::vector<LightBlockShadow>& lights)
 	{
 		for (auto& lightBlock : lights)
 		{

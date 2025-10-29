@@ -98,7 +98,7 @@ fn ComputeSpotLightShadow(light: SpotLight, shadowmap: depth_sampler2D[f32], wor
 {
 	let shadowFactor = 1.0;
 	if (light.invShadowMapSize.x > 0.0)
-{
+	{
 		let lightProjPos = light.viewProjMatrix * vec4[f32](worldPos, 1.0);
 		let shadowCoords = lightProjPos.xyz / lightProjPos.w;
 
