@@ -83,16 +83,21 @@ int main()
 	{
 		auto& lightNode = light.emplace<Nz::NodeComponent>();
 		lightNode.SetParent(camera);
+		lightNode.SetPosition(Nz::Vector3f(0.f, -0.2f, 0.f));
+		lightNode.SetRotation(Nz::EulerAnglesf(10.f, 0.f, 0.f));
 
 		auto& lightComponent = light.emplace<Nz::LightComponent>();
 
-		auto& directionalLight = lightComponent.AddLight<Nz::DirectionalLight>();
-		directionalLight.UpdateColor(Nz::Color::Red());
+		/*auto& directionalLight = lightComponent.AddLight<Nz::DirectionalLight>();
+		directionalLight.EnableShadowCasting(true);
+		directionalLight.UpdateColor(Nz::Color::Red());*/
 
-		auto& pointLight = lightComponent.AddLight<Nz::PointLight>();
-		pointLight.UpdateColor(Nz::Color::Green());
+		/*auto& pointLight = lightComponent.AddLight<Nz::PointLight>();
+		pointLight.EnableShadowCasting(true);
+		pointLight.UpdateColor(Nz::Color::Green());*/
 
 		auto& spotLight = lightComponent.AddLight<Nz::SpotLight>();
+		spotLight.EnableShadowCasting(true);
 		spotLight.UpdateColor(Nz::Color::Blue());
 		spotLight.UpdateInnerAngle(Nz::DegreeAnglef(15.f));
 		spotLight.UpdateOuterAngle(Nz::DegreeAnglef(20.f));
@@ -100,7 +105,7 @@ int main()
 
 	std::minstd_rand colorGen(0xDEADBEEF);
 
-	constexpr float radius = 3.0f;
+	/*constexpr float radius = 3.0f;
 	for (std::size_t i = 0; i < 20; ++i)
 	{
 		std::uniform_real_distribution<float> dis(0.f, 360.f);
@@ -118,11 +123,12 @@ int main()
 		auto& lightComponent = spotlight.emplace<Nz::LightComponent>();
 
 		auto& spotLight = lightComponent.AddLight<Nz::SpotLight>();
+		spotLight.EnableShadowCasting(true);
 		spotLight.UpdateRadius(5.0f);
 		spotLight.UpdateColor(Nz::Color::FromHSV(dis(colorGen), 1.0f, 1.0f));
 		spotLight.UpdateInnerAngle(Nz::DegreeAnglef(15.f));
 		spotLight.UpdateOuterAngle(Nz::DegreeAnglef(20.f));
-	}
+	}*/
 
 
 	Nz::EulerAnglesf camAngles(0.f, 0.f, 0.f);

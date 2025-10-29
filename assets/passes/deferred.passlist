@@ -71,6 +71,7 @@ passlist "Deferred Passlist"
 
         depthstencilinput "StencilBuffer"
         depthstenciloutput "StencilBuffer"
+        flag "LightShadowing"
     }
 
     output "LightOutput"

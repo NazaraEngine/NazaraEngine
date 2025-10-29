@@ -39,7 +39,7 @@ namespace Nz
 		else if (result.GetError() != Nz::ParameterList::Error::MissingValue)
 			throw std::runtime_error("parameter Lighting has incorrect value");
 
-		if (auto result = parameters.GetIntegerParameter("RenderMask", false); result && result.GetValue() >= 0 && result.GetValue() < Nz::MaxValue<UInt32>())
+		if (auto result = parameters.GetIntegerParameter("RenderMask", false); result && result.GetValue() >= 0 && result.GetValue() < MaxValue<UInt32>())
 			m_renderMask = SafeCaster(result.GetValue());
 		else if (result.GetError() != Nz::ParameterList::Error::MissingValue)
 			throw std::runtime_error("parameter RenderMask has incorrect value");
