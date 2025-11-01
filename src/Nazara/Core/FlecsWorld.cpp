@@ -6,6 +6,11 @@
 
 namespace Nz
 {
+	FlecsWorld::~FlecsWorld()
+	{
+		m_systemGraph.Clear();
+	}
+
 	void FlecsWorld::Update(Time elapsedTime)
 	{
 		m_world.progress(1.0f);

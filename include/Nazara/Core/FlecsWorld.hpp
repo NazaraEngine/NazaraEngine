@@ -20,7 +20,7 @@ namespace Nz
 			inline FlecsWorld();
 			FlecsWorld(const FlecsWorld&) = delete;
 			FlecsWorld(FlecsWorld&&) = delete;
-			~FlecsWorld() = default;
+			~FlecsWorld();
 
 			template<typename T, typename... Args> T& AddSystem(Args&&... args);
 

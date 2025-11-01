@@ -23,6 +23,7 @@
 #include <memory>
 #include <set>
 #include <unordered_map>
+#include <unordered_set>
 
 namespace Nz
 {
@@ -64,6 +65,7 @@ namespace Nz
 			void UpdateGraphicsVisibility(GraphicsEntity* gfxData, GraphicsComponent& gfxComponent, bool isVisible);
 			void UpdateLightVisibility(LightEntity* gfxData, LightComponent& lightComponent, bool isVisible);
 			void UpdateInstances();
+			void UpdatePending();
 
 			static constexpr std::size_t NoInstance = std::numeric_limits<std::size_t>::max();
 
@@ -113,11 +115,11 @@ namespace Nz
 			};
 
 			flecs::world& m_world;
-			flecs::entity m_cameraConstructObserver;
-			flecs::entity m_graphicsConstructObserver;
-			flecs::entity m_lightConstructObserver;
-			flecs::entity m_sharedSkeletonConstructObserver;
-			flecs::entity m_skeletonConstructObserver;
+			flecs::entity m_cameraObserver;
+			flecs::entity m_graphicsObserver;
+			flecs::entity m_lightObserver;
+			flecs::entity m_sharedSkeletonObserver;
+			flecs::entity m_skeletonObserver;
 			std::set<CameraEntity*> m_invalidatedCameraNode;
 			std::set<GraphicsEntity*> m_invalidatedGfxWorldNode;
 			std::set<LightEntity*> m_invalidatedLightWorldNode;
@@ -126,6 +128,9 @@ namespace Nz
 			std::unordered_map<flecs::entity, GraphicsEntity*, FlecsHasher> m_graphicsEntities;
 			std::unordered_map<flecs::entity, LightEntity*, FlecsHasher> m_lightEntities;
 			std::unordered_map<Skeleton*, SharedSkeleton> m_sharedSkeletonInstances;
+			std::unordered_set<flecs::entity, FlecsHasher> m_pendingCameraEntities;
+			std::unordered_set<flecs::entity, FlecsHasher> m_pendingGraphicsEntities;
+			std::unordered_set<flecs::entity, FlecsHasher> m_pendingLightEntities;
 			std::vector<std::reference_wrapper<WindowSwapchain>> m_externalSwapchains;
 			std::vector<std::unique_ptr<WindowSwapchain>> m_windowSwapchains;
 			ElementRendererRegistry m_elementRegistry;
