@@ -193,7 +193,7 @@ int main(int argc, char* argv[])
 	customDepthPass.options[Nz::CRC32("DepthPass")] = true;
 	settings.AddPass("DepthPass", customDepthPass);
 
-	auto deferredMaterial = std::make_shared<Nz::Material>(std::move(settings), "BasicMaterial");
+	auto deferredMaterial = std::make_shared<Nz::Material>(std::move(settings), "Material.Basic");
 
 	std::shared_ptr<Nz::MaterialInstance> spaceshipMat = deferredMaterial->Instantiate();
 	spaceshipMat->SetTextureProperty("AlphaMap", Nz::TextureAsset::OpenFromFile(resourceDir / "alphatile.png"));
