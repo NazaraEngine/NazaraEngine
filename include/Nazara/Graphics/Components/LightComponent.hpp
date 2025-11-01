@@ -10,7 +10,7 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
-#include <entt/entt.hpp>
+#include <flecs.h>
 #include <array>
 #include <memory>
 #include <vector>

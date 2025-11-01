@@ -38,7 +38,7 @@
 #include <Nazara/Physics2D/PhysWorld2D.hpp>
 #include <Nazara/Physics2D/RigidBody2D.hpp>
 
-#ifdef NAZARA_ENTT
+#ifdef NAZARA_FLECS
 
 #include <Nazara/Physics2D/Components.hpp>
 #include <Nazara/Physics2D/Systems.hpp>

@@ -11,7 +11,7 @@
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
 #include <Nazara/Math/Rect.hpp>
-#include <entt/entt.hpp>
+#include <flecs.h>
 #include <memory>
 #include <vector>
 

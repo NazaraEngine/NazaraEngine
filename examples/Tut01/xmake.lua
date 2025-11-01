@@ -1,5 +1,5 @@
 target("Tut01_HelloWorld")
 	add_deps("NazaraGraphics")
-	add_packages("entt")
+	add_packages("flecs")
 	add_files("main.cpp")
-	add_defines("NAZARA_ENTT")
+	add_defines("NAZARA_FLECS")

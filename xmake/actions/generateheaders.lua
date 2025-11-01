@@ -11,9 +11,9 @@ on_run(function ()
 	local paths = {}
 
 	local excludedFiles = {
-		["Components.hpp"] = { Define = "NAZARA_ENTT" },
+		["Components.hpp"] = { Define = "NAZARA_FLECS" },
 		["ConfigCheck.hpp"] = true,
-		["Systems.hpp"] = { Define = "NAZARA_ENTT" },
+		["Systems.hpp"] = { Define = "NAZARA_FLECS" },
 		["ThreadSafety.hpp"] = true,
 		["ThreadSafetyOff.hpp"] = true
 	}
@@ -71,9 +71,11 @@ on_run(function ()
 	end
 
 	paths["Audio"].Excludes["OpenALFunctions.hpp"] = true
-	paths["Core"].Excludes["AppEntitySystemComponent.hpp"] = { Define = "NAZARA_ENTT" }
+	paths["Core"].Excludes["AppEntitySystemComponent.hpp"] = { Define = "NAZARA_FLECS" }
 	paths["Core"].Excludes["EnttSystemGraph.hpp"] = { Define = "NAZARA_ENTT" }
 	paths["Core"].Excludes["EnttWorld.hpp"] = { Define = "NAZARA_ENTT" }
+	paths["Core"].Excludes["FlecsSystemGraph.hpp"] = { Define = "NAZARA_FLECS" }
+	paths["Core"].Excludes["FlecsWorld.hpp"] = { Define = "NAZARA_FLECS" }
 	paths["Network"].Excludes["CurlLibrary.hpp"] = true
 	paths["Network"].Excludes["CurlFunctions.hpp"] = true
 	paths["OpenGLRenderer"].Excludes["Wrapper.hpp"] = true

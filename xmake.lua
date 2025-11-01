@@ -305,7 +305,7 @@ add_requires(
 	"concurrentqueue",
 	"entt 3.14.0",
 	"fmt",
-	"flecs",
+	"flecs[shared,debug]",
 	"frozen",
 	"ordered_map",
 	"nazarautils",

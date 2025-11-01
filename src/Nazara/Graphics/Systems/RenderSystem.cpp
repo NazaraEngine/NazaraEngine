@@ -25,6 +25,8 @@ namespace Nz
 	m_graphicsEntityPool(1024),
 	m_lightEntityPool(32)
 	{
+		Flecs::EnsureInit();
+
 		m_world.observer<CameraComponent, NodeComponent>()
 			.event(flecs::Monitor)
 			.yield_existing()
@@ -56,7 +58,7 @@ namespace Nz
 
 					CameraEntity* cameraEntity = camIt->second;
 
-					m_cameraEntities.erase(camIt);
+					m_cameraEntities.erase(entity);
 					m_invalidatedCameraNode.erase(cameraEntity);
 					m_pipeline->UnregisterViewer(cameraEntity->viewerIndex);
 
@@ -157,7 +159,7 @@ namespace Nz
 					m_graphicsEntityPool.Free(graphicsEntity->poolIndex);
 				}
 			});
-			
+
 		m_world.observer<LightComponent, NodeComponent>()
 			.event(flecs::Monitor)
 			.yield_existing()
@@ -241,7 +243,7 @@ namespace Nz
 			.without<SkeletonComponent>()
 			.event(flecs::Monitor)
 			.yield_existing()
-			.each([&](flecs::iter& it, std::size_t i, SharedSkeletonComponent& skeletonComponent)
+			.each([&](flecs::iter& it, std::size_t i, GraphicsComponent&, NodeComponent&, SharedSkeletonComponent& skeletonComponent)
 			{
 				flecs::entity entity = it.entity(i);
 				if (it.event() == flecs::OnAdd)
@@ -298,7 +300,7 @@ namespace Nz
 			.without<SharedSkeletonComponent>()
 			.event(flecs::Monitor)
 			.yield_existing()
-			.each([&](flecs::iter& it, std::size_t i, SkeletonComponent& skeletonComponent)
+			.each([&](flecs::iter& it, std::size_t i, GraphicsComponent&, NodeComponent&, SkeletonComponent& skeletonComponent)
 			{
 				flecs::entity entity = it.entity(i);
 				if (it.event() == flecs::OnAdd)

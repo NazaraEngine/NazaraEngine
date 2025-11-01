@@ -105,7 +105,7 @@
 #include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
 
-#ifdef NAZARA_ENTT
+#ifdef NAZARA_FLECS
 
 #include <Nazara/Graphics/Components.hpp>
 #include <Nazara/Graphics/Systems.hpp>

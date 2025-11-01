@@ -9,17 +9,17 @@
 
 namespace Nz
 {
-	void NodeComponent::SetParent(entt::handle entity, bool keepDerived)
+	void NodeComponent::SetParent(flecs::entity entity, bool keepDerived)
 	{
-		NodeComponent* nodeComponent = entity.try_get<NodeComponent>();
+		NodeComponent* nodeComponent = entity.try_get_mut<NodeComponent>();
 		NazaraAssertMsg(nodeComponent, "entity doesn't have a NodeComponent");
 
 		Node::SetParent(nodeComponent, keepDerived);
 	}
 
-	void NodeComponent::SetParentJoint(entt::handle entity, std::string_view jointName, bool keepDerived)
+	void NodeComponent::SetParentJoint(flecs::entity entity, std::string_view jointName, bool keepDerived)
 	{
-		SkeletonComponentBase* skeletonComponent = entity.try_get<SkeletonComponent>();
+		const SkeletonComponentBase* skeletonComponent = entity.try_get<SkeletonComponent>();
 		if (!skeletonComponent)
 			skeletonComponent = entity.try_get<SharedSkeletonComponent>();
 
@@ -35,9 +35,9 @@ namespace Nz
 		Node::SetParent(skeletonComponent->GetAttachedJoint(jointIndex), keepDerived);
 	}
 
-	void NodeComponent::SetParentJoint(entt::handle entity, std::size_t jointIndex, bool keepDerived)
+	void NodeComponent::SetParentJoint(flecs::entity entity, std::size_t jointIndex, bool keepDerived)
 	{
-		SkeletonComponentBase* skeletonComponent = entity.try_get<SkeletonComponent>();
+		const SkeletonComponentBase* skeletonComponent = entity.try_get<SkeletonComponent>();
 		if (!skeletonComponent)
 			skeletonComponent = entity.try_get<SharedSkeletonComponent>();
 

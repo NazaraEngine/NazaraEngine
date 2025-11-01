@@ -62,6 +62,7 @@
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/FileLogger.hpp>
 #include <Nazara/Core/FilesystemAppComponent.hpp>
+#include <Nazara/Core/FlecsUtils.hpp>
 #include <Nazara/Core/Format.hpp>
 #include <Nazara/Core/Functor.hpp>
 #include <Nazara/Core/GuillotineBinPack.hpp>
@@ -140,9 +141,16 @@
 
 #ifdef NAZARA_ENTT
 
-#include <Nazara/Core/Components.hpp>
 #include <Nazara/Core/EnttSystemGraph.hpp>
 #include <Nazara/Core/EnttWorld.hpp>
+
+#endif
+
+#ifdef NAZARA_FLECS
+
+#include <Nazara/Core/Components.hpp>
+#include <Nazara/Core/FlecsSystemGraph.hpp>
+#include <Nazara/Core/FlecsWorld.hpp>
 #include <Nazara/Core/Systems.hpp>
 
 #endif

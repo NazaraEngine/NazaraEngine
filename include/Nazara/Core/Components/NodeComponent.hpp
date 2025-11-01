@@ -9,7 +9,7 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Node.hpp>
-#include <entt/entt.hpp>
+#include <flecs.h>
 
 namespace Nz
 {
@@ -21,9 +21,9 @@ namespace Nz
 			NodeComponent(NodeComponent&&) noexcept = default;
 			~NodeComponent() = default;
 
-			void SetParent(entt::handle entity, bool keepDerived = false);
-			void SetParentJoint(entt::handle entity, std::string_view jointName, bool keepDerived = false);
-			void SetParentJoint(entt::handle entity, std::size_t jointIndex, bool keepDerived = false);
+			void SetParent(flecs::entity entity, bool keepDerived = false);
+			void SetParentJoint(flecs::entity entity, std::string_view jointName, bool keepDerived = false);
+			void SetParentJoint(flecs::entity entity, std::size_t jointIndex, bool keepDerived = false);
 			using Node::SetParent;
 
 			NodeComponent& operator=(const NodeComponent&) = default;

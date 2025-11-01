@@ -8,6 +8,7 @@
 #define NAZARA_GRAPHICS_SYSTEMS_RENDERSYSTEM_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/FlecsUtils.hpp>
 #include <Nazara/Core/Node.hpp>
 #include <Nazara/Core/Skeleton.hpp>
 #include <Nazara/Core/Time.hpp>
@@ -121,9 +122,9 @@ namespace Nz
 			std::set<GraphicsEntity*> m_invalidatedGfxWorldNode;
 			std::set<LightEntity*> m_invalidatedLightWorldNode;
 			std::unique_ptr<FramePipeline> m_pipeline;
-			std::unordered_map<flecs::entity, CameraEntity*> m_cameraEntities;
-			std::unordered_map<flecs::entity, GraphicsEntity*> m_graphicsEntities;
-			std::unordered_map<flecs::entity, LightEntity*> m_lightEntities;
+			std::unordered_map<flecs::entity, CameraEntity*, FlecsHasher> m_cameraEntities;
+			std::unordered_map<flecs::entity, GraphicsEntity*, FlecsHasher> m_graphicsEntities;
+			std::unordered_map<flecs::entity, LightEntity*, FlecsHasher> m_lightEntities;
 			std::unordered_map<Skeleton*, SharedSkeleton> m_sharedSkeletonInstances;
 			std::vector<std::reference_wrapper<WindowSwapchain>> m_externalSwapchains;
 			std::vector<std::unique_ptr<WindowSwapchain>> m_windowSwapchains;

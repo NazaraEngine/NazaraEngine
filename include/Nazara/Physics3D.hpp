@@ -44,7 +44,7 @@
 #include <Nazara/Physics3D/PhysWorld3DStepListener.hpp>
 #include <Nazara/Physics3D/RigidBody3D.hpp>
 
-#ifdef NAZARA_ENTT
+#ifdef NAZARA_FLECS
 
 #include <Nazara/Physics3D/Components.hpp>
 #include <Nazara/Physics3D/Systems.hpp>
