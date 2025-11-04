@@ -565,7 +565,7 @@ int main(int argc, char* argv[])
 	stencilPipelineInfo.colorWriteMask = 0;
 	stencilPipelineInfo.depthBuffer = true;
 	stencilPipelineInfo.depthWrite = false;
-	stencilPipelineInfo.faceCulling = Nz::FaceCulling::Front;
+	stencilPipelineInfo.faceCulling = Nz::FaceCulling::None;
 	stencilPipelineInfo.stencilTest = true;
 	stencilPipelineInfo.stencilFront.compare = Nz::RendererComparison::Always;
 	stencilPipelineInfo.stencilFront.depthFail = Nz::StencilOperation::Invert;

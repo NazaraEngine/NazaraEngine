@@ -558,7 +558,7 @@ namespace Nz
 			pipelineInfo.colorWriteMask = ColorComponentMask{};
 			pipelineInfo.depthBuffer = true;
 			pipelineInfo.depthWrite = false;
-			pipelineInfo.faceCulling = FaceCulling::Front;
+			pipelineInfo.faceCulling = FaceCulling::None;
 			pipelineInfo.stencilTest = true;
 			pipelineInfo.stencilFront.compare = RendererComparison::Always;
 			pipelineInfo.stencilFront.depthFail = StencilOperation::Invert;
