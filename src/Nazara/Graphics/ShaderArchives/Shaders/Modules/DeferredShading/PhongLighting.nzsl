@@ -53,6 +53,7 @@ struct FragOut
 }
 
 [entry(frag)]
+[early_fragment_tests(true)]
 fn main(input: FragIn) -> FragOut
 {
 	let texCoords = input.fragcoord.xy * viewerData.invRenderTargetSize;

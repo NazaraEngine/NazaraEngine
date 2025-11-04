@@ -65,6 +65,7 @@ struct VertOut
 }
 
 [entry(frag)]
+[early_fragment_tests(true)]
 fn main(input: FragIn) -> FragOut
 {
 	let fragcoord = input.fragcoord.xy * viewerData.invRenderTargetSize;
