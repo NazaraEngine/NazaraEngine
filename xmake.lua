@@ -60,25 +60,6 @@ local modules = {
 	Audio = {
 		Option = "audio",
 		Deps = {"NazaraCore"},
-		Packages = {"dr_mp3", "dr_wav", "frozen", "libflac", "libvorbis"},
-		Custom = function ()
-			if is_plat("wasm") or has_config("link_openal") then
-				add_defines("NAZARA_AUDIO_OPENAL_LINK")
-				if is_plat("wasm") then
-					add_syslinks("openal")
-				else
-					add_defines("AL_ALEXT_PROTOTYPES")
-					add_packages("openal-soft")
-				end
-			else
-				add_defines("AL_ALEXT_PROTOTYPES")
-				add_packages("openal-soft", { links = {} })
-			end
-		end
-	},
-	Audio = {
-		Option = "audio",
-		Deps = {"NazaraCore"},
 		Packages = {"dr_mp3", "dr_wav", "frozen", "libflac", "libvorbis", "miniaudio"}
 	},
 	Core = {
@@ -265,7 +246,6 @@ option("embed_resources", { description = "Turn builtin resources into includabl
 option("embed_plugins", { description = "Embed enabled plugins code as static libraries", default = is_plat("wasm") or false })
 option("embed_unicodetable", { description = "Embed Unicode characters table", default = true })
 option("link_curl", { description = "Link libcurl in the executable instead of dynamically loading it", default = false })
-option("link_openal", { description = "Link OpenAL in the executable instead of dynamically loading it", default = is_plat("wasm") or false })
 option("static", { description = "Build the engine statically (implies embed_rendererbackends and embed_plugins)", default = is_plat("wasm") or false })
 option("override_runtime", { description = "Override vs runtime to MD in release and MDd in debug", default = true })
 option("unitybuild", { description = "Build the engine using unity build", default = false })
@@ -323,11 +303,6 @@ if has_config("audio") then
 	add_requires("dr_mp3 >=0.7", "dr_wav >=0.14", "libflac")
 	add_requires("libvorbis", { configs = { with_vorbisenc = false } })
 	add_requires("miniaudio", { configs = { headeronly = false, encoding = false, flac = false, mp3 = false, wav = false, debug = is_mode("debug") }})
-
-	if not is_plat("wasm") then
-		-- OpenAL is supported as a system library on wasm
-		add_requires("openal-soft", { configs = { shared = true }})
-	end
 end
 
 if has_config("graphics") then
