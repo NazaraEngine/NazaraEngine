@@ -54,6 +54,9 @@ namespace Nz
 			void RaiseFocus();
 			void RefreshCursor();
 
+			void StartTextInput();
+			void StopTextInput();
+
 			void UpdateCursor(const Cursor& cursor);
 			void UpdateIcon(const Icon& icon);
 			void UpdateMaximumSize(int width, int height);

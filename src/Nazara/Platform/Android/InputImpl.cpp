@@ -29,14 +29,14 @@ namespace Nz
 		return "Unknown";
 	}
 
-	Vector2i InputImpl::GetMousePosition()
+	Vector2f InputImpl::GetMousePosition()
 	{
-		return { 0, 0 };
+		return { 0.0f, 0.0f };
 	}
 
-	Vector2i InputImpl::GetMousePosition(const Window& relativeTo)
+	Vector2f InputImpl::GetMousePosition(const Window& relativeTo)
 	{
-		return { 0, 0 };
+		return { 0.0f, 0.0f };
 	}
 
 	bool InputImpl::IsKeyPressed(Keyboard::Scancode key)
@@ -63,14 +63,6 @@ namespace Nz
 	}
 
 	void InputImpl::SetMousePosition(int x, int y, const Window& relativeTo)
-	{
-	}
-
-	void InputImpl::StartTextInput()
-	{
-	}
-
-	void InputImpl::StopTextInput()
 	{
 	}
 

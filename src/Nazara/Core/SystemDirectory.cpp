@@ -206,6 +206,9 @@ namespace Nz
 			case ApplicationDirectory::Data:       return JoinPath("~/Library/Application Support", applicationName, "Data");
 			case ApplicationDirectory::SavedGames: return JoinPath("~/Library/Application Support", applicationName, "Saves");
 		}
+#elif defined(NAZARA_PLATFORM_ANDROID)
+		// TODO
+		return Err("not implemented yet");
 #elif defined(NAZARA_PLATFORM_WEB)
 		switch (applicationDirectory)
 		{
@@ -448,6 +451,9 @@ namespace Nz
 				return dir;
 			}
 		}
+#elif defined(NAZARA_PLATFORM_ANDROID)
+		// TODO
+		return Err("not implemented yet");
 #elif defined(NAZARA_PLATFORM_WEB)
 		return Err("unsupported");
 #else

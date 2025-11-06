@@ -28,7 +28,7 @@ namespace Nz
 		int byteRead = AAsset_read(m_asset, buffer, size);
 		if (byteRead < 0)
 		{
-			NazaraError("AAsset_read failed (returned " + std::to_string(byteRead) + ")");
+			NazaraError("AAsset_read failed (returned {})", byteRead);
 			return 0;
 		}
 

@@ -15,7 +15,7 @@ namespace Nz
 	m_activity(activity),
 	m_window(nullptr)
 	{
-		NazaraAssert(s_instance == nullptr, "only one instance of AndroidActivity can exist at a given time");
+		NazaraAssertMsg(s_instance == nullptr, "only one instance of AndroidActivity can exist at a given time");
 		s_instance = this;
 
 		activity->callbacks->onContentRectChanged = [](ANativeActivity* /*activity*/, const ARect* rect)
@@ -132,13 +132,13 @@ namespace Nz
 	{
 		using namespace std::chrono_literals;
 
-		NazaraDebug("received Android event " + std::string(eventName));
+		NazaraDebug("received Android event {}", eventName);
 
 		std::unique_lock lock(m_pendingCallbackMutex);
 		m_pendingCallback = &callback;
 		bool eventHandled = m_pendingCallbackCV.wait_for(lock, 3'000ms, [&]{ return m_pendingCallback == nullptr; });
 		if (!eventHandled)
-			NazaraError("Application lost an Android event! (" + std::string(eventName) + ")");
+			NazaraError("Application lost an Android event! ({})", eventName);
 	}
 
 	AndroidActivity* AndroidActivity::s_instance = nullptr;

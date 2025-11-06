@@ -180,17 +180,15 @@ int main()
 	std::shared_ptr<Nz::GraphicalMesh> gfxMesh = Nz::GraphicalMesh::BuildFromMesh(*spaceshipMesh);
 
 	// Texture
-	Nz::TextureParams texParams;
-	texParams.loadFormat = Nz::PixelFormat::RGBA8_SRGB;
-
-	std::shared_ptr<Nz::Texture> diffuseTexture = fs.Load<Nz::Texture>("assets/Spaceship/Texture/diffuse.png", texParams);
+	Nz::TextureAssetParams texParams;
+	texParams.sRGB = true;
 
 	std::shared_ptr<Nz::MaterialInstance> materialInstance = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Basic);
-	materialInstance->SetTextureProperty(0, diffuseTexture);
-	materialInstance->SetValueProperty(0, Nz::Color::White());
+	materialInstance->SetTextureProperty("BaseColorMap", fs.Open<Nz::TextureAsset>("assets/Spaceship/Texture/diffuse.png", texParams));
+	materialInstance->SetValueProperty("BaseColor", Nz::Color::White());
 
 	std::shared_ptr<Nz::MaterialInstance> materialInstance2 = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Basic);
-	materialInstance2->SetValueProperty(0, Nz::Color::Green());
+	materialInstance2->SetValueProperty("BaseColor", Nz::Color::Green());
 
 	Nz::Model model(std::move(gfxMesh));
 	for (std::size_t i = 0; i < model.GetSubMeshCount(); ++i)
@@ -215,7 +213,7 @@ int main()
 	Nz::Recti scissorBox(Nz::Vector2i::Zero(), Nz::Vector2i(mainWindow.GetSize()));
 
 	Nz::ElementRendererRegistry elementRegistry;
-	Nz::ForwardFramePipeline framePipeline(elementRegistry);
+	Nz::DefaultFramePipeline framePipeline(elementRegistry);
 	std::size_t cameraIndex = framePipeline.RegisterViewer(&camera, 0);
 	std::size_t worldInstanceIndex1 = framePipeline.RegisterWorldInstance(modelInstance);
 	std::size_t worldInstanceIndex2 = framePipeline.RegisterWorldInstance(modelInstance2);
@@ -237,7 +235,7 @@ int main()
 	Nz::MillisecondClock fpsClock;
 	unsigned int fps = 0;
 
-	Nz::Mouse::SetRelativeMouseMode(true);
+	mainWindow.SetRelativeMouseMode(true);
 
 	mainWindow.GetEventHandler().OnEvent.Connect([&](const Nz::WindowEventHandler*, const Nz::WindowEvent& event)
 	{
@@ -269,12 +267,14 @@ int main()
 			return;
 		}
 
+		Nz::DebugDrawer* debugDrawer = camera.AccessDebugDrawer();
+
 		for (const Nz::WorldInstancePtr& worldInstance : { modelInstance, modelInstance2 })
 		{
 			Nz::Boxf aabb = model.GetAABB();
 			aabb.Transform(worldInstance->GetWorldMatrix());
 
-			framePipeline.GetDebugDrawer().DrawBox(aabb, Nz::Color::Green());
+			debugDrawer->DrawBox(aabb, Nz::Color::Green());
 		}
 
 		viewerInstance.UpdateViewMatrix(Nz::Matrix4f::TransformInverse(viewerPos, camAngles));

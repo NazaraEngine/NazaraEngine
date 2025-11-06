@@ -583,7 +583,7 @@ namespace Nz
 		}
 #elif defined(NAZARA_PLATFORM_ANDROID)
 		{
-			NazaraAssert(windowHandle.type == WindowBackend::Android, "expected android window");
+			NazaraAssertMsg(windowHandle.type == WindowBackend::Android, "expected android window");
 			success = m_surface.Create(static_cast<ANativeWindow*>(windowHandle.android.window));
 		}
 #else

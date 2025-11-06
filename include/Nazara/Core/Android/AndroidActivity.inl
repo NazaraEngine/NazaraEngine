@@ -59,7 +59,7 @@ namespace Nz
 
 	inline AndroidActivity* AndroidActivity::Instance()
 	{
-		NazaraAssert(s_instance != nullptr, "you must instantiate a AndroidActivity before initializing the engine");
+		NazaraAssertMsg(s_instance != nullptr, "you must instantiate a AndroidActivity before initializing the engine");
 		return s_instance;
 	}
 }

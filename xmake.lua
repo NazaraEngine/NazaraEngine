@@ -108,13 +108,14 @@ local modules = {
 					-- https://stackoverflow.com/questions/66338153/undefined-reference-to-folderid-c
 					add_syslinks("uuid")
 				end
-			elseif is_plat("linux", "android") then
+			elseif is_plat("linux") then
 				add_packages("libuuid")
-				add_syslinks("dl", "pthread")
+				add_syslinks("dl")
 			elseif is_plat("bsd") then
 				add_packages("libuuid")
 				add_syslinks("pthread")
 			elseif is_plat("android") then
+				add_packages("libuuid")
 				add_syslinks("android", "log")
 			elseif is_plat("wasm") then
 				--[[
@@ -184,9 +185,9 @@ local modules = {
 		Packages = {"utfcpp"},
 		Custom = function()
 			if is_plat("android") then
+				-- Android has a custom backend
 				add_syslinks("android")
 			else
-				-- Android has a custom backend
 				add_packages("libsdl3", { components = {"lib"} })
 			end
 			if is_plat("windows", "mingw") then
@@ -199,8 +200,8 @@ local modules = {
 				add_defines("SDL_VIDEO_DRIVER_COCOA=1")
 				add_packages("libx11", { links = {} }) -- we only need X11 headers
 			elseif is_plat("android") then
-				remove_headerfiles("src/Nazara/Platform/SDL2/**")
-				remove_files("src/Nazara/Platform/SDL2/**")
+				remove_headerfiles("src/Nazara/Platform/SDL3/**")
+				remove_files("src/Nazara/Platform/SDL3/**")
 			elseif is_plat("wasm") then
 				-- emscripten enables USE_SDL by default which will conflict with the sdl headers
 				add_cxflags("-sUSE_SDL=0")

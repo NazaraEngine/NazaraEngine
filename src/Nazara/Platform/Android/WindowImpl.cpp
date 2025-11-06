@@ -33,7 +33,7 @@ namespace Nz
 
 		m_onWindowCreated.Connect(activity->OnWindowCreated, [this](AndroidActivity*, ANativeWindow* window)
 		{
-			NazaraAssert(m_window == nullptr, "received window created event without destroying the old one");
+			NazaraAssertMsg(m_window == nullptr, "received window created event without destroying the old one");
 			m_window = window;
 
 			ANativeWindow_acquire(m_window);
@@ -199,6 +199,14 @@ namespace Nz
 	{
 	}
 
+	void WindowImpl::StartTextInput()
+	{
+	}
+
+	void WindowImpl::StopTextInput()
+	{
+	}
+
 	void WindowImpl::UpdateCursor(const Cursor& cursor)
 	{
 	}
@@ -225,7 +233,6 @@ namespace Nz
 
 	void WindowImpl::UpdateRelativeMouseMode(bool relativeMouseMode)
 	{
-		return false;
 	}
 
 	void WindowImpl::UpdateSize(unsigned int width, unsigned int height)
@@ -299,10 +306,8 @@ namespace Nz
 					break;
 
 				default:
-					NazaraWarning("unexpected event type " + std::to_string(eventType));
+					NazaraWarning("unexpected event type {}", eventType);
 			}
-
-
 		}
 	}
 
