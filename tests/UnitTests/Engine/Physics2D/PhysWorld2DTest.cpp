@@ -34,8 +34,8 @@ SCENARIO("PhysWorld2D", "[PHYSICS2D][PHYSWORLD2D]")
 			THEN("It should be the one on the origin")
 			{
 				CHECK(result.nearestBody == &bodies[0]);
-				CHECK(result.closestPoint == Nz::Vector2f::Zero());
-				CHECK(result.fraction == -Nz::Vector2f::UnitY());
+				CHECK(result.closestPoint.ApproxEqual(Nz::Vector2f::Zero()));
+				CHECK(result.fraction.ApproxEqual(-Nz::Vector2f::UnitY()));
 				CHECK(result.distance == Catch::Approx(1.f));
 			}
 
@@ -44,8 +44,8 @@ SCENARIO("PhysWorld2D", "[PHYSICS2D][PHYSWORLD2D]")
 			THEN("It should be the one on the origin")
 			{
 				CHECK(result.nearestBody == &bodies[0]);
-				CHECK(result.closestPoint == Nz::Vector2f::UnitY());
-				CHECK(result.fraction == Nz::Vector2f::UnitY());
+				CHECK(result.closestPoint.ApproxEqual(Nz::Vector2f::UnitY()));
+				CHECK(result.fraction.ApproxEqual(Nz::Vector2f::UnitY()));
 				CHECK(result.distance == Catch::Approx(1.f));
 			}
 		}
@@ -61,8 +61,8 @@ SCENARIO("PhysWorld2D", "[PHYSICS2D][PHYSWORLD2D]")
 			{
 				CHECK(result.nearestBody == &bodies[0]);
 				CHECK(result.fraction == Catch::Approx(1.f / 42.f));
-				CHECK(result.hitPos == Nz::Vector2f::Zero());
-				CHECK(result.hitNormal == -Nz::Vector2f::UnitY());
+				CHECK(result.hitPos.ApproxEqual(Nz::Vector2f::Zero()));
+				CHECK(result.hitNormal.ApproxEqual(-Nz::Vector2f::UnitY()));
 			}
 		}
 
@@ -82,8 +82,8 @@ SCENARIO("PhysWorld2D", "[PHYSICS2D][PHYSWORLD2D]")
 					const Nz::PhysWorld2D::RaycastHit& result = results[i];
 					CHECK(result.nearestBody == &bodies[i]);
 					CHECK(result.fraction == Catch::Approx(i / 4.f).margin(0.1f));
-					CHECK(result.hitPos == Nz::Vector2f(0.f, i * 10.f));
-					CHECK(result.hitNormal == -Nz::Vector2f::UnitY());
+					CHECK(result.hitPos.ApproxEqual(Nz::Vector2f(0.f, i * 10.f), 0.0001f));
+					CHECK(result.hitNormal.ApproxEqual(-Nz::Vector2f::UnitY(), 0.0001f));
 				}
 			}
 		}

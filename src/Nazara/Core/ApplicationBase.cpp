@@ -4,6 +4,11 @@
 
 #include <Nazara/Core/ApplicationBase.hpp>
 #include <Nazara/Core/Error.hpp>
+
+#ifdef NAZARA_PLATFORM_ANDROID
+#include <Nazara/Core/Android/AndroidActivity.hpp>
+#endif
+
 #ifdef NAZARA_PLATFORM_WEB
 #include <emscripten/html5.h>
 #endif
@@ -64,6 +69,10 @@ namespace Nz
 
 	bool ApplicationBase::Update(Time elapsedTime)
 	{
+#ifdef NAZARA_PLATFORM_ANDROID
+		AndroidActivity::Instance()->Poll();
+#endif
+
 		m_currentTime += elapsedTime;
 
 		for (auto& updaterEntry : m_updaters)

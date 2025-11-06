@@ -92,6 +92,12 @@ namespace Nz
 				return false;
 			}
 
+			case WindowBackend::Android:
+			{
+				NazaraError("unsupported creation from a Web handle");
+				return false;
+			}
+
 			case WindowBackend::Web:
 			{
 				NazaraError("unsupported creation from a Web handle");
@@ -192,6 +198,13 @@ namespace Nz
 
 #if defined(NAZARA_PLATFORM_WEB)
 		handle.type = WindowBackend::Web;
+#elif defined(SDL_VIDEO_DRIVER_ANDROID)
+		void* nativeWindow = SDL_GetPointerProperty(SDL_GetWindowProperties(m_handle), SDL_PROP_WINDOW_ANDROID_WINDOW_POINTER, nullptr);
+		if (nativeWindow)
+		{
+			handle.type = WindowBackend::Android;
+			handle.android.window = hwnd;
+		}
 #elif defined(SDL_PLATFORM_WIN32)
 		void* hwnd = SDL_GetPointerProperty(SDL_GetWindowProperties(m_handle), SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr);
 		if (hwnd)
@@ -199,8 +212,6 @@ namespace Nz
 			handle.type = WindowBackend::Windows;
 			handle.windows.window = hwnd;
 		}
-
-		return handle;
 #elif defined(SDL_PLATFORM_MACOS)
 		void* nswindow = SDL_GetPointerProperty(SDL_GetWindowProperties(m_handle), SDL_PROP_WINDOW_COCOA_WINDOW_POINTER, nullptr);
 		if (nswindow)

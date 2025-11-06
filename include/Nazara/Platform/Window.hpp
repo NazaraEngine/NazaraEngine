@@ -30,7 +30,7 @@ namespace Nz
 	{
 		friend WindowImpl;
 		friend class InputImpl;
-		friend class MessageBox;
+		friend class MessageBoxImpl;
 		friend class Mouse;
 		friend class Platform;
 

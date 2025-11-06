@@ -1,0 +1,136 @@
+name: Android build
+
+on:
+  pull_request:
+  push:
+    paths-ignore:
+      - '.github/workflows/coverage.yml'
+      - '.github/workflows/linux-build.yml'
+      - '.github/workflows/macos-build.yml'
+      - '.github/workflows/msys2-build.yml'
+      - '.github/workflows/wasm-build.yml'
+      - '.github/workflows/windows-build.yml'
+      - '.gitignore'
+      - 'LICENSE'
+      - 'CHANGELOG.md'
+      - 'README.md'
+      - 'README_en.md'
+      - 'README_fr.md'
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        arch: [x86_64, armeabi-v7a, arm64-v8a]
+        ndk: ["r27d"]
+        ndk_sdkver: ["34"]
+        confs:
+        - { mode: debug, archive: yes }
+        - { mode: releasedbg, archive: yes }
+
+    runs-on: ${{ matrix.os }}
+    if: ${{ !contains(github.event.head_commit.message, 'ci skip') }}
+
+    steps:
+    - name: Get current date as package key
+      id: cache_key
+      run: echo "key=$(date +'%W')" >> $GITHUB_OUTPUT
+
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # Force xmake to a specific folder (for cache)
+    - name: Set xmake env
+      run: echo "XMAKE_GLOBALDIR=${{ runner.workspace }}/xmake-global" >> $GITHUB_ENV
+
+    # Install xmake
+    - name: Setup xmake
+      uses: xmake-io/github-action-setup-xmake@v1
+      with:
+        xmake-version: branch@dev
+        actions-cache-folder: .xmake-cache-W${{ steps.cache_key.outputs.key }}
+
+    # Setup NDK
+    - name: Download NDK
+      run: |
+        wget -q https://dl.google.com/android/repository/android-ndk-${{ matrix.ndk }}-linux.zip
+        unzip -q -o ./android-ndk-${{ matrix.ndk }}-linux.zip
+
+    # Update xmake repository (in order to have the file that will be cached)
+    - name: Update xmake repository
+      run: xmake repo --update
+
+    # Fetch xmake dephash
+    - name: Retrieve dependencies hash
+      id: dep_hash
+      run: echo "hash=$(xmake l utils.ci.packageskey)" >> $GITHUB_OUTPUT
+
+    # Cache xmake dependencies
+    - name: Restore cached xmake dependencies
+      id: restore-depcache
+      uses: actions/cache/restore@v4
+      with:
+        path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
+        key: Android-${{ matrix.arch }}-${{ matrix.confs.mode }}${{ matrix.confs.cache_key }}-${{ steps.dep_hash.outputs.hash }}-W${{ steps.cache_key.outputs.key }}
+
+    # Setup compilation mode and install project dependencies
+    - name: Configure xmake and install dependencies
+      run: xmake config --plat=android --ndk=`pwd`/android-ndk-${{ matrix.ndk }} --ndk_sdkver=${{ matrix.ndk_sdkver }} --arch=${{ matrix.arch }} --mode=${{ matrix.confs.mode }} ${{ matrix.confs.config }} --ccache=n --ffmpeg=y --static=y --tests=n --unitybuild=y --yes
+
+    # Save dependencies
+    - name: Save cached xmake dependencies
+      if: ${{ !steps.restore-depcache.outputs.cache-hit }}
+      uses: actions/cache/save@v4
+      with:
+        path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
+        key: ${{ steps.restore-depcache.outputs.cache-primary-key }}
+
+    # Cache assets downloading
+    - name: Restore cached assets
+      id: restore-assets
+      uses: actions/cache/restore@v4
+      with:
+        path: assets
+        key: assets-${{ hashFiles('assets/examples_version.txt', 'assets/unittests_version.txt') }}
+
+    # Build the engine
+    - name: Build Nazara
+      run: xmake --yes
+
+    - name: Save downloaded assets
+      if: ${{ !steps.restore-assets.outputs.cache-hit }}
+      uses: actions/cache/save@v4
+      with:
+        path: assets
+        key: ${{ steps.restore-assets.outputs.cache-primary-key }}
+
+    # Install the result files
+    - name: Install Nazara
+      if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' && matrix.confs.archive }}
+      run: xmake install -vo package
+
+    - name: "Set PACKAGE_NAME variable"
+      if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' && matrix.confs.archive }}
+      run: echo "PACKAGE_NAME=android-${{ matrix.ndk_sdkver }}_${{ matrix.arch }}_${{ matrix.confs.mode }}.tar.gz" >> $GITHUB_ENV
+      shell: bash
+
+    - name: Archive result
+      uses: ihiroky/archive-action@v1
+      if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' && matrix.confs.archive }}
+      with:
+        root_dir: package
+        file_path: ${{ env.PACKAGE_NAME }}
+        verbose: true
+
+    # Nightly tags (for commits to main branch)
+    - name: Upload binaries to release (main)
+      uses: svenstaro/upload-release-action@v2
+      if: ${{ (github.ref == 'refs/heads/main') && github.event_name == 'push' && matrix.confs.archive }}
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: ${{ env.PACKAGE_NAME }}
+        asset_name: ${{ env.PACKAGE_NAME }}
+        tag: "0.0.0-nightly"
+        overwrite: true

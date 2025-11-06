@@ -3,7 +3,12 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Platform/Clipboard.hpp>
+
+#ifdef NAZARA_PLATFORM_ANDROID
+#include <Nazara/Platform/Android/InputImpl.hpp>
+#else
 #include <Nazara/Platform/SDL3/InputImpl.hpp>
+#endif
 
 namespace Nz
 {

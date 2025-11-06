@@ -15,6 +15,10 @@
 #include <filesystem>
 #include <stdexcept>
 
+#ifdef NAZARA_PLATFORM_ANDROID
+#include <Nazara/Core/Android/AndroidActivity.hpp>
+#endif
+
 #ifdef NAZARA_RENDERER_EMBEDDEDBACKENDS
 
 #include <Nazara/OpenGLRenderer/OpenGLRenderer.hpp>
@@ -44,7 +48,15 @@ namespace Nz
 	ModuleBase("Renderer", this),
 	m_config(std::move(config))
 	{
+#ifdef NAZARA_PLATFORM_ANDROID
+		AndroidActivity::Instance()->Poll();
+#endif
+
 		LoadBackend(m_config);
+
+#ifdef NAZARA_PLATFORM_ANDROID
+		AndroidActivity::Instance()->Poll();
+#endif
 	}
 
 	Renderer::~Renderer()
