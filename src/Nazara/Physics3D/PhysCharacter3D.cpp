@@ -146,6 +146,17 @@ namespace Nz
 		return FromJolt(m_character->GetRotation(false));
 	}
 
+	auto PhysCharacter3D::GetSettings() const -> Settings
+	{
+		Settings settings;
+		settings.collider = GetCollider();
+		settings.objectLayer = GetObjectLayer();
+
+		std::tie(settings.position, settings.rotation) = GetPositionAndRotation();
+
+		return settings;
+	}
+
 	Vector3f PhysCharacter3D::GetPosition() const
 	{
 		return FromJolt(m_character->GetPosition(false));

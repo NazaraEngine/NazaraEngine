@@ -67,6 +67,7 @@ namespace Nz
 			Vector3f GetPosition() const;
 			std::pair<Vector3f, Quaternionf> GetPositionAndRotation() const;
 			Quaternionf GetRotation() const;
+			Settings GetSettings() const;
 			Vector3f GetUp() const;
 
 			bool IsOnGround() const;
