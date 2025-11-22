@@ -225,7 +225,7 @@ namespace Nz::GL
 		}
 		else
 		{
-			// Create OpenGL ES context
+			// Create OpenGL context
 			constexpr std::array<Version, 8> supportedGLVersions = {
 				{
 					{ 4, 6 },
