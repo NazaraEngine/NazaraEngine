@@ -33,6 +33,9 @@ jobs:
       id: cache_key
       run: echo "key=$(date +'%W')" >> $GITHUB_OUTPUT
 
+    - name: Free Disk Space (Ubuntu)
+      uses: jlumbroso/free-disk-space@main
+
     - name: Checkout repository
       uses: actions/checkout@v5
 
