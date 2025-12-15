@@ -60,7 +60,7 @@ jobs:
     # Cache xmake dependencies
     - name: Restore cached xmake dependencies
       id: restore-depcache
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         path: ${{ env.XMAKE_GLOBALDIR }}\.xmake\packages
         key: MSVC-${{ matrix.arch }}-${{ matrix.mode }}-${{ steps.dep_hash.outputs.hash }}-W${{ steps.cache_key.outputs.key }}
@@ -72,7 +72,7 @@ jobs:
     # Save dependencies
     - name: Save cached xmake dependencies
       if: ${{ !steps.restore-depcache.outputs.cache-hit }}
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       with:
         path: ${{ env.XMAKE_GLOBALDIR }}/.xmake/packages
         key: ${{ steps.restore-depcache.outputs.cache-primary-key }}
@@ -80,7 +80,7 @@ jobs:
     # Cache assets downloading
     - name: Restore cached assets
       id: restore-assets
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         path: assets
         key: assets-${{ hashFiles('assets/examples_version.txt', 'assets/unittests_version.txt') }}
@@ -91,7 +91,7 @@ jobs:
 
     - name: Save downloaded assets
       if: ${{ !steps.restore-assets.outputs.cache-hit }}
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       with:
         path: assets
         key: ${{ steps.restore-assets.outputs.cache-primary-key }}
