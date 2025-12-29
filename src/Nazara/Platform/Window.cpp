@@ -136,7 +136,18 @@ NAZARA_WARNING_POP()
 
 	void Window::HandleEvent(const WindowEvent& event)
 	{
-		m_eventHandler.Dispatch(event);
+		try
+		{
+			m_eventHandler.Dispatch(event);
+		}
+		catch (const std::exception& e)
+		{
+			NazaraError("{}", e.what());
+		}
+		catch (...) // Don't let any exceptions go through C calls
+		{
+			NazaraError("an unknown error happened");
+		}
 
 		switch (event.type)
 		{

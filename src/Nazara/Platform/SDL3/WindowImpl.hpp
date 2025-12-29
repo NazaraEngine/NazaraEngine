@@ -10,6 +10,7 @@
 #define NAZARA_PLATFORM_SDL3_WINDOWIMPL_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <NazaraUtils/MemoryPool.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Platform/Export.hpp>
@@ -20,6 +21,7 @@
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_keyboard.h>
 #include <SDL3/SDL_video.h>
+#include <mutex>
 #include <string>
 
 namespace Nz
@@ -80,10 +82,24 @@ namespace Nz
 			static void Uninitialize();
 
 		private:
+			struct EventData;
+
+			EventData* AllocateEventData();
+			void FreeEventData(EventData* eventData);
+			void HandleEvent(SDL_Event* event);
 			void SetEventListener(bool listener);
 
 			static bool SDLCALL HandleEvent(void* userdata, SDL_Event* event);
 
+			struct EventData
+			{
+				std::size_t poolIndex;
+				WindowImpl* window;
+				SDL_Event event;
+			};
+
+			std::mutex m_eventDataPoolMutex;
+			MemoryPool<EventData> m_eventDataPool;
 			UInt32 m_windowId;
 			SDL_Cursor* m_cursor;
 			SDL_Window* m_handle;
