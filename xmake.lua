@@ -314,7 +314,7 @@ if has_config("physics2d") then
 end
 
 if has_config("physics3d") then
-	add_requires("joltphysics v5.4.0", { configs = { debug = is_mode("debug") }})
+	add_requires("joltphysics v5.5.0", { configs = { debug = is_mode("debug") }})
 end
 
 if has_config("network") then
