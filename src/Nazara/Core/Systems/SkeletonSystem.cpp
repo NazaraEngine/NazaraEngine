@@ -12,28 +12,19 @@ namespace Nz
 {
 	SkeletonSystem::SkeletonSystem(entt::registry& registry) :
 	m_registry(registry),
-	m_sharedSkeletonConstructObserver(registry, entt::collector.group<NodeComponent, SharedSkeletonComponent>(entt::exclude<SkeletonComponent>)),
-	m_skeletonConstructObserver(registry, entt::collector.group<NodeComponent, SkeletonComponent>(entt::exclude<SharedSkeletonComponent>))
+	m_sharedSkeletonConstructObserver(m_registry),
+	m_skeletonConstructObserver(m_registry)
 	{
-	}
-
-	SkeletonSystem::~SkeletonSystem()
-	{
-		m_sharedSkeletonConstructObserver.disconnect();
-		m_skeletonConstructObserver.disconnect();
-	}
-
-	void SkeletonSystem::Update(Time /*elapsedTime*/)
-	{
-		m_sharedSkeletonConstructObserver.each([&](entt::entity entity)
+		m_sharedSkeletonConstructObserver.OnEntityAdded.Connect([&](entt::entity entity)
 		{
 			NodeComponent& entityNode = m_registry.get<NodeComponent>(entity);
 			SharedSkeletonComponent& entitySkeleton = m_registry.get<SharedSkeletonComponent>(entity);
 
-			entitySkeleton.SetSkeletonParent(&entityNode);
+			entitySkeleton.SetSkeletonParent(&entityNode); 
 		});
+		m_sharedSkeletonConstructObserver.SignalExisting();
 
-		m_skeletonConstructObserver.each([&](entt::entity entity)
+		m_skeletonConstructObserver.OnEntityAdded.Connect([&](entt::entity entity)
 		{
 			NodeComponent& entityNode = m_registry.get<NodeComponent>(entity);
 			SkeletonComponent& entitySkeleton = m_registry.get<SkeletonComponent>(entity);
@@ -41,12 +32,15 @@ namespace Nz
 			// TODO: When attaching for the first time, set the skeleton to the position of the node before attaching the node
 			entityNode.SetParent(entitySkeleton.GetRootNode());
 		});
+		m_skeletonConstructObserver.SignalExisting();
+	}
 
+	void SkeletonSystem::Update(Time /*elapsedTime*/)
+	{
 		// Updated attached skeleton joints (TODO: Only do this if necessary)
-		auto view = m_registry.view<NodeComponent, SharedSkeletonComponent>(entt::exclude<DisabledComponent>);
-		for (auto entity : view)
+		for (entt::entity entity : m_sharedSkeletonConstructObserver)
 		{
-			auto& sharedSkeletonComponent = view.get<SharedSkeletonComponent>(entity);
+			auto& sharedSkeletonComponent = m_registry.get<SharedSkeletonComponent>(entity);
 			if (sharedSkeletonComponent.IsAttachedSkeletonOutdated())
 				sharedSkeletonComponent.UpdateAttachedSkeletonJoints();
 		}

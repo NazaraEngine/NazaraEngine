@@ -9,6 +9,7 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Clock.hpp>
+#include <Nazara/Core/EnttObserver.hpp>
 #include <Nazara/Core/Time.hpp>
 #include <Nazara/Physics3D/PhysWorld3D.hpp>
 #include <Nazara/Physics3D/Components/PhysCharacter3DComponent.hpp>
@@ -91,12 +92,12 @@ namespace Nz
 			std::size_t m_stepCount;
 			std::vector<entt::entity> m_bodyIndicesToEntity;
 			entt::registry& m_registry;
-			entt::observer m_characterConstructObserver;
-			entt::observer m_rigidBodyConstructObserver;
 			entt::scoped_connection m_bodyConstructConnection;
 			entt::scoped_connection m_bodyDestructConnection;
 			entt::scoped_connection m_characterConstructConnection;
 			entt::scoped_connection m_characterDestructConnection;
+			EnttObserver<TypeList<class PhysCharacter3DComponent, class NodeComponent>, TypeList<class DisabledComponent, class RigidBody3DComponent>> m_characterObserver;
+			EnttObserver<TypeList<class RigidBody3DComponent, class NodeComponent>, TypeList<class DisabledComponent, class PhysCharacter3DComponent>> m_rigidBodyObserver;
 			PhysWorld3D m_physWorld;
 	};
 }

@@ -11,21 +11,37 @@ namespace Nz
 {
 	Physics3DSystem::Physics3DSystem(entt::registry& registry, Settings&& settings) :
 	m_registry(registry),
-	m_characterConstructObserver(m_registry, entt::collector.group<PhysCharacter3DComponent, NodeComponent>(entt::exclude<DisabledComponent, RigidBody3DComponent>)),
-	m_rigidBodyConstructObserver(m_registry, entt::collector.group<RigidBody3DComponent,     NodeComponent>(entt::exclude<DisabledComponent, PhysCharacter3DComponent>)),
+	m_characterObserver(m_registry),
+	m_rigidBodyObserver(m_registry),
 	m_physWorld(std::move(settings))
 	{
 		m_bodyConstructConnection = registry.on_construct<RigidBody3DComponent>().connect<&Physics3DSystem::OnBodyConstruct>(this);
 		m_bodyDestructConnection = registry.on_destroy<RigidBody3DComponent>().connect<&Physics3DSystem::OnBodyDestruct>(this);
 		m_characterConstructConnection = registry.on_construct<PhysCharacter3DComponent>().connect<&Physics3DSystem::OnCharacterConstruct>(this);
 		m_characterDestructConnection = registry.on_destroy<PhysCharacter3DComponent>().connect<&Physics3DSystem::OnCharacterDestruct>(this);
+
+		// Move newly-created physics entities to their node position/rotation
+		m_characterObserver.OnEntityAdded.Connect([this](entt::entity entity)
+		{
+			PhysCharacter3DComponent& entityCharacter = m_registry.get<PhysCharacter3DComponent>(entity);
+			NodeComponent& entityNode = m_registry.get<NodeComponent>(entity);
+
+			entityCharacter.TeleportTo(entityNode.GetGlobalPosition(), entityNode.GetGlobalRotation());
+		});
+		m_characterObserver.SignalExisting();
+
+		m_rigidBodyObserver.OnEntityAdded.Connect([this](entt::entity entity)
+		{
+			RigidBody3DComponent& entityBody = m_registry.get<RigidBody3DComponent>(entity);
+			NodeComponent& entityNode = m_registry.get<NodeComponent>(entity);
+
+			entityBody.TeleportTo(entityNode.GetGlobalPosition(), entityNode.GetGlobalRotation());
+		});
+		m_rigidBodyObserver.SignalExisting();
 	}
 
 	Physics3DSystem::~Physics3DSystem()
 	{
-		m_characterConstructObserver.disconnect();
-		m_rigidBodyConstructObserver.disconnect();
-
 		// Ensure every RigidBody3D is destroyed before world is
 		auto characterView = m_registry.view<PhysCharacter3DComponent>();
 		for (auto [entity, characterComponent] : characterView.each())
@@ -163,23 +179,6 @@ namespace Nz
 
 	void Physics3DSystem::Update(Time elapsedTime)
 	{
-		// Move newly-created physics entities to their node position/rotation
-		m_characterConstructObserver.each([this](entt::entity entity)
-		{
-			PhysCharacter3DComponent& entityCharacter = m_registry.get<PhysCharacter3DComponent>(entity);
-			NodeComponent& entityNode = m_registry.get<NodeComponent>(entity);
-
-			entityCharacter.TeleportTo(entityNode.GetGlobalPosition(), entityNode.GetGlobalRotation());
-		});
-
-		m_rigidBodyConstructObserver.each([this](entt::entity entity)
-		{
-			RigidBody3DComponent& entityBody = m_registry.get<RigidBody3DComponent>(entity);
-			NodeComponent& entityNode = m_registry.get<NodeComponent>(entity);
-
-			entityBody.TeleportTo(entityNode.GetGlobalPosition(), entityNode.GetGlobalRotation());
-		});
-
 		// Update the physics world
 		if (!m_physWorld.Step(elapsedTime))
 			return; // No physics step took place
