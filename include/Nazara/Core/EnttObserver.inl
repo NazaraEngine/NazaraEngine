@@ -130,7 +130,7 @@ namespace Nz
 	template<typename IncludeList, typename ExcludeList, typename Data>
 	void EnttObserver<IncludeList, ExcludeList, Data>::SignalExisting()
 	{
-		for (entt::entity entity : m_storage.view<entt::entity>())
+		for (entt::entity entity : m_storage.template view<entt::entity>())
 			OnEntityAdded(entity);
 	}
 
