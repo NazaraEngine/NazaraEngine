@@ -214,10 +214,10 @@ namespace Nz
 			LightComponent& entityLight = m_registry.get<LightComponent>(entity);
 			NodeComponent& entityNode = m_registry.get<NodeComponent>(entity);
 
-			LightEntity*& graphicsEntity = m_lightEntities.Get(entity);
+			LightEntity*& lightEntity = m_lightEntities.Get(entity);
 
 			std::size_t poolIndex;
-			LightEntity* lightEntity = m_lightEntityPool.Allocate(poolIndex);
+			lightEntity = m_lightEntityPool.Allocate(poolIndex);
 			lightEntity->entity = entity;
 			lightEntity->poolIndex = poolIndex;
 			lightEntity->onNodeInvalidation.Connect(entityNode.OnNodeInvalidation, [this, lightEntity](const Node* /*node*/)
