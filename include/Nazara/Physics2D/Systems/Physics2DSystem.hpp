@@ -8,6 +8,7 @@
 #define NAZARA_PHYSICS2D_SYSTEMS_PHYSICS2DSYSTEM_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/EnttObserver.hpp>
 #include <Nazara/Core/Time.hpp>
 #include <Nazara/Physics2D/PhysWorld2D.hpp>
 #include <Nazara/Physics2D/Components/RigidBody2DComponent.hpp>
@@ -84,9 +85,9 @@ namespace Nz
 
 			std::vector<entt::entity> m_bodyIndicesToEntity;
 			entt::registry& m_registry;
-			entt::observer m_physicsConstructObserver;
 			entt::scoped_connection m_bodyConstructConnection;
 			entt::scoped_connection m_bodyDestructConnection;
+			EnttObserver<TypeList<class RigidBody2DComponent, class NodeComponent>, TypeList<class DisabledComponent>> m_physicsObserver;
 			PhysWorld2D m_physWorld;
 	};
 }

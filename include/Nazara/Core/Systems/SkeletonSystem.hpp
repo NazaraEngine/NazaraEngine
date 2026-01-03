@@ -8,6 +8,7 @@
 #define NAZARA_CORE_SYSTEMS_SKELETONSYSTEM_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/EnttObserver.hpp>
 #include <Nazara/Core/Export.hpp>
 #include <Nazara/Core/Time.hpp>
 #include <entt/entt.hpp>
@@ -23,7 +24,7 @@ namespace Nz
 			SkeletonSystem(entt::registry& registry);
 			SkeletonSystem(const SkeletonSystem&) = delete;
 			SkeletonSystem(SkeletonSystem&&) = delete;
-			~SkeletonSystem();
+			~SkeletonSystem() = default;
 
 			void Update(Time elapsedTime);
 
@@ -32,8 +33,8 @@ namespace Nz
 
 		private:
 			entt::registry& m_registry;
-			entt::observer m_sharedSkeletonConstructObserver;
-			entt::observer m_skeletonConstructObserver;
+			EnttObserver<TypeList<class NodeComponent, class SharedSkeletonComponent>, TypeList<class DisabledComponent>> m_sharedSkeletonConstructObserver;
+			EnttObserver<TypeList<class NodeComponent, class SkeletonComponent>, TypeList<class DisabledComponent>> m_skeletonConstructObserver;
 	};
 }
 

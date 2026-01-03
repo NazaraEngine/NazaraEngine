@@ -8,6 +8,7 @@
 #define NAZARA_GRAPHICS_SYSTEMS_RENDERSYSTEM_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/EnttObserver.hpp>
 #include <Nazara/Core/Node.hpp>
 #include <Nazara/Core/Skeleton.hpp>
 #include <Nazara/Core/Time.hpp>
@@ -28,6 +29,8 @@ namespace Nz
 	class CommandBufferBuilder;
 	class FramePipeline;
 	class RenderFrame;
+	class SharedSkeletonComponent;
+	class SkeletonComponent;
 	class UploadPool;
 
 	class NAZARA_GRAPHICS_API RenderSystem
@@ -60,17 +63,12 @@ namespace Nz
 			struct GraphicsEntity;
 			struct LightEntity;
 
-			void OnCameraDestroy(entt::registry& registry, entt::entity entity);
-			void OnDisabledConstructed(entt::registry& registry, entt::entity entity);
-			void OnGraphicsDestroy(entt::registry& registry, entt::entity entity);
-			void OnLightDestroy(entt::registry& registry, entt::entity entity);
-			void OnNodeDestroy(entt::registry& registry, entt::entity entity);
-			void OnSharedSkeletonDestroy(entt::registry& registry, entt::entity entity);
-			void OnSkeletonDestroy(entt::registry& registry, entt::entity entity);
+			void BindObservers();
+			void RegisterSharedSkeleton(GraphicsEntity* graphicsEntity, SharedSkeletonComponent& sharedSkeletonComponent);
+			void RegisterSkeleton(GraphicsEntity* graphicsEntity, SkeletonComponent& skeletonComponent);
 			void UpdateGraphicsVisibility(GraphicsEntity* gfxData, GraphicsComponent& gfxComponent, bool isVisible);
 			void UpdateLightVisibility(LightEntity* gfxData, LightComponent& lightComponent, bool isVisible);
 			void UpdateInstances();
-			void UpdateObservers();
 
 			static constexpr std::size_t NoInstance = std::numeric_limits<std::size_t>::max();
 
@@ -120,11 +118,6 @@ namespace Nz
 			};
 
 			entt::registry& m_registry;
-			entt::observer m_cameraConstructObserver;
-			entt::observer m_graphicsConstructObserver;
-			entt::observer m_lightConstructObserver;
-			entt::observer m_sharedSkeletonConstructObserver;
-			entt::observer m_skeletonConstructObserver;
 			entt::scoped_connection m_cameraDestroyConnection;
 			entt::scoped_connection m_disabledConstructedConnection;
 			entt::scoped_connection m_disabledDestroyConnection;
@@ -133,17 +126,19 @@ namespace Nz
 			entt::scoped_connection m_nodeDestroyConnection;
 			entt::scoped_connection m_sharedSkeletonDestroyConnection;
 			entt::scoped_connection m_skeletonDestroyConnection;
-			std::set<CameraEntity*> m_invalidatedCameraNode;
 			std::set<GraphicsEntity*> m_invalidatedGfxWorldNode;
 			std::set<LightEntity*> m_invalidatedLightWorldNode;
 			std::unique_ptr<FramePipeline> m_pipeline;
-			std::unordered_map<entt::entity, CameraEntity*> m_cameraEntities;
-			std::unordered_map<entt::entity, GraphicsEntity*> m_graphicsEntities;
-			std::unordered_map<entt::entity, LightEntity*> m_lightEntities;
 			std::unordered_map<Skeleton*, SharedSkeleton> m_sharedSkeletonInstances;
+			std::unordered_set<entt::entity> m_invalidatedCameraNode;
 			std::vector<std::reference_wrapper<WindowSwapchain>> m_externalSwapchains;
 			std::vector<std::unique_ptr<WindowSwapchain>> m_windowSwapchains;
 			ElementRendererRegistry m_elementRegistry;
+			EnttObserver<TypeList<class CameraComponent, class NodeComponent>, TypeList<class DisabledComponent>, CameraEntity*> m_cameraEntities;
+			EnttObserver<TypeList<class GraphicsComponent, class NodeComponent>, TypeList<class DisabledComponent>, GraphicsEntity*> m_graphicsEntities;
+			EnttObserver<TypeList<class LightComponent, class NodeComponent>, TypeList<class DisabledComponent>, LightEntity*> m_lightEntities;
+			EnttObserver<TypeList<class GraphicsComponent, class NodeComponent, class SharedSkeletonComponent>, TypeList<class DisabledComponent, class SkeletonComponent>> m_sharedSkeletonObserver;
+			EnttObserver<TypeList<class GraphicsComponent, class NodeComponent, class SkeletonComponent>, TypeList<class DisabledComponent, class SharedSkeletonComponent>> m_skeletonObserver;
 			MemoryPool<CameraEntity> m_cameraEntityPool;
 			MemoryPool<GraphicsEntity> m_graphicsEntityPool;
 			MemoryPool<LightEntity> m_lightEntityPool;

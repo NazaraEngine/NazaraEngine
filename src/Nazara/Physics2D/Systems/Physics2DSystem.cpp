@@ -21,16 +21,25 @@ namespace Nz
 
 	Physics2DSystem::Physics2DSystem(entt::registry& registry) :
 	m_registry(registry),
-	m_physicsConstructObserver(m_registry, entt::collector.group<RigidBody2DComponent, NodeComponent>())
+	m_physicsObserver(m_registry)
 	{
 		m_bodyConstructConnection = registry.on_construct<RigidBody2DComponent>().connect<&Physics2DSystem::OnBodyConstruct>(this);
 		m_bodyDestructConnection = registry.on_destroy<RigidBody2DComponent>().connect<&Physics2DSystem::OnBodyDestruct>(this);
+
+		// Move newly-created physics entities to their node position/rotation
+		m_physicsObserver.OnEntityAdded.Connect([&](entt::entity entity)
+		{
+			RigidBody2DComponent& entityPhysics = m_registry.get<RigidBody2DComponent>(entity);
+			NodeComponent& entityNode = m_registry.get<NodeComponent>(entity);
+
+			entityPhysics.TeleportTo(Vector2f(entityNode.GetPosition()), AngleFromQuaternion(entityNode.GetRotation()));
+		});
+
+		m_physicsObserver.SignalExisting();
 	}
 
 	Physics2DSystem::~Physics2DSystem()
 	{
-		m_physicsConstructObserver.disconnect();
-
 		// Ensure every body is destroyed before world is
 		auto rigidBodyView = m_registry.view<RigidBody2DComponent>();
 		for (auto [entity, rigidBodyComponent] : rigidBodyView.each())
@@ -39,25 +48,18 @@ namespace Nz
 
 	void Physics2DSystem::Update(Time elapsedTime)
 	{
-		// Move newly-created physics entities to their node position/rotation
-		m_physicsConstructObserver.each([&](entt::entity entity)
-		{
-			RigidBody2DComponent& entityPhysics = m_registry.get<RigidBody2DComponent>(entity);
-			NodeComponent& entityNode = m_registry.get<NodeComponent>(entity);
-
-			entityPhysics.TeleportTo(Vector2f(entityNode.GetPosition()), AngleFromQuaternion(entityNode.GetRotation()));
-		});
-
 		m_physWorld.Step(elapsedTime);
 
 		// Replicate rigid body position to their node components
-		auto view = m_registry.view<NodeComponent, const RigidBody2DComponent>(entt::exclude<DisabledComponent>);
-		for (auto [entity, nodeComponent, rigidBodyComponent] : view.each())
+		for (entt::entity entity : m_physicsObserver)
 		{
-			if (rigidBodyComponent.IsSleeping())
+			auto& node = m_registry.get<NodeComponent>(entity);
+			auto& rigidBody = m_registry.get<const RigidBody2DComponent>(entity);
+
+			if (rigidBody.IsSleeping())
 				continue;
 
-			nodeComponent.SetTransform(rigidBodyComponent.GetPosition(), rigidBodyComponent.GetRotation());
+			node.SetTransform(rigidBody.GetPosition(), rigidBody.GetRotation());
 		}
 	}
 

@@ -283,7 +283,7 @@ add_repositories("nazara-engine-repo https://github.com/NazaraEngine/xmake-repo"
 
 add_requires(
 	"concurrentqueue",
-	"entt 3.14.0",
+	"entt",
 	"fmt",
 	"frozen",
 	"ordered_map",
