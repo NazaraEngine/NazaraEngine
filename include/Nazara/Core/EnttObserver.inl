@@ -110,21 +110,45 @@ namespace Nz
 	}
 
 	template<typename IncludeList, typename ExcludeList, typename Data>
-	[[nodiscard]] bool EnttObserver<IncludeList, ExcludeList, Data>::Contains(entt::entity entity) const
+	[[nodiscard]] bool EnttObserver<IncludeList, ExcludeList, Data>::Contains(entt::entity entity) const noexcept
 	{
 		return m_storage.contains(entity);
 	}
 
 	template<typename IncludeList, typename ExcludeList, typename Data>
-	[[nodiscard]] auto& EnttObserver<IncludeList, ExcludeList, Data>::Get(entt::entity entity)
+	[[nodiscard]] auto& EnttObserver<IncludeList, ExcludeList, Data>::Get(entt::entity entity) noexcept
 	{
 		return m_storage.get(entity);
 	}
 
 	template<typename IncludeList, typename ExcludeList, typename Data>
-	[[nodiscard]] const auto& EnttObserver<IncludeList, ExcludeList, Data>::Get(entt::entity entity) const
+	[[nodiscard]] const auto& EnttObserver<IncludeList, ExcludeList, Data>::Get(entt::entity entity) const noexcept
 	{
 		return m_storage.get(entity);
+	}
+
+	template<typename IncludeList, typename ExcludeList, typename Data>
+	[[nodiscard]] std::size_t EnttObserver<IncludeList, ExcludeList, Data>::GetCapacity() const noexcept
+	{
+		return m_storage.capacity();
+	}
+
+	template<typename IncludeList, typename ExcludeList, typename Data>
+	[[nodiscard]] std::size_t EnttObserver<IncludeList, ExcludeList, Data>::GetSize() const noexcept
+	{
+		return m_storage.size();
+	}
+
+	template<typename IncludeList, typename ExcludeList, typename Data>
+	[[nodiscard]] bool EnttObserver<IncludeList, ExcludeList, Data>::IsEmpty() const noexcept
+	{
+		return m_storage.empty();
+	}
+
+	template<typename IncludeList, typename ExcludeList, typename Data>
+	bool EnttObserver<IncludeList, ExcludeList, Data>::Remove(entt::entity entity) noexcept
+	{
+		return m_storage.remove(entity);
 	}
 
 	template<typename IncludeList, typename ExcludeList, typename Data>
@@ -135,31 +159,49 @@ namespace Nz
 	}
 
 	template<typename IncludeList, typename ExcludeList, typename Data>
-	[[nodiscard]] auto* EnttObserver<IncludeList, ExcludeList, Data>::TryGet(entt::entity entity)
+	[[nodiscard]] auto* EnttObserver<IncludeList, ExcludeList, Data>::TryGet(entt::entity entity) noexcept
 	{
 		return m_storage.contains(entity) ? &m_storage.get(entity) : nullptr;
 	}
 
 	template<typename IncludeList, typename ExcludeList, typename Data>
-	[[nodiscard]] const auto* EnttObserver<IncludeList, ExcludeList, Data>::TryGet(entt::entity entity) const
+	[[nodiscard]] const auto* EnttObserver<IncludeList, ExcludeList, Data>::TryGet(entt::entity entity) const noexcept
 	{
 		return m_storage.contains(entity) ? &m_storage.get(entity) : nullptr;
 	}
 
 	template<typename IncludeList, typename ExcludeList, typename Data>
-	[[nodiscard]] auto EnttObserver<IncludeList, ExcludeList, Data>::begin()
+	[[nodiscard]] auto EnttObserver<IncludeList, ExcludeList, Data>::begin() noexcept
 	{
 		return m_storage.begin();
 	}
 
 	template<typename IncludeList, typename ExcludeList, typename Data>
-	[[nodiscard]] auto EnttObserver<IncludeList, ExcludeList, Data>::empty() const
+	[[nodiscard]] auto EnttObserver<IncludeList, ExcludeList, Data>::begin() const noexcept
 	{
-		return m_storage.empty();
+		return m_storage.begin();
 	}
 
 	template<typename IncludeList, typename ExcludeList, typename Data>
-	[[nodiscard]] auto EnttObserver<IncludeList, ExcludeList, Data>::end()
+	[[nodiscard]] auto EnttObserver<IncludeList, ExcludeList, Data>::each() noexcept
+	{
+		return m_storage.each();
+	}
+
+	template<typename IncludeList, typename ExcludeList, typename Data>
+	[[nodiscard]] auto EnttObserver<IncludeList, ExcludeList, Data>::each() const noexcept
+	{
+		return m_storage.each();
+	}
+
+	template<typename IncludeList, typename ExcludeList, typename Data>
+	[[nodiscard]] auto EnttObserver<IncludeList, ExcludeList, Data>::end() noexcept
+	{
+		return m_storage.end();
+	}
+
+	template<typename IncludeList, typename ExcludeList, typename Data>
+	[[nodiscard]] auto EnttObserver<IncludeList, ExcludeList, Data>::end() const noexcept
 	{
 		return m_storage.end();
 	}

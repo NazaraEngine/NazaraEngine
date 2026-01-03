@@ -71,7 +71,7 @@ namespace Nz
 			if (!frame)
 				return;
 
-			if (!m_cameraEntities.empty())
+			if (!m_cameraEntities.IsEmpty())
 				m_pipeline->Render(frame);
 
 			frame.Present();
@@ -86,7 +86,6 @@ namespace Nz
 
 	void RenderSystem::BindObservers()
 	{
-	
 		m_cameraEntities.OnEntityAdded.Connect([&](entt::entity entity)
 		{
 			CameraComponent& entityCamera = m_registry.get<CameraComponent>(entity);

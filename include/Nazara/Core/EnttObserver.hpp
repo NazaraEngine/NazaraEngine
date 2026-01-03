@@ -23,19 +23,29 @@ namespace Nz
 			EnttObserver(EnttObserver&&) = delete;
 			~EnttObserver() = default;
 
-			[[nodiscard]] bool Contains(entt::entity entity) const;
+			[[nodiscard]] bool Contains(entt::entity entity) const noexcept;
 
-			[[nodiscard]] auto& Get(entt::entity entity);
-			[[nodiscard]] const auto& Get(entt::entity entity) const;
+			[[nodiscard]] auto& Get(entt::entity entity) noexcept;
+			[[nodiscard]] const auto& Get(entt::entity entity) const noexcept;
+
+			[[nodiscard]] std::size_t GetCapacity() const noexcept;
+			[[nodiscard]] std::size_t GetSize() const noexcept;
+
+			[[nodiscard]] bool IsEmpty() const noexcept;
+
+			bool Remove(entt::entity entity) noexcept;
 
 			void SignalExisting();
 
-			[[nodiscard]] auto* TryGet(entt::entity entity);
-			[[nodiscard]] const auto* TryGet(entt::entity entity) const;
+			[[nodiscard]] auto* TryGet(entt::entity entity) noexcept;
+			[[nodiscard]] const auto* TryGet(entt::entity entity) const noexcept;
 
-			[[nodiscard]] auto begin();
-			[[nodiscard]] auto empty() const;
-			[[nodiscard]] auto end();
+			[[nodiscard]] auto begin() noexcept;
+			[[nodiscard]] auto begin() const noexcept;
+			[[nodiscard]] auto each() noexcept;
+			[[nodiscard]] auto each() const noexcept;
+			[[nodiscard]] auto end() noexcept;
+			[[nodiscard]] auto end() const noexcept;
 
 			EnttObserver& operator=(const EnttObserver&) = delete;
 			EnttObserver& operator=(EnttObserver&&) = delete;
