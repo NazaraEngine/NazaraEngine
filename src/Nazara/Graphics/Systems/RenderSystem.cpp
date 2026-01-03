@@ -1,4 +1,4 @@
-// Copyright (C) 2025 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
+// Copyright (C) 2026 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
@@ -183,7 +183,7 @@ namespace Nz
 			if (entityGfx.IsVisible())
 				UpdateGraphicsVisibility(graphicsEntity, m_registry.get<GraphicsComponent>(entity), true);
 		});
-		
+
 		m_graphicsEntities.OnEntityRemove.Connect([&](entt::entity entity)
 		{
 			GraphicsEntity* graphicsEntity = m_graphicsEntities.Get(entity);
@@ -318,7 +318,7 @@ namespace Nz
 			SkeletonComponent& skeletonComponent = m_registry.get<SkeletonComponent>(entity);
 			RegisterSkeleton(*graphicsEntity, skeletonComponent);
 		});
-		
+
 		m_skeletonObserver.OnEntityRemove.Connect([&](entt::entity entity)
 		{
 			GraphicsEntity* graphicsEntity = m_graphicsEntities.Get(entity);

@@ -1,4 +1,4 @@
-// Copyright (C) 2025 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
+// Copyright (C) 2026 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Platform module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
@@ -10,7 +10,6 @@
 #define NAZARA_PLATFORM_SDL3_WINDOWIMPL_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <NazaraUtils/MemoryPool.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector2.hpp>
 #include <Nazara/Platform/Export.hpp>
@@ -18,6 +17,7 @@
 #include <Nazara/Platform/Mouse.hpp>
 #include <Nazara/Platform/VideoMode.hpp>
 #include <Nazara/Platform/Window.hpp>
+#include <NazaraUtils/MemoryPool.hpp>
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_keyboard.h>
 #include <SDL3/SDL_video.h>

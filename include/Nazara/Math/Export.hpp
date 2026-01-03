@@ -1,7 +1,7 @@
 /*
 	Nazara Engine - Math module
 
-	Copyright (C) 2025 Jérôme "SirLynix" Leclercq (Lynix680@gmail.com)
+	Copyright (C) 2026 Jérôme "SirLynix" Leclercq (Lynix680@gmail.com)
 	                   Rémi "overdrivr" Bèges (remi.beges@laposte.net)
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy of

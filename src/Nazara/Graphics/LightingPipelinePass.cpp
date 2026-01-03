@@ -1,4 +1,4 @@
-// Copyright (C) 2025 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
+// Copyright (C) 2026 Jérôme "Lynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
@@ -133,7 +133,7 @@ namespace Nz
 					for (auto& lightBlock : *lightBlockContainer)
 						builder.CopyBuffer(*lightBlock.uploadAllocation, RenderBufferView(lightBlock.memory.lightUbo.get(), 0, lightBlock.lightCount * m_directionalLightSize));
 				}
-				
+
 				for (auto& lightBlockContainer : { &m_shadowDirectionalLights, &m_shadowPointLights, &m_shadowSpotLights })
 				{
 					for (auto& lightBlock : *lightBlockContainer)
