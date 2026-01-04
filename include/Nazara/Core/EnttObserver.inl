@@ -110,6 +110,12 @@ namespace Nz
 	}
 
 	template<typename IncludeList, typename ExcludeList, typename Data>
+	void EnttObserver<IncludeList, ExcludeList, Data>::Clear()
+	{
+		m_storage.clear();
+	}
+
+	template<typename IncludeList, typename ExcludeList, typename Data>
 	[[nodiscard]] bool EnttObserver<IncludeList, ExcludeList, Data>::Contains(entt::entity entity) const noexcept
 	{
 		return m_storage.contains(entity);

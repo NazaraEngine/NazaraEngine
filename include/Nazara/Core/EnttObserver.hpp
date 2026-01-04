@@ -23,6 +23,8 @@ namespace Nz
 			EnttObserver(EnttObserver&&) = delete;
 			~EnttObserver() = default;
 
+			void Clear();
+
 			[[nodiscard]] bool Contains(entt::entity entity) const noexcept;
 
 			[[nodiscard]] auto& Get(entt::entity entity) noexcept;
