@@ -75,6 +75,8 @@ namespace Nz
 			inline Camera& operator=(const Camera& camera);
 			inline Camera& operator=(Camera&& camera) noexcept;
 
+			NazaraSignal(OnCameraRenderOrderUpdated, Camera* /*camera*/, Int32 /*newRenderOrder*/);
+
 		private:
 			DebugDrawer* GetDebugDrawer() override;
 

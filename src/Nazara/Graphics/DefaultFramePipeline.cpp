@@ -708,7 +708,7 @@ namespace Nz
 			std::size_t finalAttachment;
 			if (viewers.size() > 1)
 			{
-				// Multiple viewers on the same targets, merge them
+				// Multiple viewers on the same target, merge them
 				finalAttachment = renderTarget.OnBuildGraph(frameGraph, BuildMergePass(frameGraph, viewers));
 			}
 			else

@@ -98,6 +98,11 @@ namespace Nz
 			cameraEntity->poolIndex = poolIndex;
 			cameraEntity->entity = entity;
 			cameraEntity->viewerIndex = m_pipeline->RegisterViewer(&entityCamera, entityCamera.GetRenderOrder());
+			cameraEntity->onRenderOrderUpdated.Connect(entityCamera.OnCameraRenderOrderUpdated, [this, viewerIndex = cameraEntity->viewerIndex](Camera* /*camera*/, Int32 newRenderOrder)
+			{
+				m_pipeline->UpdateViewerRenderOrder(viewerIndex, newRenderOrder);
+			});
+
 			cameraEntity->onNodeInvalidation.Connect(entityNode.OnNodeInvalidation, [this, entity](const Node* /*node*/)
 			{
 				m_invalidatedCameraNode.insert(entity);
@@ -147,12 +152,18 @@ namespace Nz
 					return;
 
 				const auto& renderableEntry = gfx->GetRenderableEntry(renderableIndex);
+				if (!renderableEntry.renderable)
+					return;
+
 				graphicsEntity->renderableIndices[renderableIndex] = m_pipeline->RegisterRenderable(graphicsEntity->worldInstanceIndex, graphicsEntity->skeletonInstanceIndex, renderableEntry.renderable.get(), renderableEntry.renderMask, gfx->GetScissorBox());
 			});
 
 			graphicsEntity->onRenderableDetach.Connect(entityGfx.OnRenderableDetach, [this, graphicsEntity](GraphicsComponent* gfx, std::size_t renderableIndex)
 			{
 				if (!gfx->IsVisible())
+					return;
+
+				if (graphicsEntity->renderableIndices[renderableIndex] == NoInstance)
 					return;
 
 				m_pipeline->UnregisterRenderable(graphicsEntity->renderableIndices[renderableIndex]);

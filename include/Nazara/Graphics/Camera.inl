@@ -236,7 +236,7 @@ namespace Nz
 	{
 		m_renderOrder = renderOrder;
 
-		// TODO: Signal RenderTechnique to regenerate commandbuffers
+		OnCameraRenderOrderUpdated(this, renderOrder);
 	}
 
 	inline void Camera::UpdateTargetRegion(const Rectf& targetRegion)

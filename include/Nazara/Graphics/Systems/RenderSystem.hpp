@@ -12,6 +12,7 @@
 #include <Nazara/Core/Node.hpp>
 #include <Nazara/Core/Skeleton.hpp>
 #include <Nazara/Core/Time.hpp>
+#include <Nazara/Graphics/Camera.hpp>
 #include <Nazara/Graphics/ElementRendererRegistry.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/Components/GraphicsComponent.hpp>
@@ -78,6 +79,7 @@ namespace Nz
 				std::size_t poolIndex;
 				std::size_t viewerIndex;
 
+				NazaraSlot(Camera, OnCameraRenderOrderUpdated, onRenderOrderUpdated);
 				NazaraSlot(Node, OnNodeInvalidation, onNodeInvalidation);
 			};
 
