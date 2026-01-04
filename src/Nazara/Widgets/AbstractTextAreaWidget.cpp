@@ -149,7 +149,9 @@ namespace Nz
 		if (m_isLineWrapEnabled)
 		{
 			AbstractTextDrawer& textDrawer = GetTextDrawer();
-			textDrawer.SetMaxLineWidth(GetWidth() - m_textPadding.x * 2.f);
+			float maxLineWidth = GetWidth() - m_textPadding.x * 2.f;
+			if (maxLineWidth > 0.0f)
+				textDrawer.SetMaxLineWidth(maxLineWidth);
 		}
 
 		UpdateTextSprite();
