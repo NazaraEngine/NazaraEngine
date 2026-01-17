@@ -69,6 +69,8 @@ namespace Nz
 			void Pause(bool waitUntilCompletion = false);
 			void Play(bool waitUntilCompletion = false);
 
+			void ResetSource(std::shared_ptr<SoundDataSource> source);
+
 			void SeekToFrame(UInt64 time);
 			void SeekToTime(Time time);
 

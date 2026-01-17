@@ -252,6 +252,12 @@ namespace Nz
 			GetEngine().WaitForStateSync();
 	}
 
+	void Sound::ResetSource(std::shared_ptr<SoundDataSource> source)
+	{
+		Stop();
+		m_sourceReader->UpdateSource(std::move(source));
+	}
+
 	void Sound::SeekToFrame(UInt64 frameIndex)
 	{
 		ma_sound_seek_to_pcm_frame(m_sound, frameIndex);

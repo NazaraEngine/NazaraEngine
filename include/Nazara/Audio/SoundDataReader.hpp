@@ -41,6 +41,7 @@ namespace Nz
 
 			inline void UpdateReadOffset(UInt64 offset);
 			inline bool UpdateReadOffset(UInt64 offset, UInt64 expectedPreviousValue);
+			inline void UpdateSource(std::shared_ptr<SoundDataSource> source);
 
 			SoundDataReader& operator=(const SoundDataReader&) = delete;
 			SoundDataReader& operator=(SoundDataReader&&) = delete;

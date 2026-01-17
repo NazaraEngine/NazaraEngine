@@ -33,4 +33,9 @@ namespace Nz
 	{
 		return m_readOffset.compare_exchange_strong(expectedPreviousValue, offset);
 	}
+
+	inline void SoundDataReader::UpdateSource(std::shared_ptr<SoundDataSource> source)
+	{
+		m_source = std::move(source);
+	}
 }
