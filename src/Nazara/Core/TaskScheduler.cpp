@@ -30,7 +30,7 @@ namespace Nz
 	struct TaskScheduler::Data
 	{
 		std::atomic_uint remainingTasks = 0;
-		std::size_t nextWorkerIndex = 0;
+		std::atomic_uint nextWorkerIndex = 0;
 		std::vector<Worker> workers;
 		unsigned int workerCount;
 	};
@@ -196,11 +196,10 @@ namespace Nz
 	{
 		m_data->remainingTasks++;
 
-		Worker& worker = m_data->workers[m_data->nextWorkerIndex++];
-		worker.AddTask(std::move(task));
+		unsigned int nextWorkerIndex = m_data->nextWorkerIndex++ % m_data->workers.size();
 
-		if (m_data->nextWorkerIndex >= m_data->workers.size())
-			m_data->nextWorkerIndex = 0;
+		Worker& worker = m_data->workers[nextWorkerIndex];
+		worker.AddTask(std::move(task));
 	}
 
 	unsigned int TaskScheduler::GetWorkerCount() const
