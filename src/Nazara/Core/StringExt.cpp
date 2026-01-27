@@ -207,26 +207,33 @@ namespace Nz
 		const char* ptr = str.data();
 		const char* end = ptr + str.size();
 
-		try
+		for (std::size_t i = 0; i < characterIndex; ++i)
 		{
-			utf8::advance(ptr, characterIndex, end);
+			utf8::internal::utf_error errCode = utf8::internal::validate_next(ptr, end);
+			if (errCode != utf8::internal::UTF8_OK)
+			{
+				switch (errCode)
+				{
+					case utf8::internal::UTF8_OK:
+					case utf8::internal::NOT_ENOUGH_ROOM:
+						break;
 
-			return ptr - str.data();
-		}
-		catch (const utf8::not_enough_room& /*e*/)
-		{
-			// Returns npos
-		}
-		catch (const utf8::exception& e)
-		{
-			NazaraError("UTF-8 error: {0}", e.what());
-		}
-		catch (const std::exception& e)
-		{
-			NazaraError("{}", e.what());
+					case utf8::internal::INCOMPLETE_SEQUENCE:
+					case utf8::internal::INVALID_LEAD:
+					case utf8::internal::OVERLONG_SEQUENCE:
+						NazaraError("invalid UTF-8");
+						break;
+
+					case utf8::internal::INVALID_CODE_POINT:
+						NazaraError("invalid codepoint");
+						break;
+				}
+
+				return std::string::npos;
+			}
 		}
 
-		return std::string::npos;
+		return ptr - str.data();
 	}
 
 	std::string_view GetWord(std::string_view str, std::size_t wordIndex)
@@ -392,26 +399,61 @@ namespace Nz
 	{
 		const char* start = str.data();
 		const char* end = start + str.size();
-		try
+
+		for (std::size_t i = 0; i < index; ++i)
 		{
-			utf8::advance(start, index, end);
-		}
-		catch (const utf8::not_enough_room&)
-		{
-			return {};
+			utf8::internal::utf_error errCode = utf8::internal::validate_next(start, end);
+			if (errCode != utf8::internal::UTF8_OK)
+			{
+				switch (errCode)
+				{
+					case utf8::internal::UTF8_OK:
+					case utf8::internal::NOT_ENOUGH_ROOM:
+						break;
+
+					case utf8::internal::INCOMPLETE_SEQUENCE:
+					case utf8::internal::INVALID_LEAD:
+					case utf8::internal::OVERLONG_SEQUENCE:
+						NazaraError("invalid UTF-8");
+						break;
+
+					case utf8::internal::INVALID_CODE_POINT:
+						NazaraError("invalid codepoint");
+						break;
+				}
+
+				return {};
+			}
 		}
 
 		if (count == std::numeric_limits<std::size_t>::max())
 			return str.substr(start - str.data());
 
 		const char* to = start;
-		try
+		for (std::size_t i = 0; i < count; ++i)
 		{
-			utf8::advance(to, count, end);
-		}
-		catch (const utf8::not_enough_room&)
-		{
-			return str.substr(start - str.data());
+			utf8::internal::utf_error errCode = utf8::internal::validate_next(to, end);
+			if (errCode != utf8::internal::UTF8_OK)
+			{
+				switch (errCode)
+				{
+					case utf8::internal::UTF8_OK:
+					case utf8::internal::NOT_ENOUGH_ROOM:
+						break;
+
+					case utf8::internal::INCOMPLETE_SEQUENCE:
+					case utf8::internal::INVALID_LEAD:
+					case utf8::internal::OVERLONG_SEQUENCE:
+						NazaraError("invalid UTF-8");
+						break;
+
+					case utf8::internal::INVALID_CODE_POINT:
+						NazaraError("invalid codepoint");
+						break;
+				}
+
+				return str.substr(start - str.data());
+			}
 		}
 
 		return std::string_view(start, to - start);
