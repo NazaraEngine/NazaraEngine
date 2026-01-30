@@ -163,6 +163,7 @@ namespace Nz
 
 		UpdateBoundingVolume();
 		UpdateViewProjMatrix();
+		OnLightDataInvalided(this);
 	}
 
 	inline void SpotLight::UpdateRotation(const Quaternionf& rotation)

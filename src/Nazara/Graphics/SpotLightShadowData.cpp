@@ -23,25 +23,9 @@ namespace Nz
 		constexpr float zNear = 0.01f;
 
 		ViewerInstance& viewerInstance = m_viewer.GetViewerInstance();
+		viewerInstance.UpdateEyePosition(m_light.GetPosition());
 		viewerInstance.UpdateProjectionMatrix(Matrix4f::Perspective(m_light.GetOuterAngle() * 2.f, 1.f, zNear, m_light.GetRadius()));
 		viewerInstance.UpdateNearFarPlanes(zNear, m_light.GetRadius());
-
-		m_onLightShadowMapSettingChange.Connect(m_light.OnLightShadowMapSettingChange, [this](Light* /*light*/, PixelFormat /*newPixelFormat*/, UInt32 newSize)
-		{
-			m_viewer.UpdateViewport(Recti(0, 0, SafeCast<int>(newSize), SafeCast<int>(newSize)));
-		});
-
-		m_onLightTransformInvalidated.Connect(m_light.OnLightTransformInvalided, [this]([[maybe_unused]] Light* light)
-		{
-			assert(&m_light == light);
-
-			ViewerInstance& viewerInstance = m_viewer.GetViewerInstance();
-			viewerInstance.UpdateEyePosition(m_light.GetPosition());
-			viewerInstance.UpdateViewMatrix(Nz::Matrix4f::TransformInverse(m_light.GetPosition(), m_light.GetRotation()));
-
-			m_pipeline.QueueTransfer(&viewerInstance);
-		});
-		viewerInstance.UpdateEyePosition(m_light.GetPosition());
 		viewerInstance.UpdateViewMatrix(Nz::Matrix4f::TransformInverse(m_light.GetPosition(), m_light.GetRotation()));
 		m_pipeline.QueueTransfer(&viewerInstance);
 
@@ -57,6 +41,31 @@ namespace Nz
 		m_pipeline.ForEachRegisteredMaterialInstance([this](const MaterialInstance& matInstance)
 		{
 			m_depthPass->RegisterMaterialInstance(matInstance);
+		});
+
+		m_onLightDataInvalidated.Connect(m_light.OnLightDataInvalidated, [this]([[maybe_unused]] Light* light)
+		{
+			assert(&m_light == light);
+
+			ViewerInstance& viewerInstance = m_viewer.GetViewerInstance();
+			viewerInstance.UpdateProjectionMatrix(Matrix4f::Perspective(m_light.GetOuterAngle() * 2.f, 1.f, zNear, m_light.GetRadius()));
+			viewerInstance.UpdateNearFarPlanes(zNear, m_light.GetRadius());
+		});
+
+		m_onLightShadowMapSettingChange.Connect(m_light.OnLightShadowMapSettingChange, [this](Light* /*light*/, PixelFormat /*newPixelFormat*/, UInt32 newSize)
+		{
+			m_viewer.UpdateViewport(Recti(0, 0, SafeCast<int>(newSize), SafeCast<int>(newSize)));
+		});
+
+		m_onLightTransformInvalidated.Connect(m_light.OnLightTransformInvalided, [this]([[maybe_unused]] Light* light)
+		{
+			assert(&m_light == light);
+
+			ViewerInstance& viewerInstance = m_viewer.GetViewerInstance();
+			viewerInstance.UpdateEyePosition(m_light.GetPosition());
+			viewerInstance.UpdateViewMatrix(Nz::Matrix4f::TransformInverse(m_light.GetPosition(), m_light.GetRotation()));
+
+			m_pipeline.QueueTransfer(&viewerInstance);
 		});
 	}
 

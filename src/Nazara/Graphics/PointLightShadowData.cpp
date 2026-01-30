@@ -38,6 +38,61 @@ namespace Nz
 	m_pipeline(pipeline),
 	m_light(light)
 	{
+		std::size_t shadowPassIndex = Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex("DistanceShadowPass");
+
+		constexpr float zNear = 0.01f;
+
+		Matrix4f projectionMatrix = Matrix4f::Perspective(RadianAnglef(HalfPi<float>()), 1.f, zNear, m_light.GetRadius());
+
+		UInt32 shadowMapSize = light.GetShadowMapSize();
+		for (std::size_t i = 0; i < m_directions.size(); ++i)
+		{
+			ShadowViewer& viewer = m_directions[i].viewer;
+
+			viewer.UpdateRenderMask(0xFFFFFFFF);
+			viewer.UpdateViewport(Recti(0, 0, SafeCast<int>(shadowMapSize), SafeCast<int>(shadowMapSize)));
+
+			ViewerInstance& viewerInstance = viewer.GetViewerInstance();
+			viewerInstance.UpdateEyePosition(m_light.GetPosition());
+			viewerInstance.UpdateNearFarPlanes(zNear, m_light.GetRadius());
+			viewerInstance.UpdateProjectionMatrix(projectionMatrix);
+			viewerInstance.UpdateViewMatrix(Matrix4f::TransformInverse(m_light.GetPosition(), s_dirRotations[i]));
+
+			m_pipeline.QueueTransfer(&viewerInstance);
+
+			FramePipelinePass::PassData passData = {
+				&viewer,
+				elementRegistry,
+				m_pipeline
+			};
+
+			m_directions[i].depthPass.emplace(passData, std::string(s_dirNames[i]), shadowPassIndex);
+		}
+
+		m_pipeline.ForEachRegisteredMaterialInstance([this](const MaterialInstance& matInstance)
+		{
+			for (DirectionData& direction : m_directions)
+				direction.depthPass->RegisterMaterialInstance(matInstance);
+		});
+
+		m_onLightDataInvalidated.Connect(m_light.OnLightDataInvalidated, [this]([[maybe_unused]] Light* light)
+		{
+			assert(&m_light == light);
+
+			Matrix4f projectionMatrix = Matrix4f::Perspective(RadianAnglef(HalfPi<float>()), 1.f, zNear, m_light.GetRadius());
+
+			for (std::size_t i = 0; i < m_directions.size(); ++i)
+			{
+				DirectionData& direction = m_directions[i];
+
+				ViewerInstance& viewerInstance = direction.viewer.GetViewerInstance();
+				viewerInstance.UpdateProjectionMatrix(projectionMatrix);
+				viewerInstance.UpdateNearFarPlanes(zNear, m_light.GetRadius());
+
+				m_pipeline.QueueTransfer(&viewerInstance);
+			}
+		});
+
 		m_onLightShadowMapSettingChange.Connect(m_light.OnLightShadowMapSettingChange, [this](Light* /*light*/, PixelFormat /*newPixelFormat*/, UInt32 newSize)
 		{
 			for (DirectionData& direction : m_directions)
@@ -60,42 +115,6 @@ namespace Nz
 			}
 		});
 
-		std::size_t shadowPassIndex = Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex("DistanceShadowPass");
-
-		constexpr float zNear = 0.01f;
-
-		Matrix4f projectionMatrix = Matrix4f::Perspective(RadianAnglef(HalfPi<float>()), 1.f, zNear, m_light.GetRadius());
-
-		UInt32 shadowMapSize = light.GetShadowMapSize();
-		for (std::size_t i = 0; i < m_directions.size(); ++i)
-		{
-			ShadowViewer& viewer = m_directions[i].viewer;
-
-			viewer.UpdateRenderMask(0xFFFFFFFF);
-			viewer.UpdateViewport(Recti(0, 0, SafeCast<int>(shadowMapSize), SafeCast<int>(shadowMapSize)));
-
-			ViewerInstance& viewerInstance = viewer.GetViewerInstance();
-			viewerInstance.UpdateEyePosition(m_light.GetPosition());
-			viewerInstance.UpdateProjectionMatrix(projectionMatrix);
-			viewerInstance.UpdateViewMatrix(Matrix4f::TransformInverse(m_light.GetPosition(), s_dirRotations[i]));
-			viewerInstance.UpdateNearFarPlanes(zNear, m_light.GetRadius());
-
-			m_pipeline.QueueTransfer(&viewerInstance);
-
-			FramePipelinePass::PassData passData = {
-				&viewer,
-				elementRegistry,
-				m_pipeline
-			};
-
-			m_directions[i].depthPass.emplace(passData, std::string(s_dirNames[i]), shadowPassIndex);
-		}
-
-		m_pipeline.ForEachRegisteredMaterialInstance([this](const MaterialInstance& matInstance)
-		{
-			for (DirectionData& direction : m_directions)
-				direction.depthPass->RegisterMaterialInstance(matInstance);
-		});
 	}
 
 	void PointLightShadowData::PrepareRendering(RenderResources& renderResources, [[maybe_unused]] const AbstractViewer* viewer)
