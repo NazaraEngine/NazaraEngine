@@ -16,7 +16,7 @@ namespace Nz
 	WorldInstance::WorldInstance() :
 	m_invWorldMatrix(Matrix4f::Identity()),
 	m_worldMatrix(Matrix4f::Identity()),
-	m_dataInvalided(true)
+	m_dataInvalidated(true)
 	{
 		constexpr auto& instanceUboOffsets = PredefinedInstanceOffsets;
 
@@ -26,7 +26,7 @@ namespace Nz
 
 	void WorldInstance::OnTransfer(RenderResources& renderResources, CommandBufferBuilder& builder)
 	{
-		if (!m_dataInvalided)
+		if (!m_dataInvalidated)
 			return;
 
 		constexpr auto& instanceUboOffsets = PredefinedInstanceOffsets;
@@ -37,6 +37,6 @@ namespace Nz
 
 		builder.CopyBuffer(allocation, m_instanceDataBuffer.get());
 
-		m_dataInvalided = false;
+		m_dataInvalidated = false;
 	}
 }

@@ -50,7 +50,7 @@ namespace Nz
 		if (m_energy != energy)
 		{
 			m_energy = energy;
-			OnLightDataInvalided(this);
+			OnLightDataInvalidated(this);
 		}
 	}
 
@@ -95,6 +95,6 @@ namespace Nz
 	{
 		m_boundingVolume = boundingVolume;
 
-		OnLightDataInvalided(this);
+		OnLightDataInvalidated(this);
 	}
 }

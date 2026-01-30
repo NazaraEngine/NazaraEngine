@@ -15,7 +15,7 @@ namespace Nz
 {
 	SkeletonInstance::SkeletonInstance(std::shared_ptr<const Skeleton> skeleton) :
 	m_skeleton(std::move(skeleton)),
-	m_dataInvalided(true)
+	m_dataInvalidated(true)
 	{
 		NazaraAssertMsg(m_skeleton, "invalid skeleton");
 
@@ -24,7 +24,7 @@ namespace Nz
 
 		m_onSkeletonJointsInvalidated.Connect(m_skeleton->OnSkeletonJointsInvalidated, [this](const Skeleton*)
 		{
-			m_dataInvalided = true;
+			m_dataInvalidated = true;
 			OnTransferRequired(this);
 		});
 	}
@@ -32,18 +32,18 @@ namespace Nz
 	SkeletonInstance::SkeletonInstance(SkeletonInstance&& skeletonInstance) noexcept :
 	m_skeletalDataBuffer(std::move(skeletonInstance.m_skeletalDataBuffer)),
 	m_skeleton(std::move(skeletonInstance.m_skeleton)),
-	m_dataInvalided(skeletonInstance.m_dataInvalided)
+	m_dataInvalidated(skeletonInstance.m_dataInvalidated)
 	{
 		m_onSkeletonJointsInvalidated.Connect(m_skeleton->OnSkeletonJointsInvalidated, [this](const Skeleton*)
 		{
-			m_dataInvalided = true;
+			m_dataInvalidated = true;
 			OnTransferRequired(this);
 		});
 	}
 
 	void SkeletonInstance::OnTransfer(RenderResources& renderResources, CommandBufferBuilder& builder)
 	{
-		if (!m_dataInvalided)
+		if (!m_dataInvalidated)
 			return;
 
 		auto& allocation = renderResources.GetUploadPool().Allocate(m_skeletalDataBuffer->GetSize());
@@ -54,18 +54,18 @@ namespace Nz
 
 		builder.CopyBuffer(allocation, m_skeletalDataBuffer.get());
 
-		m_dataInvalided = false;
+		m_dataInvalidated = false;
 	}
 
 	SkeletonInstance& SkeletonInstance::operator=(SkeletonInstance&& skeletonInstance) noexcept
 	{
 		m_skeletalDataBuffer = std::move(skeletonInstance.m_skeletalDataBuffer);
 		m_skeleton = std::move(skeletonInstance.m_skeleton);
-		m_dataInvalided = skeletonInstance.m_dataInvalided;
+		m_dataInvalidated = skeletonInstance.m_dataInvalidated;
 
 		m_onSkeletonJointsInvalidated.Connect(m_skeleton->OnSkeletonJointsInvalidated, [this](const Skeleton*)
 		{
-			m_dataInvalided = true;
+			m_dataInvalidated = true;
 			OnTransferRequired(this);
 		});
 

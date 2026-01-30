@@ -51,21 +51,21 @@ namespace Nz
 	{
 		m_ambientFactor = factor;
 
-		OnLightDataInvalided(this);
+		OnLightDataInvalidated(this);
 	}
 
 	inline void PointLight::UpdateColor(Color color)
 	{
 		m_color = color;
 
-		OnLightDataInvalided(this);
+		OnLightDataInvalidated(this);
 	}
 
 	inline void PointLight::UpdateDiffuseFactor(float factor)
 	{
 		m_diffuseFactor = factor;
 
-		OnLightDataInvalided(this);
+		OnLightDataInvalidated(this);
 	}
 
 	inline void PointLight::UpdatePosition(const Vector3f& position)
@@ -73,7 +73,7 @@ namespace Nz
 		m_position = position;
 
 		UpdateBoundingVolume();
-		OnLightTransformInvalided(this);
+		OnLightTransformInvalidated(this);
 	}
 
 	inline void PointLight::UpdateRadius(float radius)
@@ -90,6 +90,6 @@ namespace Nz
 		BoundingVolumef boundingVolume(Boxf(-extent * 0.5f, extent));
 		boundingVolume.Update(m_position);
 
-		Light::UpdateBoundingVolume(boundingVolume); //< will trigger OnLightDataInvalided
+		Light::UpdateBoundingVolume(boundingVolume); //< will trigger OnLightDataInvalidated
 	}
 }

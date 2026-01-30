@@ -45,7 +45,7 @@ namespace Nz
 
 	void WorldInstance::InvalidateData()
 	{
-		m_dataInvalided = true;
+		m_dataInvalidated = true;
 		OnTransferRequired(this);
 	}
 }

@@ -44,7 +44,7 @@ namespace Nz
 		private:
 			NazaraSlot(Light, OnLightDataInvalidated, m_onLightDataInvalidated);
 			NazaraSlot(Light, OnLightShadowMapSettingChange, m_onLightShadowMapSettingChange);
-			NazaraSlot(Light, OnLightTransformInvalided, m_onLightTransformInvalidated);
+			NazaraSlot(Light, OnLightTransformInvalidated, m_onLightTransformInvalidated);
 
 			struct DirectionData
 			{

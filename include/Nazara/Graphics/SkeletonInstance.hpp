@@ -46,7 +46,7 @@ namespace Nz
 
 			std::shared_ptr<RenderBuffer> m_skeletalDataBuffer;
 			std::shared_ptr<const Skeleton> m_skeleton;
-			bool m_dataInvalided;
+			bool m_dataInvalidated;
 	};
 }
 

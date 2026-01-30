@@ -71,21 +71,21 @@ namespace Nz
 	{
 		m_ambientFactor = factor;
 
-		OnLightDataInvalided(this);
+		OnLightDataInvalidated(this);
 	}
 
 	inline void DirectionalLight::UpdateColor(Color color)
 	{
 		m_color = color;
 
-		OnLightDataInvalided(this);
+		OnLightDataInvalidated(this);
 	}
 
 	inline void DirectionalLight::UpdateDiffuseFactor(float factor)
 	{
 		m_diffuseFactor = factor;
 
-		OnLightDataInvalided(this);
+		OnLightDataInvalidated(this);
 	}
 
 	inline void DirectionalLight::UpdateDirection(const Vector3f& direction)
@@ -115,6 +115,6 @@ namespace Nz
 
 	inline void DirectionalLight::UpdateBoundingVolume()
 	{
-		Light::UpdateBoundingVolume(BoundingVolumef::Infinite()); //< will trigger OnLightDataInvalided
+		Light::UpdateBoundingVolume(BoundingVolumef::Infinite()); //< will trigger OnLightDataInvalidated
 	}
 }

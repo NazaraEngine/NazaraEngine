@@ -57,10 +57,10 @@ namespace Nz
 			Light& operator=(const Light&) = delete;
 			Light& operator=(Light&&) noexcept = default;
 
-			NazaraSignal(OnLightDataInvalided, Light* /*emitter*/);
+			NazaraSignal(OnLightDataInvalidated, Light* /*emitter*/);
 			NazaraSignal(OnLightShadowCastingChanged, Light* /*light*/, bool /*isShadowCasting*/);
 			NazaraSignal(OnLightShadowMapSettingChange, Light* /*light*/, PixelFormat /*newPixelFormat*/, UInt32 /*newSize*/);
-			NazaraSignal(OnLightTransformInvalided, Light* /*emitter*/);
+			NazaraSignal(OnLightTransformInvalidated, Light* /*emitter*/);
 
 		protected:
 			inline void UpdateBoundingVolume(const BoundingVolumef& boundingVolume);

@@ -50,7 +50,7 @@ namespace Nz
 			std::shared_ptr<RenderBuffer> m_instanceDataBuffer;
 			Matrix4f m_invWorldMatrix;
 			Matrix4f m_worldMatrix;
-			bool m_dataInvalided;
+			bool m_dataInvalidated;
 	};
 }
 

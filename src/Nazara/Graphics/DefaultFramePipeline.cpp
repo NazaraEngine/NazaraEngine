@@ -97,7 +97,7 @@ namespace Nz
 		LightData* lightData = m_lightPool.Allocate(lightIndex);
 		lightData->light = light;
 		lightData->renderMask = renderMask;
-		lightData->onLightInvalidated.Connect(lightData->light->OnLightDataInvalided, [](Light*)
+		lightData->onLightInvalidated.Connect(lightData->light->OnLightDataInvalidated, [](Light*)
 		{
 			//TODO: Switch lights to storage buffers so they can all be part of GPU memory
 		});

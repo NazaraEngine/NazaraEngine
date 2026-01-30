@@ -65,7 +65,7 @@ namespace Nz
 			void StabilizeShadows(CascadeData& cascade);
 
 			NazaraSlot(Light, OnLightShadowMapSettingChange, m_onLightShadowMapSettingChange);
-			NazaraSlot(Light, OnLightTransformInvalided, m_onLightTransformInvalidated);
+			NazaraSlot(Light, OnLightTransformInvalidated, m_onLightTransformInvalidated);
 
 			struct CascadeData
 			{

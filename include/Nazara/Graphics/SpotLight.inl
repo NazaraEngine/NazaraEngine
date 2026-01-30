@@ -93,7 +93,7 @@ namespace Nz
 	{
 		m_ambientFactor = factor;
 
-		OnLightDataInvalided(this);
+		OnLightDataInvalidated(this);
 	}
 
 	inline void SpotLight::UpdateAngles(RadianAnglef innerAngle, RadianAnglef outerAngle)
@@ -106,21 +106,21 @@ namespace Nz
 
 		UpdateBoundingVolume();
 		UpdateViewProjMatrix();
-		OnLightDataInvalided(this);
+		OnLightDataInvalidated(this);
 	}
 
 	inline void SpotLight::UpdateColor(Color color)
 	{
 		m_color = color;
 
-		OnLightDataInvalided(this);
+		OnLightDataInvalidated(this);
 	}
 
 	inline void SpotLight::UpdateDiffuseFactor(float factor)
 	{
 		m_diffuseFactor = factor;
 
-		OnLightDataInvalided(this);
+		OnLightDataInvalidated(this);
 	}
 
 	inline void SpotLight::UpdateDirection(const Vector3f& direction)
@@ -133,7 +133,7 @@ namespace Nz
 		m_innerAngle = innerAngle;
 		m_innerAngleCos = m_innerAngle.GetCos();
 
-		OnLightDataInvalided(this);
+		OnLightDataInvalidated(this);
 	}
 
 	inline void SpotLight::UpdateOuterAngle(RadianAnglef outerAngle)
@@ -144,7 +144,7 @@ namespace Nz
 
 		UpdateBoundingVolume();
 		UpdateViewProjMatrix();
-		OnLightDataInvalided(this);
+		OnLightDataInvalidated(this);
 	}
 
 	inline void SpotLight::UpdatePosition(const Vector3f& position)
@@ -153,7 +153,7 @@ namespace Nz
 
 		UpdateBoundingVolume();
 		UpdateViewProjMatrix();
-		OnLightTransformInvalided(this);
+		OnLightTransformInvalidated(this);
 	}
 
 	inline void SpotLight::UpdateRadius(float radius)
@@ -163,7 +163,7 @@ namespace Nz
 
 		UpdateBoundingVolume();
 		UpdateViewProjMatrix();
-		OnLightDataInvalided(this);
+		OnLightDataInvalidated(this);
 	}
 
 	inline void SpotLight::UpdateRotation(const Quaternionf& rotation)
@@ -173,7 +173,7 @@ namespace Nz
 
 		UpdateBoundingVolume();
 		UpdateViewProjMatrix();
-		OnLightTransformInvalided(this);
+		OnLightTransformInvalidated(this);
 	}
 
 	inline void SpotLight::UpdateBoundingVolume()
@@ -199,7 +199,7 @@ namespace Nz
 		BoundingVolumef boundingVolume(box);
 		boundingVolume.Update(Matrix4f::Transform(m_position, m_rotation));
 
-		Light::UpdateBoundingVolume(boundingVolume); //< will trigger OnLightDataInvalided
+		Light::UpdateBoundingVolume(boundingVolume); //< will trigger OnLightDataInvalidated
 	}
 
 	inline void SpotLight::UpdateViewProjMatrix()

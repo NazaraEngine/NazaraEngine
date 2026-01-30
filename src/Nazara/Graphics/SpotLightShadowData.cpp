@@ -57,7 +57,7 @@ namespace Nz
 			m_viewer.UpdateViewport(Recti(0, 0, SafeCast<int>(newSize), SafeCast<int>(newSize)));
 		});
 
-		m_onLightTransformInvalidated.Connect(m_light.OnLightTransformInvalided, [this]([[maybe_unused]] Light* light)
+		m_onLightTransformInvalidated.Connect(m_light.OnLightTransformInvalidated, [this]([[maybe_unused]] Light* light)
 		{
 			assert(&m_light == light);
 
