@@ -27,9 +27,9 @@
 
 
 #ifdef NAZARA_COMPILER_MSVC
-#define NazaraRendererPrefix ""
+#define NazaraRendererPrefix "./"
 #else
-#define NazaraRendererPrefix "lib"
+#define NazaraRendererPrefix "./lib"
 #endif
 
 #ifdef NAZARA_DEBUG
