@@ -10,7 +10,8 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <ctime>
 #include <filesystem>
-#include <Windows.h>
+
+struct _FILETIME;
 
 namespace Nz::PlatformImpl
 {
@@ -18,8 +19,8 @@ namespace Nz::PlatformImpl
 
 	using WidePathHolder = std::conditional_t<ArePathWide, /*null-terminated*/ std::wstring_view, std::wstring>;
 
+	time_t FileTimeToTime(_FILETIME* time);
 	inline WidePathHolder PathToWideTemp(const std::filesystem::path& path);
-	time_t FileTimeToTime(FILETIME* time);
 }
 
 #include <Nazara/Core/Win32/Win32Utils.inl>

@@ -5,10 +5,11 @@
 #include <Nazara/Core/Win32/Win32Utils.hpp>
 #include <Nazara/Core/StringExt.hpp>
 #include <NazaraUtils/PathUtils.hpp>
+#include <Windows.h>
 
 namespace Nz::PlatformImpl
 {
-	time_t FileTimeToTime(FILETIME* time)
+	time_t FileTimeToTime(_FILETIME* time)
 	{
 		SYSTEMTIME stUTC, stLocal;
 
