@@ -185,8 +185,14 @@ namespace Nz
 								config.optionValues["VertexJointWeightsLoc"_opt] = locationIndex;
 								break;
 
-							case VertexComponent::Unused:
 							case VertexComponent::Userdata:
+							{
+								std::string key = fmt::format("VertexUserdata{}Loc", locationIndex);
+								config.optionValues[nzsl::Ast::HashOption(key)] = locationIndex;
+								break;
+							}
+
+							case VertexComponent::Unused:
 								break;
 						}
 
