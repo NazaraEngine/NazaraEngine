@@ -110,6 +110,12 @@ namespace Nz
 	}
 
 	template<typename IncludeList, typename ExcludeList, typename Data>
+	EnttObserver<IncludeList, ExcludeList, Data>::~EnttObserver()
+	{
+		m_storage.reset();
+	}
+
+	template<typename IncludeList, typename ExcludeList, typename Data>
 	void EnttObserver<IncludeList, ExcludeList, Data>::Clear()
 	{
 		m_storage.clear();

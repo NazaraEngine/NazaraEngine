@@ -21,7 +21,7 @@ namespace Nz
 			EnttObserver(entt::registry& registry);
 			EnttObserver(const EnttObserver&) = delete;
 			EnttObserver(EnttObserver&&) = delete;
-			~EnttObserver() = default;
+			~EnttObserver();
 
 			void Clear();
 
