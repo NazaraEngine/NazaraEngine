@@ -31,7 +31,7 @@ namespace Nz
 			allocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
 		else if (usage & BufferUsage::DeviceLocal)
 		{
-			if (usage & BufferUsage::DirectMapping)
+			if (usage & (BufferUsage::DirectMapping | BufferUsage::PersistentMapping))
 				allocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
 			else
 				allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
@@ -64,9 +64,9 @@ namespace Nz
 		if (!ptr)
 			return false;
 
-		CallOnExit unmapOnExit([this]() { Unmap(); });
-
 		std::memcpy(ptr, data, size);
+		Unmap();
+
 		return true;
 	}
 
@@ -83,6 +83,13 @@ namespace Nz
 			}
 
 			return static_cast<UInt8*>(mappedPtr) + offset;
+		}
+		else if (GetUsageFlags() & BufferUsage::PersistentMapping)
+		{
+			VmaAllocationInfo allocationInfo;
+			vmaGetAllocationInfo(m_device.GetMemoryAllocator(), m_allocation, &allocationInfo);
+
+			return allocationInfo.pMappedData;
 		}
 		else
 		{
@@ -112,6 +119,8 @@ namespace Nz
 
 	bool VulkanBuffer::Unmap()
 	{
+		NazaraAssert(!GetUsageFlags().Test(BufferUsage::PersistentMapping));
+
 		if (GetUsageFlags() & BufferUsage::DirectMapping)
 		{
 			vmaUnmapMemory(m_device.GetMemoryAllocator(), m_allocation);
