@@ -56,7 +56,8 @@ namespace Nz
 
 			using Texture::Update;
 			bool Update(const void* ptr, const Boxui& box, unsigned int srcWidth, unsigned int srcHeight, UInt8 level) override;
-			bool Update(Vk::CommandBuffer& commandBuffer, std::unique_ptr<VulkanBuffer>& uploadBuffer, const void* ptr, const Boxui& box, unsigned int srcWidth, unsigned int srcHeight, UInt8 level);
+			bool Update(Vk::CommandBuffer& commandBuffer, std::unique_ptr<VulkanBuffer>& uploadBuffer, Nz::FunctionRef<bool(void* pixelBuffer)> callback, const Boxui& box, UInt8 level);
+			bool Update(Nz::FunctionRef<bool(void* pixelBuffer, UInt32 rowPitch, UInt32 depthPitch)> callback, const Boxui& box, UInt8 level = 0) override;
 
 			void UpdateDebugName(std::string_view name) override;
 

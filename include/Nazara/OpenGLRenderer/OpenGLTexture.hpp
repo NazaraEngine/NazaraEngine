@@ -46,6 +46,7 @@ namespace Nz
 
 			using Texture::Update;
 			bool Update(const void* ptr, const Boxui& box, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0) override;
+			bool Update(Nz::FunctionRef<bool(void* pixelBuffer, UInt32 rowPitch, UInt32 depthPitch)> callback, const Boxui& box, UInt8 level = 0) override;
 
 			void UpdateDebugName(std::string_view name) override;
 

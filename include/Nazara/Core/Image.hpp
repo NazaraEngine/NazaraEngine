@@ -115,6 +115,7 @@ namespace Nz
 
 			using AbstractImage::Update;
 			bool Update(const void* pixels, const Boxui32& box, UInt32 srcWidth = 0, UInt32 srcHeight = 0, UInt8 level = 0) override;
+			bool Update(Nz::FunctionRef<bool(void* pixelBuffer, UInt32 rowPitch, UInt32 depthPitch)> callback, const Boxui& box, UInt8 level = 0) override;
 
 			Image& operator=(const Image& image);
 			inline Image& operator=(Image&& image) noexcept;

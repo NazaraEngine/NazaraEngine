@@ -204,6 +204,19 @@ namespace Nz
 		return true;
 	}
 
+	bool OpenGLTexture::Update(Nz::FunctionRef<bool(void* pixelBuffer, UInt32 rowPitch, UInt32 depthPitch)> callback, const Boxui& box, UInt8 level)
+	{
+		unsigned int bpp = PixelFormatInfo::GetBytesPerPixel(m_textureInfo.pixelFormat);
+		UInt32 rowPitch = box.width * bpp;
+		UInt32 depthPitch = rowPitch * box.height;
+
+		std::vector<std::uint8_t> pixels(depthPitch * box.depth);
+		if (!callback(pixels.data(), rowPitch, depthPitch))
+			return false;
+
+		return Update(pixels.data(), box, 0, 0, level);
+	}
+
 	void OpenGLTexture::UpdateDebugName(std::string_view name)
 	{
 		m_texture.SetDebugName(name);

@@ -134,8 +134,14 @@ namespace Nz
 		const UInt8* srcPtr = source.GetConstPixels(srcBox.x, srcBox.y, srcBox.z);
 		NazaraAssertMsg(srcPtr, "failed to access pixels");
 
+		UInt8 bpp = PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format);
+		UInt32 dstRowStride = m_sharedImage->width * bpp;
+		UInt32 dstDepthStride = dstRowStride * m_sharedImage->height;
+		UInt32 srcRowStride = source.GetWidth() * bpp;
+		UInt32 srcDepthStride = srcRowStride * source.GetHeight();
+
 		UInt8* dstPtr = GetPixels(dstPos.x, dstPos.y, dstPos.z, 0);
-		ImageUtils::Copy(dstPtr, srcPtr, m_sharedImage->format, srcBox.width, srcBox.height, srcBox.depth, m_sharedImage->width, m_sharedImage->height, source.GetWidth(), source.GetHeight());
+		ImageUtils::Copy(dstPtr, srcPtr, m_sharedImage->format, srcBox.width, srcBox.height, srcBox.depth, dstRowStride, dstDepthStride, srcRowStride, srcDepthStride);
 	}
 
 	bool Image::Create(ImageType type, PixelFormat format, UInt32 width, UInt32 height, UInt32 depth, UInt8 levelCount)
@@ -902,13 +908,43 @@ namespace Nz
 		NazaraUnused(depth);
 		NazaraAssertMsg(box.z + box.depth <= depth, "box dimensions are out of bounds (z range: [%u;%u[ exceeds image depth %u)", box.z, box.z + box.depth, depth);
 
+		UInt8 bpp = PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format);
+		UInt32 dstRowStride = width * bpp;
+		UInt32 dstDepthStride = dstRowStride * height;
+		UInt32 srcRowStride = srcWidth * bpp;
+		UInt32 srcDepthStride = srcRowStride * srcHeight;
+
 		UInt8* dstPixels = GetPixels(box.x, box.y, box.z, level);
 		ImageUtils::Copy(dstPixels, static_cast<const UInt8*>(pixels), m_sharedImage->format,
 		                 box.width, box.height, box.depth,
-		                 width, height,
-		                 srcWidth, srcHeight);
+		                 dstRowStride, dstDepthStride,
+		                 srcRowStride, srcDepthStride);
 
 		return true;
+	}
+
+	bool Image::Update(Nz::FunctionRef<bool(void* pixelBuffer, UInt32 rowPitch, UInt32 depthPitch)> callback, const Boxui& box, UInt8 level)
+	{
+		NazaraAssert(callback);
+		NazaraAssertMsg(IsValid(), "invalid image");
+		NazaraAssertMsg(level < m_sharedImage->levels.size(), "level out of bounds (%u >= %zu)", UInt32(level), m_sharedImage->levels.size());
+
+		UInt32 width = ImageUtils::GetLevelSize(m_sharedImage->width, level);
+		UInt32 height = ImageUtils::GetLevelSize(m_sharedImage->height, level);
+		NazaraAssertMsg(box.IsValid(), "invalid box");
+		NazaraAssertMsg(box.x + box.width <= width, "box dimensions are out of bounds (x range: [%u;%u[ exceeds image width %u)", box.x, box.x + box.width, width);
+		NazaraAssertMsg(box.y + box.height <= height, "box dimensions are out of bounds (y range: [%u;%u[ exceeds image height %u)", box.y, box.y + box.height, height);
+		UInt32 depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : ImageUtils::GetLevelSize(m_sharedImage->depth, level);
+		NazaraUnused(depth);
+		NazaraAssertMsg(box.z + box.depth <= depth, "box dimensions are out of bounds (z range: [%u;%u[ exceeds image depth %u)", box.z, box.z + box.depth, depth);
+
+		UInt8* dstPixels = GetPixels(box.x, box.y, box.z, level);
+
+		UInt8 bpp = PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format);
+		UInt32 rowStride = width * bpp;
+		UInt32 depthStride = rowStride * height;
+
+		return callback(dstPixels, rowStride, depthStride);
 	}
 
 	Image& Image::operator=(const Image& image)

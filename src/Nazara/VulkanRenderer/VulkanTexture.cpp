@@ -7,6 +7,7 @@
 #include <Nazara/Core/PixelFormat.hpp>
 #include <Nazara/VulkanRenderer/VulkanBuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanDevice.hpp>
+#include <Nazara/VulkanRenderer/VulkanCommandBufferBuilder.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandBuffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/QueueHandle.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
@@ -149,7 +150,17 @@ namespace Nz
 		Boxui wholeRegion(0, 0, 0, m_textureInfo.width, m_textureInfo.height, m_textureInfo.depth);
 		ImageUtils::ArrayToRegion(m_textureInfo.type, 0, m_textureInfo.layerCount, wholeRegion);
 
-		Update(initCommandBuffer, uploadBuffer, initialData, wholeRegion, srcWidth, srcHeight, 0);
+		Update(initCommandBuffer, uploadBuffer, [&](void* pixelBuffer)
+		{
+			UInt8 bpp = PixelFormatInfo::GetBytesPerPixel(m_textureViewInfo.pixelFormat);
+			UInt32 dstRowStride = m_textureInfo.width * bpp;
+			UInt32 dstDepthStride = dstRowStride * m_textureInfo.height;
+			UInt32 srcRowStride = srcWidth * bpp;
+			UInt32 srcDepthStride = srcRowStride * srcHeight;
+
+			ImageUtils::Copy(pixelBuffer, initialData, m_textureViewInfo.pixelFormat, m_textureInfo.width, m_textureInfo.height, std::max(m_textureInfo.layerCount, m_textureInfo.depth), dstRowStride, dstDepthStride, srcRowStride, srcDepthStride);
+			return true;
+		}, wholeRegion, 0);
 
 		if (buildMipmaps && m_textureInfo.levelCount > 1)
 		{
@@ -283,7 +294,7 @@ namespace Nz
 				NazaraAssertMsg(m_textureViewInfo.width > 0, "Width must be over zero");
 				NazaraAssertMsg(m_textureViewInfo.height > 0, "Height must be over zero");
 				NazaraAssertMsg(m_textureViewInfo.depth == 1, "Depth must be one");
-				NazaraAssertMsg(m_textureViewInfo.layerCount > 0 && m_textureViewInfo.layerCount % 6 == 0, "Array count must be a multiple of 6");
+				NazaraAssertMsg(m_textureViewInfo.layerCount > 0 && m_textureViewInfo.layerCount % 6 == 0, "Layer count must be a multiple of 6");
 
 				createInfoView.viewType = VK_IMAGE_VIEW_TYPE_CUBE;
 				break;
@@ -375,81 +386,61 @@ namespace Nz
 
 	bool VulkanTexture::Update(const void* ptr, const Boxui& box, unsigned int srcWidth, unsigned int srcHeight, UInt8 level)
 	{
-		Vk::AutoCommandBuffer copyCommandBuffer = m_device.AllocateCommandBuffer(QueueType::Graphics);
-		if (!copyCommandBuffer->Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT))
-			return false;
+		return Update([&](void* pixelBuffer, UInt32 rowPitch, UInt32 depthPitch)
+		{
+			if (srcWidth == 0)
+				srcWidth = box.width;
 
-		unsigned int baseLayer, layerCount;
-		ImageUtils::RegionToArray(m_textureViewInfo.type, box, baseLayer, layerCount);
+			if (srcHeight == 0)
+				srcHeight = box.height;
 
-		VkImageSubresourceRange subresourceRange = BuildSubresourceRange(level, 1, baseLayer, layerCount);
+			if (srcWidth == box.width && srcHeight == box.height)
+			{
+				std::size_t memorySize = box.width * box.height * box.depth * PixelFormatInfo::GetBytesPerPixel(m_textureViewInfo.pixelFormat);
+				std::memcpy(pixelBuffer, ptr, memorySize);
+			}
+			else
+			{
+				UInt32 bpp = PixelFormatInfo::GetBytesPerPixel(m_textureViewInfo.pixelFormat);
+				UInt32 srcLineStride = srcWidth * bpp;
+				UInt32 srcFaceStride = srcLineStride * srcHeight;
 
-		copyCommandBuffer->SetImageLayout(m_image, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, subresourceRange);
+				const UInt8* source = static_cast<const UInt8*>(ptr);
+				UInt8* destination = static_cast<UInt8*>(pixelBuffer);
+				for (unsigned int i = 0; i < box.depth; ++i)
+				{
+					UInt8* dstFacePtr = destination;
+					const UInt8* srcFacePtr = source;
+					for (unsigned int y = 0; y < box.height; ++y)
+					{
+						std::memcpy(dstFacePtr, srcFacePtr, rowPitch);
 
-		std::unique_ptr<VulkanBuffer> uploadBuffer;
-		Update(copyCommandBuffer, uploadBuffer, ptr, box, srcWidth, srcHeight, level);
+						dstFacePtr += rowPitch;
+						srcFacePtr += srcLineStride;
+					}
 
-		copyCommandBuffer->SetImageLayout(m_image, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, subresourceRange);
+					destination += depthPitch;
+					source += srcFaceStride;
+				}
+			}
 
-		if (!copyCommandBuffer->End())
-			return false;
-
-		Vk::QueueHandle transferQueue = m_device.GetQueue(m_device.GetDefaultFamilyIndex(QueueType::Graphics), 0);
-		if (!transferQueue.Submit(copyCommandBuffer))
-			return false;
-
-		transferQueue.WaitIdle();
-
-		return true;
+			return true;
+		}, box, level);
 	}
 
-	bool VulkanTexture::Update(Vk::CommandBuffer& commandBuffer, std::unique_ptr<VulkanBuffer>& uploadBuffer, const void* ptr, const Boxui& box, unsigned int srcWidth, unsigned int srcHeight, UInt8 level)
+	bool VulkanTexture::Update(Vk::CommandBuffer& commandBuffer, std::unique_ptr<VulkanBuffer>& uploadBuffer, Nz::FunctionRef<bool(void* pixelBuffer)> callback, const Boxui& box, UInt8 level)
 	{
 		std::size_t memorySize = box.width * box.height * box.depth * PixelFormatInfo::GetBytesPerPixel(m_textureViewInfo.pixelFormat);
 
 		uploadBuffer = std::make_unique<VulkanBuffer>(m_device, BufferType::Upload, memorySize, BufferUsage::DirectMapping);
 		void* mappedUploadBuffer = uploadBuffer->Map(0, memorySize);
 
-		if (srcWidth == 0)
-			srcWidth = box.width;
-
-		if (srcHeight == 0)
-			srcHeight = box.height;
-
-		if (srcWidth == box.width && srcHeight == box.height)
-			std::memcpy(mappedUploadBuffer, ptr, memorySize);
-		else
-		{
-			unsigned int dstWidth = box.width;
-			unsigned int dstHeight = box.height;
-
-			unsigned int bpp = PixelFormatInfo::GetBytesPerPixel(m_textureViewInfo.pixelFormat);
-			unsigned int lineStride = box.width * bpp;
-			unsigned int dstLineStride = dstWidth * bpp;
-			unsigned int dstFaceStride = dstLineStride * dstHeight;
-			unsigned int srcLineStride = srcWidth * bpp;
-			unsigned int srcFaceStride = srcLineStride * srcHeight;
-
-			const UInt8* source = static_cast<const UInt8*>(ptr);
-			UInt8* destination = static_cast<UInt8*>(mappedUploadBuffer);
-			for (unsigned int i = 0; i < box.depth; ++i)
-			{
-				UInt8* dstFacePtr = destination;
-				const UInt8* srcFacePtr = source;
-				for (unsigned int y = 0; y < box.height; ++y)
-				{
-					std::memcpy(dstFacePtr, srcFacePtr, lineStride);
-
-					dstFacePtr += dstLineStride;
-					srcFacePtr += srcLineStride;
-				}
-
-				destination += dstFaceStride;
-				source += srcFaceStride;
-			}
-		}
+		bool shouldContinue = callback(mappedUploadBuffer);
 
 		uploadBuffer->Unmap();
+
+		if (!shouldContinue)
+			return false;
 
 		unsigned int baseLayer, layerCount;
 		Boxui copyBox = ImageUtils::RegionToArray(m_textureViewInfo.type, box, baseLayer, layerCount);
@@ -470,6 +461,45 @@ namespace Nz
 		};
 
 		commandBuffer.CopyBufferToImage(uploadBuffer->GetBuffer(), m_image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, region);
+
+		return true;
+	}
+
+	bool VulkanTexture::Update(Nz::FunctionRef<bool(void* pixelBuffer, UInt32 rowPitch, UInt32 depthPitch)> callback, const Boxui& box, UInt8 level)
+	{
+		Vk::AutoCommandBuffer copyCommandBuffer = m_device.AllocateCommandBuffer(QueueType::Graphics);
+		if (!copyCommandBuffer->Begin(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT))
+			return false;
+
+		unsigned int baseLayer, layerCount;
+		ImageUtils::RegionToArray(m_textureViewInfo.type, box, baseLayer, layerCount);
+
+		VkImageSubresourceRange subresourceRange = BuildSubresourceRange(level, 1, baseLayer, layerCount);
+
+		copyCommandBuffer->SetImageLayout(m_image, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, subresourceRange);
+
+		auto copyCallback = [&](void* pixelBuffer)
+		{
+			UInt32 bpp = PixelFormatInfo::GetBytesPerPixel(m_textureViewInfo.pixelFormat);
+			UInt32 dstLineStride = box.width * bpp;
+			UInt32 dstFaceStride = dstLineStride * box.height;
+
+			return callback(pixelBuffer, dstLineStride, dstFaceStride);
+		};
+
+		std::unique_ptr<VulkanBuffer> uploadBuffer;
+		Update(copyCommandBuffer, uploadBuffer, copyCallback, box, level);
+
+		copyCommandBuffer->SetImageLayout(m_image, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, subresourceRange);
+
+		if (!copyCommandBuffer->End())
+			return false;
+
+		Vk::QueueHandle transferQueue = m_device.GetQueue(m_device.GetDefaultFamilyIndex(QueueType::Graphics), 0);
+		if (!transferQueue.Submit(copyCommandBuffer))
+			return false;
+
+		transferQueue.WaitIdle();
 
 		return true;
 	}

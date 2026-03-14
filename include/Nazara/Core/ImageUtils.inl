@@ -38,49 +38,49 @@ namespace Nz::ImageUtils
 		}
 	}
 
-	inline void Copy(UInt8* destination, const UInt8* source, PixelFormat format, UInt32 width, UInt32 height, UInt32 depth, UInt32 dstWidth, UInt32 dstHeight, UInt32 srcWidth, UInt32 srcHeight)
+	inline void Copy(void* destination, const void* source, PixelFormat format, UInt32 width, UInt32 height, UInt32 depth, UInt32 dstRowStride, UInt32 dstDepthStride, UInt32 srcRowStride, UInt32 srcDepthStride)
 	{
 		NazaraAssertMsg(width > 0, "width must be greater than zero");
 		NazaraAssertMsg(height > 0, "height must be greater than zero");
 		NazaraAssertMsg(depth > 0, "depth must be greater than zero");
 
-		if (dstWidth == 0)
-			dstWidth = width;
+		UInt8* dstPtr = static_cast<UInt8*>(destination);
+		const UInt8* srcPtr = static_cast<const UInt8*>(source);
 
-		if (dstHeight == 0)
-			dstHeight = height;
+		UInt8 bpp = PixelFormatInfo::GetBytesPerPixel(format);
 
-		if (srcWidth == 0)
-			srcWidth = width;
+		if (dstRowStride == 0)
+			dstRowStride = width * bpp;
 
-		if (srcHeight == 0)
-			srcHeight = height;
+		if (dstDepthStride == 0)
+			dstDepthStride = width * height * bpp;
 
-		if ((height == 1 || (dstWidth == width && srcWidth == width)) && (depth == 1 || (dstHeight == height && srcHeight == height)))
-			std::memcpy(destination, source, PixelFormatInfo::ComputeSize(format, width, height, depth));
+		if (srcRowStride == 0)
+			srcRowStride = width * bpp;
+
+		if (srcDepthStride == 0)
+			srcDepthStride = width * height * bpp;
+
+		if ((height == 1 || dstRowStride == srcRowStride) && (depth == 1 || dstDepthStride == srcDepthStride))
+			std::memcpy(dstPtr, source, PixelFormatInfo::ComputeSize(format, width, height, depth));
 		else
 		{
-			UInt8 bpp = PixelFormatInfo::GetBytesPerPixel(format);
-			std::size_t lineStride = static_cast<std::size_t>(width) * bpp;
-			std::size_t dstLineStride = static_cast<std::size_t>(dstWidth) * bpp;
-			std::size_t dstFaceStride = static_cast<std::size_t>(dstLineStride) * dstHeight;
-			std::size_t srcLineStride = static_cast<std::size_t>(srcWidth) * bpp;
-			std::size_t srcFaceStride = static_cast<std::size_t>(srcLineStride) * srcHeight;
+			std::size_t lineSize = static_cast<std::size_t>(width) * bpp;
 
 			for (UInt32 i = 0; i < depth; ++i)
 			{
-				UInt8* dstFacePtr = destination;
-				const UInt8* srcFacePtr = source;
+				UInt8* dstFacePtr = dstPtr;
+				const UInt8* srcFacePtr = srcPtr;
 				for (UInt32 y = 0; y < height; ++y)
 				{
-					std::memcpy(dstFacePtr, srcFacePtr, lineStride);
+					std::memcpy(dstFacePtr, srcFacePtr, lineSize);
 
-					dstFacePtr += dstLineStride;
-					srcFacePtr += srcLineStride;
+					dstFacePtr += dstRowStride;
+					srcFacePtr += srcRowStride;
 				}
 
-				destination += dstFaceStride;
-				source += srcFaceStride;
+				dstPtr += dstDepthStride;
+				srcPtr += srcDepthStride;
 			}
 		}
 	}
