@@ -14,6 +14,13 @@ namespace Nz::GL
 		context.glBufferData(ToOpenGL(m_target), size, initialData, usage);
 	}
 
+	inline void Buffer::FlushMappedBufferRange(GLintptr offset, GLsizeiptr length)
+	{
+		const Context& context = EnsureDeviceContext();
+		context.BindBuffer(m_target, m_objectId);
+		context.glFlushMappedBufferRange(ToOpenGL(m_target), offset, length);
+	}
+
 	inline void* Buffer::MapRange(GLintptr offset, GLsizeiptr length, GLbitfield access)
 	{
 		const Context& context = EnsureDeviceContext();

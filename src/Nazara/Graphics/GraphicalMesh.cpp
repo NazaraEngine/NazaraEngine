@@ -34,7 +34,7 @@ namespace Nz
 				assert(indexBuffer->GetBuffer()->GetStorage() == DataStorage::Software);
 				const SoftwareBuffer* indexBufferContent = static_cast<const SoftwareBuffer*>(indexBuffer->GetBuffer().get());
 
-				submeshData.indexBuffer = renderDevice->InstantiateBuffer(BufferType::Index, indexBuffer->GetStride() * indexBuffer->GetIndexCount(), BufferUsage::DeviceLocal | BufferUsage::Write);
+				submeshData.indexBuffer = renderDevice->InstantiateBuffer(indexBuffer->GetStride() * indexBuffer->GetIndexCount(), BufferUsage::IndexBuffer | BufferUsage::DeviceLocal);
 				if (!submeshData.indexBuffer->Fill(indexBufferContent->GetData() + indexBuffer->GetStartOffset(), 0, indexBuffer->GetEndOffset() - indexBuffer->GetStartOffset()))
 					throw std::runtime_error("failed to fill index buffer");
 
@@ -44,7 +44,7 @@ namespace Nz
 			else
 				submeshData.indexCount = vertexBuffer->GetVertexCount();
 
-			submeshData.vertexBuffer = renderDevice->InstantiateBuffer(BufferType::Vertex, vertexBuffer->GetStride() * vertexBuffer->GetVertexCount(), BufferUsage::DeviceLocal | BufferUsage::Write);
+			submeshData.vertexBuffer = renderDevice->InstantiateBuffer(vertexBuffer->GetStride() * vertexBuffer->GetVertexCount(), BufferUsage::VertexBuffer | BufferUsage::DeviceLocal);
 			if (!submeshData.vertexBuffer->Fill(vertexBufferContent->GetData() + vertexBuffer->GetStartOffset(), 0, vertexBuffer->GetEndOffset() - vertexBuffer->GetStartOffset()))
 				throw std::runtime_error("failed to fill vertex buffer");
 

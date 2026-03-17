@@ -176,9 +176,9 @@ namespace Nz
 		return m_deviceInfo.features;
 	}
 
-	std::shared_ptr<RenderBuffer> OpenGLDevice::InstantiateBuffer(BufferType type, UInt64 size, BufferUsageFlags usageFlags, const void* initialData)
+	std::shared_ptr<RenderBuffer> OpenGLDevice::InstantiateBuffer(UInt64 size, BufferUsageFlags usageFlags, const void* initialData)
 	{
-		return std::make_shared<OpenGLBuffer>(*this, type, size, usageFlags, initialData);
+		return std::make_shared<OpenGLBuffer>(*this, size, usageFlags, initialData);
 	}
 
 	std::shared_ptr<CommandPool> OpenGLDevice::InstantiateCommandPool(QueueType /*queueType*/)

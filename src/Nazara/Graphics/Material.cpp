@@ -91,7 +91,7 @@ namespace Nz
 				auto& uniformBlock = m_uniformBlocks.emplace_back();
 				uniformBlock.bindingIndex = shaderBlock.bindingIndex;
 				uniformBlock.bindingSet = shaderBlock.bindingSet;
-				uniformBlock.bufferPool = std::make_unique<RenderBufferPool>(renderDevice, BufferType::Uniform, size);
+				uniformBlock.bufferPool = std::make_unique<RenderBufferPool>(renderDevice, BufferUsage::UniformBuffer | BufferUsage::DeviceLocal, size);
 				uniformBlock.structIndex = shaderBlock.structIndex;
 
 				m_uniformBlockByTag.emplace(tag, blockIndex);

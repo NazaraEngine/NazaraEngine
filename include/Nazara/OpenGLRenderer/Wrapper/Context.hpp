@@ -38,6 +38,7 @@ namespace Nz::GL
 		Array,
 		CopyRead,
 		CopyWrite,
+		DrawIndirect,
 		ElementArray,
 		PixelPack,
 		PixelUnpack,

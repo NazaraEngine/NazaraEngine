@@ -19,7 +19,7 @@ namespace Nz
 	m_startOffset(0)
 	{
 		NazaraAssertMsg(m_buffer, "invalid buffer");
-		NazaraAssertMsg(m_buffer->GetType() == BufferType::Index, "buffer must be an index buffer");
+		NazaraAssertMsg(m_buffer->GetUsageFlags() & BufferUsage::IndexBuffer, "buffer must support index buffer usage");
 
 		m_endOffset = m_buffer->GetSize();
 		m_indexCount = SafeCast<UInt32>(m_endOffset / GetStride());
@@ -32,7 +32,7 @@ namespace Nz
 	m_startOffset(offset)
 	{
 		NazaraAssertMsg(m_buffer, "invalid buffer");
-		NazaraAssertMsg(m_buffer->GetType() == BufferType::Index, "buffer must be an index buffer");
+		NazaraAssertMsg(m_buffer->GetUsageFlags() & BufferUsage::IndexBuffer, "buffer must support index buffer usage");
 		NazaraAssertMsg(size > 0, "invalid buffer size");
 
 		m_indexCount = SafeCast<UInt32>(size / GetStride());
@@ -46,7 +46,7 @@ namespace Nz
 		NazaraAssertMsg(indexCount > 0, "invalid index count");
 
 		m_endOffset = indexCount * GetStride();
-		m_buffer = bufferFactory(BufferType::Index, m_endOffset, usage, initialData);
+		m_buffer = bufferFactory(m_endOffset, BufferUsage::IndexBuffer | usage, initialData);
 	}
 
 	UInt64 IndexBuffer::ComputeCacheMissCount()

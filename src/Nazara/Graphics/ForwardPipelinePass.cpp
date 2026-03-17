@@ -50,7 +50,7 @@ namespace Nz
 		if (m_handleLights)
 		{
 			std::size_t lightUboAlignedSize = AlignPow2(PredefinedLightOffsets.totalSize, SafeCast<std::size_t>(graphics->GetRenderDevice()->GetDeviceInfo().limits.minUniformBufferOffsetAlignment));
-			m_lightDataBuffer = graphics->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform, lightUboAlignedSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write);
+			m_lightDataBuffer = graphics->GetRenderDevice()->InstantiateBuffer(lightUboAlignedSize, BufferUsage::UniformBuffer | BufferUsage::DeviceLocal);
 			m_lightDataBuffer->UpdateDebugName("Lights buffer");
 
 			m_renderState.lightData = RenderBufferView(m_lightDataBuffer.get());

@@ -33,10 +33,10 @@ namespace Nz
 		BufferFactory bufferFactory = &SoftwareBufferFactory;
 
 		// Buffer usage flags used to build the index buffers
-		BufferUsageFlags indexBufferFlags = BufferUsage::DirectMapping | BufferUsage::Read | BufferUsage::Write;
+		BufferUsageFlags indexBufferFlags = BufferUsage::MemoryMapping | BufferUsage::MapSequentialWrite;
 
 		// Buffer usage flags used to build the vertex buffers
-		BufferUsageFlags vertexBufferFlags = BufferUsage::DirectMapping | BufferUsage::Read | BufferUsage::Write;
+		BufferUsageFlags vertexBufferFlags = BufferUsage::MemoryMapping | BufferUsage::MapSequentialWrite;
 
 		// Transform vertices and joints by these transformations
 		Vector3f vertexOffset = Vector3f::Zero();

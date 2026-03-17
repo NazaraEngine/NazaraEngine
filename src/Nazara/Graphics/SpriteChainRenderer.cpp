@@ -43,7 +43,7 @@ namespace Nz
 			*indexPtr++ = index * 4 + 3;
 		}
 
-		m_indexBuffer = m_device.InstantiateBuffer(BufferType::Index, indexCount * sizeof(UInt16), BufferUsage::DeviceLocal | BufferUsage::Write, indices.data());
+		m_indexBuffer = m_device.InstantiateBuffer(indexCount * sizeof(UInt16), BufferUsage::IndexBuffer | BufferUsage::DeviceLocal, indices.data());
 	}
 
 	RenderElementPool<RenderSpriteChain>& SpriteChainRenderer::GetPool()
@@ -156,7 +156,7 @@ namespace Nz
 						m_pool->vertexBuffers.pop_back();
 					}
 					else
-						vertexBuffer = m_device.InstantiateBuffer(BufferType::Vertex, m_maxVertexBufferSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write);
+						vertexBuffer = m_device.InstantiateBuffer(m_maxVertexBufferSize, BufferUsage::VertexBuffer | BufferUsage::DeviceLocal);
 
 					m_pendingData.currentVertexBuffer = vertexBuffer.get();
 

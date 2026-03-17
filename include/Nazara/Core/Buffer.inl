@@ -6,8 +6,7 @@
 
 namespace Nz
 {
-	inline Buffer::Buffer(DataStorage storage, BufferType type, UInt64 size, BufferUsageFlags usage) :
-	m_type(type),
+	inline Buffer::Buffer(DataStorage storage, UInt64 size, BufferUsageFlags usage) :
 	m_usage(usage),
 	m_storage(storage),
 	m_size(size)
@@ -22,11 +21,6 @@ namespace Nz
 	inline DataStorage Buffer::GetStorage() const
 	{
 		return m_storage;
-	}
-
-	inline BufferType Buffer::GetType() const
-	{
-		return m_type;
 	}
 
 	inline BufferUsageFlags Buffer::GetUsageFlags() const

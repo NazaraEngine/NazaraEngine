@@ -14,7 +14,7 @@ namespace Nz
 	m_startOffset(0)
 	{
 		NazaraAssertMsg(m_buffer, "invalid buffer");
-		NazaraAssertMsg(m_buffer->GetType() == BufferType::Vertex, "buffer must be an vertex buffer");
+		NazaraAssertMsg(m_buffer->GetUsageFlags() & BufferUsage::VertexBuffer, "buffer must support vertex buffer usage");
 
 		m_endOffset = m_buffer->GetSize();
 		m_vertexCount = SafeCast<UInt32>((m_vertexDeclaration) ? m_endOffset / m_vertexDeclaration->GetStride() : 0);
@@ -27,7 +27,7 @@ namespace Nz
 	m_startOffset(offset)
 	{
 		NazaraAssertMsg(m_buffer, "invalid buffer");
-		NazaraAssertMsg(m_buffer->GetType() == BufferType::Vertex, "buffer must be an vertex buffer");
+		NazaraAssertMsg(m_buffer->GetUsageFlags() & BufferUsage::VertexBuffer, "buffer must support vertex buffer usage");
 
 		m_vertexCount = SafeCast<UInt32>((m_vertexDeclaration) ? m_endOffset / m_vertexDeclaration->GetStride() : 0);
 	}
@@ -41,7 +41,7 @@ namespace Nz
 		NazaraAssertMsg(vertexCount > 0, "invalid vertex count");
 
 		m_endOffset = vertexCount * m_vertexDeclaration->GetStride();
-		m_buffer = bufferFactory(BufferType::Vertex, m_endOffset, usage, initialData);
+		m_buffer = bufferFactory(m_endOffset, BufferUsage::VertexBuffer | usage, initialData);
 	}
 
 	bool VertexBuffer::Fill(const void* data, UInt64 startVertex, UInt64 length)

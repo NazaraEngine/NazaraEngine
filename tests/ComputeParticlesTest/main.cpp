@@ -130,7 +130,7 @@ int main()
 		particleVelPtr[i] = Nz::Vector2f(velDis(rand), velDis(rand));
 	}
 
-	std::shared_ptr<Nz::RenderBuffer> particleBuffer = device->InstantiateBuffer(Nz::BufferType::Storage, bufferSize, Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::DirectMapping | Nz::BufferUsage::Read | Nz::BufferUsage::Write, particleBufferInitialData.data());
+	std::shared_ptr<Nz::RenderBuffer> particleBuffer = device->InstantiateBuffer(bufferSize, Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::MemoryMapping | Nz::BufferUsage::StorageBuffer, particleBufferInitialData.data());
 
 	nzsl::FieldOffsets sceneBufferLayout(nzsl::StructLayout::Std140);
 	std::size_t deltaTimeOffset = sceneBufferLayout.AddField(nzsl::StructFieldType::Float1);
@@ -139,7 +139,7 @@ int main()
 
 	std::size_t sceneBufferSize = sceneBufferLayout.GetAlignedSize();
 
-	std::shared_ptr<Nz::RenderBuffer> sceneDataBuffer = device->InstantiateBuffer(Nz::BufferType::Uniform, sceneBufferSize, Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::Dynamic);
+	std::shared_ptr<Nz::RenderBuffer> sceneDataBuffer = device->InstantiateBuffer(sceneBufferSize, Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::UniformBuffer);
 
 	// Compute part
 	Nz::RenderPipelineLayoutInfo computePipelineLayoutInfo;
@@ -213,7 +213,7 @@ int main()
 	std::vector<Nz::UInt8> viewerBufferInitialData(viewerBufferSize);
 	Nz::AccessByOffset<Nz::Matrix4f&>(viewerBufferInitialData.data(), projectionMatrixOffset) = Nz::Matrix4f::Ortho(0.f, float(windowSize.x), 0.f, float(windowSize.y));
 
-	std::shared_ptr<Nz::RenderBuffer> uniformBuffer = device->InstantiateBuffer(Nz::BufferType::Uniform, viewerBufferSize, Nz::BufferUsage::DeviceLocal, viewerBufferInitialData.data());
+	std::shared_ptr<Nz::RenderBuffer> uniformBuffer = device->InstantiateBuffer(viewerBufferSize, Nz::BufferUsage::UniformBuffer | Nz::BufferUsage::DeviceLocal, viewerBufferInitialData.data());
 
 	std::shared_ptr<Nz::Texture> texture = GenerateSpriteTexture(*device, moduleResolver, windowSwapchain);
 	std::shared_ptr<Nz::TextureSampler> textureSampler = device->InstantiateTextureSampler({});
@@ -578,7 +578,7 @@ SpriteRenderData BuildSpriteData(Nz::RenderDevice& device, const SpriteRenderPip
 		pos[3].uv = Nz::Vector2f(1.f, 1.f);
 
 		SpriteRenderData renderData;
-		renderData.vertexBuffer = device.InstantiateBuffer(Nz::BufferType::Vertex, 4 * 4 * sizeof(float), Nz::BufferUsage::DeviceLocal, pos.data());
+		renderData.vertexBuffer = device.InstantiateBuffer(4 * 4 * sizeof(float), Nz::BufferUsage::VertexBuffer | Nz::BufferUsage::DeviceLocal, pos.data());
 
 		renderData.shaderBinding = pipelineData.pipelineLayout->AllocateShaderBinding(0);
 		renderData.shaderBinding->Update({

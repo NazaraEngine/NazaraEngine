@@ -394,7 +394,7 @@ namespace Nz
 	void MaterialInstance::UpdateStorageBufferBinding(std::size_t storageBufferBinding, std::shared_ptr<RenderBuffer> storageBuffer, UInt64 offset, UInt64 size)
 	{
 		NazaraAssertMsg(storageBuffer, "invalid buffer");
-		NazaraAssertMsg(storageBuffer->GetType() == Nz::BufferType::Storage, "buffer is not a storage buffer");
+		NazaraAssertMsg(storageBuffer->GetUsageFlags() & BufferUsage::StorageBuffer, "buffer does not have storage buffer usage flag");
 
 		assert(storageBufferBinding < m_storageBufferBindings.size());
 		auto& binding = m_storageBufferBindings[storageBufferBinding];

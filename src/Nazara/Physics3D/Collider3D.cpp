@@ -85,8 +85,8 @@ namespace Nz
 		if (colliderIndices.empty())
 			return nullptr;
 
-		std::shared_ptr<VertexBuffer> colliderVB = std::make_shared<VertexBuffer>(VertexDeclaration::Get(VertexLayout::XYZ), SafeCast<UInt32>(colliderVertices.size()), BufferUsage::Write, SoftwareBufferFactory, colliderVertices.data());
-		std::shared_ptr<IndexBuffer> colliderIB = std::make_shared<IndexBuffer>(IndexType::U16, SafeCast<UInt32>(colliderIndices.size()), BufferUsage::Write, SoftwareBufferFactory, colliderIndices.data());
+		std::shared_ptr<VertexBuffer> colliderVB = std::make_shared<VertexBuffer>(VertexDeclaration::Get(VertexLayout::XYZ), SafeCast<UInt32>(colliderVertices.size()), BufferUsage::VertexBuffer, SoftwareBufferFactory, colliderVertices.data());
+		std::shared_ptr<IndexBuffer> colliderIB = std::make_shared<IndexBuffer>(IndexType::U16, SafeCast<UInt32>(colliderIndices.size()), BufferUsage::IndexBuffer, SoftwareBufferFactory, colliderIndices.data());
 
 		std::shared_ptr<StaticMesh> colliderSubMesh = std::make_shared<StaticMesh>(std::move(colliderVB), std::move(colliderIB));
 		colliderSubMesh->GenerateAABB();

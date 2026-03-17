@@ -20,7 +20,7 @@ namespace Nz
 	class NAZARA_RENDERER_API RenderBuffer : public Buffer
 	{
 		public:
-			inline RenderBuffer(RenderDevice& renderDevice, BufferType type, UInt64 size, BufferUsageFlags usage);
+			inline RenderBuffer(RenderDevice& renderDevice, UInt64 size, BufferUsageFlags usage);
 			RenderBuffer(const RenderBuffer&) = delete;
 			RenderBuffer(RenderBuffer&&) = delete;
 			~RenderBuffer();

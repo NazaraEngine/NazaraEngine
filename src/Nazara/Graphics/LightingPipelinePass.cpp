@@ -642,7 +642,7 @@ namespace Nz
 				UInt64 maxLightCount = std::min(maxLight, maxUniformBufferSize / lightSize);
 
 				// Allocate new light block
-				lightBlock.memory.lightUbo = renderDevice.InstantiateBuffer(BufferType::Uniform, maxLightCount * lightSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write, nullptr);
+				lightBlock.memory.lightUbo = renderDevice.InstantiateBuffer(maxLightCount * lightSize, BufferUsage::UniformBuffer | BufferUsage::DeviceLocal, nullptr);
 
 				lightBlock.memory.shaderBinding = m_commonPipelineLayout->AllocateShaderBinding(1);
 				lightBlock.memory.shaderBinding->Update({
@@ -680,7 +680,7 @@ namespace Nz
 				UInt64 maxLightCount = std::min(maxLight, maxUniformBufferSize / lightSize);
 
 				// Allocate new light block
-				lightBlock.memory.lightUbo = renderDevice.InstantiateBuffer(BufferType::Uniform, maxLightCount * lightSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write, nullptr);
+				lightBlock.memory.lightUbo = renderDevice.InstantiateBuffer(maxLightCount * lightSize, BufferUsage::UniformBuffer | BufferUsage::DeviceLocal, nullptr);
 				lightBlock.memory.shaderBindings.clear();
 			}
 

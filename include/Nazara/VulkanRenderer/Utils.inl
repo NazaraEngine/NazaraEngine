@@ -109,19 +109,38 @@ namespace Nz
 		return {};
 	}
 
-	inline VkBufferUsageFlags ToVulkan(BufferType bufferType)
+	inline VkBufferUsageFlagBits ToVulkan(BufferUsage bufferUsage)
 	{
-		switch (bufferType)
+		switch (bufferUsage)
 		{
-			case BufferType::Index:   return VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
-			case BufferType::Storage: return VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
-			case BufferType::Vertex:  return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-			case BufferType::Uniform: return VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
-			case BufferType::Upload:  return VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+			case BufferUsage::DeviceLocal:
+			case BufferUsage::MemoryMapping:
+			case BufferUsage::MapSequentialWrite:
+			case BufferUsage::PersistentMapping:
+			case BufferUsage::IndirectBuffer:
+				return VkBufferUsageFlagBits(0); //< not a real Vulkan flag
+
+			case BufferUsage::IndexBuffer:         return VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+			case BufferUsage::StorageBuffer:       return VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+			case BufferUsage::VertexBuffer:        return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+			case BufferUsage::UniformBuffer:       return VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
+			case BufferUsage::TransferDestination: return VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+			case BufferUsage::TransferSource:      return VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+			default:
+				break;
 		}
 
-		NazaraError("unhandled BufferType {0:#x}", UnderlyingCast(bufferType));
-		return 0;
+		NazaraError("unhandled BufferUsage {0:#x}", UnderlyingCast(bufferUsage));
+		return {};
+	}
+
+	inline VkBufferUsageFlags ToVulkan(BufferUsageFlags bufferUsages)
+	{
+		VkBufferUsageFlags bufferUsageBits = 0;
+		for (BufferUsage bufferUsage : bufferUsages)
+			bufferUsageBits |= ToVulkan(bufferUsage);
+
+		return bufferUsageBits;
 	}
 
 	inline VkFormat ToVulkan(ComponentType componentType)

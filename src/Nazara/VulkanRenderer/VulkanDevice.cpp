@@ -35,9 +35,9 @@ namespace Nz
 		return m_enabledFeatures;
 	}
 
-	std::shared_ptr<RenderBuffer> VulkanDevice::InstantiateBuffer(BufferType type, UInt64 size, BufferUsageFlags usageFlags, const void* initialData)
+	std::shared_ptr<RenderBuffer> VulkanDevice::InstantiateBuffer(UInt64 size, BufferUsageFlags usageFlags, const void* initialData)
 	{
-		return std::make_shared<VulkanBuffer>(*this, type, size, usageFlags, initialData);
+		return std::make_shared<VulkanBuffer>(*this, size, usageFlags, initialData);
 	}
 
 	std::shared_ptr<CommandPool> VulkanDevice::InstantiateCommandPool(QueueType queueType)

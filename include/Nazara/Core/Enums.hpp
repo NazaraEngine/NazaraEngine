@@ -64,27 +64,24 @@ namespace Nz
 		Max = WriteOnly
 	};
 
-	enum class BufferType
-	{
-		Index,
-		Vertex,
-		Storage,
-		Uniform,
-		Upload,
-
-		Max = Upload
-	};
-
 	enum class BufferUsage
 	{
+		// Creation flags
 		DeviceLocal,
-		DirectMapping,
-		Dynamic,
-		Read,
+		MemoryMapping,
+		MapSequentialWrite,
 		PersistentMapping,
-		Write,
 
-		Max = DirectMapping
+		// Rendering usage
+		IndexBuffer,
+		IndirectBuffer,
+		StorageBuffer,
+		TransferSource,
+		TransferDestination,
+		UniformBuffer,
+		VertexBuffer,
+
+		Max = VertexBuffer
 	};
 
 	template<>

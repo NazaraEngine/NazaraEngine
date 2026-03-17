@@ -7,29 +7,18 @@
 
 namespace Nz
 {
-	RenderBufferPool::RenderBufferPool(std::shared_ptr<RenderDevice> renderDevice, BufferType bufferType, std::size_t bufferSize, std::size_t bufferPerBlock) :
+	RenderBufferPool::RenderBufferPool(std::shared_ptr<RenderDevice> renderDevice, BufferUsageFlags bufferUsages, std::size_t bufferSize, std::size_t bufferPerBlock) :
 	m_bufferPerBlock(bufferPerBlock),
 	m_bufferSize(bufferSize),
 	m_renderDevice(std::move(renderDevice)),
-	m_bufferType(bufferType)
+	m_bufferUsages(bufferUsages)
 	{
 		m_bufferAlignedSize = m_bufferSize;
+		if (bufferUsages.Test(BufferUsage::StorageBuffer))
+			m_bufferAlignedSize = AlignPow2(m_bufferAlignedSize, m_renderDevice->GetDeviceInfo().limits.minStorageBufferOffsetAlignment);
 
-		switch (bufferType)
-		{
-			case BufferType::Index:
-			case BufferType::Vertex:
-			case BufferType::Upload:
-				break; // TODO
-
-			case BufferType::Storage:
-				m_bufferAlignedSize = AlignPow2(m_bufferAlignedSize, m_renderDevice->GetDeviceInfo().limits.minStorageBufferOffsetAlignment);
-				break;
-
-			case BufferType::Uniform:
-				m_bufferAlignedSize = AlignPow2(m_bufferAlignedSize, m_renderDevice->GetDeviceInfo().limits.minUniformBufferOffsetAlignment);
-				break;
-		}
+		if (bufferUsages.Test(BufferUsage::UniformBuffer))
+			m_bufferAlignedSize = AlignPow2(m_bufferAlignedSize, m_renderDevice->GetDeviceInfo().limits.minUniformBufferOffsetAlignment);
 	}
 
 	std::pair<std::shared_ptr<RenderBuffer>, RenderBufferView> RenderBufferPool::Allocate(std::size_t& index)
@@ -48,7 +37,7 @@ namespace Nz
 
 		// Allocate a new block
 		std::size_t blockIndex = m_bufferBlocks.size();
-		m_bufferBlocks.emplace_back(m_renderDevice->InstantiateBuffer(m_bufferType, m_bufferAlignedSize * m_bufferPerBlock, BufferUsage::DeviceLocal));
+		m_bufferBlocks.emplace_back(m_renderDevice->InstantiateBuffer(m_bufferAlignedSize * m_bufferPerBlock, m_bufferUsages));
 		m_availableEntries.Resize(m_availableEntries.GetSize() + m_bufferPerBlock, true);
 
 		index = blockIndex * m_bufferPerBlock;

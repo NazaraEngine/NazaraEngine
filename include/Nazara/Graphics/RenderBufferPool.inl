@@ -20,8 +20,8 @@ namespace Nz
 		return m_bufferSize;
 	}
 
-	inline BufferType RenderBufferPool::GetBufferType() const
+	inline BufferUsageFlags RenderBufferPool::GetBufferUsageFlags() const
 	{
-		return m_bufferType;
+		return m_bufferUsages;
 	}
 }

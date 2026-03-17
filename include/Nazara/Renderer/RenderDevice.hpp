@@ -45,7 +45,7 @@ namespace Nz
 			virtual const RenderDeviceInfo& GetDeviceInfo() const = 0;
 			virtual const RenderDeviceFeatures& GetEnabledFeatures() const = 0;
 
-			virtual std::shared_ptr<RenderBuffer> InstantiateBuffer(BufferType type, UInt64 size, BufferUsageFlags usageFlags, const void* initialData = nullptr) = 0;
+			virtual std::shared_ptr<RenderBuffer> InstantiateBuffer(UInt64 size, BufferUsageFlags usageFlags, const void* initialData = nullptr) = 0;
 			virtual std::shared_ptr<CommandPool> InstantiateCommandPool(QueueType queueType) = 0;
 			virtual std::shared_ptr<ComputePipeline> InstantiateComputePipeline(ComputePipelineInfo pipelineInfo) = 0;
 			virtual std::shared_ptr<Framebuffer> InstantiateFramebuffer(UInt32 width, UInt32 height, const std::shared_ptr<RenderPass>& renderPass, const std::vector<std::shared_ptr<Texture>>& attachments) = 0;

@@ -5,8 +5,8 @@
 
 namespace Nz
 {
-	inline RenderBuffer::RenderBuffer(RenderDevice& renderDevice, BufferType type, UInt64 size, BufferUsageFlags usage) :
-	Buffer(DataStorage::Hardware, type, size, usage),
+	inline RenderBuffer::RenderBuffer(RenderDevice& renderDevice, UInt64 size, BufferUsageFlags usage) :
+	Buffer(DataStorage::Hardware, size, usage),
 	m_renderDevice(renderDevice)
 	{
 	}

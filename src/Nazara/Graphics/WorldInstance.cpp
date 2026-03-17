@@ -20,7 +20,7 @@ namespace Nz
 	{
 		constexpr auto& instanceUboOffsets = PredefinedInstanceOffsets;
 
-		m_instanceDataBuffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform, instanceUboOffsets.totalSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write);
+		m_instanceDataBuffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(instanceUboOffsets.totalSize, BufferUsage::UniformBuffer | BufferUsage::DeviceLocal);
 		m_instanceDataBuffer->UpdateDebugName("Instance data");
 	}
 

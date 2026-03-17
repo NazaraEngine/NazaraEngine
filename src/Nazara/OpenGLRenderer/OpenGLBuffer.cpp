@@ -9,39 +9,41 @@
 
 namespace Nz
 {
-	OpenGLBuffer::OpenGLBuffer(OpenGLDevice& device, BufferType type, UInt64 size, BufferUsageFlags usage, const void* initialData) :
-	RenderBuffer(device, type, size, usage)
+	OpenGLBuffer::OpenGLBuffer(OpenGLDevice& device, UInt64 size, BufferUsageFlags usage, const void* initialData) :
+	RenderBuffer(device, size, usage)
 	{
 		if (!m_buffer.Create(device))
 			throw std::runtime_error("failed to create buffer"); //< TODO: Handle OpenGL error
 
+		// First binding may be used by driver as a hint of usage
 		GL::BufferTarget target;
-		switch (type)
-		{
-			case BufferType::Index:   target = GL::BufferTarget::ElementArray; break;
-			case BufferType::Storage: target = GL::BufferTarget::Storage; break;
-			case BufferType::Uniform: target = GL::BufferTarget::Uniform; break;
-			case BufferType::Vertex:  target = GL::BufferTarget::Array; break;
-
-			default:
-				throw std::runtime_error(fmt::format("unknown buffer type {0:#x}", UnderlyingCast(type)));
-		}
+		if (usage & BufferUsage::IndexBuffer)
+			target = GL::BufferTarget::ElementArray;
+		else if (usage & BufferUsage::VertexBuffer)
+			target = GL::BufferTarget::Array;
+		else if (usage & BufferUsage::IndirectBuffer)
+			target = GL::BufferTarget::DrawIndirect;
+		else if (usage & BufferUsage::UniformBuffer)
+			target = GL::BufferTarget::Uniform;
+		else if (usage & BufferUsage::StorageBuffer)
+			target = GL::BufferTarget::Storage;
+		else if (usage & BufferUsage::TransferSource)
+			target = GL::BufferTarget::CopyRead;
+		else
+			target = GL::BufferTarget::CopyWrite;
 
 		const GL::Context& context = m_buffer.EnsureDeviceContext();
 		if (context.IsExtensionSupported(GL::Extension::BufferStorage))
 		{
-			GLbitfield bitfield = GL_DYNAMIC_STORAGE_BIT;
+			GLbitfield bitfield = GL_DYNAMIC_STORAGE_BIT | GL_MAP_WRITE_BIT;
 			if (!usage.Test(BufferUsage::DeviceLocal))
 				bitfield |= GL_CLIENT_STORAGE_BIT;
 
-			if (usage.Test(BufferUsage::Read))
+			if (!usage.Test(BufferUsage::MapSequentialWrite))
 				bitfield |= GL_MAP_READ_BIT;
 
 			if (usage.Test(BufferUsage::PersistentMapping))
 				bitfield |= GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
-
-			if (usage.Test(BufferUsage::Write))
-				bitfield |= GL_MAP_WRITE_BIT;
 
 			m_buffer.Storage(target, size, initialData, bitfield);
 		}
@@ -49,12 +51,12 @@ namespace Nz
 		{
 			GLenum hint = GL_STREAM_COPY;
 
-			if (usage.Test(BufferUsage::Dynamic))
+			if (usage.Test(BufferUsage::MapSequentialWrite))
 				hint = GL_DYNAMIC_DRAW;
 			else if (usage.Test(BufferUsage::DeviceLocal))
 				hint = GL_STATIC_DRAW;
 
-			if (usage.Test(BufferUsage::DirectMapping))
+			if (usage.Test(BufferUsage::MemoryMapping))
 				hint = GL_DYNAMIC_COPY;
 
 			m_buffer.Data(target, size, initialData, hint);
@@ -67,16 +69,18 @@ namespace Nz
 		return true;
 	}
 
+	void OpenGLBuffer::Flush(UInt64 /*offset*/, UInt64 /*size*/)
+	{
+		// When should we flush explicitly (since GL_MAP_FLUSH_EXPLICIT is set for persistent mapping)?
+	}
+
 	void* OpenGLBuffer::Map(UInt64 offset, UInt64 size)
 	{
-		GLbitfield accessBit = 0;
-		if (GetUsageFlags() & BufferUsage::Read)
-			accessBit |= GL_MAP_READ_BIT;
-		else
+		GLbitfield accessBit = GL_MAP_WRITE_BIT;
+		if (GetUsageFlags() & BufferUsage::MapSequentialWrite)
 			accessBit |= GL_MAP_UNSYNCHRONIZED_BIT;
-
-		if (GetUsageFlags() & BufferUsage::Write)
-			accessBit |= GL_MAP_WRITE_BIT;
+		else
+			accessBit |= GL_MAP_READ_BIT;
 
 		if (GetUsageFlags() & BufferUsage::PersistentMapping)
 			accessBit |= GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;

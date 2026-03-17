@@ -26,7 +26,7 @@ namespace Nz
 	m_farPlane(-1.f),
 	m_nearPlane(-1.f)
 	{
-		m_viewerDataBuffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(BufferType::Uniform, PredefinedViewerOffsets.totalSize, BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write);
+		m_viewerDataBuffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(PredefinedViewerOffsets.totalSize, BufferUsage::UniformBuffer | BufferUsage::DeviceLocal);
 		m_viewerDataBuffer->UpdateDebugName("Viewer data");
 	}
 

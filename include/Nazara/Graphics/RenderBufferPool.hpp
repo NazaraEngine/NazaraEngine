@@ -21,7 +21,7 @@ namespace Nz
 	class NAZARA_GRAPHICS_API RenderBufferPool
 	{
 		public:
-			RenderBufferPool(std::shared_ptr<RenderDevice> renderDevice, BufferType bufferType, std::size_t bufferSize, std::size_t bufferPerBlock = 2048);
+			RenderBufferPool(std::shared_ptr<RenderDevice> renderDevice, BufferUsageFlags bufferUsages, std::size_t bufferSize, std::size_t bufferPerBlock = 2048);
 			RenderBufferPool(const RenderBufferPool&) = delete;
 			RenderBufferPool(RenderBufferPool&&) = delete;
 			~RenderBufferPool() = default;
@@ -33,7 +33,7 @@ namespace Nz
 			inline UInt64 GetBufferAlignedSize() const;
 			inline UInt64 GetBufferPerBlock() const;
 			inline UInt64 GetBufferSize() const;
-			inline BufferType GetBufferType() const;
+			inline BufferUsageFlags GetBufferUsageFlags() const;
 
 			RenderBufferPool& operator=(const RenderBufferPool&) = delete;
 			RenderBufferPool& operator=(RenderBufferPool&&) = delete;
@@ -45,7 +45,7 @@ namespace Nz
 			std::shared_ptr<RenderDevice> m_renderDevice;
 			std::vector<std::shared_ptr<RenderBuffer>> m_bufferBlocks;
 			Bitset<UInt64> m_availableEntries;
-			BufferType m_bufferType;
+			BufferUsageFlags m_bufferUsages;
 	};
 }
 

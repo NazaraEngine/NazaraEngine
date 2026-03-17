@@ -124,9 +124,7 @@ namespace Nz
 
 					if (OpenGLBuffer* glBuffer = SafeCast<OpenGLBuffer*>(arg.buffer))
 					{
-						if (glBuffer->GetType() != BufferType::Storage)
-							throw std::runtime_error("expected storage buffer");
-
+						NazaraAssertMsg(glBuffer->GetUsageFlags() != BufferUsage::StorageBuffer, "buffer does not have storage buffer usage flag");
 						storageDescriptor.buffer = glBuffer->GetBuffer().GetObjectId();
 					}
 					else
@@ -173,9 +171,7 @@ namespace Nz
 
 					if (OpenGLBuffer* glBuffer = SafeCast<OpenGLBuffer*>(arg.buffer))
 					{
-						if (glBuffer->GetType() != BufferType::Uniform)
-							throw std::runtime_error("expected uniform buffer");
-
+						NazaraAssertMsg(glBuffer->GetUsageFlags() != BufferUsage::StorageBuffer, "buffer does not have uniform buffer usage flag");
 						uboDescriptor.buffer = glBuffer->GetBuffer().GetObjectId();
 					}
 					else

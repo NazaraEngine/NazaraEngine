@@ -7,8 +7,8 @@
 
 namespace Nz
 {
-	SoftwareBuffer::SoftwareBuffer(BufferType type, UInt64 size, BufferUsageFlags usage, const void* initialData) :
-	Buffer(DataStorage::Software, type, size, usage | BufferUsage::DirectMapping | BufferUsage::Dynamic | BufferUsage::PersistentMapping | BufferUsage::Read | BufferUsage::Write),
+	SoftwareBuffer::SoftwareBuffer(UInt64 size, BufferUsageFlags usage, const void* initialData) :
+	Buffer(DataStorage::Software, size, usage | BufferUsage::MemoryMapping | BufferUsage::PersistentMapping),
 	m_mapped(false)
 	{
 		m_buffer = std::make_unique_for_overwrite<UInt8[]>(size);
@@ -22,6 +22,10 @@ namespace Nz
 
 		std::memcpy(&m_buffer[offset], data, size);
 		return true;
+	}
+
+	void SoftwareBuffer::Flush(UInt64 /*offset*/, UInt64 /*size*/)
+	{
 	}
 
 	const UInt8* SoftwareBuffer::GetData() const
@@ -47,8 +51,8 @@ namespace Nz
 		return true;
 	}
 
-	std::shared_ptr<Buffer> SoftwareBufferFactory(BufferType type, UInt64 size, BufferUsageFlags usage, const void* initialData)
+	std::shared_ptr<Buffer> SoftwareBufferFactory(UInt64 size, BufferUsageFlags usage, const void* initialData)
 	{
-		return std::make_shared<SoftwareBuffer>(type, size, usage, initialData);
+		return std::make_shared<SoftwareBuffer>(size, usage, initialData);
 	}
 }

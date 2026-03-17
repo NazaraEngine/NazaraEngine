@@ -152,8 +152,8 @@ int main()
 	const Nz::SoftwareBuffer* indexBufferContent = static_cast<const Nz::SoftwareBuffer*>(meshIB->GetBuffer().get());
 	const Nz::SoftwareBuffer* vertexBufferContent = static_cast<const Nz::SoftwareBuffer*>(meshVB->GetBuffer().get());
 
-	std::shared_ptr<Nz::RenderBuffer> renderBufferIB = device->InstantiateBuffer(Nz::BufferType::Index, indexBufferContent->GetSize(), Nz::BufferUsage::DeviceLocal, indexBufferContent->GetData());
-	std::shared_ptr<Nz::RenderBuffer> renderBufferVB = device->InstantiateBuffer(Nz::BufferType::Vertex, vertexBufferContent->GetSize(), Nz::BufferUsage::DeviceLocal, vertexBufferContent->GetData());
+	std::shared_ptr<Nz::RenderBuffer> renderBufferIB = device->InstantiateBuffer(indexBufferContent->GetSize(), Nz::BufferUsage::IndexBuffer | Nz::BufferUsage::DeviceLocal, indexBufferContent->GetData());
+	std::shared_ptr<Nz::RenderBuffer> renderBufferVB = device->InstantiateBuffer(vertexBufferContent->GetSize(), Nz::BufferUsage::VertexBuffer | Nz::BufferUsage::DeviceLocal, vertexBufferContent->GetData());
 
 	// Texture
 	Nz::TextureParams texParams;
@@ -199,7 +199,7 @@ int main()
 	Nz::ShaderBindingPtr viewerShaderBinding = basePipelineLayout->AllocateShaderBinding(0);
 	Nz::ShaderBindingPtr textureShaderBinding = renderPipelineLayout->AllocateShaderBinding(1);
 
-	std::shared_ptr<Nz::RenderBuffer> uniformBuffer = device->InstantiateBuffer(Nz::BufferType::Uniform, uniformSize, Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::Dynamic);
+	std::shared_ptr<Nz::RenderBuffer> uniformBuffer = device->InstantiateBuffer(uniformSize, Nz::BufferUsage::UniformBuffer | Nz::BufferUsage::DeviceLocal);
 
 	viewerShaderBinding->Update({
 		{

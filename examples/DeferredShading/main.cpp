@@ -315,7 +315,7 @@ int main(int argc, char* argv[])
 
 	constexpr std::size_t MaxPointLight = 2000;
 
-	std::shared_ptr<Nz::RenderBuffer> lightUbo = device->InstantiateBuffer(Nz::BufferType::Uniform, MaxPointLight * alignedSpotLightSize, Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::Dynamic | Nz::BufferUsage::Write);
+	std::shared_ptr<Nz::RenderBuffer> lightUbo = device->InstantiateBuffer(MaxPointLight * alignedSpotLightSize, Nz::BufferUsage::UniformBuffer | Nz::BufferUsage::DeviceLocal);
 
 	std::vector<SpotLight> spotLights;
 	/*auto& firstSpot = spotLights.emplace_back();
@@ -397,11 +397,11 @@ int main(int argc, char* argv[])
 		Nz::AccessByOffset<Nz::Vector2f&>(gaussianBlurData.data(), gaussianBlurDataDirection) = Nz::Vector2f(1.f, 0.f);
 		Nz::AccessByOffset<float&>(gaussianBlurData.data(), gaussianBlurDataSize) = sizeFactor;
 
-		std::shared_ptr<Nz::RenderBuffer> horizontalBlurData = device->InstantiateBuffer(Nz::BufferType::Uniform, gaussianBlurDataOffsets.GetSize(), Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::Dynamic | Nz::BufferUsage::Write, gaussianBlurData.data());
+		std::shared_ptr<Nz::RenderBuffer> horizontalBlurData = device->InstantiateBuffer(gaussianBlurDataOffsets.GetSize(), Nz::BufferUsage::UniformBuffer | Nz::BufferUsage::DeviceLocal, gaussianBlurData.data());
 
 		Nz::AccessByOffset<Nz::Vector2f&>(gaussianBlurData.data(), gaussianBlurDataDirection) = Nz::Vector2f(0.f, 1.f);
 
-		std::shared_ptr<Nz::RenderBuffer> verticalBlurData = device->InstantiateBuffer(Nz::BufferType::Uniform, gaussianBlurDataOffsets.GetSize(), Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::Dynamic | Nz::BufferUsage::Write, gaussianBlurData.data());
+		std::shared_ptr<Nz::RenderBuffer> verticalBlurData = device->InstantiateBuffer(gaussianBlurDataOffsets.GetSize(), Nz::BufferUsage::UniformBuffer | Nz::BufferUsage::DeviceLocal, gaussianBlurData.data());
 
 		sizeFactor *= 2.f;
 
@@ -525,7 +525,7 @@ int main(int argc, char* argv[])
 	Nz::AccessByOffset<float&>(godRaysData.data(), gr_weightOffset) = 5.65f;
 	Nz::AccessByOffset<Nz::Vector2f&>(godRaysData.data(), gr_lightPositionOffset) = Nz::Vector2f(0.5f, 0.1f);
 
-	std::shared_ptr<Nz::RenderBuffer> godRaysUBO = device->InstantiateBuffer(Nz::BufferType::Uniform, godRaysData.size(), Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::Dynamic | Nz::BufferUsage::Write, godRaysData.data());
+	std::shared_ptr<Nz::RenderBuffer> godRaysUBO = device->InstantiateBuffer(godRaysData.size(), Nz::BufferUsage::UniformBuffer | Nz::BufferUsage::DeviceLocal, godRaysData.data());
 
 	Nz::ShaderBindingPtr godRaysBlitShaderBinding;
 

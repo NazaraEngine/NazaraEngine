@@ -11,9 +11,9 @@ namespace Nz
 
 	BufferFactory GetRenderBufferFactory(std::shared_ptr<RenderDevice> device)
 	{
-		return [device = std::move(device)](BufferType type, UInt64 size, BufferUsageFlags usage, const void* initialData) -> std::shared_ptr<Buffer>
+		return [device = std::move(device)](UInt64 size, BufferUsageFlags usage, const void* initialData) -> std::shared_ptr<Buffer>
 		{
-			return device->InstantiateBuffer(type, size, usage, initialData);
+			return device->InstantiateBuffer(size, usage, initialData);
 		};
 	}
 }

@@ -20,12 +20,14 @@ namespace Nz
 	class NAZARA_OPENGLRENDERER_API OpenGLBuffer : public RenderBuffer
 	{
 		public:
-			OpenGLBuffer(OpenGLDevice& device, BufferType type, UInt64 size, BufferUsageFlags usage, const void* initialData = nullptr);
+			OpenGLBuffer(OpenGLDevice& device, UInt64 size, BufferUsageFlags usage, const void* initialData = nullptr);
 			OpenGLBuffer(const OpenGLBuffer&) = delete;
 			OpenGLBuffer(OpenGLBuffer&&) = delete;
 			~OpenGLBuffer() = default;
 
 			bool Fill(const void* data, UInt64 offset, UInt64 size) override;
+
+			void Flush(UInt64 offset, UInt64 size) override;
 
 			inline const GL::Buffer& GetBuffer() const;
 

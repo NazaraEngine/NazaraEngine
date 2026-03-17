@@ -170,7 +170,7 @@ namespace Nz
 					m_dataPool->vertexBuffers.pop_back();
 				}
 				else
-					drawCall.vertexBuffer = m_renderDevice.InstantiateBuffer(BufferType::Vertex, m_vertexPerBlock * sizeof(VertexStruct_XYZ_Color), BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write);
+					drawCall.vertexBuffer = m_renderDevice.InstantiateBuffer(m_vertexPerBlock * sizeof(VertexStruct_XYZ_Color), BufferUsage::DeviceLocal | BufferUsage::VertexBuffer);
 
 				drawCall.vertexCount = std::min(vertexCount, m_vertexPerBlock);
 
@@ -205,7 +205,7 @@ namespace Nz
 			}
 			else
 			{
-				m_currentViewerData.buffer = m_renderDevice.InstantiateBuffer(BufferType::Uniform, m_viewerData.size(), BufferUsage::DeviceLocal | BufferUsage::Dynamic | BufferUsage::Write);
+				m_currentViewerData.buffer = m_renderDevice.InstantiateBuffer(m_viewerData.size(), BufferUsage::DeviceLocal | BufferUsage::UniformBuffer);
 				m_currentViewerData.binding = m_renderPipelineLayout->AllocateShaderBinding(0);
 				m_currentViewerData.binding->Update({
 					{

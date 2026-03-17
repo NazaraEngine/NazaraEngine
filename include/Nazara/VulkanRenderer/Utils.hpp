@@ -22,7 +22,8 @@ namespace Nz
 
 	inline VkAttachmentLoadOp ToVulkan(AttachmentLoadOp loadOp);
 	inline VkAttachmentStoreOp ToVulkan(AttachmentStoreOp storeOp);
-	inline VkBufferUsageFlags ToVulkan(BufferType bufferType);
+	inline VkBufferUsageFlagBits ToVulkan(BufferUsage bufferUsage);
+	inline VkBufferUsageFlags ToVulkan(BufferUsageFlags bufferUsages);
 	inline VkFormat ToVulkan(ComponentType componentType);
 	inline VkCullModeFlagBits ToVulkan(FaceCulling faceSide);
 	inline VkPolygonMode ToVulkan(FaceFilling faceFilling);

@@ -16,10 +16,12 @@ namespace Nz
 	class NAZARA_CORE_API SoftwareBuffer : public Buffer
 	{
 		public:
-			SoftwareBuffer(BufferType type, UInt64 size, BufferUsageFlags usage, const void* initialData);
+			SoftwareBuffer(UInt64 size, BufferUsageFlags usage, const void* initialData);
 			~SoftwareBuffer() = default;
 
 			bool Fill(const void* data, UInt64 offset, UInt64 size) override;
+
+			void Flush(UInt64 offset, UInt64 size) override;
 
 			const UInt8* GetData() const;
 
@@ -31,7 +33,7 @@ namespace Nz
 			bool m_mapped;
 	};
 
-	NAZARA_CORE_API std::shared_ptr<Buffer> SoftwareBufferFactory(BufferType type, UInt64 size, BufferUsageFlags usage, const void* initialData = nullptr);
+	NAZARA_CORE_API std::shared_ptr<Buffer> SoftwareBufferFactory(UInt64 size, BufferUsageFlags usage, const void* initialData = nullptr);
 }
 
 #endif // NAZARA_CORE_SOFTWAREBUFFER_HPP

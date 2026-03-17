@@ -445,10 +445,10 @@ namespace NzImGui
 				}
 
 				if (!rendererBackend->indexBuffer)
-					rendererBackend->indexBuffer = rendererBackend->device->InstantiateBuffer(Nz::BufferType::Index, totalIndexCount * sizeof(ImDrawIdx), Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::Dynamic, nullptr);
+					rendererBackend->indexBuffer = rendererBackend->device->InstantiateBuffer(totalIndexCount * sizeof(ImDrawIdx), Nz::BufferUsage::IndexBuffer | Nz::BufferUsage::DeviceLocal, nullptr);
 
 				if (!rendererBackend->vertexBuffer)
-					rendererBackend->vertexBuffer = rendererBackend->device->InstantiateBuffer(Nz::BufferType::Vertex, totalVertexCount * sizeof(ImDrawVert), Nz::BufferUsage::DeviceLocal | Nz::BufferUsage::Dynamic, nullptr);
+					rendererBackend->vertexBuffer = rendererBackend->device->InstantiateBuffer(totalVertexCount * sizeof(ImDrawVert), Nz::BufferUsage::VertexBuffer | Nz::BufferUsage::DeviceLocal, nullptr);
 
 				renderResources.Execute([&](Nz::CommandBufferBuilder& builder)
 				{

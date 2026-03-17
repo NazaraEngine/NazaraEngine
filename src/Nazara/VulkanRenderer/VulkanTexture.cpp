@@ -432,7 +432,7 @@ namespace Nz
 	{
 		std::size_t memorySize = box.width * box.height * box.depth * PixelFormatInfo::GetBytesPerPixel(m_textureViewInfo.pixelFormat);
 
-		uploadBuffer = std::make_unique<VulkanBuffer>(m_device, BufferType::Upload, memorySize, BufferUsage::DirectMapping);
+		uploadBuffer = std::make_unique<VulkanBuffer>(m_device, memorySize, BufferUsage::TransferSource | BufferUsage::MemoryMapping);
 		void* mappedUploadBuffer = uploadBuffer->Map(0, memorySize);
 
 		bool shouldContinue = callback(mappedUploadBuffer);

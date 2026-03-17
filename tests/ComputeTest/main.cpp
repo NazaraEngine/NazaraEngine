@@ -385,7 +385,7 @@ SpriteRenderData BuildSpriteData(Nz::RenderDevice& device, const SpriteRenderPip
 		pos[3].uv = Nz::Vector2f(1.f, 1.f);
 
 		SpriteRenderData renderData;
-		renderData.vertexBuffer = device.InstantiateBuffer(Nz::BufferType::Vertex, 4 * 4 * sizeof(float), Nz::BufferUsage::DeviceLocal, pos.data());
+		renderData.vertexBuffer = device.InstantiateBuffer(4 * 4 * sizeof(float), Nz::BufferUsage::VertexBuffer | Nz::BufferUsage::DeviceLocal, pos.data());
 
 		renderData.shaderBinding = pipelineData.pipelineLayout->AllocateShaderBinding(0);
 		renderData.shaderBinding->Update({

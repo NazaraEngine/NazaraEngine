@@ -14,7 +14,7 @@ namespace Nz
 	m_startOffset(0)
 	{
 		NazaraAssertMsg(m_buffer, "invalid buffer");
-		NazaraAssertMsg(m_buffer->GetType() == BufferType::Uniform, "buffer must be an uniform buffer");
+		NazaraAssertMsg(m_buffer->GetUsageFlags() & BufferUsage::UniformBuffer, "buffer must support uniform buffer usage");
 
 		m_endOffset = m_buffer->GetSize();
 	}
@@ -32,7 +32,7 @@ namespace Nz
 	{
 		NazaraAssertMsg(size > 0, "invalid size");
 
-		m_buffer = bufferFactory(BufferType::Uniform, size, usage, initialData);
+		m_buffer = bufferFactory(size, BufferUsage::UniformBuffer | usage, initialData);
 	}
 
 	bool UniformBuffer::Fill(const void* data, UInt64 offset, UInt64 size)

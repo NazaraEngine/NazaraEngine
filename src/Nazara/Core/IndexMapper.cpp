@@ -67,39 +67,23 @@ namespace Nz
 		if (!m_mapper.Map(indexBuffer, 0, m_indexCount))
 			NazaraError("failed to map buffer"); ///TODO: Unexcepted
 
-		Getter rightGetter = nullptr;
-		Setter rightSetter = nullptr;
-
 		switch (indexBuffer.GetIndexType())
 		{
 			case IndexType::U8:
-				rightGetter = Getter8;
-				rightSetter = Setter8;
+				m_getter = Getter8;
+				m_setter = Setter8;
 				break;
 
 			case IndexType::U16:
-				rightGetter = Getter16;
-				rightSetter = Setter16;
+				m_getter = Getter16;
+				m_setter = Setter16;
 				break;
 
 			case IndexType::U32:
-				rightGetter = Getter32;
-				rightSetter = Setter32;
+				m_getter = Getter32;
+				m_setter = Setter32;
 				break;
 		}
-
-		if (!rightGetter)
-			NazaraError("unexpected index size"); ///TODO: Unexcepted
-
-		if (indexBuffer.GetBuffer()->GetUsageFlags().Test(BufferUsage::Read))
-			m_getter = rightGetter;
-		else
-			m_getter = GetterError;
-
-		if (indexBuffer.GetBuffer()->GetUsageFlags().Test(BufferUsage::Write))
-			m_setter = rightSetter;
-		else
-			m_setter = SetterError;
 	}
 
 	IndexMapper::IndexMapper(SubMesh& subMesh) :

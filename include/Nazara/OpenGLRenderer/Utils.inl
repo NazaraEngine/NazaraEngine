@@ -298,6 +298,7 @@ namespace Nz
 			case GL::BufferTarget::Array:             return GL_ARRAY_BUFFER;
 			case GL::BufferTarget::CopyRead:          return GL_COPY_READ_BUFFER;
 			case GL::BufferTarget::CopyWrite:         return GL_COPY_WRITE_BUFFER;
+			case GL::BufferTarget::DrawIndirect:      return GL_DRAW_INDIRECT_BUFFER;
 			case GL::BufferTarget::ElementArray:      return GL_ELEMENT_ARRAY_BUFFER;
 			case GL::BufferTarget::PixelPack:         return GL_PIXEL_PACK_BUFFER;
 			case GL::BufferTarget::PixelUnpack:       return GL_PIXEL_UNPACK_BUFFER;

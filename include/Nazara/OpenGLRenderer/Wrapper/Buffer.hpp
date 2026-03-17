@@ -25,6 +25,8 @@ namespace Nz::GL
 
 			inline void Data(BufferTarget target, GLsizeiptr size, const void* initialData, GLenum usage);
 
+			inline void FlushMappedBufferRange(GLintptr offset, GLsizeiptr length);
+
 			inline void* MapRange(GLintptr offset, GLsizeiptr length, GLbitfield access);
 
 			inline void SubData(GLintptr offset, GLsizeiptr size, const void* data);

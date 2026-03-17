@@ -13,10 +13,10 @@ namespace Nz
 
 	std::shared_ptr<Buffer> Buffer::CopyContent(const BufferFactory& bufferFactory)
 	{
-		if (GetUsageFlags() & BufferUsage::DirectMapping)
+		if (GetUsageFlags() & BufferUsage::MemoryMapping)
 		{
 			BufferMapper<Buffer> mapper(*this, 0, GetSize());
-			return bufferFactory(GetType(), GetSize(), GetUsageFlags(), mapper.GetPointer());
+			return bufferFactory(GetSize(), GetUsageFlags(), mapper.GetPointer());
 		}
 		else
 		{

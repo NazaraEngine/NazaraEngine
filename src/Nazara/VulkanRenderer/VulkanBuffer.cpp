@@ -11,13 +11,13 @@
 
 namespace Nz
 {
-	VulkanBuffer::VulkanBuffer(VulkanDevice& device, BufferType type, UInt64 size, BufferUsageFlags usage, const void* initialData) :
-	RenderBuffer(device, type, size, usage),
+	VulkanBuffer::VulkanBuffer(VulkanDevice& device, UInt64 size, BufferUsageFlags usage, const void* initialData) :
+	RenderBuffer(device, size, usage),
 	m_device(device)
 	{
-		VkBufferUsageFlags bufferUsage = ToVulkan(type);
+		VkBufferUsageFlags bufferUsage = ToVulkan(usage);
 
-		if ((usage & BufferUsage::DirectMapping) == 0)
+		if ((usage & BufferUsage::MemoryMapping) == 0)
 			bufferUsage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
 
 		VkBufferCreateInfo createInfo = {};
@@ -25,22 +25,22 @@ namespace Nz
 		createInfo.size = size;
 		createInfo.usage = bufferUsage;
 
-		//TODO: Update for VMA 3.0
 		VmaAllocationCreateInfo allocInfo = {};
-		if (type == BufferType::Upload)
-			allocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
-		else if (usage & BufferUsage::DeviceLocal)
-		{
-			if (usage & (BufferUsage::DirectMapping | BufferUsage::PersistentMapping))
-				allocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
-			else
-				allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
-		}
+		if (usage & BufferUsage::DeviceLocal)
+			allocInfo.usage = VMA_MEMORY_USAGE_AUTO_PREFER_DEVICE;
 		else
-			allocInfo.usage = VMA_MEMORY_USAGE_CPU_ONLY;
+			allocInfo.usage = VMA_MEMORY_USAGE_AUTO;
 
-		if (usage & BufferUsage::PersistentMapping)
-			allocInfo.flags |= VMA_ALLOCATION_CREATE_MAPPED_BIT;
+		if (usage & (BufferUsage::MemoryMapping | BufferUsage::PersistentMapping))
+		{
+			if (usage & BufferUsage::MapSequentialWrite)
+				allocInfo.flags |= VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
+			else
+				allocInfo.flags |= VMA_ALLOCATION_CREATE_HOST_ACCESS_RANDOM_BIT;
+
+			if (usage & BufferUsage::PersistentMapping)
+				allocInfo.flags |= VMA_ALLOCATION_CREATE_MAPPED_BIT;
+		}
 
 		VkResult result = vmaCreateBuffer(m_device.GetMemoryAllocator(), &createInfo, &allocInfo, &m_buffer, &m_allocation, nullptr);
 		if (result != VK_SUCCESS)
@@ -65,14 +65,23 @@ namespace Nz
 			return false;
 
 		std::memcpy(ptr, data, size);
-		Unmap();
+
+		if (!GetUsageFlags().Test(BufferUsage::PersistentMapping))
+			Unmap();
+
+		vmaFlushAllocation(m_device.GetMemoryAllocator(), m_allocation, offset, size);
 
 		return true;
 	}
 
+	void VulkanBuffer::Flush(UInt64 offset, UInt64 size)
+	{
+		vmaFlushAllocation(m_device.GetMemoryAllocator(), m_allocation, offset, size);
+	}
+
 	void* VulkanBuffer::Map(UInt64 offset, UInt64 size)
 	{
-		if (GetUsageFlags() & BufferUsage::DirectMapping)
+		if (GetUsageFlags() & BufferUsage::MemoryMapping)
 		{
 			void* mappedPtr;
 			VkResult result = vmaMapMemory(m_device.GetMemoryAllocator(), m_allocation, &mappedPtr);
@@ -121,7 +130,7 @@ namespace Nz
 	{
 		NazaraAssert(!GetUsageFlags().Test(BufferUsage::PersistentMapping));
 
-		if (GetUsageFlags() & BufferUsage::DirectMapping)
+		if (GetUsageFlags() & BufferUsage::MemoryMapping)
 		{
 			vmaUnmapMemory(m_device.GetMemoryAllocator(), m_allocation);
 			return true;

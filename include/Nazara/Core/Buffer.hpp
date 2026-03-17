@@ -17,12 +17,12 @@ namespace Nz
 {
 	class Buffer;
 
-	using BufferFactory = std::function<std::shared_ptr<Buffer>(BufferType type, UInt64 size, BufferUsageFlags usage, const void* initialData)>;
+	using BufferFactory = std::function<std::shared_ptr<Buffer>(UInt64 size, BufferUsageFlags usage, const void* initialData)>;
 
 	class NAZARA_CORE_API Buffer
 	{
 		public:
-			inline Buffer(DataStorage storage, BufferType type, UInt64 size, BufferUsageFlags usage);
+			inline Buffer(DataStorage storage, UInt64 size, BufferUsageFlags usage);
 			Buffer(const Buffer&) = delete;
 			Buffer(Buffer&&) = delete;
 			virtual ~Buffer();
@@ -31,9 +31,10 @@ namespace Nz
 
 			virtual bool Fill(const void* data, UInt64 offset, UInt64 size) = 0;
 
+			virtual void Flush(UInt64 offset, UInt64 size) = 0;
+
 			inline UInt64 GetSize() const;
 			inline DataStorage GetStorage() const;
-			inline BufferType GetType() const;
 			inline BufferUsageFlags GetUsageFlags() const;
 
 			virtual void* Map(UInt64 offset, UInt64 size) = 0;
@@ -43,7 +44,6 @@ namespace Nz
 			Buffer& operator=(Buffer&&) = delete;
 
 		private:
-			BufferType m_type;
 			BufferUsageFlags m_usage;
 			DataStorage m_storage;
 			UInt64 m_size;
