@@ -33,7 +33,7 @@ namespace Nz::PlatformImpl
 		std::size_t lastDirSep = std::wstring::npos;
 		if (std::size_t sepOffset = path.find_first_of(L"\\/"); sepOffset != std::wstring::npos)
 		{
-			do 
+			do
 			{
 				path[sepOffset] = L'\\';
 				lastDirSep = sepOffset;

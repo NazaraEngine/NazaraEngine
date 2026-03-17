@@ -33,6 +33,4 @@ namespace Nz
 	};
 }
 
-#include <Nazara/Graphics/FramePassAttachment.inl>
-
 #endif // NAZARA_GRAPHICS_FRAMEPASSATTACHMENT_HPP

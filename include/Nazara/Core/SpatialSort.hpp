@@ -8,9 +8,9 @@
 #define NAZARA_CORE_SPATIALSORT_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <NazaraUtils/SparsePtr.hpp>
 #include <Nazara/Core/Export.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <NazaraUtils/SparsePtr.hpp>
 
 namespace Nz
 {

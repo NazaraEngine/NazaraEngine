@@ -8,12 +8,12 @@
 #define NAZARA_CORE_ABSTRACTIMAGE_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <NazaraUtils/FunctionRef.hpp>
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Core/Export.hpp>
 #include <Nazara/Math/Box.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <NazaraUtils/FunctionRef.hpp>
 
 namespace Nz
 {

@@ -8,12 +8,12 @@
 #define NAZARA_CORE_THREADLOCALDATA_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <NazaraUtils/MovablePtr.hpp>
 #include <Nazara/Core/Export.hpp>
+#include <NazaraUtils/MovablePtr.hpp>
 #include <memory>
 #include <mutex>
-#include <unordered_map>
 #include <thread>
+#include <unordered_map>
 #include <vector>
 
 namespace Nz

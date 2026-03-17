@@ -6,8 +6,8 @@
 #include <Nazara/Core/ImageUtils.hpp>
 #include <Nazara/Core/PixelFormat.hpp>
 #include <Nazara/VulkanRenderer/VulkanBuffer.hpp>
-#include <Nazara/VulkanRenderer/VulkanDevice.hpp>
 #include <Nazara/VulkanRenderer/VulkanCommandBufferBuilder.hpp>
+#include <Nazara/VulkanRenderer/VulkanDevice.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandBuffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/QueueHandle.hpp>
 #include <NazaraUtils/CallOnExit.hpp>

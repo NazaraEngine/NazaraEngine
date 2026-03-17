@@ -69,5 +69,4 @@ namespace Nz
 		if (it != m_directories.end())
 			m_directories.erase(it);
 	}
-
 }
