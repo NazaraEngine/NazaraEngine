@@ -23,11 +23,13 @@ namespace Nz::GL
 			Buffer(Buffer&&) noexcept = default;
 			~Buffer() = default;
 
+			inline void Data(BufferTarget target, GLsizeiptr size, const void* initialData, GLenum usage);
+
 			inline void* MapRange(GLintptr offset, GLsizeiptr length, GLbitfield access);
 
-			inline void Reset(BufferTarget target, GLsizeiptr size, const void* initialData, GLenum usage);
-
 			inline void SubData(GLintptr offset, GLsizeiptr size, const void* data);
+
+			inline void Storage(BufferTarget target, GLsizeiptr size, const void* initialData, GLbitfield flags);
 
 			inline bool Unmap();
 

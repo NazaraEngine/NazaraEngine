@@ -2,25 +2,23 @@
 // This file is part of the "Nazara Engine - OpenGL renderer"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-
 namespace Nz::GL
 {
-	inline void* Buffer::MapRange(GLintptr offset, GLsizeiptr length, GLbitfield access)
-	{
-		const Context& context = EnsureDeviceContext();
-		context.BindBuffer(m_target, m_objectId);
-		return context.glMapBufferRange(ToOpenGL(m_target), offset, length, access);
-	}
-
-	inline void Buffer::Reset(BufferTarget target, GLsizeiptr size, const void* initialData, GLenum usage)
+	inline void Buffer::Data(BufferTarget target, GLsizeiptr size, const void* initialData, GLenum usage)
 	{
 		m_target = target;
 
 		const Context& context = EnsureDeviceContext();
 
 		context.BindBuffer(m_target, m_objectId);
-
 		context.glBufferData(ToOpenGL(m_target), size, initialData, usage);
+	}
+
+	inline void* Buffer::MapRange(GLintptr offset, GLsizeiptr length, GLbitfield access)
+	{
+		const Context& context = EnsureDeviceContext();
+		context.BindBuffer(m_target, m_objectId);
+		return context.glMapBufferRange(ToOpenGL(m_target), offset, length, access);
 	}
 
 	inline void Buffer::SubData(GLintptr offset, GLsizeiptr size, const void* data)
@@ -29,6 +27,16 @@ namespace Nz::GL
 		context.BindBuffer(m_target, m_objectId);
 
 		context.glBufferSubData(ToOpenGL(m_target), offset, size, data);
+	}
+
+	inline void Buffer::Storage(BufferTarget target, GLsizeiptr size, const void* initialData, GLbitfield flags)
+	{
+		m_target = target;
+
+		const Context& context = EnsureDeviceContext();
+		context.BindBuffer(m_target, m_objectId);
+
+		context.glBufferStorage(ToOpenGL(m_target), size, initialData, flags);
 	}
 
 	inline bool Buffer::Unmap()

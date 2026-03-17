@@ -63,6 +63,9 @@ namespace Nz
 		m_deviceInfo.type = RenderDeviceType::Unknown; //< TODO: Try to extract from device name pattern
 
 		// Features
+		if (m_referenceContext->IsExtensionSupported(GL::Extension::BufferStorage))
+			m_deviceInfo.features.persistentMapping = true;
+
 		if (m_referenceContext->IsExtensionSupported(GL::Extension::TextureFilterAnisotropic))
 			m_deviceInfo.features.anisotropicFiltering = true;
 

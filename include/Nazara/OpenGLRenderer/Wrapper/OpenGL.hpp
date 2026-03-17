@@ -33,6 +33,13 @@ typedef void (GL_APIENTRYP PFNGLVERTEXATTRIBLPOINTERPROC) (GLuint index, GLint s
 // Texture views (OpenGL 4.3)
 typedef void (GL_APIENTRYP PFNGLTEXTUREVIEWPROC) (GLuint texture, GLenum target, GLuint origtexture, GLenum internalformat, GLuint minlevel, GLuint numlevels, GLuint minlayer, GLuint numlayers);
 
+// Buffer storage (OpenGL 4.4)
+#define GL_MAP_PERSISTENT_BIT              0x0040
+#define GL_MAP_COHERENT_BIT                0x0080
+#define GL_DYNAMIC_STORAGE_BIT             0x0100
+#define GL_CLIENT_STORAGE_BIT              0x0200
+typedef void (GL_APIENTRYP PFNGLBUFFERSTORAGEPROC) (GLenum target​, GLsizeiptr size​, const GLvoid* data​, GLbitfield flags);
+
 // Clip control (OpenGL 4.5)
 #define GL_LOWER_LEFT                      0x8CA1
 #define GL_UPPER_LEFT                      0x8CA2

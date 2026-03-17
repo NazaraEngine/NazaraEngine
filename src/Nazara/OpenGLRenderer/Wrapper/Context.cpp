@@ -476,6 +476,14 @@ namespace Nz::GL
 
 		m_extensionStatus.fill(ExtensionStatus::NotSupported);
 
+		// Buffer storage
+		if (m_params.type == ContextType::OpenGL && glVersion >= 440)
+			m_extensionStatus[Extension::BufferStorage] = ExtensionStatus::Core;
+		else if (m_supportedExtensions.count("GL_ARB_buffer_storage"))
+			m_extensionStatus[Extension::BufferStorage] = ExtensionStatus::ARB;
+		else if (m_supportedExtensions.count("GL_EXT_buffer_storage"))
+			m_extensionStatus[Extension::BufferStorage] = ExtensionStatus::EXT;
+
 		// Clip control
 		if (m_params.type == ContextType::OpenGL && glVersion >= 450)
 			m_extensionStatus[Extension::ClipControl] = ExtensionStatus::Core;
@@ -1064,7 +1072,22 @@ namespace Nz::GL
 	{
 		SymbolLoader loader(*this);
 
-		if (function == "glClipControl")
+		if (function == "glBufferStorage")
+		{
+			constexpr std::size_t functionIndex = UnderlyingCast(FunctionIndex::glBufferStorage);
+
+			if (IsExtensionSupported("GL_ARB_buffer_storage"))
+			{
+				if (loader.Load<PFNGLBUFFERSTORAGEPROC, functionIndex>(glBufferStorage, "glBufferStorageARB", false))
+					return true;
+			}
+			else if (IsExtensionSupported("GL_EXT_buffer_storage"))
+			{
+				if (loader.Load<PFNGLBUFFERSTORAGEEXTPROC, functionIndex>(glBufferStorage, "glBufferStorageEXT", false))
+					return true;
+			}
+		}
+		else if (function == "glClipControl")
 		{
 			constexpr std::size_t functionIndex = UnderlyingCast(FunctionIndex::glClipControl);
 

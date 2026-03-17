@@ -56,6 +56,7 @@ namespace Nz::GL
 
 	enum class Extension
 	{
+		BufferStorage,
 		ClipControl,
 		ComputeShader,
 		DebugOutput,

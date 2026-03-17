@@ -21,6 +21,7 @@ namespace Nz
 		bool depthClamping = false;
 		bool drawBaseVertex = false;
 		bool nonSolidFaceFilling = false;
+		bool persistentMapping = false;
 		bool storageBuffers = false;
 		bool textureReadWithoutFormat = false;
 		bool textureReadWrite = false;

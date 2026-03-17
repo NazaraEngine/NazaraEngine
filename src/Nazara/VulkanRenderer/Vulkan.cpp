@@ -60,6 +60,7 @@ namespace Nz
 		deviceInfo.features.depthClamping = physDevice.features.depthClamp;
 		deviceInfo.features.drawBaseVertex = true;
 		deviceInfo.features.nonSolidFaceFilling = physDevice.features.fillModeNonSolid;
+		deviceInfo.features.persistentMapping = true;
 		deviceInfo.features.storageBuffers = true;
 		deviceInfo.features.textureReadWithoutFormat = physDevice.features.shaderStorageImageReadWithoutFormat;
 		deviceInfo.features.textureReadWrite = true;
