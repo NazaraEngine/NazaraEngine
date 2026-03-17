@@ -264,21 +264,26 @@ namespace Nz
 				m_commandBuffer.ImageBarrier(VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_TRANSFER_READ_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, vkImage, prevMipmapRange);
 			}
 
-			// Blit previous mipmap to next mipmap
-			VkImageBlit blitRegion = {
-				vkTexture.BuildSubresourceLayers(baseLevel + i - 1),
-				{ //< srcOffsets
-					{ 0, 0, 0 },
-					{ prevMipSize.x, prevMipSize.y, prevMipSize.z }
-				},
-				vkTexture.BuildSubresourceLayers(baseLevel + i),
-				{ //< dstOffsets
-					{ 0, 0, 0 },
-					{ mipSize.x, mipSize.y, mipSize.z }
-				},
-			};
+			// Handle each layer separately, seems like vkCmdBlitImage doesn't work well across layers despite the docs saying this:
+			// "Blits are done layer by layer starting with the baseArrayLayer member of srcSubresource for the source and dstSubresource for the destination. layerCount layers are blitted to the destination image."
+			for (UInt32 layer = 0; layer < textureInfo.layerCount; ++layer)
+			{
+				// Blit previous mipmap to next mipmap
+				VkImageBlit blitRegion = {
+					vkTexture.BuildSubresourceLayers(baseLevel + i - 1, layer, 1),
+					{ //< srcOffsets
+						{ 0, 0, 0 },
+						{ prevMipSize.x, prevMipSize.y, prevMipSize.z }
+					},
+					vkTexture.BuildSubresourceLayers(baseLevel + i, layer, 1),
+					{ //< dstOffsets
+						{ 0, 0, 0 },
+						{ mipSize.x, mipSize.y, mipSize.z }
+					},
+				};
 
-			m_commandBuffer.BlitImage(vkImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, vkImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, blitRegion, VK_FILTER_LINEAR);
+				m_commandBuffer.BlitImage(vkImage, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, vkImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, blitRegion, VK_FILTER_LINEAR);
+			}
 
 			prevMipSize = mipSize;
 		}
