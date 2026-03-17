@@ -6,6 +6,20 @@
 
 namespace Nz::GL
 {
+	inline void Texture::CompressedTexSubImage2D(TextureTarget target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, const void* data)
+	{
+		const Context& context = EnsureDeviceContext();
+		context.BindTexture(m_target, m_objectId);
+		context.glCompressedTexSubImage2D(ToOpenGL(target), level, xoffset, yoffset, width, height, format, imageSize, data);
+	}
+
+	inline void Texture::CompressedTexSubImage3D(TextureTarget target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLsizei imageSize, const void* data)
+	{
+		const Context& context = EnsureDeviceContext();
+		context.BindTexture(m_target, m_objectId);
+		context.glCompressedTexSubImage3D(ToOpenGL(target), level, xoffset, yoffset, zoffset, width, height, depth, format, imageSize, data);
+	}
+
 	inline void Texture::GenerateMipmap()
 	{
 		const Context& context = EnsureDeviceContext();

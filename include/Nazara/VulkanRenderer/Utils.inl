@@ -280,16 +280,12 @@ namespace Nz
 		switch (pixelFormat)
 		{
 			// TODO: Fill this switch
+
+			// Color/alpha formats
 			case PixelFormat::BGR8:             return VK_FORMAT_B8G8R8_UNORM;
 			case PixelFormat::BGR8_SRGB:        return VK_FORMAT_B8G8R8_SRGB;
 			case PixelFormat::BGRA8:            return VK_FORMAT_B8G8R8A8_UNORM;
 			case PixelFormat::BGRA8_SRGB:       return VK_FORMAT_B8G8R8A8_SRGB;
-			case PixelFormat::Depth16:          return VK_FORMAT_D16_UNORM;
-			case PixelFormat::Depth16Stencil8:  return VK_FORMAT_D16_UNORM_S8_UINT;
-			case PixelFormat::Depth24:          return VK_FORMAT_UNDEFINED;
-			case PixelFormat::Depth24Stencil8:  return VK_FORMAT_D24_UNORM_S8_UINT;
-			case PixelFormat::Depth32F:         return VK_FORMAT_D32_SFLOAT;
-			case PixelFormat::Depth32FStencil8: return VK_FORMAT_D32_SFLOAT_S8_UINT;
 			case PixelFormat::R8:               return VK_FORMAT_R8_UNORM;
 			case PixelFormat::RG8:              return VK_FORMAT_R8G8_UNORM;
 			case PixelFormat::RGB8:             return VK_FORMAT_R8G8B8_UNORM;
@@ -298,10 +294,37 @@ namespace Nz
 			case PixelFormat::RGBA8_SRGB:       return VK_FORMAT_R8G8B8A8_SRGB;
 			case PixelFormat::RGBA16F:          return VK_FORMAT_R16G16B16A16_SFLOAT;
 			case PixelFormat::RGBA32F:          return VK_FORMAT_R32G32B32A32_SFLOAT;
+
+			// Depth-stencil formats
+			case PixelFormat::Depth16:          return VK_FORMAT_D16_UNORM;
+			case PixelFormat::Depth16Stencil8:  return VK_FORMAT_D16_UNORM_S8_UINT;
+			case PixelFormat::Depth24:          return VK_FORMAT_UNDEFINED;
+			case PixelFormat::Depth24Stencil8:  return VK_FORMAT_D24_UNORM_S8_UINT;
+			case PixelFormat::Depth32F:         return VK_FORMAT_D32_SFLOAT;
+			case PixelFormat::Depth32FStencil8: return VK_FORMAT_D32_SFLOAT_S8_UINT;
 			case PixelFormat::Stencil1:         return VK_FORMAT_UNDEFINED;
 			case PixelFormat::Stencil4:         return VK_FORMAT_UNDEFINED;
 			case PixelFormat::Stencil8:         return VK_FORMAT_S8_UINT;
 			case PixelFormat::Stencil16:        return VK_FORMAT_UNDEFINED;
+
+			// Compressed formats
+			case PixelFormat::BC1_RGB_Unorm:    return VK_FORMAT_BC1_RGB_UNORM_BLOCK;
+			case PixelFormat::BC1_RGB_sRGB:     return VK_FORMAT_BC1_RGB_SRGB_BLOCK;
+			case PixelFormat::BC1_RGBA_Unorm:   return VK_FORMAT_BC1_RGBA_UNORM_BLOCK;
+			case PixelFormat::BC1_RGBA_sRGB:    return VK_FORMAT_BC1_RGBA_SRGB_BLOCK;
+			case PixelFormat::BC2_Unorm:        return VK_FORMAT_BC2_UNORM_BLOCK;
+			case PixelFormat::BC2_sRGB:         return VK_FORMAT_BC2_SRGB_BLOCK;
+			case PixelFormat::BC3_Unorm:        return VK_FORMAT_BC3_UNORM_BLOCK;
+			case PixelFormat::BC3_sRGB:         return VK_FORMAT_BC3_SRGB_BLOCK;
+			case PixelFormat::BC4_Snorm:        return VK_FORMAT_BC4_SNORM_BLOCK;
+			case PixelFormat::BC4_Unorm:        return VK_FORMAT_BC4_UNORM_BLOCK;
+			case PixelFormat::BC5_Snorm:        return VK_FORMAT_BC5_SNORM_BLOCK;
+			case PixelFormat::BC5_Unorm:        return VK_FORMAT_BC5_UNORM_BLOCK;
+			case PixelFormat::BC6H_SFloat:      return VK_FORMAT_BC6H_SFLOAT_BLOCK;
+			case PixelFormat::BC6H_UFloat:      return VK_FORMAT_BC6H_UFLOAT_BLOCK;
+			case PixelFormat::BC7_Unorm:        return VK_FORMAT_BC7_UNORM_BLOCK;
+			case PixelFormat::BC7_sRGB:         return VK_FORMAT_BC7_SRGB_BLOCK;
+
 			default: break;
 		}
 

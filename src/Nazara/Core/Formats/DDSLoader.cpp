@@ -175,15 +175,23 @@ namespace Nz
 					switch (header.format.fourCC)
 					{
 						case D3DFMT_DXT1:
-							*format = PixelFormat::DXT1;
+							*format = PixelFormat::BC1_RGBA_Unorm;
+							break;
+
+						case D3DFMT_DXT2:
+							*format = PixelFormat::BC2_Unorm;
 							break;
 
 						case D3DFMT_DXT3:
-							*format = PixelFormat::DXT3;
+							*format = PixelFormat::BC3_Unorm;
+							break;
+
+						case D3DFMT_DXT4:
+							*format = PixelFormat::BC4_Unorm;
 							break;
 
 						case D3DFMT_DXT5:
-							*format = PixelFormat::DXT3;
+							*format = PixelFormat::BC5_Unorm;
 							break;
 
 						case D3DFMT_DX10:
@@ -217,9 +225,71 @@ namespace Nz
 									*format = PixelFormat::RGBA16UI;
 									break;
 
+								case DXGI_FORMAT_BC1_TYPELESS:
+								case DXGI_FORMAT_BC1_UNORM:
+									*format = PixelFormat::BC1_RGBA_Unorm;
+									break;
+
+								case DXGI_FORMAT_BC1_UNORM_SRGB:
+									*format = PixelFormat::BC1_RGBA_sRGB;
+									break;
+
+								case DXGI_FORMAT_BC2_TYPELESS:
+								case DXGI_FORMAT_BC2_UNORM:
+									*format = PixelFormat::BC2_Unorm;
+									break;
+
+								case DXGI_FORMAT_BC2_UNORM_SRGB:
+									*format = PixelFormat::BC2_sRGB;
+									break;
+
+								case DXGI_FORMAT_BC3_TYPELESS:
+								case DXGI_FORMAT_BC3_UNORM:
+									*format = PixelFormat::BC3_Unorm;
+									break;
+
+								case DXGI_FORMAT_BC3_UNORM_SRGB:
+									*format = PixelFormat::BC3_sRGB;
+									break;
+
+								case DXGI_FORMAT_BC4_TYPELESS:
+								case DXGI_FORMAT_BC4_UNORM:
+									*format = PixelFormat::BC4_Unorm;
+									break;
+
+								case DXGI_FORMAT_BC4_SNORM:
+									*format = PixelFormat::BC4_Snorm;
+									break;
+
+								case DXGI_FORMAT_BC5_TYPELESS:
+								case DXGI_FORMAT_BC5_UNORM:
+									*format = PixelFormat::BC5_Unorm;
+									break;
+
+								case DXGI_FORMAT_BC5_SNORM:
+									*format = PixelFormat::BC5_Snorm;
+									break;
+
+								case DXGI_FORMAT_BC6H_SF16:
+									*format = PixelFormat::BC6H_SFloat;
+									break;
+
+								case DXGI_FORMAT_BC6H_UF16:
+									*format = PixelFormat::BC6H_UFloat;
+									break;
+
+								case DXGI_FORMAT_BC7_TYPELESS:
+								case DXGI_FORMAT_BC7_UNORM:
+									*format = PixelFormat::BC7_Unorm;
+									break;
+
+								case DXGI_FORMAT_BC7_UNORM_SRGB:
+									*format = PixelFormat::BC7_sRGB;
+									break;
+
 								default:
 									//TODO
-									NazaraError("TODO");
+									NazaraError("unsupported DXGI format {0:#x}", UnderlyingCast(headerExt.dxgiFormat));
 									break;
 							}
 							break;

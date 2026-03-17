@@ -1493,10 +1493,10 @@ namespace Nz
 			s_pixelFormatInfos[format] = std::move(desc);
 		};
 
-		Bitset<> b8(0xFF);
+		PixelFormatDescription::Bitmask b8(0xFF);
 		b8.Resize(128);
 
-		Bitset<> b32(0xFFFFFFFF);
+		PixelFormatDescription::Bitmask b32(0xFFFFFFFF);
 		b32.Resize(128);
 
 		// Setup informations about every pixel format
@@ -1505,9 +1505,6 @@ namespace Nz
 		SetupPixelFormat(PixelFormat::BGR8_SRGB,        PixelFormatDescription("BGR8_SRGB",        PixelFormatContent::ColorRGBA,    0x0000FF,           0x00FF00,           0xFF0000,           0,                  PixelFormatSubType::Unsigned));
 		SetupPixelFormat(PixelFormat::BGRA8,            PixelFormatDescription("BGRA8",            PixelFormatContent::ColorRGBA,    0x0000FF00,         0x00FF0000,         0xFF000000,         0x000000FF,         PixelFormatSubType::Unsigned));
 		SetupPixelFormat(PixelFormat::BGRA8_SRGB,       PixelFormatDescription("BGRA8_SRGB",       PixelFormatContent::ColorRGBA,    0x0000FF00,         0x00FF0000,         0xFF000000,         0x000000FF,         PixelFormatSubType::Unsigned));
-		SetupPixelFormat(PixelFormat::DXT1,             PixelFormatDescription("DXT1",             PixelFormatContent::ColorRGBA,    8,                                                                              PixelFormatSubType::Compressed));
-		SetupPixelFormat(PixelFormat::DXT3,             PixelFormatDescription("DXT3",             PixelFormatContent::ColorRGBA,    16,                                                                             PixelFormatSubType::Compressed));
-		SetupPixelFormat(PixelFormat::DXT5,             PixelFormatDescription("DXT5",             PixelFormatContent::ColorRGBA,    16,                                                                             PixelFormatSubType::Compressed));
 		SetupPixelFormat(PixelFormat::L8,               PixelFormatDescription("L8",               PixelFormatContent::ColorRGBA,    0xFF,               0xFF,               0xFF,               0,                  PixelFormatSubType::Unsigned));
 		SetupPixelFormat(PixelFormat::LA8,              PixelFormatDescription("LA8",              PixelFormatContent::ColorRGBA,    0xFF00,             0xFF00,             0xFF00,             0x00FF,             PixelFormatSubType::Unsigned));
 		SetupPixelFormat(PixelFormat::R8,               PixelFormatDescription("R8",               PixelFormatContent::ColorRGBA,    0xFF,               0,                  0,                  0,                  PixelFormatSubType::Unsigned));
@@ -1548,6 +1545,8 @@ namespace Nz
 		SetupPixelFormat(PixelFormat::RGBA32F,          PixelFormatDescription("RGBA32F",          PixelFormatContent::ColorRGBA,    b32,                b32 >> 32,          b32 >> 64,          b32 >> 96,          PixelFormatSubType::Float));
 		SetupPixelFormat(PixelFormat::RGBA32I,          PixelFormatDescription("RGBA32I",          PixelFormatContent::ColorRGBA,    b32,                b32 >> 32,          b32 >> 64,          b32 >> 96,          PixelFormatSubType::Int));
 		SetupPixelFormat(PixelFormat::RGBA32UI,         PixelFormatDescription("RGBA32UI",         PixelFormatContent::ColorRGBA,    b32,                b32 >> 32,          b32 >> 64,          b32 >> 96,          PixelFormatSubType::Unsigned));
+
+		// Depth-stencil formats
 		SetupPixelFormat(PixelFormat::Depth16,          PixelFormatDescription("Depth16",          PixelFormatContent::Depth,        0xFFFF,             0,                  0,                  0,                  PixelFormatSubType::Unsigned));
 		SetupPixelFormat(PixelFormat::Depth16Stencil8,  PixelFormatDescription("Depth16Stencil8",  PixelFormatContent::DepthStencil, 0xFFFF0000,         0x0000FF00,         0,                  0,                  PixelFormatSubType::Unsigned));
 		SetupPixelFormat(PixelFormat::Depth24,          PixelFormatDescription("Depth24",          PixelFormatContent::Depth,        0xFFFFFF,           0,                  0,                  0,                  PixelFormatSubType::Unsigned));
@@ -1558,6 +1557,24 @@ namespace Nz
 		SetupPixelFormat(PixelFormat::Stencil4,         PixelFormatDescription("Stencil4",         PixelFormatContent::Stencil,      0xF,                0,                  0,                  0,                  PixelFormatSubType::Unsigned));
 		SetupPixelFormat(PixelFormat::Stencil8,         PixelFormatDescription("Stencil8",         PixelFormatContent::Stencil,      0xFF,               0,                  0,                  0,                  PixelFormatSubType::Unsigned));
 		SetupPixelFormat(PixelFormat::Stencil16,        PixelFormatDescription("Stencil16",        PixelFormatContent::Stencil,      0xFFFF,             0,                  0,                  0,                  PixelFormatSubType::Unsigned));
+
+		// Compressed formats
+		SetupPixelFormat(PixelFormat::BC1_RGB_Unorm,    PixelFormatDescription("BC1",              PixelFormatContent::ColorRGBA,    8,                                                                              PixelFormatSubType::Compressed));
+		SetupPixelFormat(PixelFormat::BC1_RGB_sRGB,     PixelFormatDescription("BC1",              PixelFormatContent::ColorRGBA,    8,                                                                              PixelFormatSubType::Compressed));
+		SetupPixelFormat(PixelFormat::BC1_RGBA_Unorm,   PixelFormatDescription("BC1",              PixelFormatContent::ColorRGBA,    8,                                                                              PixelFormatSubType::Compressed));
+		SetupPixelFormat(PixelFormat::BC1_RGBA_sRGB,    PixelFormatDescription("BC1",              PixelFormatContent::ColorRGBA,    8,                                                                              PixelFormatSubType::Compressed));
+		SetupPixelFormat(PixelFormat::BC2_Unorm,        PixelFormatDescription("BC2",              PixelFormatContent::ColorRGBA,    16,                                                                             PixelFormatSubType::Compressed));
+		SetupPixelFormat(PixelFormat::BC2_sRGB,         PixelFormatDescription("BC2",              PixelFormatContent::ColorRGBA,    16,                                                                             PixelFormatSubType::Compressed));
+		SetupPixelFormat(PixelFormat::BC3_Unorm,        PixelFormatDescription("BC3",              PixelFormatContent::ColorRGBA,    16,                                                                             PixelFormatSubType::Compressed));
+		SetupPixelFormat(PixelFormat::BC3_sRGB,         PixelFormatDescription("BC3",              PixelFormatContent::ColorRGBA,    16,                                                                             PixelFormatSubType::Compressed));
+		SetupPixelFormat(PixelFormat::BC4_Snorm,        PixelFormatDescription("BC4",              PixelFormatContent::ColorRGBA,    8,                                                                              PixelFormatSubType::Compressed));
+		SetupPixelFormat(PixelFormat::BC4_Unorm,        PixelFormatDescription("BC4",              PixelFormatContent::ColorRGBA,    8,                                                                              PixelFormatSubType::Compressed));
+		SetupPixelFormat(PixelFormat::BC5_Snorm,        PixelFormatDescription("BC5",              PixelFormatContent::ColorRGBA,    16,                                                                             PixelFormatSubType::Compressed));
+		SetupPixelFormat(PixelFormat::BC5_Unorm,        PixelFormatDescription("BC5",              PixelFormatContent::ColorRGBA,    16,                                                                             PixelFormatSubType::Compressed));
+		SetupPixelFormat(PixelFormat::BC6H_SFloat,      PixelFormatDescription("BC6",              PixelFormatContent::ColorRGBA,    16,                                                                             PixelFormatSubType::Compressed));
+		SetupPixelFormat(PixelFormat::BC6H_UFloat,      PixelFormatDescription("BC6",              PixelFormatContent::ColorRGBA,    16,                                                                             PixelFormatSubType::Compressed));
+		SetupPixelFormat(PixelFormat::BC7_Unorm,        PixelFormatDescription("BC7",              PixelFormatContent::ColorRGBA,    16,                                                                             PixelFormatSubType::Compressed));
+		SetupPixelFormat(PixelFormat::BC7_sRGB,         PixelFormatDescription("BC7",              PixelFormatContent::ColorRGBA,    16,                                                                             PixelFormatSubType::Compressed));
 
 		for (auto&& [pixelFormat, pixelFormatInfo] : s_pixelFormatInfos.iter_kv())
 		{

@@ -25,11 +25,14 @@ namespace Nz
 {
 	struct PixelFormatDescription
 	{
+		static constexpr std::size_t MaxBpp = 128;
+		using Bitmask = FixedBitset<UInt64, MaxBpp>;
+
 		inline PixelFormatDescription();
 		inline PixelFormatDescription(PixelFormatContent formatContent, UInt8 bpp, PixelFormatSubType subType);
 		inline PixelFormatDescription(std::string_view formatName, PixelFormatContent formatContent, UInt8 bpp, PixelFormatSubType subType);
-		inline PixelFormatDescription(std::string_view formatName, PixelFormatContent formatContent, Bitset<> rMask, Bitset<> gMask, Bitset<> bMask, Bitset<> aMask, PixelFormatSubType subType);
-		inline PixelFormatDescription(std::string_view formatName, PixelFormatContent formatContent, PixelFormatSubType rType, Bitset<> rMask, PixelFormatSubType gType, Bitset<> gMask, PixelFormatSubType bType, Bitset<> bMask, PixelFormatSubType aType, Bitset<> aMask, UInt8 bpp = 0);
+		inline PixelFormatDescription(std::string_view formatName, PixelFormatContent formatContent, Bitmask rMask, Bitmask gMask, Bitmask bMask, Bitmask aMask, PixelFormatSubType subType);
+		inline PixelFormatDescription(std::string_view formatName, PixelFormatContent formatContent, PixelFormatSubType rType, Bitmask rMask, PixelFormatSubType gType, Bitmask gMask, PixelFormatSubType bType, Bitmask bMask, PixelFormatSubType aType, Bitmask aMask, UInt8 bpp = 0);
 
 		inline void Clear();
 
@@ -42,10 +45,10 @@ namespace Nz
 
 		std::string_view name;
 		// Warning: Masks bit order is reversed
-		Bitset<> redMask;
-		Bitset<> greenMask;
-		Bitset<> blueMask;
-		Bitset<> alphaMask;
+		Bitmask redMask;
+		Bitmask greenMask;
+		Bitmask blueMask;
+		Bitmask alphaMask;
 		PixelFormatContent content;
 		PixelFormatSubType redType;
 		PixelFormatSubType greenType;

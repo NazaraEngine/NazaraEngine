@@ -36,12 +36,12 @@ namespace Nz
 	{
 	}
 
-	inline PixelFormatDescription::PixelFormatDescription(std::string_view formatName, PixelFormatContent formatContent, Bitset<> rMask, Bitset<> gMask, Bitset<> bMask, Bitset<> aMask, PixelFormatSubType subType) :
+	inline PixelFormatDescription::PixelFormatDescription(std::string_view formatName, PixelFormatContent formatContent, Bitmask rMask, Bitmask gMask, Bitmask bMask, Bitmask aMask, PixelFormatSubType subType) :
 	PixelFormatDescription(formatName, formatContent, subType, rMask, subType, gMask, subType, bMask, subType, aMask)
 	{
 	}
 
-	inline PixelFormatDescription::PixelFormatDescription(std::string_view formatName, PixelFormatContent formatContent, PixelFormatSubType rType, Bitset<> rMask, PixelFormatSubType gType, Bitset<> gMask, PixelFormatSubType bType, Bitset<> bMask, PixelFormatSubType aType, Bitset<> aMask, UInt8 bpp) :
+	inline PixelFormatDescription::PixelFormatDescription(std::string_view formatName, PixelFormatContent formatContent, PixelFormatSubType rType, Bitmask rMask, PixelFormatSubType gType, Bitmask gMask, PixelFormatSubType bType, Bitmask bMask, PixelFormatSubType aType, Bitmask aMask, UInt8 bpp) :
 	name(formatName),
 	redMask(rMask),
 	greenMask(gMask),
@@ -87,7 +87,7 @@ namespace Nz
 
 	inline void PixelFormatDescription::RecomputeBitsPerPixel()
 	{
-		Bitset<> counter;
+		Bitmask counter;
 		counter |= redMask;
 		counter |= greenMask;
 		counter |= blueMask;
@@ -104,7 +104,7 @@ namespace Nz
 		if (content <= PixelFormatContent::Undefined || content > PixelFormatContent::Max)
 			return false;
 
-		std::array<const Nz::Bitset<>*, 4> masks = { {&redMask, &greenMask, &blueMask, &alphaMask} };
+		std::array<const Bitmask*, 4> masks = { {&redMask, &greenMask, &blueMask, &alphaMask} };
 		std::array<PixelFormatSubType, 4> types = { {redType, greenType, blueType, alphaType} };
 
 		for (UInt32 i = 0; i < 4; ++i)
@@ -141,18 +141,30 @@ namespace Nz
 		return true;
 	}
 
-
-
 	inline std::size_t PixelFormatInfo::ComputeSize(PixelFormat format, UInt32 width, UInt32 height, UInt32 depth)
 	{
 		if (IsCompressed(format))
 		{
 			switch (format)
 			{
-				case PixelFormat::DXT1:
-				case PixelFormat::DXT3:
-				case PixelFormat::DXT5:
-					return (((width + 3) / 4) * ((height + 3) / 4) * ((format == PixelFormat::DXT1) ? 8 : 16)) * depth;
+				case PixelFormat::BC1_RGB_Unorm:
+				case PixelFormat::BC1_RGB_sRGB:
+				case PixelFormat::BC1_RGBA_Unorm:
+				case PixelFormat::BC1_RGBA_sRGB:
+				case PixelFormat::BC4_Snorm:
+				case PixelFormat::BC4_Unorm:
+					return ((width + 3) / 4) * ((height + 3) / 4) * 8 * depth;
+
+				case PixelFormat::BC2_Unorm:
+				case PixelFormat::BC2_sRGB:
+				case PixelFormat::BC3_Unorm:
+				case PixelFormat::BC3_sRGB:
+				case PixelFormat::BC5_Snorm:
+				case PixelFormat::BC6H_SFloat:
+				case PixelFormat::BC6H_UFloat:
+				case PixelFormat::BC7_Unorm:
+				case PixelFormat::BC7_sRGB:
+					return ((width + 3) / 4) * ((height + 3) / 4) * 16 * depth;
 
 				default:
 					NazaraError("unsupported format");
@@ -235,10 +247,12 @@ namespace Nz
 	{
 		for (auto&& [format, formatDesc] : s_pixelFormatInfos.iter_kv())
 		{
-			if (info.bitsPerPixel == formatDesc.bitsPerPixel && info.content == formatDesc.content &&
-				info.redMask == formatDesc.redMask && info.greenMask == formatDesc.greenMask && info.blueMask == formatDesc.blueMask && info.alphaMask == formatDesc.alphaMask &&
-				info.redType == formatDesc.redType && info.greenType == formatDesc.greenType && info.blueType == formatDesc.blueType && info.alphaType == formatDesc.alphaType)
+			if (info.bitsPerPixel == formatDesc.bitsPerPixel && info.content == formatDesc.content
+			 && info.redMask == formatDesc.redMask && info.greenMask == formatDesc.greenMask && info.blueMask == formatDesc.blueMask && info.alphaMask == formatDesc.alphaMask
+			 && info.redType == formatDesc.redType && info.greenType == formatDesc.greenType && info.blueType == formatDesc.blueType && info.alphaType == formatDesc.alphaType)
+			{
 				return format;
+			}
 		}
 
 		return PixelFormat::Undefined;

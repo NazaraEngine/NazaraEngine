@@ -314,14 +314,12 @@ namespace Nz
 	{
 		Undefined = -1,
 
+		// Color/alpha formats
 		A8,              // 1*uint8
 		BGR8,            // 3*uint8
 		BGR8_SRGB,       // 3*uint8
 		BGRA8,           // 4*uint8
 		BGRA8_SRGB,      // 4*uint8
-		DXT1,
-		DXT3,
-		DXT5,
 		L8,              // 1*uint8
 		LA8,             // 2*uint8
 		R8,              // 1*uint8
@@ -362,6 +360,8 @@ namespace Nz
 		RGBA32F,         // 4*float
 		RGBA32I,         // 4*int32
 		RGBA32UI,        // 4*uint32
+
+		// Depth-stencil formats
 		Depth16,
 		Depth16Stencil8,
 		Depth24,
@@ -373,7 +373,25 @@ namespace Nz
 		Stencil8,
 		Stencil16,
 
-		Max = Stencil16
+		// Compressed formats
+		BC1_RGB_Unorm,
+		BC1_RGB_sRGB,
+		BC1_RGBA_Unorm,
+		BC1_RGBA_sRGB,
+		BC2_Unorm,
+		BC2_sRGB,
+		BC3_Unorm,
+		BC3_sRGB,
+		BC4_Snorm,
+		BC4_Unorm,
+		BC5_Snorm,
+		BC5_Unorm,
+		BC6H_SFloat,
+		BC6H_UFloat,
+		BC7_Unorm,
+		BC7_sRGB,
+
+		Max = BC7_sRGB
 	};
 
 	constexpr std::size_t PixelFormatCount = static_cast<std::size_t>(PixelFormat::Max) + 1;

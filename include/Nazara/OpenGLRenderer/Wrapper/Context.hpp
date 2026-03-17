@@ -66,7 +66,8 @@ namespace Nz::GL
 		ShaderImageLoadStore,
 		SpirV,
 		StorageBuffers,
-		TextureCompressionS3tc,
+		TextureCompressionBPTC,
+		TextureCompressionS3TC,
 		TextureFilterAnisotropic,
 		TextureView,
 

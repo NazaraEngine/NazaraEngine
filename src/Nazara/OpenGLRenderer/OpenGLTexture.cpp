@@ -167,16 +167,34 @@ namespace Nz
 			case ImageType::E1D:
 			case ImageType::E1D_Array:
 			case ImageType::E2D:
-				m_texture.TexSubImage2D(GL::TextureTarget::Target2D, level, box.x, box.y, box.width, box.height, format->format, format->type, ptr);
+			{
+				if (PixelFormatInfo::IsCompressed(m_textureInfo.pixelFormat))
+					m_texture.CompressedTexSubImage2D(GL::TextureTarget::Target2D, level, box.x, box.y, box.width, box.height, format->format, PixelFormatInfo::ComputeSize(m_textureInfo.pixelFormat, box.width, box.height, box.depth), ptr);
+				else
+					m_texture.TexSubImage2D(GL::TextureTarget::Target2D, level, box.x, box.y, box.width, box.height, format->format, format->type, ptr);
+
 				break;
+			}
 
 			case ImageType::E2D_Array:
-				m_texture.TexSubImage3D(GL::TextureTarget::Target2D_Array, level, box.x, box.y, box.z, box.width, box.height, box.depth, format->format, format->type, ptr);
+			{
+				if (PixelFormatInfo::IsCompressed(m_textureInfo.pixelFormat))
+					m_texture.CompressedTexSubImage3D(GL::TextureTarget::Target2D_Array, level, box.x, box.y, box.z, box.width, box.height, box.depth, format->format, PixelFormatInfo::ComputeSize(m_textureInfo.pixelFormat, box.width, box.height, box.depth), ptr);
+				else
+					m_texture.TexSubImage3D(GL::TextureTarget::Target2D_Array, level, box.x, box.y, box.z, box.width, box.height, box.depth, format->format, format->type, ptr);
+
 				break;
+			}
 
 			case ImageType::E3D:
-				m_texture.TexSubImage3D(GL::TextureTarget::Target3D, level, box.x, box.y, box.z, box.width, box.height, box.depth, format->format, format->type, ptr);
+			{
+				if (PixelFormatInfo::IsCompressed(m_textureInfo.pixelFormat))
+					m_texture.CompressedTexSubImage3D(GL::TextureTarget::Target3D, level, box.x, box.y, box.z, box.width, box.height, box.depth, format->format, PixelFormatInfo::ComputeSize(m_textureInfo.pixelFormat, box.width, box.height, box.depth), ptr);
+				else
+					m_texture.TexSubImage3D(GL::TextureTarget::Target3D, level, box.x, box.y, box.z, box.width, box.height, box.depth, format->format, format->type, ptr);
+
 				break;
+			}
 
 			case ImageType::Cubemap:
 			{
@@ -185,7 +203,11 @@ namespace Nz
 
 				for (GL::TextureTarget face : { GL::TextureTarget::CubemapPositiveX, GL::TextureTarget::CubemapNegativeX, GL::TextureTarget::CubemapPositiveY, GL::TextureTarget::CubemapNegativeY, GL::TextureTarget::CubemapPositiveZ, GL::TextureTarget::CubemapNegativeZ })
 				{
-					m_texture.TexSubImage2D(face, level, box.x, box.y, box.width, box.height, format->format, format->type, facePtr);
+					if (PixelFormatInfo::IsCompressed(m_textureInfo.pixelFormat))
+						m_texture.CompressedTexSubImage2D(face, level, box.x, box.y, box.width, box.height, format->format, faceSize, facePtr);
+					else
+						m_texture.TexSubImage2D(face, level, box.x, box.y, box.width, box.height, format->format, format->type, facePtr);
+
 					facePtr += faceSize;
 				}
 				break;

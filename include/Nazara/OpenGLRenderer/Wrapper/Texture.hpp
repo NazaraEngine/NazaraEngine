@@ -23,6 +23,9 @@ namespace Nz::GL
 			Texture(Texture&&) noexcept = default;
 			~Texture() = default;
 
+			inline void CompressedTexSubImage2D(TextureTarget target, GLint level, GLint xoffset, GLint yoffset, GLsizei width, GLsizei height, GLenum format, GLsizei imageSize, const void* data);
+			inline void CompressedTexSubImage3D(TextureTarget target, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLsizei imageSize, const void* data);
+
 			inline void GenerateMipmap();
 
 			inline TextureTarget GetTarget() const;

@@ -303,19 +303,11 @@ namespace Nz
 			case PixelFormat::RGBA32UI:
 				return usage == TextureUsage::ColorAttachment || usage == TextureUsage::InputAttachment || usage == TextureUsage::ShaderSampling || usage == TextureUsage::ShaderReadWrite || usage == TextureUsage::TransferDestination || usage == TextureUsage::TransferSource;
 
-			case PixelFormat::DXT1:
-			case PixelFormat::DXT3:
-			case PixelFormat::DXT5:
-			{
-				if (!m_referenceContext->IsExtensionSupported(GL::Extension::TextureCompressionS3tc))
-					return false;
-
-				return usage == TextureUsage::InputAttachment || usage == TextureUsage::ShaderSampling || usage == TextureUsage::TransferDestination || usage == TextureUsage::TransferSource;
-			}
-
+			// Depth-stencil formats
 			case PixelFormat::Depth16:
 			case PixelFormat::Depth16Stencil8:
 			case PixelFormat::Depth24:
+
 			case PixelFormat::Depth24Stencil8:
 			case PixelFormat::Depth32F:
 			case PixelFormat::Depth32FStencil8:
@@ -324,6 +316,39 @@ namespace Nz
 			case PixelFormat::Stencil8:
 			case PixelFormat::Stencil16:
 				return usage == TextureUsage::DepthStencilAttachment || usage == TextureUsage::ShaderSampling || usage == TextureUsage::TransferDestination || usage == TextureUsage::TransferSource;
+
+			// Compressed formats
+			case PixelFormat::BC1_RGB_Unorm:
+			case PixelFormat::BC1_RGB_sRGB:
+			case PixelFormat::BC1_RGBA_Unorm:
+			case PixelFormat::BC1_RGBA_sRGB:
+			case PixelFormat::BC3_sRGB:
+			case PixelFormat::BC3_Unorm:
+			case PixelFormat::BC5_Snorm:
+			{
+				if (!m_referenceContext->IsExtensionSupported(GL::Extension::TextureCompressionS3TC))
+					return false;
+
+				return usage == TextureUsage::InputAttachment || usage == TextureUsage::ShaderSampling || usage == TextureUsage::TransferDestination || usage == TextureUsage::TransferSource;
+			}
+
+			case PixelFormat::BC6H_SFloat:
+			case PixelFormat::BC6H_UFloat:
+			case PixelFormat::BC7_Unorm:
+			case PixelFormat::BC7_sRGB:
+			{
+				if (!m_referenceContext->IsExtensionSupported(GL::Extension::TextureCompressionBPTC))
+					return false;
+
+				return usage == TextureUsage::InputAttachment || usage == TextureUsage::ShaderSampling || usage == TextureUsage::TransferDestination || usage == TextureUsage::TransferSource;
+			}
+
+			case PixelFormat::BC2_Unorm:
+			case PixelFormat::BC2_sRGB:
+			case PixelFormat::BC4_Snorm:
+			case PixelFormat::BC4_Unorm:
+			case PixelFormat::BC5_Unorm:
+				return false;
 		}
 
 		return false;

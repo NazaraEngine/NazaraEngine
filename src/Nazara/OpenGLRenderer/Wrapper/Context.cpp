@@ -546,9 +546,13 @@ namespace Nz::GL
 		else if (m_supportedExtensions.count("GL_ARB_shader_storage_buffer_object"))
 			m_extensionStatus[Extension::StorageBuffers] = ExtensionStatus::ARB;
 
+		// Texture compression (BPTC)
+		if (m_supportedExtensions.count("GL_ARB_texture_compression_bptc"))
+			m_extensionStatus[Extension::TextureCompressionBPTC] = ExtensionStatus::ARB;
+
 		// Texture compression (S3tc)
 		if (m_supportedExtensions.count("GL_EXT_texture_compression_s3tc"))
-			m_extensionStatus[Extension::TextureCompressionS3tc] = ExtensionStatus::EXT;
+			m_extensionStatus[Extension::TextureCompressionS3TC] = ExtensionStatus::EXT;
 
 		// Texture anisotropic filter
 		if (m_params.type == ContextType::OpenGL && glVersion >= 460)

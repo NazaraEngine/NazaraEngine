@@ -30,6 +30,12 @@ typedef void (GL_APIENTRYP PFNGLPOLYGONMODEPROC) (GLenum face, GLenum mode);
 // 64bits vertex attributes (OpenGL 4.1)
 typedef void (GL_APIENTRYP PFNGLVERTEXATTRIBLPOINTERPROC) (GLuint index, GLint size, GLenum type, GLsizei stride, const void* pointer);
 
+// BPTC Texture Compression (OpenGL 4.2)
+#define GL_COMPRESSED_RGBA_BPTC_UNORM_ARB         0x8E8C
+#define GL_COMPRESSED_SRGB_ALPHA_BPTC_UNORM_ARB   0x8E8D
+#define GL_COMPRESSED_RGB_BPTC_SIGNED_FLOAT_ARB   0x8E8E
+#define GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT_ARB 0x8E8F
+
 // Texture views (OpenGL 4.3)
 typedef void (GL_APIENTRYP PFNGLTEXTUREVIEWPROC) (GLuint texture, GLenum target, GLuint origtexture, GLenum internalformat, GLuint minlevel, GLuint numlevels, GLuint minlayer, GLuint numlayers);
 

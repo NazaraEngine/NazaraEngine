@@ -541,7 +541,7 @@ namespace Nz
 		{
 			const PixelFormatDescription& info = PixelFormatInfo::GetInfo(m_sharedImage->format);
 
-			Bitset<> workingBitset;
+			PixelFormatDescription::Bitmask workingBitset;
 			std::size_t pixelCount = m_sharedImage->width * m_sharedImage->height * ((m_sharedImage->type == ImageType::Cubemap) ? 6 : m_sharedImage->depth);
 			if (pixelCount == 0)
 				return false;
