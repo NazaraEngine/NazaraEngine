@@ -529,6 +529,9 @@ namespace Nz
 
 	void DefaultFramePipeline::UnregisterSkeleton(std::size_t skeletonIndex)
 	{
+		auto& skeletonData = *m_skeletonInstances.RetrieveFromIndex(skeletonIndex);
+		m_transferSet.erase(skeletonData.skeleton.get());
+
 		// Defer instance release
 		m_removedSkeletonInstances.UnboundedSet(skeletonIndex);
 	}
@@ -537,6 +540,8 @@ namespace Nz
 	{
 		auto& viewerData = *m_viewerPool.RetrieveFromIndex(viewerIndex);
 		viewerData.pendingDestruction = true;
+
+		m_transferSet.erase(&viewerData.viewer->GetViewerInstance());
 
 		for (std::size_t i : m_shadowCastingLights.IterBits())
 		{
@@ -552,6 +557,9 @@ namespace Nz
 
 	void DefaultFramePipeline::UnregisterWorldInstance(std::size_t worldInstance)
 	{
+		auto& worldInstanceData = *m_worldInstances.RetrieveFromIndex(worldInstance);
+		m_transferSet.erase(worldInstanceData.worldInstance.get());
+
 		// Defer instance release
 		m_removedWorldInstances.UnboundedSet(worldInstance);
 	}
