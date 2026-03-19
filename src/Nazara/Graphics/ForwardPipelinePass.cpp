@@ -173,7 +173,7 @@ namespace Nz
 
 		for (auto&& outputData : inputOuputs.outputAttachments)
 		{
-			std::size_t outputIndex = forwardPass.AddOutput(outputData.attachmentIndex);
+			std::size_t outputIndex = forwardPass.AddOutputAttachment(outputData.attachmentIndex);
 
 			std::visit(Overloaded{
 				[](DontClear) {},

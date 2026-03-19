@@ -16,11 +16,11 @@ namespace Nz
 		std::size_t linkAttachment = graph.AddDummyAttachment();
 
 		FramePass& blitPass = graph.AddPass("Blit to texture");
-		blitPass.AddInput(attachmentIndex);
-		blitPass.SetInputAccess(0, TextureLayout::TransferSource, PipelineStage::Transfer, MemoryAccess::MemoryRead);
-		blitPass.SetInputUsage(0, TextureUsage::TransferSource);
+		blitPass.AddInputAttachment(attachmentIndex);
+		blitPass.SetAttachmentInputAccess(0, TextureLayout::TransferSource, PipelineStage::Transfer, MemoryAccess::MemoryRead);
+		blitPass.SetAttachmentInputUsage(0, TextureUsage::TransferSource);
 
-		blitPass.AddOutput(linkAttachment);
+		blitPass.AddOutputAttachment(linkAttachment);
 
 		blitPass.SetCommandCallback([this, attachmentIndex](CommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{

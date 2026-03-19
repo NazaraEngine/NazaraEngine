@@ -84,7 +84,7 @@ namespace Nz
 				bakedSubpass.commandCallback = framePass.GetCommandCallback();
 
 				std::size_t colorAttachmentIndex = 0;
-				for (const auto& output : framePass.GetOutputs())
+				for (const auto& output : framePass.GetAttachmentOutputs())
 				{
 					if (!output.textureUsageFlags.Test(TextureUsage::ColorAttachment))
 						continue;
@@ -203,7 +203,7 @@ namespace Nz
 		{
 			const FramePass& framePass = m_framePasses[passIndex];
 
-			for (const auto& input : framePass.GetInputs())
+			for (const auto& input : framePass.GetAttachmentInputs())
 			{
 				std::size_t textureId = RegisterTexture(input.attachmentId);
 				if (textureId != InvalidTextureIndex)
@@ -213,7 +213,7 @@ namespace Nz
 				}
 			}
 
-			for (const auto& output : framePass.GetOutputs())
+			for (const auto& output : framePass.GetAttachmentOutputs())
 			{
 				std::size_t textureId = RegisterTexture(output.attachmentId);
 				if (textureId != InvalidTextureIndex)
@@ -371,7 +371,7 @@ namespace Nz
 			auto GetInvalidationBarrier = [&](std::size_t attachmentId) -> Barrier* { return GetBarrier(barriers.invalidationBarriers, attachmentId); };
 			auto GetFlushBarrier = [&](std::size_t attachmentId) -> Barrier* { return GetBarrier(barriers.flushBarriers, attachmentId); };
 
-			for (const auto& input : framePass.GetInputs())
+			for (const auto& input : framePass.GetAttachmentInputs())
 			{
 				Barrier* barrier = GetInvalidationBarrier(input.attachmentId);
 				if (!barrier)
@@ -385,7 +385,7 @@ namespace Nz
 				barrier->layout = input.layout;
 			}
 
-			for (const auto& output : framePass.GetOutputs())
+			for (const auto& output : framePass.GetAttachmentOutputs())
 			{
 				Barrier* barrier = GetFlushBarrier(output.attachmentId);
 				if (!barrier)
@@ -768,7 +768,7 @@ namespace Nz
 		std::vector<RenderPass::SubpassDescription> subpassesDesc;
 		std::vector<RenderPass::SubpassDependency> subpassesDeps;
 
-		auto RegisterColorInputRead = [&](const FramePass::Input& input)
+		auto RegisterColorInputRead = [&](const FramePass::AttachmentInput& input)
 		{
 			std::size_t textureId = Retrieve(m_pending.attachmentToTextures, ResolveAttachmentIndex(input.attachmentId));
 			if (textureId == InvalidTextureIndex)
@@ -788,7 +788,7 @@ namespace Nz
 				textureLayout = *input.assumedLayout;
 		};
 
-		auto RegisterOutput = [&](const FramePass::Output& output, bool shouldLoad)
+		auto RegisterOutput = [&](const FramePass::AttachmentOutput& output, bool shouldLoad)
 		{
 			std::size_t textureId = Retrieve(m_pending.attachmentToTextures, ResolveAttachmentIndex(output.attachmentId));
 			if (textureId == InvalidTextureIndex)
@@ -876,8 +876,8 @@ namespace Nz
 			for (auto& subpass : physicalPass.passes)
 			{
 				const FramePass& framePass = m_framePasses[subpass.passIndex];
-				const auto& subpassInputs = framePass.GetInputs();
-				const auto& subpassOutputs = framePass.GetOutputs();
+				const auto& subpassInputs = framePass.GetAttachmentInputs();
+				const auto& subpassOutputs = framePass.GetAttachmentOutputs();
 
 				colorAttachments.reserve(subpassOutputs.size());
 
@@ -1035,13 +1035,13 @@ namespace Nz
 		{
 			const FramePass& framePass = m_framePasses[passIndex];
 
-			for (const auto& input : framePass.GetInputs())
+			for (const auto& input : framePass.GetAttachmentInputs())
 				UniquePushBack(m_pending.attachmentReadList[input.attachmentId], passIndex);
 
 			if (const auto& depthStencilInput = framePass.GetDepthStencilInput())
 				UniquePushBack(m_pending.attachmentReadList[depthStencilInput->attachmentId], passIndex);
 
-			for (const auto& output : framePass.GetOutputs())
+			for (const auto& output : framePass.GetAttachmentOutputs())
 				UniquePushBack(m_pending.attachmentWriteList[output.attachmentId], passIndex);
 
 			if (std::size_t depthStencilId = framePass.GetDepthStencilOutput(); depthStencilId != FramePass::InvalidAttachmentId)
@@ -1049,7 +1049,7 @@ namespace Nz
 		}
 	}
 
-	bool FrameGraph::HasAttachment(const std::vector<FramePass::Input>& inputs, std::size_t attachmentIndex) const
+	bool FrameGraph::HasAttachment(const FramePass::AttachmentInputs& inputs, std::size_t attachmentIndex) const
 	{
 		attachmentIndex = ResolveAttachmentIndex(attachmentIndex);
 
@@ -1392,7 +1392,7 @@ namespace Nz
 		m_pending.passList.push_back(passIndex);
 
 		const FramePass& framePass = m_framePasses[passIndex];
-		for (const auto& input : framePass.GetInputs())
+		for (const auto& input : framePass.GetAttachmentInputs())
 			RegisterPassInput(passIndex, input.attachmentId);
 
 		if (const auto& depthStencilInput = framePass.GetDepthStencilInput())

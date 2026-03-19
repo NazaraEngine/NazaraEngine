@@ -28,14 +28,14 @@ namespace Nz
 		std::size_t outputAttachment = inputOuputs.outputAttachments[0].attachmentIndex;
 
 		FramePass& blitPass = frameGraph.AddPass("Blit pass");
-		blitPass.AddInput(inputAttachment);
-		blitPass.SetInputAccess(0, TextureLayout::TransferSource, PipelineStage::Transfer, MemoryAccess::MemoryRead);
-		blitPass.SetInputUsage(0, TextureUsage::TransferSource);
-		blitPass.SetReadInput(0, false);
+		blitPass.AddInputAttachment(inputAttachment);
+		blitPass.SetAttachmentInputAccess(0, TextureLayout::TransferSource, PipelineStage::Transfer, MemoryAccess::MemoryRead);
+		blitPass.SetAttachmentInputUsage(0, TextureUsage::TransferSource);
+		blitPass.SetAttachmentReadInput(0, false);
 
-		blitPass.AddOutput(outputAttachment);
-		blitPass.SetOutputAccess(0, TextureLayout::TransferDestination, PipelineStage::Transfer, MemoryAccess::MemoryWrite);
-		blitPass.SetOutputUsage(0, TextureUsage::TransferDestination);
+		blitPass.AddOutputAttachment(outputAttachment);
+		blitPass.SetAttachmentOutputAccess(0, TextureLayout::TransferDestination, PipelineStage::Transfer, MemoryAccess::MemoryWrite);
+		blitPass.SetAttachmentOutputUsage(0, TextureUsage::TransferDestination);
 
 		blitPass.SetCommandCallback([this, inputAttachment, outputAttachment](CommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{

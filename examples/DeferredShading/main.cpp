@@ -749,13 +749,13 @@ int main(int argc, char* argv[])
 
 		Nz::FramePass& gbufferPass = graph.AddPass("GBuffer");
 
-		std::size_t geometryAlbedo = gbufferPass.AddOutput(colorTexture);
+		std::size_t geometryAlbedo = gbufferPass.AddOutputAttachment(colorTexture);
 		gbufferPass.SetClearColor(geometryAlbedo, Nz::Color::Black());
 
-		std::size_t geometryNormal = gbufferPass.AddOutput(normalTexture);
+		std::size_t geometryNormal = gbufferPass.AddOutputAttachment(normalTexture);
 		gbufferPass.SetClearColor(geometryNormal, Nz::Color::Black());
 
-		std::size_t positionAttachment = gbufferPass.AddOutput(positionTexture);
+		std::size_t positionAttachment = gbufferPass.AddOutputAttachment(positionTexture);
 		gbufferPass.SetClearColor(positionAttachment, Nz::Color::Black());
 
 		gbufferPass.SetDepthStencilClear(1.f, 0);
@@ -826,11 +826,11 @@ int main(int argc, char* argv[])
 			}
 		});
 
-		lightingPass.AddInput(colorTexture);
-		lightingPass.AddInput(normalTexture);
-		lightingPass.AddInput(positionTexture);
+		lightingPass.AddInputAttachment(colorTexture);
+		lightingPass.AddInputAttachment(normalTexture);
+		lightingPass.AddInputAttachment(positionTexture);
 
-		lightingPass.SetClearColor(lightingPass.AddOutput(lightOutput), Nz::Color::Black());
+		lightingPass.SetClearColor(lightingPass.AddOutputAttachment(lightOutput), Nz::Color::Black());
 		lightingPass.SetDepthStencilInput(depthBuffer1);
 		lightingPass.SetDepthStencilOutput(depthBuffer1);
 
@@ -871,8 +871,8 @@ int main(int argc, char* argv[])
 			return (forwardEnabled) ? Nz::FramePassExecution::Execute : Nz::FramePassExecution::Skip;
 		});
 
-		forwardPass.AddInput(lightOutput);
-		forwardPass.AddOutput(lightOutput);
+		forwardPass.AddInputAttachment(lightOutput);
+		forwardPass.AddOutputAttachment(lightOutput);
 		forwardPass.SetDepthStencilInput(depthBuffer1);
 		forwardPass.SetDepthStencilOutput(depthBuffer2);
 
@@ -902,7 +902,7 @@ int main(int argc, char* argv[])
 			spritechainRenderer.Render(viewerInstance, *spriteRendererData, builder, elementPointers.size(), elementPointers.data());
 		});
 
-		occluderPass.AddOutput(occluderTexture);
+		occluderPass.AddOutputAttachment(occluderTexture);
 		occluderPass.SetClearColor(0, Nz::Color::Black());
 		occluderPass.SetDepthStencilInput(depthBuffer1);
 
@@ -919,8 +919,8 @@ int main(int argc, char* argv[])
 			builder.Draw(3);
 		});
 
-		godraysPass.AddInput(occluderTexture);
-		godraysPass.AddOutput(godRaysTexture);
+		godraysPass.AddInputAttachment(occluderTexture);
+		godraysPass.AddOutputAttachment(godRaysTexture);
 
 		Nz::FramePass& bloomBrightPass = graph.AddPass("Bloom pass - extract bright pixels");
 		bloomBrightPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
@@ -939,8 +939,8 @@ int main(int argc, char* argv[])
 			return (bloomEnabled) ? Nz::FramePassExecution::Execute : Nz::FramePassExecution::Skip;
 		});
 
-		bloomBrightPass.AddInput(lightOutput);
-		bloomBrightPass.AddOutput(bloomBrightOutput);
+		bloomBrightPass.AddInputAttachment(lightOutput);
+		bloomBrightPass.AddOutputAttachment(bloomBrightOutput);
 
 		std::size_t bloomTextureIndex = 0;
 		for (std::size_t i = 0; i < BloomSubdivisionCount; ++i)
@@ -962,8 +962,8 @@ int main(int argc, char* argv[])
 				return (bloomEnabled) ? Nz::FramePassExecution::Execute : Nz::FramePassExecution::Skip;
 			});
 
-			bloomBlurPassHorizontal.AddInput((i == 0) ? bloomBrightOutput : bloomTextures[bloomTextureIndex++]);
-			bloomBlurPassHorizontal.AddOutput(bloomTextures[bloomTextureIndex]);
+			bloomBlurPassHorizontal.AddInputAttachment((i == 0) ? bloomBrightOutput : bloomTextures[bloomTextureIndex++]);
+			bloomBlurPassHorizontal.AddOutputAttachment(bloomTextures[bloomTextureIndex]);
 
 			Nz::FramePass& bloomBlurPassVertical = graph.AddPass("Bloom pass - gaussian blur #" + std::to_string(i) + " - vertical");
 			bloomBlurPassVertical.SetCommandCallback([&, i](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
@@ -982,8 +982,8 @@ int main(int argc, char* argv[])
 				return (bloomEnabled) ? Nz::FramePassExecution::Execute : Nz::FramePassExecution::Skip;
 			});
 
-			bloomBlurPassVertical.AddInput(bloomTextures[bloomTextureIndex++]);
-			bloomBlurPassVertical.AddOutput(bloomTextures[bloomTextureIndex]);
+			bloomBlurPassVertical.AddInputAttachment(bloomTextures[bloomTextureIndex++]);
+			bloomBlurPassVertical.AddOutputAttachment(bloomTextures[bloomTextureIndex]);
 		}
 
 		Nz::FramePass& bloomBlendPass = graph.AddPass("Bloom pass - blend");
@@ -1010,18 +1010,18 @@ int main(int argc, char* argv[])
 			return (bloomEnabled) ? Nz::FramePassExecution::Execute : Nz::FramePassExecution::Skip;
 		});
 
-		bloomBlendPass.AddInput(lightOutput);
-		bloomBlendPass.AddInput(godRaysTexture);
-		bloomBlendPass.SetReadInput(0, false);
+		bloomBlendPass.AddInputAttachment(lightOutput);
+		bloomBlendPass.AddInputAttachment(godRaysTexture);
+		bloomBlendPass.SetAttachmentReadInput(0, false);
 
 		for (std::size_t i = 0; i < BloomSubdivisionCount; ++i)
-			bloomBlendPass.AddInput(bloomTextures[i * 2 + 1]);
+			bloomBlendPass.AddInputAttachment(bloomTextures[i * 2 + 1]);
 
-		bloomBlendPass.AddOutput(bloomOutput);
+		bloomBlendPass.AddOutputAttachment(bloomOutput);
 
 		Nz::FramePass& toneMappingPass = graph.AddPass("Tone mapping");
-		toneMappingPass.AddInput(bloomOutput);
-		toneMappingPass.AddOutput(toneMappingOutput);
+		toneMappingPass.AddInputAttachment(bloomOutput);
+		toneMappingPass.AddOutputAttachment(toneMappingOutput);
 		toneMappingPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
 		{
 			builder.SetScissor(env.renderRect);

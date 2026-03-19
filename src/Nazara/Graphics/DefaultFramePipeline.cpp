@@ -697,7 +697,7 @@ namespace Nz
 					// Inject previous final attachments as inputs for all passes, to force framegraph to order viewers passes relative to each other
 					// TODO: Allow the user to define which pass of viewer A uses viewer B rendering
 					for (std::size_t i = 0; i < dependenciesColorAttachmentCount; ++i)
-						framePass.AddInput(dependenciesColorAttachments[i]);
+						framePass.AddInputAttachment(dependenciesColorAttachments[i]);
 
 					if (flags.Test(FramePipelinePassFlag::LightShadowing))
 					{
@@ -762,9 +762,9 @@ namespace Nz
 		});
 
 		for (const ViewerData* viewerData : targetViewers)
-			mergePass.AddInput(viewerData->finalColorAttachment);
+			mergePass.AddInputAttachment(viewerData->finalColorAttachment);
 
-		mergePass.AddOutput(mergedAttachment);
+		mergePass.AddOutputAttachment(mergedAttachment);
 		mergePass.SetClearColor(0, Color::Black());
 
 		mergePass.SetCommandCallback([targetViewers](CommandBufferBuilder& builder, const FramePassEnvironment& env)

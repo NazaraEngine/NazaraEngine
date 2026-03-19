@@ -13,6 +13,7 @@
 #include <Nazara/Graphics/FrameGraphStructs.hpp>
 #include <Nazara/Graphics/FramePass.hpp>
 #include <Nazara/Graphics/FramePassAttachment.hpp>
+#include <Nazara/Graphics/FramePassBuffer.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/RenderPass.hpp>
 #include <limits>
@@ -149,7 +150,7 @@ namespace Nz
 			void BuildPhysicalPassDependencies(std::size_t colorAttachmentCount, bool hasDepthStencilAttachment, std::vector<RenderPass::Attachment>& renderPassAttachments, std::vector<RenderPass::SubpassDescription>& subpasses, std::vector<RenderPass::SubpassDependency>& dependencies);
 			void BuildPhysicalPasses();
 			void BuildReadWriteList();
-			bool HasAttachment(const std::vector<FramePass::Input>& inputs, std::size_t attachmentIndex) const;
+			bool HasAttachment(const FramePass::AttachmentInputs& inputs, std::size_t attachmentIndex) const;
 			void RemoveDuplicatePasses();
 			std::size_t ResolveAttachmentIndex(std::size_t attachmentIndex) const;
 			void RegisterPassInput(std::size_t passIndex, std::size_t attachmentIndex);
@@ -165,6 +166,8 @@ namespace Nz
 			std::vector<std::size_t> m_graphOutputs;
 			std::vector<FramePass> m_framePasses;
 			std::vector<AttachmentType> m_attachments;
+			std::vector<FramePassBuffer> m_buffers;
+			std::unordered_map<std::size_t, std::shared_ptr<RenderBuffer>> m_externalBuffers;
 			std::unordered_map<std::size_t, std::shared_ptr<Texture>> m_externalTextures;
 			WorkData m_pending;
 	};

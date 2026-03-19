@@ -63,8 +63,8 @@ namespace Nz
 		std::size_t inputColorBufferIndex = inputOuputs.inputAttachments[0].attachmentIndex;
 
 		FramePass& postProcess = frameGraph.AddPass(m_passName);
-		postProcess.AddInput(inputColorBufferIndex);
-		postProcess.AddOutput(inputOuputs.outputAttachments[0].attachmentIndex);
+		postProcess.AddInputAttachment(inputColorBufferIndex);
+		postProcess.AddOutputAttachment(inputOuputs.outputAttachments[0].attachmentIndex);
 
 		postProcess.SetExecutionCallback([&]
 		{

@@ -245,11 +245,11 @@ namespace Nz
 		assert(viewer);
 		PerViewerData& viewerData = *Retrieve(m_viewerData, viewer);
 
-		std::size_t arrayInputIndex = pass.AddInput(viewerData.textureArrayAttachmentIndex);
-		pass.SetInputAssumedLayout(arrayInputIndex, TextureLayout::ColorInput);
+		std::size_t arrayInputIndex = pass.AddInputAttachment(viewerData.textureArrayAttachmentIndex);
+		pass.SetAttachmentInputAssumedLayout(arrayInputIndex, TextureLayout::ColorInput);
 
 		for (CascadeData& cascade : viewerData.cascades)
-			pass.AddInput(cascade.attachmentIndex);
+			pass.AddInputAttachment(cascade.attachmentIndex);
 	}
 
 	void DirectionalLightShadowData::RegisterToFrameGraph(FrameGraph& frameGraph, const AbstractViewer* viewer)

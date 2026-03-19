@@ -168,17 +168,17 @@ namespace Nz
 		HybridVector<std::size_t, 8> inputAttachmentIndices;
 		for (const auto& inputData : inputOuputs.inputAttachments)
 		{
-			lightingPass.AddInput(inputData.attachmentIndex);
+			lightingPass.AddInputAttachment(inputData.attachmentIndex);
 			inputAttachmentIndices.push_back(inputData.attachmentIndex);
 		}
 
 		// We expect the last input to be the depth buffer, if one exists
 		if (m_depthMapBindingIndex != MaxValue<UInt32>())
-			lightingPass.SetInputAccess(inputOuputs.inputAttachments.size() - 1, TextureLayout::DepthReadOnlyStencilReadWrite, PipelineStage::FragmentShader, MemoryAccess::ShaderRead);
+			lightingPass.SetAttachmentInputAccess(inputOuputs.inputAttachments.size() - 1, TextureLayout::DepthReadOnlyStencilReadWrite, PipelineStage::FragmentShader, MemoryAccess::ShaderRead);
 
 		for (auto&& outputData : inputOuputs.outputAttachments)
 		{
-			std::size_t outputIndex = lightingPass.AddOutput(outputData.attachmentIndex);
+			std::size_t outputIndex = lightingPass.AddOutputAttachment(outputData.attachmentIndex);
 
 			std::visit(Overloaded{
 				[](DontClear) {},

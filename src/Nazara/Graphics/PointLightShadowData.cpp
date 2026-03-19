@@ -152,11 +152,11 @@ namespace Nz
 	{
 		assert(viewer == nullptr);
 
-		std::size_t cubeInputIndex = pass.AddInput(m_cubeAttachmentIndex);
-		pass.SetInputAssumedLayout(cubeInputIndex, TextureLayout::ColorInput);
+		std::size_t cubeInputIndex = pass.AddInputAttachment(m_cubeAttachmentIndex);
+		pass.SetAttachmentInputAssumedLayout(cubeInputIndex, TextureLayout::ColorInput);
 
 		for (DirectionData& direction : m_directions)
-			pass.AddInput(direction.attachmentIndex);
+			pass.AddInputAttachment(direction.attachmentIndex);
 	}
 
 	void PointLightShadowData::RegisterToFrameGraph(FrameGraph& frameGraph, [[maybe_unused]] const AbstractViewer* viewer)

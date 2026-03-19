@@ -13,23 +13,23 @@ namespace Nz
 	{
 	}
 
-	inline std::size_t FramePass::AddInput(std::size_t attachmentId)
+	inline std::size_t FramePass::AddInputAttachment(std::size_t attachmentId)
 	{
 		assert(attachmentId != InvalidAttachmentId);
 
-		std::size_t inputIndex = m_inputs.size();
-		auto& input = m_inputs.emplace_back();
+		std::size_t inputIndex = m_attachmentInputs.size();
+		auto& input = m_attachmentInputs.emplace_back();
 		input.attachmentId = attachmentId;
 
 		return inputIndex;
 	}
 
-	inline std::size_t FramePass::AddOutput(std::size_t attachmentId)
+	inline std::size_t FramePass::AddOutputAttachment(std::size_t attachmentId)
 	{
 		assert(attachmentId != InvalidAttachmentId);
 
-		std::size_t outputIndex = m_outputs.size();
-		auto& output = m_outputs.emplace_back();
+		std::size_t outputIndex = m_attachmentOutputs.size();
+		auto& output = m_attachmentOutputs.emplace_back();
 		output.attachmentId = attachmentId;
 
 		return outputIndex;
@@ -37,10 +37,10 @@ namespace Nz
 	template<typename F>
 	void FramePass::ForEachAttachment(F&& func, bool singleDSInputOutputCall) const
 	{
-		for (const auto& input : m_inputs)
+		for (const auto& input : m_attachmentInputs)
 			func(input.attachmentId);
 
-		for (const auto& output : m_outputs)
+		for (const auto& output : m_attachmentOutputs)
 			func(output.attachmentId);
 
 		if (m_depthStencilInput)
@@ -55,6 +55,16 @@ namespace Nz
 		}
 		else if (m_depthStencilOutput != FramePass::InvalidAttachmentId)
 			func(m_depthStencilOutput);
+	}
+
+	inline auto FramePass::GetAttachmentInputs() const -> const AttachmentInputs&
+	{
+		return m_attachmentInputs;
+	}
+
+	inline auto FramePass::GetAttachmentOutputs() const -> const AttachmentOutputs&
+	{
+		return m_attachmentOutputs;
 	}
 
 	inline auto FramePass::GetCommandCallback() const -> const CommandCallback&
@@ -82,24 +92,54 @@ namespace Nz
 		return m_executionCallback;
 	}
 
-	inline auto FramePass::GetInputs() const -> const std::vector<Input>&
-	{
-		return m_inputs;
-	}
-
 	inline const std::string& FramePass::GetName() const
 	{
 		return m_name;
 	}
 
-	inline auto FramePass::GetOutputs() const -> const std::vector<Output>&
-	{
-		return m_outputs;
-	}
-
 	inline std::size_t FramePass::GetPassId() const
 	{
 		return m_passId;
+	}
+
+	inline void FramePass::SetAttachmentInputAccess(std::size_t inputIndex, TextureLayout layout, PipelineStageFlags stageFlags, MemoryAccessFlags accessFlags)
+	{
+		assert(inputIndex < m_attachmentInputs.size());
+		m_attachmentInputs[inputIndex].accessFlags = accessFlags;
+		m_attachmentInputs[inputIndex].layout = layout;
+		m_attachmentInputs[inputIndex].stageFlags = stageFlags;
+	}
+
+	inline void FramePass::SetAttachmentInputAssumedLayout(std::size_t inputIndex, TextureLayout layout)
+	{
+		assert(inputIndex < m_attachmentInputs.size());
+		m_attachmentInputs[inputIndex].assumedLayout = layout;
+	}
+
+	inline void FramePass::SetAttachmentInputUsage(std::size_t inputIndex, TextureUsageFlags usageFlags)
+	{
+		assert(inputIndex < m_attachmentInputs.size());
+		m_attachmentInputs[inputIndex].textureUsageFlags = usageFlags;
+	}
+
+	inline void FramePass::SetAttachmentOutputAccess(std::size_t outputIndex, TextureLayout layout, PipelineStageFlags stageFlags, MemoryAccessFlags accessFlags)
+	{
+		assert(outputIndex < m_attachmentOutputs.size());
+		m_attachmentOutputs[outputIndex].accessFlags = accessFlags;
+		m_attachmentOutputs[outputIndex].layout = layout;
+		m_attachmentOutputs[outputIndex].stageFlags = stageFlags;
+	}
+
+	inline void FramePass::SetAttachmentOutputUsage(std::size_t outputIndex, TextureUsageFlags usageFlags)
+	{
+		assert(outputIndex < m_attachmentOutputs.size());
+		m_attachmentOutputs[outputIndex].textureUsageFlags = usageFlags;
+	}
+
+	inline void FramePass::SetAttachmentReadInput(std::size_t inputIndex, bool doesRead)
+	{
+		assert(inputIndex < m_attachmentInputs.size());
+		m_attachmentInputs[inputIndex].doesRead = doesRead;
 	}
 
 	inline void FramePass::SetCommandCallback(CommandCallback callback)
@@ -109,8 +149,8 @@ namespace Nz
 
 	inline void FramePass::SetClearColor(std::size_t outputIndex, const std::optional<Color>& color)
 	{
-		assert(outputIndex < m_outputs.size());
-		m_outputs[outputIndex].clearColor = color;
+		assert(outputIndex < m_attachmentOutputs.size());
+		m_attachmentOutputs[outputIndex].clearColor = color;
 	}
 
 	inline void FramePass::SetDepthStencilClear(float depth, UInt32 stencil)
@@ -123,46 +163,6 @@ namespace Nz
 	inline void FramePass::SetExecutionCallback(ExecutionCallback callback)
 	{
 		m_executionCallback = std::move(callback);
-	}
-
-	inline void FramePass::SetInputAccess(std::size_t inputIndex, TextureLayout layout, PipelineStageFlags stageFlags, MemoryAccessFlags accessFlags)
-	{
-		assert(inputIndex < m_inputs.size());
-		m_inputs[inputIndex].accessFlags = accessFlags;
-		m_inputs[inputIndex].layout = layout;
-		m_inputs[inputIndex].stageFlags = stageFlags;
-	}
-
-	inline void FramePass::SetInputAssumedLayout(std::size_t inputIndex, TextureLayout layout)
-	{
-		assert(inputIndex < m_inputs.size());
-		m_inputs[inputIndex].assumedLayout = layout;
-	}
-
-	inline void FramePass::SetInputUsage(std::size_t inputIndex, TextureUsageFlags usageFlags)
-	{
-		assert(inputIndex < m_inputs.size());
-		m_inputs[inputIndex].textureUsageFlags = usageFlags;
-	}
-
-	inline void FramePass::SetOutputAccess(std::size_t outputIndex, TextureLayout layout, PipelineStageFlags stageFlags, MemoryAccessFlags accessFlags)
-	{
-		assert(outputIndex < m_outputs.size());
-		m_outputs[outputIndex].accessFlags = accessFlags;
-		m_outputs[outputIndex].layout = layout;
-		m_outputs[outputIndex].stageFlags = stageFlags;
-	}
-
-	inline void FramePass::SetOutputUsage(std::size_t outputIndex, TextureUsageFlags usageFlags)
-	{
-		assert(outputIndex < m_outputs.size());
-		m_outputs[outputIndex].textureUsageFlags = usageFlags;
-	}
-
-	inline void FramePass::SetReadInput(std::size_t inputIndex, bool doesRead)
-	{
-		assert(inputIndex < m_inputs.size());
-		m_inputs[inputIndex].doesRead = doesRead;
 	}
 
 	inline void FramePass::SetDepthStencilInput(std::size_t attachmentId, TextureUsage attachmentUsage)

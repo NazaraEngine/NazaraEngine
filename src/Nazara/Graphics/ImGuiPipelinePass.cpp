@@ -24,8 +24,8 @@ namespace Nz
 			throw std::runtime_error("one output expected");
 
 		FramePass& imguiDrawPass = frameGraph.AddPass("ImGui draw pass");
-		imguiDrawPass.AddInput(inputOuputs.inputAttachments[0].attachmentIndex);
-		imguiDrawPass.AddOutput(inputOuputs.outputAttachments[0].attachmentIndex);
+		imguiDrawPass.AddInputAttachment(inputOuputs.inputAttachments[0].attachmentIndex);
+		imguiDrawPass.AddOutputAttachment(inputOuputs.outputAttachments[0].attachmentIndex);
 
 		if (inputOuputs.depthStencilInput != InvalidAttachmentIndex)
 			imguiDrawPass.SetDepthStencilInput(inputOuputs.depthStencilInput);

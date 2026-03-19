@@ -37,11 +37,11 @@ namespace Nz
 		std::size_t linkAttachment = graph.AddDummyAttachment();
 
 		FramePass& blitPass = graph.AddPass("Blit to swapchain");
-		blitPass.AddInput(attachmentIndex);
-		blitPass.SetInputAccess(0, TextureLayout::TransferSource, PipelineStage::Transfer, MemoryAccess::MemoryRead);
-		blitPass.SetInputUsage(0, TextureUsage::TransferSource);
+		blitPass.AddInputAttachment(attachmentIndex);
+		blitPass.SetAttachmentInputAccess(0, TextureLayout::TransferSource, PipelineStage::Transfer, MemoryAccess::MemoryRead);
+		blitPass.SetAttachmentInputUsage(0, TextureUsage::TransferSource);
 
-		blitPass.AddOutput(linkAttachment);
+		blitPass.AddOutputAttachment(linkAttachment);
 
 		// Force regeneration of RenderWindow execution callback (since image index changes every frame)
 		// TODO: Maybe handle this in a better way (temporary command buffer? multiple commands buffers selected by frame index?)

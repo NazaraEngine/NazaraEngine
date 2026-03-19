@@ -121,11 +121,11 @@ namespace Nz
 	{
 		FramePass& pass = frameGraph.AddPass(m_passName);
 		for (auto&& inputData : inputOuputs.inputAttachments)
-			pass.AddInput(inputData.attachmentIndex);
+			pass.AddInputAttachment(inputData.attachmentIndex);
 
 		for (auto&& outputData : inputOuputs.outputAttachments)
 		{
-			std::size_t outputIndex = pass.AddOutput(outputData.attachmentIndex);
+			std::size_t outputIndex = pass.AddOutputAttachment(outputData.attachmentIndex);
 
 			std::visit(Overloaded{
 				[](DontClear) {},

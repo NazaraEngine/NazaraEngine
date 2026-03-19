@@ -100,7 +100,7 @@ namespace Nz
 	{
 		assert(viewer == nullptr);
 
-		pass.AddInput(m_attachmentIndex);
+		pass.AddInputAttachment(m_attachmentIndex);
 	}
 
 	void SpotLightShadowData::RegisterToFrameGraph(FrameGraph& frameGraph, [[maybe_unused]] const AbstractViewer* viewer)
