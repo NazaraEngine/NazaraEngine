@@ -64,6 +64,7 @@ namespace Nz
 			~ThreadLocalData();
 
 			template<typename... Args> T& GetOrCreate(Args&&... args);
+			template<typename... Args> T& GetOrCreate(bool& created, Args&&... args);
 
 			ThreadLocalData& operator=(const ThreadLocalData&) = delete;
 			ThreadLocalData& operator=(ThreadLocalData&&) = delete;

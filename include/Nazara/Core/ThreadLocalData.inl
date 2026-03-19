@@ -16,7 +16,15 @@ namespace Nz
 
 	template<typename T>
 	template<typename... Args>
-	inline T& ThreadLocalData<T>::GetOrCreate(Args&&... args)
+	T& ThreadLocalData<T>::GetOrCreate(Args&&... args)
+	{
+		bool unused;
+		return GetOrCreate(unused, std::forward<Args>(args)...);
+	}
+
+	template<typename T>
+	template<typename ...Args>
+	T& ThreadLocalData<T>::GetOrCreate(bool& created, Args && ...args)
 	{
 		std::unique_lock lock(m_mutex);
 		std::thread::id threadId = std::this_thread::get_id();
@@ -27,7 +35,10 @@ namespace Nz
 			it->second.data = std::make_unique<T>(std::forward<Args>(args)...);
 			it->second.watcher = &Detail::ThreadLocalDataWatcher::GetThreadWatcher();
 			it->second.watcher->Register(this);
+			created = true;
 		}
+		else
+			created = false;
 
 		return *it->second.data;
 	}
