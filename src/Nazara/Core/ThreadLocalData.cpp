@@ -4,6 +4,7 @@
 
 #include <Nazara/Core/ThreadLocalData.hpp>
 #include <NazaraUtils/Assert.hpp>
+#include <algorithm>
 
 namespace Nz::Detail
 {

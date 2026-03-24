@@ -23,7 +23,7 @@ namespace Nz
 		public:
 			SoundInterface() = default;
 			SoundInterface(const SoundInterface&) = delete;
-			SoundInterface(SoundInterface&&) = delete;
+			SoundInterface(SoundInterface&&) = default;
 			virtual ~SoundInterface();
 
 			virtual SoundAttenuationModel GetAttenuationModel() const = 0;
@@ -68,7 +68,7 @@ namespace Nz
 			virtual void SetVolume(float volume) = 0;
 
 			SoundInterface& operator=(const SoundInterface&) = delete;
-			SoundInterface& operator=(SoundInterface&&) = delete;
+			SoundInterface& operator=(SoundInterface&&) = default;
 	};
 }
 

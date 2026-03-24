@@ -26,8 +26,9 @@ namespace Nz
 	template<typename ...Args>
 	T& ThreadLocalData<T>::GetOrCreate(bool& created, Args && ...args)
 	{
-		std::unique_lock lock(m_mutex);
 		std::thread::id threadId = std::this_thread::get_id();
+
+		std::unique_lock lock(m_mutex);
 		auto it = m_data.find(threadId);
 		if (it == m_data.end())
 		{

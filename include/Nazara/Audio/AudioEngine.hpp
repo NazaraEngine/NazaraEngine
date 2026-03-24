@@ -22,8 +22,6 @@ using ma_sound_group = ma_sound;
 namespace Nz
 {
 	class AudioDevice;
-	class Sound;
-	class SoundGroup;
 
 	class NAZARA_AUDIO_API AudioEngine : public AudioNode
 	{
