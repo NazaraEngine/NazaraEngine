@@ -156,7 +156,7 @@ namespace Nz
 		if (m_depthMapBindingIndex != MaxValue<UInt32>())
 			inputCount++;
 
-		if (inputOuputs.inputAttachments.size() != inputCount)
+		if (inputOuputs.inputResources.size() != inputCount)
 			throw std::runtime_error("at least one input expected");
 
 		Graphics* graphics = Graphics::Instance();
@@ -166,19 +166,19 @@ namespace Nz
 		FramePass& lightingPass = frameGraph.AddPass(m_passName);
 
 		HybridVector<std::size_t, 8> inputAttachmentIndices;
-		for (const auto& inputData : inputOuputs.inputAttachments)
+		for (const auto& inputData : inputOuputs.inputResources)
 		{
-			lightingPass.AddInputAttachment(inputData.attachmentIndex);
-			inputAttachmentIndices.push_back(inputData.attachmentIndex);
+			lightingPass.AddInputAttachment(inputData.resourceIndex);
+			inputAttachmentIndices.push_back(inputData.resourceIndex);
 		}
 
 		// We expect the last input to be the depth buffer, if one exists
 		if (m_depthMapBindingIndex != MaxValue<UInt32>())
-			lightingPass.SetAttachmentInputAccess(inputOuputs.inputAttachments.size() - 1, TextureLayout::DepthReadOnlyStencilReadWrite, PipelineStage::FragmentShader, MemoryAccess::ShaderRead);
+			lightingPass.SetAttachmentInputAccess(inputOuputs.inputResources.size() - 1, TextureLayout::DepthReadOnlyStencilReadWrite, PipelineStage::FragmentShader, MemoryAccess::ShaderRead);
 
-		for (auto&& outputData : inputOuputs.outputAttachments)
+		for (auto&& outputData : inputOuputs.outputResources)
 		{
-			std::size_t outputIndex = lightingPass.AddOutputAttachment(outputData.attachmentIndex);
+			std::size_t outputIndex = lightingPass.AddOutputAttachment(outputData.resourceIndex);
 
 			std::visit(Overloaded{
 				[](DontClear) {},
@@ -193,7 +193,7 @@ namespace Nz
 			}, outputData.clearColor);
 		}
 
-		if (inputOuputs.depthStencilInput != FramePipelinePass::InvalidAttachmentIndex)
+		if (inputOuputs.depthStencilInput != FramePipelinePass::InvalidResourceIndex)
 			lightingPass.SetDepthStencilInput(inputOuputs.depthStencilInput);
 		else
 		{

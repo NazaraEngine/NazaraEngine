@@ -87,12 +87,12 @@ namespace Nz
 
 			std::array<FramePipelinePass::PassInputData, MaxPassAttachment> inputs;
 			for (std::size_t i = 0; i < passData.inputs.size(); ++i)
-				inputs[i].attachmentIndex = GetResourceIndex(passData.inputs[i]);
+				inputs[i].resourceIndex = GetResourceIndex(passData.inputs[i]);
 
 			std::array<FramePipelinePass::PassOutputData, MaxPassAttachment> outputs;
 			for (std::size_t i = 0; i < passData.outputs.size(); ++i)
 			{
-				outputs[i].attachmentIndex = GetResourceIndex(passData.outputs[i].attachmentIndex);
+				outputs[i].resourceIndex = GetResourceIndex(passData.outputs[i].attachmentIndex);
 				outputs[i].clearColor = passData.outputs[i].clearColor;
 			}
 
@@ -100,8 +100,8 @@ namespace Nz
 			passInputOuputs.clearDepth = passData.clearDepth;
 			passInputOuputs.depthStencilInput = GetResourceIndex(passData.depthStencilInput);
 			passInputOuputs.depthStencilOutput = GetResourceIndex(passData.depthStencilOutput);
-			passInputOuputs.inputAttachments = std::span(inputs.data(), passData.inputs.size());
-			passInputOuputs.outputAttachments = std::span(outputs.data(), passData.outputs.size());
+			passInputOuputs.inputResources = std::span(inputs.data(), passData.inputs.size());
+			passInputOuputs.outputResources = std::span(outputs.data(), passData.outputs.size());
 
 			FramePass& framePass = passes[passIndex]->RegisterToFrameGraph(frameGraph, passInputOuputs);
 			if (passCallback)

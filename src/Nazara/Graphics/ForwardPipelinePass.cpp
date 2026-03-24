@@ -163,17 +163,17 @@ namespace Nz
 
 	FramePass& ForwardPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, const PassInputOuputs& inputOuputs)
 	{
-		if (inputOuputs.inputAttachments.size() > 0)
+		if (inputOuputs.inputResources.size() > 0)
 			throw std::runtime_error("no input expected");
 
-		if (inputOuputs.outputAttachments.size() != 1)
+		if (inputOuputs.outputResources.size() != 1)
 			throw std::runtime_error("one output expected");
 
 		FramePass& forwardPass = frameGraph.AddPass(m_passName);
 
-		for (auto&& outputData : inputOuputs.outputAttachments)
+		for (auto&& outputData : inputOuputs.outputResources)
 		{
-			std::size_t outputIndex = forwardPass.AddOutputAttachment(outputData.attachmentIndex);
+			std::size_t outputIndex = forwardPass.AddOutputAttachment(outputData.resourceIndex);
 
 			std::visit(Overloaded{
 				[](DontClear) {},
@@ -188,9 +188,9 @@ namespace Nz
 			}, outputData.clearColor);
 		}
 
-		if (inputOuputs.depthStencilInput != FramePipelinePass::InvalidAttachmentIndex)
+		if (inputOuputs.depthStencilInput != FramePipelinePass::InvalidResourceIndex)
 			forwardPass.SetDepthStencilInput(inputOuputs.depthStencilInput);
-		else if (inputOuputs.depthStencilOutput != InvalidAttachmentIndex)
+		else if (inputOuputs.depthStencilOutput != InvalidResourceIndex)
 		{
 			std::visit(Overloaded{
 				[](DontClear) {},
@@ -205,7 +205,7 @@ namespace Nz
 			}, inputOuputs.clearDepth);
 		}
 
-		if (inputOuputs.depthStencilOutput != InvalidAttachmentIndex)
+		if (inputOuputs.depthStencilOutput != InvalidResourceIndex)
 			forwardPass.SetDepthStencilOutput(inputOuputs.depthStencilOutput);
 
 		forwardPass.SetExecutionCallback([&]()

@@ -17,20 +17,20 @@ namespace Nz
 
 	FramePass& ImGuiPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, const PassInputOuputs& inputOuputs)
 	{
-		if (inputOuputs.inputAttachments.size() != 1)
+		if (inputOuputs.inputResources.size() != 1)
 			throw std::runtime_error("one input expected");
 
-		if (inputOuputs.outputAttachments.size() != 1)
+		if (inputOuputs.outputResources.size() != 1)
 			throw std::runtime_error("one output expected");
 
 		FramePass& imguiDrawPass = frameGraph.AddPass("ImGui draw pass");
-		imguiDrawPass.AddInputAttachment(inputOuputs.inputAttachments[0].attachmentIndex);
-		imguiDrawPass.AddOutputAttachment(inputOuputs.outputAttachments[0].attachmentIndex);
+		imguiDrawPass.AddInputAttachment(inputOuputs.inputResources[0].resourceIndex);
+		imguiDrawPass.AddOutputAttachment(inputOuputs.outputResources[0].resourceIndex);
 
-		if (inputOuputs.depthStencilInput != InvalidAttachmentIndex)
+		if (inputOuputs.depthStencilInput != InvalidResourceIndex)
 			imguiDrawPass.SetDepthStencilInput(inputOuputs.depthStencilInput);
 
-		if (inputOuputs.depthStencilOutput != InvalidAttachmentIndex)
+		if (inputOuputs.depthStencilOutput != InvalidResourceIndex)
 			imguiDrawPass.SetDepthStencilOutput(inputOuputs.depthStencilOutput);
 
 		imguiDrawPass.SetExecutionCallback([&]

@@ -106,7 +106,7 @@ local modules = {
 				remove_files("src/Nazara/Core/Posix/TimeImpl.cpp")
 			end
 		end,
-		Packages = { "concurrentqueue", "entt", "frozen", "ordered_map", "stb", "utfcpp" },
+		Packages = { "concurrentqueue", "entt", "fast_float", "frozen", "ordered_map", "stb", "utfcpp" },
 		PublicPackages = { "nazarautils" }
 	},
 	Graphics = {
@@ -284,6 +284,7 @@ add_repositories("nazara-engine-repo https://github.com/NazaraEngine/xmake-repo"
 add_requires(
 	"concurrentqueue",
 	"entt",
+	"fast_float",
 	"fmt",
 	"frozen",
 	"ordered_map",
@@ -303,10 +304,6 @@ if has_config("audio") then
 	add_requires("dr_mp3 >=0.7", "dr_wav >=0.14", "libflac")
 	add_requires("libvorbis", { configs = { with_vorbisenc = false } })
 	add_requires("miniaudio", { configs = { headeronly = false, encoding = false, flac = false, mp3 = false, wav = false, debug = is_mode("debug") }})
-end
-
-if has_config("graphics") then
-	add_requires("fast_float")
 end
 
 if has_config("physics2d") then

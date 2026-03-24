@@ -80,21 +80,21 @@ namespace Nz
 
 			struct PassInputData
 			{
-				std::size_t attachmentIndex;
+				std::size_t resourceIndex;
 			};
 
 			struct PassOutputData
 			{
-				std::size_t attachmentIndex;
+				std::size_t resourceIndex;
 				std::variant<DontClear, ViewerClearValue, Color> clearColor;
 			};
 
 			struct PassInputOuputs
 			{
-				std::span<const PassInputData> inputAttachments;
-				std::span<const PassOutputData> outputAttachments;
-				std::size_t depthStencilInput = InvalidAttachmentIndex;
-				std::size_t depthStencilOutput = InvalidAttachmentIndex;
+				std::span<const PassInputData> inputResources;
+				std::span<const PassOutputData> outputResources;
+				std::size_t depthStencilInput = InvalidResourceIndex;
+				std::size_t depthStencilOutput = InvalidResourceIndex;
 				std::variant<DontClear, ViewerClearValue, float> clearDepth;
 			};
 
@@ -107,7 +107,7 @@ namespace Nz
 				UInt32 renderMask;
 			};
 
-			static constexpr std::size_t InvalidAttachmentIndex = std::numeric_limits<std::size_t>::max();
+			static constexpr std::size_t InvalidResourceIndex = std::numeric_limits<std::size_t>::max();
 
 		private:
 			FramePipelineNotificationFlags m_notificationFlags;

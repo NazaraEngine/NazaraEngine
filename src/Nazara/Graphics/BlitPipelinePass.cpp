@@ -18,14 +18,14 @@ namespace Nz
 
 	FramePass& BlitPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, const PassInputOuputs& inputOuputs)
 	{
-		if (inputOuputs.inputAttachments.size() != 1)
+		if (inputOuputs.inputResources.size() != 1)
 			throw std::runtime_error("one input expected");
 
-		if (inputOuputs.outputAttachments.size() != 1)
+		if (inputOuputs.outputResources.size() != 1)
 			throw std::runtime_error("one output expected");
 
-		std::size_t inputAttachment = inputOuputs.inputAttachments[0].attachmentIndex;
-		std::size_t outputAttachment = inputOuputs.outputAttachments[0].attachmentIndex;
+		std::size_t inputAttachment = inputOuputs.inputResources[0].resourceIndex;
+		std::size_t outputAttachment = inputOuputs.outputResources[0].resourceIndex;
 
 		FramePass& blitPass = frameGraph.AddPass("Blit pass");
 		blitPass.AddInputAttachment(inputAttachment);

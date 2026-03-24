@@ -48,23 +48,23 @@ namespace Nz
 
 	FramePass& PostProcessPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, const PassInputOuputs& inputOuputs)
 	{
-		if (inputOuputs.inputAttachments.size() != 1)
+		if (inputOuputs.inputResources.size() != 1)
 			throw std::runtime_error("one input expected");
 
-		if (inputOuputs.outputAttachments.size() != 1)
+		if (inputOuputs.outputResources.size() != 1)
 			throw std::runtime_error("one output expected");
 
-		if (inputOuputs.depthStencilInput != InvalidAttachmentIndex)
+		if (inputOuputs.depthStencilInput != InvalidResourceIndex)
 			throw std::runtime_error("unexpected depth-stencil output");
 
-		if (inputOuputs.depthStencilOutput != InvalidAttachmentIndex)
+		if (inputOuputs.depthStencilOutput != InvalidResourceIndex)
 			throw std::runtime_error("unexpected depth-stencil output");
 
-		std::size_t inputColorBufferIndex = inputOuputs.inputAttachments[0].attachmentIndex;
+		std::size_t inputColorBufferIndex = inputOuputs.inputResources[0].resourceIndex;
 
 		FramePass& postProcess = frameGraph.AddPass(m_passName);
 		postProcess.AddInputAttachment(inputColorBufferIndex);
-		postProcess.AddOutputAttachment(inputOuputs.outputAttachments[0].attachmentIndex);
+		postProcess.AddOutputAttachment(inputOuputs.outputResources[0].resourceIndex);
 
 		postProcess.SetExecutionCallback([&]
 		{
