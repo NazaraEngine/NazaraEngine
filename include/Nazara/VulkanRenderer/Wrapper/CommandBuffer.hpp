@@ -49,6 +49,8 @@ namespace Nz::Vk
 			inline void BlitImage(VkImage srcImage, VkImageLayout srcImageLayout, VkImage dstImage, VkImageLayout dstImageLayout, const VkImageBlit& region, VkFilter filter);
 			inline void BlitImage(VkImage srcImage, VkImageLayout srcImageLayout, VkImage dstImage, VkImageLayout dstImageLayout, UInt32 regionCount, const VkImageBlit* regions, VkFilter filter);
 
+			inline void BufferBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkAccessFlags srcAccessMask, VkAccessFlags dstAccessMask, VkBuffer buffer);
+
 			inline void ClearAttachment(const VkClearAttachment& attachment, const VkClearRect& rect);
 			inline void ClearAttachments(UInt32 attachmentCount, const VkClearAttachment* attachments, UInt32 rectCount, const VkClearRect* rects);
 
@@ -81,11 +83,14 @@ namespace Nz::Vk
 
 			inline VkResult GetLastErrorCode() const;
 			inline CommandPool& GetPool();
+			inline const CommandPool& GetPool() const;
 
 			inline void ImageBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkDependencyFlags dependencyFlags, VkAccessFlags srcAccessMask, VkAccessFlags dstAccessMask, VkImageLayout oldLayout, VkImageLayout newLayout, VkImage image, const VkImageSubresourceRange& subresourceRange);
 
 			inline void InsertDebugLabel(const char* label);
 			inline void InsertDebugLabel(const char* label, Color color);
+
+			inline bool IsPipelineBarrier2Supported() const;
 
 			inline void MemoryBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkAccessFlags srcAccessMask, VkAccessFlags dstAccessMask);
 
@@ -94,6 +99,7 @@ namespace Nz::Vk
 			inline void PipelineBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkDependencyFlags dependencyFlags, const VkImageMemoryBarrier& imageMemoryBarrier);
 			inline void PipelineBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkDependencyFlags dependencyFlags, const VkMemoryBarrier& memoryBarrier);
 			inline void PipelineBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkDependencyFlags dependencyFlags, UInt32 memoryBarrierCount, const VkMemoryBarrier* memoryBarriers, UInt32 bufferMemoryBarrierCount, const VkBufferMemoryBarrier* bufferMemoryBarriers, UInt32 imageMemoryBarrierCount, const VkImageMemoryBarrier* imageMemoryBarriers);
+			inline void PipelineBarrier2(VkDependencyFlags dependencyFlags, UInt32 memoryBarrierCount, const VkMemoryBarrier2* memoryBarriers, UInt32 bufferMemoryBarrierCount, const VkBufferMemoryBarrier2* bufferMemoryBarriers, UInt32 imageMemoryBarrierCount, const VkImageMemoryBarrier2* imageMemoryBarriers);
 
 			inline void PushConstants(VkPipelineLayout pipelineLayout, VkShaderStageFlags shaderStages, UInt32 offset, UInt32 size, const void* values);
 

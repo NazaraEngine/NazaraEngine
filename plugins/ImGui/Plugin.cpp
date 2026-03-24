@@ -455,7 +455,7 @@ namespace NzImGui
 					builder.CopyBuffer(indexAllocation, Nz::RenderBufferView(rendererBackend->indexBuffer.get()));
 					builder.CopyBuffer(vertexAllocation, Nz::RenderBufferView(rendererBackend->vertexBuffer.get()));
 
-					builder.MemoryBarrier(Nz::PipelineStage::Transfer, Nz::PipelineStage::VertexInput, Nz::MemoryAccess::TransferWrite, Nz::MemoryAccess::VertexBufferRead);
+					builder.MemoryBarrier({ .srcStageMask = Nz::PipelineStage::Transfer, .dstStageMask = Nz::PipelineStage::VertexInput, .srcAccessMask = Nz::MemoryAccess::TransferWrite, .dstAccessMask = Nz::MemoryAccess::VertexBufferRead });
 				}, Nz::QueueType::Transfer);
 			}
 

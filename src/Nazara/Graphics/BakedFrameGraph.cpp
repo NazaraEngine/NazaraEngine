@@ -56,7 +56,7 @@ namespace Nz
 				for (auto& textureTransition : passData.invalidationBarriers)
 				{
 					const std::shared_ptr<Texture>& texture = m_textures[textureTransition.textureId].texture;
-					builder.TextureBarrier(textureTransition.srcStageMask, textureTransition.dstStageMask, textureTransition.srcAccessMask, textureTransition.dstAccessMask, textureTransition.oldLayout, textureTransition.newLayout, *texture);
+					builder.TextureBarrier({ .srcStageMask = textureTransition.srcStageMask, .dstStageMask = textureTransition.dstStageMask, .srcAccessMask = textureTransition.srcAccessMask, .dstAccessMask = textureTransition.dstAccessMask, .oldLayout = textureTransition.oldLayout, .newLayout = textureTransition.newLayout, .texture = texture.get() });
 				}
 
 				if (passData.framebuffer)

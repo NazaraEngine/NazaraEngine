@@ -33,7 +33,10 @@ namespace Nz
 	class NAZARA_RENDERER_API CommandBufferBuilder
 	{
 		public:
+			struct BufferBarrierInfo;
 			struct ClearValues;
+			struct MemoryBarrierInfo;
+			struct TextureBarrierInfo;
 
 			CommandBufferBuilder() = default;
 			CommandBufferBuilder(const CommandBufferBuilder&) = delete;
@@ -57,6 +60,8 @@ namespace Nz
 			virtual void BlitTexture(const Texture& fromTexture, const Boxui& fromBox, TextureLayout fromLayout, const Texture& toTexture, const Boxui& toBox, TextureLayout toLayout, SamplerFilter filter) = 0;
 			virtual void BlitTextureToSwapchain(const Texture& fromTexture, const Boxui& fromBox, TextureLayout fromLayout, const Swapchain& swapchain, std::size_t imageIndex) = 0;
 
+			inline void BufferBarrier(const BufferBarrierInfo& barrierInfo);
+
 			virtual void BuildMipmaps(Texture& texture, UInt8 baseLevel, UInt8 levelCount, PipelineStageFlags srcStageMask, PipelineStageFlags dstStageMask, MemoryAccessFlags srcAccessMask, MemoryAccessFlags dstAccessMask, TextureLayout oldLayout, TextureLayout newLayout) = 0;
 
 			inline void CopyBuffer(const RenderBufferView& source, const RenderBufferView& target);
@@ -75,22 +80,49 @@ namespace Nz
 
 			virtual void InsertDebugLabel(std::string_view label, const Color& color) = 0;
 
-			virtual void MemoryBarrier(PipelineStageFlags srcStageMask, PipelineStageFlags dstStageMask, MemoryAccessFlags srcAccessMask, MemoryAccessFlags dstAccessMask) = 0;
+			inline void MemoryBarrier(const MemoryBarrierInfo& barrierInfo);
 
 			virtual void NextSubpass() = 0;
 
-			virtual void PreTransferBarrier() = 0;
-			virtual void PostTransferBarrier() = 0;
+			virtual void PipelineBarrier(std::span<const MemoryBarrierInfo> memoryBarriers, std::span<const BufferBarrierInfo> bufferBarriers, std::span<const TextureBarrierInfo> textureBarriers) = 0;
 
 			virtual void PushConstants(const RenderPipelineLayout& pipelineLayout, UInt32 offset, UInt32 size, const void* data) = 0;
 
 			virtual void SetScissor(const Recti& scissorRegion) = 0;
 			virtual void SetViewport(const Recti& viewportRegion) = 0;
 
-			virtual void TextureBarrier(PipelineStageFlags srcStageMask, PipelineStageFlags dstStageMask, MemoryAccessFlags srcAccessMask, MemoryAccessFlags dstAccessMask, TextureLayout oldLayout, TextureLayout newLayout, const Texture& texture) = 0;
+			inline void TextureBarrier(const TextureBarrierInfo& barrierInfo);
 
 			CommandBufferBuilder& operator=(const CommandBufferBuilder&) = delete;
 			CommandBufferBuilder& operator=(CommandBufferBuilder&&) = default;
+
+			struct MemoryBarrierInfo
+			{
+				PipelineStageFlags srcStageMask;
+				PipelineStageFlags dstStageMask;
+				MemoryAccessFlags srcAccessMask;
+				MemoryAccessFlags dstAccessMask;
+			};
+
+			struct BufferBarrierInfo
+			{
+				PipelineStageFlags srcStageMask;
+				PipelineStageFlags dstStageMask;
+				MemoryAccessFlags srcAccessMask;
+				MemoryAccessFlags dstAccessMask;
+				const RenderBuffer* buffer;
+			};
+
+			struct TextureBarrierInfo
+			{
+				PipelineStageFlags srcStageMask;
+				PipelineStageFlags dstStageMask;
+				MemoryAccessFlags srcAccessMask;
+				MemoryAccessFlags dstAccessMask;
+				TextureLayout oldLayout;
+				TextureLayout newLayout;
+				const Texture* texture;
+			};
 
 			struct ClearValues
 			{

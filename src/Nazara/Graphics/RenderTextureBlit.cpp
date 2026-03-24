@@ -32,9 +32,11 @@ namespace Nz
 			Boxui fromBox(0, 0, 0, sourceTextureSize.x, sourceTextureSize.y, 1);
 			Boxui toBox(0, 0, 0, targetTextureSize.x, targetTextureSize.y, 1);
 
-			builder.TextureBarrier(PipelineStage::TopOfPipe, PipelineStage::Transfer, {}, MemoryAccess::TransferWrite, TextureLayout::Undefined, TextureLayout::TransferDestination, *m_targetTexture);
+			builder.TextureBarrier({ .srcStageMask = PipelineStage::TopOfPipe, .dstStageMask = PipelineStage::Transfer, .srcAccessMask = {}, .dstAccessMask = MemoryAccess::TransferWrite, .oldLayout = TextureLayout::Undefined, .newLayout = TextureLayout::TransferDestination, .texture = m_targetTexture.get() });
+
 			builder.BlitTexture(*sourceTexture, fromBox, TextureLayout::TransferSource, *m_targetTexture, toBox, TextureLayout::TransferDestination, m_samplerFilter);
-			builder.TextureBarrier(PipelineStage::Transfer, m_targetPipelineStage, MemoryAccess::TransferWrite, m_targetMemoryFlags, TextureLayout::TransferDestination, m_targetLayout, *m_targetTexture);
+
+			builder.TextureBarrier({ .srcStageMask = PipelineStage::Transfer, .dstStageMask = m_targetPipelineStage, .srcAccessMask = MemoryAccess::TransferWrite, .dstAccessMask = m_targetMemoryFlags, .oldLayout = TextureLayout::TransferDestination, .newLayout = m_targetLayout, .texture = m_targetTexture.get() });
 		});
 
 		return linkAttachment;

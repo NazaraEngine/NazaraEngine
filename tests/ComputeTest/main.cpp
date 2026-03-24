@@ -171,15 +171,15 @@ int main()
 		{
 			builder.BeginDebugRegion("Compute part", Nz::Color::Blue());
 			{
-				builder.TextureBarrier(Nz::PipelineStage::FragmentShader, Nz::PipelineStage::ComputeShader, Nz::MemoryAccess::ShaderRead, Nz::MemoryAccess::ShaderRead, Nz::TextureLayout::ColorInput, Nz::TextureLayout::General, *texture);
-				builder.TextureBarrier(Nz::PipelineStage::FragmentShader, Nz::PipelineStage::ComputeShader, Nz::MemoryAccess::ShaderRead, Nz::MemoryAccess::ShaderWrite, Nz::TextureLayout::Undefined, Nz::TextureLayout::General, *targetTexture);
+				builder.TextureBarrier({ .srcStageMask = Nz::PipelineStage::FragmentShader, .dstStageMask = Nz::PipelineStage::ComputeShader, .srcAccessMask = Nz::MemoryAccess::ShaderRead, .dstAccessMask = Nz::MemoryAccess::ShaderRead, .oldLayout = Nz::TextureLayout::ColorInput, .newLayout = Nz::TextureLayout::General, .texture = texture.get() });
+				builder.TextureBarrier({ .srcStageMask = Nz::PipelineStage::FragmentShader, .dstStageMask = Nz::PipelineStage::ComputeShader, .srcAccessMask = Nz::MemoryAccess::ShaderRead, .dstAccessMask = Nz::MemoryAccess::ShaderWrite, .oldLayout = Nz::TextureLayout::Undefined, .newLayout = Nz::TextureLayout::General, .texture = targetTexture.get() });
 
 				builder.BindComputePipeline(*computePipeline);
 				builder.BindComputeShaderBinding(0, *computeBinding);
 				builder.Dispatch(destTexParams.width / 32, destTexParams.height / 32, 1);
 
-				builder.TextureBarrier(Nz::PipelineStage::ComputeShader, Nz::PipelineStage::FragmentShader, Nz::MemoryAccess::ShaderRead, Nz::MemoryAccess::ShaderRead, Nz::TextureLayout::General, Nz::TextureLayout::ColorInput, *texture);
-				builder.TextureBarrier(Nz::PipelineStage::ComputeShader, Nz::PipelineStage::FragmentShader, Nz::MemoryAccess::ShaderWrite, Nz::MemoryAccess::ShaderRead, Nz::TextureLayout::General, Nz::TextureLayout::ColorInput, *targetTexture);
+				builder.TextureBarrier({ .srcStageMask = Nz::PipelineStage::ComputeShader, .dstStageMask = Nz::PipelineStage::FragmentShader, .srcAccessMask = Nz::MemoryAccess::ShaderRead, .dstAccessMask = Nz::MemoryAccess::ShaderRead, .oldLayout = Nz::TextureLayout::General, .newLayout = Nz::TextureLayout::ColorInput, .texture = texture.get() });
+				builder.TextureBarrier({ .srcStageMask = Nz::PipelineStage::ComputeShader, .dstStageMask = Nz::PipelineStage::FragmentShader, .srcAccessMask = Nz::MemoryAccess::ShaderWrite, .dstAccessMask = Nz::MemoryAccess::ShaderRead, .oldLayout = Nz::TextureLayout::General, .newLayout = Nz::TextureLayout::ColorInput, .texture = targetTexture.get() });
 			}
 			builder.EndDebugRegion();
 

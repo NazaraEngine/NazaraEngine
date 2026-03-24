@@ -281,7 +281,7 @@ namespace Nz
 				for (auto& copy : m_pendingCopies)
 					builder.CopyBuffer(*copy.allocation, copy.targetBuffer, copy.size);
 
-				builder.MemoryBarrier(PipelineStage::Transfer, PipelineStage::VertexInput, MemoryAccess::TransferWrite, MemoryAccess::VertexBufferRead);
+				builder.MemoryBarrier({ .srcStageMask = PipelineStage::Transfer, .dstStageMask = PipelineStage::VertexInput, .srcAccessMask = MemoryAccess::TransferWrite, .dstAccessMask = MemoryAccess::VertexBufferRead });
 			}, Nz::QueueType::Transfer);
 
 			m_pendingCopies.clear();

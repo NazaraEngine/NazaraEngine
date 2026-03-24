@@ -57,19 +57,14 @@ namespace Nz
 
 			inline Vk::CommandBuffer& GetCommandBuffer();
 
-			void MemoryBarrier(PipelineStageFlags srcStageMask, PipelineStageFlags dstStageMask, MemoryAccessFlags srcAccessMask, MemoryAccessFlags dstAccessMask) override;
+			void PipelineBarrier(std::span<const MemoryBarrierInfo> memoryBarriers, std::span<const BufferBarrierInfo> bufferBarriers, std::span<const TextureBarrierInfo> textureBarriers) override;
 
 			void NextSubpass() override;
-
-			void PreTransferBarrier() override;
-			void PostTransferBarrier() override;
 
 			void PushConstants(const RenderPipelineLayout& pipelineLayout, UInt32 offset, UInt32 size, const void* data) override;
 
 			void SetScissor(const Recti& scissorRegion) override;
 			void SetViewport(const Recti& viewportRegion) override;
-
-			void TextureBarrier(PipelineStageFlags srcStageMask, PipelineStageFlags dstStageMask, MemoryAccessFlags srcAccessMask, MemoryAccessFlags dstAccessMask, TextureLayout oldLayout, TextureLayout newLayout, const Texture& texture) override;
 
 			VulkanCommandBufferBuilder& operator=(const VulkanCommandBufferBuilder&) = delete;
 			VulkanCommandBufferBuilder& operator=(VulkanCommandBufferBuilder&&) = delete;

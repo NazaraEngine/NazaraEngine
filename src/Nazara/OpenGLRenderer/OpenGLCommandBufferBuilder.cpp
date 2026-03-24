@@ -11,9 +11,6 @@
 #include <Nazara/OpenGLRenderer/OpenGLShaderBinding.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLSwapchain.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLTexture.hpp>
-#include <Nazara/OpenGLRenderer/OpenGLUploadPool.hpp>
-#include <NazaraUtils/StackArray.hpp>
-#include <stdexcept>
 
 namespace Nz
 {
@@ -166,40 +163,53 @@ namespace Nz
 		m_commandBuffer.InsertDebugLabel(label, color);
 	}
 
-	void OpenGLCommandBufferBuilder::MemoryBarrier(PipelineStageFlags /*srcStageMask*/, PipelineStageFlags /*dstStageMask*/, MemoryAccessFlags srcAccessMask, MemoryAccessFlags dstAccessMask)
-	{
-		GLbitfield barriers = 0;
-
-		if (srcAccessMask.Test(MemoryAccess::MemoryWrite))
-			barriers |= GL_BUFFER_UPDATE_BARRIER_BIT;
-
-
-		if (dstAccessMask.Test(MemoryAccess::IndexBufferRead))
-			barriers |= GL_ELEMENT_ARRAY_BARRIER_BIT;
-
-		if (dstAccessMask.Test(MemoryAccess::VertexBufferRead))
-			barriers |= GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT;
-
-		if (dstAccessMask.Test(MemoryAccess::UniformBufferRead))
-			barriers |= GL_UNIFORM_BARRIER_BIT;
-
-		if (barriers != 0)
-			m_commandBuffer.InsertMemoryBarrier(barriers);
-	}
-
 	void OpenGLCommandBufferBuilder::NextSubpass()
 	{
 		/* nothing to do */
 	}
 
-	void OpenGLCommandBufferBuilder::PreTransferBarrier()
+	void OpenGLCommandBufferBuilder::PipelineBarrier(std::span<const MemoryBarrierInfo> memoryBarriers, std::span<const BufferBarrierInfo> bufferBarriers, std::span<const TextureBarrierInfo> textureBarriers)
 	{
-		/* nothing to do */
-	}
+		GLbitfield barriers = 0;
 
-	void OpenGLCommandBufferBuilder::PostTransferBarrier()
-	{
-		m_commandBuffer.InsertMemoryBarrier(GL_BUFFER_UPDATE_BARRIER_BIT);
+		auto HandleMemoryBarrier = [&](const auto& memoryBarrier)
+		{
+			if (memoryBarrier.srcAccessMask.Test(MemoryAccess::MemoryWrite))
+				barriers |= GL_BUFFER_UPDATE_BARRIER_BIT;
+
+			if (memoryBarrier.dstAccessMask.Test(MemoryAccess::IndexBufferRead))
+				barriers |= GL_ELEMENT_ARRAY_BARRIER_BIT;
+
+			if (memoryBarrier.dstAccessMask.Test(MemoryAccess::VertexBufferRead))
+				barriers |= GL_VERTEX_ATTRIB_ARRAY_BARRIER_BIT;
+
+			if (memoryBarrier.dstAccessMask.Test(MemoryAccess::UniformBufferRead))
+				barriers |= GL_UNIFORM_BARRIER_BIT;
+		};
+
+		for (const MemoryBarrierInfo& memoryBarrier : memoryBarriers)
+			HandleMemoryBarrier(memoryBarrier);
+
+		for (const BufferBarrierInfo& memoryBarrier : bufferBarriers)
+			HandleMemoryBarrier(memoryBarrier);
+
+		for (const TextureBarrierInfo& textureBarrier : textureBarriers)
+		{
+			if (!textureBarrier.srcAccessMask.Test(MemoryAccess::ShaderWrite))
+				continue;
+
+			if (textureBarrier.dstAccessMask.Test(MemoryAccess::ColorRead))
+				barriers |= GL_TEXTURE_FETCH_BARRIER_BIT;
+
+			if (textureBarrier.dstAccessMask.Test(MemoryAccess::ShaderRead))
+				barriers |= GL_TEXTURE_FETCH_BARRIER_BIT | GL_SHADER_IMAGE_ACCESS_BARRIER_BIT;
+
+			if (textureBarrier.dstAccessMask.Test(MemoryAccess::ShaderWrite))
+				barriers |= GL_SHADER_IMAGE_ACCESS_BARRIER_BIT;
+		}
+
+		if (barriers != 0)
+			m_commandBuffer.InsertMemoryBarrier(barriers);
 	}
 
 	void OpenGLCommandBufferBuilder::PushConstants(const RenderPipelineLayout& pipelineLayout, UInt32 offset, UInt32 size, const void* data)
@@ -215,25 +225,5 @@ namespace Nz
 	void OpenGLCommandBufferBuilder::SetViewport(const Recti& viewportRegion)
 	{
 		m_commandBuffer.SetViewport(viewportRegion);
-	}
-
-	void OpenGLCommandBufferBuilder::TextureBarrier(PipelineStageFlags /*srcStageMask*/, PipelineStageFlags /*dstStageMask*/, MemoryAccessFlags srcAccessMask, MemoryAccessFlags dstAccessMask, TextureLayout /*oldLayout*/, TextureLayout /*newLayout*/, const Texture& /*texture*/)
-	{
-		if (srcAccessMask.Test(MemoryAccess::ShaderWrite))
-		{
-			GLbitfield barriers = 0;
-
-			if (dstAccessMask.Test(MemoryAccess::ColorRead))
-				barriers |= GL_TEXTURE_FETCH_BARRIER_BIT;
-
-			if (dstAccessMask.Test(MemoryAccess::ShaderRead))
-				barriers |= GL_TEXTURE_FETCH_BARRIER_BIT | GL_SHADER_IMAGE_ACCESS_BARRIER_BIT;
-
-			if (dstAccessMask.Test(MemoryAccess::ShaderWrite))
-				barriers |= GL_SHADER_IMAGE_ACCESS_BARRIER_BIT;
-
-			if (barriers != 0)
-				m_commandBuffer.InsertMemoryBarrier(barriers);
-		}
 	}
 }

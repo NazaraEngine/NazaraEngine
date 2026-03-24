@@ -362,9 +362,9 @@ int main()
 			{
 				builder.BeginDebugRegion("UBO Update", Nz::Color::Yellow());
 				{
-					builder.PreTransferBarrier();
+					builder.MemoryBarrier({ .srcStageMask = Nz::PipelineStage::BottomOfPipe, .dstStageMask = Nz::PipelineStage::Transfer, .srcAccessMask = {}, .dstAccessMask = Nz::MemoryAccess::TransferWrite });
 					builder.CopyBuffer(allocation, uniformBuffer.get());
-					builder.PostTransferBarrier();
+					builder.MemoryBarrier({ .srcStageMask = Nz::PipelineStage::Transfer, .dstStageMask = Nz::PipelineStage::FragmentShader, .srcAccessMask = Nz::MemoryAccess::TransferWrite, .dstAccessMask = Nz::MemoryAccess::ShaderRead | Nz::MemoryAccess::UniformBufferRead });
 				}
 				builder.EndDebugRegion();
 			}, Nz::QueueType::Transfer);

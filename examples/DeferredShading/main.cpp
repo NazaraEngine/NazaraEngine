@@ -1434,7 +1434,7 @@ int main(int argc, char* argv[])
 		{
 			builder.BeginDebugRegion("UBO Update", Nz::Color::Yellow());
 			{
-				builder.PreTransferBarrier();
+				builder.MemoryBarrier({ .srcStageMask = Nz::PipelineStage::BottomOfPipe, .dstStageMask = Nz::PipelineStage::Transfer, .srcAccessMask = {}, .dstAccessMask = Nz::MemoryAccess::TransferRead | Nz::MemoryAccess::TransferWrite });
 
 				modelInstance1.OnTransfer(frame, builder);
 				modelInstance2.OnTransfer(frame, builder);
@@ -1503,7 +1503,7 @@ int main(int argc, char* argv[])
 				planeMat->OnTransfer(frame, builder);
 				flareMaterial->OnTransfer(frame, builder);
 
-				builder.PostTransferBarrier();
+				builder.MemoryBarrier({ .srcStageMask = Nz::PipelineStage::Transfer, .dstStageMask = Nz::PipelineStage::ComputeShader | Nz::PipelineStage::FragmentShader | Nz::PipelineStage::VertexShader, .srcAccessMask = Nz::MemoryAccess::TransferRead | Nz::MemoryAccess::TransferWrite, .dstAccessMask = Nz::MemoryAccess::ShaderRead | Nz::MemoryAccess::UniformBufferRead });
 			}
 			builder.EndDebugRegion();
 		}, Nz::QueueType::Transfer);
@@ -1515,7 +1515,7 @@ int main(int argc, char* argv[])
 		{
 			Nz::Recti windowRenderRect(0, 0, window.GetSize().x, window.GetSize().y);
 
-			builder.TextureBarrier(Nz::PipelineStage::ColorOutput, Nz::PipelineStage::FragmentShader, Nz::MemoryAccess::ColorWrite, Nz::MemoryAccess::ShaderRead, Nz::TextureLayout::ColorOutput, Nz::TextureLayout::ColorInput, *bakedGraph.GetAttachmentTexture(toneMappingOutput));
+			builder.TextureBarrier({ .srcStageMask = Nz::PipelineStage::ColorOutput, .dstStageMask = Nz::PipelineStage::FragmentShader, .srcAccessMask = Nz::MemoryAccess::ColorWrite, .dstAccessMask = Nz::MemoryAccess::ShaderRead, .oldLayout = Nz::TextureLayout::ColorOutput, .newLayout = Nz::TextureLayout::ColorInput, .texture = bakedGraph.GetAttachmentTexture(toneMappingOutput).get() });
 
 			Nz::CommandBufferBuilder::ClearValues clearValues[2];
 			clearValues[0].color = Nz::Color::Black();

@@ -48,7 +48,8 @@ namespace Nz
 			Boxui fromBox(0, 0, 0, sourceTextureSize.x, sourceTextureSize.y, 1);
 			Boxui toBox(0, 0, 0, targetTextureSize.x, targetTextureSize.y, 1);
 
-			builder.TextureBarrier(PipelineStage::TopOfPipe, PipelineStage::Transfer, {}, MemoryAccess::TransferWrite, TextureLayout::Undefined, TextureLayout::TransferDestination, *destinationTexture);
+			builder.TextureBarrier({ .srcStageMask = PipelineStage::TopOfPipe, .dstStageMask = PipelineStage::Transfer, .srcAccessMask = {}, .dstAccessMask = MemoryAccess::TransferWrite, .oldLayout = TextureLayout::Undefined, .newLayout = TextureLayout::TransferDestination, .texture = destinationTexture.get()});
+
 			if (sourceTextureSize == targetTextureSize)
 				builder.CopyTexture(*sourceTexture, fromBox, TextureLayout::TransferSource, *destinationTexture, toBox.GetPosition(), TextureLayout::TransferDestination);
 			else

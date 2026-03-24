@@ -195,6 +195,23 @@ namespace Nz::Vk
 		return m_pool->GetDevice()->vkCmdBlitImage(m_handle, srcImage, srcImageLayout, dstImage, dstImageLayout, regionCount, regions, filter);
 	}
 
+	inline void CommandBuffer::BufferBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkAccessFlags srcAccessMask, VkAccessFlags dstAccessMask, VkBuffer buffer)
+	{
+		VkBufferMemoryBarrier bufferBarrier = {
+			VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER,
+			nullptr,
+			srcAccessMask,
+			dstAccessMask,
+			VK_QUEUE_FAMILY_IGNORED,
+			VK_QUEUE_FAMILY_IGNORED,
+			buffer,
+			0,
+			VK_WHOLE_SIZE
+		};
+
+		return PipelineBarrier(srcStageMask, dstStageMask, 0U, 0U, nullptr, 1U, &bufferBarrier, 0U, nullptr);
+	}
+
 	inline void CommandBuffer::ClearAttachment(const VkClearAttachment& attachment, const VkClearRect& rect)
 	{
 		return ClearAttachments(1U, &attachment, 1U, &rect);
@@ -361,6 +378,11 @@ namespace Nz::Vk
 		return *m_pool;
 	}
 
+	inline const CommandPool& CommandBuffer::GetPool() const
+	{
+		return *m_pool;
+	}
+
 	inline void CommandBuffer::ImageBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkDependencyFlags dependencyFlags, VkAccessFlags srcAccessMask, VkAccessFlags dstAccessMask, VkImageLayout oldLayout, VkImageLayout newLayout, VkImage image, const VkImageSubresourceRange& subresourceRange)
 	{
 		VkImageMemoryBarrier imageBarrier = {
@@ -405,6 +427,11 @@ namespace Nz::Vk
 		}
 	}
 
+	inline bool CommandBuffer::IsPipelineBarrier2Supported() const
+	{
+		return GetPool().GetDevice()->vkCmdPipelineBarrier2 != nullptr;
+	}
+
 	inline void CommandBuffer::MemoryBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkAccessFlags srcAccessMask, VkAccessFlags dstAccessMask)
 	{
 		VkMemoryBarrier memoryBarrier = {
@@ -435,6 +462,25 @@ namespace Nz::Vk
 	inline void CommandBuffer::PipelineBarrier(VkPipelineStageFlags srcStageMask, VkPipelineStageFlags dstStageMask, VkDependencyFlags dependencyFlags, UInt32 memoryBarrierCount, const VkMemoryBarrier* memoryBarriers, UInt32 bufferMemoryBarrierCount, const VkBufferMemoryBarrier* bufferMemoryBarriers, UInt32 imageMemoryBarrierCount, const VkImageMemoryBarrier* imageMemoryBarriers)
 	{
 		return m_pool->GetDevice()->vkCmdPipelineBarrier(m_handle, srcStageMask, dstStageMask, dependencyFlags, memoryBarrierCount, memoryBarriers, bufferMemoryBarrierCount, bufferMemoryBarriers, imageMemoryBarrierCount, imageMemoryBarriers);
+	}
+
+	inline void CommandBuffer::PipelineBarrier2(VkDependencyFlags dependencyFlags, UInt32 memoryBarrierCount, const VkMemoryBarrier2* memoryBarriers, UInt32 bufferMemoryBarrierCount, const VkBufferMemoryBarrier2* bufferMemoryBarriers, UInt32 imageMemoryBarrierCount, const VkImageMemoryBarrier2* imageMemoryBarriers)
+	{
+		NazaraAssert(IsPipelineBarrier2Supported());
+
+		VkDependencyInfo depInfo = {
+			.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO,
+			.pNext = nullptr,
+			.dependencyFlags = dependencyFlags,
+			.memoryBarrierCount = memoryBarrierCount,
+			.pMemoryBarriers = memoryBarriers,
+			.bufferMemoryBarrierCount = bufferMemoryBarrierCount,
+			.pBufferMemoryBarriers = bufferMemoryBarriers,
+			.imageMemoryBarrierCount = imageMemoryBarrierCount,
+			.pImageMemoryBarriers = imageMemoryBarriers
+		};
+
+		return m_pool->GetDevice()->vkCmdPipelineBarrier2(m_handle, &depInfo);
 	}
 
 	inline void CommandBuffer::PushConstants(VkPipelineLayout pipelineLayout, VkShaderStageFlags shaderStages, UInt32 offset, UInt32 size, const void* values)

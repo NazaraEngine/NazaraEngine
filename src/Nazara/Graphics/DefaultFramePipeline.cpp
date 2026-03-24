@@ -473,7 +473,7 @@ namespace Nz
 		{
 			builder.BeginDebugRegion("CPU to GPU transfers", Color::Yellow());
 			{
-				builder.PreTransferBarrier();
+				builder.MemoryBarrier({ .srcStageMask = PipelineStage::BottomOfPipe, .dstStageMask = PipelineStage::Transfer, .srcAccessMask = {}, .dstAccessMask = MemoryAccess::TransferRead | MemoryAccess::TransferWrite });
 
 				for (TransferInterface* transferInterface : m_transferSet)
 					transferInterface->OnTransfer(renderResources, builder);
@@ -481,7 +481,7 @@ namespace Nz
 
 				OnTransfer(this, renderResources, builder);
 
-				builder.PostTransferBarrier();
+				builder.MemoryBarrier({ .srcStageMask = PipelineStage::Transfer, .dstStageMask = PipelineStage::ComputeShader | PipelineStage::FragmentShader | PipelineStage::VertexShader, .srcAccessMask = MemoryAccess::TransferRead | MemoryAccess::TransferWrite, .dstAccessMask = MemoryAccess::ShaderRead | MemoryAccess::UniformBufferRead });
 			}
 			builder.EndDebugRegion();
 		}, QueueType::Transfer);

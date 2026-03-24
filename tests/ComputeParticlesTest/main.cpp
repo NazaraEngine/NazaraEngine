@@ -335,9 +335,9 @@ int main()
 				Nz::AccessByOffset<Nz::Vector2f&>(allocation.mappedPtr, mousePosOffset) = mousePos;
 				Nz::AccessByOffset<float&>(allocation.mappedPtr, effectRadiusOffset) = (Nz::Mouse::IsButtonPressed(Nz::Mouse::Button::Left)) ? 10000.f : 100.f;
 
-				builder.PreTransferBarrier();
+				builder.MemoryBarrier({ .srcStageMask = Nz::PipelineStage::BottomOfPipe, .dstStageMask = Nz::PipelineStage::Transfer, .srcAccessMask = {}, .dstAccessMask = Nz::MemoryAccess::TransferWrite });
 				builder.CopyBuffer(allocation, sceneDataBuffer.get());
-				builder.PostTransferBarrier();
+				builder.MemoryBarrier({ .srcStageMask = Nz::PipelineStage::Transfer, .dstStageMask = Nz::PipelineStage::ComputeShader, .srcAccessMask = Nz::MemoryAccess::TransferWrite, .dstAccessMask = Nz::MemoryAccess::ShaderRead | Nz::MemoryAccess::UniformBufferRead });
 			}
 			builder.EndDebugRegion();
 
@@ -674,7 +674,7 @@ std::shared_ptr<Nz::Texture> GenerateSpriteTexture(Nz::RenderDevice& device, std
 
 	swapchain.GetTransientResources().Execute([&](Nz::CommandBufferBuilder& builder)
 	{
-		builder.TextureBarrier(Nz::PipelineStage::BottomOfPipe, Nz::PipelineStage::ComputeShader, {}, Nz::MemoryAccess::ShaderWrite, Nz::TextureLayout::Undefined, Nz::TextureLayout::General, *targetTexture);
+		builder.TextureBarrier({ .srcStageMask = Nz::PipelineStage::BottomOfPipe, .dstStageMask = Nz::PipelineStage::ComputeShader, .srcAccessMask = {}, .dstAccessMask = Nz::MemoryAccess::ShaderWrite, .oldLayout = Nz::TextureLayout::Undefined, .newLayout = Nz::TextureLayout::General, .texture = targetTexture.get() });
 
 		builder.BindComputePipeline(*pipeline);
 		builder.BindComputeShaderBinding(0, *binding);

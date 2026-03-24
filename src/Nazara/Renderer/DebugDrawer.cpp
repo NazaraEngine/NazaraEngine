@@ -241,7 +241,7 @@ namespace Nz
 
 			builder.BeginDebugRegion("Debug drawer upload", Color::Yellow());
 			{
-				builder.MemoryBarrier(PipelineStage::VertexInput | PipelineStage::FragmentShader, PipelineStage::Transfer, MemoryAccess::VertexBufferRead | MemoryAccess::UniformBufferRead, MemoryAccess::TransferWrite);
+				builder.MemoryBarrier({ .srcStageMask = PipelineStage::VertexInput | PipelineStage::FragmentShader, .dstStageMask = PipelineStage::Transfer, .srcAccessMask = MemoryAccess::VertexBufferRead | MemoryAccess::UniformBufferRead, .dstAccessMask = MemoryAccess::TransferWrite });
 
 				if (!m_viewerDataUpdated)
 				{
@@ -255,7 +255,7 @@ namespace Nz
 					builder.CopyBuffer(*pendingUpload.allocation, pendingUpload.vertexBuffer);
 				m_pendingUploads.clear();
 
-				builder.MemoryBarrier(PipelineStage::Transfer, PipelineStage::VertexInput | PipelineStage::FragmentShader, MemoryAccess::TransferWrite, MemoryAccess::VertexBufferRead | MemoryAccess::UniformBufferRead);
+				builder.MemoryBarrier({ .srcStageMask = PipelineStage::Transfer, .dstStageMask = PipelineStage::VertexInput | PipelineStage::FragmentShader, .srcAccessMask = MemoryAccess::TransferWrite, .dstAccessMask = MemoryAccess::VertexBufferRead | MemoryAccess::UniformBufferRead });
 			}
 			builder.EndDebugRegion();
 		}

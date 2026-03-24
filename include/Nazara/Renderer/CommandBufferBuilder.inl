@@ -2,7 +2,6 @@
 // This file is part of the "Nazara Engine - Renderer module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-
 namespace Nz
 {
 	inline void CommandBufferBuilder::BeginRenderPass(const Framebuffer& framebuffer, const RenderPass& renderPass, const Recti& renderRect)
@@ -15,6 +14,11 @@ namespace Nz
 		return BeginRenderPass(framebuffer, renderPass, renderRect, clearValues.begin(), clearValues.size());
 	}
 
+	inline void CommandBufferBuilder::BufferBarrier(const BufferBarrierInfo& barrierInfo)
+	{
+		return PipelineBarrier({}, std::span(&barrierInfo, 1), {});
+	}
+
 	inline void CommandBufferBuilder::CopyBuffer(const RenderBufferView& from, const RenderBufferView& to)
 	{
 		return CopyBuffer(from, to, from.GetSize());
@@ -23,5 +27,15 @@ namespace Nz
 	inline void CommandBufferBuilder::CopyBuffer(const UploadPool::Allocation& allocation, const RenderBufferView& target)
 	{
 		return CopyBuffer(allocation, target, allocation.size);
+	}
+
+	inline void CommandBufferBuilder::MemoryBarrier(const MemoryBarrierInfo& barrierInfo)
+	{
+		return PipelineBarrier(std::span(&barrierInfo, 1), {}, {});
+	}
+
+	inline void CommandBufferBuilder::TextureBarrier(const TextureBarrierInfo& barrierInfo)
+	{
+		return PipelineBarrier({}, {}, std::span(&barrierInfo, 1));
 	}
 }

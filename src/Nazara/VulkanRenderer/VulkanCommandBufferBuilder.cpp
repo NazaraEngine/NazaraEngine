@@ -379,25 +379,95 @@ namespace Nz
 		m_commandBuffer.InsertDebugLabel(labelEOS.data(), color);
 	}
 
-	void VulkanCommandBufferBuilder::MemoryBarrier(PipelineStageFlags srcStageMask, PipelineStageFlags dstStageMask, MemoryAccessFlags srcAccessMask, MemoryAccessFlags dstAccessMask)
-	{
-		m_commandBuffer.MemoryBarrier(ToVulkan(srcStageMask), ToVulkan(dstStageMask), ToVulkan(srcAccessMask), ToVulkan(dstAccessMask));
-	}
-
 	void VulkanCommandBufferBuilder::NextSubpass()
 	{
 		m_commandBuffer.NextSubpass();
 		m_currentSubpassIndex++;
 	}
 
-	void VulkanCommandBufferBuilder::PreTransferBarrier()
+	void VulkanCommandBufferBuilder::PipelineBarrier(std::span<const MemoryBarrierInfo> memoryBarriers, std::span<const BufferBarrierInfo> bufferBarriers, std::span<const TextureBarrierInfo> textureBarriers)
 	{
-		m_commandBuffer.MemoryBarrier(VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0U, VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT);
-	}
+		if (m_commandBuffer.IsPipelineBarrier2Supported())
+		{
+			StackArray<VkMemoryBarrier2> vkMemoryBarriers = NazaraStackArray(VkMemoryBarrier2, memoryBarriers.size());
+			for (std::size_t i = 0; i < memoryBarriers.size(); ++i)
+			{
+				const MemoryBarrierInfo& memoryBarrier = memoryBarriers[i];
+				VkMemoryBarrier2& vkMemoryBarrier = vkMemoryBarriers[i];
+				vkMemoryBarrier.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER_2;
+				vkMemoryBarrier.pNext = nullptr;
+				vkMemoryBarrier.srcStageMask = ToVulkan(memoryBarrier.srcStageMask);
+				vkMemoryBarrier.dstStageMask = ToVulkan(memoryBarrier.dstStageMask);
+				vkMemoryBarrier.srcAccessMask = ToVulkan(memoryBarrier.srcAccessMask);
+				vkMemoryBarrier.dstAccessMask = ToVulkan(memoryBarrier.dstAccessMask);
+			}
 
-	void VulkanCommandBufferBuilder::PostTransferBarrier()
-	{
-		m_commandBuffer.MemoryBarrier(VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT | VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT | VK_PIPELINE_STAGE_VERTEX_SHADER_BIT, VK_ACCESS_TRANSFER_READ_BIT | VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_UNIFORM_READ_BIT);
+			StackArray<VkBufferMemoryBarrier2> vkBufferBarriers = NazaraStackArray(VkBufferMemoryBarrier2, bufferBarriers.size());
+			for (std::size_t i = 0; i < bufferBarriers.size(); ++i)
+			{
+				const BufferBarrierInfo& bufferBarrier = bufferBarriers[i];
+				VkBufferMemoryBarrier2& vkBufferBarrier = vkBufferBarriers[i];
+				const VulkanBuffer* vkBuffer = SafeCast<const VulkanBuffer*>(bufferBarrier.buffer);
+				NazaraAssert(vkBuffer);
+
+				vkBufferBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2;
+				vkBufferBarrier.pNext = nullptr;
+				vkBufferBarrier.srcStageMask = ToVulkan(bufferBarrier.srcStageMask);
+				vkBufferBarrier.dstStageMask = ToVulkan(bufferBarrier.dstStageMask);
+				vkBufferBarrier.srcAccessMask = ToVulkan(bufferBarrier.srcAccessMask);
+				vkBufferBarrier.dstAccessMask = ToVulkan(bufferBarrier.dstAccessMask);
+				vkBufferBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+				vkBufferBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+				vkBufferBarrier.buffer = vkBuffer->GetBuffer();
+				vkBufferBarrier.offset = 0;
+				vkBufferBarrier.size = VK_WHOLE_SIZE;
+			}
+
+			StackArray<VkImageMemoryBarrier2> vkImageBarriers = NazaraStackArray(VkImageMemoryBarrier2, textureBarriers.size());
+			for (std::size_t i = 0; i < textureBarriers.size(); ++i)
+			{
+				const TextureBarrierInfo& textureBarrier = textureBarriers[i];
+				VkImageMemoryBarrier2& vkImageBarrier = vkImageBarriers[i];
+				const VulkanTexture* vkTexture = SafeCast<const VulkanTexture*>(textureBarrier.texture);
+				NazaraAssert(vkTexture);
+
+				vkImageBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2;
+				vkImageBarrier.pNext = nullptr;
+				vkImageBarrier.srcStageMask = ToVulkan(textureBarrier.srcStageMask);
+				vkImageBarrier.dstStageMask = ToVulkan(textureBarrier.dstStageMask);
+				vkImageBarrier.srcAccessMask = ToVulkan(textureBarrier.srcAccessMask);
+				vkImageBarrier.dstAccessMask = ToVulkan(textureBarrier.dstAccessMask);
+				vkImageBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+				vkImageBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+				vkImageBarrier.oldLayout = ToVulkan(textureBarrier.oldLayout);
+				vkImageBarrier.newLayout = ToVulkan(textureBarrier.newLayout);
+				vkImageBarrier.image = vkTexture->GetImage();
+				vkImageBarrier.subresourceRange = vkTexture->GetSubresourceRange();
+			}
+
+			m_commandBuffer.PipelineBarrier2(VkDependencyFlags(0), SafeCaster(vkMemoryBarriers.size()), vkMemoryBarriers.data(), SafeCaster(vkBufferBarriers.size()), vkBufferBarriers.data(), SafeCaster(vkImageBarriers.size()), vkImageBarriers.data());
+		}
+		else
+		{
+			for (const MemoryBarrierInfo& barrierInfo : memoryBarriers)
+				m_commandBuffer.MemoryBarrier(ToVulkan(barrierInfo.srcStageMask), ToVulkan(barrierInfo.dstStageMask), ToVulkan(barrierInfo.srcAccessMask), ToVulkan(barrierInfo.dstAccessMask));
+
+			for (const BufferBarrierInfo& barrierInfo : bufferBarriers)
+			{
+				const VulkanBuffer* vkBuffer = SafeCast<const VulkanBuffer*>(barrierInfo.buffer);
+				NazaraAssert(vkBuffer);
+
+				m_commandBuffer.BufferBarrier(ToVulkan(barrierInfo.srcStageMask), ToVulkan(barrierInfo.dstStageMask), ToVulkan(barrierInfo.srcAccessMask), ToVulkan(barrierInfo.dstAccessMask), vkBuffer->GetBuffer());
+			}
+
+			for (const TextureBarrierInfo& barrierInfo : textureBarriers)
+			{
+				const VulkanTexture* vkTexture = SafeCast<const VulkanTexture*>(barrierInfo.texture);
+				NazaraAssert(vkTexture);
+
+				m_commandBuffer.ImageBarrier(ToVulkan(barrierInfo.srcStageMask), ToVulkan(barrierInfo.dstStageMask), VkDependencyFlags(0), ToVulkan(barrierInfo.srcAccessMask), ToVulkan(barrierInfo.dstAccessMask), ToVulkan(barrierInfo.oldLayout), ToVulkan(barrierInfo.newLayout), vkTexture->GetImage(), vkTexture->GetSubresourceRange());
+			}
+		}
 	}
 
 	void VulkanCommandBufferBuilder::PushConstants(const RenderPipelineLayout& pipelineLayout, UInt32 offset, UInt32 size, const void* data)
@@ -415,12 +485,5 @@ namespace Nz
 	void VulkanCommandBufferBuilder::SetViewport(const Recti& viewportRegion)
 	{
 		m_commandBuffer.SetViewport(Rectf(viewportRegion), 0.f, 1.f);
-	}
-
-	void VulkanCommandBufferBuilder::TextureBarrier(PipelineStageFlags srcStageMask, PipelineStageFlags dstStageMask, MemoryAccessFlags srcAccessMask, MemoryAccessFlags dstAccessMask, TextureLayout oldLayout, TextureLayout newLayout, const Texture& texture)
-	{
-		const VulkanTexture& vkTexture = SafeCast<const VulkanTexture&>(texture);
-
-		m_commandBuffer.ImageBarrier(ToVulkan(srcStageMask), ToVulkan(dstStageMask), VkDependencyFlags(0), ToVulkan(srcAccessMask), ToVulkan(dstAccessMask), ToVulkan(oldLayout), ToVulkan(newLayout), vkTexture.GetImage(), vkTexture.GetSubresourceRange());
 	}
 }
