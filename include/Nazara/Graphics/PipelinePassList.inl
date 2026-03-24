@@ -8,24 +8,32 @@ namespace Nz
 {
 	inline std::size_t PipelinePassList::AddAttachment(FramePassAttachment attachment)
 	{
-		std::size_t index = m_attachments.size();
-		m_attachments.emplace_back(std::move(attachment));
+		std::size_t index = m_resources.size();
+		m_resources.emplace_back(std::move(attachment));
 
 		return index;
 	}
 
 	inline std::size_t PipelinePassList::AddAttachmentProxy(std::string name, std::size_t attachmentIndex)
 	{
-		std::size_t index = m_attachments.size();
-		m_attachments.emplace_back(AttachmentProxy{ std::move(name), attachmentIndex });
+		std::size_t index = m_resources.size();
+		m_resources.emplace_back(AttachmentProxy{ std::move(name), attachmentIndex });
 
 		return index;
 	}
 
 	inline std::size_t PipelinePassList::AddAttachmentView(std::string name, std::size_t attachmentIndex, PixelFormat pixelFormat, TexturePlaneFlags texturePlanes)
 	{
-		std::size_t index = m_attachments.size();
-		m_attachments.emplace_back(AttachmentView{ std::move(name), attachmentIndex, pixelFormat, texturePlanes });
+		std::size_t index = m_resources.size();
+		m_resources.emplace_back(AttachmentView{ std::move(name), attachmentIndex, pixelFormat, texturePlanes });
+
+		return index;
+	}
+
+	inline std::size_t PipelinePassList::AddBuffer(FramePassBuffer buffer)
+	{
+		std::size_t index = m_resources.size();
+		m_resources.emplace_back(std::move(buffer));
 
 		return index;
 	}
@@ -80,6 +88,7 @@ namespace Nz
 		auto& pass = m_passes[passIndex];
 		pass.depthStencilOutput = attachmentIndex;
 	}
+
 	inline void PipelinePassList::SetPassInput(std::size_t passIndex, std::size_t inputIndex, std::size_t attachmentIndex)
 	{
 		assert(passIndex < m_passes.size());

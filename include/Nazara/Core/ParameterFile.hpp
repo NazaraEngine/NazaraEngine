@@ -62,12 +62,22 @@ namespace Nz
 			struct EndOfStream {};
 			struct OpenCurlyBracket {};
 
+			struct Float
+			{
+				double value;
+			};
+
+			struct Integer
+			{
+				Int64 value;
+			};
+
 			struct String
 			{
 				std::string value; //< has to be a string because of text parsing
 			};
 
-			using Token = std::variant<std::monostate, ClosingCurlyBracket, EndOfStream, Identifier, OpenCurlyBracket, String>;
+			using Token = std::variant<std::monostate, ClosingCurlyBracket, EndOfStream, Identifier, Float, Integer, OpenCurlyBracket, String>;
 
 			Token Advance();
 			void ConsumeChar(std::size_t count = 1);

@@ -30,6 +30,7 @@ namespace Nz
 		unsigned int width = 100'000;
 		unsigned int height = 100'000;
 		unsigned int viewerIndex = 0;
+		bool persistent = false;
 	};
 }
 

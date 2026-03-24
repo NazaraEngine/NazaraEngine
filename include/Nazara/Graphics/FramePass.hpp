@@ -42,14 +42,19 @@ namespace Nz
 	class NAZARA_GRAPHICS_API FramePass
 	{
 		public:
-			using CommandCallback = std::function<void(CommandBufferBuilder& builder, const FramePassEnvironment& env)>;
-			using ExecutionCallback = std::function<FramePassExecution()>;
-			struct DepthStencilClear;
-			struct DepthStencilInput;
 			struct AttachmentInput;
 			struct AttachmentOutput;
+			struct BufferInput;
+			struct BufferOutput;
+			struct DepthStencilClear;
+			struct DepthStencilInput;
+
 			using AttachmentInputs = Nz::HybridVector<AttachmentInput, 2>;
 			using AttachmentOutputs = Nz::HybridVector<AttachmentOutput, 2>;
+			using BufferInputs = Nz::HybridVector<BufferInput, 2>;
+			using BufferOutputs = Nz::HybridVector<BufferOutput, 2>;
+			using CommandCallback = std::function<void(CommandBufferBuilder& builder, const FramePassEnvironment& env)>;
+			using ExecutionCallback = std::function<FramePassExecution()>;
 
 			inline FramePass(FrameGraph& owner, std::size_t passId, std::string name);
 			FramePass(const FramePass&) = delete;
@@ -59,17 +64,22 @@ namespace Nz
 			inline std::size_t AddInputAttachment(std::size_t attachmentId);
 			inline std::size_t AddInputBuffer(std::size_t bufferId, BufferUsageFlags bufferUsage, MemoryAccessFlags accessFlags, PipelineStageFlags stageFlags);
 
-			inline std::size_t AddInputIndexBuffer(std::size_t bufferId, BufferUsageFlags bufferUsage = BufferUsage::IndexBuffer, MemoryAccessFlags accessFlags = MemoryAccess::IndexBufferRead, PipelineStageFlags stageFlags = PipelineStage::VertexInput);
-			inline std::size_t AddInputStorageBuffer(std::size_t bufferId, BufferUsageFlags bufferUsage = BufferUsage::StorageBuffer, MemoryAccessFlags accessFlags = MemoryAccess::ShaderRead, PipelineStageFlags stageFlags = PipelineStage::ComputeShader);
-			inline std::size_t AddInputVertexBuffer(std::size_t bufferId, BufferUsageFlags bufferUsage = BufferUsage::VertexBuffer, MemoryAccessFlags accessFlags = MemoryAccess::VertexBufferRead, PipelineStageFlags stageFlags = PipelineStage::VertexInput);
+			inline std::size_t AddInputIndexBuffer(std::size_t bufferId, PipelineStageFlags stageFlags = PipelineStage::VertexInput, BufferUsageFlags bufferUsage = BufferUsage::IndexBuffer, MemoryAccessFlags accessFlags = MemoryAccess::IndexBufferRead);
+			inline std::size_t AddInputStorageBuffer(std::size_t bufferId, PipelineStageFlags stageFlags, MemoryAccessFlags accessFlags = MemoryAccess::ShaderRead, BufferUsageFlags bufferUsage = BufferUsage::StorageBuffer);
+			inline std::size_t AddInputTransferBuffer(std::size_t bufferId, PipelineStageFlags stageFlags = PipelineStage::Transfer, MemoryAccessFlags accessFlags = MemoryAccess::TransferRead, BufferUsageFlags bufferUsage = BufferUsage::TransferSource);
+			inline std::size_t AddInputUniformBuffer(std::size_t bufferId, PipelineStageFlags stageFlags, MemoryAccessFlags accessFlags = MemoryAccess::ShaderRead, BufferUsageFlags bufferUsage = BufferUsage::UniformBuffer);
+			inline std::size_t AddInputVertexBuffer(std::size_t bufferId, PipelineStageFlags stageFlags = PipelineStage::VertexInput, BufferUsageFlags bufferUsage = BufferUsage::VertexBuffer, MemoryAccessFlags accessFlags = MemoryAccess::VertexBufferRead);
 
 			inline std::size_t AddOutputAttachment(std::size_t attachmentId);
 			inline std::size_t AddOutputBuffer(std::size_t bufferId, BufferUsageFlags bufferUsage, MemoryAccessFlags accessFlags, PipelineStageFlags stageFlags);
+			inline std::size_t AddOutputTransferBuffer(std::size_t bufferId, PipelineStageFlags stageFlags = PipelineStage::Transfer, MemoryAccessFlags accessFlags = MemoryAccess::TransferWrite, BufferUsageFlags bufferUsage = BufferUsage::TransferDestination);
 
 			template<typename F> void ForEachAttachment(F&& func, bool singleDSInputOutputCall = true) const;
 
 			inline const AttachmentInputs& GetAttachmentInputs() const;
 			inline const AttachmentOutputs& GetAttachmentOutputs() const;
+			inline const BufferInputs& GetBufferInputs() const;
+			inline const BufferOutputs& GetBufferOutputs() const;
 			inline const CommandCallback& GetCommandCallback() const;
 			inline const std::optional<DepthStencilClear>& GetDepthStencilClear() const;
 			inline const std::optional<DepthStencilInput>& GetDepthStencilInput() const;
@@ -96,6 +106,7 @@ namespace Nz
 			FramePass& operator=(FramePass&&) = delete;
 
 			static constexpr std::size_t InvalidAttachmentId = MaxValue();
+			static constexpr std::size_t InvalidBufferId = MaxValue();
 
 			struct AttachmentInput
 			{
@@ -120,16 +131,18 @@ namespace Nz
 
 			struct BufferInput
 			{
+				std::size_t bufferId;
 				BufferUsageFlags bufferUsage;
-				MemoryAccessFlags accessFlags = MemoryAccess::ShaderRead;
-				PipelineStageFlags stageFlags = PipelineStage::FragmentShader;
+				MemoryAccessFlags accessFlags;
+				PipelineStageFlags stageFlags;
 			};
 
 			struct BufferOutput
 			{
+				std::size_t bufferId;
 				BufferUsageFlags bufferUsage;
-				MemoryAccessFlags accessFlags = MemoryAccess::ShaderWrite;
-				PipelineStageFlags stageFlags = PipelineStage::ComputeShader;
+				MemoryAccessFlags accessFlags;
+				PipelineStageFlags stageFlags;
 			};
 
 			struct DepthStencilClear
@@ -152,6 +165,8 @@ namespace Nz
 			std::string m_name;
 			AttachmentInputs m_attachmentInputs;
 			AttachmentOutputs m_attachmentOutputs;
+			BufferInputs m_bufferInputs;
+			BufferOutputs m_bufferOutputs;
 			CommandCallback m_commandCallback;
 			ExecutionCallback m_executionCallback;
 	};

@@ -16,7 +16,17 @@
 
 namespace Nz
 {
+	class RenderBuffer;
 	class Texture;
+
+	struct FrameGraphBufferData
+	{
+		std::shared_ptr<RenderBuffer> externalBuffer;
+		std::string name;
+		UInt64 size;
+		BufferUsageFlags usageFlags;
+		bool canReuse;
+	};
 
 	struct FrameGraphTextureData
 	{

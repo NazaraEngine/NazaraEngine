@@ -2,7 +2,7 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-#include <cassert>
+#include <NazaraUtils/Assert.hpp>
 
 namespace Nz
 {
@@ -15,7 +15,7 @@ namespace Nz
 
 	inline std::size_t FramePass::AddInputAttachment(std::size_t attachmentId)
 	{
-		assert(attachmentId != InvalidAttachmentId);
+		NazaraAssert(attachmentId != InvalidAttachmentId);
 
 		std::size_t inputIndex = m_attachmentInputs.size();
 		auto& input = m_attachmentInputs.emplace_back();
@@ -24,9 +24,49 @@ namespace Nz
 		return inputIndex;
 	}
 
+	inline std::size_t FramePass::AddInputBuffer(std::size_t bufferId, BufferUsageFlags bufferUsage, MemoryAccessFlags accessFlags, PipelineStageFlags stageFlags)
+	{
+		NazaraAssert(bufferId != InvalidBufferId);
+
+		std::size_t inputIndex = m_bufferInputs.size();
+		m_bufferInputs.push_back({
+			.bufferId = bufferId,
+			.bufferUsage = bufferUsage,
+			.accessFlags = accessFlags,
+			.stageFlags = stageFlags
+		});
+
+		return inputIndex;
+	}
+
+	inline std::size_t FramePass::AddInputIndexBuffer(std::size_t bufferId, PipelineStageFlags stageFlags, BufferUsageFlags bufferUsage, MemoryAccessFlags accessFlags)
+	{
+		return AddInputBuffer(bufferId, bufferUsage, accessFlags, stageFlags);
+	}
+
+	inline std::size_t FramePass::AddInputStorageBuffer(std::size_t bufferId, PipelineStageFlags stageFlags, MemoryAccessFlags accessFlags, BufferUsageFlags bufferUsage)
+	{
+		return AddInputBuffer(bufferId, bufferUsage, accessFlags, stageFlags);
+	}
+
+	inline std::size_t FramePass::AddInputTransferBuffer(std::size_t bufferId, PipelineStageFlags stageFlags, MemoryAccessFlags accessFlags, BufferUsageFlags bufferUsage)
+	{
+		return AddInputBuffer(bufferId, bufferUsage, accessFlags, stageFlags);
+	}
+
+	inline std::size_t FramePass::AddInputUniformBuffer(std::size_t bufferId, PipelineStageFlags stageFlags, MemoryAccessFlags accessFlags, BufferUsageFlags bufferUsage)
+	{
+		return AddInputBuffer(bufferId, bufferUsage, accessFlags, stageFlags);
+	}
+
+	inline std::size_t FramePass::AddInputVertexBuffer(std::size_t bufferId, PipelineStageFlags stageFlags, BufferUsageFlags bufferUsage, MemoryAccessFlags accessFlags)
+	{
+		return AddInputBuffer(bufferId, bufferUsage, accessFlags, stageFlags);
+	}
+
 	inline std::size_t FramePass::AddOutputAttachment(std::size_t attachmentId)
 	{
-		assert(attachmentId != InvalidAttachmentId);
+		NazaraAssert(attachmentId != InvalidAttachmentId);
 
 		std::size_t outputIndex = m_attachmentOutputs.size();
 		auto& output = m_attachmentOutputs.emplace_back();
@@ -34,6 +74,27 @@ namespace Nz
 
 		return outputIndex;
 	}
+
+	inline std::size_t FramePass::AddOutputBuffer(std::size_t bufferId, BufferUsageFlags bufferUsage, MemoryAccessFlags accessFlags, PipelineStageFlags stageFlags)
+	{
+		NazaraAssert(bufferId != InvalidBufferId);
+
+		std::size_t outputIndex = m_bufferOutputs.size();
+		m_bufferOutputs.push_back({
+			.bufferId = bufferId,
+			.bufferUsage = bufferUsage,
+			.accessFlags = accessFlags,
+			.stageFlags = stageFlags
+		});
+
+		return outputIndex;
+	}
+
+	inline std::size_t FramePass::AddOutputTransferBuffer(std::size_t bufferId, PipelineStageFlags stageFlags, MemoryAccessFlags accessFlags, BufferUsageFlags bufferUsage)
+	{
+		return AddOutputBuffer(bufferId, bufferUsage, accessFlags, stageFlags);
+	}
+
 	template<typename F>
 	void FramePass::ForEachAttachment(F&& func, bool singleDSInputOutputCall) const
 	{
@@ -65,6 +126,16 @@ namespace Nz
 	inline auto FramePass::GetAttachmentOutputs() const -> const AttachmentOutputs&
 	{
 		return m_attachmentOutputs;
+	}
+
+	inline auto FramePass::GetBufferInputs() const -> const BufferInputs&
+	{
+		return m_bufferInputs;
+	}
+
+	inline auto FramePass::GetBufferOutputs() const -> const BufferOutputs&
+	{
+		return m_bufferOutputs;
 	}
 
 	inline auto FramePass::GetCommandCallback() const -> const CommandCallback&
@@ -104,7 +175,7 @@ namespace Nz
 
 	inline void FramePass::SetAttachmentInputAccess(std::size_t inputIndex, TextureLayout layout, PipelineStageFlags stageFlags, MemoryAccessFlags accessFlags)
 	{
-		assert(inputIndex < m_attachmentInputs.size());
+		NazaraAssert(inputIndex < m_attachmentInputs.size());
 		m_attachmentInputs[inputIndex].accessFlags = accessFlags;
 		m_attachmentInputs[inputIndex].layout = layout;
 		m_attachmentInputs[inputIndex].stageFlags = stageFlags;
@@ -112,19 +183,19 @@ namespace Nz
 
 	inline void FramePass::SetAttachmentInputAssumedLayout(std::size_t inputIndex, TextureLayout layout)
 	{
-		assert(inputIndex < m_attachmentInputs.size());
+		NazaraAssert(inputIndex < m_attachmentInputs.size());
 		m_attachmentInputs[inputIndex].assumedLayout = layout;
 	}
 
 	inline void FramePass::SetAttachmentInputUsage(std::size_t inputIndex, TextureUsageFlags usageFlags)
 	{
-		assert(inputIndex < m_attachmentInputs.size());
+		NazaraAssert(inputIndex < m_attachmentInputs.size());
 		m_attachmentInputs[inputIndex].textureUsageFlags = usageFlags;
 	}
 
 	inline void FramePass::SetAttachmentOutputAccess(std::size_t outputIndex, TextureLayout layout, PipelineStageFlags stageFlags, MemoryAccessFlags accessFlags)
 	{
-		assert(outputIndex < m_attachmentOutputs.size());
+		NazaraAssert(outputIndex < m_attachmentOutputs.size());
 		m_attachmentOutputs[outputIndex].accessFlags = accessFlags;
 		m_attachmentOutputs[outputIndex].layout = layout;
 		m_attachmentOutputs[outputIndex].stageFlags = stageFlags;
@@ -132,13 +203,13 @@ namespace Nz
 
 	inline void FramePass::SetAttachmentOutputUsage(std::size_t outputIndex, TextureUsageFlags usageFlags)
 	{
-		assert(outputIndex < m_attachmentOutputs.size());
+		NazaraAssert(outputIndex < m_attachmentOutputs.size());
 		m_attachmentOutputs[outputIndex].textureUsageFlags = usageFlags;
 	}
 
 	inline void FramePass::SetAttachmentReadInput(std::size_t inputIndex, bool doesRead)
 	{
-		assert(inputIndex < m_attachmentInputs.size());
+		NazaraAssert(inputIndex < m_attachmentInputs.size());
 		m_attachmentInputs[inputIndex].doesRead = doesRead;
 	}
 
@@ -149,7 +220,7 @@ namespace Nz
 
 	inline void FramePass::SetClearColor(std::size_t outputIndex, const std::optional<Color>& color)
 	{
-		assert(outputIndex < m_attachmentOutputs.size());
+		NazaraAssert(outputIndex < m_attachmentOutputs.size());
 		m_attachmentOutputs[outputIndex].clearColor = color;
 	}
 

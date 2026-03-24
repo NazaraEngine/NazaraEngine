@@ -9,10 +9,11 @@
 
 namespace Nz
 {
-	BakedFrameGraph::BakedFrameGraph(std::vector<PassData> passes, std::vector<TextureData> textures, AttachmentIdToTextureId attachmentIdToTextureMapping, PassIdToPhysicalPassIndex passIdToPhysicalPassMapping) :
+	BakedFrameGraph::BakedFrameGraph(std::vector<PassData> passes, std::vector<BufferData> buffers, std::vector<TextureData> textures, ResourceIdToPhysicalIndex resourceIdToPhysicalMapping, PassIdToPhysicalPassIndex passIdToPhysicalPassMapping) :
+	m_buffers(std::move(buffers)),
 	m_passes(std::move(passes)),
 	m_textures(std::move(textures)),
-	m_attachmentToTextureMapping(std::move(attachmentIdToTextureMapping)),
+	m_resourceIdToPhysicalMapping(std::move(resourceIdToPhysicalMapping)),
 	m_passIdToPhysicalPassMapping(std::move(passIdToPhysicalPassMapping))
 	{
 		const std::shared_ptr<RenderDevice>& renderDevice = Graphics::Instance()->GetRenderDevice();
@@ -53,11 +54,14 @@ namespace Nz
 
 			passData.commandBuffer = m_commandPool->BuildCommandBuffer([&](CommandBufferBuilder& builder)
 			{
-				for (auto& textureTransition : passData.invalidationBarriers)
-				{
-					const std::shared_ptr<Texture>& texture = m_textures[textureTransition.textureId].texture;
-					builder.TextureBarrier({ .srcStageMask = textureTransition.srcStageMask, .dstStageMask = textureTransition.dstStageMask, .srcAccessMask = textureTransition.srcAccessMask, .dstAccessMask = textureTransition.dstAccessMask, .oldLayout = textureTransition.oldLayout, .newLayout = textureTransition.newLayout, .texture = texture.get() });
-				}
+				std::size_t resourceIndex = 0;
+				for (auto& bufferTransition : passData.bufferInvalidationBarriers)
+					bufferTransition.buffer = m_buffers[resourceIndex++].buffer.get();
+
+				for (auto& textureTransition : passData.textureInvalidationBarriers)
+					textureTransition.texture = m_textures[resourceIndex++].texture.get();
+
+				builder.PipelineBarrier({}, passData.bufferInvalidationBarriers, passData.textureInvalidationBarriers);
 
 				if (passData.framebuffer)
 					builder.BeginRenderPass(*passData.framebuffer, *passData.renderPass, passData.renderRect, passData.outputClearValues.data(), passData.outputClearValues.size());
@@ -102,8 +106,8 @@ namespace Nz
 
 	const std::shared_ptr<Texture>& BakedFrameGraph::GetAttachmentTexture(std::size_t attachmentIndex) const
 	{
-		auto it = m_attachmentToTextureMapping.find(attachmentIndex);
-		if (it == m_attachmentToTextureMapping.end() || it->second == FrameGraph::InvalidTextureIndex)
+		auto it = m_resourceIdToPhysicalMapping.find(attachmentIndex);
+		if (it == m_resourceIdToPhysicalMapping.end() || it->second == FrameGraph::InvalidResourceIndex)
 		{
 			static std::shared_ptr<Texture> dummy;
 			return dummy;
@@ -114,10 +118,24 @@ namespace Nz
 		return m_textures[textureIndex].texture;
 	}
 
+	const std::shared_ptr<RenderBuffer>& BakedFrameGraph::GetBuffer(std::size_t bufferIndex) const
+	{
+		auto it = m_resourceIdToPhysicalMapping.find(bufferIndex);
+		if (it == m_resourceIdToPhysicalMapping.end() || it->second == FrameGraph::InvalidResourceIndex)
+		{
+			static std::shared_ptr<RenderBuffer> dummy;
+			return dummy;
+		}
+
+		std::size_t renderBufferIndex = it->second;
+		assert(renderBufferIndex < m_buffers.size());
+		return m_buffers[renderBufferIndex].buffer;
+	}
+
 	const std::shared_ptr<RenderPass>& BakedFrameGraph::GetRenderPass(std::size_t passIndex) const
 	{
-		auto it = m_attachmentToTextureMapping.find(passIndex);
-		if (it == m_attachmentToTextureMapping.end() || it->second == FrameGraph::InvalidTextureIndex)
+		auto it = m_resourceIdToPhysicalMapping.find(passIndex);
+		if (it == m_resourceIdToPhysicalMapping.end() || it->second == FrameGraph::InvalidResourceIndex)
 		{
 			static std::shared_ptr<RenderPass> dummy;
 			return dummy;
@@ -181,6 +199,18 @@ namespace Nz
 			renderResources.PushForRelease(std::move(textureData.texture));
 		}
 
+		// Buffers
+		for (auto& bufferData : m_buffers)
+		{
+			if (bufferData.buffer)
+				continue;
+
+			bufferData.buffer = renderDevice->InstantiateBuffer(bufferData.size, bufferData.usageFlags);
+			if (!bufferData.name.empty())
+				bufferData.buffer->UpdateDebugName(bufferData.name);
+		}
+
+		// Textures
 		for (auto& textureData : m_textures)
 		{
 			if (textureData.texture)

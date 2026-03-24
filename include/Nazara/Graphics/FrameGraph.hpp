@@ -8,6 +8,7 @@
 #define NAZARA_GRAPHICS_FRAMEGRAPH_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <NazaraUtils/TypeList.hpp>
 #include <Nazara/Graphics/BakedFrameGraph.hpp>
 #include <Nazara/Graphics/Export.hpp>
 #include <Nazara/Graphics/FrameGraphStructs.hpp>
@@ -43,12 +44,14 @@ namespace Nz
 			inline std::size_t AddAttachmentCubeFace(std::size_t attachmentId, CubemapFace face);
 			inline std::size_t AddAttachmentProxy(std::string name, std::size_t attachmentId);
 			inline std::size_t AddAttachmentView(std::string name, std::size_t attachmentId, PixelFormat format, TexturePlaneFlags planes = {});
+			inline std::size_t AddBuffer(FramePassBuffer buffer);
 			inline std::size_t AddDummyAttachment();
 			inline FramePass& AddPass(std::string name);
-			inline void AddOutput(std::size_t attachmentIndex);
+			inline void AddOutput(std::size_t resourceIndex);
 
 			BakedFrameGraph Bake();
 
+			inline void BindExternalBuffer(std::size_t bufferIndex, std::shared_ptr<RenderBuffer> buffer);
 			inline void BindExternalTexture(std::size_t attachmentIndex, std::shared_ptr<Texture> texture);
 
 			FrameGraph& operator=(const FrameGraph&) = delete;
@@ -60,12 +63,12 @@ namespace Nz
 			inline TextureLayout GetWriteDepthStencilLayout(std::size_t attachmentIndex) const;
 
 			using BarrierList = std::vector<PassBarriers>;
+			using BufferIdToRenderBufferId = std::unordered_map<std::size_t /*bufferId*/, std::size_t /*renderBufferId*/>;
 			using PassList = std::vector<std::size_t /*PassIndex*/>;
-			using AttachmentIdToPassMap = std::unordered_map<std::size_t /*resourceIndex*/, PassList /*passIndexes*/>;
-			using AttachmentIdToPassId = std::unordered_map<std::size_t /*attachmentId*/, std::size_t /*passId*/>;
-			using AttachmentIdToTextureId = std::unordered_map<std::size_t /*attachmentId*/, std::size_t /*textureId*/>;
+			using ResourceIdToPassMap = std::unordered_map<std::size_t /*resourceIndex*/, PassList /*passIndexes*/>;
+			using ResourceIdToPassId = std::unordered_map<std::size_t /*attachmentId*/, std::size_t /*passId*/>;
+			using ResourceIdToPhysicalId = std::unordered_map<std::size_t /*attachmentId*/, std::size_t /*textureId*/>;
 			using PassIdToPhysicalPassIndex = std::unordered_map<std::size_t /*passId*/, std::size_t /*physicalPassId*/>;
-			using TextureBarrier = BakedFrameGraph::TextureBarrier;
 
 			struct AttachmentArray : FramePassAttachment
 			{
@@ -96,7 +99,14 @@ namespace Nz
 				std::size_t attachmentId;
 			};
 
-			struct Barrier
+			struct BufferBarrier
+			{
+				std::size_t renderBufferId;
+				MemoryAccessFlags access;
+				PipelineStageFlags stages;
+			};
+
+			struct TextureBarrier
 			{
 				std::size_t textureId;
 				MemoryAccessFlags access;
@@ -110,8 +120,10 @@ namespace Nz
 
 			struct PassBarriers
 			{
-				std::vector<Barrier> invalidationBarriers;
-				std::vector<Barrier> flushBarriers;
+				std::vector<BufferBarrier> invalidationBufferBarriers;
+				std::vector<BufferBarrier> flushBufferBarriers;
+				std::vector<TextureBarrier> invalidationTextureBarriers;
+				std::vector<TextureBarrier> flushTextureBarriers;
 			};
 
 			struct PhysicalPassData
@@ -122,7 +134,9 @@ namespace Nz
 				};
 
 				std::string name;
-				std::vector<TextureBarrier> textureBarrier;
+				std::vector<std::size_t> resourceIndices;
+				std::vector<CommandBufferBuilder::BufferBarrierInfo> bufferBarriers;
+				std::vector<CommandBufferBuilder::TextureBarrierInfo> textureBarriers;
 				std::vector<Subpass> passes;
 			};
 
@@ -130,21 +144,23 @@ namespace Nz
 			{
 				std::vector<std::shared_ptr<RenderPass>> renderPasses;
 				std::vector<PhysicalPassData> physicalPasses;
+				std::vector<FrameGraphBufferData> renderBuffers;
 				std::vector<FrameGraphTextureData> textures;
 				std::vector<std::size_t> texture2DPool;
 				std::vector<std::size_t> texture2DArrayPool;
 				std::vector<std::size_t> textureCubePool;
-				AttachmentIdToPassId attachmentLastUse;
-				AttachmentIdToPassMap attachmentReadList;
-				AttachmentIdToPassMap attachmentWriteList;
-				AttachmentIdToTextureId attachmentToTextures;
+				BufferIdToRenderBufferId bufferToRenderBuffers;
+				ResourceIdToPassId attachmentLastUse;
+				ResourceIdToPassMap attachmentReadList;
+				ResourceIdToPassMap resourceWriteList;
+				ResourceIdToPhysicalId resourceIdToPhysicalIndex;
 				BarrierList barrierList;
 				PassList passList;
 				PassIdToPhysicalPassIndex passIdToPhysicalPassIndex;
 			};
 
 			void AssignPhysicalPasses();
-			void AssignPhysicalTextures();
+			void AssignPhysicalResources();
 			void BuildBarriers();
 			void BuildPhysicalBarriers();
 			void BuildPhysicalPassDependencies(std::size_t colorAttachmentCount, bool hasDepthStencilAttachment, std::vector<RenderPass::Attachment>& renderPassAttachments, std::vector<RenderPass::SubpassDescription>& subpasses, std::vector<RenderPass::SubpassDependency>& dependencies);
@@ -153,20 +169,24 @@ namespace Nz
 			bool HasAttachment(const FramePass::AttachmentInputs& inputs, std::size_t attachmentIndex) const;
 			void RemoveDuplicatePasses();
 			std::size_t ResolveAttachmentIndex(std::size_t attachmentIndex) const;
-			void RegisterPassInput(std::size_t passIndex, std::size_t attachmentIndex);
+			void RegisterPassInput(std::size_t passIndex, std::size_t resourceIndex);
+			std::size_t RegisterBuffer(std::size_t bufferIndex);
 			std::size_t RegisterTexture(std::size_t attachmentIndex);
 			void ReorderPasses();
 			void TraverseGraph(std::size_t passIndex);
 
-			using AttachmentType = std::variant<FramePassAttachment, AttachmentProxy, AttachmentArray, AttachmentCube, AttachmentLayer, DummyAttachment, AttachmentView>;
+			using TextureTypes = TypeList<FramePassAttachment, AttachmentProxy, AttachmentArray, AttachmentCube, AttachmentLayer, DummyAttachment, AttachmentView>;
+			using BufferTypes = TypeList<FramePassBuffer>;
+			using ResourceTypes = TypeListConcat<TextureTypes, BufferTypes>;
+
+			using ResourceVariant = TypeListInstantiate<ResourceTypes, std::variant>;
 
 			static constexpr std::size_t InvalidAttachmentIndex = std::numeric_limits<std::size_t>::max();
-			static constexpr std::size_t InvalidTextureIndex = std::numeric_limits<std::size_t>::max();
+			static constexpr std::size_t InvalidResourceIndex = std::numeric_limits<std::size_t>::max();
 
 			std::vector<std::size_t> m_graphOutputs;
 			std::vector<FramePass> m_framePasses;
-			std::vector<AttachmentType> m_attachments;
-			std::vector<FramePassBuffer> m_buffers;
+			std::vector<ResourceVariant> m_resources;
 			std::unordered_map<std::size_t, std::shared_ptr<RenderBuffer>> m_externalBuffers;
 			std::unordered_map<std::size_t, std::shared_ptr<Texture>> m_externalTextures;
 			WorkData m_pending;

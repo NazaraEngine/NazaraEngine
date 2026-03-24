@@ -30,8 +30,8 @@ namespace Nz
 			throw std::runtime_error("no graph output has been set");
 
 		m_pending.attachmentReadList.clear();
-		m_pending.attachmentToTextures.clear();
-		m_pending.attachmentWriteList.clear();
+		m_pending.resourceIdToPhysicalIndex.clear();
+		m_pending.resourceWriteList.clear();
 		m_pending.barrierList.clear();
 		m_pending.passIdToPhysicalPassIndex.clear();
 		m_pending.passList.clear();
@@ -45,9 +45,9 @@ namespace Nz
 
 		for (std::size_t output : m_graphOutputs)
 		{
-			auto it = m_pending.attachmentWriteList.find(output);
-			if (it == m_pending.attachmentWriteList.end())
-				throw std::runtime_error("no pass writes to backbuffer");
+			auto it = m_pending.resourceWriteList.find(output);
+			if (it == m_pending.resourceWriteList.end())
+				throw std::runtime_error(fmt::format("no pass writes to output resource #{}", output));
 
 			const std::vector<std::size_t>& backbufferPasses = it->second;
 			for (std::size_t passIndex : backbufferPasses)
@@ -58,7 +58,7 @@ namespace Nz
 
 		RemoveDuplicatePasses();
 		ReorderPasses();
-		AssignPhysicalTextures();
+		AssignPhysicalResources();
 		AssignPhysicalPasses();
 		BuildPhysicalPasses();
 		BuildBarriers();
@@ -73,7 +73,9 @@ namespace Nz
 			auto& bakedPass = bakedPasses.emplace_back();
 			bakedPass.name = std::move(physicalPass.name);
 			bakedPass.renderPass = std::move(m_pending.renderPasses[renderPassIndex++]);
-			bakedPass.invalidationBarriers = std::move(physicalPass.textureBarrier);
+			bakedPass.bufferInvalidationBarriers = std::move(physicalPass.bufferBarriers);
+			bakedPass.resourceIndices = std::move(physicalPass.resourceIndices);
+			bakedPass.textureInvalidationBarriers = std::move(physicalPass.textureBarriers);
 
 			for (auto& subpass : physicalPass.passes)
 			{
@@ -89,7 +91,7 @@ namespace Nz
 					if (!output.textureUsageFlags.Test(TextureUsage::ColorAttachment))
 						continue;
 
-					if (std::size_t textureIndex = Retrieve(m_pending.attachmentToTextures, output.attachmentId); textureIndex != InvalidTextureIndex)
+					if (std::size_t textureIndex = Retrieve(m_pending.resourceIdToPhysicalIndex, output.attachmentId); textureIndex != InvalidResourceIndex)
 						bakedPass.outputTextureIndices.push_back(textureIndex);
 
 					if (output.clearColor)
@@ -113,15 +115,24 @@ namespace Nz
 
 				if (std::size_t attachmentId = framePass.GetDepthStencilOutput(); attachmentId != FramePass::InvalidAttachmentId)
 				{
-					if (std::size_t textureIndex = Retrieve(m_pending.attachmentToTextures, attachmentId); textureIndex != InvalidTextureIndex)
+					if (std::size_t textureIndex = Retrieve(m_pending.resourceIdToPhysicalIndex, attachmentId); textureIndex != InvalidResourceIndex)
 						bakedPass.outputTextureIndices.push_back(textureIndex);
 				}
 				else if (const auto& depthStencilInput = framePass.GetDepthStencilInput())
 				{
-					if (std::size_t textureIndex = Retrieve(m_pending.attachmentToTextures, depthStencilInput->attachmentId); textureIndex != InvalidTextureIndex)
+					if (std::size_t textureIndex = Retrieve(m_pending.resourceIdToPhysicalIndex, depthStencilInput->attachmentId); textureIndex != InvalidResourceIndex)
 						bakedPass.outputTextureIndices.push_back(textureIndex);
 				}
 			}
+		}
+
+		std::vector<BakedFrameGraph::BufferData> bakedBuffers;
+		bakedBuffers.reserve(m_pending.renderBuffers.size());
+		for (auto& buffer : m_pending.renderBuffers)
+		{
+			auto& bakedBuffer = bakedBuffers.emplace_back();
+			static_cast<FrameGraphBufferData&>(bakedBuffer) = std::move(buffer);
+			bakedBuffer.buffer = bakedBuffer.externalBuffer;
 		}
 
 		std::vector<BakedFrameGraph::TextureData> bakedTextures;
@@ -133,7 +144,7 @@ namespace Nz
 			bakedTexture.texture = bakedTexture.externalTexture;
 		}
 
-		return BakedFrameGraph(std::move(bakedPasses), std::move(bakedTextures), std::move(m_pending.attachmentToTextures), std::move(m_pending.passIdToPhysicalPassIndex));
+		return BakedFrameGraph(std::move(bakedPasses), std::move(bakedBuffers), std::move(bakedTextures), std::move(m_pending.resourceIdToPhysicalIndex), std::move(m_pending.passIdToPhysicalPassIndex));
 	}
 
 	void FrameGraph::AssignPhysicalPasses()
@@ -186,7 +197,7 @@ namespace Nz
 		}
 	}
 
-	void FrameGraph::AssignPhysicalTextures()
+	void FrameGraph::AssignPhysicalResources()
 	{
 		// Assign last use pass index for every attachment
 		for (std::size_t passIndex : m_pending.passList)
@@ -206,7 +217,7 @@ namespace Nz
 			for (const auto& input : framePass.GetAttachmentInputs())
 			{
 				std::size_t textureId = RegisterTexture(input.attachmentId);
-				if (textureId != InvalidTextureIndex)
+				if (textureId != InvalidResourceIndex)
 				{
 					FrameGraphTextureData& attachmentData = m_pending.textures[textureId];
 					attachmentData.usage |= input.textureUsageFlags;
@@ -216,7 +227,7 @@ namespace Nz
 			for (const auto& output : framePass.GetAttachmentOutputs())
 			{
 				std::size_t textureId = RegisterTexture(output.attachmentId);
-				if (textureId != InvalidTextureIndex)
+				if (textureId != InvalidResourceIndex)
 				{
 					FrameGraphTextureData& attachmentData = m_pending.textures[textureId];
 					attachmentData.usage |= output.textureUsageFlags;
@@ -226,7 +237,7 @@ namespace Nz
 			if (const auto& depthStencilInput = framePass.GetDepthStencilInput())
 			{
 				std::size_t textureId = RegisterTexture(depthStencilInput->attachmentId);
-				if (textureId != InvalidTextureIndex)
+				if (textureId != InvalidResourceIndex)
 				{
 					FrameGraphTextureData& attachmentData = m_pending.textures[textureId];
 					attachmentData.usage |= depthStencilInput->textureUsageFlags;
@@ -234,10 +245,10 @@ namespace Nz
 
 				if (std::size_t depthStencilOutput = framePass.GetDepthStencilOutput(); depthStencilOutput != FramePass::InvalidAttachmentId)
 				{
-					if (auto it = m_pending.attachmentToTextures.find(depthStencilOutput); it == m_pending.attachmentToTextures.end())
+					if (auto it = m_pending.resourceIdToPhysicalIndex.find(depthStencilOutput); it == m_pending.resourceIdToPhysicalIndex.end())
 					{
 						// Special case where multiples attachments point simultaneously to the same texture
-						m_pending.attachmentToTextures.emplace(depthStencilOutput, textureId);
+						m_pending.resourceIdToPhysicalIndex.emplace(depthStencilOutput, textureId);
 
 						auto inputIt = m_pending.attachmentLastUse.find(depthStencilInput->attachmentId);
 						auto outputIt = m_pending.attachmentLastUse.find(depthStencilInput->attachmentId);
@@ -271,10 +282,10 @@ namespace Nz
 				// If this pass is the last one where this attachment is used, push the texture to the reuse pool
 				if (it != m_pending.attachmentLastUse.end() && passIndex == it->second)
 				{
-					const auto& attachmentData = m_attachments[attachmentId];
+					const auto& attachmentData = m_resources[attachmentId];
 					if (std::holds_alternative<FramePassAttachment>(attachmentData))
 					{
-						std::size_t textureId = Retrieve(m_pending.attachmentToTextures, attachmentId);
+						std::size_t textureId = Retrieve(m_pending.resourceIdToPhysicalIndex, attachmentId);
 						if (m_pending.textures[textureId].canReuse)
 						{
 							assert(std::find(m_pending.texture2DPool.begin(), m_pending.texture2DPool.end(), textureId) == m_pending.texture2DPool.end());
@@ -283,7 +294,7 @@ namespace Nz
 					}
 					else if (std::holds_alternative<AttachmentArray>(attachmentData))
 					{
-						std::size_t textureId = Retrieve(m_pending.attachmentToTextures, attachmentId);
+						std::size_t textureId = Retrieve(m_pending.resourceIdToPhysicalIndex, attachmentId);
 						if (m_pending.textures[textureId].canReuse)
 						{
 							assert(std::find(m_pending.textureCubePool.begin(), m_pending.textureCubePool.end(), textureId) == m_pending.textureCubePool.end());
@@ -292,7 +303,7 @@ namespace Nz
 					}
 					else if (std::holds_alternative<AttachmentCube>(attachmentData))
 					{
-						std::size_t textureId = Retrieve(m_pending.attachmentToTextures, attachmentId);
+						std::size_t textureId = Retrieve(m_pending.resourceIdToPhysicalIndex, attachmentId);
 						if (m_pending.textures[textureId].canReuse)
 						{
 							assert(std::find(m_pending.textureCubePool.begin(), m_pending.textureCubePool.end(), textureId) == m_pending.textureCubePool.end());
@@ -306,10 +317,10 @@ namespace Nz
 		// Add TextureUsage::ShaderSampling and TextureUsage::TransferSource to final outputs
 		for (std::size_t output : m_graphOutputs)
 		{
-			auto it = m_pending.attachmentToTextures.find(output);
-			assert(it != m_pending.attachmentToTextures.end());
+			auto it = m_pending.resourceIdToPhysicalIndex.find(output);
+			assert(it != m_pending.resourceIdToPhysicalIndex.end());
 
-			if (std::size_t textureIndex = it->second; textureIndex != InvalidTextureIndex)
+			if (std::size_t textureIndex = it->second; textureIndex != InvalidResourceIndex)
 			{
 				auto& finalTexture = m_pending.textures[textureIndex];
 				finalTexture.usage |= TextureUsage::ShaderSampling | TextureUsage::TransferSource;
@@ -332,10 +343,27 @@ namespace Nz
 		assert(m_pending.barrierList.empty());
 		m_pending.barrierList.reserve(m_pending.passList.size());
 
-		auto GetBarrier = [&](std::vector<Barrier>& barriers, std::size_t attachmentId) -> Barrier*
+		auto GetBufferBarrier = [&](std::vector<BufferBarrier>& barriers, std::size_t bufferId) -> BufferBarrier*
 		{
-			std::size_t textureId = Retrieve(m_pending.attachmentToTextures, ResolveAttachmentIndex(attachmentId));
-			if (textureId == InvalidTextureIndex)
+			std::size_t renderBufferId = Retrieve(m_pending.bufferToRenderBuffers, bufferId);
+
+			auto it = std::find_if(barriers.begin(), barriers.end(), [&](const BufferBarrier& barrier) { return barrier.renderBufferId == bufferId; });
+			if (it != barriers.end())
+				return &*it;
+			else
+			{
+				// Insert a new barrier
+				auto& barrier = barriers.emplace_back();
+				barrier.renderBufferId = renderBufferId;
+
+				return &barrier;
+			}
+		};
+
+		auto GetTextureBarrier = [&](std::vector<TextureBarrier>& barriers, std::size_t attachmentId) -> TextureBarrier*
+		{
+			std::size_t textureId = Retrieve(m_pending.resourceIdToPhysicalIndex, ResolveAttachmentIndex(attachmentId));
+			if (textureId == InvalidResourceIndex)
 				return nullptr;
 
 			// For texture view, use the parent texture layout (only if we're targeting all layers)
@@ -348,7 +376,7 @@ namespace Nz
 					textureId = m_pending.textures[textureId].viewData->parentTextureId;
 			}
 
-			auto it = std::find_if(barriers.begin(), barriers.end(), [&](const Barrier& barrier) { return barrier.textureId == textureId; });
+			auto it = std::find_if(barriers.begin(), barriers.end(), [&](const TextureBarrier& barrier) { return barrier.textureId == textureId; });
 			if (it != barriers.end())
 				return &*it;
 			else
@@ -368,12 +396,14 @@ namespace Nz
 
 			auto& barriers = m_pending.barrierList.emplace_back();
 
-			auto GetInvalidationBarrier = [&](std::size_t attachmentId) -> Barrier* { return GetBarrier(barriers.invalidationBarriers, attachmentId); };
-			auto GetFlushBarrier = [&](std::size_t attachmentId) -> Barrier* { return GetBarrier(barriers.flushBarriers, attachmentId); };
+			auto GetInvalidationBufferBarrier = [&](std::size_t attachmentId) -> BufferBarrier* { return GetBufferBarrier(barriers.invalidationBufferBarriers, attachmentId); };
+			auto GetInvalidationTextureBarrier = [&](std::size_t attachmentId) -> TextureBarrier* { return GetTextureBarrier(barriers.invalidationTextureBarriers, attachmentId); };
+			auto GetFlushBufferBarrier = [&](std::size_t attachmentId) -> BufferBarrier* { return GetBufferBarrier(barriers.flushBufferBarriers, attachmentId); };
+			auto GetFlushTextureBarrier = [&](std::size_t attachmentId) -> TextureBarrier* { return GetTextureBarrier(barriers.flushTextureBarriers, attachmentId); };
 
 			for (const auto& input : framePass.GetAttachmentInputs())
 			{
-				Barrier* barrier = GetInvalidationBarrier(input.attachmentId);
+				TextureBarrier* barrier = GetInvalidationTextureBarrier(input.attachmentId);
 				if (!barrier)
 					continue;
 
@@ -385,9 +415,19 @@ namespace Nz
 				barrier->layout = input.layout;
 			}
 
+			for (const auto& input : framePass.GetBufferInputs())
+			{
+				BufferBarrier* barrier = GetInvalidationBufferBarrier(input.bufferId);
+				if (!barrier)
+					continue;
+
+				barrier->access |= input.accessFlags;
+				barrier->stages |= input.stageFlags;
+			}
+
 			for (const auto& output : framePass.GetAttachmentOutputs())
 			{
-				Barrier* barrier = GetFlushBarrier(output.attachmentId);
+				TextureBarrier* barrier = GetFlushTextureBarrier(output.attachmentId);
 				if (!barrier)
 					continue;
 
@@ -399,10 +439,20 @@ namespace Nz
 				barrier->layout = output.layout;
 			}
 
+			for (const auto& output : framePass.GetBufferOutputs())
+			{
+				BufferBarrier* barrier = GetFlushBufferBarrier(output.bufferId);
+				if (!barrier)
+					continue;
+
+				barrier->access |= output.accessFlags;
+				barrier->stages |= output.stageFlags;
+			}
+
 			if (const auto& dsInput = framePass.GetDepthStencilInput())
 			{
 				// DS input(/output)
-				if (Barrier* invalidationBarrier = GetInvalidationBarrier(dsInput->attachmentId))
+				if (TextureBarrier* invalidationBarrier = GetInvalidationTextureBarrier(dsInput->attachmentId))
 				{
 					TextureLayout depthStencilLayout;
 					MemoryAccessFlags access = MemoryAccess::DepthStencilRead;
@@ -429,7 +479,7 @@ namespace Nz
 			else if (std::size_t dsOutputAttachement = framePass.GetDepthStencilOutput(); dsOutputAttachement != FramePass::InvalidAttachmentId)
 			{
 				// DS output-only
-				if (Barrier* flushBarrier = GetFlushBarrier(dsOutputAttachement))
+				if (TextureBarrier* flushBarrier = GetFlushTextureBarrier(dsOutputAttachement))
 				{
 					if (flushBarrier->layout != TextureLayout::Undefined)
 						throw std::runtime_error("layout mismatch");
@@ -444,6 +494,15 @@ namespace Nz
 
 	void FrameGraph::BuildPhysicalBarriers()
 	{
+		struct PassBufferStates
+		{
+			MemoryAccessFlags invalidatedAccesses;
+			MemoryAccessFlags flushedAccesses;
+			PipelineStageFlags invalidatedStages;
+			PipelineStageFlags flushedStages;
+			bool firstUse = true;
+		};
+		
 		struct PassTextureStates
 		{
 			MemoryAccessFlags invalidatedAccesses;
@@ -454,6 +513,12 @@ namespace Nz
 			TextureLayout finalLayout = TextureLayout::Undefined;
 		};
 
+		struct RenderBufferStates
+		{
+			MemoryAccessFlags flushedAccesses;
+			PipelineStageFlags flushedStages;
+		};
+
 		struct TextureStates
 		{
 			MemoryAccessFlags flushedAccesses;
@@ -461,12 +526,17 @@ namespace Nz
 			TextureLayout currentLayout = TextureLayout::Undefined;
 		};
 
+		std::vector<RenderBufferStates> renderBuffersStates(m_pending.renderBuffers.size());
 		std::vector<TextureStates> textureStates(m_pending.textures.size());
+		std::vector<PassBufferStates> passBufferStates;
 		std::vector<PassTextureStates> passTextureStates;
 
 		auto barriersIt = m_pending.barrierList.begin();
 		for (auto& physicalPass : m_pending.physicalPasses)
 		{
+			passBufferStates.clear();
+			passBufferStates.resize(m_pending.renderBuffers.size());
+
 			passTextureStates.clear();
 			passTextureStates.resize(m_pending.textures.size());
 
@@ -474,7 +544,22 @@ namespace Nz
 			{
 				auto& barriers = *barriersIt++;
 
-				for (auto& invalidation : barriers.invalidationBarriers)
+				for (auto& invalidation : barriers.invalidationBufferBarriers)
+				{
+					auto& states = passBufferStates[invalidation.renderBufferId];
+
+					if (states.firstUse)
+					{
+						states.invalidatedAccesses |= invalidation.access;
+						states.invalidatedStages |= invalidation.stages;
+						states.firstUse = false;
+					}
+
+					states.flushedAccesses = 0;
+					states.flushedStages = 0;
+				}
+
+				for (auto& invalidation : barriers.invalidationTextureBarriers)
 				{
 					auto& states = passTextureStates[invalidation.textureId];
 
@@ -492,7 +577,25 @@ namespace Nz
 					states.flushedStages = 0;
 				}
 
-				for (auto& flush : barriers.flushBarriers)
+				for (auto& flush : barriers.flushBufferBarriers)
+				{
+					auto& states = passBufferStates[flush.renderBufferId];
+					states.flushedAccesses |= flush.access;
+					states.flushedStages |= flush.stages;
+
+					if (states.firstUse)
+					{
+						// First flush in a render pass needs a matching invalidation
+						states.firstUse = false;
+						states.invalidatedAccesses = flush.access;
+						states.invalidatedStages = flush.stages;
+
+						if (states.invalidatedAccesses & MemoryAccess::ShaderWrite)
+							states.invalidatedAccesses |= MemoryAccess::ShaderRead;
+					}
+				}
+
+				for (auto& flush : barriers.flushTextureBarriers)
 				{
 					auto& states = passTextureStates[flush.textureId];
 					states.flushedAccesses |= flush.access;
@@ -525,6 +628,29 @@ namespace Nz
 				}
 			}
 
+			for (std::size_t bufferId = 0; bufferId < passBufferStates.size(); ++bufferId)
+			{
+				const auto& state = passBufferStates[bufferId];
+				if (state.firstUse)
+					continue; //< Buffer wasn't touched in this pass
+
+				if (renderBuffersStates[bufferId].flushedAccesses != 0)
+				{
+					auto& invalidationBarrier = physicalPass.bufferBarriers.emplace_back();
+					invalidationBarrier.srcAccessMask = renderBuffersStates[bufferId].flushedAccesses;
+					invalidationBarrier.srcStageMask = renderBuffersStates[bufferId].flushedStages;
+					invalidationBarrier.dstAccessMask = state.invalidatedAccesses;
+					invalidationBarrier.dstStageMask = state.invalidatedStages;
+
+					physicalPass.resourceIndices.push_back(bufferId);
+
+					renderBuffersStates[bufferId].flushedAccesses = 0;
+					renderBuffersStates[bufferId].flushedStages = 0;
+				}
+
+				renderBuffersStates[bufferId].flushedAccesses |= state.flushedAccesses;
+				renderBuffersStates[bufferId].flushedStages |= state.flushedStages;
+			}
 
 			for (std::size_t textureId = 0; textureId < passTextureStates.size(); ++textureId)
 			{
@@ -537,14 +663,15 @@ namespace Nz
 
 				if (textureStates[textureId].flushedAccesses != 0)
 				{
-					auto& invalidationBarrier = physicalPass.textureBarrier.emplace_back();
-					invalidationBarrier.textureId = textureId;
+					auto& invalidationBarrier = physicalPass.textureBarriers.emplace_back();
 					invalidationBarrier.srcAccessMask = textureStates[textureId].flushedAccesses;
 					invalidationBarrier.srcStageMask = textureStates[textureId].flushedStages;
 					invalidationBarrier.dstAccessMask = state.invalidatedAccesses;
 					invalidationBarrier.dstStageMask = state.invalidatedStages;
 					invalidationBarrier.oldLayout = textureStates[textureId].currentLayout;
 					invalidationBarrier.newLayout = state.initialLayout;
+
+					physicalPass.resourceIndices.push_back(textureId);
 
 					textureStates[textureId].flushedAccesses = 0;
 					textureStates[textureId].flushedStages = 0;
@@ -770,8 +897,8 @@ namespace Nz
 
 		auto RegisterColorInputRead = [&](const FramePass::AttachmentInput& input)
 		{
-			std::size_t textureId = Retrieve(m_pending.attachmentToTextures, ResolveAttachmentIndex(input.attachmentId));
-			if (textureId == InvalidTextureIndex)
+			std::size_t textureId = Retrieve(m_pending.resourceIdToPhysicalIndex, ResolveAttachmentIndex(input.attachmentId));
+			if (textureId == InvalidResourceIndex)
 				return;
 
 			// For texture view, use the parent texture layout
@@ -790,8 +917,8 @@ namespace Nz
 
 		auto RegisterOutput = [&](const FramePass::AttachmentOutput& output, bool shouldLoad)
 		{
-			std::size_t textureId = Retrieve(m_pending.attachmentToTextures, ResolveAttachmentIndex(output.attachmentId));
-			if (textureId == InvalidTextureIndex)
+			std::size_t textureId = Retrieve(m_pending.resourceIdToPhysicalIndex, ResolveAttachmentIndex(output.attachmentId));
+			if (textureId == InvalidResourceIndex)
 				return InvalidAttachmentIndex;
 
 			// For texture view, use the parent texture layout
@@ -839,8 +966,8 @@ namespace Nz
 
 			*first = true;
 
-			std::size_t textureId = Retrieve(m_pending.attachmentToTextures, ResolveAttachmentIndex(attachmentId));
-			if (textureId == InvalidTextureIndex)
+			std::size_t textureId = Retrieve(m_pending.resourceIdToPhysicalIndex, ResolveAttachmentIndex(attachmentId));
+			if (textureId == InvalidResourceIndex)
 				return nullptr;
 
 			// For texture view, use the parent texture layout
@@ -1038,14 +1165,20 @@ namespace Nz
 			for (const auto& input : framePass.GetAttachmentInputs())
 				UniquePushBack(m_pending.attachmentReadList[input.attachmentId], passIndex);
 
+			for (const auto& input : framePass.GetBufferInputs())
+				UniquePushBack(m_pending.attachmentReadList[input.bufferId], passIndex);
+
 			if (const auto& depthStencilInput = framePass.GetDepthStencilInput())
 				UniquePushBack(m_pending.attachmentReadList[depthStencilInput->attachmentId], passIndex);
 
 			for (const auto& output : framePass.GetAttachmentOutputs())
-				UniquePushBack(m_pending.attachmentWriteList[output.attachmentId], passIndex);
+				UniquePushBack(m_pending.resourceWriteList[output.attachmentId], passIndex);
+
+			for (const auto& output : framePass.GetBufferOutputs())
+				UniquePushBack(m_pending.resourceWriteList[output.bufferId], passIndex);
 
 			if (std::size_t depthStencilId = framePass.GetDepthStencilOutput(); depthStencilId != FramePass::InvalidAttachmentId)
-				UniquePushBack(m_pending.attachmentWriteList[depthStencilId], passIndex);
+				UniquePushBack(m_pending.resourceWriteList[depthStencilId], passIndex);
 		}
 	}
 
@@ -1062,10 +1195,10 @@ namespace Nz
 		return false;
 	}
 
-	void FrameGraph::RegisterPassInput(std::size_t passIndex, std::size_t attachmentIndex)
+	void FrameGraph::RegisterPassInput(std::size_t passIndex, std::size_t resourceIndex)
 	{
-		auto it = m_pending.attachmentWriteList.find(attachmentIndex);
-		if (it != m_pending.attachmentWriteList.end())
+		auto it = m_pending.resourceWriteList.find(resourceIndex);
+		if (it != m_pending.resourceWriteList.end())
 		{
 			const PassList& dependencyPassList = it->second;
 			for (std::size_t dependencyPass : dependencyPassList)
@@ -1076,15 +1209,78 @@ namespace Nz
 		}
 	}
 
+	std::size_t FrameGraph::RegisterBuffer(std::size_t bufferIndex)
+	{
+		if (auto it = m_pending.resourceIdToPhysicalIndex.find(bufferIndex); it != m_pending.resourceIdToPhysicalIndex.end())
+			return it->second;
+			
+		auto InsertBuffer = [this](std::size_t resourceIndex, const FramePassBuffer& bufferData, std::size_t& bufferId) -> FrameGraphBufferData&
+		{
+			bufferId = m_pending.renderBuffers.size();
+			m_pending.resourceIdToPhysicalIndex.emplace(resourceIndex, bufferId);
+
+			FrameGraphBufferData& data = m_pending.renderBuffers.emplace_back();
+			data.name = bufferData.name;
+			data.size = bufferData.size;
+			data.usageFlags = bufferData.additionalUsages;
+			data.canReuse = true;
+
+			return data;
+		};
+		
+		auto CheckExternalBuffer = [this](std::size_t resourceIndex, FrameGraphBufferData& data)
+		{
+			// Check if texture is bound to an external texture
+			if (auto externalIt = m_externalBuffers.find(resourceIndex); externalIt != m_externalBuffers.end())
+			{
+				const std::shared_ptr<RenderBuffer>& externalBuffer = externalIt->second;
+
+				// Check that texture settings match
+				if (externalBuffer->GetUsageFlags().Test(data.usageFlags))
+					throw std::runtime_error("external buffer doesn't match graph buffer usage flags");
+
+				if (externalBuffer->GetSize() < data.size)
+					throw std::runtime_error("external buffer size is less than require for graph buffer");
+
+				data.canReuse = false;
+			}
+		};
+		
+		return std::visit([&](auto&& arg) -> std::size_t
+		{
+			using T = std::decay_t<decltype(arg)>;
+			if constexpr (std::is_same_v<T, FramePassBuffer>)
+			{
+				const FramePassBuffer& bufferData = arg;
+
+				std::size_t bufferId;
+				FrameGraphBufferData& data = InsertBuffer(bufferIndex, bufferData, bufferId);
+				CheckExternalBuffer(bufferIndex, data);
+
+				// Final outputs cannot be reused
+				if (std::find(m_graphOutputs.begin(), m_graphOutputs.end(), bufferIndex) != m_graphOutputs.end())
+					data.canReuse = false;
+
+				return bufferId;
+			}
+			else if constexpr (TypeListHas<TextureTypes, T>)
+			{
+				throw std::runtime_error(fmt::format("framegraph resource #{} is a texture, expected buffer", bufferIndex));
+			}
+			else
+				static_assert(AlwaysFalse<T>(), "non-exhaustive visitor");
+		}, m_resources[bufferIndex]);
+	}
+
 	std::size_t FrameGraph::RegisterTexture(std::size_t attachmentIndex)
 	{
-		if (auto it = m_pending.attachmentToTextures.find(attachmentIndex); it != m_pending.attachmentToTextures.end())
+		if (auto it = m_pending.resourceIdToPhysicalIndex.find(attachmentIndex); it != m_pending.resourceIdToPhysicalIndex.end())
 			return it->second;
 
 		auto InsertTexture = [this](ImageType imageType, std::size_t attachmentIndex, const FramePassAttachment& attachmentData, std::size_t& textureId) -> FrameGraphTextureData&
 		{
 			textureId = m_pending.textures.size();
-			m_pending.attachmentToTextures.emplace(attachmentIndex, textureId);
+			m_pending.resourceIdToPhysicalIndex.emplace(attachmentIndex, textureId);
 
 			FrameGraphTextureData& data = m_pending.textures.emplace_back();
 			data.type = imageType;
@@ -1157,7 +1353,7 @@ namespace Nz
 						continue;
 
 					m_pending.texture2DPool.erase(it);
-					m_pending.attachmentToTextures.emplace(attachmentIndex, textureId);
+					m_pending.resourceIdToPhysicalIndex.emplace(attachmentIndex, textureId);
 
 					if (!attachmentData.name.empty() && data.name != attachmentData.name)
 						data.name += " / " + attachmentData.name;
@@ -1200,7 +1396,7 @@ namespace Nz
 						continue;
 
 					m_pending.texture2DArrayPool.erase(it);
-					m_pending.attachmentToTextures.emplace(attachmentIndex, textureId);
+					m_pending.resourceIdToPhysicalIndex.emplace(attachmentIndex, textureId);
 
 					if (!attachmentData.name.empty() && data.name != attachmentData.name)
 						data.name += " / " + attachmentData.name;
@@ -1242,7 +1438,7 @@ namespace Nz
 						continue;
 
 					m_pending.textureCubePool.erase(it);
-					m_pending.attachmentToTextures.emplace(attachmentIndex, textureId);
+					m_pending.resourceIdToPhysicalIndex.emplace(attachmentIndex, textureId);
 
 					if (!attachmentData.name.empty() && data.name != attachmentData.name)
 						data.name += " / " + attachmentData.name;
@@ -1271,7 +1467,7 @@ namespace Nz
 				std::size_t parentTextureId = RegisterTexture(texLayer.attachmentId);
 
 				std::size_t textureId = m_pending.textures.size();
-				m_pending.attachmentToTextures.emplace(attachmentIndex, textureId);
+				m_pending.resourceIdToPhysicalIndex.emplace(attachmentIndex, textureId);
 
 				FrameGraphTextureData& data = m_pending.textures.emplace_back();
 				const FrameGraphTextureData& parentTexture = m_pending.textures[parentTextureId];
@@ -1297,7 +1493,7 @@ namespace Nz
 				const AttachmentProxy& proxy = arg;
 
 				std::size_t textureId = RegisterTexture(proxy.attachmentId);
-				m_pending.attachmentToTextures.emplace(attachmentIndex, textureId);
+				m_pending.resourceIdToPhysicalIndex.emplace(attachmentIndex, textureId);
 
 				if (std::find(m_graphOutputs.begin(), m_graphOutputs.end(), attachmentIndex) != m_graphOutputs.end())
 					m_pending.textures[textureId].canReuse = false;
@@ -1313,7 +1509,7 @@ namespace Nz
 				std::size_t parentTextureId = RegisterTexture(view.attachmentId);
 
 				std::size_t textureId = m_pending.textures.size();
-				m_pending.attachmentToTextures.emplace(attachmentIndex, textureId);
+				m_pending.resourceIdToPhysicalIndex.emplace(attachmentIndex, textureId);
 
 				FrameGraphTextureData& data = m_pending.textures.emplace_back();
 				const FrameGraphTextureData& parentTexture = m_pending.textures[parentTextureId];
@@ -1337,12 +1533,16 @@ namespace Nz
 			}
 			else if constexpr (std::is_same_v<T, DummyAttachment>)
 			{
-				m_pending.attachmentToTextures.emplace(attachmentIndex, InvalidTextureIndex);
-				return InvalidTextureIndex;
+				m_pending.resourceIdToPhysicalIndex.emplace(attachmentIndex, InvalidResourceIndex);
+				return InvalidResourceIndex;
+			}
+			else if constexpr (TypeListHas<BufferTypes, T>)
+			{
+				throw std::runtime_error(fmt::format("framegraph resource #{} is a buffer, expected texture", attachmentIndex));
 			}
 			else
-				static_assert(AlwaysFalse<T>::value, "non-exhaustive visitor");
-		}, m_attachments[attachmentIndex]);
+				static_assert(AlwaysFalse<T>(), "non-exhaustive visitor");
+		}, m_resources[attachmentIndex]);
 	}
 
 	void FrameGraph::RemoveDuplicatePasses()
@@ -1374,9 +1574,9 @@ namespace Nz
 
 	std::size_t FrameGraph::ResolveAttachmentIndex(std::size_t attachmentIndex) const
 	{
-		assert(attachmentIndex < m_attachments.size());
+		assert(attachmentIndex < m_resources.size());
 
-		while (const AttachmentProxy* proxy = std::get_if<AttachmentProxy>(&m_attachments[attachmentIndex]))
+		while (const AttachmentProxy* proxy = std::get_if<AttachmentProxy>(&m_resources[attachmentIndex]))
 			attachmentIndex = proxy->attachmentId;
 
 		return attachmentIndex;
@@ -1394,6 +1594,9 @@ namespace Nz
 		const FramePass& framePass = m_framePasses[passIndex];
 		for (const auto& input : framePass.GetAttachmentInputs())
 			RegisterPassInput(passIndex, input.attachmentId);
+
+		for (const auto& input : framePass.GetBufferInputs())
+			RegisterPassInput(passIndex, input.bufferId);
 
 		if (const auto& depthStencilInput = framePass.GetDepthStencilInput())
 			RegisterPassInput(passIndex, depthStencilInput->attachmentId);

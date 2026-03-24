@@ -93,6 +93,10 @@ namespace Nz
 			return Read<String>().value;
 		else if constexpr (std::is_same_v<T, Identifier>)
 			return Read<Identifier>();
+		else if constexpr (std::is_floating_point_v<T>)
+			return static_cast<T>(Read<Float>().value);
+		else if constexpr (std::is_integral_v<T>)
+			return SafeCast<T>(Read<Integer>().value);
 		else if constexpr (std::is_same_v<T, ParameterFileSection>)
 			return ParameterFileSection{ *this };
 		else

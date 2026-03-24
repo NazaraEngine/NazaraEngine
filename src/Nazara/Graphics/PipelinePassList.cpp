@@ -40,19 +40,19 @@ namespace Nz
 	{
 		NazaraAssertMsg(m_passes.size() == passes.size(), "pass vector size doesn't match passlist size");
 
-		StackArray<std::size_t> attachmentIndices = NazaraStackArrayNoInit(std::size_t, m_attachments.size());
-		auto GetAttachmentIndex = [&](std::size_t attachmentIndex)
+		StackArray<std::size_t> resourceIndices = NazaraStackArrayNoInit(std::size_t, m_resources.size());
+		auto GetResourceIndex = [&](std::size_t resourceIndex)
 		{
-			if (attachmentIndex == NoAttachment)
+			if (resourceIndex == NoAttachment)
 				return NoAttachment;
 
-			assert(attachmentIndex < m_attachments.size());
-			return attachmentIndices[attachmentIndex];
+			assert(resourceIndex < m_resources.size());
+			return resourceIndices[resourceIndex];
 		};
 
-		for (std::size_t i = 0; i < m_attachments.size(); ++i)
+		for (std::size_t i = 0; i < m_resources.size(); ++i)
 		{
-			attachmentIndices[i] = std::visit([&](auto&& arg)
+			resourceIndices[i] = std::visit([&](auto&& arg)
 			{
 				using T = std::decay_t<decltype(arg)>;
 				if constexpr (std::is_same_v<T, FramePassAttachment>)
@@ -70,13 +70,15 @@ namespace Nz
 						return frameGraph.AddAttachment(arg);
 				}
 				else if constexpr (std::is_same_v<T, AttachmentProxy>)
-					return frameGraph.AddAttachmentProxy(arg.name, GetAttachmentIndex(arg.attachmentIndex));
+					return frameGraph.AddAttachmentProxy(arg.name, GetResourceIndex(arg.attachmentIndex));
 				else if constexpr (std::is_same_v<T, AttachmentView>)
-					return frameGraph.AddAttachmentView(arg.name, GetAttachmentIndex(arg.attachmentIndex), arg.pixelFormat, arg.planeFlags);
+					return frameGraph.AddAttachmentView(arg.name, GetResourceIndex(arg.attachmentIndex), arg.pixelFormat, arg.planeFlags);
+				else if constexpr (std::is_same_v<T, FramePassBuffer>)
+					return frameGraph.AddBuffer(arg);
 				else
 					static_assert(AlwaysFalse<T>(), "unhandled case");
 
-			}, m_attachments[i]);
+			}, m_resources[i]);
 		}
 
 		for (std::size_t passIndex = 0; passIndex < passes.size(); ++passIndex)
@@ -85,19 +87,19 @@ namespace Nz
 
 			std::array<FramePipelinePass::PassInputData, MaxPassAttachment> inputs;
 			for (std::size_t i = 0; i < passData.inputs.size(); ++i)
-				inputs[i].attachmentIndex = GetAttachmentIndex(passData.inputs[i]);
+				inputs[i].attachmentIndex = GetResourceIndex(passData.inputs[i]);
 
 			std::array<FramePipelinePass::PassOutputData, MaxPassAttachment> outputs;
 			for (std::size_t i = 0; i < passData.outputs.size(); ++i)
 			{
-				outputs[i].attachmentIndex = GetAttachmentIndex(passData.outputs[i].attachmentIndex);
+				outputs[i].attachmentIndex = GetResourceIndex(passData.outputs[i].attachmentIndex);
 				outputs[i].clearColor = passData.outputs[i].clearColor;
 			}
 
 			FramePipelinePass::PassInputOuputs passInputOuputs;
 			passInputOuputs.clearDepth = passData.clearDepth;
-			passInputOuputs.depthStencilInput = GetAttachmentIndex(passData.depthStencilInput);
-			passInputOuputs.depthStencilOutput = GetAttachmentIndex(passData.depthStencilOutput);
+			passInputOuputs.depthStencilInput = GetResourceIndex(passData.depthStencilInput);
+			passInputOuputs.depthStencilOutput = GetResourceIndex(passData.depthStencilOutput);
 			passInputOuputs.inputAttachments = std::span(inputs.data(), passData.inputs.size());
 			passInputOuputs.outputAttachments = std::span(outputs.data(), passData.outputs.size());
 
@@ -106,7 +108,7 @@ namespace Nz
 				passCallback(passIndex, framePass, passData.flags);
 		}
 
-		return GetAttachmentIndex(m_finalOutputAttachment);
+		return GetResourceIndex(m_finalOutputAttachment);
 	}
 
 	std::shared_ptr<PipelinePassList> PipelinePassList::LoadFromFile(const std::filesystem::path& filePath, const PipelinePassListParams& params)

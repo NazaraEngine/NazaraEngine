@@ -36,6 +36,7 @@ namespace Nz::Loaders
 									"attachment", &PassListLoader::HandleAttachment, this,
 									"attachmentproxy", &PassListLoader::HandleAttachmentProxy, this,
 									"attachmentview", &PassListLoader::HandleAttachmentView, this,
+									"buffer", &PassListLoader::HandleBuffer, this,
 									"pass", &PassListLoader::HandlePass, this,
 									"output", &finalOutputAttachment
 								);
@@ -195,6 +196,28 @@ namespace Nz::Loaders
 
 					std::size_t viewId = m_current->passList->AddAttachmentView(attachmentName, it->second, attachmentFormat, planeFlags);
 					m_current->attachmentsByName.emplace(std::move(attachmentName), viewId);
+				}
+				
+				void HandleBuffer(ParameterFileSection section, std::string bufferName)
+				{
+					std::int64_t size = 0;
+
+					section.Block(
+						"size", &size
+					);
+
+					if (size <= 0)
+					{
+						NazaraError("invalid or missing size for buffer {}", bufferName);
+						throw ResourceLoadingError::DecodingError;
+					}
+
+					std::size_t bufferId = m_current->passList->AddBuffer({
+						bufferName,
+						SafeCast<UInt64>(size)
+					});
+
+					m_current->attachmentsByName.emplace(std::move(bufferName), bufferId);
 				}
 
 				void HandlePass(ParameterFileSection section, std::string passName)

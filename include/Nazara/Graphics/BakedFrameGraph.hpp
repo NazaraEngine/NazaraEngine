@@ -15,6 +15,7 @@
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/CommandPool.hpp>
 #include <Nazara/Renderer/Framebuffer.hpp>
+#include <Nazara/Renderer/RenderBuffer.hpp>
 #include <Nazara/Renderer/RenderPass.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 #include <span>
@@ -37,6 +38,7 @@ namespace Nz
 			void Execute(RenderResources& renderResources);
 
 			const std::shared_ptr<Texture>& GetAttachmentTexture(std::size_t attachmentIndex) const;
+			const std::shared_ptr<RenderBuffer>& GetBuffer(std::size_t bufferIndex) const;
 			const std::shared_ptr<RenderPass>& GetRenderPass(std::size_t passIndex) const;
 
 			bool Resize(RenderResources& renderResources, std::span<Vector2ui> viewerTargetSizes);
@@ -46,22 +48,12 @@ namespace Nz
 
 		private:
 			struct PassData;
+			struct BufferData;
 			struct TextureData;
-			using AttachmentIdToTextureId = std::unordered_map<std::size_t /*attachmentId*/, std::size_t /*textureId*/>;
+			using ResourceIdToPhysicalIndex = std::unordered_map<std::size_t /*attachmentId*/, std::size_t /*textureId*/>;
 			using PassIdToPhysicalPassIndex = std::unordered_map<std::size_t /*passId*/, std::size_t /*physicalPassId*/>;
 
-			BakedFrameGraph(std::vector<PassData> passes, std::vector<TextureData> textures, AttachmentIdToTextureId attachmentIdToTextureMapping, PassIdToPhysicalPassIndex passIdToPhysicalPassMapping);
-
-			struct TextureBarrier
-			{
-				std::size_t textureId;
-				MemoryAccessFlags dstAccessMask;
-				MemoryAccessFlags srcAccessMask;
-				PipelineStageFlags dstStageMask;
-				PipelineStageFlags srcStageMask;
-				TextureLayout newLayout;
-				TextureLayout oldLayout;
-			};
+			BakedFrameGraph(std::vector<PassData> passes, std::vector<BufferData> buffers, std::vector<TextureData> textures, ResourceIdToPhysicalIndex attachmentIdToTextureMapping, PassIdToPhysicalPassIndex passIdToPhysicalPassMapping);
 
 			struct SubpassData
 			{
@@ -77,10 +69,17 @@ namespace Nz
 				std::vector<std::size_t> outputTextureIndices;
 				std::vector<CommandBufferBuilder::ClearValues> outputClearValues;
 				std::vector<SubpassData> subpasses;
-				std::vector<TextureBarrier> invalidationBarriers;
+				std::vector<CommandBufferBuilder::BufferBarrierInfo> bufferInvalidationBarriers;
+				std::vector<CommandBufferBuilder::TextureBarrierInfo> textureInvalidationBarriers;
+				std::vector<std::size_t> resourceIndices; //< buffer then texture
 				FramePass::ExecutionCallback executionCallback;
 				Recti renderRect;
 				bool forceCommandBufferRegeneration = true;
+			};
+
+			struct BufferData : FrameGraphBufferData
+			{
+				std::shared_ptr<RenderBuffer> buffer;
 			};
 
 			struct TextureData : FrameGraphTextureData
@@ -89,10 +88,11 @@ namespace Nz
 			};
 
 			std::shared_ptr<CommandPool> m_commandPool;
+			std::vector<BufferData> m_buffers;
 			std::vector<PassData> m_passes;
 			std::vector<TextureData> m_textures;
 			std::vector<Vector2ui> m_viewerSizes;
-			AttachmentIdToTextureId m_attachmentToTextureMapping;
+			ResourceIdToPhysicalIndex m_resourceIdToPhysicalMapping;
 			PassIdToPhysicalPassIndex m_passIdToPhysicalPassMapping;
 			unsigned int m_height;
 			unsigned int m_width;

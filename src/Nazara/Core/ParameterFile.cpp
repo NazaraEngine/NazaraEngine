@@ -5,6 +5,7 @@
 #include <Nazara/Core/ParameterFile.hpp>
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Stream.hpp>
+#include <fast_float/fast_float.h>
 
 namespace Nz
 {
@@ -14,6 +15,8 @@ namespace Nz
 		{
 			return std::isalnum(c) || c == '_';
 		};
+
+		std::string literalTemp;
 
 		// Remove processed tokens from buffer
 		m_buffer.erase(m_buffer.begin(), m_buffer.begin() + m_bufferOffset);
@@ -137,6 +140,117 @@ namespace Nz
 
 					m_nextToken = String{ std::move(literal) };
 					return currentToken;
+				}
+
+				case '0':
+				case '1':
+				case '2':
+				case '3':
+				case '4':
+				case '5':
+				case '6':
+				case '7':
+				case '8':
+				case '9':
+				{
+					literalTemp.clear();
+
+					std::size_t start = m_bufferOffset;
+					char next = PeekCharacter();
+
+					int base = 10;
+					if (next == 'x' || next == 'X')
+					{
+						base = 16;
+						m_bufferOffset++;
+					}
+					else if (next == 'b' || next == 'B')
+					{
+						base = 2;
+						m_bufferOffset++;
+					}
+					else
+						literalTemp.push_back(c);
+
+					bool floatingPoint = false;
+					for (;;)
+					{
+						auto IsDigitOrSep = [=](char c)
+						{
+							if (c == '_')
+								return true;
+
+							if (c >= '0' && c <= '9')
+								return true;
+
+							if (base > 10)
+							{
+								if (c >= 'a' && c <= 'f')
+									return true;
+
+								if (c >= 'A' && c <= 'F')
+									return true;
+							}
+
+							return false;
+						};
+
+						next = PeekCharacter();
+
+						if (!IsDigitOrSep(next))
+						{
+							if (next != '.')
+								break;
+
+							if (floatingPoint)
+								break;
+
+							floatingPoint = true;
+						}
+
+						if (next != '_')
+							literalTemp.push_back(next);
+
+						m_bufferOffset++;
+					}
+
+					if (base != 10)
+					{
+						if (c != '0')
+							throw std::runtime_error(Format("bad number on line {}", m_currentLine));
+
+						if (floatingPoint)
+							throw std::runtime_error(Format("floating-point number can only be specified using base 10 (got base {}) on line {}", base, m_currentLine));
+					}
+
+					// avoid std::string operator[] assertions (as &literalTemp[literalTemp.size()] is out of the string)
+					const char* first = literalTemp.data();
+					const char* last = first + literalTemp.size();
+
+					if (floatingPoint)
+					{
+						double value;
+						fast_float::from_chars_result r = fast_float::from_chars(first, last, value);
+						if (r.ptr == last && r.ec == std::errc{})
+							return Float{ value };
+						else if (r.ec == std::errc::result_out_of_range)
+							throw std::runtime_error(Format("number out of range on line {}", m_currentLine));
+						else
+							throw std::runtime_error(Format("bad number on line {}", m_currentLine));
+					}
+					else
+					{
+						std::int64_t value;
+						std::from_chars_result r = std::from_chars(first, last, value, base);
+						if (r.ptr == last && r.ec == std::errc{})
+							return Integer{ value };
+						else if (r.ec == std::errc::result_out_of_range)
+							throw std::runtime_error(Format("number out of range on line {}", m_currentLine));
+						else
+							throw std::runtime_error(Format("bad number on line {}", m_currentLine));
+					}
+
+					break;
 				}
 
 				default:
