@@ -20,6 +20,11 @@
 namespace Nz
 {
 	RenderSystem::RenderSystem(entt::registry& registry) :
+	RenderSystem(registry, [](ElementRendererRegistry& elementRegistry) { return std::make_unique<DefaultFramePipeline>(elementRegistry); })
+	{
+	}
+
+	RenderSystem::RenderSystem(entt::registry& registry, FunctionRef<std::unique_ptr<FramePipeline>(ElementRendererRegistry& elementRegistry)> framePipelineBuilder) :
 	m_registry(registry),
 	m_cameraEntities(m_registry),
 	m_graphicsEntities(m_registry),
@@ -30,7 +35,7 @@ namespace Nz
 	m_graphicsEntityPool(1024),
 	m_lightEntityPool(32)
 	{
-		m_pipeline = std::make_unique<DefaultFramePipeline>(m_elementRegistry);
+		m_pipeline = framePipelineBuilder(m_elementRegistry);
 
 		BindObservers();
 

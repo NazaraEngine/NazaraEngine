@@ -18,6 +18,7 @@
 #include <Nazara/Graphics/Components/GraphicsComponent.hpp>
 #include <Nazara/Graphics/Components/LightComponent.hpp>
 #include <Nazara/Renderer/WindowSwapchain.hpp>
+#include <NazaraUtils/FunctionRef.hpp>
 #include <NazaraUtils/MemoryPool.hpp>
 #include <entt/entt.hpp>
 #include <array>
@@ -41,6 +42,7 @@ namespace Nz
 			static constexpr Int64 ExecutionOrder = 1'000;
 
 			RenderSystem(entt::registry& registry);
+			RenderSystem(entt::registry& registry, FunctionRef<std::unique_ptr<FramePipeline>(ElementRendererRegistry& elementRegistry)> framePipelineBuilder);
 			RenderSystem(const RenderSystem&) = delete;
 			RenderSystem(RenderSystem&&) = delete;
 			~RenderSystem();
