@@ -67,6 +67,7 @@ namespace Nz
 			inline void AddPass(std::size_t passIndex, MaterialPass materialPass);
 
 			inline void AddPropertyHandler(std::unique_ptr<PropertyHandler> propertyHandler);
+			template<typename T, typename... Args> void AddPropertyHandler(Args&&... args);
 
 			inline void AddTextureProperty(std::string propertyName, ImageType propertyType);
 			void AddTextureProperty(std::string propertyName, ImageType propertyType, std::shared_ptr<TextureAsset> defaultTexture);

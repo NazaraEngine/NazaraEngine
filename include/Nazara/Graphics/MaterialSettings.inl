@@ -198,6 +198,12 @@ namespace Nz
 		m_propertyHandlers.emplace_back(std::move(propertyHandler));
 	}
 
+	template<typename T, typename... Args>
+	void MaterialSettings::AddPropertyHandler(Args&&... args)
+	{
+		m_propertyHandlers.emplace_back(std::make_unique<T>(std::forward<Args>(args)...));
+	}
+
 	inline void MaterialSettings::AddTextureProperty(std::string propertyName, ImageType propertyType)
 	{
 		auto& textureProperty = m_textureProperties.emplace_back();

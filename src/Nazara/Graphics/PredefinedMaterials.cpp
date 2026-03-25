@@ -20,14 +20,14 @@ namespace Nz
 		settings.AddValueProperty<float>("ShadowPosScale", 1.f - 0.0025f);
 		settings.AddTextureProperty("BaseColorMap", ImageType::E2D);
 		settings.AddTextureProperty("AlphaMap", ImageType::E2D);
-		settings.AddPropertyHandler(std::make_unique<OptionValuePropertyHandler>("AlphaTest", "AlphaTest"));
-		settings.AddPropertyHandler(std::make_unique<OptionValuePropertyHandler>("Billboard", "Billboard"));
-		settings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("BaseColorMap", "HasBaseColorTexture"));
-		settings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("AlphaMap", "HasAlphaTexture"));
-		settings.AddPropertyHandler(std::make_unique<UniformValuePropertyHandler>("BaseColor"));
-		settings.AddPropertyHandler(std::make_unique<UniformValuePropertyHandler>("AlphaTestThreshold"));
-		settings.AddPropertyHandler(std::make_unique<UniformValuePropertyHandler>("ShadowMapNormalOffset"));
-		settings.AddPropertyHandler(std::make_unique<UniformValuePropertyHandler>("ShadowPosScale"));
+		settings.AddPropertyHandler<OptionValuePropertyHandler>("AlphaTest", "AlphaTest");
+		settings.AddPropertyHandler<OptionValuePropertyHandler>("Billboard", "Billboard");
+		settings.AddPropertyHandler<TexturePropertyHandler>("BaseColorMap", "HasBaseColorTexture");
+		settings.AddPropertyHandler<TexturePropertyHandler>("AlphaMap", "HasAlphaTexture");
+		settings.AddPropertyHandler<UniformValuePropertyHandler>("BaseColor");
+		settings.AddPropertyHandler<UniformValuePropertyHandler>("AlphaTestThreshold");
+		settings.AddPropertyHandler<UniformValuePropertyHandler>("ShadowMapNormalOffset");
+		settings.AddPropertyHandler<UniformValuePropertyHandler>("ShadowPosScale");
 	}
 
 	void PredefinedMaterials::AddPbrSettings(MaterialSettings& settings)
@@ -40,14 +40,14 @@ namespace Nz
 		settings.AddTextureProperty("NormalMap", ImageType::E2D);
 		settings.AddTextureProperty("RoughnessMap", ImageType::E2D);
 		settings.AddTextureProperty("SpecularMap", ImageType::E2D);
-		settings.AddPropertyHandler(std::make_unique<UniformValuePropertyHandler>("MetallicFactor"));
-		settings.AddPropertyHandler(std::make_unique<UniformValuePropertyHandler>("RoughnessFactor"));
-		settings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("EmissiveMap", "HasEmissiveTexture"));
-		settings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("HeightMap", "HasHeightTexture"));
-		settings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("MetallicMap", "HasMetallicTexture"));
-		settings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("NormalMap", "HasNormalTexture"));
-		settings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("RoughnessMap", "HasRoughnessTexture"));
-		settings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("SpecularMap", "HasSpecularTexture"));
+		settings.AddPropertyHandler<UniformValuePropertyHandler>("MetallicFactor");
+		settings.AddPropertyHandler<UniformValuePropertyHandler>("RoughnessFactor");
+		settings.AddPropertyHandler<TexturePropertyHandler>("EmissiveMap", "HasEmissiveTexture");
+		settings.AddPropertyHandler<TexturePropertyHandler>("HeightMap", "HasHeightTexture");
+		settings.AddPropertyHandler<TexturePropertyHandler>("MetallicMap", "HasMetallicTexture");
+		settings.AddPropertyHandler<TexturePropertyHandler>("NormalMap", "HasNormalTexture");
+		settings.AddPropertyHandler<TexturePropertyHandler>("RoughnessMap", "HasRoughnessTexture");
+		settings.AddPropertyHandler<TexturePropertyHandler>("SpecularMap", "HasSpecularTexture");
 	}
 
 	void PredefinedMaterials::AddPhongSettings(MaterialSettings& settings)
@@ -65,13 +65,13 @@ namespace Nz
 		settings.AddTextureProperty("HeightMap", ImageType::E2D);
 		settings.AddTextureProperty("NormalMap", ImageType::E2D);
 		settings.AddTextureProperty("SpecularMap", ImageType::E2D);
-		settings.AddPropertyHandler(std::make_unique<OptionValuePropertyHandler>("ShadowMapping", "EnableShadowMapping"));
-		settings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("EmissiveMap", "HasEmissiveTexture"));
-		settings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("HeightMap", "HasHeightTexture"));
-		settings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("NormalMap", "HasNormalTexture"));
-		settings.AddPropertyHandler(std::make_unique<TexturePropertyHandler>("SpecularMap", "HasSpecularTexture"));
-		settings.AddPropertyHandler(std::make_unique<UniformValuePropertyHandler>("AmbientColor"));
-		settings.AddPropertyHandler(std::make_unique<UniformValuePropertyHandler>("SpecularColor"));
-		settings.AddPropertyHandler(std::make_unique<UniformValuePropertyHandler>("Shininess"));
+		settings.AddPropertyHandler<OptionValuePropertyHandler>("ShadowMapping", "EnableShadowMapping");
+		settings.AddPropertyHandler<TexturePropertyHandler>("EmissiveMap", "HasEmissiveTexture");
+		settings.AddPropertyHandler<TexturePropertyHandler>("HeightMap", "HasHeightTexture");
+		settings.AddPropertyHandler<TexturePropertyHandler>("NormalMap", "HasNormalTexture");
+		settings.AddPropertyHandler<TexturePropertyHandler>("SpecularMap", "HasSpecularTexture");
+		settings.AddPropertyHandler<UniformValuePropertyHandler>("AmbientColor");
+		settings.AddPropertyHandler<UniformValuePropertyHandler>("SpecularColor");
+		settings.AddPropertyHandler<UniformValuePropertyHandler>("Shininess");
 	}
 }
