@@ -646,15 +646,16 @@ namespace Nz
 		UInt32 depth = m_sharedImage->depth;
 
 		std::size_t size = 0;
-		ImageUtils::ForEachLevel(m_sharedImage->levels.size(), m_sharedImage->type, width, height, depth, [&](UInt8 /*level*/, UInt32 width, UInt32 height, UInt32 depth)
+		ImageUtils::ForEachLevel(m_sharedImage->levels.size(), m_sharedImage->type, width, height, depth, [&](UInt8 level, UInt32 width, UInt32 height, UInt32 depth)
 		{
-			size += static_cast<std::size_t>(width) * static_cast<std::size_t>(height) * static_cast<std::size_t>(depth);
+			if (IsLevelAllocated(level))
+				size += PixelFormatInfo::ComputeSize(m_sharedImage->format, width, height, depth);
 		});
 
 		if (m_sharedImage->type == ImageType::Cubemap)
 			size *= 6;
 
-		return size * PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format);
+		return size;
 	}
 
 	std::size_t Image::GetMemoryUsage(UInt8 level) const
