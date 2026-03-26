@@ -11,8 +11,7 @@ namespace Nz
 
 	constexpr Time Timestamp::AsTime() const
 	{
-		// TODO: Use SafeCast when SafeCast gets constexpr support
-		return Time::Nanoseconds(static_cast<Int64>(m_nanoseconds));
+		return Time::Nanoseconds(SafeCast<Int64>(m_nanoseconds));
 	}
 
 	constexpr Int64 Timestamp::AsMicroseconds() const
@@ -57,8 +56,7 @@ namespace Nz
 	constexpr Time Timestamp::GetRemainder() const
 	{
 		Int64 absNs = (m_nanoseconds >= 0) ? m_nanoseconds : -m_nanoseconds;
-		// TODO: Use SafeCast when SafeCast gets constexpr support
-		return Time::Nanoseconds(static_cast<Int64>(absNs % 1'000'000'000ull));
+		return Time::Nanoseconds(SafeCast<Int64>(absNs % 1'000'000'000ull));
 	}
 
 	constexpr Timestamp& Timestamp::operator+=(Time time)
