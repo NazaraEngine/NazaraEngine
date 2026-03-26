@@ -63,6 +63,8 @@ namespace Nz
 			inline Image(Image&& image) noexcept;
 			~Image();
 
+			Color ComputeAverageColor(UInt8 level = 0) const;
+
 			bool Convert(PixelFormat format);
 
 			void Copy(const Image& source, const Boxui32& srcBox, const Vector3ui32& dstPos);

@@ -69,6 +69,204 @@ namespace Nz
 		Destroy();
 	}
 
+	Color Image::ComputeAverageColor(UInt8 level) const
+	{
+		NazaraAssertMsg(IsValid(), "invalid image");
+		NazaraAssertMsg(IsLevelAllocated(level), "level %u is not allocated", static_cast<unsigned int>(level));
+
+		UInt32 width = GetWidth(level);
+		UInt32 height = GetHeight(level);
+		UInt32 depth = GetDepth(level);
+
+		if (m_sharedImage->type == ImageType::Cubemap)
+			depth *= 6;
+
+		switch (m_sharedImage->format)
+		{
+			case PixelFormat::BGR8:
+			case PixelFormat::RGB8:
+			{
+				UInt64 redAcc = 0;
+				UInt64 greenAcc = 0;
+				UInt64 blueAcc = 0;
+
+				const UInt8* pixels = GetConstPixels(0, 0, 0, level);
+				for (UInt32 z = 0; z < depth; ++z)
+				{
+					for (UInt32 y = 0; y < height; ++y)
+					{
+						for (UInt32 x = 0; x < width; ++x)
+						{
+							redAcc += pixels[0];
+							greenAcc += pixels[1];
+							blueAcc += pixels[2];
+							pixels += 3;
+						}
+					}
+				}
+
+				if (m_sharedImage->format == PixelFormat::BGR8)
+					std::swap(redAcc, blueAcc);
+
+				double pixelCount = 255.0 * double(width) * double(height) * double(depth);
+				float r = static_cast<float>(redAcc / pixelCount);
+				float g = static_cast<float>(greenAcc / pixelCount);
+				float b = static_cast<float>(blueAcc / pixelCount);
+
+				return Color(r, g, b);
+			}
+
+			case PixelFormat::BGR8_SRGB:
+			case PixelFormat::RGB8_SRGB:
+			{
+				double redAcc = 0.0;
+				double greenAcc = 0.0;
+				double blueAcc = 0.0;
+
+				const UInt8* pixels = GetConstPixels(0, 0, 0, level);
+				for (UInt32 z = 0; z < depth; ++z)
+				{
+					for (UInt32 y = 0; y < height; ++y)
+					{
+						for (UInt32 x = 0; x < width; ++x)
+						{
+							redAcc += Color::sRGBToLinear(pixels[0] / 255.0f);
+							greenAcc += Color::sRGBToLinear(pixels[1] / 255.0f);
+							blueAcc += Color::sRGBToLinear(pixels[2] / 255.0f);
+							pixels += 3;
+						}
+					}
+				}
+
+				if (m_sharedImage->format == PixelFormat::BGR8_SRGB)
+					std::swap(redAcc, blueAcc);
+
+				double pixelCount = double(width) * double(height) * double(depth);
+				float r = static_cast<float>(redAcc / pixelCount);
+				float g = static_cast<float>(greenAcc / pixelCount);
+				float b = static_cast<float>(blueAcc / pixelCount);
+
+				return Color(r, g, b);
+			}
+
+			case PixelFormat::BGRA8:
+			case PixelFormat::RGBA8:
+			{
+				UInt64 redAcc = 0;
+				UInt64 greenAcc = 0;
+				UInt64 blueAcc = 0;
+				UInt64 alphaAcc = 0;
+
+				const UInt8* pixels = GetConstPixels(0, 0, 0, level);
+				for (UInt32 z = 0; z < depth; ++z)
+				{
+					for (UInt32 y = 0; y < height; ++y)
+					{
+						for (UInt32 x = 0; x < width; ++x)
+						{
+							UInt8 alpha = pixels[3];
+							redAcc += alpha * pixels[0];
+							greenAcc += alpha * pixels[1];
+							blueAcc += alpha * pixels[2];
+							alphaAcc += alpha;
+
+							pixels += 4;
+						}
+					}
+				}
+
+				if (alphaAcc == 0)
+					return Color(0.0f, 0.0f, 0.0f, 0.0f);
+
+				double divisor = 255.0 * alphaAcc;
+				float r = static_cast<float>(double(redAcc) / divisor);
+				float g = static_cast<float>(double(greenAcc) / divisor);
+				float b = static_cast<float>(double(blueAcc) / divisor);
+
+				if (m_sharedImage->format == PixelFormat::BGRA8)
+					std::swap(r, b);
+
+				return Color(r, g, b);
+			}
+
+			case PixelFormat::BGRA8_SRGB:
+			case PixelFormat::RGBA8_SRGB:
+			{
+				double redAcc = 0.0;
+				double greenAcc = 0.0;
+				double blueAcc = 0.0;
+				double alphaAcc = 0.0;
+
+				const UInt8* pixels = GetConstPixels(0, 0, 0, level);
+				for (UInt32 z = 0; z < depth; ++z)
+				{
+					for (UInt32 y = 0; y < height; ++y)
+					{
+						for (UInt32 x = 0; x < width; ++x)
+						{
+							float alpha = pixels[3] / 255.0f;
+							redAcc += alpha * Color::sRGBToLinear(pixels[0] / 255.0f);
+							greenAcc += alpha * Color::sRGBToLinear(pixels[1] / 255.0f);
+							blueAcc += alpha * Color::sRGBToLinear(pixels[2] / 255.0f);
+							alphaAcc += alpha;
+
+							pixels += 4;
+						}
+					}
+				}
+
+				if (m_sharedImage->format == PixelFormat::BGRA8_SRGB)
+					std::swap(redAcc, blueAcc);
+
+				float r = static_cast<float>(redAcc / alphaAcc);
+				float g = static_cast<float>(greenAcc / alphaAcc);
+				float b = static_cast<float>(blueAcc / alphaAcc);
+
+				return Color(r, g, b);
+			}
+
+			default:
+			{
+				// Slow path
+				NazaraAssertMsg(!PixelFormatInfo::IsCompressed(m_sharedImage->format), "cannot access pixels from compressed image");
+
+				double redAcc = 0.0;
+				double greenAcc = 0.0;
+				double blueAcc = 0.0;
+				double alphaAcc = 0.0;
+
+				const UInt8* pixels = GetConstPixels(0, 0, 0, level);
+				UInt8 bpp = PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format);
+
+				for (UInt32 z = 0; z < depth; ++z)
+				{
+					for (UInt32 y = 0; y < height; ++y)
+					{
+						for (UInt32 x = 0; x < width; ++x)
+						{
+							Color color;
+							if (!PixelFormatInfo::Convert(m_sharedImage->format, PixelFormat::RGBA32F, pixels, &color.r))
+								NazaraError("failed to convert image's format to RGBA8");
+
+							redAcc += color.r * color.a;
+							greenAcc += color.g * color.a;
+							blueAcc += color.b * color.a;
+							alphaAcc += color.a;
+
+							pixels += bpp;
+						}
+					}
+				}
+
+				float r = static_cast<float>(redAcc / alphaAcc);
+				float g = static_cast<float>(greenAcc / alphaAcc);
+				float b = static_cast<float>(blueAcc / alphaAcc);
+
+				return Color(r, g, b);
+			}
+		}
+	}
+
 	bool Image::Convert(PixelFormat newFormat)
 	{
 		NazaraAssertMsg(IsValid(), "invalid image");
