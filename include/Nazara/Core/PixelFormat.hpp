@@ -29,10 +29,9 @@ namespace Nz
 		using Bitmask = FixedBitset<UInt64, MaxBpp>;
 
 		inline PixelFormatDescription();
-		inline PixelFormatDescription(PixelFormatContent formatContent, UInt8 bpp, PixelFormatSubType subType);
-		inline PixelFormatDescription(std::string_view formatName, PixelFormatContent formatContent, UInt8 bpp, PixelFormatSubType subType);
-		inline PixelFormatDescription(std::string_view formatName, PixelFormatContent formatContent, Bitmask rMask, Bitmask gMask, Bitmask bMask, Bitmask aMask, PixelFormatSubType subType);
-		inline PixelFormatDescription(std::string_view formatName, PixelFormatContent formatContent, PixelFormatSubType rType, Bitmask rMask, PixelFormatSubType gType, Bitmask gMask, PixelFormatSubType bType, Bitmask bMask, PixelFormatSubType aType, Bitmask aMask, UInt8 bpp = 0);
+		inline PixelFormatDescription(PixelFormatContent formatContent, UInt8 bpp, PixelFormatDataType subType);
+		inline PixelFormatDescription(std::string_view formatName, PixelFormatContent formatContent, UInt8 bpp, PixelFormatDataType subType);
+		inline PixelFormatDescription(std::string_view formatName, PixelFormatContent formatContent, Bitmask rMask, Bitmask gMask, Bitmask bMask, Bitmask aMask, PixelFormatDataType subType);
 
 		inline void Clear();
 
@@ -50,10 +49,7 @@ namespace Nz
 		Bitmask blueMask;
 		Bitmask alphaMask;
 		PixelFormatContent content;
-		PixelFormatSubType redType;
-		PixelFormatSubType greenType;
-		PixelFormatSubType blueType;
-		PixelFormatSubType alphaType;
+		PixelFormatDataType dataType;
 		UInt8 bitsPerPixel;
 	};
 

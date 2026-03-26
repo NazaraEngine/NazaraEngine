@@ -393,7 +393,7 @@ namespace Nz
 
 	constexpr std::size_t PixelFormatCount = static_cast<std::size_t>(PixelFormat::Max) + 1;
 
-	enum class PixelFormatSubType
+	enum class PixelFormatDataType
 	{
 		Compressed, // Opaque
 		Double,     // F64

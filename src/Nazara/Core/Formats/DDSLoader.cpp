@@ -151,7 +151,7 @@ namespace Nz
 			{
 				if (header.format.flags & (DDPF_RGB | DDPF_ALPHA | DDPF_ALPHAPIXELS | DDPF_LUMINANCE))
 				{
-					PixelFormatDescription info(PixelFormatContent::ColorRGBA, SafeCast<UInt8>(header.format.bpp), PixelFormatSubType::Unsigned);
+					PixelFormatDescription info(PixelFormatContent::ColorRGBA, SafeCast<UInt8>(header.format.bpp), PixelFormatDataType::Unsigned);
 
 					if (header.format.flags & DDPF_RGB)
 					{

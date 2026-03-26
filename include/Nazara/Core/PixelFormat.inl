@@ -15,51 +15,36 @@ namespace Nz
 	{
 	}
 
-	inline PixelFormatDescription::PixelFormatDescription(PixelFormatContent formatContent, UInt8 bpp, PixelFormatSubType subType) :
+	inline PixelFormatDescription::PixelFormatDescription(PixelFormatContent formatContent, UInt8 bpp, PixelFormatDataType type) :
 	content(formatContent),
-	redType(subType),
-	greenType(subType),
-	blueType(subType),
-	alphaType(subType),
+	dataType(type),
 	bitsPerPixel(bpp)
 	{
 	}
 
-	inline PixelFormatDescription::PixelFormatDescription(std::string_view formatName, PixelFormatContent formatContent, UInt8 bpp, PixelFormatSubType subType) :
+	inline PixelFormatDescription::PixelFormatDescription(std::string_view formatName, PixelFormatContent formatContent, UInt8 bpp, PixelFormatDataType type) :
 	name(formatName),
 	content(formatContent),
-	redType(subType),
-	greenType(subType),
-	blueType(subType),
-	alphaType(subType),
+	dataType(type),
 	bitsPerPixel(bpp)
 	{
 	}
 
-	inline PixelFormatDescription::PixelFormatDescription(std::string_view formatName, PixelFormatContent formatContent, Bitmask rMask, Bitmask gMask, Bitmask bMask, Bitmask aMask, PixelFormatSubType subType) :
-	PixelFormatDescription(formatName, formatContent, subType, rMask, subType, gMask, subType, bMask, subType, aMask)
-	{
-	}
-
-	inline PixelFormatDescription::PixelFormatDescription(std::string_view formatName, PixelFormatContent formatContent, PixelFormatSubType rType, Bitmask rMask, PixelFormatSubType gType, Bitmask gMask, PixelFormatSubType bType, Bitmask bMask, PixelFormatSubType aType, Bitmask aMask, UInt8 bpp) :
+	inline PixelFormatDescription::PixelFormatDescription(std::string_view formatName, PixelFormatContent formatContent, Bitmask rMask, Bitmask gMask, Bitmask bMask, Bitmask aMask, PixelFormatDataType type) :
 	name(formatName),
 	redMask(rMask),
 	greenMask(gMask),
 	blueMask(bMask),
 	alphaMask(aMask),
 	content(formatContent),
-	redType(rType),
-	greenType(gType),
-	blueType(bType),
-	alphaType(aType)
+	dataType(type)
 	{
 		redMask.Reverse();
 		greenMask.Reverse();
 		blueMask.Reverse();
 		alphaMask.Reverse();
 
-		if (bpp == 0)
-			RecomputeBitsPerPixel();
+		RecomputeBitsPerPixel();
 	}
 
 	inline void PixelFormatDescription::Clear()
@@ -74,10 +59,7 @@ namespace Nz
 
 	inline bool PixelFormatDescription::IsCompressed() const
 	{
-		return redType   == PixelFormatSubType::Compressed ||
-		       greenType == PixelFormatSubType::Compressed ||
-		       blueType  == PixelFormatSubType::Compressed ||
-		       alphaType == PixelFormatSubType::Compressed;
+		return dataType == PixelFormatDataType::Compressed;
 	}
 
 	inline bool PixelFormatDescription::IsValid() const
@@ -105,7 +87,6 @@ namespace Nz
 			return false;
 
 		std::array<const Bitmask*, 4> masks = { {&redMask, &greenMask, &blueMask, &alphaMask} };
-		std::array<PixelFormatSubType, 4> types = { {redType, greenType, blueType, alphaType} };
 
 		for (UInt32 i = 0; i < 4; ++i)
 		{
@@ -119,15 +100,15 @@ namespace Nz
 			if (usedBits > 64) //< Currently, formats with over 64 bits per component are not supported
 				return false;
 
-			switch (types[i])
+			switch (dataType)
 			{
-				case PixelFormatSubType::Half:
+				case PixelFormatDataType::Half:
 					if (usedBits != 16)
 						return false;
 
 					break;
 
-				case PixelFormatSubType::Float:
+				case PixelFormatDataType::Float:
 					if (usedBits != 32)
 						return false;
 
@@ -249,7 +230,7 @@ namespace Nz
 		{
 			if (info.bitsPerPixel == formatDesc.bitsPerPixel && info.content == formatDesc.content
 			 && info.redMask == formatDesc.redMask && info.greenMask == formatDesc.greenMask && info.blueMask == formatDesc.blueMask && info.alphaMask == formatDesc.alphaMask
-			 && info.redType == formatDesc.redType && info.greenType == formatDesc.greenType && info.blueType == formatDesc.blueType && info.alphaType == formatDesc.alphaType)
+			 && info.dataType == formatDesc.dataType)
 			{
 				return format;
 			}
