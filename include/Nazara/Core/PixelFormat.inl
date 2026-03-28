@@ -134,7 +134,7 @@ namespace Nz
 				case PixelFormat::BC1_RGBA_sRGB:
 				case PixelFormat::BC4_Snorm:
 				case PixelFormat::BC4_Unorm:
-					return ((width + 3) / 4) * ((height + 3) / 4) * 8 * depth;
+					return ((width + 3) / 4) * ((height + 3) / 4) * depth / 2; //< four bits per pixel
 
 				case PixelFormat::BC2_Unorm:
 				case PixelFormat::BC2_sRGB:
@@ -145,7 +145,7 @@ namespace Nz
 				case PixelFormat::BC6H_UFloat:
 				case PixelFormat::BC7_Unorm:
 				case PixelFormat::BC7_sRGB:
-					return ((width + 3) / 4) * ((height + 3) / 4) * 16 * depth;
+					return ((width + 3) / 4) * ((height + 3) / 4) * depth; //< eight bits per pixel
 
 				default:
 					NazaraError("unsupported format");
