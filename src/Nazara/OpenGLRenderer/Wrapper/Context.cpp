@@ -479,97 +479,107 @@ namespace Nz::GL
 		// Buffer storage
 		if (m_params.type == ContextType::OpenGL && glVersion >= 440)
 			m_extensionStatus[Extension::BufferStorage] = ExtensionStatus::Core;
-		else if (m_supportedExtensions.count("GL_ARB_buffer_storage"))
+		else if (m_supportedExtensions.contains("GL_ARB_buffer_storage"))
 			m_extensionStatus[Extension::BufferStorage] = ExtensionStatus::ARB;
-		else if (m_supportedExtensions.count("GL_EXT_buffer_storage"))
+		else if (m_supportedExtensions.contains("GL_EXT_buffer_storage"))
 			m_extensionStatus[Extension::BufferStorage] = ExtensionStatus::EXT;
 
 		// Clip control
 		if (m_params.type == ContextType::OpenGL && glVersion >= 450)
 			m_extensionStatus[Extension::ClipControl] = ExtensionStatus::Core;
-		else if (m_supportedExtensions.count("GL_ARB_clip_control"))
+		else if (m_supportedExtensions.contains("GL_ARB_clip_control"))
 			m_extensionStatus[Extension::ClipControl] = ExtensionStatus::ARB;
-		else if (m_supportedExtensions.count("GL_EXT_clip_control"))
+		else if (m_supportedExtensions.contains("GL_EXT_clip_control"))
 			m_extensionStatus[Extension::ClipControl] = ExtensionStatus::EXT;
 
 		// Compute shaders
 		if ((m_params.type == ContextType::OpenGL && glVersion >= 430) || (m_params.type == ContextType::OpenGL_ES && glVersion >= 310))
 			m_extensionStatus[Extension::ComputeShader] = ExtensionStatus::Core;
-		else if (m_supportedExtensions.count("GL_ARB_compute_shader"))
+		else if (m_supportedExtensions.contains("GL_ARB_compute_shader"))
 			m_extensionStatus[Extension::ComputeShader] = ExtensionStatus::ARB;
 
 		// Debug output
 		if ((m_params.type == ContextType::OpenGL && glVersion >= 430) || (m_params.type == ContextType::OpenGL_ES && glVersion >= 320))
 			m_extensionStatus[Extension::DebugOutput] = ExtensionStatus::Core;
-		else if (m_supportedExtensions.count("GL_KHR_debug"))
+		else if (m_supportedExtensions.contains("GL_KHR_debug"))
 			m_extensionStatus[Extension::DebugOutput] = ExtensionStatus::KHR;
-		else if (m_supportedExtensions.count("GL_ARB_debug_output"))
+		else if (m_supportedExtensions.contains("GL_ARB_debug_output"))
 			m_extensionStatus[Extension::DebugOutput] = ExtensionStatus::ARB;
 
 		// Depth clamp
 		if (m_params.type == ContextType::OpenGL && glVersion >= 320)
 			m_extensionStatus[Extension::DepthClamp] = ExtensionStatus::Core;
-		else if (m_supportedExtensions.count("GL_ARB_depth_clamp"))
+		else if (m_supportedExtensions.contains("GL_ARB_depth_clamp"))
 			m_extensionStatus[Extension::DepthClamp] = ExtensionStatus::ARB;
-		else if (m_supportedExtensions.count("GL_EXT_depth_clamp"))
+		else if (m_supportedExtensions.contains("GL_EXT_depth_clamp"))
 			m_extensionStatus[Extension::DepthClamp] = ExtensionStatus::EXT;
-		else if (m_supportedExtensions.count("GL_NV_depth_clamp"))
+		else if (m_supportedExtensions.contains("GL_NV_depth_clamp"))
 			m_extensionStatus[Extension::DepthClamp] = ExtensionStatus::Vendor;
 
 		// Polygon mode
 		if (m_params.type == ContextType::OpenGL)
 			m_extensionStatus[Extension::PolygonMode] = ExtensionStatus::Core;
-		else if (m_supportedExtensions.count("GL_NV_polygon_mode"))
+		else if (m_supportedExtensions.contains("GL_NV_polygon_mode"))
 			m_extensionStatus[Extension::DepthClamp] = ExtensionStatus::Vendor;
 
 		// Shader image load formatted
-		if (m_supportedExtensions.count("GL_EXT_shader_image_load_formatted"))
+		if (m_supportedExtensions.contains("GL_EXT_shader_image_load_formatted"))
 			m_extensionStatus[Extension::ShaderImageLoadFormatted] = ExtensionStatus::EXT;
 
 		// Shader image load/store
 		if ((m_params.type == ContextType::OpenGL && glVersion >= 420) || (m_params.type == ContextType::OpenGL_ES && glVersion >= 310))
 			m_extensionStatus[Extension::ShaderImageLoadStore] = ExtensionStatus::Core;
-		else if (m_supportedExtensions.count("GL_ARB_shader_image_load_store"))
+		else if (m_supportedExtensions.contains("GL_ARB_shader_image_load_store"))
 			m_extensionStatus[Extension::ShaderImageLoadStore] = ExtensionStatus::ARB;
-		else if (m_supportedExtensions.count("GL_EXT_shader_image_load_store"))
+		else if (m_supportedExtensions.contains("GL_EXT_shader_image_load_store"))
 			m_extensionStatus[Extension::ShaderImageLoadStore] = ExtensionStatus::EXT;
 
 		// SPIR-V support
 		if (m_params.type == ContextType::OpenGL && glVersion >= 460)
 			m_extensionStatus[Extension::SpirV] = ExtensionStatus::Core;
-		else if (m_supportedExtensions.count("GL_ARB_gl_spirv"))
+		else if (m_supportedExtensions.contains("GL_ARB_gl_spirv"))
 			m_extensionStatus[Extension::SpirV] = ExtensionStatus::ARB;
 
 		// Storage buffers (SSBO)
 		if ((m_params.type == ContextType::OpenGL && glVersion >= 430) || (m_params.type == ContextType::OpenGL_ES && glVersion >= 310))
 			m_extensionStatus[Extension::StorageBuffers] = ExtensionStatus::Core;
-		else if (m_supportedExtensions.count("GL_ARB_shader_storage_buffer_object"))
+		else if (m_supportedExtensions.contains("GL_ARB_shader_storage_buffer_object"))
 			m_extensionStatus[Extension::StorageBuffers] = ExtensionStatus::ARB;
 
 		// Texture compression (BPTC)
-		if (m_supportedExtensions.count("GL_ARB_texture_compression_bptc"))
+		if (m_supportedExtensions.contains("GL_ARB_texture_compression_bptc"))
 			m_extensionStatus[Extension::TextureCompressionBPTC] = ExtensionStatus::ARB;
 
-		// Texture compression (S3tc)
-		if (m_supportedExtensions.count("GL_EXT_texture_compression_s3tc"))
+		// Texture compression (RGTC)
+		if (m_supportedExtensions.contains("GL_ARB_texture_compression_rgtc"))
+			m_extensionStatus[Extension::TextureCompressionRGTC] = ExtensionStatus::ARB;
+		else if (m_supportedExtensions.contains("GL_EXT_texture_compression_rgtc"))
+			m_extensionStatus[Extension::TextureCompressionRGTC] = ExtensionStatus::EXT;
+
+		// Texture compression (S3TC)
+		if (m_supportedExtensions.contains("GL_EXT_texture_compression_s3tc"))
 			m_extensionStatus[Extension::TextureCompressionS3TC] = ExtensionStatus::EXT;
+
+		// Texture compression (S3TC sRGB)
+		if (m_supportedExtensions.contains("GL_EXT_texture_compression_s3tc_srgb"))
+			m_extensionStatus[Extension::TextureCompressionS3TCsRGB] = ExtensionStatus::EXT;
 
 		// Texture anisotropic filter
 		if (m_params.type == ContextType::OpenGL && glVersion >= 460)
 			m_extensionStatus[Extension::TextureFilterAnisotropic] = ExtensionStatus::Core;
-		else if (m_supportedExtensions.count("GL_ARB_texture_filter_anisotropic"))
+		else if (m_supportedExtensions.contains("GL_ARB_texture_filter_anisotropic"))
 			m_extensionStatus[Extension::TextureFilterAnisotropic] = ExtensionStatus::ARB;
-		else if (m_supportedExtensions.count("GL_EXT_texture_filter_anisotropic"))
+		else if (m_supportedExtensions.contains("GL_EXT_texture_filter_anisotropic"))
 			m_extensionStatus[Extension::TextureFilterAnisotropic] = ExtensionStatus::EXT;
 
 		// Texture view
 		if (m_params.type == ContextType::OpenGL && glVersion >= 430)
 			m_extensionStatus[Extension::TextureView] = ExtensionStatus::Core;
-		else if (m_supportedExtensions.count("GL_ARB_texture_view"))
+		else if (m_supportedExtensions.contains("GL_ARB_texture_view"))
 			m_extensionStatus[Extension::TextureView] = ExtensionStatus::ARB;
-		else if (m_supportedExtensions.count("GL_OES_texture_view"))
+		else if (m_supportedExtensions.contains("GL_OES_texture_view"))
 			m_extensionStatus[Extension::TextureView] = ExtensionStatus::ARB;
-		else if (m_supportedExtensions.count("GL_EXT_texture_view"))
+		else if (m_supportedExtensions.contains("GL_EXT_texture_view"))
 			m_extensionStatus[Extension::TextureView] = ExtensionStatus::EXT;
 
 #define NAZARA_OPENGLRENDERER_FUNCTION(name, sig)

@@ -47,9 +47,14 @@ namespace Nz
 			case PixelFormat::BC1_RGB_sRGB:     return GLTextureFormat{ GL_COMPRESSED_SRGB_S3TC_DXT1_EXT,          GL_RGB,  GL_UNSIGNED_BYTE,         GL_RED, GL_GREEN, GL_BLUE, GL_ALPHA };
 			case PixelFormat::BC1_RGBA_Unorm:   return GLTextureFormat{ GL_COMPRESSED_RGBA_S3TC_DXT1_EXT,          GL_RGBA, GL_UNSIGNED_BYTE,         GL_RED, GL_GREEN, GL_BLUE, GL_ALPHA };
 			case PixelFormat::BC1_RGBA_sRGB:    return GLTextureFormat{ GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT,    GL_RGBA, GL_UNSIGNED_BYTE,         GL_RED, GL_GREEN, GL_BLUE, GL_ALPHA };
-			case PixelFormat::BC3_Unorm:        return GLTextureFormat{ GL_COMPRESSED_RGBA_S3TC_DXT3_EXT,          GL_RGBA, GL_UNSIGNED_BYTE,         GL_RED, GL_GREEN, GL_BLUE, GL_ALPHA };
-			case PixelFormat::BC3_sRGB:         return GLTextureFormat{ GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT,    GL_RGBA, GL_UNSIGNED_BYTE,         GL_RED, GL_GREEN, GL_BLUE, GL_ALPHA };
-			case PixelFormat::BC5_Snorm:        return GLTextureFormat{ GL_COMPRESSED_RGBA_S3TC_DXT5_EXT,          GL_RGBA, GL_UNSIGNED_BYTE,         GL_RED, GL_GREEN, GL_BLUE, GL_ALPHA };
+			case PixelFormat::BC2_Unorm:        return GLTextureFormat{ GL_COMPRESSED_RGBA_S3TC_DXT3_EXT,          GL_RGBA, GL_UNSIGNED_BYTE,         GL_RED, GL_GREEN, GL_BLUE, GL_ALPHA };
+			case PixelFormat::BC2_sRGB:         return GLTextureFormat{ GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT,    GL_RGBA, GL_UNSIGNED_BYTE,         GL_RED, GL_GREEN, GL_BLUE, GL_ALPHA };
+			case PixelFormat::BC3_Unorm:        return GLTextureFormat{ GL_COMPRESSED_RGBA_S3TC_DXT5_EXT,          GL_RGBA, GL_UNSIGNED_BYTE,         GL_RED, GL_GREEN, GL_BLUE, GL_ALPHA };
+			case PixelFormat::BC3_sRGB:         return GLTextureFormat{ GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT,    GL_RGBA, GL_UNSIGNED_BYTE,         GL_RED, GL_GREEN, GL_BLUE, GL_ALPHA };
+			case PixelFormat::BC4_Snorm:        return GLTextureFormat{ GL_COMPRESSED_SIGNED_RED_RGTC1_EXT,        GL_RGBA, GL_UNSIGNED_BYTE,         GL_RED, GL_GREEN, GL_BLUE, GL_ALPHA };
+			case PixelFormat::BC4_Unorm:        return GLTextureFormat{ GL_COMPRESSED_RED_RGTC1_EXT,               GL_RGBA, GL_UNSIGNED_BYTE,         GL_RED, GL_GREEN, GL_BLUE, GL_ALPHA };
+			case PixelFormat::BC5_Snorm:        return GLTextureFormat{ GL_COMPRESSED_RED_GREEN_RGTC2_EXT,         GL_RGBA, GL_UNSIGNED_BYTE,         GL_RED, GL_GREEN, GL_BLUE, GL_ALPHA };
+			case PixelFormat::BC5_Unorm:        return GLTextureFormat{ GL_COMPRESSED_SIGNED_RED_GREEN_RGTC2_EXT,  GL_RGBA, GL_UNSIGNED_BYTE,         GL_RED, GL_GREEN, GL_BLUE, GL_ALPHA };
 			case PixelFormat::BC6H_SFloat:      return GLTextureFormat{ GL_COMPRESSED_RGB_BPTC_SIGNED_FLOAT_ARB,   GL_RGB,  GL_UNSIGNED_BYTE,         GL_RED, GL_GREEN, GL_BLUE, GL_ALPHA };
 			case PixelFormat::BC6H_UFloat:      return GLTextureFormat{ GL_COMPRESSED_RGB_BPTC_UNSIGNED_FLOAT_ARB, GL_RGB,  GL_UNSIGNED_BYTE,         GL_RED, GL_GREEN, GL_BLUE, GL_ALPHA };
 			case PixelFormat::BC7_Unorm:        return GLTextureFormat{ GL_COMPRESSED_RGBA_BPTC_UNORM_ARB,         GL_RGBA, GL_UNSIGNED_BYTE,         GL_RED, GL_GREEN, GL_BLUE, GL_ALPHA };

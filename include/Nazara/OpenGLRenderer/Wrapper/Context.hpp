@@ -68,7 +68,9 @@ namespace Nz::GL
 		SpirV,
 		StorageBuffers,
 		TextureCompressionBPTC,
+		TextureCompressionRGTC,
 		TextureCompressionS3TC,
+		TextureCompressionS3TCsRGB,
 		TextureFilterAnisotropic,
 		TextureView,
 

@@ -319,17 +319,36 @@ namespace Nz
 
 			// Compressed formats
 			case PixelFormat::BC1_RGB_Unorm:
-			case PixelFormat::BC1_RGB_sRGB:
 			case PixelFormat::BC1_RGBA_Unorm:
-			case PixelFormat::BC1_RGBA_sRGB:
-			case PixelFormat::BC3_sRGB:
+			case PixelFormat::BC2_Unorm:
 			case PixelFormat::BC3_Unorm:
-			case PixelFormat::BC5_Snorm:
 			{
 				if (!m_referenceContext->IsExtensionSupported(GL::Extension::TextureCompressionS3TC))
 					return false;
 
-				return usage == TextureUsage::InputAttachment || usage == TextureUsage::ShaderSampling || usage == TextureUsage::TransferDestination || usage == TextureUsage::TransferSource;
+				return usage == TextureUsage::ShaderSampling || usage == TextureUsage::TransferDestination || usage == TextureUsage::TransferSource;
+			}
+			
+			case PixelFormat::BC1_RGB_sRGB:
+			case PixelFormat::BC1_RGBA_sRGB:
+			case PixelFormat::BC2_sRGB:
+			case PixelFormat::BC3_sRGB:
+			{
+				if (!m_referenceContext->IsExtensionSupported(GL::Extension::TextureCompressionS3TCsRGB))
+					return false;
+
+				return  usage == TextureUsage::ShaderSampling || usage == TextureUsage::TransferDestination || usage == TextureUsage::TransferSource;
+			}
+			
+			case PixelFormat::BC4_Snorm:
+			case PixelFormat::BC4_Unorm:
+			case PixelFormat::BC5_Snorm:
+			case PixelFormat::BC5_Unorm:
+			{
+				if (!m_referenceContext->IsExtensionSupported(GL::Extension::TextureCompressionRGTC))
+					return false;
+
+				return usage == TextureUsage::ShaderSampling || usage == TextureUsage::TransferDestination || usage == TextureUsage::TransferSource;
 			}
 
 			case PixelFormat::BC6H_SFloat:
@@ -340,15 +359,8 @@ namespace Nz
 				if (!m_referenceContext->IsExtensionSupported(GL::Extension::TextureCompressionBPTC))
 					return false;
 
-				return usage == TextureUsage::InputAttachment || usage == TextureUsage::ShaderSampling || usage == TextureUsage::TransferDestination || usage == TextureUsage::TransferSource;
+				return usage == TextureUsage::ShaderSampling || usage == TextureUsage::TransferDestination || usage == TextureUsage::TransferSource;
 			}
-
-			case PixelFormat::BC2_Unorm:
-			case PixelFormat::BC2_sRGB:
-			case PixelFormat::BC4_Snorm:
-			case PixelFormat::BC4_Unorm:
-			case PixelFormat::BC5_Unorm:
-				return false;
 		}
 
 		return false;
