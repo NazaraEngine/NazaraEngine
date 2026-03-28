@@ -14,7 +14,7 @@ namespace Nz
 		ErrorFlags errFlags(ErrorMode::ThrowException);
 
 		m_iconImage = icon;
-		if (!m_iconImage.Convert(PixelFormat::BGRA8))
+		if (!m_iconImage.ConvertTo(PixelFormat::BGRA8))
 			NazaraError("failed to convert icon to BGRA8");
 
 		m_icon = SDL_CreateSurfaceFrom(

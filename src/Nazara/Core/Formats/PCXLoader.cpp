@@ -319,7 +319,7 @@ namespace Nz
 			}
 
 			if (parameters.loadFormat != PixelFormat::Undefined)
-				image->Convert(parameters.loadFormat);
+				image->ConvertTo(parameters.loadFormat);
 
 			return image;
 		}

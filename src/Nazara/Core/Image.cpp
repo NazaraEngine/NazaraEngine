@@ -267,7 +267,7 @@ namespace Nz
 		}
 	}
 
-	bool Image::Convert(PixelFormat newFormat)
+	bool Image::ConvertTo(PixelFormat newFormat)
 	{
 		NazaraAssertMsg(IsValid(), "invalid image");
 		NazaraAssertMsg(PixelFormatInfo::IsValid(newFormat), "invalid pixel format");
@@ -1003,7 +1003,7 @@ namespace Nz
 		// Image is based on COW, no useless copy will be made
 		Image convertedImage(image);
 
-		if (!convertedImage.Convert(GetFormat()))
+		if (!convertedImage.ConvertTo(GetFormat()))
 		{
 			NazaraError("failed to convert image to cubemap format");
 			return false;

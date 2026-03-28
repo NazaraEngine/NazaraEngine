@@ -85,7 +85,7 @@ namespace Nz
 
 			if (parameters.loadFormat != PixelFormat::Undefined)
 			{
-				if (!image->Convert(parameters.loadFormat))
+				if (!image->ConvertTo(parameters.loadFormat))
 				{
 					NazaraError("failed to convert image to required format");
 					return Err(ResourceLoadingError::Internal);

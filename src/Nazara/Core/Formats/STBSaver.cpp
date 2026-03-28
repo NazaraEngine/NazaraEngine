@@ -38,14 +38,14 @@ namespace Nz
 				{
 					if (PixelFormatInfo::HasAlpha(image.GetFormat()))
 					{
-						if (!image.Convert(PixelFormat::RGBA32F))
+						if (!image.ConvertTo(PixelFormat::RGBA32F))
 							break;
 
 						return 4;
 					}
 					else
 					{
-						if (!image.Convert(PixelFormat::RGB32F))
+						if (!image.ConvertTo(PixelFormat::RGB32F))
 							break;
 
 						return 3;
@@ -78,14 +78,14 @@ namespace Nz
 				{
 					if (PixelFormatInfo::HasAlpha(image.GetFormat()))
 					{
-						if (!image.Convert(PixelFormat::RGBA8))
+						if (!image.ConvertTo(PixelFormat::RGBA8))
 							break;
 
 						return 4;
 					}
 					else
 					{
-						if (!image.Convert(PixelFormat::RGB8))
+						if (!image.ConvertTo(PixelFormat::RGB8))
 							break;
 
 						return 3;

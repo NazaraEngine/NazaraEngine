@@ -86,7 +86,7 @@ namespace Nz
 
 				// Image implements Copy-On-Write, so if no conversion is required this will not copy
 				glyph.image = image;
-				if (!glyph.image.Convert(m_pixelFormat))
+				if (!glyph.image.ConvertTo(m_pixelFormat))
 				{
 					layer.binPack.FreeRectangle(glyph.rect);
 					layer.freedRectangles++;
