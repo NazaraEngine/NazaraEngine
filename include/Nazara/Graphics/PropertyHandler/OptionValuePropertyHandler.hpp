@@ -16,6 +16,7 @@ namespace Nz
 	class NAZARA_GRAPHICS_API OptionValuePropertyHandler : public PropertyHandler
 	{
 		public:
+			inline OptionValuePropertyHandler(std::string propertyName);
 			inline OptionValuePropertyHandler(std::string propertyName, std::string optionName);
 			OptionValuePropertyHandler(const OptionValuePropertyHandler&) = default;
 			OptionValuePropertyHandler(OptionValuePropertyHandler&&) = delete;

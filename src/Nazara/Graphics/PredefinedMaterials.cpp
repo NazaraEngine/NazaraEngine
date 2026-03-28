@@ -20,8 +20,8 @@ namespace Nz
 		settings.AddValueProperty<float>("ShadowPosScale", 1.f - 0.0025f);
 		settings.AddTextureProperty("BaseColorMap", ImageType::E2D);
 		settings.AddTextureProperty("AlphaMap", ImageType::E2D);
-		settings.AddPropertyHandler<OptionValuePropertyHandler>("AlphaTest", "AlphaTest");
-		settings.AddPropertyHandler<OptionValuePropertyHandler>("Billboard", "Billboard");
+		settings.AddPropertyHandler<OptionValuePropertyHandler>("AlphaTest");
+		settings.AddPropertyHandler<OptionValuePropertyHandler>("Billboard");
 		settings.AddPropertyHandler<TexturePropertyHandler>("BaseColorMap", "HasBaseColorTexture");
 		settings.AddPropertyHandler<TexturePropertyHandler>("AlphaMap", "HasAlphaTexture");
 		settings.AddPropertyHandler<UniformValuePropertyHandler>("BaseColor");
