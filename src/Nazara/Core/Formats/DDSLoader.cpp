@@ -178,20 +178,12 @@ namespace Nz
 							*format = PixelFormat::BC1_RGBA_Unorm;
 							break;
 
-						case D3DFMT_DXT2:
+						case D3DFMT_DXT3:
 							*format = PixelFormat::BC2_Unorm;
 							break;
 
-						case D3DFMT_DXT3:
-							*format = PixelFormat::BC3_Unorm;
-							break;
-
-						case D3DFMT_DXT4:
-							*format = PixelFormat::BC4_Unorm;
-							break;
-
 						case D3DFMT_DXT5:
-							*format = PixelFormat::BC5_Unorm;
+							*format = PixelFormat::BC3_Unorm;
 							break;
 
 						case D3DFMT_DX10:
