@@ -99,24 +99,6 @@ namespace Nz
 
 			if (usedBits > 64) //< Currently, formats with over 64 bits per component are not supported
 				return false;
-
-			switch (dataType)
-			{
-				case PixelFormatDataType::Half:
-					if (usedBits != 16)
-						return false;
-
-					break;
-
-				case PixelFormatDataType::Float:
-					if (usedBits != 32)
-						return false;
-
-					break;
-
-				default:
-					break;
-			}
 		}
 
 		return true;

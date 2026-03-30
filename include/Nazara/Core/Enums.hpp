@@ -396,13 +396,13 @@ namespace Nz
 	enum class PixelFormatDataType
 	{
 		Compressed, // Opaque
-		Double,     // F64
-		Float,      // F32
-		Half,       // F16
-		Int,        //   Signed integer
-		Unsigned,   // Unsigned integer
 
-		Max = Unsigned
+		SignedFloatingPoint,
+		SignedNormalized,
+		UnsignedNormalized,
+		UnsignedNormalized_sRGB,
+
+		Max = UnsignedNormalized_sRGB
 	};
 
 	enum class PixelFlipping
