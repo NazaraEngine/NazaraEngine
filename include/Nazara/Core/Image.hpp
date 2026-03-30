@@ -100,6 +100,8 @@ namespace Nz
 			bool IsLevelAllocated(UInt8 level) const;
 			bool IsValid() const;
 
+			bool Resize(UInt32 width, UInt32 height);
+
 			// LoadFace
 			bool LoadFaceFromFile(CubemapFace face, const std::filesystem::path& filePath, const ImageParams& params = ImageParams());
 			bool LoadFaceFromImage(CubemapFace face, const Image& image);

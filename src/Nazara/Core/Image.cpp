@@ -12,6 +12,9 @@
 #include <NazaraUtils/StackArray.hpp>
 #include <memory>
 
+#define STB_IMAGE_RESIZE_IMPLEMENTATION
+#include <stb/stb_image_resize2.h>
+
 ///TODO: Rajouter des warnings (Formats compressés avec les méthodes Copy/Update, tests taille dans Copy)
 ///TODO: Rendre les méthodes exception-safe (faire usage du RAII)
 ///FIXME: Gérer correctement les formats utilisant moins d'un octet par pixel
@@ -23,6 +26,72 @@ namespace Nz
 		inline UInt8* GetPixelPtr(UInt8* base, UInt8 bpp, UInt32 x, UInt32 y, UInt32 z, UInt32 width, UInt32 height)
 		{
 			return &base[(width*(height*z + y) + x)*bpp];
+		}
+
+		inline bool GetStbirParameters(PixelFormat pixelFormat, stbir_pixel_layout& pixelLayout, stbir_datatype& dataType)
+		{
+			switch (pixelFormat)
+			{
+				case PixelFormat::L8:
+				case PixelFormat::R8:
+				{
+					pixelLayout = STBIR_1CHANNEL;
+					dataType = STBIR_TYPE_UINT8;
+					return true;
+				}
+
+				case PixelFormat::LA8:
+				{
+					pixelLayout = STBIR_RA;
+					dataType = STBIR_TYPE_UINT8;
+					return true;
+				}
+
+				case PixelFormat::RG8:
+				{
+					pixelLayout = STBIR_2CHANNEL;
+					dataType = STBIR_TYPE_UINT8;
+					return true;
+				}
+
+				case PixelFormat::BGR8:
+				case PixelFormat::RGB8:
+				{
+					pixelLayout = STBIR_RGB;
+					dataType = STBIR_TYPE_UINT8;
+					return true;
+				}
+
+				case PixelFormat::BGR8_SRGB:
+				case PixelFormat::RGB8_SRGB:
+				{
+					pixelLayout = STBIR_RGB;
+					dataType = STBIR_TYPE_UINT8_SRGB;
+					return true;
+				}
+
+				case PixelFormat::BGRA8:
+				case PixelFormat::RGBA8:
+				{
+					pixelLayout = STBIR_RGBA;
+					dataType = STBIR_TYPE_UINT8;
+					return true;
+				}
+
+				case PixelFormat::BGRA8_SRGB:
+				case PixelFormat::RGBA8_SRGB:
+				{
+					pixelLayout = STBIR_RGBA;
+					dataType = STBIR_TYPE_UINT8_SRGB;
+					return true;
+				}
+
+				default:
+				{
+					NazaraError("unhandled pixel format {} for resize", PixelFormatInfo::GetName(pixelFormat));
+					return false;
+				}
+			}
 		}
 	}
 
@@ -614,7 +683,6 @@ namespace Nz
 		UInt32 depth = ImageUtils::GetLevelSize(m_sharedImage->depth, level);
 		if (m_sharedImage->type == ImageType::Cubemap)
 			depth *= 6;
-
 		NazaraUnused(depth);
 		NazaraAssertMsg(z < depth, "z value exceeds depth (%u >= %u)", z, depth);
 
@@ -720,6 +788,7 @@ namespace Nz
 		UInt32 depth = ImageUtils::GetLevelSize(m_sharedImage->depth, level);
 		if (m_sharedImage->type == ImageType::Cubemap)
 			depth *= 6;
+
 		NazaraUnused(depth);
 		NazaraAssertMsg(z < depth, "z value exceeds depth (%u >= %u)", z, depth);
 
@@ -804,6 +873,62 @@ namespace Nz
 	bool Image::IsValid() const
 	{
 		return m_sharedImage != &emptyImage;
+	}
+
+	bool Image::Resize(UInt32 newWidth, UInt32 newHeight)
+	{
+		NazaraAssertMsg(IsValid(), "invalid image");
+		NazaraAssertMsg(IsLevelAllocated(0), "image has no level 0");
+		NazaraAssertMsg(m_sharedImage->type != ImageType::E3D, "3D image resizing is not supported");
+
+		if (m_sharedImage->width == newWidth || m_sharedImage->height == newHeight)
+			return true;
+
+		stbir_pixel_layout pixelLayout;
+		stbir_datatype dataType;
+		if (!GetStbirParameters(m_sharedImage->format, pixelLayout, dataType))
+			return false;
+
+		UInt8 bpp = PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format);
+
+		SharedImage::PixelContainer levels;
+		levels.resize(m_sharedImage->levels.size());
+
+		UInt32 depth = m_sharedImage->depth;
+		if (m_sharedImage->type == ImageType::Cubemap)
+			depth *= 6;
+
+		ImageUtils::ForEachLevel(levels.size(), m_sharedImage->type, newWidth, newHeight, depth, [&](UInt8 level, UInt32 width, UInt32 height, UInt32 depth)
+		{
+			UInt8* src = m_sharedImage->levels[level].get();
+			if (!src)
+				return;
+
+			int inputStride = SafeCaster(m_sharedImage->width * bpp);
+			int outputStride = SafeCaster(newWidth * bpp);
+
+			// Initialize STBIR once, in case we have multiple layers
+			STBIR_RESIZE resize;
+			stbir_resize_init(&resize,
+				nullptr, SafeCaster(m_sharedImage->width), SafeCaster(m_sharedImage->height), inputStride,
+				nullptr, SafeCaster(newWidth), SafeCaster(newHeight), outputStride,
+				pixelLayout, dataType);
+
+			levels[level] = std::make_unique_for_overwrite<UInt8[]>(PixelFormatInfo::ComputeSize(m_sharedImage->format, newWidth, newHeight, depth));
+
+			for (UInt32 z = 0; z < depth; ++z)
+			{
+				stbir_set_buffer_ptrs(&resize, GetConstPixels(0, 0, z), inputStride, GetPixelPtr(levels[level].get(), bpp, 0, 0, z, newWidth, newHeight), outputStride);
+				stbir_resize_extended(&resize);
+			}
+		});
+
+		SharedImage* newImage = new SharedImage(1, m_sharedImage->type, m_sharedImage->format, std::move(levels), newWidth, newHeight, m_sharedImage->depth);
+
+		ReleaseImage();
+		m_sharedImage = newImage;
+
+		return true;
 	}
 
 	// LoadArray
