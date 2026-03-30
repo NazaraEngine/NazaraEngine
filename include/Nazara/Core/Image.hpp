@@ -81,6 +81,8 @@ namespace Nz
 
 			void FreeLevel(UInt8 level);
 
+			bool GenerateMipmaps(UInt8 baseLevel = 0, UInt8 maxLevels = 0xFF);
+
 			const UInt8* GetConstPixels(UInt32 x = 0, UInt32 y = 0, UInt32 z = 0, UInt8 level = 0) const;
 			UInt32 GetDepth(UInt8 level = 0) const;
 			PixelFormat GetFormat() const override;

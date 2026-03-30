@@ -669,6 +669,59 @@ namespace Nz
 		}
 	}
 
+	bool Image::GenerateMipmaps(UInt8 baseLevel, UInt8 maxLevels)
+	{
+		NazaraAssertMsg(IsValid(), "invalid image");
+		NazaraAssertMsg(IsLevelAllocated(baseLevel), "image has no level %u", static_cast<unsigned int>(baseLevel));
+		NazaraAssertMsg(m_sharedImage->type != ImageType::E3D, "3D image resizing is not supported");
+
+		UInt8 levelCount = std::min(maxLevels, ImageUtils::GetMaxLevel(m_sharedImage->type, m_sharedImage->width, m_sharedImage->height, m_sharedImage->depth));
+		UInt8 remainingLevels = levelCount - baseLevel - 1;
+		if (remainingLevels == 0)
+			return true;
+
+		UInt8 bpp = PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format);
+
+		stbir_pixel_layout pixelLayout;
+		stbir_datatype dataType;
+		if (!GetStbirParameters(m_sharedImage->format, pixelLayout, dataType))
+			return false;
+
+		EnsureOwnership();
+
+		ImageUtils::ForEachLevel(remainingLevels, m_sharedImage->type, GetWidth(baseLevel), GetHeight(baseLevel), GetDepth(baseLevel), [&](UInt8 levelOffset, UInt32 width, UInt32 height, UInt32 depth)
+		{
+			if (levelOffset == 0)
+				return; //< FIXME
+
+			if (m_sharedImage->type == ImageType::Cubemap)
+				depth *= 6;
+
+			UInt8 previousLevel = baseLevel + levelOffset;
+			UInt8 targetLevel = previousLevel + 1;
+
+			if (!m_sharedImage->levels[targetLevel])
+				m_sharedImage->levels[targetLevel] = std::make_unique_for_overwrite<UInt8[]>(PixelFormatInfo::ComputeSize(m_sharedImage->format, width, height, depth));
+
+			int inputStride = SafeCaster(GetWidth(previousLevel) * bpp);
+			int outputStride = SafeCaster(GetWidth(targetLevel) * bpp);
+
+			STBIR_RESIZE resize;
+			stbir_resize_init(&resize,
+				nullptr, SafeCaster(GetWidth(previousLevel)), SafeCaster(GetHeight(previousLevel)), inputStride,
+				nullptr, SafeCaster(GetWidth(targetLevel)), SafeCaster(GetWidth(targetLevel)), outputStride,
+				pixelLayout, dataType);
+
+			for (UInt32 z = 0; z < depth; ++z)
+			{
+				stbir_set_buffer_ptrs(&resize, GetConstPixels(0, 0, previousLevel), inputStride, GetPixels(0, 0, z, targetLevel), outputStride);
+				stbir_resize_extended(&resize);
+			}
+		});
+
+		return true;
+	}
+
 	const UInt8* Image::GetConstPixels(UInt32 x, UInt32 y, UInt32 z, UInt8 level) const
 	{
 		NazaraAssertMsg(IsValid(), "invalid image");
@@ -904,13 +957,13 @@ namespace Nz
 			if (!src)
 				return;
 
-			int inputStride = SafeCaster(m_sharedImage->width * bpp);
+			int inputStride = SafeCaster(width * bpp);
 			int outputStride = SafeCaster(newWidth * bpp);
 
 			// Initialize STBIR once, in case we have multiple layers
 			STBIR_RESIZE resize;
 			stbir_resize_init(&resize,
-				nullptr, SafeCaster(m_sharedImage->width), SafeCaster(m_sharedImage->height), inputStride,
+				nullptr, SafeCaster(width), SafeCaster(height), inputStride,
 				nullptr, SafeCaster(newWidth), SafeCaster(newHeight), outputStride,
 				pixelLayout, dataType);
 
