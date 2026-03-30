@@ -282,7 +282,9 @@ namespace Nz
 
 		UInt32 width = m_sharedImage->width;
 		UInt32 height = m_sharedImage->height;
-		UInt32 depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : m_sharedImage->depth;
+		UInt32 depth = m_sharedImage->depth;
+		if (m_sharedImage->type == ImageType::Cubemap)
+			depth *= 6;
 
 		bool succeeded = ImageUtils::ForEachLevel(levels.size(), m_sharedImage->type, width, height, depth, [&](UInt8 level, UInt32 width, UInt32 height, UInt32 depth)
 		{
@@ -414,7 +416,9 @@ namespace Nz
 
 		UInt32 width = m_sharedImage->width;
 		UInt32 height = m_sharedImage->height;
-		UInt32 depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : m_sharedImage->depth;
+		UInt32 depth = m_sharedImage->depth;
+		if (m_sharedImage->type == ImageType::Cubemap)
+			depth *= 6;
 
 		ImageUtils::ForEachLevel(levels.size(), m_sharedImage->type, width, height, depth, [&](UInt8 level, UInt32 width, UInt32 height, UInt32 depth)
 		{
@@ -492,7 +496,11 @@ namespace Nz
 		NazaraAssertMsg(rect.IsValid(), "invalid rect");
 		NazaraAssertMsg(rect.x + rect.width <= m_sharedImage->width, "rect dimensions are out of bounds (x range: [%u;%u[ exceeds image width %u)", rect.x, rect.x + rect.width, m_sharedImage->width);
 		NazaraAssertMsg(rect.y + rect.height <= m_sharedImage->height, "rect dimensions are out of bounds (y range: [%u;%u[ exceeds image height %u)", rect.y, rect.y + rect.height, m_sharedImage->height);
-		NazaraAssertMsg(z < ((m_sharedImage->type == ImageType::Cubemap) ? 6 : m_sharedImage->depth), "z is out of range (%u >= %u)", z, (m_sharedImage->type == ImageType::Cubemap) ? 6 : m_sharedImage->depth);
+		UInt32 depth = m_sharedImage->depth;
+		if (m_sharedImage->type == ImageType::Cubemap)
+			depth *= 6;
+		NazaraUnused(depth);
+		NazaraAssertMsg(z < depth, "z is out of range (%u >= %u)", z, depth);
 
 		UInt8 bpp = PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format);
 		StackArray<UInt8> colorBuffer = NazaraStackArrayNoInit(UInt8, bpp);
@@ -531,7 +539,9 @@ namespace Nz
 
 		UInt32 width = m_sharedImage->width;
 		UInt32 height = m_sharedImage->height;
-		UInt32 depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : m_sharedImage->depth;
+		UInt32 depth = m_sharedImage->depth;
+		if (m_sharedImage->type == ImageType::Cubemap)
+			depth *= 6;
 
 		return ImageUtils::ForEachLevel(m_sharedImage->levels.size(), m_sharedImage->type, width, height, depth, [&](UInt8 level, UInt32 width, UInt32 height, UInt32 depth)
 		{
@@ -558,7 +568,9 @@ namespace Nz
 
 		UInt32 width = m_sharedImage->width;
 		UInt32 height = m_sharedImage->height;
-		UInt32 depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : m_sharedImage->depth;
+		UInt32 depth = m_sharedImage->depth;
+		if (m_sharedImage->type == ImageType::Cubemap)
+			depth *= 6;
 
 		return ImageUtils::ForEachLevel(m_sharedImage->levels.size(), m_sharedImage->type, width, height, depth, [&](UInt8 level, UInt32 width, UInt32 height, UInt32 depth)
 		{
@@ -599,7 +611,10 @@ namespace Nz
 		UInt32 height = ImageUtils::GetLevelSize(m_sharedImage->height, level);
 		NazaraAssertMsg(y < height, "y value exceeds height (%u >= %u)", y, height);
 
-		UInt32 depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : ImageUtils::GetLevelSize(m_sharedImage->depth, level);
+		UInt32 depth = ImageUtils::GetLevelSize(m_sharedImage->depth, level);
+		if (m_sharedImage->type == ImageType::Cubemap)
+			depth *= 6;
+
 		NazaraUnused(depth);
 		NazaraAssertMsg(z < depth, "z value exceeds depth (%u >= %u)", z, depth);
 
@@ -660,7 +675,11 @@ namespace Nz
 
 	std::size_t Image::GetMemoryUsage(UInt8 level) const
 	{
-		return PixelFormatInfo::ComputeSize(m_sharedImage->format, ImageUtils::GetLevelSize(m_sharedImage->width, level), ImageUtils::GetLevelSize(m_sharedImage->height, level), ((m_sharedImage->type == ImageType::Cubemap) ? 6 : ImageUtils::GetLevelSize(m_sharedImage->depth, level)));
+		UInt32 depth = ImageUtils::GetLevelSize(m_sharedImage->depth, level);
+		if (m_sharedImage->type == ImageType::Cubemap)
+			depth *= 6;
+
+		return PixelFormatInfo::ComputeSize(m_sharedImage->format, ImageUtils::GetLevelSize(m_sharedImage->width, level), ImageUtils::GetLevelSize(m_sharedImage->height, level), depth);
 	}
 
 	Color Image::GetPixelColor(UInt32 x, UInt32 y, UInt32 z) const
@@ -670,7 +689,9 @@ namespace Nz
 		NazaraAssertMsg(x < m_sharedImage->width, "x value exceeds width (%u >= %u)", x, m_sharedImage->width);
 		NazaraAssertMsg(y < m_sharedImage->height, "y value exceeds height (%u >= %u)", y, m_sharedImage->height);
 
-		UInt32 depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : m_sharedImage->depth;
+		UInt32 depth = m_sharedImage->depth;
+		if (m_sharedImage->type == ImageType::Cubemap)
+			depth *= 6;
 		NazaraUnused(depth);
 		NazaraAssertMsg(z < depth, "z value exceeds depth (%u >= %u)", z, depth);
 
@@ -696,7 +717,9 @@ namespace Nz
 		UInt32 height = ImageUtils::GetLevelSize(m_sharedImage->height, level);
 		NazaraAssertMsg(y < height, "y value exceeds height (%u >= %u)", y, height);
 
-		UInt32 depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : ImageUtils::GetLevelSize(m_sharedImage->depth, level);
+		UInt32 depth = ImageUtils::GetLevelSize(m_sharedImage->depth, level);
+		if (m_sharedImage->type == ImageType::Cubemap)
+			depth *= 6;
 		NazaraUnused(depth);
 		NazaraAssertMsg(z < depth, "z value exceeds depth (%u >= %u)", z, depth);
 
@@ -704,7 +727,7 @@ namespace Nz
 
 		EnsureOwnership();
 
-		if NAZARA_UNLIKELY(!m_sharedImage->levels[level])
+		if (!m_sharedImage->levels[level])
 			m_sharedImage->levels[level] = std::make_unique_for_overwrite<UInt8[]>(GetMemoryUsage(level));
 
 		return GetPixelPtr(m_sharedImage->levels[level].get(), PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format), x, y, z, width, height);
@@ -741,7 +764,11 @@ namespace Nz
 			const PixelFormatDescription& info = PixelFormatInfo::GetInfo(m_sharedImage->format);
 
 			PixelFormatDescription::Bitmask workingBitset;
-			std::size_t pixelCount = m_sharedImage->width * m_sharedImage->height * ((m_sharedImage->type == ImageType::Cubemap) ? 6 : m_sharedImage->depth);
+			UInt32 depth = m_sharedImage->depth;
+			if (m_sharedImage->type == ImageType::Cubemap)
+				depth *= 6;
+
+			std::size_t pixelCount = m_sharedImage->width * m_sharedImage->height * depth;
 			if (pixelCount == 0)
 				return false;
 
@@ -1103,7 +1130,9 @@ namespace Nz
 		NazaraAssertMsg(box.IsValid(), "invalid box");
 		NazaraAssertMsg(box.x + box.width <= width, "box dimensions are out of bounds (x range: [%u;%u[ exceeds image width %u)", box.x, box.x + box.width, width);
 		NazaraAssertMsg(box.y + box.height <= height, "box dimensions are out of bounds (y range: [%u;%u[ exceeds image height %u)", box.y, box.y + box.height, height);
-		UInt32 depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : ImageUtils::GetLevelSize(m_sharedImage->depth, level);
+		UInt32 depth = ImageUtils::GetLevelSize(m_sharedImage->depth, level);
+		if (m_sharedImage->type == ImageType::Cubemap)
+			depth *= 6;
 		NazaraUnused(depth);
 		NazaraAssertMsg(box.z + box.depth <= depth, "box dimensions are out of bounds (z range: [%u;%u[ exceeds image depth %u)", box.z, box.z + box.depth, depth);
 
@@ -1133,7 +1162,9 @@ namespace Nz
 		NazaraAssertMsg(box.IsValid(), "invalid box");
 		NazaraAssertMsg(box.x + box.width <= width, "box dimensions are out of bounds (x range: [%u;%u[ exceeds image width %u)", box.x, box.x + box.width, width);
 		NazaraAssertMsg(box.y + box.height <= height, "box dimensions are out of bounds (y range: [%u;%u[ exceeds image height %u)", box.y, box.y + box.height, height);
-		UInt32 depth = (m_sharedImage->type == ImageType::Cubemap) ? 6 : ImageUtils::GetLevelSize(m_sharedImage->depth, level);
+		UInt32 depth = ImageUtils::GetLevelSize(m_sharedImage->depth, level);
+		if (m_sharedImage->type == ImageType::Cubemap)
+			depth *= 6;
 		NazaraUnused(depth);
 		NazaraAssertMsg(box.z + box.depth <= depth, "box dimensions are out of bounds (z range: [%u;%u[ exceeds image depth %u)", box.z, box.z + box.depth, depth);
 
