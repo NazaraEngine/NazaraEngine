@@ -338,11 +338,11 @@ namespace Nz
 		UInt32 size;
 		UInt32 flags;
 		UInt32 fourCC;
-		UInt32 bpp;
-		UInt32 redMask;
-		UInt32 greenMask;
-		UInt32 blueMask;
-		UInt32 alphaMask;
+		UInt32 rgbBitCount;
+		UInt32 rBitMask;
+		UInt32 gBitMask;
+		UInt32 bBitMask;
+		UInt32 aBitMask;
 	};
 
 	struct DDSHeader
@@ -351,7 +351,7 @@ namespace Nz
 		UInt32 flags;
 		UInt32 height;
 		UInt32 width;
-		UInt32 pitch;
+		UInt32 pitchOrLinearSize;
 		UInt32 depth;
 		UInt32 levelCount;
 		UInt32 reserved1[11];
@@ -366,12 +366,16 @@ namespace Nz
 		D3D10_RESOURCE_DIMENSION resourceDimension;
 		UInt32 miscFlag;
 		UInt32 arraySize;
-		UInt32 reserved;
+		UInt32 miscFlags2;
 	};
 
-	NAZARA_CORE_API bool Deserialize(SerializationContext& context, DDSHeader* header);
-	NAZARA_CORE_API bool Deserialize(SerializationContext& context, DDSHeaderDX10Ext* header);
-	NAZARA_CORE_API bool Deserialize(SerializationContext& context, DDSPixelFormat* pixelFormat);
+	NAZARA_CORE_API bool Deserialize(SerializationContext& context, DDSHeader* header, TypeTag<DDSHeader>);
+	NAZARA_CORE_API bool Deserialize(SerializationContext& context, DDSHeaderDX10Ext* header, TypeTag<DDSHeaderDX10Ext>);
+	NAZARA_CORE_API bool Deserialize(SerializationContext& context, DDSPixelFormat* pixelFormat, TypeTag<DDSPixelFormat>);
+
+	NAZARA_CORE_API bool Serialize(SerializationContext& context, const DDSHeader& header, TypeTag<DDSHeader>);
+	NAZARA_CORE_API bool Serialize(SerializationContext& context, const DDSHeaderDX10Ext& header, TypeTag<DDSHeaderDX10Ext>);
+	NAZARA_CORE_API bool Serialize(SerializationContext& context, const DDSPixelFormat& pixelFormat, TypeTag<DDSPixelFormat>);
 }
 
 #endif // NAZARA_CORE_FORMATS_DDSCONSTANTS_HPP

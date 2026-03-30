@@ -149,28 +149,7 @@ namespace Nz
 
 			static bool IdentifyPixelFormat(const DDSHeader& header, const DDSHeaderDX10Ext& headerExt, PixelFormat* format)
 			{
-				if (header.format.flags & (DDPF_RGB | DDPF_ALPHA | DDPF_ALPHAPIXELS | DDPF_LUMINANCE))
-				{
-					PixelFormatDescription info(PixelFormatContent::ColorRGBA, SafeCast<UInt8>(header.format.bpp), PixelFormatDataType::Unsigned);
-
-					if (header.format.flags & DDPF_RGB)
-					{
-						// Reverse bits for our masks
-						info.redMask = header.format.redMask;
-						info.greenMask = header.format.greenMask;
-						info.blueMask = header.format.blueMask;
-					}
-					else if (header.format.flags & DDPF_LUMINANCE)
-						info.redMask = header.format.redMask;
-
-					if (header.format.flags & (DDPF_ALPHA | DDPF_ALPHAPIXELS))
-						info.alphaMask = header.format.alphaMask;
-
-					*format = PixelFormatInfo::IdentifyFormat(info);
-					if (!PixelFormatInfo::IsValid(*format))
-						return false;
-				}
-				else if (header.format.flags & DDPF_FOURCC)
+				if (header.format.flags & DDPF_FOURCC)
 				{
 					switch (header.format.fourCC)
 					{
@@ -300,6 +279,27 @@ namespace Nz
 							return false;
 						}
 					}
+				}
+				else if (header.format.flags & (DDPF_RGB | DDPF_ALPHA | DDPF_ALPHAPIXELS | DDPF_LUMINANCE))
+				{
+					PixelFormatDescription info(PixelFormatContent::ColorRGBA, SafeCast<UInt8>(header.format.rgbBitCount), PixelFormatDataType::UnsignedNormalized);
+
+					if (header.format.flags & DDPF_RGB)
+					{
+						// Reverse bits for our masks
+						info.redMask = header.format.rBitMask;
+						info.greenMask = header.format.gBitMask;
+						info.blueMask = header.format.bBitMask;
+					}
+					else if (header.format.flags & DDPF_LUMINANCE)
+						info.redMask = header.format.rBitMask;
+
+					if (header.format.flags & (DDPF_ALPHA | DDPF_ALPHAPIXELS))
+						info.alphaMask = header.format.aBitMask;
+
+					*format = PixelFormatInfo::IdentifyFormat(info);
+					if (!PixelFormatInfo::IsValid(*format))
+						return false;
 				}
 				else
 				{

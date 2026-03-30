@@ -17,6 +17,7 @@
 #include <Nazara/Core/TaskScheduler.hpp>
 #include <Nazara/Core/VertexDeclaration.hpp>
 #include <Nazara/Core/Formats/DDSLoader.hpp>
+#include <Nazara/Core/Formats/DDSSaver.hpp>
 #include <Nazara/Core/Formats/GIFLoader.hpp>
 #include <Nazara/Core/Formats/MD2Loader.hpp>
 #include <Nazara/Core/Formats/MD5AnimLoader.hpp>
@@ -52,14 +53,18 @@ namespace Nz
 
 		// Image
 		m_imageLoader.RegisterLoader(Loaders::GetImageLoader_STB()); // Generic loader (STB)
+		m_imageLoader.RegisterLoader(Loaders::GetImageLoader_DDS()); // DDS loader (DirectX format)
+		m_imageLoader.RegisterLoader(Loaders::GetImageLoader_PCX()); // PCX loader (1, 4, 8, 24 bits)
+
 		m_imageSaver.RegisterSaver(Loaders::GetImageSaver_STB()); // Generic saver (STB)
+		m_imageSaver.RegisterSaver(Loaders::GetImageSaver_DDS()); // DDS saver (DirectX format)
 
 		// ImageStream
 		m_imageStreamLoader.RegisterLoader(Loaders::GetImageStreamLoader_GIF()); // GIF loader
 
 		/// Specialized loaders
 		// Animation
-		m_animationLoader.RegisterLoader(Loaders::GetAnimationLoader_MD5Anim()); // Loader de fichiers .md5anim (v10)
+		m_animationLoader.RegisterLoader(Loaders::GetAnimationLoader_MD5Anim()); // md5anim loader (v10)
 
 		// Mesh
 		m_meshLoader.RegisterLoader(Loaders::GetMeshLoader_OBJ());
@@ -67,10 +72,6 @@ namespace Nz
 		m_meshLoader.RegisterLoader(Loaders::GetMeshLoader_MD5Mesh()); // .md5mesh (v10)
 		m_meshLoader.RegisterLoader(Loaders::GetMeshLoader_OBJ()); // .obj
 		m_meshSaver.RegisterSaver(Loaders::GetMeshSaver_OBJ());
-
-		// Image
-		m_imageLoader.RegisterLoader(Loaders::GetImageLoader_DDS()); // DDS Loader (DirectX format)
-		m_imageLoader.RegisterLoader(Loaders::GetImageLoader_PCX()); // .pcx loader (1, 4, 8, 24 bits)
 	}
 
 	Core::~Core()

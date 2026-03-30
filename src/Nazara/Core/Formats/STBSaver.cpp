@@ -3,9 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Core/Formats/STBSaver.hpp>
-#include <Nazara/Core/Image.hpp>
 #include <Nazara/Core/PixelFormat.hpp>
-#include <Nazara/Core/Formats/STBLoader.hpp>
 #include <frozen/string.h>
 #include <frozen/unordered_map.h>
 #include <stdexcept>
@@ -234,8 +232,6 @@ namespace Nz
 
 		bool SaveToStream(const Image& image, std::string_view format, Stream& stream, const ImageParams& parameters)
 		{
-			NazaraUnused(parameters);
-
 			if (!image.IsValid())
 			{
 				NazaraError("invalid image");
