@@ -689,6 +689,9 @@ namespace Nz
 
 		EnsureOwnership();
 
+		if (m_sharedImage->levels.size() < levelCount)
+			m_sharedImage->levels.resize(levelCount);
+
 		ImageUtils::ForEachLevel(remainingLevels, m_sharedImage->type, GetWidth(baseLevel), GetHeight(baseLevel), GetDepth(baseLevel), [&](UInt8 levelOffset, UInt32 width, UInt32 height, UInt32 depth)
 		{
 			if (levelOffset == 0)
@@ -697,24 +700,24 @@ namespace Nz
 			if (m_sharedImage->type == ImageType::Cubemap)
 				depth *= 6;
 
-			UInt8 previousLevel = baseLevel + levelOffset;
+			UInt8 previousLevel = baseLevel + levelOffset - 1;
 			UInt8 targetLevel = previousLevel + 1;
 
 			if (!m_sharedImage->levels[targetLevel])
 				m_sharedImage->levels[targetLevel] = std::make_unique_for_overwrite<UInt8[]>(PixelFormatInfo::ComputeSize(m_sharedImage->format, width, height, depth));
 
 			int inputStride = SafeCaster(GetWidth(previousLevel) * bpp);
-			int outputStride = SafeCaster(GetWidth(targetLevel) * bpp);
+			int outputStride = SafeCaster(width * bpp);
 
 			STBIR_RESIZE resize;
 			stbir_resize_init(&resize,
 				nullptr, SafeCaster(GetWidth(previousLevel)), SafeCaster(GetHeight(previousLevel)), inputStride,
-				nullptr, SafeCaster(GetWidth(targetLevel)), SafeCaster(GetWidth(targetLevel)), outputStride,
+				nullptr, SafeCaster(width), SafeCaster(height), outputStride,
 				pixelLayout, dataType);
 
 			for (UInt32 z = 0; z < depth; ++z)
 			{
-				stbir_set_buffer_ptrs(&resize, GetConstPixels(0, 0, previousLevel), inputStride, GetPixels(0, 0, z, targetLevel), outputStride);
+				stbir_set_buffer_ptrs(&resize, GetConstPixels(0, 0, z, previousLevel), inputStride, GetPixels(0, 0, z, targetLevel), outputStride);
 				stbir_resize_extended(&resize);
 			}
 		});
@@ -957,21 +960,24 @@ namespace Nz
 			if (!src)
 				return;
 
-			int inputStride = SafeCaster(width * bpp);
-			int outputStride = SafeCaster(newWidth * bpp);
+			UInt32 levelWidth = GetWidth(level);
+			UInt32 levelHeight = GetHeight(level);
+
+			int inputStride = SafeCaster(levelWidth * bpp);
+			int outputStride = SafeCaster(width * bpp);
 
 			// Initialize STBIR once, in case we have multiple layers
 			STBIR_RESIZE resize;
 			stbir_resize_init(&resize,
-				nullptr, SafeCaster(width), SafeCaster(height), inputStride,
-				nullptr, SafeCaster(newWidth), SafeCaster(newHeight), outputStride,
+				nullptr, SafeCaster(levelWidth), SafeCaster(levelHeight), inputStride,
+				nullptr, SafeCaster(width), SafeCaster(height), outputStride,
 				pixelLayout, dataType);
 
-			levels[level] = std::make_unique_for_overwrite<UInt8[]>(PixelFormatInfo::ComputeSize(m_sharedImage->format, newWidth, newHeight, depth));
+			levels[level] = std::make_unique_for_overwrite<UInt8[]>(PixelFormatInfo::ComputeSize(m_sharedImage->format, width, height, depth));
 
 			for (UInt32 z = 0; z < depth; ++z)
 			{
-				stbir_set_buffer_ptrs(&resize, GetConstPixels(0, 0, z), inputStride, GetPixelPtr(levels[level].get(), bpp, 0, 0, z, newWidth, newHeight), outputStride);
+				stbir_set_buffer_ptrs(&resize, GetConstPixels(0, 0, z), inputStride, GetPixelPtr(levels[level].get(), bpp, 0, 0, z, width, height), outputStride);
 				stbir_resize_extended(&resize);
 			}
 		});
