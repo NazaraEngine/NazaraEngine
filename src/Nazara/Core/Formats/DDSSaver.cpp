@@ -76,7 +76,17 @@ namespace Nz
 
 			if (image.GetLevelCount() > 1 && parameters.levelCount == 0 || parameters.levelCount > 1)
 			{
-				ddsHeader.levelCount = (parameters.levelCount == 0) ? image.GetLevelCount() : std::min(parameters.levelCount, image.GetLevelCount());
+				// DDS doesn't support sparse levels, write only contiguous levels
+				UInt8 maxLevelCount = 0;
+				for (UInt8 level = 0; level < image.GetLevelCount(); ++level)
+				{
+					if (!image.IsLevelAllocated(level))
+						break;
+
+					maxLevelCount++;
+				}
+
+				ddsHeader.levelCount = (parameters.levelCount == 0) ? maxLevelCount : std::min(parameters.levelCount, maxLevelCount);
 				ddsHeader.flags |= DDSD_MIPMAPCOUNT;
 				ddsHeader.ddsCaps[0] |= DDSCAPS_COMPLEX | DDSCAPS_MIPMAP;
 			}
@@ -184,17 +194,14 @@ namespace Nz
 				bool success = ImageUtils::ForEachLevel(image.GetLevelCount(), image.GetType(), ddsHeader.width, ddsHeader.height, ddsHeader.depth, [&](UInt8 level, UInt32 width, UInt32 height, UInt32 depth)
 				{
 					std::size_t byteCount = PixelFormatInfo::ComputeSize(image.GetFormat(), width, height, depth);
+					const UInt8* ptr = image.GetConstPixels(0, 0, layer, level);
 
-					for (UInt32 layer = 0; layer < layerCount; ++layer)
+					if (byteStream.Write(ptr, byteCount) != byteCount)
 					{
-						const UInt8* ptr = image.GetConstPixels(0, 0, layer, level);
-
-						if (byteStream.Write(ptr, byteCount) != byteCount)
-						{
-							NazaraError("failed to write level #{0}", level);
-							return false;
-						}
+						NazaraError("failed to write level #{0}", level);
+						return false;
 					}
+					
 					return true;
 				});
 

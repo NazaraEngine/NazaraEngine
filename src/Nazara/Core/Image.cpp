@@ -743,7 +743,7 @@ namespace Nz
 		NazaraAssertMsg(z < depth, "z value exceeds depth (%u >= %u)", z, depth);
 
 		UInt8* ptr = m_sharedImage->levels[level].get();
-		if NAZARA_UNLIKELY(!ptr)
+		if (!ptr)
 			return nullptr;
 
 		return GetPixelPtr(ptr, PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format), x, y, z, width, height);
