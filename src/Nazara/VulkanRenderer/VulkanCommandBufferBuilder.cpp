@@ -431,7 +431,7 @@ namespace Nz
 				const VulkanTexture* vkTexture = SafeCast<const VulkanTexture*>(textureBarrier.texture);
 				NazaraAssert(vkTexture);
 
-				vkImageBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2;
+				vkImageBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2;
 				vkImageBarrier.pNext = nullptr;
 				vkImageBarrier.srcStageMask = ToVulkan(textureBarrier.srcStageMask);
 				vkImageBarrier.dstStageMask = ToVulkan(textureBarrier.dstStageMask);
