@@ -298,7 +298,7 @@ namespace Nz
 	bool File::WriteWhole(const std::filesystem::path& path, const void* data, std::size_t size)
 	{
 		File file(path);
-		if (!file.Open(OpenMode::Write | OpenMode::Unbuffered)) //< unbuffered since we will write all the file at once
+		if (!file.Open(OpenMode::Write | OpenMode::Truncate | OpenMode::Unbuffered)) //< unbuffered since we will write all the file at once
 		{
 			NazaraError("failed to open \"{0}\"", path);
 			return false;
