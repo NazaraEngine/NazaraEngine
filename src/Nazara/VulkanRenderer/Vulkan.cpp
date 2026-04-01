@@ -279,41 +279,42 @@ namespace Nz
 		VkInstanceCreateInfo instanceInfo = {};
 		instanceInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 
-#ifdef NAZARA_DEBUG
-		// Handle VK_LAYER_KHRONOS_validation extended features
-
-		VkValidationFeaturesEXT features = {};
-		features.sType = VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT;
-
-		std::array enabledFeatures = {
-			//VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT,
-			//VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT,
-			//VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT,
-			VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT
-		};
-
-		auto validationIt = std::find_if(enabledLayers.begin(), enabledLayers.end(), [&](const char* layerName)
+		if (validationLevel >= RenderAPIValidationLevel::Debug)
 		{
-			return std::strcmp(layerName, "VK_LAYER_KHRONOS_validation") == 0;
-		});
-		if (validationIt != enabledLayers.end())
-		{
-			auto layerIt = availableLayerByName.find("VK_LAYER_KHRONOS_validation");
-			assert(layerIt != availableLayerByName.end());
+			// Handle VK_LAYER_KHRONOS_validation extended features
 
-			auto& validationLayer = availableLayers[layerIt->second];
-			if (validationLayer.extensionByName.find(VK_EXT_VALIDATION_FEATURES_EXTENSION_NAME) != validationLayer.extensionByName.end())
+			VkValidationFeaturesEXT features = {};
+			features.sType = VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT;
+
+			std::array enabledFeatures = {
+				//VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_EXT,
+				//VK_VALIDATION_FEATURE_ENABLE_GPU_ASSISTED_RESERVE_BINDING_SLOT_EXT,
+				//VK_VALIDATION_FEATURE_ENABLE_BEST_PRACTICES_EXT,
+				VK_VALIDATION_FEATURE_ENABLE_SYNCHRONIZATION_VALIDATION_EXT
+			};
+
+			auto validationIt = std::find_if(enabledLayers.begin(), enabledLayers.end(), [&](const char* layerName)
 			{
-				enabledExtensions.push_back(VK_EXT_VALIDATION_FEATURES_EXTENSION_NAME);
+				return std::strcmp(layerName, "VK_LAYER_KHRONOS_validation") == 0;
+			});
+			if (validationIt != enabledLayers.end())
+			{
+				auto layerIt = availableLayerByName.find("VK_LAYER_KHRONOS_validation");
+				assert(layerIt != availableLayerByName.end());
 
-				features.sType = VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT;
-				features.enabledValidationFeatureCount = UInt32(enabledFeatures.size());
-				features.pEnabledValidationFeatures = enabledFeatures.data();
+				auto& validationLayer = availableLayers[layerIt->second];
+				if (validationLayer.extensionByName.find(VK_EXT_VALIDATION_FEATURES_EXTENSION_NAME) != validationLayer.extensionByName.end())
+				{
+					enabledExtensions.push_back(VK_EXT_VALIDATION_FEATURES_EXTENSION_NAME);
 
-				instanceInfo.pNext = &features;
+					features.sType = VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT;
+					features.enabledValidationFeatureCount = UInt32(enabledFeatures.size());
+					features.pEnabledValidationFeatures = enabledFeatures.data();
+
+					instanceInfo.pNext = &features;
+				}
 			}
 		}
-#endif
 
 		instanceInfo.flags = createFlags;
 		instanceInfo.pApplicationInfo = &appInfo;
