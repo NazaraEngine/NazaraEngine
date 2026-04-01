@@ -55,16 +55,16 @@ namespace Nz
 		RenderDeviceInfo deviceInfo;
 		deviceInfo.name = physDevice.properties.deviceName;
 
-		deviceInfo.features.anisotropicFiltering = physDevice.features.samplerAnisotropy;
+		deviceInfo.features.anisotropicFiltering = physDevice.features10.samplerAnisotropy;
 		deviceInfo.features.computeShaders = true;
-		deviceInfo.features.depthClamping = physDevice.features.depthClamp;
+		deviceInfo.features.depthClamping = physDevice.features10.depthClamp;
 		deviceInfo.features.drawBaseVertex = true;
-		deviceInfo.features.nonSolidFaceFilling = physDevice.features.fillModeNonSolid;
+		deviceInfo.features.nonSolidFaceFilling = physDevice.features10.fillModeNonSolid;
 		deviceInfo.features.persistentMapping = true;
 		deviceInfo.features.storageBuffers = true;
-		deviceInfo.features.textureReadWithoutFormat = physDevice.features.shaderStorageImageReadWithoutFormat;
+		deviceInfo.features.textureReadWithoutFormat = physDevice.features10.shaderStorageImageReadWithoutFormat;
 		deviceInfo.features.textureReadWrite = true;
-		deviceInfo.features.textureWriteWithoutFormat = physDevice.features.shaderStorageImageWriteWithoutFormat;
+		deviceInfo.features.textureWriteWithoutFormat = physDevice.features10.shaderStorageImageWriteWithoutFormat;
 		deviceInfo.features.unrestrictedTextureViews = true;
 
 		deviceInfo.limits.maxComputeSharedMemorySize = physDevice.properties.limits.maxComputeSharedMemorySize;
@@ -349,7 +349,6 @@ namespace Nz
 
 			deviceInfo.physDevice = physDevice;
 
-			deviceInfo.features         = s_instance.GetPhysicalDeviceFeatures(physDevice);
 			deviceInfo.memoryProperties = s_instance.GetPhysicalDeviceMemoryProperties(physDevice);
 			deviceInfo.properties       = s_instance.GetPhysicalDeviceProperties(physDevice);
 
@@ -358,6 +357,31 @@ namespace Nz
 				NazaraWarning("ignored physical device {} because its reported API version ({}.{}.{}) is lower than the minimum 1.1", deviceInfo.properties.deviceName, VK_API_VERSION_MAJOR(deviceInfo.properties.apiVersion), VK_API_VERSION_MINOR(deviceInfo.properties.apiVersion), VK_API_VERSION_PATCH(deviceInfo.properties.apiVersion));
 				continue;
 			}
+
+			if (targetApiVersion >= VK_VERSION_1_1)
+			{
+				deviceInfo.features14.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_4_FEATURES;
+				deviceInfo.features14.pNext = nullptr;
+
+				deviceInfo.features13.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES;
+				deviceInfo.features13.pNext = (targetApiVersion >= VK_VERSION_1_4) ? &deviceInfo.features14 : nullptr;
+
+				deviceInfo.features12.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES;
+				deviceInfo.features12.pNext = (targetApiVersion >= VK_VERSION_1_3) ? &deviceInfo.features13 : nullptr;
+
+				deviceInfo.features11.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES;
+				deviceInfo.features11.pNext = (targetApiVersion >= VK_VERSION_1_2) ? &deviceInfo.features12 : nullptr;
+
+				VkPhysicalDeviceFeatures2 deviceFeatures;
+				deviceFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+				deviceFeatures.pNext = (targetApiVersion >= VK_VERSION_1_1) ? &deviceInfo.features11 : nullptr;
+
+				s_instance.vkGetPhysicalDeviceFeatures2(physDevice, &deviceFeatures);
+
+				deviceInfo.features10 = deviceFeatures.features;
+			}
+			else
+				deviceInfo.features10 = s_instance.GetPhysicalDeviceFeatures(physDevice);
 
 			std::vector<VkExtensionProperties> extensions;
 			if (s_instance.GetPhysicalDeviceExtensions(physDevice, &extensions))
@@ -590,19 +614,34 @@ namespace Nz
 			}
 		}
 
-		VkPhysicalDeviceFeatures deviceFeatures = {};
+		VkPhysicalDeviceFeatures2 deviceFeatures = {};
+		deviceFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+		deviceFeatures.pNext = nullptr;
+
 		if (enabledFeatures.anisotropicFiltering)
-			deviceFeatures.samplerAnisotropy = VK_TRUE;
+			deviceFeatures.features.samplerAnisotropy = VK_TRUE;
 
 		if (enabledFeatures.depthClamping)
-			deviceFeatures.depthClamp = VK_TRUE;
+			deviceFeatures.features.depthClamp = VK_TRUE;
 
 		if (enabledFeatures.nonSolidFaceFilling)
-			deviceFeatures.fillModeNonSolid = VK_TRUE;
+			deviceFeatures.features.fillModeNonSolid = VK_TRUE;
+
+		VkPhysicalDeviceVulkan13Features deviceFeatures13 = {};
+		deviceFeatures13.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES;
+		deviceFeatures13.pNext = nullptr;
+
+		if (deviceInfo.properties.apiVersion >= VK_API_VERSION_1_3)
+		{
+			deviceFeatures.pNext = &deviceFeatures13;
+
+			if (deviceInfo.features13.synchronization2)
+				deviceFeatures13.synchronization2 = VK_TRUE;
+		}
 
 		VkDeviceCreateInfo createInfo = {
 			VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
-			nullptr,
+			(deviceInfo.properties.apiVersion >= VK_API_VERSION_1_1) ? &deviceFeatures : nullptr,
 			0,
 			UInt32(queueCreateInfos.size()),
 			queueCreateInfos.data(),
@@ -610,7 +649,7 @@ namespace Nz
 			enabledLayers.data(),
 			UInt32(enabledExtensions.size()),
 			enabledExtensions.data(),
-			&deviceFeatures
+			(deviceInfo.properties.apiVersion <= VK_API_VERSION_1_1) ? &deviceFeatures.features : nullptr
 		};
 
 		std::shared_ptr<VulkanDevice> device = std::make_shared<VulkanDevice>(s_instance, enabledFeatures, BuildRenderDeviceInfo(deviceInfo));

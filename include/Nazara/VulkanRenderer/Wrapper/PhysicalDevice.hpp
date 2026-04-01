@@ -18,7 +18,11 @@ namespace Nz::Vk
 	struct PhysicalDevice
 	{
 		VkPhysicalDevice physDevice;
-		VkPhysicalDeviceFeatures features;
+		VkPhysicalDeviceFeatures features10;
+		VkPhysicalDeviceVulkan11Features features11;
+		VkPhysicalDeviceVulkan12Features features12;
+		VkPhysicalDeviceVulkan13Features features13;
+		VkPhysicalDeviceVulkan14Features features14;
 		VkPhysicalDeviceMemoryProperties memoryProperties;
 		VkPhysicalDeviceProperties properties;
 		std::unordered_set<std::string, StringHash<>, std::equal_to<>> extensions;
