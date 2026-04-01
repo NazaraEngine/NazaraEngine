@@ -19,11 +19,11 @@ namespace Nz::ImageUtils
 
 	inline void ArrayToRegion(ImageType type, UInt32 baseLayer, UInt32 layerCount, Boxui32& region);
 	inline void Copy(void* destination, const void* source, PixelFormat format, UInt32 width, UInt32 height, UInt32 depth = 1, UInt32 dstRowStride = 0, UInt32 dstDepthStride = 0, UInt32 srcRowStride = 0, UInt32 srcDepthStride = 0);
-	template<typename F> auto ForEachLevel(ImageType type, UInt32 width, UInt32 height, UInt32 depth, F&& callback);
+	template<typename F> auto ForEachLevel(ImageType type, PixelFormat format, UInt32 width, UInt32 height, UInt32 depth, F&& callback);
 	template<typename F> auto ForEachLevel(std::size_t levelCount, ImageType type, UInt32 width, UInt32 height, UInt32 depth, F&& callback);
 	inline UInt32 GetLevelSize(UInt32 size, UInt8 level);
 	inline UInt8 GetMaxLevel(UInt32 width, UInt32 height, UInt32 depth = 1);
-	inline UInt8 GetMaxLevel(ImageType type, UInt32 width, UInt32 height, UInt32 depth = 1);
+	inline UInt8 GetMaxLevel(ImageType type, PixelFormat format, UInt32 width, UInt32 height, UInt32 depth = 1);
 	inline Boxui32 RegionToArray(ImageType type, Boxui32 region, UInt32& baseLayer, UInt32& layerCount);
 }
 

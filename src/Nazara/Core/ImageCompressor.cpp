@@ -110,8 +110,10 @@ namespace Nz::ImageCompressor
 		NazaraAssert(sourceImage.IsValid());
 		NazaraAssert(sourceImage.GetFormat() == SourceFormat);
 
-		Image compressedImage(sourceImage.GetType(), DestFormat, AlignPow2(sourceImage.GetWidth(), BlockSize), AlignPow2(sourceImage.GetHeight(), BlockSize), sourceImage.GetDepth(), sourceImage.GetLevelCount());
-		for (UInt8 level = 0; level < sourceImage.GetLevelCount(); ++level)
+		UInt8 levelCount = std::min(sourceImage.GetLevelCount(), ImageUtils::GetMaxLevel(sourceImage.GetType(), DestFormat, sourceImage.GetWidth(), sourceImage.GetHeight(), sourceImage.GetDepth()));
+
+		Image compressedImage(sourceImage.GetType(), DestFormat, AlignPow2(sourceImage.GetWidth(), BlockSize), AlignPow2(sourceImage.GetHeight(), BlockSize), sourceImage.GetDepth(), levelCount);
+		for (UInt8 level = 0; level < levelCount; ++level)
 		{
 			if (!sourceImage.IsLevelAllocated(level))
 				continue;
@@ -127,10 +129,12 @@ namespace Nz::ImageCompressor
 			std::size_t bpp = PixelFormatInfo::GetBytesPerPixel(SourceFormat);
 			std::size_t sourcePitch = sourceImage.GetWidth(level) * bpp;
 
+			std::size_t bytesPerLayer = PixelFormatInfo::ComputeSize(DestFormat, compressedImage.GetWidth(level), compressedImage.GetHeight(level), 1u);
+
 			for (UInt32 z = 0; z < depth; ++z)
 			{
 				const UInt8* sourcePixels = sourceImage.GetConstPixels(0, 0, z, level);
-				UInt8* targetPixels = compressedImage.GetPixels(0, 0, z, level);
+				UInt8* targetPixels = compressedImage.GetPixels(level) + bytesPerLayer * z;
 
 				std::size_t blockIndex = 0;
 				for (UInt32 blockY = 0; blockY < blockCountY; ++blockY)

@@ -29,28 +29,32 @@ namespace Nz
 		using Bitmask = FixedBitset<UInt64, MaxBpp>;
 
 		inline PixelFormatDescription();
-		inline PixelFormatDescription(PixelFormatContent formatContent, UInt8 bpp, PixelFormatDataType subType);
-		inline PixelFormatDescription(std::string_view formatName, PixelFormatContent formatContent, UInt8 bpp, PixelFormatDataType subType);
-		inline PixelFormatDescription(std::string_view formatName, PixelFormatContent formatContent, Bitmask rMask, Bitmask gMask, Bitmask bMask, Bitmask aMask, PixelFormatDataType subType);
 
 		inline void Clear();
 
+		inline bool IsBlockCompressed() const;
 		inline bool IsCompressed() const;
+		inline bool IsUncompressed() const;
 		inline bool IsValid() const;
 
 		inline void RecomputeBitsPerPixel();
 
 		inline bool Validate() const;
 
+		static inline PixelFormatDescription BlockCompressed(std::string_view formatName, PixelFormatContent formatContent, UInt8 bytesPerBlock, UInt8 blockSize);
+		static inline PixelFormatDescription Regular(std::string_view formatName, PixelFormatContent formatContent, Bitmask rMask, Bitmask gMask, Bitmask bMask, Bitmask aMask, PixelFormatDataType dataType);
+
 		std::string_view name;
 		// Warning: Masks bit order is reversed
-		Bitmask redMask;
-		Bitmask greenMask;
-		Bitmask blueMask;
-		Bitmask alphaMask;
+		Bitmask redMask;   //< Only for uncompressed formats
+		Bitmask greenMask; //< Only for uncompressed formats
+		Bitmask blueMask;  //< Only for uncompressed formats
+		Bitmask alphaMask; //< Only for uncompressed formats
 		PixelFormatContent content;
 		PixelFormatDataType dataType;
-		UInt8 bitsPerPixel;
+		UInt8 bitsPerPixel;  //< Only for uncompressed formats
+		UInt8 bytesPerBlock; //< Only for block-compressed formats
+		UInt8 blockSize;     //< Only for block-compressed formats
 	};
 
 	class NAZARA_CORE_API PixelFormatInfo
@@ -69,6 +73,8 @@ namespace Nz
 			static bool Flip(PixelFlipping flipping, PixelFormat format, UInt32 width, UInt32 height, UInt32 depth, const void* src, void* dst);
 
 			static inline UInt8 GetBitsPerPixel(PixelFormat format);
+			static inline UInt8 GetBlockSize(PixelFormat format);
+			static inline UInt8 GetBytesPerBlock(PixelFormat format);
 			static inline PixelFormatContent GetContent(PixelFormat format);
 			static inline UInt8 GetBytesPerPixel(PixelFormat format);
 			static inline const PixelFormatDescription& GetInfo(PixelFormat format);
@@ -79,8 +85,10 @@ namespace Nz
 			static inline PixelFormat IdentifyFormat(const PixelFormatDescription& info);
 			static inline PixelFormat IdentifyFormat(std::string_view formatName);
 
+			static inline bool IsBlockCompressed(PixelFormat format);
 			static inline bool IsCompressed(PixelFormat format);
 			static inline bool IsConversionSupported(PixelFormat srcFormat, PixelFormat dstFormat);
+			static inline bool IsUncompressed(PixelFormat format);
 			static inline bool IsValid(PixelFormat format);
 
 			static inline void SetConvertFunction(PixelFormat srcFormat, PixelFormat dstFormat, ConvertFunction func);

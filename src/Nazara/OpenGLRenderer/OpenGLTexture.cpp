@@ -13,7 +13,7 @@ namespace Nz
 	OpenGLTexture::OpenGLTexture(OpenGLDevice& device, const TextureInfo& textureInfo) :
 	m_textureInfo(textureInfo)
 	{
-		m_textureInfo.levelCount = std::min(m_textureInfo.levelCount, ImageUtils::GetMaxLevel(m_textureInfo.type, m_textureInfo.width, m_textureInfo.height, m_textureInfo.depth));
+		m_textureInfo.levelCount = std::min(m_textureInfo.levelCount, ImageUtils::GetMaxLevel(m_textureInfo.type, m_textureInfo.pixelFormat, m_textureInfo.width, m_textureInfo.height, m_textureInfo.depth));
 
 		if (!m_texture.Create(device))
 			throw std::runtime_error("failed to create texture object");
@@ -149,12 +149,12 @@ namespace Nz
 
 		const GL::Context& context = m_texture.EnsureDeviceContext();
 
-		UInt8 bpp = PixelFormatInfo::GetBytesPerPixel(m_textureInfo.pixelFormat);
-		if (bpp % 8 == 0)
+		std::size_t dataSize = PixelFormatInfo::ComputeSize(m_textureInfo.pixelFormat, box.width, box.height, box.depth);
+		if (dataSize % 8 == 0)
 			context.glPixelStorei(GL_UNPACK_ALIGNMENT, 8);
-		else if (bpp % 4 == 0)
+		else if (dataSize % 4 == 0)
 			context.glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-		else if (bpp % 2 == 0)
+		else if (dataSize % 2 == 0)
 			context.glPixelStorei(GL_UNPACK_ALIGNMENT, 2);
 		else
 			context.glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -169,7 +169,7 @@ namespace Nz
 			case ImageType::E2D:
 			{
 				if (PixelFormatInfo::IsCompressed(m_textureInfo.pixelFormat))
-					m_texture.CompressedTexSubImage2D(GL::TextureTarget::Target2D, level, box.x, box.y, box.width, box.height, format->format, PixelFormatInfo::ComputeSize(m_textureInfo.pixelFormat, box.width, box.height, box.depth), ptr);
+					m_texture.CompressedTexSubImage2D(GL::TextureTarget::Target2D, level, box.x, box.y, box.width, box.height, format->internalFormat, SafeCast<GLsizei>(dataSize), ptr);
 				else
 					m_texture.TexSubImage2D(GL::TextureTarget::Target2D, level, box.x, box.y, box.width, box.height, format->format, format->type, ptr);
 
@@ -179,7 +179,7 @@ namespace Nz
 			case ImageType::E2D_Array:
 			{
 				if (PixelFormatInfo::IsCompressed(m_textureInfo.pixelFormat))
-					m_texture.CompressedTexSubImage3D(GL::TextureTarget::Target2D_Array, level, box.x, box.y, box.z, box.width, box.height, box.depth, format->format, PixelFormatInfo::ComputeSize(m_textureInfo.pixelFormat, box.width, box.height, box.depth), ptr);
+					m_texture.CompressedTexSubImage3D(GL::TextureTarget::Target2D_Array, level, box.x, box.y, box.z, box.width, box.height, box.depth, format->internalFormat, SafeCast<GLsizei>(dataSize), ptr);
 				else
 					m_texture.TexSubImage3D(GL::TextureTarget::Target2D_Array, level, box.x, box.y, box.z, box.width, box.height, box.depth, format->format, format->type, ptr);
 
@@ -189,7 +189,7 @@ namespace Nz
 			case ImageType::E3D:
 			{
 				if (PixelFormatInfo::IsCompressed(m_textureInfo.pixelFormat))
-					m_texture.CompressedTexSubImage3D(GL::TextureTarget::Target3D, level, box.x, box.y, box.z, box.width, box.height, box.depth, format->format, PixelFormatInfo::ComputeSize(m_textureInfo.pixelFormat, box.width, box.height, box.depth), ptr);
+					m_texture.CompressedTexSubImage3D(GL::TextureTarget::Target3D, level, box.x, box.y, box.z, box.width, box.height, box.depth, format->internalFormat, SafeCast<GLsizei>(dataSize), ptr);
 				else
 					m_texture.TexSubImage3D(GL::TextureTarget::Target3D, level, box.x, box.y, box.z, box.width, box.height, box.depth, format->format, format->type, ptr);
 
@@ -204,7 +204,7 @@ namespace Nz
 				for (GL::TextureTarget face : { GL::TextureTarget::CubemapPositiveX, GL::TextureTarget::CubemapNegativeX, GL::TextureTarget::CubemapPositiveY, GL::TextureTarget::CubemapNegativeY, GL::TextureTarget::CubemapPositiveZ, GL::TextureTarget::CubemapNegativeZ })
 				{
 					if (PixelFormatInfo::IsCompressed(m_textureInfo.pixelFormat))
-						m_texture.CompressedTexSubImage2D(face, level, box.x, box.y, box.width, box.height, format->format, faceSize, facePtr);
+						m_texture.CompressedTexSubImage2D(face, level, box.x, box.y, box.width, box.height, format->internalFormat, SafeCast<GLsizei>(faceSize), facePtr);
 					else
 						m_texture.TexSubImage2D(face, level, box.x, box.y, box.width, box.height, format->format, format->type, facePtr);
 
@@ -228,12 +228,8 @@ namespace Nz
 
 	bool OpenGLTexture::Update(Nz::FunctionRef<bool(void* pixelBuffer, UInt32 rowPitch, UInt32 depthPitch)> callback, const Boxui& box, UInt8 level)
 	{
-		unsigned int bpp = PixelFormatInfo::GetBytesPerPixel(m_textureInfo.pixelFormat);
-		UInt32 rowPitch = box.width * bpp;
-		UInt32 depthPitch = rowPitch * box.height;
-
-		std::vector<std::uint8_t> pixels(depthPitch * box.depth);
-		if (!callback(pixels.data(), rowPitch, depthPitch))
+		std::vector<std::uint8_t> pixels(PixelFormatInfo::ComputeSize(m_textureInfo.pixelFormat, box.width, box.height, box.depth));
+		if (!callback(pixels.data(), 0, 0))
 			return false;
 
 		return Update(pixels.data(), box, 0, 0, level);

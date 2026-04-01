@@ -83,7 +83,8 @@ namespace Nz
 
 			bool GenerateMipmaps(UInt8 baseLevel = 0, UInt8 maxLevels = 0xFF);
 
-			const UInt8* GetConstPixels(UInt32 x = 0, UInt32 y = 0, UInt32 z = 0, UInt8 level = 0) const;
+			const UInt8* GetConstPixels(UInt8 level = 0) const;
+			const UInt8* GetConstPixels(UInt32 x, UInt32 y, UInt32 z = 0, UInt8 level = 0) const;
 			UInt32 GetDepth(UInt8 level = 0) const;
 			PixelFormat GetFormat() const override;
 			UInt32 GetHeight(UInt8 level = 0) const;
@@ -92,7 +93,8 @@ namespace Nz
 			std::size_t GetMemoryUsage() const;
 			std::size_t GetMemoryUsage(UInt8 level) const;
 			Color GetPixelColor(UInt32 x, UInt32 y = 0, UInt32 z = 0) const;
-			UInt8* GetPixels(UInt32 x = 0, UInt32 y = 0, UInt32 z = 0, UInt8 level = 0);
+			UInt8* GetPixels(UInt8 level = 0);
+			UInt8* GetPixels(UInt32 x, UInt32 y, UInt32 z = 0, UInt8 level = 0);
 			Vector3ui32 GetSize(UInt8 level = 0) const override;
 			ImageType GetType() const override;
 			UInt32 GetWidth(UInt8 level = 0) const;

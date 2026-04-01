@@ -15,38 +15,6 @@ namespace Nz
 	{
 	}
 
-	inline PixelFormatDescription::PixelFormatDescription(PixelFormatContent formatContent, UInt8 bpp, PixelFormatDataType type) :
-	content(formatContent),
-	dataType(type),
-	bitsPerPixel(bpp)
-	{
-	}
-
-	inline PixelFormatDescription::PixelFormatDescription(std::string_view formatName, PixelFormatContent formatContent, UInt8 bpp, PixelFormatDataType type) :
-	name(formatName),
-	content(formatContent),
-	dataType(type),
-	bitsPerPixel(bpp)
-	{
-	}
-
-	inline PixelFormatDescription::PixelFormatDescription(std::string_view formatName, PixelFormatContent formatContent, Bitmask rMask, Bitmask gMask, Bitmask bMask, Bitmask aMask, PixelFormatDataType type) :
-	name(formatName),
-	redMask(rMask),
-	greenMask(gMask),
-	blueMask(bMask),
-	alphaMask(aMask),
-	content(formatContent),
-	dataType(type)
-	{
-		redMask.Reverse();
-		greenMask.Reverse();
-		blueMask.Reverse();
-		alphaMask.Reverse();
-
-		RecomputeBitsPerPixel();
-	}
-
 	inline void PixelFormatDescription::Clear()
 	{
 		bitsPerPixel = 0;
@@ -57,9 +25,19 @@ namespace Nz
 		name = "";
 	}
 
+	inline bool PixelFormatDescription::IsBlockCompressed() const
+	{
+		return dataType == PixelFormatDataType::BlockCompressed;
+	}
+
 	inline bool PixelFormatDescription::IsCompressed() const
 	{
-		return dataType == PixelFormatDataType::Compressed;
+		return dataType == PixelFormatDataType::BlockCompressed;
+	}
+
+	inline bool PixelFormatDescription::IsUncompressed() const
+	{
+		return !IsCompressed();
 	}
 
 	inline bool PixelFormatDescription::IsValid() const
@@ -86,54 +64,67 @@ namespace Nz
 		if (content <= PixelFormatContent::Undefined || content > PixelFormatContent::Max)
 			return false;
 
-		std::array<const Bitmask*, 4> masks = { {&redMask, &greenMask, &blueMask, &alphaMask} };
-
-		for (UInt32 i = 0; i < 4; ++i)
+		if (IsUncompressed())
 		{
-			UInt8 usedBits = SafeCast<UInt8>(masks[i]->Count());
-			if (usedBits == 0)
-				continue;
+			std::array<const Bitmask*, 4> masks = { {&redMask, &greenMask, &blueMask, &alphaMask} };
 
-			if (usedBits > bitsPerPixel)
-				return false;
+			for (UInt32 i = 0; i < 4; ++i)
+			{
+				UInt8 usedBits = SafeCast<UInt8>(masks[i]->Count());
+				if (usedBits == 0)
+					continue;
 
-			if (usedBits > 64) //< Currently, formats with over 64 bits per component are not supported
-				return false;
+				if (usedBits > bitsPerPixel)
+					return false;
+
+				if (usedBits > 64) //< Currently, formats with over 64 bits per component are not supported
+					return false;
+			}
 		}
 
 		return true;
 	}
 
+	inline PixelFormatDescription PixelFormatDescription::BlockCompressed(std::string_view formatName, PixelFormatContent formatContent, UInt8 bytesPerBlock, UInt8 blockSize)
+	{
+		PixelFormatDescription desc;
+		desc.name = formatName;
+		desc.content = formatContent;
+		desc.dataType = PixelFormatDataType::BlockCompressed;
+		desc.blockSize = blockSize;
+		desc.bytesPerBlock = bytesPerBlock;
+
+		return desc;
+	}
+
+	inline PixelFormatDescription PixelFormatDescription::Regular(std::string_view formatName, PixelFormatContent formatContent, Bitmask rMask, Bitmask gMask, Bitmask bMask, Bitmask aMask, PixelFormatDataType dataType)
+	{
+		PixelFormatDescription desc;
+		desc.name = formatName;
+		desc.redMask = rMask;
+		desc.greenMask = gMask;
+		desc.blueMask = bMask;
+		desc.alphaMask = aMask;
+		desc.content = formatContent;
+		desc.dataType = dataType;
+
+		// FIXME: Is this still relevant?
+		desc.redMask.Reverse();
+		desc.greenMask.Reverse();
+		desc.blueMask.Reverse();
+		desc.alphaMask.Reverse();
+
+		desc.RecomputeBitsPerPixel();
+
+		return desc;
+	}
+
 	inline std::size_t PixelFormatInfo::ComputeSize(PixelFormat format, UInt32 width, UInt32 height, UInt32 depth)
 	{
-		if (IsCompressed(format))
+		if (IsBlockCompressed(format))
 		{
-			switch (format)
-			{
-				case PixelFormat::BC1_RGB_Unorm:
-				case PixelFormat::BC1_RGB_sRGB:
-				case PixelFormat::BC1_RGBA_Unorm:
-				case PixelFormat::BC1_RGBA_sRGB:
-				case PixelFormat::BC4_Snorm:
-				case PixelFormat::BC4_Unorm:
-					return ((width + 3) / 4) * ((height + 3) / 4) * depth * 8; //< four bits per pixel / 8 bytes per block
-
-				case PixelFormat::BC2_Unorm:
-				case PixelFormat::BC2_sRGB:
-				case PixelFormat::BC3_Unorm:
-				case PixelFormat::BC3_sRGB:
-				case PixelFormat::BC5_Snorm:
-				case PixelFormat::BC5_Unorm:
-				case PixelFormat::BC6H_SFloat:
-				case PixelFormat::BC6H_UFloat:
-				case PixelFormat::BC7_Unorm:
-				case PixelFormat::BC7_sRGB:
-					return ((width + 3) / 4) * ((height + 3) / 4) * depth * 16; //< eight bits per pixel / 16 bytes per block
-
-				default:
-					NazaraError("unsupported format");
-					return 0;
-			}
+			UInt32 blockSize = GetBlockSize(format);
+			return AlignPow2(width, blockSize) / blockSize * AlignPow2(height, blockSize) / blockSize * depth * GetBytesPerBlock(format);
 		}
 		else
 			return width * height * depth * GetBytesPerPixel(format);
@@ -179,7 +170,20 @@ namespace Nz
 
 	inline UInt8 PixelFormatInfo::GetBitsPerPixel(PixelFormat format)
 	{
+		NazaraAssertMsg(IsUncompressed(format), "format is compressed and has no meaningful bpp");
 		return s_pixelFormatInfos[format].bitsPerPixel;
+	}
+
+	inline UInt8 PixelFormatInfo::GetBlockSize(PixelFormat format)
+	{
+		NazaraAssertMsg(IsBlockCompressed(format), "format is not block compressed");
+		return s_pixelFormatInfos[format].blockSize;
+	}
+
+	inline UInt8 PixelFormatInfo::GetBytesPerBlock(PixelFormat format)
+	{
+		NazaraAssertMsg(IsBlockCompressed(format), "format is not block compressed");
+		return s_pixelFormatInfos[format].bytesPerBlock;
 	}
 
 	inline UInt8 PixelFormatInfo::GetBytesPerPixel(PixelFormat format)
@@ -233,6 +237,11 @@ namespace Nz
 		return PixelFormat::Undefined;
 	}
 
+	inline bool PixelFormatInfo::IsBlockCompressed(PixelFormat format)
+	{
+		return s_pixelFormatInfos[format].IsBlockCompressed();
+	}
+
 	inline bool PixelFormatInfo::IsCompressed(PixelFormat format)
 	{
 		return s_pixelFormatInfos[format].IsCompressed();
@@ -244,6 +253,11 @@ namespace Nz
 			return true;
 
 		return s_convertFunctions[srcFormat][dstFormat] != nullptr;
+	}
+
+	inline bool PixelFormatInfo::IsUncompressed(PixelFormat format)
+	{
+		return s_pixelFormatInfos[format].IsUncompressed();
 	}
 
 	inline bool PixelFormatInfo::IsValid(PixelFormat format)

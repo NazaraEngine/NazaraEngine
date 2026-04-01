@@ -86,9 +86,9 @@ namespace Nz::ImageUtils
 	}
 
 	template<typename F>
-	auto ForEachLevel(ImageType type, UInt32 width, UInt32 height, UInt32 depth, F&& callback)
+	auto ForEachLevel(ImageType type, PixelFormat format, UInt32 width, UInt32 height, UInt32 depth, F&& callback)
 	{
-		UInt8 levelCount = GetMaxLevel(type, width, height, depth);
+		UInt8 levelCount = GetMaxLevel(type, format, width, height, depth);
 		return ForEachLevel(levelCount, type, width, height, depth, std::forward<F>(callback));
 	}
 
@@ -141,22 +141,33 @@ namespace Nz::ImageUtils
 		return SafeCast<UInt8>(std::max(IntegralLog2(std::max({ width, height, depth })), 1U));
 	}
 
-	inline UInt8 GetMaxLevel(ImageType type, UInt32 width, UInt32 height, UInt32 depth)
+	inline UInt8 GetMaxLevel(ImageType type, PixelFormat format, UInt32 width, UInt32 height, UInt32 depth)
 	{
+		// Handle block compressed formats
+		UInt32 skipBottomLevelCount = 0;
+		if (PixelFormatInfo::IsBlockCompressed(format))
+		{
+			UInt32 blockSize = PixelFormatInfo::GetBlockSize(format);
+			width = AlignPow2(width, blockSize);
+			height = AlignPow2(height, blockSize);
+			depth = AlignPow2(depth, blockSize);
+			skipBottomLevelCount = SafeCaster(IntegralLog2Pot(blockSize));
+		}
+
 		// We need image type to avoid counting layers in the level count
 		switch (type)
 		{
 			case ImageType::E1D:
 			case ImageType::E1D_Array:
-				return GetMaxLevel(width, 1U, 1U);
+				return SafeCast<UInt8>(std::max(1u, GetMaxLevel(width, 1U, 1U) - skipBottomLevelCount));
 
 			case ImageType::E2D:
 			case ImageType::E2D_Array:
 			case ImageType::Cubemap:
-				return GetMaxLevel(width, height, 1U);
+				return SafeCast<UInt8>(std::max(1u, GetMaxLevel(width, height, 1U) - skipBottomLevelCount));
 
 			case ImageType::E3D:
-				return GetMaxLevel(width, height, depth);
+				return SafeCast<UInt8>(std::max(1u, GetMaxLevel(width, height, depth) - skipBottomLevelCount));
 		}
 
 		NazaraError("Image type not handled ({0:#x})", UnderlyingCast(type));

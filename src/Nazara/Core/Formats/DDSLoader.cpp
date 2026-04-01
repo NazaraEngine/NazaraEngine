@@ -74,7 +74,7 @@ namespace Nz
 				std::shared_ptr<Image> image = std::make_shared<Image>(type, format, width, height, depth, levelCount);
 
 				// Read all mipmap levels
-				bool succeeded = ImageUtils::ForEachLevel(levelCount, type, width, height, depth, [&](UInt8 level, UInt32 width, UInt32 height, UInt32 depth)
+				bool succeeded = ImageUtils::ForEachLevel(image->GetLevelCount(), type, width, height, depth, [&](UInt8 level, UInt32 width, UInt32 height, UInt32 depth)
 				{
 					std::size_t byteCount = PixelFormatInfo::ComputeSize(format, width, height, depth);
 
@@ -84,8 +84,7 @@ namespace Nz
 						return true;
 					}
 
-					UInt8* ptr = image->GetPixels(0, 0, 0, level);
-
+					UInt8* ptr = image->GetPixels(level);
 					if (byteStream.Read(ptr, byteCount) != byteCount)
 					{
 						NazaraError("failed to read level #{0}", level);
@@ -282,7 +281,10 @@ namespace Nz
 				}
 				else if (header.format.flags & (DDPF_RGB | DDPF_ALPHA | DDPF_ALPHAPIXELS | DDPF_LUMINANCE))
 				{
-					PixelFormatDescription info(PixelFormatContent::ColorRGBA, SafeCast<UInt8>(header.format.rgbBitCount), PixelFormatDataType::UnsignedNormalized);
+					PixelFormatDescription info;
+					info.content = PixelFormatContent::ColorRGBA;
+					info.bitsPerPixel = SafeCast<UInt8>(header.format.rgbBitCount);
+					info.dataType = PixelFormatDataType::UnsignedNormalized;
 
 					if (header.format.flags & DDPF_RGB)
 					{

@@ -395,7 +395,7 @@ namespace Nz
 
 	enum class PixelFormatDataType
 	{
-		Compressed, // Opaque
+		BlockCompressed,
 
 		SignedFloatingPoint,
 		SignedNormalized,

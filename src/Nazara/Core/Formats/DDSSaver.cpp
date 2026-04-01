@@ -191,10 +191,12 @@ namespace Nz
 
 			for (UInt32 layer = 0; layer < layerCount; ++layer)
 			{
-				bool success = ImageUtils::ForEachLevel(image.GetLevelCount(), image.GetType(), ddsHeader.width, ddsHeader.height, ddsHeader.depth, [&](UInt8 level, UInt32 width, UInt32 height, UInt32 depth)
+				bool success = ImageUtils::ForEachLevel(ddsHeader.levelCount, image.GetType(), ddsHeader.width, ddsHeader.height, ddsHeader.depth, [&](UInt8 level, UInt32 width, UInt32 height, UInt32 depth)
 				{
-					std::size_t byteCount = PixelFormatInfo::ComputeSize(image.GetFormat(), width, height, depth);
-					const UInt8* ptr = image.GetConstPixels(0, 0, layer, level);
+					std::size_t bytePerLayer = PixelFormatInfo::ComputeSize(image.GetFormat(), width, height, 1u);
+					std::size_t byteCount = bytePerLayer * layerCount;
+					const UInt8* ptr = image.GetConstPixels(level) + bytePerLayer * layer;
+					NazaraAssert(ptr);
 
 					if (byteStream.Write(ptr, byteCount) != byteCount)
 					{

@@ -22,7 +22,7 @@ namespace Nz
 	m_allocation(nullptr),
 	m_textureInfo(textureInfo)
 	{
-		m_textureInfo.levelCount = std::min(m_textureInfo.levelCount, ImageUtils::GetMaxLevel(m_textureInfo.type, m_textureInfo.width, m_textureInfo.height, m_textureInfo.depth));
+		m_textureInfo.levelCount = std::min(m_textureInfo.levelCount, ImageUtils::GetMaxLevel(m_textureInfo.type, m_textureInfo.pixelFormat, m_textureInfo.width, m_textureInfo.height, m_textureInfo.depth));
 		m_textureViewInfo = m_textureInfo;
 
 		VkImageViewCreateInfo createInfoView = {};
@@ -430,7 +430,7 @@ namespace Nz
 
 	bool VulkanTexture::Update(Vk::CommandBuffer& commandBuffer, std::unique_ptr<VulkanBuffer>& uploadBuffer, Nz::FunctionRef<bool(void* pixelBuffer)> callback, const Boxui& box, UInt8 level)
 	{
-		std::size_t memorySize = box.width * box.height * box.depth * PixelFormatInfo::GetBytesPerPixel(m_textureViewInfo.pixelFormat);
+		std::size_t memorySize = PixelFormatInfo::ComputeSize(m_textureViewInfo.pixelFormat, box.width, box.height, box.depth);
 
 		uploadBuffer = std::make_unique<VulkanBuffer>(m_device, memorySize, BufferUsage::TransferSource | BufferUsage::MemoryMapping);
 		void* mappedUploadBuffer = uploadBuffer->Map(0, memorySize);
@@ -480,11 +480,7 @@ namespace Nz
 
 		auto copyCallback = [&](void* pixelBuffer)
 		{
-			UInt32 bpp = PixelFormatInfo::GetBytesPerPixel(m_textureViewInfo.pixelFormat);
-			UInt32 dstLineStride = box.width * bpp;
-			UInt32 dstFaceStride = dstLineStride * box.height;
-
-			return callback(pixelBuffer, dstLineStride, dstFaceStride);
+			return callback(pixelBuffer, 0, 0);
 		};
 
 		std::unique_ptr<VulkanBuffer> uploadBuffer;
@@ -518,6 +514,22 @@ namespace Nz
 		switch (pixelFormat)
 		{
 			// Regular formats
+			case PixelFormat::BC1_RGB_Unorm:
+			case PixelFormat::BC1_RGB_sRGB:
+			case PixelFormat::BC1_RGBA_Unorm:
+			case PixelFormat::BC1_RGBA_sRGB:
+			case PixelFormat::BC2_Unorm:
+			case PixelFormat::BC2_sRGB:
+			case PixelFormat::BC3_Unorm:
+			case PixelFormat::BC3_sRGB:
+			case PixelFormat::BC4_Snorm:
+			case PixelFormat::BC4_Unorm:
+			case PixelFormat::BC5_Snorm:
+			case PixelFormat::BC5_Unorm:
+			case PixelFormat::BC6H_SFloat:
+			case PixelFormat::BC6H_UFloat:
+			case PixelFormat::BC7_Unorm:
+			case PixelFormat::BC7_sRGB:
 			case PixelFormat::BGR8:
 			case PixelFormat::BGR8_SRGB:
 			case PixelFormat::BGRA8:

@@ -28,6 +28,11 @@ namespace Nz
 			return &base[(width*(height*z + y) + x)*bpp];
 		}
 
+		inline const UInt8* GetPixelPtr(const UInt8* base, UInt8 bpp, UInt32 x, UInt32 y, UInt32 z, UInt32 width, UInt32 height)
+		{
+			return &base[(width*(height*z + y) + x)*bpp];
+		}
+
 		inline bool GetStbirParameters(PixelFormat pixelFormat, stbir_pixel_layout& pixelLayout, stbir_datatype& dataType)
 		{
 			switch (pixelFormat)
@@ -159,7 +164,7 @@ namespace Nz
 				UInt64 greenAcc = 0;
 				UInt64 blueAcc = 0;
 
-				const UInt8* pixels = GetConstPixels(0, 0, 0, level);
+				const UInt8* pixels = GetConstPixels(level);
 				for (UInt32 z = 0; z < depth; ++z)
 				{
 					for (UInt32 y = 0; y < height; ++y)
@@ -192,7 +197,7 @@ namespace Nz
 				double greenAcc = 0.0;
 				double blueAcc = 0.0;
 
-				const UInt8* pixels = GetConstPixels(0, 0, 0, level);
+				const UInt8* pixels = GetConstPixels(level);
 				for (UInt32 z = 0; z < depth; ++z)
 				{
 					for (UInt32 y = 0; y < height; ++y)
@@ -226,7 +231,7 @@ namespace Nz
 				UInt64 blueAcc = 0;
 				UInt64 alphaAcc = 0;
 
-				const UInt8* pixels = GetConstPixels(0, 0, 0, level);
+				const UInt8* pixels = GetConstPixels(level);
 				for (UInt32 z = 0; z < depth; ++z)
 				{
 					for (UInt32 y = 0; y < height; ++y)
@@ -266,7 +271,7 @@ namespace Nz
 				double blueAcc = 0.0;
 				double alphaAcc = 0.0;
 
-				const UInt8* pixels = GetConstPixels(0, 0, 0, level);
+				const UInt8* pixels = GetConstPixels(level);
 				for (UInt32 z = 0; z < depth; ++z)
 				{
 					for (UInt32 y = 0; y < height; ++y)
@@ -304,7 +309,7 @@ namespace Nz
 				double blueAcc = 0.0;
 				double alphaAcc = 0.0;
 
-				const UInt8* pixels = GetConstPixels(0, 0, 0, level);
+				const UInt8* pixels = GetConstPixels(level);
 				UInt8 bpp = PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format);
 
 				for (UInt32 z = 0; z < depth; ++z)
@@ -448,7 +453,7 @@ namespace Nz
 				break;
 		}
 
-		levelCount = std::min(levelCount, ImageUtils::GetMaxLevel(type, width, height, depth));
+		levelCount = std::min(levelCount, ImageUtils::GetMaxLevel(type, format, width, height, depth));
 
 		SharedImage::PixelContainer levels;
 		levels.resize(levelCount);
@@ -675,7 +680,7 @@ namespace Nz
 		NazaraAssertMsg(IsLevelAllocated(baseLevel), "image has no level %u", static_cast<unsigned int>(baseLevel));
 		NazaraAssertMsg(m_sharedImage->type != ImageType::E3D, "3D image resizing is not supported");
 
-		UInt8 levelCount = std::min(maxLevels, ImageUtils::GetMaxLevel(m_sharedImage->type, m_sharedImage->width, m_sharedImage->height, m_sharedImage->depth));
+		UInt8 levelCount = std::min(maxLevels, ImageUtils::GetMaxLevel(m_sharedImage->type, m_sharedImage->format, m_sharedImage->width, m_sharedImage->height, m_sharedImage->depth));
 		UInt8 remainingLevels = levelCount - baseLevel - 1;
 		if (remainingLevels == 0)
 			return true;
@@ -692,7 +697,7 @@ namespace Nz
 		if (m_sharedImage->levels.size() < levelCount)
 			m_sharedImage->levels.resize(levelCount);
 
-		ImageUtils::ForEachLevel(remainingLevels, m_sharedImage->type, GetWidth(baseLevel), GetHeight(baseLevel), GetDepth(baseLevel), [&](UInt8 levelOffset, UInt32 width, UInt32 height, UInt32 depth)
+		ImageUtils::ForEachLevel(remainingLevels + 1, m_sharedImage->type, GetWidth(baseLevel), GetHeight(baseLevel), GetDepth(baseLevel), [&](UInt8 levelOffset, UInt32 width, UInt32 height, UInt32 depth)
 		{
 			if (levelOffset == 0)
 				return; //< FIXME
@@ -725,10 +730,17 @@ namespace Nz
 		return true;
 	}
 
-	const UInt8* Image::GetConstPixels(UInt32 x, UInt32 y, UInt32 z, UInt8 level) const
+	const UInt8* Image::GetConstPixels(UInt8 level) const
 	{
 		NazaraAssertMsg(IsValid(), "invalid image");
 		NazaraAssertMsg(level < m_sharedImage->levels.size(), "level out of bounds (%u >= %zu)", UInt32(level), m_sharedImage->levels.size());
+
+		return m_sharedImage->levels[level].get();
+	}
+
+	const UInt8* Image::GetConstPixels(UInt32 x, UInt32 y, UInt32 z, UInt8 level) const
+	{
+		const UInt8* pixels = GetConstPixels(level);
 
 		UInt32 width = ImageUtils::GetLevelSize(m_sharedImage->width, level);
 		NazaraAssertMsg(x < width, "x value exceeds width (%u >= %u)", x, width);
@@ -742,11 +754,7 @@ namespace Nz
 		NazaraUnused(depth);
 		NazaraAssertMsg(z < depth, "z value exceeds depth (%u >= %u)", z, depth);
 
-		UInt8* ptr = m_sharedImage->levels[level].get();
-		if (!ptr)
-			return nullptr;
-
-		return GetPixelPtr(ptr, PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format), x, y, z, width, height);
+		return GetPixelPtr(pixels, PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format), x, y, z, width, height);
 	}
 
 	UInt32 Image::GetDepth(UInt8 level) const
@@ -775,7 +783,7 @@ namespace Nz
 
 	UInt8 Image::GetMaxLevel() const
 	{
-		return ImageUtils::GetMaxLevel(m_sharedImage->type, m_sharedImage->width, m_sharedImage->height, m_sharedImage->depth);
+		return ImageUtils::GetMaxLevel(m_sharedImage->type, m_sharedImage->format, m_sharedImage->width, m_sharedImage->height, m_sharedImage->depth);
 	}
 
 	std::size_t Image::GetMemoryUsage() const
@@ -830,10 +838,22 @@ namespace Nz
 		return color;
 	}
 
-	UInt8* Image::GetPixels(UInt32 x, UInt32 y, UInt32 z, UInt8 level)
+	UInt8* Image::GetPixels(UInt8 level)
 	{
 		NazaraAssertMsg(IsValid(), "invalid image");
 		NazaraAssertMsg(level < m_sharedImage->levels.size(), "level out of bounds (%u >= %zu)", UInt32(level), m_sharedImage->levels.size());
+
+		EnsureOwnership();
+
+		if (!m_sharedImage->levels[level])
+			m_sharedImage->levels[level] = std::make_unique_for_overwrite<UInt8[]>(GetMemoryUsage(level));
+
+		return m_sharedImage->levels[level].get();
+	}
+
+	UInt8* Image::GetPixels(UInt32 x, UInt32 y, UInt32 z, UInt8 level)
+	{
+		UInt8* pixels = GetPixels(level);
 
 		UInt32 width = ImageUtils::GetLevelSize(m_sharedImage->width, level);
 		NazaraAssertMsg(x < width, "x value exceeds width (%u >= %u)", x, width);
@@ -848,14 +868,7 @@ namespace Nz
 		NazaraUnused(depth);
 		NazaraAssertMsg(z < depth, "z value exceeds depth (%u >= %u)", z, depth);
 
-		NazaraAssertMsg(level < m_sharedImage->levels.size(), "level out of bounds (%u >= %zu)", UInt32(level), m_sharedImage->levels.size());
-
-		EnsureOwnership();
-
-		if (!m_sharedImage->levels[level])
-			m_sharedImage->levels[level] = std::make_unique_for_overwrite<UInt8[]>(GetMemoryUsage(level));
-
-		return GetPixelPtr(m_sharedImage->levels[level].get(), PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format), x, y, z, width, height);
+		return GetPixelPtr(pixels, PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format), x, y, z, width, height);
 	}
 
 	Vector3ui32 Image::GetSize(UInt8 level) const
