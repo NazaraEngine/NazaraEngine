@@ -925,7 +925,7 @@ namespace Nz
 					return true;
 
 				workingBitset.Clear();
-				workingBitset.Write(seq, info.bitsPerPixel);
+				seq = workingBitset.Write(seq, info.bitsPerPixel);
 			}
 			while (--pixelCount > 0);
 
