@@ -13,7 +13,7 @@ namespace Nz
 	OpenGLTexture::OpenGLTexture(OpenGLDevice& device, const TextureInfo& textureInfo) :
 	m_textureInfo(textureInfo)
 	{
-		m_textureInfo.levelCount = std::min(m_textureInfo.levelCount, ImageUtils::GetMaxLevel(m_textureInfo.type, m_textureInfo.pixelFormat, m_textureInfo.width, m_textureInfo.height, m_textureInfo.depth));
+		m_textureInfo.levelCount = std::min(m_textureInfo.levelCount, ImageUtils::GetMaxLevelCount(m_textureInfo.type, m_textureInfo.pixelFormat, m_textureInfo.width, m_textureInfo.height, m_textureInfo.depth));
 
 		if (!m_texture.Create(device))
 			throw std::runtime_error("failed to create texture object");

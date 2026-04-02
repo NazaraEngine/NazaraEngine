@@ -110,7 +110,7 @@ namespace Nz::ImageCompressor
 		NazaraAssert(sourceImage.IsValid());
 		NazaraAssert(sourceImage.GetFormat() == SourceFormat);
 
-		UInt8 levelCount = std::min(sourceImage.GetLevelCount(), ImageUtils::GetMaxLevel(sourceImage.GetType(), DestFormat, sourceImage.GetWidth(), sourceImage.GetHeight(), sourceImage.GetDepth()));
+		UInt8 levelCount = std::min(sourceImage.GetLevelCount(), ImageUtils::GetMaxLevelCount(sourceImage.GetType(), DestFormat, sourceImage.GetWidth(), sourceImage.GetHeight(), sourceImage.GetDepth()));
 
 		Image compressedImage(sourceImage.GetType(), DestFormat, AlignPow2(sourceImage.GetWidth(), BlockSize), AlignPow2(sourceImage.GetHeight(), BlockSize), sourceImage.GetDepth(), levelCount);
 		for (UInt8 level = 0; level < levelCount; ++level)

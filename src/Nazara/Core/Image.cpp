@@ -460,7 +460,7 @@ namespace Nz
 				break;
 		}
 
-		levelCount = std::min(levelCount, ImageUtils::GetMaxLevel(type, format, width, height, depth));
+		levelCount = std::min(levelCount, ImageUtils::GetMaxLevelCount(type, format, width, height, depth));
 
 		SharedImage::PixelContainer levels;
 		levels.resize(levelCount);
@@ -687,7 +687,7 @@ namespace Nz
 		NazaraAssertMsg(IsLevelAllocated(baseLevel), "image has no level %u", static_cast<unsigned int>(baseLevel));
 		NazaraAssertMsg(m_sharedImage->type != ImageType::E3D, "3D image resizing is not supported");
 
-		UInt8 levelCount = std::min(maxLevels, ImageUtils::GetMaxLevel(m_sharedImage->type, m_sharedImage->format, m_sharedImage->width, m_sharedImage->height, m_sharedImage->depth));
+		UInt8 levelCount = std::min(maxLevels, ImageUtils::GetMaxLevelCount(m_sharedImage->type, m_sharedImage->format, m_sharedImage->width, m_sharedImage->height, m_sharedImage->depth));
 		UInt8 remainingLevels = levelCount - baseLevel - 1;
 		if (remainingLevels == 0)
 			return true;
@@ -790,7 +790,7 @@ namespace Nz
 
 	UInt8 Image::GetMaxLevel() const
 	{
-		return ImageUtils::GetMaxLevel(m_sharedImage->type, m_sharedImage->format, m_sharedImage->width, m_sharedImage->height, m_sharedImage->depth);
+		return ImageUtils::GetMaxLevelCount(m_sharedImage->type, m_sharedImage->format, m_sharedImage->width, m_sharedImage->height, m_sharedImage->depth);
 	}
 
 	std::size_t Image::GetMemoryUsage() const

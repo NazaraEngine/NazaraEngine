@@ -22,8 +22,8 @@ namespace Nz::ImageUtils
 	template<typename F> auto ForEachLevel(ImageType type, PixelFormat format, UInt32 width, UInt32 height, UInt32 depth, F&& callback);
 	template<typename F> auto ForEachLevel(std::size_t levelCount, ImageType type, UInt32 width, UInt32 height, UInt32 depth, F&& callback);
 	inline UInt32 GetLevelSize(UInt32 size, UInt8 level);
-	inline UInt8 GetMaxLevel(UInt32 width, UInt32 height, UInt32 depth = 1);
-	inline UInt8 GetMaxLevel(ImageType type, PixelFormat format, UInt32 width, UInt32 height, UInt32 depth = 1);
+	inline UInt8 GetMaxLevelCount(UInt32 width, UInt32 height, UInt32 depth = 1);
+	inline UInt8 GetMaxLevelCount(ImageType type, PixelFormat format, UInt32 width, UInt32 height, UInt32 depth = 1);
 	inline Boxui32 RegionToArray(ImageType type, Boxui32 region, UInt32& baseLayer, UInt32& layerCount);
 }
 

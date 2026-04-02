@@ -22,7 +22,7 @@ namespace Nz
 	m_allocation(nullptr),
 	m_textureInfo(textureInfo)
 	{
-		m_textureInfo.levelCount = std::min(m_textureInfo.levelCount, ImageUtils::GetMaxLevel(m_textureInfo.type, m_textureInfo.pixelFormat, m_textureInfo.width, m_textureInfo.height, m_textureInfo.depth));
+		m_textureInfo.levelCount = std::min(m_textureInfo.levelCount, ImageUtils::GetMaxLevelCount(m_textureInfo.type, m_textureInfo.pixelFormat, m_textureInfo.width, m_textureInfo.height, m_textureInfo.depth));
 		m_textureViewInfo = m_textureInfo;
 
 		VkImageViewCreateInfo createInfoView = {};
