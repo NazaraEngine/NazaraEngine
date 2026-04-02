@@ -253,14 +253,16 @@ namespace Nz
 					return Color(0.0f, 0.0f, 0.0f, 0.0f);
 
 				double divisor = 255.0 * alphaAcc;
+				double alphaDivisor = 255.0 * double(width) * double(height) * double(depth);
 				float r = static_cast<float>(double(redAcc) / divisor);
 				float g = static_cast<float>(double(greenAcc) / divisor);
 				float b = static_cast<float>(double(blueAcc) / divisor);
+				float a = static_cast<float>(double(alphaAcc) / alphaDivisor);
 
 				if (m_sharedImage->format == PixelFormat::BGRA8)
 					std::swap(r, b);
 
-				return Color(r, g, b);
+				return Color(r, g, b, a);
 			}
 
 			case PixelFormat::BGRA8_SRGB:
@@ -292,11 +294,13 @@ namespace Nz
 				if (m_sharedImage->format == PixelFormat::BGRA8_SRGB)
 					std::swap(redAcc, blueAcc);
 
+				double alphaDivisor = 255.0 * double(width) * double(height) * double(depth);
 				float r = static_cast<float>(redAcc / alphaAcc);
 				float g = static_cast<float>(greenAcc / alphaAcc);
 				float b = static_cast<float>(blueAcc / alphaAcc);
+				float a = static_cast<float>(alphaAcc / alphaDivisor);
 
-				return Color(r, g, b);
+				return Color(r, g, b, a);
 			}
 
 			default:
@@ -332,11 +336,14 @@ namespace Nz
 					}
 				}
 
+				double alphaDivisor = 255.0 * double(width) * double(height) * double(depth);
+
 				float r = static_cast<float>(redAcc / alphaAcc);
 				float g = static_cast<float>(greenAcc / alphaAcc);
 				float b = static_cast<float>(blueAcc / alphaAcc);
+				float a = static_cast<float>(alphaAcc / alphaDivisor);
 
-				return Color(r, g, b);
+				return Color(r, g, b, a);
 			}
 		}
 	}
