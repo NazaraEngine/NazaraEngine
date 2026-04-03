@@ -157,6 +157,70 @@ namespace Nz
 
 		switch (m_sharedImage->format)
 		{
+			case PixelFormat::A8:
+			case PixelFormat::L8:
+			case PixelFormat::R8:
+			case PixelFormat::R8I:
+			case PixelFormat::R8UI:
+			{
+				UInt64 acc = 0;
+
+				const UInt8* pixels = GetConstPixels(level);
+				std::size_t pixelCount = static_cast<std::size_t>(width) * height * depth;
+				for (std::size_t i = 0; i < pixelCount; ++i)
+					acc += *pixels++;
+
+				double divisor = 255.0 * double(pixelCount);
+				float r = static_cast<float>(acc / divisor);
+				float g = 0.0f;
+				float b = 0.0f;
+				float a = 1.0f;
+
+				if (m_sharedImage->format == PixelFormat::L8)
+					b = g = r;
+				else if (m_sharedImage->format == PixelFormat::A8)
+				{
+					a = r;
+					r = 0.0f;
+				}
+				else if (m_sharedImage->format == PixelFormat::R8I)
+					r = 2.0f * r - 1.0f;
+
+				return Color(r, g, b, a);
+			}
+			
+			case PixelFormat::RG8:
+			case PixelFormat::RG8I:
+			case PixelFormat::RG8UI:
+			{
+				UInt64 redAcc = 0;
+				UInt64 greenAcc = 0;
+
+				const UInt8* pixels = GetConstPixels(level);
+				std::size_t pixelCount = static_cast<std::size_t>(width) * height * depth;
+				for (std::size_t i = 0; i < pixelCount; ++i)
+				{
+					redAcc += pixels[0];
+					greenAcc += pixels[1];
+
+					pixels += 2;
+				}
+
+				double divisor = 255.0 * double(pixelCount);
+				float r = static_cast<float>(redAcc / divisor);
+				float g = static_cast<float>(greenAcc / divisor);
+				float b = 0.0f;
+				float a = 1.0f;
+
+				if (m_sharedImage->format == PixelFormat::RG8I)
+				{
+					r = 2.0f * r - 1.0f;
+					g = 2.0f * g - 1.0f;
+				}
+
+				return Color(r, g, b, a);
+			}
+
 			case PixelFormat::BGR8:
 			case PixelFormat::RGB8:
 			{
@@ -165,27 +229,22 @@ namespace Nz
 				UInt64 blueAcc = 0;
 
 				const UInt8* pixels = GetConstPixels(level);
-				for (UInt32 z = 0; z < depth; ++z)
+				std::size_t pixelCount = static_cast<std::size_t>(width) * height * depth;
+				for (std::size_t i = 0; i < pixelCount; ++i)
 				{
-					for (UInt32 y = 0; y < height; ++y)
-					{
-						for (UInt32 x = 0; x < width; ++x)
-						{
-							redAcc += pixels[0];
-							greenAcc += pixels[1];
-							blueAcc += pixels[2];
-							pixels += 3;
-						}
-					}
+					redAcc += pixels[0];
+					greenAcc += pixels[1];
+					blueAcc += pixels[2];
+					pixels += 3;
 				}
 
 				if (m_sharedImage->format == PixelFormat::BGR8)
 					std::swap(redAcc, blueAcc);
 
-				double pixelCount = 255.0 * double(width) * double(height) * double(depth);
-				float r = static_cast<float>(redAcc / pixelCount);
-				float g = static_cast<float>(greenAcc / pixelCount);
-				float b = static_cast<float>(blueAcc / pixelCount);
+				double divisor = double(pixelCount);
+				float r = static_cast<float>(redAcc / divisor);
+				float g = static_cast<float>(greenAcc / divisor);
+				float b = static_cast<float>(blueAcc / divisor);
 
 				return Color(r, g, b);
 			}
@@ -198,27 +257,23 @@ namespace Nz
 				double blueAcc = 0.0;
 
 				const UInt8* pixels = GetConstPixels(level);
-				for (UInt32 z = 0; z < depth; ++z)
+				std::size_t pixelCount = static_cast<std::size_t>(width) * height * depth;
+
+				for (std::size_t i = 0; i < pixelCount; ++i)
 				{
-					for (UInt32 y = 0; y < height; ++y)
-					{
-						for (UInt32 x = 0; x < width; ++x)
-						{
-							redAcc += Color::sRGBToLinear(pixels[0] / 255.0f);
-							greenAcc += Color::sRGBToLinear(pixels[1] / 255.0f);
-							blueAcc += Color::sRGBToLinear(pixels[2] / 255.0f);
-							pixels += 3;
-						}
-					}
+					redAcc += Color::sRGBToLinear(pixels[0] / 255.0f);
+					greenAcc += Color::sRGBToLinear(pixels[1] / 255.0f);
+					blueAcc += Color::sRGBToLinear(pixels[2] / 255.0f);
+					pixels += 3;
 				}
 
 				if (m_sharedImage->format == PixelFormat::BGR8_SRGB)
 					std::swap(redAcc, blueAcc);
 
-				double pixelCount = double(width) * double(height) * double(depth);
-				float r = static_cast<float>(redAcc / pixelCount);
-				float g = static_cast<float>(greenAcc / pixelCount);
-				float b = static_cast<float>(blueAcc / pixelCount);
+				double divisor = double(pixelCount);
+				float r = static_cast<float>(redAcc / divisor);
+				float g = static_cast<float>(greenAcc / divisor);
+				float b = static_cast<float>(blueAcc / divisor);
 
 				return Color(r, g, b);
 			}
@@ -232,28 +287,24 @@ namespace Nz
 				UInt64 alphaAcc = 0;
 
 				const UInt8* pixels = GetConstPixels(level);
-				for (UInt32 z = 0; z < depth; ++z)
-				{
-					for (UInt32 y = 0; y < height; ++y)
-					{
-						for (UInt32 x = 0; x < width; ++x)
-						{
-							UInt8 alpha = pixels[3];
-							redAcc += alpha * pixels[0];
-							greenAcc += alpha * pixels[1];
-							blueAcc += alpha * pixels[2];
-							alphaAcc += alpha;
 
-							pixels += 4;
-						}
-					}
+				std::size_t pixelCount = static_cast<std::size_t>(width) * height * depth;
+				for (std::size_t i = 0; i < pixelCount; ++i)
+				{
+					UInt8 alpha = pixels[3];
+					redAcc += alpha * pixels[0];
+					greenAcc += alpha * pixels[1];
+					blueAcc += alpha * pixels[2];
+					alphaAcc += alpha;
+
+					pixels += 4;
 				}
 
 				if (alphaAcc == 0)
 					return Color(0.0f, 0.0f, 0.0f, 0.0f);
 
 				double divisor = 255.0 * alphaAcc;
-				double alphaDivisor = 255.0 * double(width) * double(height) * double(depth);
+				double alphaDivisor = 255.0 * double(pixelCount);
 				float r = static_cast<float>(double(redAcc) / divisor);
 				float g = static_cast<float>(double(greenAcc) / divisor);
 				float b = static_cast<float>(double(blueAcc) / divisor);
@@ -274,27 +325,23 @@ namespace Nz
 				double alphaAcc = 0.0;
 
 				const UInt8* pixels = GetConstPixels(level);
-				for (UInt32 z = 0; z < depth; ++z)
-				{
-					for (UInt32 y = 0; y < height; ++y)
-					{
-						for (UInt32 x = 0; x < width; ++x)
-						{
-							float alpha = pixels[3] / 255.0f;
-							redAcc += alpha * Color::sRGBToLinear(pixels[0] / 255.0f);
-							greenAcc += alpha * Color::sRGBToLinear(pixels[1] / 255.0f);
-							blueAcc += alpha * Color::sRGBToLinear(pixels[2] / 255.0f);
-							alphaAcc += alpha;
 
-							pixels += 4;
-						}
-					}
+				std::size_t pixelCount = static_cast<std::size_t>(width) * height * depth;
+				for (std::size_t i = 0; i < pixelCount; ++i)
+				{
+					float alpha = pixels[3] / 255.0f;
+					redAcc += alpha * Color::sRGBToLinear(pixels[0] / 255.0f);
+					greenAcc += alpha * Color::sRGBToLinear(pixels[1] / 255.0f);
+					blueAcc += alpha * Color::sRGBToLinear(pixels[2] / 255.0f);
+					alphaAcc += alpha;
+
+					pixels += 4;
 				}
 
 				if (m_sharedImage->format == PixelFormat::BGRA8_SRGB)
 					std::swap(redAcc, blueAcc);
 
-				double alphaDivisor = 255.0 * double(width) * double(height) * double(depth);
+				double alphaDivisor = 255.0 * double(pixelCount);
 				float r = static_cast<float>(redAcc / alphaAcc);
 				float g = static_cast<float>(greenAcc / alphaAcc);
 				float b = static_cast<float>(blueAcc / alphaAcc);
@@ -316,27 +363,22 @@ namespace Nz
 				const UInt8* pixels = GetConstPixels(level);
 				UInt8 bpp = PixelFormatInfo::GetBytesPerPixel(m_sharedImage->format);
 
-				for (UInt32 z = 0; z < depth; ++z)
+				std::size_t pixelCount = static_cast<std::size_t>(width) * height * depth;
+				for (std::size_t i = 0; i < pixelCount; ++i)
 				{
-					for (UInt32 y = 0; y < height; ++y)
-					{
-						for (UInt32 x = 0; x < width; ++x)
-						{
-							Color color;
-							if (!PixelFormatInfo::Convert(m_sharedImage->format, PixelFormat::RGBA32F, pixels, &color.r))
-								NazaraError("failed to convert image's format to RGBA8");
+					Color color;
+					if (!PixelFormatInfo::Convert(m_sharedImage->format, PixelFormat::RGBA32F, pixels, &color.r))
+						NazaraError("failed to convert image's format to RGBA8");
 
-							redAcc += color.r * color.a;
-							greenAcc += color.g * color.a;
-							blueAcc += color.b * color.a;
-							alphaAcc += color.a;
+					redAcc += color.r * color.a;
+					greenAcc += color.g * color.a;
+					blueAcc += color.b * color.a;
+					alphaAcc += color.a;
 
-							pixels += bpp;
-						}
-					}
+					pixels += bpp;
 				}
 
-				double alphaDivisor = 255.0 * double(width) * double(height) * double(depth);
+				double alphaDivisor = 255.0 * double(pixelCount);
 
 				float r = static_cast<float>(redAcc / alphaAcc);
 				float g = static_cast<float>(greenAcc / alphaAcc);
