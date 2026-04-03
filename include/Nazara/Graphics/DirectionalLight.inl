@@ -22,7 +22,7 @@ namespace Nz
 		UpdateRotation(Quaternionf::Identity());
 	}
 
-	inline void DirectionalLight::EnableFixedShadowCascadSplit(bool enable)
+	inline void DirectionalLight::EnableFixedShadowCascadeSplit(bool enable)
 	{
 		m_shadowCascadeFixedSplit = enable;
 	}

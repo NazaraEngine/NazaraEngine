@@ -27,7 +27,7 @@ namespace Nz
 
 			float ComputeContributionScore(const Frustumf& viewerFrustum) const override;
 
-			inline void EnableFixedShadowCascadSplit(bool enable);
+			inline void EnableFixedShadowCascadeSplit(bool enable);
 
 			bool FrustumCull(const Frustumf& viewerFrustum) const override;
 
