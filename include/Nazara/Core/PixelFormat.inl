@@ -42,7 +42,7 @@ namespace Nz
 
 	inline bool PixelFormatDescription::IsValid() const
 	{
-		return bitsPerPixel != 0;
+		return content != PixelFormatContent::Undefined;
 	}
 
 	inline void PixelFormatDescription::RecomputeBitsPerPixel()
