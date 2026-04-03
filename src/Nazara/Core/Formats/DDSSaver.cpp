@@ -203,7 +203,7 @@ namespace Nz
 						NazaraError("failed to write level #{0}", level);
 						return false;
 					}
-					
+
 					return true;
 				});
 

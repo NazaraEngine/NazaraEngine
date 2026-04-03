@@ -44,7 +44,7 @@ typedef void (GL_APIENTRYP PFNGLTEXTUREVIEWPROC) (GLuint texture, GLenum target,
 #define GL_MAP_COHERENT_BIT                0x0080
 #define GL_DYNAMIC_STORAGE_BIT             0x0100
 #define GL_CLIENT_STORAGE_BIT              0x0200
-typedef void (GL_APIENTRYP PFNGLBUFFERSTORAGEPROC) (GLenum target, GLsizeiptr size​, const GLvoid* data​, GLbitfield flags);
+typedef void (GL_APIENTRYP PFNGLBUFFERSTORAGEPROC) (GLenum target, GLsizeiptr size, const GLvoid* data, GLbitfield flags);
 
 // Clip control (OpenGL 4.5)
 #define GL_LOWER_LEFT                      0x8CA1

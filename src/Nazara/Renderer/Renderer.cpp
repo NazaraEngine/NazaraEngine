@@ -251,9 +251,11 @@ namespace Nz
 		{
 			constexpr auto validationStr = frozen::make_unordered_map<frozen::string, RenderAPIValidationLevel>({
 				{ "debug",    RenderAPIValidationLevel::Debug },
+				{ "error",    RenderAPIValidationLevel::Errors },
 				{ "errors",   RenderAPIValidationLevel::Errors },
 				{ "none",     RenderAPIValidationLevel::None },
 				{ "verbose",  RenderAPIValidationLevel::Verbose },
+				{ "warning",  RenderAPIValidationLevel::Warnings },
 				{ "warnings", RenderAPIValidationLevel::Warnings }
 			});
 

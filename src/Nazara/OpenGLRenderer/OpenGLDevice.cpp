@@ -328,7 +328,7 @@ namespace Nz
 
 				return usage == TextureUsage::ShaderSampling || usage == TextureUsage::TransferDestination || usage == TextureUsage::TransferSource;
 			}
-			
+
 			case PixelFormat::BC1_RGB_sRGB:
 			case PixelFormat::BC1_RGBA_sRGB:
 			case PixelFormat::BC2_sRGB:
@@ -339,7 +339,7 @@ namespace Nz
 
 				return  usage == TextureUsage::ShaderSampling || usage == TextureUsage::TransferDestination || usage == TextureUsage::TransferSource;
 			}
-			
+
 			case PixelFormat::BC4_Snorm:
 			case PixelFormat::BC4_Unorm:
 			case PixelFormat::BC5_Snorm:

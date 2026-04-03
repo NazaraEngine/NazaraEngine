@@ -188,7 +188,7 @@ namespace Nz
 
 				return Color(r, g, b, a);
 			}
-			
+
 			case PixelFormat::RG8:
 			case PixelFormat::RG8I:
 			case PixelFormat::RG8UI:
