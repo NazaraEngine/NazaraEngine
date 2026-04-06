@@ -61,7 +61,7 @@ jobs:
 
     # Setup emsdk
     - name: Setup emscripten
-      uses: mymindstorm/setup-emsdk@v14
+      uses: mymindstorm/setup-emsdk@v15
       with:
         version: 4.0.15
         actions-cache-folder: emsdk-cache-${{ matrix.mode }}-${{ matrix.kind }}
