@@ -32,10 +32,13 @@ namespace Nz
 			std::shared_ptr<GL::Context> CreateContext(GL::ContextParams params) const;
 			std::shared_ptr<GL::Context> CreateContext(GL::ContextParams params, WindowHandle handle) const;
 
+			void Execute(const FunctionRef<void(CommandBufferBuilder& builder)>& callback, QueueType queueType) override;
+
 			const RenderDeviceInfo& GetDeviceInfo() const override;
 			const RenderDeviceFeatures& GetEnabledFeatures() const override;
 			inline const GL::Context& GetReferenceContext() const;
 
+			std::unique_ptr<AsyncRenderCommands> InstantiateAsyncCommands(QueueType queueType) override;
 			std::shared_ptr<RenderBuffer> InstantiateBuffer(UInt64 size, BufferUsageFlags usageFlags, const void* initialData = nullptr) override;
 			std::shared_ptr<CommandPool> InstantiateCommandPool(QueueType queueType) override;
 			std::shared_ptr<ComputePipeline> InstantiateComputePipeline(ComputePipelineInfo pipelineInfo) override;
@@ -47,7 +50,6 @@ namespace Nz
 			std::shared_ptr<ShaderModule> InstantiateShaderModule(nzsl::ShaderStageTypeFlags shaderStages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const nzsl::BackendParameters& states) override;
 			std::shared_ptr<Swapchain> InstantiateSwapchain(WindowHandle windowHandle, const Vector2ui& windowSize, const SwapchainParameters& parameters) override;
 			std::shared_ptr<Texture> InstantiateTexture(const TextureInfo& params) override;
-			std::shared_ptr<Texture> InstantiateTexture(const TextureInfo& params, const void* initialData, bool buildMipmaps, unsigned int srcWidth = 0, unsigned int srcHeight = 0) override;
 			std::shared_ptr<TextureSampler> InstantiateTextureSampler(const TextureSamplerInfo& params) override;
 
 			bool IsTextureFormatSupported(PixelFormat format, TextureUsage usage) const override;
@@ -56,6 +58,8 @@ namespace Nz
 			inline void NotifyProgramDestruction(GLuint program) const;
 			inline void NotifySamplerDestruction(GLuint sampler) const;
 			inline void NotifyTextureDestruction(GLuint texture) const;
+
+			void SubmitAsyncCommands(std::unique_ptr<AsyncRenderCommands>&& transfer, bool waitForCompletion = false) override;
 
 			void WaitForIdle() override;
 

@@ -9,14 +9,14 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Error.hpp>
-#include <Nazara/Core/GuillotineImageAtlas.hpp>
+#include <Nazara/Core/GuillotineAtlas.hpp>
 #include <Nazara/Graphics/Export.hpp>
 
 namespace Nz
 {
 	class RenderDevice;
 
-	class NAZARA_GRAPHICS_API GuillotineTextureAtlas : public GuillotineImageAtlas
+	class NAZARA_GRAPHICS_API GuillotineTextureAtlas final : public GuillotineAtlas
 	{
 		public:
 			inline GuillotineTextureAtlas(RenderDevice& renderDevice, PixelFormat pixelFormat, UInt32 initialLayerSize = 512);
@@ -26,7 +26,8 @@ namespace Nz
 			DataStoreFlags GetStorage() const override;
 
 		private:
-			std::shared_ptr<AbstractImage> ResizeImage(const std::shared_ptr<AbstractImage>& oldImage, const Vector2ui& size) const override;
+			std::shared_ptr<AbstractImage> ResizeImage(const AbstractImage* oldImage, const Vector2ui& size) const override;
+			void UpdateImage(AbstractImage& image, const void* ptr, const Rectui& rect, UInt32 srcWidth, UInt32 srcHeight) const override;
 
 			RenderDevice& m_renderDevice;
 			PixelFormat m_texturePixelFormat;

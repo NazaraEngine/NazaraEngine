@@ -15,6 +15,7 @@
 
 namespace Nz
 {
+	class AsyncRenderCommands;
 	class RenderDevice;
 
 	class NAZARA_RENDERER_API RenderBuffer : public Buffer
@@ -24,6 +25,9 @@ namespace Nz
 			RenderBuffer(const RenderBuffer&) = delete;
 			RenderBuffer(RenderBuffer&&) = delete;
 			~RenderBuffer();
+
+			using Buffer::Fill;
+			virtual bool Fill(AsyncRenderCommands& asyncTransfer, const void* data, UInt64 offset, UInt64 size) = 0;
 
 			inline RenderDevice& GetRenderDevice();
 			inline const RenderDevice& GetRenderDevice() const;

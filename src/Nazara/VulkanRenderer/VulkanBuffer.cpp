@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/VulkanRenderer/VulkanBuffer.hpp>
+#include <Nazara/VulkanRenderer/VulkanCommandBufferBuilder.hpp>
 #include <Nazara/VulkanRenderer/VulkanDevice.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandBuffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/QueueHandle.hpp>
@@ -70,6 +71,46 @@ namespace Nz
 			Unmap();
 
 		vmaFlushAllocation(m_device.GetMemoryAllocator(), m_allocation, offset, size);
+
+		return true;
+	}
+
+	bool VulkanBuffer::Fill(AsyncRenderCommands& asyncTransfer, const void* data, UInt64 offset, UInt64 size)
+	{
+		VkBufferCreateInfo createInfo = {};
+		createInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+		createInfo.size = size;
+		createInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+
+		VmaAllocationCreateInfo allocInfo = {};
+		allocInfo.flags = VMA_ALLOCATION_CREATE_MAPPED_BIT | VMA_ALLOCATION_CREATE_HOST_ACCESS_SEQUENTIAL_WRITE_BIT;
+		allocInfo.usage = VMA_MEMORY_USAGE_AUTO_PREFER_HOST;
+
+		VmaAllocationInfo allocationInfo;
+
+		VkBuffer stagingBuffer;
+		VmaAllocation stagingAllocation;
+		VkResult result = vmaCreateBuffer(m_device.GetMemoryAllocator(), &createInfo, &allocInfo, &stagingBuffer, &stagingAllocation, &allocationInfo);
+		if (result != VK_SUCCESS)
+		{
+			NazaraError("failed to allocate staging buffer: {0}", TranslateVulkanError(result));
+			return false;
+		}
+
+		std::memcpy(allocationInfo.pMappedData, data, size);
+
+		asyncTransfer.AddCommands([=](CommandBufferBuilder& builder)
+		{
+			VulkanCommandBufferBuilder& vkBuilder = SafeCast<VulkanCommandBufferBuilder&>(builder);
+			Vk::CommandBuffer& vkCommandBuffer = vkBuilder.GetCommandBuffer();
+
+			vkCommandBuffer.CopyBuffer(stagingBuffer, m_buffer, size, 0, offset);
+		});
+
+		asyncTransfer.AddCompletionCallback([vma = m_device.GetMemoryAllocator(), stagingBuffer, stagingAllocation]
+		{
+			vmaDestroyBuffer(vma, stagingBuffer, stagingAllocation);
+		});
 
 		return true;
 	}

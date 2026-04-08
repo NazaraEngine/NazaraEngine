@@ -213,6 +213,9 @@ namespace Nz
 		VulkanRenderImage& currentFrame = *m_concurrentImageData[m_currentFrame];
 		Vk::Fence& inFlightFence = currentFrame.GetInFlightFence();
 
+		// Update async transfers just before waiting for inflight fence
+		m_device.UpdateAsyncTransfer();
+
 		// Wait until previous rendering to this image has been done
 		inFlightFence.Wait();
 

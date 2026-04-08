@@ -522,7 +522,8 @@ namespace NzImGui
 
 				textureInfo.width = width;
 				textureInfo.height = height;
-				rendererBackend->fontTexture = rendererBackend->device->InstantiateTexture(textureInfo, pixels, true);
+				rendererBackend->fontTexture = rendererBackend->device->InstantiateTexture(textureInfo);
+				rendererBackend->fontTexture->Update(pixels, true);
 
 				rendererBackend->fontTextureSampler = rendererBackend->device->InstantiateTextureSampler({});
 

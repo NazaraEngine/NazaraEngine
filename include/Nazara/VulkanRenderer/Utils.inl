@@ -313,6 +313,8 @@ namespace Nz
 			case PipelineStage::VertexInput:                  return VK_PIPELINE_STAGE_VERTEX_INPUT_BIT;
 			case PipelineStage::VertexShader:                 return VK_PIPELINE_STAGE_VERTEX_SHADER_BIT;
 			case PipelineStage::BottomOfPipe:                 return VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+			case PipelineStage::AllCommands:                  return VK_PIPELINE_STAGE_ALL_COMMANDS_BIT;
+			case PipelineStage::AllGraphicsCommands:          return VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT;
 		}
 
 		NazaraError("unhandled PipelineStage {0:#x}", UnderlyingCast(pipelineStage));

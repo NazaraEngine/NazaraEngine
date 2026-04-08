@@ -15,6 +15,7 @@
 
 namespace Nz
 {
+	class AsyncRenderCommands;
 	class RenderDevice;
 
 	struct TextureInfo
@@ -59,6 +60,7 @@ namespace Nz
 			virtual ~Texture();
 
 			virtual bool Copy(const Texture& source, const Boxui32& srcBox, const Vector3ui32& dstPos = Vector3ui32::Zero()) = 0;
+			virtual bool Copy(AsyncRenderCommands& asyncTransfer, const Texture& source, const Boxui32& srcBox, const Vector3ui32& dstPos = Vector3ui32::Zero()) = 0;
 			virtual std::shared_ptr<Texture> CreateView(const TextureViewInfo& viewInfo) = 0;
 
 			virtual RenderDevice* GetDevice() = 0;
@@ -66,6 +68,12 @@ namespace Nz
 			virtual Texture* GetParentTexture() const = 0;
 			virtual const TextureInfo& GetTextureInfo() const = 0;
 
+			virtual bool Update(const void* pixels, bool buildMipmaps = true, UInt32 srcWidth = 0, UInt32 srcHeight = 0) = 0;
+			virtual bool Update(const void* pixels, const Boxui& box, UInt32 srcWidth = 0, UInt32 srcHeight = 0, UInt8 level = 0) = 0;
+			virtual bool Update(Nz::FunctionRef<bool(void* pixelBuffer, UInt32 rowPitch, UInt32 depthPitch)> callback, const Boxui& box, UInt8 level = 0) = 0;
+			virtual bool Update(AsyncRenderCommands& asyncTransfer, const void* pixels, bool buildMipmaps = true, UInt32 srcWidth = 0, UInt32 srcHeight = 0) = 0;
+			virtual bool Update(AsyncRenderCommands& asyncTransfer, const void* pixels, const Boxui& box, UInt32 srcWidth = 0, UInt32 srcHeight = 0, UInt8 level = 0) = 0;
+			virtual bool Update(AsyncRenderCommands& asyncTransfer, Nz::FunctionRef<bool(void* pixelBuffer, UInt32 rowPitch, UInt32 depthPitch)> callback, const Boxui& box, UInt8 level = 0) = 0;
 			virtual void UpdateDebugName(std::string_view name) = 0;
 
 			Texture& operator=(const Texture&) = delete;

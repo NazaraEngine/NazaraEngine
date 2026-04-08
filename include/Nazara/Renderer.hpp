@@ -29,6 +29,7 @@
 #ifndef NAZARA_GLOBAL_RENDERER_HPP
 #define NAZARA_GLOBAL_RENDERER_HPP
 
+#include <Nazara/Renderer/AsyncRenderCommands.hpp>
 #include <Nazara/Renderer/CommandBuffer.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/CommandPool.hpp>

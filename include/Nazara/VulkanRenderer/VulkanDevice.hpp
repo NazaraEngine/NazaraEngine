@@ -9,8 +9,10 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
+#include <Nazara/VulkanRenderer/VulkanAsyncCommands.hpp>
 #include <Nazara/VulkanRenderer/VulkanBuffer.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/Device.hpp>
+#include <Nazara/VulkanRenderer/Wrapper/Fence.hpp>
 #include <vector>
 
 namespace Nz
@@ -23,9 +25,12 @@ namespace Nz
 			VulkanDevice(VulkanDevice&&) = delete; ///TODO?
 			~VulkanDevice();
 
+			void Execute(const FunctionRef<void(CommandBufferBuilder& builder)>& callback, QueueType queueType) override;
+
 			const RenderDeviceInfo& GetDeviceInfo() const override;
 			const RenderDeviceFeatures& GetEnabledFeatures() const override;
 
+			std::unique_ptr<AsyncRenderCommands> InstantiateAsyncCommands(QueueType queueType) override;
 			std::shared_ptr<RenderBuffer> InstantiateBuffer(UInt64 size, BufferUsageFlags usageFlags, const void* initialData = nullptr) override;
 			std::shared_ptr<CommandPool> InstantiateCommandPool(QueueType queueType) override;
 			std::shared_ptr<ComputePipeline> InstantiateComputePipeline(ComputePipelineInfo pipelineInfo) override;
@@ -37,10 +42,14 @@ namespace Nz
 			std::shared_ptr<ShaderModule> InstantiateShaderModule(nzsl::ShaderStageTypeFlags stages, ShaderLanguage lang, const void* source, std::size_t sourceSize, const nzsl::BackendParameters& states) override;
 			std::shared_ptr<Swapchain> InstantiateSwapchain(WindowHandle windowHandle, const Vector2ui& windowSize, const SwapchainParameters& parameters) override;
 			std::shared_ptr<Texture> InstantiateTexture(const TextureInfo& params) override;
-			std::shared_ptr<Texture> InstantiateTexture(const TextureInfo& params, const void* initialData, bool buildMipmaps, unsigned int srcWidth = 0, unsigned int srcHeight = 0) override;
 			std::shared_ptr<TextureSampler> InstantiateTextureSampler(const TextureSamplerInfo& params) override;
 
 			bool IsTextureFormatSupported(PixelFormat format, TextureUsage usage) const override;
+
+			void SubmitAsyncCommands(std::unique_ptr<AsyncRenderCommands>&& transfer, bool waitForCompletion) override;
+			void SubmitAsyncCommandsAndWait(VulkanAsyncCommands& transfer);
+
+			void UpdateAsyncTransfer();
 
 			void WaitForIdle() override;
 
@@ -48,6 +57,13 @@ namespace Nz
 			VulkanDevice& operator=(VulkanDevice&&) = delete; ///TODO?
 
 		private:
+			struct ActiveAsyncTransfer
+			{
+				std::unique_ptr<VulkanAsyncCommands> asyncTransfer;
+				Vk::Fence completionFence;
+			};
+
+			std::vector<ActiveAsyncTransfer> m_activeAsyncTransfer;
 			RenderDeviceFeatures m_enabledFeatures;
 			RenderDeviceInfo m_renderDeviceInfo;
 	};

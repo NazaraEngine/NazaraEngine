@@ -5,14 +5,14 @@
 namespace Nz
 {
 	inline GuillotineTextureAtlas::GuillotineTextureAtlas(RenderDevice& renderDevice, PixelFormat pixelFormat, UInt32 initialLayerSize) :
-	GuillotineImageAtlas(pixelFormat, initialLayerSize),
+	GuillotineAtlas(pixelFormat, initialLayerSize),
 	m_renderDevice(renderDevice),
 	m_texturePixelFormat(pixelFormat)
 	{
 	}
 
 	inline GuillotineTextureAtlas::GuillotineTextureAtlas(RenderDevice& renderDevice, PixelFormat texturePixelFormat, PixelFormat imagePixelFormat, UInt32 initialLayerSize) :
-	GuillotineImageAtlas(imagePixelFormat, initialLayerSize),
+	GuillotineAtlas(imagePixelFormat, initialLayerSize),
 	m_renderDevice(renderDevice),
 	m_texturePixelFormat(texturePixelFormat)
 	{

@@ -30,6 +30,7 @@
 #define NAZARA_GLOBAL_OPENGLRENDERER_HPP
 
 #include <Nazara/OpenGLRenderer/Export.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLAsyncCommands.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLBuffer.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLCommandBuffer.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLCommandBufferBuilder.hpp>

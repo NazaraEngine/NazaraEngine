@@ -4,6 +4,7 @@
 
 #include <Nazara/VulkanRenderer/VulkanDevice.hpp>
 #include <Nazara/Platform/WindowHandle.hpp>
+#include <Nazara/VulkanRenderer/VulkanAsyncCommands.hpp>
 #include <Nazara/VulkanRenderer/VulkanCommandBufferBuilder.hpp>
 #include <Nazara/VulkanRenderer/VulkanCommandPool.hpp>
 #include <Nazara/VulkanRenderer/VulkanComputePipeline.hpp>
@@ -25,6 +26,14 @@ namespace Nz
 		OnRenderDeviceRelease(this);
 	}
 
+	void VulkanDevice::Execute(const FunctionRef<void(CommandBufferBuilder& builder)>& callback, QueueType queueType)
+	{
+		VulkanAsyncCommands asyncCommands(*this, queueType);
+		asyncCommands.AddCommands(callback);
+
+		SubmitAsyncCommandsAndWait(asyncCommands);
+	}
+
 	const RenderDeviceInfo& VulkanDevice::GetDeviceInfo() const
 	{
 		return m_renderDeviceInfo;
@@ -33,6 +42,11 @@ namespace Nz
 	const RenderDeviceFeatures& VulkanDevice::GetEnabledFeatures() const
 	{
 		return m_enabledFeatures;
+	}
+
+	std::unique_ptr<AsyncRenderCommands> VulkanDevice::InstantiateAsyncCommands(QueueType queueType)
+	{
+		return std::make_unique<VulkanAsyncCommands>(*this, queueType);
 	}
 
 	std::shared_ptr<RenderBuffer> VulkanDevice::InstantiateBuffer(UInt64 size, BufferUsageFlags usageFlags, const void* initialData)
@@ -102,11 +116,6 @@ namespace Nz
 		return std::make_shared<VulkanTexture>(*this, params);
 	}
 
-	std::shared_ptr<Texture> VulkanDevice::InstantiateTexture(const TextureInfo& params, const void* initialData, bool buildMipmaps, unsigned int srcWidth, unsigned int srcHeight)
-	{
-		return std::make_shared<VulkanTexture>(*this, params, initialData, buildMipmaps, srcWidth, srcHeight);
-	}
-
 	std::shared_ptr<TextureSampler> VulkanDevice::InstantiateTextureSampler(const TextureSamplerInfo& params)
 	{
 		return std::make_shared<VulkanTextureSampler>(*this, params);
@@ -149,6 +158,60 @@ namespace Nz
 
 		VkFormatProperties formatProperties = GetInstance().GetPhysicalDeviceFormatProperties(GetPhysicalDevice(), vulkanFormat);
 		return formatProperties.optimalTilingFeatures & flags; //< Assume optimal tiling
+	}
+
+	void VulkanDevice::SubmitAsyncCommands(std::unique_ptr<AsyncRenderCommands>&& transfer, bool waitForCompletion)
+	{
+		std::unique_ptr<VulkanAsyncCommands> asyncTransfer = StaticUniquePointerCast<VulkanAsyncCommands>(std::move(transfer));
+
+		Vk::Fence completionFence;
+		completionFence.Create(*this);
+
+		Vk::QueueHandle queue = GetQueue(GetDefaultFamilyIndex(asyncTransfer->GetQueueType()), 0);
+		queue.Submit(asyncTransfer->PrepareForSubmit(), completionFence); //< TODO: Handle error
+
+		if (waitForCompletion)
+		{
+			completionFence.Wait();
+			asyncTransfer->TriggerCallbacks();
+		}
+		else
+		{
+			ActiveAsyncTransfer& activeTransfer = m_activeAsyncTransfer.emplace_back();
+			activeTransfer.asyncTransfer = std::move(asyncTransfer);
+			activeTransfer.completionFence = std::move(completionFence);
+		}
+	}
+
+	void VulkanDevice::SubmitAsyncCommandsAndWait(VulkanAsyncCommands& transfer)
+	{
+		Vk::QueueHandle queue = GetQueue(GetDefaultFamilyIndex(transfer.GetQueueType()), 0);
+
+		Vk::Fence completionFence;
+		completionFence.Create(*this);
+
+		queue.Submit(transfer.PrepareForSubmit(), completionFence); //< TODO: Handle error
+
+		completionFence.Wait();
+		transfer.TriggerCallbacks();
+	}
+
+	void VulkanDevice::UpdateAsyncTransfer()
+	{
+		for (auto it = m_activeAsyncTransfer.begin(); it != m_activeAsyncTransfer.end();)
+		{
+			ActiveAsyncTransfer& transfer = *it;
+			if (!transfer.completionFence.GetStatus())
+			{
+				++it;
+				continue;
+			}
+
+			VulkanAsyncCommands& asyncTransfer = SafeCast<VulkanAsyncCommands&>(*transfer.asyncTransfer);
+			asyncTransfer.TriggerCallbacks();
+
+			it = m_activeAsyncTransfer.erase(it);
+		}
 	}
 
 	void VulkanDevice::WaitForIdle()

@@ -124,6 +124,11 @@ namespace Nz
 		return context.CopyTexture(glTexture, *this, srcBox, dstPos);
 	}
 
+	bool OpenGLTexture::Copy(AsyncRenderCommands& /*asyncTransfer*/, const Texture& source, const Boxui32& srcBox, const Vector3ui32& dstPos)
+	{
+		return Copy(source, srcBox, dstPos);
+	}
+
 	std::shared_ptr<Texture> OpenGLTexture::CreateView(const TextureViewInfo& viewInfo)
 	{
 		if (m_parentTexture)
@@ -142,14 +147,26 @@ namespace Nz
 		return std::make_shared<OpenGLTexture>(std::static_pointer_cast<OpenGLTexture>(shared_from_this()), viewInfo);
 	}
 
-	bool OpenGLTexture::Update(const void* ptr, const Boxui& box, unsigned int srcWidth, unsigned int srcHeight, UInt8 level)
+	bool OpenGLTexture::Update(const void* ptr, bool buildMipmaps, UInt32 srcWidth, UInt32 srcHeight)
+	{
+		bool texUpdate = Update(ptr, Boxui(0, 0, 0, m_textureInfo.width, m_textureInfo.height, m_textureInfo.depth), srcWidth, srcHeight, 0);
+		if (!texUpdate)
+			return false;
+
+		if (buildMipmaps)
+			m_texture.GenerateMipmap();
+
+		return true;
+	}
+
+	bool OpenGLTexture::Update(const void* ptr, const Boxui& box, UInt32 srcWidth, UInt32 srcHeight, UInt8 level)
 	{
 		auto format = DescribeTextureFormat(m_textureInfo.pixelFormat);
 		assert(format);
 
 		const GL::Context& context = m_texture.EnsureDeviceContext();
 
-		std::size_t dataSize = PixelFormatInfo::ComputeSize(m_textureInfo.pixelFormat, box.width, box.height, box.depth);
+		UInt8 dataSize = PixelFormatInfo::IsUncompressed(m_textureInfo.pixelFormat) ? PixelFormatInfo::GetBytesPerPixel(m_textureInfo.pixelFormat) : PixelFormatInfo::GetBytesPerBlock(m_textureInfo.pixelFormat);
 		if (dataSize % 8 == 0)
 			context.glPixelStorei(GL_UNPACK_ALIGNMENT, 8);
 		else if (dataSize % 4 == 0)
@@ -226,13 +243,28 @@ namespace Nz
 		return true;
 	}
 
-	bool OpenGLTexture::Update(Nz::FunctionRef<bool(void* pixelBuffer, UInt32 rowPitch, UInt32 depthPitch)> callback, const Boxui& box, UInt8 level)
+	bool OpenGLTexture::Update(Nz::FunctionRef<bool(void* ptr, UInt32 rowPitch, UInt32 depthPitch)> callback, const Boxui& box, UInt8 level)
 	{
 		std::vector<std::uint8_t> pixels(PixelFormatInfo::ComputeSize(m_textureInfo.pixelFormat, box.width, box.height, box.depth));
 		if (!callback(pixels.data(), 0, 0))
 			return false;
 
 		return Update(pixels.data(), box, 0, 0, level);
+	}
+
+	bool OpenGLTexture::Update(AsyncRenderCommands& /*asyncTransfer*/, const void* ptr, bool buildMipmaps, UInt32 srcWidth, UInt32 srcHeight)
+	{
+		return Update(ptr, buildMipmaps, srcWidth, srcHeight);
+	}
+
+	bool OpenGLTexture::Update(AsyncRenderCommands& /*asyncTransfer*/, const void* ptr, const Boxui& box, UInt32 srcWidth, UInt32 srcHeight, UInt8 level)
+	{
+		return Update(ptr, box, srcWidth, srcHeight, level);
+	}
+
+	bool OpenGLTexture::Update(AsyncRenderCommands& /*asyncTransfer*/, Nz::FunctionRef<bool(void* ptr, UInt32 rowPitch, UInt32 depthPitch)> callback, const Boxui& box, UInt8 level)
+	{
+		return Update(callback, box, level);
 	}
 
 	void OpenGLTexture::UpdateDebugName(std::string_view name)
