@@ -69,6 +69,11 @@ namespace Nz
 		return true;
 	}
 
+	bool OpenGLBuffer::Fill(AsyncRenderCommands& /*asyncTransfer*/, const void* data, UInt64 offset, UInt64 size)
+	{
+		return Fill(data, offset, size); //< TODO
+	}
+
 	void OpenGLBuffer::Flush(UInt64 /*offset*/, UInt64 /*size*/)
 	{
 		// When should we flush explicitly (since GL_MAP_FLUSH_EXPLICIT is set for persistent mapping)?

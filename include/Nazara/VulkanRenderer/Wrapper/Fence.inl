@@ -16,6 +16,18 @@ namespace Nz::Vk
 		return Create(device, createInfo, allocator);
 	}
 
+	inline bool Fence::GetStatus() const
+	{
+		m_lastErrorCode = m_device->vkGetFenceStatus(*m_device, m_handle);
+		if (m_lastErrorCode != VK_SUCCESS && m_lastErrorCode != VK_NOT_READY)
+		{
+			NazaraError("failed to get fence status: {0}", TranslateVulkanError(m_lastErrorCode));
+			return false;
+		}
+
+		return m_lastErrorCode == VK_SUCCESS;
+	}
+
 	inline bool Fence::Reset()
 	{
 		m_lastErrorCode = m_device->vkResetFences(*m_device, 1U, &m_handle);

@@ -32,6 +32,7 @@
 #include <Nazara/VulkanRenderer/Export.hpp>
 #include <Nazara/VulkanRenderer/Utils.hpp>
 #include <Nazara/VulkanRenderer/Vulkan.hpp>
+#include <Nazara/VulkanRenderer/VulkanAsyncCommands.hpp>
 #include <Nazara/VulkanRenderer/VulkanBuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanCommandBuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanCommandBufferBuilder.hpp>

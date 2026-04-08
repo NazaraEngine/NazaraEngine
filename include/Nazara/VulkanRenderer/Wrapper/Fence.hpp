@@ -25,13 +25,15 @@ namespace Nz::Vk
 			using DeviceObject::Create;
 			inline bool Create(Device& device, VkFenceCreateFlags flags = 0, const VkAllocationCallbacks* allocator = nullptr);
 
+			inline bool GetStatus() const;
+
 			inline bool Reset();
 
 			inline bool Wait();
 			inline bool Wait(UInt64 timeout, bool* didTimeout = nullptr);
 
 			Fence& operator=(const Fence&) = delete;
-			Fence& operator=(Fence&&) = delete;
+			Fence& operator=(Fence&&) = default;
 
 		private:
 			static inline VkResult CreateHelper(Device& device, const VkFenceCreateInfo* createInfo, const VkAllocationCallbacks* allocator, VkFence* handle);

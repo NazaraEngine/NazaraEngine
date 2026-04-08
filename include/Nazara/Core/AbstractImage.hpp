@@ -36,11 +36,6 @@ namespace Nz
 			bool IsCompressed() const;
 			bool IsCubemap() const;
 
-			inline bool Update(const void* pixels, UInt32 srcWidth = 0, UInt32 srcHeight = 0, UInt8 level = 0);
-			virtual bool Update(const void* pixels, const Boxui& box, UInt32 srcWidth = 0, UInt32 srcHeight = 0, UInt8 level = 0) = 0;
-			inline bool Update(const void* pixels, const Rectui& rect, UInt32 z = 0, UInt32 srcWidth = 0, UInt32 srcHeight = 0, UInt8 level = 0);
-			virtual bool Update(Nz::FunctionRef<bool(void* pixelBuffer, UInt32 rowPitch, UInt32 depthPitch)> callback, const Boxui& box, UInt8 level = 0) = 0;
-
 			AbstractImage& operator=(const AbstractImage&) = default;
 			AbstractImage& operator=(AbstractImage&&) noexcept = default;
 	};

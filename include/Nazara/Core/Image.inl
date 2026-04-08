@@ -17,4 +17,14 @@ namespace Nz
 
 		return *this;
 	}
+
+	inline bool Image::Update(const void* pixels, UInt32 srcWidth, UInt32 srcHeight, UInt8 level)
+	{
+		return Update(pixels, Boxui(Vector3ui::Zero(), GetSize(level)), srcWidth, srcHeight, level);
+	}
+
+	inline bool Image::Update(const void* pixels, const Rectui& rect, UInt32 z, UInt32 srcWidth, UInt32 srcHeight, UInt8 level)
+	{
+		return Update(pixels, Boxui(rect.x, rect.y, z, rect.width, rect.height, 1), srcWidth, srcHeight, level);
+	}
 }

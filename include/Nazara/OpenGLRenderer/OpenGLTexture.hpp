@@ -26,7 +26,9 @@ namespace Nz
 			OpenGLTexture(OpenGLTexture&&) = delete;
 			~OpenGLTexture() = default;
 
-			bool Copy(const Texture& source, const Boxui& srcBox, const Vector3ui& dstPos) override;
+			bool Copy(const Texture& source, const Boxui& srcBox, const Vector3ui& dstPos = Vector3ui32::Zero()) override;
+			bool Copy(AsyncRenderCommands& asyncTransfer, const Texture& source, const Boxui32& srcBox, const Vector3ui32& dstPos = Vector3ui32::Zero()) override;
+
 			std::shared_ptr<Texture> CreateView(const TextureViewInfo& viewInfo) override;
 
 			inline void GenerateMipmaps(UInt8 baseLevel, UInt8 levelCount);
@@ -44,9 +46,12 @@ namespace Nz
 
 			inline bool RequiresTextureViewEmulation() const;
 
-			using Texture::Update;
-			bool Update(const void* ptr, const Boxui& box, unsigned int srcWidth = 0, unsigned int srcHeight = 0, UInt8 level = 0) override;
-			bool Update(Nz::FunctionRef<bool(void* pixelBuffer, UInt32 rowPitch, UInt32 depthPitch)> callback, const Boxui& box, UInt8 level = 0) override;
+			bool Update(const void* ptr, bool buildMipmaps = true, UInt32 srcWidth = 0, UInt32 srcHeight = 0) override;
+			bool Update(const void* ptr, const Boxui& box, UInt32 srcWidth = 0, UInt32 srcHeight = 0, UInt8 level = 0) override;
+			bool Update(Nz::FunctionRef<bool(void* ptr, UInt32 rowPitch, UInt32 depthPitch)> callback, const Boxui& box, UInt8 level = 0) override;
+			bool Update(AsyncRenderCommands& asyncTransfer, const void* ptr, bool buildMipmaps = true, UInt32 srcWidth = 0, UInt32 srcHeight = 0) override;
+			bool Update(AsyncRenderCommands& asyncTransfer, const void* ptr, const Boxui& box, UInt32 srcWidth = 0, UInt32 srcHeight = 0, UInt8 level = 0) override;
+			bool Update(AsyncRenderCommands& asyncTransfer, Nz::FunctionRef<bool(void* ptr, UInt32 rowPitch, UInt32 depthPitch)> callback, const Boxui& box, UInt8 level = 0) override;
 
 			void UpdateDebugName(std::string_view name) override;
 

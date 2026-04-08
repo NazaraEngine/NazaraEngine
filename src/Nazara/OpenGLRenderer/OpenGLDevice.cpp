@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/OpenGLRenderer/OpenGLDevice.hpp>
+#include <Nazara/OpenGLRenderer/OpenGLAsyncCommands.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLBuffer.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLCommandBufferBuilder.hpp>
 #include <Nazara/OpenGLRenderer/OpenGLCommandPool.hpp>
@@ -165,6 +166,15 @@ namespace Nz
 #endif
 	}
 
+	void OpenGLDevice::Execute(const FunctionRef<void(CommandBufferBuilder& builder)>& callback, QueueType /*queueType*/)
+	{
+		OpenGLCommandBuffer commandBuffer;
+		OpenGLCommandBufferBuilder commandBufferBuilder(commandBuffer);
+		callback(commandBufferBuilder);
+
+		commandBuffer.Execute();
+	}
+
 	const RenderDeviceInfo& OpenGLDevice::GetDeviceInfo() const
 	{
 		return m_deviceInfo;
@@ -174,6 +184,11 @@ namespace Nz
 	{
 		//FIXME
 		return m_deviceInfo.features;
+	}
+
+	std::unique_ptr<AsyncRenderCommands> OpenGLDevice::InstantiateAsyncCommands(QueueType /*queueType*/)
+	{
+		return std::make_unique<OpenGLAsyncCommands>();
 	}
 
 	std::shared_ptr<RenderBuffer> OpenGLDevice::InstantiateBuffer(UInt64 size, BufferUsageFlags usageFlags, const void* initialData)
@@ -229,11 +244,6 @@ namespace Nz
 	std::shared_ptr<Texture> OpenGLDevice::InstantiateTexture(const TextureInfo& params)
 	{
 		return std::make_shared<OpenGLTexture>(*this, params);
-	}
-
-	std::shared_ptr<Texture> OpenGLDevice::InstantiateTexture(const TextureInfo& params, const void* initialData, bool buildMipmaps, unsigned int srcWidth, unsigned int srcHeight)
-	{
-		return std::make_shared<OpenGLTexture>(*this, params, initialData, buildMipmaps, srcWidth, srcHeight);
 	}
 
 	std::shared_ptr<TextureSampler> OpenGLDevice::InstantiateTextureSampler(const TextureSamplerInfo& params)
@@ -364,6 +374,16 @@ namespace Nz
 		}
 
 		return false;
+	}
+
+	void OpenGLDevice::SubmitAsyncCommands(std::unique_ptr<AsyncRenderCommands>&& transfer, bool waitForCompletion)
+	{
+		// TODO: Implement multiple queues using multiple contexts
+		std::unique_ptr<OpenGLAsyncCommands> asyncTransfer = StaticUniquePointerCast<OpenGLAsyncCommands>(std::move(transfer));
+		asyncTransfer->Execute();
+
+		if (waitForCompletion)
+			m_referenceContext->glFinish();
 	}
 
 	void OpenGLDevice::WaitForIdle()

@@ -26,6 +26,7 @@ namespace Nz
 			~OpenGLBuffer() = default;
 
 			bool Fill(const void* data, UInt64 offset, UInt64 size) override;
+			bool Fill(AsyncRenderCommands& asyncTransfer, const void* data, UInt64 offset, UInt64 size) override;
 
 			void Flush(UInt64 offset, UInt64 size) override;
 

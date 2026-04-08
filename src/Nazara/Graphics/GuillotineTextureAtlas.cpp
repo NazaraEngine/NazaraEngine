@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Graphics/GuillotineTextureAtlas.hpp>
+#include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
 #include <Nazara/Renderer/Texture.hpp>
 
@@ -32,8 +33,7 @@ namespace Nz
 	*
 	* \remark Produces a NazaraError if resize failed
 	*/
-
-	std::shared_ptr<AbstractImage> GuillotineTextureAtlas::ResizeImage(const std::shared_ptr<AbstractImage>& oldImage, const Vector2ui& size) const
+	std::shared_ptr<AbstractImage> GuillotineTextureAtlas::ResizeImage(const AbstractImage* oldImage, const Vector2ui& size) const
 	{
 		TextureInfo textureInfo;
 		textureInfo.width = size.x;
@@ -41,12 +41,15 @@ namespace Nz
 		textureInfo.pixelFormat = m_texturePixelFormat;
 		textureInfo.type = ImageType::E2D;
 		textureInfo.usageFlags = TextureUsage::ShaderSampling | TextureUsage::TransferSource | TextureUsage::TransferDestination;
-		textureInfo.levelCount = 1; //< FIXME: Disable mipmaps for now
 
 		std::shared_ptr<Texture> newTexture;
 		try
 		{
 			newTexture = m_renderDevice.InstantiateTexture(textureInfo);
+			m_renderDevice.Execute([&](CommandBufferBuilder& builder)
+			{
+				builder.TextureBarrier({ .srcStageMask = PipelineStage::TopOfPipe, .dstStageMask = PipelineStage::AllGraphicsCommands, .srcAccessMask = {}, .dstAccessMask = MemoryAccess::ShaderRead, .oldLayout = TextureLayout::Undefined, .newLayout = TextureLayout::ColorInput, .texture = newTexture.get() });
+			}, QueueType::Graphics);
 		}
 		catch (const std::exception& e)
 		{
@@ -67,5 +70,25 @@ namespace Nz
 		}
 
 		return newTexture;
+	}
+
+	void GuillotineTextureAtlas::UpdateImage(AbstractImage& image, const void* ptr, const Rectui& rect, UInt32 srcWidth, UInt32 srcHeight) const
+	{
+		Texture& dstTexture = SafeCast<Texture&>(image);
+
+		std::unique_ptr<AsyncRenderCommands> asyncTransfer = m_renderDevice.InstantiateAsyncCommands(QueueType::Graphics);
+		asyncTransfer->AddCommands([&](Nz::CommandBufferBuilder& builder)
+		{
+			builder.TextureBarrier({ .srcStageMask = PipelineStage::BottomOfPipe, .dstStageMask = PipelineStage::AllGraphicsCommands, .srcAccessMask = {}, .dstAccessMask = MemoryAccess::TransferWrite, .oldLayout = TextureLayout::ColorInput, .newLayout = TextureLayout::TransferDestination, .texture = &dstTexture });
+		});
+
+		dstTexture.Update(*asyncTransfer, ptr, Boxui(rect.x, rect.y, 0, rect.width, rect.height, 1), srcWidth, srcHeight);
+
+		asyncTransfer->AddCommands([&](Nz::CommandBufferBuilder& builder)
+		{
+			builder.BuildMipmaps(dstTexture, 0, 0xFF, PipelineStage::Transfer, PipelineStage::AllGraphicsCommands, MemoryAccess::TransferWrite, MemoryAccess::ShaderRead, TextureLayout::TransferDestination, TextureLayout::ColorInput);
+		});
+
+		m_renderDevice.SubmitAsyncCommands(std::move(asyncTransfer), true);
 	}
 }

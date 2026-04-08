@@ -121,9 +121,10 @@ namespace Nz
 			void SetLevelCount(UInt8 levelCount, bool allocateLevels = false);
 			bool SetPixelColor(const Color& color, UInt32 x, UInt32 y = 0, UInt32 z = 0);
 
-			using AbstractImage::Update;
-			bool Update(const void* pixels, const Boxui32& box, UInt32 srcWidth = 0, UInt32 srcHeight = 0, UInt8 level = 0) override;
-			bool Update(Nz::FunctionRef<bool(void* pixelBuffer, UInt32 rowPitch, UInt32 depthPitch)> callback, const Boxui& box, UInt8 level = 0) override;
+			inline bool Update(const void* pixels, UInt32 srcWidth = 0, UInt32 srcHeight = 0, UInt8 level = 0);
+			bool Update(const void* pixels, const Boxui32& box, UInt32 srcWidth = 0, UInt32 srcHeight = 0, UInt8 level = 0);
+			inline bool Update(const void* pixels, const Rectui& rect, UInt32 z = 0, UInt32 srcWidth = 0, UInt32 srcHeight = 0, UInt8 level = 0);
+			bool Update(Nz::FunctionRef<bool(void* pixelBuffer, UInt32 rowPitch, UInt32 depthPitch)> callback, const Boxui& box, UInt8 level = 0);
 
 			Image& operator=(const Image& image);
 			inline Image& operator=(Image&& image) noexcept;

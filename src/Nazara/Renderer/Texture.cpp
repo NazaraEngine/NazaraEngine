@@ -50,7 +50,8 @@ namespace Nz
 		if (!params.buildMipmaps)
 			texParams.levelCount = image.GetLevelCount();
 
-		std::shared_ptr<Texture> texture = params.renderDevice->InstantiateTexture(texParams, image.GetConstPixels(), params.buildMipmaps);
+		std::shared_ptr<Texture> texture = params.renderDevice->InstantiateTexture(texParams);
+		texture->Update(image.GetConstPixels(), params.buildMipmaps);
 
 		if (std::string debugName = PathToString(image.GetFilePath()); !debugName.empty())
 			texture->UpdateDebugName(debugName);

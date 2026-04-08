@@ -293,11 +293,13 @@ namespace Nz
 				{
 					Image image = imageBuilder(renderDevice, m_params);
 
-					entry->texture = renderDevice.InstantiateTexture(m_textureInfo, image.GetConstPixels(), true);
+					entry->texture = renderDevice.InstantiateTexture(m_textureInfo);
+					entry->texture->Update(image.GetConstPixels(), true);
 				},
 				[&](const ImageSource& imageSource)
 				{
-					entry->texture = renderDevice.InstantiateTexture(m_textureInfo, imageSource.image.GetConstPixels(), true);
+					entry->texture = renderDevice.InstantiateTexture(m_textureInfo);
+					entry->texture->Update(imageSource.image.GetConstPixels(), true);
 				},
 				[&](const StreamSource& streamSource)
 				{
@@ -318,7 +320,10 @@ namespace Nz
 					}, streamSource.additionalParam);
 
 					if (image)
-						entry->texture = renderDevice.InstantiateTexture(m_textureInfo, image->GetConstPixels(), true);
+					{
+						entry->texture = renderDevice.InstantiateTexture(m_textureInfo);
+						entry->texture->Update(image->GetConstPixels(), true);
+					}
 					else
 						NazaraError("failed to load image from stream {}", streamSource.stream->GetPath());
 				},

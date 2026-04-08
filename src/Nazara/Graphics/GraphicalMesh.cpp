@@ -13,6 +13,16 @@ namespace Nz
 	std::shared_ptr<GraphicalMesh> GraphicalMesh::BuildFromMesh(const Mesh& mesh)
 	{
 		const std::shared_ptr<RenderDevice>& renderDevice = Graphics::Instance()->GetRenderDevice();
+		std::unique_ptr<AsyncRenderCommands> asyncTransfer = renderDevice->InstantiateAsyncCommands(QueueType::Transfer);
+		std::shared_ptr<GraphicalMesh> gfxMesh = BuildFromMesh(*asyncTransfer, mesh);
+		renderDevice->SubmitAsyncCommands(std::move(asyncTransfer), true);
+
+		return gfxMesh;
+	}
+
+	std::shared_ptr<Nz::GraphicalMesh> GraphicalMesh::BuildFromMesh(AsyncRenderCommands& asyncTransfer, const Mesh& mesh)
+	{
+		const std::shared_ptr<RenderDevice>& renderDevice = Graphics::Instance()->GetRenderDevice();
 
 		std::shared_ptr<GraphicalMesh> gfxMesh = std::make_shared<GraphicalMesh>();
 
@@ -35,7 +45,7 @@ namespace Nz
 				const SoftwareBuffer* indexBufferContent = static_cast<const SoftwareBuffer*>(indexBuffer->GetBuffer().get());
 
 				submeshData.indexBuffer = renderDevice->InstantiateBuffer(indexBuffer->GetStride() * indexBuffer->GetIndexCount(), BufferUsage::IndexBuffer | BufferUsage::DeviceLocal);
-				if (!submeshData.indexBuffer->Fill(indexBufferContent->GetData() + indexBuffer->GetStartOffset(), 0, indexBuffer->GetEndOffset() - indexBuffer->GetStartOffset()))
+				if (!submeshData.indexBuffer->Fill(asyncTransfer, indexBufferContent->GetData() + indexBuffer->GetStartOffset(), 0, indexBuffer->GetEndOffset() - indexBuffer->GetStartOffset()))
 					throw std::runtime_error("failed to fill index buffer");
 
 				submeshData.indexCount = indexBuffer->GetIndexCount();
@@ -45,7 +55,7 @@ namespace Nz
 				submeshData.indexCount = vertexBuffer->GetVertexCount();
 
 			submeshData.vertexBuffer = renderDevice->InstantiateBuffer(vertexBuffer->GetStride() * vertexBuffer->GetVertexCount(), BufferUsage::VertexBuffer | BufferUsage::DeviceLocal);
-			if (!submeshData.vertexBuffer->Fill(vertexBufferContent->GetData() + vertexBuffer->GetStartOffset(), 0, vertexBuffer->GetEndOffset() - vertexBuffer->GetStartOffset()))
+			if (!submeshData.vertexBuffer->Fill(asyncTransfer, vertexBufferContent->GetData() + vertexBuffer->GetStartOffset(), 0, vertexBuffer->GetEndOffset() - vertexBuffer->GetStartOffset()))
 				throw std::runtime_error("failed to fill vertex buffer");
 
 			submeshData.vertexDeclaration = vertexBuffer->GetVertexDeclaration();

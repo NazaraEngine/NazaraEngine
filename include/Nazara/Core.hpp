@@ -64,6 +64,7 @@
 #include <Nazara/Core/FilesystemAppComponent.hpp>
 #include <Nazara/Core/Format.hpp>
 #include <Nazara/Core/Functor.hpp>
+#include <Nazara/Core/GuillotineAtlas.hpp>
 #include <Nazara/Core/GuillotineBinPack.hpp>
 #include <Nazara/Core/GuillotineImageAtlas.hpp>
 #include <Nazara/Core/HandledObject.hpp>

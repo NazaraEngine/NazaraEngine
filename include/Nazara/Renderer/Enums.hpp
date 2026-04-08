@@ -98,7 +98,10 @@ namespace Nz
 
 		BottomOfPipe,
 
-		Max = BottomOfPipe
+		AllCommands,
+		AllGraphicsCommands,
+
+		Max = AllGraphicsCommands
 	};
 
 	template<>

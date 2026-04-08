@@ -420,7 +420,8 @@ int main(int argc, char* argv[])
 		std::size_t size = Nz::PixelFormatInfo::ComputeSize(screenTextureInfo.pixelFormat, screenTextureInfo.width, screenTextureInfo.height, screenTextureInfo.depth);
 
 		std::vector<std::uint8_t> defaultScreen(size, 0xFF);
-		screenTexture = device->InstantiateTexture(screenTextureInfo, defaultScreen.data(), false);
+		screenTexture = device->InstantiateTexture(screenTextureInfo);
+		screenTexture->Update(defaultScreen.data(), false);
 	}
 
 	entt::handle tvCameraEntity = world.CreateEntity();

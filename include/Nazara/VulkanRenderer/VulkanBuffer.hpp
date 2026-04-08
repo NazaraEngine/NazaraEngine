@@ -24,9 +24,10 @@ namespace Nz
 			VulkanBuffer(VulkanDevice& device, UInt64 size, BufferUsageFlags usage, const void* initialData = nullptr);
 			VulkanBuffer(const VulkanBuffer&) = delete;
 			VulkanBuffer(VulkanBuffer&&) = delete; ///TODO
-			virtual ~VulkanBuffer();
+			~VulkanBuffer();
 
 			bool Fill(const void* data, UInt64 offset, UInt64 size) override;
+			bool Fill(AsyncRenderCommands& asyncTransfer, const void* data, UInt64 offset, UInt64 size) override;
 
 			void Flush(UInt64 offset, UInt64 size) override;
 
