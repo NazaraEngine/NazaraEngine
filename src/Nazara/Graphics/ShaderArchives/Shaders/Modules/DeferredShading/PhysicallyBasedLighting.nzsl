@@ -106,10 +106,10 @@ fn main(input: FragIn) -> FragOut
 	else if (Light == LightType.Spot)
 	{
 		let result = PhysicallyBased.ComputeSpotLight(light, eyeVec, albedoFactor, F0, normal, metalness, roughness, worldPos);
-		const if (EnableShadowMapping)
-			shadowFactor = Shadow.ComputeSpotLightShadow(light, shadowMap, worldPos, result.lambert);
 
 		let shadowFactor = 1.0;
+		const if (EnableShadowMapping)
+			shadowFactor = Shadow.ComputeSpotLightShadow(light, shadowMap, worldPos, result.lambert);
 
 		lightRadiance += shadowFactor * result.radiance;
 	}
