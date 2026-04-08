@@ -108,6 +108,12 @@ namespace Nz
 		desc.content = formatContent;
 		desc.dataType = dataType;
 
+		std::size_t bitCount = std::max({ desc.redMask.GetSize(), desc.greenMask.GetSize(), desc.blueMask.GetSize(), desc.alphaMask.GetSize() });
+		desc.redMask.Resize(bitCount);
+		desc.greenMask.Resize(bitCount);
+		desc.blueMask.Resize(bitCount);
+		desc.alphaMask.Resize(bitCount);
+
 		// FIXME: Is this still relevant?
 		desc.redMask.Reverse();
 		desc.greenMask.Reverse();
