@@ -3,7 +3,7 @@
 /*
 	Nazara Engine - Graphics module
 
-	Copyright (C) 2025 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
+	Copyright (C) 2026 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy of
 	this software and associated documentation files (the "Software"), to deal in
@@ -33,6 +33,7 @@
 #include <Nazara/Graphics/Algorithm.hpp>
 #include <Nazara/Graphics/BakedFrameGraph.hpp>
 #include <Nazara/Graphics/Billboard.hpp>
+#include <Nazara/Graphics/BlitPipelinePass.hpp>
 #include <Nazara/Graphics/Camera.hpp>
 #include <Nazara/Graphics/DebugDrawPipelinePass.hpp>
 #include <Nazara/Graphics/DefaultFramePipeline.hpp>
@@ -56,6 +57,7 @@
 #include <Nazara/Graphics/ImGuiPipelinePass.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/Light.hpp>
+#include <Nazara/Graphics/LightingPipelinePass.hpp>
 #include <Nazara/Graphics/LightShadowData.hpp>
 #include <Nazara/Graphics/LinearSlicedSprite.hpp>
 #include <Nazara/Graphics/Material.hpp>
@@ -88,6 +90,7 @@
 #include <Nazara/Graphics/RenderTextureBlit.hpp>
 #include <Nazara/Graphics/RenderWindow.hpp>
 #include <Nazara/Graphics/ShaderReflection.hpp>
+#include <Nazara/Graphics/ShaderTransfer.hpp>
 #include <Nazara/Graphics/ShadowViewer.hpp>
 #include <Nazara/Graphics/SkeletonInstance.hpp>
 #include <Nazara/Graphics/SlicedSprite.hpp>
