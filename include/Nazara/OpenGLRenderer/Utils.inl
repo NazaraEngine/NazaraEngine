@@ -27,9 +27,15 @@ namespace Nz
 			case PixelFormat::L8:               return GLTextureFormat{ GL_R8,                 GL_RED,             GL_UNSIGNED_BYTE,                  GL_RED,   GL_RED,   GL_RED,  GL_ONE };
 			case PixelFormat::LA8:              return GLTextureFormat{ GL_RG8,                GL_RG,              GL_UNSIGNED_BYTE,                  GL_RED,   GL_RED,   GL_RED,  GL_GREEN };
 			case PixelFormat::R8:               return GLTextureFormat{ GL_R8,                 GL_RED,             GL_UNSIGNED_BYTE,                  GL_RED,   GL_GREEN, GL_BLUE, GL_ALPHA };
+			case PixelFormat::R16F:             return GLTextureFormat{ GL_R16F,               GL_RED,             GL_FLOAT,                          GL_RED,   GL_GREEN, GL_BLUE, GL_ALPHA };
+			case PixelFormat::R32F:             return GLTextureFormat{ GL_R32F,               GL_RED,             GL_FLOAT,                          GL_RED,   GL_GREEN, GL_BLUE, GL_ALPHA };
 			case PixelFormat::RG8:              return GLTextureFormat{ GL_RG8,                GL_RG,              GL_UNSIGNED_BYTE,                  GL_RED,   GL_GREEN, GL_BLUE, GL_ALPHA };
+			case PixelFormat::RG16F:            return GLTextureFormat{ GL_RG16F,              GL_RG,              GL_FLOAT,                          GL_RED,   GL_GREEN, GL_BLUE, GL_ALPHA };
+			case PixelFormat::RG32F:            return GLTextureFormat{ GL_RG32F,              GL_RG,              GL_FLOAT,                          GL_RED,   GL_GREEN, GL_BLUE, GL_ALPHA };
 			case PixelFormat::RGB8:             return GLTextureFormat{ GL_RGB8,               GL_RGB,             GL_UNSIGNED_BYTE,                  GL_RED,   GL_GREEN, GL_BLUE, GL_ALPHA };
 			case PixelFormat::RGB8_SRGB:        return GLTextureFormat{ GL_SRGB8,              GL_RGB,             GL_UNSIGNED_BYTE,                  GL_RED,   GL_GREEN, GL_BLUE, GL_ALPHA };
+			case PixelFormat::RGB16F:           return GLTextureFormat{ GL_RGB16F,             GL_RGB,             GL_FLOAT,                          GL_RED,   GL_GREEN, GL_BLUE, GL_ALPHA };
+			case PixelFormat::RGB32F:           return GLTextureFormat{ GL_RGB32F,             GL_RGB,             GL_FLOAT,                          GL_RED,   GL_GREEN, GL_BLUE, GL_ALPHA };
 			case PixelFormat::RGBA8:            return GLTextureFormat{ GL_RGBA8,              GL_RGBA,            GL_UNSIGNED_BYTE,                  GL_RED,   GL_GREEN, GL_BLUE, GL_ALPHA };
 			case PixelFormat::RGBA8_SRGB:       return GLTextureFormat{ GL_SRGB8_ALPHA8,       GL_RGBA,            GL_UNSIGNED_BYTE,                  GL_RED,   GL_GREEN, GL_BLUE, GL_ALPHA };
 			case PixelFormat::RGBA16F:          return GLTextureFormat{ GL_RGBA16F,            GL_RGBA,            GL_FLOAT,                          GL_RED,   GL_GREEN, GL_BLUE, GL_ALPHA };
