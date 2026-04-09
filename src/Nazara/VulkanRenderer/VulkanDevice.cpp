@@ -207,8 +207,7 @@ namespace Nz
 				continue;
 			}
 
-			VulkanAsyncCommands& asyncTransfer = SafeCast<VulkanAsyncCommands&>(*transfer.asyncTransfer);
-			asyncTransfer.TriggerCallbacks();
+			transfer.asyncTransfer->TriggerCallbacks();
 
 			it = m_activeAsyncTransfer.erase(it);
 		}

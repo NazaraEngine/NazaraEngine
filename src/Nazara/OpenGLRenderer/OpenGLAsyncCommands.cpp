@@ -16,6 +16,5 @@ namespace Nz
 	void OpenGLAsyncCommands::Execute()
 	{
 		m_commandBuffer.Execute();
-		TriggerCallbacks();
 	}
 }

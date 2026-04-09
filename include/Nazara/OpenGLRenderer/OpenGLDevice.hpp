@@ -19,6 +19,8 @@
 
 namespace Nz
 {
+	class OpenGLAsyncCommands;
+
 	class NAZARA_OPENGLRENDERER_API OpenGLDevice : public RenderDevice
 	{
 		friend GL::Context;
@@ -61,6 +63,8 @@ namespace Nz
 
 			void SubmitAsyncCommands(std::unique_ptr<AsyncRenderCommands>&& transfer, bool waitForCompletion = false) override;
 
+			void UpdateAsyncTransfer();
+
 			void WaitForIdle() override;
 
 			OpenGLDevice& operator=(const OpenGLDevice&) = delete;
@@ -69,7 +73,14 @@ namespace Nz
 		private:
 			inline void NotifyContextDestruction(const GL::Context& context) const;
 
+			struct ActiveAsyncTransfer
+			{
+				std::unique_ptr<OpenGLAsyncCommands> asyncTransfer;
+				GLsync completionFence;
+			};
+
 			std::shared_ptr<GL::Context> m_referenceContext;
+			std::vector<ActiveAsyncTransfer> m_activeAsyncTransfer;
 			mutable std::unordered_set<const GL::Context*> m_contexts;
 			RenderDeviceInfo m_deviceInfo;
 			GL::Loader& m_loader;
