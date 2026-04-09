@@ -3,7 +3,7 @@
 /*
 	Nazara Engine - Core module
 
-	Copyright (C) 2025 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
+	Copyright (C) 2026 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy of
 	this software and associated documentation files (the "Software"), to deal in
@@ -69,6 +69,7 @@
 #include <Nazara/Core/HandledObject.hpp>
 #include <Nazara/Core/HardwareInfo.hpp>
 #include <Nazara/Core/Image.hpp>
+#include <Nazara/Core/ImageCompressor.hpp>
 #include <Nazara/Core/ImageStream.hpp>
 #include <Nazara/Core/ImageUtils.hpp>
 #include <Nazara/Core/IndexBuffer.hpp>
@@ -112,6 +113,7 @@
 #include <Nazara/Core/SkeletalMesh.hpp>
 #include <Nazara/Core/Skeleton.hpp>
 #include <Nazara/Core/SoftwareBuffer.hpp>
+#include <Nazara/Core/SpatialSort.hpp>
 #include <Nazara/Core/State.hpp>
 #include <Nazara/Core/StateMachine.hpp>
 #include <Nazara/Core/StaticMesh.hpp>
@@ -123,6 +125,7 @@
 #include <Nazara/Core/TaskScheduler.hpp>
 #include <Nazara/Core/TaskSchedulerAppComponent.hpp>
 #include <Nazara/Core/ThreadExt.hpp>
+#include <Nazara/Core/ThreadLocalData.hpp>
 #include <Nazara/Core/Time.hpp>
 #include <Nazara/Core/TimerManager.hpp>
 #include <Nazara/Core/Timestamp.hpp>
@@ -141,6 +144,7 @@
 #ifdef NAZARA_ENTT
 
 #include <Nazara/Core/Components.hpp>
+#include <Nazara/Core/EnttObserver.hpp>
 #include <Nazara/Core/EnttSystemGraph.hpp>
 #include <Nazara/Core/EnttWorld.hpp>
 #include <Nazara/Core/Systems.hpp>

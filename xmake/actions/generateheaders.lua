@@ -72,6 +72,7 @@ on_run(function ()
 
 	paths["Audio"].Excludes["OpenALFunctions.hpp"] = true
 	paths["Core"].Excludes["AppEntitySystemComponent.hpp"] = { Define = "NAZARA_ENTT" }
+	paths["Core"].Excludes["EnttObserver.hpp"] = { Define = "NAZARA_ENTT" }
 	paths["Core"].Excludes["EnttSystemGraph.hpp"] = { Define = "NAZARA_ENTT" }
 	paths["Core"].Excludes["EnttWorld.hpp"] = { Define = "NAZARA_ENTT" }
 	paths["Network"].Excludes["CurlLibrary.hpp"] = true
