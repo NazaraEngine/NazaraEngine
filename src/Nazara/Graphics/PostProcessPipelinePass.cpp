@@ -5,27 +5,30 @@
 #include <Nazara/Graphics/PostProcessPipelinePass.hpp>
 #include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
+#include <NazaraUtils/StackArray.hpp>
 
 namespace Nz
 {
-	PostProcessPipelinePass::PostProcessPipelinePass(PassData& /*passData*/, std::string passName, std::string shaderName) :
+	PostProcessPipelinePass::PostProcessPipelinePass(PassData& /*passData*/, std::string passName, std::string shaderName, UInt32 inputCount) :
 	FramePipelinePass({}),
 	m_passName(std::move(passName)),
-	m_shader(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, std::move(shaderName))
+	m_shader(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, std::move(shaderName)),
+	m_inputCount(inputCount)
 	{
 		RenderPipelineLayoutInfo layoutInfo;
-		layoutInfo.bindings.assign({
-			{
-				0, 0, 1,
+		for (UInt32 inputIndex = 0; inputIndex < m_inputCount; ++inputIndex)
+		{
+			layoutInfo.bindings.push_back(RenderPipelineLayoutInfo::Binding{
+				0, inputIndex, 1,
 				ShaderBindingType::Sampler,
 				nzsl::ShaderStageType::Fragment
-			}
-		});
+			});
+		}
 
 		std::shared_ptr<RenderDevice> renderDevice = Graphics::Instance()->GetRenderDevice();
 		m_renderPipelineLayout = renderDevice->InstantiateRenderPipelineLayout(std::move(layoutInfo));
 		if (!m_renderPipelineLayout)
-			throw std::runtime_error("failed to instantiate postprocess RenderPipelineLayout");
+			throw std::runtime_error("failed to instantiate post-process RenderPipelineLayout");
 
 		m_onShaderUpdated.Connect(m_shader.OnShaderUpdated, [this](UberShader*)
 		{
@@ -48,7 +51,7 @@ namespace Nz
 
 	FramePass& PostProcessPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, const PassInputOuputs& inputOuputs)
 	{
-		if (inputOuputs.inputAttachments.size() != 1)
+		if (inputOuputs.inputAttachments.size() != m_inputCount)
 			throw std::runtime_error("one input expected");
 
 		if (inputOuputs.outputAttachments.size() != 1)
@@ -60,10 +63,15 @@ namespace Nz
 		if (inputOuputs.depthStencilOutput != InvalidAttachmentIndex)
 			throw std::runtime_error("unexpected depth-stencil output");
 
-		std::size_t inputColorBufferIndex = inputOuputs.inputAttachments[0].attachmentIndex;
-
 		FramePass& postProcess = frameGraph.AddPass(m_passName);
-		postProcess.AddInput(inputColorBufferIndex);
+
+		Nz::HybridVector<std::size_t, 2> inputIndices(m_inputCount);
+		for (std::size_t i = 0; i < m_inputCount; ++i)
+		{
+			inputIndices[i] = inputOuputs.inputAttachments[i].attachmentIndex;
+			postProcess.AddInput(inputIndices[i]);
+		}
+
 		postProcess.AddOutput(inputOuputs.outputAttachments[0].attachmentIndex);
 
 		postProcess.SetExecutionCallback([&]
@@ -71,25 +79,30 @@ namespace Nz
 			return (m_rebuildFramePass) ? FramePassExecution::UpdateAndExecute : FramePassExecution::Execute;
 		});
 
-		postProcess.SetCommandCallback([this, inputColorBufferIndex](CommandBufferBuilder& builder, const FramePassEnvironment& env)
+		postProcess.SetCommandCallback([this, inputIndices](CommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
 			if (m_shaderBinding)
 				env.renderResources.PushForRelease(std::move(m_shaderBinding));
 
 			auto& samplerCache = Graphics::Instance()->GetSamplerCache();
 
-			const auto& sourceTexture = env.frameGraph.GetAttachmentTexture(inputColorBufferIndex);
 			const auto& sampler = samplerCache.Get({});
 
-			m_shaderBinding = m_renderPipelineLayout->AllocateShaderBinding(0);
-			m_shaderBinding->Update({
-				{
-					0,
+			StackArray bindings = NazaraStackArray(Nz::ShaderBinding::Binding, inputIndices.size());
+			for (UInt32 i = 0; i < inputIndices.size(); ++i)
+			{
+				const auto& inputTexture = env.frameGraph.GetAttachmentTexture(inputIndices[i]);
+
+				bindings[i] = {
+					i,
 					ShaderBinding::SampledTextureBinding {
-						sourceTexture.get(), sampler.get()
+						inputTexture.get(), sampler.get()
 					}
-				}
-			});
+				};
+			}
+
+			m_shaderBinding = m_renderPipelineLayout->AllocateShaderBinding(0);
+			m_shaderBinding->Update(bindings.data(), bindings.size());
 
 			builder.SetScissor(env.renderRect);
 			builder.SetViewport(env.renderRect);
@@ -103,6 +116,25 @@ namespace Nz
 		});
 
 		return postProcess;
+	}
+
+	UInt32 PostProcessPipelinePass::GetInputCount(const ParameterList& parameters)
+	{
+		Result<std::string_view, ParameterList::Error> inputCountResult = parameters.GetStringViewParameter("InputCount");
+		if (inputCountResult.IsOk())
+		{
+			std::string_view inputCountStr = inputCountResult.GetValue();
+
+			long long inputCount;
+			std::from_chars(inputCountStr.data(), inputCountStr.data() + inputCountStr.size(), inputCount);
+			if (auto pidParse = std::from_chars(inputCountStr.data(), inputCountStr.data() + inputCountStr.size(), inputCount); pidParse.ec != std::errc())
+				throw std::runtime_error("PostProcessPipelinePass InputCount is invalid");
+
+			return SafeCaster(inputCount);
+		}
+
+		// TODO: Log error if key is present but not of the right type
+		return 1;
 	}
 
 	std::string PostProcessPipelinePass::GetShaderName(const ParameterList& parameters)

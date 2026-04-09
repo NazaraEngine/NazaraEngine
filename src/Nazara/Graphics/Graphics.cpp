@@ -481,8 +481,8 @@ namespace Nz
 		m_pipelinePassRegistry.RegisterPass<DebugDrawPipelinePass>("DebugDraw", { "Input" }, { "Output" });
 		m_pipelinePassRegistry.RegisterPass<ForwardPipelinePass>("Forward", {}, { "Output" });
 		m_pipelinePassRegistry.RegisterPass<LightingPipelinePass>("Lighting", { "Albedo", "Normal", "Depth" }, { "Output" });
-		m_pipelinePassRegistry.RegisterPass<PostProcessPipelinePass>("PostProcess", { "Input" }, { "Output" });
-		m_pipelinePassRegistry.RegisterPass<RasterPipelinePass>("Raster", { "Input" }, {"Output0", "Output1", "Output2", "Output3", "Output4", "Output5", "Output6", "Output7"});
+		m_pipelinePassRegistry.RegisterPass<PostProcessPipelinePass>("PostProcess", { "Input0", "Input1", "Input2", "Input3", "Input4", "Input5", "Input6", "Input7" }, { "Output0", "Output1", "Output2", "Output3", "Output4", "Output5", "Output6", "Output7" });
+		m_pipelinePassRegistry.RegisterPass<RasterPipelinePass>("Raster", { "Input" }, { "Output0", "Output1", "Output2", "Output3", "Output4", "Output5", "Output6", "Output7" });
 	}
 
 	void Graphics::RegisterShaderModules()

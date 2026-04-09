@@ -26,7 +26,7 @@ namespace Nz
 	{
 		public:
 			PostProcessPipelinePass(PassData& passData, std::string passName, const ParameterList& parameters);
-			PostProcessPipelinePass(PassData& passData, std::string passName, std::string shaderName);
+			PostProcessPipelinePass(PassData& passData, std::string passName, std::string shaderName, UInt32 inputCount = 1);
 			PostProcessPipelinePass(const PostProcessPipelinePass&) = delete;
 			PostProcessPipelinePass(PostProcessPipelinePass&&) = delete;
 			~PostProcessPipelinePass() = default;
@@ -38,6 +38,7 @@ namespace Nz
 			PostProcessPipelinePass& operator=(const PostProcessPipelinePass&) = delete;
 			PostProcessPipelinePass& operator=(PostProcessPipelinePass&&) = delete;
 
+			static UInt32 GetInputCount(const ParameterList& parameters);
 			static std::string GetShaderName(const ParameterList& parameters);
 
 		private:
@@ -51,6 +52,7 @@ namespace Nz
 			std::string m_passName;
 			ShaderBindingPtr m_shaderBinding;
 			UberShader m_shader;
+			UInt32 m_inputCount;
 			bool m_rebuildFramePass;
 	};
 }

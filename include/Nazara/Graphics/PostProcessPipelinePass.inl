@@ -6,7 +6,7 @@
 namespace Nz
 {
 	inline PostProcessPipelinePass::PostProcessPipelinePass(PassData& passData, std::string passName, const ParameterList& parameters) :
-	PostProcessPipelinePass(passData, std::move(passName), GetShaderName(parameters))
+	PostProcessPipelinePass(passData, std::move(passName), GetShaderName(parameters), GetInputCount(parameters))
 	{
 	}
 }

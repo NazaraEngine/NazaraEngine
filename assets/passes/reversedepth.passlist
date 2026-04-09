@@ -35,8 +35,8 @@ passlist "Forward Passlist"
             Shader "PostProcess.GammaCorrection"
         }
 
-        input "Input" "ForwardOutput"
-        output "Output" "Gamma corrected"
+        input "Input0" "ForwardOutput"
+        output "Output0" "Gamma corrected"
     }
 
     attachmentproxy "Debug draw output" "Gamma corrected"
