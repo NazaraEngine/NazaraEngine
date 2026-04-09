@@ -7,6 +7,7 @@
 #include <Nazara/Core/Primitive.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/DirectionalLight.hpp>
+#include <Nazara/Graphics/DirectionalLightShadowData.hpp>
 #include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Graphics/FramePipeline.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
@@ -97,6 +98,11 @@ namespace Nz
 							lightData = PushLightData(*renderDevice, 256, m_lightBufferPool->directionalLightPool, frameData.renderResources, m_directionalLights, m_directionalLightSize);
 
 						ShaderTransfer::WriteLight(SafeCast<const DirectionalLight*>(light), lightData);
+						if (shadowMap)
+						{
+							const DirectionalLightShadowData* shadowData = SafeCast<const DirectionalLightShadowData*>(m_pipeline.RetrieveLightShadowData(lightIndex));
+							ShaderTransfer::WriteLightShadowData(m_viewer, shadowData, lightData);
+						}
 						break;
 					}
 
