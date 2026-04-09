@@ -70,10 +70,10 @@ namespace Nz
 
 			virtual bool Update(const void* pixels, bool buildMipmaps = true, UInt32 srcWidth = 0, UInt32 srcHeight = 0) = 0;
 			virtual bool Update(const void* pixels, const Boxui& box, UInt32 srcWidth = 0, UInt32 srcHeight = 0, UInt8 level = 0) = 0;
-			virtual bool Update(Nz::FunctionRef<bool(void* pixelBuffer, UInt32 rowPitch, UInt32 depthPitch)> callback, const Boxui& box, UInt8 level = 0) = 0;
+			virtual bool Update(Nz::FunctionRef<bool(void* pixelBuffer)> callback, const Boxui& box, UInt8 level = 0) = 0;
 			virtual bool Update(AsyncRenderCommands& asyncTransfer, const void* pixels, bool buildMipmaps = true, UInt32 srcWidth = 0, UInt32 srcHeight = 0) = 0;
 			virtual bool Update(AsyncRenderCommands& asyncTransfer, const void* pixels, const Boxui& box, UInt32 srcWidth = 0, UInt32 srcHeight = 0, UInt8 level = 0) = 0;
-			virtual bool Update(AsyncRenderCommands& asyncTransfer, Nz::FunctionRef<bool(void* pixelBuffer, UInt32 rowPitch, UInt32 depthPitch)> callback, const Boxui& box, UInt8 level = 0) = 0;
+			virtual bool Update(AsyncRenderCommands& asyncTransfer, Nz::FunctionRef<bool(void* pixelBuffer)> callback, const Boxui& box, UInt8 level = 0) = 0;
 			virtual void UpdateDebugName(std::string_view name) = 0;
 
 			Texture& operator=(const Texture&) = delete;

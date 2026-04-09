@@ -166,12 +166,12 @@ namespace Nz
 
 		const GL::Context& context = m_texture.EnsureDeviceContext();
 
-		UInt8 dataSize = PixelFormatInfo::IsUncompressed(m_textureInfo.pixelFormat) ? PixelFormatInfo::GetBytesPerPixel(m_textureInfo.pixelFormat) : PixelFormatInfo::GetBytesPerBlock(m_textureInfo.pixelFormat);
-		if (dataSize % 8 == 0)
+		UInt8 blockSize = PixelFormatInfo::IsUncompressed(m_textureInfo.pixelFormat) ? PixelFormatInfo::GetBytesPerPixel(m_textureInfo.pixelFormat) : PixelFormatInfo::GetBytesPerBlock(m_textureInfo.pixelFormat);
+		if (blockSize % 8 == 0)
 			context.glPixelStorei(GL_UNPACK_ALIGNMENT, 8);
-		else if (dataSize % 4 == 0)
+		else if (blockSize % 4 == 0)
 			context.glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-		else if (dataSize % 2 == 0)
+		else if (blockSize % 2 == 0)
 			context.glPixelStorei(GL_UNPACK_ALIGNMENT, 2);
 		else
 			context.glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -186,7 +186,10 @@ namespace Nz
 			case ImageType::E2D:
 			{
 				if (PixelFormatInfo::IsCompressed(m_textureInfo.pixelFormat))
+				{
+					std::size_t dataSize = PixelFormatInfo::ComputeSize(m_textureInfo.pixelFormat, box.width, box.height, box.depth);
 					m_texture.CompressedTexSubImage2D(GL::TextureTarget::Target2D, level, box.x, box.y, box.width, box.height, format->internalFormat, SafeCast<GLsizei>(dataSize), ptr);
+				}
 				else
 					m_texture.TexSubImage2D(GL::TextureTarget::Target2D, level, box.x, box.y, box.width, box.height, format->format, format->type, ptr);
 
@@ -196,7 +199,10 @@ namespace Nz
 			case ImageType::E2D_Array:
 			{
 				if (PixelFormatInfo::IsCompressed(m_textureInfo.pixelFormat))
+				{
+					std::size_t dataSize = PixelFormatInfo::ComputeSize(m_textureInfo.pixelFormat, box.width, box.height, box.depth);
 					m_texture.CompressedTexSubImage3D(GL::TextureTarget::Target2D_Array, level, box.x, box.y, box.z, box.width, box.height, box.depth, format->internalFormat, SafeCast<GLsizei>(dataSize), ptr);
+				}
 				else
 					m_texture.TexSubImage3D(GL::TextureTarget::Target2D_Array, level, box.x, box.y, box.z, box.width, box.height, box.depth, format->format, format->type, ptr);
 
@@ -206,7 +212,10 @@ namespace Nz
 			case ImageType::E3D:
 			{
 				if (PixelFormatInfo::IsCompressed(m_textureInfo.pixelFormat))
+				{
+					std::size_t dataSize = PixelFormatInfo::ComputeSize(m_textureInfo.pixelFormat, box.width, box.height, box.depth);
 					m_texture.CompressedTexSubImage3D(GL::TextureTarget::Target3D, level, box.x, box.y, box.z, box.width, box.height, box.depth, format->internalFormat, SafeCast<GLsizei>(dataSize), ptr);
+				}
 				else
 					m_texture.TexSubImage3D(GL::TextureTarget::Target3D, level, box.x, box.y, box.z, box.width, box.height, box.depth, format->format, format->type, ptr);
 
@@ -243,10 +252,10 @@ namespace Nz
 		return true;
 	}
 
-	bool OpenGLTexture::Update(Nz::FunctionRef<bool(void* ptr, UInt32 rowPitch, UInt32 depthPitch)> callback, const Boxui& box, UInt8 level)
+	bool OpenGLTexture::Update(Nz::FunctionRef<bool(void* ptr)> callback, const Boxui& box, UInt8 level)
 	{
 		std::vector<std::uint8_t> pixels(PixelFormatInfo::ComputeSize(m_textureInfo.pixelFormat, box.width, box.height, box.depth));
-		if (!callback(pixels.data(), 0, 0))
+		if (!callback(pixels.data()))
 			return false;
 
 		return Update(pixels.data(), box, 0, 0, level);
@@ -262,7 +271,7 @@ namespace Nz
 		return Update(ptr, box, srcWidth, srcHeight, level);
 	}
 
-	bool OpenGLTexture::Update(AsyncRenderCommands& /*asyncTransfer*/, Nz::FunctionRef<bool(void* ptr, UInt32 rowPitch, UInt32 depthPitch)> callback, const Boxui& box, UInt8 level)
+	bool OpenGLTexture::Update(AsyncRenderCommands& /*asyncTransfer*/, Nz::FunctionRef<bool(void* ptr)> callback, const Boxui& box, UInt8 level)
 	{
 		return Update(callback, box, level);
 	}
