@@ -41,6 +41,7 @@ namespace Nz
 		textureInfo.pixelFormat = m_texturePixelFormat;
 		textureInfo.type = ImageType::E2D;
 		textureInfo.usageFlags = TextureUsage::ShaderSampling | TextureUsage::TransferSource | TextureUsage::TransferDestination;
+		textureInfo.levelCount = 1; //< No mipmaps for atlases
 
 		std::shared_ptr<Texture> newTexture;
 		try
@@ -86,7 +87,7 @@ namespace Nz
 
 		asyncTransfer->AddCommands([&](Nz::CommandBufferBuilder& builder)
 		{
-			builder.BuildMipmaps(dstTexture, 0, 0xFF, PipelineStage::Transfer, PipelineStage::AllGraphicsCommands, MemoryAccess::TransferWrite, MemoryAccess::ShaderRead, TextureLayout::TransferDestination, TextureLayout::ColorInput);
+			builder.TextureBarrier({ .srcStageMask = PipelineStage::Transfer, .dstStageMask = PipelineStage::AllGraphicsCommands, .srcAccessMask = MemoryAccess::TransferWrite, .dstAccessMask = MemoryAccess::ShaderRead, .oldLayout = TextureLayout::TransferDestination, .newLayout = TextureLayout::ColorInput, .texture = &dstTexture });
 		});
 
 		m_renderDevice.SubmitAsyncCommands(std::move(asyncTransfer), true);
