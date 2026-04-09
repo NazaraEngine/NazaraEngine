@@ -960,16 +960,19 @@ namespace Nz
 				return false;
 
 			auto seq = workingBitset.Write(GetConstPixels(), info.bitsPerPixel);
-			do
+			for (;;)
 			{
 				workingBitset &= info.alphaMask;
-				if (workingBitset.Count() != info.alphaMask.Count()) //< Means that at least one bit of the alpha mask of this pixel is disabled
+				workingBitset ^= info.alphaMask;
+				if (workingBitset.TestAny()) //< Means that at least one bit of the alpha mask of this pixel is disabled
 					return true;
+
+				if (--pixelCount > 0)
+					break;
 
 				workingBitset.Clear();
 				seq = workingBitset.Write(seq, info.bitsPerPixel);
 			}
-			while (--pixelCount > 0);
 
 			return false;
 		}
