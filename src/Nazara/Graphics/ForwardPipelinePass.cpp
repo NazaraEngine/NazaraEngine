@@ -163,13 +163,9 @@ namespace Nz
 
 	FramePass& ForwardPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, const PassInputOuputs& inputOuputs)
 	{
-		if (inputOuputs.inputAttachments.size() > 0)
-			throw std::runtime_error("no input expected");
-
-		if (inputOuputs.outputAttachments.size() != 1)
-			throw std::runtime_error("one output expected");
-
 		FramePass& forwardPass = frameGraph.AddPass(m_passName);
+		for (auto&& inputData : inputOuputs.inputAttachments)
+			forwardPass.AddInput(inputData.attachmentIndex);
 
 		for (auto&& outputData : inputOuputs.outputAttachments)
 		{
