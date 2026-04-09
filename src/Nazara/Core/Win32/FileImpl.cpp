@@ -190,10 +190,6 @@ namespace Nz::PlatformImpl
 	std::size_t FileImpl::Write(const void* buffer, std::size_t size)
 	{
 		DWORD written = 0;
-
-		LARGE_INTEGER cursorPos;
-		cursorPos.QuadPart = GetCursorPos();
-
 		WriteFile(m_handle, buffer, static_cast<DWORD>(size), &written, nullptr);
 
 		m_endOfFileUpdated = false;

@@ -6,9 +6,7 @@ namespace Nz
 {
 	inline BlitPipelinePass::BlitPipelinePass(PassData& passData, std::string passName, const ParameterList& /*parameters*/) :
 	FramePipelinePass({}),
-	m_passName(std::move(passName)),
-	m_viewer(passData.viewer),
-	m_pipeline(passData.pipeline)
+	m_passName(std::move(passName))
 	{
 	}
 }

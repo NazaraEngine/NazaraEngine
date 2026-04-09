@@ -50,9 +50,11 @@ namespace Nz::ImageCompressor
 			template<UInt32 BlockSize>
 			static void Extract(const UInt8* input, std::size_t sourcePitch, std::span<UInt8, BlockSize * BlockSize * 4> output)
 			{
+				const UInt8* inputPtr = input;
 				UInt8* outputPtr = output.data();
 				for (std::size_t y = 0; y < BlockSize; ++y)
 				{
+					const UInt8* sourceRowPtr = inputPtr;
 					for (std::size_t x = 0; x < BlockSize; ++x)
 					{
 						outputPtr[0] = input[0];
@@ -60,12 +62,11 @@ namespace Nz::ImageCompressor
 						outputPtr[2] = input[2];
 						outputPtr[3] = 0xFF;
 
-						input += 4;
+						sourceRowPtr += 4;
 						outputPtr += 4;
 					}
 
-					input += sourcePitch;
-					outputPtr += BlockSize;
+					inputPtr += sourcePitch;
 				}
 			}
 		};

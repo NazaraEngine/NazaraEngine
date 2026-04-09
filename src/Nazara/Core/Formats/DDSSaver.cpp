@@ -74,7 +74,7 @@ namespace Nz
 				}
 			}*/
 
-			if (image.GetLevelCount() > 1 && parameters.levelCount == 0 || parameters.levelCount > 1)
+			if (image.GetLevelCount() > 1 && (parameters.levelCount == 0 || parameters.levelCount > 1))
 			{
 				// DDS doesn't support sparse levels, write only contiguous levels
 				UInt8 maxLevelCount = 0;
@@ -193,7 +193,7 @@ namespace Nz
 			{
 				bool success = ImageUtils::ForEachLevel(ddsHeader.levelCount, image.GetType(), ddsHeader.width, ddsHeader.height, ddsHeader.depth, [&](UInt8 level, UInt32 width, UInt32 height, UInt32 depth)
 				{
-					std::size_t bytePerLayer = PixelFormatInfo::ComputeSize(image.GetFormat(), width, height, 1u);
+					std::size_t bytePerLayer = PixelFormatInfo::ComputeSize(image.GetFormat(), width, height, depth);
 					std::size_t byteCount = bytePerLayer * layerCount;
 					const UInt8* ptr = image.GetConstPixels(level) + bytePerLayer * layer;
 					NazaraAssert(ptr);

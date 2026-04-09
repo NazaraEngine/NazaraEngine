@@ -221,7 +221,6 @@ namespace Nz
 				std::mutex m_mutex;
 				std::span<const AudioChannel> m_channels;
 				std::unique_ptr<Stream> m_ownedStream;
-				AudioFormat m_format;
 				drwav m_decoder;
 				Time m_duration;
 				UInt32 m_sampleRate;

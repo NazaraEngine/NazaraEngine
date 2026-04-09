@@ -55,7 +55,7 @@ namespace Nz
 	}
 
 	template<typename T>
-	class ThreadLocalData : Detail::ThreadLocalDataBase
+	class ThreadLocalData final : Detail::ThreadLocalDataBase
 	{
 		public:
 			ThreadLocalData() = default;

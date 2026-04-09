@@ -38,8 +38,6 @@ namespace Nz
 
 		private:
 			std::string m_passName;
-			AbstractViewer* m_viewer;
-			FramePipeline& m_pipeline;
 	};
 }
 

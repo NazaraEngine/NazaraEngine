@@ -49,7 +49,16 @@ namespace Nz
 
 	void PhysCharacter3D::AddImpulse(const Vector3f& impulse, CoordSys coordSys)
 	{
-		m_character->AddImpulse(ToJolt(impulse));
+		switch (coordSys)
+		{
+			case CoordSys::Global:
+				m_character->AddImpulse(ToJolt(impulse));
+				break;
+
+			case CoordSys::Local:
+				m_character->AddImpulse(m_character->GetRotation() * ToJolt(impulse));
+				break;
+		}
 	}
 
 	void PhysCharacter3D::AddLinearVelocity(const Vector3f& linearVelocity)

@@ -1488,11 +1488,6 @@ namespace Nz
 	{
 		NAZARA_USE_ANONYMOUS_NAMESPACE
 
-		auto SetupPixelFormat = [](PixelFormat format, PixelFormatDescription&& desc)
-		{
-			s_pixelFormatInfos[format] = std::move(desc);
-		};
-
 		PixelFormatDescription::Bitmask b8(0xFF);
 		b8.Resize(128);
 
