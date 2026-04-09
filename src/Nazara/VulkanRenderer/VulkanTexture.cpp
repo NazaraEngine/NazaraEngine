@@ -348,7 +348,7 @@ namespace Nz
 		return true;
 	}
 
-	bool VulkanTexture::Update(FunctionRef<bool(void* ptr, UInt32 rowPitch, UInt32 depthPitch)> callback, const Boxui& box, UInt8 level)
+	bool VulkanTexture::Update(FunctionRef<bool(void* ptr)> callback, const Boxui& box, UInt8 level)
 	{
 		VulkanAsyncCommands asyncTransfer(m_device, QueueType::Graphics);
 		asyncTransfer.AddCommands([&](CommandBufferBuilder& builder)
@@ -454,49 +454,16 @@ namespace Nz
 
 	bool VulkanTexture::Update(AsyncRenderCommands& asyncTransfer, const void* ptr, const Boxui& box, UInt32 srcWidth, UInt32 srcHeight, UInt8 level)
 	{
-		return Update(asyncTransfer, [&](void* pixelBuffer, UInt32 rowPitch, UInt32 depthPitch)
+		return Update(asyncTransfer, [&](void* pixelBuffer)
 		{
-			if (srcWidth == 0)
-				srcWidth = box.width;
-
-			if (srcHeight == 0)
-				srcHeight = box.height;
-
-			if (srcWidth == box.width && srcHeight == box.height)
-			{
-				std::size_t memorySize = box.width * box.height * box.depth * PixelFormatInfo::GetBytesPerPixel(m_textureViewInfo.pixelFormat);
-				std::memcpy(pixelBuffer, ptr, memorySize);
-			}
-			else
-			{
-				UInt32 bpp = PixelFormatInfo::GetBytesPerPixel(m_textureViewInfo.pixelFormat);
-				UInt32 srcLineStride = srcWidth * bpp;
-				UInt32 srcFaceStride = srcLineStride * srcHeight;
-
-				const UInt8* source = static_cast<const UInt8*>(ptr);
-				UInt8* destination = static_cast<UInt8*>(pixelBuffer);
-				for (unsigned int i = 0; i < box.depth; ++i)
-				{
-					UInt8* dstFacePtr = destination;
-					const UInt8* srcFacePtr = source;
-					for (unsigned int y = 0; y < box.height; ++y)
-					{
-						std::memcpy(dstFacePtr, srcFacePtr, rowPitch);
-
-						dstFacePtr += rowPitch;
-						srcFacePtr += srcLineStride;
-					}
-
-					destination += depthPitch;
-					source += srcFaceStride;
-				}
-			}
+			std::size_t memorySize = box.width * box.height * box.depth * PixelFormatInfo::GetBytesPerPixel(m_textureViewInfo.pixelFormat);
+			std::memcpy(pixelBuffer, ptr, memorySize);
 
 			return true;
 		}, box, level);
 	}
 
-	bool VulkanTexture::Update(AsyncRenderCommands& asyncTransfer, Nz::FunctionRef<bool(void* ptr, UInt32 rowPitch, UInt32 depthPitch)> callback, const Boxui& box, UInt8 level)
+	bool VulkanTexture::Update(AsyncRenderCommands& asyncTransfer, Nz::FunctionRef<bool(void* ptr)> callback, const Boxui& box, UInt8 level)
 	{
 		std::unique_ptr<VulkanBuffer> uploadBuffer;
 		asyncTransfer.AddCommands([&](CommandBufferBuilder& builder)
@@ -504,12 +471,7 @@ namespace Nz
 			VulkanCommandBufferBuilder& vkBuilder = SafeCast<VulkanCommandBufferBuilder&>(builder);
 			Vk::CommandBuffer& vkCommandBuffer = vkBuilder.GetCommandBuffer();
 
-			auto copyCallback = [&](void* ptr)
-			{
-				return callback(ptr, 0, 0);
-			};
-
-			Update(vkCommandBuffer, uploadBuffer, copyCallback, box, level);
+			Update(vkCommandBuffer, uploadBuffer, callback, box, level);
 		});
 
 		asyncTransfer.AddCompletionCallback([buffer = uploadBuffer.release()]

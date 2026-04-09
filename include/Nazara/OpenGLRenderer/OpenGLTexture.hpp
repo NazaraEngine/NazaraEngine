@@ -48,10 +48,10 @@ namespace Nz
 
 			bool Update(const void* ptr, bool buildMipmaps = true, UInt32 srcWidth = 0, UInt32 srcHeight = 0) override;
 			bool Update(const void* ptr, const Boxui& box, UInt32 srcWidth = 0, UInt32 srcHeight = 0, UInt8 level = 0) override;
-			bool Update(Nz::FunctionRef<bool(void* ptr, UInt32 rowPitch, UInt32 depthPitch)> callback, const Boxui& box, UInt8 level = 0) override;
+			bool Update(Nz::FunctionRef<bool(void* ptr)> callback, const Boxui& box, UInt8 level = 0) override;
 			bool Update(AsyncRenderCommands& asyncTransfer, const void* ptr, bool buildMipmaps = true, UInt32 srcWidth = 0, UInt32 srcHeight = 0) override;
 			bool Update(AsyncRenderCommands& asyncTransfer, const void* ptr, const Boxui& box, UInt32 srcWidth = 0, UInt32 srcHeight = 0, UInt8 level = 0) override;
-			bool Update(AsyncRenderCommands& asyncTransfer, Nz::FunctionRef<bool(void* ptr, UInt32 rowPitch, UInt32 depthPitch)> callback, const Boxui& box, UInt8 level = 0) override;
+			bool Update(AsyncRenderCommands& asyncTransfer, Nz::FunctionRef<bool(void* ptr)> callback, const Boxui& box, UInt8 level = 0) override;
 
 			void UpdateDebugName(std::string_view name) override;
 
