@@ -86,6 +86,8 @@ namespace Nz
 
 	RenderFrame OpenGLSwapchain::AcquireFrame()
 	{
+		m_device.UpdateAsyncTransfer();
+
 		bool sizeInvalidated = m_sizeInvalidated;
 		m_sizeInvalidated = false;
 

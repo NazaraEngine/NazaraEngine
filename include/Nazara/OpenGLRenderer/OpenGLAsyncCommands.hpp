@@ -18,6 +18,8 @@ namespace Nz
 
 	class NAZARA_OPENGLRENDERER_API OpenGLAsyncCommands : public AsyncRenderCommands
 	{
+		friend OpenGLDevice;
+
 		public:
 			OpenGLAsyncCommands() = default;
 			OpenGLAsyncCommands(const OpenGLAsyncCommands&) = delete;
@@ -32,6 +34,8 @@ namespace Nz
 			OpenGLAsyncCommands& operator=(OpenGLAsyncCommands&&) = delete;
 
 		private:
+			using AsyncRenderCommands::TriggerCallbacks;
+
 			OpenGLCommandBuffer m_commandBuffer;
 	};
 }

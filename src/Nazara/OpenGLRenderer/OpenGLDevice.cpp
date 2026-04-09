@@ -132,6 +132,11 @@ namespace Nz
 	{
 		OnRenderDeviceRelease(this);
 
+		for (auto& asyncTransfer : m_activeAsyncTransfer)
+			m_referenceContext->glDeleteSync(asyncTransfer.completionFence);
+
+		m_activeAsyncTransfer.clear();
+
 		// Free reference context first as it will unregister itself from m_contexts
 		m_referenceContext.reset();
 	}
@@ -383,7 +388,36 @@ namespace Nz
 		asyncTransfer->Execute();
 
 		if (waitForCompletion)
+		{
 			m_referenceContext->glFinish();
+			asyncTransfer->TriggerCallbacks();
+		}
+		else
+		{
+			ActiveAsyncTransfer& activeTransfer = m_activeAsyncTransfer.emplace_back();
+			activeTransfer.asyncTransfer = std::move(asyncTransfer);
+			activeTransfer.completionFence = m_referenceContext->glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
+		}
+	}
+
+	void OpenGLDevice::UpdateAsyncTransfer()
+	{
+		for (auto it = m_activeAsyncTransfer.begin(); it != m_activeAsyncTransfer.end();)
+		{
+			ActiveAsyncTransfer& transfer = *it;
+
+			GLenum success = m_referenceContext->glClientWaitSync(transfer.completionFence, 0, 0);
+			if (success != GL_ALREADY_SIGNALED && success != GL_CONDITION_SATISFIED)
+			{
+				++it;
+				continue;
+			}
+			m_referenceContext->glDeleteSync(transfer.completionFence);
+
+			transfer.asyncTransfer->TriggerCallbacks();
+
+			it = m_activeAsyncTransfer.erase(it);
+		}
 	}
 
 	void OpenGLDevice::WaitForIdle()
