@@ -15,6 +15,13 @@ namespace Nz
 	}
 
 	template<typename T>
+	void ThreadLocalData<T>::Clear()
+	{
+		std::unique_lock lock(m_mutex);
+		m_data.clear();
+	}
+
+	template<typename T>
 	template<typename... Args>
 	T& ThreadLocalData<T>::GetOrCreate(Args&&... args)
 	{
