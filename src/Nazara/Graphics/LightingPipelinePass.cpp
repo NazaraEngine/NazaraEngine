@@ -58,11 +58,11 @@ namespace Nz
 
 	void LightingPipelinePass::Prepare(FrameData& frameData)
 	{
-		std::size_t lightVisibilityHash = 0;
+		/*std::size_t lightVisibilityHash = 0;
 		for (std::size_t blockIndex = 0; blockIndex < frameData.visibleLights->GetBlockCount(); ++blockIndex)
 			HashCombine(lightVisibilityHash, frameData.visibleLights->GetBlock(blockIndex));
 
-		//if (m_lastVisibilityHash != lightVisibilityHash || m_rebuildLights)
+		if (m_lastVisibilityHash != lightVisibilityHash || m_rebuildLights)*/
 		{
 			Graphics* graphics = Graphics::Instance();
 			const auto& renderDevice = graphics->GetRenderDevice();
@@ -152,7 +152,7 @@ namespace Nz
 			m_rebuildCommandBuffer = true;
 			m_rebuildLights = false;
 
-			m_lastVisibilityHash = lightVisibilityHash;
+			//m_lastVisibilityHash = lightVisibilityHash;
 		}
 	}
 
@@ -694,8 +694,10 @@ namespace Nz
 		}
 
 		LightBlockShadow& lightBlock = lights.back();
-		lightBlock.memory.shaderBindings.push_back(m_shadowPipelineLayout->AllocateShaderBinding(1));
-		lightBlock.memory.shaderBindings.back()->Update({
+		if (lightBlock.lightCount >= lightBlock.memory.shaderBindings.size())
+			lightBlock.memory.shaderBindings.push_back(m_shadowPipelineLayout->AllocateShaderBinding(1));
+
+		lightBlock.memory.shaderBindings[lightBlock.lightCount]->Update({
 			{
 				m_lightDataBindingIndex,
 				ShaderBinding::UniformBufferBinding {
