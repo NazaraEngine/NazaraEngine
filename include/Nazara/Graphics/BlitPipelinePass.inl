@@ -4,7 +4,7 @@
 
 namespace Nz
 {
-	inline BlitPipelinePass::BlitPipelinePass(PassData& passData, std::string passName, const ParameterList& /*parameters*/) :
+	inline BlitPipelinePass::BlitPipelinePass(PassData& /*passData*/, std::string passName, const ParameterList& /*parameters*/) :
 	FramePipelinePass({}),
 	m_passName(std::move(passName))
 	{

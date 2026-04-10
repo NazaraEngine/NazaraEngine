@@ -456,8 +456,10 @@ namespace Nz
 	{
 		return Update(asyncTransfer, [&](void* pixelBuffer)
 		{
-			std::size_t memorySize = box.width * box.height * box.depth * PixelFormatInfo::GetBytesPerPixel(m_textureViewInfo.pixelFormat);
-			std::memcpy(pixelBuffer, ptr, memorySize);
+			UInt8 bpp = PixelFormatInfo::GetBytesPerPixel(m_textureViewInfo.pixelFormat);
+
+			std::size_t memorySize = PixelFormatInfo::ComputeSize(m_textureViewInfo.pixelFormat, box.width, box.height, box.depth);
+			ImageUtils::Copy(pixelBuffer, ptr, m_textureViewInfo.pixelFormat, box.width, box.height, box.depth, 0, 0, srcWidth * bpp, srcWidth * srcHeight * bpp);
 
 			return true;
 		}, box, level);

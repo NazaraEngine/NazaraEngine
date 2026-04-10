@@ -301,10 +301,9 @@ namespace Nz::Vk
 		}
 		else
 		{
-			NazaraWarning(VK_EXT_DEBUG_UTILS_EXTENSION_NAME " nor " VK_EXT_DEBUG_REPORT_EXTENSION_NAME " are not supported, cannot install debug message callback");
+			NazaraWarning(VK_EXT_DEBUG_UTILS_EXTENSION_NAME " and " VK_EXT_DEBUG_REPORT_EXTENSION_NAME " are not supported, cannot install debug message callback");
 			return;
 		}
-
 	}
 
 	void Instance::DestroyInstance()

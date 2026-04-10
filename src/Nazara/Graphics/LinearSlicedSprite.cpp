@@ -50,6 +50,7 @@ namespace Nz
 	const std::shared_ptr<MaterialInstance>& LinearSlicedSprite::GetMaterial(std::size_t materialIndex) const
 	{
 		NazaraAssertMsg(materialIndex == 0, "material index out of range (%zu >= 1)", materialIndex);
+		NazaraUnused(materialIndex);
 		return m_material;
 	}
 
