@@ -135,7 +135,7 @@ int main(int argc, char* argv[])
 
 	app.AddUpdaterFunc([&]
 	{
-		if (std::optional<Nz::Time> deltaTime = updateClock.RestartIfOver(Nz::Time::TickDuration(60)))
+		if (std::optional<Nz::Time> deltaTime = updateClock.RestartIfOver(Nz::Time::TickDuration(300)))
 		{
 			float cameraSpeed = 2.f * deltaTime->AsSeconds();
 
