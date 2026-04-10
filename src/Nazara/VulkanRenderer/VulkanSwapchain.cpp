@@ -180,6 +180,10 @@ namespace Nz
 			}
 		}
 
+		m_inflightImageData.reserve(parameters.maxFrameInFlight);
+		for (std::size_t i = 0; i < parameters.maxFrameInFlight; ++i)
+			m_inflightImageData.emplace_back(std::make_unique<VulkanRenderImage>(*this));
+
 		if (!SetupRenderPass())
 			throw std::runtime_error("failed to create renderpass");
 
@@ -191,7 +195,7 @@ namespace Nz
 	{
 		m_device.WaitForIdle();
 
-		m_concurrentImageData.clear();
+		m_inflightImageData.clear();
 		m_renderPass.reset();
 		m_framebuffers.clear();
 		m_swapchain.Destroy();
@@ -210,7 +214,7 @@ namespace Nz
 			invalidateFramebuffer = true;
 		}
 
-		VulkanRenderImage& currentFrame = *m_concurrentImageData[m_currentFrame];
+		VulkanRenderImage& currentFrame = *m_inflightImageData[m_currentFrame];
 		Vk::Fence& inFlightFence = currentFrame.GetInFlightFence();
 
 		// Update async transfers just before waiting for inflight fence
@@ -218,6 +222,7 @@ namespace Nz
 
 		// Wait until previous rendering to this image has been done
 		inFlightFence.Wait();
+		inFlightFence.Reset();
 
 		UInt32 imageIndex;
 		m_swapchain.AcquireNextImage(std::numeric_limits<UInt64>::max(), currentFrame.GetImageAvailableSemaphore(), VK_NULL_HANDLE, &imageIndex);
@@ -247,12 +252,6 @@ namespace Nz
 			default:
 				throw std::runtime_error("failed to acquire next image: " + TranslateVulkanError(m_swapchain.GetLastErrorCode()));
 		}
-
-		if (m_inflightFences[imageIndex])
-			m_inflightFences[imageIndex]->Wait();
-
-		m_inflightFences[imageIndex] = &inFlightFence;
-		m_inflightFences[imageIndex]->Reset();
 
 		currentFrame.Reset(imageIndex);
 
@@ -314,6 +313,12 @@ namespace Nz
 		return m_framebuffers.size();
 	}
 
+	inline VkSemaphore Nz::VulkanSwapchain::GetRenderFinishedSemaphore(std::size_t imageIndex) const
+	{
+		assert(imageIndex < m_renderFinishedSemaphores.size());
+		return m_renderFinishedSemaphores[imageIndex];
+	}
+
 	const VulkanRenderPass& VulkanSwapchain::GetRenderPass() const
 	{
 		return *m_renderPass;
@@ -336,7 +341,7 @@ namespace Nz
 
 	RenderResources& VulkanSwapchain::GetTransientResources()
 	{
-		return *m_concurrentImageData[m_currentFrame];
+		return *m_inflightImageData[m_currentFrame];
 	}
 
 	void VulkanSwapchain::NotifyResize(const Vector2ui& newSize)
@@ -349,9 +354,9 @@ namespace Nz
 
 	void VulkanSwapchain::Present(UInt32 imageIndex, VkSemaphore waitSemaphore)
 	{
-		NazaraAssertMsg(imageIndex < m_inflightFences.size(), "Invalid image index");
-
-		m_currentFrame = (m_currentFrame + 1) % m_inflightFences.size();
+		m_currentFrame++;
+		if (m_currentFrame >= m_inflightImageData.size())
+			m_currentFrame = 0;
 
 		m_presentQueue.Present(m_swapchain, imageIndex, waitSemaphore);
 
@@ -658,18 +663,18 @@ namespace Nz
 		m_swapchain = std::move(newSwapchain);
 		m_swapchainSize = { SafeCast<unsigned int>(extent.width), SafeCast<unsigned int>(extent.height) };
 
-		// Framebuffers
 		imageCount = m_swapchain.GetImageCount();
 
-		m_inflightFences.resize(imageCount);
-
-		if (m_concurrentImageData.size() != imageCount)
+		if (m_renderFinishedSemaphores.size() != imageCount)
 		{
-			m_concurrentImageData.clear();
-			m_concurrentImageData.reserve(imageCount);
+			std::size_t previousSize = m_renderFinishedSemaphores.size();
+			m_renderFinishedSemaphores.resize(imageCount);
 
-			for (std::size_t i = 0; i < imageCount; ++i)
-				m_concurrentImageData.emplace_back(std::make_unique<VulkanRenderImage>(*this));
+			for (std::size_t i = previousSize; i < imageCount; ++i)
+			{
+				if (!m_renderFinishedSemaphores[i].Create(m_device))
+					throw std::runtime_error("failed to create image finished semaphore: " + TranslateVulkanError(m_renderFinishedSemaphores[i].GetLastErrorCode()));
+			}
 		}
 
 		return true;

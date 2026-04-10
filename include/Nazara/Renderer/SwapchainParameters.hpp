@@ -18,6 +18,7 @@ namespace Nz
 	{
 		std::vector<PixelFormat> depthFormats = { Nz::PixelFormat::Depth24Stencil8, Nz::PixelFormat::Depth32FStencil8, Nz::PixelFormat::Depth16Stencil8, Nz::PixelFormat::Depth32F, Nz::PixelFormat::Depth24 }; //< By order of preference
 		std::vector<PresentMode> presentMode = { PresentMode::Mailbox, PresentMode::Immediate, PresentMode::RelaxedVerticalSync, PresentMode::VerticalSync }; //< By order of preference
+		UInt32 maxFrameInFlight = 2;
 	};
 }
 

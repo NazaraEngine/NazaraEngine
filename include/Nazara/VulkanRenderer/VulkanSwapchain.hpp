@@ -52,6 +52,7 @@ namespace Nz
 			inline const VulkanDevice& GetDevice() const;
 			inline Vk::QueueHandle& GetGraphicsQueue();
 			inline VkImage GetImage(std::size_t imageIndex) const;
+			inline VkSemaphore GetRenderFinishedSemaphore(std::size_t imageIndex) const;
 			const VulkanRenderPass& GetRenderPass() const override;
 			const Vector2ui& GetSize() const override;
 			PresentMode GetPresentMode() const override;
@@ -78,9 +79,6 @@ namespace Nz
 
 			std::optional<VulkanRenderPass> m_renderPass;
 			std::size_t m_currentFrame;
-			std::vector<VulkanWindowFramebuffer> m_framebuffers;
-			std::vector<Vk::Fence*> m_inflightFences;
-			std::vector<std::unique_ptr<VulkanRenderImage>> m_concurrentImageData;
 			Vk::DeviceMemory m_depthBufferMemory;
 			Vk::Image m_depthBuffer;
 			Vk::ImageView m_depthBufferView;
@@ -89,6 +87,9 @@ namespace Nz
 			Vk::QueueHandle m_transferQueue;
 			Vk::Surface m_surface;
 			Vk::Swapchain m_swapchain;
+			HybridVector<VulkanWindowFramebuffer, 4> m_framebuffers;
+			HybridVector<Vk::Semaphore, 4> m_renderFinishedSemaphores;
+			HybridVector<std::unique_ptr<VulkanRenderImage>, 4> m_inflightImageData;
 			PresentMode m_presentMode;
 			PresentModeFlags m_supportedPresentModes;
 			Vector2ui m_swapchainSize;

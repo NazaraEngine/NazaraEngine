@@ -2,7 +2,6 @@
 // This file is part of the "Nazara Engine - Vulkan renderer"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-
 namespace Nz
 {
 	inline Vk::Fence& VulkanRenderImage::GetInFlightFence()
@@ -13,11 +12,6 @@ namespace Nz
 	inline Vk::Semaphore& VulkanRenderImage::GetImageAvailableSemaphore()
 	{
 		return m_imageAvailableSemaphore;
-	}
-
-	inline Vk::Semaphore& VulkanRenderImage::GetRenderFinishedSemaphore()
-	{
-		return m_renderFinishedSemaphore;
 	}
 
 	inline void VulkanRenderImage::Reset(UInt32 imageIndex)

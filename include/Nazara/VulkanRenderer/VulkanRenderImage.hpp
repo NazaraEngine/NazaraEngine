@@ -32,7 +32,6 @@ namespace Nz
 			inline Vk::Fence& GetInFlightFence();
 			inline Vk::Semaphore& GetImageAvailableSemaphore();
 			UInt32 GetImageIndex() const override;
-			inline Vk::Semaphore& GetRenderFinishedSemaphore();
 			VulkanUploadPool& GetUploadPool() override;
 
 			void Present() override;
@@ -53,7 +52,6 @@ namespace Nz
 			Vk::CommandPool m_commandPool;
 			Vk::Fence m_inFlightFence;
 			Vk::Semaphore m_imageAvailableSemaphore;
-			Vk::Semaphore m_renderFinishedSemaphore;
 			VulkanUploadPool m_uploadPool;
 			UInt32 m_imageIndex;
 	};

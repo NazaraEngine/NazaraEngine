@@ -24,9 +24,6 @@ namespace Nz
 		if (!m_imageAvailableSemaphore.Create(m_owner.GetDevice()))
 			throw std::runtime_error("failed to create image available semaphore: " + TranslateVulkanError(m_imageAvailableSemaphore.GetLastErrorCode()));
 
-		if (!m_renderFinishedSemaphore.Create(m_owner.GetDevice()))
-			throw std::runtime_error("failed to create image finished semaphore: " + TranslateVulkanError(m_renderFinishedSemaphore.GetLastErrorCode()));
-
 		if (!m_inFlightFence.Create(m_owner.GetDevice(), VK_FENCE_CREATE_SIGNALED_BIT))
 			throw std::runtime_error("failed to create in-flight fence: " + TranslateVulkanError(m_inFlightFence.GetLastErrorCode()));
 	}
@@ -64,11 +61,13 @@ namespace Nz
 
 	void VulkanRenderImage::Present()
 	{
+		VkSemaphore renderFinishedSemaphore = m_owner.GetRenderFinishedSemaphore(m_imageIndex);
+
 		Vk::QueueHandle& graphicsQueue = m_owner.GetGraphicsQueue();
-		if (!graphicsQueue.Submit(UInt32(m_graphicalCommandBuffers.size()), m_graphicalCommandBuffers.data(), m_imageAvailableSemaphore, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, m_renderFinishedSemaphore, m_inFlightFence))
+		if (!graphicsQueue.Submit(UInt32(m_graphicalCommandBuffers.size()), m_graphicalCommandBuffers.data(), m_imageAvailableSemaphore, VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT, renderFinishedSemaphore, m_inFlightFence))
 			throw std::runtime_error("Failed to submit command buffers: " + TranslateVulkanError(graphicsQueue.GetLastErrorCode()));
 
-		m_owner.Present(m_imageIndex, m_renderFinishedSemaphore);
+		m_owner.Present(m_imageIndex, renderFinishedSemaphore);
 	}
 
 	void VulkanRenderImage::SubmitCommandBuffer(CommandBuffer* commandBuffer, QueueTypeFlags queueTypeFlags)
@@ -80,13 +79,13 @@ namespace Nz
 
 	void VulkanRenderImage::SubmitCommandBuffer(VkCommandBuffer commandBuffer, QueueTypeFlags queueTypeFlags)
 	{
-		if (queueTypeFlags & QueueType::Graphics)
+		//if (queueTypeFlags & QueueType::Graphics)
 			m_graphicalCommandBuffers.push_back(commandBuffer);
-		else
+		/*else
 		{
 			Vk::QueueHandle& graphicsQueue = m_owner.GetGraphicsQueue();
 			if (!graphicsQueue.Submit(commandBuffer))
 				throw std::runtime_error("Failed to submit command buffer: " + TranslateVulkanError(graphicsQueue.GetLastErrorCode()));
-		}
+		}*/
 	}
 }
