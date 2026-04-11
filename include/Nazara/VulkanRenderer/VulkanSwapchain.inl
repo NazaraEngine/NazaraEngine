@@ -25,6 +25,12 @@ namespace Nz
 		return m_swapchain.GetImage(SafeCast<UInt32>(imageIndex)).image;
 	}
 
+	inline VkSemaphore VulkanSwapchain::GetRenderFinishedSemaphore(std::size_t imageIndex) const
+	{
+		assert(imageIndex < m_renderFinishedSemaphores.size());
+		return m_renderFinishedSemaphores[imageIndex];
+	}
+
 	inline const Vk::Swapchain& VulkanSwapchain::GetSwapchain() const
 	{
 		return m_swapchain;

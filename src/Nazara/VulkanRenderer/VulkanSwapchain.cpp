@@ -313,12 +313,6 @@ namespace Nz
 		return m_framebuffers.size();
 	}
 
-	inline VkSemaphore Nz::VulkanSwapchain::GetRenderFinishedSemaphore(std::size_t imageIndex) const
-	{
-		assert(imageIndex < m_renderFinishedSemaphores.size());
-		return m_renderFinishedSemaphores[imageIndex];
-	}
-
 	const VulkanRenderPass& VulkanSwapchain::GetRenderPass() const
 	{
 		return *m_renderPass;

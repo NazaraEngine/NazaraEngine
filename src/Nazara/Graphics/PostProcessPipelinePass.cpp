@@ -6,6 +6,7 @@
 #include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <NazaraUtils/StackArray.hpp>
+#include <charconv>
 
 namespace Nz
 {
