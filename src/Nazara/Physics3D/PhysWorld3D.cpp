@@ -11,6 +11,7 @@
 #include <NazaraUtils/MemoryPool.hpp>
 #include <NazaraUtils/StackVector.hpp>
 #include <Jolt/Jolt.h>
+#include <Jolt/Core/Profiler.h>
 #include <Jolt/Core/TempAllocator.h>
 #include <Jolt/Physics/PhysicsSettings.h>
 #include <Jolt/Physics/PhysicsStepListener.h>
@@ -462,8 +463,17 @@ namespace Nz
 	PhysWorld3D::PhysWorld3D(Settings&& settings) :
 	m_maxStepCount(settings.maxStepCount),
 	m_stepSize(settings.stepSize),
-	m_timestepAccumulator(Time::Zero())
+	m_timestepAccumulator(Time::Zero()),
+	m_isProfilingEnabled(settings.enableProfiling),
+	m_profilingDumpEvery(settings.profilingDumpEvery),
+	m_profilingFrameCounter(0)
 	{
+		if (m_isProfilingEnabled)
+		{
+			JPH::Profiler::sInstance = new JPH::Profiler;
+			JPH::ProfileThread::sSetInstance(new JPH::ProfileThread("Nazara PhysWorld3D"));
+		}
+
 		m_world = std::make_unique<JoltWorld>(*this, std::move(settings.broadphaseLayerInterface), std::move(settings.objectLayerPairFilter), std::move(settings.objectVsBroadphaseLayerFilter), settings.tempAllocatorSize);
 		m_world->physicsSystem.Init(settings.maxBodies, settings.numBodyMutexes, settings.maxBodyPairs, settings.maxContactConstraints, m_world->broadphaseLayerInterfaceBridge, m_world->objectVsBroadphaseLayerFilterBridge, m_world->objectLayerPairFilterBridge);
 		m_world->physicsSystem.SetBodyActivationListener(&m_world->bodyActivationListener);
@@ -483,7 +493,14 @@ namespace Nz
 		m_registeredBodies = std::make_unique<std::uint64_t[]>(blockCount);
 	}
 
-	PhysWorld3D::~PhysWorld3D() = default;
+	PhysWorld3D::~PhysWorld3D()
+	{
+		if (m_isProfilingEnabled)
+		{
+			delete JPH::Profiler::sInstance;
+			JPH::Profiler::sInstance = nullptr;
+		}
+	}
 
 	bool PhysWorld3D::CollisionQuery(const Vector3f& point, const FunctionRef<std::optional<float>(const PointCollisionInfo& collisionInfo)>& callback, const PhysBroadphaseLayerFilter3D* broadphaseFilter, const PhysObjectLayerFilter3D* objectLayerFilter, const PhysBodyFilter3D* bodyFilter)
 	{
@@ -703,6 +720,16 @@ namespace Nz
 
 			m_timestepAccumulator -= m_stepSize;
 			stepCount++;
+		}
+
+		if (m_isProfilingEnabled)
+		{
+			JPH::Profiler::sInstance->NextFrame();
+			if (m_profilingFrameCounter++ >= m_profilingDumpEvery)
+			{
+				JPH::Profiler::sInstance->Dump();
+				m_profilingFrameCounter = 0;
+			}
 		}
 
 		return true;

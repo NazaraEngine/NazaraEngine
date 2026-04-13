@@ -123,11 +123,13 @@ namespace Nz
 				std::unique_ptr<PhysObjectVsBroadphaseLayerFilter3D> objectVsBroadphaseLayerFilter; //< mandatory
 				Time stepSize = Time::TickDuration(120);
 				Vector3f gravity = Vector3f::Zero();
+				bool enableProfiling = false;
 				unsigned int maxStepCount = 50;
 				unsigned int maxBodies = 0xFFFF;
 				unsigned int maxBodyPairs = 0xFFFF;
 				unsigned int maxContactConstraints = 10 * 1024;
 				unsigned int numBodyMutexes = 0; //< 0 = auto-determined
+				unsigned int profilingDumpEvery = 100;
 				unsigned int tempAllocatorSize = 10 * 1024 * 1024;
 			};
 
@@ -177,6 +179,9 @@ namespace Nz
 			std::vector<PhysWorld3DStepListener*> m_stepListeners;
 			Time m_stepSize;
 			Time m_timestepAccumulator;
+			bool m_isProfilingEnabled;
+			unsigned int m_profilingDumpEvery;
+			unsigned int m_profilingFrameCounter;
 	};
 }
 
