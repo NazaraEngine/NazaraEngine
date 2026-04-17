@@ -99,6 +99,10 @@ namespace Nz
 
 				if (saver.streamSaver(resource, extension, file, parameters))
 					return true;
+
+				// Delete file in case of error to prevent corrupt files
+				file.Close();
+				file.Delete();
 			}
 
 			NazaraWarning("Saver failed");
