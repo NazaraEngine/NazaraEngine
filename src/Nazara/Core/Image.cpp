@@ -1286,7 +1286,7 @@ namespace Nz
 		}
 
 		Copy(convertedImage, Boxui32(0, 0, 0, faceSize, faceSize, 1), Vector3ui32(0, 0, UnderlyingCast(face)));
-		return false;
+		return true;
 	}
 
 	bool Image::LoadFaceFromMemory(CubemapFace face, const void* data, std::size_t size, const ImageParams& params)
