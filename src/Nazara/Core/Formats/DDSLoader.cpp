@@ -78,28 +78,37 @@ namespace Nz
 				std::shared_ptr<Image> image = std::make_shared<Image>(type, format, width, height, depth, levelCount);
 
 				// Read all mipmap levels
-				bool succeeded = ImageUtils::ForEachLevel(image->GetLevelCount(), type, width, height, depth, [&](UInt8 level, UInt32 width, UInt32 height, UInt32 depth)
+				UInt32 layerCount = image->GetDepth();
+				if (type == ImageType::Cubemap)
+					layerCount *= 6;
+
+				for (UInt32 layer = 0; layer < layerCount; ++layer)
 				{
-					std::size_t byteCount = PixelFormatInfo::ComputeSize(format, width, height, depth);
-
-					if (!parameters.levels.test(level))
+					bool succeeded = ImageUtils::ForEachLevel(levelCount, type, width, height, depth, [&](UInt8 level, UInt32 width, UInt32 height, UInt32 depth)
 					{
-						byteStream.Read(nullptr, byteCount);
+						std::size_t byteCount = PixelFormatInfo::ComputeSize(format, width, height, depth);
+
+						if (!parameters.levels.test(level) || level >= image->GetLevelCount())
+						{
+							byteStream.Read(nullptr, byteCount);
+							return true;
+						}
+
+						UInt8* ptr = image->GetPixels(level);
+						ptr += layer * byteCount;
+
+						if (byteStream.Read(ptr, byteCount) != byteCount)
+						{
+							NazaraError("failed to read level #{0}", level);
+							return false;
+						}
+
 						return true;
-					}
+					});
 
-					UInt8* ptr = image->GetPixels(level);
-					if (byteStream.Read(ptr, byteCount) != byteCount)
-					{
-						NazaraError("failed to read level #{0}", level);
-						return false;
-					}
-
-					return true;
-				});
-
-				if (!succeeded)
-					return Nz::Err(ResourceLoadingError::DecodingError);
+					if (!succeeded)
+						return Nz::Err(ResourceLoadingError::DecodingError);
+				}
 
 				if (parameters.loadFormat != PixelFormat::Undefined)
 					image->ConvertTo(parameters.loadFormat);
