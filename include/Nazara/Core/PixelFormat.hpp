@@ -88,6 +88,7 @@ namespace Nz
 			static inline bool IsBlockCompressed(PixelFormat format);
 			static inline bool IsCompressed(PixelFormat format);
 			static inline bool IsConversionSupported(PixelFormat srcFormat, PixelFormat dstFormat);
+			static inline bool IsSRGB(PixelFormat format);
 			static inline bool IsUncompressed(PixelFormat format);
 			static inline bool IsValid(PixelFormat format);
 

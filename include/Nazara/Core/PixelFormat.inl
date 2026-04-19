@@ -261,6 +261,26 @@ namespace Nz
 		return s_convertFunctions[srcFormat][dstFormat] != nullptr;
 	}
 
+	inline bool PixelFormatInfo::IsSRGB(PixelFormat format)
+	{
+		switch (format)
+		{
+			case PixelFormat::BC1_RGB_sRGB:
+			case PixelFormat::BC1_RGBA_sRGB:
+			case PixelFormat::BC2_sRGB:
+			case PixelFormat::BC3_sRGB:
+			case PixelFormat::BC7_sRGB:
+			case PixelFormat::BGR8_SRGB:
+			case PixelFormat::BGRA8_SRGB:
+			case PixelFormat::RGB8_SRGB:
+			case PixelFormat::RGBA8_SRGB:
+				return true;
+
+			default:
+				return false;
+		}
+	}
+
 	inline bool PixelFormatInfo::IsUncompressed(PixelFormat format)
 	{
 		return s_pixelFormatInfos[format].IsUncompressed();
@@ -285,11 +305,16 @@ namespace Nz
 	{
 		switch (format)
 		{
-			case PixelFormat::BGR8:  return PixelFormat::BGR8_SRGB;
-			case PixelFormat::BGRA8: return PixelFormat::BGRA8_SRGB;
-			case PixelFormat::RGB8:  return PixelFormat::RGB8_SRGB;
-			case PixelFormat::RGBA8: return PixelFormat::RGBA8_SRGB;
-			default:                 return {};
+			case PixelFormat::BC1_RGB_Unorm:  return PixelFormat::BC1_RGB_sRGB;
+			case PixelFormat::BC1_RGBA_Unorm: return PixelFormat::BC1_RGBA_sRGB;
+			case PixelFormat::BC2_Unorm:      return PixelFormat::BC2_sRGB;
+			case PixelFormat::BC3_Unorm:      return PixelFormat::BC3_sRGB;
+			case PixelFormat::BC7_Unorm:      return PixelFormat::BC7_sRGB;
+			case PixelFormat::BGR8:           return PixelFormat::BGR8_SRGB;
+			case PixelFormat::BGRA8:          return PixelFormat::BGRA8_SRGB;
+			case PixelFormat::RGB8:           return PixelFormat::RGB8_SRGB;
+			case PixelFormat::RGBA8:          return PixelFormat::RGBA8_SRGB;
+			default:                          return {};
 		}
 	}
 }

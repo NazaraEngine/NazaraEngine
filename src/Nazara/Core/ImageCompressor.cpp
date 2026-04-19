@@ -109,11 +109,21 @@ namespace Nz::ImageCompressor
 	Image CompressImage(const Image& sourceImage, auto BlockCompressor)
 	{
 		NazaraAssert(sourceImage.IsValid());
-		NazaraAssert(sourceImage.GetFormat() == SourceFormat);
 
-		UInt8 levelCount = std::min(sourceImage.GetLevelCount(), ImageUtils::GetMaxLevelCount(sourceImage.GetType(), DestFormat, sourceImage.GetWidth(), sourceImage.GetHeight(), sourceImage.GetDepth()));
+		PixelFormat sourceFormat = SourceFormat;
+		PixelFormat destFormat = DestFormat;
 
-		Image compressedImage(sourceImage.GetType(), DestFormat, AlignPow2(sourceImage.GetWidth(), BlockSize), AlignPow2(sourceImage.GetHeight(), BlockSize), sourceImage.GetDepth(), levelCount);
+		if (PixelFormatInfo::IsSRGB(sourceImage.GetFormat()))
+		{
+			sourceFormat = PixelFormatInfo::ToSRGB(sourceFormat).value_or(sourceFormat);
+			destFormat = PixelFormatInfo::ToSRGB(destFormat).value_or(destFormat);
+		}
+
+		NazaraAssert(sourceImage.GetFormat() == sourceFormat);
+
+		UInt8 levelCount = std::min(sourceImage.GetLevelCount(), ImageUtils::GetMaxLevelCount(sourceImage.GetType(), destFormat, sourceImage.GetWidth(), sourceImage.GetHeight(), sourceImage.GetDepth()));
+
+		Image compressedImage(sourceImage.GetType(), destFormat, AlignPow2(sourceImage.GetWidth(), BlockSize), AlignPow2(sourceImage.GetHeight(), BlockSize), sourceImage.GetDepth(), levelCount);
 		for (UInt8 level = 0; level < levelCount; ++level)
 		{
 			if (!sourceImage.IsLevelAllocated(level))
@@ -127,10 +137,10 @@ namespace Nz::ImageCompressor
 
 			UInt32 blockCountX = width / BlockSize;
 			UInt32 blockCountY = height / BlockSize;
-			std::size_t bpp = PixelFormatInfo::GetBytesPerPixel(SourceFormat);
+			std::size_t bpp = PixelFormatInfo::GetBytesPerPixel(sourceFormat);
 			std::size_t sourcePitch = sourceImage.GetWidth(level) * bpp;
 
-			std::size_t bytesPerLayer = PixelFormatInfo::ComputeSize(DestFormat, compressedImage.GetWidth(level), compressedImage.GetHeight(level), 1u);
+			std::size_t bytesPerLayer = PixelFormatInfo::ComputeSize(destFormat, compressedImage.GetWidth(level), compressedImage.GetHeight(level), 1u);
 
 			for (UInt32 z = 0; z < depth; ++z)
 			{
