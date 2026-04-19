@@ -1196,6 +1196,23 @@ namespace Nz
 		}
 
 		template<>
+		UInt8* ConvertPixels<PixelFormat::RGB8, PixelFormat::RGBA8_SRGB>(const UInt8* start, const UInt8* end, UInt8* dst)
+		{
+			//FIXME: Not correct
+			while (start < end)
+			{
+				*dst++ = start[0];
+				*dst++ = start[1];
+				*dst++ = start[2];
+				*dst++ = 0xFF;
+
+				start += 3;
+			}
+
+			return dst;
+		}
+
+		template<>
 		UInt8* ConvertPixels<PixelFormat::RGB8, PixelFormat::RGBA32F>(const UInt8* start, const UInt8* end, UInt8* dst)
 		{
 			float* ptr = reinterpret_cast<float*>(dst);
@@ -1285,6 +1302,32 @@ namespace Nz
 		}
 
 		template<>
+		UInt8* ConvertPixels<PixelFormat::RGBA8, PixelFormat::R8>(const UInt8* start, const UInt8* end, UInt8* dst)
+		{
+			while (start < end)
+			{
+				*dst++ = start[0];
+				start += 4;
+			}
+
+			return dst;
+		}
+
+		template<>
+		UInt8* ConvertPixels<PixelFormat::RGBA8, PixelFormat::RG8>(const UInt8* start, const UInt8* end, UInt8* dst)
+		{
+			while (start < end)
+			{
+				*dst++ = start[0];
+				*dst++ = start[1];
+
+				start += 4;
+			}
+
+			return dst;
+		}
+
+		template<>
 		UInt8* ConvertPixels<PixelFormat::RGBA8, PixelFormat::RGB5A1>(const UInt8* start, const UInt8* end, UInt8* dst)
 		{
 			UInt16* ptr = reinterpret_cast<UInt16*>(dst);
@@ -1309,6 +1352,22 @@ namespace Nz
 		template<>
 		UInt8* ConvertPixels<PixelFormat::RGBA8, PixelFormat::RGB8>(const UInt8* start, const UInt8* end, UInt8* dst)
 		{
+			while (start < end)
+			{
+				*dst++ = start[0];
+				*dst++ = start[1];
+				*dst++ = start[2];
+
+				start += 4;
+			}
+
+			return dst;
+		}
+
+		template<>
+		UInt8* ConvertPixels<PixelFormat::RGBA8, PixelFormat::RGB8_SRGB>(const UInt8* start, const UInt8* end, UInt8* dst)
+		{
+			// FIXME: Not correct
 			while (start < end)
 			{
 				*dst++ = start[0];
@@ -1782,6 +1841,7 @@ namespace Nz
 		RegisterConverter<PixelFormat::RGB8, PixelFormat::RGB8_SRGB>();
 		RegisterConverter<PixelFormat::RGB8, PixelFormat::RGBA4>();
 		RegisterConverter<PixelFormat::RGB8, PixelFormat::RGBA8>();
+		RegisterConverter<PixelFormat::RGB8, PixelFormat::RGBA8_SRGB>();
 		RegisterConverter<PixelFormat::RGB8, PixelFormat::RGBA32F>();
 
 		/**********************************RGBA8**********************************/
@@ -1789,7 +1849,10 @@ namespace Nz
 		RegisterConverter<PixelFormat::RGBA8, PixelFormat::BGR8>();
 		RegisterConverter<PixelFormat::RGBA8, PixelFormat::BGRA8>();
 		RegisterConverter<PixelFormat::RGBA8, PixelFormat::L8>();
-		RegisterConverter<PixelFormat::RGBA8, PixelFormat::LA8>();/*
+		RegisterConverter<PixelFormat::RGBA8, PixelFormat::LA8>();
+		RegisterConverter<PixelFormat::RGBA8, PixelFormat::R8>();
+		RegisterConverter<PixelFormat::RGBA8, PixelFormat::RG8>();
+		/*
 		RegisterConverter<PixelFormat::RGBA8, PixelFormat::RGB16F>();
 		RegisterConverter<PixelFormat::RGBA8, PixelFormat::RGB16I>();
 		RegisterConverter<PixelFormat::RGBA8, PixelFormat::RGB32F>();
@@ -1797,9 +1860,11 @@ namespace Nz
 		RegisterConverter<PixelFormat::RGBA8, PixelFormat::RGBA16F>();
 		RegisterConverter<PixelFormat::RGBA8, PixelFormat::RGBA16I>();
 		RegisterConverter<PixelFormat::RGBA8, PixelFormat::RGBA32F>();
-		RegisterConverter<PixelFormat::RGBA8, PixelFormat::RGBA32I>();*/
+		RegisterConverter<PixelFormat::RGBA8, PixelFormat::RGBA32I>();
+		*/
 		RegisterConverter<PixelFormat::RGBA8, PixelFormat::RGB5A1>();
 		RegisterConverter<PixelFormat::RGBA8, PixelFormat::RGB8>();
+		RegisterConverter<PixelFormat::RGBA8, PixelFormat::RGB8_SRGB>();
 		RegisterConverter<PixelFormat::RGBA8, PixelFormat::RGBA4>();
 		RegisterConverter<PixelFormat::RGBA8, PixelFormat::RGBA8_SRGB>();
 		RegisterConverter<PixelFormat::RGBA8, PixelFormat::RGBA32F>();
