@@ -434,15 +434,33 @@ namespace Nz
 	}
 
 	template<typename T>
+	constexpr bool Frustum<T>::HasInfiniteNearPlane() const
+	{
+		return IsInfinity(m_planes[FrustumPlane::Near].distance);
+	}
+
+	template<typename T>
 	constexpr Frustum<T> Frustum<T>::Reduce(T nearFactor, T farFactor) const
 	{
-		NazaraAssertMsg(!HasInfiniteFarPlane(), "an infinite frustum cannot be reduced");
+		NazaraAssertMsg(!HasInfiniteNearPlane() && !HasInfiniteFarPlane(), "an infinite frustum cannot be reduced");
 
 		EnumArray<FrustumPlane, Plane<T>> planes = m_planes;
 		planes[FrustumPlane::Near].distance = Lerp(m_planes[FrustumPlane::Near].distance, -m_planes[FrustumPlane::Far].distance, nearFactor);
 		planes[FrustumPlane::Far].distance = Lerp(-m_planes[FrustumPlane::Near].distance, m_planes[FrustumPlane::Far].distance, farFactor);
 
 		return Frustum<T>(planes);
+	}
+
+	template<typename T>
+	constexpr void Frustum<T>::SetInfiniteFarPlane()
+	{
+		m_planes[FrustumPlane::Far].distance = MaxValue();
+	}
+
+	template<typename T>
+	constexpr void Frustum<T>::SetInfiniteNearPlane()
+	{
+		m_planes[FrustumPlane::Near].distance = MaxValue();
 	}
 
 	template<typename T>
@@ -456,7 +474,7 @@ namespace Nz
 	template<typename F>
 	constexpr void Frustum<T>::Split(const T* splitFactors, std::size_t factorCount, F&& callback) const
 	{
-		NazaraAssertMsg(!HasInfiniteFarPlane(), "an infinite frustum cannot be reduced");
+		NazaraAssertMsg(!HasInfiniteNearPlane() && !HasInfiniteFarPlane(), "an infinite frustum cannot be split");
 
 		T previousFar = T(0.0);
 		for (std::size_t i = 0; i < factorCount; ++i)
@@ -473,16 +491,21 @@ namespace Nz
 	template<typename F>
 	constexpr bool Frustum<T>::TestEachPlane(F&& callback) const
 	{
-		std::size_t planeCount = (HasInfiniteFarPlane()) ? 5 : 6;
-		for (std::size_t i = 0; i < planeCount; ++i)
+		for (const auto& [frustumPlane, plane] : m_planes.iter_kv())
 		{
-			const auto& plane = m_planes[static_cast<FrustumPlane>(i)];
+			if (HasInfiniteNearPlane() && frustumPlane == FrustumPlane::Near)
+				continue;
+
+			if (HasInfiniteFarPlane() && frustumPlane == FrustumPlane::Far)
+				continue;
+
 			if (!callback(plane))
 				return false;
 		}
 
 		return true;
 	}
+
 	/*!
 	* \brief Gives a string representation
 	* \return A string representation of the object: "Frustum(Plane ...)"

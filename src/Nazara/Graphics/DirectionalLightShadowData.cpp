@@ -131,7 +131,7 @@ namespace Nz
 
 			// Prepare depth pass
 			Frustumf lightFrustum = Frustumf::Extract(cascadeViewerInstance.GetViewProjMatrix());
-
+			lightFrustum.SetInfiniteNearPlane();
 			//m_pipeline.GetDebugDrawer().DrawFrustum(lightFrustum, cascadeColors[cascadeIndex]);
 
 			std::size_t visibilityHash = 5U;

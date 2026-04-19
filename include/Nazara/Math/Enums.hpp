@@ -53,7 +53,7 @@ namespace Nz
 
 	enum class FrustumPlane
 	{
-		// Use indices to put the far plane at the end (to handle infinite far plane)
+		// Use indices to put the near and far plane at the end (to handle infinite near/far plane)
 		Bottom = 2,
 		Far = 5,
 		Left = 0,
