@@ -31,6 +31,7 @@ namespace Nz
 		void Merge(const TextureAssetParams& params);
 
 		TextureUsageFlags usageFlags = TextureUsage::ShaderSampling | TextureUsage::TransferDestination | TextureUsage::TransferSource;
+		bool generateMipmaps = true;
 		bool sRGB = false;
 	};
 
@@ -101,6 +102,8 @@ namespace Nz
 
 		private:
 			struct TextureEntry;
+
+			bool BuildEntryFromImage(RenderDevice& renderDevice, const Image& image, TextureEntry* entry) const;
 
 			inline TextureEntry* GetEntry(RenderDevice& device) const;
 			TextureEntry* GetOrCreateEntry(RenderDevice& device) const;

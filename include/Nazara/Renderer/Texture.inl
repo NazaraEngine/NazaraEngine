@@ -24,6 +24,7 @@ namespace Nz
 		texParams.pixelFormat = image.GetFormat();
 		texParams.type = image.GetType();
 		texParams.width = image.GetWidth();
+		texParams.levelCount = image.GetLevelCount();
 
 		switch (image.GetType())
 		{

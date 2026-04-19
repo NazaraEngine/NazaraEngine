@@ -5,6 +5,7 @@
 #include <Nazara/Graphics/TextureAsset.hpp>
 #include <Nazara/Core/File.hpp>
 #include <Nazara/Core/MemoryView.hpp>
+#include <Nazara/Graphics/Graphics.hpp>
 #include <NazaraUtils/PathUtils.hpp>
 #include <algorithm>
 #include <cassert>
@@ -284,22 +285,20 @@ namespace Nz
 
 		if (!entry->texture)
 		{
-			std::visit(Overloaded {
+			bool succeeded = std::visit(Overloaded {
 				[](NoSource)
 				{
 					NazaraError("can't create texture as no source has been defined");
+					return false;
 				},
 				[&](const ImageBuilder& imageBuilder)
 				{
 					Image image = imageBuilder(renderDevice, m_params);
-
-					entry->texture = renderDevice.InstantiateTexture(m_textureInfo);
-					entry->texture->Update(image.GetConstPixels(), true);
+					return BuildEntryFromImage(renderDevice, image, entry);
 				},
 				[&](const ImageSource& imageSource)
 				{
-					entry->texture = renderDevice.InstantiateTexture(m_textureInfo);
-					entry->texture->Update(imageSource.image.GetConstPixels(), true);
+					return BuildEntryFromImage(renderDevice, imageSource.image, entry);
 				},
 				[&](const StreamSource& streamSource)
 				{
@@ -319,24 +318,29 @@ namespace Nz
 						}
 					}, streamSource.additionalParam);
 
-					if (image)
+					if (!image)
 					{
-						entry->texture = renderDevice.InstantiateTexture(m_textureInfo);
-						entry->texture->Update(image->GetConstPixels(), true);
-					}
-					else
 						NazaraError("failed to load image from stream {}", streamSource.stream->GetPath());
+						return false;
+					}
+
+					return BuildEntryFromImage(renderDevice, *image, entry);
 				},
 				[&](const TextureBuilder& textureBuilder)
 				{
 					entry->texture = textureBuilder(renderDevice, m_params);
+					return true;
 				},
 				[&](const TextureViewSource& viewSource)
 				{
 					const std::shared_ptr<Texture>& texture = viewSource.texture->GetOrCreateTexture(renderDevice);
 					entry->texture = texture->CreateView(viewSource.viewInfo);
+					return true;
 				}
 			}, m_source);
+
+			if (!succeeded)
+				entry->texture = Graphics::Instance()->GetDefaultTextures().whiteTextures[m_textureInfo.type]->GetOrCreateTexture(renderDevice);
 		}
 
 		return entry->texture;
@@ -492,6 +496,49 @@ namespace Nz
 		return texAsset;
 	}
 
+	bool TextureAsset::BuildEntryFromImage(RenderDevice& renderDevice, const Image& image, TextureEntry* entry) const
+	{
+		if (image.GetFormat() != m_textureInfo.pixelFormat && PixelFormatInfo::ToSRGB(image.GetFormat()).value_or(image.GetFormat()) != m_textureInfo.pixelFormat)
+		{
+			NazaraError("image doesn't match texture format ({} != {})", PixelFormatInfo::GetName(image.GetFormat()), PixelFormatInfo::GetName(m_textureInfo.pixelFormat));
+			return false;
+		}
+
+		Vector3ui32 imageSize = image.GetSize();
+		if (imageSize != Vector3ui32(m_textureInfo.width, m_textureInfo.height, m_textureInfo.depth))
+		{
+			NazaraError("image size doesn't match texture size (vec3({}; {}; {}) != vec3({}, {}, {}))", imageSize.x, imageSize.y, imageSize.z, m_textureInfo.width, m_textureInfo.height, m_textureInfo.depth);
+			return false;
+		}
+
+		entry->texture = renderDevice.InstantiateTexture(m_textureInfo);
+		if (image.GetLevelCount() > 1)
+		{
+			std::unique_ptr<AsyncRenderCommands> asyncCommands = renderDevice.InstantiateAsyncCommands(QueueType::Graphics);
+			for (UInt8 level = 0; level < image.GetLevelCount(); ++level)
+			{
+				auto callback = [&](void* pixels)
+				{
+					std::memcpy(pixels, image.GetConstPixels(level), image.GetMemoryUsage(level));
+					return true;
+				};
+
+				UInt32 depth = image.GetDepth(level);
+				if (image.GetType() == ImageType::Cubemap)
+					depth *= 6;
+
+				if (!entry->texture->Update(*asyncCommands, callback, Boxui(0, 0, 0, image.GetWidth(level), image.GetHeight(level), depth), level))
+					return false;
+			}
+
+			renderDevice.SubmitAsyncCommands(std::move(asyncCommands), true);
+		}
+		else
+			entry->texture->Update(image.GetConstPixels(), true);
+
+		return true;
+	}
+
 	auto TextureAsset::GetOrCreateEntry(RenderDevice& device) const -> TextureEntry*
 	{
 		TextureEntry* entry = GetEntry(device);
@@ -524,5 +571,9 @@ namespace Nz
 		m_textureInfo.usageFlags = params.usageFlags;
 		if (params.sRGB)
 			m_textureInfo.pixelFormat = PixelFormatInfo::ToSRGB(m_textureInfo.pixelFormat).value_or(m_textureInfo.pixelFormat);
+
+		// Assume mipmaps cannot be generated for compressed texture formats
+		if (params.generateMipmaps && !PixelFormatInfo::IsCompressed(m_textureInfo.pixelFormat))
+			m_textureInfo.levelCount = Nz::MaxValue();
 	}
 }

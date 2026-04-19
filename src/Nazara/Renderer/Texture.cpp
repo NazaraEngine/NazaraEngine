@@ -47,8 +47,8 @@ namespace Nz
 
 		TextureInfo texParams = BuildTextureInfo(image);
 		texParams.usageFlags = params.usageFlags;
-		if (!params.buildMipmaps)
-			texParams.levelCount = image.GetLevelCount();
+		if (params.buildMipmaps)
+			texParams.levelCount = Nz::MaxValue();
 
 		std::shared_ptr<Texture> texture = params.renderDevice->InstantiateTexture(texParams);
 		texture->Update(image.GetConstPixels(), params.buildMipmaps);
