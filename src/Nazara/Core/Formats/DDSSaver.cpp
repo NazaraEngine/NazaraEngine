@@ -90,6 +90,8 @@ namespace Nz
 				ddsHeader.flags |= DDSD_MIPMAPCOUNT;
 				ddsHeader.ddsCaps[0] |= DDSCAPS_COMPLEX | DDSCAPS_MIPMAP;
 			}
+			else
+				ddsHeader.levelCount = 1; // some software may try to read levelCount even if DDSD_MIPMAPCOUNT is not set
 
 			if (image.GetType() == ImageType::Cubemap)
 			{
@@ -194,13 +196,14 @@ namespace Nz
 				bool success = ImageUtils::ForEachLevel(ddsHeader.levelCount, image.GetType(), ddsHeader.width, ddsHeader.height, ddsHeader.depth, [&](UInt8 level, UInt32 width, UInt32 height, UInt32 depth)
 				{
 					std::size_t bytePerLayer = PixelFormatInfo::ComputeSize(image.GetFormat(), width, height, depth);
-					std::size_t byteCount = bytePerLayer * layerCount;
-					const UInt8* ptr = image.GetConstPixels(level) + bytePerLayer * layer;
+					const UInt8* ptr = image.GetConstPixels(level);
 					NazaraAssert(ptr);
 
-					if (byteStream.Write(ptr, byteCount) != byteCount)
+					ptr += bytePerLayer * layer;
+
+					if (byteStream.Write(ptr, bytePerLayer) != bytePerLayer)
 					{
-						NazaraError("failed to write level #{0}", level);
+						NazaraError("failed to write level #{0} of layer {1}", level, layer);
 						return false;
 					}
 
