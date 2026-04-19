@@ -62,14 +62,10 @@ namespace Nz
 			UInt8* ptr = stbi_load_from_callbacks(&s_stbiCallbacks, &stream, &width, &height, &bpp, STBI_rgb_alpha);
 			if (!ptr)
 			{
-				NazaraError("failed to load image: {0}", std::string(stbi_failure_reason()));
+				NazaraError("failed to load image: {0}", stbi_failure_reason());
 				return Err(ResourceLoadingError::DecodingError);
 			}
-
-			CallOnExit freeStbiImage([ptr]()
-			{
-				stbi_image_free(ptr);
-			});
+			NAZARA_DEFER({ stbi_image_free(ptr); });
 
 			std::shared_ptr<Image> image = std::make_shared<Image>();
 			if (!image->Create(ImageType::E2D, PixelFormat::RGBA8, width, height, 1, (parameters.levelCount > 0) ? parameters.levelCount : 1))
@@ -80,8 +76,6 @@ namespace Nz
 
 			if (parameters.levels.test(0))
 				image->Update(ptr);
-
-			freeStbiImage.CallAndReset();
 
 			if (parameters.loadFormat != PixelFormat::Undefined)
 			{
