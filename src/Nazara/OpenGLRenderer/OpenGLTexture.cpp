@@ -73,19 +73,6 @@ namespace Nz
 #endif
 	}
 
-	OpenGLTexture::OpenGLTexture(OpenGLDevice& device, const TextureInfo& textureInfo, const void* initialData, bool buildMipmaps, unsigned int srcWidth, unsigned int srcHeight) :
-	OpenGLTexture(device, textureInfo)
-	{
-		NazaraAssertMsg(initialData, "missing initial data");
-
-		Boxui wholeRegion(0, 0, 0, m_textureInfo.width, m_textureInfo.height, m_textureInfo.depth);
-		ImageUtils::ArrayToRegion(m_textureInfo.type, 0, m_textureInfo.layerCount, wholeRegion);
-
-		Update(initialData, wholeRegion, srcWidth, srcHeight, 0);
-		if (buildMipmaps && m_textureInfo.levelCount > 1)
-			m_texture.GenerateMipmap();
-	}
-
 	OpenGLTexture::OpenGLTexture(std::shared_ptr<OpenGLTexture> parentTexture, const TextureViewInfo& viewInfo) :
 	m_parentTexture(std::move(parentTexture))
 	{

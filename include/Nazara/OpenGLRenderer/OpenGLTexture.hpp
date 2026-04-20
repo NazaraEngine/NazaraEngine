@@ -20,7 +20,6 @@ namespace Nz
 	{
 		public:
 			OpenGLTexture(OpenGLDevice& device, const TextureInfo& textureInfo);
-			OpenGLTexture(OpenGLDevice& device, const TextureInfo& textureInfo, const void* initialData, bool buildMipmaps, unsigned int srcWidth = 0, unsigned int srcHeight = 0);
 			OpenGLTexture(std::shared_ptr<OpenGLTexture> parentTexture, const TextureViewInfo& viewInfo);
 			OpenGLTexture(const OpenGLTexture&) = delete;
 			OpenGLTexture(OpenGLTexture&&) = delete;
