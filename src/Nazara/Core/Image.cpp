@@ -967,7 +967,7 @@ namespace Nz
 				if (workingBitset.TestAny()) //< Means that at least one bit of the alpha mask of this pixel is disabled
 					return true;
 
-				if (--pixelCount > 0)
+				if (--pixelCount == 0)
 					break;
 
 				workingBitset.Clear();
