@@ -88,7 +88,7 @@ namespace Nz
 		};
 
 		int buttonId;
-		if (SDL_ShowMessageBox(&messageBoxData, &buttonId) != 0)
+		if (!SDL_ShowMessageBox(&messageBoxData, &buttonId))
 			return Err(SDL_GetError());
 
 		return Ok(buttonId);
