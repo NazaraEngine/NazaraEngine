@@ -98,6 +98,7 @@ namespace Nz
 
 				NazaraSlot(Light, OnLightDataInvalidated, onLightInvalidated);
 				NazaraSlot(Light, OnLightShadowCastingChanged, onLightShadowCastingChanged);
+				NazaraSlot(Light, OnLightShadowMapSettingChange, onLightShadowMapSettingChange);
 			};
 
 			struct MaterialInstanceData

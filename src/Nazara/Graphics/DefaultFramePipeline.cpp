@@ -102,6 +102,12 @@ namespace Nz
 			//TODO: Switch lights to storage buffers so they can all be part of GPU memory
 		});
 
+		lightData->onLightShadowMapSettingChange.Connect(lightData->light->OnLightShadowMapSettingChange, [this, lightData, lightIndex](Light* light, PixelFormat /*newPixelFormat*/, UInt32 /*newSize*/)
+		{
+			if (light->IsShadowCaster())
+				m_rebuildFrameGraph = true;
+		});
+
 		lightData->onLightShadowCastingChanged.Connect(lightData->light->OnLightShadowCastingChanged, [this, lightData, lightIndex](Light* light, bool isCastingShadows)
 		{
 			if (isCastingShadows)
