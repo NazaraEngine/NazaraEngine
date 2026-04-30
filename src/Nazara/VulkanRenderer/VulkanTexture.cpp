@@ -391,13 +391,28 @@ namespace Nz
 
 			Update(vkCommandBuffer, uploadBuffer, [&](void* pixelBuffer)
 			{
-				UInt8 bpp = PixelFormatInfo::GetBytesPerPixel(m_textureViewInfo.pixelFormat);
-				UInt32 dstRowStride = m_textureInfo.width * bpp;
-				UInt32 dstDepthStride = dstRowStride * m_textureInfo.height;
-				UInt32 srcRowStride = srcWidth * bpp;
-				UInt32 srcDepthStride = srcRowStride * srcHeight;
+				UInt32 srcRowStride;
+				UInt32 srcDepthStride;
 
-				ImageUtils::Copy(pixelBuffer, pixels, m_textureViewInfo.pixelFormat, m_textureInfo.width, m_textureInfo.height, std::max(m_textureInfo.layerCount, m_textureInfo.depth), dstRowStride, dstDepthStride, srcRowStride, srcDepthStride);
+				if (PixelFormatInfo::IsUncompressed(m_textureViewInfo.pixelFormat))
+				{
+					UInt32 bpp = PixelFormatInfo::GetBytesPerPixel(m_textureViewInfo.pixelFormat);
+					srcRowStride = srcWidth * bpp;
+					srcDepthStride = srcRowStride * srcHeight;
+				}
+				else
+				{
+					UInt32 bytePerBlock = PixelFormatInfo::GetBytesPerBlock(m_textureViewInfo.pixelFormat);
+					UInt32 blockSize = PixelFormatInfo::GetBlockSize(m_textureViewInfo.pixelFormat);
+
+					NazaraAssertMsg(srcWidth % blockSize == 0, "srcWidth (%u) should be a multiple of texture format blockSize (%u)", srcWidth, blockSize);
+					NazaraAssertMsg(srcHeight % blockSize == 0, "srcHeight (%u) should be a multiple of texture format blockSize (%u)", srcHeight, blockSize);
+
+					srcRowStride = srcWidth / blockSize * bytePerBlock;
+					srcDepthStride = srcHeight / blockSize * bytePerBlock;
+				}
+
+				ImageUtils::Copy(pixelBuffer, pixels, m_textureViewInfo.pixelFormat, m_textureInfo.width, m_textureInfo.height, std::max(m_textureInfo.layerCount, m_textureInfo.depth), 0, 0, srcRowStride, srcDepthStride);
 				return true;
 			}, wholeRegion, 0);
 
@@ -456,10 +471,27 @@ namespace Nz
 	{
 		return Update(asyncTransfer, [&](void* pixelBuffer)
 		{
-			UInt8 bpp = PixelFormatInfo::GetBytesPerPixel(m_textureViewInfo.pixelFormat);
+			UINT32 srcRowStride, srcDepthStride;
+			if (PixelFormatInfo::IsUncompressed(m_textureViewInfo.pixelFormat))
+			{
+				UInt32 bpp = PixelFormatInfo::GetBytesPerPixel(m_textureViewInfo.pixelFormat);
+				srcRowStride = srcWidth * bpp;
+				srcDepthStride = srcRowStride * srcHeight;
+			}
+			else
+			{
+				UInt32 bytePerBlock = PixelFormatInfo::GetBytesPerBlock(m_textureViewInfo.pixelFormat);
+				UInt32 blockSize = PixelFormatInfo::GetBlockSize(m_textureViewInfo.pixelFormat);
+
+				NazaraAssertMsg(srcWidth % blockSize == 0, "srcWidth (%u) should be a multiple of texture format blockSize (%u)", srcWidth, blockSize);
+				NazaraAssertMsg(srcHeight % blockSize == 0, "srcHeight (%u) should be a multiple of texture format blockSize (%u)", srcHeight, blockSize);
+
+				srcRowStride = srcWidth / blockSize * bytePerBlock;
+				srcDepthStride = srcHeight / blockSize * bytePerBlock;
+			}
 
 			std::size_t memorySize = PixelFormatInfo::ComputeSize(m_textureViewInfo.pixelFormat, box.width, box.height, box.depth);
-			ImageUtils::Copy(pixelBuffer, ptr, m_textureViewInfo.pixelFormat, box.width, box.height, box.depth, 0, 0, srcWidth * bpp, srcWidth * srcHeight * bpp);
+			ImageUtils::Copy(pixelBuffer, ptr, m_textureViewInfo.pixelFormat, box.width, box.height, box.depth, 0, 0, srcRowStride, srcDepthStride);
 
 			return true;
 		}, box, level);

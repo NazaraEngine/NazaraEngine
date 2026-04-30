@@ -17,7 +17,7 @@ namespace Nz
 
 	inline void PixelFormatDescription::Clear()
 	{
-		bitsPerPixel = 0;
+		content = PixelFormatContent::Undefined;
 		alphaMask.Clear();
 		blueMask.Clear();
 		greenMask.Clear();
@@ -107,6 +107,7 @@ namespace Nz
 		desc.alphaMask = aMask;
 		desc.content = formatContent;
 		desc.dataType = dataType;
+		desc.blockSize = 1;
 
 		std::size_t bitCount = std::max({ desc.redMask.GetSize(), desc.greenMask.GetSize(), desc.blueMask.GetSize(), desc.alphaMask.GetSize() });
 		desc.redMask.Resize(bitCount);
@@ -182,7 +183,6 @@ namespace Nz
 
 	inline UInt8 PixelFormatInfo::GetBlockSize(PixelFormat format)
 	{
-		NazaraAssertMsg(IsBlockCompressed(format), "format is not block compressed");
 		return s_pixelFormatInfos[format].blockSize;
 	}
 
@@ -194,7 +194,7 @@ namespace Nz
 
 	inline UInt8 PixelFormatInfo::GetBytesPerPixel(PixelFormat format)
 	{
-		return GetBitsPerPixel(format)/8;
+		return GetBitsPerPixel(format) / 8;
 	}
 
 	inline PixelFormatContent PixelFormatInfo::GetContent(PixelFormat format)

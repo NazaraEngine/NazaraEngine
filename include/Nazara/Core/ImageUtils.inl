@@ -47,25 +47,56 @@ namespace Nz::ImageUtils
 		UInt8* dstPtr = static_cast<UInt8*>(destination);
 		const UInt8* srcPtr = static_cast<const UInt8*>(source);
 
-		UInt8 bpp = PixelFormatInfo::GetBytesPerPixel(format);
+		if (PixelFormatInfo::IsUncompressed(format))
+		{
+			UInt8 bpp = PixelFormatInfo::GetBytesPerPixel(format);
 
-		if (dstRowStride == 0)
-			dstRowStride = width * bpp;
+			if (dstRowStride == 0)
+				dstRowStride = width * bpp;
 
-		if (dstDepthStride == 0)
-			dstDepthStride = width * height * bpp;
+			if (dstDepthStride == 0)
+				dstDepthStride = width * height * bpp;
 
-		if (srcRowStride == 0)
-			srcRowStride = width * bpp;
+			if (srcRowStride == 0)
+				srcRowStride = width * bpp;
 
-		if (srcDepthStride == 0)
-			srcDepthStride = width * height * bpp;
+			if (srcDepthStride == 0)
+				srcDepthStride = width * height * bpp;
+		}
+		else
+		{
+			NazaraAssert(PixelFormatInfo::IsBlockCompressed(format));
+			UInt32 bytePerBlock = PixelFormatInfo::GetBytesPerBlock(format);
+			UInt32 blockSize = PixelFormatInfo::GetBlockSize(format);
+
+			NazaraAssertMsg(width % blockSize == 0, "width (%u) should be a multiple of texture format blockSize (%u)", width, blockSize);
+			NazaraAssertMsg(height % blockSize == 0, "height (%u) should be a multiple of texture format blockSize (%u)", height, blockSize);
+
+			if (dstRowStride == 0)
+				dstRowStride = width / blockSize * bytePerBlock;
+
+			if (dstDepthStride == 0)
+				dstDepthStride = (width * height) / blockSize * bytePerBlock;
+
+			if (srcRowStride == 0)
+				srcRowStride = width / blockSize * bytePerBlock;
+
+			if (srcDepthStride == 0)
+				srcDepthStride = (width * height) / blockSize * bytePerBlock;
+		}
 
 		if ((height == 1 || dstRowStride == srcRowStride) && (depth == 1 || dstDepthStride == srcDepthStride))
 			std::memcpy(dstPtr, source, PixelFormatInfo::ComputeSize(format, width, height, depth));
 		else
 		{
-			std::size_t lineSize = static_cast<std::size_t>(width) * bpp;
+			std::size_t lineSize;
+			if (PixelFormatInfo::IsUncompressed(format))
+				lineSize = static_cast<std::size_t>(width) * PixelFormatInfo::GetBytesPerPixel(format);
+			else
+			{
+				NazaraAssert(PixelFormatInfo::IsBlockCompressed(format));
+				lineSize = static_cast<std::size_t>(width) / PixelFormatInfo::GetBlockSize(format) * PixelFormatInfo::GetBytesPerBlock(format);
+			}
 
 			for (UInt32 i = 0; i < depth; ++i)
 			{
