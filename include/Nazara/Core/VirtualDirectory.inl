@@ -154,6 +154,7 @@ namespace Nz
 		},
 		[&](std::string_view name)
 		{
+			// If there are leftovers path, it means we have a resolver and are waiting to use it
 			if (!directoryParts.empty())
 			{
 				if (const auto& resolver = currentDir->GetResolver())
@@ -168,6 +169,7 @@ namespace Nz
 				}
 			}
 
+			// Otherwise use normal getter
 			return currentDir->GetEntryInternal(name, true, callback);
 		});
 	}
