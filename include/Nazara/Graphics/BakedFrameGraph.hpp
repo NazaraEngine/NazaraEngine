@@ -70,7 +70,6 @@ namespace Nz
 
 			struct PassData
 			{
-				CommandBufferPtr commandBuffer;
 				std::shared_ptr<Framebuffer> framebuffer;
 				std::shared_ptr<RenderPass> renderPass;
 				std::string name;
@@ -80,7 +79,6 @@ namespace Nz
 				std::vector<TextureBarrier> invalidationBarriers;
 				FramePass::ExecutionCallback executionCallback;
 				Recti renderRect;
-				bool forceCommandBufferRegeneration = true;
 			};
 
 			struct TextureData : FrameGraphTextureData
