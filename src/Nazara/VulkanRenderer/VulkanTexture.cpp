@@ -322,7 +322,12 @@ namespace Nz
 	bool VulkanTexture::Update(const void* ptr, const Boxui& box, UInt32 srcWidth, UInt32 srcHeight, UInt8 level)
 	{
 		unsigned int baseLayer, layerCount;
-		ImageUtils::RegionToArray(m_textureViewInfo.type, box, baseLayer, layerCount);
+		Boxui32 targetBox = ImageUtils::RegionToArray(m_textureViewInfo.type, box, baseLayer, layerCount);
+
+		// Preserve content for partial updates
+		VkImageLayout sourceLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		if (targetBox == Boxui32(ImageUtils::GetLevelSize(m_textureInfo.width, level), ImageUtils::GetLevelSize(m_textureInfo.height, level), ImageUtils::GetLevelSize(m_textureInfo.depth, level)))
+			sourceLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 
 		VulkanAsyncCommands asyncTransfer(m_device, QueueType::Graphics);
 		asyncTransfer.AddCommands([&](CommandBufferBuilder& builder)
@@ -330,7 +335,7 @@ namespace Nz
 			VulkanCommandBufferBuilder& vkBuilder = SafeCast<VulkanCommandBufferBuilder&>(builder);
 			Vk::CommandBuffer& vkCommandBuffer = vkBuilder.GetCommandBuffer();
 
-			vkCommandBuffer.SetImageLayout(m_image, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, BuildSubresourceRange(baseLayer, layerCount));
+			vkCommandBuffer.SetImageLayout(m_image, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, sourceLayout, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, BuildSubresourceRange(level, 1, baseLayer, layerCount));
 		});
 
 		if (!Update(asyncTransfer, ptr, box, srcWidth, srcHeight, level))
@@ -341,7 +346,7 @@ namespace Nz
 			VulkanCommandBufferBuilder& vkBuilder = SafeCast<VulkanCommandBufferBuilder&>(builder);
 			Vk::CommandBuffer& vkCommandBuffer = vkBuilder.GetCommandBuffer();
 
-			vkCommandBuffer.SetImageLayout(m_image, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, BuildSubresourceRange(baseLayer, layerCount));
+			vkCommandBuffer.SetImageLayout(m_image, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, BuildSubresourceRange(level, 1, baseLayer, layerCount));
 		});
 
 		m_device.SubmitAsyncCommandsAndWait(asyncTransfer);
@@ -350,13 +355,21 @@ namespace Nz
 
 	bool VulkanTexture::Update(FunctionRef<bool(void* ptr)> callback, const Boxui& box, UInt8 level)
 	{
+		unsigned int baseLayer, layerCount;
+		Boxui32 targetBox = ImageUtils::RegionToArray(m_textureViewInfo.type, box, baseLayer, layerCount);
+
+		// Preserve content for partial updates
+		VkImageLayout sourceLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		if (targetBox == Boxui32(ImageUtils::GetLevelSize(m_textureInfo.width, level), ImageUtils::GetLevelSize(m_textureInfo.height, level), ImageUtils::GetLevelSize(m_textureInfo.depth, level)))
+			sourceLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+
 		VulkanAsyncCommands asyncTransfer(m_device, QueueType::Graphics);
 		asyncTransfer.AddCommands([&](CommandBufferBuilder& builder)
 		{
 			VulkanCommandBufferBuilder& vkBuilder = SafeCast<VulkanCommandBufferBuilder&>(builder);
 			Vk::CommandBuffer& vkCommandBuffer = vkBuilder.GetCommandBuffer();
 
-			vkCommandBuffer.SetImageLayout(m_image, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, BuildSubresourceRange(level, 1));
+			vkCommandBuffer.SetImageLayout(m_image, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, sourceLayout, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, BuildSubresourceRange(level, 1, baseLayer, layerCount));
 		});
 
 		if (!Update(asyncTransfer, callback, box, level))
@@ -367,7 +380,7 @@ namespace Nz
 			VulkanCommandBufferBuilder& vkBuilder = SafeCast<VulkanCommandBufferBuilder&>(builder);
 			Vk::CommandBuffer& vkCommandBuffer = vkBuilder.GetCommandBuffer();
 
-			vkCommandBuffer.SetImageLayout(m_image, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, BuildSubresourceRange(level, 1));
+			vkCommandBuffer.SetImageLayout(m_image, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, BuildSubresourceRange(level, 1, baseLayer, layerCount));
 		});
 
 		m_device.SubmitAsyncCommandsAndWait(asyncTransfer);
