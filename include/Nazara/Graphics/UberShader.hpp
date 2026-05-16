@@ -27,7 +27,7 @@ namespace Nz
 		public:
 			struct Config;
 			struct Option;
-			using ConfigCallback = std::function<void(Config& config, const std::vector<RenderPipelineInfo::VertexBufferData>& vertexBuffers)>;
+			using ConfigCallback = std::function<void(Config& config, const RenderPipelineInfo::VertexInputVector& vertexBuffers)>;
 
 			UberShader(nzsl::ShaderStageTypeFlags shaderStages, std::string moduleName);
 			UberShader(nzsl::ShaderStageTypeFlags shaderStages, nzsl::ModuleResolver& moduleResolver, std::string moduleName);
@@ -40,7 +40,7 @@ namespace Nz
 
 			inline bool HasOption(std::string_view optionName, Pointer<const Option>* option = nullptr) const;
 
-			inline void UpdateConfig(Config& config, const std::vector<RenderPipelineInfo::VertexBufferData>& vertexBuffers);
+			inline void UpdateConfig(Config& config, const RenderPipelineInfo::VertexInputVector& vertexBuffers);
 			inline void UpdateConfigCallback(ConfigCallback callback);
 
 			struct Config

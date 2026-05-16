@@ -207,7 +207,7 @@ namespace Nz
 
 			struct ShaderBindings
 			{
-				std::vector<ShaderBinding> shaderBindings;
+				HybridVector<ShaderBinding, 1> shaderBindings;
 			};
 
 			struct DispatchCommand
@@ -233,7 +233,7 @@ namespace Nz
 				IndexType indexBufferType;
 				std::optional<Recti> scissorRegion;
 				std::optional<Recti> viewportRegion;
-				std::vector<VertexBuffer> vertexBuffers;
+				HybridVector<VertexBuffer, 2> vertexBuffers;
 				bool shouldFlipY = false;
 			};
 

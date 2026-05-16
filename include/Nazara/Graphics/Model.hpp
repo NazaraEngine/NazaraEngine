@@ -66,7 +66,7 @@ namespace Nz
 			const std::shared_ptr<MaterialInstance>& GetMaterial(std::size_t subMeshIndex) const override;
 			std::size_t GetMaterialCount() const override;
 			inline std::size_t GetSubMeshCount() const;
-			const std::vector<RenderPipelineInfo::VertexBufferData>& GetVertexBufferData(std::size_t subMeshIndex) const;
+			const RenderPipelineInfo::VertexInputVector& GetVertexBufferData(std::size_t subMeshIndex) const;
 			const std::shared_ptr<RenderBuffer>& GetVertexBuffer(std::size_t subMeshIndex) const;
 
 			inline void SetIndexCount(std::size_t subMeshIndex, std::size_t indexCount);
@@ -85,7 +85,7 @@ namespace Nz
 			{
 				std::size_t indexCount = 0; //< if != 0 overrides GraphicalMesh index count
 				std::shared_ptr<MaterialInstance> material;
-				std::vector<RenderPipelineInfo::VertexBufferData> vertexBufferData;
+				RenderPipelineInfo::VertexInputVector vertexBufferData;
 			};
 
 			NazaraSlot(GraphicalMesh, OnInvalidated, m_onInvalidated);

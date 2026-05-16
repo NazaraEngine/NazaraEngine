@@ -101,7 +101,7 @@ namespace Nz
 		return m_submeshes.size();
 	}
 
-	const std::vector<RenderPipelineInfo::VertexBufferData>& Model::GetVertexBufferData(std::size_t subMeshIndex) const
+	const RenderPipelineInfo::VertexInputVector& Model::GetVertexBufferData(std::size_t subMeshIndex) const
 	{
 		NazaraAssertMsg(subMeshIndex < m_submeshes.size(), "submesh index out of range (%zu >= %zu)", subMeshIndex, m_submeshes.size());
 		const auto& subMeshData = m_submeshes[subMeshIndex];

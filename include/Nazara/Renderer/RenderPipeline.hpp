@@ -8,6 +8,7 @@
 #define NAZARA_RENDERER_RENDERPIPELINE_HPP
 
 #include <Nazara/Core/Enums.hpp>
+#include <NazaraUtils/FixedVector.hpp>
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
 
@@ -21,9 +22,12 @@ namespace Nz
 			std::shared_ptr<const VertexDeclaration> declaration;
 		};
 
+		using ShaderVector = HybridVector<std::shared_ptr<ShaderModule>, 2>;
+		using VertexInputVector = HybridVector<VertexBufferData, 1>;
+
 		std::shared_ptr<RenderPipelineLayout> pipelineLayout;
-		std::vector<std::shared_ptr<ShaderModule>> shaderModules;
-		std::vector<VertexBufferData> vertexBuffers;
+		ShaderVector shaderModules;
+		VertexInputVector vertexBuffers;
 	};
 
 	class RenderDevice;

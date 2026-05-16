@@ -138,7 +138,7 @@ namespace Nz
 
 			for (const auto& uberShader : passOpt->shaders)
 			{
-				uberShader->UpdateConfigCallback([=](UberShader::Config& config, const std::vector<RenderPipelineInfo::VertexBufferData>& vertexBuffers)
+				uberShader->UpdateConfigCallback([=](UberShader::Config& config, const RenderPipelineInfo::VertexInputVector& vertexBuffers)
 				{
 					using namespace nzsl::Ast::Literals;
 

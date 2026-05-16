@@ -22,7 +22,7 @@ namespace Nz
 		return true;
 	}
 
-	inline void UberShader::UpdateConfig(Config& config, const std::vector<RenderPipelineInfo::VertexBufferData>& vertexBuffers)
+	inline void UberShader::UpdateConfig(Config& config, const RenderPipelineInfo::VertexInputVector& vertexBuffers)
 	{
 		if (m_configCallback)
 			m_configCallback(config, vertexBuffers);
