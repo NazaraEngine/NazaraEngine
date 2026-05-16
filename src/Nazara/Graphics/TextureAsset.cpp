@@ -393,7 +393,7 @@ namespace Nz
 
 	std::shared_ptr<TextureAsset> TextureAsset::OpenFromFile(const std::filesystem::path& filePath, const TextureAssetParams& params)
 	{
-		std::unique_ptr<Nz::File> file = std::make_unique<Nz::File>(filePath, Nz::OpenMode::Read);
+		std::unique_ptr<File> file = std::make_unique<File>(filePath, OpenMode::Read);
 		if (!file->IsOpen())
 		{
 			NazaraError("failed to open {}", filePath);
@@ -405,7 +405,7 @@ namespace Nz
 
 	std::shared_ptr<TextureAsset> TextureAsset::OpenFromMemory(const void* data, std::size_t size, const TextureAssetParams& params)
 	{
-		return OpenFromStream(std::make_unique<Nz::MemoryView>(data, size), params);
+		return OpenFromStream(std::make_unique<MemoryView>(data, size), params);
 	}
 
 	std::shared_ptr<TextureAsset> TextureAsset::OpenFromStream(std::unique_ptr<Stream> stream, const TextureAssetParams& params)
@@ -428,7 +428,7 @@ namespace Nz
 
 	std::shared_ptr<TextureAsset> TextureAsset::OpenFromFile(const std::filesystem::path& filePath, const TextureAssetParams& params, const Vector2ui32& atlasSize)
 	{
-		std::unique_ptr<Nz::File> file = std::make_unique<Nz::File>(filePath, Nz::OpenMode::Read);
+		std::unique_ptr<File> file = std::make_unique<File>(filePath, OpenMode::Read);
 		if (!file->IsOpen())
 		{
 			NazaraError("failed to open {}", filePath);
@@ -440,7 +440,7 @@ namespace Nz
 
 	std::shared_ptr<TextureAsset> TextureAsset::OpenFromMemory(const void* data, std::size_t size, const TextureAssetParams& params, const Vector2ui32& atlasSize)
 	{
-		return OpenFromStream(std::make_unique<Nz::MemoryView>(data, size), params, atlasSize);
+		return OpenFromStream(std::make_unique<MemoryView>(data, size), params, atlasSize);
 	}
 
 	std::shared_ptr<TextureAsset> TextureAsset::OpenFromStream(std::unique_ptr<Stream> stream, const TextureAssetParams& params, const Vector2ui32& atlasSize)
@@ -463,7 +463,7 @@ namespace Nz
 
 	std::shared_ptr<TextureAsset> TextureAsset::OpenFromFile(const std::filesystem::path& filePath, const TextureAssetParams& params, const CubemapParams& cubemapParams)
 	{
-		std::unique_ptr<Nz::File> file = std::make_unique<Nz::File>(filePath, Nz::OpenMode::Read);
+		std::unique_ptr<File> file = std::make_unique<File>(filePath, OpenMode::Read);
 		if (!file->IsOpen())
 		{
 			NazaraError("failed to open {}", filePath);
@@ -475,7 +475,7 @@ namespace Nz
 
 	std::shared_ptr<TextureAsset> TextureAsset::OpenFromMemory(const void* data, std::size_t size, const TextureAssetParams& params, const CubemapParams& cubemapParams)
 	{
-		return OpenFromStream(std::make_unique<Nz::MemoryView>(data, size), params, cubemapParams);
+		return OpenFromStream(std::make_unique<MemoryView>(data, size), params, cubemapParams);
 	}
 
 	std::shared_ptr<TextureAsset> TextureAsset::OpenFromStream(std::unique_ptr<Stream> stream, const TextureAssetParams& params, const CubemapParams& cubemapParams)
@@ -533,6 +533,16 @@ namespace Nz
 
 			renderDevice.SubmitAsyncCommands(std::move(asyncCommands), true);
 		}
+		else if (m_textureInfo.levelCount == 1)
+		{
+			auto callback = [&](void* pixels)
+			{
+				std::memcpy(pixels, image.GetConstPixels(), image.GetMemoryUsage());
+				return true;
+			};
+
+			entry->texture->Update(callback, Boxui(m_textureInfo.width, m_textureInfo.height, m_textureInfo.depth));
+		}
 		else
 			entry->texture->Update(image.GetConstPixels(), true);
 
@@ -574,6 +584,6 @@ namespace Nz
 
 		// Assume mipmaps cannot be generated for compressed texture formats
 		if (params.generateMipmaps && !PixelFormatInfo::IsCompressed(m_textureInfo.pixelFormat))
-			m_textureInfo.levelCount = Nz::MaxValue();
+			m_textureInfo.levelCount = MaxValue();
 	}
 }
