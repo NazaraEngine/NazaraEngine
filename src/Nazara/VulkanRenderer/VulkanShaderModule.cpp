@@ -77,20 +77,20 @@ namespace Nz
 			case ShaderLanguage::MSL:
 				break;
 
-			case ShaderLanguage::NazaraBinary:
-			{
-				nzsl::Deserializer deserializer(source, sourceSize);
-				auto shader = nzsl::Ast::DeserializeShader(deserializer);
-				return Create(device, shaderStages, std::move(*shader), parameters);
-			}
-
-			case ShaderLanguage::NazaraShader:
+			case ShaderLanguage::NZSL:
 			{
 				std::vector<nzsl::Token> tokens = nzsl::Tokenize(std::string_view(static_cast<const char*>(source), sourceSize));
 
 				nzsl::Parser parser;
 				nzsl::Ast::ModulePtr shaderModule = parser.Parse(tokens);
 				return Create(device, shaderStages, std::move(*shaderModule), parameters);
+			}
+
+			case ShaderLanguage::NZSLB:
+			{
+				nzsl::Deserializer deserializer(source, sourceSize);
+				auto shader = nzsl::Ast::DeserializeShader(deserializer);
+				return Create(device, shaderStages, std::move(*shader), parameters);
 			}
 
 			case ShaderLanguage::SpirV:

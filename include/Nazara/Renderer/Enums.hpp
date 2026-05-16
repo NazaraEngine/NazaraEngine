@@ -202,8 +202,8 @@ namespace Nz
 		GLSL,
 		HLSL,
 		MSL,
-		NazaraBinary,
-		NazaraShader,
+		NZSLB,
+		NZSL,
 		SpirV
 	};
 

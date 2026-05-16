@@ -47,7 +47,7 @@ namespace Nz
 				break;
 			}
 
-			case ShaderLanguage::NazaraBinary:
+			case ShaderLanguage::NZSLB:
 			{
 				nzsl::Deserializer deserializer(source, sourceSize);
 				auto shader = nzsl::Ast::DeserializeShader(deserializer);
@@ -55,7 +55,7 @@ namespace Nz
 				break;
 			}
 
-			case ShaderLanguage::NazaraShader:
+			case ShaderLanguage::NZSL:
 			{
 				std::vector<nzsl::Token> tokens = nzsl::Tokenize(std::string_view(static_cast<const char*>(source), sourceSize));
 

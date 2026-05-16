@@ -149,7 +149,7 @@ int main(int argc, char* argv[])
 	skyboxPipelineInfo.depthCompare = Nz::RendererComparison::Equal;
 	skyboxPipelineInfo.faceCulling = Nz::FaceCulling::Front;
 	skyboxPipelineInfo.pipelineLayout = skyboxPipelineLayout;
-	skyboxPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, shaderDir / "skybox.nzsl", states));
+	skyboxPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NZSL, shaderDir / "skybox.nzsl", states));
 	skyboxPipelineInfo.vertexBuffers.push_back({
 		0,
 		meshPrimitiveParams.vertexDeclaration
@@ -359,7 +359,7 @@ int main(int argc, char* argv[])
 	fullscreenPipelineInfoViewer.primitiveMode = Nz::PrimitiveMode::TriangleList;
 	fullscreenPipelineInfoViewer.pipelineLayout = device->InstantiateRenderPipelineLayout(fullscreenPipelineLayoutInfoViewer);
 
-	fullscreenPipelineInfoViewer.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, shaderDir / "bloom_bright.nzsl", states));
+	fullscreenPipelineInfoViewer.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NZSL, shaderDir / "bloom_bright.nzsl", states));
 
 	Nz::ShaderBindingPtr bloomBrightShaderBinding;
 
@@ -383,7 +383,7 @@ int main(int argc, char* argv[])
 	std::size_t gaussianBlurDataSize = gaussianBlurDataOffsets.AddField(nzsl::StructFieldType::Float1);
 
 	gaussianBlurPipelineInfo.shaderModules.clear();
-	gaussianBlurPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, shaderDir / "gaussian_blur.nzsl", states));
+	gaussianBlurPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NZSL, shaderDir / "gaussian_blur.nzsl", states));
 
 	std::shared_ptr<Nz::RenderPipeline> gaussianBlurPipeline = device->InstantiateRenderPipeline(gaussianBlurPipelineInfo);
 	std::vector<Nz::ShaderBindingPtr> gaussianBlurShaderBinding(BloomSubdivisionCount * 2);
@@ -413,7 +413,7 @@ int main(int argc, char* argv[])
 	Nz::ShaderBindingPtr toneMappingShaderBinding;
 
 	fullscreenPipelineInfoViewer.shaderModules.clear();
-	fullscreenPipelineInfoViewer.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, shaderDir / "tone_mapping.nzsl", states));
+	fullscreenPipelineInfoViewer.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NZSL, shaderDir / "tone_mapping.nzsl", states));
 
 	std::shared_ptr<Nz::RenderPipeline> toneMappingPipeline = device->InstantiateRenderPipeline(fullscreenPipelineInfoViewer);
 
@@ -448,7 +448,7 @@ int main(int argc, char* argv[])
 	bloomBlendPipelineInfo.primitiveMode = Nz::PrimitiveMode::TriangleList;
 	bloomBlendPipelineInfo.pipelineLayout = device->InstantiateRenderPipelineLayout(bloomBlendPipelineLayoutInfo);
 
-	bloomBlendPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, shaderDir / "bloom_final.nzsl", states));
+	bloomBlendPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NZSL, shaderDir / "bloom_final.nzsl", states));
 
 	std::shared_ptr<Nz::RenderPipeline> bloomBlendPipeline = device->InstantiateRenderPipeline(bloomBlendPipelineInfo);
 
@@ -468,7 +468,7 @@ int main(int argc, char* argv[])
 	fullscreenPipelineInfo.primitiveMode = Nz::PrimitiveMode::TriangleList;
 	fullscreenPipelineInfo.pipelineLayout = device->InstantiateRenderPipelineLayout(fullscreenPipelineLayoutInfo);
 
-	fullscreenPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, shaderDir / "gamma.nzsl", states));
+	fullscreenPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NZSL, shaderDir / "gamma.nzsl", states));
 
 	// God rays
 
@@ -498,7 +498,7 @@ int main(int argc, char* argv[])
 	godraysPipelineInfo.primitiveMode = Nz::PrimitiveMode::TriangleList;
 	godraysPipelineInfo.pipelineLayout = device->InstantiateRenderPipelineLayout(godraysPipelineLayoutInfo);
 
-	godraysPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, shaderDir / "god_rays.nzsl", states));
+	godraysPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NZSL, shaderDir / "god_rays.nzsl", states));
 
 	std::shared_ptr<Nz::RenderPipeline> godraysPipeline = device->InstantiateRenderPipeline(godraysPipelineInfo);
 
@@ -550,7 +550,7 @@ int main(int argc, char* argv[])
 	lightingPipelineInfo.stencilBack.depthFail = Nz::StencilOperation::Zero;
 	lightingPipelineInfo.stencilBack.pass = Nz::StencilOperation::Zero;
 
-	lightingPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, shaderDir / "lighting.nzsl", states));
+	lightingPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NZSL, shaderDir / "lighting.nzsl", states));
 
 	std::shared_ptr<Nz::RenderPipeline> lightingPipeline = device->InstantiateRenderPipeline(lightingPipelineInfo);
 
@@ -572,7 +572,7 @@ int main(int argc, char* argv[])
 	stencilPipelineInfo.stencilBack.compare = Nz::RendererComparison::Always;
 	stencilPipelineInfo.stencilBack.depthFail = Nz::StencilOperation::Invert;
 
-	stencilPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NazaraShader, shaderDir / "lighting.nzsl", states));
+	stencilPipelineInfo.shaderModules.push_back(device->InstantiateShaderModule(nzsl::ShaderStageType::Vertex, Nz::ShaderLanguage::NZSL, shaderDir / "lighting.nzsl", states));
 
 	std::shared_ptr<Nz::RenderPipeline> stencilPipeline = device->InstantiateRenderPipeline(stencilPipelineInfo);
 
