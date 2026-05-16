@@ -989,7 +989,7 @@ namespace Nz
 				if (!currentPeer->m_acknowledgements.empty())
 					SendAcknowledgements(currentPeer);
 
-				if (checkForTimeouts && !currentPeer->m_sentReliableCommands.empty() && ENetTimeGreaterEqual(m_serviceTime, currentPeer->m_nextTimeout) && currentPeer->CheckTimeouts(event))
+				if (checkForTimeouts && currentPeer->m_canTimeout && !currentPeer->m_sentReliableCommands.empty() && ENetTimeGreaterEqual(m_serviceTime, currentPeer->m_nextTimeout) && currentPeer->CheckTimeouts(event))
 				{
 					if (event && event->type != ENetEventType::None)
 						return 1;

@@ -122,6 +122,7 @@ namespace Nz
 
 		m_state = ENetPeerState::Disconnected;
 
+		m_canTimeout = true;
 		m_incomingBandwidth = 0;
 		m_outgoingBandwidth = 0;
 		m_incomingBandwidthThrottleEpoch = 0;

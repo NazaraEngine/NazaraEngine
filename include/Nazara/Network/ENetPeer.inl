@@ -11,6 +11,7 @@ namespace Nz
 	m_incomingSessionID(0xFF),
 	m_outgoingSessionID(0xFF),
 	m_incomingPeerID(peerId),
+	m_canTimeout(true),
 	m_isSimulationEnabled(false)
 	{
 		Reset();
@@ -99,6 +100,11 @@ namespace Nz
 	inline bool ENetPeer::IsSimulationEnabled() const
 	{
 		return m_isSimulationEnabled;
+	}
+
+	inline void ENetPeer::PreventTimeout(bool preventTimeout)
+	{
+		m_canTimeout = !preventTimeout;
 	}
 
 	inline void ENetPeer::ChangeState(ENetPeerState state)

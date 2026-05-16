@@ -68,6 +68,7 @@ namespace Nz
 			inline bool IsSimulationEnabled() const;
 
 			void Ping();
+			inline void PreventTimeout(bool preventTimeout = true);
 
 			bool Receive(ENetPacketRef* packet, UInt8* channelId);
 			void Reset();
@@ -245,6 +246,7 @@ namespace Nz
 			UInt32                                m_windowSize;
 			UInt64                                m_totalByteReceived;
 			UInt64                                m_totalByteSent;
+			bool                                  m_canTimeout;
 			bool                                  m_isSimulationEnabled;
 			bool                                  m_timedOut;
 	};
