@@ -358,6 +358,36 @@ namespace Nz
 		m_commandBuffer.DrawIndexed(indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 	}
 
+	void VulkanCommandBufferBuilder::DrawIndirect(const RenderBuffer& buffer, UInt64 offset, UInt32 drawCount, UInt32 stride)
+	{
+		const VulkanBuffer& indirectBuffer = SafeCast<const VulkanBuffer&>(buffer);
+
+		m_commandBuffer.DrawIndirect(indirectBuffer.GetBuffer(), offset, drawCount, stride);
+	}
+
+	void VulkanCommandBufferBuilder::DrawIndirectCount(const RenderBuffer& buffer, UInt64 offset, const RenderBuffer& countBuffer, UInt64 countBufferOffset, UInt32 maxDrawCount, UInt32 stride)
+	{
+		const VulkanBuffer& indirectBuffer = SafeCast<const VulkanBuffer&>(buffer);
+		const VulkanBuffer& indirectCountBuffer = SafeCast<const VulkanBuffer&>(countBuffer);
+
+		m_commandBuffer.DrawIndirectCount(indirectBuffer.GetBuffer(), offset, indirectCountBuffer.GetBuffer(), countBufferOffset, maxDrawCount, stride);
+	}
+
+	void VulkanCommandBufferBuilder::DrawIndexedIndirect(const RenderBuffer& buffer, UInt64 offset, UInt32 drawCount, UInt32 stride)
+	{
+		const VulkanBuffer& indirectBuffer = SafeCast<const VulkanBuffer&>(buffer);
+
+		m_commandBuffer.DrawIndexedIndirect(indirectBuffer.GetBuffer(), offset, drawCount, stride);
+	}
+
+	void VulkanCommandBufferBuilder::DrawIndexedIndirectCount(const RenderBuffer& buffer, UInt64 offset, const RenderBuffer& countBuffer, UInt64 countBufferOffset, UInt32 maxDrawCount, UInt32 stride)
+	{
+		const VulkanBuffer& indirectBuffer = SafeCast<const VulkanBuffer&>(buffer);
+		const VulkanBuffer& indirectCountBuffer = SafeCast<const VulkanBuffer&>(countBuffer);
+
+		m_commandBuffer.DrawIndexedIndirectCount(indirectBuffer.GetBuffer(), offset, indirectCountBuffer.GetBuffer(), countBufferOffset, maxDrawCount, stride);
+	}
+
 	void VulkanCommandBufferBuilder::EndDebugRegion()
 	{
 		m_commandBuffer.EndDebugRegion();

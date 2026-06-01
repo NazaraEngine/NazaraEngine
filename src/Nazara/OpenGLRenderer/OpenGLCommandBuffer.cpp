@@ -201,7 +201,9 @@ namespace Nz
 	{
 		ApplyStates(*context, command.states);
 		ApplyBindings(*context, command.bindings);
-		context->glDrawArraysInstanced(ToOpenGL(command.states.pipeline->GetPipelineInfo().primitiveMode), command.firstVertex, command.vertexCount, command.instanceCount);
+
+		GLenum primitiveMode = ToOpenGL(command.states.pipeline->GetPipelineInfo().primitiveMode);
+		context->glDrawArraysInstanced(primitiveMode, command.firstVertex, command.vertexCount, command.instanceCount);
 	}
 
 	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const DrawIndexedCommand& command)
@@ -219,15 +221,114 @@ namespace Nz
 		ApplyStates(*context, command.states);
 		ApplyBindings(*context, command.bindings);
 
+		GLenum primitiveMode = ToOpenGL(command.states.pipeline->GetPipelineInfo().primitiveMode);
 		if (command.baseVertex != 0)
 		{
 			if NAZARA_UNLIKELY(!context->glDrawElementsInstancedBaseVertex)
 				throw std::runtime_error("draw base vertex is not supported on this device");
 
-			context->glDrawElementsInstancedBaseVertex(ToOpenGL(command.states.pipeline->GetPipelineInfo().primitiveMode), command.indexCount, ToOpenGL(command.states.indexBufferType), origin, command.instanceCount, command.baseVertex);
+			context->glDrawElementsInstancedBaseVertex(primitiveMode, command.indexCount, ToOpenGL(command.states.indexBufferType), origin, command.instanceCount, command.baseVertex);
 		}
 		else
-			context->glDrawElementsInstanced(ToOpenGL(command.states.pipeline->GetPipelineInfo().primitiveMode), command.indexCount, ToOpenGL(command.states.indexBufferType), origin, command.instanceCount);
+			context->glDrawElementsInstanced(primitiveMode, command.indexCount, ToOpenGL(command.states.indexBufferType), origin, command.instanceCount);
+	}
+
+	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const DrawIndirectCommand& command)
+	{
+		if (command.drawCount == 0)
+			return;
+
+		ApplyStates(*context, command.states);
+		ApplyBindings(*context, command.bindings);
+
+		GLenum primitiveMode = ToOpenGL(command.states.pipeline->GetPipelineInfo().primitiveMode);
+
+		// For an easy way to cast an integer to a pointer
+		const UInt8* offset = 0;
+		offset += command.indirectBufferOffset;
+
+		context->BindBuffer(GL::BufferTarget::DrawIndirect, command.indirectBuffer);
+
+		if (command.drawCount > 1)
+		{
+			NazaraAssertMsg(context->glMultiDrawArraysIndirect, "multiDrawIndirect is not supported on this RenderDevice");
+			context->glMultiDrawArraysIndirect(primitiveMode, offset, command.drawCount, command.stride);
+		}
+		else
+		{
+			NazaraAssertMsg(context->glDrawArraysIndirect, "drawIndirect is not supported on this RenderDevice");
+			context->glDrawArraysIndirect(primitiveMode, offset);
+		}
+	}
+
+	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const DrawIndirectCountCommand& command)
+	{
+		if (command.maxDrawCount == 0)
+			return;
+
+		ApplyStates(*context, command.states);
+		ApplyBindings(*context, command.bindings);
+
+		GLenum primitiveMode = ToOpenGL(command.states.pipeline->GetPipelineInfo().primitiveMode);
+
+		// For an easy way to cast an integer to a pointer
+		const UInt8* offset = 0;
+		offset += command.indirectBufferOffset;
+
+		context->BindBuffer(GL::BufferTarget::DrawIndirect, command.indirectBuffer);
+		context->BindBuffer(GL::BufferTarget::Parameter, command.indirectCountBuffer);
+
+		NazaraAssertMsg(context->glMultiDrawArraysIndirectCount, "drawIndirectCount is not supported on this RenderDevice");
+		context->glMultiDrawArraysIndirectCount(primitiveMode, offset, command.indirectCountBufferOffset, command.maxDrawCount, command.stride);
+	}
+
+	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const DrawIndexedIndirectCommand& command)
+	{
+		if (command.drawCount == 0)
+			return;
+
+		ApplyStates(*context, command.states);
+		ApplyBindings(*context, command.bindings);
+
+		GLenum primitiveMode = ToOpenGL(command.states.pipeline->GetPipelineInfo().primitiveMode);
+
+		// For an easy way to cast an integer to a pointer
+		const UInt8* offset = 0;
+		offset += command.indirectBufferOffset;
+
+		context->BindBuffer(GL::BufferTarget::DrawIndirect, command.indirectBuffer);
+
+		if (command.drawCount > 1)
+		{
+			NazaraAssertMsg(context->glMultiDrawElementsIndirect, "multiDrawIndirect is not supported on this RenderDevice");
+			context->glMultiDrawElementsIndirect(primitiveMode, ToOpenGL(command.states.indexBufferType), offset, command.drawCount, command.stride);
+		}
+		else
+		{
+			NazaraAssertMsg(context->glDrawElementsIndirect, "drawIndirect is not supported on this RenderDevice");
+			context->glDrawElementsIndirect(primitiveMode, ToOpenGL(command.states.indexBufferType), offset);
+		}
+	}
+
+	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const DrawIndexedIndirectCountCommand& command)
+	{
+		if (command.maxDrawCount == 0)
+			return;
+
+		ApplyStates(*context, command.states);
+		ApplyBindings(*context, command.bindings);
+
+		GLenum primitiveMode = ToOpenGL(command.states.pipeline->GetPipelineInfo().primitiveMode);
+
+		// For an easy way to cast an integer to a pointer
+		const UInt8* offset = 0;
+		offset += command.indirectBufferOffset;
+
+		context->BindBuffer(GL::BufferTarget::DrawIndirect, command.indirectBuffer);
+		context->BindBuffer(GL::BufferTarget::Parameter, command.indirectCountBuffer);
+
+		NazaraAssertMsg(context->glMultiDrawElementsIndirectCount, "drawIndirectCount is not supported on this RenderDevice");
+		context->glMultiDrawElementsIndirectCount(primitiveMode, ToOpenGL(command.states.indexBufferType), offset, command.indirectCountBufferOffset, command.maxDrawCount, command.stride);
 	}
 
 	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const EndDebugRegionCommand& /*command*/)

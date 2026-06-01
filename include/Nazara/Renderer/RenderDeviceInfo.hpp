@@ -20,6 +20,10 @@ namespace Nz
 		bool computeShaders = false;
 		bool depthClamping = false;
 		bool drawBaseVertex = false;
+		bool drawIndirect = false;
+		bool drawIndirectCount = false;
+		bool drawIndirectFirstInstance = false;
+		bool multiDrawIndirect = false;
 		bool nonSolidFaceFilling = false;
 		bool persistentMapping = false;
 		bool storageBuffers = false;

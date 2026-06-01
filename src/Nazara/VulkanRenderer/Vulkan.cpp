@@ -59,6 +59,10 @@ namespace Nz
 		deviceInfo.features.computeShaders = true;
 		deviceInfo.features.depthClamping = physDevice.features10.depthClamp;
 		deviceInfo.features.drawBaseVertex = true;
+		deviceInfo.features.drawIndirect = true;
+		deviceInfo.features.drawIndirectCount = physDevice.features12.drawIndirectCount;
+		deviceInfo.features.drawIndirectFirstInstance = physDevice.features10.drawIndirectFirstInstance;
+		deviceInfo.features.multiDrawIndirect = physDevice.features10.multiDrawIndirect;
 		deviceInfo.features.nonSolidFaceFilling = physDevice.features10.fillModeNonSolid;
 		deviceInfo.features.persistentMapping = true;
 		deviceInfo.features.storageBuffers = true;
@@ -359,6 +363,12 @@ namespace Nz
 				continue;
 			}
 
+			// Don't leave features uninitialized
+			std::memset(&deviceInfo.features11, 0, sizeof(deviceInfo.features11));
+			std::memset(&deviceInfo.features12, 0, sizeof(deviceInfo.features12));
+			std::memset(&deviceInfo.features13, 0, sizeof(deviceInfo.features13));
+			std::memset(&deviceInfo.features14, 0, sizeof(deviceInfo.features14));
+
 			if (targetApiVersion >= VK_VERSION_1_1)
 			{
 				deviceInfo.features14.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_4_FEATURES;
@@ -615,18 +625,36 @@ namespace Nz
 			}
 		}
 
-		VkPhysicalDeviceFeatures2 deviceFeatures = {};
-		deviceFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
-		deviceFeatures.pNext = nullptr;
+		VkPhysicalDeviceFeatures2 deviceFeatures10 = {};
+		deviceFeatures10.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2;
+		deviceFeatures10.pNext = nullptr;
 
 		if (enabledFeatures.anisotropicFiltering)
-			deviceFeatures.features.samplerAnisotropy = VK_TRUE;
+			deviceFeatures10.features.samplerAnisotropy = VK_TRUE;
 
 		if (enabledFeatures.depthClamping)
-			deviceFeatures.features.depthClamp = VK_TRUE;
+			deviceFeatures10.features.depthClamp = VK_TRUE;
+
+		if (enabledFeatures.drawIndirectFirstInstance)
+			deviceFeatures10.features.drawIndirectFirstInstance = VK_TRUE;
+
+		if (enabledFeatures.multiDrawIndirect)
+			deviceFeatures10.features.multiDrawIndirect = VK_TRUE;
 
 		if (enabledFeatures.nonSolidFaceFilling)
-			deviceFeatures.features.fillModeNonSolid = VK_TRUE;
+			deviceFeatures10.features.fillModeNonSolid = VK_TRUE;
+
+		VkPhysicalDeviceVulkan12Features deviceFeatures12 = {};
+		deviceFeatures12.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES;
+		deviceFeatures12.pNext = nullptr;
+
+		if (deviceInfo.properties.apiVersion >= VK_API_VERSION_1_2)
+		{
+			deviceFeatures10.pNext = &deviceFeatures12;
+
+			if (enabledFeatures.drawIndirectCount)
+				deviceFeatures12.drawIndirectCount = VK_TRUE;
+		}
 
 		VkPhysicalDeviceVulkan13Features deviceFeatures13 = {};
 		deviceFeatures13.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_3_FEATURES;
@@ -634,7 +662,7 @@ namespace Nz
 
 		if (deviceInfo.properties.apiVersion >= VK_API_VERSION_1_3)
 		{
-			deviceFeatures.pNext = &deviceFeatures13;
+			deviceFeatures12.pNext = &deviceFeatures13;
 
 			if (deviceInfo.features13.synchronization2)
 				deviceFeatures13.synchronization2 = VK_TRUE;
@@ -642,7 +670,7 @@ namespace Nz
 
 		VkDeviceCreateInfo createInfo = {
 			VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
-			(deviceInfo.properties.apiVersion >= VK_API_VERSION_1_1) ? &deviceFeatures : nullptr,
+			(deviceInfo.properties.apiVersion >= VK_API_VERSION_1_1) ? &deviceFeatures10 : nullptr,
 			0,
 			UInt32(queueCreateInfos.size()),
 			queueCreateInfos.data(),
@@ -650,7 +678,7 @@ namespace Nz
 			enabledLayers.data(),
 			UInt32(enabledExtensions.size()),
 			enabledExtensions.data(),
-			(deviceInfo.properties.apiVersion <= VK_API_VERSION_1_1) ? &deviceFeatures.features : nullptr
+			(deviceInfo.properties.apiVersion <= VK_API_VERSION_1_1) ? &deviceFeatures10.features : nullptr
 		};
 
 		std::shared_ptr<VulkanDevice> device = std::make_shared<VulkanDevice>(s_instance, enabledFeatures, BuildRenderDeviceInfo(deviceInfo));

@@ -148,6 +148,36 @@ namespace Nz
 		m_commandBuffer.DrawIndexed(indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 	}
 
+	void OpenGLCommandBufferBuilder::DrawIndirect(const RenderBuffer& buffer, UInt64 offset, UInt32 drawCount, UInt32 stride)
+	{
+		const OpenGLBuffer& targetIndirectBuffer = SafeCast<const OpenGLBuffer&>(buffer);
+
+		m_commandBuffer.DrawIndirect(targetIndirectBuffer.GetBuffer().GetObjectId(), offset, drawCount, stride);
+	}
+
+	void OpenGLCommandBufferBuilder::DrawIndirectCount(const RenderBuffer& buffer, UInt64 offset, const RenderBuffer& countBuffer, UInt64 countBufferOffset, UInt32 maxDrawCount, UInt32 stride)
+	{
+		const OpenGLBuffer& targetIndirectBuffer = SafeCast<const OpenGLBuffer&>(buffer);
+		const OpenGLBuffer& targetCountBuffer = SafeCast<const OpenGLBuffer&>(countBuffer);
+
+		m_commandBuffer.DrawIndirectCount(targetIndirectBuffer.GetBuffer().GetObjectId(), offset, targetCountBuffer.GetBuffer().GetObjectId(), SafeCaster(countBufferOffset), maxDrawCount, stride);
+	}
+
+	void OpenGLCommandBufferBuilder::DrawIndexedIndirect(const RenderBuffer& buffer, UInt64 offset, UInt32 drawCount, UInt32 stride)
+	{
+		const OpenGLBuffer& targetIndirectBuffer = SafeCast<const OpenGLBuffer&>(buffer);
+
+		m_commandBuffer.DrawIndexedIndirect(targetIndirectBuffer.GetBuffer().GetObjectId(), offset, drawCount, stride);
+	}
+
+	void OpenGLCommandBufferBuilder::DrawIndexedIndirectCount(const RenderBuffer& buffer, UInt64 offset, const RenderBuffer& countBuffer, UInt64 countBufferOffset, UInt32 maxDrawCount, UInt32 stride)
+	{
+		const OpenGLBuffer& targetIndirectBuffer = SafeCast<const OpenGLBuffer&>(buffer);
+		const OpenGLBuffer& targetCountBuffer = SafeCast<const OpenGLBuffer&>(countBuffer);
+
+		m_commandBuffer.DrawIndexedIndirectCount(targetIndirectBuffer.GetBuffer().GetObjectId(), offset, targetCountBuffer.GetBuffer().GetObjectId(), SafeCaster(countBufferOffset), maxDrawCount, stride);
+	}
+
 	void OpenGLCommandBufferBuilder::EndDebugRegion()
 	{
 		m_commandBuffer.EndDebugRegion();

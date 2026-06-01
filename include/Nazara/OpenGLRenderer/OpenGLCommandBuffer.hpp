@@ -62,6 +62,10 @@ namespace Nz
 
 			inline void Draw(UInt32 vertexCount, UInt32 instanceCount = 1, UInt32 firstVertex = 0, UInt32 firstInstance = 0);
 			inline void DrawIndexed(UInt32 indexCount, UInt32 instanceCount = 1, UInt32 firstIndex = 0, UInt32 vertexOffset = 0, UInt32 firstInstance = 0);
+			inline void DrawIndirect(GLuint buffer, UInt64 offset, UInt32 drawCount, UInt32 stride);
+			inline void DrawIndirectCount(GLuint buffer, UInt64 offset, GLuint countBuffer, GLsizei countBufferOffset, UInt32 maxDrawCount, UInt32 stride);
+			inline void DrawIndexedIndirect(GLuint buffer, UInt64 offset, UInt32 drawCount, UInt32 stride);
+			inline void DrawIndexedIndirectCount(GLuint buffer, UInt64 offset, GLuint countBuffer, GLsizei countBufferOffset, UInt32 maxDrawCount, UInt32 stride);
 
 			inline void EndDebugRegion();
 
@@ -99,6 +103,10 @@ namespace Nz
 	cb(DispatchCommand) \
 	cb(DrawCommand) \
 	cb(DrawIndexedCommand) \
+	cb(DrawIndirectCommand) \
+	cb(DrawIndexedIndirectCommand) \
+	cb(DrawIndirectCountCommand) \
+	cb(DrawIndexedIndirectCountCommand) \
 	cb(EndDebugRegionCommand) \
 	cb(InsertDebugLabelCommand) \
 	cb(MemoryBarrier) \
@@ -131,6 +139,10 @@ namespace Nz
 			inline void Execute(const GL::Context* context, const DispatchCommand& command);
 			inline void Execute(const GL::Context* context, const DrawCommand& command);
 			inline void Execute(const GL::Context* context, const DrawIndexedCommand& command);
+			inline void Execute(const GL::Context* context, const DrawIndirectCommand& command);
+			inline void Execute(const GL::Context* context, const DrawIndexedIndirectCommand& command);
+			inline void Execute(const GL::Context* context, const DrawIndirectCountCommand& command);
+			inline void Execute(const GL::Context* context, const DrawIndexedIndirectCountCommand& command);
 			inline void Execute(const GL::Context* context, const EndDebugRegionCommand& command);
 			inline void Execute(const GL::Context* context, const InsertDebugLabelCommand& command);
 			inline void Execute(const GL::Context* context, const MemoryBarrier& command);
@@ -256,6 +268,36 @@ namespace Nz
 				UInt32 firstInstance;
 				UInt32 indexCount;
 				UInt32 instanceCount;
+			};
+
+			struct DrawIndirectCommand
+			{
+				DrawStates states;
+				ShaderBindings bindings;
+				GLuint indirectBuffer;
+				UInt64 indirectBufferOffset;
+				GLsizei drawCount;
+				GLsizei stride;
+			};
+
+			struct DrawIndexedIndirectCommand : DrawIndirectCommand
+			{
+			};
+
+			struct DrawIndirectCountCommand
+			{
+				DrawStates states;
+				ShaderBindings bindings;
+				GLuint indirectBuffer;
+				UInt64 indirectBufferOffset;
+				GLuint indirectCountBuffer;
+				GLsizei indirectCountBufferOffset;
+				GLsizei maxDrawCount;
+				GLsizei stride;
+			};
+
+			struct DrawIndexedIndirectCountCommand : DrawIndirectCountCommand
+			{
 			};
 
 			struct EndDebugRegionCommand

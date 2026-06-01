@@ -64,6 +64,10 @@ namespace Nz
 		m_deviceInfo.type = RenderDeviceType::Unknown; //< TODO: Try to extract from device name pattern
 
 		// Features
+		const auto& contextParams = m_referenceContext->GetParams();
+
+		unsigned int glVersion = params.glMajorVersion * 100 + params.glMinorVersion * 10;
+
 		if (m_referenceContext->IsExtensionSupported(GL::Extension::BufferStorage))
 			m_deviceInfo.features.persistentMapping = true;
 
@@ -78,6 +82,20 @@ namespace Nz
 
 		if (m_referenceContext->glDrawElementsInstancedBaseVertex)
 			m_deviceInfo.features.drawBaseVertex = true;
+
+		if (m_referenceContext->glDrawArraysIndirect && m_referenceContext->glDrawElementsIndirect)
+			m_deviceInfo.features.drawIndirect = true;
+
+		if (m_referenceContext->glMultiDrawArraysIndirectCount && m_referenceContext->glMultiDrawElementsIndirectCount)
+		{
+			m_deviceInfo.features.drawIndirectCount = true;
+
+			// "The baseInstance member of the DrawElementsIndirectCommand structure is defined only if the GL version is 4.2 or greater. For versions of the GL less than 4.2, this parameter is present but is reserved and should be set to zero"
+			m_deviceInfo.features.drawIndirectFirstInstance = contextParams.type == GL::ContextType::OpenGL && glVersion >= 420;
+		}
+
+		if (m_referenceContext->glMultiDrawArraysIndirect && m_referenceContext->glMultiDrawElementsIndirect)
+			m_deviceInfo.features.multiDrawIndirect = true;
 
 		if (m_referenceContext->glPolygonMode) //< not supported in core OpenGL ES, but supported in OpenGL or with GL_NV_polygon_mode extension
 			m_deviceInfo.features.nonSolidFaceFilling = true;

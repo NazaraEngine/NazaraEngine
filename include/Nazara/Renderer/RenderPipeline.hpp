@@ -8,9 +8,9 @@
 #define NAZARA_RENDERER_RENDERPIPELINE_HPP
 
 #include <Nazara/Core/Enums.hpp>
-#include <NazaraUtils/FixedVector.hpp>
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
+#include <NazaraUtils/FixedVector.hpp>
 
 namespace Nz
 {

@@ -49,6 +49,10 @@ namespace Nz
 
 			void Draw(UInt32 vertexCount, UInt32 instanceCount = 1, UInt32 firstVertex = 0, UInt32 firstInstance = 0) override;
 			void DrawIndexed(UInt32 indexCount, UInt32 instanceCount = 1, UInt32 firstIndex = 0, UInt32 vertexOffset = 0, UInt32 firstInstance = 0) override;
+			void DrawIndirect(const RenderBuffer& buffer, UInt64 offset, UInt32 drawCount, UInt32 stride) override;
+			void DrawIndirectCount(const RenderBuffer& buffer, UInt64 offset, const RenderBuffer& countBuffer, UInt64 countBufferOffset, UInt32 maxDrawCount, UInt32 stride) override;
+			void DrawIndexedIndirect(const RenderBuffer& buffer, UInt64 offset, UInt32 drawCount, UInt32 stride) override;
+			void DrawIndexedIndirectCount(const RenderBuffer& buffer, UInt64 offset, const RenderBuffer& countBuffer, UInt64 countBufferOffset, UInt32 maxDrawCount, UInt32 stride) override;
 
 			void EndDebugRegion() override;
 			void EndRenderPass() override;

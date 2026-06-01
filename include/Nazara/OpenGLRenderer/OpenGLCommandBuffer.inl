@@ -162,8 +162,7 @@ namespace Nz
 
 	inline void OpenGLCommandBuffer::Dispatch(UInt32 numGroupsX, UInt32 numGroupsY, UInt32 numGroupsZ)
 	{
-		if (!m_currentComputeStates.pipeline)
-			throw std::runtime_error("no pipeline bound");
+		NazaraAssertMsg(m_currentDrawStates.pipeline, "no pipeline bound");
 
 		DispatchCommand dispatch;
 		dispatch.bindings = m_currentComputeShaderBindings;
@@ -177,8 +176,7 @@ namespace Nz
 
 	inline void OpenGLCommandBuffer::Draw(UInt32 vertexCount, UInt32 instanceCount, UInt32 firstVertex, UInt32 firstInstance)
 	{
-		if (!m_currentDrawStates.pipeline)
-			throw std::runtime_error("no pipeline bound");
+		NazaraAssertMsg(m_currentDrawStates.pipeline, "no pipeline bound");
 
 		DrawCommand draw;
 		draw.bindings = m_currentGraphicsShaderBindings;
@@ -193,8 +191,7 @@ namespace Nz
 
 	inline void OpenGLCommandBuffer::DrawIndexed(UInt32 indexCount, UInt32 instanceCount, UInt32 firstIndex, UInt32 vertexOffset, UInt32 firstInstance)
 	{
-		if (!m_currentDrawStates.pipeline)
-			throw std::runtime_error("no pipeline bound");
+		NazaraAssertMsg(m_currentDrawStates.pipeline, "no pipeline bound");
 
 		DrawIndexedCommand draw;
 		draw.bindings = m_currentGraphicsShaderBindings;
@@ -204,6 +201,70 @@ namespace Nz
 		draw.indexCount = indexCount;
 		draw.instanceCount = instanceCount;
 		draw.baseVertex = vertexOffset;
+
+		m_commands.emplace_back(std::move(draw));
+	}
+
+	inline void OpenGLCommandBuffer::DrawIndirect(GLuint buffer, UInt64 offset, UInt32 drawCount, UInt32 stride)
+	{
+		NazaraAssertMsg(m_currentDrawStates.pipeline, "no pipeline bound");
+
+		DrawIndirectCommand draw;
+		draw.bindings = m_currentGraphicsShaderBindings;
+		draw.states = m_currentDrawStates;
+		draw.indirectBuffer = buffer;
+		draw.indirectBufferOffset = offset;
+		draw.drawCount = drawCount;
+		draw.stride = stride;
+
+		m_commands.emplace_back(std::move(draw));
+	}
+
+	inline void OpenGLCommandBuffer::DrawIndirectCount(GLuint buffer, UInt64 offset, GLuint countBuffer, GLsizei countBufferOffset, UInt32 maxDrawCount, UInt32 stride)
+	{
+		NazaraAssertMsg(m_currentDrawStates.pipeline, "no pipeline bound");
+
+		DrawIndirectCountCommand draw;
+		draw.bindings = m_currentGraphicsShaderBindings;
+		draw.states = m_currentDrawStates;
+		draw.indirectBuffer = buffer;
+		draw.indirectBufferOffset = offset;
+		draw.indirectCountBuffer = countBuffer;
+		draw.indirectCountBufferOffset = countBufferOffset;
+		draw.maxDrawCount = maxDrawCount;
+		draw.stride = stride;
+
+		m_commands.emplace_back(std::move(draw));
+	}
+
+	inline void OpenGLCommandBuffer::DrawIndexedIndirect(GLuint buffer, UInt64 offset, UInt32 drawCount, UInt32 stride)
+	{
+		NazaraAssertMsg(m_currentDrawStates.pipeline, "no pipeline bound");
+
+		DrawIndexedIndirectCommand draw;
+		draw.bindings = m_currentGraphicsShaderBindings;
+		draw.states = m_currentDrawStates;
+		draw.indirectBuffer = buffer;
+		draw.indirectBufferOffset = offset;
+		draw.drawCount = drawCount;
+		draw.stride = stride;
+
+		m_commands.emplace_back(std::move(draw));
+	}
+
+	inline void OpenGLCommandBuffer::DrawIndexedIndirectCount(GLuint buffer, UInt64 offset, GLuint countBuffer, GLsizei countBufferOffset, UInt32 maxDrawCount, UInt32 stride)
+	{
+		NazaraAssertMsg(m_currentDrawStates.pipeline, "no pipeline bound");
+
+		DrawIndexedIndirectCountCommand draw;
+		draw.bindings = m_currentGraphicsShaderBindings;
+		draw.states = m_currentDrawStates;
+		draw.indirectBuffer = buffer;
+		draw.indirectBufferOffset = offset;
+		draw.indirectCountBuffer = countBuffer;
+		draw.indirectCountBufferOffset = countBufferOffset;
+		draw.maxDrawCount = maxDrawCount;
+		draw.stride = stride;
 
 		m_commands.emplace_back(std::move(draw));
 	}

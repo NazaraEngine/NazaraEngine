@@ -73,6 +73,10 @@ namespace Nz::Vk
 
 			inline void Draw(UInt32 vertexCount, UInt32 instanceCount = 1, UInt32 firstVertex = 0, UInt32 firstInstance = 0);
 			inline void DrawIndexed(UInt32 indexCount, UInt32 instanceCount = 1, UInt32 firstVertex = 0, Int32 vertexOffset = 0, UInt32 firstInstance = 0);
+			inline void DrawIndirect(VkBuffer buffer, VkDeviceSize offset, UInt32 drawCount, UInt32 stride);
+			inline void DrawIndirectCount(VkBuffer buffer, VkDeviceSize offset, VkBuffer countBuffer, VkDeviceSize countBufferOffset, UInt32 maxDrawCount, UInt32 stride);
+			inline void DrawIndexedIndirect(VkBuffer buffer, VkDeviceSize offset, UInt32 drawCount, UInt32 stride);
+			inline void DrawIndexedIndirectCount(VkBuffer buffer, VkDeviceSize offset, VkBuffer countBuffer, VkDeviceSize countBufferOffset, UInt32 maxDrawCount, UInt32 stride);
 
 			inline bool End();
 

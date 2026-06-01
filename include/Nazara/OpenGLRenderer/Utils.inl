@@ -311,6 +311,7 @@ namespace Nz
 			case GL::BufferTarget::CopyWrite:         return GL_COPY_WRITE_BUFFER;
 			case GL::BufferTarget::DrawIndirect:      return GL_DRAW_INDIRECT_BUFFER;
 			case GL::BufferTarget::ElementArray:      return GL_ELEMENT_ARRAY_BUFFER;
+			case GL::BufferTarget::Parameter:         return GL_PARAMETER_BUFFER;
 			case GL::BufferTarget::PixelPack:         return GL_PIXEL_PACK_BUFFER;
 			case GL::BufferTarget::PixelUnpack:       return GL_PIXEL_UNPACK_BUFFER;
 			case GL::BufferTarget::Storage:           return GL_SHADER_STORAGE_BUFFER;

@@ -151,10 +151,10 @@ namespace Nz
 			case BufferUsage::MemoryMapping:
 			case BufferUsage::MapSequentialWrite:
 			case BufferUsage::PersistentMapping:
-			case BufferUsage::IndirectBuffer:
-				return VkBufferUsageFlagBits(0); //< not a real Vulkan flag
+				return VkBufferUsageFlagBits(0); //< not a real Vulkan buffer usage flag
 
 			case BufferUsage::IndexBuffer:         return VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+			case BufferUsage::IndirectBuffer:      return VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
 			case BufferUsage::StorageBuffer:       return VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
 			case BufferUsage::VertexBuffer:        return VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 			case BufferUsage::UniformBuffer:       return VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;

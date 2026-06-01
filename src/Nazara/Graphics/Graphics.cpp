@@ -75,6 +75,10 @@ namespace Nz
 		enabledFeatures.computeShaders = !config.forceDisableFeatures.computeShaders && renderDeviceInfo[bestRenderDeviceIndex].features.computeShaders;
 		enabledFeatures.depthClamping = !config.forceDisableFeatures.depthClamping && renderDeviceInfo[bestRenderDeviceIndex].features.depthClamping;
 		enabledFeatures.drawBaseVertex = !config.forceDisableFeatures.drawBaseVertex && renderDeviceInfo[bestRenderDeviceIndex].features.drawBaseVertex;
+		enabledFeatures.drawIndirect = !config.forceDisableFeatures.drawIndirect && renderDeviceInfo[bestRenderDeviceIndex].features.drawIndirect;
+		enabledFeatures.drawIndirectCount = !config.forceDisableFeatures.drawIndirectCount && renderDeviceInfo[bestRenderDeviceIndex].features.drawIndirectCount;
+		enabledFeatures.drawIndirectFirstInstance = !config.forceDisableFeatures.drawIndirectFirstInstance && renderDeviceInfo[bestRenderDeviceIndex].features.drawIndirectFirstInstance;
+		enabledFeatures.multiDrawIndirect = !config.forceDisableFeatures.multiDrawIndirect && renderDeviceInfo[bestRenderDeviceIndex].features.multiDrawIndirect;
 		enabledFeatures.nonSolidFaceFilling = !config.forceDisableFeatures.nonSolidFaceFilling && renderDeviceInfo[bestRenderDeviceIndex].features.nonSolidFaceFilling;
 		enabledFeatures.persistentMapping = !config.forceDisableFeatures.persistentMapping && renderDeviceInfo[bestRenderDeviceIndex].features.persistentMapping;
 		enabledFeatures.storageBuffers = !config.forceDisableFeatures.storageBuffers && renderDeviceInfo[bestRenderDeviceIndex].features.storageBuffers;

@@ -335,6 +335,26 @@ namespace Nz::Vk
 		return m_pool->GetDevice()->vkCmdDrawIndexed(m_handle, indexCount, instanceCount, firstIndex, vertexOffset, firstInstance);
 	}
 
+	inline void CommandBuffer::DrawIndirect(VkBuffer buffer, VkDeviceSize offset, UInt32 drawCount, UInt32 stride)
+	{
+		return m_pool->GetDevice()->vkCmdDrawIndirect(m_handle, buffer, offset, drawCount, stride);
+	}
+
+	inline void CommandBuffer::DrawIndirectCount(VkBuffer buffer, VkDeviceSize offset, VkBuffer countBuffer, VkDeviceSize countBufferOffset, UInt32 maxDrawCount, UInt32 stride)
+	{
+		return m_pool->GetDevice()->vkCmdDrawIndirectCount(m_handle, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
+	}
+
+	inline void CommandBuffer::DrawIndexedIndirect(VkBuffer buffer, VkDeviceSize offset, UInt32 drawCount, UInt32 stride)
+	{
+		return m_pool->GetDevice()->vkCmdDrawIndexedIndirect(m_handle, buffer, offset, drawCount, stride);
+	}
+
+	inline void CommandBuffer::DrawIndexedIndirectCount(VkBuffer buffer, VkDeviceSize offset, VkBuffer countBuffer, VkDeviceSize countBufferOffset, UInt32 maxDrawCount, UInt32 stride)
+	{
+		return m_pool->GetDevice()->vkCmdDrawIndexedIndirectCount(m_handle, buffer, offset, countBuffer, countBufferOffset, maxDrawCount, stride);
+	}
+
 	inline bool CommandBuffer::End()
 	{
 		m_lastErrorCode = m_pool->GetDevice()->vkEndCommandBuffer(m_handle);
