@@ -162,7 +162,7 @@ namespace Nz
 
 	inline void OpenGLCommandBuffer::Dispatch(UInt32 numGroupsX, UInt32 numGroupsY, UInt32 numGroupsZ)
 	{
-		NazaraAssertMsg(m_currentDrawStates.pipeline, "no pipeline bound");
+		NazaraAssertMsg(m_currentComputeStates.pipeline, "no pipeline bound");
 
 		DispatchCommand dispatch;
 		dispatch.bindings = m_currentComputeShaderBindings;

@@ -18,17 +18,51 @@ module;
 option red: bool = false;
 
 [layout(std140)]
-struct Data
+struct ViewerData
 {
 	projectionMatrix: mat4[f32],
+	viewMatrix: mat4[f32],
+	frustumPlanes: array[vec4[f32], 6],
+	viewerPos: vec3[f32]
+}
+
+[layout(std430)]
+struct ObjectData
+{
 	worldMatrix: mat4[f32],
-	viewMatrix: mat4[f32]
+	lodDistances: array[f32, 4],
+	lodFirstIndex: array[u32, 4],
+	lodVertexOffset: array[i32, 4] //< shouldn't be required
+}
+
+[layout(std430)]
+struct InstanceData
+{
+	objects: dyn_array[ObjectData]
+}
+
+[layout(std430)]
+struct DrawIndexedIndirectCommand
+{
+	indexCount: u32,
+	instanceCount: u32,
+	firstIndex: u32,
+	vertexOffset: i32,
+	firstInstance: u32,
+}
+
+[layout(std430)]
+struct DrawCommands
+{
+	draw_commands: dyn_array[DrawIndexedIndirectCommand]
 }
 
 [set(0)]
 external
 {
-	[binding(0)] data: uniform[Data]
+	[binding(0)] viewerData: uniform[ViewerData],
+	[binding(1)] instanceData: storage[InstanceData, readonly],
+	[binding(2)] output: storage[DrawCommands]
 }
 
 [set(1)]
@@ -57,6 +91,62 @@ struct FragOut
 	[location(0)] color: vec4[f32]
 }
 
+struct CullingInput
+{
+	[builtin(global_invocation_indices)] indices: vec3[u32]
+}
+
+fn plane_dist(plane: vec4[f32], pos: vec3[f32]) -> f32
+{
+	return dot(plane.xyz, pos) + plane.w;
+}
+
+fn frustum_check(frustum_planes: array[vec4[f32], 6], pos: vec3[f32]) -> bool
+{
+	let visible = true;
+	for plane in viewerData.frustumPlanes
+	{
+		if (plane_dist(plane, pos) < 0.0)
+			visible = false;
+	}
+
+	return visible;
+}
+
+[entry(comp), workgroup(32, 1, 1)]
+fn cull(input: CullingInput)
+{
+	let objectCount = instanceData.objects.Size();
+	let objectIndex = input.indices.x;
+	if (objectIndex >= objectCount)
+		return;
+
+	let objectPos = instanceData.objects[objectIndex].worldMatrix[3].xyz;
+	let frustumPlanes = viewerData.frustumPlanes;
+	if (frustum_check(frustumPlanes, objectPos))
+	{
+		let dist = distance(viewerData.viewerPos, objectPos);
+
+		let lod = 0;
+		for i in 1 -> 4
+		{
+			if (dist < instanceData.objects[objectIndex].lodDistances[i])
+			{
+				lod = i - 1;
+				break;
+			}
+		}
+
+		output.draw_commands[objectIndex].instanceCount = 1;
+		output.draw_commands[objectIndex].firstIndex = instanceData.objects[objectIndex].lodFirstIndex[lod];
+		output.draw_commands[objectIndex].vertexOffset = instanceData.objects[objectIndex].lodVertexOffset[lod];
+	}
+	else
+	{
+		output.draw_commands[objectIndex].instanceCount = 0;
+	}
+}
+
 [entry(frag)]
 fn main(fragIn: VertOut) -> FragOut
 {
@@ -72,12 +162,8 @@ fn main(fragIn: VertOut) -> FragOut
 [entry(vert)]
 fn main(vertIn: VertIn) -> VertOut
 {
-	let offset = vec3[f32](0.0, 0.0, 0.0);
-	offset.x += f32(vertIn.instanceIndex / 10) * 2.0;
-	offset.z += f32(vertIn.instanceIndex % 10) * 2.0;
-
 	let vertOut: VertOut;
-	vertOut.position = data.projectionMatrix * data.viewMatrix * data.worldMatrix * vec4[f32](vertIn.position + offset, 1.0);
+	vertOut.position = viewerData.projectionMatrix * viewerData.viewMatrix * instanceData.objects[vertIn.instanceIndex].worldMatrix * vec4[f32](vertIn.position, 1.0);
 	vertOut.normal = vertIn.normal;
 	vertOut.uv = vertIn.uv;
 
@@ -104,6 +190,7 @@ int main()
 	auto& windowingApp = app.AddComponent<Nz::WindowingAppComponent>();
 
 	std::shared_ptr<Nz::RenderDevice> device = Nz::Renderer::Instance()->InstanciateRenderDevice(0, {
+		.computeShaders = true,
 		.multiDrawIndirect = true
 	});
 
@@ -111,21 +198,40 @@ int main()
 	Nz::Window& window = windowingApp.CreateWindow(Nz::VideoMode(1280, 720), windowTitle);
 	Nz::WindowSwapchain windowSwapchain(device, window);
 
-	nzsl::Ast::ModulePtr shaderModule = nzsl::Parse(std::string_view(shaderSource, sizeof(shaderSource)));
-	if (!shaderModule)
+	nzsl::Ast::ModulePtr shaderModule;
+	std::shared_ptr<Nz::ShaderModule> fragVertShader;
+	std::shared_ptr<Nz::ShaderModule> cullingShader;
+
+	try
 	{
-		std::cout << "Failed to parse shader module" << std::endl;
-		return __LINE__;
+		shaderModule = nzsl::Parse(std::string_view(shaderSource, sizeof(shaderSource)));
+		if (!shaderModule)
+		{
+			std::cout << "Failed to parse shader module" << std::endl;
+			return __LINE__;
+		}
+
+		nzsl::BackendParameters states;
+		states.backendPasses |= nzsl::BackendPass::Optimize;
+
+		fragVertShader = device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, *shaderModule, states);
+		if (!fragVertShader)
+		{
+			std::cout << "Failed to instantiate rendering shader" << std::endl;
+			return __LINE__;
+		}
+
+		cullingShader = device->InstantiateShaderModule(nzsl::ShaderStageType::Compute, *shaderModule, states);
+		if (!cullingShader)
+		{
+			std::cout << "Failed to instantiate culling shader" << std::endl;
+			return __LINE__;
+		}
+
 	}
-
-	nzsl::BackendParameters states;
-	states.optionValues[nzsl::Ast::HashOption("red")] = false; //< Try enabling this!
-	states.backendPasses |= nzsl::BackendPass::Optimize;
-
-	auto fragVertShader = device->InstantiateShaderModule(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, *shaderModule, states);
-	if (!fragVertShader)
+	catch (const std::exception& e)
 	{
-		std::cout << "Failed to instantiate shader" << std::endl;
+		std::cerr << "failed to create shaders: " << e.what() << std::endl;
 		return __LINE__;
 	}
 
@@ -133,7 +239,7 @@ int main()
 	{
 		Nz::UInt32 indexCount;
 		Nz::UInt32 indexOffset;
-		Nz::UInt32 vertexOffset;
+		Nz::Int32 vertexOffset;
 	};
 
 	std::array<Lod, 4> lods;
@@ -189,12 +295,33 @@ int main()
 		lods[lod] = Lod{
 			meshIB->GetIndexCount(),
 			previousIndexCount,
-			previousVertexCount
+			static_cast<Nz::Int32>(previousVertexCount)
 		};
 	}
 
 	std::shared_ptr<Nz::RenderBuffer> renderBufferIB = device->InstantiateBuffer(indices.size() * sizeof(Nz::UInt16), Nz::BufferUsage::IndexBuffer | Nz::BufferUsage::DeviceLocal, indices.data());
 	std::shared_ptr<Nz::RenderBuffer> renderBufferVB = device->InstantiateBuffer(vertices.size() * meshParams.vertexDeclaration->GetStride(), Nz::BufferUsage::VertexBuffer | Nz::BufferUsage::DeviceLocal, vertices.data());
+
+	struct ObjectData
+	{
+		Nz::Matrix4f worldMatrix;
+		std::array<float, 4> lodDistances;
+		std::array<Nz::UInt32, 4> lodFirstIndex;
+		std::array<Nz::Int32, 4> lodVertexOffset; //< shouldn't be required
+	};
+
+	unsigned int instanceCount = 10000;
+	std::vector<ObjectData> objectData(instanceCount);
+	for (unsigned int i = 0; i < instanceCount; ++i)
+	{
+		objectData[i].worldMatrix = Nz::Matrix4f::Translate(Nz::Vector3f((i / 100) * 2.0f, 0.0f, (i % 100) * 2.0f));
+		objectData[i].lodDistances = std::array<float, 4>{ 0.f, 10.f, 50.f, 100.f };
+		objectData[i].lodFirstIndex = std::array<Nz::UInt32, 4>{ lods[0].indexOffset, lods[1].indexOffset, lods[2].indexOffset, lods[3].indexOffset };
+		objectData[i].lodVertexOffset = std::array<Nz::Int32, 4>{ lods[0].vertexOffset, lods[1].vertexOffset, lods[2].vertexOffset, lods[3].vertexOffset };
+	}
+
+	std::shared_ptr<Nz::RenderBuffer> objectBuffers = device->InstantiateBuffer(instanceCount * sizeof(ObjectData), Nz::BufferUsage::StorageBuffer | Nz::BufferUsage::DeviceLocal, objectData.data());
+
 
 	// Texture
 	Nz::TextureParams texParams;
@@ -207,25 +334,37 @@ int main()
 	struct
 	{
 		Nz::Matrix4f projectionMatrix;
-		Nz::Matrix4f modelMatrix;
 		Nz::Matrix4f viewMatrix;
+		std::array<Nz::Vector4f, 6> frustumPlanes;
+		Nz::Vector3f viewerPos;
 	}
 	ubo;
 
 	Nz::Vector2ui windowSize = window.GetSize();
 	ubo.projectionMatrix = Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(windowSize.x) / windowSize.y, 0.1f, 1000.f);
-	ubo.viewMatrix = Nz::Matrix4f::Translate(Nz::Vector3f::Backward() * 1);
-	ubo.modelMatrix = Nz::Matrix4f::Translate(Nz::Vector3f::Forward() * 2);
 
 	Nz::UInt32 uniformSize = sizeof(ubo);
 
 	Nz::RenderPipelineLayoutInfo pipelineLayoutInfo;
-
-	auto& uboBinding = pipelineLayoutInfo.bindings.emplace_back();
-	uboBinding.setIndex = 0;
-	uboBinding.bindingIndex = 0;
-	uboBinding.shaderStageFlags = nzsl::ShaderStageType::Vertex;
-	uboBinding.type = Nz::ShaderBindingType::UniformBuffer;
+	{
+		pipelineLayoutInfo.bindings.push_back({
+			.bindingIndex = 0,
+			.type = Nz::ShaderBindingType::UniformBuffer,
+			.shaderStageFlags = nzsl::ShaderStageType::Vertex | nzsl::ShaderStageType::Compute,
+		});
+		
+		pipelineLayoutInfo.bindings.push_back({
+			.bindingIndex = 1,
+			.type = Nz::ShaderBindingType::StorageBuffer,
+			.shaderStageFlags = nzsl::ShaderStageType::Vertex | nzsl::ShaderStageType::Compute,
+		});
+		
+		pipelineLayoutInfo.bindings.push_back({
+			.bindingIndex = 2,
+			.type = Nz::ShaderBindingType::StorageBuffer,
+			.shaderStageFlags = nzsl::ShaderStageType::Compute,
+		});
+	}
 
 	std::shared_ptr<Nz::RenderPipelineLayout> basePipelineLayout = device->InstantiateRenderPipelineLayout(pipelineLayoutInfo);
 
@@ -237,50 +376,34 @@ int main()
 
 	std::shared_ptr<Nz::RenderPipelineLayout> renderPipelineLayout = device->InstantiateRenderPipelineLayout(std::move(pipelineLayoutInfo));
 
-	Nz::ShaderBindingPtr viewerShaderBinding = basePipelineLayout->AllocateShaderBinding(0);
-	Nz::ShaderBindingPtr textureShaderBinding = renderPipelineLayout->AllocateShaderBinding(1);
-
 	std::shared_ptr<Nz::RenderBuffer> uniformBuffer = device->InstantiateBuffer(uniformSize, Nz::BufferUsage::UniformBuffer | Nz::BufferUsage::DeviceLocal);
 
-	viewerShaderBinding->Update({
-		{
-			0,
-			Nz::ShaderBinding::UniformBufferBinding {
-				uniformBuffer.get(), 0, uniformSize
-			}
-		}
-	});
 
-	Nz::ShaderBinding::SampledTextureBinding textureBinding {
-		texture.get(), textureSampler.get()
-	};
+	Nz::RenderPipelineInfo renderPipelineInfo;
+	renderPipelineInfo.pipelineLayout = renderPipelineLayout;
+	renderPipelineInfo.faceCulling = Nz::FaceCulling::Back;
 
-	textureShaderBinding->Update({
-		{
-			0,
-			Nz::ShaderBinding::SampledTextureBindings {
-				1, &textureBinding
-			}
-		}
-	});
+	renderPipelineInfo.depthBuffer = true;
+	renderPipelineInfo.shaderModules.emplace_back(fragVertShader);
 
-	Nz::RenderPipelineInfo pipelineInfo;
-	pipelineInfo.pipelineLayout = renderPipelineLayout;
-	pipelineInfo.faceCulling = Nz::FaceCulling::Back;
-
-	pipelineInfo.depthBuffer = true;
-	pipelineInfo.shaderModules.emplace_back(fragVertShader);
-
-	auto& pipelineVertexBuffer = pipelineInfo.vertexBuffers.emplace_back();
+	auto& pipelineVertexBuffer = renderPipelineInfo.vertexBuffers.emplace_back();
 	pipelineVertexBuffer.binding = 0;
 	pipelineVertexBuffer.declaration = meshParams.vertexDeclaration;
 
-	std::shared_ptr<Nz::RenderPipeline> pipeline = device->InstantiateRenderPipeline(pipelineInfo);
+	std::shared_ptr<Nz::RenderPipeline> pipeline = device->InstantiateRenderPipeline(renderPipelineInfo);
+
+	Nz::RenderPipelineInfo cullPipelineInfo;
+	renderPipelineInfo.pipelineLayout = renderPipelineLayout;
+
+	std::shared_ptr<Nz::ComputePipeline> cullPipeline = device->InstantiateComputePipeline({
+		.pipelineLayout = basePipelineLayout,
+		.shaderModule = cullingShader
+	});
 
 	std::shared_ptr<Nz::CommandPool> commandPool = device->InstantiateCommandPool(Nz::QueueType::Graphics);
 
 	// Indirect buffer
-	std::array<Nz::DrawIndexedIndirectCommand, 100> indirectCommands;
+	std::vector<Nz::DrawIndexedIndirectCommand> indirectCommands(instanceCount);
 
 	Nz::UInt32 instanceIndex = 0;
 	for (Nz::DrawIndexedIndirectCommand& indirectCommand : indirectCommands)
@@ -292,7 +415,43 @@ int main()
 		indirectCommand.vertexOffset = lods[0].vertexOffset;
 	}
 
-	std::shared_ptr<Nz::RenderBuffer> indirectBuffer = device->InstantiateBuffer(sizeof(Nz::DrawIndexedIndirectCommand) * 100, Nz::BufferUsage::IndirectBuffer | Nz::BufferUsage::DeviceLocal, indirectCommands.data());
+	std::shared_ptr<Nz::RenderBuffer> indirectBuffer = device->InstantiateBuffer(sizeof(Nz::DrawIndexedIndirectCommand) * instanceCount, Nz::BufferUsage::IndirectBuffer | Nz::BufferUsage::StorageBuffer | Nz::BufferUsage::DeviceLocal, indirectCommands.data());
+
+	Nz::ShaderBindingPtr viewerShaderBinding = basePipelineLayout->AllocateShaderBinding(0);
+	viewerShaderBinding->Update({
+		{
+			0,
+			Nz::ShaderBinding::UniformBufferBinding {
+				uniformBuffer.get(), 0, uniformSize
+			}
+		},
+		{
+			1,
+			Nz::ShaderBinding::StorageBufferBinding {
+				objectBuffers.get(), 0, objectBuffers->GetSize()
+			}
+		},
+		{
+			2,
+			Nz::ShaderBinding::StorageBufferBinding {
+				indirectBuffer.get(), 0, indirectBuffer->GetSize()
+			}
+		}
+	});
+
+	Nz::ShaderBinding::SampledTextureBinding textureBinding {
+		texture.get(), textureSampler.get()
+	};
+
+	Nz::ShaderBindingPtr textureShaderBinding = renderPipelineLayout->AllocateShaderBinding(1);
+	textureShaderBinding->Update({
+		{
+			0,
+			Nz::ShaderBinding::SampledTextureBindings {
+				1, &textureBinding
+			}
+		}
+	});
 
 	Nz::Vector3f viewerPos = Nz::Vector3f::Zero();
 
@@ -382,11 +541,16 @@ int main()
 		debugDrawer.SetViewerData(ubo.viewMatrix * ubo.projectionMatrix);
 
 		Nz::Boxf aabb = spaceshipAabb;
-		aabb.Transform(ubo.modelMatrix);
+		aabb.Transform(objectData[0].worldMatrix);
 
 		debugDrawer.DrawBox(aabb, Nz::Color::Green());
 
 		ubo.viewMatrix = Nz::Matrix4f::TransformInverse(viewerPos, camAngles);
+		ubo.viewerPos = viewerPos;
+
+		auto frustumPlanes = Nz::Frustumf::Extract(ubo.viewMatrix * ubo.projectionMatrix).GetPlanes();
+		for (std::size_t i = 0; i < 6; ++i)
+			ubo.frustumPlanes[i] = Nz::Vector4f(frustumPlanes.at(i).normal, frustumPlanes.at(i).distance);
 
 		if (uboUpdate)
 		{
@@ -413,6 +577,14 @@ int main()
 		const Nz::WindowSwapchain* windowRT = &windowSwapchain;
 		frame.Execute([&](Nz::CommandBufferBuilder& builder)
 		{
+			builder.BeginDebugRegion("GPU Culling", Nz::Color::Blue());
+			{
+				builder.BindComputePipeline(*cullPipeline);
+				builder.BindComputeShaderBinding(0, *viewerShaderBinding);
+				builder.Dispatch(Nz::AlignPow2(instanceCount, 32u), 1, 1);
+			}
+			builder.EndDebugRegion();
+
 			windowSize = window.GetSize();
 			Nz::Recti renderRect(0, 0, windowSize.x, windowSize.y);
 
@@ -434,7 +606,7 @@ int main()
 					builder.SetScissor(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
 					builder.SetViewport(Nz::Recti{ 0, 0, int(windowSize.x), int(windowSize.y) });
 
-					builder.DrawIndexedIndirect(*indirectBuffer, 0, 100, sizeof(Nz::DrawIndexedIndirectCommand));
+					builder.DrawIndexedIndirect(*indirectBuffer, 0, instanceCount, sizeof(Nz::DrawIndexedIndirectCommand));
 
 					debugDrawer.Draw(builder);
 				}
