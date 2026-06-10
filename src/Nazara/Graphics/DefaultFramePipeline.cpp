@@ -843,6 +843,9 @@ namespace Nz
 		MaterialInstanceData& materialInstanceData = it->second;
 		assert(materialInstanceData.usedCount > 0);
 		if (--materialInstanceData.usedCount == 0)
+		{
 			m_materialInstances.erase(it);
+			m_transferSet.erase(materialInstance);
+		}
 	}
 }
