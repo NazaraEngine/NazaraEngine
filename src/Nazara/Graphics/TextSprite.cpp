@@ -44,7 +44,18 @@ namespace Nz
 			RenderIndices& indices = pair.second;
 
 			if (indices.count > 0)
-				elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer() + key.renderOrder, m_material, passFlags, renderPipeline, *elementData.worldInstance, vertexDeclaration, indices.textureAsset, indices.count, &m_vertices[indices.first * 4], *elementData.scissorBox));
+			{
+				const VertexStruct_XYZ_Color_UV* vertices = &m_vertices[indices.first * 4];
+				std::size_t spriteCount = indices.count;
+				do
+				{
+					std::size_t spriteBatch = std::min<std::size_t>(spriteCount, RenderSpriteChain::MaxSpritePerChain);
+					elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer() + key.renderOrder, m_material, passFlags, renderPipeline, *elementData.worldInstance, vertexDeclaration, indices.textureAsset, spriteBatch, vertices, *elementData.scissorBox));
+					vertices += 4 * spriteBatch;
+					spriteCount -= spriteBatch;
+				}
+				while (spriteCount > 0);
+			}
 		}
 	}
 

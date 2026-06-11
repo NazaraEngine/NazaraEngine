@@ -41,6 +41,7 @@ namespace Nz
 			inline void Register(RenderQueueRegistry& registry) const override;
 
 			static constexpr BasicRenderElement ElementType = BasicRenderElement::SpriteChain;
+			static constexpr Nz::UInt32 MaxSpritePerChain = 4 * 1024;
 
 		private:
 			std::shared_ptr<MaterialInstance> m_materialInstance;

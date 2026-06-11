@@ -36,7 +36,7 @@ namespace Nz
 			const RenderPipeline* renderPipeline;
 			const ShaderBinding* shaderBinding;
 			std::size_t firstIndex;
-			std::size_t quadCount;
+			std::size_t indexCount;
 			Recti scissorBox;
 		};
 
@@ -56,7 +56,7 @@ namespace Nz
 	class NAZARA_GRAPHICS_API SpriteChainRenderer final : public ElementRenderer
 	{
 		public:
-			SpriteChainRenderer(RenderDevice& device, std::size_t maxVertexBufferSize = 32 * 1024);
+			SpriteChainRenderer(RenderDevice& device);
 			~SpriteChainRenderer() = default;
 
 			RenderElementPool<RenderSpriteChain>& GetPool() override;
@@ -69,7 +69,6 @@ namespace Nz
 
 		private:
 			void Flush();
-			void FlushDrawCall();
 			void FlushDrawData();
 
 			struct BufferCopy
@@ -82,7 +81,6 @@ namespace Nz
 			struct PendingData
 			{
 				std::size_t firstQuadIndex = 0;
-				SpriteChainRendererData::DrawCall* currentDrawCall = nullptr;
 				UploadPool::Allocation* currentAllocation = nullptr;
 				UInt8* currentAllocationMemPtr = nullptr;
 				const VertexDeclaration* currentVertexDeclaration = nullptr;
@@ -105,8 +103,6 @@ namespace Nz
 
 			std::shared_ptr<RenderBuffer> m_indexBuffer;
 			std::shared_ptr<PoolData> m_pool;
-			std::size_t m_maxVertexBufferSize;
-			std::size_t m_maxVertexCount;
 			std::vector<BufferCopy> m_pendingCopies;
 			std::vector<ShaderBinding::Binding> m_bindingCache;
 			RenderElementPool<RenderSpriteChain> m_spriteChainPool;

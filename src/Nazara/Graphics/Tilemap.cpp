@@ -73,9 +73,14 @@ namespace Nz
 			const auto& renderPipeline = materialPipeline->GetRenderPipeline(&vertexBufferData, 1);
 
 			std::size_t spriteCount = layer.enabledTileCount;
-			elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer(), layer.material, passFlags, renderPipeline, *elementData.worldInstance, vertexDeclaration, whiteTexture, spriteCount, vertices, *elementData.scissorBox));
-
-			vertices += 4 * spriteCount;
+			do 
+			{
+				std::size_t spriteBatch = std::min<std::size_t>(spriteCount, RenderSpriteChain::MaxSpritePerChain);
+				elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer(), layer.material, passFlags, renderPipeline, *elementData.worldInstance, vertexDeclaration, whiteTexture, spriteBatch, vertices, *elementData.scissorBox));
+				vertices += 4 * spriteBatch;
+				spriteCount -= spriteBatch;
+			}
+			while (spriteCount > 0);
 		}
 	}
 

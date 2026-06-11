@@ -85,6 +85,8 @@ namespace Nz
 
 			BakedFrameGraph BuildFrameGraph();
 
+			void InvalidateElements(Nz::UInt32 renderMask);
+
 			void RegisterMaterialInstance(MaterialInstance* materialPass);
 			void UnregisterMaterialInstance(MaterialInstance* material);
 

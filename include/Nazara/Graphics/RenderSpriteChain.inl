@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Graphics/Algorithm.hpp>
+#include <NazaraUtils/Assert.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
 
 namespace Nz
@@ -20,6 +21,7 @@ namespace Nz
 	m_scissorBox(scissorBox),
 	m_renderLayer(renderLayer)
 	{
+		NazaraAssert(spriteCount < MaxSpritePerChain);
 	}
 
 	inline UInt64 RenderSpriteChain::ComputeSortingScore(const Frustumf& frustum, const RenderQueueRegistry& registry) const

@@ -170,22 +170,9 @@ namespace Nz
 
 		renderableData->onElementInvalidated.Connect(instancedRenderable->OnElementInvalidated, [this, renderMask](InstancedRenderable* /*instancedRenderable*/)
 		{
-			// TODO: Invalidate only relevant viewers and passes
-			for (auto& viewerData : m_viewerPool)
-			{
-				if (viewerData.pendingDestruction)
-					continue;
-
-				if (viewerData.renderMask & renderMask)
-				{
-					for (auto& passPtr : viewerData.passes)
-					{
-						if (passPtr->ShouldNotify(FramePipelineNotification::ElementInvalidation))
-							passPtr->InvalidateElements();
-					}
-				}
-			}
+			InvalidateElements(renderMask);
 		});
+		InvalidateElements(renderMask);
 
 		renderableData->onMaterialInvalidated.Connect(instancedRenderable->OnMaterialInvalidated, [this](InstancedRenderable* instancedRenderable, std::size_t materialIndex, const std::shared_ptr<MaterialInstance>& newMaterial)
 		{
@@ -587,21 +574,7 @@ namespace Nz
 		RenderableData* renderableData = m_renderablePool.RetrieveFromIndex(renderableIndex);
 		renderableData->scissorBox = scissorBox;
 
-		// TODO: Invalidate only relevant viewers and passes
-		for (auto& viewerData : m_viewerPool)
-		{
-			if (viewerData.pendingDestruction)
-				continue;
-
-			if (viewerData.renderMask & renderableData->renderMask)
-			{
-				for (auto& passPtr : viewerData.passes)
-				{
-					if (passPtr->ShouldNotify(FramePipelineNotification::ElementInvalidation))
-						passPtr->InvalidateElements();
-				}
-			}
-		}
+		InvalidateElements(renderableData->renderMask);
 	}
 
 	void DefaultFramePipeline::UpdateRenderableSkeletonInstance(std::size_t renderableIndex, std::size_t skeletonIndex)
@@ -609,21 +582,7 @@ namespace Nz
 		RenderableData* renderableData = m_renderablePool.RetrieveFromIndex(renderableIndex);
 		renderableData->skeletonInstanceIndex = skeletonIndex;
 
-		// TODO: Invalidate only relevant viewers and passes
-		for (auto& viewerData : m_viewerPool)
-		{
-			if (viewerData.pendingDestruction)
-				continue;
-
-			if (viewerData.renderMask & renderableData->renderMask)
-			{
-				for (auto& passPtr : viewerData.passes)
-				{
-					if (passPtr->ShouldNotify(FramePipelineNotification::ElementInvalidation))
-						passPtr->InvalidateElements();
-				}
-			}
-		}
+		InvalidateElements(renderableData->renderMask);
 	}
 
 	void DefaultFramePipeline::UpdateViewerRenderOrder(std::size_t viewerIndex, Int32 renderOrder)
@@ -817,6 +776,25 @@ namespace Nz
 		});
 
 		return mergedAttachment;
+	}
+
+	void DefaultFramePipeline::InvalidateElements(Nz::UInt32 renderMask)
+	{
+		// TODO: Invalidate only relevant viewers and passes
+		for (auto& viewerData : m_viewerPool)
+		{
+			if (viewerData.pendingDestruction)
+				continue;
+
+			if (viewerData.renderMask & renderMask)
+			{
+				for (auto& passPtr : viewerData.passes)
+				{
+					if (passPtr->ShouldNotify(FramePipelineNotification::ElementInvalidation))
+						passPtr->InvalidateElements();
+				}
+			}
+		}
 	}
 
 	void DefaultFramePipeline::RegisterMaterialInstance(MaterialInstance* materialInstance)
