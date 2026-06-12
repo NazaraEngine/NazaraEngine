@@ -28,8 +28,7 @@ namespace Nz
 			RenderElementPool<RenderSubmesh>& GetPool() override;
 
 			std::unique_ptr<ElementRendererData> InstanciateData() override;
-			void Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderResources& renderResources, std::size_t elementCount, const Pointer<const RenderElement>* elements, SparsePtr<const RenderStates> renderStates) override;
-			void Render(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, CommandBufferBuilder& commandBuffer, std::size_t elementCount, const Pointer<const RenderElement>* elements) override;
+			void Render(const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& renderResources, CommandBufferBuilder& commandBuffer, std::size_t elementCount, const Pointer<const RenderElement>* elements, SparsePtr<const RenderStates> renderStates) override;
 			void Reset(ElementRendererData& rendererData, RenderResources& renderResources) override;
 
 		private:
@@ -58,15 +57,7 @@ namespace Nz
 			Recti scissorBox;
 		};
 
-		struct DrawCallIndices
-		{
-			std::size_t start;
-			std::size_t count;
-		};
-
 		std::optional<RenderResourceReferences> references;
-		std::unordered_map<const RenderSubmesh*, DrawCallIndices> drawCallPerElement;
-		std::vector<DrawCall> drawCalls;
 		std::vector<ShaderBindingPtr> shaderBindings;
 	};
 }

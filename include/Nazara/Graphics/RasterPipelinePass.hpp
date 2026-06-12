@@ -37,7 +37,6 @@ namespace Nz
 			RasterPipelinePass(RasterPipelinePass&&) = delete;
 			~RasterPipelinePass() = default;
 
-			inline void InvalidateCommandBuffers();
 			void InvalidateElements() override;
 
 			void Prepare(FrameData& frameData) override;
@@ -75,7 +74,6 @@ namespace Nz
 			ElementRendererRegistry& m_elementRegistry;
 			FramePipeline& m_pipeline;
 			UInt32 m_renderMask;
-			bool m_rebuildCommandBuffer;
 			bool m_rebuildElements;
 	};
 }

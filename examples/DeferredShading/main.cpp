@@ -235,10 +235,11 @@ int main(int argc, char* argv[])
 
 	Nz::Vector2ui windowSize = window.GetSize();
 
-	Nz::ViewerInstance viewerInstance;
-	viewerInstance.UpdateTargetSize(Nz::Vector2f(windowSize));
-	viewerInstance.UpdateProjViewMatrices(Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(windowSize.x) / windowSize.y, 0.1f, 1000.f), Nz::Matrix4f::Translate(Nz::Vector3f::Up() * 1));
-	viewerInstance.UpdateNearFarPlanes(0.1f, 1000.f);
+	Nz::Camera viewer(std::make_shared<Nz::RenderWindow>(windowSwapchain));
+	viewer.UpdateNearFarPlanes(0.1f, 1000.f);
+	viewer.UpdateFOV(70.f);
+
+	Nz::ViewerInstance& viewerInstance = viewer.GetViewerInstance();
 
 	Nz::WorldInstance modelInstance1;
 	modelInstance1.UpdateWorldMatrix(Nz::Matrix4f::Translate(Nz::Vector3f::Left() + Nz::Vector3f::Up()));
@@ -792,9 +793,10 @@ int main(int argc, char* argv[])
 			for (const auto& elementOwner : elements)
 				elementPointers.emplace_back(elementOwner.GetElement());
 
-			submeshRenderer.Prepare(viewerInstance, *submeshRendererData, *currentFrame, elementPointers.size(), elementPointers.data(), renderStates.data());
-			submeshRenderer.PrepareEnd(*currentFrame, *spriteRendererData);
-			submeshRenderer.Render(viewerInstance, *submeshRendererData, builder, elementPointers.size(), elementPointers.data());
+			submeshRenderer.Prepare(viewer, *submeshRendererData, *currentFrame, elementPointers.size(), elementPointers.data(), renderStates.data());
+			submeshRenderer.PrepareEnd(*spriteRendererData, *currentFrame, builder);
+			submeshRenderer.Render(viewer, *submeshRendererData, *currentFrame, builder, elementPointers.size(), elementPointers.data(), renderStates.data());
+			submeshRenderer.Reset(*submeshRendererData, *currentFrame);
 		});
 
 		Nz::FramePass& lightingPass = graph.AddPass("Lighting pass");
@@ -863,8 +865,10 @@ int main(int argc, char* argv[])
 			for (const auto& element : elements)
 				elementPointers.emplace_back(element.GetElement());
 
-			spritechainRenderer.Prepare(viewerInstance, *spriteRendererData, *currentFrame, elementPointers.size(), elementPointers.data(), renderStates.data());
-			spritechainRenderer.Render(viewerInstance, *spriteRendererData, builder, elementPointers.size(), elementPointers.data());
+			spritechainRenderer.Prepare(viewer, *spriteRendererData, *currentFrame, elementPointers.size(), elementPointers.data(), renderStates.data());
+			spritechainRenderer.PrepareEnd(*spriteRendererData, *currentFrame, builder);
+			spritechainRenderer.Render(viewer, *spriteRendererData, *currentFrame, builder, elementPointers.size(), elementPointers.data(), renderStates.data());
+			spritechainRenderer.Reset(*spriteRendererData, *currentFrame);
 		});
 		forwardPass.SetExecutionCallback([&]
 		{
@@ -897,9 +901,10 @@ int main(int argc, char* argv[])
 			for (const auto& element : elements)
 				elementPointers.emplace_back(element.GetElement());
 
-			spritechainRenderer.Prepare(viewerInstance, *spriteRendererData, *currentFrame, elementPointers.size(), elementPointers.data(), renderStates.data());
-			spritechainRenderer.PrepareEnd(*currentFrame, *spriteRendererData);
-			spritechainRenderer.Render(viewerInstance, *spriteRendererData, builder, elementPointers.size(), elementPointers.data());
+			spritechainRenderer.Prepare(viewer, *spriteRendererData, *currentFrame, elementPointers.size(), elementPointers.data(), renderStates.data());
+			spritechainRenderer.PrepareEnd(*spriteRendererData, *currentFrame, builder);
+			spritechainRenderer.Render(viewer, *spriteRendererData, *currentFrame, builder, elementPointers.size(), elementPointers.data(), renderStates.data());
+			spritechainRenderer.Reset(*spriteRendererData, *currentFrame);
 		});
 
 		occluderPass.AddOutput(occluderTexture);

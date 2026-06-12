@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Graphics/SubmeshRenderer.hpp>
+#include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/RenderSubmesh.hpp>
@@ -29,7 +30,7 @@ namespace Nz
 		return std::make_unique<SubmeshRendererData>();
 	}
 
-	void SubmeshRenderer::Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderResources& /*renderResources*/, std::size_t elementCount, const Pointer<const RenderElement>* elements, SparsePtr<const RenderStates> renderStates)
+	void SubmeshRenderer::Render(const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& /*renderResources*/, CommandBufferBuilder& commandBuffer, std::size_t elementCount, const Pointer<const RenderElement>* elements, SparsePtr<const RenderStates> renderStates)
 	{
 		Graphics* graphics = Graphics::Instance();
 		auto& renderDevice = *graphics->GetRenderDevice();
@@ -46,8 +47,8 @@ namespace Nz
 				data.references.emplace();
 		}
 
-
-		Recti invalidScissorBox(-1, -1, -1, -1);
+		Vector2f targetSize = viewer.GetViewerInstance().GetTargetSize();
+		Recti fullscreenScissorBox(0, 0, SafeCast<int>(std::floor(targetSize.x)), SafeCast<int>(std::floor(targetSize.y)));
 
 		const RenderBuffer* currentIndexBuffer = nullptr;
 		const RenderBuffer* currentVertexBuffer = nullptr;
@@ -56,18 +57,11 @@ namespace Nz
 		const ShaderBinding* currentShaderBinding = nullptr;
 		const SkeletonInstance* currentSkeletonInstance = nullptr;
 		const WorldInstance* currentWorldInstance = nullptr;
-		Recti currentScissorBox = invalidScissorBox;
+		Recti currentScissorBox = fullscreenScissorBox;
 		RenderBufferView currentLightData;
-
-		auto FlushDrawCall = [&]()
-		{
-			// Does nothing for now (but will serve once instancing is implemented)
-		};
 
 		auto FlushDrawData = [&]()
 		{
-			FlushDrawCall();
-
 			currentShaderBinding = nullptr;
 		};
 
@@ -78,8 +72,6 @@ namespace Nz
 		const auto& defaultSampler = graphics->GetSamplerCache().Get({});
 		const auto& shadowSampler = graphics->GetSamplerCache().Get({ .depthCompare = true });
 
-		std::size_t oldDrawCallCount = data.drawCalls.size();
-
 		for (std::size_t i = 0; i < elementCount; ++i)
 		{
 			NazaraAssert(elements[i]->GetElementType() == UnderlyingCast(BasicRenderElement::Submesh));
@@ -88,7 +80,7 @@ namespace Nz
 
 			if (const RenderPipeline* pipeline = submesh.GetRenderPipeline(); currentPipeline != pipeline)
 			{
-				FlushDrawCall();
+				commandBuffer.BindRenderPipeline(*pipeline);
 				currentPipeline = pipeline;
 			}
 
@@ -100,13 +92,17 @@ namespace Nz
 
 			if (const RenderBuffer* indexBuffer = submesh.GetIndexBuffer(); currentIndexBuffer != indexBuffer)
 			{
-				FlushDrawCall();
+				if (indexBuffer)
+					commandBuffer.BindIndexBuffer(*indexBuffer, submesh.GetIndexType());
+
 				currentIndexBuffer = indexBuffer;
 			}
 
 			if (const RenderBuffer* vertexBuffer = submesh.GetVertexBuffer(); currentVertexBuffer != vertexBuffer)
 			{
-				FlushDrawCall();
+				if (vertexBuffer)
+					commandBuffer.BindVertexBuffer(0, *vertexBuffer);
+
 				currentVertexBuffer = vertexBuffer;
 			}
 
@@ -118,8 +114,6 @@ namespace Nz
 
 			if (const WorldInstance* worldInstance = &submesh.GetWorldInstance(); currentWorldInstance != worldInstance)
 			{
-				// TODO: Flushing draw calls on instance binding means we can have e.g. 1000 sprites rendered using a draw call for each one
-				// which is far from being efficient, using some bindless could help (or at least instancing?)
 				FlushDrawData();
 				currentWorldInstance = worldInstance;
 			}
@@ -131,10 +125,10 @@ namespace Nz
 			}
 
 			const Recti& scissorBox = submesh.GetScissorBox();
-			const Recti& targetScissorBox = (scissorBox.width >= 0) ? scissorBox : invalidScissorBox;
+			const Recti& targetScissorBox = (scissorBox.width >= 0) ? scissorBox : fullscreenScissorBox;
 			if (currentScissorBox != targetScissorBox)
 			{
-				FlushDrawCall();
+				commandBuffer.SetScissor(targetScissorBox);
 				currentScissorBox = targetScissorBox;
 			}
 
@@ -255,7 +249,7 @@ namespace Nz
 
 				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::ViewerDataUbo); bindingIndex != Material::InvalidBindingIndex)
 				{
-					const auto& viewerBuffer = viewerInstance.GetViewerBuffer();
+					const auto& viewerBuffer = viewer.GetViewerInstance().GetViewerBuffer();
 
 					auto& bindingEntry = m_bindingCache.emplace_back();
 					bindingEntry.bindingIndex = bindingIndex;
@@ -278,89 +272,17 @@ namespace Nz
 				ShaderBindingPtr drawDataBinding = currentPipeline->GetPipelineInfo().pipelineLayout->AllocateShaderBinding(0);
 				drawDataBinding->Update(m_bindingCache.data(), m_bindingCache.size());
 
+				commandBuffer.BindRenderShaderBinding(0, *drawDataBinding);
+
 				currentShaderBinding = drawDataBinding.get();
 
 				data.shaderBindings.emplace_back(std::move(drawDataBinding));
 			}
 
-			auto& drawCall = data.drawCalls.emplace_back();
-			drawCall.firstIndex = 0;
-			drawCall.indexBuffer = currentIndexBuffer;
-			drawCall.indexCount = submesh.GetIndexCount();
-			drawCall.indexType = submesh.GetIndexType();
-			drawCall.renderPipeline = currentPipeline;
-			drawCall.scissorBox = currentScissorBox;
-			drawCall.shaderBinding = currentShaderBinding;
-			drawCall.vertexBuffer = currentVertexBuffer;
-		}
-
-		const RenderSubmesh* firstSubmesh = static_cast<const RenderSubmesh*>(elements[0]);
-		std::size_t drawCallCount = data.drawCalls.size() - oldDrawCallCount;
-		data.drawCallPerElement[firstSubmesh] = SubmeshRendererData::DrawCallIndices{ oldDrawCallCount, drawCallCount };
-	}
-
-	void SubmeshRenderer::Render(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, CommandBufferBuilder& commandBuffer, std::size_t /*elementCount*/, const Pointer<const RenderElement>* elements)
-	{
-		auto& data = static_cast<SubmeshRendererData&>(rendererData);
-
-		Vector2f targetSize = viewerInstance.GetTargetSize();
-		Recti fullscreenScissorBox(0, 0, SafeCast<int>(std::floor(targetSize.x)), SafeCast<int>(std::floor(targetSize.y)));
-
-		const RenderBuffer* currentIndexBuffer = nullptr;
-		const RenderBuffer* currentVertexBuffer = nullptr;
-		const RenderPipeline* currentPipeline = nullptr;
-		const ShaderBinding* currentShaderBinding = nullptr;
-		Recti currentScissorBox(-1, -1, -1, -1);
-
-		const RenderSubmesh* firstSubmesh = static_cast<const RenderSubmesh*>(elements[0]);
-		auto it = data.drawCallPerElement.find(firstSubmesh);
-		assert(it != data.drawCallPerElement.end());
-
-		const auto& indices = it->second;
-
-		for (std::size_t i = 0; i < indices.count; ++i)
-		{
-			const auto& drawData = data.drawCalls[indices.start + i];
-
-			if (currentPipeline != drawData.renderPipeline)
-			{
-				commandBuffer.BindRenderPipeline(*drawData.renderPipeline);
-				currentPipeline = drawData.renderPipeline;
-			}
-
-			if (currentShaderBinding != drawData.shaderBinding)
-			{
-				commandBuffer.BindRenderShaderBinding(0, *drawData.shaderBinding);
-				currentShaderBinding = drawData.shaderBinding;
-			}
-
-			if (currentIndexBuffer != drawData.indexBuffer)
-			{
-				if (drawData.indexBuffer)
-					commandBuffer.BindIndexBuffer(*drawData.indexBuffer, drawData.indexType);
-
-				currentIndexBuffer = drawData.indexBuffer;
-			}
-
-			if (currentVertexBuffer != drawData.vertexBuffer)
-			{
-				if (drawData.vertexBuffer)
-					commandBuffer.BindVertexBuffer(0, *drawData.vertexBuffer);
-
-				currentVertexBuffer = drawData.vertexBuffer;
-			}
-
-			const Recti& targetScissorBox = (drawData.scissorBox.width >= 0) ? drawData.scissorBox : fullscreenScissorBox;
-			if (currentScissorBox != targetScissorBox)
-			{
-				commandBuffer.SetScissor(targetScissorBox);
-				currentScissorBox = targetScissorBox;
-			}
-
 			if (currentIndexBuffer)
-				commandBuffer.DrawIndexed(SafeCast<UInt32>(drawData.indexCount), 1U, SafeCast<UInt32>(drawData.firstIndex));
+				commandBuffer.DrawIndexed(SafeCaster(submesh.GetIndexCount()), 1U, 0);
 			else
-				commandBuffer.Draw(SafeCast<UInt32>(drawData.indexCount), 1U, SafeCast<UInt32>(drawData.firstIndex));
+				commandBuffer.Draw(SafeCaster(submesh.GetIndexCount()), 1U, 0);
 		}
 	}
 
@@ -381,7 +303,5 @@ namespace Nz
 		for (auto& shaderBinding : data.shaderBindings)
 			renderResources.PushForRelease(std::move(shaderBinding));
 		data.shaderBindings.clear();
-
-		data.drawCalls.clear();
 	}
 }

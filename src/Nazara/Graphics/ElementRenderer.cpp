@@ -8,11 +8,11 @@ namespace Nz
 {
 	ElementRenderer::~ElementRenderer() = default;
 
-	void ElementRenderer::Prepare(const ViewerInstance& /*viewerInstance*/, ElementRendererData& /*rendererData*/, RenderResources& /*renderResources*/, std::size_t /*elementCount*/, const Pointer<const RenderElement>* /*elements*/, SparsePtr<const RenderStates> /*renderStates*/)
+	void ElementRenderer::Prepare(const AbstractViewer& /*viewer*/, ElementRendererData& /*rendererData*/, RenderResources& /*renderResources*/, std::size_t /*elementCount*/, const Pointer<const RenderElement>* /*elements*/, SparsePtr<const RenderStates> /*renderStates*/)
 	{
 	}
 
-	void ElementRenderer::PrepareEnd(RenderResources& /*renderResources*/, ElementRendererData& /*rendererData*/)
+	void ElementRenderer::PrepareEnd(ElementRendererData& /*rendererData*/, RenderResources& /*renderResources*/, CommandBufferBuilder& /*commandBuffer*/)
 	{
 	}
 

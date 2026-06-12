@@ -219,6 +219,13 @@ namespace Nz
 		return *this;
 	}
 
+	inline void Camera::UpdateNearFarPlanes(float nearPlane, float farPlane)
+	{
+		m_zNear = nearPlane;
+		m_zFar = farPlane;
+		UpdateProjectionMatrix();
+	}
+
 	inline void Camera::UpdateProjectionType(ProjectionType projectionType)
 	{
 		m_projectionType = projectionType;

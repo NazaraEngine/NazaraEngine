@@ -31,7 +31,6 @@ namespace Nz
 	m_pendingLightUploadAllocation(nullptr),
 	m_renderMask(MaxValue()),
 	m_handleLights(true),
-	m_rebuildCommandBuffer(false),
 	m_rebuildElements(false)
 	{
 		if (auto result = parameters.GetBooleanParameter("Lighting", false); result)
@@ -103,36 +102,6 @@ namespace Nz
 
 		if (m_handleLights)
 			PrepareLights(frameData.renderResources, frameData.frustum, *frameData.visibleLights);
-
-		if (m_rebuildElements)
-		{
-			m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
-			{
-				if (elementType >= m_elementRendererData.size())
-					m_elementRendererData.resize(elementType + 1);
-
-				if (!m_elementRendererData[elementType])
-					m_elementRendererData[elementType] = elementRenderer.InstanciateData();
-
-				elementRenderer.Reset(*m_elementRendererData[elementType], frameData.renderResources);
-			});
-
-			const ViewerInstance& viewerInstance = m_viewer->GetViewerInstance();
-
-			m_elementRegistry.ProcessRenderQueue(m_renderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
-			{
-				ElementRenderer& elementRenderer = m_elementRegistry.GetElementRenderer(elementType);
-				elementRenderer.Prepare(viewerInstance, *m_elementRendererData[elementType], frameData.renderResources, elementCount, elements, SparsePtr(&m_renderState, 0));
-			});
-
-			m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
-			{
-				elementRenderer.PrepareEnd(frameData.renderResources, *m_elementRendererData[elementType]);
-			});
-
-			m_rebuildCommandBuffer = true;
-			m_rebuildElements = false;
-		}
 	}
 
 	void ForwardPipelinePass::RegisterMaterialInstance(const MaterialInstance& materialInstance)
@@ -206,25 +175,46 @@ namespace Nz
 
 		forwardPass.SetExecutionCallback([&]()
 		{
-			return (m_rebuildCommandBuffer) ? FramePassExecution::UpdateAndExecute : FramePassExecution::Execute;
+			return FramePassExecution::UpdateAndExecute;
 		});
 
-		forwardPass.SetCommandCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& /*env*/)
+		forwardPass.SetCommandCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
 			Recti viewport = m_viewer->GetViewport();
 
 			builder.SetScissor(viewport);
 			builder.SetViewport(viewport);
+			
+			m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
+			{
+				if (elementType >= m_elementRendererData.size())
+					m_elementRendererData.resize(elementType + 1);
 
-			const auto& viewerInstance = m_viewer->GetViewerInstance();
+				if (!m_elementRendererData[elementType])
+					m_elementRendererData[elementType] = elementRenderer.InstanciateData();
+			});
 
 			m_elementRegistry.ProcessRenderQueue(m_renderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
 			{
 				ElementRenderer& elementRenderer = m_elementRegistry.GetElementRenderer(elementType);
-				elementRenderer.Render(viewerInstance, *m_elementRendererData[elementType], builder, elementCount, elements);
+				elementRenderer.Prepare(*m_viewer, *m_elementRendererData[elementType], env.renderResources, elementCount, elements, SparsePtr(&m_renderState, 0));
 			});
 
-			m_rebuildCommandBuffer = false;
+			m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
+			{
+				elementRenderer.PrepareEnd(*m_elementRendererData[elementType], env.renderResources, builder);
+			});
+
+			m_elementRegistry.ProcessRenderQueue(m_renderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
+			{
+				ElementRenderer& elementRenderer = m_elementRegistry.GetElementRenderer(elementType);
+				elementRenderer.Render(*m_viewer, *m_elementRendererData[elementType], env.renderResources, builder, elementCount, elements, SparsePtr(&m_renderState, 0));
+			});
+			
+			m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
+			{
+				elementRenderer.Reset(*m_elementRendererData[elementType], env.renderResources);
+			});
 		});
 
 		return forwardPass;

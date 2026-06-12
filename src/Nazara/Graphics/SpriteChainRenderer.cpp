@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Graphics/SpriteChainRenderer.hpp>
+#include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/RenderSpriteChain.hpp>
@@ -54,7 +55,7 @@ namespace Nz
 		return std::make_unique<SpriteChainRendererData>();
 	}
 
-	void SpriteChainRenderer::Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderResources& renderResources, std::size_t elementCount, const Pointer<const RenderElement>* elements, SparsePtr<const RenderStates> renderStates)
+	void SpriteChainRenderer::Prepare(const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& renderResources, std::size_t elementCount, const Pointer<const RenderElement>* elements, SparsePtr<const RenderStates> renderStates)
 	{
 		Graphics* graphics = Graphics::Instance();
 
@@ -241,19 +242,16 @@ namespace Nz
 		data.drawCallPerElement[firstSpriteChain] = SpriteChainRendererData::DrawCallIndices{ oldDrawCallCount, drawCallCount };
 	}
 
-	void SpriteChainRenderer::PrepareEnd(RenderResources& renderResources, ElementRendererData& /*rendererData*/)
+	void SpriteChainRenderer::PrepareEnd(ElementRendererData& /*rendererData*/, RenderResources& /*renderResources*/, CommandBufferBuilder& commandBuffer)
 	{
 		Flush();
 
 		if (!m_pendingCopies.empty())
 		{
-			renderResources.Execute([&](CommandBufferBuilder& builder)
-			{
-				for (auto& copy : m_pendingCopies)
-					builder.CopyBuffer(*copy.allocation, copy.targetBuffer, copy.size);
+			for (auto& copy : m_pendingCopies)
+				commandBuffer.CopyBuffer(*copy.allocation, copy.targetBuffer, copy.size);
 
-				builder.MemoryBarrier({ .srcStageMask = PipelineStage::Transfer, .dstStageMask = PipelineStage::VertexInput, .srcAccessMask = MemoryAccess::TransferWrite, .dstAccessMask = MemoryAccess::VertexBufferRead });
-			}, Nz::QueueType::Graphics);
+			commandBuffer.MemoryBarrier({ .srcStageMask = PipelineStage::Transfer, .dstStageMask = PipelineStage::VertexInput, .srcAccessMask = MemoryAccess::TransferWrite, .dstAccessMask = MemoryAccess::VertexBufferRead });
 
 			m_pendingCopies.clear();
 		}
@@ -261,13 +259,13 @@ namespace Nz
 		m_pendingData = PendingData{};
 	}
 
-	void SpriteChainRenderer::Render(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, CommandBufferBuilder& commandBuffer, std::size_t /*elementCount*/, const Pointer<const RenderElement>* elements)
+	void SpriteChainRenderer::Render(const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& /*renderResources*/, CommandBufferBuilder& commandBuffer, std::size_t /*elementCount*/, const Pointer<const RenderElement>* elements, SparsePtr<const RenderStates> /*renderStates*/)
 	{
 		auto& data = static_cast<SpriteChainRendererData&>(rendererData);
 
 		commandBuffer.BindIndexBuffer(*m_indexBuffer, Nz::IndexType::U16);
 
-		Vector2f targetSize = viewerInstance.GetTargetSize();
+		Vector2f targetSize = viewer.GetViewerInstance().GetTargetSize();
 		Recti fullscreenScissorBox(0, 0, SafeCast<int>(std::floor(targetSize.x)), SafeCast<int>(std::floor(targetSize.y)));
 
 		const RenderBuffer* currentVertexBuffer = nullptr;

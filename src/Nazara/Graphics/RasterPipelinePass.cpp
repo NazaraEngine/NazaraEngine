@@ -46,7 +46,7 @@ namespace Nz
 			m_renderQueueRegistry.Finalize();
 
 			m_lastVisibilityHash = frameData.visibilityHash;
-			m_rebuildElements = true;
+			m_rebuildElements = false;
 		}
 
 		// TODO: Don't sort every frame if no material pass requires distance sorting
@@ -54,41 +54,6 @@ namespace Nz
 		{
 			return element->ComputeSortingScore(frameData.frustum, m_renderQueueRegistry);
 		});
-
-		if (m_rebuildElements)
-		{
-			m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
-			{
-				if (elementType >= m_elementRendererData.size() || !m_elementRendererData[elementType])
-				{
-					if (elementType >= m_elementRendererData.size())
-						m_elementRendererData.resize(elementType + 1);
-
-					m_elementRendererData[elementType] = elementRenderer.InstanciateData();
-				}
-
-				elementRenderer.Reset(*m_elementRendererData[elementType], frameData.renderResources);
-			});
-
-			const auto& viewerInstance = m_viewer->GetViewerInstance();
-
-			ElementRenderer::RenderStates defaultRenderStates{};
-
-			m_elementRegistry.ProcessRenderQueue(m_renderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
-			{
-				ElementRenderer& elementRenderer = m_elementRegistry.GetElementRenderer(elementType);
-
-				elementRenderer.Prepare(viewerInstance, *m_elementRendererData[elementType], frameData.renderResources, elementCount, elements, SparsePtr(&defaultRenderStates, 0));
-			});
-
-			m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
-			{
-				elementRenderer.PrepareEnd(frameData.renderResources, *m_elementRendererData[elementType]);
-			});
-
-			m_rebuildCommandBuffer = true;
-			m_rebuildElements = false;
-		}
 	}
 
 	void RasterPipelinePass::RegisterMaterialInstance(const MaterialInstance& materialInstance)
@@ -162,25 +127,48 @@ namespace Nz
 
 		pass.SetExecutionCallback([&]
 		{
-			return (m_rebuildCommandBuffer) ? FramePassExecution::UpdateAndExecute : FramePassExecution::Execute;
+			return FramePassExecution::UpdateAndExecute;
 		});
 
-		pass.SetCommandCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& /*env*/)
+		pass.SetCommandCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
 			Recti viewport = m_viewer->GetViewport();
 
 			builder.SetScissor(viewport);
 			builder.SetViewport(viewport);
 
-			const auto& viewerInstance = m_viewer->GetViewerInstance();
+			ElementRenderer::RenderStates defaultRenderStates{};
+			
+			m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
+			{
+				if (elementType >= m_elementRendererData.size())
+					m_elementRendererData.resize(elementType + 1);
+
+				if (!m_elementRendererData[elementType])
+					m_elementRendererData[elementType] = elementRenderer.InstanciateData();
+			});
 
 			m_elementRegistry.ProcessRenderQueue(m_renderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
 			{
 				ElementRenderer& elementRenderer = m_elementRegistry.GetElementRenderer(elementType);
-				elementRenderer.Render(viewerInstance, *m_elementRendererData[elementType], builder, elementCount, elements);
+				elementRenderer.Prepare(*m_viewer, *m_elementRendererData[elementType], env.renderResources, elementCount, elements, SparsePtr(&defaultRenderStates, 0));
 			});
 
-			m_rebuildCommandBuffer = false;
+			m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
+			{
+				elementRenderer.PrepareEnd(*m_elementRendererData[elementType], env.renderResources, builder);
+			});
+
+			m_elementRegistry.ProcessRenderQueue(m_renderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
+			{
+				ElementRenderer& elementRenderer = m_elementRegistry.GetElementRenderer(elementType);
+				elementRenderer.Render(*m_viewer, *m_elementRendererData[elementType], env.renderResources, builder, elementCount, elements, SparsePtr(&defaultRenderStates, 0));
+			});
+			
+			m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
+			{
+				elementRenderer.Reset(*m_elementRendererData[elementType], env.renderResources);
+			});
 		});
 
 		return pass;

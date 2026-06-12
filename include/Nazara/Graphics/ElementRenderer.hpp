@@ -21,11 +21,11 @@
 
 namespace Nz
 {
+	class AbstractViewer;
 	class CommandBufferBuilder;
 	class RenderElement;
 	class RenderResources;
 	class Texture;
-	class ViewerInstance;
 	struct ElementRendererData;
 
 	class NAZARA_GRAPHICS_API ElementRenderer
@@ -39,9 +39,9 @@ namespace Nz
 			virtual RenderElementPoolBase& GetPool() = 0;
 
 			virtual std::unique_ptr<ElementRendererData> InstanciateData() = 0;
-			virtual void Prepare(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, RenderResources& currentFrame, std::size_t elementCount, const Pointer<const RenderElement>* elements, SparsePtr<const RenderStates> renderStates);
-			virtual void PrepareEnd(RenderResources& currentFrame, ElementRendererData& rendererData);
-			virtual void Render(const ViewerInstance& viewerInstance, ElementRendererData& rendererData, CommandBufferBuilder& commandBuffer, std::size_t elementCount, const Pointer<const RenderElement>* elements) = 0;
+			virtual void Prepare(const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& renderResources, std::size_t elementCount, const Pointer<const RenderElement>* elements, SparsePtr<const RenderStates> renderStates);
+			virtual void PrepareEnd(ElementRendererData& rendererData, RenderResources& renderResources, CommandBufferBuilder& commandBuffer);
+			virtual void Render(const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& renderResources, CommandBufferBuilder& commandBuffer, std::size_t elementCount, const Pointer<const RenderElement>* elements, SparsePtr<const RenderStates> renderStates) = 0;
 			virtual void Reset(ElementRendererData& rendererData, RenderResources& renderResources);
 
 			struct RenderStates

@@ -40,7 +40,6 @@ namespace Nz
 			ForwardPipelinePass(ForwardPipelinePass&&) = delete;
 			~ForwardPipelinePass() = default;
 
-			inline void InvalidateCommandBuffers();
 			void InvalidateElements() override;
 
 			void Prepare(FrameData& frameData) override;
@@ -97,7 +96,6 @@ namespace Nz
 			UploadPool::Allocation* m_pendingLightUploadAllocation;
 			UInt32 m_renderMask;
 			bool m_handleLights;
-			bool m_rebuildCommandBuffer;
 			bool m_rebuildElements;
 	};
 }

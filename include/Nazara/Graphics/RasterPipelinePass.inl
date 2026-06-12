@@ -18,14 +18,8 @@ namespace Nz
 	m_elementRegistry(passData.elementRegistry),
 	m_pipeline(passData.pipeline),
 	m_renderMask(renderMask),
-	m_rebuildCommandBuffer(false),
 	m_rebuildElements(false)
 	{
-	}
-
-	inline void RasterPipelinePass::InvalidateCommandBuffers()
-	{
-		m_rebuildCommandBuffer = true;
 	}
 
 	inline void RasterPipelinePass::InvalidateElements()

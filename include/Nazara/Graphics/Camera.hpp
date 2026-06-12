@@ -62,6 +62,7 @@ namespace Nz
 			inline void UpdateClearColor(Color color);
 			inline void UpdateClearDepth(float depth);
 			inline void UpdateFOV(DegreeAnglef fov);
+			inline void UpdateNearFarPlanes(float nearPlane, float farPlane);
 			inline void UpdateProjectionType(ProjectionType projectionType);
 			inline void UpdateRenderMask(UInt32 renderMask);
 			inline void UpdateRenderOrder(Int32 renderOrder);
