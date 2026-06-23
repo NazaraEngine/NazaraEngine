@@ -8,6 +8,7 @@
 #include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Graphics/FramePipeline.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
+#include <Nazara/Graphics/ShadowAtlas.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <NazaraUtils/Algorithm.hpp>
 #include <NazaraUtils/StackArray.hpp>
@@ -37,6 +38,17 @@ namespace Nz
 		m_invTexelScale = 1.0f / m_texelScale;
 
 		UpdatePerViewerStatus(true);
+	}
+
+	void DirectionalLightShadowData::ForEachView([[maybe_unused]] const AbstractViewer* viewer, FunctionRef<void(std::size_t shadowAtlasEntry, ShadowViewer& shadowViewer)> callback)
+	{
+		assert(viewer);
+
+		std::size_t shadowAtlasIndex = m_firstShadowAtlasIndex;
+
+		PerViewerData& viewerData = *Retrieve(m_viewerData, viewer);
+		for (CascadeData& cascade : viewerData.cascades)
+			callback(shadowAtlasIndex++, cascade.viewer);
 	}
 
 	void DirectionalLightShadowData::PrepareRendering(RenderResources& renderResources, const AbstractViewer* viewer)
@@ -240,44 +252,12 @@ namespace Nz
 		});
 	}
 
-	void DirectionalLightShadowData::RegisterPassInputs(FramePass& pass, const AbstractViewer* viewer)
-	{
-		assert(viewer);
-		PerViewerData& viewerData = *Retrieve(m_viewerData, viewer);
-
-		std::size_t arrayInputIndex = pass.AddInput(viewerData.textureArrayAttachmentIndex);
-		pass.SetInputAssumedLayout(arrayInputIndex, TextureLayout::ColorInput);
-
-		for (CascadeData& cascade : viewerData.cascades)
-			pass.AddInput(cascade.attachmentIndex);
-	}
-
-	void DirectionalLightShadowData::RegisterToFrameGraph(FrameGraph& frameGraph, const AbstractViewer* viewer)
+	void DirectionalLightShadowData::RegisterToAtlas(ShadowAtlas& atlas)
 	{
 		UInt32 shadowMapSize = m_light.GetShadowMapSize();
 
-		PerViewerData& viewerData = *Retrieve(m_viewerData, viewer);
-
-		viewerData.textureArrayAttachmentIndex = frameGraph.AddAttachmentArray({
-			.name = "Directional-light cascade shadowmaps",
-			.format = m_light.GetShadowMapFormat(),
-			.size = FramePassAttachmentSize::Fixed,
-			.width = shadowMapSize,
-			.height = shadowMapSize,
-		}, SafeCast<unsigned int>(m_cascadeCount));
-
-		for (std::size_t i = 0; i < viewerData.cascades.size(); ++i)
-		{
-			CascadeData& cascade = viewerData.cascades[i];
-
-			cascade.attachmentIndex = frameGraph.AddAttachmentArrayLayer(viewerData.textureArrayAttachmentIndex, i);
-
-			FramePipelinePass::PassInputOuputs passInputOuputs;
-			passInputOuputs.clearDepth = 1.f;
-			passInputOuputs.depthStencilOutput = cascade.attachmentIndex;
-
-			cascade.depthPass->RegisterToFrameGraph(frameGraph, passInputOuputs);
-		}
+		std::size_t firstEntry = atlas.Register(shadowMapSize, m_cascadeCount);
+		UpdateShadowAtlasEntries(firstEntry, m_cascadeCount);
 	}
 
 	void DirectionalLightShadowData::RegisterViewer(const AbstractViewer* viewer)
@@ -316,14 +296,6 @@ namespace Nz
 		m_viewerData[viewer] = std::move(perViewerData);
 	}
 
-	const Texture* DirectionalLightShadowData::RetrieveLightShadowmap(const BakedFrameGraph& bakedGraph, const AbstractViewer* viewer) const
-	{
-		assert(viewer);
-		const PerViewerData& viewerData = *Retrieve(m_viewerData, viewer);
-
-		return bakedGraph.GetAttachmentTexture(viewerData.textureArrayAttachmentIndex).get();
-	}
-
 	void DirectionalLightShadowData::UnregisterMaterialInstance(const MaterialInstance& matInstance)
 	{
 		ForEachCascade([&](CascadeData& cascade)
@@ -339,6 +311,22 @@ namespace Nz
 
 		m_destructionQueue.push_back(std::move(it->second));
 		m_viewerData.erase(it);
+	}
+
+	void DirectionalLightShadowData::WriteToShader(const ShadowAtlas& atlas, const AbstractViewer* viewer, void* basePtr) const
+	{
+		PerViewerData& viewerData = *Retrieve(m_viewerData, viewer);
+
+		for (std::size_t i = 0; i < m_cascadeCount; ++i)
+		{
+			std::optional<Rectf> rect = atlas.GetNormalizedRect(m_firstShadowAtlasIndex + i);
+			if (!rect)
+				rect = Rectf(-1.0f, -1.0f, -1.0f, -1.0f);
+
+			AccessByOffset<Vector2f&>(basePtr, PredefinedDirectionalShadowAtlasEntryOffsets.offset + i * sizeof(Vector2f)) = rect->GetPosition();
+			AccessByOffset<Vector2f&>(basePtr, PredefinedDirectionalShadowAtlasEntryOffsets.size + i * sizeof(Vector2f)) = rect->GetLengths();
+			AccessByOffset<Matrix4f&>(basePtr, PredefinedDirectionalShadowAtlasEntryOffsets.viewProjMatrices + i * sizeof(Matrix4f)) = viewerData.cascades[i].viewProjMatrix;
+		}
 	}
 
 	template<typename F>

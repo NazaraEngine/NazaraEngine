@@ -2,10 +2,10 @@
 module Material.Phong;
 
 import InstanceData from Engine.InstanceData;
-import LightData from Lighting.LightData;
 import SkeletalData from Engine.SkeletalData;
 import ViewerData from Engine.ViewerData;
 
+import Lighting.LightData;
 import Lighting.Phong;
 import Lighting.Shadow;
 import SkinLinearPosition, SkinLinearPositionNormal from Engine.SkinningLinear;
@@ -46,7 +46,6 @@ option VertexJointIndicesLoc: u32 = InvalidLoc;
 option VertexJointWeightsLoc: u32 = InvalidLoc;
 
 option EnableShadowMapping: bool = true;
-option MaxLightCount: u32 = 3;
 
 const HasNormal = (VertexNormalLoc != InvalidLoc);
 const HasVertexColor = (VertexColorLoc != InvalidLoc);
@@ -102,14 +101,22 @@ external
 [auto_binding]
 external
 {
-	[tag("TextureOverlay")] TextureOverlay: sampler2D[f32],
-	[tag("InstanceData")] instanceData: uniform[InstanceData],
+	// Scene data
+	[tag("ShadowAtlas")] shadowAtlas: depth_sampler2D[f32],
+
+	[tag("DirectionalLights")] directionalLights: storage[LightData.DirectionalLights, readonly],
+	[tag("DirectionalShadowAtlasMapping")] directionalShadowAtlasMapping: storage[Shadow.DirectionalShadowAtlasMapping, readonly],
+	[tag("PointLights")] pointLights: storage[LightData.PointLights, readonly],
+	[tag("PointShadowAtlasMapping")] pointShadowAtlasMapping: storage[Shadow.PointShadowAtlasMapping, readonly],
+	[tag("SpotLights")] spotLights: storage[LightData.SpotLights, readonly],
+	[tag("SpotShadowAtlasMapping")] spotShadowAtlasMapping: storage[Shadow.SpotShadowAtlasMapping, readonly],
+
+	// Per viewer data
 	[tag("ViewerData")] viewerData: uniform[ViewerData],
+
+	// Per instance data
+	[tag("InstanceData")] instanceData: uniform[InstanceData],
 	[tag("SkeletalData")] skeletalData: uniform[SkeletalData],
-	[tag("LightData")/*, cond(ForwardPass)*/] lightData: uniform[LightData],
-	[tag("ShadowMapsDirectional")] shadowMapsDirectional: array[depth_sampler2D_array[f32], MaxLightCount],
-	[tag("ShadowMapsPoint")] shadowMapsPoint: array[sampler_cube[f32], MaxLightCount],
-	[tag("ShadowMapsSpot")] shadowMapsSpot: array[depth_sampler2D[f32], MaxLightCount],
 }
 
 struct VertOut
@@ -137,9 +144,6 @@ alias FragOut = GBufferOutput;
 fn ComputeColor(input: VertOut) -> vec4[f32]
 {
 	let color = settings.BaseColor;
-
-	const if (HasUV)
-		color.a *= TextureOverlay.Sample(input.uv).r;
 
 	const if (HasColor)
 		color *= input.color;
@@ -186,42 +190,48 @@ fn ComputeLighting(color: vec3[f32], input: VertOut) -> vec3[f32]
 
 	let normal = ComputeNormal(input);
 
-	for lightIndex in 0 -> lightData.directionalLightCount
+	for lightIndex in 0 -> directionalLights.lightCount
 	{
-		let light = lightData.directionalLights[lightIndex];
+		let light = directionalLights.lights[lightIndex];
 		let result = Phong.ComputeDirectionalLight(light, eyeVec, normal, settings.Shininess);
 
 		let shadowFactor = 1.0;
-		const if (EnableShadowMapping)
-			shadowFactor = Shadow.ComputeDirectionalLightShadow(light, shadowMapsDirectional[lightIndex], input.worldPos, result.lambert, viewerData.viewMatrix);
+		//const if (EnableShadowMapping)
+		//	shadowFactor = Shadow.ComputeDirectionalLightShadow(light, shadowMapsDirectional[lightIndex], input.worldPos, result.lambert, viewerData.viewMatrix);
 
 		lightAmbient += result.ambient;
 		lightDiffuse += shadowFactor * result.diffuse;
 		lightSpecular += shadowFactor * result.specular;
 	}
 
-	for lightIndex in 0 -> lightData.pointLightCount
+	for lightIndex in 0 -> pointLights.lightCount
 	{
-		let light = lightData.pointLights[lightIndex];
+		let light = pointLights.lights[lightIndex];
 		let result = Phong.ComputePointLight(light, eyeVec, normal, settings.Shininess, input.worldPos);
 
 		let shadowFactor = 1.0;
-		const if (EnableShadowMapping)
-			shadowFactor = Shadow.ComputePointLightShadow(light, shadowMapsPoint[lightIndex], result.dist, result.lightToWorldDir);
+		//const if (EnableShadowMapping)
+		//	shadowFactor = Shadow.ComputePointLightShadow(light, shadowMapsPoint[lightIndex], result.dist, result.lightToWorldDir);
 
 		lightAmbient += result.ambient;
 		lightDiffuse += shadowFactor * result.diffuse;
 		lightSpecular += shadowFactor * result.specular;
 	}
 
-	for lightIndex in 0 -> lightData.spotLightCount
+	for lightIndex in 0 -> spotLights.lightCount
 	{
-		let light = lightData.spotLights[lightIndex];
+		let light = spotLights.lights[lightIndex];
 		let result = Phong.ComputeSpotLight(light, eyeVec, normal, settings.Shininess, input.worldPos);
 
 		let shadowFactor = 1.0;
 		const if (EnableShadowMapping)
-			shadowFactor = Shadow.ComputeSpotLightShadow(light, shadowMapsSpot[lightIndex], input.worldPos, result.lambert);
+		{
+			if (light.shadowIndex != u32.Max)
+			{
+				let shadowAtlasEntry: Shadow.SpotShadowAtlasEntry = spotShadowAtlasMapping.shadowMappings[light.shadowIndex];
+				shadowFactor = Shadow.ComputeSpotLightShadow(shadowAtlas, light, shadowAtlasEntry, input.worldPos, result.lambert);
+			}
+		}
 
 		lightAmbient += result.ambient;
 		lightDiffuse += shadowFactor * result.diffuse;

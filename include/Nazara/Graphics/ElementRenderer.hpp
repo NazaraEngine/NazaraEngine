@@ -26,12 +26,13 @@ namespace Nz
 	class RenderElement;
 	class RenderResources;
 	class Texture;
+	class TextureSampler;
 	struct ElementRendererData;
 
 	class NAZARA_GRAPHICS_API ElementRenderer
 	{
 		public:
-			struct RenderStates;
+			struct RenderData;
 
 			ElementRenderer() = default;
 			virtual ~ElementRenderer();
@@ -39,24 +40,20 @@ namespace Nz
 			virtual RenderElementPoolBase& GetPool() = 0;
 
 			virtual std::unique_ptr<ElementRendererData> InstanciateData() = 0;
-			virtual void Prepare(const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& renderResources, std::size_t elementCount, const Pointer<const RenderElement>* elements, SparsePtr<const RenderStates> renderStates);
+			virtual void Prepare(const RenderData& renderData, const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& renderResources, std::size_t elementCount, const Pointer<const RenderElement>* elements);
 			virtual void PrepareEnd(ElementRendererData& rendererData, RenderResources& renderResources, CommandBufferBuilder& commandBuffer);
-			virtual void Render(const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& renderResources, CommandBufferBuilder& commandBuffer, std::size_t elementCount, const Pointer<const RenderElement>* elements, SparsePtr<const RenderStates> renderStates) = 0;
+			virtual void Render(const RenderData& renderData, const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& renderResources, CommandBufferBuilder& commandBuffer, std::size_t elementCount, const Pointer<const RenderElement>* elements) = 0;
 			virtual void Reset(ElementRendererData& rendererData, RenderResources& renderResources);
 
-			struct RenderStates
+			struct RenderData
 			{
-				RenderStates()
-				{
-					shadowMapsDirectional.fill(nullptr);
-					shadowMapsPoint.fill(nullptr);
-					shadowMapsSpot.fill(nullptr);
-				}
-
-				std::array<const Texture*, PredefinedLightData::MaxLightCount> shadowMapsDirectional;
-				std::array<const Texture*, PredefinedLightData::MaxLightCount> shadowMapsPoint;
-				std::array<const Texture*, PredefinedLightData::MaxLightCount> shadowMapsSpot;
-				RenderBufferView lightData;
+				const Texture* shadowAtlas = nullptr;
+				RenderBufferView directionalLights;
+				RenderBufferView directionalLightAtlasMapping;
+				RenderBufferView pointLights;
+				RenderBufferView pointLightAtlasMapping;
+				RenderBufferView spotLights;
+				RenderBufferView spotLightAtlasMapping;
 			};
 	};
 

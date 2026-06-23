@@ -37,34 +37,31 @@ namespace Nz
 					builder.TextureBarrier({ .srcStageMask = textureTransition.srcStageMask, .dstStageMask = textureTransition.dstStageMask, .srcAccessMask = textureTransition.srcAccessMask, .dstAccessMask = textureTransition.dstAccessMask, .oldLayout = textureTransition.oldLayout, .newLayout = textureTransition.newLayout, .texture = texture.get() });
 				}
 
-				if (passData.framebuffer)
-					builder.BeginRenderPass(*passData.framebuffer, *passData.renderPass, passData.renderRect, passData.outputClearValues.data(), passData.outputClearValues.size());
-
-				if (!passData.name.empty())
-					builder.BeginDebugRegion(passData.name, Color::Green());
-
 				FramePassEnvironment env{
 					.frameGraph = *this,
 					.renderResources = renderResources,
 					.renderRect = passData.renderRect
 				};
 
-				bool first = true;
-				for (auto& subpass : passData.subpasses)
+				if (!passData.name.empty())
+					builder.BeginDebugRegion(passData.name, Color::Green());
+
+				if (passData.commandCallback)
+					passData.commandCallback(builder, env);
+
+				if (passData.renderCallback)
 				{
-					if (!first)
-						builder.NextSubpass();
+					if (passData.framebuffer)
+						builder.BeginRenderPass(*passData.framebuffer, *passData.renderPass, passData.renderRect, passData.outputClearValues.data(), passData.outputClearValues.size());
 
-					first = false;
+					passData.renderCallback(builder, env);
 
-					subpass.commandCallback(builder, env);
+					if (passData.framebuffer)
+						builder.EndRenderPass();
 				}
 
 				if (!passData.name.empty())
 					builder.EndDebugRegion();
-
-				if (passData.framebuffer)
-					builder.EndRenderPass();
 			});
 
 			// TODO: Submit all commands buffer at once

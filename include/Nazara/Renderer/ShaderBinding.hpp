@@ -10,13 +10,13 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Renderer/Enums.hpp>
 #include <Nazara/Renderer/Export.hpp>
+#include <Nazara/Renderer/RenderBufferView.hpp>
 #include <memory>
 #include <string_view>
 #include <variant>
 
 namespace Nz
 {
-	class RenderBuffer;
 	class ShaderBinding;
 	class ShaderBindingDeleter;
 	class Texture;
@@ -63,6 +63,9 @@ namespace Nz
 				UInt64 offset;
 				UInt64 range;
 				bool dynamic = false;
+
+				static inline StorageBufferBinding FromView(const RenderBufferView& view, bool dynamic = false);
+				static inline StorageBufferBinding WholeBuffer(RenderBuffer& buffer, bool dynamic = false);
 			};
 
 			struct TextureBinding
@@ -77,6 +80,9 @@ namespace Nz
 				UInt64 offset;
 				UInt64 range;
 				bool dynamic = false;
+
+				static inline UniformBufferBinding FromView(const RenderBufferView& view, bool dynamic = false);
+				static inline UniformBufferBinding WholeBuffer(RenderBuffer& buffer, bool dynamic = false);
 			};
 
 			struct Binding

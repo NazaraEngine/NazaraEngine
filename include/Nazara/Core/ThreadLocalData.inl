@@ -58,4 +58,3 @@ namespace Nz
 		m_data.erase(threadId);
 	}
 }
-

@@ -29,7 +29,6 @@ external
 [tag("Engine")]
 external
 {
-	[tag("TextureOverlay"), binding(3)] TextureOverlay: sampler2D[f32],
 	[tag("InstanceData"), binding(4)] instanceData: uniform[InstanceData],
 	[tag("ViewerData"), binding(5)] viewerData: uniform[ViewerData],
 }

@@ -2,29 +2,87 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-#include <Nazara/Graphics/DefaultFramePipeline.hpp>
+#include <Nazara/Graphics/IndirectFramePipeline.hpp>
 #include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/PipelineViewer.hpp>
-#include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/RenderTarget.hpp>
-#include <Nazara/Graphics/TextureAsset.hpp>
 #include <Nazara/Graphics/WorldInstance.hpp>
 #include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
+#include <NazaraUtils/MathUtils.hpp>
 #include <NazaraUtils/StackVector.hpp>
 
 namespace Nz
 {
-	DefaultFramePipeline::DefaultFramePipeline(ElementRendererRegistry& elementRegistry) :
-	m_directionalLights(*Graphics::Instance()->GetRenderDevice(), PredefinedDirectionalLightOffsets.totalSize, 16, PredefinedDirectionalLightsOffsets.totalSize),
-	m_directionalShadowAtlasEntries(*Graphics::Instance()->GetRenderDevice(), PredefinedDirectionalShadowAtlasEntryOffsets.totalSize, 16),
-	m_pointLights(*Graphics::Instance()->GetRenderDevice(), PredefinedPointLightOffsets.totalSize, 128, PredefinedPointLightsOffsets.totalSize),
-	m_pointShadowAtlasEntries(*Graphics::Instance()->GetRenderDevice(), PredefinedPointShadowAtlasEntryOffsets.totalSize, 128),
-	m_spotLights(*Graphics::Instance()->GetRenderDevice(), PredefinedSpotLightOffsets.totalSize, 128, PredefinedSpotLightsOffsets.totalSize),
-	m_spotShadowAtlasEntries(*Graphics::Instance()->GetRenderDevice(), PredefinedSpotShadowAtlasEntryOffsets.totalSize, 128),
+	namespace Indirect
+	{
+		struct AABB
+		{
+			nzsl::FieldOffsets fieldOffsets;
+			std::size_t params;
+
+			std::size_t size;
+
+			static constexpr AABB Build()
+			{
+				AABB aabb{ nzsl::FieldOffsets(nzsl::StructLayout::Std430) };
+				aabb.params = aabb.fieldOffsets.AddFieldArray(nzsl::StructFieldType::Float1, 6);
+				aabb.size = aabb.fieldOffsets.GetAlignedSize();
+
+				return aabb;
+			}
+		};
+
+		constexpr AABB s_aabbOffsets = AABB::Build();
+
+		struct InstanceData
+		{
+			nzsl::FieldOffsets fieldOffsets;
+			std::size_t worldMatrix;
+
+			std::size_t size;
+
+			static constexpr InstanceData Build()
+			{
+				InstanceData instanceData{ nzsl::FieldOffsets(nzsl::StructLayout::Std430) };
+				instanceData.worldMatrix = instanceData.fieldOffsets.AddMatrix(nzsl::StructFieldType::Float1, 4, 4, true);
+				instanceData.size = instanceData.fieldOffsets.GetAlignedSize();
+
+				return instanceData;
+			}
+		};
+
+		constexpr InstanceData s_instanceDataOffsets = InstanceData::Build();
+
+		struct Renderable
+		{
+			nzsl::FieldOffsets fieldOffsets;
+			std::size_t aabb;
+			std::size_t instanceIndex;
+
+			std::size_t size;
+
+			static constexpr Renderable Build()
+			{
+				Renderable renderable{ nzsl::FieldOffsets(nzsl::StructLayout::Std430) };
+				renderable.aabb = renderable.fieldOffsets.AddStruct(s_aabbOffsets.fieldOffsets);
+				renderable.instanceIndex = renderable.fieldOffsets.AddField(nzsl::StructFieldType::UInt1);
+
+				renderable.size = renderable.fieldOffsets.GetAlignedSize();
+
+				return renderable;
+			}
+		};
+
+		constexpr Renderable s_renderableOffsets = Renderable::Build();
+	}
+
+	IndirectFramePipeline::IndirectFramePipeline(ElementRendererRegistry& elementRegistry) :
+	m_maxRenderableIndex(0),
+	m_maxWorldInstanceIndex(0),
 	m_elementRegistry(elementRegistry),
 	m_renderablePool(4096),
 	m_lightPool(64),
@@ -34,21 +92,15 @@ namespace Nz
 	m_generationCounter(0),
 	m_rebuildFrameGraph(true)
 	{
-		m_directionalLights.OnTransferRequired.Connect([this](TransferInterface* transfer) { m_transferSet.insert(transfer); });
-		m_directionalShadowAtlasEntries.OnTransferRequired.Connect([this](TransferInterface* transfer) { m_transferSet.insert(transfer); });
-		m_pointLights.OnTransferRequired.Connect([this](TransferInterface* transfer) { m_transferSet.insert(transfer); });
-		m_pointShadowAtlasEntries.OnTransferRequired.Connect([this](TransferInterface* transfer) { m_transferSet.insert(transfer); });
-		m_spotLights.OnTransferRequired.Connect([this](TransferInterface* transfer) { m_transferSet.insert(transfer); });
-		m_spotShadowAtlasEntries.OnTransferRequired.Connect([this](TransferInterface* transfer) { m_transferSet.insert(transfer); });
 	}
 
-	DefaultFramePipeline::~DefaultFramePipeline()
+	IndirectFramePipeline::~IndirectFramePipeline()
 	{
 		// Force viewer passes to unregister their materials
 		m_viewerPool.Clear();
 	}
 
-	const std::vector<Nz::FramePipelinePass::VisibleRenderable>& DefaultFramePipeline::FrustumCull(const Frustumf& frustum, UInt32 mask, std::size_t& visibilityHash) const
+	const std::vector<Nz::FramePipelinePass::VisibleRenderable>& IndirectFramePipeline::FrustumCull(const Frustumf& frustum, UInt32 mask, std::size_t& visibilityHash) const
 	{
 		auto CombineHash = [](std::size_t currentHash, std::size_t newHash)
 		{
@@ -87,7 +139,7 @@ namespace Nz
 		return m_visibleRenderables;
 	}
 
-	void DefaultFramePipeline::ForEachRegisteredMaterialInstance(FunctionRef<void(const MaterialInstance& materialInstance)> callback)
+	void IndirectFramePipeline::ForEachRegisteredMaterialInstance(FunctionRef<void(const MaterialInstance& materialInstance)> callback)
 	{
 		for (RenderableData& renderable : m_renderablePool)
 		{
@@ -100,178 +152,78 @@ namespace Nz
 		}
 	}
 
-	void DefaultFramePipeline::ForEachShadowCastingLight(FunctionRef<void(std::size_t lightIndex, const Light* light, LightShadowData* lightShadowData)> callback)
-	{
-		for (std::size_t lightIndex : m_visibleShadowCastingLights.IterBits())
-		{
-			LightData* lightData = m_lightPool.RetrieveFromIndex(lightIndex);
-			callback(lightIndex, lightData->light, lightData->shadowData.get());
-		}
-	}
-
-	const std::shared_ptr<RenderBuffer>& DefaultFramePipeline::GetDirectionalLightBuffer() const
-	{
-		return m_directionalLights.GetBuffer();
-	}
-
-	const std::shared_ptr<RenderBuffer>& DefaultFramePipeline::GetDirectionalShadowMappingBuffer() const
-	{
-		return m_directionalShadowAtlasEntries.GetBuffer();
-	}
-
-	const std::shared_ptr<RenderBuffer>& DefaultFramePipeline::GetPointLightBuffer() const
-	{
-		return m_pointLights.GetBuffer();
-	}
-
-	const std::shared_ptr<RenderBuffer>& DefaultFramePipeline::GetPointShadowMappingBuffer() const
-	{
-		return m_pointShadowAtlasEntries.GetBuffer();
-	}
-
-	const std::shared_ptr<Texture>& DefaultFramePipeline::GetShadowAtlasTexture() const
-	{
-		if (!m_shadowAtlasPipelinePass)
-		{
-			Graphics* graphics = Graphics::Instance();
-			return graphics->GetDefaultTextures().depthTextures[ImageType::E2D]->GetOrCreateTexture(*graphics->GetRenderDevice());
-		}
-
-		return m_shadowAtlasPipelinePass->GetAtlas().GetTexture();
-	}
-
-	const std::shared_ptr<RenderBuffer>& DefaultFramePipeline::GetSpotLightBuffer() const
-	{
-		return m_spotLights.GetBuffer();
-	}
-
-	const std::shared_ptr<RenderBuffer>& DefaultFramePipeline::GetSpotShadowMappingBuffer() const
-	{
-		return m_spotShadowAtlasEntries.GetBuffer();
-	}
-
-
-	void DefaultFramePipeline::QueueTransfer(TransferInterface* transfer)
+	void IndirectFramePipeline::QueueTransfer(TransferInterface* transfer)
 	{
 		m_transferSet.insert(transfer);
 	}
 
-	std::size_t DefaultFramePipeline::RegisterLight(const Light* light, UInt32 renderMask)
+	std::size_t IndirectFramePipeline::RegisterLight(const Light* light, UInt32 renderMask)
 	{
 		std::size_t lightIndex;
 		LightData* lightData = m_lightPool.Allocate(lightIndex);
 		lightData->light = light;
 		lightData->renderMask = renderMask;
-		lightData->shadowMappingEntry = InvalidShadowMappingEntry;
-
-		lightData->onLightInvalidated.Connect(lightData->light->OnLightDataInvalidated, [this, lightData](Light* light)
+		lightData->onLightInvalidated.Connect(lightData->light->OnLightDataInvalidated, [](Light*)
 		{
-			switch (light->GetLightType())
-			{
-				case SafeCast<int>(BasicLightType::Directional):
-				{
-					UInt8* lightDataPtr = m_directionalLights.AccessEntry(lightData->entryIndex);
-					light->WriteToShader(lightDataPtr);
-					break;
-				}
-
-				case SafeCast<int>(BasicLightType::Point):
-				{
-					UInt8* lightDataPtr = m_pointLights.AccessEntry(lightData->entryIndex);
-					light->WriteToShader(lightDataPtr);
-					break;
-				}
-
-				case SafeCast<int>(BasicLightType::Spot):
-				{
-					UInt8* lightDataPtr = m_spotLights.AccessEntry(lightData->entryIndex);
-					light->WriteToShader(lightDataPtr);
-					break;
-				}
-			}
+			//TODO: Switch lights to storage buffers so they can all be part of GPU memory
 		});
 
 		lightData->onLightShadowMapSettingChange.Connect(lightData->light->OnLightShadowMapSettingChange, [this, lightData, lightIndex](Light* light, PixelFormat /*newPixelFormat*/, UInt32 /*newSize*/)
 		{
 			if (light->IsShadowCaster())
-			{
-				// If shadow atlas has not been created yet and we require shadow mapping, rebuild the frame graph to add the shadow mapping pass
-				if (!m_shadowAtlasPipelinePass)
-					m_rebuildFrameGraph = true;
-			}
+				m_rebuildFrameGraph = true;
 		});
 
 		lightData->onLightShadowCastingChanged.Connect(lightData->light->OnLightShadowCastingChanged, [this, lightData, lightIndex](Light* light, bool isCastingShadows)
 		{
 			if (isCastingShadows)
-				RegisterShadowCaster(lightIndex, lightData);
+			{
+				m_shadowCastingLights.UnboundedSet(lightIndex);
+				lightData->shadowData = light->InstanciateShadowData(*this, m_elementRegistry);
+				if (lightData->shadowData->IsPerViewer())
+				{
+					for (auto& viewerData : m_viewerPool)
+					{
+						if (viewerData.pendingDestruction)
+							continue;
+
+						if ((viewerData.renderMask & lightData->renderMask) != 0)
+							lightData->shadowData->RegisterViewer(viewerData.viewer);
+					}
+				}
+			}
 			else
-				UnregisterShadowCaster(lightIndex, lightData);
+			{
+				m_shadowCastingLights.Reset(lightIndex);
+				lightData->shadowData.reset();
+			}
+
+			m_rebuildFrameGraph = true;
 		});
 
 		if (lightData->light->IsShadowCaster())
-			RegisterShadowCaster(lightIndex, lightData);
-
-		switch (light->GetLightType())
 		{
-			case SafeCast<int>(BasicLightType::Directional):
+			m_shadowCastingLights.UnboundedSet(lightIndex);
+			lightData->shadowData = light->InstanciateShadowData(*this, m_elementRegistry);
+			if (lightData->shadowData->IsPerViewer())
 			{
-				lightData->entryIndex = m_directionalLights.Push();
-				UInt8* lightDataPtr = m_directionalLights.AccessEntry(lightData->entryIndex);
-				light->WriteToShader(lightDataPtr);
+				for (auto& viewerData : m_viewerPool)
+				{
+					if (viewerData.pendingDestruction)
+						continue;
 
-				UInt8* lightHeaderPtr = m_directionalLights.AccessHeader();
-				AccessByOffset<UInt32&>(lightHeaderPtr, PredefinedDirectionalLightsOffsets.lightCount) += 1;
-
-				if (lightData->entryIndex >= m_directionalLightEntriesToIndices.size())
-					m_directionalLightEntriesToIndices.resize(lightData->entryIndex + 1);
-
-				m_directionalLightEntriesToIndices[lightData->entryIndex] = lightIndex;
-				break;
+					if ((viewerData.renderMask & lightData->renderMask) != 0)
+						lightData->shadowData->RegisterViewer(viewerData.viewer);
+				}
 			}
 
-			case SafeCast<int>(BasicLightType::Point):
-			{
-				lightData->entryIndex = m_pointLights.Push();
-				UInt8* lightDataPtr = m_pointLights.AccessEntry(lightData->entryIndex);
-				light->WriteToShader(lightDataPtr);
-
-				UInt8* lightHeaderPtr = m_pointLights.AccessHeader();
-				AccessByOffset<UInt32&>(lightHeaderPtr, PredefinedPointLightsOffsets.lightCount) += 1;
-
-				if (lightData->entryIndex >= m_directionalLightEntriesToIndices.size())
-					m_directionalLightEntriesToIndices.resize(lightData->entryIndex + 1);
-
-				m_directionalLightEntriesToIndices[lightData->entryIndex] = lightIndex;
-
-				if (lightData->entryIndex >= m_pointLightEntriesToIndices.size())
-					m_pointLightEntriesToIndices.resize(lightData->entryIndex + 1);
-
-				m_pointLightEntriesToIndices[lightData->entryIndex] = lightIndex;
-				break;
-			}
-
-			case SafeCast<int>(BasicLightType::Spot):
-			{
-				lightData->entryIndex = m_spotLights.Push();
-				UInt8* lightDataPtr = m_spotLights.AccessEntry(lightData->entryIndex);
-				light->WriteToShader(lightDataPtr);
-
-				UInt8* lightHeaderPtr = m_spotLights.AccessHeader();
-				AccessByOffset<UInt32&>(lightHeaderPtr, PredefinedSpotLightsOffsets.lightCount) += 1;
-
-				if (lightData->entryIndex >= m_spotLightEntriesToIndices.size())
-					m_spotLightEntriesToIndices.resize(lightData->entryIndex + 1);
-
-				m_spotLightEntriesToIndices[lightData->entryIndex] = lightIndex;
-				break;
-			}
+			m_rebuildFrameGraph = true;
 		}
 
 		return lightIndex;
 	}
 
-	std::size_t DefaultFramePipeline::RegisterRenderable(std::size_t worldInstanceIndex, std::size_t skeletonInstanceIndex, const InstancedRenderable* instancedRenderable, UInt32 renderMask, const Recti& scissorBox)
+	std::size_t IndirectFramePipeline::RegisterRenderable(std::size_t worldInstanceIndex, std::size_t skeletonInstanceIndex, const InstancedRenderable* instancedRenderable, UInt32 renderMask, const Recti& scissorBox)
 	{
 		std::size_t renderableIndex;
 		RenderableData* renderableData = m_renderablePool.Allocate(renderableIndex);
@@ -281,6 +233,8 @@ namespace Nz
 		renderableData->scissorBox = scissorBox;
 		renderableData->skeletonInstanceIndex = skeletonInstanceIndex;
 		renderableData->worldInstanceIndex = worldInstanceIndex;
+
+		m_maxRenderableIndex = std::max(m_maxRenderableIndex, renderableIndex);
 
 		renderableData->onElementInvalidated.Connect(instancedRenderable->OnElementInvalidated, [this, renderMask](InstancedRenderable* /*instancedRenderable*/)
 		{
@@ -350,7 +304,7 @@ namespace Nz
 		return renderableIndex;
 	}
 
-	std::size_t DefaultFramePipeline::RegisterSkeleton(SkeletonInstancePtr skeletonInstance)
+	std::size_t IndirectFramePipeline::RegisterSkeleton(SkeletonInstancePtr skeletonInstance)
 	{
 		std::size_t skeletonInstanceIndex;
 		SkeletonInstanceData& skeletonInstanceData = *m_skeletonInstances.Allocate(skeletonInstanceIndex);
@@ -364,7 +318,7 @@ namespace Nz
 		return skeletonInstanceIndex;
 	}
 
-	std::size_t DefaultFramePipeline::RegisterViewer(PipelineViewer* viewerInstance, Int32 renderOrder)
+	std::size_t IndirectFramePipeline::RegisterViewer(PipelineViewer* viewerInstance, Int32 renderOrder)
 	{
 		std::size_t viewerIndex;
 		auto& viewerData = *m_viewerPool.Allocate(viewerIndex);
@@ -421,7 +375,7 @@ namespace Nz
 		return viewerIndex;
 	}
 
-	std::size_t DefaultFramePipeline::RegisterWorldInstance(WorldInstancePtr worldInstance)
+	std::size_t IndirectFramePipeline::RegisterWorldInstance(WorldInstancePtr worldInstance)
 	{
 		std::size_t worldInstanceIndex;
 		WorldInstanceData& worldInstanceData = *m_worldInstances.Allocate(worldInstanceIndex);
@@ -431,17 +385,19 @@ namespace Nz
 			m_transferSet.insert(transferInterface);
 		});
 
+		m_maxWorldInstanceIndex = std::max(m_maxWorldInstanceIndex, worldInstanceIndex);
+
 		m_transferSet.insert(worldInstanceData.worldInstance.get());
 
 		return worldInstanceIndex;
 	}
 
-	const Light* DefaultFramePipeline::RetrieveLight(std::size_t lightIndex) const
+	const Light* IndirectFramePipeline::RetrieveLight(std::size_t lightIndex) const
 	{
 		return m_lightPool.RetrieveFromIndex(lightIndex)->light;
 	}
 
-	const LightShadowData* DefaultFramePipeline::RetrieveLightShadowData(std::size_t lightIndex) const
+	const LightShadowData* IndirectFramePipeline::RetrieveLightShadowData(std::size_t lightIndex) const
 	{
 		if (!m_shadowCastingLights.UnboundedTest(lightIndex))
 			return nullptr;
@@ -449,24 +405,20 @@ namespace Nz
 		return m_lightPool.RetrieveFromIndex(lightIndex)->shadowData.get();
 	}
 
-	void DefaultFramePipeline::Render(RenderResources& renderResources)
+	void IndirectFramePipeline::Render(RenderResources& renderResources)
 	{
 		// Destroy instances at the end of the frame
 
 		for (std::size_t lightIndex : m_removedLightInstances.IterBits())
 		{
-			auto& lightData = *m_lightPool.RetrieveFromIndex(lightIndex);
-
-			renderResources.PushForRelease(std::move(lightData));
+			renderResources.PushForRelease(std::move(*m_lightPool.RetrieveFromIndex(lightIndex)));
 			m_lightPool.Free(lightIndex);
 		}
 		m_removedLightInstances.Clear();
 
 		for (std::size_t skeletonInstanceIndex : m_removedSkeletonInstances.IterBits())
 		{
-			auto& skeletonData = *m_skeletonInstances.RetrieveFromIndex(skeletonInstanceIndex);
-
-			renderResources.PushForRelease(std::move(skeletonData));
+			renderResources.PushForRelease(std::move(*m_skeletonInstances.RetrieveFromIndex(skeletonInstanceIndex)));
 			m_skeletonInstances.Free(skeletonInstanceIndex);
 		}
 		m_removedSkeletonInstances.Clear();
@@ -481,9 +433,7 @@ namespace Nz
 
 		for (std::size_t worldInstanceIndex : m_removedWorldInstances.IterBits())
 		{
-			auto& worldInstanceData = *m_worldInstances.RetrieveFromIndex(worldInstanceIndex);
-
-			renderResources.PushForRelease(std::move(worldInstanceData));
+			renderResources.PushForRelease(std::move(*m_worldInstances.RetrieveFromIndex(worldInstanceIndex)));
 			m_worldInstances.Free(worldInstanceIndex);
 		}
 		m_removedWorldInstances.Clear();
@@ -538,11 +488,50 @@ namespace Nz
 		m_visibleShadowCastingLights.PerformsAND(m_activeLights, m_shadowCastingLights);
 
 		// Shadow map handling (for active lights)
-		if (m_shadowAtlasPipelinePass)
+		for (std::size_t i : m_visibleShadowCastingLights.IterBits())
 		{
+			LightData* lightData = m_lightPool.RetrieveFromIndex(i);
+			if (!lightData->shadowData->IsPerViewer())
+				lightData->shadowData->PrepareRendering(renderResources, nullptr);
+		}
+
+		struct GpuBufferExpansion 
+		{
+			std::shared_ptr<RenderBuffer> sourceBuffer;
+			std::shared_ptr<RenderBuffer> targetBuffer;
+		};
+
+		std::vector<GpuBufferExpansion> bufferExpansions;
+		RenderDevice& renderDevice = *Graphics::Instance()->GetRenderDevice();
+
+		// Viewer handling (second pass)
+		for (ViewerData* viewerData : m_orderedViewers)
+		{
+			// Per-viewer shadow map handling
+			for (std::size_t lightIndex : viewerData->frame.visibleLights.IterBits())
+			{
+				LightData* lightData = m_lightPool.RetrieveFromIndex(lightIndex);
+				if (lightData->shadowData && lightData->shadowData->IsPerViewer() && (viewerData->renderMask & lightData->renderMask) != 0)
+					lightData->shadowData->PrepareRendering(renderResources, viewerData->viewer);
+			}
+
+			std::size_t maxVisibilityEntries = viewerData->visibilityBuffer ? viewerData->visibilityBuffer->GetSize() / sizeof(std::uint32_t) : 0;
+			if (m_maxRenderableIndex >= maxVisibilityEntries)
+			{
+				std::shared_ptr<RenderBuffer> newVisibilityBuffer = renderDevice.InstantiateBuffer(GetNearestPowerOfTwo(m_maxRenderableIndex + 1) * sizeof(std::uint32_t), BufferUsage::StorageBuffer | BufferUsage::DeviceLocal | BufferUsage::TransferSource | BufferUsage::TransferDestination);
+				if (viewerData->visibilityBuffer)
+				{
+					bufferExpansions.push_back({
+						.sourceBuffer = std::move(viewerData->visibilityBuffer),
+						.targetBuffer = newVisibilityBuffer
+					});
+
+					viewerData->visibilityBuffer = std::move(newVisibilityBuffer);
+				}
+			}
+
 			// Frustum culling
 			std::size_t visibilityHash = 5;
-			
 			auto CombineHash = [](std::size_t currentHash, std::size_t newHash)
 			{
 				return currentHash * 23 + newHash;
@@ -551,6 +540,9 @@ namespace Nz
 			m_visibleRenderables.clear();
 			for (const RenderableData& renderableData : m_renderablePool)
 			{
+				if ((viewerData->renderMask & renderableData.renderMask) == 0)
+					continue;
+
 				const WorldInstancePtr& worldInstance = m_worldInstances.RetrieveFromIndex(renderableData.worldInstanceIndex)->worldInstance;
 
 				auto& visibleRenderable = m_visibleRenderables.emplace_back();
@@ -568,59 +560,10 @@ namespace Nz
 			}
 
 			FramePipelinePass::FrameData passData = {
-				nullptr,
-				Nz::Frustumf{},
-				renderResources,
-				m_visibleRenderables,
-				visibilityHash
-			};
-
-			m_shadowAtlasPipelinePass->Prepare(passData);
-
-			ShadowAtlas& shadowAtlas = m_shadowAtlasPipelinePass->GetAtlas();
-			for (std::size_t lightIndex : m_shadowCastingLights.IterBits())
-			{
-				LightData* lightData = m_lightPool.RetrieveFromIndex(lightIndex);
-				if (lightData->shadowData && !lightData->shadowData->IsPerViewer())
-				{
-					switch (lightData->light->GetLightType())
-					{
-						case SafeCast<int>(BasicLightType::Directional):
-							lightData->shadowData->WriteToShader(shadowAtlas, nullptr, m_directionalShadowAtlasEntries.AccessEntry(lightData->shadowMappingEntry));
-							break;
-
-						case SafeCast<int>(BasicLightType::Point):
-							lightData->shadowData->WriteToShader(shadowAtlas, nullptr, m_pointShadowAtlasEntries.AccessEntry(lightData->shadowMappingEntry));
-							break;
-
-						case SafeCast<int>(BasicLightType::Spot):
-							lightData->shadowData->WriteToShader(shadowAtlas, nullptr, m_spotShadowAtlasEntries.AccessEntry(lightData->shadowMappingEntry));
-							break;
-					}
-				}
-			}
-		}
-
-		// Viewer handling (second pass)
-		for (ViewerData* viewerData : m_orderedViewers)
-		{
-			// Per-viewer shadow map handling
-			/*for (std::size_t lightIndex : viewerData->frame.visibleLights.IterBits())
-			{
-				LightData* lightData = m_lightPool.RetrieveFromIndex(lightIndex);
-				if (lightData->shadowData && lightData->shadowData->IsPerViewer() && (viewerData->renderMask & lightData->renderMask) != 0)
-					lightData->shadowData->PrepareRendering(renderResources, viewerData->viewer);
-			}*/
-
-			// Frustum culling
-			std::size_t visibilityHash = 5;
-			const auto& visibleRenderables = FrustumCull(viewerData->frame.frustum, viewerData->renderMask, visibilityHash);
-
-			FramePipelinePass::FrameData passData = {
 				&viewerData->frame.visibleLights,
 				viewerData->frame.frustum,
 				renderResources,
-				visibleRenderables,
+				m_visibleRenderables,
 				visibilityHash
 			};
 
@@ -628,12 +571,78 @@ namespace Nz
 				passPtr->Prepare(passData);
 		}
 
-		// Update UBOs and materials
+		// Renderable buffer
+		std::size_t maxRenderableEntries = m_renderableBuffer ? m_renderableBuffer->GetSize() / Indirect::s_renderableOffsets.size : 0;
+		if (m_maxRenderableIndex >= maxRenderableEntries)
+		{
+			std::shared_ptr<RenderBuffer> newRenderableBuffer = renderDevice.InstantiateBuffer(GetNearestPowerOfTwo(m_maxRenderableIndex + 1) * Indirect::s_renderableOffsets.size, BufferUsage::StorageBuffer | BufferUsage::DeviceLocal | BufferUsage::TransferSource | BufferUsage::TransferDestination);
+			if (m_renderableBuffer)
+			{
+				bufferExpansions.push_back({
+					.sourceBuffer = std::move(m_renderableBuffer),
+					.targetBuffer = newRenderableBuffer
+				});
+
+				m_renderableBuffer = std::move(newRenderableBuffer);
+			}
+		}
+
+		// World matrix buffer
+		std::size_t maxInstanceEntries = m_renderableBuffer ? m_worldMatrixBuffer->GetSize() / Indirect::s_instanceDataOffsets.size : 0;
+		if (m_maxWorldInstanceIndex >= maxInstanceEntries)
+		{
+			// No need to copy the previous matrix buffer since we're overriding it completely
+			if (m_worldMatrixBuffer)
+				renderResources.PushForRelease(std::move(m_worldMatrixBuffer));
+
+			m_worldMatrixBuffer = renderDevice.InstantiateBuffer(GetNearestPowerOfTwo(m_maxWorldInstanceIndex + 1) * Indirect::s_instanceDataOffsets.size, BufferUsage::StorageBuffer | BufferUsage::DeviceLocal | BufferUsage::TransferSource | BufferUsage::TransferDestination);
+		}
+
+		if (!bufferExpansions.empty())
+		{
+			// Copy content from previous buffers to the new buffers
+			renderResources.Execute([&](CommandBufferBuilder& builder)
+			{
+				builder.BeginDebugRegion("GPU buffer expansion", Color::Magenta());
+				{
+					builder.MemoryBarrier({ .srcStageMask = PipelineStage::ComputeShader, .dstStageMask = PipelineStage::Transfer, .srcAccessMask = MemoryAccess::ShaderWrite, .dstAccessMask = MemoryAccess::TransferRead });
+
+					for (auto& expansion : bufferExpansions)
+					{
+						UInt64 previousSize = expansion.sourceBuffer->GetSize();
+						builder.CopyBuffer(RenderBufferView(expansion.sourceBuffer.get(), 0, previousSize), RenderBufferView(expansion.targetBuffer.get(), 0, previousSize));
+
+						renderResources.PushForRelease(std::move(expansion.sourceBuffer));
+					}
+
+					builder.MemoryBarrier({ .srcStageMask = PipelineStage::Transfer, .dstStageMask = PipelineStage::ComputeShader, .srcAccessMask = MemoryAccess::TransferRead | MemoryAccess::TransferWrite, .dstAccessMask = MemoryAccess::ShaderRead });
+				}
+				builder.EndDebugRegion();
+			}, QueueType::Transfer);
+		}
+
+		// Build instance data
+		// TODO: Get highest world instance index instead of largest ever
+		UploadPool::Allocation& instanceUploadAllocation = renderResources.GetUploadPool().Allocate((m_maxWorldInstanceIndex + 1) * Indirect::s_instanceDataOffsets.size);
+		for (auto it = m_worldInstances.begin(); it != m_worldInstances.end(); ++it)
+		{
+			const WorldInstanceData& worldInstanceData = *it;
+			std::size_t instanceIndex = it.GetIndex();
+
+			UInt8* instanceDataPtr = static_cast<UInt8*>(instanceUploadAllocation.mappedPtr) + instanceIndex * Indirect::s_instanceDataOffsets.size;
+
+			Matrix4f& worldMatrix = AccessByOffset<Matrix4f&>(instanceDataPtr, Indirect::s_instanceDataOffsets.worldMatrix);
+			worldMatrix = worldInstanceData.worldInstance->GetWorldMatrix();
+		}
+
+		// Upload CPU to GPU (instance data, ubo, materials)
 		renderResources.Execute([&](CommandBufferBuilder& builder)
 		{
 			builder.BeginDebugRegion("CPU to GPU transfers", Color::Yellow());
 			{
 				builder.MemoryBarrier({ .srcStageMask = PipelineStage::BottomOfPipe, .dstStageMask = PipelineStage::Transfer, .srcAccessMask = {}, .dstAccessMask = MemoryAccess::TransferRead | MemoryAccess::TransferWrite });
+
+				builder.CopyBuffer(instanceUploadAllocation, m_worldMatrixBuffer.get());
 
 				for (TransferInterface* transferInterface : m_transferSet)
 					transferInterface->OnTransfer(renderResources, builder);
@@ -646,100 +655,22 @@ namespace Nz
 			builder.EndDebugRegion();
 		}, QueueType::Transfer);
 
-		// Rendering
 		m_bakedFrameGraph.Execute(renderResources);
 		m_rebuildFrameGraph = false;
 	}
 
-	void DefaultFramePipeline::UnregisterLight(std::size_t lightIndex)
+	void IndirectFramePipeline::UnregisterLight(std::size_t lightIndex)
 	{
-		LightData* lightData = m_lightPool.RetrieveFromIndex(lightIndex);
-
-		if (lightData->light->IsShadowCaster())
-			UnregisterShadowCaster(lightIndex, lightData);
-
-		switch (lightData->light->GetLightType())
-		{
-			case SafeCast<int>(BasicLightType::Directional):
-			{
-				UInt32 lightCount = m_directionalLights.GetSize();
-				UInt32 lastLightIndex = lightCount - 1;
-				if (lightData->entryIndex != lastLightIndex)
-				{
-					// Swap and pop idiom
-					UInt8* lastLight = m_directionalLights.AccessEntry(lastLightIndex);
-					UInt8* freeSlot = m_directionalLights.AccessEntry(lightData->entryIndex);
-					std::memcpy(freeSlot, lastLight, m_directionalLights.GetEntrySize());
-
-					// Re-assign the light corresponding to the last entry to the new free slot
-					LightData& lastLightData = *m_lightPool.RetrieveFromIndex(m_directionalLightEntriesToIndices[lastLightIndex]);
-					lastLightData.entryIndex = lightData->entryIndex;
-
-					m_directionalLightEntriesToIndices[lightData->entryIndex] = m_directionalLightEntriesToIndices[lastLightIndex];
-				}
-				m_directionalLightEntriesToIndices[lastLightIndex] = MaxValue();
-				m_directionalLights.Pop();
-
-				UInt8* lightHeaderPtr = m_directionalLights.AccessHeader();
-				AccessByOffset<UInt32&>(lightHeaderPtr, PredefinedDirectionalLightsOffsets.lightCount) -= 1;
-				break;
-			}
-
-			case SafeCast<int>(BasicLightType::Point):
-			{
-				UInt32 lightCount = m_pointLights.GetSize();
-				UInt32 lastLightIndex = lightCount - 1;
-				if (lightData->entryIndex != lastLightIndex)
-				{
-					// Swap and pop idiom
-					UInt8* lastLight = m_pointLights.AccessEntry(lastLightIndex);
-					UInt8* freeSlot = m_pointLights.AccessEntry(lightData->entryIndex);
-					std::memcpy(freeSlot, lastLight, m_pointLights.GetEntrySize());
-
-					// Re-assign the light corresponding to the last entry to the new free slot
-					LightData& lastLightData = *m_lightPool.RetrieveFromIndex(m_pointLightEntriesToIndices[lastLightIndex]);
-					lastLightData.entryIndex = lightData->entryIndex;
-
-					m_pointLightEntriesToIndices[lightData->entryIndex] = m_pointLightEntriesToIndices[lastLightIndex];
-				}
-				m_pointLightEntriesToIndices[lastLightIndex] = MaxValue();
-				m_pointLights.Pop();
-
-				UInt8* lightHeaderPtr = m_pointLights.AccessHeader();
-				AccessByOffset<UInt32&>(lightHeaderPtr, PredefinedPointLightsOffsets.lightCount) -= 1;
-				break;
-			}
-
-			case SafeCast<int>(BasicLightType::Spot):
-			{
-				UInt32 lightCount = m_spotLights.GetSize();
-				UInt32 lastLightIndex = lightCount - 1;
-				if (lightData->entryIndex != lastLightIndex)
-				{
-					// Swap and pop idiom
-					UInt8* lastLight = m_spotLights.AccessEntry(lastLightIndex);
-					UInt8* freeSlot = m_spotLights.AccessEntry(lightData->entryIndex);
-					std::memcpy(freeSlot, lastLight, m_spotLights.GetEntrySize());
-
-					// Re-assign the light corresponding to the last entry to the new free slot
-					LightData& lastLightData = *m_lightPool.RetrieveFromIndex(m_spotLightEntriesToIndices[lastLightIndex]);
-					lastLightData.entryIndex = lightData->entryIndex;
-
-					m_spotLightEntriesToIndices[lightData->entryIndex] = m_spotLightEntriesToIndices[lastLightIndex];
-				}
-				m_spotLightEntriesToIndices[lastLightIndex] = MaxValue();
-				m_spotLights.Pop();
-
-				UInt8* lightHeaderPtr = m_spotLights.AccessHeader();
-				AccessByOffset<UInt32&>(lightHeaderPtr, PredefinedSpotLightsOffsets.lightCount) -= 1;
-				break;
-			}
-		}
-
 		m_removedLightInstances.UnboundedSet(lightIndex);
+
+		if (m_shadowCastingLights.UnboundedTest(lightIndex))
+		{
+			m_shadowCastingLights.Reset(lightIndex);
+			m_rebuildFrameGraph = true;
+		}
 	}
 
-	void DefaultFramePipeline::UnregisterRenderable(std::size_t renderableIndex)
+	void IndirectFramePipeline::UnregisterRenderable(std::size_t renderableIndex)
 	{
 		RenderableData& renderable = *m_renderablePool.RetrieveFromIndex(renderableIndex);
 
@@ -765,7 +696,7 @@ namespace Nz
 		m_renderablePool.Free(renderableIndex);
 	}
 
-	void DefaultFramePipeline::UnregisterSkeleton(std::size_t skeletonIndex)
+	void IndirectFramePipeline::UnregisterSkeleton(std::size_t skeletonIndex)
 	{
 		auto& skeletonData = *m_skeletonInstances.RetrieveFromIndex(skeletonIndex);
 		m_transferSet.erase(skeletonData.skeleton.get());
@@ -774,7 +705,7 @@ namespace Nz
 		m_removedSkeletonInstances.UnboundedSet(skeletonIndex);
 	}
 
-	void DefaultFramePipeline::UnregisterViewer(std::size_t viewerIndex)
+	void IndirectFramePipeline::UnregisterViewer(std::size_t viewerIndex)
 	{
 		auto& viewerData = *m_viewerPool.RetrieveFromIndex(viewerIndex);
 		viewerData.pendingDestruction = true;
@@ -793,7 +724,7 @@ namespace Nz
 		m_rebuildFrameGraph = true;
 	}
 
-	void DefaultFramePipeline::UnregisterWorldInstance(std::size_t worldInstance)
+	void IndirectFramePipeline::UnregisterWorldInstance(std::size_t worldInstance)
 	{
 		auto& worldInstanceData = *m_worldInstances.RetrieveFromIndex(worldInstance);
 		m_transferSet.erase(worldInstanceData.worldInstance.get());
@@ -802,19 +733,19 @@ namespace Nz
 		m_removedWorldInstances.UnboundedSet(worldInstance);
 	}
 
-	void DefaultFramePipeline::UpdateLightRenderMask(std::size_t lightIndex, UInt32 renderMask)
+	void IndirectFramePipeline::UpdateLightRenderMask(std::size_t lightIndex, UInt32 renderMask)
 	{
 		LightData* lightData = m_lightPool.RetrieveFromIndex(lightIndex);
 		lightData->renderMask = renderMask;
 	}
 
-	void DefaultFramePipeline::UpdateRenderableRenderMask(std::size_t renderableIndex, UInt32 renderMask)
+	void IndirectFramePipeline::UpdateRenderableRenderMask(std::size_t renderableIndex, UInt32 renderMask)
 	{
 		RenderableData* renderableData = m_renderablePool.RetrieveFromIndex(renderableIndex);
 		renderableData->renderMask = renderMask;
 	}
 
-	void DefaultFramePipeline::UpdateRenderableScissorBox(std::size_t renderableIndex, const Recti& scissorBox)
+	void IndirectFramePipeline::UpdateRenderableScissorBox(std::size_t renderableIndex, const Recti& scissorBox)
 	{
 		RenderableData* renderableData = m_renderablePool.RetrieveFromIndex(renderableIndex);
 		renderableData->scissorBox = scissorBox;
@@ -822,7 +753,7 @@ namespace Nz
 		InvalidateElements(renderableData->renderMask);
 	}
 
-	void DefaultFramePipeline::UpdateRenderableSkeletonInstance(std::size_t renderableIndex, std::size_t skeletonIndex)
+	void IndirectFramePipeline::UpdateRenderableSkeletonInstance(std::size_t renderableIndex, std::size_t skeletonIndex)
 	{
 		RenderableData* renderableData = m_renderablePool.RetrieveFromIndex(renderableIndex);
 		renderableData->skeletonInstanceIndex = skeletonIndex;
@@ -830,7 +761,7 @@ namespace Nz
 		InvalidateElements(renderableData->renderMask);
 	}
 
-	void DefaultFramePipeline::UpdateViewerRenderOrder(std::size_t viewerIndex, Int32 renderOrder)
+	void IndirectFramePipeline::UpdateViewerRenderOrder(std::size_t viewerIndex, Int32 renderOrder)
 	{
 		ViewerData* viewerData = m_viewerPool.RetrieveFromIndex(viewerIndex);
 		assert(!viewerData->pendingDestruction);
@@ -841,22 +772,17 @@ namespace Nz
 		}
 	}
 
-	BakedFrameGraph DefaultFramePipeline::BuildFrameGraph()
+	BakedFrameGraph IndirectFramePipeline::BuildFrameGraph()
 	{
 		FrameGraph frameGraph;
 
-		if (!m_shadowAtlasPipelinePass && m_shadowCastingLights.TestAny())
+		// Register viewer-independent passes
+		/*for (std::size_t i : m_shadowCastingLights.IterBits())
 		{
-			FramePipelinePass::PassData passData{ nullptr, m_elementRegistry, *this };
-			m_shadowAtlasPipelinePass.emplace(passData);
-		}
-
-		std::size_t shadowAtlasIndex = MaxValue();
-		if (m_shadowAtlasPipelinePass)
-		{
-			FramePass& finalPass = m_shadowAtlasPipelinePass->RegisterToFrameGraph(frameGraph, {});
-			shadowAtlasIndex = finalPass.GetDepthStencilOutput();
-		}
+			LightData* lightData = m_lightPool.RetrieveFromIndex(i);
+			if (!lightData->shadowData->IsPerViewer())
+				lightData->shadowData->RegisterToFrameGraph(frameGraph, nullptr);
+		}*/
 
 		// Group every viewer by their render order and RenderTarget
 		m_orderedViewers.clear();
@@ -914,8 +840,15 @@ namespace Nz
 					for (std::size_t i = 0; i < dependenciesColorAttachmentCount; ++i)
 						framePass.AddInput(dependenciesColorAttachments[i]);
 
-					if (flags.Test(FramePipelinePassFlag::LightShadowing) && shadowAtlasIndex != MaxValue<std::size_t>())
-						framePass.AddInput(shadowAtlasIndex);
+					/*if (flags.Test(FramePipelinePassFlag::LightShadowing))
+					{
+						for (std::size_t i : m_shadowCastingLights.IterBits())
+						{
+							LightData* lightData = m_lightPool.RetrieveFromIndex(i);
+							if ((viewerData->renderMask & lightData->renderMask) != 0)
+								lightData->shadowData->RegisterPassInputs(framePass, (lightData->shadowData->IsPerViewer()) ? viewerData->viewer : nullptr);
+						}
+					}*/
 				};
 
 				viewerData->finalColorAttachment = viewerData->viewer->RegisterPasses(viewerData->passes, frameGraph, viewerIndex++, framePassCallback);
@@ -960,7 +893,7 @@ namespace Nz
 		return frameGraph.Bake();
 	}
 
-	std::size_t DefaultFramePipeline::BuildMergePass(FrameGraph& frameGraph, std::span<ViewerData*> targetViewers)
+	std::size_t IndirectFramePipeline::BuildMergePass(FrameGraph& frameGraph, std::span<ViewerData*> targetViewers)
 	{
 		FramePass& mergePass = frameGraph.AddPass("Merge pass");
 
@@ -1021,7 +954,7 @@ namespace Nz
 		return mergedAttachment;
 	}
 
-	void DefaultFramePipeline::InvalidateElements(Nz::UInt32 renderMask)
+	void IndirectFramePipeline::InvalidateElements(Nz::UInt32 renderMask)
 	{
 		// TODO: Invalidate only relevant viewers and passes
 		for (auto& viewerData : m_viewerPool)
@@ -1040,7 +973,7 @@ namespace Nz
 		}
 	}
 
-	void DefaultFramePipeline::RegisterMaterialInstance(MaterialInstance* materialInstance)
+	void IndirectFramePipeline::RegisterMaterialInstance(MaterialInstance* materialInstance)
 	{
 		auto it = m_materialInstances.find(materialInstance);
 		if (it == m_materialInstances.end())
@@ -1056,64 +989,7 @@ namespace Nz
 		it->second.usedCount++;
 	}
 
-	void DefaultFramePipeline::RegisterShadowCaster(std::size_t lightIndex, LightData* lightData)
-	{
-		m_shadowCastingLights.UnboundedSet(lightIndex);
-		lightData->shadowData = lightData->light->InstanciateShadowData(*this, m_elementRegistry);
-		if (lightData->shadowData->IsPerViewer())
-		{
-			for (auto& viewerData : m_viewerPool)
-			{
-				if (viewerData.pendingDestruction)
-					continue;
-
-				if ((viewerData.renderMask & lightData->renderMask) != 0)
-					lightData->shadowData->RegisterViewer(viewerData.viewer);
-			}
-		}
-
-		switch (lightData->light->GetLightType())
-		{
-			case SafeCast<int>(BasicLightType::Directional):
-			{
-				lightData->shadowMappingEntry = m_directionalShadowAtlasEntries.Push();
-
-				if (lightData->shadowMappingEntry >= m_directionalShadowEntriesToIndices.size())
-					m_directionalShadowEntriesToIndices.resize(lightData->shadowMappingEntry + 1);
-
-				m_directionalShadowEntriesToIndices[lightData->shadowMappingEntry] = lightIndex;
-				break;
-			}
-
-			case SafeCast<int>(BasicLightType::Point):
-			{
-				lightData->shadowMappingEntry = m_pointShadowAtlasEntries.Push();
-
-				if (lightData->shadowMappingEntry >= m_pointShadowEntriesToIndices.size())
-					m_pointShadowEntriesToIndices.resize(lightData->shadowMappingEntry + 1);
-
-				m_pointShadowEntriesToIndices[lightData->shadowMappingEntry] = lightIndex;
-				break;
-			}
-
-			case SafeCast<int>(BasicLightType::Spot):
-			{
-				lightData->shadowMappingEntry = m_spotShadowAtlasEntries.Push();
-
-				if (lightData->shadowMappingEntry >= m_spotShadowEntriesToIndices.size())
-					m_spotShadowEntriesToIndices.resize(lightData->shadowMappingEntry + 1);
-
-				m_spotShadowEntriesToIndices[lightData->shadowMappingEntry] = lightIndex;
-				break;
-			}
-		}
-
-		// If shadow atlas has not been created yet and we require shadow mapping, rebuild the frame graph to add the shadow mapping pass
-		if (!m_shadowAtlasPipelinePass)
-			m_rebuildFrameGraph = true;
-	}
-
-	void DefaultFramePipeline::UnregisterMaterialInstance(MaterialInstance* materialInstance)
+	void IndirectFramePipeline::UnregisterMaterialInstance(MaterialInstance* materialInstance)
 	{
 		auto it = m_materialInstances.find(materialInstance);
 		assert(it != m_materialInstances.end());
@@ -1125,82 +1001,5 @@ namespace Nz
 			m_materialInstances.erase(it);
 			m_transferSet.erase(materialInstance);
 		}
-	}
-
-	void DefaultFramePipeline::UnregisterShadowCaster(std::size_t lightIndex, LightData* lightData)
-	{
-		m_shadowCastingLights.Reset(lightIndex);
-		lightData->shadowData.reset();
-		
-		switch (lightData->light->GetLightType())
-		{
-			case SafeCast<int>(BasicLightType::Directional):
-			{
-				UInt32 lightCount = m_directionalShadowAtlasEntries.GetSize();
-				UInt32 lastLightIndex = lightCount - 1;
-				if (lightData->shadowMappingEntry != lastLightIndex)
-				{
-					// Swap and pop idiom
-					UInt8* lastLight = m_directionalShadowAtlasEntries.AccessEntry(lastLightIndex);
-					UInt8* freeSlot = m_directionalShadowAtlasEntries.AccessEntry(lightData->shadowMappingEntry);
-					std::memcpy(freeSlot, lastLight, m_directionalShadowAtlasEntries.GetEntrySize());
-
-					// Re-assign the light corresponding to the last entry to the new free slot
-					LightData& lastLightData = *m_lightPool.RetrieveFromIndex(m_directionalShadowEntriesToIndices[lastLightIndex]);
-					lastLightData.shadowMappingEntry = lightData->shadowMappingEntry;
-
-					m_directionalShadowEntriesToIndices[lightData->shadowMappingEntry] = m_directionalShadowEntriesToIndices[lastLightIndex];
-				}
-				m_directionalShadowEntriesToIndices[lastLightIndex] = MaxValue();
-				m_directionalShadowAtlasEntries.Pop();
-				break;
-			}
-
-			case SafeCast<int>(BasicLightType::Point):
-			{
-				UInt32 lightCount = m_pointShadowAtlasEntries.GetSize();
-				UInt32 lastLightIndex = lightCount - 1;
-				if (lightData->shadowMappingEntry != lastLightIndex)
-				{
-					// Swap and pop idiom
-					UInt8* lastLight = m_pointShadowAtlasEntries.AccessEntry(lastLightIndex);
-					UInt8* freeSlot = m_pointShadowAtlasEntries.AccessEntry(lightData->shadowMappingEntry);
-					std::memcpy(freeSlot, lastLight, m_pointShadowAtlasEntries.GetEntrySize());
-
-					// Re-assign the light corresponding to the last entry to the new free slot
-					LightData& lastLightData = *m_lightPool.RetrieveFromIndex(m_pointShadowEntriesToIndices[lastLightIndex]);
-					lastLightData.shadowMappingEntry = lightData->shadowMappingEntry;
-
-					m_pointShadowEntriesToIndices[lightData->shadowMappingEntry] = m_pointShadowEntriesToIndices[lastLightIndex];
-				}
-				m_pointShadowEntriesToIndices[lastLightIndex] = MaxValue();
-				m_pointShadowAtlasEntries.Pop();
-				break;
-			}
-
-			case SafeCast<int>(BasicLightType::Spot):
-			{
-				UInt32 lightCount = m_spotShadowAtlasEntries.GetSize();
-				UInt32 lastLightIndex = lightCount - 1;
-				if (lightData->shadowMappingEntry != lastLightIndex)
-				{
-					// Swap and pop idiom
-					UInt8* lastLight = m_spotShadowAtlasEntries.AccessEntry(lastLightIndex);
-					UInt8* freeSlot = m_spotShadowAtlasEntries.AccessEntry(lightData->shadowMappingEntry);
-					std::memcpy(freeSlot, lastLight, m_spotShadowAtlasEntries.GetEntrySize());
-
-					// Re-assign the light corresponding to the last entry to the new free slot
-					LightData& lastLightData = *m_lightPool.RetrieveFromIndex(m_spotShadowEntriesToIndices[lastLightIndex]);
-					lastLightData.shadowMappingEntry = lightData->shadowMappingEntry;
-
-					m_spotShadowEntriesToIndices[lightData->shadowMappingEntry] = m_spotShadowEntriesToIndices[lastLightIndex];
-				}
-				m_spotShadowEntriesToIndices[lastLightIndex] = MaxValue();
-				m_spotShadowAtlasEntries.Pop();
-				break;
-			}
-		}
-
-		lightData->shadowMappingEntry = InvalidShadowMappingEntry;
 	}
 }

@@ -44,11 +44,13 @@ namespace Nz
 	enum class EngineShaderBinding
 	{
 		InstanceDataUbo,
-		LightDataUbo,
-		OverlayTexture,
-		ShadowmapDirectional,
-		ShadowmapPoint,
-		ShadowmapSpot,
+		DirectionalLights,
+		DirectionalShadowAtlasMapping,
+		PointLights,
+		PointShadowAtlasMapping,
+		SpotLights,
+		SpotShadowAtlasMapping,
+		ShadowAtlas,
 		SkeletalDataUbo,
 		ViewerDataUbo,
 

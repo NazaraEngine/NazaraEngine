@@ -27,4 +27,14 @@ namespace Nz
 	{
 		UpdatePosition(position);
 	}
+
+	void PointLight::WriteToShader(void* basePtr) const
+	{
+		AccessByOffset<Vector3f&>(basePtr, PredefinedPointLightOffsets.colorOffset) = Vector3f(m_color.r, m_color.g, m_color.b) * GetEnergy();
+		AccessByOffset<Vector3f&>(basePtr, PredefinedPointLightOffsets.positionOffset) = m_position;
+		AccessByOffset<float&>(basePtr, PredefinedPointLightOffsets.ambientFactorOffset) = m_ambientFactor;
+		AccessByOffset<float&>(basePtr, PredefinedPointLightOffsets.diffuseFactorOffset) = m_diffuseFactor;
+		AccessByOffset<float&>(basePtr, PredefinedPointLightOffsets.radiusOffset) = m_radius;
+		AccessByOffset<float&>(basePtr, PredefinedPointLightOffsets.invRadiusOffset) = m_invRadius;
+	}
 }

@@ -4,58 +4,57 @@
 
 #pragma once
 
-#ifndef NAZARA_GRAPHICS_FORWARDPIPELINEPASS_HPP
-#define NAZARA_GRAPHICS_FORWARDPIPELINEPASS_HPP
+#ifndef NAZARA_GRAPHICS_SHADOWATLASPIPELINEPASS_HPP
+#define NAZARA_GRAPHICS_SHADOWATLASPIPELINEPASS_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <NazaraUtils/FixedVector.hpp>
 #include <Nazara/Core/ParameterList.hpp>
-#include <Nazara/Graphics/Export.hpp>
 #include <Nazara/Graphics/ElementRenderer.hpp>
+#include <Nazara/Graphics/Export.hpp>
 #include <Nazara/Graphics/FramePipelinePass.hpp>
 #include <Nazara/Graphics/MaterialInstance.hpp>
+#include <Nazara/Graphics/MaterialPass.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>
 #include <Nazara/Graphics/RenderElementOwner.hpp>
 #include <Nazara/Graphics/RenderQueue.hpp>
 #include <Nazara/Graphics/RenderQueueRegistry.hpp>
+#include <Nazara/Graphics/ShadowAtlas.hpp>
 #include <Nazara/Math/Frustum.hpp>
-#include <Nazara/Renderer/UploadPool.hpp>
 
 namespace Nz
 {
 	class AbstractViewer;
-	class DirectionalLight;
 	class ElementRendererRegistry;
 	class FrameGraph;
 	class FramePass;
 	class FramePipeline;
-	class Light;
-	class PointLight;
-	class SpotLight;
 
-	class NAZARA_GRAPHICS_API ForwardPipelinePass : public FramePipelinePass, TransferInterface
+	class NAZARA_GRAPHICS_API ShadowAtlasPipelinePass : public FramePipelinePass
 	{
 		public:
-			ForwardPipelinePass(PassData& passData, std::string passName, const ParameterList& parameters = {});
-			ForwardPipelinePass(const ForwardPipelinePass&) = delete;
-			ForwardPipelinePass(ForwardPipelinePass&&) = delete;
-			~ForwardPipelinePass() = default;
+			ShadowAtlasPipelinePass(PassData& passData);
+			ShadowAtlasPipelinePass(const ShadowAtlasPipelinePass&) = delete;
+			ShadowAtlasPipelinePass(ShadowAtlasPipelinePass&&) = delete;
+			~ShadowAtlasPipelinePass() = default;
+
+			inline ShadowAtlas& GetAtlas();
+			inline const ShadowAtlas& GetAtlas() const;
 
 			void InvalidateElements() override;
 
 			void Prepare(FrameData& frameData) override;
 
-			void RegisterMaterialInstance(const MaterialInstance& material) override;
+			void RegisterMaterialInstance(const MaterialInstance& materialInstance) override;
 
 			FramePass& RegisterToFrameGraph(FrameGraph& frameGraph, const PassInputOuputs& inputOuputs) override;
 
-			void UnregisterMaterialInstance(const MaterialInstance& material) override;
+			void UnregisterMaterialInstance(const MaterialInstance& materialInstance) override;
 
-			ForwardPipelinePass& operator=(const ForwardPipelinePass&) = delete;
-			ForwardPipelinePass& operator=(ForwardPipelinePass&&) = delete;
+			ShadowAtlasPipelinePass& operator=(const ShadowAtlasPipelinePass&) = delete;
+			ShadowAtlasPipelinePass& operator=(ShadowAtlasPipelinePass&&) = delete;
 
 		private:
-			void OnTransfer(RenderResources& renderResources, CommandBufferBuilder& builder) override;
-
 			struct MaterialPassEntry
 			{
 				std::size_t usedCount = 1;
@@ -64,24 +63,25 @@ namespace Nz
 				NazaraSlot(MaterialInstance, OnMaterialInstanceShaderBindingInvalidated, onMaterialInstanceShaderBindingInvalidated);
 			};
 
-			std::size_t m_forwardPassIndex;
+			struct LightData
+			{
+				HybridVector<std::unique_ptr<ElementRendererData>, BasicRenderElementCount> elementRendererData;
+			};
+
+			std::size_t m_passIndex;
 			std::size_t m_lastVisibilityHash;
-			std::shared_ptr<RenderBuffer> m_lightDataBuffer;
-			std::string m_passName;
-			std::vector<std::unique_ptr<ElementRendererData>> m_elementRendererData;
 			std::vector<RenderElementOwner> m_renderElements;
+			std::unordered_map<std::size_t, LightData> m_lightData;
 			std::unordered_map<const MaterialInstance*, MaterialPassEntry> m_materialInstances;
 			RenderQueue<const RenderElement*> m_renderQueue;
 			RenderQueueRegistry m_renderQueueRegistry;
-			AbstractViewer* m_viewer;
+			ShadowAtlas m_shadowAtlas;
 			ElementRendererRegistry& m_elementRegistry;
 			FramePipeline& m_pipeline;
-			UploadPool::Allocation* m_pendingLightUploadAllocation;
-			UInt32 m_renderMask;
 			bool m_rebuildElements;
 	};
 }
 
-#include <Nazara/Graphics/ForwardPipelinePass.inl>
+#include <Nazara/Graphics/ShadowAtlasPipelinePass.inl>
 
-#endif // NAZARA_GRAPHICS_FORWARDPIPELINEPASS_HPP
+#endif // NAZARA_GRAPHICS_SHADOWATLASPIPELINEPASS_HPP

@@ -94,6 +94,7 @@ namespace Nz
 		if (it == m_combinations.end())
 		{
 			nzsl::BackendParameters states;
+			states.debugLevel = nzsl::DebugLevel::Full;
 
 			// TODO: Remove this when arrays are accepted as config values
 			for (const auto& [optionHash, optionValue] : config.optionValues)

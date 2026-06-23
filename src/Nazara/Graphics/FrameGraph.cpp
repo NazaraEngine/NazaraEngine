@@ -78,10 +78,9 @@ namespace Nz
 			for (auto& subpass : physicalPass.passes)
 			{
 				const FramePass& framePass = m_framePasses[subpass.passIndex];
-				bakedPass.executionCallback = framePass.GetExecutionCallback(); //< FIXME
-
-				auto& bakedSubpass = bakedPass.subpasses.emplace_back();
-				bakedSubpass.commandCallback = framePass.GetCommandCallback();
+				bakedPass.executionCallback = framePass.GetExecutionCallback();
+				bakedPass.commandCallback = framePass.GetCommandCallback();
+				bakedPass.renderCallback = framePass.GetRenderCallback();
 
 				std::size_t colorAttachmentIndex = 0;
 				for (const auto& output : framePass.GetOutputs())

@@ -28,15 +28,16 @@ namespace Nz
 			PointLightShadowData(PointLightShadowData&&) = delete;
 			~PointLightShadowData() = default;
 
+			void ForEachView([[maybe_unused]] const AbstractViewer* viewer, FunctionRef<void(std::size_t shadowAtlasEntry, ShadowViewer& shadowViewer)> callback) override;
+
 			void PrepareRendering(RenderResources& renderResources, const AbstractViewer* viewer) override;
 
 			void RegisterMaterialInstance(const MaterialInstance& matInstance) override;
-			void RegisterPassInputs(FramePass& pass, const AbstractViewer* viewer) override;
-			void RegisterToFrameGraph(FrameGraph& frameGraph, const AbstractViewer* viewer) override;
-
-			const Texture* RetrieveLightShadowmap(const BakedFrameGraph& bakedGraph, const AbstractViewer* viewer) const override;
+			void RegisterToAtlas(ShadowAtlas& atlas) override;
 
 			void UnregisterMaterialInstance(const MaterialInstance& matInstance) override;
+
+			void WriteToShader(const ShadowAtlas& atlas, const AbstractViewer* viewer, void* basePtr) const override;
 
 			PointLightShadowData& operator=(const PointLightShadowData&) = delete;
 			PointLightShadowData& operator=(PointLightShadowData&&) = delete;

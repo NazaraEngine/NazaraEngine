@@ -4,10 +4,10 @@
 
 #pragma once
 
-#ifndef NAZARA_GRAPHICS_DEFAULTFRAMEPIPELINE_HPP
-#define NAZARA_GRAPHICS_DEFAULTFRAMEPIPELINE_HPP
+#ifndef NAZARA_GRAPHICS_INDIRECTFRAMEPIPELINE_HPP
+#define NAZARA_GRAPHICS_INDIRECTFRAMEPIPELINE_HPP
 
-#include <Nazara/Graphics/DefaultFramePipeline.hpp>
+#include <Nazara/Graphics/IndirectFramePipeline.hpp>
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/BakedFrameGraph.hpp>
 #include <Nazara/Graphics/Camera.hpp>
@@ -15,7 +15,6 @@
 #include <Nazara/Graphics/Export.hpp>
 #include <Nazara/Graphics/FramePipeline.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
-#include <Nazara/Graphics/GpuDynamicArray.hpp>
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/LightShadowData.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
@@ -24,7 +23,6 @@
 #include <Nazara/Graphics/RenderElement.hpp>
 #include <Nazara/Graphics/RenderQueue.hpp>
 #include <Nazara/Graphics/RenderQueueRegistry.hpp>
-#include <Nazara/Graphics/ShadowAtlasPipelinePass.hpp>
 #include <Nazara/Graphics/TransferInterface.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
 #include <NazaraUtils/MemoryPool.hpp>
@@ -40,28 +38,18 @@ namespace Nz
 	class LightShadowData;
 	class RenderFrame;
 	class RenderTarget;
-	class Texture;
 
-	class NAZARA_GRAPHICS_API DefaultFramePipeline : public FramePipeline
+	class NAZARA_GRAPHICS_API IndirectFramePipeline : public FramePipeline
 	{
 		public:
-			DefaultFramePipeline(ElementRendererRegistry& elementRegistry);
-			DefaultFramePipeline(const DefaultFramePipeline&) = delete;
-			DefaultFramePipeline(DefaultFramePipeline&&) = delete;
-			~DefaultFramePipeline();
+			IndirectFramePipeline(ElementRendererRegistry& elementRegistry);
+			IndirectFramePipeline(const IndirectFramePipeline&) = delete;
+			IndirectFramePipeline(IndirectFramePipeline&&) = delete;
+			~IndirectFramePipeline();
 
 			const std::vector<FramePipelinePass::VisibleRenderable>& FrustumCull(const Frustumf& frustum, UInt32 mask, std::size_t& visibilityHash) const override;
 
 			void ForEachRegisteredMaterialInstance(FunctionRef<void(const MaterialInstance& materialInstance)> callback) override;
-			void ForEachShadowCastingLight(FunctionRef<void(std::size_t lightIndex, const Light* light, LightShadowData* lightShadowData)> callback) override;
-
-			const std::shared_ptr<RenderBuffer>& GetDirectionalLightBuffer() const override;
-			const std::shared_ptr<RenderBuffer>& GetDirectionalShadowMappingBuffer() const override;
-			const std::shared_ptr<RenderBuffer>& GetPointLightBuffer() const override;
-			const std::shared_ptr<RenderBuffer>& GetPointShadowMappingBuffer() const override;
-			const std::shared_ptr<Texture>& GetShadowAtlasTexture() const override;
-			const std::shared_ptr<RenderBuffer>& GetSpotLightBuffer() const override;
-			const std::shared_ptr<RenderBuffer>& GetSpotShadowMappingBuffer() const override;
 
 			void QueueTransfer(TransferInterface* transfer) override;
 
@@ -88,11 +76,10 @@ namespace Nz
 			void UpdateRenderableSkeletonInstance(std::size_t renderableIndex, std::size_t skeletonIndex) override;
 			void UpdateViewerRenderOrder(std::size_t viewerIndex, Int32 renderOrder) override;
 
-			DefaultFramePipeline& operator=(const DefaultFramePipeline&) = delete;
-			DefaultFramePipeline& operator=(DefaultFramePipeline&&) = delete;
+			IndirectFramePipeline& operator=(const IndirectFramePipeline&) = delete;
+			IndirectFramePipeline& operator=(IndirectFramePipeline&&) = delete;
 
 		private:
-			struct LightData;
 			struct ViewerData;
 
 			BakedFrameGraph BuildFrameGraph();
@@ -100,26 +87,24 @@ namespace Nz
 			void InvalidateElements(Nz::UInt32 renderMask);
 
 			void RegisterMaterialInstance(MaterialInstance* materialPass);
-			void RegisterShadowCaster(std::size_t lightIndex, LightData* lightData);
-
 			void UnregisterMaterialInstance(MaterialInstance* material);
-			void UnregisterShadowCaster(std::size_t lightIndex, LightData* lightData);
 
 			static std::size_t BuildMergePass(FrameGraph& frameGraph, std::span<ViewerData*> targetViewers);
-
-			static constexpr UInt32 InvalidShadowMappingEntry = MaxValue();
 
 			struct LightData
 			{
 				std::unique_ptr<LightShadowData> shadowData;
 				const Light* light;
-				UInt32 entryIndex;
 				UInt32 renderMask;
-				UInt32 shadowMappingEntry;
 
 				NazaraSlot(Light, OnLightDataInvalidated, onLightInvalidated);
 				NazaraSlot(Light, OnLightShadowCastingChanged, onLightShadowCastingChanged);
 				NazaraSlot(Light, OnLightShadowMapSettingChange, onLightShadowMapSettingChange);
+			};
+
+			struct IndirectInstanceData
+			{
+				Matrix4f worldMatrix; //< TODO: Switch to mat3x4
 			};
 
 			struct MaterialInstanceData
@@ -163,6 +148,7 @@ namespace Nz
 				};
 
 				std::size_t finalColorAttachment;
+				std::shared_ptr<RenderBuffer> visibilityBuffer;
 				std::vector<std::unique_ptr<FramePipelinePass>> passes;
 				FrameData frame;
 				PipelineViewer* viewer;
@@ -182,17 +168,15 @@ namespace Nz
 				NazaraSlot(TransferInterface, OnTransferRequired, onTransferRequired);
 			};
 
-			std::optional<ShadowAtlasPipelinePass> m_shadowAtlasPipelinePass;
+			std::size_t m_maxRenderableIndex;
+			std::size_t m_maxWorldInstanceIndex;
+			std::shared_ptr<RenderBuffer> m_renderableBuffer;
+			std::shared_ptr<RenderBuffer> m_worldMatrixBuffer;
 			std::unordered_map<const RenderTarget*, RenderTargetData> m_renderTargets;
 			std::unordered_map<MaterialInstance*, MaterialInstanceData> m_materialInstances;
 			mutable std::vector<FramePipelinePass::VisibleRenderable> m_visibleRenderables;
+			std::vector<IndirectInstanceData> m_indirectInstanceData;
 			std::vector<ViewerData*> m_orderedViewers;
-			std::vector<std::size_t> m_directionalLightEntriesToIndices;
-			std::vector<std::size_t> m_directionalShadowEntriesToIndices;
-			std::vector<std::size_t> m_pointLightEntriesToIndices;
-			std::vector<std::size_t> m_pointShadowEntriesToIndices;
-			std::vector<std::size_t> m_spotLightEntriesToIndices;
-			std::vector<std::size_t> m_spotShadowEntriesToIndices;
 			ankerl::unordered_dense::set<TransferInterface*> m_transferSet;
 			BakedFrameGraph m_bakedFrameGraph;
 			Bitset<UInt64> m_activeLights;
@@ -202,12 +186,6 @@ namespace Nz
 			Bitset<UInt64> m_removedWorldInstances;
 			Bitset<UInt64> m_shadowCastingLights;
 			Bitset<UInt64> m_visibleShadowCastingLights;
-			GpuDynamicArray m_directionalLights;
-			GpuDynamicArray m_directionalShadowAtlasEntries;
-			GpuDynamicArray m_pointLights;
-			GpuDynamicArray m_pointShadowAtlasEntries;
-			GpuDynamicArray m_spotLights;
-			GpuDynamicArray m_spotShadowAtlasEntries;
 			ElementRendererRegistry& m_elementRegistry;
 			MemoryPool<RenderableData> m_renderablePool;
 			MemoryPool<LightData> m_lightPool;
@@ -219,6 +197,6 @@ namespace Nz
 	};
 }
 
-#include <Nazara/Graphics/DefaultFramePipeline.inl>
+#include <Nazara/Graphics/IndirectFramePipeline.inl>
 
-#endif // NAZARA_GRAPHICS_DEFAULTFRAMEPIPELINE_HPP
+#endif // NAZARA_GRAPHICS_INDIRECTFRAMEPIPELINE_HPP
