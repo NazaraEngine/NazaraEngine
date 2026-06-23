@@ -81,7 +81,7 @@ namespace Nz
 			for (std::size_t lightIndex : frameData.visibleLights->IterBits())
 			{
 				const Light* light = m_pipeline.RetrieveLight(lightIndex);
-				const Texture* shadowMap = m_pipeline.RetrieveLightShadowmap(lightIndex, m_viewer);
+				const Texture* shadowMap = nullptr;// m_pipeline.RetrieveLightShadowmap(lightIndex, m_viewer);
 
 				constexpr UInt8 DirectionalLightType = static_cast<UInt8>(BasicLightType::Directional);
 				constexpr UInt8 PointLightType = static_cast<UInt8>(BasicLightType::Point);
@@ -223,7 +223,7 @@ namespace Nz
 			return (m_rebuildCommandBuffer) ? FramePassExecution::UpdateAndExecute : FramePassExecution::Execute;
 		});
 
-		lightingPass.SetCommandCallback([this, &sampler, inputCount, inputAttachmentIndices](CommandBufferBuilder& builder, const FramePassEnvironment& env)
+		lightingPass.SetRenderCallback([this, &sampler, inputCount, inputAttachmentIndices](CommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
 			env.renderResources.PushForRelease(std::move(m_commonShaderBinding));
 
@@ -443,7 +443,6 @@ namespace Nz
 		context.partialCompilation = true;
 		context.optionValues["Light"_opt] = Int32(0); //< just to avoid unresolved externals
 		context.optionValues["EnableShadowMapping"_opt] = true;
-		context.optionValues["MaxLightCount"_opt] = SafeCast<UInt32>(PredefinedLightData::MaxLightCount);
 		context.optionValues["MaxLightCascadeCount"_opt] = SafeCast<UInt32>(PredefinedDirectionalLightData::MaxLightCascadeCount);
 		context.optionValues["MaxJointCount"_opt] = SafeCast<UInt32>(PredefinedSkeletalData::MaxMatricesCount);
 

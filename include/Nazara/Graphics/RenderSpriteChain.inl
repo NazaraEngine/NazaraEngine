@@ -3,8 +3,8 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Graphics/Algorithm.hpp>
-#include <NazaraUtils/Assert.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
+#include <NazaraUtils/Assert.hpp>
 
 namespace Nz
 {

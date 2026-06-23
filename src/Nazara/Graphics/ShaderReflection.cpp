@@ -52,7 +52,7 @@ namespace Nz
 			{
 				UInt32 bindingIndex = externalVar.bindingIndex.GetResultingValue();
 				UInt32 bindingSet = externalVar.bindingSet.GetResultingValue();
-				
+
 				// TODO: Get more precise shader stage type
 				m_pipelineLayoutInfo.bindings.push_back({
 					bindingSet,               // setIndex

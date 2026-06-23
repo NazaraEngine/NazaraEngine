@@ -55,7 +55,7 @@ namespace Nz
 		return std::make_unique<SpriteChainRendererData>();
 	}
 
-	void SpriteChainRenderer::Prepare(const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& renderResources, std::size_t elementCount, const Pointer<const RenderElement>* elements, SparsePtr<const RenderStates> renderStates)
+	void SpriteChainRenderer::Prepare(const RenderData& renderData, const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& renderResources, std::size_t elementCount, const Pointer<const RenderElement>* elements)
 	{
 		Graphics* graphics = Graphics::Instance();
 
@@ -84,7 +84,6 @@ namespace Nz
 		{
 			assert(elements[i]->GetElementType() == UnderlyingCast(BasicRenderElement::SpriteChain));
 			const RenderSpriteChain& spriteChain = static_cast<const RenderSpriteChain&>(*elements[i]);
-			const RenderStates& renderState = renderStates[i];
 
 			const VertexDeclaration* vertexDeclaration = spriteChain.GetVertexDeclaration();
 			std::size_t spriteStride = 4 * vertexDeclaration->GetStride();
@@ -115,19 +114,6 @@ namespace Nz
 				// which is far from being efficient, using some bindless could help (or at least instancing?)
 				FlushDrawData();
 				m_pendingData.currentWorldInstance = worldInstance;
-			}
-
-			if (const TextureAsset* textureOverlay = spriteChain.GetTextureOverlay(); m_pendingData.currentTextureAssetOverlay != textureOverlay)
-			{
-				FlushDrawData();
-				m_pendingData.currentTextureAssetOverlay = textureOverlay;
-				m_pendingData.currentTextureOverlay = textureOverlay->GetOrCreateTexture(m_device).get();
-			}
-
-			if (m_pendingData.currentLightData != renderState.lightData)
-			{
-				FlushDrawData();
-				m_pendingData.currentLightData = renderState.lightData;
 			}
 
 			const Recti& scissorBox = spriteChain.GetScissorBox();
@@ -182,13 +168,33 @@ namespace Nz
 					};
 				}
 
-				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::LightDataUbo); bindingIndex != Material::InvalidBindingIndex && m_pendingData.currentLightData)
+				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::DirectionalLights); bindingIndex != Material::InvalidBindingIndex && renderData.directionalLights)
 				{
 					auto& bindingEntry = m_bindingCache.emplace_back();
 					bindingEntry.bindingIndex = bindingIndex;
-					bindingEntry.content = ShaderBinding::UniformBufferBinding{
-						m_pendingData.currentLightData.GetBuffer(),
-						m_pendingData.currentLightData.GetOffset(), m_pendingData.currentLightData.GetSize()
+					bindingEntry.content = ShaderBinding::StorageBufferBinding{
+						renderData.directionalLights.GetBuffer(),
+						renderData.directionalLights.GetOffset(), renderData.directionalLights.GetSize()
+					};
+				}
+
+				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::PointLights); bindingIndex != Material::InvalidBindingIndex && renderData.pointLights)
+				{
+					auto& bindingEntry = m_bindingCache.emplace_back();
+					bindingEntry.bindingIndex = bindingIndex;
+					bindingEntry.content = ShaderBinding::StorageBufferBinding{
+						renderData.pointLights.GetBuffer(),
+						renderData.pointLights.GetOffset(), renderData.pointLights.GetSize()
+					};
+				}
+
+				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::SpotLights); bindingIndex != Material::InvalidBindingIndex && renderData.spotLights)
+				{
+					auto& bindingEntry = m_bindingCache.emplace_back();
+					bindingEntry.bindingIndex = bindingIndex;
+					bindingEntry.content = ShaderBinding::StorageBufferBinding{
+						renderData.spotLights.GetBuffer(),
+						renderData.spotLights.GetOffset(), renderData.spotLights.GetSize()
 					};
 				}
 
@@ -201,15 +207,6 @@ namespace Nz
 					bindingEntry.content = ShaderBinding::UniformBufferBinding{
 						viewerBuffer.get(),
 						0, viewerBuffer->GetSize()
-					};
-				}
-
-				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::OverlayTexture); bindingIndex != Material::InvalidBindingIndex)
-				{
-					auto& bindingEntry = m_bindingCache.emplace_back();
-					bindingEntry.bindingIndex = bindingIndex;
-					bindingEntry.content = ShaderBinding::SampledTextureBinding{
-						m_pendingData.currentTextureOverlay, defaultSampler.get()
 					};
 				}
 
@@ -259,7 +256,7 @@ namespace Nz
 		m_pendingData = PendingData{};
 	}
 
-	void SpriteChainRenderer::Render(const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& /*renderResources*/, CommandBufferBuilder& commandBuffer, std::size_t /*elementCount*/, const Pointer<const RenderElement>* elements, SparsePtr<const RenderStates> /*renderStates*/)
+	void SpriteChainRenderer::Render(const RenderData& /*renderData*/, const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& /*renderResources*/, CommandBufferBuilder& commandBuffer, std::size_t /*elementCount*/, const Pointer<const RenderElement>* elements)
 	{
 		auto& data = static_cast<SpriteChainRendererData&>(rendererData);
 

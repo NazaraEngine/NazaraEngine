@@ -42,7 +42,6 @@ namespace Nz
 
 		nzsl::Ast::TransformerContext context;
 		context.partialCompilation = true;
-		context.optionValues["MaxLightCount"_opt] = SafeCast<UInt32>(PredefinedLightData::MaxLightCount);
 		context.optionValues["MaxLightCascadeCount"_opt] = SafeCast<UInt32>(PredefinedDirectionalLightData::MaxLightCascadeCount);
 		context.optionValues["MaxJointCount"_opt] = SafeCast<UInt32>(PredefinedSkeletalData::MaxMatricesCount);
 
@@ -106,26 +105,32 @@ namespace Nz
 			if (auto it = block->uniformBlocks.find("InstanceData"); it != block->uniformBlocks.end())
 				m_engineShaderBindings[EngineShaderBinding::InstanceDataUbo] = it->second.bindingIndex;
 
-			if (auto it = block->uniformBlocks.find("LightData"); it != block->uniformBlocks.end())
-				m_engineShaderBindings[EngineShaderBinding::LightDataUbo] = it->second.bindingIndex;
-
 			if (auto it = block->uniformBlocks.find("ViewerData"); it != block->uniformBlocks.end())
 				m_engineShaderBindings[EngineShaderBinding::ViewerDataUbo] = it->second.bindingIndex;
 
-			if (auto it = block->samplers.find("ShadowMapsDirectional"); it != block->samplers.end())
-				m_engineShaderBindings[EngineShaderBinding::ShadowmapDirectional] = it->second.bindingIndex;
+			if (auto it = block->storageBlocks.find("DirectionalLights"); it != block->storageBlocks.end())
+				m_engineShaderBindings[EngineShaderBinding::DirectionalLights] = it->second.bindingIndex;
 
-			if (auto it = block->samplers.find("ShadowMapsPoint"); it != block->samplers.end())
-				m_engineShaderBindings[EngineShaderBinding::ShadowmapPoint] = it->second.bindingIndex;
+			if (auto it = block->storageBlocks.find("DirectionalShadowAtlasMapping"); it != block->storageBlocks.end())
+				m_engineShaderBindings[EngineShaderBinding::DirectionalShadowAtlasMapping] = it->second.bindingIndex;
 
-			if (auto it = block->samplers.find("ShadowMapsSpot"); it != block->samplers.end())
-				m_engineShaderBindings[EngineShaderBinding::ShadowmapSpot] = it->second.bindingIndex;
+			if (auto it = block->storageBlocks.find("PointLights"); it != block->storageBlocks.end())
+				m_engineShaderBindings[EngineShaderBinding::PointLights] = it->second.bindingIndex;
+
+			if (auto it = block->storageBlocks.find("PointShadowAtlasMapping"); it != block->storageBlocks.end())
+				m_engineShaderBindings[EngineShaderBinding::PointShadowAtlasMapping] = it->second.bindingIndex;
+
+			if (auto it = block->storageBlocks.find("SpotLights"); it != block->storageBlocks.end())
+				m_engineShaderBindings[EngineShaderBinding::SpotLights] = it->second.bindingIndex;
+
+			if (auto it = block->storageBlocks.find("SpotShadowAtlasMapping"); it != block->storageBlocks.end())
+				m_engineShaderBindings[EngineShaderBinding::SpotShadowAtlasMapping] = it->second.bindingIndex;
+
+			if (auto it = block->samplers.find("ShadowAtlas"); it != block->samplers.end())
+				m_engineShaderBindings[EngineShaderBinding::ShadowAtlas] = it->second.bindingIndex;
 
 			if (auto it = block->uniformBlocks.find("SkeletalData"); it != block->uniformBlocks.end())
 				m_engineShaderBindings[EngineShaderBinding::SkeletalDataUbo] = it->second.bindingIndex;
-
-			if (auto it = block->samplers.find("TextureOverlay"); it != block->samplers.end())
-				m_engineShaderBindings[EngineShaderBinding::OverlayTexture] = it->second.bindingIndex;
 		}
 
 		for (const auto& handlerPtr : m_settings.GetPropertyHandlers())

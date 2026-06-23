@@ -80,7 +80,7 @@ namespace Nz
 			return (m_rebuildFramePass) ? FramePassExecution::UpdateAndExecute : FramePassExecution::Execute;
 		});
 
-		postProcess.SetCommandCallback([this, inputIndices](CommandBufferBuilder& builder, const FramePassEnvironment& env)
+		postProcess.SetRenderCallback([this, inputIndices](CommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
 			if (m_shaderBinding)
 				env.renderResources.PushForRelease(std::move(m_shaderBinding));

@@ -49,7 +49,7 @@ namespace Nz
 			return (m_viewer->GetDebugDrawer()) ? FramePassExecution::UpdateAndExecute : FramePassExecution::Skip;
 		});
 
-		debugDrawPass.SetCommandCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& /*env*/)
+		debugDrawPass.SetRenderCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& /*env*/)
 		{
 			Recti viewport = m_viewer->GetViewport();
 

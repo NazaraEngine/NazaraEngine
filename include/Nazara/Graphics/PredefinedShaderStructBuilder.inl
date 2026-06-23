@@ -2,7 +2,6 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-
 namespace Nz
 {
 NAZARA_WARNING_PUSH()
@@ -11,78 +10,134 @@ NAZARA_WARNING_CLANG_GCC_DISABLE("-Wmissing-field-initializers")
 	// PredefinedDirectionalLightData
 	constexpr PredefinedDirectionalLightData PredefinedDirectionalLightData::Build()
 	{
-		PredefinedDirectionalLightData lightData = { nzsl::FieldOffsets(nzsl::StructLayout::Std140) };
+		PredefinedDirectionalLightData lightData = { nzsl::FieldOffsets(nzsl::StructLayout::Std430) };
 		lightData.colorOffset = lightData.fieldOffsets.AddField(nzsl::StructFieldType::Float3);
 		lightData.directionOffset = lightData.fieldOffsets.AddField(nzsl::StructFieldType::Float3);
-		lightData.invShadowMapSizeOffset = lightData.fieldOffsets.AddField(nzsl::StructFieldType::Float2);
 		lightData.ambientFactorOffset = lightData.fieldOffsets.AddField(nzsl::StructFieldType::Float1);
 		lightData.diffuseFactorOffset = lightData.fieldOffsets.AddField(nzsl::StructFieldType::Float1);
 		lightData.cascadeCountOffset = lightData.fieldOffsets.AddField(nzsl::StructFieldType::UInt1);
+		lightData.shadowIndexOffset = lightData.fieldOffsets.AddField(nzsl::StructFieldType::UInt1);
 		lightData.cascadeFarPlanesOffset = lightData.fieldOffsets.AddFieldArray(nzsl::StructFieldType::Float1, MaxLightCascadeCount);
-		lightData.cascadeViewProjMatricesOffset = lightData.fieldOffsets.AddMatrixArray(nzsl::StructFieldType::Float1, 4, 4, true, MaxLightCascadeCount);
 
 		lightData.totalSize = lightData.fieldOffsets.GetAlignedSize();
 
 		return lightData;
+	}
+	
+	// PredefinedDirectionalLightsData
+	constexpr PredefinedDirectionalLightsData PredefinedDirectionalLightsData::Build()
+	{
+		constexpr PredefinedDirectionalLightData PredefinedDirectionalLightOffset = PredefinedDirectionalLightData::Build();
+
+		PredefinedDirectionalLightsData lightsData = { nzsl::FieldOffsets(nzsl::StructLayout::Std430) };
+		lightsData.lightCount = lightsData.fieldOffsets.AddField(nzsl::StructFieldType::UInt1);
+		lightsData.lights = lightsData.fieldOffsets.AddStructArray(PredefinedDirectionalLightOffset.fieldOffsets, 1);
+
+		lightsData.totalSize = lightsData.lights;
+
+		return lightsData;
+	}
+
+	// PredefinedDirectionalShadowAtlasEntryData
+	constexpr PredefinedDirectionalShadowAtlasEntryData PredefinedDirectionalShadowAtlasEntryData::Build()
+	{
+		PredefinedDirectionalShadowAtlasEntryData entryData = { nzsl::FieldOffsets(nzsl::StructLayout::Std430) };
+		entryData.offset = entryData.fieldOffsets.AddFieldArray(nzsl::StructFieldType::Float2, PredefinedDirectionalLightData::MaxLightCascadeCount);
+		entryData.size = entryData.fieldOffsets.AddFieldArray(nzsl::StructFieldType::Float2, PredefinedDirectionalLightData::MaxLightCascadeCount);
+		entryData.viewProjMatrices = entryData.fieldOffsets.AddMatrixArray(nzsl::StructFieldType::Float1, 4, 4, true, PredefinedDirectionalLightData::MaxLightCascadeCount);
+
+		entryData.totalSize = entryData.fieldOffsets.GetAlignedSize();
+
+		return entryData;
 	}
 
 	// PredefinedPointLightData
 	constexpr PredefinedPointLightData PredefinedPointLightData::Build()
 	{
-		PredefinedPointLightData lightData = { nzsl::FieldOffsets(nzsl::StructLayout::Std140) };
+		PredefinedPointLightData lightData = { nzsl::FieldOffsets(nzsl::StructLayout::Std430) };
 		lightData.colorOffset = lightData.fieldOffsets.AddField(nzsl::StructFieldType::Float3);
 		lightData.positionOffset = lightData.fieldOffsets.AddField(nzsl::StructFieldType::Float3);
-		lightData.invShadowMapSizeOffset = lightData.fieldOffsets.AddField(nzsl::StructFieldType::Float2);
 		lightData.ambientFactorOffset = lightData.fieldOffsets.AddField(nzsl::StructFieldType::Float1);
 		lightData.diffuseFactorOffset = lightData.fieldOffsets.AddField(nzsl::StructFieldType::Float1);
 		lightData.radiusOffset = lightData.fieldOffsets.AddField(nzsl::StructFieldType::Float1);
 		lightData.invRadiusOffset = lightData.fieldOffsets.AddField(nzsl::StructFieldType::Float1);
+		lightData.shadowIndexOffset = lightData.fieldOffsets.AddField(nzsl::StructFieldType::UInt1);
 
 		lightData.totalSize = lightData.fieldOffsets.GetAlignedSize();
 
 		return lightData;
+	}
+
+	// PredefinedPointLightsData
+	constexpr PredefinedPointLightsData PredefinedPointLightsData::Build()
+	{
+		constexpr PredefinedPointLightData PredefinedPointLightOffset = PredefinedPointLightData::Build();
+
+		PredefinedPointLightsData lightsData = { nzsl::FieldOffsets(nzsl::StructLayout::Std430) };
+		lightsData.lightCount = lightsData.fieldOffsets.AddField(nzsl::StructFieldType::UInt1);
+		lightsData.lights = lightsData.fieldOffsets.AddStructArray(PredefinedPointLightOffset.fieldOffsets, 1);
+
+		lightsData.totalSize = lightsData.lights;
+
+		return lightsData;
+	}
+
+	// PredefinedPointShadowAtlasEntryData
+	constexpr PredefinedPointShadowAtlasEntryData PredefinedPointShadowAtlasEntryData::Build()
+	{
+		PredefinedPointShadowAtlasEntryData entryData = { nzsl::FieldOffsets(nzsl::StructLayout::Std430) };
+		entryData.offset = entryData.fieldOffsets.AddFieldArray(nzsl::StructFieldType::Float2, 6);
+		entryData.size = entryData.fieldOffsets.AddFieldArray(nzsl::StructFieldType::Float2, 6);
+
+		entryData.totalSize = entryData.fieldOffsets.GetAlignedSize();
+
+		return entryData;
 	}
 
 	// PredefinedSpotLightData
 	constexpr PredefinedSpotLightData PredefinedSpotLightData::Build()
 	{
-		PredefinedSpotLightData lightData = { nzsl::FieldOffsets(nzsl::StructLayout::Std140) };
+		PredefinedSpotLightData lightData = { nzsl::FieldOffsets(nzsl::StructLayout::Std430) };
 		lightData.colorOffset = lightData.fieldOffsets.AddField(nzsl::StructFieldType::Float3);
 		lightData.directionOffset = lightData.fieldOffsets.AddField(nzsl::StructFieldType::Float3);
 		lightData.positionOffset = lightData.fieldOffsets.AddField(nzsl::StructFieldType::Float3);
-		lightData.invShadowMapSizeOffset = lightData.fieldOffsets.AddField(nzsl::StructFieldType::Float2);
 		lightData.ambientFactorOffset = lightData.fieldOffsets.AddField(nzsl::StructFieldType::Float1);
 		lightData.diffuseFactorOffset = lightData.fieldOffsets.AddField(nzsl::StructFieldType::Float1);
 		lightData.innerAngleOffset = lightData.fieldOffsets.AddField(nzsl::StructFieldType::Float1);
 		lightData.outerAngleOffset = lightData.fieldOffsets.AddField(nzsl::StructFieldType::Float1);
 		lightData.invRadiusOffset = lightData.fieldOffsets.AddField(nzsl::StructFieldType::Float1);
+		lightData.shadowIndexOffset = lightData.fieldOffsets.AddField(nzsl::StructFieldType::UInt1);
 		lightData.viewProjMatrixOffset = lightData.fieldOffsets.AddMatrix(nzsl::StructFieldType::Float1, 4, 4, true);
-		lightData.worldMatrixOffset = lightData.fieldOffsets.AddMatrix(nzsl::StructFieldType::Float1, 4, 4, true);
 
 		lightData.totalSize = lightData.fieldOffsets.GetAlignedSize();
 
 		return lightData;
 	}
 
-	// PredefinedLightData
-	constexpr PredefinedLightData PredefinedLightData::Build()
+	// PredefinedSpotLightsData
+	constexpr PredefinedSpotLightsData PredefinedSpotLightsData::Build()
 	{
-		constexpr PredefinedDirectionalLightData DirectionalLight = PredefinedDirectionalLightData::Build();
-		constexpr PredefinedPointLightData PointLight = PredefinedPointLightData::Build();
-		constexpr PredefinedSpotLightData SpotLight = PredefinedSpotLightData::Build();
+		constexpr PredefinedSpotLightData PredefinedSpotLightOffset = PredefinedSpotLightData::Build();
 
-		PredefinedLightData lightData = { nzsl::FieldOffsets(nzsl::StructLayout::Std140) };
-		lightData.directionalLightsOffset = lightData.fieldOffsets.AddStructArray(DirectionalLight.fieldOffsets, MaxLightCount);
-		lightData.pointLightsOffset = lightData.fieldOffsets.AddStructArray(PointLight.fieldOffsets, MaxLightCount);
-		lightData.spotLightsOffset = lightData.fieldOffsets.AddStructArray(SpotLight.fieldOffsets, MaxLightCount);
+		PredefinedSpotLightsData lightsData = { nzsl::FieldOffsets(nzsl::StructLayout::Std430) };
+		lightsData.lightCount = lightsData.fieldOffsets.AddField(nzsl::StructFieldType::UInt1);
+		lightsData.lights = lightsData.fieldOffsets.AddStructArray(PredefinedSpotLightOffset.fieldOffsets, 1);
 
-		lightData.directionalLightCountOffset = lightData.fieldOffsets.AddField(nzsl::StructFieldType::UInt1);
-		lightData.pointLightCountOffset = lightData.fieldOffsets.AddField(nzsl::StructFieldType::UInt1);
-		lightData.spotLightCountOffset = lightData.fieldOffsets.AddField(nzsl::StructFieldType::UInt1);
+		lightsData.totalSize = lightsData.lights;
 
-		lightData.totalSize = lightData.fieldOffsets.GetAlignedSize();
+		return lightsData;
+	}
 
-		return lightData;
+	// PredefinedSpotShadowAtlasEntryData
+	constexpr PredefinedSpotShadowAtlasEntryData PredefinedSpotShadowAtlasEntryData::Build()
+	{
+		PredefinedSpotShadowAtlasEntryData entryData = { nzsl::FieldOffsets(nzsl::StructLayout::Std430) };
+		entryData.offset = entryData.fieldOffsets.AddField(nzsl::StructFieldType::Float2);
+		entryData.size = entryData.fieldOffsets.AddField(nzsl::StructFieldType::Float2);
+
+		entryData.totalSize = entryData.fieldOffsets.GetAlignedSize();
+
+		return entryData;
 	}
 
 	// PredefinedInstanceData
@@ -123,6 +178,19 @@ NAZARA_WARNING_CLANG_GCC_DISABLE("-Wmissing-field-initializers")
 		viewerData.eyePositionOffset = viewerData.fieldOffsets.AddField(nzsl::StructFieldType::Float3);
 		viewerData.nearPlaneOffset = viewerData.fieldOffsets.AddField(nzsl::StructFieldType::Float1);
 		viewerData.farPlaneOffset = viewerData.fieldOffsets.AddField(nzsl::StructFieldType::Float1);
+
+		viewerData.totalSize = viewerData.fieldOffsets.GetAlignedSize();
+
+		return viewerData;
+	}
+
+	// PredefinedViewerData
+	constexpr ShadowAtlasEntry ShadowAtlasEntry::Build()
+	{
+		ShadowAtlasEntry viewerData = { nzsl::FieldOffsets(nzsl::StructLayout::Std430) };
+		viewerData.offset = viewerData.fieldOffsets.AddField(nzsl::StructFieldType::Float2);
+		viewerData.size = viewerData.fieldOffsets.AddField(nzsl::StructFieldType::Float2);
+		viewerData.viewProjMatrix = viewerData.fieldOffsets.AddMatrix(nzsl::StructFieldType::Float1, 4, 4, true);
 
 		viewerData.totalSize = viewerData.fieldOffsets.GetAlignedSize();
 

@@ -33,6 +33,8 @@ namespace Nz
 
 			inline void EnableShadowStabilization(bool enable);
 
+			void ForEachView([[maybe_unused]] const AbstractViewer* viewer, FunctionRef<void(std::size_t shadowAtlasEntry, ShadowViewer& shadowViewer)> callback) override;
+
 			inline std::size_t GetCascadeCount() const;
 			inline void GetCascadeData(const AbstractViewer* viewer, SparsePtr<float> distance, SparsePtr<Matrix4f> viewProjMatrix) const;
 			inline float GetDepthPlaneFactor() const;
@@ -42,16 +44,15 @@ namespace Nz
 			void PrepareRendering(RenderResources& renderResources, const AbstractViewer* viewer) override;
 
 			void RegisterMaterialInstance(const MaterialInstance& matInstance) override;
-			void RegisterPassInputs(FramePass& pass, const AbstractViewer* viewer) override;
-			void RegisterToFrameGraph(FrameGraph& frameGraph, const AbstractViewer* viewer) override;
+			void RegisterToAtlas(ShadowAtlas& atlas) override;
 			void RegisterViewer(const AbstractViewer* viewer) override;
-
-			const Texture* RetrieveLightShadowmap(const BakedFrameGraph& bakedGraph, const AbstractViewer* viewer) const override;
 
 			inline void SetDepthPlaneFactor(float depthPlaneFactor);
 
 			void UnregisterMaterialInstance(const MaterialInstance& matInstance) override;
 			void UnregisterViewer(const AbstractViewer* viewer) override;
+
+			void WriteToShader(const ShadowAtlas& atlas, const AbstractViewer* viewer, void* basePtr) const override;
 
 			DirectionalLightShadowData& operator=(const DirectionalLightShadowData&) = delete;
 			DirectionalLightShadowData& operator=(DirectionalLightShadowData&&) = delete;

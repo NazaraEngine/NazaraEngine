@@ -30,7 +30,7 @@ namespace Nz
 		return std::make_unique<SubmeshRendererData>();
 	}
 
-	void SubmeshRenderer::Render(const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& /*renderResources*/, CommandBufferBuilder& commandBuffer, std::size_t elementCount, const Pointer<const RenderElement>* elements, SparsePtr<const RenderStates> renderStates)
+	void SubmeshRenderer::Render(const RenderData& renderData, const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& /*renderResources*/, CommandBufferBuilder& commandBuffer, std::size_t elementCount, const Pointer<const RenderElement>* elements)
 	{
 		Graphics* graphics = Graphics::Instance();
 		auto& renderDevice = *graphics->GetRenderDevice();
@@ -58,7 +58,6 @@ namespace Nz
 		const SkeletonInstance* currentSkeletonInstance = nullptr;
 		const WorldInstance* currentWorldInstance = nullptr;
 		Recti currentScissorBox = fullscreenScissorBox;
-		RenderBufferView currentLightData;
 
 		auto FlushDrawData = [&]()
 		{
@@ -76,7 +75,6 @@ namespace Nz
 		{
 			NazaraAssert(elements[i]->GetElementType() == UnderlyingCast(BasicRenderElement::Submesh));
 			const RenderSubmesh& submesh = static_cast<const RenderSubmesh&>(*elements[i]);
-			const RenderStates& renderState = renderStates[i];
 
 			if (const RenderPipeline* pipeline = submesh.GetRenderPipeline(); currentPipeline != pipeline)
 			{
@@ -118,12 +116,6 @@ namespace Nz
 				currentWorldInstance = worldInstance;
 			}
 
-			if (currentLightData != renderState.lightData)
-			{
-				FlushDrawData();
-				currentLightData = renderState.lightData;
-			}
-
 			const Recti& scissorBox = submesh.GetScissorBox();
 			const Recti& targetScissorBox = (scissorBox.width >= 0) ? scissorBox : fullscreenScissorBox;
 			if (currentScissorBox != targetScissorBox)
@@ -138,7 +130,8 @@ namespace Nz
 
 				m_bindingCache.clear();
 				m_textureBindingCache.clear();
-				m_textureBindingCache.reserve(renderState.shadowMapsSpot.size() + renderState.shadowMapsDirectional.size() + renderState.shadowMapsPoint.size());
+				m_textureBindingCache.reserve(9);
+				//m_textureBindingCache.reserve(renderState.shadowMapsSpot.size() + renderState.shadowMapsDirectional.size() + renderState.shadowMapsPoint.size());
 
 				NazaraAssert(data.references);
 				currentMaterialInstance->FillShaderBinding(*data.references, m_bindingCache);
@@ -146,105 +139,56 @@ namespace Nz
 				const Material& material = *currentMaterialInstance->GetParentMaterial();
 
 				// Predefined shader bindings
-				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::InstanceDataUbo); bindingIndex != Material::InvalidBindingIndex)
+				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::DirectionalLights); bindingIndex != Material::InvalidBindingIndex && renderData.directionalLights)
 				{
-					NazaraAssert(currentWorldInstance);
-					const auto& instanceBuffer = currentWorldInstance->GetInstanceBuffer();
-
 					auto& bindingEntry = m_bindingCache.emplace_back();
 					bindingEntry.bindingIndex = bindingIndex;
-					bindingEntry.content = ShaderBinding::UniformBufferBinding{
-						instanceBuffer.get(),
-						0, instanceBuffer->GetSize()
+					bindingEntry.content = ShaderBinding::StorageBufferBinding::FromView(renderData.directionalLights);
+				}
+
+				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::DirectionalShadowAtlasMapping); bindingIndex != Material::InvalidBindingIndex && renderData.directionalLightAtlasMapping)
+				{
+					auto& bindingEntry = m_bindingCache.emplace_back();
+					bindingEntry.bindingIndex = bindingIndex;
+					bindingEntry.content = ShaderBinding::StorageBufferBinding::FromView(renderData.directionalLightAtlasMapping);
+				}
+
+				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::PointLights); bindingIndex != Material::InvalidBindingIndex && renderData.pointLights)
+				{
+					auto& bindingEntry = m_bindingCache.emplace_back();
+					bindingEntry.bindingIndex = bindingIndex;
+					bindingEntry.content = ShaderBinding::StorageBufferBinding::FromView(renderData.pointLights);
+				}
+
+				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::PointShadowAtlasMapping); bindingIndex != Material::InvalidBindingIndex && renderData.pointLightAtlasMapping)
+				{
+					auto& bindingEntry = m_bindingCache.emplace_back();
+					bindingEntry.bindingIndex = bindingIndex;
+					bindingEntry.content = ShaderBinding::StorageBufferBinding::FromView(renderData.pointLightAtlasMapping);
+				}
+
+				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::ShadowAtlas); bindingIndex != Material::InvalidBindingIndex && renderData.shadowAtlas)
+				{
+					auto& bindingEntry = m_bindingCache.emplace_back();
+					bindingEntry.bindingIndex = bindingIndex;
+					bindingEntry.content = ShaderBinding::SampledTextureBinding{
+						.texture = renderData.shadowAtlas,
+						.sampler = shadowSampler.get()
 					};
 				}
 
-				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::LightDataUbo); bindingIndex != Material::InvalidBindingIndex && currentLightData)
+				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::SpotLights); bindingIndex != Material::InvalidBindingIndex && renderData.spotLights)
 				{
 					auto& bindingEntry = m_bindingCache.emplace_back();
 					bindingEntry.bindingIndex = bindingIndex;
-					bindingEntry.content = ShaderBinding::UniformBufferBinding{
-						currentLightData.GetBuffer(),
-						currentLightData.GetOffset(), currentLightData.GetSize()
-					};
+					bindingEntry.content = ShaderBinding::StorageBufferBinding::FromView(renderData.spotLights);
 				}
 
-				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::ShadowmapDirectional); bindingIndex != Material::InvalidBindingIndex)
+				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::SpotShadowAtlasMapping); bindingIndex != Material::InvalidBindingIndex && renderData.spotLightAtlasMapping)
 				{
-					std::size_t textureBindingBaseIndex = m_textureBindingCache.size();
-
-					for (std::size_t j = 0; j < renderState.shadowMapsDirectional.size(); ++j)
-					{
-						const Texture* texture = renderState.shadowMapsDirectional[j];
-						if (!texture)
-							texture = depthTexture2DArray->GetOrCreateTexture(renderDevice).get();
-
-						auto& textureEntry = m_textureBindingCache.emplace_back();
-						textureEntry.texture = texture;
-						textureEntry.sampler = shadowSampler.get();
-					}
-
 					auto& bindingEntry = m_bindingCache.emplace_back();
 					bindingEntry.bindingIndex = bindingIndex;
-					bindingEntry.content = ShaderBinding::SampledTextureBindings {
-						SafeCast<UInt32>(renderState.shadowMapsDirectional.size()), &m_textureBindingCache[textureBindingBaseIndex]
-					};
-				}
-
-				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::ShadowmapPoint); bindingIndex != Material::InvalidBindingIndex)
-				{
-					std::size_t textureBindingBaseIndex = m_textureBindingCache.size();
-
-					for (std::size_t j = 0; j < renderState.shadowMapsPoint.size(); ++j)
-					{
-						const Texture* texture = renderState.shadowMapsPoint[j];
-						if (!texture)
-							texture = depthTextureCube->GetOrCreateTexture(renderDevice).get();
-
-						auto& textureEntry = m_textureBindingCache.emplace_back();
-						textureEntry.texture = texture;
-						textureEntry.sampler = defaultSampler.get(); //< cube shadowmap don't use depth compare
-					}
-
-					auto& bindingEntry = m_bindingCache.emplace_back();
-					bindingEntry.bindingIndex = bindingIndex;
-					bindingEntry.content = ShaderBinding::SampledTextureBindings {
-						SafeCast<UInt32>(renderState.shadowMapsPoint.size()), &m_textureBindingCache[textureBindingBaseIndex]
-					};
-				}
-
-				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::ShadowmapSpot); bindingIndex != Material::InvalidBindingIndex)
-				{
-					std::size_t textureBindingBaseIndex = m_textureBindingCache.size();
-
-					for (std::size_t j = 0; j < renderState.shadowMapsSpot.size(); ++j)
-					{
-						const Texture* texture = renderState.shadowMapsSpot[j];
-						if (!texture)
-							texture = depthTexture2D->GetOrCreateTexture(renderDevice).get();
-
-						auto& textureEntry = m_textureBindingCache.emplace_back();
-						textureEntry.texture = texture;
-						textureEntry.sampler = shadowSampler.get();
-					}
-
-					auto& bindingEntry = m_bindingCache.emplace_back();
-					bindingEntry.bindingIndex = bindingIndex;
-					bindingEntry.content = ShaderBinding::SampledTextureBindings {
-						SafeCast<UInt32>(renderState.shadowMapsSpot.size()), &m_textureBindingCache[textureBindingBaseIndex]
-					};
-				}
-
-				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::SkeletalDataUbo); bindingIndex != Material::InvalidBindingIndex && currentSkeletonInstance)
-				{
-					const auto& skeletalBuffer = currentSkeletonInstance->GetSkeletalBuffer();
-
-					auto& bindingEntry = m_bindingCache.emplace_back();
-					bindingEntry.bindingIndex = bindingIndex;
-					bindingEntry.content = ShaderBinding::UniformBufferBinding{
-						skeletalBuffer.get(),
-						0, skeletalBuffer->GetSize()
-					};
+					bindingEntry.content = ShaderBinding::StorageBufferBinding::FromView(renderData.spotLightAtlasMapping);
 				}
 
 				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::ViewerDataUbo); bindingIndex != Material::InvalidBindingIndex)
@@ -253,19 +197,26 @@ namespace Nz
 
 					auto& bindingEntry = m_bindingCache.emplace_back();
 					bindingEntry.bindingIndex = bindingIndex;
-					bindingEntry.content = ShaderBinding::UniformBufferBinding{
-						viewerBuffer.get(),
-						0, viewerBuffer->GetSize()
-					};
+					bindingEntry.content = ShaderBinding::UniformBufferBinding::WholeBuffer(*viewerBuffer);
 				}
 
-				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::OverlayTexture); bindingIndex != Material::InvalidBindingIndex)
+				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::InstanceDataUbo); bindingIndex != Material::InvalidBindingIndex)
 				{
+					NazaraAssert(currentWorldInstance);
+					const auto& instanceBuffer = currentWorldInstance->GetInstanceBuffer();
+
 					auto& bindingEntry = m_bindingCache.emplace_back();
 					bindingEntry.bindingIndex = bindingIndex;
-					bindingEntry.content = ShaderBinding::SampledTextureBinding{
-						whiteTexture2D->GetOrCreateTexture(renderDevice).get(), defaultSampler.get()
-					};
+					bindingEntry.content = ShaderBinding::UniformBufferBinding::WholeBuffer(*instanceBuffer);
+				}
+
+				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::SkeletalDataUbo); bindingIndex != Material::InvalidBindingIndex && currentSkeletonInstance)
+				{
+					const auto& skeletalBuffer = currentSkeletonInstance->GetSkeletalBuffer();
+
+					auto& bindingEntry = m_bindingCache.emplace_back();
+					bindingEntry.bindingIndex = bindingIndex;
+					bindingEntry.content = ShaderBinding::UniformBufferBinding::WholeBuffer(*skeletalBuffer);
 				}
 
 				assert(currentPipeline);

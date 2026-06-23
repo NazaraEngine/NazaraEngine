@@ -67,6 +67,7 @@ namespace Nz
 			inline const std::string& GetName() const;
 			inline const std::vector<Output>& GetOutputs() const;
 			inline std::size_t GetPassId() const;
+			inline const CommandCallback& GetRenderCallback() const;
 
 			inline void SetCommandCallback(CommandCallback callback);
 			inline void SetClearColor(std::size_t outputIndex, const std::optional<Color>& color);
@@ -79,6 +80,7 @@ namespace Nz
 			inline void SetInputUsage(std::size_t inputIndex, TextureUsageFlags usageFlags);
 			inline void SetOutputAccess(std::size_t inputIndex, TextureLayout layout, PipelineStageFlags stageFlags, MemoryAccessFlags accessFlags);
 			inline void SetOutputUsage(std::size_t inputIndex, TextureUsageFlags usageFlags);
+			inline void SetRenderCallback(CommandCallback callback);
 			inline void SetReadInput(std::size_t inputIndex, bool doesRead);
 
 			FramePass& operator=(const FramePass&) = delete;
@@ -128,6 +130,7 @@ namespace Nz
 			std::vector<Input> m_inputs;
 			std::vector<Output> m_outputs;
 			CommandCallback m_commandCallback;
+			CommandCallback m_renderCallback;
 			ExecutionCallback m_executionCallback;
 	};
 }

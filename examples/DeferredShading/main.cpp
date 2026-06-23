@@ -183,9 +183,11 @@ int main(int argc, char* argv[])
 	Nz::MaterialSettings settings;
 	Nz::PredefinedMaterials::AddBasicSettings(settings);
 
+	auto deferredFrag = nzsl::ParseFromFile(shaderDir / "deferred_frag.nzsl");
+
 	Nz::MaterialPass customForwardPass;
 	customForwardPass.states.depthBuffer = true;
-	customForwardPass.shaders.emplace_back(std::make_shared<Nz::UberShader>(nzsl::ShaderStageType::Fragment, nzsl::ParseFromFile(shaderDir / "deferred_frag.nzsl")));
+	customForwardPass.shaders.emplace_back(std::make_shared<Nz::UberShader>(nzsl::ShaderStageType::Fragment, deferredFrag));
 	customForwardPass.shaders.emplace_back(std::make_shared<Nz::UberShader>(nzsl::ShaderStageType::Vertex, nzsl::ParseFromFile(shaderDir / "deferred_vert.nzsl")));
 	settings.AddPass("ForwardPass", customForwardPass);
 
@@ -193,7 +195,7 @@ int main(int argc, char* argv[])
 	customDepthPass.options[Nz::CRC32("DepthPass")] = true;
 	settings.AddPass("DepthPass", customDepthPass);
 
-	auto deferredMaterial = std::make_shared<Nz::Material>(std::move(settings), "Material.Basic");
+	auto deferredMaterial = std::make_shared<Nz::Material>(std::move(settings), *deferredFrag);
 
 	std::shared_ptr<Nz::MaterialInstance> spaceshipMat = deferredMaterial->Instantiate();
 	spaceshipMat->SetTextureProperty("AlphaMap", Nz::TextureAsset::OpenFromFile(resourceDir / "alphatile.png"));
@@ -646,6 +648,8 @@ int main(int argc, char* argv[])
 	Nz::RenderFrame* currentFrame = nullptr;
 
 	Nz::ElementRendererRegistry elementRegistry;
+	std::vector<Nz::Pointer<const Nz::RenderElement>> elementPointers;
+	std::vector<Nz::RenderElementOwner> elements;
 
 	Nz::BakedFrameGraph bakedGraph = [&]
 	{
@@ -770,14 +774,11 @@ int main(int argc, char* argv[])
 
 		gbufferPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
 		{
-			builder.SetViewport(env.renderRect);
+			elements.clear();
 
 			Nz::InstancedRenderable::ElementData elementData;
 			elementData.scissorBox = &env.renderRect;
 			elementData.skeletonInstance = nullptr;
-
-			std::vector<Nz::RenderElementOwner> elements;
-
 			elementData.worldInstance = &modelInstance1;
 			spaceshipModel.BuildElement(elementRegistry, elementData, forwardPassIndex, elements);
 
@@ -787,15 +788,24 @@ int main(int argc, char* argv[])
 			elementData.worldInstance = &planeInstance;
 			planeModel.BuildElement(elementRegistry, elementData, forwardPassIndex, elements);
 
-			std::vector<Nz::Pointer<const Nz::RenderElement>> elementPointers;
-			std::vector<Nz::ElementRenderer::RenderStates> renderStates(elements.size());
+			Nz::ElementRenderer::RenderData renderData;
+
+			elementPointers.clear();
 			elementPointers.reserve(elements.size());
 			for (const auto& elementOwner : elements)
 				elementPointers.emplace_back(elementOwner.GetElement());
 
-			submeshRenderer.Prepare(viewer, *submeshRendererData, *currentFrame, elementPointers.size(), elementPointers.data(), renderStates.data());
+			submeshRenderer.Prepare(renderData, viewer, *submeshRendererData, *currentFrame, elementPointers.size(), elementPointers.data());
 			submeshRenderer.PrepareEnd(*spriteRendererData, *currentFrame, builder);
-			submeshRenderer.Render(viewer, *submeshRendererData, *currentFrame, builder, elementPointers.size(), elementPointers.data(), renderStates.data());
+		});
+
+		gbufferPass.SetRenderCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
+		{
+			builder.SetViewport(env.renderRect);
+
+			Nz::ElementRenderer::RenderData renderData;
+
+			submeshRenderer.Render(renderData, viewer, *submeshRendererData, *currentFrame, builder, elementPointers.size(), elementPointers.data());
 			submeshRenderer.Reset(*submeshRendererData, *currentFrame);
 		});
 
@@ -805,7 +815,7 @@ int main(int argc, char* argv[])
 			return (lightUpdate) ? Nz::FramePassExecution::UpdateAndExecute : Nz::FramePassExecution::Execute;
 		});
 
-		lightingPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
+		lightingPass.SetRenderCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
 		{
 			builder.SetScissor(env.renderRect);
 			builder.SetViewport(env.renderRect);
@@ -839,6 +849,27 @@ int main(int argc, char* argv[])
 		Nz::FramePass& forwardPass = graph.AddPass("Forward pass");
 		forwardPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
 		{
+			Nz::InstancedRenderable::ElementData elementData;
+			elementData.scissorBox = &env.renderRect;
+			elementData.skeletonInstance = nullptr;
+			elementData.worldInstance = &flareInstance;
+
+			std::vector<Nz::RenderElementOwner> elements;
+			flareSprite.BuildElement(elementRegistry, elementData, forwardPassIndex, elements);
+
+			elementPointers.clear();
+			elementPointers.reserve(elements.size());
+			for (const auto& element : elements)
+				elementPointers.emplace_back(element.GetElement());
+
+			Nz::ElementRenderer::RenderData renderData;
+
+			spritechainRenderer.Prepare(renderData, viewer, *spriteRendererData, *currentFrame, elementPointers.size(), elementPointers.data());
+			spritechainRenderer.PrepareEnd(*spriteRendererData, *currentFrame, builder);
+		});
+
+		forwardPass.SetRenderCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
+		{
 			builder.SetScissor(env.renderRect);
 			builder.SetViewport(env.renderRect);
 
@@ -850,24 +881,9 @@ int main(int argc, char* argv[])
 
 			builder.DrawIndexed(Nz::SafeCast<Nz::UInt32>(cubeMeshGfx->GetIndexCount(0)));
 
-			Nz::InstancedRenderable::ElementData elementData;
-			elementData.scissorBox = &env.renderRect;
-			elementData.skeletonInstance = nullptr;
-			elementData.worldInstance = &flareInstance;
+			Nz::ElementRenderer::RenderData renderData;
 
-			std::vector<Nz::RenderElementOwner> elements;
-			flareSprite.BuildElement(elementRegistry, elementData, forwardPassIndex, elements);
-
-			std::vector<Nz::Pointer<const Nz::RenderElement>> elementPointers;
-			std::vector<Nz::ElementRenderer::RenderStates> renderStates(elements.size());
-
-			elementPointers.reserve(elements.size());
-			for (const auto& element : elements)
-				elementPointers.emplace_back(element.GetElement());
-
-			spritechainRenderer.Prepare(viewer, *spriteRendererData, *currentFrame, elementPointers.size(), elementPointers.data(), renderStates.data());
-			spritechainRenderer.PrepareEnd(*spriteRendererData, *currentFrame, builder);
-			spritechainRenderer.Render(viewer, *spriteRendererData, *currentFrame, builder, elementPointers.size(), elementPointers.data(), renderStates.data());
+			spritechainRenderer.Render(renderData, viewer, *spriteRendererData, *currentFrame, builder, elementPointers.size(), elementPointers.data());
 			spritechainRenderer.Reset(*spriteRendererData, *currentFrame);
 		});
 		forwardPass.SetExecutionCallback([&]
@@ -884,6 +900,29 @@ int main(int argc, char* argv[])
 		Nz::FramePass& occluderPass = graph.AddPass("Occluder pass");
 		occluderPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
 		{
+			Nz::InstancedRenderable::ElementData elementData;
+			elementData.scissorBox = &env.renderRect;
+			elementData.skeletonInstance = nullptr;
+			elementData.worldInstance = &flareInstance;
+
+			std::vector<Nz::RenderElementOwner> elements;
+			flareSprite.BuildElement(elementRegistry, elementData, forwardPassIndex, elements);
+
+			std::vector<Nz::Pointer<const Nz::RenderElement>> elementPointers;
+
+			elementPointers.clear();
+			elementPointers.reserve(elements.size());
+			for (const auto& element : elements)
+				elementPointers.emplace_back(element.GetElement());
+
+			Nz::ElementRenderer::RenderData renderData;
+
+			spritechainRenderer.Prepare(renderData, viewer, *spriteRendererData, *currentFrame, elementPointers.size(), elementPointers.data());
+			spritechainRenderer.PrepareEnd(*spriteRendererData, *currentFrame, builder);
+		});
+
+		occluderPass.SetRenderCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
+		{
 			builder.SetViewport(env.renderRect);
 
 			Nz::InstancedRenderable::ElementData elementData;
@@ -894,16 +933,16 @@ int main(int argc, char* argv[])
 			std::vector<Nz::RenderElementOwner> elements;
 			flareSprite.BuildElement(elementRegistry, elementData, forwardPassIndex, elements);
 
-			std::vector<Nz::Pointer<const Nz::RenderElement>> elementPointers;
-			std::vector<Nz::ElementRenderer::RenderStates> renderStates(elements.size());
+			Nz::ElementRenderer::RenderData renderData;
 
+			std::vector<Nz::Pointer<const Nz::RenderElement>> elementPointers;
+
+			elementPointers.clear();
 			elementPointers.reserve(elements.size());
 			for (const auto& element : elements)
 				elementPointers.emplace_back(element.GetElement());
 
-			spritechainRenderer.Prepare(viewer, *spriteRendererData, *currentFrame, elementPointers.size(), elementPointers.data(), renderStates.data());
-			spritechainRenderer.PrepareEnd(*spriteRendererData, *currentFrame, builder);
-			spritechainRenderer.Render(viewer, *spriteRendererData, *currentFrame, builder, elementPointers.size(), elementPointers.data(), renderStates.data());
+			spritechainRenderer.Render(renderData, viewer, *spriteRendererData, *currentFrame, builder, elementPointers.size(), elementPointers.data());
 			spritechainRenderer.Reset(*spriteRendererData, *currentFrame);
 		});
 
@@ -912,7 +951,7 @@ int main(int argc, char* argv[])
 		occluderPass.SetDepthStencilInput(depthBuffer1);
 
 		Nz::FramePass& godraysPass = graph.AddPass("Light scattering pass");
-		godraysPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
+		godraysPass.SetRenderCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
 		{
 			builder.SetScissor(env.renderRect);
 			builder.SetViewport(env.renderRect);
@@ -928,7 +967,7 @@ int main(int argc, char* argv[])
 		godraysPass.AddOutput(godRaysTexture);
 
 		Nz::FramePass& bloomBrightPass = graph.AddPass("Bloom pass - extract bright pixels");
-		bloomBrightPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
+		bloomBrightPass.SetRenderCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
 		{
 			builder.SetScissor(env.renderRect);
 			builder.SetViewport(env.renderRect);
@@ -951,7 +990,7 @@ int main(int argc, char* argv[])
 		for (std::size_t i = 0; i < BloomSubdivisionCount; ++i)
 		{
 			Nz::FramePass& bloomBlurPassHorizontal = graph.AddPass("Bloom pass - gaussian blur #" + std::to_string(i) + " - horizontal");
-			bloomBlurPassHorizontal.SetCommandCallback([&, i](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
+			bloomBlurPassHorizontal.SetRenderCallback([&, i](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
 			{
 				builder.SetScissor(env.renderRect);
 				builder.SetViewport(env.renderRect);
@@ -971,7 +1010,7 @@ int main(int argc, char* argv[])
 			bloomBlurPassHorizontal.AddOutput(bloomTextures[bloomTextureIndex]);
 
 			Nz::FramePass& bloomBlurPassVertical = graph.AddPass("Bloom pass - gaussian blur #" + std::to_string(i) + " - vertical");
-			bloomBlurPassVertical.SetCommandCallback([&, i](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
+			bloomBlurPassVertical.SetRenderCallback([&, i](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
 			{
 				builder.SetScissor(env.renderRect);
 				builder.SetViewport(env.renderRect);
@@ -992,7 +1031,7 @@ int main(int argc, char* argv[])
 		}
 
 		Nz::FramePass& bloomBlendPass = graph.AddPass("Bloom pass - blend");
-		bloomBlendPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
+		bloomBlendPass.SetRenderCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
 		{
 			builder.SetScissor(env.renderRect);
 			builder.SetViewport(env.renderRect);
@@ -1027,7 +1066,7 @@ int main(int argc, char* argv[])
 		Nz::FramePass& toneMappingPass = graph.AddPass("Tone mapping");
 		toneMappingPass.AddInput(bloomOutput);
 		toneMappingPass.AddOutput(toneMappingOutput);
-		toneMappingPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
+		toneMappingPass.SetRenderCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
 		{
 			builder.SetScissor(env.renderRect);
 			builder.SetViewport(env.renderRect);

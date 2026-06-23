@@ -8,6 +8,7 @@
 #include <Nazara/Graphics/FramePipeline.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/PointLight.hpp>
+#include <Nazara/Graphics/ShadowAtlas.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 
 namespace Nz
@@ -117,6 +118,15 @@ namespace Nz
 
 	}
 
+	void PointLightShadowData::ForEachView([[maybe_unused]] const AbstractViewer* viewer, FunctionRef<void(std::size_t shadowAtlasEntry, ShadowViewer& shadowViewer)> callback)
+	{
+		assert(viewer == nullptr);
+
+		std::size_t atlasEntry = m_firstShadowAtlasIndex;
+		for (DirectionData& direction : m_directions)
+			callback(atlasEntry++, direction.viewer);
+	}
+
 	void PointLightShadowData::PrepareRendering(RenderResources& renderResources, [[maybe_unused]] const AbstractViewer* viewer)
 	{
 		assert(viewer == nullptr);
@@ -148,52 +158,32 @@ namespace Nz
 			direction.depthPass->RegisterMaterialInstance(matInstance);
 	}
 
-	void PointLightShadowData::RegisterPassInputs(FramePass& pass, [[maybe_unused]] const AbstractViewer* viewer)
+	void PointLightShadowData::RegisterToAtlas(ShadowAtlas& atlas)
 	{
-		assert(viewer == nullptr);
-
-		std::size_t cubeInputIndex = pass.AddInput(m_cubeAttachmentIndex);
-		pass.SetInputAssumedLayout(cubeInputIndex, TextureLayout::ColorInput);
-
-		for (DirectionData& direction : m_directions)
-			pass.AddInput(direction.attachmentIndex);
-	}
-
-	void PointLightShadowData::RegisterToFrameGraph(FrameGraph& frameGraph, [[maybe_unused]] const AbstractViewer* viewer)
-	{
-		assert(viewer == nullptr);
-
 		UInt32 shadowMapSize = m_light.GetShadowMapSize();
 
-		m_cubeAttachmentIndex = frameGraph.AddAttachmentCube({
-			.name = "Point-light shadowmap",
-			.format = m_light.GetShadowMapFormat(),
-			.size = FramePassAttachmentSize::Fixed,
-			.width = shadowMapSize,
-			.height = shadowMapSize,
-		});
-
-		for (std::size_t i = 0; i < m_directions.size(); ++i)
-		{
-			DirectionData& direction = m_directions[i];
-			direction.attachmentIndex = frameGraph.AddAttachmentCubeFace(m_cubeAttachmentIndex, static_cast<CubemapFace>(i));
-
-			FramePipelinePass::PassInputOuputs passInputOuputs;
-			passInputOuputs.clearDepth = 1.f;
-			passInputOuputs.depthStencilOutput = direction.attachmentIndex;
-
-			direction.depthPass->RegisterToFrameGraph(frameGraph, passInputOuputs);
-		}
-	}
-
-	const Texture* PointLightShadowData::RetrieveLightShadowmap(const BakedFrameGraph& bakedGraph, const AbstractViewer* /*viewer*/) const
-	{
-		return bakedGraph.GetAttachmentTexture(m_cubeAttachmentIndex).get();
+		std::size_t firstShadowAtlasIndex = atlas.Register(shadowMapSize, 6);
+		UpdateShadowAtlasEntries(firstShadowAtlasIndex, 6);
 	}
 
 	void PointLightShadowData::UnregisterMaterialInstance(const MaterialInstance& matInstance)
 	{
 		for (DirectionData& direction : m_directions)
 			direction.depthPass->UnregisterMaterialInstance(matInstance);
+	}
+
+	void PointLightShadowData::WriteToShader(const ShadowAtlas& atlas, [[maybe_unused]] const AbstractViewer* viewer, void* basePtr) const
+	{
+		assert(viewer == nullptr);
+
+		for (UInt32 i = 0; i < 6; ++i)
+		{
+			std::optional<Rectf> rect = atlas.GetNormalizedRect(m_firstShadowAtlasIndex + i);
+			if (!rect)
+				rect = Rectf(-1.0f, -1.0f, -1.0f, -1.0f);
+
+			AccessByOffset<Vector2f&>(basePtr, PredefinedPointShadowAtlasEntryOffsets.offset + i * sizeof(Vector2f)) = rect->GetPosition();
+			AccessByOffset<Vector2f&>(basePtr, PredefinedPointShadowAtlasEntryOffsets.size + i * sizeof(Vector2f)) = rect->GetLengths();
+		}
 	}
 }

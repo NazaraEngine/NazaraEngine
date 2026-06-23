@@ -13,7 +13,7 @@
 
 namespace Nz
 {
-	class NAZARA_GRAPHICS_API ShadowViewer : public AbstractViewer
+	class NAZARA_GRAPHICS_API ShadowViewer final : public AbstractViewer
 	{
 		public:
 			ShadowViewer() = default;

@@ -17,18 +17,42 @@ namespace Nz
 
 		std::size_t colorOffset;
 		std::size_t directionOffset;
-		std::size_t invShadowMapSizeOffset;
 		std::size_t ambientFactorOffset;
 		std::size_t diffuseFactorOffset;
 		std::size_t cascadeCountOffset;
+		std::size_t shadowIndexOffset;
 		std::size_t cascadeFarPlanesOffset;
-		std::size_t cascadeViewProjMatricesOffset;
 
 		std::size_t totalSize;
 
 		static constexpr std::size_t MaxLightCascadeCount = 4;
 
 		static constexpr PredefinedDirectionalLightData Build();
+	};
+	
+	struct PredefinedDirectionalLightsData
+	{
+		nzsl::FieldOffsets fieldOffsets;
+
+		std::size_t lightCount;
+		std::size_t lights; //< dynamic array
+
+		std::size_t totalSize; //< not including lights
+
+		static constexpr PredefinedDirectionalLightsData Build();
+	};
+
+	struct PredefinedDirectionalShadowAtlasEntryData
+	{
+		nzsl::FieldOffsets fieldOffsets;
+
+		std::size_t offset;
+		std::size_t size;
+		std::size_t viewProjMatrices;
+
+		std::size_t totalSize;
+
+		static constexpr PredefinedDirectionalShadowAtlasEntryData Build();
 	};
 
 	struct PredefinedPointLightData
@@ -37,15 +61,39 @@ namespace Nz
 
 		std::size_t colorOffset;
 		std::size_t positionOffset;
-		std::size_t invShadowMapSizeOffset;
 		std::size_t ambientFactorOffset;
 		std::size_t diffuseFactorOffset;
 		std::size_t radiusOffset;
 		std::size_t invRadiusOffset;
+		std::size_t shadowIndexOffset;
 
 		std::size_t totalSize;
 
 		static constexpr PredefinedPointLightData Build();
+	};
+
+	struct PredefinedPointLightsData
+	{
+		nzsl::FieldOffsets fieldOffsets;
+
+		std::size_t lightCount;
+		std::size_t lights; //< dynamic array
+
+		std::size_t totalSize; //< not including lights
+
+		static constexpr PredefinedPointLightsData Build();
+	};
+
+	struct PredefinedPointShadowAtlasEntryData
+	{
+		nzsl::FieldOffsets fieldOffsets;
+
+		std::size_t offset;
+		std::size_t size;
+
+		std::size_t totalSize;
+
+		static constexpr PredefinedPointShadowAtlasEntryData Build();
 	};
 
 	struct PredefinedSpotLightData
@@ -55,36 +103,41 @@ namespace Nz
 		std::size_t colorOffset;
 		std::size_t directionOffset;
 		std::size_t positionOffset;
-		std::size_t invShadowMapSizeOffset;
 		std::size_t ambientFactorOffset;
 		std::size_t diffuseFactorOffset;
 		std::size_t innerAngleOffset;
 		std::size_t outerAngleOffset;
 		std::size_t invRadiusOffset;
+		std::size_t shadowIndexOffset;
 		std::size_t viewProjMatrixOffset;
-		std::size_t worldMatrixOffset;
 
 		std::size_t totalSize;
 
 		static constexpr PredefinedSpotLightData Build();
 	};
 
-	struct PredefinedLightData
+	struct PredefinedSpotLightsData
 	{
 		nzsl::FieldOffsets fieldOffsets;
 
-		std::size_t directionalLightsOffset;
-		std::size_t pointLightsOffset;
-		std::size_t spotLightsOffset;
-		std::size_t directionalLightCountOffset;
-		std::size_t pointLightCountOffset;
-		std::size_t spotLightCountOffset;
+		std::size_t lightCount;
+		std::size_t lights; //< dynamic array
+
+		std::size_t totalSize; //< not including lights
+
+		static constexpr PredefinedSpotLightsData Build();
+	};
+
+	struct PredefinedSpotShadowAtlasEntryData
+	{
+		nzsl::FieldOffsets fieldOffsets;
+
+		std::size_t offset;
+		std::size_t size;
 
 		std::size_t totalSize;
 
-		static constexpr std::size_t MaxLightCount = 3;
-
-		static constexpr PredefinedLightData Build();
+		static constexpr PredefinedSpotShadowAtlasEntryData Build();
 	};
 
 	struct PredefinedInstanceData
@@ -131,6 +184,19 @@ namespace Nz
 		std::size_t totalSize;
 
 		static constexpr PredefinedViewerData Build();
+	};
+
+	struct ShadowAtlasEntry
+	{
+		nzsl::FieldOffsets fieldOffsets;
+
+		std::size_t offset;
+		std::size_t size;
+		std::size_t viewProjMatrix;
+
+		std::size_t totalSize;
+
+		static constexpr ShadowAtlasEntry Build();
 	};
 }
 

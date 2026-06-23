@@ -500,14 +500,7 @@ namespace Nz
 			{
 				NazaraError("invalid indices");
 			},
-			[&](SparsePtr<const UInt16> indexPtr)
-			{
-				FillIndices(indexPtr);
-			},
-			[&](SparsePtr<const UInt32> indexPtr)
-			{
-				FillIndices(indexPtr);
-			}
+			FillIndices
 		}, meshSettings.indices);
 
 		if (meshSettings.triangleMaterials)

@@ -26,17 +26,18 @@ namespace Nz
 			SpotLightShadowData(SpotLightShadowData&&) = delete;
 			~SpotLightShadowData() = default;
 
+			void ForEachView([[maybe_unused]] const AbstractViewer* viewer, FunctionRef<void(std::size_t shadowAtlasEntry, ShadowViewer& shadowViewer)> callback) override;
+
 			inline const ViewerInstance& GetViewerInstance() const;
 
 			void PrepareRendering(RenderResources& renderResources, [[maybe_unused]] const AbstractViewer* viewer) override;
 
 			void RegisterMaterialInstance(const MaterialInstance& matInstance) override;
-			void RegisterPassInputs(FramePass& pass, const AbstractViewer* viewer) override;
-			void RegisterToFrameGraph(FrameGraph& frameGraph, const AbstractViewer* viewer) override;
-
-			const Texture* RetrieveLightShadowmap(const BakedFrameGraph& bakedGraph, const AbstractViewer* viewer) const override;
+			void RegisterToAtlas(ShadowAtlas& atlas) override;
 
 			void UnregisterMaterialInstance(const MaterialInstance& matInstance) override;
+
+			void WriteToShader(const ShadowAtlas& atlas, const AbstractViewer* viewer, void* basePtr) const override;
 
 			SpotLightShadowData& operator=(const SpotLightShadowData&) = delete;
 			SpotLightShadowData& operator=(SpotLightShadowData&&) = delete;
@@ -47,7 +48,6 @@ namespace Nz
 			NazaraSlot(Light, OnLightTransformInvalidated, m_onLightTransformInvalidated);
 
 			std::optional<RasterPipelinePass> m_depthPass;
-			std::size_t m_attachmentIndex;
 			FramePipeline& m_pipeline;
 			const SpotLight& m_light;
 			ShadowViewer m_viewer;

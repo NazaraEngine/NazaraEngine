@@ -6,7 +6,8 @@
 namespace Nz
 {
 	inline VulkanCommandBufferBuilder::VulkanCommandBufferBuilder(Vk::CommandBuffer& commandBuffer) :
-	m_commandBuffer(commandBuffer)
+	m_commandBuffer(commandBuffer),
+	m_currentRenderPass(nullptr)
 	{
 	}
 
