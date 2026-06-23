@@ -69,7 +69,6 @@ external
 [auto_binding]
 external
 {
-	[tag("TextureOverlay")] TextureOverlay: sampler2D[f32],
 	[tag("InstanceData")] instanceData: uniform[InstanceData],
 	[tag("ViewerData")] viewerData: uniform[ViewerData],
 	[tag("SkeletalData")] skeletalData: uniform[SkeletalData]
@@ -97,9 +96,6 @@ alias FragOut = GBufferOutput;
 fn ComputeColor(input: VertOut) -> vec4[f32]
 {
 	let color = settings.BaseColor;
-
-	const if (HasUV)
-		color.a *= TextureOverlay.Sample(input.uv).r;
 
 	const if (HasColor)
 		color *= input.color;

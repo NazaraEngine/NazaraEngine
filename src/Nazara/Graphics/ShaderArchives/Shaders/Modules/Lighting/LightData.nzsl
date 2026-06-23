@@ -2,61 +2,69 @@
 module Lighting.LightData;
 
 option MaxLightCascadeCount: u32 = 4;
-option MaxLightCount: u32 = 3;
 
 [export]
-[layout(std140)]
+[layout(std430)]
 struct DirectionalLight
 {
 	color: vec3[f32],
 	direction: vec3[f32],
-	invShadowMapSize: vec2[f32],
 	ambientFactor: f32,
 	diffuseFactor: f32,
 	cascadeCount: u32,
+	shadowIndex: u32, //< [..cascadeCount]
 	cascadeDistances: array[f32, MaxLightCascadeCount],
-	viewProjMatrices: array[mat4[f32], MaxLightCascadeCount],
 }
 
 [export]
-[layout(std140)]
+[layout(std430)]
+struct DirectionalLights
+{
+	lightCount: u32,
+	lights: dyn_array[DirectionalLight]
+}
+
+[export]
+[layout(std430)]
 struct PointLight
 {
 	color: vec3[f32],
 	position: vec3[f32],
-	invShadowMapSize: vec2[f32],
 	ambientFactor: f32,
 	diffuseFactor: f32,
 	radius: f32,
 	invRadius: f32,
+	shadowIndex: u32 //< [..6]
 }
 
 [export]
-[layout(std140)]
+[layout(std430)]
+struct PointLights
+{
+	lightCount: u32,
+	lights: dyn_array[PointLight]
+}
+
+[export]
+[layout(std430)]
 struct SpotLight
 {
 	color: vec3[f32],
 	direction: vec3[f32],
 	position: vec3[f32],
-	invShadowMapSize: vec2[f32],
 	ambientFactor: f32,
 	diffuseFactor: f32,
 	innerAngle: f32,
 	outerAngle: f32,
 	invRadius: f32,
-	viewProjMatrix: mat4[f32],
-	worldMatrix: mat4[f32],
+	shadowIndex: u32,
+	viewProjMatrix: mat4[f32]
 }
 
 [export]
-[layout(std140)]
-struct LightData
+[layout(std430)]
+struct SpotLights
 {
-	directionalLights: array[DirectionalLight, MaxLightCount],
-	pointLights: array[PointLight, MaxLightCount],
-	spotLights: array[SpotLight, MaxLightCount],
-	
-	directionalLightCount: u32,
-	pointLightCount: u32,
-	spotLightCount: u32,
+	lightCount: u32,
+	lights: dyn_array[SpotLight]
 }

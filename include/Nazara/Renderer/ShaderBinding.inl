@@ -10,6 +10,46 @@ namespace Nz
 		Update(bindings.begin(), bindings.size());
 	}
 
+	inline auto ShaderBinding::StorageBufferBinding::FromView(const RenderBufferView& view, bool dynamic) -> StorageBufferBinding
+	{
+		return StorageBufferBinding{
+			.buffer = view.GetBuffer(),
+			.offset = view.GetOffset(),
+			.range = view.GetSize(),
+			.dynamic = dynamic
+		};
+	}
+
+	inline auto ShaderBinding::StorageBufferBinding::WholeBuffer(RenderBuffer& buffer, bool dynamic) -> StorageBufferBinding
+	{
+		return StorageBufferBinding{
+			.buffer = &buffer,
+			.offset = 0,
+			.range = buffer.GetSize(),
+			.dynamic = dynamic
+		};
+	}
+
+	inline auto ShaderBinding::UniformBufferBinding::FromView(const RenderBufferView& view, bool dynamic) -> UniformBufferBinding
+	{
+		return UniformBufferBinding{
+			.buffer = view.GetBuffer(),
+			.offset = view.GetOffset(),
+			.range = view.GetSize(),
+			.dynamic = dynamic
+		};
+	}
+
+	inline auto ShaderBinding::UniformBufferBinding::WholeBuffer(RenderBuffer& buffer, bool dynamic) -> UniformBufferBinding
+	{
+		return UniformBufferBinding{
+			.buffer = &buffer,
+			.offset = 0,
+			.range = buffer.GetSize(),
+			.dynamic = dynamic
+		};
+	}
+
 	inline void ShaderBindingDeleter::operator()(ShaderBinding* binding)
 	{
 		binding->Release();

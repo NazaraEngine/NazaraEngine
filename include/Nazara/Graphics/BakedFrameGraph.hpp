@@ -63,11 +63,6 @@ namespace Nz
 				TextureLayout oldLayout;
 			};
 
-			struct SubpassData
-			{
-				FramePass::CommandCallback commandCallback;
-			};
-
 			struct PassData
 			{
 				std::shared_ptr<Framebuffer> framebuffer;
@@ -75,8 +70,9 @@ namespace Nz
 				std::string name;
 				std::vector<std::size_t> outputTextureIndices;
 				std::vector<CommandBufferBuilder::ClearValues> outputClearValues;
-				std::vector<SubpassData> subpasses;
 				std::vector<TextureBarrier> invalidationBarriers;
+				FramePass::CommandCallback commandCallback;
+				FramePass::CommandCallback renderCallback;
 				FramePass::ExecutionCallback executionCallback;
 				Recti renderRect;
 			};

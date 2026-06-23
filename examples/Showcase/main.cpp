@@ -12,6 +12,7 @@
 #include <array>
 #include <bitset>
 #include <iostream>
+#include <random>
 #include <limits>
 
 NAZARA_REQUEST_DEDICATED_GPU()
@@ -442,6 +443,7 @@ int main(int argc, char* argv[])
 
 
 	entt::handle tvEntity = world.CreateEntity();
+	std::shared_ptr<Nz::Model> tvModel;
 	{
 		Nz::MeshParams tvMeshParams;
 		tvMeshParams.vertexScale = Nz::Vector3f(0.01f);
@@ -465,7 +467,7 @@ int main(int argc, char* argv[])
 		}
 
 		std::shared_ptr<Nz::GraphicalMesh> tvGfxMesh = Nz::GraphicalMesh::BuildFromMesh(*tvMesh);
-		std::shared_ptr<Nz::Model> tvModel = std::make_shared<Nz::Model>(std::move(tvGfxMesh));
+		tvModel = std::make_shared<Nz::Model>(std::move(tvGfxMesh));
 
 		std::shared_ptr<Nz::MaterialInstance> tvMat = Nz::MaterialInstance::Instantiate(Nz::MaterialType::PhysicallyBased);
 		tvMat->SetTextureProperty("BaseColorMap", fs.Open<Nz::TextureAsset>("assets/retro_tv_lowpoly_4k_textures/textures/old_tv_baseColor.jpeg", { .sRGB = true }));
@@ -492,11 +494,63 @@ int main(int argc, char* argv[])
 	Nz::EulerAnglesf camAngles = Nz::EulerAnglesf(-30.f, 0.f, 0.f);
 	Nz::UInt64 fps = 0;
 
+	std::mt19937 rd(42);
+	std::uniform_real_distribution<float> colorDis(0.f, 360.f);
+
+	std::shared_ptr<Nz::Collider3D> tvCollider;
+
 	Nz::WindowEventHandler& eventHandler = mainWindow.GetEventHandler();
 	eventHandler.OnKeyPressed.Connect([&](const Nz::WindowEventHandler*, const Nz::WindowEvent::KeyEvent& event)
 	{
 		if (event.virtualKey == Nz::Keyboard::VKey::P)
 			paused = !paused;
+		else if (event.virtualKey == Nz::Keyboard::VKey::F1)
+		{
+			auto& cameraNode = playerCamera.get<Nz::NodeComponent>();
+
+			entt::handle tvEntity = world.CreateEntity();
+
+			auto& tvNode = tvEntity.emplace<Nz::NodeComponent>();
+			tvNode.SetPosition(cameraNode.GetGlobalPosition());
+
+			auto& tvGfx = tvEntity.emplace<Nz::GraphicsComponent>();
+			tvGfx.AttachRenderable(tvModel);
+
+			if (!tvCollider)
+			{
+				Nz::Boxf aabb = tvModel->GetAABB();
+
+				tvCollider = std::make_shared<Nz::BoxCollider3D>(aabb.GetLengths());
+				//tvCollider = std::make_shared<Nz::TranslatedRotatedCollider3D>(std::move(boxCollider), aabb.GetPosition());
+			}
+
+			Nz::RigidBody3D::DynamicSettings tvSettings;
+			tvSettings.collider = tvCollider;
+			tvSettings.mass = 42.f;
+
+			tvEntity.emplace<Nz::RigidBody3DComponent>(tvSettings);
+
+			auto& tvLights = tvEntity.emplace<Nz::LightComponent>();
+			auto& pointLight = tvLights.AddLight<Nz::PointLight>();
+			pointLight.UpdateColor(Nz::Color::sRGBToLinear(Nz::Color::FromHSV(colorDis(rd), 1.f, 1.f)));
+		}
+		else if (event.virtualKey == Nz::Keyboard::VKey::F2)
+		{
+			auto& cameraNode = playerCamera.get<Nz::NodeComponent>();
+
+			Nz::Vector3f cameraPos = cameraNode.GetGlobalPosition();
+
+			entt::registry& registry = world.GetRegistry();
+
+			auto view = registry.view<Nz::RigidBody3DComponent>();
+			for (auto&& [entity, entityPhys] : view.each())
+			{
+				if (cameraPos.Distance(entityPhys.GetPosition()) < 1.f)
+				{
+					registry.destroy(entity);
+				}
+			}
+		}
 	});
 
 	eventHandler.OnMouseMoved.Connect([&](const Nz::WindowEventHandler*, const Nz::WindowEvent::MouseMoveEvent& event)

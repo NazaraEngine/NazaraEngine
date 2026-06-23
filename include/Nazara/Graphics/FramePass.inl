@@ -102,6 +102,11 @@ namespace Nz
 		return m_passId;
 	}
 
+	inline auto FramePass::GetRenderCallback() const -> const CommandCallback&
+	{
+		return m_renderCallback;
+	}
+
 	inline void FramePass::SetCommandCallback(CommandCallback callback)
 	{
 		m_commandCallback = std::move(callback);
@@ -157,6 +162,11 @@ namespace Nz
 	{
 		assert(outputIndex < m_outputs.size());
 		m_outputs[outputIndex].textureUsageFlags = usageFlags;
+	}
+
+	inline void FramePass::SetRenderCallback(CommandCallback callback)
+	{
+		m_renderCallback = std::move(callback);
 	}
 
 	inline void FramePass::SetReadInput(std::size_t inputIndex, bool doesRead)

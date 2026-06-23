@@ -7,6 +7,8 @@
 #include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Graphics/FramePipeline.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
+#include <Nazara/Graphics/PredefinedShaderStructs.hpp>
+#include <Nazara/Graphics/ShadowAtlas.hpp>
 #include <Nazara/Graphics/SpotLight.hpp>
 #include <cassert>
 
@@ -69,6 +71,12 @@ namespace Nz
 		});
 	}
 
+	void SpotLightShadowData::ForEachView([[maybe_unused]] const AbstractViewer* viewer, FunctionRef<void(std::size_t shadowAtlasEntry, ShadowViewer& shadowViewer)> callback)
+	{
+		assert(viewer == nullptr);
+		callback(m_firstShadowAtlasIndex, m_viewer);
+	}
+
 	void SpotLightShadowData::PrepareRendering(RenderResources& renderResources, [[maybe_unused]] const AbstractViewer* viewer)
 	{
 		assert(viewer == nullptr);
@@ -96,41 +104,28 @@ namespace Nz
 		m_depthPass->RegisterMaterialInstance(matInstance);
 	}
 
-	void SpotLightShadowData::RegisterPassInputs(FramePass& pass, [[maybe_unused]] const AbstractViewer* viewer)
+	void SpotLightShadowData::RegisterToAtlas(ShadowAtlas& atlas)
 	{
-		assert(viewer == nullptr);
-
-		pass.AddInput(m_attachmentIndex);
-	}
-
-	void SpotLightShadowData::RegisterToFrameGraph(FrameGraph& frameGraph, [[maybe_unused]] const AbstractViewer* viewer)
-	{
-		assert(viewer == nullptr);
-
 		UInt32 shadowMapSize = m_light.GetShadowMapSize();
 
-		m_attachmentIndex = frameGraph.AddAttachment({
-			.name = "Shadowmap",
-			.format = m_light.GetShadowMapFormat(),
-			.size = FramePassAttachmentSize::Fixed,
-			.width = shadowMapSize,
-			.height = shadowMapSize,
-		});
-
-		FramePipelinePass::PassInputOuputs passInputOuputs;
-		passInputOuputs.clearDepth = 1.f;
-		passInputOuputs.depthStencilOutput = m_attachmentIndex;
-
-		m_depthPass->RegisterToFrameGraph(frameGraph, passInputOuputs);
-	}
-
-	const Texture* SpotLightShadowData::RetrieveLightShadowmap(const BakedFrameGraph& bakedGraph, const AbstractViewer* /*viewer*/) const
-	{
-		return bakedGraph.GetAttachmentTexture(m_attachmentIndex).get();
+		std::size_t shadowAtlasIndex = atlas.Register(shadowMapSize);
+		UpdateShadowAtlasEntries(shadowAtlasIndex, 1);
 	}
 
 	void SpotLightShadowData::UnregisterMaterialInstance(const MaterialInstance& matInstance)
 	{
 		m_depthPass->UnregisterMaterialInstance(matInstance);
+	}
+
+	void SpotLightShadowData::WriteToShader(const ShadowAtlas& atlas, [[maybe_unused]] const AbstractViewer* viewer, void* basePtr) const
+	{
+		assert(viewer == nullptr);
+
+		std::optional<Rectf> rect = atlas.GetNormalizedRect(m_firstShadowAtlasIndex);
+		if (!rect)
+			rect = Rectf(-1.0f, -1.0f, -1.0f, -1.0f);
+
+		AccessByOffset<Vector2f&>(basePtr, PredefinedSpotShadowAtlasEntryOffsets.offset) = rect->GetPosition();
+		AccessByOffset<Vector2f&>(basePtr, PredefinedSpotShadowAtlasEntryOffsets.size) = rect->GetLengths();
 	}
 }

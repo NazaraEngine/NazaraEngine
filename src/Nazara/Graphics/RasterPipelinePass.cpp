@@ -7,6 +7,7 @@
 #include <Nazara/Graphics/ElementRenderer.hpp>
 #include <Nazara/Graphics/ElementRendererRegistry.hpp>
 #include <Nazara/Graphics/FrameGraph.hpp>
+#include <Nazara/Graphics/FramePipeline.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/MaterialInstance.hpp>
@@ -132,12 +133,13 @@ namespace Nz
 
 		pass.SetCommandCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
-			Recti viewport = m_viewer->GetViewport();
-
-			builder.SetScissor(viewport);
-			builder.SetViewport(viewport);
-
-			ElementRenderer::RenderStates defaultRenderStates{};
+			ElementRenderer::RenderData renderData;
+			renderData.directionalLights = RenderBufferView(m_pipeline.GetDirectionalLightBuffer().get());
+			renderData.directionalLightAtlasMapping = RenderBufferView(m_pipeline.GetDirectionalShadowMappingBuffer().get());
+			renderData.pointLights = RenderBufferView(m_pipeline.GetPointLightBuffer().get());
+			renderData.pointLightAtlasMapping = RenderBufferView(m_pipeline.GetPointShadowMappingBuffer().get());
+			renderData.spotLights = RenderBufferView(m_pipeline.GetSpotLightBuffer().get());
+			renderData.spotLightAtlasMapping = RenderBufferView(m_pipeline.GetSpotShadowMappingBuffer().get());
 
 			m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
 			{
@@ -151,18 +153,40 @@ namespace Nz
 			m_elementRegistry.ProcessRenderQueue(m_renderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
 			{
 				ElementRenderer& elementRenderer = m_elementRegistry.GetElementRenderer(elementType);
-				elementRenderer.Prepare(*m_viewer, *m_elementRendererData[elementType], env.renderResources, elementCount, elements, SparsePtr(&defaultRenderStates, 0));
+				elementRenderer.Prepare(renderData , *m_viewer, *m_elementRendererData[elementType], env.renderResources, elementCount, elements);
 			});
 
 			m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
 			{
 				elementRenderer.PrepareEnd(*m_elementRendererData[elementType], env.renderResources, builder);
 			});
+		});
+
+		pass.SetRenderCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& env)
+		{
+			Recti viewport = m_viewer->GetViewport();
+
+			builder.SetScissor(viewport);
+			builder.SetViewport(viewport);
+
+			ElementRenderer::RenderData renderData;
+			renderData.directionalLights = RenderBufferView(m_pipeline.GetDirectionalLightBuffer().get());
+			renderData.pointLights = RenderBufferView(m_pipeline.GetPointLightBuffer().get());
+			renderData.spotLights = RenderBufferView(m_pipeline.GetSpotLightBuffer().get());
+
+			m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
+			{
+				if (elementType >= m_elementRendererData.size())
+					m_elementRendererData.resize(elementType + 1);
+
+				if (!m_elementRendererData[elementType])
+					m_elementRendererData[elementType] = elementRenderer.InstanciateData();
+			});
 
 			m_elementRegistry.ProcessRenderQueue(m_renderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
 			{
 				ElementRenderer& elementRenderer = m_elementRegistry.GetElementRenderer(elementType);
-				elementRenderer.Render(*m_viewer, *m_elementRendererData[elementType], env.renderResources, builder, elementCount, elements, SparsePtr(&defaultRenderStates, 0));
+				elementRenderer.Render(renderData , *m_viewer, *m_elementRendererData[elementType], env.renderResources, builder, elementCount, elements);
 			});
 
 			m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)

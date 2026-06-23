@@ -5,11 +5,53 @@ option MaxLightCascadeCount: u32 = 4;
 
 import DirectionalLight, PointLight, SpotLight from Lighting.LightData;
 
+[export, layout(std430)]
+struct DirectionalShadowAtlasEntry
+{
+	offset: array[vec2[f32], MaxLightCascadeCount],
+	size: array[vec2[f32], MaxLightCascadeCount], // normalized
+	viewProjMatrices: array[mat4[f32], MaxLightCascadeCount]
+}
+
+[export, layout(std430)]
+struct PointShadowAtlasEntry
+{
+	offset: array[vec2[f32], 6],
+	size: array[vec2[f32], 6] // normalized
+	// view matrix is constant and proj matrix is computed using light radius
+}
+
+[export, layout(std430)]
+struct SpotShadowAtlasEntry
+{
+	offset: vec2[f32],
+	size: vec2[f32], // normalized
+	// viewProjMatrix is part of the SpotLight struct
+}
+
+[export, layout(std430)]
+struct DirectionalShadowAtlasMapping
+{
+	shadowMappings: dyn_array[DirectionalShadowAtlasEntry]
+}
+
+[export, layout(std430)]
+struct PointShadowAtlasMapping
+{
+	shadowMappings: dyn_array[PointShadowAtlasEntry]
+}
+
+[export, layout(std430)]
+struct SpotShadowAtlasMapping
+{
+	shadowMappings: dyn_array[SpotShadowAtlasEntry]
+}
+
 [export]
 fn SelectCascade(light: DirectionalLight, worldPos: vec3[f32]) -> u32
 {
 	let cascadeIndex = light.cascadeCount - u32(1);
-	for index in u32(0) -> light.cascadeCount
+	/*for index in u32(0) -> light.cascadeCount
 	{
 		let lightProjPos = light.viewProjMatrices[index] * vec4[f32](worldPos, 1.0);
 
@@ -18,7 +60,7 @@ fn SelectCascade(light: DirectionalLight, worldPos: vec3[f32]) -> u32
 			cascadeIndex = index;
 			break;
 		}
-	}
+	}*/
 
 	return cascadeIndex;
 }
@@ -27,7 +69,7 @@ fn SelectCascade(light: DirectionalLight, worldPos: vec3[f32]) -> u32
 fn ComputeDirectionalLightShadow(light: DirectionalLight, shadowmap: depth_sampler2D_array[f32], worldPos: vec3[f32], lambert: f32, viewMatrix: mat4[f32]) -> f32
 {
 	let shadowFactor = 1.0;
-	if (light.invShadowMapSize.x > 0.0)
+	/*if (light.invShadowMapSize.x > 0.0)
 	{
 		let cascadeIndex = SelectCascade(light, worldPos);
 
@@ -46,7 +88,7 @@ fn ComputeDirectionalLightShadow(light: DirectionalLight, shadowmap: depth_sampl
 			}
 		}
 		shadowFactor /= 9.0;
-	}
+	}*/
 
 	return shadowFactor;
 }
@@ -55,7 +97,7 @@ fn ComputeDirectionalLightShadow(light: DirectionalLight, shadowmap: depth_sampl
 fn ComputePointLightShadow(light: PointLight, shadowmap: sampler_cube[f32], dist: f32, lightDir: vec3[f32]) -> f32
 {
 	let shadowFactor = 1.0;
-	if (light.invShadowMapSize.x > 0.0)
+	/*if (light.invShadowMapSize.x > 0.0)
 	{
 		shadowFactor = 0.0;
 
@@ -88,21 +130,23 @@ fn ComputePointLightShadow(light: PointLight, shadowmap: sampler_cube[f32], dist
 				}
 			}
 		}
-	}
+	}*/
 
 	return shadowFactor;
 }
 
 [export]
-fn ComputeSpotLightShadow(light: SpotLight, shadowmap: depth_sampler2D[f32], worldPos: vec3[f32], lambert: f32) -> f32
+fn ComputeSpotLightShadow(shadowAtlas: depth_sampler2D[f32], light: SpotLight, shadowAtlasEntry: SpotShadowAtlasEntry, worldPos: vec3[f32], lambert: f32) -> f32
 {
 	let shadowFactor = 1.0;
-	if (light.invShadowMapSize.x > 0.0)
+	if (shadowAtlasEntry.offset.x >= 0.0)
 	{
 		let lightProjPos = light.viewProjMatrix * vec4[f32](worldPos, 1.0);
 		let shadowCoords = lightProjPos.xyz / lightProjPos.w;
 
-		shadowFactor = 0.0;
+		let coords = shadowAtlasEntry.offset + shadowCoords.xy * shadowAtlasEntry.size;
+		shadowFactor = shadowAtlas.SampleDepthComp(coords, shadowCoords.z).x;
+		/*shadowFactor = 0.0;
 		[unroll]
 		for x in -1 -> 2
 		{
@@ -113,7 +157,7 @@ fn ComputeSpotLightShadow(light: SpotLight, shadowmap: depth_sampler2D[f32], wor
 				shadowFactor += shadowmap.SampleDepthComp(coords, shadowCoords.z).r;
 			}
 		}
-		shadowFactor /= 9.0;
+		shadowFactor /= 9.0;*/
 	}
 
 	return shadowFactor;

@@ -38,7 +38,7 @@ namespace Nz
 			return FramePassExecution::UpdateAndExecute;
 		});
 
-		imguiDrawPass.SetCommandCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& /*env*/)
+		imguiDrawPass.SetRenderCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& /*env*/)
 		{
 			Recti viewport = m_viewer->GetViewport();
 

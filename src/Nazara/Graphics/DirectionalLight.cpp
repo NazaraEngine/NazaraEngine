@@ -26,4 +26,12 @@ namespace Nz
 	{
 		UpdateRotation(rotation);
 	}
+
+	void DirectionalLight::WriteToShader(void* basePtr) const
+	{
+		AccessByOffset<Vector3f&>(basePtr, PredefinedDirectionalLightOffsets.colorOffset) = Vector3f(m_color.r, m_color.g, m_color.b) * GetEnergy();
+		AccessByOffset<Vector3f&>(basePtr, PredefinedDirectionalLightOffsets.directionOffset) = m_direction;
+		AccessByOffset<float&>(basePtr, PredefinedDirectionalLightOffsets.ambientFactorOffset) = m_ambientFactor;
+		AccessByOffset<float&>(basePtr, PredefinedDirectionalLightOffsets.diffuseFactorOffset) = m_diffuseFactor;
+	}
 }

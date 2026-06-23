@@ -45,4 +45,20 @@ namespace Nz
 		m_position = position; //< don't call UpdatePosition to prevent double update
 		UpdateRotation(rotation);
 	}
+
+	void SpotLight::WriteToShader(void* basePtr) const
+	{
+		AccessByOffset<Vector3f&>(basePtr, PredefinedSpotLightOffsets.colorOffset) = Vector3f(m_color.r, m_color.g, m_color.b) * GetEnergy();
+		AccessByOffset<Vector3f&>(basePtr, PredefinedSpotLightOffsets.directionOffset) = m_direction;
+		AccessByOffset<Vector3f&>(basePtr, PredefinedSpotLightOffsets.positionOffset) = m_position;
+		AccessByOffset<float&>(basePtr, PredefinedSpotLightOffsets.ambientFactorOffset) = m_ambientFactor;
+		AccessByOffset<float&>(basePtr, PredefinedSpotLightOffsets.diffuseFactorOffset) = m_diffuseFactor;
+		AccessByOffset<float&>(basePtr, PredefinedSpotLightOffsets.innerAngleOffset) = m_innerAngleCos;
+		AccessByOffset<float&>(basePtr, PredefinedSpotLightOffsets.outerAngleOffset) = m_outerAngleCos;
+		AccessByOffset<float&>(basePtr, PredefinedSpotLightOffsets.invRadiusOffset) = m_invRadius;
+		AccessByOffset<Matrix4f&>(basePtr, PredefinedSpotLightOffsets.viewProjMatrixOffset) = m_viewProjMatrix;
+
+		//float baseRadius = m_radius * m_outerAngleTan * 1.1f;
+		//AccessByOffset<Matrix4f&>(basePtr, PredefinedSpotLightOffsets.worldMatrixOffset) = Matrix4f::Transform(m_position, m_rotation, Vector3f(baseRadius, baseRadius, m_radius));
+	}
 }

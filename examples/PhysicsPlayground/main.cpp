@@ -1,5 +1,6 @@
 #include <Nazara/Core.hpp>
 #include <Nazara/Graphics.hpp>
+#include <Nazara/Graphics/IndirectFramePipeline.hpp>
 #include <Nazara/Platform/WindowingAppComponent.hpp>
 #include <Nazara/Physics3D.hpp>
 #include <Nazara/Renderer.hpp>
@@ -38,7 +39,10 @@ int main(int argc, char* argv[])
 	physSystem.GetPhysWorld().SetGravity(Nz::Vector3f::Down() * 9.81f);
 	//physSystem.GetPhysWorld().SetGravity(Nz::Vector3f::Zero());
 
-	auto& renderSystem = world.AddSystem<Nz::RenderSystem>();
+	auto& renderSystem = world.AddSystem<Nz::RenderSystem>(/*[](Nz::ElementRendererRegistry& elementRegistry) -> std::unique_ptr<Nz::FramePipeline>
+	{
+		return std::make_unique<Nz::IndirectFramePipeline>(elementRegistry);
+	}*/);
 	Nz::WindowSwapchain& windowSwapchain = renderSystem.CreateSwapchain(mainWindow);
 
 	Nz::Vector3f target = Nz::Vector3f::Zero();
@@ -76,7 +80,7 @@ int main(int argc, char* argv[])
 
 		boxColliderEntity.emplace<Nz::NodeComponent>();
 
-		float thickness = 1.f;
+		float thickness = 2.f;
 		std::shared_ptr<Nz::BoxCollider3D> wallCollider = std::make_shared<Nz::BoxCollider3D>(Nz::Vector3f(BoxDims + thickness * 2.f, BoxDims + thickness * 2.f, thickness));
 
 		std::vector<Nz::CompoundCollider3D::ChildCollider> colliders;
@@ -125,8 +129,10 @@ int main(int argc, char* argv[])
 
 		entt::handle ballEntity = world.CreateEntity();
 
+		Nz::Color ballColor = Nz::Color::sRGBToLinear(Nz::Color::FromHSV(colorDis(rd), 1.f, 1.f));
+
 		std::shared_ptr<Nz::MaterialInstance> ballMaterial = Nz::MaterialInstance::Instantiate(Nz::MaterialType::Phong);
-		ballMaterial->SetValueProperty("BaseColor", Nz::Color::sRGBToLinear(Nz::Color::FromHSV(colorDis(rd), 1.f, 1.f)));
+		ballMaterial->SetValueProperty("BaseColor", ballColor);
 
 		std::shared_ptr<Nz::Model> sphereModel = std::make_shared<Nz::Model>(sphereMesh);
 		sphereModel->SetMaterial(0, std::move(ballMaterial));
@@ -141,6 +147,7 @@ int main(int argc, char* argv[])
 		Nz::RigidBody3D::DynamicSettings settings;
 		settings.collider = sphereCollider;
 		settings.mass = 4.f / 3.f * Nz::Pi<float>() * Nz::IntegralPow(radius, 3);
+		settings.objectLayer = 1;
 
 		ballEntity.emplace<Nz::RigidBody3DComponent>(settings);
 	}
@@ -178,6 +185,7 @@ int main(int argc, char* argv[])
 		Nz::RigidBody3D::DynamicSettings settings;
 		settings.collider = boxCollider;
 		settings.mass = width * height * depth;
+		settings.objectLayer = 1;
 
 		boxEntity.emplace<Nz::RigidBody3DComponent>(settings);
 	}
@@ -245,6 +253,7 @@ int main(int argc, char* argv[])
 			Nz::RigidBody3D::DynamicSettings settings;
 			settings.collider = shipCollider;
 			settings.mass = 100.f;
+			settings.objectLayer = 1;
 
 			shipEntity.emplace<Nz::RigidBody3DComponent>(settings);
 
@@ -344,6 +353,9 @@ int main(int argc, char* argv[])
 		UpdateCamera();
 	};
 
+	Nz::Vector3f debugLineFrom = Nz::Vector3f::Zero();
+	Nz::Vector3f debugLineTo = Nz::Vector3f::Zero();
+
 	Nz::WindowEventHandler& eventHandler = mainWindow.GetEventHandler();
 	eventHandler.OnMouseButtonPressed.Connect([&](const Nz::WindowEventHandler*, const Nz::WindowEvent::MouseButtonEvent& event)
 	{
@@ -357,6 +369,9 @@ int main(int argc, char* argv[])
 
 			Nz::Vector3f from = cameraComponent.UnprojectFromScreen({ float(event.x), float(event.y), 0.f });
 			Nz::Vector3f to = cameraComponent.UnprojectFromScreen({ float(event.x), float(event.y), 1.f });
+
+			debugLineFrom = from;
+			debugLineTo = to;
 
 			Nz::Physics3DSystem::RaycastHit lastHitInfo;
 			auto callback = [&](const decltype(lastHitInfo)& hitInfo) -> std::optional<float>
@@ -426,10 +441,12 @@ int main(int argc, char* argv[])
 		}
 	});
 
-	Nz::DegreeAnglef rotation = 0.f;
+	//Nz::DegreeAnglef rotation = 0.f;
 	app.AddUpdaterFunc([&](Nz::Time elapsedTime)
 	{
-		rotation += elapsedTime.AsSeconds() * 45.f;
+		auto& cameraComponent = cameraEntity.get<Nz::CameraComponent>();
+		cameraComponent.AccessDebugDrawer()->DrawLine(debugLineFrom, debugLineTo, Nz::Color::Magenta(), Nz::Color::Blue());
+		//rotation += elapsedTime.AsSeconds() * 360.f;
 		//physSystem.GetPhysWorld().SetGravity(Nz::Quaternionf(Nz::EulerAnglesf(0.f, rotation, 0.f)) * Nz::Vector3f::Forward() * 10.f);
 	});
 

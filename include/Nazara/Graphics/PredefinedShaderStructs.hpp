@@ -12,12 +12,18 @@
 namespace Nz
 {
 	static constexpr PredefinedDirectionalLightData PredefinedDirectionalLightOffsets = PredefinedDirectionalLightData::Build();
+	static constexpr PredefinedDirectionalLightsData PredefinedDirectionalLightsOffsets = PredefinedDirectionalLightsData::Build();
+	static constexpr PredefinedDirectionalShadowAtlasEntryData PredefinedDirectionalShadowAtlasEntryOffsets = PredefinedDirectionalShadowAtlasEntryData::Build();
 	static constexpr PredefinedPointLightData PredefinedPointLightOffsets = PredefinedPointLightData::Build();
+	static constexpr PredefinedPointLightsData PredefinedPointLightsOffsets = PredefinedPointLightsData::Build();
+	static constexpr PredefinedPointShadowAtlasEntryData PredefinedPointShadowAtlasEntryOffsets = PredefinedPointShadowAtlasEntryData::Build();
 	static constexpr PredefinedSpotLightData PredefinedSpotLightOffsets = PredefinedSpotLightData::Build();
-	static constexpr PredefinedLightData PredefinedLightOffsets = PredefinedLightData::Build();
+	static constexpr PredefinedSpotLightsData PredefinedSpotLightsOffsets = PredefinedSpotLightsData::Build();
+	static constexpr PredefinedSpotShadowAtlasEntryData PredefinedSpotShadowAtlasEntryOffsets = PredefinedSpotShadowAtlasEntryData::Build();
 	static constexpr PredefinedInstanceData PredefinedInstanceOffsets = PredefinedInstanceData::Build();
 	static constexpr PredefinedSkeletalData PredefinedSkeletalOffsets = PredefinedSkeletalData::Build();
 	static constexpr PredefinedViewerData PredefinedViewerOffsets = PredefinedViewerData::Build();
+	static constexpr ShadowAtlasEntry ShadowAtlasEntryOffsets = ShadowAtlasEntry::Build();
 }
 
 #endif // NAZARA_GRAPHICS_PREDEFINEDSHADERSTRUCTS_HPP
