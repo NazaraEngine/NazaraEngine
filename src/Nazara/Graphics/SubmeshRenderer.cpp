@@ -48,7 +48,6 @@ namespace Nz
 		}
 
 		Vector2f targetSize = viewer.GetViewerInstance().GetTargetSize();
-		Recti fullscreenScissorBox(0, 0, SafeCast<int>(std::floor(targetSize.x)), SafeCast<int>(std::floor(targetSize.y)));
 
 		const RenderBuffer* currentIndexBuffer = nullptr;
 		const RenderBuffer* currentVertexBuffer = nullptr;
@@ -57,7 +56,7 @@ namespace Nz
 		const ShaderBinding* currentShaderBinding = nullptr;
 		const SkeletonInstance* currentSkeletonInstance = nullptr;
 		const WorldInstance* currentWorldInstance = nullptr;
-		Recti currentScissorBox = fullscreenScissorBox;
+		Recti currentScissorBox(-1, -1, -1, -1);
 
 		auto FlushDrawData = [&]()
 		{
@@ -117,7 +116,7 @@ namespace Nz
 			}
 
 			const Recti& scissorBox = submesh.GetScissorBox();
-			const Recti& targetScissorBox = (scissorBox.width >= 0) ? scissorBox : fullscreenScissorBox;
+			const Recti& targetScissorBox = (scissorBox.width >= 0) ? scissorBox : renderData.renderRegion;
 			if (currentScissorBox != targetScissorBox)
 			{
 				commandBuffer.SetScissor(targetScissorBox);

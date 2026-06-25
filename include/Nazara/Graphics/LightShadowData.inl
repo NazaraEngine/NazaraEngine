@@ -9,11 +9,6 @@ namespace Nz
 	{
 	}
 
-	inline std::size_t LightShadowData::GetViewCount() const
-	{
-		return m_shadowAtlasEntryCount;
-	}
-
 	inline bool LightShadowData::IsPerViewer() const
 	{
 		return m_isPerViewer;
@@ -22,11 +17,5 @@ namespace Nz
 	inline void LightShadowData::UpdatePerViewerStatus(bool isPerViewer)
 	{
 		m_isPerViewer = isPerViewer;
-	}
-
-	inline void LightShadowData::UpdateShadowAtlasEntries(std::size_t firstIndex, std::size_t count)
-	{
-		m_firstShadowAtlasIndex = firstIndex;
-		m_shadowAtlasEntryCount = count;
 	}
 }

@@ -44,7 +44,7 @@ namespace Nz
 				};
 
 				if (!passData.name.empty())
-					builder.BeginDebugRegion(passData.name, Color::Green());
+					builder.BeginDebugRegion(passData.name, passData.regionColor);
 
 				if (passData.commandCallback)
 					passData.commandCallback(builder, env);

@@ -171,21 +171,21 @@ namespace Nz
 				case SafeCast<int>(BasicLightType::Directional):
 				{
 					UInt8* lightDataPtr = m_directionalLights.AccessEntry(lightData->entryIndex);
-					light->WriteToShader(lightDataPtr);
+					light->WriteToShader(lightDataPtr, lightData->shadowMappingEntry);
 					break;
 				}
 
 				case SafeCast<int>(BasicLightType::Point):
 				{
 					UInt8* lightDataPtr = m_pointLights.AccessEntry(lightData->entryIndex);
-					light->WriteToShader(lightDataPtr);
+					light->WriteToShader(lightDataPtr, lightData->shadowMappingEntry);
 					break;
 				}
 
 				case SafeCast<int>(BasicLightType::Spot):
 				{
 					UInt8* lightDataPtr = m_spotLights.AccessEntry(lightData->entryIndex);
-					light->WriteToShader(lightDataPtr);
+					light->WriteToShader(lightDataPtr, lightData->shadowMappingEntry);
 					break;
 				}
 			}
@@ -218,7 +218,7 @@ namespace Nz
 			{
 				lightData->entryIndex = m_directionalLights.Push();
 				UInt8* lightDataPtr = m_directionalLights.AccessEntry(lightData->entryIndex);
-				light->WriteToShader(lightDataPtr);
+				light->WriteToShader(lightDataPtr, lightData->shadowMappingEntry);
 
 				UInt8* lightHeaderPtr = m_directionalLights.AccessHeader();
 				AccessByOffset<UInt32&>(lightHeaderPtr, PredefinedDirectionalLightsOffsets.lightCount) += 1;
@@ -234,7 +234,7 @@ namespace Nz
 			{
 				lightData->entryIndex = m_pointLights.Push();
 				UInt8* lightDataPtr = m_pointLights.AccessEntry(lightData->entryIndex);
-				light->WriteToShader(lightDataPtr);
+				light->WriteToShader(lightDataPtr, lightData->shadowMappingEntry);
 
 				UInt8* lightHeaderPtr = m_pointLights.AccessHeader();
 				AccessByOffset<UInt32&>(lightHeaderPtr, PredefinedPointLightsOffsets.lightCount) += 1;
@@ -255,7 +255,7 @@ namespace Nz
 			{
 				lightData->entryIndex = m_spotLights.Push();
 				UInt8* lightDataPtr = m_spotLights.AccessEntry(lightData->entryIndex);
-				light->WriteToShader(lightDataPtr);
+				light->WriteToShader(lightDataPtr, lightData->shadowMappingEntry);
 
 				UInt8* lightHeaderPtr = m_spotLights.AccessHeader();
 				AccessByOffset<UInt32&>(lightHeaderPtr, PredefinedSpotLightsOffsets.lightCount) += 1;
@@ -581,7 +581,11 @@ namespace Nz
 			for (std::size_t lightIndex : m_shadowCastingLights.IterBits())
 			{
 				LightData* lightData = m_lightPool.RetrieveFromIndex(lightIndex);
-				if (lightData->shadowData && !lightData->shadowData->IsPerViewer())
+				NazaraAssert(lightData->shadowData);
+				lightData->shadowData->PrepareRendering(renderResources);
+
+				// Write global states (independent from viewers)
+				if (!lightData->shadowData->IsPerViewer())
 				{
 					switch (lightData->light->GetLightType())
 					{
@@ -604,14 +608,6 @@ namespace Nz
 		// Viewer handling (second pass)
 		for (ViewerData* viewerData : m_orderedViewers)
 		{
-			// Per-viewer shadow map handling
-			/*for (std::size_t lightIndex : viewerData->frame.visibleLights.IterBits())
-			{
-				LightData* lightData = m_lightPool.RetrieveFromIndex(lightIndex);
-				if (lightData->shadowData && lightData->shadowData->IsPerViewer() && (viewerData->renderMask & lightData->renderMask) != 0)
-					lightData->shadowData->PrepareRendering(renderResources, viewerData->viewer);
-			}*/
-
 			// Frustum culling
 			std::size_t visibilityHash = 5;
 			const auto& visibleRenderables = FrustumCull(viewerData->frame.frustum, viewerData->renderMask, visibilityHash);
@@ -627,24 +623,6 @@ namespace Nz
 			for (auto& passPtr : viewerData->passes)
 				passPtr->Prepare(passData);
 		}
-
-		// Update UBOs and materials
-		renderResources.Execute([&](CommandBufferBuilder& builder)
-		{
-			builder.BeginDebugRegion("CPU to GPU transfers", Color::Yellow());
-			{
-				builder.MemoryBarrier({ .srcStageMask = PipelineStage::BottomOfPipe, .dstStageMask = PipelineStage::Transfer, .srcAccessMask = {}, .dstAccessMask = MemoryAccess::TransferRead | MemoryAccess::TransferWrite });
-
-				for (TransferInterface* transferInterface : m_transferSet)
-					transferInterface->OnTransfer(renderResources, builder);
-				m_transferSet.clear();
-
-				OnTransfer(this, renderResources, builder);
-
-				builder.MemoryBarrier({ .srcStageMask = PipelineStage::Transfer, .dstStageMask = PipelineStage::ComputeShader | PipelineStage::FragmentShader | PipelineStage::VertexShader, .srcAccessMask = MemoryAccess::TransferRead | MemoryAccess::TransferWrite, .dstAccessMask = MemoryAccess::ShaderRead | MemoryAccess::UniformBufferRead });
-			}
-			builder.EndDebugRegion();
-		}, QueueType::Transfer);
 
 		// Rendering
 		m_bakedFrameGraph.Execute(renderResources);
@@ -845,6 +823,8 @@ namespace Nz
 	{
 		FrameGraph frameGraph;
 
+		std::size_t transferAttachment = InsertTransferPass(frameGraph, {});
+
 		if (!m_shadowAtlasPipelinePass && m_shadowCastingLights.TestAny())
 		{
 			FramePipelinePass::PassData passData{ nullptr, m_elementRegistry, *this };
@@ -854,7 +834,10 @@ namespace Nz
 		std::size_t shadowAtlasIndex = MaxValue();
 		if (m_shadowAtlasPipelinePass)
 		{
-			FramePass& finalPass = m_shadowAtlasPipelinePass->RegisterToFrameGraph(frameGraph, {});
+			FramePipelinePass::PassInputData passInputData;
+			passInputData.attachmentIndex = transferAttachment;
+
+			FramePass& finalPass = m_shadowAtlasPipelinePass->RegisterToFrameGraph(frameGraph, { .inputAttachments = std::span(&passInputData, 1) });
 			shadowAtlasIndex = finalPass.GetDepthStencilOutput();
 		}
 
@@ -900,15 +883,38 @@ namespace Nz
 
 			for (ViewerData* viewerData : viewers)
 			{
-				/*for (std::size_t i : m_shadowCastingLights.IterBits())
+				std::size_t viewerUploadAttachment = InsertTransferPass(frameGraph, [this, viewerData]
 				{
-					LightData* lightData = m_lightPool.RetrieveFromIndex(i);
-					if (lightData->shadowData->IsPerViewer() && (viewerData->renderMask & lightData->renderMask) != 0)
-						lightData->shadowData->RegisterToFrameGraph(frameGraph, viewerData->viewer);
-				}*/
+					PipelineViewer* viewer = viewerData->viewer;
+					ShadowAtlas& shadowAtlas = m_shadowAtlasPipelinePass->GetAtlas();
+
+					for (std::size_t lightIndex : m_shadowCastingLights.IterBits())
+					{
+						LightData* lightData = m_lightPool.RetrieveFromIndex(lightIndex);
+						if (lightData->shadowData && lightData->shadowData->IsPerViewer() && (viewerData->renderMask & lightData->renderMask) != 0)
+						{
+							switch (lightData->light->GetLightType())
+							{
+							case SafeCast<int>(BasicLightType::Directional):
+								lightData->shadowData->WriteToShader(shadowAtlas, viewer, m_directionalShadowAtlasEntries.AccessEntry(lightData->shadowMappingEntry));
+								break;
+
+							case SafeCast<int>(BasicLightType::Point):
+								lightData->shadowData->WriteToShader(shadowAtlas, viewer, m_pointShadowAtlasEntries.AccessEntry(lightData->shadowMappingEntry));
+								break;
+
+							case SafeCast<int>(BasicLightType::Spot):
+								lightData->shadowData->WriteToShader(shadowAtlas, viewer, m_spotShadowAtlasEntries.AccessEntry(lightData->shadowMappingEntry));
+								break;
+							}
+						}
+					}
+				});
 
 				auto framePassCallback = [&, viewerData = viewerData](std::size_t /*passIndex*/, FramePass& framePass, FramePipelinePassFlags flags)
 				{
+					framePass.AddInput(viewerUploadAttachment);
+
 					// Inject previous final attachments as inputs for all passes, to force framegraph to order viewers passes relative to each other
 					// TODO: Allow the user to define which pass of viewer A uses viewer B rendering
 					for (std::size_t i = 0; i < dependenciesColorAttachmentCount; ++i)
@@ -1019,6 +1025,37 @@ namespace Nz
 		});
 
 		return mergedAttachment;
+	}
+
+	std::size_t DefaultFramePipeline::InsertTransferPass(FrameGraph& frameGraph, std::function<void()> callback)
+	{
+		std::size_t viewerUploadAttachment = frameGraph.AddDummyAttachment();
+
+		FramePass& framePass = frameGraph.AddPass("CPU to GPU transfers");
+		framePass.SetExecutionCallback([this, cb = std::move(callback)]
+		{
+			if (cb)
+				cb();
+
+			return (!m_transferSet.empty()) ? FramePassExecution::UpdateAndExecute : FramePassExecution::Skip;
+		});
+
+		framePass.SetCommandCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& env)
+		{
+			builder.MemoryBarrier({ .srcStageMask = PipelineStage::BottomOfPipe, .dstStageMask = PipelineStage::Transfer, .srcAccessMask = {}, .dstAccessMask = MemoryAccess::TransferRead | MemoryAccess::TransferWrite });
+
+			for (TransferInterface* transferInterface : m_transferSet)
+				transferInterface->OnTransfer(env.renderResources, builder);
+			m_transferSet.clear();
+
+			OnTransfer(this, env.renderResources, builder);
+
+			builder.MemoryBarrier({ .srcStageMask = PipelineStage::Transfer, .dstStageMask = PipelineStage::ComputeShader | PipelineStage::FragmentShader | PipelineStage::VertexShader, .srcAccessMask = MemoryAccess::TransferRead | MemoryAccess::TransferWrite, .dstAccessMask = MemoryAccess::ShaderRead | MemoryAccess::UniformBufferRead });
+		});
+
+		framePass.AddOutput(viewerUploadAttachment);
+
+		return viewerUploadAttachment;
 	}
 
 	void DefaultFramePipeline::InvalidateElements(Nz::UInt32 renderMask)

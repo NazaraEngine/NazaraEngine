@@ -255,14 +255,11 @@ namespace Nz
 		m_pendingData = PendingData{};
 	}
 
-	void SpriteChainRenderer::Render(const RenderData& /*renderData*/, const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& /*renderResources*/, CommandBufferBuilder& commandBuffer, std::size_t /*elementCount*/, const Pointer<const RenderElement>* elements)
+	void SpriteChainRenderer::Render(const RenderData& renderData, const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& /*renderResources*/, CommandBufferBuilder& commandBuffer, std::size_t /*elementCount*/, const Pointer<const RenderElement>* elements)
 	{
 		auto& data = static_cast<SpriteChainRendererData&>(rendererData);
 
 		commandBuffer.BindIndexBuffer(*m_indexBuffer, Nz::IndexType::U16);
-
-		Vector2f targetSize = viewer.GetViewerInstance().GetTargetSize();
-		Recti fullscreenScissorBox(0, 0, SafeCast<int>(std::floor(targetSize.x)), SafeCast<int>(std::floor(targetSize.y)));
 
 		const RenderBuffer* currentVertexBuffer = nullptr;
 		const RenderPipeline* currentPipeline = nullptr;
@@ -297,7 +294,7 @@ namespace Nz
 				currentShaderBinding = drawData.shaderBinding;
 			}
 
-			const Recti& targetScissorBox = (drawData.scissorBox.width >= 0) ? drawData.scissorBox : fullscreenScissorBox;
+			const Recti& targetScissorBox = (drawData.scissorBox.width >= 0) ? drawData.scissorBox : renderData.renderRegion;
 			if (currentScissorBox != targetScissorBox)
 			{
 				commandBuffer.SetScissor(targetScissorBox);

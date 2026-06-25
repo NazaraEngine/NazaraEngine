@@ -208,6 +208,7 @@ namespace Nz
 			renderData.directionalLightAtlasMapping = RenderBufferView(m_pipeline.GetDirectionalShadowMappingBuffer().get());
 			renderData.pointLights = RenderBufferView(m_pipeline.GetPointLightBuffer().get());
 			renderData.pointLightAtlasMapping = RenderBufferView(m_pipeline.GetPointShadowMappingBuffer().get());
+			renderData.renderRegion = viewport;
 			renderData.shadowAtlas = m_pipeline.GetShadowAtlasTexture().get();
 			renderData.spotLights = RenderBufferView(m_pipeline.GetSpotLightBuffer().get());
 			renderData.spotLightAtlasMapping = RenderBufferView(m_pipeline.GetSpotShadowMappingBuffer().get());

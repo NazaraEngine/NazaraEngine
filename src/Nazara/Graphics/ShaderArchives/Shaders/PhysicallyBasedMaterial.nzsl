@@ -238,8 +238,14 @@ fn ComputeLighting(color: vec3[f32], input: VertOut) -> vec3[f32]
 		let result = PhysicallyBased.ComputePointLight(light, eyeVec, albedoFactor, F0, normal, metallic, roughness, input.worldPos);
 
 		let shadowFactor = 1.0;
-		//const if (EnableShadowMapping)
-		//	shadowFactor = Shadow.ComputePointLightShadow(light, shadowMapsPoint[lightIndex], result.dist, result.lightToWorldDir);
+		const if (EnableShadowMapping)
+		{
+			if (light.shadowIndex != u32.Max)
+			{
+				let shadowAtlasEntry: Shadow.PointShadowAtlasEntry = pointShadowAtlasMapping.shadowMappings[light.shadowIndex];
+				shadowFactor = Shadow.ComputePointLightShadow(shadowAtlas, light, shadowAtlasEntry, result.lightToWorldDir, input.worldPos);
+			}
+		}
 
 		lightRadiance += shadowFactor * result.radiance;
 	}
@@ -255,7 +261,7 @@ fn ComputeLighting(color: vec3[f32], input: VertOut) -> vec3[f32]
 			if (light.shadowIndex != u32.Max)
 			{
 				let shadowAtlasEntry: Shadow.SpotShadowAtlasEntry = spotShadowAtlasMapping.shadowMappings[light.shadowIndex];
-				shadowFactor = Shadow.ComputeSpotLightShadow(shadowAtlas, light, shadowAtlasEntry, input.worldPos, result.lambert);
+				shadowFactor = Shadow.ComputeSpotLightShadow(shadowAtlas, light, shadowAtlasEntry, input.worldPos);
 			}
 		}
 

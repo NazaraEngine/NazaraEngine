@@ -97,6 +97,8 @@ namespace Nz
 
 			BakedFrameGraph BuildFrameGraph();
 
+			std::size_t InsertTransferPass(FrameGraph& frameGraph, std::function<void()> callback);
+
 			void InvalidateElements(Nz::UInt32 renderMask);
 
 			void RegisterMaterialInstance(MaterialInstance* materialPass);

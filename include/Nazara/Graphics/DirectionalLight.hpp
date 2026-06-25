@@ -53,7 +53,7 @@ namespace Nz
 
 			void UpdateTransform(const Vector3f& position, const Quaternionf& rotation, const Vector3f& scale) override;
 
-			void WriteToShader(void* basePtr) const override;
+			void WriteToShader(void* basePtr, UInt32 shadowIndex) const override;
 
 			DirectionalLight& operator=(const DirectionalLight&) = delete;
 			DirectionalLight& operator=(DirectionalLight&&) noexcept = default;

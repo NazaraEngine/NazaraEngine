@@ -1,0 +1,37 @@
+[nzsl_version("1.1")]
+module Math.Cubemap;
+
+// https://gamedev.net/forums/topic/687535-implementing-a-cube-map-lookup-function/5337472/
+// TODO: Use SPV_AMD_gcn_shader if supported
+[export]
+fn DirectionToCoords(dir: vec3[f32]) -> vec2[f32]
+{
+    let dirAbs = abs(dir);
+	if (dirAbs.z >= dirAbs.x && dirAbs.z >= dirAbs.y)
+    {
+        let uv = vec2(select(dir.z < 0.0, -dir.x, dir.x), -dir.y);
+		return uv * (0.5 / dirAbs.z) + (0.5).xx;
+    }
+	else if (dirAbs.y >= dirAbs.x)
+    {
+        let uv = vec2(dir.x, select(dir.y < 0.0, -dir.z, dir.z));
+		return uv * (0.5 / dirAbs.y) + (0.5).xx;
+    }
+	else
+    {
+        let uv = vec2(select(dir.x < 0.0, dir.z, -dir.z), -dir.y);
+		return uv * (0.5 / dirAbs.x) + (0.5).xx;
+    }
+}
+
+[export]
+fn DirectionToFace(dir: vec3[f32]) -> f32
+{
+    let dirAbs = abs(dir);
+	if (dirAbs.z >= dirAbs.x && dirAbs.z >= dirAbs.y)
+		return select(dir.z < 0.0, 5.0, 4.0);
+	else if (dirAbs.y >= dirAbs.x)
+	    return select(dir.y < 0.0, 3.0, 2.0);
+	else
+	    return select(dir.x < 0.0, 1.0, 0.0);
+}

@@ -10,7 +10,6 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/LightShadowData.hpp>
-#include <Nazara/Graphics/RasterPipelinePass.hpp>
 #include <Nazara/Graphics/ShadowViewer.hpp>
 
 namespace Nz
@@ -26,16 +25,11 @@ namespace Nz
 			SpotLightShadowData(SpotLightShadowData&&) = delete;
 			~SpotLightShadowData() = default;
 
-			void ForEachView([[maybe_unused]] const AbstractViewer* viewer, FunctionRef<void(std::size_t shadowAtlasEntry, ShadowViewer& shadowViewer)> callback) override;
+			void ForEachView(FunctionRef<void(std::size_t shadowAtlasEntry, ShadowViewer& shadowViewer)> callback) override;
 
 			inline const ViewerInstance& GetViewerInstance() const;
 
-			void PrepareRendering(RenderResources& renderResources, [[maybe_unused]] const AbstractViewer* viewer) override;
-
-			void RegisterMaterialInstance(const MaterialInstance& matInstance) override;
 			void RegisterToAtlas(ShadowAtlas& atlas) override;
-
-			void UnregisterMaterialInstance(const MaterialInstance& matInstance) override;
 
 			void WriteToShader(const ShadowAtlas& atlas, const AbstractViewer* viewer, void* basePtr) const override;
 
@@ -47,7 +41,7 @@ namespace Nz
 			NazaraSlot(Light, OnLightShadowMapSettingChange, m_onLightShadowMapSettingChange);
 			NazaraSlot(Light, OnLightTransformInvalidated, m_onLightTransformInvalidated);
 
-			std::optional<RasterPipelinePass> m_depthPass;
+			std::size_t m_shadowAtlasIndex;
 			FramePipeline& m_pipeline;
 			const SpotLight& m_light;
 			ShadowViewer m_viewer;

@@ -184,18 +184,5 @@ NAZARA_WARNING_CLANG_GCC_DISABLE("-Wmissing-field-initializers")
 		return viewerData;
 	}
 
-	// PredefinedViewerData
-	constexpr ShadowAtlasEntry ShadowAtlasEntry::Build()
-	{
-		ShadowAtlasEntry viewerData = { nzsl::FieldOffsets(nzsl::StructLayout::Std430) };
-		viewerData.offset = viewerData.fieldOffsets.AddField(nzsl::StructFieldType::Float2);
-		viewerData.size = viewerData.fieldOffsets.AddField(nzsl::StructFieldType::Float2);
-		viewerData.viewProjMatrix = viewerData.fieldOffsets.AddMatrix(nzsl::StructFieldType::Float1, 4, 4, true);
-
-		viewerData.totalSize = viewerData.fieldOffsets.GetAlignedSize();
-
-		return viewerData;
-	}
-
 NAZARA_WARNING_POP()
 }
