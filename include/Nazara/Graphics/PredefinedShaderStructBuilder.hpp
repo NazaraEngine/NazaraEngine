@@ -185,19 +185,6 @@ namespace Nz
 
 		static constexpr PredefinedViewerData Build();
 	};
-
-	struct ShadowAtlasEntry
-	{
-		nzsl::FieldOffsets fieldOffsets;
-
-		std::size_t offset;
-		std::size_t size;
-		std::size_t viewProjMatrix;
-
-		std::size_t totalSize;
-
-		static constexpr ShadowAtlasEntry Build();
-	};
 }
 
 #include <Nazara/Graphics/PredefinedShaderStructBuilder.inl>

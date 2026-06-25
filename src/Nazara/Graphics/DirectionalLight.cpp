@@ -4,6 +4,7 @@
 
 #include <Nazara/Graphics/DirectionalLight.hpp>
 #include <Nazara/Graphics/DirectionalLightShadowData.hpp>
+#include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 
 namespace Nz
 {
@@ -27,11 +28,12 @@ namespace Nz
 		UpdateRotation(rotation);
 	}
 
-	void DirectionalLight::WriteToShader(void* basePtr) const
+	void DirectionalLight::WriteToShader(void* basePtr, UInt32 shadowIndex) const
 	{
 		AccessByOffset<Vector3f&>(basePtr, PredefinedDirectionalLightOffsets.colorOffset) = Vector3f(m_color.r, m_color.g, m_color.b) * GetEnergy();
 		AccessByOffset<Vector3f&>(basePtr, PredefinedDirectionalLightOffsets.directionOffset) = m_direction;
 		AccessByOffset<float&>(basePtr, PredefinedDirectionalLightOffsets.ambientFactorOffset) = m_ambientFactor;
 		AccessByOffset<float&>(basePtr, PredefinedDirectionalLightOffsets.diffuseFactorOffset) = m_diffuseFactor;
+		AccessByOffset<UInt32&>(basePtr, PredefinedDirectionalLightOffsets.shadowIndexOffset) = shadowIndex;
 	}
 }

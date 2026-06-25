@@ -153,6 +153,7 @@ namespace Nz
 
 		UpdateBoundingVolume();
 		UpdateViewProjMatrix();
+		OnLightDataInvalidated(this);
 		OnLightTransformInvalidated(this);
 	}
 
@@ -173,6 +174,7 @@ namespace Nz
 
 		UpdateBoundingVolume();
 		UpdateViewProjMatrix();
+		OnLightDataInvalidated(this);
 		OnLightTransformInvalidated(this);
 	}
 

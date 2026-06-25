@@ -23,7 +23,6 @@ namespace Nz
 	static constexpr PredefinedInstanceData PredefinedInstanceOffsets = PredefinedInstanceData::Build();
 	static constexpr PredefinedSkeletalData PredefinedSkeletalOffsets = PredefinedSkeletalData::Build();
 	static constexpr PredefinedViewerData PredefinedViewerOffsets = PredefinedViewerData::Build();
-	static constexpr ShadowAtlasEntry ShadowAtlasEntryOffsets = ShadowAtlasEntry::Build();
 }
 
 #endif // NAZARA_GRAPHICS_PREDEFINEDSHADERSTRUCTS_HPP

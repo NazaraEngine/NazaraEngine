@@ -4,6 +4,7 @@
 
 #include <Nazara/Graphics/SpotLight.hpp>
 #include <Nazara/Graphics/SpotLightShadowData.hpp>
+#include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 
 namespace Nz
 {
@@ -46,7 +47,7 @@ namespace Nz
 		UpdateRotation(rotation);
 	}
 
-	void SpotLight::WriteToShader(void* basePtr) const
+	void SpotLight::WriteToShader(void* basePtr, UInt32 shadowIndex) const
 	{
 		AccessByOffset<Vector3f&>(basePtr, PredefinedSpotLightOffsets.colorOffset) = Vector3f(m_color.r, m_color.g, m_color.b) * GetEnergy();
 		AccessByOffset<Vector3f&>(basePtr, PredefinedSpotLightOffsets.directionOffset) = m_direction;
@@ -56,6 +57,7 @@ namespace Nz
 		AccessByOffset<float&>(basePtr, PredefinedSpotLightOffsets.innerAngleOffset) = m_innerAngleCos;
 		AccessByOffset<float&>(basePtr, PredefinedSpotLightOffsets.outerAngleOffset) = m_outerAngleCos;
 		AccessByOffset<float&>(basePtr, PredefinedSpotLightOffsets.invRadiusOffset) = m_invRadius;
+		AccessByOffset<UInt32&>(basePtr, PredefinedSpotLightOffsets.shadowIndexOffset) = shadowIndex;
 		AccessByOffset<Matrix4f&>(basePtr, PredefinedSpotLightOffsets.viewProjMatrixOffset) = m_viewProjMatrix;
 
 		//float baseRadius = m_radius * m_outerAngleTan * 1.1f;

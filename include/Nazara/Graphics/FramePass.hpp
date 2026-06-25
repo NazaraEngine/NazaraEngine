@@ -59,6 +59,7 @@ namespace Nz
 			template<typename F> void ForEachAttachment(F&& func, bool singleDSInputOutputCall = true) const;
 
 			inline const CommandCallback& GetCommandCallback() const;
+			inline const std::optional<Color>& GetDebugRegionColor() const;
 			inline const std::optional<DepthStencilClear>& GetDepthStencilClear() const;
 			inline const std::optional<DepthStencilInput>& GetDepthStencilInput() const;
 			inline std::size_t GetDepthStencilOutput() const;
@@ -71,6 +72,7 @@ namespace Nz
 
 			inline void SetCommandCallback(CommandCallback callback);
 			inline void SetClearColor(std::size_t outputIndex, const std::optional<Color>& color);
+			inline void SetDebugRegionColor(const Color& color);
 			inline void SetDepthStencilClear(float depth, UInt32 stencil);
 			inline void SetDepthStencilInput(std::size_t attachmentId, TextureUsage attachmentUsage = TextureUsage::DepthStencilAttachment);
 			inline void SetDepthStencilOutput(std::size_t attachmentId);
@@ -122,6 +124,7 @@ namespace Nz
 			};
 
 		private:
+			std::optional<Color> m_debugRegionColor;
 			std::optional<DepthStencilClear> m_depthStencilClear;
 			std::optional<DepthStencilInput> m_depthStencilInput;
 			std::size_t m_depthStencilOutput;

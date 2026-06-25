@@ -11,7 +11,6 @@
 #include <Nazara/Graphics/Export.hpp>
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/LightShadowData.hpp>
-#include <Nazara/Graphics/RasterPipelinePass.hpp>
 #include <Nazara/Graphics/ShadowViewer.hpp>
 #include <array>
 
@@ -28,14 +27,9 @@ namespace Nz
 			PointLightShadowData(PointLightShadowData&&) = delete;
 			~PointLightShadowData() = default;
 
-			void ForEachView([[maybe_unused]] const AbstractViewer* viewer, FunctionRef<void(std::size_t shadowAtlasEntry, ShadowViewer& shadowViewer)> callback) override;
+			void ForEachView(FunctionRef<void(std::size_t shadowAtlasEntry, ShadowViewer& shadowViewer)> callback) override;
 
-			void PrepareRendering(RenderResources& renderResources, const AbstractViewer* viewer) override;
-
-			void RegisterMaterialInstance(const MaterialInstance& matInstance) override;
 			void RegisterToAtlas(ShadowAtlas& atlas) override;
-
-			void UnregisterMaterialInstance(const MaterialInstance& matInstance) override;
 
 			void WriteToShader(const ShadowAtlas& atlas, const AbstractViewer* viewer, void* basePtr) const override;
 
@@ -49,13 +43,13 @@ namespace Nz
 
 			struct DirectionData
 			{
-				std::optional<RasterPipelinePass> depthPass;
 				std::size_t attachmentIndex;
 				ShadowViewer viewer;
 			};
 
 			std::array<DirectionData, 6> m_directions;
 			std::size_t m_cubeAttachmentIndex;
+			std::size_t m_firstShadowAtlasIndex;
 			FramePipeline& m_pipeline;
 			const PointLight& m_light;
 	};

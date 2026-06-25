@@ -105,7 +105,6 @@ namespace Nz
 
 	FramePass& ShadowAtlasPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, const PassInputOuputs& inputOuputs)
 	{
-		NazaraAssertMsg(inputOuputs.inputAttachments.empty(), "no inputs expected");
 		NazaraAssertMsg(inputOuputs.outputAttachments.empty(), "no outputs expected");
 		NazaraAssertMsg(inputOuputs.depthStencilInput == FramePipelinePass::InvalidAttachmentIndex, "no depth-stencil input expected");
 		NazaraAssertMsg(inputOuputs.depthStencilOutput == FramePipelinePass::InvalidAttachmentIndex, "no depth-stencil output expected");
@@ -123,6 +122,9 @@ namespace Nz
 		frameGraph.BindExternalTexture(shadowAtlasIndex, shadowAtlasTexture);
 
 		FramePass& pass = frameGraph.AddPass("Shadow atlas");
+		for (auto&& inputData : inputOuputs.inputAttachments)
+			pass.AddInput(inputData.attachmentIndex);
+
 		pass.SetDepthStencilClear(1.0f, 0);
 		pass.SetDepthStencilOutput(shadowAtlasIndex);
 
@@ -136,12 +138,9 @@ namespace Nz
 			std::size_t shadowViewerIndex = 0;
 			m_pipeline.ForEachShadowCastingLight([&](std::size_t lightIndex, const Light* /*light*/, LightShadowData* shadowData)
 			{
-				if (shadowData->IsPerViewer())
-					return;
-
 				LightData& lightData = m_lightData[lightIndex];
 
-				shadowData->ForEachView(nullptr, [&](std::size_t shadowAtlasEntry, ShadowViewer& shadowViewer)
+				shadowData->ForEachView([&](std::size_t shadowAtlasEntry, ShadowViewer& shadowViewer)
 				{
 					std::optional<Rectui32> viewport = m_shadowAtlas.GetRect(shadowAtlasEntry);
 					if (!viewport)
@@ -181,12 +180,9 @@ namespace Nz
 			std::size_t shadowViewerIndex = 0;
 			m_pipeline.ForEachShadowCastingLight([&](std::size_t lightIndex, const Light* /*light*/, LightShadowData* shadowData)
 			{
-				if (shadowData->IsPerViewer())
-					return;
-
 				LightData& lightData = m_lightData[lightIndex];
 
-				shadowData->ForEachView(nullptr, [&](std::size_t shadowAtlasEntry, ShadowViewer& shadowViewer)
+				shadowData->ForEachView([&](std::size_t shadowAtlasEntry, ShadowViewer& shadowViewer)
 				{
 					std::optional<Rectui32> viewport = m_shadowAtlas.GetRect(shadowAtlasEntry);
 					if (!viewport)
@@ -201,6 +197,7 @@ namespace Nz
 					ElementRenderer::RenderData renderData;
 					renderData.directionalLights = RenderBufferView(m_pipeline.GetDirectionalLightBuffer().get());
 					renderData.pointLights = RenderBufferView(m_pipeline.GetPointLightBuffer().get());
+					renderData.renderRegion = shadowAtlasViewport;
 					renderData.spotLights = RenderBufferView(m_pipeline.GetSpotLightBuffer().get());
 
 					m_elementRegistry.ProcessRenderQueue(m_renderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
