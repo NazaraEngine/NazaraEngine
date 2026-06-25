@@ -8,6 +8,7 @@
 #include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Graphics/FramePipeline.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
+#include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/ShadowAtlas.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <NazaraUtils/Algorithm.hpp>
@@ -40,124 +41,112 @@ namespace Nz
 		UpdatePerViewerStatus(true);
 	}
 
-	void DirectionalLightShadowData::ForEachView([[maybe_unused]] const AbstractViewer* viewer, FunctionRef<void(std::size_t shadowAtlasEntry, ShadowViewer& shadowViewer)> callback)
+	void DirectionalLightShadowData::ForEachView(FunctionRef<void(std::size_t shadowAtlasEntry, ShadowViewer& shadowViewer)> callback)
 	{
-		assert(viewer);
-
-		std::size_t shadowAtlasIndex = m_firstShadowAtlasIndex;
-
-		PerViewerData& viewerData = *Retrieve(m_viewerData, viewer);
-		for (CascadeData& cascade : viewerData.cascades)
-			callback(shadowAtlasIndex++, cascade.viewer);
+		for (auto&& [viewer, viewerData] : m_viewerData)
+		{
+			std::size_t shadowAtlasIndex = viewerData->firstShadowAtlasIndex;
+			for (CascadeData& cascade : viewerData->cascades)
+				callback(shadowAtlasIndex++, cascade.viewer);
+		}
 	}
 
-	void DirectionalLightShadowData::PrepareRendering(RenderResources& renderResources, const AbstractViewer* viewer)
+	void DirectionalLightShadowData::PrepareRendering(RenderResources& renderResources)
 	{
 		// Push unregistered viewers data for release
 		for (auto& perViewerData : m_destructionQueue)
 			renderResources.PushForRelease(std::move(perViewerData));
 		m_destructionQueue.clear();
 
-		assert(viewer);
-		PerViewerData& viewerData = *Retrieve(m_viewerData, viewer);
-
-		const ViewerInstance& viewerInstance = viewer->GetViewerInstance();
-
-		// Extract frustum from main viewer
-		const Vector3f& eyePosition = viewerInstance.GetEyePosition();
-		const Matrix4f& viewProjMatrix = viewerInstance.GetViewProjMatrix();
-
-		float nearPlane = viewerInstance.GetNearPlane();
-		float farPlane = viewerInstance.GetFarPlane();
-
-		float ratio = farPlane / nearPlane;
-		float clipRange = farPlane - nearPlane;
-
-		StackArray<float> cascadeSplits = NazaraStackArrayNoInit(float, m_cascadeCount - 1);
-		if (m_light.IsUsingFixedShadowCascadeSplit())
+		for (auto&& [viewer, viewerData] : m_viewerData)
 		{
-			std::span<const float> splitFactors = m_light.GetShadowCascadeFixedSplitFactors();
-			cascadeSplits.fill(1.f);
+			PerViewerData& viewerData = *Retrieve(m_viewerData, viewer);
 
-			std::size_t splitCount = std::min(cascadeSplits.size(), splitFactors.size());
-			for (std::size_t i = 0; i < splitCount; ++i)
-				cascadeSplits[i] = splitFactors[i];
-		}
-		else
-		{
-			// Calculate split depths based on view camera frustum
-			// Based on method presented in https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html
-			float lambda = m_light.GetShadowCascadeSplitLambda();
+			const ViewerInstance& viewerInstance = viewer->GetViewerInstance();
 
-			for (std::size_t i = 0; i < m_cascadeCount - 1; i++)
+			// Extract frustum from main viewer
+			const Vector3f& eyePosition = viewerInstance.GetEyePosition();
+			const Matrix4f& viewProjMatrix = viewerInstance.GetViewProjMatrix();
+
+			float nearPlane = viewerInstance.GetNearPlane();
+			float farPlane = viewerInstance.GetFarPlane();
+
+			float ratio = farPlane / nearPlane;
+			float clipRange = farPlane - nearPlane;
+
+			StackArray<float> cascadeSplits = NazaraStackArrayNoInit(float, m_cascadeCount - 1);
+			if (m_light.IsUsingFixedShadowCascadeSplit())
 			{
-				float p = float(i + 1) / float(m_cascadeCount);
-				float log = nearPlane * std::pow(ratio, p);
-				float uniform = nearPlane + clipRange * p;
-				float d = lambda * (log - uniform) + uniform;
-				cascadeSplits[i] = (d - nearPlane) / clipRange;
+				std::span<const float> splitFactors = m_light.GetShadowCascadeFixedSplitFactors();
+				cascadeSplits.fill(1.f);
+
+				std::size_t splitCount = std::min(cascadeSplits.size(), splitFactors.size());
+				for (std::size_t i = 0; i < splitCount; ++i)
+					cascadeSplits[i] = splitFactors[i];
 			}
-		}
+			else
+			{
+				// Calculate split depths based on view camera frustum
+				// Based on method presented in https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html
+				float lambda = m_light.GetShadowCascadeSplitLambda();
 
-		StackVector<Frustumf> frustums = NazaraStackVector(Frustumf, m_cascadeCount);
-		StackVector<float> frustumDists = NazaraStackVector(float, m_cascadeCount);
+				for (std::size_t i = 0; i < m_cascadeCount - 1; i++)
+				{
+					float p = float(i + 1) / float(m_cascadeCount);
+					float log = nearPlane * std::pow(ratio, p);
+					float uniform = nearPlane + clipRange * p;
+					float d = lambda * (log - uniform) + uniform;
+					cascadeSplits[i] = (d - nearPlane) / clipRange;
+				}
+			}
 
-		Frustumf frustum = Frustumf::Extract(viewProjMatrix, viewer->IsZReversed());
-		if (frustum.HasInfiniteFarPlane())
-			frustum.UpdateFarPlaneDistance(nearPlane, farPlane);
+			StackVector<Frustumf> frustums = NazaraStackVector(Frustumf, m_cascadeCount);
+			StackVector<float> frustumDists = NazaraStackVector(float, m_cascadeCount);
 
-		frustum.Split(cascadeSplits.data(), m_cascadeCount - 1, [&](float zNearPct, float zFarPct)
-		{
-			frustums.push_back(frustum.Reduce(zNearPct, zFarPct));
-			frustumDists.push_back(frustums.back().GetPlane(FrustumPlane::Far).SignedDistance(eyePosition));
-		});
+			Frustumf frustum = Frustumf::Extract(viewProjMatrix, viewer->IsZReversed());
+			if (frustum.HasInfiniteFarPlane())
+				frustum.UpdateFarPlaneDistance(nearPlane, farPlane);
 
-		constexpr std::array cascadeColors = {
-			Color::Green(),
-			Color::Yellow(),
-			Color::Red(),
-			Color::Blue(),
-			Color::Cyan(),
-			Color::Magenta(),
-			Color::Orange(),
-			Color::Gray()
-		};
+			frustum.Split(cascadeSplits.data(), m_cascadeCount - 1, [&](float zNearPct, float zFarPct)
+			{
+				frustums.push_back(frustum.Reduce(zNearPct, zFarPct));
+				frustumDists.push_back(frustums.back().GetPlane(FrustumPlane::Far).SignedDistance(eyePosition));
+			});
 
-		for (std::size_t cascadeIndex = 0; cascadeIndex < m_cascadeCount; ++cascadeIndex)
-		{
-			CascadeData& cascade = viewerData.cascades[cascadeIndex];
-			ComputeLightView(cascade, frustums[cascadeIndex], frustumDists[cascadeIndex]);
-
-			if (m_isShadowStabilizationEnabled)
-				StabilizeShadows(cascade);
-
-			constexpr Matrix4f biasMatrix(0.5f, 0.0f, 0.0f, 0.0f,
-			                              0.0f, 0.5f, 0.0f, 0.0f,
-			                              0.0f, 0.0f, 1.0f, 0.0f,
-			                              0.5f, 0.5f, 0.0f, 1.0f);
-
-			ViewerInstance& cascadeViewerInstance = cascade.viewer.GetViewerInstance();
-			cascade.viewProjMatrix = cascadeViewerInstance.GetViewProjMatrix() * biasMatrix;
-
-			m_pipeline.QueueTransfer(&cascadeViewerInstance);
-
-			// Prepare depth pass
-			Frustumf lightFrustum = Frustumf::Extract(cascadeViewerInstance.GetViewProjMatrix());
-			lightFrustum.SetInfiniteNearPlane();
-			//m_pipeline.GetDebugDrawer().DrawFrustum(lightFrustum, cascadeColors[cascadeIndex]);
-
-			std::size_t visibilityHash = 5U;
-			const auto& visibleRenderables = m_pipeline.FrustumCull(lightFrustum, 0xFFFFFFFF, visibilityHash);
-
-			FramePipelinePass::FrameData passData = {
-				nullptr,
-				frustum,
-				renderResources,
-				visibleRenderables,
-				visibilityHash
+			constexpr std::array cascadeColors = {
+				Color::Green(),
+				Color::Yellow(),
+				Color::Red(),
+				Color::Blue(),
+				Color::Cyan(),
+				Color::Magenta(),
+				Color::Orange(),
+				Color::Gray()
 			};
 
-			cascade.depthPass->Prepare(passData);
+			for (std::size_t cascadeIndex = 0; cascadeIndex < m_cascadeCount; ++cascadeIndex)
+			{
+				CascadeData& cascade = viewerData.cascades[cascadeIndex];
+				ComputeLightView(cascade, frustums[cascadeIndex], frustumDists[cascadeIndex]);
+
+				if (m_isShadowStabilizationEnabled)
+					StabilizeShadows(cascade);
+
+				constexpr Matrix4f biasMatrix(0.5f, 0.0f, 0.0f, 0.0f,
+											  0.0f, 0.5f, 0.0f, 0.0f,
+											  0.0f, 0.0f, 1.0f, 0.0f,
+											  0.5f, 0.5f, 0.0f, 1.0f);
+
+				ViewerInstance& cascadeViewerInstance = cascade.viewer.GetViewerInstance();
+				cascade.viewProjMatrix = cascadeViewerInstance.GetViewProjMatrix() * biasMatrix;
+
+				m_pipeline.QueueTransfer(&cascadeViewerInstance);
+
+				// Prepare depth pass
+				Frustumf lightFrustum = Frustumf::Extract(cascadeViewerInstance.GetViewProjMatrix());
+				lightFrustum.SetInfiniteNearPlane();
+				//m_pipeline.GetDebugDrawer().DrawFrustum(lightFrustum, cascadeColors[cascadeIndex]);
+			}
 		}
 	}
 
@@ -244,20 +233,12 @@ namespace Nz
 		shadowViewer.UpdateProjectionMatrix(lightProj);
 	}
 
-	void DirectionalLightShadowData::RegisterMaterialInstance(const MaterialInstance& matInstance)
-	{
-		ForEachCascade([&](CascadeData& cascade)
-		{
-			cascade.depthPass->RegisterMaterialInstance(matInstance);
-		});
-	}
-
 	void DirectionalLightShadowData::RegisterToAtlas(ShadowAtlas& atlas)
 	{
 		UInt32 shadowMapSize = m_light.GetShadowMapSize();
 
-		std::size_t firstEntry = atlas.Register(shadowMapSize, m_cascadeCount);
-		UpdateShadowAtlasEntries(firstEntry, m_cascadeCount);
+		for (auto&& [viewer, viewerData] : m_viewerData)
+			viewerData->firstShadowAtlasIndex = atlas.Register(shadowMapSize, m_cascadeCount);
 	}
 
 	void DirectionalLightShadowData::RegisterViewer(const AbstractViewer* viewer)
@@ -273,35 +254,12 @@ namespace Nz
 		for (CascadeData& cascade : perViewerData->cascades)
 		{
 			ShadowViewer& shadowViewer = cascade.viewer;
-
 			shadowViewer.UpdateRenderMask(0xFFFFFFFF);
 			shadowViewer.UpdateViewport(Recti(0, 0, SafeCast<int>(shadowMapSize), SafeCast<int>(shadowMapSize)));
-
-			FramePipelinePass::PassData passData = {
-				&shadowViewer,
-				m_elementRegistry,
-				m_pipeline
-			};
-
-			cascade.depthPass.emplace(passData, Format("Cascade #{}", cascadeIndex++), shadowPassIndex);
 		}
-
-		m_pipeline.ForEachRegisteredMaterialInstance([&](const MaterialInstance& matInstance)
-		{
-			for (CascadeData& cascade : perViewerData->cascades)
-				cascade.depthPass->RegisterMaterialInstance(matInstance);
-		});
 
 		assert(m_viewerData.find(viewer) == m_viewerData.end());
 		m_viewerData[viewer] = std::move(perViewerData);
-	}
-
-	void DirectionalLightShadowData::UnregisterMaterialInstance(const MaterialInstance& matInstance)
-	{
-		ForEachCascade([&](CascadeData& cascade)
-		{
-			cascade.depthPass->UnregisterMaterialInstance(matInstance);
-		});
 	}
 
 	void DirectionalLightShadowData::UnregisterViewer(const AbstractViewer* viewer)
@@ -319,7 +277,7 @@ namespace Nz
 
 		for (std::size_t i = 0; i < m_cascadeCount; ++i)
 		{
-			std::optional<Rectf> rect = atlas.GetNormalizedRect(m_firstShadowAtlasIndex + i);
+			std::optional<Rectf> rect = atlas.GetNormalizedRect(viewerData.firstShadowAtlasIndex + i);
 			if (!rect)
 				rect = Rectf(-1.0f, -1.0f, -1.0f, -1.0f);
 

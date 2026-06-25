@@ -58,7 +58,7 @@ namespace Nz
 
 			void UpdateTransform(const Vector3f& position, const Quaternionf& rotation, const Vector3f& scale) override;
 
-			void WriteToShader(void* basePtr) const;
+			void WriteToShader(void* basePtr, UInt32 shadowIndex) const;
 
 			SpotLight& operator=(const SpotLight&) = delete;
 			SpotLight& operator=(SpotLight&&) noexcept = default;

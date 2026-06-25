@@ -32,19 +32,15 @@ namespace Nz
 			LightShadowData(LightShadowData&&) = delete;
 			virtual ~LightShadowData();
 
-			virtual void ForEachView([[maybe_unused]] const AbstractViewer* viewer, FunctionRef<void(std::size_t shadowAtlasEntry, ShadowViewer& shadowViewer)> callback) = 0;
-
-			inline std::size_t GetViewCount() const;
+			virtual void ForEachView(FunctionRef<void(std::size_t shadowAtlasEntry, ShadowViewer& shadowViewer)> callback) = 0;
 
 			inline bool IsPerViewer() const;
 
-			virtual void PrepareRendering(RenderResources& renderResources, [[maybe_unused]] const AbstractViewer* viewer) = 0;
+			virtual void PrepareRendering(RenderResources& renderResources);
 
-			virtual void RegisterMaterialInstance(const MaterialInstance& matInstance) = 0;
 			virtual void RegisterToAtlas(ShadowAtlas& atlas) = 0;
 			virtual void RegisterViewer(const AbstractViewer* viewer);
 
-			virtual void UnregisterMaterialInstance(const MaterialInstance& matInstance) = 0;
 			virtual void UnregisterViewer(const AbstractViewer* viewer);
 
 			virtual void WriteToShader(const ShadowAtlas& atlas, const AbstractViewer* viewer, void* basePtr) const = 0;
@@ -54,10 +50,6 @@ namespace Nz
 
 		protected:
 			inline void UpdatePerViewerStatus(bool isPerViewer);
-			inline void UpdateShadowAtlasEntries(std::size_t firstIndex, std::size_t count);
-
-			std::size_t m_firstShadowAtlasIndex;
-			std::size_t m_shadowAtlasEntryCount;
 
 		private:
 			bool m_isPerViewer;

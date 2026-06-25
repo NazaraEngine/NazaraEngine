@@ -33,18 +33,6 @@ namespace Nz
 
 		std::size_t shadowPassIndex = Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex("ShadowPass");
 
-		FramePipelinePass::PassData passData = {
-			&m_viewer,
-			elementRegistry,
-			m_pipeline
-		};
-
-		m_depthPass.emplace(passData, "Spotlight shadow mapping", shadowPassIndex);
-		m_pipeline.ForEachRegisteredMaterialInstance([this](const MaterialInstance& matInstance)
-		{
-			m_depthPass->RegisterMaterialInstance(matInstance);
-		});
-
 		m_onLightDataInvalidated.Connect(m_light.OnLightDataInvalidated, [this]([[maybe_unused]] Light* light)
 		{
 			assert(&m_light == light);
@@ -71,57 +59,23 @@ namespace Nz
 		});
 	}
 
-	void SpotLightShadowData::ForEachView([[maybe_unused]] const AbstractViewer* viewer, FunctionRef<void(std::size_t shadowAtlasEntry, ShadowViewer& shadowViewer)> callback)
+	void SpotLightShadowData::ForEachView(FunctionRef<void(std::size_t shadowAtlasEntry, ShadowViewer& shadowViewer)> callback)
 	{
-		assert(viewer == nullptr);
-		callback(m_firstShadowAtlasIndex, m_viewer);
-	}
-
-	void SpotLightShadowData::PrepareRendering(RenderResources& renderResources, [[maybe_unused]] const AbstractViewer* viewer)
-	{
-		assert(viewer == nullptr);
-
-		const Matrix4f& viewProjMatrix = m_viewer.GetViewerInstance().GetViewProjMatrix();
-
-		Frustumf frustum = Frustumf::Extract(viewProjMatrix);
-
-		std::size_t visibilityHash = 5U;
-		const auto& visibleRenderables = m_pipeline.FrustumCull(frustum, 0xFFFFFFFF, visibilityHash);
-
-		FramePipelinePass::FrameData passData = {
-			nullptr,
-			frustum,
-			renderResources,
-			visibleRenderables,
-			visibilityHash
-		};
-
-		m_depthPass->Prepare(passData);
-	}
-
-	void SpotLightShadowData::RegisterMaterialInstance(const MaterialInstance& matInstance)
-	{
-		m_depthPass->RegisterMaterialInstance(matInstance);
+		callback(m_shadowAtlasIndex, m_viewer);
 	}
 
 	void SpotLightShadowData::RegisterToAtlas(ShadowAtlas& atlas)
 	{
 		UInt32 shadowMapSize = m_light.GetShadowMapSize();
 
-		std::size_t shadowAtlasIndex = atlas.Register(shadowMapSize);
-		UpdateShadowAtlasEntries(shadowAtlasIndex, 1);
-	}
-
-	void SpotLightShadowData::UnregisterMaterialInstance(const MaterialInstance& matInstance)
-	{
-		m_depthPass->UnregisterMaterialInstance(matInstance);
+		m_shadowAtlasIndex = atlas.Register(shadowMapSize);
 	}
 
 	void SpotLightShadowData::WriteToShader(const ShadowAtlas& atlas, [[maybe_unused]] const AbstractViewer* viewer, void* basePtr) const
 	{
 		assert(viewer == nullptr);
 
-		std::optional<Rectf> rect = atlas.GetNormalizedRect(m_firstShadowAtlasIndex);
+		std::optional<Rectf> rect = atlas.GetNormalizedRect(m_shadowAtlasIndex);
 		if (!rect)
 			rect = Rectf(-1.0f, -1.0f, -1.0f, -1.0f);
 

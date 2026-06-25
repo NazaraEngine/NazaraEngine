@@ -11,7 +11,6 @@
 #include <Nazara/Graphics/Export.hpp>
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/LightShadowData.hpp>
-#include <Nazara/Graphics/RasterPipelinePass.hpp>
 #include <Nazara/Graphics/ShadowViewer.hpp>
 #include <NazaraUtils/FixedVector.hpp>
 #include <NazaraUtils/SparsePtr.hpp>
@@ -33,7 +32,7 @@ namespace Nz
 
 			inline void EnableShadowStabilization(bool enable);
 
-			void ForEachView([[maybe_unused]] const AbstractViewer* viewer, FunctionRef<void(std::size_t shadowAtlasEntry, ShadowViewer& shadowViewer)> callback) override;
+			void ForEachView(FunctionRef<void(std::size_t shadowAtlasEntry, ShadowViewer& shadowViewer)> callback) override;
 
 			inline std::size_t GetCascadeCount() const;
 			inline void GetCascadeData(const AbstractViewer* viewer, SparsePtr<float> distance, SparsePtr<Matrix4f> viewProjMatrix) const;
@@ -41,15 +40,13 @@ namespace Nz
 
 			inline bool IsShadowStabilizationEnabled() const;
 
-			void PrepareRendering(RenderResources& renderResources, const AbstractViewer* viewer) override;
+			void PrepareRendering(RenderResources& renderResources) override;
 
-			void RegisterMaterialInstance(const MaterialInstance& matInstance) override;
 			void RegisterToAtlas(ShadowAtlas& atlas) override;
 			void RegisterViewer(const AbstractViewer* viewer) override;
 
 			inline void SetDepthPlaneFactor(float depthPlaneFactor);
 
-			void UnregisterMaterialInstance(const MaterialInstance& matInstance) override;
 			void UnregisterViewer(const AbstractViewer* viewer) override;
 
 			void WriteToShader(const ShadowAtlas& atlas, const AbstractViewer* viewer, void* basePtr) const override;
@@ -70,7 +67,6 @@ namespace Nz
 
 			struct CascadeData
 			{
-				std::optional<RasterPipelinePass> depthPass;
 				std::size_t attachmentIndex;
 				Matrix4f viewProjMatrix;
 				ShadowViewer viewer;
@@ -80,6 +76,7 @@ namespace Nz
 			struct PerViewerData
 			{
 				FixedVector<CascadeData, 8> cascades;
+				std::size_t firstShadowAtlasIndex;
 				std::size_t textureArrayAttachmentIndex;
 			};
 

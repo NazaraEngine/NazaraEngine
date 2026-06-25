@@ -178,6 +178,7 @@ fn ComputeNormal(input: VertOut) -> vec3[f32]
 	else
 		return normalize(input.normal);
 }
+import Math.Cubemap;
 
 [cond(HasLighting)]
 fn ComputeLighting(color: vec3[f32], input: VertOut) -> vec3[f32]
@@ -210,8 +211,14 @@ fn ComputeLighting(color: vec3[f32], input: VertOut) -> vec3[f32]
 		let result = Phong.ComputePointLight(light, eyeVec, normal, settings.Shininess, input.worldPos);
 
 		let shadowFactor = 1.0;
-		//const if (EnableShadowMapping)
-		//	shadowFactor = Shadow.ComputePointLightShadow(light, shadowMapsPoint[lightIndex], result.dist, result.lightToWorldDir);
+		const if (EnableShadowMapping)
+		{
+			if (light.shadowIndex != u32.Max)
+			{
+				let shadowAtlasEntry: Shadow.PointShadowAtlasEntry = pointShadowAtlasMapping.shadowMappings[light.shadowIndex];
+				shadowFactor = Shadow.ComputePointLightShadow(shadowAtlas, light, shadowAtlasEntry, result.lightToWorldDir, input.worldPos);
+			}
+		}
 
 		lightAmbient += result.ambient;
 		lightDiffuse += shadowFactor * result.diffuse;
@@ -229,7 +236,7 @@ fn ComputeLighting(color: vec3[f32], input: VertOut) -> vec3[f32]
 			if (light.shadowIndex != u32.Max)
 			{
 				let shadowAtlasEntry: Shadow.SpotShadowAtlasEntry = spotShadowAtlasMapping.shadowMappings[light.shadowIndex];
-				shadowFactor = Shadow.ComputeSpotLightShadow(shadowAtlas, light, shadowAtlasEntry, input.worldPos, result.lambert);
+				shadowFactor = Shadow.ComputeSpotLightShadow(shadowAtlas, light, shadowAtlasEntry, input.worldPos);
 			}
 		}
 

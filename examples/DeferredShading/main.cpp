@@ -804,6 +804,7 @@ int main(int argc, char* argv[])
 			builder.SetViewport(env.renderRect);
 
 			Nz::ElementRenderer::RenderData renderData;
+			renderData.renderRegion = env.renderRect;
 
 			submeshRenderer.Render(renderData, viewer, *submeshRendererData, *currentFrame, builder, elementPointers.size(), elementPointers.data());
 			submeshRenderer.Reset(*submeshRendererData, *currentFrame);
@@ -882,6 +883,7 @@ int main(int argc, char* argv[])
 			builder.DrawIndexed(Nz::SafeCast<Nz::UInt32>(cubeMeshGfx->GetIndexCount(0)));
 
 			Nz::ElementRenderer::RenderData renderData;
+			renderData.renderRegion = env.renderRect;
 
 			spritechainRenderer.Render(renderData, viewer, *spriteRendererData, *currentFrame, builder, elementPointers.size(), elementPointers.data());
 			spritechainRenderer.Reset(*spriteRendererData, *currentFrame);
@@ -934,6 +936,7 @@ int main(int argc, char* argv[])
 			flareSprite.BuildElement(elementRegistry, elementData, forwardPassIndex, elements);
 
 			Nz::ElementRenderer::RenderData renderData;
+			renderData.renderRegion = env.renderRect;
 
 			std::vector<Nz::Pointer<const Nz::RenderElement>> elementPointers;
 

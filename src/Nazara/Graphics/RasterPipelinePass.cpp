@@ -172,6 +172,7 @@ namespace Nz
 			ElementRenderer::RenderData renderData;
 			renderData.directionalLights = RenderBufferView(m_pipeline.GetDirectionalLightBuffer().get());
 			renderData.pointLights = RenderBufferView(m_pipeline.GetPointLightBuffer().get());
+			renderData.renderRegion = viewport;
 			renderData.spotLights = RenderBufferView(m_pipeline.GetSpotLightBuffer().get());
 
 			m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)

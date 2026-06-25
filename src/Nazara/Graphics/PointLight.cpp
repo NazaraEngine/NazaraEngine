@@ -4,6 +4,7 @@
 
 #include <Nazara/Graphics/PointLight.hpp>
 #include <Nazara/Graphics/PointLightShadowData.hpp>
+#include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 
 namespace Nz
 {
@@ -28,7 +29,7 @@ namespace Nz
 		UpdatePosition(position);
 	}
 
-	void PointLight::WriteToShader(void* basePtr) const
+	void PointLight::WriteToShader(void* basePtr, UInt32 shadowIndex) const
 	{
 		AccessByOffset<Vector3f&>(basePtr, PredefinedPointLightOffsets.colorOffset) = Vector3f(m_color.r, m_color.g, m_color.b) * GetEnergy();
 		AccessByOffset<Vector3f&>(basePtr, PredefinedPointLightOffsets.positionOffset) = m_position;
@@ -36,5 +37,6 @@ namespace Nz
 		AccessByOffset<float&>(basePtr, PredefinedPointLightOffsets.diffuseFactorOffset) = m_diffuseFactor;
 		AccessByOffset<float&>(basePtr, PredefinedPointLightOffsets.radiusOffset) = m_radius;
 		AccessByOffset<float&>(basePtr, PredefinedPointLightOffsets.invRadiusOffset) = m_invRadius;
+		AccessByOffset<UInt32&>(basePtr, PredefinedPointLightOffsets.shadowIndexOffset) = shadowIndex;
 	}
 }

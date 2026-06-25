@@ -12,6 +12,7 @@
 #include <Nazara/Graphics/Export.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/RenderElementPool.hpp>
+#include <Nazara/Math/Rect.hpp>
 #include <Nazara/Renderer/RenderBufferView.hpp>
 #include <NazaraUtils/SparsePtr.hpp>
 #include <array>
@@ -48,6 +49,7 @@ namespace Nz
 			struct RenderData
 			{
 				const Texture* shadowAtlas = nullptr;
+				Recti renderRegion;
 				RenderBufferView directionalLights;
 				RenderBufferView directionalLightAtlasMapping;
 				RenderBufferView pointLights;

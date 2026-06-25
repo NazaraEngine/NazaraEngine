@@ -487,14 +487,6 @@ namespace Nz
 
 		m_visibleShadowCastingLights.PerformsAND(m_activeLights, m_shadowCastingLights);
 
-		// Shadow map handling (for active lights)
-		for (std::size_t i : m_visibleShadowCastingLights.IterBits())
-		{
-			LightData* lightData = m_lightPool.RetrieveFromIndex(i);
-			if (!lightData->shadowData->IsPerViewer())
-				lightData->shadowData->PrepareRendering(renderResources, nullptr);
-		}
-
 		struct GpuBufferExpansion 
 		{
 			std::shared_ptr<RenderBuffer> sourceBuffer;
@@ -507,14 +499,6 @@ namespace Nz
 		// Viewer handling (second pass)
 		for (ViewerData* viewerData : m_orderedViewers)
 		{
-			// Per-viewer shadow map handling
-			for (std::size_t lightIndex : viewerData->frame.visibleLights.IterBits())
-			{
-				LightData* lightData = m_lightPool.RetrieveFromIndex(lightIndex);
-				if (lightData->shadowData && lightData->shadowData->IsPerViewer() && (viewerData->renderMask & lightData->renderMask) != 0)
-					lightData->shadowData->PrepareRendering(renderResources, viewerData->viewer);
-			}
-
 			std::size_t maxVisibilityEntries = viewerData->visibilityBuffer ? viewerData->visibilityBuffer->GetSize() / sizeof(std::uint32_t) : 0;
 			if (m_maxRenderableIndex >= maxVisibilityEntries)
 			{

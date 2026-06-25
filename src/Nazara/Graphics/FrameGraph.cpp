@@ -82,6 +82,13 @@ namespace Nz
 				bakedPass.commandCallback = framePass.GetCommandCallback();
 				bakedPass.renderCallback = framePass.GetRenderCallback();
 
+				if (const std::optional<Color>& regionColor = framePass.GetDebugRegionColor())
+					bakedPass.regionColor = *regionColor;
+				else if (bakedPass.renderCallback)
+					bakedPass.regionColor = Color::Green();
+				else
+					bakedPass.regionColor = Color::Orange();
+
 				std::size_t colorAttachmentIndex = 0;
 				for (const auto& output : framePass.GetOutputs())
 				{

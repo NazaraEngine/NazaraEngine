@@ -7,6 +7,10 @@
 namespace Nz
 {
 	LightShadowData::~LightShadowData() = default;
+	
+	void LightShadowData::PrepareRendering(RenderResources& /*renderResources*/)
+	{
+	}
 
 	void LightShadowData::RegisterViewer(const AbstractViewer* /*viewer*/)
 	{

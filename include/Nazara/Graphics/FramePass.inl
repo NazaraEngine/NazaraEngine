@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <cassert>
+#include "FramePass.hpp"
 
 namespace Nz
 {
@@ -62,6 +63,11 @@ namespace Nz
 		return m_commandCallback;
 	}
 
+	inline const std::optional<Color>& FramePass::GetDebugRegionColor() const
+	{
+		return m_debugRegionColor;
+	}
+
 	inline auto FramePass::GetDepthStencilClear() const -> const std::optional<DepthStencilClear>&
 	{
 		return m_depthStencilClear;
@@ -116,6 +122,11 @@ namespace Nz
 	{
 		assert(outputIndex < m_outputs.size());
 		m_outputs[outputIndex].clearColor = color;
+	}
+
+	inline void FramePass::SetDebugRegionColor(const Color& color)
+	{
+		m_debugRegionColor = color;
 	}
 
 	inline void FramePass::SetDepthStencilClear(float depth, UInt32 stencil)

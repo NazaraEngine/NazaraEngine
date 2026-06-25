@@ -54,7 +54,7 @@ namespace Nz
 
 			virtual void UpdateTransform(const Vector3f& position, const Quaternionf& rotation, const Vector3f& scale) = 0;
 
-			virtual void WriteToShader(void* basePtr) const = 0;
+			virtual void WriteToShader(void* basePtr, UInt32 shadowIndex) const = 0;
 
 			Light& operator=(const Light&) = delete;
 			Light& operator=(Light&&) noexcept = default;

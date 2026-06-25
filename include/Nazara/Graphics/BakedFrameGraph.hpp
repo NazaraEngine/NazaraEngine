@@ -74,6 +74,7 @@ namespace Nz
 				FramePass::CommandCallback commandCallback;
 				FramePass::CommandCallback renderCallback;
 				FramePass::ExecutionCallback executionCallback;
+				Color regionColor;
 				Recti renderRect;
 			};
 

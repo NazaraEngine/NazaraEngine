@@ -8,6 +8,7 @@
 #include <Nazara/Graphics/FramePipeline.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/PointLight.hpp>
+#include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/ShadowAtlas.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 
@@ -60,21 +61,7 @@ namespace Nz
 			viewerInstance.UpdateViewMatrix(Matrix4f::TransformInverse(m_light.GetPosition(), s_dirRotations[i]));
 
 			m_pipeline.QueueTransfer(&viewerInstance);
-
-			FramePipelinePass::PassData passData = {
-				&viewer,
-				elementRegistry,
-				m_pipeline
-			};
-
-			m_directions[i].depthPass.emplace(passData, std::string(s_dirNames[i]), shadowPassIndex);
 		}
-
-		m_pipeline.ForEachRegisteredMaterialInstance([this](const MaterialInstance& matInstance)
-		{
-			for (DirectionData& direction : m_directions)
-				direction.depthPass->RegisterMaterialInstance(matInstance);
-		});
 
 		m_onLightDataInvalidated.Connect(m_light.OnLightDataInvalidated, [this]([[maybe_unused]] Light* light)
 		{
@@ -115,61 +102,20 @@ namespace Nz
 				m_pipeline.QueueTransfer(&viewerInstance);
 			}
 		});
-
 	}
 
-	void PointLightShadowData::ForEachView([[maybe_unused]] const AbstractViewer* viewer, FunctionRef<void(std::size_t shadowAtlasEntry, ShadowViewer& shadowViewer)> callback)
+	void PointLightShadowData::ForEachView(FunctionRef<void(std::size_t shadowAtlasEntry, ShadowViewer& shadowViewer)> callback)
 	{
-		assert(viewer == nullptr);
-
 		std::size_t atlasEntry = m_firstShadowAtlasIndex;
 		for (DirectionData& direction : m_directions)
 			callback(atlasEntry++, direction.viewer);
-	}
-
-	void PointLightShadowData::PrepareRendering(RenderResources& renderResources, [[maybe_unused]] const AbstractViewer* viewer)
-	{
-		assert(viewer == nullptr);
-
-		for (DirectionData& direction : m_directions)
-		{
-			const Matrix4f& viewProjMatrix = direction.viewer.GetViewerInstance().GetViewProjMatrix();
-
-			Frustumf frustum = Frustumf::Extract(viewProjMatrix);
-
-			std::size_t visibilityHash = 5U;
-			const auto& visibleRenderables = m_pipeline.FrustumCull(frustum, 0xFFFFFFFF, visibilityHash);
-
-			FramePipelinePass::FrameData passData = {
-				nullptr,
-				frustum,
-				renderResources,
-				visibleRenderables,
-				visibilityHash
-			};
-
-			direction.depthPass->Prepare(passData);
-		}
-	}
-
-	void PointLightShadowData::RegisterMaterialInstance(const MaterialInstance& matInstance)
-	{
-		for (DirectionData& direction : m_directions)
-			direction.depthPass->RegisterMaterialInstance(matInstance);
 	}
 
 	void PointLightShadowData::RegisterToAtlas(ShadowAtlas& atlas)
 	{
 		UInt32 shadowMapSize = m_light.GetShadowMapSize();
 
-		std::size_t firstShadowAtlasIndex = atlas.Register(shadowMapSize, 6);
-		UpdateShadowAtlasEntries(firstShadowAtlasIndex, 6);
-	}
-
-	void PointLightShadowData::UnregisterMaterialInstance(const MaterialInstance& matInstance)
-	{
-		for (DirectionData& direction : m_directions)
-			direction.depthPass->UnregisterMaterialInstance(matInstance);
+		m_firstShadowAtlasIndex = atlas.Register(shadowMapSize, 6);
 	}
 
 	void PointLightShadowData::WriteToShader(const ShadowAtlas& atlas, [[maybe_unused]] const AbstractViewer* viewer, void* basePtr) const
