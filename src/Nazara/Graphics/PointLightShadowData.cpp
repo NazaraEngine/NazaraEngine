@@ -40,8 +40,6 @@ namespace Nz
 	m_pipeline(pipeline),
 	m_light(light)
 	{
-		std::size_t shadowPassIndex = Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex("DistanceShadowPass");
-
 		constexpr float zNear = 0.01f;
 
 		Matrix4f projectionMatrix = Matrix4f::Perspective(RadianAnglef(HalfPi<float>()), 1.f, zNear, m_light.GetRadius());
