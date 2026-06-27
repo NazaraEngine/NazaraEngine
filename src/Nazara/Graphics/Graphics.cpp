@@ -198,7 +198,6 @@ namespace Nz
 
 		std::size_t depthPassIndex = m_materialPassRegistry.GetPassIndex("DepthPass");
 		std::size_t shadowPassIndex = m_materialPassRegistry.GetPassIndex("ShadowPass");
-		std::size_t distanceShadowPassIndex = m_materialPassRegistry.GetPassIndex("DistanceShadowPass");
 		std::size_t forwardPassIndex = m_materialPassRegistry.GetPassIndex("ForwardPass");
 		std::size_t gbufferPassIndex = m_materialPassRegistry.GetPassIndex("GBufferPass");
 
@@ -228,10 +227,6 @@ namespace Nz
 			shadowPass.states.depthClamp = enabledFeatures.depthClamping;
 			settings.AddPass(shadowPassIndex, shadowPass);
 
-			MaterialPass distanceShadowPass = shadowPass;
-			distanceShadowPass.options["DistanceDepth"_opt] = true;
-			settings.AddPass(distanceShadowPassIndex, distanceShadowPass);
-
 			m_defaultMaterials.materials[MaterialType::Basic].material = std::make_shared<Material>(std::move(settings), "Material.Basic");
 		}
 
@@ -260,10 +255,6 @@ namespace Nz
 			shadowPass.states.depthClamp = enabledFeatures.depthClamping;
 			settings.AddPass(shadowPassIndex, shadowPass);
 
-			MaterialPass distanceShadowPass = shadowPass;
-			distanceShadowPass.options["DistanceDepth"_opt] = true;
-			settings.AddPass(distanceShadowPassIndex, distanceShadowPass);
-
 			m_defaultMaterials.materials[MaterialType::PhysicallyBased].material = std::make_shared<Material>(std::move(settings), "Material.PhysicallyBased");
 		}
 
@@ -291,10 +282,6 @@ namespace Nz
 			shadowPass.states.frontFace = FrontFace::Clockwise;
 			shadowPass.states.depthClamp = enabledFeatures.depthClamping;
 			settings.AddPass(shadowPassIndex, shadowPass);
-
-			MaterialPass distanceShadowPass = shadowPass;
-			distanceShadowPass.options["DistanceDepth"_opt] = true;
-			settings.AddPass(distanceShadowPassIndex, distanceShadowPass);
 
 			m_defaultMaterials.materials[MaterialType::Phong].material = std::make_shared<Material>(std::move(settings), "Material.Phong");
 		}
@@ -475,7 +462,6 @@ namespace Nz
 		m_materialPassRegistry.RegisterPass("ForwardPass");
 		m_materialPassRegistry.RegisterPass("DepthPass");
 		m_materialPassRegistry.RegisterPass("ShadowPass");
-		m_materialPassRegistry.RegisterPass("DistanceShadowPass");
 		m_materialPassRegistry.RegisterPass("GBufferPass");
 	}
 
