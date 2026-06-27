@@ -275,6 +275,7 @@ namespace Nz
 	{
 		PerViewerData& viewerData = *Retrieve(m_viewerData, viewer);
 
+		AccessByOffset<UInt32&>(basePtr, PredefinedDirectionalShadowAtlasEntryOffsets.cascadeCount) = SafeCaster(m_cascadeCount);
 		for (std::size_t i = 0; i < m_cascadeCount; ++i)
 		{
 			std::optional<Rectf> rect = atlas.GetNormalizedRect(viewerData.firstShadowAtlasIndex + i);
@@ -284,6 +285,7 @@ namespace Nz
 			AccessByOffset<Vector2f&>(basePtr, PredefinedDirectionalShadowAtlasEntryOffsets.offset + i * sizeof(Vector2f)) = rect->GetPosition();
 			AccessByOffset<Vector2f&>(basePtr, PredefinedDirectionalShadowAtlasEntryOffsets.size + i * sizeof(Vector2f)) = rect->GetLengths();
 			AccessByOffset<Matrix4f&>(basePtr, PredefinedDirectionalShadowAtlasEntryOffsets.viewProjMatrices + i * sizeof(Matrix4f)) = viewerData.cascades[i].viewProjMatrix;
+			AccessByOffset<float&>(basePtr, PredefinedDirectionalShadowAtlasEntryOffsets.cascadeDistances + i * sizeof(float)) = viewerData.cascades[i].distance;
 		}
 	}
 

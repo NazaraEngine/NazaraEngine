@@ -443,7 +443,7 @@ namespace Nz
 		context.partialCompilation = true;
 		context.optionValues["Light"_opt] = Int32(0); //< just to avoid unresolved externals
 		context.optionValues["EnableShadowMapping"_opt] = true;
-		context.optionValues["MaxLightCascadeCount"_opt] = SafeCast<UInt32>(PredefinedDirectionalLightData::MaxLightCascadeCount);
+		context.optionValues["MaxLightCascadeCount"_opt] = SafeCast<UInt32>(PredefinedDirectionalShadowAtlasEntryData::MaxLightCascadeCount);
 		context.optionValues["MaxJointCount"_opt] = SafeCast<UInt32>(PredefinedSkeletalData::MaxMatricesCount);
 
 		nzsl::Ast::ModulePtr resolvedModule = nzsl::Ast::Clone(*referenceModule);

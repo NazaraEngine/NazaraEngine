@@ -42,7 +42,7 @@ namespace Nz
 
 		nzsl::Ast::TransformerContext context;
 		context.partialCompilation = true;
-		context.optionValues["MaxLightCascadeCount"_opt] = SafeCast<UInt32>(PredefinedDirectionalLightData::MaxLightCascadeCount);
+		context.optionValues["MaxLightCascadeCount"_opt] = SafeCast<UInt32>(PredefinedDirectionalShadowAtlasEntryData::MaxLightCascadeCount);
 		context.optionValues["MaxJointCount"_opt] = SafeCast<UInt32>(PredefinedSkeletalData::MaxMatricesCount);
 
 		nzsl::Ast::ModulePtr resolvedModule = nzsl::Ast::Clone(referenceModule);

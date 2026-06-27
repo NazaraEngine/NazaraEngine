@@ -39,7 +39,6 @@ namespace Nz
 
 			std::shared_ptr<PoolData> m_pool;
 			std::vector<ShaderBinding::Binding> m_bindingCache;
-			std::vector<ShaderBinding::SampledTextureBinding> m_textureBindingCache;
 			RenderElementPool<RenderSubmesh> m_submeshPool;
 	};
 

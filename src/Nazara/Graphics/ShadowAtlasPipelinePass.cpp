@@ -140,6 +140,7 @@ namespace Nz
 			{
 				LightData& lightData = m_lightData[lightIndex];
 
+				std::size_t viewIndex = 0;
 				shadowData->ForEachView([&](std::size_t shadowAtlasEntry, ShadowViewer& shadowViewer)
 				{
 					std::optional<Rectui32> viewport = m_shadowAtlas.GetRect(shadowAtlasEntry);
@@ -161,16 +162,21 @@ namespace Nz
 						if (elementType >= lightData.elementRendererData.size())
 							lightData.elementRendererData.resize(elementType + 1);
 
-						if (!lightData.elementRendererData[elementType])
-							lightData.elementRendererData[elementType] = elementRenderer.InstanciateData();
+						if (viewIndex >= lightData.elementRendererData[elementType].size())
+							lightData.elementRendererData[elementType].resize(viewIndex + 1);
 
-						elementRenderer.Prepare(renderData, shadowViewer, *lightData.elementRendererData[elementType], env.renderResources, elementCount, elements);
+						if (!lightData.elementRendererData[elementType][viewIndex])
+							lightData.elementRendererData[elementType][viewIndex] = elementRenderer.InstanciateData();
+
+						elementRenderer.Prepare(renderData, shadowViewer, *lightData.elementRendererData[elementType][viewIndex], env.renderResources, elementCount, elements);
 					});
-				});
+					
+					m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
+					{
+						elementRenderer.PrepareEnd(*lightData.elementRendererData[elementType][viewIndex], env.renderResources, builder);
+					});
 
-				m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
-				{
-					elementRenderer.PrepareEnd(*lightData.elementRendererData[elementType], env.renderResources, builder);
+					viewIndex++;
 				});
 			});
 		});
@@ -182,6 +188,7 @@ namespace Nz
 			{
 				LightData& lightData = m_lightData[lightIndex];
 
+				std::size_t viewIndex = 0;
 				shadowData->ForEachView([&](std::size_t shadowAtlasEntry, ShadowViewer& shadowViewer)
 				{
 					std::optional<Rectui32> viewport = m_shadowAtlas.GetRect(shadowAtlasEntry);
@@ -203,14 +210,19 @@ namespace Nz
 					m_elementRegistry.ProcessRenderQueue(m_renderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
 					{
 						ElementRenderer& elementRenderer = m_elementRegistry.GetElementRenderer(elementType);
-						elementRenderer.Render(renderData, shadowViewer, *lightData.elementRendererData[elementType], env.renderResources, builder, elementCount, elements);
+						elementRenderer.Render(renderData, shadowViewer, *lightData.elementRendererData[elementType][viewIndex], env.renderResources, builder, elementCount, elements);
 					});
-				});
 
-				m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
-				{
-					if (lightData.elementRendererData[elementType])
-						elementRenderer.Reset(*lightData.elementRendererData[elementType], env.renderResources);
+					m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
+					{
+						if (elementType >= lightData.elementRendererData.size() || viewIndex >= lightData.elementRendererData[elementType].size())
+							return;
+
+						if (lightData.elementRendererData[elementType][viewIndex])
+							elementRenderer.Reset(*lightData.elementRendererData[elementType][viewIndex], env.renderResources);
+					});
+
+					viewIndex++;
 				});
 			});
 		});
