@@ -11,7 +11,9 @@ struct DirectionalShadowAtlasEntry
 {
 	offsets: array[vec2[f32], MaxLightCascadeCount],
 	sizes: array[vec2[f32], MaxLightCascadeCount], // normalized
+	cascadeCount: u32,
 	viewProjMatrices: array[mat4[f32], MaxLightCascadeCount],
+	cascadeDistances: array[f32, MaxLightCascadeCount],
 }
 
 [export, layout(std430)]
@@ -49,10 +51,10 @@ struct SpotShadowAtlasMapping
 }
 
 [export]
-fn SelectCascade(shadowAtlasEntry: DirectionalShadowAtlasEntry, cascadeCount: u32, worldPos: vec3[f32]) -> u32
+fn SelectCascade(shadowAtlasEntry: DirectionalShadowAtlasEntry, worldPos: vec3[f32]) -> u32
 {
-	let cascadeIndex = cascadeCount - u32(1);
-	for index in u32(0) -> cascadeCount
+	let cascadeIndex = shadowAtlasEntry.cascadeCount - u32(1);
+	for index in u32(0) -> shadowAtlasEntry.cascadeCount
 	{
 		let lightProjPos = shadowAtlasEntry.viewProjMatrices[index] * vec4[f32](worldPos, 1.0);
 
@@ -71,8 +73,8 @@ fn ComputeDirectionalLightShadow(shadowAtlas: depth_sampler2D[f32], light: Direc
 {
 	let shadowFactor = 1.0;
 
-	let cascadeIndex = SelectCascade(shadowAtlasEntry, light.cascadeCount, worldPos);
-	if (shadowAtlasEntry.offsets[cascadeIndex].x > 0.0)
+	let cascadeIndex = SelectCascade(shadowAtlasEntry, worldPos);
+	if (shadowAtlasEntry.offsets[cascadeIndex].x >= 0.0)
 	{
 		let lightProjPos = shadowAtlasEntry.viewProjMatrices[cascadeIndex] * vec4[f32](worldPos, 1.0);
 		let shadowCoords = lightProjPos.xyz / lightProjPos.w;
