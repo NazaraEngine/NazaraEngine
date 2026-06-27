@@ -19,13 +19,9 @@ namespace Nz
 		std::size_t directionOffset;
 		std::size_t ambientFactorOffset;
 		std::size_t diffuseFactorOffset;
-		std::size_t cascadeCountOffset;
 		std::size_t shadowIndexOffset;
-		std::size_t cascadeFarPlanesOffset;
 
 		std::size_t totalSize;
-
-		static constexpr std::size_t MaxLightCascadeCount = 4;
 
 		static constexpr PredefinedDirectionalLightData Build();
 	};
@@ -49,8 +45,12 @@ namespace Nz
 		std::size_t offset;
 		std::size_t size;
 		std::size_t viewProjMatrices;
+		std::size_t cascadeCount;
+		std::size_t cascadeDistances;
 
 		std::size_t totalSize;
+
+		static constexpr std::size_t MaxLightCascadeCount = 4;
 
 		static constexpr PredefinedDirectionalShadowAtlasEntryData Build();
 	};

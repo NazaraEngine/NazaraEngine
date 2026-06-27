@@ -128,9 +128,6 @@ namespace Nz
 				NazaraAssert(currentMaterialInstance);
 
 				m_bindingCache.clear();
-				m_textureBindingCache.clear();
-				m_textureBindingCache.reserve(9);
-				//m_textureBindingCache.reserve(renderState.shadowMapsSpot.size() + renderState.shadowMapsDirectional.size() + renderState.shadowMapsPoint.size());
 
 				NazaraAssert(data.references);
 				currentMaterialInstance->FillShaderBinding(*data.references, m_bindingCache);

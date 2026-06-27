@@ -15,9 +15,7 @@ NAZARA_WARNING_CLANG_GCC_DISABLE("-Wmissing-field-initializers")
 		lightData.directionOffset = lightData.fieldOffsets.AddField(nzsl::StructFieldType::Float3);
 		lightData.ambientFactorOffset = lightData.fieldOffsets.AddField(nzsl::StructFieldType::Float1);
 		lightData.diffuseFactorOffset = lightData.fieldOffsets.AddField(nzsl::StructFieldType::Float1);
-		lightData.cascadeCountOffset = lightData.fieldOffsets.AddField(nzsl::StructFieldType::UInt1);
 		lightData.shadowIndexOffset = lightData.fieldOffsets.AddField(nzsl::StructFieldType::UInt1);
-		lightData.cascadeFarPlanesOffset = lightData.fieldOffsets.AddFieldArray(nzsl::StructFieldType::Float1, MaxLightCascadeCount);
 
 		lightData.totalSize = lightData.fieldOffsets.GetAlignedSize();
 
@@ -42,9 +40,11 @@ NAZARA_WARNING_CLANG_GCC_DISABLE("-Wmissing-field-initializers")
 	constexpr PredefinedDirectionalShadowAtlasEntryData PredefinedDirectionalShadowAtlasEntryData::Build()
 	{
 		PredefinedDirectionalShadowAtlasEntryData entryData = { nzsl::FieldOffsets(nzsl::StructLayout::Std430) };
-		entryData.offset = entryData.fieldOffsets.AddFieldArray(nzsl::StructFieldType::Float2, PredefinedDirectionalLightData::MaxLightCascadeCount);
-		entryData.size = entryData.fieldOffsets.AddFieldArray(nzsl::StructFieldType::Float2, PredefinedDirectionalLightData::MaxLightCascadeCount);
-		entryData.viewProjMatrices = entryData.fieldOffsets.AddMatrixArray(nzsl::StructFieldType::Float1, 4, 4, true, PredefinedDirectionalLightData::MaxLightCascadeCount);
+		entryData.offset = entryData.fieldOffsets.AddFieldArray(nzsl::StructFieldType::Float2, MaxLightCascadeCount);
+		entryData.size = entryData.fieldOffsets.AddFieldArray(nzsl::StructFieldType::Float2, MaxLightCascadeCount);
+		entryData.cascadeCount = entryData.fieldOffsets.AddField(nzsl::StructFieldType::UInt1);
+		entryData.viewProjMatrices = entryData.fieldOffsets.AddMatrixArray(nzsl::StructFieldType::Float1, 4, 4, true, MaxLightCascadeCount);
+		entryData.cascadeDistances = entryData.fieldOffsets.AddFieldArray(nzsl::StructFieldType::Float1, MaxLightCascadeCount);
 
 		entryData.totalSize = entryData.fieldOffsets.GetAlignedSize();
 

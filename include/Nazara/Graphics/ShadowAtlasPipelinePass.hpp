@@ -65,7 +65,8 @@ namespace Nz
 
 			struct LightData
 			{
-				HybridVector<std::unique_ptr<ElementRendererData>, BasicRenderElementCount> elementRendererData;
+				// FIXME: HybridVector doesn't seem to be movable when containing move-only types
+				std::vector<std::vector<std::unique_ptr<ElementRendererData>>> elementRendererData;
 			};
 
 			std::size_t m_passIndex;

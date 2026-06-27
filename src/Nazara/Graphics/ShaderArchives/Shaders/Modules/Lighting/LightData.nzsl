@@ -11,9 +11,7 @@ struct DirectionalLight
 	direction: vec3[f32],
 	ambientFactor: f32,
 	diffuseFactor: f32,
-	cascadeCount: u32,
 	shadowIndex: u32, //< [..cascadeCount]
-	cascadeDistances: array[f32, MaxLightCascadeCount],
 }
 
 [export]
