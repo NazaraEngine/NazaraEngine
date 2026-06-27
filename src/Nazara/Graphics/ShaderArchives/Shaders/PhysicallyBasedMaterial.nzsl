@@ -16,7 +16,6 @@ import EncodeNormal from DeferredShading.NormalEncoding;
 
 // Pass-specific options
 option DepthPass: bool = false;
-option DistanceDepth: bool = false;
 option ForwardPass: bool = true;
 option ShadowPass: bool = false;
 
@@ -138,7 +137,6 @@ struct VertOut
 struct FragOut
 {
 	[location(0)] color: vec4[f32],
-	[builtin(frag_depth), cond(DistanceDepth)] fragdepth: f32,
 }
 
 [cond(!ForwardPass)]
@@ -306,22 +304,7 @@ fn FragMain(input: VertOut) -> FragOut
 }
 
 // Shadow passes entries
-[entry(frag), cond(DepthPass && DistanceDepth)]
-[depth_write(replace)]
-fn FragDepthDist(input: VertOut) -> FragOut
-{
-	let color = ComputeColor(input);
-
-	let output: FragOut;
-	output.color = color;
-
-	let dist = distance(viewerData.eyePosition, input.worldPos);
-	output.fragdepth = dist / viewerData.farPlane;
-
-	return output;
-}
-
-[entry(frag), cond(DepthPass && AlphaTest && !DistanceDepth)]
+[entry(frag), cond(DepthPass && AlphaTest)]
 fn FragDepth(input: VertOut) -> FragOut
 {
 	let color = ComputeColor(input);
@@ -331,7 +314,7 @@ fn FragDepth(input: VertOut) -> FragOut
 	return output;
 }
 
-[entry(frag), cond(DepthPass && !AlphaTest && !DistanceDepth)]
+[entry(frag), cond(DepthPass && !AlphaTest)]
 fn FragDepthNoAlpha() {} //< dummy
 
 // Vertex stage
