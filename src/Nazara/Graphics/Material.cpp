@@ -50,7 +50,40 @@ namespace Nz
 
 		m_reflection.Reflect(*resolvedModule);
 
-		m_renderPipelineLayout = renderDevice->InstantiateRenderPipelineLayout(m_reflection.GetPipelineLayoutInfo());
+		struct SetData
+		{
+			HybridVector<std::size_t, 10> bindingHashes;
+		};
+
+		const RenderPipelineLayoutInfo& pipelineLayoutInfo = m_reflection.GetPipelineLayoutInfo();
+
+		HybridVector<SetData, 4> setHashes;
+		for (const auto& binding : pipelineLayoutInfo.bindings)
+		{
+			if (binding.setIndex >= setHashes.size())
+				setHashes.resize(binding.setIndex + 1);
+
+			SetData& setData = setHashes[binding.setIndex];
+			if (binding.bindingIndex >= setData.bindingHashes.size())
+				setData.bindingHashes.resize(binding.bindingIndex + 1);
+
+			setData.bindingHashes[binding.bindingIndex] = HashCombine(binding.arraySize, binding.shaderStageFlags, binding.type);
+		}
+
+		std::size_t previousHash = std::hash<UInt32>{}(pipelineLayoutInfo.pushConstantSize);
+		for (std::size_t i = 0; i < setHashes.size(); ++i)
+		{
+			SetData& setData = setHashes[i];
+
+			std::size_t setHash = previousHash;
+			for (std::size_t hash : setData.bindingHashes)
+				HashCombine(setHash, hash);
+
+			previousHash = setHash;
+			m_bindingSetHashes.push_back(setHash);
+		}
+
+		m_renderPipelineLayout = renderDevice->InstantiateRenderPipelineLayout(pipelineLayoutInfo);
 
 		if (const ShaderReflection::ExternalBlockData* block = m_reflection.GetExternalBlockByTag("Material"))
 		{
@@ -98,15 +131,10 @@ namespace Nz
 		}
 
 		m_engineShaderBindings.fill(InvalidBindingIndex);
-		if (const ShaderReflection::ExternalBlockData* block = m_reflection.GetExternalBlockByTag("Engine"))
+		if (const ShaderReflection::ExternalBlockData* block = m_reflection.GetExternalBlockByTag("Scene"))
 		{
+			// TODO: Check set index
 			// TODO: Ensure structs layout is what's expected
-
-			if (auto it = block->uniformBlocks.find("InstanceData"); it != block->uniformBlocks.end())
-				m_engineShaderBindings[EngineShaderBinding::InstanceDataUbo] = it->second.bindingIndex;
-
-			if (auto it = block->uniformBlocks.find("ViewerData"); it != block->uniformBlocks.end())
-				m_engineShaderBindings[EngineShaderBinding::ViewerDataUbo] = it->second.bindingIndex;
 
 			if (auto it = block->storageBlocks.find("DirectionalLights"); it != block->storageBlocks.end())
 				m_engineShaderBindings[EngineShaderBinding::DirectionalLights] = it->second.bindingIndex;
@@ -128,6 +156,24 @@ namespace Nz
 
 			if (auto it = block->samplers.find("ShadowAtlas"); it != block->samplers.end())
 				m_engineShaderBindings[EngineShaderBinding::ShadowAtlas] = it->second.bindingIndex;
+		}
+
+		if (const ShaderReflection::ExternalBlockData* block = m_reflection.GetExternalBlockByTag("Viewer"))
+		{
+			// TODO: Check set index
+			// TODO: Ensure structs layout is what's expected
+
+			if (auto it = block->uniformBlocks.find("ViewerData"); it != block->uniformBlocks.end())
+				m_engineShaderBindings[EngineShaderBinding::ViewerDataUbo] = it->second.bindingIndex;
+		}
+
+		if (const ShaderReflection::ExternalBlockData* block = m_reflection.GetExternalBlockByTag("Instance"))
+		{
+			// TODO: Check set index
+			// TODO: Ensure structs layout is what's expected
+
+			if (auto it = block->uniformBlocks.find("InstanceData"); it != block->uniformBlocks.end())
+				m_engineShaderBindings[EngineShaderBinding::InstanceDataUbo] = it->second.bindingIndex;
 
 			if (auto it = block->uniformBlocks.find("SkeletalData"); it != block->uniformBlocks.end())
 				m_engineShaderBindings[EngineShaderBinding::SkeletalDataUbo] = it->second.bindingIndex;

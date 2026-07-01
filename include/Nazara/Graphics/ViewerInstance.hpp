@@ -17,8 +17,10 @@
 namespace Nz
 {
 	class CommandBufferBuilder;
+	class Material;
 	class MaterialSettings;
 	class RenderBuffer;
+	struct RenderResourceReferences;
 	class UploadPool;
 
 	class NAZARA_GRAPHICS_API ViewerInstance : public TransferInterface
@@ -28,6 +30,8 @@ namespace Nz
 			ViewerInstance(const ViewerInstance&) = delete;
 			ViewerInstance(ViewerInstance&&) noexcept = default;
 			~ViewerInstance() = default;
+
+			virtual void FillShaderBinding(const Material& material, RenderResourceReferences& resourceReferences, std::vector<ShaderBinding::Binding>& bindings) const;
 
 			inline const Vector3f& GetEyePosition() const;
 			inline float GetFarPlane() const;
@@ -57,6 +61,8 @@ namespace Nz
 
 			ViewerInstance& operator=(const ViewerInstance&) = delete;
 			ViewerInstance& operator=(ViewerInstance&&) noexcept = default;
+
+			NazaraSignal(OnViewerInstanceDestruction, ViewerInstance* /*emitter*/);
 
 		private:
 			inline void InvalidateData();

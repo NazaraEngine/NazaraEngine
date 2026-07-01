@@ -7,6 +7,9 @@ import ViewerData from Engine.ViewerData;
 import SkinLinearPosition from Engine.SkinningLinear;
 import GBufferOutput from DeferredShading.PhysicallyBasedGBuffer;
 
+import Lighting.LightData;
+import Lighting.Shadow;
+
 // Pass-specific options
 option DepthPass: bool = false;
 option ForwardPass: bool = true;
@@ -55,22 +58,42 @@ struct MaterialSettings
 	BaseColor: vec4[f32]
 }
 
-[tag("Material")]
-[auto_binding]
-external
+[tag("Scene")]
+[set(0), auto_binding]
+external Scene
 {
-	[tag("Settings")] settings: uniform[MaterialSettings],
-	[tag("BaseColorMap")] MaterialBaseColorMap: sampler2D[f32],
-	[tag("AlphaMap")] MaterialAlphaMap: sampler2D[f32],
+	[tag("ShadowAtlas")] shadowAtlas: depth_sampler2D[f32],
+
+	[tag("DirectionalLights")] directionalLights: storage[LightData.DirectionalLights, readonly],
+	[tag("DirectionalShadowAtlasMapping")] directionalShadowAtlasMapping: storage[Shadow.DirectionalShadowAtlasMapping, readonly],
+	[tag("PointLights")] pointLights: storage[LightData.PointLights, readonly],
+	[tag("PointShadowAtlasMapping")] pointShadowAtlasMapping: storage[Shadow.PointShadowAtlasMapping, readonly],
+	[tag("SpotLights")] spotLights: storage[LightData.SpotLights, readonly],
+	[tag("SpotShadowAtlasMapping")] spotShadowAtlasMapping: storage[Shadow.SpotShadowAtlasMapping, readonly],
 }
 
-[tag("Engine")]
-[auto_binding]
-external
+[tag("Viewer")]
+[set(1), auto_binding]
+external Viewer
+{
+	[tag("ViewerData")] viewerData: uniform[ViewerData],
+}
+
+[tag("Material")]
+[set(2), auto_binding]
+external Material
+{
+	[tag("Settings")] settings: uniform[MaterialSettings],
+	[tag("BaseColorMap")] baseColorMap: sampler2D[f32],
+	[tag("AlphaMap")] alphaMap: sampler2D[f32],
+}
+
+[tag("Instance")]
+[set(3), auto_binding]
+external Instance
 {
 	[tag("InstanceData")] instanceData: uniform[InstanceData],
-	[tag("ViewerData")] viewerData: uniform[ViewerData],
-	[tag("SkeletalData")] skeletalData: uniform[SkeletalData]
+	[tag("SkeletalData")] skeletalData: uniform[SkeletalData],
 }
 
 struct VertOut
@@ -93,20 +116,20 @@ alias FragOut = GBufferOutput;
 
 fn ComputeColor(input: VertOut) -> vec4[f32]
 {
-	let color = settings.BaseColor;
+	let color = Material.settings.BaseColor;
 
 	const if (HasColor)
 		color *= input.color;
 
 	const if (HasBaseColorTexture)
-		color *= MaterialBaseColorMap.Sample(input.uv);
+		color *= Material.baseColorMap.Sample(input.uv);
 
 	const if (HasAlphaTexture)
-		color.w *= MaterialAlphaMap.Sample(input.uv).x;
+		color.w *= Material.alphaMap.Sample(input.uv).x;
 
 	const if (AlphaTest)
 	{
-		if (color.w < settings.AlphaThreshold)
+		if (color.w < Material.settings.AlphaThreshold)
 			discard;
 	}
 
@@ -205,16 +228,16 @@ fn VertBillboard(input: BillboardVertIn) -> VertOut
 	);
 	rotatedPosition *= size;
 
-	let cameraRight = vec3[f32](viewerData.viewMatrix[0][0], viewerData.viewMatrix[1][0], viewerData.viewMatrix[2][0]);
-	let cameraUp = vec3[f32](viewerData.viewMatrix[0][1], viewerData.viewMatrix[1][1], viewerData.viewMatrix[2][1]);
+	let cameraRight = vec3[f32](Viewer.viewerData.viewMatrix[0][0], Viewer.viewerData.viewMatrix[1][0], Viewer.viewerData.viewMatrix[2][0]);
+	let cameraUp = vec3[f32](Viewer.viewerData.viewMatrix[0][1], Viewer.viewerData.viewMatrix[1][1], Viewer.viewerData.viewMatrix[2][1]);
 
-	let worldPosition = vec3[f32](instanceData.worldMatrix[3].xyz);
+	let worldPosition = vec3[f32](Instance.instanceData.worldMatrix[3].xyz);
 	worldPosition += cameraRight * rotatedPosition.x;
 	worldPosition += cameraUp * rotatedPosition.y;
 
 	let output: VertOut;
 	output.worldPos = worldPosition;
-	output.position = viewerData.viewProjMatrix * vec4[f32](worldPosition, 1.0);
+	output.position = Viewer.viewerData.viewProjMatrix * vec4[f32](worldPosition, 1.0);
 
 	const if (HasVertexUV)
 		output.uv = input.uv;
@@ -233,10 +256,10 @@ fn VertMain(input: VertIn) -> VertOut
 	const if (HasSkinning)
 	{
 		let jointMatrices = array[mat4[f32]](
-			skeletalData.jointMatrices[input.jointIndices[0]],
-			skeletalData.jointMatrices[input.jointIndices[1]],
-			skeletalData.jointMatrices[input.jointIndices[2]],
-			skeletalData.jointMatrices[input.jointIndices[3]]
+			Instance.skeletalData.jointMatrices[input.jointIndices[0]],
+			Instance.skeletalData.jointMatrices[input.jointIndices[1]],
+			Instance.skeletalData.jointMatrices[input.jointIndices[2]],
+			Instance.skeletalData.jointMatrices[input.jointIndices[3]]
 		);
 
 		let skinningOutput = SkinLinearPosition(jointMatrices, input.jointWeights, input.pos);
@@ -247,16 +270,16 @@ fn VertMain(input: VertIn) -> VertOut
 
 	const if (ShadowPass)
 	{
-		pos *= settings.ShadowPosScale;
+		pos *= Material.settings.ShadowPosScale;
 		const if (HasNormal)
-			pos -= input.normal * settings.ShadowMapNormalOffset;
+			pos -= input.normal * Material.settings.ShadowMapNormalOffset;
 	}
 
-	let worldPosition = instanceData.worldMatrix * vec4[f32](pos, 1.0);
+	let worldPosition = Instance.instanceData.worldMatrix * vec4[f32](pos, 1.0);
 
 	let output: VertOut;
 	output.worldPos = worldPosition.xyz;
-	output.position = viewerData.viewProjMatrix * worldPosition;
+	output.position = Viewer.viewerData.viewProjMatrix * worldPosition;
 
 	const if (HasColor)
 		output.color = input.color;

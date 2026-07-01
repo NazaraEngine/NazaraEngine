@@ -34,9 +34,14 @@ namespace Nz
 		{
 			const RenderBuffer* vertexBuffer;
 			const RenderPipeline* renderPipeline;
-			const ShaderBinding* shaderBinding;
+			const ShaderBinding* instanceShaderBinding;
+			const ShaderBinding* materialShaderBinding;
+			const ShaderBinding* sceneShaderBinding;
+			const ShaderBinding* viewerShaderBinding;
 			std::size_t firstIndex;
 			std::size_t indexCount;
+			std::size_t sceneBindingHash;
+			std::size_t viewerBindingHash;
 			Recti scissorBox;
 		};
 
@@ -69,7 +74,6 @@ namespace Nz
 
 		private:
 			void Flush();
-			void FlushDrawData();
 
 			struct BufferCopy
 			{
@@ -87,7 +91,10 @@ namespace Nz
 				RenderBuffer* currentVertexBuffer = nullptr;
 				const MaterialInstance* currentMaterialInstance = nullptr;
 				const RenderPipeline* currentPipeline = nullptr;
-				const ShaderBinding* currentShaderBinding = nullptr;
+				const ShaderBinding* currentInstanceShaderBinding = nullptr;
+				const ShaderBinding* currentMaterialShaderBinding = nullptr;
+				const ShaderBinding* currentSceneShaderBinding = nullptr;
+				const ShaderBinding* currentViewerShaderBinding = nullptr;
 				const WorldInstance* currentWorldInstance = nullptr;
 				Recti currentScissorBox = Recti(-1, -1, -1, -1);
 			};

@@ -31,6 +31,16 @@ namespace Nz
 		return it->second;
 	}
 
+	inline std::size_t Material::GetBindingSetCount() const
+	{
+		return m_bindingSetHashes.size();
+	}
+
+	inline std::size_t Material::GetBindingSetHash(UInt32 setIndex) const
+	{
+		return m_bindingSetHashes[setIndex];
+	}
+
 	inline UInt32 Material::GetEngineBindingIndex(EngineShaderBinding shaderBinding) const
 	{
 		return m_engineShaderBindings[shaderBinding];
