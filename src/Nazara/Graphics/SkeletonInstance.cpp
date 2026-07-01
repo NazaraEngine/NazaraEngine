@@ -6,6 +6,7 @@
 #include <Nazara/Core/Error.hpp>
 #include <Nazara/Core/Joint.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
+#include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/RenderResources.hpp>
@@ -39,6 +40,16 @@ namespace Nz
 			m_dataInvalidated = true;
 			OnTransferRequired(this);
 		});
+	}
+
+	void SkeletonInstance::FillShaderBinding(const Material& material, RenderResourceReferences& resourceReferences, std::vector<ShaderBinding::Binding>& bindings) const
+	{
+		if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::SkeletalDataUbo); bindingIndex != Material::InvalidBindingIndex)
+		{
+			auto& bindingEntry = bindings.emplace_back();
+			bindingEntry.bindingIndex = bindingIndex;
+			bindingEntry.content = ShaderBinding::UniformBufferBinding::WholeBuffer(*m_skeletalDataBuffer);
+		}
 	}
 
 	void SkeletonInstance::OnTransfer(RenderResources& renderResources, CommandBufferBuilder& builder)

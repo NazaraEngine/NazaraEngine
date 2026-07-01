@@ -57,6 +57,8 @@ namespace Nz
 			inline std::size_t FindTextureByTag(std::string_view tag) const;
 			inline std::size_t FindUniformBlockByTag(std::string_view tag) const;
 
+			inline std::size_t GetBindingSetCount() const;
+			inline std::size_t GetBindingSetHash(UInt32 setIndex) const;
 			inline UInt32 GetEngineBindingIndex(EngineShaderBinding shaderBinding) const;
 			inline const std::shared_ptr<RenderPipelineLayout>& GetRenderPipelineLayout() const;
 			inline const MaterialSettings& GetSettings() const;
@@ -76,8 +78,8 @@ namespace Nz
 
 			static inline ImageType ToImageType(nzsl::ImageType imageType);
 
-			static constexpr UInt32 InvalidBindingIndex = std::numeric_limits<UInt32>::max();
-			static constexpr std::size_t InvalidIndex = std::numeric_limits<std::size_t>::max();
+			static constexpr UInt32 InvalidBindingIndex = MaxValue();
+			static constexpr std::size_t InvalidIndex = MaxValue();
 
 			struct StorageBufferData
 			{
@@ -101,6 +103,11 @@ namespace Nz
 				std::unique_ptr<RenderBufferPool> bufferPool;
 			};
 
+			static constexpr UInt32 InstanceBindingSet = 3;
+			static constexpr UInt32 MaterialBindingSet = 2;
+			static constexpr UInt32 SceneBindingSet = 0;
+			static constexpr UInt32 ViewerBindingSet = 1;
+
 		private:
 			std::shared_ptr<RenderPipelineLayout> m_renderPipelineLayout;
 			std::unordered_map<UInt32, nzsl::Ast::ConstantSingleValue> m_optionValues;
@@ -112,6 +119,7 @@ namespace Nz
 			std::vector<UniformBlockData> m_uniformBlocks;
 			mutable std::weak_ptr<MaterialInstance> m_defaultInstance;
 			EnumArray<EngineShaderBinding, UInt32> m_engineShaderBindings;
+			HybridVector<std::size_t, 4> m_bindingSetHashes;
 			MaterialSettings m_settings;
 			ShaderReflection m_reflection;
 	};

@@ -53,22 +53,16 @@ namespace Nz
 		const RenderBuffer* currentVertexBuffer = nullptr;
 		const MaterialInstance* currentMaterialInstance = nullptr;
 		const RenderPipeline* currentPipeline = nullptr;
-		const ShaderBinding* currentShaderBinding = nullptr;
+		const ShaderBinding* currentSceneShaderBinding = nullptr;
+		const ShaderBinding* currentViewerShaderBinding = nullptr;
+		const ShaderBinding* currentMaterialShaderBinding = nullptr;
+		const ShaderBinding* currentInstanceShaderBinding = nullptr;
 		const SkeletonInstance* currentSkeletonInstance = nullptr;
 		const WorldInstance* currentWorldInstance = nullptr;
 		Recti currentScissorBox(-1, -1, -1, -1);
 
-		auto FlushDrawData = [&]()
-		{
-			currentShaderBinding = nullptr;
-		};
-
-		const auto& depthTexture2D = Graphics::Instance()->GetDefaultTextures().depthTextures[ImageType::E2D];
-		const auto& depthTexture2DArray = Graphics::Instance()->GetDefaultTextures().depthTextures[ImageType::E2D_Array];
-		const auto& depthTextureCube = Graphics::Instance()->GetDefaultTextures().depthTextures[ImageType::Cubemap];
-		const auto& whiteTexture2D = Graphics::Instance()->GetDefaultTextures().whiteTextures[ImageType::E2D];
-		const auto& defaultSampler = graphics->GetSamplerCache().Get({});
-		const auto& shadowSampler = graphics->GetSamplerCache().Get({ .depthCompare = true });
+		std::size_t sceneBindingHash = 0;
+		std::size_t viewerBindingHash = 0;
 
 		for (std::size_t i = 0; i < elementCount; ++i)
 		{
@@ -83,8 +77,8 @@ namespace Nz
 
 			if (const MaterialInstance* materialInstance = &submesh.GetMaterialInstance(); currentMaterialInstance != materialInstance)
 			{
-				FlushDrawData();
 				currentMaterialInstance = materialInstance;
+				currentMaterialShaderBinding = nullptr;
 			}
 
 			if (const RenderBuffer* indexBuffer = submesh.GetIndexBuffer(); currentIndexBuffer != indexBuffer)
@@ -105,13 +99,13 @@ namespace Nz
 
 			if (const SkeletonInstance* skeletonInstance = submesh.GetSkeletonInstance(); currentSkeletonInstance != skeletonInstance)
 			{
-				FlushDrawData();
+				currentInstanceShaderBinding = nullptr;
 				currentSkeletonInstance = skeletonInstance;
 			}
 
 			if (const WorldInstance* worldInstance = &submesh.GetWorldInstance(); currentWorldInstance != worldInstance)
 			{
-				FlushDrawData();
+				currentInstanceShaderBinding = nullptr;
 				currentWorldInstance = worldInstance;
 			}
 
@@ -123,107 +117,78 @@ namespace Nz
 				currentScissorBox = targetScissorBox;
 			}
 
-			if (!currentShaderBinding)
+			const Material& material = *currentMaterialInstance->GetParentMaterial();
+
+			if (!currentSceneShaderBinding || sceneBindingHash != material.GetBindingSetHash(Material::SceneBindingSet))
 			{
-				NazaraAssert(currentMaterialInstance);
+				ShaderBindingPtr sceneBinding = currentPipeline->GetPipelineInfo().pipelineLayout->AllocateShaderBinding(Material::SceneBindingSet);
 
 				m_bindingCache.clear();
+				FillSceneBindings(renderData, material, m_bindingCache);
+				sceneBinding->Update(m_bindingCache.data(), m_bindingCache.size());
 
-				NazaraAssert(data.references);
+				commandBuffer.BindRenderShaderBinding(Material::SceneBindingSet, *sceneBinding);
+
+				currentSceneShaderBinding = sceneBinding.get();
+
+				data.shaderBindings.emplace_back(std::move(sceneBinding));
+				sceneBindingHash = material.GetBindingSetHash(Material::SceneBindingSet);
+
+				currentViewerShaderBinding = nullptr;
+			}
+
+			if (!currentViewerShaderBinding || viewerBindingHash != material.GetBindingSetHash(Material::ViewerBindingSet))
+			{
+				ShaderBindingPtr viewerBinding = currentPipeline->GetPipelineInfo().pipelineLayout->AllocateShaderBinding(Material::ViewerBindingSet);
+
+				m_bindingCache.clear();
+				viewer.GetViewerInstance().FillShaderBinding(material, *data.references, m_bindingCache);
+				viewerBinding->Update(m_bindingCache.data(), m_bindingCache.size());
+
+				commandBuffer.BindRenderShaderBinding(Material::ViewerBindingSet, *viewerBinding);
+
+				currentViewerShaderBinding = viewerBinding.get();
+
+				data.shaderBindings.emplace_back(std::move(viewerBinding));
+				viewerBindingHash = material.GetBindingSetHash(Material::ViewerBindingSet);
+
+				currentMaterialShaderBinding = nullptr;
+			}
+
+			if (!currentMaterialShaderBinding)
+			{
+				ShaderBindingPtr materialBinding = currentPipeline->GetPipelineInfo().pipelineLayout->AllocateShaderBinding(Material::MaterialBindingSet);
+
+				m_bindingCache.clear();
 				currentMaterialInstance->FillShaderBinding(*data.references, m_bindingCache);
+				materialBinding->Update(m_bindingCache.data(), m_bindingCache.size());
 
-				const Material& material = *currentMaterialInstance->GetParentMaterial();
+				commandBuffer.BindRenderShaderBinding(Material::MaterialBindingSet, *materialBinding);
 
-				// Predefined shader bindings
-				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::DirectionalLights); bindingIndex != Material::InvalidBindingIndex && renderData.directionalLights)
-				{
-					auto& bindingEntry = m_bindingCache.emplace_back();
-					bindingEntry.bindingIndex = bindingIndex;
-					bindingEntry.content = ShaderBinding::StorageBufferBinding::FromView(renderData.directionalLights);
-				}
+				currentMaterialShaderBinding = materialBinding.get();
 
-				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::DirectionalShadowAtlasMapping); bindingIndex != Material::InvalidBindingIndex && renderData.directionalLightAtlasMapping)
-				{
-					auto& bindingEntry = m_bindingCache.emplace_back();
-					bindingEntry.bindingIndex = bindingIndex;
-					bindingEntry.content = ShaderBinding::StorageBufferBinding::FromView(renderData.directionalLightAtlasMapping);
-				}
+				data.shaderBindings.emplace_back(std::move(materialBinding));
 
-				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::PointLights); bindingIndex != Material::InvalidBindingIndex && renderData.pointLights)
-				{
-					auto& bindingEntry = m_bindingCache.emplace_back();
-					bindingEntry.bindingIndex = bindingIndex;
-					bindingEntry.content = ShaderBinding::StorageBufferBinding::FromView(renderData.pointLights);
-				}
+				currentInstanceShaderBinding = nullptr;
+			}
 
-				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::PointShadowAtlasMapping); bindingIndex != Material::InvalidBindingIndex && renderData.pointLightAtlasMapping)
-				{
-					auto& bindingEntry = m_bindingCache.emplace_back();
-					bindingEntry.bindingIndex = bindingIndex;
-					bindingEntry.content = ShaderBinding::StorageBufferBinding::FromView(renderData.pointLightAtlasMapping);
-				}
+			if (!currentInstanceShaderBinding)
+			{
+				ShaderBindingPtr instanceBinding = currentPipeline->GetPipelineInfo().pipelineLayout->AllocateShaderBinding(Material::InstanceBindingSet);
 
-				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::ShadowAtlas); bindingIndex != Material::InvalidBindingIndex && renderData.shadowAtlas)
-				{
-					auto& bindingEntry = m_bindingCache.emplace_back();
-					bindingEntry.bindingIndex = bindingIndex;
-					bindingEntry.content = ShaderBinding::SampledTextureBinding{
-						.texture = renderData.shadowAtlas,
-						.sampler = shadowSampler.get()
-					};
-				}
+				m_bindingCache.clear();
+				currentWorldInstance->FillShaderBinding(material, *data.references, m_bindingCache);
 
-				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::SpotLights); bindingIndex != Material::InvalidBindingIndex && renderData.spotLights)
-				{
-					auto& bindingEntry = m_bindingCache.emplace_back();
-					bindingEntry.bindingIndex = bindingIndex;
-					bindingEntry.content = ShaderBinding::StorageBufferBinding::FromView(renderData.spotLights);
-				}
+				if (currentSkeletonInstance)
+					currentSkeletonInstance->FillShaderBinding(material, *data.references, m_bindingCache);
 
-				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::SpotShadowAtlasMapping); bindingIndex != Material::InvalidBindingIndex && renderData.spotLightAtlasMapping)
-				{
-					auto& bindingEntry = m_bindingCache.emplace_back();
-					bindingEntry.bindingIndex = bindingIndex;
-					bindingEntry.content = ShaderBinding::StorageBufferBinding::FromView(renderData.spotLightAtlasMapping);
-				}
+				instanceBinding->Update(m_bindingCache.data(), m_bindingCache.size());
 
-				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::ViewerDataUbo); bindingIndex != Material::InvalidBindingIndex)
-				{
-					const auto& viewerBuffer = viewer.GetViewerInstance().GetViewerBuffer();
+				commandBuffer.BindRenderShaderBinding(Material::InstanceBindingSet, *instanceBinding);
 
-					auto& bindingEntry = m_bindingCache.emplace_back();
-					bindingEntry.bindingIndex = bindingIndex;
-					bindingEntry.content = ShaderBinding::UniformBufferBinding::WholeBuffer(*viewerBuffer);
-				}
+				currentInstanceShaderBinding = instanceBinding.get();
 
-				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::InstanceDataUbo); bindingIndex != Material::InvalidBindingIndex)
-				{
-					NazaraAssert(currentWorldInstance);
-					const auto& instanceBuffer = currentWorldInstance->GetInstanceBuffer();
-
-					auto& bindingEntry = m_bindingCache.emplace_back();
-					bindingEntry.bindingIndex = bindingIndex;
-					bindingEntry.content = ShaderBinding::UniformBufferBinding::WholeBuffer(*instanceBuffer);
-				}
-
-				if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::SkeletalDataUbo); bindingIndex != Material::InvalidBindingIndex && currentSkeletonInstance)
-				{
-					const auto& skeletalBuffer = currentSkeletonInstance->GetSkeletalBuffer();
-
-					auto& bindingEntry = m_bindingCache.emplace_back();
-					bindingEntry.bindingIndex = bindingIndex;
-					bindingEntry.content = ShaderBinding::UniformBufferBinding::WholeBuffer(*skeletalBuffer);
-				}
-
-				assert(currentPipeline);
-				ShaderBindingPtr drawDataBinding = currentPipeline->GetPipelineInfo().pipelineLayout->AllocateShaderBinding(0);
-				drawDataBinding->Update(m_bindingCache.data(), m_bindingCache.size());
-
-				commandBuffer.BindRenderShaderBinding(0, *drawDataBinding);
-
-				currentShaderBinding = drawDataBinding.get();
-
-				data.shaderBindings.emplace_back(std::move(drawDataBinding));
+				data.shaderBindings.emplace_back(std::move(instanceBinding));
 			}
 
 			if (currentIndexBuffer)

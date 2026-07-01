@@ -18,7 +18,9 @@
 namespace Nz
 {
 	class CommandBufferBuilder;
+	class Material;
 	class RenderBuffer;
+	struct RenderResourceReferences;
 	class SkeletonInstance;
 	class UploadPool;
 
@@ -31,6 +33,8 @@ namespace Nz
 			SkeletonInstance(const SkeletonInstance&) = delete;
 			SkeletonInstance(SkeletonInstance&& skeletonInstance) noexcept;
 			~SkeletonInstance() = default;
+
+			virtual void FillShaderBinding(const Material& material, RenderResourceReferences& resourceReferences, std::vector<ShaderBinding::Binding>& bindings) const;
 
 			inline std::shared_ptr<RenderBuffer>& GetSkeletalBuffer();
 			inline const std::shared_ptr<RenderBuffer>& GetSkeletalBuffer() const;

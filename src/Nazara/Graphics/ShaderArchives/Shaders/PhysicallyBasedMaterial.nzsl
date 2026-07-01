@@ -84,26 +84,10 @@ struct MaterialSettings
 	RoughnessFactor: f32
 }
 
-[tag("Material")]
-[auto_binding]
-external
+[tag("Scene")]
+[set(0), auto_binding]
+external Scene
 {
-	[tag("Settings")] settings: uniform[MaterialSettings],
-	[tag("BaseColorMap")] MaterialBaseColorMap: sampler2D[f32],
-	[tag("AlphaMap")] MaterialAlphaMap: sampler2D[f32],
-	[tag("EmissiveMap")] MaterialEmissiveMap: sampler2D[f32],
-	[tag("HeightMap")] MaterialHeightMap: sampler2D[f32],
-	[tag("MetallicMap")] MaterialMetallicMap: sampler2D[f32],
-	[tag("NormalMap")] MaterialNormalMap: sampler2D[f32],
-	[tag("RoughnessMap")] MaterialRoughnessMap: sampler2D[f32],
-	[tag("SpecularMap")] MaterialSpecularMap: sampler2D[f32],
-}
-
-[tag("Engine")]
-[auto_binding]
-external
-{
-	// Scene data
 	[tag("ShadowAtlas")] shadowAtlas: depth_sampler2D[f32],
 
 	[tag("DirectionalLights")] directionalLights: storage[LightData.DirectionalLights, readonly],
@@ -112,11 +96,34 @@ external
 	[tag("PointShadowAtlasMapping")] pointShadowAtlasMapping: storage[Shadow.PointShadowAtlasMapping, readonly],
 	[tag("SpotLights")] spotLights: storage[LightData.SpotLights, readonly],
 	[tag("SpotShadowAtlasMapping")] spotShadowAtlasMapping: storage[Shadow.SpotShadowAtlasMapping, readonly],
+}
 
-	// Per viewer data
+[tag("Viewer")]
+[set(1), auto_binding]
+external Viewer
+{
 	[tag("ViewerData")] viewerData: uniform[ViewerData],
+}
 
-	// Per instance data
+[tag("Material")]
+[set(2), auto_binding]
+external Material
+{
+	[tag("Settings")] settings: uniform[MaterialSettings],
+	[tag("BaseColorMap")] baseColorMap: sampler2D[f32],
+	[tag("AlphaMap")] alphaMap: sampler2D[f32],
+	[tag("EmissiveMap")] emissiveMap: sampler2D[f32],
+	[tag("HeightMap")] heightMap: sampler2D[f32],
+	[tag("MetallicMap")] metallicMap: sampler2D[f32],
+	[tag("NormalMap")] normalMap: sampler2D[f32],
+	[tag("RoughnessMap")] roughnessMap: sampler2D[f32],
+	[tag("SpecularMap")] specularMap: sampler2D[f32],
+}
+
+[tag("Instance")]
+[set(3), auto_binding]
+external Instance
+{
 	[tag("InstanceData")] instanceData: uniform[InstanceData],
 	[tag("SkeletalData")] skeletalData: uniform[SkeletalData],
 }
@@ -145,20 +152,20 @@ alias FragOut = GBufferOutput;
 [export]
 fn ComputeColor(input: VertOut) -> vec4[f32]
 {
-	let color = settings.BaseColor;
+	let color = Material.settings.BaseColor;
 
 	const if (HasColor)
 		color *= input.color;
 
 	const if (HasBaseColorTexture)
-		color *= MaterialBaseColorMap.Sample(input.uv);
+		color *= Material.baseColorMap.Sample(input.uv);
 
 	const if (HasAlphaTexture)
-		color.w *= MaterialAlphaMap.Sample(input.uv).x;
+		color.w *= Material.alphaMap.Sample(input.uv).x;
 
 	const if (AlphaTest)
 	{
-		if (color.w < settings.AlphaThreshold)
+		if (color.w < Material.settings.AlphaThreshold)
 			discard;
 	}
 
@@ -175,7 +182,7 @@ fn ComputeNormal(input: VertOut) -> vec3[f32]
 		let B = cross(N, T);
 		let tbnMatrix = mat3[f32](T, B, N);
 
-		return normalize(tbnMatrix * (MaterialNormalMap.Sample(input.uv).xyz * 2.0 - vec3[f32](1.0, 1.0, 1.0)));
+		return normalize(tbnMatrix * (Material.normalMap.Sample(input.uv).xyz * 2.0 - vec3[f32](1.0, 1.0, 1.0)));
 	}
 	else
 		return normalize(input.normal);
@@ -184,9 +191,9 @@ fn ComputeNormal(input: VertOut) -> vec3[f32]
 [export, cond(HasLighting)]
 fn ComputeMetallic(input: VertOut) -> f32
 {
-	let metallic = settings.MetallicFactor;
+	let metallic = Material.settings.MetallicFactor;
 	const if (HasMetallicTexture)
-		metallic *= MaterialMetallicMap.Sample(input.uv).x;
+		metallic *= Material.metallicMap.Sample(input.uv).x;
 
 	return metallic;
 }
@@ -194,9 +201,9 @@ fn ComputeMetallic(input: VertOut) -> f32
 [export, cond(HasLighting)]
 fn ComputeRoughness(input: VertOut) -> f32
 {
-	let roughness = settings.RoughnessFactor;
+	let roughness = Material.settings.RoughnessFactor;
 	const if (HasRoughnessTexture)
-		roughness *= MaterialRoughnessMap.Sample(input.uv).x;
+		roughness *= Material.roughnessMap.Sample(input.uv).x;
 
 	return roughness;
 }
@@ -206,7 +213,7 @@ fn ComputeLighting(color: vec3[f32], input: VertOut) -> vec3[f32]
 {
 	let lightRadiance = vec3[f32](0.0, 0.0, 0.0);
 
-	let eyeVec = normalize(viewerData.eyePosition - input.worldPos);
+	let eyeVec = normalize(Viewer.viewerData.eyePosition - input.worldPos);
 
 	let albedo = color.xyz;
 	let normal = ComputeNormal(input);
@@ -218,21 +225,27 @@ fn ComputeLighting(color: vec3[f32], input: VertOut) -> vec3[f32]
 
 	let albedoFactor = albedo / Pi;
 
-	for lightIndex in 0 -> directionalLights.lightCount
+	for lightIndex in 0 -> Scene.directionalLights.lightCount
 	{
-		let light = directionalLights.lights[lightIndex];
+		let light = Scene.directionalLights.lights[lightIndex];
 		let result = PhysicallyBased.ComputeDirectionalLight(light, eyeVec, albedoFactor, F0, normal, metallic, roughness);
 
 		let shadowFactor = 1.0;
-		//const if (EnableShadowMapping)
-		//	shadowFactor = Shadow.ComputeDirectionalLightShadow(light, shadowMapsDirectional[lightIndex], input.worldPos, result.lambert, viewerData.viewMatrix);
+		const if (EnableShadowMapping)
+		{
+			if (light.shadowIndex != u32.Max)
+			{
+				let shadowAtlasEntry: Shadow.DirectionalShadowAtlasEntry = Scene.directionalShadowAtlasMapping.shadowMappings[light.shadowIndex];
+				shadowFactor = Shadow.ComputeDirectionalLightShadow(Scene.shadowAtlas, light, shadowAtlasEntry, input.worldPos);
+			}
+		}
 
 		lightRadiance += shadowFactor * result.radiance;
 	}
 
-	for lightIndex in 0 -> pointLights.lightCount
+	for lightIndex in 0 -> Scene.pointLights.lightCount
 	{
-		let light = pointLights.lights[lightIndex];
+		let light = Scene.pointLights.lights[lightIndex];
 		let result = PhysicallyBased.ComputePointLight(light, eyeVec, albedoFactor, F0, normal, metallic, roughness, input.worldPos);
 
 		let shadowFactor = 1.0;
@@ -240,17 +253,17 @@ fn ComputeLighting(color: vec3[f32], input: VertOut) -> vec3[f32]
 		{
 			if (light.shadowIndex != u32.Max)
 			{
-				let shadowAtlasEntry: Shadow.PointShadowAtlasEntry = pointShadowAtlasMapping.shadowMappings[light.shadowIndex];
-				shadowFactor = Shadow.ComputePointLightShadow(shadowAtlas, light, shadowAtlasEntry, result.lightToWorldDir, input.worldPos);
+				let shadowAtlasEntry: Shadow.PointShadowAtlasEntry = Scene.pointShadowAtlasMapping.shadowMappings[light.shadowIndex];
+				shadowFactor = Shadow.ComputePointLightShadow(Scene.shadowAtlas, light, shadowAtlasEntry, result.lightToWorldDir, input.worldPos);
 			}
 		}
 
 		lightRadiance += shadowFactor * result.radiance;
 	}
 
-	for lightIndex in 0 -> spotLights.lightCount
+	for lightIndex in 0 -> Scene.spotLights.lightCount
 	{
-		let light = spotLights.lights[lightIndex];
+		let light = Scene.spotLights.lights[lightIndex];
 		let result = PhysicallyBased.ComputeSpotLight(light, eyeVec, albedoFactor, F0, normal, metallic, roughness, input.worldPos);
 
 		let shadowFactor = 1.0;
@@ -258,8 +271,8 @@ fn ComputeLighting(color: vec3[f32], input: VertOut) -> vec3[f32]
 		{
 			if (light.shadowIndex != u32.Max)
 			{
-				let shadowAtlasEntry: Shadow.SpotShadowAtlasEntry = spotShadowAtlasMapping.shadowMappings[light.shadowIndex];
-				shadowFactor = Shadow.ComputeSpotLightShadow(shadowAtlas, light, shadowAtlasEntry, input.worldPos);
+				let shadowAtlasEntry: Shadow.SpotShadowAtlasEntry = Scene.spotShadowAtlasMapping.shadowMappings[light.shadowIndex];
+				shadowFactor = Shadow.ComputeSpotLightShadow(Scene.shadowAtlas, light, shadowAtlasEntry, input.worldPos);
 			}
 		}
 
@@ -379,16 +392,16 @@ fn VertBillboard(input: BillboardVertIn) -> VertOut
 	);
 	rotatedPosition *= size;
 
-	let cameraRight = vec3[f32](viewerData.viewMatrix[0][0], viewerData.viewMatrix[1][0], viewerData.viewMatrix[2][0]);
-	let cameraUp = vec3[f32](viewerData.viewMatrix[0][1], viewerData.viewMatrix[1][1], viewerData.viewMatrix[2][1]);
+	let cameraRight = vec3[f32](Viewer.viewerData.viewMatrix[0][0], Viewer.viewerData.viewMatrix[1][0], Viewer.viewerData.viewMatrix[2][0]);
+	let cameraUp = vec3[f32](Viewer.viewerData.viewMatrix[0][1], Viewer.viewerData.viewMatrix[1][1], Viewer.viewerData.viewMatrix[2][1]);
 
-	let worldPosition = vec3[f32](instanceData.worldMatrix[3].xyz);
+	let worldPosition = vec3[f32](Instance.instanceData.worldMatrix[3].xyz);
 	worldPosition += cameraRight * rotatedPosition.x;
 	worldPosition += cameraUp * rotatedPosition.y;
 
 	let output: VertOut;
 	output.worldPos = worldPosition;
-	output.position = viewerData.viewProjMatrix * vec4[f32](worldPosition, 1.0);
+	output.position = Viewer.viewerData.viewProjMatrix * vec4[f32](worldPosition, 1.0);
 
 	const if (HasVertexUV)
 		output.uv = input.uv;
@@ -408,10 +421,10 @@ fn VertMain(input: VertIn) -> VertOut
 	const if (HasSkinning)
 	{
 		let jointMatrices = array[mat4[f32]](
-			skeletalData.jointMatrices[input.jointIndices[0]],
-			skeletalData.jointMatrices[input.jointIndices[1]],
-			skeletalData.jointMatrices[input.jointIndices[2]],
-			skeletalData.jointMatrices[input.jointIndices[3]]
+			Instance.skeletalData.jointMatrices[input.jointIndices[0]],
+			Instance.skeletalData.jointMatrices[input.jointIndices[1]],
+			Instance.skeletalData.jointMatrices[input.jointIndices[2]],
+			Instance.skeletalData.jointMatrices[input.jointIndices[3]]
 		);
 
 		const if (HasNormal)
@@ -435,24 +448,24 @@ fn VertMain(input: VertIn) -> VertOut
 
 	const if (ShadowPass)
 	{
-		pos *= settings.ShadowPosScale;
+		pos *= Material.settings.ShadowPosScale;
 		const if (HasNormal)
-			pos -= normal * settings.ShadowMapNormalOffset;
+			pos -= normal * Material.settings.ShadowMapNormalOffset;
 	}
 
-	let worldPosition = instanceData.worldMatrix * vec4[f32](pos, 1.0);
+	let worldPosition = Instance.instanceData.worldMatrix * vec4[f32](pos, 1.0);
 
 	let output: VertOut;
 	output.worldPos = worldPosition.xyz;
-	output.position = viewerData.viewProjMatrix * worldPosition;
+	output.position = Viewer.viewerData.viewProjMatrix * worldPosition;
 
-	const if (HasNormal || HasNormalMapping) let rotationMatrix = transpose(mat3[f32](instanceData.invWorldMatrix));
+	const if (HasNormal || HasNormalMapping) let rotationMatrix = transpose(mat3[f32](Instance.instanceData.invWorldMatrix));
 
 	const if (HasColor)
 		output.color = input.color;
 
 	const if (HasNormal)
-		output.normal = rotationMatrix * input.normal;
+		output.normal = rotationMatrix * normal;
 
 	const if (HasVertexUV)
 		output.uv = input.uv;
