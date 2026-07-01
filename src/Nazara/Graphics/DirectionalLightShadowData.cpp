@@ -60,8 +60,6 @@ namespace Nz
 
 		for (auto&& [viewer, viewerData] : m_viewerData)
 		{
-			PerViewerData& viewerData = *Retrieve(m_viewerData, viewer);
-
 			const ViewerInstance& viewerInstance = viewer->GetViewerInstance();
 
 			// Extract frustum from main viewer
@@ -126,16 +124,18 @@ namespace Nz
 
 			for (std::size_t cascadeIndex = 0; cascadeIndex < m_cascadeCount; ++cascadeIndex)
 			{
-				CascadeData& cascade = viewerData.cascades[cascadeIndex];
+				CascadeData& cascade = viewerData->cascades[cascadeIndex];
 				ComputeLightView(cascade, frustums[cascadeIndex], frustumDists[cascadeIndex]);
 
 				if (m_isShadowStabilizationEnabled)
 					StabilizeShadows(cascade);
 
-				constexpr Matrix4f biasMatrix(0.5f, 0.0f, 0.0f, 0.0f,
-											  0.0f, 0.5f, 0.0f, 0.0f,
-											  0.0f, 0.0f, 1.0f, 0.0f,
-											  0.5f, 0.5f, 0.0f, 1.0f);
+				constexpr Matrix4f biasMatrix(
+					0.5f, 0.0f, 0.0f, 0.0f,
+					0.0f, 0.5f, 0.0f, 0.0f,
+					0.0f, 0.0f, 1.0f, 0.0f,
+					0.5f, 0.5f, 0.0f, 1.0f
+				);
 
 				ViewerInstance& cascadeViewerInstance = cascade.viewer.GetViewerInstance();
 				cascade.viewProjMatrix = cascadeViewerInstance.GetViewProjMatrix() * biasMatrix;
