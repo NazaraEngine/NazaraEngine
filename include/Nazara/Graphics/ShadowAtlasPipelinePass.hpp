@@ -8,7 +8,6 @@
 #define NAZARA_GRAPHICS_SHADOWATLASPIPELINEPASS_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <NazaraUtils/FixedVector.hpp>
 #include <Nazara/Core/ParameterList.hpp>
 #include <Nazara/Graphics/ElementRenderer.hpp>
 #include <Nazara/Graphics/Export.hpp>
@@ -21,6 +20,7 @@
 #include <Nazara/Graphics/RenderQueueRegistry.hpp>
 #include <Nazara/Graphics/ShadowAtlas.hpp>
 #include <Nazara/Math/Frustum.hpp>
+#include <NazaraUtils/FixedVector.hpp>
 
 namespace Nz
 {
@@ -60,7 +60,6 @@ namespace Nz
 				std::size_t usedCount = 1;
 
 				NazaraSlot(MaterialInstance, OnMaterialInstancePipelineInvalidated, onMaterialInstancePipelineInvalidated);
-				NazaraSlot(MaterialInstance, OnMaterialInstanceShaderBindingInvalidated, onMaterialInstanceShaderBindingInvalidated);
 			};
 
 			struct LightData

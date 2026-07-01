@@ -8,13 +8,13 @@
 #define NAZARA_GRAPHICS_GPUDYNAMICARRAY_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <NazaraUtils/Signal.hpp>
 #include <Nazara/Core/Enums.hpp>
 #include <Nazara/Graphics/Export.hpp>
 #include <Nazara/Graphics/TransferInterface.hpp>
+#include <NazaraUtils/Signal.hpp>
 #include <memory>
-#include <vector>
 #include <utility>
+#include <vector>
 
 namespace Nz
 {
@@ -44,6 +44,8 @@ namespace Nz
 
 			GpuDynamicArray& operator=(const GpuDynamicArray&) = delete;
 			GpuDynamicArray& operator=(GpuDynamicArray&&) = delete;
+
+			NazaraSignal(OnBufferInvalidated, GpuDynamicArray* /*emitter*/);
 
 		private:
 			inline UInt64 ComputeBufferSize(UInt32 entryCount);

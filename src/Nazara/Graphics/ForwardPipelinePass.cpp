@@ -101,11 +101,6 @@ namespace Nz
 
 				m_rebuildElements = true;
 			});
-
-			matPassEntry.onMaterialInstanceShaderBindingInvalidated.Connect(materialInstance.OnMaterialInstanceShaderBindingInvalidated, [this](const MaterialInstance*)
-			{
-				m_rebuildElements = true;
-			});
 		}
 		else
 			it->second.usedCount++;
@@ -171,14 +166,18 @@ namespace Nz
 			});
 
 			ElementRenderer::RenderData renderData;
-			renderData.directionalLights = RenderBufferView(m_pipeline.GetDirectionalLightBuffer().get());
-			renderData.pointLights = RenderBufferView(m_pipeline.GetPointLightBuffer().get());
-			renderData.spotLights = RenderBufferView(m_pipeline.GetSpotLightBuffer().get());
+			renderData.renderRegion = env.renderRect;
+			renderData.shaderBindingCache = m_pipeline.GetShaderBindingCache();
+
+			ElementRenderer::SceneData sceneData;
+			sceneData.directionalLights = m_pipeline.GetDirectionalLightBuffer();
+			sceneData.pointLights = m_pipeline.GetPointLightBuffer();
+			sceneData.spotLights = m_pipeline.GetSpotLightBuffer();
 
 			m_elementRegistry.ProcessRenderQueue(m_renderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
 			{
 				ElementRenderer& elementRenderer = m_elementRegistry.GetElementRenderer(elementType);
-				elementRenderer.Prepare(renderData, *m_viewer, *m_elementRendererData[elementType], env.renderResources, elementCount, elements);
+				elementRenderer.Prepare(renderData, sceneData, *m_viewer, *m_elementRendererData[elementType], env.renderResources, elementCount, elements);
 			});
 
 			m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
@@ -204,19 +203,22 @@ namespace Nz
 			});
 
 			ElementRenderer::RenderData renderData;
-			renderData.directionalLights = RenderBufferView(m_pipeline.GetDirectionalLightBuffer().get());
-			renderData.directionalLightAtlasMapping = RenderBufferView(m_pipeline.GetDirectionalShadowMappingBuffer().get());
-			renderData.pointLights = RenderBufferView(m_pipeline.GetPointLightBuffer().get());
-			renderData.pointLightAtlasMapping = RenderBufferView(m_pipeline.GetPointShadowMappingBuffer().get());
-			renderData.renderRegion = viewport;
-			renderData.shadowAtlas = m_pipeline.GetShadowAtlasTexture().get();
-			renderData.spotLights = RenderBufferView(m_pipeline.GetSpotLightBuffer().get());
-			renderData.spotLightAtlasMapping = RenderBufferView(m_pipeline.GetSpotShadowMappingBuffer().get());
+			renderData.renderRegion = env.renderRect;
+			renderData.shaderBindingCache = m_pipeline.GetShaderBindingCache();
+
+			ElementRenderer::SceneData sceneData;
+			sceneData.directionalLights = m_pipeline.GetDirectionalLightBuffer();
+			sceneData.directionalLightAtlasMapping = m_pipeline.GetDirectionalShadowMappingBuffer();
+			sceneData.pointLights = m_pipeline.GetPointLightBuffer();
+			sceneData.pointLightAtlasMapping = m_pipeline.GetPointShadowMappingBuffer();
+			sceneData.shadowAtlas = m_pipeline.GetShadowAtlasTexture();
+			sceneData.spotLights = m_pipeline.GetSpotLightBuffer();
+			sceneData.spotLightAtlasMapping = m_pipeline.GetSpotShadowMappingBuffer();
 
 			m_elementRegistry.ProcessRenderQueue(m_renderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
 			{
 				ElementRenderer& elementRenderer = m_elementRegistry.GetElementRenderer(elementType);
-				elementRenderer.Render(renderData, *m_viewer, *m_elementRendererData[elementType], env.renderResources, builder, elementCount, elements);
+				elementRenderer.Render(renderData, sceneData, *m_viewer, *m_elementRendererData[elementType], env.renderResources, builder, elementCount, elements);
 			});
 
 			m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
