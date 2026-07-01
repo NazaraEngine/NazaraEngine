@@ -26,6 +26,7 @@ namespace Nz
 	class PipelineViewer;
 	class RenderBuffer;
 	class RenderResources;
+	class ShaderBindingCache;
 
 	class NAZARA_GRAPHICS_API FramePipeline
 	{
@@ -46,6 +47,7 @@ namespace Nz
 			virtual const std::shared_ptr<RenderBuffer>& GetDirectionalShadowMappingBuffer() const = 0;
 			virtual const std::shared_ptr<RenderBuffer>& GetPointLightBuffer() const = 0;
 			virtual const std::shared_ptr<RenderBuffer>& GetPointShadowMappingBuffer() const = 0;
+			virtual ShaderBindingCache* GetShaderBindingCache() const = 0;
 			virtual const std::shared_ptr<Texture>& GetShadowAtlasTexture() const = 0;
 			virtual const std::shared_ptr<RenderBuffer>& GetSpotLightBuffer() const = 0;
 			virtual const std::shared_ptr<RenderBuffer>& GetSpotShadowMappingBuffer() const = 0;

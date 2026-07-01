@@ -25,7 +25,7 @@ namespace Nz
 		m_instanceDataBuffer->UpdateDebugName("Instance data");
 	}
 
-	void WorldInstance::FillShaderBinding(const Material& material, RenderResourceReferences& resourceReferences, std::vector<ShaderBinding::Binding>& bindings) const
+	void WorldInstance::FillShaderBinding(const Material& material, RenderResourceReferences& /*resourceReferences*/, std::vector<ShaderBinding::Binding>& bindings) const
 	{
 		if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::ViewerDataUbo); bindingIndex != Material::InvalidBindingIndex)
 		{

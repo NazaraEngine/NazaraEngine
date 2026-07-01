@@ -3,10 +3,10 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Graphics/GpuDynamicArray.hpp>
-#include <NazaraUtils/Assert.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
+#include <NazaraUtils/Assert.hpp>
 
 namespace Nz
 {
@@ -81,6 +81,8 @@ namespace Nz
 
 		// We need to re-upload the whole buffer when growing
 		m_invalidatedRange = InvalidatedRange{0u, previousSize};
+
+		OnBufferInvalidated(this);
 		OnTransferRequired(this);
 	}
 

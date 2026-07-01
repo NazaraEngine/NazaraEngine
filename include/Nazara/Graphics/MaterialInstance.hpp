@@ -62,7 +62,7 @@ namespace Nz
 			void EnablePass(std::string_view passName, bool enable = true);
 			inline void EnablePass(std::size_t passIndex, bool enable = true);
 
-			void FillShaderBinding(RenderResourceReferences& resourceReferences, std::vector<ShaderBinding::Binding>& bindings) const;
+			void FillRenderResourceReferences(RenderResourceReferences& resourceReferences) const;
 
 			inline std::size_t FindBufferProperty(std::string_view propertyName) const;
 			inline std::size_t FindTextureProperty(std::string_view propertyName) const;
@@ -106,6 +106,8 @@ namespace Nz
 			inline void SetValueProperty(std::string_view propertyName, const MaterialSettings::Value& value);
 			void SetValueProperty(std::size_t valueIndex, const MaterialSettings::Value& value);
 
+			const ShaderBinding& UpdateOrGetShaderBinding(RenderResources& renderResources) const;
+
 			void UpdateOptionValue(UInt32 optionHash, const nzsl::Ast::ConstantSingleValue& value);
 
 			void UpdatePassFlags(std::string_view passName, MaterialPassFlags materialFlags);
@@ -136,7 +138,6 @@ namespace Nz
 			static std::shared_ptr<MaterialInstance> Instantiate(MaterialType materialType, MaterialInstancePresetFlags presetFlags = {});
 
 			NazaraSignal(OnMaterialInstancePipelineInvalidated, const MaterialInstance* /*matInstance*/, std::size_t /*passIndex*/);
-			NazaraSignal(OnMaterialInstanceShaderBindingInvalidated, const MaterialInstance* /*matInstance*/);
 
 		private:
 			inline void InvalidatePassPipeline(std::size_t passIndex);
@@ -195,7 +196,9 @@ namespace Nz
 			std::vector<TextureBinding> m_textureBinding;
 			std::vector<TextureProperty> m_textureOverride;
 			std::vector<UniformBuffer> m_uniformBuffers;
+			mutable ShaderBindingPtr m_shaderBinding;
 			const MaterialSettings& m_materialSettings;
+			mutable bool m_isShaderBindingInvalidated;
 	};
 }
 

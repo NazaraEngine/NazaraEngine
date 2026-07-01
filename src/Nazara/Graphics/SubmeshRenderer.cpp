@@ -7,6 +7,7 @@
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/RenderSubmesh.hpp>
+#include <Nazara/Graphics/ShaderBindingCache.hpp>
 #include <Nazara/Graphics/SkeletonInstance.hpp>
 #include <Nazara/Graphics/TextureAsset.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
@@ -30,11 +31,8 @@ namespace Nz
 		return std::make_unique<SubmeshRendererData>();
 	}
 
-	void SubmeshRenderer::Render(const RenderData& renderData, const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& /*renderResources*/, CommandBufferBuilder& commandBuffer, std::size_t elementCount, const Pointer<const RenderElement>* elements)
+	void SubmeshRenderer::Render(const RenderData& renderData, const SceneData& sceneData, const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& renderResources, CommandBufferBuilder& commandBuffer, std::size_t elementCount, const Pointer<const RenderElement>* elements)
 	{
-		Graphics* graphics = Graphics::Instance();
-		auto& renderDevice = *graphics->GetRenderDevice();
-
 		auto& data = static_cast<SubmeshRendererData&>(rendererData);
 		if (!data.references)
 		{
@@ -47,7 +45,13 @@ namespace Nz
 				data.references.emplace();
 		}
 
-		Vector2f targetSize = viewer.GetViewerInstance().GetTargetSize();
+		data.references->renderBuffers.insert(sceneData.directionalLightAtlasMapping);
+		data.references->renderBuffers.insert(sceneData.directionalLights);
+		data.references->renderBuffers.insert(sceneData.pointLightAtlasMapping);
+		data.references->renderBuffers.insert(sceneData.pointLights);
+		data.references->renderBuffers.insert(sceneData.spotLightAtlasMapping);
+		data.references->renderBuffers.insert(sceneData.spotLights);
+		data.references->textures.insert(sceneData.shadowAtlas);
 
 		const RenderBuffer* currentIndexBuffer = nullptr;
 		const RenderBuffer* currentVertexBuffer = nullptr;
@@ -61,8 +65,8 @@ namespace Nz
 		const WorldInstance* currentWorldInstance = nullptr;
 		Recti currentScissorBox(-1, -1, -1, -1);
 
-		std::size_t sceneBindingHash = 0;
-		std::size_t viewerBindingHash = 0;
+		std::size_t sceneSetHash = 0;
+		std::size_t viewerSetHash = 0;
 
 		for (std::size_t i = 0; i < elementCount; ++i)
 		{
@@ -119,57 +123,54 @@ namespace Nz
 
 			const Material& material = *currentMaterialInstance->GetParentMaterial();
 
-			if (!currentSceneShaderBinding || sceneBindingHash != material.GetBindingSetHash(Material::SceneBindingSet))
+			if (!currentSceneShaderBinding || sceneSetHash != material.GetBindingSetHash(Material::SceneBindingSet))
 			{
-				ShaderBindingPtr sceneBinding = currentPipeline->GetPipelineInfo().pipelineLayout->AllocateShaderBinding(Material::SceneBindingSet);
+				sceneSetHash = material.GetBindingSetHash(Material::SceneBindingSet);
 
-				m_bindingCache.clear();
-				FillSceneBindings(renderData, material, m_bindingCache);
-				sceneBinding->Update(m_bindingCache.data(), m_bindingCache.size());
+				ShaderBinding* sceneBinding = renderData.shaderBindingCache->GetSceneBinding(sceneSetHash, [&]
+				{
+					ShaderBindingPtr sceneBinding = currentPipeline->GetPipelineInfo().pipelineLayout->AllocateShaderBinding(Material::SceneBindingSet);
+
+					m_bindingCache.clear();
+					FillSceneBindings(sceneData, material, m_bindingCache);
+					sceneBinding->Update(m_bindingCache.data(), m_bindingCache.size());
+
+					return sceneBinding;
+				});
 
 				commandBuffer.BindRenderShaderBinding(Material::SceneBindingSet, *sceneBinding);
 
-				currentSceneShaderBinding = sceneBinding.get();
-
-				data.shaderBindings.emplace_back(std::move(sceneBinding));
-				sceneBindingHash = material.GetBindingSetHash(Material::SceneBindingSet);
-
+				currentSceneShaderBinding = sceneBinding;
 				currentViewerShaderBinding = nullptr;
 			}
 
-			if (!currentViewerShaderBinding || viewerBindingHash != material.GetBindingSetHash(Material::ViewerBindingSet))
+			if (!currentViewerShaderBinding || viewerSetHash != material.GetBindingSetHash(Material::ViewerBindingSet))
 			{
-				ShaderBindingPtr viewerBinding = currentPipeline->GetPipelineInfo().pipelineLayout->AllocateShaderBinding(Material::ViewerBindingSet);
+				viewerSetHash = material.GetBindingSetHash(Material::ViewerBindingSet);
 
-				m_bindingCache.clear();
-				viewer.GetViewerInstance().FillShaderBinding(material, *data.references, m_bindingCache);
-				viewerBinding->Update(m_bindingCache.data(), m_bindingCache.size());
+				ShaderBinding* viewerBinding = renderData.shaderBindingCache->GetViewerBinding(viewer.GetViewerInstance(), viewerSetHash, [&]
+				{
+					ShaderBindingPtr viewerBinding = currentPipeline->GetPipelineInfo().pipelineLayout->AllocateShaderBinding(Material::ViewerBindingSet);
+
+					m_bindingCache.clear();
+					viewer.GetViewerInstance().FillShaderBinding(material, *data.references, m_bindingCache);
+					viewerBinding->Update(m_bindingCache.data(), m_bindingCache.size());
+
+					return viewerBinding;
+				});
 
 				commandBuffer.BindRenderShaderBinding(Material::ViewerBindingSet, *viewerBinding);
 
-				currentViewerShaderBinding = viewerBinding.get();
-
-				data.shaderBindings.emplace_back(std::move(viewerBinding));
-				viewerBindingHash = material.GetBindingSetHash(Material::ViewerBindingSet);
-
 				currentMaterialShaderBinding = nullptr;
+				currentViewerShaderBinding = viewerBinding;
 			}
 
 			if (!currentMaterialShaderBinding)
 			{
-				ShaderBindingPtr materialBinding = currentPipeline->GetPipelineInfo().pipelineLayout->AllocateShaderBinding(Material::MaterialBindingSet);
-
-				m_bindingCache.clear();
-				currentMaterialInstance->FillShaderBinding(*data.references, m_bindingCache);
-				materialBinding->Update(m_bindingCache.data(), m_bindingCache.size());
-
-				commandBuffer.BindRenderShaderBinding(Material::MaterialBindingSet, *materialBinding);
-
-				currentMaterialShaderBinding = materialBinding.get();
-
-				data.shaderBindings.emplace_back(std::move(materialBinding));
-
+				currentMaterialShaderBinding = &currentMaterialInstance->UpdateOrGetShaderBinding(renderResources);
 				currentInstanceShaderBinding = nullptr;
+
+				commandBuffer.BindRenderShaderBinding(Material::MaterialBindingSet, *currentMaterialShaderBinding);
 			}
 
 			if (!currentInstanceShaderBinding)

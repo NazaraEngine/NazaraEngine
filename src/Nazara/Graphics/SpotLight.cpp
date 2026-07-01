@@ -3,8 +3,8 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Graphics/SpotLight.hpp>
-#include <Nazara/Graphics/SpotLightShadowData.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
+#include <Nazara/Graphics/SpotLightShadowData.hpp>
 
 namespace Nz
 {

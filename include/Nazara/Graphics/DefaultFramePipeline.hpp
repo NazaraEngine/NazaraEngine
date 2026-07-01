@@ -14,8 +14,8 @@
 #include <Nazara/Graphics/DebugDrawPipelinePass.hpp>
 #include <Nazara/Graphics/Export.hpp>
 #include <Nazara/Graphics/FramePipeline.hpp>
-#include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/GpuDynamicArray.hpp>
+#include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/LightShadowData.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
@@ -24,6 +24,7 @@
 #include <Nazara/Graphics/RenderElement.hpp>
 #include <Nazara/Graphics/RenderQueue.hpp>
 #include <Nazara/Graphics/RenderQueueRegistry.hpp>
+#include <Nazara/Graphics/ShaderBindingCache.hpp>
 #include <Nazara/Graphics/ShadowAtlasPipelinePass.hpp>
 #include <Nazara/Graphics/TransferInterface.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
@@ -59,6 +60,7 @@ namespace Nz
 			const std::shared_ptr<RenderBuffer>& GetDirectionalShadowMappingBuffer() const override;
 			const std::shared_ptr<RenderBuffer>& GetPointLightBuffer() const override;
 			const std::shared_ptr<RenderBuffer>& GetPointShadowMappingBuffer() const override;
+			ShaderBindingCache* GetShaderBindingCache() const override;
 			const std::shared_ptr<Texture>& GetShadowAtlasTexture() const override;
 			const std::shared_ptr<RenderBuffer>& GetSpotLightBuffer() const override;
 			const std::shared_ptr<RenderBuffer>& GetSpotShadowMappingBuffer() const override;
@@ -216,6 +218,7 @@ namespace Nz
 			MemoryPool<SkeletonInstanceData> m_skeletonInstances;
 			MemoryPool<ViewerData> m_viewerPool;
 			MemoryPool<WorldInstanceData> m_worldInstances;
+			mutable ShaderBindingCache m_shaderBindingCache;
 			UInt8 m_generationCounter;
 			bool m_rebuildFrameGraph;
 	};

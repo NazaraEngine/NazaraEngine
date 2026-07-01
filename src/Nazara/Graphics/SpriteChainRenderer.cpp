@@ -7,6 +7,7 @@
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/RenderSpriteChain.hpp>
+#include <Nazara/Graphics/ShaderBindingCache.hpp>
 #include <Nazara/Graphics/TextureAsset.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
@@ -55,7 +56,7 @@ namespace Nz
 		return std::make_unique<SpriteChainRendererData>();
 	}
 
-	void SpriteChainRenderer::Prepare(const RenderData& renderData, const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& renderResources, std::size_t elementCount, const Pointer<const RenderElement>* elements)
+	void SpriteChainRenderer::Prepare(const RenderData& renderData, const SceneData& sceneData, const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& renderResources, std::size_t elementCount, const Pointer<const RenderElement>* elements)
 	{
 		auto& data = static_cast<SpriteChainRendererData&>(rendererData);
 
@@ -69,6 +70,14 @@ namespace Nz
 			else
 				data.references.emplace();
 		}
+
+		data.references->renderBuffers.insert(sceneData.directionalLightAtlasMapping);
+		data.references->renderBuffers.insert(sceneData.directionalLights);
+		data.references->renderBuffers.insert(sceneData.pointLightAtlasMapping);
+		data.references->renderBuffers.insert(sceneData.pointLights);
+		data.references->renderBuffers.insert(sceneData.spotLightAtlasMapping);
+		data.references->renderBuffers.insert(sceneData.spotLights);
+		data.references->textures.insert(sceneData.shadowAtlas);
 
 		Recti invalidScissorBox(-1, -1, -1, -1);
 
@@ -142,46 +151,45 @@ namespace Nz
 
 			if (!m_pendingData.currentSceneShaderBinding)
 			{
-				ShaderBindingPtr sceneBinding = m_pendingData.currentPipeline->GetPipelineInfo().pipelineLayout->AllocateShaderBinding(Material::SceneBindingSet);
+				std::size_t sceneSetHash = material.GetBindingSetHash(Material::SceneBindingSet);
 
-				m_bindingCache.clear();
-				FillSceneBindings(renderData, material, m_bindingCache);
-				sceneBinding->Update(m_bindingCache.data(), m_bindingCache.size());
+				ShaderBinding* sceneBinding = renderData.shaderBindingCache->GetSceneBinding(sceneSetHash, [&]
+				{
+					ShaderBindingPtr sceneBinding = m_pendingData.currentPipeline->GetPipelineInfo().pipelineLayout->AllocateShaderBinding(Material::SceneBindingSet);
 
-				m_pendingData.currentSceneShaderBinding = sceneBinding.get();
+					m_bindingCache.clear();
+					FillSceneBindings(sceneData, material, m_bindingCache);
+					sceneBinding->Update(m_bindingCache.data(), m_bindingCache.size());
 
-				data.shaderBindings.emplace_back(std::move(sceneBinding));
+					return sceneBinding;
+				});
 
+				m_pendingData.currentSceneShaderBinding = sceneBinding;
 				m_pendingData.currentViewerShaderBinding = nullptr;
 			}
 
 			if (!m_pendingData.currentViewerShaderBinding)
 			{
-				ShaderBindingPtr viewerBinding = m_pendingData.currentPipeline->GetPipelineInfo().pipelineLayout->AllocateShaderBinding(Material::ViewerBindingSet);
+				std::size_t viewerSetHash = material.GetBindingSetHash(Material::ViewerBindingSet);
 
-				m_bindingCache.clear();
-				viewer.GetViewerInstance().FillShaderBinding(material, *data.references, m_bindingCache);
-				viewerBinding->Update(m_bindingCache.data(), m_bindingCache.size());
+				ShaderBinding* viewerBinding = renderData.shaderBindingCache->GetViewerBinding(viewer.GetViewerInstance(), viewerSetHash, [&]
+				{
+					ShaderBindingPtr viewerBinding = m_pendingData.currentPipeline->GetPipelineInfo().pipelineLayout->AllocateShaderBinding(Material::ViewerBindingSet);
 
-				m_pendingData.currentViewerShaderBinding = viewerBinding.get();
+					m_bindingCache.clear();
+					viewer.GetViewerInstance().FillShaderBinding(material, *data.references, m_bindingCache);
+					viewerBinding->Update(m_bindingCache.data(), m_bindingCache.size());
 
-				data.shaderBindings.emplace_back(std::move(viewerBinding));
+					return viewerBinding;
+				});
 
 				m_pendingData.currentMaterialShaderBinding = nullptr;
+				m_pendingData.currentViewerShaderBinding = viewerBinding;
 			}
 
 			if (!m_pendingData.currentMaterialShaderBinding)
 			{
-				ShaderBindingPtr materialBinding = m_pendingData.currentPipeline->GetPipelineInfo().pipelineLayout->AllocateShaderBinding(Material::MaterialBindingSet);
-
-				m_bindingCache.clear();
-				m_pendingData.currentMaterialInstance->FillShaderBinding(*data.references, m_bindingCache);
-				materialBinding->Update(m_bindingCache.data(), m_bindingCache.size());
-
-				m_pendingData.currentMaterialShaderBinding = materialBinding.get();
-
-				data.shaderBindings.emplace_back(std::move(materialBinding));
-
+				m_pendingData.currentMaterialShaderBinding = &m_pendingData.currentMaterialInstance->UpdateOrGetShaderBinding(renderResources);
 				m_pendingData.currentInstanceShaderBinding = nullptr;
 			}
 
@@ -199,7 +207,7 @@ namespace Nz
 				data.shaderBindings.emplace_back(std::move(instanceBinding));
 			}
 
-			std::size_t sceneBindingHash = material.GetBindingSetHash(Material::SceneBindingSet);
+			std::size_t sceneSetHash = material.GetBindingSetHash(Material::SceneBindingSet);
 			std::size_t viewerBindingHash = material.GetBindingSetHash(Material::ViewerBindingSet);
 
 			data.drawCalls.push_back(SpriteChainRendererData::DrawCall{
@@ -211,7 +219,7 @@ namespace Nz
 				.viewerShaderBinding = m_pendingData.currentViewerShaderBinding,
 				.firstIndex = 6 * m_pendingData.firstQuadIndex,
 				.indexCount = 6 * spriteCount,
-				.sceneBindingHash = sceneBindingHash,
+				.sceneBindingHash = sceneSetHash,
 				.viewerBindingHash = viewerBindingHash,
 				.scissorBox = m_pendingData.currentScissorBox
 			});
@@ -245,7 +253,7 @@ namespace Nz
 		m_pendingData = PendingData{};
 	}
 
-	void SpriteChainRenderer::Render(const RenderData& renderData, const AbstractViewer& /*viewer*/, ElementRendererData& rendererData, RenderResources& /*renderResources*/, CommandBufferBuilder& commandBuffer, std::size_t /*elementCount*/, const Pointer<const RenderElement>* elements)
+	void SpriteChainRenderer::Render(const RenderData& renderData, const SceneData& /*sceneData*/, const AbstractViewer& /*viewer*/, ElementRendererData& rendererData, RenderResources& /*renderResources*/, CommandBufferBuilder& commandBuffer, std::size_t /*elementCount*/, const Pointer<const RenderElement>* elements)
 	{
 		auto& data = static_cast<SpriteChainRendererData&>(rendererData);
 

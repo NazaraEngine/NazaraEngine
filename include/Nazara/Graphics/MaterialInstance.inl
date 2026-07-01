@@ -274,6 +274,6 @@ namespace Nz
 
 	inline void MaterialInstance::InvalidateShaderBinding()
 	{
-		OnMaterialInstanceShaderBindingInvalidated(this);
+		m_isShaderBindingInvalidated = true;
 	}
 }
