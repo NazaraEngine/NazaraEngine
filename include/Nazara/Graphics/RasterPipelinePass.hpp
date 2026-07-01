@@ -59,7 +59,6 @@ namespace Nz
 				std::size_t usedCount = 1;
 
 				NazaraSlot(MaterialInstance, OnMaterialInstancePipelineInvalidated, onMaterialInstancePipelineInvalidated);
-				NazaraSlot(MaterialInstance, OnMaterialInstanceShaderBindingInvalidated, onMaterialInstanceShaderBindingInvalidated);
 			};
 
 			std::size_t m_passIndex;

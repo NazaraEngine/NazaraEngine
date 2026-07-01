@@ -93,11 +93,6 @@ namespace Nz
 
 				m_rebuildElements = true;
 			});
-
-			matPassEntry.onMaterialInstanceShaderBindingInvalidated.Connect(materialInstance.OnMaterialInstanceShaderBindingInvalidated, [this](const MaterialInstance*)
-			{
-				m_rebuildElements = true;
-			});
 		}
 		else
 			it->second.usedCount++;
@@ -148,12 +143,17 @@ namespace Nz
 						return;
 
 					ElementRenderer::RenderData renderData;
-					renderData.directionalLights = RenderBufferView(m_pipeline.GetDirectionalLightBuffer().get());
-					renderData.directionalLightAtlasMapping = RenderBufferView(m_pipeline.GetDirectionalShadowMappingBuffer().get());
-					renderData.pointLights = RenderBufferView(m_pipeline.GetPointLightBuffer().get());
-					renderData.pointLightAtlasMapping = RenderBufferView(m_pipeline.GetPointShadowMappingBuffer().get());
-					renderData.spotLights = RenderBufferView(m_pipeline.GetSpotLightBuffer().get());
-					renderData.spotLightAtlasMapping = RenderBufferView(m_pipeline.GetSpotShadowMappingBuffer().get());
+					renderData.renderRegion = Recti(*viewport);
+					renderData.shaderBindingCache = m_pipeline.GetShaderBindingCache();
+
+					ElementRenderer::SceneData sceneData;
+					sceneData.directionalLights = m_pipeline.GetDirectionalLightBuffer();
+					sceneData.directionalLightAtlasMapping = m_pipeline.GetDirectionalShadowMappingBuffer();
+					sceneData.pointLights = m_pipeline.GetPointLightBuffer();
+					sceneData.pointLightAtlasMapping = m_pipeline.GetPointShadowMappingBuffer();
+					sceneData.shadowAtlas = m_pipeline.GetShadowAtlasTexture();
+					sceneData.spotLights = m_pipeline.GetSpotLightBuffer();
+					sceneData.spotLightAtlasMapping = m_pipeline.GetSpotShadowMappingBuffer();
 
 					m_elementRegistry.ProcessRenderQueue(m_renderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
 					{
@@ -168,9 +168,9 @@ namespace Nz
 						if (!lightData.elementRendererData[elementType][viewIndex])
 							lightData.elementRendererData[elementType][viewIndex] = elementRenderer.InstanciateData();
 
-						elementRenderer.Prepare(renderData, shadowViewer, *lightData.elementRendererData[elementType][viewIndex], env.renderResources, elementCount, elements);
+						elementRenderer.Prepare(renderData, sceneData, shadowViewer, *lightData.elementRendererData[elementType][viewIndex], env.renderResources, elementCount, elements);
 					});
-					
+
 					m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
 					{
 						if (elementType >= lightData.elementRendererData.size() || viewIndex >= lightData.elementRendererData[elementType].size())
@@ -186,6 +186,18 @@ namespace Nz
 
 		pass.SetRenderCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
+			ElementRenderer::RenderData renderData;
+			renderData.shaderBindingCache = m_pipeline.GetShaderBindingCache();
+
+			ElementRenderer::SceneData sceneData;
+			sceneData.directionalLights = m_pipeline.GetDirectionalLightBuffer();
+			sceneData.directionalLightAtlasMapping = m_pipeline.GetDirectionalShadowMappingBuffer();
+			sceneData.pointLights = m_pipeline.GetPointLightBuffer();
+			sceneData.pointLightAtlasMapping = m_pipeline.GetPointShadowMappingBuffer();
+			sceneData.shadowAtlas = m_pipeline.GetShadowAtlasTexture();
+			sceneData.spotLights = m_pipeline.GetSpotLightBuffer();
+			sceneData.spotLightAtlasMapping = m_pipeline.GetSpotShadowMappingBuffer();
+
 			std::size_t shadowViewerIndex = 0;
 			m_pipeline.ForEachShadowCastingLight([&](std::size_t lightIndex, const Light* /*light*/, LightShadowData* shadowData)
 			{
@@ -204,16 +216,12 @@ namespace Nz
 					builder.SetScissor(shadowAtlasViewport);
 					builder.SetViewport(shadowAtlasViewport);
 
-					ElementRenderer::RenderData renderData;
-					renderData.directionalLights = RenderBufferView(m_pipeline.GetDirectionalLightBuffer().get());
-					renderData.pointLights = RenderBufferView(m_pipeline.GetPointLightBuffer().get());
-					renderData.renderRegion = shadowAtlasViewport;
-					renderData.spotLights = RenderBufferView(m_pipeline.GetSpotLightBuffer().get());
+					renderData.renderRegion = Recti(*viewport);
 
 					m_elementRegistry.ProcessRenderQueue(m_renderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
 					{
 						ElementRenderer& elementRenderer = m_elementRegistry.GetElementRenderer(elementType);
-						elementRenderer.Render(renderData, shadowViewer, *lightData.elementRendererData[elementType][viewIndex], env.renderResources, builder, elementCount, elements);
+						elementRenderer.Render(renderData, sceneData, shadowViewer, *lightData.elementRendererData[elementType][viewIndex], env.renderResources, builder, elementCount, elements);
 					});
 
 					m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)

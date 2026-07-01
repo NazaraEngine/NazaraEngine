@@ -34,6 +34,15 @@ namespace Nz
 	m_generationCounter(0),
 	m_rebuildFrameGraph(true)
 	{
+		// OnBufferInvalidated
+		m_directionalLights.OnBufferInvalidated.Connect([this](GpuDynamicArray* /*gpuDynamicArray*/) { m_shaderBindingCache.InvalidateSceneBindings(); });
+		m_directionalShadowAtlasEntries.OnBufferInvalidated.Connect([this](GpuDynamicArray* /*gpuDynamicArray*/) { m_shaderBindingCache.InvalidateSceneBindings(); });
+		m_pointLights.OnBufferInvalidated.Connect([this](GpuDynamicArray* /*gpuDynamicArray*/) { m_shaderBindingCache.InvalidateSceneBindings(); });
+		m_pointShadowAtlasEntries.OnBufferInvalidated.Connect([this](GpuDynamicArray* /*gpuDynamicArray*/) { m_shaderBindingCache.InvalidateSceneBindings(); });
+		m_spotLights.OnBufferInvalidated.Connect([this](GpuDynamicArray* /*gpuDynamicArray*/) { m_shaderBindingCache.InvalidateSceneBindings(); });
+		m_spotShadowAtlasEntries.OnBufferInvalidated.Connect([this](GpuDynamicArray* /*gpuDynamicArray*/) { m_shaderBindingCache.InvalidateSceneBindings(); });
+
+		// OnTransferRequired
 		m_directionalLights.OnTransferRequired.Connect([this](TransferInterface* transfer) { m_transferSet.insert(transfer); });
 		m_directionalShadowAtlasEntries.OnTransferRequired.Connect([this](TransferInterface* transfer) { m_transferSet.insert(transfer); });
 		m_pointLights.OnTransferRequired.Connect([this](TransferInterface* transfer) { m_transferSet.insert(transfer); });
@@ -129,6 +138,11 @@ namespace Nz
 		return m_pointShadowAtlasEntries.GetBuffer();
 	}
 
+	ShaderBindingCache* DefaultFramePipeline::GetShaderBindingCache() const
+	{
+		return &m_shaderBindingCache;
+	}
+
 	const std::shared_ptr<Texture>& DefaultFramePipeline::GetShadowAtlasTexture() const
 	{
 		if (!m_shadowAtlasPipelinePass)
@@ -201,7 +215,7 @@ namespace Nz
 			}
 		});
 
-		lightData->onLightShadowCastingChanged.Connect(lightData->light->OnLightShadowCastingChanged, [this, lightData, lightIndex](Light* light, bool isCastingShadows)
+		lightData->onLightShadowCastingChanged.Connect(lightData->light->OnLightShadowCastingChanged, [this, lightData, lightIndex](Light* /*light*/, bool isCastingShadows)
 		{
 			if (isCastingShadows)
 				RegisterShadowCaster(lightIndex, lightData);
@@ -474,6 +488,9 @@ namespace Nz
 		for (std::size_t viewerIndex : m_removedViewerInstances.IterBits())
 		{
 			auto& viewerData = *m_viewerPool.RetrieveFromIndex(viewerIndex);
+
+			m_shaderBindingCache.DestroyViewerCache(viewerData.viewer->GetViewerInstance());
+
 			renderResources.PushForRelease(std::move(viewerData));
 			m_viewerPool.Free(viewerIndex);
 		}
@@ -542,7 +559,7 @@ namespace Nz
 		{
 			// Frustum culling
 			std::size_t visibilityHash = 5;
-			
+
 			auto CombineHash = [](std::size_t currentHash, std::size_t newHash)
 			{
 				return currentHash * 23 + newHash;
@@ -886,26 +903,30 @@ namespace Nz
 				std::size_t viewerUploadAttachment = InsertTransferPass(frameGraph, [this, viewerData]
 				{
 					PipelineViewer* viewer = viewerData->viewer;
-					ShadowAtlas& shadowAtlas = m_shadowAtlasPipelinePass->GetAtlas();
-
-					for (std::size_t lightIndex : m_shadowCastingLights.IterBits())
+					if (m_shadowCastingLights.TestAny())
 					{
-						LightData* lightData = m_lightPool.RetrieveFromIndex(lightIndex);
-						if (lightData->shadowData && lightData->shadowData->IsPerViewer() && (viewerData->renderMask & lightData->renderMask) != 0)
+						assert(m_shadowAtlasPipelinePass);
+						ShadowAtlas& shadowAtlas = m_shadowAtlasPipelinePass->GetAtlas();
+
+						for (std::size_t lightIndex : m_shadowCastingLights.IterBits())
 						{
-							switch (lightData->light->GetLightType())
+							LightData* lightData = m_lightPool.RetrieveFromIndex(lightIndex);
+							if (lightData->shadowData && lightData->shadowData->IsPerViewer() && (viewerData->renderMask & lightData->renderMask) != 0)
 							{
-							case SafeCast<int>(BasicLightType::Directional):
-								lightData->shadowData->WriteToShader(shadowAtlas, viewer, m_directionalShadowAtlasEntries.AccessEntry(lightData->shadowMappingEntry));
-								break;
+								switch (lightData->light->GetLightType())
+								{
+								case SafeCast<int>(BasicLightType::Directional):
+									lightData->shadowData->WriteToShader(shadowAtlas, viewer, m_directionalShadowAtlasEntries.AccessEntry(lightData->shadowMappingEntry));
+									break;
 
-							case SafeCast<int>(BasicLightType::Point):
-								lightData->shadowData->WriteToShader(shadowAtlas, viewer, m_pointShadowAtlasEntries.AccessEntry(lightData->shadowMappingEntry));
-								break;
+								case SafeCast<int>(BasicLightType::Point):
+									lightData->shadowData->WriteToShader(shadowAtlas, viewer, m_pointShadowAtlasEntries.AccessEntry(lightData->shadowMappingEntry));
+									break;
 
-							case SafeCast<int>(BasicLightType::Spot):
-								lightData->shadowData->WriteToShader(shadowAtlas, viewer, m_spotShadowAtlasEntries.AccessEntry(lightData->shadowMappingEntry));
-								break;
+								case SafeCast<int>(BasicLightType::Spot):
+									lightData->shadowData->WriteToShader(shadowAtlas, viewer, m_spotShadowAtlasEntries.AccessEntry(lightData->shadowMappingEntry));
+									break;
+								}
 							}
 						}
 					}
@@ -1168,7 +1189,7 @@ namespace Nz
 	{
 		m_shadowCastingLights.Reset(lightIndex);
 		lightData->shadowData.reset();
-		
+
 		switch (lightData->light->GetLightType())
 		{
 			case SafeCast<int>(BasicLightType::Directional):

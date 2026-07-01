@@ -13,7 +13,6 @@
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/RenderElementPool.hpp>
 #include <Nazara/Math/Rect.hpp>
-#include <Nazara/Renderer/RenderBufferView.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
 #include <NazaraUtils/SparsePtr.hpp>
 #include <array>
@@ -26,8 +25,10 @@ namespace Nz
 	class AbstractViewer;
 	class CommandBufferBuilder;
 	class Material;
+	class RenderBuffer;
 	class RenderElement;
 	class RenderResources;
+	class ShaderBindingCache;
 	class Texture;
 	class TextureSampler;
 	struct ElementRendererData;
@@ -36,6 +37,7 @@ namespace Nz
 	{
 		public:
 			struct RenderData;
+			struct SceneData;
 
 			ElementRenderer() = default;
 			virtual ~ElementRenderer();
@@ -43,25 +45,30 @@ namespace Nz
 			virtual RenderElementPoolBase& GetPool() = 0;
 
 			virtual std::unique_ptr<ElementRendererData> InstanciateData() = 0;
-			virtual void Prepare(const RenderData& renderData, const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& renderResources, std::size_t elementCount, const Pointer<const RenderElement>* elements);
+			virtual void Prepare(const RenderData& renderData, const SceneData& sceneData, const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& renderResources, std::size_t elementCount, const Pointer<const RenderElement>* elements);
 			virtual void PrepareEnd(ElementRendererData& rendererData, RenderResources& renderResources, CommandBufferBuilder& commandBuffer);
-			virtual void Render(const RenderData& renderData, const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& renderResources, CommandBufferBuilder& commandBuffer, std::size_t elementCount, const Pointer<const RenderElement>* elements) = 0;
+			virtual void Render(const RenderData& renderData, const SceneData& sceneData, const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& renderResources, CommandBufferBuilder& commandBuffer, std::size_t elementCount, const Pointer<const RenderElement>* elements) = 0;
 			virtual void Reset(ElementRendererData& rendererData, RenderResources& renderResources);
 
 			struct RenderData
 			{
-				const Texture* shadowAtlas = nullptr;
 				Recti renderRegion;
-				RenderBufferView directionalLights;
-				RenderBufferView directionalLightAtlasMapping;
-				RenderBufferView pointLights;
-				RenderBufferView pointLightAtlasMapping;
-				RenderBufferView spotLights;
-				RenderBufferView spotLightAtlasMapping;
+				ShaderBindingCache* shaderBindingCache;
+			};
+
+			struct SceneData
+			{
+				std::shared_ptr<RenderBuffer> directionalLights;
+				std::shared_ptr<RenderBuffer> directionalLightAtlasMapping;
+				std::shared_ptr<RenderBuffer> pointLights;
+				std::shared_ptr<RenderBuffer> pointLightAtlasMapping;
+				std::shared_ptr<RenderBuffer> spotLights;
+				std::shared_ptr<RenderBuffer> spotLightAtlasMapping;
+				std::shared_ptr<Texture> shadowAtlas;
 			};
 
 		protected:
-			void FillSceneBindings(const RenderData& renderData, const Material& material, std::vector<ShaderBinding::Binding>& bindings);
+			void FillSceneBindings(const SceneData& sceneData, const Material& material, std::vector<ShaderBinding::Binding>& bindings);
 	};
 
 	struct NAZARA_GRAPHICS_API ElementRendererData

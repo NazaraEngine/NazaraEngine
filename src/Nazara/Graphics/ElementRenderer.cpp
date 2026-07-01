@@ -10,7 +10,7 @@ namespace Nz
 {
 	ElementRenderer::~ElementRenderer() = default;
 
-	void ElementRenderer::Prepare(const RenderData& /*renderData*/, const AbstractViewer& /*viewer*/, ElementRendererData& /*rendererData*/, RenderResources& /*renderResources*/, std::size_t /*elementCount*/, const Pointer<const RenderElement>* /*elements*/)
+	void ElementRenderer::Prepare(const RenderData& /*renderData*/, const SceneData& /*sceneData*/, const AbstractViewer& /*viewer*/, ElementRendererData& /*rendererData*/, RenderResources& /*renderResources*/, std::size_t /*elementCount*/, const Pointer<const RenderElement>* /*elements*/)
 	{
 	}
 
@@ -22,60 +22,60 @@ namespace Nz
 	{
 	}
 
-	void ElementRenderer::FillSceneBindings(const RenderData& renderData, const Material& material, std::vector<ShaderBinding::Binding>& bindings)
+	void ElementRenderer::FillSceneBindings(const SceneData& sceneData, const Material& material, std::vector<ShaderBinding::Binding>& bindings)
 	{
-		if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::DirectionalLights); bindingIndex != Material::InvalidBindingIndex && renderData.directionalLights)
+		if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::DirectionalLights); bindingIndex != Material::InvalidBindingIndex && sceneData.directionalLights)
 		{
 			auto& bindingEntry = bindings.emplace_back();
 			bindingEntry.bindingIndex = bindingIndex;
-			bindingEntry.content = ShaderBinding::StorageBufferBinding::FromView(renderData.directionalLights);
+			bindingEntry.content = ShaderBinding::StorageBufferBinding::WholeBuffer(*sceneData.directionalLights);
 		}
 
-		if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::DirectionalShadowAtlasMapping); bindingIndex != Material::InvalidBindingIndex && renderData.directionalLightAtlasMapping)
+		if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::DirectionalShadowAtlasMapping); bindingIndex != Material::InvalidBindingIndex && sceneData.directionalLightAtlasMapping)
 		{
 			auto& bindingEntry = bindings.emplace_back();
 			bindingEntry.bindingIndex = bindingIndex;
-			bindingEntry.content = ShaderBinding::StorageBufferBinding::FromView(renderData.directionalLightAtlasMapping);
+			bindingEntry.content = ShaderBinding::StorageBufferBinding::WholeBuffer(*sceneData.directionalLightAtlasMapping);
 		}
 
-		if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::PointLights); bindingIndex != Material::InvalidBindingIndex && renderData.pointLights)
+		if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::PointLights); bindingIndex != Material::InvalidBindingIndex && sceneData.pointLights)
 		{
 			auto& bindingEntry = bindings.emplace_back();
 			bindingEntry.bindingIndex = bindingIndex;
-			bindingEntry.content = ShaderBinding::StorageBufferBinding::FromView(renderData.pointLights);
+			bindingEntry.content = ShaderBinding::StorageBufferBinding::WholeBuffer(*sceneData.pointLights);
 		}
 
-		if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::PointShadowAtlasMapping); bindingIndex != Material::InvalidBindingIndex && renderData.pointLightAtlasMapping)
+		if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::PointShadowAtlasMapping); bindingIndex != Material::InvalidBindingIndex && sceneData.pointLightAtlasMapping)
 		{
 			auto& bindingEntry = bindings.emplace_back();
 			bindingEntry.bindingIndex = bindingIndex;
-			bindingEntry.content = ShaderBinding::StorageBufferBinding::FromView(renderData.pointLightAtlasMapping);
+			bindingEntry.content = ShaderBinding::StorageBufferBinding::WholeBuffer(*sceneData.pointLightAtlasMapping);
 		}
 
-		if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::ShadowAtlas); bindingIndex != Material::InvalidBindingIndex && renderData.shadowAtlas)
+		if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::ShadowAtlas); bindingIndex != Material::InvalidBindingIndex && sceneData.shadowAtlas)
 		{
 			const auto& shadowSampler = Graphics::Instance()->GetSamplerCache().Get({ .depthCompare = true });
 
 			auto& bindingEntry = bindings.emplace_back();
 			bindingEntry.bindingIndex = bindingIndex;
 			bindingEntry.content = ShaderBinding::SampledTextureBinding{
-				.texture = renderData.shadowAtlas,
+				.texture = sceneData.shadowAtlas.get(),
 				.sampler = shadowSampler.get()
 			};
 		}
 
-		if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::SpotLights); bindingIndex != Material::InvalidBindingIndex && renderData.spotLights)
+		if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::SpotLights); bindingIndex != Material::InvalidBindingIndex && sceneData.spotLights)
 		{
 			auto& bindingEntry = bindings.emplace_back();
 			bindingEntry.bindingIndex = bindingIndex;
-			bindingEntry.content = ShaderBinding::StorageBufferBinding::FromView(renderData.spotLights);
+			bindingEntry.content = ShaderBinding::StorageBufferBinding::WholeBuffer(*sceneData.spotLights);
 		}
 
-		if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::SpotShadowAtlasMapping); bindingIndex != Material::InvalidBindingIndex && renderData.spotLightAtlasMapping)
+		if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::SpotShadowAtlasMapping); bindingIndex != Material::InvalidBindingIndex && sceneData.spotLightAtlasMapping)
 		{
 			auto& bindingEntry = bindings.emplace_back();
 			bindingEntry.bindingIndex = bindingIndex;
-			bindingEntry.content = ShaderBinding::StorageBufferBinding::FromView(renderData.spotLightAtlasMapping);
+			bindingEntry.content = ShaderBinding::StorageBufferBinding::WholeBuffer(*sceneData.spotLightAtlasMapping);
 		}
 	}
 

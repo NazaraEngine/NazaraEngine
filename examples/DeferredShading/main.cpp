@@ -651,6 +651,8 @@ int main(int argc, char* argv[])
 	std::vector<Nz::Pointer<const Nz::RenderElement>> elementPointers;
 	std::vector<Nz::RenderElementOwner> elements;
 
+	Nz::ShaderBindingCache shaderBindingCache;
+
 	Nz::BakedFrameGraph bakedGraph = [&]
 	{
 		Nz::PixelFormat depthStencilFormat = Nz::PixelFormat::Undefined;
@@ -789,13 +791,14 @@ int main(int argc, char* argv[])
 			planeModel.BuildElement(elementRegistry, elementData, forwardPassIndex, elements);
 
 			Nz::ElementRenderer::RenderData renderData;
+			renderData.shaderBindingCache = &shaderBindingCache;
 
 			elementPointers.clear();
 			elementPointers.reserve(elements.size());
 			for (const auto& elementOwner : elements)
 				elementPointers.emplace_back(elementOwner.GetElement());
 
-			submeshRenderer.Prepare(renderData, viewer, *submeshRendererData, *currentFrame, elementPointers.size(), elementPointers.data());
+			submeshRenderer.Prepare(renderData, {}, viewer, *submeshRendererData, *currentFrame, elementPointers.size(), elementPointers.data());
 			submeshRenderer.PrepareEnd(*spriteRendererData, *currentFrame, builder);
 		});
 
@@ -805,8 +808,9 @@ int main(int argc, char* argv[])
 
 			Nz::ElementRenderer::RenderData renderData;
 			renderData.renderRegion = env.renderRect;
+			renderData.shaderBindingCache = &shaderBindingCache;
 
-			submeshRenderer.Render(renderData, viewer, *submeshRendererData, *currentFrame, builder, elementPointers.size(), elementPointers.data());
+			submeshRenderer.Render(renderData, {}, viewer, *submeshRendererData, *currentFrame, builder, elementPointers.size(), elementPointers.data());
 			submeshRenderer.Reset(*submeshRendererData, *currentFrame);
 		});
 
@@ -864,8 +868,9 @@ int main(int argc, char* argv[])
 				elementPointers.emplace_back(element.GetElement());
 
 			Nz::ElementRenderer::RenderData renderData;
+			renderData.shaderBindingCache = &shaderBindingCache;
 
-			spritechainRenderer.Prepare(renderData, viewer, *spriteRendererData, *currentFrame, elementPointers.size(), elementPointers.data());
+			spritechainRenderer.Prepare(renderData, {}, viewer, *spriteRendererData, *currentFrame, elementPointers.size(), elementPointers.data());
 			spritechainRenderer.PrepareEnd(*spriteRendererData, *currentFrame, builder);
 		});
 
@@ -884,8 +889,9 @@ int main(int argc, char* argv[])
 
 			Nz::ElementRenderer::RenderData renderData;
 			renderData.renderRegion = env.renderRect;
+			renderData.shaderBindingCache = &shaderBindingCache;
 
-			spritechainRenderer.Render(renderData, viewer, *spriteRendererData, *currentFrame, builder, elementPointers.size(), elementPointers.data());
+			spritechainRenderer.Render(renderData, {}, viewer, *spriteRendererData, *currentFrame, builder, elementPointers.size(), elementPointers.data());
 			spritechainRenderer.Reset(*spriteRendererData, *currentFrame);
 		});
 		forwardPass.SetExecutionCallback([&]
@@ -918,8 +924,10 @@ int main(int argc, char* argv[])
 				elementPointers.emplace_back(element.GetElement());
 
 			Nz::ElementRenderer::RenderData renderData;
+			renderData.renderRegion = env.renderRect;
+			renderData.shaderBindingCache = &shaderBindingCache;
 
-			spritechainRenderer.Prepare(renderData, viewer, *spriteRendererData, *currentFrame, elementPointers.size(), elementPointers.data());
+			spritechainRenderer.Prepare(renderData, {}, viewer, * spriteRendererData, * currentFrame, elementPointers.size(), elementPointers.data());
 			spritechainRenderer.PrepareEnd(*spriteRendererData, *currentFrame, builder);
 		});
 
@@ -937,6 +945,7 @@ int main(int argc, char* argv[])
 
 			Nz::ElementRenderer::RenderData renderData;
 			renderData.renderRegion = env.renderRect;
+			renderData.shaderBindingCache = &shaderBindingCache;
 
 			std::vector<Nz::Pointer<const Nz::RenderElement>> elementPointers;
 
@@ -945,7 +954,7 @@ int main(int argc, char* argv[])
 			for (const auto& element : elements)
 				elementPointers.emplace_back(element.GetElement());
 
-			spritechainRenderer.Render(renderData, viewer, *spriteRendererData, *currentFrame, builder, elementPointers.size(), elementPointers.data());
+			spritechainRenderer.Render(renderData, {}, viewer, *spriteRendererData, *currentFrame, builder, elementPointers.size(), elementPointers.data());
 			spritechainRenderer.Reset(*spriteRendererData, *currentFrame);
 		});
 
