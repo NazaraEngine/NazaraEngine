@@ -4,6 +4,7 @@
 
 #include <Nazara/Graphics/WorldInstance.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
+#include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/MaterialSettings.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
@@ -22,6 +23,16 @@ namespace Nz
 
 		m_instanceDataBuffer = Graphics::Instance()->GetRenderDevice()->InstantiateBuffer(instanceUboOffsets.totalSize, BufferUsage::UniformBuffer | BufferUsage::DeviceLocal);
 		m_instanceDataBuffer->UpdateDebugName("Instance data");
+	}
+
+	void WorldInstance::FillShaderBinding(const Material& material, RenderResourceReferences& resourceReferences, std::vector<ShaderBinding::Binding>& bindings) const
+	{
+		if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::ViewerDataUbo); bindingIndex != Material::InvalidBindingIndex)
+		{
+			auto& bindingEntry = bindings.emplace_back();
+			bindingEntry.bindingIndex = bindingIndex;
+			bindingEntry.content = ShaderBinding::UniformBufferBinding::WholeBuffer(*m_instanceDataBuffer);
+		}
 	}
 
 	void WorldInstance::OnTransfer(RenderResources& renderResources, CommandBufferBuilder& builder)

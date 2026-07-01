@@ -14,6 +14,7 @@
 #include <Nazara/Graphics/RenderElementPool.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Renderer/RenderBufferView.hpp>
+#include <Nazara/Renderer/ShaderBinding.hpp>
 #include <NazaraUtils/SparsePtr.hpp>
 #include <array>
 #include <memory>
@@ -24,6 +25,7 @@ namespace Nz
 {
 	class AbstractViewer;
 	class CommandBufferBuilder;
+	class Material;
 	class RenderElement;
 	class RenderResources;
 	class Texture;
@@ -57,6 +59,9 @@ namespace Nz
 				RenderBufferView spotLights;
 				RenderBufferView spotLightAtlasMapping;
 			};
+
+		protected:
+			void FillSceneBindings(const RenderData& renderData, const Material& material, std::vector<ShaderBinding::Binding>& bindings);
 	};
 
 	struct NAZARA_GRAPHICS_API ElementRendererData

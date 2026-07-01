@@ -4,6 +4,9 @@ module;
 import InstanceData from Engine.InstanceData;
 import ViewerData from Engine.ViewerData;
 
+import Lighting.LightData;
+import Lighting.Shadow;
+
 [layout(std140)]
 struct MaterialSettings
 {
@@ -14,19 +17,41 @@ struct MaterialSettings
 	BaseColor: vec4[f32]
 }
 
-[tag("Material")]
-external
+[tag("Scene")]
+[set(0), auto_binding]
+external Scene
 {
-	[tag("Settings"), binding(0)] settings: uniform[MaterialSettings],
-	[tag("BaseColorMap"), binding(1)] MaterialBaseColorMap: sampler2D[f32],
-	[tag("AlphaMap"), binding(2)] MaterialAlphaMap: sampler2D[f32],
+	[tag("ShadowAtlas")] shadowAtlas: depth_sampler2D[f32],
+
+	[tag("DirectionalLights")] directionalLights: storage[LightData.DirectionalLights, readonly],
+	[tag("DirectionalShadowAtlasMapping")] directionalShadowAtlasMapping: storage[Shadow.DirectionalShadowAtlasMapping, readonly],
+	[tag("PointLights")] pointLights: storage[LightData.PointLights, readonly],
+	[tag("PointShadowAtlasMapping")] pointShadowAtlasMapping: storage[Shadow.PointShadowAtlasMapping, readonly],
+	[tag("SpotLights")] spotLights: storage[LightData.SpotLights, readonly],
+	[tag("SpotShadowAtlasMapping")] spotShadowAtlasMapping: storage[Shadow.SpotShadowAtlasMapping, readonly],
 }
 
-[tag("Engine")]
-external
+[tag("Viewer")]
+[set(1), auto_binding]
+external Viewer
 {
-	[tag("InstanceData"), binding(4)] instanceData: uniform[InstanceData],
-	[tag("ViewerData"), binding(5)] viewerData: uniform[ViewerData],
+	[tag("ViewerData")] viewerData: uniform[ViewerData],
+}
+
+[tag("Material")]
+[set(2), auto_binding]
+external Material
+{
+	[tag("Settings")] settings: uniform[MaterialSettings],
+	[tag("BaseColorMap")] baseColorMap: sampler2D[f32],
+	[tag("AlphaMap")] alphaMap: sampler2D[f32],
+}
+
+[tag("Instance")]
+[set(3), auto_binding]
+external Instance
+{
+	[tag("InstanceData")] instanceData: uniform[InstanceData],
 }
 
 struct InputData
@@ -47,12 +72,12 @@ struct OutputData
 [entry(vert)]
 fn main(input: InputData) -> OutputData
 {
-	let worldPos = instanceData.worldMatrix * vec4[f32](input.pos, 1.0);
+	let worldPos = Instance.instanceData.worldMatrix * vec4[f32](input.pos, 1.0);
 
 	let output: OutputData;
 	output.uv = input.uv;
 	output.normal = input.normal;
 	output.pos = worldPos.xyz;
-	output.position = viewerData.viewProjMatrix * instanceData.worldMatrix * vec4[f32](input.pos, 1.0);
+	output.position = Viewer.viewerData.viewProjMatrix * Instance.instanceData.worldMatrix * vec4[f32](input.pos, 1.0);
 	return output;
 }

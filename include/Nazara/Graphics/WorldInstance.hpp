@@ -17,7 +17,9 @@
 namespace Nz
 {
 	class CommandBufferBuilder;
+	class Material;
 	class RenderBuffer;
+	struct RenderResourceReferences;
 	class UploadPool;
 	class WorldInstance;
 
@@ -30,6 +32,8 @@ namespace Nz
 			WorldInstance(const WorldInstance&) = delete;
 			WorldInstance(WorldInstance&&) noexcept = default;
 			~WorldInstance() = default;
+
+			virtual void FillShaderBinding(const Material& material, RenderResourceReferences& resourceReferences, std::vector<ShaderBinding::Binding>& bindings) const;
 
 			inline std::shared_ptr<RenderBuffer>& GetInstanceBuffer();
 			inline const std::shared_ptr<RenderBuffer>& GetInstanceBuffer() const;
