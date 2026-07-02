@@ -7,7 +7,7 @@
 namespace Nz
 {
 	LightShadowData::~LightShadowData() = default;
-	
+
 	void LightShadowData::PrepareRendering(RenderResources& /*renderResources*/)
 	{
 	}
