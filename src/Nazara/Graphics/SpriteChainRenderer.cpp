@@ -148,11 +148,11 @@ namespace Nz
 
 			const Material& material = *m_pendingData.currentMaterialInstance->GetParentMaterial();
 
-			if (!m_pendingData.currentSceneShaderBinding)
+			if (!m_pendingData.currentSceneShaderBinding || m_pendingData.sceneSetHash != material.GetBindingSetHash(Material::SceneBindingSet))
 			{
-				std::size_t sceneSetHash = material.GetBindingSetHash(Material::SceneBindingSet);
+				m_pendingData.sceneSetHash = material.GetBindingSetHash(Material::SceneBindingSet);
 
-				ShaderBinding* sceneBinding = renderData.shaderBindingCache->GetSceneBinding(sceneSetHash, [&]
+				ShaderBinding* sceneBinding = renderData.shaderBindingCache->GetSceneBinding(m_pendingData.sceneSetHash, [&]
 				{
 					ShaderBindingPtr sceneBinding = m_pendingData.currentPipeline->GetPipelineInfo().pipelineLayout->AllocateShaderBinding(Material::SceneBindingSet);
 
@@ -167,11 +167,11 @@ namespace Nz
 				m_pendingData.currentViewerShaderBinding = nullptr;
 			}
 
-			if (!m_pendingData.currentViewerShaderBinding)
+			if (!m_pendingData.currentViewerShaderBinding || m_pendingData.viewerSetHash != material.GetBindingSetHash(Material::ViewerBindingSet))
 			{
-				std::size_t viewerSetHash = material.GetBindingSetHash(Material::ViewerBindingSet);
+				m_pendingData.viewerSetHash = material.GetBindingSetHash(Material::ViewerBindingSet);
 
-				ShaderBinding* viewerBinding = renderData.shaderBindingCache->GetViewerBinding(viewer.GetViewerInstance(), viewerSetHash, [&]
+				ShaderBinding* viewerBinding = renderData.shaderBindingCache->GetViewerBinding(viewer.GetViewerInstance(), m_pendingData.viewerSetHash, [&]
 				{
 					ShaderBindingPtr viewerBinding = m_pendingData.currentPipeline->GetPipelineInfo().pipelineLayout->AllocateShaderBinding(Material::ViewerBindingSet);
 
@@ -206,9 +206,6 @@ namespace Nz
 				data.shaderBindings.emplace_back(std::move(instanceBinding));
 			}
 
-			std::size_t sceneSetHash = material.GetBindingSetHash(Material::SceneBindingSet);
-			std::size_t viewerBindingHash = material.GetBindingSetHash(Material::ViewerBindingSet);
-
 			data.drawCalls.push_back(SpriteChainRendererData::DrawCall{
 				.vertexBuffer = m_pendingData.currentVertexBuffer,
 				.renderPipeline = m_pendingData.currentPipeline,
@@ -218,8 +215,6 @@ namespace Nz
 				.viewerShaderBinding = m_pendingData.currentViewerShaderBinding,
 				.firstIndex = 6 * m_pendingData.firstQuadIndex,
 				.indexCount = 6 * spriteCount,
-				.sceneBindingHash = sceneSetHash,
-				.viewerBindingHash = viewerBindingHash,
 				.scissorBox = m_pendingData.currentScissorBox
 			});
 
@@ -272,9 +267,6 @@ namespace Nz
 
 		const auto& indices = it->second;
 
-		std::size_t sceneBindingHash = 0;
-		std::size_t viewerBindingHash = 0;
-
 		for (std::size_t i = 0; i < indices.count; ++i)
 		{
 			const auto& drawData = data.drawCalls[indices.start + i];
@@ -291,25 +283,23 @@ namespace Nz
 				currentPipeline = drawData.renderPipeline;
 			}
 
-			if (!currentSceneShaderBinding || sceneBindingHash != drawData.sceneBindingHash)
+			if (currentSceneShaderBinding != drawData.sceneShaderBinding)
 			{
 				commandBuffer.BindRenderShaderBinding(Material::SceneBindingSet, *drawData.sceneShaderBinding);
 
-				sceneBindingHash = drawData.sceneBindingHash;
 				currentSceneShaderBinding = drawData.sceneShaderBinding;
 				currentViewerShaderBinding = nullptr;
 			}
 
-			if (!currentViewerShaderBinding || viewerBindingHash != drawData.viewerBindingHash)
+			if (currentViewerShaderBinding != drawData.viewerShaderBinding)
 			{
 				commandBuffer.BindRenderShaderBinding(Material::ViewerBindingSet, *drawData.viewerShaderBinding);
 
-				viewerBindingHash = drawData.viewerBindingHash;
 				currentMaterialShaderBinding = nullptr;
 				currentViewerShaderBinding = drawData.viewerShaderBinding;
 			}
 
-			if (!currentMaterialShaderBinding)
+			if (currentMaterialShaderBinding != drawData.materialShaderBinding)
 			{
 				commandBuffer.BindRenderShaderBinding(Material::MaterialBindingSet, *drawData.materialShaderBinding);
 
@@ -317,7 +307,7 @@ namespace Nz
 				currentMaterialShaderBinding = drawData.materialShaderBinding;
 			}
 
-			if (!currentInstanceShaderBinding)
+			if (currentInstanceShaderBinding != drawData.instanceShaderBinding)
 			{
 				commandBuffer.BindRenderShaderBinding(Material::InstanceBindingSet, *drawData.instanceShaderBinding);
 
