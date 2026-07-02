@@ -13,6 +13,7 @@
 #include <Nazara/Graphics/TransferInterface.hpp>
 #include <NazaraUtils/Signal.hpp>
 #include <memory>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -42,6 +43,8 @@ namespace Nz
 
 			void Pop();
 
+			void UpdateDebugName(std::string debugName);
+
 			GpuDynamicArray& operator=(const GpuDynamicArray&) = delete;
 			GpuDynamicArray& operator=(GpuDynamicArray&&) = delete;
 
@@ -60,6 +63,7 @@ namespace Nz
 			};
 
 			std::shared_ptr<RenderBuffer> m_gpuBuffer;
+			std::string m_debugName;
 			std::vector<UInt8> m_memory;
 			BufferUsageFlags m_bufferUsageFlags;
 			InvalidatedRange m_invalidatedRange;
