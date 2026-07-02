@@ -40,8 +40,6 @@ namespace Nz
 			const ShaderBinding* viewerShaderBinding;
 			std::size_t firstIndex;
 			std::size_t indexCount;
-			std::size_t sceneBindingHash;
-			std::size_t viewerBindingHash;
 			Recti scissorBox;
 		};
 
@@ -85,6 +83,8 @@ namespace Nz
 			struct PendingData
 			{
 				std::size_t firstQuadIndex = 0;
+				std::size_t sceneSetHash = 0;
+				std::size_t viewerSetHash = 0;
 				UploadPool::Allocation* currentAllocation = nullptr;
 				UInt8* currentAllocationMemPtr = nullptr;
 				const VertexDeclaration* currentVertexDeclaration = nullptr;
