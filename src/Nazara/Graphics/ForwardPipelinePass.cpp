@@ -171,8 +171,12 @@ namespace Nz
 
 			ElementRenderer::SceneData sceneData;
 			sceneData.directionalLights = m_pipeline.GetDirectionalLightBuffer();
+			sceneData.directionalLightAtlasMapping = m_pipeline.GetDirectionalShadowMappingBuffer();
 			sceneData.pointLights = m_pipeline.GetPointLightBuffer();
+			sceneData.pointLightAtlasMapping = m_pipeline.GetPointShadowMappingBuffer();
+			sceneData.shadowAtlas = m_pipeline.GetShadowAtlasTexture();
 			sceneData.spotLights = m_pipeline.GetSpotLightBuffer();
+			sceneData.spotLightAtlasMapping = m_pipeline.GetSpotShadowMappingBuffer();
 
 			m_elementRegistry.ProcessRenderQueue(m_renderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
 			{
