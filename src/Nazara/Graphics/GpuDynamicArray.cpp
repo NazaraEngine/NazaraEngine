@@ -70,6 +70,12 @@ namespace Nz
 			m_invalidatedRange.end = std::min(m_invalidatedRange.end, bufferRange);
 	}
 
+	void GpuDynamicArray::UpdateDebugName(std::string debugName)
+	{
+		m_debugName = std::move(debugName);
+		m_gpuBuffer->UpdateDebugName(m_debugName);
+	}
+
 	void GpuDynamicArray::GrowBuffer()
 	{
 		UInt64 previousSize = ComputeBufferSize(m_capacity);
@@ -78,6 +84,8 @@ namespace Nz
 
 		m_memory.resize(newSize);
 		m_gpuBuffer = m_renderDevice.InstantiateBuffer(newSize, m_bufferUsageFlags);
+		if (!m_debugName.empty())
+			m_gpuBuffer->UpdateDebugName(m_debugName);
 
 		// We need to re-upload the whole buffer when growing
 		m_invalidatedRange = InvalidatedRange{0u, previousSize};
