@@ -853,6 +853,8 @@ namespace Nz
 		{
 			FramePipelinePass::PassData passData{ nullptr, m_elementRegistry, *this };
 			m_shadowAtlasPipelinePass.emplace(passData);
+
+			m_shaderBindingCache.InvalidateSceneBindings();
 		}
 
 		std::size_t shadowAtlasIndex = MaxValue();
