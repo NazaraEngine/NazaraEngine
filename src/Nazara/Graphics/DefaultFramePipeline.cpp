@@ -49,6 +49,13 @@ namespace Nz
 		m_pointShadowAtlasEntries.OnTransferRequired.Connect([this](TransferInterface* transfer) { m_transferSet.insert(transfer); });
 		m_spotLights.OnTransferRequired.Connect([this](TransferInterface* transfer) { m_transferSet.insert(transfer); });
 		m_spotShadowAtlasEntries.OnTransferRequired.Connect([this](TransferInterface* transfer) { m_transferSet.insert(transfer); });
+
+		m_directionalLights.UpdateDebugName("Directional Light buffer");
+		m_directionalShadowAtlasEntries.UpdateDebugName("Directional Shadow Atlas Entries");
+		m_pointLights.UpdateDebugName("Point Light buffer");
+		m_pointShadowAtlasEntries.UpdateDebugName("Point Shadow Atlas Entries");
+		m_spotLights.UpdateDebugName("Spot Light buffer");
+		m_spotShadowAtlasEntries.UpdateDebugName("Spot Shadow Atlas Entries");
 	}
 
 	DefaultFramePipeline::~DefaultFramePipeline()

@@ -20,6 +20,7 @@ namespace Nz
 		depthTextureParams.levelCount = 1;
 
 		m_atlasTexture = renderDevice.InstantiateTexture(depthTextureParams);
+		m_atlasTexture->UpdateDebugName("Shadow atlas");
 	}
 
 	void ShadowAtlas::Clear()
