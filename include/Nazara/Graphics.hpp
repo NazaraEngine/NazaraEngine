@@ -51,10 +51,12 @@
 #include <Nazara/Graphics/FramePipeline.hpp>
 #include <Nazara/Graphics/FramePipelinePass.hpp>
 #include <Nazara/Graphics/FramePipelinePassRegistry.hpp>
+#include <Nazara/Graphics/GpuDynamicArray.hpp>
 #include <Nazara/Graphics/GraphicalMesh.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/GuillotineTextureAtlas.hpp>
 #include <Nazara/Graphics/ImGuiPipelinePass.hpp>
+#include <Nazara/Graphics/IndirectFramePipeline.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/LightingPipelinePass.hpp>
@@ -89,8 +91,11 @@
 #include <Nazara/Graphics/RenderTexture.hpp>
 #include <Nazara/Graphics/RenderTextureBlit.hpp>
 #include <Nazara/Graphics/RenderWindow.hpp>
+#include <Nazara/Graphics/ShaderBindingCache.hpp>
 #include <Nazara/Graphics/ShaderReflection.hpp>
 #include <Nazara/Graphics/ShaderTransfer.hpp>
+#include <Nazara/Graphics/ShadowAtlas.hpp>
+#include <Nazara/Graphics/ShadowAtlasPipelinePass.hpp>
 #include <Nazara/Graphics/ShadowViewer.hpp>
 #include <Nazara/Graphics/SkeletonInstance.hpp>
 #include <Nazara/Graphics/SlicedSprite.hpp>

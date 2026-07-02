@@ -8,8 +8,8 @@
 #define NAZARA_GRAPHICS_LIGHTSHADOWDATA_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <NazaraUtils/FunctionRef.hpp>
 #include <Nazara/Graphics/Export.hpp>
+#include <NazaraUtils/FunctionRef.hpp>
 #include <utility>
 
 namespace Nz

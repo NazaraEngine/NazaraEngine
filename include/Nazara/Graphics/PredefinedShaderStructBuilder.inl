@@ -21,7 +21,7 @@ NAZARA_WARNING_CLANG_GCC_DISABLE("-Wmissing-field-initializers")
 
 		return lightData;
 	}
-	
+
 	// PredefinedDirectionalLightsData
 	constexpr PredefinedDirectionalLightsData PredefinedDirectionalLightsData::Build()
 	{

@@ -25,7 +25,7 @@ namespace Nz
 
 		static constexpr PredefinedDirectionalLightData Build();
 	};
-	
+
 	struct PredefinedDirectionalLightsData
 	{
 		nzsl::FieldOffsets fieldOffsets;
