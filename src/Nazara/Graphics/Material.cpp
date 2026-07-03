@@ -142,6 +142,9 @@ namespace Nz
 			if (auto it = block->storageBlocks.find("DirectionalShadowAtlasMapping"); it != block->storageBlocks.end())
 				m_engineShaderBindings[EngineShaderBinding::DirectionalShadowAtlasMapping] = it->second.bindingIndex;
 
+			if (auto it = block->storageBlocks.find("InstanceBuffer"); it != block->storageBlocks.end())
+				m_engineShaderBindings[EngineShaderBinding::InstanceBuffer] = it->second.bindingIndex;
+
 			if (auto it = block->storageBlocks.find("PointLights"); it != block->storageBlocks.end())
 				m_engineShaderBindings[EngineShaderBinding::PointLights] = it->second.bindingIndex;
 
@@ -165,18 +168,6 @@ namespace Nz
 
 			if (auto it = block->uniformBlocks.find("ViewerData"); it != block->uniformBlocks.end())
 				m_engineShaderBindings[EngineShaderBinding::ViewerDataUbo] = it->second.bindingIndex;
-		}
-
-		if (const ShaderReflection::ExternalBlockData* block = m_reflection.GetExternalBlockByTag("Instance"))
-		{
-			// TODO: Check set index
-			// TODO: Ensure structs layout is what's expected
-
-			if (auto it = block->uniformBlocks.find("InstanceData"); it != block->uniformBlocks.end())
-				m_engineShaderBindings[EngineShaderBinding::InstanceDataUbo] = it->second.bindingIndex;
-
-			if (auto it = block->uniformBlocks.find("SkeletalData"); it != block->uniformBlocks.end())
-				m_engineShaderBindings[EngineShaderBinding::SkeletalDataUbo] = it->second.bindingIndex;
 		}
 
 		for (const auto& handlerPtr : m_settings.GetPropertyHandlers())

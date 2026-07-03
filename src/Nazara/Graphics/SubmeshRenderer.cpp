@@ -47,6 +47,7 @@ namespace Nz
 
 		data.references->renderBuffers.insert(sceneData.directionalLightAtlasMapping);
 		data.references->renderBuffers.insert(sceneData.directionalLights);
+		data.references->renderBuffers.insert(sceneData.instanceBuffer);
 		data.references->renderBuffers.insert(sceneData.pointLightAtlasMapping);
 		data.references->renderBuffers.insert(sceneData.pointLights);
 		data.references->renderBuffers.insert(sceneData.spotLightAtlasMapping);
@@ -60,9 +61,7 @@ namespace Nz
 		const ShaderBinding* currentSceneShaderBinding = nullptr;
 		const ShaderBinding* currentViewerShaderBinding = nullptr;
 		const ShaderBinding* currentMaterialShaderBinding = nullptr;
-		const ShaderBinding* currentInstanceShaderBinding = nullptr;
 		const SkeletonInstance* currentSkeletonInstance = nullptr;
-		const WorldInstance* currentWorldInstance = nullptr;
 		Recti currentScissorBox(-1, -1, -1, -1);
 
 		std::size_t sceneSetHash = 0;
@@ -103,14 +102,7 @@ namespace Nz
 
 			if (const SkeletonInstance* skeletonInstance = submesh.GetSkeletonInstance(); currentSkeletonInstance != skeletonInstance)
 			{
-				currentInstanceShaderBinding = nullptr;
 				currentSkeletonInstance = skeletonInstance;
-			}
-
-			if (const WorldInstance* worldInstance = &submesh.GetWorldInstance(); currentWorldInstance != worldInstance)
-			{
-				currentInstanceShaderBinding = nullptr;
-				currentWorldInstance = worldInstance;
 			}
 
 			const Recti& scissorBox = submesh.GetScissorBox();
@@ -168,34 +160,14 @@ namespace Nz
 			if (!currentMaterialShaderBinding)
 			{
 				currentMaterialShaderBinding = &currentMaterialInstance->UpdateOrGetShaderBinding(renderResources);
-				currentInstanceShaderBinding = nullptr;
 
 				commandBuffer.BindRenderShaderBinding(Material::MaterialBindingSet, *currentMaterialShaderBinding);
 			}
 
-			if (!currentInstanceShaderBinding)
-			{
-				ShaderBindingPtr instanceBinding = currentPipeline->GetPipelineInfo().pipelineLayout->AllocateShaderBinding(Material::InstanceBindingSet);
-
-				m_bindingCache.clear();
-				currentWorldInstance->FillShaderBinding(material, *data.references, m_bindingCache);
-
-				if (currentSkeletonInstance)
-					currentSkeletonInstance->FillShaderBinding(material, *data.references, m_bindingCache);
-
-				instanceBinding->Update(m_bindingCache.data(), m_bindingCache.size());
-
-				commandBuffer.BindRenderShaderBinding(Material::InstanceBindingSet, *instanceBinding);
-
-				currentInstanceShaderBinding = instanceBinding.get();
-
-				data.shaderBindings.emplace_back(std::move(instanceBinding));
-			}
-
 			if (currentIndexBuffer)
-				commandBuffer.DrawIndexed(SafeCaster(submesh.GetIndexCount()), 1U, 0);
+				commandBuffer.DrawIndexed(SafeCaster(submesh.GetIndexCount()), 1U, 0, 0, submesh.GetInstanceIndex());
 			else
-				commandBuffer.Draw(SafeCaster(submesh.GetIndexCount()), 1U, 0);
+				commandBuffer.Draw(SafeCaster(submesh.GetIndexCount()), 1U, 0, submesh.GetInstanceIndex());
 		}
 	}
 

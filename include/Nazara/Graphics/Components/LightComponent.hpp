@@ -9,7 +9,6 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Light.hpp>
-#include <Nazara/Graphics/WorldInstance.hpp>
 #include <entt/entt.hpp>
 #include <array>
 #include <memory>

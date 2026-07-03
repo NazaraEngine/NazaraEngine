@@ -76,7 +76,7 @@ namespace Nz
 			do
 			{
 				std::size_t spriteBatch = std::min<std::size_t>(spriteCount, RenderSpriteChain::MaxSpritePerChain);
-				elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer(), layer.material, passFlags, renderPipeline, *elementData.worldInstance, vertexDeclaration, whiteTexture, spriteBatch, vertices, *elementData.scissorBox));
+				elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer(), layer.material, passFlags, renderPipeline, elementData.instanceIndex, vertexDeclaration, whiteTexture, spriteBatch, vertices, *elementData.scissorBox));
 				vertices += 4 * spriteBatch;
 				spriteCount -= spriteBatch;
 			}

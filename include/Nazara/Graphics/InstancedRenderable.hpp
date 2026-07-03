@@ -21,7 +21,6 @@ namespace Nz
 	class MaterialInstance;
 	class RenderElement;
 	class SkeletonInstance;
-	class WorldInstance;
 
 	class NAZARA_GRAPHICS_API InstancedRenderable
 	{
@@ -53,7 +52,7 @@ namespace Nz
 			{
 				const Recti* scissorBox;
 				const SkeletonInstance* skeletonInstance;
-				const WorldInstance* worldInstance;
+				UInt32 instanceIndex;
 			};
 
 		protected:

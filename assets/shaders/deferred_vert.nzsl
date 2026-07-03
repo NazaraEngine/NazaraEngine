@@ -1,7 +1,7 @@
 [nzsl_version("1.1")]
 module;
 
-import InstanceData from Engine.InstanceData;
+import InstanceBuffer from Engine.InstanceData;
 import ViewerData from Engine.ViewerData;
 
 import Lighting.LightData;
@@ -29,6 +29,9 @@ external Scene
 	[tag("PointShadowAtlasMapping")] pointShadowAtlasMapping: storage[Shadow.PointShadowAtlasMapping, readonly],
 	[tag("SpotLights")] spotLights: storage[LightData.SpotLights, readonly],
 	[tag("SpotShadowAtlasMapping")] spotShadowAtlasMapping: storage[Shadow.SpotShadowAtlasMapping, readonly],
+
+	// TODO: Move to Material
+	[tag("InstanceBuffer")] instanceBuffer: storage[InstanceBuffer, readonly],
 }
 
 [tag("Viewer")]
@@ -47,15 +50,10 @@ external Material
 	[tag("AlphaMap")] alphaMap: sampler2D[f32],
 }
 
-[tag("Instance")]
-[set(3), auto_binding]
-external Instance
-{
-	[tag("InstanceData")] instanceData: uniform[InstanceData],
-}
-
 struct InputData
 {
+	[builtin(instance_index)] instanceIndex: i32,
+
 	[location(0)] pos: vec3[f32],
 	[location(1)] normal: vec3[f32],
 	[location(2)] uv: vec2[f32]
@@ -72,12 +70,14 @@ struct OutputData
 [entry(vert)]
 fn main(input: InputData) -> OutputData
 {
-	let worldPos = Instance.instanceData.worldMatrix * vec4[f32](input.pos, 1.0);
+	let instanceData = Scene.instanceBuffer.instances[input.instanceIndex];
+
+	let worldPos = instanceData.worldMatrix * vec4[f32](input.pos, 1.0);
 
 	let output: OutputData;
 	output.uv = input.uv;
 	output.normal = input.normal;
 	output.pos = worldPos.xyz;
-	output.position = Viewer.viewerData.viewProjMatrix * Instance.instanceData.worldMatrix * vec4[f32](input.pos, 1.0);
+	output.position = Viewer.viewerData.viewProjMatrix * instanceData.worldMatrix * vec4[f32](input.pos, 1.0);
 	return output;
 }

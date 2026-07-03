@@ -9,7 +9,6 @@
 #include <Nazara/Core/Components/SkeletonComponent.hpp>
 #include <Nazara/Graphics/DefaultFramePipeline.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
-#include <Nazara/Graphics/WorldInstance.hpp>
 #include <Nazara/Graphics/Components/CameraComponent.hpp>
 #include <Nazara/Graphics/Components/GraphicsComponent.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
@@ -139,7 +138,7 @@ namespace Nz
 			graphicsEntity->poolIndex = poolIndex;
 			graphicsEntity->renderableIndices.fill(NoInstance);
 			graphicsEntity->skeletonInstanceIndex = NoInstance;
-			graphicsEntity->worldInstanceIndex = m_pipeline->RegisterWorldInstance(entityGfx.GetWorldInstance());
+			graphicsEntity->instanceIndex = m_pipeline->RegisterInstance();
 			graphicsEntity->onNodeInvalidation.Connect(entityNode.OnNodeInvalidation, [this, graphicsEntity](const Node* /*node*/)
 			{
 				m_invalidatedGfxWorldNode.insert(graphicsEntity);
@@ -160,7 +159,7 @@ namespace Nz
 				if (!renderableEntry.renderable)
 					return;
 
-				graphicsEntity->renderableIndices[renderableIndex] = m_pipeline->RegisterRenderable(graphicsEntity->worldInstanceIndex, graphicsEntity->skeletonInstanceIndex, renderableEntry.renderable.get(), renderableEntry.renderMask, gfx->GetScissorBox());
+				graphicsEntity->renderableIndices[renderableIndex] = m_pipeline->RegisterRenderable(graphicsEntity->instanceIndex, graphicsEntity->skeletonInstanceIndex, renderableEntry.renderable.get(), renderableEntry.renderMask, gfx->GetScissorBox());
 			});
 
 			graphicsEntity->onRenderableDetach.Connect(entityGfx.OnRenderableDetach, [this, graphicsEntity](GraphicsComponent* gfx, std::size_t renderableIndex)
@@ -219,7 +218,7 @@ namespace Nz
 				}
 			}
 
-			m_pipeline->UnregisterWorldInstance(graphicsEntity->worldInstanceIndex);
+			m_pipeline->UnregisterInstance(graphicsEntity->instanceIndex);
 
 			m_graphicsEntityPool.Free(graphicsEntity->poolIndex);
 		});
@@ -392,7 +391,7 @@ namespace Nz
 				if (!renderableEntry.renderable)
 					continue;
 
-				gfxData->renderableIndices[renderableIndex] = m_pipeline->RegisterRenderable(gfxData->worldInstanceIndex, gfxData->skeletonInstanceIndex, renderableEntry.renderable.get(), renderableEntry.renderMask, gfxComponent.GetScissorBox());
+				gfxData->renderableIndices[renderableIndex] = m_pipeline->RegisterRenderable(gfxData->instanceIndex, gfxData->skeletonInstanceIndex, renderableEntry.renderable.get(), renderableEntry.renderMask, gfxComponent.GetScissorBox());
 			}
 		}
 		else
@@ -454,10 +453,11 @@ namespace Nz
 			entt::entity entity = graphicsEntity->entity;
 
 			const NodeComponent& entityNode = m_registry.get<const NodeComponent>(entity);
-			GraphicsComponent& entityGraphics = m_registry.get<GraphicsComponent>(entity);
 
-			const WorldInstancePtr& worldInstance = entityGraphics.GetWorldInstance();
-			worldInstance->UpdateWorldMatrix(entityNode.GetTransformMatrix());
+			Matrix4f worldMatrix = Matrix4f::Transform(entityNode.GetGlobalPosition(), entityNode.GetGlobalRotation(), entityNode.GetGlobalScale());
+			Matrix4f invWorldMatrix = Matrix4f::TransformInverse(entityNode.GetGlobalPosition(), entityNode.GetGlobalRotation(), entityNode.GetGlobalScale());
+
+			m_pipeline->UpdateInstanceData(graphicsEntity->instanceIndex, worldMatrix, invWorldMatrix);
 		}
 		m_invalidatedGfxWorldNode.clear();
 

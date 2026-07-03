@@ -8,7 +8,6 @@
 #include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/RenderSpriteChain.hpp>
 #include <Nazara/Graphics/TextureAsset.hpp>
-#include <Nazara/Graphics/WorldInstance.hpp>
 
 namespace Nz
 {
@@ -42,7 +41,7 @@ namespace Nz
 
 		const auto& whiteTexture = Graphics::Instance()->GetDefaultTextures().whiteTextures[ImageType::E2D];
 
-		elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer(), m_material, passFlags, renderPipeline, *elementData.worldInstance, vertexDeclaration, whiteTexture, 1, m_vertices.data(), *elementData.scissorBox));
+		elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer(), m_material, passFlags, renderPipeline, elementData.instanceIndex, vertexDeclaration, whiteTexture, 1, m_vertices.data(), *elementData.scissorBox));
 	}
 
 	const std::shared_ptr<MaterialInstance>& Sprite::GetMaterial(std::size_t i) const

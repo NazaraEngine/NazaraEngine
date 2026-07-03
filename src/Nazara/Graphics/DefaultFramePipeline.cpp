@@ -11,7 +11,6 @@
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/RenderTarget.hpp>
 #include <Nazara/Graphics/TextureAsset.hpp>
-#include <Nazara/Graphics/WorldInstance.hpp>
 #include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <NazaraUtils/StackVector.hpp>
@@ -21,6 +20,7 @@ namespace Nz
 	DefaultFramePipeline::DefaultFramePipeline(ElementRendererRegistry& elementRegistry) :
 	m_directionalLights(*Graphics::Instance()->GetRenderDevice(), PredefinedDirectionalLightOffsets.totalSize, 16, PredefinedDirectionalLightsOffsets.totalSize),
 	m_directionalShadowAtlasEntries(*Graphics::Instance()->GetRenderDevice(), PredefinedDirectionalShadowAtlasEntryOffsets.totalSize, 16),
+	m_instanceBuffer(*Graphics::Instance()->GetRenderDevice(), PredefinedInstanceOffsets.totalSize, 512),
 	m_pointLights(*Graphics::Instance()->GetRenderDevice(), PredefinedPointLightOffsets.totalSize, 128, PredefinedPointLightsOffsets.totalSize),
 	m_pointShadowAtlasEntries(*Graphics::Instance()->GetRenderDevice(), PredefinedPointShadowAtlasEntryOffsets.totalSize, 128),
 	m_spotLights(*Graphics::Instance()->GetRenderDevice(), PredefinedSpotLightOffsets.totalSize, 128, PredefinedSpotLightsOffsets.totalSize),
@@ -30,13 +30,13 @@ namespace Nz
 	m_lightPool(64),
 	m_skeletonInstances(1024),
 	m_viewerPool(8),
-	m_worldInstances(2048),
 	m_generationCounter(0),
 	m_rebuildFrameGraph(true)
 	{
 		// OnBufferInvalidated
 		m_directionalLights.OnBufferInvalidated.Connect([this](GpuDynamicArray* /*gpuDynamicArray*/) { m_shaderBindingCache.InvalidateSceneBindings(); });
 		m_directionalShadowAtlasEntries.OnBufferInvalidated.Connect([this](GpuDynamicArray* /*gpuDynamicArray*/) { m_shaderBindingCache.InvalidateSceneBindings(); });
+		m_instanceBuffer.OnBufferInvalidated.Connect([this](GpuDynamicArray* /*gpuDynamicArray*/) { m_shaderBindingCache.InvalidateSceneBindings(); });
 		m_pointLights.OnBufferInvalidated.Connect([this](GpuDynamicArray* /*gpuDynamicArray*/) { m_shaderBindingCache.InvalidateSceneBindings(); });
 		m_pointShadowAtlasEntries.OnBufferInvalidated.Connect([this](GpuDynamicArray* /*gpuDynamicArray*/) { m_shaderBindingCache.InvalidateSceneBindings(); });
 		m_spotLights.OnBufferInvalidated.Connect([this](GpuDynamicArray* /*gpuDynamicArray*/) { m_shaderBindingCache.InvalidateSceneBindings(); });
@@ -45,6 +45,7 @@ namespace Nz
 		// OnTransferRequired
 		m_directionalLights.OnTransferRequired.Connect([this](TransferInterface* transfer) { m_transferSet.insert(transfer); });
 		m_directionalShadowAtlasEntries.OnTransferRequired.Connect([this](TransferInterface* transfer) { m_transferSet.insert(transfer); });
+		m_instanceBuffer.OnTransferRequired.Connect([this](TransferInterface* transfer) { m_transferSet.insert(transfer); });
 		m_pointLights.OnTransferRequired.Connect([this](TransferInterface* transfer) { m_transferSet.insert(transfer); });
 		m_pointShadowAtlasEntries.OnTransferRequired.Connect([this](TransferInterface* transfer) { m_transferSet.insert(transfer); });
 		m_spotLights.OnTransferRequired.Connect([this](TransferInterface* transfer) { m_transferSet.insert(transfer); });
@@ -52,6 +53,7 @@ namespace Nz
 
 		m_directionalLights.UpdateDebugName("Directional Light buffer");
 		m_directionalShadowAtlasEntries.UpdateDebugName("Directional Shadow Atlas Entries");
+		m_instanceBuffer.UpdateDebugName("Instance buffer");
 		m_pointLights.UpdateDebugName("Point Light buffer");
 		m_pointShadowAtlasEntries.UpdateDebugName("Point Shadow Atlas Entries");
 		m_spotLights.UpdateDebugName("Spot Light buffer");
@@ -77,20 +79,21 @@ namespace Nz
 			if ((mask & renderableData.renderMask) == 0)
 				continue;
 
-			const WorldInstancePtr& worldInstance = m_worldInstances.RetrieveFromIndex(renderableData.worldInstanceIndex)->worldInstance;
-
 			// Get global AABB
+			const UInt8* ptr = m_instanceBuffer.GetEntryData(renderableData.instanceIndex);
+			const Matrix4f& worldMatrix = AccessByOffset<const Matrix4f&>(ptr, PredefinedInstanceOffsets.worldMatrixOffset);
+
 			BoundingVolumef boundingVolume(renderableData.renderable->GetAABB());
-			boundingVolume.Update(worldInstance->GetWorldMatrix());
+			boundingVolume.Update(worldMatrix);
 
 			if (frustum.Intersect(boundingVolume) == IntersectionSide::Outside)
 				continue;
 
 			auto& visibleRenderable = m_visibleRenderables.emplace_back();
+			visibleRenderable.instanceIndex = renderableData.instanceIndex;
 			visibleRenderable.instancedRenderable = renderableData.renderable;
 			visibleRenderable.renderMask = renderableData.renderMask;
 			visibleRenderable.scissorBox = renderableData.scissorBox;
-			visibleRenderable.worldInstance = worldInstance.get();
 
 			if (renderableData.skeletonInstanceIndex != NoSkeletonInstance)
 				visibleRenderable.skeletonInstance = m_skeletonInstances.RetrieveFromIndex(renderableData.skeletonInstanceIndex)->skeleton.get();
@@ -135,6 +138,11 @@ namespace Nz
 		return m_directionalShadowAtlasEntries.GetBuffer();
 	}
 
+	const std::shared_ptr<RenderBuffer>& DefaultFramePipeline::GetInstanceBuffer() const
+	{
+		return m_instanceBuffer.GetBuffer();
+	}
+
 	const std::shared_ptr<RenderBuffer>& DefaultFramePipeline::GetPointLightBuffer() const
 	{
 		return m_pointLights.GetBuffer();
@@ -175,6 +183,25 @@ namespace Nz
 	void DefaultFramePipeline::QueueTransfer(TransferInterface* transfer)
 	{
 		m_transferSet.insert(transfer);
+	}
+	
+	UInt32 DefaultFramePipeline::RegisterInstance()
+	{
+		constexpr std::size_t InstanceGrowRate = 1024;
+
+		std::size_t instanceIndex = m_freeInstanceIds.FindFirst();
+		if (instanceIndex == m_freeInstanceIds.npos)
+		{
+			instanceIndex = m_freeInstanceIds.GetSize();
+			m_freeInstanceIds.Resize(instanceIndex + InstanceGrowRate, true);
+		}
+
+		m_freeInstanceIds.Reset(instanceIndex);
+
+		if (instanceIndex >= m_instanceBuffer.GetSize())
+			m_instanceBuffer.Push();
+
+		return SafeCaster(instanceIndex);
 	}
 
 	std::size_t DefaultFramePipeline::RegisterLight(const Light* light, UInt32 renderMask)
@@ -292,16 +319,16 @@ namespace Nz
 		return lightIndex;
 	}
 
-	std::size_t DefaultFramePipeline::RegisterRenderable(std::size_t worldInstanceIndex, std::size_t skeletonInstanceIndex, const InstancedRenderable* instancedRenderable, UInt32 renderMask, const Recti& scissorBox)
+	std::size_t DefaultFramePipeline::RegisterRenderable(UInt32 instanceIndex, std::size_t skeletonInstanceIndex, const InstancedRenderable* instancedRenderable, UInt32 renderMask, const Recti& scissorBox)
 	{
 		std::size_t renderableIndex;
 		RenderableData* renderableData = m_renderablePool.Allocate(renderableIndex);
+		renderableData->instanceIndex = instanceIndex;
 		renderableData->generation = m_generationCounter++;
 		renderableData->renderable = instancedRenderable;
 		renderableData->renderMask = renderMask;
 		renderableData->scissorBox = scissorBox;
 		renderableData->skeletonInstanceIndex = skeletonInstanceIndex;
-		renderableData->worldInstanceIndex = worldInstanceIndex;
 
 		renderableData->onElementInvalidated.Connect(instancedRenderable->OnElementInvalidated, [this, renderMask](InstancedRenderable* /*instancedRenderable*/)
 		{
@@ -442,21 +469,6 @@ namespace Nz
 		return viewerIndex;
 	}
 
-	std::size_t DefaultFramePipeline::RegisterWorldInstance(WorldInstancePtr worldInstance)
-	{
-		std::size_t worldInstanceIndex;
-		WorldInstanceData& worldInstanceData = *m_worldInstances.Allocate(worldInstanceIndex);
-		worldInstanceData.worldInstance = std::move(worldInstance);
-		worldInstanceData.onTransferRequired.Connect(worldInstanceData.worldInstance->OnTransferRequired, [this](TransferInterface* transferInterface)
-		{
-			m_transferSet.insert(transferInterface);
-		});
-
-		m_transferSet.insert(worldInstanceData.worldInstance.get());
-
-		return worldInstanceIndex;
-	}
-
 	const Light* DefaultFramePipeline::RetrieveLight(std::size_t lightIndex) const
 	{
 		return m_lightPool.RetrieveFromIndex(lightIndex)->light;
@@ -503,14 +515,8 @@ namespace Nz
 		}
 		m_removedViewerInstances.Clear();
 
-		for (std::size_t worldInstanceIndex : m_removedWorldInstances.IterBits())
-		{
-			auto& worldInstanceData = *m_worldInstances.RetrieveFromIndex(worldInstanceIndex);
-
-			renderResources.PushForRelease(std::move(worldInstanceData));
-			m_worldInstances.Free(worldInstanceIndex);
-		}
-		m_removedWorldInstances.Clear();
+		m_freeInstanceIds |= m_removedInstances;
+		m_removedInstances.Clear();
 
 		bool frameGraphInvalidated = false;
 		if (m_rebuildFrameGraph)
@@ -575,13 +581,11 @@ namespace Nz
 			m_visibleRenderables.clear();
 			for (const RenderableData& renderableData : m_renderablePool)
 			{
-				const WorldInstancePtr& worldInstance = m_worldInstances.RetrieveFromIndex(renderableData.worldInstanceIndex)->worldInstance;
-
 				auto& visibleRenderable = m_visibleRenderables.emplace_back();
 				visibleRenderable.instancedRenderable = renderableData.renderable;
 				visibleRenderable.renderMask = renderableData.renderMask;
 				visibleRenderable.scissorBox = renderableData.scissorBox;
-				visibleRenderable.worldInstance = worldInstance.get();
+				visibleRenderable.instanceIndex = renderableData.instanceIndex;
 
 				if (renderableData.skeletonInstanceIndex != NoSkeletonInstance)
 					visibleRenderable.skeletonInstance = m_skeletonInstances.RetrieveFromIndex(renderableData.skeletonInstanceIndex)->skeleton.get();
@@ -651,6 +655,12 @@ namespace Nz
 		// Rendering
 		m_bakedFrameGraph.Execute(renderResources);
 		m_rebuildFrameGraph = false;
+	}
+
+	void DefaultFramePipeline::UnregisterInstance(UInt32 worldInstance)
+	{
+		// Defer instance release
+		m_removedInstances.UnboundedSet(worldInstance);
 	}
 
 	void DefaultFramePipeline::UnregisterLight(std::size_t lightIndex)
@@ -795,13 +805,11 @@ namespace Nz
 		m_rebuildFrameGraph = true;
 	}
 
-	void DefaultFramePipeline::UnregisterWorldInstance(std::size_t worldInstance)
+	void DefaultFramePipeline::UpdateInstanceData(UInt32 instanceIndex, const Matrix4f& worldMatrix, const Matrix4f& invWorldMatrix)
 	{
-		auto& worldInstanceData = *m_worldInstances.RetrieveFromIndex(worldInstance);
-		m_transferSet.erase(worldInstanceData.worldInstance.get());
-
-		// Defer instance release
-		m_removedWorldInstances.UnboundedSet(worldInstance);
+		UInt8* ptr = m_instanceBuffer.AccessEntry(instanceIndex);
+		AccessByOffset<Matrix4f&>(ptr, PredefinedInstanceOffsets.worldMatrixOffset) = worldMatrix;
+		AccessByOffset<Matrix4f&>(ptr, PredefinedInstanceOffsets.invWorldMatrixOffset) = invWorldMatrix;
 	}
 
 	void DefaultFramePipeline::UpdateLightRenderMask(std::size_t lightIndex, UInt32 renderMask)

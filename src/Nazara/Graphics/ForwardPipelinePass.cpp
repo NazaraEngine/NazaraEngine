@@ -57,7 +57,7 @@ namespace Nz
 				InstancedRenderable::ElementData elementData{
 					&renderableData.scissorBox,
 					renderableData.skeletonInstance,
-					renderableData.worldInstance
+					renderableData.instanceIndex
 				};
 
 				renderableData.instancedRenderable->BuildElement(m_elementRegistry, elementData, m_forwardPassIndex, m_renderElements);
@@ -172,6 +172,7 @@ namespace Nz
 			ElementRenderer::SceneData sceneData;
 			sceneData.directionalLights = m_pipeline.GetDirectionalLightBuffer();
 			sceneData.directionalLightAtlasMapping = m_pipeline.GetDirectionalShadowMappingBuffer();
+			sceneData.instanceBuffer = m_pipeline.GetInstanceBuffer();
 			sceneData.pointLights = m_pipeline.GetPointLightBuffer();
 			sceneData.pointLightAtlasMapping = m_pipeline.GetPointShadowMappingBuffer();
 			sceneData.shadowAtlas = m_pipeline.GetShadowAtlasTexture();
@@ -213,6 +214,7 @@ namespace Nz
 			ElementRenderer::SceneData sceneData;
 			sceneData.directionalLights = m_pipeline.GetDirectionalLightBuffer();
 			sceneData.directionalLightAtlasMapping = m_pipeline.GetDirectionalShadowMappingBuffer();
+			sceneData.instanceBuffer = m_pipeline.GetInstanceBuffer();
 			sceneData.pointLights = m_pipeline.GetPointLightBuffer();
 			sceneData.pointLightAtlasMapping = m_pipeline.GetPointShadowMappingBuffer();
 			sceneData.shadowAtlas = m_pipeline.GetShadowAtlasTexture();

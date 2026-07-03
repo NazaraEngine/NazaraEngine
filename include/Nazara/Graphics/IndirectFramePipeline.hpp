@@ -54,10 +54,10 @@ namespace Nz
 			void QueueTransfer(TransferInterface* transfer) override;
 
 			std::size_t RegisterLight(const Light* light, UInt32 renderMask) override;
-			std::size_t RegisterRenderable(std::size_t worldInstanceIndex, std::size_t skeletonInstanceIndex, const InstancedRenderable* instancedRenderable, UInt32 renderMask, const Recti& scissorBox) override;
+			//std::size_t RegisterRenderable(std::size_t worldInstanceIndex, std::size_t skeletonInstanceIndex, const InstancedRenderable* instancedRenderable, UInt32 renderMask, const Recti& scissorBox) override;
 			std::size_t RegisterSkeleton(SkeletonInstancePtr skeletonInstance) override;
 			std::size_t RegisterViewer(PipelineViewer* viewerInstance, Int32 renderOrder) override;
-			std::size_t RegisterWorldInstance(WorldInstancePtr worldInstance) override;
+			//std::size_t RegisterWorldInstance(WorldInstancePtr worldInstance) override;
 
 			const Light* RetrieveLight(std::size_t lightIndex) const override;
 			const LightShadowData* RetrieveLightShadowData(std::size_t lightIndex) const override;
@@ -68,7 +68,7 @@ namespace Nz
 			void UnregisterRenderable(std::size_t renderableIndex) override;
 			void UnregisterSkeleton(std::size_t skeletonIndex) override;
 			void UnregisterViewer(std::size_t viewerIndex) override;
-			void UnregisterWorldInstance(std::size_t worldInstance) override;
+			//void UnregisterWorldInstance(std::size_t worldInstance) override;
 
 			void UpdateLightRenderMask(std::size_t lightIndex, UInt32 renderMask) override;
 			void UpdateRenderableRenderMask(std::size_t renderableIndex, UInt32 renderMask) override;

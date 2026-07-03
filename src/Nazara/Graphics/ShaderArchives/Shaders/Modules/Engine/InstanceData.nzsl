@@ -2,9 +2,16 @@
 module Engine.InstanceData;
 
 [export]
-[layout(std140)]
+[layout(std430)]
 struct InstanceData
 {
 	worldMatrix: mat4[f32],
 	invWorldMatrix: mat4[f32]
+}
+
+[export]
+[layout(std430)]
+struct InstanceBuffer
+{
+	instances: dyn_array[InstanceData]
 }

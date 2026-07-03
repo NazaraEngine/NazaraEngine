@@ -102,8 +102,8 @@ namespace Nz
 			{
 				const InstancedRenderable* instancedRenderable;
 				const SkeletonInstance* skeletonInstance;
-				const WorldInstance* worldInstance;
 				Recti scissorBox;
+				UInt32 instanceIndex;
 				UInt32 renderMask;
 			};
 

@@ -58,6 +58,7 @@ namespace Nz
 
 			const std::shared_ptr<RenderBuffer>& GetDirectionalLightBuffer() const override;
 			const std::shared_ptr<RenderBuffer>& GetDirectionalShadowMappingBuffer() const override;
+			const std::shared_ptr<RenderBuffer>& GetInstanceBuffer() const override;
 			const std::shared_ptr<RenderBuffer>& GetPointLightBuffer() const override;
 			const std::shared_ptr<RenderBuffer>& GetPointShadowMappingBuffer() const override;
 			ShaderBindingCache* GetShaderBindingCache() const override;
@@ -67,23 +68,25 @@ namespace Nz
 
 			void QueueTransfer(TransferInterface* transfer) override;
 
+			UInt32 RegisterInstance() override;
 			std::size_t RegisterLight(const Light* light, UInt32 renderMask) override;
-			std::size_t RegisterRenderable(std::size_t worldInstanceIndex, std::size_t skeletonInstanceIndex, const InstancedRenderable* instancedRenderable, UInt32 renderMask, const Recti& scissorBox) override;
+			std::size_t RegisterRenderable(UInt32 instanceIndex, std::size_t skeletonInstanceIndex, const InstancedRenderable* instancedRenderable, UInt32 renderMask, const Recti& scissorBox) override;
 			std::size_t RegisterSkeleton(SkeletonInstancePtr skeletonInstance) override;
 			std::size_t RegisterViewer(PipelineViewer* viewerInstance, Int32 renderOrder) override;
-			std::size_t RegisterWorldInstance(WorldInstancePtr worldInstance) override;
 
 			const Light* RetrieveLight(std::size_t lightIndex) const override;
 			const LightShadowData* RetrieveLightShadowData(std::size_t lightIndex) const override;
 
 			void Render(RenderResources& renderResources) override;
 
+			void UnregisterInstance(UInt32 instanceIndex) override;
 			void UnregisterLight(std::size_t lightIndex) override;
 			void UnregisterRenderable(std::size_t renderableIndex) override;
 			void UnregisterSkeleton(std::size_t skeletonIndex) override;
 			void UnregisterViewer(std::size_t viewerIndex) override;
-			void UnregisterWorldInstance(std::size_t worldInstance) override;
 
+			using FramePipeline::UpdateInstanceData;
+			void UpdateInstanceData(UInt32 instanceIndex, const Matrix4f& worldMatrix, const Matrix4f& invWorldMatrix) override;
 			void UpdateLightRenderMask(std::size_t lightIndex, UInt32 renderMask) override;
 			void UpdateRenderableRenderMask(std::size_t renderableIndex, UInt32 renderMask) override;
 			void UpdateRenderableScissorBox(std::size_t renderableIndex, const Recti& scissorBox) override;
@@ -136,9 +139,9 @@ namespace Nz
 			struct RenderableData
 			{
 				std::size_t skeletonInstanceIndex;
-				std::size_t worldInstanceIndex;
 				const InstancedRenderable* renderable;
 				Recti scissorBox;
+				UInt32 instanceIndex;
 				UInt32 renderMask = 0;
 				UInt8 generation;
 
@@ -179,13 +182,6 @@ namespace Nz
 				NazaraSlot(TransferInterface, OnTransferRequired, onTransferRequired);
 			};
 
-			struct WorldInstanceData
-			{
-				WorldInstancePtr worldInstance;
-
-				NazaraSlot(TransferInterface, OnTransferRequired, onTransferRequired);
-			};
-
 			std::optional<ShadowAtlasPipelinePass> m_shadowAtlasPipelinePass;
 			std::unordered_map<const RenderTarget*, RenderTargetData> m_renderTargets;
 			std::unordered_map<MaterialInstance*, MaterialInstanceData> m_materialInstances;
@@ -200,14 +196,16 @@ namespace Nz
 			ankerl::unordered_dense::set<TransferInterface*> m_transferSet;
 			BakedFrameGraph m_bakedFrameGraph;
 			Bitset<UInt64> m_activeLights;
+			Bitset<UInt64> m_freeInstanceIds;
 			Bitset<UInt64> m_removedLightInstances;
 			Bitset<UInt64> m_removedSkeletonInstances;
 			Bitset<UInt64> m_removedViewerInstances;
-			Bitset<UInt64> m_removedWorldInstances;
+			Bitset<UInt64> m_removedInstances;
 			Bitset<UInt64> m_shadowCastingLights;
 			Bitset<UInt64> m_visibleShadowCastingLights;
 			GpuDynamicArray m_directionalLights;
 			GpuDynamicArray m_directionalShadowAtlasEntries;
+			GpuDynamicArray m_instanceBuffer;
 			GpuDynamicArray m_pointLights;
 			GpuDynamicArray m_pointShadowAtlasEntries;
 			GpuDynamicArray m_spotLights;
@@ -217,7 +215,6 @@ namespace Nz
 			MemoryPool<LightData> m_lightPool;
 			MemoryPool<SkeletonInstanceData> m_skeletonInstances;
 			MemoryPool<ViewerData> m_viewerPool;
-			MemoryPool<WorldInstanceData> m_worldInstances;
 			mutable ShaderBindingCache m_shaderBindingCache;
 			UInt8 m_generationCounter;
 			bool m_rebuildFrameGraph;
