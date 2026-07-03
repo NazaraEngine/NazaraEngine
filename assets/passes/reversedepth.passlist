@@ -13,7 +13,7 @@ passlist "Forward Passlist"
     pass "ForwardPass"
     {
         impl "Forward"
-        output "Output" "ForwardOutput"
+        output "Output0" "ForwardOutput"
         {
             clearcolor "Viewer"
         }

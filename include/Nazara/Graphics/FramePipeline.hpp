@@ -12,7 +12,6 @@
 #include <Nazara/Graphics/FramePipelinePass.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>
 #include <Nazara/Graphics/SkeletonInstance.hpp>
-#include <Nazara/Graphics/WorldInstance.hpp>
 #include <NazaraUtils/FunctionRef.hpp>
 #include <memory>
 #include <vector>
@@ -45,6 +44,7 @@ namespace Nz
 			// TODO: Move to another class
 			virtual const std::shared_ptr<RenderBuffer>& GetDirectionalLightBuffer() const = 0;
 			virtual const std::shared_ptr<RenderBuffer>& GetDirectionalShadowMappingBuffer() const = 0;
+			virtual const std::shared_ptr<RenderBuffer>& GetInstanceBuffer() const = 0;
 			virtual const std::shared_ptr<RenderBuffer>& GetPointLightBuffer() const = 0;
 			virtual const std::shared_ptr<RenderBuffer>& GetPointShadowMappingBuffer() const = 0;
 			virtual ShaderBindingCache* GetShaderBindingCache() const = 0;
@@ -54,23 +54,25 @@ namespace Nz
 
 			virtual void QueueTransfer(TransferInterface* transfer) = 0;
 
+			virtual UInt32 RegisterInstance() = 0;
 			virtual std::size_t RegisterLight(const Light* light, UInt32 renderMask) = 0;
-			virtual std::size_t RegisterRenderable(std::size_t worldInstanceIndex, std::size_t skeletonInstanceIndex, const InstancedRenderable* instancedRenderable, UInt32 renderMask, const Recti& scissorBox) = 0;
+			virtual std::size_t RegisterRenderable(UInt32 instanceIndex, std::size_t skeletonInstanceIndex, const InstancedRenderable* instancedRenderable, UInt32 renderMask, const Recti& scissorBox) = 0;
 			virtual std::size_t RegisterSkeleton(SkeletonInstancePtr skeletonInstance) = 0;
 			virtual std::size_t RegisterViewer(PipelineViewer* viewerInstance, Int32 renderOrder) = 0;
-			virtual std::size_t RegisterWorldInstance(WorldInstancePtr worldInstance) = 0;
 
 			virtual const Light* RetrieveLight(std::size_t lightIndex) const = 0;
 			virtual const LightShadowData* RetrieveLightShadowData(std::size_t lightIndex) const = 0;
 
 			virtual void Render(RenderResources& renderResources) = 0;
 
+			virtual void UnregisterInstance(UInt32 worldInstance) = 0;
 			virtual void UnregisterLight(std::size_t lightIndex) = 0;
 			virtual void UnregisterRenderable(std::size_t renderableIndex) = 0;
 			virtual void UnregisterSkeleton(std::size_t skeletonIndex) = 0;
 			virtual void UnregisterViewer(std::size_t viewerIndex) = 0;
-			virtual void UnregisterWorldInstance(std::size_t worldInstance) = 0;
 
+			inline void UpdateInstanceData(UInt32 instanceIndex, const Matrix4f& worldMatrix);
+			virtual void UpdateInstanceData(UInt32 instanceIndex, const Matrix4f& worldMatrix, const Matrix4f& invWorldMatrix) = 0;
 			virtual void UpdateLightRenderMask(std::size_t lightIndex, UInt32 renderMask) = 0;
 			virtual void UpdateRenderableRenderMask(std::size_t renderableIndex, UInt32 renderMask) = 0;
 			virtual void UpdateRenderableScissorBox(std::size_t renderableIndex, const Recti& scissorBox) = 0;

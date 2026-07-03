@@ -60,6 +60,7 @@ namespace Nz
 			{
 				std::shared_ptr<RenderBuffer> directionalLights;
 				std::shared_ptr<RenderBuffer> directionalLightAtlasMapping;
+				std::shared_ptr<RenderBuffer> instanceBuffer;
 				std::shared_ptr<RenderBuffer> pointLights;
 				std::shared_ptr<RenderBuffer> pointLightAtlasMapping;
 				std::shared_ptr<RenderBuffer> spotLights;

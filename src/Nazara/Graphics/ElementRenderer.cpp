@@ -38,6 +38,13 @@ namespace Nz
 			bindingEntry.content = ShaderBinding::StorageBufferBinding::WholeBuffer(*sceneData.directionalLightAtlasMapping);
 		}
 
+		if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::InstanceBuffer); bindingIndex != Material::InvalidBindingIndex && sceneData.instanceBuffer)
+		{
+			auto& bindingEntry = bindings.emplace_back();
+			bindingEntry.bindingIndex = bindingIndex;
+			bindingEntry.content = ShaderBinding::StorageBufferBinding::WholeBuffer(*sceneData.instanceBuffer);
+		}
+
 		if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::PointLights); bindingIndex != Material::InvalidBindingIndex && sceneData.pointLights)
 		{
 			auto& bindingEntry = bindings.emplace_back();

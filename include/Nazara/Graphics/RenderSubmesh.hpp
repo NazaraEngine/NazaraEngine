@@ -12,7 +12,6 @@
 #include <Nazara/Graphics/RenderElement.hpp>
 #include <Nazara/Graphics/RenderQueueRegistry.hpp>
 #include <Nazara/Graphics/SkeletonInstance.hpp>
-#include <Nazara/Graphics/WorldInstance.hpp>
 #include <memory>
 #include <vector>
 
@@ -25,7 +24,7 @@ namespace Nz
 	class RenderSubmesh : public RenderElement
 	{
 		public:
-			inline RenderSubmesh(int renderLayer, std::shared_ptr<MaterialInstance> materialInstance, MaterialPassFlags materialFlags, std::shared_ptr<RenderPipeline> renderPipeline, const WorldInstance& worldInstance, const SkeletonInstance* skeletonInstance, std::size_t indexCount, IndexType indexType, std::shared_ptr<RenderBuffer> indexBuffer, std::shared_ptr<RenderBuffer> vertexBuffer, const Recti& scissorBox);
+			inline RenderSubmesh(int renderLayer, std::shared_ptr<MaterialInstance> materialInstance, MaterialPassFlags materialFlags, std::shared_ptr<RenderPipeline> renderPipeline, UInt32 instanceIndex, const SkeletonInstance* skeletonInstance, std::size_t indexCount, IndexType indexType, std::shared_ptr<RenderBuffer> indexBuffer, std::shared_ptr<RenderBuffer> vertexBuffer, const Recti& scissorBox);
 			~RenderSubmesh() = default;
 
 			inline UInt64 ComputeSortingScore(const Frustumf& frustum, const RenderQueueRegistry& registry) const override;
@@ -33,12 +32,12 @@ namespace Nz
 			inline const RenderBuffer* GetIndexBuffer() const;
 			inline std::size_t GetIndexCount() const;
 			inline IndexType GetIndexType() const;
+			inline UInt32 GetInstanceIndex() const;
 			inline const MaterialInstance& GetMaterialInstance() const;
 			inline const RenderPipeline* GetRenderPipeline() const;
 			inline const Recti& GetScissorBox() const;
 			inline const SkeletonInstance* GetSkeletonInstance() const;
 			inline const RenderBuffer* GetVertexBuffer() const;
-			inline const WorldInstance& GetWorldInstance() const;
 
 			inline void Register(RenderQueueRegistry& registry) const override;
 
@@ -51,10 +50,10 @@ namespace Nz
 			std::shared_ptr<RenderPipeline> m_renderPipeline;
 			std::size_t m_indexCount;
 			const SkeletonInstance* m_skeletonInstance;
-			const WorldInstance& m_worldInstance;
 			IndexType m_indexType;
 			MaterialPassFlags m_materialFlags;
 			Recti m_scissorBox;
+			UInt32 m_instanceIndex;
 			int m_renderLayer;
 	};
 }

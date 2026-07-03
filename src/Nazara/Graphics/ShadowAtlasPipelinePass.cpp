@@ -41,7 +41,7 @@ namespace Nz
 				InstancedRenderable::ElementData elementData{
 					&renderableData.scissorBox,
 					renderableData.skeletonInstance,
-					renderableData.worldInstance
+					renderableData.instanceIndex
 				};
 
 				renderableData.instancedRenderable->BuildElement(m_elementRegistry, elementData, m_passIndex, m_renderElements);
@@ -130,7 +130,6 @@ namespace Nz
 
 		pass.SetCommandCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
-			std::size_t shadowViewerIndex = 0;
 			m_pipeline.ForEachShadowCastingLight([&](std::size_t lightIndex, const Light* /*light*/, LightShadowData* shadowData)
 			{
 				LightData& lightData = m_lightData[lightIndex];
@@ -149,6 +148,7 @@ namespace Nz
 					ElementRenderer::SceneData sceneData;
 					sceneData.directionalLights = m_pipeline.GetDirectionalLightBuffer();
 					sceneData.directionalLightAtlasMapping = m_pipeline.GetDirectionalShadowMappingBuffer();
+					sceneData.instanceBuffer = m_pipeline.GetInstanceBuffer();
 					sceneData.pointLights = m_pipeline.GetPointLightBuffer();
 					sceneData.pointLightAtlasMapping = m_pipeline.GetPointShadowMappingBuffer();
 					sceneData.shadowAtlas = m_pipeline.GetShadowAtlasTexture();
@@ -192,13 +192,13 @@ namespace Nz
 			ElementRenderer::SceneData sceneData;
 			sceneData.directionalLights = m_pipeline.GetDirectionalLightBuffer();
 			sceneData.directionalLightAtlasMapping = m_pipeline.GetDirectionalShadowMappingBuffer();
+			sceneData.instanceBuffer = m_pipeline.GetInstanceBuffer();
 			sceneData.pointLights = m_pipeline.GetPointLightBuffer();
 			sceneData.pointLightAtlasMapping = m_pipeline.GetPointShadowMappingBuffer();
 			sceneData.shadowAtlas = m_pipeline.GetShadowAtlasTexture();
 			sceneData.spotLights = m_pipeline.GetSpotLightBuffer();
 			sceneData.spotLightAtlasMapping = m_pipeline.GetSpotShadowMappingBuffer();
 
-			std::size_t shadowViewerIndex = 0;
 			m_pipeline.ForEachShadowCastingLight([&](std::size_t lightIndex, const Light* /*light*/, LightShadowData* shadowData)
 			{
 				LightData& lightData = m_lightData[lightIndex];

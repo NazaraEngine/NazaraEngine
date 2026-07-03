@@ -72,6 +72,7 @@ namespace Nz
 
 		data.references->renderBuffers.insert(sceneData.directionalLightAtlasMapping);
 		data.references->renderBuffers.insert(sceneData.directionalLights);
+		data.references->renderBuffers.insert(sceneData.instanceBuffer);
 		data.references->renderBuffers.insert(sceneData.pointLightAtlasMapping);
 		data.references->renderBuffers.insert(sceneData.pointLights);
 		data.references->renderBuffers.insert(sceneData.spotLightAtlasMapping);
@@ -106,14 +107,6 @@ namespace Nz
 			{
 				m_pendingData.currentMaterialShaderBinding = nullptr;
 				m_pendingData.currentMaterialInstance = materialInstance;
-			}
-
-			if (const WorldInstance* worldInstance = &spriteChain.GetWorldInstance(); m_pendingData.currentWorldInstance != worldInstance)
-			{
-				// TODO: Flushing draw calls on instance binding means we can have e.g. 1000 sprites rendered using a draw call for each one
-				// which is far from being efficient, using some bindless could help (or at least instancing?)
-				m_pendingData.currentInstanceShaderBinding = nullptr;
-				m_pendingData.currentWorldInstance = worldInstance;
 			}
 
 			const Recti& scissorBox = spriteChain.GetScissorBox();
@@ -187,35 +180,18 @@ namespace Nz
 			}
 
 			if (!m_pendingData.currentMaterialShaderBinding)
-			{
 				m_pendingData.currentMaterialShaderBinding = &m_pendingData.currentMaterialInstance->UpdateOrGetShaderBinding(renderResources);
-				m_pendingData.currentInstanceShaderBinding = nullptr;
-			}
-
-			if (!m_pendingData.currentInstanceShaderBinding)
-			{
-				ShaderBindingPtr instanceBinding = m_pendingData.currentPipeline->GetPipelineInfo().pipelineLayout->AllocateShaderBinding(Material::InstanceBindingSet);
-
-				m_bindingCache.clear();
-				m_pendingData.currentWorldInstance->FillShaderBinding(material, *data.references, m_bindingCache);
-
-				instanceBinding->Update(m_bindingCache.data(), m_bindingCache.size());
-
-				m_pendingData.currentInstanceShaderBinding = instanceBinding.get();
-
-				data.shaderBindings.emplace_back(std::move(instanceBinding));
-			}
 
 			data.drawCalls.push_back(SpriteChainRendererData::DrawCall{
 				.vertexBuffer = m_pendingData.currentVertexBuffer,
 				.renderPipeline = m_pendingData.currentPipeline,
-				.instanceShaderBinding = m_pendingData.currentInstanceShaderBinding,
 				.materialShaderBinding = m_pendingData.currentMaterialShaderBinding,
 				.sceneShaderBinding = m_pendingData.currentSceneShaderBinding,
 				.viewerShaderBinding = m_pendingData.currentViewerShaderBinding,
 				.firstIndex = 6 * m_pendingData.firstQuadIndex,
 				.indexCount = 6 * spriteCount,
-				.scissorBox = m_pendingData.currentScissorBox
+				.scissorBox = m_pendingData.currentScissorBox,
+				.instanceIndex = spriteChain.GetInstanceIndex()
 			});
 
 			const UInt8* spriteData = static_cast<const UInt8*>(spriteChain.GetSpriteData());
@@ -255,7 +231,6 @@ namespace Nz
 
 		const RenderBuffer* currentVertexBuffer = nullptr;
 		const RenderPipeline* currentPipeline = nullptr;
-		const ShaderBinding* currentInstanceShaderBinding = nullptr;
 		const ShaderBinding* currentMaterialShaderBinding = nullptr;
 		const ShaderBinding* currentSceneShaderBinding = nullptr;
 		const ShaderBinding* currentViewerShaderBinding = nullptr;
@@ -303,15 +278,7 @@ namespace Nz
 			{
 				commandBuffer.BindRenderShaderBinding(Material::MaterialBindingSet, *drawData.materialShaderBinding);
 
-				currentInstanceShaderBinding = nullptr;
 				currentMaterialShaderBinding = drawData.materialShaderBinding;
-			}
-
-			if (currentInstanceShaderBinding != drawData.instanceShaderBinding)
-			{
-				commandBuffer.BindRenderShaderBinding(Material::InstanceBindingSet, *drawData.instanceShaderBinding);
-
-				currentInstanceShaderBinding = drawData.instanceShaderBinding;
 			}
 
 			const Recti& targetScissorBox = (drawData.scissorBox.width >= 0) ? drawData.scissorBox : renderData.renderRegion;
@@ -321,7 +288,7 @@ namespace Nz
 				currentScissorBox = targetScissorBox;
 			}
 
-			commandBuffer.DrawIndexed(SafeCaster(drawData.indexCount), 1U, SafeCaster(drawData.firstIndex));
+			commandBuffer.DrawIndexed(SafeCaster(drawData.indexCount), 1U, SafeCaster(drawData.firstIndex), 0, drawData.instanceIndex);
 		}
 	}
 

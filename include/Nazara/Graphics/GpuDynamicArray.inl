@@ -4,7 +4,7 @@
 
 namespace Nz
 {
-	inline UInt64 GpuDynamicArray::ComputeBufferSize(UInt32 entryCount)
+	inline UInt64 GpuDynamicArray::ComputeBufferSize(UInt32 entryCount) const
 	{
 		return m_headerSize + UInt64(entryCount) * m_entrySize;
 	}
@@ -19,9 +19,19 @@ namespace Nz
 		return m_capacity;
 	}
 
+	inline const UInt8* GpuDynamicArray::GetEntryData(UInt32 entryIndex) const
+	{
+		return m_memory.data() + ComputeBufferSize(entryIndex);
+	}
+
 	inline UInt32 GpuDynamicArray::GetEntrySize() const
 	{
 		return m_entrySize;
+	}
+
+	inline const UInt8* GpuDynamicArray::GetHeaderData() const
+	{
+		return m_memory.data();
 	}
 
 	inline UInt32 GpuDynamicArray::GetHeaderSize() const

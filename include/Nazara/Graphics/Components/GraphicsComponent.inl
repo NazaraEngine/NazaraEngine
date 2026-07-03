@@ -2,14 +2,12 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-
 namespace Nz
 {
 	inline GraphicsComponent::GraphicsComponent(bool initiallyVisible) :
 	m_scissorBox(-1, -1, -1, -1),
 	m_isVisible(initiallyVisible)
 	{
-		m_worldInstance = std::make_shared<WorldInstance>(); //< FIXME: Use pools
 	}
 
 	inline GraphicsComponent::GraphicsComponent(std::shared_ptr<InstancedRenderable> renderable, UInt32 renderMask, bool initiallyVisible) :
@@ -90,11 +88,6 @@ namespace Nz
 	inline const Recti& GraphicsComponent::GetScissorBox() const
 	{
 		return m_scissorBox;
-	}
-
-	inline const WorldInstancePtr& GraphicsComponent::GetWorldInstance() const
-	{
-		return m_worldInstance;
 	}
 
 	inline void GraphicsComponent::Hide()

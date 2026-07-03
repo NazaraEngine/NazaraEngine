@@ -1,6 +1,5 @@
 #include <Nazara/Core.hpp>
 #include <Nazara/Graphics.hpp>
-#include <Nazara/Graphics/IndirectFramePipeline.hpp>
 #include <Nazara/Platform/WindowingAppComponent.hpp>
 #include <Nazara/Physics3D.hpp>
 #include <Nazara/Renderer.hpp>

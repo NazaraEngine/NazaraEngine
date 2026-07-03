@@ -2,6 +2,8 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
+#if 0
+
 #include <Nazara/Graphics/IndirectFramePipeline.hpp>
 #include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
@@ -9,7 +11,6 @@
 #include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/PipelineViewer.hpp>
 #include <Nazara/Graphics/RenderTarget.hpp>
-#include <Nazara/Graphics/WorldInstance.hpp>
 #include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <NazaraUtils/MathUtils.hpp>
@@ -108,7 +109,7 @@ namespace Nz
 		};
 
 		m_visibleRenderables.clear();
-		for (const RenderableData& renderableData : m_renderablePool)
+		/*for (const RenderableData& renderableData : m_renderablePool)
 		{
 			if ((mask & renderableData.renderMask) == 0)
 				continue;
@@ -134,7 +135,7 @@ namespace Nz
 				visibleRenderable.skeletonInstance = nullptr;
 
 			visibilityHash = CombineHash(visibilityHash, std::hash<const void*>()(&renderableData) + renderableData.generation);
-		}
+		}*/
 
 		return m_visibleRenderables;
 	}
@@ -375,23 +376,6 @@ namespace Nz
 		return viewerIndex;
 	}
 
-	std::size_t IndirectFramePipeline::RegisterWorldInstance(WorldInstancePtr worldInstance)
-	{
-		std::size_t worldInstanceIndex;
-		WorldInstanceData& worldInstanceData = *m_worldInstances.Allocate(worldInstanceIndex);
-		worldInstanceData.worldInstance = std::move(worldInstance);
-		worldInstanceData.onTransferRequired.Connect(worldInstanceData.worldInstance->OnTransferRequired, [this](TransferInterface* transferInterface)
-		{
-			m_transferSet.insert(transferInterface);
-		});
-
-		m_maxWorldInstanceIndex = std::max(m_maxWorldInstanceIndex, worldInstanceIndex);
-
-		m_transferSet.insert(worldInstanceData.worldInstance.get());
-
-		return worldInstanceIndex;
-	}
-
 	const Light* IndirectFramePipeline::RetrieveLight(std::size_t lightIndex) const
 	{
 		return m_lightPool.RetrieveFromIndex(lightIndex)->light;
@@ -527,13 +511,13 @@ namespace Nz
 				if ((viewerData->renderMask & renderableData.renderMask) == 0)
 					continue;
 
-				const WorldInstancePtr& worldInstance = m_worldInstances.RetrieveFromIndex(renderableData.worldInstanceIndex)->worldInstance;
+				//const WorldInstancePtr& worldInstance = m_worldInstances.RetrieveFromIndex(renderableData.worldInstanceIndex)->worldInstance;
 
 				auto& visibleRenderable = m_visibleRenderables.emplace_back();
 				visibleRenderable.instancedRenderable = renderableData.renderable;
 				visibleRenderable.renderMask = renderableData.renderMask;
 				visibleRenderable.scissorBox = renderableData.scissorBox;
-				visibleRenderable.worldInstance = worldInstance.get();
+				//visibleRenderable.worldInstance = worldInstance.get();
 
 				if (renderableData.skeletonInstanceIndex != NoSkeletonInstance)
 					visibleRenderable.skeletonInstance = m_skeletonInstances.RetrieveFromIndex(renderableData.skeletonInstanceIndex)->skeleton.get();
@@ -987,3 +971,5 @@ namespace Nz
 		}
 	}
 }
+
+#endif

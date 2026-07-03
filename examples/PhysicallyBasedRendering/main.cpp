@@ -62,16 +62,15 @@ int main(int argc, char* argv[])
 	viewerInstance.UpdateProjViewMatrices(Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(windowSize.x) / windowSize.y, 0.1f, 1000.f), Nz::Matrix4f::Translate(Nz::Vector3f::Backward() * 1));
 	viewerInstance.UpdateNearFarPlanes(0.1f, 1000.f);
 
-	Nz::WorldInstancePtr modelInstance = std::make_shared<Nz::WorldInstance>();
-	modelInstance->UpdateWorldMatrix(Nz::Matrix4f::Translate(Nz::Vector3f::Forward() * 2 + Nz::Vector3f::Left()));
-
 	Nz::Recti scissorBox(Nz::Vector2i::Zero(), Nz::Vector2i(window.GetSize()));
 
 	Nz::ElementRendererRegistry elementRegistry;
 	Nz::DefaultFramePipeline framePipeline(elementRegistry);
 	[[maybe_unused]] std::size_t cameraIndex = framePipeline.RegisterViewer(&camera, 0);
-	std::size_t worldInstanceIndex1 = framePipeline.RegisterWorldInstance(modelInstance);
-	framePipeline.RegisterRenderable(worldInstanceIndex1, Nz::FramePipeline::NoSkeletonInstance, &model, 0xFFFFFFFF, scissorBox);
+	Nz::UInt32 instanceIndex = framePipeline.RegisterInstance();
+	framePipeline.RegisterRenderable(instanceIndex, Nz::FramePipeline::NoSkeletonInstance, &model, 0xFFFFFFFF, scissorBox);
+
+	framePipeline.UpdateInstanceData(instanceIndex, Nz::Matrix4f::Translate(Nz::Vector3f::Forward() * 2 + Nz::Vector3f::Left()));
 
 	std::unique_ptr<Nz::DirectionalLight> light = std::make_unique<Nz::DirectionalLight>();
 	light->UpdateRotation(Nz::EulerAnglesf(-45.f, 0.f, 0.f));

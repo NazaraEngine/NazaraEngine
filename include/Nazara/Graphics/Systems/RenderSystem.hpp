@@ -91,7 +91,7 @@ namespace Nz
 				std::array<std::size_t, GraphicsComponent::MaxRenderableCount> renderableIndices;
 				std::size_t poolIndex;
 				std::size_t skeletonInstanceIndex;
-				std::size_t worldInstanceIndex;
+				UInt32 instanceIndex;
 
 				NazaraSlot(GraphicsComponent, OnRenderableAttached, onRenderableAttached);
 				NazaraSlot(GraphicsComponent, OnRenderableDetach, onRenderableDetach);

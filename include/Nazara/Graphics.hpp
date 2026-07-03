@@ -56,7 +56,6 @@
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/GuillotineTextureAtlas.hpp>
 #include <Nazara/Graphics/ImGuiPipelinePass.hpp>
-#include <Nazara/Graphics/IndirectFramePipeline.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/LightingPipelinePass.hpp>
@@ -111,7 +110,6 @@
 #include <Nazara/Graphics/TransferInterface.hpp>
 #include <Nazara/Graphics/UberShader.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
-#include <Nazara/Graphics/WorldInstance.hpp>
 
 #ifdef NAZARA_ENTT
 

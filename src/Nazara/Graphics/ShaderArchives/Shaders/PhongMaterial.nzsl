@@ -1,7 +1,7 @@
 [nzsl_version("1.1")]
 module Material.Phong;
 
-import InstanceData from Engine.InstanceData;
+import InstanceBuffer from Engine.InstanceData;
 import SkeletalData from Engine.SkeletalData;
 import ViewerData from Engine.ViewerData;
 
@@ -95,6 +95,9 @@ external Scene
 	[tag("PointShadowAtlasMapping")] pointShadowAtlasMapping: storage[Shadow.PointShadowAtlasMapping, readonly],
 	[tag("SpotLights")] spotLights: storage[LightData.SpotLights, readonly],
 	[tag("SpotShadowAtlasMapping")] spotShadowAtlasMapping: storage[Shadow.SpotShadowAtlasMapping, readonly],
+
+	// TODO: Move to Material
+	[tag("InstanceBuffer")] instanceBuffer: storage[InstanceBuffer, readonly],
 }
 
 [tag("Viewer")]
@@ -115,14 +118,6 @@ external Material
 	[tag("HeightMap")] heightMap: sampler2D[f32],
 	[tag("NormalMap")] normalMap: sampler2D[f32],
 	[tag("SpecularMap")] specularMap: sampler2D[f32],
-}
-
-[tag("Instance")]
-[set(3), auto_binding]
-external Instance
-{
-	[tag("InstanceData")] instanceData: uniform[InstanceData],
-	[tag("SkeletalData")] skeletalData: uniform[SkeletalData],
 }
 
 struct VertOut
@@ -311,6 +306,9 @@ fn FragDepthNoAlpha() {} //< dummy
 [cond(!Billboard)]
 struct VertIn
 {
+	[builtin(instance_index)]
+	instanceIndex: i32,
+
 	[location(VertexPositionLoc)]
 	pos: vec3[f32],
 
@@ -336,7 +334,11 @@ struct VertIn
 [cond(Billboard)]
 struct BillboardVertIn
 {
-	[builtin(vertex_index)] vertIndex: i32,
+	[builtin(instance_index)]
+	instanceIndex: i32,
+
+	[builtin(vertex_index)]
+	vertIndex: i32,
 
 	[location(VertexSizeRotLocation)]
 	sizeRot: vec4[f32], //< width,height,sin,cos
@@ -372,7 +374,9 @@ fn VertBillboard(input: BillboardVertIn) -> VertOut
 	let cameraRight = vec3[f32](Viewer.viewerData.viewMatrix[0][0], Viewer.viewerData.viewMatrix[1][0], Viewer.viewerData.viewMatrix[2][0]);
 	let cameraUp = vec3[f32](Viewer.viewerData.viewMatrix[0][1], Viewer.viewerData.viewMatrix[1][1], Viewer.viewerData.viewMatrix[2][1]);
 
-	let worldPosition = vec3[f32](Instance.instanceData.worldMatrix[3].xyz);
+	let instanceData = Scene.instanceBuffer.instances[input.instanceIndex];
+
+	let worldPosition = vec3[f32](instanceData.worldMatrix[3].xyz);
 	worldPosition += cameraRight * rotatedPosition.x;
 	worldPosition += cameraUp * rotatedPosition.y;
 
@@ -395,7 +399,7 @@ fn main(input: VertIn) -> VertOut
 	let pos: vec3[f32];
 	const if (HasNormal) let normal: vec3[f32];
 
-	const if (HasSkinning)
+	/*const if (HasSkinning)
 	{
 		let jointMatrices = array[mat4[f32]](
 			Instance.skeletalData.jointMatrices[input.jointIndices[0]],
@@ -416,7 +420,7 @@ fn main(input: VertIn) -> VertOut
 			pos = skinningOutput.position;
 		}
 	}
-	else
+	else*/
 	{
 		pos = input.pos;
 		const if (HasNormal)
@@ -430,13 +434,15 @@ fn main(input: VertIn) -> VertOut
 			pos -= normal * Material.settings.ShadowMapNormalOffset;
 	}
 
-	let worldPosition = Instance.instanceData.worldMatrix * vec4[f32](pos, 1.0);
+	let instanceData = Scene.instanceBuffer.instances[input.instanceIndex];
+
+	let worldPosition = instanceData.worldMatrix * vec4[f32](pos, 1.0);
 
 	let output: VertOut;
 	output.worldPos = worldPosition.xyz;
 	output.position = Viewer.viewerData.viewProjMatrix * worldPosition;
 
-	const if (HasNormal || HasNormalMapping) let rotationMatrix = transpose(mat3[f32](Instance.instanceData.invWorldMatrix));
+	const if (HasNormal || HasNormalMapping) let rotationMatrix = transpose(mat3[f32](instanceData.invWorldMatrix));
 
 	const if (HasColor)
 		output.color = input.color;

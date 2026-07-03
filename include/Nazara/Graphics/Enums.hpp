@@ -43,9 +43,9 @@ namespace Nz
 
 	enum class EngineShaderBinding
 	{
-		InstanceDataUbo,
 		DirectionalLights,
 		DirectionalShadowAtlasMapping,
+		InstanceBuffer,
 		PointLights,
 		PointShadowAtlasMapping,
 		SpotLights,

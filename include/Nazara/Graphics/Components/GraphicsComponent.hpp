@@ -9,7 +9,6 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
-#include <Nazara/Graphics/WorldInstance.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <entt/entt.hpp>
 #include <memory>
@@ -39,7 +38,6 @@ namespace Nz
 			inline const Renderable& GetRenderableEntry(std::size_t renderableIndex) const;
 			inline const std::array<Renderable, MaxRenderableCount>& GetRenderables() const;
 			inline const Recti& GetScissorBox() const;
-			inline const WorldInstancePtr& GetWorldInstance() const;
 
 			inline void Hide();
 
@@ -66,7 +64,6 @@ namespace Nz
 		private:
 			std::array<Renderable, MaxRenderableCount> m_renderables;
 			Recti m_scissorBox;
-			WorldInstancePtr m_worldInstance;
 			bool m_isVisible;
 	};
 }

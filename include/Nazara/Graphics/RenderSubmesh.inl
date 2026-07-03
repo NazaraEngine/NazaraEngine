@@ -1,3 +1,4 @@
+
 // Copyright (C) 2026 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
@@ -7,7 +8,7 @@
 
 namespace Nz
 {
-	inline RenderSubmesh::RenderSubmesh(int renderLayer, std::shared_ptr<MaterialInstance> materialInstance, MaterialPassFlags materialFlags, std::shared_ptr<RenderPipeline> renderPipeline, const WorldInstance& worldInstance, const SkeletonInstance* skeletonInstance, std::size_t indexCount, IndexType indexType, std::shared_ptr<RenderBuffer> indexBuffer, std::shared_ptr<RenderBuffer> vertexBuffer, const Recti& scissorBox) :
+	inline RenderSubmesh::RenderSubmesh(int renderLayer, std::shared_ptr<MaterialInstance> materialInstance, MaterialPassFlags materialFlags, std::shared_ptr<RenderPipeline> renderPipeline, UInt32 instanceIndex, const SkeletonInstance* skeletonInstance, std::size_t indexCount, IndexType indexType, std::shared_ptr<RenderBuffer> indexBuffer, std::shared_ptr<RenderBuffer> vertexBuffer, const Recti& scissorBox) :
 	RenderElement(BasicRenderElement::Submesh),
 	m_indexBuffer(std::move(indexBuffer)),
 	m_vertexBuffer(std::move(vertexBuffer)),
@@ -15,10 +16,10 @@ namespace Nz
 	m_renderPipeline(std::move(renderPipeline)),
 	m_indexCount(indexCount),
 	m_skeletonInstance(skeletonInstance),
-	m_worldInstance(worldInstance),
 	m_indexType(indexType),
 	m_materialFlags(materialFlags),
 	m_scissorBox(scissorBox),
+	m_instanceIndex(instanceIndex),
 	m_renderLayer(renderLayer)
 	{
 	}
@@ -31,8 +32,9 @@ namespace Nz
 		{
 			UInt64 matFlags = 1;
 
-			float distanceNear = frustum.GetPlane(FrustumPlane::Near).SignedDistance(m_worldInstance.GetWorldMatrix().GetTranslation());
-			UInt64 distance = DistanceAsSortKey(distanceNear);
+			//float distanceNear = frustum.GetPlane(FrustumPlane::Near).SignedDistance(m_worldInstance.GetWorldMatrix().GetTranslation());
+			//UInt64 distance = DistanceAsSortKey(distanceNear);
+			UInt64 distance = 0;
 
 			// Transparent RQ index:
 			// - Layer (8bits)
@@ -92,6 +94,11 @@ namespace Nz
 		return m_indexType;
 	}
 
+	inline UInt32 RenderSubmesh::GetInstanceIndex() const
+	{
+		return m_instanceIndex;
+	}
+
 	inline const MaterialInstance& RenderSubmesh::GetMaterialInstance() const
 	{
 		return *m_materialInstance;
@@ -115,11 +122,6 @@ namespace Nz
 	inline const RenderBuffer* RenderSubmesh::GetVertexBuffer() const
 	{
 		return m_vertexBuffer.get();
-	}
-
-	inline const WorldInstance& RenderSubmesh::GetWorldInstance() const
-	{
-		return m_worldInstance;
 	}
 
 	inline void RenderSubmesh::Register(RenderQueueRegistry& registry) const

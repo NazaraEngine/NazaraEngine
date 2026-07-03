@@ -7,7 +7,6 @@
 #include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/RenderSpriteChain.hpp>
 #include <Nazara/Graphics/TextureAsset.hpp>
-#include <Nazara/Graphics/WorldInstance.hpp>
 #include <Nazara/TextRenderer/AbstractTextDrawer.hpp>
 #include <Nazara/TextRenderer/Font.hpp>
 #include <NazaraUtils/CallOnExit.hpp>
@@ -50,7 +49,7 @@ namespace Nz
 				do
 				{
 					std::size_t spriteBatch = std::min<std::size_t>(spriteCount, RenderSpriteChain::MaxSpritePerChain);
-					elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer() + key.renderOrder, m_material, passFlags, renderPipeline, *elementData.worldInstance, vertexDeclaration, indices.textureAsset, spriteBatch, vertices, *elementData.scissorBox));
+					elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer() + key.renderOrder, m_material, passFlags, renderPipeline, elementData.instanceIndex, vertexDeclaration, indices.textureAsset, spriteBatch, vertices, *elementData.scissorBox));
 					vertices += 4 * spriteBatch;
 					spriteCount -= spriteBatch;
 				}

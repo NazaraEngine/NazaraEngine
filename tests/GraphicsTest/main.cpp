@@ -60,21 +60,18 @@ int main()
 	viewerInstance.UpdateProjViewMatrices(Nz::Matrix4f::Perspective(Nz::DegreeAnglef(70.f), float(windowSize.x) / windowSize.y, 0.1f, 1000.f), Nz::Matrix4f::Translate(Nz::Vector3f::Backward() * 1));
 	viewerInstance.UpdateNearFarPlanes(0.1f, 1000.f);
 
-	Nz::WorldInstancePtr modelInstance = std::make_shared<Nz::WorldInstance>();
-	modelInstance->UpdateWorldMatrix(Nz::Matrix4f::Translate(Nz::Vector3f::Forward() * 2 + Nz::Vector3f::Left()));
-
-	Nz::WorldInstancePtr modelInstance2 = std::make_shared<Nz::WorldInstance>();
-	modelInstance2->UpdateWorldMatrix(Nz::Matrix4f::Translate(Nz::Vector3f::Forward() * 2 + Nz::Vector3f::Right()));
-
 	Nz::Recti scissorBox(Nz::Vector2i::Zero(), Nz::Vector2i(window.GetSize()));
 
 	Nz::ElementRendererRegistry elementRegistry;
 	Nz::DefaultFramePipeline framePipeline(elementRegistry);
 	[[maybe_unused]] std::size_t cameraIndex = framePipeline.RegisterViewer(&camera, 0);
-	std::size_t worldInstanceIndex1 = framePipeline.RegisterWorldInstance(modelInstance);
-	std::size_t worldInstanceIndex2 = framePipeline.RegisterWorldInstance(modelInstance2);
+	Nz::UInt32 worldInstanceIndex1 = framePipeline.RegisterInstance();
+	Nz::UInt32 worldInstanceIndex2 = framePipeline.RegisterInstance();
 	framePipeline.RegisterRenderable(worldInstanceIndex1, Nz::FramePipeline::NoSkeletonInstance, spaceshipModel.get(), 0xFFFFFFFF, scissorBox);
 	framePipeline.RegisterRenderable(worldInstanceIndex2, Nz::FramePipeline::NoSkeletonInstance, spaceshipModel.get(), 0xFFFFFFFF, scissorBox);
+
+	framePipeline.UpdateInstanceData(worldInstanceIndex1, Nz::Matrix4f::Translate(Nz::Vector3f::Forward() * 2 + Nz::Vector3f::Left()));
+	framePipeline.UpdateInstanceData(worldInstanceIndex2, Nz::Matrix4f::Translate(Nz::Vector3f::Forward() * 2 + Nz::Vector3f::Right()));
 
 	std::unique_ptr<Nz::SpotLight> light = std::make_unique<Nz::SpotLight>();
 	light->UpdateInnerAngle(Nz::DegreeAnglef(15.f));
@@ -114,7 +111,7 @@ int main()
 				}
 				else if (event.key.virtualKey == Nz::Keyboard::VKey::Space)
 				{
-					modelInstance->UpdateWorldMatrix(Nz::Matrix4f::Translate(viewerPos));
+					framePipeline.UpdateInstanceData(worldInstanceIndex1, Nz::Matrix4f::Translate(viewerPos));
 				}
 
 				break;
@@ -192,13 +189,13 @@ int main()
 
 		debugDrawer->DrawLine(Nz::Vector3f::Zero(), Nz::Vector3f::Forward(), Nz::Color::Blue());
 
-		for (const Nz::WorldInstancePtr& worldInstance : { modelInstance, modelInstance2 })
+		/*for (const Nz::WorldInstancePtr& worldInstance : {modelInstance, modelInstance2})
 		{
 			Nz::Boxf aabb = spaceshipModel->GetAABB();
 			aabb.Transform(worldInstance->GetWorldMatrix());
 
 			debugDrawer->DrawBox(aabb, Nz::Color::Green());
-		}
+		}*/
 
 		viewerInstance.UpdateViewMatrix(Nz::Matrix4f::TransformInverse(viewerPos, camAngles));
 		viewerInstance.UpdateEyePosition(viewerPos);

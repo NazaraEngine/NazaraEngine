@@ -143,7 +143,7 @@ NAZARA_WARNING_CLANG_GCC_DISABLE("-Wmissing-field-initializers")
 	// PredefinedInstanceData
 	constexpr PredefinedInstanceData PredefinedInstanceData::Build()
 	{
-		PredefinedInstanceData instanceData = { nzsl::FieldOffsets(nzsl::StructLayout::Std140) };
+		PredefinedInstanceData instanceData = { nzsl::FieldOffsets(nzsl::StructLayout::Std430) };
 		instanceData.worldMatrixOffset = instanceData.fieldOffsets.AddMatrix(nzsl::StructFieldType::Float1, 4, 4, true);
 		instanceData.invWorldMatrixOffset = instanceData.fieldOffsets.AddMatrix(nzsl::StructFieldType::Float1, 4, 4, true);
 

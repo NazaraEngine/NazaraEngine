@@ -4,4 +4,11 @@
 
 namespace Nz
 {
+	inline void FramePipeline::UpdateInstanceData(UInt32 instanceIndex, const Matrix4f& worldMatrix)
+	{
+		Matrix4f inverseWorldMatrix;
+		worldMatrix.GetInverseTransform(&inverseWorldMatrix);
+
+		UpdateInstanceData(instanceIndex, worldMatrix, inverseWorldMatrix);
+	}
 }

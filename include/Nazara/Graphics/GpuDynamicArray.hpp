@@ -35,9 +35,13 @@ namespace Nz
 
 			inline const std::shared_ptr<RenderBuffer>& GetBuffer() const;
 			inline UInt32 GetCapacity() const;
+			inline const UInt8* GetEntryData(UInt32 entryIndex) const;
 			inline UInt32 GetEntrySize() const;
+			inline const UInt8* GetHeaderData() const;
 			inline UInt32 GetHeaderSize() const;
 			inline UInt32 GetSize() const;
+
+			void OnTransfer(RenderResources& renderResources, CommandBufferBuilder& builder) override;
 
 			UInt32 Push();
 
@@ -51,10 +55,9 @@ namespace Nz
 			NazaraSignal(OnBufferInvalidated, GpuDynamicArray* /*emitter*/);
 
 		private:
-			inline UInt64 ComputeBufferSize(UInt32 entryCount);
+			inline UInt64 ComputeBufferSize(UInt32 entryCount) const;
 			void GrowBuffer();
 			inline void ResetInvalidationRanges();
-			void OnTransfer(RenderResources& renderResources, CommandBufferBuilder& builder) override;
 
 			struct InvalidatedRange
 			{

@@ -8,7 +8,7 @@
 
 namespace Nz
 {
-	inline RenderSpriteChain::RenderSpriteChain(int renderLayer, std::shared_ptr<MaterialInstance> materialInstance, MaterialPassFlags materialFlags, std::shared_ptr<RenderPipeline> renderPipeline, const WorldInstance& worldInstance, std::shared_ptr<VertexDeclaration> vertexDeclaration, std::shared_ptr<TextureAsset> textureOverlay, std::size_t spriteCount, const void* spriteData, const Recti& scissorBox) :
+	inline RenderSpriteChain::RenderSpriteChain(int renderLayer, std::shared_ptr<MaterialInstance> materialInstance, MaterialPassFlags materialFlags, std::shared_ptr<RenderPipeline> renderPipeline, UInt32 instanceIndex, std::shared_ptr<VertexDeclaration> vertexDeclaration, std::shared_ptr<TextureAsset> textureOverlay, std::size_t spriteCount, const void* spriteData, const Recti& scissorBox) :
 	RenderElement(BasicRenderElement::SpriteChain),
 	m_materialInstance(std::move(materialInstance)),
 	m_renderPipeline(std::move(renderPipeline)),
@@ -16,9 +16,9 @@ namespace Nz
 	m_textureOverlay(std::move(textureOverlay)),
 	m_spriteCount(spriteCount),
 	m_spriteData(spriteData),
-	m_worldInstance(worldInstance),
 	m_materialFlags(materialFlags),
 	m_scissorBox(scissorBox),
+	m_instanceIndex(instanceIndex),
 	m_renderLayer(renderLayer)
 	{
 		NazaraAssert(spriteCount < MaxSpritePerChain);
@@ -32,8 +32,9 @@ namespace Nz
 		{
 			UInt64 matFlags = 1;
 
-			float distanceNear = frustum.GetPlane(FrustumPlane::Near).SignedDistance(m_worldInstance.GetWorldMatrix().GetTranslation());
-			UInt64 distance = DistanceAsSortKey(distanceNear);
+			//float distanceNear = frustum.GetPlane(FrustumPlane::Near).SignedDistance(m_worldInstance.GetWorldMatrix().GetTranslation());
+			//UInt64 distance = DistanceAsSortKey(distanceNear);
+			UInt64 distance = 0;
 
 			// Transparent RQ index:
 			// - Layer (8bits)
@@ -73,6 +74,11 @@ namespace Nz
 		}
 	}
 
+	inline UInt32 RenderSpriteChain::GetInstanceIndex() const
+	{
+		return m_instanceIndex;
+	}
+
 	inline const MaterialInstance& RenderSpriteChain::GetMaterialInstance() const
 	{
 		return *m_materialInstance;
@@ -106,11 +112,6 @@ namespace Nz
 	inline const VertexDeclaration* RenderSpriteChain::GetVertexDeclaration() const
 	{
 		return m_vertexDeclaration.get();
-	}
-
-	inline const WorldInstance& RenderSpriteChain::GetWorldInstance() const
-	{
-		return m_worldInstance;
 	}
 
 	inline void RenderSpriteChain::Register(RenderQueueRegistry& registry) const

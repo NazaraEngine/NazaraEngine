@@ -243,14 +243,24 @@ int main(int argc, char* argv[])
 
 	Nz::ViewerInstance& viewerInstance = viewer.GetViewerInstance();
 
-	Nz::WorldInstance modelInstance1;
-	modelInstance1.UpdateWorldMatrix(Nz::Matrix4f::Translate(Nz::Vector3f::Left() + Nz::Vector3f::Up()));
+	Nz::GpuDynamicArray instanceBuffer(*device, Nz::PredefinedInstanceOffsets.totalSize);
 
-	Nz::WorldInstance modelInstance2;
-	modelInstance2.UpdateWorldMatrix(Nz::Matrix4f::Translate(Nz::Vector3f::Right() + Nz::Vector3f::Up()));
+	auto SetInstanceWorldMatrix = [&](Nz::UInt32 instanceIndex, const Nz::Matrix4f& worldMatrix)
+	{
+		Nz::UInt8* ptr = instanceBuffer.AccessEntry(instanceIndex);
+		Nz::AccessByOffset<Nz::Matrix4f&>(ptr, Nz::PredefinedInstanceOffsets.worldMatrixOffset) = worldMatrix;
+		worldMatrix.GetInverseTransform(Nz::AccessByOffset<Nz::Matrix4f*>(ptr, Nz::PredefinedInstanceOffsets.invWorldMatrixOffset));
+	};
 
-	Nz::WorldInstance planeInstance;
+	Nz::UInt32 nextInstanceIndex = 0;
 
+	Nz::UInt32 modelInstance1 = nextInstanceIndex++;
+	Nz::UInt32 modelInstance2 = nextInstanceIndex++;
+	Nz::UInt32 planeInstance = nextInstanceIndex++;
+
+	SetInstanceWorldMatrix(modelInstance1, Nz::Matrix4f::Translate(Nz::Vector3f::Left() + Nz::Vector3f::Up()));
+	SetInstanceWorldMatrix(modelInstance2, Nz::Matrix4f::Translate(Nz::Vector3f::Right() + Nz::Vector3f::Up()));
+	SetInstanceWorldMatrix(planeInstance, Nz::Matrix4f::Identity());
 
 	Nz::RenderPipelineLayoutInfo lightingPipelineLayoutInfo;
 	lightingPipelineLayoutInfo.bindings.push_back({
@@ -637,8 +647,8 @@ int main(int argc, char* argv[])
 
 	Nz::Vector3f flarePosition = { 0.f, 6.f, 100.f };
 
-	Nz::WorldInstance flareInstance;
-	flareInstance.UpdateWorldMatrix(Nz::Matrix4f::Translate(flarePosition));
+	Nz::UInt32 flareInstance = nextInstanceIndex++;
+	SetInstanceWorldMatrix(flareInstance, Nz::Matrix4f::Translate(flarePosition));
 
 	Nz::SubmeshRenderer submeshRenderer;
 	std::unique_ptr<Nz::ElementRendererData> submeshRendererData = submeshRenderer.InstanciateData();
@@ -779,15 +789,15 @@ int main(int argc, char* argv[])
 			elements.clear();
 
 			Nz::InstancedRenderable::ElementData elementData;
+			elementData.instanceIndex = modelInstance1;
 			elementData.scissorBox = &env.renderRect;
 			elementData.skeletonInstance = nullptr;
-			elementData.worldInstance = &modelInstance1;
 			spaceshipModel.BuildElement(elementRegistry, elementData, forwardPassIndex, elements);
 
-			elementData.worldInstance = &modelInstance2;
+			elementData.instanceIndex = modelInstance2;
 			spaceshipModel.BuildElement(elementRegistry, elementData, forwardPassIndex, elements);
 
-			elementData.worldInstance = &planeInstance;
+			elementData.instanceIndex = planeInstance;
 			planeModel.BuildElement(elementRegistry, elementData, forwardPassIndex, elements);
 
 			Nz::ElementRenderer::RenderData renderData;
@@ -798,7 +808,7 @@ int main(int argc, char* argv[])
 			for (const auto& elementOwner : elements)
 				elementPointers.emplace_back(elementOwner.GetElement());
 
-			submeshRenderer.Prepare(renderData, {}, viewer, *submeshRendererData, *currentFrame, elementPointers.size(), elementPointers.data());
+			submeshRenderer.Prepare(renderData, { .instanceBuffer = instanceBuffer.GetBuffer() }, viewer, *submeshRendererData, *currentFrame, elementPointers.size(), elementPointers.data());
 			submeshRenderer.PrepareEnd(*spriteRendererData, *currentFrame, builder);
 		});
 
@@ -810,7 +820,7 @@ int main(int argc, char* argv[])
 			renderData.renderRegion = env.renderRect;
 			renderData.shaderBindingCache = &shaderBindingCache;
 
-			submeshRenderer.Render(renderData, {}, viewer, *submeshRendererData, *currentFrame, builder, elementPointers.size(), elementPointers.data());
+			submeshRenderer.Render(renderData, { .instanceBuffer = instanceBuffer.GetBuffer() }, viewer, *submeshRendererData, *currentFrame, builder, elementPointers.size(), elementPointers.data());
 			submeshRenderer.Reset(*submeshRendererData, *currentFrame);
 		});
 
@@ -855,9 +865,9 @@ int main(int argc, char* argv[])
 		forwardPass.SetCommandCallback([&](Nz::CommandBufferBuilder& builder, const Nz::FramePassEnvironment& env)
 		{
 			Nz::InstancedRenderable::ElementData elementData;
+			elementData.instanceIndex = flareInstance;
 			elementData.scissorBox = &env.renderRect;
 			elementData.skeletonInstance = nullptr;
-			elementData.worldInstance = &flareInstance;
 
 			std::vector<Nz::RenderElementOwner> elements;
 			flareSprite.BuildElement(elementRegistry, elementData, forwardPassIndex, elements);
@@ -870,7 +880,7 @@ int main(int argc, char* argv[])
 			Nz::ElementRenderer::RenderData renderData;
 			renderData.shaderBindingCache = &shaderBindingCache;
 
-			spritechainRenderer.Prepare(renderData, {}, viewer, *spriteRendererData, *currentFrame, elementPointers.size(), elementPointers.data());
+			spritechainRenderer.Prepare(renderData, { .instanceBuffer = instanceBuffer.GetBuffer() }, viewer, *spriteRendererData, *currentFrame, elementPointers.size(), elementPointers.data());
 			spritechainRenderer.PrepareEnd(*spriteRendererData, *currentFrame, builder);
 		});
 
@@ -891,7 +901,7 @@ int main(int argc, char* argv[])
 			renderData.renderRegion = env.renderRect;
 			renderData.shaderBindingCache = &shaderBindingCache;
 
-			spritechainRenderer.Render(renderData, {}, viewer, *spriteRendererData, *currentFrame, builder, elementPointers.size(), elementPointers.data());
+			spritechainRenderer.Render(renderData, { .instanceBuffer = instanceBuffer.GetBuffer() }, viewer, *spriteRendererData, *currentFrame, builder, elementPointers.size(), elementPointers.data());
 			spritechainRenderer.Reset(*spriteRendererData, *currentFrame);
 		});
 		forwardPass.SetExecutionCallback([&]
@@ -911,7 +921,7 @@ int main(int argc, char* argv[])
 			Nz::InstancedRenderable::ElementData elementData;
 			elementData.scissorBox = &env.renderRect;
 			elementData.skeletonInstance = nullptr;
-			elementData.worldInstance = &flareInstance;
+			elementData.instanceIndex = flareInstance;
 
 			std::vector<Nz::RenderElementOwner> elements;
 			flareSprite.BuildElement(elementRegistry, elementData, forwardPassIndex, elements);
@@ -927,7 +937,7 @@ int main(int argc, char* argv[])
 			renderData.renderRegion = env.renderRect;
 			renderData.shaderBindingCache = &shaderBindingCache;
 
-			spritechainRenderer.Prepare(renderData, {}, viewer, * spriteRendererData, * currentFrame, elementPointers.size(), elementPointers.data());
+			spritechainRenderer.Prepare(renderData, { .instanceBuffer = instanceBuffer.GetBuffer() }, viewer, * spriteRendererData, * currentFrame, elementPointers.size(), elementPointers.data());
 			spritechainRenderer.PrepareEnd(*spriteRendererData, *currentFrame, builder);
 		});
 
@@ -938,7 +948,7 @@ int main(int argc, char* argv[])
 			Nz::InstancedRenderable::ElementData elementData;
 			elementData.scissorBox = &env.renderRect;
 			elementData.skeletonInstance = nullptr;
-			elementData.worldInstance = &flareInstance;
+			elementData.instanceIndex = flareInstance;
 
 			std::vector<Nz::RenderElementOwner> elements;
 			flareSprite.BuildElement(elementRegistry, elementData, forwardPassIndex, elements);
@@ -954,7 +964,7 @@ int main(int argc, char* argv[])
 			for (const auto& element : elements)
 				elementPointers.emplace_back(element.GetElement());
 
-			spritechainRenderer.Render(renderData, {}, viewer, *spriteRendererData, *currentFrame, builder, elementPointers.size(), elementPointers.data());
+			spritechainRenderer.Render(renderData, { .instanceBuffer = instanceBuffer.GetBuffer() }, viewer, *spriteRendererData, *currentFrame, builder, elementPointers.size(), elementPointers.data());
 			spritechainRenderer.Reset(*spriteRendererData, *currentFrame);
 		});
 
@@ -1171,7 +1181,7 @@ int main(int argc, char* argv[])
 				else if (event.key.virtualKey == Nz::Keyboard::VKey::B)
 					bloomEnabled = !bloomEnabled;
 				else if (event.key.virtualKey == Nz::Keyboard::VKey::E)
-					modelInstance1.UpdateWorldMatrix(Nz::Matrix4f::Transform(viewerPos, camQuat));
+					SetInstanceWorldMatrix(modelInstance1, Nz::Matrix4f::Transform(viewerPos, camQuat));
 
 				break;
 			}
@@ -1492,15 +1502,12 @@ int main(int argc, char* argv[])
 			{
 				builder.MemoryBarrier({ .srcStageMask = Nz::PipelineStage::BottomOfPipe, .dstStageMask = Nz::PipelineStage::Transfer, .srcAccessMask = {}, .dstAccessMask = Nz::MemoryAccess::TransferRead | Nz::MemoryAccess::TransferWrite });
 
-				modelInstance1.OnTransfer(frame, builder);
-				modelInstance2.OnTransfer(frame, builder);
-				planeInstance.OnTransfer(frame, builder);
-
 				float elapsedSeconds = elapsedTime.AsSeconds();
 
 				Nz::EulerAnglesf flareRotation(0.f, 0.f, elapsedSeconds * 10.f);
-				flareInstance.UpdateWorldMatrix(Nz::Matrix4f::Transform(viewerPos + flarePosition, flareRotation));
-				flareInstance.OnTransfer(frame, builder);
+				SetInstanceWorldMatrix(flareInstance, Nz::Matrix4f::Transform(viewerPos + flarePosition, flareRotation));
+
+				instanceBuffer.OnTransfer(frame, builder);
 
 				viewerInstance.OnTransfer(frame, builder);
 
@@ -1537,7 +1544,7 @@ int main(int argc, char* argv[])
 
 				// Update light scattering buffer
 				{
-					Nz::Vector4f pos(flareInstance.GetWorldMatrix().GetTranslation(), 1.f);
+					Nz::Vector4f pos(viewerPos + flarePosition, 1.f);
 					pos = viewerInstance.GetViewMatrix() * pos;
 					pos = viewerInstance.GetProjectionMatrix() * pos;
 					pos /= pos.w;

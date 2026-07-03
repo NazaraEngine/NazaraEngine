@@ -51,6 +51,38 @@ namespace Nz
 		return m_memory.data();
 	}
 
+	void GpuDynamicArray::OnTransfer(RenderResources& renderResources, CommandBufferBuilder& builder)
+	{
+		NazaraAssert(m_invalidatedRange.start <= m_invalidatedRange.end);
+		UInt64 size = m_invalidatedRange.end - m_invalidatedRange.start;
+		if (size == 0)
+			return;
+
+		const RenderDeviceInfo& deviceInfo = m_renderDevice.GetDeviceInfo();
+
+		// Ensure alignment is respected
+		UInt64 offsetAlignment = 1;
+		if (m_bufferUsageFlags & BufferUsage::StorageBuffer)
+			offsetAlignment = AlignPow2(offsetAlignment, deviceInfo.limits.minStorageBufferOffsetAlignment);
+
+		if (m_bufferUsageFlags & BufferUsage::UniformBuffer)
+			offsetAlignment = AlignPow2(offsetAlignment, deviceInfo.limits.minUniformBufferOffsetAlignment);
+
+		if (m_invalidatedRange.start > offsetAlignment)
+			m_invalidatedRange.start = AlignPow2(m_invalidatedRange.start - offsetAlignment + 1, offsetAlignment);
+		else if (m_invalidatedRange.start < offsetAlignment)
+			m_invalidatedRange.start = 0;
+
+		size = m_invalidatedRange.end - m_invalidatedRange.start;
+
+		UploadPool::Allocation& allocation = renderResources.GetUploadPool().Allocate(size);
+		std::memcpy(allocation.mappedPtr, &m_memory[m_invalidatedRange.start], size);
+
+		builder.CopyBuffer(allocation, RenderBufferView(m_gpuBuffer.get(), m_invalidatedRange.start, m_invalidatedRange.end));
+
+		ResetInvalidationRanges();
+	}
+
 	UInt32 GpuDynamicArray::Push()
 	{
 		if (m_size == m_capacity)
@@ -92,37 +124,5 @@ namespace Nz
 
 		OnBufferInvalidated(this);
 		OnTransferRequired(this);
-	}
-
-	void GpuDynamicArray::OnTransfer(RenderResources& renderResources, CommandBufferBuilder& builder)
-	{
-		NazaraAssert(m_invalidatedRange.start <= m_invalidatedRange.end);
-		UInt64 size = m_invalidatedRange.end - m_invalidatedRange.start;
-		if (size == 0)
-			return;
-
-		const RenderDeviceInfo& deviceInfo = m_renderDevice.GetDeviceInfo();
-
-		// Ensure alignment is respected
-		UInt64 offsetAlignment = 1;
-		if (m_bufferUsageFlags & BufferUsage::StorageBuffer)
-			offsetAlignment = AlignPow2(offsetAlignment, deviceInfo.limits.minStorageBufferOffsetAlignment);
-
-		if (m_bufferUsageFlags & BufferUsage::UniformBuffer)
-			offsetAlignment = AlignPow2(offsetAlignment, deviceInfo.limits.minUniformBufferOffsetAlignment);
-
-		if (m_invalidatedRange.start > offsetAlignment)
-			m_invalidatedRange.start = AlignPow2(m_invalidatedRange.start - offsetAlignment + 1, offsetAlignment);
-		else if (m_invalidatedRange.start < offsetAlignment)
-			m_invalidatedRange.start = 0;
-
-		size = m_invalidatedRange.end - m_invalidatedRange.start;
-
-		UploadPool::Allocation& allocation = renderResources.GetUploadPool().Allocate(size);
-		std::memcpy(allocation.mappedPtr, &m_memory[m_invalidatedRange.start], size);
-
-		builder.CopyBuffer(allocation, RenderBufferView(m_gpuBuffer.get(), m_invalidatedRange.start, m_invalidatedRange.end));
-
-		ResetInvalidationRanges();
 	}
 }
