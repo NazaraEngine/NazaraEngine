@@ -89,7 +89,7 @@ namespace Nz
 				UInt8* currentAllocationMemPtr = nullptr;
 				const VertexDeclaration* currentVertexDeclaration = nullptr;
 				RenderBuffer* currentVertexBuffer = nullptr;
-				const MaterialInstance* currentMaterialInstance = nullptr;
+				const MaterialProxy* currentMaterialProxy = nullptr;
 				const RenderPipeline* currentPipeline = nullptr;
 				const ShaderBinding* currentMaterialShaderBinding = nullptr;
 				const ShaderBinding* currentSceneShaderBinding = nullptr;

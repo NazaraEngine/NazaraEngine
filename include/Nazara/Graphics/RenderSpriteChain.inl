@@ -8,12 +8,11 @@
 
 namespace Nz
 {
-	inline RenderSpriteChain::RenderSpriteChain(int renderLayer, std::shared_ptr<MaterialInstance> materialInstance, MaterialPassFlags materialFlags, std::shared_ptr<RenderPipeline> renderPipeline, UInt32 instanceIndex, std::shared_ptr<VertexDeclaration> vertexDeclaration, std::shared_ptr<TextureAsset> textureOverlay, std::size_t spriteCount, const void* spriteData, const Recti& scissorBox) :
+	inline RenderSpriteChain::RenderSpriteChain(int renderLayer, std::shared_ptr<MaterialProxy> materialProxy, MaterialPassFlags materialFlags, std::shared_ptr<RenderPipeline> renderPipeline, UInt32 instanceIndex, std::shared_ptr<VertexDeclaration> vertexDeclaration, std::size_t spriteCount, const void* spriteData, const Recti& scissorBox) :
 	RenderElement(BasicRenderElement::SpriteChain),
-	m_materialInstance(std::move(materialInstance)),
+	m_materialProxy(std::move(materialProxy)),
 	m_renderPipeline(std::move(renderPipeline)),
 	m_vertexDeclaration(std::move(vertexDeclaration)),
-	m_textureOverlay(std::move(textureOverlay)),
 	m_spriteCount(spriteCount),
 	m_spriteData(spriteData),
 	m_materialFlags(materialFlags),
@@ -50,7 +49,7 @@ namespace Nz
 		else
 		{
 			UInt64 elementType = GetElementType();
-			UInt64 materialInstanceIndex = registry.FetchMaterialInstanceIndex(m_materialInstance.get());
+			UInt64 materialProxyIndex = registry.FetchMaterialProxyIndex(m_materialProxy.get());
 			UInt64 pipelineIndex = registry.FetchPipelineIndex(m_renderPipeline.get());
 			UInt64 vertexDeclarationIndex = registry.FetchVertexDeclaration(m_vertexDeclaration.get());
 
@@ -69,7 +68,7 @@ namespace Nz
 			       (matFlags)                       << 55 |
 			       (elementType & 0xF)              << 51 |
 			       (pipelineIndex & 0xFFFF)         << 35 |
-			       (materialInstanceIndex & 0xFFFF) << 19 |
+			       (materialProxyIndex & 0xFFFF) << 19 |
 			       (vertexDeclarationIndex & 0xFF)  << 11;
 		}
 	}
@@ -79,9 +78,9 @@ namespace Nz
 		return m_instanceIndex;
 	}
 
-	inline const MaterialInstance& RenderSpriteChain::GetMaterialInstance() const
+	inline const MaterialProxy& RenderSpriteChain::GetMaterialProxy() const
 	{
-		return *m_materialInstance;
+		return *m_materialProxy;
 	}
 
 	inline const RenderPipeline& RenderSpriteChain::GetRenderPipeline() const
@@ -104,11 +103,6 @@ namespace Nz
 		return m_spriteData;
 	}
 
-	inline const TextureAsset* RenderSpriteChain::GetTextureOverlay() const
-	{
-		return m_textureOverlay.get();
-	}
-
 	inline const VertexDeclaration* RenderSpriteChain::GetVertexDeclaration() const
 	{
 		return m_vertexDeclaration.get();
@@ -117,7 +111,7 @@ namespace Nz
 	inline void RenderSpriteChain::Register(RenderQueueRegistry& registry) const
 	{
 		registry.RegisterLayer(m_renderLayer);
-		registry.RegisterMaterialInstance(m_materialInstance.get());
+		registry.RegisterMaterialProxy(m_materialProxy.get());
 		registry.RegisterPipeline(m_renderPipeline.get());
 		registry.RegisterVertexDeclaration(m_vertexDeclaration.get());
 	}

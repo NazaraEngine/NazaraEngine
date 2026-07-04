@@ -2,16 +2,9 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-#include <cassert>
+#include <Nazara/Graphics/MaterialProxy.hpp>
 
 namespace Nz
 {
-	inline void TextSprite::Clear()
-	{
-		m_atlases.clear();
-		m_atlasTextures.clear();
-		m_renderInfos.clear();
-		m_vertices.clear();
-		OnElementInvalidated(this);
-	}
+	MaterialProxy::~MaterialProxy() = default;
 }

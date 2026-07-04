@@ -39,9 +39,7 @@ namespace Nz
 		};
 		const auto& renderPipeline = materialPipeline->GetRenderPipeline(&vertexBufferData, 1);
 
-		const auto& whiteTexture = Graphics::Instance()->GetDefaultTextures().whiteTextures[ImageType::E2D];
-
-		elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer(), m_material, passFlags, renderPipeline, elementData.instanceIndex, vertexDeclaration, whiteTexture, 1, m_vertices.data(), *elementData.scissorBox));
+		elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer(), m_material, passFlags, renderPipeline, elementData.instanceIndex, vertexDeclaration, 1, m_vertices.data(), *elementData.scissorBox));
 	}
 
 	const std::shared_ptr<MaterialInstance>& Sprite::GetMaterial(std::size_t i) const

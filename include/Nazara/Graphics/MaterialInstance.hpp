@@ -10,6 +10,7 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/Export.hpp>
+#include <Nazara/Graphics/MaterialProxy.hpp>
 #include <Nazara/Graphics/MaterialSettings.hpp>
 #include <Nazara/Graphics/TransferInterface.hpp>
 #include <Nazara/Renderer/RenderBufferView.hpp>
@@ -17,6 +18,7 @@
 #include <NazaraUtils/FunctionRef.hpp>
 #include <NZSL/Ast/ConstantValue.hpp>
 #include <memory>
+#include <span>
 #include <unordered_map>
 #include <vector>
 
@@ -32,6 +34,7 @@ namespace Nz
 	class Material;
 	class MaterialInstance;
 	class MaterialPipeline;
+	class SkeletonInstance;
 	class TextureAsset;
 	struct RenderResourceReferences;
 
@@ -40,7 +43,7 @@ namespace Nz
 	using MaterialInstanceManager = ResourceManager<MaterialInstance, MaterialInstanceParams>;
 	using MaterialInstanceSaver = ResourceSaver<MaterialInstance, MaterialInstanceParams>;
 
-	class NAZARA_GRAPHICS_API MaterialInstance : public Resource, public TransferInterface
+	class NAZARA_GRAPHICS_API MaterialInstance final : public MaterialProxy, public Resource, public TransferInterface
 	{
 		struct CopyToken {};
 
@@ -62,7 +65,11 @@ namespace Nz
 			void EnablePass(std::string_view passName, bool enable = true);
 			inline void EnablePass(std::size_t passIndex, bool enable = true);
 
-			void FillRenderResourceReferences(RenderResourceReferences& resourceReferences) const;
+			void FillMaterialBindings(FunctionRef<void(std::span<ShaderBinding::Binding> /*bindings*/)> callback) const;
+			void FillRenderResourceReferences(RenderResourceReferences& resourceReferences) const override;
+			void FillSceneBindings(const ElementRenderer::SceneData& sceneData, std::vector<ShaderBinding::Binding>& bindings) const override;
+			void FillSkeletonBindings(const SkeletonInstance& skeleton, std::vector<ShaderBinding::Binding>& bindings) const;
+			void FillViewerBindings(const AbstractViewer& viewer, std::vector<ShaderBinding::Binding>& bindings) const override;
 
 			inline std::size_t FindBufferProperty(std::string_view propertyName) const;
 			inline std::size_t FindTextureProperty(std::string_view propertyName) const;
@@ -75,6 +82,8 @@ namespace Nz
 			inline const std::shared_ptr<const Material>& GetParentMaterial() const;
 			inline MaterialPassFlags GetPassFlags(std::size_t passIndex) const;
 			const std::shared_ptr<MaterialPipeline>& GetPipeline(std::size_t passIndex) const;
+
+			const ShaderBinding& GetShaderBinding(RenderResources& renderResources) const;
 
 			inline const std::shared_ptr<TextureAsset>* GetTextureProperty(std::string_view propertyName) const;
 			inline const std::shared_ptr<TextureAsset>& GetTextureProperty(std::size_t textureIndex) const;
@@ -106,8 +115,6 @@ namespace Nz
 			inline void SetValueProperty(std::string_view propertyName, const MaterialSettings::Value& value);
 			void SetValueProperty(std::size_t valueIndex, const MaterialSettings::Value& value);
 
-			const ShaderBinding& UpdateOrGetShaderBinding(RenderResources& renderResources) const;
-
 			void UpdateOptionValue(UInt32 optionHash, const nzsl::Ast::ConstantSingleValue& value);
 
 			void UpdatePassFlags(std::string_view passName, MaterialPassFlags materialFlags);
@@ -138,6 +145,7 @@ namespace Nz
 			static std::shared_ptr<MaterialInstance> Instantiate(MaterialType materialType, MaterialInstancePresetFlags presetFlags = {});
 
 			NazaraSignal(OnMaterialInstancePipelineInvalidated, const MaterialInstance* /*matInstance*/, std::size_t /*passIndex*/);
+			NazaraSignal(OnMaterialInstanceShaderBindingInvalidated, const MaterialInstance* /*matInstance*/);
 
 		private:
 			inline void InvalidatePassPipeline(std::size_t passIndex);

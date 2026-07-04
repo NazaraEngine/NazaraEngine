@@ -35,6 +35,10 @@ namespace Nz
 		m_bufferOverride.resize(settings.GetBufferPropertyCount());
 		m_valueOverride.resize(settings.GetValuePropertyCount());
 
+		m_bindingSetHashes.resize(m_parent->GetBindingSetCount());
+		for (std::size_t i = 0; i < m_bindingSetHashes.size(); ++i)
+			m_bindingSetHashes[i] = m_parent->GetBindingSetHash(i);
+
 		const auto& passSettings = settings.GetPasses();
 		m_passes.resize(passSettings.size());
 		for (std::size_t i = 0; i < m_passes.size(); ++i)
@@ -83,6 +87,7 @@ namespace Nz
 	}
 
 	MaterialInstance::MaterialInstance(const MaterialInstance& material, CopyToken) :
+	MaterialProxy(material),
 	m_parent(material.m_parent),
 	m_optionValuesOverride(material.m_optionValuesOverride),
 	m_bufferOverride(material.m_bufferOverride),
@@ -151,6 +156,71 @@ namespace Nz
 		return EnablePass(passIndex, enable);
 	}
 
+	void MaterialInstance::FillMaterialBindings(FunctionRef<void(std::span<ShaderBinding::Binding> /*bindings*/)> callback) const
+	{
+		StackVector<ShaderBinding::Binding> bindings = NazaraStackVector(ShaderBinding::Binding, m_storageBufferBindings.size() + m_textureBinding.size() + m_uniformBuffers.size());
+
+		// Textures
+		const auto& defaultTextures = Graphics::Instance()->GetDefaultTextures();
+		const auto& renderDevice = Graphics::Instance()->GetRenderDevice();
+		auto& samplerCache = Graphics::Instance()->GetSamplerCache();
+
+		// Storage buffer
+		for (std::size_t i = 0; i < m_storageBufferBindings.size(); ++i)
+		{
+			const auto& storageSlot = m_parent->GetStorageBufferData(i);
+			const auto& storageInfo = m_storageBufferBindings[i];
+
+			bindings.push_back({
+				storageSlot.bindingIndex,
+				ShaderBinding::StorageBufferBinding {
+					storageInfo.renderBuffer.get(), storageInfo.offset, storageInfo.size
+				}
+			});
+		}
+
+		// Textures
+		for (std::size_t i = 0; i < m_textureBinding.size(); ++i)
+		{
+			const auto& textureSlot = m_parent->GetTextureData(i);
+			const auto& textureBinding = m_textureBinding[i];
+
+			const Texture* texture = nullptr;
+			if (textureBinding.texture)
+			{
+				if (const auto& textureObject = textureBinding.texture->GetOrCreateTexture(*renderDevice))
+					texture = textureObject.get();
+			}
+
+			if (!texture)
+				texture = defaultTextures.whiteTextures[textureSlot.imageType]->GetOrCreateTexture(*renderDevice).get();
+
+			const std::shared_ptr<TextureSampler>& sampler = (textureBinding.sampler) ? textureBinding.sampler : samplerCache.Get({});
+			bindings.push_back({
+				textureSlot.bindingIndex,
+				ShaderBinding::SampledTextureBinding {
+					texture, sampler.get()
+				}
+			});
+		}
+
+		// UBO
+		for (std::size_t i = 0; i < m_uniformBuffers.size(); ++i)
+		{
+			const auto& uboSlot = m_parent->GetUniformBlockData(i);
+			const auto& uboInfo = m_uniformBuffers[i];
+
+			bindings.push_back({
+				uboSlot.bindingIndex,
+				ShaderBinding::UniformBufferBinding {
+					uboInfo.bufferView.GetBuffer(), uboInfo.bufferView.GetOffset(), uboInfo.bufferView.GetSize()
+				}
+			});
+		}
+
+		callback(std::span(&bindings.front(), bindings.size()));
+	}
+
 	void MaterialInstance::FillRenderResourceReferences(RenderResourceReferences& resourceReferences) const
 	{
 		const auto& renderDevice = Graphics::Instance()->GetRenderDevice();
@@ -172,6 +242,21 @@ namespace Nz
 
 		for (const auto& uboInfo : m_uniformBuffers)
 			resourceReferences.renderBuffers.emplace(uboInfo.renderBuffer);
+	}
+
+	void MaterialInstance::FillSceneBindings(const ElementRenderer::SceneData& sceneData, std::vector<ShaderBinding::Binding>& bindings) const
+	{
+		m_parent->FillSceneBindings(sceneData, bindings);
+	}
+
+	void MaterialInstance::FillSkeletonBindings(const SkeletonInstance& skeleton, std::vector<ShaderBinding::Binding>& bindings) const
+	{
+		m_parent->FillSkeletonBindings(skeleton, bindings);
+	}
+
+	void MaterialInstance::FillViewerBindings(const AbstractViewer& viewer, std::vector<ShaderBinding::Binding>& bindings) const
+	{
+		m_parent->FillViewerBindings(viewer, bindings);
 	}
 
 	const std::shared_ptr<MaterialPipeline>& MaterialInstance::GetPipeline(std::size_t passIndex) const
@@ -219,6 +304,26 @@ namespace Nz
 		}
 
 		return m_passes[passIndex].pipeline;
+	}
+
+	const ShaderBinding& MaterialInstance::GetShaderBinding(RenderResources& renderResources) const
+	{
+		if (m_shaderBinding && !m_isShaderBindingInvalidated)
+			return *m_shaderBinding;
+
+		if (m_shaderBinding)
+			renderResources.PushForRelease(std::move(m_shaderBinding));
+
+		m_shaderBinding = m_parent->GetRenderPipelineLayout()->AllocateShaderBinding(Material::MaterialBindingSet);
+
+		FillMaterialBindings([&](std::span<ShaderBinding::Binding> bindings)
+		{
+			m_shaderBinding->Update(bindings.data(), bindings.size());
+		});
+
+		m_isShaderBindingInvalidated = false;
+
+		return *m_shaderBinding;
 	}
 
 	bool MaterialInstance::HasPass(std::string_view passName) const
@@ -303,82 +408,6 @@ namespace Nz
 			if (handler->NeedsUpdateOnValueUpdate(valueIndex))
 				handler->Update(*this);
 		}
-	}
-
-	const ShaderBinding& MaterialInstance::UpdateOrGetShaderBinding(RenderResources& renderResources) const
-	{
-		if (m_shaderBinding && !m_isShaderBindingInvalidated)
-			return *m_shaderBinding;
-
-		if (m_shaderBinding)
-			renderResources.PushForRelease(std::move(m_shaderBinding));
-
-		m_shaderBinding = m_parent->GetRenderPipelineLayout()->AllocateShaderBinding(Material::MaterialBindingSet);
-
-		StackVector<ShaderBinding::Binding> bindings = NazaraStackVector(ShaderBinding::Binding, m_storageBufferBindings.size() + m_textureBinding.size() + m_uniformBuffers.size());
-
-		// Textures
-		const auto& defaultTextures = Graphics::Instance()->GetDefaultTextures();
-		const auto& renderDevice = Graphics::Instance()->GetRenderDevice();
-		auto& samplerCache = Graphics::Instance()->GetSamplerCache();
-
-		// Storage buffer
-		for (std::size_t i = 0; i < m_storageBufferBindings.size(); ++i)
-		{
-			const auto& storageSlot = m_parent->GetStorageBufferData(i);
-			const auto& storageInfo = m_storageBufferBindings[i];
-
-			bindings.push_back({
-				storageSlot.bindingIndex,
-				ShaderBinding::StorageBufferBinding {
-					storageInfo.renderBuffer.get(), storageInfo.offset, storageInfo.size
-				}
-			});
-		}
-
-		// Textures
-		for (std::size_t i = 0; i < m_textureBinding.size(); ++i)
-		{
-			const auto& textureSlot = m_parent->GetTextureData(i);
-			const auto& textureBinding = m_textureBinding[i];
-
-			const Texture* texture = nullptr;
-			if (textureBinding.texture)
-			{
-				if (const auto& textureObject = textureBinding.texture->GetOrCreateTexture(*renderDevice))
-					texture = textureObject.get();
-			}
-
-			if (!texture)
-				texture = defaultTextures.whiteTextures[textureSlot.imageType]->GetOrCreateTexture(*renderDevice).get();
-
-			const std::shared_ptr<TextureSampler>& sampler = (textureBinding.sampler) ? textureBinding.sampler : samplerCache.Get({});
-			bindings.push_back({
-				textureSlot.bindingIndex,
-				ShaderBinding::SampledTextureBinding {
-					texture, sampler.get()
-				}
-			});
-		}
-
-		// UBO
-		for (std::size_t i = 0; i < m_uniformBuffers.size(); ++i)
-		{
-			const auto& uboSlot = m_parent->GetUniformBlockData(i);
-			const auto& uboInfo = m_uniformBuffers[i];
-
-			bindings.push_back({
-				uboSlot.bindingIndex,
-				ShaderBinding::UniformBufferBinding {
-					uboInfo.bufferView.GetBuffer(), uboInfo.bufferView.GetOffset(), uboInfo.bufferView.GetSize()
-				}
-			});
-		}
-
-		m_shaderBinding->Update(bindings.data(), bindings.size());
-		m_isShaderBindingInvalidated = false;
-
-		return *m_shaderBinding;
 	}
 
 	void MaterialInstance::UpdateOptionValue(UInt32 optionHash, const nzsl::Ast::ConstantSingleValue& value)

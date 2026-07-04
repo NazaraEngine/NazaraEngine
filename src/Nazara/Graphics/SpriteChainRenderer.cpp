@@ -5,7 +5,7 @@
 #include <Nazara/Graphics/SpriteChainRenderer.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
-#include <Nazara/Graphics/MaterialInstance.hpp>
+#include <Nazara/Graphics/MaterialProxy.hpp>
 #include <Nazara/Graphics/RenderSpriteChain.hpp>
 #include <Nazara/Graphics/ShaderBindingCache.hpp>
 #include <Nazara/Graphics/TextureAsset.hpp>
@@ -103,10 +103,11 @@ namespace Nz
 
 			m_pendingData.currentPipeline = &spriteChain.GetRenderPipeline();
 
-			if (const MaterialInstance* materialInstance = &spriteChain.GetMaterialInstance(); m_pendingData.currentMaterialInstance != materialInstance)
+			if (const MaterialProxy* materialProxy = &spriteChain.GetMaterialProxy(); m_pendingData.currentMaterialProxy != materialProxy)
 			{
+				m_pendingData.currentMaterialProxy = materialProxy;
+				m_pendingData.currentMaterialProxy->FillRenderResourceReferences(*data.references);
 				m_pendingData.currentMaterialShaderBinding = nullptr;
-				m_pendingData.currentMaterialInstance = materialInstance;
 			}
 
 			const Recti& scissorBox = spriteChain.GetScissorBox();
@@ -139,18 +140,16 @@ namespace Nz
 				data.vertexBuffers.emplace_back(std::move(vertexBuffer));
 			}
 
-			const Material& material = *m_pendingData.currentMaterialInstance->GetParentMaterial();
-
-			if (!m_pendingData.currentSceneShaderBinding || m_pendingData.sceneSetHash != material.GetBindingSetHash(Material::SceneBindingSet))
+			if (!m_pendingData.currentSceneShaderBinding || m_pendingData.sceneSetHash != m_pendingData.currentMaterialProxy->GetBindingSetHash(Material::SceneBindingSet))
 			{
-				m_pendingData.sceneSetHash = material.GetBindingSetHash(Material::SceneBindingSet);
+				m_pendingData.sceneSetHash = m_pendingData.currentMaterialProxy->GetBindingSetHash(Material::SceneBindingSet);
 
 				ShaderBinding* sceneBinding = renderData.shaderBindingCache->GetSceneBinding(m_pendingData.sceneSetHash, [&]
 				{
 					ShaderBindingPtr sceneBinding = m_pendingData.currentPipeline->GetPipelineInfo().pipelineLayout->AllocateShaderBinding(Material::SceneBindingSet);
 
 					m_bindingCache.clear();
-					FillSceneBindings(sceneData, material, m_bindingCache);
+					m_pendingData.currentMaterialProxy->FillSceneBindings(sceneData, m_bindingCache);
 					sceneBinding->Update(m_bindingCache.data(), m_bindingCache.size());
 
 					return sceneBinding;
@@ -160,16 +159,16 @@ namespace Nz
 				m_pendingData.currentViewerShaderBinding = nullptr;
 			}
 
-			if (!m_pendingData.currentViewerShaderBinding || m_pendingData.viewerSetHash != material.GetBindingSetHash(Material::ViewerBindingSet))
+			if (!m_pendingData.currentViewerShaderBinding || m_pendingData.viewerSetHash != m_pendingData.currentMaterialProxy->GetBindingSetHash(Material::ViewerBindingSet))
 			{
-				m_pendingData.viewerSetHash = material.GetBindingSetHash(Material::ViewerBindingSet);
+				m_pendingData.viewerSetHash = m_pendingData.currentMaterialProxy->GetBindingSetHash(Material::ViewerBindingSet);
 
 				ShaderBinding* viewerBinding = renderData.shaderBindingCache->GetViewerBinding(viewer.GetViewerInstance(), m_pendingData.viewerSetHash, [&]
 				{
 					ShaderBindingPtr viewerBinding = m_pendingData.currentPipeline->GetPipelineInfo().pipelineLayout->AllocateShaderBinding(Material::ViewerBindingSet);
 
 					m_bindingCache.clear();
-					viewer.GetViewerInstance().FillShaderBinding(material, *data.references, m_bindingCache);
+					m_pendingData.currentMaterialProxy->FillViewerBindings(viewer, m_bindingCache);
 					viewerBinding->Update(m_bindingCache.data(), m_bindingCache.size());
 
 					return viewerBinding;
@@ -180,7 +179,7 @@ namespace Nz
 			}
 
 			if (!m_pendingData.currentMaterialShaderBinding)
-				m_pendingData.currentMaterialShaderBinding = &m_pendingData.currentMaterialInstance->UpdateOrGetShaderBinding(renderResources);
+				m_pendingData.currentMaterialShaderBinding = &m_pendingData.currentMaterialProxy->GetShaderBinding(renderResources);
 
 			data.drawCalls.push_back(SpriteChainRendererData::DrawCall{
 				.vertexBuffer = m_pendingData.currentVertexBuffer,

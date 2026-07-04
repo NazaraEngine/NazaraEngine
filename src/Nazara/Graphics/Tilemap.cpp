@@ -55,8 +55,6 @@ namespace Nz
 			vertexDeclaration
 		};
 
-		const auto& whiteTexture = Graphics::Instance()->GetDefaultTextures().whiteTextures[ImageType::E2D];
-
 		const VertexStruct_XYZ_Color_UV* vertices = reinterpret_cast<const VertexStruct_XYZ_Color_UV*>(m_vertices.data());
 		for (std::size_t layerIndex = 0; layerIndex < m_layers.size(); ++layerIndex)
 		{
@@ -76,7 +74,7 @@ namespace Nz
 			do
 			{
 				std::size_t spriteBatch = std::min<std::size_t>(spriteCount, RenderSpriteChain::MaxSpritePerChain);
-				elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer(), layer.material, passFlags, renderPipeline, elementData.instanceIndex, vertexDeclaration, whiteTexture, spriteBatch, vertices, *elementData.scissorBox));
+				elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer(), layer.material, passFlags, renderPipeline, elementData.instanceIndex, vertexDeclaration, spriteBatch, vertices, *elementData.scissorBox));
 				vertices += 4 * spriteBatch;
 				spriteCount -= spriteBatch;
 			}

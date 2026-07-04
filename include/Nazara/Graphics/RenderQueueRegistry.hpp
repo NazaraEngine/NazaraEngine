@@ -13,7 +13,7 @@
 
 namespace Nz
 {
-	class MaterialInstance;
+	class MaterialProxy;
 	class RenderBuffer;
 	class RenderPipeline;
 	class Skeleton;
@@ -28,7 +28,7 @@ namespace Nz
 			inline void Clear();
 
 			inline std::size_t FetchLayerIndex(int renderLayer) const;
-			inline std::size_t FetchMaterialInstanceIndex(const MaterialInstance* materialInstance) const;
+			inline std::size_t FetchMaterialProxyIndex(const MaterialProxy* materialProxy) const;
 			inline std::size_t FetchPipelineIndex(const RenderPipeline* pipeline) const;
 			inline std::size_t FetchSkeletonIndex(const Skeleton* skeleton) const;
 			inline std::size_t FetchVertexBuffer(const RenderBuffer* vertexBuffer) const;
@@ -37,7 +37,7 @@ namespace Nz
 			inline void Finalize();
 
 			inline void RegisterLayer(int renderLayer);
-			inline void RegisterMaterialInstance(const MaterialInstance* materialInstance);
+			inline void RegisterMaterialProxy(const MaterialProxy* materialProxy);
 			inline void RegisterPipeline(const RenderPipeline* pipeline);
 			inline void RegisterSkeleton(const Skeleton* skeleton);
 			inline void RegisterVertexBuffer(const RenderBuffer* vertexBuffer);
@@ -46,7 +46,7 @@ namespace Nz
 		private:
 			std::set<int> m_renderLayers;
 			ankerl::unordered_dense::map<int, std::size_t> m_renderLayerRegistry;
-			ankerl::unordered_dense::map<const MaterialInstance*, std::size_t> m_materialPassRegistry;
+			ankerl::unordered_dense::map<const MaterialProxy*, std::size_t> m_materialPassRegistry;
 			ankerl::unordered_dense::map<const RenderPipeline*, std::size_t> m_pipelineRegistry;
 			ankerl::unordered_dense::map<const RenderBuffer*, std::size_t> m_vertexBufferRegistry;
 			ankerl::unordered_dense::map<const Skeleton*, std::size_t> m_skeletonRegistry;

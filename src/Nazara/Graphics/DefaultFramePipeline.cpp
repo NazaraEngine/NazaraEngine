@@ -184,7 +184,7 @@ namespace Nz
 	{
 		m_transferSet.insert(transfer);
 	}
-	
+
 	UInt32 DefaultFramePipeline::RegisterInstance()
 	{
 		constexpr std::size_t InstanceGrowRate = 1024;

@@ -20,6 +20,7 @@
 namespace Nz
 {
 	class AbstractTextDrawer;
+	class MaterialInstanceOverride;
 	class Texture;
 	class TextureAsset;
 
@@ -38,7 +39,7 @@ namespace Nz
 			const std::shared_ptr<MaterialInstance>& GetMaterial(std::size_t i = 0) const override;
 			std::size_t GetMaterialCount() const override;
 
-			inline void SetMaterial(std::shared_ptr<MaterialInstance> material);
+			void SetMaterial(std::shared_ptr<MaterialInstance> material);
 
 			void Update(const AbstractTextDrawer& drawer, float scale = 1.f);
 
@@ -55,6 +56,12 @@ namespace Nz
 				NazaraSlot(AbstractAtlas, OnAtlasCleared, clearSlot);
 				NazaraSlot(AbstractAtlas, OnAtlasLayerChange, layerChangeSlot);
 				NazaraSlot(AbstractAtlas, OnAtlasRelease, releaseSlot);
+			};
+
+			struct AtlasTexture
+			{
+				std::shared_ptr<MaterialInstanceOverride> materialProxy;
+				Texture* atlasTexture;
 			};
 
 			struct RenderKey
@@ -83,7 +90,7 @@ namespace Nz
 
 			struct RenderIndices
 			{
-				std::shared_ptr<TextureAsset> textureAsset;
+				std::size_t atlasIndex;
 				unsigned int first;
 				unsigned int count;
 			};
@@ -91,6 +98,7 @@ namespace Nz
 			mutable std::map<RenderKey, RenderIndices> m_renderInfos;
 			std::unordered_map<const AbstractAtlas*, AtlasSlots> m_atlases;
 			std::shared_ptr<MaterialInstance> m_material;
+			std::vector<AtlasTexture> m_atlasTextures;
 			std::vector<VertexStruct_XYZ_Color_UV> m_vertices;
 	};
 }

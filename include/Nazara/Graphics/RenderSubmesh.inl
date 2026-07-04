@@ -1,4 +1,3 @@
-
 // Copyright (C) 2026 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
@@ -8,11 +7,11 @@
 
 namespace Nz
 {
-	inline RenderSubmesh::RenderSubmesh(int renderLayer, std::shared_ptr<MaterialInstance> materialInstance, MaterialPassFlags materialFlags, std::shared_ptr<RenderPipeline> renderPipeline, UInt32 instanceIndex, const SkeletonInstance* skeletonInstance, std::size_t indexCount, IndexType indexType, std::shared_ptr<RenderBuffer> indexBuffer, std::shared_ptr<RenderBuffer> vertexBuffer, const Recti& scissorBox) :
+	inline RenderSubmesh::RenderSubmesh(int renderLayer, std::shared_ptr<MaterialProxy> materialProxy, MaterialPassFlags materialFlags, std::shared_ptr<RenderPipeline> renderPipeline, UInt32 instanceIndex, const SkeletonInstance* skeletonInstance, std::size_t indexCount, IndexType indexType, std::shared_ptr<RenderBuffer> indexBuffer, std::shared_ptr<RenderBuffer> vertexBuffer, const Recti& scissorBox) :
 	RenderElement(BasicRenderElement::Submesh),
 	m_indexBuffer(std::move(indexBuffer)),
 	m_vertexBuffer(std::move(vertexBuffer)),
-	m_materialInstance(std::move(materialInstance)),
+	m_materialProxy(std::move(materialProxy)),
 	m_renderPipeline(std::move(renderPipeline)),
 	m_indexCount(indexCount),
 	m_skeletonInstance(skeletonInstance),
@@ -49,7 +48,7 @@ namespace Nz
 		else
 		{
 			UInt64 elementType = GetElementType();
-			UInt64 materialInstanceIndex = registry.FetchMaterialInstanceIndex(m_materialInstance.get());
+			UInt64 materialProxyIndex = registry.FetchMaterialProxyIndex(m_materialProxy.get());
 			UInt64 pipelineIndex = registry.FetchPipelineIndex(m_renderPipeline.get());
 			UInt64 vertexBufferIndex = registry.FetchVertexBuffer(m_vertexBuffer.get());
 
@@ -73,7 +72,7 @@ namespace Nz
 			       (matFlags)                       << 55 |
 			       (elementType & 0xF)              << 51 |
 			       (pipelineIndex & 0xFFFF)         << 35 |
-			       (materialInstanceIndex & 0xFFFF) << 19 |
+			       (materialProxyIndex & 0xFFFF) << 19 |
 			       (vertexBufferIndex & 0xFF)       << 11 |
 			       (skeletonIndex     & 0xFF)       << 3;
 		}
@@ -99,9 +98,9 @@ namespace Nz
 		return m_instanceIndex;
 	}
 
-	inline const MaterialInstance& RenderSubmesh::GetMaterialInstance() const
+	inline const MaterialProxy& RenderSubmesh::GetMaterialProxy() const
 	{
-		return *m_materialInstance;
+		return *m_materialProxy;
 	}
 
 	inline const RenderPipeline* RenderSubmesh::GetRenderPipeline() const
@@ -127,7 +126,7 @@ namespace Nz
 	inline void RenderSubmesh::Register(RenderQueueRegistry& registry) const
 	{
 		registry.RegisterLayer(m_renderLayer);
-		registry.RegisterMaterialInstance(m_materialInstance.get());
+		registry.RegisterMaterialProxy(m_materialProxy.get());
 		registry.RegisterPipeline(m_renderPipeline.get());
 		registry.RegisterVertexBuffer(m_vertexBuffer.get());
 		if (m_skeletonInstance)

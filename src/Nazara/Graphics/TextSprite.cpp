@@ -4,7 +4,9 @@
 
 #include <Nazara/Graphics/TextSprite.hpp>
 #include <Nazara/Graphics/ElementRendererRegistry.hpp>
+#include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/MaterialInstance.hpp>
+#include <Nazara/Graphics/MaterialInstanceOverride.hpp>
 #include <Nazara/Graphics/RenderSpriteChain.hpp>
 #include <Nazara/Graphics/TextureAsset.hpp>
 #include <Nazara/TextRenderer/AbstractTextDrawer.hpp>
@@ -49,7 +51,7 @@ namespace Nz
 				do
 				{
 					std::size_t spriteBatch = std::min<std::size_t>(spriteCount, RenderSpriteChain::MaxSpritePerChain);
-					elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer() + key.renderOrder, m_material, passFlags, renderPipeline, elementData.instanceIndex, vertexDeclaration, indices.textureAsset, spriteBatch, vertices, *elementData.scissorBox));
+					elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer() + key.renderOrder, m_atlasTextures[indices.atlasIndex].materialProxy, passFlags, renderPipeline, elementData.instanceIndex, vertexDeclaration, spriteBatch, vertices, *elementData.scissorBox));
 					vertices += 4 * spriteBatch;
 					spriteCount -= spriteBatch;
 				}
@@ -69,6 +71,28 @@ namespace Nz
 	std::size_t TextSprite::GetMaterialCount() const
 	{
 		return 1;
+	}
+
+	void TextSprite::SetMaterial(std::shared_ptr<MaterialInstance> material)
+	{
+		assert(material);
+
+		if (m_material != material)
+		{
+			OnMaterialInvalidated(this, 0, material);
+			m_material = std::move(material);
+
+			for (AtlasTexture& atlasTexture : m_atlasTextures)
+			{
+				atlasTexture.materialProxy = std::make_shared<MaterialInstanceOverride>(m_material);
+
+				std::size_t atlasIndex = m_material->GetParentMaterial()->FindTextureByTag("TextAtlas");
+				if (atlasIndex != Material::InvalidIndex)
+					atlasTexture.materialProxy->OverrideTexture(atlasIndex, atlasTexture.atlasTexture->shared_from_this());
+			}
+
+			OnElementInvalidated(this);
+		}
 	}
 
 	void TextSprite::Update(const AbstractTextDrawer& drawer, float scale)
@@ -139,7 +163,17 @@ namespace Nz
 				if (it == m_renderInfos.end())
 				{
 					it = m_renderInfos.insert(std::make_pair(renderKey, RenderIndices{ 0U, 0U })).first;
-					it->second.textureAsset = TextureAsset::CreateFromTexture(texture->shared_from_this());
+
+					auto textureIt = std::find_if(m_atlasTextures.begin(), m_atlasTextures.end(), [&](const AtlasTexture& atlasTex) { return atlasTex.atlasTexture == texture; });
+					if (textureIt == m_atlasTextures.end())
+					{
+						auto& atlasTex = m_atlasTextures.emplace_back();
+						atlasTex.atlasTexture = texture;
+						atlasTex.materialProxy = std::make_shared<MaterialInstanceOverride>(m_material);
+						std::size_t atlasIndex = m_material->GetParentMaterial()->FindTextureByTag("TextAtlas");
+						if (atlasIndex != Material::InvalidIndex)
+							atlasTex.materialProxy->OverrideTexture(atlasIndex, texture->shared_from_this());
+					}
 				}
 
 				count = &it->second.count;
@@ -289,8 +323,17 @@ namespace Nz
 					m_vertices[i * 4 + j].uv *= scale;
 			}
 
-			indices.textureAsset = TextureAsset::CreateFromTexture(newTexture->shared_from_this());
 			newRenderInfos.emplace(RenderKey{ newTexture, renderKey.renderOrder }, indices);
+		}
+
+		for (AtlasTexture& atlasTexture : m_atlasTextures)
+		{
+			if (atlasTexture.atlasTexture == oldTexture)
+			{
+				std::size_t atlasIndex = m_material->GetParentMaterial()->FindTextureByTag("TextAtlas");
+				if (atlasIndex != Material::InvalidIndex)
+					atlasTexture.materialProxy->OverrideTexture(atlasIndex, newTexture->shared_from_this());
+			}
 		}
 
 		m_renderInfos = std::move(newRenderInfos);

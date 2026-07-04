@@ -34,8 +34,6 @@ namespace Nz
 			SkeletonInstance(SkeletonInstance&& skeletonInstance) noexcept;
 			~SkeletonInstance() = default;
 
-			virtual void FillShaderBinding(const Material& material, RenderResourceReferences& resourceReferences, std::vector<ShaderBinding::Binding>& bindings) const;
-
 			inline std::shared_ptr<RenderBuffer>& GetSkeletalBuffer();
 			inline const std::shared_ptr<RenderBuffer>& GetSkeletalBuffer() const;
 			inline const std::shared_ptr<const Skeleton>& GetSkeleton() const;

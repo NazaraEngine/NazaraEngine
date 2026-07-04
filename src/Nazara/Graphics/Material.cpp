@@ -4,9 +4,12 @@
 
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Core/Error.hpp>
+#include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
+#include <Nazara/Graphics/SkeletonInstance.hpp>
+#include <Nazara/Graphics/ViewerInstance.hpp>
 #include <NZSL/Ast/Cloner.hpp>
 #include <NZSL/Ast/TransformerExecutor.hpp>
 #include <NZSL/Ast/Transformations/BindingResolverTransformer.hpp>
@@ -264,6 +267,90 @@ namespace Nz
 		}
 
 		return instance;
+	}
+
+	void Material::FillSceneBindings(const ElementRenderer::SceneData& sceneData, std::vector<ShaderBinding::Binding>& bindings) const
+	{
+		if (UInt32 bindingIndex = GetEngineBindingIndex(EngineShaderBinding::DirectionalLights); bindingIndex != Material::InvalidBindingIndex && sceneData.directionalLights)
+		{
+			auto& bindingEntry = bindings.emplace_back();
+			bindingEntry.bindingIndex = bindingIndex;
+			bindingEntry.content = ShaderBinding::StorageBufferBinding::WholeBuffer(*sceneData.directionalLights);
+		}
+
+		if (UInt32 bindingIndex = GetEngineBindingIndex(EngineShaderBinding::DirectionalShadowAtlasMapping); bindingIndex != Material::InvalidBindingIndex && sceneData.directionalLightAtlasMapping)
+		{
+			auto& bindingEntry = bindings.emplace_back();
+			bindingEntry.bindingIndex = bindingIndex;
+			bindingEntry.content = ShaderBinding::StorageBufferBinding::WholeBuffer(*sceneData.directionalLightAtlasMapping);
+		}
+
+		if (UInt32 bindingIndex = GetEngineBindingIndex(EngineShaderBinding::InstanceBuffer); bindingIndex != Material::InvalidBindingIndex && sceneData.instanceBuffer)
+		{
+			auto& bindingEntry = bindings.emplace_back();
+			bindingEntry.bindingIndex = bindingIndex;
+			bindingEntry.content = ShaderBinding::StorageBufferBinding::WholeBuffer(*sceneData.instanceBuffer);
+		}
+
+		if (UInt32 bindingIndex = GetEngineBindingIndex(EngineShaderBinding::PointLights); bindingIndex != Material::InvalidBindingIndex && sceneData.pointLights)
+		{
+			auto& bindingEntry = bindings.emplace_back();
+			bindingEntry.bindingIndex = bindingIndex;
+			bindingEntry.content = ShaderBinding::StorageBufferBinding::WholeBuffer(*sceneData.pointLights);
+		}
+
+		if (UInt32 bindingIndex = GetEngineBindingIndex(EngineShaderBinding::PointShadowAtlasMapping); bindingIndex != Material::InvalidBindingIndex && sceneData.pointLightAtlasMapping)
+		{
+			auto& bindingEntry = bindings.emplace_back();
+			bindingEntry.bindingIndex = bindingIndex;
+			bindingEntry.content = ShaderBinding::StorageBufferBinding::WholeBuffer(*sceneData.pointLightAtlasMapping);
+		}
+
+		if (UInt32 bindingIndex = GetEngineBindingIndex(EngineShaderBinding::ShadowAtlas); bindingIndex != Material::InvalidBindingIndex && sceneData.shadowAtlas)
+		{
+			const auto& shadowSampler = Graphics::Instance()->GetSamplerCache().Get({ .depthCompare = true });
+
+			auto& bindingEntry = bindings.emplace_back();
+			bindingEntry.bindingIndex = bindingIndex;
+			bindingEntry.content = ShaderBinding::SampledTextureBinding{
+				.texture = sceneData.shadowAtlas.get(),
+				.sampler = shadowSampler.get()
+			};
+		}
+
+		if (UInt32 bindingIndex = GetEngineBindingIndex(EngineShaderBinding::SpotLights); bindingIndex != Material::InvalidBindingIndex && sceneData.spotLights)
+		{
+			auto& bindingEntry = bindings.emplace_back();
+			bindingEntry.bindingIndex = bindingIndex;
+			bindingEntry.content = ShaderBinding::StorageBufferBinding::WholeBuffer(*sceneData.spotLights);
+		}
+
+		if (UInt32 bindingIndex = GetEngineBindingIndex(EngineShaderBinding::SpotShadowAtlasMapping); bindingIndex != Material::InvalidBindingIndex && sceneData.spotLightAtlasMapping)
+		{
+			auto& bindingEntry = bindings.emplace_back();
+			bindingEntry.bindingIndex = bindingIndex;
+			bindingEntry.content = ShaderBinding::StorageBufferBinding::WholeBuffer(*sceneData.spotLightAtlasMapping);
+		}
+	}
+
+	void Material::FillSkeletonBindings(const SkeletonInstance& skeleton, std::vector<ShaderBinding::Binding>& bindings) const
+	{
+		if (UInt32 bindingIndex = GetEngineBindingIndex(EngineShaderBinding::SkeletalDataUbo); bindingIndex != Material::InvalidBindingIndex)
+		{
+			auto& bindingEntry = bindings.emplace_back();
+			bindingEntry.bindingIndex = bindingIndex;
+			bindingEntry.content = ShaderBinding::UniformBufferBinding::WholeBuffer(*skeleton.GetSkeletalBuffer());
+		}
+	}
+
+	void Material::FillViewerBindings(const AbstractViewer& viewer, std::vector<ShaderBinding::Binding>& bindings) const
+	{
+		if (UInt32 bindingIndex = GetEngineBindingIndex(EngineShaderBinding::ViewerDataUbo); bindingIndex != Material::InvalidBindingIndex)
+		{
+			auto& bindingEntry = bindings.emplace_back();
+			bindingEntry.bindingIndex = bindingIndex;
+			bindingEntry.content = ShaderBinding::UniformBufferBinding::WholeBuffer(*viewer.GetViewerInstance().GetViewerBuffer());
+		}
 	}
 
 	std::shared_ptr<MaterialInstance> Material::Instantiate() const

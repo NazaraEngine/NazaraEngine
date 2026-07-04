@@ -2,16 +2,16 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-#include <cassert>
-
 namespace Nz
 {
-	inline void TextSprite::Clear()
+	inline std::size_t MaterialProxy::GetBindingSetCount() const
 	{
-		m_atlases.clear();
-		m_atlasTextures.clear();
-		m_renderInfos.clear();
-		m_vertices.clear();
-		OnElementInvalidated(this);
+		return m_bindingSetHashes.size();
+	}
+
+	inline std::size_t MaterialProxy::GetBindingSetHash(UInt32 setIndex) const
+	{
+		return m_bindingSetHashes[setIndex];
 	}
 }
+
