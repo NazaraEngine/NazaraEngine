@@ -12,6 +12,7 @@
 #include <Nazara/Core/ResourceLoader.hpp>
 #include <Nazara/Core/ResourceManager.hpp>
 #include <Nazara/Core/ResourceSaver.hpp>
+#include <Nazara/Graphics/ElementRenderer.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/Export.hpp>
 #include <Nazara/Graphics/MaterialSettings.hpp>
@@ -30,9 +31,11 @@ namespace Nz
 		bool IsValid() const;
 	};
 
+	class AbstractViewer;
 	class Material;
 	class MaterialInstance;
 	class RenderPipelineLayout;
+	class SkeletonInstance;
 
 	using MaterialLibrary = ObjectLibrary<Material>;
 	using MaterialLoader = ResourceLoader<Material, MaterialParams>;
@@ -52,6 +55,10 @@ namespace Nz
 			~Material() = default;
 
 			std::shared_ptr<MaterialInstance> GetDefaultInstance() const;
+
+			void FillSceneBindings(const ElementRenderer::SceneData& sceneData, std::vector<ShaderBinding::Binding>& bindings) const;
+			void FillSkeletonBindings(const SkeletonInstance& skeleton, std::vector<ShaderBinding::Binding>& bindings) const;
+			void FillViewerBindings(const AbstractViewer& viewer, std::vector<ShaderBinding::Binding>& bindings) const;
 
 			inline std::size_t FindStorageBufferByTag(std::string_view tag) const;
 			inline std::size_t FindTextureByTag(std::string_view tag) const;

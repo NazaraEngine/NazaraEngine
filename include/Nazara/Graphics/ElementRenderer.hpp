@@ -8,16 +8,11 @@
 #define NAZARA_GRAPHICS_ELEMENTRENDERER_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/Export.hpp>
-#include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/RenderElementPool.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
-#include <NazaraUtils/SparsePtr.hpp>
-#include <array>
 #include <memory>
-#include <optional>
 #include <vector>
 
 namespace Nz

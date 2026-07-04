@@ -31,16 +31,6 @@ namespace Nz
 		m_viewerDataBuffer->UpdateDebugName("Viewer data");
 	}
 
-	void ViewerInstance::FillShaderBinding(const Material& material, RenderResourceReferences& resourceReferences, std::vector<ShaderBinding::Binding>& bindings) const
-	{
-		if (UInt32 bindingIndex = material.GetEngineBindingIndex(EngineShaderBinding::ViewerDataUbo); bindingIndex != Material::InvalidBindingIndex)
-		{
-			auto& bindingEntry = bindings.emplace_back();
-			bindingEntry.bindingIndex = bindingIndex;
-			bindingEntry.content = ShaderBinding::UniformBufferBinding::WholeBuffer(*m_viewerDataBuffer);
-		}
-	}
-
 	void ViewerInstance::OnTransfer(RenderResources& renderResources, CommandBufferBuilder& builder)
 	{
 		if (!m_dataInvalidated)

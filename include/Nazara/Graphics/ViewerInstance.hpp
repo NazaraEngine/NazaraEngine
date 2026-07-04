@@ -11,7 +11,6 @@
 #include <Nazara/Graphics/Export.hpp>
 #include <Nazara/Graphics/TransferInterface.hpp>
 #include <Nazara/Math/Matrix4.hpp>
-#include <Nazara/Renderer/ShaderBinding.hpp>
 #include <memory>
 
 namespace Nz
@@ -20,7 +19,6 @@ namespace Nz
 	class Material;
 	class MaterialSettings;
 	class RenderBuffer;
-	struct RenderResourceReferences;
 	class UploadPool;
 
 	class NAZARA_GRAPHICS_API ViewerInstance : public TransferInterface
@@ -30,8 +28,6 @@ namespace Nz
 			ViewerInstance(const ViewerInstance&) = delete;
 			ViewerInstance(ViewerInstance&&) noexcept = default;
 			~ViewerInstance() = default;
-
-			virtual void FillShaderBinding(const Material& material, RenderResourceReferences& resourceReferences, std::vector<ShaderBinding::Binding>& bindings) const;
 
 			inline const Vector3f& GetEyePosition() const;
 			inline float GetFarPlane() const;

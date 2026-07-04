@@ -121,6 +121,8 @@ external Material
 	[tag("NormalMap")] normalMap: sampler2D[f32],
 	[tag("RoughnessMap")] roughnessMap: sampler2D[f32],
 	[tag("SpecularMap")] specularMap: sampler2D[f32],
+	
+	[tag("TextAtlas")] textAtlas: sampler2D[f32],
 }
 
 // TODO: Replace by a skinning pass
@@ -157,13 +159,16 @@ fn ComputeColor(input: VertOut) -> vec4[f32]
 {
 	let color = Material.settings.BaseColor;
 
+	const if (HasUV)
+		color *= Material.textAtlas.Sample(input.uv).x;
+
 	const if (HasColor)
 		color *= input.color;
 
-	const if (HasBaseColorTexture)
+	const if (HasUV && HasBaseColorTexture)
 		color *= Material.baseColorMap.Sample(input.uv);
 
-	const if (HasAlphaTexture)
+	const if (HasUV && HasAlphaTexture)
 		color.w *= Material.alphaMap.Sample(input.uv).x;
 
 	const if (AlphaTest)

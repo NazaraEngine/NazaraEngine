@@ -5,7 +5,7 @@
 #include <Nazara/Graphics/SubmeshRenderer.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
-#include <Nazara/Graphics/MaterialInstance.hpp>
+#include <Nazara/Graphics/MaterialProxy.hpp>
 #include <Nazara/Graphics/RenderSubmesh.hpp>
 #include <Nazara/Graphics/ShaderBindingCache.hpp>
 #include <Nazara/Graphics/SkeletonInstance.hpp>
@@ -56,7 +56,7 @@ namespace Nz
 
 		const RenderBuffer* currentIndexBuffer = nullptr;
 		const RenderBuffer* currentVertexBuffer = nullptr;
-		const MaterialInstance* currentMaterialInstance = nullptr;
+		const MaterialProxy* currentMaterialProxy = nullptr;
 		const RenderPipeline* currentPipeline = nullptr;
 		const ShaderBinding* currentInstanceShaderBinding = nullptr;
 		const ShaderBinding* currentMaterialShaderBinding = nullptr;
@@ -79,9 +79,10 @@ namespace Nz
 				currentPipeline = pipeline;
 			}
 
-			if (const MaterialInstance* materialInstance = &submesh.GetMaterialInstance(); currentMaterialInstance != materialInstance)
+			if (const MaterialProxy* materialInstance = &submesh.GetMaterialProxy(); currentMaterialProxy != materialInstance)
 			{
-				currentMaterialInstance = materialInstance;
+				currentMaterialProxy = materialInstance;
+				currentMaterialProxy->FillRenderResourceReferences(*data.references);
 				currentMaterialShaderBinding = nullptr;
 			}
 
@@ -115,18 +116,16 @@ namespace Nz
 				currentScissorBox = targetScissorBox;
 			}
 
-			const Material& material = *currentMaterialInstance->GetParentMaterial();
-
-			if (!currentSceneShaderBinding || sceneSetHash != material.GetBindingSetHash(Material::SceneBindingSet))
+			if (!currentSceneShaderBinding || sceneSetHash != currentMaterialProxy->GetBindingSetHash(Material::SceneBindingSet))
 			{
-				sceneSetHash = material.GetBindingSetHash(Material::SceneBindingSet);
+				sceneSetHash = currentMaterialProxy->GetBindingSetHash(Material::SceneBindingSet);
 
 				ShaderBinding* sceneBinding = renderData.shaderBindingCache->GetSceneBinding(sceneSetHash, [&]
 				{
 					ShaderBindingPtr sceneBinding = currentPipeline->GetPipelineInfo().pipelineLayout->AllocateShaderBinding(Material::SceneBindingSet);
 
 					m_bindingCache.clear();
-					FillSceneBindings(sceneData, material, m_bindingCache);
+					currentMaterialProxy->FillSceneBindings(sceneData, m_bindingCache);
 					sceneBinding->Update(m_bindingCache.data(), m_bindingCache.size());
 
 					return sceneBinding;
@@ -138,16 +137,16 @@ namespace Nz
 				currentViewerShaderBinding = nullptr;
 			}
 
-			if (!currentViewerShaderBinding || viewerSetHash != material.GetBindingSetHash(Material::ViewerBindingSet))
+			if (!currentViewerShaderBinding || viewerSetHash != currentMaterialProxy->GetBindingSetHash(Material::ViewerBindingSet))
 			{
-				viewerSetHash = material.GetBindingSetHash(Material::ViewerBindingSet);
+				viewerSetHash = currentMaterialProxy->GetBindingSetHash(Material::ViewerBindingSet);
 
 				ShaderBinding* viewerBinding = renderData.shaderBindingCache->GetViewerBinding(viewer.GetViewerInstance(), viewerSetHash, [&]
 				{
 					ShaderBindingPtr viewerBinding = currentPipeline->GetPipelineInfo().pipelineLayout->AllocateShaderBinding(Material::ViewerBindingSet);
 
 					m_bindingCache.clear();
-					viewer.GetViewerInstance().FillShaderBinding(material, *data.references, m_bindingCache);
+					currentMaterialProxy->FillViewerBindings(viewer, m_bindingCache);
 					viewerBinding->Update(m_bindingCache.data(), m_bindingCache.size());
 
 					return viewerBinding;
@@ -161,18 +160,18 @@ namespace Nz
 
 			if (!currentMaterialShaderBinding)
 			{
-				currentMaterialShaderBinding = &currentMaterialInstance->UpdateOrGetShaderBinding(renderResources);
+				currentMaterialShaderBinding = &currentMaterialProxy->GetShaderBinding(renderResources);
 				currentInstanceShaderBinding = nullptr;
 
 				commandBuffer.BindRenderShaderBinding(Material::MaterialBindingSet, *currentMaterialShaderBinding);
 			}
 
-			if (!currentInstanceShaderBinding && material.GetBindingSetHash(Material::InstanceBindingSet) != material.GetBindingSetHash(Material::MaterialBindingSet) && currentSkeletonInstance) //< if instance binding doesn't exist its hash will be equal to the material binding
+			if (!currentInstanceShaderBinding && currentMaterialProxy->GetBindingSetCount() > Material::InstanceBindingSet && currentSkeletonInstance)
 			{
 				ShaderBindingPtr instanceBinding = currentPipeline->GetPipelineInfo().pipelineLayout->AllocateShaderBinding(Material::InstanceBindingSet);
 
 				m_bindingCache.clear();
-				currentSkeletonInstance->FillShaderBinding(material, *data.references, m_bindingCache);
+				currentMaterialProxy->FillSkeletonBindings(*currentSkeletonInstance, m_bindingCache);
 
 				instanceBinding->Update(m_bindingCache.data(), m_bindingCache.size());
 
