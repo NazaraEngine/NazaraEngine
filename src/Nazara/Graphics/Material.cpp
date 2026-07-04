@@ -170,6 +170,15 @@ namespace Nz
 				m_engineShaderBindings[EngineShaderBinding::ViewerDataUbo] = it->second.bindingIndex;
 		}
 
+		if (const ShaderReflection::ExternalBlockData* block = m_reflection.GetExternalBlockByTag("Instance"))
+		{
+			// TODO: Check set index
+			// TODO: Ensure structs layout is what's expected
+
+			if (auto it = block->uniformBlocks.find("SkeletalData"); it != block->uniformBlocks.end())
+				m_engineShaderBindings[EngineShaderBinding::SkeletalDataUbo] = it->second.bindingIndex;
+		}
+
 		for (const auto& handlerPtr : m_settings.GetPropertyHandlers())
 			handlerPtr->Setup(*this, m_reflection);
 

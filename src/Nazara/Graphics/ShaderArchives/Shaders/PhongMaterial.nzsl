@@ -120,6 +120,14 @@ external Material
 	[tag("SpecularMap")] specularMap: sampler2D[f32],
 }
 
+// TODO: Replace by a skinning pass
+[tag("Instance")]
+[set(3), auto_binding]
+external Instance
+{
+	[tag("SkeletalData")] skeletalData: uniform[SkeletalData],
+}
+
 struct VertOut
 {
 	[location(0)] worldPos: vec3[f32],
@@ -399,7 +407,7 @@ fn main(input: VertIn) -> VertOut
 	let pos: vec3[f32];
 	const if (HasNormal) let normal: vec3[f32];
 
-	/*const if (HasSkinning)
+	const if (HasSkinning)
 	{
 		let jointMatrices = array[mat4[f32]](
 			Instance.skeletalData.jointMatrices[input.jointIndices[0]],
@@ -420,7 +428,7 @@ fn main(input: VertIn) -> VertOut
 			pos = skinningOutput.position;
 		}
 	}
-	else*/
+	else
 	{
 		pos = input.pos;
 		const if (HasNormal)

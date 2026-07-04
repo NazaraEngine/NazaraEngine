@@ -58,9 +58,10 @@ namespace Nz
 		const RenderBuffer* currentVertexBuffer = nullptr;
 		const MaterialInstance* currentMaterialInstance = nullptr;
 		const RenderPipeline* currentPipeline = nullptr;
-		const ShaderBinding* currentSceneShaderBinding = nullptr;
-		const ShaderBinding* currentViewerShaderBinding = nullptr;
+		const ShaderBinding* currentInstanceShaderBinding = nullptr;
 		const ShaderBinding* currentMaterialShaderBinding = nullptr;
+		const ShaderBinding* currentViewerShaderBinding = nullptr;
+		const ShaderBinding* currentSceneShaderBinding = nullptr;
 		const SkeletonInstance* currentSkeletonInstance = nullptr;
 		Recti currentScissorBox(-1, -1, -1, -1);
 
@@ -102,6 +103,7 @@ namespace Nz
 
 			if (const SkeletonInstance* skeletonInstance = submesh.GetSkeletonInstance(); currentSkeletonInstance != skeletonInstance)
 			{
+				currentInstanceShaderBinding = nullptr;
 				currentSkeletonInstance = skeletonInstance;
 			}
 
@@ -160,8 +162,25 @@ namespace Nz
 			if (!currentMaterialShaderBinding)
 			{
 				currentMaterialShaderBinding = &currentMaterialInstance->UpdateOrGetShaderBinding(renderResources);
+				currentInstanceShaderBinding = nullptr;
 
 				commandBuffer.BindRenderShaderBinding(Material::MaterialBindingSet, *currentMaterialShaderBinding);
+			}
+
+			if (!currentInstanceShaderBinding && material.GetBindingSetHash(Material::InstanceBindingSet) != material.GetBindingSetHash(Material::MaterialBindingSet) && currentSkeletonInstance) //< if instance binding doesn't exist its hash will be equal to the material binding
+			{
+				ShaderBindingPtr instanceBinding = currentPipeline->GetPipelineInfo().pipelineLayout->AllocateShaderBinding(Material::InstanceBindingSet);
+
+				m_bindingCache.clear();
+				currentSkeletonInstance->FillShaderBinding(material, *data.references, m_bindingCache);
+
+				instanceBinding->Update(m_bindingCache.data(), m_bindingCache.size());
+
+				commandBuffer.BindRenderShaderBinding(Material::InstanceBindingSet, *instanceBinding);
+
+				currentInstanceShaderBinding = instanceBinding.get();
+
+				data.shaderBindings.emplace_back(std::move(instanceBinding));
 			}
 
 			if (currentIndexBuffer)
