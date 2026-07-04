@@ -103,6 +103,7 @@ namespace Nz
 				std::unique_ptr<RenderBufferPool> bufferPool;
 			};
 
+			static constexpr UInt32 InstanceBindingSet = 3;
 			static constexpr UInt32 MaterialBindingSet = 2;
 			static constexpr UInt32 SceneBindingSet = 0;
 			static constexpr UInt32 ViewerBindingSet = 1;
