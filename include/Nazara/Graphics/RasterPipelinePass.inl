@@ -10,20 +10,10 @@ namespace Nz
 	}
 
 	inline RasterPipelinePass::RasterPipelinePass(PassData& passData, std::string passName, std::size_t materialPassIndex, UInt32 renderMask) :
-	FramePipelinePass(FramePipelineNotification::ElementInvalidation | FramePipelineNotification::MaterialInstanceRegistration),
-	m_passIndex(materialPassIndex),
-	m_lastVisibilityHash(0),
+	BaseElementRenderPipelinePass(passData),
 	m_passName(std::move(passName)),
 	m_viewer(passData.viewer),
-	m_elementRegistry(passData.elementRegistry),
-	m_pipeline(passData.pipeline),
-	m_renderMask(renderMask),
-	m_rebuildElements(false)
+	m_pipeline(passData.pipeline)
 	{
-	}
-
-	inline void RasterPipelinePass::InvalidateElements()
-	{
-		m_rebuildElements = true;
 	}
 }

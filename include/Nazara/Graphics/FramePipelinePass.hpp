@@ -37,24 +37,27 @@ namespace Nz
 			struct FrameData;
 			struct PassData;
 			struct PassInputOuputs;
-			struct VisibleRenderable;
 
 			inline FramePipelinePass(FramePipelineNotificationFlags notificationFlags);
 			FramePipelinePass(const FramePipelinePass&) = delete;
 			FramePipelinePass(FramePipelinePass&&) = delete;
 			virtual ~FramePipelinePass();
 
+			virtual void ClearRenderables();
+
 			virtual void InvalidateElements();
 
 			virtual void Prepare(FrameData& frameData) = 0;
 
 			virtual void RegisterMaterialInstance(const MaterialInstance& materialInstance);
+			virtual void RegisterRenderable(std::size_t renderableIndex, UInt32 instanceIndex, const InstancedRenderable& instancedRenderable, const SkeletonInstance* skeletonInstance, UInt32 renderMask, const Recti& scissorBox);
 
 			virtual FramePass& RegisterToFrameGraph(FrameGraph& frameGraph, const PassInputOuputs& inputOuputs) = 0;
 
 			inline bool ShouldNotify(FramePipelineNotification notification) const;
 
 			virtual void UnregisterMaterialInstance(const MaterialInstance& materialInstance);
+			virtual void UnregisterRenderable(std::size_t renderableIndex);
 
 			FramePipelinePass& operator=(const FramePipelinePass&) = delete;
 			FramePipelinePass& operator=(FramePipelinePass&&) = delete;
@@ -67,8 +70,6 @@ namespace Nz
 				const Bitset<UInt64>* visibleLights;
 				const Frustumf& frustum;
 				RenderResources& renderResources;
-				const std::vector<VisibleRenderable>& visibleRenderables;
-				std::size_t visibilityHash;
 			};
 
 			struct PassData
@@ -96,15 +97,6 @@ namespace Nz
 				std::size_t depthStencilInput = InvalidAttachmentIndex;
 				std::size_t depthStencilOutput = InvalidAttachmentIndex;
 				std::variant<DontClear, ViewerClearValue, float> clearDepth;
-			};
-
-			struct VisibleRenderable
-			{
-				const InstancedRenderable* instancedRenderable;
-				const SkeletonInstance* skeletonInstance;
-				Recti scissorBox;
-				UInt32 instanceIndex;
-				UInt32 renderMask;
 			};
 
 			static constexpr std::size_t InvalidAttachmentIndex = std::numeric_limits<std::size_t>::max();

@@ -13,9 +13,4 @@ namespace Nz
 	{
 		return m_shadowAtlas;
 	}
-
-	inline void ShadowAtlasPipelinePass::InvalidateElements()
-	{
-		m_rebuildElements = true;
-	}
 }

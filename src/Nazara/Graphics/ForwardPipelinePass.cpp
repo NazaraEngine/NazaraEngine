@@ -4,34 +4,21 @@
 
 #include <Nazara/Graphics/ForwardPipelinePass.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
-#include <Nazara/Graphics/DirectionalLight.hpp>
-#include <Nazara/Graphics/DirectionalLightShadowData.hpp>
 #include <Nazara/Graphics/ElementRenderer.hpp>
 #include <Nazara/Graphics/ElementRendererRegistry.hpp>
 #include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Graphics/FramePipeline.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
-#include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/MaterialInstance.hpp>
-#include <Nazara/Graphics/PointLight.hpp>
-#include <Nazara/Graphics/PredefinedShaderStructs.hpp>
-#include <Nazara/Graphics/ShaderTransfer.hpp>
-#include <Nazara/Graphics/SpotLight.hpp>
-#include <Nazara/Graphics/SpotLightShadowData.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 
 namespace Nz
 {
 	ForwardPipelinePass::ForwardPipelinePass(PassData& passData, std::string passName, const ParameterList& parameters) :
-	FramePipelinePass(FramePipelineNotification::ElementInvalidation | FramePipelineNotification::MaterialInstanceRegistration),
-	m_lastVisibilityHash(0),
+	BaseElementRenderPipelinePass(passData),
 	m_passName(std::move(passName)),
 	m_viewer(passData.viewer),
-	m_elementRegistry(passData.elementRegistry),
-	m_pipeline(passData.pipeline),
-	m_pendingLightUploadAllocation(nullptr),
-	m_renderMask(MaxValue()),
-	m_rebuildElements(false)
+	m_pipeline(passData.pipeline)
 	{
 		if (auto result = parameters.GetIntegerParameter("RenderMask", false); result && result.GetValue() >= 0 && result.GetValue() < MaxValue<UInt32>())
 			m_renderMask = SafeCaster(result.GetValue());
@@ -39,71 +26,7 @@ namespace Nz
 			throw std::runtime_error("parameter RenderMask has incorrect value");
 
 		Graphics* graphics = Graphics::Instance();
-		m_forwardPassIndex = graphics->GetMaterialPassRegistry().GetPassIndex("ForwardPass");
-	}
-
-	void ForwardPipelinePass::Prepare(FrameData& frameData)
-	{
-		if (m_lastVisibilityHash != frameData.visibilityHash || m_rebuildElements) //< FIXME
-		{
-			frameData.renderResources.PushForRelease(std::move(m_renderElements));
-			m_renderElements.clear();
-
-			for (const auto& renderableData : frameData.visibleRenderables)
-			{
-				if ((m_renderMask & renderableData.renderMask) == 0)
-					continue;
-
-				InstancedRenderable::ElementData elementData{
-					&renderableData.scissorBox,
-					renderableData.skeletonInstance,
-					renderableData.instanceIndex
-				};
-
-				renderableData.instancedRenderable->BuildElement(m_elementRegistry, elementData, m_forwardPassIndex, m_renderElements);
-			}
-
-			m_renderQueueRegistry.Clear();
-			m_renderQueue.Clear();
-
-			for (const auto& renderElement : m_renderElements)
-			{
-				renderElement->Register(m_renderQueueRegistry);
-				m_renderQueue.Insert(renderElement.GetElement());
-			}
-
-			m_renderQueueRegistry.Finalize();
-
-			m_lastVisibilityHash = frameData.visibilityHash;
-			InvalidateElements();
-		}
-
-		// TODO: Don't sort every frame if no material pass requires distance sorting
-		m_renderQueue.Sort([&](const RenderElement* element)
-		{
-			return element->ComputeSortingScore(frameData.frustum, m_renderQueueRegistry);
-		});
-	}
-
-	void ForwardPipelinePass::RegisterMaterialInstance(const MaterialInstance& materialInstance)
-	{
-		if (!materialInstance.HasPass(m_forwardPassIndex))
-			return;
-
-		auto it = m_materialInstances.find(&materialInstance);
-		if (it == m_materialInstances.end())
-		{
-			auto& matPassEntry = m_materialInstances[&materialInstance];
-			matPassEntry.onMaterialInstancePipelineInvalidated.Connect(materialInstance.OnMaterialInstancePipelineInvalidated, [this](const MaterialInstance*, std::size_t passIndex)
-			{
-				if (passIndex != m_forwardPassIndex)
-					return;
-
-				m_rebuildElements = true;
-			});
-		}
-		else
-			it->second.usedCount++;
+		m_passIndex = graphics->GetMaterialPassRegistry().GetPassIndex("ForwardPass");
 	}
 
 	FramePass& ForwardPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, const PassInputOuputs& inputOuputs)
@@ -234,22 +157,5 @@ namespace Nz
 		});
 
 		return forwardPass;
-	}
-
-	void ForwardPipelinePass::UnregisterMaterialInstance(const MaterialInstance& materialInstance)
-	{
-		auto it = m_materialInstances.find(&materialInstance);
-		if (it != m_materialInstances.end())
-		{
-			if (--it->second.usedCount == 0)
-				m_materialInstances.erase(it);
-		}
-	}
-
-	void ForwardPipelinePass::OnTransfer(RenderResources& /*renderFrame*/, CommandBufferBuilder& builder)
-	{
-		assert(m_pendingLightUploadAllocation);
-		builder.CopyBuffer(*m_pendingLightUploadAllocation, RenderBufferView(m_lightDataBuffer.get()));
-		m_pendingLightUploadAllocation = nullptr;
 	}
 }

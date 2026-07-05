@@ -72,7 +72,6 @@ namespace Nz
 
 	inline void RenderQueueRegistry::RegisterLayer(int renderLayer)
 	{
-		assert(m_renderLayerRegistry.empty());
 		m_renderLayers.insert(renderLayer);
 	}
 

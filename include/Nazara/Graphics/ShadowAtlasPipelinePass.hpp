@@ -11,7 +11,7 @@
 #include <Nazara/Core/ParameterList.hpp>
 #include <Nazara/Graphics/ElementRenderer.hpp>
 #include <Nazara/Graphics/Export.hpp>
-#include <Nazara/Graphics/FramePipelinePass.hpp>
+#include <Nazara/Graphics/BaseElementRenderPipelinePass.hpp>
 #include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>
@@ -30,7 +30,7 @@ namespace Nz
 	class FramePass;
 	class FramePipeline;
 
-	class NAZARA_GRAPHICS_API ShadowAtlasPipelinePass : public FramePipelinePass
+	class NAZARA_GRAPHICS_API ShadowAtlasPipelinePass : public BaseElementRenderPipelinePass
 	{
 		public:
 			ShadowAtlasPipelinePass(PassData& passData);
@@ -41,44 +41,23 @@ namespace Nz
 			inline ShadowAtlas& GetAtlas();
 			inline const ShadowAtlas& GetAtlas() const;
 
-			void InvalidateElements() override;
-
 			void Prepare(FrameData& frameData) override;
 
-			void RegisterMaterialInstance(const MaterialInstance& materialInstance) override;
-
 			FramePass& RegisterToFrameGraph(FrameGraph& frameGraph, const PassInputOuputs& inputOuputs) override;
-
-			void UnregisterMaterialInstance(const MaterialInstance& materialInstance) override;
 
 			ShadowAtlasPipelinePass& operator=(const ShadowAtlasPipelinePass&) = delete;
 			ShadowAtlasPipelinePass& operator=(ShadowAtlasPipelinePass&&) = delete;
 
 		private:
-			struct MaterialPassEntry
-			{
-				std::size_t usedCount = 1;
-
-				NazaraSlot(MaterialInstance, OnMaterialInstancePipelineInvalidated, onMaterialInstancePipelineInvalidated);
-			};
-
 			struct LightData
 			{
 				// FIXME: HybridVector doesn't seem to be movable when containing move-only types
 				std::vector<std::vector<std::unique_ptr<ElementRendererData>>> elementRendererData;
 			};
 
-			std::size_t m_passIndex;
-			std::size_t m_lastVisibilityHash;
-			std::vector<RenderElementOwner> m_renderElements;
 			std::unordered_map<std::size_t, LightData> m_lightData;
-			std::unordered_map<const MaterialInstance*, MaterialPassEntry> m_materialInstances;
-			RenderQueue<const RenderElement*> m_renderQueue;
-			RenderQueueRegistry m_renderQueueRegistry;
 			ShadowAtlas m_shadowAtlas;
-			ElementRendererRegistry& m_elementRegistry;
 			FramePipeline& m_pipeline;
-			bool m_rebuildElements;
 	};
 }
 

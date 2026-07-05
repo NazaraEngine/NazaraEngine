@@ -35,9 +35,6 @@ namespace Nz
 			FramePipeline(FramePipeline&&) noexcept = default;
 			virtual ~FramePipeline();
 
-			// TODO: Move RenderQueue handling to proper classes (allowing to reuse them)
-			virtual const std::vector<FramePipelinePass::VisibleRenderable>& FrustumCull(const Frustumf& frustum, UInt32 mask, std::size_t& visibilityHash) const = 0;
-
 			virtual void ForEachRegisteredMaterialInstance(FunctionRef<void(const MaterialInstance& materialInstance)> callback) = 0;
 			virtual void ForEachShadowCastingLight(FunctionRef<void(std::size_t lightIndex, const Light* light, LightShadowData* lightShadowData)> callback) = 0;
 
