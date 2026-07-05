@@ -8,6 +8,10 @@ namespace Nz
 {
 	FramePipelinePass::~FramePipelinePass() = default;
 
+	void FramePipelinePass::ClearRenderables()
+	{
+	}
+
 	void FramePipelinePass::InvalidateElements()
 	{
 	}
@@ -16,7 +20,15 @@ namespace Nz
 	{
 	}
 
+	void FramePipelinePass::RegisterRenderable(std::size_t /*renderableIndex*/, UInt32 /*instanceIndex*/, const InstancedRenderable& /*instancedRenderable*/, const SkeletonInstance* /*skeletonInstance*/, UInt32 /*renderMask*/, const Recti& /*scissorBox*/)
+	{
+	}
+
 	void FramePipelinePass::UnregisterMaterialInstance(const MaterialInstance& /*materialInstance*/)
+	{
+	}
+
+	void FramePipelinePass::UnregisterRenderable(std::size_t /*renderableIndex*/)
 	{
 	}
 }

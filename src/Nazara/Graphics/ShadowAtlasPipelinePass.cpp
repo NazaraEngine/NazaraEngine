@@ -16,57 +16,20 @@
 namespace Nz
 {
 	ShadowAtlasPipelinePass::ShadowAtlasPipelinePass(PassData& passData) :
-	FramePipelinePass(FramePipelineNotification::ElementInvalidation | FramePipelineNotification::MaterialInstanceRegistration),
-	m_lastVisibilityHash(0),
+	BaseElementRenderPipelinePass(passData),
 	m_shadowAtlas(*Graphics::Instance()->GetRenderDevice(), 8192),
-	m_elementRegistry(passData.elementRegistry),
-	m_pipeline(passData.pipeline),
-	m_rebuildElements(false)
+	m_pipeline(passData.pipeline)
 	{
 		Graphics* graphics = Graphics::Instance();
 		NazaraAssert(graphics);
 
 		m_passIndex = graphics->GetMaterialPassRegistry().GetPassIndex("ShadowPass");
+		m_renderMask = MaxValue();
 	}
 
 	void ShadowAtlasPipelinePass::Prepare(FrameData& frameData)
 	{
-		if (m_lastVisibilityHash != frameData.visibilityHash || m_rebuildElements) //< FIXME
-		{
-			frameData.renderResources.PushForRelease(std::move(m_renderElements));
-			m_renderElements.clear();
-
-			for (const auto& renderableData : frameData.visibleRenderables)
-			{
-				InstancedRenderable::ElementData elementData{
-					&renderableData.scissorBox,
-					renderableData.skeletonInstance,
-					renderableData.instanceIndex
-				};
-
-				renderableData.instancedRenderable->BuildElement(m_elementRegistry, elementData, m_passIndex, m_renderElements);
-			}
-
-			m_renderQueueRegistry.Clear();
-			m_renderQueue.Clear();
-
-			for (const auto& renderElement : m_renderElements)
-			{
-				renderElement->Register(m_renderQueueRegistry);
-				m_renderQueue.Insert(renderElement.GetElement());
-			}
-
-			m_renderQueueRegistry.Finalize();
-
-			m_lastVisibilityHash = frameData.visibilityHash;
-			m_rebuildElements = false;
-		}
-
-		// TODO: Don't sort every frame if no material pass requires distance sorting
-		m_renderQueue.Sort([&](const RenderElement* element)
-		{
-			return element->ComputeSortingScore(frameData.frustum, m_renderQueueRegistry);
-		});
+		BaseElementRenderPipelinePass::Prepare(frameData);
 
 		m_shadowAtlas.Clear();
 		m_pipeline.ForEachShadowCastingLight([&](std::size_t /*lightIndex*/, const Light* /*light*/, LightShadowData* shadowData)
@@ -75,27 +38,6 @@ namespace Nz
 		});
 
 		m_shadowAtlas.Pack();
-	}
-
-	void ShadowAtlasPipelinePass::RegisterMaterialInstance(const MaterialInstance& materialInstance)
-	{
-		if (!materialInstance.HasPass(m_passIndex))
-			return;
-
-		auto it = m_materialInstances.find(&materialInstance);
-		if (it == m_materialInstances.end())
-		{
-			auto& matPassEntry = m_materialInstances[&materialInstance];
-			matPassEntry.onMaterialInstancePipelineInvalidated.Connect(materialInstance.OnMaterialInstancePipelineInvalidated, [this](const MaterialInstance*, std::size_t passIndex)
-			{
-				if (passIndex != m_passIndex)
-					return;
-
-				m_rebuildElements = true;
-			});
-		}
-		else
-			it->second.usedCount++;
 	}
 
 	FramePass& ShadowAtlasPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, const PassInputOuputs& inputOuputs)
@@ -239,15 +181,5 @@ namespace Nz
 		});
 
 		return pass;
-	}
-
-	void ShadowAtlasPipelinePass::UnregisterMaterialInstance(const MaterialInstance& materialInstance)
-	{
-		auto it = m_materialInstances.find(&materialInstance);
-		if (it != m_materialInstances.end())
-		{
-			if (--it->second.usedCount == 0)
-				m_materialInstances.erase(it);
-		}
 	}
 }

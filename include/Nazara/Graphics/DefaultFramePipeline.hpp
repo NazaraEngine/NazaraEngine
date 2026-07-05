@@ -51,8 +51,6 @@ namespace Nz
 			DefaultFramePipeline(DefaultFramePipeline&&) = delete;
 			~DefaultFramePipeline();
 
-			const std::vector<FramePipelinePass::VisibleRenderable>& FrustumCull(const Frustumf& frustum, UInt32 mask, std::size_t& visibilityHash) const override;
-
 			void ForEachRegisteredMaterialInstance(FunctionRef<void(const MaterialInstance& materialInstance)> callback) override;
 			void ForEachShadowCastingLight(FunctionRef<void(std::size_t lightIndex, const Light* light, LightShadowData* lightShadowData)> callback) override;
 
@@ -98,13 +96,14 @@ namespace Nz
 
 		private:
 			struct LightData;
+			struct RenderableData;
 			struct ViewerData;
+
+			void BroadcastRenderable(const RenderableData& renderableData);
 
 			BakedFrameGraph BuildFrameGraph();
 
 			std::size_t InsertTransferPass(FrameGraph& frameGraph, std::function<void()> callback);
-
-			void InvalidateElements(Nz::UInt32 renderMask);
 
 			void RegisterMaterialInstance(MaterialInstance* materialPass);
 			void RegisterShadowCaster(std::size_t lightIndex, LightData* lightData);
@@ -138,6 +137,7 @@ namespace Nz
 
 			struct RenderableData
 			{
+				std::size_t renderableIndex;
 				std::size_t skeletonInstanceIndex;
 				const InstancedRenderable* renderable;
 				Recti scissorBox;
@@ -177,6 +177,7 @@ namespace Nz
 				ShaderBindingPtr blitShaderBinding;
 				UInt32 renderMask;
 				bool pendingDestruction = false;
+				bool registerRenderables = true;
 
 				NazaraSlot(AbstractViewer, OnRenderMaskUpdated, onRenderMaskUpdated);
 				NazaraSlot(TransferInterface, OnTransferRequired, onTransferRequired);
@@ -185,7 +186,6 @@ namespace Nz
 			std::optional<ShadowAtlasPipelinePass> m_shadowAtlasPipelinePass;
 			std::unordered_map<const RenderTarget*, RenderTargetData> m_renderTargets;
 			std::unordered_map<MaterialInstance*, MaterialInstanceData> m_materialInstances;
-			mutable std::vector<FramePipelinePass::VisibleRenderable> m_visibleRenderables;
 			std::vector<ViewerData*> m_orderedViewers;
 			std::vector<std::size_t> m_directionalLightEntriesToIndices;
 			std::vector<std::size_t> m_directionalShadowEntriesToIndices;

@@ -9,30 +9,11 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/ParameterList.hpp>
-#include <Nazara/Graphics/ElementRenderer.hpp>
-#include <Nazara/Graphics/Export.hpp>
-#include <Nazara/Graphics/FramePipelinePass.hpp>
-#include <Nazara/Graphics/MaterialInstance.hpp>
-#include <Nazara/Graphics/RenderElement.hpp>
-#include <Nazara/Graphics/RenderElementOwner.hpp>
-#include <Nazara/Graphics/RenderQueue.hpp>
-#include <Nazara/Graphics/RenderQueueRegistry.hpp>
-#include <Nazara/Math/Frustum.hpp>
-#include <Nazara/Renderer/UploadPool.hpp>
+#include <Nazara/Graphics/BaseElementRenderPipelinePass.hpp>
 
 namespace Nz
 {
-	class AbstractViewer;
-	class DirectionalLight;
-	class ElementRendererRegistry;
-	class FrameGraph;
-	class FramePass;
-	class FramePipeline;
-	class Light;
-	class PointLight;
-	class SpotLight;
-
-	class NAZARA_GRAPHICS_API ForwardPipelinePass : public FramePipelinePass, TransferInterface
+	class NAZARA_GRAPHICS_API ForwardPipelinePass : public BaseElementRenderPipelinePass
 	{
 		public:
 			ForwardPipelinePass(PassData& passData, std::string passName, const ParameterList& parameters = {});
@@ -40,44 +21,15 @@ namespace Nz
 			ForwardPipelinePass(ForwardPipelinePass&&) = delete;
 			~ForwardPipelinePass() = default;
 
-			void InvalidateElements() override;
-
-			void Prepare(FrameData& frameData) override;
-
-			void RegisterMaterialInstance(const MaterialInstance& material) override;
-
 			FramePass& RegisterToFrameGraph(FrameGraph& frameGraph, const PassInputOuputs& inputOuputs) override;
-
-			void UnregisterMaterialInstance(const MaterialInstance& material) override;
 
 			ForwardPipelinePass& operator=(const ForwardPipelinePass&) = delete;
 			ForwardPipelinePass& operator=(ForwardPipelinePass&&) = delete;
 
 		private:
-			void OnTransfer(RenderResources& renderResources, CommandBufferBuilder& builder) override;
-
-			struct MaterialPassEntry
-			{
-				std::size_t usedCount = 1;
-
-				NazaraSlot(MaterialInstance, OnMaterialInstancePipelineInvalidated, onMaterialInstancePipelineInvalidated);
-			};
-
-			std::size_t m_forwardPassIndex;
-			std::size_t m_lastVisibilityHash;
-			std::shared_ptr<RenderBuffer> m_lightDataBuffer;
 			std::string m_passName;
-			std::vector<std::unique_ptr<ElementRendererData>> m_elementRendererData;
-			std::vector<RenderElementOwner> m_renderElements;
-			std::unordered_map<const MaterialInstance*, MaterialPassEntry> m_materialInstances;
-			RenderQueue<const RenderElement*> m_renderQueue;
-			RenderQueueRegistry m_renderQueueRegistry;
 			AbstractViewer* m_viewer;
-			ElementRendererRegistry& m_elementRegistry;
 			FramePipeline& m_pipeline;
-			UploadPool::Allocation* m_pendingLightUploadAllocation;
-			UInt32 m_renderMask;
-			bool m_rebuildElements;
 	};
 }
 

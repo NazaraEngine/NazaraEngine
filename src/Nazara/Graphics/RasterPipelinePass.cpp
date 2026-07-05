@@ -9,75 +9,10 @@
 #include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Graphics/FramePipeline.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
-#include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/MaterialInstance.hpp>
 
 namespace Nz
 {
-	void RasterPipelinePass::Prepare(FrameData& frameData)
-	{
-		if (m_lastVisibilityHash != frameData.visibilityHash || m_rebuildElements) //< FIXME
-		{
-			frameData.renderResources.PushForRelease(std::move(m_renderElements));
-			m_renderElements.clear();
-
-			for (const auto& renderableData : frameData.visibleRenderables)
-			{
-				if ((m_renderMask & renderableData.renderMask) == 0)
-					continue;
-
-				InstancedRenderable::ElementData elementData{
-					&renderableData.scissorBox,
-					renderableData.skeletonInstance,
-					renderableData.instanceIndex
-				};
-
-				renderableData.instancedRenderable->BuildElement(m_elementRegistry, elementData, m_passIndex, m_renderElements);
-			}
-
-			m_renderQueueRegistry.Clear();
-			m_renderQueue.Clear();
-
-			for (const auto& renderElement : m_renderElements)
-			{
-				renderElement->Register(m_renderQueueRegistry);
-				m_renderQueue.Insert(renderElement.GetElement());
-			}
-
-			m_renderQueueRegistry.Finalize();
-
-			m_lastVisibilityHash = frameData.visibilityHash;
-			m_rebuildElements = false;
-		}
-
-		// TODO: Don't sort every frame if no material pass requires distance sorting
-		m_renderQueue.Sort([&](const RenderElement* element)
-		{
-			return element->ComputeSortingScore(frameData.frustum, m_renderQueueRegistry);
-		});
-	}
-
-	void RasterPipelinePass::RegisterMaterialInstance(const MaterialInstance& materialInstance)
-	{
-		if (!materialInstance.HasPass(m_passIndex))
-			return;
-
-		auto it = m_materialInstances.find(&materialInstance);
-		if (it == m_materialInstances.end())
-		{
-			auto& matPassEntry = m_materialInstances[&materialInstance];
-			matPassEntry.onMaterialInstancePipelineInvalidated.Connect(materialInstance.OnMaterialInstancePipelineInvalidated, [this](const MaterialInstance*, std::size_t passIndex)
-			{
-				if (passIndex != m_passIndex)
-					return;
-
-				m_rebuildElements = true;
-			});
-		}
-		else
-			it->second.usedCount++;
-	}
-
 	FramePass& RasterPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, const PassInputOuputs& inputOuputs)
 	{
 		FramePass& pass = frameGraph.AddPass(m_passName);
@@ -206,16 +141,6 @@ namespace Nz
 		});
 
 		return pass;
-	}
-
-	void RasterPipelinePass::UnregisterMaterialInstance(const MaterialInstance& materialInstance)
-	{
-		auto it = m_materialInstances.find(&materialInstance);
-		if (it != m_materialInstances.end())
-		{
-			if (--it->second.usedCount == 0)
-				m_materialInstances.erase(it);
-		}
 	}
 
 	std::size_t RasterPipelinePass::GetMaterialPassIndex(const ParameterList& parameters)

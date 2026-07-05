@@ -66,46 +66,6 @@ namespace Nz
 		m_viewerPool.Clear();
 	}
 
-	const std::vector<Nz::FramePipelinePass::VisibleRenderable>& DefaultFramePipeline::FrustumCull(const Frustumf& frustum, UInt32 mask, std::size_t& visibilityHash) const
-	{
-		auto CombineHash = [](std::size_t currentHash, std::size_t newHash)
-		{
-			return currentHash * 23 + newHash;
-		};
-
-		m_visibleRenderables.clear();
-		for (const RenderableData& renderableData : m_renderablePool)
-		{
-			if ((mask & renderableData.renderMask) == 0)
-				continue;
-
-			// Get global AABB
-			const UInt8* ptr = m_instanceBuffer.GetEntryData(renderableData.instanceIndex);
-			const Matrix4f& worldMatrix = AccessByOffset<const Matrix4f&>(ptr, PredefinedInstanceOffsets.worldMatrixOffset);
-
-			BoundingVolumef boundingVolume(renderableData.renderable->GetAABB());
-			boundingVolume.Update(worldMatrix);
-
-			if (frustum.Intersect(boundingVolume) == IntersectionSide::Outside)
-				continue;
-
-			auto& visibleRenderable = m_visibleRenderables.emplace_back();
-			visibleRenderable.instanceIndex = renderableData.instanceIndex;
-			visibleRenderable.instancedRenderable = renderableData.renderable;
-			visibleRenderable.renderMask = renderableData.renderMask;
-			visibleRenderable.scissorBox = renderableData.scissorBox;
-
-			if (renderableData.skeletonInstanceIndex != NoSkeletonInstance)
-				visibleRenderable.skeletonInstance = m_skeletonInstances.RetrieveFromIndex(renderableData.skeletonInstanceIndex)->skeleton.get();
-			else
-				visibleRenderable.skeletonInstance = nullptr;
-
-			visibilityHash = CombineHash(visibilityHash, std::hash<const void*>()(&renderableData) + renderableData.generation);
-		}
-
-		return m_visibleRenderables;
-	}
-
 	void DefaultFramePipeline::ForEachRegisteredMaterialInstance(FunctionRef<void(const MaterialInstance& materialInstance)> callback)
 	{
 		for (RenderableData& renderable : m_renderablePool)
@@ -326,15 +286,16 @@ namespace Nz
 		renderableData->instanceIndex = instanceIndex;
 		renderableData->generation = m_generationCounter++;
 		renderableData->renderable = instancedRenderable;
+		renderableData->renderableIndex = renderableIndex;
 		renderableData->renderMask = renderMask;
 		renderableData->scissorBox = scissorBox;
 		renderableData->skeletonInstanceIndex = skeletonInstanceIndex;
 
-		renderableData->onElementInvalidated.Connect(instancedRenderable->OnElementInvalidated, [this, renderMask](InstancedRenderable* /*instancedRenderable*/)
+		renderableData->onElementInvalidated.Connect(instancedRenderable->OnElementInvalidated, [this, renderableData](InstancedRenderable* /*instancedRenderable*/)
 		{
-			InvalidateElements(renderMask);
+			BroadcastRenderable(*renderableData);
 		});
-		InvalidateElements(renderMask);
+		BroadcastRenderable(*renderableData);
 
 		renderableData->onMaterialInvalidated.Connect(instancedRenderable->OnMaterialInvalidated, [this](InstancedRenderable* instancedRenderable, std::size_t materialIndex, const std::shared_ptr<MaterialInstance>& newMaterial)
 		{
@@ -425,6 +386,8 @@ namespace Nz
 
 		viewerData.onRenderMaskUpdated.Connect(viewerInstance->OnRenderMaskUpdated, [this, &viewerData](AbstractViewer* viewer, UInt32 newRenderMask)
 		{
+			viewerData.registerRenderables = true;
+
 			for (std::size_t i : m_shadowCastingLights.IterBits())
 			{
 				LightData* lightData = m_lightPool.RetrieveFromIndex(i);
@@ -570,37 +533,10 @@ namespace Nz
 		// Shadow map handling (for active lights)
 		if (m_shadowAtlasPipelinePass)
 		{
-			// Frustum culling
-			std::size_t visibilityHash = 5;
-
-			auto CombineHash = [](std::size_t currentHash, std::size_t newHash)
-			{
-				return currentHash * 23 + newHash;
-			};
-
-			m_visibleRenderables.clear();
-			for (const RenderableData& renderableData : m_renderablePool)
-			{
-				auto& visibleRenderable = m_visibleRenderables.emplace_back();
-				visibleRenderable.instancedRenderable = renderableData.renderable;
-				visibleRenderable.renderMask = renderableData.renderMask;
-				visibleRenderable.scissorBox = renderableData.scissorBox;
-				visibleRenderable.instanceIndex = renderableData.instanceIndex;
-
-				if (renderableData.skeletonInstanceIndex != NoSkeletonInstance)
-					visibleRenderable.skeletonInstance = m_skeletonInstances.RetrieveFromIndex(renderableData.skeletonInstanceIndex)->skeleton.get();
-				else
-					visibleRenderable.skeletonInstance = nullptr;
-
-				visibilityHash = CombineHash(visibilityHash, std::hash<const void*>()(&renderableData) + renderableData.generation);
-			}
-
 			FramePipelinePass::FrameData passData = {
 				nullptr,
 				Nz::Frustumf{},
-				renderResources,
-				m_visibleRenderables,
-				visibilityHash
+				renderResources
 			};
 
 			m_shadowAtlasPipelinePass->Prepare(passData);
@@ -636,17 +572,34 @@ namespace Nz
 		// Viewer handling (second pass)
 		for (ViewerData* viewerData : m_orderedViewers)
 		{
-			// Frustum culling
-			std::size_t visibilityHash = 5;
-			const auto& visibleRenderables = FrustumCull(viewerData->frame.frustum, viewerData->renderMask, visibilityHash);
-
 			FramePipelinePass::FrameData passData = {
 				&viewerData->frame.visibleLights,
 				viewerData->frame.frustum,
-				renderResources,
-				visibleRenderables,
-				visibilityHash
+				renderResources
 			};
+
+			if (viewerData->registerRenderables)
+			{
+				for (auto& passPtr : viewerData->passes)
+					passPtr->ClearRenderables();
+
+				for (const RenderableData& renderableData : m_renderablePool)
+				{
+					if ((viewerData->renderMask & renderableData.renderMask) == 0)
+						continue;
+
+					const SkeletonInstance* skeletonInstance;
+					if (renderableData.skeletonInstanceIndex != NoSkeletonInstance)
+						skeletonInstance = m_skeletonInstances.RetrieveFromIndex(renderableData.skeletonInstanceIndex)->skeleton.get();
+					else
+						skeletonInstance = nullptr;
+
+					for (auto& passPtr : viewerData->passes)
+						passPtr->RegisterRenderable(renderableData.renderableIndex, renderableData.instanceIndex, *renderableData.renderable, skeletonInstance, renderableData.renderMask, renderableData.scissorBox);
+				}
+
+				viewerData->registerRenderables = false;
+			}
 
 			for (auto& passPtr : viewerData->passes)
 				passPtr->Prepare(passData);
@@ -753,12 +706,27 @@ namespace Nz
 
 	void DefaultFramePipeline::UnregisterRenderable(std::size_t renderableIndex)
 	{
-		RenderableData& renderable = *m_renderablePool.RetrieveFromIndex(renderableIndex);
+		RenderableData& renderableData = *m_renderablePool.RetrieveFromIndex(renderableIndex);
 
-		std::size_t matCount = renderable.renderable->GetMaterialCount();
+		if (m_shadowAtlasPipelinePass)
+			m_shadowAtlasPipelinePass->UnregisterRenderable(renderableIndex);
+
+		for (auto& viewerData : m_viewerPool)
+		{
+			if (viewerData.pendingDestruction)
+				continue;
+
+			if (viewerData.renderMask & renderableData.renderMask)
+			{
+				for (auto& passPtr : viewerData.passes)
+					passPtr->UnregisterRenderable(renderableIndex);
+			}
+		}
+
+		std::size_t matCount = renderableData.renderable->GetMaterialCount();
 		for (std::size_t i = 0; i < matCount; ++i)
 		{
-			const auto& material = renderable.renderable->GetMaterial(i);
+			const auto& material = renderableData.renderable->GetMaterial(i);
 			UnregisterMaterialInstance(material.get());
 
 			for (auto& viewerData : m_viewerPool)
@@ -822,22 +790,21 @@ namespace Nz
 	{
 		RenderableData* renderableData = m_renderablePool.RetrieveFromIndex(renderableIndex);
 		renderableData->renderMask = renderMask;
+		BroadcastRenderable(*renderableData);
 	}
 
 	void DefaultFramePipeline::UpdateRenderableScissorBox(std::size_t renderableIndex, const Recti& scissorBox)
 	{
 		RenderableData* renderableData = m_renderablePool.RetrieveFromIndex(renderableIndex);
 		renderableData->scissorBox = scissorBox;
-
-		InvalidateElements(renderableData->renderMask);
+		BroadcastRenderable(*renderableData);
 	}
 
 	void DefaultFramePipeline::UpdateRenderableSkeletonInstance(std::size_t renderableIndex, std::size_t skeletonIndex)
 	{
 		RenderableData* renderableData = m_renderablePool.RetrieveFromIndex(renderableIndex);
 		renderableData->skeletonInstanceIndex = skeletonIndex;
-
-		InvalidateElements(renderableData->renderMask);
+		BroadcastRenderable(*renderableData);
 	}
 
 	void DefaultFramePipeline::UpdateViewerRenderOrder(std::size_t viewerIndex, Int32 renderOrder)
@@ -851,6 +818,30 @@ namespace Nz
 		}
 	}
 
+	void DefaultFramePipeline::BroadcastRenderable(const RenderableData& renderableData)
+	{
+		const SkeletonInstance* skeletonInstance;
+		if (renderableData.skeletonInstanceIndex != NoSkeletonInstance)
+			skeletonInstance = m_skeletonInstances.RetrieveFromIndex(renderableData.skeletonInstanceIndex)->skeleton.get();
+		else
+			skeletonInstance = nullptr;
+
+		if (m_shadowAtlasPipelinePass)
+			m_shadowAtlasPipelinePass->RegisterRenderable(renderableData.renderableIndex, renderableData.instanceIndex, *renderableData.renderable, skeletonInstance, renderableData.renderMask, renderableData.scissorBox);
+
+		for (auto& viewerData : m_viewerPool)
+		{
+			if (viewerData.pendingDestruction)
+				continue;
+
+			if (viewerData.renderMask & renderableData.renderMask)
+			{
+				for (auto& passPtr : viewerData.passes)
+					passPtr->RegisterRenderable(renderableData.renderableIndex, renderableData.instanceIndex, *renderableData.renderable, skeletonInstance, renderableData.renderMask, renderableData.scissorBox);
+			}
+		}
+	}
+
 	BakedFrameGraph DefaultFramePipeline::BuildFrameGraph()
 	{
 		FrameGraph frameGraph;
@@ -861,6 +852,16 @@ namespace Nz
 		{
 			FramePipelinePass::PassData passData{ nullptr, m_elementRegistry, *this };
 			m_shadowAtlasPipelinePass.emplace(passData);
+			for (const RenderableData& renderableData : m_renderablePool)
+			{
+				const SkeletonInstance* skeletonInstance;
+				if (renderableData.skeletonInstanceIndex != NoSkeletonInstance)
+					skeletonInstance = m_skeletonInstances.RetrieveFromIndex(renderableData.skeletonInstanceIndex)->skeleton.get();
+				else
+					skeletonInstance = nullptr;
+
+				m_shadowAtlasPipelinePass->RegisterRenderable(renderableData.renderableIndex, renderableData.instanceIndex, *renderableData.renderable, skeletonInstance, renderableData.renderMask, renderableData.scissorBox);
+			}
 
 			m_shaderBindingCache.InvalidateSceneBindings();
 		}
@@ -1094,25 +1095,6 @@ namespace Nz
 		framePass.AddOutput(viewerUploadAttachment);
 
 		return viewerUploadAttachment;
-	}
-
-	void DefaultFramePipeline::InvalidateElements(Nz::UInt32 renderMask)
-	{
-		// TODO: Invalidate only relevant viewers and passes
-		for (auto& viewerData : m_viewerPool)
-		{
-			if (viewerData.pendingDestruction)
-				continue;
-
-			if (viewerData.renderMask & renderMask)
-			{
-				for (auto& passPtr : viewerData.passes)
-				{
-					if (passPtr->ShouldNotify(FramePipelineNotification::ElementInvalidation))
-						passPtr->InvalidateElements();
-				}
-			}
-		}
 	}
 
 	void DefaultFramePipeline::RegisterMaterialInstance(MaterialInstance* materialInstance)
