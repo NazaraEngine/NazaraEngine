@@ -9,7 +9,6 @@
 #include <Nazara/Graphics/BlitPipelinePass.hpp>
 #include <Nazara/Graphics/DebugDrawPipelinePass.hpp>
 #include <Nazara/Graphics/DefaultFramePipeline.hpp>
-#include <Nazara/Graphics/ForwardPipelinePass.hpp>
 #include <Nazara/Graphics/GuillotineTextureAtlas.hpp>
 #include <Nazara/Graphics/LightingPipelinePass.hpp>
 #include <Nazara/Graphics/MaterialInstance.hpp>
@@ -378,7 +377,10 @@ namespace Nz
 			m_preferredDepthStencilFormat
 		});
 
-		std::size_t forwardPass = m_defaultPipelinePasses->AddPass("ForwardPass", m_pipelinePassRegistry.GetPassIndex("Forward"));
+		ParameterList passParameters;
+		passParameters.SetParameter("MatPassIndex", static_cast<long long>(m_materialPassRegistry.GetPassIndex("ForwardPass")));
+
+		std::size_t forwardPass = m_defaultPipelinePasses->AddPass("ForwardPass", m_pipelinePassRegistry.GetPassIndex("Raster"), std::move(passParameters));
 
 		m_defaultPipelinePasses->SetPassDepthClearValue(forwardPass, FramePipelinePass::ViewerClearValue{});
 		m_defaultPipelinePasses->SetPassDepthStencilOutput(forwardPass, forwardDepthOutput);
@@ -469,7 +471,6 @@ namespace Nz
 	{
 		m_pipelinePassRegistry.RegisterPass<BlitPipelinePass>("Blit", { "Input" }, { "Output" });
 		m_pipelinePassRegistry.RegisterPass<DebugDrawPipelinePass>("DebugDraw", { "Input" }, { "Output" });
-		m_pipelinePassRegistry.RegisterPass<ForwardPipelinePass>("Forward", {}, { "Output0", "Output1", "Output2", "Output3", "Output4", "Output5", "Output6", "Output7" });
 		m_pipelinePassRegistry.RegisterPass<LightingPipelinePass>("Lighting", { "Albedo", "Normal", "Depth" }, { "Output" });
 		m_pipelinePassRegistry.RegisterPass<PostProcessPipelinePass>("PostProcess", { "Input0", "Input1", "Input2", "Input3", "Input4", "Input5", "Input6", "Input7" }, { "Output0", "Output1", "Output2", "Output3", "Output4", "Output5", "Output6", "Output7" });
 		m_pipelinePassRegistry.RegisterPass<RasterPipelinePass>("Raster", { "Input" }, { "Output0", "Output1", "Output2", "Output3", "Output4", "Output5", "Output6", "Output7" });
