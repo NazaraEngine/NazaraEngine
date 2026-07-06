@@ -231,35 +231,41 @@ namespace Nz
 			enabledExtensions.push_back(VK_KHR_SURFACE_EXTENSION_NAME);
 
 			#ifdef VK_USE_PLATFORM_ANDROID_KHR
-			enabledExtensions.push_back(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME);
+			if (availableExtensions.contains(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME))
+				enabledExtensions.push_back(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME);
 			#endif
 
 			#ifdef VK_USE_PLATFORM_XCB_KHR
-			enabledExtensions.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
+			if (availableExtensions.contains(VK_KHR_XCB_SURFACE_EXTENSION_NAME))
+				enabledExtensions.push_back(VK_KHR_XCB_SURFACE_EXTENSION_NAME);
 			#endif
 
 			#ifdef VK_USE_PLATFORM_XLIB_KHR
-			enabledExtensions.push_back(VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
+			if (availableExtensions.contains(VK_KHR_XLIB_SURFACE_EXTENSION_NAME))
+				enabledExtensions.push_back(VK_KHR_XLIB_SURFACE_EXTENSION_NAME);
 			#endif
 
 			#ifdef VK_USE_PLATFORM_WAYLAND_KHR
-			enabledExtensions.push_back(VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME);
+			if (availableExtensions.contains(VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME))
+				enabledExtensions.push_back(VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME);
 			#endif
 
 			#ifdef VK_USE_PLATFORM_WIN32_KHR
-			enabledExtensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
+			if (availableExtensions.contains(VK_KHR_WIN32_SURFACE_EXTENSION_NAME))
+				enabledExtensions.push_back(VK_KHR_WIN32_SURFACE_EXTENSION_NAME);
 			#endif
 
 			#ifdef VK_USE_PLATFORM_METAL_EXT
-			enabledExtensions.push_back(VK_EXT_METAL_SURFACE_EXTENSION_NAME);
+			if (availableExtensions.contains(VK_EXT_METAL_SURFACE_EXTENSION_NAME))
+				enabledExtensions.push_back(VK_EXT_METAL_SURFACE_EXTENSION_NAME);
 			#endif
 
-			if (availableExtensions.count(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME))
+			if (availableExtensions.contains(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME))
 				enabledExtensions.push_back(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME);
 
-			if (availableExtensions.count(VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
+			if (availableExtensions.contains(VK_EXT_DEBUG_UTILS_EXTENSION_NAME))
 				enabledExtensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
-			else if (availableExtensions.count(VK_EXT_DEBUG_REPORT_EXTENSION_NAME))
+			else if (availableExtensions.contains(VK_EXT_DEBUG_REPORT_EXTENSION_NAME))
 				enabledExtensions.push_back(VK_EXT_DEBUG_REPORT_EXTENSION_NAME);
 		}
 
