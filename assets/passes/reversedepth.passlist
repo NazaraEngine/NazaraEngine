@@ -12,7 +12,11 @@ passlist "Forward Passlist"
 
     pass "ForwardPass"
     {
-        impl "Forward"
+        impl "Raster"
+        {
+            MatPass "ForwardPass"
+        }
+
         output "Output0" "ForwardOutput"
         {
             clearcolor "Viewer"
