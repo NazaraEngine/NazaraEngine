@@ -9,7 +9,6 @@
 #include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Graphics/FramePipeline.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
-#include <Nazara/Graphics/MaterialInstance.hpp>
 
 namespace Nz
 {
@@ -86,7 +85,10 @@ namespace Nz
 					m_elementRendererData[elementType] = elementRenderer.InstanciateData();
 			});
 
-			m_elementRegistry.ProcessRenderQueue(m_renderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
+			UInt32 renderMask = m_renderMask & m_viewer->GetRenderMask();
+
+			auto& renderQueue = m_pipeline.GetRenderQueue(m_passIndex);
+			renderQueue.Process(renderMask, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
 			{
 				ElementRenderer& elementRenderer = m_elementRegistry.GetElementRenderer(elementType);
 				elementRenderer.Prepare(renderData, sceneData, *m_viewer, *m_elementRendererData[elementType], env.renderResources, elementCount, elements);
@@ -128,7 +130,10 @@ namespace Nz
 					m_elementRendererData[elementType] = elementRenderer.InstanciateData();
 			});
 
-			m_elementRegistry.ProcessRenderQueue(m_renderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
+			UInt32 renderMask = m_renderMask & m_viewer->GetRenderMask();
+
+			auto& renderQueue = m_pipeline.GetRenderQueue(m_passIndex);
+			renderQueue.Process(renderMask, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
 			{
 				ElementRenderer& elementRenderer = m_elementRegistry.GetElementRenderer(elementType);
 				elementRenderer.Render(renderData, sceneData, *m_viewer, *m_elementRendererData[elementType], env.renderResources, builder, elementCount, elements);

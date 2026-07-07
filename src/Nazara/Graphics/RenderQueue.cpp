@@ -2,22 +2,14 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-#include <Nazara/Graphics/BaseElementRenderPipelinePass.hpp>
-#include <Nazara/Graphics/ElementRenderer.hpp>
-#include <Nazara/Graphics/FramePipeline.hpp>
+#include <Nazara/Graphics/RenderQueue.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
-#include <Nazara/Graphics/MaterialInstance.hpp>
+#include <Nazara/Graphics/RenderElement.hpp>
+#include <Nazara/Renderer/RenderResources.hpp>
 
 namespace Nz
 {
-	BaseElementRenderPipelinePass::BaseElementRenderPipelinePass(PassData& passData) :
-	FramePipelinePass(FramePipelineNotification::ElementInvalidation | FramePipelineNotification::MaterialInstanceRegistration),
-	m_elementRegistry(passData.elementRegistry),
-	m_renderMask(MaxValue())
-	{
-	}
-
-	void BaseElementRenderPipelinePass::ClearRenderables()
+	void RenderQueue::ClearRenderables()
 	{
 		if (!m_renderElements.empty())
 		{
@@ -32,63 +24,38 @@ namespace Nz
 		}
 	}
 
-	void BaseElementRenderPipelinePass::Prepare(FrameData& frameData)
+	void RenderQueue::Prepare(RenderResources& renderResources)
 	{
 		if (!m_deletedRenderElements.empty())
 		{
-			frameData.renderResources.PushForRelease(std::move(m_deletedRenderElements));
+			renderResources.PushForRelease(std::move(m_deletedRenderElements));
 			m_deletedRenderElements.clear();
 		}
 
 		if (m_rebuildRenderQueue)
 		{
 			m_renderQueueRegistry.Clear();
-			m_renderQueue.Clear();
+			m_orderedRenderElements.clear();
 
-			for (const auto& renderElement : m_renderElements)
+			for (const auto& renderElementOwner : m_renderElements)
 			{
-				renderElement->Register(m_renderQueueRegistry);
-				m_renderQueue.Insert(renderElement.GetElement());
+				renderElementOwner->Register(m_renderQueueRegistry);
+				m_orderedRenderElements.push_back(renderElementOwner.GetElement());
 			}
 
 			m_renderQueueRegistry.Finalize();
 
+			std::sort(m_orderedRenderElements.begin(), m_orderedRenderElements.end(), [&](const RenderElement* lhs, const RenderElement* rhs)
+			{
+				return lhs->ComputeSortKey(m_renderQueueRegistry) < rhs->ComputeSortKey(m_renderQueueRegistry);
+			});
+
 			m_rebuildRenderQueue = false;
 		}
-
-		// TODO: Don't sort every frame if no material pass requires distance sorting
-		m_renderQueue.Sort([&](const RenderElement* element)
-		{
-			return element->ComputeSortingScore(frameData.frustum, m_renderQueueRegistry);
-		});
 	}
 
-	void BaseElementRenderPipelinePass::RegisterMaterialInstance(const MaterialInstance& materialInstance)
+	void RenderQueue::RegisterRenderable(std::size_t renderableIndex, UInt32 instanceIndex, const InstancedRenderable& instancedRenderable, const SkeletonInstance* skeletonInstance, UInt32 renderMask, const Recti& scissorBox)
 	{
-		if (!materialInstance.HasPass(m_passIndex))
-			return;
-
-		auto it = m_materialInstances.find(&materialInstance);
-		if (it == m_materialInstances.end())
-		{
-			auto& matPassEntry = m_materialInstances[&materialInstance];
-			matPassEntry.onMaterialInstancePipelineInvalidated.Connect(materialInstance.OnMaterialInstancePipelineInvalidated, [this](const MaterialInstance*, std::size_t passIndex)
-			{
-				if (passIndex != m_passIndex)
-					return;
-
-				//m_rebuildElements = true;
-			});
-		}
-		else
-			it->second.usedCount++;
-	}
-
-	void BaseElementRenderPipelinePass::RegisterRenderable(std::size_t renderableIndex, UInt32 instanceIndex, const InstancedRenderable& instancedRenderable, const SkeletonInstance* skeletonInstance, UInt32 renderMask, const Recti& scissorBox)
-	{
-		if ((m_renderMask & renderMask) == 0)
-			return;
-
 		InstancedRenderable::ElementData elementData{
 			&scissorBox,
 			skeletonInstance,
@@ -99,7 +66,7 @@ namespace Nz
 		if (it == m_renderElementsIndices.end())
 		{
 			std::size_t firstElementIndex = m_renderElements.size();
-			instancedRenderable.BuildElement(m_elementRegistry, elementData, m_passIndex, m_renderElements);
+			instancedRenderable.BuildElement(m_elementRegistry, elementData, m_passIndex, renderMask, m_renderElements);
 			std::size_t elementCount = m_renderElements.size() - firstElementIndex;
 
 			if (elementCount == 0)
@@ -107,21 +74,26 @@ namespace Nz
 
 			for (std::size_t i = 0; i < elementCount; ++i)
 			{
-				const auto& renderElement = m_renderElements[firstElementIndex + i];
-				renderElement->Register(m_renderQueueRegistry);
-				m_renderQueue.Insert(renderElement.GetElement());
+				const auto& renderElementOwner = m_renderElements[firstElementIndex + i];
+				renderElementOwner->Register(m_renderQueueRegistry);
+				m_orderedRenderElements.push_back(renderElementOwner.GetElement());
 			}
 
 			m_renderQueueRegistry.Finalize();
+			
+			std::sort(m_orderedRenderElements.begin(), m_orderedRenderElements.end(), [&](const RenderElement* lhs, const RenderElement* rhs)
+			{
+				return lhs->ComputeSortKey(m_renderQueueRegistry) < rhs->ComputeSortKey(m_renderQueueRegistry);
+			});
 
 			m_renderElementsIndices[renderableIndex] = RenderElementIndices{ firstElementIndex, elementCount };
 		}
 		else
 		{
-			const RenderElementIndices& indices = it->second;
+			RenderElementIndices indices = it->second;
 
 			std::size_t firstElementIndex = m_renderElements.size();
-			instancedRenderable.BuildElement(m_elementRegistry, elementData, m_passIndex, m_renderElements);
+			instancedRenderable.BuildElement(m_elementRegistry, elementData, m_passIndex, renderMask, m_renderElements);
 			std::size_t elementCount = m_renderElements.size() - firstElementIndex;
 
 			if (indices.count == elementCount)
@@ -152,22 +124,12 @@ namespace Nz
 		}
 	}
 
-	void BaseElementRenderPipelinePass::UnregisterMaterialInstance(const MaterialInstance& materialInstance)
-	{
-		auto it = m_materialInstances.find(&materialInstance);
-		if (it != m_materialInstances.end())
-		{
-			if (--it->second.usedCount == 0)
-				m_materialInstances.erase(it);
-		}
-	}
-
-	void BaseElementRenderPipelinePass::UnregisterRenderable(std::size_t renderableIndex)
+	void RenderQueue::UnregisterRenderable(std::size_t renderableIndex)
 	{
 		auto it = m_renderElementsIndices.find(renderableIndex);
 		if (it != m_renderElementsIndices.end())
 		{
-			const RenderElementIndices& indices = it->second;
+			RenderElementIndices indices = it->second;
 
 			auto beginIt = m_renderElements.begin() + indices.first;
 			auto endIt = beginIt + indices.count;

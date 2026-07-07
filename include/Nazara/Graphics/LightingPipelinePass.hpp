@@ -9,6 +9,7 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/ParameterList.hpp>
+#include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/FramePipelinePass.hpp>
 #include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>

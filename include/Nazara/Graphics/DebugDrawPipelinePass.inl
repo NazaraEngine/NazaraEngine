@@ -5,7 +5,6 @@
 namespace Nz
 {
 	inline DebugDrawPipelinePass::DebugDrawPipelinePass(PassData& passData, std::string passName, const ParameterList& /*parameters*/) :
-	FramePipelinePass({}),
 	m_passName(std::move(passName)),
 	m_viewer(passData.viewer)
 	{

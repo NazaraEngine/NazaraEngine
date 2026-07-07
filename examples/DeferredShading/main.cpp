@@ -792,13 +792,13 @@ int main(int argc, char* argv[])
 			elementData.instanceIndex = modelInstance1;
 			elementData.scissorBox = &env.renderRect;
 			elementData.skeletonInstance = nullptr;
-			spaceshipModel.BuildElement(elementRegistry, elementData, forwardPassIndex, elements);
+			spaceshipModel.BuildElement(elementRegistry, elementData, forwardPassIndex, Nz::MaxValue(), elements);
 
 			elementData.instanceIndex = modelInstance2;
-			spaceshipModel.BuildElement(elementRegistry, elementData, forwardPassIndex, elements);
+			spaceshipModel.BuildElement(elementRegistry, elementData, forwardPassIndex, Nz::MaxValue(), elements);
 
 			elementData.instanceIndex = planeInstance;
-			planeModel.BuildElement(elementRegistry, elementData, forwardPassIndex, elements);
+			planeModel.BuildElement(elementRegistry, elementData, forwardPassIndex, Nz::MaxValue(), elements);
 
 			Nz::ElementRenderer::RenderData renderData;
 			renderData.shaderBindingCache = &shaderBindingCache;
@@ -870,7 +870,7 @@ int main(int argc, char* argv[])
 			elementData.skeletonInstance = nullptr;
 
 			std::vector<Nz::RenderElementOwner> elements;
-			flareSprite.BuildElement(elementRegistry, elementData, forwardPassIndex, elements);
+			flareSprite.BuildElement(elementRegistry, elementData, forwardPassIndex, Nz::MaxValue(), elements);
 
 			elementPointers.clear();
 			elementPointers.reserve(elements.size());
@@ -924,7 +924,7 @@ int main(int argc, char* argv[])
 			elementData.instanceIndex = flareInstance;
 
 			std::vector<Nz::RenderElementOwner> elements;
-			flareSprite.BuildElement(elementRegistry, elementData, forwardPassIndex, elements);
+			flareSprite.BuildElement(elementRegistry, elementData, forwardPassIndex, Nz::MaxValue(), elements);
 
 			std::vector<Nz::Pointer<const Nz::RenderElement>> elementPointers;
 
@@ -951,7 +951,7 @@ int main(int argc, char* argv[])
 			elementData.instanceIndex = flareInstance;
 
 			std::vector<Nz::RenderElementOwner> elements;
-			flareSprite.BuildElement(elementRegistry, elementData, forwardPassIndex, elements);
+			flareSprite.BuildElement(elementRegistry, elementData, forwardPassIndex, Nz::MaxValue(), elements);
 
 			Nz::ElementRenderer::RenderData renderData;
 			renderData.renderRegion = env.renderRect;

@@ -11,7 +11,6 @@
 namespace Nz
 {
 	PostProcessPipelinePass::PostProcessPipelinePass(PassData& /*passData*/, std::string passName, std::string shaderName, UInt32 inputCount) :
-	FramePipelinePass({}),
 	m_passName(std::move(passName)),
 	m_shader(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, std::move(shaderName)),
 	m_inputCount(inputCount)

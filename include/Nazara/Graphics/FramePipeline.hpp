@@ -11,6 +11,8 @@
 #include <Nazara/Graphics/Export.hpp>
 #include <Nazara/Graphics/FramePipelinePass.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>
+#include <Nazara/Graphics/RenderElementOwner.hpp>
+#include <Nazara/Graphics/RenderQueueRegistry.hpp>
 #include <Nazara/Graphics/SkeletonInstance.hpp>
 #include <NazaraUtils/FunctionRef.hpp>
 #include <memory>
@@ -24,6 +26,7 @@ namespace Nz
 	class MaterialInstance;
 	class PipelineViewer;
 	class RenderBuffer;
+	class RenderQueue;
 	class RenderResources;
 	class ShaderBindingCache;
 
@@ -44,6 +47,7 @@ namespace Nz
 			virtual const std::shared_ptr<RenderBuffer>& GetInstanceBuffer() const = 0;
 			virtual const std::shared_ptr<RenderBuffer>& GetPointLightBuffer() const = 0;
 			virtual const std::shared_ptr<RenderBuffer>& GetPointShadowMappingBuffer() const = 0;
+			virtual RenderQueue& GetRenderQueue(std::size_t materialPass) = 0;
 			virtual ShaderBindingCache* GetShaderBindingCache() const = 0;
 			virtual const std::shared_ptr<Texture>& GetShadowAtlasTexture() const = 0;
 			virtual const std::shared_ptr<RenderBuffer>& GetSpotLightBuffer() const = 0;

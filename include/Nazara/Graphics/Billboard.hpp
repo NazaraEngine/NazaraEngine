@@ -26,7 +26,7 @@ namespace Nz
 			Billboard(Billboard&&) noexcept = default;
 			~Billboard() = default;
 
-			void BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, std::vector<RenderElementOwner>& elements) const override;
+			void BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, UInt32 renderMask, std::vector<RenderElementOwner>& elements) const override;
 
 			inline const Color& GetColor() const;
 			inline const Color& GetCornerColor(RectCorner corner) const;

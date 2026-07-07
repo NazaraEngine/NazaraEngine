@@ -23,7 +23,7 @@ namespace Nz
 			m_material = MaterialInstance::GetDefault(MaterialType::Basic, MaterialInstancePreset::AlphaBlended);
 	}
 
-	void TextSprite::BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, std::vector<RenderElementOwner>& elements) const
+	void TextSprite::BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, UInt32 renderMask, std::vector<RenderElementOwner>& elements) const
 	{
 		const auto& materialPipeline = m_material->GetPipeline(passIndex);
 		if (!materialPipeline)
@@ -51,7 +51,7 @@ namespace Nz
 				do
 				{
 					std::size_t spriteBatch = std::min<std::size_t>(spriteCount, RenderSpriteChain::MaxSpritePerChain);
-					elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer() + key.renderOrder, m_atlasTextures[indices.atlasIndex].materialProxy, passFlags, renderPipeline, elementData.instanceIndex, vertexDeclaration, spriteBatch, vertices, *elementData.scissorBox));
+					elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer() + key.renderOrder, m_atlasTextures[indices.atlasIndex].materialProxy, passFlags, renderPipeline, elementData.instanceIndex, vertexDeclaration, spriteBatch, vertices, *elementData.scissorBox, renderMask));
 					vertices += 4 * spriteBatch;
 					spriteCount -= spriteBatch;
 				}

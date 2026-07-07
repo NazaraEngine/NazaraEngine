@@ -9,12 +9,10 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Color.hpp>
-#include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/Export.hpp>
 #include <Nazara/Math/Frustum.hpp>
-#include <Nazara/Math/Rect.hpp>
 #include <NazaraUtils/Bitset.hpp>
-#include <limits>
+#include <NazaraUtils/Constants.hpp>
 #include <span>
 #include <variant>
 
@@ -25,11 +23,7 @@ namespace Nz
 	class FrameGraph;
 	class FramePass;
 	class FramePipeline;
-	class InstancedRenderable;
-	class MaterialInstance;
 	class RenderResources;
-	class SkeletonInstance;
-	class WorldInstance;
 
 	class NAZARA_GRAPHICS_API FramePipelinePass
 	{
@@ -38,26 +32,14 @@ namespace Nz
 			struct PassData;
 			struct PassInputOuputs;
 
-			inline FramePipelinePass(FramePipelineNotificationFlags notificationFlags);
+			FramePipelinePass() = default;
 			FramePipelinePass(const FramePipelinePass&) = delete;
 			FramePipelinePass(FramePipelinePass&&) = delete;
 			virtual ~FramePipelinePass();
 
-			virtual void ClearRenderables();
-
-			virtual void InvalidateElements();
-
-			virtual void Prepare(FrameData& frameData) = 0;
-
-			virtual void RegisterMaterialInstance(const MaterialInstance& materialInstance);
-			virtual void RegisterRenderable(std::size_t renderableIndex, UInt32 instanceIndex, const InstancedRenderable& instancedRenderable, const SkeletonInstance* skeletonInstance, UInt32 renderMask, const Recti& scissorBox);
+			virtual void Prepare(FrameData& frameData);
 
 			virtual FramePass& RegisterToFrameGraph(FrameGraph& frameGraph, const PassInputOuputs& inputOuputs) = 0;
-
-			inline bool ShouldNotify(FramePipelineNotification notification) const;
-
-			virtual void UnregisterMaterialInstance(const MaterialInstance& materialInstance);
-			virtual void UnregisterRenderable(std::size_t renderableIndex);
 
 			FramePipelinePass& operator=(const FramePipelinePass&) = delete;
 			FramePipelinePass& operator=(FramePipelinePass&&) = delete;
@@ -99,10 +81,7 @@ namespace Nz
 				std::variant<DontClear, ViewerClearValue, float> clearDepth;
 			};
 
-			static constexpr std::size_t InvalidAttachmentIndex = std::numeric_limits<std::size_t>::max();
-
-		private:
-			FramePipelineNotificationFlags m_notificationFlags;
+			static constexpr std::size_t InvalidAttachmentIndex = MaxValue();
 	};
 }
 

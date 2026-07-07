@@ -8,39 +8,50 @@
 #define NAZARA_GRAPHICS_RENDERQUEUE_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Graphics/RenderElement.hpp>
+#include <Nazara/Graphics/RenderElementOwner.hpp>
+#include <Nazara/Graphics/RenderQueueRegistry.hpp>
+#include <Nazara/Math/Rect.hpp>
+#include <unordered_map>
 #include <vector>
 
 namespace Nz
 {
-	template<typename RenderData>
+	class ElementRendererRegistry;
+	class InstancedRenderable;
+	class RenderResources;
+	class SkeletonInstance;
+
 	class RenderQueue
 	{
 		public:
-			using const_iterator = const RenderData*;
-			using size_type = std::size_t;
+			inline RenderQueue(ElementRendererRegistry& elementRegistry, std::size_t passIndex);
 
-			RenderQueue() = default;
-			RenderQueue(const RenderQueue&) = default;
-			RenderQueue(RenderQueue&&) noexcept = default;
-			~RenderQueue() = default;
+			void ClearRenderables();
 
-			void Clear();
+			void Prepare(RenderResources& renderResources);
 
-			void Insert(RenderData&& data);
+			template<typename F> void Process(UInt32 renderMask, F&& callback);
 
-			template<typename IndexFunc> void Sort(IndexFunc&& func);
+			void RegisterRenderable(std::size_t renderableIndex, UInt32 instanceIndex, const InstancedRenderable& instancedRenderable, const SkeletonInstance* skeletonInstance, UInt32 renderMask, const Recti& scissorBox);
 
-			// STL API
-			inline const_iterator begin() const;
-			inline bool empty() const;
-			inline const_iterator end() const;
-			inline size_type size() const;
-
-			RenderQueue& operator=(const RenderQueue&) = default;
-			RenderQueue& operator=(RenderQueue&&) noexcept = default;
+			void UnregisterRenderable(std::size_t renderableIndex);
 
 		private:
-			std::vector<RenderData> m_data;
+			struct RenderElementIndices
+			{
+				std::size_t first;
+				std::size_t count;
+			};
+
+			std::size_t m_passIndex;
+			std::unordered_map<std::size_t /*renderableIndex*/, RenderElementIndices> m_renderElementsIndices;
+			std::vector<RenderElementOwner> m_deletedRenderElements;
+			std::vector<RenderElementOwner> m_renderElements;
+			std::vector<const RenderElement*> m_orderedRenderElements;
+			ElementRendererRegistry& m_elementRegistry;
+			RenderQueueRegistry m_renderQueueRegistry;
+			bool m_rebuildRenderQueue;
 	};
 }
 

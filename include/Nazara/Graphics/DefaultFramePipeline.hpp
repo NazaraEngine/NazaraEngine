@@ -18,6 +18,7 @@
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/Light.hpp>
 #include <Nazara/Graphics/LightShadowData.hpp>
+#include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
 #include <Nazara/Graphics/PostProcessPipelinePass.hpp>
 #include <Nazara/Graphics/RasterPipelinePass.hpp>
@@ -40,6 +41,7 @@ namespace Nz
 {
 	class LightShadowData;
 	class RenderFrame;
+	class RenderQueue;
 	class RenderTarget;
 	class Texture;
 
@@ -59,6 +61,7 @@ namespace Nz
 			const std::shared_ptr<RenderBuffer>& GetInstanceBuffer() const override;
 			const std::shared_ptr<RenderBuffer>& GetPointLightBuffer() const override;
 			const std::shared_ptr<RenderBuffer>& GetPointShadowMappingBuffer() const override;
+			RenderQueue& GetRenderQueue(std::size_t materialPass) override;
 			ShaderBindingCache* GetShaderBindingCache() const override;
 			const std::shared_ptr<Texture>& GetShadowAtlasTexture() const override;
 			const std::shared_ptr<RenderBuffer>& GetSpotLightBuffer() const override;
@@ -113,6 +116,7 @@ namespace Nz
 
 			static std::size_t BuildMergePass(FrameGraph& frameGraph, std::span<ViewerData*> targetViewers);
 
+			static constexpr std::size_t InvalidElementIndex = MaxValue();
 			static constexpr UInt32 InvalidShadowMappingEntry = MaxValue();
 
 			struct LightData
@@ -132,11 +136,14 @@ namespace Nz
 			{
 				std::size_t usedCount = 0;
 
+				NazaraSlot(MaterialInstance, OnMaterialInstancePipelineInvalidated, onMaterialInstancePipelineInvalidated);
 				NazaraSlot(TransferInterface, OnTransferRequired, onTransferRequired);
 			};
 
 			struct RenderableData
 			{
+				std::size_t firstElementIndex = InvalidElementIndex;
+				std::size_t elementCount;
 				std::size_t renderableIndex;
 				std::size_t skeletonInstanceIndex;
 				const InstancedRenderable* renderable;
@@ -177,7 +184,6 @@ namespace Nz
 				ShaderBindingPtr blitShaderBinding;
 				UInt32 renderMask;
 				bool pendingDestruction = false;
-				bool registerRenderables = true;
 
 				NazaraSlot(AbstractViewer, OnRenderMaskUpdated, onRenderMaskUpdated);
 				NazaraSlot(TransferInterface, OnTransferRequired, onTransferRequired);
@@ -186,13 +192,15 @@ namespace Nz
 			std::optional<ShadowAtlasPipelinePass> m_shadowAtlasPipelinePass;
 			std::unordered_map<const RenderTarget*, RenderTargetData> m_renderTargets;
 			std::unordered_map<MaterialInstance*, MaterialInstanceData> m_materialInstances;
-			std::vector<ViewerData*> m_orderedViewers;
+			std::vector<std::unique_ptr<ElementRendererData>> m_elementRendererData;
+			std::vector<std::unique_ptr<RenderQueue>> m_renderQueues;
 			std::vector<std::size_t> m_directionalLightEntriesToIndices;
 			std::vector<std::size_t> m_directionalShadowEntriesToIndices;
 			std::vector<std::size_t> m_pointLightEntriesToIndices;
 			std::vector<std::size_t> m_pointShadowEntriesToIndices;
 			std::vector<std::size_t> m_spotLightEntriesToIndices;
 			std::vector<std::size_t> m_spotShadowEntriesToIndices;
+			std::vector<ViewerData*> m_orderedViewers;
 			ankerl::unordered_dense::set<TransferInterface*> m_transferSet;
 			BakedFrameGraph m_bakedFrameGraph;
 			Bitset<UInt64> m_activeLights;
@@ -205,6 +213,7 @@ namespace Nz
 			Bitset<UInt64> m_visibleShadowCastingLights;
 			GpuDynamicArray m_directionalLights;
 			GpuDynamicArray m_directionalShadowAtlasEntries;
+			GpuDynamicArray m_indirectCommandBuffer;
 			GpuDynamicArray m_instanceBuffer;
 			GpuDynamicArray m_pointLights;
 			GpuDynamicArray m_pointShadowAtlasEntries;
@@ -218,6 +227,7 @@ namespace Nz
 			mutable ShaderBindingCache m_shaderBindingCache;
 			UInt8 m_generationCounter;
 			bool m_rebuildFrameGraph;
+			bool m_rebuildRenderQueue;
 	};
 }
 

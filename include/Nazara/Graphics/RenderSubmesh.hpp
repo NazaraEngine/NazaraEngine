@@ -24,10 +24,10 @@ namespace Nz
 	class RenderSubmesh : public RenderElement
 	{
 		public:
-			inline RenderSubmesh(int renderLayer, std::shared_ptr<MaterialProxy> materialProxy, MaterialPassFlags materialFlags, std::shared_ptr<RenderPipeline> renderPipeline, UInt32 instanceIndex, const SkeletonInstance* skeletonInstance, std::size_t indexCount, IndexType indexType, std::shared_ptr<RenderBuffer> indexBuffer, std::shared_ptr<RenderBuffer> vertexBuffer, const Recti& scissorBox);
+			inline RenderSubmesh(int renderLayer, std::shared_ptr<MaterialProxy> materialProxy, MaterialPassFlags materialFlags, std::shared_ptr<RenderPipeline> renderPipeline, UInt32 instanceIndex, const SkeletonInstance* skeletonInstance, std::size_t indexCount, IndexType indexType, std::shared_ptr<RenderBuffer> indexBuffer, std::shared_ptr<RenderBuffer> vertexBuffer, const Recti& scissorBox, UInt32 renderMask);
 			~RenderSubmesh() = default;
 
-			inline UInt64 ComputeSortingScore(const Frustumf& frustum, const RenderQueueRegistry& registry) const override;
+			inline UInt64 ComputeSortKey(const RenderQueueRegistry& registry) const override;
 
 			inline const RenderBuffer* GetIndexBuffer() const;
 			inline std::size_t GetIndexCount() const;

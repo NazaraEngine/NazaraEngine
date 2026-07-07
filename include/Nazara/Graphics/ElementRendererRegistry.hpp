@@ -34,8 +34,6 @@ namespace Nz
 			inline ElementRenderer& GetElementRenderer(std::size_t elementIndex);
 			inline std::size_t GetElementRendererCount() const;
 
-			template<typename F> void ProcessRenderQueue(const RenderQueue<const RenderElement*>& renderQueue, F&& callback);
-
 			template<typename T> void RegisterElementRenderer(std::unique_ptr<ElementRenderer> renderer);
 			inline void RegisterElementRenderer(std::size_t elementIndex, std::unique_ptr<ElementRenderer> renderer);
 

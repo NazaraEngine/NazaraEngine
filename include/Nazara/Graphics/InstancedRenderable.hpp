@@ -32,7 +32,7 @@ namespace Nz
 			InstancedRenderable(InstancedRenderable&&) noexcept = default;
 			virtual ~InstancedRenderable();
 
-			virtual void BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, std::vector<RenderElementOwner>& elements) const = 0;
+			virtual void BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, UInt32 renderMask, std::vector<RenderElementOwner>& elements) const = 0;
 
 			inline const Boxf& GetAABB() const;
 			virtual const std::shared_ptr<MaterialInstance>& GetMaterial(std::size_t materialIndex) const = 0;

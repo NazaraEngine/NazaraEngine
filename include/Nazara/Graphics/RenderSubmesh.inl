@@ -7,8 +7,8 @@
 
 namespace Nz
 {
-	inline RenderSubmesh::RenderSubmesh(int renderLayer, std::shared_ptr<MaterialProxy> materialProxy, MaterialPassFlags materialFlags, std::shared_ptr<RenderPipeline> renderPipeline, UInt32 instanceIndex, const SkeletonInstance* skeletonInstance, std::size_t indexCount, IndexType indexType, std::shared_ptr<RenderBuffer> indexBuffer, std::shared_ptr<RenderBuffer> vertexBuffer, const Recti& scissorBox) :
-	RenderElement(BasicRenderElement::Submesh),
+	inline RenderSubmesh::RenderSubmesh(int renderLayer, std::shared_ptr<MaterialProxy> materialProxy, MaterialPassFlags materialFlags, std::shared_ptr<RenderPipeline> renderPipeline, UInt32 instanceIndex, const SkeletonInstance* skeletonInstance, std::size_t indexCount, IndexType indexType, std::shared_ptr<RenderBuffer> indexBuffer, std::shared_ptr<RenderBuffer> vertexBuffer, const Recti& scissorBox, UInt32 renderMask) :
+	RenderElement(BasicRenderElement::Submesh, renderMask),
 	m_indexBuffer(std::move(indexBuffer)),
 	m_vertexBuffer(std::move(vertexBuffer)),
 	m_materialProxy(std::move(materialProxy)),
@@ -23,59 +23,38 @@ namespace Nz
 	{
 	}
 
-	inline UInt64 RenderSubmesh::ComputeSortingScore(const Frustumf& frustum, const RenderQueueRegistry& registry) const
+	inline UInt64 RenderSubmesh::ComputeSortKey(const RenderQueueRegistry& registry) const
 	{
+		UInt64 elementType = GetElementType();
+
 		UInt64 layerIndex = registry.FetchLayerIndex(m_renderLayer);
+		UInt64 materialProxyIndex = registry.FetchMaterialProxyIndex(m_materialProxy.get());
+		UInt64 pipelineIndex = registry.FetchPipelineIndex(m_renderPipeline.get());
+		UInt64 vertexBufferIndex = registry.FetchVertexBuffer(m_vertexBuffer.get());
 
-		if (m_materialFlags.Test(MaterialPassFlag::SortByDistance))
-		{
-			UInt64 matFlags = 1;
+		UInt64 skeletonIndex = 0;
+		if (m_skeletonInstance)
+			skeletonIndex = registry.FetchSkeletonIndex(m_skeletonInstance->GetSkeleton().get());
 
-			//float distanceNear = frustum.GetPlane(FrustumPlane::Near).SignedDistance(m_worldInstance.GetWorldMatrix().GetTranslation());
-			//UInt64 distance = DistanceAsSortKey(distanceNear);
-			UInt64 distance = 0;
+		UInt64 matFlags = 0;
 
-			// Transparent RQ index:
-			// - Layer (8bits)
-			// - Sorted by distance flag (1bit)
-			// - Distance to near plane (32bits) - could by reduced to 24 or even 16 if required
-			// - ?? (23bits)
+		// Opaque RQ index:
+		// - Layer (8bits)
+		// - Sorted by distance flag (1bit)
+		// - Element type (4bits)
+		// - Pipeline (16bits)
+		// - MaterialPass (16bits)
+		// - VertexBuffer (8bits)
+		// - Skeleton (8bits)
+		// - Unused (3bits)
 
-			return (layerIndex & 0xFF) << 56 |
-			       (matFlags)          << 55 |
-			       (distance)          << 23;
-		}
-		else
-		{
-			UInt64 elementType = GetElementType();
-			UInt64 materialProxyIndex = registry.FetchMaterialProxyIndex(m_materialProxy.get());
-			UInt64 pipelineIndex = registry.FetchPipelineIndex(m_renderPipeline.get());
-			UInt64 vertexBufferIndex = registry.FetchVertexBuffer(m_vertexBuffer.get());
-
-			UInt64 skeletonIndex = 0;
-			if (m_skeletonInstance)
-				skeletonIndex = registry.FetchSkeletonIndex(m_skeletonInstance->GetSkeleton().get());
-
-			UInt64 matFlags = 0;
-
-			// Opaque RQ index:
-			// - Layer (8bits)
-			// - Sorted by distance flag (1bit)
-			// - Element type (4bits)
-			// - Pipeline (16bits)
-			// - MaterialPass (16bits)
-			// - VertexBuffer (8bits)
-			// - Skeleton (8bits)
-			// - Unused (3bits)
-
-			return (layerIndex & 0xFF)              << 56 |
-			       (matFlags)                       << 55 |
-			       (elementType & 0xF)              << 51 |
-			       (pipelineIndex & 0xFFFF)         << 35 |
-			       (materialProxyIndex & 0xFFFF) << 19 |
-			       (vertexBufferIndex & 0xFF)       << 11 |
-			       (skeletonIndex     & 0xFF)       << 3;
-		}
+		return (layerIndex & 0xFF)              << 56 |
+		       (matFlags)                       << 55 |
+		       (elementType & 0xF)              << 51 |
+		       (pipelineIndex & 0xFFFF)         << 35 |
+		       (materialProxyIndex & 0xFFFF) << 19 |
+		       (vertexBufferIndex & 0xFF)       << 11 |
+		       (skeletonIndex     & 0xFF)       << 3;
 	}
 
 	inline const RenderBuffer* RenderSubmesh::GetIndexBuffer() const

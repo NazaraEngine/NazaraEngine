@@ -21,18 +21,20 @@ namespace Nz
 	class NAZARA_GRAPHICS_API RenderElement
 	{
 		public:
-			inline RenderElement(BasicRenderElement elementType);
-			inline RenderElement(UInt8 elementType);
+			inline RenderElement(BasicRenderElement elementType, UInt32 renderMask);
+			inline RenderElement(UInt8 elementType, UInt32 renderMask);
 			virtual ~RenderElement();
 
-			virtual UInt64 ComputeSortingScore(const Frustumf& frustum, const RenderQueueRegistry& registry) const = 0;
+			virtual UInt64 ComputeSortKey(const RenderQueueRegistry& registry) const = 0;
 
 			inline UInt8 GetElementType() const;
+			inline UInt32 GetRenderMask() const;
 
 			virtual void Register(RenderQueueRegistry& registry) const = 0;
 
 		private:
 			UInt8 m_elementType;
+			UInt32 m_renderMask;
 	};
 }
 

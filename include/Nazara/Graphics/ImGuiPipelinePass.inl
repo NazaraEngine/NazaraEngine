@@ -5,7 +5,6 @@
 namespace Nz
 {
 	inline ImGuiPipelinePass::ImGuiPipelinePass(PassData& passData, std::string passName, ImGuiPlugin& imguiPlugin, ImGuiContext* context, const ParameterList& /*parameters*/) :
-	FramePipelinePass({}),
 	m_passName(std::move(passName)),
 	m_viewer(passData.viewer),
 	m_pipeline(passData.pipeline),
