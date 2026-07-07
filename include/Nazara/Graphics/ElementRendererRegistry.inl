@@ -36,35 +36,8 @@ namespace Nz
 		}
 	}
 
-	template<typename F>
-	void ElementRendererRegistry::ProcessRenderQueue(const RenderQueue<const RenderElement*>& renderQueue, F&& callback)
-	{
-		if (renderQueue.empty())
-			return;
-
-		auto it = renderQueue.begin();
-		auto itEnd = renderQueue.end();
-		while (it != itEnd)
-		{
-			const RenderElement* element = *it;
-			UInt8 elementType = element->GetElementType();
-
-			const Pointer<const RenderElement>* first = it;
-
-			++it;
-			while (it != itEnd && (*it)->GetElementType() == elementType)
-				++it;
-
-			std::size_t count = it - first;
-			if (elementType >= m_elementRenderers.size() || !m_elementRenderers[elementType])
-				continue;
-
-			callback(elementType, first, count);
-		}
-	}
-
 	template<typename T>
-	inline void ElementRendererRegistry::RegisterElementRenderer(std::unique_ptr<ElementRenderer> renderer)
+	void ElementRendererRegistry::RegisterElementRenderer(std::unique_ptr<ElementRenderer> renderer)
 	{
 		return RegisterElementRenderer(SafeCast<std::size_t>(T::ElementType), std::move(renderer));
 	}

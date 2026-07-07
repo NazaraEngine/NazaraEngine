@@ -7,18 +7,24 @@
 
 namespace Nz
 {
-	inline RenderElement::RenderElement(BasicRenderElement elementType) :
-	RenderElement(SafeCast<UInt8>(elementType))
+	inline RenderElement::RenderElement(BasicRenderElement elementType, UInt32 renderMask) :
+	RenderElement(SafeCast<UInt8>(elementType), renderMask)
 	{
 	}
 
-	inline RenderElement::RenderElement(UInt8 elementType) :
-	m_elementType(elementType)
+	inline RenderElement::RenderElement(UInt8 elementType, UInt32 renderMask) :
+	m_elementType(elementType),
+	m_renderMask(renderMask)
 	{
 	}
 
 	inline UInt8 RenderElement::GetElementType() const
 	{
 		return m_elementType;
+	}
+
+	inline UInt32 RenderElement::GetRenderMask() const
+	{
+		return m_renderMask;
 	}
 }

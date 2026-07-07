@@ -13,6 +13,7 @@
 #include <Nazara/Graphics/TextureAsset.hpp>
 #include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
+#include <Nazara/Renderer/DrawIndirect.hpp>
 #include <NazaraUtils/StackVector.hpp>
 
 namespace Nz
@@ -20,6 +21,7 @@ namespace Nz
 	DefaultFramePipeline::DefaultFramePipeline(ElementRendererRegistry& elementRegistry) :
 	m_directionalLights(*Graphics::Instance()->GetRenderDevice(), PredefinedDirectionalLightOffsets.totalSize, 16, PredefinedDirectionalLightsOffsets.totalSize),
 	m_directionalShadowAtlasEntries(*Graphics::Instance()->GetRenderDevice(), PredefinedDirectionalShadowAtlasEntryOffsets.totalSize, 16),
+	m_indirectCommandBuffer(*Graphics::Instance()->GetRenderDevice(), sizeof(DrawIndexedIndirectCommand)),
 	m_instanceBuffer(*Graphics::Instance()->GetRenderDevice(), PredefinedInstanceOffsets.totalSize, 512),
 	m_pointLights(*Graphics::Instance()->GetRenderDevice(), PredefinedPointLightOffsets.totalSize, 128, PredefinedPointLightsOffsets.totalSize),
 	m_pointShadowAtlasEntries(*Graphics::Instance()->GetRenderDevice(), PredefinedPointShadowAtlasEntryOffsets.totalSize, 128),
@@ -111,6 +113,34 @@ namespace Nz
 	const std::shared_ptr<RenderBuffer>& DefaultFramePipeline::GetPointShadowMappingBuffer() const
 	{
 		return m_pointShadowAtlasEntries.GetBuffer();
+	}
+
+	auto DefaultFramePipeline::GetRenderQueue(std::size_t materialPass) -> RenderQueue&
+	{
+		if (materialPass >= m_renderQueues.size())
+			m_renderQueues.resize(materialPass + 1);
+
+		if (!m_renderQueues[materialPass])
+		{
+			m_renderQueues[materialPass] = std::make_unique<RenderQueue>(m_elementRegistry, materialPass);
+
+			for (const RenderableData& renderableData : m_renderablePool)
+			{
+				const SkeletonInstance* skeletonInstance;
+				if (renderableData.skeletonInstanceIndex != NoSkeletonInstance)
+					skeletonInstance = m_skeletonInstances.RetrieveFromIndex(renderableData.skeletonInstanceIndex)->skeleton.get();
+				else
+					skeletonInstance = nullptr;
+
+				for (auto& renderQueuePtr : m_renderQueues)
+				{
+					if (renderQueuePtr)
+						renderQueuePtr->RegisterRenderable(renderableData.renderableIndex, renderableData.instanceIndex, *renderableData.renderable, skeletonInstance, renderableData.renderMask, renderableData.scissorBox);
+				}
+			}
+		}
+
+		return *m_renderQueues[materialPass];
 	}
 
 	ShaderBindingCache* DefaultFramePipeline::GetShaderBindingCache() const
@@ -300,60 +330,18 @@ namespace Nz
 		renderableData->onMaterialInvalidated.Connect(instancedRenderable->OnMaterialInvalidated, [this](InstancedRenderable* instancedRenderable, std::size_t materialIndex, const std::shared_ptr<MaterialInstance>& newMaterial)
 		{
 			if (newMaterial)
-			{
 				RegisterMaterialInstance(newMaterial.get());
-
-				for (auto& viewerData : m_viewerPool)
-				{
-					if (viewerData.pendingDestruction)
-						continue;
-
-					for (auto& passPtr : viewerData.passes)
-					{
-						if (passPtr->ShouldNotify(FramePipelineNotification::MaterialInstanceRegistration))
-							passPtr->RegisterMaterialInstance(*newMaterial);
-					}
-				}
-			}
 
 			const auto& prevMaterial = instancedRenderable->GetMaterial(materialIndex);
 			if (prevMaterial)
-			{
 				UnregisterMaterialInstance(prevMaterial.get());
-
-				for (auto& viewerData : m_viewerPool)
-				{
-					if (viewerData.pendingDestruction)
-						continue;
-
-					for (auto& passPtr : viewerData.passes)
-					{
-						if (passPtr->ShouldNotify(FramePipelineNotification::MaterialInstanceRegistration))
-							passPtr->UnregisterMaterialInstance(*prevMaterial);
-					}
-				}
-			}
 		});
 
 		std::size_t matCount = instancedRenderable->GetMaterialCount();
 		for (std::size_t i = 0; i < matCount; ++i)
 		{
 			if (MaterialInstance* mat = instancedRenderable->GetMaterial(i).get())
-			{
 				RegisterMaterialInstance(mat);
-
-				for (auto& viewerData : m_viewerPool)
-				{
-					if (viewerData.pendingDestruction)
-						continue;
-
-					for (auto& passPtr : viewerData.passes)
-					{
-						if (passPtr->ShouldNotify(FramePipelineNotification::MaterialInstanceRegistration))
-							passPtr->RegisterMaterialInstance(*mat);
-					}
-				}
-			}
 		}
 
 		return renderableIndex;
@@ -386,8 +374,6 @@ namespace Nz
 
 		viewerData.onRenderMaskUpdated.Connect(viewerInstance->OnRenderMaskUpdated, [this, &viewerData](AbstractViewer* viewer, UInt32 newRenderMask)
 		{
-			viewerData.registerRenderables = true;
-
 			for (std::size_t i : m_shadowCastingLights.IterBits())
 			{
 				LightData* lightData = m_lightPool.RetrieveFromIndex(i);
@@ -478,8 +464,29 @@ namespace Nz
 		}
 		m_removedViewerInstances.Clear();
 
-		m_freeInstanceIds |= m_removedInstances;
-		m_removedInstances.Clear();
+		if (std::size_t removedInstanceCount = m_removedInstances.Count(); removedInstanceCount != 0)
+		{
+			HybridVector<std::size_t, 8> removedInstances;
+			removedInstances.reserve(removedInstanceCount);
+
+			for (std::size_t instanceIndex : m_removedInstances.IterBits())
+				removedInstances.push_back(instanceIndex);
+
+			m_removedInstances.Clear();
+
+			// TODO: Use a shared_ptr for this data
+			renderResources.PushReleaseCallback([this, instanceIndices = std::move(removedInstances)]
+			{
+				for (std::size_t instanceIndex : instanceIndices)
+					m_freeInstanceIds.UnboundedSet(instanceIndex);
+			});
+		}
+
+		for (auto& renderQueuePtr : m_renderQueues)
+		{
+			if (renderQueuePtr)
+				renderQueuePtr->Prepare(renderResources);
+		}
 
 		bool frameGraphInvalidated = false;
 		if (m_rebuildFrameGraph)
@@ -577,29 +584,6 @@ namespace Nz
 				viewerData->frame.frustum,
 				renderResources
 			};
-
-			if (viewerData->registerRenderables)
-			{
-				for (auto& passPtr : viewerData->passes)
-					passPtr->ClearRenderables();
-
-				for (const RenderableData& renderableData : m_renderablePool)
-				{
-					if ((viewerData->renderMask & renderableData.renderMask) == 0)
-						continue;
-
-					const SkeletonInstance* skeletonInstance;
-					if (renderableData.skeletonInstanceIndex != NoSkeletonInstance)
-						skeletonInstance = m_skeletonInstances.RetrieveFromIndex(renderableData.skeletonInstanceIndex)->skeleton.get();
-					else
-						skeletonInstance = nullptr;
-
-					for (auto& passPtr : viewerData->passes)
-						passPtr->RegisterRenderable(renderableData.renderableIndex, renderableData.instanceIndex, *renderableData.renderable, skeletonInstance, renderableData.renderMask, renderableData.scissorBox);
-				}
-
-				viewerData->registerRenderables = false;
-			}
 
 			for (auto& passPtr : viewerData->passes)
 				passPtr->Prepare(passData);
@@ -708,19 +692,10 @@ namespace Nz
 	{
 		RenderableData& renderableData = *m_renderablePool.RetrieveFromIndex(renderableIndex);
 
-		if (m_shadowAtlasPipelinePass)
-			m_shadowAtlasPipelinePass->UnregisterRenderable(renderableIndex);
-
-		for (auto& viewerData : m_viewerPool)
+		for (auto& renderQueuePtr : m_renderQueues)
 		{
-			if (viewerData.pendingDestruction)
-				continue;
-
-			if (viewerData.renderMask & renderableData.renderMask)
-			{
-				for (auto& passPtr : viewerData.passes)
-					passPtr->UnregisterRenderable(renderableIndex);
-			}
+			if (renderQueuePtr)
+				renderQueuePtr->UnregisterRenderable(renderableIndex);
 		}
 
 		std::size_t matCount = renderableData.renderable->GetMaterialCount();
@@ -728,18 +703,6 @@ namespace Nz
 		{
 			const auto& material = renderableData.renderable->GetMaterial(i);
 			UnregisterMaterialInstance(material.get());
-
-			for (auto& viewerData : m_viewerPool)
-			{
-				if (viewerData.pendingDestruction)
-					continue;
-
-				for (auto& passPtr : viewerData.passes)
-				{
-					if (passPtr->ShouldNotify(FramePipelineNotification::MaterialInstanceRegistration))
-						passPtr->UnregisterMaterialInstance(*material);
-				}
-			}
 		}
 
 		m_renderablePool.Free(renderableIndex);
@@ -826,19 +789,10 @@ namespace Nz
 		else
 			skeletonInstance = nullptr;
 
-		if (m_shadowAtlasPipelinePass)
-			m_shadowAtlasPipelinePass->RegisterRenderable(renderableData.renderableIndex, renderableData.instanceIndex, *renderableData.renderable, skeletonInstance, renderableData.renderMask, renderableData.scissorBox);
-
-		for (auto& viewerData : m_viewerPool)
+		for (auto& renderQueuePtr : m_renderQueues)
 		{
-			if (viewerData.pendingDestruction)
-				continue;
-
-			if (viewerData.renderMask & renderableData.renderMask)
-			{
-				for (auto& passPtr : viewerData.passes)
-					passPtr->RegisterRenderable(renderableData.renderableIndex, renderableData.instanceIndex, *renderableData.renderable, skeletonInstance, renderableData.renderMask, renderableData.scissorBox);
-			}
+			if (renderQueuePtr)
+				renderQueuePtr->RegisterRenderable(renderableData.renderableIndex, renderableData.instanceIndex, *renderableData.renderable, skeletonInstance, renderableData.renderMask, renderableData.scissorBox);
 		}
 	}
 
@@ -852,16 +806,6 @@ namespace Nz
 		{
 			FramePipelinePass::PassData passData{ nullptr, m_elementRegistry, *this };
 			m_shadowAtlasPipelinePass.emplace(passData);
-			for (const RenderableData& renderableData : m_renderablePool)
-			{
-				const SkeletonInstance* skeletonInstance;
-				if (renderableData.skeletonInstanceIndex != NoSkeletonInstance)
-					skeletonInstance = m_skeletonInstances.RetrieveFromIndex(renderableData.skeletonInstanceIndex)->skeleton.get();
-				else
-					skeletonInstance = nullptr;
-
-				m_shadowAtlasPipelinePass->RegisterRenderable(renderableData.renderableIndex, renderableData.instanceIndex, *renderableData.renderable, skeletonInstance, renderableData.renderMask, renderableData.scissorBox);
-			}
 
 			m_shaderBindingCache.InvalidateSceneBindings();
 		}
@@ -918,7 +862,7 @@ namespace Nz
 
 			for (ViewerData* viewerData : viewers)
 			{
-				std::size_t viewerUploadAttachment = InsertTransferPass(frameGraph, [this, viewerData]
+				std::size_t prepareAttachment = InsertTransferPass(frameGraph, [this, viewerData]
 				{
 					PipelineViewer* viewer = viewerData->viewer;
 					if (m_shadowCastingLights.TestAny())
@@ -933,17 +877,17 @@ namespace Nz
 							{
 								switch (lightData->light->GetLightType())
 								{
-								case SafeCast<int>(BasicLightType::Directional):
-									lightData->shadowData->WriteToShader(shadowAtlas, viewer, m_directionalShadowAtlasEntries.AccessEntry(lightData->shadowMappingEntry));
-									break;
+									case SafeCast<int>(BasicLightType::Directional):
+										lightData->shadowData->WriteToShader(shadowAtlas, viewer, m_directionalShadowAtlasEntries.AccessEntry(lightData->shadowMappingEntry));
+										break;
 
-								case SafeCast<int>(BasicLightType::Point):
-									lightData->shadowData->WriteToShader(shadowAtlas, viewer, m_pointShadowAtlasEntries.AccessEntry(lightData->shadowMappingEntry));
-									break;
+									case SafeCast<int>(BasicLightType::Point):
+										lightData->shadowData->WriteToShader(shadowAtlas, viewer, m_pointShadowAtlasEntries.AccessEntry(lightData->shadowMappingEntry));
+										break;
 
-								case SafeCast<int>(BasicLightType::Spot):
-									lightData->shadowData->WriteToShader(shadowAtlas, viewer, m_spotShadowAtlasEntries.AccessEntry(lightData->shadowMappingEntry));
-									break;
+									case SafeCast<int>(BasicLightType::Spot):
+										lightData->shadowData->WriteToShader(shadowAtlas, viewer, m_spotShadowAtlasEntries.AccessEntry(lightData->shadowMappingEntry));
+										break;
 								}
 							}
 						}
@@ -952,7 +896,7 @@ namespace Nz
 
 				auto framePassCallback = [&, viewerData = viewerData](std::size_t /*passIndex*/, FramePass& framePass, FramePipelinePassFlags flags)
 				{
-					framePass.AddInput(viewerUploadAttachment);
+					framePass.AddInput(prepareAttachment);
 
 					// Inject previous final attachments as inputs for all passes, to force framegraph to order viewers passes relative to each other
 					// TODO: Allow the user to define which pass of viewer A uses viewer B rendering

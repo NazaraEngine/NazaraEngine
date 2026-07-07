@@ -8,29 +8,19 @@
 #define NAZARA_GRAPHICS_SHADOWATLASPIPELINEPASS_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Core/ParameterList.hpp>
 #include <Nazara/Graphics/ElementRenderer.hpp>
 #include <Nazara/Graphics/Export.hpp>
-#include <Nazara/Graphics/BaseElementRenderPipelinePass.hpp>
-#include <Nazara/Graphics/MaterialInstance.hpp>
-#include <Nazara/Graphics/MaterialPass.hpp>
-#include <Nazara/Graphics/RenderElement.hpp>
-#include <Nazara/Graphics/RenderElementOwner.hpp>
-#include <Nazara/Graphics/RenderQueue.hpp>
-#include <Nazara/Graphics/RenderQueueRegistry.hpp>
+#include <Nazara/Graphics/FramePipelinePass.hpp>
 #include <Nazara/Graphics/ShadowAtlas.hpp>
-#include <Nazara/Math/Frustum.hpp>
-#include <NazaraUtils/FixedVector.hpp>
 
 namespace Nz
 {
-	class AbstractViewer;
 	class ElementRendererRegistry;
 	class FrameGraph;
 	class FramePass;
 	class FramePipeline;
 
-	class NAZARA_GRAPHICS_API ShadowAtlasPipelinePass : public BaseElementRenderPipelinePass
+	class NAZARA_GRAPHICS_API ShadowAtlasPipelinePass : public FramePipelinePass
 	{
 		public:
 			ShadowAtlasPipelinePass(PassData& passData);
@@ -55,9 +45,12 @@ namespace Nz
 				std::vector<std::vector<std::unique_ptr<ElementRendererData>>> elementRendererData;
 			};
 
+			std::size_t m_passIndex;
 			std::unordered_map<std::size_t, LightData> m_lightData;
 			ShadowAtlas m_shadowAtlas;
+			ElementRendererRegistry& m_elementRegistry;
 			FramePipeline& m_pipeline;
+			UInt32 m_renderMask;
 	};
 }
 

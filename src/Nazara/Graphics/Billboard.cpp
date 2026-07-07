@@ -35,7 +35,7 @@ namespace Nz
 		UpdateVertices();
 	}
 
-	void Billboard::BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, std::vector<RenderElementOwner>& elements) const
+	void Billboard::BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, UInt32 renderMask, std::vector<RenderElementOwner>& elements) const
 	{
 		const auto& materialPipeline = m_material->GetPipeline(passIndex);
 		if (!materialPipeline)
@@ -51,7 +51,7 @@ namespace Nz
 		};
 		const auto& renderPipeline = materialPipeline->GetRenderPipeline(&vertexBufferData, 1);
 
-		elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer(), m_material, passFlags, renderPipeline, elementData.instanceIndex, vertexDeclaration, 1, m_vertices.data(), *elementData.scissorBox));
+		elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer(), m_material, passFlags, renderPipeline, elementData.instanceIndex, vertexDeclaration, 1, m_vertices.data(), *elementData.scissorBox, renderMask));
 	}
 
 	const std::shared_ptr<MaterialInstance>& Billboard::GetMaterial(std::size_t i) const

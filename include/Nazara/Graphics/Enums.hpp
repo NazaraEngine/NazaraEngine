@@ -57,22 +57,6 @@ namespace Nz
 		Max = ViewerDataUbo
 	};
 
-	enum class FramePipelineNotification
-	{
-		ElementInvalidation,
-		MaterialInstanceRegistration,
-
-		Max = MaterialInstanceRegistration
-	};
-
-	template<>
-	struct EnumAsFlags<FramePipelineNotification>
-	{
-		static constexpr FramePipelineNotification max = FramePipelineNotification::Max;
-	};
-
-	using FramePipelineNotificationFlags = Flags<FramePipelineNotification>;
-
 	enum class FramePipelinePassFlag
 	{
 		LightShadowing,

@@ -8,29 +8,25 @@
 #include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Graphics/FramePipeline.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
-#include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/LightShadowData.hpp>
-#include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/ShadowViewer.hpp>
 
 namespace Nz
 {
 	ShadowAtlasPipelinePass::ShadowAtlasPipelinePass(PassData& passData) :
-	BaseElementRenderPipelinePass(passData),
 	m_shadowAtlas(*Graphics::Instance()->GetRenderDevice(), 8192),
-	m_pipeline(passData.pipeline)
+	m_elementRegistry(passData.elementRegistry),
+	m_pipeline(passData.pipeline),
+	m_renderMask(MaxValue())
 	{
 		Graphics* graphics = Graphics::Instance();
 		NazaraAssert(graphics);
 
 		m_passIndex = graphics->GetMaterialPassRegistry().GetPassIndex("ShadowPass");
-		m_renderMask = MaxValue();
 	}
 
 	void ShadowAtlasPipelinePass::Prepare(FrameData& frameData)
 	{
-		BaseElementRenderPipelinePass::Prepare(frameData);
-
 		m_shadowAtlas.Clear();
 		m_pipeline.ForEachShadowCastingLight([&](std::size_t /*lightIndex*/, const Light* /*light*/, LightShadowData* shadowData)
 		{
@@ -51,7 +47,7 @@ namespace Nz
 
 		std::size_t shadowAtlasIndex = frameGraph.AddAttachment({
 			.name = "Shadow atlas",
-			.format = PixelFormat::Depth16,
+			.format = shadowAtlasTexture->GetFormat(),
 			.size = FramePassAttachmentSize::Fixed,
 			.width = size.x,
 			.height = size.y
@@ -97,7 +93,10 @@ namespace Nz
 					sceneData.spotLights = m_pipeline.GetSpotLightBuffer();
 					sceneData.spotLightAtlasMapping = m_pipeline.GetSpotShadowMappingBuffer();
 
-					m_elementRegistry.ProcessRenderQueue(m_renderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
+					UInt32 renderMask = m_renderMask & shadowViewer.GetRenderMask();
+
+					auto& renderQueue = m_pipeline.GetRenderQueue(m_passIndex);
+					renderQueue.Process(renderMask, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
 					{
 						ElementRenderer& elementRenderer = m_elementRegistry.GetElementRenderer(elementType);
 
@@ -160,7 +159,10 @@ namespace Nz
 
 					renderData.renderRegion = Recti(*viewport);
 
-					m_elementRegistry.ProcessRenderQueue(m_renderQueue, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
+					UInt32 renderMask = m_renderMask & shadowViewer.GetRenderMask();
+
+					auto& renderQueue = m_pipeline.GetRenderQueue(m_passIndex);
+					renderQueue.Process(renderMask, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
 					{
 						ElementRenderer& elementRenderer = m_elementRegistry.GetElementRenderer(elementType);
 						elementRenderer.Render(renderData, sceneData, shadowViewer, *lightData.elementRendererData[elementType][viewIndex], env.renderResources, builder, elementCount, elements);

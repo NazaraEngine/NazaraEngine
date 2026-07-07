@@ -30,7 +30,7 @@ namespace Nz
 
 			inline void AddSection(float size, float textureCoord);
 
-			void BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, std::vector<RenderElementOwner>& elements) const override;
+			void BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, UInt32 renderMask, std::vector<RenderElementOwner>& elements) const override;
 
 			inline void Clear();
 

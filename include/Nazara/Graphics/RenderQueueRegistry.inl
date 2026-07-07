@@ -66,6 +66,7 @@ namespace Nz
 
 	inline void RenderQueueRegistry::Finalize()
 	{
+		m_renderLayerRegistry.clear();
 		for (int renderLayer : m_renderLayers)
 			m_renderLayerRegistry.emplace(renderLayer, m_renderLayerRegistry.size());
 	}

@@ -10,10 +10,12 @@ namespace Nz
 	}
 
 	inline RasterPipelinePass::RasterPipelinePass(PassData& passData, std::string passName, std::size_t materialPassIndex, UInt32 renderMask) :
-	BaseElementRenderPipelinePass(passData),
+	m_passIndex(materialPassIndex),
 	m_passName(std::move(passName)),
 	m_viewer(passData.viewer),
-	m_pipeline(passData.pipeline)
+	m_elementRegistry(passData.elementRegistry),
+	m_pipeline(passData.pipeline),
+	m_renderMask(renderMask)
 	{
 	}
 }

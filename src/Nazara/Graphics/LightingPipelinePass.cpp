@@ -33,7 +33,6 @@ namespace Nz
 	}
 
 	LightingPipelinePass::LightingPipelinePass(PassData& passData, std::string passName, std::string shaderName) :
-	FramePipelinePass(0),
 	m_lastVisibilityHash(0),
 	m_passName(std::move(passName)),
 	m_viewer(passData.viewer),

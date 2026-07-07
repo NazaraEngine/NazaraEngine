@@ -38,10 +38,7 @@ int main(int argc, char* argv[])
 	physSystem.GetPhysWorld().SetGravity(Nz::Vector3f::Down() * 9.81f);
 	//physSystem.GetPhysWorld().SetGravity(Nz::Vector3f::Zero());
 
-	auto& renderSystem = world.AddSystem<Nz::RenderSystem>(/*[](Nz::ElementRendererRegistry& elementRegistry) -> std::unique_ptr<Nz::FramePipeline>
-	{
-		return std::make_unique<Nz::IndirectFramePipeline>(elementRegistry);
-	}*/);
+	auto& renderSystem = world.AddSystem<Nz::RenderSystem>();
 	Nz::WindowSwapchain& windowSwapchain = renderSystem.CreateSwapchain(mainWindow);
 
 	Nz::Vector3f target = Nz::Vector3f::Zero();

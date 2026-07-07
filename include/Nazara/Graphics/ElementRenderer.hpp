@@ -62,9 +62,6 @@ namespace Nz
 				std::shared_ptr<RenderBuffer> spotLightAtlasMapping;
 				std::shared_ptr<Texture> shadowAtlas;
 			};
-
-		protected:
-			void FillSceneBindings(const SceneData& sceneData, const Material& material, std::vector<ShaderBinding::Binding>& bindings);
 	};
 
 	struct NAZARA_GRAPHICS_API ElementRendererData

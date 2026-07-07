@@ -9,11 +9,14 @@
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/ParameterList.hpp>
-#include <Nazara/Graphics/BaseElementRenderPipelinePass.hpp>
+#include <Nazara/Graphics/ElementRenderer.hpp>
+#include <Nazara/Graphics/FramePipelinePass.hpp>
 
 namespace Nz
 {
-	class NAZARA_GRAPHICS_API RasterPipelinePass : public BaseElementRenderPipelinePass
+	class ElementRendererRegistry;
+
+	class NAZARA_GRAPHICS_API RasterPipelinePass : public FramePipelinePass
 	{
 		public:
 			inline RasterPipelinePass(PassData& passData, std::string passName, const ParameterList& parameters);
@@ -31,9 +34,13 @@ namespace Nz
 			static UInt32 GetRenderMask(const ParameterList& parameters);
 
 		private:
+			std::size_t m_passIndex;
 			std::string m_passName;
+			std::vector<std::unique_ptr<ElementRendererData>> m_elementRendererData;
 			AbstractViewer* m_viewer;
+			ElementRendererRegistry& m_elementRegistry;
 			FramePipeline& m_pipeline;
+			UInt32 m_renderMask;
 	};
 }
 

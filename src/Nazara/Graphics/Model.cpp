@@ -51,7 +51,7 @@ namespace Nz
 	{
 	}
 
-	void Model::BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, std::vector<RenderElementOwner>& elements) const
+	void Model::BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, UInt32 renderMask, std::vector<RenderElementOwner>& elements) const
 	{
 		for (std::size_t i = 0; i < m_submeshes.size(); ++i)
 		{
@@ -70,7 +70,7 @@ namespace Nz
 			std::size_t indexCount = (submeshData.indexCount != 0) ? submeshData.indexCount : m_graphicalMesh->GetIndexCount(i);
 			IndexType indexType = m_graphicalMesh->GetIndexType(i);
 
-			elements.emplace_back(registry.AllocateElement<RenderSubmesh>(GetRenderLayer(), submeshData.material, passFlags, renderPipeline, elementData.instanceIndex, elementData.skeletonInstance, indexCount, indexType, indexBuffer, vertexBuffer, *elementData.scissorBox));
+			elements.emplace_back(registry.AllocateElement<RenderSubmesh>(GetRenderLayer(), submeshData.material, passFlags, renderPipeline, elementData.instanceIndex, elementData.skeletonInstance, indexCount, indexType, indexBuffer, vertexBuffer, *elementData.scissorBox, renderMask));
 		}
 	}
 
