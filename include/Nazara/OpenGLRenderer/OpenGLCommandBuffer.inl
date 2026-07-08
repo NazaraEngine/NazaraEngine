@@ -274,6 +274,14 @@ namespace Nz
 		m_commands.emplace_back(EndDebugRegionCommand{});
 	}
 
+	inline void OpenGLCommandBuffer::ExecuteCommandBuffer(const OpenGLCommandBuffer& commandBuffer)
+	{
+		ExecuteCommand executeCommand;
+		executeCommand.commandBuffer = &commandBuffer;
+
+		m_commands.emplace_back(std::move(executeCommand));
+	}
+
 	inline void OpenGLCommandBuffer::InsertDebugLabel(std::string_view label, const Color& color)
 	{
 		InsertDebugLabelCommand debugLabelCommand;

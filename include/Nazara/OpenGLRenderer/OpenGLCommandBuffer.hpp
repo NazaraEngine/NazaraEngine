@@ -69,7 +69,9 @@ namespace Nz
 
 			inline void EndDebugRegion();
 
-			void Execute();
+			void Execute() const;
+
+			inline void ExecuteCommandBuffer(const OpenGLCommandBuffer& commandBuffer);
 
 			inline void InsertDebugLabel(std::string_view label, const Color& color);
 
@@ -108,6 +110,7 @@ namespace Nz
 	cb(DrawIndirectCountCommand) \
 	cb(DrawIndexedIndirectCountCommand) \
 	cb(EndDebugRegionCommand) \
+	cb(ExecuteCommand) \
 	cb(InsertDebugLabelCommand) \
 	cb(MemoryBarrier) \
 	lastCb(SetFrameBufferCommand) \
@@ -126,27 +129,28 @@ namespace Nz
 
 			>;
 
-			void ApplyBindings(const GL::Context& context, const ShaderBindings& bindings);
-			void ApplyStates(const GL::Context& context, const DrawStates& states);
+			void ApplyBindings(const GL::Context& context, const ShaderBindings& bindings) const;
+			void ApplyStates(const GL::Context& context, const DrawStates& states) const;
 
-			inline void Execute(const GL::Context* context, const BeginDebugRegionCommand& command);
-			inline void Execute(const GL::Context* context, const BlitTextureCommand& command);
-			inline void Execute(const GL::Context* context, const BlitTextureToWindowCommand& command);
-			inline void Execute(const GL::Context* context, const BuildTextureMipmapsCommand& command);
-			inline void Execute(const GL::Context* context, const CopyBufferCommand& command);
-			inline void Execute(const GL::Context* context, const CopyBufferFromMemoryCommand& command);
-			inline void Execute(const GL::Context* context, const CopyTextureCommand& command);
-			inline void Execute(const GL::Context* context, const DispatchCommand& command);
-			inline void Execute(const GL::Context* context, const DrawCommand& command);
-			inline void Execute(const GL::Context* context, const DrawIndexedCommand& command);
-			inline void Execute(const GL::Context* context, const DrawIndirectCommand& command);
-			inline void Execute(const GL::Context* context, const DrawIndexedIndirectCommand& command);
-			inline void Execute(const GL::Context* context, const DrawIndirectCountCommand& command);
-			inline void Execute(const GL::Context* context, const DrawIndexedIndirectCountCommand& command);
-			inline void Execute(const GL::Context* context, const EndDebugRegionCommand& command);
-			inline void Execute(const GL::Context* context, const InsertDebugLabelCommand& command);
-			inline void Execute(const GL::Context* context, const MemoryBarrier& command);
-			inline void Execute(const GL::Context*& context, const SetFrameBufferCommand& command);
+			inline void Execute(const GL::Context* context, const BeginDebugRegionCommand& command) const;
+			inline void Execute(const GL::Context* context, const BlitTextureCommand& command) const;
+			inline void Execute(const GL::Context* context, const BlitTextureToWindowCommand& command) const;
+			inline void Execute(const GL::Context* context, const BuildTextureMipmapsCommand& command) const;
+			inline void Execute(const GL::Context* context, const CopyBufferCommand& command) const;
+			inline void Execute(const GL::Context* context, const CopyBufferFromMemoryCommand& command) const;
+			inline void Execute(const GL::Context* context, const CopyTextureCommand& command) const;
+			inline void Execute(const GL::Context* context, const DispatchCommand& command) const;
+			inline void Execute(const GL::Context* context, const DrawCommand& command) const;
+			inline void Execute(const GL::Context* context, const DrawIndexedCommand& command) const;
+			inline void Execute(const GL::Context* context, const DrawIndirectCommand& command) const;
+			inline void Execute(const GL::Context* context, const DrawIndexedIndirectCommand& command) const;
+			inline void Execute(const GL::Context* context, const DrawIndirectCountCommand& command) const;
+			inline void Execute(const GL::Context* context, const DrawIndexedIndirectCountCommand& command) const;
+			inline void Execute(const GL::Context* context, const EndDebugRegionCommand& command) const;
+			inline void Execute(const GL::Context* context, const ExecuteCommand& command) const;
+			inline void Execute(const GL::Context* context, const InsertDebugLabelCommand& command) const;
+			inline void Execute(const GL::Context* context, const MemoryBarrier& command) const;
+			inline void Execute(const GL::Context*& context, const SetFrameBufferCommand& command) const;
 
 			void Release() override;
 
@@ -302,6 +306,11 @@ namespace Nz
 
 			struct EndDebugRegionCommand
 			{
+			};
+
+			struct ExecuteCommand
+			{
+				const OpenGLCommandBuffer* commandBuffer;
 			};
 
 			struct InsertDebugLabelCommand

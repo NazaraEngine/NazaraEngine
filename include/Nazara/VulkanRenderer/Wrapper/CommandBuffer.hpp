@@ -13,6 +13,7 @@
 #include <Nazara/VulkanRenderer/Wrapper/AutoFree.hpp>
 #include <Nazara/VulkanRenderer/Wrapper/CommandPool.hpp>
 #include <vulkan/vulkan_core.h>
+#include <span>
 
 namespace Nz::Vk
 {
@@ -82,6 +83,8 @@ namespace Nz::Vk
 
 			inline void EndDebugRegion();
 			inline void EndRenderPass();
+
+			inline void ExecuteCommands(std::span<VkCommandBuffer> commandBuffers);
 
 			inline void Free();
 

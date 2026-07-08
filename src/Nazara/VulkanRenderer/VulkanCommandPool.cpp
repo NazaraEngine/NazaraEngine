@@ -10,32 +10,14 @@
 
 namespace Nz
 {
-	CommandBufferPtr VulkanCommandPool::BuildCommandBuffer(const FunctionRef<void(CommandBufferBuilder& builder)>& callback)
+	CommandBufferPtr VulkanCommandPool::BuildPrimaryCommandBuffer(const FunctionRef<void(CommandBufferBuilder& builder)>& callback)
 	{
-		Vk::AutoCommandBuffer commandBuffer = m_commandPool.AllocateCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
-
-		if (!commandBuffer->Begin(VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT))
-			throw std::runtime_error("failed to begin command buffer: " + TranslateVulkanError(commandBuffer->GetLastErrorCode()));
-
-		VulkanCommandBufferBuilder builder(commandBuffer.Get());
-		callback(builder);
-
-		if (!commandBuffer->End())
-			throw std::runtime_error("failed to build command buffer: " + TranslateVulkanError(commandBuffer->GetLastErrorCode()));
-
-		for (std::size_t i = 0; i < m_commandPools.size(); ++i)
-		{
-			if (m_commandPools[i].freeCommands.TestNone())
-				continue;
-
-			return AllocateFromPool(i, std::move(commandBuffer));
-		}
-
-		// No allocation could be made, time to allocate a new pool
-		std::size_t newPoolIndex = m_commandPools.size();
-		AllocatePool();
-
-		return AllocateFromPool(newPoolIndex, std::move(commandBuffer));
+		return BuildCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, callback);
+	}
+	
+	CommandBufferPtr VulkanCommandPool::BuildSecondaryCommandBuffer(const FunctionRef<void(CommandBufferBuilder& builder)>& callback)
+	{
+		return BuildCommandBuffer(VK_COMMAND_BUFFER_LEVEL_SECONDARY, callback);
 	}
 
 	void VulkanCommandPool::UpdateDebugName(std::string_view name)
@@ -45,11 +27,11 @@ namespace Nz
 
 	auto VulkanCommandPool::AllocatePool() -> CommandPool&
 	{
-		constexpr UInt32 MaxSet = 128;
+		constexpr UInt32 MaxCommand = 128;
 
 		CommandPool pool;
-		pool.freeCommands.Resize(MaxSet, true);
-		pool.storage = std::make_unique<CommandPool::BindingStorage[]>(MaxSet);
+		pool.freeCommands.Resize(MaxCommand, true);
+		pool.storage = std::make_unique<CommandPool::BindingStorage[]>(MaxCommand);
 
 		return m_commandPools.emplace_back(std::move(pool));
 	}
@@ -73,5 +55,33 @@ namespace Nz
 		// Try to free pool if it's one of the last one
 		if (poolIndex >= m_commandPools.size() - 1 && poolIndex <= m_commandPools.size())
 			TryToShrink();
+	}
+	
+	CommandBufferPtr VulkanCommandPool::BuildCommandBuffer(VkCommandBufferLevel level, const FunctionRef<void(CommandBufferBuilder& builder)>& callback)
+	{
+		Vk::AutoCommandBuffer commandBuffer = m_commandPool.AllocateCommandBuffer(level);
+
+		if (!commandBuffer->Begin(VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT))
+			throw std::runtime_error("failed to begin command buffer: " + TranslateVulkanError(commandBuffer->GetLastErrorCode()));
+
+		VulkanCommandBufferBuilder builder(commandBuffer.Get());
+		callback(builder);
+
+		if (!commandBuffer->End())
+			throw std::runtime_error("failed to build command buffer: " + TranslateVulkanError(commandBuffer->GetLastErrorCode()));
+
+		for (std::size_t i = 0; i < m_commandPools.size(); ++i)
+		{
+			if (m_commandPools[i].freeCommands.TestNone())
+				continue;
+
+			return AllocateFromPool(i, std::move(commandBuffer));
+		}
+
+		// No allocation could be made, time to allocate a new pool
+		std::size_t newPoolIndex = m_commandPools.size();
+		AllocatePool();
+
+		return AllocateFromPool(newPoolIndex, std::move(commandBuffer));
 	}
 }

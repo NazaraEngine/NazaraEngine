@@ -379,6 +379,11 @@ namespace Nz::Vk
 		return m_pool->GetDevice()->vkCmdEndRenderPass(m_handle);
 	}
 
+	inline void CommandBuffer::ExecuteCommands(std::span<VkCommandBuffer> commandBuffers)
+	{
+		m_pool->GetDevice()->vkCmdExecuteCommands(m_handle, SafeCaster(commandBuffers.size()), commandBuffers.data());
+	}
+
 	inline void CommandBuffer::Free()
 	{
 		if (m_handle)

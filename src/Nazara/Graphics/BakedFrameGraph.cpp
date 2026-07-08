@@ -29,7 +29,7 @@ namespace Nz
 					continue; //< Skip the pass
 			}
 
-			CommandBufferPtr commandBuffer = m_commandPool->BuildCommandBuffer([&](CommandBufferBuilder& builder)
+			CommandBufferPtr commandBuffer = m_commandPool->BuildPrimaryCommandBuffer([&](CommandBufferBuilder& builder)
 			{
 				for (auto& textureTransition : passData.invalidationBarriers)
 				{
