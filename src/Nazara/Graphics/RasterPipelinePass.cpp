@@ -9,6 +9,8 @@
 #include <Nazara/Graphics/FrameGraph.hpp>
 #include <Nazara/Graphics/FramePipeline.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
+#include <Nazara/Graphics/ViewerInstance.hpp>
+#include <Nazara/Math/Frustum.hpp>
 
 namespace Nz
 {
@@ -62,6 +64,8 @@ namespace Nz
 
 		pass.SetCommandCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
+			fmt::print("RasterPipelinePass command callback\n");
+
 			ElementRenderer::RenderData renderData;
 			renderData.renderRegion = env.renderRect;
 			renderData.shaderBindingCache = m_pipeline.GetShaderBindingCache();
@@ -98,10 +102,48 @@ namespace Nz
 			{
 				elementRenderer.PrepareEnd(*m_elementRendererData[elementType], env.renderResources, builder);
 			});
+
+			Frustumf frustum = Frustumf::Extract(m_viewer->GetViewerInstance().GetViewProjMatrix(), m_viewer->IsZReversed());
+
+			builder.BeginDebugRegion("GPU Culling", Color::Cyan());
+			{
+				builder.BindComputePipeline(*m_computePipeline);
+
+				builder.PushConstants(*m_computePipelineLayout, 0, 6 * 4 * sizeof(float), frustum.GetPlanes().data());
+
+				m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
+				{
+					elementRenderer.ForEachIndirectBuffer(*m_elementRendererData[elementType], [&](RenderBuffer* buffer, std::size_t commandCount)
+					{
+						ShaderBindingPtr computeShaderBinding = m_computePipelineLayout->AllocateShaderBinding(0);
+						computeShaderBinding->Update({
+							{
+								0,
+								Nz::ShaderBinding::StorageBufferBinding::WholeBuffer(*buffer)
+							},
+							{
+								1,
+								Nz::ShaderBinding::StorageBufferBinding::WholeBuffer(*sceneData.instanceBuffer)
+							}
+						});
+
+						builder.BindComputeShaderBinding(0, *computeShaderBinding);
+
+						builder.Dispatch((commandCount + 31) / 32, 1, 1);
+
+						env.renderResources.PushForRelease(std::move(computeShaderBinding));
+					});
+				});
+
+				builder.MemoryBarrier({ .srcStageMask = PipelineStage::ComputeShader, .dstStageMask = PipelineStage::DrawIndirect, .srcAccessMask = MemoryAccess::ShaderWrite, .dstAccessMask = MemoryAccess::IndirectCommandRead });
+			}
+			builder.EndDebugRegion();
 		});
 
 		pass.SetRenderCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
+			fmt::print("RasterPipelinePass render callback\n");
+
 			Recti viewport = m_viewer->GetViewport();
 
 			builder.SetScissor(viewport);
@@ -181,5 +223,34 @@ namespace Nz
 		}
 
 		return MaxValue();
+	}
+
+	void RasterPipelinePass::BuildCullingPipeline()
+	{
+		Graphics* graphics = Graphics::Instance();
+		auto& renderDevice = *graphics->GetRenderDevice();
+
+		m_frustumCullingShader = std::make_shared<UberShader>(nzsl::ShaderStageType::Compute, "Compute.FrustumCulling");
+
+		RenderPipelineLayoutInfo cullingPipelineLayoutInfo;
+		cullingPipelineLayoutInfo.pushConstantSize = 6 * sizeof(Nz::Planef);
+		cullingPipelineLayoutInfo.bindings.push_back({
+			.bindingIndex = 0,
+			.type = ShaderBindingType::StorageBuffer,
+			.shaderStageFlags = nzsl::ShaderStageType::Compute
+		});
+		
+		cullingPipelineLayoutInfo.bindings.push_back({
+			.bindingIndex = 1,
+			.type = ShaderBindingType::StorageBuffer,
+			.shaderStageFlags = nzsl::ShaderStageType::Compute
+		});
+		
+		m_computePipelineLayout = renderDevice.InstantiateRenderPipelineLayout(std::move(cullingPipelineLayoutInfo));
+
+		m_computePipeline = renderDevice.InstantiateComputePipeline({
+			.pipelineLayout = m_computePipelineLayout,
+			.shaderModule = m_frustumCullingShader->Get({})
+		});
 	}
 }

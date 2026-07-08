@@ -90,6 +90,9 @@ namespace Nz
 		if (GetUsageFlags() & BufferUsage::PersistentMapping)
 			accessBit |= GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT;
 
+		if (size == WholeSize)
+			size = GetSize();
+
 		return m_buffer.MapRange(offset, size, accessBit);
 	}
 

@@ -51,7 +51,8 @@ namespace Nz
 			std::vector<const RenderElement*> m_orderedRenderElements;
 			ElementRendererRegistry& m_elementRegistry;
 			RenderQueueRegistry m_renderQueueRegistry;
-			bool m_rebuildRenderQueue;
+			bool m_shouldRebuildRenderQueue;
+			bool m_shouldSortRenderQueue;
 	};
 }
 

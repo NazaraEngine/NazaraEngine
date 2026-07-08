@@ -15,10 +15,13 @@
 
 namespace Nz
 {
+	class ComputePipeline;
 	class ElementRendererRegistry;
 	class FrameGraph;
 	class FramePass;
 	class FramePipeline;
+	class RenderPipelineLayout;
+	class UberShader;
 
 	class NAZARA_GRAPHICS_API ShadowAtlasPipelinePass : public FramePipelinePass
 	{
@@ -39,12 +42,17 @@ namespace Nz
 			ShadowAtlasPipelinePass& operator=(ShadowAtlasPipelinePass&&) = delete;
 
 		private:
+			void BuildCullingPipeline();
+
 			struct LightData
 			{
 				// FIXME: HybridVector doesn't seem to be movable when containing move-only types
 				std::vector<std::vector<std::unique_ptr<ElementRendererData>>> elementRendererData;
 			};
 
+			std::shared_ptr<ComputePipeline> m_computePipeline;
+			std::shared_ptr<RenderPipelineLayout> m_computePipelineLayout;
+			std::shared_ptr<UberShader> m_frustumCullingShader;
 			std::size_t m_passIndex;
 			std::unordered_map<std::size_t, LightData> m_lightData;
 			ShadowAtlas m_shadowAtlas;

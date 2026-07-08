@@ -47,6 +47,7 @@ namespace Nz
 		// OnTransferRequired
 		m_directionalLights.OnTransferRequired.Connect([this](TransferInterface* transfer) { m_transferSet.insert(transfer); });
 		m_directionalShadowAtlasEntries.OnTransferRequired.Connect([this](TransferInterface* transfer) { m_transferSet.insert(transfer); });
+		m_indirectCommandBuffer.OnTransferRequired.Connect([this](TransferInterface* transfer) { m_transferSet.insert(transfer); });
 		m_instanceBuffer.OnTransferRequired.Connect([this](TransferInterface* transfer) { m_transferSet.insert(transfer); });
 		m_pointLights.OnTransferRequired.Connect([this](TransferInterface* transfer) { m_transferSet.insert(transfer); });
 		m_pointShadowAtlasEntries.OnTransferRequired.Connect([this](TransferInterface* transfer) { m_transferSet.insert(transfer); });
@@ -55,6 +56,7 @@ namespace Nz
 
 		m_directionalLights.UpdateDebugName("Directional Light buffer");
 		m_directionalShadowAtlasEntries.UpdateDebugName("Directional Shadow Atlas Entries");
+		m_indirectCommandBuffer.UpdateDebugName("Indirect command buffer");
 		m_instanceBuffer.UpdateDebugName("Instance buffer");
 		m_pointLights.UpdateDebugName("Point Light buffer");
 		m_pointShadowAtlasEntries.UpdateDebugName("Point Shadow Atlas Entries");

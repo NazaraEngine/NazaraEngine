@@ -43,6 +43,8 @@ namespace Nz
 			Buffer& operator=(const Buffer&) = delete;
 			Buffer& operator=(Buffer&&) = delete;
 
+			static constexpr UInt64 WholeSize = MaxValue();
+
 		private:
 			BufferUsageFlags m_usage;
 			DataStorage m_storage;

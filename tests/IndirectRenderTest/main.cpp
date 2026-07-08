@@ -101,7 +101,7 @@ fn plane_dist(plane: vec4[f32], pos: vec3[f32]) -> f32
 	return dot(plane.xyz, pos) + plane.w;
 }
 
-fn frustum_check(frustum_planes: array[vec4[f32], 6], pos: vec3[f32]) -> bool
+fn frustum_check(pos: vec3[f32]) -> bool
 {
 	let visible = true;
 	for plane in viewerData.frustumPlanes
@@ -122,8 +122,7 @@ fn cull(input: CullingInput)
 		return;
 
 	let objectPos = instanceData.objects[objectIndex].worldMatrix[3].xyz;
-	let frustumPlanes = viewerData.frustumPlanes;
-	if (frustum_check(frustumPlanes, objectPos))
+	if (frustum_check(objectPos))
 	{
 		let dist = distance(viewerData.viewerPos, objectPos);
 

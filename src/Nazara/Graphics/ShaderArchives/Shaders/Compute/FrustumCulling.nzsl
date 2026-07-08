@@ -1,0 +1,68 @@
+[nzsl_version("1.1")]
+module Compute.FrustumCulling;
+
+import Engine.IndirectData;
+import InstanceBuffer from Engine.InstanceData;
+
+option WorkgroupSize: u32 = 256;
+
+[layout(std430)]
+struct DrawIndexedIndirectCommandBuffer
+{
+    drawIndirects: dyn_array[IndirectData.DrawIndexedIndirectCommand]
+}
+
+[layout(std430)]
+struct ViewerData
+{
+    frustumPlanes: array[vec4[f32], 6]
+}
+
+[auto_binding]
+external
+{
+    indirectBuffer: storage[DrawIndexedIndirectCommandBuffer, readwrite],
+    instanceBuffer: storage[InstanceBuffer, readonly],
+    viewerData: push_constant[ViewerData],
+}
+
+fn PlaneSignedDist(plane: vec4[f32], pos: vec3[f32]) -> f32
+{
+	return dot(plane.xyz, pos) + plane.w;
+}
+
+fn FrustumCull(pos: vec3[f32]) -> bool
+{
+	let visible = true;
+	for plane in viewerData.frustumPlanes
+	{
+		if (PlaneSignedDist(plane, pos) < 0.0)
+			visible = false;
+	}
+
+	return visible;
+}
+
+struct Input
+{
+    [builtin(global_invocation_indices)]
+    invocationIndices: vec3[u32]
+}
+
+[entry(comp), workgroup(WorkgroupSize, 1, 1)]
+fn main(input: Input)
+{
+	let commandCount = indirectBuffer.drawIndirects.Size();
+	let commandIndex = input.invocationIndices.x;
+	if (commandIndex >= commandCount)
+		return;
+
+    let drawCommand = indirectBuffer.drawIndirects[commandIndex];
+    let instanceIndex = drawCommand.firstInstance;
+
+    let instancePosition = instanceBuffer.instances[instanceIndex].worldMatrix[3].xyz;
+
+    let isVisible = FrustumCull(instancePosition);
+
+    indirectBuffer.drawIndirects[commandIndex].instanceCount = select(isVisible, u32(1), u32(0));
+}

@@ -16,9 +16,23 @@
 
 namespace Nz
 {
-	SubmeshRenderer::SubmeshRenderer()
+	SubmeshRenderer::SubmeshRenderer(RenderDevice& device) :
+	m_device(device)
 	{
 		m_pool = std::make_shared<PoolData>();
+	}
+
+	void SubmeshRenderer::ForEachIndirectBuffer(ElementRendererData& rendererData, FunctionRef<void(RenderBuffer* buffer, std::size_t commandCount)> callback)
+	{
+		auto& data = SafeCast<SubmeshRendererData&>(rendererData);
+
+		std::size_t remainingElements = data.totalElementCount;
+		for (RenderBuffer* buffer : data.drawIndirectBuffers)
+		{
+			std::size_t commandCount = std::min(remainingElements, IndirectCommandBufferCount);
+			callback(buffer, commandCount);
+			remainingElements -= commandCount;
+		}
 	}
 
 	RenderElementPool<RenderSubmesh>& SubmeshRenderer::GetPool()
@@ -31,9 +45,90 @@ namespace Nz
 		return std::make_unique<SubmeshRendererData>();
 	}
 
+	void SubmeshRenderer::Prepare(const RenderData& renderData, const SceneData& sceneData, const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& renderResources, std::size_t elementCount, const Pointer<const RenderElement>* elements)
+	{
+		auto& data = SafeCast<SubmeshRendererData&>(rendererData);
+
+		for (std::size_t i = 0; i < elementCount; ++i)
+		{
+			if (!data.currentIndirectBuffer)
+			{
+				if (!m_pool->indirectBuffers.empty())
+				{
+					data.currentIndirectBuffer = std::move(m_pool->indirectBuffers.back());
+					m_pool->indirectBuffers.pop_back();
+				}
+				else
+					data.currentIndirectBuffer = m_device.InstantiateBuffer(IndirectCommandBufferCount * sizeof(DrawIndexedIndirectCommand), BufferUsage::IndirectBuffer | BufferUsage::MapSequentialWrite | BufferUsage::PersistentMapping | BufferUsage::StorageBuffer);
+
+				data.indirectCommandIndex = 0;
+				data.currentIndirectBufferPtr = static_cast<UInt8*>(data.currentIndirectBuffer->Map(0, RenderBuffer::WholeSize));
+			}
+
+			NazaraAssert(elements[i]->GetElementType() == UnderlyingCast(BasicRenderElement::Submesh));
+			const RenderSubmesh& submesh = static_cast<const RenderSubmesh&>(*elements[i]);
+
+			UInt8* indirectBuffer = data.currentIndirectBufferPtr + data.indirectCommandIndex * sizeof(DrawIndexedIndirectCommand);
+			if (submesh.GetIndexBuffer() != nullptr)
+			{
+				DrawIndexedIndirectCommand drawIndirectCommand;
+				drawIndirectCommand.firstIndex = 0;
+				drawIndirectCommand.firstInstance = submesh.GetInstanceIndex();
+				drawIndirectCommand.indexCount = submesh.GetIndexCount();
+				drawIndirectCommand.instanceCount = 1;
+				drawIndirectCommand.vertexOffset = 0;
+
+				std::memcpy(indirectBuffer, &drawIndirectCommand, sizeof(drawIndirectCommand));
+			}
+			else
+			{
+				DrawIndirectCommand drawIndirectCommand;
+				drawIndirectCommand.firstVertex = 0;
+				drawIndirectCommand.firstInstance = submesh.GetInstanceIndex();
+				drawIndirectCommand.instanceCount = 1;
+				drawIndirectCommand.vertexCount = submesh.GetIndexCount();
+
+				std::memcpy(indirectBuffer, &drawIndirectCommand, sizeof(drawIndirectCommand));
+			}
+
+			data.indirectCommandIndex++;
+			data.totalElementCount++;
+
+			if (data.indirectCommandIndex >= IndirectCommandBufferCount)
+			{
+				data.drawIndirectBuffers.push_back(data.currentIndirectBuffer.get());
+
+				renderResources.PushReleaseCallback([pool = m_pool, buffer = std::move(data.currentIndirectBuffer)]() mutable
+				{
+					pool->indirectBuffers.push_back(std::move(buffer));
+				});
+				data.currentIndirectBuffer = nullptr;
+				data.currentIndirectBufferPtr = nullptr;
+			}
+		}
+	}
+
+	void SubmeshRenderer::PrepareEnd(ElementRendererData& rendererData, RenderResources& renderResources, CommandBufferBuilder& commandBuffer)
+	{
+		auto& data = SafeCast<SubmeshRendererData&>(rendererData);
+
+		if (data.currentIndirectBuffer)
+		{
+			data.drawIndirectBuffers.push_back(data.currentIndirectBuffer.get());
+
+			renderResources.PushReleaseCallback([pool = m_pool, buffer = std::move(data.currentIndirectBuffer)]() mutable
+			{
+				pool->indirectBuffers.push_back(std::move(buffer));
+			});
+
+			data.currentIndirectBuffer = nullptr;
+			data.currentIndirectBufferPtr = nullptr;
+		}
+	}
+
 	void SubmeshRenderer::Render(const RenderData& renderData, const SceneData& sceneData, const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& renderResources, CommandBufferBuilder& commandBuffer, std::size_t elementCount, const Pointer<const RenderElement>* elements)
 	{
-		auto& data = static_cast<SubmeshRendererData&>(rendererData);
+		auto& data = SafeCast<SubmeshRendererData&>(rendererData);
 		if (!data.references)
 		{
 			if (!m_pool->references.empty())
@@ -68,6 +163,7 @@ namespace Nz
 		std::size_t sceneSetHash = 0;
 		std::size_t viewerSetHash = 0;
 
+		fmt::print("    - SubmeshRenderer::Render: {}\n", elementCount);
 		for (std::size_t i = 0; i < elementCount; ++i)
 		{
 			NazaraAssert(elements[i]->GetElementType() == UnderlyingCast(BasicRenderElement::Submesh));
@@ -182,16 +278,30 @@ namespace Nz
 				data.shaderBindings.emplace_back(std::move(instanceBinding));
 			}
 
+			RenderBuffer* indirectBuffer = data.drawIndirectBuffers[data.drawIndirectBufferIndex];
+
 			if (currentIndexBuffer)
-				commandBuffer.DrawIndexed(SafeCaster(submesh.GetIndexCount()), 1U, 0, 0, submesh.GetInstanceIndex());
+				commandBuffer.DrawIndexedIndirect(*indirectBuffer, data.drawElementCounter * sizeof(DrawIndexedIndirectCommand), 1, sizeof(DrawIndexedIndirectCommand));
 			else
-				commandBuffer.Draw(SafeCaster(submesh.GetIndexCount()), 1U, 0, submesh.GetInstanceIndex());
+				commandBuffer.DrawIndirect(*indirectBuffer, data.drawElementCounter * sizeof(DrawIndexedIndirectCommand), 1, sizeof(DrawIndexedIndirectCommand));
+
+			data.drawElementCounter++;
+			if (data.drawElementCounter >= IndirectCommandBufferCount)
+			{
+				data.drawElementCounter = 0;
+				data.drawIndirectBufferIndex++;
+			}
 		}
 	}
 
 	void SubmeshRenderer::Reset(ElementRendererData& rendererData, RenderResources& renderResources)
 	{
-		auto& data = static_cast<SubmeshRendererData&>(rendererData);
+		auto& data = SafeCast<SubmeshRendererData&>(rendererData);
+
+		data.drawElementCounter = 0;
+		data.drawIndirectBufferIndex = 0;
+		data.drawIndirectBuffers.clear();
+		data.totalElementCount = 0;
 
 		if (data.references)
 		{

@@ -8,6 +8,7 @@
 #define NAZARA_GRAPHICS_ELEMENTRENDERER_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <NazaraUtils/FunctionRef.hpp>
 #include <Nazara/Graphics/Export.hpp>
 #include <Nazara/Graphics/RenderElementPool.hpp>
 #include <Nazara/Math/Rect.hpp>
@@ -37,9 +38,12 @@ namespace Nz
 			ElementRenderer() = default;
 			virtual ~ElementRenderer();
 
+			virtual void ForEachIndirectBuffer(ElementRendererData& rendererData, FunctionRef<void(RenderBuffer* buffer, std::size_t commandCount)> callback) = 0;
+
 			virtual RenderElementPoolBase& GetPool() = 0;
 
 			virtual std::unique_ptr<ElementRendererData> InstanciateData() = 0;
+
 			virtual void Prepare(const RenderData& renderData, const SceneData& sceneData, const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& renderResources, std::size_t elementCount, const Pointer<const RenderElement>* elements);
 			virtual void PrepareEnd(ElementRendererData& rendererData, RenderResources& renderResources, CommandBufferBuilder& commandBuffer);
 			virtual void Render(const RenderData& renderData, const SceneData& sceneData, const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& renderResources, CommandBufferBuilder& commandBuffer, std::size_t elementCount, const Pointer<const RenderElement>* elements) = 0;
