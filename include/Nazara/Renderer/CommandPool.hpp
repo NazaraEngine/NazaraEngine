@@ -24,7 +24,8 @@ namespace Nz
 			CommandPool(CommandPool&&) = default;
 			virtual ~CommandPool();
 
-			virtual CommandBufferPtr BuildCommandBuffer(const FunctionRef<void(CommandBufferBuilder& builder)>& callback) = 0;
+			virtual CommandBufferPtr BuildPrimaryCommandBuffer(const FunctionRef<void(CommandBufferBuilder& builder)>& callback) = 0;
+			virtual CommandBufferPtr BuildSecondaryCommandBuffer(const FunctionRef<void(CommandBufferBuilder& builder)>& callback) = 0;
 
 			virtual void UpdateDebugName(std::string_view name) = 0;
 

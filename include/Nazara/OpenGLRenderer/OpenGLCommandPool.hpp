@@ -25,7 +25,8 @@ namespace Nz
 			OpenGLCommandPool(OpenGLCommandPool&&) noexcept = default;
 			~OpenGLCommandPool() = default;
 
-			CommandBufferPtr BuildCommandBuffer(const FunctionRef<void(CommandBufferBuilder& builder)>& callback) override;
+			CommandBufferPtr BuildPrimaryCommandBuffer(const FunctionRef<void(CommandBufferBuilder& builder)>& callback) override;
+			CommandBufferPtr BuildSecondaryCommandBuffer(const FunctionRef<void(CommandBufferBuilder& builder)>& callback) override;
 
 			void UpdateDebugName(std::string_view name) override;
 
@@ -37,6 +38,7 @@ namespace Nz
 
 			CommandPool& AllocatePool();
 			CommandBufferPtr AllocateFromPool(std::size_t poolIndex);
+			CommandBufferPtr BuildCommandBuffer(const FunctionRef<void(CommandBufferBuilder& builder)>& callback);
 			void Release(CommandBuffer& commandBuffer);
 			inline void TryToShrink();
 

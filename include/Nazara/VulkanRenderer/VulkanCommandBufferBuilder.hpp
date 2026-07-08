@@ -57,9 +57,11 @@ namespace Nz
 			void EndDebugRegion() override;
 			void EndRenderPass() override;
 
-			void InsertDebugLabel(std::string_view label, const Color& color) override;
+			void ExecuteCommands(std::span<const CommandBuffer*> commandBuffers) override;
 
 			inline Vk::CommandBuffer& GetCommandBuffer();
+
+			void InsertDebugLabel(std::string_view label, const Color& color) override;
 
 			void PipelineBarrier(std::span<const MemoryBarrierInfo> memoryBarriers, std::span<const BufferBarrierInfo> bufferBarriers, std::span<const TextureBarrierInfo> textureBarriers) override;
 

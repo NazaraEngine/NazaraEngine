@@ -9,30 +9,14 @@
 
 namespace Nz
 {
-	CommandBufferPtr OpenGLCommandPool::BuildCommandBuffer(const FunctionRef<void(CommandBufferBuilder& builder)>& callback)
+	CommandBufferPtr OpenGLCommandPool::BuildPrimaryCommandBuffer(const FunctionRef<void(CommandBufferBuilder& builder)>& callback)
 	{
-		CommandBufferPtr commandBuffer;
-		for (std::size_t i = 0; i < m_commandPools.size(); ++i)
-		{
-			commandBuffer = AllocateFromPool(i);
-			if (commandBuffer)
-				break;
-		}
+		return BuildCommandBuffer(callback);
+	}
 
-		if (!commandBuffer)
-		{
-			// No allocation could be made, time to allocate a new pool
-			std::size_t newPoolIndex = m_commandPools.size();
-			AllocatePool();
-
-			commandBuffer = AllocateFromPool(newPoolIndex);
-			assert(commandBuffer);
-		}
-
-		OpenGLCommandBufferBuilder builder(SafeCast<OpenGLCommandBuffer&>(*commandBuffer.get()));
-		callback(builder);
-
-		return commandBuffer;
+	CommandBufferPtr OpenGLCommandPool::BuildSecondaryCommandBuffer(const FunctionRef<void(CommandBufferBuilder& builder)>& callback)
+	{
+		return BuildCommandBuffer(callback);
 	}
 
 	void OpenGLCommandPool::UpdateDebugName(std::string_view /*name*/)
@@ -63,6 +47,32 @@ namespace Nz
 
 		OpenGLCommandBuffer* freeBindingMemory = reinterpret_cast<OpenGLCommandBuffer*>(&pool.storage[freeBindingId]);
 		return CommandBufferPtr(PlacementNew(freeBindingMemory, *this, poolIndex, freeBindingId));
+	}
+
+	CommandBufferPtr OpenGLCommandPool::BuildCommandBuffer(const FunctionRef<void(CommandBufferBuilder& builder)>& callback)
+	{
+		CommandBufferPtr commandBuffer;
+		for (std::size_t i = 0; i < m_commandPools.size(); ++i)
+		{
+			commandBuffer = AllocateFromPool(i);
+			if (commandBuffer)
+				break;
+		}
+
+		if (!commandBuffer)
+		{
+			// No allocation could be made, time to allocate a new pool
+			std::size_t newPoolIndex = m_commandPools.size();
+			AllocatePool();
+
+			commandBuffer = AllocateFromPool(newPoolIndex);
+			assert(commandBuffer);
+		}
+
+		OpenGLCommandBufferBuilder builder(SafeCast<OpenGLCommandBuffer&>(*commandBuffer.get()));
+		callback(builder);
+
+		return commandBuffer;
 	}
 
 	void OpenGLCommandPool::Release(CommandBuffer& binding)

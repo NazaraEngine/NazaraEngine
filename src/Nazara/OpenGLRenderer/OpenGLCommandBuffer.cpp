@@ -72,7 +72,7 @@ namespace Nz
 		}
 	}
 
-	void OpenGLCommandBuffer::Execute()
+	void OpenGLCommandBuffer::Execute() const
 	{
 		const GL::Context* context = GL::Context::GetCurrentContext();
 
@@ -96,7 +96,7 @@ namespace Nz
 		// No OpenGL object to name
 	}
 
-	void OpenGLCommandBuffer::ApplyBindings(const GL::Context& context, const ShaderBindings& states)
+	void OpenGLCommandBuffer::ApplyBindings(const GL::Context& context, const ShaderBindings& states) const
 	{
 		unsigned int setIndex = 0;
 		for (const ShaderBinding& entry : states.shaderBindings)
@@ -110,7 +110,7 @@ namespace Nz
 		}
 	}
 
-	void OpenGLCommandBuffer::ApplyStates(const GL::Context& context, const DrawStates& states)
+	void OpenGLCommandBuffer::ApplyStates(const GL::Context& context, const DrawStates& states) const
 	{
 		states.pipeline->Apply(context, states.shouldFlipY);
 
@@ -148,46 +148,46 @@ namespace Nz
 		context.BindVertexArray(vao.GetObjectId());
 	}
 
-	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const BeginDebugRegionCommand& command)
+	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const BeginDebugRegionCommand& command) const
 	{
 		if (context->glPushDebugGroup)
 			context->glPushDebugGroup(GL_DEBUG_SOURCE_APPLICATION, 0, GLsizei(command.regionName.size()), command.regionName.data());
 	}
 
-	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const BlitTextureCommand& command)
+	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const BlitTextureCommand& command) const
 	{
 		context->BlitTexture(*command.source, *command.target, command.sourceBox, command.targetBox, command.filter);
 	}
 
-	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const BlitTextureToWindowCommand& command)
+	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const BlitTextureToWindowCommand& command) const
 	{
 		context->BlitTextureToWindow(*command.source,  command.sourceBox, command.targetBox, command.filter);
 	}
 
-	inline void OpenGLCommandBuffer::Execute(const GL::Context* /*context*/, const BuildTextureMipmapsCommand& command)
+	inline void OpenGLCommandBuffer::Execute(const GL::Context* /*context*/, const BuildTextureMipmapsCommand& command) const
 	{
 		command.texture->GenerateMipmaps(command.baseLevel, command.levelCount);
 	}
 
-	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const CopyBufferCommand& command)
+	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const CopyBufferCommand& command) const
 	{
 		context->BindBuffer(GL::BufferTarget::CopyRead, command.source);
 		context->BindBuffer(GL::BufferTarget::CopyWrite, command.target);
 		context->glCopyBufferSubData(GL_COPY_READ_BUFFER, GL_COPY_WRITE_BUFFER, command.sourceOffset, command.targetOffset, command.size);
 	}
 
-	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const CopyBufferFromMemoryCommand& command)
+	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const CopyBufferFromMemoryCommand& command) const
 	{
 		context->BindBuffer(GL::BufferTarget::CopyWrite, command.target);
 		context->glBufferSubData(GL_COPY_WRITE_BUFFER, command.targetOffset, command.size, command.memory);
 	}
 
-	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const CopyTextureCommand& command)
+	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const CopyTextureCommand& command) const
 	{
 		context->CopyTexture(*command.source, *command.target, command.sourceBox, command.targetPoint);
 	}
 
-	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const DispatchCommand& command)
+	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const DispatchCommand& command) const
 	{
 		if NAZARA_UNLIKELY(!context->glDispatchCompute)
 			throw std::runtime_error("compute shaders are not supported on this device");
@@ -197,7 +197,7 @@ namespace Nz
 		context->glDispatchCompute(command.numGroupsX, command.numGroupsY, command.numGroupsZ);
 	}
 
-	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const DrawCommand& command)
+	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const DrawCommand& command) const
 	{
 		ApplyStates(*context, command.states);
 		ApplyBindings(*context, command.bindings);
@@ -206,7 +206,7 @@ namespace Nz
 		context->glDrawArraysInstanced(primitiveMode, command.firstVertex, command.vertexCount, command.instanceCount);
 	}
 
-	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const DrawIndexedCommand& command)
+	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const DrawIndexedCommand& command) const
 	{
 		const UInt8* origin = 0; //< For an easy way to cast an integer to a pointer
 		origin += command.states.indexBufferOffset;
@@ -233,7 +233,7 @@ namespace Nz
 			context->glDrawElementsInstanced(primitiveMode, command.indexCount, ToOpenGL(command.states.indexBufferType), origin, command.instanceCount);
 	}
 
-	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const DrawIndirectCommand& command)
+	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const DrawIndirectCommand& command) const
 	{
 		if (command.drawCount == 0)
 			return;
@@ -261,7 +261,7 @@ namespace Nz
 		}
 	}
 
-	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const DrawIndirectCountCommand& command)
+	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const DrawIndirectCountCommand& command) const
 	{
 		if (command.maxDrawCount == 0)
 			return;
@@ -282,7 +282,7 @@ namespace Nz
 		context->glMultiDrawArraysIndirectCount(primitiveMode, offset, command.indirectCountBufferOffset, command.maxDrawCount, command.stride);
 	}
 
-	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const DrawIndexedIndirectCommand& command)
+	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const DrawIndexedIndirectCommand& command) const
 	{
 		if (command.drawCount == 0)
 			return;
@@ -310,7 +310,7 @@ namespace Nz
 		}
 	}
 
-	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const DrawIndexedIndirectCountCommand& command)
+	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const DrawIndexedIndirectCountCommand& command) const
 	{
 		if (command.maxDrawCount == 0)
 			return;
@@ -331,25 +331,30 @@ namespace Nz
 		context->glMultiDrawElementsIndirectCount(primitiveMode, ToOpenGL(command.states.indexBufferType), offset, command.indirectCountBufferOffset, command.maxDrawCount, command.stride);
 	}
 
-	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const EndDebugRegionCommand& /*command*/)
+	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const EndDebugRegionCommand& /*command*/) const
 	{
 		if (context->glPopDebugGroup)
 			context->glPopDebugGroup();
 	}
 
-	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const InsertDebugLabelCommand& command)
+	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const ExecuteCommand& command) const
+	{
+		command.commandBuffer->Execute();
+	}
+
+	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const InsertDebugLabelCommand& command) const
 	{
 		if (context->glDebugMessageInsert)
 			context->glDebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_MARKER, 0, GL_DEBUG_SEVERITY_NOTIFICATION, SafeCaster(command.label.size()), command.label.data());
 	}
 
-	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const MemoryBarrier& command)
+	inline void OpenGLCommandBuffer::Execute(const GL::Context* context, const MemoryBarrier& command) const
 	{
 		if (context->glMemoryBarrier)
 			context->glMemoryBarrier(command.barriers);
 	}
 
-	inline void OpenGLCommandBuffer::Execute(const GL::Context*& context, const SetFrameBufferCommand& command)
+	inline void OpenGLCommandBuffer::Execute(const GL::Context*& context, const SetFrameBufferCommand& command) const
 	{
 		command.framebuffer->Activate();
 

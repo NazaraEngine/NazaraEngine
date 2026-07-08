@@ -188,6 +188,15 @@ namespace Nz
 		/* nothing to do */
 	}
 
+	void OpenGLCommandBufferBuilder::ExecuteCommands(std::span<const CommandBuffer*> commandBuffers)
+	{
+		for (const CommandBuffer* commandBuffer : commandBuffers)
+		{
+			const OpenGLCommandBuffer& oglCommandBuffer = *SafeCast<const OpenGLCommandBuffer*>(commandBuffer);
+			m_commandBuffer.ExecuteCommandBuffer(oglCommandBuffer);
+		}
+	}
+
 	void OpenGLCommandBufferBuilder::InsertDebugLabel(std::string_view label, const Color& color)
 	{
 		m_commandBuffer.InsertDebugLabel(label, color);

@@ -28,7 +28,8 @@ namespace Nz
 			VulkanCommandPool(VulkanCommandPool&&) noexcept = default;
 			~VulkanCommandPool() = default;
 
-			CommandBufferPtr BuildCommandBuffer(const FunctionRef<void(CommandBufferBuilder& builder)>& callback) override;
+			CommandBufferPtr BuildPrimaryCommandBuffer(const FunctionRef<void(CommandBufferBuilder& builder)>& callback) override;
+			CommandBufferPtr BuildSecondaryCommandBuffer(const FunctionRef<void(CommandBufferBuilder& builder)>& callback) override;
 
 			void UpdateDebugName(std::string_view name) override;
 
@@ -40,6 +41,7 @@ namespace Nz
 
 			CommandPool& AllocatePool();
 			template<typename... Args> CommandBufferPtr AllocateFromPool(std::size_t poolIndex, Args&&... args);
+			CommandBufferPtr BuildCommandBuffer(VkCommandBufferLevel level, const FunctionRef<void(CommandBufferBuilder& builder)>& callback);
 			void Release(CommandBuffer& commandBuffer);
 			inline void TryToShrink();
 

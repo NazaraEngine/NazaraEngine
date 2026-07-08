@@ -5,6 +5,7 @@
 #include <Nazara/VulkanRenderer/VulkanCommandBufferBuilder.hpp>
 #include <Nazara/Core/PixelFormat.hpp>
 #include <Nazara/VulkanRenderer/VulkanBuffer.hpp>
+#include <Nazara/VulkanRenderer/VulkanCommandBuffer.hpp>
 #include <Nazara/VulkanRenderer/VulkanComputePipeline.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPass.hpp>
 #include <Nazara/VulkanRenderer/VulkanRenderPipeline.hpp>
@@ -397,6 +398,18 @@ namespace Nz
 	{
 		m_commandBuffer.EndRenderPass();
 		m_currentRenderPass = nullptr;
+	}
+
+	void VulkanCommandBufferBuilder::ExecuteCommands(std::span<const CommandBuffer*> commandBuffers)
+	{
+		StackArray<VkCommandBuffer> vkCommandBuffers = NazaraStackArrayNoInit(VkCommandBuffer, commandBuffers.size());
+		for (std::size_t i = 0; i < commandBuffers.size(); ++i)
+		{
+			const VulkanCommandBuffer& vkCommandBuffer = *SafeCast<const VulkanCommandBuffer*>(commandBuffers[i]);
+			vkCommandBuffers[i] = vkCommandBuffer.GetCommandBuffer();
+		}
+
+		m_commandBuffer.ExecuteCommands(vkCommandBuffers);
 	}
 
 	void VulkanCommandBufferBuilder::InsertDebugLabel(std::string_view label, const Color& color)

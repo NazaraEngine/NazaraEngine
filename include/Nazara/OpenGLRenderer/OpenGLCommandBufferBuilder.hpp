@@ -57,6 +57,8 @@ namespace Nz
 			void EndDebugRegion() override;
 			void EndRenderPass() override;
 
+			void ExecuteCommands(std::span<const CommandBuffer*> commandBuffers) override;
+
 			void InsertDebugLabel(std::string_view label, const Color& color) override;
 
 			void NextSubpass() override;

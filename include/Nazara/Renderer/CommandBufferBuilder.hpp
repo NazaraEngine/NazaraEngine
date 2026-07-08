@@ -21,6 +21,7 @@
 
 namespace Nz
 {
+	class CommandBuffer;
 	class ComputePipeline;
 	class Framebuffer;
 	class RenderPass;
@@ -81,6 +82,8 @@ namespace Nz
 
 			virtual void EndDebugRegion() = 0;
 			virtual void EndRenderPass() = 0;
+
+			virtual void ExecuteCommands(std::span<const CommandBuffer*> commandBuffers) = 0;
 
 			virtual void InsertDebugLabel(std::string_view label, const Color& color) = 0;
 
