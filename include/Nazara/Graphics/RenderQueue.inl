@@ -7,7 +7,8 @@ namespace Nz
 	inline RenderQueue::RenderQueue(ElementRendererRegistry& elementRegistry, std::size_t passIndex) :
 	m_passIndex(passIndex),
 	m_elementRegistry(elementRegistry),
-	m_rebuildRenderQueue(false)
+	m_shouldRebuildRenderQueue(false),
+	m_shouldSortRenderQueue(false)
 	{
 	}
 

@@ -15,6 +15,6 @@ namespace Nz
 	ElementRendererRegistry::ElementRendererRegistry()
 	{
 		RegisterElementRenderer<RenderSpriteChain>(std::make_unique<SpriteChainRenderer>(*Graphics::Instance()->GetRenderDevice()));
-		RegisterElementRenderer<RenderSubmesh>(std::make_unique<SubmeshRenderer>());
+		RegisterElementRenderer<RenderSubmesh>(std::make_unique<SubmeshRenderer>(*Graphics::Instance()->GetRenderDevice()));
 	}
 }

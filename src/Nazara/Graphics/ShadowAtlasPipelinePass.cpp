@@ -10,6 +10,7 @@
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/LightShadowData.hpp>
 #include <Nazara/Graphics/ShadowViewer.hpp>
+#include <fmt/format.h>
 
 namespace Nz
 {
@@ -23,6 +24,8 @@ namespace Nz
 		NazaraAssert(graphics);
 
 		m_passIndex = graphics->GetMaterialPassRegistry().GetPassIndex("ShadowPass");
+
+		BuildCullingPipeline();
 	}
 
 	void ShadowAtlasPipelinePass::Prepare(FrameData& frameData)
@@ -68,13 +71,18 @@ namespace Nz
 
 		pass.SetCommandCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
+			fmt::print("ShadowAtlas command callback\n");
 			m_pipeline.ForEachShadowCastingLight([&](std::size_t lightIndex, const Light* /*light*/, LightShadowData* shadowData)
 			{
+				fmt::print("- ForEachShadowCastingLight: {}\n", lightIndex);
+
 				LightData& lightData = m_lightData[lightIndex];
 
 				std::size_t viewIndex = 0;
 				shadowData->ForEachView([&](std::size_t shadowAtlasEntry, ShadowViewer& shadowViewer)
 				{
+					fmt::print("  - ForEachView: {}\n", shadowAtlasEntry);
+
 					std::optional<Rectui32> viewport = m_shadowAtlas.GetRect(shadowAtlasEntry);
 					if (!viewport)
 						return;
@@ -120,6 +128,45 @@ namespace Nz
 						elementRenderer.PrepareEnd(*lightData.elementRendererData[elementType][viewIndex], env.renderResources, builder);
 					});
 
+					Frustumf frustum = Frustumf::Extract(shadowViewer.GetViewerInstance().GetViewProjMatrix(), shadowViewer.IsZReversed());
+
+					builder.BeginDebugRegion("GPU Culling", Color::Cyan());
+					{
+						builder.BindComputePipeline(*m_computePipeline);
+
+						builder.PushConstants(*m_computePipelineLayout, 0, 6 * 4 * sizeof(float), frustum.GetPlanes().data());
+
+						m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
+						{
+							if (elementType >= lightData.elementRendererData.size() || viewIndex >= lightData.elementRendererData[elementType].size())
+								return;
+
+							elementRenderer.ForEachIndirectBuffer(*lightData.elementRendererData[elementType][viewIndex], [&](RenderBuffer* buffer, std::size_t commandCount)
+							{
+								ShaderBindingPtr computeShaderBinding = m_computePipelineLayout->AllocateShaderBinding(0);
+								computeShaderBinding->Update({
+									{
+										0,
+										Nz::ShaderBinding::StorageBufferBinding::WholeBuffer(*buffer)
+									},
+									{
+										1,
+										Nz::ShaderBinding::StorageBufferBinding::WholeBuffer(*sceneData.instanceBuffer)
+									}
+								});
+
+								builder.BindComputeShaderBinding(0, *computeShaderBinding);
+
+								builder.Dispatch((commandCount + 31) / 32, 1, 1);
+
+								env.renderResources.PushForRelease(std::move(computeShaderBinding));
+							});
+						});
+
+						builder.MemoryBarrier({ .srcStageMask = PipelineStage::ComputeShader, .dstStageMask = PipelineStage::DrawIndirect, .srcAccessMask = MemoryAccess::ShaderWrite, .dstAccessMask = MemoryAccess::IndirectCommandRead });
+					}
+					builder.EndDebugRegion();
+
 					viewIndex++;
 				});
 			});
@@ -127,6 +174,8 @@ namespace Nz
 
 		pass.SetRenderCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
+			fmt::print("ShadowAtlas render callback\n");
+
 			ElementRenderer::RenderData renderData;
 			renderData.shaderBindingCache = m_pipeline.GetShaderBindingCache();
 
@@ -183,5 +232,34 @@ namespace Nz
 		});
 
 		return pass;
+	}
+
+	void ShadowAtlasPipelinePass::BuildCullingPipeline()
+	{
+		Graphics* graphics = Graphics::Instance();
+		auto& renderDevice = *graphics->GetRenderDevice();
+
+		m_frustumCullingShader = std::make_shared<UberShader>(nzsl::ShaderStageType::Compute, "Compute.FrustumCulling");
+
+		RenderPipelineLayoutInfo cullingPipelineLayoutInfo;
+		cullingPipelineLayoutInfo.pushConstantSize = 6 * sizeof(Nz::Planef);
+		cullingPipelineLayoutInfo.bindings.push_back({
+			.bindingIndex = 0,
+			.type = ShaderBindingType::StorageBuffer,
+			.shaderStageFlags = nzsl::ShaderStageType::Compute
+		});
+		
+		cullingPipelineLayoutInfo.bindings.push_back({
+			.bindingIndex = 1,
+			.type = ShaderBindingType::StorageBuffer,
+			.shaderStageFlags = nzsl::ShaderStageType::Compute
+		});
+		
+		m_computePipelineLayout = renderDevice.InstantiateRenderPipelineLayout(std::move(cullingPipelineLayoutInfo));
+
+		m_computePipeline = renderDevice.InstantiateComputePipeline({
+			.pipelineLayout = m_computePipelineLayout,
+			.shaderModule = m_frustumCullingShader->Get({})
+		});
 	}
 }

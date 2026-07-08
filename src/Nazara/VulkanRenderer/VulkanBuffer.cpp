@@ -145,7 +145,7 @@ namespace Nz
 		{
 			VkBufferCreateInfo createInfo = {};
 			createInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-			createInfo.size = size;
+			createInfo.size = (size == WholeSize) ? VK_WHOLE_SIZE : size;
 			createInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
 
 			VmaAllocationCreateInfo allocInfo = {};

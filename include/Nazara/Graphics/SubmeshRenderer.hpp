@@ -12,6 +12,7 @@
 #include <Nazara/Graphics/RenderResourceReferences.hpp>
 #include <Nazara/Graphics/RenderSubmesh.hpp>
 #include <Nazara/Math/Rect.hpp>
+#include <Nazara/Renderer/DrawIndirect.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
 
 namespace Nz
@@ -22,12 +23,17 @@ namespace Nz
 	class NAZARA_GRAPHICS_API SubmeshRenderer final : public ElementRenderer
 	{
 		public:
-			SubmeshRenderer();
+			SubmeshRenderer(RenderDevice& device);
 			~SubmeshRenderer() = default;
+
+			void ForEachIndirectBuffer(ElementRendererData& rendererData, FunctionRef<void(RenderBuffer* buffer, std::size_t commandCount)> callback) override;
 
 			RenderElementPool<RenderSubmesh>& GetPool() override;
 
 			std::unique_ptr<ElementRendererData> InstanciateData() override;
+
+			void Prepare(const RenderData& renderData, const SceneData& sceneData, const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& renderResources, std::size_t elementCount, const Pointer<const RenderElement>* elements);
+			void PrepareEnd(ElementRendererData& rendererData, RenderResources& renderResources, CommandBufferBuilder& commandBuffer);
 			void Render(const RenderData& renderData, const SceneData& sceneData, const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& renderResources, CommandBufferBuilder& commandBuffer, std::size_t elementCount, const Pointer<const RenderElement>* elements) override;
 			void Reset(ElementRendererData& rendererData, RenderResources& renderResources) override;
 
@@ -35,29 +41,28 @@ namespace Nz
 			struct PoolData
 			{
 				std::vector<RenderResourceReferences> references;
+				std::vector<std::shared_ptr<RenderBuffer>> indirectBuffers;
 			};
+
+			static constexpr UInt64 IndirectCommandBufferCount = 10 * 1024;
 
 			std::shared_ptr<PoolData> m_pool;
 			std::vector<ShaderBinding::Binding> m_bindingCache;
 			RenderElementPool<RenderSubmesh> m_submeshPool;
+			RenderDevice& m_device;
 	};
 
 	struct SubmeshRendererData : public ElementRendererData
 	{
-		struct DrawCall
-		{
-			const RenderBuffer* indexBuffer;
-			const RenderBuffer* vertexBuffer;
-			const RenderPipeline* renderPipeline;
-			const ShaderBinding* shaderBinding;
-			std::size_t firstIndex;
-			std::size_t indexCount;
-			IndexType indexType;
-			Recti scissorBox;
-		};
-
 		std::optional<RenderResourceReferences> references;
+		std::size_t drawIndirectBufferIndex = 0;
+		std::size_t totalElementCount = 0;
+		std::shared_ptr<RenderBuffer> currentIndirectBuffer;
 		std::vector<ShaderBindingPtr> shaderBindings;
+		std::vector<RenderBuffer*> drawIndirectBuffers;
+		UInt8* currentIndirectBufferPtr = nullptr;
+		UInt32 drawElementCounter = 0;
+		UInt32 indirectCommandIndex = 0;
 	};
 }
 

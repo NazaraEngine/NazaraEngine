@@ -638,6 +638,8 @@ int main(int argc, char* argv[])
 	std::size_t toneMappingOutput;
 
 	Nz::SpriteChainRenderer spritechainRenderer(*device);
+	Nz::SubmeshRenderer submeshRenderer(*device);
+
 	std::unique_ptr<Nz::ElementRendererData> spriteRendererData = spritechainRenderer.InstanciateData();
 
 	Nz::Sprite flareSprite(flareMaterial);
@@ -650,7 +652,6 @@ int main(int argc, char* argv[])
 	Nz::UInt32 flareInstance = nextInstanceIndex++;
 	SetInstanceWorldMatrix(flareInstance, Nz::Matrix4f::Translate(flarePosition));
 
-	Nz::SubmeshRenderer submeshRenderer;
 	std::unique_ptr<Nz::ElementRendererData> submeshRendererData = submeshRenderer.InstanciateData();
 
 	std::size_t forwardPassIndex = Nz::Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex("ForwardPass");

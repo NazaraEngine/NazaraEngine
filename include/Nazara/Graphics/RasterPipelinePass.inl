@@ -17,5 +17,6 @@ namespace Nz
 	m_pipeline(passData.pipeline),
 	m_renderMask(renderMask)
 	{
+		BuildCullingPipeline();
 	}
 }

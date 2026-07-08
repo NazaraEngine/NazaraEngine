@@ -20,7 +20,7 @@ namespace Nz
 
 			m_renderElements.clear();
 			m_renderElementsIndices.clear();
-			m_rebuildRenderQueue = true;
+			m_shouldRebuildRenderQueue = true;
 		}
 	}
 
@@ -32,7 +32,7 @@ namespace Nz
 			m_deletedRenderElements.clear();
 		}
 
-		if (m_rebuildRenderQueue)
+		if (m_shouldRebuildRenderQueue)
 		{
 			m_renderQueueRegistry.Clear();
 			m_orderedRenderElements.clear();
@@ -45,12 +45,16 @@ namespace Nz
 
 			m_renderQueueRegistry.Finalize();
 
+			m_shouldRebuildRenderQueue = false;
+			m_shouldSortRenderQueue = true;
+		}
+
+		if (m_shouldSortRenderQueue)
+		{
 			std::sort(m_orderedRenderElements.begin(), m_orderedRenderElements.end(), [&](const RenderElement* lhs, const RenderElement* rhs)
 			{
 				return lhs->ComputeSortKey(m_renderQueueRegistry) < rhs->ComputeSortKey(m_renderQueueRegistry);
 			});
-
-			m_rebuildRenderQueue = false;
 		}
 	}
 
@@ -62,13 +66,13 @@ namespace Nz
 			instanceIndex
 		};
 
+		std::size_t firstElementIndex = m_renderElements.size();
+		instancedRenderable.BuildElement(m_elementRegistry, elementData, m_passIndex, renderMask, m_renderElements);
+		std::size_t elementCount = m_renderElements.size() - firstElementIndex;
+
 		auto it = m_renderElementsIndices.find(renderableIndex);
 		if (it == m_renderElementsIndices.end())
 		{
-			std::size_t firstElementIndex = m_renderElements.size();
-			instancedRenderable.BuildElement(m_elementRegistry, elementData, m_passIndex, renderMask, m_renderElements);
-			std::size_t elementCount = m_renderElements.size() - firstElementIndex;
-
 			if (elementCount == 0)
 				return;
 
@@ -80,21 +84,14 @@ namespace Nz
 			}
 
 			m_renderQueueRegistry.Finalize();
-			
-			std::sort(m_orderedRenderElements.begin(), m_orderedRenderElements.end(), [&](const RenderElement* lhs, const RenderElement* rhs)
-			{
-				return lhs->ComputeSortKey(m_renderQueueRegistry) < rhs->ComputeSortKey(m_renderQueueRegistry);
-			});
 
 			m_renderElementsIndices[renderableIndex] = RenderElementIndices{ firstElementIndex, elementCount };
+
+			m_shouldSortRenderQueue = true;
 		}
 		else
 		{
 			RenderElementIndices indices = it->second;
-
-			std::size_t firstElementIndex = m_renderElements.size();
-			instancedRenderable.BuildElement(m_elementRegistry, elementData, m_passIndex, renderMask, m_renderElements);
-			std::size_t elementCount = m_renderElements.size() - firstElementIndex;
 
 			if (indices.count == elementCount)
 			{
@@ -120,7 +117,7 @@ namespace Nz
 				m_renderElementsIndices[renderableIndex] = RenderElementIndices{ firstElementIndex, elementCount };
 			}
 
-			m_rebuildRenderQueue = true;
+			m_shouldRebuildRenderQueue = true;
 		}
 	}
 
@@ -143,7 +140,7 @@ namespace Nz
 			}
 
 			m_renderElementsIndices.erase(renderableIndex);
-			m_rebuildRenderQueue = true;
+			m_shouldRebuildRenderQueue = true;
 		}
 	}
 }

@@ -14,7 +14,10 @@
 
 namespace Nz
 {
+	class ComputePipeline;
 	class ElementRendererRegistry;
+	class RenderPipelineLayout;
+	class UberShader;
 
 	class NAZARA_GRAPHICS_API RasterPipelinePass : public FramePipelinePass
 	{
@@ -34,6 +37,11 @@ namespace Nz
 			static UInt32 GetRenderMask(const ParameterList& parameters);
 
 		private:
+			void BuildCullingPipeline();
+
+			std::shared_ptr<ComputePipeline> m_computePipeline;
+			std::shared_ptr<RenderPipelineLayout> m_computePipelineLayout;
+			std::shared_ptr<UberShader> m_frustumCullingShader;
 			std::size_t m_passIndex;
 			std::string m_passName;
 			std::vector<std::unique_ptr<ElementRendererData>> m_elementRendererData;
