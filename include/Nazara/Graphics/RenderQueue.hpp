@@ -29,13 +29,17 @@ namespace Nz
 
 			void ClearRenderables();
 
+			inline std::size_t GetContentHash() const;
+
 			void Prepare(RenderResources& renderResources);
 
-			template<typename F> void Process(UInt32 renderMask, F&& callback);
+			template<typename F> void Process(UInt32 renderMask, F&& callback) const;
 
 			void RegisterRenderable(std::size_t renderableIndex, UInt32 instanceIndex, const InstancedRenderable& instancedRenderable, const SkeletonInstance* skeletonInstance, UInt32 renderMask, const Recti& scissorBox);
 
 			void UnregisterRenderable(std::size_t renderableIndex);
+
+			void UpdateRenderQueue();
 
 		private:
 			struct RenderElementIndices
@@ -44,6 +48,7 @@ namespace Nz
 				std::size_t count;
 			};
 
+			std::size_t m_contentHash;
 			std::size_t m_passIndex;
 			std::unordered_map<std::size_t /*renderableIndex*/, RenderElementIndices> m_renderElementsIndices;
 			std::vector<RenderElementOwner> m_deletedRenderElements;

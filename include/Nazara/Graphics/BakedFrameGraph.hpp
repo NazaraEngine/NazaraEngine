@@ -75,7 +75,9 @@ namespace Nz
 				FramePass::CommandCallback renderCallback;
 				FramePass::ExecutionCallback executionCallback;
 				Color regionColor;
+				CommandBufferPtr commandBuffer;
 				Recti renderRect;
+				bool forceCommandBufferRegeneration = true;
 			};
 
 			struct TextureData : FrameGraphTextureData

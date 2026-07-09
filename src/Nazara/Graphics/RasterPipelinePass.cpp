@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Graphics/RasterPipelinePass.hpp>
+#include <NazaraUtils/MathUtils.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/ElementRenderer.hpp>
 #include <Nazara/Graphics/ElementRendererRegistry.hpp>
@@ -16,55 +17,31 @@ namespace Nz
 {
 	FramePass& RasterPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, const PassInputOuputs& inputOuputs)
 	{
-		FramePass& pass = frameGraph.AddPass(m_passName);
-		for (auto&& inputData : inputOuputs.inputAttachments)
-			pass.AddInput(inputData.attachmentIndex);
+		std::size_t prepareAttachment = frameGraph.AddDummyAttachment();
+		std::size_t cullAttachment = frameGraph.AddDummyAttachment();
 
-		for (auto&& outputData : inputOuputs.outputAttachments)
+		FramePass& preparePass = frameGraph.AddPass(m_passName);
+		preparePass.SetExecutionCallback([&]
 		{
-			std::size_t outputIndex = pass.AddOutput(outputData.attachmentIndex);
+			auto& renderQueue = m_pipeline.GetRenderQueue(m_passIndex);
+			renderQueue.UpdateRenderQueue();
 
-			std::visit(Overloaded{
-				[](DontClear) {},
-				[&](const Color& color)
-				{
-					pass.SetClearColor(outputIndex, color);
-				},
-				[&](ViewerClearValue)
-				{
-					pass.SetClearColor(outputIndex, m_viewer->GetClearColor());
-				}
-			}, outputData.clearColor);
-		}
+			if (renderQueue.GetContentHash() == m_renderQueueHash)
+				return FramePassExecution::Execute;
 
-		if (inputOuputs.depthStencilInput != FramePipelinePass::InvalidAttachmentIndex)
-			pass.SetDepthStencilInput(inputOuputs.depthStencilInput);
-		else if (inputOuputs.depthStencilOutput != InvalidAttachmentIndex)
-		{
-			std::visit(Overloaded{
-				[](DontClear) {},
-				[&](float depth)
-				{
-					pass.SetDepthStencilClear(depth, 0);
-				},
-				[&](ViewerClearValue)
-				{
-					pass.SetDepthStencilClear(m_viewer->GetClearDepth(), 0);
-				}
-			}, inputOuputs.clearDepth);
-		}
-
-		if (inputOuputs.depthStencilOutput != InvalidAttachmentIndex)
-			pass.SetDepthStencilOutput(inputOuputs.depthStencilOutput);
-
-		pass.SetExecutionCallback([&]
-		{
+			//m_renderQueueHash = renderQueue.GetContentHash();
 			return FramePassExecution::UpdateAndExecute;
 		});
 
-		pass.SetCommandCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& env)
+		preparePass.AddOutput(prepareAttachment);
+
+		preparePass.SetCommandCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
-			fmt::print("RasterPipelinePass command callback\n");
+			m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
+			{
+				if (elementType < m_elementRendererData.size() && m_elementRendererData[elementType])
+					elementRenderer.Reset(*m_elementRendererData[elementType], env.renderResources);
+			});
 
 			ElementRenderer::RenderData renderData;
 			renderData.renderRegion = env.renderRect;
@@ -80,21 +57,19 @@ namespace Nz
 			sceneData.spotLights = m_pipeline.GetSpotLightBuffer();
 			sceneData.spotLightAtlasMapping = m_pipeline.GetSpotShadowMappingBuffer();
 
-			m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
-			{
-				if (elementType >= m_elementRendererData.size())
-					m_elementRendererData.resize(elementType + 1);
-
-				if (!m_elementRendererData[elementType])
-					m_elementRendererData[elementType] = elementRenderer.InstanciateData();
-			});
-
 			UInt32 renderMask = m_renderMask & m_viewer->GetRenderMask();
 
 			auto& renderQueue = m_pipeline.GetRenderQueue(m_passIndex);
 			renderQueue.Process(renderMask, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
 			{
 				ElementRenderer& elementRenderer = m_elementRegistry.GetElementRenderer(elementType);
+
+				if (elementType >= m_elementRendererData.size())
+					m_elementRendererData.resize(elementType + 1);
+
+				if (!m_elementRendererData[elementType])
+					m_elementRendererData[elementType] = elementRenderer.InstanciateData();
+
 				elementRenderer.Prepare(renderData, sceneData, *m_viewer, *m_elementRendererData[elementType], env.renderResources, elementCount, elements);
 			});
 
@@ -102,48 +77,121 @@ namespace Nz
 			{
 				elementRenderer.PrepareEnd(*m_elementRendererData[elementType], env.renderResources, builder);
 			});
-
-			Frustumf frustum = Frustumf::Extract(m_viewer->GetViewerInstance().GetViewProjMatrix(), m_viewer->IsZReversed());
-
-			builder.BeginDebugRegion("GPU Culling", Color::Cyan());
-			{
-				builder.BindComputePipeline(*m_computePipeline);
-
-				builder.PushConstants(*m_computePipelineLayout, 0, 6 * 4 * sizeof(float), frustum.GetPlanes().data());
-
-				m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
-				{
-					elementRenderer.ForEachIndirectBuffer(*m_elementRendererData[elementType], [&](RenderBuffer* buffer, std::size_t commandCount)
-					{
-						ShaderBindingPtr computeShaderBinding = m_computePipelineLayout->AllocateShaderBinding(0);
-						computeShaderBinding->Update({
-							{
-								0,
-								Nz::ShaderBinding::StorageBufferBinding::WholeBuffer(*buffer)
-							},
-							{
-								1,
-								Nz::ShaderBinding::StorageBufferBinding::WholeBuffer(*sceneData.instanceBuffer)
-							}
-						});
-
-						builder.BindComputeShaderBinding(0, *computeShaderBinding);
-
-						builder.Dispatch((commandCount + 31) / 32, 1, 1);
-
-						env.renderResources.PushForRelease(std::move(computeShaderBinding));
-					});
-				});
-
-				builder.MemoryBarrier({ .srcStageMask = PipelineStage::ComputeShader, .dstStageMask = PipelineStage::DrawIndirect, .srcAccessMask = MemoryAccess::ShaderWrite, .dstAccessMask = MemoryAccess::IndirectCommandRead });
-			}
-			builder.EndDebugRegion();
 		});
 
-		pass.SetRenderCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& env)
+		FramePass& cullPass = frameGraph.AddPass(m_passName);
+		cullPass.SetDebugRegionColor(Color::Cyan());
+		cullPass.SetExecutionCallback([&]
 		{
-			fmt::print("RasterPipelinePass render callback\n");
+			return FramePassExecution::UpdateAndExecute;
+		});
+		cullPass.AddInput(prepareAttachment);
+		cullPass.AddOutput(cullAttachment);
 
+		cullPass.SetCommandCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& env)
+		{
+			Frustumf frustum = Frustumf::Extract(m_viewer->GetViewerInstance().GetViewProjMatrix(), m_viewer->IsZReversed());
+
+			builder.BindComputePipeline(*m_computePipeline);
+
+			builder.PushConstants(*m_computePipelineLayout, 0, 6 * 4 * sizeof(float), frustum.GetPlanes().data());
+
+			m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
+			{
+				if (elementType >= m_elementRendererData.size() || !m_elementRendererData[elementType])
+					return;
+
+				elementRenderer.ForEachIndirectBuffer(*m_elementRendererData[elementType], [&](RenderBuffer& buffer, std::size_t commandCount)
+				{
+					ShaderBindingPtr computeShaderBinding = m_computePipelineLayout->AllocateShaderBinding(0);
+					computeShaderBinding->Update({
+						{
+							0,
+							Nz::ShaderBinding::StorageBufferBinding::WholeBuffer(buffer)
+						},
+						{
+							1,
+							Nz::ShaderBinding::StorageBufferBinding::WholeBuffer(*m_pipeline.GetInstanceBuffer())
+						}
+						});
+
+					builder.BindComputeShaderBinding(0, *computeShaderBinding);
+
+					builder.Dispatch(AlignPow2(SafeCast<UInt32>(commandCount), UInt32(32)), 1, 1);
+
+					env.renderResources.PushForRelease(std::move(computeShaderBinding));
+				});
+			});
+
+			builder.MemoryBarrier({ .srcStageMask = PipelineStage::ComputeShader, .dstStageMask = PipelineStage::DrawIndirect, .srcAccessMask = MemoryAccess::ShaderWrite, .dstAccessMask = MemoryAccess::IndirectCommandRead });
+		});
+
+		FramePass& renderPass = frameGraph.AddPass(m_passName);
+		renderPass.SetExecutionCallback([&]
+		{
+			auto& renderQueue = m_pipeline.GetRenderQueue(m_passIndex);
+			if (renderQueue.GetContentHash() == m_renderQueueHash)
+				return FramePassExecution::Execute;
+
+			m_renderQueueHash = renderQueue.GetContentHash();
+			return FramePassExecution::UpdateAndExecute;
+		});
+
+		renderPass.AddInput(cullAttachment);
+		for (auto&& inputData : inputOuputs.inputAttachments)
+			renderPass.AddInput(inputData.attachmentIndex);
+
+		for (auto&& outputData : inputOuputs.outputAttachments)
+		{
+			std::size_t outputIndex = renderPass.AddOutput(outputData.attachmentIndex);
+
+			std::visit(Overloaded{
+				[](DontClear) {},
+				[&](const Color& color)
+				{
+					renderPass.SetClearColor(outputIndex, color);
+				},
+				[&](ViewerClearValue)
+				{
+					renderPass.SetClearColor(outputIndex, m_viewer->GetClearColor());
+				}
+			}, outputData.clearColor);
+		}
+
+		if (inputOuputs.depthStencilInput != FramePipelinePass::InvalidAttachmentIndex)
+			renderPass.SetDepthStencilInput(inputOuputs.depthStencilInput);
+		else if (inputOuputs.depthStencilOutput != InvalidAttachmentIndex)
+		{
+			std::visit(Overloaded{
+				[](DontClear) {},
+				[&](float depth)
+				{
+					renderPass.SetDepthStencilClear(depth, 0);
+				},
+				[&](ViewerClearValue)
+				{
+					renderPass.SetDepthStencilClear(m_viewer->GetClearDepth(), 0);
+				}
+			}, inputOuputs.clearDepth);
+		}
+
+		if (inputOuputs.depthStencilOutput != InvalidAttachmentIndex)
+			renderPass.SetDepthStencilOutput(inputOuputs.depthStencilOutput);
+
+		renderPass.SetExecutionCallback([&]
+		{
+			auto& renderQueue = m_pipeline.GetRenderQueue(m_passIndex);
+			renderQueue.UpdateRenderQueue();
+
+			if (renderQueue.GetContentHash() == m_renderQueueHash)
+				return FramePassExecution::Execute;
+
+			m_renderQueueHash = renderQueue.GetContentHash();
+			return FramePassExecution::UpdateAndExecute;
+		});
+
+		renderPass.SetRenderCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& env)
+		{
 			Recti viewport = m_viewer->GetViewport();
 
 			builder.SetScissor(viewport);
@@ -180,14 +228,9 @@ namespace Nz
 				ElementRenderer& elementRenderer = m_elementRegistry.GetElementRenderer(elementType);
 				elementRenderer.Render(renderData, sceneData, *m_viewer, *m_elementRendererData[elementType], env.renderResources, builder, elementCount, elements);
 			});
-
-			m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
-			{
-				elementRenderer.Reset(*m_elementRendererData[elementType], env.renderResources);
-			});
 		});
 
-		return pass;
+		return renderPass;
 	}
 
 	std::size_t RasterPipelinePass::GetMaterialPassIndex(const ParameterList& parameters)

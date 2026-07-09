@@ -43,6 +43,7 @@ namespace Nz
 			std::shared_ptr<RenderPipelineLayout> m_computePipelineLayout;
 			std::shared_ptr<UberShader> m_frustumCullingShader;
 			std::size_t m_passIndex;
+			std::size_t m_renderQueueHash;
 			std::string m_passName;
 			std::vector<std::unique_ptr<ElementRendererData>> m_elementRendererData;
 			AbstractViewer* m_viewer;

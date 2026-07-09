@@ -32,30 +32,7 @@ namespace Nz
 			m_deletedRenderElements.clear();
 		}
 
-		if (m_shouldRebuildRenderQueue)
-		{
-			m_renderQueueRegistry.Clear();
-			m_orderedRenderElements.clear();
-
-			for (const auto& renderElementOwner : m_renderElements)
-			{
-				renderElementOwner->Register(m_renderQueueRegistry);
-				m_orderedRenderElements.push_back(renderElementOwner.GetElement());
-			}
-
-			m_renderQueueRegistry.Finalize();
-
-			m_shouldRebuildRenderQueue = false;
-			m_shouldSortRenderQueue = true;
-		}
-
-		if (m_shouldSortRenderQueue)
-		{
-			std::sort(m_orderedRenderElements.begin(), m_orderedRenderElements.end(), [&](const RenderElement* lhs, const RenderElement* rhs)
-			{
-				return lhs->ComputeSortKey(m_renderQueueRegistry) < rhs->ComputeSortKey(m_renderQueueRegistry);
-			});
-		}
+		UpdateRenderQueue();
 	}
 
 	void RenderQueue::RegisterRenderable(std::size_t renderableIndex, UInt32 instanceIndex, const InstancedRenderable& instancedRenderable, const SkeletonInstance* skeletonInstance, UInt32 renderMask, const Recti& scissorBox)
@@ -141,6 +118,44 @@ namespace Nz
 
 			m_renderElementsIndices.erase(renderableIndex);
 			m_shouldRebuildRenderQueue = true;
+		}
+	}
+
+	void RenderQueue::UpdateRenderQueue()
+	{
+		if (m_shouldRebuildRenderQueue)
+		{
+			m_renderQueueRegistry.Clear();
+			m_orderedRenderElements.clear();
+
+			for (const auto& renderElementOwner : m_renderElements)
+			{
+				renderElementOwner->Register(m_renderQueueRegistry);
+				m_orderedRenderElements.push_back(renderElementOwner.GetElement());
+			}
+
+			m_renderQueueRegistry.Finalize();
+
+			m_shouldRebuildRenderQueue = false;
+			m_shouldSortRenderQueue = true;
+		}
+
+		if (m_shouldSortRenderQueue)
+		{
+			std::sort(m_orderedRenderElements.begin(), m_orderedRenderElements.end(), [&](const RenderElement* lhs, const RenderElement* rhs)
+			{
+				return lhs->ComputeSortKey(m_renderQueueRegistry) < rhs->ComputeSortKey(m_renderQueueRegistry);
+			});
+
+			m_contentHash = 0;
+			for (const RenderElement* renderElement : m_orderedRenderElements)
+			{
+				// https://softwareengineering.stackexchange.com/a/402543
+				std::size_t hash = std::hash<const void*>{}(renderElement);
+				m_contentHash ^= hash + 0x9e3779b9 + (m_contentHash << 6) + (m_contentHash >> 2);
+			}
+
+			m_shouldSortRenderQueue = false;
 		}
 	}
 }

@@ -54,6 +54,7 @@ namespace Nz
 			std::shared_ptr<RenderPipelineLayout> m_computePipelineLayout;
 			std::shared_ptr<UberShader> m_frustumCullingShader;
 			std::size_t m_passIndex;
+			std::size_t m_renderQueueHash;
 			std::unordered_map<std::size_t, LightData> m_lightData;
 			ShadowAtlas m_shadowAtlas;
 			ElementRendererRegistry& m_elementRegistry;

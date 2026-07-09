@@ -62,7 +62,7 @@ namespace Nz
 			SpriteChainRenderer(RenderDevice& device);
 			~SpriteChainRenderer() = default;
 
-			void ForEachIndirectBuffer(ElementRendererData& rendererData, FunctionRef<void(RenderBuffer* buffer, std::size_t commandCount)> callback) override;
+			void ForEachIndirectBuffer(ElementRendererData& rendererData, FunctionRef<void(RenderBuffer& buffer, std::size_t commandCount)> callback) override;
 
 			RenderElementPool<RenderSpriteChain>& GetPool() override;
 

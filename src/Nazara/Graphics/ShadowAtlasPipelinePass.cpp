@@ -3,6 +3,7 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Graphics/ShadowAtlasPipelinePass.hpp>
+#include <NazaraUtils/MathUtils.hpp>
 #include <Nazara/Graphics/ElementRenderer.hpp>
 #include <Nazara/Graphics/ElementRendererRegistry.hpp>
 #include <Nazara/Graphics/FrameGraph.hpp>
@@ -15,6 +16,7 @@
 namespace Nz
 {
 	ShadowAtlasPipelinePass::ShadowAtlasPipelinePass(PassData& passData) :
+	m_renderQueueHash(0),
 	m_shadowAtlas(*Graphics::Instance()->GetRenderDevice(), 8192),
 	m_elementRegistry(passData.elementRegistry),
 	m_pipeline(passData.pipeline),
@@ -57,35 +59,48 @@ namespace Nz
 		});
 		frameGraph.BindExternalTexture(shadowAtlasIndex, shadowAtlasTexture);
 
-		FramePass& pass = frameGraph.AddPass("Shadow atlas");
-		for (auto&& inputData : inputOuputs.inputAttachments)
-			pass.AddInput(inputData.attachmentIndex);
-
-		pass.SetDepthStencilClear(1.0f, 0);
-		pass.SetDepthStencilOutput(shadowAtlasIndex);
-
-		pass.SetExecutionCallback([&]
+		std::size_t prepareAttachment = frameGraph.AddDummyAttachment();
+		std::size_t cullAttachment = frameGraph.AddDummyAttachment();
+		
+		FramePass& preparePass = frameGraph.AddPass("Shadow atlas prepare");
+		preparePass.SetExecutionCallback([&]
 		{
-			return (!m_shadowAtlas.IsEmpty()) ? FramePassExecution::UpdateAndExecute : FramePassExecution::Skip;
+			auto& renderQueue = m_pipeline.GetRenderQueue(m_passIndex);
+			renderQueue.UpdateRenderQueue();
+
+			if (renderQueue.GetContentHash() == m_renderQueueHash)
+				return FramePassExecution::Execute;
+
+			//m_renderQueueHash = renderQueue.GetContentHash();
+			return FramePassExecution::UpdateAndExecute;
 		});
 
-		pass.SetCommandCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& env)
+		preparePass.AddOutput(prepareAttachment);
+
+		preparePass.SetCommandCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
-			fmt::print("ShadowAtlas command callback\n");
 			m_pipeline.ForEachShadowCastingLight([&](std::size_t lightIndex, const Light* /*light*/, LightShadowData* shadowData)
 			{
-				fmt::print("- ForEachShadowCastingLight: {}\n", lightIndex);
-
 				LightData& lightData = m_lightData[lightIndex];
 
 				std::size_t viewIndex = 0;
 				shadowData->ForEachView([&](std::size_t shadowAtlasEntry, ShadowViewer& shadowViewer)
 				{
-					fmt::print("  - ForEachView: {}\n", shadowAtlasEntry);
+					m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
+					{
+						if (elementType >= lightData.elementRendererData.size() || viewIndex >= lightData.elementRendererData[elementType].size())
+							return;
+
+						if (lightData.elementRendererData[elementType][viewIndex])
+							elementRenderer.Reset(*lightData.elementRendererData[elementType][viewIndex], env.renderResources);
+					});
 
 					std::optional<Rectui32> viewport = m_shadowAtlas.GetRect(shadowAtlasEntry);
 					if (!viewport)
+					{
+						viewIndex++;
 						return;
+					}
 
 					ElementRenderer::RenderData renderData;
 					renderData.renderRegion = Recti(*viewport);
@@ -128,54 +143,93 @@ namespace Nz
 						elementRenderer.PrepareEnd(*lightData.elementRendererData[elementType][viewIndex], env.renderResources, builder);
 					});
 
-					Frustumf frustum = Frustumf::Extract(shadowViewer.GetViewerInstance().GetViewProjMatrix(), shadowViewer.IsZReversed());
-
-					builder.BeginDebugRegion("GPU Culling", Color::Cyan());
-					{
-						builder.BindComputePipeline(*m_computePipeline);
-
-						builder.PushConstants(*m_computePipelineLayout, 0, 6 * 4 * sizeof(float), frustum.GetPlanes().data());
-
-						m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
-						{
-							if (elementType >= lightData.elementRendererData.size() || viewIndex >= lightData.elementRendererData[elementType].size())
-								return;
-
-							elementRenderer.ForEachIndirectBuffer(*lightData.elementRendererData[elementType][viewIndex], [&](RenderBuffer* buffer, std::size_t commandCount)
-							{
-								ShaderBindingPtr computeShaderBinding = m_computePipelineLayout->AllocateShaderBinding(0);
-								computeShaderBinding->Update({
-									{
-										0,
-										Nz::ShaderBinding::StorageBufferBinding::WholeBuffer(*buffer)
-									},
-									{
-										1,
-										Nz::ShaderBinding::StorageBufferBinding::WholeBuffer(*sceneData.instanceBuffer)
-									}
-								});
-
-								builder.BindComputeShaderBinding(0, *computeShaderBinding);
-
-								builder.Dispatch((commandCount + 31) / 32, 1, 1);
-
-								env.renderResources.PushForRelease(std::move(computeShaderBinding));
-							});
-						});
-
-						builder.MemoryBarrier({ .srcStageMask = PipelineStage::ComputeShader, .dstStageMask = PipelineStage::DrawIndirect, .srcAccessMask = MemoryAccess::ShaderWrite, .dstAccessMask = MemoryAccess::IndirectCommandRead });
-					}
-					builder.EndDebugRegion();
-
 					viewIndex++;
 				});
 			});
 		});
 
-		pass.SetRenderCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& env)
+		FramePass& cullPass = frameGraph.AddPass("Shadow atlas culling");
+		cullPass.SetDebugRegionColor(Color::Cyan());
+		cullPass.SetExecutionCallback([&]
 		{
-			fmt::print("ShadowAtlas render callback\n");
+			return FramePassExecution::UpdateAndExecute;
+		});
+		cullPass.AddInput(prepareAttachment);
+		cullPass.AddOutput(cullAttachment);
 
+		cullPass.SetCommandCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& env)
+		{
+			m_pipeline.ForEachShadowCastingLight([&](std::size_t lightIndex, const Light* /*light*/, LightShadowData* shadowData)
+			{
+				LightData& lightData = m_lightData[lightIndex];
+
+				std::size_t viewIndex = 0;
+				shadowData->ForEachView([&](std::size_t shadowAtlasEntry, ShadowViewer& shadowViewer)
+				{
+					Frustumf frustum = Frustumf::Extract(shadowViewer.GetViewerInstance().GetViewProjMatrix(), shadowViewer.IsZReversed());
+
+					builder.BindComputePipeline(*m_computePipeline);
+
+					builder.PushConstants(*m_computePipelineLayout, 0, 6 * 4 * sizeof(float), frustum.GetPlanes().data());
+
+					m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
+					{
+						if (elementType >= lightData.elementRendererData.size() || viewIndex >= lightData.elementRendererData[elementType].size())
+							return;
+
+						elementRenderer.ForEachIndirectBuffer(*lightData.elementRendererData[elementType][viewIndex], [&](RenderBuffer& buffer, std::size_t commandCount)
+						{
+							ShaderBindingPtr computeShaderBinding = m_computePipelineLayout->AllocateShaderBinding(0);
+							computeShaderBinding->Update({
+								{
+									0,
+									Nz::ShaderBinding::StorageBufferBinding::WholeBuffer(buffer)
+								},
+								{
+									1,
+									Nz::ShaderBinding::StorageBufferBinding::WholeBuffer(*m_pipeline.GetInstanceBuffer())
+								}
+							});
+
+							builder.BindComputeShaderBinding(0, *computeShaderBinding);
+
+							builder.Dispatch(AlignPow2(SafeCast<UInt32>(commandCount), UInt32(32)), 1, 1);
+
+							env.renderResources.PushForRelease(std::move(computeShaderBinding));
+						});
+					});
+
+					viewIndex++;
+				});
+			});
+			builder.MemoryBarrier({ .srcStageMask = PipelineStage::ComputeShader, .dstStageMask = PipelineStage::DrawIndirect, .srcAccessMask = MemoryAccess::ShaderWrite, .dstAccessMask = MemoryAccess::IndirectCommandRead });
+		});
+
+		FramePass& renderPass = frameGraph.AddPass("Shadow atlas render");
+		renderPass.SetExecutionCallback([&]
+		{
+			auto& renderQueue = m_pipeline.GetRenderQueue(m_passIndex);
+			if (renderQueue.GetContentHash() == m_renderQueueHash)
+				return FramePassExecution::Execute;
+
+			m_renderQueueHash = renderQueue.GetContentHash();
+			return FramePassExecution::UpdateAndExecute;
+		});
+
+		renderPass.AddInput(cullAttachment);
+		for (auto&& inputData : inputOuputs.inputAttachments)
+			renderPass.AddInput(inputData.attachmentIndex);
+
+		renderPass.SetDepthStencilClear(1.0f, 0);
+		renderPass.SetDepthStencilOutput(shadowAtlasIndex);
+
+		renderPass.SetExecutionCallback([&]
+		{
+			return (!m_shadowAtlas.IsEmpty()) ? FramePassExecution::UpdateAndExecute : FramePassExecution::Skip;
+		});
+
+		renderPass.SetRenderCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& env)
+		{
 			ElementRenderer::RenderData renderData;
 			renderData.shaderBindingCache = m_pipeline.GetShaderBindingCache();
 
@@ -217,21 +271,12 @@ namespace Nz
 						elementRenderer.Render(renderData, sceneData, shadowViewer, *lightData.elementRendererData[elementType][viewIndex], env.renderResources, builder, elementCount, elements);
 					});
 
-					m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
-					{
-						if (elementType >= lightData.elementRendererData.size() || viewIndex >= lightData.elementRendererData[elementType].size())
-							return;
-
-						if (lightData.elementRendererData[elementType][viewIndex])
-							elementRenderer.Reset(*lightData.elementRendererData[elementType][viewIndex], env.renderResources);
-					});
-
 					viewIndex++;
 				});
 			});
 		});
 
-		return pass;
+		return renderPass;
 	}
 
 	void ShadowAtlasPipelinePass::BuildCullingPipeline()
