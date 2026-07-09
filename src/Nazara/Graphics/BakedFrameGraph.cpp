@@ -23,13 +23,35 @@ namespace Nz
 	{
 		for (auto& passData : m_passes)
 		{
+			bool regenerateCommandBuffer = (passData.forceCommandBufferRegeneration || passData.commandBuffer == nullptr);
 			if (passData.executionCallback)
 			{
-				if (passData.executionCallback() == FramePassExecution::Skip)
-					continue; //< Skip the pass
+				switch (passData.executionCallback())
+				{
+					case FramePassExecution::Execute:
+						break;
+
+					case FramePassExecution::Skip:
+						if (passData.commandBuffer)
+						{
+							renderResources.PushForRelease(std::move(passData.commandBuffer));
+							passData.commandBuffer.reset();
+						}
+						continue; //< Skip the pass
+
+					case FramePassExecution::UpdateAndExecute:
+						regenerateCommandBuffer = true;
+						break;
+				}
 			}
 
-			CommandBufferPtr commandBuffer = m_commandPool->BuildPrimaryCommandBuffer([&](CommandBufferBuilder& builder)
+			if (!regenerateCommandBuffer)
+				continue;
+
+			if (passData.commandBuffer)
+				renderResources.PushForRelease(std::move(passData.commandBuffer));
+
+			passData.commandBuffer = m_commandPool->BuildPrimaryCommandBuffer([&](CommandBufferBuilder& builder)
 			{
 				for (auto& textureTransition : passData.invalidationBarriers)
 				{
@@ -64,9 +86,14 @@ namespace Nz
 					builder.EndDebugRegion();
 			});
 
-			// TODO: Submit all commands buffer at once
-			renderResources.SubmitCommandBuffer(commandBuffer.get(), QueueType::Graphics);
-			renderResources.PushForRelease(std::move(commandBuffer));
+			passData.forceCommandBufferRegeneration = false;
+		}
+
+		//TODO: Submit all commands buffer at once
+		for (auto& passData : m_passes)
+		{
+			if (passData.commandBuffer)
+				renderResources.SubmitCommandBuffer(passData.commandBuffer.get(), QueueType::Graphics);
 		}
 	}
 
@@ -129,6 +156,9 @@ namespace Nz
 		// Delete previous textures to make some room in VRAM
 		for (auto& passData : m_passes)
 		{
+			if (passData.commandBuffer)
+				renderResources.PushForRelease(std::move(passData.commandBuffer));
+
 			if (passData.framebuffer)
 				renderResources.PushForRelease(std::move(passData.framebuffer));
 		}
@@ -217,6 +247,8 @@ namespace Nz
 			}
 			else
 				passData.renderRect = Recti(0, 0, -1, -1);
+
+			passData.forceCommandBufferRegeneration = true;
 		}
 
 		m_viewerSizes.assign(viewerTargetSizes.begin(), viewerTargetSizes.end());

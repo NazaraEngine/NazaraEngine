@@ -12,8 +12,13 @@ namespace Nz
 	{
 	}
 
+	inline std::size_t RenderQueue::GetContentHash() const
+	{
+		return m_contentHash;
+	}
+
 	template<typename F>
-	void RenderQueue::Process(UInt32 renderMask, F&& callback)
+	void RenderQueue::Process(UInt32 renderMask, F&& callback) const
 	{
 		auto it = m_orderedRenderElements.data();
 		auto itEnd = it + m_orderedRenderElements.size();

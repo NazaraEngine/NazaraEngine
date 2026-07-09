@@ -22,15 +22,15 @@ namespace Nz
 		m_pool = std::make_shared<PoolData>();
 	}
 
-	void SubmeshRenderer::ForEachIndirectBuffer(ElementRendererData& rendererData, FunctionRef<void(RenderBuffer* buffer, std::size_t commandCount)> callback)
+	void SubmeshRenderer::ForEachIndirectBuffer(ElementRendererData& rendererData, FunctionRef<void(RenderBuffer& buffer, std::size_t commandCount)> callback)
 	{
 		auto& data = SafeCast<SubmeshRendererData&>(rendererData);
 
 		std::size_t remainingElements = data.totalElementCount;
-		for (RenderBuffer* buffer : data.drawIndirectBuffers)
+		for (const auto& buffer : data.drawIndirectBuffers)
 		{
 			std::size_t commandCount = std::min(remainingElements, IndirectCommandBufferCount);
-			callback(buffer, commandCount);
+			callback(*buffer, commandCount);
 			remainingElements -= commandCount;
 		}
 	}
@@ -51,18 +51,21 @@ namespace Nz
 
 		for (std::size_t i = 0; i < elementCount; ++i)
 		{
-			if (!data.currentIndirectBuffer)
+			if (!data.currentIndirectBufferPtr)
 			{
+				std::shared_ptr<RenderBuffer> indirectBuffer;
 				if (!m_pool->indirectBuffers.empty())
 				{
-					data.currentIndirectBuffer = std::move(m_pool->indirectBuffers.back());
+					indirectBuffer = std::move(m_pool->indirectBuffers.back());
 					m_pool->indirectBuffers.pop_back();
 				}
 				else
-					data.currentIndirectBuffer = m_device.InstantiateBuffer(IndirectCommandBufferCount * sizeof(DrawIndexedIndirectCommand), BufferUsage::IndirectBuffer | BufferUsage::MapSequentialWrite | BufferUsage::PersistentMapping | BufferUsage::StorageBuffer);
+					indirectBuffer = m_device.InstantiateBuffer(IndirectCommandBufferCount * sizeof(DrawIndexedIndirectCommand), BufferUsage::IndirectBuffer | BufferUsage::MapSequentialWrite | BufferUsage::PersistentMapping | BufferUsage::StorageBuffer);
 
 				data.indirectCommandIndex = 0;
-				data.currentIndirectBufferPtr = static_cast<UInt8*>(data.currentIndirectBuffer->Map(0, RenderBuffer::WholeSize));
+				data.currentIndirectBufferPtr = static_cast<UInt8*>(indirectBuffer->Map(0, RenderBuffer::WholeSize));
+
+				data.drawIndirectBuffers.push_back(std::move(indirectBuffer));
 			}
 
 			NazaraAssert(elements[i]->GetElementType() == UnderlyingCast(BasicRenderElement::Submesh));
@@ -95,34 +98,7 @@ namespace Nz
 			data.totalElementCount++;
 
 			if (data.indirectCommandIndex >= IndirectCommandBufferCount)
-			{
-				data.drawIndirectBuffers.push_back(data.currentIndirectBuffer.get());
-
-				renderResources.PushReleaseCallback([pool = m_pool, buffer = std::move(data.currentIndirectBuffer)]() mutable
-				{
-					pool->indirectBuffers.push_back(std::move(buffer));
-				});
-				data.currentIndirectBuffer = nullptr;
 				data.currentIndirectBufferPtr = nullptr;
-			}
-		}
-	}
-
-	void SubmeshRenderer::PrepareEnd(ElementRendererData& rendererData, RenderResources& renderResources, CommandBufferBuilder& commandBuffer)
-	{
-		auto& data = SafeCast<SubmeshRendererData&>(rendererData);
-
-		if (data.currentIndirectBuffer)
-		{
-			data.drawIndirectBuffers.push_back(data.currentIndirectBuffer.get());
-
-			renderResources.PushReleaseCallback([pool = m_pool, buffer = std::move(data.currentIndirectBuffer)]() mutable
-			{
-				pool->indirectBuffers.push_back(std::move(buffer));
-			});
-
-			data.currentIndirectBuffer = nullptr;
-			data.currentIndirectBufferPtr = nullptr;
 		}
 	}
 
@@ -163,7 +139,6 @@ namespace Nz
 		std::size_t sceneSetHash = 0;
 		std::size_t viewerSetHash = 0;
 
-		fmt::print("    - SubmeshRenderer::Render: {}\n", elementCount);
 		for (std::size_t i = 0; i < elementCount; ++i)
 		{
 			NazaraAssert(elements[i]->GetElementType() == UnderlyingCast(BasicRenderElement::Submesh));
@@ -278,7 +253,7 @@ namespace Nz
 				data.shaderBindings.emplace_back(std::move(instanceBinding));
 			}
 
-			RenderBuffer* indirectBuffer = data.drawIndirectBuffers[data.drawIndirectBufferIndex];
+			RenderBuffer* indirectBuffer = data.drawIndirectBuffers[data.drawIndirectBufferIndex].get();
 
 			if (currentIndexBuffer)
 				commandBuffer.DrawIndexedIndirect(*indirectBuffer, data.drawElementCounter * sizeof(DrawIndexedIndirectCommand), 1, sizeof(DrawIndexedIndirectCommand));
@@ -298,9 +273,18 @@ namespace Nz
 	{
 		auto& data = SafeCast<SubmeshRendererData&>(rendererData);
 
+		for (auto& indirectBuffer : data.drawIndirectBuffers)
+		{
+			renderResources.PushReleaseCallback([pool = m_pool, buffer = std::move(indirectBuffer)]() mutable
+			{
+				pool->indirectBuffers.push_back(std::move(buffer));
+			});
+		}
+		data.drawIndirectBuffers.clear();
+
+		data.currentIndirectBufferPtr = nullptr;
 		data.drawElementCounter = 0;
 		data.drawIndirectBufferIndex = 0;
-		data.drawIndirectBuffers.clear();
 		data.totalElementCount = 0;
 
 		if (data.references)

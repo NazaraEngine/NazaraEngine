@@ -26,14 +26,13 @@ namespace Nz
 			SubmeshRenderer(RenderDevice& device);
 			~SubmeshRenderer() = default;
 
-			void ForEachIndirectBuffer(ElementRendererData& rendererData, FunctionRef<void(RenderBuffer* buffer, std::size_t commandCount)> callback) override;
+			void ForEachIndirectBuffer(ElementRendererData& rendererData, FunctionRef<void(RenderBuffer& buffer, std::size_t commandCount)> callback) override;
 
 			RenderElementPool<RenderSubmesh>& GetPool() override;
 
 			std::unique_ptr<ElementRendererData> InstanciateData() override;
 
 			void Prepare(const RenderData& renderData, const SceneData& sceneData, const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& renderResources, std::size_t elementCount, const Pointer<const RenderElement>* elements);
-			void PrepareEnd(ElementRendererData& rendererData, RenderResources& renderResources, CommandBufferBuilder& commandBuffer);
 			void Render(const RenderData& renderData, const SceneData& sceneData, const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& renderResources, CommandBufferBuilder& commandBuffer, std::size_t elementCount, const Pointer<const RenderElement>* elements) override;
 			void Reset(ElementRendererData& rendererData, RenderResources& renderResources) override;
 
@@ -57,9 +56,8 @@ namespace Nz
 		std::optional<RenderResourceReferences> references;
 		std::size_t drawIndirectBufferIndex = 0;
 		std::size_t totalElementCount = 0;
-		std::shared_ptr<RenderBuffer> currentIndirectBuffer;
 		std::vector<ShaderBindingPtr> shaderBindings;
-		std::vector<RenderBuffer*> drawIndirectBuffers;
+		std::vector<std::shared_ptr<RenderBuffer>> drawIndirectBuffers;
 		UInt8* currentIndirectBufferPtr = nullptr;
 		UInt32 drawElementCounter = 0;
 		UInt32 indirectCommandIndex = 0;

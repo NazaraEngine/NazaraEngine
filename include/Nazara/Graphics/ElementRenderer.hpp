@@ -38,7 +38,7 @@ namespace Nz
 			ElementRenderer() = default;
 			virtual ~ElementRenderer();
 
-			virtual void ForEachIndirectBuffer(ElementRendererData& rendererData, FunctionRef<void(RenderBuffer* buffer, std::size_t commandCount)> callback) = 0;
+			virtual void ForEachIndirectBuffer(ElementRendererData& rendererData, FunctionRef<void(RenderBuffer& buffer, std::size_t commandCount)> callback) = 0;
 
 			virtual RenderElementPoolBase& GetPool() = 0;
 
