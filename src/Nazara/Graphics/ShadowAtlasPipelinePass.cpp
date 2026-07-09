@@ -208,6 +208,9 @@ namespace Nz
 		FramePass& renderPass = frameGraph.AddPass("Shadow atlas render");
 		renderPass.SetExecutionCallback([&]
 		{
+			if (m_shadowAtlas.IsEmpty())
+				return FramePassExecution::Skip;
+
 			auto& renderQueue = m_pipeline.GetRenderQueue(m_passIndex);
 			if (renderQueue.GetContentHash() == m_renderQueueHash)
 				return FramePassExecution::Execute;
@@ -222,11 +225,6 @@ namespace Nz
 
 		renderPass.SetDepthStencilClear(1.0f, 0);
 		renderPass.SetDepthStencilOutput(shadowAtlasIndex);
-
-		renderPass.SetExecutionCallback([&]
-		{
-			return (!m_shadowAtlas.IsEmpty()) ? FramePassExecution::UpdateAndExecute : FramePassExecution::Skip;
-		});
 
 		renderPass.SetRenderCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
