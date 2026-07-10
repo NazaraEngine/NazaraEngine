@@ -90,11 +90,7 @@ namespace Nz
 
 		cullPass.SetCommandCallback([this](CommandBufferBuilder& builder, const FramePassEnvironment& env)
 		{
-			Frustumf frustum = Frustumf::Extract(m_viewer->GetViewerInstance().GetViewProjMatrix(), m_viewer->IsZReversed());
-
 			builder.BindComputePipeline(*m_computePipeline);
-
-			builder.PushConstants(*m_computePipelineLayout, 0, 6 * 4 * sizeof(float), frustum.GetPlanes().data());
 
 			m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
 			{
@@ -112,12 +108,16 @@ namespace Nz
 						{
 							1,
 							Nz::ShaderBinding::StorageBufferBinding::WholeBuffer(*m_pipeline.GetInstanceBuffer())
+						},
+						{
+							2,
+							Nz::ShaderBinding::UniformBufferBinding::WholeBuffer(*m_viewer->GetViewerInstance().GetViewerBuffer())
 						}
-						});
+					});
 
 					builder.BindComputeShaderBinding(0, *computeShaderBinding);
 
-					builder.Dispatch(AlignPow2(SafeCast<UInt32>(commandCount), UInt32(32)), 1, 1);
+					builder.Dispatch(AlignPow2(SafeCast<UInt32>(commandCount), UInt32(32)) / 32, 1, 1);
 
 					env.renderResources.PushForRelease(std::move(computeShaderBinding));
 				});
@@ -276,19 +276,24 @@ namespace Nz
 		m_frustumCullingShader = std::make_shared<UberShader>(nzsl::ShaderStageType::Compute, "Compute.FrustumCulling");
 
 		RenderPipelineLayoutInfo cullingPipelineLayoutInfo;
-		cullingPipelineLayoutInfo.pushConstantSize = 6 * sizeof(Nz::Planef);
 		cullingPipelineLayoutInfo.bindings.push_back({
 			.bindingIndex = 0,
 			.type = ShaderBindingType::StorageBuffer,
 			.shaderStageFlags = nzsl::ShaderStageType::Compute
 		});
-		
+
 		cullingPipelineLayoutInfo.bindings.push_back({
 			.bindingIndex = 1,
 			.type = ShaderBindingType::StorageBuffer,
 			.shaderStageFlags = nzsl::ShaderStageType::Compute
 		});
-		
+
+		cullingPipelineLayoutInfo.bindings.push_back({
+			.bindingIndex = 2,
+			.type = ShaderBindingType::UniformBuffer,
+			.shaderStageFlags = nzsl::ShaderStageType::Compute
+		});
+
 		m_computePipelineLayout = renderDevice.InstantiateRenderPipelineLayout(std::move(cullingPipelineLayoutInfo));
 
 		m_computePipeline = renderDevice.InstantiateComputePipeline({

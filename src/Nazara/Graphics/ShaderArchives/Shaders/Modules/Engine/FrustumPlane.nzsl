@@ -1,0 +1,11 @@
+[nzsl_version("1.1")]
+module Engine.FrustumPlane;
+
+[export] const Bottom: u32 = 2;
+[export] const Far: u32 = 5;
+[export] const Left: u32 = 0;
+[export] const Near: u32 = 4;
+[export] const Right: u32 = 1;
+[export] const Top: u32 = 3;
+
+[export] const Count: u32 = 6;

@@ -300,7 +300,7 @@ namespace Nz
 				break;
 		}
 
-		m_viewerInstance.UpdateNearFarPlanes(m_zNear, m_zFar);
+		m_viewerInstance.UpdateNearFarPlanes(m_zNear, m_zFar, m_isReversedZEnabled);
 	}
 
 	inline void Camera::UpdateViewport()

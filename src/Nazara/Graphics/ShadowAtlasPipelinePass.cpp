@@ -164,13 +164,9 @@ namespace Nz
 				LightData& lightData = m_lightData[lightIndex];
 
 				std::size_t viewIndex = 0;
-				shadowData->ForEachView([&](std::size_t shadowAtlasEntry, ShadowViewer& shadowViewer)
+				shadowData->ForEachView([&](std::size_t /*shadowAtlasEntry*/, ShadowViewer& shadowViewer)
 				{
-					Frustumf frustum = Frustumf::Extract(shadowViewer.GetViewerInstance().GetViewProjMatrix(), shadowViewer.IsZReversed());
-
 					builder.BindComputePipeline(*m_computePipeline);
-
-					builder.PushConstants(*m_computePipelineLayout, 0, 6 * 4 * sizeof(float), frustum.GetPlanes().data());
 
 					m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
 					{
@@ -183,17 +179,21 @@ namespace Nz
 							computeShaderBinding->Update({
 								{
 									0,
-									Nz::ShaderBinding::StorageBufferBinding::WholeBuffer(buffer)
+									ShaderBinding::StorageBufferBinding::WholeBuffer(buffer)
 								},
 								{
 									1,
-									Nz::ShaderBinding::StorageBufferBinding::WholeBuffer(*m_pipeline.GetInstanceBuffer())
+									ShaderBinding::StorageBufferBinding::WholeBuffer(*m_pipeline.GetInstanceBuffer())
+								},
+								{
+									2,
+									ShaderBinding::UniformBufferBinding::WholeBuffer(*shadowViewer.GetViewerInstance().GetViewerBuffer())
 								}
 							});
 
 							builder.BindComputeShaderBinding(0, *computeShaderBinding);
 
-							builder.Dispatch(AlignPow2(SafeCast<UInt32>(commandCount), UInt32(32)), 1, 1);
+							builder.Dispatch(AlignPow2(SafeCast<UInt32>(commandCount), UInt32(32)) / 32, 1, 1);
 
 							env.renderResources.PushForRelease(std::move(computeShaderBinding));
 						});
@@ -291,13 +291,19 @@ namespace Nz
 			.type = ShaderBindingType::StorageBuffer,
 			.shaderStageFlags = nzsl::ShaderStageType::Compute
 		});
-		
+
 		cullingPipelineLayoutInfo.bindings.push_back({
 			.bindingIndex = 1,
 			.type = ShaderBindingType::StorageBuffer,
 			.shaderStageFlags = nzsl::ShaderStageType::Compute
 		});
-		
+
+		cullingPipelineLayoutInfo.bindings.push_back({
+			.bindingIndex = 2,
+			.type = ShaderBindingType::UniformBuffer,
+			.shaderStageFlags = nzsl::ShaderStageType::Compute
+		});
+
 		m_computePipelineLayout = renderDevice.InstantiateRenderPipelineLayout(std::move(cullingPipelineLayoutInfo));
 
 		m_computePipeline = renderDevice.InstantiateComputePipeline({

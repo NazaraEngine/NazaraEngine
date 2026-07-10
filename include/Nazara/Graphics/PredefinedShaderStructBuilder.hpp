@@ -175,6 +175,7 @@ namespace Nz
 		std::size_t invViewMatrixOffset;
 		std::size_t invViewProjMatrixOffset;
 		std::size_t projMatrixOffset;
+		std::size_t frustumPlaneOffset;
 		std::size_t targetSizeOffset;
 		std::size_t viewMatrixOffset;
 		std::size_t viewProjMatrixOffset;

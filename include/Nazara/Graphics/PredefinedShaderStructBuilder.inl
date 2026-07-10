@@ -173,6 +173,7 @@ NAZARA_WARNING_CLANG_GCC_DISABLE("-Wmissing-field-initializers")
 		viewerData.invViewMatrixOffset = viewerData.fieldOffsets.AddMatrix(nzsl::StructFieldType::Float1, 4, 4, true);
 		viewerData.viewProjMatrixOffset = viewerData.fieldOffsets.AddMatrix(nzsl::StructFieldType::Float1, 4, 4, true);
 		viewerData.invViewProjMatrixOffset = viewerData.fieldOffsets.AddMatrix(nzsl::StructFieldType::Float1, 4, 4, true);
+		viewerData.frustumPlaneOffset = viewerData.fieldOffsets.AddFieldArray(nzsl::StructFieldType::Float4, 6);
 		viewerData.targetSizeOffset = viewerData.fieldOffsets.AddField(nzsl::StructFieldType::Float2);
 		viewerData.invTargetSizeOffset = viewerData.fieldOffsets.AddField(nzsl::StructFieldType::Float2);
 		viewerData.eyePositionOffset = viewerData.fieldOffsets.AddField(nzsl::StructFieldType::Float3);
