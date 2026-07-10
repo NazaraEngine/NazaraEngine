@@ -16,6 +16,11 @@ namespace Nz
 		return m_farPlane;
 	}
 
+	inline const Frustumf& ViewerInstance::GetFrustum() const
+	{
+		return m_frustum;
+	}
+
 	inline const Matrix4f& ViewerInstance::GetInvProjectionMatrix() const
 	{
 		return m_invProjectionMatrix;
@@ -73,10 +78,13 @@ namespace Nz
 		InvalidateData();
 	}
 
-	inline void ViewerInstance::UpdateNearFarPlanes(float nearPlane, float farPlane)
+	inline void ViewerInstance::UpdateNearFarPlanes(float nearPlane, float farPlane, bool isZReversed)
 	{
 		m_farPlane = farPlane;
 		m_nearPlane = nearPlane;
+		m_isZReversed = isZReversed;
+
+		m_frustum = Frustumf::Extract(m_viewProjMatrix, m_isZReversed);
 
 		InvalidateData();
 	}
@@ -90,6 +98,8 @@ namespace Nz
 		m_viewProjMatrix = m_viewMatrix * m_projectionMatrix;
 		m_invViewProjMatrix = m_invProjectionMatrix * m_invViewMatrix;
 
+		m_frustum = Frustumf::Extract(m_viewProjMatrix, m_isZReversed);
+
 		InvalidateData();
 	}
 
@@ -100,6 +110,8 @@ namespace Nz
 
 		m_viewProjMatrix = m_viewMatrix * m_projectionMatrix;
 		m_invViewProjMatrix = m_invProjectionMatrix * m_invViewMatrix;
+
+		m_frustum = Frustumf::Extract(m_viewProjMatrix, m_isZReversed);
 
 		InvalidateData();
 	}
@@ -117,6 +129,8 @@ namespace Nz
 		m_viewProjMatrix = m_viewMatrix * m_projectionMatrix;
 		m_invViewProjMatrix = m_invProjectionMatrix * m_invViewMatrix;
 
+		m_frustum = Frustumf::Extract(m_viewProjMatrix, m_isZReversed);
+
 		InvalidateData();
 	}
 
@@ -130,6 +144,8 @@ namespace Nz
 		m_viewProjMatrix = m_viewMatrix * m_projectionMatrix;
 		m_invViewProjMatrix = m_invProjectionMatrix * m_invViewMatrix;
 
+		m_frustum = Frustumf::Extract(m_viewProjMatrix, m_isZReversed);
+
 		InvalidateData();
 	}
 
@@ -142,6 +158,8 @@ namespace Nz
 
 		m_viewProjMatrix = viewProjMatrix;
 		m_invViewProjMatrix = invViewProjMatrix;
+
+		m_frustum = Frustumf::Extract(m_viewProjMatrix, m_isZReversed);
 
 		InvalidateData();
 	}
@@ -162,6 +180,8 @@ namespace Nz
 		m_viewProjMatrix = m_viewMatrix * m_projectionMatrix;
 		m_invViewProjMatrix = m_invProjectionMatrix * m_invViewMatrix;
 
+		m_frustum = Frustumf::Extract(m_viewProjMatrix, m_isZReversed);
+
 		InvalidateData();
 	}
 
@@ -172,6 +192,8 @@ namespace Nz
 
 		m_viewProjMatrix = m_viewMatrix * m_projectionMatrix;
 		m_invViewProjMatrix = m_invProjectionMatrix * m_invViewMatrix;
+
+		m_frustum = Frustumf::Extract(m_viewProjMatrix, m_isZReversed);
 
 		InvalidateData();
 	}

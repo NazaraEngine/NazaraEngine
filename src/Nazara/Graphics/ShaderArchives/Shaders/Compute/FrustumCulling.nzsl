@@ -1,29 +1,25 @@
 [nzsl_version("1.1")]
 module Compute.FrustumCulling;
 
+import Engine.FrustumPlane;
 import Engine.IndirectData;
 import InstanceBuffer from Engine.InstanceData;
+import ViewerData from Engine.ViewerData;
 
 option WorkgroupSize: u32 = 256;
 
 [layout(std430)]
 struct DrawIndexedIndirectCommandBuffer
 {
-    drawIndirects: dyn_array[IndirectData.DrawIndexedIndirectCommand]
-}
-
-[layout(std430)]
-struct ViewerData
-{
-    frustumPlanes: array[vec4[f32], 6]
+	drawIndirects: dyn_array[IndirectData.DrawIndexedIndirectCommand]
 }
 
 [auto_binding]
 external
 {
-    indirectBuffer: storage[DrawIndexedIndirectCommandBuffer, readwrite],
-    instanceBuffer: storage[InstanceBuffer, readonly],
-    viewerData: push_constant[ViewerData],
+	indirectBuffer: storage[DrawIndexedIndirectCommandBuffer, readwrite],
+	instanceBuffer: storage[InstanceBuffer, readonly],
+	viewerData: uniform[ViewerData],
 }
 
 fn PlaneSignedDist(plane: vec4[f32], pos: vec3[f32]) -> f32
@@ -31,12 +27,13 @@ fn PlaneSignedDist(plane: vec4[f32], pos: vec3[f32]) -> f32
 	return dot(plane.xyz, pos) + plane.w;
 }
 
-fn FrustumCull(pos: vec3[f32]) -> bool
+fn FrustumCull(sphere: vec4[f32]) -> bool
 {
 	let visible = true;
+
 	for plane in viewerData.frustumPlanes
 	{
-		if (PlaneSignedDist(plane, pos) < 0.0)
+		if (PlaneSignedDist(plane, sphere.xyz) < -sphere.w)
 			visible = false;
 	}
 
@@ -45,8 +42,8 @@ fn FrustumCull(pos: vec3[f32]) -> bool
 
 struct Input
 {
-    [builtin(global_invocation_indices)]
-    invocationIndices: vec3[u32]
+	[builtin(global_invocation_indices)]
+	invocationIndices: vec3[u32]
 }
 
 [entry(comp), workgroup(WorkgroupSize, 1, 1)]
@@ -57,12 +54,12 @@ fn main(input: Input)
 	if (commandIndex >= commandCount)
 		return;
 
-    let drawCommand = indirectBuffer.drawIndirects[commandIndex];
-    let instanceIndex = drawCommand.firstInstance;
+	let drawCommand = indirectBuffer.drawIndirects[commandIndex];
+	let instanceIndex = drawCommand.firstInstance;
 
-    let instancePosition = instanceBuffer.instances[instanceIndex].worldMatrix[3].xyz;
+	let instancePosition = instanceBuffer.instances[instanceIndex].worldMatrix[3].xyz;
 
-    let isVisible = FrustumCull(instancePosition);
+	let isVisible = FrustumCull(vec4[f32](instancePosition, 0.0));
 
-    indirectBuffer.drawIndirects[commandIndex].instanceCount = select(isVisible, u32(1), u32(0));
+	indirectBuffer.drawIndirects[commandIndex].instanceCount = select(isVisible, u32(1), u32(0));
 }

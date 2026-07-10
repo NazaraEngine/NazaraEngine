@@ -1,6 +1,8 @@
 [nzsl_version("1.1")]
 module Engine.ViewerData;
 
+import Engine.FrustumPlane;
+
 [export]
 [layout(std140)]
 struct ViewerData
@@ -11,6 +13,7 @@ struct ViewerData
 	invViewMatrix: mat4[f32],
 	viewProjMatrix: mat4[f32],
 	invViewProjMatrix: mat4[f32],
+	frustumPlanes: array[vec4[f32], FrustumPlane.Count],
 	renderTargetSize: vec2[f32],
 	invRenderTargetSize: vec2[f32],
 	eyePosition: vec3[f32],

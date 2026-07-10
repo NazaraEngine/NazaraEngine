@@ -24,6 +24,7 @@ namespace Nz
 	m_targetSize(Vector2f::Zero()),
 	m_eyePosition(Vector3f::Zero()),
 	m_dataInvalidated(true),
+	m_isZReversed(false),
 	m_farPlane(-1.f),
 	m_nearPlane(-1.f)
 	{
@@ -49,6 +50,10 @@ namespace Nz
 		AccessByOffset<Matrix4f&>(allocation.mappedPtr, viewerDataOffsets.projMatrixOffset) = m_projectionMatrix;
 		AccessByOffset<Matrix4f&>(allocation.mappedPtr, viewerDataOffsets.viewProjMatrixOffset) = m_viewProjMatrix;
 		AccessByOffset<Matrix4f&>(allocation.mappedPtr, viewerDataOffsets.viewMatrixOffset) = m_viewMatrix;
+
+		float* frustumPlanesPtr = AccessByOffset<float*>(allocation.mappedPtr, viewerDataOffsets.frustumPlaneOffset);
+		static_assert(sizeof(Planef) == 4 * sizeof(float));
+		std::memcpy(frustumPlanesPtr, m_frustum.GetPlanes().data(), 6 * 4 * sizeof(float));
 
 		AccessByOffset<float&>(allocation.mappedPtr, viewerDataOffsets.nearPlaneOffset) = m_nearPlane;
 		AccessByOffset<float&>(allocation.mappedPtr, viewerDataOffsets.farPlaneOffset) = m_farPlane;

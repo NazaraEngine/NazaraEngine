@@ -10,6 +10,7 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Export.hpp>
 #include <Nazara/Graphics/TransferInterface.hpp>
+#include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Math/Matrix4.hpp>
 #include <memory>
 
@@ -31,6 +32,7 @@ namespace Nz
 
 			inline const Vector3f& GetEyePosition() const;
 			inline float GetFarPlane() const;
+			inline const Frustumf& GetFrustum() const;
 			inline const Matrix4f& GetInvProjectionMatrix() const;
 			inline const Matrix4f& GetInvViewMatrix() const;
 			inline const Matrix4f& GetInvViewProjMatrix() const;
@@ -45,7 +47,7 @@ namespace Nz
 			void OnTransfer(RenderResources& renderResources, CommandBufferBuilder& builder) override;
 
 			inline void UpdateEyePosition(const Vector3f& eyePosition);
-			inline void UpdateNearFarPlanes(float nearPlane, float farPlane);
+			inline void UpdateNearFarPlanes(float nearPlane, float farPlane, bool isZReversed = false);
 			inline void UpdateProjectionMatrix(const Matrix4f& projectionMatrix);
 			inline void UpdateProjectionMatrix(const Matrix4f& projectionMatrix, const Matrix4f& invProjectionMatrix);
 			inline void UpdateProjViewMatrices(const Matrix4f& projectionMatrix, const Matrix4f& viewMatrix);
@@ -64,6 +66,7 @@ namespace Nz
 			inline void InvalidateData();
 
 			std::shared_ptr<RenderBuffer> m_viewerDataBuffer;
+			Frustumf m_frustum;
 			Matrix4f m_invProjectionMatrix;
 			Matrix4f m_invViewProjMatrix;
 			Matrix4f m_invViewMatrix;
@@ -73,6 +76,7 @@ namespace Nz
 			Vector2f m_targetSize;
 			Vector3f m_eyePosition;
 			bool m_dataInvalidated;
+			bool m_isZReversed;
 			float m_farPlane;
 			float m_nearPlane;
 	};
