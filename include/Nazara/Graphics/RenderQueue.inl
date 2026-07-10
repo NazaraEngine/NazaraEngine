@@ -36,7 +36,7 @@ namespace Nz
 			const Pointer<const RenderElement>* first = it;
 
 			++it;
-			while (it != itEnd && (*it)->GetElementType() == elementType)
+			while (it != itEnd && (*it)->GetElementType() == elementType && ((*it)->GetRenderMask() & renderMask))
 				++it;
 
 			std::size_t count = it - first;
