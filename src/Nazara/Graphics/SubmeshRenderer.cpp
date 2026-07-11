@@ -6,6 +6,7 @@
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/MaterialProxy.hpp>
+#include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/RenderSubmesh.hpp>
 #include <Nazara/Graphics/ShaderBindingCache.hpp>
 #include <Nazara/Graphics/SkeletonInstance.hpp>
@@ -60,7 +61,7 @@ namespace Nz
 					m_pool->indirectBuffers.pop_back();
 				}
 				else
-					indirectBuffer = m_device.InstantiateBuffer(IndirectCommandBufferCount * sizeof(DrawIndexedIndirectCommand), BufferUsage::IndirectBuffer | BufferUsage::MapSequentialWrite | BufferUsage::PersistentMapping | BufferUsage::StorageBuffer);
+					indirectBuffer = m_device.InstantiateBuffer(IndirectCommandBufferCount * PredefinedIndirectDrawOffsets.totalSize, BufferUsage::IndirectBuffer | BufferUsage::MapSequentialWrite | BufferUsage::PersistentMapping | BufferUsage::StorageBuffer);
 
 				data.indirectCommandIndex = 0;
 				data.currentIndirectBufferPtr = static_cast<UInt8*>(indirectBuffer->Map(0, RenderBuffer::WholeSize));
@@ -71,7 +72,10 @@ namespace Nz
 			NazaraAssert(elements[i]->GetElementType() == UnderlyingCast(BasicRenderElement::Submesh));
 			const RenderSubmesh& submesh = static_cast<const RenderSubmesh&>(*elements[i]);
 
-			UInt8* indirectBuffer = data.currentIndirectBufferPtr + data.indirectCommandIndex * sizeof(DrawIndexedIndirectCommand);
+			UInt8* indirectBuffer = data.currentIndirectBufferPtr + data.indirectCommandIndex * PredefinedIndirectDrawOffsets.totalSize;
+			const Spheref& boundingSphere = submesh.GetBoundingSphere();
+			static_assert(sizeof(Spheref) == 4 * sizeof(float));
+
 			if (submesh.GetIndexBuffer() != nullptr)
 			{
 				DrawIndexedIndirectCommand drawIndirectCommand;
@@ -81,7 +85,7 @@ namespace Nz
 				drawIndirectCommand.instanceCount = 1;
 				drawIndirectCommand.vertexOffset = 0;
 
-				std::memcpy(indirectBuffer, &drawIndirectCommand, sizeof(drawIndirectCommand));
+				std::memcpy(indirectBuffer + PredefinedIndirectDrawOffsets.drawCommand, &drawIndirectCommand, sizeof(drawIndirectCommand));
 			}
 			else
 			{
@@ -91,8 +95,10 @@ namespace Nz
 				drawIndirectCommand.instanceCount = 1;
 				drawIndirectCommand.vertexCount = submesh.GetIndexCount();
 
-				std::memcpy(indirectBuffer, &drawIndirectCommand, sizeof(drawIndirectCommand));
+				std::memcpy(indirectBuffer + PredefinedIndirectDrawOffsets.drawCommand, &drawIndirectCommand, sizeof(drawIndirectCommand));
 			}
+
+			std::memcpy(indirectBuffer + PredefinedIndirectDrawOffsets.boundingSphere, &boundingSphere, sizeof(boundingSphere));
 
 			data.indirectCommandIndex++;
 			data.totalElementCount++;
@@ -256,9 +262,9 @@ namespace Nz
 			RenderBuffer* indirectBuffer = data.drawIndirectBuffers[data.drawIndirectBufferIndex].get();
 
 			if (currentIndexBuffer)
-				commandBuffer.DrawIndexedIndirect(*indirectBuffer, data.drawElementCounter * sizeof(DrawIndexedIndirectCommand), 1, sizeof(DrawIndexedIndirectCommand));
+				commandBuffer.DrawIndexedIndirect(*indirectBuffer, data.drawElementCounter * PredefinedIndirectDrawOffsets.totalSize, 1, PredefinedIndirectDrawOffsets.totalSize);
 			else
-				commandBuffer.DrawIndirect(*indirectBuffer, data.drawElementCounter * sizeof(DrawIndexedIndirectCommand), 1, sizeof(DrawIndexedIndirectCommand));
+				commandBuffer.DrawIndirect(*indirectBuffer, data.drawElementCounter * PredefinedIndirectDrawOffsets.totalSize, 1, PredefinedIndirectDrawOffsets.totalSize);
 
 			data.drawElementCounter++;
 			if (data.drawElementCounter >= IndirectCommandBufferCount)

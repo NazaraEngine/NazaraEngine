@@ -55,6 +55,18 @@ namespace Nz
 		static constexpr PredefinedDirectionalShadowAtlasEntryData Build();
 	};
 
+	struct PredefinedIndirectDrawData
+	{
+		nzsl::FieldOffsets fieldOffsets;
+
+		std::size_t drawCommand;
+		std::size_t boundingSphere;
+
+		std::size_t totalSize;
+
+		static constexpr PredefinedIndirectDrawData Build();
+	};
+
 	struct PredefinedPointLightData
 	{
 		nzsl::FieldOffsets fieldOffsets;

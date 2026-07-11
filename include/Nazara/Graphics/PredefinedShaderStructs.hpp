@@ -14,6 +14,7 @@ namespace Nz
 	static constexpr PredefinedDirectionalLightData PredefinedDirectionalLightOffsets = PredefinedDirectionalLightData::Build();
 	static constexpr PredefinedDirectionalLightsData PredefinedDirectionalLightsOffsets = PredefinedDirectionalLightsData::Build();
 	static constexpr PredefinedDirectionalShadowAtlasEntryData PredefinedDirectionalShadowAtlasEntryOffsets = PredefinedDirectionalShadowAtlasEntryData::Build();
+	static constexpr PredefinedIndirectDrawData PredefinedIndirectDrawOffsets = PredefinedIndirectDrawData::Build();
 	static constexpr PredefinedPointLightData PredefinedPointLightOffsets = PredefinedPointLightData::Build();
 	static constexpr PredefinedPointLightsData PredefinedPointLightsOffsets = PredefinedPointLightsData::Build();
 	static constexpr PredefinedPointShadowAtlasEntryData PredefinedPointShadowAtlasEntryOffsets = PredefinedPointShadowAtlasEntryData::Build();
