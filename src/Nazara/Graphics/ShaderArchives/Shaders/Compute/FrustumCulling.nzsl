@@ -9,9 +9,16 @@ import ViewerData from Engine.ViewerData;
 option WorkgroupSize: u32 = 256;
 
 [layout(std430)]
+struct IndirectDraw
+{
+	drawCommand: IndirectData.DrawIndexedIndirectCommand,
+	boundingSphere: vec4[f32], // (offset; radius)
+}
+
+[layout(std430)]
 struct DrawIndexedIndirectCommandBuffer
 {
-	drawIndirects: dyn_array[IndirectData.DrawIndexedIndirectCommand]
+	drawIndirects: dyn_array[IndirectDraw]
 }
 
 [auto_binding]
@@ -27,23 +34,19 @@ fn PlaneSignedDist(plane: vec4[f32], pos: vec3[f32]) -> f32
 	return dot(plane.xyz, pos) + plane.w;
 }
 
-fn FrustumCull(sphere: vec4[f32]) -> bool
+fn FrustumCull(boundingSphere: vec4[f32]) -> bool
 {
 	let visible = true;
 
 	for plane in viewerData.frustumPlanes
-	{
-		if (PlaneSignedDist(plane, sphere.xyz) < -sphere.w)
-			visible = false;
-	}
+		visible &&= PlaneSignedDist(plane, boundingSphere.xyz) >= -boundingSphere.w;
 
 	return visible;
 }
 
 struct Input
 {
-	[builtin(global_invocation_indices)]
-	invocationIndices: vec3[u32]
+	[builtin(global_invocation_indices)] invocationIndices: vec3[u32]
 }
 
 [entry(comp), workgroup(WorkgroupSize, 1, 1)]
@@ -54,12 +57,15 @@ fn main(input: Input)
 	if (commandIndex >= commandCount)
 		return;
 
-	let drawCommand = indirectBuffer.drawIndirects[commandIndex];
-	let instanceIndex = drawCommand.firstInstance;
+	let drawData = indirectBuffer.drawIndirects[commandIndex];
+	let instanceIndex = drawData.drawCommand.firstInstance;
 
 	let instancePosition = instanceBuffer.instances[instanceIndex].worldMatrix[3].xyz;
+	
+	let boundingSphere = drawData.boundingSphere;
+	boundingSphere.xyz += instancePosition;
 
-	let isVisible = FrustumCull(vec4[f32](instancePosition, 0.0));
+	let isVisible = FrustumCull(boundingSphere);
 
-	indirectBuffer.drawIndirects[commandIndex].instanceCount = select(isVisible, u32(1), u32(0));
+	indirectBuffer.drawIndirects[commandIndex].drawCommand.instanceCount = select(isVisible, u32(1), u32(0));
 }

@@ -2,6 +2,8 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
+#include <Nazara/Renderer/DrawIndirect.hpp>
+
 namespace Nz
 {
 NAZARA_WARNING_PUSH()
@@ -45,6 +47,18 @@ NAZARA_WARNING_CLANG_GCC_DISABLE("-Wmissing-field-initializers")
 		entryData.cascadeCount = entryData.fieldOffsets.AddField(nzsl::StructFieldType::UInt1);
 		entryData.viewProjMatrices = entryData.fieldOffsets.AddMatrixArray(nzsl::StructFieldType::Float1, 4, 4, true, MaxLightCascadeCount);
 		entryData.cascadeDistances = entryData.fieldOffsets.AddFieldArray(nzsl::StructFieldType::Float1, MaxLightCascadeCount);
+
+		entryData.totalSize = entryData.fieldOffsets.GetAlignedSize();
+
+		return entryData;
+	}
+
+	// PredefinedIndirectDrawData
+	constexpr PredefinedIndirectDrawData PredefinedIndirectDrawData::Build()
+	{
+		PredefinedIndirectDrawData entryData = { nzsl::FieldOffsets(nzsl::StructLayout::Std430) };
+		entryData.drawCommand = entryData.fieldOffsets.AddStruct(sizeof(DrawIndexedIndirectCommand), alignof(DrawIndexedIndirectCommand));
+		entryData.boundingSphere = entryData.fieldOffsets.AddField(nzsl::StructFieldType::Float4);
 
 		entryData.totalSize = entryData.fieldOffsets.GetAlignedSize();
 

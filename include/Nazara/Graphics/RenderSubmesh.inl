@@ -7,7 +7,7 @@
 
 namespace Nz
 {
-	inline RenderSubmesh::RenderSubmesh(int renderLayer, std::shared_ptr<MaterialProxy> materialProxy, MaterialPassFlags materialFlags, std::shared_ptr<RenderPipeline> renderPipeline, UInt32 instanceIndex, const SkeletonInstance* skeletonInstance, std::size_t indexCount, IndexType indexType, std::shared_ptr<RenderBuffer> indexBuffer, std::shared_ptr<RenderBuffer> vertexBuffer, const Recti& scissorBox, UInt32 renderMask) :
+	inline RenderSubmesh::RenderSubmesh(int renderLayer, std::shared_ptr<MaterialProxy> materialProxy, MaterialPassFlags materialFlags, std::shared_ptr<RenderPipeline> renderPipeline, UInt32 instanceIndex, const SkeletonInstance* skeletonInstance, std::size_t indexCount, IndexType indexType, std::shared_ptr<RenderBuffer> indexBuffer, std::shared_ptr<RenderBuffer> vertexBuffer, const Recti& scissorBox, const Spheref& boundingSphere, UInt32 renderMask) :
 	RenderElement(BasicRenderElement::Submesh, renderMask),
 	m_indexBuffer(std::move(indexBuffer)),
 	m_vertexBuffer(std::move(vertexBuffer)),
@@ -18,6 +18,7 @@ namespace Nz
 	m_indexType(indexType),
 	m_materialFlags(materialFlags),
 	m_scissorBox(scissorBox),
+	m_boundingSphere(boundingSphere),
 	m_instanceIndex(instanceIndex),
 	m_renderLayer(renderLayer)
 	{
@@ -52,9 +53,14 @@ namespace Nz
 		       (matFlags)                       << 55 |
 		       (elementType & 0xF)              << 51 |
 		       (pipelineIndex & 0xFFFF)         << 35 |
-		       (materialProxyIndex & 0xFFFF) << 19 |
+		       (materialProxyIndex & 0xFFFF)    << 19 |
 		       (vertexBufferIndex & 0xFF)       << 11 |
 		       (skeletonIndex     & 0xFF)       << 3;
+	}
+
+	inline const Spheref& RenderSubmesh::GetBoundingSphere() const
+	{
+		return m_boundingSphere;
 	}
 
 	inline const RenderBuffer* RenderSubmesh::GetIndexBuffer() const
