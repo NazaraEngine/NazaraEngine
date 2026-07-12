@@ -192,6 +192,10 @@ namespace Nz
 			renderResources.PushReleaseCallback([pool = m_dataPool, data = std::move(m_currentViewerData), pipelineLayout = m_renderPipelineLayout]() mutable
 			{
 				pool->viewerData.push_back(std::move(data));
+
+				// Consistent free order (pipeline layout is destroyed last before pool may contain shader bindings)
+				pool.reset();
+				pipelineLayout.reset();
 			});
 		}
 		m_currentViewerData.binding = {};
