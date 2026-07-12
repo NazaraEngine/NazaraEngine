@@ -143,6 +143,10 @@ namespace Nz
 			{
 				m_invalidatedGfxWorldNode.insert(graphicsEntity);
 			});
+			m_invalidatedGfxWorldNode.insert(graphicsEntity);
+
+			// Don't put into m_invalidatedGfxWorldNode because this callback may be triggered from the frame pipeline render
+			UpdateInstanceData(graphicsEntity->instanceIndex, entityNode);
 
 			// Check observer instead of just component presence to apply all conditions
 			if (m_sharedSkeletonObserver.Contains(entity))
@@ -193,7 +197,6 @@ namespace Nz
 			{
 				UpdateGraphicsVisibility(graphicsEntity, *gfx, isVisible);
 			});
-			m_invalidatedGfxWorldNode.insert(graphicsEntity);
 
 			if (entityGfx.IsVisible())
 				UpdateGraphicsVisibility(graphicsEntity, m_registry.get<GraphicsComponent>(entity), true);
@@ -453,11 +456,7 @@ namespace Nz
 			entt::entity entity = graphicsEntity->entity;
 
 			const NodeComponent& entityNode = m_registry.get<const NodeComponent>(entity);
-
-			Matrix4f worldMatrix = Matrix4f::Transform(entityNode.GetGlobalPosition(), entityNode.GetGlobalRotation(), entityNode.GetGlobalScale());
-			Matrix4f invWorldMatrix = Matrix4f::TransformInverse(entityNode.GetGlobalPosition(), entityNode.GetGlobalRotation(), entityNode.GetGlobalScale());
-
-			m_pipeline->UpdateInstanceData(graphicsEntity->instanceIndex, worldMatrix, invWorldMatrix);
+			UpdateInstanceData(graphicsEntity->instanceIndex, entityNode);
 		}
 		m_invalidatedGfxWorldNode.clear();
 
@@ -481,5 +480,13 @@ namespace Nz
 			}
 		}
 		m_invalidatedLightWorldNode.clear();
+	}
+
+	void RenderSystem::UpdateInstanceData(UInt32 instanceIndex, const NodeComponent& entityNode)
+	{
+		Matrix4f worldMatrix = Matrix4f::Transform(entityNode.GetGlobalPosition(), entityNode.GetGlobalRotation(), entityNode.GetGlobalScale());
+		Matrix4f invWorldMatrix = Matrix4f::TransformInverse(entityNode.GetGlobalPosition(), entityNode.GetGlobalRotation(), entityNode.GetGlobalScale());
+
+		m_pipeline->UpdateInstanceData(instanceIndex, worldMatrix, invWorldMatrix);
 	}
 }

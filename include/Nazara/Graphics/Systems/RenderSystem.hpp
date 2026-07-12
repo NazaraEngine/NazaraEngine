@@ -23,14 +23,15 @@
 #include <entt/entt.hpp>
 #include <array>
 #include <memory>
-#include <set>
 #include <unordered_map>
+#include <unordered_set>
 
 namespace Nz
 {
 	class CommandBufferBuilder;
 	class FramePipeline;
 	class RenderFrame;
+	class NodeComponent;
 	class SharedSkeletonComponent;
 	class SkeletonComponent;
 	class UploadPool;
@@ -72,6 +73,7 @@ namespace Nz
 			void UpdateGraphicsVisibility(GraphicsEntity* gfxData, GraphicsComponent& gfxComponent, bool isVisible);
 			void UpdateLightVisibility(LightEntity* gfxData, LightComponent& lightComponent, bool isVisible);
 			void UpdateInstances();
+			void UpdateInstanceData(UInt32 instanceIndex, const NodeComponent& entityNode);
 
 			static constexpr std::size_t NoInstance = std::numeric_limits<std::size_t>::max();
 
@@ -130,11 +132,11 @@ namespace Nz
 			entt::scoped_connection m_nodeDestroyConnection;
 			entt::scoped_connection m_sharedSkeletonDestroyConnection;
 			entt::scoped_connection m_skeletonDestroyConnection;
-			std::set<GraphicsEntity*> m_invalidatedGfxWorldNode;
-			std::set<LightEntity*> m_invalidatedLightWorldNode;
 			std::unique_ptr<FramePipeline> m_pipeline;
 			std::unordered_map<Skeleton*, SharedSkeleton> m_sharedSkeletonInstances;
 			std::unordered_set<entt::entity> m_invalidatedCameraNode;
+			std::unordered_set<GraphicsEntity*> m_invalidatedGfxWorldNode;
+			std::unordered_set<LightEntity*> m_invalidatedLightWorldNode;
 			std::vector<std::reference_wrapper<WindowSwapchain>> m_externalSwapchains;
 			std::vector<std::unique_ptr<WindowSwapchain>> m_windowSwapchains;
 			ElementRendererRegistry m_elementRegistry;
