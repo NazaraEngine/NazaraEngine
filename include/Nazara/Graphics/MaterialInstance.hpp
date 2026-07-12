@@ -68,7 +68,7 @@ namespace Nz
 			void FillMaterialBindings(FunctionRef<void(std::span<ShaderBinding::Binding> /*bindings*/)> callback) const;
 			void FillRenderResourceReferences(RenderResourceReferences& resourceReferences) const override;
 			void FillSceneBindings(const ElementRenderer::SceneData& sceneData, std::vector<ShaderBinding::Binding>& bindings) const override;
-			void FillSkeletonBindings(const SkeletonInstance& skeleton, std::vector<ShaderBinding::Binding>& bindings) const;
+			void FillSkeletonBindings(const SkeletonInstance& skeleton, std::vector<ShaderBinding::Binding>& bindings) const override;
 			void FillViewerBindings(const AbstractViewer& viewer, std::vector<ShaderBinding::Binding>& bindings) const override;
 
 			inline std::size_t FindBufferProperty(std::string_view propertyName) const;
@@ -83,7 +83,7 @@ namespace Nz
 			inline MaterialPassFlags GetPassFlags(std::size_t passIndex) const;
 			const std::shared_ptr<MaterialPipeline>& GetPipeline(std::size_t passIndex) const;
 
-			const ShaderBinding& GetShaderBinding(RenderResources& renderResources) const;
+			const ShaderBinding& GetShaderBinding(RenderResources& renderResources) const override;
 
 			inline const std::shared_ptr<TextureAsset>* GetTextureProperty(std::string_view propertyName) const;
 			inline const std::shared_ptr<TextureAsset>& GetTextureProperty(std::size_t textureIndex) const;
