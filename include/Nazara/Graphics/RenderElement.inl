@@ -7,14 +7,16 @@
 
 namespace Nz
 {
-	inline RenderElement::RenderElement(BasicRenderElement elementType, UInt32 renderMask) :
-	RenderElement(SafeCast<UInt8>(elementType), renderMask)
+	inline RenderElement::RenderElement(BasicRenderElement elementType, Int32 renderLayer, UInt32 renderMask) :
+	RenderElement(SafeCast<UInt8>(elementType), renderLayer, renderMask)
 	{
 	}
 
-	inline RenderElement::RenderElement(UInt8 elementType, UInt32 renderMask) :
+	inline RenderElement::RenderElement(UInt8 elementType, Int32 renderLayer, UInt32 renderMask) :
+	m_renderLayer(renderLayer),
 	m_elementType(elementType),
-	m_renderMask(renderMask)
+	m_renderMask(renderMask),
+	m_sortKey(0)
 	{
 	}
 
@@ -23,8 +25,23 @@ namespace Nz
 		return m_elementType;
 	}
 
+	inline Int32 RenderElement::GetRenderLayer() const
+	{
+		return m_renderLayer;
+	}
+
 	inline UInt32 RenderElement::GetRenderMask() const
 	{
 		return m_renderMask;
+	}
+
+	inline UInt64 RenderElement::GetSortKey() const
+	{
+		return m_sortKey;
+	}
+
+	inline void RenderElement::UpdateSortKey(const RenderQueueRegistry& registry)
+	{
+		m_sortKey = ComputeSortKey(registry);
 	}
 }

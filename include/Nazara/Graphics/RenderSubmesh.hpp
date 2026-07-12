@@ -26,10 +26,8 @@ namespace Nz
 	class RenderSubmesh : public RenderElement
 	{
 		public:
-			inline RenderSubmesh(int renderLayer, std::shared_ptr<MaterialProxy> materialProxy, MaterialPassFlags materialFlags, std::shared_ptr<RenderPipeline> renderPipeline, UInt32 instanceIndex, const SkeletonInstance* skeletonInstance, std::size_t indexCount, IndexType indexType, std::shared_ptr<RenderBuffer> indexBuffer, std::shared_ptr<RenderBuffer> vertexBuffer, const Recti& scissorBox, const Spheref& boundingSphere, UInt32 renderMask);
+			inline RenderSubmesh(Int32 renderLayer, std::shared_ptr<MaterialProxy> materialProxy, MaterialPassFlags materialFlags, std::shared_ptr<RenderPipeline> renderPipeline, UInt32 instanceIndex, const SkeletonInstance* skeletonInstance, std::size_t indexCount, IndexType indexType, std::shared_ptr<RenderBuffer> indexBuffer, std::shared_ptr<RenderBuffer> vertexBuffer, const Recti& scissorBox, const Spheref& boundingSphere, UInt32 renderMask);
 			~RenderSubmesh() = default;
-
-			inline UInt64 ComputeSortKey(const RenderQueueRegistry& registry) const override;
 
 			inline const Spheref& GetBoundingSphere() const;
 			inline const RenderBuffer* GetIndexBuffer() const;
@@ -47,6 +45,8 @@ namespace Nz
 			static constexpr BasicRenderElement ElementType = BasicRenderElement::Submesh;
 
 		private:
+			inline UInt64 ComputeSortKey(const RenderQueueRegistry& registry) const override;
+
 			std::shared_ptr<RenderBuffer> m_indexBuffer;
 			std::shared_ptr<RenderBuffer> m_vertexBuffer;
 			std::shared_ptr<MaterialProxy> m_materialProxy;
@@ -58,7 +58,6 @@ namespace Nz
 			Recti m_scissorBox;
 			Spheref m_boundingSphere;
 			UInt32 m_instanceIndex;
-			int m_renderLayer;
 	};
 }
 
