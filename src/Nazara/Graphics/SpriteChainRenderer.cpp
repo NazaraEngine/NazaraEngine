@@ -12,7 +12,6 @@
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
 #include <Nazara/Renderer/RenderResources.hpp>
 #include <Nazara/Renderer/UploadPool.hpp>
-#include <iostream>
 #include <utility>
 
 namespace Nz
@@ -78,7 +77,7 @@ namespace Nz
 
 		std::size_t oldDrawCallCount = data.drawCalls.size();
 
-		constexpr Nz::UInt64 VertexBufferSize = 4 * RenderSpriteChain::MaxSpritePerChain * sizeof(Nz::VertexStruct_XY_Color_UV); //< Most common vertex struct but not a restriction
+		constexpr Nz::UInt64 VertexBufferSize = 4 * RenderSpriteChain::MaxSpritePerChain * sizeof(Nz::VertexStruct_XYZ_Color_UV); //< Most common vertex struct but not a restriction
 
 		for (std::size_t i = 0; i < elementCount; ++i)
 		{

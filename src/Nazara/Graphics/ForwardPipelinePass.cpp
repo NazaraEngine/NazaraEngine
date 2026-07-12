@@ -184,7 +184,7 @@ namespace Nz
 
 			builder.SetScissor(viewport);
 			builder.SetViewport(viewport);
-			
+
 			m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
 			{
 				if (elementType >= m_elementRendererData.size())
@@ -210,7 +210,7 @@ namespace Nz
 				ElementRenderer& elementRenderer = m_elementRegistry.GetElementRenderer(elementType);
 				elementRenderer.Render(*m_viewer, *m_elementRendererData[elementType], env.renderResources, builder, elementCount, elements, SparsePtr(&m_renderState, 0));
 			});
-			
+
 			m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
 			{
 				elementRenderer.Reset(*m_elementRendererData[elementType], env.renderResources);
