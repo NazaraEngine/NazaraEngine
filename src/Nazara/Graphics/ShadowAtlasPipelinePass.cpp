@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Graphics/ShadowAtlasPipelinePass.hpp>
-#include <NazaraUtils/MathUtils.hpp>
 #include <Nazara/Graphics/ElementRenderer.hpp>
 #include <Nazara/Graphics/ElementRendererRegistry.hpp>
 #include <Nazara/Graphics/FrameGraph.hpp>
@@ -11,6 +10,7 @@
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/LightShadowData.hpp>
 #include <Nazara/Graphics/ShadowViewer.hpp>
+#include <NazaraUtils/MathUtils.hpp>
 #include <fmt/format.h>
 
 namespace Nz
@@ -61,7 +61,7 @@ namespace Nz
 
 		std::size_t prepareAttachment = frameGraph.AddDummyAttachment();
 		std::size_t cullAttachment = frameGraph.AddDummyAttachment();
-		
+
 		FramePass& preparePass = frameGraph.AddPass("Shadow atlas prepare");
 		preparePass.SetExecutionCallback([&]
 		{

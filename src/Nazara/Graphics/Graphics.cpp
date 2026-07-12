@@ -53,10 +53,34 @@ namespace Nz
 		if (renderDeviceInfo.empty())
 			throw std::runtime_error("no render device available");
 
-		std::size_t bestRenderDeviceIndex = 0;
+		std::size_t bestRenderDeviceIndex = MaxValue();
 		for (std::size_t i = 0; i < renderDeviceInfo.size(); ++i)
 		{
 			const auto& deviceInfo = renderDeviceInfo[i];
+			if (!deviceInfo.features.computeShaders)
+			{
+				NazaraDebug("{} device doesn't support compute shaders feature, skipping...", deviceInfo.name);
+				continue;
+			}
+
+			if (!deviceInfo.features.drawIndirect)
+			{
+				NazaraDebug("{} device doesn't support indirect rendering feature, skipping...", deviceInfo.name);
+				continue;
+			}
+
+			if (!deviceInfo.features.drawIndirectFirstInstance)
+			{
+				NazaraDebug("{} device doesn't support indirect rendering first instance feature, skipping...", deviceInfo.name);
+				continue;
+			}
+
+			if (!deviceInfo.features.storageBuffers)
+			{
+				NazaraDebug("{} device doesn't support storage buffers feature, skipping...", deviceInfo.name);
+				continue;
+			}
+
 			if (config.useDedicatedRenderDevice && deviceInfo.type == RenderDeviceType::Dedicated)
 			{
 				bestRenderDeviceIndex = i;
@@ -67,20 +91,25 @@ namespace Nz
 				bestRenderDeviceIndex = i;
 				break;
 			}
+			else if (bestRenderDeviceIndex == MaxValue<std::size_t>())
+				bestRenderDeviceIndex = i;
 		}
+
+		if (bestRenderDeviceIndex >= renderDeviceInfo.size())
+			throw std::runtime_error("no render device available");
 
 		RenderDeviceFeatures enabledFeatures;
 		enabledFeatures.anisotropicFiltering = !config.forceDisableFeatures.anisotropicFiltering && renderDeviceInfo[bestRenderDeviceIndex].features.anisotropicFiltering;
-		enabledFeatures.computeShaders = !config.forceDisableFeatures.computeShaders && renderDeviceInfo[bestRenderDeviceIndex].features.computeShaders;
+		enabledFeatures.computeShaders = true; //< required
 		enabledFeatures.depthClamping = !config.forceDisableFeatures.depthClamping && renderDeviceInfo[bestRenderDeviceIndex].features.depthClamping;
 		enabledFeatures.drawBaseVertex = !config.forceDisableFeatures.drawBaseVertex && renderDeviceInfo[bestRenderDeviceIndex].features.drawBaseVertex;
 		enabledFeatures.drawIndirect = !config.forceDisableFeatures.drawIndirect && renderDeviceInfo[bestRenderDeviceIndex].features.drawIndirect;
 		enabledFeatures.drawIndirectCount = !config.forceDisableFeatures.drawIndirectCount && renderDeviceInfo[bestRenderDeviceIndex].features.drawIndirectCount;
-		enabledFeatures.drawIndirectFirstInstance = !config.forceDisableFeatures.drawIndirectFirstInstance && renderDeviceInfo[bestRenderDeviceIndex].features.drawIndirectFirstInstance;
+		enabledFeatures.drawIndirectFirstInstance = true; //< required
 		enabledFeatures.multiDrawIndirect = !config.forceDisableFeatures.multiDrawIndirect && renderDeviceInfo[bestRenderDeviceIndex].features.multiDrawIndirect;
 		enabledFeatures.nonSolidFaceFilling = !config.forceDisableFeatures.nonSolidFaceFilling && renderDeviceInfo[bestRenderDeviceIndex].features.nonSolidFaceFilling;
 		enabledFeatures.persistentMapping = !config.forceDisableFeatures.persistentMapping && renderDeviceInfo[bestRenderDeviceIndex].features.persistentMapping;
-		enabledFeatures.storageBuffers = !config.forceDisableFeatures.storageBuffers && renderDeviceInfo[bestRenderDeviceIndex].features.storageBuffers;
+		enabledFeatures.storageBuffers = true; //< required
 		enabledFeatures.textureReadWithoutFormat = !config.forceDisableFeatures.textureReadWithoutFormat && renderDeviceInfo[bestRenderDeviceIndex].features.textureReadWithoutFormat;
 		enabledFeatures.textureReadWrite = !config.forceDisableFeatures.textureReadWrite && renderDeviceInfo[bestRenderDeviceIndex].features.textureReadWrite;
 		enabledFeatures.textureWriteWithoutFormat = !config.forceDisableFeatures.textureWriteWithoutFormat && renderDeviceInfo[bestRenderDeviceIndex].features.textureWriteWithoutFormat;

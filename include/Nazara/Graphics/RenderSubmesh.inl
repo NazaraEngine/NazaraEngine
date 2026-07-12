@@ -81,7 +81,7 @@ namespace Nz
 		if (m_skeletonInstance)
 			registry.RegisterSkeleton(m_skeletonInstance->GetSkeleton().get());
 	}
-	
+
 	inline UInt64 RenderSubmesh::ComputeSortKey(const RenderQueueRegistry& registry) const
 	{
 		UInt64 elementType = GetElementType();

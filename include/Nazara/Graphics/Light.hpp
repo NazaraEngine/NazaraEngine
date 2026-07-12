@@ -43,7 +43,7 @@ namespace Nz
 			inline PixelFormat GetShadowMapFormat() const;
 			inline UInt32 GetShadowMapSize() const;
 
-			virtual std::unique_ptr<LightShadowData> InstanciateShadowData(FramePipeline& pipeline, ElementRendererRegistry& elementRegistry) const = 0;
+			virtual std::unique_ptr<LightShadowData> InstanciateShadowData(FramePipeline& pipeline) const = 0;
 
 			inline bool IsShadowCaster() const;
 

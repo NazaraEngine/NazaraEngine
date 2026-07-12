@@ -63,7 +63,7 @@ namespace Nz
 		registry.RegisterPipeline(m_renderPipeline.get());
 		registry.RegisterVertexDeclaration(m_vertexDeclaration.get());
 	}
-	
+
 	inline UInt64 RenderSpriteChain::ComputeSortKey(const RenderQueueRegistry& registry) const
 	{
 		UInt64 elementType = GetElementType();

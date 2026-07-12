@@ -14,7 +14,7 @@
 
 namespace Nz
 {
-	SpotLightShadowData::SpotLightShadowData(FramePipeline& pipeline, ElementRendererRegistry& elementRegistry, const SpotLight& light) :
+	SpotLightShadowData::SpotLightShadowData(FramePipeline& pipeline, const SpotLight& light) :
 	m_pipeline(pipeline),
 	m_light(light)
 	{
@@ -30,8 +30,6 @@ namespace Nz
 		viewerInstance.UpdateNearFarPlanes(zNear, m_light.GetRadius());
 		viewerInstance.UpdateViewMatrix(Nz::Matrix4f::TransformInverse(m_light.GetPosition(), m_light.GetRotation()));
 		m_pipeline.QueueTransfer(&viewerInstance);
-
-		std::size_t shadowPassIndex = Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex("ShadowPass");
 
 		m_onLightDataInvalidated.Connect(m_light.OnLightDataInvalidated, [this]([[maybe_unused]] Light* light)
 		{

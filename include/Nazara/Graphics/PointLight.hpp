@@ -27,7 +27,7 @@ namespace Nz
 
 			bool FrustumCull(const Frustumf& viewerFrustum) const override;
 
-			std::unique_ptr<LightShadowData> InstanciateShadowData(FramePipeline& pipeline, ElementRendererRegistry& elementRegistry) const override;
+			std::unique_ptr<LightShadowData> InstanciateShadowData(FramePipeline& pipeline) const override;
 
 			inline float GetAmbientFactor() const;
 			inline float GetDiffuseFactor() const;

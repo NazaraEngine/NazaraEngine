@@ -25,7 +25,7 @@ namespace Nz
 	class NAZARA_GRAPHICS_API DirectionalLightShadowData : public LightShadowData
 	{
 		public:
-			DirectionalLightShadowData(FramePipeline& pipeline, ElementRendererRegistry& elementRegistry, const DirectionalLight& light, std::size_t cascadeCount);
+			DirectionalLightShadowData(FramePipeline& pipeline, const DirectionalLight& light, std::size_t cascadeCount);
 			DirectionalLightShadowData(const DirectionalLightShadowData&) = delete;
 			DirectionalLightShadowData(DirectionalLightShadowData&&) = delete;
 			~DirectionalLightShadowData() = default;
@@ -83,7 +83,6 @@ namespace Nz
 			std::size_t m_cascadeCount;
 			std::vector<std::unique_ptr<PerViewerData>> m_destructionQueue;
 			std::unordered_map<const AbstractViewer*, std::unique_ptr<PerViewerData>> m_viewerData;
-			ElementRendererRegistry& m_elementRegistry;
 			FramePipeline& m_pipeline;
 			const DirectionalLight& m_light;
 			bool m_isShadowStabilizationEnabled;

@@ -29,13 +29,11 @@ external Scene
 
 	[tag("DirectionalLights")] directionalLights: storage[LightData.DirectionalLights, readonly],
 	[tag("DirectionalShadowAtlasMapping")] directionalShadowAtlasMapping: storage[Shadow.DirectionalShadowAtlasMapping, readonly],
+	[tag("InstanceBuffer")] instanceBuffer: storage[InstanceBuffer, readonly],
 	[tag("PointLights")] pointLights: storage[LightData.PointLights, readonly],
 	[tag("PointShadowAtlasMapping")] pointShadowAtlasMapping: storage[Shadow.PointShadowAtlasMapping, readonly],
 	[tag("SpotLights")] spotLights: storage[LightData.SpotLights, readonly],
 	[tag("SpotShadowAtlasMapping")] spotShadowAtlasMapping: storage[Shadow.SpotShadowAtlasMapping, readonly],
-
-	// TODO: Move to Material
-	[tag("InstanceBuffer")] instanceBuffer: storage[InstanceBuffer, readonly],
 }
 
 [tag("Viewer")]

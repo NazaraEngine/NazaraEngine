@@ -19,14 +19,13 @@
 namespace Nz
 {
 	DefaultFramePipeline::DefaultFramePipeline(ElementRendererRegistry& elementRegistry) :
-	m_directionalLights(*Graphics::Instance()->GetRenderDevice(), PredefinedDirectionalLightOffsets.totalSize, 16, PredefinedDirectionalLightsOffsets.totalSize),
-	m_directionalShadowAtlasEntries(*Graphics::Instance()->GetRenderDevice(), PredefinedDirectionalShadowAtlasEntryOffsets.totalSize, 16),
-	m_indirectCommandBuffer(*Graphics::Instance()->GetRenderDevice(), sizeof(DrawIndexedIndirectCommand)),
-	m_instanceBuffer(*Graphics::Instance()->GetRenderDevice(), PredefinedInstanceOffsets.totalSize, 512),
-	m_pointLights(*Graphics::Instance()->GetRenderDevice(), PredefinedPointLightOffsets.totalSize, 128, PredefinedPointLightsOffsets.totalSize),
-	m_pointShadowAtlasEntries(*Graphics::Instance()->GetRenderDevice(), PredefinedPointShadowAtlasEntryOffsets.totalSize, 128),
-	m_spotLights(*Graphics::Instance()->GetRenderDevice(), PredefinedSpotLightOffsets.totalSize, 128, PredefinedSpotLightsOffsets.totalSize),
-	m_spotShadowAtlasEntries(*Graphics::Instance()->GetRenderDevice(), PredefinedSpotShadowAtlasEntryOffsets.totalSize, 128),
+	m_directionalLights(*Graphics::Instance()->GetRenderDevice(), SafeCaster(PredefinedDirectionalLightOffsets.totalSize), 16, SafeCaster(PredefinedDirectionalLightsOffsets.totalSize)),
+	m_directionalShadowAtlasEntries(*Graphics::Instance()->GetRenderDevice(), SafeCaster(PredefinedDirectionalShadowAtlasEntryOffsets.totalSize), 16),
+	m_instanceBuffer(*Graphics::Instance()->GetRenderDevice(), SafeCaster(PredefinedInstanceOffsets.totalSize), 512),
+	m_pointLights(*Graphics::Instance()->GetRenderDevice(), SafeCaster(PredefinedPointLightOffsets.totalSize), 128, SafeCaster(PredefinedPointLightsOffsets.totalSize)),
+	m_pointShadowAtlasEntries(*Graphics::Instance()->GetRenderDevice(), SafeCaster(PredefinedPointShadowAtlasEntryOffsets.totalSize), 128),
+	m_spotLights(*Graphics::Instance()->GetRenderDevice(), SafeCaster(PredefinedSpotLightOffsets.totalSize), 128, SafeCaster(PredefinedSpotLightsOffsets.totalSize)),
+	m_spotShadowAtlasEntries(*Graphics::Instance()->GetRenderDevice(), SafeCaster(PredefinedSpotShadowAtlasEntryOffsets.totalSize), 128),
 	m_elementRegistry(elementRegistry),
 	m_renderablePool(4096),
 	m_lightPool(64),
@@ -47,7 +46,6 @@ namespace Nz
 		// OnTransferRequired
 		m_directionalLights.OnTransferRequired.Connect([this](TransferInterface* transfer) { m_transferSet.insert(transfer); });
 		m_directionalShadowAtlasEntries.OnTransferRequired.Connect([this](TransferInterface* transfer) { m_transferSet.insert(transfer); });
-		m_indirectCommandBuffer.OnTransferRequired.Connect([this](TransferInterface* transfer) { m_transferSet.insert(transfer); });
 		m_instanceBuffer.OnTransferRequired.Connect([this](TransferInterface* transfer) { m_transferSet.insert(transfer); });
 		m_pointLights.OnTransferRequired.Connect([this](TransferInterface* transfer) { m_transferSet.insert(transfer); });
 		m_pointShadowAtlasEntries.OnTransferRequired.Connect([this](TransferInterface* transfer) { m_transferSet.insert(transfer); });
@@ -56,7 +54,6 @@ namespace Nz
 
 		m_directionalLights.UpdateDebugName("Directional Light buffer");
 		m_directionalShadowAtlasEntries.UpdateDebugName("Directional Shadow Atlas Entries");
-		m_indirectCommandBuffer.UpdateDebugName("Indirect command buffer");
 		m_instanceBuffer.UpdateDebugName("Instance buffer");
 		m_pointLights.UpdateDebugName("Point Light buffer");
 		m_pointShadowAtlasEntries.UpdateDebugName("Point Shadow Atlas Entries");
@@ -1062,7 +1059,7 @@ namespace Nz
 	void DefaultFramePipeline::RegisterShadowCaster(std::size_t lightIndex, LightData* lightData)
 	{
 		m_shadowCastingLights.UnboundedSet(lightIndex);
-		lightData->shadowData = lightData->light->InstanciateShadowData(*this, m_elementRegistry);
+		lightData->shadowData = lightData->light->InstanciateShadowData(*this);
 		if (lightData->shadowData->IsPerViewer())
 		{
 			for (auto& viewerData : m_viewerPool)

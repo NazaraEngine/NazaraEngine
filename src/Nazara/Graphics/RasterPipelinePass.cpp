@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Graphics/RasterPipelinePass.hpp>
-#include <NazaraUtils/MathUtils.hpp>
 #include <Nazara/Graphics/AbstractViewer.hpp>
 #include <Nazara/Graphics/ElementRenderer.hpp>
 #include <Nazara/Graphics/ElementRendererRegistry.hpp>
@@ -12,6 +11,7 @@
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
 #include <Nazara/Math/Frustum.hpp>
+#include <NazaraUtils/MathUtils.hpp>
 
 namespace Nz
 {

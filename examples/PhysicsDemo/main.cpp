@@ -244,11 +244,6 @@ int main(int argc, char* argv[])
 			entityPhys.SetMass(1.f);
 			entityPhys.SetAngularDamping(0.f);
 			entityPhys.SetLinearDamping(0.f);
-
-			auto& entityLight = entity.emplace<Nz::LightComponent>();
-
-			auto& light = entityLight.AddLight<Nz::PointLight>();
-			light.UpdateEnergy(2.f);
 		}
 	});
 

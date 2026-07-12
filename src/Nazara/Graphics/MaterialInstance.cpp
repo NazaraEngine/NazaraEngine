@@ -36,7 +36,7 @@ namespace Nz
 		m_valueOverride.resize(settings.GetValuePropertyCount());
 
 		m_bindingSetHashes.resize(m_parent->GetBindingSetCount());
-		for (std::size_t i = 0; i < m_bindingSetHashes.size(); ++i)
+		for (UInt32 i = 0; i < m_bindingSetHashes.size(); ++i)
 			m_bindingSetHashes[i] = m_parent->GetBindingSetHash(i);
 
 		const auto& passSettings = settings.GetPasses();
