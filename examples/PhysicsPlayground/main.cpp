@@ -349,9 +349,6 @@ int main(int argc, char* argv[])
 		UpdateCamera();
 	};
 
-	Nz::Vector3f debugLineFrom = Nz::Vector3f::Zero();
-	Nz::Vector3f debugLineTo = Nz::Vector3f::Zero();
-
 	Nz::WindowEventHandler& eventHandler = mainWindow.GetEventHandler();
 	eventHandler.OnMouseButtonPressed.Connect([&](const Nz::WindowEventHandler*, const Nz::WindowEvent::MouseButtonEvent& event)
 	{
@@ -365,9 +362,6 @@ int main(int argc, char* argv[])
 
 			Nz::Vector3f from = cameraComponent.UnprojectFromScreen({ float(event.x), float(event.y), 0.f });
 			Nz::Vector3f to = cameraComponent.UnprojectFromScreen({ float(event.x), float(event.y), 1.f });
-
-			debugLineFrom = from;
-			debugLineTo = to;
 
 			Nz::Physics3DSystem::RaycastHit lastHitInfo;
 			auto callback = [&](const decltype(lastHitInfo)& hitInfo) -> std::optional<float>
@@ -437,12 +431,10 @@ int main(int argc, char* argv[])
 		}
 	});
 
-	//Nz::DegreeAnglef rotation = 0.f;
+	Nz::DegreeAnglef rotation = 0.f;
 	app.AddUpdaterFunc([&](Nz::Time elapsedTime)
 	{
-		auto& cameraComponent = cameraEntity.get<Nz::CameraComponent>();
-		cameraComponent.AccessDebugDrawer()->DrawLine(debugLineFrom, debugLineTo, Nz::Color::Magenta(), Nz::Color::Blue());
-		//rotation += elapsedTime.AsSeconds() * 360.f;
+		rotation += elapsedTime.AsSeconds() * 360.f;
 		//physSystem.GetPhysWorld().SetGravity(Nz::Quaternionf(Nz::EulerAnglesf(0.f, rotation, 0.f)) * Nz::Vector3f::Forward() * 10.f);
 	});
 

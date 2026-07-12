@@ -213,7 +213,6 @@ namespace Nz
 			Bitset<UInt64> m_visibleShadowCastingLights;
 			GpuDynamicArray m_directionalLights;
 			GpuDynamicArray m_directionalShadowAtlasEntries;
-			GpuDynamicArray m_indirectCommandBuffer;
 			GpuDynamicArray m_instanceBuffer;
 			GpuDynamicArray m_pointLights;
 			GpuDynamicArray m_pointShadowAtlasEntries;
@@ -227,7 +226,6 @@ namespace Nz
 			mutable ShaderBindingCache m_shaderBindingCache;
 			UInt8 m_generationCounter;
 			bool m_rebuildFrameGraph;
-			bool m_rebuildRenderQueue;
 	};
 }
 

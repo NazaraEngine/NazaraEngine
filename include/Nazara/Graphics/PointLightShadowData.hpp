@@ -22,7 +22,7 @@ namespace Nz
 	class NAZARA_GRAPHICS_API PointLightShadowData : public LightShadowData
 	{
 		public:
-			PointLightShadowData(FramePipeline& pipeline, ElementRendererRegistry& elementRegistry, const PointLight& light);
+			PointLightShadowData(FramePipeline& pipeline, const PointLight& light);
 			PointLightShadowData(const PointLightShadowData&) = delete;
 			PointLightShadowData(PointLightShadowData&&) = delete;
 			~PointLightShadowData() = default;

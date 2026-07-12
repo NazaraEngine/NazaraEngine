@@ -43,7 +43,7 @@ namespace Nz
 			inline float GetRadius() const;
 			inline const Matrix4f& GetViewProjMatrix() const;
 
-			std::unique_ptr<LightShadowData> InstanciateShadowData(FramePipeline& pipeline, ElementRendererRegistry& elementRegistry) const override;
+			std::unique_ptr<LightShadowData> InstanciateShadowData(FramePipeline& pipeline) const override;
 
 			inline void UpdateAmbientFactor(float factor);
 			inline void UpdateAngles(RadianAnglef innerAngle, RadianAnglef outerAngle);

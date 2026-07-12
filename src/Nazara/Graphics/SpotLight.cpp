@@ -36,9 +36,9 @@ namespace Nz
 		return viewerFrustum.Contains(points.data(), points.size());
 	}
 
-	std::unique_ptr<LightShadowData> SpotLight::InstanciateShadowData(FramePipeline& pipeline, ElementRendererRegistry& elementRegistry) const
+	std::unique_ptr<LightShadowData> SpotLight::InstanciateShadowData(FramePipeline& pipeline) const
 	{
-		return std::make_unique<SpotLightShadowData>(pipeline, elementRegistry, *this);
+		return std::make_unique<SpotLightShadowData>(pipeline, *this);
 	}
 
 	void SpotLight::UpdateTransform(const Vector3f& position, const Quaternionf& rotation, const Vector3f& /*scale*/)

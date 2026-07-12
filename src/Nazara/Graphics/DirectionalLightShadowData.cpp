@@ -17,9 +17,8 @@
 
 namespace Nz
 {
-	DirectionalLightShadowData::DirectionalLightShadowData(FramePipeline& pipeline, ElementRendererRegistry& elementRegistry, const DirectionalLight& light, std::size_t cascadeCount) :
+	DirectionalLightShadowData::DirectionalLightShadowData(FramePipeline& pipeline, const DirectionalLight& light, std::size_t cascadeCount) :
 	m_cascadeCount(cascadeCount),
-	m_elementRegistry(elementRegistry),
 	m_pipeline(pipeline),
 	m_light(light),
 	m_isShadowStabilizationEnabled(true),
@@ -243,12 +242,8 @@ namespace Nz
 
 	void DirectionalLightShadowData::RegisterViewer(const AbstractViewer* viewer)
 	{
-		std::size_t shadowPassIndex = Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex("ShadowPass");
-
 		std::unique_ptr<PerViewerData> perViewerData = std::make_unique<PerViewerData>();
 		perViewerData->cascades.resize(m_cascadeCount);
-
-		std::size_t cascadeIndex = 0;
 
 		UInt32 shadowMapSize = m_light.GetShadowMapSize();
 		for (CascadeData& cascade : perViewerData->cascades)

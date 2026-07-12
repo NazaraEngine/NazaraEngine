@@ -19,9 +19,9 @@ namespace Nz
 		return viewerFrustum.Intersect(Spheref(m_position, m_radius)) != IntersectionSide::Outside;
 	}
 
-	std::unique_ptr<LightShadowData> PointLight::InstanciateShadowData(FramePipeline& pipeline, ElementRendererRegistry& elementRegistry) const
+	std::unique_ptr<LightShadowData> PointLight::InstanciateShadowData(FramePipeline& pipeline) const
 	{
-		return std::make_unique<PointLightShadowData>(pipeline, elementRegistry, *this);
+		return std::make_unique<PointLightShadowData>(pipeline, *this);
 	}
 
 	void PointLight::UpdateTransform(const Vector3f& position, const Quaternionf& /*rotation*/, const Vector3f& /*scale*/)

@@ -14,7 +14,7 @@ namespace Nz
 	{
 		return BuildCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, callback);
 	}
-	
+
 	CommandBufferPtr VulkanCommandPool::BuildSecondaryCommandBuffer(const FunctionRef<void(CommandBufferBuilder& builder)>& callback)
 	{
 		return BuildCommandBuffer(VK_COMMAND_BUFFER_LEVEL_SECONDARY, callback);
@@ -56,7 +56,7 @@ namespace Nz
 		if (poolIndex >= m_commandPools.size() - 1 && poolIndex <= m_commandPools.size())
 			TryToShrink();
 	}
-	
+
 	CommandBufferPtr VulkanCommandPool::BuildCommandBuffer(VkCommandBufferLevel level, const FunctionRef<void(CommandBufferBuilder& builder)>& callback)
 	{
 		Vk::AutoCommandBuffer commandBuffer = m_commandPool.AllocateCommandBuffer(level);

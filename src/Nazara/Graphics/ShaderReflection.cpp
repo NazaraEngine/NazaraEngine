@@ -155,7 +155,7 @@ namespace Nz
 					throw std::runtime_error("push_constant struct #" + std::to_string(pushConstantType.containedType.structIndex) + " not found");
 
 				const nzsl::FieldOffsets& fieldOffsets = it->second.fieldOffsets;
-				m_pipelineLayoutInfo.pushConstantSize += fieldOffsets.GetAlignedSize();
+				m_pipelineLayoutInfo.pushConstantSize += SafeCast<UInt32>(fieldOffsets.GetAlignedSize());
 			}
 			else
 				throw std::runtime_error("unexpected type " + nzsl::Ast::ToString(varType));

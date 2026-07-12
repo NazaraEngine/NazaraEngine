@@ -66,7 +66,7 @@ namespace Nz
 		// Features
 		const auto& contextParams = m_referenceContext->GetParams();
 
-		unsigned int glVersion = params.glMajorVersion * 100 + params.glMinorVersion * 10;
+		unsigned int glVersion = contextParams.glMajorVersion * 100 + contextParams.glMinorVersion * 10;
 
 		if (m_referenceContext->IsExtensionSupported(GL::Extension::BufferStorage))
 			m_deviceInfo.features.persistentMapping = true;

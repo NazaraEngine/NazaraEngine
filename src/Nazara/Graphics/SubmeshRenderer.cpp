@@ -46,7 +46,7 @@ namespace Nz
 		return std::make_unique<SubmeshRendererData>();
 	}
 
-	void SubmeshRenderer::Prepare(const RenderData& renderData, const SceneData& sceneData, const AbstractViewer& viewer, ElementRendererData& rendererData, RenderResources& renderResources, std::size_t elementCount, const Pointer<const RenderElement>* elements)
+	void SubmeshRenderer::Prepare(const RenderData& /*renderData*/, const SceneData& /*sceneData*/, const AbstractViewer& /*viewer*/, ElementRendererData& rendererData, RenderResources& /*renderResources*/, std::size_t elementCount, const Pointer<const RenderElement>* elements)
 	{
 		auto& data = SafeCast<SubmeshRendererData&>(rendererData);
 
@@ -81,7 +81,7 @@ namespace Nz
 				DrawIndexedIndirectCommand drawIndirectCommand;
 				drawIndirectCommand.firstIndex = 0;
 				drawIndirectCommand.firstInstance = submesh.GetInstanceIndex();
-				drawIndirectCommand.indexCount = submesh.GetIndexCount();
+				drawIndirectCommand.indexCount = SafeCaster(submesh.GetIndexCount());
 				drawIndirectCommand.instanceCount = 1;
 				drawIndirectCommand.vertexOffset = 0;
 
@@ -93,7 +93,7 @@ namespace Nz
 				drawIndirectCommand.firstVertex = 0;
 				drawIndirectCommand.firstInstance = submesh.GetInstanceIndex();
 				drawIndirectCommand.instanceCount = 1;
-				drawIndirectCommand.vertexCount = submesh.GetIndexCount();
+				drawIndirectCommand.vertexCount = SafeCaster(submesh.GetIndexCount());
 
 				std::memcpy(indirectBuffer + PredefinedIndirectDrawOffsets.drawCommand, &drawIndirectCommand, sizeof(drawIndirectCommand));
 			}
@@ -259,12 +259,12 @@ namespace Nz
 				data.shaderBindings.emplace_back(std::move(instanceBinding));
 			}
 
-			RenderBuffer* indirectBuffer = data.drawIndirectBuffers[data.drawIndirectBufferIndex].get();
+			RenderBuffer& indirectBuffer = *data.drawIndirectBuffers[data.drawIndirectBufferIndex];
 
 			if (currentIndexBuffer)
-				commandBuffer.DrawIndexedIndirect(*indirectBuffer, data.drawElementCounter * PredefinedIndirectDrawOffsets.totalSize, 1, PredefinedIndirectDrawOffsets.totalSize);
+				commandBuffer.DrawIndexedIndirect(indirectBuffer, data.drawElementCounter * SafeCast<UInt32>(PredefinedIndirectDrawOffsets.totalSize), 1, SafeCaster(PredefinedIndirectDrawOffsets.totalSize));
 			else
-				commandBuffer.DrawIndirect(*indirectBuffer, data.drawElementCounter * PredefinedIndirectDrawOffsets.totalSize, 1, PredefinedIndirectDrawOffsets.totalSize);
+				commandBuffer.DrawIndirect(indirectBuffer, data.drawElementCounter * SafeCast<UInt32>(PredefinedIndirectDrawOffsets.totalSize), 1, SafeCaster(PredefinedIndirectDrawOffsets.totalSize));
 
 			data.drawElementCounter++;
 			if (data.drawElementCounter >= IndirectCommandBufferCount)

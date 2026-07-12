@@ -20,7 +20,7 @@ namespace Nz
 	class NAZARA_GRAPHICS_API SpotLightShadowData : public LightShadowData
 	{
 		public:
-			SpotLightShadowData(FramePipeline& pipeline, ElementRendererRegistry& elementRegistry, const SpotLight& light);
+			SpotLightShadowData(FramePipeline& pipeline, const SpotLight& light);
 			SpotLightShadowData(const SpotLightShadowData&) = delete;
 			SpotLightShadowData(SpotLightShadowData&&) = delete;
 			~SpotLightShadowData() = default;

@@ -26,7 +26,7 @@ namespace Nz
 	class NAZARA_GRAPHICS_API ShadowAtlasPipelinePass : public FramePipelinePass
 	{
 		public:
-			ShadowAtlasPipelinePass(PassData& passData);
+			explicit ShadowAtlasPipelinePass(PassData& passData);
 			ShadowAtlasPipelinePass(const ShadowAtlasPipelinePass&) = delete;
 			ShadowAtlasPipelinePass(ShadowAtlasPipelinePass&&) = delete;
 			~ShadowAtlasPipelinePass() = default;

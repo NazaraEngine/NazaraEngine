@@ -8,11 +8,11 @@
 #define NAZARA_GRAPHICS_ELEMENTRENDERER_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <NazaraUtils/FunctionRef.hpp>
 #include <Nazara/Graphics/Export.hpp>
 #include <Nazara/Graphics/RenderElementPool.hpp>
 #include <Nazara/Math/Rect.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
+#include <NazaraUtils/FunctionRef.hpp>
 #include <memory>
 #include <vector>
 

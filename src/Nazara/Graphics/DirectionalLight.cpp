@@ -18,9 +18,9 @@ namespace Nz
 		return true; //< always visible
 	}
 
-	std::unique_ptr<LightShadowData> DirectionalLight::InstanciateShadowData(FramePipeline& pipeline, ElementRendererRegistry& elementRegistry) const
+	std::unique_ptr<LightShadowData> DirectionalLight::InstanciateShadowData(FramePipeline& pipeline) const
 	{
-		return std::make_unique<DirectionalLightShadowData>(pipeline, elementRegistry, *this, 4);
+		return std::make_unique<DirectionalLightShadowData>(pipeline, *this, 4);
 	}
 
 	void DirectionalLight::UpdateTransform(const Vector3f& /*position*/, const Quaternionf& rotation, const Vector3f& /*scale*/)

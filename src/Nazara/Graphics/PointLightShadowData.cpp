@@ -16,15 +16,61 @@ namespace Nz
 {
 	namespace
 	{
-		// TODO: Make it constexpr
-		std::array s_dirRotations = {
-			 Quaternionf::RotationBetween(Vector3f::Forward(),  Vector3f::UnitX()),
-			 Quaternionf::RotationBetween(Vector3f::Forward(), -Vector3f::UnitX()),
-			 Quaternionf::RotationBetween(Vector3f::Forward(),  Vector3f::UnitY()),
-			 Quaternionf::RotationBetween(Vector3f::Forward(), -Vector3f::UnitY()),
-			 Quaternionf::RotationBetween(Vector3f::Forward(), -Vector3f::UnitZ()), //< Z is reversed as the cubemap convention is left-handed
-			 Quaternionf::RotationBetween(Vector3f::Forward(),  Vector3f::UnitZ()),
-		};
+		constexpr Matrix4f BuildViewMatrix(const Vector3f& lightPos, std::size_t directionIndex)
+		{
+			switch (directionIndex)
+			{
+				case 0:
+					return Matrix4f(
+						0.0, 0.0, -1.0, 0.0,
+						0.0, 1.0, 0.0, 0.0,
+						1.0, 0.0, 0.0, 0.0,
+						-lightPos.z, -lightPos.y, lightPos.x, 1.0
+					);
+					
+				case 1:
+					return Matrix4f(
+						0.0, 0.0, 1.0, 0.0,
+						0.0, 1.0, 0.0, 0.0,
+						-1.0, 0.0, 0.0, 0.0,
+						lightPos.z, -lightPos.y, -lightPos.x, 1.0
+					);
+					
+				case 2:
+					return Matrix4f(
+						1.0, 0.0, 0.0, 0.0,
+						0.0, 0.0, -1.0, 0.0,
+						0.0, 1.0, 0.0, 0.0,
+						-lightPos.x, -lightPos.z, lightPos.y, 1.0
+					);
+					
+				case 3:
+					return Matrix4f(
+						1.0, 0.0, 0.0, 0.0,
+						0.0, 0.0, 1.0, 0.0,
+						0.0, -1.0, 0.0, 0.0,
+						-lightPos.x, lightPos.z, -lightPos.y, 1.0
+					);
+					
+				case 4:
+					return Matrix4f(
+						1.0, 0.0, 0.0, 0.0,
+						0.0, 1.0, 0.0, 0.0,
+						0.0, 0.0, 1.0, 0.0,
+						-lightPos.x, -lightPos.y, -lightPos.z, 1.0
+					);
+					
+				case 5:
+					return Matrix4f(
+						-1.0, 0.0, 0.0, 0.0,
+						0.0, 1.0, 0.0, 0.0,
+						0.0, 0.0, -1.0, 0.0,
+						lightPos.x, -lightPos.y, lightPos.z, 1.0
+					);
+			}
+
+			NAZARA_UNREACHABLE();
+		}
 
 		constexpr std::array<std::string_view, 6> s_dirNames = {
 			"Point-light shadow mapping +X",
@@ -36,7 +82,7 @@ namespace Nz
 		};
 	}
 
-	PointLightShadowData::PointLightShadowData(FramePipeline& pipeline, ElementRendererRegistry& elementRegistry, const PointLight& light) :
+	PointLightShadowData::PointLightShadowData(FramePipeline& pipeline, const PointLight& light) :
 	m_pipeline(pipeline),
 	m_light(light)
 	{
@@ -48,7 +94,6 @@ namespace Nz
 		for (std::size_t i = 0; i < m_directions.size(); ++i)
 		{
 			ShadowViewer& viewer = m_directions[i].viewer;
-
 			viewer.UpdateRenderMask(0xFFFFFFFF);
 			viewer.UpdateViewport(Recti(0, 0, SafeCast<int>(shadowMapSize), SafeCast<int>(shadowMapSize)));
 
@@ -56,7 +101,7 @@ namespace Nz
 			viewerInstance.UpdateEyePosition(m_light.GetPosition());
 			viewerInstance.UpdateNearFarPlanes(zNear, m_light.GetRadius());
 			viewerInstance.UpdateProjectionMatrix(projectionMatrix);
-			viewerInstance.UpdateViewMatrix(Matrix4f::TransformInverse(m_light.GetPosition(), s_dirRotations[i]));
+			viewerInstance.UpdateViewMatrix(BuildViewMatrix(m_light.GetPosition(), i));
 
 			m_pipeline.QueueTransfer(&viewerInstance);
 		}
@@ -95,7 +140,7 @@ namespace Nz
 
 				ViewerInstance& viewerInstance = direction.viewer.GetViewerInstance();
 				viewerInstance.UpdateEyePosition(m_light.GetPosition());
-				viewerInstance.UpdateViewMatrix(Matrix4f::TransformInverse(m_light.GetPosition(), s_dirRotations[i]));
+				viewerInstance.UpdateViewMatrix(BuildViewMatrix(m_light.GetPosition(), i));
 
 				m_pipeline.QueueTransfer(&viewerInstance);
 			}
