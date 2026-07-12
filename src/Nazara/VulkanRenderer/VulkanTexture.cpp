@@ -484,7 +484,7 @@ namespace Nz
 	{
 		return Update(asyncTransfer, [&](void* pixelBuffer)
 		{
-			UINT32 srcRowStride, srcDepthStride;
+			UInt32 srcRowStride, srcDepthStride;
 			if (PixelFormatInfo::IsUncompressed(m_textureViewInfo.pixelFormat))
 			{
 				UInt32 bpp = PixelFormatInfo::GetBytesPerPixel(m_textureViewInfo.pixelFormat);
