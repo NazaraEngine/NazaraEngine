@@ -55,12 +55,12 @@ namespace Nz
 
 			for (std::size_t i = 0; i < elementCount; ++i)
 			{
-				const auto& renderElementOwner = m_renderElements[firstElementIndex + i];
+				auto& renderElementOwner = m_renderElements[firstElementIndex + i];
 				renderElementOwner->Register(m_renderQueueRegistry);
+				renderElementOwner->UpdateSortKey(m_renderQueueRegistry);
+
 				m_orderedRenderElements.push_back(renderElementOwner.GetElement());
 			}
-
-			m_renderQueueRegistry.Finalize();
 
 			m_renderElementsIndices[renderableIndex] = RenderElementIndices{ firstElementIndex, elementCount };
 
@@ -91,7 +91,14 @@ namespace Nz
 						elementIndices.first -= indices.count;
 				}
 
-				m_renderElementsIndices[renderableIndex] = RenderElementIndices{ firstElementIndex, elementCount };
+				if (elementCount == 0)
+				{
+					m_renderElementsIndices.erase(renderableIndex);
+					return;
+				}
+
+				indices = RenderElementIndices{ firstElementIndex, elementCount };
+				m_renderElementsIndices[renderableIndex] = indices;
 			}
 
 			m_shouldRebuildRenderQueue = true;
@@ -128,13 +135,12 @@ namespace Nz
 			m_renderQueueRegistry.Clear();
 			m_orderedRenderElements.clear();
 
-			for (const auto& renderElementOwner : m_renderElements)
+			for (auto& renderElementOwner : m_renderElements)
 			{
 				renderElementOwner->Register(m_renderQueueRegistry);
+				renderElementOwner->UpdateSortKey(m_renderQueueRegistry);
 				m_orderedRenderElements.push_back(renderElementOwner.GetElement());
 			}
-
-			m_renderQueueRegistry.Finalize();
 
 			m_shouldRebuildRenderQueue = false;
 			m_shouldSortRenderQueue = true;
@@ -144,7 +150,10 @@ namespace Nz
 		{
 			std::sort(m_orderedRenderElements.begin(), m_orderedRenderElements.end(), [&](const RenderElement* lhs, const RenderElement* rhs)
 			{
-				return lhs->ComputeSortKey(m_renderQueueRegistry) < rhs->ComputeSortKey(m_renderQueueRegistry);
+				// Render layer has priority and only in case of equality we want to order by the sort key
+				bool orderedBefore = lhs->GetRenderLayer() < rhs->GetRenderLayer();
+				orderedBefore |= lhs->GetRenderLayer() == rhs->GetRenderLayer() && lhs->GetSortKey() < rhs->GetSortKey();
+				return orderedBefore;
 			});
 
 			m_contentHash = 0;

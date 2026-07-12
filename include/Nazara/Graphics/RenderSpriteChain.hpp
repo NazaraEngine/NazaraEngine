@@ -23,10 +23,8 @@ namespace Nz
 	class RenderSpriteChain : public RenderElement
 	{
 		public:
-			inline RenderSpriteChain(int renderLayer, std::shared_ptr<MaterialProxy> materialProxy, MaterialPassFlags materialFlags, std::shared_ptr<RenderPipeline> renderPipeline, UInt32 instanceIndex, std::shared_ptr<VertexDeclaration> vertexDeclaration, std::size_t spriteCount, const void* spriteData, const Recti& scissorBox, UInt32 renderMask);
+			inline RenderSpriteChain(Int32 renderLayer, std::shared_ptr<MaterialProxy> materialProxy, MaterialPassFlags materialFlags, std::shared_ptr<RenderPipeline> renderPipeline, UInt32 instanceIndex, std::shared_ptr<VertexDeclaration> vertexDeclaration, std::size_t spriteCount, const void* spriteData, const Recti& scissorBox, UInt32 renderMask);
 			~RenderSpriteChain() = default;
-
-			inline UInt64 ComputeSortKey(const RenderQueueRegistry& registry) const override;
 
 			inline UInt32 GetInstanceIndex() const;
 			inline const MaterialProxy& GetMaterialProxy() const;
@@ -42,6 +40,8 @@ namespace Nz
 			static constexpr Nz::UInt32 MaxSpritePerChain = 4 * 1024;
 
 		private:
+			inline UInt64 ComputeSortKey(const RenderQueueRegistry& registry) const override;
+
 			std::shared_ptr<MaterialProxy> m_materialProxy;
 			std::shared_ptr<RenderPipeline> m_renderPipeline;
 			std::shared_ptr<VertexDeclaration> m_vertexDeclaration;
@@ -50,7 +50,6 @@ namespace Nz
 			MaterialPassFlags m_materialFlags;
 			Recti m_scissorBox;
 			UInt32 m_instanceIndex;
-			int m_renderLayer;
 	};
 }
 
