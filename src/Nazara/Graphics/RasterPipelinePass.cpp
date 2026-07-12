@@ -117,7 +117,7 @@ namespace Nz
 
 					builder.BindComputeShaderBinding(0, *computeShaderBinding);
 
-					builder.Dispatch(AlignPow2(SafeCast<UInt32>(commandCount), UInt32(32)) / 32, 1, 1);
+					builder.Dispatch(AlignPow2(SafeCast<UInt32>(commandCount), UInt32(256)) / 256, 1, 1);
 
 					env.renderResources.PushForRelease(std::move(computeShaderBinding));
 				});
