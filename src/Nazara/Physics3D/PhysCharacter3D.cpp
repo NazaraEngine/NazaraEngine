@@ -144,6 +144,12 @@ namespace Nz
 		return FromJolt(m_character->GetGroundVelocity());
 	}
 
+	PhysMotionQuality3D PhysCharacter3D::GetMotionQuality() const
+	{
+		JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterfaceNoLock();
+		return FromJolt(bodyInterface.GetMotionQuality(m_character->GetBodyID()));
+	}
+
 	PhysObjectLayer3D PhysCharacter3D::GetObjectLayer() const
 	{
 		JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterfaceNoLock();
@@ -220,6 +226,12 @@ namespace Nz
 	void PhysCharacter3D::SetLinearVelocity(const Vector3f& linearVel)
 	{
 		m_character->SetLinearVelocity(ToJolt(linearVel), false);
+	}
+
+	void PhysCharacter3D::SetMotionQuality(PhysMotionQuality3D physMotionQuality)
+	{
+		JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterfaceNoLock();
+		return bodyInterface.SetMotionQuality(m_character->GetBodyID(), ToJolt(physMotionQuality));
 	}
 
 	void PhysCharacter3D::SetObjectLayer(PhysObjectLayer3D objectLayer)

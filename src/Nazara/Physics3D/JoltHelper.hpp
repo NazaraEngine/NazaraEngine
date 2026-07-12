@@ -16,6 +16,7 @@
 #include <Nazara/Physics3D/PhysContactResponse3D.hpp>
 #include <Jolt/Jolt.h>
 #include <Jolt/Geometry/AABox.h>
+#include <Jolt/Physics/Body/MotionQuality.h>
 #include <Jolt/Physics/Collision/ContactListener.h>
 
 namespace Nz
@@ -27,6 +28,7 @@ namespace Nz
 	inline Vector3f FromJolt(const JPH::Vec3& vec);
 	inline PhysContact3D FromJolt(const JPH::ContactManifold& contactManifold);
 	inline PhysContactResponse3D FromJolt(const JPH::ContactSettings& contactSettings);
+	inline PhysMotionQuality3D FromJolt(JPH::EMotionQuality motionQuality);
 
 	inline JPH::AABox ToJolt(const Boxf& aabb);
 	inline JPH::Mat44 ToJolt(const Matrix4f& transformMatrix);
@@ -34,6 +36,7 @@ namespace Nz
 	inline JPH::Vec3 ToJolt(const Vector3f& vec);
 	inline JPH::Vec4 ToJolt(const Vector4f& vec);
 	inline JPH::ContactSettings ToJolt(const PhysContactResponse3D& contactResponse);
+	inline JPH::EMotionQuality ToJolt(PhysMotionQuality3D motionQuality);
 }
 
 #include <Nazara/Physics3D/JoltHelper.inl>

@@ -75,6 +75,7 @@ namespace Nz
 			Vector3f GetLinearVelocity() const;
 			float GetMass() const;
 			Matrix4f GetMatrix() const;
+			PhysMotionQuality3D GetMotionQuality() const;
 			PhysObjectLayer3D GetObjectLayer() const override;
 			Vector3f GetPosition() const;
 			std::pair<Vector3f, Quaternionf> GetPositionAndRotation() const;
@@ -97,6 +98,7 @@ namespace Nz
 			void SetLinearDamping(float damping);
 			void SetLinearVelocity(const Vector3f& velocity);
 			void SetMass(float mass, bool recomputeInertia = true);
+			void SetMotionQuality(PhysMotionQuality3D physMotionQuality);
 			void SetObjectLayer(PhysObjectLayer3D objectLayer);
 			void SetPosition(const Vector3f& position);
 			void SetRotation(const Quaternionf& rotation);

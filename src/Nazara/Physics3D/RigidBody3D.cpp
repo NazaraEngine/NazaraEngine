@@ -20,7 +20,7 @@ namespace Nz
 	m_isSimulationEnabled(body.m_isSimulationEnabled),
 	m_isTrigger(body.m_isTrigger)
 	{
-		body.m_bodyIndex = std::numeric_limits<UInt32>::max();
+		body.m_bodyIndex = MaxValue();
 
 		if (m_body)
 			m_body->SetUserData(PointerToInteger<UInt64>(this));
@@ -233,6 +233,11 @@ namespace Nz
 		return FromJolt(m_body->GetCenterOfMassTransform());
 	}
 
+	PhysMotionQuality3D RigidBody3D::GetMotionQuality() const
+	{
+		return FromJolt(m_body->GetMotionProperties()->GetMotionQuality());
+	}
+
 	PhysObjectLayer3D RigidBody3D::GetObjectLayer() const
 	{
 		return m_body->GetObjectLayer();
@@ -277,17 +282,12 @@ namespace Nz
 			dynamicSettings.mass = GetMass();
 			dynamicSettings.maxAngularVelocity = motionProperties->GetMaxAngularVelocity();
 			dynamicSettings.maxLinearVelocity = motionProperties->GetMaxLinearVelocity();
+			dynamicSettings.motionQuality = FromJolt(motionProperties->GetMotionQuality());
 			dynamicSettings.objectLayer = GetObjectLayer();
 			dynamicSettings.restitution = m_body->GetRestitution();
 
 			std::tie(dynamicSettings.linearVelocity, dynamicSettings.angularVelocity) = GetLinearAndAngularVelocity();
 			std::tie(dynamicSettings.position, dynamicSettings.rotation) = GetPositionAndRotation();
-
-			switch (motionProperties->GetMotionQuality())
-			{
-				case JPH::EMotionQuality::Discrete:   dynamicSettings.motionQuality = PhysMotionQuality3D::Discrete;   break;
-				case JPH::EMotionQuality::LinearCast: dynamicSettings.motionQuality = PhysMotionQuality3D::LinearCast; break;
-			}
 
 			return dynamicSettings;
 		}
@@ -422,6 +422,12 @@ namespace Nz
 
 			m_body->SetMotionType(JPH::EMotionType::Kinematic);
 		}
+	}
+
+	void RigidBody3D::SetMotionQuality(PhysMotionQuality3D physMotionQuality)
+	{
+		JPH::BodyInterface& bodyInterface = m_world->GetPhysicsSystem()->GetBodyInterfaceNoLock();
+		bodyInterface.SetMotionQuality(m_body->GetID(), ToJolt(physMotionQuality));
 	}
 
 	void RigidBody3D::SetObjectLayer(PhysObjectLayer3D objectLayer)
@@ -563,6 +569,7 @@ namespace Nz
 		creationSettings.mGravityFactor = settings.gravityFactor;
 		creationSettings.mMaxAngularVelocity = settings.maxAngularVelocity;
 		creationSettings.mMaxLinearVelocity = settings.maxLinearVelocity;
+		creationSettings.mMotionQuality = ToJolt(settings.motionQuality);
 		creationSettings.mRestitution = settings.restitution;
 
 		creationSettings.mMotionType = (settings.mass > 0.f) ? JPH::EMotionType::Dynamic : JPH::EMotionType::Kinematic;
@@ -574,13 +581,6 @@ namespace Nz
 		creationSettings.mMassPropertiesOverride = creationSettings.GetShape()->GetMassProperties();
 		creationSettings.mMassPropertiesOverride.ScaleToMass(mass);
 		creationSettings.mOverrideMassProperties = JPH::EOverrideMassProperties::MassAndInertiaProvided;
-
-
-		switch (settings.motionQuality)
-		{
-			case PhysMotionQuality3D::Discrete:   creationSettings.mMotionQuality = JPH::EMotionQuality::Discrete;   break;
-			case PhysMotionQuality3D::LinearCast: creationSettings.mMotionQuality = JPH::EMotionQuality::LinearCast; break;
-		}
 	}
 
 	void RigidBody3D::BuildSettings(const StaticSettings& settings, JPH::BodyCreationSettings& creationSettings)

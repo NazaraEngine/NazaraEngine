@@ -78,6 +78,17 @@ namespace Nz
 		return contactResponse;
 	}
 
+	inline PhysMotionQuality3D FromJolt(JPH::EMotionQuality motionQuality)
+	{
+		switch (motionQuality)
+		{
+			case JPH::EMotionQuality::Discrete:   return PhysMotionQuality3D::Discrete;
+			case JPH::EMotionQuality::LinearCast: return PhysMotionQuality3D::LinearCast;
+		}
+
+		NAZARA_UNREACHABLE();
+	}
+
 
 	inline JPH::AABox ToJolt(const Boxf& aabb)
 	{
@@ -124,5 +135,16 @@ namespace Nz
 		contactSettings.mRelativeLinearSurfaceVelocity = ToJolt(contactResponse.relativeLinearSurfaceVelocity);
 
 		return contactSettings;
+	}
+
+	inline JPH::EMotionQuality ToJolt(PhysMotionQuality3D motionQuality)
+	{
+		switch (motionQuality)
+		{
+			case PhysMotionQuality3D::Discrete:   return JPH::EMotionQuality::Discrete;
+			case PhysMotionQuality3D::LinearCast: return JPH::EMotionQuality::LinearCast;
+		}
+
+		NAZARA_UNREACHABLE();
 	}
 }

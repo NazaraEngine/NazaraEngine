@@ -10,6 +10,7 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Math/Quaternion.hpp>
 #include <Nazara/Math/Vector3.hpp>
+#include <Nazara/Physics3D/Enums.hpp>
 #include <Nazara/Physics3D/Export.hpp>
 #include <Nazara/Physics3D/PhysBody3D.hpp>
 #include <Nazara/Physics3D/PhysObjectLayer3D.hpp>
@@ -61,6 +62,7 @@ namespace Nz
 			Vector3f GetGroundPosition() const;
 			UInt32 GetGroundSubShapeID() const;
 			Vector3f GetGroundVelocity() const;
+			PhysMotionQuality3D GetMotionQuality() const;
 			PhysObjectLayer3D GetObjectLayer() const override;
 			inline PhysWorld3D& GetPhysWorld();
 			inline const PhysWorld3D& GetPhysWorld() const;
@@ -78,6 +80,7 @@ namespace Nz
 			inline void SetImpl(std::shared_ptr<PhysCharacter3DImpl> characterImpl);
 			void SetLinearAndAngularVelocity(const Vector3f& linearVelocity, const Vector3f& angularVelocity);
 			void SetLinearVelocity(const Vector3f& linearVel);
+			void SetMotionQuality(PhysMotionQuality3D physMotionQuality);
 			void SetObjectLayer(PhysObjectLayer3D objectLayer);
 			void SetRotation(const Quaternionf& rotation);
 			void SetUp(const Vector3f& up);
