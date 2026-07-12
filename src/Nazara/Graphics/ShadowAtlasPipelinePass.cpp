@@ -69,9 +69,8 @@ namespace Nz
 			renderQueue.UpdateRenderQueue();
 
 			if (renderQueue.GetContentHash() == m_renderQueueHash)
-				return FramePassExecution::Execute;
+				return FramePassExecution::Skip;
 
-			//m_renderQueueHash = renderQueue.GetContentHash();
 			return FramePassExecution::UpdateAndExecute;
 		});
 

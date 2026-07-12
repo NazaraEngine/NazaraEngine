@@ -27,9 +27,8 @@ namespace Nz
 			renderQueue.UpdateRenderQueue();
 
 			if (renderQueue.GetContentHash() == m_renderQueueHash)
-				return FramePassExecution::Execute;
+				return FramePassExecution::Skip;
 
-			//m_renderQueueHash = renderQueue.GetContentHash();
 			return FramePassExecution::UpdateAndExecute;
 		});
 
@@ -75,7 +74,8 @@ namespace Nz
 
 			m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
 			{
-				elementRenderer.PrepareEnd(*m_elementRendererData[elementType], env.renderResources, builder);
+				if (elementType < m_elementRendererData.size() && m_elementRendererData[elementType])
+					elementRenderer.PrepareEnd(*m_elementRendererData[elementType], env.renderResources, builder);
 			});
 		});
 
