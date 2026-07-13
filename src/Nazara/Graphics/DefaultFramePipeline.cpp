@@ -13,7 +13,6 @@
 #include <Nazara/Graphics/TextureAsset.hpp>
 #include <Nazara/Math/Frustum.hpp>
 #include <Nazara/Renderer/CommandBufferBuilder.hpp>
-#include <Nazara/Renderer/DrawIndirect.hpp>
 #include <NazaraUtils/StackVector.hpp>
 
 namespace Nz
@@ -29,7 +28,8 @@ namespace Nz
 	m_elementRegistry(elementRegistry),
 	m_renderablePool(4096),
 	m_lightPool(64),
-	m_skeletonInstances(1024),
+	m_materialInstancePool(256),
+	m_skeletonInstancePool(1024),
 	m_viewerPool(8),
 	m_generationCounter(0),
 	m_rebuildFrameGraph(true)
@@ -127,7 +127,7 @@ namespace Nz
 			{
 				const SkeletonInstance* skeletonInstance;
 				if (renderableData.skeletonInstanceIndex != NoSkeletonInstance)
-					skeletonInstance = m_skeletonInstances.RetrieveFromIndex(renderableData.skeletonInstanceIndex)->skeleton.get();
+					skeletonInstance = m_skeletonInstancePool.RetrieveFromIndex(renderableData.skeletonInstanceIndex)->skeleton.get();
 				else
 					skeletonInstance = nullptr;
 
@@ -320,27 +320,27 @@ namespace Nz
 		renderableData->scissorBox = scissorBox;
 		renderableData->skeletonInstanceIndex = skeletonInstanceIndex;
 
-		renderableData->onElementInvalidated.Connect(instancedRenderable->OnElementInvalidated, [this, renderableData](InstancedRenderable* /*instancedRenderable*/)
+		renderableData->onElementInvalidated.Connect(instancedRenderable->OnElementInvalidated, [this, renderableIndex](InstancedRenderable* /*instancedRenderable*/)
 		{
-			BroadcastRenderable(*renderableData);
+			m_invalidatedRenderables.UnboundedSet(renderableIndex);
 		});
-		BroadcastRenderable(*renderableData);
+		m_invalidatedRenderables.UnboundedSet(renderableIndex);
 
-		renderableData->onMaterialInvalidated.Connect(instancedRenderable->OnMaterialInvalidated, [this](InstancedRenderable* instancedRenderable, std::size_t materialIndex, const std::shared_ptr<MaterialInstance>& newMaterial)
+		renderableData->onMaterialInvalidated.Connect(instancedRenderable->OnMaterialInvalidated, [this, renderableIndex](InstancedRenderable* instancedRenderable, std::size_t materialIndex, const std::shared_ptr<MaterialInstance>& newMaterial)
 		{
 			if (newMaterial)
-				RegisterMaterialInstance(newMaterial.get());
+				RegisterMaterialInstance(newMaterial.get(), renderableIndex);
 
 			const auto& prevMaterial = instancedRenderable->GetMaterial(materialIndex);
 			if (prevMaterial)
-				UnregisterMaterialInstance(prevMaterial.get());
+				UnregisterMaterialInstance(prevMaterial.get(), renderableIndex);
 		});
 
 		std::size_t matCount = instancedRenderable->GetMaterialCount();
 		for (std::size_t i = 0; i < matCount; ++i)
 		{
 			if (MaterialInstance* mat = instancedRenderable->GetMaterial(i).get())
-				RegisterMaterialInstance(mat);
+				RegisterMaterialInstance(mat, renderableIndex);
 		}
 
 		return renderableIndex;
@@ -349,7 +349,7 @@ namespace Nz
 	std::size_t DefaultFramePipeline::RegisterSkeleton(SkeletonInstancePtr skeletonInstance)
 	{
 		std::size_t skeletonInstanceIndex;
-		SkeletonInstanceData& skeletonInstanceData = *m_skeletonInstances.Allocate(skeletonInstanceIndex);
+		SkeletonInstanceData& skeletonInstanceData = *m_skeletonInstancePool.Allocate(skeletonInstanceIndex);
 		skeletonInstanceData.skeleton = std::move(skeletonInstance);
 		skeletonInstanceData.onTransferRequired.Connect(skeletonInstanceData.skeleton->OnTransferRequired, [this](TransferInterface* transferInterface)
 		{
@@ -432,54 +432,12 @@ namespace Nz
 
 	void DefaultFramePipeline::Render(RenderResources& renderResources)
 	{
-		// Destroy instances at the end of the frame
+		ProcesRemovedData(renderResources);
 
-		for (std::size_t lightIndex : m_removedLightInstances.IterBits())
-		{
-			auto& lightData = *m_lightPool.RetrieveFromIndex(lightIndex);
+		for (std::size_t renderableIndex : m_invalidatedRenderables.IterBits())
+			BroadcastRenderable(*m_renderablePool.RetrieveFromIndex(renderableIndex));
 
-			renderResources.PushForRelease(std::move(lightData));
-			m_lightPool.Free(lightIndex);
-		}
-		m_removedLightInstances.Clear();
-
-		for (std::size_t skeletonInstanceIndex : m_removedSkeletonInstances.IterBits())
-		{
-			auto& skeletonData = *m_skeletonInstances.RetrieveFromIndex(skeletonInstanceIndex);
-
-			renderResources.PushForRelease(std::move(skeletonData));
-			m_skeletonInstances.Free(skeletonInstanceIndex);
-		}
-		m_removedSkeletonInstances.Clear();
-
-		for (std::size_t viewerIndex : m_removedViewerInstances.IterBits())
-		{
-			auto& viewerData = *m_viewerPool.RetrieveFromIndex(viewerIndex);
-
-			m_shaderBindingCache.DestroyViewerCache(viewerData.viewer->GetViewerInstance());
-
-			renderResources.PushForRelease(std::move(viewerData));
-			m_viewerPool.Free(viewerIndex);
-		}
-		m_removedViewerInstances.Clear();
-
-		if (std::size_t removedInstanceCount = m_removedInstances.Count(); removedInstanceCount != 0)
-		{
-			HybridVector<std::size_t, 8> removedInstances;
-			removedInstances.reserve(removedInstanceCount);
-
-			for (std::size_t instanceIndex : m_removedInstances.IterBits())
-				removedInstances.push_back(instanceIndex);
-
-			m_removedInstances.Clear();
-
-			// TODO: Use a shared_ptr for this data
-			renderResources.PushReleaseCallback([this, instanceIndices = std::move(removedInstances)]
-			{
-				for (std::size_t instanceIndex : instanceIndices)
-					m_freeInstanceIds.UnboundedSet(instanceIndex);
-			});
-		}
+		m_invalidatedRenderables.Clear();
 
 		for (auto& renderQueuePtr : m_renderQueues)
 		{
@@ -701,15 +659,17 @@ namespace Nz
 		for (std::size_t i = 0; i < matCount; ++i)
 		{
 			const auto& material = renderableData.renderable->GetMaterial(i);
-			UnregisterMaterialInstance(material.get());
+			UnregisterMaterialInstance(material.get(), renderableIndex);
 		}
 
 		m_renderablePool.Free(renderableIndex);
+
+		m_invalidatedRenderables.UnboundedReset(renderableIndex);
 	}
 
 	void DefaultFramePipeline::UnregisterSkeleton(std::size_t skeletonIndex)
 	{
-		auto& skeletonData = *m_skeletonInstances.RetrieveFromIndex(skeletonIndex);
+		auto& skeletonData = *m_skeletonInstancePool.RetrieveFromIndex(skeletonIndex);
 		m_transferSet.erase(skeletonData.skeleton.get());
 
 		// Defer instance release
@@ -730,7 +690,7 @@ namespace Nz
 				lightData->shadowData->UnregisterViewer(viewerData.viewer);
 		}
 
-		// Defer instance release
+		// Defer viewer release
 		m_removedViewerInstances.UnboundedSet(viewerIndex);
 		m_rebuildFrameGraph = true;
 	}
@@ -752,21 +712,24 @@ namespace Nz
 	{
 		RenderableData* renderableData = m_renderablePool.RetrieveFromIndex(renderableIndex);
 		renderableData->renderMask = renderMask;
-		BroadcastRenderable(*renderableData);
+
+		m_invalidatedRenderables.UnboundedSet(renderableIndex);
 	}
 
 	void DefaultFramePipeline::UpdateRenderableScissorBox(std::size_t renderableIndex, const Recti& scissorBox)
 	{
 		RenderableData* renderableData = m_renderablePool.RetrieveFromIndex(renderableIndex);
 		renderableData->scissorBox = scissorBox;
-		BroadcastRenderable(*renderableData);
+
+		m_invalidatedRenderables.UnboundedSet(renderableIndex);
 	}
 
 	void DefaultFramePipeline::UpdateRenderableSkeletonInstance(std::size_t renderableIndex, std::size_t skeletonIndex)
 	{
 		RenderableData* renderableData = m_renderablePool.RetrieveFromIndex(renderableIndex);
 		renderableData->skeletonInstanceIndex = skeletonIndex;
-		BroadcastRenderable(*renderableData);
+
+		m_invalidatedRenderables.UnboundedSet(renderableIndex);
 	}
 
 	void DefaultFramePipeline::UpdateViewerRenderOrder(std::size_t viewerIndex, Int32 renderOrder)
@@ -784,7 +747,7 @@ namespace Nz
 	{
 		const SkeletonInstance* skeletonInstance;
 		if (renderableData.skeletonInstanceIndex != NoSkeletonInstance)
-			skeletonInstance = m_skeletonInstances.RetrieveFromIndex(renderableData.skeletonInstanceIndex)->skeleton.get();
+			skeletonInstance = m_skeletonInstancePool.RetrieveFromIndex(renderableData.skeletonInstanceIndex)->skeleton.get();
 		else
 			skeletonInstance = nullptr;
 
@@ -1040,20 +1003,85 @@ namespace Nz
 		return viewerUploadAttachment;
 	}
 
-	void DefaultFramePipeline::RegisterMaterialInstance(MaterialInstance* materialInstance)
+	void DefaultFramePipeline::ProcesRemovedData(RenderResources& renderResources)
+	{
+			for (std::size_t lightIndex : m_removedLightInstances.IterBits())
+		{
+			auto& lightData = *m_lightPool.RetrieveFromIndex(lightIndex);
+
+			renderResources.PushForRelease(std::move(lightData));
+			m_lightPool.Free(lightIndex);
+		}
+		m_removedLightInstances.Clear();
+
+		for (std::size_t skeletonInstanceIndex : m_removedSkeletonInstances.IterBits())
+		{
+			auto& skeletonData = *m_skeletonInstancePool.RetrieveFromIndex(skeletonInstanceIndex);
+
+			renderResources.PushForRelease(std::move(skeletonData));
+			m_skeletonInstancePool.Free(skeletonInstanceIndex);
+		}
+		m_removedSkeletonInstances.Clear();
+
+		for (std::size_t viewerIndex : m_removedViewerInstances.IterBits())
+		{
+			auto& viewerData = *m_viewerPool.RetrieveFromIndex(viewerIndex);
+
+			m_shaderBindingCache.ClearViewerCache(viewerData.viewer->GetViewerInstance());
+
+			renderResources.PushForRelease(std::move(viewerData));
+			m_viewerPool.Free(viewerIndex);
+		}
+		m_removedViewerInstances.Clear();
+
+		if (std::size_t removedInstanceCount = m_removedInstances.Count(); removedInstanceCount != 0)
+		{
+			HybridVector<std::size_t, 8> removedInstances;
+			removedInstances.reserve(removedInstanceCount);
+
+			for (std::size_t instanceIndex : m_removedInstances.IterBits())
+				removedInstances.push_back(instanceIndex);
+
+			m_removedInstances.Clear();
+
+			// TODO: Use a shared_ptr for this data
+			renderResources.PushReleaseCallback([this, instanceIndices = std::move(removedInstances)]
+			{
+				for (std::size_t instanceIndex : instanceIndices)
+					m_freeInstanceIds.UnboundedSet(instanceIndex);
+			});
+		}
+	}
+
+	void DefaultFramePipeline::RegisterMaterialInstance(MaterialInstance* materialInstance, std::size_t renderableIndex)
 	{
 		auto it = m_materialInstances.find(materialInstance);
 		if (it == m_materialInstances.end())
 		{
-			it = m_materialInstances.emplace(materialInstance, MaterialInstanceData{}).first;
-			it->second.onTransferRequired.Connect(materialInstance->OnTransferRequired, [this](TransferInterface* transferInterface)
+			std::size_t materialInstanceIndex;
+			MaterialInstanceData* materialInstanceData = m_materialInstancePool.Allocate(materialInstanceIndex);
+			materialInstanceData->materialInstanceIndex = materialInstanceIndex;
+
+			it = m_materialInstances.emplace(materialInstance, materialInstanceData).first;
+			materialInstanceData->onMaterialInstancePipelineInvalidated.Connect(materialInstance->OnMaterialInstancePipelineInvalidated, [this, materialInstanceData](const MaterialInstance* /*matInstance*/, std::size_t /*passIndex*/)
+			{
+				for (auto [renderableIndex, usageCount] : materialInstanceData->renderableUsage)
+				{
+					NazaraUnused(usageCount);
+					m_invalidatedRenderables.UnboundedSet(renderableIndex);
+				}
+			});
+
+			materialInstanceData->onTransferRequired.Connect(materialInstance->OnTransferRequired, [this](TransferInterface* transferInterface)
 			{
 				m_transferSet.insert(transferInterface);
 			});
 			m_transferSet.insert(materialInstance);
 		}
 
-		it->second.usedCount++;
+		MaterialInstanceData& materialData = *it->second;
+		materialData.usedCount++;
+		materialData.renderableUsage[renderableIndex]++;
 	}
 
 	void DefaultFramePipeline::RegisterShadowCaster(std::size_t lightIndex, LightData* lightData)
@@ -1113,16 +1141,26 @@ namespace Nz
 			m_rebuildFrameGraph = true;
 	}
 
-	void DefaultFramePipeline::UnregisterMaterialInstance(MaterialInstance* materialInstance)
+	void DefaultFramePipeline::UnregisterMaterialInstance(MaterialInstance* materialInstance, std::size_t renderableIndex)
 	{
 		auto it = m_materialInstances.find(materialInstance);
 		assert(it != m_materialInstances.end());
 
-		MaterialInstanceData& materialInstanceData = it->second;
+		MaterialInstanceData& materialInstanceData = *it->second;
+
+		auto renderableIt = materialInstanceData.renderableUsage.find(renderableIndex);
+		assert(renderableIt != materialInstanceData.renderableUsage.end());
+		std::size_t& renderableCount = renderableIt->second;
+		assert(renderableCount > 0);
+		if (--renderableCount == 0)
+			materialInstanceData.renderableUsage.erase(renderableIt);
+
+
 		assert(materialInstanceData.usedCount > 0);
 		if (--materialInstanceData.usedCount == 0)
 		{
 			m_materialInstances.erase(it);
+			m_materialInstancePool.Free(materialInstanceData.materialInstanceIndex);
 			m_transferSet.erase(materialInstance);
 		}
 	}

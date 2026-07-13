@@ -4,7 +4,7 @@
 
 namespace Nz
 {
-	inline void ShaderBindingCache::DestroyViewerCache(const ViewerInstance& viewerInstance)
+	inline void ShaderBindingCache::ClearViewerCache(const ViewerInstance& viewerInstance)
 	{
 		m_viewerBindings.erase(&viewerInstance);
 	}

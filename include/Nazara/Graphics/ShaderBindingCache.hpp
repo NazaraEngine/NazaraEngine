@@ -23,7 +23,7 @@ namespace Nz
 			ShaderBindingCache(ShaderBindingCache&&) = delete;
 			~ShaderBindingCache() = default;
 
-			inline void DestroyViewerCache(const ViewerInstance& viewerInstance);
+			inline void ClearViewerCache(const ViewerInstance& viewerInstance);
 
 			template<typename F> ShaderBinding* GetSceneBinding(std::size_t setHash, F&& createFunctor);
 			template<typename F> ShaderBinding* GetViewerBinding(const ViewerInstance& viewerInstance, std::size_t setHash, F&& createFunctor);
