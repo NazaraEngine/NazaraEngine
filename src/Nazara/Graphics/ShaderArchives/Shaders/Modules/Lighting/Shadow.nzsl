@@ -1,6 +1,8 @@
 [nzsl_version("1.1")]
 module Lighting.Shadow;
 
+const InvShadowAtlasSize = 1.0 / 8192.0;
+
 option MaxLightCascadeCount: u32 = 4;
 
 import DirectionalLight, PointLight, SpotLight from Lighting.LightData;
@@ -79,20 +81,19 @@ fn ComputeDirectionalLightShadow(shadowAtlas: depth_sampler2D[f32], light: Direc
 		let lightProjPos = shadowAtlasEntry.viewProjMatrices[cascadeIndex] * vec4[f32](worldPos, 1.0);
 		let shadowCoords = lightProjPos.xyz / lightProjPos.w;
 
-		shadowFactor = 0.0;
 		let coords = shadowAtlasEntry.offsets[cascadeIndex] + shadowCoords.xy * shadowAtlasEntry.sizes[cascadeIndex];
-		shadowFactor = shadowAtlas.SampleDepthComp(coords, shadowCoords.z).x;
-		/*[unroll]
+		shadowFactor = 0.0;
+		[unroll]
 		for x in -1 -> 2
 		{
 			[unroll]
 			for y in -1 -> 2
 			{
-				let coords = shadowCoords.xy + vec2[f32](f32(x), f32(y)) * light.invShadowMapSize;
-				shadowFactor += shadowmap.SampleDepthComp(vec3[f32](coords, f32(cascadeIndex)), shadowCoords.z).r;
+				let coordOffseted = coords.xy + vec2[f32](f32(x), f32(y)) * InvShadowAtlasSize;
+				shadowFactor += shadowAtlas.SampleDepthComp(coordOffseted, shadowCoords.z).r;
 			}
 		}
-		shadowFactor /= 9.0;*/
+		shadowFactor /= 9.0;
 	}
 
 	return shadowFactor;
@@ -215,19 +216,18 @@ fn ComputeSpotLightShadow(shadowAtlas: depth_sampler2D[f32], light: SpotLight, s
 		let shadowCoords = lightProjPos.xyz / lightProjPos.w;
 
 		let coords = shadowAtlasEntry.offset + shadowCoords.xy * shadowAtlasEntry.size;
-		shadowFactor = shadowAtlas.SampleDepthComp(coords, shadowCoords.z).x;
-		/*shadowFactor = 0.0;
+		shadowFactor = 0.0;
 		[unroll]
 		for x in -1 -> 2
 		{
 			[unroll]
 			for y in -1 -> 2
 			{
-				let coords = shadowCoords.xy + vec2[f32](f32(x), f32(y)) * light.invShadowMapSize;
-				shadowFactor += shadowmap.SampleDepthComp(coords, shadowCoords.z).r;
+				let coordOffseted = coords.xy + vec2[f32](f32(x), f32(y)) * InvShadowAtlasSize;
+				shadowFactor += shadowAtlas.SampleDepthComp(coordOffseted, shadowCoords.z).r;
 			}
 		}
-		shadowFactor /= 9.0;*/
+		shadowFactor /= 9.0;
 	}
 
 	return shadowFactor;
