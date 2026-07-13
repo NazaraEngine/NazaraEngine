@@ -50,8 +50,8 @@ namespace Nz
 			ViewerInstance& GetViewerInstance() override;
 			const ViewerInstance& GetViewerInstance() const override;
 			const Recti& GetViewport() const override;
-			inline float GetZFar() const;
-			inline float GetZNear() const;
+			float GetZFar() const override;
+			float GetZNear() const override;
 
 			inline bool IsInfiniteZFarEnabled() const;
 			inline bool IsReversedZEnabled() const;

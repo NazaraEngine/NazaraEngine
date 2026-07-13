@@ -65,11 +65,9 @@ namespace Nz
 			const Vector3f& eyePosition = viewerInstance.GetEyePosition();
 			const Matrix4f& viewProjMatrix = viewerInstance.GetViewProjMatrix();
 
-			float nearPlane = viewerInstance.GetNearPlane();
-			float farPlane = viewerInstance.GetFarPlane();
-
-			float ratio = farPlane / nearPlane;
-			float clipRange = farPlane - nearPlane;
+			// Don't use viewer instance values as they can be infinite
+			float nearPlane = viewer->GetZNear();
+			float farPlane = viewer->GetZFar();
 
 			StackArray<float> cascadeSplits = NazaraStackArrayNoInit(float, m_cascadeCount - 1);
 			if (m_light.IsUsingFixedShadowCascadeSplit())
@@ -86,6 +84,9 @@ namespace Nz
 				// Calculate split depths based on view camera frustum
 				// Based on method presented in https://developer.nvidia.com/gpugems/GPUGems3/gpugems3_ch10.html
 				float lambda = m_light.GetShadowCascadeSplitLambda();
+
+				float ratio = farPlane / nearPlane;
+				float clipRange = farPlane - nearPlane;
 
 				for (std::size_t i = 0; i < m_cascadeCount - 1; i++)
 				{
@@ -211,7 +212,7 @@ namespace Nz
 
 		shadowViewer.UpdateProjViewMatrices(lightProj, lightView);
 		shadowViewer.UpdateEyePosition(frustumCenter);
-		shadowViewer.UpdateNearFarPlanes(zNear, zFar);
+		shadowViewer.UpdateNearFarPlanes(Infinity(), zFar);
 	}
 
 	void DirectionalLightShadowData::StabilizeShadows(CascadeData& cascade)

@@ -34,6 +34,8 @@ namespace Nz
 			virtual ViewerInstance& GetViewerInstance() = 0;
 			virtual const ViewerInstance& GetViewerInstance() const = 0;
 			virtual const Recti& GetViewport() const = 0;
+			virtual float GetZFar() const = 0;
+			virtual float GetZNear() const = 0;
 
 			virtual bool IsZReversed() const = 0;
 
