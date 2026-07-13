@@ -112,16 +112,6 @@ namespace Nz
 		return m_targetRegion;
 	}
 
-	inline float Camera::GetZFar() const
-	{
-		return m_zFar;
-	}
-
-	inline float Camera::GetZNear() const
-	{
-		return m_zNear;
-	}
-
 	inline bool Camera::IsInfiniteZFarEnabled() const
 	{
 		return m_isInfiniteFarEnabled;
@@ -300,7 +290,7 @@ namespace Nz
 				break;
 		}
 
-		m_viewerInstance.UpdateNearFarPlanes(m_zNear, m_zFar, m_isReversedZEnabled);
+		m_viewerInstance.UpdateNearFarPlanes(m_zNear, zFar, m_isReversedZEnabled);
 	}
 
 	inline void Camera::UpdateViewport()

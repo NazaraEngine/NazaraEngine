@@ -68,6 +68,16 @@ namespace Nz
 		return m_viewport;
 	}
 
+	float Camera::GetZFar() const
+	{
+		return m_zFar;
+	}
+
+	float Camera::GetZNear() const
+	{
+		return m_zNear;
+	}
+
 	bool Camera::IsZReversed() const
 	{
 		return IsReversedZEnabled();

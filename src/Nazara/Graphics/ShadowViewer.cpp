@@ -46,6 +46,16 @@ namespace Nz
 		return m_viewport;
 	}
 
+	float ShadowViewer::GetZFar() const
+	{
+		return m_viewerInstance.GetFarPlane();
+	}
+
+	float ShadowViewer::GetZNear() const
+	{
+		return m_viewerInstance.GetNearPlane();
+	}
+
 	bool ShadowViewer::IsZReversed() const
 	{
 		return false;

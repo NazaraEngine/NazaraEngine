@@ -29,6 +29,8 @@ namespace Nz
 			ViewerInstance& GetViewerInstance() override;
 			const ViewerInstance& GetViewerInstance() const override;
 			const Recti& GetViewport() const override;
+			float GetZFar() const override;
+			float GetZNear() const override;
 
 			bool IsZReversed() const override;
 

@@ -37,9 +37,16 @@ fn PlaneSignedDist(plane: vec4[f32], pos: vec3[f32]) -> f32
 fn FrustumCull(boundingSphere: vec4[f32]) -> bool
 {
 	let visible = true;
+	visible &&= PlaneSignedDist(viewerData.frustumPlanes[FrustumPlane.Bottom], boundingSphere.xyz) >= -boundingSphere.w;
+	visible &&= PlaneSignedDist(viewerData.frustumPlanes[FrustumPlane.Left], boundingSphere.xyz) >= -boundingSphere.w;
+	visible &&= PlaneSignedDist(viewerData.frustumPlanes[FrustumPlane.Right], boundingSphere.xyz) >= -boundingSphere.w;
+	visible &&= PlaneSignedDist(viewerData.frustumPlanes[FrustumPlane.Top], boundingSphere.xyz) >= -boundingSphere.w;
 
-	for plane in viewerData.frustumPlanes
-		visible &&= PlaneSignedDist(plane, boundingSphere.xyz) >= -boundingSphere.w;
+	if (!isinf(viewerData.nearPlane))
+		visible &&= PlaneSignedDist(viewerData.frustumPlanes[FrustumPlane.Near], boundingSphere.xyz) >= -boundingSphere.w;
+
+	if (!isinf(viewerData.farPlane))
+		visible &&= PlaneSignedDist(viewerData.frustumPlanes[FrustumPlane.Far], boundingSphere.xyz) >= -boundingSphere.w;
 
 	return visible;
 }

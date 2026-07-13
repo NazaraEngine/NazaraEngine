@@ -454,13 +454,13 @@ namespace Nz
 	template<typename T>
 	constexpr void Frustum<T>::SetInfiniteFarPlane()
 	{
-		m_planes[FrustumPlane::Far].distance = MaxValue();
+		m_planes[FrustumPlane::Far].distance = Infinity();
 	}
 
 	template<typename T>
 	constexpr void Frustum<T>::SetInfiniteNearPlane()
 	{
-		m_planes[FrustumPlane::Near].distance = MaxValue();
+		m_planes[FrustumPlane::Near].distance = Infinity();
 	}
 
 	template<typename T>
