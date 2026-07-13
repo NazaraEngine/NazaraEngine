@@ -108,10 +108,12 @@ namespace Nz
 
 			std::size_t InsertTransferPass(FrameGraph& frameGraph, std::function<void()> callback);
 
-			void RegisterMaterialInstance(MaterialInstance* materialPass);
+			void ProcesRemovedData(RenderResources& renderResources);
+
+			void RegisterMaterialInstance(MaterialInstance* materialPass, std::size_t renderableIndex);
 			void RegisterShadowCaster(std::size_t lightIndex, LightData* lightData);
 
-			void UnregisterMaterialInstance(MaterialInstance* material);
+			void UnregisterMaterialInstance(MaterialInstance* material, std::size_t renderableIndex);
 			void UnregisterShadowCaster(std::size_t lightIndex, LightData* lightData);
 
 			static std::size_t BuildMergePass(FrameGraph& frameGraph, std::span<ViewerData*> targetViewers);
@@ -134,7 +136,9 @@ namespace Nz
 
 			struct MaterialInstanceData
 			{
+				std::size_t materialInstanceIndex;
 				std::size_t usedCount = 0;
+				std::unordered_map<std::size_t /*renderableIndex*/, std::size_t> renderableUsage;
 
 				NazaraSlot(MaterialInstance, OnMaterialInstancePipelineInvalidated, onMaterialInstancePipelineInvalidated);
 				NazaraSlot(TransferInterface, OnTransferRequired, onTransferRequired);
@@ -191,7 +195,7 @@ namespace Nz
 
 			std::optional<ShadowAtlasPipelinePass> m_shadowAtlasPipelinePass;
 			std::unordered_map<const RenderTarget*, RenderTargetData> m_renderTargets;
-			std::unordered_map<MaterialInstance*, MaterialInstanceData> m_materialInstances;
+			std::unordered_map<MaterialInstance*, MaterialInstanceData*> m_materialInstances;
 			std::vector<std::unique_ptr<ElementRendererData>> m_elementRendererData;
 			std::vector<std::unique_ptr<RenderQueue>> m_renderQueues;
 			std::vector<std::size_t> m_directionalLightEntriesToIndices;
@@ -205,6 +209,7 @@ namespace Nz
 			BakedFrameGraph m_bakedFrameGraph;
 			Bitset<UInt64> m_activeLights;
 			Bitset<UInt64> m_freeInstanceIds;
+			Bitset<UInt64> m_invalidatedRenderables;
 			Bitset<UInt64> m_removedLightInstances;
 			Bitset<UInt64> m_removedSkeletonInstances;
 			Bitset<UInt64> m_removedViewerInstances;
@@ -221,7 +226,8 @@ namespace Nz
 			ElementRendererRegistry& m_elementRegistry;
 			MemoryPool<RenderableData> m_renderablePool;
 			MemoryPool<LightData> m_lightPool;
-			MemoryPool<SkeletonInstanceData> m_skeletonInstances;
+			MemoryPool<MaterialInstanceData> m_materialInstancePool;
+			MemoryPool<SkeletonInstanceData> m_skeletonInstancePool;
 			MemoryPool<ViewerData> m_viewerPool;
 			mutable ShaderBindingCache m_shaderBindingCache;
 			UInt8 m_generationCounter;
