@@ -344,7 +344,7 @@ if has_config("renderer") then
 
 	-- When cross-compiling, compile shaders using host shader compiler
 	if has_config("compile_shaders") and is_cross() then
-		add_requires("nzsl~host 1.1.x", { kind = "binary", host = true })
+		add_requires("nzsl~host 4f0cd74d426a40708edf4c4126157c3a53b1ec7f", { kind = "binary", host = true })
 	end
 end
 
