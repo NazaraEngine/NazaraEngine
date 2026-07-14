@@ -14,7 +14,7 @@ namespace Nz
 		if (!m_renderElements.empty())
 		{
 			if (m_deletedRenderElements.empty())
-				m_deletedRenderElements = std::move(m_deletedRenderElements);
+				m_deletedRenderElements = std::move(m_renderElements);
 			else
 				std::move(m_renderElements.begin(), m_renderElements.end(), std::back_inserter(m_deletedRenderElements));
 
