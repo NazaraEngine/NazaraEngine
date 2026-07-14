@@ -228,7 +228,7 @@ namespace Nz
 			}
 		});
 
-		lightData->onLightShadowMapSettingChange.Connect(lightData->light->OnLightShadowMapSettingChange, [this, lightData, lightIndex](Light* light, PixelFormat /*newPixelFormat*/, UInt32 /*newSize*/)
+		lightData->onLightShadowMapSettingChange.Connect(lightData->light->OnLightShadowMapSettingChange, [this](Light* light, PixelFormat /*newPixelFormat*/, UInt32 /*newSize*/)
 		{
 			if (light->IsShadowCaster())
 			{
@@ -856,7 +856,7 @@ namespace Nz
 					}
 				});
 
-				auto framePassCallback = [&, viewerData = viewerData](std::size_t /*passIndex*/, FramePass& framePass, FramePipelinePassFlags flags)
+				auto framePassCallback = [&](std::size_t /*passIndex*/, FramePass& framePass, FramePipelinePassFlags flags)
 				{
 					framePass.AddInput(prepareAttachment);
 

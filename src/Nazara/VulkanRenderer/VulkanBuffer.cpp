@@ -99,7 +99,7 @@ namespace Nz
 
 		std::memcpy(allocationInfo.pMappedData, data, size);
 
-		asyncTransfer.AddCommands([=](CommandBufferBuilder& builder)
+		asyncTransfer.AddCommands([=, this](CommandBufferBuilder& builder)
 		{
 			VulkanCommandBufferBuilder& vkBuilder = SafeCast<VulkanCommandBufferBuilder&>(builder);
 			Vk::CommandBuffer& vkCommandBuffer = vkBuilder.GetCommandBuffer();

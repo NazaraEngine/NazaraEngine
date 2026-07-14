@@ -30,7 +30,7 @@ namespace Nz
 		std::size_t remainingElements = data.totalElementCount;
 		for (const auto& buffer : data.drawIndirectBuffers)
 		{
-			std::size_t commandCount = std::min(remainingElements, IndirectCommandBufferCount);
+			std::size_t commandCount = std::min<std::size_t>(remainingElements, IndirectCommandBufferCount);
 			callback(*buffer, commandCount);
 			remainingElements -= commandCount;
 		}

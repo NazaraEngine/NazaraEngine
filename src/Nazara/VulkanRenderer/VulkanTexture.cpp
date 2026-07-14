@@ -503,9 +503,7 @@ namespace Nz
 				srcDepthStride = srcHeight / blockSize * bytePerBlock;
 			}
 
-			std::size_t memorySize = PixelFormatInfo::ComputeSize(m_textureViewInfo.pixelFormat, box.width, box.height, box.depth);
 			ImageUtils::Copy(pixelBuffer, ptr, m_textureViewInfo.pixelFormat, box.width, box.height, box.depth, 0, 0, srcRowStride, srcDepthStride);
-
 			return true;
 		}, box, level);
 	}
