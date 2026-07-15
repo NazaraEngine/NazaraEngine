@@ -79,13 +79,13 @@ namespace Nz
 
 	void VulkanRenderImage::SubmitCommandBuffer(VkCommandBuffer commandBuffer, QueueTypeFlags queueTypeFlags)
 	{
-		//if (queueTypeFlags & QueueType::Graphics)
+		if (queueTypeFlags & (QueueType::Graphics | QueueType::Transfer))
 			m_graphicalCommandBuffers.push_back(commandBuffer);
-		/*else
+		else
 		{
 			Vk::QueueHandle& graphicsQueue = m_owner.GetGraphicsQueue();
 			if (!graphicsQueue.Submit(commandBuffer))
 				throw std::runtime_error("Failed to submit command buffer: " + TranslateVulkanError(graphicsQueue.GetLastErrorCode()));
-		}*/
+		}
 	}
 }

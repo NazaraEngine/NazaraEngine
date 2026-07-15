@@ -661,6 +661,7 @@ std::shared_ptr<Nz::Texture> GenerateSpriteTexture(Nz::RenderDevice& device, std
 	texParams.usageFlags = Nz::TextureUsage::ShaderReadWrite | Nz::TextureUsage::ShaderSampling | Nz::TextureUsage::TransferSource | Nz::TextureUsage::TransferDestination;
 
 	std::shared_ptr<Nz::Texture> targetTexture = device.InstantiateTexture(texParams);
+	targetTexture->UpdateDebugName("ParticleTexture");
 
 	Nz::ShaderBindingPtr binding = pipelineLayout->AllocateShaderBinding(0);
 	binding->Update({
