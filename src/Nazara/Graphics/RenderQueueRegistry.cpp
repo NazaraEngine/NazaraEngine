@@ -35,6 +35,8 @@ namespace Nz
 	template<typename T, auto BitsetMap, auto ObjectMap>
 	void RenderQueueRegistry::Register(const T* ptr, Nz::Signal<T*>& onRelease)
 	{
+		constexpr std::size_t IndexGrowRate = 256;
+
 		auto& objectMap = this->*ObjectMap;
 		if (objectMap.contains(ptr))
 			return;
@@ -45,10 +47,10 @@ namespace Nz
 		if (index == bitset.npos)
 		{
 			index = bitset.GetSize();
-			bitset.Resize(index + 256, true);
+			bitset.Resize(index + IndexGrowRate, true);
 		}
-		else
-			bitset.Reset(index);
+
+		bitset.Reset(index);
 
 		auto& entry = objectMap[ptr];
 		entry.index = index;
