@@ -26,7 +26,11 @@ namespace Nz
 	}
 
 	Skeleton::Skeleton(Skeleton&&) noexcept = default;
-	Skeleton::~Skeleton() = default;
+
+	Skeleton::~Skeleton()
+	{
+		OnSkeletonRelease(this);
+	}
 
 	void Skeleton::CopyPose(const Skeleton& skeleton)
 	{

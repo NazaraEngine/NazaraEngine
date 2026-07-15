@@ -12,6 +12,7 @@
 #include <Nazara/Core/Export.hpp>
 #include <Nazara/Core/ObjectLibrary.hpp>
 #include <NazaraUtils/EnumArray.hpp>
+#include <NazaraUtils/Signal.hpp>
 #include <NazaraUtils/SparsePtr.hpp>
 #include <array>
 #include <vector>
@@ -35,7 +36,7 @@ namespace Nz
 			VertexDeclaration(VertexInputRate inputRate, std::size_t stride, std::initializer_list<Component> components);
 			VertexDeclaration(const VertexDeclaration&) = delete;
 			VertexDeclaration(VertexDeclaration&&) = delete;
-			~VertexDeclaration() = default;
+			~VertexDeclaration();
 
 			inline const Component* FindComponent(VertexComponent vertexComponent, std::size_t componentIndex) const;
 
@@ -69,6 +70,8 @@ namespace Nz
 				ComponentType type;
 				std::size_t componentIndex;
 			};
+
+			NazaraSignal(OnVertexDeclarationRelease, VertexDeclaration* /*emitter*/);
 
 		private:
 			static bool Initialize();

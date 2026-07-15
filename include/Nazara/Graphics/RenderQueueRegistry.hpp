@@ -8,8 +8,12 @@
 #define NAZARA_GRAPHICS_RENDERQUEUEREGISTRY_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
+#include <Nazara/Core/Skeleton.hpp>
+#include <Nazara/Graphics/MaterialProxy.hpp>
 #include <Nazara/Graphics/Thirdparty/ankerl/unordered_dense.h>
-#include <set>
+#include <Nazara/Renderer/RenderBuffer.hpp>
+#include <Nazara/Renderer/RenderPipeline.hpp>
+#include <NazaraUtils/Bitset.hpp>
 
 namespace Nz
 {
@@ -19,10 +23,12 @@ namespace Nz
 	class Skeleton;
 	class VertexDeclaration;
 
-	class RenderQueueRegistry
+	class NAZARA_GRAPHICS_API RenderQueueRegistry
 	{
 		public:
 			RenderQueueRegistry() = default;
+			RenderQueueRegistry(const RenderQueueRegistry&) = delete;
+			RenderQueueRegistry(RenderQueueRegistry&&) = delete;
 			~RenderQueueRegistry() = default;
 
 			inline void Clear();
@@ -33,18 +39,63 @@ namespace Nz
 			inline std::size_t FetchVertexBuffer(const RenderBuffer* vertexBuffer) const;
 			inline std::size_t FetchVertexDeclaration(const VertexDeclaration* vertexDeclaration) const;
 
-			inline void RegisterMaterialProxy(const MaterialProxy* materialProxy);
-			inline void RegisterPipeline(const RenderPipeline* pipeline);
-			inline void RegisterSkeleton(const Skeleton* skeleton);
-			inline void RegisterVertexBuffer(const RenderBuffer* vertexBuffer);
-			inline void RegisterVertexDeclaration(const VertexDeclaration* vertexDeclaration);
+			void RegisterMaterialProxy(const MaterialProxy* materialProxy);
+			void RegisterPipeline(const RenderPipeline* pipeline);
+			void RegisterSkeleton(const Skeleton* skeleton);
+			void RegisterVertexBuffer(const RenderBuffer* vertexBuffer);
+			void RegisterVertexDeclaration(const VertexDeclaration* vertexDeclaration);
+
+			RenderQueueRegistry& operator=(const RenderQueueRegistry&) = delete;
+			RenderQueueRegistry& operator=(RenderQueueRegistry&&) = delete;
 
 		private:
-			ankerl::unordered_dense::map<const MaterialProxy*, std::size_t> m_materialPassRegistry;
-			ankerl::unordered_dense::map<const RenderPipeline*, std::size_t> m_pipelineRegistry;
-			ankerl::unordered_dense::map<const RenderBuffer*, std::size_t> m_vertexBufferRegistry;
-			ankerl::unordered_dense::map<const Skeleton*, std::size_t> m_skeletonRegistry;
-			ankerl::unordered_dense::map<const VertexDeclaration*, std::size_t> m_vertexDeclarationRegistry;
+			template<typename T, auto BitsetMap, auto ObjectMap> void Register(const T* ptr, Nz::Signal<T*>& onRelease);
+
+			struct MaterialProxyEntry
+			{
+				std::size_t index;
+
+				NazaraSlot(MaterialProxy, OnMaterialProxyRelease, onRelease);
+			};
+
+			struct RenderBufferEntry
+			{
+				std::size_t index;
+
+				NazaraSlot(RenderBuffer, OnRenderBufferRelease, onRelease);
+			};
+
+			struct RenderPipelineEntry
+			{
+				std::size_t index;
+
+				NazaraSlot(RenderPipeline, OnRenderPipelineRelease, onRelease);
+			};
+
+			struct SkeletonEntry
+			{
+				std::size_t index;
+
+				NazaraSlot(Skeleton, OnSkeletonRelease, onRelease);
+			};
+
+			struct VertexDeclarationEntry
+			{
+				std::size_t index;
+
+				NazaraSlot(VertexDeclaration, OnVertexDeclarationRelease, onRelease);
+			};
+
+			ankerl::unordered_dense::map<const MaterialProxy*, MaterialProxyEntry> m_materialProxies;
+			ankerl::unordered_dense::map<const RenderPipeline*, RenderPipelineEntry> m_pipelines;
+			ankerl::unordered_dense::map<const RenderBuffer*, RenderBufferEntry> m_vertexBuffers;
+			ankerl::unordered_dense::map<const Skeleton*, SkeletonEntry> m_skeletons;
+			ankerl::unordered_dense::map<const VertexDeclaration*, VertexDeclarationEntry> m_vertexDeclarations;
+			Bitset<UInt64> m_materialProxyBitset;
+			Bitset<UInt64> m_pipelineBitset;
+			Bitset<UInt64> m_vertexBufferBitset;
+			Bitset<UInt64> m_vertexDeclarationBitset;
+			Bitset<UInt64> m_skeletonBitset;
 	};
 }
 

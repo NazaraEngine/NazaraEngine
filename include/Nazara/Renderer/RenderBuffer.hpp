@@ -10,6 +10,7 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Core/Buffer.hpp>
 #include <Nazara/Renderer/Export.hpp>
+#include <NazaraUtils/Signal.hpp>
 #include <memory>
 #include <string_view>
 
@@ -36,6 +37,8 @@ namespace Nz
 
 			RenderBuffer& operator=(const RenderBuffer&) = delete;
 			RenderBuffer& operator=(RenderBuffer&&) = delete;
+
+			NazaraSignal(OnRenderBufferRelease, RenderBuffer* /*renderBuffer*/);
 
 		private:
 			RenderDevice& m_renderDevice;

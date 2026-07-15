@@ -7,7 +7,10 @@
 
 namespace Nz
 {
-	RenderPipeline::~RenderPipeline() = default;
+	RenderPipeline::~RenderPipeline()
+	{
+		OnRenderPipelineRelease(this);
+	}
 
 	void RenderPipeline::ValidatePipelineInfo(const RenderDevice& device, RenderPipelineInfo& pipelineInfo)
 	{

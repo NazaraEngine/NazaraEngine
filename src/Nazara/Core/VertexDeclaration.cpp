@@ -102,6 +102,11 @@ namespace Nz
 		}
 	}
 
+	VertexDeclaration::~VertexDeclaration()
+	{
+		OnVertexDeclarationRelease(this);
+	}
+
 	bool VertexDeclaration::Initialize()
 	{
 		try

@@ -11,6 +11,7 @@
 #include <Nazara/Renderer/RenderPipelineLayout.hpp>
 #include <Nazara/Renderer/RenderStates.hpp>
 #include <NazaraUtils/FixedVector.hpp>
+#include <NazaraUtils/Signal.hpp>
 
 namespace Nz
 {
@@ -41,6 +42,8 @@ namespace Nz
 			virtual const RenderPipelineInfo& GetPipelineInfo() const = 0;
 
 			virtual void UpdateDebugName(std::string_view name) = 0;
+
+			NazaraSignal(OnRenderPipelineRelease, RenderPipeline* /*emitter*/);
 
 		protected:
 			static void ValidatePipelineInfo(const RenderDevice& device, RenderPipelineInfo& pipelineInfo);

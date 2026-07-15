@@ -47,6 +47,13 @@ namespace Nz
 		instancedRenderable.BuildElement(m_elementRegistry, elementData, m_passIndex, renderMask, m_renderElements);
 		std::size_t elementCount = m_renderElements.size() - firstElementIndex;
 
+		for (std::size_t i = 0; i < elementCount; ++i)
+		{
+			auto& renderElementOwner = m_renderElements[firstElementIndex + i];
+			renderElementOwner->Register(m_renderQueueRegistry);
+			renderElementOwner->UpdateSortKey(m_renderQueueRegistry);
+		}
+
 		auto it = m_renderElementsIndices.find(renderableIndex);
 		if (it == m_renderElementsIndices.end())
 		{
@@ -56,9 +63,6 @@ namespace Nz
 			for (std::size_t i = 0; i < elementCount; ++i)
 			{
 				auto& renderElementOwner = m_renderElements[firstElementIndex + i];
-				renderElementOwner->Register(m_renderQueueRegistry);
-				renderElementOwner->UpdateSortKey(m_renderQueueRegistry);
-
 				m_orderedRenderElements.push_back(renderElementOwner.GetElement());
 			}
 
@@ -132,15 +136,10 @@ namespace Nz
 	{
 		if (m_shouldRebuildRenderQueue)
 		{
-			m_renderQueueRegistry.Clear();
 			m_orderedRenderElements.clear();
 
 			for (auto& renderElementOwner : m_renderElements)
-			{
-				renderElementOwner->Register(m_renderQueueRegistry);
-				renderElementOwner->UpdateSortKey(m_renderQueueRegistry);
 				m_orderedRenderElements.push_back(renderElementOwner.GetElement());
-			}
 
 			m_shouldRebuildRenderQueue = false;
 			m_shouldSortRenderQueue = true;

@@ -6,5 +6,8 @@
 
 namespace Nz
 {
-	MaterialProxy::~MaterialProxy() = default;
+	MaterialProxy::~MaterialProxy()
+	{
+		OnMaterialProxyRelease(this);
+	}
 }

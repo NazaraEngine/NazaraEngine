@@ -13,6 +13,7 @@
 #include <Nazara/Graphics/Export.hpp>
 #include <Nazara/Renderer/ShaderBinding.hpp>
 #include <NazaraUtils/FixedVector.hpp>
+#include <NazaraUtils/Signal.hpp>
 
 namespace Nz
 {
@@ -41,6 +42,8 @@ namespace Nz
 
 			MaterialProxy& operator=(const MaterialProxy&) = default;
 			MaterialProxy& operator=(MaterialProxy&&) = default;
+
+			NazaraSignal(OnMaterialProxyRelease, MaterialProxy* /*materialProxy*/);
 
 		protected:
 			HybridVector<std::size_t, 4> m_bindingSetHashes;

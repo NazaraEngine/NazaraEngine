@@ -8,74 +8,49 @@ namespace Nz
 {
 	inline void RenderQueueRegistry::Clear()
 	{
-		m_materialPassRegistry.clear();
-		m_pipelineRegistry.clear();
-		m_vertexBufferRegistry.clear();
-		m_vertexDeclarationRegistry.clear();
+		m_materialProxies.clear();
+		m_pipelines.clear();
+		m_vertexBuffers.clear();
+		m_vertexDeclarations.clear();
 	}
 
 	inline std::size_t RenderQueueRegistry::FetchMaterialProxyIndex(const MaterialProxy* materialPass) const
 	{
-		auto it = m_materialPassRegistry.find(materialPass);
-		assert(it != m_materialPassRegistry.end());
+		auto it = m_materialProxies.find(materialPass);
+		assert(it != m_materialProxies.end());
 
-		return it->second;
+		return it->second.index;
 	}
 
 	inline std::size_t RenderQueueRegistry::FetchPipelineIndex(const RenderPipeline* pipeline) const
 	{
-		auto it = m_pipelineRegistry.find(pipeline);
-		assert(it != m_pipelineRegistry.end());
+		auto it = m_pipelines.find(pipeline);
+		assert(it != m_pipelines.end());
 
-		return it->second;
+		return it->second.index;
 	}
 
 	inline std::size_t RenderQueueRegistry::FetchSkeletonIndex(const Skeleton* skeleton) const
 	{
-		auto it = m_skeletonRegistry.find(skeleton);
-		assert(it != m_skeletonRegistry.end());
+		auto it = m_skeletons.find(skeleton);
+		assert(it != m_skeletons.end());
 
-		return it->second;
+		return it->second.index;
 	}
 
 	inline std::size_t RenderQueueRegistry::FetchVertexBuffer(const RenderBuffer* vertexBuffer) const
 	{
-		auto it = m_vertexBufferRegistry.find(vertexBuffer);
-		assert(it != m_vertexBufferRegistry.end());
+		auto it = m_vertexBuffers.find(vertexBuffer);
+		assert(it != m_vertexBuffers.end());
 
-		return it->second;
+		return it->second.index;
 	}
 
 	inline std::size_t RenderQueueRegistry::FetchVertexDeclaration(const VertexDeclaration* vertexDeclaration) const
 	{
-		auto it = m_vertexDeclarationRegistry.find(vertexDeclaration);
-		assert(it != m_vertexDeclarationRegistry.end());
+		auto it = m_vertexDeclarations.find(vertexDeclaration);
+		assert(it != m_vertexDeclarations.end());
 
-		return it->second;
-	}
-
-	inline void RenderQueueRegistry::RegisterMaterialProxy(const MaterialProxy* materialProxy)
-	{
-		m_materialPassRegistry.try_emplace(materialProxy, m_materialPassRegistry.size());
-	}
-
-	inline void RenderQueueRegistry::RegisterPipeline(const RenderPipeline* pipeline)
-	{
-		m_pipelineRegistry.try_emplace(pipeline, m_pipelineRegistry.size());
-	}
-
-	inline void RenderQueueRegistry::RegisterSkeleton(const Skeleton* skeleton)
-	{
-		m_skeletonRegistry.try_emplace(skeleton, m_skeletonRegistry.size());
-	}
-
-	inline void RenderQueueRegistry::RegisterVertexBuffer(const RenderBuffer* vertexBuffer)
-	{
-		m_vertexBufferRegistry.try_emplace(vertexBuffer, m_vertexBufferRegistry.size());
-	}
-
-	inline void RenderQueueRegistry::RegisterVertexDeclaration(const VertexDeclaration* vertexDeclaration)
-	{
-		m_vertexDeclarationRegistry.try_emplace(vertexDeclaration, m_vertexDeclarationRegistry.size());
+		return it->second.index;
 	}
 }
