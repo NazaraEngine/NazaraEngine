@@ -40,6 +40,14 @@ namespace Nz
 		UpdatePerViewerStatus(true);
 	}
 
+	DirectionalLightShadowData::~DirectionalLightShadowData()
+	{
+		ForEachCascade([this](CascadeData& cascade)
+		{
+			m_pipeline.DequeueTransfer(&cascade.viewer.GetViewerInstance());
+		});
+	}
+
 	void DirectionalLightShadowData::ForEachView(FunctionRef<void(std::size_t shadowAtlasEntry, ShadowViewer& shadowViewer)> callback)
 	{
 		for (auto&& [viewer, viewerData] : m_viewerData)

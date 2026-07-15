@@ -23,7 +23,7 @@ namespace Nz
 			SpotLightShadowData(FramePipeline& pipeline, const SpotLight& light);
 			SpotLightShadowData(const SpotLightShadowData&) = delete;
 			SpotLightShadowData(SpotLightShadowData&&) = delete;
-			~SpotLightShadowData() = default;
+			~SpotLightShadowData();
 
 			void ForEachView(FunctionRef<void(std::size_t shadowAtlasEntry, ShadowViewer& shadowViewer)> callback) override;
 

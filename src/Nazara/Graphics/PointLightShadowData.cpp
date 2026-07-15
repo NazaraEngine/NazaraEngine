@@ -27,7 +27,7 @@ namespace Nz
 						1.0, 0.0, 0.0, 0.0,
 						-lightPos.z, -lightPos.y, lightPos.x, 1.0
 					);
-					
+
 				case 1:
 					return Matrix4f(
 						0.0, 0.0, 1.0, 0.0,
@@ -35,7 +35,7 @@ namespace Nz
 						-1.0, 0.0, 0.0, 0.0,
 						lightPos.z, -lightPos.y, -lightPos.x, 1.0
 					);
-					
+
 				case 2:
 					return Matrix4f(
 						1.0, 0.0, 0.0, 0.0,
@@ -43,7 +43,7 @@ namespace Nz
 						0.0, 1.0, 0.0, 0.0,
 						-lightPos.x, -lightPos.z, lightPos.y, 1.0
 					);
-					
+
 				case 3:
 					return Matrix4f(
 						1.0, 0.0, 0.0, 0.0,
@@ -51,7 +51,7 @@ namespace Nz
 						0.0, -1.0, 0.0, 0.0,
 						-lightPos.x, lightPos.z, -lightPos.y, 1.0
 					);
-					
+
 				case 4:
 					return Matrix4f(
 						1.0, 0.0, 0.0, 0.0,
@@ -59,7 +59,7 @@ namespace Nz
 						0.0, 0.0, 1.0, 0.0,
 						-lightPos.x, -lightPos.y, -lightPos.z, 1.0
 					);
-					
+
 				case 5:
 					return Matrix4f(
 						-1.0, 0.0, 0.0, 0.0,
@@ -145,6 +145,16 @@ namespace Nz
 				m_pipeline.QueueTransfer(&viewerInstance);
 			}
 		});
+	}
+
+	PointLightShadowData::~PointLightShadowData()
+	{
+		// Remove shadow viewers from the transfer set since they are about to be destroyed
+		for (std::size_t i = 0; i < m_directions.size(); ++i)
+		{
+			ViewerInstance& viewerInstance = m_directions[i].viewer.GetViewerInstance();
+			m_pipeline.DequeueTransfer(&viewerInstance);
+		}
 	}
 
 	void PointLightShadowData::ForEachView(FunctionRef<void(std::size_t shadowAtlasEntry, ShadowViewer& shadowViewer)> callback)

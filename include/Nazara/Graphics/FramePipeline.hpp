@@ -38,6 +38,8 @@ namespace Nz
 			FramePipeline(FramePipeline&&) noexcept = default;
 			virtual ~FramePipeline();
 
+			virtual void DequeueTransfer(TransferInterface* transfer) = 0;
+
 			virtual void ForEachRegisteredMaterialInstance(FunctionRef<void(const MaterialInstance& materialInstance)> callback) = 0;
 			virtual void ForEachShadowCastingLight(FunctionRef<void(std::size_t lightIndex, const Light* light, LightShadowData* lightShadowData)> callback) = 0;
 

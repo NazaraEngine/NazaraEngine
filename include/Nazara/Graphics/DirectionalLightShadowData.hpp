@@ -28,7 +28,7 @@ namespace Nz
 			DirectionalLightShadowData(FramePipeline& pipeline, const DirectionalLight& light, std::size_t cascadeCount);
 			DirectionalLightShadowData(const DirectionalLightShadowData&) = delete;
 			DirectionalLightShadowData(DirectionalLightShadowData&&) = delete;
-			~DirectionalLightShadowData() = default;
+			~DirectionalLightShadowData();
 
 			inline void EnableShadowStabilization(bool enable);
 

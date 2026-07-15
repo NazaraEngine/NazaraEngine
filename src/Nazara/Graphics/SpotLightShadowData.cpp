@@ -57,6 +57,12 @@ namespace Nz
 		});
 	}
 
+	SpotLightShadowData::~SpotLightShadowData()
+	{
+		ViewerInstance& viewerInstance = m_viewer.GetViewerInstance();
+		m_pipeline.DequeueTransfer(&viewerInstance);
+	}
+
 	void SpotLightShadowData::ForEachView(FunctionRef<void(std::size_t shadowAtlasEntry, ShadowViewer& shadowViewer)> callback)
 	{
 		callback(m_shadowAtlasIndex, m_viewer);

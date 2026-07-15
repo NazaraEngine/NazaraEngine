@@ -67,6 +67,11 @@ namespace Nz
 		m_viewerPool.Clear();
 	}
 
+	void DefaultFramePipeline::DequeueTransfer(TransferInterface* transfer)
+	{
+		m_transferSet.erase(transfer);
+	}
+
 	void DefaultFramePipeline::ForEachRegisteredMaterialInstance(FunctionRef<void(const MaterialInstance& materialInstance)> callback)
 	{
 		for (RenderableData& renderable : m_renderablePool)

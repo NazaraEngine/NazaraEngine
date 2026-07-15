@@ -53,6 +53,8 @@ namespace Nz
 			DefaultFramePipeline(DefaultFramePipeline&&) = delete;
 			~DefaultFramePipeline();
 
+			void DequeueTransfer(TransferInterface* transfer) override;
+
 			void ForEachRegisteredMaterialInstance(FunctionRef<void(const MaterialInstance& materialInstance)> callback) override;
 			void ForEachShadowCastingLight(FunctionRef<void(std::size_t lightIndex, const Light* light, LightShadowData* lightShadowData)> callback) override;
 
