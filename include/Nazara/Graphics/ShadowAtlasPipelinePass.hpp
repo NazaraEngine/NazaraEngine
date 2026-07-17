@@ -13,7 +13,6 @@
 #include <Nazara/Graphics/FramePipelinePass.hpp>
 #include <Nazara/Graphics/ShadowAtlas.hpp>
 #include <NazaraUtils/FixedVector.hpp>
-#include <span>
 #include <string>
 
 namespace Nz

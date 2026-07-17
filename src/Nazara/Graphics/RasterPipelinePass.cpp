@@ -35,7 +35,7 @@ namespace Nz
 		std::size_t cullAttachment = frameGraph.AddDummyAttachment();
 
 		FramePass& preparePass = frameGraph.AddPass(m_passName);
-		preparePass.SetExecutionCallback([&]
+		preparePass.SetExecutionCallback([this]
 		{
 			std::size_t renderQueueHash = GetRenderQueueHash();
 			if (renderQueueHash == m_renderQueueHash)
@@ -86,7 +86,7 @@ namespace Nz
 				});
 			}
 
-			m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
+			m_elementRegistry.ForEachElementRenderer([this](std::size_t elementType, ElementRenderer& elementRenderer)
 			{
 				if (elementType < m_elementRendererData.size() && m_elementRendererData[elementType])
 					elementRenderer.PrepareEnd(*m_elementRendererData[elementType], env.renderResources, builder);
@@ -95,7 +95,7 @@ namespace Nz
 
 		FramePass& cullPass = frameGraph.AddPass(m_passName);
 		cullPass.SetDebugRegionColor(Color::Cyan());
-		cullPass.SetExecutionCallback([&]
+		cullPass.SetExecutionCallback([]
 		{
 			return FramePassExecution::UpdateAndExecute;
 		});
@@ -141,7 +141,7 @@ namespace Nz
 		});
 
 		FramePass& renderPass = frameGraph.AddPass(m_passName);
-		renderPass.SetExecutionCallback([&]
+		renderPass.SetExecutionCallback([this]
 		{
 			std::size_t renderQueueHash = GetRenderQueueHash();
 			if (renderQueueHash == m_renderQueueHash)
@@ -223,7 +223,7 @@ namespace Nz
 			sceneData.spotLights = m_pipeline.GetSpotLightBuffer();
 			sceneData.spotLightAtlasMapping = m_pipeline.GetSpotShadowMappingBuffer();
 
-			m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
+			m_elementRegistry.ForEachElementRenderer([this](std::size_t elementType, ElementRenderer& elementRenderer)
 			{
 				if (elementType >= m_elementRendererData.size())
 					m_elementRendererData.resize(elementType + 1);

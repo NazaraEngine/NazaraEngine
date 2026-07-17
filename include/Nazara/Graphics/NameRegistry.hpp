@@ -4,8 +4,8 @@
 
 #pragma once
 
-#ifndef NAZARA_GRAPHICS_MATERIALPASSREGISTRY_HPP
-#define NAZARA_GRAPHICS_MATERIALPASSREGISTRY_HPP
+#ifndef NAZARA_GRAPHICS_NAMEREGISTRY_HPP
+#define NAZARA_GRAPHICS_NAMEREGISTRY_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
 #include <NazaraUtils/StringHash.hpp>
@@ -37,4 +37,4 @@ namespace Nz
 
 #include <Nazara/Graphics/NameRegistry.inl>
 
-#endif // NAZARA_GRAPHICS_MATERIALPASSREGISTRY_HPP
+#endif // NAZARA_GRAPHICS_NAMEREGISTRY_HPP

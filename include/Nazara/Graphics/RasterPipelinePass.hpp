@@ -12,7 +12,6 @@
 #include <Nazara/Graphics/ElementRenderer.hpp>
 #include <Nazara/Graphics/FramePipelinePass.hpp>
 #include <NazaraUtils/FixedVector.hpp>
-#include <span>
 #include <string>
 
 namespace Nz

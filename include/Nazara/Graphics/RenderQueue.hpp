@@ -24,7 +24,7 @@ namespace Nz
 	class RenderQueue
 	{
 		public:
-			inline RenderQueue(std::size_t passIndex, RenderQueueFlags flags = {});
+			inline explicit RenderQueue(std::size_t passIndex, RenderQueueFlags flags = {});
 			RenderQueue(const RenderQueue&) = delete;
 			RenderQueue(RenderQueue&&) = delete;
 			~RenderQueue() = default;

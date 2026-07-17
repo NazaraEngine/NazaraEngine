@@ -10,6 +10,7 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/Enums.hpp>
 #include <Nazara/Graphics/MaterialPipeline.hpp>
+#include <NazaraUtils/Constants.hpp>
 #include <NZSL/Ast/ConstantValue.hpp>
 #include <NZSL/Ast/Option.hpp>
 #include <memory>
@@ -21,7 +22,7 @@ namespace Nz
 	{
 		MaterialPassFlags flags;
 		RenderStates states;
-		UInt32 renderQueue = 0;
+		UInt32 renderQueue = MaxValue(); //< Should be set
 		std::unordered_map<nzsl::Ast::OptionHash, nzsl::Ast::ConstantSingleValue> options;
 		std::vector<std::shared_ptr<UberShader>> shaders;
 	};

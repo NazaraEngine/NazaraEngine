@@ -12,8 +12,8 @@
 #include <Nazara/Graphics/FramePipelinePassRegistry.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/MaterialInstance.hpp>
-#include <Nazara/Graphics/NameRegistry.hpp>
 #include <Nazara/Graphics/Model.hpp>
+#include <Nazara/Graphics/NameRegistry.hpp>
 #include <Nazara/Graphics/PipelinePassList.hpp>
 #include <Nazara/Graphics/TextureSamplerCache.hpp>
 #include <Nazara/Renderer/RenderDevice.hpp>
