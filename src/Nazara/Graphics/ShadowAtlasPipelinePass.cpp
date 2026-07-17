@@ -32,7 +32,7 @@ namespace Nz
 			m_renderQueues.push_back(&m_pipeline.GetRenderQueue(renderQueues.GetIndex(renderQueueStr)));
 	}
 
-	void ShadowAtlasPipelinePass::Prepare(FrameData& frameData)
+	void ShadowAtlasPipelinePass::Prepare(FrameData& /*frameData*/)
 	{
 		m_shadowAtlas.Clear();
 		m_pipeline.ForEachShadowCastingLight([&](std::size_t /*lightIndex*/, const Light* /*light*/, LightShadowData* shadowData)

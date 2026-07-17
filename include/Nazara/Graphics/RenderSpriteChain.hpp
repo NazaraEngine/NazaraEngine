@@ -48,7 +48,6 @@ namespace Nz
 			const void* m_spriteData;
 			MaterialPassFlags m_materialFlags;
 			Recti m_scissorBox;
-			UInt32 m_instanceIndex;
 	};
 }
 

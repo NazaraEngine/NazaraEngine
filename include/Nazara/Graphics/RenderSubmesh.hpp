@@ -56,7 +56,6 @@ namespace Nz
 			MaterialPassFlags m_materialFlags;
 			Recti m_scissorBox;
 			Spheref m_boundingSphere;
-			UInt32 m_instanceIndex;
 	};
 }
 
