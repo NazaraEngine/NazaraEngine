@@ -14,8 +14,7 @@ namespace Nz
 	m_spriteCount(spriteCount),
 	m_spriteData(spriteData),
 	m_materialFlags(materialFlags),
-	m_scissorBox(scissorBox),
-	m_instanceIndex(instanceIndex)
+	m_scissorBox(scissorBox)
 	{
 		NazaraAssert(spriteCount < MaxSpritePerChain);
 	}

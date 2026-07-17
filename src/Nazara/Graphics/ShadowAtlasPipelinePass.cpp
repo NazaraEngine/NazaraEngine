@@ -289,6 +289,9 @@ namespace Nz
 		std::vector<std::string_view> renderQueueNames;
 		SplitStringAny(renderQueues.GetValue(), " +,", [&](std::string_view renderQueue)
 		{
+			if (renderQueue.empty())
+				return true;
+
 			renderQueueNames.push_back(renderQueue);
 			return true;
 		});
