@@ -12,6 +12,9 @@
 #include <Nazara/Graphics/Export.hpp>
 #include <Nazara/Graphics/FramePipelinePass.hpp>
 #include <Nazara/Graphics/ShadowAtlas.hpp>
+#include <NazaraUtils/FixedVector.hpp>
+#include <span>
+#include <string>
 
 namespace Nz
 {
@@ -20,13 +23,16 @@ namespace Nz
 	class FrameGraph;
 	class FramePass;
 	class FramePipeline;
+	class ParameterList;
 	class RenderPipelineLayout;
+	class RenderQueue;
 	class UberShader;
 
 	class NAZARA_GRAPHICS_API ShadowAtlasPipelinePass : public FramePipelinePass
 	{
 		public:
-			explicit ShadowAtlasPipelinePass(PassData& passData);
+			inline ShadowAtlasPipelinePass(PassData& passData, const ParameterList& parameters);
+			ShadowAtlasPipelinePass(PassData& passData, const std::vector<std::string_view>& renderQueueNames);
 			ShadowAtlasPipelinePass(const ShadowAtlasPipelinePass&) = delete;
 			ShadowAtlasPipelinePass(ShadowAtlasPipelinePass&&) = delete;
 			~ShadowAtlasPipelinePass() = default;
@@ -41,8 +47,11 @@ namespace Nz
 			ShadowAtlasPipelinePass& operator=(const ShadowAtlasPipelinePass&) = delete;
 			ShadowAtlasPipelinePass& operator=(ShadowAtlasPipelinePass&&) = delete;
 
+			static std::vector<std::string_view> GetRenderQueues(const ParameterList& parameters);
+
 		private:
 			void BuildCullingPipeline();
+			std::size_t GetRenderQueueHash() const;
 
 			struct LightData
 			{
@@ -53,9 +62,9 @@ namespace Nz
 			std::shared_ptr<ComputePipeline> m_computePipeline;
 			std::shared_ptr<RenderPipelineLayout> m_computePipelineLayout;
 			std::shared_ptr<UberShader> m_frustumCullingShader;
-			std::size_t m_passIndex;
 			std::size_t m_renderQueueHash;
 			std::unordered_map<std::size_t, LightData> m_lightData;
+			HybridVector<RenderQueue*, 2> m_renderQueues;
 			ShadowAtlas m_shadowAtlas;
 			ElementRendererRegistry& m_elementRegistry;
 			FramePipeline& m_pipeline;

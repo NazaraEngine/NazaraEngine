@@ -51,26 +51,29 @@ namespace Nz
 	{
 	}
 
-	void Model::BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, UInt32 renderMask, std::vector<RenderElementOwner>& elements) const
+	void Model::BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, UInt32 renderMask, ElementCallback elementCallback) const
 	{
 		for (std::size_t i = 0; i < m_submeshes.size(); ++i)
 		{
 			const auto& submeshData = m_submeshes[i];
 
-			const auto& materialPipeline = submeshData.material->GetPipeline(passIndex);
-			if (!materialPipeline)
-				continue;
+			elementCallback(submeshData.material->GetRenderQueueMask(), [&](std::size_t passIndex, std::vector<RenderElementOwner>& elements)
+			{
+				const auto& materialPipeline = submeshData.material->GetPipeline(passIndex);
+				if (!materialPipeline)
+					return;
 
-			MaterialPassFlags passFlags = submeshData.material->GetPassFlags(passIndex);
+				MaterialPassFlags passFlags = submeshData.material->GetPassFlags(passIndex);
 
-			const auto& indexBuffer = m_graphicalMesh->GetIndexBuffer(i);
-			const auto& vertexBuffer = m_graphicalMesh->GetVertexBuffer(i);
-			const auto& renderPipeline = materialPipeline->GetRenderPipeline(submeshData.vertexBufferData.data(), submeshData.vertexBufferData.size());
+				const auto& indexBuffer = m_graphicalMesh->GetIndexBuffer(i);
+				const auto& vertexBuffer = m_graphicalMesh->GetVertexBuffer(i);
+				const auto& renderPipeline = materialPipeline->GetRenderPipeline(submeshData.vertexBufferData.data(), submeshData.vertexBufferData.size());
 
-			std::size_t indexCount = (submeshData.indexCount != 0) ? submeshData.indexCount : m_graphicalMesh->GetIndexCount(i);
-			IndexType indexType = m_graphicalMesh->GetIndexType(i);
+				std::size_t indexCount = (submeshData.indexCount != 0) ? submeshData.indexCount : m_graphicalMesh->GetIndexCount(i);
+				IndexType indexType = m_graphicalMesh->GetIndexType(i);
 
-			elements.emplace_back(registry.AllocateElement<RenderSubmesh>(GetRenderLayer(), submeshData.material, passFlags, renderPipeline, elementData.instanceIndex, elementData.skeletonInstance, indexCount, indexType, indexBuffer, vertexBuffer, *elementData.scissorBox, GetAABB().GetBoundingSphere(), renderMask));
+				elements.emplace_back(registry.AllocateElement<RenderSubmesh>(GetRenderLayer(), submeshData.material, passFlags, renderPipeline, elementData.instanceIndex, elementData.skeletonInstance, indexCount, indexType, indexBuffer, vertexBuffer, *elementData.scissorBox, GetAABB().GetBoundingSphere(), renderMask));
+			});
 		}
 	}
 

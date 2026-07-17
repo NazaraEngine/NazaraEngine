@@ -3,7 +3,6 @@
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
 #include <Nazara/Graphics/RenderQueue.hpp>
-#include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>
 #include <Nazara/Renderer/RenderResources.hpp>
 
@@ -24,32 +23,13 @@ namespace Nz
 		}
 	}
 
-	void RenderQueue::Prepare(RenderResources& renderResources)
+	void RenderQueue::FinalizeRegisterRenderable(std::size_t renderableIndex)
 	{
-		if (!m_deletedRenderElements.empty())
-		{
-			renderResources.PushForRelease(std::move(m_deletedRenderElements));
-			m_deletedRenderElements.clear();
-		}
-
-		UpdateRenderQueue();
-	}
-
-	void RenderQueue::RegisterRenderable(std::size_t renderableIndex, UInt32 instanceIndex, const InstancedRenderable& instancedRenderable, const SkeletonInstance* skeletonInstance, UInt32 renderMask, const Recti& scissorBox)
-	{
-		InstancedRenderable::ElementData elementData{
-			&scissorBox,
-			skeletonInstance,
-			instanceIndex
-		};
-
-		std::size_t firstElementIndex = m_renderElements.size();
-		instancedRenderable.BuildElement(m_elementRegistry, elementData, m_passIndex, renderMask, m_renderElements);
-		std::size_t elementCount = m_renderElements.size() - firstElementIndex;
+		std::size_t elementCount = m_renderElements.size() - m_firstAddedElementIndex;
 
 		for (std::size_t i = 0; i < elementCount; ++i)
 		{
-			auto& renderElementOwner = m_renderElements[firstElementIndex + i];
+			auto& renderElementOwner = m_renderElements[m_firstAddedElementIndex + i];
 			renderElementOwner->Register(m_renderQueueRegistry);
 			renderElementOwner->UpdateSortKey(m_renderQueueRegistry);
 		}
@@ -62,11 +42,11 @@ namespace Nz
 
 			for (std::size_t i = 0; i < elementCount; ++i)
 			{
-				auto& renderElementOwner = m_renderElements[firstElementIndex + i];
+				auto& renderElementOwner = m_renderElements[m_firstAddedElementIndex + i];
 				m_orderedRenderElements.push_back(renderElementOwner.GetElement());
 			}
 
-			m_renderElementsIndices[renderableIndex] = RenderElementIndices{ firstElementIndex, elementCount };
+			m_renderElementsIndices[renderableIndex] = RenderElementIndices{ m_firstAddedElementIndex, elementCount };
 
 			m_shouldSortRenderQueue = true;
 		}
@@ -78,8 +58,8 @@ namespace Nz
 			{
 				// Fast path: same number of renderables generated, override them
 				std::move(m_renderElements.begin() + indices.first, m_renderElements.begin() + indices.first + indices.count, std::back_inserter(m_deletedRenderElements));
-				std::move(m_renderElements.begin() + firstElementIndex, m_renderElements.begin() + firstElementIndex + elementCount, m_renderElements.begin() + indices.first);
-				m_renderElements.erase(m_renderElements.begin() + firstElementIndex, m_renderElements.end());
+				std::move(m_renderElements.begin() + m_firstAddedElementIndex, m_renderElements.begin() + m_firstAddedElementIndex + elementCount, m_renderElements.begin() + indices.first);
+				m_renderElements.erase(m_renderElements.begin() + m_firstAddedElementIndex, m_renderElements.end());
 			}
 			else
 			{
@@ -101,12 +81,23 @@ namespace Nz
 					return;
 				}
 
-				indices = RenderElementIndices{ firstElementIndex, elementCount };
+				indices = RenderElementIndices{ m_firstAddedElementIndex, elementCount };
 				m_renderElementsIndices[renderableIndex] = indices;
 			}
 
 			m_shouldRebuildRenderQueue = true;
 		}
+	}
+
+	void RenderQueue::Prepare(RenderResources& renderResources)
+	{
+		if (!m_deletedRenderElements.empty())
+		{
+			renderResources.PushForRelease(std::move(m_deletedRenderElements));
+			m_deletedRenderElements.clear();
+		}
+
+		UpdateRenderQueue();
 	}
 
 	void RenderQueue::UnregisterRenderable(std::size_t renderableIndex)
@@ -147,23 +138,30 @@ namespace Nz
 
 		if (m_shouldSortRenderQueue)
 		{
-			std::sort(m_orderedRenderElements.begin(), m_orderedRenderElements.end(), [&](const RenderElement* lhs, const RenderElement* rhs)
+			if (!m_flags.Test(RenderQueueFlag::SortByDistance))
 			{
-				// Render layer has priority and only in case of equality we want to order by the sort key
-				bool orderedBefore = lhs->GetRenderLayer() < rhs->GetRenderLayer();
-				orderedBefore |= lhs->GetRenderLayer() == rhs->GetRenderLayer() && lhs->GetSortKey() < rhs->GetSortKey();
-				return orderedBefore;
-			});
-
-			m_contentHash = 0;
-			for (const RenderElement* renderElement : m_orderedRenderElements)
-			{
-				// https://softwareengineering.stackexchange.com/a/402543
-				std::size_t hash = std::hash<const void*>{}(renderElement);
-				m_contentHash ^= hash + 0x9e3779b9 + (m_contentHash << 6) + (m_contentHash >> 2);
+				SortRenderQueue([](std::vector<const RenderElement*>& elements)
+				{
+					std::sort(elements.begin(), elements.end(), [&](const RenderElement* lhs, const RenderElement* rhs)
+					{
+						// Render layer has priority and only in case of equality we want to order by the sort key
+						bool orderedBefore = lhs->GetRenderLayer() < rhs->GetRenderLayer();
+						orderedBefore |= lhs->GetRenderLayer() == rhs->GetRenderLayer() && lhs->GetSortKey() < rhs->GetSortKey();
+						return orderedBefore;
+					});
+				});
 			}
+		}
+	}
 
-			m_shouldSortRenderQueue = false;
+	void RenderQueue::RecomputeContentHash()
+	{
+		m_contentHash = 0;
+		for (const RenderElement* renderElement : m_orderedRenderElements)
+		{
+			// https://softwareengineering.stackexchange.com/a/402543
+			std::size_t hash = std::hash<const void*>{}(renderElement);
+			m_contentHash ^= hash + 0x9e3779b9 + (m_contentHash << 6) + (m_contentHash >> 2);
 		}
 	}
 }

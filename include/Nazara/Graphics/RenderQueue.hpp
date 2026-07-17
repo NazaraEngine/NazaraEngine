@@ -11,7 +11,6 @@
 #include <Nazara/Graphics/RenderElement.hpp>
 #include <Nazara/Graphics/RenderElementOwner.hpp>
 #include <Nazara/Graphics/RenderQueueRegistry.hpp>
-#include <Nazara/Math/Rect.hpp>
 #include <unordered_map>
 #include <vector>
 
@@ -25,23 +24,39 @@ namespace Nz
 	class RenderQueue
 	{
 		public:
-			inline RenderQueue(ElementRendererRegistry& elementRegistry, std::size_t passIndex);
+			inline RenderQueue(std::size_t passIndex, RenderQueueFlags flags = {});
+			RenderQueue(const RenderQueue&) = delete;
+			RenderQueue(RenderQueue&&) = delete;
+			~RenderQueue() = default;
+
+			inline void BeginRegisterRenderable();
 
 			void ClearRenderables();
 
+			void FinalizeRegisterRenderable(std::size_t renderableIndex);
+
 			inline std::size_t GetContentHash() const;
+			inline RenderQueueFlags GetFlags() const;
+			inline std::size_t GetPassIndex() const;
 
 			void Prepare(RenderResources& renderResources);
 
 			template<typename F> void Process(UInt32 renderMask, F&& callback) const;
 
-			void RegisterRenderable(std::size_t renderableIndex, UInt32 instanceIndex, const InstancedRenderable& instancedRenderable, const SkeletonInstance* skeletonInstance, UInt32 renderMask, const Recti& scissorBox);
+			template<typename F> void RegisterRenderable(F&& callback);
+
+			template<typename F> void SortRenderQueue(F&& callback);
 
 			void UnregisterRenderable(std::size_t renderableIndex);
 
 			void UpdateRenderQueue();
 
+			RenderQueue& operator=(const RenderQueue&) = delete;
+			RenderQueue& operator=(RenderQueue&&) = delete;
+
 		private:
+			void RecomputeContentHash();
+
 			struct RenderElementIndices
 			{
 				std::size_t first;
@@ -49,12 +64,13 @@ namespace Nz
 			};
 
 			std::size_t m_contentHash;
+			std::size_t m_firstAddedElementIndex;
 			std::size_t m_passIndex;
 			std::unordered_map<std::size_t /*renderableIndex*/, RenderElementIndices> m_renderElementsIndices;
 			std::vector<RenderElementOwner> m_deletedRenderElements;
 			std::vector<RenderElementOwner> m_renderElements;
 			std::vector<const RenderElement*> m_orderedRenderElements;
-			ElementRendererRegistry& m_elementRegistry;
+			RenderQueueFlags m_flags;
 			RenderQueueRegistry m_renderQueueRegistry;
 			bool m_shouldRebuildRenderQueue;
 			bool m_shouldSortRenderQueue;

@@ -11,6 +11,7 @@
 #include <Nazara/Graphics/Export.hpp>
 #include <Nazara/Graphics/RenderElementOwner.hpp>
 #include <Nazara/Math/Box.hpp>
+#include <NazaraUtils/FunctionRef.hpp>
 #include <NazaraUtils/Signal.hpp>
 #include <memory>
 
@@ -26,13 +27,15 @@ namespace Nz
 	{
 		public:
 			struct ElementData;
+			using RenderQueueCallback = FunctionRef<void(std::size_t /*passIndex*/, std::vector<RenderElementOwner>& /*elements*/)>;
+			using ElementCallback = FunctionRef<void(UInt32 /*renderQueueMask*/, RenderQueueCallback /*callback*/)>;
 
 			inline InstancedRenderable();
 			InstancedRenderable(const InstancedRenderable&) = delete;
 			InstancedRenderable(InstancedRenderable&&) noexcept = default;
 			virtual ~InstancedRenderable();
 
-			virtual void BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, UInt32 renderMask, std::vector<RenderElementOwner>& elements) const = 0;
+			virtual void BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, UInt32 renderMask, ElementCallback elementCallback) const = 0;
 
 			inline const Boxf& GetAABB() const;
 			virtual const std::shared_ptr<MaterialInstance>& GetMaterial(std::size_t materialIndex) const = 0;

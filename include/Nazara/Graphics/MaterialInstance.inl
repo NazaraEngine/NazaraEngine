@@ -23,6 +23,7 @@ namespace Nz
 		{
 			m_passes[passIndex].enabled = enable;
 			InvalidatePassPipeline(passIndex);
+			RecomputeRenderQueueMask();
 		}
 	}
 
@@ -76,6 +77,11 @@ namespace Nz
 	{
 		assert(passIndex < m_passes.size());
 		return m_passes[passIndex].flags;
+	}
+
+	inline UInt32 MaterialInstance::GetRenderQueueMask() const
+	{
+		return m_renderQueueMask;
 	}
 
 	inline const std::shared_ptr<TextureAsset>* MaterialInstance::GetTextureProperty(std::string_view propertyName) const
@@ -223,6 +229,17 @@ namespace Nz
 		}
 	}
 
+	inline void MaterialInstance::UpdatePassRenderQueue(std::size_t passIndex, UInt32 renderQueueIndex)
+	{
+		assert(passIndex < m_passes.size());
+		if (m_passes[passIndex].renderQueue != renderQueueIndex)
+		{
+			m_passes[passIndex].renderQueue = renderQueueIndex;
+			InvalidatePassPipeline(passIndex);
+			RecomputeRenderQueueMask();
+		}
+	}
+
 	template<typename F>
 	void MaterialInstance::UpdatePassStates(std::size_t passIndex, F&& stateUpdater)
 	{
@@ -276,5 +293,12 @@ namespace Nz
 	{
 		m_isShaderBindingInvalidated = true;
 		OnMaterialInstanceShaderBindingInvalidated(this);
+	}
+
+	inline void MaterialInstance::RecomputeRenderQueueMask()
+	{
+		m_renderQueueMask = 0;
+		for (PassData& passData : m_passes)
+			m_renderQueueMask |= passData.enabled ? 1u << passData.renderQueue : 0;
 	}
 }

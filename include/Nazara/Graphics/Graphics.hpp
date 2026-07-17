@@ -12,7 +12,7 @@
 #include <Nazara/Graphics/FramePipelinePassRegistry.hpp>
 #include <Nazara/Graphics/Material.hpp>
 #include <Nazara/Graphics/MaterialInstance.hpp>
-#include <Nazara/Graphics/MaterialPassRegistry.hpp>
+#include <Nazara/Graphics/NameRegistry.hpp>
 #include <Nazara/Graphics/Model.hpp>
 #include <Nazara/Graphics/PipelinePassList.hpp>
 #include <Nazara/Graphics/TextureSamplerCache.hpp>
@@ -53,8 +53,8 @@ namespace Nz
 			inline const DefaultTextures& GetDefaultTextures() const;
 			inline FramePipelinePassRegistry& GetFramePipelinePassRegistry();
 			inline const FramePipelinePassRegistry& GetFramePipelinePassRegistry() const;
-			inline MaterialPassRegistry& GetMaterialPassRegistry();
-			inline const MaterialPassRegistry& GetMaterialPassRegistry() const;
+			inline NameRegistry& GetMaterialPassRegistry();
+			inline const NameRegistry& GetMaterialPassRegistry() const;
 			inline MaterialInstanceLoader& GetMaterialInstanceLoader();
 			inline const MaterialInstanceLoader& GetMaterialInstanceLoader() const;
 			inline MaterialLoader& GetMaterialLoader();
@@ -67,6 +67,8 @@ namespace Nz
 			inline PixelFormat GetPreferredDepthStencilFormat() const;
 			inline const std::shared_ptr<RenderDevice>& GetRenderDevice() const;
 			inline const RenderPassCache& GetRenderPassCache() const;
+			inline NameRegistry& GetRenderQueueRegistry();
+			inline const NameRegistry& GetRenderQueueRegistry() const;
 			inline TextureSamplerCache& GetSamplerCache();
 			inline std::shared_ptr<nzsl::FilesystemModuleResolver>& GetShaderModuleResolver();
 			inline const std::shared_ptr<nzsl::FilesystemModuleResolver>& GetShaderModuleResolver() const;
@@ -108,6 +110,7 @@ namespace Nz
 			void BuildDefaultTextures();
 			void RegisterMaterialPasses();
 			void RegisterPipelinePasses();
+			void RegisterRenderQueues();
 			void RegisterShaderModules();
 			void SelectDepthStencilFormats();
 
@@ -124,7 +127,8 @@ namespace Nz
 			FramePipelinePassRegistry m_pipelinePassRegistry;
 			MaterialInstanceLoader m_materialInstanceLoader;
 			MaterialLoader m_materialLoader;
-			MaterialPassRegistry m_materialPassRegistry;
+			NameRegistry m_materialPassRegistry;
+			NameRegistry m_renderQueueRegistry;
 			ModelLoader m_modelLoader;
 			PipelinePassListLoader m_pipelinePassListLoader;
 			PixelFormat m_preferredDepthFormat;

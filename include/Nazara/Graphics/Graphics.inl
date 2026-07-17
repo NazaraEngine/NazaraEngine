@@ -34,12 +34,12 @@ namespace Nz
 		return m_pipelinePassRegistry;
 	}
 
-	inline MaterialPassRegistry& Graphics::GetMaterialPassRegistry()
+	inline NameRegistry& Graphics::GetMaterialPassRegistry()
 	{
 		return m_materialPassRegistry;
 	}
 
-	inline const MaterialPassRegistry& Graphics::GetMaterialPassRegistry() const
+	inline const NameRegistry& Graphics::GetMaterialPassRegistry() const
 	{
 		return m_materialPassRegistry;
 	}
@@ -103,6 +103,16 @@ namespace Nz
 	{
 		assert(m_renderPassCache);
 		return *m_renderPassCache;
+	}
+
+	inline NameRegistry& Graphics::GetRenderQueueRegistry()
+	{
+		return m_renderQueueRegistry;
+	}
+
+	inline const NameRegistry& Graphics::GetRenderQueueRegistry() const
+	{
+		return m_renderQueueRegistry;
 	}
 
 	inline TextureSamplerCache& Graphics::GetSamplerCache()

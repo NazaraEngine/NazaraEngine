@@ -1,0 +1,40 @@
+// Copyright (C) 2026 Jérôme "SirLynix" Leclercq (lynix680@gmail.com)
+// This file is part of the "Nazara Engine - Graphics module"
+// For conditions of distribution and use, see copyright notice in Export.hpp
+
+#pragma once
+
+#ifndef NAZARA_GRAPHICS_MATERIALPASSREGISTRY_HPP
+#define NAZARA_GRAPHICS_MATERIALPASSREGISTRY_HPP
+
+#include <NazaraUtils/Prerequisites.hpp>
+#include <NazaraUtils/StringHash.hpp>
+#include <list>
+#include <string>
+#include <unordered_map>
+
+namespace Nz
+{
+	class NameRegistry
+	{
+		public:
+			NameRegistry() = default;
+			NameRegistry(const NameRegistry&) = default;
+			NameRegistry(NameRegistry&&) = default;
+			~NameRegistry() = default;
+
+			inline std::size_t GetIndex(std::string_view name) const;
+
+			inline std::size_t Register(std::string name);
+
+			NameRegistry& operator=(const NameRegistry&) = default;
+			NameRegistry& operator=(NameRegistry&&) = default;
+
+		private:
+			std::unordered_map<std::string, std::size_t, StringHash<>, std::equal_to<>> m_indices;
+	};
+}
+
+#include <Nazara/Graphics/NameRegistry.inl>
+
+#endif // NAZARA_GRAPHICS_MATERIALPASSREGISTRY_HPP

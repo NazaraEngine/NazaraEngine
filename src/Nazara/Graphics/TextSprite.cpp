@@ -23,41 +23,44 @@ namespace Nz
 			m_material = MaterialInstance::GetDefault(MaterialType::Basic, MaterialInstancePreset::AlphaBlended);
 	}
 
-	void TextSprite::BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, UInt32 renderMask, std::vector<RenderElementOwner>& elements) const
+	void TextSprite::BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, UInt32 renderMask, ElementCallback elementCallback) const
 	{
-		const auto& materialPipeline = m_material->GetPipeline(passIndex);
-		if (!materialPipeline)
-			return;
-
-		MaterialPassFlags passFlags = m_material->GetPassFlags(passIndex);
-
-		const std::shared_ptr<VertexDeclaration>& vertexDeclaration = VertexDeclaration::Get(VertexLayout::XYZ_Color_UV);
-
-		RenderPipelineInfo::VertexBufferData vertexBufferData = {
-			0,
-			vertexDeclaration
-		};
-		const auto& renderPipeline = materialPipeline->GetRenderPipeline(&vertexBufferData, 1);
-
-		for (auto& pair : m_renderInfos)
+		elementCallback(m_material->GetRenderQueueMask(), [&](std::size_t passIndex, std::vector<RenderElementOwner>& elements)
 		{
-			const RenderKey& key = pair.first;
-			RenderIndices& indices = pair.second;
+			const auto& materialPipeline = m_material->GetPipeline(passIndex);
+			if (!materialPipeline)
+				return;
 
-			if (indices.count > 0)
+			MaterialPassFlags passFlags = m_material->GetPassFlags(passIndex);
+
+			const std::shared_ptr<VertexDeclaration>& vertexDeclaration = VertexDeclaration::Get(VertexLayout::XYZ_Color_UV);
+
+			RenderPipelineInfo::VertexBufferData vertexBufferData = {
+				0,
+				vertexDeclaration
+			};
+			const auto& renderPipeline = materialPipeline->GetRenderPipeline(&vertexBufferData, 1);
+
+			for (auto& pair : m_renderInfos)
 			{
-				const VertexStruct_XYZ_Color_UV* vertices = &m_vertices[indices.first * 4];
-				std::size_t spriteCount = indices.count;
-				do
+				const RenderKey& key = pair.first;
+				RenderIndices& indices = pair.second;
+
+				if (indices.count > 0)
 				{
-					std::size_t spriteBatch = std::min<std::size_t>(spriteCount, RenderSpriteChain::MaxSpritePerChain);
-					elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer() + key.renderOrder, m_atlasTextures[indices.atlasIndex].materialProxy, passFlags, renderPipeline, elementData.instanceIndex, vertexDeclaration, spriteBatch, vertices, *elementData.scissorBox, renderMask));
-					vertices += 4 * spriteBatch;
-					spriteCount -= spriteBatch;
+					const VertexStruct_XYZ_Color_UV* vertices = &m_vertices[indices.first * 4];
+					std::size_t spriteCount = indices.count;
+					do
+					{
+						std::size_t spriteBatch = std::min<std::size_t>(spriteCount, RenderSpriteChain::MaxSpritePerChain);
+						elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer() + key.renderOrder, m_atlasTextures[indices.atlasIndex].materialProxy, passFlags, renderPipeline, elementData.instanceIndex, vertexDeclaration, spriteBatch, vertices, *elementData.scissorBox, renderMask));
+						vertices += 4 * spriteBatch;
+						spriteCount -= spriteBatch;
+					}
+					while (spriteCount > 0);
 				}
-				while (spriteCount > 0);
 			}
-		}
+		});
 	}
 
 	const std::shared_ptr<MaterialInstance>& TextSprite::GetMaterial(std::size_t i) const

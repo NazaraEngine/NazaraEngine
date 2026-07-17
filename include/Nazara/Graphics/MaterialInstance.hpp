@@ -62,6 +62,7 @@ namespace Nz
 
 			void DisablePass(std::string_view passName);
 			inline void DisablePass(std::size_t passIndex);
+
 			void EnablePass(std::string_view passName, bool enable = true);
 			inline void EnablePass(std::size_t passIndex, bool enable = true);
 
@@ -82,6 +83,8 @@ namespace Nz
 			inline const std::shared_ptr<const Material>& GetParentMaterial() const;
 			inline MaterialPassFlags GetPassFlags(std::size_t passIndex) const;
 			const std::shared_ptr<MaterialPipeline>& GetPipeline(std::size_t passIndex) const;
+
+			inline UInt32 GetRenderQueueMask() const;
 
 			const ShaderBinding& GetShaderBinding(RenderResources& renderResources) const override;
 
@@ -120,6 +123,11 @@ namespace Nz
 			void UpdatePassFlags(std::string_view passName, MaterialPassFlags materialFlags);
 			inline void UpdatePassFlags(std::size_t passName, MaterialPassFlags materialFlags);
 
+			void UpdatePassRenderQueue(std::string_view passName, std::string_view renderQueue);
+			void UpdatePassRenderQueue(std::string_view passName, UInt32 renderQueueIndex);
+			void UpdatePassRenderQueue(std::size_t passIndex, std::string_view renderQueue);
+			inline void UpdatePassRenderQueue(std::size_t passIndex, UInt32 renderQueueIndex);
+
 			void UpdatePassStates(std::string_view passName, FunctionRef<bool(RenderStates&)> stateUpdater);
 			template<typename F> void UpdatePassStates(std::size_t passIndex, F&& stateUpdater);
 
@@ -150,6 +158,7 @@ namespace Nz
 		private:
 			inline void InvalidatePassPipeline(std::size_t passIndex);
 			inline void InvalidateShaderBinding();
+			inline void RecomputeRenderQueueMask();
 
 			struct PassShader
 			{
@@ -164,6 +173,7 @@ namespace Nz
 				mutable std::shared_ptr<MaterialPipeline> pipeline;
 				std::vector<PassShader> shaders;
 				MaterialPassFlags flags;
+				UInt32 renderQueue;
 				bool enabled = false;
 			};
 
@@ -206,6 +216,7 @@ namespace Nz
 			std::vector<UniformBuffer> m_uniformBuffers;
 			mutable ShaderBindingPtr m_shaderBinding;
 			const MaterialSettings& m_materialSettings;
+			UInt32 m_renderQueueMask;
 			mutable bool m_isShaderBindingInvalidated;
 	};
 }

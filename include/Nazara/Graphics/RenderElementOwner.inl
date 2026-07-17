@@ -2,9 +2,15 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
+#include <NazaraUtils/Constants.hpp>
 
 namespace Nz
 {
+	inline RenderElementOwner::RenderElementOwner() :
+	m_poolIndex(MaxValue())
+	{
+	}
+
 	inline RenderElementOwner::RenderElementOwner(RenderElementPoolBase* pool, std::size_t poolIndex, RenderElement* element) :
 	m_poolIndex(poolIndex),
 	m_element(element),
@@ -31,5 +37,10 @@ namespace Nz
 	inline const RenderElement* RenderElementOwner::operator->() const
 	{
 		return m_element;
+	}
+
+	inline RenderElementOwner::operator bool() const
+	{
+		return m_pool != nullptr;
 	}
 }

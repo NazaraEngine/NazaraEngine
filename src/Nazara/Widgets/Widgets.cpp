@@ -21,19 +21,16 @@ namespace Nz
 
 	void Widgets::CreateDefaultMaterials()
 	{
-		m_opaqueMaterial = MaterialInstance::Instantiate(MaterialType::Basic);
+		m_opaqueMaterial = MaterialInstance::Instantiate(MaterialType::Basic, MaterialInstancePreset::UI);
 		m_opaqueMaterial->UpdatePassesStates([](RenderStates& renderStates)
 		{
 			renderStates.scissorTest = true;
 			return true;
 		});
 
+		// Apply UI in second since it changes render queues to UI
 		m_transparentMaterial = MaterialInstance::Instantiate(MaterialType::Basic, MaterialInstancePreset::AlphaBlended);
-		m_transparentMaterial->UpdatePassesStates([](RenderStates& renderStates)
-		{
-			renderStates.scissorTest = true;
-			return true;
-		});
+		m_transparentMaterial->ApplyPreset(MaterialInstancePreset::UI);
 	}
 
 	Widgets* Widgets::s_instance = nullptr;

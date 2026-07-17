@@ -33,7 +33,6 @@ namespace Nz
 			inline const RenderBuffer* GetIndexBuffer() const;
 			inline std::size_t GetIndexCount() const;
 			inline IndexType GetIndexType() const;
-			inline UInt32 GetInstanceIndex() const;
 			inline const MaterialProxy& GetMaterialProxy() const;
 			inline const RenderPipeline* GetRenderPipeline() const;
 			inline const Recti& GetScissorBox() const;

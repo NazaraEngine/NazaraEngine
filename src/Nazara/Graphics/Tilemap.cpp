@@ -43,7 +43,7 @@ namespace Nz
 		UpdateAABB();
 	}
 
-	void Tilemap::BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, UInt32 renderMask, std::vector<RenderElementOwner>& elements) const
+	void Tilemap::BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, UInt32 renderMask, ElementCallback elementCallback) const
 	{
 		if (m_shouldRebuildVertices)
 			UpdateVertices();
@@ -62,23 +62,26 @@ namespace Nz
 			if (!layer.enabledTiles.TestAny())
 				continue;
 
-			const auto& materialPipeline = layer.material->GetPipeline(passIndex);
-			if (!materialPipeline)
-				return;
-
-			MaterialPassFlags passFlags = layer.material->GetPassFlags(passIndex);
-
-			const auto& renderPipeline = materialPipeline->GetRenderPipeline(&vertexBufferData, 1);
-
-			std::size_t spriteCount = layer.enabledTileCount;
-			do
+			elementCallback(layer.material->GetRenderQueueMask(), [&](std::size_t passIndex, std::vector<RenderElementOwner>& elements)
 			{
-				std::size_t spriteBatch = std::min<std::size_t>(spriteCount, RenderSpriteChain::MaxSpritePerChain);
-				elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer(), layer.material, passFlags, renderPipeline, elementData.instanceIndex, vertexDeclaration, spriteBatch, vertices, *elementData.scissorBox, renderMask));
-				vertices += 4 * spriteBatch;
-				spriteCount -= spriteBatch;
-			}
-			while (spriteCount > 0);
+				const auto& materialPipeline = layer.material->GetPipeline(passIndex);
+				if (!materialPipeline)
+					return;
+
+				MaterialPassFlags passFlags = layer.material->GetPassFlags(passIndex);
+
+				const auto& renderPipeline = materialPipeline->GetRenderPipeline(&vertexBufferData, 1);
+
+				std::size_t spriteCount = layer.enabledTileCount;
+				do
+				{
+					std::size_t spriteBatch = std::min<std::size_t>(spriteCount, RenderSpriteChain::MaxSpritePerChain);
+					elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer(), layer.material, passFlags, renderPipeline, elementData.instanceIndex, vertexDeclaration, spriteBatch, vertices, *elementData.scissorBox, renderMask));
+					vertices += 4 * spriteBatch;
+					spriteCount -= spriteBatch;
+				}
+				while (spriteCount > 0);
+			});
 		}
 	}
 

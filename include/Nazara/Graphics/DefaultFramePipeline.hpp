@@ -63,7 +63,7 @@ namespace Nz
 			const std::shared_ptr<RenderBuffer>& GetInstanceBuffer() const override;
 			const std::shared_ptr<RenderBuffer>& GetPointLightBuffer() const override;
 			const std::shared_ptr<RenderBuffer>& GetPointShadowMappingBuffer() const override;
-			RenderQueue& GetRenderQueue(std::size_t materialPass) override;
+			RenderQueue& GetRenderQueue(std::size_t renderQueueIndex) override;
 			ShaderBindingCache* GetShaderBindingCache() const override;
 			const std::shared_ptr<Texture>& GetShadowAtlasTexture() const override;
 			const std::shared_ptr<RenderBuffer>& GetSpotLightBuffer() const override;
@@ -98,6 +98,11 @@ namespace Nz
 
 			DefaultFramePipeline& operator=(const DefaultFramePipeline&) = delete;
 			DefaultFramePipeline& operator=(DefaultFramePipeline&&) = delete;
+
+		protected:
+			void BuildRenderQueues() override;
+
+			void RegisterRenderQueue(std::string_view renderQueueName, std::string_view materialPass, RenderQueueFlags flags = {});
 
 		private:
 			struct LightData;

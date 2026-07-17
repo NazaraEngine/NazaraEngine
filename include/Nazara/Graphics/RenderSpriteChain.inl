@@ -2,14 +2,12 @@
 // This file is part of the "Nazara Engine - Graphics module"
 // For conditions of distribution and use, see copyright notice in Export.hpp
 
-#include <Nazara/Graphics/Algorithm.hpp>
-#include <Nazara/Graphics/MaterialPass.hpp>
 #include <NazaraUtils/Assert.hpp>
 
 namespace Nz
 {
 	inline RenderSpriteChain::RenderSpriteChain(Int32 renderLayer, std::shared_ptr<MaterialProxy> materialProxy, MaterialPassFlags materialFlags, std::shared_ptr<RenderPipeline> renderPipeline, UInt32 instanceIndex, std::shared_ptr<VertexDeclaration> vertexDeclaration, std::size_t spriteCount, const void* spriteData, const Recti& scissorBox, UInt32 renderMask) :
-	RenderElement(BasicRenderElement::SpriteChain, renderLayer, renderMask),
+	RenderElement(BasicRenderElement::SpriteChain, instanceIndex, renderLayer, renderMask),
 	m_materialProxy(std::move(materialProxy)),
 	m_renderPipeline(std::move(renderPipeline)),
 	m_vertexDeclaration(std::move(vertexDeclaration)),
@@ -20,11 +18,6 @@ namespace Nz
 	m_instanceIndex(instanceIndex)
 	{
 		NazaraAssert(spriteCount < MaxSpritePerChain);
-	}
-
-	inline UInt32 RenderSpriteChain::GetInstanceIndex() const
-	{
-		return m_instanceIndex;
 	}
 
 	inline const MaterialProxy& RenderSpriteChain::GetMaterialProxy() const

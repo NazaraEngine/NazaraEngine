@@ -29,7 +29,7 @@ namespace Nz
 			Tilemap(Tilemap&&) noexcept = default;
 			~Tilemap() = default;
 
-			void BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, UInt32 renderMask, std::vector<RenderElementOwner>& elements) const override;
+			void BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, UInt32 renderMask, ElementCallback elementCallback) const override;
 
 			inline void DisableTile(const Vector2ui& tilePos);
 			inline void DisableTiles();

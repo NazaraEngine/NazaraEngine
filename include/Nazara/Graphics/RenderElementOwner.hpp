@@ -19,6 +19,7 @@ namespace Nz
 	class NAZARA_GRAPHICS_API RenderElementOwner
 	{
 		public:
+			inline RenderElementOwner();
 			inline RenderElementOwner(RenderElementPoolBase* pool, std::size_t poolIndex, RenderElement* element);
 			RenderElementOwner(const RenderElementOwner&) = delete;
 			RenderElementOwner(RenderElementOwner&&) noexcept = default;
@@ -29,6 +30,8 @@ namespace Nz
 
 			inline RenderElement* operator->();
 			inline const RenderElement* operator->() const;
+
+			inline explicit operator bool() const;
 
 			RenderElementOwner& operator=(const RenderElementOwner&) = delete;
 			RenderElementOwner& operator=(RenderElementOwner&&) noexcept = default;
