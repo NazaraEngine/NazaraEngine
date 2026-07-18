@@ -8,21 +8,12 @@
 #define NAZARA_GRAPHICS_MATERIALPASS_HPP
 
 #include <NazaraUtils/Prerequisites.hpp>
-#include <Nazara/Core/Color.hpp>
-#include <Nazara/Core/ObjectLibrary.hpp>
-#include <Nazara/Core/UniformBuffer.hpp>
 #include <Nazara/Graphics/Enums.hpp>
-#include <Nazara/Graphics/Export.hpp>
 #include <Nazara/Graphics/MaterialPipeline.hpp>
-#include <Nazara/Renderer/RenderBufferView.hpp>
-#include <Nazara/Renderer/Texture.hpp>
-#include <Nazara/Renderer/TextureSampler.hpp>
-#include <NazaraUtils/Signal.hpp>
+#include <NazaraUtils/Constants.hpp>
 #include <NZSL/Ast/ConstantValue.hpp>
 #include <NZSL/Ast/Option.hpp>
-#include <array>
 #include <memory>
-#include <string>
 #include <vector>
 
 namespace Nz
@@ -31,6 +22,7 @@ namespace Nz
 	{
 		MaterialPassFlags flags;
 		RenderStates states;
+		UInt32 renderQueue = MaxValue(); //< Should be set
 		std::unordered_map<nzsl::Ast::OptionHash, nzsl::Ast::ConstantSingleValue> options;
 		std::vector<std::shared_ptr<UberShader>> shaders;
 	};

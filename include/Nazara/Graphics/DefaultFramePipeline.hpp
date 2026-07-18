@@ -11,19 +11,13 @@
 #include <NazaraUtils/Prerequisites.hpp>
 #include <Nazara/Graphics/BakedFrameGraph.hpp>
 #include <Nazara/Graphics/Camera.hpp>
-#include <Nazara/Graphics/DebugDrawPipelinePass.hpp>
 #include <Nazara/Graphics/Export.hpp>
 #include <Nazara/Graphics/FramePipeline.hpp>
 #include <Nazara/Graphics/GpuDynamicArray.hpp>
 #include <Nazara/Graphics/InstancedRenderable.hpp>
 #include <Nazara/Graphics/Light.hpp>
-#include <Nazara/Graphics/LightShadowData.hpp>
 #include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/MaterialPass.hpp>
-#include <Nazara/Graphics/PostProcessPipelinePass.hpp>
-#include <Nazara/Graphics/RasterPipelinePass.hpp>
-#include <Nazara/Graphics/RenderElement.hpp>
-#include <Nazara/Graphics/RenderQueue.hpp>
 #include <Nazara/Graphics/RenderQueueRegistry.hpp>
 #include <Nazara/Graphics/ShaderBindingCache.hpp>
 #include <Nazara/Graphics/ShadowAtlasPipelinePass.hpp>
@@ -34,7 +28,6 @@
 #include <optional>
 #include <span>
 #include <unordered_map>
-#include <unordered_set>
 #include <vector>
 
 namespace Nz
@@ -63,7 +56,7 @@ namespace Nz
 			const std::shared_ptr<RenderBuffer>& GetInstanceBuffer() const override;
 			const std::shared_ptr<RenderBuffer>& GetPointLightBuffer() const override;
 			const std::shared_ptr<RenderBuffer>& GetPointShadowMappingBuffer() const override;
-			RenderQueue& GetRenderQueue(std::size_t materialPass) override;
+			RenderQueue& GetRenderQueue(std::size_t renderQueueIndex) override;
 			ShaderBindingCache* GetShaderBindingCache() const override;
 			const std::shared_ptr<Texture>& GetShadowAtlasTexture() const override;
 			const std::shared_ptr<RenderBuffer>& GetSpotLightBuffer() const override;
@@ -98,6 +91,11 @@ namespace Nz
 
 			DefaultFramePipeline& operator=(const DefaultFramePipeline&) = delete;
 			DefaultFramePipeline& operator=(DefaultFramePipeline&&) = delete;
+
+		protected:
+			void BuildRenderQueues() override;
+
+			void RegisterRenderQueue(std::string_view renderQueueName, std::string_view materialPass, RenderQueueFlags flags = {});
 
 		private:
 			struct LightData;

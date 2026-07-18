@@ -26,23 +26,26 @@ namespace Nz
 		UpdateVertices();
 	}
 
-	void LinearSlicedSprite::BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, UInt32 renderMask, std::vector<RenderElementOwner>& elements) const
+	void LinearSlicedSprite::BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, UInt32 renderMask, ElementCallback elementCallback) const
 	{
-		const auto& materialPipeline = m_material->GetPipeline(passIndex);
-		if (!materialPipeline)
-			return;
+		elementCallback(m_material->GetRenderQueueMask(), [&](std::size_t passIndex, std::vector<RenderElementOwner>& elements)
+		{
+			const auto& materialPipeline = m_material->GetPipeline(passIndex);
+			if (!materialPipeline)
+				return;
 
-		MaterialPassFlags passFlags = m_material->GetPassFlags(passIndex);
+			MaterialPassFlags passFlags = m_material->GetPassFlags(passIndex);
 
-		const std::shared_ptr<VertexDeclaration>& vertexDeclaration = VertexDeclaration::Get(VertexLayout::XYZ_Color_UV);
+			const std::shared_ptr<VertexDeclaration>& vertexDeclaration = VertexDeclaration::Get(VertexLayout::XYZ_Color_UV);
 
-		RenderPipelineInfo::VertexBufferData vertexBufferData = {
-			0,
-			vertexDeclaration
-		};
-		const auto& renderPipeline = materialPipeline->GetRenderPipeline(&vertexBufferData, 1);
+			RenderPipelineInfo::VertexBufferData vertexBufferData = {
+				0,
+				vertexDeclaration
+			};
+			const auto& renderPipeline = materialPipeline->GetRenderPipeline(&vertexBufferData, 1);
 
-		elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer(), m_material, passFlags, renderPipeline, elementData.instanceIndex, vertexDeclaration, m_spriteCount, m_vertices.data(), *elementData.scissorBox, renderMask));
+			elements.emplace_back(registry.AllocateElement<RenderSpriteChain>(GetRenderLayer(), m_material, passFlags, renderPipeline, elementData.instanceIndex, vertexDeclaration, m_spriteCount, m_vertices.data(), *elementData.scissorBox, renderMask));
+		});
 	}
 
 	const std::shared_ptr<MaterialInstance>& LinearSlicedSprite::GetMaterial(std::size_t materialIndex) const

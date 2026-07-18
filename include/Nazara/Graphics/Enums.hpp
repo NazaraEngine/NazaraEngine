@@ -95,12 +95,13 @@ namespace Nz
 
 	enum class MaterialInstancePreset
 	{
-		AlphaBlended,
 		AdditiveBlended,
+		AlphaBlended,
 		NoDepth,
 		ReverseZ,
+		UI,
 
-		Max = ReverseZ
+		Max = UI
 	};
 
 	template<>
@@ -124,7 +125,7 @@ namespace Nz
 
 	enum class MaterialPassFlag
 	{
-		SortByDistance,
+		SortByDistance, //< Deprecated
 
 		Max = SortByDistance
 	};
@@ -136,6 +137,21 @@ namespace Nz
 	};
 
 	using MaterialPassFlags = Flags<MaterialPassFlag>;
+
+	enum class RenderQueueFlag
+	{
+		SortByDistance,
+
+		Max = SortByDistance
+	};
+
+	template<>
+	struct EnumAsFlags<RenderQueueFlag>
+	{
+		static constexpr RenderQueueFlag max = RenderQueueFlag::Max;
+	};
+
+	using RenderQueueFlags = Flags<RenderQueueFlag>;
 
 	enum class ProjectionType
 	{

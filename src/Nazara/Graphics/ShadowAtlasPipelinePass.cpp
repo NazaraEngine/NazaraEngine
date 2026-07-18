@@ -15,7 +15,7 @@
 
 namespace Nz
 {
-	ShadowAtlasPipelinePass::ShadowAtlasPipelinePass(PassData& passData) :
+	ShadowAtlasPipelinePass::ShadowAtlasPipelinePass(PassData& passData, const std::vector<std::string_view>& renderQueueNames) :
 	m_renderQueueHash(0),
 	m_shadowAtlas(*Graphics::Instance()->GetRenderDevice(), 8192),
 	m_elementRegistry(passData.elementRegistry),
@@ -25,12 +25,14 @@ namespace Nz
 		Graphics* graphics = Graphics::Instance();
 		NazaraAssert(graphics);
 
-		m_passIndex = graphics->GetMaterialPassRegistry().GetPassIndex("ShadowPass");
-
 		BuildCullingPipeline();
+
+		const NameRegistry& renderQueues = Graphics::Instance()->GetRenderQueueRegistry();
+		for (std::string_view renderQueueStr : renderQueueNames)
+			m_renderQueues.push_back(&m_pipeline.GetRenderQueue(renderQueues.GetIndex(renderQueueStr)));
 	}
 
-	void ShadowAtlasPipelinePass::Prepare(FrameData& frameData)
+	void ShadowAtlasPipelinePass::Prepare(FrameData& /*frameData*/)
 	{
 		m_shadowAtlas.Clear();
 		m_pipeline.ForEachShadowCastingLight([&](std::size_t /*lightIndex*/, const Light* /*light*/, LightShadowData* shadowData)
@@ -65,10 +67,8 @@ namespace Nz
 		FramePass& preparePass = frameGraph.AddPass("Shadow atlas prepare");
 		preparePass.SetExecutionCallback([&]
 		{
-			auto& renderQueue = m_pipeline.GetRenderQueue(m_passIndex);
-			renderQueue.UpdateRenderQueue();
-
-			if (renderQueue.GetContentHash() == m_renderQueueHash)
+			std::size_t renderQueueHash = GetRenderQueueHash();
+			if (renderQueueHash == m_renderQueueHash)
 				return FramePassExecution::Skip;
 
 			return FramePassExecution::UpdateAndExecute;
@@ -117,22 +117,24 @@ namespace Nz
 
 					UInt32 renderMask = m_renderMask & shadowViewer.GetRenderMask();
 
-					auto& renderQueue = m_pipeline.GetRenderQueue(m_passIndex);
-					renderQueue.Process(renderMask, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
+					for (RenderQueue* renderQueue : m_renderQueues)
 					{
-						ElementRenderer& elementRenderer = m_elementRegistry.GetElementRenderer(elementType);
+						renderQueue->Process(renderMask, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
+						{
+							ElementRenderer& elementRenderer = m_elementRegistry.GetElementRenderer(elementType);
 
-						if (elementType >= lightData.elementRendererData.size())
-							lightData.elementRendererData.resize(elementType + 1);
+							if (elementType >= lightData.elementRendererData.size())
+								lightData.elementRendererData.resize(elementType + 1);
 
-						if (viewIndex >= lightData.elementRendererData[elementType].size())
-							lightData.elementRendererData[elementType].resize(viewIndex + 1);
+							if (viewIndex >= lightData.elementRendererData[elementType].size())
+								lightData.elementRendererData[elementType].resize(viewIndex + 1);
 
-						if (!lightData.elementRendererData[elementType][viewIndex])
-							lightData.elementRendererData[elementType][viewIndex] = elementRenderer.InstanciateData();
+							if (!lightData.elementRendererData[elementType][viewIndex])
+								lightData.elementRendererData[elementType][viewIndex] = elementRenderer.InstanciateData();
 
-						elementRenderer.Prepare(renderData, sceneData, shadowViewer, *lightData.elementRendererData[elementType][viewIndex], env.renderResources, elementCount, elements);
-					});
+							elementRenderer.Prepare(renderData, sceneData, shadowViewer, *lightData.elementRendererData[elementType][viewIndex], env.renderResources, elementCount, elements);
+						});
+					}
 
 					m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
 					{
@@ -210,11 +212,11 @@ namespace Nz
 			if (m_shadowAtlas.IsEmpty())
 				return FramePassExecution::Skip;
 
-			auto& renderQueue = m_pipeline.GetRenderQueue(m_passIndex);
-			if (renderQueue.GetContentHash() == m_renderQueueHash)
+			std::size_t renderQueueHash = GetRenderQueueHash();
+			if (renderQueueHash == m_renderQueueHash)
 				return FramePassExecution::Execute;
 
-			m_renderQueueHash = renderQueue.GetContentHash();
+			m_renderQueueHash = renderQueueHash;
 			return FramePassExecution::UpdateAndExecute;
 		});
 
@@ -261,12 +263,14 @@ namespace Nz
 
 					UInt32 renderMask = m_renderMask & shadowViewer.GetRenderMask();
 
-					auto& renderQueue = m_pipeline.GetRenderQueue(m_passIndex);
-					renderQueue.Process(renderMask, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
+					for (RenderQueue* renderQueue : m_renderQueues)
 					{
-						ElementRenderer& elementRenderer = m_elementRegistry.GetElementRenderer(elementType);
-						elementRenderer.Render(renderData, sceneData, shadowViewer, *lightData.elementRendererData[elementType][viewIndex], env.renderResources, builder, elementCount, elements);
-					});
+						renderQueue->Process(renderMask, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
+						{
+							ElementRenderer& elementRenderer = m_elementRegistry.GetElementRenderer(elementType);
+							elementRenderer.Render(renderData, sceneData, shadowViewer, *lightData.elementRendererData[elementType][viewIndex], env.renderResources, builder, elementCount, elements);
+						});
+					}
 
 					viewIndex++;
 				});
@@ -274,6 +278,28 @@ namespace Nz
 		});
 
 		return renderPass;
+	}
+
+	std::vector<std::string_view> ShadowAtlasPipelinePass::GetRenderQueues(const ParameterList& parameters)
+	{
+		Result<std::string_view, ParameterList::Error> renderQueues = parameters.GetStringViewParameter("RenderQueues");
+		if (!renderQueues.IsOk())
+			throw std::runtime_error("failed to get RasterPipelinePass RenderQueues parameter");
+
+		std::vector<std::string_view> renderQueueNames;
+		SplitStringAny(renderQueues.GetValue(), " +,", [&](std::string_view renderQueue)
+		{
+			if (renderQueue.empty())
+				return true;
+
+			renderQueueNames.push_back(renderQueue);
+			return true;
+		});
+
+		if (!renderQueueNames.empty())
+			throw std::runtime_error("no render queues");
+
+		return renderQueueNames;
 	}
 
 	void ShadowAtlasPipelinePass::BuildCullingPipeline()
@@ -309,5 +335,14 @@ namespace Nz
 			.pipelineLayout = m_computePipelineLayout,
 			.shaderModule = m_frustumCullingShader->Get({})
 		});
+	}
+
+	std::size_t ShadowAtlasPipelinePass::GetRenderQueueHash() const
+	{
+		std::size_t renderQueueHash = 0;
+		for (RenderQueue* renderQueue : m_renderQueues)
+			renderQueueHash ^= renderQueue->GetContentHash() + 0x9e3779b9 + (renderQueueHash << 6) + (renderQueueHash >> 2);
+
+		return renderQueueHash;
 	}
 }

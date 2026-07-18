@@ -128,6 +128,7 @@ namespace Nz
 		RegisterShaderModules();
 		BuildBlitPipeline();
 		RegisterMaterialPasses();
+		RegisterRenderQueues();
 
 		MaterialPipeline::Initialize();
 		BuildDefaultMaterials();
@@ -224,10 +225,17 @@ namespace Nz
 	{
 		using namespace nzsl::Ast::Literals;
 
-		std::size_t depthPassIndex = m_materialPassRegistry.GetPassIndex("DepthPass");
-		std::size_t shadowPassIndex = m_materialPassRegistry.GetPassIndex("ShadowPass");
-		std::size_t forwardPassIndex = m_materialPassRegistry.GetPassIndex("ForwardPass");
-		std::size_t gbufferPassIndex = m_materialPassRegistry.GetPassIndex("GBufferPass");
+		std::size_t depthPassIndex = m_materialPassRegistry.GetIndex("DepthPass");
+		std::size_t shadowPassIndex = m_materialPassRegistry.GetIndex("ShadowPass");
+		std::size_t forwardPassIndex = m_materialPassRegistry.GetIndex("ForwardPass");
+		std::size_t gbufferPassIndex = m_materialPassRegistry.GetIndex("GBufferPass");
+
+		std::size_t deferredOpaqueIndex = m_renderQueueRegistry.GetIndex("DeferredOpaque");
+		std::size_t depthOpaqueIndex = m_renderQueueRegistry.GetIndex("DepthOpaque");
+		std::size_t forwardOpaqueIndex = m_renderQueueRegistry.GetIndex("ForwardOpaque");
+		std::size_t forwardTransparentIndex = m_renderQueueRegistry.GetIndex("ForwardTransparent");
+		std::size_t shadowIndex = m_renderQueueRegistry.GetIndex("Shadow");
+		std::size_t uiQueueIndex = m_renderQueueRegistry.GetIndex("UI");
 
 		const auto& enabledFeatures = m_renderDevice->GetEnabledFeatures();
 
@@ -239,18 +247,22 @@ namespace Nz
 			MaterialPass forwardPass;
 			forwardPass.states.depthBuffer = true;
 			forwardPass.shaders.push_back(std::make_shared<UberShader>(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, "Material.Basic"));
+			forwardPass.renderQueue = forwardOpaqueIndex;
 			settings.AddPass(forwardPassIndex, forwardPass);
 
 			MaterialPass gbufferPass = forwardPass;
 			gbufferPass.options["ForwardPass"_opt] = false;
+			gbufferPass.renderQueue = deferredOpaqueIndex;
 			settings.AddPass(gbufferPassIndex, gbufferPass);
 
 			MaterialPass depthPass = forwardPass;
 			depthPass.options["DepthPass"_opt] = true;
+			depthPass.renderQueue = depthOpaqueIndex;
 			settings.AddPass(depthPassIndex, depthPass);
 
 			MaterialPass shadowPass = depthPass;
 			shadowPass.options["ShadowPass"_opt] = true;
+			shadowPass.renderQueue = shadowIndex;
 			shadowPass.states.frontFace = FrontFace::Clockwise;
 			shadowPass.states.depthClamp = enabledFeatures.depthClamping;
 			settings.AddPass(shadowPassIndex, shadowPass);
@@ -267,17 +279,21 @@ namespace Nz
 			MaterialPass forwardPass;
 			forwardPass.states.depthBuffer = true;
 			forwardPass.shaders.push_back(std::make_shared<UberShader>(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, "Material.PhysicallyBased"));
+			forwardPass.renderQueue = forwardOpaqueIndex;
 			settings.AddPass(forwardPassIndex, forwardPass);
 
 			MaterialPass gbufferPass = forwardPass;
 			gbufferPass.options["ForwardPass"_opt] = false;
+			gbufferPass.renderQueue = deferredOpaqueIndex;
 			settings.AddPass(gbufferPassIndex, gbufferPass);
 
 			MaterialPass depthPass = forwardPass;
 			depthPass.options["DepthPass"_opt] = true;
+			depthPass.renderQueue = depthOpaqueIndex;
 			settings.AddPass(depthPassIndex, depthPass);
 
 			MaterialPass shadowPass = depthPass;
+			shadowPass.renderQueue = shadowIndex;
 			shadowPass.options["ShadowPass"_opt] = true;
 			shadowPass.states.frontFace = FrontFace::Clockwise;
 			shadowPass.states.depthClamp = enabledFeatures.depthClamping;
@@ -293,19 +309,23 @@ namespace Nz
 			PredefinedMaterials::AddPhongSettings(settings);
 
 			MaterialPass forwardPass;
+			forwardPass.renderQueue = forwardOpaqueIndex;
 			forwardPass.states.depthBuffer = true;
 			forwardPass.shaders.push_back(std::make_shared<UberShader>(nzsl::ShaderStageType::Fragment | nzsl::ShaderStageType::Vertex, "Material.Phong"));
 			settings.AddPass(forwardPassIndex, forwardPass);
 
 			MaterialPass gbufferPass = forwardPass;
 			gbufferPass.options["ForwardPass"_opt] = false;
+			gbufferPass.renderQueue = deferredOpaqueIndex;
 			settings.AddPass(gbufferPassIndex, gbufferPass);
 
 			MaterialPass depthPass = forwardPass;
 			depthPass.options["DepthPass"_opt] = true;
+			depthPass.renderQueue = depthOpaqueIndex;
 			settings.AddPass(depthPassIndex, depthPass);
 
 			MaterialPass shadowPass = depthPass;
+			shadowPass.renderQueue = shadowIndex;
 			shadowPass.options["ShadowPass"_opt] = true;
 			shadowPass.states.frontFace = FrontFace::Clockwise;
 			shadowPass.states.depthClamp = enabledFeatures.depthClamping;
@@ -313,6 +333,55 @@ namespace Nz
 
 			m_defaultMaterials.materials[MaterialType::Phong].material = std::make_shared<Material>(std::move(settings), "Material.Phong");
 		}
+
+		m_defaultMaterials.presetModifier[MaterialInstancePreset::AdditiveBlended] = [=](MaterialInstance& matInstance)
+		{
+			if (matInstance.HasPass(depthPassIndex))
+				matInstance.DisablePass(depthPassIndex);
+
+			if (matInstance.HasPass(shadowPassIndex))
+				matInstance.DisablePass(shadowPassIndex);
+
+			if (matInstance.HasPass(forwardPassIndex))
+			{
+				matInstance.UpdatePassStates(forwardPassIndex, [](RenderStates& states)
+				{
+					states.depthWrite = false;
+					states.blending = true;
+					states.blend.modeColor = BlendEquation::Add;
+					states.blend.modeAlpha = BlendEquation::Add;
+					states.blend.srcColor = BlendFunc::SrcAlpha;
+					states.blend.dstColor = BlendFunc::One;
+					states.blend.srcAlpha = BlendFunc::One;
+					states.blend.dstAlpha = BlendFunc::Zero;
+				});
+			}
+		};
+
+		m_defaultMaterials.presetModifier[MaterialInstancePreset::AlphaBlended] = [=](MaterialInstance& matInstance)
+		{
+			if (matInstance.HasPass(depthPassIndex))
+				matInstance.DisablePass(depthPassIndex);
+
+			if (matInstance.HasPass(shadowPassIndex))
+				matInstance.DisablePass(shadowPassIndex);
+
+			if (matInstance.HasPass(forwardPassIndex))
+			{
+				matInstance.UpdatePassRenderQueue(forwardPassIndex, forwardTransparentIndex);
+				matInstance.UpdatePassStates(forwardPassIndex, [](RenderStates& states)
+				{
+					states.depthWrite = false;
+					states.blending = true;
+					states.blend.modeColor = BlendEquation::Add;
+					states.blend.modeAlpha = BlendEquation::Add;
+					states.blend.srcColor = BlendFunc::SrcAlpha;
+					states.blend.dstColor = BlendFunc::InvSrcAlpha;
+					states.blend.srcAlpha = BlendFunc::One;
+					states.blend.dstAlpha = BlendFunc::One;
+				});
+			}
+		};
 
 		m_defaultMaterials.presetModifier[MaterialInstancePreset::NoDepth] = [=](MaterialInstance& matInstance)
 		{
@@ -341,53 +410,11 @@ namespace Nz
 			// TODO: Reverse depth for shadow pass?
 		};
 
-		m_defaultMaterials.presetModifier[MaterialInstancePreset::AlphaBlended] = [=](MaterialInstance& matInstance)
+		m_defaultMaterials.presetModifier[MaterialInstancePreset::UI] = [=](MaterialInstance& matInstance)
 		{
-			if (matInstance.HasPass(depthPassIndex))
-				matInstance.DisablePass(depthPassIndex);
-
-			if (matInstance.HasPass(shadowPassIndex))
-				matInstance.DisablePass(shadowPassIndex);
-
-			if (matInstance.HasPass(forwardPassIndex))
-			{
-				matInstance.UpdatePassFlags(forwardPassIndex, MaterialPassFlag::SortByDistance);
-				matInstance.UpdatePassStates(forwardPassIndex, [](RenderStates& states)
-				{
-					states.depthWrite = false;
-					states.blending = true;
-					states.blend.modeColor = BlendEquation::Add;
-					states.blend.modeAlpha = BlendEquation::Add;
-					states.blend.srcColor = BlendFunc::SrcAlpha;
-					states.blend.dstColor = BlendFunc::InvSrcAlpha;
-					states.blend.srcAlpha = BlendFunc::One;
-					states.blend.dstAlpha = BlendFunc::One;
-				});
-			}
-		};
-
-		m_defaultMaterials.presetModifier[MaterialInstancePreset::AdditiveBlended] = [=](MaterialInstance& matInstance)
-		{
-			if (matInstance.HasPass(depthPassIndex))
-				matInstance.DisablePass(depthPassIndex);
-
-			if (matInstance.HasPass(shadowPassIndex))
-				matInstance.DisablePass(shadowPassIndex);
-
-			if (matInstance.HasPass(forwardPassIndex))
-			{
-				matInstance.UpdatePassStates(forwardPassIndex, [](RenderStates& states)
-				{
-					states.depthWrite = false;
-					states.blending = true;
-					states.blend.modeColor = BlendEquation::Add;
-					states.blend.modeAlpha = BlendEquation::Add;
-					states.blend.srcColor = BlendFunc::SrcAlpha;
-					states.blend.dstColor = BlendFunc::One;
-					states.blend.srcAlpha = BlendFunc::One;
-					states.blend.dstAlpha = BlendFunc::Zero;
-				});
-			}
+			matInstance.UpdatePassRenderQueue(depthPassIndex, uiQueueIndex);
+			matInstance.UpdatePassRenderQueue(forwardPassIndex, uiQueueIndex);
+			matInstance.UpdatePassRenderQueue(shadowPassIndex, uiQueueIndex);
 		};
 	}
 
@@ -407,7 +434,7 @@ namespace Nz
 		});
 
 		ParameterList passParameters;
-		passParameters.SetParameter("MatPassIndex", static_cast<long long>(m_materialPassRegistry.GetPassIndex("ForwardPass")));
+		passParameters.SetParameter("RenderQueues", "ForwardOpaque+ForwardTransparent+UI");
 
 		std::size_t forwardPass = m_defaultPipelinePasses->AddPass("ForwardPass", m_pipelinePassRegistry.GetPassIndex("Raster"), std::move(passParameters));
 
@@ -490,10 +517,10 @@ namespace Nz
 
 	void Graphics::RegisterMaterialPasses()
 	{
-		m_materialPassRegistry.RegisterPass("ForwardPass");
-		m_materialPassRegistry.RegisterPass("DepthPass");
-		m_materialPassRegistry.RegisterPass("ShadowPass");
-		m_materialPassRegistry.RegisterPass("GBufferPass");
+		m_materialPassRegistry.Register("ForwardPass");
+		m_materialPassRegistry.Register("DepthPass");
+		m_materialPassRegistry.Register("ShadowPass");
+		m_materialPassRegistry.Register("GBufferPass");
 	}
 
 	void Graphics::RegisterPipelinePasses()
@@ -503,6 +530,16 @@ namespace Nz
 		m_pipelinePassRegistry.RegisterPass<LightingPipelinePass>("Lighting", { "Albedo", "Normal", "Depth" }, { "Output" });
 		m_pipelinePassRegistry.RegisterPass<PostProcessPipelinePass>("PostProcess", { "Input0", "Input1", "Input2", "Input3", "Input4", "Input5", "Input6", "Input7" }, { "Output0", "Output1", "Output2", "Output3", "Output4", "Output5", "Output6", "Output7" });
 		m_pipelinePassRegistry.RegisterPass<RasterPipelinePass>("Raster", { "Input" }, { "Output0", "Output1", "Output2", "Output3", "Output4", "Output5", "Output6", "Output7" });
+	}
+
+	void Graphics::RegisterRenderQueues()
+	{
+		m_renderQueueRegistry.Register("DeferredOpaque");
+		m_renderQueueRegistry.Register("DepthOpaque");
+		m_renderQueueRegistry.Register("ForwardOpaque");
+		m_renderQueueRegistry.Register("ForwardTransparent");
+		m_renderQueueRegistry.Register("Shadow");
+		m_renderQueueRegistry.Register("UI");
 	}
 
 	void Graphics::RegisterShaderModules()

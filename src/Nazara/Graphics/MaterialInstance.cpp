@@ -52,6 +52,7 @@ namespace Nz
 			auto& pass = m_passes[i];
 			pass.enabled = true;
 			pass.flags = passSetting.flags;
+			pass.renderQueue = passSetting.renderQueue;
 
 			static_cast<RenderStates&>(pass.pipelineInfo) = passSetting.states;
 
@@ -69,6 +70,8 @@ namespace Nz
 				pipelineShaderEntry.uberShader = uberShader;
 			}
 		}
+
+		RecomputeRenderQueueMask();
 
 		m_storageBufferBindings.resize(m_parent->GetStorageBufferCount());
 		m_textureBinding.resize(m_parent->GetTextureCount());
@@ -96,20 +99,25 @@ namespace Nz
 	m_textureBinding(material.m_textureBinding),
 	m_textureOverride(material.m_textureOverride),
 	m_materialSettings(material.m_materialSettings),
+	m_renderQueueMask(material.m_renderQueueMask),
 	m_isShaderBindingInvalidated(true)
 	{
 		m_passes.resize(material.m_passes.size());
-		for (std::size_t i = 0; i < m_passes.size(); ++i)
+		for (std::size_t passIndex = 0; passIndex < m_passes.size(); ++passIndex)
 		{
-			m_passes[i].enabled = material.m_passes[i].enabled;
-			m_passes[i].flags = material.m_passes[i].flags;
-			m_passes[i].pipeline = material.m_passes[i].pipeline;
-			m_passes[i].pipelineInfo = material.m_passes[i].pipelineInfo;
-			m_passes[i].shaders.resize(material.m_passes[i].shaders.size());
-			for (std::size_t j = 0; j < m_passes[i].shaders.size(); ++j)
+			const PassData& srcPassData = material.m_passes[passIndex];
+
+			PassData& passData = m_passes[passIndex];
+			passData.enabled = srcPassData.enabled;
+			passData.flags = srcPassData.flags;
+			passData.pipeline = srcPassData.pipeline;
+			passData.pipelineInfo = srcPassData.pipelineInfo;
+			passData.renderQueue = srcPassData.renderQueue;
+			passData.shaders.resize(srcPassData.shaders.size());
+			for (std::size_t shaderIndex = 0; shaderIndex < passData.shaders.size(); ++shaderIndex)
 			{
-				m_passes[i].shaders[j].shader = material.m_passes[i].shaders[j].shader;
-				m_passes[i].shaders[j].onShaderUpdated.Connect(m_passes[i].shaders[j].shader->OnShaderUpdated, [this, passIndex = i](UberShader*)
+				passData.shaders[shaderIndex].shader = srcPassData.shaders[shaderIndex].shader;
+				passData.shaders[shaderIndex].onShaderUpdated.Connect(passData.shaders[shaderIndex].shader->OnShaderUpdated, [this, passIndex = passIndex](UberShader*)
 				{
 					InvalidatePassPipeline(passIndex);
 				});
@@ -146,13 +154,13 @@ namespace Nz
 
 	void MaterialInstance::DisablePass(std::string_view passName)
 	{
-		std::size_t passIndex = Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex(passName);
+		std::size_t passIndex = Graphics::Instance()->GetMaterialPassRegistry().GetIndex(passName);
 		return DisablePass(passIndex);
 	}
 
 	void MaterialInstance::EnablePass(std::string_view passName, bool enable)
 	{
-		std::size_t passIndex = Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex(passName);
+		std::size_t passIndex = Graphics::Instance()->GetMaterialPassRegistry().GetIndex(passName);
 		return EnablePass(passIndex, enable);
 	}
 
@@ -328,7 +336,7 @@ namespace Nz
 
 	bool MaterialInstance::HasPass(std::string_view passName) const
 	{
-		std::size_t passIndex = Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex(passName);
+		std::size_t passIndex = Graphics::Instance()->GetMaterialPassRegistry().GetIndex(passName);
 		return HasPass(passIndex);
 	}
 
@@ -426,13 +434,37 @@ namespace Nz
 
 	void MaterialInstance::UpdatePassFlags(std::string_view passName, MaterialPassFlags materialFlags)
 	{
-		std::size_t passIndex = Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex(passName);
+		std::size_t passIndex = Graphics::Instance()->GetMaterialPassRegistry().GetIndex(passName);
 		return UpdatePassFlags(passIndex, materialFlags);
+	}
+
+	void MaterialInstance::UpdatePassRenderQueue(std::string_view passName, std::string_view renderQueues)
+	{
+		std::size_t passIndex = Graphics::Instance()->GetMaterialPassRegistry().GetIndex(passName);
+		return UpdatePassRenderQueue(passIndex, renderQueues);
+	}
+
+	void MaterialInstance::UpdatePassRenderQueue(std::string_view passName, UInt32 renderQueueIndex)
+	{
+		std::size_t passIndex = Graphics::Instance()->GetMaterialPassRegistry().GetIndex(passName);
+		return UpdatePassRenderQueue(passIndex, renderQueueIndex);
+	}
+
+	void MaterialInstance::UpdatePassRenderQueue(std::size_t passIndex, std::string_view renderQueue)
+	{
+		std::size_t renderQueueIndex = Graphics::Instance()->GetRenderQueueRegistry().GetIndex(renderQueue);
+
+		assert(passIndex < m_passes.size());
+		if (m_passes[passIndex].renderQueue != renderQueueIndex)
+		{
+			m_passes[passIndex].renderQueue = renderQueueIndex;
+			InvalidatePassPipeline(passIndex);
+		}
 	}
 
 	void MaterialInstance::UpdatePassStates(std::string_view passName, FunctionRef<bool(RenderStates&)> stateUpdater)
 	{
-		std::size_t passIndex = Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex(passName);
+		std::size_t passIndex = Graphics::Instance()->GetMaterialPassRegistry().GetIndex(passName);
 		return UpdatePassStates(passIndex, stateUpdater);
 	}
 
@@ -440,7 +472,7 @@ namespace Nz
 	{
 		auto& materialPassRegistry = Graphics::Instance()->GetMaterialPassRegistry();
 		for (std::string_view passName : passesName)
-			UpdatePassStates(materialPassRegistry.GetPassIndex(passName), stateUpdater);
+			UpdatePassStates(materialPassRegistry.GetIndex(passName), stateUpdater);
 	}
 
 	void MaterialInstance::UpdateStorageBufferBinding(std::size_t storageBufferBinding, std::shared_ptr<RenderBuffer> storageBuffer)

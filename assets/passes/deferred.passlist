@@ -19,7 +19,7 @@ passlist "Deferred Passlist"
     {
         impl "Raster"
         {
-            MatPass "GBufferPass"
+            RenderQueues "DeferredOpaque"
         }
 
         output "Output0" "GBuffer0"

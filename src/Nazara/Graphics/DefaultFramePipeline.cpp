@@ -9,6 +9,7 @@
 #include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/PipelineViewer.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
+#include <Nazara/Graphics/RenderQueue.hpp>
 #include <Nazara/Graphics/RenderTarget.hpp>
 #include <Nazara/Graphics/TextureAsset.hpp>
 #include <Nazara/Math/Frustum.hpp>
@@ -119,32 +120,15 @@ namespace Nz
 		return m_pointShadowAtlasEntries.GetBuffer();
 	}
 
-	auto DefaultFramePipeline::GetRenderQueue(std::size_t materialPass) -> RenderQueue&
+	auto DefaultFramePipeline::GetRenderQueue(std::size_t renderQueueIndex) -> RenderQueue&
 	{
-		if (materialPass >= m_renderQueues.size())
-			m_renderQueues.resize(materialPass + 1);
+		if NAZARA_UNLIKELY(m_renderQueues.empty())
+			BuildRenderQueues();
 
-		if (!m_renderQueues[materialPass])
-		{
-			m_renderQueues[materialPass] = std::make_unique<RenderQueue>(m_elementRegistry, materialPass);
+		if NAZARA_UNLIKELY(renderQueueIndex >= m_renderQueues.size() || !m_renderQueues[renderQueueIndex])
+			throw std::runtime_error("invalid render queue");
 
-			for (const RenderableData& renderableData : m_renderablePool)
-			{
-				const SkeletonInstance* skeletonInstance;
-				if (renderableData.skeletonInstanceIndex != NoSkeletonInstance)
-					skeletonInstance = m_skeletonInstancePool.RetrieveFromIndex(renderableData.skeletonInstanceIndex)->skeleton.get();
-				else
-					skeletonInstance = nullptr;
-
-				for (auto& renderQueuePtr : m_renderQueues)
-				{
-					if (renderQueuePtr)
-						renderQueuePtr->RegisterRenderable(renderableData.renderableIndex, renderableData.instanceIndex, *renderableData.renderable, skeletonInstance, renderableData.renderMask, renderableData.scissorBox);
-				}
-			}
-		}
-
-		return *m_renderQueues[materialPass];
+		return *m_renderQueues[renderQueueIndex];
 	}
 
 	ShaderBindingCache* DefaultFramePipeline::GetShaderBindingCache() const
@@ -750,16 +734,50 @@ namespace Nz
 
 	void DefaultFramePipeline::BroadcastRenderable(const RenderableData& renderableData)
 	{
-		const SkeletonInstance* skeletonInstance;
-		if (renderableData.skeletonInstanceIndex != NoSkeletonInstance)
-			skeletonInstance = m_skeletonInstancePool.RetrieveFromIndex(renderableData.skeletonInstanceIndex)->skeleton.get();
-		else
-			skeletonInstance = nullptr;
+		if NAZARA_UNLIKELY(m_renderQueues.empty())
+			BuildRenderQueues();
 
-		for (auto& renderQueuePtr : m_renderQueues)
+		InstancedRenderable::ElementData elementData{
+			&renderableData.scissorBox,
+			nullptr,
+			renderableData.instanceIndex
+		};
+
+		if (renderableData.skeletonInstanceIndex != NoSkeletonInstance)
+			elementData.skeletonInstance = m_skeletonInstancePool.RetrieveFromIndex(renderableData.skeletonInstanceIndex)->skeleton.get();
+
+		UInt32 activeRenderQueueMask = 0;
+		renderableData.renderable->BuildElement(m_elementRegistry, elementData, renderableData.renderMask, [&](UInt32 renderQueueMask, InstancedRenderable::RenderQueueCallback renderQueueCallback)
 		{
-			if (renderQueuePtr)
-				renderQueuePtr->RegisterRenderable(renderableData.renderableIndex, renderableData.instanceIndex, *renderableData.renderable, skeletonInstance, renderableData.renderMask, renderableData.scissorBox);
+			while (UInt32 renderQueueIndex = FindFirstBit(renderQueueMask))
+			{
+				renderQueueIndex--;
+				UInt32 renderQueueIndexMask = 1u << renderQueueIndex;
+
+				if (renderQueueIndex < m_renderQueues.size() && m_renderQueues[renderQueueIndex])
+				{
+					if ((activeRenderQueueMask & renderQueueIndexMask) == 0)
+					{
+						m_renderQueues[renderQueueIndex]->BeginRegisterRenderable();
+						activeRenderQueueMask |= renderQueueIndexMask;
+					}
+
+					m_renderQueues[renderQueueIndex]->RegisterRenderable([&](std::vector<RenderElementOwner>& elements)
+					{
+						renderQueueCallback(m_renderQueues[renderQueueIndex]->GetPassIndex(), elements);
+					});
+				}
+
+				renderQueueMask &= ~renderQueueIndexMask;
+			}
+		});
+
+		while (UInt32 renderQueueIndex = FindFirstBit(activeRenderQueueMask))
+		{
+			renderQueueIndex--;
+			UInt32 renderQueueIndexMask = 1u << renderQueueIndex;
+			m_renderQueues[renderQueueIndex]->FinalizeRegisterRenderable(renderableData.renderableIndex);
+			activeRenderQueueMask &= ~renderQueueIndexMask;
 		}
 	}
 
@@ -772,7 +790,7 @@ namespace Nz
 		if (!m_shadowAtlasPipelinePass && m_shadowCastingLights.TestAny())
 		{
 			FramePipelinePass::PassData passData{ nullptr, m_elementRegistry, *this };
-			m_shadowAtlasPipelinePass.emplace(passData);
+			m_shadowAtlasPipelinePass.emplace(passData, std::vector<std::string_view>{ "Shadow" });
 
 			m_shaderBindingCache.InvalidateSceneBindings();
 		}
@@ -831,6 +849,7 @@ namespace Nz
 			{
 				std::size_t prepareAttachment = InsertTransferPass(frameGraph, [this, viewerData]
 				{
+					// Write viewer-specific light data
 					PipelineViewer* viewer = viewerData->viewer;
 					if (m_shadowCastingLights.TestAny())
 					{
@@ -857,6 +876,29 @@ namespace Nz
 										break;
 								}
 							}
+						}
+					}
+
+					// Sort render queues depending on viewer position
+					Vector3f camPos = viewer->GetViewerInstance().GetEyePosition();
+					for (auto& renderQueuePtr : m_renderQueues)
+					{
+						if (renderQueuePtr && renderQueuePtr->GetFlags() & RenderQueueFlag::SortByDistance)
+						{
+							renderQueuePtr->SortRenderQueue([this, camPos](std::vector<const RenderElement*>& elements)
+							{
+								std::sort(elements.begin(), elements.end(), [this, camPos](const RenderElement* lhs, const RenderElement* rhs)
+								{
+									const UInt8* lhsData = m_instanceBuffer.GetEntryData(lhs->GetInstanceIndex());
+									const UInt8* rhsData = m_instanceBuffer.GetEntryData(rhs->GetInstanceIndex());
+
+									Vector3f lhsPos = AccessByOffset<const Matrix4f&>(lhsData, PredefinedInstanceOffsets.worldMatrixOffset).GetTranslation();
+									Vector3f rhsPos = AccessByOffset<const Matrix4f&>(rhsData, PredefinedInstanceOffsets.worldMatrixOffset).GetTranslation();
+
+									// Sort by greater distance so rendering is done back to front
+									return camPos.SquaredDistance(lhsPos) > camPos.SquaredDistance(rhsPos);
+								});
+							});
 						}
 					}
 				});
@@ -914,6 +956,30 @@ namespace Nz
 		HandleRenderTarget(*currentTarget, std::span(m_orderedViewers.data() + currentTargetIndex, m_orderedViewers.data() + m_orderedViewers.size()));
 
 		return frameGraph.Bake();
+	}
+
+	void DefaultFramePipeline::BuildRenderQueues()
+	{
+		RegisterRenderQueue("DepthOpaque", "DepthPass");
+		RegisterRenderQueue("ForwardOpaque", "ForwardPass");
+		RegisterRenderQueue("ForwardTransparent", "ForwardPass", RenderQueueFlag::SortByDistance);
+		RegisterRenderQueue("Shadow", "ShadowPass");
+		RegisterRenderQueue("UI", "ForwardPass");
+	}
+
+	void DefaultFramePipeline::RegisterRenderQueue(std::string_view renderQueueName, std::string_view materialPass, RenderQueueFlags flags)
+	{
+		const NameRegistry& materialPasses = Graphics::Instance()->GetMaterialPassRegistry();
+		const NameRegistry& renderQueues = Graphics::Instance()->GetRenderQueueRegistry();
+
+		std::size_t passIndex = materialPasses.GetIndex(materialPass);
+		std::size_t renderQueueIndex = renderQueues.GetIndex(renderQueueName);
+
+		if (renderQueueIndex >= m_renderQueues.size())
+			m_renderQueues.resize(renderQueueIndex + 1);
+
+		NazaraAssert(!m_renderQueues[renderQueueIndex]);
+		m_renderQueues[renderQueueIndex] = std::make_unique<RenderQueue>(passIndex, flags);
 	}
 
 	std::size_t DefaultFramePipeline::BuildMergePass(FrameGraph& frameGraph, std::span<ViewerData*> targetViewers)

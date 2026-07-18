@@ -14,6 +14,7 @@
 #include <Nazara/Graphics/RenderElementOwner.hpp>
 #include <Nazara/Graphics/RenderQueueRegistry.hpp>
 #include <Nazara/Graphics/SkeletonInstance.hpp>
+#include <NazaraUtils/Constants.hpp>
 #include <NazaraUtils/FunctionRef.hpp>
 #include <memory>
 #include <vector>
@@ -49,7 +50,7 @@ namespace Nz
 			virtual const std::shared_ptr<RenderBuffer>& GetInstanceBuffer() const = 0;
 			virtual const std::shared_ptr<RenderBuffer>& GetPointLightBuffer() const = 0;
 			virtual const std::shared_ptr<RenderBuffer>& GetPointShadowMappingBuffer() const = 0;
-			virtual RenderQueue& GetRenderQueue(std::size_t materialPass) = 0;
+			virtual RenderQueue& GetRenderQueue(std::size_t renderQueueIndex) = 0;
 			virtual ShaderBindingCache* GetShaderBindingCache() const = 0;
 			virtual const std::shared_ptr<Texture>& GetShadowAtlasTexture() const = 0;
 			virtual const std::shared_ptr<RenderBuffer>& GetSpotLightBuffer() const = 0;
@@ -87,7 +88,10 @@ namespace Nz
 
 			NazaraSignal(OnTransfer, FramePipeline* /*pipeline*/, RenderResources& /*renderResources*/, CommandBufferBuilder& /*builder*/);
 
-			static constexpr std::size_t NoSkeletonInstance = std::numeric_limits<std::size_t>::max();
+			static constexpr std::size_t NoSkeletonInstance = MaxValue();
+
+		protected:
+			virtual void BuildRenderQueues() = 0;
 	};
 }
 

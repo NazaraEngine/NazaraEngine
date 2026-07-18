@@ -11,7 +11,7 @@ namespace Nz
 {
 	void MaterialSettings::AddPass(std::string_view passName, MaterialPass materialPass)
 	{
-		std::size_t passIndex = Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex(passName);
+		std::size_t passIndex = Graphics::Instance()->GetMaterialPassRegistry().GetIndex(passName);
 		return AddPass(passIndex, std::move(materialPass));
 	}
 
@@ -57,7 +57,7 @@ namespace Nz
 
 	const MaterialPass* MaterialSettings::GetPass(std::string_view passName) const
 	{
-		std::size_t passIndex = Graphics::Instance()->GetMaterialPassRegistry().GetPassIndex(passName);
+		std::size_t passIndex = Graphics::Instance()->GetMaterialPassRegistry().GetIndex(passName);
 		return GetPass(passIndex);
 	}
 

@@ -26,7 +26,6 @@ namespace Nz
 			inline RenderSpriteChain(Int32 renderLayer, std::shared_ptr<MaterialProxy> materialProxy, MaterialPassFlags materialFlags, std::shared_ptr<RenderPipeline> renderPipeline, UInt32 instanceIndex, std::shared_ptr<VertexDeclaration> vertexDeclaration, std::size_t spriteCount, const void* spriteData, const Recti& scissorBox, UInt32 renderMask);
 			~RenderSpriteChain() = default;
 
-			inline UInt32 GetInstanceIndex() const;
 			inline const MaterialProxy& GetMaterialProxy() const;
 			inline const RenderPipeline& GetRenderPipeline() const;
 			inline const Recti& GetScissorBox() const;
@@ -49,7 +48,6 @@ namespace Nz
 			const void* m_spriteData;
 			MaterialPassFlags m_materialFlags;
 			Recti m_scissorBox;
-			UInt32 m_instanceIndex;
 	};
 }
 

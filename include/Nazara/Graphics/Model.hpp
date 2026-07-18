@@ -57,7 +57,7 @@ namespace Nz
 			Model(Model&&) noexcept = default;
 			~Model() = default;
 
-			void BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, std::size_t passIndex, UInt32 renderMask, std::vector<RenderElementOwner>& elements) const override;
+			void BuildElement(ElementRendererRegistry& registry, const ElementData& elementData, UInt32 renderMask, ElementCallback elementCallback) const override;
 
 			std::shared_ptr<Model> Clone() const;
 

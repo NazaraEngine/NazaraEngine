@@ -4,6 +4,11 @@
 
 namespace Nz
 {
+	inline ShadowAtlasPipelinePass::ShadowAtlasPipelinePass(PassData& passData, const ParameterList& parameters) :
+	ShadowAtlasPipelinePass(passData, GetRenderQueues(parameters))
+	{
+	}
+
 	inline ShadowAtlas& ShadowAtlasPipelinePass::GetAtlas()
 	{
 		return m_shadowAtlas;

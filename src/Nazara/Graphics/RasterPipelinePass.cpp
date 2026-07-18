@@ -10,23 +10,35 @@
 #include <Nazara/Graphics/FramePipeline.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
 #include <Nazara/Graphics/ViewerInstance.hpp>
-#include <Nazara/Math/Frustum.hpp>
 #include <NazaraUtils/MathUtils.hpp>
 
 namespace Nz
 {
+	RasterPipelinePass::RasterPipelinePass(PassData& passData, std::string passName, const std::vector<std::string_view>& renderQueueNames, UInt32 renderMask) :
+	m_renderQueueHash(0),
+	m_passName(std::move(passName)),
+	m_viewer(passData.viewer),
+	m_elementRegistry(passData.elementRegistry),
+	m_pipeline(passData.pipeline),
+	m_renderMask(renderMask)
+	{
+		BuildCullingPipeline();
+
+		const NameRegistry& renderQueues = Graphics::Instance()->GetRenderQueueRegistry();
+		for (std::string_view renderQueueStr : renderQueueNames)
+			m_renderQueues.push_back(&m_pipeline.GetRenderQueue(renderQueues.GetIndex(renderQueueStr)));
+	}
+
 	FramePass& RasterPipelinePass::RegisterToFrameGraph(FrameGraph& frameGraph, const PassInputOuputs& inputOuputs)
 	{
 		std::size_t prepareAttachment = frameGraph.AddDummyAttachment();
 		std::size_t cullAttachment = frameGraph.AddDummyAttachment();
 
 		FramePass& preparePass = frameGraph.AddPass(m_passName);
-		preparePass.SetExecutionCallback([&]
+		preparePass.SetExecutionCallback([this]
 		{
-			auto& renderQueue = m_pipeline.GetRenderQueue(m_passIndex);
-			renderQueue.UpdateRenderQueue();
-
-			if (renderQueue.GetContentHash() == m_renderQueueHash)
+			std::size_t renderQueueHash = GetRenderQueueHash();
+			if (renderQueueHash == m_renderQueueHash)
 				return FramePassExecution::Skip;
 
 			return FramePassExecution::UpdateAndExecute;
@@ -58,19 +70,21 @@ namespace Nz
 
 			UInt32 renderMask = m_renderMask & m_viewer->GetRenderMask();
 
-			auto& renderQueue = m_pipeline.GetRenderQueue(m_passIndex);
-			renderQueue.Process(renderMask, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
+			for (RenderQueue* renderQueue : m_renderQueues)
 			{
-				ElementRenderer& elementRenderer = m_elementRegistry.GetElementRenderer(elementType);
+				renderQueue->Process(renderMask, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
+				{
+					ElementRenderer& elementRenderer = m_elementRegistry.GetElementRenderer(elementType);
 
-				if (elementType >= m_elementRendererData.size())
-					m_elementRendererData.resize(elementType + 1);
+					if (elementType >= m_elementRendererData.size())
+						m_elementRendererData.resize(elementType + 1);
 
-				if (!m_elementRendererData[elementType])
-					m_elementRendererData[elementType] = elementRenderer.InstanciateData();
+					if (!m_elementRendererData[elementType])
+						m_elementRendererData[elementType] = elementRenderer.InstanciateData();
 
-				elementRenderer.Prepare(renderData, sceneData, *m_viewer, *m_elementRendererData[elementType], env.renderResources, elementCount, elements);
-			});
+					elementRenderer.Prepare(renderData, sceneData, *m_viewer, *m_elementRendererData[elementType], env.renderResources, elementCount, elements);
+				});
+			}
 
 			m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
 			{
@@ -81,7 +95,7 @@ namespace Nz
 
 		FramePass& cullPass = frameGraph.AddPass(m_passName);
 		cullPass.SetDebugRegionColor(Color::Cyan());
-		cullPass.SetExecutionCallback([&]
+		cullPass.SetExecutionCallback([]
 		{
 			return FramePassExecution::UpdateAndExecute;
 		});
@@ -127,13 +141,13 @@ namespace Nz
 		});
 
 		FramePass& renderPass = frameGraph.AddPass(m_passName);
-		renderPass.SetExecutionCallback([&]
+		renderPass.SetExecutionCallback([this]
 		{
-			auto& renderQueue = m_pipeline.GetRenderQueue(m_passIndex);
-			if (renderQueue.GetContentHash() == m_renderQueueHash)
+			std::size_t renderQueueHash = GetRenderQueueHash();
+			if (renderQueueHash == m_renderQueueHash)
 				return FramePassExecution::Execute;
 
-			m_renderQueueHash = renderQueue.GetContentHash();
+			m_renderQueueHash = renderQueueHash;
 			return FramePassExecution::UpdateAndExecute;
 		});
 
@@ -180,13 +194,11 @@ namespace Nz
 
 		renderPass.SetExecutionCallback([&]
 		{
-			auto& renderQueue = m_pipeline.GetRenderQueue(m_passIndex);
-			renderQueue.UpdateRenderQueue();
-
-			if (renderQueue.GetContentHash() == m_renderQueueHash)
+			std::size_t renderQueueHash = GetRenderQueueHash();
+			if (renderQueueHash == m_renderQueueHash)
 				return FramePassExecution::Execute;
 
-			m_renderQueueHash = renderQueue.GetContentHash();
+			m_renderQueueHash = renderQueueHash;
 			return FramePassExecution::UpdateAndExecute;
 		});
 
@@ -211,7 +223,7 @@ namespace Nz
 			sceneData.spotLights = m_pipeline.GetSpotLightBuffer();
 			sceneData.spotLightAtlasMapping = m_pipeline.GetSpotShadowMappingBuffer();
 
-			m_elementRegistry.ForEachElementRenderer([&](std::size_t elementType, ElementRenderer& elementRenderer)
+			m_elementRegistry.ForEachElementRenderer([this](std::size_t elementType, ElementRenderer& elementRenderer)
 			{
 				if (elementType >= m_elementRendererData.size())
 					m_elementRendererData.resize(elementType + 1);
@@ -222,35 +234,17 @@ namespace Nz
 
 			UInt32 renderMask = m_renderMask & m_viewer->GetRenderMask();
 
-			auto& renderQueue = m_pipeline.GetRenderQueue(m_passIndex);
-			renderQueue.Process(renderMask, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
+			for (RenderQueue* renderQueue : m_renderQueues)
 			{
-				ElementRenderer& elementRenderer = m_elementRegistry.GetElementRenderer(elementType);
-				elementRenderer.Render(renderData, sceneData, *m_viewer, *m_elementRendererData[elementType], env.renderResources, builder, elementCount, elements);
-			});
+				renderQueue->Process(renderMask, [&](std::size_t elementType, const Pointer<const RenderElement>* elements, std::size_t elementCount)
+				{
+					ElementRenderer& elementRenderer = m_elementRegistry.GetElementRenderer(elementType);
+					elementRenderer.Render(renderData, sceneData, *m_viewer, *m_elementRendererData[elementType], env.renderResources, builder, elementCount, elements);
+				});
+			}
 		});
 
 		return renderPass;
-	}
-
-	std::size_t RasterPipelinePass::GetMaterialPassIndex(const ParameterList& parameters)
-	{
-		Result<long long, ParameterList::Error> passIndexResult = parameters.GetIntegerParameter("MatPassIndex");
-		if (passIndexResult.IsOk())
-			return passIndexResult.GetValue();
-		// TODO: Log error if key is present but not of the right type
-
-		Result<std::string_view, ParameterList::Error> passResult = parameters.GetStringViewParameter("MatPass");
-		if (passResult.IsOk())
-		{
-			auto& materialPassRegistry = Graphics::Instance()->GetMaterialPassRegistry();
-
-			std::string_view passName = passResult.GetValue();
-			return materialPassRegistry.GetPassIndex(passName);
-		}
-		// TODO: Log error if key is present but not of the right type
-
-		throw std::runtime_error("RasterPipelinePass expect either MatPass or MatPassIndex parameter");
 	}
 
 	UInt32 RasterPipelinePass::GetRenderMask(const ParameterList& parameters)
@@ -266,6 +260,28 @@ namespace Nz
 		}
 
 		return MaxValue();
+	}
+
+	std::vector<std::string_view> RasterPipelinePass::GetRenderQueues(const ParameterList& parameters)
+	{
+		Result<std::string_view, ParameterList::Error> renderQueues = parameters.GetStringViewParameter("RenderQueues");
+		if (!renderQueues.IsOk())
+			throw std::runtime_error("failed to get RasterPipelinePass RenderQueues parameter");
+
+		std::vector<std::string_view> renderQueueNames;
+		SplitStringAny(renderQueues.GetValue(), " +,", [&](std::string_view renderQueue)
+		{
+			if (renderQueue.empty())
+				return true;
+
+			renderQueueNames.push_back(renderQueue);
+			return true;
+		});
+
+		if (renderQueueNames.empty())
+			throw std::runtime_error("no render queues");
+
+		return renderQueueNames;
 	}
 
 	void RasterPipelinePass::BuildCullingPipeline()
@@ -300,5 +316,14 @@ namespace Nz
 			.pipelineLayout = m_computePipelineLayout,
 			.shaderModule = m_frustumCullingShader->Get({})
 		});
+	}
+
+	std::size_t RasterPipelinePass::GetRenderQueueHash() const
+	{
+		std::size_t renderQueueHash = 0;
+		for (RenderQueue* renderQueue : m_renderQueues)
+			renderQueueHash ^= renderQueue->GetContentHash() + 0x9e3779b9 + (renderQueueHash << 6) + (renderQueueHash >> 2);
+
+		return renderQueueHash;
 	}
 }
