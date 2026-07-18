@@ -13,7 +13,7 @@ namespace Nz
 {
 	struct NAZARA_CORE_API ResourceParameters
 	{
-		ParameterList custom;
+		ParameterList custom = {};
 	};
 }
 

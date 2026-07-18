@@ -25,7 +25,7 @@ namespace Nz
 	{
 		std::string name;
 		PixelFormat format;
-		TextureUsageFlags additionalUsages;
+		TextureUsageFlags additionalUsages = {};
 		FramePassAttachmentSize size = FramePassAttachmentSize::ViewerTargetFactor;
 		unsigned int width = 100'000;
 		unsigned int height = 100'000;
