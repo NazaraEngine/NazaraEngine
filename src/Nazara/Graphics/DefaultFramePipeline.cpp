@@ -9,6 +9,7 @@
 #include <Nazara/Graphics/MaterialInstance.hpp>
 #include <Nazara/Graphics/PipelineViewer.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
+#include <Nazara/Graphics/RenderQueue.hpp>
 #include <Nazara/Graphics/RenderTarget.hpp>
 #include <Nazara/Graphics/TextureAsset.hpp>
 #include <Nazara/Math/Frustum.hpp>
@@ -962,7 +963,6 @@ namespace Nz
 		RegisterRenderQueue("DepthOpaque", "DepthPass");
 		RegisterRenderQueue("ForwardOpaque", "ForwardPass");
 		RegisterRenderQueue("ForwardTransparent", "ForwardPass", RenderQueueFlag::SortByDistance);
-		//RegisterRenderQueue("DeferredOpaque", "GBufferPass");
 		RegisterRenderQueue("Shadow", "ShadowPass");
 		RegisterRenderQueue("UI", "ForwardPass");
 	}

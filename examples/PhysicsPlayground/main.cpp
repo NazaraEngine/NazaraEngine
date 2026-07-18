@@ -85,7 +85,7 @@ int main(int argc, char* argv[])
 			auto& colliderEntry = colliders.emplace_back();
 			colliderEntry.collider = wallCollider;
 			colliderEntry.rotation = Nz::Quaternionf::RotationBetween(Nz::Vector3f::Forward(), normal);
-			colliderEntry.offset = normal * BoxDims * 0.5f + normal * 0.5f;
+			colliderEntry.offset = normal * BoxDims * 0.5f + normal * thickness * 0.5f;
 		}
 
 		std::shared_ptr<Nz::CompoundCollider3D> boxCollider = std::make_shared<Nz::CompoundCollider3D>(std::move(colliders));

@@ -334,7 +334,7 @@ namespace Nz
 			m_defaultMaterials.materials[MaterialType::Phong].material = std::make_shared<Material>(std::move(settings), "Material.Phong");
 		}
 
-		m_defaultMaterials.presetModifier[MaterialInstancePreset::NoDepth] = [=](MaterialInstance& matInstance)
+		m_defaultMaterials.presetModifier[MaterialInstancePreset::AdditiveBlended] = [=](MaterialInstance& matInstance)
 		{
 			if (matInstance.HasPass(depthPassIndex))
 				matInstance.DisablePass(depthPassIndex);
@@ -346,19 +346,16 @@ namespace Nz
 			{
 				matInstance.UpdatePassStates(forwardPassIndex, [](RenderStates& states)
 				{
-					states.depthBuffer = false;
+					states.depthWrite = false;
+					states.blending = true;
+					states.blend.modeColor = BlendEquation::Add;
+					states.blend.modeAlpha = BlendEquation::Add;
+					states.blend.srcColor = BlendFunc::SrcAlpha;
+					states.blend.dstColor = BlendFunc::One;
+					states.blend.srcAlpha = BlendFunc::One;
+					states.blend.dstAlpha = BlendFunc::Zero;
 				});
 			}
-		};
-
-		m_defaultMaterials.presetModifier[MaterialInstancePreset::ReverseZ] = [=](MaterialInstance& matInstance)
-		{
-			matInstance.UpdatePassesStates({ depthPassIndex, forwardPassIndex }, [](RenderStates& states)
-			{
-				states.depthCompare = RendererComparison::GreaterOrEqual;
-			});
-
-			// TODO: Reverse depth for shadow pass?
 		};
 
 		m_defaultMaterials.presetModifier[MaterialInstancePreset::AlphaBlended] = [=](MaterialInstance& matInstance)
@@ -386,7 +383,7 @@ namespace Nz
 			}
 		};
 
-		m_defaultMaterials.presetModifier[MaterialInstancePreset::AdditiveBlended] = [=](MaterialInstance& matInstance)
+		m_defaultMaterials.presetModifier[MaterialInstancePreset::NoDepth] = [=](MaterialInstance& matInstance)
 		{
 			if (matInstance.HasPass(depthPassIndex))
 				matInstance.DisablePass(depthPassIndex);
@@ -398,16 +395,19 @@ namespace Nz
 			{
 				matInstance.UpdatePassStates(forwardPassIndex, [](RenderStates& states)
 				{
-					states.depthWrite = false;
-					states.blending = true;
-					states.blend.modeColor = BlendEquation::Add;
-					states.blend.modeAlpha = BlendEquation::Add;
-					states.blend.srcColor = BlendFunc::SrcAlpha;
-					states.blend.dstColor = BlendFunc::One;
-					states.blend.srcAlpha = BlendFunc::One;
-					states.blend.dstAlpha = BlendFunc::Zero;
+					states.depthBuffer = false;
 				});
 			}
+		};
+
+		m_defaultMaterials.presetModifier[MaterialInstancePreset::ReverseZ] = [=](MaterialInstance& matInstance)
+		{
+			matInstance.UpdatePassesStates({ depthPassIndex, forwardPassIndex }, [](RenderStates& states)
+			{
+				states.depthCompare = RendererComparison::GreaterOrEqual;
+			});
+
+			// TODO: Reverse depth for shadow pass?
 		};
 
 		m_defaultMaterials.presetModifier[MaterialInstancePreset::UI] = [=](MaterialInstance& matInstance)
