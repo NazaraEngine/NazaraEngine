@@ -27,6 +27,7 @@ namespace Nz
 	struct NAZARA_GRAPHICS_API MaterialInstanceParams : ResourceParameters
 	{
 		MaterialType materialType = MaterialType::Basic;
+		MaterialInstancePresetFlags presets;
 
 		bool IsValid() const;
 	};

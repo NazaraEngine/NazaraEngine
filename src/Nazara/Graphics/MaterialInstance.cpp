@@ -112,6 +112,7 @@ namespace Nz
 			passData.flags = srcPassData.flags;
 			passData.pipeline = srcPassData.pipeline;
 			passData.pipelineInfo = srcPassData.pipelineInfo;
+			passData.renderQueue = srcPassData.renderQueue;
 			passData.shaders.resize(srcPassData.shaders.size());
 			for (std::size_t shaderIndex = 0; shaderIndex < passData.shaders.size(); ++shaderIndex)
 			{

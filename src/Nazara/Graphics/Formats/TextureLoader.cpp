@@ -46,7 +46,7 @@ namespace Nz
 				// Delete image to free memory
 				image.reset();
 
-				std::shared_ptr<MaterialInstance> materialInstance = MaterialInstance::Instantiate(parameters.materialType);
+				std::shared_ptr<MaterialInstance> materialInstance = MaterialInstance::Instantiate(parameters.materialType, parameters.presets);
 
 				if (enableAlphaTest && hasAlpha)
 					materialInstance->SetValueProperty("AlphaTest", true);
