@@ -215,6 +215,7 @@ namespace Nz
 				vkGetDeviceBufferMemoryRequirements,
 				vkGetDeviceImageMemoryRequirements,
 #endif
+				nullptr //< vkGetMemoryWin32HandleKHR
 			};
 
 			VmaAllocatorCreateInfo allocatorInfo = {};
