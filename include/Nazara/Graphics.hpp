@@ -50,6 +50,7 @@
 #include <Nazara/Graphics/FramePipeline.hpp>
 #include <Nazara/Graphics/FramePipelinePass.hpp>
 #include <Nazara/Graphics/FramePipelinePassRegistry.hpp>
+#include <Nazara/Graphics/GpuBufferPool.hpp>
 #include <Nazara/Graphics/GpuDynamicArray.hpp>
 #include <Nazara/Graphics/GraphicalMesh.hpp>
 #include <Nazara/Graphics/Graphics.hpp>
@@ -78,7 +79,6 @@
 #include <Nazara/Graphics/PredefinedShaderStructBuilder.hpp>
 #include <Nazara/Graphics/PredefinedShaderStructs.hpp>
 #include <Nazara/Graphics/RasterPipelinePass.hpp>
-#include <Nazara/Graphics/GpuBufferPool.hpp>
 #include <Nazara/Graphics/RenderElement.hpp>
 #include <Nazara/Graphics/RenderElementOwner.hpp>
 #include <Nazara/Graphics/RenderElementPool.hpp>
