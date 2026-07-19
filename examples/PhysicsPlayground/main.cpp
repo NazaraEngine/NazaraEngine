@@ -10,12 +10,7 @@ constexpr float BoxDims = 16.f;
 
 int main(int argc, char* argv[])
 {
-	try {
-	// Mise en place de l'application, de la fenêtre et du monde
-	Nz::Renderer::Config renderConfig;
-	renderConfig.validationLevel = Nz::RenderAPIValidationLevel::None;
-
-	Nz::Application<Nz::Graphics, Nz::Physics3D> app(argc, argv, renderConfig);
+	Nz::Application<Nz::Graphics, Nz::Physics3D> app(argc, argv);
 
 	auto& windowing = app.AddComponent<Nz::WindowingAppComponent>();
 	Nz::Window& mainWindow = windowing.CreateWindow(Nz::VideoMode(1280, 720), "Physics playground");
@@ -33,7 +28,7 @@ int main(int argc, char* argv[])
 	auto& world = ecs.AddWorld<Nz::EnttWorld>();
 
 	auto& physSystem = world.AddSystem<Nz::Physics3DSystem>();
-	physSystem.GetPhysWorld().SetMaxStepCount(1);
+	physSystem.GetPhysWorld().SetMaxStepCount(3);
 	physSystem.GetPhysWorld().SetStepSize(Nz::Time::TickDuration(30));
 	physSystem.GetPhysWorld().SetGravity(Nz::Vector3f::Down() * 9.81f);
 	//physSystem.GetPhysWorld().SetGravity(Nz::Vector3f::Zero());
@@ -451,9 +446,4 @@ int main(int argc, char* argv[])
 	});
 
 	return app.Run();
-	}
-	catch (const std::exception& e)
-	{
-		std::cerr << e.what() << std::endl;
-	}
 }
